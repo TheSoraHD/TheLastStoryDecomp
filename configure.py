@@ -292,10 +292,21 @@ config.libs = [
         "progress_category": "sdk",  # str | List[str]
         "objects": [
             Object(NonMatching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
-            Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
+#            Object(NonMatching, "__init_cpp_exceptions.cpp"),
         ],
     },
 ]
+
+config.libs.append({
+    "lib": "game",
+    "mw_version": "GC/3.0a5.2",
+    "cflags": cflags_base,
+    "progress_category": "game",
+    "objects": [
+        Object(NonMatching, "Arms.cpp"),
+        Object(Matching, "auto_03_8068B60C_text.cpp"),
+    ],
+})
 
 
 # Optional callback to adjust link order. This can be used to add, remove, or reorder objects.

@@ -12,3 +12,6 @@ Sections:
 	.sbss       type:bss align:32
 	.sdata2     type:rodata align:32
 	.sbss2      type:bss align:8
+
+auto_03_8068B60C_text.cpp:
+	.text       start:0x8068B60C end:0x8068B610
