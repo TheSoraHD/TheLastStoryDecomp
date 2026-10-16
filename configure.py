@@ -307,6 +307,8 @@ config.libs.append({
         Object(Matching, "auto_03_8068B60C_text.cpp"),
         Object(Matching, "auto_03_80691B44_text.cpp"),
         Object(Matching, "auto_03_80691B48_text.cpp"),
+        Object(Matching, "auto_03_80692BFC_text.cpp"),
+        Object(Matching, "auto_03_806929FC_text.cpp"),
         Object(NonMatching, "auto_fn_801F1EA0_text.cpp"),
     ],
 })
