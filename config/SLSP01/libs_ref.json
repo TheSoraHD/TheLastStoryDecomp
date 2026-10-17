@@ -786,7 +786,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/os/OSNandbootInfo.c",
@@ -820,7 +820,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/os/OSCrc.c",
@@ -956,7 +956,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/dvd/dvdidutils.c",
@@ -1262,7 +1262,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/axfx/AXFXHooks.c",
@@ -1330,7 +1330,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/gx/GXAttr.c",
@@ -1398,7 +1398,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/gx/GXLight.c",
@@ -1432,7 +1432,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/gx/GXBump.c",
@@ -2172,7 +2172,7 @@
    "-str pool"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MetroTRK/targcont.c",
@@ -2406,7 +2406,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MSL_C/MSL_Common/direct_io.c",
@@ -3036,7 +3036,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_asin.c",
@@ -3071,7 +3071,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_atan2.c",
@@ -3877,7 +3877,7 @@
    "-Cpp_exceptions on"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/Runtime/runtime.c",
