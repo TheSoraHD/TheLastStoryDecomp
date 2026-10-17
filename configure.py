@@ -306,11 +306,18 @@ config.libs.append({
         Object(NonMatching, "Arms.cpp"),
         Object(NonMatching, "auto_03_803B27AC_text.cpp"),
         Object(Matching, "auto_03_8068B60C_text.cpp"),
+        Object(Matching, "auto_03_8068D7AC_text.cpp"),
+        Object(Matching, "auto_03_8068DCF0_text.cpp"),
+        Object(Matching, "auto_03_80690D60_text.cpp"),
         Object(Matching, "auto_03_80691B44_text.cpp"),
         Object(Matching, "auto_03_80691B48_text.cpp"),
+        Object(Matching, "auto_03_80691C90_text.cpp"),
+        Object(Matching, "auto_03_80691CFC_text.cpp"),
         Object(Matching, "auto_03_80692BFC_text.cpp"),
         Object(Matching, "auto_03_806929FC_text.cpp"),
+        Object(Matching, "auto_03_8069512C_text.cpp"),
         Object(NonMatching, "auto_fn_801F1EA0_text.cpp"),
+        Object(NonMatching, "auto_fn_8030DA1C_text.cpp"),
     ],
 })
 

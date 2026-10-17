@@ -17,11 +17,24 @@ auto_fn_801F1EA0_text.cpp:
 	.text       start:0x801F1EA0 end:0x801F2398
 	.ctors      start:0x8072D2F8 end:0x8072D2FC
 
+auto_fn_8030DA1C_text.cpp:
+	.text       start:0x8030DA1C end:0x8030DA20
+	.ctors      start:0x8072D34C end:0x8072D350
+
 auto_03_803B27AC_text.cpp:
 	.text       start:0x803B27AC end:0x803B338C
 
 auto_03_8068B60C_text.cpp:
 	.text       start:0x8068B60C end:0x8068B610
+
+auto_03_8068D7AC_text.cpp:
+	.text       start:0x8068D7AC end:0x8068D7B8
+
+auto_03_8068DCF0_text.cpp:
+	.text       start:0x8068DCF0 end:0x8068DCF8
+
+auto_03_80690D60_text.cpp:
+	.text       start:0x80690D60 end:0x80690D70
 
 auto_03_80691B44_text.cpp:
 	.text       start:0x80691B44 end:0x80691B48
@@ -29,8 +42,17 @@ auto_03_80691B44_text.cpp:
 auto_03_80691B48_text.cpp:
 	.text       start:0x80691B48 end:0x80691B80
 
+auto_03_80691C90_text.cpp:
+	.text       start:0x80691C90 end:0x80691C9C
+
+auto_03_80691CFC_text.cpp:
+	.text       start:0x80691CFC end:0x80691D08
+
 auto_03_806929FC_text.cpp:
 	.text       start:0x806929FC end:0x80692ADC
 
 auto_03_80692BFC_text.cpp:
 	.text       start:0x80692BFC end:0x80692C04
+
+auto_03_8069512C_text.cpp:
+	.text       start:0x8069512C end:0x80695138
