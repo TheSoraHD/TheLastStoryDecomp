@@ -293,7 +293,8 @@ config.warn_missing_source = False
 config.libs = [
     {
         "lib": "Runtime.PPCEABI.H",
-        "mw_version": config.linker_version,
+        # mwcc 4.1/4.2 (GC/3.0a*): GC/1.x-2.x emit cmplwi instead of cmpwi in __destroy_global_chain
+        "mw_version": "GC/3.0a5.2",
         "cflags": cflags_runtime,
         "progress_category": "sdk",  # str | List[str]
         "objects": [
