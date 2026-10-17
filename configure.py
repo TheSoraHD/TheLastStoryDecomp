@@ -256,6 +256,7 @@ cflags_game = [
     "-str reuse,readonly",  # RTTI names and literals live in .rodata
     "-sdata 4",             # 8-byte RTTI objects and doubles are outside the small-data sections
     "-sdata2 4",
+    "-func_align 4",
 ]
 
 config.linker_version = "GC/1.3.2"
@@ -311,7 +312,9 @@ config.libs = [
 
 config.libs.append({
     "lib": "game",
-    "mw_version": "GC/3.0a5.2",
+    # Wii/1.1 (mwcc 4.3 build 145, same as the SDK) with -func_align 4: GC/3.0a* schedules
+    # some code differently (e.g. Event::PostSequence::~PostSequence).
+    "mw_version": "Wii/1.1",
     "cflags": cflags_game,
     "progress_category": "game",
     "objects": [

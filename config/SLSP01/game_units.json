@@ -2124,16 +2124,10 @@
  {
   "name": "Event/PostSequence.cpp",
   "classes": [
-   "Event::PostSequence"
-  ],
-  "matching": false
- },
- {
-  "name": "Event/SequenceRoot.cpp",
-  "classes": [
+   "Event::PostSequence",
    "Event::SequenceRoot"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapManager.cpp",
