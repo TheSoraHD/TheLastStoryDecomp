@@ -248,9 +248,11 @@ cflags_rel = [
 ]
 
 # Game flags: SJIS encoding for the game code (-enc is not supported by GC/1.x compilers)
+# RTTI is on: game vtables start with a typeinfo pointer (e.g. vtable at 0x80775A20)
 cflags_game = [
-    *(f for f in cflags_base if f != "-multibyte"),
+    *(f for f in cflags_base if f not in ("-multibyte", "-RTTI off")),
     "-enc SJIS",
+    "-RTTI on",
 ]
 
 config.linker_version = "GC/1.3.2"
