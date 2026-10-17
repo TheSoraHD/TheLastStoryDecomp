@@ -247,6 +247,12 @@ cflags_rel = [
     "-sdata2 0",
 ]
 
+# Game flags: SJIS encoding for the game code (-enc is not supported by GC/1.x compilers)
+cflags_game = [
+    *(f for f in cflags_base if f != "-multibyte"),
+    "-enc SJIS",
+]
+
 config.linker_version = "GC/1.3.2"
 
 
@@ -300,7 +306,7 @@ config.libs = [
 config.libs.append({
     "lib": "game",
     "mw_version": "GC/3.0a5.2",
-    "cflags": cflags_base,
+    "cflags": cflags_game,
     "progress_category": "game",
     "objects": [
         Object(NonMatching, "Arms.cpp"),
