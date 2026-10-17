@@ -88,6 +88,11 @@ RVL_SDK/src/revolution/os/OSInterrupt.c:
 RVL_SDK/src/revolution/os/OSMessage.c:
 	.text       start:0x805F2670 end:0x805F2950
 
+RVL_SDK/src/revolution/os/OSMemory.c:
+	.text       start:0x805F2950 end:0x805F30EC
+	.data       start:0x8079D7E8 end:0x8079D7F8
+	.sbss       start:0x8087FC38 end:0x8087FC3C
+
 RVL_SDK/src/revolution/os/OSMutex.c:
 	.text       start:0x805F30F0 end:0x805F340C
 
@@ -107,6 +112,10 @@ RVL_SDK/src/revolution/os/OSStateFlags.c:
 	.text       start:0x805F7760 end:0x805F7978
 	.data       start:0x807A9A10 end:0x807A9A38
 	.bss        start:0x807CC320 end:0x807CC340
+
+smg2/src/RVL_SDK/os/OSNet.c:
+	.text       start:0x805F7980 end:0x805F7A34
+	.data       start:0x807A9A38 end:0x807A9BA0
 
 RVL_SDK/src/revolution/os/OSNandbootInfo.c:
 	.text       start:0x805F7A40 end:0x805F7C48
@@ -213,6 +222,11 @@ smg2/src/RVL_SDK/gx/GXTev.c:
 	.text       start:0x80617340 end:0x80617A04
 	.data       start:0x807B0DC0 end:0x807B0E38
 
+smg2/src/RVL_SDK/gx/GXPixel.c:
+	.text       start:0x80617C40 end:0x80618030
+	.data       start:0x807B0E38 end:0x807B0E58
+	.sdata2     start:0x808887B8 end:0x808887F0
+
 smg2/src/RVL_SDK/gx/GXPerf.c:
 	.text       start:0x80618730 end:0x80618F60
 	.data       start:0x807B0E58 end:0x807B0F3C
@@ -256,10 +270,17 @@ RVL_SDK/src/revolution/arc/arc.c:
 
 smg2/src/RVL_SDK/bte/gki_buffer.c:
 	.text       start:0x806265D0 end:0x80627A68
-	.data       start:0x807B3168 end:0x807B32AC
+	.data       start:0x807B3168 end:0x807B32B0
 
 smg2/src/RVL_SDK/bte/gki_time.c:
 	.text       start:0x80627A70 end:0x80627FF4
+
+smg2/src/RVL_SDK/bte/hcisu_h2.c:
+	.text       start:0x80628310 end:0x806289CC
+	.rodata     start:0x80764C40 end:0x80764C58
+	.data       start:0x807B32B0 end:0x807B3320
+	.bss        start:0x8081C240 end:0x8081C280
+	.sdata2     start:0x80888840 end:0x80888850
 
 smg2/src/RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80629650 end:0x80629720
@@ -346,6 +367,10 @@ smg2/src/RVL_SDK/bte/btu_hcif.c:
 	.text       start:0x8063A1C0 end:0x8063B41C
 	.data       start:0x807B5590 end:0x807B5620
 
+smg2/src/RVL_SDK/bte/btu_init.c:
+	.text       start:0x8063B41C end:0x8063B494
+	.sdata2     start:0x80888890 end:0x80888898
+
 smg2/src/RVL_SDK/bte/wbt_ext.c:
 	.text       start:0x8063B494 end:0x8063B574
 
@@ -400,6 +425,10 @@ smg2/src/RVL_SDK/bte/rfc_mx_fsm.c:
 smg2/src/RVL_SDK/bte/rfc_port_fsm.c:
 	.text       start:0x8064B238 end:0x8064C3D8
 	.data       start:0x807B7DC0 end:0x807B80E8
+
+smg2/src/RVL_SDK/bte/rfc_port_if.c:
+	.text       start:0x8064C3D8 end:0x8064C904
+	.bss        start:0x808238C8 end:0x80823CE0
 
 smg2/src/RVL_SDK/bte/rfc_ts_frames.c:
 	.text       start:0x8064C904 end:0x8064DF4C
@@ -466,12 +495,16 @@ PowerPC_EABI_Support/src/MetroTRK/custconn/CircleBuffer.c:
 PowerPC_EABI_Support/src/MetroTRK/flush_cache.c:
 	.text       start:0x80675408 end:0x80675440
 
+PowerPC_EABI_Support/src/MetroTRK/main_TRK.c:
+	.text       start:0x80675440 end:0x8067547C
+	.sbss       start:0x808802F8 end:0x808802FC
+
 PowerPC_EABI_Support/src/MetroTRK/mem_TRK.c:
 	.text       start:0x80675568 end:0x806757CC
 
 PowerPC_EABI_Support/src/MetroTRK/dispatch.c:
 	.text       start:0x806757CC end:0x806758EC
-	.data       start:0x807BAC40 end:0x807BACAC
+	.data       start:0x807BAC40 end:0x807BACB0
 
 PowerPC_EABI_Support/src/MetroTRK/dolphin_trk.c:
 	.text       start:0x806758EC end:0x80675C10
@@ -510,6 +543,13 @@ PowerPC_EABI_Support/src/MetroTRK/msghndlr.c:
 	.text       start:0x8067767C end:0x80678600
 	.data       start:0x807BAEB0 end:0x807BAF18
 	.sbss       start:0x80880328 end:0x80880330
+
+PowerPC_EABI_Support/src/MetroTRK/targimpl.c:
+	.text       start:0x80678800 end:0x8067A024
+	.rodata     start:0x807651B8 end:0x80765240
+	.data       start:0x807BAF18 end:0x807BAF28
+	.bss        start:0x80831EC0 end:0x80832468
+	.sbss       start:0x80880330 end:0x80880334
 
 PowerPC_EABI_Support/src/MetroTRK/target_options.c:
 	.text       start:0x8067A024 end:0x8067A034
