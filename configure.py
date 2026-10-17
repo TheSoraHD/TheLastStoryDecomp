@@ -363,6 +363,25 @@ def load_ref_libs() -> List[Dict[str, Any]]:
 config.libs.extend(load_ref_libs())
 
 
+# Game translation units inferred from RTTI/vtable layout and data references
+# (see docs/game_units.md). File names are inferred from the main class of each unit.
+def load_game_units() -> List[Any]:
+    import json
+
+    path = Path("config") / config.version / "game_units.json"
+    if not path.exists():
+        return []
+    return [
+        Object(Matching if u.get("matching") else NonMatching, u["name"])
+        for u in json.loads(path.read_text())
+    ]
+
+
+for lib in config.libs:
+    if lib["lib"] == "game":
+        lib["objects"].extend(load_game_units())
+
+
 # Optional callback to adjust link order. This can be used to add, remove, or reorder objects.
 # This is called once per module, with the module ID and the current link order.
 #

@@ -1,0 +1,2703 @@
+[
+ {
+  "name": "Event/Puppeteer_CharaTask.cpp",
+  "classes": [
+   "Event::Puppeteer<atn::Model>",
+   "Event::Puppeteer<CharaTask>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/AiTarget.cpp",
+  "classes": [
+   "AIManager",
+   "AiTarget"
+  ],
+  "matching": false
+ },
+ {
+  "name": "std/runtime_error.cpp",
+  "classes": [
+   "boost::bad_function_call",
+   "std::runtime_error"
+  ],
+  "matching": false
+ },
+ {
+  "name": "AI/AI_archer_attack01.cpp",
+  "classes": [
+   "AI::Script::AI_return_guard01",
+   "AI::Script::AI_sword_pointguard01",
+   "AI::Script::AI_sword_leaderguard03",
+   "AI::Script::AI_sword_leaderguard02",
+   "AI::Script::AI_sword_leaderguard01",
+   "AI::Script::AI_sword_guard01",
+   "AI::Script::AI_silence_guard01",
+   "AI::Script::AI_quark02",
+   "AI::Script::AI_quark01",
+   "AI::Script::AI_np_wait_reaction_plus",
+   "AI::Script::AI_np_wait_reaction_minus2",
+   "AI::Script::AI_np_wait_reaction_minus",
+   "AI::Script::AI_np_wait_reaction",
+   "AI::Script::AI_np_type005",
+   "AI::Script::AI_np_type004",
+   "AI::Script::AI_np_type003",
+   "AI::Script::AI_np_type002",
+   "AI::Script::AI_np_type001",
+   "AI::Script::AI_np_tagger_random",
+   "AI::Script::AI_np_follow_player",
+   "AI::Script::AI_np_approach_plus",
+   "AI::Script::AI_np_approach",
+   "AI::Script::AI_magic_guard02",
+   "AI::Script::AI_magic_guard01_2",
+   "AI::Script::AI_magic_guard01",
+   "AI::Script::AI_magic_cure01",
+   "AI::Script::AI_magic_attackstable01",
+   "AI::Script::AI_magic_attack02",
+   "AI::Script::AI_magic_attack01_2",
+   "AI::Script::AI_magic_attack01",
+   "AI::Script::AI_jackal01",
+   "AI::Script::AI_fr_warppointescape",
+   "AI::Script::AI_fr_type005",
+   "AI::Script::AI_fr_sword_pointguard01",
+   "AI::Script::AI_fr_sword_pointguard",
+   "AI::Script::AI_fr_sword_pick01",
+   "AI::Script::AI_fr_sword_attack01",
+   "AI::Script::AI_fr_runaway",
+   "AI::Script::AI_fr_magic_pick02",
+   "AI::Script::AI_fr_magic_pick01",
+   "AI::Script::AI_fr_follow_player",
+   "AI::Script::AI_fr_buffer_pick01",
+   "AI::Script::AI_fr_archer_pick01",
+   "AI::Script::AI_em_type106",
+   "AI::Script::AI_em_type105",
+   "AI::Script::AI_em_type104",
+   "AI::Script::AI_em_type103",
+   "AI::Script::AI_em_type102",
+   "AI::Script::AI_em_type010",
+   "AI::Script::AI_em_type003",
+   "AI::Script::AI_em_sword_pointguard01",
+   "AI::Script::AI_em_sword_attack02",
+   "AI::Script::AI_em_sword_attack01",
+   "AI::Script::AI_em_scout",
+   "AI::Script::AI_em_monster_attack01",
+   "AI::Script::AI_em_bridge_archer",
+   "AI::Script::AI_em_archer_attack02",
+   "AI::Script::AI_buffer_pointguard01",
+   "AI::Script::AI_buffer_guard02",
+   "AI::Script::AI_buffer_guard01",
+   "AI::Script::AI_buffer_attackstable01",
+   "AI::Script::AI_arganan01",
+   "AI::Script::AI_archer_guard01",
+   "AI::Script::AI_archer_attack01"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/AreaEffConfig.cpp",
+  "classes": [
+   "atn::CsvBase<char, 44, 13, 34>",
+   "AreaEffConfig"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ArenaTask.cpp",
+  "classes": [
+   "ArenaTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Arms.cpp",
+  "classes": [
+   "Arms"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/AABBTree.cpp",
+  "classes": [
+   "atn::AABBTree"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/AudioDevice.cpp",
+  "classes": [
+   "atn::AudioDevice"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Bgm.cpp",
+  "classes": [
+   "atn::Bgm"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/SinusCurve.cpp",
+  "classes": [
+   "atn::Polynomial2Curve",
+   "atn::Polynomial1Curve",
+   "atn::ConstantCurve",
+   "atn::CosinusCurve",
+   "atn::SinusCurve"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/DrawHelper.cpp",
+  "classes": [
+   "atn::DrawHelper"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ComDrawTexture.cpp",
+  "classes": [
+   "atn::DrawHelper::ComDrawTextureAdd",
+   "atn::DrawHelper::ComDrawTexture"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/FadeCommon.cpp",
+  "classes": [
+   "atn::FadeCapture",
+   "atn::FadeColor",
+   "atn::FadeCommon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/FileList.cpp",
+  "classes": [
+   "atn::FileList"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LensFlare.cpp",
+  "classes": [
+   "atn::LensFlare"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/SmallAllocator_8.cpp",
+  "classes": [
+   "atn::SmallAllocator<6>",
+   "atn::SmallAllocator<8>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/DLAllocator.cpp",
+  "classes": [
+   "atn::DLAllocator"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/MindowsCommon.cpp",
+  "classes": [
+   "atn::MindowsFlag",
+   "atn::MindowsBool",
+   "atn::MindowsFloat",
+   "atn::MindowsUInt",
+   "atn::MindowsInt",
+   "atn::MindowsCommon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ModelInstance.cpp",
+  "classes": [
+   "atn::ModelInstance"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/NandManager.cpp",
+  "classes": [
+   "atn::NandManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ParseTree.cpp",
+  "classes": [
+   "atn::ParseTree"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PBoneBasic.cpp",
+  "classes": [
+   "atn::PBoneOutForce",
+   "atn::PBoneBasic"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LinearAllocator.cpp",
+  "classes": [
+   "atn::LinearAllocator"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Rain.cpp",
+  "classes": [
+   "atn::Rain"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Layer2DBlur.cpp",
+  "classes": [
+   "atn::Layer2DBlur"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Layer3D.cpp",
+  "classes": [
+   "atn::Layer3D"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LayerOcclusionCPU.cpp",
+  "classes": [
+   "atn::LayerOcclusionCPU"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LayerPost3D.cpp",
+  "classes": [
+   "atn::LayerPost3D"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LayerPostFx.cpp",
+  "classes": [
+   "atn::LayerPostFx"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LayerReflect.cpp",
+  "classes": [
+   "atn::LayerReflect"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LayerShadow.cpp",
+  "classes": [
+   "atn::LayerShadow"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/SequenceControl.cpp",
+  "classes": [
+   "atn::SequenceControl"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/SoftKeyboardBase_wchar_t_0.cpp",
+  "classes": [
+   "atn::SoftKeyboardBase<wchar_t, 0>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Sound3dListener.cpp",
+  "classes": [
+   "atn::SoundCore",
+   "atn::Sound3dActor",
+   "atn::Sound3dListener"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Sound3dEngine.cpp",
+  "classes": [
+   "atn::Sound3dEngine"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/TextureCacheManager8x32.cpp",
+  "classes": [
+   "atn::TextureCacheManager8x32"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/TextureComposite.cpp",
+  "classes": [
+   "atn::TextureComposite"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/CompositeIntensityTintMulti.cpp",
+  "classes": [
+   "atn::CompositeIntensityTintMulti"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/TextAnimation.cpp",
+  "classes": [
+   "atn::TextAnimation"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/VideoTHP.cpp",
+  "classes": [
+   "atn::VideoTHP"
+  ],
+  "matching": false
+ },
+ {
+  "name": "std/char_traits_char.cpp",
+  "classes": [
+   "std::basic_ios<char, std::char_traits<char>>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "std/allocator_char.cpp",
+  "classes": [
+   "std::basic_stringbuf<char, std::char_traits<char>, std::allocator<char>>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/BattleCharaTask.cpp",
+  "classes": [
+   "BattleCharaTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/BattleResult.cpp",
+  "classes": [
+   "BattleResult"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/BattleTask.cpp",
+  "classes": [
+   "BattleTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/BehaviorFollow.cpp",
+  "classes": [
+   "Event::BehaviorFollow"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Bullet.cpp",
+  "classes": [
+   "BootTask",
+   "Bullet"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Path.cpp",
+  "classes": [
+   "Event::Path"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MenuSaveTask.cpp",
+  "classes": [
+   "MenuLoadTask",
+   "MenuSaveTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/CsvBase_wchar_t_44_13_34.cpp",
+  "classes": [
+   "atn::CsvU",
+   "atn::CsvBase<wchar_t, 44, 13, 34>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CharaManager_PlayerTask.cpp",
+  "classes": [
+   "CharaManager<NpcTask>",
+   "CharaManager<EnemyTask>",
+   "CharaManager<PlayerTask>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ChaserGuard.cpp",
+  "classes": [
+   "ChaserGuard"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ChaserNpc.cpp",
+  "classes": [
+   "ChaserNpc"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ChaseManager.cpp",
+  "classes": [
+   "ChaseManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ColliAttrManager.cpp",
+  "classes": [
+   "ColliAttrManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlBreakOpen.cpp",
+  "classes": [
+   "chr::ControlBreakOpen"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlAppear.cpp",
+  "classes": [
+   "chr::ControlAppearCoffin",
+   "chr::ControlAppearSkelton",
+   "chr::ControlAppearEnd",
+   "chr::ControlAppear"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlAttackBase.cpp",
+  "classes": [
+   "chr::ControlAttackLastOne",
+   "chr::ControlSwapAttack",
+   "chr::ControlHitBackBullet",
+   "chr::ControlGuardCounter",
+   "chr::ControlSideWallAttack",
+   "chr::ControlMultiAttack",
+   "chr::ControlJumpAttack2",
+   "chr::ControlJumpAttack",
+   "chr::ControlDashAttack",
+   "chr::ControlAttackSetup",
+   "chr::ControlAttackNext",
+   "chr::ControlAttack",
+   "chr::ControlAttackBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlStickByQuark.cpp",
+  "classes": [
+   "chr::ControlReflectLaser",
+   "chr::ControlStickZanGurgCliff",
+   "chr::ControlStickZanGurgStand",
+   "chr::ControlEndCliffhangZanGurg",
+   "chr::ControlCliffhangZanGurg",
+   "chr::ControlAbsorbedHPReleased",
+   "chr::ControlAbsorbedHP",
+   "chr::ControlBoundShade",
+   "chr::ControlThreadRelease",
+   "chr::ControlThreadDead",
+   "chr::ControlThreadCatch",
+   "chr::ControlThrownBreakSkelton",
+   "chr::ControlThrownSkelton",
+   "chr::ControlCaughtSkelton",
+   "chr::ControlThrownAvoid",
+   "chr::ControlThrownAway",
+   "chr::ControlThrown",
+   "chr::ControlMatHoldDamage",
+   "chr::ControlMatHoldRelease",
+   "chr::ControlMatHold",
+   "chr::ControlMatHoldPre",
+   "chr::ControlAbsorbed",
+   "chr::ControlThrustForCocoon",
+   "chr::ControlThrustForGhoul",
+   "chr::ControlThrustForQuarkStand",
+   "chr::ControlThrustForKraken",
+   "chr::ControlThrustForCrab",
+   "chr::ControlThrust",
+   "chr::ControlStickByQuark"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlCannonLift.cpp",
+  "classes": [
+   "chr::ControlCannonTarget",
+   "chr::ControlCannonThrow",
+   "chr::ControlCannonLift"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlCaught.cpp",
+  "classes": [
+   "chr::ControlRelease",
+   "chr::ControlCaught"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlCharge.cpp",
+  "classes": [
+   "chr::ControlZanTackle",
+   "chr::ControlQuarkSeirenAttack",
+   "chr::ControlHighJumpAttack",
+   "chr::ControlChargeAttack",
+   "chr::ControlChargeAttackBase",
+   "chr::ControlCharge"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlChaseCaught.cpp",
+  "classes": [
+   "chr::ControlChaseReleased",
+   "chr::ControlChaseHold",
+   "chr::ControlChaseCatch",
+   "chr::ControlChaseRelease",
+   "chr::ControlChaseHeld",
+   "chr::ControlChaseCaught"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlCliffhang.cpp",
+  "classes": [
+   "chr::ControlCliffhang"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlDamage.cpp",
+  "classes": [
+   "chr::ControlDamageLastOne",
+   "chr::ControlGuarded",
+   "chr::ControlFallDead",
+   "chr::ControlRevivalSkelton",
+   "chr::ControlRevival",
+   "chr::ControlGetUp",
+   "chr::ControlKnockdown",
+   "chr::ControlAvoid",
+   "chr::ControlGuard",
+   "chr::ControlDamage"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlDetect.cpp",
+  "classes": [
+   "chr::ControlDetectHateAtt",
+   "chr::ControlDetect"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlDive.cpp",
+  "classes": [
+   "chr::ControlWarp",
+   "chr::ControlBackStep",
+   "chr::ControlSwapPos",
+   "chr::ControlStool",
+   "chr::ControlCoverSlip",
+   "chr::ControlSwatTurn",
+   "chr::ControlDive"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlDraggingStart.cpp",
+  "classes": [
+   "chr::ControlDragged",
+   "chr::ControlDraggedStart",
+   "chr::ControlDraggingStart"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlDropDown.cpp",
+  "classes": [
+   "chr::ControlDropDownQuadruped",
+   "chr::ControlDropDown"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlGmkCoffinOpening.cpp",
+  "classes": [
+   "chr::ControlGmkBreakArmor",
+   "chr::ControlGmkTrapBat",
+   "chr::ControlGmkCoffinGetUp",
+   "chr::ControlGmkCoffinOpen",
+   "chr::ControlGmkCoffinOpening"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlJumpAt.cpp",
+  "classes": [
+   "chr::ControlGrappledThrow",
+   "chr::ControlGrappleThrown",
+   "chr::ControlGrappled",
+   "chr::ControlGrapple",
+   "chr::ControlJumpAt"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlAttractHateCharge.cpp",
+  "classes": [
+   "chr::ControlOverdrive",
+   "chr::ControlAttractHateCharge"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlInteractionBase.cpp",
+  "classes": [
+   "chr::ControlThroughRope",
+   "chr::ControlStepOn",
+   "chr::ControlBumpHead",
+   "chr::ControlConstrict",
+   "chr::ControlDuckJoist",
+   "chr::ControlDuckUnderB",
+   "chr::ControlDuckUnderA",
+   "chr::ControlInteractionBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlLadder.cpp",
+  "classes": [
+   "chr::ControlCrawling",
+   "chr::ControlClimbDeck",
+   "chr::ControlAlleyWay",
+   "chr::ControlLadder"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlLookAround.cpp",
+  "classes": [
+   "chr::ControlLookAroundEgg",
+   "chr::ControlLookAround"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlChant.cpp",
+  "classes": [
+   "chr::ControlMagicEnd",
+   "chr::ControlMagic",
+   "chr::ControlChant"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlOneMotion.cpp",
+  "classes": [
+   "chr::ControlOneMotionTransition",
+   "chr::ControlOneMotionTarget",
+   "chr::ControlOneMotion"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlPushedDown.cpp",
+  "classes": [
+   "chr::ControlPushedAvoid",
+   "chr::ControlOttotto",
+   "chr::ControlPushedDown"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlRide.cpp",
+  "classes": [
+   "chr::ControlRideBeast",
+   "chr::ControlRide"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlShoot.cpp",
+  "classes": [
+   "chr::ControlShoot"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlStagger.cpp",
+  "classes": [
+   "chr::ControlSlip",
+   "chr::ControlStagger"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlTurnQuadruped.cpp",
+  "classes": [
+   "chr::ControlTurnQuadruped"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlUseSkill.cpp",
+  "classes": [
+   "chr::ControlUseSkill"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlSitting.cpp",
+  "classes": [
+   "chr::ControlSitting"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlWallUp.cpp",
+  "classes": [
+   "chr::ControlWallSlash",
+   "chr::ControlWallDown",
+   "chr::ControlWallUp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CopyRobotTask.cpp",
+  "classes": [
+   "CopyRobotTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CosEditBase.cpp",
+  "classes": [
+   "CosEditBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CosEditProtector.cpp",
+  "classes": [
+   "CosEditProtector"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CostumeEditChara.cpp",
+  "classes": [
+   "CostumeEditChara"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CrossbowMenuTask.cpp",
+  "classes": [
+   "CrossbowMenuTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CrowdManager.cpp",
+  "classes": [
+   "CrowdManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CrowdSimulation.cpp",
+  "classes": [
+   "CrowdSimulation"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Common.cpp",
+  "classes": [
+   "atn::D2A_Common"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Data.cpp",
+  "classes": [
+   "atn::D2A_Data"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Frame.cpp",
+  "classes": [
+   "atn::D2A_Frame"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Line.cpp",
+  "classes": [
+   "atn::D2A_Line"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Message.cpp",
+  "classes": [
+   "atn::D2A_Message"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Reference.cpp",
+  "classes": [
+   "atn::D2A_Reference"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Task.cpp",
+  "classes": [
+   "atn::D2A_Task"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_TaskInstanceBase_64_8.cpp",
+  "classes": [
+   "atn::D2A_TaskInstanceBase<8, 2>",
+   "atn::D2A_TaskInstanceBase<32, 8>",
+   "atn::D2A_TaskInstanceBase<64, 8>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Texture.cpp",
+  "classes": [
+   "atn::D2A_Texture"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_Window.cpp",
+  "classes": [
+   "atn::D2A_Window"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D3Anime.cpp",
+  "classes": [
+   "atn::D3Anime"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/D3AnimeInstance.cpp",
+  "classes": [
+   "atn::D3AnimeInstance"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/MotionData.cpp",
+  "classes": [
+   "Event::MovieData",
+   "Event::MovieTask",
+   "Event::PoseData",
+   "Event::CameraData",
+   "Event::EffectData",
+   "Event::ModelData",
+   "Event::AnimationData",
+   "Event::MotionData"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/CsvBase_char_124_13_34.cpp",
+  "classes": [
+   "atn::CsvBase<char, 124, 13, 34>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ptr_string_base_wchar_t_0.cpp",
+  "classes": [
+   "atn::ptr_string_base<wchar_t, 0>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "db/GrowthParseGlobal.cpp",
+  "classes": [
+   "db::GrowthParse",
+   "db::GrowthParseGlobal"
+  ],
+  "matching": false
+ },
+ {
+  "name": "db/MotionCommandCommon.cpp",
+  "classes": [
+   "db::MotionCommandCommon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ptr_string_base_char_0.cpp",
+  "classes": [
+   "atn::ptr_string_base<char, 0>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/DialogHead.cpp",
+  "classes": [
+   "Event::DialogHead"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Dialog.cpp",
+  "classes": [
+   "Event::Dialog"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/EffectManager.cpp",
+  "classes": [
+   "atn::EffectManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "std/char_traits_char_8023C080.cpp",
+  "classes": [
+   "std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char>>>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em001Necromancer.cpp",
+  "classes": [
+   "Em001Necromancer"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em002_01BlackSkelton.cpp",
+  "classes": [
+   "Em002_01BlackSkelton"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em002_02SkeltonKing.cpp",
+  "classes": [
+   "Em002_02SkeltonKing"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em002Skelton.cpp",
+  "classes": [
+   "Em002Skelton"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em003LesserDaemon.cpp",
+  "classes": [
+   "Em003LesserDaemon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em005DoppelGanger.cpp",
+  "classes": [
+   "Em005DoppelGanger"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em006DarkMaster.cpp",
+  "classes": [
+   "Em006DarkMaster"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em101ElderZesya.cpp",
+  "classes": [
+   "Em101ElderZesya"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em101ElderZesyaSecond.cpp",
+  "classes": [
+   "Em101ElderZesyaSecond"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em101LittleZesya.cpp",
+  "classes": [
+   "Em101LittleZesya"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em101LittleZesyaSecond.cpp",
+  "classes": [
+   "Em101LittleZesyaSecond"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em201ZanGurg.cpp",
+  "classes": [
+   "Em201ZanGurg"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em201ZanGurgFinal.cpp",
+  "classes": [
+   "Em201ZanGurgFinal"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em202_01_BSpider.cpp",
+  "classes": [
+   "Em202_01_BSpider"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em202ForestSpider.cpp",
+  "classes": [
+   "Em202ForestSpider"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em202MothersSpider.cpp",
+  "classes": [
+   "Em202MothersSpider"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em202Spider.cpp",
+  "classes": [
+   "Em202Spider"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em202SpiderBase.cpp",
+  "classes": [
+   "Em202SpiderBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em203GreaterDaemon.cpp",
+  "classes": [
+   "Em203GreaterDaemon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em203GreaterDaemonRed.cpp",
+  "classes": [
+   "Em203GreaterDaemonRed"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em203GreaterDaemonRedMp.cpp",
+  "classes": [
+   "Em203GreaterDaemonRedMp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em204Mulue.cpp",
+  "classes": [
+   "Em204Mulue"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em204BigMulue.cpp",
+  "classes": [
+   "Em204BigMulue"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em204MulueMp.cpp",
+  "classes": [
+   "Em204MulueMp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em205Ogre.cpp",
+  "classes": [
+   "Em205Ogre"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em206CocoonMp.cpp",
+  "classes": [
+   "Em206CocoonMp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em206EggMonster.cpp",
+  "classes": [
+   "Em206EggMonster"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em208Queen.cpp",
+  "classes": [
+   "Em208Queen"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em209BigGolem.cpp",
+  "classes": [
+   "Em209BigGolem"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em209SmallGolem.cpp",
+  "classes": [
+   "Em209SmallGolem"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em301LShade.cpp",
+  "classes": [
+   "Em301LShade"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em302Kraken.cpp",
+  "classes": [
+   "Em302Kraken"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em302KrakenMp.cpp",
+  "classes": [
+   "Em302KrakenMp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em303KrakenFoot.cpp",
+  "classes": [
+   "Em303KrakenFoot"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em303KrakenFootMp.cpp",
+  "classes": [
+   "Em303KrakenFootMp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em305Vampire.cpp",
+  "classes": [
+   "Em305Vampire"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em305VampireMp.cpp",
+  "classes": [
+   "Em305VampireMp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em306GurgBeast.cpp",
+  "classes": [
+   "Em306GurgBeast"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em308InvertCrab.cpp",
+  "classes": [
+   "Em308InvertCrab"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em308ParmCrab.cpp",
+  "classes": [
+   "Em308ParmCrab"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em309Ghoul.cpp",
+  "classes": [
+   "Em309Ghoul"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em309GhoulSimple.cpp",
+  "classes": [
+   "Em309GhoulSimple"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em310Gargoyle.cpp",
+  "classes": [
+   "Em310Gargoyle"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em312DarkServant.cpp",
+  "classes": [
+   "Em312DarkServant"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em314Ivy.cpp",
+  "classes": [
+   "Em314Ivy"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em315Coffin.cpp",
+  "classes": [
+   "Em315Coffin"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em316LaserSphere.cpp",
+  "classes": [
+   "Em316LaserSphere"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em316LastLaser.cpp",
+  "classes": [
+   "Em316LastLaser"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em401_01_WhiteLeoPard.cpp",
+  "classes": [
+   "Em401_01_WhiteLeoPard"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Em403WarLion.cpp",
+  "classes": [
+   "Em403WarLion"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyFieldMagician.cpp",
+  "classes": [
+   "EnemyFieldMagician"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyJill.cpp",
+  "classes": [
+   "EnemyJill"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyLizerdBlade.cpp",
+  "classes": [
+   "EnemyLizerdBlade"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyManager.cpp",
+  "classes": [
+   "EnemyManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyQuarkFirst.cpp",
+  "classes": [
+   "EnemyQuarkFirst"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyQuarkSecond.cpp",
+  "classes": [
+   "EnemyQuarkSecond"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyQuarkStand.cpp",
+  "classes": [
+   "EnemyQuarkStand"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemySeaLizerd.cpp",
+  "classes": [
+   "EnemySeaLizerd"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyTrista.cpp",
+  "classes": [
+   "EnemyTrista"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnvSeManager.cpp",
+  "classes": [
+   "EnvSeManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnvSeBase.cpp",
+  "classes": [
+   "EnvSeGlobal",
+   "EnvSeBox",
+   "EnvSeSphere",
+   "EnvSeLine",
+   "EnvSePoint",
+   "EnvSeBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EquipItemData.cpp",
+  "classes": [
+   "EquipItemData"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/FriendArganan.cpp",
+  "classes": [
+   "FriendArganan"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/FriendManager.cpp",
+  "classes": [
+   "FriendManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameTask.cpp",
+  "classes": [
+   "GamePauseTask",
+   "GameTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameOverTask.cpp",
+  "classes": [
+   "GameOverTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameBgm.cpp",
+  "classes": [
+   "GameBgm"
+  ],
+  "matching": false
+ },
+ {
+  "name": "std/bad_cast.cpp",
+  "classes": [
+   "GameEventScript",
+   "boost::bad_lexical_cast",
+   "std::bad_cast"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameLoadBackground.cpp",
+  "classes": [
+   "GameLoadBackground"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameChoiceWindow.cpp",
+  "classes": [
+   "GameTextMessageWindow",
+   "GameMessageWindow",
+   "GameChoiceWindow"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameSaveBackground.cpp",
+  "classes": [
+   "GameSaveBackground"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameSaveBanner.cpp",
+  "classes": [
+   "atn::CsvTabU",
+   "atn::CsvBase<wchar_t, 9, 13, 34>",
+   "GameSaveBanner"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameScene.cpp",
+  "classes": [
+   "GameScene"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameSoundControl.cpp",
+  "classes": [
+   "GameSoundControl"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameTimer.cpp",
+  "classes": [
+   "GameTimer"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameUI.cpp",
+  "classes": [
+   "GameUI"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GimmickManager.cpp",
+  "classes": [
+   "LoadSeTableTask",
+   "GimmickManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GimmickStateCommand.cpp",
+  "classes": [
+   "GimmickStateCommand"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/FragileObject.cpp",
+  "classes": [
+   "gmk::FragileObject"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/AutomaticDoor.cpp",
+  "classes": [
+   "gmk::AutomaticDoor"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/PlayEffect.cpp",
+  "classes": [
+   "gmk::PlayEffect"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/OnOff.cpp",
+  "classes": [
+   "gmk::OnOff"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/ReinforcePoint.cpp",
+  "classes": [
+   "gmk::ReinforcePoint"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Cannonball.cpp",
+  "classes": [
+   "gmk::Cannonball"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Item.cpp",
+  "classes": [
+   "gmk::Item"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/MeetingSpot.cpp",
+  "classes": [
+   "gmk::MeetingSpot"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/SwingObject.cpp",
+  "classes": [
+   "gmk::SwingObject"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Leaf.cpp",
+  "classes": [
+   "gmk::Leaf"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Bat.cpp",
+  "classes": [
+   "gmk::Bat"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/PigeonManager.cpp",
+  "classes": [
+   "gmk::PigeonManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Brazier.cpp",
+  "classes": [
+   "gmk::Brazier"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/ChickenManager.cpp",
+  "classes": [
+   "gmk::ChickenManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/TreasureBox.cpp",
+  "classes": [
+   "gmk::TreasureBox"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/HealPoint.cpp",
+  "classes": [
+   "gmk::HealPoint"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/FallingTower.cpp",
+  "classes": [
+   "gmk::FallingTower"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Trap.cpp",
+  "classes": [
+   "gmk::Trap"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Coffin.cpp",
+  "classes": [
+   "gmk::Coffin"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/MotionObject.cpp",
+  "classes": [
+   "gmk::MotionObject"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/SkeltonsMirror.cpp",
+  "classes": [
+   "gmk::SkeltonsMirror"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Lemon.cpp",
+  "classes": [
+   "gmk::Lemon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Banana.cpp",
+  "classes": [
+   "gmk::Banana"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/FlamingArrow.cpp",
+  "classes": [
+   "gmk::FlamingArrow"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Ocean.cpp",
+  "classes": [
+   "gmk::Ocean"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/WaitObject.cpp",
+  "classes": [
+   "gmk::WaitObject"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/BulletPoint.cpp",
+  "classes": [
+   "gmk::BulletPoint"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Courtyard.cpp",
+  "classes": [
+   "gmk::Courtyard"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Fireworks.cpp",
+  "classes": [
+   "gmk::Fireworks"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/ArenaFloor.cpp",
+  "classes": [
+   "gmk::ArenaFloor"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Augur.cpp",
+  "classes": [
+   "gmk::Augur"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/RoomLight.cpp",
+  "classes": [
+   "gmk::RoomLight"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/LandMine.cpp",
+  "classes": [
+   "gmk::LandMine"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/ShakeCamera.cpp",
+  "classes": [
+   "gmk::ShakeCamera"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/AttractHatePoint.cpp",
+  "classes": [
+   "gmk::AttractHatePoint"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/CharaLight.cpp",
+  "classes": [
+   "gmk::CharaLight"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/DoorSeal.cpp",
+  "classes": [
+   "gmk::DoorSeal"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/RotaryRoom.cpp",
+  "classes": [
+   "gmk::RotaryRoom"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/SparkCube.cpp",
+  "classes": [
+   "gmk::SparkCube"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/FlyObjManager.cpp",
+  "classes": [
+   "gmk::FlyObjManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/InteractionSpot.cpp",
+  "classes": [
+   "gmk::InteractionSpot"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/MapLift.cpp",
+  "classes": [
+   "gmk::MapLift"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/RainDrops.cpp",
+  "classes": [
+   "gmk::RainDrops"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/OpenBoard.cpp",
+  "classes": [
+   "gmk::OpenBoard"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/FloatingBox.cpp",
+  "classes": [
+   "gmk::FloatingBox"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/CharaObj.cpp",
+  "classes": [
+   "gmk::GmkChara",
+   "gmk::CharaObj"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/PassBoard.cpp",
+  "classes": [
+   "gmk::PassBoard"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/WaterLevel.cpp",
+  "classes": [
+   "gmk::WaterLevel"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/TodomeCountUp.cpp",
+  "classes": [
+   "gmk::TodomeCountUp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/LemonBucket.cpp",
+  "classes": [
+   "gmk::LemonBucket"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/RandomMerchant.cpp",
+  "classes": [
+   "RandomMerchantChara",
+   "gmk::RandomMerchant"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/RandomItem.cpp",
+  "classes": [
+   "gmk::RandomItem"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/SavePoint.cpp",
+  "classes": [
+   "gmk::SavePoint"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/WindyItem.cpp",
+  "classes": [
+   "gmk::WindyItem"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/LottaSummon.cpp",
+  "classes": [
+   "gmk::LottaSummon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/Chain.cpp",
+  "classes": [
+   "gmk::Chain"
+  ],
+  "matching": false
+ },
+ {
+  "name": "gmk/CharaPathMove.cpp",
+  "classes": [
+   "gmk::CharaPathMove"
+  ],
+  "matching": false
+ },
+ {
+  "name": "RecycleBuffer_gmk/ItemSlotAnime.cpp",
+  "classes": [
+   "gmk::ItemSlotAnimeBuffer",
+   "RecycleBuffer<gmk::ItemSlotAnime>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/LastCocoonChrysalis.cpp",
+  "classes": [
+   "LastCocoonChrysalis"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/LastCocoonEgg.cpp",
+  "classes": [
+   "LastCocoonEgg"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/LastCocoonImago.cpp",
+  "classes": [
+   "LastCocoonImago"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/LastCocoonQuadruped.cpp",
+  "classes": [
+   "LastCocoonQuadruped"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/LibraryTask.cpp",
+  "classes": [
+   "BookTask",
+   "LibraryTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_ColliObject.cpp",
+  "classes": [
+   "atn::LoadColliObject",
+   "atn::LH_ColliObject"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_ColliTree.cpp",
+  "classes": [
+   "atn::LoadColliTree",
+   "atn::LH_ColliTree"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Effect.cpp",
+  "classes": [
+   "atn::LoadEffect",
+   "atn::LH_Effect"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Efp.cpp",
+  "classes": [
+   "atn::LoadEfp",
+   "atn::LH_Efp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Material.cpp",
+  "classes": [
+   "atn::LoadMaterial",
+   "atn::LH_Material"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Model.cpp",
+  "classes": [
+   "atn::LoadModel",
+   "atn::LH_Model"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Motion.cpp",
+  "classes": [
+   "atn::LoadMotion",
+   "atn::LH_Motion"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_MotionCommandData.cpp",
+  "classes": [
+   "atn::LoadMotionCommandData",
+   "atn::LH_MotionCommandData"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_MotionSet.cpp",
+  "classes": [
+   "atn::LoadMotionSet",
+   "atn::LH_MotionSet"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Scene.cpp",
+  "classes": [
+   "atn::LoadScene",
+   "atn::LH_Scene"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Texture.cpp",
+  "classes": [
+   "atn::LoadTexture",
+   "atn::LH_Texture"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Xsca.cpp",
+  "classes": [
+   "atn::LoadXsca",
+   "atn::LH_Xsca"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/LogMessageTask.cpp",
+  "classes": [
+   "LogMessageTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Manager.cpp",
+  "classes": [
+   "Event::Manager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/PostSequence.cpp",
+  "classes": [
+   "Event::PostSequence"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/SequenceRoot.cpp",
+  "classes": [
+   "Event::SequenceRoot"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapManager.cpp",
+  "classes": [
+   "MapManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsBase.cpp",
+  "classes": [
+   "MapPartsArea",
+   "MapPartsBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsColliTree.cpp",
+  "classes": [
+   "MapPartsColliTree"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsEfp.cpp",
+  "classes": [
+   "MapPartsEfp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsFlare.cpp",
+  "classes": [
+   "MapPartsFlare"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsGimmickLoc.cpp",
+  "classes": [
+   "MapPartsGimmickLoc"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsLocatorSet.cpp",
+  "classes": [
+   "MapPartsLocatorSet"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsModel.cpp",
+  "classes": [
+   "MapPartsModel"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsOcean.cpp",
+  "classes": [
+   "MapPartsOcean"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsRain.cpp",
+  "classes": [
+   "MapPartsRain"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapTask.cpp",
+  "classes": [
+   "MapTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MarketTask.cpp",
+  "classes": [
+   "MarketTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MenuCommonTask.cpp",
+  "classes": [
+   "MenuCommonTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MiniMapTask.cpp",
+  "classes": [
+   "MiniMapTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2ACommonDialog.cpp",
+  "classes": [
+   "MP::D2ACommonDialog"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/CryptMP.cpp",
+  "classes": [
+   "MP::CryptMP"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenu.cpp",
+  "classes": [
+   "MP::D2AMpMenuRankMark",
+   "MP::D2AMpMenu"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenuCockpit.cpp",
+  "classes": [
+   "MP::D2AMpMenuCockpit"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenuFriend.cpp",
+  "classes": [
+   "MP::D2AMpMenuFriend"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenuFriendRoom.cpp",
+  "classes": [
+   "MP::D2AMpMenuFriendRoom"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenuLobby.cpp",
+  "classes": [
+   "MP::D2AMpMenuLobby"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenuMessageList.cpp",
+  "classes": [
+   "MP::D2AMpMenuMessageList"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenuResult.cpp",
+  "classes": [
+   "MP::D2AMpMenuResult"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenuSetMessage.cpp",
+  "classes": [
+   "MP::D2AMpMenuSetMessage"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/D2AMpMenuSetRule.cpp",
+  "classes": [
+   "MP::D2AMpMenuSetRule"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PacketPack.cpp",
+  "classes": [
+   "MP::Chara<EnemyTask>",
+   "MP::ManagerMP",
+   "MP::Manager2",
+   "atn::net::PacketPack"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/func_enter_setting.cpp",
+  "classes": [
+   "MP::func_enter_setting"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/Popup.cpp",
+  "classes": [
+   "MP::Popup"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/SaveLoad.cpp",
+  "classes": [
+   "MP::SaveLoad"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/SoftKeyboardU.cpp",
+  "classes": [
+   "MP::SoftKeyboard",
+   "atn::SoftKeyboardU"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PPDATAU.cpp",
+  "classes": [
+   "atn::net::PPDATAR",
+   "atn::net::PPDATAU"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewCampPartsGmk.cpp",
+  "classes": [
+   "NewCampPartsGmk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewCampPartsHint.cpp",
+  "classes": [
+   "NewCampPartsHint"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewCampPartsItem.cpp",
+  "classes": [
+   "NewCampPartsItem"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewCampPartsMapSelect.cpp",
+  "classes": [
+   "NewCampPartsMapSelect"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewCampPartsOption.cpp",
+  "classes": [
+   "NewCampPartsOption"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewCampPartsStatus.cpp",
+  "classes": [
+   "NewCampPartsStatus"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewCampPartsTop.cpp",
+  "classes": [
+   "NewCampPartsTop"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewCampTask.cpp",
+  "classes": [
+   "NewCampTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewStaffRoll.cpp",
+  "classes": [
+   "NewStaffRoll"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NewTitleTask.cpp",
+  "classes": [
+   "NewTitleTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Node.cpp",
+  "classes": [
+   "Event::Action",
+   "Event::Node"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/StringData.cpp",
+  "classes": [
+   "Event::StringData"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/DummyData.cpp",
+  "classes": [
+   "Event::DummyData"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Np131LivingArmor.cpp",
+  "classes": [
+   "Np131LivingArmor"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NpcManager.cpp",
+  "classes": [
+   "NpcManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/NpcTask.cpp",
+  "classes": [
+   "NpcTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/PickTask.cpp",
+  "classes": [
+   "PickTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/PopupTask.cpp",
+  "classes": [
+   "PopupTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/ActionActorBehavior.cpp",
+  "classes": [
+   "Event::ActionActorBehavior"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/ActionActorPosition.cpp",
+  "classes": [
+   "Event::ActionActorMaterial",
+   "Event::ActionActorWind",
+   "Event::ActionActorSetting",
+   "Event::ActionActorNode",
+   "Event::ActionActorHeading",
+   "Event::ActionActorPose",
+   "Event::ActionActorEyes",
+   "Event::ActionActorFacial",
+   "Event::ActionActorMotion",
+   "Event::ActionActorPosition"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/ActionCameraMode.cpp",
+  "classes": [
+   "Event::ActionCameraEffect",
+   "Event::ActionCameraMode"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/ActionEffectPlay.cpp",
+  "classes": [
+   "Event::ActionColorGradation",
+   "Event::ActionColorMatrix",
+   "Event::ActionBrightness",
+   "Event::ActionLightSurround",
+   "Event::ActionSpotLight",
+   "Event::ActionPointLight",
+   "Event::ActionCloudMap",
+   "Event::ActionAmbientLight",
+   "Event::ActionSunLight",
+   "Event::ActionGodRay",
+   "Event::ActionMoviePlay",
+   "Event::ActionMultiAudio",
+   "Event::ActionVoicePlay",
+   "Event::ActionAudioEffect",
+   "Event::ActionMusicPlay",
+   "Event::ActionEnvSound",
+   "Event::ActionSoundPlay",
+   "Event::ActionMessagePrint",
+   "Event::ActionMessageWindow",
+   "Event::ActionMessageChoice",
+   "Event::ActionNotify",
+   "Event::ActionCheck",
+   "Event::ActionAnimationPlay",
+   "Event::ActionEffectPlay"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/QuadrupedTask.cpp",
+  "classes": [
+   "QuadrupedTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ReplayBuffer.cpp",
+  "classes": [
+   "ReplayBuffer"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/SelectMember.cpp",
+  "classes": [
+   "SelectMember"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/SequenceUnitParam1_const_int.cpp",
+  "classes": [
+   "atn::SequenceHolder::SequenceUnitParam1<const GameLoadTask::Option>",
+   "atn::SequenceHolder::SequenceUnitParam1<const GameTask::Option>",
+   "atn::SequenceHolder::SequenceUnitParam1<const int>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/SetConfig.cpp",
+  "classes": [
+   "SetConfig"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ShopBase.cpp",
+  "classes": [
+   "ShopBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ShopBuySell.cpp",
+  "classes": [
+   "ShopBuySell"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ShopColor.cpp",
+  "classes": [
+   "ShopColor"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ShopIdentify.cpp",
+  "classes": [
+   "ShopIdentify"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/ShopUpGrade.cpp",
+  "classes": [
+   "ShopUpGrade"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/SkillEffectManager.cpp",
+  "classes": [
+   "SkillEffectManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "nw4r/DvdSoundArchive.cpp",
+  "classes": [
+   "nw4r::snd::DvdSoundArchive::DvdFileStream",
+   "nw4r::snd::DvdSoundArchive"
+  ],
+  "matching": false
+ },
+ {
+  "name": "nw4r/SoundArchive.cpp",
+  "classes": [
+   "nw4r::snd::SoundArchive"
+  ],
+  "matching": false
+ },
+ {
+  "name": "nw4r/SeqNoteOnCallback.cpp",
+  "classes": [
+   "nw4r::snd::SoundArchivePlayer",
+   "nw4r::snd::SoundArchivePlayer::WsdCallback",
+   "nw4r::snd::SoundArchivePlayer::SeqNoteOnCallback"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/StrapTask.cpp",
+  "classes": [
+   "StrapTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/Sword.cpp",
+  "classes": [
+   "Sword"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/TacView.cpp",
+  "classes": [
+   "TacView"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/TeamAIManager.cpp",
+  "classes": [
+   "TeamAIManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/TownTask.cpp",
+  "classes": [
+   "TownTask"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/TownTpcLoader.cpp",
+  "classes": [
+   "TownTpcLoader"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/TutorialTask.cpp",
+  "classes": [
+   "TutorialPopup",
+   "TutorialTask"
+  ],
+  "matching": false
+ }
+]
