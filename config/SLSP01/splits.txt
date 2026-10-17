@@ -116,6 +116,10 @@ RVL_SDK/src/revolution/os/OSCrc.c:
 	.text       start:0x805F8430 end:0x805F8564
 	.rodata     start:0x80764738 end:0x80764758
 
+RVL_SDK/src/revolution/os/__ppc_eabi_init.c:
+	.init       start:0x80004360 end:0x800043C4
+	.text       start:0x805F88C0 end:0x805F8980
+
 RVL_SDK/src/revolution/mtx/mtxvec.c:
 	.text       start:0x805F93C0 end:0x805F9414
 
@@ -268,7 +272,7 @@ PowerPC_EABI_Support/src/MetroTRK/dispatch.c:
 	.data       start:0x807BAC40 end:0x807BACAC
 
 PowerPC_EABI_Support/src/MetroTRK/dolphin_trk.c:
-	.text       start:0x80675984 end:0x80675C10
+	.text       start:0x806758EC end:0x80675C10
 	.data       start:0x807BACB0 end:0x807BACF0
 	.sbss       start:0x80880300 end:0x80880308
 
@@ -502,12 +506,17 @@ auto_03_80692BFC_text.cpp:
 auto_03_8069512C_text.cpp:
 	.text       start:0x8069512C end:0x80695138
 
+PowerPC_EABI_Support/src/Runtime/__mem.c:
+	.init       start:0x800062F8 end:0x80006678
+	.text       start:0x8069533C end:0x80695358
+
 PowerPC_EABI_Support/src/Runtime/__va_arg.c:
 	.text       start:0x80695358 end:0x80695420
 
 PowerPC_EABI_Support/src/Runtime/global_destructor_chain.c:
-	.text       start:0x80695420 end:0x80695480
-	.sbss       start:0x808803DC end:0x808803E0
+	.text       start:0x80695420 end:0x806954CC
+	.bss        start:0x80832C50 end:0x80832F50
+	.sbss       start:0x808803D8 end:0x808803E0
 
 PowerPC_EABI_Support/src/Runtime/NMWException.cp:
 	extab       start:0x80007B94 end:0x80007BDC
@@ -524,9 +533,3 @@ nw4r/src/snd/snd_InstancePool.cpp:
 
 nw4r/src/snd/snd_SoundHandle.cpp:
 	.text       start:0x807175E0 end:0x80717680
-
-RVL_SDK/src/revolution/os/__ppc_eabi_init.c:
-	.init       start:0x80004360 end:0x800043C4
-
-PowerPC_EABI_Support/src/Runtime/__mem.c:
-	.init       start:0x800062F8 end:0x80006678

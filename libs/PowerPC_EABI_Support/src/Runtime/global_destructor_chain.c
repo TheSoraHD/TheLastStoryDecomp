@@ -21,8 +21,16 @@ void __destroy_global_chain(void) {
   }
 }
 
-//unused
-int __register_atexit(void (*func)(void)){
+// The Last Story links the full MSL implementation (Xenoblade has an empty stub).
+static int atexit_curr_func;
+static DestructorChain atexit_funcs[64];
+
+int __register_atexit(void (*func)(void)) {
+  if (atexit_curr_func == 64) {
+    return -1;
+  }
+  __register_global_object(0, func, &atexit_funcs[atexit_curr_func++]);
+  return 0;
 }
 
 #pragma section ".dtors$10"

@@ -66,7 +66,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/esp/esp.c",
@@ -2039,7 +2039,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MetroTRK/dolphin_trk.c",
@@ -2072,7 +2072,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MetroTRK/notify.c",
@@ -2304,7 +2304,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MetroTRK/msghndlr.c",
@@ -2721,7 +2721,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MSL_C/MSL_Common/signal.c",
@@ -2861,7 +2861,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MSL_C/MSL_Common/wchar_io.c",
@@ -3841,7 +3841,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/Runtime/NMWException.cp",
