@@ -1,0 +1,43 @@
+#pragma once
+
+#include "Game/LiveActor/ActorStateKeeper.hpp"
+#include "Game/System/NerveExecutor.hpp"
+
+class ActorStateBaseInterface : public NerveExecutor {
+public:
+    ActorStateBaseInterface(const char* pName) : NerveExecutor(pName), mIsDead(true) {
+    }
+
+    virtual ~ActorStateBaseInterface() {}
+
+    virtual void init() {
+    }
+
+    virtual void appear() {
+        mIsDead = false;
+    }
+
+    virtual void kill() {
+        mIsDead = true;
+    }
+
+    virtual bool update();
+
+    virtual void control() {
+    }
+
+    /* 0x8 */ bool mIsDead;
+};
+
+template < typename T >
+class ActorStateBase : public ActorStateBaseInterface {
+public:
+    ActorStateBase(const char* pName, T* pHost) : ActorStateBaseInterface(pName), mHost(pHost) {
+    }
+
+    T* getHost() const {
+        return mHost;
+    }
+
+    /* 0xC */ T* mHost;
+};
