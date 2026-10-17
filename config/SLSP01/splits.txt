@@ -1876,14 +1876,9 @@ Event/Node.cpp:
 	.sdata2     start:0x80887C68 end:0x80887C80
 
 Event/StringData.cpp:
-	.text       start:0x805430E8 end:0x805430F8
-	.rodata     start:0x8075E120 end:0x8075E134
-	.data       start:0x80794430 end:0x80794458
-
-Event/DummyData.cpp:
-	.text       start:0x805430F8 end:0x80543108
-	.rodata     start:0x8075E134 end:0x8075E148
-	.data       start:0x80794458 end:0x80794480
+	.text       start:0x805430E8 end:0x80543108
+	.rodata     start:0x8075E120 end:0x8075E148
+	.data       start:0x80794430 end:0x80794480
 
 game/Np131LivingArmor.cpp:
 	.text       start:0x80546000 end:0x80547468

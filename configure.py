@@ -250,9 +250,12 @@ cflags_rel = [
 # Game flags: SJIS encoding for the game code (-enc is not supported by GC/1.x compilers)
 # RTTI is on: game vtables start with a typeinfo pointer (e.g. vtable at 0x80775A20)
 cflags_game = [
-    *(f for f in cflags_base if f not in ("-multibyte", "-RTTI off")),
+    *(f for f in cflags_base if f not in ("-multibyte", "-RTTI off", "-str reuse")),
     "-enc SJIS",
     "-RTTI on",
+    "-str reuse,readonly",  # RTTI names and literals live in .rodata
+    "-sdata 4",             # 8-byte RTTI objects and doubles are outside the small-data sections
+    "-sdata2 4",
 ]
 
 config.linker_version = "GC/1.3.2"
