@@ -17,6 +17,9 @@ auto_fn_801F1EA0_text.cpp:
 	.text       start:0x801F1EA0 end:0x801F2398
 	.ctors      start:0x8072D2F8 end:0x8072D2FC
 
+auto_03_803B27AC_text.cpp:
+	.text       start:0x803B27AC end:0x803B338C
+
 auto_03_8068B60C_text.cpp:
 	.text       start:0x8068B60C end:0x8068B610
 
