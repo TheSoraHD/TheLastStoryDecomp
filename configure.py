@@ -329,6 +329,36 @@ config.libs.append({
 })
 
 
+# Reference library units (SDK, NW4R, MSL, Runtime, MetroTRK, NdevExi2A).
+# Sources live in libs/ and come from xbret/xenoblade (CC0).
+# Per-object compiler and flags are listed in config/<version>/libs_ref.json.
+def load_ref_libs() -> List[Dict[str, Any]]:
+    import json
+
+    path = Path("config") / config.version / "libs_ref.json"
+    if not path.exists():
+        return []
+    libs: Dict[Any, Dict[str, Any]] = {}
+    for unit in json.loads(path.read_text()):
+        key = (unit["category"], unit["mw_version"], tuple(unit["cflags"]))
+        if key not in libs:
+            libs[key] = {
+                "lib": f"ref_{unit['category']}_{len(libs)}",
+                "mw_version": unit["mw_version"],
+                "src_dir": "libs",
+                "cflags": unit["cflags"],
+                "progress_category": "sdk" if unit["category"] != "nw4r" else "nw4r",
+                "objects": [],
+            }
+        libs[key]["objects"].append(
+            Object(Matching if unit.get("matching") else NonMatching, unit["name"])
+        )
+    return list(libs.values())
+
+
+config.libs.extend(load_ref_libs())
+
+
 # Optional callback to adjust link order. This can be used to add, remove, or reorder objects.
 # This is called once per module, with the module ID and the current link order.
 #
@@ -352,6 +382,7 @@ def link_order_callback(module_id: int, objects: List[str]) -> List[str]:
 config.progress_categories = [
     ProgressCategory("game", "Game Code"),
     ProgressCategory("sdk", "SDK Code"),
+    ProgressCategory("nw4r", "NW4R Code"),
 ]
 config.progress_each_module = args.verbose
 # Optional extra arguments to `objdiff-cli report generate`
