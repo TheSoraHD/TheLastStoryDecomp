@@ -134,7 +134,7 @@
   "classes": [
    "atn::Bgm"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/SinusCurve.cpp",
