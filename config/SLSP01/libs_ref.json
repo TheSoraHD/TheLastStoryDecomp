@@ -1773,7 +1773,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "NdevExi2A/src/DebuggerDriver.c",
@@ -2338,7 +2338,7 @@
    "-str pool"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MetroTRK/target_options.c",
@@ -3806,7 +3806,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/Runtime/global_destructor_chain.c",
