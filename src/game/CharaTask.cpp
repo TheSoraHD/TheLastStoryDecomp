@@ -61,11 +61,17 @@ struct Settings_unk {
     int m250; // inferred: copied to CharaTask::m1028 by fn_80164D24
     unsigned char m254[0x278 - 0x254];
     int m278; // inferred: parts mode (fn_801539E0)
-    unsigned char m27C[0x3D0 - 0x27C];
+    unsigned char m27C[0x368 - 0x27C];
+    unsigned int m368; // inferred: ARGB colors of the status effect (fn_8017A5D8)
+    unsigned int m36C;
+    unsigned int m370;
+    unsigned char m374[0x3D0 - 0x374];
     int m3D0; // inferred: tested by CharaTask::fn_80164D24
     unsigned char m3D4[0x3D8 - 0x3D4];
     int m3D8;
-    unsigned char m3DC[0x418 - 0x3DC];
+    unsigned char m3DC[0x404 - 0x3DC];
+    int m404; // inferred: level compared with 1, 2 and 3 by fn_8017A9A8
+    unsigned char m408[0x418 - 0x408];
     int m418;
     unsigned char m41C[0x454 - 0x41C];
     Block454_unk m454;
@@ -133,6 +139,7 @@ extern "C" Camera_unk* lbl_8087EFB4;
 // inferred: effect manager (lbl_8087F048, as in CharaStatus.cpp)
 struct Effect_unk {
     void fn_8013A19C(int value);
+    void fn_801065F4(CharaTask* chara, Model_unk* model, const struct ColorF_unk* color); // inferred: tints the model
     void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
     void fn_80105B3C(CharaTask* chara);
     atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
@@ -4929,6 +4936,165 @@ void CharaTask::fn_8017ABD4(int arg) {
     m68[1] = fn_80204E04(mType, arg);
 }
 
+// inferred: returns the current control's vf30 value, 0 without a control
+int CharaTask::fn_8017A450() {
+    return mControl ? mControl->vf30() : 0;
+}
+
+// inferred: float color built from an ARGB word (names invented)
+struct ColorF_unk {
+    ColorF_unk() {}
+    ColorF_unk(unsigned int argb) {
+        r = (1.0f / 255.0f) * (float)((argb >> 16) & 0xFF);
+        g = (1.0f / 255.0f) * (float)((argb >> 8) & 0xFF);
+        b = (1.0f / 255.0f) * (float)(argb & 0xFF);
+        a = (1.0f / 255.0f) * (float)(argb >> 24);
+    }
+    ColorF_unk& operator=(const ColorF_unk& o) {
+        r = o.r;
+        g = o.g;
+        b = o.b;
+        a = o.a;
+        return *this;
+    }
+    float r, g, b, a;
+};
+
+// inferred: sets or clears the status 0x800 of an enemy (mType 2) with its effects
+void CharaTask::fn_8017A5D8(int on) {
+    if (mType != 2 || IsHidden_unk()) {
+        return;
+    }
+
+    if (on && (mStatus.m0C & 0x800) != 0x800) {
+        mStatus.fn_8013310C(0x800, 0);
+        if (mStatus.m430 <= 0) {
+            mStatus.fn_80134724(1);
+        }
+        if (fn_8017A9A8() && fn_8015487C() == 1) {
+            fn_8014DEE4(1, 0, 0);
+        }
+        if (lbl_8087F048 != 0) {
+            ColorF_unk color;
+            if (mStatus.fn_80134270()) {
+                color = ColorF_unk(lbl_8087F0A8->m370);
+            } else if (mStatus.fn_80134250()) {
+                color = ColorF_unk(lbl_8087F0A8->m36C);
+            } else {
+                color = ColorF_unk(lbl_8087F0A8->m368);
+            }
+            lbl_8087F048->fn_801065F4(this, &mMotion, &color);
+        }
+        if (m1388 <= 0 && mFlag22 != 1) {
+            m1388 = 450;
+            if (fn_80160324()) {
+                fn_8016034C();
+            }
+        }
+        if (m138A <= 0 && mFlag22 != 1) {
+            m138A = 240;
+        }
+    } else if (!on && (mStatus.m0C & 0x800) == 0x800) {
+        mStatus.fn_8013322C(0x800);
+        mStatus.m430 = 0;
+        mStatus.m434 = 0.0f;
+        mStatus.m438 = 0.0f;
+        if (fn_8017A9A8() && fn_8015487C() == 1) {
+            fn_8014DEE4(0, 0, 0);
+        }
+    }
+}
+
+extern "C" void* fn_80418318(); // inferred: collision world of the field
+extern "C" atn::Vector3 fn_804188A0(void* world, const Segment_unk* seg); // inferred: ground hit (returned by value)
+
+// inferred: puts the stored foot heights (m13B8) on the ground below the neck node
+// NONMATCHING: 58% - the segment and the hit point swap their stack slots and the x/z loads swap
+// registers; tried: named or temporary segment, constructors, member-wise stores, declaration
+// orders, the hit returned by value or through a pointer.
+void CharaTask::fn_8017A504() {
+    m54C |= 0x200000;
+    if (fn_80418318()) {
+        MtxPtr node = mMotion.GetNodeMtx_unk(m520);
+        void* world = fn_80418318();
+        float x = node[0][3];
+        float y = node[1][3];
+        float z = node[2][3];
+        float dy = y - mPos.y;
+        Segment_unk seg;
+        seg.mStart = mPos;
+        seg.mEnd.x = x;
+        seg.mEnd.y = y;
+        seg.mEnd.z = z;
+        atn::Vector3 hit = fn_804188A0(world, &seg);
+        hit.y -= dy;
+        m13B8[0].y = hit.y;
+        m13B8[1].y = hit.y;
+    }
+}
+
+extern "C" int fn_8021A960(HitInfo_unk* hit);
+
+// inferred: whether the character shows its weapon-kind specific effect (kind from fn_8015487C)
+int CharaTask::fn_8017A9A8() {
+    Settings_unk* settings = lbl_8087F0A8;
+    int kind = fn_8015487C();
+    if (m68[2] != 0 && sTable807374B8_unk[kind] > 0) {
+        int result = 0;
+        switch (kind) {
+        case 0:
+            if ((m137C & 0x200) != 0x200) {
+                result = 1;
+            }
+            break;
+        case 1:
+            if (settings->m404 >= 1 && (m137C & 0x200) != 0x200) {
+                result = 1;
+            }
+            break;
+        case 2:
+        case 5:
+            if (settings->m404 >= 2) {
+                if ((m137C & 0x200) != 0x200) {
+                    if (m1388 <= 0 || 300 < m1388) {
+                        result = 1;
+                    }
+                } else if (m1388 >= 0x1BD) {
+                    result = 1;
+                }
+                HitInfo_unk* skill = mStatus.m2D0[0].m[0] > 0 ? fn_80219E6C(mStatus.m2D0[0].m[0]) : 0;
+                if (skill != 0 && fn_8021A960(skill) && (skill->mAC & 0x20) == 0x20) {
+                    result = 0;
+                }
+            }
+            break;
+        case 3:
+        case 4:
+            if (settings->m404 >= 3 && (m1388 <= 0 || 300 < m1388)) {
+                result = 1;
+            }
+            break;
+        }
+        CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (result && player != 0) {
+            bool same = mC58.mB4 == player->mC58.mB4;
+            if (kind == 1) {
+                bool ok = false;
+                if (mParts.mCount > 1 && mParts.mData[1]->m274->mParam.m78 == 0) {
+                    ok = true;
+                }
+                if (same && ok) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+            return same;
+        }
+    }
+    return 0;
+}
+
 int CharaTask::fn_8017AC08() {
     if (m68[1] != 0) {
         return m68[1]->m04;
@@ -4974,6 +5140,28 @@ struct NameEntry_unk {
 extern "C" NameEntry_unk* fn_803B3B38(void* table, int id);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
+extern "C" void fn_80096218(Model_unk* model, atn::Vector_unk<int>* list, void* arg); // inferred: collects resources
+extern "C" void fn_80563A60(chr::CharaEquip_unk* equip, atn::Vector_unk<int>* list, void* arg);
+extern "C" int fn_80473F34(atn::LH_MotionSet* set);
+
+// inferred: collects the resources of the character (models, parts, equipment, motion set)
+void CharaTask::fn_8017AD44(atn::Vector_unk<int>* list, void* arg) {
+    fn_80096218(&mMotion, list, arg);
+    for (unsigned int i = 0; i < mParts.mCount; i++) {
+        fn_80096218((Model_unk*)mParts.mData[i]->m010, list, arg);
+    }
+    chr::CharaEquip_unk** equips = m680;
+    for (unsigned int i = 0; i < 8; i++) {
+        if (equips[i] != 0) {
+            fn_80563A60(equips[i], list, arg);
+        }
+    }
+    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        fn_80096218(&m6A4.mData[i]->mModel, list, arg);
+    }
+    list->push_back(fn_80473F34(&m98));
+}
+
 int CharaTask::vfB8(wchar_t* name) {
     if (m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
         NameEntry_unk* entry = fn_803B3B38(lbl_8087F430->m54F4, m5C->mC4);
@@ -4993,6 +5181,12 @@ bool CharaTask::fn_8017B16C() {
         return true;
     }
     return false;
+}
+
+// inferred: copies the list into m1400 and resets m140C
+void CharaTask::fn_8017B1C4(atn::Vector_unk<int>* list) {
+    m140C = -1;
+    m1400.Assign_unk(*list);
 }
 
 bool CharaTask::fn_8017B3C0() {

@@ -34,7 +34,7 @@ public:
     virtual void vf24();
     virtual void vf28();
     virtual void vf2C();
-    virtual void vf30();
+    virtual int vf30(); // inferred: returns an int (0 in ControlBase, 0x800E60FC; compared with 5 by callers of CharaTask::fn_8017A450)
     virtual void vf34();
     virtual void vf38();
     virtual void vf3C();

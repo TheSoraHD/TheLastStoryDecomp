@@ -142,7 +142,8 @@ struct CharaC58_unk {
     int m04;  // 0xC5C: inferred: frame counter
     int m08;
     RouteWalker_unk m0C; // 0xC64
-    unsigned char mB4[0xBC - 0xB4];
+    int mB4; // 0xD0C: inferred: compared with the player's (fn_8017A9A8); a group or map id
+    unsigned char mB8[0xBC - 0xB8];
     int mBC;        // 0xD14: inferred: timer of mode 0 and 4
     int mC0;        // 0xD18 in CharaTask: inferred: nonzero stops chr::ControlRide (0x801C6FE8)
     CharaTask* mC4; // 0xD1C: inferred: another character (its status is read by CharaStatus::fn_8012DB04)
@@ -545,6 +546,17 @@ public:
     void fn_801551AC();
     void fn_80155790(const atn::Vector3& dir);
     void fn_80178A6C();
+    int fn_8017A450();
+    void fn_8017A504();
+    void fn_8017A5D8(int on);
+    void fn_8017AD44(atn::Vector_unk<int>* list, void* arg);
+    // inferred: name invented (m54C bit 2)
+    bool IsHidden_unk() {
+        if ((m54C & 4) == 4) {
+            return true;
+        }
+        return false;
+    }
     int fn_8017A9A8();
     // inferred: inlined helpers (names invented)
     bool IsPartsMode_unk();

@@ -44,6 +44,31 @@ public:
         mData = data;
         mCapacity = n;
     }
+    // inferred: sets size and capacity to n, keeping the first elements (names invented;
+    // CharaTask::fn_8017B1C4)
+    void Resize_unk(unsigned int n) {
+        T* data = (n != 0) ? new (0, "", "", 0) T[n] : 0;
+        if (mData != 0) {
+            unsigned int count = (n > mSize) ? mSize : n;
+            for (unsigned int i = 0; i < count; i++) {
+                data[i] = mData[i];
+            }
+            delete[] mData;
+        }
+        mData = data;
+        mSize = n;
+        mCapacity = n;
+    }
+    // inferred: copy of another vector (name invented; CharaTask::fn_8017B1C4)
+    void Assign_unk(const Vector_unk& o) {
+        clear();
+        Resize_unk(o.mSize);
+        for (unsigned int i = 0; i < mSize; i++) {
+            (*this)[i] = o[i];
+        }
+    }
+    T& operator[](unsigned int i) { return mData[i]; }
+    const T& operator[](int i) const { return mData[i]; }
     void push_back(const T& value) {
         if (mData == 0 || mCapacity == 0) {
             reserve(8);
