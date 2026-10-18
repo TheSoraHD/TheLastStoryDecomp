@@ -20,6 +20,8 @@ public:
     virtual void vf14();
     virtual void vf18();
 
+    int fn_800D3FA4(); // inferred: non-virtual, returns nonzero on success (called by many vf0C)
+
     // inferred: sizeof(atn::Task) == 0x48 (FriendManager adds no members and is allocated with 0x48)
     unsigned char m04[0x48 - 0x04];
 };

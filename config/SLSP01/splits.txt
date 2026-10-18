@@ -1019,7 +1019,7 @@ game/EnemyLizerdBlade.cpp:
 
 game/EnemyManager.cpp:
 	.text       start:0x80334B38 end:0x80334CD8
-	.rodata     start:0x8074A298 end:0x8074A2A8
+	.rodata     start:0x8074A298 end:0x8074A2B8
 	.data       start:0x807890F0 end:0x80789138
 
 game/EnemyQuarkFirst.cpp:
@@ -1883,7 +1883,7 @@ game/Np131LivingArmor.cpp:
 
 game/NpcManager.cpp:
 	.text       start:0x805477C8 end:0x80547980
-	.rodata     start:0x8075E380 end:0x8075E38C
+	.rodata     start:0x8075E380 end:0x8075E398
 	.data       start:0x80794738 end:0x80794780
 
 game/NpcTask.cpp:

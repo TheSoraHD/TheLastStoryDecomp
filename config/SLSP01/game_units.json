@@ -1383,7 +1383,7 @@
   "classes": [
    "EnemyManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/EnemyQuarkFirst.cpp",
@@ -2451,7 +2451,7 @@
   "classes": [
    "NpcManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/NpcTask.cpp",
