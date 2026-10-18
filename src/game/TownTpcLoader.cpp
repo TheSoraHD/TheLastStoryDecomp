@@ -53,7 +53,6 @@ extern "C" void fn_803CC718(CharaList_unk* list, atn::Task* chara, int arg);
 extern "C" void fn_803957F0(void* obj, void* arg);
 extern "C" void fn_803EAC3C(void* obj, atn::Task* chara);
 extern "C" void fn_8016E970(atn::Task* chara, int arg);
-extern "C" void fn_800D246C(atn::Task* task, int arg);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 struct Chara_unk : public atn::Task {
@@ -102,7 +101,7 @@ int TownTpcLoader::vf0C() {
     if (ready) {
         for (int i = 0; i < mCharas.size(); i++) {
             fn_8016E970(mCharas[i], 2);
-            fn_800D246C(mCharas[i], 0);
+            mCharas[i]->fn_800D246C(0);
         }
     }
     return ready;

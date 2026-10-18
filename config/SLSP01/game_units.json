@@ -1556,7 +1556,7 @@
   "classes": [
    "GimmickCommon"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GimmickManager.cpp",

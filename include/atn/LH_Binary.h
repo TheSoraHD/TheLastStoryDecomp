@@ -10,6 +10,8 @@ namespace atn {
 class LH_Binary : public LoadHandle {
 public:
     virtual void vf0C(const char* path); // 0x804705B8
+    int fn_80470580();   // inferred: size of the data
+    void* fn_8047059C(); // inferred: data
 };
 
 } // namespace atn

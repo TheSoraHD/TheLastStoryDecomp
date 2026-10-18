@@ -4,24 +4,7 @@
 #include "atn/Csv.h"
 #include "game/MapPartsBase.h"
 #include "math/Vec.h"
-
-// inferred: model instance embedded at MapPartsModel+0x50 (probably the same class as
-// chr::Motion_unk, which characters embed at +0xB0). Names invented.
-struct Model_unk {
-    int fn_8008B140();                                // inferred: nonzero while loading
-    int fn_80092814(const char* name, int arg);       // inferred: node index by name, < 0 if missing
-
-    // inferred: matrix of node `index`, null for a missing node (inlined at 0x8049CCD4)
-    MtxPtr GetNodeMtx_unk(int index) {
-        return (index < 0) ? 0 : mNodeMtx[index];
-    }
-
-    unsigned char m00[0x08];
-    Mtx mMtx;        // 0x08: inferred: world matrix
-    unsigned char m38[0x3C - 0x38];
-    Mtx* mNodeMtx;   // 0x3C
-    unsigned char m40[0x3D0 - 0x40];
-};
+#include "atn/Model_unk.h"
 
 // inferred from __vt__13MapPartsModel (0x80790630)
 class MapPartsModel : public MapPartsBase {
