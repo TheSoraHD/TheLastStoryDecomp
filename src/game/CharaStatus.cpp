@@ -21,8 +21,8 @@ int CharaStatus::fn_8012B028() {
 // NONMATCHING: 98.1% - register allocation only: the original keeps zero in r30 and the loop
 // pointers of m2D0 in r29/r28; ours uses r29 for zero and r28/r30 for the pointers.
 CharaStatus::CharaStatus()
-    : m240(0), m248(0), m2CC(0), mChara(0), m2F4(0.0f), m2F8(0.0f), m2FC(1.0f), m300(0), mNumEntries(0),
-      mNumRefs(0), m428(0.0f), m42C(0.0f), m430(0), m434(0.0f), m438(0.0f) {
+    : m240(0), m248(0), m2CC(0), mChara(0), m2F4(0.0f), m2F8(0.0f), m2FC(1.0f), m300(0),
+      m428(0.0f), m42C(0.0f), m430(0), m434(0.0f), m438(0.0f) {
     memset(m24C, 0, sizeof(m24C));
 }
 
@@ -72,9 +72,30 @@ int CharaStatus::fn_801334CC(int level) {
     return (int)(50.0f * (float)pow((float)level, 2.0));
 }
 
+void CharaStatus::fn_80133B30(int level) {
+    bool up = m1C < level;
+    m1C = level;
+    fn_8012B3E8();
+    fn_8012B988();
+    if (!up) {
+        m04 = MIN(m04, (float)mParamB.m84);
+    }
+}
+
+void CharaStatus::fn_80133E24(int id, int sub) {
+    CharaStatusEntry_unk* it = mEntries.begin();
+    while (it != mEntries.end()) {
+        if ((sub < 0 || it->mSub == sub) && (id < 0 || it->mId == id)) {
+            mEntries.erase(it);
+        } else {
+            it++;
+        }
+    }
+}
+
 CharaStatusEntry_unk* CharaStatus::fn_80133EE8(int id) {
-    CharaStatusEntry_unk* entry = mEntries;
-    for (unsigned int i = 0; i < mNumEntries; i++, entry++) {
+    CharaStatusEntry_unk* entry = mEntries.mData;
+    for (unsigned int i = 0; i < mEntries.mCount; i++, entry++) {
         if (entry->mId == id) {
             return entry;
         }
@@ -84,8 +105,8 @@ CharaStatusEntry_unk* CharaStatus::fn_80133EE8(int id) {
 
 int CharaStatus::fn_80133F18(int id, int sub) {
     int sum = 0;
-    CharaStatusEntry_unk* entry = mEntries;
-    for (unsigned int i = 0; i < mNumEntries; i++, entry++) {
+    CharaStatusEntry_unk* entry = mEntries.mData;
+    for (unsigned int i = 0; i < mEntries.mCount; i++, entry++) {
         if ((id < 0 || entry->mId == id) && (sub < 0 || entry->mSub == sub)) {
             sum += entry->mValue;
         }
@@ -95,8 +116,8 @@ int CharaStatus::fn_80133F18(int id, int sub) {
 
 int CharaStatus::fn_80133F6C(int id, int sub) {
     int count = 0;
-    CharaStatusEntry_unk* entry = mEntries;
-    for (unsigned int i = 0; i < mNumEntries; i++, entry++) {
+    CharaStatusEntry_unk* entry = mEntries.mData;
+    for (unsigned int i = 0; i < mEntries.mCount; i++, entry++) {
         if ((id < 0 || entry->mId == id) && (sub < 0 || entry->mSub == sub)) {
             count++;
         }
@@ -104,9 +125,45 @@ int CharaStatus::fn_80133F6C(int id, int sub) {
     return count;
 }
 
+// inferred: name invented
+inline CharaStatusRef_unk* CharaStatus::FindRef_unk(int id, unsigned int key) {
+    CharaStatusRef_unk* it = mRefs.mData;
+    for (unsigned int i = 0; i < mRefs.mCount; i++, it++) {
+        if (it->mEntry->mId == id && it->m04 == key) {
+            return it;
+        }
+    }
+    return 0;
+}
+
+void CharaStatus::fn_80133FBC(const CharaStatusRef_unk& ref, int replace) {
+    if (replace) {
+        CharaStatusRef_unk* found = FindRef_unk(ref.mEntry->mId, ref.m04);
+        if (found != 0) {
+            found->m0C = ref.m0C;
+            return;
+        }
+    }
+    mRefs.push_back(ref);
+}
+
+void CharaStatus::fn_8013407C() {
+    if (mChara == 0) {
+        return;
+    }
+    CharaStatusRef_unk* it = mRefs.begin();
+    while (it != mRefs.end()) {
+        if (it->m08 == mChara) {
+            mRefs.erase(it);
+        } else {
+            it++;
+        }
+    }
+}
+
 CharaStatusRef_unk* CharaStatus::fn_80134134(int id) {
-    CharaStatusRef_unk* ref = mRefs;
-    for (unsigned int i = 0; i < mNumRefs; i++, ref++) {
+    CharaStatusRef_unk* ref = mRefs.mData;
+    for (unsigned int i = 0; i < mRefs.mCount; i++, ref++) {
         if (ref->mEntry->mId == id) {
             return ref;
         }
@@ -116,8 +173,8 @@ CharaStatusRef_unk* CharaStatus::fn_80134134(int id) {
 
 int CharaStatus::fn_80134168(int id, int sub) {
     int sum = 0;
-    CharaStatusRef_unk* ref = mRefs;
-    for (unsigned int i = 0; i < mNumRefs; i++, ref++) {
+    CharaStatusRef_unk* ref = mRefs.mData;
+    for (unsigned int i = 0; i < mRefs.mCount; i++, ref++) {
         CharaStatusEntry_unk* entry = ref->mEntry;
         if (entry->mId == id && (sub < 0 || entry->mSub == sub)) {
             sum += entry->mValue;
@@ -128,8 +185,8 @@ int CharaStatus::fn_80134168(int id, int sub) {
 
 int CharaStatus::fn_801341B8(int id, int sub) {
     int sum = 0;
-    CharaStatusRef_unk* ref = mRefs;
-    for (unsigned int i = 0; i < mNumRefs; i++, ref++) {
+    CharaStatusRef_unk* ref = mRefs.mData;
+    for (unsigned int i = 0; i < mRefs.mCount; i++, ref++) {
         CharaStatusEntry_unk* entry = ref->mEntry;
         if (entry->mId == id && (sub < 0 || entry->mSub == sub)) {
             sum += entry->m10;

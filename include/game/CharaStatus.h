@@ -3,6 +3,8 @@
 
 #include "math/Vec.h"
 
+#include "std/new.h"
+
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
 namespace chr {
@@ -226,10 +228,13 @@ public:
     CharaStatusBase(); // 0x8012AE50
     virtual ~CharaStatusBase() {} // weak copy 0x8012AFE8
 
-    unsigned char m04[0x0C - 0x04];
+    float m04; // inferred: current value capped by mParamB.m84 (hit points?)
+    unsigned char m08[0x0C - 0x08];
     unsigned int m0C; // inferred: flags
     unsigned int m10; // inferred: flags (set together with m0C by fn_8013310C)
-    unsigned char m14[0x28 - 0x14];
+    unsigned char m14[0x1C - 0x14];
+    int m1C; // inferred: level (fn_80133B30)
+    unsigned char m20[0x28 - 0x20];
     CharaParam_unk mParamA;    // 0x28
     CharaParam_unk mParamB;    // 0xE8
     CharaStatusData_unk m1A8;  // inferred: cleared with memset
@@ -259,10 +264,35 @@ struct CharaStatusEntry_unk {
 struct CharaStatusRef_unk {
     CharaStatusRef_unk() : mEntry(0), m04(0), m08(0), m0C(-1), m10(0) {}
     CharaStatusEntry_unk* mEntry;
-    int m04;
-    int m08;
+    unsigned int m04;
+    chr::Chara_unk* m08; // inferred: compared with CharaStatus::mChara (fn_8013407C)
     int m0C;
     int m10;
+};
+
+// inferred: array with a count and a fixed capacity (erase shifts the elements down, push_back
+// constructs in place); name invented
+template <class T, int N>
+struct FixedArray_unk {
+    FixedArray_unk() : mCount(0) {}
+    T* begin() { return mData; }
+    T* end() { return mData + mCount; }
+    void erase(T* it) {
+        for (unsigned int i = it - mData; i < mCount - 1; i++) {
+            mData[i] = mData[i + 1];
+        }
+        mCount = mCount - 1;
+    }
+    bool full() const { return mCount >= N; }
+    void push_back(const T& x) {
+        if (!full()) {
+            new (end()) T(x);
+            mCount++;
+        }
+    }
+
+    unsigned int mCount;
+    T mData[N];
 };
 
 // Embedded in CharaTask at 0x7D4 (callers pass CharaTask + 2004).
@@ -272,6 +302,8 @@ public:
     virtual ~CharaStatus(); // 0x8012B3A8
 
     int fn_8012B028(); // inferred: experience still needed for the next level
+    void fn_8012B3E8();
+    void fn_8012B988();
     int fn_8012E534();
     int fn_8012F3D8();
     void fn_8013310C(unsigned int flags, int both);
@@ -294,6 +326,11 @@ public:
     void fn_80134724(int add);
     void fn_80134774(int index, int on);
     bool fn_801347C8(int index);
+    void fn_80133B30(int level);
+    void fn_80133E24(int id, int sub);
+    void fn_80133FBC(const CharaStatusRef_unk& ref, int replace);
+    void fn_8013407C();
+    CharaStatusRef_unk* FindRef_unk(int id, unsigned int key);
 
     int m240;
     unsigned char m244[0x248 - 0x244];
@@ -306,10 +343,8 @@ public:
     float m2F8;
     float m2FC;
     int m300;
-    unsigned int mNumEntries; // 0x304
-    CharaStatusEntry_unk mEntries[6]; // 0x308
-    unsigned int mNumRefs; // 0x380
-    CharaStatusRef_unk mRefs[8]; // 0x384
+    FixedArray_unk<CharaStatusEntry_unk, 6> mEntries; // 0x304
+    FixedArray_unk<CharaStatusRef_unk, 8> mRefs;      // 0x380
     unsigned char m424[0x428 - 0x424];
     float m428;
     float m42C; // inferred: compared with 0, 3 and 5 by fn_8012F3D8
