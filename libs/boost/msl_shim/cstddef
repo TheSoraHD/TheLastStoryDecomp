@@ -1,0 +1,3 @@
+// Stand-in for an MSL C++ header (no MSL C++ source is available): only what Boost needs.
+#include <stddef.h>
+namespace std { using ::size_t; using ::ptrdiff_t; }

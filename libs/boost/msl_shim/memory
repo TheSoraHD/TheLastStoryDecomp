@@ -1,0 +1,24 @@
+#ifndef SHIM_MEMORY
+#define SHIM_MEMORY
+#include <new>
+#include <utility>
+namespace std {
+template <class T> class allocator {
+public:
+    typedef T value_type; typedef T* pointer; typedef unsigned long size_type;
+    template <class U> struct rebind { typedef allocator<U> other; };
+    allocator() {}
+    template <class U> allocator(const allocator<U>&) {}
+    T* allocate(size_type n) { return (T*)::operator new(n * sizeof(T)); }
+    void deallocate(T* p, size_type) { ::operator delete(p); }
+};
+template <class T> class auto_ptr {
+public:
+    explicit auto_ptr(T* p = 0) : ptr(p) {}
+    ~auto_ptr() { delete ptr; }
+    T* get() const { return ptr; }
+private:
+    T* ptr;
+};
+}
+#endif

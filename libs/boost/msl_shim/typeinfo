@@ -1,0 +1,17 @@
+#ifndef SHIM_TYPEINFO
+#define SHIM_TYPEINFO
+#include <exception>
+extern "C" int strcmp(const char*, const char*);
+// CodeWarrior type_info: {name, bases}, no vtable (typeinfo objects in the DOL are 8 bytes)
+namespace std {
+class type_info {
+public:
+    const char* name() const { return tname; }
+    bool operator==(const type_info& x) const { return strcmp(tname, x.tname) == 0; }
+    bool operator!=(const type_info& x) const { return strcmp(tname, x.tname) != 0; }
+private:
+    const char* tname;
+    const void* tbase;
+};
+}
+#endif

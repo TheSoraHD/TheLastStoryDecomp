@@ -1,0 +1,2 @@
+// Stand-in for an MSL C++ header (no MSL C++ source is available): only what Boost needs.
+#include <cstring>

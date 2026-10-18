@@ -1,0 +1,14 @@
+#ifndef SHIM_STDEXCEPT
+#define SHIM_STDEXCEPT
+#include <exception>
+namespace std {
+class runtime_error : public exception {
+public:
+    explicit runtime_error(const char* what) : mWhat(what) {}
+    virtual ~runtime_error() {}
+    virtual const char* what() const { return mWhat; }
+private:
+    const char* mWhat;
+};
+}
+#endif
