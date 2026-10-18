@@ -47,6 +47,10 @@ struct Vec {
         __VecCopy(&x, &v.x);
         return *this;
     }
+    // inferred: by-value operators (temporaries kept on the stack, 0x801C9C68)
+    Vec operator+(const Vec& v) const { return Vec(x + v.x, y + v.y, z + v.z); }
+    Vec operator-(const Vec& v) const { return Vec(x - v.x, y - v.y, z - v.z); }
+    Vec operator*(float f) const { return Vec(x * f, y * f, z * f); }
 
     float x, y, z;
 };

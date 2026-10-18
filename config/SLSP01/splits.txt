@@ -507,7 +507,7 @@ chr/ControlUseSkill.cpp:
 
 chr/ControlSitting.cpp:
 	.text       start:0x801C9B24 end:0x801C9F6C
-	.rodata     start:0x8073B990 end:0x8073B9A4
+	.rodata     start:0x8073B980 end:0x8073B9A8
 	.data       start:0x80782258 end:0x807822D0
 	.sdata2     start:0x808828F8 end:0x80882920
 

@@ -11,7 +11,9 @@ public:
     void fn_80097C08(int arg1, int motion, int arg3, int arg4, int arg5, float blend, float speed); // inferred: play motion
     float fn_80097D7C(int track); // inferred: motion length
 
-    unsigned char m000[0x234];
+    unsigned char m000[0x22C];
+    int m22C; // inferred: current motion id
+    unsigned char m230[0x234 - 0x230];
     float m234;
     float m238;
     unsigned char m23C[0x24C - 0x23C];
@@ -46,15 +48,24 @@ public:
     Sphere_unk fn_80176548(const Vec& pos); // inferred
     void fn_80155DAC(int arg);
     void fn_8016DA4C();
+    Vec fn_80178018(); // inferred: returns a direction or target vector (y used as an angle)
+    float fn_80178078();
 
-    unsigned char m004[0xB0 - 0x04];
+    unsigned char m004[0x48 - 0x04];
+    int m48;
+    unsigned char m04C[0xB0 - 0x4C];
     Motion_unk mMotion; // 0xB0
     unsigned char m400[0x528 - 0x400];
     Vec mPos;  // 0x528
     Vec mRot;  // 0x534
     unsigned char m540[0x560 - 0x540];
     int m560;
-    unsigned char m564[0x58C - 0x564];
+    unsigned char m564[0x570 - 0x564];
+    float m570;
+    Vec m574;
+    float m580;
+    float m584;
+    unsigned char m588[0x58C - 0x588];
     int m58C;
     unsigned char m590[0x5A4 - 0x590];
     Vec m5A4;  // inferred: collision offset
