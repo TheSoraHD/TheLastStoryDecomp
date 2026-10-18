@@ -14,6 +14,7 @@ public:
 
     void fn_80473104(unsigned char state); // inferred: sets mState
     void fn_804730D4();                    // inferred: adds a reference
+    void fn_80473130();
 
     unsigned char mState; // 0x04
     unsigned char m05;
