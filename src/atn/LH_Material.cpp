@@ -37,7 +37,9 @@ LoadMaterial::~LoadMaterial() {
     }
 }
 
-// NONMATCHING: the inlined std::vector::push_back differs (see the draft in std/vector.h).
+// NONMATCHING: 95.5% - the inlined std::vector::push_back loads the capacity before the size (see
+// std/vector.h), and the original reloads m50 for the loop condition where we reuse the value
+// loaded for `size` (tried int/unsigned casts and the order of the three locals).
 void LoadMaterial::vf0C() {
     if (mState == 2) {
         const char* start = (const char*)m54;

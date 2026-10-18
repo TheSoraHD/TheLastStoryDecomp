@@ -84,7 +84,9 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
     }
     // inferred: moves [first, last) in front of the stored elements
     void __push_front_unk(T* first, T* last) {
-        unsigned int n = last - first;
+        // inferred: a byte difference; `last - first` would fold to the size (0x800DB3EC computes
+        // (data + size) - data)
+        unsigned int n = ((char*)last - (char*)first) / (int)sizeof(T);
         mStart -= n;
         memcpy(this->mData + mStart, first, n * sizeof(T));
         memset(first, 0, n * sizeof(T));
@@ -118,14 +120,25 @@ public:
     T* begin() { return this->mData; }
     T* end() { return this->mData + this->mSize; }
     size_type max_size() const { return 0x3FFFFFFF; }
-    // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...).
-    // NONMATCHING (standalone compile, 62 differing lines of 189): the fast path loads the
-    // capacity before the size, the two growth temporaries swap stack slots, the new capacity
-    // gets its own register, and the original does not fold (data + size) - data before the memcpy.
-    // Defined out of the class: its literals are in the file string pool, not in an @STRING@ pool.
+    // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...),
+    // inlined in atn::LoadMaterial::vf0C (0x804742F4). Defined out of the class and split into
+    // small out-of-class helpers: a function that is not declared inline is still inlined by
+    // `-inline auto` when it has at most about 13 statements, and its literals go to the file pool
+    // (the three "vector length error" messages share one address, as in the original).
+    // NONMATCHING (weak copy 0x800DB3EC, compiled standalone): only the fast path differs, the
+    // original loads the size before the capacity (and keeps the capacity in r5); tried accessors,
+    // the comparison reversed, if/else forms and a helper for the length check.
     void push_back(const T& x);
 
 private:
+    size_type __grow_cap_unk(size_type n);
+    void __swap_out_unk(__vec_split_unk<T>& buf) {
+        buf.__push_front_unk(this->mData, this->mData + this->mSize);
+        this->mSize = 0;
+        __vec_swap_unk(this->mCap, buf.mCap);
+        __vec_swap_unk(this->mData, buf.mData);
+        __vec_swap_unk(this->mSize, buf.mSize);
+    }
     static T* __allocate(size_type n) {
         T* p = (T*)::operator new(n * sizeof(T));
         if (p == 0) {
@@ -143,12 +156,21 @@ void vector<T>::push_back(const T& x) {
         return;
     }
     if (max_size() - this->mCap < 1) {
-        __msl_error("vector length_error");
+        __msl_error("vector length error");
     }
     __vec_split_unk<T> buf(&this->mCap);
-    size_type n = this->mSize + 1 - this->mCap;
+    size_type cap = __grow_cap_unk(this->mSize + 1 - this->mCap);
+    buf.mData = __allocate(cap);
+    buf.mCap = cap;
+    buf.mStart = this->mSize;
+    buf.push_back(x);
+    __swap_out_unk(buf);
+}
+
+template <class T>
+typename vector<T>::size_type vector<T>::__grow_cap_unk(size_type n) {
     if (n > max_size() - this->mCap) {
-        __msl_error("vector length_error");
+        __msl_error("vector length error");
     }
     size_type cap = this->mCap;
     if (cap < max_size() / 3) {
@@ -159,17 +181,9 @@ void vector<T>::push_back(const T& x) {
         cap = max_size();
     }
     if (cap > max_size()) {
-        __msl_error("vector length_error");
+        __msl_error("vector length error");
     }
-    buf.mData = __allocate(cap);
-    buf.mCap = cap;
-    buf.mStart = this->mSize;
-    buf.push_back(x);
-    buf.__push_front_unk(this->mData, this->mData + this->mSize);
-    this->mSize = 0;
-    __vec_swap_unk(this->mCap, buf.mCap);
-    __vec_swap_unk(this->mData, buf.mData);
-    __vec_swap_unk(this->mSize, buf.mSize);
+    return cap;
 }
 
 } // namespace std
