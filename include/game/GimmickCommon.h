@@ -64,6 +64,18 @@ struct GimmickUvOwner_unk {
     int m28;
 };
 
+// inferred: message passed to GimmickCommon::vf40 (same layout as chr::BreakMsg_unk)
+struct GimmickMsg_unk {
+    GimmickMsg_unk(int type) : mType(type), m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
+    GimmickMsg_unk() : m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
+    int mType;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    atn::Vector3 mVec;
+};
+
 // Base of the gimmicks (gmk::*). The name is in the DOL (vtable 0x8078C9D0, RTTI bases
 // atn::TaskBase, atn::Task). Virtual methods are named by vtable offset.
 class GimmickCommon : public atn::Task {
@@ -91,7 +103,7 @@ public:
     // that used them (only gimmick vtables point to them), so they live far from this file.
     virtual int vf38() { return 0; }       // 0x80012A14
     virtual void vf3C() {}
-    virtual int vf40() { return 0; }       // 0x80012714
+    virtual int vf40(GimmickMsg_unk* msg) { return 0; } // 0x80012714: inferred: receives a message
     virtual int vf44() { return 0; }       // 0x800FA4F4
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag); // 0x803EDE34
     virtual void vf4C() {}
