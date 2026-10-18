@@ -39,9 +39,18 @@ extern "C" GimmickStateCommand* fn_803F1310(GimmickCommon* gimmick);
 struct GimmickDesc_unk {
     unsigned char m00[0x04];
     atn::Vector3 mPos; // 0x04
-    unsigned char m10[0x18 - 0x10];
+    unsigned char m10[0x14 - 0x10];
+    float mRotY;       // 0x14: inferred (gmk::SkeltonsMirror)
     int mId;           // 0x18
     int mArg;          // 0x1C
+    int m20;           // inferred: kind (gmk::TodomeCountUp: 0 player, 1 npc, 2 enemy, 3 ally)
+    int m24;           // inferred: character id (gmk::TodomeCountUp)
+    int m28;
+    unsigned char m2C[0x40 - 0x2C];
+    float m40;         // inferred: gmk::ShakeCamera shake_x
+    float m44;         // inferred: gmk::ShakeCamera shake_y
+    unsigned char m48[0x7C - 0x48];
+    int m7C;           // inferred: flag read by gmk::SkeltonsMirror::vf60
 };
 
 // inferred: UV scroll entries used by GimmickCommon::fn_803EDB18
@@ -62,6 +71,18 @@ struct GimmickUvOwner_unk {
     unsigned char m00[0x20];
     atn::LH_Binary mLoader; // 0x20: inferred type
     int m28;
+};
+
+// inferred: message passed to GimmickCommon::vf40 (same layout as chr::BreakMsg_unk)
+struct GimmickMsg_unk {
+    GimmickMsg_unk(int type) : mType(type), m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
+    GimmickMsg_unk() : m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
+    int mType;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    atn::Vector3 mVec;
 };
 
 // Base of the gimmicks (gmk::*). The name is in the DOL (vtable 0x8078C9D0, RTTI bases
@@ -89,9 +110,9 @@ public:
     }
     // Trivial inline virtuals: the weak copies of several of them were kept in the first object
     // that used them (only gimmick vtables point to them), so they live far from this file.
-    virtual int vf38() { return 0; }       // 0x80012A14
+    virtual Model_unk* vf38() { return 0; } // 0x80012A14: inferred: main model
     virtual void vf3C() {}
-    virtual int vf40() { return 0; }       // 0x80012714
+    virtual int vf40(GimmickMsg_unk* msg) { return 0; } // 0x80012714: inferred: receives a message
     virtual int vf44() { return 0; }       // 0x800FA4F4
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag); // 0x803EDE34
     virtual void vf4C() {}

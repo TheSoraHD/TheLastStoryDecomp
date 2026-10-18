@@ -79,6 +79,13 @@ public:
     Vector3 operator+(const Vector3& v) const { return Vector3(x + v.x, y + v.y, z + v.z); }
     Vector3 operator-(const Vector3& v) const { return Vector3(x - v.x, y - v.y, z - v.z); }
     Vector3 operator*(float f) const { return Vector3(x * f, y * f, z * f); }
+    // inferred: through a reference, so the other vector is reloaded after the stores (0x80416AA8)
+    Vector3& operator+=(const Vector3& v) {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        return *this;
+    }
 
     // Out-of-line members (called with bl from many files):
     Vector3& fn_8000D114(float x_, float y_, float z_); // inferred: sets x, y, z and returns *this

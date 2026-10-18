@@ -21,6 +21,9 @@ public:
     // inferred: appends `chara` to the list (0x8011FD5C for NpcTask); names invented
     void Add_unk(T* chara);
     void Remove_unk(T* chara); // 0x8011FD84 for NpcTask
+    // inferred: character with id `id`, null if missing (PlayerTask 0x8011F91C, EnemyTask
+    // 0x8011FC10, NpcTask 0x8011FE3C)
+    T* Find_unk(int id);
     // inferred: next character id, wraps after 100000 (inlined in NpcTask/PlayerTask ctors)
     int NextId_unk() {
         mNextId++;

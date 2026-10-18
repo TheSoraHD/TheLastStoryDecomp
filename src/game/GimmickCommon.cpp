@@ -2,6 +2,12 @@
 // gimmick factory jump tables (0x8078C6C8); the file also holds the factories at 0x803EC16C/0x803EC374.
 
 #include "game/GimmickCommon.h"
+#include "gmk/RainDrops.h"
+#include "gmk/SkeltonsMirror.h"
+#include "gmk/TodomeCountUp.h"
+#include "gmk/ShakeCamera.h"
+#include "gmk/BulletPoint.h"
+#include "gmk/Banana.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -191,7 +197,6 @@ extern "C" GimmickCommon* fn_8041FF08(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8042335C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_8042AFE4(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8042B56C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8042C21C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8042CE30(atn::Task* parent, int id, int arg);
@@ -216,21 +221,16 @@ extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8040ED00(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80410A68(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80414AC4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_804166B0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80416F74(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8041B970(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041EB80(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80420ADC(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80421454(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80421AB8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80422610(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80427EB4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80428B0C(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8042F0B4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80435DEC(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8043A850(atn::Task* parent, GimmickDesc_unk* desc);
@@ -268,7 +268,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 45: gimmick = fn_8042335C(parent, id, arg); break;
     case 46: gimmick = fn_80423F64(parent, id, arg); break;
     case 48: gimmick = fn_80426108(parent, id, arg); break;
-    case 52: gimmick = fn_8042AFE4(parent, id, arg); break;
+    case 52: gimmick = gmk::RainDrops::fn_8042AFE4(parent, id, arg); break;
     case 53: gimmick = fn_8042B56C(parent, id, arg); break;
     case 54: gimmick = fn_8042C21C(parent, id, arg); break;
     case 55: gimmick = fn_8042CE30(parent, id, arg); break;
@@ -306,21 +306,21 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 22: gimmick = fn_8040ED00(parent, desc); break;
     case 26: gimmick = fn_80410A68(parent, desc); break;
     case 27: gimmick = fn_80411440(parent, desc); break;
-    case 29: gimmick = fn_80414AC4(parent, desc); break;
+    case 29: gimmick = gmk::SkeltonsMirror::fn_80414AC4(parent, desc); break;
     case 30: gimmick = fn_8041537C(parent, desc); break;
-    case 31: gimmick = fn_804166B0(parent, desc); break;
+    case 31: gimmick = gmk::Banana::fn_804166B0(parent, desc); break;
     case 32: gimmick = fn_80416F74(parent, desc); break;
     case 34: gimmick = fn_80418F30(parent, desc); break;
-    case 35: gimmick = fn_8041B970(parent, desc); break;
+    case 35: gimmick = gmk::BulletPoint::fn_8041B970(parent, desc); break;
     case 39: gimmick = fn_8041EB80(parent, desc); break;
     case 41: gimmick = fn_80420ADC(parent, desc); break;
-    case 42: gimmick = fn_80421454(parent, desc); break;
+    case 42: gimmick = gmk::ShakeCamera::fn_80421454(parent, desc); break;
     case 43: gimmick = fn_80421AB8(parent, desc); break;
     case 44: gimmick = fn_80422610(parent, desc); break;
     case 49: gimmick = fn_80427EB4(parent, desc); break;
     case 50: gimmick = fn_80428B0C(parent, desc); break;
     case 51: gimmick = fn_80429668(parent, desc); break;
-    case 58: gimmick = fn_8042F0B4(parent, desc); break;
+    case 58: gimmick = gmk::TodomeCountUp::fn_8042F0B4(parent, desc); break;
     case 59: gimmick = fn_8042F7EC(parent, desc); break;
     case 63: gimmick = fn_80435DEC(parent, desc); break;
     case 65: gimmick = fn_8043A850(parent, desc); break;

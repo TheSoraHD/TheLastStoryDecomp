@@ -1294,7 +1294,7 @@ gmk/MotionObject.cpp:
 
 gmk/SkeltonsMirror.cpp:
 	.text       start:0x80414AC4 end:0x8041524C
-	.rodata     start:0x80752E58 end:0x80752E6C
+	.rodata     start:0x80752E58 end:0x80752E90
 	.data       start:0x8078D948 end:0x8078D9E0
 	.sdata2     start:0x80886430 end:0x80886438
 
@@ -1426,7 +1426,7 @@ gmk/MapLift.cpp:
 
 gmk/RainDrops.cpp:
 	.text       start:0x8042AFE4 end:0x8042B56C
-	.rodata     start:0x80753800 end:0x80753810
+	.rodata     start:0x80753800 end:0x80753820
 	.data       start:0x8078E6D8 end:0x8078E770
 	.sdata2     start:0x80886728 end:0x80886730
 

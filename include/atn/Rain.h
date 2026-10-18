@@ -9,6 +9,7 @@ public:
     Rain();          // 0x800B1B28
     virtual ~Rain(); // 0x800B1BAC
     void fn_800B1C1C();
+    void fn_800B2180(); // inferred: starts the rain
     void fn_800B23C8();
     void fn_800B28F8(Rain* a, Rain* b);
     void fn_800B2D2C();
