@@ -7,15 +7,9 @@
 //   short mode: byte0 = size (bit 7 clear), characters start at the first aligned slot after it
 
 #include "std/msl_common.h"
+#include "std/iterator.h"
 
 namespace std {
-
-// inferred: MSL iterator tags; they derive from each other, so a temporary tag is not
-// zero-initialised (0x80014168 copies an uninitialised byte)
-struct input_iterator_tag {};
-struct forward_iterator_tag : public input_iterator_tag {};
-struct bidirectional_iterator_tag : public forward_iterator_tag {};
-struct random_access_iterator_tag : public bidirectional_iterator_tag {};
 
 template <class T>
 class basic_string {
@@ -66,7 +60,75 @@ public:
     }
     basic_string& assign(const T* s) { return replace(0, size(), s); }
 
+    static const size_type npos = (size_type)-1;
+
     basic_string() { mLong.mCap = 0; mLong.mSize = 0; mLong.mData = 0; }
+    // inferred: inlined at 0x80476220 (strlen, reserve, then the range replace)
+    basic_string(const T* s) {
+        mLong.mCap = 0;
+        mLong.mSize = 0;
+        mLong.mData = 0;
+        size_type n = strlen(s);
+        reserve(n);
+        __replace_unk(0, 0, s, s + n, random_access_iterator_tag());
+    }
+    basic_string(const basic_string& str, size_type pos, size_type n = npos); // 0x80069BF4 (char)
+
+    // inferred: inlined at 0x80476220: two short strings are copied word by word
+    basic_string& operator=(const basic_string& str) {
+        if (!is_long() && !str.is_long()) {
+            mLong = str.mLong;
+        } else {
+            size_type sz = is_long() ? mLong.mSize : (mShort.mSize & 0x7F);
+            const T* p;
+            size_type n;
+            if (!str.is_long()) {
+                p = str.mShort.mData;
+                n = str.mShort.mSize & 0x7F;
+            } else {
+                p = str.mLong.mData;
+                n = str.mLong.mSize;
+            }
+            __replace_unk(0, sz, p, p + n, random_access_iterator_tag());
+        }
+        return *this;
+    }
+    basic_string& assign(const T* first, const T* last) {
+        return __replace_unk(0, size(), first, last, random_access_iterator_tag());
+    }
+    basic_string& erase(size_type pos = 0, size_type n = npos) { return replace(pos, n, (const T*)0, (const T*)0); }
+    basic_string& replace(size_type pos, size_type n1, const T* j1, const T* j2) {
+        return __replace_unk(pos, n1, j1, j2, random_access_iterator_tag());
+    }
+    basic_string substr(size_type pos = 0, size_type n = npos) const { return basic_string(*this, pos, n); }
+    const T* c_str() const { return data(); }
+
+    // inferred: inlined at 0x80476220
+    size_type rfind(T c, size_type pos = npos) const {
+        const T* p;
+        size_type sz;
+        if (!is_long()) {
+            p = mShort.mData;
+            sz = mShort.mSize & 0x7F;
+        } else {
+            p = mLong.mData;
+            sz = mLong.mSize;
+        }
+        if (sz != 0) {
+            if (sz - 1 < pos) {
+                pos = sz - 1;
+            }
+            for (const T* q = p + pos;; --q) {
+                if (*q == c) {
+                    return q - p;
+                }
+                if (q <= p) {
+                    break;
+                }
+            }
+        }
+        return npos;
+    }
 
 private:
     static void __assign(T& c1, const T& c2) { c1 = c2; }
@@ -106,131 +168,6 @@ private:
         ShortFlags mShortFlags;
     };
 };
-
-template <class T>
-void basic_string<T>::reserve(size_type res_arg) {
-    if (res_arg > max_size()) {
-        __msl_error("basic_string::reserve length_error");
-    }
-    size_type cap;
-    size_type sz;
-    bool was_long = mFlags.mIsLong;
-    if (!was_long) {
-        sz = mShortFlags.mSize;
-        cap = __min_cap;
-    } else {
-        sz = mLong.mSize;
-        cap = mFlags.mCap;
-    }
-    if (res_arg < sz) {
-        res_arg = sz;
-    }
-    res_arg = (res_arg + 1 <= __min_cap) ? (size_type)__min_cap : (res_arg + 16) & ~15;
-    if (res_arg != cap) {
-        T* new_data;
-        T* p;
-        bool now_long;
-        if (res_arg == __min_cap) {
-            now_long = false;
-            new_data = mShort.mData;
-            p = mLong.mData;
-        } else {
-            if (res_arg > cap) {
-                new_data = __allocate(res_arg);
-            } else {
-                new_data = __allocate(res_arg);
-                if (new_data == 0) {
-                    return;
-                }
-            }
-            now_long = true;
-            p = was_long ? mLong.mData : mShort.mData;
-        }
-        memmove(new_data, p, sz * sizeof(T));
-        new_data[sz] = 0;
-        if (was_long) {
-            ::operator delete(p);
-        }
-        mFlags.mIsLong = now_long;
-        if (!now_long) {
-            mShortFlags.mSize = sz;
-        } else {
-            mLong.mData = new_data;
-            mLong.mSize = sz;
-            mFlags.mCap = res_arg;
-        }
-    }
-}
-
-template <class T>
-template <class Tag>
-basic_string<T>& basic_string<T>::__replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag) {
-    bool was_long = mFlags.mIsLong;
-    size_type new_sz;
-    T* p;
-    size_type sz;
-    size_type cap;
-    if (!was_long) {
-        p = mShort.mData;
-        cap = __min_cap;
-        sz = mShortFlags.mSize;
-    } else {
-        p = mLong.mData;
-        cap = mFlags.mCap;
-        sz = mLong.mSize;
-    }
-    if (pos > sz) {
-        __msl_error("basic_string: out_of_range");
-    }
-    size_type rlen = __min(n1, sz - pos);
-    size_type n2 = j2 - j1;
-    if (n2 > max_size() || sz - rlen > max_size() - n2) {
-        __msl_error("basic_string: length_error");
-    }
-    new_sz = n2 + (sz - rlen);
-    size_type tail = sz - (pos + rlen);
-    if (new_sz >= cap) {
-        cap = (cap + 15) & ~15;
-        while (cap < new_sz + 1) {
-            cap = (cap * 2 + 15) & ~15;
-        }
-        T* new_data = __allocate(cap);
-        if (pos != 0) {
-            memcpy(new_data, p, pos * sizeof(T));
-        }
-        T* d = new_data + pos;
-        memmove(d, j1, (j2 - j1) * sizeof(T));
-        if (tail != 0) {
-            memcpy(d + n2, p + pos + rlen, tail * sizeof(T));
-        }
-        __assign(new_data[new_sz], T());
-        if (was_long) {
-            ::operator delete(p);
-        } else {
-            mFlags.mIsLong = 1;
-        }
-        mLong.mData = new_data;
-        mLong.mSize = new_sz;
-        mFlags.mCap = cap;
-    } else {
-        basic_string tmp;
-        if (tail != 0 && p + pos + n2 < j2 && j2 <= p + sz) {
-            tmp.__replace_unk(0, tmp.size(), j1, j2, Tag());
-            j1 = tmp.data();
-        }
-        if (tail != 0) {
-            memmove(p + pos + n2, p + pos + rlen, tail * sizeof(T));
-        }
-        memmove(p + pos, j1, n2 * sizeof(T));
-        __assign(p[new_sz], T());
-        if (!was_long) {
-            mShortFlags.mSize = new_sz;
-        } else {
-            mLong.mSize = new_sz;
-        }
-    }
-    return *this;
-}
 
 typedef basic_string<char> string;
 

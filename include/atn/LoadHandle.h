@@ -11,6 +11,7 @@ public:
     virtual void vf0C(const char* path) = 0; // inferred: start loading `path`
 
     int fn_80473F50(); // inferred: nonzero while busy/not loaded
+    void fn_80473F88(); // inferred: releases mCore
 
     void* mCore; // 0x04: inferred: atn::LoadCore* of the pending/loaded resource
 };

@@ -1,0 +1,140 @@
+#ifndef STD_STRING_MEMBERS_H
+#define STD_STRING_MEMBERS_H
+
+// Out-of-line members of std::basic_string. Game files only include std/string.h and call these
+// out of line: their objects have no copies of them (the error messages are not in their string
+// pools, e.g. atn/LH_Motion.cpp), so the members were compiled once elsewhere (inferred: an
+// explicit instantiation in MSL C++). Only standalone test compiles include this file.
+
+#include "std/string.h"
+
+namespace std {
+
+template <class T>
+void basic_string<T>::reserve(size_type res_arg) {
+    if (res_arg > max_size()) {
+        __msl_error("basic_string::reserve length_error");
+    }
+    size_type cap;
+    size_type sz;
+    bool was_long = mFlags.mIsLong;
+    if (!was_long) {
+        sz = mShortFlags.mSize;
+        cap = __min_cap;
+    } else {
+        sz = mLong.mSize;
+        cap = mFlags.mCap;
+    }
+    if (res_arg < sz) {
+        res_arg = sz;
+    }
+    res_arg = (res_arg + 1 <= __min_cap) ? (size_type)__min_cap : (res_arg + 16) & ~15;
+    if (res_arg != cap) {
+        T* new_data;
+        T* p;
+        bool now_long;
+        if (res_arg == __min_cap) {
+            now_long = false;
+            new_data = mShort.mData;
+            p = mLong.mData;
+        } else {
+            if (res_arg > cap) {
+                new_data = __allocate(res_arg);
+            } else {
+                new_data = __allocate(res_arg);
+                if (new_data == 0) {
+                    return;
+                }
+            }
+            now_long = true;
+            p = was_long ? mLong.mData : mShort.mData;
+        }
+        memmove(new_data, p, sz * sizeof(T));
+        new_data[sz] = 0;
+        if (was_long) {
+            ::operator delete(p);
+        }
+        mFlags.mIsLong = now_long;
+        if (!now_long) {
+            mShortFlags.mSize = sz;
+        } else {
+            mLong.mData = new_data;
+            mLong.mSize = sz;
+            mFlags.mCap = res_arg;
+        }
+    }
+}
+
+template <class T>
+template <class Tag>
+basic_string<T>& basic_string<T>::__replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag) {
+    bool was_long = mFlags.mIsLong;
+    size_type new_sz;
+    T* p;
+    size_type sz;
+    size_type cap;
+    if (!was_long) {
+        p = mShort.mData;
+        cap = __min_cap;
+        sz = mShortFlags.mSize;
+    } else {
+        p = mLong.mData;
+        cap = mFlags.mCap;
+        sz = mLong.mSize;
+    }
+    if (pos > sz) {
+        __msl_error("basic_string: out_of_range");
+    }
+    size_type rlen = __min(n1, sz - pos);
+    size_type n2 = j2 - j1;
+    if (n2 > max_size() || sz - rlen > max_size() - n2) {
+        __msl_error("basic_string: length_error");
+    }
+    new_sz = n2 + (sz - rlen);
+    size_type tail = sz - (pos + rlen);
+    if (new_sz >= cap) {
+        cap = (cap + 15) & ~15;
+        while (cap < new_sz + 1) {
+            cap = (cap * 2 + 15) & ~15;
+        }
+        T* new_data = __allocate(cap);
+        if (pos != 0) {
+            memcpy(new_data, p, pos * sizeof(T));
+        }
+        T* d = new_data + pos;
+        memmove(d, j1, (j2 - j1) * sizeof(T));
+        if (tail != 0) {
+            memcpy(d + n2, p + pos + rlen, tail * sizeof(T));
+        }
+        __assign(new_data[new_sz], T());
+        if (was_long) {
+            ::operator delete(p);
+        } else {
+            mFlags.mIsLong = 1;
+        }
+        mLong.mData = new_data;
+        mLong.mSize = new_sz;
+        mFlags.mCap = cap;
+    } else {
+        basic_string tmp;
+        if (tail != 0 && p + pos + n2 < j2 && j2 <= p + sz) {
+            tmp.__replace_unk(0, tmp.size(), j1, j2, Tag());
+            j1 = tmp.data();
+        }
+        if (tail != 0) {
+            memmove(p + pos + n2, p + pos + rlen, tail * sizeof(T));
+        }
+        memmove(p + pos, j1, n2 * sizeof(T));
+        __assign(p[new_sz], T());
+        if (!was_long) {
+            mShortFlags.mSize = new_sz;
+        } else {
+            mLong.mSize = new_sz;
+        }
+    }
+    return *this;
+}
+
+} // namespace std
+
+#endif
