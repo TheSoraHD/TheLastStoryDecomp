@@ -14,7 +14,7 @@ public:
     virtual void vf2C();
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
-    virtual void vfA4();
+    virtual int vfA4(); // inferred: returns 1/0 (0x800EE494)
     virtual void vfE4();
     virtual void vfE8();
     virtual void vfEC();

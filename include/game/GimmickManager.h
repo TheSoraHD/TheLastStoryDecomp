@@ -10,10 +10,7 @@ class GimmickCommon;
 class LoadSeTableTask;
 
 // inferred: object passed to GimmickManager::fn_803EE45C (layout unknown)
-struct GimmickQuery_unk {
-    unsigned char m00[0x58];
-    int m58;
-};
+class CharaTask;
 
 // inferred from __vt__14GimmickManager (0x8078CAB0): the gimmick manager singleton
 // (lbl_8087F4A0); gimmicks register themselves in its list
@@ -30,7 +27,7 @@ public:
     void fn_803EE374(void* arg);              // inferred: calls vf28 of the gimmicks
     void fn_803EE3F0(GimmickCommon* gimmick); // inferred: registers a gimmick
     void fn_803EE41C(GimmickCommon* gimmick); // inferred: unregisters it
-    int fn_803EE45C(GimmickQuery_unk* query);
+    int fn_803EE45C(CharaTask* chara); // inferred: the query is a character (fn_8017CB2C)
     void fn_803EE514(); // inferred: calls vf30 of the gimmicks
     void fn_803EE560(); // inferred: calls vf34 of the gimmicks
     void fn_803EE5AC(int a, int b, int c); // inferred: loads the sound table of a map

@@ -29,6 +29,8 @@ struct HitInfo_unk;
 // inferred: object at CharaTask+0xD74 (class unknown)
 struct CharaD74_unk {
     int fn_8013A144();
+    int fn_8011D1FC();
+    int fn_8011D21C();
 
     unsigned char m00[0x20];
     unsigned int m20;
@@ -106,6 +108,12 @@ struct CharaListeners_unk {
     int mEnabled;
 };
 CharaListeners_unk* fn_8014F8F4();
+
+// inferred: type data returned by fn_80204E04 (CharaTask::m68)
+struct CharaType_unk {
+    int m00;
+    int m04;
+};
 
 // inferred: entry of the character table returned by fn_8020924C (names invented)
 struct CharaInfo_unk {
@@ -222,18 +230,18 @@ public:
     virtual void vf98();
     virtual void vf9C();
     virtual void vfA0();
-    virtual void vfA4();
+    virtual int vfA4();
     virtual void vfA8();
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
     virtual void vfB0();
     virtual void vfB4();
-    virtual void vfB8();
+    virtual int vfB8(wchar_t* name); // inferred: copies the character name
     virtual void vfBC();
     virtual void vfC0();
-    virtual void vfC4();
+    virtual bool vfC4();
     virtual void vfC8();
     virtual void vfCC();
-    virtual void vfD0();
+    virtual atn::Vector3 vfD0(float angle); // inferred: position at mid height
     virtual void vfD4();
     virtual void vfD8();
     virtual void vfDC();
@@ -328,6 +336,18 @@ public:
     bool fn_8014FD0C();
     void fn_8014FD30();
     void fn_80150178(int slot, chr::CharaEquip_unk* equip);
+    void fn_8017ABD4(int arg);
+    int fn_8017AC08();
+    float fn_8017AC24();
+    void fn_8017AC44(int clear);
+    bool fn_8017B16C();
+    bool fn_8017B3C0();
+    void fn_8017C7F8(unsigned int on);
+    void fn_8017BC4C();
+    int fn_8017C974();
+    int fn_8017C9A0();
+    int fn_8017CB2C(); // inferred: also used by GimmickManager::fn_803EE45C
+    const char* fn_8017C904(); // inferred: "chXXXX_YY" name of the character
     // inferred: state checks inlined in many places (names invented)
     bool IsActive_unk() { return (mFlags & 4) != 4 && (mFlags & 1) != 1; }
     bool IsFree_unk() { return IsActive_unk() && (mStatus.m0C & 0x20) != 0x20; }
@@ -346,7 +366,7 @@ public:
     chr::CharaData_unk* m5C; // inferred: character data (read by CharaStatus)
     CharaInfo_unk* m60;      // inferred: character table entry (fn_8020924C(m50))
     int m64;
-    void* m68[5]; // inferred: m68[0] is set from fn_80204E04 and then cleared with the array
+    CharaType_unk* m68[5]; // inferred: m68[0] is set from fn_80204E04 and then cleared with the array
     int m7C;
     int mId;    // 0x80: inferred: unique id given by the character manager
     atn::LH_Binary m84;
@@ -514,13 +534,17 @@ public:
     unsigned int mFlagB31_21 : 11;
     unsigned int mFlagB20 : 1;
     unsigned int mFlagB19 : 1;
-    unsigned int mFlagB18_15 : 4;
+    unsigned int mFlagB18 : 1;
+    unsigned int mFlagB17 : 1;
+    unsigned int mFlagB16_15 : 2;
     unsigned int mFlagB14 : 1;
     unsigned int mFlagB13_11 : 3;
     unsigned int mFlagB10 : 1;
     unsigned int mFlagB9_8 : 2;
     unsigned int mFlagB7 : 1;
-    unsigned int mFlagB6_0 : 7;
+    unsigned int mFlagB6_2 : 5;
+    unsigned int mFlagB1 : 1; // inferred: set by fn_8017C7F8 (motion mode 4 instead of 1)
+    unsigned int mFlagB0 : 1;
     int m12AC;
     int m12B0;
     int m12B4;
@@ -534,7 +558,7 @@ public:
     FixedArray_unk<CharaHit_unk, 8> m12D0;
     int m1374;
     unsigned char m1378[0x137C - 0x1378];
-    int m137C;
+    unsigned int m137C;
     int m1380;
     int m1384;
     short m1388;

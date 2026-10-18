@@ -1,5 +1,6 @@
 #include "game/GimmickManager.h"
 #include "game/GimmickCommon.h"
+#include "game/CharaTask.h"
 #include "atn/Csv.h"
 #include "atn/LH_Binary.h"
 #include "atn/Memory.h"
@@ -17,7 +18,6 @@ extern "C" int fn_800DC6B4(const char* s);   // inferred: string hash
 extern "C" GimmickCommon* fn_80435CE4(atn::Task* parent, int id, int arg); // inferred: gimmick constructors
 extern "C" GimmickCommon* fn_804093B4(atn::Task* parent, int id, int arg);
 extern "C" void fn_800D2338(atn::Task* task);              // inferred: deletes a task
-extern "C" int fn_8017CB2C(GimmickQuery_unk* query);
 extern "C" int fn_8049D5DC(char* name, int a, int b, int c); // inferred: name of a map
 extern "C" int fn_8006AA20(const char* path);                // inferred: the file exists
 
@@ -183,9 +183,9 @@ void GimmickManager::fn_803EE41C(GimmickCommon* gimmick) {
     }
 }
 
-int GimmickManager::fn_803EE45C(GimmickQuery_unk* query) {
+int GimmickManager::fn_803EE45C(CharaTask* query) {
     int id; // declared here: in the loop, the id and the gimmick pointer swap registers
-    if (query == 0 || fn_8017CB2C(query) == 0) {
+    if (query == 0 || query->fn_8017CB2C() == 0) {
         return 0;
     }
     for (GimmickCommon* g = mHead; g != 0; g = g->m5C) {

@@ -13,7 +13,9 @@ struct Settings_unk {
 
     unsigned char m00[0x48];
     float m48;
-    unsigned char m4C[0x418 - 0x4C];
+    unsigned char m4C[0x278 - 0x4C];
+    int m278;
+    unsigned char m27C[0x418 - 0x27C];
     int m418;
     unsigned char m41C[0x454 - 0x41C];
     int m454;
@@ -26,6 +28,10 @@ struct Field_unk {
 
     unsigned char m00[0x10D8];
     RouteTable_unk* m10D8;
+    unsigned char m10DC[0x54F4 - 0x10DC];
+    unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
+    unsigned char m54F8[0x5760 - 0x54F8];
+    int m5760;
 };
 extern "C" Field_unk* lbl_8087F430;
 
@@ -128,7 +134,7 @@ extern "C" void fn_800697D8(void* output, const char* message);
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" int fn_802092C0(char* path, int id);
 extern "C" chr::CharaData_unk* fn_8020A81C(int id);
-extern "C" void* fn_80204E04(int type, int arg);
+extern "C" CharaType_unk* fn_80204E04(int type, int arg);
 extern "C" int fn_8021FC00(int id);
 extern "C" void fn_80218260();
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
@@ -172,8 +178,8 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
       m12A0(0), mFlag31(0), mFlag30(0), mFlag29(1), mFlag28(0), mFlag27(0), mFlag25(0), mFlag24(1),
       mFlag23(0), mFlag22(0), mFlag21(0), mFlag20(0), mFlag19(0), mFlag18(0), mFlag17(1), mFlag16(1),
       mFlag15(0), mFlag14(1), mFlag13(1), mFlag12(0), mFlag11(0), mFlag10(0), mFlag9(0), mFlag8(0), mFlag7(0), mFlag6(0), mFlag5(0), mFlag4(0), mFlag3(0),
-      mFlag2(0), mFlag1_0(0), mFlagB31_21(0), mFlagB20(1), mFlagB18_15(0), mFlagB14(1), mFlagB13_11(0),
-      mFlagB10(1), mFlagB9_8(0), mFlagB7(1), mFlagB6_0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
+      mFlag2(0), mFlag1_0(0), mFlagB31_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16_15(0), mFlagB14(1), mFlagB13_11(0),
+      mFlagB10(1), mFlagB9_8(0), mFlagB7(1), mFlagB6_2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
       m12BC(-1), m12C0(0), m12C4(0), m12C8(0), m12CC(0.0f), m1374(0), m137C(0), m1380(0), m1384(0),
       m1388(0), m138A(0), m138C(0), m1390(rand() % 4), m1398(0), m139C(0), m13AC(0), m13B0(0),
       m13B4(1.0f), m13D8(0.0f), m13DC(0.0f), m13E0(0.0f), m13E4(0.0f), m13E8(0.0f), m13EC(0.0f),
@@ -753,4 +759,195 @@ void CharaTask::fn_80150178(int slot, chr::CharaEquip_unk* equip) {
     if (slot == 0) {
         fn_8014FD30();
     }
+}
+
+void CharaTask::fn_8017ABD4(int arg) {
+    m68[1] = fn_80204E04(mType, arg);
+}
+
+int CharaTask::fn_8017AC08() {
+    if (m68[1] != 0) {
+        return m68[1]->m04;
+    }
+    return 0;
+}
+
+float CharaTask::fn_8017AC24() {
+    return 1.0f;
+}
+
+extern "C" void fn_80106680(Effect_unk* effect, CharaTask* chara, Model_unk* model);
+
+void CharaTask::fn_8017AC2C() {
+    fn_80106680(lbl_8087F048, this, &mMotion);
+}
+
+void CharaTask::fn_8017AC3C(int value) {
+    m13FC = value;
+}
+
+void CharaTask::fn_8017AC44(int clear) {
+    if (m13FC != 0) {
+        fn_801446F0();
+        mF1C = 0;
+        atn::Vector3 dir = fn_8014052C();
+        Mtx m;
+        PSMTXRotRad(m, 'y', -1.5707964f);
+        PSMTXMultVec(m, &dir, &dir);
+        dir *= 5.0f;
+        m574 = dir;
+        if (clear != 0) {
+            m13FC = 0;
+        }
+    }
+}
+
+// inferred: name table of the field (lbl_8087F430 + 0x54F4) (names invented)
+struct NameEntry_unk {
+    unsigned char m00[0x08];
+    const wchar_t* mName;
+};
+extern "C" NameEntry_unk* fn_803B3B38(void* table, int id);
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+
+int CharaTask::vfB8(wchar_t* name) {
+    if (m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
+        NameEntry_unk* entry = fn_803B3B38(lbl_8087F430->m54F4, m5C->mC4);
+        if (entry != 0) {
+            wcscpy(name, entry->mName);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+bool CharaTask::fn_8017B16C() {
+    if (mType == 0 && lbl_8087F0A8->m278 != 0 && m5C->m11C == 1) {
+        return true;
+    }
+    if (mType == 0 && mFlagB17) {
+        return true;
+    }
+    return false;
+}
+
+bool CharaTask::fn_8017B3C0() {
+    bool result = false;
+    if (mC58.mC0 == 0 || (mC58.m11C.fn_8011D1FC() && !mC58.m11C.fn_8011D21C())) {
+        if (mFlagB14) {
+            result = true;
+        }
+    }
+    return result;
+}
+
+void CharaTask::fn_8017BC4C() {
+    m140C = -1;
+}
+
+bool CharaTask::vfC4() {
+    if (!CanAct_unk()) {
+        return false;
+    }
+    if (mStatus.mParamB.fn_801404E0(2)) {
+        return false;
+    }
+    if (m55C == 6) {
+        switch (m560) {
+        case 0x17:
+        case 0x1B:
+        case 0x1C:
+        case 0x1F:
+        case 0x23:
+        case 0x24:
+        case 0x30:
+        case 0x31:
+        case 0x32:
+        case 0x33:
+        case 0x36:
+        case 0x37:
+        case 0x3B:
+        case 0x3F:
+        case 0x5A:
+        case 0x6A:
+        case 0x71:
+        case 0x7B:
+        case 0x7C:
+        case 0x7D:
+        case 0x7E:
+        case 0x7F:
+        case 0x8E:
+            return false;
+        }
+    }
+    return true;
+}
+
+// NONMATCHING: the original loads 0.6f into f0 and m5B4 into f2 (ours the other way round);
+// tried member and local forms of the offset.
+atn::Vector3 CharaTask::vfD0(float angle) {
+    atn::Vector3 offset(0.0f, 0.6f * m5B4, 0.0f);
+    atn::Vector3 pos(mPos.x + offset.x, mPos.y + offset.y, mPos.z + offset.z);
+    Mtx m;
+    PSMTXRotRad(m, 'y', angle);
+    return pos;
+}
+
+extern "C" void fn_80094BD8(void* model, int mode);
+
+void CharaTask::fn_8017C7F8(unsigned int on) {
+    if (mFlagB1 != on) {
+        mFlagB1 = on;
+        int mode = 1;
+        if (mFlagB1) {
+            mode = 4;
+        }
+        fn_80094BD8(&mMotion, mode);
+        for (unsigned int i = 0; i < mParts.mCount; i++) {
+            if (mParts.mData[i] != 0) {
+                fn_80094BD8(mParts.mData[i]->m010, mode);
+            }
+        }
+        chr::CharaEquip_unk** equips = m680;
+        for (unsigned int i = 0; i < 8; i++) {
+            if (equips[i] != 0) {
+                fn_80094BD8(equips[i]->m024, mode);
+            }
+        }
+        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+            fn_80094BD8(&m6A4.mData[i]->m004, mode);
+        }
+    }
+}
+
+const char* CharaTask::fn_8017C904() {
+    sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
+    return lbl_807C7B28;
+}
+
+int CharaTask::fn_8017C974() {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m5760 > 0) {
+        return 1;
+    }
+    return (m54C >> 4) & 1;
+}
+
+int CharaTask::fn_8017C9A0() {
+    return (m54C >> 4) & 1;
+}
+
+int CharaTask::fn_8017CB2C() {
+    int result = 0;
+    if ((m137C & 0x400) == 0x400 || m50 == 201612 || m50 == 203932 || m50 == 203900) {
+        result = 1;
+    }
+    return result;
+}
+
+int CharaTask::vfA4() {
+    return 0;
+}
+
+int CharaTask::vf0C() {
+    return fn_8013655C() == 0;
 }
