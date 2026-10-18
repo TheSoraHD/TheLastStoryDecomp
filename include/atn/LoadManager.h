@@ -36,7 +36,8 @@ public:
 
     // inferred: lookup of a resource by path hash. The early return gives the bne+b of 0x80472E5C.
     LoadCore* Find_unk(unsigned int hash) {
-        std::list<LoadCore*>::iterator it = __find_if_unk(mList.begin(), mList.end(), __HashIs_unk(hash));
+        std::list<LoadCore*>::iterator it =
+            __find_if_unk(mList.begin(), mList.end(), __HashIs_unk(hash));
         if (it != mList.end()) {
             LoadCore* core = *it;
             if (core->m05 == 0) {
@@ -58,8 +59,9 @@ public:
 
 // Defined out of the class: its literals are in the file string pool (0x80755C90).
 // NONMATCHING: 96.6% (LoadColliTree, 0x80472DCC) - same structure; the found resource, the new
-// node and the list end are in a different permutation of r28-r30. Tried: loop and condition forms, a local
-// find_if, declaration order, T* instead of LoadCore*, ternary/if-else for the lookup.
+// node and the list end are in a different permutation of r28-r30. Tried: loop and condition
+// forms, a local find_if, declaration order, T* instead of LoadCore*, ternary/if-else for the
+// lookup, an out parameter for the lookup.
 template <class T>
 T* LoadManager_unk::Get_unk(const char* path, int cached) {
     char fullPath[0x100];

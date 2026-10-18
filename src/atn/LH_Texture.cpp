@@ -40,7 +40,8 @@ void LoadTexture::vf0C() {
 void LH_Texture::fn_80478158(GXTexObj* obj, int wrapS, int wrapT) {
     if (mCore != 0) {
         TexHeader_unk* header = (TexHeader_unk*)((LoadCore*)mCore)->m54;
-        GXInitTexObj(obj, header->mImage, header->mWidth, header->mHeight, header->mFormat, wrapS, wrapT, 0);
+        GXInitTexObj(obj, header->mImage, header->mWidth, header->mHeight, header->mFormat, wrapS,
+                     wrapT, 0);
     }
 }
 

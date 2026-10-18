@@ -6,7 +6,8 @@
 
 namespace atn {
 
-// inferred from __vt__Q23atn10LH_Texture (0x8078FFB0); no destructor declared (weak copy 0x800D57B0)
+// inferred from __vt__Q23atn10LH_Texture (0x8078FFB0); no destructor declared (weak copy
+// 0x800D57B0)
 class LH_Texture : public LoadHandle {
 public:
     virtual void vf0C(const char* path); // 0x804781B8

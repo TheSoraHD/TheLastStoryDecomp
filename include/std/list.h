@@ -31,12 +31,6 @@ struct __list_node_holder_unk {
             ::operator delete(mNode);
         }
     }
-    __list_node_unk<T>* get() const { return mNode; }
-    __list_node_unk<T>* release() {
-        __list_node_unk<T>* node = mNode;
-        mNode = 0;
-        return node;
-    }
     __list_node_base_unk* mOwner;
     __list_node_unk<T>* mNode;
 };
