@@ -22,10 +22,12 @@ public:
 
     void fn_800D3F28(Task* child); // inferred: attaches `child` (null detaches)
     int fn_800D3FA4(); // inferred: non-virtual, returns nonzero on success (called by many vf0C)
+    void fn_800D246C(int arg); // inferred
 
     // inferred: sizeof(atn::Task) == 0x48 (FriendManager adds no members and is allocated with 0x48)
     unsigned char m04[0x38 - 0x04];
-    unsigned int mFlags; // 0x38
+    // inferred: volatile: GimmickCommon::vf30 (0x803EDF40) reads it twice without merging the loads
+    volatile unsigned int mFlags; // 0x38
     unsigned char m3C[0x48 - 0x3C];
 };
 

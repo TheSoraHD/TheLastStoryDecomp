@@ -78,6 +78,15 @@ namespace atn {
 // 0x801C9130-0x801C924C); others are called out of line.
 class Matrix3x4 {
 public:
+    Matrix3x4() {}
+    // inferred: copies with the paired-single matrix copy (0x803ECC28)
+    Matrix3x4(const Matrix3x4& o) {
+        __MtxCopy(m, o.m);
+    }
+    Matrix3x4& operator=(const Matrix3x4& o) {
+        __MtxCopy(m, o.m);
+        return *this;
+    }
     void SetIdentity() {
         m[0][1] = m[0][2] = m[0][3] = m[1][0] = m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] = 0.0f;
         m[0][0] = m[1][1] = m[2][2] = 1.0f;
