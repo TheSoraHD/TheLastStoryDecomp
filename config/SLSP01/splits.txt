@@ -226,8 +226,8 @@ atn/Sound3dEngine.cpp:
 
 atn/TextureCacheManager8x32.cpp:
 	.text       start:0x800D69A8 end:0x800D6BE0
-	.rodata     start:0x80734640 end:0x80734660
-	.data       start:0x80779700 end:0x80779728
+	.rodata     start:0x80734640 end:0x807346A0
+	.data       start:0x80779700 end:0x80779758
 
 atn/TextureComposite.cpp:
 	.text       start:0x800D71A4 end:0x800D810C
