@@ -339,6 +339,7 @@ public:
     void fn_8012C6D4(CharaParam_unk* param, int level, int arg, int arg2);
     void fn_8012D180();
     void fn_8012CE4C(int kind);
+    void ClearBit_unk(int bit);
     int fn_8012E534();
     int fn_8012F3D8();
     void fn_8013310C(unsigned int flags, int both);

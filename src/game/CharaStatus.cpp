@@ -20,7 +20,9 @@ struct Settings_unk {
     unsigned char m00[0xD4];
     int mD4; // inferred: index into mD8 (difficulty?)
     StatusRate_unk mD8[4];
-    unsigned char m158[0x284 - 0x158];
+    unsigned char m158[0x194 - 0x158];
+    int m194;
+    unsigned char m198[0x284 - 0x198];
     int m284;
     unsigned char m288[0x2CC - 0x288];
     int m2CC;
@@ -153,7 +155,8 @@ void CharaStatus::fn_8012D628(CharaParam_unk* dst, const CharaParam_unk* src) {
 
 // inferred: per-kind equipment table (fn_80219160); names invented
 struct EquipSet_unk {
-    unsigned char m00[0x82];
+    unsigned char m00[2];
+    unsigned char m02[128]; // inferred: one entry per bit of CharaStatusData_unk::mBits
     signed char m82[6];
 };
 extern "C" int fn_80219558(int kind);
@@ -165,6 +168,84 @@ extern "C" Inventory2_unk* lbl_8087EE68;
 extern "C" int fn_800185B4(Inventory2_unk* inventory, CharaTask* chara, int item);
 extern "C" int lbl_8087F610;
 extern "C" int fn_80370174(StatusField_unk* field, int id);
+
+// inferred: counterpart of fn_80134674 (never emitted on its own); name invented
+inline void CharaStatus::ClearBit_unk(int bit) {
+    if ((unsigned int)bit > 127) {
+        return;
+    }
+    unsigned int* word = &m1A8.mBits[bit / 32];
+    unsigned int mask = 1 << (bit % 32);
+    if ((*word & mask) == mask) {
+        *word &= ~mask;
+    }
+}
+
+// NONMATCHING: 96.3% - only the registers of the inlined set/clear of a bit differ (same problem as
+// fn_80134674).
+void CharaStatus::fn_8012CE4C(int kind) {
+    EquipSet_unk* set = fn_80219160(kind, mParamA.m78);
+    if (set == 0) {
+        return;
+    }
+    for (int i = 0; i < 128; i++) {
+        bool allowed = true;
+        if (lbl_8087F430 != 0) {
+            switch (i) {
+            case 10:
+            case 13:
+                if (kind == 2) {
+                    if (fn_80370174(lbl_8087F430, 283) == 0) {
+                        allowed = false;
+                    }
+                } else if (fn_80370174(lbl_8087F430, 5) > 0) {
+                    allowed = false;
+                }
+                break;
+            case 9:
+                if (fn_80370174(lbl_8087F430, 136) > 0) {
+                    allowed = false;
+                }
+                break;
+            case 61:
+                if (kind == 2) {
+                    if (fn_80370174(lbl_8087F430, 283) == 0) {
+                        allowed = false;
+                    }
+                } else if (fn_80370174(lbl_8087F430, 286) > 0) {
+                    allowed = false;
+                }
+                break;
+            case 62:
+            case 63:
+                if (kind == 2 && fn_80370174(lbl_8087F430, 283) == 0) {
+                    allowed = false;
+                }
+                break;
+            case 2:
+                if (fn_80370174(lbl_8087F430, 287) > 0) {
+                    allowed = false;
+                }
+                break;
+            case 14:
+            case 16:
+                if ((kind == 2 || kind == 3) && fn_80370174(lbl_8087F430, 283) == 0 &&
+                    lbl_8087F0A8->m194 == 0) {
+                    allowed = false;
+                }
+                break;
+            }
+        }
+        if (allowed && set->m02[i] != 0 && !fn_801346C8(i)) {
+            fn_80134674(i);
+        }
+        if (!allowed || set->m02[i] == 0) {
+            if (fn_801346C8(i)) {
+                ClearBit_unk(i);
+            }
+        }
+    }
+}
 
 // NONMATCHING: 97.5% - the loop that resets m2D0 walks a pointer (the original uses base + offset, with the
 // zero in the register of `set`). Tried: unsigned and shared counters, a helper, sizeof bound.
