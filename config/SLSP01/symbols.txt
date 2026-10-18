@@ -3236,7 +3236,7 @@ fn_8012D714__11CharaStatusFP14CharaParam_unkPC14CharaParam_unkPC14CharaParam_unk
 fn_8012D8B8__11CharaStatusFv = .text:0x8012D8B8; // type:function size:0x24C
 fn_8012DB04__11CharaStatusFv = .text:0x8012DB04; // type:function size:0x26C
 fn_8012DD70__11CharaStatusFv = .text:0x8012DD70; // type:function size:0x20C
-fn_8012DF7C = .text:0x8012DF7C; // type:function size:0x2C8
+fn_8012DF7C__11CharaStatusFiUiP11HitInfo_unk = .text:0x8012DF7C; // type:function size:0x2C8
 fn_8012E244__11CharaStatusFP11HitInfo_unk = .text:0x8012E244; // type:function size:0x2F0
 fn_8012E534__11CharaStatusFv = .text:0x8012E534; // type:function size:0xC
 fn_8012E540 = .text:0x8012E540; // type:function size:0xAF4

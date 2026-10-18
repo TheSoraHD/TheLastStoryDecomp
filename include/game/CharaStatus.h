@@ -342,6 +342,7 @@ public:
     void fn_8012D180();
     void fn_8012CE4C(int kind);
     void fn_8012E244(HitInfo_unk* hit);
+    void fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit);
     int fn_8012F440(int a, int b, int c, int d, int e, int f, int g);
     void ApplyRates_unk(HitInfo_unk* hit);
     void fn_801342D0(struct StatusItem_unk* item, int stat);

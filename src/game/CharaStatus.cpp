@@ -65,6 +65,14 @@ extern "C" StatusCurves_unk* fn_8020FCE8(int id);
 extern "C" int fn_80375B78(StatusField_unk* field, int arg);
 extern "C" int lbl_8087F610;
 extern "C" int fn_80370174(StatusField_unk* field, int id);
+extern "C" int fn_8021A8D0(HitInfo_unk* hit);
+extern "C" int fn_80375184(StatusField_unk* field);
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" void fn_8010652C(Effect_unk* effect, chr::Chara_unk* chara);
+extern "C" void fn_801061BC(Effect_unk* effect, chr::Chara_unk* chara, void* model, int level);
+extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
+extern "C" float fn_80040588(void* obj, CharaStatus* status, int arg);
 
 inline void CharaStatus::ClearFlags_unk(unsigned int flags) {
     m0C &= ~flags;
@@ -505,6 +513,49 @@ float CharaStatus::fn_8012DB04() {
     return rate;
 }
 
+void CharaStatus::fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit) {
+    int kind2 = 0;
+    int bit8 = 0;
+    int bit9 = 0;
+    int noBit21 = 0;
+    int power = 0;
+    if (hit != 0) {
+        kind2 = hit->m01 == 2;
+        bit8 = (hit->mAC >> 8) & 1;
+        bit9 = (hit->mAC >> 9) & 1;
+        noBit21 = (hit->mAC & 0x200000) != 0x200000;
+        power = hit->m94;
+    }
+    if ((m0C & 0x1000) != 0x1000 || (hit != 0 && fn_8021A8D0(hit) != 0)) {
+        if (kind2 == 0 && (flags & 0x20) == 0x20 && bit8 != 0) {
+            m04 = 0.0f;
+        } else {
+            m04 -= damage;
+        }
+        fn_801333E4();
+        if (m04 <= 0.0f) {
+            fn_8012DD70();
+            return;
+        }
+    }
+    int result = fn_8012F440(flags, power, kind2, damage, bit8, bit9, noBit21);
+    if (result != 0 && mChara != 0 && lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) && lbl_8087F048 != 0) {
+        if (result > 0) {
+            if (mChara->mType == 2) {
+                fn_801092C8(lbl_8087F048, 8, mChara, 0, 0);
+            } else {
+                fn_801092C8(lbl_8087F048, 9, mChara, 0, 0);
+            }
+        } else if (result < 0) {
+            if (mChara->mType == 2) {
+                fn_801092C8(lbl_8087F048, 10, mChara, 0, 0);
+            } else {
+                fn_801092C8(lbl_8087F048, 11, mChara, 0, 0);
+            }
+        }
+    }
+}
+
 // inferred: percentages of a hit applied to mParamB; name invented
 inline void CharaStatus::ApplyRates_unk(HitInfo_unk* hit) {
     float rateB;
@@ -524,8 +575,6 @@ inline void CharaStatus::ApplyRates_unk(HitInfo_unk* hit) {
     m14 |= hit->mAC;
 }
 
-extern "C" float fn_80040588(void* obj, CharaStatus* status, int arg);
-extern "C" int fn_8021A8D0(HitInfo_unk* hit);
 
 void CharaStatus::fn_8012E244(HitInfo_unk* hit) {
     if (mChara != 0 && mChara->mFlag2) {
@@ -577,11 +626,6 @@ void CharaStatus::fn_8012F034(float amount) {
     }
 }
 
-extern "C" int fn_80375184(StatusField_unk* field);
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_8010652C(Effect_unk* effect, chr::Chara_unk* chara);
-extern "C" void fn_801061BC(Effect_unk* effect, chr::Chara_unk* chara, void* model, int level);
 
 // NONMATCHING: 95.3% - the original repeats the chara/flag test of the inlined fn_8012F3D8
 // (ours reuses the first test) and passes the new gauge value to the second one from a register
@@ -929,7 +973,6 @@ struct StatusItem_unk {
 };
 extern "C" int fn_8021AF50(int stat);
 extern "C" void fn_80370320(StatusField_unk* field, int id, int value, int arg);
-extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 
 // NONMATCHING: 98.9% - only the load of item->mB8 is scheduled after the register saves (the original
 // loads it right after saving f30); same as fn_80133BD8.

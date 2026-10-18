@@ -6,7 +6,9 @@
 // inferred: hit/damage description passed to CharaTask::vf3C and vf40 (0x801513D0) and to
 // CharaStatus::fn_8012E244; name invented.
 struct HitInfo_unk {
-    unsigned char m00[0x10];
+    unsigned char m00;
+    signed char m01; // inferred: kind (2 is tested by CharaStatus::fn_8012DF7C)
+    unsigned char m02[0x10 - 0x02];
     atn::Vector3 m10; // inferred: knockback direction
     unsigned char m1C[0x68 - 0x1C];
     int m68;
