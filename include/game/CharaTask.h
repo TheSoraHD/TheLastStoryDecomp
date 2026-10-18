@@ -158,7 +158,8 @@ public:
     chr::CharaPart_unk* m654[1]; // inferred: array of m650 entries (capacity unknown)
     unsigned char m658[0x7D4 - 0x658];
     CharaStatus mStatus; // 0x7D4
-    unsigned char mC10[0xC48 - 0xC10];
+    unsigned int mC10; // inferred: flags or-ed into CharaStatus::mParamA.m9C (fn_8012B3E8)
+    unsigned char mC14[0xC48 - 0xC14];
     int mC48;
     unsigned char mC4C[0xD18 - 0xC4C];
     int mD18;  // inferred: nonzero stops chr::ControlRide (0x801C6FE8)
@@ -183,7 +184,9 @@ public:
     unsigned int mFlag31 : 1;
     unsigned int mFlag30_29 : 2;
     unsigned int mFlag28 : 1; // inferred: tested by CharaStatus::fn_8012F3D8
-    unsigned int mFlag27_7 : 21;
+    unsigned int mFlag27_23 : 5;
+    unsigned int mFlag22 : 1; // inferred: tested by CharaStatus::fn_8012B3E8
+    unsigned int mFlag21_7 : 15;
     unsigned int mFlag6 : 1;
     unsigned int mFlag5 : 1;
     unsigned int mFlag4_0 : 5;

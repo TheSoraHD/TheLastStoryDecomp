@@ -167,23 +167,25 @@ public:
 // Layout inferred from the constructor (0x8012AE50). The save data keeps seven of them
 // (MP::SaveLoad, 0x539C).
 
-// inferred: two arrays cleared together in their constructor; names invented
-struct CharaParamArrays_unk {
-    CharaParamArrays_unk() {
-        for (int i = 0; i < 7; i++) {
-            mA[i] = 0.0f;
-            mB[i] = 0.0f;
-        }
-    }
-    float mA[7];
-    float mB[7];
-};
-
 // inferred: block of parameters, twice in CharaStatusBase (0x28 and 0xE8); names invented
 struct CharaParam_unk {
     CharaParam_unk() : m00(0.0f), m04(0.0f), m08(0.0f), m0C(0.0f), m10(1.0f), m14(1.0f), m18(0.0f), m1C(0.0f),
-                       m20(0), m24(0), m28(0.0f), m2C(0.0f), m30(0), m34(0), m78(1), m7C(0), m80(0), m84(0), m88(0),
-                       m8C(0.0f), m90(0.0f), m94(0), m98(0), m9C(0) {}
+                       m20(0), m24(0), m28(0.0f), m2C(0.0f), m30(0), m34(0) {
+        for (int i = 0; i < 7; i++) {
+            m38[i] = 0.0f;
+            m54[i] = 0.0f;
+        }
+        m78 = 1;
+        m7C = 0;
+        m80 = 0;
+        m84 = 0;
+        m88 = 0;
+        m8C = 0.0f;
+        m90 = 0.0f;
+        m94 = 0;
+        m98 = 0;
+        m9C = 0;
+    }
     float m00;
     float m04;
     float m08;
@@ -198,7 +200,8 @@ struct CharaParam_unk {
     float m2C;
     int m30;
     int m34;
-    CharaParamArrays_unk m38;
+    float m38[7]; // inferred: cleared together with m54
+    float m54[7];
     unsigned char m70[0x78 - 0x70];
     int m78;
     int m7C;
@@ -213,11 +216,33 @@ struct CharaParam_unk {
     unsigned char mA0[0xC0 - 0xA0];
 };
 
+namespace chr {
+// inferred: character data pointed to by CharaTask::m5C; starts with the base parameters copied
+// into CharaStatusBase::mParamA (fn_8012B3E8). Name invented.
+struct CharaData_unk {
+    CharaParam_unk mParam; // 0x00
+    int mC0;
+    int mC4;
+    int mC8; // inferred: passed to fn_8020FCE8 and fn_8012C6D4
+    unsigned char mCC[0x11C - 0xCC];
+    int m11C;
+    unsigned char m120[0x122 - 0x120];
+    signed char m122;
+};
+} // namespace chr
+
 // inferred: block of CharaStatusBase cleared with memset (0x1A8, 0x7C bytes); name invented
 struct CharaStatusData_unk {
     int m00;
     int mExp;              // 0x1AC: inferred: experience (fn_8012B028)
-    unsigned char m08[0x44 - 0x08];
+    float m08;             // 0x1B0: inferred: bonuses added by fn_8012B3E8
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    int m20;
+    unsigned char m24[0x44 - 0x24];
     unsigned int mBits[4]; // 0x1EC: inferred: 128 flags (fn_80134674, fn_801346C8)
     unsigned int m54;      // 0x1FC: inferred: index into a table of 5 factors (fn_8012F034)
     unsigned char m58[0x7C - 0x58];
@@ -308,6 +333,8 @@ public:
     int fn_8012B028(); // inferred: experience still needed for the next level
     void fn_8012B3E8();
     void fn_8012B988();
+    void fn_8012C6D4(CharaParam_unk* param, int level, int arg, int arg2);
+    void fn_8012D180();
     int fn_8012E534();
     int fn_8012F3D8();
     void fn_8013310C(unsigned int flags, int both);

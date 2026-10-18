@@ -15,13 +15,8 @@ struct CharaPart_unk {
     CharaPartData_unk* m274;
 };
 
-// inferred: data block pointed to by Chara_unk::m5C (name and layout unknown)
-struct CharaData_unk {
-    unsigned char m000[0x11C];
-    int m11C;
-    unsigned char m120[0x122 - 0x120];
-    signed char m122;
-};
+// inferred: data block pointed to by CharaTask::m5C (defined in game/CharaStatus.h)
+struct CharaData_unk;
 
 // inferred: motion controller embedded in the character at +0xB0 (class name unknown)
 class Motion_unk {

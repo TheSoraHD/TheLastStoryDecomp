@@ -5,6 +5,43 @@
 #include "game/ResHandle.h"
 #include "macros.h"
 
+// inferred: game settings (lbl_8087F0A8); per-difficulty table of status factors at 0xD8
+struct StatusRate_unk {
+    float m00;
+    int m04;
+    float m08;
+    int m0C;
+    float m10;
+    int m14;
+    float m18;
+    int m1C;
+};
+struct Settings_unk {
+    unsigned char m00[0xD4];
+    int mD4; // inferred: index into mD8 (difficulty?)
+    StatusRate_unk mD8[4];
+    unsigned char m158[0x284 - 0x158];
+    int m284;
+    unsigned char m288[0x2CC - 0x288];
+    int m2CC;
+};
+extern "C" Settings_unk* lbl_8087F0A8;
+
+// inferred: field data (lbl_8087F430); names invented
+struct FieldInfo_unk {
+    unsigned char m00[0x58];
+    int m58; // inferred: level of the field
+};
+struct StatusField_unk {
+    unsigned char m00[0x10D4];
+    FieldInfo_unk* m10D4;
+    unsigned char m10D8[0x5694 - 0x10D8];
+    int m5694;
+};
+extern "C" StatusField_unk* lbl_8087F430;
+extern "C" int fn_8020FCE8(int id);
+extern "C" int fn_80375B78(StatusField_unk* field, int arg);
+
 inline void CharaStatus::ClearFlags_unk(unsigned int flags) {
     m0C &= ~flags;
     m10 &= ~flags;
@@ -36,6 +73,52 @@ extern "C" double pow(double x, double y);
 int CharaStatus::fn_8012B028() {
     int level = mParamA.m78 > 69 ? 69 : mParamA.m78;
     return (int)(50.0f * (float)pow((float)level, 2.0)) - m1A8.mExp;
+}
+
+// NONMATCHING: 97.6% - only the scheduling of the fn_8012C6D4 arguments differs (the original starts the
+// mChara->m5C->mC8 chain before reading m0C). Tried: argument locals, an inline for the third
+// argument, other sums for the second.
+void CharaStatus::fn_8012B3E8() {
+    if (mChara == 0 || mChara->m5C == 0) {
+        return;
+    }
+    chr::CharaData_unk* data = mChara->m5C;
+    mParamA = data->mParam;
+    mParamA.m9C |= mChara->mC10;
+    FieldInfo_unk* info = lbl_8087F430 != 0 ? lbl_8087F430->m10D4 : 0;
+    int bonus = 0;
+    int extra = 0;
+    if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && fn_8020FCE8(mChara->m5C->mC8)) {
+        if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
+            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m08 + 0.2f);
+            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
+            extra = MAX(0, (bonus - 70) * 20 + 1000);
+        } else {
+            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
+            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+            bonus = MIN(bonus, MAX(info->m58, 60));
+        }
+    }
+    if (lbl_8087F430 != 0 && mChara->mType == 2) {
+        bonus += fn_80375B78(lbl_8087F430, 1);
+    }
+    fn_8012C6D4(&mParamA, (int)m1A8.m08 + (bonus + mParamA.m78), m1C - ((m0C & 0x400) ? 3 : 0),
+                mChara->m5C->mC8);
+    mParamA.m84 += (int)m1A8.m0C;
+    mParamA.m00 += m1A8.m10 + extra;
+    mParamA.m04 += m1A8.m14 + extra;
+    mParamA.m08 += m1A8.m18;
+    mParamA.m0C += m1A8.m1C;
+    mParamA.m94 += m1A8.m20;
+    if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && !fn_8020FCE8(mChara->m5C->mC8)) {
+        mParamA.m84 = (int)((float)mParamA.m84 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m10 + 0.2f);
+        mParamA.m84 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m14;
+        mParamA.m00 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
+        mParamA.m00 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
+        mParamA.m04 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
+        mParamA.m04 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
+    }
+    fn_8012D180();
 }
 
 // NONMATCHING: 98.1% - register allocation only: the original keeps zero in r30 and the loop
@@ -202,11 +285,6 @@ void CharaStatus::fn_8012F034(float amount) {
     }
 }
 
-struct StatusField_unk {
-    unsigned char m00[0x5694];
-    int m5694;
-};
-extern "C" StatusField_unk* lbl_8087F430;
 extern "C" int fn_80375184(StatusField_unk* field);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -465,11 +543,6 @@ inline void SetBit_unk(unsigned int* bits, int bit) {
     bits[bit / 32] |= 1 << (bit % 32);
 }
 
-struct Settings_unk {
-    unsigned char m00[0x2CC];
-    int m2CC;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" int rand();
 
 struct RandomPick_unk {
