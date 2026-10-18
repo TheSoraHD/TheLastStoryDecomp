@@ -258,7 +258,7 @@ cflags_game = [
     "-sdata2 4",
     "-func_align 4",
     "-use_lmw_stmw on",     # game code uses stmw/lmw (seen at 0x80496430); _savegpr still appears per function
-    # Boost 1.34.1 subset (boost::function/bind, see libs/boost/README.md) and the MSL headers it needs
+    # Boost 1.35.0 subset (boost::function/bind, see libs/boost/README.md) and the MSL headers it needs
     "-i libs/boost/msl_shim",
     "-i libs/boost/include",
     "-i libs/PowerPC_EABI_Support/include/stl",
