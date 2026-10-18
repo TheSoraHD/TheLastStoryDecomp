@@ -35,7 +35,10 @@ struct __vec_storage_unk {
     void __shrink_unk(unsigned int newSize) {
         T* p = mData + mSize;
         unsigned int n = mSize - newSize;
-        mSize -= n;
+        // inferred: through a reference, so that with an empty loop `mSize - mSize` is not folded
+        // to 0 (atn::LoadMaterial::~LoadMaterial, 0x80474224)
+        unsigned int& size = mSize;
+        size -= n;
         for (; n != 0; n--) {
             --p;
             p->~T();

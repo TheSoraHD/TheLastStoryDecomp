@@ -31,8 +31,6 @@ public:
     MaterialList_unk mMaterials; // 0x5C
 };
 
-// NONMATCHING: the original does not fold size - size when the vector is destroyed (lwz + subf
-// where we store 0); tried clear(), an inline loop and pointer differences in std::vector.
 LoadMaterial::~LoadMaterial() {
     for (Material_unk** it = mMaterials.begin(); it != mMaterials.end(); it++) {
         delete *it;
