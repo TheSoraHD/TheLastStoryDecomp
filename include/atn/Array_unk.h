@@ -77,7 +77,9 @@ public:
             delete[] mData;
         }
         mSize = n;
-        if (mSize > 0) {
+        // inferred: "!= 0", not "> 0": the test is folded but the store of the dead branch stays
+        // (GimmickManager ctor, 0x803EE024)
+        if (mSize != 0) {
             mData = new (1, "", "", 0) T[mSize];
         } else {
             mData = 0;

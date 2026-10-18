@@ -114,9 +114,6 @@ GimmickManager* GimmickManager::fn_803EDFBC(atn::Task* parent) {
     return lbl_8087F4A0;
 }
 
-// NONMATCHING: 95% - after the new[] of mTypes.Alloc the original has an unreachable store
-// (b over "stw r0, 0x7C(r31)") and reloads mData/mSize before the memset; no variant tried
-// reproduces it (see atn::Buffer_unk::Alloc).
 GimmickManager::GimmickManager(atn::Task* parent)
     : atn::Task(parent), mHead(0), mCount(0), m50(2), m54(0), m58(0), mLoadTask(0), mLoading(0), m88(0) {
     m74 = mRes.Load("GimmickManager");
