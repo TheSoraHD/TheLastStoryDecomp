@@ -124,6 +124,17 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return fn_805F9920(&v);
 }
 
+// NONMATCHING: the target materializes (m48 & 1) != 1 as a value (subfic/or/srwi.) before testing
+// it; the rest (fn_80127D8C inlined) is the same. Tried: bool and int locals, inline predicates
+// returning bool or int, a ternary.
+int RouteWalker_unk::fn_80127EF4() {
+    if ((m48 & 1) != 1) {
+        fn_80127D8C(0, 0, 0);
+        return 1;
+    }
+    return 0;
+}
+
 void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) {
     RouteTable_unk* table = GetRouteTable_unk();
     if (table != 0 && start > 0) {
@@ -233,6 +244,33 @@ void RouteWalker_unk::fn_80128818(int id, const atn::Vector3* b, int c) {
     m48 = c;
     mPlace = id;
     mRadius = 3.0f;
+}
+
+void RouteWalker_unk::fn_80128B20(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float radius) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table == 0 || target == 0) {
+        return;
+    }
+    fn_8012539C();
+    fn_80128508(fn_803C1560(table, &target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+    mMode = 6;
+    m48 = arg;
+    mTarget = target;
+    mRadius = radius;
+}
+
+void RouteWalker_unk::fn_80128C08(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float arg2) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table == 0 || target == 0) {
+        return;
+    }
+    fn_8012539C();
+    fn_80128508(fn_803C1560(table, &target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+    mMode = 7;
+    m48 = arg;
+    mTarget = target;
+    mRadius = 30.0f;
+    m9C = arg2;
 }
 
 CharaLook_unk::CharaLook_unk()

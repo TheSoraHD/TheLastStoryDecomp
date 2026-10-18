@@ -73,6 +73,9 @@ public:
     void fn_80128818(int id, const atn::Vector3* dest, int arg);   // inferred: goes to a named place
     void fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg); // inferred: follows a character
     void fn_80128A30(const atn::Vector3* pos, const atn::Vector3* dest, int arg, float radius);
+    void fn_80128B20(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float radius); // mode 6
+    void fn_80128C08(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float arg2);  // mode 7
+    int fn_80127EF4(); // inferred: stops unless the flag of m48 is set
 
     int mDestPoint; // 0x00
     int mPointA;    // 0x04
@@ -103,7 +106,7 @@ public:
     int m90;
     int m94;
     int m98;
-    unsigned char m9C[0xA0 - 0x9C];
+    float m9C;
     int mA0;
     chr::Chara_unk* mChara; // 0xA4
 };
