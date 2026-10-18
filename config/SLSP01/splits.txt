@@ -661,7 +661,7 @@ db/GrowthParseGlobal.cpp:
 
 db/MotionCommandCommon.cpp:
 	.text       start:0x80218720 end:0x802188B4
-	.rodata     start:0x80742350 end:0x80742368
+	.rodata     start:0x80742330 end:0x80742370
 	.data       start:0x807830C0 end:0x807830F8
 	.sdata2     start:0x80882F40 end:0x80882F48
 
