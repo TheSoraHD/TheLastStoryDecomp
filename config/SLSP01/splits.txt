@@ -336,6 +336,12 @@ game/CharaSub_unk.cpp:
 	.text       start:0x80135284 end:0x801354B4
 	.sdata2     start:0x80881958 end:0x80881960
 
+game/CharaTask.cpp:
+	.text       start:0x801354B4 end:0x8017CB9C
+	.rodata     start:0x80737390 end:0x807380D8
+	.data       start:0x8077A720 end:0x8077C948
+	.sdata2     start:0x80881960 end:0x80881B78
+
 game/ChaserGuard.cpp:
 	.text       start:0x8017CB9C end:0x8017D13C
 	.rodata     start:0x807380E0 end:0x807380EC

@@ -481,6 +481,13 @@
   "matching": true
  },
  {
+  "name": "game/CharaTask.cpp",
+  "classes": [
+   "CharaTask"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/ChaserGuard.cpp",
   "classes": [
    "ChaserGuard"

@@ -68,6 +68,7 @@ Unidades de traducción del código del juego deducidas automáticamente. Todas 
 | `game/MenuSaveTask.cpp` | `0x8011770C–0x80117B54` | `MenuSaveTask`, `MenuLoadTask` |
 | `atn/CsvBase_wchar_t_44_13_34.cpp` | `0x8011B8D4–0x8011BBBC` | `atn::CsvBase<wchar_t, 44, 13, 34>`, `atn::CsvU` |
 | `game/CharaManager_PlayerTask.cpp` | `0x8011F6FC–0x8011FF78` | `CharaManager<PlayerTask>`, `CharaManager<EnemyTask>`, `CharaManager<NpcTask>` |
+| `game/CharaTask.cpp` | `0x801354B4–0x8017CB9C` | `CharaTask` (un solo fichero: un pool de `.sdata2`, 436 funciones) |
 | `game/ChaserGuard.cpp` | `0x8017CB9C–0x8017D13C` | `ChaserGuard` |
 | `game/ChaserNpc.cpp` | `0x801805A4–0x80180AE0` | `ChaserNpc` |
 | `game/ChaseManager.cpp` | `0x801823A8–0x80183588` | `ChaseManager` |
