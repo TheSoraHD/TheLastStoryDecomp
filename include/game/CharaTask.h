@@ -34,6 +34,9 @@ class ControlBase;
 // 0x10 holds a vector (knockback?) and 0x68/0x90 values that FriendArganan clears.
 struct HitInfo_unk;
 
+// inferred: argument of CharaTask::fn_80164B00 (defined in CharaTask.cpp)
+struct CharaShade_unk;
+
 // inferred: object at CharaTask+0xD74 (class unknown)
 struct CharaD74_unk {
     int fn_8013A144();
@@ -274,6 +277,28 @@ public:
     void fn_8015D8C0(float f, const atn::Vector3& dir, int a);
     void fn_8015DEC0(int a);
     void fn_8015E1B8(const atn::Vector3& dir);
+    // inferred: 0x80161570-0x801647BC also create a control and switch to it
+    void fn_80161570(int motion, int a, int b, float c, float d);
+    void fn_80161880(int motion, int target, int a);
+    void fn_80161B70(int motion, const atn::Vector3& pos);
+    void fn_80161E58();
+    void fn_80162140(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_80162428(const atn::Vector3& rot);
+    void fn_80162720(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_80162A08(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_80162CF0(const atn::Vector3& a, const atn::Vector3& b, float f);
+    void fn_80162FE8(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_801632D0(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_801635B8(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_801638A0(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_80163B88(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_80163E70(CharaTask* rider);
+    void fn_80164168(int a, int b);
+    void fn_80164454(int id, int a, int b);
+    void fn_801644D4(const atn::Vector3& start, CharaTask* target);
+    void fn_801647BC();
+    void fn_80164B00(const CharaShade_unk& shade); // inferred: starts a shade (timers at mFC8)
+    void fn_80164D24(); // inferred: counts the mFC8 timers down while mFlag28 is set
     void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
     void fn_8015E4B0(const atn::Vector3& dir, int arg); // inferred: knock back along `dir` (0x801B59E0)
     void fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2);

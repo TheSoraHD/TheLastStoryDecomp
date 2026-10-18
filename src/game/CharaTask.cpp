@@ -4,6 +4,12 @@
 #include "chr/ControlAttackBase.h"
 #include "chr/ControlDamage.h"
 #include "chr/ControlStickByQuark.h"
+#include "chr/ControlOneMotion.h"
+#include "chr/ControlInteractionBase.h"
+#include "chr/ControlLadder.h"
+#include "chr/ControlRide.h"
+#include "chr/ControlJumpAt.h"
+#include "chr/ControlAttractHateCharge.h"
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
 #include "game/CharaStatus.h"
@@ -24,9 +30,13 @@ struct Settings_unk {
 
     unsigned char m00[0x48];
     float m48;
-    unsigned char m4C[0x278 - 0x4C];
+    unsigned char m4C[0x250 - 0x4C];
+    int m250; // inferred: copied to CharaTask::m1028 by fn_80164D24
+    unsigned char m254[0x278 - 0x254];
     int m278;
-    unsigned char m27C[0x418 - 0x27C];
+    unsigned char m27C[0x3D0 - 0x27C];
+    int m3D0; // inferred: tested by CharaTask::fn_80164D24
+    unsigned char m3D4[0x418 - 0x3D4];
     int m418;
     unsigned char m41C[0x454 - 0x41C];
     int m454;
@@ -62,7 +72,9 @@ struct Field_unk {
     RouteTable_unk* m10D8;
     unsigned char m10DC[0x54F4 - 0x10DC];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
-    unsigned char m54F8[0x5760 - 0x54F8];
+    unsigned char m54F8[0x5744 - 0x54F8];
+    int m5744; // inferred: copied to CharaTask::mFD8 by fn_80164B00
+    unsigned char m5748[0x5760 - 0x5748];
     int m5760;
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -82,6 +94,20 @@ struct Effect_unk {
     int m3E39C;
 };
 extern "C" Effect_unk* lbl_8087F048;
+
+// inferred: frame time (lbl_8087EFA8, as in CharaStatus.cpp)
+struct FrameTime_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: time of a frame
+};
+extern "C" FrameTime_unk* lbl_8087EFA8;
+
+extern "C" int fn_80375184(Field_unk* field);
+extern "C" int fn_80370174(Field_unk* field, int id);  // inferred: event flag
+extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
+extern "C" void* fn_80219E6C(int id); // inferred: bullet data by id (as in gmk/LandMine.cpp)
+extern "C" int fn_800F8548(Effect_unk* mgr);
+extern "C" void fn_800FD658(Effect_unk* mgr, int a, int b, void* bullet, int arg4, int arg5, int arg6);
 
 // inferred: globals returned by accessors that are called out of line
 extern "C" void* lbl_8087EE68;
@@ -359,15 +385,6 @@ inline void CreateCamera_unk(Model_unk* model) {
     model->m208.reset(new (6, "", "", 0) ModelCamera_unk());
 }
 
-namespace chr {
-// inferred: plays one motion (constructor 0x801C3DCC, 0x18 bytes); arguments unknown
-class ControlOneMotion : public ControlBase {
-public:
-    ControlOneMotion(Chara_unk* chara, int motion, int a, int b, float c, float d);
-    virtual int vf0C();
-    unsigned char m08[0x18 - 0x08];
-};
-} // namespace chr
 
 // inferred: party data (lbl_8087F4F0); one 0x43C-byte block per member (names invented)
 struct PartyMember_unk {
@@ -1499,6 +1516,213 @@ void CharaTask::fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2) {
     fn_80164DCC(1);
     if (m1208 != 0) {
         fn_801750FC();
+    }
+}
+
+void CharaTask::fn_80161570(int motion, int a, int b, float c, float d) {
+    chr::ControlOneMotion* control = new (0, "", "", 0) chr::ControlOneMotion(this, motion, a, b, c, d);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80161880(int motion, int target, int a) {
+    chr::ControlOneMotionTarget* control = new (0, "", "", 0) chr::ControlOneMotionTarget(this, motion, target, a);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80161B70(int motion, const atn::Vector3& pos) {
+    chr::ControlOneMotionTransition* control = new (0, "", "", 0) chr::ControlOneMotionTransition(this, motion, pos);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80161E58() {
+    chr::ControlDuckUnderA* control = new (0, "", "", 0) chr::ControlDuckUnderA(this);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80162140(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlDuckUnderB* control = new (0, "", "", 0) chr::ControlDuckUnderB(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80162428(const atn::Vector3& rot) {
+    chr::ControlDuckJoist* control = new (0, "", "", 0) chr::ControlDuckJoist(this, rot);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80162720(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlAlleyWay* control = new (0, "", "", 0) chr::ControlAlleyWay(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80162A08(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlLadder* control = new (0, "", "", 0) chr::ControlLadder(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80162CF0(const atn::Vector3& a, const atn::Vector3& b, float f) {
+    chr::ControlConstrict* control = new (0, "", "", 0) chr::ControlConstrict(this, a, b, f);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80162FE8(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlBumpHead* control = new (0, "", "", 0) chr::ControlBumpHead(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_801632D0(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlStepOn* control = new (0, "", "", 0) chr::ControlStepOn(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_801635B8(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlThroughRope* control = new (0, "", "", 0) chr::ControlThroughRope(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_801638A0(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlCrawling* control = new (0, "", "", 0) chr::ControlCrawling(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80163B88(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlDiveIntoWater* control = new (0, "", "", 0) chr::ControlDiveIntoWater(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80163E70(CharaTask* rider) {
+    chr::ControlRideBeast* control = new (0, "", "", 0) chr::ControlRideBeast(this, rider);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80164168(int a, int b) {
+    chr::ControlBoundShade* control = new (0, "", "", 0) chr::ControlBoundShade(this, a, b, 15);
+    fn_80178208(control);
+}
+
+// inferred: accessor (name invented); keeps the manager reloaded after the first test
+inline Effect_unk* GetEffect_unk() { return lbl_8087F048; }
+
+// inferred: starts the bullet `id` (this is unused)
+void CharaTask::fn_80164454(int id, int a, int b) {
+    Effect_unk* mgr = lbl_8087F048;
+    if (mgr != 0) {
+        void* bullet;
+        if (id > 0) {
+            bullet = fn_80219E6C(id);
+        } else {
+            bullet = 0;
+        }
+        fn_800FD658(GetEffect_unk(), a, b, bullet, fn_800F8548(mgr), 0, 30);
+    }
+}
+
+void CharaTask::fn_801644D4(const atn::Vector3& start, CharaTask* target) {
+    chr::ControlJumpAt* control = new (0, "", "", 0) chr::ControlJumpAt(this, start, target);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_801647BC() {
+    chr::ControlAttractHateCharge* control = new (0, "", "", 0) chr::ControlAttractHateCharge(this);
+    fn_80178208(control);
+    if (lbl_8087F430 != 0) {
+        if (fn_80370174(lbl_8087F430, 0x135) == 0) {
+            fn_80370320(lbl_8087F430, 0x135, 1, 0);
+        } else if (fn_80370174(lbl_8087F430, 0x136) == 0) {
+            fn_80370320(lbl_8087F430, 0x136, 1, 0);
+        }
+    }
+}
+
+// inferred: argument of fn_80164B00, copied to CharaTask::mFC8-mFD8 (names invented)
+struct CharaShade_unk {
+    float m00; // inferred: also copied to CharaStatus::m20/m24
+    float m04; // inferred: timer counted down by fn_80164D24
+    float m08; // inferred: timer counted down by fn_80164D24
+    float m0C; // inferred: timer counted down by fn_80164D24
+    int m10;   // inferred: overwritten with Field_unk::m5744
+};
+
+// inferred: 0x1C-byte record at 0x1470 in the player characters (names invented)
+struct PlayerState_unk {
+    PlayerState_unk(short id, int value)
+        : m00(id), m02(0), m04(0), m0C(0.0f, 0.0f, 0.0f), m18(0) {
+        m08 = value;
+    }
+    short m00;
+    short m02;
+    int m04;
+    int m08;
+    atn::Vector3 m0C;
+    int m18;
+};
+
+// inferred: player character as seen from here (PlayerTask: BattleCharaTask: CharaTask)
+struct Player_unk : public CharaTask {
+    unsigned char m1424[0x1470 - 0x1424];
+    PlayerState_unk m1470;
+    unsigned char m148C[0x14AC - 0x148C];
+    Player_unk* mNext; // 0x14AC: inferred: next player in the manager list
+};
+
+// inferred: player manager (lbl_8087F8A0, CharaManager<PlayerTask>)
+struct PlayerList_unk {
+    unsigned char m00[0x48];
+    Player_unk* mHead;
+};
+extern "C" PlayerList_unk* lbl_8087F8A0;
+
+extern "C" void fn_80105F4C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
+extern "C" void fn_8010337C(Effect_unk* effect, int arg, CharaTask* chara);
+
+void CharaTask::fn_80164B00(const CharaShade_unk& shade) {
+    mFC8.x = shade.m00;
+    mFC8.y = shade.m04;
+    mFC8.z = shade.m08;
+    mFD4 = shade.m0C;
+    mFD8 = shade.m10;
+    mFD8 = (lbl_8087F430 != 0) ? lbl_8087F430->m5744 : 0;
+    mFlag28 = 1;
+    mFlag27 = 0;
+    fn_80105F4C(lbl_8087F048, this, &mMotion);
+    mStatus.m20 = mFC8.x;
+    mStatus.m24 = mFC8.x;
+    if (lbl_8087F048 != 0) {
+        fn_8010337C(lbl_8087F048, 0, this);
+    }
+    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) == 0 && fn_80370174(lbl_8087F430, 0xD6) == 1) {
+        Player_unk* player = (lbl_8087F8A0 != 0) ? lbl_8087F8A0->mHead : 0;
+        for (; player != 0; player = player->mNext) {
+            if (player->CanAct_unk() && (player->m54C & 0x2000) != 0x2000) {
+                int kind = fn_80219558(player->m50);
+                if (kind == 11 || kind == 14) {
+                    player->m1470 = PlayerState_unk(9, 90);
+                }
+            }
+        }
+    }
+}
+
+void CharaTask::fn_80164D24() {
+    if (!mFlag28) {
+        return;
+    }
+    float step = lbl_8087EFA8->m3A4;
+    if (mFD4 > 0.0f) {
+        mFD4 -= step;
+        if (mFD4 <= 0.0f) {
+            m1028 = lbl_8087F0A8->m250;
+        }
+    }
+    if (mFC8.y > 0.0f) {
+        mFC8.y -= step;
+        return;
+    }
+    if (mFC8.z > 0.0f) {
+        mFC8.z -= step;
+    }
+    if (mFC8.z <= 0.0f && lbl_8087F0A8->m3D0 != 0) {
+        mStatus.m20 = 0.0f;
+        fn_80164DCC(1);
     }
 }
 

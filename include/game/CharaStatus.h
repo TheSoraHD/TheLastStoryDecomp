@@ -302,7 +302,8 @@ public:
     int m14;
     unsigned int m18; // inferred: flags (fn_8012DB04)
     int m1C; // inferred: level (fn_80133B30)
-    unsigned char m20[0x28 - 0x20];
+    float m20; // inferred: set from CharaTask::mFC8.x by CharaTask::fn_80164B00, cleared by fn_80164D24
+    float m24; // inferred: set together with m20 by CharaTask::fn_80164B00
     CharaParam_unk mParamA;    // 0x28
     CharaParam_unk mParamB;    // 0xE8
     CharaStatusData_unk m1A8;  // inferred: cleared with memset
