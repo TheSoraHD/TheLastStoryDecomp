@@ -1589,7 +1589,7 @@ atn/LH_Motion.cpp:
 
 atn/LH_MotionCommandData.cpp:
 	.text       start:0x804768EC end:0x80476CE4
-	.rodata     start:0x80755FC8 end:0x80756000
+	.rodata     start:0x80755FC8 end:0x80756008
 	.data       start:0x8078FE78 end:0x8078FEC8
 
 atn/LH_MotionSet.cpp:
