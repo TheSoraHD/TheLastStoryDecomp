@@ -77,13 +77,8 @@ void Banana::vf28() {
     m78.z = 0.0f;
 }
 
-// NONMATCHING: only the mDesc->m7C test differs: the target branches over a jump to the end
-// (bne; b) where this compiles to one beq (same in vf14).
 void Banana::vf10() {
-    if (m54 == 1) {
-        return;
-    }
-    if (mDesc->m7C == 0) {
+    if (m54 == 1 || mDesc->m7C == 0) {
         return;
     }
     atn::Vector3 d(lbl_8087EFB4->mPos.x - m6C.x, lbl_8087EFB4->mPos.y - m6C.y, lbl_8087EFB4->mPos.z - m6C.z);
@@ -111,18 +106,11 @@ void Banana::vf10() {
     fn_803ED0D4(&mModel, 1);
 }
 
-// NONMATCHING: see vf10 (target: bne; blr). Tried: == 0 / != 0, else, goto, switch, bool local,
-// inline predicate.
 void Banana::vf14() {
-    if (m54 == 1) {
+    if (m54 == 1 || m54 == 4 || mDesc->m7C == 0) {
         return;
     }
-    if (m54 == 4) {
-        return;
-    }
-    if (mDesc->m7C != 0) {
-        mModel.fn_8008CD60();
-    }
+    mModel.fn_8008CD60();
 }
 
 int Banana::vf60() {
