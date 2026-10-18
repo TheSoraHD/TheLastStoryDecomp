@@ -85,7 +85,8 @@ public:
     unsigned char m540[0x55C - 0x540];
     int m55C; // inferred: state compared with 6 by the grapple controls
     int m560;
-    unsigned char m564[0x570 - 0x564];
+    int m564; // inferred: set to 1 or 2 by gmk::InteractionSpot
+    unsigned char m568[0x570 - 0x568];
     float m570;
     atn::Vector3 m574;
     float m580;
@@ -110,7 +111,10 @@ public:
     int mC48;
     unsigned char mC4C[0xD18 - 0xC4C];
     int mD18;  // inferred: nonzero stops chr::ControlRide (0x801C6FE8)
-    unsigned char mD1C[0xF1C - 0xD1C];
+    unsigned char mD1C[0xD38 - 0xD1C];
+    unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot
+    unsigned short mD38 : 15;
+    unsigned char mD3A[0xF1C - 0xD3A];
     int mF1C;  // inferred: cleared when chr::ControlRide ends
     unsigned char mF20[0xF50 - 0xF20];
     int mF50; // inferred: set by chr::ControlDraggedStart
