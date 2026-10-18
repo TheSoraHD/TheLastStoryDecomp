@@ -124,8 +124,9 @@ void GimmickMaterialFade_unk::fn_803EBE74(Model_unk* model) {
         if (mReverse != 0) {
             t = 1.0f - t;
         }
+        float a = mFrom + t * (mTo - mFrom);
         ColorF_unk color(mMaterial->mColor);
-        color.a = mFrom + t * (mTo - mFrom);
+        color.a = a;
         mMaterial->mColor = color.ToGX();
         if (t > 0.0f) {
             fn_8007FAF0(mMaterial, 3);
@@ -144,7 +145,8 @@ void GimmickMotionSwitch_unk::fn_803EC0A4(atn::CsvTab* csv) {
 
 void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
     if (mHash != 0) {
-        model->fn_8009385C(mHash, model->mFrame <= mFrame, 1, 0);
+        float cur = model->mFrame;
+        model->fn_8009385C(mHash, cur <= mFrame, 1, 0);
     }
 }
 
@@ -597,25 +599,26 @@ void GimmickCommon::fn_803EDB0C(GimmickUvOwner_unk* owner, GimmickUvTable_unk* t
     mAC = table;
 }
 
+static inline int __IsReady_unk(GimmickUvOwner_unk* owner) {
+    int ready = 0;
+    if (owner->m28 != 0 || (owner->fn_800D59B8() == 0 && owner->mLoader.fn_80473EFC() == 3)) {
+        ready = 1;
+    }
+    return ready;
+}
+
 void GimmickCommon::fn_803EDB18(Model_unk* model) {
-    GimmickUvOwner_unk* owner = mA8;
-    if (owner != 0) {
-        int ready = 0;
-        if (owner->m28 != 0 || (owner->fn_800D59B8() == 0 && owner->mLoader.fn_80473EFC() == 3)) {
-            ready = 1;
+    if (mA8 != 0) {
+        if (__IsReady_unk(mA8) == 0 || mAC == 0 || model->fn_8008B130() == 0) {
+            return;
         }
-        if (ready != 0 && mAC != 0) {
-            if (model->fn_8008B130() == 0) {
-                return;
-            }
+        {
             for (int i = 0; i < mAC->mCount; i++) {
                 GimmickUvEntry_unk* e = &mAC->mEntries[i];
-                const char* name = e->mName;
-                if (name != 0 && strlen(name) != 0) {
-                    atn::Csv csv(name, strlen(name));
+                if (e->mName != 0 && strlen(e->mName) != 0) {
+                    atn::Csv csv(e->mName, strlen(e->mName));
                     csv.fn_8005BCE8(lbl_8087D708);
-                    const char* key = csv.fn_8005B9CC();
-                    if (strstr(model->fn_8008B130(), key) != 0) {
+                    if (strstr(model->fn_8008B130(), csv.fn_8005B9CC()) != 0) {
                         atn::Vector2_unk uv(-1.0f * e->m04 / e->m0C, 1.0f - (e->m08 + e->m0C) / e->m0C);
                         model->fn_800954DC(mA8, uv, e->m0C);
                         return;
