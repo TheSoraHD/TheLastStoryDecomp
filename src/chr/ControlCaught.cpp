@@ -67,7 +67,7 @@ ControlCaught::ControlCaught(Chara_unk* chara, int arg, int count, int motion, i
 }
 
 int ControlCaught::vf0C() {
-    if (mChara->m48 == 0) {
+    if (mChara->mType == 0) {
         if (m1A) {
             lbl_8087F490->m728 = 1;
         }
@@ -75,7 +75,7 @@ int ControlCaught::vf0C() {
             mCount--;
         }
     }
-    if ((mChara->m7E0 & 0x20) == 0x20) {
+    if ((mChara->mStatus.m0C & 0x20) == 0x20) {
         return 1;
     }
     if (mCount <= 0 && m19) {
@@ -91,7 +91,7 @@ boost::function<void()> ControlCaught::vf10() {
         ControlRelease* next = new (0, "", "", 0) ControlRelease(mChara, mReleaseMotion);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
     }
-    if (mChara != 0 && (mChara->m7E0 & 0x20) == 0x20) {
+    if (mChara != 0 && (mChara->mStatus.m0C & 0x20) == 0x20) {
         mChara->vf44();
         atn::Vector3 dir(0.0f, 0.0f, -0.01f);
         Mtx mtx;
@@ -104,7 +104,7 @@ boost::function<void()> ControlCaught::vf10() {
 }
 
 ControlRelease::ControlRelease(Chara_unk* chara, int motion) : ControlBase(chara), m08(0) {
-    m08 = (chara->m7E0 & 0x20) != 0;
+    m08 = (chara->mStatus.m0C & 0x20) != 0;
     if (m08) {
         if (motion < 0) {
             motion = 0x2E;

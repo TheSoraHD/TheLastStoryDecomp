@@ -24,7 +24,7 @@ int ControlRide::vf0C() {
         ret = 1;
         break;
     }
-    if (mBeast != 0 && mBeast->m48 == 0 && mBeast->mD18 == 0) {
+    if (mBeast != 0 && mBeast->mType == 0 && mBeast->mD18 == 0) {
         mChara->fn_8017AC3C(0);
         mChara->mF1C = 0;
         return 1;

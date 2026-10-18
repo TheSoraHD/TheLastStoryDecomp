@@ -58,7 +58,7 @@ int ControlSitting::vf0C() {
             mChara->mRot = mRot;
         }
     } else if (motion->m22C == 0x79) {
-        if (mChara->m48 == 0 && mChara->fn_80178078() > 0.4f) {
+        if (mChara->mType == 0 && mChara->fn_80178078() > 0.4f) {
             Chara_unk* chara = mChara;
             atn::Vector3 dir = chara->fn_80178018();
             float angle = __WrapAngle_unk(dir.y - chara->mRot.y);

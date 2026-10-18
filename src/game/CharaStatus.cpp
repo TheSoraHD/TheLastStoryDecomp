@@ -5,6 +5,26 @@
 #include "game/ResHandle.h"
 #include "macros.h"
 
+inline void CharaStatus::ClearFlags_unk(unsigned int flags) {
+    m0C &= ~flags;
+    m10 &= ~flags;
+    for (int i = 0; i < 32; i++) {
+        if ((flags & (1 << i)) == (1 << i)) {
+            m24C[i] = 0;
+        }
+    }
+    if (mChara != 0) {
+        m0C &= ~0x100000;
+        m10 &= ~0x100000;
+        for (unsigned int i = 0; i < mChara->m650; i++) {
+            if (mChara->m654[i]->m274->mF0 != 0) {
+                fn_8013310C(0x100000, 1);
+                return;
+            }
+        }
+    }
+}
+
 CharaStatusBase::CharaStatusBase() {
     memset(&m1A8, 0, sizeof(m1A8));
     memset(this, 0, sizeof(*this));
@@ -83,7 +103,7 @@ inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
 // NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
 void CharaStatus::fn_8012D8B8() {
     m04 = (float)mParamB.m84;
-    if (mChara != 0 && mChara->m48 == 0) {
+    if (mChara != 0 && mChara->mType == 0) {
         m08 = 0.0f;
     } else {
         m08 = (float)mParamB.m88;
@@ -124,11 +144,6 @@ void CharaStatus::fn_8012DD70() {
     m438 = 0.0f;
 }
 
-// inferred: characters keep their CharaStatus at 0x7D4 (see CharaTask); name invented
-inline CharaStatus* GetStatus_unk(chr::Chara_unk* chara) {
-    return (CharaStatus*)((char*)chara + 0x7D4);
-}
-
 // NONMATCHING: 94.9% - the original loads m0C before the int-to-float constant and reloads the
 // count of the other character's refs before the sum loop (ours reuses it after the find).
 float CharaStatus::fn_8012DB04() {
@@ -147,7 +162,7 @@ float CharaStatus::fn_8012DB04() {
             rate = MIN(MAX(rate - 0.6f * (180.0f - m434) / 180.0f, 0.05f), 1.0f);
         }
         if ((m0C & 0x800) == 0x800 && mChara != 0 && mChara->mD1C != 0) {
-            CharaStatus* status = GetStatus_unk(mChara->mD1C);
+            CharaStatus* status = &mChara->mD1C->mStatus;
             if (status->fn_80134134(68) != 0) {
                 int sum = status->fn_80134168(68, -1);
                 rate = MIN(MAX(rate - 0.1f * sum / 100.0f, 0.05f), 1.0f);

@@ -75,7 +75,7 @@ ControlGmkCoffinGetUp::ControlGmkCoffinGetUp(Chara_unk* chara, const atn::Vector
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->m24C = 1.0f;
-    if (mChara->m48 == 2) {
+    if (mChara->mType == 2) {
         motion->fn_80097C08(0, 0x230, 0, 0, 1, 1.0f, 0.1f);
     } else {
         motion->fn_80097C08(0, 0x22F, 0, 0, 1, 1.0f, 0.1f);
@@ -93,7 +93,7 @@ int ControlGmkCoffinGetUp::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (mState == 0) {
         if (--mWait < 0) {
-            if (mChara->m48 == 2) {
+            if (mChara->mType == 2) {
                 motion->m238 = 1.0f;
             } else {
                 motion->m238 = 0.7f;
@@ -140,8 +140,8 @@ ControlGmkTrapBat::ControlGmkTrapBat(Chara_unk* chara, float damage) : ControlBa
 }
 
 int ControlGmkTrapBat::vf0C() {
-    mChara->m948 -= mDamage;
-    if (mChara->m7D8 <= 2.0f) {
+    mChara->mStatus.mParamB.m8C -= mDamage;
+    if (mChara->mStatus.m04 <= 2.0f) {
         mChara->vf44();
         return 1;
     }
@@ -149,7 +149,7 @@ int ControlGmkTrapBat::vf0C() {
 }
 
 boost::function<void()> ControlGmkTrapBat::vf10() {
-    if ((mChara->m7E0 & 0x20) == 0x20) {
+    if ((mChara->mStatus.m0C & 0x20) == 0x20) {
         atn::Vector3 dir(0.0f, 0.0f, -0.01f);
         Mtx mtx;
         PSMTXRotRad(mtx, 'y', mChara->mRot.y);

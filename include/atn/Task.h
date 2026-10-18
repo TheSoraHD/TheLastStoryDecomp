@@ -23,13 +23,15 @@ public:
     void fn_800D3F28(Task* child); // inferred: attaches `child` (null detaches)
     int fn_800D3FA4(); // inferred: non-virtual, returns nonzero on success (called by many vf0C)
     void fn_800D246C(int arg); // inferred
+    // inferred: flag test through an accessor: GimmickCommon::vf30 (0x803EDF40) loads the word
+    // twice (here and for the |=), which a direct read would not do. Name invented.
+    bool IsFlag_unk(unsigned int flag) const { return (mFlags & flag) == flag; }
 
     // inferred: sizeof(atn::Task) == 0x48 (FriendManager adds no members and is allocated with 0x48)
     unsigned char m04[0x20 - 0x04];
     void* m20; // inferred: compared with the argument of GimmickManager::fn_803EE374
     unsigned char m24[0x38 - 0x24];
-    // inferred: volatile: GimmickCommon::vf30 (0x803EDF40) reads it twice without merging the loads
-    volatile unsigned int mFlags; // 0x38
+    unsigned int mFlags; // 0x38
     unsigned char m3C[0x48 - 0x3C];
 };
 

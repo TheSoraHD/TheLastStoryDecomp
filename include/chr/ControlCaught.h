@@ -30,7 +30,7 @@ public:
     ControlRelease(Chara_unk* chara, int motion); // 0x801A2A48
     virtual int vf0C();                           // 0x801A2B58
 
-    int m08; // 0x08: bit 0x20 of Chara_unk::m7E0
+    int m08; // 0x08: bit 0x20 of CharaStatus::m0C (CharaTask+0x7E0)
 };
 
 } // namespace chr

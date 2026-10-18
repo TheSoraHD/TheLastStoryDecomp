@@ -2,15 +2,13 @@
 #define GAME_CHARASTATUS_H
 
 #include "math/Vec.h"
-#include "chr/ControlBase.h"
 
 #include "std/new.h"
 
+class CharaTask;
+
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
-namespace chr {
-class Chara_unk;
-}
 struct Model_unk;
 class CharaTask;
 
@@ -76,10 +74,10 @@ public:
     void fn_80128508(int start, const atn::Vector3* dest, int arg); // inferred: plans a route
     void fn_801286F0(int link, const atn::Vector3* dest, int arg); // inferred: follows a link
     void fn_80128818(int id, const atn::Vector3* dest, int arg);   // inferred: goes to a named place
-    void fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg); // inferred: follows a character
+    void fn_80128930(CharaTask* target, const atn::Vector3* dest, int arg); // inferred: follows a character
     void fn_80128A30(const atn::Vector3* pos, const atn::Vector3* dest, int arg, float radius);
-    void fn_80128B20(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float radius); // mode 6
-    void fn_80128C08(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float arg2);  // mode 7
+    void fn_80128B20(CharaTask* target, const atn::Vector3* dest, int arg, float radius); // mode 6
+    void fn_80128C08(CharaTask* target, const atn::Vector3* dest, int arg, float arg2);  // mode 7
     int fn_80127EF4(); // inferred: stops unless the flag of m48 is set
 
     int mDestPoint; // 0x00
@@ -89,7 +87,7 @@ public:
     atn::Vector3 m10;
     int m1C;
     int mPlace;     // 0x20
-    chr::Chara_unk* mTarget; // 0x24
+    CharaTask* mTarget; // 0x24
     float mRadius;  // 0x28
     int m2C;        // inferred: nonzero while the link is not owned
     atn::Vector3 m30;
@@ -113,7 +111,7 @@ public:
     int m98;
     float m9C;
     int mA0;
-    chr::Chara_unk* mChara; // 0xA4
+    CharaTask* mChara; // 0xA4
 };
 
 
@@ -130,7 +128,7 @@ class CharaLook_unk {
 public:
     CharaLook_unk();  // 0x8012980C
     ~CharaLook_unk(); // 0x801298AC
-    void fn_801298EC(chr::Chara_unk* chara); // inferred: finds the "neck" node
+    void fn_801298EC(CharaTask* chara); // inferred: finds the "neck" node
     void fn_80129930(const atn::Vector3& pos, float speed); // inferred: looks at a position (type 2)
     void fn_80129954(const atn::Vector3& pos, float speed); // inferred: type 3
     void fn_80129978(Model_unk* model, const char* node, const atn::Vector3& offset, float speed); // type 1
@@ -143,7 +141,7 @@ public:
     void fn_8012AC40(float speed);           // inferred: eyes, type 0
     void fn_8012AD20(void* menu);            // inferred: debug menu
 
-    chr::Chara_unk* mChara; // 0x00
+    CharaTask* mChara; // 0x00
     int mType;              // 0x04: "type"
     float* mTarget;         // 0x08: inferred: matrix followed in type 1
     atn::Vector3 mOffset;   // 0x0C: "offset"
@@ -271,7 +269,7 @@ struct CharaStatusRef_unk {
     CharaStatusRef_unk() : mEntry(0), m04(0), m08(0), m0C(-1), m10(0) {}
     CharaStatusEntry_unk* mEntry;
     unsigned int m04;
-    chr::Chara_unk* m08; // inferred: compared with CharaStatus::mChara (fn_8013407C)
+    CharaTask* m08; // inferred: compared with CharaStatus::mChara (fn_8013407C)
     int m0C;
     int m10;
 };
@@ -349,25 +347,7 @@ public:
     // read once; the original reloads mChara->m650 each time and keeps an index and an offset.
     // Tried: int and unsigned index, break instead of return, a local chara pointer, a bool helper,
     // a found flag, nested inline helpers.
-    void ClearFlags_unk(unsigned int flags) {
-        m0C &= ~flags;
-        m10 &= ~flags;
-        for (int i = 0; i < 32; i++) {
-            if ((flags & (1 << i)) == (1 << i)) {
-                m24C[i] = 0;
-            }
-        }
-        if (mChara != 0) {
-            m0C &= ~0x100000;
-            m10 &= ~0x100000;
-            for (unsigned int i = 0; i < mChara->m650; i++) {
-                if (mChara->m654[i]->m274->mF0 != 0) {
-                    fn_8013310C(0x100000, 1);
-                    return;
-                }
-            }
-        }
-    }
+    void ClearFlags_unk(unsigned int flags);
     void fn_8012D8B8();
     void fn_8012DD70();
     float fn_8012DB04();
@@ -380,7 +360,7 @@ public:
     int m24C[32]; // inferred: one value per flag bit (fn_801333A4)
     int m2CC;
     CharaStatusPair_unk m2D0[4];
-    chr::Chara_unk* mChara; // 0x2F0
+    CharaTask* mChara; // 0x2F0
     float m2F4;
     float m2F8;
     float m2FC;

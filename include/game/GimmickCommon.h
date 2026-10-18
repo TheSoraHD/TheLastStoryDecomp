@@ -107,7 +107,7 @@ public:
     virtual void vf28() { vf2C(); }
     virtual void vf2C();  // 0x803ECB84
     virtual void vf30() {
-        mA0 = (mFlags >> 2) & 1;
+        mA0 = IsFlag_unk(4);
         mFlags |= 4;
     }
     virtual void vf34() {

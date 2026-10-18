@@ -79,7 +79,7 @@ int ControlGrapple::vf0C() {
     atn::Vector3 rot = mTarget->mRot;
     rot.y += 3.1415927f;
     mChara->mRot = rot;
-    if ((mChara->m7E0 & 0x20) == 0x20) {
+    if ((mChara->mStatus.m0C & 0x20) == 0x20) {
         mChara->vf44();
         atn::Vector3 back(0.0f, 0.0f, -2.0f);
         Mtx m;
@@ -127,7 +127,7 @@ ControlGrappled::ControlGrappled(Chara_unk* chara, Chara_unk* holder)
 }
 
 int ControlGrappled::vf0C() {
-    if (mChara->m48 == 0) {
+    if (mChara->mType == 0) {
         lbl_8087F490->m728 = 1;
         if (mCount > 0 && lbl_8087F0A8->mInput.fn_8012476C(0x22)) {
             mCount--;
@@ -140,8 +140,8 @@ int ControlGrappled::vf0C() {
         ((CharaTask*)mHolder)->fn_80178208(next);
         return 1;
     }
-    mChara->m948 -= 0.1f;
-    if (mChara->m7D8 <= 1.0f) {
+    mChara->mStatus.mParamB.m8C -= 0.1f;
+    if (mChara->mStatus.m04 <= 1.0f) {
         mChara->vf44();
         atn::Vector3 dir(0.0f, 0.0f, 2.0f);
         Mtx mtx;
