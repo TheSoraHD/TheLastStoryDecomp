@@ -19,6 +19,14 @@ inline void __VecCopy(register float* dst, register const float* src) {
     }
 }
 
+// inferred: 2D vector copy with one paired-single load/store (0x803EDCAC)
+inline void __Vec2Copy(register float* dst, register const float* src) {
+    asm {
+        psq_l fp1, 0(src), 0, 0
+        psq_st fp1, 0(dst), 0, 0
+    }
+}
+
 // inferred: 3x4 matrix copy with six paired-single loads then six stores (0x801C915C)
 inline void __MtxCopy(register Mtx dst, register const Mtx src) {
     asm {
@@ -40,6 +48,20 @@ inline void __MtxCopy(register Mtx dst, register const Mtx src) {
 namespace atn {
 
 class Matrix3x4;
+
+// inferred: 2D float vector of the engine (copied with paired singles, 0x803EDCAC); name invented
+struct Vector2_unk {
+    Vector2_unk() {}
+    Vector2_unk(float x_, float y_) : x(x_), y(y_) {}
+    Vector2_unk(const Vector2_unk& v) {
+        __Vec2Copy(&x, &v.x);
+    }
+    Vector2_unk& operator=(const Vector2_unk& v) {
+        __Vec2Copy(&x, &v.x);
+        return *this;
+    }
+    float x, y;
+};
 
 // The engine's 3D vector (the name is in the DOL: boost::_bi::value<atn::Vector3>).
 class Vector3 {

@@ -44,7 +44,7 @@ extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, 
 extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" char lbl_8087D708[]; // " \t"
+extern "C" char lbl_8087D708[3]; // " \t"
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 #define __MIN_unk(a, b) ((a) < (b) ? (a) : (b))
@@ -329,7 +329,7 @@ GimmickCommon::~GimmickCommon() {
 }
 
 void GimmickCommon::fn_803EC758(char* name) {
-    sprintf(name, "gm%03d_%03d_%04d", mId / 1000, mId % 1000, m4C);
+    sprintf(name, "gm%03d_%03d_%04d\0", mId / 1000, mId % 1000, m4C);
 }
 
 void GimmickCommon::fn_803EC7A0(Model_unk* model, atn::CsvTab* csv) {
@@ -362,7 +362,7 @@ int GimmickCommon::fn_803EC91C() {
     switch (m68) {
     case 0: {
         char path[0x100];
-        sprintf(path, "/database/gimmick/gm%03d_%03d.gmk", mId / 1000, mId % 1000);
+        sprintf(path, "/database/gimmick/gm%03d_%03d.gmk\0", mId / 1000, mId % 1000);
         m68 = 1;
         mBinary.vf0C(path);
         busy = 1;
@@ -514,10 +514,10 @@ void GimmickCommon::fn_803ED610(Model_unk* model) {
                 atn::Vector3 screen;
                 fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {
+                    char name[0x20];
                     char text[0x20];
-                    char name[0x30];
                     fn_803EC758(name);
-                    sprintf(text, "%s state:%d", name, m54);
+                    sprintf(text, "%s state:%d\0", name, m54);
                     fn_800616C0(lbl_8087EEB0, screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, 0.0f, text, -1, 1, 1,
                                 0);
                 }
@@ -530,15 +530,15 @@ void GimmickCommon::fn_803ED774(Model_unk* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
+            atn::Vector3 screen;
             atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
             if (fn_805F9920(&d) < 90000.0f) {
-                atn::Vector3 screen;
                 fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {
+                    char text[0x20];
                     char name[0x20];
-                    char text[0x30];
                     fn_803EC758(name);
-                    sprintf(text, "%s state:%d", name, m54);
+                    sprintf(text, "%s state:%d\0", name, m54);
                     fn_800616C0(lbl_8087EEB0, screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, 0.0f, text, -1, 1, 1,
                                 0);
                 }
@@ -567,7 +567,7 @@ void GimmickCommon::fn_803ED8F4(GimmickCommon* gimmick) {
 }
 
 void GimmickCommon::vf6C(void* menu) {
-    char name[0x30];
+    char name[0x20];
     fn_803EC758(name);
     void* group;
     if (mF0.mGroup == 0 && menu != 0 && lbl_8087EF10 != 0) {
@@ -616,10 +616,8 @@ void GimmickCommon::fn_803EDB18(Model_unk* model) {
                     csv.fn_8005BCE8(lbl_8087D708);
                     const char* key = csv.fn_8005B9CC();
                     if (strstr(model->fn_8008B130(), key) != 0) {
-                        float uv[2];
-                        uv[0] = -1.0f * e->m04 / e->m0C;
-                        uv[1] = 1.0f - (e->m08 + e->m0C) / e->m0C;
-                        model->fn_800954DC(uv, mA8, e->m0C);
+                        atn::Vector2_unk uv(-1.0f * e->m04 / e->m0C, 1.0f - (e->m08 + e->m0C) / e->m0C);
+                        model->fn_800954DC(mA8, uv, e->m0C);
                         return;
                     }
                 }
@@ -629,15 +627,15 @@ void GimmickCommon::fn_803EDB18(Model_unk* model) {
 }
 
 void GimmickCommon::fn_803EDCF4() {
+    atn::Vector3 screen;
     atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
     if (fn_805F9920(&d) < 90000.0f) {
-        atn::Vector3 screen;
         fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
         if (0.0f < screen.z && screen.z < 1.0f) {
+            char text[0x20];
             char name[0x20];
-            char text[0x30];
             fn_803EC758(name);
-            sprintf(text, "%s state:%d", name, m54);
+            sprintf(text, "%s state:%d\0", name, m54);
             fn_800616C0(lbl_8087EEB0, screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, 0.0f, text, -1, 1, 1, 0);
         }
     }

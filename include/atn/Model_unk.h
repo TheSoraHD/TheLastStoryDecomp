@@ -21,7 +21,7 @@ struct Model_unk {
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
     void fn_8008CD60();                          // inferred
-    void fn_800954DC(const float* uv, void* arg, float f);       // inferred
+    void fn_800954DC(void* owner, atn::Vector2_unk uv, float f); // inferred: UV scroll
     void fn_80097E80(int arg);                                   // inferred
     void fn_8009385C(int motion, bool play, int arg2, int arg3);  // inferred
     int fn_8008B140();                                // inferred: nonzero while loading
