@@ -49,12 +49,32 @@ extern "C" char lbl_8087D708[3]; // " \t"
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 #define __MIN_unk(a, b) ((a) < (b) ? (a) : (b))
 
-// inferred: rotation matrix z * y * x (inlined twice in 0x803ECBD4)
+// inferred: rotation matrix z * y * x (inlined twice in 0x803ECBD4). Written out instead of
+// using __MtxRotate: the angle is read through the vector after the 0.0f constant is loaded,
+// and the rotation matrix is above the product on the stack.
 inline void __MakeRotation_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
     m.SetIdentity();
-    __MtxRotate(m.m, 'z', r.z);
-    __MtxRotate(m.m, 'y', r.y);
-    __MtxRotate(m.m, 'x', r.x);
+    if (r.z != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.y != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
 }
 
 // inferred: sets the translation column (the arguments are read z first)
@@ -330,6 +350,8 @@ GimmickCommon::~GimmickCommon() {
     }
 }
 
+// inferred: the string pool has an extra NUL after each sprintf format of this unit (offsets
+// 0x11, 0x92 and 0x9F of 0x80751DD0), so the formats are written with an explicit "\0"
 void GimmickCommon::fn_803EC758(char* name) {
     sprintf(name, "gm%03d_%03d_%04d\0", mId / 1000, mId % 1000, m4C);
 }
@@ -462,11 +484,14 @@ void GimmickCommon::fn_803ECBD4(Model_unk* model, int callback) {
     PSMTXConcat(offset.m, mtx.m, mtx.m);
     __SetTrans_unk(mtx, m6C.x, m6C.y, m6C.z);
     __MtxCopy(model->mMtx, mtx.m);
-    atn::Vector3 az(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
+    atn::Vector3 ax;
+    atn::Vector3 ay;
+    atn::Vector3 az;
+    __Vec3Set_unk(az, mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
     float sz = PSVECMag(&az);
-    atn::Vector3 ay(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
+    __Vec3Set_unk(ay, mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
     float sy = PSVECMag(&ay);
-    atn::Vector3 ax(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
+    __Vec3Set_unk(ax, mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
     float sx = PSVECMag(&ax);
     atn::Vector3 s(sx, sy, sz);
     model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
@@ -489,11 +514,14 @@ void GimmickCommon::fn_803ED0D4(Model_unk* model, int callback) {
     PSMTXConcat(offset.m, mtx.m, mtx.m);
     __SetTrans_unk(mtx, m6C.x, m6C.y, m6C.z);
     __MtxCopy(model->mMtx, mtx.m);
-    atn::Vector3 az(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
+    atn::Vector3 ax;
+    atn::Vector3 ay;
+    atn::Vector3 az;
+    __Vec3Set_unk(az, mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
     float sz = PSVECMag(&az);
-    atn::Vector3 ay(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
+    __Vec3Set_unk(ay, mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
     float sy = PSVECMag(&ay);
-    atn::Vector3 ax(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
+    __Vec3Set_unk(ax, mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
     float sx = PSVECMag(&ax);
     atn::Vector3 s(sx, sy, sz);
     model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));

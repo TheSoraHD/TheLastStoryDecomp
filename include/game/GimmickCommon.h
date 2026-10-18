@@ -19,6 +19,24 @@ public:
 };
 extern "C" GimmickManager* lbl_8087F4A0;
 
+// inferred: 0x4C-byte element of an array that GimmickManager allocates with new[]
+// (0x803EE7FC: __construct_new_array with the constructor 0x803EEB38 and the destructor
+// 0x803EDF7C). The destructor is empty; it is only referenced from GimmickManager, so it is
+// taken as the first function of game/GimmickManager.cpp (defined out of line there).
+struct GimmickManagerEntry_unk {
+    ~GimmickManagerEntry_unk(); // 0x803EDF7C
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    char mName[0x20];
+    float m30[3];
+    float m3C;
+    int m40;
+    int m44;
+    int m48;
+};
+
 // inferred: 0x34-byte member of GimmickCommon at 0xB0 (sound/effect tables: its destructor
 // frees arrays of atn::SoundRef); its members are out of line (game/GimmickManager.cpp)
 struct GimmickCommonB0_unk {
