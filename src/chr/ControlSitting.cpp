@@ -16,9 +16,8 @@ inline float __WrapAngle_unk(float angle) {
     return a;
 }
 
-// NONMATCHING: 90% - the original reloads mChara after each Vec copy into the character and
-// keeps this in r31; the operator temporaries are in mirrored stack slots (as in
-// ControlTurnQuadruped::vf0C).
+// NONMATCHING: 95.6% - the original keeps this in r31 (motion in r30) and places the operator
+// temporaries in other stack slots (as in ControlTurnQuadruped::vf0C).
 int ControlSitting::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (mCount > 0) {
@@ -53,7 +52,6 @@ int ControlSitting::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 96.9% - same mChara reload difference after the m574 copy (r4/r5 swapped).
 ControlSitting::ControlSitting(Chara_unk* chara, const Vec& start, const Vec& seat, const Vec& rot)
     : ControlBase(chara) {
     chara->m560 = 0x3D;
@@ -72,8 +70,9 @@ ControlSitting::ControlSitting(Chara_unk* chara, const Vec& start, const Vec& se
     Vec zero(0.0f, 0.0f, 0.0f);
     mChara->m574 = zero;
     mChara->m570 = 0.0f;
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
 }
 
 } // namespace chr
