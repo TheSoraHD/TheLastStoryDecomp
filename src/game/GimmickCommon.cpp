@@ -4,6 +4,7 @@
 #include "game/GimmickCommon.h"
 #include "gmk/RainDrops.h"
 #include "gmk/SkeltonsMirror.h"
+#include "gmk/TodomeCountUp.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -230,7 +231,6 @@ extern "C" GimmickCommon* fn_80422610(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80427EB4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80428B0C(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8042F0B4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80435DEC(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8043A850(atn::Task* parent, GimmickDesc_unk* desc);
@@ -320,7 +320,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 49: gimmick = fn_80427EB4(parent, desc); break;
     case 50: gimmick = fn_80428B0C(parent, desc); break;
     case 51: gimmick = fn_80429668(parent, desc); break;
-    case 58: gimmick = fn_8042F0B4(parent, desc); break;
+    case 58: gimmick = gmk::TodomeCountUp::fn_8042F0B4(parent, desc); break;
     case 59: gimmick = fn_8042F7EC(parent, desc); break;
     case 63: gimmick = fn_80435DEC(parent, desc); break;
     case 65: gimmick = fn_8043A850(parent, desc); break;

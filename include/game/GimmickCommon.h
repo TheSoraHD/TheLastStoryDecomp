@@ -43,7 +43,10 @@ struct GimmickDesc_unk {
     float mRotY;       // 0x14: inferred (gmk::SkeltonsMirror)
     int mId;           // 0x18
     int mArg;          // 0x1C
-    unsigned char m20[0x7C - 0x20];
+    int m20;           // inferred: kind (gmk::TodomeCountUp: 0 player, 1 npc, 2 enemy, 3 ally)
+    int m24;           // inferred: character id (gmk::TodomeCountUp)
+    int m28;
+    unsigned char m2C[0x7C - 0x2C];
     int m7C;           // inferred: flag read by gmk::SkeltonsMirror::vf60
 };
 
