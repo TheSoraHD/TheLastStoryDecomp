@@ -220,7 +220,8 @@ struct CharaStatusData_unk {
     int mExp;              // 0x1AC: inferred: experience (fn_8012B028)
     unsigned char m08[0x44 - 0x08];
     unsigned int mBits[4]; // 0x1EC: inferred: 128 flags (fn_80134674, fn_801346C8)
-    unsigned char m54[0x7C - 0x54];
+    unsigned int m54;      // 0x1FC: inferred: index into a table of 5 factors (fn_8012F034)
+    unsigned char m58[0x7C - 0x58];
 };
 
 class CharaStatusBase {
@@ -239,7 +240,9 @@ public:
     CharaParam_unk mParamA;    // 0x28
     CharaParam_unk mParamB;    // 0xE8
     CharaStatusData_unk m1A8;  // inferred: cleared with memset
-    unsigned char m224[0x230 - 0x224];
+    unsigned char m224[0x228 - 0x224];
+    float m228; // inferred: gauge raised by fn_8012F034
+    unsigned char m22C[0x230 - 0x22C];
     unsigned char m230; // inferred: four flags (fn_80134774, fn_801347C8)
     unsigned char m231[0x240 - 0x231];
 };
@@ -335,6 +338,9 @@ public:
     void fn_80133130(unsigned int flags, int value, int both);
     void fn_801333E4();
     void fn_8013459C();
+    void fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, const CharaParam_unk* b);
+    void fn_8012F034(float amount);
+    void fn_8013322C(unsigned int flags);
     CharaStatusRef_unk* FindRef_unk(int id, unsigned int key);
 
     int m240;

@@ -8,6 +8,16 @@ struct Model_unk;
 
 namespace chr {
 
+// inferred: entries of Chara_unk::m654; m274->mF0 is tested by CharaStatus::fn_8013322C
+struct CharaPartData_unk {
+    unsigned char m00[0xF0];
+    int mF0;
+};
+struct CharaPart_unk {
+    unsigned char m000[0x274];
+    CharaPartData_unk* m274;
+};
+
 // inferred: data block pointed to by Chara_unk::m5C (name and layout unknown)
 struct CharaData_unk {
     unsigned char m000[0x11C];
@@ -83,6 +93,8 @@ public:
     void fn_80154344();
     void fn_8015495C(int a, int b, int c, int d);
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
+    int fn_8016E484();
+    void fn_8017AC2C();
     // inferred: state checks inlined in many places (names invented)
     bool IsActive_unk() { return (m38 & 4) != 4 && (m38 & 1) != 1; }
     bool IsFree_unk() { return IsActive_unk() && (m7E0 & 0x20) != 0x20; }
@@ -96,7 +108,9 @@ public:
     unsigned int m38; // inferred: flags (bit 0 and bit 2 tested by IsActive_unk)
     unsigned char m03C[0x48 - 0x3C];
     int m48;
-    unsigned char m04C[0x5C - 0x4C];
+    unsigned char m04C[0x50 - 0x4C];
+    int m50; // inferred: compared with 1 by CharaStatus::fn_8012F034
+    unsigned char m054[0x5C - 0x54];
     CharaData_unk* m5C; // inferred: character data (read by CharaStatus)
     unsigned char m060[0xB0 - 0x60];
     Motion_unk mMotion; // 0xB0
@@ -123,7 +137,10 @@ public:
     unsigned int m5C0; // inferred: flags; bit 0 is cleared while appearing (chr::ControlAppear)
     unsigned char m5C4[0x600 - 0x5C4];
     atn::Vector3 m600;
-    unsigned char m60C[0x7D8 - 0x60C];
+    unsigned char m60C[0x650 - 0x60C];
+    unsigned int m650;      // inferred: number of entries in m654
+    CharaPart_unk* m654[1]; // inferred: array of m650 entries (capacity unknown)
+    unsigned char m658[0x7D8 - 0x658];
     float m7D8;
     unsigned char m7DC[0x7E0 - 0x7DC];
     unsigned int m7E0; // inferred: flags tested with masks; 0x20 while held (0x801A2490)

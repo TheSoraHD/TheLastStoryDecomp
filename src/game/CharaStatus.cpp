@@ -48,8 +48,63 @@ void CharaStatus::fn_8012D628(CharaParam_unk* dst, const CharaParam_unk* src) {
     dst->m34 += src->m34;
 }
 
+void CharaStatus::fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, const CharaParam_unk* b) {
+    if (a == 0 || b == 0) {
+        return;
+    }
+    dst->m00 += (a->m00 + b->m00) / 2.0f;
+    dst->m04 += (a->m04 + b->m04) / 2.0f;
+    dst->m08 += (a->m08 + b->m08) / 2.0f;
+    dst->m0C += (a->m0C + b->m0C) / 2.0f;
+    dst->m10 *= (a->m10 + b->m10) / 2.0f;
+    dst->m14 *= (a->m14 + b->m14) / 2.0f;
+    dst->m28 += (a->m28 + b->m28) / 2.0f;
+    dst->m2C += (a->m2C + b->m2C) / 2.0f;
+    dst->m20 += (a->m20 + b->m20) / 2;
+    dst->m24 += (a->m24 + b->m24) / 2;
+    dst->m18 += (a->m18 + b->m18) / 2.0f;
+    dst->m1C += (a->m1C + b->m1C) / 2.0f;
+    dst->m30 += (a->m30 + b->m30) / 2;
+    dst->m34 += (a->m34 + b->m34) / 2;
+}
+
 int CharaStatus::fn_8012E534() {
     return (m0C >> 12) & 1;
+}
+
+// inferred: name invented
+inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
+    CharaStatusRef_unk* ref = refs.mData;
+    int sum = 0;
+    for (unsigned int i = 0; i < refs.mCount; i++, ref++) {
+        if (ref->mEntry->mId == id) {
+            sum += ref->mEntry->mValue;
+        }
+    }
+    return sum;
+}
+
+extern "C" int fn_80219344(chr::Chara_unk* chara, int arg);
+
+void CharaStatus::fn_8012F034(float amount) {
+    if (mChara->fn_8016E484()) {
+        if (!fn_80219344(mChara, 5)) {
+            return;
+        }
+    } else if (m2D0[3].m00 <= 0) {
+        return;
+    }
+    static const float sFactors[5] = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f};
+    amount *= m2FC;
+    float old = m228;
+    amount *= 1.0f + (float)SumRefs_unk(mRefs, 53) / 100.0f;
+    if (mChara != 0 && mChara->m50 == 1) {
+        amount *= sFactors[m1A8.m54 > 4 ? 4 : m1A8.m54];
+    }
+    m228 += amount;
+    if (old < 1.0f && m228 >= 1.0f) {
+        mChara->fn_8017AC2C();
+    }
 }
 
 int CharaStatus::fn_8012F3D8() {
@@ -80,6 +135,29 @@ void CharaStatus::fn_80133130(unsigned int flags, int value, int both) {
     for (int i = 0; i < 32; i++) {
         if ((flags & (1 << i)) == (1 << i)) {
             m24C[i] = value;
+        }
+    }
+}
+
+// NONMATCHING: 91.7% - our compiler turns the parts loop into a ctr loop with the count read once; the
+// original reloads mChara->m650 each time and keeps an index and an offset. Tried: int and
+// unsigned index, break instead of return, a local chara pointer, a bool helper, a found flag.
+void CharaStatus::fn_8013322C(unsigned int flags) {
+    m0C &= ~flags;
+    m10 &= ~flags;
+    for (int i = 0; i < 32; i++) {
+        if ((flags & (1 << i)) == (1 << i)) {
+            m24C[i] = 0;
+        }
+    }
+    if (mChara != 0) {
+        m0C &= ~0x100000;
+        m10 &= ~0x100000;
+        for (int i = 0; i < mChara->m650; i++) {
+            if (mChara->m654[i]->m274->mF0 != 0) {
+                fn_8013310C(0x100000, 1);
+                return;
+            }
         }
     }
 }
