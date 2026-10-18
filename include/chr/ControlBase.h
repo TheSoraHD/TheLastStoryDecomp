@@ -38,6 +38,10 @@ public:
     virtual void vf2C();
     virtual void vf30();
     virtual void vf34(void* target, int arg, float a, float b); // inferred: look at target
+    virtual void vf38();
+    virtual void vf3C();
+    virtual void vf40();
+    virtual void vf44();
 
     // inferred: bounding sphere returned by value
     struct Sphere_unk {
@@ -53,6 +57,10 @@ public:
     Vec fn_80178018(); // inferred: returns a direction or target vector (y used as an angle)
     float fn_80178078();
     void fn_8017AC3C(int arg);
+    void fn_80164DCC(int arg);
+    void fn_801750FC();
+    void fn_80154344();
+    void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
 
     unsigned char m004[0x48 - 0x04];
     int m48;
@@ -73,14 +81,20 @@ public:
     unsigned char m590[0x5A4 - 0x590];
     Vec m5A4;  // inferred: collision offset
     unsigned char m5B0[0x5B8 - 0x5B0];
-    unsigned char m5B8[0xD18 - 0x5B8];
+    unsigned char m5B8[0x7E0 - 0x5B8];
+    unsigned int m7E0; // inferred: flags tested with masks; 0x20 while held (0x801A2490)
+    unsigned char m7E4[0xC48 - 0x7E4];
+    int mC48;
+    unsigned char mC4C[0xD18 - 0xC4C];
     int mD18;  // inferred: nonzero stops chr::ControlRide (0x801C6FE8)
     unsigned char mD1C[0xF1C - 0xD1C];
     int mF1C;  // inferred: cleared when chr::ControlRide ends
     unsigned char mF20[0xF50 - 0xF20];
     int mF50; // inferred: set by chr::ControlDraggedStart
     int mF54; // inferred: set by chr::ControlDraggingStart
-    unsigned char mF58[0x12A4 - 0xF58];
+    unsigned char mF58[0x1208 - 0xF58];
+    int m1208;
+    unsigned char m120C[0x12A4 - 0x120C];
     // 0x12A4: flag word (bitfields, MSB first)
     unsigned int mFlag31 : 1;
     unsigned int mFlag30_7 : 24;
