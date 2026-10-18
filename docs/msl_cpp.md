@@ -39,7 +39,7 @@ The class names `__vec_storage_unk` / `__vec_imp_unk` are invented; only the nes
 | Address (char) | Member | Status |
 |---|---|---|
 | `0x80013DC4` | `reserve(size_type)` | reconstructed, same instructions (standalone test compile) |
-| `0x80013F78` | range replace `(pos, n1, first, last, tag)` | control flow reconstructed, registers differ |
+| `0x80013F78` | range replace `(pos, n1, first, last, tag)` | 61 of 182 lines differ (standalone, Wii/1.3): `j2 - j1` recomputed for the memmove, `tmp.size()` not folded |
 
 Error reporting with exceptions off: `fprintf(stderr, msg); abort();` with the messages
 `"basic_string::reserve length_error"`, `"basic_string: out_of_range"`,
@@ -48,6 +48,10 @@ in an `@STRING@` pool of an inline function, in `.data`).
 
 `traits::assign(c, T())` binds a constant temporary to a reference: the compiler materialises it as
 a 1-byte object in `.sdata` (`lbl_8087D6C8`, `lbl_8087D6C9`), one per call site.
+
+`abort` must be declared noreturn: the replace reuses `sz - rlen` computed in the second operand of an
+`||` whose other path ends in `abort()`. The iterator tag is not zero-initialised when passed as
+`Tag()`, which fits the MSL tags deriving from each other (an empty derived struct is not a POD).
 
 Growth policy: short capacity 11 chars; `reserve` rounds `n + 16` down to a multiple of 16;
 `replace` starts from `(cap + 15) & ~15` and doubles (`(cap * 2 + 15) & ~15`) until it fits.

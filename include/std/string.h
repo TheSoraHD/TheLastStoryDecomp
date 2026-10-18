@@ -14,7 +14,9 @@ struct _FILE_unk {
 };
 extern "C" _FILE_unk __files[];
 extern "C" int fprintf(_FILE_unk* file, const char* format, ...);
-extern "C" void abort();
+// inferred: abort is declared noreturn (0x80013F78 reuses sz - rlen computed only on the
+// non-error path of an || condition)
+extern "C" __declspec(noreturn) void abort();
 extern "C" void* memmove(void* dst, const void* src, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
@@ -43,8 +45,11 @@ public:
     // in a test file), checked with a standalone compile.
     void reserve(size_type res_arg);
     // inferred: range replace used by the constructors/assign (0x80013F78, char). The last
-    // argument is an empty iterator-tag object passed by value.
-    // NONMATCHING (work in progress): control flow matches, register allocation does not yet.
+    // argument is an iterator-tag object passed by value; the tags derive from each other
+    // (random_access : bidirectional : forward : input), so Tag() is not zero-initialised.
+    // NONMATCHING (standalone compile, 61 differing lines of 182): the original does not reuse
+    // n2 for the memmove of the new characters (it recomputes j2 - j1) and does not fold
+    // tmp.size() for the empty temporary.
     template <class Tag>
     basic_string& __replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag);
 
@@ -148,9 +153,10 @@ template <class T>
 template <class Tag>
 basic_string<T>& basic_string<T>::__replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag) {
     bool was_long = mFlags.mIsLong;
+    size_type new_sz;
     T* p;
-    size_type cap;
     size_type sz;
+    size_type cap;
     if (!was_long) {
         p = mShort.mData;
         cap = __min_cap;
@@ -165,11 +171,10 @@ basic_string<T>& basic_string<T>::__replace_unk(size_type pos, size_type n1, con
     }
     size_type rlen = __min(n1, sz - pos);
     size_type n2 = j2 - j1;
-    size_type new_sz = sz - rlen;
-    if (n2 > max_size() || new_sz > max_size() - n2) {
+    if (n2 > max_size() || sz - rlen > max_size() - n2) {
         __msl_error("basic_string: length_error");
     }
-    new_sz += n2;
+    new_sz = n2 + (sz - rlen);
     size_type tail = sz - (pos + rlen);
     if (new_sz >= cap) {
         cap = (cap + 15) & ~15;
@@ -191,9 +196,9 @@ basic_string<T>& basic_string<T>::__replace_unk(size_type pos, size_type n1, con
         } else {
             mFlags.mIsLong = 1;
         }
-        mFlags.mCap = cap;
         mLong.mData = new_data;
         mLong.mSize = new_sz;
+        mFlags.mCap = cap;
     } else {
         basic_string tmp;
         if (tail != 0 && p + pos + n2 < j2 && j2 <= p + sz) {
