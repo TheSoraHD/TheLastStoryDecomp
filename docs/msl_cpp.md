@@ -139,11 +139,6 @@ does not change). Checked against the tokenizer weak copies (see `libs/boost/REA
 
 ## Why game functions call small inline members out of line
 
-With `-ipa file`, once the code inlined into a function exceeds a threshold, MWCC (all Wii versions
-tested, 1.0-1.7) inlines nothing into that function: in a test, five calls to an inline function of
-40 statements before an `atn::Csv` constructor leave every call out of line, even a one-statement
-inline function. The `inline_*` pragmas do not change it. This explains the out-of-line calls to
-`size()`, `~basic_string`, the `atn::Csv` constructor (0x8004203C, called by large functions and
-inlined by small ones in the same file, e.g. game/Em203GreaterDaemonRed.cpp) and the tokenizer.
-LoadSeTableTask::vf0C (0x803EEEDC) still inlines a few small members (string constructor and
-destructor, iterator comparison), so the rule is not the whole story yet.
+See docs/inlining.md: an over-budget caller inlines nothing (IPA budget), and functions that return
+or take by value an object with a destructor are never inlined. This explains the out-of-line calls
+to `size()`, `~basic_string`, the `atn::Csv` constructor and the tokenizer members.
