@@ -14,7 +14,7 @@ struct Params_unk {
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
     unsigned char m00[0x10];
-    Vec mPos; // 0x10
+    atn::Vector3 mPos; // 0x10
     unsigned char m1C[0x34 - 0x1C];
     int m34;
     int m38;
@@ -25,7 +25,7 @@ struct CollResult_unk {
 extern "C" System_unk* lbl_8087F0A8;
 extern "C" Params_unk* lbl_8087EFA8;
 extern "C" void* lbl_8087EE98;
-extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, chr::Chara_unk::Sphere_unk* sphere, Vec* move,
+extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, chr::Chara_unk::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 
 namespace chr {
@@ -61,10 +61,10 @@ int ControlTurnQuadruped::vf0C() {
         return 1;
     }
     float rate = 2.0f / length;
-    Vec rot = mChara->mRot;
+    atn::Vector3 rot = mChara->mRot;
     rot.y += mAngle * rate;
     mChara->mRot = rot;
-    Vec move;
+    atn::Vector3 move;
     if (mLeft == 1) {
         move.x = -20.0f;
         move.y = 0.0f;
@@ -77,7 +77,7 @@ int ControlTurnQuadruped::vf0C() {
     move.x *= rate;
     move.y *= rate;
     move.z *= rate;
-    Matrix_unk m;
+    atn::Matrix3x4 m;
     m.SetIdentity();
     __MtxRotate(m.m, 'z', mRot.z);
     __MtxRotate(m.m, 'y', mRot.y);

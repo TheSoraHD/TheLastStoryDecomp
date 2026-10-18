@@ -44,7 +44,7 @@ MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, void* data)
             color.a = fn_800DC288(fn_8005B9CC(data));
             mColor = color;
         } else if (strcmp(field, "DIR") == 0) {
-            Vec dir;
+            atn::Vector3 dir;
             dir.x = fn_800DC288(fn_8005B9CC(data));
             dir.y = fn_800DC288(fn_8005B9CC(data));
             dir.z = fn_800DC288(fn_8005B9CC(data));
@@ -64,11 +64,11 @@ MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, void* data)
         } else if (strcmp(field, "LENGTHV") == 0) {
             mLengthV = fn_800DC288(fn_8005B9CC(data));
         } else if (strcmp(field, "BOX") == 0) {
-            Vec a;
+            atn::Vector3 a;
             a.x = fn_800DC288(fn_8005B9CC(data));
             a.y = fn_800DC288(fn_8005B9CC(data));
             a.z = fn_800DC288(fn_8005B9CC(data));
-            Vec b;
+            atn::Vector3 b;
             b.x = fn_800DC288(fn_8005B9CC(data));
             b.y = fn_800DC288(fn_8005B9CC(data));
             b.z = fn_800DC288(fn_8005B9CC(data));

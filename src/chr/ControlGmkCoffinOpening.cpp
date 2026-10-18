@@ -10,17 +10,17 @@ extern "C" EffectMgr_unk* lbl_8087F498;
 extern "C" void fn_803EA77C(EffectMgr_unk* mgr, chr::Chara_unk* chara, int id, int arg, float a, float b);
 extern "C" float lbl_8087DA08; // inferred: ground height used by ControlGmkCoffinGetUp
 extern "C" void fn_80547708(void* arg, chr::GmkTarget_unk* target);
-extern "C" void fn_805F9750(float (*m)[4], Vec* src, Vec* dst); // inferred: 4x4 matrix times vector
+extern "C" void fn_805F9750(float (*m)[4], atn::Vector3* src, atn::Vector3* dst); // inferred: 4x4 matrix times vector
 
 namespace chr {
 
 // NONMATCHING: 99.5% - three scratch registers (r9-r11) are assigned in another order.
-ControlGmkCoffinOpening::ControlGmkCoffinOpening(Chara_unk* chara, const Vec& pos, float rotY)
+ControlGmkCoffinOpening::ControlGmkCoffinOpening(Chara_unk* chara, const atn::Vector3& pos, float rotY)
     : ControlBase(chara), mState(0) {
     chara->m58C = 0;
     mChara->m560 = 0x5B;
     mChara->mPos = pos;
-    mChara->mRot = Vec(0.0f, rotY, 0.0f);
+    mChara->mRot = atn::Vector3(0.0f, rotY, 0.0f);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->m24C = 1.0f;
@@ -44,12 +44,12 @@ int ControlGmkCoffinOpening::vf0C() {
 }
 
 // NONMATCHING: 93.6% (scheduling/registers) - the rotation temporary address is computed later.
-ControlGmkCoffinOpen::ControlGmkCoffinOpen(Chara_unk* chara, const Vec& pos, int alt, float rotY)
+ControlGmkCoffinOpen::ControlGmkCoffinOpen(Chara_unk* chara, const atn::Vector3& pos, int alt, float rotY)
     : ControlBase(chara) {
     chara->m58C = 0;
     mChara->m560 = 0x5C;
     mChara->mPos = pos;
-    mChara->mRot = Vec(0.0f, rotY, 0.0f);
+    mChara->mRot = atn::Vector3(0.0f, rotY, 0.0f);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->m24C = 1.0f;
@@ -67,7 +67,7 @@ int ControlGmkCoffinOpen::vf0C() {
     return frame >= motion->fn_80097D7C(0);
 }
 
-ControlGmkCoffinGetUp::ControlGmkCoffinGetUp(Chara_unk* chara, const Vec& pos, const Vec& rot)
+ControlGmkCoffinGetUp::ControlGmkCoffinGetUp(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& rot)
     : ControlBase(chara), mWait(0x3C), mState(0) {
     chara->m58C = 0;
     mChara->m560 = 0x5D;
@@ -110,18 +110,18 @@ int ControlGmkCoffinGetUp::vf0C() {
             m->m24C = 1.0f;
             m->fn_80097C08(0, 2, 0, 0, 1, 1.0f, 0.1f);
             m->m238 = 1.0f;
-            Vec ofs(-16.0f, 0.0f, -18.0f);
+            atn::Vector3 ofs(-16.0f, 0.0f, -18.0f);
             Mtx mtx;
             PSMTXRotRad(mtx, 'y', mChara->mRot.y);
             PSMTXMultVec(mtx, &ofs, &ofs);
             Chara_unk* chara = mChara;
-            Vec np = chara->mPos + ofs;
+            atn::Vector3 np = chara->mPos + ofs;
             chara->mPos = np;
             ((CharaTask*)mChara)->fn_80145334();
             return 1;
         }
         if (motion->m234 >= 3.0f) {
-            Vec pos = mChara->mPos;
+            atn::Vector3 pos = mChara->mPos;
             pos.y += (lbl_8087DA08 - pos.y) * 0.25f;
             mChara->mPos = pos;
         }
@@ -150,7 +150,7 @@ int ControlGmkTrapBat::vf0C() {
 
 boost::function<void()> ControlGmkTrapBat::vf10() {
     if ((mChara->m7E0 & 0x20) == 0x20) {
-        Vec dir(0.0f, 0.0f, -0.01f);
+        atn::Vector3 dir(0.0f, 0.0f, -0.01f);
         Mtx mtx;
         PSMTXRotRad(mtx, 'y', mChara->mRot.y);
         PSMTXMultVec(mtx, &dir, &dir);
@@ -174,9 +174,9 @@ ControlGmkBreakArmor::ControlGmkBreakArmor(Chara_unk* chara, GmkTarget_unk* targ
     chara->m58C = 0;
     mChara->m560 = 0x5F;
     if (mTarget != 0) {
-        Vec rot = mChara->mRot;
-        Vec dir = mTarget->m6C - mChara->mPos;
-        Vec angles;
+        atn::Vector3 rot = mChara->mRot;
+        atn::Vector3 dir = mTarget->m6C - mChara->mPos;
+        atn::Vector3 angles;
         angles.y = __Atan2_unk(dir.x, dir.z);
         Mtx m;
         PSMTXRotRad(m, 'y', -angles.y);
@@ -188,7 +188,7 @@ ControlGmkBreakArmor::ControlGmkBreakArmor(Chara_unk* chara, GmkTarget_unk* targ
         }
         m4[3][0] = m4[3][1] = m4[3][2] = 0.0f;
         m4[3][3] = 1.0f;
-        Vec local = dir;
+        atn::Vector3 local = dir;
         fn_805F9750(m4, &local, &local);
         angles.x = -__Atan2_unk(local.y, local.z);
         angles.z = 0.0f;

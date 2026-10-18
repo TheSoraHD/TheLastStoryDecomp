@@ -6,8 +6,8 @@
 struct Colli_unk {};
 extern "C" Colli_unk* lbl_8087EE98;
 extern "C" Colli_unk* lbl_8087F048;
-extern "C" int fn_8004ED34(Colli_unk* colli, int arg2, Vec* from, Vec* to, int mask, int arg6, int arg7); // inferred: ray test
-extern "C" void fn_8010A308(Colli_unk* colli, Vec* from, Vec* to, float radius); // inferred: sphere sweep
+extern "C" int fn_8004ED34(Colli_unk* colli, int arg2, atn::Vector3* from, atn::Vector3* to, int mask, int arg6, int arg7); // inferred: ray test
+extern "C" void fn_8010A308(Colli_unk* colli, atn::Vector3* from, atn::Vector3* to, float radius); // inferred: sphere sweep
 
 // inferred: motion ids local to this file (the bound enum type is MOTION_ID::@enum...control_appear_cpp)
 namespace MOTION_ID {
@@ -18,7 +18,7 @@ enum {
 
 namespace chr {
 
-ControlAppear::ControlAppear(Chara_unk* chara, const Vec& start, const Vec& offset)
+ControlAppear::ControlAppear(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& offset)
     : ControlBase(chara), mStart(start), mOffset(offset) {
     chara->m560 = 0x23;
     mChara->m5C0 &= ~1;
@@ -32,7 +32,7 @@ ControlAppear::ControlAppear(Chara_unk* chara, const Vec& start, const Vec& offs
 }
 
 int ControlAppear::vf0C() {
-    Vec rot = mChara->mRot;
+    atn::Vector3 rot = mChara->mRot;
     Motion_unk* motion = &mChara->mMotion;
     float frame = motion->m234;
     float a = 0.0f;
@@ -41,8 +41,8 @@ int ControlAppear::vf0C() {
         mChara->m5C0 |= 1;
         return 1;
     }
-    Vec from = m08;
-    Vec to = mChara->m600;
+    atn::Vector3 from = m08;
+    atn::Vector3 to = mChara->m600;
     if (lbl_8087F048 != 0) {
         fn_8010A308(lbl_8087F048, &from, &to, mChara->m5B0);
     }
@@ -66,8 +66,8 @@ void ControlAppear::vf40() {
 }
 
 boost::function<void()> ControlAppear::vf10() {
-    Vec from = mChara->mPos;
-    Vec to = from;
+    atn::Vector3 from = mChara->mPos;
+    atn::Vector3 to = from;
     from.y += 3.0f;
     to.y -= 9.0f;
     // inferred: the collision object is read before the mask is computed (0x80188440)
@@ -93,7 +93,7 @@ ControlAppearEnd::ControlAppearEnd(Chara_unk* chara, int motion, float blend) : 
 }
 
 int ControlAppearEnd::vf0C() {
-    Vec rot = mChara->mRot;
+    atn::Vector3 rot = mChara->mRot;
     Motion_unk* motion = &mChara->mMotion;
     float frame = motion->m234;
     // inferred: the vf34 arguments are locals (loaded into f30/f29 before the first call)
@@ -112,7 +112,7 @@ boost::function<void()> ControlAppearEnd::vf10() {
     return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
 }
 
-ControlAppearSkelton::ControlAppearSkelton(Chara_unk* chara, const Vec& pos)
+ControlAppearSkelton::ControlAppearSkelton(Chara_unk* chara, const atn::Vector3& pos)
     : ControlBase(chara), mState(0), mWait(0x37) {
     chara->m560 = 0x23;
     mChara->m5C0 &= ~1;
@@ -158,7 +158,7 @@ void ControlAppearSkelton::vf1C() {
     }
 }
 
-ControlAppearCoffin::ControlAppearCoffin(Chara_unk* chara, const Vec& pos) : ControlBase(chara), mWait(0x3C) {
+ControlAppearCoffin::ControlAppearCoffin(Chara_unk* chara, const atn::Vector3& pos) : ControlBase(chara), mWait(0x3C) {
     chara->m560 = 0x23;
     mChara->m5C0 &= ~1;
     mChara->fn_8016E4C4(0);

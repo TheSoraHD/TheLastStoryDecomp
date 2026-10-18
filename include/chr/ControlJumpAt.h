@@ -10,11 +10,11 @@ namespace chr {
 // inferred: jump at a target (motion 0x146); then grapples it
 class ControlJumpAt : public ControlBase {
 public:
-    ControlJumpAt(Chara_unk* chara, const Vec& start, Chara_unk* target); // 0x801B529C
+    ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_unk* target); // 0x801B529C
     virtual int vf0C();                     // 0x801B5370
     virtual boost::function<void()> vf10(); // 0x801B54E8
 
-    Vec mStart;         // 0x08
+    atn::Vector3 mStart;         // 0x08
     Chara_unk* mTarget; // 0x14
 };
 

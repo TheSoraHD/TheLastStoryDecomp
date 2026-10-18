@@ -15,12 +15,12 @@ struct Field_unk {
     unsigned char m0000[0x10D8];
     CharaList_unk* m10D8; // 0x10D8
 };
-extern "C" Vec lbl_807C7030;
+extern "C" atn::Vector3 lbl_807C7030;
 struct Target_unk {
     unsigned char m000[0xD3C];
     int mD3C;
     int mD40;
-    Vec mD44;
+    atn::Vector3 mD44;
     atn::Task* mD50;
     int mD54;
     int mD58;
@@ -45,8 +45,8 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" Target_unk* lbl_8087F490;
 extern "C" void* lbl_8087F498;
 extern "C" TownMap_unk* lbl_8087FA20;
-extern "C" void fn_805B8110(TownMap_unk* map, const Vec* pos, int* x, int* z); // inferred: position to cell
-extern "C" Vec fn_803CC754(CharaList_unk* list, unsigned int i); // inferred: position of entry i
+extern "C" void fn_805B8110(TownMap_unk* map, const atn::Vector3* pos, int* x, int* z); // inferred: position to cell
+extern "C" atn::Vector3 fn_803CC754(CharaList_unk* list, unsigned int i); // inferred: position of entry i
 extern "C" atn::Task* fn_803C0634(CharaList_unk* list, unsigned int i);
 extern "C" void fn_803CC774(CharaList_unk* list, atn::Task* chara);
 extern "C" void fn_803CC718(CharaList_unk* list, atn::Task* chara, int arg);
@@ -75,7 +75,7 @@ int TownTpcLoader::vf0C() {
             CharaList_unk* list = lbl_8087F430->m10D8;
             if (list->m48 > 0) {
                 for (unsigned int i = 0; i < list->mNum; i++) {
-                    Vec pos = fn_803CC754(list, i);
+                    atn::Vector3 pos = fn_803CC754(list, i);
                     int x = 0;
                     int z = 0;
                     fn_805B8110(lbl_8087FA20, &pos, &x, &z);

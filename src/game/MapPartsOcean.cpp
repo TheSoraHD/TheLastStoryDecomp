@@ -79,7 +79,7 @@ void MapPartsOcean::vf10() {
     }
     for (int i = 0; i < 2; i++) {
         MtxPtr node = mModel.GetNodeMtx_unk(mJoint[i]);
-        Vec trans(0.0f, offset[i], 0.0f);
+        atn::Vector3 trans(0.0f, offset[i], 0.0f);
         Mtx m;
         PSMTXTrans(m, trans.x, trans.y, trans.z);
         __MtxCopy(node, m);

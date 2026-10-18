@@ -15,7 +15,7 @@ public:
     // inferred: entry of the array at m220 (0x2C bytes)
     struct Entry_unk {
         unsigned char m00[0x04];
-        Vec m04;
+        atn::Vector3 m04;
         unsigned char m10[0x2C - 0x10];
     };
 
@@ -54,16 +54,16 @@ public:
 
     // inferred: bounding sphere returned by value
     struct Sphere_unk {
-        Vec mCenter;
+        atn::Vector3 mCenter;
         float mRadius;
     };
 
     void fn_801539E0();
-    Sphere_unk fn_80176548(const Vec& pos); // inferred
+    Sphere_unk fn_80176548(const atn::Vector3& pos); // inferred
     void fn_80155DAC(int arg);
     void fn_8016DA4C();
     void fn_801446F0();
-    Vec fn_80178018(); // inferred: returns a direction or target vector (y used as an angle)
+    atn::Vector3 fn_80178018(); // inferred: returns a direction or target vector (y used as an angle)
     float fn_80178078();
     void fn_8017AC3C(int arg);
     void fn_80164DCC(int arg);
@@ -80,26 +80,26 @@ public:
     Motion_unk mMotion; // 0xB0
     unsigned char m400[0x524 - 0x400];
     int m524; // inferred: index into Motion_unk::m220
-    Vec mPos;  // 0x528
-    Vec mRot;  // 0x534
+    atn::Vector3 mPos;  // 0x528
+    atn::Vector3 mRot;  // 0x534
     unsigned char m540[0x55C - 0x540];
     int m55C; // inferred: state compared with 6 by the grapple controls
     int m560;
     unsigned char m564[0x570 - 0x564];
     float m570;
-    Vec m574;
+    atn::Vector3 m574;
     float m580;
     float m584;
     unsigned char m588[0x58C - 0x588];
     int m58C;
     unsigned char m590[0x5A4 - 0x590];
-    Vec m5A4;  // inferred: collision offset
+    atn::Vector3 m5A4;  // inferred: collision offset
     float m5B0; // inferred: collision radius (0x80188280)
     unsigned char m5B4[0x5B8 - 0x5B4];
     unsigned char m5B8[0x5C0 - 0x5B8]; // inferred: passed by address (chr::ControlTurnQuadruped)
     unsigned int m5C0; // inferred: flags; bit 0 is cleared while appearing (chr::ControlAppear)
     unsigned char m5C4[0x600 - 0x5C4];
-    Vec m600;
+    atn::Vector3 m600;
     unsigned char m60C[0x7D8 - 0x60C];
     float m7D8;
     unsigned char m7DC[0x7E0 - 0x7DC];
@@ -116,7 +116,7 @@ public:
     int mF50; // inferred: set by chr::ControlDraggedStart
     int mF54; // inferred: set by chr::ControlDraggingStart
     unsigned char mF58[0xF60 - 0xF58];
-    Vec mF60; // inferred: set to the position by chr::ControlAppearSkelton
+    atn::Vector3 mF60; // inferred: set to the position by chr::ControlAppearSkelton
     unsigned char mF6C[0x1208 - 0xF6C];
     int m1208;
     unsigned char m120C[0x12A4 - 0x120C];
@@ -128,7 +128,7 @@ public:
     unsigned int mFlag4_0 : 5;
 };
 
-extern "C" Vec lbl_807C7030; // inferred: zero vector returned by ControlBase::vf4C
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector returned by ControlBase::vf4C
 
 // inferred from __vt__Q23chr11ControlBase (0x8077DC90). vf44, vf48, vf4C and vf5C are inline
 // (weak copies first emitted in chr/ControlBreakOpen.cpp at 0x80188060).
@@ -154,7 +154,7 @@ public:
     virtual void vf40();
     virtual int vf44() { return 0; }
     virtual int vf48() { return 0; }
-    virtual Vec vf4C() { return lbl_807C7030; }
+    virtual atn::Vector3 vf4C() { return lbl_807C7030; }
     virtual void vf50();
     virtual void vf54();
     virtual void vf58();

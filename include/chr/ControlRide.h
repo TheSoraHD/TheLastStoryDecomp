@@ -30,10 +30,10 @@ public:
 
     Chara_unk* mBeast;  // 0x08: inferred: the same character as mChara
     Chara_unk* mRider;  // 0x0C
-    Vec mStartPos;      // 0x10
-    Vec mSeatPos;       // 0x1C
-    Vec mStartRot;      // 0x28
-    Vec mRiderRot;      // 0x34
+    atn::Vector3 mStartPos;      // 0x10
+    atn::Vector3 mSeatPos;       // 0x1C
+    atn::Vector3 mStartRot;      // 0x28
+    atn::Vector3 mRiderRot;      // 0x34
 };
 
 } // namespace chr

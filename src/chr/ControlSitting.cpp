@@ -16,7 +16,7 @@ inline float __WrapAngle_unk(float angle) {
     return a;
 }
 
-ControlSitting::ControlSitting(Chara_unk* chara, const Vec& start, const Vec& seat, const Vec& rot)
+ControlSitting::ControlSitting(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& seat, const atn::Vector3& rot)
     : ControlBase(chara) {
     chara->m560 = 0x3D;
     Motion_unk* motion = &mChara->mMotion;
@@ -31,7 +31,7 @@ ControlSitting::ControlSitting(Chara_unk* chara, const Vec& start, const Vec& se
     mRot = rot;
     mCount = 8;
     mChara->mPos = start;
-    Vec zero(0.0f, 0.0f, 0.0f);
+    atn::Vector3 zero(0.0f, 0.0f, 0.0f);
     mChara->m574 = zero;
     mChara->m570 = 0.0f;
     Chara_unk* c = mChara;
@@ -47,7 +47,7 @@ int ControlSitting::vf0C() {
         mCount--;
         float t = mCount / 8.0f;
         mChara->mPos = mSeat + (mStart - mSeat) * t;
-        Vec rot = mChara->mRot;
+        atn::Vector3 rot = mChara->mRot;
         rot.y += __WrapAngle_unk(mRot.y - mStartRot.y) / 8.0f;
         mChara->mRot = rot;
     }
@@ -60,7 +60,7 @@ int ControlSitting::vf0C() {
     } else if (motion->m22C == 0x79) {
         if (mChara->m48 == 0 && mChara->fn_80178078() > 0.4f) {
             Chara_unk* chara = mChara;
-            Vec dir = chara->fn_80178018();
+            atn::Vector3 dir = chara->fn_80178018();
             float angle = __WrapAngle_unk(dir.y - chara->mRot.y);
             if ((float)__fabs(angle) < 1.5707964f) {
                 motion->fn_80097C08(0, 0x7A, 0, 0, 1, 0.0f, 0.1f);

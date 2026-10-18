@@ -37,38 +37,57 @@ inline void __MtxCopy(register Mtx dst, register const Mtx src) {
     }
 }
 
-struct Vec {
-    Vec() {}
-    Vec(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
-    Vec(const Vec& v) {
+namespace atn {
+
+class Matrix3x4;
+
+// The engine's 3D vector (the name is in the DOL: boost::_bi::value<atn::Vector3>).
+class Vector3 {
+public:
+    Vector3() {}
+    Vector3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
+    Vector3(const Vector3& v) {
         __VecCopy(&x, &v.x);
     }
-    Vec& operator=(const Vec& v) {
+    Vector3& operator=(const Vector3& v) {
         __VecCopy(&x, &v.x);
         return *this;
     }
     // inferred: by-value operators (temporaries kept on the stack, 0x801C9C68)
-    Vec operator+(const Vec& v) const { return Vec(x + v.x, y + v.y, z + v.z); }
-    Vec operator-(const Vec& v) const { return Vec(x - v.x, y - v.y, z - v.z); }
-    Vec operator*(float f) const { return Vec(x * f, y * f, z * f); }
+    Vector3 operator+(const Vector3& v) const { return Vector3(x + v.x, y + v.y, z + v.z); }
+    Vector3 operator-(const Vector3& v) const { return Vector3(x - v.x, y - v.y, z - v.z); }
+    Vector3 operator*(float f) const { return Vector3(x * f, y * f, z * f); }
+
+    // Out-of-line members (called with bl from many files):
+    Vector3& fn_8000D114(float x_, float y_, float z_); // inferred: sets x, y, z and returns *this
+    void fn_80011410(const Matrix3x4& m);              // inferred: *this = m * *this (PSMTXMultVec)
 
     float x, y, z;
 };
 
+} // namespace atn
+
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
-extern "C" void PSMTXMultVec(const Mtx m, const Vec* src, Vec* dst);
+extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 
-// inferred: 3x4 matrix helper; the methods are inlined (the matrix address stays in a
-// register through 0x801C9130-0x801C924C). Class and method names are invented.
-struct Matrix_unk {
+namespace atn {
+
+// The engine's 3x4 matrix (the name is in the DOL: atn::Matrix3x4 * in bound callbacks).
+// Small members are inlined (the matrix address stays in a register through
+// 0x801C9130-0x801C924C); others are called out of line.
+class Matrix3x4 {
+public:
     void SetIdentity() {
         m[0][1] = m[0][2] = m[0][3] = m[1][0] = m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] = 0.0f;
         m[0][0] = m[1][1] = m[2][2] = 1.0f;
     }
+    void fn_8013A13C(float rad); // inferred: rotation around y (PSMTXRotRad(m, 'y', rad))
 
     Mtx m;
 };
+
+} // namespace atn
 
 // inferred: rotate `m` around `axis` when the angle is not zero (name invented)
 inline void __MtxRotate(Mtx m, char axis, float rad) {

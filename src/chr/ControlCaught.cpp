@@ -93,7 +93,7 @@ boost::function<void()> ControlCaught::vf10() {
     }
     if (mChara != 0 && (mChara->m7E0 & 0x20) == 0x20) {
         mChara->vf44();
-        Vec dir(0.0f, 0.0f, -0.01f);
+        atn::Vector3 dir(0.0f, 0.0f, -0.01f);
         Mtx mtx;
         PSMTXRotRad(mtx, 'y', mChara->mRot.y);
         PSMTXMultVec(mtx, &dir, &dir);

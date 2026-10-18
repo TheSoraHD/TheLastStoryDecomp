@@ -4,14 +4,14 @@
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
 
-extern "C" float PSVECMag(const Vec* v);
-extern "C" void PSVECNormalize(const Vec* src, Vec* dst);
+extern "C" float PSVECMag(const atn::Vector3* v);
+extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 
 namespace chr {
 
 // inferred: translation column of a node matrix (name invented)
-inline Vec __GetTrans_unk(MtxPtr m) {
-    return Vec(m[0][3], m[1][3], m[2][3]);
+inline atn::Vector3 __GetTrans_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
 int ControlRide::vf0C() {
@@ -63,12 +63,12 @@ int ControlRideBeast::vf0C() {
         Motion_unk* motion = &mBeast->mMotion;
         float cur = motion->m234;
         float rate = (0.0f == cur) ? 0.0f : cur / motion->fn_80097D7C(0);
-        Vec dir = mSeatPos - mStartPos;
+        atn::Vector3 dir = mSeatPos - mStartPos;
         float dist = PSVECMag(&dir) * rate;
         PSVECNormalize(&dir, &dir);
         mBeast->mPos = mStartPos + dir * dist;
-        const Vec& s = mStartRot;
-        mBeast->mRot = s + Vec((mRiderRot.x - s.x) * rate, (mRiderRot.y - s.y) * rate, (mRiderRot.z - s.z) * rate);
+        const atn::Vector3& s = mStartRot;
+        mBeast->mRot = s + atn::Vector3((mRiderRot.x - s.x) * rate, (mRiderRot.y - s.y) * rate, (mRiderRot.z - s.z) * rate);
         return 0;
     }
     return 1;

@@ -5,8 +5,8 @@ struct CameraParam_unk {
     CameraParam_unk(float px, float py, float pz, float tx, float ty, float tz, float fov, int flag)
         : mPos(px, py, pz), mTarget(tx, ty, tz), mFov(fov), mFlag(flag) {}
 
-    Vec mPos;
-    Vec mTarget;
+    atn::Vector3 mPos;
+    atn::Vector3 mTarget;
     float mFov;
     int mFlag;
 };
@@ -15,9 +15,9 @@ struct CameraSub_unk {
 };
 struct CameraMgr_unk {
     void SetParam_unk(const CameraParam_unk& param) {
-        // inferred: the two vectors are copied through a Vec pointer (second one at src + 0xC)
-        const Vec* src = &param.mPos;
-        Vec* dst = &mParam.mPos;
+        // inferred: the two vectors are copied through a atn::Vector3 pointer (second one at src + 0xC)
+        const atn::Vector3* src = &param.mPos;
+        atn::Vector3* dst = &mParam.mPos;
         dst[0] = src[0];
         dst[1] = src[1];
         mParam.mFov = param.mFov;

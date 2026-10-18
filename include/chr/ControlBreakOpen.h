@@ -13,7 +13,7 @@ struct BreakMsg_unk {
     int m08;
     int m0C;
     int m10;
-    Vec mVec;
+    atn::Vector3 mVec;
 };
 
 // inferred: object that receives BreakMsg_unk through its virtual at 0x40

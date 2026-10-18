@@ -4,7 +4,7 @@
 // inferred: only the fields cleared by FriendArganan are known
 struct HitInfo_unk {
     unsigned char m00[0x10];
-    Vec m10;
+    atn::Vector3 m10;
     unsigned char m1C[0x68 - 0x1C];
     int m68;
     unsigned char m6C[0x90 - 0x6C];

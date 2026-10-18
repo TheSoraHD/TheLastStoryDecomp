@@ -26,7 +26,7 @@ extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
 namespace chr {
 
-ControlJumpAt::ControlJumpAt(Chara_unk* chara, const Vec& start, Chara_unk* target)
+ControlJumpAt::ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_unk* target)
     : ControlBase(chara), mStart(start), mTarget(target) {
     chara->m560 = 0x7B;
     mChara->m5C0 &= ~1;
@@ -43,9 +43,9 @@ int ControlJumpAt::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     float frame = motion->m234;
     float t = frame / motion->fn_80097D7C(0);
-    Vec pos = (mTarget->mPos - mStart) * t + mStart;
+    atn::Vector3 pos = (mTarget->mPos - mStart) * t + mStart;
     mChara->mPos = pos;
-    Vec rot = mTarget->mRot;
+    atn::Vector3 rot = mTarget->mRot;
     rot.y += 3.1415927f;
     mChara->mRot = rot;
     float cur = motion->m234;
@@ -65,8 +65,8 @@ boost::function<void()> ControlJumpAt::vf10() {
 }
 
 int ControlGrapple::vf0C() {
-    Vec pos = mTarget->mPos;
-    Vec dir(0.0f, 0.0f, 0.5f);
+    atn::Vector3 pos = mTarget->mPos;
+    atn::Vector3 dir(0.0f, 0.0f, 0.5f);
     float angle = mTarget->mRot.y;
     Mtx mtx;
     PSMTXRotRad(mtx, 'y', angle);
@@ -76,12 +76,12 @@ int ControlGrapple::vf0C() {
     pos.z += dir.z;
     Chara_unk* chara = mChara;
     chara->mPos = pos;
-    Vec rot = mTarget->mRot;
+    atn::Vector3 rot = mTarget->mRot;
     rot.y += 3.1415927f;
     mChara->mRot = rot;
     if ((mChara->m7E0 & 0x20) == 0x20) {
         mChara->vf44();
-        Vec back(0.0f, 0.0f, -2.0f);
+        atn::Vector3 back(0.0f, 0.0f, -2.0f);
         Mtx m;
         PSMTXRotRad(m, 'y', mTarget->mRot.y);
         PSMTXMultVec(m, &back, &back);
@@ -96,7 +96,7 @@ int ControlGrapple::vf0C() {
 
 // NONMATCHING: 98.8% (scheduling only) - the original loads mTarget before storing `dir`.
 boost::function<void()> ControlGrapple::vf10() {
-    Vec dir(0.0f, 0.0f, 2.0f);
+    atn::Vector3 dir(0.0f, 0.0f, 2.0f);
     Mtx mtx;
     PSMTXRotRad(mtx, 'y', mTarget->mRot.y);
     PSMTXMultVec(mtx, &dir, &dir);
@@ -143,7 +143,7 @@ int ControlGrappled::vf0C() {
     mChara->m948 -= 0.1f;
     if (mChara->m7D8 <= 1.0f) {
         mChara->vf44();
-        Vec dir(0.0f, 0.0f, 2.0f);
+        atn::Vector3 dir(0.0f, 0.0f, 2.0f);
         Mtx mtx;
         PSMTXRotRad(mtx, 'y', mChara->mRot.y);
         PSMTXMultVec(mtx, &dir, &dir);
@@ -161,7 +161,7 @@ int ControlGrappled::vf0C() {
 // boost::function constructors out of line (0x801B5DF0, 0x801B5EC0, 0x801B66A4 ...).
 boost::function<void()> ControlGrappled::vf10() {
     if (mCount > 0) {
-        Vec dir(0.0f, 0.0f, -2.0f);
+        atn::Vector3 dir(0.0f, 0.0f, -2.0f);
         Mtx mtx;
         PSMTXRotRad(mtx, 'y', mChara->mRot.y);
         PSMTXMultVec(mtx, &dir, &dir);
@@ -191,7 +191,7 @@ ControlGrappledThrow::ControlGrappledThrow(Chara_unk* chara, Chara_unk* holder)
 int ControlGrappledThrow::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (mChara->mMotion.m234 < 112.0f) {
-        Vec rot = mChara->mRot;
+        atn::Vector3 rot = mChara->mRot;
         rot.y += 0.028049935f;
         mChara->mRot = rot;
     }

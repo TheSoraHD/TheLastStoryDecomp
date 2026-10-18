@@ -18,14 +18,14 @@ struct LensFlareElem {
 
 class LensFlare {
 public:
-    LensFlare(int arg, int count, const Vec& pos, float size); // 0x80077160
+    LensFlare(int arg, int count, const atn::Vector3& pos, float size); // 0x80077160
     virtual ~LensFlare();
 
     int fn_800774D4(); // inferred: nonzero while loading
     void fn_80077534(); // inferred: per-frame update
 
     int m04;
-    Vec mPos;            // 0x08
+    atn::Vector3 mPos;            // 0x08
     float m14;
     int mCount;          // 0x18
     LensFlareElem* mElems; // 0x1C

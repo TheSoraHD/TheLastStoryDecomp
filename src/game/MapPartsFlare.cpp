@@ -18,7 +18,7 @@ MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, void* da
 MapPartsFlare::MapPartsFlare(atn::Task* parent, void* arg, void* data) : MapPartsBase(parent, arg) {
     atn::LensFlareElem* e;
     int count = atoi(fn_8005B9CC(data));
-    mFlare = new (6, "", "", 0) atn::LensFlare(1, count, Vec(0.0f, 0.0f, 0.0f), 30.0f);
+    mFlare = new (6, "", "", 0) atn::LensFlare(1, count, atn::Vector3(0.0f, 0.0f, 0.0f), 30.0f);
     for (int i = 0; i < count; i++) {
         e = &mFlare->mElems[i];
         e->m00 = atoi(fn_8005B9CC(data));

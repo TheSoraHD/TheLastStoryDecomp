@@ -14,9 +14,9 @@ public:
     // inferred: two corners of the rain volume
     struct Box_unk {
         Box_unk() {}
-        Box_unk(const Vec& a, const Vec& b) : mMin(a), mMax(b) {}
-        Vec mMin;
-        Vec mMax;
+        Box_unk(const atn::Vector3& a, const atn::Vector3& b) : mMin(a), mMax(b) {}
+        atn::Vector3 mMin;
+        atn::Vector3 mMax;
     };
 
     MapPartsRain(atn::Task* parent, void* arg, void* data); // 0x8049CE40
@@ -32,7 +32,7 @@ public:
 
     int mOn;          // 0x50
     atn::Rain mRain;  // 0x54
-    Vec mDir;         // 0x68
+    atn::Vector3 mDir;         // 0x68
     Color_unk mColor; // 0x74
     Box_unk mBox;     // 0x84
     int mCount;       // 0x9C

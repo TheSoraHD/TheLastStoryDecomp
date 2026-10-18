@@ -13,7 +13,7 @@ public:
 
     float mAngle; // 0x08
     int mLeft;    // 0x0C: inferred: 1 when turning with a negative angle
-    Vec mRot;     // 0x10: rotation of the character at the start
+    atn::Vector3 mRot;     // 0x10: rotation of the character at the start
 };
 
 } // namespace chr

@@ -10,7 +10,7 @@ namespace chr {
 // inferred: character opening a coffin gimmick (motions 0x231, 0x232)
 class ControlGmkCoffinOpening : public ControlBase {
 public:
-    ControlGmkCoffinOpening(Chara_unk* chara, const Vec& pos, float rotY); // 0x801B409C
+    ControlGmkCoffinOpening(Chara_unk* chara, const atn::Vector3& pos, float rotY); // 0x801B409C
     virtual int vf0C();                                                    // 0x801B417C
 
     int mState; // 0x08
@@ -18,14 +18,14 @@ public:
 
 class ControlGmkCoffinOpen : public ControlBase {
 public:
-    ControlGmkCoffinOpen(Chara_unk* chara, const Vec& pos, int alt, float rotY); // 0x801B4238
+    ControlGmkCoffinOpen(Chara_unk* chara, const atn::Vector3& pos, int alt, float rotY); // 0x801B4238
     virtual int vf0C();                                                          // 0x801B4344
 };
 
 // inferred: character getting up from a coffin (motion 0x22F or 0x230)
 class ControlGmkCoffinGetUp : public ControlBase {
 public:
-    ControlGmkCoffinGetUp(Chara_unk* chara, const Vec& pos, const Vec& rot); // 0x801B4394
+    ControlGmkCoffinGetUp(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& rot); // 0x801B4394
     virtual int vf0C();                                                      // 0x801B44E8
 
     int mWait;  // 0x08
@@ -73,7 +73,7 @@ struct GmkTarget_unk {
     virtual void vf70(int arg);
 
     unsigned char m04[0x6C - 0x04];
-    Vec m6C; // 0x6C: inferred: position
+    atn::Vector3 m6C; // 0x6C: inferred: position
 };
 
 // inferred: breaking a gimmick's armor (motion 0xB)
