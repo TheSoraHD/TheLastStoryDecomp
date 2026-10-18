@@ -151,6 +151,106 @@ void CharaStatus::fn_8012D628(CharaParam_unk* dst, const CharaParam_unk* src) {
     dst->m34 += src->m34;
 }
 
+// inferred: per-kind equipment table (fn_80219160); names invented
+struct EquipSet_unk {
+    unsigned char m00[0x82];
+    signed char m82[6];
+};
+extern "C" int fn_80219558(int kind);
+extern "C" EquipSet_unk* fn_80219160(int kind, int level);
+extern "C" int fn_8021AF98(int slot);
+extern "C" int fn_8021AFF4(int slot);
+struct Inventory2_unk;
+extern "C" Inventory2_unk* lbl_8087EE68;
+extern "C" int fn_800185B4(Inventory2_unk* inventory, CharaTask* chara, int item);
+extern "C" int lbl_8087F610;
+extern "C" int fn_80370174(StatusField_unk* field, int id);
+
+// NONMATCHING: 96.7% - the range check of `kind` is merged into cmplwi (original: cmpwi 0 / cmpwi 7 with
+// a branch over), and the loop that resets m2D0 walks a pointer instead of base + offset.
+void CharaStatus::fn_8012D180() {
+    int kind = fn_80219558(mChara->m50);
+    if (kind < 0 || !(kind < 7)) {
+        return;
+    }
+    EquipSet_unk* set = fn_80219160(kind, mParamA.m78);
+    if (set == 0) {
+        return;
+    }
+    if (lbl_8087F610 != 0) {
+        return;
+    }
+    fn_8012CE4C(kind);
+    int ids[6];
+    int items[6];
+    int owned[6];
+    for (int i = 0; i < 6; i++) {
+        ids[i] = fn_8021AF98(set->m82[i]);
+        items[i] = fn_8021AFF4(set->m82[i]);
+        bool ok = false;
+        if (lbl_8087EE68 != 0 && items[i] != 0) {
+            ok = true;
+        }
+        owned[i] = ok ? fn_800185B4(lbl_8087EE68, mChara, items[i]) : 0;
+    }
+    for (int i = 0; i < 4; i++) {
+        m2D0[i] = CharaStatusPair_unk(0);
+    }
+    switch (kind) {
+    case 0:
+        m2D0[0] = CharaStatusPair_unk(ids[1]);
+        m2D0[3] = CharaStatusPair_unk(ids[5]);
+        break;
+    case 1:
+        if (owned[3] == 0) {
+            m2D0[0] = CharaStatusPair_unk(ids[1]);
+        } else {
+            m2D0[0] = CharaStatusPair_unk(ids[3]);
+        }
+        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 909) == 1) {
+            m2D0[3] = CharaStatusPair_unk(1730);
+        } else {
+            m2D0[3] = CharaStatusPair_unk(ids[5]);
+        }
+        break;
+    case 2:
+    case 3:
+        if (owned[4] != 0) {
+            m2D0[0] = CharaStatusPair_unk(ids[4]);
+        }
+        m2D0[3] = CharaStatusPair_unk(ids[5]);
+        break;
+    case 4:
+        if (owned[4] == 0) {
+            m2D0[0] = CharaStatusPair_unk(ids[1]);
+        } else {
+            m2D0[0] = CharaStatusPair_unk(ids[4]);
+        }
+        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 908) == 1) {
+            m2D0[3] = CharaStatusPair_unk(6042);
+        } else {
+            m2D0[3] = CharaStatusPair_unk(ids[5]);
+        }
+        break;
+    case 6:
+        if (owned[4] == 0) {
+            m2D0[0] = CharaStatusPair_unk(ids[1]);
+        } else {
+            m2D0[0] = CharaStatusPair_unk(ids[4]);
+        }
+        m2D0[3] = CharaStatusPair_unk(ids[5]);
+        break;
+    case 5:
+        if (owned[1] == 0) {
+            m2D0[0] = CharaStatusPair_unk(ids[3]);
+        } else {
+            m2D0[0] = CharaStatusPair_unk(ids[1]);
+        }
+        m2D0[3] = CharaStatusPair_unk(ids[5]);
+        break;
+    }
+}
+
 void CharaStatus::fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, const CharaParam_unk* b) {
     if (a == 0 || b == 0) {
         return;
@@ -269,7 +369,7 @@ void CharaStatus::fn_8012F034(float amount) {
         if (!fn_80219344(mChara, 5)) {
             return;
         }
-    } else if (m2D0[3].m00 <= 0) {
+    } else if (m2D0[3].m[0] <= 0) {
         return;
     }
     static const float sFactors[5] = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f};

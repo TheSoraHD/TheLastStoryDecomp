@@ -275,8 +275,11 @@ public:
 // inferred: 8-byte block cleared by its constructor (four of them in CharaStatus); name invented
 struct CharaStatusPair_unk {
     CharaStatusPair_unk() { memset(this, 0, sizeof(*this)); }
-    int m00;
-    int m04;
+    CharaStatusPair_unk(int id) {
+        memset(this, 0, sizeof(*this));
+        m[0] = id;
+    }
+    int m[2]; // inferred: an array, since copies of the pair move it as one block
 };
 
 // inferred: 20-byte entry of the first table in CharaStatus (id at 0, value at 4, sub id at 8)
@@ -335,6 +338,7 @@ public:
     void fn_8012B988();
     void fn_8012C6D4(CharaParam_unk* param, int level, int arg, int arg2);
     void fn_8012D180();
+    void fn_8012CE4C(int kind);
     int fn_8012E534();
     int fn_8012F3D8();
     void fn_8013310C(unsigned int flags, int both);
