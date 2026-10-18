@@ -38,7 +38,7 @@ public:
     // NONMATCHING: the original calls the atn::Csv constructor (0x8004203C), the gmk::SeTable
     // constructor (0x803EEB38), the tokenizer members and boost::function::operator() (0x803EF3B0,
     // not emitted here) out of line, but inlines the std::string constructor/destructor and the
-    // iterator comparison; this compile inlines everything. See docs/msl_cpp.md (inline threshold).
+    // iterator comparison; this compile inlines everything. See docs/inlining.md (open case).
     virtual int vf0C() {
         if (mLoader.fn_80473F50() != 0) {
             return 0;
