@@ -34,8 +34,8 @@ reference-counted buffer (control block with vtable `lbl_80775B98`, `use_count`,
 
 The class names `__vec_storage_unk` / `__vec_imp_unk` are invented; only the nesting depth is known.
 
-These accessors are inline members: large game functions still call them out of line (and call
-`~basic_string(this, -1)` for locals), while small members such as the range replace inline them.
+These accessors are inline members (inferred): game functions still call them out of line (and call
+`~basic_string(this, -1)` for locals) — presumably because of the inliner's size limits, not verified — while small members such as the range replace inline them.
 Taking a member pointer in a test file forces the weak copy; all of the above then compile to the
 same instructions (`size` and `operator[]` test the short case first).
 

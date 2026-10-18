@@ -31,7 +31,7 @@ public:
     typedef unsigned long size_type;
     enum { __min_cap = (12 - 1) / sizeof(T) };
 
-    // Inline members; large game functions still call them out of line (weak copies:
+    // Inline members (inferred); game functions still call them out of line (weak copies:
     // size() 0x8000EC88, operator[] 0x8000ECA8, ~basic_string() 0x80013D60; wchar_t:
     // clear() 0x801F18BC, size() 0x801F1970, operator[] 0x801F1990, data() 0x801F19B4), while the
     // members below inline them (tmp in 0x80013F78). Checked with standalone compiles.
