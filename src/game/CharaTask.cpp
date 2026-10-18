@@ -82,15 +82,15 @@ int CharaTask::fn_80139F04() {
     return m1400 >= 2;
 }
 
-void chr::Motion_unk::fn_80139F24(int value) {
+void Model_unk::fn_80139F24(int value) {
     m34C = value;
 }
 
-int chr::Motion_unk::fn_80139F2C(int track) {
+int Model_unk::fn_80139F2C(int track) {
     return mTracks[track].m00;
 }
 
-void chr::Motion_unk::fn_80139F3C(int track, float speed) {
+void Model_unk::fn_80139F3C(int track, float speed) {
     mTracks[track].m0C = speed;
 }
 
@@ -166,11 +166,11 @@ atn::Vector3 atn::Vector3::operator-() const {
     return Vector3(-x, -y, -z);
 }
 
-int chr::Motion_unk::fn_8013C3DC() {
+int Model_unk::fn_8013C3DC() {
     return m34C;
 }
 
-float chr::Motion_unk::fn_8013C3E4(int track) {
+float Model_unk::fn_8013C3E4(int track) {
     return mTracks[track].m20;
 }
 
@@ -250,7 +250,7 @@ float CharaD68_unk::fn_8013C544() {
     return m5C * m28;
 }
 
-void chr::Motion_unk::fn_8013C554(int track, float weight) {
+void Model_unk::fn_8013C554(int track, float weight) {
     mTracks[track].m20 = weight;
 }
 

@@ -224,7 +224,7 @@ public:
     int mId;    // 0x80: inferred: unique id given by the character manager
     unsigned char m84[0xB0 - 0x84];
     chr::Motion_unk mMotion; // 0xB0
-    unsigned char m400[0x510 - 0x400];
+    unsigned char m480[0x510 - 0x480];
     int m510;
     unsigned char m514[0x524 - 0x514];
     int m524; // inferred: index into Motion_unk::m220

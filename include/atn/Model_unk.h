@@ -44,17 +44,45 @@ struct Model_unk {
     Mtx* mNodeMtx;   // 0x3C
     unsigned char m40[0x54 - 0x40];
     float m54;       // inferred: largest scale axis
+    // inferred: also the motion controller characters embed at +0xB0 (chr::Motion_unk is an alias:
+    // CharaTask constructs it with this constructor, 0x80135588)
+    void fn_80097C08(int arg1, int motion, int arg3, int arg4, int arg5, float blend, float speed); // inferred: play motion
+    float fn_80097D7C(int track); // inferred: motion length
+
     unsigned char m58[0x220 - 0x58];
+    // inferred: per-node data (0x2C bytes)
     struct Node_unk {
         int m00;
-        unsigned char m04[0x2C - 0x04];
+        atn::Vector3 m04;
+        unsigned char m10[0x2C - 0x10];
     };
-    Node_unk* fn_80147A00(); // inferred: accessor called out of line from CharaTask
-    Node_unk* m220;  // inferred: per-node data (0x2C bytes, see chr::Motion_unk::Entry_unk)
-    unsigned char m224[0x234 - 0x224];
-    float mFrame;    // 0x234
-    float m238;      // inferred: reset with mFrame by gmk::OpenBoard
-    unsigned char m23C[0x3D0 - 0x23C];
+    typedef Node_unk Entry_unk;
+    // inferred: motion track (0x30 bytes, six of them at 0x22C; accessors 0x80139550-0x8013C554)
+    struct Track_unk {
+        int m00;   // inferred: motion id
+        unsigned char m04[0x08 - 0x04];
+        float m08; // inferred: frame
+        float m0C; // inferred: speed
+        unsigned char m10[0x20 - 0x10];
+        float m20; // inferred: weight
+        unsigned char m24[0x30 - 0x24];
+    };
+
+    // inferred: accessors called out of line from CharaTask (names keep the address)
+    Node_unk* fn_80147A00();
+    float fn_80139550(int track);
+    void fn_80139F24(int value);
+    int fn_80139F2C(int track);
+    void fn_80139F3C(int track, float speed);
+    int fn_8013C3DC();
+    float fn_8013C3E4(int track);
+    void fn_8013C554(int track, float weight);
+
+    Node_unk* m220;
+    unsigned char m224[0x22C - 0x224];
+    Track_unk mTracks[6]; // 0x22C (track 0: frame at 0x234, speed at 0x238)
+    int m34C;
+    unsigned char m350[0x3D0 - 0x350];
 };
 
 // inferred: take an empty boost::function by value (signature unknown, void() assumed)

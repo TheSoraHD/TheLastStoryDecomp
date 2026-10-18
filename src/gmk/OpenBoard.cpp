@@ -58,8 +58,8 @@ void OpenBoard::vf28() {
     mColli.SetMtx_unk(m);
     mColli.mFlags |= 1;
     ((chr::Motion_unk*)&mModel)->fn_80097C08(0, 0, 0, 1, 1, 0.0f, 1.0f);
-    mModel.m238 = 0.0f;
-    mModel.mFrame = 0.0f;
+    mModel.mTracks[0].m0C = 0.0f;
+    mModel.mTracks[0].m08 = 0.0f;
     m55C = 0.0f;
     m560 = 0.0f;
     m564 = 1.0f;

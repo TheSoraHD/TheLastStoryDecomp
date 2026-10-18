@@ -145,7 +145,7 @@ void GimmickMaterialFade_unk::fn_803EBD6C(Model_unk* model, const char* name, in
 void GimmickMaterialFade_unk::fn_803EBE74(Model_unk* model) {
     if (mMaterial != 0) {
         float t;
-        float frame = model->mFrame;
+        float frame = model->mTracks[0].m08;
         if (mLength > 0) {
             t = (frame - mStart) / mLength;
         } else {
@@ -176,7 +176,7 @@ void GimmickMotionSwitch_unk::fn_803EC0A4(atn::CsvTab* csv) {
 
 void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
     if (mHash != 0) {
-        float cur = model->mFrame;
+        float cur = model->mTracks[0].m08;
         model->fn_8009385C(mHash, cur <= mFrame, 1, 0);
     }
 }
