@@ -84,6 +84,18 @@ public:
         }
         memset(mData, 0, mSize * sizeof(T));
     }
+    // inferred: as Alloc, but from heap 0 and without clearing (atn::LoadScene, 0x804778DC)
+    void Resize_unk(int n) {
+        if (mData != 0) {
+            delete[] mData;
+        }
+        mSize = n;
+        if (mSize != 0) {
+            mData = new (0, "", "", 0) T[mSize];
+        } else {
+            mData = 0;
+        }
+    }
     T& operator[](int i) { return mData[i]; }
 
     int mSize;

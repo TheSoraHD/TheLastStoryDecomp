@@ -1599,7 +1599,7 @@ atn/LH_MotionSet.cpp:
 
 atn/LH_Scene.cpp:
 	.text       start:0x80477778 end:0x80477FA4
-	.rodata     start:0x80756058 end:0x80756078
+	.rodata     start:0x80756058 end:0x80756080
 	.data       start:0x8078FF38 end:0x8078FF88
 	.sdata2     start:0x80886F08 end:0x80886F10
 
