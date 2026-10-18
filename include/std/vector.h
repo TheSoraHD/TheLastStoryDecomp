@@ -6,7 +6,7 @@
 // The destructor is inlined through three levels (three null checks of `this` at 0x8006BCE4),
 // so the storage lives in a base class two levels below vector. Class names are invented.
 
-void operator delete(void* p);
+#include "std/msl_common.h"
 
 namespace std {
 
@@ -50,10 +50,101 @@ struct __vec_imp_unk : public __vec_storage_unk<T> {
     ~__vec_imp_unk() {}
 };
 
+// inferred: temporary buffer used when push_back reallocates (0x800DB3EC): storage, number of
+// elements, capacity, allocator reference and index of the first element. Name invented.
+template <class T>
+struct __vec_split_unk {
+    __vec_split_unk(void* alloc) : mData(0), mSize(0), mCap(0), mAlloc(alloc), mStart(0) {}
+    ~__vec_split_unk() {
+        if (mData != 0) {
+            mSize = 0;
+            ::operator delete(mData);
+        }
+    }
+    T* begin() { return mData + mStart; }
+    void push_back(const T& x) {
+        begin()[mSize] = x;
+        mSize++;
+    }
+    // inferred: moves [first, last) in front of the stored elements
+    void __push_front_unk(T* first, T* last) {
+        unsigned int n = last - first;
+        mStart -= n;
+        memcpy(mData + mStart, first, n * sizeof(T));
+        memset(first, 0, n * sizeof(T));
+        mSize += n;
+    }
+    T* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+    void* mAlloc;
+    unsigned int mStart;
+};
+
+template <class T>
+inline void __vec_swap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+
+template <class T>
+inline const T& __vec_max_unk(const T& a, const T& b) {
+    return (a < b) ? b : a;
+}
+
 template <class T>
 class vector : public __vec_imp_unk<T> {
 public:
+    typedef unsigned int size_type;
     ~vector() {}
+
+    size_type max_size() const { return 0x3FFFFFFF; }
+    // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...).
+    // NONMATCHING (standalone compile, 150 differing lines of 189): control flow and growth
+    // policy match, but the original keeps the temporary buffer in memory (it reloads its
+    // fields after every store and call, as if its address escaped) and needs one register less.
+    void push_back(const T& x) {
+        if (this->mSize < this->mCap) {
+            this->mSize++;
+            this->mData[this->mSize - 1] = x;
+            return;
+        }
+        if (max_size() - this->mCap < 1) {
+            __msl_error("vector length_error");
+        }
+        __vec_split_unk<T> buf(&this->mCap);
+        size_type n = this->mSize + 1 - this->mCap;
+        if (n > max_size() - this->mCap) {
+            __msl_error("vector length_error");
+        }
+        size_type cap = this->mCap;
+        if (cap < max_size() / 3) {
+            size_type grow = (cap + 1) * 3 / 5;
+            cap += __vec_max_unk(grow, n);
+        } else if (cap < max_size() / 3 * 2) {
+            size_type grow = (cap + 1) / 2;
+            cap += __vec_max_unk(grow, n);
+        } else {
+            cap = max_size();
+        }
+        if (cap > max_size()) {
+            __msl_error("vector length_error");
+        }
+        T* p = (T*)::operator new(cap * sizeof(T));
+        if (p == 0) {
+            __msl_error("Memory allocation failure");
+        }
+        buf.mData = p;
+        buf.mCap = cap;
+        buf.mStart = this->mSize;
+        buf.push_back(x);
+        buf.__push_front_unk(this->mData, this->mData + this->mSize);
+        this->mSize = 0;
+        __vec_swap_unk(this->mCap, buf.mCap);
+        __vec_swap_unk(this->mData, buf.mData);
+        __vec_swap_unk(this->mSize, buf.mSize);
+    }
 };
 
 } // namespace std

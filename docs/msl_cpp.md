@@ -63,3 +63,21 @@ a 1-byte object in `.sdata` (`lbl_8087D6C8`, `lbl_8087D6C9`), one per call site.
 
 Growth policy: short capacity 11 chars; `reserve` rounds `n + 16` down to a multiple of 16;
 `replace` starts from `(cap + 15) & ~15` and doubles (`(cap * 2 + 15) & ~15`) until it fits.
+
+## vector::push_back (draft)
+
+Weak copies of 0x2F4 bytes for pointer elements (`0x800DB3EC`, `0x80244CCC`, `0x8043E1F0`, ...) and the
+same code inlined in many constructors (334 uses of the growth constants). Reconstructed so far in
+`include/std/vector.h`:
+
+- fast path: `size++; data[size - 1] = x;`
+- `"vector length_error"` checks, `max_size() = 0x3FFFFFFF`
+- temporary buffer on the stack `{data, size, cap, &vector.cap (allocator), start}`, zeroed first
+- growth: `cap < max/3` → `cap + max((cap + 1) * 3 / 5, n)`; `cap < 2*max/3` → `cap + max((cap + 1) / 2, n)`;
+  otherwise `max`; `max` takes references (the operands live on the stack)
+- the new element goes to `begin()[size]` with `begin() = data + start`, the old ones are copied in
+  front with `memcpy`, then the old storage is cleared with `memset(old, 0, n * sizeof(T))`
+- `size = 0`, then capacity, data and size are swapped with the buffer, whose destructor frees the old storage
+
+Open problem: the original keeps the buffer in memory (it reloads its fields after every store and
+call); our compile keeps them in registers and needs one more saved register.
