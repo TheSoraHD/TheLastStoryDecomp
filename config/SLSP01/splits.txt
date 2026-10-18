@@ -1558,7 +1558,7 @@ atn/LH_ColliObject.cpp:
 
 atn/LH_ColliTree.cpp:
 	.text       start:0x80472CAC end:0x80472FAC
-	.rodata     start:0x80755C68 end:0x80755C90
+	.rodata     start:0x80755C68 end:0x80755C98
 	.data       start:0x8078FC68 end:0x8078FCB8
 
 atn/LH_Effect.cpp:
@@ -1589,7 +1589,7 @@ atn/LH_Motion.cpp:
 
 atn/LH_MotionCommandData.cpp:
 	.text       start:0x804768EC end:0x80476CE4
-	.rodata     start:0x80755FC8 end:0x80756000
+	.rodata     start:0x80755FC8 end:0x80756008
 	.data       start:0x8078FE78 end:0x8078FEC8
 
 atn/LH_MotionSet.cpp:
@@ -1605,12 +1605,12 @@ atn/LH_Scene.cpp:
 
 atn/LH_Texture.cpp:
 	.text       start:0x80478054 end:0x804783DC
-	.rodata     start:0x80756080 end:0x807560A8
+	.rodata     start:0x80756080 end:0x807560B0
 	.data       start:0x8078FF88 end:0x8078FFD8
 
 atn/LH_Xsca.cpp:
 	.text       start:0x804783DC end:0x804786F8
-	.rodata     start:0x807560B0 end:0x807560D0
+	.rodata     start:0x807560B0 end:0x807560D8
 	.data       start:0x8078FFD8 end:0x80790028
 
 game/LogMessageTask.cpp:

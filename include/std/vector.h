@@ -112,6 +112,8 @@ public:
     template <class Iterator> vector(Iterator first, Iterator last);
     ~vector() {}
 
+    T* begin() { return this->mData; }
+    T* end() { return this->mData + this->mSize; }
     size_type max_size() const { return 0x3FFFFFFF; }
     // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...).
     // NONMATCHING (standalone compile, 62 differing lines of 189): the fast path loads the

@@ -87,6 +87,24 @@ failure"` is in an `@STRING@` pool). 62 of 189 lines still differ (standalone co
 load order of size/capacity in the fast path, stack slots of the two growth temporaries, a separate
 register for the new capacity, and `(data + size) - data` not folded before the `memcpy`.
 
+## std::list (partial, `include/std/list.h`)
+
+Seen in the loader manager template `atn::LoadManager_unk::Get_unk` (`include/atn/LoadManager.h`,
+weak copies in every `atn/LH_*.cpp`, e.g. 0x80472DCC):
+
+- layout: `size`, then the sentinel node `{prev, next}`; nodes are `{prev, next, value}`
+- `insert(pos, x)`: allocate the node (`operator new` + `"Memory allocation failure"`), keep it in a
+  holder `{owner, node}` on the stack, construct the value with placement new, link it before
+  `pos`, clear the holder, `++size`
+- the holder stays in memory and its destructor is left as dead code after the link (`b` over a
+  `bl __dl__`). Accessing it through a pointer reproduces that; with direct member access the
+  compiler removes it, and with the destructor in a base class it adds a `this` check that the
+  original does not have.
+
+The search before the insertion is a `find_if(begin(), end(), pred)`-like loop: with `last` as a
+separate variable the loop has the original's shape (increment first, `it != last` test, then the
+predicate), and `end()` is recomputed after it.
+
 ## Error reporting
 
 `__msl_error(msg)` is an inline function (`fprintf(stderr, msg); abort();`), not a macro: the
