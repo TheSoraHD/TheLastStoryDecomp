@@ -452,10 +452,31 @@
   "matching": false
  },
  {
+  "name": "game/RouteWalker_unk.cpp",
+  "classes": [
+   "RouteWalker_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CharaLook_unk.cpp",
+  "classes": [
+   "CharaLook_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/CharaStatus.cpp",
   "classes": [
    "CharaStatus",
    "CharaStatusBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CharaSub_unk.cpp",
+  "classes": [
+   "CharaSub_unk"
   ],
   "matching": false
  },
