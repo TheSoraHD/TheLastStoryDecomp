@@ -463,7 +463,7 @@
   "classes": [
    "CharaLook_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/CharaStatus.cpp",

@@ -117,6 +117,12 @@ public:
 // inferred: head and eye look-at controller of a character (CharaTask + 0x10D8); class name
 // unknown. Member names come from the debug menu ("Sight": type, offset, speed, eyeType,
 // eyeOffset, eyeSpeed).
+// inferred: node passed to the node matrix hooks (name at 0x10); name invented
+struct ModelNodeDesc_unk {
+    unsigned char m00[0x10];
+    const char* mName;
+};
+
 class CharaLook_unk {
 public:
     CharaLook_unk();  // 0x8012980C
@@ -126,7 +132,8 @@ public:
     void fn_80129954(const atn::Vector3& pos, float speed); // inferred: type 3
     void fn_80129978(Model_unk* model, const char* node, const atn::Vector3& offset, float speed); // type 1
     void fn_80129A48(float speed);           // inferred: stops looking (type 0)
-    void fn_80129A6C();                      // inferred: update (not decompiled yet)
+    void fn_80129A6C();                      // inferred: update
+    int fn_8012A288(atn::Matrix3x4* mtx, ModelNodeDesc_unk* node); // inferred: node matrix hook
     void fn_8012ABD0(const atn::Vector3& pos, float speed); // inferred: eyes, type 3
     void fn_8012ABF4(const atn::Vector3& pos, float speed); // inferred: eyes, type 2
     void fn_8012AC18(float* target, const atn::Vector3& pos, float speed); // inferred: eyes, type 1

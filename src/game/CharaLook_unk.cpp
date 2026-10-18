@@ -50,7 +50,10 @@ void CharaLook_unk::fn_80129954(const atn::Vector3& pos, float speed) {
 
 void CharaLook_unk::fn_80129978(Model_unk* model, const char* node, const atn::Vector3& offset, float speed) {
     if (node != 0) {
-        mTarget = (float*)model->GetNodeMtx_unk(model->fn_80092814(node, 0));
+        // inferred: written without Model_unk::GetNodeMtx_unk, whose weak copy is emitted after
+        // fn_80129A6C (the first function that refers to it)
+        int index = model->fn_80092814(node, 0);
+        mTarget = (index < 0) ? 0 : (float*)model->mNodeMtx[index];
         mOffset = offset;
         mType = 1;
         mSpeed = speed;
@@ -69,34 +72,6 @@ void CharaLook_unk::fn_80129A48(float speed) {
     mOffset.z = 0.0f;
     mType = 0;
     mSpeed = speed;
-}
-
-void CharaLook_unk::fn_8012ABD0(const atn::Vector3& pos, float speed) {
-    mEyeOffset = pos;
-    mEyeType = 3;
-    mSpeed = speed;
-}
-
-void CharaLook_unk::fn_8012ABF4(const atn::Vector3& pos, float speed) {
-    mEyeOffset = pos;
-    mEyeType = 2;
-    mEyeSpeed = speed;
-}
-
-void CharaLook_unk::fn_8012AC18(float* target, const atn::Vector3& pos, float speed) {
-    mEyeTarget = target;
-    mEyeOffset = pos;
-    mEyeType = 1;
-    mEyeSpeed = speed;
-}
-
-void CharaLook_unk::fn_8012AC40(float speed) {
-    mEyeTarget = 0;
-    mEyeOffset.x = 0.0f;
-    mEyeOffset.y = 0.0f;
-    mEyeOffset.z = 0.0f;
-    mEyeType = 0;
-    mEyeSpeed = speed;
 }
 
 void CharaLook_unk::fn_80129A6C() {
@@ -232,6 +207,148 @@ void CharaLook_unk::fn_80129A6C() {
             m35 = 1;
         }
     }
+}
+
+extern "C" int strcmp(const char* a, const char* b);
+
+// inferred: rotations used by the node hook; names invented
+inline atn::Matrix3x4 RotMtx_unk(char axis, float rad) {
+    atn::Matrix3x4 r;
+    PSMTXRotRad(r.m, axis, rad);
+    return r;
+}
+
+inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    atn::Matrix3x4 r;
+    PSMTXConcat(a.m, b.m, r.m);
+    return r;
+}
+
+inline void RotateMtx_unk(atn::Matrix3x4& m, char axis, float rad) {
+    m = MulMtx_unk(m, RotMtx_unk(axis, rad));
+}
+
+// The pre-rotation that keeps the translation is written in place (its rotation matrix is a
+// temporary of this function: it sits on the stack before the temporaries of RotateMtx_unk).
+int CharaLook_unk::fn_8012A288(atn::Matrix3x4* mtx, ModelNodeDesc_unk* node) {
+    if (m34 != 0) {
+        const char* name = node->mName;
+        if (strcmp(name, "head") == 0) {
+            atn::Matrix3x4 m(*mtx);
+            RotateMtx_unk(m, 'y', -mRot.x * m3C);
+            if (mType == 3) {
+                RotateMtx_unk(m, 'z', mRot.z * m3C);
+            }
+            *mtx = m;
+            atn::Vector3 trans = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            PSMTXConcat(RotMtx_unk('y', mRot.y * m3C).m, mtx->m, mtx->m);
+            mtx->m[0][3] = trans.x;
+            mtx->m[1][3] = trans.y;
+            mtx->m[2][3] = trans.z;
+            return 1;
+        }
+        int count = m36;
+        if (count >= 1 && strcmp(name, "neck") == 0) {
+            atn::Matrix3x4 m(*mtx);
+            RotateMtx_unk(m, 'y', -mRot.x * m40);
+            if (mType == 3) {
+                RotateMtx_unk(m, 'z', mRot.z * m40);
+            }
+            *mtx = m;
+            atn::Vector3 trans = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            PSMTXConcat(RotMtx_unk('y', mRot.y * m40).m, mtx->m, mtx->m);
+            mtx->m[0][3] = trans.x;
+            mtx->m[1][3] = trans.y;
+            mtx->m[2][3] = trans.z;
+            return 1;
+        }
+        if (count >= 2 && strcmp(name, "spine1") == 0) {
+            atn::Matrix3x4 m(*mtx);
+            RotateMtx_unk(m, 'y', -mRot.x * m44);
+            *mtx = m;
+            atn::Vector3 trans = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            PSMTXConcat(RotMtx_unk('y', mRot.y * m44).m, mtx->m, mtx->m);
+            mtx->m[0][3] = trans.x;
+            mtx->m[1][3] = trans.y;
+            mtx->m[2][3] = trans.z;
+            return 1;
+        }
+        if (count >= 3 && strcmp(name, "spine") == 0) {
+            atn::Matrix3x4 m(*mtx);
+            RotateMtx_unk(m, 'y', -mRot.x * m48);
+            *mtx = m;
+            atn::Vector3 trans = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            PSMTXConcat(RotMtx_unk('y', mRot.y * m48).m, mtx->m, mtx->m);
+            mtx->m[0][3] = trans.x;
+            mtx->m[1][3] = trans.y;
+            mtx->m[2][3] = trans.z;
+            return 1;
+        }
+    }
+    if (m35 != 0) {
+        const char* name = node->mName;
+        if (strcmp(name, "eye_L") == 0) {
+            atn::Matrix3x4 m(*mtx);
+            RotateMtx_unk(m, 'x', mEyeRot[0].x);
+            if (mType == 3) {
+                RotateMtx_unk(m, 'z', mEyeRot[0].z);
+            }
+            RotateMtx_unk(m, 'y', mEyeRot[0].y);
+            *mtx = m;
+            return 1;
+        }
+        if (strcmp(name, "eye_R") == 0) {
+            atn::Matrix3x4 m(*mtx);
+            RotateMtx_unk(m, 'x', mEyeRot[1].x);
+            if (mType == 3) {
+                RotateMtx_unk(m, 'z', mEyeRot[1].z);
+            }
+            RotateMtx_unk(m, 'y', mEyeRot[1].y);
+            *mtx = m;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void CharaLook_unk::fn_8012ABD0(const atn::Vector3& pos, float speed) {
+    mEyeOffset = pos;
+    mEyeType = 3;
+    mSpeed = speed;
+}
+
+void CharaLook_unk::fn_8012ABF4(const atn::Vector3& pos, float speed) {
+    mEyeOffset = pos;
+    mEyeType = 2;
+    mEyeSpeed = speed;
+}
+
+void CharaLook_unk::fn_8012AC18(float* target, const atn::Vector3& pos, float speed) {
+    mEyeTarget = target;
+    mEyeOffset = pos;
+    mEyeType = 1;
+    mEyeSpeed = speed;
+}
+
+void CharaLook_unk::fn_8012AC40(float speed) {
+    mEyeTarget = 0;
+    mEyeOffset.x = 0.0f;
+    mEyeOffset.y = 0.0f;
+    mEyeOffset.z = 0.0f;
+    mEyeType = 0;
+    mEyeSpeed = speed;
 }
 
 // inferred: debug menu callback, applies the new values at once
