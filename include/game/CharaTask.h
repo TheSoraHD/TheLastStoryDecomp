@@ -326,7 +326,8 @@ public:
     virtual void vfCC();
     virtual atn::Vector3 vfD0(float angle); // inferred: position at mid height
     virtual void vfD4();
-    virtual void vfD8();
+    // inferred: a free position next to the character, away from `target` (8 directions tried)
+    virtual atn::Vector3 vfD8(CharaTask* target);
     virtual void vfDC();
     virtual void vfE0();
 

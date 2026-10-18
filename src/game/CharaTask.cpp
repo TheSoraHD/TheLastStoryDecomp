@@ -5253,6 +5253,37 @@ atn::Vector3 CharaTask::vfD0(float angle) {
 
 extern "C" void fn_80094BD8(void* model, int mode);
 
+// NONMATCHING: 88% - only registers: the original keeps &d in r30 and &dir in r29, &from in r28 and
+// &base in r27 (ours swapped); tried: copy/assignment forms of d and from, declarations outside the
+// loop.
+atn::Vector3 CharaTask::vfD8(CharaTask* target) {
+    atn::Vector3 base = vf64(1);
+    atn::Vector3 dir = mPos - target->mPos;
+    if (fn_805F9920(&dir) > 0.001f) {
+        PSVECNormalize(&dir, &dir);
+    } else {
+        dir.x = 0.0f;
+        dir.y = 0.0f;
+        dir.z = 1.0f;
+    }
+    atn::Vector3 pos = base - dir * 15.0f;
+    CollResult_unk coll;
+    Mtx rot;
+    for (unsigned int i = 0; i < 8; i++) {
+        PSMTXRotRad(rot, 'y', 3.1415927f * (float)i / 4.0f);
+        atn::Vector3 d = dir;
+        PSMTXMultVec(rot, &d, &d);
+        atn::Vector3 from = base;
+        from.y += 5.0f;
+        atn::Vector3 to = from - d * 20.0f;
+        if (fn_8004ED34(lbl_8087EE98, &coll, &from, &to, 0x80000000, 0, 0) == 0) {
+            pos = base - d * 15.0f;
+            break;
+        }
+    }
+    return pos;
+}
+
 void CharaTask::fn_8017C7F8(unsigned int on) {
     if (mFlagB1 != on) {
         mFlagB1 = on;
