@@ -18,6 +18,7 @@ extern "C" void fn_8007FAF0(Material_unk* material, int mode); // inferred: sets
 // chr::Motion_unk, which characters embed at +0xB0). Names invented.
 struct Model_unk {
     Model_unk(int flags, int arg); // 0x80096E94
+    ~Model_unk();                  // 0x800971D4
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name

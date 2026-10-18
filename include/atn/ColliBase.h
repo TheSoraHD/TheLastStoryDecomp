@@ -2,6 +2,8 @@
 #define ATN_COLLIBASE_H
 
 #include "atn/LH_ColliTree.h"
+#include "atn/LH_ColliObject.h"
+#include "math/Vec.h"
 
 namespace atn {
 
@@ -38,6 +40,27 @@ public:
     LH_ColliTree mLoader; // 0x3C
     void* mTree;          // 0x44
     float m48[12];
+};
+
+// The name is in the DOL (__vt__Q23atn11ColliObject, 0x807775C0); layout from the constructor.
+class ColliObject : public ColliBase {
+public:
+    ColliObject(); // 0x80057F28
+    virtual ~ColliObject() {}
+
+    void fn_80058078(const char* path); // inferred: starts loading the object
+    int fn_800580BC();                  // inferred: nonzero while loading
+    void fn_800588FC();                 // inferred: updates with mMtx
+    // inferred: inlined in gmk::SkeltonsMirror::vf28 (name invented)
+    void SetMtx_unk(const Matrix3x4& mtx) {
+        mMtx = mtx;
+        fn_800588FC();
+    }
+
+    LH_ColliObject mLoader; // 0x3C
+    void* mObject;          // 0x44
+    Matrix3x4 mMtx;         // 0x48: inferred: world matrix (identity in the constructor)
+    unsigned char m78[0x88 - 0x78];
 };
 
 } // namespace atn

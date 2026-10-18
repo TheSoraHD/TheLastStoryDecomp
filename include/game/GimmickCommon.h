@@ -39,9 +39,12 @@ extern "C" GimmickStateCommand* fn_803F1310(GimmickCommon* gimmick);
 struct GimmickDesc_unk {
     unsigned char m00[0x04];
     atn::Vector3 mPos; // 0x04
-    unsigned char m10[0x18 - 0x10];
+    unsigned char m10[0x14 - 0x10];
+    float mRotY;       // 0x14: inferred (gmk::SkeltonsMirror)
     int mId;           // 0x18
     int mArg;          // 0x1C
+    unsigned char m20[0x7C - 0x20];
+    int m7C;           // inferred: flag read by gmk::SkeltonsMirror::vf60
 };
 
 // inferred: UV scroll entries used by GimmickCommon::fn_803EDB18
@@ -101,7 +104,7 @@ public:
     }
     // Trivial inline virtuals: the weak copies of several of them were kept in the first object
     // that used them (only gimmick vtables point to them), so they live far from this file.
-    virtual int vf38() { return 0; }       // 0x80012A14
+    virtual Model_unk* vf38() { return 0; } // 0x80012A14: inferred: main model
     virtual void vf3C() {}
     virtual int vf40(GimmickMsg_unk* msg) { return 0; } // 0x80012714: inferred: receives a message
     virtual int vf44() { return 0; }       // 0x800FA4F4

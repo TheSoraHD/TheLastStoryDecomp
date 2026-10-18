@@ -1718,7 +1718,7 @@
   "classes": [
    "gmk::SkeltonsMirror"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Lemon.cpp",
