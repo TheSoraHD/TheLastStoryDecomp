@@ -2,6 +2,7 @@
 #define MP_SAVELOAD_H
 
 #include "atn/Task.h"
+#include "game/CharaStatus.h"
 
 class GameLoadBackground;
 class GameSaveBackground;
@@ -32,11 +33,7 @@ struct ArrayPtr_unk {
     T* mPtr;
 };
 
-// inferred: element types destroyed by ~SaveLoad (only their size and destructor are known)
-struct SaveElemA_unk {
-    ~SaveElemA_unk(); // 0x8012AFE8
-    unsigned char m000[0x240];
-};
+// inferred: element type destroyed by ~SaveLoad (only its size and destructor are known)
 struct SaveElemB_unk {
     ~SaveElemB_unk(); // 0x80119ECC
     unsigned char m000[0x2D4];
@@ -46,7 +43,7 @@ struct SaveDataSub_unk {
     SaveElemB_unk mElems[0x1C]; // 0x11C4
 };
 struct SaveDataSubA_unk {
-    SaveElemA_unk mElems[7];
+    CharaStatusBase mElems[7];
 };
 struct SaveData_unk {
     unsigned char m0000[0x539C];
