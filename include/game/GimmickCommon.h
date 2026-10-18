@@ -46,7 +46,10 @@ struct GimmickDesc_unk {
     int m20;           // inferred: kind (gmk::TodomeCountUp: 0 player, 1 npc, 2 enemy, 3 ally)
     int m24;           // inferred: character id (gmk::TodomeCountUp)
     int m28;
-    unsigned char m2C[0x7C - 0x2C];
+    unsigned char m2C[0x40 - 0x2C];
+    float m40;         // inferred: gmk::ShakeCamera shake_x
+    float m44;         // inferred: gmk::ShakeCamera shake_y
+    unsigned char m48[0x7C - 0x48];
     int m7C;           // inferred: flag read by gmk::SkeltonsMirror::vf60
 };
 
