@@ -1592,7 +1592,7 @@
   "classes": [
    "gmk::PlayEffect"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/OnOff.cpp",

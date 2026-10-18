@@ -76,7 +76,7 @@ struct GimmickUvOwner_unk {
 // inferred: message passed to GimmickCommon::vf40 (same layout as chr::BreakMsg_unk)
 struct GimmickMsg_unk {
     GimmickMsg_unk(int type) : mType(type), m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
-    GimmickMsg_unk() : m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
+    GimmickMsg_unk() : mType(0), m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
     int mType;
     int m04;
     int m08;

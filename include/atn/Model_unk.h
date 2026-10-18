@@ -18,7 +18,7 @@ extern "C" void fn_8007FAF0(Material_unk* material, int mode); // inferred: sets
 // chr::Motion_unk, which characters embed at +0xB0). Names invented.
 struct Model_unk {
     Model_unk(int flags, int arg); // 0x80096E94
-    ~Model_unk();                  // 0x800971D4
+    virtual ~Model_unk();          // 0x800971D4 (the real class is atn::Model, __vt__Q23atn5Model)
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
@@ -34,7 +34,6 @@ struct Model_unk {
         return (index < 0) ? 0 : mNodeMtx[index];
     }
 
-    unsigned char m00[0x04];
     unsigned int mFlags; // 0x04
     Mtx mMtx;        // 0x08: inferred: world matrix
     unsigned char m38[0x3C - 0x38];
