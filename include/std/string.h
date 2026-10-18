@@ -99,8 +99,7 @@ public:
     // does not reuse n2 for the memmove of the new characters (it recomputes j2 - j1), keeps
     // new_data + pos in a register of its own (one more saved register) and does not fold
     // tmp.size() for the empty temporary (it tests word 0 and reloads byte 0).
-    template <class Tag>
-    basic_string& __replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag);
+    basic_string& __replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, random_access_iterator_tag tag);
 
     // inferred: inlined at 0x80512944: size() is evaluated in assign, the iterator tag copy and
     // strlen in the inner replace
@@ -190,7 +189,11 @@ public:
     }
     basic_string& operator=(const T* s) { return assign(s); }
     // inferred: inlined in operator==(const basic_string&, const T*) (0x8000EB8C, char)
+    // inferred: matches the weak copy 0x8000EB8C: n2 copied to a local that stays in a register
+    // (n2 itself is passed by address to __min), the first __min takes the size first, and the
+    // tail returns directly
     int compare(size_type pos1, size_type n1, const T* s, size_type n2) const {
+        size_type len = n2;
         const T* p;
         size_type sz;
         if (!is_long()) {
@@ -203,15 +206,15 @@ public:
         if (pos1 > sz) {
             __msl_error("basic_string: out_of_range");
         }
-        size_type rlen = __min(n1, sz - pos1);
+        size_type rlen = __min(sz - pos1, n1);
         int r = memcmp(p + pos1, s, __min(rlen, n2) * sizeof(T));
         if (r == 0) {
-            if (rlen < n2) {
-                r = -1;
-            } else if (rlen == n2) {
-                r = 0;
+            if (rlen < len) {
+                return -1;
+            } else if (rlen == len) {
+                return 0;
             } else {
-                r = 1;
+                return 1;
             }
         }
         return r;
@@ -270,7 +273,9 @@ public:
 private:
     static void __assign(T& c1, const T& c2) { c1 = c2; }
     static const size_type& __min(const size_type& a, const size_type& b) { return (b < a) ? b : a; }
-    bool is_long() const { return mLong.mCap >> 31; }
+    // inferred: read through a word pointer, so the long bit is reloaded after stores that may
+    // alias (inlined compare in EquipItemData::EquipItemData, 0x80363284)
+    bool is_long() const { return *(const unsigned long*)this >> 31; }
     // inferred: clears the three words through a word pointer (the object address then stays in
     // a register for the calls that follow, 0x804732DC)
     void __zero() {

@@ -4,8 +4,9 @@
 // Out-of-line members of std::basic_string. Game files only include std/string.h and call these
 // out of line: their objects have no copies of them (the error messages are not in their string
 // pools, e.g. atn/LH_Motion.cpp), so the members were compiled once elsewhere (inferred: an
-// explicit instantiation in MSL C++). Exception: game/GimmickManager.cpp has their messages in its
-// pool (0x80751F60), so it includes this file (the weak copies are dropped by the linker).
+// explicit instantiation in MSL C++). Exceptions: game/GimmickManager.cpp (pool 0x80751F60) and
+// game/EquipItemData.cpp have their messages in their pools, so they include this file (the weak
+// copies are dropped by the linker).
 
 #include "std/string.h"
 
@@ -94,8 +95,7 @@ void basic_string<T, Tr, A>::reserve(size_type res_arg) {
 }
 
 template <class T, class Tr, class A>
-template <class Tag>
-basic_string<T, Tr, A>& basic_string<T, Tr, A>::__replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag) {
+basic_string<T, Tr, A>& basic_string<T, Tr, A>::__replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, random_access_iterator_tag tag) {
     bool was_long = mFlags.mIsLong;
     size_type new_sz;
     T* p;
@@ -146,7 +146,7 @@ basic_string<T, Tr, A>& basic_string<T, Tr, A>::__replace_unk(size_type pos, siz
     } else {
         basic_string tmp;
         if (tail != 0 && p + pos + n2 < j2 && j2 <= p + sz) {
-            tmp.__replace_unk(0, tmp.size(), j1, j2, Tag());
+            tmp.__replace_unk(0, tmp.size(), j1, j2, random_access_iterator_tag());
             j1 = tmp.data();
         }
         if (tail != 0) {

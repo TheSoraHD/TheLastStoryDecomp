@@ -17,6 +17,7 @@ extern "C" void fn_8007FAF0(Material_unk* material, int mode); // inferred: sets
 // inferred: model instance embedded at MapPartsModel+0x50 (probably the same class as
 // chr::Motion_unk, which characters embed at +0xB0). Names invented.
 struct Model_unk {
+    Model_unk(int flags, int arg); // 0x80096E94
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
@@ -39,7 +40,13 @@ struct Model_unk {
     Mtx* mNodeMtx;   // 0x3C
     unsigned char m40[0x54 - 0x40];
     float m54;       // inferred: largest scale axis
-    unsigned char m58[0x234 - 0x58];
+    unsigned char m58[0x220 - 0x58];
+    struct Node_unk {
+        int m00;
+        unsigned char m04[0x2C - 0x04];
+    };
+    Node_unk* m220;  // inferred: per-node data (0x2C bytes, see chr::Motion_unk::Entry_unk)
+    unsigned char m224[0x234 - 0x224];
     float mFrame;    // 0x234
     unsigned char m238[0x3D0 - 0x238];
 };

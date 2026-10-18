@@ -164,3 +164,17 @@ does not change). Checked against the tokenizer weak copies (see `libs/boost/REA
 See docs/inlining.md: an over-budget caller inlines nothing (IPA budget), and functions that return
 or take by value an object with a destructor are never inlined. This explains the out-of-line calls
 to `size()`, `~basic_string`, the `atn::Csv` constructor and the tokenizer members.
+
+## Changes of 2026-10-18 (game/EquipItemData.cpp, linked)
+
+- `operator==(const basic_string&, const T*)` (weak copy 0x8000EB8C) now matches: `compare` keeps a
+  copy of `n2` in a local, calls `__min(sz - pos1, n1)` and returns from the comparison of the
+  lengths directly.
+- `is_long()` reads the first word through a `const unsigned long*`: after an inlined `compare`
+  the long bit is reloaded, as in the original.
+- `__replace_unk` is an ordinary member taking a `random_access_iterator_tag` (not a member
+  template): its weak copy is then emitted at the end of the object, after `reserve`, and the
+  error messages land in the file pool in the original order ("reserve length_error",
+  "out_of_range", "length_error"). Game files whose pool has these messages include
+  `std/string_members.h` (EquipItemData, GimmickManager); the weak copies are dropped by the
+  linker.
