@@ -39,6 +39,9 @@ These accessors are inline members (inferred): game functions still call them ou
 Taking a member pointer in a test file forces the weak copy; all of the above then compile to the
 same instructions (`size` and `operator[]` test the short case first).
 
+`assign(const char*)` is inlined in two levels (0x80512944): `assign(s)` evaluates `size()` and calls
+an inline `replace(0, n, s)`, which creates the iterator tag, calls `strlen` and then the range replace.
+
 ## Out-of-line members found so far
 
 | Address (char) | Member | Status |

@@ -17,6 +17,7 @@ extern "C" int fprintf(_FILE_unk* file, const char* format, ...);
 // inferred: abort is declared noreturn (0x80013F78 reuses sz - rlen computed only on the
 // non-error path of an || condition)
 extern "C" __declspec(noreturn) void abort();
+extern "C" unsigned long strlen(const char* s);
 extern "C" void* memmove(void* dst, const void* src, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
@@ -24,6 +25,13 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 #define __msl_error(msg) (fprintf(&__files[2], msg), abort())
 
 namespace std {
+
+// inferred: MSL iterator tags; they derive from each other, so a temporary tag is not
+// zero-initialised (0x80014168 copies an uninitialised byte)
+struct input_iterator_tag {};
+struct forward_iterator_tag : public input_iterator_tag {};
+struct bidirectional_iterator_tag : public forward_iterator_tag {};
+struct random_access_iterator_tag : public bidirectional_iterator_tag {};
 
 template <class T>
 class basic_string {
@@ -65,6 +73,13 @@ public:
     // tmp.size() for the empty temporary.
     template <class Tag>
     basic_string& __replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag);
+
+    // inferred: inlined at 0x80512944: size() is evaluated in assign, the iterator tag copy and
+    // strlen in the inner replace
+    basic_string& replace(size_type pos, size_type n1, const T* s) {
+        return __replace_unk(pos, n1, s, s + strlen(s), random_access_iterator_tag());
+    }
+    basic_string& assign(const T* s) { return replace(0, size(), s); }
 
     basic_string() { mLong.mCap = 0; mLong.mSize = 0; mLong.mData = 0; }
 
