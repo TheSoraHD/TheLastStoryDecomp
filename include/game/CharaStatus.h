@@ -66,6 +66,61 @@ public:
     int mA4;
 };
 
+namespace chr {
+class Chara_unk;
+}
+struct Model_unk;
+
+// inferred: head and eye look-at controller of a character (CharaTask + 0x10D8); class name
+// unknown. Member names come from the debug menu ("Sight": type, offset, speed, eyeType,
+// eyeOffset, eyeSpeed).
+class CharaLook_unk {
+public:
+    CharaLook_unk();  // 0x8012980C
+    ~CharaLook_unk(); // 0x801298AC
+    void fn_801298EC(chr::Chara_unk* chara); // inferred: finds the "neck" node
+    void fn_80129930(const atn::Vector3& pos, float speed); // inferred: looks at a position (type 2)
+    void fn_80129954(const atn::Vector3& pos, float speed); // inferred: type 3
+    void fn_80129978(Model_unk* model, const char* node, const atn::Vector3& offset, float speed); // type 1
+    void fn_80129A48(float speed);           // inferred: stops looking (type 0)
+    void fn_80129A6C();                      // inferred: update (not decompiled yet)
+    void fn_8012ABD0(const atn::Vector3& pos, float speed); // inferred: eyes, type 3
+    void fn_8012ABF4(const atn::Vector3& pos, float speed); // inferred: eyes, type 2
+    void fn_8012AC18(float* target, const atn::Vector3& pos, float speed); // inferred: eyes, type 1
+    void fn_8012AC40(float speed);           // inferred: eyes, type 0
+    void fn_8012AD20(void* menu);            // inferred: debug menu
+
+    chr::Chara_unk* mChara; // 0x00
+    int mType;              // 0x04: "type"
+    float* mTarget;         // 0x08: inferred: matrix followed in type 1
+    atn::Vector3 mOffset;   // 0x0C: "offset"
+    float m18;
+    float m1C;
+    float m20;
+    float m24;
+    float m28;
+    float m2C;
+    int mNeck;              // 0x30: inferred: node index of "neck"
+    unsigned char m34;
+    unsigned char m35;
+    short m36;
+    float mSpeed;           // 0x38: "speed"
+    float m3C;
+    float m40;
+    float m44;
+    float m48;
+    int mEyeType;           // 0x4C: "eyeType"
+    float* mEyeTarget;      // 0x50
+    atn::Vector3 mEyeOffset; // 0x54: "eyeOffset"
+    float m60;
+    float m64;
+    float m68;
+    float m6C;
+    float m70;
+    float m74;
+    float mEyeSpeed;        // 0x78: "eyeSpeed"
+};
+
 // The names are in the DOL (__vt__15CharaStatusBase 0x8077A708, __vt__11CharaStatus 0x8077A6E8).
 // Layout inferred from the constructor (0x8012AE50). The save data keeps seven of them
 // (MP::SaveLoad, 0x539C).
