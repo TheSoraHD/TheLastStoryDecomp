@@ -205,7 +205,7 @@ atn/LayerShadow.cpp:
 
 atn/SequenceControl.cpp:
 	.text       start:0x800C3610 end:0x800C37FC
-	.rodata     start:0x807337F0 end:0x80733808
+	.rodata     start:0x807337F0 end:0x80733810
 	.data       start:0x807792C0 end:0x807792F8
 
 atn/SoftKeyboardBase_wchar_t_0.cpp:
@@ -1110,8 +1110,8 @@ auto_03_803B27AC_text.cpp:
 
 game/GameLoadBackground.cpp:
 	.text       start:0x803B33F8 end:0x803B35FC
-	.rodata     start:0x8074FC08 end:0x8074FC1C
-	.data       start:0x8078B400 end:0x8078B440
+	.rodata     start:0x8074FC08 end:0x8074FC40
+	.data       start:0x8078B400 end:0x8078B460
 
 game/GameChoiceWindow.cpp:
 	.text       start:0x803B434C end:0x803B6970
@@ -1121,7 +1121,7 @@ game/GameChoiceWindow.cpp:
 
 game/GameSaveBackground.cpp:
 	.text       start:0x803B8C6C end:0x803B9044
-	.rodata     start:0x80750020 end:0x80750034
+	.rodata     start:0x80750020 end:0x80750038
 	.data       start:0x8078B5A8 end:0x8078B5E8
 
 game/GameSaveBanner.cpp:
@@ -1144,7 +1144,7 @@ game/GameSoundControl.cpp:
 
 game/GameTimer.cpp:
 	.text       start:0x803CE4B0 end:0x803CE688
-	.rodata     start:0x80750548 end:0x80750554
+	.rodata     start:0x80750548 end:0x80750558
 	.data       start:0x8078BE08 end:0x8078BE40
 
 game/GameUI.cpp:

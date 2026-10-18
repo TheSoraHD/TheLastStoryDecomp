@@ -309,7 +309,7 @@
   "classes": [
    "atn::SequenceControl"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/SoftKeyboardBase_wchar_t_0.cpp",
@@ -970,7 +970,7 @@
   "classes": [
    "db::MotionCommandCommon"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/ptr_string_base_char_0.cpp",
@@ -1496,7 +1496,7 @@
   "classes": [
    "GameLoadBackground"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameChoiceWindow.cpp",
@@ -1512,7 +1512,7 @@
   "classes": [
    "GameSaveBackground"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameSaveBanner.cpp",
@@ -1542,7 +1542,7 @@
   "classes": [
    "GameTimer"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameUI.cpp",
