@@ -34,8 +34,8 @@ struct ModelData_unk {
 // inferred: pose of a model, built on the stack to compute the joint matrices
 // (constructor 0x800904E0, fn_8009A584); its two callbacks are destroyed inline
 struct ModelPose_unk {
-    ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, int a, boost::function<void()> callback,
-                  int b, int c);
+    ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, int a,
+                  boost::function<void()> callback, int b, int c);
     void fn_8009A584(const atn::Matrix3x4& mtx);
 
     unsigned char m00[0x18];

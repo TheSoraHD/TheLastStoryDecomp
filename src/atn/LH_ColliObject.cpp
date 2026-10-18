@@ -25,7 +25,8 @@ namespace atn {
 // inferred from __vt__Q23atn15LoadColliObject (0x8078FC10)
 class LoadColliObject : public LoadCore {
 public:
-    LoadColliObject(const char* path) : LoadCore(path), m5C(0), m60(0.0f), m64(0.0f), m68(0.0f), m6C(0.0f) {}
+    LoadColliObject(const char* path)
+        : LoadCore(path), m5C(0), m60(0.0f), m64(0.0f), m68(0.0f), m6C(0.0f) {}
     virtual ~LoadColliObject();
     virtual void vf0C();
     // NONMATCHING: not decompiled yet (0x80472424: walks the node tree with the node matrices)
