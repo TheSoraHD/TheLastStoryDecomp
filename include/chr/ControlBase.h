@@ -52,6 +52,7 @@ public:
     void fn_801446F0();
     Vec fn_80178018(); // inferred: returns a direction or target vector (y used as an angle)
     float fn_80178078();
+    void fn_8017AC3C(int arg);
 
     unsigned char m004[0x48 - 0x04];
     int m48;
@@ -72,7 +73,11 @@ public:
     unsigned char m590[0x5A4 - 0x590];
     Vec m5A4;  // inferred: collision offset
     unsigned char m5B0[0x5B8 - 0x5B0];
-    unsigned char m5B8[0xF50 - 0x5B8];
+    unsigned char m5B8[0xD18 - 0x5B8];
+    int mD18;  // inferred: nonzero stops chr::ControlRide (0x801C6FE8)
+    unsigned char mD1C[0xF1C - 0xD1C];
+    int mF1C;  // inferred: cleared when chr::ControlRide ends
+    unsigned char mF20[0xF50 - 0xF20];
     int mF50; // inferred: set by chr::ControlDraggedStart
     int mF54; // inferred: set by chr::ControlDraggingStart
     unsigned char mF58[0x12A4 - 0xF58];
