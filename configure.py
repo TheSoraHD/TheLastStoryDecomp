@@ -258,7 +258,7 @@ cflags_game = [
     "-sdata2 4",
     "-func_align 4",
     "-use_lmw_stmw on",     # game code uses stmw/lmw (seen at 0x80496430); _savegpr still appears per function
-    # Boost 1.35.0 subset (boost::function/bind, see libs/boost/README.md) and the MSL headers it needs
+    # Boost subset (boost::function/bind, see libs/boost/README.md) and the MSL headers it needs
     "-i libs/boost/msl_shim",
     "-i libs/boost/include",
     "-i libs/PowerPC_EABI_Support/include/stl",
@@ -266,9 +266,11 @@ cflags_game = [
 ]
 # The units at 0x8068B60C-0x8069512C were matched with these flags before -inline deferred
 cflags_game_nodefer = list(cflags_game)
-# Game code is compiled with deferred inlining: functions are emitted in reverse source order and
-# can inline functions defined later in the file (needed by MapPartsColliTree at 0x80496420).
-cflags_game = [("-inline auto,deferred" if f == "-inline auto" else f) for f in cflags_game]
+# Game code is compiled with file-level IPA: functions are emitted in source order, can inline
+# functions defined later in the file (MapPartsColliTree at 0x80496420) and non-inline function
+# templates such as boost::bind (0x801B2A80) and the boost::function setter at 0x8049103C, which
+# -inline deferred never inlines.
+cflags_game = cflags_game + ["-ipa file"]
 
 config.linker_version = "GC/1.3.2"
 

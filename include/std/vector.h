@@ -15,7 +15,9 @@ struct __vec_storage_unk {
     __vec_storage_unk() : mData(0), mSize(0), mCap(0) {}
     ~__vec_storage_unk() {
         if (mData != 0) {
-            clear();
+            // inferred: not through clear(); with -ipa file the extra inline level swaps the loop
+            // registers in atn::FileList::~FileList (0x8006BCE4)
+            __shrink_unk(0);
             ::operator delete(mData);
         }
     }

@@ -16,6 +16,29 @@ inline float __WrapAngle_unk(float angle) {
     return a;
 }
 
+ControlSitting::ControlSitting(Chara_unk* chara, const Vec& start, const Vec& seat, const Vec& rot)
+    : ControlBase(chara) {
+    chara->m560 = 0x3D;
+    Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
+    motion->m24C = 1.0f;
+    motion->m238 = 1.0f;
+    motion->fn_80097C08(0, 0x78, 0, 0, 1, 0.0f, 0.1f);
+    mStart = start;
+    mStartRot = mChara->mRot;
+    mSeat = seat;
+    mSeat.y = start.y;
+    mRot = rot;
+    mCount = 8;
+    mChara->mPos = start;
+    Vec zero(0.0f, 0.0f, 0.0f);
+    mChara->m574 = zero;
+    mChara->m570 = 0.0f;
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
+}
+
 // NONMATCHING: 95.6% - the original keeps this in r31 (motion in r30) and places the operator
 // temporaries in other stack slots (as in ControlTurnQuadruped::vf0C).
 int ControlSitting::vf0C() {
@@ -50,29 +73,6 @@ int ControlSitting::vf0C() {
         }
     }
     return 0;
-}
-
-ControlSitting::ControlSitting(Chara_unk* chara, const Vec& start, const Vec& seat, const Vec& rot)
-    : ControlBase(chara) {
-    chara->m560 = 0x3D;
-    Motion_unk* motion = &mChara->mMotion;
-    motion->m34C = 1;
-    motion->m24C = 1.0f;
-    motion->m238 = 1.0f;
-    motion->fn_80097C08(0, 0x78, 0, 0, 1, 0.0f, 0.1f);
-    mStart = start;
-    mStartRot = mChara->mRot;
-    mSeat = seat;
-    mSeat.y = start.y;
-    mRot = rot;
-    mCount = 8;
-    mChara->mPos = start;
-    Vec zero(0.0f, 0.0f, 0.0f);
-    mChara->m574 = zero;
-    mChara->m570 = 0.0f;
-    Chara_unk* c = mChara;
-    c->m580 = 0.0f;
-    c->m584 = 0.0f;
 }
 
 } // namespace chr

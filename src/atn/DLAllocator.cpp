@@ -13,29 +13,18 @@ extern "C" DLMallInfo fn_8022B84C(void* msp);
 
 namespace atn {
 
-void DLAllocator::vf1C() {
+DLAllocator::DLAllocator() : mBase(0), mSize(0), m0C(0), m10(0), mSpace(0) {}
+
+DLAllocator::~DLAllocator() {
     if (mSpace != 0) {
-        DLMallInfo info = fn_8022B84C(mSpace);
+        fn_8022ADB8(mSpace);
     }
 }
 
-unsigned long DLAllocator::fn_80084FA0() { return mSize; }
-
-void* DLAllocator::fn_80084F84() {
-    if (mBase != 0) {
-        return m10;
-    }
-    return 0;
-}
-
-void* DLAllocator::vf18() { return mBase; }
-
-void* DLAllocator::vf14() { return (char*)mBase + mSize; }
-
-void DLAllocator::vf10(void* p) {
-    if (mSpace != 0) {
-        fn_8022B114(mSpace, p);
-    }
+void DLAllocator::fn_80084EE8(void* base, unsigned long size) {
+    mBase = base;
+    mSize = size;
+    mSpace = fn_8022AB18(base, size, 1);
 }
 
 void* DLAllocator::vf0C(unsigned long size, unsigned long align) {
@@ -45,18 +34,29 @@ void* DLAllocator::vf0C(unsigned long size, unsigned long align) {
     return 0;
 }
 
-void DLAllocator::fn_80084EE8(void* base, unsigned long size) {
-    mBase = base;
-    mSize = size;
-    mSpace = fn_8022AB18(base, size, 1);
-}
-
-DLAllocator::~DLAllocator() {
+void DLAllocator::vf10(void* p) {
     if (mSpace != 0) {
-        fn_8022ADB8(mSpace);
+        fn_8022B114(mSpace, p);
     }
 }
 
-DLAllocator::DLAllocator() : mBase(0), mSize(0), m0C(0), m10(0), mSpace(0) {}
+void* DLAllocator::vf14() { return (char*)mBase + mSize; }
+
+void* DLAllocator::vf18() { return mBase; }
+
+void* DLAllocator::fn_80084F84() {
+    if (mBase != 0) {
+        return m10;
+    }
+    return 0;
+}
+
+unsigned long DLAllocator::fn_80084FA0() { return mSize; }
+
+void DLAllocator::vf1C() {
+    if (mSpace != 0) {
+        DLMallInfo info = fn_8022B84C(mSpace);
+    }
+}
 
 } // namespace atn

@@ -14,6 +14,25 @@ inline SaveWork_unk::SaveWork_unk() {
     memset(this, 0, sizeof(*this));
 }
 
+SaveLoad* SaveLoad::fn_805020FC(atn::Task* parent) {
+    return new (1, "", "", 0) SaveLoad(parent);
+}
+
+SaveLoad::SaveLoad(atn::Task* parent)
+    : atn::Task(parent), m48(0), m4C(-1), m50(-1), mLoad(0), mSave(0), mState(0), mError(0) {
+    mWork.reset(new (1, "", "", 0) SaveWork_unk);
+    mLoad = GameLoadBackground::fn_803B33F8(this);
+    mSave = GameSaveBackground::fn_803B8C6C(this);
+}
+
+SaveLoad::~SaveLoad() {
+    if (m48 != 0) {
+        delete m48;
+        m48 = 0;
+        m4C = -1;
+    }
+}
+
 void SaveLoad::vf10() {
     switch (mState) {
     case 0:
@@ -70,25 +89,6 @@ void SaveLoad::vf10() {
         mState = 0;
         break;
     }
-}
-
-SaveLoad::~SaveLoad() {
-    if (m48 != 0) {
-        delete m48;
-        m48 = 0;
-        m4C = -1;
-    }
-}
-
-SaveLoad::SaveLoad(atn::Task* parent)
-    : atn::Task(parent), m48(0), m4C(-1), m50(-1), mLoad(0), mSave(0), mState(0), mError(0) {
-    mWork.reset(new (1, "", "", 0) SaveWork_unk);
-    mLoad = GameLoadBackground::fn_803B33F8(this);
-    mSave = GameSaveBackground::fn_803B8C6C(this);
-}
-
-SaveLoad* SaveLoad::fn_805020FC(atn::Task* parent) {
-    return new (1, "", "", 0) SaveLoad(parent);
 }
 
 } // namespace MP

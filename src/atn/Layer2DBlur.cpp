@@ -35,6 +35,12 @@ extern "C" void fn_80075DEC(RenderMgr_unk* mgr);
 
 namespace atn {
 
+Layer2DBlur::Layer2DBlur() : Layer2D("Blur2D") {}
+
+void Layer2DBlur::vf1C() {
+    Layer2D::vf1C();
+}
+
 // NONMATCHING: 89.6% - our compiler treats sin/cos as pure: it keeps lbl_8087EFA8 and m418 across
 // the calls (target reloads both), and it also shares w * 2 between the viewport and copy calls,
 // which costs two extra saved GPRs. Possibly a compiler version difference (see the psq copies).
@@ -86,11 +92,5 @@ void Layer2DBlur::vf20() {
     fn_800BFB70(lbl_8087EFB4);
     Layer2D::vf20();
 }
-
-void Layer2DBlur::vf1C() {
-    Layer2D::vf1C();
-}
-
-Layer2DBlur::Layer2DBlur() : Layer2D("Blur2D") {}
 
 } // namespace atn

@@ -11,6 +11,10 @@ struct HitInfo_unk {
     int m90;
 };
 
+FriendArganan::FriendArganan(atn::Task* parent, int type, void* data) : PlayerTask(parent, type, data) {}
+
+FriendArganan::~FriendArganan() {}
+
 // inferred: Arganan takes no damage nor knockback
 void FriendArganan::vf3C(HitInfo_unk* hit) {
     hit->m10.x *= 0.0f;
@@ -19,7 +23,3 @@ void FriendArganan::vf3C(HitInfo_unk* hit) {
     hit->m90 = 0;
     hit->m68 = 0;
 }
-
-FriendArganan::~FriendArganan() {}
-
-FriendArganan::FriendArganan(atn::Task* parent, int type, void* data) : PlayerTask(parent, type, data) {}

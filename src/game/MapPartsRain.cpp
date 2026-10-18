@@ -20,32 +20,16 @@ struct Csv_unk {
     char mField[1];
 };
 
-void MapPartsRain::vf14() {
-    if (mOn != 0) {
-        mRain.fn_800B1C1C();
+MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, void* data) {
+    if (parent != 0) {
+        return new (12, "", "", 0) MapPartsRain(parent, arg, data);
     }
+    return 0;
 }
 
-void MapPartsRain::vf10() {
-    if (mOn != 0) {
-        mRain.fn_800B2D2C();
-    }
-}
-
-int MapPartsRain::vf0C() {
-    return 1;
-}
-
-MapPartsRain::~MapPartsRain() {}
-
-void MapPartsRain::vf1C(void* menu) {
-    mRain.fn_800B23C8();
-}
-
-void MapPartsRain::fn_8049D1A4(MapPartsRain* a, MapPartsRain* b) {
-    mRain.fn_800B28F8(&a->mRain, &b->mRain);
-}
-
+// NONMATCHING: 99.8% - with -ipa file the stack addresses of `a`, `b` and `box.mMax` hoisted out
+// of the loop land in different registers (r24-r26), and box.mMax is read back through its own
+// register instead of box + 0xC. It matched with -inline deferred.
 MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, void* data)
     : MapPartsBase(parent, arg), mOn(0) {
     const char* field = ((Csv_unk*)data)->mField;
@@ -89,19 +73,35 @@ MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, void* data)
             b.y = fn_800DC288(fn_8005B9CC(data));
             b.z = fn_800DC288(fn_8005B9CC(data));
             Box_unk box(a, b);
-            // inferred: the two vectors are copied through a Vec pointer (second one at src + 0xC)
-            const Vec* src = &box.mMin;
-            Vec* dst = &mBox.mMin;
-            dst[0] = src[0];
-            dst[1] = src[1];
+            mBox.mMin = box.mMin;
+            mBox.mMax = box.mMax;
         }
         field = fn_8005B9CC(data);
     } while (field != 0 && strcmp("", field) != 0);
 }
 
-MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, void* data) {
-    if (parent != 0) {
-        return new (12, "", "", 0) MapPartsRain(parent, arg, data);
+void MapPartsRain::fn_8049D1A4(MapPartsRain* a, MapPartsRain* b) {
+    mRain.fn_800B28F8(&a->mRain, &b->mRain);
+}
+
+void MapPartsRain::vf1C(void* menu) {
+    mRain.fn_800B23C8();
+}
+
+MapPartsRain::~MapPartsRain() {}
+
+int MapPartsRain::vf0C() {
+    return 1;
+}
+
+void MapPartsRain::vf10() {
+    if (mOn != 0) {
+        mRain.fn_800B2D2C();
     }
-    return 0;
+}
+
+void MapPartsRain::vf14() {
+    if (mOn != 0) {
+        mRain.fn_800B1C1C();
+    }
 }

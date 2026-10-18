@@ -5,10 +5,12 @@
 
 namespace chr {
 
+// inferred: these classes declare no destructor; implicit destructors are emitted at the end of the
+// unit in class order (0x801BC538), inline ones in reverse order
+
 class ControlLookAround : public ControlBase {
 public:
     ControlLookAround(Chara_unk* chara, int time); // 0x801BC288
-    virtual ~ControlLookAround() {}
     virtual int vf0C();
 
     int mTime; // 0x08
@@ -17,7 +19,6 @@ public:
 class ControlLookAroundEgg : public ControlBase {
 public:
     ControlLookAroundEgg(Chara_unk* chara, int time); // 0x801BC410
-    virtual ~ControlLookAroundEgg() {}
     virtual int vf0C();
 
     int mTime; // 0x08

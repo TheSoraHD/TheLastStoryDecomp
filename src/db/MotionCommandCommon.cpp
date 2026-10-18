@@ -12,6 +12,17 @@ inline MotionCommandCommon::MotionCommandCommon(atn::Task* parent) : atn::Task(p
     loader->vf0C(sPath);
 }
 
+MotionCommandCommon* MotionCommandCommon::fn_80218720(atn::Task* parent) {
+    if (sInstance == 0) {
+        sInstance = new (1, "", "", 0) MotionCommandCommon(parent);
+    }
+    return sInstance;
+}
+
+MotionCommandCommon::~MotionCommandCommon() {
+    sInstance = 0;
+}
+
 int MotionCommandCommon::vf0C() {
     if (mLoader.fn_80473F50()) {
         return 0;
@@ -19,17 +30,6 @@ int MotionCommandCommon::vf0C() {
     mData = mLoader.fn_80476CE4();
     mFlags |= 4;
     return 1;
-}
-
-MotionCommandCommon::~MotionCommandCommon() {
-    sInstance = 0;
-}
-
-MotionCommandCommon* MotionCommandCommon::fn_80218720(atn::Task* parent) {
-    if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) MotionCommandCommon(parent);
-    }
-    return sInstance;
 }
 
 } // namespace db

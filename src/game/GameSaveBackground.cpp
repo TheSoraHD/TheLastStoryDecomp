@@ -19,38 +19,15 @@ extern "C" int lbl_8087DCC8;
 extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087F434;
 
-void GameSaveBackground::fn_803B8F50(const char* name, void* data, int size, int arg, int flag) {
-    int work;
-    if (flag && lbl_8087F518->m3EF4 != 0 && lbl_8087F518 != 0) {
-        fn_8046EED8(lbl_8087F518);
+GameSaveBackground* GameSaveBackground::fn_803B8C6C(atn::Task* parent) {
+    if (parent != 0) {
+        return new (1, "", "", 0) GameSaveBackground(parent);
     }
-    m158 = data;
-    m14C = size;
-    strcpy(mName, name);
-    fn_803B8200(0);
-    fn_800A48B8(lbl_8087EF68, name, data, size, arg, &work);
+    return 0;
 }
 
-void GameSaveBackground::fn_803B8E60(void* data, int arg1, int arg2) {
-    int out;
-    int work;
-    char name[0x100];
-    if (lbl_8087F0A8->m198 == 0) {
-        fn_803B83A4(name, &out, arg1);
-        m160 = 1;
-        m15C = arg1;
-        mHeader.fn_803CE408();
-        mHeader.fn_803CE448();
-        int arg = out;
-        if (arg2 != 0 && lbl_8087F518->m3EF4 != 0 && lbl_8087F518 != 0) {
-            fn_8046EED8(lbl_8087F518);
-        }
-        m158 = data;
-        m14C = 0x13560;
-        strcpy(mName, name);
-        fn_803B8200(0);
-        fn_800A48B8(lbl_8087EF68, name, data, 0x13560, arg, &work);
-    }
+int GameSaveBackground::vf0C() {
+    return fn_800D3FA4() != 0;
 }
 
 void GameSaveBackground::vf10() {
@@ -88,13 +65,36 @@ void GameSaveBackground::vf10() {
     }
 }
 
-int GameSaveBackground::vf0C() {
-    return fn_800D3FA4() != 0;
+void GameSaveBackground::fn_803B8E60(void* data, int arg1, int arg2) {
+    int out;
+    int work;
+    char name[0x100];
+    if (lbl_8087F0A8->m198 == 0) {
+        fn_803B83A4(name, &out, arg1);
+        m160 = 1;
+        m15C = arg1;
+        mHeader.fn_803CE408();
+        mHeader.fn_803CE448();
+        int arg = out;
+        if (arg2 != 0 && lbl_8087F518->m3EF4 != 0 && lbl_8087F518 != 0) {
+            fn_8046EED8(lbl_8087F518);
+        }
+        m158 = data;
+        m14C = 0x13560;
+        strcpy(mName, name);
+        fn_803B8200(0);
+        fn_800A48B8(lbl_8087EF68, name, data, 0x13560, arg, &work);
+    }
 }
 
-GameSaveBackground* GameSaveBackground::fn_803B8C6C(atn::Task* parent) {
-    if (parent != 0) {
-        return new (1, "", "", 0) GameSaveBackground(parent);
+void GameSaveBackground::fn_803B8F50(const char* name, void* data, int size, int arg, int flag) {
+    int work;
+    if (flag && lbl_8087F518->m3EF4 != 0 && lbl_8087F518 != 0) {
+        fn_8046EED8(lbl_8087F518);
     }
-    return 0;
+    m158 = data;
+    m14C = size;
+    strcpy(mName, name);
+    fn_803B8200(0);
+    fn_800A48B8(lbl_8087EF68, name, data, size, arg, &work);
 }

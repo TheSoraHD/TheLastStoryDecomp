@@ -61,23 +61,11 @@ struct Chara_unk : public atn::Task {
     void* m58;
 };
 
-TownTpcLoader::~TownTpcLoader() {}
-
-void TownTpcLoader::fn_805B9D58() {
-    CharaList_unk* list = lbl_8087F430->m10D8;
-    for (int i = 0; i < mCharas.size(); i++) {
-        fn_803CC774(list, mCharas[i]);
-        fn_803957F0(list->m134, ((Chara_unk*)mCharas[i])->m58);
-        fn_803CC718(list, mCharas[i], 0);
-        if (lbl_8087F498 != 0) {
-            fn_803EAC3C(lbl_8087F498, mCharas[i]);
-        }
-        if (lbl_8087F490 != 0) {
-            lbl_8087F490->Clear_unk(mCharas[i]);
-        }
-        fn_800D2338(mCharas[i]);
+TownTpcLoader* TownTpcLoader::fn_805B9B08(atn::Task* parent, int cellX, int cellZ, atn::Task* wait) {
+    if (parent != 0) {
+        return new (1, "", "", 0) TownTpcLoader(parent, cellX, cellZ, wait);
     }
-    fn_800D2338(this);
+    return 0;
 }
 
 // NONMATCHING: 99.6% - the pointer and the counter of the last loop are in swapped registers (r29/r30).
@@ -120,9 +108,21 @@ int TownTpcLoader::vf0C() {
     return ready;
 }
 
-TownTpcLoader* TownTpcLoader::fn_805B9B08(atn::Task* parent, int cellX, int cellZ, atn::Task* wait) {
-    if (parent != 0) {
-        return new (1, "", "", 0) TownTpcLoader(parent, cellX, cellZ, wait);
+void TownTpcLoader::fn_805B9D58() {
+    CharaList_unk* list = lbl_8087F430->m10D8;
+    for (int i = 0; i < mCharas.size(); i++) {
+        fn_803CC774(list, mCharas[i]);
+        fn_803957F0(list->m134, ((Chara_unk*)mCharas[i])->m58);
+        fn_803CC718(list, mCharas[i], 0);
+        if (lbl_8087F498 != 0) {
+            fn_803EAC3C(lbl_8087F498, mCharas[i]);
+        }
+        if (lbl_8087F490 != 0) {
+            lbl_8087F490->Clear_unk(mCharas[i]);
+        }
+        fn_800D2338(mCharas[i]);
     }
-    return 0;
+    fn_800D2338(this);
 }
+
+TownTpcLoader::~TownTpcLoader() {}
