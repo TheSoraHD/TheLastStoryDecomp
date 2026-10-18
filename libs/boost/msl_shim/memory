@@ -1,16 +1,41 @@
 #ifndef SHIM_MEMORY
 #define SHIM_MEMORY
+// Stand-in for MSL C++ <memory> (only what Boost needs).
 #include <new>
 #include <utility>
+#include "std/msl_common.h"
 namespace std {
+template <class T> class allocator;
+template <> class allocator<void> {
+public:
+    typedef void* pointer;
+    typedef const void* const_pointer;
+    typedef void value_type;
+    template <class U> struct rebind { typedef allocator<U> other; };
+};
+// inferred: allocate reports failure like basic_string (0x801B2D3C: "Memory allocation failure")
 template <class T> class allocator {
 public:
-    typedef T value_type; typedef T* pointer; typedef unsigned long size_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef const T* const_pointer;
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef unsigned long size_type;
+    typedef long difference_type;
     template <class U> struct rebind { typedef allocator<U> other; };
     allocator() {}
     template <class U> allocator(const allocator<U>&) {}
-    T* allocate(size_type n) { return (T*)::operator new(n * sizeof(T)); }
-    void deallocate(T* p, size_type) { ::operator delete(p); }
+    pointer allocate(size_type n, const void* = 0) {
+        pointer p = (pointer)::operator new(n * sizeof(T));
+        if (p == 0) {
+            __msl_error("Memory allocation failure");
+        }
+        return p;
+    }
+    void deallocate(pointer p, size_type) { ::operator delete(p); }
+    void construct(pointer p, const T& v) { new ((void*)p) T(v); }
+    void destroy(pointer p) { p->~T(); }
 };
 template <class T> class auto_ptr {
 public:

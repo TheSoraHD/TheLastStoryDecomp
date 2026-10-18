@@ -33,7 +33,6 @@
 #if defined(BOOST_MSVC)
 #   pragma warning( push )
 #   pragma warning( disable : 4793 ) // complaint about native code generation
-#   pragma warning( disable : 4127 ) // "conditional expression is constant"
 #endif       
 
 // Define BOOST_FUNCTION_STD_NS to the namespace that contains type_info.
@@ -212,8 +211,8 @@ namespace boost {
       struct reference_manager
       {
         static inline void
-        manage(const function_buffer& in_buffer, function_buffer& out_buffer, 
-               functor_manager_operation_type op)
+        get(const function_buffer& in_buffer, function_buffer& out_buffer, 
+            functor_manager_operation_type op)
         {
           switch (op) {
           case clone_functor_tag: 
@@ -382,15 +381,6 @@ namespace boost {
                   mpl::bool_<(function_allows_small_object_optimization<functor_type>::value)>());
         }
 
-        // For member pointers, we treat them as function objects with
-        // the small-object optimization always enabled.
-        static inline void
-        manager(const function_buffer& in_buffer, function_buffer& out_buffer, 
-                functor_manager_operation_type op, member_ptr_tag)
-        {
-          manager(in_buffer, out_buffer, op, mpl::true_());
-        }
-
       public:
         /* Dispatch to an appropriate manager based on whether we have a
            function pointer or a function object pointer. */
@@ -479,6 +469,7 @@ namespace boost {
        */
       struct vtable_base
       {
+        vtable_base() : manager(0) { }
         void (*manager)(const function_buffer& in_buffer, 
                         function_buffer& out_buffer, 
                         functor_manager_operation_type op);
@@ -580,7 +571,7 @@ public:
 #endif
 
 public: // should be protected, but GCC 2.95.3 will fail to allow access
-  const detail::function::vtable_base* vtable;
+  detail::function::vtable_base* vtable;
   mutable detail::function::function_buffer functor;
 };
 
