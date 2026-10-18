@@ -229,7 +229,8 @@ public:
     virtual ~CharaStatusBase() {} // weak copy 0x8012AFE8
 
     float m04; // inferred: current value capped by mParamB.m84 (hit points?)
-    unsigned char m08[0x0C - 0x08];
+    float m08; // inferred: current value capped by mParamB.m88
+
     unsigned int m0C; // inferred: flags
     unsigned int m10; // inferred: flags (set together with m0C by fn_8013310C)
     unsigned char m14[0x1C - 0x14];
@@ -330,6 +331,10 @@ public:
     void fn_80133E24(int id, int sub);
     void fn_80133FBC(const CharaStatusRef_unk& ref, int replace);
     void fn_8013407C();
+    void fn_8012D628(CharaParam_unk* dst, const CharaParam_unk* src);
+    void fn_80133130(unsigned int flags, int value, int both);
+    void fn_801333E4();
+    void fn_8013459C();
     CharaStatusRef_unk* FindRef_unk(int id, unsigned int key);
 
     int m240;
@@ -345,7 +350,7 @@ public:
     int m300;
     FixedArray_unk<CharaStatusEntry_unk, 6> mEntries; // 0x304
     FixedArray_unk<CharaStatusRef_unk, 8> mRefs;      // 0x380
-    unsigned char m424[0x428 - 0x424];
+    int m424; // inferred: value picked at random by fn_8013459C
     float m428;
     float m42C; // inferred: compared with 0, 3 and 5 by fn_8012F3D8
     int m430;

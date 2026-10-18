@@ -28,6 +28,26 @@ CharaStatus::CharaStatus()
 
 CharaStatus::~CharaStatus() {}
 
+void CharaStatus::fn_8012D628(CharaParam_unk* dst, const CharaParam_unk* src) {
+    if (src == 0) {
+        return;
+    }
+    dst->m00 += src->m00;
+    dst->m04 += src->m04;
+    dst->m08 += src->m08;
+    dst->m0C += src->m0C;
+    dst->m10 *= src->m10;
+    dst->m14 *= src->m14;
+    dst->m28 += src->m28;
+    dst->m2C += src->m2C;
+    dst->m20 += src->m20;
+    dst->m24 += src->m24;
+    dst->m18 += src->m18;
+    dst->m1C += src->m1C;
+    dst->m30 += src->m30;
+    dst->m34 += src->m34;
+}
+
 int CharaStatus::fn_8012E534() {
     return (m0C >> 12) & 1;
 }
@@ -55,6 +75,15 @@ void CharaStatus::fn_8013310C(unsigned int flags, int both) {
     }
 }
 
+void CharaStatus::fn_80133130(unsigned int flags, int value, int both) {
+    fn_8013310C(flags, both);
+    for (int i = 0; i < 32; i++) {
+        if ((flags & (1 << i)) == (1 << i)) {
+            m24C[i] = value;
+        }
+    }
+}
+
 int CharaStatus::fn_801333A4(unsigned int mask) {
     for (int i = 0; i < 32; i++) {
         if ((mask & (1 << i)) == (1 << i)) {
@@ -62,6 +91,11 @@ int CharaStatus::fn_801333A4(unsigned int mask) {
         }
     }
     return -1;
+}
+
+void CharaStatus::fn_801333E4() {
+    m04 = MIN(MAX(m04, 0.0f), (float)mParamB.m84);
+    m08 = MIN(MAX(m08, 0.0f), (float)mParamB.m88);
 }
 
 int CharaStatus::fn_801334CC(int level) {
@@ -230,6 +264,44 @@ inline bool TestBit_unk(const unsigned int* bits, int bit) {
 }
 inline void SetBit_unk(unsigned int* bits, int bit) {
     bits[bit / 32] |= 1 << (bit % 32);
+}
+
+struct Settings_unk {
+    unsigned char m00[0x2CC];
+    int m2CC;
+};
+extern "C" Settings_unk* lbl_8087F0A8;
+struct StatusField_unk {
+    unsigned char m00[0x5694];
+    int m5694;
+};
+extern "C" StatusField_unk* lbl_8087F430;
+extern "C" int rand();
+
+struct RandomPick_unk {
+    int mThreshold;
+    int mValue;
+};
+
+void CharaStatus::fn_8013459C() {
+    static const RandomPick_unk sTable[6] = {{30, 0}, {50, 1}, {70, 2}, {80, 3}, {90, 4}, {100, 5}};
+    if (lbl_8087F0A8->m2CC != 0) {
+        bool active = false;
+        if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
+            active = true;
+        }
+        if (active) {
+            int r = rand() % 100;
+            for (int i = 0; i < 6; i++) {
+                if (r < sTable[i].mThreshold) {
+                    m424 = sTable[i].mValue;
+                    break;
+                }
+            }
+        } else {
+            m424 = 0;
+        }
+    }
 }
 
 // NONMATCHING: 98.1% - registers only (the original keeps the constant 1 in r4 and the word
