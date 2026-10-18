@@ -33,3 +33,21 @@ reference-counted buffer (control block with vtable `lbl_80775B98`, `use_count`,
   count (different register order than `clear()`); `__shrink_unk` stands in for it.
 
 The class names `__vec_storage_unk` / `__vec_imp_unk` are invented; only the nesting depth is known.
+
+## Out-of-line members found so far
+
+| Address (char) | Member | Status |
+|---|---|---|
+| `0x80013DC4` | `reserve(size_type)` | reconstructed, same instructions (standalone test compile) |
+| `0x80013F78` | range replace `(pos, n1, first, last, tag)` | control flow reconstructed, registers differ |
+
+Error reporting with exceptions off: `fprintf(stderr, msg); abort();` with the messages
+`"basic_string::reserve length_error"`, `"basic_string: out_of_range"`,
+`"basic_string: length_error"` and, in the allocator, `"Memory allocation failure"` (that one is
+in an `@STRING@` pool of an inline function, in `.data`).
+
+`traits::assign(c, T())` binds a constant temporary to a reference: the compiler materialises it as
+a 1-byte object in `.sdata` (`lbl_8087D6C8`, `lbl_8087D6C9`), one per call site.
+
+Growth policy: short capacity 11 chars; `reserve` rounds `n + 16` down to a multiple of 16;
+`replace` starts from `(cap + 15) & ~15` and doubles (`(cap * 2 + 15) & ~15`) until it fits.
