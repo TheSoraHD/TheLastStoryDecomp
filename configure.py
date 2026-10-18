@@ -257,6 +257,7 @@ cflags_game = [
     "-sdata 4",             # 8-byte RTTI objects and doubles are outside the small-data sections
     "-sdata2 4",
     "-func_align 4",
+    "-use_lmw_stmw on",     # game code uses stmw/lmw (seen at 0x80496430); _savegpr still appears per function
 ]
 
 config.linker_version = "GC/1.3.2"
