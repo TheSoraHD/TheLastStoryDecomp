@@ -2,6 +2,7 @@
 // gimmick factory jump tables (0x8078C6C8); the file also holds the factories at 0x803EC16C/0x803EC374.
 
 #include "game/GimmickCommon.h"
+#include "gmk/ArenaFloor.h"
 #include "gmk/InteractionSpot.h"
 #include "gmk/RainDrops.h"
 #include "gmk/SkeltonsMirror.h"
@@ -193,7 +194,6 @@ extern "C" GimmickCommon* fn_80418198(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8041C09C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8041CD54(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_8041DDE4(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8041FF08(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8042335C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
@@ -263,7 +263,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 34: gimmick = fn_80418EAC(parent, id, arg); break;
     case 36: gimmick = fn_8041C09C(parent, id, arg); break;
     case 37: gimmick = fn_8041CD54(parent, id, arg); break;
-    case 38: gimmick = fn_8041DDE4(parent, id, arg); break;
+    case 38: gimmick = gmk::ArenaFloor::fn_8041DDE4(parent, id, arg); break;
     case 40: gimmick = fn_8041FF08(parent, id, arg); break;
     case 45: gimmick = fn_8042335C(parent, id, arg); break;
     case 46: gimmick = fn_80423F64(parent, id, arg); break;
