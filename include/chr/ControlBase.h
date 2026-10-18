@@ -97,6 +97,7 @@ public:
     int fn_8016E484();
     void fn_8017AC2C();
     void fn_80166544();
+    int fn_801789D8(int a, unsigned int flags);
     void fn_80167038();
     void fn_80167640();
     // inferred: state checks inlined in many places (names invented)
@@ -154,7 +155,8 @@ public:
     int mC48;
     unsigned char mC4C[0xD18 - 0xC4C];
     int mD18;  // inferred: nonzero stops chr::ControlRide (0x801C6FE8)
-    unsigned char mD1C[0xD38 - 0xD1C];
+    Chara_unk* mD1C; // inferred: another character (its status is read by CharaStatus::fn_8012DB04)
+    unsigned char mD20[0xD38 - 0xD20];
     unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot
     unsigned short mD38 : 15;
     unsigned char mD3A[0xF1C - 0xD3A];

@@ -236,7 +236,7 @@ public:
     unsigned int m0C; // inferred: flags
     unsigned int m10; // inferred: flags (set together with m0C by fn_8013310C)
     int m14;
-    unsigned char m18[0x1C - 0x18];
+    unsigned int m18; // inferred: flags (fn_8012DB04)
     int m1C; // inferred: level (fn_80133B30)
     unsigned char m20[0x28 - 0x20];
     CharaParam_unk mParamA;    // 0x28
@@ -370,6 +370,8 @@ public:
     }
     void fn_8012D8B8();
     void fn_8012DD70();
+    float fn_8012DB04();
+    void fn_8012F188(float amount);
     CharaStatusRef_unk* FindRef_unk(int id, unsigned int key);
 
     int m240;

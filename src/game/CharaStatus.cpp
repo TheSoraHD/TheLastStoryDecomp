@@ -124,6 +124,42 @@ void CharaStatus::fn_8012DD70() {
     m438 = 0.0f;
 }
 
+// inferred: characters keep their CharaStatus at 0x7D4 (see CharaTask); name invented
+inline CharaStatus* GetStatus_unk(chr::Chara_unk* chara) {
+    return (CharaStatus*)((char*)chara + 0x7D4);
+}
+
+// NONMATCHING: 94.9% - the original loads m0C before the int-to-float constant and reloads the
+// count of the other character's refs before the sum loop (ours reuses it after the find).
+float CharaStatus::fn_8012DB04() {
+    int n = m430;
+    if ((m0C & 0x8) == 0x8) {
+        n += 3;
+    } else if ((m0C & 0x200) == 0x200) {
+        n += 2;
+    }
+    if ((m0C & 0x800000) == 0x800000) {
+        n += 4;
+    }
+    float rate = 1.0f - 0.1f * n;
+    if ((m18 & 0x8) == 0 && (m18 & 0x800000) == 0) {
+        if ((m0C & 0x800) == 0x800 && m434 < 180.0f) {
+            rate = MIN(MAX(rate - 0.6f * (180.0f - m434) / 180.0f, 0.05f), 1.0f);
+        }
+        if ((m0C & 0x800) == 0x800 && mChara != 0 && mChara->mD1C != 0) {
+            CharaStatus* status = GetStatus_unk(mChara->mD1C);
+            if (status->fn_80134134(68) != 0) {
+                int sum = status->fn_80134168(68, -1);
+                rate = MIN(MAX(rate - 0.1f * sum / 100.0f, 0.05f), 1.0f);
+            }
+        }
+    }
+    if ((m0C & 0x1000000) == 0x1000000) {
+        rate = 0.05f;
+    }
+    return rate;
+}
+
 int CharaStatus::fn_8012E534() {
     return (m0C >> 12) & 1;
 }
@@ -148,6 +184,50 @@ void CharaStatus::fn_8012F034(float amount) {
     m228 += amount;
     if (old < 1.0f && m228 >= 1.0f) {
         mChara->fn_8017AC2C();
+    }
+}
+
+struct StatusField_unk {
+    unsigned char m00[0x5694];
+    int m5694;
+};
+extern "C" StatusField_unk* lbl_8087F430;
+extern "C" int fn_80375184(StatusField_unk* field);
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" void fn_8010652C(Effect_unk* effect, chr::Chara_unk* chara);
+extern "C" void fn_801061BC(Effect_unk* effect, chr::Chara_unk* chara, void* model, int level);
+
+// NONMATCHING: 95.3% - the original repeats the chara/flag test of the inlined fn_8012F3D8
+// (ours reuses the first test) and passes the new gauge value to the second one from a register
+// (frsp) instead of reloading m42C. Tried: a HasGauge_unk helper, the body in an inline helper.
+void CharaStatus::fn_8012F188(float amount) {
+    if (lbl_8087F430 != 0 && !fn_80375184(lbl_8087F430)) {
+        return;
+    }
+    if (mChara == 0 || !mChara->mFlag28) {
+        return;
+    }
+    if ((m1A8.mBits[1] & 0x20000000) != 0x20000000) {
+        return;
+    }
+    float max = 10.0f;
+    if ((m1A8.mBits[1] & 0x80000000) != 0x80000000) {
+        max = 5.0f;
+        if ((m1A8.mBits[1] & 0x40000000) != 0x40000000) {
+            max = 3.0f;
+        }
+    }
+    int before = fn_8012F3D8();
+    float rate = 1.0f;
+    if (mChara->fn_801789D8(0, 0x2000)) {
+        rate *= 1.5f;
+    }
+    m42C = MIN(MAX(m42C + amount * rate, 0.0f), max - 0.1f);
+    int after = fn_8012F3D8();
+    if (before < after && after > 1 && lbl_8087F048 != 0) {
+        fn_8010652C(lbl_8087F048, mChara);
+        fn_801061BC(lbl_8087F048, mChara, &mChara->mMotion, after - 1);
     }
 }
 
@@ -375,11 +455,6 @@ struct Settings_unk {
     int m2CC;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-struct StatusField_unk {
-    unsigned char m00[0x5694];
-    int m5694;
-};
-extern "C" StatusField_unk* lbl_8087F430;
 extern "C" int rand();
 
 struct RandomPick_unk {
