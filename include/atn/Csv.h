@@ -51,7 +51,10 @@ public:
         fn_8005BCE8(lbl_8087D708);
     }
 };
-class CsvTab : public CsvBase<char, '\t', '\r', '"'> {};
+class CsvTab : public CsvBase<char, '\t', '\r', '"'> {
+public:
+    CsvTab(const char* text, int length) : CsvBase<char, '\t', '\r', '"'>(text, length) {}
+};
 class CsvPipe : public CsvBase<char, '|', '\r', '"'> {};
 class CsvU : public CsvBase<wchar_t, ',', '\r', '"'> {};
 class CsvTabU : public CsvBase<wchar_t, '\t', '\r', '"'> {};

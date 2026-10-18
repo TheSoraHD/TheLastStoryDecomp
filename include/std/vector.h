@@ -7,6 +7,7 @@
 // so the storage lives in a base class two levels below vector. Class names are invented.
 
 #include "std/msl_common.h"
+#include "std/new.h"
 
 namespace std {
 
@@ -53,6 +54,21 @@ struct __vec_storage_unk {
 template <class T>
 struct __vec_imp_unk : public __vec_storage_unk<T> {
     ~__vec_imp_unk() {}
+    // inferred: generic elements are copy-constructed in place (0x80476ED4)
+    void __push_fast_unk(const T& x) {
+        new (this->mData + this->mSize) T(x);
+        this->mSize++;
+    }
+};
+
+// inferred: pointer elements are stored after the size is incremented (0x800DB3EC)
+template <class T>
+struct __vec_imp_unk<T*> : public __vec_storage_unk<T*> {
+    ~__vec_imp_unk() {}
+    void __push_fast_unk(T* const& x) {
+        this->mSize++;
+        this->mData[this->mSize - 1] = x;
+    }
 };
 
 // inferred: temporary buffer used when push_back reallocates (0x800DB3EC): storage, number of
@@ -61,7 +77,16 @@ struct __vec_imp_unk : public __vec_storage_unk<T> {
 // destroying it (addic. r3, r1, 0x14), and keeps its fields in memory.
 template <class T>
 struct __vec_split_base_unk {
-    __vec_split_base_unk(void* alloc) : mData(0), mSize(0), mCap(0), mAlloc(alloc) {}
+    // inferred: the fields are cleared through a word pointer (as in basic_string::__zero): the
+    // stores then count as stores through a pointer, and the capacity of the vector, whose address
+    // the buffer keeps, is reloaded after them (0x80476ED4)
+    __vec_split_base_unk(void* alloc) {
+        unsigned int* w = (unsigned int*)this;
+        w[0] = 0;
+        w[1] = 0;
+        w[2] = 0;
+        mAlloc = alloc;
+    }
     ~__vec_split_base_unk() {
         if (mData != 0) {
             mSize = 0;
@@ -74,22 +99,44 @@ struct __vec_split_base_unk {
     void* mAlloc;
 };
 
+// inferred: generic elements are copy-constructed one by one (0x80476ED4, 0x104-byte elements)
 template <class T>
 struct __vec_split_unk : public __vec_split_base_unk<T> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<T>(alloc), mStart(0) {}
     T* begin() { return this->mData + mStart; }
     void push_back(const T& x) {
+        new (begin() + this->mSize) T(x);
+        this->mSize++;
+    }
+    // inferred: moves [first, last) in front of the stored elements, last one first
+    void __push_front_unk(T* first, T* last) {
+        T* p = begin();
+        while (last > first) {
+            new (--p) T(*--last);
+            mStart--;
+            this->mSize++;
+        }
+    }
+    unsigned int mStart;
+};
+
+// inferred: pointer elements are stored directly and moved with memcpy (weak copy 0x800DB3EC)
+template <class T>
+struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
+    __vec_split_unk(void* alloc) : __vec_split_base_unk<T*>(alloc), mStart(0) {}
+    T** begin() { return this->mData + mStart; }
+    void push_back(T* const& x) {
         begin()[this->mSize] = x;
         this->mSize++;
     }
     // inferred: moves [first, last) in front of the stored elements
-    void __push_front_unk(T* first, T* last) {
+    void __push_front_unk(T** first, T** last) {
         // inferred: a byte difference; `last - first` would fold to the size (0x800DB3EC computes
         // (data + size) - data)
-        unsigned int n = ((char*)last - (char*)first) / (int)sizeof(T);
+        unsigned int n = ((char*)last - (char*)first) / (int)sizeof(T*);
         mStart -= n;
-        memcpy(this->mData + mStart, first, n * sizeof(T));
-        memset(first, 0, n * sizeof(T));
+        memcpy(this->mData + mStart, first, n * sizeof(T*));
+        memset(first, 0, n * sizeof(T*));
         this->mSize += n;
     }
     unsigned int mStart;
@@ -119,7 +166,7 @@ public:
 
     T* begin() { return this->mData; }
     T* end() { return this->mData + this->mSize; }
-    size_type max_size() const { return 0x3FFFFFFF; }
+    size_type max_size() const { return size_type(-1) / sizeof(T); }
     // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...),
     // inlined in atn::LoadMaterial::vf0C (0x804742F4). Defined out of the class and split into
     // small out-of-class helpers: a function that is not declared inline is still inlined by
@@ -151,8 +198,7 @@ private:
 template <class T>
 void vector<T>::push_back(const T& x) {
     if (this->mSize < this->mCap) {
-        this->mSize++;
-        this->mData[this->mSize - 1] = x;
+        this->__push_fast_unk(x);
         return;
     }
     if (max_size() - this->mCap < 1) {
