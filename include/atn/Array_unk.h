@@ -1,0 +1,95 @@
+#ifndef ATN_ARRAY_UNK_H
+#define ATN_ARRAY_UNK_H
+
+#include "atn/Memory.h"
+
+extern "C" void* memset(void* dst, int c, unsigned long n);
+
+namespace atn {
+
+// inferred: growable array {size, capacity, data} allocated with new[] (names invented). Its
+// members are defined in the class body: their literals are @STRING@ objects in .sdata
+// (0x8087DF10/0x8087DF14 for the new[] of GimmickManager::fn_803EE7FC).
+template <class T>
+class Vector_unk {
+public:
+    Vector_unk() : mSize(0), mCapacity(0), mData(0) {}
+    ~Vector_unk() {
+        if (mData != 0) {
+            delete[] mData;
+        }
+    }
+    void clear() {
+        mSize = 0;
+        mCapacity = 0;
+        if (mData != 0) {
+            delete[] mData;
+            mData = 0;
+        }
+    }
+    void reserve(unsigned int n) {
+        if (mCapacity > n) {
+            return;
+        }
+        T* data = new (0, "", "", 0) T[n];
+        if (mData != 0) {
+            unsigned int count = n;
+            if (mSize < n) {
+                count = mSize;
+            }
+            for (unsigned int i = 0; i < count; i++) {
+                data[i] = mData[i];
+            }
+            delete[] mData;
+        }
+        mData = data;
+        mCapacity = n;
+    }
+    void push_back(const T& value) {
+        if (mData == 0 || mCapacity == 0) {
+            reserve(8);
+        } else if (mSize >= mCapacity) {
+            reserve(mSize * 2);
+        }
+        mData[mSize] = value;
+        mSize++;
+    }
+
+    unsigned int mSize;
+    unsigned int mCapacity;
+    T* mData;
+};
+
+// inferred: array allocated once with new[] {size, data} (names invented)
+template <class T>
+class Buffer_unk {
+public:
+    Buffer_unk() : mSize(0), mData(0) {}
+    ~Buffer_unk() {
+        if (mData != 0) {
+            delete[] mData;
+        }
+        mData = 0;
+        mSize = 0;
+    }
+    void Alloc(int n) {
+        if (mData != 0) {
+            delete[] mData;
+        }
+        mSize = n;
+        if (mSize > 0) {
+            mData = new (1, "", "", 0) T[mSize];
+        } else {
+            mData = 0;
+        }
+        memset(mData, 0, mSize * sizeof(T));
+    }
+    T& operator[](int i) { return mData[i]; }
+
+    int mSize;
+    T* mData;
+};
+
+} // namespace atn
+
+#endif

@@ -36,7 +36,6 @@ extern "C" int lbl_8087FA20;
 extern "C" void* lbl_8087EEB0; // inferred: debug font
 extern "C" void fn_800616C0(void* font, float x, float y, float z, float w, float h, float f6, const char* text,
                             int color, int arg6, int arg7, int arg8); // inferred: debug text
-extern "C" void* fn_8008937C(void* menu, const char* name);         // inferred: debug menu group
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -44,7 +43,6 @@ extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, 
 extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" char lbl_8087D708[3]; // " \t"
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 #define __MIN_unk(a, b) ((a) < (b) ? (a) : (b))
@@ -600,8 +598,8 @@ void GimmickCommon::vf6C(void* menu) {
     char name[0x20];
     fn_803EC758(name);
     void* group;
-    if (mF0.mGroup == 0 && menu != 0 && lbl_8087EF10 != 0) {
-        group = mF0.mGroup = fn_8008937C(menu, name);
+    if (mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        group = mF0.mRes = fn_8008937C(menu, name);
     } else {
         group = 0;
     }
@@ -645,7 +643,6 @@ void GimmickCommon::fn_803EDB18(Model_unk* model) {
                 GimmickUvEntry_unk* e = &mAC->mEntries[i];
                 if (e->mName != 0 && strlen(e->mName) != 0) {
                     atn::Csv csv(e->mName, strlen(e->mName));
-                    csv.fn_8005BCE8(lbl_8087D708);
                     if (strstr(model->fn_8008B130(), csv.fn_8005B9CC()) != 0) {
                         atn::Vector2_unk uv(-1.0f * e->m04 / e->m0C, 1.0f - (e->m08 + e->m0C) / e->m0C);
                         model->fn_800954DC(mA8, uv, e->m0C);
