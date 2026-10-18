@@ -883,7 +883,7 @@
   "classes": [
    "atn::D2A_Reference"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D2A_Task.cpp",
