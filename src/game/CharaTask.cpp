@@ -386,8 +386,8 @@ void Effect_unk::fn_8013A19C(int value) {
     m3E39C = value;
 }
 
-// NONMATCHING: 71.9% - the bad_function_call throw of boost::function::operator() needs MSL's
-// std::runtime_error (reference-counted message, see docs/msl_cpp.md); the shim one differs.
+// NONMATCHING: 99.9% - same instructions; only the .data offsets of its two member-pointer
+// constants differ until the functions before it are written.
 void CharaTask::fn_8013A258() {
     if (mControl) {
         if (mControl->vf0C()) {

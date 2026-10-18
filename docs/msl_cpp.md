@@ -19,7 +19,21 @@ Inline accessors emitted as weak functions show the layout (same as libc++ on bi
 - short mode: `byte0 = size` (bit 7 clear), characters from the first aligned slot after it
 
 `std::runtime_error` (used by `boost::bad_function_call`) does not use `basic_string`: it holds a
-reference-counted buffer (control block with vtable `lbl_80775B98`, `use_count`, `weak_count`, pointer).
+`std::tr1::shared_ptr<char>` to a `new char[]` copy of the message. Reconstructed in
+`include/std/stdexcept.h` (used by the Boost shim): the inlined throw in
+`boost::function0::operator()` (CharaTask::fn_8013A258, 0x8013A380) compiles to the same
+instructions. Details that matter:
+- `shared_ptr(Y* p, D d)` keeps `p` in a holder object while the control block is allocated
+  (`new` of 0x10 bytes: vtable, use count 1, weak count 1, pointer); the holder's destructor
+  survives as dead code (`b`; `bl __dla`) after `release()`.
+- The pointer and the control block live in a base class with the destructor: the destructor of
+  `runtime_error` tests the member address twice (`addic.; beq; beq`) before `release()`
+  (0x806952C4, out of line).
+- `new char[strlen(s) + 1]` gives `slwi; subf` (n * 2 - n) before `__nwa__FUl` (0x80084A78).
+- The deleter (`std::detail::default_delete<char[]>`, empty) shares the address of the pointer
+  (`get_deleter` returns `this + 0xC`, 0x8001A34C); `dispose` is `delete[] p` (0x8001A39C).
+- The message of `bad_function_call` is an `@STRING@` pool of its inline constructor (in `.data`,
+  0x80775BC8).
 
 ## std::vector (12 bytes)
 

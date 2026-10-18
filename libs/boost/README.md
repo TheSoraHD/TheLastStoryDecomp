@@ -19,6 +19,9 @@ changed.
   ...): tag `boost-1.35.0` of `boostorg/tokenizer`, `iterator`, `mpl`, `type_traits`, `utility`,
   `detail`, `static_assert`, `conversion` (1.34.1 differs only in comments and in `at_end()`, which the
   game does not use).
+- `boost/scoped_ptr.hpp` and `boost/checked_delete.hpp`: tag `boost-1.35.0` of `boostorg/smart_ptr`
+  and `boostorg/utility` (CharaTask::mControl; the `__MWERKS__` safe-bool branch uses a member
+  function pointer to `get()`, 0x8013A1A8).
 - Everything else: tag `boost-1.35.0`.
 
 ## boost::tokenizer
