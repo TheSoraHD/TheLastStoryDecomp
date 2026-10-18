@@ -7,18 +7,18 @@
 
 namespace Event {
 
-// inferred: returns 1 (li r3, 0x1)
-int StringData::vf10() { return 1; }
+void DummyData::vf08() {}
 
-void StringData::vf0C() {}
-
-void StringData::vf08() {}
+void DummyData::vf0C() {}
 
 // inferred: returns 1 (li r3, 0x1)
 int DummyData::vf10() { return 1; }
 
-void DummyData::vf0C() {}
+void StringData::vf08() {}
 
-void DummyData::vf08() {}
+void StringData::vf0C() {}
+
+// inferred: returns 1 (li r3, 0x1)
+int StringData::vf10() { return 1; }
 
 } // namespace Event

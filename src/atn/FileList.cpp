@@ -6,14 +6,14 @@
 
 namespace atn {
 
-FileList::FileList() {
-    m04 = 0;
-    mEntries.__shrink_unk(0); // inferred: some vector call that destroys the (zero) elements
-}
-
 FileList::~FileList() {
     m04 = 0;
     mEntries.clear();
+}
+
+FileList::FileList() {
+    m04 = 0;
+    mEntries.__shrink_unk(0); // inferred: some vector call that destroys the (zero) elements
 }
 
 } // namespace atn

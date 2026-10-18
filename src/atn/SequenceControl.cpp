@@ -3,19 +3,16 @@
 
 namespace atn {
 
-SequenceControl* SequenceControl::fn_800C3610(Task* parent, void* table) {
-    if (sInstance == 0) {
-        return new (1, "", "", 0) SequenceControl(parent, table);
+void SequenceControl::vf18(Task* child) {
+    if (mCurrent == child) {
+        mCurrent = 0;
     }
-    return sInstance;
 }
 
-SequenceControl::~SequenceControl() {
-    sInstance = 0;
-}
+void SequenceControl::vf14() {}
 
-int SequenceControl::vf0C() {
-    return 1;
+int SequenceControl::fn_800C37D8() {
+    return 0;
 }
 
 void SequenceControl::vf10() {
@@ -38,16 +35,19 @@ void SequenceControl::vf10() {
     }
 }
 
-int SequenceControl::fn_800C37D8() {
-    return 0;
+int SequenceControl::vf0C() {
+    return 1;
 }
 
-void SequenceControl::vf14() {}
+SequenceControl::~SequenceControl() {
+    sInstance = 0;
+}
 
-void SequenceControl::vf18(Task* child) {
-    if (mCurrent == child) {
-        mCurrent = 0;
+SequenceControl* SequenceControl::fn_800C3610(Task* parent, void* table) {
+    if (sInstance == 0) {
+        return new (1, "", "", 0) SequenceControl(parent, table);
     }
+    return sInstance;
 }
 
 } // namespace atn

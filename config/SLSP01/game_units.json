@@ -2149,7 +2149,7 @@
   "classes": [
    "MapPartsColliTree"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsEfp.cpp",

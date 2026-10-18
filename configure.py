@@ -259,6 +259,11 @@ cflags_game = [
     "-func_align 4",
     "-use_lmw_stmw on",     # game code uses stmw/lmw (seen at 0x80496430); _savegpr still appears per function
 ]
+# The units at 0x8068B60C-0x8069512C were matched with these flags before -inline deferred
+cflags_game_nodefer = list(cflags_game)
+# Game code is compiled with deferred inlining: functions are emitted in reverse source order and
+# can inline functions defined later in the file (needed by MapPartsColliTree at 0x80496420).
+cflags_game = [("-inline auto,deferred" if f == "-inline auto" else f) for f in cflags_game]
 
 config.linker_version = "GC/1.3.2"
 
@@ -321,6 +326,20 @@ config.libs.append({
     "objects": [
         Object(NonMatching, "Arms.cpp"),
         Object(NonMatching, "auto_03_803B27AC_text.cpp"),
+        Object(NonMatching, "auto_fn_801F1EA0_text.cpp"),
+        Object(NonMatching, "auto_fn_8030DA1C_text.cpp"),
+        # inferido: TU de las clases atn::Colli* (vtables contiguas en .data, nombre por orden alfabético)
+        Object(NonMatching, "atn/atn_colli.cpp"),
+    ],
+})
+
+
+config.libs.append({
+    "lib": "game_nodefer",
+    "mw_version": "Wii/1.1",
+    "cflags": cflags_game_nodefer,
+    "progress_category": "game",
+    "objects": [
         Object(Matching, "auto_03_8068B60C_text.cpp"),
         Object(Matching, "auto_03_8068D7AC_text.cpp"),
         Object(Matching, "auto_03_8068DCF0_text.cpp"),
@@ -332,10 +351,6 @@ config.libs.append({
         Object(Matching, "auto_03_80692BFC_text.cpp"),
         Object(Matching, "auto_03_806929FC_text.cpp"),
         Object(Matching, "auto_03_8069512C_text.cpp"),
-        Object(NonMatching, "auto_fn_801F1EA0_text.cpp"),
-        Object(NonMatching, "auto_fn_8030DA1C_text.cpp"),
-        # inferido: TU de las clases atn::Colli* (vtables contiguas en .data, nombre por orden alfabético)
-        Object(NonMatching, "atn/atn_colli.cpp"),
     ],
 })
 

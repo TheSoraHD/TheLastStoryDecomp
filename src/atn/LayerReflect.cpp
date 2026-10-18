@@ -32,19 +32,6 @@ inline GXColor fn_ToGXColor(unsigned int argb) {
     return color;
 }
 
-LayerReflect::LayerReflect() : Layer3D("Reflect", 3, -27) {
-    mTexture.fn_800D5B58(lbl_8087EEE0->mWidth / 2, lbl_8087EEE0->mHeight / 2, 4, 0, "ReflectionTexture");
-    GXInitTexObjLOD(&mTexture.mObj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-}
-
-void LayerReflect::vf1C() {
-    RenderMgr_unk* mgr = lbl_8087EEE0;
-    Layer3D::vf1C();
-    int h = GXGetTexObjHeight(&mTexture.mObj);
-    int w = GXGetTexObjWidth(&mTexture.mObj);
-    fn_80075F58(mgr, 0, 0, w, h);
-}
-
 void LayerReflect::vf20() {
     RenderMgr_unk* mgr = lbl_8087EEE0;
     int w = GXGetTexObjWidth(&mTexture.mObj);
@@ -65,6 +52,19 @@ void LayerReflect::vf20() {
         fn_8005DFC8(lbl_8087EEB0, -1, &mTexture, 0, 32.0f, (float)(height - height / 4) - 16.0f, 0.0f,
                     (float)m->mWidth / 4.0f, (float)height / 4.0f);
     }
+}
+
+void LayerReflect::vf1C() {
+    RenderMgr_unk* mgr = lbl_8087EEE0;
+    Layer3D::vf1C();
+    int h = GXGetTexObjHeight(&mTexture.mObj);
+    int w = GXGetTexObjWidth(&mTexture.mObj);
+    fn_80075F58(mgr, 0, 0, w, h);
+}
+
+LayerReflect::LayerReflect() : Layer3D("Reflect", 3, -27) {
+    mTexture.fn_800D5B58(lbl_8087EEE0->mWidth / 2, lbl_8087EEE0->mHeight / 2, 4, 0, "ReflectionTexture");
+    GXInitTexObjLOD(&mTexture.mObj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
 }
 
 } // namespace atn

@@ -6,22 +6,22 @@
 
 namespace Event {
 
-PostSequence::~PostSequence() {
-    sInstance = 0;
-}
+int SequenceRoot::vf0C() { return 1; }
 
-void PostSequence::vf14() {}
+void SequenceRoot::vf10() {}
 
-int PostSequence::vf0C() { return 1; }
+void SequenceRoot::vf14() {}
 
 SequenceRoot::~SequenceRoot() {
     sInstance = 0;
 }
 
-void SequenceRoot::vf14() {}
+int PostSequence::vf0C() { return 1; }
 
-void SequenceRoot::vf10() {}
+void PostSequence::vf14() {}
 
-int SequenceRoot::vf0C() { return 1; }
+PostSequence::~PostSequence() {
+    sInstance = 0;
+}
 
 } // namespace Event

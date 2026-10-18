@@ -6,11 +6,21 @@ extern "C" int atoi(const char* str);
 extern "C" double strtod(const char* str);
 extern "C" const char* fn_8005B9CC(void* data); // inferred: returns the next CSV field
 
-MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, void* data) {
-    if (parent != 0) {
-        return new (12, "", "", 0) MapPartsFlare(parent, arg, data);
+void MapPartsFlare::vf14() {}
+
+void MapPartsFlare::vf10() {
+    mFlare->fn_80077534();
+}
+
+int MapPartsFlare::vf0C() {
+    if (mFlare->fn_800774D4()) {
+        return 0;
     }
-    return 0;
+    return fn_800D3FA4();
+}
+
+MapPartsFlare::~MapPartsFlare() {
+    delete mFlare;
 }
 
 // NONMATCHING: 99.7% - the loop increments of i and the element offset are scheduled in the
@@ -30,19 +40,9 @@ MapPartsFlare::MapPartsFlare(atn::Task* parent, void* arg, void* data) : MapPart
     }
 }
 
-MapPartsFlare::~MapPartsFlare() {
-    delete mFlare;
-}
-
-int MapPartsFlare::vf0C() {
-    if (mFlare->fn_800774D4()) {
-        return 0;
+MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, void* data) {
+    if (parent != 0) {
+        return new (12, "", "", 0) MapPartsFlare(parent, arg, data);
     }
-    return fn_800D3FA4();
+    return 0;
 }
-
-void MapPartsFlare::vf10() {
-    mFlare->fn_80077534();
-}
-
-void MapPartsFlare::vf14() {}

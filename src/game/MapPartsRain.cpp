@@ -20,11 +20,28 @@ struct Csv_unk {
     char mField[1];
 };
 
-MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, void* data) {
-    if (parent != 0) {
-        return new (12, "", "", 0) MapPartsRain(parent, arg, data);
+void MapPartsRain::vf14() {
+    if (mOn != 0) {
+        mRain.fn_800B1C1C();
     }
-    return 0;
+}
+
+void MapPartsRain::vf10() {
+    if (mOn != 0) {
+        mRain.fn_800B2D2C();
+    }
+}
+
+int MapPartsRain::vf0C() {
+    return 1;
+}
+
+void MapPartsRain::vf1C() {
+    mRain.fn_800B23C8();
+}
+
+void MapPartsRain::fn_8049D1A4(MapPartsRain* a, MapPartsRain* b) {
+    mRain.fn_800B28F8(&a->mRain, &b->mRain);
 }
 
 // NONMATCHING: 99.97% - in `mBox = Box_unk(a, b)` the original addresses the temporary's second
@@ -78,26 +95,9 @@ MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, void* data)
     } while (field != 0 && strcmp("", field) != 0);
 }
 
-void MapPartsRain::fn_8049D1A4(MapPartsRain* a, MapPartsRain* b) {
-    mRain.fn_800B28F8(&a->mRain, &b->mRain);
-}
-
-void MapPartsRain::vf1C() {
-    mRain.fn_800B23C8();
-}
-
-int MapPartsRain::vf0C() {
-    return 1;
-}
-
-void MapPartsRain::vf10() {
-    if (mOn != 0) {
-        mRain.fn_800B2D2C();
+MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, void* data) {
+    if (parent != 0) {
+        return new (12, "", "", 0) MapPartsRain(parent, arg, data);
     }
-}
-
-void MapPartsRain::vf14() {
-    if (mOn != 0) {
-        mRain.fn_800B1C1C();
-    }
+    return 0;
 }

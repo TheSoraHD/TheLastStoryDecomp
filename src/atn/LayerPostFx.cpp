@@ -30,15 +30,13 @@ extern "C" void fn_800C0590(void*, int, int);
 
 namespace atn {
 
-LayerPostFx::LayerPostFx() : IRenderLayer("PostFX") {}
+LayerPostFx::~LayerPostFx() {}
 
-void LayerPostFx::vf14(void* arg) {
-    void* p = lbl_8087EFB4;
-    for (RenderNode* node = (RenderNode*)arg; node != 0; node = node->mNext) {
-        fn_800A9788(lbl_8087EF8C);
-        node->mObj->vf10(p);
-        fn_800A9794(lbl_8087EF8C);
-    }
+void LayerPostFx::vf10() {}
+
+void LayerPostFx::vf20() {
+    lbl_8087EEE0->m58 = mSaved;
+    fn_80076174(lbl_8087EEE0, 1);
 }
 
 void LayerPostFx::vf1C() {
@@ -52,13 +50,15 @@ void LayerPostFx::vf1C() {
     fn_800C0590(lbl_8087EFB4, 0, 0x13);
 }
 
-void LayerPostFx::vf20() {
-    lbl_8087EEE0->m58 = mSaved;
-    fn_80076174(lbl_8087EEE0, 1);
+void LayerPostFx::vf14(void* arg) {
+    void* p = lbl_8087EFB4;
+    for (RenderNode* node = (RenderNode*)arg; node != 0; node = node->mNext) {
+        fn_800A9788(lbl_8087EF8C);
+        node->mObj->vf10(p);
+        fn_800A9794(lbl_8087EF8C);
+    }
 }
 
-void LayerPostFx::vf10() {}
-
-LayerPostFx::~LayerPostFx() {}
+LayerPostFx::LayerPostFx() : IRenderLayer("PostFX") {}
 
 } // namespace atn

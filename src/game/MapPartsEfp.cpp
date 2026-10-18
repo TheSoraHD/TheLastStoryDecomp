@@ -23,30 +23,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int id,
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg);
 
-MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, void* arg, void* data) {
-    if (parent != 0) {
-        return new (12, "", "", 0) MapPartsEfp(parent, arg, data);
-    }
-    return 0;
-}
-
-MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, void* data)
-    : MapPartsBase(parent, arg), m5C(0), mMode(0), mRate(0), mDone(0) {
-    mEfp.fn_8023780C(fn_8005B9CC(data));
-    const char* mode = fn_8005B9CC(data);
-    if (strcmp(mode, "ONCE") == 0) {
-        mMode = 0;
-    } else if (strcmp(mode, "RANDOM") == 0) {
-        mMode = 1;
-        mRate = (1 > atoi(fn_8005B9CC(data))) ? 1 : atoi(fn_8005B9CC(data));
-    } else if (strcmp(mode, "LOOP") == 0) {
-        mMode = 2;
-    }
-}
-
-int MapPartsEfp::vf0C() {
-    return mEfp.fn_80237874() == 0;
-}
+void MapPartsEfp::vf14() {}
 
 // NONMATCHING: 98.6% - stores and stack layout match, but the 0.0f/1.0f constants land in
 // swapped FPRs (target: 1.0f in f1). Tried: argument temporaries, default arguments, named locals
@@ -119,4 +96,27 @@ void MapPartsEfp::vf10() {
     }
 }
 
-void MapPartsEfp::vf14() {}
+int MapPartsEfp::vf0C() {
+    return mEfp.fn_80237874() == 0;
+}
+
+MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, void* data)
+    : MapPartsBase(parent, arg), m5C(0), mMode(0), mRate(0), mDone(0) {
+    mEfp.fn_8023780C(fn_8005B9CC(data));
+    const char* mode = fn_8005B9CC(data);
+    if (strcmp(mode, "ONCE") == 0) {
+        mMode = 0;
+    } else if (strcmp(mode, "RANDOM") == 0) {
+        mMode = 1;
+        mRate = (1 > atoi(fn_8005B9CC(data))) ? 1 : atoi(fn_8005B9CC(data));
+    } else if (strcmp(mode, "LOOP") == 0) {
+        mMode = 2;
+    }
+}
+
+MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, void* arg, void* data) {
+    if (parent != 0) {
+        return new (12, "", "", 0) MapPartsEfp(parent, arg, data);
+    }
+    return 0;
+}
