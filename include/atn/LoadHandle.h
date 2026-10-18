@@ -12,8 +12,7 @@ public:
 
     int fn_80473F50(); // inferred: nonzero while busy/not loaded
 
-    void* m04;
-    void* mCallback; // 0x08: set by derived loaders
+    void* mCore; // 0x04: inferred: atn::LoadCore* of the pending/loaded resource
 };
 
 } // namespace atn

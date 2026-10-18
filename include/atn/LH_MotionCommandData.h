@@ -14,6 +14,8 @@ public:
     virtual void vf0C(const char* path); // 0x80476A74
 
     void* fn_80476CE4(); // inferred: returns the loaded data
+
+    void* mCallback; // 0x08
 };
 
 } // namespace atn
