@@ -3,6 +3,8 @@
 
 #include "math/Vec.h"
 
+extern "C" void* memset(void* dst, int c, unsigned long n);
+
 namespace chr {
 class Chara_unk;
 }
@@ -208,16 +210,88 @@ public:
     CharaStatusBase(); // 0x8012AE50
     virtual ~CharaStatusBase() {} // weak copy 0x8012AFE8
 
-    unsigned char m04[0x28 - 0x04];
+    unsigned char m04[0x0C - 0x04];
+    unsigned int m0C; // inferred: flags
+    unsigned int m10; // inferred: flags (set together with m0C by fn_8013310C)
+    unsigned char m14[0x28 - 0x14];
     CharaParam_unk mParamA;    // 0x28
     CharaParam_unk mParamB;    // 0xE8
-    unsigned char m1A8[0x7C];  // inferred: cleared with memset
+    unsigned char m1A8[0x7C];  // inferred: cleared with memset; 0x1AC is read by fn_8012B028
     unsigned char m224[0x240 - 0x224];
 };
 
+// inferred: 8-byte block cleared by its constructor (four of them in CharaStatus); name invented
+struct CharaStatusPair_unk {
+    CharaStatusPair_unk() { memset(this, 0, sizeof(*this)); }
+    int m00;
+    int m04;
+};
+
+// inferred: 20-byte entry of the first table in CharaStatus (id at 0, value at 4, sub id at 8)
+struct CharaStatusEntry_unk {
+    CharaStatusEntry_unk() : mId(0), mValue(0), mSub(0), m0C(0), m10(0) {}
+    int mId;
+    int mValue;
+    int mSub;
+    int m0C;
+    int m10;
+};
+
+// inferred: 20-byte entry of the second table; points to an entry of the first kind
+struct CharaStatusRef_unk {
+    CharaStatusRef_unk() : mEntry(0), m04(0), m08(0), m0C(-1), m10(0) {}
+    CharaStatusEntry_unk* mEntry;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+};
+
+// Embedded in CharaTask at 0x7D4 (callers pass CharaTask + 2004).
 class CharaStatus : public CharaStatusBase {
 public:
+    CharaStatus(); // 0x8012B0B0
     virtual ~CharaStatus(); // 0x8012B3A8
+
+    int fn_8012B028(); // inferred: experience still needed for the next level
+    int fn_8012E534();
+    int fn_8012F3D8();
+    void fn_8013310C(unsigned int flags, int both);
+    int fn_801333A4(unsigned int mask);
+    CharaStatusEntry_unk* fn_80133EE8(int id);
+    int fn_80133F18(int id, int sub);
+    int fn_80133F6C(int id, int sub);
+    CharaStatusRef_unk* fn_80134134(int id);
+    int fn_80134168(int id, int sub);
+    int fn_801341B8(int id, int sub);
+    bool fn_80134208();
+    bool fn_80134234();
+    bool fn_80134250();
+    bool fn_80134270();
+    bool fn_80134290();
+    bool fn_801342B0();
+
+    int m240;
+    unsigned char m244[0x248 - 0x244];
+    int m248;
+    int m24C[32]; // inferred: one value per flag bit (fn_801333A4)
+    int m2CC;
+    CharaStatusPair_unk m2D0[4];
+    chr::Chara_unk* mChara; // 0x2F0
+    float m2F4;
+    float m2F8;
+    float m2FC;
+    int m300;
+    unsigned int mNumEntries; // 0x304
+    CharaStatusEntry_unk mEntries[6]; // 0x308
+    unsigned int mNumRefs; // 0x380
+    CharaStatusRef_unk mRefs[8]; // 0x384
+    unsigned char m424[0x428 - 0x424];
+    float m428;
+    float m42C; // inferred: compared with 0, 3 and 5 by fn_8012F3D8
+    int m430;
+    float m434;
+    float m438;
 };
 
 #endif

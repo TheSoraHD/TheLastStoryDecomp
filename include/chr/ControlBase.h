@@ -8,6 +8,14 @@ struct Model_unk;
 
 namespace chr {
 
+// inferred: data block pointed to by Chara_unk::m5C (name and layout unknown)
+struct CharaData_unk {
+    unsigned char m000[0x11C];
+    int m11C;
+    unsigned char m120[0x122 - 0x120];
+    signed char m122;
+};
+
 // inferred: motion controller embedded in the character at +0xB0 (class name unknown)
 class Motion_unk {
 public:
@@ -88,7 +96,9 @@ public:
     unsigned int m38; // inferred: flags (bit 0 and bit 2 tested by IsActive_unk)
     unsigned char m03C[0x48 - 0x3C];
     int m48;
-    unsigned char m04C[0xB0 - 0x4C];
+    unsigned char m04C[0x5C - 0x4C];
+    CharaData_unk* m5C; // inferred: character data (read by CharaStatus)
+    unsigned char m060[0xB0 - 0x60];
     Motion_unk mMotion; // 0xB0
     unsigned char m400[0x524 - 0x400];
     int m524; // inferred: index into Motion_unk::m220
@@ -138,7 +148,9 @@ public:
     unsigned char m120C[0x12A4 - 0x120C];
     // 0x12A4: flag word (bitfields, MSB first)
     unsigned int mFlag31 : 1;
-    unsigned int mFlag30_7 : 24;
+    unsigned int mFlag30_29 : 2;
+    unsigned int mFlag28 : 1; // inferred: tested by CharaStatus::fn_8012F3D8
+    unsigned int mFlag27_7 : 21;
     unsigned int mFlag6 : 1;
     unsigned int mFlag5 : 1;
     unsigned int mFlag4_0 : 5;
