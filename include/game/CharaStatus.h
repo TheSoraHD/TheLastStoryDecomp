@@ -339,6 +339,7 @@ public:
     void fn_8012C6D4(CharaParam_unk* param, int level, int arg, int arg2);
     void fn_8012D180();
     void fn_8012CE4C(int kind);
+    int fn_80133BD8(int force); // inferred: level of the character
     void ClearBit_unk(int bit);
     int fn_8012E534();
     int fn_8012F3D8();

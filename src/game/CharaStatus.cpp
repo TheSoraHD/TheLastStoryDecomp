@@ -31,7 +31,8 @@ extern "C" Settings_unk* lbl_8087F0A8;
 
 // inferred: field data (lbl_8087F430); names invented
 struct FieldInfo_unk {
-    unsigned char m00[0x58];
+    unsigned char m00[0x54];
+    int m54;
     int m58; // inferred: level of the field
 };
 struct StatusField_unk {
@@ -647,6 +648,64 @@ void CharaStatus::fn_80133E24(int id, int sub) {
             it++;
         }
     }
+}
+
+// inferred: fixed levels for some kinds of character (0x80737288); names invented
+struct FixedLevel_unk {
+    int mKind;
+    int mLevelA;
+    int mLevelB;
+};
+static const FixedLevel_unk sFixedLevels[15] = {
+    {0x31475, 30, 70}, {0x31472, 35, 75}, {0x31476, 40, 80}, {0x315DF, 30, 70}, {0x315E0, 35, 75},
+    {0x315E1, 40, 80}, {0x31642, 40, 80}, {0x328FD, 40, 80}, {0x328FE, 35, 75}, {0xAAEC8, 20, 20},
+    {0xAAEC5, 38, 38}, {0xAAEC7, 65, 65}, {0xAAEC6, 77, 77}, {0xAAEC4, 99, 99}, {0xAAECB, 90, 90},
+};
+
+inline const FixedLevel_unk* FindFixedLevel_unk(int kind) {
+    for (int i = 0; i < 15; i++) {
+        if (kind == sFixedLevels[i].mKind) {
+            return &sFixedLevels[i];
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.6% - only the first load (mParamB.m78) is scheduled later than in the original, which
+// loads it before saving the arguments. Tried: a field local, a param pointer, other conditions.
+int CharaStatus::fn_80133BD8(int force) {
+    int level = mParamB.m78;
+    if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {
+        level = lbl_8087F430->m10D4->m54;
+        level += mParamB.m7C;
+        level += fn_80375B78(lbl_8087F430, 1);
+    }
+    if (fn_8020FCE8(mChara->m5C->mC8)) {
+        if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
+            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
+        } else {
+            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+        }
+    }
+    level += (int)m1A8.m08;
+    if (lbl_8087F610 == 0 || force != 0) {
+        const FixedLevel_unk* fixed = FindFixedLevel_unk(mChara->m50);
+        if (fixed != 0) {
+            if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
+                level = fixed->mLevelA;
+            } else {
+                level = fixed->mLevelB;
+            }
+        }
+    }
+    if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
+        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
+            level = MIN(69, MAX(1, level));
+        } else {
+            level = MIN(999, MAX(1, level));
+        }
+    }
+    return MAX(1, level);
 }
 
 CharaStatusEntry_unk* CharaStatus::fn_80133EE8(int id) {
