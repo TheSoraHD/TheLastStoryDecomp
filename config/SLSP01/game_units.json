@@ -478,7 +478,7 @@
   "classes": [
    "CharaSub_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/ChaserGuard.cpp",

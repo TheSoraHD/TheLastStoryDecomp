@@ -19,6 +19,17 @@ inline void __VecCopy(register float* dst, register const float* src) {
     }
 }
 
+// inferred: the same copy with z loaded first. Some functions use this order (0x80135284, and
+// about 60 more in the game), so the original had a second copy helper; its name is unknown.
+inline void __VecCopyZFirst(register float* dst, register const float* src) {
+    asm {
+        lfs fp2, 8(src)
+        psq_l fp1, 0(src), 0, 0
+        psq_st fp1, 0(dst), 0, 0
+        stfs fp2, 8(dst)
+    }
+}
+
 // inferred: 2D vector copy with one paired-single load/store (0x803EDCAC)
 inline void __Vec2Copy(register float* dst, register const float* src) {
     asm {
@@ -75,6 +86,10 @@ public:
     Vector3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
     Vector3(const Vector3& v) {
         __VecCopy(&x, &v.x);
+    }
+    // inferred: name invented; copy with z loaded first (see __VecCopyZFirst)
+    void Assign_unk(const Vector3& v) {
+        __VecCopyZFirst(&x, &v.x);
     }
     Vector3& operator=(const Vector3& v) {
         __VecCopy(&x, &v.x);
