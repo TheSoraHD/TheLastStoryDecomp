@@ -24,7 +24,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf1C();
+    virtual void vf1C(void* menu);
 
     // inferred: factory used by the map parts loader
     static MapPartsRain* fn_8049CDBC(atn::Task* parent, void* arg, void* data);

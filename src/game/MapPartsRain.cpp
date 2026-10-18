@@ -38,7 +38,7 @@ int MapPartsRain::vf0C() {
 
 MapPartsRain::~MapPartsRain() {}
 
-void MapPartsRain::vf1C() {
+void MapPartsRain::vf1C(void* menu) {
     mRain.fn_800B23C8();
 }
 
