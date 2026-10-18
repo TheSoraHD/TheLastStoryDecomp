@@ -14,8 +14,8 @@ namespace std {
 // 0x80069BF4 (char). NONMATCHING (standalone compile, 40 differing lines of 85): the original
 // spills n to the highest stack slot and copies it before the second __min (as if passed to an
 // inner function); ours spills it to the lowest slot.
-template <class T>
-basic_string<T>::basic_string(const basic_string& str, size_type pos, size_type n) {
+template <class T, class Tr, class A>
+basic_string<T, Tr, A>::basic_string(const basic_string& str, size_type pos, size_type n) {
     mLong.mCap = 0;
     mLong.mSize = 0;
     mLong.mData = 0;
@@ -38,8 +38,8 @@ basic_string<T>::basic_string(const basic_string& str, size_type pos, size_type 
     __replace_unk(0, 0, p, p + rlen, random_access_iterator_tag());
 }
 
-template <class T>
-void basic_string<T>::reserve(size_type res_arg) {
+template <class T, class Tr, class A>
+void basic_string<T, Tr, A>::reserve(size_type res_arg) {
     if (res_arg > max_size()) {
         __msl_error("basic_string::reserve length_error");
     }
@@ -93,9 +93,9 @@ void basic_string<T>::reserve(size_type res_arg) {
     }
 }
 
-template <class T>
+template <class T, class Tr, class A>
 template <class Tag>
-basic_string<T>& basic_string<T>::__replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag) {
+basic_string<T, Tr, A>& basic_string<T, Tr, A>::__replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag) {
     bool was_long = mFlags.mIsLong;
     size_type new_sz;
     T* p;

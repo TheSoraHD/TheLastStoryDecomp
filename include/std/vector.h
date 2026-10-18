@@ -106,6 +106,10 @@ template <class T>
 class vector : public __vec_imp_unk<T> {
 public:
     typedef unsigned int size_type;
+    vector() {}
+    // declared only (boost::offset_separator, never used by the game)
+    vector(size_type n, const T& value);
+    template <class Iterator> vector(Iterator first, Iterator last);
     ~vector() {}
 
     size_type max_size() const { return 0x3FFFFFFF; }

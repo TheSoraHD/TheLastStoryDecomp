@@ -120,3 +120,30 @@ Open problem (also in `EquipItemData` at 0x80363284): while the string is constr
 `mr r3, r29`); our compiles always recompute it (`addi r3, r1, 0x2c`). Not changed by compiler
 version (Wii/1.0-1.7), `-inline`/`-ipa` modes, `-O` levels, base classes, member subobjects,
 temporaries or helper functions.
+
+## Template parameters and members added for boost::tokenizer
+
+`basic_string` now has the standard parameters `<T, char_traits<T>, allocator<T> >` (mangled
+`basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>`; the symbols were renamed, the binary
+does not change). Checked against the tokenizer weak copies (see `libs/boost/README.md`):
+
+- the iterators are a class holding a pointer (`__string_iterator_unk`, name invented):
+  `tokenizer::begin` (0x800EC654) passes them by address to the token_iterator constructor;
+- copy constructor: a short string is copied as a 3-word block (0x800EC7F0 stores word 1 before
+  word 0), a long one with `reserve` and the range replace;
+- `end()`, `find(c, pos)` and `compare` take data and size from one test; the short data pointer
+  is `(const T*)this + 1` (with `mShort.mData` the address is not hoisted out of the find loop);
+- `find` compares `c == *q` over `[p + pos, p + sz)`;
+- `assign(first, last)` evaluates `size()` and calls an inline `replace(0, n, first, last)`, which
+  creates the iterator tag as a named local.
+
+## Why game functions call small inline members out of line
+
+With `-ipa file`, once the code inlined into a function exceeds a threshold, MWCC (all Wii versions
+tested, 1.0-1.7) inlines nothing into that function: in a test, five calls to an inline function of
+40 statements before an `atn::Csv` constructor leave every call out of line, even a one-statement
+inline function. The `inline_*` pragmas do not change it. This explains the out-of-line calls to
+`size()`, `~basic_string`, the `atn::Csv` constructor (0x8004203C, called by large functions and
+inlined by small ones in the same file, e.g. game/Em203GreaterDaemonRed.cpp) and the tokenizer.
+LoadSeTableTask::vf0C (0x803EEEDC) still inlines a few small members (string constructor and
+destructor, iterator comparison), so the rule is not the whole story yet.

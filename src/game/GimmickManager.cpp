@@ -7,6 +7,7 @@
 #include "std/string_members.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/tokenizer.hpp>
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -20,37 +21,6 @@ extern "C" int fn_8017CB2C(GimmickQuery_unk* query);
 extern "C" int fn_8049D5DC(char* name, int a, int b, int c); // inferred: name of a map
 extern "C" int fn_8006AA20(const char* path);                // inferred: the file exists
 
-// inferred: boost::char_separator<char>, boost::tokenizer<boost::char_separator<char> > and its
-// token_iterator, as used by LoadSeTableTask::vf0C (0x803EEEDC). Their members are called out of
-// line (weak copies in other files), so they are modelled with their layout only.
-struct CharSeparator_unk {
-    unsigned char m00[0x24]; // kept and dropped delimiters (std::string), flags
-};
-extern "C" void fn_800EC440(CharSeparator_unk* sep, const char* dropped, const char* kept, int emptyTokens);
-extern "C" void fn_800EC534(CharSeparator_unk* sep, int del); // destructor
-struct Tokenizer_unk {
-    const char* mFirst;
-    const char* mLast;
-    CharSeparator_unk mSep;
-};
-extern "C" void fn_800EC2C4(Tokenizer_unk* tok, const std::string* str, const CharSeparator_unk* sep);
-extern "C" void fn_800EC5BC(Tokenizer_unk* tok, int del); // destructor
-struct TokenIterator_unk {
-    // as boost::token_iterator::equal
-    bool equal(const TokenIterator_unk& a) const {
-        return (a.mValid && mValid) ? ((a.mBegin == mBegin) && (a.mEnd == mEnd)) : (a.mValid == mValid);
-    }
-    CharSeparator_unk mSep;
-    const char* mBegin; // 0x24
-    const char* mEnd;
-    bool mValid;          // 0x2C
-    unsigned char mTok[0xC]; // 0x30: current token (std::string)
-};
-extern "C" void fn_800EC654(TokenIterator_unk* out, Tokenizer_unk* tok);                  // begin()
-extern "C" void fn_800EDFE8(TokenIterator_unk* out, Tokenizer_unk* tok);                  // end()
-extern "C" void fn_80205BE8(TokenIterator_unk* out, TokenIterator_unk* it, int dummy);    // operator++(int)
-extern "C" void fn_800ED42C(TokenIterator_unk* it, int del);                              // destructor
-extern "C" int fn_8000EB8C(const void* str, const char* s); // inferred: std::string == const char*
 
 typedef boost::function<void(const gmk::SeTable&)> SeTableCallback_unk;
 
@@ -65,10 +35,10 @@ public:
         mLoader.vf0C(path);
     }
 
-    // NONMATCHING: 37% - the original calls the atn::Csv constructor (0x8004203C), the
-    // gmk::SeTable constructor (0x803EEB38) and boost::function::operator() (0x803EF3B0, not
-    // emitted here) out of line; this compile inlines them. The tokenizer is modelled with its
-    // layout only (see above); with the real boost::tokenizer the inlining may differ.
+    // NONMATCHING: the original calls the atn::Csv constructor (0x8004203C), the gmk::SeTable
+    // constructor (0x803EEB38), the tokenizer members and boost::function::operator() (0x803EF3B0,
+    // not emitted here) out of line, but inlines the std::string constructor/destructor and the
+    // iterator comparison; this compile inlines everything. See docs/msl_cpp.md (inline threshold).
     virtual int vf0C() {
         if (mLoader.fn_80473F50() != 0) {
             return 0;
@@ -102,47 +72,25 @@ public:
                 table.mVolume = fn_800DC288(csv.fn_8005B9CC());
                 table.mHash = fn_800DC6B4(csv.fn_8005B9CC());
                 std::string flags(csv.fn_8005B9CC());
-                Tokenizer_unk tok;
-                {
-                    CharSeparator_unk sep;
-                    fn_800EC440(&sep, ":", 0, 0);
-                    fn_800EC2C4(&tok, &flags, &sep);
-                    fn_800EC534(&sep, -1);
-                }
-                TokenIterator_unk it;
-                fn_800EC654(&it, &tok);
-                while (true) {
-                    int done;
-                    {
-                        TokenIterator_unk end;
-                        fn_800EDFE8(&end, &tok);
-                        done = it.equal(end);
-                        fn_800ED42C(&end, -1);
-                    }
-                    if (done) {
-                        break;
-                    }
-                    if (fn_8000EB8C(it.mTok, "2D")) {
+                typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+                Tokenizer tok(flags, boost::char_separator<char>(":"));
+                for (Tokenizer::iterator it = tok.begin(); it != tok.end(); it++) {
+                    if (*it == "2D") {
                         table.mFlags |= 1;
-                    } else if (fn_8000EB8C(it.mTok, "LOOP")) {
+                    } else if (*it == "LOOP") {
                         table.mFlags |= 2;
-                    } else if (fn_8000EB8C(it.mTok, "FADEIN")) {
+                    } else if (*it == "FADEIN") {
                         table.mFlags |= 4;
-                    } else if (fn_8000EB8C(it.mTok, "PITCHUP")) {
+                    } else if (*it == "PITCHUP") {
                         table.mFlags |= 8;
-                    } else if (fn_8000EB8C(it.mTok, "PITCHDOWN")) {
+                    } else if (*it == "PITCHDOWN") {
                         table.mFlags |= 0x10;
-                    } else if (fn_8000EB8C(it.mTok, "CONTINUE")) {
+                    } else if (*it == "CONTINUE") {
                         table.mFlags |= 0x20;
                     }
-                    TokenIterator_unk prev;
-                    fn_80205BE8(&prev, &it, 0);
-                    fn_800ED42C(&prev, -1);
                 }
-                fn_800ED42C(&it, -1);
                 table.m48 = atoi(csv.fn_8005B9CC());
                 mCallback(table);
-                fn_800EC5BC(&tok, -1);
             }
             mLoader.fn_80473F88();
             mDone = 1;
