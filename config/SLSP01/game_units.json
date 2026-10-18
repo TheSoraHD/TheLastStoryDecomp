@@ -452,6 +452,14 @@
   "matching": false
  },
  {
+  "name": "game/CharaStatus.cpp",
+  "classes": [
+   "CharaStatus",
+   "CharaStatusBase"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/ChaserGuard.cpp",
   "classes": [
    "ChaserGuard"
