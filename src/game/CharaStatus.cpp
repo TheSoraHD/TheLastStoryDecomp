@@ -166,11 +166,11 @@ extern "C" int fn_800185B4(Inventory2_unk* inventory, CharaTask* chara, int item
 extern "C" int lbl_8087F610;
 extern "C" int fn_80370174(StatusField_unk* field, int id);
 
-// NONMATCHING: 96.7% - the range check of `kind` is merged into cmplwi (original: cmpwi 0 / cmpwi 7 with
-// a branch over), and the loop that resets m2D0 walks a pointer instead of base + offset.
+// NONMATCHING: 97.5% - the loop that resets m2D0 walks a pointer (the original uses base + offset, with the
+// zero in the register of `set`). Tried: unsigned and shared counters, a helper, sizeof bound.
 void CharaStatus::fn_8012D180() {
     int kind = fn_80219558(mChara->m50);
-    if (kind < 0 || !(kind < 7)) {
+    if (kind < 0 || 7 <= kind) {
         return;
     }
     EquipSet_unk* set = fn_80219160(kind, mParamA.m78);
@@ -682,14 +682,8 @@ void CharaStatus::fn_80134674(int bit) {
     }
 }
 
-// NONMATCHING: 90.9% - our compiler merges the two range checks into one unsigned compare
-// (cmplwi 127); the original keeps cmpwi 0 / cmpwi 128 with a shared false block. Same problem as
-// fn_801347C8; separate ifs, nested ifs, goto, ternary and an inline range helper were tried.
 bool CharaStatus::fn_801346C8(int bit) {
-    if (bit < 0) {
-        return false;
-    }
-    if (bit >= 128) {
+    if (bit < 0 || 128 <= bit) {
         return false;
     }
     unsigned int mask = 1 << (bit % 32);
@@ -719,12 +713,9 @@ void CharaStatus::fn_80134774(int index, int on) {
     }
 }
 
-// NONMATCHING: 81.1% - range checks merged into cmplwi 3 (see fn_801346C8).
 bool CharaStatus::fn_801347C8(int index) {
-    if (index >= 0) {
-        if (index < 4) {
-            return (m230 & (1 << index)) == (1 << index);
-        }
+    if (0 <= index && index < 4) {
+        return (m230 & (1 << index)) == (1 << index);
     }
     return false;
 }
