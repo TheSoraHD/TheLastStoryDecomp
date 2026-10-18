@@ -5,11 +5,8 @@
 
 namespace chr {
 
-// inferred: entries of Chara_unk::m654; m274->mF0 is tested by CharaStatus::fn_8013322C
-struct CharaPartData_unk {
-    unsigned char m00[0xF0];
-    int mF0;
-};
+// inferred: data of a part (defined in game/CharaStatus.h)
+struct CharaPartData_unk;
 struct CharaPart_unk {
     unsigned char m000[0x274];
     CharaPartData_unk* m274;

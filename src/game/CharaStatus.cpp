@@ -27,6 +27,8 @@ struct Settings_unk {
     int m284;
     unsigned char m288[0x2CC - 0x288];
     int m2CC;
+    unsigned char m2D0[0x5A0 - 0x2D0];
+    int m5A0;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
@@ -63,7 +65,12 @@ struct StatusCurves_unk {
 };
 extern "C" StatusCurves_unk* fn_8020FCE8(int id);
 extern "C" int fn_80375B78(StatusField_unk* field, int arg);
-extern "C" int lbl_8087F610;
+// inferred: active only in some modes (lbl_8087F610); name invented
+struct Arena_unk {
+    unsigned char m000[0x540];
+    int m540;
+};
+extern "C" Arena_unk* lbl_8087F610;
 extern "C" int fn_80370174(StatusField_unk* field, int id);
 extern "C" int fn_8021A8D0(HitInfo_unk* hit);
 extern "C" int fn_80375184(StatusField_unk* field);
@@ -74,14 +81,33 @@ extern "C" void fn_801061BC(Effect_unk* effect, chr::Chara_unk* chara, void* mod
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" float fn_80040588(void* obj, CharaStatus* status, int arg);
 
-inline void CharaStatus::ClearFlags_unk(unsigned int flags) {
-    m0C &= ~flags;
-    m10 &= ~flags;
-    for (int i = 0; i < 32; i++) {
-        if ((flags & (1 << i)) == (1 << i)) {
-            m24C[i] = 0;
+// inferred: per-kind equipment table (fn_80219160); names invented
+struct EquipSet_unk {
+    unsigned char m00[2];
+    unsigned char m02[128]; // inferred: one entry per bit of CharaStatusData_unk::mBits
+    signed char m82[6];
+};
+extern "C" int fn_80219558(int kind);
+extern "C" EquipSet_unk* fn_80219160(int kind, int level);
+extern "C" int fn_8021AF98(int slot);
+extern "C" int fn_8021AFF4(int slot);
+struct Inventory2_unk;
+extern "C" Inventory2_unk* lbl_8087EE68;
+extern "C" int fn_800185B4(Inventory2_unk* inventory, CharaTask* chara, int item);
+
+// inferred: name invented
+inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
+    CharaStatusRef_unk* ref = refs.mData;
+    int sum = 0;
+    for (unsigned int i = 0; i < refs.mCount; i++, ref++) {
+        if (ref->mEntry->mId == id) {
+            sum += ref->mEntry->mValue;
         }
     }
+    return sum;
+}
+
+inline void CharaStatus::UpdatePartFlag_unk() {
     if (mChara != 0) {
         m0C &= ~0x100000;
         m10 &= ~0x100000;
@@ -92,6 +118,17 @@ inline void CharaStatus::ClearFlags_unk(unsigned int flags) {
             }
         }
     }
+}
+
+inline void CharaStatus::ClearFlags_unk(unsigned int flags) {
+    m0C &= ~flags;
+    m10 &= ~flags;
+    for (int i = 0; i < 32; i++) {
+        if ((flags & (1 << i)) == (1 << i)) {
+            m24C[i] = 0;
+        }
+    }
+    UpdatePartFlag_unk();
 }
 
 CharaStatusBase::CharaStatusBase() {
@@ -105,6 +142,125 @@ extern "C" double pow(double x, double y);
 int CharaStatus::fn_8012B028() {
     int level = mParamA.m78 > 69 ? 69 : mParamA.m78;
     return (int)(50.0f * (float)pow((float)level, 2.0)) - m1A8.mExp;
+}
+
+// inferred: number of refs with the given id; name invented
+inline int CountRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
+    CharaStatusRef_unk* ref = refs.mData;
+    int count = 0;
+    for (unsigned int i = 0; i < refs.mCount; i++, ref++) {
+        if (ref->mEntry->mId == id) {
+            count++;
+        }
+    }
+    return count;
+}
+
+// inferred: name invented
+inline bool IsArenaMode_unk(int mode) {
+    bool result = true;
+    if (mode != 0 && mode != 1) {
+        result = false;
+    }
+    return result;
+}
+
+inline bool CharaStatus::IsWeak_unk() {
+    bool result = true;
+    if ((m0C & 0x80000) != 0x80000 && (m0C & 0x1000000) != 0x1000000) {
+        result = false;
+    }
+    return result;
+}
+
+// NONMATCHING: 98.4% - differs in register choices (the rate block, the arena flag, two float sums) and in
+// the parts loop of UpdatePartFlag_unk (see ClearFlags_unk in the header).
+void CharaStatus::fn_8012B988() {
+    if (mChara == 0 || mChara->m5C == 0) {
+        return;
+    }
+    mParamB = mParamA;
+    mParamB.m78 = MAX(1, mParamB.m78 + m1C - ((m0C & 0x400) == 0x400 ? 3 : 0));
+    if (mChara->mType == 2 && (lbl_8087F0A8->m5A0 == 2 || !fn_8020FCE8(mChara->m5C->mC8)) &&
+        lbl_8087F430 != 0) {
+        int n = fn_80370174(lbl_8087F430, 282);
+        if (n > 0) {
+            float rate = MAX(0.1f, 1.0f - 0.2f * n);
+            mParamB.m00 *= rate;
+            mParamB.m04 *= rate;
+            mParamB.m84 *= rate;
+        }
+    }
+    if (mChara != 0 && mChara->mType == 2 && mChara->m5C->mC8 >= 0) {
+        mParamB.m7C += m424;
+    }
+    int kind = fn_80219558(mChara->m50);
+    chr::CharaPart_unk* partA = mChara->m648;
+    if (kind == 3) {
+        chr::CharaPart_unk* partB = mChara->m64C;
+        if (partA != 0 && partB != 0) {
+            fn_8012D714(&mParamB, &partA->m274->mParam, &partB->m274->mParam);
+        }
+    } else if (partA != 0) {
+        fn_8012D628(&mParamB, &partA->m274->mParam);
+    }
+    int skip = 0;
+    if (lbl_8087F610 != 0 && IsArenaMode_unk(lbl_8087F610->m540)) {
+        skip = 1;
+    }
+    if (!skip) {
+        for (int i = 0; i < 5; i++) {
+            if (mChara->m680[i] != 0) {
+                fn_8012D628(&mParamB, mChara->m680[i]->m414);
+            }
+        }
+    }
+    float a = 0.0f;
+    float b = a;
+    float c = a;
+    float e = a;
+    float d = a;
+    a += 0.005f * CountRefs_unk(mRefs, 2);
+    b += mParamB.m08 * SumRefs_unk(mRefs, 0x1C) / 100.0f;
+    b += mParamB.m08 * SumRefs_unk(mRefs, 0x1D) / 100.0f;
+    b += mParamB.m08 * SumRefs_unk(mRefs, 0x24) / 100.0f;
+    d += mParamB.m0C * SumRefs_unk(mRefs, 0x1E) / 100.0f;
+    d += mParamB.m0C * SumRefs_unk(mRefs, 0x1F) / 100.0f;
+    d += mParamB.m0C * SumRefs_unk(mRefs, 0x24) / 100.0f;
+    c += mParamB.m00 * SumRefs_unk(mRefs, 0x20) / 100.0f;
+    c += mParamB.m00 * SumRefs_unk(mRefs, 0x21) / 100.0f;
+    e += mParamB.m04 * SumRefs_unk(mRefs, 0x20) / 100.0f;
+    e += mParamB.m04 * SumRefs_unk(mRefs, 0x21) / 100.0f;
+    float ratio = mParamB.m84 > 0 ? m04 / mParamB.m84 : 0.0f;
+    float t = 1.0f - ratio;
+    t *= t;
+    c += mParamB.m00 * t * CountRefs_unk(mRefs, 0x27);
+    int bonus = SumRefs_unk(mRefs, 0x3A);
+    mParamB.m8C += a;
+    mParamB.m84 += (int)((float)(mParamB.m84 * bonus) / 100.0f);
+    mParamB.m08 = MAX(mParamB.m08 + b, 1.0f);
+    mParamB.m00 = MAX(mParamB.m00 + c, 1.0f);
+    mParamB.m0C = MAX(mParamB.m0C + d, 1.0f);
+    mParamB.m04 = MAX(mParamB.m04 + e, 1.0f);
+    if (mChara->mType != 2) {
+        mParamB.m84 = MIN(mParamB.m84, 99999);
+        mParamB.m08 = MIN(mParamB.m08, 9999.0f);
+        mParamB.m00 = MIN(mParamB.m00, 9999.0f);
+        mParamB.m0C = MIN(mParamB.m0C, 9999.0f);
+        mParamB.m04 = MIN(mParamB.m04, 9999.0f);
+        mParamB.m94 = MIN(mParamB.m94, 9999);
+    }
+    if (fn_80134134(0x46) != 0) {
+        mParamB.m98 = MIN(MAX(mParamB.m98 + SumRefs_unk(mRefs, 0x46), 1), 5);
+        m224 = MIN(m224, mParamB.m98);
+    }
+    if (IsWeak_unk()) {
+        mParamB.m08 -= mParamB.m08 * m428;
+        mParamB.m0C -= mParamB.m0C * m428;
+    }
+    m04 = MIN(m04, (float)mParamB.m84);
+    m14 = 0;
+    UpdatePartFlag_unk();
 }
 
 void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id) {
@@ -229,19 +385,6 @@ void CharaStatus::fn_8012D628(CharaParam_unk* dst, const CharaParam_unk* src) {
     dst->m34 += src->m34;
 }
 
-// inferred: per-kind equipment table (fn_80219160); names invented
-struct EquipSet_unk {
-    unsigned char m00[2];
-    unsigned char m02[128]; // inferred: one entry per bit of CharaStatusData_unk::mBits
-    signed char m82[6];
-};
-extern "C" int fn_80219558(int kind);
-extern "C" EquipSet_unk* fn_80219160(int kind, int level);
-extern "C" int fn_8021AF98(int slot);
-extern "C" int fn_8021AFF4(int slot);
-struct Inventory2_unk;
-extern "C" Inventory2_unk* lbl_8087EE68;
-extern "C" int fn_800185B4(Inventory2_unk* inventory, CharaTask* chara, int item);
 
 // inferred: counterpart of fn_80134674 (never emitted on its own); name invented
 inline void CharaStatus::ClearBit_unk(int bit) {
@@ -426,17 +569,6 @@ void CharaStatus::fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, cons
     dst->m34 += (a->m34 + b->m34) / 2;
 }
 
-// inferred: name invented
-inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
-    CharaStatusRef_unk* ref = refs.mData;
-    int sum = 0;
-    for (unsigned int i = 0; i < refs.mCount; i++, ref++) {
-        if (ref->mEntry->mId == id) {
-            sum += ref->mEntry->mValue;
-        }
-    }
-    return sum;
-}
 
 // NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
 void CharaStatus::fn_8012D8B8() {

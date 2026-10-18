@@ -153,10 +153,14 @@ public:
     unsigned int m5C0; // inferred: flags; bit 0 is cleared while appearing (chr::ControlAppear)
     unsigned char m5C4[0x600 - 0x5C4];
     atn::Vector3 m600;
-    unsigned char m60C[0x650 - 0x60C];
+    unsigned char m60C[0x648 - 0x60C];
+    chr::CharaPart_unk* m648; // inferred: parts whose parameters are added (CharaStatus::fn_8012B988)
+    chr::CharaPart_unk* m64C;
     unsigned int m650;      // inferred: number of entries in m654
     chr::CharaPart_unk* m654[1]; // inferred: array of m650 entries (capacity unknown)
-    unsigned char m658[0x7D4 - 0x658];
+    unsigned char m658[0x680 - 0x658];
+    chr::CharaEquip_unk* m680[5]; // inferred: equipment (CharaStatus::fn_8012B988)
+    unsigned char m694[0x7D4 - 0x694];
     CharaStatus mStatus; // 0x7D4
     unsigned int mC10; // inferred: flags or-ed into CharaStatus::mParamA.m9C (fn_8012B3E8)
     unsigned char mC14[0xC48 - 0xC14];

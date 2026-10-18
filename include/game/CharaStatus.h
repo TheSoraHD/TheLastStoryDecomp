@@ -218,6 +218,20 @@ struct CharaParam_unk {
 };
 
 namespace chr {
+// inferred: data of an equipped part (CharaPart_unk::m274): starts with the parameters it adds
+// (fn_8012B988); mF0 is tested by ClearFlags_unk
+struct CharaPartData_unk {
+    CharaParam_unk mParam;
+    unsigned char mC0[0xF0 - 0xC0];
+    int mF0;
+};
+
+// inferred: equipment object (CharaTask::m680[]); m414 points to its parameters
+struct CharaEquip_unk {
+    unsigned char m000[0x414];
+    CharaParam_unk* m414;
+};
+
 // inferred: character data pointed to by CharaTask::m5C; starts with the base parameters copied
 // into CharaStatusBase::mParamA (fn_8012B3E8). Name invented.
 struct CharaData_unk {
@@ -340,6 +354,8 @@ public:
     void fn_8012B988();
     void fn_8012C6D4(CharaParam_unk* param, int level, int arg, int arg2);
     void fn_8012D180();
+    void UpdatePartFlag_unk(); // inferred: name invented
+    bool IsWeak_unk(); // inferred: name invented
     void fn_8012CE4C(int kind);
     void fn_8012E244(HitInfo_unk* hit);
     int fn_8013354C(int exp, struct LevelUpResult_unk* result); // inferred: adds experience
