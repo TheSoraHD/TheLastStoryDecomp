@@ -41,8 +41,28 @@ struct StatusField_unk {
     int m5694;
 };
 extern "C" StatusField_unk* lbl_8087F430;
-extern "C" int fn_8020FCE8(int id);
+extern "C" float fn_800A6BDC(void* tree); // inferred: evaluates an atn::ParseTree
+
+// inferred: formula of one variable (an atn::ParseTree and the value of its variable); names
+// invented
+struct StatusCurve_unk {
+    int m00;
+    void* mTree;
+    float mX;
+    float Get(float x) {
+        mX = x;
+        return fn_800A6BDC(mTree);
+    }
+};
+// inferred: growth formulas of a character (fn_8020FCE8)
+struct StatusCurves_unk {
+    int m00;
+    StatusCurve_unk mCurves[6];
+};
+extern "C" StatusCurves_unk* fn_8020FCE8(int id);
 extern "C" int fn_80375B78(StatusField_unk* field, int arg);
+extern "C" int lbl_8087F610;
+extern "C" int fn_80370174(StatusField_unk* field, int id);
 
 inline void CharaStatus::ClearFlags_unk(unsigned int flags) {
     m0C &= ~flags;
@@ -75,6 +95,52 @@ extern "C" double pow(double x, double y);
 int CharaStatus::fn_8012B028() {
     int level = mParamA.m78 > 69 ? 69 : mParamA.m78;
     return (int)(50.0f * (float)pow((float)level, 2.0)) - m1A8.mExp;
+}
+
+void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id) {
+    param->m78 = MAX(1, level);
+    int total = MAX(1, level + arg);
+    if (mChara == 0 || mChara->mType != 2) {
+        param->m78 = MIN(99, MAX(1, level));
+        total = MIN(99, MAX(1, level + arg));
+    }
+    if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
+        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
+            param->m78 = MIN(69, MAX(1, level));
+            total = MIN(69, MAX(1, level + arg));
+        } else {
+            param->m78 = MIN(999, MAX(1, level));
+            total = MIN(999, MAX(1, level + arg));
+        }
+    }
+    StatusCurves_unk* curves = fn_8020FCE8(id);
+    if (curves == 0) {
+        return;
+    }
+    if (lbl_8087F610 != 0) {
+        int cap = 60;
+        if (mChara != 0 && mChara->mType == 2) {
+            cap = 120;
+        }
+        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) > 0) {
+            cap = 120;
+        }
+        int over = MAX(0, total - cap);
+        int lv = MIN(total, cap);
+        param->m84 = over * 50 + MAX(1, (int)curves->mCurves[5].Get(lv));
+        param->m00 = over * 3 + MAX(1.0f, curves->mCurves[0].Get(lv));
+        param->m08 = over * 3 + MAX(1.0f, curves->mCurves[2].Get(lv));
+        param->m04 = over * 3 + MAX(1.0f, curves->mCurves[1].Get(lv));
+        param->m0C = over * 3 + MAX(1.0f, curves->mCurves[3].Get(lv));
+        param->m94 = over * 3 + MAX(1, (int)curves->mCurves[4].Get(lv));
+    } else {
+        param->m84 = MAX(1, (int)curves->mCurves[5].Get(total));
+        param->m00 = MAX(1.0f, curves->mCurves[0].Get(total));
+        param->m08 = MAX(1.0f, curves->mCurves[2].Get(total));
+        param->m04 = MAX(1.0f, curves->mCurves[1].Get(total));
+        param->m0C = MAX(1.0f, curves->mCurves[3].Get(total));
+        param->m94 = MAX(1, (int)curves->mCurves[4].Get(total));
+    }
 }
 
 // NONMATCHING: 97.6% - only the scheduling of the fn_8012C6D4 arguments differs (the original starts the
@@ -166,8 +232,6 @@ extern "C" int fn_8021AFF4(int slot);
 struct Inventory2_unk;
 extern "C" Inventory2_unk* lbl_8087EE68;
 extern "C" int fn_800185B4(Inventory2_unk* inventory, CharaTask* chara, int item);
-extern "C" int lbl_8087F610;
-extern "C" int fn_80370174(StatusField_unk* field, int id);
 
 // inferred: counterpart of fn_80134674 (never emitted on its own); name invented
 inline void CharaStatus::ClearBit_unk(int bit) {
