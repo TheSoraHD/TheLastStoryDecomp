@@ -5,6 +5,9 @@ extern "C" char* strstr(const char*, const char*);
 extern "C" int strcmp(const char*, const char*);
 extern "C" const char* fn_8005B9CC(void* data); // inferred: returns the parts' resource name
 
+// Order: with deferred inlining the functions are emitted in reverse; the constructor is
+// inlined into fn_80496420 and its out-of-line copy is dead-stripped. Defining it just before
+// fn_80496420 gives the original string pool order ("", "_bird.", "BIRDVIEW").
 int MapPartsColliTree::vf30() {
     return (mColli.mFlags >> 5) & 1;
 }

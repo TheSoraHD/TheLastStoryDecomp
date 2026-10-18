@@ -20,7 +20,7 @@ public:
     };
 
     MapPartsRain(atn::Task* parent, void* arg, void* data); // 0x8049CE40
-    virtual ~MapPartsRain() {}
+    virtual ~MapPartsRain();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();

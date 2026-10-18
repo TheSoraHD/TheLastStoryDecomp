@@ -2198,7 +2198,7 @@
   "classes": [
    "MapPartsRain"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapTask.cpp",

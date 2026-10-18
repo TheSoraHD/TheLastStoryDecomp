@@ -68,7 +68,10 @@ public:
     unsigned int mFlag4_0 : 5;
 };
 
-// inferred from __vt__Q23chr11ControlBase (0x8077DC90)
+extern "C" Vec lbl_807C7030; // inferred: zero vector returned by ControlBase::vf4C
+
+// inferred from __vt__Q23chr11ControlBase (0x8077DC90). vf44, vf48, vf4C and vf5C are inline
+// (weak copies first emitted in chr/ControlBreakOpen.cpp at 0x80188060).
 class ControlBase {
 public:
     ControlBase(Chara_unk* chara) : mChara(chara) {}
@@ -87,13 +90,13 @@ public:
     virtual void vf38();
     virtual void vf3C();
     virtual void vf40();
-    virtual void vf44();
-    virtual void vf48();
-    virtual void vf4C();
+    virtual int vf44() { return 0; }
+    virtual int vf48() { return 0; }
+    virtual Vec vf4C() { return lbl_807C7030; }
     virtual void vf50();
     virtual void vf54();
     virtual void vf58();
-    virtual void vf5C();
+    virtual void vf5C() {}
 
     Chara_unk* mChara; // 0x04
 };

@@ -36,6 +36,8 @@ int MapPartsRain::vf0C() {
     return 1;
 }
 
+MapPartsRain::~MapPartsRain() {}
+
 void MapPartsRain::vf1C() {
     mRain.fn_800B23C8();
 }
@@ -44,9 +46,6 @@ void MapPartsRain::fn_8049D1A4(MapPartsRain* a, MapPartsRain* b) {
     mRain.fn_800B28F8(&a->mRain, &b->mRain);
 }
 
-// NONMATCHING: 99.97% - in `mBox = Box_unk(a, b)` the original addresses the temporary's second
-// vector as box + 0xC; here the compiler reuses the pointer computed for the constructor.
-// Tried: named temporary, explicit operator=, assignments in the constructor body, Vec m[2].
 MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, void* data)
     : MapPartsBase(parent, arg), mOn(0) {
     const char* field = ((Csv_unk*)data)->mField;
@@ -89,7 +88,12 @@ MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, void* data)
             b.x = fn_800DC288(fn_8005B9CC(data));
             b.y = fn_800DC288(fn_8005B9CC(data));
             b.z = fn_800DC288(fn_8005B9CC(data));
-            mBox = Box_unk(a, b);
+            Box_unk box(a, b);
+            // inferred: the two vectors are copied through a Vec pointer (second one at src + 0xC)
+            const Vec* src = &box.mMin;
+            Vec* dst = &mBox.mMin;
+            dst[0] = src[0];
+            dst[1] = src[1];
         }
         field = fn_8005B9CC(data);
     } while (field != 0 && strcmp("", field) != 0);
