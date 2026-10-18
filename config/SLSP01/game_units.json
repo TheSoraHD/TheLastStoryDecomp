@@ -295,7 +295,7 @@
   "classes": [
    "atn::LayerReflect"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/LayerShadow.cpp",

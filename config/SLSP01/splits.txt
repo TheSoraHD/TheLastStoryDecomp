@@ -193,7 +193,7 @@ atn/LayerPostFx.cpp:
 
 atn/LayerReflect.cpp:
 	.text       start:0x800B68BC end:0x800B6BEC
-	.rodata     start:0x80732EA0 end:0x80732EB4
+	.rodata     start:0x80732E98 end:0x80732ED0
 	.data       start:0x80779160 end:0x807791A0
 	.sdata2     start:0x80880F68 end:0x80880F78
 

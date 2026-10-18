@@ -1,13 +1,7 @@
 #ifndef ATN_TEXTURECACHEMANAGER_H
 #define ATN_TEXTURECACHEMANAGER_H
 
-// Minimal GX declarations used by the texture cache managers.
-struct GXTexObj;
-struct GXTexRegion {
-    unsigned int dummy[4];
-};
-extern "C" void GXInitTexCacheRegion(GXTexRegion* region, unsigned char is32bMipmap, unsigned int tmemEven,
-                                     int sizeEven, unsigned int tmemOdd, int sizeOdd);
+#include "atn/GXDecl.h"
 
 namespace atn {
 
