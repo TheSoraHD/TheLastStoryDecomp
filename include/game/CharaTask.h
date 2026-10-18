@@ -119,7 +119,7 @@ struct CharaInfo_unk {
     const char* m18; // inferred: motion set file name ("/database/chara/motion/<m18>.mchr")
     const char* m1C; // inferred: motion command file name
     const char* m20; // inferred: extension file name
-    unsigned char m24[0x28 - 0x24];
+    int m24;         // inferred: kind (2 and 3 revive as skeletons, CharaTask::fn_8015EFAC)
     int m28;         // inferred: passed to fn_8021FC00
 };
 
@@ -223,6 +223,12 @@ struct Ledge_unk {
     int m3C;
 };
 
+// inferred: skill reference (CharaTask+0xD34 points to one, BattleCharaTask embeds one at 0xABC);
+// only the id is known
+struct SkillRef_unk {
+    int mId;
+};
+
 // inferred: element of CharaTask::m125C
 struct CharaPair_unk {
     CharaPair_unk() : m00(0.0f), m04(0) {}
@@ -264,7 +270,9 @@ public:
     virtual void vf74(int arg); // inferred: starts a control (the symbol is still named vf74__9CharaTaskFv)
     virtual void vf78();
     virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)
-    virtual void vf80();
+    // inferred: appearance (chr::ControlAppearSkelton, ControlAppearCoffin or ControlAppear); the
+    // target symbol says Fv
+    virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset);
     virtual void vf84(int motion, float blend); // inferred: bound by chr::ControlAppear::vf10
     virtual void vf88();
     virtual void vf8C(const atn::Vector3& v); // inferred: bound by chr::ControlAppear::vf10
@@ -342,6 +350,29 @@ public:
     void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
     void fn_8015E4B0(const atn::Vector3& dir, int arg); // inferred: knock back along `dir` (0x801B59E0)
     void fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2);
+    // inferred: the current motion (track 0) has reached its end (name invented)
+    bool IsMotionEnd_unk() {
+        if (mMotion.mTracks[0].m18 == 0) {
+            float frame = mMotion.mTracks[0].m08;
+            return frame >= mMotion.fn_80097D7C(0);
+        }
+        float speed = mMotion.mTracks[0].m0C;
+        float frame = mMotion.mTracks[0].m08;
+        return frame >= mMotion.fn_80097D7C(0) - speed;
+    }
+    int fn_8015EB2C(); // inferred: the current action can be interrupted
+    void fn_8015ECC4(); // inferred: get up (chr::ControlGetUp)
+    void fn_8015EFAC(int arg); // inferred: revive (chr::ControlRevival / ControlRevivalSkelton)
+    // inferred: starts chanting or casting `hit` at `pos` / `target`
+    void fn_8015F568(const atn::Vector3& pos, CharaTask* target, HitInfo_unk* hit);
+    // inferred: name invented; control 0x1D is chr::ControlChant
+    bool fn_80160324();
+    void fn_80160170(HitInfo_unk* hit, CharaTask* target); // inferred: changes the magic being chanted
+    void fn_8016034C(); // inferred: ends the magic
+    void fn_801603CC(float f, bool b); // inferred: casts the prepared magic (chr::ControlMagic)
+    // inferred: uses the skill whose id is skill->mId (chr::ControlUseSkill)
+    void fn_8016125C(const SkillRef_unk* skill, CharaTask* target, int motion, const char* name, float f);
+    // inferred: plays one motion (chr::ControlOneMotion)
     void fn_80139560();
     void fn_80145334();
     void fn_80149A30();
@@ -442,7 +473,7 @@ public:
     const char* fn_8017C904(); // inferred: "chXXXX_YY" name of the character
     bool fn_801533C8(int id, HitInfo_unk* hit);
     void fn_80153698(const Ledge_unk* ledge, int keep);
-    int fn_80153B44();
+    int fn_80153B44(); // inferred: free side (1 or 2) next to the character
     int fn_80153FA0();
     int fn_80153FD8(int kind);
     void fn_80154488();
@@ -589,8 +620,8 @@ public:
     atn::Vector_unk<Item14_unk> m624;
     int m630;
     int m634;
-    int m638;
-    int m63C;
+    HitInfo_unk* m638; // inferred: current magic/attack (CharaTask::fn_8015F568)
+    HitInfo_unk* m63C; // inferred: previous value of m638
     int m640;
     int m644;
     chr::CharaPart_unk* m648; // inferred: parts whose parameters are added (CharaStatus::fn_8012B988)
@@ -629,8 +660,8 @@ public:
     int mF5C;
     atn::Vector3 mF60; // inferred: set to the position by chr::ControlAppearSkelton
     atn::Vector3 mF6C;
-    float mF78;
-    int mF7C;
+    float mF78; // inferred: magic parameter (HitInfo_unk::m58, CharaTask::fn_8015F568)
+    CharaTask* mF7C; // inferred: magic target
     boost::scoped_ptr<chr::ControlBase> mControl; // 0xF80: inferred: current control (updated by fn_8013A258)
     int mF84;
     atn::Vector3 mF88;
@@ -642,7 +673,7 @@ public:
     int mFB0;
     int mFB4;
     float mFB8;
-    float mFBC;
+    float mFBC; // inferred: chant time (<= 0: the magic is cast at once)
     CharaTask* mFC0;
     int mFC4;
     atn::Vector3 mFC8;
@@ -714,7 +745,7 @@ public:
     unsigned int mFlagB13_11 : 3;
     unsigned int mFlagB10 : 1;
     unsigned int mFlagB9 : 1;
-    unsigned int mFlagB8 : 1;
+    unsigned int mFlagB8 : 1; // inferred: cleared by fn_8016034C (end of a magic)
     unsigned int mFlagB7 : 1;
     unsigned int mFlagB6_2 : 5;
     unsigned int mFlagB1 : 1; // inferred: set by fn_8017C7F8 (motion mode 4 instead of 1)

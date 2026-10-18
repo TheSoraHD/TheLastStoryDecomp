@@ -11,6 +11,7 @@ class ControlKnockdown : public ControlBase {
 public:
     ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, int arg3, int arg4); // 0x801AD34C
     virtual int vf0C();
+    bool fn_801AE41C(); // inferred: can be cancelled (CharaTask::fn_8015EB2C, control id 0x17)
 
     unsigned char m08[0x40 - 0x08];
 };
@@ -43,6 +44,40 @@ public:
     ControlDamage(Chara_unk* chara, const atn::Vector3& dir, int a); // 0x801AC434
     virtual int vf0C();
     unsigned char m08[0x18 - 0x08];
+};
+
+// inferred: control ids (CharaTask::m560) 0x1B, 0x3B and 0x8E; the classes follow the order of
+// chr/ControlDamage.cpp
+class ControlGetUp : public ControlBase {
+public:
+    ControlGetUp(Chara_unk* chara); // 0x801AE77C (8 bytes: no members of its own)
+    virtual int vf0C();
+};
+
+class ControlRevival : public ControlBase {
+public:
+    ControlRevival(Chara_unk* chara, int a); // 0x801AE978
+    virtual int vf0C();
+    unsigned char m08[0xC - 0x08];
+};
+
+class ControlRevivalSkelton : public ControlBase {
+public:
+    ControlRevivalSkelton(Chara_unk* chara, int a); // 0x801AEF7C
+    virtual int vf0C();
+    unsigned char m08[0xC - 0x08];
+};
+
+class ControlFallDead : public ControlBase {
+public:
+    virtual int vf0C();
+    bool fn_801AF81C(); // inferred: can be cancelled (control id 0x3B)
+};
+
+class ControlDamageLastOne : public ControlBase {
+public:
+    virtual int vf0C();
+    bool fn_801B0260(); // inferred: can be cancelled (control id 0x8E)
 };
 
 } // namespace chr

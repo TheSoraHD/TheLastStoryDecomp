@@ -87,6 +87,14 @@ public:
     unsigned char m08[0x1C - 0x08];
 };
 
+// inferred: control id 0x43; fn_80196C68 lies between the vf0C of ControlStickSwordSp (0x80196A98)
+// and the one of ControlMatHoldGuard (0x80196CD4), the class is a guess
+class ControlStickSwordSp : public ControlBase {
+public:
+    virtual int vf0C();
+    bool fn_80196C68(); // inferred: can be cancelled
+};
+
 } // namespace chr
 
 #endif

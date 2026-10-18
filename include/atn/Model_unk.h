@@ -100,7 +100,9 @@ struct Model_unk {
         unsigned char m04[0x08 - 0x04];
         float m08; // inferred: frame
         float m0C; // inferred: speed
-        unsigned char m10[0x20 - 0x10];
+        unsigned char m10[0x18 - 0x10];
+        unsigned char m18; // inferred: nonzero = the end is tested one step early (CharaTask::fn_8015EB2C)
+        unsigned char m19[0x20 - 0x19];
         float m20; // inferred: weight
         unsigned char m24[0x30 - 0x24];
     };

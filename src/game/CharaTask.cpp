@@ -10,6 +10,10 @@
 #include "chr/ControlRide.h"
 #include "chr/ControlJumpAt.h"
 #include "chr/ControlAttractHateCharge.h"
+#include "chr/ControlChant.h"
+#include "chr/ControlAppear.h"
+#include "chr/ControlUseSkill.h"
+#include "game/HitInfo_unk.h"
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
 #include "game/CharaStatus.h"
@@ -31,7 +35,9 @@ struct Settings_unk {
 
     unsigned char m00[0x48];
     float m48;
-    unsigned char m4C[0xCC - 0x4C];
+    unsigned char m4C[0x98 - 0x4C];
+    int m98; // inferred: tested with mType 3 in CharaTask::fn_8015F568
+    unsigned char m9C[0xCC - 0x9C];
     int mCC; // inferred: nonzero makes every character a valid target (fn_80154E38)
     unsigned char mD0[0x250 - 0xD0];
     int m250; // inferred: copied to CharaTask::m1028 by fn_80164D24
@@ -69,6 +75,7 @@ extern "C" void fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, a
 // inferred: field data (lbl_8087F430); m10D8 holds the route tables (see RouteWalker_unk.cpp)
 struct Field_unk {
     RouteTable_unk* fn_8013C504();
+    int fn_803761BC();
     void fn_803750E4(int id); // inferred: called with 0xB5 when a knocked-down character had mFlag28
 
     unsigned char m00[0x260];
@@ -99,6 +106,8 @@ extern "C" CharaCamera_unk* lbl_8087EFB4;
 // inferred: effect manager (lbl_8087F048, as in CharaStatus.cpp)
 struct Effect_unk {
     void fn_8013A19C(int value);
+    void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
+    void fn_80105B3C(CharaTask* chara);
 
     unsigned char m00[0x3E39C];
     int m3E39C;
@@ -1488,8 +1497,6 @@ int CharaTask::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector
     return 0;
 }
 
-extern "C" int fn_80370174(Field_unk* field, int id);
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg);
 extern "C" void fn_801059F8(Effect_unk* effect, CharaTask* chara);
 extern "C" void fn_80105B3C(Effect_unk* effect, CharaTask* chara);
 
@@ -2041,7 +2048,13 @@ void CharaTask::fn_8015495C(int arg, int ledge, int flag, int effect) {
     Reset_unk(arg, ledge, flag, effect);
 }
 
-extern "C" int fn_800185B4(void* manager, CharaTask* chara, int arg);
+// inferred: result of fn_800185B4 (lbl_8087EE68 = party manager?): the character a magic is redirected to
+struct MagicTarget_unk {
+    unsigned char m00[0x08];
+    int m08;
+    CharaTask* m0C;
+};
+extern "C" MagicTarget_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
 
 // inferred: name invented
 inline bool CharaTask::IsRes1_unk() {
@@ -2235,6 +2248,282 @@ void CharaTask::fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2) {
     if (m1208 != 0) {
         fn_801750FC();
     }
+}
+
+// NONMATCHING: 96% - the first motion-end check keeps the frame in f30 instead of f31 (the second
+// copy matches); tried: one inline used twice, explicit code with locals in each block, at the top
+// of the function, swapped declarations, bool result variable, if/else forms.
+int CharaTask::fn_8015EB2C() {
+    if (m55C != 6) {
+        return 1;
+    }
+    float frame;
+    float speed;
+    if (mFlag2) {
+        if (mFlag25) {
+            return 1;
+        }
+        if (mMotion.mTracks[0].m18 == 0) {
+            frame = mMotion.mTracks[0].m08;
+            return frame >= mMotion.fn_80097D7C(0);
+        }
+        speed = mMotion.mTracks[0].m0C;
+        frame = mMotion.mTracks[0].m08;
+        return frame >= mMotion.fn_80097D7C(0) - speed;
+    }
+    chr::ControlBase* control = mControl.get();
+    if (control != 0) {
+        if (m560 == 0x43) {
+            return ((chr::ControlStickSwordSp*)control)->fn_80196C68();
+        }
+        if (m560 == 0x17) {
+            return ((chr::ControlKnockdown*)control)->fn_801AE41C();
+        }
+        if (m560 == 0x3B) {
+            return ((chr::ControlFallDead*)control)->fn_801AF81C();
+        }
+        if (m560 == 0x8E) {
+            return ((chr::ControlDamageLastOne*)control)->fn_801B0260();
+        }
+    }
+    if (m574.y > -0.01f) {
+        return IsMotionEnd_unk();
+    }
+    return 0;
+}
+
+void CharaTask::fn_8015ECC4() {
+    chr::ControlGetUp* control = new (0, "", "", 0) chr::ControlGetUp(this);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015EFAC(int arg) {
+    if ((unsigned int)(m60->m24 - 2) <= 1) {
+        chr::ControlRevivalSkelton* control = new (0, "", "", 0) chr::ControlRevivalSkelton(this, 60);
+        fn_80178208(control);
+    } else {
+        chr::ControlRevival* control = new (0, "", "", 0) chr::ControlRevival(this, arg);
+        fn_80178208(control);
+    }
+}
+
+extern "C" double cos(double x);
+extern "C" double sin(double x);
+
+extern "C" void* lbl_8087F9F8; // inferred: tactics manager (TacView)
+extern "C" int fn_805ADCC0(void* manager, CharaTask* chara, HitInfo_unk* hit, int arg);
+extern "C" void fn_805ADD80(void* manager, CharaTask* chara, HitInfo_unk* hit);
+
+// inferred: helpers inlined in fn_8015F568 (names invented)
+inline atn::Vector3 GetDir_unk(const float& yaw) {
+    Mtx m;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    PSMTXRotRad(m, 'y', yaw);
+    PSMTXMultVec(m, &dir, &dir);
+    return dir;
+}
+
+inline atn::Vector3 GetSide_unk(const atn::Vector3& front) {
+    atn::Vector3 side;
+    side.fn_8013C394(atn::Vector3(0.0f, 1.0f, 0.0f), front);
+    return side;
+}
+
+// inferred: names invented
+inline bool IsDebugMode_unk(CharaTask* chara) {
+    return chara->mType == 3 && lbl_8087F0A8->m98 != 0;
+}
+
+inline bool IsDebugField_unk(CharaTask* chara) {
+    return IsDebugMode_unk(chara) && lbl_8087F430 != 0;
+}
+
+// NONMATCHING: 94% - register allocation only: f5/f7 swapped in dir * -1.5f, r24/r25 (&pos/&to)
+// swapped, and the inlined bool chains (CanAct_unk on the redirected target, IsDebugField_unk) use
+// r5/r0 where the original uses r0/r3. The ptmf constant offsets are the known lbl_8077A720 noise.
+// tried: named vs helper-returned vectors, from/to order, accessors (fn_8013C458, fn_8013C3A8,
+// fn_801404F8, fn_80139EF4, fn_8013C404, fn_80140518), bool helpers with result variables, int
+// parameter for the type check.
+void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo_unk* hit) {
+    if (m648 == 0) {
+        return;
+    }
+    if (mFlag31) {
+        int side = fn_80153B44();
+        atn::Vector3 pos = mPos;
+        atn::Vector3 from;
+        atn::Vector3 to;
+        if (side == 1) {
+            pos.x += -5.0f * (float)cos(mRot.y);
+            pos.z += 5.0f * (float)sin(mRot.y);
+        } else if (side == 2) {
+            pos.x += 5.0f * (float)cos(mRot.y);
+            pos.z += -5.0f * (float)sin(mRot.y);
+        } else {
+            pos += GetDir_unk(mRot.y) * -1.5f;
+        }
+        pos += GetSide_unk(mC14) * 2.0f;
+        from = mPos;
+        to = pos;
+        from.y += 5.0f;
+        to.y += 5.0f;
+        void* colli = lbl_8087EE98;
+        if (fn_8004ED34(colli, 0, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
+            mPos = pos;
+        }
+        mFlag31 = 0;
+        mFlag30 = 0;
+        RouteTable_unk* table = lbl_8087F430->fn_8013C504();
+        if (table != 0 && mC38 > 0 && mC3C > 0) {
+            table->GetLink_unk(mC38)->m3C = 0;
+            table->GetLink_unk(mC3C)->m3C = 0;
+        }
+        if (fn_8017B16C()) {
+            if (fn_80370174(lbl_8087F430, 0x25) >= 1) {
+                if (m648 != 0) {
+                    fn_80044E0C(m648, 1);
+                }
+                if (m64C != 0) {
+                    fn_80044E0C(m64C, 1);
+                }
+                m674 = -1;
+                m648 = 0;
+                m64C = 0;
+                fn_8014C228();
+            } else if (m674 >= 0) {
+                fn_8014DEE4(0, 0, 0);
+            }
+        }
+    }
+    if (hit == 0) {
+        return;
+    }
+    MagicTarget_unk* redirect = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, this, hit) : 0;
+    if (redirect != 0 && redirect->m08 == 0 && redirect->m0C != 0) {
+        if ((redirect->m0C->m54C & 0x2000) != 0x2000 && redirect->m0C->CanAct_unk() &&
+            (mStatus.m0C & 0x100) != 0x100 && (mStatus.m0C & 0x10000) != 0x10000) {
+            target = redirect->m0C;
+        } else if (redirect->m0C == this) {
+            target = redirect->m0C;
+        } else if (mC58.mC4 != 0) {
+            target = mC58.mC4;
+        }
+    }
+    bool debug = IsDebugField_unk(this) && lbl_8087F430->fn_803761BC() != 0; // inferred: unused
+    mFB8 = 0.0f;
+    m63C = m638;
+    m638 = hit;
+    mFBC = hit->mC0;
+    if (fn_8013A158() && mFlag22 != 1 && mFlagB10 && hit != 0) {
+        if (fn_8021A8D0(hit) != 0 || fn_8021A918(hit) != 0) {
+            mFBC = 30.0f;
+        }
+    }
+    if (lbl_8087F9F8 != 0 && fn_805ADCC0(lbl_8087F9F8, this, m638, 0) != 0) {
+        if ((m638->mAC & 0x40000) != 0x40000) {
+            mFBC = 90.0f;
+        }
+        fn_805ADD80(lbl_8087F9F8, this, m638);
+    }
+    mF60 = mPos;
+    mF7C = target;
+    mF6C = dest;
+    mF78 = m638->m58;
+    if ((int)m638->m02 == 4) {
+        mF7C = this;
+        mF6C = mPos;
+    }
+    if (mFBC <= 0.0f) {
+        m63C = m638;
+        fn_801603CC(1.0f, false);
+    } else {
+        chr::ControlChant* control = new (0, "", "", 0) chr::ControlChant(this, mF7C, mF6C, (int)mFBC, mF78);
+        fn_80178208(control);
+    }
+}
+
+extern "C" int fn_80219558(int id);
+
+// NONMATCHING: 92% - the inlined IsDebugField_unk chain uses r0/r5 where the original uses r3/r0
+// (same issue as fn_8015F568); tried: int/bool helpers, result variables, int type parameter,
+// local copies of the globals.
+void CharaTask::fn_80160170(HitInfo_unk* hit, CharaTask* target) {
+    if (fn_80160324()) {
+        bool debug = false;
+        if (IsDebugField_unk(this) && lbl_8087F430->fn_803761BC() != 0) {
+            debug = true;
+        }
+        if (debug) {
+            MagicTarget_unk* redirect = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, this, hit) : 0;
+            bool redirected = fn_80219558(m50) == 4 && redirect != 0; // inferred: unused
+        }
+        m63C = m638;
+        m638 = hit;
+        mFBC = hit->mC0;
+        mF78 = hit->m58;
+        if (fn_8021A888(hit) != 0) {
+            mF7C = 0;
+        } else {
+            mF7C = target;
+        }
+        if ((int)m638->m02 == 4) {
+            mF7C = this;
+            mF6C = mPos;
+        }
+        chr::ControlChant* control = (chr::ControlChant*)mControl.get();
+        control->m38 = (int)mFBC;
+        control->m34 = mF7C;
+    }
+}
+
+bool CharaTask::fn_80160324() {
+    bool result = false;
+    if (m55C == 6 && m560 == 0x1D) {
+        result = true;
+    }
+    return result;
+}
+
+void CharaTask::fn_8016034C() {
+    Effect_unk* effect = lbl_8087F048;
+    if (effect != 0) {
+        effect->fn_801059F8(this);
+        lbl_8087F048->fn_80105B3C(this);
+    }
+    mFlagB8 = 0;
+    mFB8 = 0.0f;
+    mFBC = 0.0f;
+    vf8C(chr::lbl_807C7030);
+}
+
+void CharaTask::fn_801603CC(float f, bool b) {
+    chr::ControlMagic* control = new (0, "", "", 0) chr::ControlMagic(this, mF7C, f, mF6C, b);
+    fn_80178208(control);
+}
+
+void CharaTask::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
+    if ((unsigned int)(m60->m24 - 2) <= 1) {
+        chr::ControlAppearSkelton* control = new (0, "", "", 0) chr::ControlAppearSkelton(this, pos);
+        fn_80178208(control);
+    } else if (m60->m24 == 0x2C) {
+        chr::ControlAppearCoffin* control = new (0, "", "", 0) chr::ControlAppearCoffin(this, pos);
+        fn_80178208(control);
+    } else if (mMotion.fn_80097D40(0x2B)) {
+        chr::ControlAppear* control = new (0, "", "", 0) chr::ControlAppear(this, pos, offset);
+        fn_80178208(control);
+    }
+}
+
+void CharaTask::vf84(int motion, float blend) {
+    chr::ControlAppearEnd* control = new (0, "", "", 0) chr::ControlAppearEnd(this, motion, blend);
+    fn_80178208(control);
+}
+
+
+void CharaTask::fn_8016125C(const SkillRef_unk* skill, CharaTask* target, int motion, const char* name, float f) {
+    chr::ControlUseSkill* control =
+        new (0, "", "", 0) chr::ControlUseSkill(this, fn_80219E6C(skill->mId), target, motion, name, f);
+    fn_80178208(control);
 }
 
 void CharaTask::fn_80161570(int motion, int a, int b, float c, float d) {
