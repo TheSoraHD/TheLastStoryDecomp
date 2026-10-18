@@ -52,21 +52,22 @@ public:
     virtual void vf2C();  // 0x803ECB84
     virtual void vf30();  // 0x803EDF40
     virtual void vf34();  // 0x803EDF24
-    // inferred: the slots below point to code shared with other classes (identical trivial
-    // functions merged by the linker, e.g. `return 0` at 0x80012A14), so they are only declared
-    virtual int vf38();   // 0x80012A14
-    virtual void vf3C();  // 0x803EDF20
-    virtual int vf40();   // 0x80012714
-    virtual int vf44();   // 0x800FA4F4
-    virtual void vf48();  // 0x803EDE34
-    virtual void vf4C();  // 0x803EDF1C
-    virtual int vf50();   // 0x802AEABC
-    virtual atn::Vector3 vf54(); // 0x800EB488: inferred: returns m6C
-    virtual float vf58(); // 0x800FA4EC
-    virtual int vf5C();   // 0x80017944
-    virtual int vf60();   // 0x801B7794
-    virtual int vf64();   // 0x803A04B8
-    virtual void vf68();  // 0x800E2FDC
+    // Trivial inline virtuals: their weak copies were kept in the first object that used them
+    // (only gimmick vtables point to them), so they live far from this file.
+    virtual int vf38() { return 0; }       // 0x80012A14
+    virtual void vf3C();                   // 0x803EDF20
+    virtual int vf40() { return 0; }       // 0x80012714
+    virtual int vf44() { return 0; }       // 0x800FA4F4
+    virtual void vf48();                   // 0x803EDE34
+    virtual void vf4C();                   // 0x803EDF1C
+    virtual int vf50() { return 0; }       // 0x802AEABC
+    // NONMATCHING (standalone): psq_st and stfs of the copy are in the other order
+    virtual atn::Vector3 vf54() { return m6C; } // 0x800EB488: inferred: position
+    virtual float vf58() { return 0.0f; }  // 0x800FA4EC
+    virtual int vf5C() { return 0; }       // 0x80017944
+    virtual int vf60() { return 0; }       // 0x801B7794
+    virtual int vf64() { return 0; }       // 0x803A04B8
+    virtual void vf68() {}                 // 0x800E2FDC
     virtual void vf6C();  // 0x803ED92C
     virtual void vf70();  // 0x803EDAF0
 
