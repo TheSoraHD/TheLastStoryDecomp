@@ -8,6 +8,12 @@ changed.
 
 - `boost/function.hpp` and `boost/function/*`: `boostorg/function` at commit `a7b9940`
   (2007-08-29, "Handle GCC's -fno-exceptions properly").
+- `boost/bind.hpp`, `boost/bind/arg.hpp`, `boost/bind/bind_template.hpp` and
+  `boost/bind/placeholders.hpp`: Boost 1.34.1. In 1.35.0 `boost::arg<I>` has a user-declared
+  constructor, so the `static boost::arg<1> _1;` placeholders (the `__MWERKS__` branch) need dynamic
+  initialisation and every file including `bind.hpp` gets an empty `__sinit_*` and a `.ctors`
+  entry, which the game's units with `boost::bind` (e.g. 0x801C7390) do not have. In 1.34.1
+  `arg<I>` is an empty class.
 - Everything else: tag `boost-1.35.0`.
 
 ## Why this Boost.Function version

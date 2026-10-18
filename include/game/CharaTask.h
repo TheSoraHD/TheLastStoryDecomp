@@ -2,6 +2,7 @@
 #define GAME_CHARATASK_H
 
 #include "atn/Task.h"
+#include "math/Vec.h"
 
 namespace chr {
 class ControlBase;
@@ -45,9 +46,9 @@ public:
     virtual void vf78();
     virtual void vf7C();
     virtual void vf80();
-    virtual void vf84();
+    virtual void vf84(int motion, float blend); // inferred: bound by chr::ControlAppear::vf10
     virtual void vf88();
-    virtual void vf8C();
+    virtual void vf8C(const Vec& v); // inferred: bound by chr::ControlAppear::vf10
     virtual void vf90();
     virtual void vf94();
     virtual void vf98();
@@ -72,6 +73,9 @@ public:
 
     int fn_8013655C();
     void fn_80178208(chr::ControlBase* control); // inferred: changes the current control
+    void fn_8016EB48(int a, int b, int c); // inferred: bound with three bools (0x801C7390)
+    void fn_8015E4B0(const Vec& dir, int arg); // inferred: knock back along `dir` (0x801B59E0)
+    void fn_8015E7A0(const Vec& dir, int arg, int arg2);
     void fn_80139560();
     void fn_80145334();
     void fn_80149A30();
