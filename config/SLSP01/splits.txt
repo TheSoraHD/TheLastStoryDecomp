@@ -1078,7 +1078,7 @@ game/FriendArganan.cpp:
 
 game/FriendManager.cpp:
 	.text       start:0x80365464 end:0x8036554C
-	.rodata     start:0x8074D988 end:0x8074D998
+	.rodata     start:0x8074D988 end:0x8074D9A0
 	.data       start:0x8078A038 end:0x8078A070
 
 game/GameTask.cpp:

@@ -13,11 +13,15 @@ public:
 
 class Task : public TaskBase {
 public:
+    Task(Task* parent); // 0x800D1D3C
     virtual ~Task();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
     virtual void vf18();
+
+    // inferred: sizeof(atn::Task) == 0x48 (FriendManager adds no members and is allocated with 0x48)
+    unsigned char m04[0x48 - 0x04];
 };
 
 } // namespace atn

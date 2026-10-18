@@ -1458,7 +1458,7 @@
   "classes": [
    "FriendManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameTask.cpp",
