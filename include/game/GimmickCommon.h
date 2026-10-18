@@ -14,7 +14,7 @@ class GimmickCommon;
 
 
 // inferred: 0x34-byte member of GimmickCommon at 0xB0 (sound/effect tables: its destructor
-// frees arrays of atn::SoundRef); its members are out of line (game/GimmickManager.cpp)
+// frees arrays of atn::SoundRef); its members are out of line (0x803EF608-0x803F11F8, not split)
 struct GimmickCommonB0_unk {
     GimmickCommonB0_unk();  // 0x803EF608
     ~GimmickCommonB0_unk(); // 0x803EF64C

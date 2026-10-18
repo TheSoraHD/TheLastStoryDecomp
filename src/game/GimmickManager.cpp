@@ -65,6 +65,10 @@ public:
         mLoader.vf0C(path);
     }
 
+    // NONMATCHING: 37% - the original calls the atn::Csv constructor (0x8004203C), the
+    // gmk::SeTable constructor (0x803EEB38) and boost::function::operator() (0x803EF3B0, not
+    // emitted here) out of line; this compile inlines them. The tokenizer is modelled with its
+    // layout only (see above); with the real boost::tokenizer the inlining may differ.
     virtual int vf0C() {
         if (mLoader.fn_80473F50() != 0) {
             return 0;
@@ -162,6 +166,9 @@ GimmickManager* GimmickManager::fn_803EDFBC(atn::Task* parent) {
     return lbl_8087F4A0;
 }
 
+// NONMATCHING: 95% - after the new[] of mTypes.Alloc the original has an unreachable store
+// (b over "stw r0, 0x7C(r31)") and reloads mData/mSize before the memset; no variant tried
+// reproduces it (see atn::Buffer_unk::Alloc).
 GimmickManager::GimmickManager(atn::Task* parent)
     : atn::Task(parent), mHead(0), mCount(0), m50(2), m54(0), m58(0), mLoadTask(0), mLoading(0), m88(0) {
     m74 = mRes.Load("GimmickManager");
@@ -235,6 +242,7 @@ static inline int __IsTarget_unk(GimmickCommon* g, int id) {
     return id == g->vf64(9);
 }
 
+// NONMATCHING: 99% - the gimmick pointer and the id are in swapped registers (r30/r31)
 int GimmickManager::fn_803EE45C(GimmickQuery_unk* query) {
     if (query == 0 || fn_8017CB2C(query) == 0) {
         return 0;
