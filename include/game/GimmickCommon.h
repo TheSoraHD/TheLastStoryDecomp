@@ -85,6 +85,13 @@ struct GimmickMsg_unk {
     atn::Vector3 mVec;
 };
 
+// inferred: message passed to GimmickCommon::vf44 (0x30 bytes, cleared with memset; type 3 when a
+// character steps on gmk::LandMine)
+struct GimmickHitMsg_unk {
+    int mType;
+    unsigned char m04[0x30 - 0x04];
+};
+
 // Base of the gimmicks (gmk::*). The name is in the DOL (vtable 0x8078C9D0, RTTI bases
 // atn::TaskBase, atn::Task). Virtual methods are named by vtable offset.
 class GimmickCommon : public atn::Task {
@@ -113,7 +120,7 @@ public:
     virtual Model_unk* vf38() { return 0; } // 0x80012A14: inferred: main model
     virtual void vf3C() {}
     virtual int vf40(GimmickMsg_unk* msg) { return 0; } // 0x80012714: inferred: receives a message
-    virtual int vf44() { return 0; }       // 0x800FA4F4
+    virtual int vf44(GimmickHitMsg_unk* msg) { return 0; } // 0x800FA4F4
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag); // 0x803EDE34
     virtual void vf4C() {}
     virtual int vf50() { return 0; }       // 0x802AEABC

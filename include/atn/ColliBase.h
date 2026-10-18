@@ -53,6 +53,23 @@ public:
     float mBox[9]; // 0x378: inferred: read from "COLLI_BOX" (9 values)
 };
 
+// The name is in the DOL (__vt__Q23atn11ColliSphere, 0x80777668). Layout inferred from
+// gmk::LandMine.
+class ColliSphere : public ColliBase {
+public:
+    // inferred: center and radius, assigned as one value
+    struct Sphere_unk {
+        Sphere_unk() {}
+        Sphere_unk(const Vector3& center, float radius) : mCenter(center), mRadius(radius) {}
+        Vector3 mCenter;
+        float mRadius;
+    };
+    ColliSphere() : ColliBase(0) {}
+    virtual ~ColliSphere() {}
+
+    Sphere_unk mSphere; // 0x3C
+};
+
 // The name is in the DOL (__vt__Q23atn11ColliObject, 0x807775C0); layout from the constructor.
 class ColliObject : public ColliBase {
 public:
