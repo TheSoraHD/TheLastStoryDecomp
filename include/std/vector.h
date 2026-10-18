@@ -90,13 +90,6 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
     unsigned int mStart;
 };
 
-// inferred: vector errors go through a function (the message is loaded before the stream,
-// unlike the __msl_error macro used by basic_string)
-inline void __vec_error_unk(const char* msg) {
-    fprintf(&__files[2], msg);
-    abort();
-}
-
 template <class T>
 inline void __vec_swap_unk(T& a, T& b) {
     T tmp = a;
@@ -141,12 +134,12 @@ void vector<T>::push_back(const T& x) {
         return;
     }
     if (max_size() - this->mCap < 1) {
-        __vec_error_unk("vector length_error");
+        __msl_error("vector length_error");
     }
     __vec_split_unk<T> buf(&this->mCap);
     size_type n = this->mSize + 1 - this->mCap;
     if (n > max_size() - this->mCap) {
-        __vec_error_unk("vector length_error");
+        __msl_error("vector length_error");
     }
     size_type cap = this->mCap;
     if (cap < max_size() / 3) {
@@ -157,7 +150,7 @@ void vector<T>::push_back(const T& x) {
         cap = max_size();
     }
     if (cap > max_size()) {
-        __vec_error_unk("vector length_error");
+        __msl_error("vector length_error");
     }
     buf.mData = __allocate(cap);
     buf.mCap = cap;

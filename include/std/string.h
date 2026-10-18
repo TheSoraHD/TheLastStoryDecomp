@@ -52,9 +52,10 @@ public:
     // inferred: range replace used by the constructors/assign (0x80013F78, char). The last
     // argument is an iterator-tag object passed by value; the tags derive from each other
     // (random_access : bidirectional : forward : input), so Tag() is not zero-initialised.
-    // NONMATCHING (standalone compile, 61 differing lines of 182): the original does not reuse
-    // n2 for the memmove of the new characters (it recomputes j2 - j1) and does not fold
-    // tmp.size() for the empty temporary.
+    // NONMATCHING (standalone compile with -ipa file, 54 differing lines of 182): the original
+    // does not reuse n2 for the memmove of the new characters (it recomputes j2 - j1), keeps
+    // new_data + pos in a register of its own (one more saved register) and does not fold
+    // tmp.size() for the empty temporary (it tests word 0 and reloads byte 0).
     template <class Tag>
     basic_string& __replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, Tag tag);
 

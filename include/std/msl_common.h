@@ -19,7 +19,11 @@ extern "C" void* memmove(void* dst, const void* src, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
-// inferred: MSL reports errors with fprintf(stderr, ...) + abort() when exceptions are off
-#define __msl_error(msg) (fprintf(&__files[2], msg), abort())
+// inferred: MSL reports errors with fprintf(stderr, ...) + abort() when exceptions are off. An
+// inline function, not a macro: the message is loaded before the stream (0x800DB3EC, 0x80013F78)
+inline void __msl_error(const char* msg) {
+    fprintf(&__files[2], msg);
+    abort();
+}
 
 #endif
