@@ -72,12 +72,12 @@ void RouteWalker_unk::fn_8012539C() {
     mLink = 0;
     mPointB = 0;
     mPointA = 0;
-    m00 = 0;
+    mDestPoint = 0;
     m10 = lbl_807C7030;
     m1C = 0;
     mPlace = 0;
-    m24 = 0;
-    m28 = 0.0f;
+    mTarget = 0;
+    mRadius = 0.0f;
     m2C = 0;
 }
 
@@ -100,7 +100,7 @@ int RouteWalker_unk::fn_80125474() {
     if (mMode == 1 && mLink <= 0) {
         return 0;
     }
-    if ((mMode == 4 || mMode == 6 || mMode == 7) && m24 == 0) {
+    if ((mMode == 4 || mMode == 6 || mMode == 7) && mTarget == 0) {
         return 0;
     }
     return 1;
@@ -112,6 +112,73 @@ extern "C" RouteFinder_unk* lbl_8087EE68;
 extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* point, int link, int arg);
 extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
                            float arg6);
+extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+struct ColliWorld_unk;
+extern "C" ColliWorld_unk* lbl_8087EE98;
+extern "C" int fn_8004ECC0(ColliWorld_unk* world, int arg1, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, int arg5, int arg6); // inferred: line check
+
+// inferred: name invented
+inline float LengthSq_unk(const atn::Vector3& v) {
+    return fn_805F9920(&v);
+}
+
+void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table != 0 && start > 0) {
+        fn_8012539C();
+        int end = fn_803C1560(table, dest, mChara->fn_80179D44(), 0, mA0, 1, -1.0f);
+        if (end > 0) {
+            mMode = 0;
+            m48 = arg;
+            mPointB = start;
+            mDestPoint = end;
+            mPointA = fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (end - 1) * 8), start - 1);
+            RoutePoint_unk* point = &table->mPoints[mDestPoint - 1];
+            if (mPointA > 0) {
+                if (LengthSq_unk(point->mPos - *dest) >= point->mRadius * point->mRadius) {
+                    RoutePoint_unk* next = &table->mPoints[mPointA - 1];
+                    atn::Vector3 up(0.0f, 10.0f, 0.0f);
+                    atn::Vector3 from = *dest + up;
+                    atn::Vector3 to = next->mPos + up;
+                    if (fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0) != 0) {
+                        mPointA = mDestPoint;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// NONMATCHING: only the order of the two radius loads (target loads mChara's first into f1).
+// Tried: both operand orders, locals, an inline adder, adding 5 first or last.
+void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table == 0 || target == 0) {
+        return;
+    }
+    fn_8012539C();
+    fn_80128508(fn_803C1560(table, &target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+    mMode = 4;
+    m48 = arg;
+    mTarget = target;
+    float r = 5.0f + (target->m5B0 + mChara->m5B0);
+    mRadius = 30.0f > r ? 30.0f : r;
+}
+
+void RouteWalker_unk::fn_80128A30(const atn::Vector3* pos, const atn::Vector3* dest, int arg, float radius) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table != 0) {
+        fn_8012539C();
+        fn_80128508(fn_803C1560(table, pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+        mMode = 5;
+        m48 = arg;
+        m30 = *pos;
+        m3C = radius;
+        mRadius = 3.0f;
+    }
+}
 
 void RouteWalker_unk::fn_80127D8C(int a, int b, int c) {
     chr::Chara_unk* chara = mChara;
@@ -132,7 +199,7 @@ void RouteWalker_unk::fn_80127D8C(int a, int b, int c) {
     }
 }
 
-void RouteWalker_unk::fn_801286F0(int link, int b, int c) {
+void RouteWalker_unk::fn_801286F0(int link, const atn::Vector3* b, int c) {
     RouteTable_unk* table = GetRouteTable_unk();
     if (table != 0 && link > 0) {
         fn_8012539C();
@@ -151,7 +218,7 @@ void RouteWalker_unk::fn_801286F0(int link, int b, int c) {
     }
 }
 
-void RouteWalker_unk::fn_80128818(int id, int b, int c) {
+void RouteWalker_unk::fn_80128818(int id, const atn::Vector3* b, int c) {
     RouteTable_unk* table = GetRouteTable_unk();
     if (table == 0) {
         return;
@@ -165,7 +232,7 @@ void RouteWalker_unk::fn_80128818(int id, int b, int c) {
     mMode = 3;
     m48 = c;
     mPlace = id;
-    m28 = 3.0f;
+    mRadius = 3.0f;
 }
 
 CharaLook_unk::CharaLook_unk()

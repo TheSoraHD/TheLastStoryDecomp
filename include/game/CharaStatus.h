@@ -11,7 +11,11 @@ class CharaTask;
 
 // inferred: point of the route tables (0x30 bytes)
 struct RoutePoint_unk {
-    unsigned char m00[0x2C];
+    int m00;
+    atn::Vector3 mPos; // 0x04
+    unsigned char m10[0x14 - 0x10];
+    float mRadius;     // 0x14
+    unsigned char m18[0x2C - 0x18];
     int m2C; // inferred: enabled
 };
 // inferred: link of the route tables (0x40 bytes)
@@ -30,6 +34,8 @@ struct RoutePlace_unk {
     atn::Vector3 mPos; // 0x04
     unsigned char m10[0x28 - 0x10];
 };
+// inferred: route between two points (8 bytes)
+struct RoutePath_unk;
 struct RouteTable_unk {
     // inferred: names invented
     RouteLink_unk* GetLink_unk(int link) { return &mLinks[link - 1]; }
@@ -48,7 +54,8 @@ struct RouteTable_unk {
     RoutePlace_unk* mPlaces; // 0x7C
     unsigned char m80[0x9C - 0x80];
     RoutePoint_unk* mPoints; // 0x9C
-    unsigned char mA0[0xA8 - 0xA0];
+    unsigned char mA0[0xA4 - 0xA0];
+    RoutePath_unk* mPaths;   // 0xA4
     int mNumLinks;           // 0xA8
     unsigned char mAC[0xB0 - 0xAC];
     RouteLink_unk* mLinks;   // 0xB0
@@ -61,21 +68,24 @@ public:
     void fn_8012539C(); // inferred: reset
     int fn_80125474();  // inferred: nonzero if the route is valid
     void fn_80127D8C(int a, int b, int c); // inferred: stops (arguments passed to CharaTask::fn_8016EB48)
-    void fn_80128508(int route, int b, int c);
-    void fn_801286F0(int link, int b, int c); // inferred: follows a link
-    void fn_80128818(int id, int b, int c);   // inferred: goes to a named place
+    void fn_80128508(int start, const atn::Vector3* dest, int arg); // inferred: plans a route
+    void fn_801286F0(int link, const atn::Vector3* dest, int arg); // inferred: follows a link
+    void fn_80128818(int id, const atn::Vector3* dest, int arg);   // inferred: goes to a named place
+    void fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg); // inferred: follows a character
+    void fn_80128A30(const atn::Vector3* pos, const atn::Vector3* dest, int arg, float radius);
 
-    int m00;
+    int mDestPoint; // 0x00
     int mPointA;    // 0x04
     int mPointB;    // 0x08
     int mLink;      // 0x0C
     atn::Vector3 m10;
     int m1C;
     int mPlace;     // 0x20
-    int m24;
-    float m28;
+    chr::Chara_unk* mTarget; // 0x24
+    float mRadius;  // 0x28
     int m2C;        // inferred: nonzero while the link is not owned
-    unsigned char m30[0x40 - 0x30];
+    atn::Vector3 m30;
+    float m3C;
     int mMode;      // 0x40
     int m44;
     int m48;
