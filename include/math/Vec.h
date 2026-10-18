@@ -163,11 +163,15 @@ public:
         z = f(z);
     }
     void Normalize_unk();
+    // inferred: names invented (weak copies 0x8000D3A4, 0x800F7FD8, 0x801162A0)
+    float Length_unk() const;
+    float LengthSq_unk() const;
+    Vector3 GetNormalized_unk() const;
     Vector3 ToRotation_unk() const; // inferred: x = pitch, y = yaw of the direction
+    void fn_80139F60(); // inferred: in-place ToRotation_unk (weak copy 0x80139F60)
 
     // Out-of-line members (called with bl from many files):
     void fn_80011410(const Matrix3x4& m);              // inferred: *this = m * *this (PSMTXMultVec)
-    void fn_80139F60(); // inferred: *this = ToRotation_unk() (weak copy in game/CharaTask.cpp)
     static Vector3 fn_8013C394(const Vector3& a, const Vector3& b); // inferred: a x b (PSVECCrossProduct)
     Vector3 operator-() const;                          // 0x8013C3B4
 
@@ -200,9 +204,8 @@ public:
         m[0][1] = m[0][2] = m[0][3] = m[1][0] = m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] = 0.0f;
         m[0][0] = m[1][1] = m[2][2] = 1.0f;
     }
-    // inferred: rotation around y (PSMTXRotRad(m, 'y', rad)); returned by value (callers build it in
-    // place without a constructor call, 0x80148CC4)
-    static Matrix3x4 fn_8013A13C(float rad);
+    // inferred: rotation around y (weak copy 0x8013A13C)
+    void fn_8013A13C(float rad) { PSMTXRotRad(m, 'y', rad); }
     void fn_8010F668(); // inferred: clears the translation (weak copy 0x8010F668, game/Bullet.cpp)
     void fn_80144ED4(float rad); // inferred: *this = *this * rot_z(rad)
     void fn_801479E4(const Vector3& v); // inferred: sets the translation
@@ -228,6 +231,8 @@ public:
 } // namespace atn
 
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
+extern "C" float PSVECMag(const atn::Vector3* v);
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" void PSMTXQuat(Mtx m, const atn::Quaternion_unk* q);
 extern "C" void PSQUATMultiply(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* pq);
 extern "C" void PSQUATInverse(const atn::Quaternion_unk* src, atn::Quaternion_unk* inv);
@@ -240,6 +245,20 @@ namespace atn {
 
 inline void Vector3::Normalize_unk() {
     PSVECNormalize(this, this);
+}
+
+inline float Vector3::Length_unk() const {
+    return PSVECMag(this);
+}
+
+inline float Vector3::LengthSq_unk() const {
+    return PSVECSquareMag(this);
+}
+
+inline Vector3 Vector3::GetNormalized_unk() const {
+    Vector3 r(*this);
+    r.Normalize_unk();
+    return r;
 }
 
 // inferred: helpers of the engine (weak copies: Abs_unk 0x80013404, WrapAngle_unk 0x800133B0,
@@ -264,35 +283,54 @@ inline float DegToRad_unk(float deg) {
     return deg * 0.017453292f;
 }
 
-inline Vector3 Vector3::ToRotation_unk() const {
-    Vector3 r(*this);
-    float yaw;
-    if (Abs_unk(r.z) < 1.1920929e-7f) {
-        yaw = r.x > 0.0f ? 1.5707964f : -1.5707964f;
-    } else {
-        yaw = atan2(r.x, r.z);
-    }
-    Mtx rot;
-    PSMTXRotRad(rot, 'y', -yaw);
+// inferred: in-place version of ToRotation_unk (weak copy 0x80139F60, inlined in ToRotation_unk
+// 0x80011034). NONMATCHING (measured on an out-of-line copy): same instructions count but the original
+// loads the 12 matrix values once (f30/f31 saved) and stores the dead copy `tmp` last; ours reloads
+// them. The dead 3x4 copy is in the original; how it was written is unknown (tried by-value matrix
+// parameters, copy loops before/after, a 4x4 class built from a 3x4 one).
+inline void Vector3::fn_80139F60() {
     float m44[4][4];
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 4; j++) {
-            m44[i][j] = rot[i][j];
-        }
+    Matrix3x4 rot;
+    Vector3 r;
+    Vector3 v;
+    Mtx tmp;
+    if (Abs_unk(z) < 1.1920929e-7f) {
+        r.y = x > 0.0f ? 1.5707964f : -1.5707964f;
+    } else {
+        r.y = atan2(x, z);
     }
+    rot.fn_8013A13C(-r.y);
     m44[3][0] = 0.0f;
     m44[3][1] = 0.0f;
     m44[3][2] = 0.0f;
     m44[3][3] = 1.0f;
-    Vector3 v(r);
-    PSMTX44MultVec(m44, &v, &v);
-    float pitch;
-    if (Abs_unk(v.z) < 1.1920929e-7f) {
-        pitch = -(v.y > 0.0f ? 1.5707964f : -1.5707964f);
-    } else {
-        pitch = -atan2(v.y, v.z);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            m44[i][j] = rot.m[i][j];
+        }
     }
-    r = Vector3(pitch, yaw, 0.0f);
+    for (int i = 0; i < 3; i++) {
+        m44[i][3] = rot.m[i][3];
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            tmp[i][j] = rot.m[i][j];
+        }
+    }
+    v = *this;
+    PSMTX44MultVec(m44, &v, &v);
+    if (Abs_unk(v.z) < 1.1920929e-7f) {
+        r.x = -(v.y > 0.0f ? 1.5707964f : -1.5707964f);
+    } else {
+        r.x = -(float)atan2(v.y, v.z);
+    }
+    r.z = 0.0f;
+    *this = r;
+}
+
+inline Vector3 Vector3::ToRotation_unk() const {
+    Vector3 r(*this);
+    r.fn_80139F60();
     return r;
 }
 

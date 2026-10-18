@@ -1011,7 +1011,6 @@ int CharaStatus::fn_8012F3D8() {
     return 3;
 }
 
-extern "C" void fn_8015EFAC(CharaTask* chara, int arg);
 extern "C" void fn_80168048(CharaTask* chara);
 extern "C" void fn_80167F1C(CharaTask* chara);
 extern "C" void fn_80168170(CharaTask* chara);
@@ -1064,9 +1063,9 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         mChara->fn_800D246C(0);
         mChara->m58C = 0;
         if (mChara->mType == 0) {
-            fn_8015EFAC(mChara, 0x2D);
+            mChara->fn_8015EFAC(0x2D);
         } else {
-            fn_8015EFAC(mChara, 0xF);
+            mChara->fn_8015EFAC(0xF);
         }
         if (m300 > 0) {
             m300--;

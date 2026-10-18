@@ -43,7 +43,7 @@ struct CharaD74_unk {
     int fn_8011D1FC();
     int fn_8011D21C();
 
-    signed char m00;
+    signed char m00; // inferred: kind (6 is checked by CharaTask::fn_80139560)
     signed char m01; // inferred: label kind shown over the character (0x80149A30)
     unsigned char m02[0x04 - 0x02];
     short m04;
@@ -81,7 +81,8 @@ struct CharaD68_unk {
 extern "C" void fn_80094E2C(void* model, int value); // inferred: sets a value on every node
 extern "C" void fn_80044E0C(void* object, int arg);
 extern "C" int fn_80219558(int id);
-extern "C" void* fn_80219E6C(int id); // inferred: bullet data by id (see LandMine.cpp)
+struct HitInfo_unk;
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id (see LandMine.cpp)
 
 // inferred: object pointed to by CharaTask::m480 (destructor 0x800899DC; class unknown)
 struct Chara480_unk {
@@ -131,27 +132,48 @@ struct CharaInfo_unk {
 // inferred: object at CharaTask+0xC58 (constructor 0x8011BD14 called out of line; class unknown)
 class GimmickCommon;
 
+struct SkillRef_unk;
+
 struct CharaC58_unk {
     CharaC58_unk();
+    atn::Vector3 fn_8011BF3C(int arg); // inferred: a position of mC4 (vf54 of mD0 when it is set)
 
     int m00;
-    int m04;
+    int m04;  // 0xC5C: inferred: frame counter
     int m08;
-    RouteWalker_unk m0C;
-    unsigned char mB4[0xC0 - 0xB4];
+    RouteWalker_unk m0C; // 0xC64
+    unsigned char mB4[0xBC - 0xB4];
+    int mBC;        // 0xD14: inferred: timer of mode 0 and 4
     int mC0;        // 0xD18 in CharaTask: inferred: nonzero stops chr::ControlRide (0x801C6FE8)
     CharaTask* mC4; // 0xD1C: inferred: another character (its status is read by CharaStatus::fn_8012DB04)
-    unsigned char mC8[0xD0 - 0xC8];
+    int mC8;
+    CharaTask* mCC; // 0xD24: inferred: character followed in mode 9
     GimmickCommon* mD0; // 0xD28: inferred: gimmick (its position, vf54, is used by CharaTask::fn_80154488)
-    unsigned char mD4[0xE0 - 0xD4];
+    unsigned char mD4[0xDC - 0xD4];
+    SkillRef_unk* mDC; // 0xD34: inferred: skill in use (its id is passed to fn_80219E6C)
     unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot
-    unsigned short mE0 : 15;
-    unsigned char mE2[0x110 - 0xE2];
+    unsigned short mDone_unk : 1; // 0xD38 bit 14: inferred: the current mode has finished
+    unsigned short mLoop_unk : 1; // bit 13: inferred: loops the last motion of modes 20-22
+    unsigned short mE0_12 : 1;
+    unsigned short mE0_11 : 1;    // bit 11: inferred: turning around mC4 (fn_8013A4E8)
+    unsigned short mE0_10 : 1;    // bit 10: inferred: turn direction (toggled)
+    unsigned short mE0 : 10;
+    short mMode;    // 0xD3A: inferred: mode of fn_8013A4E8 (switch)
+    short mE4;
+    short mStep;    // 0xD3E: inferred: step inside the mode
+    int mE8;        // 0xD40
+    int mEC;        // 0xD44: inferred: count of motion loops
+    short mMotions[4]; // 0xD48: inferred: motions played by modes 20-22 (-1 terminated)
+    atn::Vector3 mDest; // 0xD50
+    int mPlace;     // 0xD5C: inferred: id of a place of the route tables
+    float mRadius;  // 0xD60
+    CharaTask* m10C; // 0xD64
     CharaD68_unk* m110; // 0xD68
     int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
     int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
-    unsigned char m140[0x2B8 - 0x140];
+    unsigned char m140[0x2B4 - 0x140];
+    int m2B4; // 0xF0C: inferred: wait counter
     int m2B8; // 0xF10: inferred: frame counter (fn_80154C08)
 
     void fn_8011BE54();
@@ -198,7 +220,11 @@ struct MotionCommand_unk {
 struct CharaRes_unk {
     int m00;
     int m04; // inferred: returned by fn_8017AC08
-    unsigned char m08[0x88 - 0x08];
+    unsigned char m08[0x30 - 0x08];
+    float m30;
+    unsigned char m34[0x54 - 0x34];
+    float m54;
+    unsigned char m58[0x88 - 0x58];
     int m88;
     int m8C;
 };
@@ -273,7 +299,7 @@ public:
     virtual void vf6C();
     virtual void vf70();
     virtual void vf74(int arg); // inferred: starts a control (the symbol is still named vf74__9CharaTaskFv)
-    virtual void vf78();
+    virtual int vf78(); // inferred: nonzero while a held character keeps hold (fn_8013A4E8)
     virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)
     // inferred: appearance (chr::ControlAppearSkelton, ControlAppearCoffin or ControlAppear); the
     // target symbol says Fv
@@ -377,8 +403,28 @@ public:
     void fn_801603CC(float f, bool b); // inferred: casts the prepared magic (chr::ControlMagic)
     // inferred: uses the skill whose id is skill->mId (chr::ControlUseSkill)
     void fn_8016125C(const SkillRef_unk* skill, CharaTask* target, int motion, const char* name, float f);
-    // inferred: plays one motion (chr::ControlOneMotion)
-    void fn_80139560();
+    void fn_80139560(); // inferred: per-frame movement update
+    void fn_8017B434();
+    int fn_8013A4E8(float* a, atn::Vector3* rot, float* b); // inferred: same values as vf34
+    int fn_8015061C(CharaTask* chara);
+    int fn_8016F4D8(CharaTask* chara);
+    int fn_8016F530(CharaTask* chara);
+    void fn_8016F5EC(CharaTask* chara);
+    void fn_8016D74C(HitInfo_unk* data, int a, int b);
+    // inferred: weak copy 0x800F52F0 (name invented)
+    CharaStatus* GetStatus_unk() { return &mStatus; }
+    void fn_801698E4(const atn::Vector3& rot);
+    void fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest);
+    void fn_8016BBCC(const atn::Vector3* dir, int a, int b);
+    // inferred: weak copy 0x800F7F80 (name invented)
+    bool IsPlayer_unk() { return mType == 0; }
+    void fn_80141674(void* target, float a, float b);
+    void fn_80140588(void* target, float a, float b);
+    void fn_801426A4(void* target, float a, float b);
+    // inferred: inlined in vf34 (names invented)
+    float GetF94Rate_unk() { return 1.0f - (float)mF94 / (float)mF98; }
+    bool HasRideParts_unk();
+    bool IsLanded_unk(const struct CollResult_unk& result);
     void fn_80145334();
     void fn_80149A30(); // inferred: debug display and visibility update
     int fn_8014FB60();
@@ -497,7 +543,7 @@ public:
     bool fn_80154E38(CharaTask* target);
     void fn_80154EC4(int a, int b);
     void fn_801551AC();
-    void fn_80155790(int arg);
+    void fn_80155790(const atn::Vector3& dir);
     void fn_80178A6C();
     int fn_8017A9A8();
     // inferred: inlined helpers (names invented)
@@ -755,7 +801,7 @@ public:
     unsigned int mFlagB20 : 1;
     unsigned int mFlagB19 : 1;
     unsigned int mFlagB18 : 1;
-    unsigned int mFlagB17 : 1;
+    unsigned int mFlagB17 : 1; // inferred: tested by vf34 for the player
     unsigned int mFlagB16 : 1; // inferred: doubles the number of linked characters (mFE8)
     unsigned int mFlagB15 : 1;
     unsigned int mFlagB14 : 1;
@@ -790,7 +836,7 @@ public:
     CharaSub_unk* m1394;
     int m1398;
     int m139C;
-    unsigned char m13A0[0x13AC - 0x13A0];
+    atn::Vector3 m13A0; // inferred: position of the bullets fired by fn_80139560
     int m13AC;
     int m13B0;
     float m13B4;

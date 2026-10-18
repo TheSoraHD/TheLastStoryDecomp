@@ -37,7 +37,9 @@ struct RouteLink_unk {
 struct RoutePlace_unk {
     int mId;
     atn::Vector3 mPos; // 0x04
-    unsigned char m10[0x28 - 0x10];
+    unsigned char m10[0x14 - 0x10];
+    float m14; // inferred: rotation around y
+    unsigned char m18[0x28 - 0x18];
 };
 // inferred: route between two points (8 bytes)
 struct RoutePath_unk;
@@ -81,6 +83,9 @@ public:
     void fn_80128B20(CharaTask* target, const atn::Vector3* dest, int arg, float radius); // mode 6
     void fn_80128C08(CharaTask* target, const atn::Vector3* dest, int arg, float arg2);  // mode 7
     int fn_80127EF4(); // inferred: stops unless the flag of m48 is set
+    void fn_801255C8(); // inferred: starts the planned route
+    void fn_80126214(); // inferred: update (called every frame by CharaTask::fn_80139560)
+    float fn_801279E8(); // inferred: distance (compared with 20 by CharaTask::vf34)
     atn::Vector3* fn_80139F58(); // inferred: accessors called out of line from CharaTask
     int fn_8013C3F4();
     CharaSubSeg_unk* fn_8013C3FC();
