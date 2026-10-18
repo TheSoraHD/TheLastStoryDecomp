@@ -1642,7 +1642,7 @@ game/MapPartsColliTree.cpp:
 
 game/MapPartsEfp.cpp:
 	.text       start:0x804965EC end:0x80496A28
-	.rodata     start:0x807569F0 end:0x807569FC
+	.rodata     start:0x807569F0 end:0x80756A10
 	.data       start:0x80790378 end:0x807903D0
 	.sdata2     start:0x808870D0 end:0x808870D8
 
