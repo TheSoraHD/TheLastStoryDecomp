@@ -27,12 +27,32 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
+// inferred: camera eye and target (field camera at lbl_8087F430+0x260, default camera at
+// lbl_8087EFB4+0x104; the eye is the camera position used in Banana.cpp)
+struct View_unk {
+    unsigned char m00[8];
+    atn::Vector3 mEye;    // 0x08
+    atn::Vector3 mTarget; // 0x14
+};
+
+// inferred: line segment passed to fn_80050A1C
+struct Segment_unk {
+    Segment_unk() {}
+    Segment_unk(const atn::Vector3& start, const atn::Vector3& end) : mStart(start), mEnd(end) {}
+    atn::Vector3 mStart;
+    atn::Vector3 mEnd;
+};
+// inferred: closest point of a segment to a point (0x80050A1C)
+extern "C" void fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, atn::Vector3* out);
+
 // inferred: field data (lbl_8087F430); m10D8 holds the route tables (see RouteWalker_unk.cpp)
 struct Field_unk {
     RouteTable_unk* fn_8013C504();
     void fn_803750E4(int id); // inferred: called with 0xB5 when a knocked-down character had mFlag28
 
-    unsigned char m00[0x10D8];
+    unsigned char m00[0x260];
+    View_unk m260;
+    unsigned char m280[0x10D8 - 0x280];
     RouteTable_unk* m10D8;
     unsigned char m10DC[0x54F4 - 0x10DC];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
@@ -40,6 +60,13 @@ struct Field_unk {
     int m5760;
 };
 extern "C" Field_unk* lbl_8087F430;
+
+// inferred: camera (lbl_8087EFB4)
+struct CharaCamera_unk {
+    unsigned char m00[0x104];
+    View_unk m104;
+};
+extern "C" CharaCamera_unk* lbl_8087EFB4;
 
 // inferred: effect manager (lbl_8087F048, as in CharaStatus.cpp)
 struct Effect_unk {
@@ -1075,6 +1102,30 @@ int CharaTask::fn_8017C974() {
 
 int CharaTask::fn_8017C9A0() {
     return (m54C >> 4) & 1;
+}
+
+// inferred: point of the camera ray (eye -> target) closest to the character, moved 5 units further
+// NONMATCHING: 81% - only the stack slots of the four Vector3 temporaries are in reverse order
+// (target: target-eye lowest, then dir*5, dir*800, eye+dir*800); tried: named far/eye, +=,
+// Assign_unk, Segment_unk constructor, declaration orders.
+atn::Vector3 fn_8017C9AC(CharaTask* chara) {
+    View_unk* view;
+    if (lbl_8087F430 != 0) {
+        view = &lbl_8087F430->m260;
+    } else {
+        view = &lbl_8087EFB4->m104;
+    }
+    Segment_unk seg;
+    atn::Vector3 dir;
+    dir = view->mTarget - view->mEye;
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 eye = view->mEye;
+    seg.mStart = eye;
+    seg.mEnd = eye + dir * 800.0f;
+    atn::Vector3 result;
+    fn_80050A1C(&chara->mPos, &seg, &result);
+    result += dir * 5.0f;
+    return result;
 }
 
 int CharaTask::fn_8017CB2C() {
