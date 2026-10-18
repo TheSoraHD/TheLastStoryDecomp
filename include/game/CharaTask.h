@@ -220,7 +220,7 @@ public:
     virtual void vf70();
     virtual void vf74();
     virtual void vf78();
-    virtual void vf7C();
+    virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)
     virtual void vf80();
     virtual void vf84(int motion, float blend); // inferred: bound by chr::ControlAppear::vf10
     virtual void vf88();
@@ -250,6 +250,21 @@ public:
     int fn_8013655C();
     void fn_80178208(chr::ControlBase* control); // inferred: changes the current control
     void fn_8016EB48(int a, int b, int c); // inferred: bound with three bools (0x801C7390)
+    // inferred: 0x8015BAF0-0x8015E7A0 each create a control and switch to it (fn_80178208 inlined)
+    void fn_8015BAF0(int a, int b);
+    void fn_8015BDD8(int a, const atn::Vector3& dir);
+    void fn_8015C0C0(int a, int b);
+    void fn_8015C3A8(int a);
+    void fn_8015C6A0();
+    void fn_8015C988(int a, int b);
+    void fn_8015CC70(const atn::Vector3& a, const atn::Vector3& b, const atn::Vector3& c);
+    void fn_8015CF98(const atn::Vector3& a);
+    void fn_8015D2A0(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_8015D5B0(const atn::Vector3& a, const atn::Vector3& b);
+    void fn_8015D8C0(float f, const atn::Vector3& dir, int a);
+    void fn_8015DEC0(int a);
+    void fn_8015E1B8(const atn::Vector3& dir);
+    void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
     void fn_8015E4B0(const atn::Vector3& dir, int arg); // inferred: knock back along `dir` (0x801B59E0)
     void fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2);
     void fn_80139560();

@@ -1,6 +1,11 @@
 #include "game/CharaTask.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
+#include "chr/ControlAttackBase.h"
+#include "chr/ControlDamage.h"
+#include "chr/ControlStickByQuark.h"
+#include "atn/Memory.h"
+#include "game/GimmickCommon.h"
 #include "game/CharaStatus.h"
 #include <boost/scoped_ptr.hpp>
 #include "std/string.h"
@@ -25,6 +30,7 @@ extern "C" Settings_unk* lbl_8087F0A8;
 // inferred: field data (lbl_8087F430); m10D8 holds the route tables (see RouteWalker_unk.cpp)
 struct Field_unk {
     RouteTable_unk* fn_8013C504();
+    void fn_803750E4(int id); // inferred: called with 0xB5 when a knocked-down character had mFlag28
 
     unsigned char m00[0x10D8];
     RouteTable_unk* m10D8;
@@ -759,6 +765,141 @@ void CharaTask::fn_80150178(int slot, chr::CharaEquip_unk* equip) {
     if (slot == 0) {
         fn_8014FD30();
     }
+}
+
+void CharaTask::fn_8015BAF0(int a, int b) {
+    chr::ControlThrownAway* control = new (0, "", "", 0) chr::ControlThrownAway(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015BDD8(int a, const atn::Vector3& dir) {
+    chr::ControlThrownAvoid* control = new (0, "", "", 0) chr::ControlThrownAvoid(this, a, dir);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015C0C0(int a, int b) {
+    chr::ControlThreadCatch* control = new (0, "", "", 0) chr::ControlThreadCatch(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015C3A8(int a) {
+    chr::ControlThreadDead* control = new (0, "", "", 0) chr::ControlThreadDead(this, a);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015C6A0() {
+    chr::ControlThreadRelease* control = new (0, "", "", 0) chr::ControlThreadRelease(this);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015C988(int a, int b) {
+    chr::ControlAbsorbedHP* control = new (0, "", "", 0) chr::ControlAbsorbedHP(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015CC70(const atn::Vector3& a, const atn::Vector3& b, const atn::Vector3& c) {
+    chr::ControlCliffhangZanGurg* control = new (0, "", "", 0) chr::ControlCliffhangZanGurg(this, a, b, c);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015CF98(const atn::Vector3& a) {
+    chr::ControlEndCliffhangZanGurg* control = new (0, "", "", 0) chr::ControlEndCliffhangZanGurg(this, a);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015D2A0(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlStickZanGurgStand* control = new (0, "", "", 0) chr::ControlStickZanGurgStand(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015D5B0(const atn::Vector3& a, const atn::Vector3& b) {
+    chr::ControlStickZanGurgCliff* control = new (0, "", "", 0) chr::ControlStickZanGurgCliff(this, a, b);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015D8C0(float f, const atn::Vector3& dir, int a) {
+    if (m50 == 0xAAE77) {
+        return;
+    }
+    chr::ControlGuard* control = new (0, "", "", 0) chr::ControlGuard(this, f, dir, a);
+    fn_80178208(control);
+}
+
+void CharaTask::vf7C(int arg) {
+    chr::ControlGuarded* control = new (0, "", "", 0) chr::ControlGuarded(this, arg);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015DEC0(int a) {
+    chr::ControlGuardCounter* control = new (0, "", "", 0) chr::ControlGuardCounter(this, a);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015E1B8(const atn::Vector3& dir) {
+    chr::ControlAvoid* control = new (0, "", "", 0) chr::ControlAvoid(this, dir);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_8015E4B0(const atn::Vector3& dir, int arg) {
+    chr::ControlDamage* control = new (0, "", "", 0) chr::ControlDamage(this, dir, arg);
+    fn_80178208(control);
+    m638 = 0;
+}
+
+void CharaTask::fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2) {
+    chr::ControlKnockdown* control = new (0, "", "", 0) chr::ControlKnockdown(this, dir, arg, arg2);
+    fn_80178208(control);
+    m638 = 0;
+    if (mFlag28 && lbl_8087F430 != 0) {
+        lbl_8087F430->fn_803750E4(0xB5);
+    }
+    fn_80164DCC(1);
+    if (m1208 != 0) {
+        fn_801750FC();
+    }
+}
+
+// fn_8016E970, fn_801750FC and fn_80178208 are needed by the functions above (inlined through
+// -ipa file); the functions between them are not written yet.
+void CharaTask::fn_8016E970(int state) {
+    if (m55C != state) {
+        if (m55C != 6 && m55C != 8) {
+            m564 = m55C;
+        }
+        if (m55C == 6) {
+            fn_80178208(0);
+        }
+    }
+    m55C = state;
+}
+
+// inferred: CharaTask::m1208 is a gimmick (GimmickCommon: m54 state, m9C shown, vf40 message); the
+// byte at 0x520 belongs to the derived class
+struct CharaGimmick_unk : public GimmickCommon {
+    unsigned char mF4[0x520 - sizeof(GimmickCommon)];
+    unsigned char m520;
+};
+
+// inferred: releases the held gimmick
+void CharaTask::fn_801750FC() {
+    if (m1208 != 0) {
+        GimmickMsg_unk msg;
+        msg.mType = 3;
+        msg.m10 = (int)this;
+        ((CharaGimmick_unk*)m1208)->vf40(&msg);
+        ((CharaGimmick_unk*)m1208)->m520 = 0xFF;
+        m1208 = 0;
+    }
+}
+
+void CharaTask::fn_80178208(chr::ControlBase* control) {
+    if (m55C == 6) {
+        if (mControl) {
+            mControl->vf1C();
+        }
+    }
+    fn_8016E970(6);
+    mControl.reset(control);
 }
 
 void CharaTask::fn_8017ABD4(int arg) {
