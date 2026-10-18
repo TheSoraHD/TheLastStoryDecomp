@@ -14,6 +14,20 @@ struct D2A_ParamTable {
     int mCount;      // 0x04
 };
 
+// inferred: draw parameters computed by D2A_Common::fn_801ED928
+struct D2A_DrawRect {
+    D2A_DrawRect() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
+    float x, y, w, h, z;
+};
+struct D2A_DrawColor {
+    float r, g, b, a;
+};
+struct D2A_DrawExtra {
+    D2A_DrawExtra() : m00(0.0f), m04(0) {}
+    float m00;
+    int m04;
+};
+
 // inferred from __vt__Q23atn10D2A_Common; field layout only as far as derived classes use it.
 class D2A_Common {
 public:
@@ -25,6 +39,9 @@ public:
     virtual void vf18();
     virtual void vf1C();
     virtual void vf20();
+
+    int fn_801EDC78(); // inferred: nonzero when the element is drawn
+    void fn_801ED928(D2A_DrawRect* rect, D2A_DrawColor* color, D2A_DrawExtra* extra, void* work); // inferred
 
     int m04;
     unsigned short mType; // 0x08

@@ -869,7 +869,7 @@
   "classes": [
    "atn::D2A_Line"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D2A_Message.cpp",
