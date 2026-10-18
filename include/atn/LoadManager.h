@@ -58,10 +58,17 @@ public:
 };
 
 // Defined out of the class: its literals are in the file string pool (0x80755C90).
-// NONMATCHING: 96.6% (LoadColliTree, 0x80472DCC) - same structure; the found resource, the new
-// node and the list end are in a different permutation of r28-r30. Tried: loop and condition
-// forms, a local find_if, declaration order, T* instead of LoadCore*, ternary/if-else for the
-// lookup, an out parameter for the lookup.
+// NONMATCHING: 96.6% (LoadColliTree, 0x80472DCC) - same structure in all twelve copies; only the
+// saved registers differ. In every original the list end used by push_back gets the lowest one
+// (r28, shared with `cached`) and the resource gets r30 (r29 in LoadMotion, whose constructor is
+// not inlined); here the resource takes r28. Also, the original writes the found resource straight
+// into that register, while the return value of Find_unk goes through r3 here.
+// Writing the lookup directly in Get_unk (goto/break) makes everything identical except that
+// register and the bne+b of the lookup, which only an inline return gives.
+// Tried, without change: loop and condition forms, find_if with the end by value/reference or as
+// an expression, declaration order, T* or a second variable for the new object, the order of the
+// two branches, other insert/push_back nestings in std::list, an out parameter, Wii/1.0-1.3 and
+// -inline deferred instead of -ipa file (all compile to the same code).
 template <class T>
 T* LoadManager_unk::Get_unk(const char* path, int cached) {
     char fullPath[0x100];
