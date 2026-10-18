@@ -1153,6 +1153,12 @@ game/GameUI.cpp:
 	.data       start:0x8078C584 end:0x8078C5FC
 	.sdata2     start:0x80885D64 end:0x80885DD8
 
+game/GimmickCommon.cpp:
+	.text       start:0x803EBC44 end:0x803EDFBC
+	.rodata     start:0x80751DB0 end:0x80751F40
+	.data       start:0x8078C6C8 end:0x8078CA78
+	.sdata2     start:0x80885F50 end:0x80885F88
+
 game/GimmickManager.cpp:
 	.text       start:0x803EDFBC end:0x803EF590
 	.rodata     start:0x80751F40 end:0x80751F60

@@ -1552,6 +1552,13 @@
   "matching": false
  },
  {
+  "name": "game/GimmickCommon.cpp",
+  "classes": [
+   "GimmickCommon"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/GimmickManager.cpp",
   "classes": [
    "LoadSeTableTask",

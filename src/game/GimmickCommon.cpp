@@ -1,7 +1,5 @@
-// GimmickCommon (0x803EC568-0x803EDF7C, inferred). Not a unit yet: this code is still inside the
-// auto split auto_03_803E836C, whose file boundaries are not known. The constructor and the
-// destructor compile to the same instructions as the DOL in a standalone compile (only the
-// relocation names differ).
+// inferred: file boundaries from the per-file constants (.sdata2 0x80885F50-0x80885F88) and the
+// gimmick factory jump tables (0x8078C6C8); the file also holds the factories at 0x803EC16C/0x803EC374.
 
 #include "game/GimmickCommon.h"
 
