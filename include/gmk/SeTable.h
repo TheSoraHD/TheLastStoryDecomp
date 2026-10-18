@@ -13,18 +13,16 @@ namespace atn {
 template <int N>
 struct FixedString_unk {
     FixedString_unk() { mStr[0] = 0; }
-    FixedString_unk& operator=(const FixedString_unk& other) {
-        if (mStr != other.mStr) {
-            memcpy(mStr, other.mStr, strlen(other.mStr) + 1);
-        }
-        return *this;
-    }
+    // inferred: the copy goes through the const char* assignment and an accessor (name invented);
+    // otherwise the source pointer is not kept in a saved register (0x803EE7FC)
+    FixedString_unk& operator=(const FixedString_unk& other) { return *this = other.c_str(); }
     FixedString_unk& operator=(const char* str) {
-        if (mStr != str) {
+        if (str != mStr) {
             memcpy(mStr, str, strlen(str) + 1);
         }
         return *this;
     }
+    const char* c_str() const { return mStr; }
     char mStr[N];
 };
 

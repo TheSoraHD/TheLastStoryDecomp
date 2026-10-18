@@ -45,7 +45,7 @@ candidates: either all of them are inlined or none is.
   | 100 × 4 | 220 |
 
 - Decisions are made bottom-up. An inline function that rejects its own candidates is inlined into
-  its caller with its calls left as they are, and those calls are not reconsidered there.
+  its caller with its larger calls left as they are; its tiny candidates are still inlined (R5).
 - Nothing is exempt: blocks, loops, templates, members, constructors, forwarders and one-line
   accessors (`return x;`) all count.
 - The pragmas `inline_max_size`, `inline_max_total_size`, `inline_depth` and `always_inline`, as well
@@ -55,6 +55,20 @@ candidates: either all of them are inlined or none is.
 
 An inline empty destructor, or an empty destructor defined in the same file, disappears even when
 the caller is over budget. Other empty functions are still called.
+
+## R5. A rejecting inline function inlined raw still inlines its tiny callees
+
+When an inline function F rejects its candidates (R3) and is itself inlined into a caller G, its
+candidates are not all left as calls: at G's level the ones of **at most 4 statements** (counted
+after their own inlining) are inlined, and the rest are called. Measured with a probe (Wii/1.3,
+`-ipa file`), F with no code of its own and candidates 150, 100, 4, 5, 6, 8, 10, 12, 15 inlined into
+`void G() { F(); }`: only the 4 is inlined. Constructors and destructors follow the same rule (a
+12-statement constructor/destructor is called, a 1-statement one is inlined), and so do non-inline
+templates. This only happens through G: the same F emitted on its own (or as an inline virtual
+function emitted with its vtable) calls every candidate.
+
+So a function whose body mixes inlined tiny members with called larger ones is a sign that its code
+sits in an inline helper that was over budget. See the open case below.
 
 ## Without `-ipa file`
 
@@ -83,6 +97,23 @@ The original inlines `FixedString_unk::operator=`, `std::string(const char*)`, `
 `atn::Csv` and `gmk::SeTable` constructors, the `char_separator` and tokenizer constructors and
 destructors, `~token_iterator` (three times), `operator==` (six times) and `operator()`.
 
-Such a partial result never happens with the rules above, and `!=` is inlined while the
-`~token_iterator` of the same temporary is called. Either the source has a structure not yet found
-(e.g. the inlined members sit inside another function inlined raw), or there is another mechanism.
+This is the pattern of R5: the members it inlines are tiny and the ones it calls are not, so the
+body of `vf0C` most likely sits in an inline helper (called from `vf0C`) that is over budget.
+Note also that `csv.vf08(text, size)` is a virtual call in the original: the Csv constructor is not
+inlined, so the compiler does not know the vtable.
+
+What was tried (2026-10-18):
+
+- Moving the parsing to an inline member (the whole body, only the `if (mDone == 0)` part, only
+  the loop, or only one row) changes nothing: in our build the helper accepts all its candidates,
+  so the output is the same as with everything in `vf0C`.
+- Adding an artificial 60-100 statement candidate to the helper makes it reject, and the result is
+  close to the original (call sequence 0.90 similar, 361 instructions against 310). What remains:
+  our `atn::Csv` constructor and the destructors of `char_separator` and `tokenizer` are still
+  inlined at the outer level, while the original calls them.
+
+So there are two open points: what really pushes the original helper over budget (some 60+
+statements of candidates or less code of its own than our version), and why those three
+functions count as more than 4 statements in the original but not in our build (perhaps their
+bodies differ from our headers, although the out-of-line copy of the Csv constructor at 0x8004203C
+matches `include/atn/Csv.h`).

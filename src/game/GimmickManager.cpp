@@ -38,7 +38,8 @@ public:
     // NONMATCHING: the original calls the atn::Csv constructor (0x8004203C), the gmk::SeTable
     // constructor (0x803EEB38), the tokenizer members and boost::function::operator() (0x803EF3B0,
     // not emitted here) out of line, but inlines the std::string constructor/destructor and the
-    // iterator comparison; this compile inlines everything. See docs/inlining.md (open case).
+    // iterator comparison; this compile inlines everything. Probably the body is in an inline
+    // helper over budget (docs/inlining.md, R5 and open case).
     virtual int vf0C() {
         if (mLoader.fn_80473F50() != 0) {
             return 0;
@@ -114,9 +115,6 @@ GimmickManager* GimmickManager::fn_803EDFBC(atn::Task* parent) {
     return lbl_8087F4A0;
 }
 
-// NONMATCHING: 95% - after the new[] of mTypes.Alloc the original has an unreachable store
-// (b over "stw r0, 0x7C(r31)") and reloads mData/mSize before the memset; no variant tried
-// reproduces it (see atn::Buffer_unk::Alloc).
 GimmickManager::GimmickManager(atn::Task* parent)
     : atn::Task(parent), mHead(0), mCount(0), m50(2), m54(0), m58(0), mLoadTask(0), mLoading(0), m88(0) {
     m74 = mRes.Load("GimmickManager");
@@ -185,19 +183,14 @@ void GimmickManager::fn_803EE41C(GimmickCommon* gimmick) {
     }
 }
 
-// inferred
-static inline int __IsTarget_unk(GimmickCommon* g, int id) {
-    return id == g->vf64(9);
-}
-
-// NONMATCHING: 99% - the gimmick pointer and the id are in swapped registers (r30/r31)
 int GimmickManager::fn_803EE45C(GimmickQuery_unk* query) {
+    int id; // declared here: in the loop, the id and the gimmick pointer swap registers
     if (query == 0 || fn_8017CB2C(query) == 0) {
         return 0;
     }
     for (GimmickCommon* g = mHead; g != 0; g = g->m5C) {
         if (g->m50 == 6 && g->m54 != 1) {
-            int id = query->m58;
+            id = query->m58;
             if (id == g->vf64(9)) {
                 return 1;
             }

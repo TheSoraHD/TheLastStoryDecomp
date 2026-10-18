@@ -36,8 +36,6 @@ public:
     void fn_803EE5AC(int a, int b, int c); // inferred: loads the sound table of a map
     // inferred: stores a row of the sound table; defined in the class body (its address is bound to
     // the loader's callback, the weak copy follows fn_803EE5AC).
-    // NONMATCHING: 92% - the original keeps the source string of FixedString_unk::operator= in a
-    // register of its own (one more saved register, r22); ours recomputes it.
     void fn_803EE7FC(const gmk::SeTable& table) { mSeTables.push_back(table); }
     GimmickCommon* fn_803EEE10(int id, int arg); // inferred: finds a gimmick
     void* fn_803EEE44(int type);                 // inferred: debug data of a gimmick type

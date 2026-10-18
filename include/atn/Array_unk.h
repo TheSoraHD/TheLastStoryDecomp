@@ -33,10 +33,8 @@ public:
         }
         T* data = new (0, "", "", 0) T[n];
         if (mData != 0) {
-            unsigned int count = n;
-            if (mSize < n) {
-                count = mSize;
-            }
+            // inferred: the ternary gives the register order of the original (0x803EE7FC)
+            unsigned int count = (n > mSize) ? mSize : n;
             for (unsigned int i = 0; i < count; i++) {
                 data[i] = mData[i];
             }
@@ -77,7 +75,9 @@ public:
             delete[] mData;
         }
         mSize = n;
-        if (mSize > 0) {
+        // inferred: "!= 0", not "> 0": the test is folded but the store of the dead branch stays
+        // (GimmickManager ctor, 0x803EE024)
+        if (mSize != 0) {
             mData = new (1, "", "", 0) T[mSize];
         } else {
             mData = 0;
