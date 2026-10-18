@@ -49,9 +49,9 @@ ControlBreakOpen::ControlBreakOpen(Chara_unk* chara, BreakTarget_unk* target)
     chara->m560 = 0x81;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x237, 0, 0, 1, 0.0f, 0.1f);
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
     lbl_8087F430->SetParam_unk(CameraParam_unk(-20.0f, 3.0f, -15.0f, 0.0f, 10.0f, 5.0f, 0.7853982f, 1));
     lbl_8087F430->m06C.fn_80389838(0x12);
 }
@@ -60,7 +60,7 @@ int ControlBreakOpen::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     switch (mState) {
     case 0: {
-        float frame = motion->m234;
+        float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {
             motion->fn_80097C08(0, 0x238, 1, 0, 1, 0.0f, 0.1f);
             BreakMsg_unk msg;
@@ -83,7 +83,7 @@ int ControlBreakOpen::vf0C() {
         }
         break;
     case 2: {
-        float frame = motion->m234;
+        float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {
             return 1;
         }

@@ -30,6 +30,16 @@ inline void __VecCopyZFirst(register float* dst, register const float* src) {
     }
 }
 
+// inferred: 16-byte copy with two paired singles (quaternion copy, 0x80149888)
+inline void __Vec4Copy(register float* dst, register const float* src) {
+    asm {
+        psq_l fp1, 0(src), 0, 0
+        psq_l fp2, 8(src), 0, 0
+        psq_st fp1, 0(dst), 0, 0
+        psq_st fp2, 8(dst), 0, 0
+    }
+}
+
 // inferred: 2D vector copy with one paired-single load/store (0x803EDCAC)
 inline void __Vec2Copy(register float* dst, register const float* src) {
     asm {
@@ -59,6 +69,18 @@ inline void __MtxCopy(register Mtx dst, register const Mtx src) {
 namespace atn {
 
 class Matrix3x4;
+
+// inferred: engine quaternion (copied with two paired-single loads/stores, 0x80149888); name invented
+struct Quaternion_unk {
+    Quaternion_unk() {}
+    Quaternion_unk(const Quaternion_unk& q) {
+        __Vec4Copy(&x, &q.x);
+    }
+    Quaternion_unk& fn_8014989C(const Quaternion_unk& a); // inferred: *this = a * *this
+    Quaternion_unk fn_801498D8() const; // inferred: inverse
+
+    float x, y, z, w;
+};
 
 // inferred: 2D float vector of the engine (copied with paired singles, 0x803EDCAC); name invented
 struct Vector2_unk {
@@ -130,6 +152,8 @@ public:
 
     // Out-of-line members (called with bl from many files):
     void fn_80011410(const Matrix3x4& m);              // inferred: *this = m * *this (PSMTXMultVec)
+    void fn_8013C394(const Vector3& a, const Vector3& b); // inferred: *this = a x b (PSVECCrossProduct)
+    Vector3 operator-() const;                          // 0x8013C3B4
 
     float x, y, z;
 };
@@ -161,6 +185,11 @@ public:
         m[0][0] = m[1][1] = m[2][2] = 1.0f;
     }
     void fn_8013A13C(float rad); // inferred: rotation around y (PSMTXRotRad(m, 'y', rad))
+    void fn_80144ED4(float rad); // inferred: *this = *this * rot_z(rad)
+    void fn_801479E4(const Vector3& v); // inferred: sets the translation
+    void fn_80147A08(const struct Quaternion_unk& q); // inferred: rotation from a quaternion (PSMTXQuat)
+    Matrix3x4& fn_801495E8(const Matrix3x4& a); // inferred: *this = a * *this
+    void fn_80149624(float rad); // inferred: *this = *this * rot_y(rad)
     // inferred: translation (weak copy 0x8000D0F8); name invented
     Vector3 GetTrans_unk() const { return Vector3(m[0][3], m[1][3], m[2][3]); }
     // inferred: copy without the translation (weak copy 0x8001336C); name invented
@@ -179,6 +208,10 @@ public:
 } // namespace atn
 
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
+extern "C" void PSMTXQuat(Mtx m, const atn::Quaternion_unk* q);
+extern "C" void PSQUATMultiply(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* pq);
+extern "C" void PSQUATInverse(const atn::Quaternion_unk* src, atn::Quaternion_unk* inv);
+extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
 extern "C" void PSMTX44MultVec(const float m[4][4], const atn::Vector3* src, atn::Vector3* dst); // inferred: 0x805F9750
 extern "C" double atan2(double y, double x);
 extern "C" double fmod(double x, double y);

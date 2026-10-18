@@ -21,8 +21,8 @@ ControlSitting::ControlSitting(Chara_unk* chara, const atn::Vector3& start, cons
     chara->m560 = 0x3D;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
     motion->fn_80097C08(0, 0x78, 0, 0, 1, 0.0f, 0.1f);
     mStart = start;
     mStartRot = mChara->mRot;
@@ -51,13 +51,13 @@ int ControlSitting::vf0C() {
         rot.y += __WrapAngle_unk(mRot.y - mStartRot.y) / 8.0f;
         mChara->mRot = rot;
     }
-    if (motion->m22C == 0x78) {
-        float frame = motion->m234;
+    if (motion->mTracks[0].m00 == 0x78) {
+        float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {
             motion->fn_80097C08(0, 0x79, 1, 0, 1, 0.0f, 0.1f);
             mChara->mRot = mRot;
         }
-    } else if (motion->m22C == 0x79) {
+    } else if (motion->mTracks[0].m00 == 0x79) {
         if (mChara->mType == 0 && mChara->fn_80178078() > 0.4f) {
             Chara_unk* chara = mChara;
             atn::Vector3 dir = chara->fn_80178018();
@@ -67,7 +67,7 @@ int ControlSitting::vf0C() {
             }
         }
     } else {
-        float frame = motion->m234;
+        float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {
             return 1;
         }

@@ -49,6 +49,7 @@ struct Model_unk {
         int m00;
         unsigned char m04[0x2C - 0x04];
     };
+    Node_unk* fn_80147A00(); // inferred: accessor called out of line from CharaTask
     Node_unk* m220;  // inferred: per-node data (0x2C bytes, see chr::Motion_unk::Entry_unk)
     unsigned char m224[0x234 - 0x224];
     float mFrame;    // 0x234

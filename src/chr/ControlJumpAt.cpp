@@ -32,23 +32,23 @@ ControlJumpAt::ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_
     mChara->m5C0 &= ~1;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x146, 0, 0, 1, 1.0f, 0.1f);
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
     mChara->mPos = start;
 }
 
 // NONMATCHING: 98.4% - the two operator temporaries get swapped stack slots (and float registers).
 int ControlJumpAt::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
-    float frame = motion->m234;
+    float frame = motion->mTracks[0].m08;
     float t = frame / motion->fn_80097D7C(0);
     atn::Vector3 pos = (mTarget->mPos - mStart) * t + mStart;
     mChara->mPos = pos;
     atn::Vector3 rot = mTarget->mRot;
     rot.y += 3.1415927f;
     mChara->mRot = rot;
-    float cur = motion->m234;
+    float cur = motion->mTracks[0].m08;
     if (cur >= motion->fn_80097D7C(0)) {
         ControlGrappled* next = new (0, "", "", 0) ControlGrappled(mTarget, mChara);
         ((CharaTask*)mTarget)->fn_80178208(next);
@@ -121,9 +121,9 @@ ControlGrappled::ControlGrappled(Chara_unk* chara, Chara_unk* holder)
     }
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x1DA, 1, 0, 1, 0.0f, 0.1f);
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
 }
 
 int ControlGrappled::vf0C() {
@@ -174,7 +174,7 @@ boost::function<void()> ControlGrappled::vf10() {
 // NONMATCHING: draft (0x801B6E70 throws the target along a parabola: gravity -98.1, 112 frames)
 int ControlGrappleThrown::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
-    float frame = motion->m234;
+    float frame = motion->mTracks[0].m08;
     return frame >= motion->fn_80097D7C(0);
 }
 
@@ -183,19 +183,19 @@ ControlGrappledThrow::ControlGrappledThrow(Chara_unk* chara, Chara_unk* holder)
     chara->m560 = 0x7F;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x1DB, 0, 0, 1, 0.0f, 0.1f);
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
 }
 
 int ControlGrappledThrow::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
-    if (mChara->mMotion.m234 < 112.0f) {
+    if (mChara->mMotion.mTracks[0].m08 < 112.0f) {
         atn::Vector3 rot = mChara->mRot;
         rot.y += 0.028049935f;
         mChara->mRot = rot;
     }
-    float frame = motion->m234;
+    float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
         return 1;
     }

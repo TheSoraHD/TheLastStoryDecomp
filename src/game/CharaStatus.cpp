@@ -120,8 +120,8 @@ inline void CharaStatus::UpdatePartFlag_unk() {
     if (mChara != 0) {
         m0C &= ~0x100000;
         m10 &= ~0x100000;
-        for (unsigned int i = 0; i < mChara->m650; i++) {
-            if (mChara->m654[i]->m274->mF0 != 0) {
+        for (unsigned int i = 0; i < mChara->mParts.mCount; i++) {
+            if (mChara->mParts.mData[i]->m274->mF0 != 0) {
                 m0C |= 0x100000;
                 m10 |= 0x100000;
                 return;

@@ -33,14 +33,14 @@ RouteWalker_unk::RouteWalker_unk() {
     m2C = 1;
     mA0 = 0;
     mChara = 0;
-    m70 = 0.0f;
-    m74 = 0.0f;
-    m78 = 0.0f;
-    m7C = 0.0f;
-    m80 = 0.0f;
-    m84 = 1.0f;
-    m88 = 0.0f;
-    m8C = 0.0f;
+    m70.m00.x = 0.0f;
+    m70.m00.y = 0.0f;
+    m70.m00.z = 0.0f;
+    m70.m0C.x = 0.0f;
+    m70.m0C.y = 0.0f;
+    m70.m0C.z = 1.0f;
+    m70.m18 = 0.0f;
+    m70.m1C = 0.0f;
     fn_8012539C();
     m2C = 1;
 }

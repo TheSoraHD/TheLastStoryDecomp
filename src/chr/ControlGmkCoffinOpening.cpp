@@ -23,20 +23,20 @@ ControlGmkCoffinOpening::ControlGmkCoffinOpening(Chara_unk* chara, const atn::Ve
     mChara->mRot = atn::Vector3(0.0f, rotY, 0.0f);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x231, 0, 0, 1, 0.0f, 0.1f);
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
 }
 
 int ControlGmkCoffinOpening::vf0C() {
     if (mState == 0) {
         Motion_unk* motion = &mChara->mMotion;
-        float frame = motion->m234;
+        float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {
             motion->m34C = 1;
-            motion->m24C = 1.0f;
+            motion->mTracks[0].m20 = 1.0f;
             motion->fn_80097C08(0, 0x232, 1, 0, 1, 0.0f, 0.1f);
-            motion->m238 = 1.0f;
+            motion->mTracks[0].m0C = 1.0f;
             mState = 1;
         }
     }
@@ -52,18 +52,18 @@ ControlGmkCoffinOpen::ControlGmkCoffinOpen(Chara_unk* chara, const atn::Vector3&
     mChara->mRot = atn::Vector3(0.0f, rotY, 0.0f);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     if (alt) {
         motion->fn_80097C08(0, 0x234, 0, 0, 1, 0.0f, 0.1f);
     } else {
         motion->fn_80097C08(0, 0x233, 0, 0, 1, 0.0f, 0.1f);
     }
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
 }
 
 int ControlGmkCoffinOpen::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
-    float frame = motion->m234;
+    float frame = motion->mTracks[0].m08;
     return frame >= motion->fn_80097D7C(0);
 }
 
@@ -74,13 +74,13 @@ ControlGmkCoffinGetUp::ControlGmkCoffinGetUp(Chara_unk* chara, const atn::Vector
     mChara->m5C0 &= ~1;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     if (mChara->mType == 2) {
         motion->fn_80097C08(0, 0x230, 0, 0, 1, 1.0f, 0.1f);
     } else {
         motion->fn_80097C08(0, 0x22F, 0, 0, 1, 1.0f, 0.1f);
     }
-    motion->m238 = 0.0f;
+    motion->mTracks[0].m0C = 0.0f;
     mChara->mPos = pos;
     mChara->mRot = rot;
     ((CharaTask*)mChara)->fn_80145334();
@@ -94,22 +94,22 @@ int ControlGmkCoffinGetUp::vf0C() {
     if (mState == 0) {
         if (--mWait < 0) {
             if (mChara->mType == 2) {
-                motion->m238 = 1.0f;
+                motion->mTracks[0].m0C = 1.0f;
             } else {
-                motion->m238 = 0.7f;
+                motion->mTracks[0].m0C = 0.7f;
             }
             mState = 1;
         }
     } else if (mState == 1) {
-        float frame = motion->m234;
+        float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {
             mChara->m5C0 |= 1;
             mChara->fn_8015495C(0, 1, 1, 1);
             Motion_unk* m = &mChara->mMotion;
             m->m34C = 1;
-            m->m24C = 1.0f;
+            m->mTracks[0].m20 = 1.0f;
             m->fn_80097C08(0, 2, 0, 0, 1, 1.0f, 0.1f);
-            m->m238 = 1.0f;
+            m->mTracks[0].m0C = 1.0f;
             atn::Vector3 ofs(-16.0f, 0.0f, -18.0f);
             Mtx mtx;
             PSMTXRotRad(mtx, 'y', mChara->mRot.y);
@@ -120,7 +120,7 @@ int ControlGmkCoffinGetUp::vf0C() {
             ((CharaTask*)mChara)->fn_80145334();
             return 1;
         }
-        if (motion->m234 >= 3.0f) {
+        if (motion->mTracks[0].m08 >= 3.0f) {
             atn::Vector3 pos = mChara->mPos;
             pos.y += (lbl_8087DA08 - pos.y) * 0.25f;
             mChara->mPos = pos;
@@ -134,9 +134,9 @@ ControlGmkTrapBat::ControlGmkTrapBat(Chara_unk* chara, float damage) : ControlBa
     mChara->m560 = 0x5E;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x236, 1, 0, 1, 0.0f, 0.1f);
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
 }
 
 int ControlGmkTrapBat::vf0C() {
@@ -206,18 +206,18 @@ ControlGmkBreakArmor::ControlGmkBreakArmor(Chara_unk* chara, GmkTarget_unk* targ
     }
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0xB, 0, 0, 1, 0.0f, 0.1f);
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
 }
 
 int ControlGmkBreakArmor::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
-    float frame = motion->m234;
+    float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
         return 1;
     }
-    float cur = motion->m234;
+    float cur = motion->mTracks[0].m08;
     if ((float)__fabs(cur - 18.0f) < 1.1920929e-7f) {
         if (m0C != 0) {
             fn_80547708(m0C, mTarget);

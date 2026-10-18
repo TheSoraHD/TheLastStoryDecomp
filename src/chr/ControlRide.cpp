@@ -42,8 +42,8 @@ ControlRideBeast::ControlRideBeast(Chara_unk* chara, Chara_unk* rider)
     : ControlBase(chara), mBeast(chara), mRider(rider) {
     chara->m560 = 0x8A;
     mBeast->mMotion.m34C = 1;
-    mBeast->mMotion.m24C = 1.0f;
-    mBeast->mMotion.m238 = 1.0f;
+    mBeast->mMotion.mTracks[0].m20 = 1.0f;
+    mBeast->mMotion.mTracks[0].m0C = 1.0f;
     mBeast->mMotion.fn_80097C08(0, 0x1F2, 0, 0, 1, 0.0f, 0.1f);
     mStartPos = mBeast->mPos;
     // inferred: the motion object at +0xB0 is also the model (MapPartsModel.h)
@@ -58,10 +58,10 @@ ControlRideBeast::ControlRideBeast(Chara_unk* chara, Chara_unk* rider)
 // 0x70) and the products are emitted with swapped operands; the lerp of the rotation is written
 // per component because a (b - a) * t temporary is stored by our compiler and not by the original.
 int ControlRideBeast::vf0C() {
-    float frame = mBeast->mMotion.m234;
+    float frame = mBeast->mMotion.mTracks[0].m08;
     if (frame < mBeast->mMotion.fn_80097D7C(0)) {
         Motion_unk* motion = &mBeast->mMotion;
-        float cur = motion->m234;
+        float cur = motion->mTracks[0].m08;
         float rate = (0.0f == cur) ? 0.0f : cur / motion->fn_80097D7C(0);
         atn::Vector3 dir = mSeatPos - mStartPos;
         float dist = PSVECMag(&dir) * rate;

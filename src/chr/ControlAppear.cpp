@@ -24,9 +24,9 @@ ControlAppear::ControlAppear(Chara_unk* chara, const atn::Vector3& start, const 
     mChara->m5C0 &= ~1;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x2B, 0, 0, 1, 1.0f, 0.1f);
-    motion->m238 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
     mChara->mPos = start;
     m08 = mChara->m600;
 }
@@ -34,7 +34,7 @@ ControlAppear::ControlAppear(Chara_unk* chara, const atn::Vector3& start, const 
 int ControlAppear::vf0C() {
     atn::Vector3 rot = mChara->mRot;
     Motion_unk* motion = &mChara->mMotion;
-    float frame = motion->m234;
+    float frame = motion->mTracks[0].m08;
     float a = 0.0f;
     float b = 1.0f;
     if (frame >= motion->fn_80097D7C(0)) {
@@ -55,7 +55,7 @@ int ControlAppear::vf0C() {
 // r4/r5/r3.
 void ControlAppear::vf40() {
     Motion_unk* motion = &mChara->mMotion;
-    float frame = motion->m234;
+    float frame = motion->mTracks[0].m08;
     float t = frame / motion->fn_80097D7C(0);
     Chara_unk* chara = mChara;
     Motion_unk::Entry_unk* e = &motion->m220[chara->m524];
@@ -87,15 +87,15 @@ ControlAppearEnd::ControlAppearEnd(Chara_unk* chara, int motion, float blend) : 
     mChara->m5C0 |= 1;
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
-    m->m24C = 1.0f;
+    m->mTracks[0].m20 = 1.0f;
     m->fn_80097C08(0, motion, 0, 0, 1, blend, 0.1f);
-    m->m238 = 1.0f;
+    m->mTracks[0].m0C = 1.0f;
 }
 
 int ControlAppearEnd::vf0C() {
     atn::Vector3 rot = mChara->mRot;
     Motion_unk* motion = &mChara->mMotion;
-    float frame = motion->m234;
+    float frame = motion->mTracks[0].m08;
     // inferred: the vf34 arguments are locals (loaded into f30/f29 before the first call)
     float a = 0.0f;
     float b = 1.0f;
@@ -127,15 +127,15 @@ int ControlAppearSkelton::vf0C() {
             mChara->fn_8016E4C4(1);
             Motion_unk* motion = &mChara->mMotion;
             motion->m34C = 1;
-            motion->m24C = 1.0f;
+            motion->mTracks[0].m20 = 1.0f;
             motion->fn_80097C08(0, 0x2E, 0, 0, 1, 1.0f, 0.1f);
-            motion->m238 = -1.0f;
-            motion->m234 = motion->fn_80097D7C(0);
+            motion->mTracks[0].m0C = -1.0f;
+            motion->mTracks[0].m08 = motion->fn_80097D7C(0);
             mState++;
         } else {
             mWait--;
         }
-    } else if (mChara->mMotion.m234 <= 0.0f) {
+    } else if (mChara->mMotion.mTracks[0].m08 <= 0.0f) {
         mChara->m5C0 |= 1;
         return 1;
     }

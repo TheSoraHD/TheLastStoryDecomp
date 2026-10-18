@@ -30,9 +30,9 @@ public:
         chara->m560 = 0x59;
         Motion_unk* motion = &mChara->mMotion;
         motion->m34C = 1;
-        motion->m24C = 1.0f;
+        motion->mTracks[0].m20 = 1.0f;
         motion->fn_80097C08(0, 0x21B, 1, 0, 1, 0.0f, 0.1f);
-        motion->m238 = 1.0f;
+        motion->mTracks[0].m0C = 1.0f;
     }
     virtual int vf0C() { return 0; }
 };

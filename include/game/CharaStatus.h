@@ -2,6 +2,7 @@
 #define GAME_CHARASTATUS_H
 
 #include "math/Vec.h"
+#include "game/CharaSub_unk.h"
 
 #include "std/new.h"
 
@@ -80,6 +81,10 @@ public:
     void fn_80128B20(CharaTask* target, const atn::Vector3* dest, int arg, float radius); // mode 6
     void fn_80128C08(CharaTask* target, const atn::Vector3* dest, int arg, float arg2);  // mode 7
     int fn_80127EF4(); // inferred: stops unless the flag of m48 is set
+    atn::Vector3* fn_80139F58(); // inferred: accessors called out of line from CharaTask
+    int fn_8013C3F4();
+    CharaSubSeg_unk* fn_8013C3FC();
+    int fn_8013C424();
 
     int mDestPoint; // 0x00
     int mPointA;    // 0x04
@@ -99,14 +104,7 @@ public:
     atn::Vector3 m4C;
     atn::Vector3 m58;
     atn::Vector3 m64;
-    float m70;
-    float m74;
-    float m78;
-    float m7C;
-    float m80;
-    float m84;
-    float m88;
-    float m8C;
+    CharaSubSeg_unk m70; // inferred: passed to CharaSub_unk::fn_80135338 (accessor 0x8013C3FC)
     int m90;
     int m94;
     int m98;
@@ -170,6 +168,7 @@ public:
 
 // inferred: block of parameters, twice in CharaStatusBase (0x28 and 0xE8); names invented
 struct CharaParam_unk {
+    bool fn_801404E0(unsigned int flag); // inferred: accessor called out of line from CharaTask
     CharaParam_unk() : m00(0.0f), m04(0.0f), m08(0.0f), m0C(0.0f), m10(1.0f), m14(1.0f), m18(0.0f), m1C(0.0f),
                        m20(0), m24(0), m28(0.0f), m2C(0.0f), m30(0), m34(0) {
         for (int i = 0; i < 7; i++) {
@@ -228,7 +227,9 @@ struct CharaPartData_unk {
 
 // inferred: equipment object (CharaTask::m680[]); m414 points to its parameters
 struct CharaEquip_unk {
-    unsigned char m000[0x414];
+    ~CharaEquip_unk(); // 0x805638BC
+    unsigned char m000[0x024];
+    unsigned char m024[0x414 - 0x024]; // inferred: model-like object (passed to fn_80094E2C)
     CharaParam_unk* m414;
 };
 
@@ -328,6 +329,7 @@ struct FixedArray_unk {
     FixedArray_unk() : mCount(0) {}
     T* begin() { return mData; }
     T* end() { return mData + mCount; }
+    T& operator[](int i) { return mData[i]; }
     void erase(T* it) {
         for (unsigned int i = it - mData; i < mCount - 1; i++) {
             mData[i] = mData[i + 1];
@@ -380,6 +382,7 @@ public:
     int fn_80133BD8(int force); // inferred: level of the character
     void ClearBit_unk(int bit);
     int fn_8012E534();
+    int fn_80139F4C(); // inferred: accessor called out of line from CharaTask
     int fn_8012F3D8();
     void fn_8013310C(unsigned int flags, int both);
     int fn_801333A4(unsigned int mask);

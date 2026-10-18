@@ -43,19 +43,19 @@ ControlTurnQuadruped::ControlTurnQuadruped(Chara_unk* chara, double angle) : Con
     mRot = mChara->mRot;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
-    motion->m24C = 1.0f;
+    motion->mTracks[0].m20 = 1.0f;
     if (mLeft == 0) {
         motion->fn_80097C08(0, 0x1EE, 0, 1, 1, 0.0f, 0.1f);
     } else {
         motion->fn_80097C08(0, 0x1EF, 0, 1, 1, 0.0f, 0.1f);
     }
-    motion->m238 = 2.0f;
+    motion->mTracks[0].m0C = 2.0f;
 }
 
 // NONMATCHING: 85% - the stack slots of the three rotation matrices are mirrored (the original
 // keeps the matrix address in r30), plus some float register/operand order differences.
 int ControlTurnQuadruped::vf0C() {
-    float frame = mChara->mMotion.m234;
+    float frame = mChara->mMotion.mTracks[0].m08;
     float length = mChara->mMotion.fn_80097D7C(0);
     if (frame >= length) {
         return 1;

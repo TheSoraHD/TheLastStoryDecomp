@@ -26,9 +26,9 @@ public:
         mChara->m5C0 |= 1;
         Motion_unk* motion = &mChara->mMotion;
         motion->m34C = 1;
-        motion->m24C = 1.0f;
+        motion->mTracks[0].m20 = 1.0f;
         motion->fn_80097C08(0, 0x147, 1, 0, 1, 0.0f, 0.1f);
-        motion->m238 = 1.0f;
+        motion->mTracks[0].m0C = 1.0f;
     }
     virtual int vf0C();                     // 0x801B5894
     virtual boost::function<void()> vf10(); // 0x801B5A2C
@@ -54,9 +54,9 @@ public:
         chara->m560 = 0x7E;
         Motion_unk* motion = &mChara->mMotion;
         motion->m34C = 1;
-        motion->m24C = 1.0f;
+        motion->mTracks[0].m20 = 1.0f;
         motion->fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
-        motion->m238 = 1.0f;
+        motion->mTracks[0].m0C = 1.0f;
     }
     virtual int vf0C(); // 0x801B6E70
 

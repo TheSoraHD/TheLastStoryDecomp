@@ -59,9 +59,9 @@ ControlCaught::ControlCaught(Chara_unk* chara, int arg, int count, int motion, i
     }
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
-    m->m24C = 1.0f;
+    m->mTracks[0].m20 = 1.0f;
     m->fn_80097C08(0, mMotion, 1, 0, 1, 0.0f, 0.1f);
-    m->m238 = 1.0f;
+    m->mTracks[0].m0C = 1.0f;
     m08 = arg;
     mChara->mF1C = arg;
 }
@@ -111,18 +111,18 @@ ControlRelease::ControlRelease(Chara_unk* chara, int motion) : ControlBase(chara
         }
         Motion_unk* m = &mChara->mMotion;
         m->m34C = 1;
-        m->m24C = 1.0f;
+        m->mTracks[0].m20 = 1.0f;
         m->fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
-        m->m238 = 1.0f;
+        m->mTracks[0].m0C = 1.0f;
     } else {
         if (motion < 0) {
             motion = 0x68;
         }
         Motion_unk* m = &mChara->mMotion;
         m->m34C = 1;
-        m->m24C = 1.0f;
+        m->mTracks[0].m20 = 1.0f;
         m->fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
-        m->m238 = 1.0f;
+        m->mTracks[0].m0C = 1.0f;
     }
     mChara->m560 = 0x13;
     mChara->mF1C = 0;
@@ -132,16 +132,16 @@ int ControlRelease::vf0C() {
     int ret = 0;
     Motion_unk* motion = &mChara->mMotion;
     if (m08) {
-        if (motion->m22C == 0x2E && mChara->m574.y > -0.01f) {
+        if (motion->mTracks[0].m00 == 0x2E && mChara->m574.y > -0.01f) {
             motion->fn_80097C08(0, 0x31, 1, 0, 1, 0.0f, 0.1f);
             ret = 1;
         }
-    } else if (motion->m22C == 0x68) {
+    } else if (motion->mTracks[0].m00 == 0x68) {
         if (mChara->m574.y > -0.01f) {
             motion->fn_80097C08(0, 0x69, 0, 0, 1, 0.0f, 0.1f);
         }
     } else {
-        float frame = motion->m234;
+        float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {
             ret = 1;
         }
