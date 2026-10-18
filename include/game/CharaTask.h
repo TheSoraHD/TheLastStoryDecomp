@@ -74,6 +74,8 @@ public:
     int fn_8013655C();
     void fn_80178208(chr::ControlBase* control); // inferred: changes the current control
     void fn_8016EB48(int a, int b, int c); // inferred: bound with three bools (0x801C7390)
+    void fn_8015E4B0(const Vec& dir, int arg); // inferred: knock back along `dir` (0x801B59E0)
+    void fn_8015E7A0(const Vec& dir, int arg, int arg2);
     void fn_80139560();
     void fn_80145334();
     void fn_80149A30();

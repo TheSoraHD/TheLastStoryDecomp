@@ -81,7 +81,8 @@ public:
     int m524; // inferred: index into Motion_unk::m220
     Vec mPos;  // 0x528
     Vec mRot;  // 0x534
-    unsigned char m540[0x560 - 0x540];
+    unsigned char m540[0x55C - 0x540];
+    int m55C; // inferred: state compared with 6 by the grapple controls
     int m560;
     unsigned char m564[0x570 - 0x564];
     float m570;
@@ -98,9 +99,13 @@ public:
     unsigned int m5C0; // inferred: flags; bit 0 is cleared while appearing (chr::ControlAppear)
     unsigned char m5C4[0x600 - 0x5C4];
     Vec m600;
-    unsigned char m60C[0x7E0 - 0x60C];
+    unsigned char m60C[0x7D8 - 0x60C];
+    float m7D8;
+    unsigned char m7DC[0x7E0 - 0x7DC];
     unsigned int m7E0; // inferred: flags tested with masks; 0x20 while held (0x801A2490)
-    unsigned char m7E4[0xC48 - 0x7E4];
+    unsigned char m7E4[0x948 - 0x7E4];
+    float m948;
+    unsigned char m94C[0xC48 - 0x94C];
     int mC48;
     unsigned char mC4C[0xD18 - 0xC4C];
     int mD18;  // inferred: nonzero stops chr::ControlRide (0x801C6FE8)
