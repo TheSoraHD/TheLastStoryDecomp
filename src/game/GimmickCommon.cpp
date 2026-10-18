@@ -6,6 +6,7 @@
 #include "gmk/SkeltonsMirror.h"
 #include "gmk/TodomeCountUp.h"
 #include "gmk/ShakeCamera.h"
+#include "gmk/BulletPoint.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -223,7 +224,6 @@ extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_804166B0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80416F74(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8041B970(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041EB80(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80420ADC(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80421AB8(atn::Task* parent, GimmickDesc_unk* desc);
@@ -311,7 +311,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 31: gimmick = fn_804166B0(parent, desc); break;
     case 32: gimmick = fn_80416F74(parent, desc); break;
     case 34: gimmick = fn_80418F30(parent, desc); break;
-    case 35: gimmick = fn_8041B970(parent, desc); break;
+    case 35: gimmick = gmk::BulletPoint::fn_8041B970(parent, desc); break;
     case 39: gimmick = fn_8041EB80(parent, desc); break;
     case 41: gimmick = fn_80420ADC(parent, desc); break;
     case 42: gimmick = gmk::ShakeCamera::fn_80421454(parent, desc); break;
