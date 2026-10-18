@@ -1,10 +1,13 @@
 #ifndef SHIM_STDEXCEPT
 #define SHIM_STDEXCEPT
 #include <exception>
+#include "std/string.h"
 namespace std {
 class runtime_error : public exception {
 public:
     explicit runtime_error(const char* what) : mWhat(what) {}
+    // declared only (boost::escaped_list_error, never used by the game)
+    explicit runtime_error(const string& what);
     virtual ~runtime_error() {}
     virtual const char* what() const { return mWhat; }
 private:

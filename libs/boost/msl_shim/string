@@ -1,2 +1,6 @@
-// Stand-in for an MSL C++ header (no MSL C++ source is available): only what Boost needs.
+#ifndef SHIM_STRING
+#define SHIM_STRING
+// Stand-in for MSL C++ <string>: the reconstruction in std/string.h.
 #include <cstring>
+#include "std/string.h"
+#endif

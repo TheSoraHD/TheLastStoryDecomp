@@ -14,7 +14,34 @@ changed.
   initialisation and every file including `bind.hpp` gets an empty `__sinit_*` and a `.ctors`
   entry, which the game's units with `boost::bind` (e.g. 0x801C7390) do not have. In 1.34.1
   `arg<I>` is an empty class.
+- `boost/tokenizer.hpp`, `boost/token_iterator.hpp`, `boost/token_functions.hpp` and what they
+  open (`boost/iterator/*`, more of `boost/mpl/*` and `boost/type_traits/*`, `boost/implicit_cast.hpp`,
+  ...): tag `boost-1.35.0` of `boostorg/tokenizer`, `iterator`, `mpl`, `type_traits`, `utility`,
+  `detail`, `static_assert`, `conversion` (1.34.1 differs only in comments and in `at_end()`, which the
+  game does not use).
 - Everything else: tag `boost-1.35.0`.
+
+## boost::tokenizer
+
+`boost::tokenizer<boost::char_separator<char> >` over `std::string` is used by about 26 game files.
+Its members are called out of line; the weak copies live in game/BattleCharaTask.cpp
+(0x800EC2C4-0x800EE180), 0x80205BE8 (`operator++(int)`) and 0x8000EB8C (`std::string == const
+char*`). Compiled from these headers (standalone, Wii/1.3 with the game flags):
+
+| Address | Function | Result |
+|---|---|---|
+| 0x800EC2C4 | `tokenizer(const std::string&, const char_separator&)` | same instructions |
+| 0x800EC440 | `char_separator(const char*, const char*, empty_token_policy)` | same instructions |
+| 0x800EC534 | `~char_separator` | same instructions |
+| 0x800EC5BC | `~tokenizer` | same instructions |
+| 0x800ED42C | `~token_iterator` | same instructions |
+| 0x800EC654, 0x800EDFE8 | `begin()`, `end()` | 8 lines differ (one store base register) |
+| 0x800EC7F0 | `token_iterator(f, begin, end)` | register numbers differ, 4 instructions moved |
+| 0x800ED4E0, 0x80205BE8 | `operator++()`, `operator++(int)` | register numbers differ, 6 instructions moved |
+| 0x8000EB8C | `operator==(const std::string&, const char*)` | 31 instructions differ |
+
+What they show about MSL is in `docs/msl_cpp.md` (string iterators are a class, copy constructor,
+`find`, `end`, two-level `assign`).
 
 ## Why this Boost.Function version
 

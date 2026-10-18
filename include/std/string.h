@@ -8,13 +8,62 @@
 
 #include "std/msl_common.h"
 #include "std/iterator.h"
+#include <memory>
 
 namespace std {
 
+// inferred: the string iterators are a class holding a pointer, not plain pointers:
+// boost::tokenizer::begin (0x800EC654) passes them to the token_iterator constructor by address.
+// Name invented.
 template <class T>
+class __string_iterator_unk {
+public:
+    typedef random_access_iterator_tag iterator_category;
+    typedef T value_type;
+    typedef long difference_type;
+    typedef T* pointer;
+    typedef T& reference;
+    __string_iterator_unk() {}
+    explicit __string_iterator_unk(T* p) : mPtr(p) {}
+    T& operator*() const { return *mPtr; }
+    T* operator->() const { return mPtr; }
+    __string_iterator_unk& operator++() {
+        ++mPtr;
+        return *this;
+    }
+    __string_iterator_unk operator++(int) {
+        __string_iterator_unk tmp(*this);
+        ++mPtr;
+        return tmp;
+    }
+    T* base() const { return mPtr; }
+    friend bool operator==(const __string_iterator_unk& a, const __string_iterator_unk& b) { return a.mPtr == b.mPtr; }
+    friend bool operator!=(const __string_iterator_unk& a, const __string_iterator_unk& b) { return a.mPtr != b.mPtr; }
+
+    T* mPtr;
+};
+
+// Standard character traits (only what the string and boost::char_separator use)
+template <class T>
+struct char_traits {
+    typedef T char_type;
+    typedef int int_type;
+};
+
+template <class T, class Traits = char_traits<T>, class Alloc = allocator<T> >
 class basic_string {
 public:
+    typedef Traits traits_type;
+    typedef T value_type;
+    typedef Alloc allocator_type;
     typedef unsigned long size_type;
+    typedef long difference_type;
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef T* pointer;
+    typedef const T* const_pointer;
+    typedef __string_iterator_unk<T> iterator;
+    typedef __string_iterator_unk<const T> const_iterator;
     enum { __min_cap = (12 - 1) / sizeof(T) };
 
     // Inline members (inferred); game functions still call them out of line (weak copies:
@@ -73,6 +122,20 @@ public:
         __replace_unk(0, 0, s, s + n, random_access_iterator_tag());
     }
     basic_string(const basic_string& str, size_type pos, size_type n = npos); // 0x80069BF4 (char)
+    // inferred: inlined in boost::tokenizer::begin (0x800EC654): a short string is copied word by
+    // word, a long one through reserve and the range replace
+    basic_string(const basic_string& str) {
+        if (!str.is_long()) {
+            // inferred: copied as a block (0x800EC7F0 stores word 1 before word 0)
+            mRaw = str.mRaw;
+        } else {
+            mLong.mCap = 0;
+            mLong.mSize = 0;
+            mLong.mData = 0;
+            reserve(str.mLong.mSize);
+            __replace_unk(0, 0, str.mLong.mData, str.mLong.mData + str.mLong.mSize, random_access_iterator_tag());
+        }
+    }
 
     // inferred: inlined at 0x80476220: two short strings are copied word by word
     basic_string& operator=(const basic_string& str) {
@@ -102,6 +165,82 @@ public:
     }
     basic_string substr(size_type pos = 0, size_type n = npos) const { return basic_string(*this, pos, n); }
     const T* c_str() const { return data(); }
+    size_type length() const { return size(); }
+    const_iterator begin() const { return const_iterator(data()); }
+    // inferred: data and size from one test (boost::tokenizer constructor, 0x800EC2C4)
+    const_iterator end() const {
+        const T* p;
+        size_type sz;
+        if (!is_long()) {
+            p = (const T*)this + 1;
+            sz = mShort.mSize & 0x7F;
+        } else {
+            p = mLong.mData;
+            sz = mLong.mSize;
+        }
+        return const_iterator(p + sz);
+    }
+    // inferred: boost::char_separator (0x800EC7F0) assigns with replace(0, size(), first, last)
+    template <class Iterator>
+    basic_string& assign(Iterator first, Iterator last) {
+        return replace(0, size(), first, last);
+    }
+    template <class Iterator>
+    basic_string& replace(size_type pos, size_type n1, Iterator j1, Iterator j2) {
+        typename iterator_traits<Iterator>::iterator_category tag;
+        return __replace_unk(pos, n1, &*j1, &*j2, tag);
+    }
+    basic_string& operator=(const T* s) { return assign(s); }
+    // inferred: inlined in operator==(const basic_string&, const T*) (0x8000EB8C, char)
+    int compare(size_type pos1, size_type n1, const T* s, size_type n2) const {
+        const T* p;
+        size_type sz;
+        if (!is_long()) {
+            p = (const T*)this + 1;
+            sz = mShort.mSize & 0x7F;
+        } else {
+            p = mLong.mData;
+            sz = mLong.mSize;
+        }
+        if (pos1 > sz) {
+            __msl_error("basic_string: out_of_range");
+        }
+        size_type rlen = __min(n1, sz - pos1);
+        int r = memcmp(p + pos1, s, __min(rlen, n2) * sizeof(T));
+        if (r == 0) {
+            if (rlen < n2) {
+                r = -1;
+            } else if (rlen == n2) {
+                r = 0;
+            } else {
+                r = 1;
+            }
+        }
+        return r;
+    }
+    int compare(const T* s) const { return compare(0, size(), s, strlen(s)); }
+
+    // inferred: inlined in boost::char_separator (0x800EC7F0)
+    size_type find(T c, size_type pos = 0) const {
+        const T* p;
+        size_type sz;
+        if (!is_long()) {
+            p = (const T*)this + 1;
+            sz = mShort.mSize & 0x7F;
+        } else {
+            p = mLong.mData;
+            sz = mLong.mSize;
+        }
+        if (pos < sz) {
+            const T* e = p + sz;
+            for (const T* q = p + pos; q < e; ++q) {
+                if (c == *q) {
+                    return q - p;
+                }
+            }
+        }
+        return npos;
+    }
 
     // inferred: inlined at 0x80476220
     size_type rfind(T c, size_type pos = npos) const {
@@ -119,7 +258,7 @@ public:
                 pos = sz - 1;
             }
             for (const T* q = p + pos;; --q) {
-                if (*q == c) {
+                if (c == *q) {
                     return q - p;
                 }
                 if (q <= p) {
@@ -161,13 +300,23 @@ private:
         unsigned char mIsLong : 1;
         unsigned char mSize : 7;
     };
+    struct Raw {
+        unsigned long mWords[3];
+    };
     union {
+        Raw mRaw;
         Long mLong;
         Short mShort;
         Flags mFlags;
         ShortFlags mShortFlags;
     };
 };
+
+// inferred: called out of line (weak copy 0x8000EB8C, char)
+template <class T, class Tr, class A>
+bool operator==(const basic_string<T, Tr, A>& lhs, const T* rhs) {
+    return lhs.compare(rhs) == 0;
+}
 
 typedef basic_string<char> string;
 
