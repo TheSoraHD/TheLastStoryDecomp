@@ -68,10 +68,6 @@ void CharaStatus::fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, cons
     dst->m34 += (a->m34 + b->m34) / 2;
 }
 
-int CharaStatus::fn_8012E534() {
-    return (m0C >> 12) & 1;
-}
-
 // inferred: name invented
 inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
     CharaStatusRef_unk* ref = refs.mData;
@@ -82,6 +78,54 @@ inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
         }
     }
     return sum;
+}
+
+// NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
+void CharaStatus::fn_8012D8B8() {
+    m04 = (float)mParamB.m84;
+    if (mChara != 0 && mChara->m48 == 0) {
+        m08 = 0.0f;
+    } else {
+        m08 = (float)mParamB.m88;
+    }
+    ClearFlags_unk(0xFFFFFFFF);
+    if (mChara != 0) {
+        mChara->vf48();
+    }
+    m300 = SumRefs_unk(mRefs, 57);
+    m428 = 0.0f;
+    m244 = m04;
+    m14 = 0;
+}
+
+// NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
+void CharaStatus::fn_8012DD70() {
+    if ((m0C & 0x20) == 0x20) {
+        return;
+    }
+    m04 = 0.0f;
+    if ((m0C & 0x100) == 0x100) {
+        mChara->fn_80167038();
+    }
+    if ((m0C & 0x10000) == 0x10000) {
+        mChara->fn_80167640();
+    }
+    if ((m0C & 0x40) == 0x40) {
+        mChara->fn_80166544();
+    }
+    ClearFlags_unk(0xFFFFFFFF);
+    fn_8013310C(0x20, 0);
+    if (m300 <= 0 && m224 > 0) {
+        m224--;
+    }
+    m428 = 0.0f;
+    m430 = 0;
+    m434 = 0.0f;
+    m438 = 0.0f;
+}
+
+int CharaStatus::fn_8012E534() {
+    return (m0C >> 12) & 1;
 }
 
 extern "C" int fn_80219344(chr::Chara_unk* chara, int arg);
@@ -139,27 +183,9 @@ void CharaStatus::fn_80133130(unsigned int flags, int value, int both) {
     }
 }
 
-// NONMATCHING: 91.7% - our compiler turns the parts loop into a ctr loop with the count read once; the
-// original reloads mChara->m650 each time and keeps an index and an offset. Tried: int and
-// unsigned index, break instead of return, a local chara pointer, a bool helper, a found flag.
+// NONMATCHING: 89.8% - the parts loop of ClearFlags_unk (see the header).
 void CharaStatus::fn_8013322C(unsigned int flags) {
-    m0C &= ~flags;
-    m10 &= ~flags;
-    for (int i = 0; i < 32; i++) {
-        if ((flags & (1 << i)) == (1 << i)) {
-            m24C[i] = 0;
-        }
-    }
-    if (mChara != 0) {
-        m0C &= ~0x100000;
-        m10 &= ~0x100000;
-        for (int i = 0; i < mChara->m650; i++) {
-            if (mChara->m654[i]->m274->mF0 != 0) {
-                fn_8013310C(0x100000, 1);
-                return;
-            }
-        }
-    }
+    ClearFlags_unk(flags);
 }
 
 int CharaStatus::fn_801333A4(unsigned int mask) {

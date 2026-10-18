@@ -71,6 +71,7 @@ public:
     virtual void vf3C();
     virtual void vf40();
     virtual void vf44();
+    virtual void vf48();
 
     // inferred: bounding sphere returned by value
     struct Sphere_unk {
@@ -95,6 +96,9 @@ public:
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
     int fn_8016E484();
     void fn_8017AC2C();
+    void fn_80166544();
+    void fn_80167038();
+    void fn_80167640();
     // inferred: state checks inlined in many places (names invented)
     bool IsActive_unk() { return (m38 & 4) != 4 && (m38 & 1) != 1; }
     bool IsFree_unk() { return IsActive_unk() && (m7E0 & 0x20) != 0x20; }

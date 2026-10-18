@@ -2,6 +2,7 @@
 #define GAME_CHARASTATUS_H
 
 #include "math/Vec.h"
+#include "chr/ControlBase.h"
 
 #include "std/new.h"
 
@@ -234,13 +235,14 @@ public:
 
     unsigned int m0C; // inferred: flags
     unsigned int m10; // inferred: flags (set together with m0C by fn_8013310C)
-    unsigned char m14[0x1C - 0x14];
+    int m14;
+    unsigned char m18[0x1C - 0x18];
     int m1C; // inferred: level (fn_80133B30)
     unsigned char m20[0x28 - 0x20];
     CharaParam_unk mParamA;    // 0x28
     CharaParam_unk mParamB;    // 0xE8
     CharaStatusData_unk m1A8;  // inferred: cleared with memset
-    unsigned char m224[0x228 - 0x224];
+    int m224; // inferred: counter decremented by fn_8012DD70
     float m228; // inferred: gauge raised by fn_8012F034
     unsigned char m22C[0x230 - 0x22C];
     unsigned char m230; // inferred: four flags (fn_80134774, fn_801347C8)
@@ -341,10 +343,37 @@ public:
     void fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, const CharaParam_unk* b);
     void fn_8012F034(float amount);
     void fn_8013322C(unsigned int flags);
+    // inferred: inlined in fn_8012D8B8 and fn_8012DD70 (defined after them as fn_8013322C, too big to
+    // be inlined from below), so it is an inline member; name invented.
+    // NONMATCHING (in every user): our compiler turns the parts loop into a ctr loop with the count
+    // read once; the original reloads mChara->m650 each time and keeps an index and an offset.
+    // Tried: int and unsigned index, break instead of return, a local chara pointer, a bool helper,
+    // a found flag, nested inline helpers.
+    void ClearFlags_unk(unsigned int flags) {
+        m0C &= ~flags;
+        m10 &= ~flags;
+        for (int i = 0; i < 32; i++) {
+            if ((flags & (1 << i)) == (1 << i)) {
+                m24C[i] = 0;
+            }
+        }
+        if (mChara != 0) {
+            m0C &= ~0x100000;
+            m10 &= ~0x100000;
+            for (unsigned int i = 0; i < mChara->m650; i++) {
+                if (mChara->m654[i]->m274->mF0 != 0) {
+                    fn_8013310C(0x100000, 1);
+                    return;
+                }
+            }
+        }
+    }
+    void fn_8012D8B8();
+    void fn_8012DD70();
     CharaStatusRef_unk* FindRef_unk(int id, unsigned int key);
 
     int m240;
-    unsigned char m244[0x248 - 0x244];
+    float m244; // inferred: copy of m04 (fn_8012D8B8)
     int m248;
     int m24C[32]; // inferred: one value per flag bit (fn_801333A4)
     int m2CC;
