@@ -9,6 +9,12 @@
 #include "game/CharaStatus.h"
 #include <boost/scoped_ptr.hpp>
 #include "std/string.h"
+#include "std/string_members.h"
+#include "atn/Csv.h"
+#include "game/EquipItemData.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/tokenizer.hpp>
 
 // inferred: game settings (lbl_8087F0A8, as in CharaStatus.cpp); names invented
 struct Settings_unk {
@@ -145,14 +151,18 @@ static const char* const sStatusNames_unk[] = {
     0,
 };
 
-// inferred: model files (0x807377B0)
-static const char* const sModelNames_unk[] = {
-    "np011_a00.model", "np011_a01.model", "np031_a00.model", "np031_a01.model",
-    "np036_b00.model", "np036_b01.model", "np042_a00.model", "np042_a01.model",
-    "np037_b00.model", "np037_b01.model", "np010_b00.model", "np010_b01.model",
-    "np034_a00.model", "np034_a01.model", "np038_f00.model", "np038_f01.model",
-    "np035_k00.model", "np035_k01.model", "np002_c00.model", "np002_c01.model",
-    "em102_00_bs00.model", "em102_00_bs01.model",
+// inferred: model files replaced on load (0x807377B0): {searched name, replacement} pairs
+struct ModelName_unk {
+    const char* mFrom;
+    const char* mTo;
+};
+static const ModelName_unk sModelNames_unk[] = {
+    {"np011_a00.model", "np011_a01.model"}, {"np031_a00.model", "np031_a01.model"},
+    {"np036_b00.model", "np036_b01.model"}, {"np042_a00.model", "np042_a01.model"},
+    {"np037_b00.model", "np037_b01.model"}, {"np010_b00.model", "np010_b01.model"},
+    {"np034_a00.model", "np034_a01.model"}, {"np038_f00.model", "np038_f01.model"},
+    {"np035_k00.model", "np035_k01.model"}, {"np002_c00.model", "np002_c01.model"},
+    {"em102_00_bs00.model", "em102_00_bs01.model"},
 };
 
 extern "C" atn::Task* lbl_8087F128;
@@ -211,7 +221,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
       m12A0(0), mFlag31(0), mFlag30(0), mFlag29(1), mFlag28(0), mFlag27(0), mFlag25(0), mFlag24(1),
       mFlag23(0), mFlag22(0), mFlag21(0), mFlag20(0), mFlag19(0), mFlag18(0), mFlag17(1), mFlag16(1),
       mFlag15(0), mFlag14(1), mFlag13(1), mFlag12(0), mFlag11(0), mFlag10(0), mFlag9(0), mFlag8(0), mFlag7(0), mFlag6(0), mFlag5(0), mFlag4(0), mFlag3(0),
-      mFlag2(0), mFlag1_0(0), mFlagB31_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16_15(0), mFlagB14(1), mFlagB13_11(0),
+      mFlag2(0), mFlag1_0(0), mFlagB31_28(0), mFlagB27(0), mFlagB26(0), mFlagB25(0), mFlagB24_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16_15(0), mFlagB14(1), mFlagB13_11(0),
       mFlagB10(1), mFlagB9_8(0), mFlagB7(1), mFlagB6_2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
       m12BC(-1), m12C0(0), m12C4(0), m12C8(0), m12CC(0.0f), m1374(0), m137C(0), m1380(0), m1384(0),
       m1388(0), m138A(0), m138C(0), m1390(rand() % 4), m1398(0), m139C(0), m13AC(0), m13B0(0),
@@ -330,6 +340,612 @@ CharaTask::~CharaTask() {
 void CharaTask::fn_80136544(const char* path) {
     mAC = 1;
     m84.vf0C(path);
+}
+
+// inferred: camera object owned by a model (see Model_unk::m208); 0x1FC bytes
+struct Camera_unk {
+    Camera_unk(int a = 0, int b = 0);
+    ~Camera_unk();
+    unsigned char m00[0x1F4];
+};
+struct ModelCamera_unk {
+    ModelCamera_unk() : m00(0) {}
+    int m00;
+    int m04;
+    Camera_unk mCamera; // 0x08
+};
+// inferred: inlined in fn_8013655C (its literals are @STRING@ objects in .sdata); name invented
+inline void CreateCamera_unk(Model_unk* model) {
+    model->m208.reset(new (6, "", "", 0) ModelCamera_unk());
+}
+
+namespace chr {
+// inferred: plays one motion (constructor 0x801C3DCC, 0x18 bytes); arguments unknown
+class ControlOneMotion : public ControlBase {
+public:
+    ControlOneMotion(Chara_unk* chara, int motion, int a, int b, float c, float d);
+    virtual int vf0C();
+    unsigned char m08[0x18 - 0x08];
+};
+} // namespace chr
+
+// inferred: party data (lbl_8087F4F0); one 0x43C-byte block per member (names invented)
+struct PartyMember_unk {
+    unsigned char mEquipFlags; // inferred: one bit per equipment slot
+    unsigned char m001[0x43C - 0x001];
+};
+struct Party_unk {
+    unsigned char m0000[0x671C];
+    PartyMember_unk mMembers[7];
+};
+extern "C" Party_unk* lbl_8087F4F0;
+extern "C" int lbl_8087F610; // inferred: nonzero disables "PBONE"
+extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" char* strstr(const char* s, const char* find);
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" unsigned long strlen(const char* s);
+extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
+extern "C" int atoi(const char* s);
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
+extern "C" int fn_802180A8(const char* name); // inferred: motion name to id
+extern "C" int fn_8020EE8C(const char* name); // inferred: equipment slot by name
+extern "C" int fn_8044D208(Party_unk* party, int slot, int id);
+extern "C" void fn_804776F4(atn::LH_MotionSet* set, Model_unk* model); // inferred: applies the motions
+// inferred: node callback of a model (the functor manager of the original uses the default allocator of
+// boost::function3, std::allocator<function_base>)
+typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
+                        std::allocator<boost::function_base> >
+    NodeCallback_unk;
+extern "C" void fn_800F29D0(Model_unk* model, NodeCallback_unk callback);
+std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
+namespace std {
+string operator+(const string& lhs, const char* rhs); // 0x8006D008
+}
+
+// inferred: node edit read from a CSV line or built by hand (0x2C bytes); names invented
+struct NodeEdit_unk {
+    unsigned char m00[0x2C];
+};
+extern "C" void fn_80089EE4(NodeEdit_unk* edit, atn::CsvTab* csv);
+extern "C" void fn_80089D70(NodeEdit_unk* edit, const char* node, const atn::Vector3& a, const atn::Vector3& b,
+                            const atn::Vector3& c, int flags);
+
+// inferred: four floats read from the CSV (MATERIAL_EDIT); name invented
+struct Color4_unk {
+    Color4_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r;
+    float g;
+    float b;
+    float a;
+};
+
+// inferred: adds a model LOD read from the CSV; not an inline function (its "" is the file pool
+// one), inlined in fn_801371AC and fn_80137B78 by -ipa file; name invented
+static void AddModelLod_unk(Model_unk* model, atn::CsvTab& csv, const char* node) {
+    char path[0x100];
+    strcpy(path, csv.fn_8005B9CC());
+    if (strcmp(node, "") == 0) {
+        model->fn_80092F1C(path, 0, fn_800DC288(csv.fn_8005B9CC()));
+    } else {
+        model->fn_80092F1C(path, node, fn_800DC288(csv.fn_8005B9CC()));
+    }
+}
+
+// NONMATCHING: ~90% (72/727 lines) - register allocation only: in the equipment loops the original
+// gives the flag r29, the index r28 and the pointer r27 (ours the other way round) and the
+// attach loops keep the pointer in r29; tried: the flag as int, the checks in an inline helper,
+// m680[i] directly or through a pointer, declarations at the top. The node callback type needs
+// std::allocator<function_base> (name of its functor manager) and boost::function's extra copies.
+int CharaTask::fn_8013655C() {
+    int loading = 0;
+    switch (mAC) {
+    case 1:
+        if (m84.fn_80473F50()) {
+            loading = 1;
+        }
+        if (mA4.fn_80473F50()) {
+            loading = 1;
+        }
+        if (loading) {
+            break;
+        }
+        fn_801371AC();
+        fn_80138528();
+        if (m5C != 0) {
+            for (int i = 0; i < 5; i++) {
+                if (m5C->m108[i] > 0) {
+                    fn_8014FF9C(i, m5C->m108[i], 0);
+                }
+            }
+            for (int i = 0; i < 4; i++) {
+                CharaStatusPair_unk pair = m5C->mE8[i];
+                new (&mStatus.m2D0[mStatus.m2CC]) CharaStatusPair_unk(pair);
+                mStatus.m2CC++;
+            }
+        }
+        mAC = 2;
+    case 2: {
+        if (mMotion.fn_8008B140()) {
+            loading = 1;
+        }
+        if (m8C.fn_80473F50()) {
+            loading = 1;
+        }
+        if (m98.fn_80473F50()) {
+            loading = 1;
+        }
+        if (fn_8014FAD0()) {
+            loading = 1;
+        }
+        bool equipLoading = false;
+        chr::CharaEquip_unk** equips1 = m680;
+        for (unsigned int i = 0; i < 8; i++, equips1++) {
+            chr::CharaEquip_unk* equip = *equips1;
+            if (equip != 0 && equip->fn_8056405C()) {
+                equipLoading = true;
+            }
+        }
+        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+            if (m6A4.mData[i]->fn_8036354C()) {
+                equipLoading = true;
+            }
+        }
+        if (equipLoading) {
+            loading = 1;
+        }
+        if (m121C && m121C->fn_80237874()) {
+            loading = 1;
+        }
+        if (m1220.fn_801210C4()) {
+            loading = 1;
+        }
+        if (loading) {
+            break;
+        }
+        fn_804776F4(&m8C, &mMotion);
+        if ((m54C & 0x4000) != 0x4000) {
+            fn_804776F4(&m98, &mMotion);
+        }
+        if (mType == 0 || lbl_8087FA20 == 0) {
+            CreateCamera_unk(&mMotion);
+        }
+        chr::CharaEquip_unk** equips2 = m680;
+        for (unsigned int i = 0; i < 8; i++, equips2++) {
+            chr::CharaEquip_unk* equip = *equips2;
+            if (equip != 0) {
+                equip->fn_80566010();
+            }
+        }
+        fn_80137FC0();
+        fn_8014C228();
+        fn_800F29D0(&mMotion, boost::bind(&CharaTask::fn_80148CC4, this, _1, _2, _3));
+        mMotion.fn_80091CFC("head");
+        mMotion.fn_80091CFC("neck");
+        mMotion.fn_80091CFC("hips");
+        mMotion.fn_80091CFC("spine1");
+        mMotion.fn_80091CFC("spine");
+        mMotion.fn_80091CFC("rightshoulder");
+        mMotion.fn_80091CFC("leftshoulder");
+        mMotion.fn_80091CFC("eye_L");
+        mMotion.fn_80091CFC("eye_R");
+        mMotion.fn_80091CFC("eyeball_L");
+        mMotion.fn_80091CFC("eyeball_R");
+        if (mFlagB27) {
+            mMotion.fn_80091CFC("hair_b");
+        }
+        if (m50 == 1 || m50 / 1000 == 100) {
+            mFlagB25 = 1;
+        }
+        m524 = mMotion.fn_80092814("reference", 0);
+        m520 = mMotion.fn_80092814("neck", 0);
+        if (mMotion.mB0 < 0) {
+            mMotion.fn_80095D44(mMotion.fn_80092814("hips", 0), -1);
+        }
+        if (strstr(mMotion.fn_8008B130(), "k00.") != 0 || strstr(mMotion.fn_8008B130(), "k01.") != 0) {
+            mMotion.fn_80099E9C("hips", "nk000", 0.5325372f);
+        }
+        if (m50 == 700023) {
+            mMotion.fn_80099E9C("hips", "em003", 1.6f);
+        }
+        mLook.fn_801298EC(this);
+        m1188.fn_8011D424(&mMotion);
+        m1220.fn_80121114(this);
+        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+            m6A4.mData[i]->fn_80363960(&mMotion);
+        }
+        mMotion.fn_80097C08(0, m484[0], 1, 0, 1, 1.0f, 0.1f);
+        if (m12C0 > 0) {
+            mMotion.mTracks[0].m08 = (float)m12C0 * ((float)(rand() % 1001) / 1000.0f);
+        }
+        mMotion.fn_80097E80(1);
+        fn_8000D430(&mMotion, boost::function<void()>());
+        mMotion.fn_80097510();
+        if (mMotion.IsFlag5_unk()) {
+            mMotion.mFlag4_unk = 1;
+            chr::CharaEquip_unk** equips3 = m680;
+        for (unsigned int i = 0; i < 8; i++, equips3++) {
+                chr::CharaEquip_unk* equip = *equips3;
+                if (equip != 0) {
+                    equip->fn_805663F8();
+                }
+            }
+        }
+        m13B8[0] = mPos;
+        m13B8[1] = mPos;
+        m13D0[0] = mRot.y;
+        m13D0[1] = mRot.y;
+        vf20();
+        vf50();
+        if (mMotion.fn_80097D40(0x1DC) == 0) {
+            mStatus.m18 |= 0x80;
+        }
+        if ((m5C->mParam.m9C & 0x10000) == 0x10000) {
+            mStatus.m18 |= 4;
+        }
+        if (mMotion.fn_80097D40(0x45) == 0) {
+            mC10 |= 2;
+        }
+        if (mMotion.fn_80097D40(0x1DD) == 0) {
+            mC10 |= 4;
+        }
+        if (mMotion.fn_80097D40(0x46) == 0) {
+            mC10 |= 0x80;
+        }
+        if (mMotion.fn_80097D40(0x68) == 0) {
+            mC10 |= 0x20;
+        }
+        if (mMotion.fn_80097D40(0x1DE) == 0) {
+            mC10 |= 0x2000;
+        }
+        if ((m137C & 8) == 8) {
+            mMotion.mFlags &= ~4;
+        }
+        if (mFlag22 == 1 || mMotion.fn_80097D40(0x8E) == 0) {
+            m54C |= 0x1000000;
+        }
+        if (m50 == 203001) {
+            mStatus.m18 |= 1;
+            mStatus.m18 |= 0x400000;
+            mStatus.m18 |= 0x100;
+            mStatus.m18 |= 0x10000;
+        }
+        if (mMotion.fn_80097D40(0x5D) == 0) {
+            m54C |= 0x4000000;
+        }
+        mStatus.fn_8012B3E8();
+        mStatus.fn_8012B988();
+        mStatus.fn_8012D8B8();
+        mStatus.m224 = mStatus.mParamB.m98;
+        fn_8014FD30();
+        mAC = 3;
+    }
+    }
+    return loading;
+}
+
+int CharaTask::fn_801370B8(int index) {
+    return m484[index];
+}
+
+// NONMATCHING: ~88% (74/627 lines) - register allocation only (the original reuses r16, the field
+// pointer, in the branches; ours keeps other values in r18-r22); tried: loop forms of the model
+// name table, named strings, range check forms.
+void CharaTask::fn_801371AC() {
+    atn::CsvTab csv((const char*)m84.fn_80470580(), m84.fn_8047059C());
+    csv.fn_8005BCE8(lbl_8087D710);
+    char node[0x100] = "";
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (key[0] == ';') {
+            continue;
+        }
+        if (strcmp(key, "MODEL") == 0) {
+            char path[0x100];
+            strcpy(path, csv.fn_8005B9CC());
+            strcpy(node, csv.fn_8005B9CC());
+            for (unsigned int i = 0; i < 11; i++) {
+                if (strstr(path, sModelNames_unk[i].mFrom) != 0) {
+                    strcpy(path, sModelNames_unk[i].mTo);
+                    break;
+                }
+            }
+            if (strcmp(node, "") == 0) {
+                mMotion.fn_8008AD4C(path, 0);
+            } else {
+                mMotion.fn_8008AD4C(path, node);
+            }
+            fn_80137E68(&mMotion, &csv);
+        } else if (strcmp(key, "MODEL_LOD") == 0) {
+            AddModelLod_unk(&mMotion, csv, node);
+        } else if (strcmp(key, "MODEL_LOD_BATTLE") == 0) {
+            if (!IsTownField_unk()) {
+                AddModelLod_unk(&mMotion, csv, node);
+            }
+        } else if (strcmp(key, "MODEL_LOD_TOWN") == 0) {
+            if (IsTownField_unk()) {
+                AddModelLod_unk(&mMotion, csv, node);
+            }
+        } else if (strcmp(key, "SHADOW_LOD") == 0) {
+            char path[0x100];
+            strcpy(path, csv.fn_8005B9CC());
+            mMotion.fn_80092EC8(path);
+        } else if (strcmp(key, "MOTION") == 0) {
+            char path[0x100];
+            strcpy(path, csv.fn_8005B9CC());
+            mMotion.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
+        } else if (strcmp(key, "MOTION_SET") == 0) {
+            std::string path(csv.fn_8005B9CC());
+            fn_8006AD24(path, "mchr");
+            if (path.find("na000_00.mchr") != std::string::npos && IsTownField_unk()) {
+                path = fn_8006B0C8(path) + "/na000_00_town.mchr";
+            }
+            m8C.vf0C(path.c_str());
+        } else if (strcmp(key, "MOTION_SET_EX") == 0) {
+            if (m60 == 0 || strcmp(m60->m18, "") == 0) {
+                m98.vf0C(csv.fn_8005B9CC());
+            }
+        } else if (strcmp(key, "EFP") == 0) {
+            m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
+            m121C->fn_8023780C(csv.fn_8005B9CC());
+        } else if (strcmp(key, "EQUIP") == 0) {
+            m6A4.PushBack_unk(new (1, "", "", 0) EquipItemData(&csv));
+        } else if (strcmp(key, "PROTECTOR") == 0) {
+            int slot = fn_8020EE8C(csv.fn_8005B9CC());
+            char name[0x100];
+            const char* src = csv.fn_8005B9CC();
+            if (src != name) {
+                memcpy(name, src, strlen(src) + 1);
+            }
+            int flag = atoi(csv.fn_8005B9CC());
+            if (lbl_8087F4F0 != 0 && flag == 0) {
+                int equipped = 0;
+                if (lbl_8087F4F0 != 0 && IsPartyIndex_unk(fn_80219558(m50))) {
+                    int index = fn_80219558(m50);
+                    unsigned int mask = 1 << slot;
+                    equipped = (mask & lbl_8087F4F0->mMembers[index].mEquipFlags) == mask;
+                }
+                fn_8014FF9C(slot, fn_8044D208(lbl_8087F4F0, slot, m50), equipped);
+            } else {
+                chr::CharaEquip_unk* equip = new (0, "", "", 0) chr::CharaEquip_unk(slot, -1, 0, this, 0, 0, 0, 1, 1);
+                std::string path(name);
+                equip->fn_80563A1C(path.c_str());
+                if (m680[slot] != 0) {
+                    delete m680[slot];
+                }
+                m680[slot] = equip;
+                if (slot == 0) {
+                    fn_8014FD30();
+                }
+            }
+        }
+    } while (csv.fn_8005BBF8());
+}
+
+void CharaTask::fn_80137B78() {
+    mMotion.fn_80092F90();
+    mMotion.fn_80093014(1);
+    atn::CsvTab csv((const char*)m84.fn_80470580(), m84.fn_8047059C());
+    csv.fn_8005BCE8(lbl_8087D710);
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (key[0] == ';') {
+            continue;
+        }
+        if (strcmp(key, "MODEL_LOD") == 0) {
+            AddModelLod_unk(&mMotion, csv, "");
+        } else if (strcmp(key, "MODEL_LOD_BATTLE") == 0) {
+            if (!IsTownField_unk()) {
+                AddModelLod_unk(&mMotion, csv, "");
+            }
+        } else if (strcmp(key, "MODEL_LOD_TOWN") == 0) {
+            if (IsTownField_unk()) {
+                AddModelLod_unk(&mMotion, csv, "");
+            }
+        }
+    } while (csv.fn_8005BBF8());
+}
+
+void CharaTask::fn_80137E68(Model_unk* model, atn::CsvTab* csv) {
+    for (const char* key = csv->fn_8005B9CC(); key != 0 && strcmp("", key) != 0; key = csv->fn_8005B9CC()) {
+        if (strcmp(key, "REFLECT") == 0) {
+            model->mFlags |= 0x400;
+        } else if (strcmp(key, "REFRACT") == 0) {
+            model->mFlags |= 0x800;
+        } else if (strcmp(key, "SHADOW_CASTER") == 0) {
+            model->mFlags |= 4;
+        } else if (strcmp(key, "SHADOW_CASTER_OFF") == 0) {
+            model->mFlags &= ~4;
+        } else if (strcmp(key, "SHADOW_RECEIVER") == 0) {
+            model->mFlags |= 8;
+        } else if (strcmp(key, "SHADOW_RECEIVER_OFF") == 0) {
+            model->mFlags &= ~8;
+        }
+    }
+}
+
+// inferred: node index by name, -1 for an empty name (not inline: its "" is the file pool one); name
+// invented
+static int GetNodeIndex_unk(Model_unk* model, const char* name) {
+    if (strcmp(name, "") == 0) {
+        return -1;
+    }
+    return model->fn_80092814(name, 0);
+}
+
+void CharaTask::fn_80137FC0() {
+    atn::CsvTab csv((const char*)m84.fn_80470580(), m84.fn_8047059C());
+    csv.fn_8005BCE8(lbl_8087D710);
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "OPTION_PARTS") == 0) {
+            char name[0x100];
+            strcpy(name, csv.fn_8005B9CC());
+            mMotion.fn_8009373C(name, fn_800DC12C(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "MATERIAL_EDIT") == 0) {
+            char name[0x100];
+            strcpy(name, csv.fn_8005B9CC());
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            Color4_unk diffuse(r, g, b, fn_800DC288(csv.fn_8005B9CC()));
+            r = fn_800DC288(csv.fn_8005B9CC());
+            g = fn_800DC288(csv.fn_8005B9CC());
+            b = fn_800DC288(csv.fn_8005B9CC());
+            Color4_unk ambient(r, g, b, fn_800DC288(csv.fn_8005B9CC()));
+            r = fn_800DC288(csv.fn_8005B9CC());
+            g = fn_800DC288(csv.fn_8005B9CC());
+            b = fn_800DC288(csv.fn_8005B9CC());
+            Color4_unk specular(r, g, b, fn_800DC288(csv.fn_8005B9CC()));
+            mMotion.fn_80094958(name, &diffuse, &ambient, &specular);
+        } else if (strcmp(key, "MATERIAL_HIDE") == 0) {
+            mMotion.fn_80093D98(csv.fn_8005B9CC(), 0);
+        } else if (strcmp(key, "NODE_EDIT") == 0) {
+            NodeEdit_unk edit;
+            fn_80089EE4(&edit, &csv);
+            mMotion.fn_80093F58(&edit);
+        } else if (strcmp(key, "COLLISION") == 0) {
+            if (m50 != 700019) {
+                m5B0 = fn_800DC288(csv.fn_8005B9CC());
+                m5B4 = fn_800DC288(csv.fn_8005B9CC());
+                mFlag13 = atoi(csv.fn_8005B9CC()) == 0;
+                mFlag12 = atoi(csv.fn_8005B9CC());
+            }
+        } else if (strcmp(key, "SCALE") == 0) {
+            m540.x = fn_800DC288(csv.fn_8005B9CC());
+            m540.y = fn_800DC288(csv.fn_8005B9CC());
+            m540.z = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "PBONE") == 0) {
+            if (lbl_8087F610 == 0) {
+                mMotion.fn_800973C0(&csv);
+            }
+        } else if (strcmp(key, "BOUND_CENTER_NODE") == 0) {
+            const char* name = csv.fn_8005B9CC();
+            int node = GetNodeIndex_unk(&mMotion, name);
+            name = csv.fn_8005B9CC();
+            mMotion.fn_80095D44(node, GetNodeIndex_unk(&mMotion, name));
+        } else if (strcmp(key, "PRESET_MOTION_SPEED_RATIO") == 0) {
+            m514 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "HAIR_BACK_CONTROL") == 0) {
+            mFlagB27 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "USE_MAP_BRIGHTNESS") == 0) {
+            mFlagB25 = atoi(csv.fn_8005B9CC());
+        }
+    } while (csv.fn_8005BBF8());
+    if (m50 == 700017 || m50 == 700018) {
+        atn::Vector3 scale(1.0f, 1.0f, 1.0f);
+        NodeEdit_unk edit;
+        fn_80089D70(&edit, "hair_r", lbl_807C7030, lbl_807C7030, scale, 8);
+        mMotion.fn_80093F58(&edit);
+    }
+}
+
+// NONMATCHING: ~77% (52/228 lines) - register allocation only: r28 and r29 are swapped for the
+// appended name and the CSV data; tried: append(), a named extension string, string forms.
+void CharaTask::fn_80138528() {
+    if (m60 != 0 && strcmp(m60->m18, "") != 0) {
+        std::string path("/database/chara/motion/");
+        path += m60->m18;
+        fn_8006AD24(path, "mchr");
+        m98.vf0C(path.c_str());
+    }
+    if (mA4.fn_80470580() != 0) {
+        atn::CsvTab csv((const char*)mA4.fn_80470580(), mA4.fn_8047059C());
+        csv.fn_8005BCE8(lbl_8087D710);
+        do {
+            const char* key = csv.fn_8005B9CC();
+            if (key[0] == ';' || key[0] == '\0') {
+                continue;
+            }
+            if (strcmp(key, "RANDOM_MOTION") == 0) {
+                m12AC = atoi(csv.fn_8005B9CC());
+                m12B4 = atoi(csv.fn_8005B9CC());
+                m12B8 = atoi(csv.fn_8005B9CC());
+            } else if (strcmp(key, "WAIT_OFFSET") == 0) {
+                m12C0 = atoi(csv.fn_8005B9CC());
+            } else if (strcmp(key, "EFP") == 0) {
+                m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
+                m121C->fn_8023780C(csv.fn_8005B9CC());
+            }
+        } while (csv.fn_8005BBF8());
+    }
+}
+
+// NONMATCHING: the original is over the inlining budget and calls every inline candidate out of line
+// (std::string, char_separator, tokenizer and iterator members, atn::Csv, atn::Vector_unk<int>:
+// weak copies 0x801360C4, 0x801360D8, 0x80138A50); this compile inlines all of them (same open case
+// as LoadSeTableTask::vf0C, docs/inlining.md).
+void CharaTask::vf2C(const char* params, int arg) {
+    std::string str(params);
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    Tokenizer tok(str, boost::char_separator<char>(";"));
+    for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
+        if (strncmp((*it).c_str(), "path=", 5) == 0) {
+            std::string value((*it).c_str());
+            atn::Csv csv(value.c_str() + 5, value.size() - 5);
+            atn::Vector_unk<int> points;
+            int id;
+            while ((id = atoi(csv.fn_8005B9CC())) > 0) {
+                points.push_back(id);
+            }
+            fn_8017B1C4(&points);
+        }
+    }
+}
+
+// inferred: (b - a) * t + a, the operands in the order of the original (atn::Lerp_unk adds a first)
+inline atn::Vector3 LerpFrom_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+atn::Vector3 CharaTask::vf64(int center) {
+    atn::Vector3 result = mPos;
+    if (center == 0) {
+        result = mPos;
+    } else {
+        result = LerpFrom_unk(mColli.m3C, mColli.m48, 0.2f);
+    }
+    return result;
+}
+
+// NONMATCHING: ~76% (112/461 lines) - the inlined fn_80178208/fn_8016E970 chain: the stack slots of
+// two ptmf temporaries are swapped and "m55C = 6" is stored before the mControl load (see
+// fn_8016E970); everything else matches.
+int CharaTask::fn_80138E1C(int arg) {
+    int result = 0;
+    if (arg == 0) {
+        switch (m12AC) {
+        case 1: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame > mMotion.fn_80097D7C(0) - 1.2f) {
+                frame = mMotion.mTracks[0].m08;
+                if (frame < mMotion.fn_80097D7C(0)) {
+                    m12B0++;
+                }
+            }
+            if (m12B0 >= m12B4) {
+                m12B0 = 0;
+                int motion = rand() % 4 + 0x71;
+                fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(this, motion, 0, 0, -1.0f, -1.0f));
+                result = 1;
+            }
+            break;
+        }
+        case 2:
+            if (m12B4 > 0 && rand() % m12B4 == 0) {
+                int motion = rand() % 4 + 0x71;
+                fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(this, motion, 0, 0, -1.0f, -1.0f));
+                result = 1;
+            }
+            break;
+        }
+    } else if (m12B8 > 0 && m12BC == -1 && rand() % m12B8 == 0) {
+        m12BC = rand() % 4 + 0x71;
+        mMotion.fn_80097C08(3, m12BC, 0, 0, 1, 0.0f, 0.1f);
+        result = 1;
+    }
+    return result;
 }
 
 void* fn_80139EF4() {
@@ -619,8 +1235,8 @@ void CharaTask::fn_80147A18(int value) {
         }
     }
     for (unsigned int i = 0; i < m6A4.mCount; i++) {
-        if (m6A4.mData[i]->m3DC) {
-            fn_80094E2C(&m6A4.mData[i]->m004, value);
+        if (m6A4.mData[i]->mFlags.mFlag) {
+            fn_80094E2C(&m6A4.mData[i]->mModel, value);
         }
     }
 }
@@ -1083,7 +1699,7 @@ void CharaTask::fn_8017C7F8(unsigned int on) {
             }
         }
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
-            fn_80094BD8(&m6A4.mData[i]->m004, mode);
+            fn_80094BD8(&m6A4.mData[i]->mModel, mode);
         }
     }
 }

@@ -76,7 +76,7 @@ public:
     ColliCapsule() : ColliBase(1) {}
     virtual ~ColliCapsule() {}
 
-    unsigned char m3C[0x48 - 0x3C];
+    Vector3 m3C; // inferred: other end of the capsule (CharaTask::vf64)
     Vector3 m48; // inferred: position (chr::ControlAppear)
     unsigned char m54[0x58 - 0x54];
 };

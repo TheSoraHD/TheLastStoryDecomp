@@ -216,6 +216,16 @@ struct CharaParam_unk {
     unsigned char mA0[0xC0 - 0xA0];
 };
 
+// inferred: 8-byte block cleared by its constructor (four of them in CharaStatus); name invented
+struct CharaStatusPair_unk {
+    CharaStatusPair_unk() { memset(this, 0, sizeof(*this)); }
+    CharaStatusPair_unk(int id) {
+        memset(this, 0, sizeof(*this));
+        m[0] = id;
+    }
+    int m[2]; // inferred: an array, since copies of the pair move it as one block
+};
+
 namespace chr {
 // inferred: data of an equipped part (CharaPart_unk::m274): starts with the parameters it adds
 // (fn_8012B988); mF0 is tested by ClearFlags_unk
@@ -227,10 +237,17 @@ struct CharaPartData_unk {
 
 // inferred: equipment object (CharaTask::m680[]); m414 points to its parameters
 struct CharaEquip_unk {
+    // inferred: arguments unknown (CharaTask::fn_801371AC passes the slot and the character)
+    CharaEquip_unk(int slot, int a, int b, ::CharaTask* chara, int c, int d, int e, int f, int g); // 0x805634D0
     ~CharaEquip_unk(); // 0x805638BC
+    void fn_80563A1C(const char* name); // inferred: loads the item
+    int fn_8056405C();  // inferred: nonzero while loading
+    void fn_80566010(); // inferred: attaches the model
+    void fn_805663F8();
     unsigned char m000[0x024];
     unsigned char m024[0x414 - 0x024]; // inferred: model-like object (passed to fn_80094E2C)
     CharaParam_unk* m414;
+    unsigned char m418[0x43C - 0x418];
 };
 
 // inferred: character data pointed to by CharaTask::m5C; starts with the base parameters copied
@@ -240,7 +257,9 @@ struct CharaData_unk {
     int mC0;
     int mC4;
     int mC8; // inferred: passed to fn_8020FCE8 and fn_8012C6D4
-    unsigned char mCC[0x11C - 0xCC];
+    unsigned char mCC[0xE8 - 0xCC];
+    ::CharaStatusPair_unk mE8[4]; // inferred: added to CharaStatus::m2D0 on load (fn_8013655C)
+    int m108[5];                  // inferred: passed to CharaTask::fn_8014FF9C on load
     int m11C;
     unsigned char m120[0x122 - 0x120];
     signed char m122;
@@ -294,16 +313,6 @@ public:
     unsigned char m231[0x240 - 0x231];
 };
 
-// inferred: 8-byte block cleared by its constructor (four of them in CharaStatus); name invented
-struct CharaStatusPair_unk {
-    CharaStatusPair_unk() { memset(this, 0, sizeof(*this)); }
-    CharaStatusPair_unk(int id) {
-        memset(this, 0, sizeof(*this));
-        m[0] = id;
-    }
-    int m[2]; // inferred: an array, since copies of the pair move it as one block
-};
-
 // inferred: 20-byte entry of the first table in CharaStatus (id at 0, value at 4, sub id at 8)
 struct CharaStatusEntry_unk {
     CharaStatusEntry_unk() : mId(0), mValue(0), mSub(0), m0C(0), m10(0) {}
@@ -339,6 +348,11 @@ struct FixedArray_unk {
         mCount = mCount - 1;
     }
     bool full() const { return mCount >= N; }
+    // inferred: without the capacity check (CharaTask::fn_801371AC); name invented
+    void PushBack_unk(const T& x) {
+        new (end()) T(x);
+        mCount++;
+    }
     void push_back(const T& x) {
         if (!full()) {
             new (end()) T(x);

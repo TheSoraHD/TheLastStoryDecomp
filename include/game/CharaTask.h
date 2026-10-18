@@ -16,6 +16,14 @@
 #include "math/Vec.h"
 #include <boost/scoped_ptr.hpp>
 
+class EquipItemData;
+namespace atn {
+struct NodeChunk;                // inferred: name from the boost::bind type string
+struct ModelNodeCallbackContext; // inferred: name from the boost::bind type string
+template <class T, int Sep, int Eol, int Quote> class CsvBase;
+class CsvTab;
+}
+
 struct Model_unk;
 
 namespace chr {
@@ -61,17 +69,6 @@ struct CharaD68_unk {
     float m28;
     unsigned char m2C[0x5C - 0x2C];
     float m5C;
-};
-
-// inferred: entries of CharaTask::m6A8 (class unknown)
-struct CharaObj6A8_unk {
-    int m000;
-    Model_unk m004;
-    int m3D4;
-    int m3D8;
-    int m3DC : 1;
-    unsigned char m3E0[0x3EC - 0x3E0];
-    atn::LH_Binary m3EC; // inferred: a load handle (only its base destructor is called)
 };
 
 extern "C" void fn_80094E2C(void* model, int value); // inferred: sets a value on every node
@@ -120,7 +117,7 @@ struct CharaInfo_unk {
     unsigned char m00[0x10];
     int m10;         // inferred: passed to fn_802092C0 (binary path)
     int m14;         // inferred: passed to fn_8020A81C (character data)
-    unsigned char m18[0x1C - 0x18];
+    const char* m18; // inferred: motion set file name ("/database/chara/motion/<m18>.mchr")
     const char* m1C; // inferred: motion command file name
     const char* m20; // inferred: extension file name
     unsigned char m24[0x28 - 0x24];
@@ -159,6 +156,7 @@ struct Chara1154_unk {
 // inferred: object at CharaTask+0x1188 (constructor 0x8011D24C called out of line; class unknown)
 struct Chara1188_unk {
     Chara1188_unk();
+    void fn_8011D424(Model_unk* model);
 
     int m00;
     Chara1188Entry_unk m04[2];
@@ -177,6 +175,8 @@ struct MotionCommand_unk {
     ~MotionCommand_unk(); // 0x80121048
     void fn_80121E14(int arg);
     void fn_801210B4(const char* path); // inferred: loads the motion commands
+    int fn_801210C4();                  // inferred: nonzero while loading
+    void fn_80121114(CharaTask* chara);
 
     unsigned char m00[0x34];
 };
@@ -200,7 +200,7 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
-    virtual void vf2C();
+    virtual void vf2C(const char* params, int arg); // inferred: params "path=..." (BattleCharaTask passes two arguments)
     virtual void vf30();
     virtual void vf34(void* target, int arg, float a, float b); // inferred: look at target
     virtual void vf38();
@@ -214,7 +214,7 @@ public:
     virtual void vf58();
     virtual void vf5C();
     virtual void vf60();
-    virtual void vf64();
+    virtual atn::Vector3 vf64(int center); // inferred: position, or the center of the collision capsule
     virtual void vf68();
     virtual void vf6C();
     virtual void vf70();
@@ -247,7 +247,17 @@ public:
     virtual void vfDC();
     virtual void vfE0();
 
-    int fn_8013655C();
+    int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading
+    int fn_801370B8(int index);
+    void fn_801371AC(); // inferred: reads the character file (m84)
+    void fn_80137B78(); // inferred: reloads the model LODs from the character file
+    void fn_80137E68(Model_unk* model, atn::CsvTab* csv); // inferred: model draw flags
+    void fn_80137FC0(); // inferred: reads the model options from the character file
+    void fn_80138528(); // inferred: reads the motion parameters (mA4)
+    int fn_80138E1C(int arg); // inferred: plays a random motion
+    void fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& node, const atn::ModelNodeCallbackContext& context);
+    void fn_8014FF9C(int a, int b, int c);
+    void fn_8017B1C4(atn::Vector_unk<int>* list);
     void fn_80178208(chr::ControlBase* control); // inferred: changes the current control
     void fn_8016EB48(int a, int b, int c); // inferred: bound with three bools (0x801C7390)
     // inferred: 0x8015BAF0-0x8015E7A0 each create a control and switch to it (fn_80178208 inlined)
@@ -302,6 +312,8 @@ public:
     void fn_80136544(const char* path); // inferred: starts loading m84
     // inferred: inlined in the constructor (name invented)
     bool IsPartyMember_unk() { return mType == 1 || mType == 4; }
+    // inferred: valid index of a party member (inlined in fn_801371AC; name invented)
+    static bool IsPartyIndex_unk(int index) { return index >= 0 && 7 > index; }
     int fn_80139E90();
     int fn_80139E9C();
     int fn_80139EB0();
@@ -391,7 +403,7 @@ public:
     int mAC;    // inferred: set when m84 starts loading
     chr::Motion_unk mMotion; // 0xB0
     Chara480_unk* m480;
-    int m484[31]; // inferred: indexed by fn_801370B8
+    int m484[31]; // inferred: motion ids, indexed by fn_801370B8 (m484[0] is played on load)
     float m500;
     float m504;
     float m508;
@@ -448,7 +460,7 @@ public:
     chr::CharaPart_unk* m67C;
     chr::CharaEquip_unk* m680[8]; // inferred: equipment (CharaStatus::fn_8012B988, fn_80147A18)
     int m6A0;
-    FixedArray_unk<CharaObj6A8_unk*, 4> m6A4;
+    FixedArray_unk<EquipItemData*, 4> m6A4; // inferred: items read from "EQUIP" lines
     atn::Vector3 m6B8;
     unsigned char m6C4[0x6D0 - 0x6C4];
     int m6D0;
@@ -546,7 +558,11 @@ public:
     unsigned int mFlag2 : 1; // inferred: tested by CharaStatus::fn_8012E244
     unsigned int mFlag1_0 : 2;
     // 0x12A8: second flag word
-    unsigned int mFlagB31_21 : 11;
+    unsigned int mFlagB31_28 : 4;
+    unsigned int mFlagB27 : 1; // inferred: "HAIR_BACK_CONTROL"
+    unsigned int mFlagB26 : 1;
+    unsigned int mFlagB25 : 1; // inferred: "USE_MAP_BRIGHTNESS"
+    unsigned int mFlagB24_21 : 4;
     unsigned int mFlagB20 : 1;
     unsigned int mFlagB19 : 1;
     unsigned int mFlagB18 : 1;
@@ -573,7 +589,7 @@ public:
     FixedArray_unk<CharaHit_unk, 8> m12D0;
     int m1374;
     unsigned char m1378[0x137C - 0x1378];
-    unsigned int m137C;
+    unsigned int m137C; // inferred: flags (bit 3 clears the model flag 4 on load)
     int m1380;
     int m1384;
     short m1388;
@@ -587,8 +603,8 @@ public:
     int m13AC;
     int m13B0;
     float m13B4;
-    unsigned char m13B8[0x18]; // inferred: cleared with memset
-    unsigned char m13D0[0x8];  // inferred: cleared with memset
+    atn::Vector3 m13B8[2]; // inferred: cleared with memset, set to the position on load
+    float m13D0[2];        // inferred: cleared with memset, set to the rotation on load
     float m13D8;
     float m13DC;
     float m13E0;

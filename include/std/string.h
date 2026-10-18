@@ -246,6 +246,10 @@ public:
         return npos;
     }
 
+    size_type find(const T* s, size_type pos, size_type n) const; // 0x8006A004 (char)
+    // inferred: inlined in CharaTask::fn_801371AC
+    size_type find(const T* s, size_type pos = 0) const { return find(s, pos, strlen(s)); }
+
     // inferred: inlined at 0x80476220
     size_type rfind(T c, size_type pos = npos) const {
         const T* p;

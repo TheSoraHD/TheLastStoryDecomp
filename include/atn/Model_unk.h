@@ -4,6 +4,16 @@
 #include "atn/GXDecl.h"
 #include "math/Vec.h"
 #include <boost/function.hpp>
+#include <boost/scoped_ptr.hpp>
+
+namespace atn {
+class Matrix3x4;
+struct NodeChunk;
+struct ModelNodeCallbackContext;
+}
+// inferred: camera object owned by a model (0x1FC bytes, created on load by CharaTask::fn_8013655C
+// and by the equipment at 0x80564108); defined where it is used
+struct ModelCamera_unk;
 
 // inferred: material of a model node (returned by Model_unk::fn_80092954)
 struct Material_unk {
@@ -48,8 +58,35 @@ struct Model_unk {
     // CharaTask constructs it with this constructor, 0x80135588)
     void fn_80097C08(int arg1, int motion, int arg3, int arg4, int arg5, float blend, float speed); // inferred: play motion
     float fn_80097D7C(int track); // inferred: motion length
+    // inferred: called on load by CharaTask (names keep the address)
+    void fn_8008AD4C(const char* path, const char* node); // inferred: loads the model ("MODEL")
+    void fn_80092F1C(const char* path, const char* node, float distance); // inferred: adds a LOD
+    void fn_80092EC8(const char* path);   // inferred: shadow LOD
+    void fn_80097A88(int motion, const char* path); // inferred: loads a motion
+    void fn_80092F90();
+    void fn_80093014(int arg);
+    void fn_8009373C(const char* name, int part); // inferred: option part
+    void fn_80094958(const char* name, const void* a, const void* b, const void* c); // inferred: material edit
+    void fn_80093D98(const char* name, int arg); // inferred: material hide
+    void fn_80093F58(const void* edit); // inferred: node edit
+    void fn_800973C0(void* csv); // inferred: scale
+    void fn_80095D44(int node, int parent);
+    void fn_80091CFC(const char* node);
+    void fn_80099E9C(const char* node, const char* name, float value);
+    void fn_80097510();
+    int fn_80097D40(int motion); // inferred: zero if the motion is missing
 
-    unsigned char m58[0x220 - 0x58];
+    unsigned char m58[0xB0 - 0x58];
+    int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
+    unsigned char mB4[0x208 - 0xB4];
+    boost::scoped_ptr<ModelCamera_unk> m208; // inferred
+    unsigned int m20C_31_6 : 26;
+    int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
+    unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
+    unsigned int m20C_3_0 : 4;
+    unsigned char m210[0x220 - 0x210];
+    // inferred: accessor (the original reads the flag word again before setting mFlag4_unk); name invented
+    int IsFlag5_unk() const { return mFlag5_unk; }
     // inferred: per-node data (0x2C bytes)
     struct Node_unk {
         int m00;

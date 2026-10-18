@@ -11,7 +11,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf2C();
+    virtual void vf2C(const char* params, int arg); // inferred: calls CharaTask::vf2C
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
     virtual int vfA4(); // inferred: returns 1/0 (0x800EE494)
