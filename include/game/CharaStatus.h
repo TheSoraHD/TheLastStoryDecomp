@@ -244,8 +244,11 @@ struct CharaEquip_unk {
     int fn_8056405C();  // inferred: nonzero while loading
     void fn_80566010(); // inferred: attaches the model
     void fn_805663F8();
-    unsigned char m000[0x024];
-    unsigned char m024[0x414 - 0x024]; // inferred: model-like object (passed to fn_80094E2C)
+    int m000; // inferred: kind (4 is handled apart by CharaTask::fn_80149A30)
+    unsigned char m004[0x024 - 0x004];
+    unsigned char m024[0x028 - 0x024]; // inferred: model-like object (passed to fn_80094E2C)
+    unsigned int m028; // inferred: flags of that model
+    unsigned char m02C[0x414 - 0x02C];
     CharaParam_unk* m414;
     unsigned char m418[0x43C - 0x418];
 };

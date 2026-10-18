@@ -52,7 +52,15 @@ struct Model_unk {
     Mtx mMtx;        // 0x08: inferred: world matrix
     unsigned char m38[0x3C - 0x38];
     Mtx* mNodeMtx;   // 0x3C
-    unsigned char m40[0x54 - 0x40];
+    // inferred: four values copied to the parts and equipment of a character (CharaTask::fn_80148B38)
+    struct Float4_unk {
+        float m00;
+        float m04;
+        float m08;
+        float m0C;
+    };
+    Float4_unk m40;
+    unsigned char m50[0x54 - 0x50];
     float m54;       // inferred: largest scale axis
     // inferred: also the motion controller characters embed at +0xB0 (chr::Motion_unk is an alias:
     // CharaTask constructs it with this constructor, 0x80135588)
@@ -65,7 +73,7 @@ struct Model_unk {
     void fn_80097A88(int motion, const char* path); // inferred: loads a motion
     void fn_80092F90();
     void fn_80093014(int arg);
-    void fn_8009373C(const char* name, int part); // inferred: option part
+    void fn_8009373C(const char* name, int part); // inferred: shows/hides the named node (option part)
     void fn_80094958(const char* name, const void* a, const void* b, const void* c); // inferred: material edit
     void fn_80093D98(const char* name, int arg); // inferred: material hide
     void fn_80093F58(const void* edit); // inferred: node edit
@@ -76,7 +84,8 @@ struct Model_unk {
     void fn_80097510();
     int fn_80097D40(int motion); // inferred: zero if the motion is missing
 
-    unsigned char m58[0xB0 - 0x58];
+    unsigned char m58[0xAC - 0x58];
+    float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
     unsigned char mB4[0x208 - 0xB4];
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
@@ -89,10 +98,21 @@ struct Model_unk {
     int IsFlag5_unk() const { return mFlag5_unk; }
     // inferred: per-node data (0x2C bytes)
     struct Node_unk {
-        int m00;
+        unsigned int m00; // inferred: flags (2: the rotation m10 is set, CharaTask::fn_80148CC4)
         atn::Vector3 m04;
-        unsigned char m10[0x2C - 0x10];
+        atn::Quaternion_unk m10;
+        unsigned char m20[0x2C - 0x20];
     };
+    // inferred: resource data of the model (accessor 0x8000DD04); names invented
+    struct NodeRes_unk {
+        unsigned char m00[0x40];
+        atn::Vector3 m40; // inferred: initial rotation (euler)
+    };
+    struct Res_unk {
+        unsigned char m00[0x48];
+        NodeRes_unk** m48;
+    };
+    Res_unk* fn_8000DD04(); // inferred: returns m16C
     typedef Node_unk Entry_unk;
     // inferred: motion track (0x30 bytes, six of them at 0x22C; accessors 0x80139550-0x8013C554)
     struct Track_unk {
@@ -109,6 +129,11 @@ struct Model_unk {
 
     // inferred: accessors called out of line from CharaTask (names keep the address)
     Node_unk* fn_80147A00();
+    struct Sphere_unk {
+        atn::Vector3 mCenter;
+        float mRadius;
+    };
+    Sphere_unk fn_80094F98(); // inferred: bounding sphere
     float fn_80139550(int track);
     void fn_80139F24(int value);
     int fn_80139F2C(int track);
@@ -116,6 +141,7 @@ struct Model_unk {
     int fn_8013C3DC();
     float fn_8013C3E4(int track);
     void fn_8013C554(int track, float weight);
+    float GetSpeed_unk(int track) { return mTracks[track].m0C; } // inferred: name invented
 
     Node_unk* m220;
     unsigned char m224[0x22C - 0x224];

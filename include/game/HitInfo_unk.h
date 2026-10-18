@@ -10,8 +10,9 @@ struct HitInfo_unk {
     signed char m01; // inferred: kind (2 is tested by CharaStatus::fn_8012DF7C)
     unsigned char m02; // inferred: 4 = the effect is centred on the target (CharaTask::fn_8015F568)
     unsigned char m03;
-    int m04; // inferred: id (0x1789 tested by CharaTask::vf4C)
-    unsigned char m08[0x10 - 0x08];
+    int m04; // inferred: id (0x1789 tested by CharaTask::vf4C; shown by fn_80149A30 "CIRCLE [%d:%s]")
+    const char* m08;
+    unsigned char m0C[0x10 - 0x0C];
     atn::Vector3 m10; // inferred: knockback direction
     unsigned char m1C[0x58 - 0x1C];
     float m58; // inferred: passed to chr::ControlChant (CharaTask::fn_8015F568)

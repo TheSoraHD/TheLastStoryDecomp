@@ -12,12 +12,20 @@ struct CharaPartData_unk;
 struct CharaPart_unk {
     virtual ~CharaPart_unk();
     virtual int vf0C();
+    virtual void vf10();
+    virtual void vf14();
     int fn_8013C43C(); // inferred: accessor called out of line from CharaTask
 
     int m04;
     int m08;
     unsigned char m00C[0x010 - 0x00C];
-    unsigned char m010[0x274 - 0x010]; // inferred: model-like object (passed to fn_80094E2C)
+    unsigned char m010[0x014 - 0x010]; // inferred: model-like object (passed to fn_80094E2C)
+    unsigned int m014; // inferred: flags of that model (0x80149A30 sets 0x4 and 0x400)
+    unsigned char m018[0x050 - 0x018];
+    Model_unk::Float4_unk m050; // inferred: copied from the character model (CharaTask::fn_80148B38)
+    unsigned char m060[0x224 - 0x060];
+    MtxPtr m224; // inferred: node matrix followed by the weapon
+    unsigned char m228[0x274 - 0x228];
     CharaPartData_unk* m274;
 };
 

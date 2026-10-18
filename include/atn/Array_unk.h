@@ -27,11 +27,12 @@ public:
             mData = 0;
         }
     }
-    void reserve(unsigned int n) {
+    // inferred: the heap is a parameter (CharaTask::vf50 reserves from heap 3)
+    void reserve(unsigned int n, int heap = 0) {
         if (mCapacity > n) {
             return;
         }
-        T* data = new (0, "", "", 0) T[n];
+        T* data = new (heap, "", "", 0) T[n];
         if (mData != 0) {
             // inferred: the ternary gives the register order of the original (0x803EE7FC)
             unsigned int count = (n > mSize) ? mSize : n;

@@ -76,9 +76,9 @@ public:
     ColliCapsule() : ColliBase(1) {}
     virtual ~ColliCapsule() {}
 
-    Vector3 m3C; // inferred: other end of the capsule (CharaTask::vf64)
-    Vector3 m48; // inferred: position (chr::ControlAppear)
-    unsigned char m54[0x58 - 0x54];
+    Vector3 m3C; // inferred: first point of the segment, other end of the capsule (CharaTask::vf20, vf64)
+    Vector3 m48; // inferred: position (chr::ControlAppear); second point of the segment
+    float m54;   // inferred: radius
 };
 
 // The name is in the DOL (__vt__Q23atn11ColliObject, 0x807775C0); layout from the constructor.

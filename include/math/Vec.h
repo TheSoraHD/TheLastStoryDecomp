@@ -76,6 +76,13 @@ struct Quaternion_unk {
     Quaternion_unk(const Quaternion_unk& q) {
         __Vec4Copy(&x, &q.x);
     }
+    // inferred: assignment with the same copy (weak copy 0x80149888, called out of line by
+    // CharaTask::fn_80148CC4 on an already constructed quaternion)
+    Quaternion_unk& operator=(const Quaternion_unk& q) {
+        __Vec4Copy(&x, &q.x);
+        return *this;
+    }
+    static Quaternion_unk fn_801498F0(const class Vector3& rot); // inferred: from euler angles (weak copy)
     Quaternion_unk& fn_8014989C(const Quaternion_unk& a); // inferred: *this = a * *this
     Quaternion_unk fn_801498D8() const; // inferred: inverse
 
@@ -160,7 +167,8 @@ public:
 
     // Out-of-line members (called with bl from many files):
     void fn_80011410(const Matrix3x4& m);              // inferred: *this = m * *this (PSMTXMultVec)
-    void fn_8013C394(const Vector3& a, const Vector3& b); // inferred: *this = a x b (PSVECCrossProduct)
+    void fn_80139F60(); // inferred: *this = ToRotation_unk() (weak copy in game/CharaTask.cpp)
+    static Vector3 fn_8013C394(const Vector3& a, const Vector3& b); // inferred: a x b (PSVECCrossProduct)
     Vector3 operator-() const;                          // 0x8013C3B4
 
     float x, y, z;
@@ -192,12 +200,16 @@ public:
         m[0][1] = m[0][2] = m[0][3] = m[1][0] = m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] = 0.0f;
         m[0][0] = m[1][1] = m[2][2] = 1.0f;
     }
-    void fn_8013A13C(float rad); // inferred: rotation around y (PSMTXRotRad(m, 'y', rad))
+    // inferred: rotation around y (PSMTXRotRad(m, 'y', rad)); returned by value (callers build it in
+    // place without a constructor call, 0x80148CC4)
+    static Matrix3x4 fn_8013A13C(float rad);
+    void fn_8010F668(); // inferred: clears the translation (weak copy 0x8010F668, game/Bullet.cpp)
     void fn_80144ED4(float rad); // inferred: *this = *this * rot_z(rad)
     void fn_801479E4(const Vector3& v); // inferred: sets the translation
-    void fn_80147A08(const struct Quaternion_unk& q); // inferred: rotation from a quaternion (PSMTXQuat)
+    static Matrix3x4 fn_80147A08(const struct Quaternion_unk& q); // inferred: rotation from a quaternion (PSMTXQuat)
     Matrix3x4& fn_801495E8(const Matrix3x4& a); // inferred: *this = a * *this
     void fn_80149624(float rad); // inferred: *this = *this * rot_y(rad)
+    void fn_801496A8(float x, float y, float z); // inferred: *this = *this * rot_z * rot_y * rot_x
     // inferred: translation (weak copy 0x8000D0F8); name invented
     Vector3 GetTrans_unk() const { return Vector3(m[0][3], m[1][3], m[2][3]); }
     // inferred: copy without the translation (weak copy 0x8001336C); name invented

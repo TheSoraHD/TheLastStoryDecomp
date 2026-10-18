@@ -43,7 +43,11 @@ struct CharaD74_unk {
     int fn_8011D1FC();
     int fn_8011D21C();
 
-    unsigned char m00[0x20];
+    signed char m00;
+    signed char m01; // inferred: label kind shown over the character (0x80149A30)
+    unsigned char m02[0x04 - 0x02];
+    short m04;
+    unsigned char m06[0x20 - 0x06];
     unsigned int m20;
 };
 
@@ -113,7 +117,8 @@ CharaListeners_unk* fn_8014F8F4();
 // inferred: type data returned by fn_80204E04 (CharaTask::m68)
 // inferred: entry of the character table returned by fn_8020924C (names invented)
 struct CharaInfo_unk {
-    unsigned char m00[0x10];
+    unsigned char m00[0x0C];
+    const char* m0C; // inferred: name (shown by fn_80149A30)
     const char* m10; // inferred: name (passed to fn_802092C0; digits read by fn_801546F4)
     int m14;         // inferred: passed to fn_8020A81C (character data)
     const char* m18; // inferred: motion set file name ("/database/chara/motion/<m18>.mchr")
@@ -244,7 +249,7 @@ public:
     CharaTask(atn::Task* parent, int type, void* data); // 0x801354B4
     virtual ~CharaTask();                               // 0x80136138
     virtual int vf0C();                                 // 0x8017CB74
-    virtual void vf1C();
+    virtual int vf1C(); // inferred: nonzero skips the node hooks (fn_80148CC4)
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
@@ -375,7 +380,8 @@ public:
     // inferred: plays one motion (chr::ControlOneMotion)
     void fn_80139560();
     void fn_80145334();
-    void fn_80149A30();
+    void fn_80149A30(); // inferred: debug display and visibility update
+    int fn_8014FB60();
 
     // inferred: bounding sphere returned by value
     struct Sphere_unk {
@@ -436,11 +442,18 @@ public:
     int fn_801479D8();
     void fn_80147A18(int value);
     int fn_80148334();
+    void fn_80148B38(); // inferred: updates the parts and the equipment
+    void fn_80148CC4(atn::Matrix3x4* mtx, ModelNodeDesc_unk* node); // inferred: node matrix hook
     // inferred: entry of the array at m62C (0x14 bytes)
     // inferred: has a constructor but no destructor (delete[] frees p - 0x10 without a destroy loop)
     struct Item14_unk {
-        Item14_unk();
-        unsigned char m00[0x14];
+        // inferred: inline (weak copy 0x80148990, used by __construct_new_array)
+        Item14_unk() : m00(0) {
+            m04.mCenter = atn::Vector3(0.0f, 0.0f, 0.0f);
+            m04.mRadius = 5.0f;
+        }
+        int m00;
+        Sphere_unk m04; // inferred: drawn as a debug sphere (0x80149A30)
     };
     Item14_unk* fn_80148B0C(int index);
     int fn_8014969C();
@@ -552,6 +565,8 @@ public:
     bool IsFree_unk() { return IsActive_unk() && (mStatus.m0C & 0x20) != 0x20; }
     bool IsGrappled_unk() { return m55C == 6 && m560 == 28; }
     bool CanAct_unk() { return IsFree_unk() && !IsGrappled_unk(); }
+    bool HasPart674_unk() { return m674 >= 0 ? true : false; } // inferred: name invented (0x80149A30)
+    inline bool IsShadowField_unk();
     // inferred: names invented (weak copies 0x8000DD0C and 0x8012A1B8)
     Model_unk* GetModel_unk() { return (Model_unk*)&mMotion; }
     atn::Vector3* GetRot_unk() { return &mRot; }
@@ -730,8 +745,10 @@ public:
     unsigned int mFlag2 : 1; // inferred: tested by CharaStatus::fn_8012E244
     unsigned int mFlag1_0 : 2;
     // 0x12A8: second flag word
-    unsigned int mFlagB31_28 : 4;
-    unsigned int mFlagB27 : 1; // inferred: "HAIR_BACK_CONTROL"
+    unsigned int mFlagB31_30 : 2;
+    unsigned int mFlagB29 : 1; // inferred: set when the damage sphere is created (vf50)
+    unsigned int mFlagB28 : 1;
+    unsigned int mFlagB27 : 1; // inferred: "HAIR_BACK_CONTROL", enables the "hair_b" hook (fn_80148CC4)
     unsigned int mFlagB26 : 1;
     unsigned int mFlagB25 : 1; // inferred: "USE_MAP_BRIGHTNESS"
     unsigned int mFlagB24_21 : 4;
@@ -763,7 +780,7 @@ public:
     FixedArray_unk<CharaHit_unk, 8> m12D0;
     int m1374;
     unsigned char m1378[0x137C - 0x1378];
-    unsigned int m137C; // inferred: flags (bit 3 clears the model flag 4 on load)
+    unsigned int m137C; // inferred: flags (bit 3 clears the model flag 4 on load and hides the shadow, fn_80149A30)
     int m1380;
     int m1384;
     short m1388;
