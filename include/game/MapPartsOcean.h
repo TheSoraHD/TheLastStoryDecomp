@@ -1,6 +1,7 @@
 #ifndef GAME_MAPPARTSOCEAN_H
 #define GAME_MAPPARTSOCEAN_H
 
+#include "atn/Csv.h"
 #include "game/MapPartsModel.h"
 
 // inferred: moves the nodes "joint1" and "joint2" up and down with a sine wave each
@@ -12,13 +13,13 @@ public:
         float mPhase;
     };
 
-    MapPartsOcean(atn::Task* parent, void* arg, void* data); // 0x8049C960
+    MapPartsOcean(atn::Task* parent, void* arg, atn::CsvTab* csv); // 0x8049C960
     virtual ~MapPartsOcean();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf1C(void* menu);
 
-    static MapPartsOcean* fn_8049C8DC(atn::Task* parent, void* arg, void* data);
+    static MapPartsOcean* fn_8049C8DC(atn::Task* parent, void* arg, atn::CsvTab* csv);
 
     float mTime;        // 0x44C
     float m450;

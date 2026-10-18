@@ -2,7 +2,6 @@
 #include "atn/Memory.h"
 
 extern "C" int strcmp(const char* a, const char* b);
-extern "C" const char* fn_8005B9CC(void* data); // inferred: returns the next CSV field
 extern "C" float fn_800DC288(const char* str); // inferred: string to float
 extern "C" int fn_800DC12C(const char* str);    // inferred: string to int
 extern "C" int lbl_8087E0D0; // inferred: minimum rain drop count
@@ -14,15 +13,9 @@ inline T __Clamp_unk(T v, const T& lo, const T& hi) {
     return (v < lo) ? lo : ((v > hi) ? hi : v);
 }
 
-// inferred: CSV reader; the current field is a buffer at +0x10
-struct Csv_unk {
-    unsigned char m00[0x10];
-    char mField[1];
-};
-
-MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, void* data) {
+MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsRain(parent, arg, data);
+        return new (12, "", "", 0) MapPartsRain(parent, arg, csv);
     }
     return 0;
 }
@@ -30,53 +23,53 @@ MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, void* data
 // NONMATCHING: 99.8% - with -ipa file the stack addresses of `a`, `b` and `box.mMax` hoisted out
 // of the loop land in different registers (r24-r26), and box.mMax is read back through its own
 // register instead of box + 0xC. It matched with -inline deferred.
-MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, void* data)
+MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, atn::CsvTab* csv)
     : MapPartsBase(parent, arg), mOn(0) {
-    const char* field = ((Csv_unk*)data)->mField;
+    const char* field = csv->mField;
     do {
         if (strcmp(field, "ON") == 0) {
             mOn = 1;
         } else if (strcmp(field, "COLOR") == 0) {
             Color_unk color;
-            color.r = fn_800DC288(fn_8005B9CC(data));
-            color.g = fn_800DC288(fn_8005B9CC(data));
-            color.b = fn_800DC288(fn_8005B9CC(data));
-            color.a = fn_800DC288(fn_8005B9CC(data));
+            color.r = fn_800DC288(csv->fn_8005B9CC());
+            color.g = fn_800DC288(csv->fn_8005B9CC());
+            color.b = fn_800DC288(csv->fn_8005B9CC());
+            color.a = fn_800DC288(csv->fn_8005B9CC());
             mColor = color;
         } else if (strcmp(field, "DIR") == 0) {
             atn::Vector3 dir;
-            dir.x = fn_800DC288(fn_8005B9CC(data));
-            dir.y = fn_800DC288(fn_8005B9CC(data));
-            dir.z = fn_800DC288(fn_8005B9CC(data));
+            dir.x = fn_800DC288(csv->fn_8005B9CC());
+            dir.y = fn_800DC288(csv->fn_8005B9CC());
+            dir.z = fn_800DC288(csv->fn_8005B9CC());
             mDir = dir;
         } else if (strcmp(field, "COUNT") == 0) {
-            int count = fn_800DC12C(fn_8005B9CC(data));
+            int count = fn_800DC12C(csv->fn_8005B9CC());
             mCount = __Clamp_unk(count, lbl_8087E0D0, lbl_8087E0D4);
         } else if (strcmp(field, "SIZE") == 0) {
-            mSize = fn_800DC288(fn_8005B9CC(data));
+            mSize = fn_800DC288(csv->fn_8005B9CC());
         } else if (strcmp(field, "SPEED") == 0) {
-            float min = fn_800DC288(fn_8005B9CC(data));
-            float max = fn_800DC288(fn_8005B9CC(data));
+            float min = fn_800DC288(csv->fn_8005B9CC());
+            float max = fn_800DC288(csv->fn_8005B9CC());
             mSpeedMin = min;
             mSpeedMax = max;
         } else if (strcmp(field, "LENGTH") == 0) {
-            mLength = fn_800DC288(fn_8005B9CC(data));
+            mLength = fn_800DC288(csv->fn_8005B9CC());
         } else if (strcmp(field, "LENGTHV") == 0) {
-            mLengthV = fn_800DC288(fn_8005B9CC(data));
+            mLengthV = fn_800DC288(csv->fn_8005B9CC());
         } else if (strcmp(field, "BOX") == 0) {
             atn::Vector3 a;
-            a.x = fn_800DC288(fn_8005B9CC(data));
-            a.y = fn_800DC288(fn_8005B9CC(data));
-            a.z = fn_800DC288(fn_8005B9CC(data));
+            a.x = fn_800DC288(csv->fn_8005B9CC());
+            a.y = fn_800DC288(csv->fn_8005B9CC());
+            a.z = fn_800DC288(csv->fn_8005B9CC());
             atn::Vector3 b;
-            b.x = fn_800DC288(fn_8005B9CC(data));
-            b.y = fn_800DC288(fn_8005B9CC(data));
-            b.z = fn_800DC288(fn_8005B9CC(data));
+            b.x = fn_800DC288(csv->fn_8005B9CC());
+            b.y = fn_800DC288(csv->fn_8005B9CC());
+            b.z = fn_800DC288(csv->fn_8005B9CC());
             Box_unk box(a, b);
             mBox.mMin = box.mMin;
             mBox.mMax = box.mMax;
         }
-        field = fn_8005B9CC(data);
+        field = csv->fn_8005B9CC();
     } while (field != 0 && strcmp("", field) != 0);
 }
 

@@ -5,7 +5,6 @@
 extern "C" int atoi(const char* str);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
-extern "C" const char* fn_8005B9CC(void* data); // inferred: returns the next CSV field
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -23,22 +22,22 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int id,
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg);
 
-MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, void* arg, void* data) {
+MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsEfp(parent, arg, data);
+        return new (12, "", "", 0) MapPartsEfp(parent, arg, csv);
     }
     return 0;
 }
 
-MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, void* data)
+MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv)
     : MapPartsBase(parent, arg), m5C(0), mMode(0), mRate(0), mDone(0) {
-    mEfp.fn_8023780C(fn_8005B9CC(data));
-    const char* mode = fn_8005B9CC(data);
+    mEfp.fn_8023780C(csv->fn_8005B9CC());
+    const char* mode = csv->fn_8005B9CC();
     if (strcmp(mode, "ONCE") == 0) {
         mMode = 0;
     } else if (strcmp(mode, "RANDOM") == 0) {
         mMode = 1;
-        mRate = (1 > atoi(fn_8005B9CC(data))) ? 1 : atoi(fn_8005B9CC(data));
+        mRate = (1 > atoi(csv->fn_8005B9CC())) ? 1 : atoi(csv->fn_8005B9CC());
     } else if (strcmp(mode, "LOOP") == 0) {
         mMode = 2;
     }

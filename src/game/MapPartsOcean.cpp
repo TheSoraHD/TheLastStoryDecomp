@@ -4,7 +4,6 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" double sin(double x);
-extern "C" const char* fn_8005B9CC(void* data); // inferred: returns the next CSV field
 extern "C" float fn_800DC288(const char* str);  // inferred: string to float
 extern "C" int fn_800DC12C(const char* str);    // inferred: string to int
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: child by name
@@ -14,20 +13,14 @@ extern "C" void fn_80087858(void* menu, const char* name, float* value, int arg3
                             float min, float max, float step); // inferred: debug angle slider
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
-// inferred: CSV reader; the current field is a buffer at +0x10
-struct Csv_unk {
-    unsigned char m00[0x10];
-    char mField[1];
-};
-
-MapPartsOcean* MapPartsOcean::fn_8049C8DC(atn::Task* parent, void* arg, void* data) {
+MapPartsOcean* MapPartsOcean::fn_8049C8DC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsOcean(parent, arg, data);
+        return new (12, "", "", 0) MapPartsOcean(parent, arg, csv);
     }
     return 0;
 }
 
-MapPartsOcean::MapPartsOcean(atn::Task* parent, void* arg, void* data) : MapPartsModel(parent, arg, data) {
+MapPartsOcean::MapPartsOcean(atn::Task* parent, void* arg, atn::CsvTab* csv) : MapPartsModel(parent, arg, csv) {
     mTime = 0.0f;
     m450 = 15.0f;
     mWave[0].mAmplitude = 12.0f;
@@ -36,17 +29,17 @@ MapPartsOcean::MapPartsOcean(atn::Task* parent, void* arg, void* data) : MapPart
     mWave[1].mAmplitude = 8.0f;
     mWave[1].mPeriod = 0.7f;
     mWave[1].mPhase = 1.2217305f;
-    const char* field = ((Csv_unk*)data)->mField;
+    const char* field = csv->mField;
     do {
         if (strcmp(field, "WAVE") == 0) {
-            unsigned int i = fn_800DC12C(fn_8005B9CC(data));
+            unsigned int i = fn_800DC12C(csv->fn_8005B9CC());
             if (i <= 1) {
-                mWave[i].mAmplitude = fn_800DC288(fn_8005B9CC(data));
-                mWave[i].mPeriod = fn_800DC288(fn_8005B9CC(data));
-                mWave[i].mPhase = 0.017453292f * fn_800DC288(fn_8005B9CC(data));
+                mWave[i].mAmplitude = fn_800DC288(csv->fn_8005B9CC());
+                mWave[i].mPeriod = fn_800DC288(csv->fn_8005B9CC());
+                mWave[i].mPhase = 0.017453292f * fn_800DC288(csv->fn_8005B9CC());
             }
         }
-        field = fn_8005B9CC(data);
+        field = csv->fn_8005B9CC();
     } while (field != 0 && strcmp("", field) != 0);
 }
 

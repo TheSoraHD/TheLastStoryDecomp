@@ -1,6 +1,7 @@
 #ifndef GAME_MAPPARTSRAIN_H
 #define GAME_MAPPARTSRAIN_H
 
+#include "atn/Csv.h"
 #include "game/MapPartsBase.h"
 #include "atn/Rain.h"
 #include "math/Vec.h"
@@ -19,7 +20,7 @@ public:
         atn::Vector3 mMax;
     };
 
-    MapPartsRain(atn::Task* parent, void* arg, void* data); // 0x8049CE40
+    MapPartsRain(atn::Task* parent, void* arg, atn::CsvTab* csv); // 0x8049CE40
     virtual ~MapPartsRain();
     virtual int vf0C();
     virtual void vf10();
@@ -27,7 +28,7 @@ public:
     virtual void vf1C(void* menu);
 
     // inferred: factory used by the map parts loader
-    static MapPartsRain* fn_8049CDBC(atn::Task* parent, void* arg, void* data);
+    static MapPartsRain* fn_8049CDBC(atn::Task* parent, void* arg, atn::CsvTab* csv);
     void fn_8049D1A4(MapPartsRain* a, MapPartsRain* b);
 
     int mOn;          // 0x50

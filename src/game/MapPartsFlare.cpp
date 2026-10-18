@@ -4,29 +4,28 @@
 extern "C" int atoi(const char* str);
 // The game calls this without an end pointer (r4 is not set), so it is declared with one argument.
 extern "C" double strtod(const char* str);
-extern "C" const char* fn_8005B9CC(void* data); // inferred: returns the next CSV field
 
-MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, void* data) {
+MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsFlare(parent, arg, data);
+        return new (12, "", "", 0) MapPartsFlare(parent, arg, csv);
     }
     return 0;
 }
 
 // NONMATCHING: 99.7% - the loop increments of i and the element offset are scheduled in the
 // opposite order. Tried: local declaration orders, ++i, while loop, pointer arithmetic, casts.
-MapPartsFlare::MapPartsFlare(atn::Task* parent, void* arg, void* data) : MapPartsBase(parent, arg) {
+MapPartsFlare::MapPartsFlare(atn::Task* parent, void* arg, atn::CsvTab* csv) : MapPartsBase(parent, arg) {
     atn::LensFlareElem* e;
-    int count = atoi(fn_8005B9CC(data));
+    int count = atoi(csv->fn_8005B9CC());
     mFlare = new (6, "", "", 0) atn::LensFlare(1, count, atn::Vector3(0.0f, 0.0f, 0.0f), 30.0f);
     for (int i = 0; i < count; i++) {
         e = &mFlare->mElems[i];
-        e->m00 = atoi(fn_8005B9CC(data));
-        e->m08 = strtod(fn_8005B9CC(data));
-        e->m04 = strtod(fn_8005B9CC(data));
-        e->m0C = strtod(fn_8005B9CC(data));
-        e->m10 = strtod(fn_8005B9CC(data));
-        e->m14 = strtod(fn_8005B9CC(data));
+        e->m00 = atoi(csv->fn_8005B9CC());
+        e->m08 = strtod(csv->fn_8005B9CC());
+        e->m04 = strtod(csv->fn_8005B9CC());
+        e->m0C = strtod(csv->fn_8005B9CC());
+        e->m10 = strtod(csv->fn_8005B9CC());
+        e->m14 = strtod(csv->fn_8005B9CC());
     }
 }
 

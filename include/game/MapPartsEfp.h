@@ -1,19 +1,20 @@
 #ifndef GAME_MAPPARTSEFP_H
 #define GAME_MAPPARTSEFP_H
 
+#include "atn/Csv.h"
 #include "game/MapPartsBase.h"
 #include "atn/EfpHandle_unk.h"
 
 class MapPartsEfp : public MapPartsBase {
 public:
-    MapPartsEfp(atn::Task* parent, void* arg, void* data); // 0x80496670
+    MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv); // 0x80496670
     virtual ~MapPartsEfp() {}
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
 
     // inferred: factory used by the map parts loader
-    static MapPartsEfp* fn_804965EC(atn::Task* parent, void* arg, void* data);
+    static MapPartsEfp* fn_804965EC(atn::Task* parent, void* arg, atn::CsvTab* csv);
 
     atn::EfpHandle_unk mEfp; // 0x50
     int m5C;
