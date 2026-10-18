@@ -166,6 +166,8 @@ public:
 
     T* begin() { return this->mData; }
     T* end() { return this->mData + this->mSize; }
+    size_type size() const { return this->mSize; }
+    T& operator[](size_type i) { return this->mData[i]; }
     size_type max_size() const { return size_type(-1) / sizeof(T); }
     // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...),
     // inlined in atn::LoadMaterial::vf0C (0x804742F4). Defined out of the class and split into

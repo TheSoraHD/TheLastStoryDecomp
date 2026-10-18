@@ -4,12 +4,15 @@
 #include "atn/Task.h"
 #include "atn/Array_unk.h"
 #include "atn/ColliBase.h"
+#include "atn/EfpHandle_unk.h"
 #include "atn/LH_Binary.h"
 #include "atn/LH_MotionSet.h"
 #include "atn/SoundRef.h"
 #include "chr/Motion_unk.h"
 #include "game/CharaStatus.h"
 #include "game/CharaSub_unk.h"
+#include "game/ResHandle.h"
+#include "std/vector.h"
 #include "math/Vec.h"
 #include <boost/scoped_ptr.hpp>
 
@@ -60,14 +63,49 @@ struct CharaD68_unk {
 
 // inferred: entries of CharaTask::m6A8 (class unknown)
 struct CharaObj6A8_unk {
-    unsigned char m000[0x004];
-    unsigned char m004[0x3DC - 0x004]; // inferred: model-like object (passed to fn_80094E2C)
+    int m000;
+    Model_unk m004;
+    int m3D4;
+    int m3D8;
     int m3DC : 1;
+    unsigned char m3E0[0x3EC - 0x3E0];
+    atn::LH_Binary m3EC; // inferred: a load handle (only its base destructor is called)
 };
 
 extern "C" void fn_80094E2C(void* model, int value); // inferred: sets a value on every node
 extern "C" void fn_80044E0C(void* object, int arg);
 extern "C" int fn_80219558(int id);
+
+// inferred: object pointed to by CharaTask::m480 (destructor 0x800899DC; class unknown)
+struct Chara480_unk {
+    ~Chara480_unk();
+};
+
+// inferred: elements of the object at CharaTask+0x1188 (classes unknown)
+struct Chara1188Entry_unk {
+    Chara1188Entry_unk();  // 0x8011D2E0
+    ~Chara1188Entry_unk(); // 0x8011D394
+    unsigned char m00[0x20];
+};
+struct Chara1188Item_unk {
+    Chara1188Item_unk();
+    unsigned char m00[0x10];
+};
+
+// inferred: listeners notified by CharaTask (function-local static of fn_8014F8F4, destructor
+// 0x8003EFB0); names invented
+struct CharaListener_unk {
+    int mId; // inferred: -1 for every event
+    void (*mFunc)(int id, CharaTask* chara, int arg);
+};
+struct CharaListeners_unk {
+    CharaListeners_unk() : mEnabled(1) {}
+    void fn_8014F860(int id, CharaTask* chara, int arg); // inferred: notifies the listeners of `id`
+
+    std::vector<CharaListener_unk> mList;
+    int mEnabled;
+};
+CharaListeners_unk* fn_8014F8F4();
 
 // inferred: entry of the character table returned by fn_8020924C (names invented)
 struct CharaInfo_unk {
@@ -114,13 +152,22 @@ struct Chara1154_unk {
 struct Chara1188_unk {
     Chara1188_unk();
 
-    unsigned char m00[0x80];
+    int m00;
+    Chara1188Entry_unk m04[2];
+    atn::Vector_unk<Chara1188Item_unk> m44[2];
+    int m5C;
+    float m60;
+    unsigned char m64[0x78 - 0x64];
+    unsigned char m78;
+    float m7C;
 };
 
 // inferred: motion command player at CharaTask+0x1220 (holds an atn::LH_MotionCommandData and a
 // sound; constructor 0x80120F5C called out of line); name invented
 struct MotionCommand_unk {
-    MotionCommand_unk();
+    MotionCommand_unk();  // 0x80120F5C
+    ~MotionCommand_unk(); // 0x80121048
+    void fn_80121E14(int arg);
     void fn_801210B4(const char* path); // inferred: loads the motion commands
 
     unsigned char m00[0x34];
@@ -269,6 +316,7 @@ public:
     void fn_8014C0B4(int a, int b);
     void fn_8014C228();
     void fn_8014C468();
+    void fn_8014DEE4(int a, int b, int c);
     void fn_8014EE48();
     void fn_8014EEC4(int keep);
     void fn_8014F2B4(int a, int b, int index);
@@ -293,7 +341,7 @@ public:
     int mType;  // 0x48: also compared with 0 and 2 by the chr::Control* classes
     int m4C;    // 0x4C: same value as mType
     int m50;    // 0x50: inferred: third constructor argument (character id; compared with 1 and -1)
-    int m54;
+    ResHandle m54;
     int m58;
     chr::CharaData_unk* m5C; // inferred: character data (read by CharaStatus)
     CharaInfo_unk* m60;      // inferred: character table entry (fn_8020924C(m50))
@@ -307,7 +355,7 @@ public:
     atn::LH_Binary mA4;
     int mAC;    // inferred: set when m84 starts loading
     chr::Motion_unk mMotion; // 0xB0
-    int m480;
+    Chara480_unk* m480;
     int m484[31]; // inferred: indexed by fn_801370B8
     float m500;
     float m504;
@@ -361,7 +409,7 @@ public:
     chr::CharaPart_unk* m64C;
     FixedArray_unk<chr::CharaPart_unk*, 8> mParts; // 0x650
     int m674;
-    int m678;
+    chr::CharaPart_unk* m678;
     chr::CharaPart_unk* m67C;
     chr::CharaEquip_unk* m680[8]; // inferred: equipment (CharaStatus::fn_8012B988, fn_80147A18)
     int m6A0;
@@ -424,7 +472,7 @@ public:
     Chara1188_unk m1188;
     CharaObj1208_unk* m1208;
     unsigned char m120C[0x10]; // inferred: cleared with memset
-    int m121C;
+    boost::scoped_ptr<atn::EfpHandle_unk> m121C;
     MotionCommand_unk m1220;
     int m1254;
     float m1258;
@@ -512,9 +560,7 @@ public:
     int m13F4;
     int m13F8;
     int m13FC;
-    unsigned int m1400;
-    int m1404;
-    int m1408;
+    atn::Vector_unk<int> m1400; // inferred: element type unknown (plain data)
     int m140C;
     unsigned char m1410[0x1414 - 0x1410];
     atn::SoundRef m1414;

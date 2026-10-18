@@ -74,7 +74,7 @@ public:
 class ColliCapsule : public ColliBase {
 public:
     ColliCapsule() : ColliBase(1) {}
-    virtual ~ColliCapsule();
+    virtual ~ColliCapsule() {}
 
     unsigned char m3C[0x48 - 0x3C];
     Vector3 m48; // inferred: position (chr::ControlAppear)

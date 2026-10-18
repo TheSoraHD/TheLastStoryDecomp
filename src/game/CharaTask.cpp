@@ -156,7 +156,7 @@ inline int GetModelHeap_unk(atn::Task* parent, int id) {
 // constants differ until "" (sStatusNames_unk) is the first .sdata2 object, which needs its user
 // fn_80149A30 (checked: with the table referenced this is 100%).
 CharaTask::CharaTask(atn::Task* parent, int type, void* data)
-    : atn::Task(parent), mType(type), m4C(type), m50((int)data), m54(0), m58(0), m5C(0), m60(0), m64(0),
+    : atn::Task(parent), mType(type), m4C(type), m50((int)data), m58(0), m5C(0), m60(0), m64(0),
       m7C(0), mId(0), mAC(0), mMotion(0x800504, GetModelHeap_unk(parent, (int)data)), m480(0), m510(2),
       m514(1.0f), m518(0), m51C(-1.0f), m520(-1), mPos(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f),
       m540(1.0f, 1.0f, 1.0f), m54C(0), m550(0.0f, 0.0f, 0.0f), m55C(0), m560(0), m564(0), m568(1.0f),
@@ -177,7 +177,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
       m12BC(-1), m12C0(0), m12C4(0), m12C8(0), m12CC(0.0f), m1374(0), m137C(0), m1380(0), m1384(0),
       m1388(0), m138A(0), m138C(0), m1390(rand() % 4), m1398(0), m139C(0), m13AC(0), m13B0(0),
       m13B4(1.0f), m13D8(0.0f), m13DC(0.0f), m13E0(0.0f), m13E4(0.0f), m13E8(0.0f), m13EC(0.0f),
-      m13F0(0.0f), m13F4(4), m13F8(0), m13FC(0), m1400(0), m1404(0), m1408(0), m1418(0), m141C(0.0f),
+      m13F0(0.0f), m13F4(4), m13F8(0), m13FC(0), m1418(0), m141C(0.0f),
       m1420(20.0f) {
     if (IsPartyMember_unk()) {
         mC54 = 0;
@@ -249,6 +249,45 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
     memset(m13D0, 0, sizeof(m13D0));
 }
 
+extern "C" void* lbl_8087F498;
+extern "C" void fn_803EBBCC(void* manager, CharaTask* chara);
+
+// NONMATCHING: 98.8% - in the inlined listener loop the original gives the list r27 and the
+// index r28 (ours the other way round); tried a local for the list and other loop forms.
+CharaTask::~CharaTask() {
+    m1220.fn_80121E14(1);
+    if (lbl_8087F498 != 0) {
+        fn_803EBBCC(lbl_8087F498, this);
+    }
+    for (unsigned int i = 0; i < mParts.mCount; i++) {
+        delete mParts.mData[i];
+    }
+    mParts.mCount = 0;
+    if (m678 != 0) {
+        delete m678;
+        m678 = 0;
+        if (m67C != 0) {
+            delete m67C;
+            m67C = 0;
+        }
+        if (m674 == 0) {
+            fn_8014DEE4(0, 0, 0);
+        }
+        fn_8014F8F4()->fn_8014F860(9, this, 0);
+    }
+    for (unsigned int i = 0; i < 8; i++) {
+        if (m680[i] != 0) {
+            delete m680[i];
+        }
+    }
+    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        delete m6A4.mData[i];
+    }
+    m6A4.mCount = 0;
+    delete m480;
+    delete m1394;
+}
+
 void CharaTask::fn_80136544(const char* path) {
     mAC = 1;
     m84.vf0C(path);
@@ -291,7 +330,7 @@ int CharaTask::fn_80139EFC() {
 }
 
 int CharaTask::fn_80139F04() {
-    return m1400 >= 2;
+    return m1400.mSize >= 2;
 }
 
 void Model_unk::fn_80139F24(int value) {
@@ -542,7 +581,7 @@ void CharaTask::fn_80147A18(int value) {
     }
     for (unsigned int i = 0; i < m6A4.mCount; i++) {
         if (m6A4.mData[i]->m3DC) {
-            fn_80094E2C(m6A4.mData[i]->m004, value);
+            fn_80094E2C(&m6A4.mData[i]->m004, value);
         }
     }
 }
@@ -652,6 +691,24 @@ void CharaTask::fn_8014F5D4(int index, int a, int b) {
     delete mParts.mData[index];
     mParts.erase(&mParts.mData[index]);
     fn_8014F2B4(a, b, index);
+}
+
+// NONMATCHING: the original loads mEnabled before saving the arguments (4 instructions moved).
+void CharaListeners_unk::fn_8014F860(int id, CharaTask* chara, int arg) {
+    int i;
+    if (mEnabled != 0) {
+        for (i = 0; i < (int)mList.size(); i++) {
+            CharaListener_unk& listener = mList[i];
+            if (listener.mId == -1 || id == listener.mId) {
+                listener.mFunc(id, chara, arg);
+            }
+        }
+    }
+}
+
+CharaListeners_unk* fn_8014F8F4() {
+    static CharaListeners_unk sListeners;
+    return &sListeners;
 }
 
 bool CharaTask::fn_8014FAD0() {
