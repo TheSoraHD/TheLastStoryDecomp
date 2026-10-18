@@ -79,5 +79,44 @@ same code inlined in many constructors (334 uses of the growth constants). Recon
   front with `memcpy`, then the old storage is cleared with `memset(old, 0, n * sizeof(T))`
 - `size = 0`, then capacity, data and size are swapped with the buffer, whose destructor frees the old storage
 
-Open problem: the original keeps the buffer in memory (it reloads its fields after every store and
-call); our compile keeps them in registers and needs one more saved register.
+The buffer keeps its fields in memory and its destruction tests the buffer address for null
+(`addic. r3, r1, 0x14`): its destructor is in a base class (`__vec_split_base_unk`). `push_back` is
+defined outside the class (its `"vector length_error"` literals are in the file string pool, after
+the `""` of `new (..., "", "", 0)`), the allocation helper is in-class (its `"Memory allocation
+failure"` is in an `@STRING@` pool). 62 of 189 lines still differ (standalone compile, `-ipa file`):
+load order of size/capacity in the fast path, stack slots of the two growth temporaries, a separate
+register for the new capacity, and `(data + size) - data` not folded before the `memcpy`.
+
+## Error reporting
+
+`__msl_error(msg)` is an inline function (`fprintf(stderr, msg); abort();`), not a macro: the
+message is loaded before the stream at every call site (0x800DB3EC, 0x80013F78, 0x80069BF4).
+
+## Where the members live
+
+- Members defined in the class body are inline; their literals go to `@STRING@<function>` pools.
+- Template members defined outside the class put their literals into the file string pool.
+- `reserve`, the range replace and the substring constructor are never instantiated in game
+  objects (no copy and no error strings in their pools, e.g. `atn/LH_Motion.cpp`): they are declared
+  in `std/string.h` and defined in `std/string_members.h`, which only test files include. Their
+  symbols in `symbols.txt` use our mangled names so the linker can resolve the calls.
+- The iterator tags are in `std/iterator.h`; Boost gets them through `libs/boost/msl_shim/iterator`.
+
+## Inlined members seen in game code (`atn::LoadMotion::LoadMotion`, 0x80476220)
+
+- `basic_string(const char*)`: zero the three words, `strlen`, `reserve(n)`, range replace
+  `(0, 0, s, s + n)`.
+- `rfind(c)`: data and size read in one branch on the long bit (short case first), then
+  `if (sz - 1 < pos) pos = sz - 1` and a backwards loop.
+- `operator=(const basic_string&)`: two short strings are copied word by word; otherwise
+  `replace(0, size(), str.data(), str.data() + str.size())`, where this `size()` tests the long
+  case first.
+- `erase(pos, n)` goes through an inline `replace(pos, n, first, last)` (one more level: the tag
+  copy takes the higher stack slot).
+- `c_str()` returns `data()`; the substring is built by calling the substring constructor directly.
+
+Open problem (also in `EquipItemData` at 0x80363284): while the string is constructed from a
+`const char*`, the original keeps its address in a saved register (`addi r29, r1, 0x2c` ...
+`mr r3, r29`); our compiles always recompute it (`addi r3, r1, 0x2c`). Not changed by compiler
+version (Wii/1.0-1.7), `-inline`/`-ipa` modes, `-O` levels, base classes, member subobjects,
+temporaries or helper functions.
