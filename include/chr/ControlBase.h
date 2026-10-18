@@ -1,12 +1,15 @@
 #ifndef CHR_CONTROLBASE_H
 #define CHR_CONTROLBASE_H
 
+#include "math/Vec.h"
+
 namespace chr {
 
 // inferred: motion controller embedded in the character at +0xB0 (class name unknown)
 class Motion_unk {
 public:
     void fn_80097C08(int arg1, int motion, int arg3, int arg4, int arg5, float blend, float speed); // inferred: play motion
+    float fn_80097D7C(int track); // inferred: motion length
 
     unsigned char m000[0x234];
     float m234;
@@ -33,18 +36,30 @@ public:
     virtual void vf30();
     virtual void vf34(void* target, int arg, float a, float b); // inferred: look at target
 
+    // inferred: bounding sphere returned by value
+    struct Sphere_unk {
+        Vec mCenter;
+        float mRadius;
+    };
+
     void fn_801539E0();
+    Sphere_unk fn_80176548(const Vec& pos); // inferred
     void fn_80155DAC(int arg);
     void fn_8016DA4C();
 
     unsigned char m004[0xB0 - 0x04];
     Motion_unk mMotion; // 0xB0
-    unsigned char m400[0x534 - 0x400];
-    unsigned char m534[0x560 - 0x534];
+    unsigned char m400[0x528 - 0x400];
+    Vec mPos;  // 0x528
+    Vec mRot;  // 0x534
+    unsigned char m540[0x560 - 0x540];
     int m560;
     unsigned char m564[0x58C - 0x564];
     int m58C;
-    unsigned char m590[0x12A4 - 0x590];
+    unsigned char m590[0x5A4 - 0x590];
+    Vec m5A4;  // inferred: collision offset
+    unsigned char m5B0[0x5B8 - 0x5B0];
+    unsigned char m5B8[0x12A4 - 0x5B8];
     // 0x12A4: flag word (bitfields, MSB first)
     unsigned int mFlag31 : 1;
     unsigned int mFlag30_7 : 24;
@@ -56,7 +71,7 @@ public:
 // inferred from __vt__Q23chr11ControlBase (0x8077DC90)
 class ControlBase {
 public:
-    ControlBase(Chara_unk* chara, int arg) : mChara(chara), m08(arg) {}
+    ControlBase(Chara_unk* chara) : mChara(chara) {}
     virtual ~ControlBase() {}
     virtual int vf0C() = 0; // inferred: update, returns nonzero when finished
     virtual void vf10();
@@ -81,7 +96,6 @@ public:
     virtual void vf5C();
 
     Chara_unk* mChara; // 0x04
-    int m08;
 };
 
 } // namespace chr

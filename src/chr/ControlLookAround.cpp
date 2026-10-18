@@ -4,7 +4,7 @@ extern "C" int rand();
 
 namespace chr {
 
-ControlLookAround::ControlLookAround(Chara_unk* chara, int time) : ControlBase(chara, time) {
+ControlLookAround::ControlLookAround(Chara_unk* chara, int time) : ControlBase(chara), mTime(time) {
     chara->m560 = 0x60;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
@@ -23,14 +23,14 @@ ControlLookAround::ControlLookAround(Chara_unk* chara, int time) : ControlBase(c
 }
 
 int ControlLookAround::vf0C() {
-    if (--m08 <= 0) {
+    if (--mTime <= 0) {
         return 1;
     }
-    mChara->vf34(mChara->m534, 0, 0.0f, 1.0f);
+    mChara->vf34(&mChara->mRot, 0, 0.0f, 1.0f);
     return 0;
 }
 
-ControlLookAroundEgg::ControlLookAroundEgg(Chara_unk* chara, int time) : ControlBase(chara, time) {
+ControlLookAroundEgg::ControlLookAroundEgg(Chara_unk* chara, int time) : ControlBase(chara), mTime(time) {
     Motion_unk* motion = &chara->mMotion;
     chara->m58C = 5;
     motion->m34C = 1;
@@ -41,7 +41,7 @@ ControlLookAroundEgg::ControlLookAroundEgg(Chara_unk* chara, int time) : Control
 }
 
 int ControlLookAroundEgg::vf0C() {
-    mChara->vf34(mChara->m534, 0, 0.0f, 1.0f);
+    mChara->vf34(&mChara->mRot, 0, 0.0f, 1.0f);
     return 0;
 }
 
