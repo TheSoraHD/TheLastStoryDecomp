@@ -53,35 +53,49 @@ struct __vec_imp_unk : public __vec_storage_unk<T> {
 };
 
 // inferred: temporary buffer used when push_back reallocates (0x800DB3EC): storage, number of
-// elements, capacity, allocator reference and index of the first element. Name invented.
+// elements, capacity, allocator reference and index of the first element. Names invented. The
+// destructor lives in a base class: the original tests the buffer address for null before
+// destroying it (addic. r3, r1, 0x14), and keeps its fields in memory.
 template <class T>
-struct __vec_split_unk {
-    __vec_split_unk(void* alloc) : mData(0), mSize(0), mCap(0), mAlloc(alloc), mStart(0) {}
-    ~__vec_split_unk() {
+struct __vec_split_base_unk {
+    __vec_split_base_unk(void* alloc) : mData(0), mSize(0), mCap(0), mAlloc(alloc) {}
+    ~__vec_split_base_unk() {
         if (mData != 0) {
             mSize = 0;
             ::operator delete(mData);
         }
     }
-    T* begin() { return mData + mStart; }
+    T* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+    void* mAlloc;
+};
+
+template <class T>
+struct __vec_split_unk : public __vec_split_base_unk<T> {
+    __vec_split_unk(void* alloc) : __vec_split_base_unk<T>(alloc), mStart(0) {}
+    T* begin() { return this->mData + mStart; }
     void push_back(const T& x) {
-        begin()[mSize] = x;
-        mSize++;
+        begin()[this->mSize] = x;
+        this->mSize++;
     }
     // inferred: moves [first, last) in front of the stored elements
     void __push_front_unk(T* first, T* last) {
         unsigned int n = last - first;
         mStart -= n;
-        memcpy(mData + mStart, first, n * sizeof(T));
+        memcpy(this->mData + mStart, first, n * sizeof(T));
         memset(first, 0, n * sizeof(T));
-        mSize += n;
+        this->mSize += n;
     }
-    T* mData;
-    unsigned int mSize;
-    unsigned int mCap;
-    void* mAlloc;
     unsigned int mStart;
 };
+
+// inferred: vector errors go through a function (the message is loaded before the stream,
+// unlike the __msl_error macro used by basic_string)
+inline void __vec_error_unk(const char* msg) {
+    fprintf(&__files[2], msg);
+    abort();
+}
 
 template <class T>
 inline void __vec_swap_unk(T& a, T& b) {
@@ -103,51 +117,58 @@ public:
 
     size_type max_size() const { return 0x3FFFFFFF; }
     // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...).
-    // NONMATCHING (standalone compile, 150 differing lines of 189): control flow and growth
-    // policy match, but the original keeps the temporary buffer in memory (it reloads its
-    // fields after every store and call, as if its address escaped) and needs one register less.
-    void push_back(const T& x) {
-        if (this->mSize < this->mCap) {
-            this->mSize++;
-            this->mData[this->mSize - 1] = x;
-            return;
-        }
-        if (max_size() - this->mCap < 1) {
-            __msl_error("vector length_error");
-        }
-        __vec_split_unk<T> buf(&this->mCap);
-        size_type n = this->mSize + 1 - this->mCap;
-        if (n > max_size() - this->mCap) {
-            __msl_error("vector length_error");
-        }
-        size_type cap = this->mCap;
-        if (cap < max_size() / 3) {
-            size_type grow = (cap + 1) * 3 / 5;
-            cap += __vec_max_unk(grow, n);
-        } else if (cap < max_size() / 3 * 2) {
-            size_type grow = (cap + 1) / 2;
-            cap += __vec_max_unk(grow, n);
-        } else {
-            cap = max_size();
-        }
-        if (cap > max_size()) {
-            __msl_error("vector length_error");
-        }
-        T* p = (T*)::operator new(cap * sizeof(T));
+    // NONMATCHING (standalone compile, 62 differing lines of 189): the fast path loads the
+    // capacity before the size, the two growth temporaries swap stack slots, the new capacity
+    // gets its own register, and the original does not fold (data + size) - data before the memcpy.
+    // Defined out of the class: its literals are in the file string pool, not in an @STRING@ pool.
+    void push_back(const T& x);
+
+private:
+    static T* __allocate(size_type n) {
+        T* p = (T*)::operator new(n * sizeof(T));
         if (p == 0) {
             __msl_error("Memory allocation failure");
         }
-        buf.mData = p;
-        buf.mCap = cap;
-        buf.mStart = this->mSize;
-        buf.push_back(x);
-        buf.__push_front_unk(this->mData, this->mData + this->mSize);
-        this->mSize = 0;
-        __vec_swap_unk(this->mCap, buf.mCap);
-        __vec_swap_unk(this->mData, buf.mData);
-        __vec_swap_unk(this->mSize, buf.mSize);
+        return p;
     }
 };
+
+template <class T>
+void vector<T>::push_back(const T& x) {
+    if (this->mSize < this->mCap) {
+        this->mSize++;
+        this->mData[this->mSize - 1] = x;
+        return;
+    }
+    if (max_size() - this->mCap < 1) {
+        __vec_error_unk("vector length_error");
+    }
+    __vec_split_unk<T> buf(&this->mCap);
+    size_type n = this->mSize + 1 - this->mCap;
+    if (n > max_size() - this->mCap) {
+        __vec_error_unk("vector length_error");
+    }
+    size_type cap = this->mCap;
+    if (cap < max_size() / 3) {
+        cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
+    } else if (cap < max_size() / 3 * 2) {
+        cap += __vec_max_unk(size_type((cap + 1) / 2), n);
+    } else {
+        cap = max_size();
+    }
+    if (cap > max_size()) {
+        __vec_error_unk("vector length_error");
+    }
+    buf.mData = __allocate(cap);
+    buf.mCap = cap;
+    buf.mStart = this->mSize;
+    buf.push_back(x);
+    buf.__push_front_unk(this->mData, this->mData + this->mSize);
+    this->mSize = 0;
+    __vec_swap_unk(this->mCap, buf.mCap);
+    __vec_swap_unk(this->mData, buf.mData);
+    __vec_swap_unk(this->mSize, buf.mSize);
+}
 
 } // namespace std
 
