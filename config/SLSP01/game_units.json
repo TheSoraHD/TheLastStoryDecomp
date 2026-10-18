@@ -484,7 +484,7 @@
   "classes": [
    "chr::ControlBreakOpen"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlAppear.cpp",
