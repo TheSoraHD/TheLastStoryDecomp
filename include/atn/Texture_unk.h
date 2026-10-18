@@ -15,7 +15,10 @@ public:
     GXTexObj mObj;              // 0x00
     unsigned char m20[0x28 - 0x20];
     void* mImage;               // 0x28
-    int m2C;
+    unsigned char m2C;
+    unsigned char m2D; // inferred: flags set after a load (LoadEffect::vf0C)
+    unsigned char m2E;
+    unsigned char m2F;
 };
 
 } // namespace atn

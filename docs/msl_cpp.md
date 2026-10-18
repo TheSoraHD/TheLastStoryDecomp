@@ -133,11 +133,15 @@ message is loaded before the stream at every call site (0x800DB3EC, 0x80013F78, 
   copy takes the higher stack slot).
 - `c_str()` returns `data()`; the substring is built by calling the substring constructor directly.
 
-Open problem (also in `EquipItemData` at 0x80363284): while the string is constructed from a
-`const char*`, the original keeps its address in a saved register (`addi r29, r1, 0x2c` ...
-`mr r3, r29`); our compiles always recompute it (`addi r3, r1, 0x2c`). Not changed by compiler
-version (Wii/1.0-1.7), `-inline`/`-ipa` modes, `-O` levels, base classes, member subobjects,
-temporaries or helper functions.
+Solved (2026-10-18): while the string is constructed from a `const char*`, the original keeps its
+address in a saved register (`addi r29, r1, 0x2c` ... `mr r3, r29`) because the constructor clears
+the three words through a word array (`__zero()`, as in libc++: `unsigned long (&a)[3] = ...;
+for (...) a[i] = 0;`). The cast of `this` to a word pointer makes the address a value of its own,
+which is then reused for `reserve`, the range replace and any later use of the temporary. Writing
+`mLong.mCap = 0; ...` lets the compiler fold the address into each instruction. With this
+`atn::LoadMotion::LoadMotion` (0x80476220) matches. Likewise `data()` returns `(const T*)this + 1`
+for a short string (and `operator=` takes the source data the same way): the address is then
+hoisted out of loops into a saved register (`LoadEffect::vf0C`, 0x804732DC).
 
 ## Template parameters and members added for boost::tokenizer
 
