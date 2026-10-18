@@ -1578,7 +1578,7 @@ atn/LH_Material.cpp:
 
 atn/LH_Model.cpp:
 	.text       start:0x80474888 end:0x80476130
-	.rodata     start:0x80755EF0 end:0x80755F30
+	.rodata     start:0x80755EF0 end:0x80755F48
 	.data       start:0x8078FDD8 end:0x8078FE28
 	.sdata2     start:0x80886F00 end:0x80886F08
 

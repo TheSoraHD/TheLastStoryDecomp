@@ -113,13 +113,13 @@ void LoadScene::vf0C() {
         fn_80473104(3);
         Loader_unk loader;
         fn_804714A4(&loader);
-        fn_804714B0(&loader, m54, m50, boost::function<void()>(), 0);
+        fn_804714B0(&loader, m54, m50, LoaderCallback_unk(), 0);
         fn_804778DC((SceneHeader_unk*)((char*)m54 + 0x10));
     }
 }
 
 void LoadScene::fn_804778DC(SceneHeader_unk* header) {
-    mCameras.Resize_unk(header->mNumCameras);
+    mCameras.Resize_unk(header->mNumCameras, 0);
     for (int i = 0; i < header->mNumCameras; i++) {
         SceneCameraData_unk* data = header->mCameras[i];
         Camera_unk* camera = &mCameras[i];
@@ -162,7 +162,7 @@ void LoadScene::fn_804778DC(SceneHeader_unk* header) {
         }
         camera->fn_8004B378();
     }
-    mLights.Resize_unk(header->mNumLights);
+    mLights.Resize_unk(header->mNumLights, 0);
     for (int i = 0; i < header->mNumLights; i++) {
         mLights[i] = fn_80079090(header->mLights[i]);
     }

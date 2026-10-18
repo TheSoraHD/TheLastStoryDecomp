@@ -84,14 +84,15 @@ public:
         }
         memset(mData, 0, mSize * sizeof(T));
     }
-    // inferred: as Alloc, but from heap 0 and without clearing (atn::LoadScene, 0x804778DC)
-    void Resize_unk(int n) {
+    // inferred: as Alloc, but from the given heap and without clearing (atn::LoadScene 0x804778DC
+    // uses heap 0, atn::LoadModel 0x804749C8 heap 6)
+    void Resize_unk(int n, int heap) {
         if (mData != 0) {
             delete[] mData;
         }
         mSize = n;
         if (mSize != 0) {
-            mData = new (0, "", "", 0) T[mSize];
+            mData = new (heap, "", "", 0) T[mSize];
         } else {
             mData = 0;
         }
