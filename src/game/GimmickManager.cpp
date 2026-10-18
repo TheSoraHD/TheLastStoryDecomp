@@ -182,19 +182,14 @@ void GimmickManager::fn_803EE41C(GimmickCommon* gimmick) {
     }
 }
 
-// inferred
-static inline int __IsTarget_unk(GimmickCommon* g, int id) {
-    return id == g->vf64(9);
-}
-
-// NONMATCHING: 99% - the gimmick pointer and the id are in swapped registers (r30/r31)
 int GimmickManager::fn_803EE45C(GimmickQuery_unk* query) {
+    int id; // declared here: in the loop, the id and the gimmick pointer swap registers
     if (query == 0 || fn_8017CB2C(query) == 0) {
         return 0;
     }
     for (GimmickCommon* g = mHead; g != 0; g = g->m5C) {
         if (g->m50 == 6 && g->m54 != 1) {
-            int id = query->m58;
+            id = query->m58;
             if (id == g->vf64(9)) {
                 return 1;
             }
