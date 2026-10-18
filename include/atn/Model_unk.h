@@ -48,7 +48,8 @@ struct Model_unk {
     Node_unk* m220;  // inferred: per-node data (0x2C bytes, see chr::Motion_unk::Entry_unk)
     unsigned char m224[0x234 - 0x224];
     float mFrame;    // 0x234
-    unsigned char m238[0x3D0 - 0x238];
+    float m238;      // inferred: reset with mFrame by gmk::OpenBoard
+    unsigned char m23C[0x3D0 - 0x23C];
 };
 
 // inferred: take an empty boost::function by value (signature unknown, void() assumed)
