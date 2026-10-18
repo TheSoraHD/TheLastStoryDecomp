@@ -8,7 +8,9 @@
 struct HitInfo_unk {
     unsigned char m00;
     signed char m01; // inferred: kind (2 is tested by CharaStatus::fn_8012DF7C)
-    unsigned char m02[0x10 - 0x02];
+    unsigned char m02[0x04 - 0x02];
+    int m04; // inferred: id (0x1789 tested by CharaTask::vf4C)
+    unsigned char m08[0x10 - 0x08];
     atn::Vector3 m10; // inferred: knockback direction
     unsigned char m1C[0x68 - 0x1C];
     int m68;

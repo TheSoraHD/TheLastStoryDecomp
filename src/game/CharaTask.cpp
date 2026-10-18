@@ -13,6 +13,7 @@
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
 #include "game/CharaStatus.h"
+#include "game/GimmickCommon.h"
 #include <boost/scoped_ptr.hpp>
 #include "std/string.h"
 #include "std/string_members.h"
@@ -30,13 +31,17 @@ struct Settings_unk {
 
     unsigned char m00[0x48];
     float m48;
-    unsigned char m4C[0x250 - 0x4C];
+    unsigned char m4C[0xCC - 0x4C];
+    int mCC; // inferred: nonzero makes every character a valid target (fn_80154E38)
+    unsigned char mD0[0x250 - 0xD0];
     int m250; // inferred: copied to CharaTask::m1028 by fn_80164D24
     unsigned char m254[0x278 - 0x254];
-    int m278;
+    int m278; // inferred: parts mode (fn_801539E0)
     unsigned char m27C[0x3D0 - 0x27C];
     int m3D0; // inferred: tested by CharaTask::fn_80164D24
-    unsigned char m3D4[0x418 - 0x3D4];
+    unsigned char m3D4[0x3D8 - 0x3D4];
+    int m3D8;
+    unsigned char m3DC[0x418 - 0x3DC];
     int m418;
     unsigned char m41C[0x454 - 0x41C];
     int m454;
@@ -68,9 +73,14 @@ struct Field_unk {
 
     unsigned char m00[0x260];
     View_unk m260;
-    unsigned char m280[0x10D8 - 0x280];
+    unsigned char m280[0x868 - 0x280];
+    int m868;
+    int m86C;
+    unsigned char m870[0x10D8 - 0x870];
     RouteTable_unk* m10D8;
-    unsigned char m10DC[0x54F4 - 0x10DC];
+    unsigned char m10DC[0x54E4 - 0x10DC];
+    int m54E4; // inferred: 9 makes every hit valid (fn_801533C8)
+    unsigned char m54E8[0x54F4 - 0x54E8];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
     unsigned char m54F8[0x5744 - 0x54F8];
     int m5744; // inferred: copied to CharaTask::mFD8 by fn_80164B00
@@ -95,12 +105,6 @@ struct Effect_unk {
 };
 extern "C" Effect_unk* lbl_8087F048;
 
-// inferred: frame time (lbl_8087EFA8, as in CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
 
 extern "C" int fn_80375184(Field_unk* field);
 extern "C" int fn_80370174(Field_unk* field, int id);  // inferred: event flag
@@ -201,9 +205,9 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
 extern "C" void fn_800697D8(void* output, const char* message);
 extern "C" CharaInfo_unk* fn_8020924C(int id);
-extern "C" int fn_802092C0(char* path, int id);
+extern "C" int fn_802092C0(char* path, const char* name);
 extern "C" chr::CharaData_unk* fn_8020A81C(int id);
-extern "C" CharaType_unk* fn_80204E04(int type, int arg);
+extern "C" CharaRes_unk* fn_80204E04(int type, int arg);
 extern "C" int fn_8021FC00(int id);
 extern "C" void fn_80218260();
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
@@ -238,7 +242,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
       m56C(1.0f / 6.0f), m570(0.0f), m574(0.0f, 0.0f, 0.0f), m580(0.0f), m584(0.0f), m588(0.0f), m58C(0),
       m590(0), m594(0), m598(0), m59C(0), m59D(0), m59E(0), m59F(0), m5A0(1.0f), m610(0), m630(0),
       m634(-1), m638(0), m63C(0), m640(0), m644(1), m648(0), m64C(0), m674(-1), m678(0), m67C(0),
-      m6A0(-1), m6B8(0.0f, 0.0f, 0.0f), m6D0(0), mC10(0), mC14(0.0f, 0.0f, 0.0f), mC38(0), mC3C(0),
+      m6A0(-1), m6B8(0.0f, 0.0f, 0.0f), mC10(0), mC14(0.0f, 0.0f, 0.0f), mC38(0), mC3C(0),
       mC40(4), mC48(0), mC4C(0), mC50(type), mC54(1), mF14(-1), mF18(-1), mF1C(0), mF50(0), mF54(0),
       mF58(0), mF5C(10000), mF60(0.0f, 0.0f, 0.0f), mF6C(0.0f, 0.0f, 0.0f), mF78(0.0f), mF7C(0), mF84(0),
       mF88(0.0f, 0.0f, 0.0f), mF94(-1), mF98(300), mF9C(0), mFA0(0), mFA4(0.0f, 0.0f, 0.0f), mFB0(0),
@@ -247,8 +251,8 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
       m12A0(0), mFlag31(0), mFlag30(0), mFlag29(1), mFlag28(0), mFlag27(0), mFlag25(0), mFlag24(1),
       mFlag23(0), mFlag22(0), mFlag21(0), mFlag20(0), mFlag19(0), mFlag18(0), mFlag17(1), mFlag16(1),
       mFlag15(0), mFlag14(1), mFlag13(1), mFlag12(0), mFlag11(0), mFlag10(0), mFlag9(0), mFlag8(0), mFlag7(0), mFlag6(0), mFlag5(0), mFlag4(0), mFlag3(0),
-      mFlag2(0), mFlag1_0(0), mFlagB31_28(0), mFlagB27(0), mFlagB26(0), mFlagB25(0), mFlagB24_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16_15(0), mFlagB14(1), mFlagB13_11(0),
-      mFlagB10(1), mFlagB9_8(0), mFlagB7(1), mFlagB6_2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
+      mFlag2(0), mFlag1_0(0), mFlagB31_28(0), mFlagB27(0), mFlagB26(0), mFlagB25(0), mFlagB24_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16(0), mFlagB15(0), mFlagB14(1), mFlagB13_11(0),
+      mFlagB10(1), mFlagB9(0), mFlagB8(0), mFlagB7(1), mFlagB6_2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
       m12BC(-1), m12C0(0), m12C4(0), m12C8(0), m12CC(0.0f), m1374(0), m137C(0), m1380(0), m1384(0),
       m1388(0), m138A(0), m138C(0), m1390(rand() % 4), m1398(0), m139C(0), m13AC(0), m13B0(0),
       m13B4(1.0f), m13D8(0.0f), m13DC(0.0f), m13E0(0.0f), m13E4(0.0f), m13E8(0.0f), m13EC(0.0f),
@@ -1427,6 +1431,720 @@ void CharaTask::fn_80150178(int slot, chr::CharaEquip_unk* equip) {
     }
 }
 
+void CharaTask::vf40(HitInfo_unk* hit) {}
+
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* ab);
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length (next to PSVECMag)
+extern "C" int fn_8010CD3C(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
+
+// inferred: name invented
+inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+
+// NONMATCHING: 98.4% - CharaStatus::fn_801346C8 is called with a second argument 0 (li r5,0) in
+// every caller of the game, but it is declared with one (its symbol is fixed as Fi).
+// inferred: hit reaction check (guard?); returns 0, 1 or 2. The parameters are read by the body,
+// so the symbol vf4C__9CharaTaskFv (in symbols.txt) has the wrong signature.
+int CharaTask::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir) {
+    if (mFlag31) {
+        return 0;
+    }
+    if (IsDown_unk()) {
+        return 0;
+    }
+    if (hit->m01 == 1) {
+        if (mType == 0) {
+            if (mFlag5 && m55C != 6) {
+                bool ok = true;
+                if (mF58 >= 30 && ((unsigned int)mStatus.m14 & 1) != 1) {
+                    ok = false;
+                }
+                if (Dot_unk(*dir, -fn_8014052C()) > -0.70710677f && ok) {
+                    if (mStatus.fn_801346C8(2) || mStatus.fn_801346C8(3) || mStatus.fn_801346C8(0x2E) ||
+                        lbl_8087F610 != 0) {
+                        return 2;
+                    }
+                    return 1;
+                }
+            }
+        } else if (mType == 3 && lbl_8087F048 != 0) {
+            bool ok = false;
+            if (mFlag5 && m55C != 6 && ((unsigned int)mStatus.m14 & 1) == 1) {
+                ok = true;
+            }
+            if (fn_8010CD3C(lbl_8087F048, 8, this, attacker)) {
+                ok = true;
+            }
+            if (Dot_unk(*dir, -fn_8014052C()) > -0.70710677f && ok) {
+                if (HasHitBullet_unk(0x1789)) {
+                    return 2;
+                }
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+extern "C" int fn_80370174(Field_unk* field, int id);
+extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg);
+extern "C" void fn_801059F8(Effect_unk* effect, CharaTask* chara);
+extern "C" void fn_80105B3C(Effect_unk* effect, CharaTask* chara);
+
+// inferred: names invented
+inline bool CharaTask::IsPartsMode_unk() {
+    if (mType == 0 && lbl_8087F0A8->m278 != 0 && m5C->m11C == 1) {
+        return true;
+    }
+    if (mType == 0 && mFlagB17) {
+        return true;
+    }
+    return false;
+}
+
+inline void CharaTask::ResetParts_unk() {
+    if (IsPartsMode_unk()) {
+        if (fn_80370174(lbl_8087F430, 0x25) >= 1) {
+            fn_8014EEC4(0);
+        } else if (m674 >= 0) {
+            fn_8014DEE4(0, 0, 0);
+        }
+    }
+}
+
+// inferred: body of fn_801539E0 (inlined in vf44 and fn_8015495C, defined below them)
+inline void CharaTask::ReleaseLedge_unk() {
+    mFlag31 = 0;
+    mFlag30 = 0;
+    RouteTable_unk* table = lbl_8087F430->fn_8013C504();
+    if (table != 0 && mC38 > 0 && mC3C > 0) {
+        table->GetLink_unk(mC38)->m3C = 0;
+        table->GetLink_unk(mC3C)->m3C = 0;
+    }
+    ResetParts_unk();
+}
+
+inline void CharaTask::Unlink_unk() {
+    if (mC58.mC4 != 0 && mC58.mC4->HasLink_unk(this)) {
+        mC58.mC4->RemoveLink_unk(this);
+    }
+}
+
+inline void CharaTask::ClearEffect_unk() {
+    if (lbl_8087F048 != 0) {
+        fn_801059F8(lbl_8087F048, this);
+        fn_80105B3C(lbl_8087F048, this);
+    }
+    mFlagB8 = 0;
+    mFB8 = 0.0f;
+    mFBC = 0.0f;
+}
+
+// inferred: body of fn_8015495C (inlined in vf44, defined below it)
+inline void CharaTask::Reset_unk(int arg, int ledge, int flag, int effect) {
+    mC58.fn_8011BEB8(arg);
+    if (ledge && IsOnLedge_unk()) {
+        ReleaseLedge_unk();
+    }
+    if (flag && IsFlag5_unk()) {
+        mFlag5 = 0;
+    }
+    Unlink_unk();
+    if (effect) {
+        ClearEffect_unk();
+    }
+}
+
+void CharaTask::vf44() {
+    vf48();
+    fn_80178A6C();
+    m58C = 2;
+    mStatus.fn_8012DD70();
+    Reset_unk(0, 1, 1, 1);
+    ClearEffect_unk();
+    fn_80164DCC(1);
+    mFC0 = 0;
+    mFlagB10 = 1;
+}
+
+extern "C" void fn_80107850(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80107798(Effect_unk* effect, chr::Motion_unk* motion, int arg);
+extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80107B20(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80107E58(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80107FC8(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80108080(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_801079B0(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80107F10(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80107BD8(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80107380(Effect_unk* effect, CharaTask* chara);
+extern "C" void fn_80107D94(Effect_unk* effect, chr::Motion_unk* motion);
+
+// inferred: 16-byte block copied with paired singles; name invented
+struct Vec4_unk {
+    Vec4_unk(const Vec4_unk& v) {
+        __Vec4Copy(&x, &v.x);
+    }
+    Vec4_unk& operator=(const Vec4_unk& v) {
+        __Vec4Copy(&x, &v.x);
+        return *this;
+    }
+    float x, y, z, w;
+};
+
+// inferred: camera state at lbl_8087EFA8 + 0x324; names invented
+struct CameraState_unk {
+    CameraState_unk(int mode, const CameraState_unk& o)
+        : m00(mode), m04(o.m04), m14(o.m14), m24(o.m24), m34(o.m34), m44(o.m44), m48(0), m4C(0.0f) {}
+    int m00;
+    Vec4_unk m04;
+    Vec4_unk m14;
+    Vec4_unk m24;
+    Vec4_unk m34;
+    int m44;
+    int m48;
+    float m4C;
+};
+// inferred: game state (lbl_8087EFA8, see CharaStatus.cpp); names invented
+struct GameState_unk {
+    unsigned char m000[0x324];
+    CameraState_unk m324;
+    unsigned char m374[0x3A4 - 0x374];
+    float m3A4; // inferred: time of a frame
+};
+extern "C" GameState_unk* lbl_8087EFA8;
+
+// NONMATCHING: ~57% - the inlined fn_8016E970 is one inline level short (see fn_80178208), and in
+// the camera state copy the original computes the address of the last 16-byte block (addi r9)
+// and allocates the registers in the other order; tried member-wise init, a constructor taking
+// the blocks, assignments in the body.
+void CharaTask::vf48() {
+    if (lbl_8087F048 != 0) {
+        fn_80107850(lbl_8087F048, &mMotion);
+        fn_80107798(lbl_8087F048, &mMotion, 1);
+        fn_80107A68(lbl_8087F048, &mMotion);
+        fn_80107B20(lbl_8087F048, &mMotion);
+        fn_80107E58(lbl_8087F048, &mMotion);
+        fn_80107FC8(lbl_8087F048, &mMotion);
+        fn_80108080(lbl_8087F048, &mMotion);
+    }
+    if (lbl_8087F048 != 0) {
+        fn_801079B0(lbl_8087F048, &mMotion);
+    }
+    if (mFlag20 && mType == 0) {
+        mFlag20 = 0;
+        GameState_unk* state = lbl_8087EFA8;
+        state->m324 = CameraState_unk(mFlag19, state->m324);
+    }
+    if (lbl_8087F048 != 0) {
+        fn_80107F10(lbl_8087F048, &mMotion);
+    }
+    if (m58C == 3) {
+        m58C = 0;
+        fn_8016E970(m564);
+    }
+    mStatus.fn_8013322C(0x40);
+    mF94 = -1;
+    if (lbl_8087F048 != 0) {
+        fn_80107BD8(lbl_8087F048, &mMotion);
+        fn_80107380(lbl_8087F048, this);
+    }
+    if (lbl_8087F048 != 0) {
+        fn_80107D94(lbl_8087F048, &mMotion);
+    }
+}
+
+// inferred: lbl_8087F9C0 (class unknown)
+struct Global9C0_unk {
+    unsigned char m00[0x28];
+    int m28;
+};
+extern "C" Global9C0_unk* lbl_8087F9C0;
+extern "C" int fn_8021A8D0(HitInfo_unk* hit);
+extern "C" int fn_8021A918(HitInfo_unk* hit);
+extern "C" int fn_8021A888(HitInfo_unk* hit);
+
+// inferred: nonzero if the hit `id` is ignored (name invented)
+bool CharaTask::fn_801533C8(int id, HitInfo_unk* hit) {
+    for (CharaPair8_unk* it = m6D0.begin(); it != m6D0.end(); it++) {
+        if (it->m00 == id) {
+            return true;
+        }
+    }
+    if (lbl_8087F430->m54E4 == 9) {
+        return true;
+    }
+    if (!CanAct_unk()) {
+        return true;
+    }
+    if (mFlagB9) {
+        return true;
+    }
+    if (IsPartyMember_unk() && (hit == 0 || (hit->mAC & 0x20000) != 0x20000)) {
+        return true;
+    }
+    if ((m54C & 4) == 4) {
+        return true;
+    }
+    if (m6D0.full()) {
+        return true;
+    }
+    if (hit != 0 && (hit->mAC & 0x4000) == 0x4000) {
+        return false;
+    }
+    if (m55C == 6) {
+        switch (m560) {
+        case 27:
+        case 141:
+            if (mType != 2) {
+                return true;
+            }
+            break;
+        case 28: case 59: case 64: case 75: case 76: case 77: case 81: case 95: case 100: case 101:
+        case 102: case 103: case 105: case 110: case 111: case 113: case 116: case 117: case 118:
+        case 119: case 123: case 126: case 127: case 133: case 134: case 135: case 136: case 139:
+        case 140: case 142:
+            return true;
+        case 10:
+        case 128:
+            if (mType == 0) {
+                return true;
+            }
+            break;
+        case 132:
+            if (hit == 0 || (!fn_8021A8D0(hit) && !fn_8021A918(hit))) {
+                return true;
+            }
+            break;
+        case 30:
+            if (hit == 0 || (!fn_8021A8D0(hit) && !fn_8021A918(hit) && !fn_8021A888(hit))) {
+                if (!mStatus.mParamB.fn_801404E0(0x100)) {
+                    return true;
+                }
+            }
+            break;
+        case 5:
+            if (lbl_8087F9C0->m28 == 0) {
+                return mMotion.mTracks[0].m08 < 8.0f;
+            }
+            break;
+        }
+    } else if (m55C == 5) {
+        return true;
+    }
+    return false;
+}
+
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+
+
+// NONMATCHING: instructions and stack identical; only the saved registers differ (the original
+// keeps the ledge in r30 and this in r29, ours the other way round). Tried a free function, other
+// statement orders, the direction computed in place or through helpers.
+// inferred: grabs a ledge
+void CharaTask::fn_80153698(const Ledge_unk* ledge, int keep) {
+    mFlag31 = 1;
+    mC48 = 0;
+    mC14 = ledge->GetDir_unk();
+    mFlag30 = ledge->m34 != 0;
+    mC20 = ledge->m18;
+    mC2C = ledge->m24;
+    mC44 = ledge->m30;
+    mC40 = ledge->m34;
+    mC38 = ledge->m38;
+    mC3C = ledge->m3C;
+    mFlag14 = 1;
+    Segment_unk seg(mC20, mC2C);
+    atn::Vector3 pos;
+    fn_80050A1C(&mPos, &seg, &pos);
+    mPos = pos;
+    atn::Vector3 fwd = fn_8014052C();
+    if (Dot_unk(fwd, mC14) >= 0.0f) {
+        mFlag29 = 1;
+    } else {
+        mFlag29 = 0;
+    }
+    RouteTable_unk* table = lbl_8087F430->fn_8013C504();
+    if (table != 0 && mC44 == 0) {
+        table->GetLink_unk(mC38)->m3C = 1;
+        table->GetLink_unk(mC3C)->m3C = 1;
+    }
+    if (keep == 0) {
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        if (mFlag30) {
+            mMotion.fn_80097C08(0, mFlag29 ? m484[5] : m484[6], 1, 0, 1, 0.0f, 0.1f);
+        } else {
+            mMotion.fn_80097C08(0, mFlag29 ? m484[7] : m484[8], 1, 0, 1, 0.0f, 0.1f);
+        }
+        fn_800C344C(sSoundNames_unk[3], &mPos, 0, -1, 1.0f);
+        if (lbl_8087F0A8->m3D8 != 0) {
+            fn_80164DCC(1);
+        }
+    }
+    if (mType == 0 && fn_80370174(lbl_8087F430, 0xED) == 0 && fn_80370174(lbl_8087F430, 0xEA) == 1) {
+        fn_80370320(lbl_8087F430, 0xED, 1, 0);
+    }
+}
+
+void CharaTask::fn_801539E0() {
+    ReleaseLedge_unk();
+}
+
+extern "C" int fn_8004ED34(void* world, int arg, const atn::Vector3* from, const atn::Vector3* to, unsigned int mask,
+                           int arg5, int arg6); // inferred: ray test
+
+// inferred: checks where the character can move along the ledge (0 none, 1 back, 2 forward, 3 up)
+int CharaTask::fn_80153B44() {
+    int result = 0;
+    if ((mC44 & 1) == 1) {
+        atn::Vector3 d(mPos - mC20);
+        if (fn_805F9920(&d) < 2.0f) {
+            result = 1;
+        }
+    }
+    if ((mC44 & 2) == 2) {
+        atn::Vector3 d(mPos - mC2C);
+        if (fn_805F9920(&d) < 2.0f) {
+            result = 2;
+        }
+    }
+    if (result == 0 && (mC44 & 4) == 4) {
+        result = 3;
+    }
+    bool loop = true;
+    while (loop) {
+        loop = false;
+        if (result != 0 && mType == 0) {
+            atn::Vector3 from(mPos);
+            if (result == 1) {
+                from -= mC14 * 6.0f;
+            } else if (result == 2) {
+                from += mC14 * 6.0f;
+            }
+            from.y += CanClimbUp_unk(result) ? 6.0f : 12.0f;
+            atn::Vector3 to(from + fn_8014052C() * 5.0f);
+            if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000006, 0, 0)) {
+                if (mFlag30 && result != 3) {
+                    loop = true;
+                    result = 3;
+                } else {
+                    result = 0;
+                }
+            }
+            if (result == 1 || result == 2) {
+                from = mPos;
+                from.y += 6.0f;
+                to = from;
+                if (result == 1) {
+                    to -= mC14 * 6.0f;
+                } else if (result == 2) {
+                    to += mC14 * 6.0f;
+                }
+                if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000006, 0, 0)) {
+                    if (mFlag30 && result != 3) {
+                        loop = true;
+                        result = 3;
+                    } else {
+                        result = 0;
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+
+int CharaTask::fn_80153FA0() {
+    return fn_80153FD8(fn_80153B44());
+}
+
+int fn_8013539C();
+extern "C" void* lbl_8087F3C0; // inferred: effect manager (see gmk/PlayEffect.cpp)
+extern "C" void fn_8023A02C(void* manager, void* owner, int arg2, int arg3);
+extern "C" void fn_8023A098(void* manager, void* owner, int arg2, int arg3);
+
+// inferred: starts moving along the ledge (kind from fn_80153B44)
+int CharaTask::fn_80153FD8(int kind) {
+    mC48 = kind;
+    if (kind == 1) {
+        mFlag29 = 0;
+    } else if (kind == 2) {
+        mFlag29 = 1;
+    }
+    if (mC48 != 0) {
+        if (IsPartsMode_unk()) {
+            if (m674 >= 0 || fn_80370174(lbl_8087F430, 0x25) == 1 ||
+                (fn_80370174(lbl_8087F430, 0x25) == 2 && fn_8013539C())) {
+                fn_8014DEE4(1, 0, 0);
+            }
+        }
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        if (mC48 == 3) {
+            if (mType == 0) {
+                atn::Vector3 from(mPos);
+                from.y += 6.0f;
+                atn::Vector3 to(from);
+                if (mFlag29) {
+                    to += mC14 * 8.0f;
+                } else {
+                    to -= mC14 * 8.0f;
+                }
+                void* world = lbl_8087EE98;
+                if (fn_8004ED34(world, 0, &from, &to, fn_80179D44() | 0x80000000, 0, 0)) {
+                    mFlag29 = !mFlag29;
+                }
+            }
+            mMotion.fn_80097C08(0, mFlag29 ? m484[17] : m484[18], 1, 0, 1, 0.0f, 0.1f);
+        } else if (mFlag30) {
+            mMotion.fn_80097C08(0, mFlag29 ? m484[13] : m484[14], 1, 0, 1, 0.0f, 0.1f);
+        } else {
+            mMotion.fn_80097C08(0, mFlag29 ? m484[15] : m484[16], 1, 0, 1, 0.0f, 0.1f);
+        }
+        fn_800C344C(sSoundNames_unk[4], &mPos, 0, -1, 1.0f);
+        fn_8023A02C(lbl_8087F3C0, this, 4, 0x20);
+        return 1;
+    }
+    return 0;
+}
+
+void CharaTask::fn_80154344() {
+    int mode = lbl_8087F430->m868;
+    if (mode == 3 && mode == lbl_8087F430->m86C) {
+        mFlag14 = 0;
+    }
+    mC48 = 0;
+    ResetParts_unk();
+    fn_8023A098(lbl_8087F3C0, this, 4, 0x20);
+}
+
+extern "C" double cos(double x);
+
+// inferred: name invented
+inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 r;
+    PSVECCrossProduct(&a, &b, &r);
+    return r;
+}
+
+// NONMATCHING: 91% - the two copies into `dir` take the source/destination registers in the other
+// order (r3/r4) and fabs uses f31 directly (original: fabs f0; frsp f31,f0); tried a ternary,
+// Assign_unk, Abs_unk, casts.
+// inferred: turns along the ledge towards the target (sets the route walker direction)
+void CharaTask::fn_80154488() {
+    if (mFlag2) {
+        return;
+    }
+    if (mC58.mC4 == 0 && mC58.mD0 == 0) {
+        return;
+    }
+    if (!mFlag31) {
+        return;
+    }
+    if ((mC44 & 4) == 4) {
+        return;
+    }
+    if ((mC44 & 3) != 3) {
+        return;
+    }
+    atn::Vector3 dir;
+    if (mC58.mD0 != 0) {
+        dir = mC58.mD0->vf54() - mPos;
+    } else {
+        dir = mC58.mC4->mPos - mPos;
+    }
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 axis;
+    PSVECCrossProduct(&mC14, &atn::Vector3(0.0f, 1.0f, 0.0f), &axis);
+    PSVECNormalize(&axis, &axis);
+    float d = atn::Abs_unk(Dot_unk(axis, dir));
+    if (d < (float)cos(0.2617994f)) {
+        if (Cross_unk(axis, dir).y > 0.0f) {
+            mC58.m0C.m1C = 2;
+        } else {
+            mC58.m0C.m1C = 1;
+        }
+    }
+}
+
+// inferred: sets the resource set of the character (type, id)
+void CharaTask::fn_80154654(int type, int arg) {
+    mC50 = type;
+    mC54 = arg;
+    m68[0] = fn_80204E04(type, arg);
+    int kind = fn_8015487C();
+    if (sTable807374B8_unk[kind] > 0) {
+        m68[2] = fn_80204E04(type, sTable807374B8_unk[kind]);
+    }
+    m68[3] = fn_80204E04(type, 0x251D);
+    m68[4] = fn_80204E04(type, 0x2581);
+    fn_80154C08();
+}
+
+extern "C" int fn_80208748(const char* name);
+extern "C" int atoi(const char* s);
+// inferred: table returned by fn_80375254 (one value per kind of fn_8015487C)
+struct FieldRes_unk {
+    unsigned char m00[0x08];
+    int m08[7];
+};
+extern "C" FieldRes_unk* fn_80375254(Field_unk* field);
+
+void CharaTask::fn_801546F4() {
+    int kind = fn_8015487C();
+    if (kind != 6 && lbl_8087F430 != 0) {
+        int type = m60 != 0 ? fn_80208748(m60->m10) : 0;
+        int id = m60 != 0 ? atoi(m60->m10 + 2) * 10000 + atoi(m60->m10 + 8) * 100 + atoi(m60->m10 + 11) : 0;
+        if (type == 1 && id / 10000 == 53) {
+            return;
+        }
+        if (type == 0 && id / 10000 == 8) {
+            return;
+        }
+        FieldRes_unk* res = fn_80375254(lbl_8087F430);
+        if (res != 0) {
+            fn_80154654(mC50, res->m08[kind]);
+        }
+    }
+}
+
+int CharaTask::fn_8015487C() {
+    int result = 0;
+    switch (m5C->m122) {
+    case 4:
+        if (m50 != 0x18AED) {
+            result = 1;
+        }
+        break;
+    case 2:
+        result = 2;
+        if (mStatus.m2CC != 0) {
+            if (mStatus.m2D0[0].m[0] > 0 && fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2D0[0].m[0]))) {
+                result = 5;
+            } else if ((unsigned int)mStatus.m2CC >= 2 && mStatus.m2D0[1].m[0] > 0 &&
+                       fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2D0[1].m[0]))) {
+                result = 5;
+            }
+        }
+        break;
+    case 3:
+        result = 3;
+        break;
+    }
+    return result;
+}
+
+void CharaTask::fn_8015495C(int arg, int ledge, int flag, int effect) {
+    Reset_unk(arg, ledge, flag, effect);
+}
+
+extern "C" int fn_800185B4(void* manager, CharaTask* chara, int arg);
+
+// inferred: name invented
+inline bool CharaTask::IsRes1_unk() {
+    if (mType != 3 || m68[1] == 0) {
+        return false;
+    }
+    void* manager = fn_80139EF4();
+    return (manager != 0 ? fn_800185B4(manager, this, 0) : 0) != 0;
+}
+
+// inferred: picks the current resource
+void CharaTask::fn_80154C08() {
+    CharaRes_unk* prev = m64;
+    m64 = m68[0];
+    if ((mStatus.m0C & 0x800) == 0x800 && fn_8017A9A8()) {
+        m64 = m68[2];
+    }
+    if (IsRes1_unk()) {
+        m64 = m68[1];
+    }
+    if (!mStatus.fn_80134208() && (mStatus.fn_80134270() || mStatus.fn_80134290() || mStatus.fn_801342B0()) &&
+        (mStatus.m0C & 4) == 4) {
+        m64 = m68[3];
+    }
+    if (mC58.m2B8 > 0) {
+        m64 = m68[4];
+        mC58.m2B8--;
+    }
+    if (m64 != prev) {
+        mC58.fn_8011BE54();
+        mC58.fn_8011BEB8(0);
+        Unlink_unk();
+        if (m64 != 0) {
+            mC58.m114 = m64->m88;
+            mC58.m118 = m64->m8C;
+        } else {
+            mC58.m114 = 1;
+            mC58.m118 = 0;
+        }
+        mStatus.fn_8012D180();
+    }
+}
+
+// inferred: nonzero if `target` can be targeted by this character
+bool CharaTask::fn_80154E38(CharaTask* target) {
+    if (target != 0 && this == target) {
+        return false;
+    }
+    bool result = false;
+    if (lbl_8087F0A8->mCC != 0 || mStatus.fn_80134134(6) != 0 || (mStatus.m0C & 0x200000) == 0x200000) {
+        result = true;
+    }
+    return result;
+}
+
+namespace chr {
+// inferred: controls created by CharaTask; class names unknown (constructors 0x801B11BC,
+// 0x801B151C and 0x801B0D88 are in chr/ControlDive.cpp, 0x801C041C in the next unit)
+class Control801B11BC_unk : public ControlBase {
+public:
+    Control801B11BC_unk(Chara_unk* chara, int a, int b);
+    virtual int vf0C();
+    unsigned char m08[0x1C - 0x08];
+};
+class Control801B151C_unk : public ControlBase {
+public:
+    Control801B151C_unk(Chara_unk* chara);
+    virtual int vf0C();
+    unsigned char m08[0x18 - 0x08];
+};
+class Control801C041C_unk : public ControlBase {
+public:
+    Control801C041C_unk(Chara_unk* chara, int a, float b);
+    virtual int vf0C();
+    unsigned char m08[0x30 - 0x08];
+};
+class Control801B0D88_unk : public ControlBase {
+public:
+    Control801B0D88_unk(Chara_unk* chara, int a);
+    virtual int vf0C();
+    unsigned char m08[0x20 - 0x08];
+};
+} // namespace chr
+
+// fn_80154EC4, fn_801551AC, vf74, fn_80155790: same instructions as the target; only the .data
+// offsets of the ptmf constants differ until the earlier .data users exist.
+void CharaTask::fn_80154EC4(int a, int b) {
+    fn_80178208(new (0, "", "", 0) chr::Control801B11BC_unk(this, a, b));
+}
+
+void CharaTask::fn_801551AC() {
+    fn_80178208(new (0, "", "", 0) chr::Control801B151C_unk(this));
+}
+
+// inferred: the parameter is read by the body, so the symbol vf74__9CharaTaskFv (in symbols.txt)
+// has the wrong signature.
+void CharaTask::vf74(int arg) {
+    fn_80178208(new (0, "", "", 0) chr::Control801C041C_unk(this, arg, 1.0f));
+}
+
+void CharaTask::fn_80155790(int arg) {
+    fn_80178208(new (0, "", "", 0) chr::Control801B0D88_unk(this, arg));
+}
 void CharaTask::fn_8015BAF0(int a, int b) {
     chr::ControlThrownAway* control = new (0, "", "", 0) chr::ControlThrownAway(this, a, b);
     fn_80178208(control);

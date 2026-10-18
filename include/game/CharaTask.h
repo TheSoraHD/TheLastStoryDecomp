@@ -32,7 +32,7 @@ class ControlBase;
 
 // inferred: hit/damage description passed to CharaTask::vf3C and vf40 (0x801513D0);
 // 0x10 holds a vector (knockback?) and 0x68/0x90 values that FriendArganan clears.
-struct HitInfo_unk;
+#include "game/HitInfo_unk.h"
 
 // inferred: argument of CharaTask::fn_80164B00 (defined in CharaTask.cpp)
 struct CharaShade_unk;
@@ -77,6 +77,7 @@ struct CharaD68_unk {
 extern "C" void fn_80094E2C(void* model, int value); // inferred: sets a value on every node
 extern "C" void fn_80044E0C(void* object, int arg);
 extern "C" int fn_80219558(int id);
+extern "C" void* fn_80219E6C(int id); // inferred: bullet data by id (see LandMine.cpp)
 
 // inferred: object pointed to by CharaTask::m480 (destructor 0x800899DC; class unknown)
 struct Chara480_unk {
@@ -110,15 +111,10 @@ struct CharaListeners_unk {
 CharaListeners_unk* fn_8014F8F4();
 
 // inferred: type data returned by fn_80204E04 (CharaTask::m68)
-struct CharaType_unk {
-    int m00;
-    int m04;
-};
-
 // inferred: entry of the character table returned by fn_8020924C (names invented)
 struct CharaInfo_unk {
     unsigned char m00[0x10];
-    int m10;         // inferred: passed to fn_802092C0 (binary path)
+    const char* m10; // inferred: name (passed to fn_802092C0; digits read by fn_801546F4)
     int m14;         // inferred: passed to fn_8020A81C (character data)
     const char* m18; // inferred: motion set file name ("/database/chara/motion/<m18>.mchr")
     const char* m1C; // inferred: motion command file name
@@ -128,6 +124,8 @@ struct CharaInfo_unk {
 };
 
 // inferred: object at CharaTask+0xC58 (constructor 0x8011BD14 called out of line; class unknown)
+class GimmickCommon;
+
 struct CharaC58_unk {
     CharaC58_unk();
 
@@ -138,14 +136,21 @@ struct CharaC58_unk {
     unsigned char mB4[0xC0 - 0xB4];
     int mC0;        // 0xD18 in CharaTask: inferred: nonzero stops chr::ControlRide (0x801C6FE8)
     CharaTask* mC4; // 0xD1C: inferred: another character (its status is read by CharaStatus::fn_8012DB04)
-    unsigned char mC8[0xE0 - 0xC8];
+    unsigned char mC8[0xD0 - 0xC8];
+    GimmickCommon* mD0; // 0xD28: inferred: gimmick (its position, vf54, is used by CharaTask::fn_80154488)
+    unsigned char mD4[0xE0 - 0xD4];
     unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot
     unsigned short mE0 : 15;
     unsigned char mE2[0x110 - 0xE2];
     CharaD68_unk* m110; // 0xD68
-    unsigned char m114[0x11C - 0x114];
+    int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
+    int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
-    unsigned char m140[0x2BC - 0x140];
+    unsigned char m140[0x2B8 - 0x140];
+    int m2B8; // 0xF10: inferred: frame counter (fn_80154C08)
+
+    void fn_8011BE54();
+    void fn_8011BEB8(int arg);
 };
 
 // inferred: object at CharaTask+0x1154 (constructor 0x8007A75C called out of line; class unknown)
@@ -184,6 +189,40 @@ struct MotionCommand_unk {
     unsigned char m00[0x34];
 };
 
+// inferred: resource entry returned by fn_80204E04 (CharaTask::m68); name invented
+struct CharaRes_unk {
+    int m00;
+    int m04; // inferred: returned by fn_8017AC08
+    unsigned char m08[0x88 - 0x08];
+    int m88;
+    int m8C;
+};
+
+// inferred: 8-byte entry of CharaTask::m6D0 (id at 0); name invented
+struct CharaPair8_unk {
+    int m00;
+    int m04;
+};
+
+// inferred: ledge description passed to CharaTask::fn_80153698; name invented
+struct Ledge_unk {
+    // inferred: name invented
+    atn::Vector3 GetDir_unk() const {
+        atn::Vector3 dir;
+        dir = m24 - m18;
+        PSVECNormalize(&dir, &dir);
+        return dir;
+    }
+
+    unsigned char m00[0x18];
+    atn::Vector3 m18; // inferred: start
+    atn::Vector3 m24; // inferred: end
+    int m30;
+    int m34;
+    int m38; // inferred: route links
+    int m3C;
+};
+
 // inferred: element of CharaTask::m125C
 struct CharaPair_unk {
     CharaPair_unk() : m00(0.0f), m04(0) {}
@@ -211,7 +250,8 @@ public:
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
     virtual void vf48();
-    virtual void vf4C();
+    // inferred: hit reaction check (the symbol is still named vf4C__9CharaTaskFv)
+    virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir);
     virtual void vf50();
     virtual void vf54();
     virtual void vf58();
@@ -221,7 +261,7 @@ public:
     virtual void vf68();
     virtual void vf6C();
     virtual void vf70();
-    virtual void vf74();
+    virtual void vf74(int arg); // inferred: starts a control (the symbol is still named vf74__9CharaTaskFv)
     virtual void vf78();
     virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)
     virtual void vf80();
@@ -400,6 +440,82 @@ public:
     int fn_8017C9A0();
     int fn_8017CB2C(); // inferred: also used by GimmickManager::fn_803EE45C
     const char* fn_8017C904(); // inferred: "chXXXX_YY" name of the character
+    bool fn_801533C8(int id, HitInfo_unk* hit);
+    void fn_80153698(const Ledge_unk* ledge, int keep);
+    int fn_80153B44();
+    int fn_80153FA0();
+    int fn_80153FD8(int kind);
+    void fn_80154488();
+    void fn_80154654(int type, int arg);
+    void fn_801546F4();
+    int fn_8015487C();
+    void fn_80154C08();
+    bool fn_80154E38(CharaTask* target);
+    void fn_80154EC4(int a, int b);
+    void fn_801551AC();
+    void fn_80155790(int arg);
+    void fn_80178A6C();
+    int fn_8017A9A8();
+    // inferred: inlined helpers (names invented)
+    bool IsPartsMode_unk();
+    void ResetParts_unk();
+    void ReleaseLedge_unk();
+    void Unlink_unk();
+    void ClearEffect_unk();
+    void Reset_unk(int arg, int ledge, int flag, int effect);
+    bool IsRes1_unk();
+    // inferred: bool accessors (the original reloads the flag word after testing them)
+    bool IsOnLedge_unk() const { return mFlag31; }
+    bool IsFlag5_unk() const { return mFlag5; }
+    bool IsDoubleLink_unk() const { return mFlagB16; }
+    bool CanClimbUp_unk(int kind) {
+        bool result = false;
+        if (mFlag30 && kind != 3) {
+            result = true;
+        }
+        return result;
+    }
+    int GetLinkCount_unk() {
+        int n = m1028;
+        if (IsDoubleLink_unk()) {
+            n *= 2;
+        }
+        return n;
+    }
+    bool HasLink_unk(CharaTask* chara) {
+        for (int i = 0; i < GetLinkCount_unk(); i++) {
+            if (mFE8[i] == chara) {
+                return true;
+            }
+        }
+        return false;
+    }
+    void RemoveLink_unk(CharaTask* chara) {
+        for (int i = 0; i < 16; i++) {
+            if (mFE8[i] == chara) {
+                mFE8[i] = 0;
+                return;
+            }
+        }
+    }
+    // inferred: names invented
+    bool IsDown_unk() {
+        bool result = true;
+        if (!mStatus.IsState_unk(0x80000) && !mStatus.IsState_unk(0x1000000)) {
+            result = false;
+        }
+        return result;
+    }
+    void* HasHitBullet_unk(int id) {
+        CharaHit_unk* hits = m12D0.mData;
+        for (unsigned int i = 0; i < m12D0.mCount; i++) {
+            HitInfo_unk* hit = hits[i].mHit;
+            if (hit->m04 == id) {
+                return fn_80219E6C(hit->m04);
+            }
+        }
+        return 0;
+    }
     // inferred: state checks inlined in many places (names invented)
     bool IsActive_unk() { return (mFlags & 4) != 4 && (mFlags & 1) != 1; }
     bool IsFree_unk() { return IsActive_unk() && (mStatus.m0C & 0x20) != 0x20; }
@@ -417,8 +533,8 @@ public:
     int m58;
     chr::CharaData_unk* m5C; // inferred: character data (read by CharaStatus)
     CharaInfo_unk* m60;      // inferred: character table entry (fn_8020924C(m50))
-    int m64;
-    CharaType_unk* m68[5]; // inferred: m68[0] is set from fn_80204E04 and then cleared with the array
+    CharaRes_unk* m64; // inferred: current entry of m68 (fn_80154C08)
+    CharaRes_unk* m68[5]; // inferred: m68[0] is set from fn_80204E04 and then cleared with the array
     int m7C;
     int mId;    // 0x80: inferred: unique id given by the character manager
     atn::LH_Binary m84;
@@ -488,16 +604,16 @@ public:
     FixedArray_unk<EquipItemData*, 4> m6A4; // inferred: items read from "EQUIP" lines
     atn::Vector3 m6B8;
     unsigned char m6C4[0x6D0 - 0x6C4];
-    int m6D0;
-    unsigned char m6D4[0x7D4 - 0x6D4];
+    FixedArray_unk<CharaPair8_unk, 32> m6D0; // inferred: count and capacity 32 (fn_801533C8)
     CharaStatus mStatus; // 0x7D4
     unsigned int mC10; // inferred: flags or-ed into CharaStatus::mParamA.m9C (fn_8012B3E8)
-    atn::Vector3 mC14;
-    unsigned char mC20[0xC38 - 0xC20];
-    int mC38;
+    atn::Vector3 mC14; // inferred: direction of the ledge (fn_80153698)
+    atn::Vector3 mC20; // inferred: ledge start
+    atn::Vector3 mC2C; // inferred: ledge end
+    int mC38; // inferred: route links (in use while holding the ledge)
     int mC3C;
     int mC40;
-    unsigned char mC44[0xC48 - 0xC44];
+    unsigned int mC44; // inferred: flags of the ledge
     int mC48;
     int mC4C;
     int mC50;
@@ -535,7 +651,7 @@ public:
     int mFDC;
     int mFE0;
     int mFE4;
-    unsigned char mFE8[0x40]; // inferred: cleared with memset
+    CharaTask* mFE8[16]; // inferred: linked characters (cleared with memset; fn_8015495C)
     int m1028;
     int m102C;
     RouteWalker_unk mRoute; // 0x1030
@@ -592,11 +708,13 @@ public:
     unsigned int mFlagB19 : 1;
     unsigned int mFlagB18 : 1;
     unsigned int mFlagB17 : 1;
-    unsigned int mFlagB16_15 : 2;
+    unsigned int mFlagB16 : 1; // inferred: doubles the number of linked characters (mFE8)
+    unsigned int mFlagB15 : 1;
     unsigned int mFlagB14 : 1;
     unsigned int mFlagB13_11 : 3;
     unsigned int mFlagB10 : 1;
-    unsigned int mFlagB9_8 : 2;
+    unsigned int mFlagB9 : 1;
+    unsigned int mFlagB8 : 1;
     unsigned int mFlagB7 : 1;
     unsigned int mFlagB6_2 : 5;
     unsigned int mFlagB1 : 1; // inferred: set by fn_8017C7F8 (motion mode 4 instead of 1)
