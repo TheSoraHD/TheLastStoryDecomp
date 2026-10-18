@@ -1,10 +1,7 @@
 #ifndef ATN_FIXEDARRAY_H
 #define ATN_FIXEDARRAY_H
 
-#ifndef MSL_CPP_NEW_H
-// placement new, as in MSL <new>
-inline void* operator new(unsigned long, void* ptr) { return ptr; }
-#endif
+#include "std/new.h"
 
 namespace atn {
 
