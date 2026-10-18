@@ -10,6 +10,33 @@
 
 namespace std {
 
+// 0x80069BF4 (char). NONMATCHING (standalone compile, 40 differing lines of 85): the original
+// spills n to the highest stack slot and copies it before the second __min (as if passed to an
+// inner function); ours spills it to the lowest slot.
+template <class T>
+basic_string<T>::basic_string(const basic_string& str, size_type pos, size_type n) {
+    mLong.mCap = 0;
+    mLong.mSize = 0;
+    mLong.mData = 0;
+    size_type sz = str.size();
+    reserve(pos <= sz ? __min(n, sz - pos) : 0);
+    const T* p;
+    size_type len;
+    if (!str.is_long()) {
+        p = str.mShort.mData;
+        len = str.mShort.mSize & 0x7F;
+    } else {
+        p = str.mLong.mData;
+        len = str.mLong.mSize;
+    }
+    if (pos > len) {
+        __msl_error("basic_string: out_of_range");
+    }
+    size_type rlen = __min(n, len - pos);
+    p += pos;
+    __replace_unk(0, 0, p, p + rlen, random_access_iterator_tag());
+}
+
 template <class T>
 void basic_string<T>::reserve(size_type res_arg) {
     if (res_arg > max_size()) {
