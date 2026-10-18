@@ -1648,7 +1648,7 @@ game/MapPartsEfp.cpp:
 
 game/MapPartsFlare.cpp:
 	.text       start:0x80496C3C end:0x80496EE8
-	.rodata     start:0x80756A58 end:0x80756A68
+	.rodata     start:0x80756A58 end:0x80756A70
 	.data       start:0x807903F0 end:0x80790448
 	.sdata2     start:0x808870D8 end:0x808870E0
 
