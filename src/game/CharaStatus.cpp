@@ -3,9 +3,10 @@
 #include "chr/ControlBase.h"
 #include "game/CharaTask.h"
 #include "game/ResHandle.h"
+#include "macros.h"
 
 CharaStatusBase::CharaStatusBase() {
-    memset(m1A8, 0, sizeof(m1A8));
+    memset(&m1A8, 0, sizeof(m1A8));
     memset(this, 0, sizeof(*this));
 }
 
@@ -14,7 +15,7 @@ extern "C" double pow(double x, double y);
 
 int CharaStatus::fn_8012B028() {
     int level = mParamA.m78 > 69 ? 69 : mParamA.m78;
-    return (int)(50.0f * (float)pow((float)level, 2.0)) - *(int*)&m1A8[4];
+    return (int)(50.0f * (float)pow((float)level, 2.0)) - m1A8.mExp;
 }
 
 // NONMATCHING: 98.1% - register allocation only: the original keeps zero in r30 and the loop
@@ -61,6 +62,14 @@ int CharaStatus::fn_801333A4(unsigned int mask) {
         }
     }
     return -1;
+}
+
+int CharaStatus::fn_801334CC(int level) {
+    if (level >= 99) {
+        return 0;
+    }
+    level = level > 69 ? 69 : level;
+    return (int)(50.0f * (float)pow((float)level, 2.0));
 }
 
 CharaStatusEntry_unk* CharaStatus::fn_80133EE8(int id) {
@@ -156,4 +165,70 @@ bool CharaStatus::fn_80134290() {
 
 bool CharaStatus::fn_801342B0() {
     return mChara->m5C->m122 == 3;
+}
+
+inline bool TestBit_unk(const unsigned int* bits, int bit) {
+    unsigned int mask = 1 << (bit % 32);
+    return (bits[bit / 32] & mask) == mask;
+}
+inline void SetBit_unk(unsigned int* bits, int bit) {
+    bits[bit / 32] |= 1 << (bit % 32);
+}
+
+// NONMATCHING: 98.1% - registers only (the original keeps the constant 1 in r4 and the word
+// index in r7). Tried: mask/word locals, test and set written in place, helpers with a mask local.
+void CharaStatus::fn_80134674(int bit) {
+    if ((unsigned int)bit > 127) {
+        return;
+    }
+    if (!TestBit_unk(m1A8.mBits, bit)) {
+        SetBit_unk(m1A8.mBits, bit);
+    }
+}
+
+// NONMATCHING: 90.9% - our compiler merges the two range checks into one unsigned compare
+// (cmplwi 127); the original keeps cmpwi 0 / cmpwi 128 with a shared false block. Same problem as
+// fn_801347C8; separate ifs, nested ifs, goto, ternary and an inline range helper were tried.
+bool CharaStatus::fn_801346C8(int bit) {
+    if (bit < 0) {
+        return false;
+    }
+    if (bit >= 128) {
+        return false;
+    }
+    unsigned int mask = 1 << (bit % 32);
+    return (m1A8.mBits[bit / 32] & mask) == mask;
+}
+
+void CharaStatus::fn_80134724(int add) {
+    int value = m430 + add;
+    m430 = MIN(MAX(value, 0), 4);
+    m434 = 0.0f;
+    if (m430 > 0) {
+        m438 = 150.0f;
+    }
+}
+
+void CharaStatus::fn_80134774(int index, int on) {
+    if (index < 0) {
+        return;
+    }
+    if (index >= 4) {
+        return;
+    }
+    if (on) {
+        m230 |= (unsigned char)(1 << index);
+    } else {
+        m230 &= (unsigned char)~(1 << index);
+    }
+}
+
+// NONMATCHING: 81.1% - range checks merged into cmplwi 3 (see fn_801346C8).
+bool CharaStatus::fn_801347C8(int index) {
+    if (index >= 0) {
+        if (index < 4) {
+            return (m230 & (1 << index)) == (1 << index);
+        }
+    }
+    return false;
 }

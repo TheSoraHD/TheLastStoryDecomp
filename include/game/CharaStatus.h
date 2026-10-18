@@ -212,6 +212,15 @@ struct CharaParam_unk {
     unsigned char mA0[0xC0 - 0xA0];
 };
 
+// inferred: block of CharaStatusBase cleared with memset (0x1A8, 0x7C bytes); name invented
+struct CharaStatusData_unk {
+    int m00;
+    int mExp;              // 0x1AC: inferred: experience (fn_8012B028)
+    unsigned char m08[0x44 - 0x08];
+    unsigned int mBits[4]; // 0x1EC: inferred: 128 flags (fn_80134674, fn_801346C8)
+    unsigned char m54[0x7C - 0x54];
+};
+
 class CharaStatusBase {
 public:
     CharaStatusBase(); // 0x8012AE50
@@ -223,8 +232,10 @@ public:
     unsigned char m14[0x28 - 0x14];
     CharaParam_unk mParamA;    // 0x28
     CharaParam_unk mParamB;    // 0xE8
-    unsigned char m1A8[0x7C];  // inferred: cleared with memset; 0x1AC is read by fn_8012B028
-    unsigned char m224[0x240 - 0x224];
+    CharaStatusData_unk m1A8;  // inferred: cleared with memset
+    unsigned char m224[0x230 - 0x224];
+    unsigned char m230; // inferred: four flags (fn_80134774, fn_801347C8)
+    unsigned char m231[0x240 - 0x231];
 };
 
 // inferred: 8-byte block cleared by its constructor (four of them in CharaStatus); name invented
@@ -277,6 +288,12 @@ public:
     bool fn_80134270();
     bool fn_80134290();
     bool fn_801342B0();
+    int fn_801334CC(int level); // inferred: experience needed for `level`
+    void fn_80134674(int bit);
+    bool fn_801346C8(int bit);
+    void fn_80134724(int add);
+    void fn_80134774(int index, int on);
+    bool fn_801347C8(int index);
 
     int m240;
     unsigned char m244[0x248 - 0x244];
