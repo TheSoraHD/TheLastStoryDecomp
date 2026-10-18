@@ -4,6 +4,8 @@
 #include "math/Vec.h"
 #include <boost/function.hpp>
 
+struct Model_unk;
+
 namespace chr {
 
 // inferred: motion controller embedded in the character at +0xB0 (class name unknown)
@@ -73,6 +75,9 @@ public:
     void fn_80154344();
     void fn_8015495C(int a, int b, int c, int d);
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
+    // inferred: names invented (weak copies 0x8000DD0C and 0x8012A1B8)
+    Model_unk* GetModel_unk() { return (Model_unk*)&mMotion; }
+    atn::Vector3* GetRot_unk() { return &mRot; }
 
     unsigned char m004[0x48 - 0x04];
     int m48;

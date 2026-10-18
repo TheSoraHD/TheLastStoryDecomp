@@ -106,19 +106,19 @@ int RouteWalker_unk::fn_80125474() {
 }
 
 CharaLook_unk::CharaLook_unk()
-    : mChara(0), mType(0), mTarget(0), mOffset(0.0f, 0.0f, 0.0f), m18(0.0f), m1C(0.0f), m20(0.0f),
-      m24(0.62831855f), m28(0.7853982f), m2C(0.0f), mNeck(0), m34(0), m35(0), m36(1), mSpeed(0.3f), mEyeType(0),
+    : mChara(0), mType(0), mTarget(0), mOffset(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f),
+      mLimit(0.62831855f, 0.7853982f, 0.0f), mNeck(0), m34(0), m35(0), m36(1), mSpeed(0.3f), mEyeType(0),
       mEyeTarget(0), mEyeOffset(0.0f, 0.0f, 0.0f), mEyeSpeed(0.3f) {
     m3C = 0.0f;
     m40 = 0.0f;
     m44 = 0.0f;
     m48 = 0.0f;
-    m60 = 0.0f;
-    m64 = 0.0f;
-    m68 = 0.0f;
-    m6C = 0.0f;
-    m70 = 0.0f;
-    m74 = 0.0f;
+    mEyeRot[0].x = 0.0f;
+    mEyeRot[0].y = 0.0f;
+    mEyeRot[0].z = 0.0f;
+    mEyeRot[1].x = 0.0f;
+    mEyeRot[1].y = 0.0f;
+    mEyeRot[1].z = 0.0f;
 }
 
 CharaLook_unk::~CharaLook_unk() {}
@@ -189,6 +189,141 @@ void CharaLook_unk::fn_8012AC40(float speed) {
     mEyeOffset.z = 0.0f;
     mEyeType = 0;
     mEyeSpeed = speed;
+}
+
+void CharaLook_unk::fn_80129A6C() {
+    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+    atn::Vector3 limit(mLimit);
+    m3C = 0.0f;
+    m40 = 0.0f;
+    m44 = 0.0f;
+    m48 = 0.0f;
+    switch (m36) {
+    case 0:
+        m3C = 1.0f;
+        break;
+    case 1:
+        m3C = 0.5f;
+        m40 = 0.5f;
+        break;
+    case 2:
+        m3C = 0.4f;
+        m40 = 0.4f;
+        m44 = 0.2f;
+        limit *= 1.5f;
+        break;
+    case 3:
+        m3C = 0.35f;
+        m40 = 0.35f;
+        m44 = 0.1f;
+        limit *= 2.0f;
+        break;
+    }
+    if (mType == 3) {
+        rot = mOffset;
+        if (atn::Abs_unk(rot.y) > mLimit.y) {
+            rot.y = rot.y > 0.0f ? mLimit.y : -mLimit.y;
+        }
+        if (atn::Abs_unk(rot.x) > mLimit.x) {
+            rot.x = rot.x > 0.0f ? mLimit.x : -mLimit.x;
+        }
+    } else if (mType != 0) {
+        atn::Vector3 target(mOffset);
+        if (mType == 1 && mTarget != 0) {
+            target += ((atn::Matrix3x4*)mTarget)->GetTrans_unk();
+        }
+        atn::Vector3 dir;
+        int node = mNeck;
+        if (node < 0) {
+            rot = *mChara->GetRot_unk();
+        } else {
+            dir = target - ((atn::Matrix3x4*)mChara->GetModel_unk()->GetNodeMtx_unk(node))->GetTrans_unk();
+            if (dir.IsZero_unk()) {
+                rot = *mChara->GetRot_unk();
+            } else {
+                dir.Normalize_unk();
+                rot = dir.ToRotation_unk();
+            }
+        }
+        rot.Apply_unk(atn::WrapAngle_unk);
+        rot.y -= mChara->GetRot_unk()->y;
+        rot.Apply_unk(atn::WrapAngle_unk);
+        rot *= 0.7f;
+        if (rot.x > 0.0f) {
+            rot.x *= 0.8f;
+        }
+        if (atn::Abs_unk(rot.y) > limit.y) {
+            rot.y = rot.y > 0.0f ? limit.y : -limit.y;
+        }
+        if (atn::Abs_unk(rot.x) > limit.x) {
+            rot.x = rot.x > 0.0f ? limit.x : -limit.x;
+        }
+    }
+    mRot = atn::Lerp_unk(mRot, rot, mSpeed);
+    m34 = 0;
+    if (mType == 3) {
+        m34 = 1;
+    } else if (atn::Abs_unk(mRot.x) > 0.001f || atn::Abs_unk(mRot.y) > 0.001f) {
+        m34 = 1;
+    }
+    atn::Vector3 eyeMax(atn::DegToRad_unk(10.0f), atn::DegToRad_unk(25.0f), 0.0f);
+    atn::Vector3 eyeMin(atn::DegToRad_unk(-15.0f), atn::DegToRad_unk(-25.0f), 0.0f);
+    atn::Vector3 eyeRot[2];
+    if (mEyeType == 3) {
+        eyeRot[0] = mEyeOffset;
+        eyeRot[1] = mEyeOffset;
+    } else if (mEyeType != 0) {
+        atn::Vector3 target(mEyeOffset);
+        if (mEyeType == 1 && mEyeTarget != 0) {
+            target += ((atn::Matrix3x4*)mEyeTarget)->GetTrans_unk();
+        }
+        int nodes[2];
+        nodes[0] = mChara->GetModel_unk()->fn_80092814("eye_L", 0);
+        nodes[1] = mChara->GetModel_unk()->fn_80092814("eye_R", 0);
+        int node;
+        for (int i = 0; i < 2; i++) {
+            atn::Vector3 dir;
+            node = nodes[i];
+            if (node < 0) {
+                eyeRot[i] = *mChara->GetRot_unk();
+            } else {
+                dir = target - ((atn::Matrix3x4*)mChara->GetModel_unk()->GetNodeMtx_unk(node))->GetTrans_unk();
+                if (dir.IsZero_unk()) {
+                    eyeRot[i] = *mChara->GetRot_unk();
+                } else {
+                    dir.Normalize_unk();
+                    eyeRot[i] = dir.ToRotation_unk();
+                }
+            }
+            eyeRot[i].Apply_unk(atn::WrapAngle_unk);
+            atn::Vector3 front(0.0f, 0.0f, 10.0f);
+            front.fn_80011410(
+                ((atn::Matrix3x4*)mChara->GetModel_unk()->GetNodeMtx_unk("head"))->GetRotation_unk());
+            atn::Vector3 head = front.ToRotation_unk();
+            head.Apply_unk(atn::WrapAngle_unk);
+            eyeRot[i].y -= head.y;
+            eyeRot[i].Apply_unk(atn::WrapAngle_unk);
+            eyeRot[i] *= 0.9f;
+            eyeRot[i].y = (eyeMax.y < (eyeMin.y > eyeRot[i].y ? eyeMin.y : eyeRot[i].y))
+                              ? eyeMax.y
+                              : (eyeMin.y > eyeRot[i].y ? eyeMin.y : eyeRot[i].y);
+            eyeRot[i].x = (eyeMax.x < (eyeMin.x > eyeRot[i].x ? eyeMin.x : eyeRot[i].x))
+                              ? eyeMax.x
+                              : (eyeMin.x > eyeRot[i].x ? eyeMin.x : eyeRot[i].x);
+        }
+    } else {
+        eyeRot[0].Set_unk(0.0f, 0.0f, 0.0f);
+        eyeRot[1].Set_unk(0.0f, 0.0f, 0.0f);
+    }
+    m35 = 0;
+    for (int i = 0; i < 2; i++) {
+        mEyeRot[i] = atn::Lerp_unk(mEyeRot[i], eyeRot[i], mEyeSpeed);
+        if (mEyeType == 3) {
+            m35 = 1;
+        } else if (atn::Abs_unk(mEyeRot[i].x) > 0.001f || atn::Abs_unk(mEyeRot[i].y) > 0.001f) {
+            m35 = 1;
+        }
+    }
 }
 
 // inferred: debug menu callback, applies the new values at once

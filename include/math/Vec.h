@@ -66,6 +66,11 @@ struct Vector2_unk {
 // The engine's 3D vector (the name is in the DOL: boost::_bi::value<atn::Vector3>).
 class Vector3 {
 public:
+    // Weak copies of the members below (kept from the first file that calls them out of line):
+    // Vector3() 0x80057A64, Vector3(x, y, z) 0x8000D114, copy 0x8001047C, operator= 0x8000D124,
+    // operator+= 0x80012C88, operator- 0x80013338,
+    // operator*= 0x8012A190, Set_unk 0x80057A68, IsZero_unk 0x8012A1E0, Apply_unk 0x8012A218,
+    // Normalize_unk 0x800F7FF0, ToRotation_unk 0x80011034.
     Vector3() {}
     Vector3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
     Vector3(const Vector3& v) {
@@ -87,8 +92,28 @@ public:
         return *this;
     }
 
+    Vector3& operator*=(float f) {
+        x *= f;
+        y *= f;
+        z *= f;
+        return *this;
+    }
+    // inferred: names invented
+    void Set_unk(float x_, float y_, float z_) {
+        x = x_;
+        y = y_;
+        z = z_;
+    }
+    bool IsZero_unk() const { return x == 0.0f && y == 0.0f && z == 0.0f; }
+    void Apply_unk(float (*f)(float)) {
+        x = f(x);
+        y = f(y);
+        z = f(z);
+    }
+    void Normalize_unk();
+    Vector3 ToRotation_unk() const; // inferred: x = pitch, y = yaw of the direction
+
     // Out-of-line members (called with bl from many files):
-    Vector3& fn_8000D114(float x_, float y_, float z_); // inferred: sets x, y, z and returns *this
     void fn_80011410(const Matrix3x4& m);              // inferred: *this = m * *this (PSMTXMultVec)
 
     float x, y, z;
@@ -121,9 +146,87 @@ public:
         m[0][0] = m[1][1] = m[2][2] = 1.0f;
     }
     void fn_8013A13C(float rad); // inferred: rotation around y (PSMTXRotRad(m, 'y', rad))
+    // inferred: translation (weak copy 0x8000D0F8); name invented
+    Vector3 GetTrans_unk() const { return Vector3(m[0][3], m[1][3], m[2][3]); }
+    // inferred: copy without the translation (weak copy 0x8001336C); name invented
+    Matrix3x4 GetRotation_unk() const {
+        Matrix3x4 r(*this);
+        r.m[0][3] = 0.0f;
+        r.m[1][3] = 0.0f;
+        r.m[2][3] = 0.0f;
+        return r;
+    }
 
     Mtx m;
 };
+
+
+} // namespace atn
+
+extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
+extern "C" void PSMTX44MultVec(const float m[4][4], const atn::Vector3* src, atn::Vector3* dst); // inferred: 0x805F9750
+extern "C" double atan2(double y, double x);
+extern "C" double fmod(double x, double y);
+
+namespace atn {
+
+inline void Vector3::Normalize_unk() {
+    PSVECNormalize(this, this);
+}
+
+// inferred: helpers of the engine (weak copies: Abs_unk 0x80013404, WrapAngle_unk 0x800133B0,
+// Lerp_unk 0x800F7260, DegToRad_unk 0x801125F8); names invented
+inline float Abs_unk(float x) {
+    return __fabs(x);
+}
+inline float WrapAngle_unk(float a) {
+    a = fmod(a, 6.283185307179586);
+    if (a > 3.1415927f) {
+        a -= 6.2831855f;
+    }
+    if (a < -3.1415927f) {
+        a += 6.2831855f;
+    }
+    return a;
+}
+inline Vector3 Lerp_unk(const Vector3& a, const Vector3& b, float t) {
+    return a + (b - a) * t;
+}
+inline float DegToRad_unk(float deg) {
+    return deg * 0.017453292f;
+}
+
+inline Vector3 Vector3::ToRotation_unk() const {
+    Vector3 r(*this);
+    float yaw;
+    if (Abs_unk(r.z) < 1.1920929e-7f) {
+        yaw = r.x > 0.0f ? 1.5707964f : -1.5707964f;
+    } else {
+        yaw = atan2(r.x, r.z);
+    }
+    Mtx rot;
+    PSMTXRotRad(rot, 'y', -yaw);
+    float m44[4][4];
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            m44[i][j] = rot[i][j];
+        }
+    }
+    m44[3][0] = 0.0f;
+    m44[3][1] = 0.0f;
+    m44[3][2] = 0.0f;
+    m44[3][3] = 1.0f;
+    Vector3 v(r);
+    PSMTX44MultVec(m44, &v, &v);
+    float pitch;
+    if (Abs_unk(v.z) < 1.1920929e-7f) {
+        pitch = -(v.y > 0.0f ? 1.5707964f : -1.5707964f);
+    } else {
+        pitch = -atan2(v.y, v.z);
+    }
+    r = Vector3(pitch, yaw, 0.0f);
+    return r;
+}
 
 } // namespace atn
 

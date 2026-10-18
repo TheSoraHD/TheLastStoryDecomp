@@ -33,6 +33,10 @@ struct Model_unk {
     MtxPtr GetNodeMtx_unk(int index) {
         return (index < 0) ? 0 : mNodeMtx[index];
     }
+    // inferred: matrix of the node called `name` (weak copy 0x800132EC); name invented
+    MtxPtr GetNodeMtx_unk(const char* name) {
+        return GetNodeMtx_unk(fn_80092814(name, 0));
+    }
 
     unsigned int mFlags; // 0x04
     Mtx mMtx;        // 0x08: inferred: world matrix

@@ -94,12 +94,8 @@ public:
     int mType;              // 0x04: "type"
     float* mTarget;         // 0x08: inferred: matrix followed in type 1
     atn::Vector3 mOffset;   // 0x0C: "offset"
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    float m2C;
+    atn::Vector3 mRot;      // 0x18: inferred: current head rotation
+    atn::Vector3 mLimit;    // 0x24: inferred: maximum head rotation
     int mNeck;              // 0x30: inferred: node index of "neck"
     unsigned char m34;
     unsigned char m35;
@@ -112,12 +108,7 @@ public:
     int mEyeType;           // 0x4C: "eyeType"
     float* mEyeTarget;      // 0x50
     atn::Vector3 mEyeOffset; // 0x54: "eyeOffset"
-    float m60;
-    float m64;
-    float m68;
-    float m6C;
-    float m70;
-    float m74;
+    atn::Vector3 mEyeRot[2]; // 0x60: inferred: current eye rotations
     float mEyeSpeed;        // 0x78: "eyeSpeed"
 };
 
