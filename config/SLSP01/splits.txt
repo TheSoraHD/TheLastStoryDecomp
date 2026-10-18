@@ -164,8 +164,8 @@ atn/Rain.cpp:
 
 atn/Layer2DBlur.cpp:
 	.text       start:0x800B2E2C end:0x800B326C
-	.rodata     start:0x80732D98 end:0x80732DAC
-	.data       start:0x80778F30 end:0x80778F70
+	.rodata     start:0x80732D98 end:0x80732DD8
+	.data       start:0x80778F30 end:0x80778F90
 	.sdata2     start:0x80880F28 end:0x80880F30
 
 atn/Layer3D.cpp:
