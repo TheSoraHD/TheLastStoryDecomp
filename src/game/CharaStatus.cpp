@@ -798,6 +798,95 @@ int CharaStatus::fn_80133BD8(int force) {
     return MAX(1, level);
 }
 
+// inferred: stat differences after levelling up (fn_8013354C); name invented
+struct LevelUpResult_unk {
+    unsigned char m00[8];
+    float m08; // level
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    int m20;
+};
+
+// inferred: scratch status used to compute the stats of a level (0x13C bytes on the stack of
+// fn_8013354C); name invented
+struct StatusSim_unk {
+    StatusSim_unk()
+        : mC0(0), mC4(0), mC8(6), mCC(0), mD0(0), m120(0), m121(0), m122(0), m123(0), m124(100.0f), m128(100),
+          m12C(0), m130(0), m134(1.0f), m138(1.0f) {
+        memset(mD4, 0, sizeof(mD4));
+        memset(mD8, 0, sizeof(mD8));
+        memset(m108, 0, sizeof(m108));
+        for (int i = 0; i < 4; i++) {
+            memset(&mE8[i], 0, sizeof(mE8[i]));
+        }
+    }
+    CharaParam_unk mParam;
+    int mC0;
+    int mC4;
+    int mC8;
+    int mCC;
+    int mD0;
+    unsigned char mD4[4];
+    unsigned char mD8[16];
+    CharaStatusPair_unk mE8[4];
+    unsigned char m108[20];
+    unsigned char m11C[4];
+    unsigned char m120;
+    unsigned char m121;
+    unsigned char m122;
+    unsigned char m123;
+    float m124;
+    int m128;
+    int m12C;
+    int m130;
+    float m134;
+    float m138;
+};
+
+// NONMATCHING: 99.9% - only the stack slot of the int conversions in the inlined fn_801334CC differs: the
+// original reuses the slot of the experience bonus (16 bytes less of frame).
+int CharaStatus::fn_8013354C(int exp, LevelUpResult_unk* result) {
+    int level = mParamA.m78;
+    if (level >= 99) {
+        return 0;
+    }
+    exp += (int)((float)(exp * SumRefs_unk(mRefs, 44)) / 100.0f);
+    int count = 0;
+    int need = fn_801334CC(level);
+    m1A8.m00 += exp;
+    m1A8.mExp += exp;
+    while (m1A8.mExp >= need) {
+        if (mParamA.m78 >= 99) {
+            break;
+        }
+        mParamA.m78++;
+        m1A8.m08 += 1.0f;
+        m1A8.mExp -= need;
+        need = fn_801334CC(mParamA.m78);
+        count++;
+    }
+    if (count > 0) {
+        fn_8012B3E8();
+    }
+    if (count > 0) {
+        StatusSim_unk before;
+        fn_8012C6D4(&before.mParam, level, 0, mChara->m5C->mC8);
+        StatusSim_unk after;
+        fn_8012C6D4(&after.mParam, mParamA.m78, 0, mChara->m5C->mC8);
+        result->m08 = after.mParam.m78 - before.mParam.m78;
+        result->m0C = after.mParam.m84 - before.mParam.m84;
+        result->m10 = after.mParam.m00 - before.mParam.m00;
+        result->m18 = after.mParam.m08 - before.mParam.m08;
+        result->m14 = after.mParam.m04 - before.mParam.m04;
+        result->m1C = after.mParam.m0C - before.mParam.m0C;
+        result->m20 = after.mParam.m94 - before.mParam.m94;
+    }
+    return count;
+}
+
 CharaStatusEntry_unk* CharaStatus::fn_80133EE8(int id) {
     CharaStatusEntry_unk* entry = mEntries.mData;
     for (unsigned int i = 0; i < mEntries.mCount; i++, entry++) {
