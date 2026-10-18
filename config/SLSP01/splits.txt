@@ -453,7 +453,7 @@ chr/ControlLadder.cpp:
 
 chr/ControlLookAround.cpp:
 	.text       start:0x801BC288 end:0x801BC5B8
-	.rodata     start:0x8073B380 end:0x8073B3B4
+	.rodata     start:0x8073B378 end:0x8073B3B4
 	.data       start:0x80781618 end:0x80781708
 	.sdata2     start:0x808825C8 end:0x808825E0
 

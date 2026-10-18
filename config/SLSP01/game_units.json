@@ -712,7 +712,7 @@
    "chr::ControlLookAroundEgg",
    "chr::ControlLookAround"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlChant.cpp",
