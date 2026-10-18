@@ -33,10 +33,8 @@ public:
         }
         T* data = new (0, "", "", 0) T[n];
         if (mData != 0) {
-            unsigned int count = n;
-            if (mSize < n) {
-                count = mSize;
-            }
+            // inferred: the ternary gives the register order of the original (0x803EE7FC)
+            unsigned int count = (n > mSize) ? mSize : n;
             for (unsigned int i = 0; i < count; i++) {
                 data[i] = mData[i];
             }
