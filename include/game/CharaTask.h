@@ -60,7 +60,7 @@ public:
     virtual void vfA0();
     virtual void vfA4();
     virtual void vfA8();
-    virtual void vfAC();
+    virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
     virtual void vfB0();
     virtual void vfB4();
     virtual void vfB8();
@@ -196,7 +196,10 @@ public:
     unsigned int mFlag4_3 : 2;
     unsigned int mFlag2 : 1; // inferred: tested by CharaStatus::fn_8012E244
     unsigned int mFlag1_0 : 2;
-    unsigned char m12A8[0x1424 - 0x12A8];
+    unsigned char m12A8[0x12D0 - 0x12A8];
+    // inferred: hits on the character (CharaStatus::fn_8012E540); the capacity is unknown
+    FixedArray_unk<CharaHit_unk, 1> m12D0;
+    unsigned char m12E8[0x1424 - 0x12E8];
 };
 
 #endif

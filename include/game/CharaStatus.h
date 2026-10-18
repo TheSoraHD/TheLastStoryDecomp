@@ -269,6 +269,9 @@ public:
     CharaStatusBase(); // 0x8012AE50
     virtual ~CharaStatusBase() {} // weak copy 0x8012AFE8
 
+    // inferred: accessor (name invented); keeps the flag word reloaded in fn_8012E540
+    bool IsState_unk(unsigned int flag) const { return (m0C & flag) == flag; }
+
     float m04; // inferred: current value capped by mParamB.m84 (hit points?)
     float m08; // inferred: current value capped by mParamB.m88
 
@@ -343,6 +346,15 @@ struct FixedArray_unk {
     T mData[N];
 };
 
+// inferred: hit kept by a character (CharaTask::m12D0); name invented
+struct CharaHit_unk {
+    HitInfo_unk* mHit;
+    int m04;
+    int m08;
+    int m0C;
+    int m10; // inferred: effect id (fn_8012E540)
+};
+
 // Embedded in CharaTask at 0x7D4 (callers pass CharaTask + 2004).
 class CharaStatus : public CharaStatusBase {
 public:
@@ -358,6 +370,8 @@ public:
     bool IsWeak_unk(); // inferred: name invented
     void fn_8012CE4C(int kind);
     void fn_8012E244(HitInfo_unk* hit);
+    void fn_8012E540();
+    bool HasTimer_unk() const { return m2F4 > 0.0f; } // inferred: accessor (name invented)
     int fn_8013354C(int exp, struct LevelUpResult_unk* result); // inferred: adds experience
     void fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit);
     int fn_8012F440(int a, int b, int c, int d, int e, int f, int g);

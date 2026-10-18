@@ -6,6 +6,11 @@
 #include "game/HitInfo_unk.h"
 #include "macros.h"
 
+// inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8 (class unknown)
+struct Input_unk {
+    int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
+};
+
 // inferred: game settings (lbl_8087F0A8); per-difficulty table of status factors at 0xD8
 struct StatusRate_unk {
     float m00;
@@ -27,7 +32,9 @@ struct Settings_unk {
     int m284;
     unsigned char m288[0x2CC - 0x288];
     int m2CC;
-    unsigned char m2D0[0x5A0 - 0x2D0];
+    unsigned char m2D0[0x48C - 0x2D0];
+    Input_unk mInput; // 0x48C
+    unsigned char m48D[0x5A0 - 0x48D];
     int m5A0;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
@@ -69,6 +76,8 @@ extern "C" int fn_80375B78(StatusField_unk* field, int arg);
 struct Arena_unk {
     unsigned char m000[0x540];
     int m540;
+    unsigned char m544[0x99BC - 0x544];
+    unsigned char m99BC; // inferred: flag set while a revive effect plays (fn_8012E540)
 };
 extern "C" Arena_unk* lbl_8087F610;
 extern "C" int fn_80370174(StatusField_unk* field, int id);
@@ -113,7 +122,8 @@ inline void CharaStatus::UpdatePartFlag_unk() {
         m10 &= ~0x100000;
         for (unsigned int i = 0; i < mChara->m650; i++) {
             if (mChara->m654[i]->m274->mF0 != 0) {
-                fn_8013310C(0x100000, 1);
+                m0C |= 0x100000;
+                m10 |= 0x100000;
                 return;
             }
         }
@@ -790,6 +800,199 @@ void CharaStatus::fn_8012F188(float amount) {
         fn_8010652C(lbl_8087F048, mChara);
         fn_801061BC(lbl_8087F048, mChara, &mChara->mMotion, after - 1);
     }
+}
+
+// inferred: damage description built for status damage (fn_8012E540); name invented
+struct StatusDamage_unk {
+    StatusDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
+        m1C = 0;
+        m18 = -1;
+        m00 = 1;
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int m1C : 4;
+    unsigned int m1C_rest : 28;
+};
+struct FrameTime_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: time of a frame
+    float GetTime_unk() const { return m3A4; } // inferred: accessor (name invented)
+};
+extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" atn::Task* lbl_8087F9E8;
+extern "C" int fn_8021A960(HitInfo_unk* hit);
+extern "C" void fn_800FDE60(Effect_unk* effect, int id, CharaTask* chara, atn::Vector3* dir);
+extern "C" float fn_8010CCD0(Effect_unk* effect);
+extern "C" void fn_80107FC8(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80108C10(Effect_unk* effect, StatusDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
+                            int b, int c);
+extern "C" void fn_80166A54(CharaTask* chara);
+extern "C" void fn_80168190(CharaTask* chara);
+extern "C" void fn_80168EA0(CharaTask* chara);
+extern "C" void fn_801687D8(CharaTask* chara);
+extern "C" void fn_80168E60(CharaTask* chara);
+extern "C" void fn_80168F3C(CharaTask* chara);
+extern "C" void fn_80168F94(CharaTask* chara);
+
+// inferred: status update run every frame (regeneration, status timers, refs timers)
+// NONMATCHING: 97.6% - the original reloads m0C for the second flag test of the first condition,
+// the stack slots of the two rotated vectors/matrices are swapped (tried inline helpers for either
+// block, a shared rotate helper, a const ref temporary), and the parts loop of the inlined
+// ClearFlags_unk is a ctr loop in ours (see the header).
+void CharaStatus::fn_8012E540() {
+    if (!IsState_unk(0x1000) && !IsState_unk(0x20) && mChara != 0 && !mChara->mFlag2) {
+        m04 += mParamB.m84 * mParamB.m8C / 30.0f;
+        if (m04 < 1.0f) {
+            FixedArray_unk<CharaHit_unk, 1>& hits = mChara->m12D0;
+            int effect = 0;
+            for (CharaHit_unk* it = hits.begin(); it != hits.end(); it++) {
+                if (fn_8021A960(it->mHit) && it->mHit->mA0 < 0.0f && (it->mHit->mAC & 0x20) == 0x20) {
+                    effect = it->m10;
+                    break;
+                }
+            }
+            if (effect != 0 && lbl_8087F048 != 0) {
+                unsigned char saved = 0;
+                if (lbl_8087F610 != 0) {
+                    saved = lbl_8087F610->m99BC;
+                    if (saved == 0) {
+                        lbl_8087F610->m99BC = 1;
+                    }
+                }
+                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                Mtx rot;
+                PSMTXRotRad(rot, 'y', mChara->mRot.y);
+                PSMTXMultVec(rot, &dir, &dir);
+                atn::Vector3 back(-dir.x, -dir.y, -dir.z);
+                fn_800FDE60(lbl_8087F048, effect, mChara, &back);
+                if (lbl_8087F610 != 0) {
+                    lbl_8087F610->m99BC = saved;
+                }
+            } else {
+                m04 = 1.0f;
+            }
+        } else {
+            m04 = MIN(m04, (float)mParamB.m84);
+        }
+    }
+    if (!IsState_unk(0x20) && !IsState_unk(0x4000000)) {
+        if (mChara != 0 && mChara->mType == 0) {
+            if (mChara->mD18 != 0) {
+                bool ok = true;
+                if (mChara->m55C == 6 && mChara->m560 >= 13 && mChara->m560 <= 14) {
+                    ok = false;
+                }
+                if (ok) {
+                    float rate = lbl_8087F048 != 0 ? fn_8010CCD0(lbl_8087F048) : 1.0f;
+                    if (fn_80134134(5) != 0) {
+                        rate *= 1.0f + SumRefs_unk(mRefs, 5) / 100.0f;
+                    }
+                    m08 += rate * (mParamB.m88 * mParamB.m90 / 30.0f);
+                }
+            }
+        } else {
+            m08 += mParamB.m88 * mParamB.m90 / 30.0f;
+        }
+        if (m08 > (float)mParamB.m88) {
+            m08 = (float)mParamB.m88;
+        }
+        if (m08 < 0.0f) {
+            m08 = 0.0f;
+        }
+    }
+    for (int i = 0; i < 32; i++) {
+        int bit = 1 << i;
+        if ((m0C & bit) == bit && m24C[i] > 0) {
+            m24C[i]--;
+            if (mChara != 0 && mChara->mType == 0) {
+                if (lbl_8087F0A8->mInput.fn_8012476C(0x22) && bit == (bit & 0x80)) {
+                    m24C[i] -= 4;
+                }
+                m24C[i] = MAX(m24C[i], 0);
+            }
+            if (m24C[i] == 0) {
+                ClearFlags_unk(1 << i);
+                if (bit == (bit & 1)) {
+                    atn::Vector3 dir(0.0f, 0.0f, -0.001f);
+                    Mtx rot;
+                    PSMTXRotRad(rot, 'y', mChara->mRot.y);
+                    PSMTXMultVec(rot, &dir, &dir);
+                    mChara->vf44();
+                    mChara->fn_8015E7A0(dir, -1, 0);
+                } else if (bit == (bit & (int)0x80000000)) {
+                    mChara->vf88();
+                } else if (bit == (bit & 0x80)) {
+                    fn_80166A54(mChara);
+                } else if (bit == (bit & 0x400000)) {
+                    fn_80168190(mChara);
+                } else if (bit == (bit & 0x2)) {
+                    fn_80168EA0(mChara);
+                } else if (bit == (bit & 0x8000)) {
+                    fn_801687D8(mChara);
+                } else if (bit == (bit & 0x4)) {
+                    fn_80168E60(mChara);
+                } else if (bit == (bit & 0x10000)) {
+                    mChara->fn_80167640();
+                } else if (bit == (bit & 0x80000)) {
+                    fn_80168F3C(mChara);
+                    m428 = 0.0f;
+                } else if (bit == (bit & 0x400)) {
+                    fn_80168F94(mChara);
+                } else if (bit == (bit & 0x2000000)) {
+                    if (lbl_8087F048 != 0) {
+                        fn_80107FC8(lbl_8087F048, &mChara->mMotion);
+                    }
+                }
+            }
+            if (bit == (bit & 0x400000) && m24C[i] % 90 == 0) {
+                StatusDamage_unk damage;
+                damage.m04 = MAX(mParamB.m84 / 20, 1);
+                if (m04 <= damage.m04) {
+                    damage.m04 = (int)(m04 - 1.0f);
+                }
+                if (damage.m04 > 0) {
+                    Effect_unk* effect = lbl_8087F048;
+                    if (effect != 0) {
+                        CharaTask* chara = mChara;
+                        fn_80108C10(effect, &damage, chara->vfAC(), 0, chara, 0, 0);
+                    }
+                    if (mChara == 0 || !mChara->mFlag2) {
+                        fn_8012DF7C(damage.m04, 0, 0);
+                    }
+                }
+            }
+        }
+    }
+    if (lbl_8087F9E8 != 0 && (lbl_8087F9E8->mFlags & 1) != 1 && (lbl_8087F9E8->mFlags & 4) != 4 && HasTimer_unk() &&
+        !(mChara->m55C == 6 && mChara->m560 == 132)) {
+        m2F4 -= lbl_8087EFA8->GetTime_unk();
+    }
+    CharaStatusRef_unk* it = mRefs.begin();
+    while (it != mRefs.end()) {
+        if (it->m0C == 0) {
+            mRefs.erase(it);
+        } else if (it->m0C > 0) {
+            it->m0C--;
+            it++;
+        } else {
+            it++;
+        }
+    }
+    if ((m0C & 0x800) == 0x800) {
+        m434 += lbl_8087EFA8->GetTime_unk();
+    } else if (m430 > 0) {
+        m438 -= lbl_8087EFA8->GetTime_unk();
+        if (m438 < 0.0f) {
+            m430 = 0;
+        }
+    }
+    m244 += MIN(0.005f * m04, m04 - m244);
 }
 
 int CharaStatus::fn_8012F3D8() {
