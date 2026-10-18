@@ -23,9 +23,6 @@ inline const char* __FileName_unk(const char* path) {
     return s + 1;
 }
 
-// NONMATCHING: 97.2% - while the local string is built, the original keeps its
-// address in r29 and the length in r28 (one more saved register); we recompute the address.
-// Everything after the constructor of the string matches.
 LoadMotion::LoadMotion(const char* path) : LoadCore(path) {
     m5C = 0;
     m60 = 0;

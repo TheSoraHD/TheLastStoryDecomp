@@ -71,7 +71,7 @@ public:
     // clear() 0x801F18BC, size() 0x801F1970, operator[] 0x801F1990, data() 0x801F19B4), while the
     // members below inline them (tmp in 0x80013F78). Checked with standalone compiles.
     size_type size() const { return !is_long() ? (mShort.mSize & 0x7F) : mLong.mSize; }
-    const T* data() const { return !is_long() ? mShort.mData : mLong.mData; }
+    const T* data() const { return !is_long() ? (const T*)this + 1 : mLong.mData; }
     T& operator[](size_type i) { return (!is_long() ? mShort.mData : mLong.mData)[i]; }
     void clear() {
         if (!is_long()) {
@@ -114,9 +114,7 @@ public:
     basic_string() { mLong.mCap = 0; mLong.mSize = 0; mLong.mData = 0; }
     // inferred: inlined at 0x80476220 (strlen, reserve, then the range replace)
     basic_string(const T* s) {
-        mLong.mCap = 0;
-        mLong.mSize = 0;
-        mLong.mData = 0;
+        __zero();
         size_type n = strlen(s);
         reserve(n);
         __replace_unk(0, 0, s, s + n, random_access_iterator_tag());
@@ -146,7 +144,7 @@ public:
             const T* p;
             size_type n;
             if (!str.is_long()) {
-                p = str.mShort.mData;
+                p = (const T*)&str + 1;
                 n = str.mShort.mSize & 0x7F;
             } else {
                 p = str.mLong.mData;
@@ -273,6 +271,14 @@ private:
     static void __assign(T& c1, const T& c2) { c1 = c2; }
     static const size_type& __min(const size_type& a, const size_type& b) { return (b < a) ? b : a; }
     bool is_long() const { return mLong.mCap >> 31; }
+    // inferred: clears the three words through a word pointer (the object address then stays in
+    // a register for the calls that follow, 0x804732DC)
+    void __zero() {
+        unsigned long (&a)[3] = mRaw.mWords;
+        for (unsigned int i = 0; i < 3; i++) {
+            a[i] = 0;
+        }
+    }
     static T* __allocate(size_type n) {
         T* p = (T*)::operator new(n * sizeof(T));
         if (p == 0) {
