@@ -2,6 +2,7 @@
 // gimmick factory jump tables (0x8078C6C8); the file also holds the factories at 0x803EC16C/0x803EC374.
 
 #include "game/GimmickCommon.h"
+#include "gmk/CharaLight.h"
 #include "gmk/ArenaFloor.h"
 #include "gmk/InteractionSpot.h"
 #include "gmk/RainDrops.h"
@@ -228,7 +229,6 @@ extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041EB80(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80420ADC(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80421AB8(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80422610(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80427EB4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
@@ -316,7 +316,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 41: gimmick = fn_80420ADC(parent, desc); break;
     case 42: gimmick = gmk::ShakeCamera::fn_80421454(parent, desc); break;
     case 43: gimmick = fn_80421AB8(parent, desc); break;
-    case 44: gimmick = fn_80422610(parent, desc); break;
+    case 44: gimmick = gmk::CharaLight::fn_80422610(parent, desc); break;
     case 49: gimmick = fn_80427EB4(parent, desc); break;
     case 50: gimmick = gmk::InteractionSpot::fn_80428B0C(parent, desc); break;
     case 51: gimmick = fn_80429668(parent, desc); break;
