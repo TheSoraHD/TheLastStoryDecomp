@@ -245,7 +245,8 @@ struct CharaStatusData_unk {
     unsigned char m24[0x44 - 0x24];
     unsigned int mBits[4]; // 0x1EC: inferred: 128 flags (fn_80134674, fn_801346C8)
     unsigned int m54;      // 0x1FC: inferred: index into a table of 5 factors (fn_8012F034)
-    unsigned char m58[0x7C - 0x58];
+    int m58;
+    unsigned char m5C[0x7C - 0x5C];
 };
 
 class CharaStatusBase {
@@ -339,6 +340,7 @@ public:
     void fn_8012C6D4(CharaParam_unk* param, int level, int arg, int arg2);
     void fn_8012D180();
     void fn_8012CE4C(int kind);
+    void fn_801342D0(struct StatusItem_unk* item, int stat);
     int fn_80133BD8(int force); // inferred: level of the character
     void ClearBit_unk(int bit);
     int fn_8012E534();

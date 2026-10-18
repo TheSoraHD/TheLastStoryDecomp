@@ -875,6 +875,93 @@ void CharaStatus::fn_8013459C() {
     }
 }
 
+// inferred: item that raises a stat (type at 0xB4, amount at 0xB8); name invented
+struct StatusItem_unk {
+    unsigned char m00[0xB4];
+    int mB4;
+    float mB8;
+};
+extern "C" int fn_8021AF50(int stat);
+extern "C" void fn_80370320(StatusField_unk* field, int id, int value, int arg);
+extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
+
+// NONMATCHING: 98.9% - only the load of item->mB8 is scheduled after the register saves (the original
+// loads it right after saving f30); same as fn_80133BD8.
+void CharaStatus::fn_801342D0(StatusItem_unk* item, int stat) {
+    float value = 0.0f;
+    float amount = item->mB8;
+    int type = item->mB4;
+    if (1 <= type && type <= 7) {
+        value = amount;
+        type = stat;
+    } else if (8 <= type && type <= 10) {
+        if (fn_8021AF50(stat)) {
+            value = amount;
+        }
+    } else if (type == 11) {
+        value = amount;
+    }
+    int msg = -1;
+    switch (type) {
+    case 1:
+        m1A8.m10 += value;
+        mParamA.m00 += value;
+        mParamB.m00 += value;
+        msg = 0x18;
+        break;
+    case 2:
+        m1A8.m18 += value;
+        mParamA.m08 += value;
+        mParamB.m08 += value;
+        msg = 0x19;
+        break;
+    case 3:
+        m1A8.m14 += value;
+        mParamA.m04 += value;
+        mParamB.m04 += value;
+        msg = 0x1A;
+        break;
+    case 4:
+        m1A8.m1C += value;
+        mParamA.m0C += value;
+        mParamB.m0C += value;
+        msg = 0x1B;
+        break;
+    case 5:
+        m1A8.m20 += (int)value;
+        mParamA.m94 += (int)value;
+        mParamB.m94 += (int)value;
+        msg = 0x1C;
+        break;
+    case 6:
+        m1A8.m0C += value;
+        mParamA.m84 += (int)value;
+        mParamB.m84 += (int)value;
+        msg = 0x17;
+        break;
+    case 8:
+        m1A8.m54 += (int)value;
+        msg = 0x1D;
+        break;
+    case 9:
+        m1A8.m58 += (int)value;
+        msg = 0x1E;
+        break;
+    case 11:
+        if (lbl_8087F430 != 0) {
+            int n = (int)value;
+            n += fn_80370174(lbl_8087F430, 218);
+            fn_80370320(lbl_8087F430, 218, MIN(n, 990), 0);
+            msg = 0x1F;
+        }
+        break;
+    }
+    if (lbl_8087F048 != 0 && msg >= 0 && mChara != 0) {
+        fn_801092C8(lbl_8087F048, msg, mChara, (int)value, 0);
+    }
+    fn_8012B3E8();
+}
+
 // NONMATCHING: 98.1% - registers only (the original keeps the constant 1 in r4 and the word
 // index in r7). Tried: mask/word locals, test and set written in place, helpers with a mask local.
 void CharaStatus::fn_80134674(int bit) {
