@@ -1,6 +1,7 @@
 #include "game/CharaStatus.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
+#include "game/CharaTask.h"
 #include "game/ResHandle.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -41,7 +42,7 @@ RouteWalker_unk::RouteWalker_unk() {
     mLink = 0;
     m2C = 1;
     mA0 = 0;
-    mA4 = 0;
+    mChara = 0;
     m70 = 0.0f;
     m74 = 0.0f;
     m78 = 0.0f;
@@ -74,7 +75,7 @@ void RouteWalker_unk::fn_8012539C() {
     m00 = 0;
     m10 = lbl_807C7030;
     m1C = 0;
-    m20 = 0;
+    mPlace = 0;
     m24 = 0;
     m28 = 0.0f;
     m2C = 0;
@@ -103,6 +104,68 @@ int RouteWalker_unk::fn_80125474() {
         return 0;
     }
     return 1;
+}
+
+// inferred: route search (lbl_8087EE68) and route registration of the field
+struct RouteFinder_unk;
+extern "C" RouteFinder_unk* lbl_8087EE68;
+extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* point, int link, int arg);
+extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
+                           float arg6);
+
+void RouteWalker_unk::fn_80127D8C(int a, int b, int c) {
+    chr::Chara_unk* chara = mChara;
+    m4C = chara->mPos;
+    m58 = lbl_807C7030;
+    if (chara->CanAct_unk()) {
+        ((CharaTask*)chara)->fn_8016EB48(a, b, c);
+    }
+    m2C = 1;
+    if (mChara->mFlag31 == 0 && m44 == 1 && mLink > 0) {
+        RouteTable_unk* table = GetRouteTable_unk();
+        if (table != 0) {
+            RouteLink_unk* link = &table->mLinks[mLink - 1];
+            if (link->m3C != 0) {
+                link->m3C = 0;
+            }
+        }
+    }
+}
+
+void RouteWalker_unk::fn_801286F0(int link, int b, int c) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table != 0 && link > 0) {
+        fn_8012539C();
+        atn::Vector3 pos;
+        int point;
+        if (fn_80019E88(lbl_8087EE68, &pos, &point, link, 0) != 0) {
+            fn_80128508(fn_803C1560(table, &table->GetLink_unk(link)->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f),
+                        b, c);
+            table->GetLink_unk(link)->m3C = 1;
+            mLink = link;
+            m10 = pos;
+            m1C = point;
+        }
+        mMode = 1;
+        m48 = c;
+    }
+}
+
+void RouteWalker_unk::fn_80128818(int id, int b, int c) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table == 0) {
+        return;
+    }
+    RoutePlace_unk* place = table->FindPlace_unk(id);
+    if (place == 0) {
+        return;
+    }
+    fn_8012539C();
+    fn_80128508(fn_803C1560(table, &place->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), b, c);
+    mMode = 3;
+    m48 = c;
+    mPlace = id;
+    m28 = 3.0f;
 }
 
 CharaLook_unk::CharaLook_unk()

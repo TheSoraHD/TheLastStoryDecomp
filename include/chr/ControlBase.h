@@ -75,11 +75,18 @@ public:
     void fn_80154344();
     void fn_8015495C(int a, int b, int c, int d);
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
+    // inferred: state checks inlined in many places (names invented)
+    bool IsActive_unk() { return (m38 & 4) != 4 && (m38 & 1) != 1; }
+    bool IsFree_unk() { return IsActive_unk() && (m7E0 & 0x20) != 0x20; }
+    bool IsGrappled_unk() { return m55C == 6 && m560 == 28; }
+    bool CanAct_unk() { return IsFree_unk() && !IsGrappled_unk(); }
     // inferred: names invented (weak copies 0x8000DD0C and 0x8012A1B8)
     Model_unk* GetModel_unk() { return (Model_unk*)&mMotion; }
     atn::Vector3* GetRot_unk() { return &mRot; }
 
-    unsigned char m004[0x48 - 0x04];
+    unsigned char m004[0x38 - 0x04];
+    unsigned int m38; // inferred: flags (bit 0 and bit 2 tested by IsActive_unk)
+    unsigned char m03C[0x48 - 0x3C];
     int m48;
     unsigned char m04C[0xB0 - 0x4C];
     Motion_unk mMotion; // 0xB0

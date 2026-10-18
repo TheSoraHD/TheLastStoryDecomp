@@ -3,6 +3,12 @@
 
 #include "math/Vec.h"
 
+namespace chr {
+class Chara_unk;
+}
+struct Model_unk;
+class CharaTask;
+
 // inferred: point of the route tables (0x30 bytes)
 struct RoutePoint_unk {
     unsigned char m00[0x2C];
@@ -10,16 +16,37 @@ struct RoutePoint_unk {
 };
 // inferred: link of the route tables (0x40 bytes)
 struct RouteLink_unk {
-    unsigned char m00[0x38];
+    int m00;
+    atn::Vector3 mPos; // 0x04
+    unsigned char m10[0x38 - 0x10];
     int m38; // inferred: enabled
     int m3C; // inferred: in use
 };
 // inferred: route tables of the field (lbl_8087F430->m10D8 or lbl_8087F540->m1A6C); the arrays at
 // 0xC4-0xD0 are the spots used by gmk::InteractionSpot
+// inferred: named place of the route tables (0x28 bytes)
+struct RoutePlace_unk {
+    int mId;
+    atn::Vector3 mPos; // 0x04
+    unsigned char m10[0x28 - 0x10];
+};
 struct RouteTable_unk {
+    // inferred: names invented
+    RouteLink_unk* GetLink_unk(int link) { return &mLinks[link - 1]; }
+    RoutePlace_unk* FindPlace_unk(int id) {
+        for (unsigned int i = 0; i < mNumPlaces; i++) {
+            if (id == mPlaces[i].mId) {
+                return &mPlaces[i];
+            }
+        }
+        return 0;
+    }
+
     unsigned char m00[0x74];
     int mNumPoints;          // 0x74
-    unsigned char m78[0x9C - 0x78];
+    unsigned int mNumPlaces; // 0x78
+    RoutePlace_unk* mPlaces; // 0x7C
+    unsigned char m80[0x9C - 0x80];
     RoutePoint_unk* mPoints; // 0x9C
     unsigned char mA0[0xA8 - 0xA0];
     int mNumLinks;           // 0xA8
@@ -33,6 +60,10 @@ public:
     RouteWalker_unk(); // 0x80125320
     void fn_8012539C(); // inferred: reset
     int fn_80125474();  // inferred: nonzero if the route is valid
+    void fn_80127D8C(int a, int b, int c); // inferred: stops (arguments passed to CharaTask::fn_8016EB48)
+    void fn_80128508(int route, int b, int c);
+    void fn_801286F0(int link, int b, int c); // inferred: follows a link
+    void fn_80128818(int id, int b, int c);   // inferred: goes to a named place
 
     int m00;
     int mPointA;    // 0x04
@@ -40,15 +71,16 @@ public:
     int mLink;      // 0x0C
     atn::Vector3 m10;
     int m1C;
-    int m20;
+    int mPlace;     // 0x20
     int m24;
     float m28;
     int m2C;        // inferred: nonzero while the link is not owned
     unsigned char m30[0x40 - 0x30];
     int mMode;      // 0x40
-    unsigned char m44[0x48 - 0x44];
+    int m44;
     int m48;
-    unsigned char m4C[0x64 - 0x4C];
+    atn::Vector3 m4C;
+    atn::Vector3 m58;
     atn::Vector3 m64;
     float m70;
     float m74;
@@ -63,13 +95,9 @@ public:
     int m98;
     unsigned char m9C[0xA0 - 0x9C];
     int mA0;
-    int mA4;
+    chr::Chara_unk* mChara; // 0xA4
 };
 
-namespace chr {
-class Chara_unk;
-}
-struct Model_unk;
 
 // inferred: head and eye look-at controller of a character (CharaTask + 0x10D8); class name
 // unknown. Member names come from the debug menu ("Sight": type, offset, speed, eyeType,
