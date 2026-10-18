@@ -25,7 +25,9 @@ public:
     void fn_800D246C(int arg); // inferred
 
     // inferred: sizeof(atn::Task) == 0x48 (FriendManager adds no members and is allocated with 0x48)
-    unsigned char m04[0x38 - 0x04];
+    unsigned char m04[0x20 - 0x04];
+    void* m20; // inferred: compared with the argument of GimmickManager::fn_803EE374
+    unsigned char m24[0x38 - 0x24];
     // inferred: volatile: GimmickCommon::vf30 (0x803EDF40) reads it twice without merging the loads
     volatile unsigned int mFlags; // 0x38
     unsigned char m3C[0x48 - 0x3C];

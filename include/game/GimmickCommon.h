@@ -6,43 +6,19 @@
 #include "atn/LH_Binary.h"
 #include "atn/Model_unk.h"
 #include "atn/Task.h"
+#include "game/GimmickManager.h"
+#include "game/ResHandle.h"
 #include "math/Vec.h"
 
 class GimmickCommon;
 
-// inferred: the gimmick manager singleton (lbl_8087F4A0); gimmicks register themselves
-class GimmickManager {
-public:
-    void fn_803EE3F0(GimmickCommon* gimmick); // inferred: registers a gimmick
-    void fn_803EE41C(GimmickCommon* gimmick); // inferred: unregisters it
-    void* fn_803EEE44(int type);              // inferred: debug data of a gimmick type
-};
-extern "C" GimmickManager* lbl_8087F4A0;
-
-// inferred: 0x4C-byte element of an array that GimmickManager allocates with new[]
-// (0x803EE7FC: __construct_new_array with the constructor 0x803EEB38 and the destructor
-// 0x803EDF7C). The destructor is empty; it is only referenced from GimmickManager, so it is
-// taken as the first function of game/GimmickManager.cpp (defined out of line there).
-struct GimmickManagerEntry_unk {
-    ~GimmickManagerEntry_unk(); // 0x803EDF7C
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    char mName[0x20];
-    float m30[3];
-    float m3C;
-    int m40;
-    int m44;
-    int m48;
-};
 
 // inferred: 0x34-byte member of GimmickCommon at 0xB0 (sound/effect tables: its destructor
-// frees arrays of atn::SoundRef); its members are out of line (game/GimmickManager.cpp)
+// frees arrays of atn::SoundRef); its members are out of line (0x803EF608-0x803F11F8, not split)
 struct GimmickCommonB0_unk {
     GimmickCommonB0_unk();  // 0x803EF608
     ~GimmickCommonB0_unk(); // 0x803EF64C
-    void fn_803EF780(int size, void* data); // inferred: reads the gimmick binary
+    void fn_803EF780(void* data, int size); // inferred: reads the gimmick binary
     int fn_803F06B0();                      // inferred: nonzero while busy
     void fn_803F0764(GimmickCommon* gimmick);
     void fn_803F10AC(int arg);
@@ -58,19 +34,6 @@ public:
     int m58;
 };
 extern "C" GimmickStateCommand* fn_803F1310(GimmickCommon* gimmick);
-
-// inferred: debug menu group, released through the menu manager at lbl_8087EF10
-extern "C" void* lbl_8087EF10;
-extern "C" void fn_800897D8(void* manager, void* group);
-struct GimmickHandle_unk {
-    GimmickHandle_unk() : mGroup(0) {}
-    ~GimmickHandle_unk() {
-        if (mGroup != 0 && lbl_8087EF10 != 0) {
-            fn_800897D8(lbl_8087EF10, mGroup);
-        }
-    }
-    void* mGroup;
-};
 
 // inferred: description of a placed gimmick (passed to the second factory, 0x803EC374)
 struct GimmickDesc_unk {
@@ -138,7 +101,7 @@ public:
     virtual float vf58() { return 0.0f; }  // 0x800FA4EC
     virtual int vf5C() { return 0; }       // 0x80017944
     virtual int vf60() { return 0; }       // 0x801B7794
-    virtual int vf64() { return 0; }       // 0x803A04B8
+    virtual int vf64(int arg) { return 0; } // 0x803A04B8
     virtual void vf68() {}                 // 0x800E2FDC
     virtual void vf6C(void* menu);  // 0x803ED92C: inferred: debug menu
     virtual void vf70(int state);   // 0x803EDAF0
@@ -178,7 +141,7 @@ public:
     GimmickStateCommand* mE4;
     int mE8;
     int mEC;
-    GimmickHandle_unk mF0;
+    ResHandle mF0; // inferred: debug menu group
 };
 
 // inferred: fades the alpha of a model material (used by gmk::MotionObject and others)

@@ -4,7 +4,8 @@
 // Out-of-line members of std::basic_string. Game files only include std/string.h and call these
 // out of line: their objects have no copies of them (the error messages are not in their string
 // pools, e.g. atn/LH_Motion.cpp), so the members were compiled once elsewhere (inferred: an
-// explicit instantiation in MSL C++). Only standalone test compiles include this file.
+// explicit instantiation in MSL C++). Exception: game/GimmickManager.cpp has their messages in its
+// pool (0x80751F60), so it includes this file (the weak copies are dropped by the linker).
 
 #include "std/string.h"
 
