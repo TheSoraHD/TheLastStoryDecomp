@@ -198,7 +198,7 @@
   "classes": [
    "atn::DLAllocator"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/MindowsCommon.cpp",
