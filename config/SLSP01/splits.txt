@@ -1678,7 +1678,7 @@ game/MapPartsOcean.cpp:
 
 game/MapPartsRain.cpp:
 	.text       start:0x8049CDBC end:0x8049D264
-	.rodata     start:0x80756E70 end:0x80756E80
+	.rodata     start:0x80756E70 end:0x80756EB8
 	.data       start:0x807906E8 end:0x80790740
 
 game/MapTask.cpp:
