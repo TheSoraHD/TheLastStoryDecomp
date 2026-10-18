@@ -2650,7 +2650,7 @@
   "classes": [
    "Sword"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/TacView.cpp",
