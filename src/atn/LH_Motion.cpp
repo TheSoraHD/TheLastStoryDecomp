@@ -1,18 +1,12 @@
 #include "atn/LH_Motion.h"
 #include "std/string.h"
-#include <boost/function.hpp>
+#include "atn/Loader_unk.h"
 
 extern "C" int fn_800DC500(const char* name, unsigned long len); // inferred: name to id
 extern "C" char* fn_806825B4(const char* s, int c);               // inferred: strrchr
 extern "C" void* lbl_8087F518;                                    // inferred: resource manager
 extern "C" void* fn_804766B0(void* manager, const char* path, int arg); // inferred: get/load a motion
 
-// inferred: 4-byte helper built on the stack by LoadMotion::vf0C; names unknown
-struct Loader_unk {
-    int m00;
-};
-extern "C" void fn_804714A4(Loader_unk* self);
-extern "C" void fn_804714B0(Loader_unk* self, void* a, void* b, boost::function<void()> f, int c);
 
 namespace atn {
 
