@@ -71,6 +71,7 @@ public:
     int fn_80179D44();
     void fn_801750FC();
     void fn_80154344();
+    void fn_8015495C(int a, int b, int c, int d);
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
 
     unsigned char m004[0x48 - 0x04];
