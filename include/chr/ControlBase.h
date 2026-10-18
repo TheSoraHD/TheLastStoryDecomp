@@ -2,6 +2,7 @@
 #define CHR_CONTROLBASE_H
 
 #include "math/Vec.h"
+#include <boost/function.hpp>
 
 namespace chr {
 
@@ -48,6 +49,7 @@ public:
     Sphere_unk fn_80176548(const Vec& pos); // inferred
     void fn_80155DAC(int arg);
     void fn_8016DA4C();
+    void fn_801446F0();
     Vec fn_80178018(); // inferred: returns a direction or target vector (y used as an angle)
     float fn_80178078();
 
@@ -70,7 +72,10 @@ public:
     unsigned char m590[0x5A4 - 0x590];
     Vec m5A4;  // inferred: collision offset
     unsigned char m5B0[0x5B8 - 0x5B0];
-    unsigned char m5B8[0x12A4 - 0x5B8];
+    unsigned char m5B8[0xF50 - 0x5B8];
+    int mF50; // inferred: set by chr::ControlDraggedStart
+    int mF54; // inferred: set by chr::ControlDraggingStart
+    unsigned char mF58[0x12A4 - 0xF58];
     // 0x12A4: flag word (bitfields, MSB first)
     unsigned int mFlag31 : 1;
     unsigned int mFlag30_7 : 24;
@@ -88,7 +93,9 @@ public:
     ControlBase(Chara_unk* chara) : mChara(chara) {}
     virtual ~ControlBase() {}
     virtual int vf0C() = 0; // inferred: update, returns nonzero when finished
-    virtual void vf10();
+    // inferred: returns the action to run when the control finishes (0x801B2A80 binds
+    // CharaTask::fn_80178208 to the next control)
+    virtual boost::function<void()> vf10();
     virtual void vf14();
     virtual void vf18();
     virtual void vf1C();

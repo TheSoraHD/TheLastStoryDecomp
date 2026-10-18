@@ -3,6 +3,10 @@
 
 #include "atn/Task.h"
 
+namespace chr {
+class ControlBase;
+}
+
 // inferred: hit/damage description passed to CharaTask::vf3C and vf40 (0x801513D0);
 // 0x10 holds a vector (knockback?) and 0x68/0x90 values that FriendArganan clears.
 struct HitInfo_unk;
@@ -67,6 +71,7 @@ public:
     virtual void vfE0();
 
     int fn_8013655C();
+    void fn_80178208(chr::ControlBase* control); // inferred: changes the current control
     void fn_80139560();
     void fn_80145334();
     void fn_80149A30();
