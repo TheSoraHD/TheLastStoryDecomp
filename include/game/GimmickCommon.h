@@ -76,13 +76,20 @@ struct GimmickUvOwner_unk {
 // inferred: message passed to GimmickCommon::vf40 (same layout as chr::BreakMsg_unk)
 struct GimmickMsg_unk {
     GimmickMsg_unk(int type) : mType(type), m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
-    GimmickMsg_unk() : m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
+    GimmickMsg_unk() : mType(0), m04(0), m08(0), m0C(0), m10(0), mVec(0.0f, 0.0f, 0.0f) {}
     int mType;
     int m04;
     int m08;
     int m0C;
     int m10;
     atn::Vector3 mVec;
+};
+
+// inferred: message passed to GimmickCommon::vf44 (0x30 bytes, cleared with memset; type 3 when a
+// character steps on gmk::LandMine)
+struct GimmickHitMsg_unk {
+    int mType;
+    unsigned char m04[0x30 - 0x04];
 };
 
 // Base of the gimmicks (gmk::*). The name is in the DOL (vtable 0x8078C9D0, RTTI bases
@@ -113,7 +120,7 @@ public:
     virtual Model_unk* vf38() { return 0; } // 0x80012A14: inferred: main model
     virtual void vf3C() {}
     virtual int vf40(GimmickMsg_unk* msg) { return 0; } // 0x80012714: inferred: receives a message
-    virtual int vf44() { return 0; }       // 0x800FA4F4
+    virtual int vf44(GimmickHitMsg_unk* msg) { return 0; } // 0x800FA4F4
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag); // 0x803EDE34
     virtual void vf4C() {}
     virtual int vf50() { return 0; }       // 0x802AEABC

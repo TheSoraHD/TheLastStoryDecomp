@@ -10,6 +10,7 @@ namespace atn {
 // Layout inferred from the inlined constructor in ColliTree::ColliTree (0x80058A1C).
 class ColliBase {
 public:
+    ColliBase(int type);  // 0x80056DB8 (inlined in this TU's own constructors)
     virtual ~ColliBase(); // 0x80056E40
     virtual void vf0C();
     virtual void vf10();
@@ -40,6 +41,33 @@ public:
     LH_ColliTree mLoader; // 0x3C
     void* mTree;          // 0x44
     float m48[12];
+};
+
+// The name is in the DOL (__vt__Q23atn8ColliBox, 0x807775F8). Layout inferred from gmk::PassBoard.
+class ColliBox : public ColliBase {
+public:
+    ColliBox() : ColliBase(2) {}
+    virtual ~ColliBox() {}
+
+    unsigned char m3C[0x378 - 0x3C];
+    float mBox[9]; // 0x378: inferred: read from "COLLI_BOX" (9 values)
+};
+
+// The name is in the DOL (__vt__Q23atn11ColliSphere, 0x80777668). Layout inferred from
+// gmk::LandMine.
+class ColliSphere : public ColliBase {
+public:
+    // inferred: center and radius, assigned as one value
+    struct Sphere_unk {
+        Sphere_unk() {}
+        Sphere_unk(const Vector3& center, float radius) : mCenter(center), mRadius(radius) {}
+        Vector3 mCenter;
+        float mRadius;
+    };
+    ColliSphere() : ColliBase(0) {}
+    virtual ~ColliSphere() {}
+
+    Sphere_unk mSphere; // 0x3C
 };
 
 // The name is in the DOL (__vt__Q23atn11ColliObject, 0x807775C0); layout from the constructor.

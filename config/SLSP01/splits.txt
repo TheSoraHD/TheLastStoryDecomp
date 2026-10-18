@@ -1186,7 +1186,7 @@ gmk/AutomaticDoor.cpp:
 
 gmk/PlayEffect.cpp:
 	.text       start:0x803F69E4 end:0x803F744C
-	.rodata     start:0x807523A0 end:0x807523B0
+	.rodata     start:0x807523A0 end:0x807523E0
 	.data       start:0x8078CCC8 end:0x8078CD60
 	.sdata2     start:0x80886010 end:0x80886018
 
