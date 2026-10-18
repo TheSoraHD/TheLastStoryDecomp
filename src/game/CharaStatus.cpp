@@ -1523,3 +1523,148 @@ bool CharaStatus::fn_801347C8(int index) {
     }
     return false;
 }
+
+// inferred: equipment of a party member (8-byte slots); names invented
+struct EquipSlot_unk {
+    int mItem;
+    int m04;
+};
+struct PartyEquip_unk {
+    EquipSlot_unk mAccessories[4];
+    EquipSlot_unk mWeapons[2];
+    unsigned char m30[0x40 - 0x30];
+};
+// inferred: object behind lbl_8087F4F0 (probably the inventory, see CharaSub_unk.cpp)
+struct Party_unk {
+    unsigned char m0000[0x8290];
+    PartyEquip_unk mEquip[1]; // inferred: one per character id (count unknown)
+};
+extern "C" Party_unk* lbl_8087F4F0;
+
+// inferred: item data returned by fn_80206B14 / fn_8020ED84; names invented
+struct WeaponData_unk {
+    CharaParam_unk mParam;
+    int mC0;
+    CharaStatusEntry_unk mEntries[2]; // 0xC4
+};
+struct AccessoryData_unk {
+    CharaParam_unk mParam;
+    unsigned char mC0[0xE4 - 0xC0];
+    CharaStatusEntry_unk mEntries[2]; // 0xE4
+};
+extern "C" chr::CharaData_unk* fn_8020A888(int id);
+extern "C" WeaponData_unk* fn_80206B14(int arg, int item);
+extern "C" AccessoryData_unk* fn_8020ED84(int slot, int item);
+
+// inferred: item in slot (kind, index), replaced by the candidate items A or B (equipment preview)
+inline int PickItem_unk(int item, int kind, int index, int kindA, int indexA, int itemA, int kindB, int indexB,
+                        int itemB) {
+    if (kindA == kind && indexA == index) {
+        item = itemA;
+    }
+    if (kindB == kind && indexB == index) {
+        item = itemB;
+    }
+    return item;
+}
+
+// inferred: parameters of character `id` with the candidate equipment applied (used by menus)
+// NONMATCHING: 99.96% - in the arena test the original keeps the skip flag in r0 and the mode in r4
+// (ours swaps them; same difference in fn_8012B988). Tried bool/int flag, an inline wrapper, an
+// arena pointer local, other forms of IsArenaMode_unk and moving the declaration.
+CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, int itemA, int kindB, int indexB,
+                           int itemB) {
+    CharaParam_unk param;
+    chr::CharaData_unk* data = fn_8020A888(id);
+    if (data == 0) {
+        return param;
+    }
+    param = data->mParam;
+    status->fn_8012C6D4(&param, param.m78 + (int)status->m1A8.m08,
+                        status->m1C - ((status->m0C & 0x400) ? 3 : 0), data->mC8);
+    param.m84 += (int)status->m1A8.m0C;
+    param.m00 += status->m1A8.m10;
+    param.m04 += status->m1A8.m14;
+    param.m08 += status->m1A8.m18;
+    param.m0C += status->m1A8.m1C;
+    param.m94 += status->m1A8.m20;
+    param.m78 = MAX(1, param.m78 + status->m1C - ((status->m0C & 0x400) == 0x400 ? 3 : 0));
+    PartyEquip_unk* equip = &lbl_8087F4F0->mEquip[id];
+    if (id == 3) {
+        WeaponData_unk* a = fn_80206B14(
+            0, PickItem_unk(equip->mWeapons[0].mItem, 1, 0, kindA, indexA, itemA, kindB, indexB, itemB));
+        WeaponData_unk* b = fn_80206B14(
+            0, PickItem_unk(equip->mWeapons[1].mItem, 1, 1, kindA, indexA, itemA, kindB, indexB, itemB));
+        status->fn_8012D714(&param, &a->mParam, &b->mParam);
+    } else {
+        WeaponData_unk* a = fn_80206B14(
+            0, PickItem_unk(equip->mWeapons[0].mItem, 1, 0, kindA, indexA, itemA, kindB, indexB, itemB));
+        status->fn_8012D628(&param, &a->mParam);
+    }
+    int skip = 0;
+    if (lbl_8087F610 != 0 && IsArenaMode_unk(lbl_8087F610->m540)) {
+        skip = 1;
+    }
+    if (!skip) {
+        for (int i = 0; i < 4; i++) {
+            AccessoryData_unk* acc = fn_8020ED84(
+                i, PickItem_unk(equip->mAccessories[i].mItem, 2, i, kindA, indexA, itemA, kindB, indexB, itemB));
+            status->fn_8012D628(&param, &acc->mParam);
+        }
+    }
+    float bonus = 0.0f;
+    float b = bonus;
+    float c = bonus;
+    float d = bonus;
+    float e = bonus;
+    for (int i = 0; i < 2; i++) {
+        if (i == 1 && id != 3) {
+            break;
+        }
+        WeaponData_unk* weapon = fn_80206B14(
+            0, PickItem_unk(equip->mWeapons[i].mItem, 1, i, kindA, indexA, itemA, kindB, indexB, itemB));
+        if (weapon != 0) {
+            for (int j = 0; j < 2; j++) {
+                CharaStatusEntry_unk* entry = &weapon->mEntries[j];
+                if (entry->mId == 0x20 && entry->mSub == 1) {
+                    c += 0.01f * entry->mValue;
+                    e += 0.01f * entry->mValue;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < 4; i++) {
+        AccessoryData_unk* acc = fn_8020ED84(
+            i, PickItem_unk(equip->mAccessories[i].mItem, 2, i, kindA, indexA, itemA, kindB, indexB, itemB));
+        if (acc != 0) {
+            for (int j = 0; j < 2; j++) {
+                CharaStatusEntry_unk* entry = &acc->mEntries[j];
+                if (entry->mId == 0x24 && entry->mSub == 1) {
+                    b += 0.01f * entry->mValue;
+                    d += 0.01f * entry->mValue;
+                }
+                if (entry->mId == 0x3A && entry->mSub == 1) {
+                    bonus += 0.01f * entry->mValue;
+                }
+            }
+        }
+    }
+    b *= param.m08;
+    d *= param.m0C;
+    c *= param.m00;
+    e *= param.m04;
+    param.m84 += (int)(param.m84 * bonus);
+    param.m84 = MIN(MAX(param.m84, 1), 99999);
+    param.m08 = MIN(MAX(param.m08 + b, 1.0f), 9999.0f);
+    param.m00 = MIN(MAX(param.m00 + c, 1.0f), 9999.0f);
+    param.m0C = MIN(MAX(param.m0C + d, 1.0f), 9999.0f);
+    param.m04 = MIN(MAX(param.m04 + e, 1.0f), 9999.0f);
+    param.m94 = MIN(MAX((float)param.m94, 1.0f), 9999.0f);
+    param.m84 = MIN(param.m84, 99999);
+    param.m08 = MIN(param.m08, 9999.0f);
+    param.m00 = MIN(param.m00, 9999.0f);
+    param.m0C = MIN(param.m0C, 9999.0f);
+    param.m04 = MIN(param.m04, 9999.0f);
+    param.m94 = MIN(param.m94, 9999);
+    return param;
+}
