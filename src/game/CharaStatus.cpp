@@ -1011,6 +1011,421 @@ int CharaStatus::fn_8012F3D8() {
     return 3;
 }
 
+extern "C" void fn_8015EFAC(CharaTask* chara, int arg);
+extern "C" void fn_80168048(CharaTask* chara);
+extern "C" void fn_80167F1C(CharaTask* chara);
+extern "C" void fn_80168170(CharaTask* chara);
+extern "C" void fn_80168788(CharaTask* chara);
+extern "C" void fn_80166D3C(CharaTask* chara, int arg);
+extern "C" void fn_8016624C(CharaTask* chara, int arg);
+extern "C" void fn_80166760(CharaTask* chara);
+extern "C" void fn_8016676C(CharaTask* chara);
+extern "C" void fn_80167344(CharaTask* chara, int arg);
+extern "C" void fn_8016794C(CharaTask* chara);
+extern "C" void fn_80167C34(CharaTask* chara);
+extern "C" void fn_801684A0(CharaTask* chara);
+extern "C" void fn_80168E04(CharaTask* chara);
+extern "C" void fn_80168E80(CharaTask* chara);
+extern "C" void fn_80168EC0(CharaTask* chara);
+extern "C" void fn_80168F5C(CharaTask* chara);
+extern "C" void fn_801067D0(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
+extern "C" void fn_80107F20(Effect_unk* effect, chr::Motion_unk* a, chr::Motion_unk* b);
+extern "C" void fn_80101524(Effect_unk* effect, const atn::Vector3* pos, const atn::Vector3* rot, unsigned int old,
+                            unsigned int now);
+extern "C" atn::Vector3 fn_801781B0(CharaTask* chara); // inferred: position used for status effects
+extern "C" void fn_80108F38(Effect_unk* effect, const atn::Vector3& pos, int status);
+
+// NONMATCHING: 95.4% - only the parts loop of every inlined ClearFlags_unk differs (ctr loop in ours,
+// see the header); the rest matches.
+// inferred: applies (remove == 0) or removes the status flags `flags`; returns 1 when a status
+// started, -1 when it was resisted, 0 otherwise. Names of the arguments are invented.
+int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int strong, int both, int effect) {
+    unsigned int old = m0C;
+    if (damage > 0) {
+        ClearFlags_unk(0x10);
+    }
+    if (remove != 0) {
+        if (both != 0 || (m10 & flags) == 0) {
+            ClearFlags_unk(flags);
+        } else {
+            for (int i = 0; i < 32; i++) {
+                unsigned int bit = 1 << i;
+                if ((bit & flags) == bit && (m10 & bit) != bit) {
+                    ClearFlags_unk(bit);
+                }
+            }
+        }
+    } else {
+        fn_8013310C(flags, both);
+    }
+    int result = 0;
+    unsigned int immune = m18 | m240;
+    if ((old & 0x20) == 0x20 && (m0C & 0x20) != 0x20) {
+        mChara->fn_800D246C(0);
+        mChara->m58C = 0;
+        if (mChara->mType == 0) {
+            fn_8015EFAC(mChara, 0x2D);
+        } else {
+            fn_8015EFAC(mChara, 0xF);
+        }
+        if (m300 > 0) {
+            m300--;
+        }
+    }
+    if ((old & 0x20) != 0x20 && (m0C & 0x20) == 0x20) {
+        m0C &= ~0x20;
+        fn_8012DD70();
+    }
+    if ((old & 0x1) == 0x1 && (m0C & 0x1) != 0x1) {
+        fn_80168048(mChara);
+    } else if ((old & 0x1) != 0x1 && (m0C & 0x1) == 0x1) {
+        if ((immune & 0x1) == 0 && mChara->mFlag22 != 1) {
+            if (strong) {
+                fn_80133130(0x1, 1, both);
+            } else {
+                fn_80133130(0x1, power > 0 ? power : 900, both);
+            }
+            fn_80167F1C(mChara);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x1);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x1);
+            result = -1;
+        }
+    }
+    if ((old & 0x400000) == 0x400000 && (m0C & 0x400000) != 0x400000) {
+        fn_80168190(mChara);
+    } else if ((old & 0x400000) != 0x400000 && (m0C & 0x400000) == 0x400000) {
+        if ((immune & 0x400001) == 0) {
+            fn_80133130(0x400000, power > 0 ? power : 900, both);
+            fn_80168170(mChara);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x400000);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x400000);
+            result = -1;
+        }
+    }
+    if ((old & 0x8000) == 0x8000 && (m0C & 0x8000) != 0x8000) {
+        fn_801687D8(mChara);
+    } else if ((old & 0x8000) != 0x8000 && (m0C & 0x8000) == 0x8000) {
+        if ((immune & 0x8000) == 0) {
+            fn_80133130(0x8000, power > 0 ? power : 300, both);
+            fn_80168788(mChara);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x8000);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x8000);
+            result = -1;
+        }
+    }
+    if ((old & 0x100) == 0x100 && (m0C & 0x100) != 0x100) {
+        mChara->fn_80167038();
+    } else if ((old & 0x100) != 0x100 && (m0C & 0x100) == 0x100) {
+        if ((immune & 0x100) == 0 && (m0C & 0x40) != 0x40 && (m0C & 0x10000) != 0x10000 && (m0C & 0x10) != 0x10 &&
+            mChara->mType != 0) {
+            CharaTask* chara = mChara;
+            if (chara->mType == 2) {
+                fn_80166D3C(chara, 0);
+                result = 1;
+            } else if (chara->mType == 0 || chara->mType == 3) {
+                fn_80166D3C(chara, 1);
+                result = 1;
+            }
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x100);
+            }
+        } else {
+            ClearFlags_unk(0x100);
+            result = -1;
+        }
+    }
+    if ((old & 0x40) == 0x40 && (m0C & 0x40) != 0x40) {
+        mChara->fn_80166544();
+    } else if ((old & 0x40) != 0x40 && (m0C & 0x40) == 0x40) {
+        if ((immune & 0x40) == 0) {
+            if (strong) {
+                fn_8016624C(mChara, 1);
+            } else {
+                fn_80166760(mChara);
+            }
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x40);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x40);
+            result = -1;
+        }
+    }
+    if ((old & 0x80) == 0x80 && (m0C & 0x80) != 0x80) {
+        fn_80166A54(mChara);
+    } else if (remove == 0 && ((unsigned int)flags & 0x80) == 0x80) {
+        if ((immune & 0x80) == 0 && (m0C & 0x40) != 0x40 && (m0C & 0x100) != 0x100 && (m0C & 0x4000) != 0x4000 &&
+            (m0C & 0x10000) != 0x10000 && (m0C & 0x10) != 0x10) {
+            fn_80133130(0x80, power > 0 ? power : 150, both);
+            if ((old & 0x80) != 0x80) {
+                fn_8016676C(mChara);
+            }
+            if ((old & 0x80) != 0x80 && effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x80);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x80);
+            result = -1;
+        }
+    }
+    if ((old & 0x10000) == 0x10000 && (m0C & 0x10000) != 0x10000) {
+        mChara->fn_80167640();
+    } else if ((old & 0x10000) != 0x10000 && (m0C & 0x10000) == 0x10000) {
+        if ((immune & 0x10000) == 0 && (m0C & 0x40) != 0x40 && (m0C & 0x100) != 0x100 && (m0C & 0x4000) != 0x4000 &&
+            (m0C & 0x80) != 0x80 && (m0C & 0x10) != 0x10) {
+            if (mChara->mType == 2) {
+                fn_80167344(mChara, 0);
+                result = 1;
+            } else if (mChara->mType == 0 || mChara->mType == 3) {
+                fn_80167344(mChara, 1);
+                result = 1;
+            }
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x10000);
+            }
+        } else {
+            ClearFlags_unk(0x10000);
+            result = -1;
+        }
+    }
+    if ((old & 0x10) == 0x10 && (m0C & 0x10) != 0x10) {
+        if (mChara->m55C == 6 && mChara->m560 == 0x6A) {
+            fn_80167C34(mChara);
+        }
+    } else if ((old & 0x10) != 0x10 && (m0C & 0x10) == 0x10) {
+        if ((immune & 0x10) == 0) {
+            fn_8016794C(mChara);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x10);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x10);
+            result = -1;
+        }
+    }
+    if ((old & 0x4000) == 0x4000 && (m0C & 0x4000) != 0x4000) {
+        fn_801684A0(mChara);
+    } else if ((old & 0x4000) != 0x4000 && (m0C & 0x4000) == 0x4000) {
+        if ((immune & 0x4000) == 0 && (m0C & 0x40) != 0x40 && (m0C & 0x100) != 0x100 && (m0C & 0x10000) != 0x10000 &&
+            (m0C & 0x80) != 0x80 && (m0C & 0x10) != 0x10) {
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x4000);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x4000);
+            result = -1;
+        }
+    }
+    if ((old & 0x20000) == 0x20000 && (m0C & 0x20000) != 0x20000) {
+    } else if ((old & 0x20000) != 0x20000 && (m0C & 0x20000) == 0x20000) {
+        if ((immune & 0x20000) == 0) {
+            result = 1;
+        } else {
+            ClearFlags_unk(0x20000);
+            result = -1;
+        }
+    }
+    if ((old & 0x4) == 0x4 && (m0C & 0x4) != 0x4) {
+        fn_80168E60(mChara);
+    } else if ((old & 0x4) != 0x4 && (m0C & 0x4) == 0x4) {
+        if ((immune & 0x4) == 0) {
+            fn_80133130(0x4, power > 0 ? power : 600, both);
+            fn_80168E04(mChara);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x4);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x4);
+            result = -1;
+        }
+    }
+    if ((old & 0x2) == 0x2 && (m0C & 0x2) != 0x2) {
+        fn_80168E60(mChara);
+    } else if ((old & 0x2) != 0x2 && (m0C & 0x2) == 0x2) {
+        if ((immune & 0x2) == 0) {
+            fn_80133130(0x2, power > 0 ? power : 450, both);
+            fn_80168E80(mChara);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x2);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x2);
+            result = -1;
+        }
+    }
+    if ((old & 0x8) == 0x8 && (m0C & 0x8) != 0x8) {
+    } else if ((old & 0x8) != 0x8 && (m0C & 0x8) == 0x8) {
+        if ((immune & 0x8) == 0) {
+            fn_80133130(0x8, power > 0 ? power : 600, both);
+            if (effect && !((old & 0x400) != 0x400 && (m0C & 0x400) == 0x400)) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x8);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x8);
+            result = -1;
+        }
+    }
+    if ((old & 0x200) == 0x200 && (m0C & 0x200) != 0x200) {
+    } else if ((old & 0x200) != 0x200 && (m0C & 0x200) == 0x200) {
+        if ((immune & 0x208) == 0) {
+            fn_80133130(0x200, power > 0 ? power : 600, both);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x200);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x200);
+            result = -1;
+        }
+    }
+    if ((old & 0x80000) == 0x80000 && (m0C & 0x80000) != 0x80000) {
+        fn_80168F3C(mChara);
+    } else if ((old & 0x80000) != 0x80000 && (m0C & 0x80000) == 0x80000) {
+        if ((immune & 0x80000) == 0) {
+            fn_801067D0(lbl_8087F048, mChara, &mChara->mMotion);
+            fn_80133130(0x80000, power > 0 ? power : 600, both);
+            fn_80168EC0(mChara);
+            if (both) {
+                m428 = 0.2f;
+            } else {
+                m428 = 0.1f;
+            }
+        } else {
+            ClearFlags_unk(0x80000);
+            m428 = 0.0f;
+        }
+    }
+    if ((old & 0x40000) == 0x40000 && (m0C & 0x40000) != 0x40000) {
+    } else if ((old & 0x40000) != 0x40000 && (m0C & 0x40000) == 0x40000) {
+        if ((immune & 0x40000) == 0) {
+            fn_801067D0(lbl_8087F048, mChara, &mChara->mMotion);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x40000);
+            }
+            fn_80133130(0x40000, -1, both);
+            result = 1;
+        } else {
+            ClearFlags_unk(0x40000);
+            result = -1;
+        }
+    }
+    if ((old & 0x400) == 0x400 && (m0C & 0x400) != 0x400) {
+        fn_80168F94(mChara);
+    } else if ((old & 0x400) != 0x400 && (m0C & 0x400) == 0x400) {
+        if ((immune & 0x400) == 0) {
+            fn_80133130(0x400, power > 0 ? power : 600, both);
+            fn_80168F5C(mChara);
+            if (effect && !((old & 0x1000000) != 0x1000000 && (m0C & 0x1000000) == 0x1000000)) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x400);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x400);
+            result = -1;
+        }
+    }
+    if ((old & 0x1000000) == 0x1000000 && (m0C & 0x1000000) != 0x1000000) {
+    } else if ((old & 0x1000000) != 0x1000000 && (m0C & 0x1000000) == 0x1000000) {
+        if ((immune & 0x1000000) == 0) {
+            fn_80133130(0x1000000, power > 0 ? power : 240, both);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x1000000);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x1000000);
+            result = -1;
+        }
+    }
+    if ((old & 0x800000) == 0x800000 && (m0C & 0x800000) != 0x800000) {
+    } else if ((old & 0x800000) != 0x800000 && (m0C & 0x800000) == 0x800000) {
+        if ((immune & 0x800008) == 0) {
+            fn_80133130(0x800000, power > 0 ? power : 600, both);
+            if (effect && !((old & 0x1000000) != 0x1000000 && (m0C & 0x1000000) == 0x1000000)) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x800000);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x800000);
+            result = -1;
+        }
+    }
+    if ((old & 0x2000000) == 0x2000000 && (m0C & 0x2000000) != 0x2000000) {
+        if (lbl_8087F048 != 0) {
+            fn_80107FC8(lbl_8087F048, &mChara->mMotion);
+        }
+    } else if ((old & 0x2000000) != 0x2000000 && (m0C & 0x2000000) == 0x2000000) {
+        if ((immune & 0x2000000) == 0) {
+            Effect_unk* fx = lbl_8087F048;
+            if (fx != 0) {
+                CharaTask* chara = mChara;
+                chr::Motion_unk* motion = &chara->mMotion;
+                chara->vf90();
+                fn_80107F20(fx, motion, motion);
+            }
+            fn_80133130(0x2000000, power > 0 ? power : 240, both);
+            if (effect) {
+                Effect_unk* fx = lbl_8087F048;
+                fn_80108F38(fx, fn_801781B0(mChara), 0x2000000);
+            }
+            result = 1;
+        } else {
+            ClearFlags_unk(0x2000000);
+            result = -1;
+        }
+    }
+    if (mChara != 0 && lbl_8087F048 != 0 && effect) {
+        MtxPtr node = mChara->GetModel_unk()->GetNodeMtx_unk("spine1");
+        if (node == 0) {
+            node = mChara->GetModel_unk()->GetNodeMtx_unk("hips");
+        }
+        atn::Vector3 pos;
+        if (node != 0) {
+            pos = ((atn::Matrix3x4*)node)->GetTrans_unk();
+        } else {
+            pos = mChara->mPos;
+        }
+        fn_80101524(lbl_8087F048, &pos, &mChara->mRot, old, m0C);
+    }
+    return result;
+}
+
 void CharaStatus::fn_8013310C(unsigned int flags, int both) {
     m0C |= flags;
     if (both) {

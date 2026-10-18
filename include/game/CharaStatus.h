@@ -374,7 +374,7 @@ public:
     bool HasTimer_unk() const { return m2F4 > 0.0f; } // inferred: accessor (name invented)
     int fn_8013354C(int exp, struct LevelUpResult_unk* result); // inferred: adds experience
     void fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit);
-    int fn_8012F440(int a, int b, int c, int d, int e, int f, int g);
+    int fn_8012F440(int flags, int power, int remove, int damage, int strong, int both, int effect);
     void ApplyRates_unk(HitInfo_unk* hit);
     void fn_801342D0(struct StatusItem_unk* item, int stat);
     int fn_80133BD8(int force); // inferred: level of the character
