@@ -6,6 +6,7 @@
 #include "std/new.h"
 
 class CharaTask;
+struct HitInfo_unk;
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
@@ -340,6 +341,9 @@ public:
     void fn_8012C6D4(CharaParam_unk* param, int level, int arg, int arg2);
     void fn_8012D180();
     void fn_8012CE4C(int kind);
+    void fn_8012E244(HitInfo_unk* hit);
+    int fn_8012F440(int a, int b, int c, int d, int e, int f, int g);
+    void ApplyRates_unk(HitInfo_unk* hit);
     void fn_801342D0(struct StatusItem_unk* item, int stat);
     int fn_80133BD8(int force); // inferred: level of the character
     void ClearBit_unk(int bit);

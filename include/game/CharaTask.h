@@ -189,7 +189,9 @@ public:
     unsigned int mFlag21_7 : 15;
     unsigned int mFlag6 : 1;
     unsigned int mFlag5 : 1;
-    unsigned int mFlag4_0 : 5;
+    unsigned int mFlag4_3 : 2;
+    unsigned int mFlag2 : 1; // inferred: tested by CharaStatus::fn_8012E244
+    unsigned int mFlag1_0 : 2;
     unsigned char m12A8[0x1424 - 0x12A8];
 };
 

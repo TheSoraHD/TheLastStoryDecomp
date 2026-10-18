@@ -3,6 +3,7 @@
 #include "chr/ControlBase.h"
 #include "game/CharaTask.h"
 #include "game/ResHandle.h"
+#include "game/HitInfo_unk.h"
 #include "macros.h"
 
 // inferred: game settings (lbl_8087F0A8); per-difficulty table of status factors at 0xD8
@@ -502,6 +503,51 @@ float CharaStatus::fn_8012DB04() {
         rate = 0.05f;
     }
     return rate;
+}
+
+// inferred: percentages of a hit applied to mParamB; name invented
+inline void CharaStatus::ApplyRates_unk(HitInfo_unk* hit) {
+    float rateB;
+    float rateA = (float)hit->m98 / 100.0f;
+    rateB = rateA;
+    if ((hit->mAC & 0x20) == 0x20) {
+        rateA = 0.0f;
+    }
+    if ((hit->mAC & 0x2) == 0x2) {
+        rateB = 0.0f;
+    }
+    mParamB.m00 += mParamB.m00 * rateA;
+    mParamB.m04 += mParamB.m04 * rateB;
+    float rateC = (float)hit->m9C / 100.0f;
+    mParamB.m08 += mParamB.m08 * rateC;
+    mParamB.m0C += mParamB.m0C * rateC;
+    m14 |= hit->mAC;
+}
+
+extern "C" float fn_80040588(void* obj, CharaStatus* status, int arg);
+extern "C" int fn_8021A8D0(HitInfo_unk* hit);
+
+void CharaStatus::fn_8012E244(HitInfo_unk* hit) {
+    if (mChara != 0 && mChara->mFlag2) {
+        ApplyRates_unk(hit);
+        return;
+    }
+    if ((float)hit->mA0 < 0.0f) {
+        if ((mChara->m5C->mParam.m9C & 0x40000) == 0x40000) {
+            mParamB.m8C -= 0.0001f;
+        } else if (fn_80040588(hit->m74, this, 0) <= 0.0f) {
+            mParamB.m8C += (float)hit->mA0 / 100.0f;
+        }
+    } else {
+        mParamB.m8C += (float)hit->mA0 / 100.0f;
+    }
+    mParamB.m90 += (float)hit->mA4 / 100.0f;
+    ApplyRates_unk(hit);
+    int flag = 0;
+    if (fn_8021A8D0(hit)) {
+        flag = 1;
+    }
+    fn_8012F440(hit->m90, hit->m94, flag, 0, (hit->mAC >> 8) & 1, (hit->mAC >> 9) & 1, ((hit->mAC & 0x200000) != 0x200000));
 }
 
 int CharaStatus::fn_8012E534() {
