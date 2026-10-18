@@ -13,7 +13,7 @@ Inline accessors emitted as weak functions show the layout (same as libc++ on bi
 | `0x8000ECA8` | `operator[]` (char): long ? `word2` : `this + 1` |
 | `0x801F1990`, `0x801F19B4` | `operator[]` / `data()` (wchar_t): long ? `word2` : `this + 2` |
 | `0x801F18BC` | `clear()` (wchar_t): short: keep bit 7 of byte0, write `L'\0'`; long: `data[0] = 0`, `size = 0` |
-| `0x801F1908` | destructor: if long, `operator delete(word2)` |
+| `0x801F1908` | destructor: if long, `operator delete(word2)` (wchar_t copy has one more inlined level than the char one at `0x80013D60`) |
 
 - long mode: `word0 = capacity | 0x80000000`, `word1 = size`, `word2 = data`
 - short mode: `byte0 = size` (bit 7 clear), characters from the first aligned slot after it
@@ -33,6 +33,11 @@ reference-counted buffer (control block with vtable `lbl_80775B98`, `use_count`,
   count (different register order than `clear()`); `__shrink_unk` stands in for it.
 
 The class names `__vec_storage_unk` / `__vec_imp_unk` are invented; only the nesting depth is known.
+
+These accessors are inline members: large game functions still call them out of line (and call
+`~basic_string(this, -1)` for locals), while small members such as the range replace inline them.
+Taking a member pointer in a test file forces the weak copy; all of the above then compile to the
+same instructions (`size` and `operator[]` test the short case first).
 
 ## Out-of-line members found so far
 

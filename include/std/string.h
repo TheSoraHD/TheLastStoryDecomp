@@ -31,9 +31,22 @@ public:
     typedef unsigned long size_type;
     enum { __min_cap = (12 - 1) / sizeof(T) };
 
-    size_type size() const { return is_long() ? mLong.mSize : (mShort.mSize & 0x7F); }
-    const T* data() const { return is_long() ? mLong.mData : mShort.mData; }
-    T& operator[](size_type i) { return (is_long() ? mLong.mData : mShort.mData)[i]; }
+    // Inline members; large game functions still call them out of line (weak copies:
+    // size() 0x8000EC88, operator[] 0x8000ECA8, ~basic_string() 0x80013D60; wchar_t:
+    // clear() 0x801F18BC, size() 0x801F1970, operator[] 0x801F1990, data() 0x801F19B4), while the
+    // members below inline them (tmp in 0x80013F78). Checked with standalone compiles.
+    size_type size() const { return !is_long() ? (mShort.mSize & 0x7F) : mLong.mSize; }
+    const T* data() const { return !is_long() ? mShort.mData : mLong.mData; }
+    T& operator[](size_type i) { return (!is_long() ? mShort.mData : mLong.mData)[i]; }
+    void clear() {
+        if (!is_long()) {
+            mShort.mData[0] = 0;
+            mShortFlags.mSize = 0;
+        } else {
+            mLong.mData[0] = 0;
+            mLong.mSize = 0;
+        }
+    }
     size_type max_size() const { return 0x7FFFFFFE; }
     ~basic_string() {
         if (is_long()) {
