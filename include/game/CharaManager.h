@@ -18,7 +18,21 @@ public:
     virtual void vf14();
     virtual void vf1C();
 
-    unsigned char m48[0x54 - 0x48];
+    // inferred: appends `chara` to the list (0x8011FD5C for NpcTask); names invented
+    void Add_unk(T* chara);
+    void Remove_unk(T* chara); // 0x8011FD84 for NpcTask
+    // inferred: next character id, wraps after 100000 (inlined in NpcTask/PlayerTask ctors)
+    int NextId_unk() {
+        mNextId++;
+        if (mNextId > 100000) {
+            mNextId -= 100000;
+        }
+        return mNextId;
+    }
+
+    T* mHead;    // 0x48
+    int mCount;  // 0x4C
+    int mNextId; // 0x50
 };
 
 #endif

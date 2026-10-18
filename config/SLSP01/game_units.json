@@ -1451,7 +1451,7 @@
   "classes": [
    "FriendArganan"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/FriendManager.cpp",
@@ -2458,7 +2458,7 @@
   "classes": [
    "NpcTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/PickTask.cpp",

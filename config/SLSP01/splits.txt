@@ -1071,7 +1071,7 @@ game/EquipItemData.cpp:
 	.sdata2     start:0x808856C0 end:0x808856C8
 
 game/FriendArganan.cpp:
-	.text       start:0x80365390 end:0x8036545C
+	.text       start:0x80365390 end:0x80365464
 	.rodata     start:0x8074D968 end:0x8074D978
 	.data       start:0x80789ED8 end:0x8078A008
 	.sdata2     start:0x80885700 end:0x80885708
@@ -1887,8 +1887,8 @@ game/NpcManager.cpp:
 	.data       start:0x80794738 end:0x80794780
 
 game/NpcTask.cpp:
-	.text       start:0x80547C28 end:0x80547DF8
-	.rodata     start:0x8075E398 end:0x8075E3A0
+	.text       start:0x80547C28 end:0x80547EA0
+	.rodata     start:0x8075E398 end:0x8075E3A8
 	.data       start:0x80794780 end:0x80794888
 
 game/PickTask.cpp:
