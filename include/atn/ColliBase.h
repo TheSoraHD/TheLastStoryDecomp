@@ -70,6 +70,17 @@ public:
     Sphere_unk mSphere; // 0x3C
 };
 
+// The name is in the DOL (__vt__Q23atn12ColliCapsule, 0x80777630); layout from CharaTask (+0x5B8).
+class ColliCapsule : public ColliBase {
+public:
+    ColliCapsule() : ColliBase(1) {}
+    virtual ~ColliCapsule();
+
+    unsigned char m3C[0x48 - 0x3C];
+    Vector3 m48; // inferred: position (chr::ControlAppear)
+    unsigned char m54[0x58 - 0x54];
+};
+
 // The name is in the DOL (__vt__Q23atn11ColliObject, 0x807775C0); layout from the constructor.
 class ColliObject : public ColliBase {
 public:

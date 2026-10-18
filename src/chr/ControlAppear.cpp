@@ -21,14 +21,14 @@ namespace chr {
 ControlAppear::ControlAppear(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& offset)
     : ControlBase(chara), mStart(start), mOffset(offset) {
     chara->m560 = 0x23;
-    mChara->m5C0 &= ~1;
+    mChara->mColli.mFlags &= ~1;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x2B, 0, 0, 1, 1.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     mChara->mPos = start;
-    m08 = mChara->m600;
+    m08 = mChara->mColli.m48;
 }
 
 int ControlAppear::vf0C() {
@@ -38,11 +38,11 @@ int ControlAppear::vf0C() {
     float a = 0.0f;
     float b = 1.0f;
     if (frame >= motion->fn_80097D7C(0)) {
-        mChara->m5C0 |= 1;
+        mChara->mColli.mFlags |= 1;
         return 1;
     }
     atn::Vector3 from = m08;
-    atn::Vector3 to = mChara->m600;
+    atn::Vector3 to = mChara->mColli.m48;
     if (lbl_8087F048 != 0) {
         fn_8010A308(lbl_8087F048, &from, &to, mChara->m5B0);
     }
@@ -79,12 +79,12 @@ boost::function<void()> ControlAppear::vf10() {
 }
 
 void ControlAppear::vf1C() {
-    mChara->m5C0 |= 1;
+    mChara->mColli.mFlags |= 1;
 }
 
 ControlAppearEnd::ControlAppearEnd(Chara_unk* chara, int motion, float blend) : ControlBase(chara) {
     chara->m560 = 0x24;
-    mChara->m5C0 |= 1;
+    mChara->mColli.mFlags |= 1;
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
     m->mTracks[0].m20 = 1.0f;
@@ -115,7 +115,7 @@ boost::function<void()> ControlAppearEnd::vf10() {
 ControlAppearSkelton::ControlAppearSkelton(Chara_unk* chara, const atn::Vector3& pos)
     : ControlBase(chara), mState(0), mWait(0x37) {
     chara->m560 = 0x23;
-    mChara->m5C0 &= ~1;
+    mChara->mColli.mFlags &= ~1;
     mChara->fn_8016E4C4(0);
     mChara->mPos = pos;
     mChara->mF60 = pos;
@@ -136,7 +136,7 @@ int ControlAppearSkelton::vf0C() {
             mWait--;
         }
     } else if (mChara->mMotion.mTracks[0].m08 <= 0.0f) {
-        mChara->m5C0 |= 1;
+        mChara->mColli.mFlags |= 1;
         return 1;
     }
     return 0;
@@ -146,7 +146,7 @@ int ControlAppearSkelton::vf0C() {
 boost::function<void()> ControlAppearSkelton::vf10() {
     if (mChara != 0) {
         mChara->fn_8016E4C4(1);
-        mChara->m5C0 |= 1;
+        mChara->mColli.mFlags |= 1;
     }
     return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
 }
@@ -154,13 +154,13 @@ boost::function<void()> ControlAppearSkelton::vf10() {
 void ControlAppearSkelton::vf1C() {
     if (mChara != 0) {
         mChara->fn_8016E4C4(1);
-        mChara->m5C0 |= 1;
+        mChara->mColli.mFlags |= 1;
     }
 }
 
 ControlAppearCoffin::ControlAppearCoffin(Chara_unk* chara, const atn::Vector3& pos) : ControlBase(chara), mWait(0x3C) {
     chara->m560 = 0x23;
-    mChara->m5C0 &= ~1;
+    mChara->mColli.mFlags &= ~1;
     mChara->fn_8016E4C4(0);
     mChara->mPos = pos;
     mChara->mF60 = pos;
@@ -168,7 +168,7 @@ ControlAppearCoffin::ControlAppearCoffin(Chara_unk* chara, const atn::Vector3& p
 
 int ControlAppearCoffin::vf0C() {
     if (mWait <= 0) {
-        mChara->m5C0 |= 1;
+        mChara->mColli.mFlags |= 1;
         mChara->fn_8016E4C4(1);
         return 1;
     }

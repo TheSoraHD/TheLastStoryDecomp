@@ -641,8 +641,8 @@ float CharaStatus::fn_8012DB04() {
         if ((m0C & 0x800) == 0x800 && m434 < 180.0f) {
             rate = MIN(MAX(rate - 0.6f * (180.0f - m434) / 180.0f, 0.05f), 1.0f);
         }
-        if ((m0C & 0x800) == 0x800 && mChara != 0 && mChara->mD1C != 0) {
-            CharaStatus* status = &mChara->mD1C->mStatus;
+        if ((m0C & 0x800) == 0x800 && mChara != 0 && mChara->mC58.mC4 != 0) {
+            CharaStatus* status = &mChara->mC58.mC4->mStatus;
             if (status->fn_80134134(68) != 0) {
                 int sum = status->fn_80134168(68, -1);
                 rate = MIN(MAX(rate - 0.1f * sum / 100.0f, 0.05f), 1.0f);
@@ -849,7 +849,7 @@ void CharaStatus::fn_8012E540() {
     if (!IsState_unk(0x1000) && !IsState_unk(0x20) && mChara != 0 && !mChara->mFlag2) {
         m04 += mParamB.m84 * mParamB.m8C / 30.0f;
         if (m04 < 1.0f) {
-            FixedArray_unk<CharaHit_unk, 1>& hits = mChara->m12D0;
+            FixedArray_unk<CharaHit_unk, 8>& hits = mChara->m12D0;
             int effect = 0;
             for (CharaHit_unk* it = hits.begin(); it != hits.end(); it++) {
                 if (fn_8021A960(it->mHit) && it->mHit->mA0 < 0.0f && (it->mHit->mAC & 0x20) == 0x20) {
@@ -883,7 +883,7 @@ void CharaStatus::fn_8012E540() {
     }
     if (!IsState_unk(0x20) && !IsState_unk(0x4000000)) {
         if (mChara != 0 && mChara->mType == 0) {
-            if (mChara->mD18 != 0) {
+            if (mChara->mC58.mC0 != 0) {
                 bool ok = true;
                 if (mChara->m55C == 6 && mChara->m560 >= 13 && mChara->m560 <= 14) {
                     ok = false;

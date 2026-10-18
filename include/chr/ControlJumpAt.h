@@ -23,7 +23,7 @@ class ControlGrapple : public ControlBase {
 public:
     ControlGrapple(Chara_unk* chara, Chara_unk* target) : ControlBase(chara), mTarget(target) {
         chara->m560 = 0x7C;
-        mChara->m5C0 |= 1;
+        mChara->mColli.mFlags |= 1;
         Motion_unk* motion = &mChara->mMotion;
         motion->m34C = 1;
         motion->mTracks[0].m20 = 1.0f;

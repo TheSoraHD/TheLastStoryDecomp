@@ -71,7 +71,7 @@ ControlGmkCoffinGetUp::ControlGmkCoffinGetUp(Chara_unk* chara, const atn::Vector
     : ControlBase(chara), mWait(0x3C), mState(0) {
     chara->m58C = 0;
     mChara->m560 = 0x5D;
-    mChara->m5C0 &= ~1;
+    mChara->mColli.mFlags &= ~1;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
@@ -103,7 +103,7 @@ int ControlGmkCoffinGetUp::vf0C() {
     } else if (mState == 1) {
         float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {
-            mChara->m5C0 |= 1;
+            mChara->mColli.mFlags |= 1;
             mChara->fn_8015495C(0, 1, 1, 1);
             Motion_unk* m = &mChara->mMotion;
             m->m34C = 1;

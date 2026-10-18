@@ -244,6 +244,8 @@ struct CharaData_unk {
     int m11C;
     unsigned char m120[0x122 - 0x120];
     signed char m122;
+    unsigned char m123[0x134 - 0x123];
+    float m134; // inferred: copied to CharaTask::m568 by the constructor
 };
 } // namespace chr
 
@@ -350,10 +352,12 @@ struct FixedArray_unk {
 
 // inferred: hit kept by a character (CharaTask::m12D0); name invented
 struct CharaHit_unk {
+    CharaHit_unk() : mHit(0), m04(0), m08(0), m0C(0), m0E(0), m10(0) {}
     HitInfo_unk* mHit;
     int m04;
     int m08;
-    int m0C;
+    short m0C;
+    unsigned char m0E;
     int m10; // inferred: effect id (fn_8012E540)
 };
 

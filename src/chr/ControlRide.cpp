@@ -24,7 +24,7 @@ int ControlRide::vf0C() {
         ret = 1;
         break;
     }
-    if (mBeast != 0 && mBeast->mType == 0 && mBeast->mD18 == 0) {
+    if (mBeast != 0 && mBeast->mType == 0 && mBeast->mC58.mC0 == 0) {
         mChara->fn_8017AC3C(0);
         mChara->mF1C = 0;
         return 1;
@@ -82,7 +82,7 @@ void ControlRideBeast::vf1C() {
 // NONMATCHING: 96.4% (only scheduling) - the original loads mRider at the very start and reads it
 // after the ControlBase part of the inlined ControlRide constructor is stored.
 boost::function<void()> ControlRideBeast::vf10() {
-    if (mRider != 0 && mRider->mD18 == 0) {
+    if (mRider != 0 && mRider->mC58.mC0 == 0) {
         return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
     }
     ControlRide* next = new (0, "", "", 0) ControlRide(mChara, mRider);

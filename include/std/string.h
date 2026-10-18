@@ -188,6 +188,9 @@ public:
         return __replace_unk(pos, n1, &*j1, &*j2, tag);
     }
     basic_string& operator=(const T* s) { return assign(s); }
+    // inferred: inlined in CharaTask::CharaTask (0x80135CF0): size() first, then strlen in replace
+    basic_string& append(const T* s) { return replace(size(), 0, s); }
+    basic_string& operator+=(const T* s) { return append(s); }
     // inferred: inlined in operator==(const basic_string&, const T*) (0x8000EB8C, char)
     // inferred: matches the weak copy 0x8000EB8C: n2 copied to a local that stays in a register
     // (n2 itself is passed by address to __min), the first __min takes the size first, and the

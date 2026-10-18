@@ -91,7 +91,7 @@ int ControlTurnQuadruped::vf0C() {
     move.z *= scale;
     CollResult_unk result;
     Chara_unk::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
-    fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000080, mChara->m5B8, 0, sphere.mRadius);
+    fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000080, &mChara->mColli, 0, sphere.mRadius);
     Chara_unk* chara = mChara;
     result.mPos.x -= chara->m5A4.x;
     result.mPos.y -= chara->m5A4.y;

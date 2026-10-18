@@ -105,7 +105,7 @@ void InteractionSpot::fn_8042952C(int state) {
                 } else {
                     mChara[i]->fn_8016EB48(0, 0, 0);
                 }
-                ((chr::Chara_unk*)mChara[i])->mHeld_unk = 0;
+                ((chr::Chara_unk*)mChara[i])->mC58.mHeld_unk = 0;
             }
             mPrev[i] = mChara[i];
             mChara[i] = 0;

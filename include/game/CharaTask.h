@@ -2,8 +2,14 @@
 #define GAME_CHARATASK_H
 
 #include "atn/Task.h"
+#include "atn/Array_unk.h"
+#include "atn/ColliBase.h"
+#include "atn/LH_Binary.h"
+#include "atn/LH_MotionSet.h"
+#include "atn/SoundRef.h"
 #include "chr/Motion_unk.h"
 #include "game/CharaStatus.h"
+#include "game/CharaSub_unk.h"
 #include "math/Vec.h"
 #include <boost/scoped_ptr.hpp>
 
@@ -62,6 +68,70 @@ struct CharaObj6A8_unk {
 extern "C" void fn_80094E2C(void* model, int value); // inferred: sets a value on every node
 extern "C" void fn_80044E0C(void* object, int arg);
 extern "C" int fn_80219558(int id);
+
+// inferred: entry of the character table returned by fn_8020924C (names invented)
+struct CharaInfo_unk {
+    unsigned char m00[0x10];
+    int m10;         // inferred: passed to fn_802092C0 (binary path)
+    int m14;         // inferred: passed to fn_8020A81C (character data)
+    unsigned char m18[0x1C - 0x18];
+    const char* m1C; // inferred: motion command file name
+    const char* m20; // inferred: extension file name
+    unsigned char m24[0x28 - 0x24];
+    int m28;         // inferred: passed to fn_8021FC00
+};
+
+// inferred: object at CharaTask+0xC58 (constructor 0x8011BD14 called out of line; class unknown)
+struct CharaC58_unk {
+    CharaC58_unk();
+
+    int m00;
+    int m04;
+    int m08;
+    RouteWalker_unk m0C;
+    unsigned char mB4[0xC0 - 0xB4];
+    int mC0;        // 0xD18 in CharaTask: inferred: nonzero stops chr::ControlRide (0x801C6FE8)
+    CharaTask* mC4; // 0xD1C: inferred: another character (its status is read by CharaStatus::fn_8012DB04)
+    unsigned char mC8[0xE0 - 0xC8];
+    unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot
+    unsigned short mE0 : 15;
+    unsigned char mE2[0x110 - 0xE2];
+    CharaD68_unk* m110; // 0xD68
+    unsigned char m114[0x11C - 0x114];
+    CharaD74_unk m11C;  // 0xD74
+    unsigned char m140[0x2BC - 0x140];
+};
+
+// inferred: object at CharaTask+0x1154 (constructor 0x8007A75C called out of line; class unknown)
+struct Chara1154_unk {
+    Chara1154_unk();
+
+    unsigned char m00[0x30];
+    void* m30; // inferred: callback (CharaTask sets fn_80218260)
+};
+
+// inferred: object at CharaTask+0x1188 (constructor 0x8011D24C called out of line; class unknown)
+struct Chara1188_unk {
+    Chara1188_unk();
+
+    unsigned char m00[0x80];
+};
+
+// inferred: motion command player at CharaTask+0x1220 (holds an atn::LH_MotionCommandData and a
+// sound; constructor 0x80120F5C called out of line); name invented
+struct MotionCommand_unk {
+    MotionCommand_unk();
+    void fn_801210B4(const char* path); // inferred: loads the motion commands
+
+    unsigned char m00[0x34];
+};
+
+// inferred: element of CharaTask::m125C
+struct CharaPair_unk {
+    CharaPair_unk() : m00(0.0f), m04(0) {}
+    float m00;
+    int m04;
+};
 
 // inferred from __vt__9CharaTask (0x8077C460). Base class of all characters
 // (NpcTask, BattleCharaTask, ...). Virtual methods are named by vtable offset; most of their
@@ -159,6 +229,9 @@ public:
     void fn_80167038();
     void fn_80167640();
     // inferred: accessors called out of line (0x80139E90-0x8013C478)
+    void fn_80136544(const char* path); // inferred: starts loading m84
+    // inferred: inlined in the constructor (name invented)
+    bool IsPartyMember_unk() { return mType == 1 || mType == 4; }
     int fn_80139E90();
     int fn_80139E9C();
     int fn_80139EB0();
@@ -186,7 +259,9 @@ public:
     void fn_80147A18(int value);
     int fn_80148334();
     // inferred: entry of the array at m62C (0x14 bytes)
+    // inferred: has a constructor but no destructor (delete[] frees p - 0x10 without a destroy loop)
     struct Item14_unk {
+        Item14_unk();
         unsigned char m00[0x14];
     };
     Item14_unk* fn_80148B0C(int index);
@@ -217,47 +292,71 @@ public:
 
     int mType;  // 0x48: also compared with 0 and 2 by the chr::Control* classes
     int m4C;    // 0x4C: same value as mType
-    int m50;    // 0x50: inferred: third constructor argument (compared with 1 there and by CharaStatus)
-    unsigned char m54[0x5C - 0x54];
+    int m50;    // 0x50: inferred: third constructor argument (character id; compared with 1 and -1)
+    int m54;
+    int m58;
     chr::CharaData_unk* m5C; // inferred: character data (read by CharaStatus)
-    unsigned char m060[0x80 - 0x60];
+    CharaInfo_unk* m60;      // inferred: character table entry (fn_8020924C(m50))
+    int m64;
+    void* m68[5]; // inferred: m68[0] is set from fn_80204E04 and then cleared with the array
+    int m7C;
     int mId;    // 0x80: inferred: unique id given by the character manager
-    unsigned char m84[0xB0 - 0x84];
+    atn::LH_Binary m84;
+    atn::LH_MotionSet m8C;
+    atn::LH_MotionSet m98;
+    atn::LH_Binary mA4;
+    int mAC;    // inferred: set when m84 starts loading
     chr::Motion_unk mMotion; // 0xB0
-    unsigned char m480[0x510 - 0x480];
+    int m480;
+    int m484[31]; // inferred: indexed by fn_801370B8
+    float m500;
+    float m504;
+    float m508;
+    float m50C;
     int m510;
-    unsigned char m514[0x524 - 0x514];
+    float m514;
+    int m518;
+    float m51C;
+    int m520;
     int m524; // inferred: index into Motion_unk::m220
     atn::Vector3 mPos;  // 0x528
     atn::Vector3 mRot;  // 0x534
-    unsigned char m540[0x54C - 0x540];
+    atn::Vector3 m540;  // inferred: scale (1, 1, 1)
     unsigned int m54C; // inferred: flags
-    unsigned char m550[0x55C - 0x550];
+    atn::Vector3 m550;
     int m55C; // inferred: state compared with 6 by the grapple controls
     int m560;
     int m564; // inferred: set to 1 or 2 by gmk::InteractionSpot
-    unsigned char m568[0x570 - 0x568];
+    float m568;
+    float m56C;
     float m570;
     atn::Vector3 m574;
     float m580;
     float m584;
-    unsigned char m588[0x58C - 0x588];
+    float m588;
     int m58C;
-    unsigned char m590[0x5A4 - 0x590];
+    int m590;
+    int m594;
+    int m598;
+    unsigned char m59C;
+    unsigned char m59D;
+    unsigned char m59E;
+    unsigned char m59F;
+    float m5A0;
     atn::Vector3 m5A4;  // inferred: collision offset
     float m5B0; // inferred: collision radius (0x80188280)
-    unsigned char m5B4[0x5B8 - 0x5B4];
-    unsigned char m5B8[0x5C0 - 0x5B8]; // inferred: passed by address (chr::ControlTurnQuadruped)
-    unsigned int m5C0; // inferred: flags; bit 0 is cleared while appearing (chr::ControlAppear)
-    unsigned char m5C4[0x600 - 0x5C4];
-    atn::Vector3 m600;
-    unsigned char m60C[0x624 - 0x60C];
-    int m624;
-    int m628;
-    Item14_unk* m62C;
-    unsigned char m630[0x640 - 0x630];
+    float m5B4;
+    atn::ColliCapsule mColli; // 0x5B8
+    int m610;
+    atn::Vector3 m614;
+    float m620;
+    atn::Vector_unk<Item14_unk> m624;
+    int m630;
+    int m634;
+    int m638;
+    int m63C;
     int m640;
-    unsigned char m644[0x648 - 0x644];
+    int m644;
     chr::CharaPart_unk* m648; // inferred: parts whose parameters are added (CharaStatus::fn_8012B988)
     chr::CharaPart_unk* m64C;
     FixedArray_unk<chr::CharaPart_unk*, 8> mParts; // 0x650
@@ -266,65 +365,162 @@ public:
     chr::CharaPart_unk* m67C;
     chr::CharaEquip_unk* m680[8]; // inferred: equipment (CharaStatus::fn_8012B988, fn_80147A18)
     int m6A0;
-    unsigned int m6A4;
-    CharaObj6A8_unk* m6A8[1]; // inferred: array of m6A4 entries (capacity unknown)
-    unsigned char m6AC[0x7D4 - 0x6AC];
+    FixedArray_unk<CharaObj6A8_unk*, 4> m6A4;
+    atn::Vector3 m6B8;
+    unsigned char m6C4[0x6D0 - 0x6C4];
+    int m6D0;
+    unsigned char m6D4[0x7D4 - 0x6D4];
     CharaStatus mStatus; // 0x7D4
     unsigned int mC10; // inferred: flags or-ed into CharaStatus::mParamA.m9C (fn_8012B3E8)
-    unsigned char mC14[0xC48 - 0xC14];
+    atn::Vector3 mC14;
+    unsigned char mC20[0xC38 - 0xC20];
+    int mC38;
+    int mC3C;
+    int mC40;
+    unsigned char mC44[0xC48 - 0xC44];
     int mC48;
-    unsigned char mC4C[0xC54 - 0xC4C];
+    int mC4C;
+    int mC50;
     int mC54;
-    unsigned char mC58[0xD18 - 0xC58];
-    int mD18;  // inferred: nonzero stops chr::ControlRide (0x801C6FE8)
-    CharaTask* mD1C; // inferred: another character (its status is read by CharaStatus::fn_8012DB04)
-    unsigned char mD20[0xD38 - 0xD20];
-    unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot
-    unsigned short mD38 : 15;
-    unsigned char mD3A[0xD68 - 0xD3A];
-    CharaD68_unk* mD68;
-    unsigned char mD6C[0xD74 - 0xD6C];
-    CharaD74_unk mD74;
-    unsigned char mD98[0xF1C - 0xD98];
+    CharaC58_unk mC58;
+    int mF14;
+    int mF18;
     int mF1C;  // inferred: cleared when chr::ControlRide ends
-    unsigned char mF20[0xF50 - 0xF20];
+    atn::Matrix3x4 mF20;
     int mF50; // inferred: set by chr::ControlDraggedStart
     int mF54; // inferred: set by chr::ControlDraggingStart
-    unsigned char mF58[0xF60 - 0xF58];
+    int mF58;
+    int mF5C;
     atn::Vector3 mF60; // inferred: set to the position by chr::ControlAppearSkelton
-    unsigned char mF6C[0xF80 - 0xF6C];
-    boost::scoped_ptr<chr::ControlBase> mControl; // inferred: current control (updated by fn_8013A258)
-    unsigned char mF84[0xFC0 - 0xF84];
+    atn::Vector3 mF6C;
+    float mF78;
+    int mF7C;
+    boost::scoped_ptr<chr::ControlBase> mControl; // 0xF80: inferred: current control (updated by fn_8013A258)
+    int mF84;
+    atn::Vector3 mF88;
+    int mF94;
+    int mF98;
+    int mF9C;
+    int mFA0;
+    atn::Vector3 mFA4;
+    int mFB0;
+    int mFB4;
+    float mFB8;
+    float mFBC;
     CharaTask* mFC0;
-    unsigned char mFC4[0x1030 - 0xFC4];
+    int mFC4;
+    atn::Vector3 mFC8;
+    float mFD4;
+    int mFD8;
+    int mFDC;
+    int mFE0;
+    int mFE4;
+    unsigned char mFE8[0x40]; // inferred: cleared with memset
+    int m1028;
+    int m102C;
     RouteWalker_unk mRoute; // 0x1030
     CharaLook_unk mLook;    // 0x10D8
-    unsigned char m1154[0x1208 - 0x1154];
+    Chara1154_unk m1154;
+    Chara1188_unk m1188;
     CharaObj1208_unk* m1208;
-    unsigned char m120C[0x12A4 - 0x120C];
+    unsigned char m120C[0x10]; // inferred: cleared with memset
+    int m121C;
+    MotionCommand_unk m1220;
+    int m1254;
+    float m1258;
+    FixedArray_unk<CharaPair_unk, 8> m125C;
+    int m12A0;
     // 0x12A4: flag word (bitfields, MSB first)
     unsigned int mFlag31 : 1;
     unsigned int mFlag30 : 1;
     unsigned int mFlag29 : 1;
     unsigned int mFlag28 : 1; // inferred: tested by CharaStatus::fn_8012F3D8
     unsigned int mFlag27 : 1;
-    unsigned int mFlag26_23 : 4;
+    unsigned int mFlag26 : 1;
+    unsigned int mFlag25 : 1;
+    unsigned int mFlag24 : 1;
+    unsigned int mFlag23 : 1;
     unsigned int mFlag22 : 1; // inferred: tested by CharaStatus::fn_8012B3E8
-    unsigned int mFlag21_7 : 15;
+    unsigned int mFlag21 : 1;
+    unsigned int mFlag20 : 1;
+    unsigned int mFlag19 : 1;
+    unsigned int mFlag18 : 1;
+    unsigned int mFlag17 : 1;
+    unsigned int mFlag16 : 1;
+    unsigned int mFlag15 : 1;
+    unsigned int mFlag14 : 1;
+    unsigned int mFlag13 : 1;
+    unsigned int mFlag12 : 1;
+    unsigned int mFlag11 : 1;
+    unsigned int mFlag10 : 1;
+    unsigned int mFlag9 : 1;
+    unsigned int mFlag8 : 1;
+    unsigned int mFlag7 : 1;
     unsigned int mFlag6 : 1;
     unsigned int mFlag5 : 1;
     unsigned int mFlag4 : 1;
     unsigned int mFlag3 : 1;
     unsigned int mFlag2 : 1; // inferred: tested by CharaStatus::fn_8012E244
     unsigned int mFlag1_0 : 2;
-    unsigned char m12A8[0x12D0 - 0x12A8];
-    // inferred: hits on the character (CharaStatus::fn_8012E540); the capacity is unknown
-    FixedArray_unk<CharaHit_unk, 1> m12D0;
-    unsigned char m12E8[0x13F4 - 0x12E8];
+    // 0x12A8: second flag word
+    unsigned int mFlagB31_21 : 11;
+    unsigned int mFlagB20 : 1;
+    unsigned int mFlagB19 : 1;
+    unsigned int mFlagB18_15 : 4;
+    unsigned int mFlagB14 : 1;
+    unsigned int mFlagB13_11 : 3;
+    unsigned int mFlagB10 : 1;
+    unsigned int mFlagB9_8 : 2;
+    unsigned int mFlagB7 : 1;
+    unsigned int mFlagB6_0 : 7;
+    int m12AC;
+    int m12B0;
+    int m12B4;
+    int m12B8;
+    int m12BC;
+    int m12C0;
+    int m12C4;
+    int m12C8;
+    float m12CC;
+    // inferred: hits on the character (CharaStatus::fn_8012E540)
+    FixedArray_unk<CharaHit_unk, 8> m12D0;
+    int m1374;
+    unsigned char m1378[0x137C - 0x1378];
+    int m137C;
+    int m1380;
+    int m1384;
+    short m1388;
+    short m138A;
+    int m138C;
+    int m1390; // inferred: random value 0-3
+    CharaSub_unk* m1394;
+    int m1398;
+    int m139C;
+    unsigned char m13A0[0x13AC - 0x13A0];
+    int m13AC;
+    int m13B0;
+    float m13B4;
+    unsigned char m13B8[0x18]; // inferred: cleared with memset
+    unsigned char m13D0[0x8];  // inferred: cleared with memset
+    float m13D8;
+    float m13DC;
+    float m13E0;
+    float m13E4;
+    float m13E8;
+    float m13EC;
+    float m13F0;
     int m13F4;
-    unsigned char m13F8[0x1400 - 0x13F8];
+    int m13F8;
+    int m13FC;
     unsigned int m1400;
-    unsigned char m1404[0x1424 - 0x1404];
+    int m1404;
+    int m1408;
+    int m140C;
+    unsigned char m1410[0x1414 - 0x1410];
+    atn::SoundRef m1414;
+    int m1418;
+    float m141C;
+    float m1420;
 };
 
 #endif

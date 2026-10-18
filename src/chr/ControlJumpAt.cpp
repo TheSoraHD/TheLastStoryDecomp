@@ -29,7 +29,7 @@ namespace chr {
 ControlJumpAt::ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_unk* target)
     : ControlBase(chara), mStart(start), mTarget(target) {
     chara->m560 = 0x7B;
-    mChara->m5C0 &= ~1;
+    mChara->mColli.mFlags &= ~1;
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;

@@ -3,6 +3,7 @@
 #include "chr/ControlBase.h"
 #include "game/CharaStatus.h"
 #include <boost/scoped_ptr.hpp>
+#include "std/string.h"
 
 // inferred: game settings (lbl_8087F0A8, as in CharaStatus.cpp); names invented
 struct Settings_unk {
@@ -41,6 +42,217 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" void* lbl_8087EE68;
 extern "C" void* lbl_8087EE98;
 extern "C" void* lbl_8087F490;
+
+// inferred: names of some status effects. The table itself is not in the DOL (unused, so the
+// compiler drops it), but its strings are the first .rodata objects of the file (0x80737390) and are
+// reused by sStatusNames_unk below.
+static const char* const sBadStatusNames_unk[] = {
+    "\215\254\227\220",                 // konran (confusion)
+    "\203X\203\215\203E",               // surou (slow)
+    "\216\200\226S",                    // shibou (death)
+    "\220\316\211\273",                 // sekika (petrify)
+    "\203}\203q",                       // mahi (paralysis)
+    "\213[\216\227\226\263\223G",       // giji muteki (pseudo invincible)
+    "\210\303\210\305",                 // kurayami (darkness)
+    "\203x\203g\203x\203g",             // betobeto (sticky)
+    "\203`\203\203\201[\203\200",       // chaamu (charm)
+    "\220\270\220_\210\331\217\355",    // seishin ijou (mental disorder)
+};
+
+// inferred: sound effect names (0x80737490)
+static const char* const sSoundNames_unk[] = {
+    "SE_BTCOM_027", "SE_BTCOM_029", "SE_BTCOM_028", "SE_BTCOM_012", "SE_BTCOM_008",
+    "SE_BTCOM_015", "SE_MB004_002", "SE_BTCOM_095", "SE_UI001_111", "SE_UI001_112",
+};
+
+// inferred: 0x807374B8
+static const int sTable807374B8_unk[] = {0x238D, 0x238D, 0x238D, 0x238D, 0x238D, 0x238D, -1};
+
+// inferred: names of the status effects, one per CharaStatus flag bit (0x807375C0)
+static const char* const sStatusNames_unk[] = {
+    "\203|\203C\203Y\203\223",                                          // poizun (poison)
+    "\215\254\227\220",                                                 // konran (confusion)
+    "\203T\203C\203\214\203\223\203X",                                  // sairensu (silence)
+    "\203X\203\215\203E",                                               // surou (slow)
+    "\203X\203\212\201[\203v",                                          // suriipu (sleep)
+    "\216\200\226S",                                                    // shibou (death)
+    "\220\316\211\273",                                                 // sekika (petrify)
+    "\203}\203q",                                                       // mahi (paralysis)
+    "\203V\203F\201[\203h",                                             // sheedo (shade)
+    "\216\343\203X\203\215\203E",                                       // jaku surou (weak slow)
+    "\203\214\203x\203\213\203_\203E\203\223",                          // reberu daun (level down)
+    "HATE\217W\222\206\211e\213\277",                                   // HATE shuuchuu eikyou
+    "\213[\216\227\226\263\223G",                                       // giji muteki (pseudo invincible)
+    "\210\303\210\305",                                                 // kurayami (darkness)
+    "\203t\203\211\203t\203\211",                                       // furafura (dizzy)
+    "\203x\203g\203x\203g",                                             // betobeto (sticky)
+    "\203`\203\203\201[\203\200",                                       // chaamu (charm)
+    "\220\270\220_\210\331\217\355",                                    // seishin ijou (mental disorder)
+    "\217\202\224j\211\363",                                            // tate hakai (shield break)
+    "\203K\201[\203h\203u\203\214\203C\203N",                           // gaado bureiku (guard break)
+    "\216\364\202\242",                                                 // noroi (curse)
+    "\226\241\225\373\202\311\223\226\202\275\202\351",                 // mikata ni ataru (hits allies)
+    "\216\343\202\242\203|\203C\203Y\203\223",                          // yowai poizun (weak poison)
+    "\203M\203\203\203U\203\212\203\223\203O\203X\203\215\203E",        // gyazaringu surou (gathering slow)
+    "\203X\203g\203b\203v",                                             // sutoppu (stop)
+    "\203X\203\212\203b\203v",                                          // surippu (slip)
+    "\203X\203L\203\213\203Q\201[\203W\227\255\202\334\202\347\202\310\202\242", // skill gauge does not fill
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    0,
+};
+
+// inferred: model files (0x807377B0)
+static const char* const sModelNames_unk[] = {
+    "np011_a00.model", "np011_a01.model", "np031_a00.model", "np031_a01.model",
+    "np036_b00.model", "np036_b01.model", "np042_a00.model", "np042_a01.model",
+    "np037_b00.model", "np037_b01.model", "np010_b00.model", "np010_b01.model",
+    "np034_a00.model", "np034_a01.model", "np038_f00.model", "np038_f01.model",
+    "np035_k00.model", "np035_k01.model", "np002_c00.model", "np002_c01.model",
+    "em102_00_bs00.model", "em102_00_bs01.model",
+};
+
+extern "C" atn::Task* lbl_8087F128;
+extern "C" int lbl_8087FA20;
+extern "C" void* lbl_8087EEB8; // inferred: debug message output
+extern "C" char lbl_807C7B28[32];
+extern "C" int fn_8036823C(Field_unk* field);
+extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int rand();
+extern "C" void fn_800697D8(void* output, const char* message);
+extern "C" CharaInfo_unk* fn_8020924C(int id);
+extern "C" int fn_802092C0(char* path, int id);
+extern "C" chr::CharaData_unk* fn_8020A81C(int id);
+extern "C" void* fn_80204E04(int type, int arg);
+extern "C" int fn_8021FC00(int id);
+extern "C" void fn_80218260();
+extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
+
+// inferred: nonzero in town fields (name invented)
+inline bool IsTownField_unk() {
+    if (lbl_8087F430 != 0 && fn_8036823C(lbl_8087F430) != 0) {
+        return true;
+    }
+    return lbl_8087FA20 != 0;
+}
+
+// inferred: model heap of a character (name invented)
+inline int GetModelHeap_unk(atn::Task* parent, int id) {
+    if (id == 1) {
+        return 0x23A;
+    }
+    if (parent == lbl_8087F128) {
+        return 0xEF;
+    }
+    return IsTownField_unk() ? 0x13F : 0x23A;
+}
+
+// NONMATCHING: 99.8% - the instructions are the same; only the .sdata2 offsets of the float
+// constants differ until "" (sStatusNames_unk) is the first .sdata2 object, which needs its user
+// fn_80149A30 (checked: with the table referenced this is 100%).
+CharaTask::CharaTask(atn::Task* parent, int type, void* data)
+    : atn::Task(parent), mType(type), m4C(type), m50((int)data), m54(0), m58(0), m5C(0), m60(0), m64(0),
+      m7C(0), mId(0), mAC(0), mMotion(0x800504, GetModelHeap_unk(parent, (int)data)), m480(0), m510(2),
+      m514(1.0f), m518(0), m51C(-1.0f), m520(-1), mPos(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f),
+      m540(1.0f, 1.0f, 1.0f), m54C(0), m550(0.0f, 0.0f, 0.0f), m55C(0), m560(0), m564(0), m568(1.0f),
+      m56C(1.0f / 6.0f), m570(0.0f), m574(0.0f, 0.0f, 0.0f), m580(0.0f), m584(0.0f), m588(0.0f), m58C(0),
+      m590(0), m594(0), m598(0), m59C(0), m59D(0), m59E(0), m59F(0), m5A0(1.0f), m610(0), m630(0),
+      m634(-1), m638(0), m63C(0), m640(0), m644(1), m648(0), m64C(0), m674(-1), m678(0), m67C(0),
+      m6A0(-1), m6B8(0.0f, 0.0f, 0.0f), m6D0(0), mC10(0), mC14(0.0f, 0.0f, 0.0f), mC38(0), mC3C(0),
+      mC40(4), mC48(0), mC4C(0), mC50(type), mC54(1), mF14(-1), mF18(-1), mF1C(0), mF50(0), mF54(0),
+      mF58(0), mF5C(10000), mF60(0.0f, 0.0f, 0.0f), mF6C(0.0f, 0.0f, 0.0f), mF78(0.0f), mF7C(0), mF84(0),
+      mF88(0.0f, 0.0f, 0.0f), mF94(-1), mF98(300), mF9C(0), mFA0(0), mFA4(0.0f, 0.0f, 0.0f), mFB0(0),
+      mFB4(0), mFB8(0.0f), mFBC(0.0f), mFC0(0), mFC4(0), mFC8(0.0f, 0.0f, 0.0f), mFD4(0.0f), mFD8(0),
+      mFDC(0), mFE0(0), mFE4(0), m1028(1), m102C(0), m1208(0), m121C(0), m1254(0), m1258(1.0f),
+      m12A0(0), mFlag31(0), mFlag30(0), mFlag29(1), mFlag28(0), mFlag27(0), mFlag25(0), mFlag24(1),
+      mFlag23(0), mFlag22(0), mFlag21(0), mFlag20(0), mFlag19(0), mFlag18(0), mFlag17(1), mFlag16(1),
+      mFlag15(0), mFlag14(1), mFlag13(1), mFlag12(0), mFlag11(0), mFlag10(0), mFlag9(0), mFlag8(0), mFlag7(0), mFlag6(0), mFlag5(0), mFlag4(0), mFlag3(0),
+      mFlag2(0), mFlag1_0(0), mFlagB31_21(0), mFlagB20(1), mFlagB18_15(0), mFlagB14(1), mFlagB13_11(0),
+      mFlagB10(1), mFlagB9_8(0), mFlagB7(1), mFlagB6_0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
+      m12BC(-1), m12C0(0), m12C4(0), m12C8(0), m12CC(0.0f), m1374(0), m137C(0), m1380(0), m1384(0),
+      m1388(0), m138A(0), m138C(0), m1390(rand() % 4), m1398(0), m139C(0), m13AC(0), m13B0(0),
+      m13B4(1.0f), m13D8(0.0f), m13DC(0.0f), m13E0(0.0f), m13E4(0.0f), m13E8(0.0f), m13EC(0.0f),
+      m13F0(0.0f), m13F4(4), m13F8(0), m13FC(0), m1400(0), m1404(0), m1408(0), m1418(0), m141C(0.0f),
+      m1420(20.0f) {
+    if (IsPartyMember_unk()) {
+        mC54 = 0;
+    }
+    if (type != 5 && (int)data != -1) {
+        m60 = fn_8020924C(m50);
+        if (m60 == 0) {
+            if (lbl_8087EEB8 != 0) {
+                char message[0x100];
+                sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
+                sprintf(message, "character not found! %s", lbl_807C7B28);
+                fn_800697D8(lbl_8087EEB8, message);
+            }
+            m60 = fn_8020924C(0);
+        }
+        char path[0x100];
+        if (fn_802092C0(path, m60->m10)) {
+            fn_80136544(path);
+        }
+        m5C = fn_8020A81C(m60->m14);
+    } else {
+        m5C = fn_8020A81C(0);
+    }
+    m68[0] = fn_80204E04(mC50, mC54);
+    if (m60 != 0) {
+        m7C = fn_8021FC00(m60->m28);
+    }
+    m568 = m5C->m134;
+    mF20.SetIdentity();
+    m5B0 = 3.0f;
+    m5B4 = 18.0f;
+    m5A4.Set_unk(0.0f, 0.0f, 0.0f);
+    mColli.mFlags |= 2;
+    mColli.mFlags |= 0x80000000;
+    mColli.m0C = (int)this;
+    m624.clear();
+    m614.Set_unk(0.0f, 0.0f, 0.0f);
+    m620 = 3.0f;
+    m500 = 0.2f;
+    m504 = 0.8f;
+    m508 = 1.0f;
+    m50C = 0.25f;
+    if (m60 != 0 && strcmp(m60->m1C, "") != 0) {
+        std::string path("/database/motcmd/");
+        path += m60->m1C;
+        fn_8006AD24(path, "csv");
+        m1220.fn_801210B4(path.c_str());
+    }
+    if (m60 != 0 && m60->m20[0] != 0) {
+        std::string path("/database/chara/ext/");
+        path += m60->m20;
+        fn_8006AD24(path, "exchr");
+        mA4.vf0C(path.c_str());
+    }
+    for (int i = 0; i < 8; i++) {
+        m680[i] = 0;
+    }
+    memset(mFE8, 0, sizeof(mFE8));
+    memset(m120C, 0, sizeof(m120C));
+    memset(m68, 0, sizeof(m68));
+    m1154.m30 = (void*)fn_80218260;
+    mFlag26 = 1;
+    mStatus.mChara = this;
+    mStatus.fn_8013459C();
+    m1394 = new (3, "", "", 0) CharaSub_unk(this);
+    mRoute.mChara = this;
+    mC58.m0C.mChara = this;
+    memset(m13B8, 0, sizeof(m13B8));
+    memset(m13D0, 0, sizeof(m13D0));
+}
+
+void CharaTask::fn_80136544(const char* path) {
+    mAC = 1;
+    m84.vf0C(path);
+}
 
 void* fn_80139EF4() {
     return lbl_8087EE68;
@@ -328,9 +540,9 @@ void CharaTask::fn_80147A18(int value) {
             fn_80094E2C((*p)->m024, value);
         }
     }
-    for (unsigned int i = 0; i < m6A4; i++) {
-        if (m6A8[i]->m3DC) {
-            fn_80094E2C(m6A8[i]->m004, value);
+    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        if (m6A4.mData[i]->m3DC) {
+            fn_80094E2C(m6A4.mData[i]->m004, value);
         }
     }
 }
@@ -340,8 +552,8 @@ int CharaTask::fn_80148334() {
 }
 
 CharaTask::Item14_unk* CharaTask::fn_80148B0C(int index) {
-    if (index >= 0 && index < m624) {
-        return &m62C[index];
+    if (index >= 0 && index < (int)m624.mSize) {
+        return &m624.mData[index];
     }
     return 0;
 }
