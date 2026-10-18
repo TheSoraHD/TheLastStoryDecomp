@@ -21,6 +21,8 @@ public:
     void fn_803B8200(int arg); // inferred
     void fn_803B8270();        // inferred
     static void fn_803B83A4(char* name, int* out, int arg); // inferred: builds the save file name
+    int fn_803B8144();                             // inferred: error code of the save/load manager (does not use this)
+    static void fn_803B8454(char* name, int* size); // inferred: builds the file name and its size
 
     char mName[0x100];  // 0x48: inferred: strcpy destination
     unsigned char m148;
