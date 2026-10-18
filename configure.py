@@ -318,9 +318,10 @@ config.libs = [
 
 config.libs.append({
     "lib": "game",
-    # Wii/1.1 (mwcc 4.3 build 145, same as the SDK) with -func_align 4: GC/3.0a* schedules
-    # some code differently (e.g. Event::PostSequence::~PostSequence).
-    "mw_version": "Wii/1.1",
+    # Wii/1.3 with -func_align 4: GC/3.0a* schedules some code differently (e.g.
+    # Event::PostSequence::~PostSequence), and Wii/1.0-1.1 do not reload a member pointer after an
+    # inline-asm store through it (chr::ControlSitting at 0x801C9B24); 1.5/1.7 give the same code as 1.3.
+    "mw_version": "Wii/1.3",
     "cflags": cflags_game,
     "progress_category": "game",
     "objects": [
@@ -336,7 +337,7 @@ config.libs.append({
 
 config.libs.append({
     "lib": "game_nodefer",
-    "mw_version": "Wii/1.1",
+    "mw_version": "Wii/1.3",
     "cflags": cflags_game_nodefer,
     "progress_category": "game",
     "objects": [

@@ -63,11 +63,9 @@ struct Chara_unk : public atn::Task {
 
 TownTpcLoader::~TownTpcLoader() {}
 
-// NONMATCHING: 98.5% - the original recomputes the address of mCharas[i] for the last call instead of
-// reusing it (a reference-parameter helper reproduces that but swaps two registers).
 void TownTpcLoader::fn_805B9D58() {
     CharaList_unk* list = lbl_8087F430->m10D8;
-    for (unsigned int i = 0; i < mCharas.size(); i++) {
+    for (int i = 0; i < mCharas.size(); i++) {
         fn_803CC774(list, mCharas[i]);
         fn_803957F0(list->m134, ((Chara_unk*)mCharas[i])->m58);
         fn_803CC718(list, mCharas[i], 0);

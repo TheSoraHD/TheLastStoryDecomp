@@ -2191,7 +2191,7 @@
   "classes": [
    "MapPartsOcean"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsRain.cpp",

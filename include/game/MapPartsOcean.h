@@ -18,8 +18,6 @@ public:
     virtual void vf10();
     virtual void vf1C(void* menu);
 
-    void MoveJoint_unk(unsigned int i, const float* offset);
-
     static MapPartsOcean* fn_8049C8DC(atn::Task* parent, void* arg, void* data);
 
     float mTime;        // 0x44C

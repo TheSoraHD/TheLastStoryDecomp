@@ -20,24 +20,18 @@ struct Csv_unk {
     char mField[1];
 };
 
-// inferred: inline helper (name invented); its unsigned index keeps the loop in base+offset form
-inline void MapPartsOcean::MoveJoint_unk(unsigned int i, const float* offset) {
-    MtxPtr node = mModel.GetNodeMtx_unk(mJoint[i]);
-    Vec trans(0.0f, offset[i], 0.0f);
-    Mtx m;
-    PSMTXTrans(m, trans.x, trans.y, trans.z);
-    __MtxCopy(node, m);
-    PSMTXConcat(mModel.mMtx, node, node);
-}
-
-// NONMATCHING: 99.9% - the addresses of the matrix and of offset[] are hoisted in the opposite order.
 void MapPartsOcean::vf10() {
     float offset[2];
     for (int i = 0; i < 2; i++) {
         offset[i] = mWave[i].mAmplitude * (float)sin(mTime * mWave[i].mPeriod + mWave[i].mPhase);
     }
     for (int i = 0; i < 2; i++) {
-        MoveJoint_unk(i, offset);
+        MtxPtr node = mModel.GetNodeMtx_unk(mJoint[i]);
+        Vec trans(0.0f, offset[i], 0.0f);
+        Mtx m;
+        PSMTXTrans(m, trans.x, trans.y, trans.z);
+        __MtxCopy(node, m);
+        PSMTXConcat(mModel.mMtx, node, node);
     }
     mTime += 1.0f / 30.0f;
     MapPartsModel::vf10();
