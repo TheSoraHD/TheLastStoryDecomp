@@ -12,7 +12,16 @@ public:
     void fn_80097C08(int arg1, int motion, int arg3, int arg4, int arg5, float blend, float speed); // inferred: play motion
     float fn_80097D7C(int track); // inferred: motion length
 
-    unsigned char m000[0x22C];
+    // inferred: entry of the array at m220 (0x2C bytes)
+    struct Entry_unk {
+        unsigned char m00[0x04];
+        Vec m04;
+        unsigned char m10[0x2C - 0x10];
+    };
+
+    unsigned char m000[0x220];
+    Entry_unk* m220;
+    unsigned char m224[0x22C - 0x224];
     int m22C; // inferred: current motion id
     unsigned char m230[0x234 - 0x230];
     float m234;
@@ -58,6 +67,8 @@ public:
     float fn_80178078();
     void fn_8017AC3C(int arg);
     void fn_80164DCC(int arg);
+    void fn_8016E4C4(int arg);
+    int fn_80179D44();
     void fn_801750FC();
     void fn_80154344();
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
@@ -66,7 +77,8 @@ public:
     int m48;
     unsigned char m04C[0xB0 - 0x4C];
     Motion_unk mMotion; // 0xB0
-    unsigned char m400[0x528 - 0x400];
+    unsigned char m400[0x524 - 0x400];
+    int m524; // inferred: index into Motion_unk::m220
     Vec mPos;  // 0x528
     Vec mRot;  // 0x534
     unsigned char m540[0x560 - 0x540];
@@ -80,8 +92,13 @@ public:
     int m58C;
     unsigned char m590[0x5A4 - 0x590];
     Vec m5A4;  // inferred: collision offset
-    unsigned char m5B0[0x5B8 - 0x5B0];
-    unsigned char m5B8[0x7E0 - 0x5B8];
+    float m5B0; // inferred: collision radius (0x80188280)
+    unsigned char m5B4[0x5B8 - 0x5B4];
+    unsigned char m5B8[0x5C0 - 0x5B8]; // inferred: passed by address (chr::ControlTurnQuadruped)
+    unsigned int m5C0; // inferred: flags; bit 0 is cleared while appearing (chr::ControlAppear)
+    unsigned char m5C4[0x600 - 0x5C4];
+    Vec m600;
+    unsigned char m60C[0x7E0 - 0x60C];
     unsigned int m7E0; // inferred: flags tested with masks; 0x20 while held (0x801A2490)
     unsigned char m7E4[0xC48 - 0x7E4];
     int mC48;
@@ -92,7 +109,9 @@ public:
     unsigned char mF20[0xF50 - 0xF20];
     int mF50; // inferred: set by chr::ControlDraggedStart
     int mF54; // inferred: set by chr::ControlDraggingStart
-    unsigned char mF58[0x1208 - 0xF58];
+    unsigned char mF58[0xF60 - 0xF58];
+    Vec mF60; // inferred: set to the position by chr::ControlAppearSkelton
+    unsigned char mF6C[0x1208 - 0xF6C];
     int m1208;
     unsigned char m120C[0x12A4 - 0x120C];
     // 0x12A4: flag word (bitfields, MSB first)
