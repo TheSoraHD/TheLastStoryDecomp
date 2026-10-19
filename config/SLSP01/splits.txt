@@ -1741,10 +1741,11 @@ game/MarketTask.cpp:
 	.sdata2     start:0x808871B0 end:0x808871C0
 
 game/MenuCommonTask.cpp:
-	.text       start:0x804A2A34 end:0x804A39EC
-	.rodata     start:0x807573C0 end:0x807573D0
+	.text       start:0x804A29C4 end:0x804A7F18
+	.rodata     start:0x807573C0 end:0x80757650
 	.data       start:0x807907DC end:0x80790818
-	.sdata2     start:0x808871D4 end:0x8088720C
+	.sbss       start:0x8087F580 end:0x8087F588
+	.sdata2     start:0x808871D0 end:0x80887254
 
 game/MiniMapTask.cpp:
 	.text       start:0x804A7F18 end:0x804A9E44
