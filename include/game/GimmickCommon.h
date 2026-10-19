@@ -53,7 +53,8 @@ struct GimmickDesc_unk {
     unsigned char m3C[0x40 - 0x3C];
     float m40;         // inferred: gmk::ShakeCamera shake_x
     float m44;         // inferred: gmk::ShakeCamera shake_y
-    unsigned char m48[0x7C - 0x48];
+    float m48;         // inferred: gmk::FlyObjManager: vertical component of the direction
+    unsigned char m4C[0x7C - 0x4C];
     int m7C;           // inferred: flag read by gmk::SkeltonsMirror::vf60
 };
 
@@ -93,7 +94,11 @@ struct GimmickMsg_unk {
 // character steps on gmk::LandMine)
 struct GimmickHitMsg_unk {
     int mType;
-    unsigned char m04[0x30 - 0x04];
+    int m04;
+    int m08;
+    int m0C;
+    atn::Vector3 mPos; // 0x10: inferred: hit position (gmk::FlyObjManager)
+    unsigned char m1C[0x30 - 0x1C];
 };
 
 // Base of the gimmicks (gmk::*). The name is in the DOL (vtable 0x8078C9D0, RTTI bases

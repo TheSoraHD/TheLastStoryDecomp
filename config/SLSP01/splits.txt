@@ -1442,8 +1442,9 @@ gmk/SparkCube.cpp:
 
 gmk/FlyObjManager.cpp:
 	.text       start:0x80427730 end:0x80428B0C
-	.rodata     start:0x80753708 end:0x8075371C
-	.data       start:0x8078E508 end:0x8078E5A0
+	.rodata     start:0x80753700 end:0x80753738
+	.data       start:0x8078E508 end:0x8078E5A8
+	.sdata      start:0x8087DFA8 end:0x8087DFB0
 	.sdata2     start:0x808866D0 end:0x80886700
 
 gmk/InteractionSpot.cpp:
