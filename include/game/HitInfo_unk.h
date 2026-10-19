@@ -24,7 +24,9 @@ struct HitInfo_unk {
     const char* m08;
     unsigned char m0C[0x10 - 0x0C];
     atn::Vector3 m10; // inferred: knockback direction
-    unsigned char m1C[0x58 - 0x1C];
+    unsigned char m1C[0x48 - 0x1C];
+    int m48; // inferred: added to CharaTask::mFB4 by chr::ControlShoot
+    unsigned char m4C[0x58 - 0x4C];
     float m58; // inferred: passed to chr::ControlChant (CharaTask::fn_8015F568)
     int m5C; // inferred: duration of the hit (CharaTask::fn_801784BC)
     unsigned char m60[0x68 - 0x60];

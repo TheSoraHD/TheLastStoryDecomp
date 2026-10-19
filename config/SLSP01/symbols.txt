@@ -4483,8 +4483,8 @@ manage__Q45boost6detail8function212functor_manager<Q35boost3_bi159bind_t<v,Q35bo
 __dt__Q23chr11ControlRideFv = .text:0x801C7898; // type:function size:0x40
 __dt__Q23chr16ControlRideBeastFv = .text:0x801C78D8; // type:function size:0x40
 __ct__Q23chr12ControlShootFP9CharaTaskiRCQ23atn7Vector3RCQ23atn7Vector3 = .text:0x801C7918; // type:function size:0x844
-fn_801C815C = .text:0x801C815C; // type:function size:0x15C
-fn_801C82B8 = .text:0x801C82B8; // type:function size:0x40
+vf0C__Q23chr12ControlShootFv = .text:0x801C815C; // type:function size:0x15C
+__dt__Q23chr12ControlShootFv = .text:0x801C82B8; // type:function size:0x40
 __ct__Q23chr14ControlStaggerFP9CharaTaskii = .text:0x801C82F8; // type:function size:0x4E0
 fn_801C87D8 = .text:0x801C87D8; // type:function size:0x160
 __ct__Q23chr11ControlSlipFP9CharaTaski = .text:0x801C8938; // type:function size:0x250

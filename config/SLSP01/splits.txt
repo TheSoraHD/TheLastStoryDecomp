@@ -511,7 +511,7 @@ chr/ControlRide.cpp:
 
 chr/ControlShoot.cpp:
 	.text       start:0x801C7918 end:0x801C82F8
-	.rodata     start:0x8073B900 end:0x8073B918
+	.rodata     start:0x8073B8F8 end:0x8073B918
 	.data       start:0x80782000 end:0x80782078
 	.sdata2     start:0x80882848 end:0x80882878
 
