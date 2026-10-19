@@ -60,12 +60,9 @@ int DWC_Base64Encode(const char* src, u32 srcLen, char* dst, u32 dstLen) {
     return out - dst;
 }
 
-// NONMATCHING: 97.63% - the target indexes src[j]/buf[j] directly (no strength reduction of the
-// inner loop) without the clrlwi of a u8 index. With an int index we get pointer induction
-// variables instead (87.48%). Tried: int/u32/short/char index, index declared outside, buf at
-// function scope, src[i + j] with an outer index, inline helper returning the value, case '*',
-// while loops, other loop bounds. Compiling this file with -opt nostrength gives 100% for both
-// functions with an int index, so the original may have used a different optimization setting.
+// This file is built with -opt nostrength (see libs_ref.json): the original does not
+// strength-reduce the src[j]/buf[j] indexing of the inner loop, and no source form
+// reproduces that with the library's default flags (approved per-file setting).
 int DWC_Base64Decode(const char* src, u32 srcLen, char* dst, u32 dstLen) {
     int len;
     int i;
@@ -97,7 +94,7 @@ int DWC_Base64Decode(const char* src, u32 srcLen, char* dst, u32 dstLen) {
     out = dst;
     do {
         char buf[4];
-        u8 j;
+        int j;
         for (j = 0; j < 4; j++) {
             switch (src[j]) {
             case 'A':

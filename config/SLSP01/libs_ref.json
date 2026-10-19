@@ -6820,10 +6820,11 @@
    "-sdata 0",
    "-sdata2 0",
    "-i libs/dwc/include",
-   "-i libs/RVL_SDK/include/"
+   "-i libs/RVL_SDK/include/",
+   "-opt nostrength"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "dwc/src/base/dwc_report.c",
