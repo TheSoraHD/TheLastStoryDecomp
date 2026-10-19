@@ -948,7 +948,7 @@
   "classes": [
    "atn::D2A_Window"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D3Anime.cpp",

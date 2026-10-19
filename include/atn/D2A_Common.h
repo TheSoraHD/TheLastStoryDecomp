@@ -3,6 +3,8 @@
 
 namespace atn {
 
+struct D2A_Owner_unk;
+
 // inferred: table of {key, value} float parameters; fn_801F04FC sets the value of `key`.
 struct D2A_ParamTable {
     struct Entry {
@@ -20,6 +22,7 @@ struct D2A_DrawRect {
     float x, y, w, h, z;
 };
 struct D2A_DrawColor {
+    D2A_DrawColor() {} // 0x80041B8C (weak)
     float r, g, b, a;
 };
 struct D2A_DrawExtra {
@@ -45,12 +48,16 @@ public:
 
     int m04;
     unsigned short mType; // 0x08
-    unsigned char m0A[0x30 - 0x0A];
+    unsigned char m0A[0x0E - 0x0A];
+    unsigned short m0E; // inferred: outline mode of D2A_Window
+    unsigned char m10[0x30 - 0x10];
     D2A_ParamTable m30;
     D2A_ParamTable m38;
     unsigned char m40[0x58 - 0x40];
     float m58;
-    unsigned char m5C[0x12C - 0x5C];
+    unsigned char m5C[0xFC - 0x5C];
+    D2A_Owner_unk* mFC; // inferred: owner (layout or data), see D2A_Window::vf18
+    unsigned char m100[0x12C - 0x100];
 };
 
 } // namespace atn
