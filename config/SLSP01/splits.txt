@@ -95,7 +95,7 @@ atn/ComDrawTexture.cpp:
 
 atn/FadeCommon.cpp:
 	.text       start:0x8006A09C end:0x8006A950
-	.rodata     start:0x80731418 end:0x80731450
+	.rodata     start:0x80731408 end:0x80731460
 	.data       start:0x80777B08 end:0x80777BC0
 	.sdata2     start:0x80880A08 end:0x80880A18
 

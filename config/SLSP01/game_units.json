@@ -165,11 +165,11 @@
  {
   "name": "atn/FadeCommon.cpp",
   "classes": [
-   "atn::FadeCapture",
+   "atn::FadeCommon",
    "atn::FadeColor",
-   "atn::FadeCommon"
+   "atn::FadeCapture"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/FileList.cpp",
