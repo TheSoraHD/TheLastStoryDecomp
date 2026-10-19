@@ -72,7 +72,7 @@ public:
     // members below inline them (tmp in 0x80013F78). Checked with standalone compiles.
     size_type size() const { return !is_long() ? (mShort.mSize & 0x7F) : mLong.mSize; }
     const T* data() const { return !is_long() ? (const T*)this + 1 : mLong.mData; }
-    T& operator[](size_type i) { return (!is_long() ? mShort.mData : mLong.mData)[i]; }
+    T& operator[](size_type i) { return (!is_long() ? (T*)this + 1 : mLong.mData)[i]; }
     void clear() {
         if (!is_long()) {
             mShort.mData[0] = 0;
@@ -126,9 +126,7 @@ public:
             // inferred: copied as a block (0x800EC7F0 stores word 1 before word 0)
             mRaw = str.mRaw;
         } else {
-            mLong.mCap = 0;
-            mLong.mSize = 0;
-            mLong.mData = 0;
+            __zero();
             reserve(str.mLong.mSize);
             __replace_unk(0, 0, str.mLong.mData, str.mLong.mData + str.mLong.mSize, random_access_iterator_tag());
         }
