@@ -24,6 +24,9 @@ block_relocations:
   # NETAES: lis/addi of the 0x80808080 mask constant (not a symbol)
   - source: .text:0x806998BC
   - source: .text:0x806998C8
+  # qr2_init_socketA: lis/addi of the 0x80808081 constant of rand() % 0xFF (not a symbol)
+  - source: .text:0x806EF168
+  - source: .text:0x806EF174
   # NETAES: T tables (values that look like addresses)
   - source: .rodata:0x80766840
     end: .rodata:0x80767260

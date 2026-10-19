@@ -66,8 +66,8 @@ void gt2SetUnrecognizedMessageCallback(GT2Socket socket, void* callback);
 void* gt2GetConnectionData(GT2Connection connection);
 const char* gt2AddressToString(u32 ip, u16 port, char* string);
 int GOAGetLastError(int socket);
-void fn_806EF8B0(void* qrec);                            // qr2_send_statechanged
-void fn_806EF930(void* qrec);                            // qr2_shutdown
+void qr2_send_statechanged(void* qrec);                            // qr2_send_statechanged
+void qr2_shutdown(void* qrec);                            // qr2_shutdown
 void fn_806FFA10(void* sb);                              // ServerBrowserFree
 void GSIStartAvailableCheckA(const char* gamename);
 int GSIAvailableCheckThink(void);
@@ -373,7 +373,7 @@ void fn_806AF910(void) {
     }
 
     if (stpDwcCnt->matchcnt.qr2Obj != NULL) {
-        fn_806EF930(stpDwcCnt->matchcnt.qr2Obj);
+        qr2_shutdown(stpDwcCnt->matchcnt.qr2Obj);
         stpDwcCnt->matchcnt.qr2Obj = NULL;
     }
     stpDwcCnt->matchcnt.unk050 = 0;
@@ -483,7 +483,7 @@ void fn_806AFAA0(void) {
 
     if (stpDwcCnt->matchcnt.unk050 == 1) {
         if (stpDwcCnt->matchcnt.qr2Obj != NULL) {
-            fn_806EF930(stpDwcCnt->matchcnt.qr2Obj);
+            qr2_shutdown(stpDwcCnt->matchcnt.qr2Obj);
             stpDwcCnt->matchcnt.qr2Obj = NULL;
         }
         stpDwcCnt->matchcnt.unk050 = 0;
@@ -1524,7 +1524,7 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
     }
 
     if (stpDwcCnt->matchcnt.qr2IsReserved == 2) {
-        fn_806EF8B0(stpDwcCnt->matchcnt.qr2Obj);
+        qr2_send_statechanged(stpDwcCnt->matchcnt.qr2Obj);
     }
 
     if (stpDwcCnt->closedCallback != NULL && valid) {

@@ -39,12 +39,12 @@ GT2Result gt2Send(GT2Connection connection, const void* message, int len,
 void gt2CloseConnectionHard(GT2Connection connection);
 void gt2CloseAllConnections(GT2Socket socket);
 u32 gt2GetRemoteIP(GT2Connection connection);
-int fn_806EF470(void* qrec, const char* ip, int baseport, const char* gamename,
+int qr2_initA(void* qrec, const char* ip, int baseport, const char* gamename,
                 const char* secretKey, int isPublic, int natNegotiate, void* serverKeyCallback,
                 void* playerKeyCallback, void* teamKeyCallback, void* keyListCallback,
                 void* countCallback, void* addErrorCallback, void* userdata); // qr2_init
-void fn_806EF5B0(void* qrec);                                           // qr2_think
-void fn_806EF930(void* qrec);                                           // qr2_shutdown
+void qr2_think(void* qrec);                                           // qr2_think
+void qr2_shutdown(void* qrec);                                           // qr2_shutdown
 ServerBrowser fn_806FF920(const char* queryForGamename, const char* queryFromGamename,
                           const char* queryFromKey, int queryFromVersion,
                           int maxConcurrentUpdates, int queryVersion, int lanBrowse,
@@ -206,7 +206,7 @@ void fn_806A8290(void) {
                     fn_806FFBE0(spSB->handle, 1, DWC_LAN_QR2_PORT, DWC_LAN_QR2_PORT);
                 }
             }
-            fn_806EF5B0(NULL);
+            qr2_think(NULL);
         }
     }
 
@@ -220,7 +220,7 @@ void fn_806A8290(void) {
             fn_806A9000(spCntl->mAddr);
             spSB = &spCntl->sb;
             spSB->updated = 1;
-            fn_806EF470(NULL, NULL, DWC_LAN_QR2_PORT, sGameName, sSecretKey, 0, 0,
+            qr2_initA(NULL, NULL, DWC_LAN_QR2_PORT, sGameName, sSecretKey, 0, 0,
                         DWCi_LanServerKeyCallback, DWCi_LanPlayerKeyCallback,
                         DWCi_LanTeamKeyCallback, DWCi_LanKeyListCallback, DWCi_LanCountCallback,
                         DWCi_LanAddErrorCallback, NULL);
@@ -309,7 +309,7 @@ BOOL fn_806A8D90(int numPlayers, DWCLanStateCallback callback) {
 }
 
 void fn_806A8DB0(void) {
-    fn_806EF930(NULL);
+    qr2_shutdown(NULL);
     fn_806FFA10(spSB->handle);
     spSB = NULL;
     gt2CloseAllConnections(spGT2->socket);

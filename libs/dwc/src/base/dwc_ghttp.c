@@ -5,15 +5,15 @@
 #include <dwc/dwc_report.h>
 
 // inferred: GameSpy GHTTP entry points, in order ghttpStartup, ghttpCleanup, ghttpThink,
-// ghttpGetEx, ghttpCancelRequest and a per-request setter; no source yet
-void fn_806F3EE0(void);
-void fn_806F3F40(void);
-void fn_806F41E0(void);
-GHTTPRequest fn_806F3FB0(const char* url, const char* headers, char* buffer, int bufferSize,
+// ghttpGetEx, ghttpCancelRequest and ghttpSetMaxRecvTime (libs/gamespy/src/ghttp/ghttpMain.c)
+void ghttpStartup(void);
+void ghttpCleanup(void);
+void ghttpThink(void);
+GHTTPRequest ghttpGetExA(const char* url, const char* headers, char* buffer, int bufferSize,
                          GHTTPPost post, GHTTPBool throttle, GHTTPBool blocking,
                          void* progressCallback, void* completedCallback, void* param);
-void fn_806F41F0(GHTTPRequest request);
-void fn_806F4240(GHTTPRequest request, int value);
+void ghttpCancelRequest(GHTTPRequest request);
+void ghttpSetMaxRecvTime(GHTTPRequest request, int value);
 
 // inferred: request parameters given to the GHTTP callbacks
 typedef struct DWCGHTTPParam {
@@ -40,7 +40,7 @@ static void DWCi_RemoveParamEntry(DWCGHTTPParamEntry* entry);
 
 BOOL DWC_InitGHTTP(const char* gameName) {
     DWC_Printf(DWC_REPORTFLAG_DEBUG, "DWC_InitGHTTP\n");
-    fn_806F3EE0();
+    ghttpStartup();
     sGHTTPInitCount++;
     return TRUE;
 }
@@ -55,7 +55,7 @@ BOOL DWC_ShutdownGHTTP(void) {
         return TRUE;
     }
 
-    fn_806F3F40();
+    ghttpCleanup();
 
     if (--sGHTTPInitCount == 0) {
         next = sParamList;
@@ -77,7 +77,7 @@ BOOL DWC_ProcessGHTTP(void) {
     if (DWCi_IsError()) {
         return FALSE;
     }
-    fn_806F41E0();
+    ghttpThink();
     return TRUE;
 }
 
@@ -173,7 +173,7 @@ int DWC_GetGHTTPData(const char* url, DWCGHTTPCompletionCallback completionCallb
         return -5;
     }
 
-    req = fn_806F3FB0(url, NULL, NULL, 0, NULL, FALSE, FALSE, NULL, DWCi_GHTTPCompletedCallback,
+    req = ghttpGetExA(url, NULL, NULL, 0, NULL, FALSE, FALSE, NULL, DWCi_GHTTPCompletedCallback,
                       entry);
     if (req < 0) {
         DWCi_HandleGHTTPError(req);
@@ -232,7 +232,7 @@ int fn_806A7D40(const char* url, int bufferLen, BOOL buffClear, DWCGHTTPPost* po
         entry->buffer = buffer;
     }
 
-    req = fn_806F3FB0(url, NULL, buffer, bufferLen, post == NULL ? NULL : post->post, FALSE, FALSE,
+    req = ghttpGetExA(url, NULL, buffer, bufferLen, post == NULL ? NULL : post->post, FALSE, FALSE,
                       progressCallback == NULL ? NULL : DWCi_GHTTPProgressCallback,
                       DWCi_GHTTPCompletedCallback, entry);
     if (req < 0) {
@@ -245,14 +245,14 @@ int fn_806A7D40(const char* url, int bufferLen, BOOL buffClear, DWCGHTTPPost* po
     }
 
     entry->req = req;
-    fn_806F4240(req, 1);
+    ghttpSetMaxRecvTime(req, 1);
     return req;
 }
 
 void DWC_CancelGHTTPRequest(int req) {
     DWCGHTTPParamEntry* entry;
 
-    fn_806F41F0(req);
+    ghttpCancelRequest(req);
 
     entry = sParamList;
     while (entry != NULL && entry->req != req) {
