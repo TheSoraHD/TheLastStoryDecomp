@@ -2001,8 +2001,9 @@ atn/SequenceUnitParam1_const_int.cpp:
 
 game/SetConfig.cpp:
 	.text       start:0x8057E83C end:0x8057F0F8
-	.rodata     start:0x80761050 end:0x8076105C
+	.rodata     start:0x80761050 end:0x807611F0
 	.data       start:0x80796790 end:0x807967A8
+	.sbss       start:0x8087F9C0 end:0x8087F9C8
 	.sdata2     start:0x80888098 end:0x808880C0
 
 game/ShopBase.cpp:

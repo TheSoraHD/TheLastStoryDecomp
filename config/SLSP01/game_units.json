@@ -2615,7 +2615,7 @@
   "classes": [
    "SetConfig"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/ShopBase.cpp",

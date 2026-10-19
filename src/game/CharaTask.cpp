@@ -1,3 +1,4 @@
+#include "game/SetConfig.h"
 #include "game/CharaTask.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
@@ -7795,12 +7796,6 @@ void CharaTask::vf48() {
 }
 
 
-// inferred: lbl_8087F9C0 (class unknown)
-struct Global9C0_unk {
-    unsigned char m00[0x28];
-    int m28;
-};
-extern "C" Global9C0_unk* lbl_8087F9C0;
 extern "C" int fn_8021A8D0(HitInfo_unk* hit);
 extern "C" int fn_8021A918(HitInfo_unk* hit);
 extern "C" int fn_8021A888(HitInfo_unk* hit);
@@ -7865,7 +7860,7 @@ bool CharaTask::fn_801533C8(int id, HitInfo_unk* hit) {
             }
             break;
         case 5:
-            if (lbl_8087F9C0->m28 == 0) {
+            if (SetConfig::sInstance->mAttackType == 0) {
                 return mMotion.mTracks[0].m08 < 8.0f;
             }
             break;
