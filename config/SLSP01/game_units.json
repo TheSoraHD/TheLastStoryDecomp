@@ -1847,7 +1847,7 @@
   "classes": [
    "gmk::AttractHatePoint"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/CharaLight.cpp",

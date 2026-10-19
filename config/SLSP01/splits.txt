@@ -1407,7 +1407,7 @@ gmk/ShakeCamera.cpp:
 
 gmk/AttractHatePoint.cpp:
 	.text       start:0x80421AB8 end:0x804225E0
-	.rodata     start:0x807533B0 end:0x807533C8
+	.rodata     start:0x80753388 end:0x807533F0
 	.data       start:0x8078E210 end:0x8078E2A8
 	.sdata2     start:0x80886618 end:0x80886630
 
