@@ -1008,7 +1008,6 @@ extern "C" void fn_801067D0(Effect_unk* effect, CharaTask* chara, chr::Motion_un
 extern "C" void fn_80107F20(Effect_unk* effect, chr::Motion_unk* a, chr::Motion_unk* b);
 extern "C" void fn_80101524(Effect_unk* effect, const atn::Vector3* pos, const atn::Vector3* rot, unsigned int old,
                             unsigned int now);
-extern "C" atn::Vector3 fn_801781B0(CharaTask* chara); // inferred: position used for status effects
 extern "C" void fn_80108F38(Effect_unk* effect, const atn::Vector3& pos, int status);
 
 // NONMATCHING: 95.4% - only the parts loop of every inlined ClearFlags_unk differs (ctr loop in ours,
@@ -1064,7 +1063,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             mChara->fn_80167F1C();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x1);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x1);
             }
             result = 1;
         } else {
@@ -1080,7 +1079,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             mChara->fn_80168170();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x400000);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x400000);
             }
             result = 1;
         } else {
@@ -1096,7 +1095,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             mChara->fn_80168788();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x8000);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x8000);
             }
             result = 1;
         } else {
@@ -1119,7 +1118,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x100);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x100);
             }
         } else {
             ClearFlags_unk(0x100);
@@ -1137,7 +1136,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x40);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x40);
             }
             result = 1;
         } else {
@@ -1156,7 +1155,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             if ((old & 0x80) != 0x80 && effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x80);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x80);
             }
             result = 1;
         } else {
@@ -1178,7 +1177,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x10000);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x10000);
             }
         } else {
             ClearFlags_unk(0x10000);
@@ -1194,7 +1193,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             mChara->fn_8016794C();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x10);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x10);
             }
             result = 1;
         } else {
@@ -1209,7 +1208,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             (m0C & 0x80) != 0x80 && (m0C & 0x10) != 0x10) {
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x4000);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x4000);
             }
             result = 1;
         } else {
@@ -1234,7 +1233,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             mChara->fn_80168E04();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x4);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x4);
             }
             result = 1;
         } else {
@@ -1250,7 +1249,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             mChara->fn_80168E80();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x2);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x2);
             }
             result = 1;
         } else {
@@ -1264,7 +1263,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             fn_80133130(0x8, power > 0 ? power : 600, both);
             if (effect && !((old & 0x400) != 0x400 && (m0C & 0x400) == 0x400)) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x8);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x8);
             }
             result = 1;
         } else {
@@ -1278,7 +1277,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             fn_80133130(0x200, power > 0 ? power : 600, both);
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x200);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x200);
             }
             result = 1;
         } else {
@@ -1309,7 +1308,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             fn_801067D0(lbl_8087F048, mChara, &mChara->mMotion);
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x40000);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x40000);
             }
             fn_80133130(0x40000, -1, both);
             result = 1;
@@ -1326,7 +1325,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             mChara->fn_80168F5C();
             if (effect && !((old & 0x1000000) != 0x1000000 && (m0C & 0x1000000) == 0x1000000)) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x400);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x400);
             }
             result = 1;
         } else {
@@ -1340,7 +1339,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             fn_80133130(0x1000000, power > 0 ? power : 240, both);
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x1000000);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x1000000);
             }
             result = 1;
         } else {
@@ -1354,7 +1353,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             fn_80133130(0x800000, power > 0 ? power : 600, both);
             if (effect && !((old & 0x1000000) != 0x1000000 && (m0C & 0x1000000) == 0x1000000)) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x800000);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x800000);
             }
             result = 1;
         } else {
@@ -1378,7 +1377,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             fn_80133130(0x2000000, power > 0 ? power : 240, both);
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
-                fn_80108F38(fx, fn_801781B0(mChara), 0x2000000);
+                fn_80108F38(fx, mChara->fn_801781B0(), 0x2000000);
             }
             result = 1;
         } else {
