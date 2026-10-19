@@ -31,6 +31,9 @@ public:
                               f32 /* sampleRate */, OutputMode /* mode */) {
     } // at 0x14
 
+    // inferred: called by AxManager::SetOutputMode for every effect
+    virtual void OnChangeOutputMode() {} // at 0x18
+
 public:
     NW4R_UT_LINKLIST_NODE_DECL(); // at 0x4
 };

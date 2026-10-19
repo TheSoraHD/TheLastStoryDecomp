@@ -1,7 +1,6 @@
 #include <nw4r/snd.h>
 
 #include <revolution/AXFX.h>
-#include <revolution/DVD.h>
 #include <revolution/OS.h>
 
 #include <cstring>
@@ -10,9 +9,15 @@ namespace nw4r {
 namespace snd {
 namespace detail {
 
-NW4R_UT_LINKLIST_TYPEDEF_FORCE(FxBase);
-
 u8 AxManager::sZeroBuffer[AxManager::ZERO_BUFFER_SIZE];
+const BiquadFilterCallback*
+    AxManager::sBiquadFilterCallbackTable[AxManager::BIQUAD_FILTER_CALLBACK_NUM];
+
+BiquadFilterLpf AxManager::sBiquadFilterLpf;
+BiquadFilterHpf AxManager::sBiquadFilterHpf;
+BiquadFilterBpf512 AxManager::sBiquadFilterBpf512;
+BiquadFilterBpf1024 AxManager::sBiquadFilterBpf1024;
+BiquadFilterBpf2048 AxManager::sBiquadFilterBpf2048;
 
 AxManager::AxManager()
     : mOutputMode(OUTPUT_MODE_STEREO),
@@ -20,8 +25,7 @@ AxManager::AxManager()
       mInitialized(false),
       mUpdateVoicePrioFlag(true),
       mOldAidCallback(NULL),
-      mResetReadyCounter(-1),
-      mDiskError(false) {
+      mResetReadyCounter(-1) {
 
     mMainOutVolume.InitValue(1.0f);
     mMasterVolume.InitValue(1.0f);
@@ -32,6 +36,7 @@ AxManager::AxManager()
         mAuxUserVolume[i].InitValue(1.0f);
         mAuxCallback[i] = NULL;
         mAuxCallbackContext[i] = 0;
+        mEffectProcessTick[i] = 0;
     }
 }
 
@@ -40,6 +45,10 @@ AxManager& AxManager::GetInstance() {
     return instance;
 }
 
+// NONMATCHING: ~54% - the lock below lives on the stack and its destructor keeps a
+// null check of its address in the original. Matches 100% when this function is
+// wrapped in `#pragma push` / `#pragma ppc_iro_level 0` / `#pragma pop` (same
+// workaround as zeldaret/ss), left out because the project rules forbid pragma tricks.
 void AxManager::Init() {
     if (mInitialized) {
         return;
@@ -61,8 +70,17 @@ void AxManager::Init() {
 
     mNextAxRegisterCallback = AXRegisterCallback(AxCallbackFunc);
 
+    std::memset(sBiquadFilterCallbackTable, 0,
+                sizeof(sBiquadFilterCallbackTable));
+    SetBiquadFilterCallback(BIQUAD_FILTER_TYPE_LPF, &sBiquadFilterLpf);
+    SetBiquadFilterCallback(BIQUAD_FILTER_TYPE_HPF, &sBiquadFilterHpf);
+    SetBiquadFilterCallback(BIQUAD_FILTER_TYPE_BPF512, &sBiquadFilterBpf512);
+    SetBiquadFilterCallback(BIQUAD_FILTER_TYPE_BPF1024, &sBiquadFilterBpf1024);
+    SetBiquadFilterCallback(BIQUAD_FILTER_TYPE_BPF2048, &sBiquadFilterBpf2048);
+
     mInitialized = true;
 }
+
 
 void AxManager::Shutdown() {
     if (!mInitialized) {
@@ -94,22 +112,6 @@ f32 AxManager::GetOutputVolume() const {
 }
 
 void AxManager::Update() {
-    s32 status = DVDGetDriveStatus();
-
-    if (status == DVD_STATE_IDLE || status == DVD_STATE_BUSY) {
-        if (mDiskError) {
-            mDiskError = false;
-            VoiceManager::GetInstance().UpdateAllVoicesSync(
-                Voice::SYNC_AX_VOICE);
-        }
-    } else {
-        if (!mDiskError) {
-            mDiskError = true;
-            VoiceManager::GetInstance().UpdateAllVoicesSync(
-                Voice::SYNC_AX_VOICE);
-        }
-    }
-
     for (int i = 0; i < AUX_BUS_NUM; i++) {
         bool update = false;
 
@@ -189,6 +191,12 @@ void AxManager::UnregisterCallback(CallbackListNode* pNode) {
 }
 
 void AxManager::SetOutputMode(OutputMode mode) {
+    if (mOutputMode == mode) {
+        return;
+    }
+
+    ut::AutoInterruptLock lock;
+
     mOutputMode = mode;
 
     switch (mode) {
@@ -214,6 +222,19 @@ void AxManager::SetOutputMode(OutputMode mode) {
     }
 
     VoiceManager::GetInstance().UpdateAllVoicesSync(Voice::SYNC_AX_MIX);
+
+    for (int i = 0; i < AUX_BUS_NUM; i++) {
+        for (FxBaseList::Iterator it =
+                 GetEffectList(static_cast<AuxBus>(i)).GetBeginIter();
+             it != GetEffectList(static_cast<AuxBus>(i)).GetEndIter(); ++it) {
+            it->OnChangeOutputMode();
+        }
+    }
+
+    // inferred: AUX C is not used in DPL2 mode
+    if (mode == OUTPUT_MODE_DPL2) {
+        mEffectProcessTick[AUX_C] = 0;
+    }
 }
 
 OutputMode AxManager::GetOutputMode() {
@@ -221,7 +242,12 @@ OutputMode AxManager::GetOutputMode() {
 }
 
 void AxManager::SetMasterVolume(f32 volume, int frame) {
-    mMasterVolume.SetTarget(ut::Clamp(volume, 0.0f, 1.0f), (frame + 2) / 3);
+    // inferred: only the lower bound is clamped in this version
+    if (volume < 0.0f) {
+        volume = 0.0f;
+    }
+
+    mMasterVolume.SetTarget(volume, (frame + 2) / 3);
 
     if (frame == 0) {
         VoiceManager::GetInstance().UpdateAllVoicesSync(Voice::SYNC_AX_VE);
@@ -306,10 +332,13 @@ bool AxManager::AppendEffect(AuxBus bus, FxBase* pFx) {
 void AxManager::ClearEffect(AuxBus bus, int frame) {
     if (frame == 0) {
         ShutdownEffect(bus);
-        return;
-    }
 
-    mAuxFadeVolume[bus].SetTarget(0.0f, (frame + 2) / 3);
+        if (!mAuxFadeVolume[bus].IsFinished()) {
+            mAuxFadeVolume[bus].SetTarget(0.0f, 0);
+        }
+    } else {
+        mAuxFadeVolume[bus].SetTarget(0.0f, (frame + 2) / 3);
+    }
 }
 
 void AxManager::ShutdownEffect(AuxBus bus) {
@@ -329,16 +358,19 @@ void AxManager::ShutdownEffect(AuxBus bus) {
     switch (bus) {
     case AUX_A: {
         AXRegisterAuxACallback(NULL, NULL);
+        mEffectProcessTick[AUX_A] = 0;
         break;
     }
 
     case AUX_B: {
         AXRegisterAuxBCallback(NULL, NULL);
+        mEffectProcessTick[AUX_B] = 0;
         break;
     }
 
     case AUX_C: {
         AXRegisterAuxCCallback(NULL, NULL);
+        mEffectProcessTick[AUX_C] = 0;
         break;
     }
 
@@ -349,6 +381,7 @@ void AxManager::ShutdownEffect(AuxBus bus) {
 }
 
 void AxManager::AuxCallbackFunc(void* pChans, void* pContext) {
+    u32 start = OSGetTick();
     int num;
     void* buffer[AX_DPL2_MAX];
 
@@ -376,10 +409,14 @@ void AxManager::AuxCallbackFunc(void* pChans, void* pContext) {
         for (int i = 0; i < num; i++) {
             std::memset(buffer[i], 0, FX_BUFFER_SIZE);
         }
+
+        GetInstance().mEffectProcessTick[bus] = OSGetTick() - start;
     } else if (GetInstance().GetEffectList(bus).IsEmpty()) {
         for (int i = 0; i < num; i++) {
             std::memset(buffer[i], 0, FX_BUFFER_SIZE);
         }
+
+        GetInstance().mEffectProcessTick[bus] = OSGetTick() - start;
     } else {
         for (FxBaseList::Iterator it =
                  GetInstance().GetEffectList(bus).GetBeginIter();
@@ -388,6 +425,8 @@ void AxManager::AuxCallbackFunc(void* pChans, void* pContext) {
             it->UpdateBuffer(num, buffer, FX_BUFFER_SIZE, FX_SAMPLE_FORMAT,
                              FX_SAMPLE_RATE, GetInstance().GetOutputMode());
         }
+
+        GetInstance().mEffectProcessTick[bus] = OSGetTick() - start;
     }
 }
 

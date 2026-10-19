@@ -2,6 +2,8 @@
 #define NW4R_SND_AX_MANAGER_H
 #include <nw4r/types_nw4r.h>
 
+#include <nw4r/snd/snd_BiquadFilterCallback.h>
+#include <nw4r/snd/snd_BiquadFilterPreset.h>
 #include <nw4r/snd/snd_FxBase.h>
 #include <nw4r/snd/snd_MoveValue.h>
 #include <nw4r/snd/snd_Types.h>
@@ -36,10 +38,6 @@ public:
         return mInitialized;
     }
 
-    bool IsDiskError() const {
-        return mDiskError;
-    }
-
     bool IsResetReady() const {
         return mResetReadyCounter == 0;
     }
@@ -66,6 +64,15 @@ public:
         return mFxList[bus];
     }
 
+    // inferred: AxVoice reads the table right after GetInstance()
+    void SetBiquadFilterCallback(int type,
+                                 const BiquadFilterCallback* pCallback) {
+        sBiquadFilterCallbackTable[type] = pCallback;
+    }
+    const BiquadFilterCallback* GetBiquadFilterCallback(int type) {
+        return sBiquadFilterCallbackTable[type];
+    }
+
 private:
     static const u8 AUX_CALLBACK_WAIT_FRAME = 6;
 
@@ -74,6 +81,8 @@ private:
     static const int FX_BUFFER_SIZE = AX_FRAME_SIZE;
 
     static const int ZERO_BUFFER_SIZE = 256;
+
+    static const int BIQUAD_FILTER_CALLBACK_NUM = 128; // inferred: 0x200 bytes
 
 private:
     AxManager();
@@ -89,7 +98,6 @@ private:
     AXOutCallback mNextAxRegisterCallback;           // at 0x14
     bool mInitialized;                               // at 0x18
     bool mUpdateVoicePrioFlag;                       // at 0x19
-    bool mDiskError;                                 // at 0x1A
     MoveValue<f32, int> mMasterVolume;               // at 0x1C
     MoveValue<f32, int> mMainOutVolume;              // at 0x2C
     MoveValue<f32, int> mVolumeForReset;             // at 0x3C
@@ -101,8 +109,20 @@ private:
     AXAuxCallback mAuxCallback[AUX_BUS_NUM];         // at 0xD8
     void* mAuxCallbackContext[AUX_BUS_NUM];          // at 0xE4
     u8 mAuxCallbackWaitCounter[AUX_BUS_NUM];         // at 0xF0
+    // inferred: OSTick duration of the last aux callback of each bus
+    u32 mEffectProcessTick[AUX_BUS_NUM];             // at 0xF4
 
     static u8 sZeroBuffer[ZERO_BUFFER_SIZE];
+    static const BiquadFilterCallback*
+        sBiquadFilterCallbackTable[BIQUAD_FILTER_CALLBACK_NUM];
+
+    // inferred: preset instances (sbss 0x80880488-0x8088049C, vptrs set by
+    // the static initializer)
+    static BiquadFilterLpf sBiquadFilterLpf;
+    static BiquadFilterHpf sBiquadFilterHpf;
+    static BiquadFilterBpf512 sBiquadFilterBpf512;
+    static BiquadFilterBpf1024 sBiquadFilterBpf1024;
+    static BiquadFilterBpf2048 sBiquadFilterBpf2048;
 };
 
 } // namespace detail
