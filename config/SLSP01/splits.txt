@@ -372,8 +372,8 @@ chr/ControlBreakOpen.cpp:
 
 chr/ControlAppear.cpp:
 	.text       start:0x801880D0 end:0x80189634
-	.rodata     start:0x80738E90 end:0x80738EF4
-	.data       start:0x8077CD48 end:0x8077CF28
+	.rodata     start:0x80738C48 end:0x80738EF4
+	.data       start:0x8077CD00 end:0x8077CF80
 	.sdata2     start:0x80881E78 end:0x80881E90
 
 chr/ControlAttackBase.cpp:
