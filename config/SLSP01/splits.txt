@@ -2829,6 +2829,441 @@ PowerPC_EABI_Support/src/Runtime/runtime.c:
 	.text       start:0x80695D84 end:0x80696578
 	.rodata     start:0x807667C0 end:0x807667D8
 
+PowerPC_EABI_Support/src/Runtime/Gecko_ExceptionPPC.cp:
+	extab       start:0x80007BE4 end:0x80007C58
+	extabindex  start:0x80008140 end:0x80008194
+	.text       start:0x806965E8 end:0x80697D34
+	.rodata     start:0x807667D8 end:0x80766840
+	.data       start:0x807BBF58 end:0x807BC010
+	.bss        start:0x80832F50 end:0x808330E0
+	.sdata      start:0x8087ED30 end:0x8087ED38
+
+RVL_SDK/src/revolution/ncd/ncdsystem.c:
+	.text       start:0x80697D34 end:0x806985B0
+	.data       start:0x807BC010 end:0x807BC100
+	.bss        start:0x808330E0 end:0x80833140
+	.sdata      start:0x8087ED38 end:0x8087ED40
+	.sbss       start:0x808803E0 end:0x808803E8
+
+RVL_SDK/src/revolution/net/NETStartupErrorCode.c:
+	.text       start:0x806985B0 end:0x80698A20
+	.data       start:0x807BC100 end:0x807BC120
+
+RVL_SDK/src/revolution/net/NETVersion.c:
+	.text       start:0x80698A20 end:0x80698A28
+	.data       start:0x807BC120 end:0x807BC158
+	.sdata      start:0x8087ED40 end:0x8087ED48
+
+RVL_SDK/src/revolution/net/netmemcpy.c:
+	.text       start:0x80698A2C end:0x80698DEC
+
+RVL_SDK/src/revolution/net/netmemset.c:
+	.text       start:0x80698DEC end:0x80698EF0
+
+RVL_SDK/src/revolution/net/NETMD5.c:
+	.text       start:0x80698EF0 end:0x80699610
+	.data       start:0x807BC158 end:0x807BC318
+	.sdata      start:0x8087ED48 end:0x8087ED50
+
+RVL_SDK/src/revolution/net/NETAES.c:
+	.text       start:0x80699610 end:0x8069A0D0
+	.rodata     start:0x80766840 end:0x80767260
+	.data       start:0x807BC318 end:0x807BC3E0
+	.sdata2     start:0x80889000 end:0x80889008
+
+RVL_SDK/src/revolution/nhttp/NHTTP_os_RVL.c:
+	.text       start:0x8069A9B8 end:0x8069ABDC
+	.data       start:0x807BC4C0 end:0x807BC500
+	.sdata      start:0x8087ED50 end:0x8087ED58
+
+RVL_SDK/src/revolution/nhttp/d_nhttp.c:
+	.text       start:0x8069FFF8 end:0x806A0B48
+	.data       start:0x807BC628 end:0x807BC920
+	.sdata      start:0x8087EDC0 end:0x8087EDD0
+	.sbss       start:0x808803E8 end:0x808803F0
+
+RVL_SDK/src/revolution/nwc24/NWC24Config.c:
+	.text       start:0x806A12E8 end:0x806A1450
+	.sbss       start:0x808803F8 end:0x80880400
+
+RVL_SDK/src/revolution/nwc24/NWC24Manage.c:
+	.text       start:0x806A1450 end:0x806A1564
+	.data       start:0x807BC960 end:0x807BC9B0
+	.sdata      start:0x8087EDD0 end:0x8087EDD8
+	.sbss       start:0x80880400 end:0x80880408
+
+RVL_SDK/src/revolution/nwc24/NWC24Schedule.c:
+	.text       start:0x806A1564 end:0x806A1C40
+	.data       start:0x807BC9B0 end:0x807BC9F8
+	.bss        start:0x80833E20 end:0x80833FA0
+	.sbss       start:0x80880408 end:0x80880418
+
+RVL_SDK/src/revolution/nwc24/NWC24UserId.c:
+	.text       start:0x806A1C40 end:0x806A1F5C
+	.rodata     start:0x80767378 end:0x80767388
+
+RVL_SDK/src/revolution/nwc24/NWC24Time.c:
+	.text       start:0x806A1F5C end:0x806A2138
+	.data       start:0x807BC9F8 end:0x807BCA20
+	.bss        start:0x80833FA0 end:0x80834080
+	.sbss       start:0x80880418 end:0x80880420
+
+RVL_SDK/src/revolution/nwc24/NWC24Ipc.c:
+	.text       start:0x806A2138 end:0x806A22AC
+	.sbss       start:0x80880420 end:0x80880428
+
+RVL_SDK/src/revolution/nwc24/NWC24System.c:
+	.text       start:0x806A22AC end:0x806A243C
+	.data       start:0x807BCA20 end:0x807BCA68
+	.bss        start:0x80834080 end:0x808340E0
+	.sdata      start:0x8087EDD8 end:0x8087EDE0
+	.sbss       start:0x80880428 end:0x80880438
+
+RVL_SDK/src/revolution/so/SOBasic.c:
+	.text       start:0x806A2790 end:0x806A37F4
+	.data       start:0x807BCA68 end:0x807BCC48
+	.bss        start:0x808340E0 end:0x808340F8
+	.sdata      start:0x8087EDE0 end:0x8087EDE8
+	.sbss       start:0x80880438 end:0x80880448
+
+RVL_SDK/src/revolution/ssl/ssl.c:
+	.text       start:0x806A4F3C end:0x806A5C88
+	.data       start:0x807BCCA0 end:0x807BCCF8
+	.bss        start:0x80834120 end:0x80837140
+	.sdata      start:0x8087EDF0 end:0x8087EDF8
+	.sbss       start:0x80880450 end:0x80880458
+
+RVL_SDK/src/revolution/ssl/ssl_mutex.c:
+	.text       start:0x806A5C88 end:0x806A5C94
+
+dwc/src/base/dwc_base64.c:
+	.text       start:0x806A6CA0 end:0x806A7018
+	.data       start:0x807BCCF8 end:0x807BCD40
+
+dwc/src/base/dwc_error.c:
+	.text       start:0x806A7020 end:0x806A7150
+	.data       start:0x807BCD40 end:0x807BCDA8
+	.bss        start:0x8085FF18 end:0x8085FF20
+
+dwc/src/base/dwc_init.c:
+	.text       start:0x806A7150 end:0x806A72BC
+	.data       start:0x807BCDA8 end:0x807BCE58
+	.bss        start:0x8085FF20 end:0x8085FF28
+
+dwc/src/base/dwc_memfunc.c:
+	.text       start:0x806A72C0 end:0x806A7694
+	.data       start:0x807BCE58 end:0x807BCEB0
+	.bss        start:0x8085FF28 end:0x8085FF30
+
+dwc/src/base/dwc_report.c:
+	.text       start:0x806A76A0 end:0x806A79FC
+	.data       start:0x807BCEB0 end:0x807BD030
+	.bss        start:0x8085FF30 end:0x8085FF38
+
+dwc/src/base/dwc_ghttp.c:
+	.text       start:0x806A7A00 end:0x806A81FC
+	.data       start:0x807BD030 end:0x807BD140
+	.bss        start:0x8085FF38 end:0x8085FF40
+
+dwc/src/base/dwc_lanmatch.c:
+	.text       start:0x806A8200 end:0x806A9C94
+	.rodata     start:0x8076B600 end:0x8076B608
+	.data       start:0x807BD140 end:0x807BD1F0
+	.bss        start:0x8085FF40 end:0x8085FF50
+
+dwc/src/base/dwc_friend.c:
+	.text       start:0x806ABD00 end:0x806AE748
+	.data       start:0x807BD290 end:0x807BD858
+	.bss        start:0x8085FF78 end:0x8085FF90
+
+dwc/src/base/dwc_login.c:
+	.text       start:0x806AE750 end:0x806AF69C
+	.data       start:0x807BD858 end:0x807BDCD0
+	.bss        start:0x8085FF90 end:0x8085FF98
+
+dwc/src/base/dwc_main.c:
+	.text       start:0x806AF6A0 end:0x806B315C
+	.rodata     start:0x8076B608 end:0x8076B620
+	.data       start:0x807BDCD0 end:0x807BE9D0
+	.bss        start:0x8085FF98 end:0x80860140
+
+dwc/src/base/dwc_match.c:
+	.text       start:0x806B3160 end:0x806CD534
+	.rodata     start:0x8076B620 end:0x8076B638
+	.data       start:0x807BE9D0 end:0x807C1750
+	.bss        start:0x80860140 end:0x808608A0
+
+dwc/src/base/dwc_rqueue.c:
+	.text       start:0x806CD540 end:0x806CD870
+	.data       start:0x807C1750 end:0x807C1788
+	.bss        start:0x808608A0 end:0x808608A8
+
+dwc/src/base/dwc_transport.c:
+	.text       start:0x806CD870 end:0x806CEED0 align:16
+	.data       start:0x807C1788 end:0x807C1C68
+	.bss        start:0x808608A8 end:0x808608B0
+
+dwc/src/base/dwc_transport_recv.c:
+	.text       start:0x806CEED0 end:0x806CF02C
+	.data       start:0x807C1C68 end:0x807C1CB8
+
+dwc/src/base/dwc_account.c:
+	.text       start:0x806CF030 end:0x806D08D4
+	.data       start:0x807C1CB8 end:0x807C1DD8
+	.bss        start:0x808608B0 end:0x808608C0
+
+dwc/src/auth/dwc_auth_interface.c:
+	.text       start:0x806D08E0 end:0x806D2D74
+	.data       start:0x807C1DD8 end:0x807C2710
+	.bss        start:0x808608C0 end:0x80860D88
+
+dwc/src/enc/dwci_encsession.c:
+	.text       start:0x806D2D80 end:0x806D42D8
+	.rodata     start:0x8076B638 end:0x8076B660
+	.data       start:0x807C2710 end:0x807C2908
+	.bss        start:0x80860D88 end:0x80860D90
+
+dwc/src/prof/dwc_prof.c:
+	.text       start:0x806D42E0 end:0x806D49BC
+	.data       start:0x807C2908 end:0x807C29B8
+	.bss        start:0x80860D90 end:0x80860DC0
+
+dwc/src/ranking/dwc_ranking.c:
+	.text       start:0x806D49C0 end:0x806D52A8
+	.data       start:0x807C29B8 end:0x807C29E8
+	.bss        start:0x80860DC0 end:0x80860DD0
+
+dwc/src/ranking/dwci_ranking.c:
+	.text       start:0x806D52B0 end:0x806D5798
+	.data       start:0x807C29E8 end:0x807C2A48
+
+gamespy/darray.c:
+	.text       start:0x806D57A0 end:0x806D6244
+
+gamespy/hashtable.c:
+	.text       start:0x806D6250 end:0x806D679C
+
+gamespy/md5c.c:
+	.text       start:0x806D67A0 end:0x806D76D4
+	.rodata     start:0x8076B660 end:0x8076B678
+	.data       start:0x807C2A48 end:0x807C2A88
+
+gamespy/common/gsAvailable.c:
+	.text       start:0x806D76E0 end:0x806D7A30
+	.data       start:0x807C2A88 end:0x807C2AB0
+	.bss        start:0x80860DD0 end:0x80860EB0
+
+gamespy/common/gsMemory.c:
+	.text       start:0x806D7A30 end:0x806D7AE0
+	.data       start:0x807C2AB0 end:0x807C2AC0
+
+gamespy/common/gsPlatformSocket.c:
+	.text       start:0x806D7AE0 end:0x806D89AC
+	.data       start:0x807C2AC0 end:0x807C2AD8
+	.bss        start:0x80860EB0 end:0x80860F38
+
+gamespy/common/gsPlatformThread.c:
+	.text       start:0x806D89B0 end:0x806D8B20
+
+gamespy/common/gsPlatformUtil.c:
+	.text       start:0x806D8B20 end:0x806D9608
+	.rodata     start:0x8076B678 end:0x8076B6C8
+	.data       start:0x807C2AD8 end:0x807C2AE0
+	.bss        start:0x80860F38 end:0x80860F58
+
+gamespy/common/gsUdpEngine.c:
+	.text       start:0x806D9610 end:0x806DA858
+	.bss        start:0x80860F58 end:0x80860F98
+
+gamespy/common/gsXML.c:
+	.text       start:0x806DA860 end:0x806DA878
+
+gamespy/GP/gp.c:
+	.text       start:0x806DA880 end:0x806DB808
+	.data       start:0x807C2AE0 end:0x807C2D00
+
+gamespy/GP/gpi.c:
+	.text       start:0x806DB810 end:0x806DC254
+	.data       start:0x807C2D00 end:0x807C2DD0
+
+gamespy/GP/gpiBuddy.c:
+	.text       start:0x806DC260 end:0x806DE2F0
+	.data       start:0x807C2DD0 end:0x807C2FC8
+
+gamespy/GP/gpiBuffer.c:
+	.text       start:0x806DE2F0 end:0x806DED80
+	.data       start:0x807C2FC8 end:0x807C3048
+
+gamespy/GP/gpiCallback.c:
+	.text       start:0x806DED80 end:0x806DF2E0
+	.data       start:0x807C3048 end:0x807C3098
+
+gamespy/GP/gpiConnect.c:
+	.text       start:0x806DF2E0 end:0x806E0A30
+	.data       start:0x807C3098 end:0x807C34D8
+
+gamespy/GP/gpiInfo.c:
+	.text       start:0x806E0A30 end:0x806E2EE4
+	.rodata     start:0x8076B6C8 end:0x8076B6D0
+	.data       start:0x807C34D8 end:0x807C38E8
+
+gamespy/GP/gpiKeys.c:
+	.text       start:0x806E2EF0 end:0x806E3578
+	.data       start:0x807C38E8 end:0x807C3938
+
+gamespy/GP/gpiOperation.c:
+	.text       start:0x806E3580 end:0x806E3CB8
+	.data       start:0x807C3938 end:0x807C3948
+
+gamespy/GP/gpiPeer.c:
+	.text       start:0x806E3CC0 end:0x806E53A4
+	.data       start:0x807C3948 end:0x807C3A78
+
+gamespy/GP/gpiProfile.c:
+	.text       start:0x806E53B0 end:0x806E5F88
+	.data       start:0x807C3A78 end:0x807C3C98
+
+gamespy/GP/gpiSearch.c:
+	.text       start:0x806E5F90 end:0x806E87A0
+	.data       start:0x807C3C98 end:0x807C4190
+
+gamespy/GP/gpiTransfer.c:
+	.text       start:0x806E87A0 end:0x806E8890
+	.data       start:0x807C4190 end:0x807C41C0
+
+gamespy/GP/gpiUnique.c:
+	.text       start:0x806E8890 end:0x806E8B04
+	.data       start:0x807C41C0 end:0x807C4298
+
+gamespy/GP/gpiUtility.c:
+	.text       start:0x806E8B10 end:0x806E92D0
+	.data       start:0x807C4298 end:0x807C4308
+
+gamespy/gt2/gt2Auth.c:
+	.text       start:0x806E92D0 end:0x806E9698
+	.data       start:0x807C4308 end:0x807C4330
+
+gamespy/gt2/gt2Buffer.c:
+	.text       start:0x806E96A0 end:0x806E985C
+
+gamespy/gt2/gt2Callback.c:
+	.text       start:0x806E9860 end:0x806EA11C
+
+gamespy/gt2/gt2Connection.c:
+	.text       start:0x806EA120 end:0x806EA834
+
+gamespy/gt2/gt2Main.c:
+	.text       start:0x806EA840 end:0x806EAD38
+
+gamespy/gt2/gt2Message.c:
+	.text       start:0x806EAD40 end:0x806EE1E0
+	.data       start:0x807C4330 end:0x807C4340
+	.bss        start:0x80860F98 end:0x80861F98
+
+gamespy/gt2/gt2Socket.c:
+	.text       start:0x806EE1E0 end:0x806EEDC0
+
+gamespy/gt2/gt2Utility.c:
+	.text       start:0x806EEDC0 end:0x806EF0B8
+	.data       start:0x807C4340 end:0x807C4358
+	.bss        start:0x80861F98 end:0x80861FC8
+
+gamespy/qr2/qr2.c:
+	.text       start:0x806EF0C0 end:0x806F1D74
+	.rodata     start:0x8076B6D0 end:0x8076B6D8
+	.data       start:0x807C4358 end:0x807C5220
+	.bss        start:0x80861FC8 end:0x80862120
+
+gamespy/qr2/qr2regkeys.c:
+	.text       start:0x806F1D80 end:0x806F1E10
+	.data       start:0x807C5220 end:0x807C5778
+
+gamespy/ghttp/ghttpBuffer.c:
+	.text       start:0x806F1E10 end:0x806F2750
+	.data       start:0x807C5778 end:0x807C5788
+
+gamespy/ghttp/ghttpCallbacks.c:
+	.text       start:0x806F2750 end:0x806F2880
+
+gamespy/ghttp/ghttpCommon.c:
+	.text       start:0x806F2880 end:0x806F2E6C
+	.data       start:0x807C5788 end:0x807C5790
+	.bss        start:0x80862120 end:0x80862128
+
+gamespy/ghttp/ghttpConnection.c:
+	.text       start:0x806F2E70 end:0x806F3804
+	.data       start:0x807C5790 end:0x807C57A0
+	.bss        start:0x80862128 end:0x80862138
+
+gamespy/ghttp/ghttpEncryption.c:
+	.text       start:0x806F3810 end:0x806F3C38
+	.data       start:0x807C57A0 end:0x807C57B0
+
+gamespy/ghttp/ghttpMain.c:
+	.text       start:0x806F3C40 end:0x806F4278
+	.bss        start:0x80862138 end:0x80862140
+
+gamespy/ghttp/ghttpPost.c:
+	.text       start:0x806F4280 end:0x806F5920
+	.rodata     start:0x8076B6D8 end:0x8076B6E0
+	.data       start:0x807C57B0 end:0x807C5A08
+
+gamespy/ghttp/ghttpProcess.c:
+	.text       start:0x806F5920 end:0x806F7554
+	.rodata     start:0x8076B6E0 end:0x8076B6F0
+	.data       start:0x807C5A08 end:0x807C5B30
+
+gamespy/gstats/gbucket.c:
+	.text       start:0x806F7560 end:0x806F879C
+	.rodata     start:0x8076B6F0 end:0x8076B6F8
+	.bss        start:0x80862140 end:0x80862150
+
+gamespy/gstats/gstats.c:
+	.text       start:0x806F87A0 end:0x806FB648
+	.rodata     start:0x8076B6F8 end:0x8076B848
+	.data       start:0x807C5B30 end:0x807C5CF0
+	.bss        start:0x80862150 end:0x80862590
+
+gamespy/natneg/NATify.c:
+	.text       start:0x806FB650 end:0x806FBDB0
+	.data       start:0x807C5CF0 end:0x807C5D00
+	.bss        start:0x80862590 end:0x808627E0
+
+gamespy/natneg/natneg.c:
+	.text       start:0x806FBDB0 end:0x806FD858
+	.data       start:0x807C5D00 end:0x807C5D70
+	.bss        start:0x808627E0 end:0x80862AF0
+
+gamespy/serverbrowsing/sb_crypt.c:
+	.text       start:0x806FD860 end:0x806FDCA0
+
+gamespy/serverbrowsing/sb_queryengine.c:
+	.text       start:0x806FDCA0 end:0x806FE7B0
+	.data       start:0x807C5D70 end:0x807C5DA0
+
+gamespy/serverbrowsing/sb_server.c:
+	.text       start:0x806FE7B0 end:0x806FF5C8
+	.rodata     start:0x8076B848 end:0x8076B850
+	.data       start:0x807C5DA0 end:0x807C5DD8
+	.bss        start:0x80862AF0 end:0x80862B00
+
+gamespy/serverbrowsing/sb_serverbrowsing.c:
+	.text       start:0x806FF5D0 end:0x806FFF58
+	.data       start:0x807C5DD8 end:0x807C5DE0
+
+gamespy/serverbrowsing/sb_serverlist.c:
+	.text       start:0x806FFF60 end:0x80703CF4
+	.rodata     start:0x8076B850 end:0x8076B868
+	.data       start:0x807C5DE0 end:0x807C5E28
+	.bss        start:0x80862B00 end:0x80862B20
+
+nw4r/src/snd/snd_AxManager.cpp:
+	.text       start:0x80703D00 end:0x80705340
+	.ctors      start:0x8072D404 end:0x8072D408
+	.bss        start:0x80862B20 end:0x80862F30
+	.sbss       start:0x80880488 end:0x808804A0
+	.sdata2     start:0x80889008 end:0x80889020
+
 nw4r/src/snd/snd_InstancePool.cpp:
 	.text       start:0x8070F0D0 end:0x8070F178
 

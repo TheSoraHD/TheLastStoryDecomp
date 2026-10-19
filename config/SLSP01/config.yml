@@ -11,3 +11,22 @@ mw_comment_version: 11
 # (optional) Custom template for `ldscript.lcf`, if needed.
 # See https://github.com/encounter/decomp-toolkit/blob/main/assets/ldscript_partial.lcf
 ldscript_template: config/SLSP01/module/ldscript.tpl
+
+# (optional) Symbols kept by the linker although nothing references them (functions of
+# library units linked from source that the original kept).
+force_active:
+  - NETGetRexPPCVersionPrintable
+
+# (optional) Block relocations that dtk detected incorrectly.
+block_relocations:
+  # random table data whose value equals a jump target inside gpiProcessSearch
+  - source: .data:0x807B9D20
+  # NETAES: lis/addi of the 0x80808080 mask constant (not a symbol)
+  - source: .text:0x806998BC
+  - source: .text:0x806998C8
+  # qr2_init_socketA: lis/addi of the 0x80808081 constant of rand() % 0xFF (not a symbol)
+  - source: .text:0x806EF168
+  - source: .text:0x806EF174
+  # NETAES: T tables (values that look like addresses)
+  - source: .rodata:0x80766840
+    end: .rodata:0x80767260

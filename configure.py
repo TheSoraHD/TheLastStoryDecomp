@@ -384,8 +384,12 @@ def load_ref_libs() -> List[Dict[str, Any]]:
                 "progress_category": "sdk" if unit["category"] != "nw4r" else "nw4r",
                 "objects": [],
             }
+        # GameSpy units (gamespy/<dir>/<file>.c) live in libs/gamespy/src/<dir>/<file>.c
+        options = {}
+        if unit["name"].startswith("gamespy/"):
+            options["source"] = "gamespy/src/" + unit["name"][len("gamespy/"):]
         libs[key]["objects"].append(
-            Object(Matching if unit.get("matching") else NonMatching, unit["name"])
+            Object(Matching if unit.get("matching") else NonMatching, unit["name"], **options)
         )
     return list(libs.values())
 
