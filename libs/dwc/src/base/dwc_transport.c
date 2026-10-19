@@ -475,9 +475,10 @@ static inline void DWCi_SendSplitData(u8 aid, DWCTransportConnection* connection
     }
 }
 
-// NONMATCHING: 92% (as a separate translation unit) - now/timeout get swapped saved registers
-// (r26/r27 vs r27/r28/r26); tried declaration order, int/OSTime/u64 types, a ternary for the
-// timeout, inline helpers for the keep-alive part
+// NONMATCHING: 99.8% (objdiff) - now/timeout get swapped saved registers (target: now in
+// r27/r28, timeout in r26; ours: now in r26/r27, timeout in r28); tried declaration orders and
+// scopes, int/u64 types for timeout/time/lastTick, a ternary or if/else for the timeout, copies
+// through a second variable, inline helpers for the keep-alive part
 void DWCi_TransportProcess(void) {
     u8* aidList;
     int numAid;
@@ -686,20 +687,21 @@ void DWCs_HandleReliableMessage(GT2Connection connection, const u8* message, int
 // inferred: size of the match command header (GameSpy QR2 magic + data)
 #define DWC_MATCH_COMMAND_HEADER_SIZE 0x14
 
-// NONMATCHING: 97% (as a separate translation unit) - the copy of the aid into its saved
-// register is scheduled before the 0xFF test instead of after it; tried declaration orders,
-// separate assignments and a second variable
+// inferred: the aid of the connection is checked in its own variable before being copied
+// (the copy into the saved register is scheduled after the 0xFF test)
 void DWCs_HandleUnreliableMessage(GT2Connection connection, const u8* message, int len) {
     DWCTransportConnection* conn;
-    u8 aid = fn_806B1570(connection);
+    u8 aid;
+    u8 connAid = fn_806B1570(connection);
     int relayed = 0;
     BOOL forMe = FALSE;
 
-    if (aid == 0xFF) {
+    if (connAid == 0xFF) {
         DWC_Printf(DWC_REPORTFLAG_RECV_INFO, "+++ Invalid connection. has no DWCConnectionInfo\n");
         DWCi_SetError(DWC_ERROR_NETWORK, -97640);
         return;
     }
+    aid = connAid;
 
     if ((u32)len >= DWC_MATCH_COMMAND_HEADER_SIZE &&
         strncmp((const char*)message, "\xBBI\xCCM", 4) == 0) {

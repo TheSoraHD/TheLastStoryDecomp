@@ -223,7 +223,9 @@ static DWCRnkError DWCi_RnkResGetHeader(DWCiRnkResHeader* header) {
 }
 
 // NONMATCHING: ~94% - the target keeps header.size in a register from the check in
-// DWCi_RnkResGetHeader and loads it into r5 there; tried several bound expressions
+// DWCi_RnkResGetHeader and loads it into r5 there; tried several bound expressions, a local
+// copy of the size or of the end pointer, a separate size local passed to the header helper
+// (2- and 3-word header structs, then the header is kept in registers), the helper written out
 DWCRnkError DWC_RnkResGetRow(DWCRnkData* out, u32 index) {
     DWCiRnkResHeader header;
     DWCRnkError err;

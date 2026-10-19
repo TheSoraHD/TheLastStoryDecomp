@@ -114,11 +114,9 @@ void DWCs_RecvDataBody(u8 aid, const u8* message, int len);
 extern DWCTransportInfo* stpTransInfo;
 
 
-// NONMATCHING: 91% (as a separate translation unit) - the stpTransInfo high part and the
-// connection offset swap r28/r29; tried a local/inline accessor for the state, pointer forms
 void DWCs_RecvDataBody(u8 aid, const u8* message, int len) {
     DWCTransportConnection* conn = &stpTransInfo->connections[aid];
-    u8 state;
+    int state; // inferred: printed with %d, read as an unsigned byte
 
     if (conn->recvState == DWC_RECV_STATE_BODY) {
         if (conn->recvingSize + len > conn->recvBufferSize) {
@@ -130,7 +128,7 @@ void DWCs_RecvDataBody(u8 aid, const u8* message, int len) {
     }
 
     conn->recvingSize += len;
-    state = stpTransInfo->connections[aid].recvState;
+    state = (u8)stpTransInfo->connections[aid].recvState;
     DWC_Printf(DWC_REPORTFLAG_RECV_INFO, "aid = %d size = %d/%d state = %d incoming buffer = %d\n",
                aid, conn->recvingSize, conn->requestRecvSize, state,
                gt2GetIncomingBufferFreeSpace(fn_806B14D0(aid)));

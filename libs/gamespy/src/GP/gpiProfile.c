@@ -1081,17 +1081,13 @@ GPIProfile* gpiFindBlockedProfile(GPConnection* connection, int blockIndex) {
   return data.profile;
 }
 
-// NONMATCHING: 98% - the loaded character lives in r3 instead of r0 in the
-// first-profile loop (3 instructions); tried int c (fixes it in
-// gpiProcessRecvBuddyList but here changes the whole register allocation),
-// other loop forms, declaration orders and forms of the blocked/flag stores
 GPResult gpiProcessRecvBlockedList(GPConnection* connection,
                                    const char* input) {
   int i = 0, j = 0;
   int num = 0;
   int index = 0;
   char c;
-  char* str = NULL;
+  const char* str = NULL; // inferred: const (the pointer comes from the const input)
   char buffer[512];
   GPIProfile* profile;
   GPProfile profileid;
