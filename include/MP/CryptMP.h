@@ -3,6 +3,8 @@
 
 // Key generator/checker of the multiplayer packets (MP/CryptMP.cpp). Member names are invented.
 
+#include "atn/net/PacketPack.h"
+
 namespace atn {
 namespace net {
 
@@ -20,13 +22,6 @@ public:
     int m04;
     char* m08;
     char* m0C;
-};
-
-// inferred: only the members used by CryptMP (atn/PacketPack.cpp)
-class PacketPack {
-public:
-    virtual ~PacketPack();
-    virtual int vf0C() { return 0; } // 0x804AE3C4 (weak copy)
 };
 
 } // namespace net
