@@ -30,6 +30,7 @@
 #include "gmk/TreasureBox.h"
 #include "gmk/LottaSummon.h"
 #include "gmk/SavePoint.h"
+#include "gmk/Augur.h"
 #include "gmk/Fireworks.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -227,7 +228,6 @@ extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80416F74(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8041EB80(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80427EB4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
@@ -309,7 +309,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 32: gimmick = fn_80416F74(parent, desc); break;
     case 34: gimmick = fn_80418F30(parent, desc); break;
     case 35: gimmick = gmk::BulletPoint::fn_8041B970(parent, desc); break;
-    case 39: gimmick = fn_8041EB80(parent, desc); break;
+    case 39: gimmick = gmk::Augur::fn_8041EB80(parent, desc); break;
     case 41: gimmick = gmk::LandMine::fn_80420ADC(parent, desc); break;
     case 42: gimmick = gmk::ShakeCamera::fn_80421454(parent, desc); break;
     case 43: gimmick = gmk::AttractHatePoint::fn_80421AB8(parent, desc); break;
