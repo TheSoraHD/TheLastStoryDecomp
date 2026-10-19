@@ -8,6 +8,14 @@ extern "C" {
 
 typedef enum {
     DWC_ERROR_NONE = 0,
+    DWC_ERROR_DS_MEMORY_ANY = 1, // inferred: names 1-8 from the NitroDWC API
+    DWC_ERROR_AUTH_ANY = 2,
+    DWC_ERROR_AUTH_OUT_OF_SERVICE = 3,
+    DWC_ERROR_AUTH_STOP_SERVICE = 4,
+    DWC_ERROR_AC_ANY = 5,
+    DWC_ERROR_NETWORK = 6,
+    DWC_ERROR_GHTTP_ANY = 7,
+    DWC_ERROR_DISCONNECTED = 8,
     DWC_ERROR_FATAL = 9
 } DWCError;
 
