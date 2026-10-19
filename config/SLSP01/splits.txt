@@ -427,7 +427,7 @@ chr/ControlDamage.cpp:
 
 chr/ControlDetect.cpp:
 	.text       start:0x801B0710 end:0x801B0D88
-	.rodata     start:0x8073AB58 end:0x8073AB88
+	.rodata     start:0x8073AB58 end:0x8073AB90
 	.data       start:0x80780240 end:0x80780330
 	.sdata2     start:0x80882388 end:0x808823B0
 
