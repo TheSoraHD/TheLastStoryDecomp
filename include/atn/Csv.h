@@ -29,6 +29,12 @@ public:
     // inferred: reads the next field into mField and returns it (0 at the end of the data).
     // Tab instance at 0x8005B9CC, pipe instance at 0x8005BFCC.
     // Comma instance at 0x8005B3CC.
+    // inferred: rereads the text from the start (inlined at 0x80531548); name invented
+    void Reset_unk() {
+        memset(mField, 0, sizeof(mField));
+        memset(m610, 0, sizeof(m610));
+        vf08(m04, m08);
+    }
     const T* fn_8005B9CC();
     int fn_8005BBF8(); // inferred: moves to the next line, 0 at the end (comma 0x8005B5F8)
     void fn_8005BCE8(const T* separators); // inferred (tab 0x8005BCE8, comma 0x8005B6E8)

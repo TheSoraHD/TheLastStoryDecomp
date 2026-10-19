@@ -1895,8 +1895,9 @@ game/NewCampTask.cpp:
 
 game/NewStaffRoll.cpp:
 	.text       start:0x8053108C end:0x80531E80
-	.rodata     start:0x8075D458 end:0x8075D468
-	.data       start:0x80793888 end:0x807938C0
+	.rodata     start:0x8075D450 end:0x8075D4C0
+	.data       start:0x80793888 end:0x80793940
+	.sdata      start:0x8087E4B0 end:0x8087E4B8
 	.sdata2     start:0x80887B30 end:0x80887B80
 
 game/NewTitleTask.cpp:
