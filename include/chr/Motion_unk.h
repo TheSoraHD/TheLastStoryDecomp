@@ -14,6 +14,8 @@ struct CharaPart_unk {
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
+    // inferred: called with the zero vector twice, 0 and 200 when an attack starts (fn_80157444)
+    virtual void vf18(const atn::Vector3& a, const atn::Vector3& b, int c, int d);
     int fn_8013C43C(); // inferred: accessor called out of line from CharaTask
 
     int m04;

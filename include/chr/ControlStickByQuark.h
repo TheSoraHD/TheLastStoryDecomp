@@ -95,6 +95,33 @@ public:
     bool fn_80196C68(); // inferred: can be cancelled
 };
 
+// inferred: class names from the vtables stored by the constructors (0x8015AF40-0x8015B808)
+class ControlMatHold : public ControlBase {
+public:
+    ControlMatHold(Chara_unk* chara, int a); // 0x801978C0
+    virtual int vf0C();
+    unsigned char m08[0x10 - 0x08];
+};
+
+class ControlMatHoldRelease : public ControlBase {
+public:
+    ControlMatHoldRelease(Chara_unk* chara); // 0x801980B4
+    virtual int vf0C();
+};
+
+class ControlMatHoldDamage : public ControlBase {
+public:
+    ControlMatHoldDamage(Chara_unk* chara); // 0x80198528
+    virtual int vf0C();
+};
+
+class ControlThrown : public ControlBase {
+public:
+    ControlThrown(Chara_unk* chara, const atn::Vector3& dir, int a); // 0x80198C08
+    virtual int vf0C();
+    unsigned char m08[0x30 - 0x08];
+};
+
 } // namespace chr
 
 #endif

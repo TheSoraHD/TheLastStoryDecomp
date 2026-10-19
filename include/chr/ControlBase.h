@@ -28,11 +28,13 @@ public:
     // CharaTask::fn_80178208 to the next control)
     virtual boost::function<void()> vf10();
     virtual void vf14();
-    virtual void vf18();
+    virtual atn::Vector3 vf18(); // inferred: a direction (CharaTask::fn_80158E1C)
     virtual void vf1C();
-    virtual void vf20();
-    virtual void vf24();
-    virtual void vf28();
+    // inferred: vf20, vf24 and vf28 are inline (weak copies emitted in game/CharaTask.cpp at
+    // 0x80158C9C, 0x80158D58 and 0x80158E14)
+    virtual float vf20() { return 0.0f; }
+    virtual int vf24() { return 0; }
+    virtual int vf28() { return 0; }
     virtual void vf2C();
     virtual int vf30(); // inferred: returns an int (0 in ControlBase, 0x800E60FC; compared with 5 by callers of CharaTask::fn_8017A450)
     virtual void vf34();

@@ -13,6 +13,10 @@
 #include "chr/ControlChant.h"
 #include "chr/ControlAppear.h"
 #include "chr/ControlUseSkill.h"
+#include "chr/ControlCaught.h"
+#include "chr/ControlChaseCaught.h"
+#include "chr/ControlCharge.h"
+#include "chr/ControlWallUp.h"
 #include "game/HitInfo_unk.h"
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
@@ -59,7 +63,9 @@ struct Settings_unk {
     int mCC; // inferred: nonzero makes every character a valid target (fn_80154E38)
     unsigned char mD0[0x250 - 0xD0];
     int m250; // inferred: copied to CharaTask::m1028 by fn_80164D24
-    unsigned char m254[0x278 - 0x254];
+    unsigned char m254[0x260 - 0x254];
+    int m260; // inferred: nonzero enables the jump/dash attacks (CharaTask::fn_801562A0)
+    unsigned char m264[0x278 - 0x264];
     int m278; // inferred: parts mode (fn_801539E0)
     unsigned char m27C[0x368 - 0x27C];
     unsigned int m368; // inferred: ARGB colors of the status effect (fn_8017A5D8)
@@ -387,7 +393,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
       mFlag23(0), mFlag22(0), mFlag21(0), mFlag20(0), mFlag19(0), mFlag18(0), mFlag17(1), mFlag16(1),
       mFlag15(0), mFlag14(1), mFlag13(1), mFlag12(0), mFlag11(0), mFlag10(0), mFlag9(0), mFlag8(0), mFlag7(0), mFlag6(0), mFlag5(0), mFlag4(0), mFlag3(0),
       mFlag2(0), mFlag1_0(0), mFlagB31_30(0), mFlagB29(0), mFlagB28(0), mFlagB27(0), mFlagB26(0), mFlagB25(0), mFlagB24_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16(0), mFlagB15(0), mFlagB14(1), mFlagB13_11(0),
-      mFlagB10(1), mFlagB9(0), mFlagB8(0), mFlagB7(1), mFlagB6_2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
+      mFlagB10(1), mFlagB9(0), mFlagB8(0), mFlagB7(1), mFlagB6_3(0), mFlagB2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
       m12BC(-1), m12C0(0), m12C4(0), m12C8(0), m12CC(0.0f), m1374(0), m137C(0), m1380(0), m1384(0),
       m1388(0), m138A(0), m138C(0), m1390(rand() % 4), m1398(0), m139C(0), m13AC(0), m13B0(0),
       m13B4(1.0f), m13D8(0.0f), m13DC(0.0f), m13E0(0.0f), m13E4(0.0f), m13E8(0.0f), m13EC(0.0f),
@@ -2181,7 +2187,10 @@ struct CollResult_unk {
         }
         return result;
     }
-    unsigned char m00[0x34];
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position (fn_801591E8)
+    unsigned char m10[0x28 - 0x10];
+    atn::Vector3 m28; // inferred: hit normal (fn_801591E8)
     unsigned int* m34; // inferred: hit object (its first word is a kind)
     int m38;
     int m3C;
@@ -4298,6 +4307,13 @@ public:
     virtual int vf0C();
     unsigned char m08[0x20 - 0x08];
 };
+// inferred: name from the vtable stored by the constructor (chr/ControlDive.cpp)
+class ControlBackStep : public ControlBase {
+public:
+    ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int a); // 0x801B1F4C
+    virtual int vf0C();
+    unsigned char m08[0x24 - 0x08];
+};
 } // namespace chr
 
 // fn_80154EC4, fn_801551AC, vf74, fn_80155790: same instructions as the target; only the .data
@@ -4320,6 +4336,420 @@ void CharaTask::vf74(int arg) {
 void CharaTask::fn_80155790(const atn::Vector3& dir) {
     fn_80178208(new (0, "", "", 0) chr::Control801B0D88_unk(this, dir));
 }
+void CharaTask::fn_80155A88(const atn::Vector3& dir, int a) {
+    fn_80178208(new (0, "", "", 0) chr::ControlBackStep(this, dir, a));
+}
+
+// inferred: nonzero while control 2 is running and its motion is in the first 30 frames
+bool CharaTask::fn_80155D70() {
+    if (m55C == 6 && m560 == 2 && mMotion.mTracks[0].m08 <= 30.0f) {
+        return true;
+    }
+    return false;
+}
+
+// inferred: sets or clears mFlag6 (forced by mFlagB2) and plays the matching motion; characters
+// 0xAAE76/0xAAE77 stop motion m484[4] on a fixed frame
+void CharaTask::fn_80155DAC(int arg) {
+    if (mFlag2 && mFlag6 == arg) {
+        return;
+    }
+    mFlag6 = arg | mFlagB2;
+    if (mFlag6) {
+        if (m50 == 0xAAE76) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, m484[4], 0, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = 0.0f;
+            mMotion.mTracks[0].m08 = 50.0f;
+        } else if (m50 == 0xAAE77) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, m484[4], 0, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = 0.0f;
+            mMotion.mTracks[0].m08 = 34.0f;
+        } else {
+            if (IsPartsMode_unk()) {
+                if (m674 >= 0 || fn_80370174(lbl_8087F430, 0x25) == 1 ||
+                    (fn_80370174(lbl_8087F430, 0x25) == 2 && fn_8013539C())) {
+                    fn_8014DEE4(1, 0, 0);
+                    fn_800C344C(sSoundNames_unk[4], &mPos, 0, -1, 1.0f);
+                }
+            }
+            if (m674 >= 0) {
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.fn_80097C08(0, m484[4], 1, 0, 1, 0.0f, 0.1f);
+                mMotion.mTracks[0].m0C = 1.0f;
+            } else {
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.fn_80097C08(0, m484[0], 1, 0, 1, 0.0f, 0.1f);
+                mMotion.mTracks[0].m0C = 1.0f;
+            }
+        }
+        fn_8023A02C(lbl_8087F3C0, this, 4, 0x20);
+    } else {
+        ResetParts_unk();
+        fn_8023A098(lbl_8087F3C0, this, 4, 0x20);
+    }
+}
+
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+
+// inferred: nonzero if `target` is within 45 degrees in front of the character
+bool CharaTask::fn_80156120(CharaTask* target) {
+    bool result = false;
+    if (target != 0) {
+        Mtx m;
+        atn::Vector3 dir = target->mPos - mPos;
+        dir.y = 0.0f;
+        PSVECNormalize(&dir, &dir);
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &front, &front);
+        if (PSVECDotProduct(&dir, &front) > 0.70710677f) {
+            result = true;
+        }
+    }
+    return result;
+}
+
+// inferred: attacks straight ahead
+void CharaTask::fn_801561E4(HitInfo_unk* hit) {
+    Mtx m;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    float ry = mRot.y;
+    PSMTXRotRad(m, 'y', ry);
+    PSMTXMultVec(m, &front, &front);
+    fn_801562A0(hit, mPos + front, 0, 0, 0, 0, 0.0f);
+}
+
+// inferred: front direction of a rotation (name invented)
+inline atn::Vector3 GetFront2_unk(Mtx m, const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    PSMTXRotRad(m, 'y', rot.y);
+    PSMTXMultVec(m, &v, &v);
+    return v;
+}
+
+// inferred: ray test that returns the hit position (0x8004ECC0, next to fn_8004ED34)
+extern "C" int fn_8004ECC0(void* colli, atn::Vector3* hitPos, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, int arg5, int arg6);
+// inferred: route test from `pos` along `dir` (game route table at lbl_8087F430->m10D8)
+extern "C" int fn_803CC198(RouteTable_unk* table, const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
+
+// inferred: starts an attack toward `pos`; `dist` is the distance kept from the target, `type` 1/2
+// selects a jump attack (2 = second kind), otherwise a dash or jump attack is chosen by ray tests.
+// `b` is not read.
+void CharaTask::fn_801562A0(HitInfo_unk* hit, const atn::Vector3& pos, int type, int a, int b, CharaTask* target,
+                            float dist) {
+    m59D = 0;
+    m59C = 0;
+    m59F = 0;
+    if (hit != 0) {
+        SetHit_unk(hit);
+    } else {
+        SetHit_unk(fn_80219E6C(200));
+    }
+    Mtx m;
+    atn::Vector3 dir;
+    dir = pos - mPos;
+    dir.y = 0.0f;
+    dist = PSVECMag(&dir) - 0.9f * dist;
+    if (fn_805F9920(&dir) > 0.0001f) {
+        PSVECNormalize(&dir, &dir);
+    } else {
+        dir.Assign_unk(GetFront2_unk(m, *GetRot_unk()));
+    }
+    if (m648 != 0) {
+        m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
+    }
+    if (a == 0 && (mFlag31 || lbl_8087F0A8->m260 == 0 || dist < mStatus.mParamB.m28)) {
+        fn_80178208(new (0, "", "", 0) chr::ControlAttack(this, dir));
+    } else if (type > 0) {
+        atn::Vector3 offset = mPos + atn::Vector3::fn_8013C394(mC14, atn::Vector3(0.0f, 1.0f, 0.0f)) * 5.0f;
+        offset.y = mPos.y;
+        offset = offset - mPos;
+        switch (type) {
+        case 1:
+            if (target != 0) {
+                offset = target->mPos - mPos;
+                offset.y = 0.0f;
+            }
+            fn_80178208(new (0, "", "", 0) chr::ControlJumpAttack(this, pos, offset));
+            break;
+        case 2:
+            fn_80178208(new (0, "", "", 0) chr::ControlJumpAttack2(this, pos, offset));
+            break;
+        }
+    } else {
+        atn::Vector3 hitPos;
+        atn::Vector3 from(mPos);
+        atn::Vector3 to = mPos + dir * 20.0f;
+        bool jump = false;
+        from.y += 3.0f;
+        to.y += 3.0f;
+        if (fn_8004ECC0(lbl_8087EE98, &hitPos, &from, &to, 0x80000000, 0, 0)) {
+            from.y += 8.0f;
+            to.y += 8.0f;
+            if (!fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0) &&
+                fn_803CC198(lbl_8087F430->m10D8, &mPos, &dir, this)) {
+                jump = true;
+            }
+        }
+        if (jump) {
+            atn::Vector3 offset = hitPos;
+            offset.y = mPos.y;
+            offset = offset - mPos;
+            fn_80178208(new (0, "", "", 0) chr::ControlJumpAttack(this, pos, offset));
+        } else {
+            fn_80178208(new (0, "", "", 0) chr::ControlDashAttack(this, pos));
+        }
+    }
+}
+
+// inferred: next attack of a combo toward `pos`
+void CharaTask::fn_80157444(HitInfo_unk* hit, const atn::Vector3& pos) {
+    m59D = 0;
+    m59C = 1;
+    m59F = 0;
+    if (hit != 0) {
+        SetHit_unk(hit);
+    } else {
+        SetHit_unk(fn_80219E6C(200));
+    }
+    if (m648 != 0) {
+        m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
+    }
+    atn::Vector3 dir = pos - mPos;
+    dir.y = 0.0f;
+    if (fn_805F9920(&dir) > 0.0001f) {
+        PSVECNormalize(&dir, &dir);
+    } else {
+        Mtx m;
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        PSMTXRotRad(m, 'y', GetRot_unk()->y);
+        PSMTXMultVec(m, &front, &front);
+        // inferred: z-first copy called directly (dir.Assign_unk(front) swaps the address registers)
+        __VecCopyZFirst(&dir.x, &front.x);
+    }
+    fn_80178208(new (0, "", "", 0) chr::ControlAttackNext(this, dir));
+}
+
+// inferred: multi attack toward `pos`
+void CharaTask::fn_8015783C(HitInfo_unk* hit, const atn::Vector3& pos) {
+    m59D = 1;
+    m59C = 0;
+    m59F = 0;
+    if (hit != 0) {
+        SetHit_unk(hit);
+    } else {
+        SetHit_unk(fn_80219E6C(200));
+    }
+    if (m648 != 0) {
+        m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
+    }
+    atn::Vector3 dir = pos - mPos;
+    dir.y = 0.0f;
+    if (fn_805F9920(&dir) > 0.0001f) {
+        PSVECNormalize(&dir, &dir);
+    } else {
+        Mtx m;
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        PSMTXRotRad(m, 'y', GetRot_unk()->y);
+        PSMTXMultVec(m, &front, &front);
+        // inferred: z-first copy called directly (dir.Assign_unk(front) swaps the address registers)
+        __VecCopyZFirst(&dir.x, &front.x);
+    }
+    fn_80178208(new (0, "", "", 0) chr::ControlMultiAttack(this, dir));
+}
+
+// inferred: side wall attack toward `pos`
+void CharaTask::fn_80157C34(HitInfo_unk* hit, const atn::Vector3& pos) {
+    m59D = 1;
+    m59C = 0;
+    m59F = 0;
+    if (hit != 0) {
+        SetHit_unk(hit);
+    } else {
+        SetHit_unk(fn_80219E6C(200));
+    }
+    if (m648 != 0) {
+        m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
+    }
+    atn::Vector3 dir = pos - mPos;
+    dir.y = 0.0f;
+    if (fn_805F9920(&dir) > 0.0001f) {
+        PSVECNormalize(&dir, &dir);
+    } else {
+        Mtx m;
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        PSMTXRotRad(m, 'y', GetRot_unk()->y);
+        PSMTXMultVec(m, &front, &front);
+        // inferred: z-first copy called directly (dir.Assign_unk(front) swaps the address registers)
+        __VecCopyZFirst(&dir.x, &front.x);
+    }
+    fn_80178208(new (0, "", "", 0) chr::ControlSideWallAttack(this, dir));
+}
+
+// inferred: swaps places with `target` (target plays motion 0x46 and is reset)
+void CharaTask::fn_8015802C(HitInfo_unk* hit, CharaTask* target) {
+    m59D = 0;
+    m59C = 0;
+    m59F = 0;
+    if (hit != 0) {
+        SetHit_unk(hit);
+    } else {
+        SetHit_unk(fn_80219E6C(200));
+    }
+    if (m648 != 0) {
+        m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
+    }
+    target->fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(target, 0x46, 0, 0, -1.0f, -1.0f));
+    target->Reset_unk(0, 1, 1, 1);
+    target->m58C = 0;
+    fn_80178208(new (0, "", "", 0) chr::ControlSwapAttack(this, target));
+}
+
+// inferred: high jump attack toward `pos`
+void CharaTask::fn_801588A0(HitInfo_unk* hit, const atn::Vector3& pos) {
+    if (hit != 0) {
+        m63C = m638;
+        m638 = hit;
+    }
+    fn_80178208(new (0, "", "", 0) chr::ControlHighJumpAttack(this, pos, 100.0f, 0));
+}
+
+// inferred: nonzero when the motion of the running control has reached its end
+bool CharaTask::fn_80158BB4() {
+    if (m55C == 6) {
+        switch (m560) {
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 0x8D:
+            if (mMotion.mTracks[0].m00 == 0x162) {
+                float frame = mMotion.mTracks[0].m08;
+                return frame >= mMotion.fn_80097D7C(0) - 3.0f;
+            } else {
+                float frame = mMotion.mTracks[0].m08;
+                return frame >= mMotion.fn_80097D7C(0);
+            }
+        case 0xB: {
+            float frame = mMotion.mTracks[0].m08;
+            return frame >= mMotion.fn_80097D7C(0) - 6.0f;
+        }
+        }
+    }
+    return true;
+}
+
+// inferred: no caller is left in the game (removed by the linker); it is what emits the weak copy
+// of ControlBase::vf20 at this position. Name invented.
+float CharaTask::GetControlF20_unk() {
+    if (mControl) {
+        return mControl->vf20();
+    }
+    return 0.0f;
+}
+
+int CharaTask::fn_80158CA4() {
+    if (mControl) {
+        return mControl->vf24();
+    }
+    return 0;
+}
+
+int CharaTask::vf78() {
+    if (mControl) {
+        return mControl->vf28();
+    }
+    return 0;
+}
+
+atn::Vector3 CharaTask::fn_80158E1C() {
+    if (mControl) {
+        return mControl->vf18();
+    }
+    return atn::Vector3(0.0f, 0.0f, 1.0f);
+}
+
+void CharaTask::fn_80158EF0(int a) {
+    fn_80178208(new (0, "", "", 0) chr::ControlAttackSetup(this, a));
+}
+
+// inferred: name invented (inlined; static because its "" goes to the file pool)
+static void StartWallUp_unk(CharaTask* chara, const atn::Vector3& pos, const atn::Vector3& normal) {
+    chara->m13AC = 0;
+    chara->fn_80178208(new (0, "", "", 0) chr::ControlWallUp(chara, pos, normal));
+}
+
+// inferred: climbs the wall found in direction `dir`
+void CharaTask::fn_801591E8(const atn::Vector3& dir) {
+    CollResult_unk result;
+    atn::Vector3 from(mPos.x, 18.0f + mPos.y, mPos.z);
+    atn::Vector3 to = from + dir * m620 * 2.0f;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000020, 0, 0)) {
+        StartWallUp_unk(this, result.m04, -result.m28);
+    }
+}
+
+void CharaTask::fn_801595BC(int a, int count, int motion, int releaseMotion) {
+    fn_80178208(new (0, "", "", 0) chr::ControlCaught(this, a, count, motion, releaseMotion));
+}
+
+void CharaTask::fn_801598B4(int a, int b, int c) {
+    fn_80178208(new (0, "", "", 0) chr::ControlChaseCaught(this, a, b, c));
+}
+
+void CharaTask::fn_80159BA4(int a) {
+    fn_80178208(new (0, "", "", 0) chr::ControlChaseCatch(this, a));
+}
+
+void CharaTask::fn_80159E9C() {
+    fn_80178208(new (0, "", "", 0) chr::ControlChaseAssist(this));
+}
+
+void CharaTask::fn_8015A184() {
+    fn_80178208(new (0, "", "", 0) chr::ControlChaseFollow(this));
+}
+
+// inferred: knocked down along `dir` after a reset (returns to the previous state first)
+void CharaTask::fn_8015A46C(const atn::Vector3& dir) {
+    Reset_unk(0, 1, 1, 1);
+    fn_8016E970(m564);
+    mF1C = 0;
+    if (mType == 0 && ((unsigned int)mStatus.m0C & 0x20) == 0x20) {
+        vf44();
+    }
+    fn_8015E7A0(dir, -1, 0);
+}
+
+void CharaTask::fn_8015AC48(int motion) {
+    fn_80178208(new (0, "", "", 0) chr::ControlRelease(this, motion));
+}
+
+void CharaTask::fn_8015AF40(int a) {
+    fn_80178208(new (0, "", "", 0) chr::ControlMatHold(this, a));
+}
+
+void CharaTask::fn_8015B238() {
+    fn_80178208(new (0, "", "", 0) chr::ControlMatHoldRelease(this));
+}
+
+void CharaTask::fn_8015B520() {
+    fn_80178208(new (0, "", "", 0) chr::ControlMatHoldDamage(this));
+}
+
+void CharaTask::fn_8015B808(const atn::Vector3& dir, int a) {
+    fn_80178208(new (0, "", "", 0) chr::ControlThrown(this, dir, a));
+}
+
 void CharaTask::fn_8015BAF0(int a, int b) {
     chr::ControlThrownAway* control = new (0, "", "", 0) chr::ControlThrownAway(this, a, b);
     fn_80178208(control);

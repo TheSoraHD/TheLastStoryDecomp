@@ -546,6 +546,41 @@ public:
     void fn_80154EC4(int a, int b);
     void fn_801551AC();
     void fn_80155790(const atn::Vector3& dir);
+    // inferred: 0x80155A88-0x8015B808 also create a control and switch to it
+    void fn_80155A88(const atn::Vector3& dir, int a);
+    bool fn_80155D70();
+    bool fn_80156120(CharaTask* target);
+    void fn_801561E4(HitInfo_unk* hit);
+    // inferred: starts an attack (chr::ControlAttack*) toward `pos`
+    void fn_801562A0(HitInfo_unk* hit, const atn::Vector3& pos, int type, int a, int b, CharaTask* target,
+                     float dist);
+    void fn_80157444(HitInfo_unk* hit, const atn::Vector3& pos);
+    void fn_8015783C(HitInfo_unk* hit, const atn::Vector3& pos);
+    void fn_80157C34(HitInfo_unk* hit, const atn::Vector3& pos);
+    void fn_8015802C(HitInfo_unk* hit, CharaTask* target);
+    // inferred: name invented
+    void SetHit_unk(HitInfo_unk* hit) {
+        m63C = m638;
+        m638 = hit;
+    }
+    void fn_801588A0(HitInfo_unk* hit, const atn::Vector3& pos);
+    bool fn_80158BB4();
+    float GetControlF20_unk();
+    int fn_80158CA4();
+    atn::Vector3 fn_80158E1C(); // inferred: direction given by the running control
+    void fn_80158EF0(int a);
+    void fn_801591E8(const atn::Vector3& dir);
+    void fn_801595BC(int a, int count, int motion, int releaseMotion);
+    void fn_801598B4(int a, int b, int c);
+    void fn_80159BA4(int a);
+    void fn_80159E9C();
+    void fn_8015A184();
+    void fn_8015A46C(const atn::Vector3& dir);
+    void fn_8015AC48(int motion);
+    void fn_8015AF40(int a);
+    void fn_8015B238();
+    void fn_8015B520();
+    void fn_8015B808(const atn::Vector3& dir, int a);
     void fn_80178A6C();
     int fn_8017A450();
     void fn_8017A504();
@@ -823,7 +858,8 @@ public:
     unsigned int mFlagB9 : 1;
     unsigned int mFlagB8 : 1; // inferred: cleared by fn_8016034C (end of a magic)
     unsigned int mFlagB7 : 1;
-    unsigned int mFlagB6_2 : 5;
+    unsigned int mFlagB6_3 : 4;
+    unsigned int mFlagB2 : 1; // inferred: forces mFlag6 (fn_80155DAC)
     unsigned int mFlagB1 : 1; // inferred: set by fn_8017C7F8 (motion mode 4 instead of 1)
     unsigned int mFlagB0 : 1;
     int m12AC;
