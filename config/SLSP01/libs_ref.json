@@ -6006,7 +6006,7 @@
  },
  {
   "name": "RVL_SDK/src/revolution/net/netmemcpy.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6036,14 +6036,14 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/net/netmemset.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6073,14 +6073,14 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/nwc24/NWC24Config.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6110,14 +6110,14 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/nwc24/NWC24Manage.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6147,14 +6147,14 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/nwc24/NWC24Schedule.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6184,14 +6184,14 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/nwc24/NWC24UserId.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6221,14 +6221,14 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/nwc24/NWC24Time.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6258,14 +6258,14 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/nwc24/NWC24Ipc.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6295,14 +6295,14 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/nwc24/NWC24System.c",
-  "mw_version": "Wii/1.0",
+  "mw_version": "GC/3.0a5.2",
   "cflags": [
    "-nodefaults",
    "-proc gekko",
@@ -6332,9 +6332,9 @@
    "-lang=c",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 16"
+   "-func_align 4"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  }
 ]

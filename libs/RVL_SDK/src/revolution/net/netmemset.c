@@ -59,6 +59,7 @@ void* NETMemSet(void* buf, int ch, unsigned long size) {
     unsigned long headSize;
     unsigned long accBlkSize;
     register unsigned long fill = ch;
+    void* ret = buf;
 
     if (size == 0) {
         return buf;
@@ -85,5 +86,5 @@ void* NETMemSet(void* buf, int ch, unsigned long size) {
     }
 
     NETMemSet_Simple(buf, fill, size);
-    return buf;
+    return ret;
 }

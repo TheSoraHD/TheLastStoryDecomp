@@ -10,6 +10,11 @@ enum {
     NWC24_IOCTL_SUSPEND_SCHEDULER = 1,
     NWC24_IOCTL_TRY_SUSPEND_SCHEDULER = 2,
     NWC24_IOCTL_RESUME_SCHEDULER = 3,
+    // inferred: names of the socket commands (only their numbers are known)
+    NWC24_IOCTL_STARTUP_SOCKET = 6,
+    NWC24_IOCTL_CLEANUP_SOCKET = 7,
+    NWC24_IOCTL_LOCK_SOCKET = 8,
+    NWC24_IOCTL_UNLOCK_SOCKET = 9,
     NWC24_IOCTL_GENERATE_USER_ID = 15,
 };
 
@@ -220,6 +225,23 @@ NWC24Err NWC24iResumeForCloseLib(void) {
     UnlockCounters();
 
     return result;
+}
+
+// inferred: names of the four socket helpers called by the SO library
+NWC24Err NWC24iStartupSocket(NWC24Err* pExResult) {
+    return ExecNoParamCommand(NULL, NWC24_IOCTL_STARTUP_SOCKET, pExResult);
+}
+
+NWC24Err NWC24iCleanupSocket(NWC24Err* pExResult) {
+    return ExecNoParamCommand(NULL, NWC24_IOCTL_CLEANUP_SOCKET, pExResult);
+}
+
+NWC24Err NWC24iLockSocket(void) {
+    return ExecNoParamCommand(NULL, NWC24_IOCTL_LOCK_SOCKET, NULL);
+}
+
+NWC24Err NWC24iUnlockSocket(void) {
+    return ExecNoParamCommand(NULL, NWC24_IOCTL_UNLOCK_SOCKET, NULL);
 }
 
 static NWC24Err ExecSuspendScheduler(void) {
