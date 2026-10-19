@@ -1728,7 +1728,7 @@
   "classes": [
    "gmk::Trap"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Coffin.cpp",
