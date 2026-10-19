@@ -33,7 +33,7 @@ int DWC_Init(DWCAuthServer authServer, const char* gameName, u32 gameCode, DWCAl
     DWCi_SetMemFunc(alloc, free);
 
     if (fn_806D08E0(authServer) == 0) {
-        DWC_Printf(DWC_REPORTFLAG_ERROR, "Failed to initialize auth interface.\n");
+        DWC_Printf(DWC_REPORTFLAG_WARNING, "Failed to initialize auth interface.\n");
         return -1;
     }
 

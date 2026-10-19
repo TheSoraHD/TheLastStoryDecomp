@@ -34,7 +34,7 @@ void* DWC_AllocEx(DWCAllocType name, u32 size, int align) {
         (DWCi_AllocateHeader*)s_alloc(name, size + sizeof(DWCi_AllocateHeader), align);
 
     if (header == NULL) {
-        DWC_Printf(DWC_REPORTFLAG_ERROR,
+        DWC_Printf(DWC_REPORTFLAG_WARNING,
                    "Failed to alloc memory. Original requested size: %d, Required size: %d, align: %d.\n",
                    size, size + sizeof(DWCi_AllocateHeader), align);
         return NULL;
