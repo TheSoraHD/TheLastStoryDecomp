@@ -75,6 +75,8 @@ public:
     CampSaveData_unk* GetData_unk() { return mMode == 0 ? m4C : m50; }
     void fn_80119030(int state, int arg); // inferred: changes the state
     void fn_8011968C();                   // inferred: handles the cancel/back input
+    void fn_8011979C();                   // inferred: handles the confirmation window input
+    void fn_8011B3D8(int wrap);           // inferred: moves the cursor m154 within [0, m158)
     void fn_8011B8D4(const wchar_t* text, int length); // inferred: reads the list of entries
     int fn_8011BBD0(int slot);            // inferred: nonzero if the slot is newer than the current data
 

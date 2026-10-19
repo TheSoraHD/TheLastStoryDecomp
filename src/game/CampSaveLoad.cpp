@@ -48,9 +48,20 @@ extern "C" int fn_803BEB54(SaveSlot_unk* slot); // inferred: nonzero if the slot
 // inferred: pad input (lbl_8087EF70); names invented
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 inline int IsTriggered_unk(int button) {
     return lbl_8087EF70 != 0 ? fn_800A555C(lbl_8087EF70, 0, button) : 0;
 }
+inline bool IsRepeated_unk(int button) {
+    return lbl_8087EF70 != 0 ? fn_800A55AC(lbl_8087EF70, 0, button) : 0;
+}
+
+// inferred: save and load of a slot (save menu: fn_803B7FC8/fn_803B807C, load menu:
+// fn_803B3270/fn_803B3310)
+extern "C" void fn_803B7FC8(CampSaveData_unk* data, int slot);
+extern "C" void fn_803B807C(CampSaveData_unk* data, int slot);
+extern "C" void fn_803B3270(CampSaveData_unk* data, int slot);
+extern "C" void fn_803B3310(CampSaveData_unk* data, int slot);
 
 // inferred: plays a system sound effect
 extern "C" atn::SoundRef fn_80117228(int id);
@@ -237,6 +248,72 @@ void CampSaveLoad::fn_8011968C() {
             fn_80119030(3, 0);
         }
         m170 = 0;
+    }
+}
+
+void CampSaveLoad::fn_8011979C() {
+    if (IsTriggered_unk(4)) {
+        if (m148 == 0) {
+            if (m16C == 0) {
+                if (lbl_8087F0A8 != 0) {
+                    lbl_8087F0A8->m113C = m128;
+                }
+                if (mMode == 0) {
+                    fn_803B7FC8(m4C, m128);
+                } else {
+                    fn_803B3270(m50, m128);
+                }
+                fn_80119030(5, 0);
+                fn_80117228(1);
+            } else if (m16C == 2) {
+                fn_80119030(7, 0);
+                fn_80117228(1);
+            } else {
+                if (mMode == 0) {
+                    fn_803B807C(m4C, m128);
+                } else {
+                    fn_803B3310(m50, m128);
+                }
+                fn_80119030(5, 0);
+                fn_80117228(1);
+            }
+        } else {
+            fn_80119030(1, 0);
+            fn_80117228(2);
+        }
+    } else if (IsTriggered_unk(5)) {
+        fn_80119030(1, 0);
+        fn_80117228(2);
+    } else {
+        m154 = m148;
+        m158 = 2;
+        fn_8011B3D8(1);
+        m148 = m154;
+    }
+}
+
+// NONMATCHING: 88.8% - the original converts each pad result to a bool value (neg/or/srwi)
+// before testing it
+void CampSaveLoad::fn_8011B3D8(int wrap) {
+    if (IsRepeated_unk(0) || IsRepeated_unk(0x1A)) {
+        if (--m154 < 0) {
+            if (wrap) {
+                m154 = m158 - 1;
+            } else {
+                m154 = 0;
+            }
+        }
+        fn_80117228(3);
+    } else if (IsRepeated_unk(1) || IsRepeated_unk(0x19)) {
+        m154++;
+        if (m154 >= m158) {
+            if (wrap) {
+                m154 = 0;
+            } else {
+                m154 = m158 - 1;
+            }
+        }
+        fn_80117228(3);
     }
 }
 
