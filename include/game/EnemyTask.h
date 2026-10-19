@@ -22,7 +22,7 @@ public:
     virtual ~EnemyTask();                     // 0x8035B78C
     virtual void vf68();
     virtual void vf6C();
-    virtual int vfF4();
+    virtual int vfF4() { return 0; } // inline: weak copy at the end of ChaserGuard.cpp (0x80180594)
 
     EnemyTask* mNext; // 0x14AC: inferred: next enemy in the EnemyManager list
 };
