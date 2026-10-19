@@ -159,7 +159,7 @@ struct Camera_unk {
     float m50;
     float m54;
     atn::Matrix3x4 m58;
-    float m88[4][4];      // NONMATCHING: the original copies it with eight paired singles
+    atn::Matrix44_unk m88;
     float mC8;
     float mCC;
     atn::Matrix3x4 mD0;
@@ -382,9 +382,10 @@ struct NewCampSceneState_unk {
 // inferred: camp task (NewCampPartsBase::m48)
 struct NewCampTask_unk {
     // inferred: weak copy 0x805134F4 (returns an object with a destructor: never inlined)
-    // NONMATCHING: the original inlines the copies of the camera, the light and the scene (whose
-    // own member copies 0x80513CF8-0x805143C8 stay out of line) and copies the 4x4 matrix of the
-    // camera with eight paired singles (no helper for it in math/Vec.h)
+    // NONMATCHING: the original inlines the copies of the camera, the light and the scene, whose
+    // own member copies (0x80513CF8-0x805143C8) stay out of line; here the scene copy inlines them
+    // (written out, with or without a user copy constructor) and the state copy then calls the
+    // camera, light and scene copies
     NewCampSceneState_unk GetState_unk() const { return mState; }
 
     unsigned char m0000[0x468];
