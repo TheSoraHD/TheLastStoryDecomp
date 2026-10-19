@@ -147,7 +147,8 @@ struct Model_unk {
     unsigned char m224[0x22C - 0x224];
     Track_unk mTracks[6]; // 0x22C (track 0: frame at 0x234, speed at 0x238)
     int m34C;
-    unsigned char m350[0x3D0 - 0x350];
+    float m350; // inferred: time scale of the character (multiplied with the frame time, CharaTask::fn_8013CB68)
+    unsigned char m354[0x3D0 - 0x354];
 };
 
 // inferred: take an empty boost::function by value (signature unknown, void() assumed)

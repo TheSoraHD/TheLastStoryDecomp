@@ -381,6 +381,8 @@ public:
     void fn_80164B00(const CharaShade_unk& shade); // inferred: starts a shade (timers at mFC8)
     void fn_80164D24(); // inferred: counts the mFC8 timers down while mFlag28 is set
     void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
+    void fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c); // inferred: chr::ControlPushedDown
+    void fn_8016D0A0(int a); // inferred: releases the gimmick and starts chr::ControlSlip
     void fn_8015E4B0(const atn::Vector3& dir, int arg); // inferred: knock back along `dir` (0x801B59E0)
     void fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2);
     // inferred: the current motion (track 0) has reached its end (name invented)
@@ -452,6 +454,11 @@ public:
     void fn_80154344();
     void fn_8015495C(int a, int b, int c, int d);
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
+    // inferred: collision responses called by fn_8013CB68 with the new position and the movement
+    int fn_801720AC(atn::Vector3* pos, atn::Vector3* move);
+    int fn_80172EFC(atn::Vector3* pos, atn::Vector3* move);
+    int fn_80174104(atn::Vector3* pos, atn::Vector3* move);
+    int fn_801749EC(atn::Vector3* pos, atn::Vector3* move);
     int fn_8016E484();
     void fn_8017AC2C();
     void fn_80166544();
