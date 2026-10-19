@@ -2257,7 +2257,7 @@
   "classes": [
    "MarketTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MenuCommonTask.cpp",
