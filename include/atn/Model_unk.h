@@ -94,7 +94,8 @@ struct Model_unk {
     unsigned char m58[0xAC - 0x58];
     float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
-    unsigned char mB4[0x1DC - 0xB4];
+    unsigned char mB4[0x104 - 0xB4];
+    unsigned char m104[0x1DC - 0x104]; // inferred: passed to fn_80089AD4 by CharaManager::vf14
     struct Lens_unk* m1DC; // inferred: own camera lens, else the global one (CharaTask::fn_8014C540)
     unsigned char m1E0[0x208 - 0x1E0];
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
@@ -103,7 +104,9 @@ struct Model_unk {
     unsigned int m20C_7_6 : 2;
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
     unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
-    unsigned int m20C_3_0 : 4;
+    unsigned int m20C_3 : 1;
+    int mFlag2_unk : 1; // inferred: CharaManager::vf10 calls fn_8008B140 while it is set
+    unsigned int m20C_1_0 : 2;
     unsigned char m210[0x220 - 0x210];
     // inferred: accessor (the original reads the flag word again before setting mFlag4_unk); name invented
     int IsFlag5_unk() const { return mFlag5_unk; }

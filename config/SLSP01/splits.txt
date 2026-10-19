@@ -309,7 +309,7 @@ game/CampSaveLoad.cpp:
 	.sdata2     start:0x80881748 end:0x80881798
 
 game/CharaManager_PlayerTask.cpp:
-	.text       start:0x8011F6FC end:0x8011FF78
+	.text       start:0x8011F6B0 end:0x8011FF78
 	.rodata     start:0x80737068 end:0x807370B4
 	.data       start:0x8077A168 end:0x8077A228
 

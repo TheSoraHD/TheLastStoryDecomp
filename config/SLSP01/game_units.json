@@ -444,7 +444,7 @@
    "CharaManager<EnemyTask>",
    "CharaManager<PlayerTask>"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/RouteWalker_unk.cpp",
