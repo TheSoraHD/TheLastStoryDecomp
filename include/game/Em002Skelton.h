@@ -4,13 +4,12 @@
 #include "game/EnemyTask.h"
 
 // inferred from __vt__12Em002Skelton (0x807840A8)
-// The override of vfE8 (0x8024A1E0) is missing: it takes the hit message as an argument, but
-// BattleCharaTask::vfE8 is still declared without one (vfE8__15BattleCharaTaskFv).
 class Em002Skelton : public EnemyTask {
 public:
     Em002Skelton(atn::Task* parent, void* data);
     virtual ~Em002Skelton();
     virtual int vf0C();
+    virtual void vfE8(HitMsg_unk* msg);
     virtual void vfF0();
     virtual void vf44();
 

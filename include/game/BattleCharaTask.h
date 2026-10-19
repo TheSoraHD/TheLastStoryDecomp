@@ -16,7 +16,7 @@ public:
     virtual void vf44();
     virtual int vfA4(); // inferred: returns 1/0 (0x800EE494)
     virtual void vfE4();
-    virtual void vfE8();
+    virtual void vfE8(HitMsg_unk* msg); // inferred: a hit was received (Em002Skelton reads the message)
     virtual void vfEC();
     virtual void vfF0();
 

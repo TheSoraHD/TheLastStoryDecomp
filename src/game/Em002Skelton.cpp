@@ -1,6 +1,20 @@
 #include "game/Em002Skelton.h"
 
+extern "C" int strcmp(const char* a, const char* b);
 extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask
+extern "C" void fn_800EB49C(CharaTask* chara); // inferred: BattleCharaTask (knocked back)
+extern "C" void fn_8011CD84(CharaD74_unk* label, CharaTask* chara, int kind); // inferred: shows a label
+extern "C" void fn_80232B7C(void* owner, int arg);
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk;
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: parameters of fn_8003EA3C (defined in CharaTask.cpp)
 struct HitParam_unk;
@@ -50,7 +64,57 @@ int Em002Skelton::vf0C() {
     return result;
 }
 
-// vfE8 (0x8024A1E0) would go here, see Em002Skelton.h.
+// inferred: plays an effect on the model (name invented)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+void Em002Skelton::vfE8(HitMsg_unk* msg) {
+    if (msg->mAttacker != 0 && strcmp(msg->mAttacker->fn_8017C904(), "ch3004_01") == 0) {
+        fn_80232B7C(0, 0);
+        PlayEffect_unk(&m14C4, &mMotion);
+        vf44();
+        mFlag25 = 1;
+        mColli.mFlags &= ~1;
+        mFlag15 = 1;
+        m14B0 = m5C->mParam.m98;
+        fn_801765D8();
+        return;
+    }
+    if (m55C != 2) {
+        fn_8015495C(0, 1, 1, 1);
+    }
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        if (!(m55C == 6 && m560 == 0x3B)) {
+            fn_8015E7A0(msg->m28 * 5.0f, 0x2E, 0);
+        }
+        fn_800EB49C(this);
+    }
+    if (CanAct_unk() && (mStatus.m0C & 0x40) != 0x40 && mC58.m11C.m00 >= 2) {
+        if (msg->mAttacker != 0 && msg->mAttacker->mFlag28) {
+            fn_8011CD84(&mC58.m11C, this, 1);
+        } else if (mC58.m11C.m08 >= 0 && mC58.m11C.m00 >= 2) {
+            if (msg->m44 == 1) {
+                fn_8011CD84(&mC58.m11C, this, 4);
+            } else {
+                fn_8011CD84(&mC58.m11C, this, 1);
+            }
+        }
+    }
+}
 
 void Em002Skelton::vfF0() {
     if (fn_8015EB2C() == 0) {
