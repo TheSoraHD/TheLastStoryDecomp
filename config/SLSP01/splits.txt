@@ -1838,10 +1838,12 @@ atn/PPDATAU.cpp:
 	.data       start:0x80793118 end:0x80793168
 
 game/NewCampPartsGmk.cpp:
-	.text       start:0x805128C0 end:0x80512C90
-	.rodata     start:0x8075B500 end:0x8075B510
-	.data       start:0x80793320 end:0x807933A8
-	.sdata2     start:0x808877E0 end:0x808877E4
+	.text       start:0x805128C0 end:0x80514720
+	.ctors      start:0x8072D3AC end:0x8072D3B0
+	.rodata     start:0x8075B320 end:0x8075B580
+	.data       start:0x80793320 end:0x807933C8
+	.bss        start:0x807C8FF0 end:0x807C90F0
+	.sdata2     start:0x808877E0 end:0x8088783C
 
 game/NewCampPartsHint.cpp:
 	.text       start:0x80514784 end:0x805169F8

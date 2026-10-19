@@ -89,6 +89,13 @@ template <class T>
 class Buffer_unk {
 public:
     Buffer_unk() : mSize(0), mData(0) {}
+    // inferred: weak copy 0x80514218 (inlined in the copy of a record of game/NewCampPartsGmk.cpp)
+    Buffer_unk(const Buffer_unk& o) : mSize(0), mData(0) {
+        Resize_unk(o.mSize, 0);
+        for (unsigned int i = 0; i < mSize; i++) {
+            mData[i] = o.mData[i];
+        }
+    }
     ~Buffer_unk() {
         if (mData != 0) {
             delete[] mData;

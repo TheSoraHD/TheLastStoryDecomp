@@ -190,6 +190,8 @@ public:
     // declared only (boost::offset_separator, never used by the game)
     vector(size_type n, const T& value);
     template <class Iterator> vector(Iterator first, Iterator last);
+    // inferred: weak copies 0x80513D34 and 0x80513EC4 (game/NewCampPartsGmk.cpp)
+    vector(const vector& x) { __init_unk(x.mData, x.mData + x.mSize); }
     ~vector() {}
 
     T* begin() { return this->mData; }
@@ -208,6 +210,7 @@ public:
     void push_back(const T& x);
 
 private:
+    void __init_unk(const T* first, const T* last);
     size_type __grow_cap_unk(size_type n);
     void __swap_out_unk(__vec_split_unk<T>& buf) {
         buf.__push_front_unk(this->mData, this->mData + this->mSize);
@@ -241,6 +244,24 @@ void vector<T>::push_back(const T& x) {
     buf.mStart = this->mSize;
     buf.push_back(x);
     __swap_out_unk(buf);
+}
+
+// inferred: copy of a range into an empty vector (names invented)
+template <class T>
+void vector<T>::__init_unk(const T* first, const T* last) {
+    size_type n = last - first;
+    if (n != 0) {
+        if (n > max_size()) {
+            __msl_error("vector length error");
+        }
+        this->mData = __allocate(n);
+        this->mCap = n;
+        T* p = this->mData + this->mSize;
+        for (; first != last; ++first, ++p) {
+            new (p) T(*first);
+            ++this->mSize;
+        }
+    }
 }
 
 template <class T>
