@@ -1372,9 +1372,10 @@ gmk/Courtyard.cpp:
 	.sdata2     start:0x80886548 end:0x80886558
 
 gmk/Fireworks.cpp:
-	.text       start:0x8041CD54 end:0x8041DDE4
-	.rodata     start:0x80753190 end:0x807531A0
+	.text       start:0x8041CD24 end:0x8041DDE4
+	.rodata     start:0x80753188 end:0x807531E0
 	.data       start:0x8078DE58 end:0x8078DEF0
+	.sdata      start:0x8087DF90 end:0x8087DF98
 	.sdata2     start:0x80886558 end:0x80886570
 
 gmk/ArenaFloor.cpp:

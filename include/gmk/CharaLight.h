@@ -21,6 +21,7 @@ struct TextureArray_unk {
 // by the camera (lbl_8087EFB4) and the map parts
 struct CharaLightData_unk {
     CharaLightData_unk(); // 0x800C16C0
+    CharaLightData_unk(const char* texture); // 0x800C1720: inferred: loads the texture
     void fn_800C1814(const char* path); // inferred: loads the texture
     int fn_800C1990();                  // inferred: nonzero while loading
 
