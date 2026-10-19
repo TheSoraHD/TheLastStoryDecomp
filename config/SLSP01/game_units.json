@@ -369,7 +369,8 @@
  {
   "name": "atn/VideoTHP.cpp",
   "classes": [
-   "atn::VideoTHP"
+   "atn::VideoTHP",
+   "atn::Video"
   ],
   "matching": false
  },

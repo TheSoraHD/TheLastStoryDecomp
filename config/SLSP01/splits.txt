@@ -249,8 +249,8 @@ atn/TextAnimation.cpp:
 
 atn/VideoTHP.cpp:
 	.text       start:0x800DCA70 end:0x800DD1EC
-	.rodata     start:0x80734D10 end:0x80734D20
-	.data       start:0x807798D8 end:0x80779938
+	.rodata     start:0x80734D00 end:0x80734DC0
+	.data       start:0x807798D8 end:0x80779950
 	.sdata2     start:0x80881260 end:0x80881290
 
 std/char_traits_char.cpp:
