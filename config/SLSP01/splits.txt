@@ -1986,7 +1986,7 @@ game/ReplayBuffer.cpp:
 
 game/SelectMember.cpp:
 	.text       start:0x8057162C end:0x805727A4
-	.rodata     start:0x8075FFC0 end:0x8075FFD0
+	.rodata     start:0x8075FFB8 end:0x807600C8
 	.data       start:0x80795850 end:0x80795888
 	.sdata2     start:0x80888060 end:0x80888088
 
