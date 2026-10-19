@@ -45,7 +45,7 @@ AxManager& AxManager::GetInstance() {
     return instance;
 }
 
-// NONMATCHING: ~54% - the lock below lives on the stack and its destructor keeps a
+// NONMATCHING: 91% - the lock below lives on the stack and its destructor keeps a
 // null check of its address in the original. Matches 100% when this function is
 // wrapped in `#pragma push` / `#pragma ppc_iro_level 0` / `#pragma pop` (same
 // workaround as zeldaret/ss), left out because the project rules forbid pragma tricks.
