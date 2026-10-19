@@ -994,7 +994,7 @@
    "db::GrowthParse",
    "db::GrowthParseGlobal"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/MotionCommandCommon.cpp",

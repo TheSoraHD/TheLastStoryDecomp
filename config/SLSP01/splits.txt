@@ -683,8 +683,9 @@ atn/ptr_string_base_wchar_t_0.cpp:
 
 db/GrowthParseGlobal.cpp:
 	.text       start:0x8020F7D0 end:0x8020FDEC
-	.rodata     start:0x8073F918 end:0x8073F940
+	.rodata     start:0x8073F900 end:0x8073F950
 	.data       start:0x80783078 end:0x807830B8
+	.sbss       start:0x8087F208 end:0x8087F210
 	.sdata2     start:0x80882EA8 end:0x80882EB0
 
 db/MotionCommandCommon.cpp:
