@@ -655,7 +655,7 @@ atn/D2A_Window.cpp:
 
 atn/D3Anime.cpp:
 	.text       start:0x80201E78 end:0x80202A6C
-	.rodata     start:0x8073E698 end:0x8073E6A8
+	.rodata     start:0x8073E688 end:0x8073E6B0
 	.data       start:0x80782DF0 end:0x80782E28
 	.sdata2     start:0x80882CD8 end:0x80882CF8
 
