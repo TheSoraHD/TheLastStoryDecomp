@@ -1861,7 +1861,7 @@
   "classes": [
    "gmk::DoorSeal"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/RotaryRoom.cpp",
