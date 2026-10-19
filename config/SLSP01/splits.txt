@@ -579,8 +579,9 @@ game/CostumeEditChara.cpp:
 game/CrossbowMenuTask.cpp:
 	.text       start:0x801E9398 end:0x801EA4B0
 	.ctors      start:0x8072D2F4 end:0x8072D2F8
-	.rodata     start:0x8073CBD8 end:0x8073CBEC
-	.data       start:0x8078298C end:0x807829C8
+	.rodata     start:0x8073CBD0 end:0x8073CC68
+	.data       start:0x80782900 end:0x807829E0
+	.sbss       start:0x8087F120 end:0x8087F128
 	.sdata2     start:0x80882B30 end:0x80882B70
 
 game/CrowdManager.cpp:
