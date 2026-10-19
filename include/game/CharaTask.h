@@ -186,6 +186,7 @@ struct CharaC58_unk {
 
     void fn_8011BE54();
     void fn_8011BEB8(int arg);
+    void fn_8011C044(int arg);
 };
 
 // inferred: object at CharaTask+0x1154 (constructor 0x8007A75C called out of line; class unknown)
@@ -464,6 +465,24 @@ public:
     void fn_80168F5C();
     void fn_80168F94();
     void fn_8016939C(int a, int flags, float f); // inferred: chr::ControlCliffhang
+    bool fn_8016DCD4(); // inferred: CanReact_unk out of line
+    bool fn_8016DDB0(int force); // inferred: can start an action (force skips fn_8016DCD4)
+    void fn_8016DF3C(int type); // inferred: changes mType (player <-> other)
+    void fn_8016E5F0(int show); // inferred: shows/hides the model (parts only when hiding)
+    // inferred: inlined in fn_8016E4C4/fn_8016E5F0 (names invented)
+    void SetModelVisible_unk(int show) {
+        if (show) {
+            m54C &= ~8;
+            vf98();
+        } else {
+            m54C |= 8;
+            vf9C(0);
+        }
+    }
+    void SetPartsVisible_unk(int show);
+    void fn_8016E71C(int show, int arg); // inferred: shows/hides the parts and the equipment
+    void fn_8016E800(int arg); // inferred: calls fn_80566398 on every equipment
+    float fn_8016E864(); // inferred: speed rate of the character
     void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
     void fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c); // inferred: chr::ControlPushedDown
     void fn_8016D0A0(int a); // inferred: releases the gimmick and starts chr::ControlSlip
@@ -515,15 +534,28 @@ public:
     void fn_8017B434();
     int fn_8013A4E8(float* a, atn::Vector3* rot, float* b); // inferred: same values as vf34
     int fn_8015061C(CharaTask* chara);
-    int fn_8016F4D8(CharaTask* chara);
-    int fn_8016F530(CharaTask* chara);
-    void fn_8016F5EC(CharaTask* chara);
+    bool fn_8016F368(int type); // inferred: the type is on the same side as mType
+    bool fn_8016F3D0(CharaTask* other, int check); // inferred: same side (check: arena and status tests)
+    int fn_8016F4D8(CharaTask* chara); // inferred: HasLink_unk out of line
+    int fn_8016F530(CharaTask* chara); // inferred: adds a link (nonzero if linked)
+    int fn_8016F5EC(CharaTask* chara); // inferred: removes a link (nonzero if it was linked)
+    void fn_8016F634(); // inferred: clears the links
+    bool fn_8016F67C(); // inferred: nothing blocks the way in front of the character
+    void fn_8016F824(int point, int arg); // inferred: "pointmove" to the route point `point`
+    void fn_8016FDCC(int point, int arg); // inferred: "pointmove" to the hide point `point`
+    void fn_8017039C(int place, int arg); // inferred: "pointmove" to the warp point (forwarded to m13FC)
+    void fn_80170A20(CharaTask* target, int arg, float radius);
+    void fn_80170F20(const atn::Vector3* pos, int arg, float a, float radius);
+    void fn_80171420(CharaTask* target, int arg, float radius);
+    void fn_801718F8(); // inferred: starts the route set by the "pointmove" functions
+    void fn_80171DB0(); // inferred: stops the route (fn_80127EF4) and releases the character
     void fn_8016D74C(HitInfo_unk* data, int a, int b);
     // inferred: weak copy 0x800F52F0 (name invented)
     CharaStatus* GetStatus_unk() { return &mStatus; }
     void fn_801698E4(const atn::Vector3& rot);
-    void fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest);
+    int fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest); // inferred: nonzero if fn_8036DBC0 accepts the move
     int fn_801720AC(atn::Vector3* pos, atn::Vector3* vel); // inferred: nonzero keeps the rotation (fn_80140588)
+    int fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out); // inferred: climbs onto another character
     int fn_801749EC(atn::Vector3* pos, atn::Vector3* vel);
     void fn_8016BBCC(const atn::Vector3* dir, int a, int b);
     // inferred: weak copy 0x800F7F80 (name invented)
@@ -558,7 +590,7 @@ public:
     float fn_80178078();
     void fn_8017AC3C(int arg);
     void fn_80164DCC(int arg);
-    void fn_8016E4C4(int arg);
+    void fn_8016E4C4(int show); // inferred: shows/hides the model, parts and equipment
     int fn_80179D44();
     void fn_801750FC();
     void fn_80154344();
@@ -1069,7 +1101,7 @@ public:
     atn::Vector3 m13E8; // inferred: copied to the node m524 while mFlag2 is set
     int m13F4;
     int m13F8;
-    int m13FC;
+    CharaTask* m13FC; // inferred: character that "pointmove" (fn_8017039C) is forwarded to; set by fn_8017AC3C
     atn::Vector_unk<int> m1400; // inferred: element type unknown (plain data)
     int m140C;
     unsigned char m1410[0x1414 - 0x1410];

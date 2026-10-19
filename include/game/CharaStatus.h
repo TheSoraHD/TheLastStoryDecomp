@@ -66,6 +66,8 @@ struct RouteTable_unk {
     int mNumLinks;           // 0xA8
     unsigned char mAC[0xB0 - 0xAC];
     RouteLink_unk* mLinks;   // 0xB0
+    unsigned char mB4[0x134 - 0xB4];
+    void* m134; // inferred: passed to fn_803AB37C with a character (CharaTask::fn_80171DB0)
 };
 
 // inferred: follows a route of the route tables (class name unknown; first class of the file)
@@ -83,7 +85,7 @@ public:
     void fn_80128B20(CharaTask* target, const atn::Vector3* dest, int arg, float radius); // mode 6
     void fn_80128C08(CharaTask* target, const atn::Vector3* dest, int arg, float arg2);  // mode 7
     int fn_80127EF4(); // inferred: stops unless the flag of m48 is set
-    void fn_801255C8(); // inferred: starts the planned route
+    int fn_801255C8(); // inferred: starts the planned route (nonzero on success, fn_8016F824)
     void fn_80126214(); // inferred: update (called every frame by CharaTask::fn_80139560)
     float fn_801279E8(); // inferred: distance (compared with 20 by CharaTask::vf34)
     atn::Vector3* fn_80139F58(); // inferred: accessors called out of line from CharaTask

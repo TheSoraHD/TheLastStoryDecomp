@@ -22,6 +22,8 @@
 #include "chr/ControlChaseCaught.h"
 #include "chr/ControlCharge.h"
 #include "chr/ControlWallUp.h"
+#include "chr/ControlGuardMountle.h"
+#include "chr/ControlStool.h"
 #include "chr/ControlPushedDown.h"
 #include "chr/ControlStagger.h"
 #include "chr/ControlGmkCoffinOpening.h"
@@ -9824,6 +9826,152 @@ void CharaTask::fn_8016DC14(CharaTask* target, int quiet) {
     }
 }
 
+bool CharaTask::fn_8016DCD4() {
+    return CanReact_unk();
+}
+
+bool CharaTask::fn_8016DDB0(int force) {
+    if (force == 0 && !fn_8016DCD4()) {
+        return false;
+    }
+    if (mFlag6 || m1208 != 0 || mFlag3 || mF54 != 0 || m139C != 0) {
+        return false;
+    }
+    if (mType == 0) {
+        if (m55C != 1) {
+            return false;
+        }
+    } else if (m55C != 2 || mC58.m2B4 > 0) {
+        return false;
+    }
+    if (mFlagB9) {
+        return false;
+    }
+    return true;
+}
+
+// inferred: changes the character type; leaving or becoming the player (type 0) swaps the states
+// 1 and 2 of m55C/m564 and resets the character
+void CharaTask::fn_8016DF3C(int type) {
+    if (mType != type) {
+        if (mType == 0) {
+            if (m55C == 1) {
+                m55C = 2;
+            }
+            if (m564 == 1) {
+                m564 = 2;
+            }
+            Reset_unk(0, 1, 1, 1);
+        } else if (type == 0) {
+            if (m55C == 2) {
+                m55C = 1;
+            }
+            if (m564 == 2) {
+                m564 = 1;
+            }
+            Reset_unk(0, 1, 1, 1);
+        }
+        m4C = mType;
+        mType = type;
+    }
+}
+
+// inferred: valid party index of the character id m50
+int CharaTask::fn_8016E484() {
+    return IsPartyIndex_unk(fn_80219558(m50));
+}
+
+extern "C" int fn_80044C50(chr::CharaPart_unk* part, CharaTask* chara);
+extern "C" void fn_80044CCC(chr::CharaPart_unk* part);
+extern "C" void fn_80566398(chr::CharaEquip_unk* equip, int arg);
+
+// inferred: same as fn_8016E71C(show, 1) with the equipment loop of fn_8016E800 written out
+// (inlining fn_8016E71C gives the loop registers in the other order)
+inline void CharaTask::SetPartsVisible_unk(int show) {
+    if (show) {
+        if (m648 != 0 && fn_80044C50(m648, this)) {
+            fn_80044CCC(m648);
+        }
+    } else {
+        if (m648 != 0) {
+            fn_80044E0C(m648, 1);
+        }
+        if (m64C != 0) {
+            fn_80044E0C(m64C, 1);
+        }
+        chr::CharaEquip_unk** p = m680;
+        for (unsigned int i = 0; i < 8; i++, p++) {
+            if (*p != 0) {
+                fn_80566398(*p, 0);
+            }
+        }
+        if (mFlagB18) {
+            mFlagB18 = 0;
+            fn_80107CA8(lbl_8087F048, this, 0);
+        }
+    }
+}
+
+void CharaTask::fn_8016E4C4(int show) {
+    SetModelVisible_unk(show);
+    SetPartsVisible_unk(show);
+}
+
+void CharaTask::fn_8016E5F0(int show) {
+    if (show) {
+        SetModelVisible_unk(show);
+    } else {
+        SetModelVisible_unk(show);
+        SetPartsVisible_unk(show);
+    }
+}
+
+void CharaTask::fn_8016E71C(int show, int arg) {
+    if (show) {
+        if (m648 != 0 && fn_80044C50(m648, this)) {
+            fn_80044CCC(m648);
+        }
+    } else {
+        if (m648 != 0) {
+            fn_80044E0C(m648, arg);
+        }
+        if (m64C != 0) {
+            fn_80044E0C(m64C, arg);
+        }
+        fn_8016E800(0);
+        if (mFlagB18) {
+            mFlagB18 = 0;
+            fn_80107CA8(lbl_8087F048, this, 0);
+        }
+    }
+}
+
+void CharaTask::fn_8016E800(int arg) {
+    chr::CharaEquip_unk** p = m680;
+    for (unsigned int i = 0; i < 8; i++, p++) {
+        if (*p != 0) {
+            fn_80566398(*p, arg);
+        }
+    }
+}
+
+extern "C" float fn_8010CA34(Effect_unk* effect);
+
+float CharaTask::fn_8016E864() {
+    float rate = 1.0f;
+    if (mStatus.IsState_unk(0x40)) {
+        rate *= MAX(0.3f, 1.0f - GetF94Rate_unk());
+    }
+    if (mStatus.IsState_unk(0x8000)) {
+        rate *= 0.5f;
+    }
+    rate *= mStatus.fn_8012DB04();
+    if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
+        rate *= fn_8010CA34(lbl_8087F048);
+    }
+    return rate;
+}
+
 // fn_8016E970, fn_801750FC and fn_80178208 are needed by the functions above (inlined through
 // -ipa file).
 void CharaTask::fn_8016E970(int state) {
@@ -9836,6 +9984,417 @@ void CharaTask::fn_8016E970(int state) {
         }
     }
     m55C = state;
+}
+
+// inferred: stops the current control and goes back to the idle state (1 for the player, 2 otherwise);
+// the arguments keep the ledge, mFlag5 and the magic effect
+void CharaTask::fn_8016EB48(int keepLedge, int keepFlag, int keepEffect) {
+    fn_80178208(0);
+    if (mType == 0 && !mStatus.IsState_unk(0x100) && !mStatus.IsState_unk(0x10000)) {
+        fn_8016E970(1);
+    } else {
+        fn_8016E970(2);
+    }
+    if (!keepLedge && IsOnLedge_unk()) {
+        ReleaseLedge_unk();
+    }
+    if (!keepFlag && IsFlag5_unk()) {
+        mFlag5 = 0;
+    }
+    if (!keepEffect) {
+        ClearEffect_unk();
+    }
+}
+
+// inferred: IsSideType_unk with the types the other way round (the original tests a first)
+inline bool IsSideTypeRev_unk(int a, int b) {
+    bool result = false;
+    if (a == 3 && b == 0) {
+        result = true;
+    }
+    return result;
+}
+
+bool CharaTask::fn_8016F368(int type) {
+    bool result = true;
+    if (!IsSameSideType_unk(mType, type) && !IsSideTypeRev_unk(mType, type)) {
+        result = false;
+    }
+    return result;
+}
+
+bool CharaTask::fn_8016F3D0(CharaTask* other, int check) {
+    if (check && this != other) {
+        if (lbl_8087F610 != 0 && lbl_8087F610->m540 == 0) {
+            return false;
+        }
+        if ((mStatus.m0C & 2) == 2 || (other->mStatus.m0C & 2) == 2 || lbl_8087F0A8->mCC != 0) {
+            return false;
+        }
+    }
+    if (check && mF14 >= 0 && other->mF14 >= 0) {
+        return mF14 == other->mF14;
+    }
+    return fn_8016F368(other->mType);
+}
+
+int CharaTask::fn_8016F4D8(CharaTask* chara) {
+    for (int i = 0; i < GetLinkCount_unk(); i++) {
+        if (mFE8[i] == chara) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int CharaTask::fn_8016F530(CharaTask* chara) {
+    if (HasLink_unk(chara)) {
+        return 1;
+    }
+    for (int i = 0; i < GetLinkCount_unk(); i++) {
+        if (mFE8[i] == 0) {
+            mFE8[i] = chara;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int CharaTask::fn_8016F5EC(CharaTask* chara) {
+    for (int i = 0; i < 16; i++) {
+        if (mFE8[i] == chara) {
+            mFE8[i] = 0;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void CharaTask::fn_8016F634() {
+    for (int i = 0; i < 16; i++) {
+        mFE8[i] = 0;
+    }
+}
+
+// inferred: line checks to 2 units beyond the radius in front: blocked at height 3 but free at
+// height 10 (a step that can be climbed?)
+bool CharaTask::fn_8016F67C() {
+    Mtx m;
+    atn::Vector3 hit;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    float rotY = mRot.y;
+    PSMTXRotRad(m, 'y', rotY);
+    PSMTXMultVec(m, &dir, &dir);
+    dir *= 2.0f + m620;
+    atn::Vector3 from(mPos);
+    atn::Vector3 to = mPos + dir;
+    from.y += 3.0f;
+    to.y += 3.0f;
+    if (fn_8004ECC0(lbl_8087EE98, &hit, &from, &to, 0x80000000, 0, 0) != 0) {
+        from = mPos;
+        to = mPos + dir;
+        from.y += 10.0f;
+        to.y += 10.0f;
+        if (fn_8004ECC0(lbl_8087EE98, &hit, &from, &to, 0x80000000, 0, 0) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+extern "C" int fn_803C17FC(RouteTable_unk* table, int point); // inferred: route point -> start index
+
+
+void CharaTask::fn_8016F824(int point, int arg) {
+    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (table == 0) {
+        return;
+    }
+    if (point > 0) {
+        mRoute.fn_80128508(fn_803C17FC(table, point), &mPos, arg);
+        if (mRoute.fn_801255C8()) {
+            fn_801718F8();
+            return;
+        }
+    }
+    if (lbl_8087EEB8 != 0) {
+        char message[0x100];
+        sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
+        sprintf(message, "error: invalid pointmove chara[%d:%s] -> movepoint[%d]\n", m58, lbl_807C7B28, point);
+        fn_800697D8(lbl_8087EEB8, message);
+    }
+}
+
+extern "C" int fn_803C1840(RouteTable_unk* table, int point); // inferred: route point -> link
+
+void CharaTask::fn_8016FDCC(int point, int arg) {
+    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (table == 0) {
+        return;
+    }
+    if (point > 0) {
+        int link = fn_803C1840(table, point);
+        if (IsOnLedge_unk() && (mC38 == link || mC3C == link)) {
+            return;
+        }
+        mRoute.fn_801286F0(link, &mPos, arg);
+        if (mRoute.fn_801255C8()) {
+            fn_801718F8();
+            return;
+        }
+    }
+    if (lbl_8087EEB8 != 0) {
+        char message[0x100];
+        sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
+        sprintf(message, "error: invalid pointmove chara[%d:%s] -> hidepoint[%d]\n", m58, lbl_807C7B28, point);
+        fn_800697D8(lbl_8087EEB8, message);
+    }
+}
+
+void CharaTask::fn_8017039C(int place, int arg) {
+    if (m13FC != 0) {
+        m13FC->fn_8017039C(place, arg);
+        return;
+    }
+    if ((lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0) == 0) {
+        return;
+    }
+    if (place > 0) {
+        mRoute.fn_80128818(place, &mPos, arg);
+        if (mRoute.fn_801255C8()) {
+            fn_801718F8();
+            return;
+        }
+    }
+    if (lbl_8087EEB8 != 0) {
+        char message[0x100];
+        sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
+        sprintf(message, "error: invalid pointmove chara[%d:%s] -> warppoint[%d]\n", m58, lbl_807C7B28, place);
+        fn_800697D8(lbl_8087EEB8, message);
+    }
+}
+
+// inferred: routes to the character `target` (mRadius is set only when >= 1)
+void CharaTask::fn_80170A20(CharaTask* target, int arg, float radius) {
+    mRoute.fn_80128930(target, &mPos, arg);
+    if (radius >= 1.0f) {
+        mRoute.mRadius = radius;
+    }
+    if (mRoute.fn_801255C8()) {
+        fn_801718F8();
+    }
+}
+
+// inferred: routes to the position `pos`
+void CharaTask::fn_80170F20(const atn::Vector3* pos, int arg, float a, float radius) {
+    mRoute.fn_80128A30(pos, &mPos, arg, a);
+    if (radius >= 1.0f) {
+        mRoute.mRadius = radius;
+    }
+    if (mRoute.fn_801255C8()) {
+        fn_801718F8();
+    }
+}
+
+// inferred: follows the character `target` (route mode 6)
+void CharaTask::fn_80171420(CharaTask* target, int arg, float radius) {
+    mRoute.fn_80128B20(target, &mPos, arg, radius);
+    if (mRoute.fn_801255C8()) {
+        fn_801718F8();
+    }
+}
+
+void CharaTask::fn_801718F8() {
+    Reset_unk(0, 1, 1, 1);
+    mC58.fn_8011C044(0);
+    fn_80017064(lbl_8087EE68, this);
+    fn_8016E970(7);
+    if (m1208 != 0) {
+        fn_801750FC();
+    }
+}
+
+extern "C" void fn_803AB37C(void* object, CharaTask* chara);
+
+void CharaTask::fn_80171DB0() {
+    if (mRoute.m2C != 0) {
+        return;
+    }
+    if (!mRoute.fn_80127EF4()) {
+        return;
+    }
+    Reset_unk(0, 0, 1, 1);
+    mC58.fn_8011C044(0);
+    fn_80017064(lbl_8087EE68, this);
+    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (table != 0) {
+        fn_803AB37C(table->m134, this);
+    }
+}
+
+// inferred: object at lbl_8087EE68 (class unknown; also passed to fn_80017064)
+struct Global8087EE68_unk {
+    unsigned char m00[0x90];
+    int m90; // inferred: compared with mId % 4 (fn_80171F3C)
+};
+extern "C" int fn_8036DBC0(Field_unk* field, const atn::Vector3* pos, const atn::Vector3* dest, CharaTask* chara);
+
+int CharaTask::fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest) {
+    if (lbl_8087F430 == 0) {
+        return 0;
+    }
+    if (mStatus.IsState_unk(0x20)) {
+        return 0;
+    }
+    if (IsPartyMember_unk()) {
+        if (mC54 == 0) {
+            return 0;
+        }
+        if ((mColli.mFlags & 1) != 1) {
+            return 0;
+        }
+        if (!mC58.mHeld_unk && mId % 4 == ((Global8087EE68_unk*)lbl_8087EE68)->m90) {
+            return 0;
+        }
+    }
+    if (mType == 0) {
+        if (fn_805F9920(dest) < 0.002f) {
+            return 0;
+        }
+    } else if (mType == 2) {
+        if (fn_805F9920(dest) < 0.02f) {
+            return 0;
+        }
+    } else if (fn_805F9920(dest) < 0.1f) {
+        return 0;
+    }
+    return fn_8036DBC0(lbl_8087F430, pos, dest, this);
+}
+
+// inferred: starts chr::ControlGuardMountle (shared by fn_801720AC and fn_801725EC; name invented;
+// static so that its "" goes to the file pool)
+static void StartMountle_unk(CharaTask* chara, const atn::Vector3& dir) {
+    chara->fn_80178208(new (0, "", "", 0) chr::ControlGuardMountle(chara, dir));
+}
+
+// inferred: starts chr::ControlStool on `chara` (name invented; see StartMountle_unk)
+static void StartStool_unk(CharaTask* chara) {
+    chara->fn_80178208(new (0, "", "", 0) chr::ControlStool(chara));
+}
+
+// inferred: route test of the mantle (nonzero if the character may climb in `dir`)
+
+// inferred: the player climbs over an obstacle in front (blocked at height 10, free at height 5
+// fails over to fn_801725EC, which climbs onto another character)
+int CharaTask::fn_801720AC(atn::Vector3* pos, atn::Vector3* vel) {
+    if (mType != 0) {
+        return 0;
+    }
+    if (m55C == 6 || m55C == 8) {
+        return 0;
+    }
+    int flag5 = mFlag5;
+    if (!flag5 && !mFlag4) {
+        return 0;
+    }
+    if (m1208 != 0 || m139C != 0) {
+        return 0;
+    }
+    atn::Vector3 dir(vel->x, 0.0f, vel->z);
+    if (fn_805F9920(&dir) < 0.1f) {
+        return 0;
+    }
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 from(*pos);
+    atn::Vector3 to(*pos);
+    from.y += 10.0f;
+    to.y += 10.0f;
+    to += dir * (3.0f + m620);
+    CollResult_unk result;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) == 0) {
+        from = *pos;
+        to = *pos;
+        from.y += 5.0f;
+        to.y += 5.0f;
+        to += dir * (3.0f + m620);
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0 &&
+            fn_803CC198(lbl_8087F430->m10D8, pos, &dir, this)) {
+            StartMountle_unk(this, dir);
+            return 1;
+        }
+    }
+    return fn_801725EC(pos, vel, 0);
+}
+
+// inferred: climbs onto the character in front (it gets chr::ControlStool); `out` receives it
+// NONMATCHING: ~95% - only the scheduling of the line-check setup differs (copies of *pos, the
+// CollResult_unk zero stores and the lbl_8087EE98 load); tried the result declared at each point,
+// copy constructor / operator= / Assign_unk copies, a world local, a distance local, early return.
+int CharaTask::fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out) {
+    atn::Vector3 dir(vel->x, 0.0f, vel->z);
+    float len = PSVECMag(&dir);
+    if (len < 0.1f) {
+        return 0;
+    }
+    PSVECNormalize(&dir, &dir);
+    if (mType != 0 && Dot_unk(dir, fn_8014052C()) < 0.2f) {
+        return 0;
+    }
+    if (mMotion.fn_80097D40(0x41) == 0) {
+        return 0;
+    }
+    if (mFlag3) {
+        return 0;
+    }
+    if (lbl_8087F610 != 0) {
+        return 0;
+    }
+    atn::Vector3 from(*pos);
+    atn::Vector3 to(*pos);
+    from.y += 5.0f;
+    to.y += 5.0f;
+    CollResult_unk result;
+    to += dir * (3.0f + m620);
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &mColli, 0) != 0 && result.m38 != 0 &&
+        (result.m38->m08 & 2) == 2) {
+        CharaTask* other = result.m38->m0C;
+        if (!other->fn_8016F368(mType)) {
+            return 0;
+        }
+        if (other->m55C == 1) {
+            if (!other->mFlag6) {
+                return 0;
+            }
+        } else if (other->m55C == 7) {
+            if (other->mType == 0) {
+                return 0;
+            }
+        } else if (other->m55C != 2) {
+            return 0;
+        }
+        int ledge = other->mFlag31;
+        if (ledge || other->mFlag3) {
+            return 0;
+        }
+        if (other->mMotion.fn_80097D40(m484[4]) == 0) {
+            return 0;
+        }
+        // inferred: the original reads m574.y as the z component
+        atn::Vector3 move(other->m574.x, 0.0f, other->m574.y);
+        if (PSVECMag(&move) > 0.5f * len && Dot_unk(dir, move.GetNormalized_unk()) > 0.7f) {
+            return 0;
+        }
+        if (atn::Abs_unk(other->mPos.y - mPos.y) > 6.0f) {
+            return 0;
+        }
+        StartMountle_unk(this, dir);
+        StartStool_unk(other);
+        if (out != 0) {
+            *out = other;
+        }
+        return 1;
+    }
+    return 0;
 }
 
 // inferred: CharaTask::m1208 is a gimmick (GimmickCommon: m54 state, m9C shown, vf40 message); the
@@ -10060,7 +10619,7 @@ void CharaTask::fn_8017AC2C() {
 }
 
 void CharaTask::fn_8017AC3C(int value) {
-    m13FC = value;
+    m13FC = (CharaTask*)value;
 }
 
 void CharaTask::fn_8017AC44(int clear) {
