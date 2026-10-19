@@ -1298,8 +1298,9 @@ gmk/HealPoint.cpp:
 
 gmk/FallingTower.cpp:
 	.text       start:0x8040FAC0 end:0x80410A68
-	.rodata     start:0x80752C30 end:0x80752C44
+	.rodata     start:0x80752C28 end:0x80752C90
 	.data       start:0x8078D6E8 end:0x8078D780
+	.sdata      start:0x8087DF80 end:0x8087DF88
 	.sdata2     start:0x808863A8 end:0x808863D0
 
 gmk/Trap.cpp:

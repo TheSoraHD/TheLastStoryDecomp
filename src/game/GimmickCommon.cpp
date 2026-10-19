@@ -26,6 +26,7 @@
 #include "gmk/Courtyard.h"
 #include "gmk/Ocean.h"
 #include "gmk/WaterLevel.h"
+#include "gmk/FallingTower.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -202,7 +203,6 @@ extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8040DC30(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8040EC30(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_8040FAC0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80412AFC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8041CD54(atn::Task* parent, int id, int arg);
@@ -256,7 +256,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 19: gimmick = fn_803FE390(parent, id, arg); break;
     case 21: gimmick = fn_8040DC30(parent, id, arg); break;
     case 22: gimmick = fn_8040EC30(parent, id, arg); break;
-    case 24: gimmick = fn_8040FAC0(parent, id, arg); break;
+    case 24: gimmick = gmk::FallingTower::fn_8040FAC0(parent, id, arg); break;
     case 28: gimmick = fn_80412AFC(parent, id, arg); break;
     case 33: gimmick = gmk::Ocean::fn_80418198(parent, id, arg); break;
     case 34: gimmick = fn_80418EAC(parent, id, arg); break;
