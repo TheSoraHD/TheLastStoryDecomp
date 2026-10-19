@@ -2829,6 +2829,190 @@ PowerPC_EABI_Support/src/Runtime/runtime.c:
 	.text       start:0x80695D84 end:0x80696578
 	.rodata     start:0x807667C0 end:0x807667D8
 
+PowerPC_EABI_Support/src/Runtime/Gecko_ExceptionPPC.cp:
+	extab       start:0x80007BE4 end:0x80007C58
+	extabindex  start:0x80008140 end:0x80008194
+	.text       start:0x806965E8 end:0x80697D34
+	.rodata     start:0x807667D8 end:0x80766840
+	.data       start:0x807BBF58 end:0x807BC010
+	.bss        start:0x80832F50 end:0x808330E0
+	.sdata      start:0x8087ED30 end:0x8087ED38
+
+RVL_SDK/src/revolution/ncd/ncdsystem.c:
+	.text       start:0x80697D34 end:0x806985B0
+	.data       start:0x807BC010 end:0x807BC100
+	.bss        start:0x808330E0 end:0x80833140
+	.sdata      start:0x8087ED38 end:0x8087ED40
+	.sbss       start:0x808803E0 end:0x808803E8
+
+RVL_SDK/src/revolution/net/NETStartupErrorCode.c:
+	.text       start:0x806985B0 end:0x80698A20
+	.data       start:0x807BC100 end:0x807BC120
+
+smg2/src/RVL_SDK/net/NETVersion.c:
+	.text       start:0x80698A20 end:0x80698A28
+	.data       start:0x807BC120 end:0x807BC158
+	.sdata      start:0x8087ED40 end:0x8087ED48
+
+smg2/src/RVL_SDK/net/netmemcpy.c:
+	.text       start:0x80698A2C end:0x80698DEC
+
+smg2/src/RVL_SDK/net/netmemset.c:
+	.text       start:0x80698DEC end:0x80698EF0
+
+RVL_SDK/src/revolution/net/NETMD5.c:
+	.text       start:0x80698EF0 end:0x80699610
+	.data       start:0x807BC158 end:0x807BC318
+	.sdata      start:0x8087ED48 end:0x8087ED50
+
+RVL_SDK/src/revolution/net/NETAES.c:
+	.text       start:0x80699610 end:0x8069A0D0
+	.rodata     start:0x80766840 end:0x80767260
+	.data       start:0x807BC318 end:0x807BC3E0
+	.sdata2     start:0x80889000 end:0x80889008
+
+RVL_SDK/src/revolution/nhttp/NHTTP_os_RVL.c:
+	.text       start:0x8069A9B8 end:0x8069ABDC
+	.data       start:0x807BC4C0 end:0x807BC500
+	.sdata      start:0x8087ED50 end:0x8087ED58
+
+RVL_SDK/src/revolution/nhttp/d_nhttp.c:
+	.text       start:0x8069FFF8 end:0x806A0B48
+	.data       start:0x807BC628 end:0x807BC920
+	.sdata      start:0x8087EDC0 end:0x8087EDD0
+	.sbss       start:0x808803E8 end:0x808803F0
+
+smg2/src/RVL_SDK/nwc24/NWC24Config.c:
+	.text       start:0x806A12E8 end:0x806A1450
+	.sbss       start:0x808803F8 end:0x80880400
+
+smg2/src/RVL_SDK/nwc24/NWC24Manage.c:
+	.text       start:0x806A1450 end:0x806A1564
+	.data       start:0x807BC960 end:0x807BC9B0
+	.sdata      start:0x8087EDD0 end:0x8087EDD8
+	.sbss       start:0x80880400 end:0x80880408
+
+smg2/src/RVL_SDK/nwc24/NWC24Schedule.c:
+	.text       start:0x806A1564 end:0x806A1C40
+	.data       start:0x807BC9B0 end:0x807BC9F8
+	.bss        start:0x80833E20 end:0x80833FA0
+	.sbss       start:0x80880408 end:0x80880418
+
+smg2/src/RVL_SDK/nwc24/NWC24UserId.c:
+	.text       start:0x806A1C40 end:0x806A1F5C
+	.rodata     start:0x80767378 end:0x80767388
+
+smg2/src/RVL_SDK/nwc24/NWC24Time.c:
+	.text       start:0x806A1F5C end:0x806A2138
+	.data       start:0x807BC9F8 end:0x807BCA20
+	.bss        start:0x80833FA0 end:0x80834080
+	.sbss       start:0x80880418 end:0x80880420
+
+smg2/src/RVL_SDK/nwc24/NWC24Ipc.c:
+	.text       start:0x806A2138 end:0x806A22AC
+	.sbss       start:0x80880420 end:0x80880428
+
+smg2/src/RVL_SDK/nwc24/NWC24System.c:
+	.text       start:0x806A22AC end:0x806A243C
+	.data       start:0x807BCA20 end:0x807BCA68
+	.bss        start:0x80834080 end:0x808340E0
+	.sdata      start:0x8087EDD8 end:0x8087EDE0
+	.sbss       start:0x80880428 end:0x80880438
+
+RVL_SDK/src/revolution/so/SOBasic.c:
+	.text       start:0x806A2790 end:0x806A37F4
+	.data       start:0x807BCA68 end:0x807BCC48
+	.bss        start:0x808340E0 end:0x808340F8
+	.sdata      start:0x8087EDE0 end:0x8087EDE8
+	.sbss       start:0x80880438 end:0x80880448
+
+RVL_SDK/src/revolution/ssl/ssl.c:
+	.text       start:0x806A4F3C end:0x806A5C94
+	.data       start:0x807BCCA0 end:0x807BCCF8
+	.bss        start:0x80834120 end:0x80837140
+	.sdata      start:0x8087EDF0 end:0x8087EDF8
+	.sbss       start:0x80880450 end:0x80880458
+
+dwc/src/base/dwc_base64.c:
+	.text       start:0x806A6CA0 end:0x806A7018
+	.data       start:0x807BCCF8 end:0x807BCD40
+
+dwc/src/base/dwc_error.c:
+	.text       start:0x806A7020 end:0x806A7150
+	.data       start:0x807BCD40 end:0x807BCDA8
+	.bss        start:0x8085FF18 end:0x8085FF20
+
+dwc/src/base/dwc_init.c:
+	.text       start:0x806A7150 end:0x806A72BC
+	.data       start:0x807BCDA8 end:0x807BCE58
+	.bss        start:0x8085FF20 end:0x8085FF28
+
+dwc/src/base/dwc_memfunc.c:
+	.text       start:0x806A72C0 end:0x806A7694
+	.data       start:0x807BCE58 end:0x807BCEB0
+	.bss        start:0x8085FF28 end:0x8085FF30
+
+dwc/src/base/dwc_report.c:
+	.text       start:0x806A76A0 end:0x806A79FC
+	.data       start:0x807BCEB0 end:0x807BD030
+	.bss        start:0x8085FF30 end:0x8085FF38
+
+dwc/src/base/dwc_ghttp.c:
+	.text       start:0x806A7A00 end:0x806A81FC
+	.data       start:0x807BD030 end:0x807BD140
+	.bss        start:0x8085FF38 end:0x8085FF40
+
+dwc/src/base/dwc_lanmatch.c:
+	.text       start:0x806A8200 end:0x806A9C94
+	.rodata     start:0x8076B600 end:0x8076B608
+	.data       start:0x807BD140 end:0x807BD1F0
+	.bss        start:0x8085FF40 end:0x8085FF50
+
+dwc/src/base/dwc_friend.c:
+	.text       start:0x806ABD00 end:0x806AE748
+	.data       start:0x807BD290 end:0x807BD858
+	.bss        start:0x8085FF78 end:0x8085FF90
+
+dwc/src/base/dwc_login.c:
+	.text       start:0x806AE750 end:0x806AF69C
+	.data       start:0x807BD858 end:0x807BDCD0
+	.bss        start:0x8085FF90 end:0x8085FF98
+
+dwc/src/base/dwc_main.c:
+	.text       start:0x806AF6A0 end:0x806B315C
+	.rodata     start:0x8076B608 end:0x8076B620
+	.data       start:0x807BDCD0 end:0x807BE9D0
+	.bss        start:0x8085FF98 end:0x80860140
+
+dwc/src/base/dwc_match.c:
+	.text       start:0x806B3160 end:0x806CD534
+	.rodata     start:0x8076B620 end:0x8076B638
+	.data       start:0x807BE9D0 end:0x807C1750
+	.bss        start:0x80860140 end:0x808608A0
+
+dwc/src/base/dwc_transport.c:
+	.text       start:0x806CD540 end:0x806CF02C
+	.data       start:0x807C1750 end:0x807C1CB8
+	.bss        start:0x808608A0 end:0x808608B0
+
+dwc/src/base/dwc_account.c:
+	.text       start:0x806CF030 end:0x806D08D4
+	.data       start:0x807C1CB8 end:0x807C1DD8
+	.bss        start:0x808608B0 end:0x808608C0
+
+dwc/src/auth/dwc_auth_interface.c:
+	.text       start:0x806D08E0 end:0x806D2D74
+	.data       start:0x807C1DD8 end:0x807C2710
+	.bss        start:0x808608C0 end:0x80860D88
+
+nw4r/AxManager.cpp:
+	.text       start:0x80703D00 end:0x80705340
+	.ctors      start:0x8072D404 end:0x8072D408
+	.data       start:0x807C5E88 end:0x807C5ED8
+	.bss        start:0x80862B20 end:0x80862F30
+	.sbss       start:0x80880488 end:0x808804A0
+	.sdata2     start:0x80889008 end:0x80889020
+
 nw4r/src/snd/snd_InstancePool.cpp:
 	.text       start:0x8070F0D0 end:0x8070F178
 
