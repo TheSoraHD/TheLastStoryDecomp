@@ -456,8 +456,8 @@ chr/ControlGmkCoffinOpening.cpp:
 
 chr/ControlJumpAt.cpp:
 	.text       start:0x801B529C end:0x801B73F0
-	.rodata     start:0x8073B110 end:0x8073B188
-	.data       start:0x80780C00 end:0x80780E60
+	.rodata     start:0x8073B110 end:0x8073B190
+	.data       start:0x80780B80 end:0x80780ED0
 	.sdata2     start:0x808824C0 end:0x808824F0
 
 chr/ControlAttractHateCharge.cpp:
