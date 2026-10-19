@@ -18,8 +18,8 @@ void fn_806CF030(void);
 void fn_806AA690(void);
 
 // inferred: gcd_gamename (GameSpy) and the stats server host name buffer
-extern char lbl_80862150[];
-extern char lbl_807C5B70[];
+extern char gcd_gamename[];
+extern char StatsServerHostname[];
 
 static u32 dwci_gamecode;
 // inferred: library initialized flag (DWCi_Np_SetInitFlag in MKW)
@@ -40,12 +40,12 @@ int DWC_Init(DWCAuthServer authServer, const char* gameName, u32 gameCode, DWCAl
 
     gsiMemoryCallbacksSet(DWCi_GsMalloc, DWCi_GsFree, DWCi_GsRealloc, DWCi_GsMemalign);
 
-    strcpy(lbl_80862150, gameName);
+    strcpy(gcd_gamename, gameName);
 
     if (authServer == DWC_AUTHSERVER_DEBUG) {
-        strcpy(lbl_807C5B70, "sdkdev.gamespy.com");
+        strcpy(StatsServerHostname, "sdkdev.gamespy.com");
     } else {
-        strcpy(lbl_807C5B70, "gamestats.gs.nintendowifi.net");
+        strcpy(StatsServerHostname, "gamestats.gs.nintendowifi.net");
     }
 
     dwci_initialized = TRUE;

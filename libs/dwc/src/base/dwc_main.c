@@ -81,7 +81,7 @@ GPResult gpSetCallback(GPConnection* connection, int func, void* callback,
 GPResult gpGetBuddyStatus(GPConnection* connection, int index, GPBuddyStatus* status); // gpGetBuddyStatus
 GPResult gpGetBuddyIndex(GPConnection* connection, GPProfile profile, int* index);   // gpGetBuddyIndex
 int gpIsBuddy(GPConnection* connection, GPProfile profile);                   // gpIsBuddy
-void fn_806F87A0(void);                                                         // CloseStatsConnection
+void CloseStatsConnection(void);
 
 // MSL strtoul (not declared by our stdlib.h)
 unsigned long strtoul(const char* str, char** end, int base);
@@ -164,8 +164,8 @@ void DWCi_RecvCallback(GT2Connection connection, const u8* message, int len, GT2
 void DWCi_PingCallback(GT2Connection connection, int latency);
 
 // inferred: game name and secret key buffers (dwc_init.c area)
-extern char lbl_80862150[];
-extern char lbl_80862250[];
+extern char gcd_gamename[];
+extern char gcd_secret_key[];
 
 // inferred: only gamecode is read here (DWCAccUserData of dwc_account.h)
 typedef struct DWCUserDataView {
@@ -337,8 +337,8 @@ void fn_806AF6A0(DWCUserData* userdata, int productID, const char* secretKey, in
     stpDwcCnt->lastState = DWC_STATE_INIT;
     stpDwcCnt->closing = FALSE;
     stpDwcCnt->profileID = 0;
-    stpDwcCnt->gameName = lbl_80862150;
-    stpDwcCnt->secretKey = lbl_80862250;
+    stpDwcCnt->gameName = gcd_gamename;
+    stpDwcCnt->secretKey = gcd_secret_key;
     stpDwcCnt->loginCallback = NULL;
     stpDwcCnt->loginParam = NULL;
     stpDwcCnt->updateCallback = NULL;
@@ -356,12 +356,12 @@ void fn_806AF6A0(DWCUserData* userdata, int productID, const char* secretKey, in
     DWCi_FriendInit(&stpDwcCnt->friendcnt, &stpDwcCnt->gpObj,
                     (const DWCUserData*)stpDwcCnt->playerName, friendList, friendListLen);
     fn_806B3DF0(&stpDwcCnt->matchcnt, &stpDwcCnt->gpObj, &stpDwcCnt->gt2Socket,
-                &stpDwcCnt->gt2Callbacks, lbl_80862150, lbl_80862250, friendList, friendListLen);
+                &stpDwcCnt->gt2Callbacks, gcd_gamename, gcd_secret_key, friendList, friendListLen);
     DWCi_InitTransport(&stpDwcCnt->transinfo);
 
     len = strlen(secretKey) < 256 ? strlen(secretKey) : 255;
-    fn_806A9CA0(lbl_80862250, secretKey, len);
-    lbl_80862250[len] = '\0';
+    fn_806A9CA0(gcd_secret_key, secretKey, len);
+    gcd_secret_key[len] = '\0';
 }
 
 // DWC_ShutdownFriendsMatch
@@ -384,7 +384,7 @@ void fn_806AF910(void) {
 
     fn_806CD4E0();
     fn_806AE4A0();
-    fn_806F87A0();
+    CloseStatsConnection();
     fn_806AE4B0();
 
     if (stpDwcCnt->gpObj != NULL) {
@@ -516,7 +516,7 @@ BOOL fn_806AFDB0(const u16* ingamesn, const char* reserved, DWCLoginCallback cal
     }
     stpDwcCnt->playerName[len] = 0;
 
-    DWCi_CacheDNS(lbl_80862150);
+    DWCi_CacheDNS(gcd_gamename);
 
     DWCi_SetState(DWC_STATE_AVAILABLE_CHECK);
     GSIStartAvailableCheckA(stpDwcCnt->gameName);
@@ -580,7 +580,7 @@ static inline void DWCi_CacheDNS(const char* gamename) {
             p++;
         }
     }
-    sprintf(hostname, "%s.ms%d.gs.nintendowifi.net", lbl_80862150, hashcode % 20);
+    sprintf(hostname, "%s.ms%d.gs.nintendowifi.net", gcd_gamename, hashcode % 20);
     if (gethostbyname(hostname)) {
         return;
     }

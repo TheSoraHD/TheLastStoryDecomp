@@ -128,11 +128,11 @@ GPResult gpSetStatusA(GPConnection* connection, GPEnum status, const char* statu
                      const char* locationString);                               // gpSetStatus
 GPResult gpGetReversBuddiesList(GPConnection* connection, int* targetProfiles, int numOfTargets,
                      int blocking, GPCallback callback, void* param); // gpGetReverseBuddiesList
-void fn_806F87A0(void);                                                         // CloseStatsConnection
-int fn_806F8A60(void);                                                          // IsStatsConnected
-void fn_806F8A80(int localid, int profileid, int type, int index, char* keyvalues,
-                 PersDataSaveCallbackFn callback, void* instance);              // SetPersistDataValues
-int fn_806F8B00(void);                                                          // PersistThink
+void CloseStatsConnection(void);
+int IsStatsConnected(void);
+void SetPersistDataValuesA(int localid, int profileid, int type, int index, char* keyvalues,
+                           PersDataSaveCallbackFn callback, void* instance);
+int PersistThink(void);
 
 // inferred: dwc_login entry points
 const DWCUserData* fn_806AEAF0(void); // DWCi_GetUserData
@@ -289,7 +289,7 @@ static void DWCi_SetPersData(int profileID, int type, char* keyvalues, void* par
         stpFriendCnt->persCallbackLevel++;
     }
 
-    fn_806F8A80(0, profileID, type, 0, keyvalues, DWCi_PersSaveCallback, param);
+    SetPersistDataValuesA(0, profileID, type, 0, keyvalues, DWCi_PersSaveCallback, param);
 }
 
 BOOL fn_806AC0A0(char* keyvalues, void* param) {
@@ -369,17 +369,17 @@ void DWCi_FriendProcess(void) {
         return;
     }
 
-    if (stpFriendCnt->persCallbackLevel != 0 || fn_806F8A60()) {
+    if (stpFriendCnt->persCallbackLevel != 0 || IsStatsConnected()) {
         stPersThinking = TRUE;
         stPersCloseReq = FALSE;
-        if (!fn_806F8B00()) {
+        if (!PersistThink()) {
             stPersThinking = FALSE;
             DWC_Printf(DWC_REPORTFLAG_WARNING, "Connection to the stats server was lost\n");
         }
         stPersThinking = FALSE;
         if (stPersCloseReq == TRUE) {
             stPersCloseReq = FALSE;
-            fn_806F87A0();
+            CloseStatsConnection();
         }
     }
 
