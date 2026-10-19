@@ -9397,6 +9397,6 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  }
 ]
