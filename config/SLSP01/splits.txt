@@ -661,7 +661,7 @@ atn/D3Anime.cpp:
 
 atn/D3AnimeInstance.cpp:
 	.text       start:0x80202A6C end:0x80203930
-	.rodata     start:0x8073E6C0 end:0x8073E6D8
+	.rodata     start:0x8073E6B0 end:0x8073E6E0
 	.data       start:0x80782E28 end:0x80782E60
 	.sdata2     start:0x80882CF8 end:0x80882D18
 
