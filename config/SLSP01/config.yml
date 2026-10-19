@@ -16,3 +16,12 @@ ldscript_template: config/SLSP01/module/ldscript.tpl
 # library units linked from source that the original kept).
 force_active:
   - NETGetRexPPCVersionPrintable
+
+# (optional) Block relocations that dtk detected incorrectly.
+block_relocations:
+  # NETAES: lis/addi of the 0x80808080 mask constant (not a symbol)
+  - source: .text:0x806998BC
+  - source: .text:0x806998C8
+  # NETAES: T tables (values that look like addresses)
+  - source: .rodata:0x80766840
+    end: .rodata:0x80767260
