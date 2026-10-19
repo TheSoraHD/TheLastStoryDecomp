@@ -24,8 +24,7 @@ struct DamageResult_unk {
 extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred: computes the damage
 
-// NONMATCHING: 99.3% - symbol names: the EnemyTask constructor is fn_8035B694 in symbols.txt and the
-// strings are lbl_80743508 (outside the .rodata range of this file).
+// NONMATCHING: 99.9% - only the symbol name differs: the EnemyTask constructor is fn_8035B694.
 Em002Skelton::Em002Skelton(atn::Task* parent, void* data) : EnemyTask(parent, data), m14B0(0), m14B4(0), m14D0(0) {
     m14B8.fn_8023780C("/effect/ef_uc001.efp");
     m14C4.fn_8023780C("/effect/ef_cm009.efp");

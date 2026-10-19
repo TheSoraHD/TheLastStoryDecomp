@@ -741,7 +741,7 @@ game/Em002_02SkeltonKing.cpp:
 
 game/Em002Skelton.cpp:
 	.text       start:0x8024A004 end:0x8024A650
-	.rodata     start:0x807434F8 end:0x80743508
+	.rodata     start:0x807434F8 end:0x80743540
 	.data       start:0x807840A8 end:0x807841D8
 	.sdata2     start:0x80883258 end:0x80883268
 
