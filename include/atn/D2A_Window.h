@@ -8,7 +8,7 @@ namespace atn {
 
 class D2A_Window : public D2A_Common {
 public:
-    D2A_Window(); // 0x801FF1B8
+    D2A_Window(D2A_Data* owner, unsigned short id); // 0x801FF1B8
     virtual ~D2A_Window();
     virtual void vf18(); // inferred: draw
 

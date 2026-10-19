@@ -7,7 +7,7 @@ namespace atn {
 
 class D2A_Frame : public D2A_Common {
 public:
-    D2A_Frame(); // 0x801EFB4C
+    D2A_Frame(D2A_Data* owner, unsigned short id); // 0x801EFB4C
     virtual ~D2A_Frame();
     virtual void vf18(); // inferred: draw
 };

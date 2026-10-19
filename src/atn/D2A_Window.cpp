@@ -64,7 +64,7 @@ struct D2A_Outline_unk {
     Color4f_unk mColor; // 0x08
 };
 
-D2A_Window::D2A_Window() : m130(Vector2_unk(1.0f, 1.0f)) {
+D2A_Window::D2A_Window(D2A_Data* owner, unsigned short id) : D2A_Common(owner, id), m130(Vector2_unk(1.0f, 1.0f)) {
     mType = 3;
     m12C = 0;
     m138 = Vector2_unk(0.0f, 0.0f);

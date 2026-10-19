@@ -30,7 +30,7 @@ struct D2A_Outline_unk {
     Color4f_unk mColor;
 };
 
-D2A_Frame::D2A_Frame() {
+D2A_Frame::D2A_Frame(D2A_Data* owner, unsigned short id) : D2A_Common(owner, id) {
     mType = 2;
 }
 

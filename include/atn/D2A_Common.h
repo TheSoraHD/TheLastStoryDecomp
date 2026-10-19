@@ -4,6 +4,7 @@
 namespace atn {
 
 struct D2A_Owner_unk;
+class D2A_Data;
 
 // inferred: table of {key, value} float parameters; fn_801F04FC sets the value of `key`.
 struct D2A_ParamTable {
@@ -34,13 +35,13 @@ struct D2A_DrawExtra {
 // inferred from __vt__Q23atn10D2A_Common; field layout only as far as derived classes use it.
 class D2A_Common {
 public:
-    D2A_Common();          // 0x801EC158
+    D2A_Common(D2A_Data* owner, unsigned short id); // 0x801EC158
     virtual ~D2A_Common(); // 0x801EC6C0
     virtual void vf0C();
     virtual void vf10();
     virtual void vf14();
     virtual void vf18();
-    virtual void vf1C();
+    virtual int vf1C(); // inferred: nonzero while loading
     virtual void vf20();
 
     int fn_801EDC78(); // inferred: nonzero when the element is drawn
@@ -48,9 +49,12 @@ public:
 
     int m04;
     unsigned short mType; // 0x08
-    unsigned char m0A[0x0E - 0x0A];
+    unsigned short mId; // 0x0A
+    unsigned char m0C[0x0E - 0x0C];
     unsigned short m0E; // inferred: outline mode of D2A_Window
-    unsigned char m10[0x30 - 0x10];
+    unsigned char m10[0x18 - 0x10];
+    float m18; // inferred: end frame of the element
+    unsigned char m1C[0x30 - 0x1C];
     D2A_ParamTable m30;
     D2A_ParamTable m38;
     unsigned char m40[0x58 - 0x40];

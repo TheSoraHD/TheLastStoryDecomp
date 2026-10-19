@@ -52,13 +52,13 @@ namespace atn {
 
 // inferred: per-element parameter setters of the layout (names invented)
 inline void SetParamA_unk(D2A_Task* task, const char* name, int index, float value) {
-    fn_801FED24(task->mData.m10, fn_800DC6B4(name), index, value);
+    fn_801FED24(&task->mData.m10, fn_800DC6B4(name), index, value);
 }
 inline void SetParamB_unk(D2A_Task* task, const char* name, int index, float value) {
-    fn_801FED70(task->mData.m10, fn_800DC6B4(name), index, value);
+    fn_801FED70(&task->mData.m10, fn_800DC6B4(name), index, value);
 }
 inline void SetParamC_unk(D2A_Task* task, const char* name, int index, float value) {
-    fn_801FEDBC(task->mData.m10, fn_800DC6B4(name), index, value);
+    fn_801FEDBC(&task->mData.m10, fn_800DC6B4(name), index, value);
 }
 
 // NONMATCHING: 99.59% - the path is kept in r26 instead of r28 (one more saved register); tried
@@ -177,7 +177,7 @@ void D2A_Task::vf14() {
 void D2A_Task::ApplyFrame() {
     if (mLoaded) {
         mData.mFrame = mFrame;
-        fn_801FEF40(mData.m10, mFrame);
+        fn_801FEF40(&mData.m10, mFrame);
         mData.vf0C();
     }
 }
@@ -225,16 +225,16 @@ void D2A_Task::SetParam2_unk(const char* name, const float* v) {
 }
 
 void D2A_Task::SetColor_unk(const char* name, unsigned int color) {
-    fn_801FEDBC(mData.m10, fn_800DC6B4(name), 0, color >> 24);
-    fn_801FEDBC(mData.m10, fn_800DC6B4(name), 1, (color >> 16) & 0xFF);
-    fn_801FEDBC(mData.m10, fn_800DC6B4(name), 2, (color >> 8) & 0xFF);
-    fn_801FEDBC(mData.m10, fn_800DC6B4(name), 3, color & 0xFF);
+    fn_801FEDBC(&mData.m10, fn_800DC6B4(name), 0, color >> 24);
+    fn_801FEDBC(&mData.m10, fn_800DC6B4(name), 1, (color >> 16) & 0xFF);
+    fn_801FEDBC(&mData.m10, fn_800DC6B4(name), 2, (color >> 8) & 0xFF);
+    fn_801FEDBC(&mData.m10, fn_800DC6B4(name), 3, color & 0xFF);
 }
 
 void D2A_Task::SetColor_unk(const char* name, float r, float g, float b) {
-    fn_801FEDBC(mData.m10, fn_800DC6B4(name), 1, r);
-    fn_801FEDBC(mData.m10, fn_800DC6B4(name), 2, g);
-    fn_801FEDBC(mData.m10, fn_800DC6B4(name), 3, b);
+    fn_801FEDBC(&mData.m10, fn_800DC6B4(name), 1, r);
+    fn_801FEDBC(&mData.m10, fn_800DC6B4(name), 2, g);
+    fn_801FEDBC(&mData.m10, fn_800DC6B4(name), 3, b);
 }
 
 // NONMATCHING: 92% - same early load/multiply of rgb[0] as fn_801F4728
@@ -248,7 +248,7 @@ void D2A_Task::SetColor255_unk(const char* name, const float* rgb) {
 void D2A_Task::SetText_unk(const char* name, int textId) {
     std::basic_string<wchar_t> text;
     GetText_unk(text, textId);
-    fn_801FEE08(mData.m10, fn_800DC6B4(name), text.data());
+    fn_801FEE08(&mData.m10, fn_800DC6B4(name), text.data());
 }
 
 void D2A_Task::SetNumber_unk(const char* name, int value, int digits) {
@@ -263,7 +263,7 @@ void D2A_Task::SetNumber_unk(const char* name, int value, int digits) {
         fn_800DD3FC(format, L"%%d\0");
     }
     fn_800DD3FC(text, format, value);
-    fn_801FEE08(mData.m10, fn_800DC6B4(name), text);
+    fn_801FEE08(&mData.m10, fn_800DC6B4(name), text);
 }
 
 void D2A_Task::fn_801F4D80(const char* name, int arg) {
@@ -327,7 +327,7 @@ void D2A_Task::GetDrawParams_unk(unsigned int id, D2A_DrawRect* rect, D2A_DrawCo
 void D2A_Task::SetFloat_unk(const char* name, float value) {
     wchar_t text[0x100];
     fn_800DD3FC(text, L"%f\0", value);
-    fn_801FEE08(mData.m10, fn_800DC6B4(name), text);
+    fn_801FEE08(&mData.m10, fn_800DC6B4(name), text);
 }
 
 } // namespace atn
