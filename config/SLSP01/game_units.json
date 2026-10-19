@@ -405,6 +405,13 @@
   "matching": false
  },
  {
+  "name": "Event/Behavior_unk.cpp",
+  "classes": [
+   "Event::BehaviorRef_unk"
+  ],
+  "matching": true
+ },
+ {
   "name": "Event/BehaviorFollow.cpp",
   "classes": [
    "Event::BehaviorFollow"
