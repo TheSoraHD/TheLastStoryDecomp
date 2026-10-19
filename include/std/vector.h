@@ -142,6 +142,34 @@ struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
     unsigned int mStart;
 };
 
+// inferred: int elements take the same path as pointers (ChaserNpc::ChaserNpc, 0x801805A4)
+template <>
+struct __vec_imp_unk<int> : public __vec_storage_unk<int> {
+    ~__vec_imp_unk() {}
+    void __push_fast_unk(const int& x) {
+        this->mSize++;
+        this->mData[this->mSize - 1] = x;
+    }
+};
+
+template <>
+struct __vec_split_unk<int> : public __vec_split_base_unk<int> {
+    __vec_split_unk(void* alloc) : __vec_split_base_unk<int>(alloc), mStart(0) {}
+    int* begin() { return this->mData + mStart; }
+    void push_back(const int& x) {
+        begin()[this->mSize] = x;
+        this->mSize++;
+    }
+    void __push_front_unk(int* first, int* last) {
+        unsigned int n = ((char*)last - (char*)first) / (int)sizeof(int);
+        mStart -= n;
+        memcpy(this->mData + mStart, first, n * sizeof(int));
+        memset(first, 0, n * sizeof(int));
+        this->mSize += n;
+    }
+    unsigned int mStart;
+};
+
 template <class T>
 inline void __vec_swap_unk(T& a, T& b) {
     T tmp = a;
