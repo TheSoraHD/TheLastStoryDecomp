@@ -28,9 +28,35 @@ struct CampSaveLoadEntry_unk {
     std::basic_string<wchar_t> m0C;
 };
 
+// inferred: date and play time of a save slot (names invented)
+struct SaveDate_unk {
+    int mSec;  // 0x00
+    int mMin;  // 0x04
+    int mHour; // 0x08
+    int m0C;
+    int m10;
+    int m14;   // 0x14: inferred: compared first (chapter or year)
+    int m18;
+    int mDay;  // 0x1C
+};
+
+// inferred: one save slot (0xB8 bytes; checked by fn_803BEAB4 / fn_803BEB54)
+struct SaveSlot_unk {
+    int m00;
+    int m04;
+    SaveDate_unk m08;
+    unsigned char m28[0x30 - 0x28];
+    unsigned char m30;
+    unsigned char m31;
+    unsigned short m32;
+    unsigned char m34[0xB8 - 0x34];
+};
+
 // inferred: save data object made by fn_803B7944 / fn_803B27F8 (see src/auto_03_803B27AC_text.cpp)
 struct CampSaveData_unk {
-    unsigned char m000[0xD60];
+    unsigned char m000[0x4C];
+    SaveSlot_unk mSlots[17]; // 0x4C
+    unsigned char mC94[0xD60 - 0xC94];
     int mD60;
     int mD64;
 };
@@ -46,7 +72,11 @@ public:
     virtual void vf14(); // 0x801189B4
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4
+    CampSaveData_unk* GetData_unk() { return mMode == 0 ? m4C : m50; }
+    void fn_80119030(int state, int arg); // inferred: changes the state
+    void fn_8011968C();                   // inferred: handles the cancel/back input
     void fn_8011B8D4(const wchar_t* text, int length); // inferred: reads the list of entries
+    int fn_8011BBD0(int slot);            // inferred: nonzero if the slot is newer than the current data
 
     int mMode;                  // 0x48: inferred: 0 save, 1 load
     CampSaveData_unk* m4C;      // 0x4C: inferred: save data of the save menu
@@ -74,10 +104,11 @@ public:
     int m130;
     int m134;
     int m138;
-    int m13C;
-    unsigned char m140[0x148 - 0x140];
+    int m13C;                   // 0x13C: inferred: state (fn_80119030)
+    int m140;                   // 0x140: inferred: previous state
+    int m144;                   // 0x144: inferred: state argument
     int m148;
-    unsigned char m14C[0x150 - 0x14C];
+    int m14C;
     int m150;
     int m154;
     int m158;
@@ -88,7 +119,7 @@ public:
     int m16C;
     int m170;
     int m174;
-    int m178;
+    atn::Task* m178;            // 0x178: inferred: message window
     atn::Texture_unk mTextures[17]; // 0x17C
     ResRef_unk m4AC;
     int m4B4;

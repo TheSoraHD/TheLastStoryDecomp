@@ -1,6 +1,7 @@
 #include "game/CampSaveLoad.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "atn/SoundRef.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -41,6 +42,21 @@ struct Settings_unk {
     unsigned char m1140;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
+
+extern "C" int fn_803BEB54(SaveSlot_unk* slot); // inferred: nonzero if the slot is empty
+
+// inferred: pad input (lbl_8087EF70); names invented
+extern "C" void* lbl_8087EF70;
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+inline int IsTriggered_unk(int button) {
+    return lbl_8087EF70 != 0 ? fn_800A555C(lbl_8087EF70, 0, button) : 0;
+}
+
+// inferred: plays a system sound effect
+extern "C" atn::SoundRef fn_80117228(int id);
+// inferred: creates a message window task
+extern "C" atn::Task* fn_805BC6C8(atn::Task* parent, int msg, int arg);
+extern "C" void fn_8036E964(Field_unk* field);
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
 
@@ -171,6 +187,59 @@ void CampSaveLoad::vf1C() {}
 
 void CampSaveLoad::vf20() {}
 
+void CampSaveLoad::fn_80119030(int state, int arg) {
+    m140 = m13C;
+    m13C = state;
+    m144 = arg;
+    switch (state) {
+    case 0:
+        fn_80117228(0x1F);
+        vf1C();
+        break;
+    case 3:
+        if (m16C == 0) {
+            m148 = 0;
+            if (mMode == 1 && m174 == 0 && fn_8011BBD0(m128)) {
+                (m178 = fn_805BC6C8(this, 0x1B5, 0))->fn_800D246C(1);
+                if (lbl_8087F0A8 != 0) {
+                    lbl_8087F0A8->m1140 = 1;
+                }
+                m174 = 1;
+            }
+        } else {
+            m148 = 1;
+        }
+        break;
+    case 5:
+        m14C = 0;
+        break;
+    case 7:
+        vf20();
+        if (mMode == 0 && lbl_8087F430 != 0 && m4AC.m04 == 0) {
+            fn_8036E964(lbl_8087F430);
+        }
+        break;
+    case 6:
+    case 8:
+        m150 = 1;
+        break;
+    }
+}
+
+void CampSaveLoad::fn_8011968C() {
+    if (IsTriggered_unk(4) || IsTriggered_unk(5)) {
+        if (m128 == 0 || mMode != 1 || m16C != 0 || m170 != 2) {
+            fn_80119030(1, 0);
+            fn_80117228(2);
+        } else {
+            m16C = 1;
+            fn_80117228(1);
+            fn_80119030(3, 0);
+        }
+        m170 = 0;
+    }
+}
+
 // NONMATCHING: the original keeps the address of csv in a saved register while it is
 // constructed (one more saved register and a 0x10 bytes larger frame)
 void CampSaveLoad::fn_8011B8D4(const wchar_t* text, int length) {
@@ -203,4 +272,27 @@ void CampSaveLoad::fn_8011B8D4(const wchar_t* text, int length) {
             }
         }
     }
+}
+
+int CampSaveLoad::fn_8011BBD0(int slot) {
+    if (m4B4 != 0) {
+        return 0;
+    }
+    int result = 0;
+    SaveSlot_unk* s = &GetData_unk()->mSlots[slot];
+    SaveSlot_unk* cur = &GetData_unk()->mSlots[0];
+    SaveDate_unk* date = &s->m08;
+    if (fn_803BEB54(cur)) {
+        result = 0;
+    } else if (slot == 0) {
+        result = 0;
+    } else if (date->m14 < cur->m08.m14) {
+        result = 1;
+    } else if (cur->m08.m14 == date->m14) {
+        if (date->mSec + (date->mMin + (date->mHour + (date->mDay + 1) * 24) * 60) * 60 <=
+            cur->m08.mSec + (cur->m08.mMin + (cur->m08.mHour + (cur->m08.mDay + 1) * 24) * 60) * 60) {
+            result = 1;
+        }
+    }
+    return result;
 }
