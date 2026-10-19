@@ -79,7 +79,6 @@ public:
         m08 = length;
         m0C = 0;
     }
-    int m0C54[4]; // inferred: the stack frame of 0x8011B8D4 is 0x10 bytes larger
 };
 class CsvTabU : public CsvBase<wchar_t, '\t', '\r', '"'> {};
 

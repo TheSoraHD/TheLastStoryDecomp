@@ -29,8 +29,8 @@ public:
     atn::Buffer_unk<CampSaveLoadEntry_unk> m4C0;
 };
 
-// NONMATCHING: ~85% - the original keeps the address of csv in a saved register while it is
-// constructed (one more saved register, so the other registers shift), and the callees have
+// NONMATCHING: the original keeps the address of csv in a saved register while it is
+// constructed (one more saved register and a 0x10 bytes larger frame), and the callees have
 // unnamed symbols (fn_8005B710, fn_8005B8F8, fn_8005B9AC, fn_8006F72C, fn_8011BBBC,
 // fn_80117E88) that do not match the mangled names used here
 void CampSaveLoad::fn_8011B8D4(const wchar_t* text, int length) {
