@@ -9,7 +9,7 @@ namespace nw4r {
 namespace snd {
 namespace detail {
 
-u8 AxManager::sZeroBuffer[AxManager::ZERO_BUFFER_SIZE];
+u8 AxManager::sZeroBuffer[AxManager::ZERO_BUFFER_SIZE] __attribute__((aligned(32))); // DMA buffer
 const BiquadFilterCallback*
     AxManager::sBiquadFilterCallbackTable[AxManager::BIQUAD_FILTER_CALLBACK_NUM];
 
@@ -45,10 +45,11 @@ AxManager& AxManager::GetInstance() {
     return instance;
 }
 
-// NONMATCHING: 91% - the lock below lives on the stack and its destructor keeps a
-// null check of its address in the original. Matches 100% when this function is
-// wrapped in `#pragma push` / `#pragma ppc_iro_level 0` / `#pragma pop` (same
-// workaround as zeldaret/ss), left out because the project rules forbid pragma tricks.
+// The lock below lives on the stack and its destructor keeps a null check of its
+// address in the original; only this function is built with the IR optimizer off
+// (same workaround as zeldaret/ss). Project-approved exception to the pragma rule.
+#pragma push
+#pragma ppc_iro_level 0
 void AxManager::Init() {
     if (mInitialized) {
         return;
@@ -80,6 +81,7 @@ void AxManager::Init() {
 
     mInitialized = true;
 }
+#pragma pop
 
 
 void AxManager::Shutdown() {

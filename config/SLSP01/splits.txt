@@ -3260,7 +3260,7 @@ gamespy/serverbrowsing/sb_serverlist.c:
 nw4r/src/snd/snd_AxManager.cpp:
 	.text       start:0x80703D00 end:0x80705340
 	.ctors      start:0x8072D404 end:0x8072D408
-	.bss        start:0x80862B20 end:0x80862F30 align:32
+	.bss        start:0x80862B20 end:0x80862F30
 	.sbss       start:0x80880488 end:0x808804A0
 	.sdata2     start:0x80889008 end:0x80889020
 

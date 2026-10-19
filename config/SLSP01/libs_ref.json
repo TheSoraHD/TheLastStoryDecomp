@@ -3946,7 +3946,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "nw4r",
-  "matching": false
+  "matching": true
  },
  {
   "name": "nw4r/src/snd/snd_InstancePool.cpp",
