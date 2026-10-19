@@ -40,16 +40,16 @@ GPResult fn_806DAC00(GPConnection* connection, int profile, int checkCache, int 
 GPResult fn_806DACE0(GPConnection* connection, int info, const char* value);
 
 // inferred: remote authentication interface (dwc_auth_interface.c)
-int fn_806D0980(const char* gamename, const char* ingamesn, u64 userid, void* alloc,
+int DWCi_Auth_StartAuthentication(const char* gamename, const char* ingamesn, u64 userid, void* alloc,
                  void* free);
-void fn_806D0C30(void);
-void fn_806D0EA0(void);
-BOOL fn_806D1590(void);
-BOOL fn_806D15E0(void);
-int fn_806D1600(void);
-void fn_806D1610(char* authToken, char* partnerChallenge);
+void DWCi_Auth_AbortAuthentication(void);
+void DWCi_Auth_ProcessAuthentication(void);
+BOOL DWCi_Auth_IsFinished(void);
+BOOL DWCi_Auth_IsSucceeded(void);
+int DWCi_Auth_GetErrorCode(void);
+void DWCi_Auth_GetGameSpyToken(char* authToken, char* partnerChallenge);
 void fn_806D1660(void);
-u64 fn_806D1670(void);
+u64 DWCi_Auth_GetConsoleUserId(void);
 BOOL fn_806D1690(void);
 
 // inferred: console id / name helpers (dwc_init.c area)
@@ -127,9 +127,9 @@ void fn_806AE750(DWCLoginControl* logcnt, DWCUserData* userdata, GPConnection* p
                DWCi_Acc_GetPlayerId(&userdata->authentic));
     DWC_Printf(DWC_REPORTFLAG_LOGIN, "console::\n");
     if (fn_806D1690()) {
-        DWC_Printf(DWC_REPORTFLAG_LOGIN, "  authentic UserID   : %016llx\n", fn_806D1670());
+        DWC_Printf(DWC_REPORTFLAG_LOGIN, "  authentic UserID   : %016llx\n", DWCi_Auth_GetConsoleUserId());
     } else {
-        DWC_Printf(DWC_REPORTFLAG_LOGIN, "  pseudo    UserID   : %016llx\n", fn_806D1670());
+        DWC_Printf(DWC_REPORTFLAG_LOGIN, "  pseudo    UserID   : %016llx\n", DWCi_Auth_GetConsoleUserId());
     }
     DWC_Printf(DWC_REPORTFLAG_LOGIN, "******************************************\n");
 }
@@ -202,8 +202,8 @@ void fn_806AEB10(DWCError error, int errorCode) {
 }
 
 void fn_806AEBB0(void) {
-    if (!fn_806D1590()) {
-        fn_806D0C30();
+    if (!DWCi_Auth_IsFinished()) {
+        DWCi_Auth_AbortAuthentication();
     }
     stpLoginCnt = NULL;
 }
@@ -251,7 +251,7 @@ void fn_806AED20(GPConnection* connection, GPConnectResponseArg* arg, void* para
     if (fn_806AEBF0(fn_806DACE0(connection, 0x704, consoleId))) {
         return;
     }
-    fn_806CF3A0(fn_806D1670(), 43, userid);
+    fn_806CF3A0(DWCi_Auth_GetConsoleUserId(), 43, userid);
     if (fn_806AEBF0(fn_806DACE0(connection, 0x717, userid))) {
         return;
     }
@@ -326,7 +326,7 @@ int fn_806AEF90(void) {
         userid = 0;
     }
     // inferred: the second argument points into the user name (after the 9 user id characters)
-    return fn_806D0980(stpLoginCnt->playerName, stpLoginCnt->username + 9, userid, DWC_Alloc,
+    return DWCi_Auth_StartAuthentication(stpLoginCnt->playerName, stpLoginCnt->username + 9, userid, DWC_Alloc,
                        DWC_Free);
 }
 
@@ -341,14 +341,14 @@ static inline GPResult DWCi_ConnectGP(void) {
 void fn_806AF170(void) {
     int errorCode;
 
-    fn_806D0EA0();
-    if (!fn_806D1590()) {
+    DWCi_Auth_ProcessAuthentication();
+    if (!DWCi_Auth_IsFinished()) {
         return;
     }
 
-    if (fn_806D15E0()) {
+    if (DWCi_Auth_IsSucceeded()) {
         DWC_Printf(DWC_REPORTFLAG_LOGIN, " *** Auth Done\n");
-        fn_806D1610(stpLoginCnt->authToken, stpLoginCnt->partnerChallenge);
+        DWCi_Auth_GetGameSpyToken(stpLoginCnt->authToken, stpLoginCnt->partnerChallenge);
         fn_806D1660();
         if (DWCi_Acc_IsAuthentic(stpLoginCnt->userdata)) {
             DWC_Printf(DWC_REPORTFLAG_LOGIN, "Succeeded to remote authentication.\n");
@@ -357,7 +357,7 @@ void fn_806AF170(void) {
             }
             stpLoginCnt->state = DWC_LOGIN_STATE_CONNECTING;
         } else {
-            DWCi_Acc_SetUserId(&stpLoginCnt->tempLoginId, fn_806D1670());
+            DWCi_Acc_SetUserId(&stpLoginCnt->tempLoginId, DWCi_Auth_GetConsoleUserId());
             DWC_Printf(DWC_REPORTFLAG_LOGIN, "Succeeded to remote authentication.\n");
             if (fn_806AEBF0(DWCi_ConnectGP())) {
                 return;
@@ -365,7 +365,7 @@ void fn_806AF170(void) {
             stpLoginCnt->state = DWC_LOGIN_STATE_GPGETINFO;
         }
     } else {
-        errorCode = fn_806D1600();
+        errorCode = DWCi_Auth_GetErrorCode();
         DWC_Printf(DWC_REPORTFLAG_LOGIN, " *** Auth Error [%d]\n", errorCode);
         if (errorCode <= -29000) {
             fn_806AEB10(DWC_ERROR_FATAL, errorCode);

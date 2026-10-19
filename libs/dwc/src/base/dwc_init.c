@@ -2,13 +2,12 @@
 // 8b9b5ee653da28663e498039e52f5d19f929a011). The Last Story links a later DWC build
 // (Aug 27 2010): the auth interface result is checked and the init flag lives in this file.
 #include <dwc/dwc_init.h>
+#include <dwc/dwc_auth_interface.h>
 #include <dwc/dwc_report.h>
 #include <revolution/OS.h>
 
 #include <string.h>
 
-// inferred: DWCi_Auth_InitInterface in dwc_auth_interface.c (MKW name); returns nonzero on success
-int fn_806D08E0(DWCAuthServer authServer);
 // inferred: gsiMemoryCallbacksSet (GameSpy, MKW name)
 void fn_806D7A70(void* mallocFn, void* freeFn, void* reallocFn, void* memalignFn);
 // inferred: gethostbyname (GameSpy socket layer, MKW name)
@@ -32,7 +31,7 @@ int DWC_Init(DWCAuthServer authServer, const char* gameName, u32 gameCode, DWCAl
 
     DWCi_SetMemFunc(alloc, free);
 
-    if (fn_806D08E0(authServer) == 0) {
+    if (DWCi_Auth_InitInterface(authServer) == 0) {
         DWC_Printf(DWC_REPORTFLAG_WARNING, "Failed to initialize auth interface.\n");
         return -1;
     }

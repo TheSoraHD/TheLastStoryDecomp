@@ -26,7 +26,7 @@ u32 fn_806A264C(const MATHCRC32Table* table, const void* data, u32 dataLength);
 // inferred: message digest (SHA-1/MD5 style) of a buffer
 void fn_806AB8B0(u8* digest, const void* data, u32 dataLength);
 // inferred: DWCi_Auth_GetConsoleUserId (dwc_auth_interface.c)
-u64 fn_806D1670(void);
+u64 DWCi_Auth_GetConsoleUserId(void);
 
 // inferred: list of allocations freed by fn_806CF030 (DWCi_CfReset in MKW)
 typedef struct DWCiCfEntry {
@@ -243,7 +243,7 @@ void DWCi_Acc_LoginIdToUserName(const DWCAccLoginId* loginid, u32 gamecode, char
 
 static inline void DWCi_Acc_CreateTempLoginIdInline(DWCAccLoginId* loginid) {
     u64 seed = (u32)OSGetTime();
-    DWCi_Acc_SetUserId(loginid, fn_806D1670());
+    DWCi_Acc_SetUserId(loginid, DWCi_Auth_GetConsoleUserId());
     DWCi_Acc_SetPlayerId(loginid, (u32)((seed * 0x5D588B656C078965 + 0x269EC3) >> 32));
     DWCi_Acc_SetFlag_DataType((DWCAccFlag*)loginid, DWC_FRIENDDATA_LOGIN_ID);
 }
@@ -287,7 +287,7 @@ void DWCi_Acc_CreateTempLoginId(DWCAccLoginId* loginid) {
 }
 
 BOOL DWCi_Acc_CheckConsoleUserId(const DWCAccLoginId* loginid) {
-    return DWCi_Acc_GetUserId(loginid) == fn_806D1670();
+    return DWCi_Acc_GetUserId(loginid) == DWCi_Auth_GetConsoleUserId();
 }
 
 BOOL DWCi_Acc_IsValidLoginId(const DWCAccLoginId* loginid) {
