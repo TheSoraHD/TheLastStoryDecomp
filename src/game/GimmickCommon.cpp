@@ -15,6 +15,7 @@
 #include "gmk/ShakeCamera.h"
 #include "gmk/BulletPoint.h"
 #include "gmk/Banana.h"
+#include "gmk/CharaObj.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -203,7 +204,6 @@ extern "C" GimmickCommon* fn_8042335C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8042C21C(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_8042CE30(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8042E36C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80432CF0(atn::Task* parent, int id, int arg);
@@ -271,7 +271,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 52: gimmick = gmk::RainDrops::fn_8042AFE4(parent, id, arg); break;
     case 53: gimmick = gmk::OpenBoard::fn_8042B56C(parent, id, arg); break;
     case 54: gimmick = fn_8042C21C(parent, id, arg); break;
-    case 55: gimmick = fn_8042CE30(parent, id, arg); break;
+    case 55: gimmick = gmk::CharaObj::fn_8042CE30(parent, id, arg); break;
     case 56: gimmick = gmk::PassBoard::fn_8042D628(parent, id, arg); break;
     case 57: gimmick = fn_8042E36C(parent, id, arg); break;
     case 60: gimmick = fn_804310B0(parent, id, arg); break;
