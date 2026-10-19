@@ -461,7 +461,7 @@ public:
     bool fn_801342B0();
     int fn_801334CC(int level); // inferred: experience needed for `level`
     void fn_80134674(int bit);
-    bool fn_801346C8(int bit);
+    bool fn_801346C8(int bit, int arg = 0); // inferred: every caller passes 0 as a second argument (unused)
     void fn_80134724(int add);
     void fn_80134774(int index, int on);
     bool fn_801347C8(int index);

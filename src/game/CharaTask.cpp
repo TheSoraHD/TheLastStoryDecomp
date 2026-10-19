@@ -7370,9 +7370,8 @@ extern "C" void fn_8010CF28(Effect_unk* effect, int kind, CharaTask* chara, void
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 
-// NONMATCHING: 99.9% - only CharaStatus::fn_801346C8 is called with a second argument 0 (li r5,0)
-// in the original (see vf4C; its symbol is fixed as Fi) and the .data offsets of the ptmf constants
-// (lbl_8077A720 noise).
+// Same instructions as the target; only the .data offsets of the ptmf constants differ (lbl_8077A720)
+// until the earlier .data users exist.
 void CharaTask::fn_80151448(HitMsg_unk* msg) {
     unsigned int flags;
     unsigned int kinds = msg->m50;
@@ -7651,8 +7650,6 @@ void CharaTask::vf40(HitInfo_unk* hit) {}
 
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* ab);
 
-// NONMATCHING: 98.4% - CharaStatus::fn_801346C8 is called with a second argument 0 (li r5,0) in
-// every caller of the game, but it is declared with one (its symbol is fixed as Fi).
 // inferred: hit reaction check (guard?); returns 0, 1 or 2. The parameters are read by the body,
 // so the symbol vf4C__9CharaTaskFv (in symbols.txt) has the wrong signature.
 int CharaTask::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir) {
@@ -10527,7 +10524,7 @@ inline bool CanReactB_unk(CharaTask* chara) {
     return true;
 }
 
-// NONMATCHING: 88% - the li r5,0 second argument of CharaStatus::fn_801346C8 (known issue), r0/r5
+// NONMATCHING: 88% - r0/r5
 // swapped in the materialized CanReact checks, the 0x80000020 mask kept whole in r30 by the original
 // and the from/to scheduling; tried: a mask local, five IsFree forms, the class accessors.
 // inferred: climbs up the wall in front (chr::ControlWallUp) after pushing against it for a while
@@ -12060,9 +12057,6 @@ void CharaTask::fn_80179F98(int value) {
 
 extern "C" int fn_803761A4(Field_unk* field);
 
-// NONMATCHING: 1 instruction - the original passes 0 in r5 to CharaStatus::fn_801346C8 (every caller in
-// the DOL does: the function takes a second argument, but its symbol fn_801346C8__11CharaStatusFi says
-// one).
 // inferred: whether the character can use its weapon now
 bool CharaTask::fn_80179FA8() {
     if (lbl_8087F430 == 0 || !fn_803761A4(lbl_8087F430)) {

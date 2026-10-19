@@ -1877,7 +1877,7 @@ void CharaStatus::fn_80134674(int bit) {
     }
 }
 
-bool CharaStatus::fn_801346C8(int bit) {
+bool CharaStatus::fn_801346C8(int bit, int arg) {
     if (bit < 0 || 128 <= bit) {
         return false;
     }
