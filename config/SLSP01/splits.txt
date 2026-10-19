@@ -438,8 +438,8 @@ chr/ControlDive.cpp:
 
 chr/ControlDraggingStart.cpp:
 	.text       start:0x801B2888 end:0x801B2EDC
-	.rodata     start:0x8073ACE0 end:0x8073AD2C
-	.data       start:0x80780690 end:0x807807F8
+	.rodata     start:0x8073ACE0 end:0x8073AD30
+	.data       start:0x80780690 end:0x80780818
 	.sdata2     start:0x80882410 end:0x80882420
 
 chr/ControlDropDown.cpp:
