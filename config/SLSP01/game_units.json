@@ -427,16 +427,11 @@
   "matching": false
  },
  {
-  "name": "game/MenuSaveTask.cpp",
+  "name": "game/CampSaveLoad.cpp",
   "classes": [
    "MenuLoadTask",
-   "MenuSaveTask"
-  ],
-  "matching": false
- },
- {
-  "name": "atn/CsvBase_wchar_t_44_13_34.cpp",
-  "classes": [
+   "MenuSaveTask",
+   "CampSaveLoad",
    "atn::CsvU",
    "atn::CsvBase<wchar_t, 44, 13, 34>"
   ],

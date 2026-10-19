@@ -1,7 +1,5 @@
-// NOTE: the split of this unit only holds the start of the source file: its string pool
-// (0x80736B10), the constructor of CampSaveLoad (0x80117B54), the destructor of its entries
-// (0x80117E88) and the instance pointers (0x8087F068/0x8087F06C) are in the auto units around it.
 #include "game/CampSaveLoad.h"
+#include "atn/Csv.h"
 #include "atn/Memory.h"
 
 extern "C" unsigned long strlen(const char* s);
@@ -33,7 +31,15 @@ struct Field_unk {
     void* m5634;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int lbl_8087D990; // inferred: slot chosen in the save menu (-1: none)
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
+
+// inferred: slot chosen in the save menu (-1: none); read by 0x8039BDB4
+extern "C" int lbl_8087D990;
+int lbl_8087D990 = -1;
+
+// inferred: separators of atn::CsvU (declared in atn/Csv.h)
+wchar_t lbl_8077A0A8[3] = L" \t";
 
 class MenuSaveTask : public CampSaveLoad {
 public:
@@ -57,8 +63,6 @@ public:
 MenuSaveTask* MenuSaveTask::sInstance;
 MenuLoadTask* MenuLoadTask::sInstance;
 
-// NONMATCHING: only relocations (pool 0x80736B10 outside the split, base constructor still
-// fn_80117B54 in symbols.txt)
 MenuSaveTask* MenuSaveTask::fn_8011770C(atn::Task* parent) {
     if (sInstance == 0) {
         sInstance = new (1, "", "", 0) MenuSaveTask(parent);
@@ -74,7 +78,6 @@ MenuSaveTask::MenuSaveTask(atn::Task* parent) : CampSaveLoad(parent) {
     m4C->mD64 = 0;
 }
 
-// NONMATCHING: only the destructor of the entries, still fn_80117E88 in symbols.txt
 MenuSaveTask::~MenuSaveTask() {
     if (sInstance != 0) {
         sInstance = 0;
@@ -85,8 +88,6 @@ void MenuSaveTask::vf20() {
     lbl_8087D990 = m150 != 0 ? m128 : -1;
 }
 
-// NONMATCHING: relocations (pool 0x80736B10 outside the split, base constructor still
-// fn_80117B54 in symbols.txt) and the source/destination registers of the string copy swapped
 MenuLoadTask* MenuLoadTask::fn_80117914(atn::Task* parent, CampSaveData_unk* data) {
     if (sInstance == 0) {
         sInstance = new (1, "", "", 0) MenuLoadTask(parent, data);
@@ -111,9 +112,42 @@ MenuLoadTask::MenuLoadTask(atn::Task* parent, CampSaveData_unk* data) : CampSave
     m50->mD64 = 0;
 }
 
-// NONMATCHING: only the destructor of the entries, still fn_80117E88 in symbols.txt
 MenuLoadTask::~MenuLoadTask() {
     if (sInstance != 0) {
         sInstance = 0;
+    }
+}
+
+// NONMATCHING: the original keeps the address of csv in a saved register while it is
+// constructed (one more saved register and a 0x10 bytes larger frame)
+void CampSaveLoad::fn_8011B8D4(const wchar_t* text, int length) {
+    atn::CsvU csv(text, length);
+    int count = 0;
+    while (csv.fn_8005BBF8()) {
+        if (wcscmp(csv.fn_8005B9CC(), L"") == 0) {
+            int a = fn_800DC1DC(csv.fn_8005B9CC());
+            int b = fn_800DC1DC(csv.fn_8005B9CC());
+            if (a > 0 && b > 0) {
+                count++;
+            }
+        }
+    }
+    mEntries.Resize_unk(count, 0);
+    int i = 0;
+    csv.vf08(text, length);
+    while (csv.fn_8005BBF8()) {
+        if (wcscmp(csv.fn_8005B9CC(), L"") == 0) {
+            int a = fn_800DC1DC(csv.fn_8005B9CC());
+            int b = fn_800DC1DC(csv.fn_8005B9CC());
+            int c = fn_800DC1DC(csv.fn_8005B9CC());
+            if (a > 0 && b > 0) {
+                CampSaveLoadEntry_unk& entry = mEntries[i];
+                entry.m00 = a;
+                entry.m04 = b;
+                entry.m08 = c;
+                entry.m0C = csv.fn_8005B9CC();
+                i++;
+            }
+        }
     }
 }

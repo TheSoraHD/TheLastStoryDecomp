@@ -19,12 +19,13 @@ struct ResRef_unk {
     void* m04;
 };
 
-// inferred: entry of CampSaveLoad::mEntries; its destructor (0x80117E88) frees a std::string at 0x0C
+// inferred: entry of CampSaveLoad::mEntries, one row of the list read by fn_8011B8D4 (0x18 bytes;
+// weak constructor 0x8011BBBC and destructor 0x80117E88); names invented
 struct CampSaveLoadEntry_unk {
-    ~CampSaveLoadEntry_unk();
-
-    unsigned char m00[0x0C];
-    std::string m0C;
+    int m00;
+    int m04;
+    int m08;
+    std::basic_string<wchar_t> m0C;
 };
 
 // inferred: save data object made by fn_803B7944 / fn_803B27F8 (see src/auto_03_803B27AC_text.cpp)
@@ -45,6 +46,7 @@ public:
     virtual void vf14(); // 0x801189B4
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4
+    void fn_8011B8D4(const wchar_t* text, int length); // inferred: reads the list of entries
 
     int mMode;                  // 0x48: inferred: 0 save, 1 load
     CampSaveData_unk* m4C;      // 0x4C: inferred: save data of the save menu
