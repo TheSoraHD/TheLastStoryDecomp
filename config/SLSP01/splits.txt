@@ -1160,8 +1160,8 @@ game/GameSaveBackground.cpp:
 
 game/GameSaveBanner.cpp:
 	.text       start:0x803B9044 end:0x803B9804
-	.rodata     start:0x80750058 end:0x8075009C
-	.data       start:0x8078B5E8 end:0x8078B658
+	.rodata     start:0x80750038 end:0x807500A8
+	.data       start:0x8078B5E8 end:0x8078B6C8
 	.sdata2     start:0x80885C98 end:0x80885CA0
 
 game/GameScene.cpp:
