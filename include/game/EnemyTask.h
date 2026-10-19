@@ -5,7 +5,11 @@
 
 // inferred: spawn description passed to the enemy constructors (class unknown)
 struct EnemyInfo_unk {
-    unsigned char m00[0x20];
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: position (ChaserGuard copies it)
+    unsigned char m10[0x14 - 0x10];
+    float m14;        // inferred: rotation (ChaserGuard copies it)
+    unsigned char m18[0x20 - 0x18];
     void* m20;     // inferred: character data passed to CharaTask
     unsigned char m24[0x2C - 0x24];
     char m2C[1];   // inferred: parameter text ("key=value;..."), length unknown
