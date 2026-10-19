@@ -16,6 +16,7 @@
 #include "gmk/BulletPoint.h"
 #include "gmk/Banana.h"
 #include "gmk/CharaObj.h"
+#include "gmk/Item.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -190,7 +191,6 @@ extern "C" GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_804093B4(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8040DC30(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8040EC30(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8040FAC0(atn::Task* parent, int id, int arg);
@@ -214,7 +214,6 @@ extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803F9420(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_803FBFA8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
@@ -295,7 +294,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 5: gimmick = fn_803F74D0(parent, desc); break;
     case 6: gimmick = fn_803F9420(parent, desc); break;
     case 7: gimmick = fn_803F9F34(parent, desc); break;
-    case 8: gimmick = fn_803FBFA8(parent, desc); break;
+    case 8: gimmick = gmk::Item::fn_803FBFA8(parent, desc); break;
     case 9: gimmick = fn_803FC8D8(parent, desc); break;
     case 10: gimmick = fn_803FE570(parent, desc); break;
     case 13: gimmick = fn_80402978(parent, desc); break;

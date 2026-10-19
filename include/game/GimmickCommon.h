@@ -130,7 +130,8 @@ public:
     virtual int vf5C() { return 0; }       // 0x80017944
     virtual int vf60() { return 0; }       // 0x801B7794
     virtual int vf64(int arg) { return 0; } // 0x803A04B8
-    virtual void vf68() {}                 // 0x800E2FDC
+    // 0x800E2FDC: inferred: two arguments (gmk::Item passes desc->m20 and 0; gmk::DropItem stores the first)
+    virtual void vf68(int arg1, int arg2) {}
     virtual void vf6C(void* menu);  // 0x803ED92C: inferred: debug menu
     virtual void vf70(int state);   // 0x803EDAF0
 
