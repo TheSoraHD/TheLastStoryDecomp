@@ -128,7 +128,7 @@ atn/MindowsCommon.cpp:
 
 atn/ModelInstance.cpp:
 	.text       start:0x8009E5A0 end:0x8009F70C
-	.rodata     start:0x807326B8 end:0x807326CC
+	.rodata     start:0x807326B8 end:0x807326D0
 	.data       start:0x80778958 end:0x80778990
 	.sdata2     start:0x80880C78 end:0x80880C88
 
