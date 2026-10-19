@@ -87,7 +87,7 @@ int GSISocketSelect(SOCKET theSocket, int* theReadFlag, int* theWriteFlag,
 #endif
 
 /* gsPlatformUtil.h */
-/* inferred: the truncating strcpy at 0x806D9590 (still fn_806D9590 in symbols.txt) */
+/* gsiSafeStrcpyA: the truncating strcpy at 0x806D9590 (gsPlatformUtil.c) */
 char* gsiSafeStrcpyA(char* dest, const char* src, unsigned int size);
 void B64Encode(const char* input, char* output, int inlen, int encodingType);
 void B64Decode(const char* input, char* output, int inlen, int* outlen,
@@ -150,7 +150,7 @@ typedef enum {
   GSIACTemporarilyUnavailable
 } GSIACResult;
 
-/* defined in gsAvailable.c; still named lbl_ in symbols.txt */
+/* defined in gsAvailable.c */
 extern GSIACResult __GSIACResult;
 extern char __GSIACGamename[64];
 
