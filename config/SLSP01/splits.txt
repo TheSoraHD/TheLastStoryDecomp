@@ -1341,7 +1341,7 @@ gmk/Banana.cpp:
 
 gmk/FlamingArrow.cpp:
 	.text       start:0x80416F74 end:0x80418198
-	.rodata     start:0x80752F30 end:0x80752F44
+	.rodata     start:0x80752EE8 end:0x80752FA8
 	.data       start:0x8078DB10 end:0x8078DBA8
 	.sdata2     start:0x80886490 end:0x808864B8
 

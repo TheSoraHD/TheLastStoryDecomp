@@ -33,6 +33,7 @@
 #include "gmk/Augur.h"
 #include "gmk/FlyObjManager.h"
 #include "gmk/HealPoint.h"
+#include "gmk/FlamingArrow.h"
 #include "gmk/Fireworks.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -226,7 +227,6 @@ extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80416F74(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
@@ -305,7 +305,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 29: gimmick = gmk::SkeltonsMirror::fn_80414AC4(parent, desc); break;
     case 30: gimmick = fn_8041537C(parent, desc); break;
     case 31: gimmick = gmk::Banana::fn_804166B0(parent, desc); break;
-    case 32: gimmick = fn_80416F74(parent, desc); break;
+    case 32: gimmick = gmk::FlamingArrow::fn_80416F74(parent, desc); break;
     case 34: gimmick = fn_80418F30(parent, desc); break;
     case 35: gimmick = gmk::BulletPoint::fn_8041B970(parent, desc); break;
     case 39: gimmick = gmk::Augur::fn_8041EB80(parent, desc); break;
