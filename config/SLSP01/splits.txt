@@ -630,9 +630,9 @@ atn/D2A_Reference.cpp:
 	.sdata2     start:0x80882C78 end:0x80882C80
 
 atn/D2A_Task.cpp:
-	.text       start:0x801F3FF8 end:0x801F4F84
-	.rodata     start:0x8073E410 end:0x8073E420
-	.data       start:0x80782C08 end:0x80782C40
+	.text       start:0x801F3FF8 end:0x801F4FF4
+	.rodata     start:0x8073E408 end:0x8073E480
+	.data       start:0x80782C08 end:0x80782C70
 	.sdata2     start:0x80882C80 end:0x80882C90
 
 atn/D2A_TaskInstanceBase_64_8.cpp:
