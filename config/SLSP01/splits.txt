@@ -1520,7 +1520,7 @@ gmk/RandomItem.cpp:
 
 gmk/SavePoint.cpp:
 	.text       start:0x80435CE4 end:0x80436E34
-	.rodata     start:0x807541E0 end:0x807541F0
+	.rodata     start:0x807541E0 end:0x80754230
 	.data       start:0x8078EED8 end:0x8078EF70
 	.sdata2     start:0x808868C8 end:0x80886900
 

@@ -1975,7 +1975,7 @@
   "classes": [
    "gmk::SavePoint"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/WindyItem.cpp",

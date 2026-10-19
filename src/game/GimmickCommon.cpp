@@ -29,6 +29,7 @@
 #include "gmk/FallingTower.h"
 #include "gmk/TreasureBox.h"
 #include "gmk/LottaSummon.h"
+#include "gmk/SavePoint.h"
 #include "gmk/Fireworks.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -211,7 +212,6 @@ extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80432CF0(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80435CE4(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80436E34(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc);
@@ -231,7 +231,6 @@ extern "C" GimmickCommon* fn_8041EB80(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80427EB4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80435DEC(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8043B778(atn::Task* parent, GimmickDesc_unk* desc);
 
 // inferred: creates the gimmick of type id / 1000 (ids below 1000 are types)
@@ -274,7 +273,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 57: gimmick = gmk::WaterLevel::fn_8042E36C(parent, id, arg); break;
     case 60: gimmick = fn_804310B0(parent, id, arg); break;
     case 61: gimmick = fn_80432CF0(parent, id, arg); break;
-    case 63: gimmick = fn_80435CE4(parent, id, arg); break;
+    case 63: gimmick = gmk::SavePoint::fn_80435CE4(parent, id, arg); break;
     case 64: gimmick = fn_80436E34(parent, id, arg); break;
     case 65: gimmick = gmk::LottaSummon::fn_8043A770(parent, id, arg); break;
     case 67: gimmick = fn_8043D594(parent, id, arg); break;
@@ -320,7 +319,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 51: gimmick = fn_80429668(parent, desc); break;
     case 58: gimmick = gmk::TodomeCountUp::fn_8042F0B4(parent, desc); break;
     case 59: gimmick = fn_8042F7EC(parent, desc); break;
-    case 63: gimmick = fn_80435DEC(parent, desc); break;
+    case 63: gimmick = gmk::SavePoint::fn_80435DEC(parent, desc); break;
     case 65: gimmick = gmk::LottaSummon::fn_8043A850(parent, desc); break;
     case 66: gimmick = fn_8043B778(parent, desc); break;
     }
