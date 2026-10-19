@@ -156,19 +156,32 @@ int ControlGrappled::vf0C() {
     return 0;
 }
 
-// NONMATCHING: draft - the original builds the vectors with out-of-line atn::Vector3 and
-// atn::Matrix3x4 functions (0x8000D114, 0x8013A13C, 0x80011410) and calls the bind_t and
-// boost::function constructors out of line (0x801B5DF0, 0x801B5EC0, 0x801B66A4 ...).
+// NONMATCHING: 97.7% - stack layout: the original places the bind_t of the first branch right
+// below the first matrix (0xD8) and the second matrix below it (0xA8); here both matrices come
+// first. The third branch also loads mChara earlier.
+// Over the inlining budget: the original calls every helper out of line (0x8000D114, 0x8013A13C,
+// 0x80011410, the bind and boost::function constructors 0x801B5DF0, 0x801B5EC0, 0x801B66A4 ...).
+// inferred: the matrix is a plain Mtx viewed as atn::Matrix3x4 (no constructor call); a local
+// atn::Matrix3x4 calls its empty constructor out of line here.
 boost::function<void()> ControlGrappled::vf10() {
+    if (mChara->GetStatus_unk()->fn_80139F4C()) {
+        atn::Vector3 dir(0.0f, 0.0f, -2.0f);
+        float angle = mChara->GetRot_unk()->y;
+        Mtx mtx;
+        ((atn::Matrix3x4*)mtx)->fn_8013A13C(angle);
+        dir.fn_80011410(*(atn::Matrix3x4*)mtx);
+        return boost::bind(&CharaTask::fn_8015E7A0, mChara, dir, -1, false);
+    }
     if (mCount > 0) {
         atn::Vector3 dir(0.0f, 0.0f, -2.0f);
+        float angle = mChara->GetRot_unk()->y;
         Mtx mtx;
-        PSMTXRotRad(mtx, 'y', mChara->mRot.y);
-        PSMTXMultVec(mtx, &dir, &dir);
-        return boost::bind(&CharaTask::fn_8015E4B0, (CharaTask*)mChara, dir, -1);
+        ((atn::Matrix3x4*)mtx)->fn_8013A13C(angle);
+        dir.fn_80011410(*(atn::Matrix3x4*)mtx);
+        return boost::bind(&CharaTask::fn_8015E4B0, mChara, dir, -1);
     }
     ControlGrappledThrow* next = new (0, "", "", 0) ControlGrappledThrow(mChara, mHolder);
-    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+    return boost::bind(&CharaTask::fn_80178208, mChara, next);
 }
 
 // NONMATCHING: draft (0x801B6E70 throws the target along a parabola: gravity -98.1, 112 frames)
