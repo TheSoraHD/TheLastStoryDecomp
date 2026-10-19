@@ -1752,9 +1752,9 @@ MP/D2ACommonDialog.cpp:
 	.sdata2     start:0x808872D0 end:0x80887308
 
 MP/CryptMP.cpp:
-	.text       start:0x804ADCAC end:0x804AE4C4
-	.rodata     start:0x80757A50 end:0x80757A5C
-	.data       start:0x807908D0 end:0x80790908
+	.text       start:0x804ADCAC end:0x804AE7C4
+	.rodata     start:0x80757A30 end:0x80757A70
+	.data       start:0x807908C0 end:0x80790930
 
 MP/D2AMpMenu.cpp:
 	.text       start:0x804AE888 end:0x804B4400
