@@ -30,6 +30,28 @@ public:
     unsigned char m08[0x18 - 0x08];
 };
 
+// inferred: controls of the skeletons grabbed by Em002_02SkeltonKing (vtables in this unit)
+class ControlCaughtSkelton : public ControlBase {
+public:
+    ControlCaughtSkelton(Chara_unk* chara, CharaTask* holder); // 0x8019A3F4
+    virtual int vf0C();
+    unsigned char m08[0x1C - 0x08];
+};
+
+class ControlThrownSkelton : public ControlBase {
+public:
+    ControlThrownSkelton(Chara_unk* chara, const atn::Vector3& target, HitInfo_unk* data); // 0x8019A580
+    virtual int vf0C();
+    unsigned char m08[0x24 - 0x08];
+};
+
+class ControlThrownBreakSkelton : public ControlBase {
+public:
+    ControlThrownBreakSkelton(Chara_unk* chara); // 0x8019AFE8
+    virtual int vf0C();
+    unsigned char m08[0x20 - 0x08];
+};
+
 class ControlThreadCatch : public ControlBase {
 public:
     ControlThreadCatch(Chara_unk* chara, int a, int b); // 0x8019B29C
