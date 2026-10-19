@@ -3,8 +3,10 @@
 // (Aug 27 2010); the error-type table was rewritten from the target assembly.
 #include <dwc/dwc_error.h>
 
-static DWCError stDwcLastError;
-static int stDwcErrorCode;
+// Explicit zero initializers: MWCC places initialized-to-zero statics in .bss ahead
+// of the uninitialized ones, which gives the target order (LastError, ErrorCode).
+static DWCError stDwcLastError = DWC_ERROR_NONE;
+static int stDwcErrorCode = 0;
 
 int DWC_GetLastError(int* errorCode) {
     if (errorCode != NULL) {

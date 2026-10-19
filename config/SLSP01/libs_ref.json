@@ -6338,6 +6338,74 @@
   "matching": true
  },
  {
+  "name": "RVL_SDK/src/revolution/nhttp/NHTTP_os_RVL.c",
+  "mw_version": "GC/3.0a5.2",
+  "cflags": [
+   "-nodefaults",
+   "-proc gekko",
+   "-align powerpc",
+   "-enum int",
+   "-fp hardware",
+   "-Cpp_exceptions off",
+   "-O4,p",
+   "-inline auto",
+   "-pragma \"cats off\"",
+   "-pragma \"warn_notinlined off\"",
+   "-maxerrors 1",
+   "-nosyspath",
+   "-RTTI off",
+   "-fp_contract on",
+   "-str reuse",
+   "-enc SJIS",
+   "-i include",
+   "-i libs/PowerPC_EABI_Support/include/stl",
+   "-i libs/PowerPC_EABI_Support/include/",
+   "-DNDEBUG=1",
+   "-lang=c",
+   "-inline auto",
+   "-ipa file",
+   "-fp_contract off",
+   "-func_align 4",
+   "-i libs/RVL_SDK/include/"
+  ],
+  "category": "sdk",
+  "matching": true
+ },
+ {
+  "name": "RVL_SDK/src/revolution/nhttp/d_nhttp.c",
+  "mw_version": "GC/3.0a5.2",
+  "cflags": [
+   "-nodefaults",
+   "-proc gekko",
+   "-align powerpc",
+   "-enum int",
+   "-fp hardware",
+   "-Cpp_exceptions off",
+   "-O4,p",
+   "-inline auto",
+   "-pragma \"cats off\"",
+   "-pragma \"warn_notinlined off\"",
+   "-maxerrors 1",
+   "-nosyspath",
+   "-RTTI off",
+   "-fp_contract on",
+   "-str reuse",
+   "-enc SJIS",
+   "-i include",
+   "-i libs/PowerPC_EABI_Support/include/stl",
+   "-i libs/PowerPC_EABI_Support/include/",
+   "-DNDEBUG=1",
+   "-lang=c",
+   "-inline auto",
+   "-ipa file",
+   "-fp_contract off",
+   "-func_align 4",
+   "-i libs/RVL_SDK/include/"
+  ],
+  "category": "sdk",
+  "matching": true
+ },
+ {
   "name": "RVL_SDK/src/revolution/ssl/ssl.c",
   "mw_version": "GC/3.0a5.2",
   "cflags": [
@@ -6474,7 +6542,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "dwc/src/base/dwc_memfunc.c",
