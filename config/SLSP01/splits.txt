@@ -2836,6 +2836,12 @@ PowerPC_EABI_Support/src/Runtime/runtime.c:
 	.text       start:0x80695D84 end:0x80696578
 	.rodata     start:0x807667C0 end:0x807667D8
 
+PowerPC_EABI_Support/src/Runtime/__init_cpp_exceptions.cpp:
+	.text       start:0x80696578 end:0x806965E8
+	.ctors      start:0x8072D2A0 end:0x8072D2A4
+	.dtors      start:0x8072D440 end:0x8072D448
+	.sdata      start:0x8087ED28 end:0x8087ED30
+
 PowerPC_EABI_Support/src/Runtime/Gecko_ExceptionPPC.cp:
 	extab       start:0x80007BE4 end:0x80007C58
 	extabindex  start:0x80008140 end:0x80008194
