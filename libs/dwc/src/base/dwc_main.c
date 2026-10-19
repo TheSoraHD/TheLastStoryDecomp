@@ -65,13 +65,13 @@ int gt2GetSocketSOCKET(GT2Socket socket);
 void gt2SetUnrecognizedMessageCallback(GT2Socket socket, void* callback);
 void* gt2GetConnectionData(GT2Connection connection);
 const char* gt2AddressToString(u32 ip, u16 port, char* string);
-int fn_806D7F20(int socket);                             // GOAGetLastError
+int GOAGetLastError(int socket);
 void fn_806EF8B0(void* qrec);                            // qr2_send_statechanged
 void fn_806EF930(void* qrec);                            // qr2_shutdown
 void fn_806FFA10(void* sb);                              // ServerBrowserFree
-void fn_806D76E0(const char* gamename);                  // GSIStartAvailableCheck
-int fn_806D7860(void);                                   // GSIAvailableCheckThink
-int fn_806D8060(const char* hostname); // inferred: caches the DNS query of hostname
+void GSIStartAvailableCheckA(const char* gamename);
+int GSIAvailableCheckThink(void);
+int gethostbyname(const char* hostname); // inferred: caches the DNS query of hostname
 GPResult fn_806DA880(GPConnection* connection, int productID, int namespaceID,
                      int partnerID);                                     // gpInitialize
 void fn_806DA8B0(GPConnection* connection);                              // gpDestroy
@@ -419,7 +419,7 @@ void fn_806AFAA0(void) {
 
     switch (stpDwcCnt->state) {
     case DWC_STATE_AVAILABLE_CHECK:
-        switch (fn_806D7860()) {
+        switch (GSIAvailableCheckThink()) {
         case 1:
             DWC_Printf(DWC_REPORTFLAG_ACHECK, "Confirmed the backend of GameSpy server.\n");
             if (fn_806B17B0(fn_806DA880(&stpDwcCnt->gpObj, stpDwcCnt->logcnt.productID,
@@ -519,7 +519,7 @@ BOOL fn_806AFDB0(const u16* ingamesn, const char* reserved, DWCLoginCallback cal
     DWCi_CacheDNS(lbl_80862150);
 
     DWCi_SetState(DWC_STATE_AVAILABLE_CHECK);
-    fn_806D76E0(stpDwcCnt->gameName);
+    GSIStartAvailableCheckA(stpDwcCnt->gameName);
     return TRUE;
 }
 
@@ -529,47 +529,47 @@ static inline void DWCi_CacheDNS(const char* gamename) {
     char hostname[256];
     unsigned int hashcode;
 
-    if (!fn_806D8060("gpcm.gs.nintendowifi.net")) {
+    if (!gethostbyname("gpcm.gs.nintendowifi.net")) {
         goto fail;
     }
-    if (!fn_806D8060("gpsp.gs.nintendowifi.net")) {
+    if (!gethostbyname("gpsp.gs.nintendowifi.net")) {
         goto fail;
     }
-    if (!fn_806D8060("gamestats.gs.nintendowifi.net")) {
+    if (!gethostbyname("gamestats.gs.nintendowifi.net")) {
         goto fail;
     }
-    if (!fn_806D8060("gamestats2.gs.nintendowifi.net")) {
+    if (!gethostbyname("gamestats2.gs.nintendowifi.net")) {
         goto fail;
     }
     if (gamename == NULL) {
         return;
     }
     sprintf(hostname, "%s.available.gs.nintendowifi.net", gamename);
-    if (!fn_806D8060(hostname)) {
+    if (!gethostbyname(hostname)) {
         goto fail;
     }
     sprintf(hostname, "%s.natneg1.gs.nintendowifi.net", gamename);
-    if (!fn_806D8060(hostname)) {
+    if (!gethostbyname(hostname)) {
         goto fail;
     }
     sprintf(hostname, "%s.natneg2.gs.nintendowifi.net", gamename);
-    if (!fn_806D8060(hostname)) {
+    if (!gethostbyname(hostname)) {
         goto fail;
     }
     sprintf(hostname, "%s.natneg3.gs.nintendowifi.net", gamename);
-    if (!fn_806D8060(hostname)) {
+    if (!gethostbyname(hostname)) {
         goto fail;
     }
     sprintf(hostname, "%s.master.gs.nintendowifi.net", gamename);
-    if (!fn_806D8060(hostname)) {
+    if (!gethostbyname(hostname)) {
         goto fail;
     }
     sprintf(hostname, "%s.gamestats.gs.nintendowifi.net", gamename);
-    if (!fn_806D8060(hostname)) {
+    if (!gethostbyname(hostname)) {
         goto fail;
     }
     sprintf(hostname, "%s.gamestats2.gs.nintendowifi.net", gamename);
-    if (!fn_806D8060(hostname)) {
+    if (!gethostbyname(hostname)) {
         goto fail;
     }
     {
@@ -581,7 +581,7 @@ static inline void DWCi_CacheDNS(const char* gamename) {
         }
     }
     sprintf(hostname, "%s.ms%d.gs.nintendowifi.net", lbl_80862150, hashcode % 20);
-    if (fn_806D8060(hostname)) {
+    if (gethostbyname(hostname)) {
         return;
     }
 fail:
@@ -1571,7 +1571,7 @@ static void fn_806B2FD0(GT2Connection connection, int latency) {
 
 // DWCi_GT2SocketErrorCallback
 static void fn_806B3030(GT2Socket socket) {
-    stGt2SocketError = fn_806D7F20(gt2GetSocketSOCKET(socket));
+    stGt2SocketError = GOAGetLastError(gt2GetSocketSOCKET(socket));
     DWC_Printf(DWC_REPORTFLAG_ERROR, "Socket fatal error! (%d)\n", stGt2SocketError);
     DWCi_SetError(DWC_ERROR_FATAL, -97003);
     stpDwcCnt->gt2Socket = NULL;

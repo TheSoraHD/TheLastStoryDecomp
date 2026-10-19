@@ -9,9 +9,9 @@
 #include <string.h>
 
 // inferred: gsiMemoryCallbacksSet (GameSpy, MKW name)
-void fn_806D7A70(void* mallocFn, void* freeFn, void* reallocFn, void* memalignFn);
+void gsiMemoryCallbacksSet(void* mallocFn, void* freeFn, void* reallocFn, void* memalignFn);
 // inferred: gethostbyname (GameSpy socket layer, MKW name)
-void* fn_806D8060(const char* name);
+void* gethostbyname(const char* name);
 // inferred: DWCi_CfReset (MKW name)
 void fn_806CF030(void);
 // inferred: reads the console friend code (DWCi_Np_GetConsoleId in MKW)
@@ -38,7 +38,7 @@ int DWC_Init(DWCAuthServer authServer, const char* gameName, u32 gameCode, DWCAl
 
     dwci_gamecode = gameCode;
 
-    fn_806D7A70(DWCi_GsMalloc, DWCi_GsFree, DWCi_GsRealloc, DWCi_GsMemalign);
+    gsiMemoryCallbacksSet(DWCi_GsMalloc, DWCi_GsFree, DWCi_GsRealloc, DWCi_GsMemalign);
 
     strcpy(lbl_80862150, gameName);
 
@@ -55,8 +55,8 @@ int DWC_Init(DWCAuthServer authServer, const char* gameName, u32 gameCode, DWCAl
 }
 
 void DWC_Shutdown(void) {
-    fn_806D7A70(DWCi_GsMalloc, DWCi_GsFree, DWCi_GsRealloc, DWCi_GsMemalign);
-    fn_806D8060("clear");
+    gsiMemoryCallbacksSet(DWCi_GsMalloc, DWCi_GsFree, DWCi_GsRealloc, DWCi_GsMemalign);
+    gethostbyname("clear");
     fn_806CF030();
     dwci_initialized = FALSE;
 }

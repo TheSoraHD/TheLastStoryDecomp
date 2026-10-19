@@ -120,8 +120,7 @@ int setsockopt(SOCKET sock, int level, int optname, const char* optval,
 int getsockname(SOCKET sock, SOCKADDR* addr, int* len);
 
 #define gethostbyaddr(a, l, t) SOGetHostByAddr(a, l, t)
-SOHostEnt* fn_806D8060(const char* name);
-#define gethostbyname(name) fn_806D8060(name)
+SOHostEnt* gethostbyname(const char* name);
 
 /* SO byte order functions (SONtoHl, SONtoHs, SOHtoNl, SOHtoNs) */
 u32 fn_806A4260(u32 netlong);
@@ -136,8 +135,7 @@ char* fn_806A420C(SOInAddr in); /* SOInetNtoA */
 #define inet_ntoa(n) fn_806A420C(n)
 unsigned long inet_addr(const char* name);
 
-int fn_806D7F20(SOCKET sock);
-#define GOAGetLastError(sock) fn_806D7F20(sock)
+int GOAGetLastError(SOCKET sock);
 
 int SetSockBlocking(SOCKET sock, int isblocking);
 int SetReceiveBufferSize(SOCKET sock, int size);
