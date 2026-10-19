@@ -22,8 +22,6 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: 99.8% - only the symbol name differs: the base constructor is still fn_802CCFD8 in
-// symbols.txt (Em209SmallGolem is not decompiled yet).
 Em209BigGolem::Em209BigGolem(atn::Task* parent, EnemyInfo_unk* info) : Em209SmallGolem(parent, info) {
     m1510 = 0x409;
     m1514 = 0x408;
@@ -31,7 +29,6 @@ Em209BigGolem::Em209BigGolem(atn::Task* parent, EnemyInfo_unk* info) : Em209Smal
     m1548 = 1;
 }
 
-// NONMATCHING: 99.8% - only the symbol name differs: the base destructor is still fn_802CD2E4.
 Em209BigGolem::~Em209BigGolem() {}
 
 void Em209BigGolem::vf3C(HitInfo_unk* hit) {

@@ -160,7 +160,7 @@ inline void DrawCircle_unk(const atn::Vector3& pos, float radius, Color4f_unk co
 
 // NONMATCHING: 92% - the inlined vector::push_back of the target also evaluates a dead growth
 // computation (max((cap + 1) * 3 / 5, 1) and max((cap + 1) / 2, 1), 0x8017CD44) after the length
-// check; also the EnemyTask constructor is still fn_8035B694 in symbols.txt.
+// check.
 ChaserGuard::ChaserGuard(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0.0f, 0.0f, 0.0f), m14D0(0), m14D4(0), m14D8(0),
       m14F8(0), m14FC(0), m1500(1.0f), m1504(0), m1508(0), m1510(0.0f, 0.0f, 0.0f) {
@@ -174,7 +174,6 @@ ChaserGuard::ChaserGuard(atn::Task* parent, EnemyInfo_unk* info)
     m1454 = 0;
 }
 
-// NONMATCHING: 99.9% - only the symbol name differs: the EnemyTask destructor is fn_8035B78C.
 ChaserGuard::~ChaserGuard() {
     if (lbl_8087FA20 != 0) {
         fn_804AAFCC(lbl_8087FA20->m258, this);
