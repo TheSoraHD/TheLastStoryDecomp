@@ -96,6 +96,15 @@ public:
         mData = 0;
         mSize = 0;
     }
+    // inferred: same body as the destructor, called by the destructor of CampSaveLoad (inlined at
+    // 0x801177E8) before the member is destroyed (name invented)
+    void Free_unk() {
+        if (mData != 0) {
+            delete[] mData;
+        }
+        mData = 0;
+        mSize = 0;
+    }
     void Alloc(int n) {
         if (mData != 0) {
             delete[] mData;
