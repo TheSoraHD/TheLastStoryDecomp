@@ -216,7 +216,7 @@ atn/SoftKeyboardBase_wchar_t_0.cpp:
 atn/Sound3dListener.cpp:
 	.text       start:0x800C7DC4 end:0x800C8278
 	.rodata     start:0x80734130 end:0x8073416C
-	.data       start:0x807794F8 end:0x80779540
+	.data       start:0x807794F8 end:0x80779570
 
 atn/Sound3dEngine.cpp:
 	.text       start:0x800CAD9C end:0x800CB360
@@ -300,15 +300,13 @@ Event/Path.cpp:
 	.data       start:0x80779F40 end:0x80779F68
 	.sdata2     start:0x808816B4 end:0x80881718
 
-game/MenuSaveTask.cpp:
-	.text       start:0x8011770C end:0x80117B54
-	.rodata     start:0x80736AB0 end:0x80736AD0
-	.data       start:0x80779FA0 end:0x8077A030
-
-atn/CsvBase_wchar_t_44_13_34.cpp:
-	.text       start:0x8011B8D4 end:0x8011BBBC
-	.rodata     start:0x80736AE0 end:0x80736B10
-	.data       start:0x8077A070 end:0x8077A0A8
+game/CampSaveLoad.cpp:
+	.text       start:0x8011770C end:0x8011BD14
+	.rodata     start:0x80736AB0 end:0x80736EF0
+	.data       start:0x80779FA0 end:0x8077A150
+	.sdata      start:0x8087D990 end:0x8087D9A0
+	.sbss       start:0x8087F068 end:0x8087F070
+	.sdata2     start:0x80881748 end:0x80881798
 
 game/CharaManager_PlayerTask.cpp:
 	.text       start:0x8011F6FC end:0x8011FF78
@@ -343,14 +341,17 @@ game/CharaTask.cpp:
 	.sdata2     start:0x80881960 end:0x80881B78
 
 game/ChaserGuard.cpp:
-	.text       start:0x8017CB9C end:0x8017D13C
-	.rodata     start:0x807380E0 end:0x807380EC
-	.data       start:0x8077C968 end:0x8077CA98
+	.text       start:0x8017CB9C end:0x8018059C
+	.rodata     start:0x807380A0 end:0x80738120
+	.data       start:0x8077C948 end:0x8077CAC8
+	.sdata2     start:0x80881B78 end:0x80881BF8
 
 game/ChaserNpc.cpp:
-	.text       start:0x801805A4 end:0x80180AE0
-	.rodata     start:0x80738148 end:0x80738154
-	.data       start:0x8077CAE0 end:0x8077CC10
+	.text       start:0x8018059C end:0x801823A8
+	.rodata     start:0x80738120 end:0x80738198
+	.data       start:0x8077CAC8 end:0x8077CC10
+	.sbss       start:0x8087F090 end:0x8087F098
+	.sdata2     start:0x80881BF8 end:0x80881C48
 
 game/ChaseManager.cpp:
 	.text       start:0x801823A8 end:0x80183588
@@ -372,8 +373,8 @@ chr/ControlBreakOpen.cpp:
 
 chr/ControlAppear.cpp:
 	.text       start:0x801880D0 end:0x80189634
-	.rodata     start:0x80738E90 end:0x80738EF4
-	.data       start:0x8077CD48 end:0x8077CF28
+	.rodata     start:0x80738C48 end:0x80738EF4
+	.data       start:0x8077CD00 end:0x8077CF80
 	.sdata2     start:0x80881E78 end:0x80881E90
 
 chr/ControlAttackBase.cpp:
@@ -438,8 +439,8 @@ chr/ControlDive.cpp:
 
 chr/ControlDraggingStart.cpp:
 	.text       start:0x801B2888 end:0x801B2EDC
-	.rodata     start:0x8073ACE0 end:0x8073AD2C
-	.data       start:0x80780690 end:0x807807F8
+	.rodata     start:0x8073ACE0 end:0x8073AD30
+	.data       start:0x80780690 end:0x80780818
 	.sdata2     start:0x80882410 end:0x80882420
 
 chr/ControlDropDown.cpp:
@@ -456,8 +457,8 @@ chr/ControlGmkCoffinOpening.cpp:
 
 chr/ControlJumpAt.cpp:
 	.text       start:0x801B529C end:0x801B73F0
-	.rodata     start:0x8073B110 end:0x8073B188
-	.data       start:0x80780C00 end:0x80780E60
+	.rodata     start:0x8073B110 end:0x8073B190
+	.data       start:0x80780B80 end:0x80780ED0
 	.sdata2     start:0x808824C0 end:0x808824F0
 
 chr/ControlAttractHateCharge.cpp:
@@ -676,9 +677,9 @@ atn/CsvBase_char_124_13_34.cpp:
 	.data       start:0x80782FD0 end:0x80782FE8
 
 atn/ptr_string_base_wchar_t_0.cpp:
-	.text       start:0x8020C028 end:0x8020C4B0
-	.rodata     start:0x8073F5A0 end:0x8073F5C4
-	.data       start:0x80782FF0 end:0x80783008
+	.text       start:0x8020C028 end:0x8020C4C8
+	.rodata     start:0x8073F5A0 end:0x8073F600
+	.data       start:0x80782FF0 end:0x80783010
 
 db/GrowthParseGlobal.cpp:
 	.text       start:0x8020F7D0 end:0x8020FDEC
@@ -741,7 +742,7 @@ game/Em002_02SkeltonKing.cpp:
 
 game/Em002Skelton.cpp:
 	.text       start:0x8024A004 end:0x8024A650
-	.rodata     start:0x807434F8 end:0x80743508
+	.rodata     start:0x807434F8 end:0x80743540
 	.data       start:0x807840A8 end:0x807841D8
 	.sdata2     start:0x80883258 end:0x80883268
 
@@ -891,15 +892,15 @@ game/Em208Queen.cpp:
 
 game/Em209BigGolem.cpp:
 	.text       start:0x802CCB20 end:0x802CCFD8
-	.rodata     start:0x80746EA8 end:0x80746EB8
-	.data       start:0x80786990 end:0x80786AC8
+	.rodata     start:0x80746EA8 end:0x80746ED0
+	.data       start:0x80786990 end:0x80786B00
 	.sdata2     start:0x808844C0 end:0x808844E0
 
 game/Em209SmallGolem.cpp:
 	.text       start:0x802CCFD8 end:0x802D0038
 	.ctors      start:0x8072D340 end:0x8072D344
-	.rodata     start:0x80746EB8 end:0x80746EC8
-	.data       start:0x80786AF8 end:0x80786C10
+	.rodata     start:0x80746ED0 end:0x80747098
+	.data       start:0x80786B00 end:0x80786C10
 	.sdata2     start:0x808844E0 end:0x80884558
 
 game/Em301LShade.cpp:
@@ -1375,8 +1376,9 @@ gmk/Fireworks.cpp:
 
 gmk/ArenaFloor.cpp:
 	.text       start:0x8041DDE4 end:0x8041EB80
-	.rodata     start:0x807531E0 end:0x807531F0
+	.rodata     start:0x807531E0 end:0x80753200
 	.data       start:0x8078DEF0 end:0x8078DF88
+	.sdata      start:0x8087DF98 end:0x8087DFA0
 	.sdata2     start:0x80886570 end:0x80886578
 
 gmk/Augur.cpp:
@@ -1659,9 +1661,12 @@ Event/PostSequence.cpp:
 	.data       start:0x807900F8 end:0x80790168
 
 game/MapManager.cpp:
-	.text       start:0x80490EB8 end:0x80491418
-	.rodata     start:0x807566B8 end:0x807566C4
-	.data       start:0x807901E0 end:0x80790218
+	.text       start:0x80490EB8 end:0x80491EA0
+	.rodata     start:0x80756690 end:0x807566E0
+	.data       start:0x807901D8 end:0x80790218
+	.bss        start:0x807C8AC8 end:0x807C8AD0
+	.sbss       start:0x8087F558 end:0x8087F560
+	.sdata2     start:0x80887060 end:0x80887068
 
 game/MapPartsBase.cpp:
 	.text       start:0x80491EA0 end:0x80496420
@@ -1838,10 +1843,12 @@ atn/PPDATAU.cpp:
 	.data       start:0x80793118 end:0x80793168
 
 game/NewCampPartsGmk.cpp:
-	.text       start:0x805128C0 end:0x80512C90
-	.rodata     start:0x8075B500 end:0x8075B510
-	.data       start:0x80793320 end:0x807933A8
-	.sdata2     start:0x808877E0 end:0x808877E4
+	.text       start:0x805128C0 end:0x80514720
+	.ctors      start:0x8072D3AC end:0x8072D3B0
+	.rodata     start:0x8075B320 end:0x8075B580
+	.data       start:0x80793320 end:0x807933C8
+	.bss        start:0x807C8FF0 end:0x807C90F0
+	.sdata2     start:0x808877E0 end:0x8088783C
 
 game/NewCampPartsHint.cpp:
 	.text       start:0x80514784 end:0x805169F8

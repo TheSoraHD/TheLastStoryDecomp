@@ -15,6 +15,9 @@ extern "C" int fprintf(_FILE_unk* file, const char* format, ...);
 // non-error path of an || condition)
 extern "C" __declspec(noreturn) void abort();
 extern "C" unsigned long strlen(const char* s);
+extern "C" unsigned long wcslen(const wchar_t* s);
+// inferred: length of a wide string for basic_string<wchar_t> (CampSaveLoad 0x8011B8D4 calls wcslen)
+inline unsigned long strlen(const wchar_t* s) { return wcslen(s); }
 extern "C" void* memmove(void* dst, const void* src, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" void* memset(void* dst, int c, unsigned long n);

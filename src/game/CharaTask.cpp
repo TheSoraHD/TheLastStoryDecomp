@@ -34,6 +34,7 @@
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
 #include "game/CharaStatus.h"
+#include "game/MapManager.h"
 #include "game/GimmickCommon.h"
 #include "game/HitInfo_unk.h"
 #include <boost/scoped_ptr.hpp>
@@ -400,7 +401,7 @@ extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...)
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" int fn_8021BE98(char* name, CharaStatusEntry_unk* entry);  // inferred: name of an entry
 
-// inferred: map manager (lbl_8087F558) and the area at a position
+// inferred: area at a position (returned by MapManager::fn_804918A4)
 struct MapArea_unk {
     int m00;
     char mName[1];
@@ -414,14 +415,7 @@ struct MapInfo_unk {
     unsigned char m50[0x104 - 0x50];
     int m104;
 };
-struct MapManager_unk {
-    unsigned char m00[0x48];
-    int m48;
-    MapInfo_unk* m4C;
-};
-extern "C" MapManager_unk* lbl_8087F558;
 extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
-extern "C" MapArea_unk* fn_804918A4(void* map, const atn::Vector3* pos);
 
 extern "C" void* lbl_8087F540;
 extern "C" int fn_80481654(void* obj);
@@ -4518,8 +4512,8 @@ void CharaTask::fn_80145334() {
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
         map = fn_80373148(lbl_8087F430);
     }
-    if (map == 0 && lbl_8087F558 != 0 && lbl_8087F558->m48 != 0) {
-        map = lbl_8087F558->m4C;
+    if (map == 0 && MapManager::sInstance != 0 && MapManager::sInstance->mParts.mSize != 0) {
+        map = (MapInfo_unk*)MapManager::sInstance->mParts.mData[0];
     }
     if (mFlagB25 && map != 0) {
         fn_80147A18(map->m104);
@@ -5204,9 +5198,6 @@ inline const wchar_t* SelectText_unk(int kind, const wchar_t* normal, const wcha
 inline void DrawSphere_unk(const CharaTask::Sphere_unk sphere) {
     fn_80063D3C(lbl_8087EEB0, &sphere.mCenter, sphere.mRadius, -1, 0.0f);
 }
-inline MapArea_unk* FindArea_unk(void* map, const atn::Vector3& pos) {
-    return fn_804918A4(map, &pos);
-}
 
 // inferred: fields where the shadow follows the height of the player (name invented)
 inline bool IsShadowField_unk(Field_unk* field) {
@@ -5578,8 +5569,8 @@ void CharaTask::fn_80149A30() {
         if (lbl_8087F0A8->m58 != 0 && dist < 62500.0f && screen.z > 0.0f && screen.z < 1.0f) {
             wchar_t text[256];
             char buf[256];
-            void* map = lbl_8087F558;
-            MapArea_unk* area = FindArea_unk(map, mMotion.fn_80094F98().mCenter);
+            MapManager* map = MapManager::sInstance;
+            MapArea_unk* area = (MapArea_unk*)map->fn_804918A4(mMotion.fn_80094F98());
             if (area != 0) {
                 sprintf(buf, "Area: %s\0", area->mName);
             } else {

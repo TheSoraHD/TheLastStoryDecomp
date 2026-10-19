@@ -15,7 +15,7 @@ class CsvBase {
 public:
     // inferred: inlined at 0x803EDB18 (the virtual call goes through the CsvBase vtable)
     CsvBase(const T* text, int length) : m04(0), m08(0), m0C(0), m630(0) {
-        memset(mField, 0, 0x400);
+        memset(mField, 0, sizeof(mField));
         memset(m610, 0, sizeof(m610));
         vf08(text, length);
     }
@@ -36,8 +36,11 @@ public:
     const T* m04; // inferred: text being read
     int m08;
     int m0C;      // inferred: read position
-    T mField[0x600 / sizeof(T)]; // 0x10: current field
-    unsigned char m610[0x20];
+    // inferred: the wchar_t instance (0x8011B8D4) clears 0x800 and 0x40 bytes and keeps m630 at
+    // 0xC50, so the arrays are sized in characters
+    T mField[0x400]; // 0x10: current field
+    T m410[0x200];
+    T m610[0x20];
     int m630;
 };
 
@@ -56,7 +59,27 @@ public:
     CsvTab(const char* text, int length) : CsvBase<char, '\t', '\r', '"'>(text, length) {}
 };
 class CsvPipe : public CsvBase<char, '|', '\r', '"'> {};
-class CsvU : public CsvBase<wchar_t, ',', '\r', '"'> {};
+extern "C" wchar_t lbl_8077A0A8[3]; // inferred: L" \t"
+// inferred: the text starts with a byte order mark, which is skipped (constructor inlined at
+// 0x8011B8D4, vf08 weak copy at 0x8011BB90)
+class CsvU : public CsvBase<wchar_t, ',', '\r', '"'> {
+public:
+    CsvU(const wchar_t* text, int length)
+        : CsvBase<wchar_t, ',', '\r', '"'>(length != 0 ? text + 1 : text, length != 0 ? length - 1 : length) {
+        fn_8005BCE8(lbl_8077A0A8);
+    }
+    virtual void vf08(const wchar_t* text, int length) {
+        if (length != 0) {
+            text++;
+        }
+        m04 = text;
+        if (length != 0) {
+            length--;
+        }
+        m08 = length;
+        m0C = 0;
+    }
+};
 class CsvTabU : public CsvBase<wchar_t, '\t', '\r', '"'> {};
 
 } // namespace atn

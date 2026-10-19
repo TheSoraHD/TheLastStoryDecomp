@@ -66,6 +66,29 @@ inline void __MtxCopy(register Mtx dst, register const Mtx src) {
     }
 }
 
+// inferred: 4x4 matrix copy with eight paired-single loads then eight stores (copy of the engine
+// camera, 0x80514064 in game/NewCampPartsGmk.cpp)
+inline void __Mtx44Copy(register float (*dst)[4], register const float (*src)[4]) {
+    asm {
+        psq_l fp1, 0x00(src), 0, 0
+        psq_l fp2, 0x08(src), 0, 0
+        psq_l fp3, 0x10(src), 0, 0
+        psq_l fp4, 0x18(src), 0, 0
+        psq_l fp5, 0x20(src), 0, 0
+        psq_l fp6, 0x28(src), 0, 0
+        psq_l fp7, 0x30(src), 0, 0
+        psq_l fp8, 0x38(src), 0, 0
+        psq_st fp1, 0x00(dst), 0, 0
+        psq_st fp2, 0x08(dst), 0, 0
+        psq_st fp3, 0x10(dst), 0, 0
+        psq_st fp4, 0x18(dst), 0, 0
+        psq_st fp5, 0x20(dst), 0, 0
+        psq_st fp6, 0x28(dst), 0, 0
+        psq_st fp7, 0x30(dst), 0, 0
+        psq_st fp8, 0x38(dst), 0, 0
+    }
+}
+
 namespace atn {
 
 class Matrix3x4;
@@ -294,6 +317,11 @@ inline float DegToRad_unk(float deg) {
 // inferred: 4x4 matrix built from a 3x4 one, row by row (only inlined in fn_80139F60; the rows and
 // the translation go through Vector3 temporaries); names invented
 struct Matrix44_unk {
+    Matrix44_unk() {}
+    // inferred: copied with eight paired singles (camera copy, 0x80514064)
+    Matrix44_unk(const Matrix44_unk& o) {
+        __Mtx44Copy(m, o.m);
+    }
     Matrix44_unk(const Matrix3x4& a) {
         m[3][0] = 0.0f;
         m[3][1] = 0.0f;

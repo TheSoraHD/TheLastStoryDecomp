@@ -142,6 +142,34 @@ struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
     unsigned int mStart;
 };
 
+// inferred: int elements take the same path as pointers (ChaserNpc::ChaserNpc, 0x801805A4)
+template <>
+struct __vec_imp_unk<int> : public __vec_storage_unk<int> {
+    ~__vec_imp_unk() {}
+    void __push_fast_unk(const int& x) {
+        this->mSize++;
+        this->mData[this->mSize - 1] = x;
+    }
+};
+
+template <>
+struct __vec_split_unk<int> : public __vec_split_base_unk<int> {
+    __vec_split_unk(void* alloc) : __vec_split_base_unk<int>(alloc), mStart(0) {}
+    int* begin() { return this->mData + mStart; }
+    void push_back(const int& x) {
+        begin()[this->mSize] = x;
+        this->mSize++;
+    }
+    void __push_front_unk(int* first, int* last) {
+        unsigned int n = ((char*)last - (char*)first) / (int)sizeof(int);
+        mStart -= n;
+        memcpy(this->mData + mStart, first, n * sizeof(int));
+        memset(first, 0, n * sizeof(int));
+        this->mSize += n;
+    }
+    unsigned int mStart;
+};
+
 template <class T>
 inline void __vec_swap_unk(T& a, T& b) {
     T tmp = a;
@@ -162,6 +190,8 @@ public:
     // declared only (boost::offset_separator, never used by the game)
     vector(size_type n, const T& value);
     template <class Iterator> vector(Iterator first, Iterator last);
+    // inferred: weak copies 0x80513D34 and 0x80513EC4 (game/NewCampPartsGmk.cpp)
+    vector(const vector& x) { __init_unk(x.mData, x.mData + x.mSize); }
     ~vector() {}
 
     T* begin() { return this->mData; }
@@ -180,6 +210,7 @@ public:
     void push_back(const T& x);
 
 private:
+    void __init_unk(const T* first, const T* last);
     size_type __grow_cap_unk(size_type n);
     void __swap_out_unk(__vec_split_unk<T>& buf) {
         buf.__push_front_unk(this->mData, this->mData + this->mSize);
@@ -213,6 +244,24 @@ void vector<T>::push_back(const T& x) {
     buf.mStart = this->mSize;
     buf.push_back(x);
     __swap_out_unk(buf);
+}
+
+// inferred: copy of a range into an empty vector (names invented)
+template <class T>
+void vector<T>::__init_unk(const T* first, const T* last) {
+    size_type n = last - first;
+    if (n != 0) {
+        if (n > max_size()) {
+            __msl_error("vector length error");
+        }
+        this->mData = __allocate(n);
+        this->mCap = n;
+        T* p = this->mData + this->mSize;
+        for (; first != last; ++first, ++p) {
+            new (p) T(*first);
+            ++this->mSize;
+        }
+    }
 }
 
 template <class T>
