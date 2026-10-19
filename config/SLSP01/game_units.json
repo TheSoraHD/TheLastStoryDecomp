@@ -332,7 +332,7 @@
   "classes": [
    "atn::Sound3dEngine"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureCacheManager8x32.cpp",

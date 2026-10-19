@@ -220,8 +220,8 @@ atn/Sound3dListener.cpp:
 
 atn/Sound3dEngine.cpp:
 	.text       start:0x800CAD9C end:0x800CB360
-	.rodata     start:0x807341AC end:0x807341C0
-	.data       start:0x807795C0 end:0x807795F8
+	.rodata     start:0x80734188 end:0x80734208
+	.data       start:0x807795C0 end:0x80779678
 	.sdata2     start:0x80881180 end:0x80881188
 
 atn/TextureCacheManager8x32.cpp:
