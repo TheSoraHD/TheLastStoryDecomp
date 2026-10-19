@@ -34,8 +34,6 @@ Em002Skelton::Em002Skelton(atn::Task* parent, void* data) : EnemyTask(parent, da
 // NONMATCHING: 99.9% - only the symbol name differs: the EnemyTask destructor is fn_8035B78C.
 Em002Skelton::~Em002Skelton() {}
 
-// vfE8 (0x8024A1E0) would go here, see Em002Skelton.h.
-
 int Em002Skelton::vf0C() {
     int result = 1;
     if (fn_8013655C() != 0) {
@@ -54,6 +52,8 @@ int Em002Skelton::vf0C() {
     }
     return result;
 }
+
+// vfE8 (0x8024A1E0) would go here, see Em002Skelton.h.
 
 void Em002Skelton::vfF0() {
     if (fn_8015EB2C() == 0) {
