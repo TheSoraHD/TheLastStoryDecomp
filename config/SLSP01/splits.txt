@@ -1226,7 +1226,7 @@ gmk/OnOff.cpp:
 
 gmk/ReinforcePoint.cpp:
 	.text       start:0x803F9420 end:0x803F9F34
-	.rodata     start:0x807524F8 end:0x8075250C
+	.rodata     start:0x807524F0 end:0x80752510
 	.data       start:0x8078CDF8 end:0x8078CE90
 	.sdata2     start:0x80886028 end:0x80886038
 
@@ -1238,7 +1238,7 @@ gmk/Cannonball.cpp:
 
 gmk/Item.cpp:
 	.text       start:0x803FBFA8 end:0x803FC8D8
-	.rodata     start:0x807525A8 end:0x807525B4
+	.rodata     start:0x807525A8 end:0x807525B8
 	.data       start:0x8078CF28 end:0x8078CFC0
 	.sdata2     start:0x80886078 end:0x80886090
 
@@ -1286,25 +1286,26 @@ gmk/ChickenManager.cpp:
 
 gmk/TreasureBox.cpp:
 	.text       start:0x8040DC30 end:0x8040EC30
-	.rodata     start:0x80752B20 end:0x80752B34
+	.rodata     start:0x80752B10 end:0x80752B58
 	.data       start:0x8078D598 end:0x8078D630
 	.sdata2     start:0x80886388 end:0x808863A0
 
 gmk/HealPoint.cpp:
 	.text       start:0x8040EC30 end:0x8040FAC0
-	.rodata     start:0x80752BF0 end:0x80752C00
-	.data       start:0x8078D650 end:0x8078D6E8
+	.rodata     start:0x80752B58 end:0x80752C28
+	.data       start:0x8078D630 end:0x8078D6E8
 	.sdata2     start:0x808863A0 end:0x808863A8
 
 gmk/FallingTower.cpp:
 	.text       start:0x8040FAC0 end:0x80410A68
-	.rodata     start:0x80752C30 end:0x80752C44
+	.rodata     start:0x80752C28 end:0x80752C90
 	.data       start:0x8078D6E8 end:0x8078D780
+	.sdata      start:0x8087DF80 end:0x8087DF88
 	.sdata2     start:0x808863A8 end:0x808863D0
 
 gmk/Trap.cpp:
 	.text       start:0x80410A68 end:0x80411440
-	.rodata     start:0x80752C90 end:0x80752C9C
+	.rodata     start:0x80752C90 end:0x80752CC0
 	.data       start:0x8078D780 end:0x8078D818
 	.sdata2     start:0x808863D0 end:0x808863E0
 
@@ -1340,14 +1341,16 @@ gmk/Banana.cpp:
 
 gmk/FlamingArrow.cpp:
 	.text       start:0x80416F74 end:0x80418198
-	.rodata     start:0x80752F30 end:0x80752F44
+	.rodata     start:0x80752EE8 end:0x80752FA8
 	.data       start:0x8078DB10 end:0x8078DBA8
 	.sdata2     start:0x80886490 end:0x808864B8
 
 gmk/Ocean.cpp:
 	.text       start:0x80418198 end:0x80418EAC
-	.rodata     start:0x80752FC0 end:0x80752FCC
+	.rodata     start:0x80752FA8 end:0x80753038
 	.data       start:0x8078DBA8 end:0x8078DC40
+	.sdata      start:0x8087DF88 end:0x8087DF90
+	.sbss       start:0x8087F4B8 end:0x8087F4C0
 	.sdata2     start:0x808864B8 end:0x808864F8
 
 gmk/WaitObject.cpp:
@@ -1364,14 +1367,15 @@ gmk/BulletPoint.cpp:
 
 gmk/Courtyard.cpp:
 	.text       start:0x8041C09C end:0x8041CD24
-	.rodata     start:0x80753130 end:0x80753140
+	.rodata     start:0x80753130 end:0x80753168
 	.data       start:0x8078DDB8 end:0x8078DE50
 	.sdata2     start:0x80886548 end:0x80886558
 
 gmk/Fireworks.cpp:
-	.text       start:0x8041CD54 end:0x8041DDE4
-	.rodata     start:0x80753190 end:0x807531A0
+	.text       start:0x8041CD24 end:0x8041DDE4
+	.rodata     start:0x80753188 end:0x807531E0
 	.data       start:0x8078DE58 end:0x8078DEF0
+	.sdata      start:0x8087DF90 end:0x8087DF98
 	.sdata2     start:0x80886558 end:0x80886570
 
 gmk/ArenaFloor.cpp:
@@ -1382,14 +1386,14 @@ gmk/ArenaFloor.cpp:
 	.sdata2     start:0x80886570 end:0x80886578
 
 gmk/Augur.cpp:
-	.text       start:0x8041EBF4 end:0x8041FED8
-	.rodata     start:0x80753208 end:0x80753214
-	.data       start:0x8078DFB0 end:0x8078E048
+	.text       start:0x8041EB80 end:0x8041FED8
+	.rodata     start:0x80753200 end:0x80753218
+	.data       start:0x8078DF88 end:0x8078E048
 	.sdata2     start:0x80886578 end:0x808865B8
 
 gmk/RoomLight.cpp:
-	.text       start:0x8041FF08 end:0x80420ADC
-	.rodata     start:0x80753220 end:0x80753230
+	.text       start:0x8041FED8 end:0x80420ADC
+	.rodata     start:0x80753218 end:0x807532D0
 	.data       start:0x8078E048 end:0x8078E0E0
 	.sdata2     start:0x808865B8 end:0x808865E0
 
@@ -1407,7 +1411,7 @@ gmk/ShakeCamera.cpp:
 
 gmk/AttractHatePoint.cpp:
 	.text       start:0x80421AB8 end:0x804225E0
-	.rodata     start:0x807533B0 end:0x807533C8
+	.rodata     start:0x80753388 end:0x807533F0
 	.data       start:0x8078E210 end:0x8078E2A8
 	.sdata2     start:0x80886618 end:0x80886630
 
@@ -1419,7 +1423,7 @@ gmk/CharaLight.cpp:
 
 gmk/DoorSeal.cpp:
 	.text       start:0x8042335C end:0x80423F64
-	.rodata     start:0x80753450 end:0x80753460
+	.rodata     start:0x80753450 end:0x80753498
 	.data       start:0x8078E340 end:0x8078E3D8
 	.sdata2     start:0x80886658 end:0x80886668
 
@@ -1438,8 +1442,9 @@ gmk/SparkCube.cpp:
 
 gmk/FlyObjManager.cpp:
 	.text       start:0x80427730 end:0x80428B0C
-	.rodata     start:0x80753708 end:0x8075371C
-	.data       start:0x8078E508 end:0x8078E5A0
+	.rodata     start:0x80753700 end:0x80753738
+	.data       start:0x8078E508 end:0x8078E5A8
+	.sdata      start:0x8087DFA8 end:0x8087DFB0
 	.sdata2     start:0x808866D0 end:0x80886700
 
 gmk/InteractionSpot.cpp:
@@ -1467,13 +1472,14 @@ gmk/OpenBoard.cpp:
 
 gmk/FloatingBox.cpp:
 	.text       start:0x8042C21C end:0x8042CE30
-	.rodata     start:0x80753868 end:0x8075387C
+	.rodata     start:0x80753868 end:0x807538B8
 	.data       start:0x8078E808 end:0x8078E8A0
+	.sbss       start:0x8087F4E0 end:0x8087F4E8
 	.sdata2     start:0x80886758 end:0x80886798
 
 gmk/CharaObj.cpp:
 	.text       start:0x8042CE30 end:0x8042D628
-	.rodata     start:0x807538B8 end:0x807538D8
+	.rodata     start:0x807538B8 end:0x80753960
 	.data       start:0x8078E8A0 end:0x8078EA40
 	.sdata2     start:0x80886798 end:0x808867C0
 
@@ -1485,7 +1491,7 @@ gmk/PassBoard.cpp:
 
 gmk/WaterLevel.cpp:
 	.text       start:0x8042E36C end:0x8042F0B4
-	.rodata     start:0x80753EC0 end:0x80753ED0
+	.rodata     start:0x80753EC0 end:0x80753F28
 	.data       start:0x8078EAD8 end:0x8078EB70
 	.sdata2     start:0x808867D8 end:0x80886800
 
@@ -1515,7 +1521,7 @@ gmk/RandomItem.cpp:
 
 gmk/SavePoint.cpp:
 	.text       start:0x80435CE4 end:0x80436E34
-	.rodata     start:0x807541E0 end:0x807541F0
+	.rodata     start:0x807541E0 end:0x80754230
 	.data       start:0x8078EED8 end:0x8078EF70
 	.sdata2     start:0x808868C8 end:0x80886900
 
@@ -1527,7 +1533,7 @@ gmk/WindyItem.cpp:
 
 gmk/LottaSummon.cpp:
 	.text       start:0x8043A770 end:0x8043B778
-	.rodata     start:0x807542B0 end:0x807542C4
+	.rodata     start:0x807542B0 end:0x807542E8
 	.data       start:0x8078F008 end:0x8078F0A0
 	.sdata2     start:0x80886958 end:0x80886990
 

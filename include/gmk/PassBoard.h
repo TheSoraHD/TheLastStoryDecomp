@@ -38,6 +38,7 @@ public:
 
     Model_unk mModel;       // 0xF4
     atn::ColliBox mColli;   // 0x4C4
+    float mBox[9];          // 0x83C: inferred: read from "COLLI_BOX" (9 values)
     int m860;
     Pair_unk mPairs[5];     // 0x864
     char mMaterials[2][0x40]; // 0x88C: "MATERIAL_NAME"

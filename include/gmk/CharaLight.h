@@ -21,13 +21,16 @@ struct TextureArray_unk {
 // by the camera (lbl_8087EFB4) and the map parts
 struct CharaLightData_unk {
     CharaLightData_unk(); // 0x800C16C0
+    CharaLightData_unk(const char* texture); // 0x800C1720: inferred: loads the texture
     void fn_800C1814(const char* path); // inferred: loads the texture
     int fn_800C1990();                  // inferred: nonzero while loading
 
     int m00;
     atn::Vector2_unk m04;
     atn::Vector2_unk mSize;   // 0x0C
-    unsigned char m14[0x24 - 0x14];
+    atn::Vector2_unk m14; // inferred: "SPEED" (gmk::RoomLight)
+    float m1C;            // inferred: "ROT" (gmk::RoomLight)
+    float m20;
     atn::Vector3 mDir;        // 0x24
     unsigned char m30[0x3C - 0x30];
     TextureArray_unk mTextures; // 0x3C

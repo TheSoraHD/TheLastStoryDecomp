@@ -1707,7 +1707,7 @@
   "classes": [
    "gmk::TreasureBox"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/HealPoint.cpp",
@@ -1728,7 +1728,7 @@
   "classes": [
    "gmk::Trap"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Coffin.cpp",
@@ -1798,7 +1798,7 @@
   "classes": [
    "gmk::Courtyard"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Fireworks.cpp",
@@ -1826,7 +1826,7 @@
   "classes": [
    "gmk::RoomLight"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/LandMine.cpp",
@@ -1847,7 +1847,7 @@
   "classes": [
    "gmk::AttractHatePoint"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/CharaLight.cpp",
@@ -1861,7 +1861,7 @@
   "classes": [
    "gmk::DoorSeal"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/RotaryRoom.cpp",
@@ -1975,7 +1975,7 @@
   "classes": [
    "gmk::SavePoint"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/WindyItem.cpp",
