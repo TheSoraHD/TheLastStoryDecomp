@@ -1364,7 +1364,7 @@ gmk/BulletPoint.cpp:
 
 gmk/Courtyard.cpp:
 	.text       start:0x8041C09C end:0x8041CD24
-	.rodata     start:0x80753130 end:0x80753140
+	.rodata     start:0x80753130 end:0x80753168
 	.data       start:0x8078DDB8 end:0x8078DE50
 	.sdata2     start:0x80886548 end:0x80886558
 

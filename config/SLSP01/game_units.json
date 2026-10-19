@@ -1798,7 +1798,7 @@
   "classes": [
    "gmk::Courtyard"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Fireworks.cpp",

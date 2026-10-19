@@ -23,6 +23,7 @@
 #include "gmk/RoomLight.h"
 #include "gmk/DoorSeal.h"
 #include "gmk/FloatingBox.h"
+#include "gmk/Courtyard.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -203,7 +204,6 @@ extern "C" GimmickCommon* fn_8040FAC0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80412AFC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418198(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_8041C09C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8041CD54(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
@@ -260,7 +260,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 28: gimmick = fn_80412AFC(parent, id, arg); break;
     case 33: gimmick = fn_80418198(parent, id, arg); break;
     case 34: gimmick = fn_80418EAC(parent, id, arg); break;
-    case 36: gimmick = fn_8041C09C(parent, id, arg); break;
+    case 36: gimmick = gmk::Courtyard::fn_8041C09C(parent, id, arg); break;
     case 37: gimmick = fn_8041CD54(parent, id, arg); break;
     case 38: gimmick = gmk::ArenaFloor::fn_8041DDE4(parent, id, arg); break;
     case 40: gimmick = gmk::RoomLight::fn_8041FF08(parent, id, arg); break;
