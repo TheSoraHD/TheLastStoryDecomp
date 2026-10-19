@@ -30,6 +30,14 @@ public:
     unsigned char m08[0x34 - 0x08];
 };
 
+// inferred: created by CharaTask::fn_80165F54 (control 0x6C)
+class ControlClimbDeck : public ControlBase {
+public:
+    ControlClimbDeck(Chara_unk* chara, const atn::Vector3& pos); // 0x801BB8BC
+    virtual int vf0C();
+    unsigned char m08[0x24 - 0x08];
+};
+
 } // namespace chr
 
 #endif

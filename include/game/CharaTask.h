@@ -357,8 +357,8 @@ public:
     virtual void vf84(int motion, float blend); // inferred: bound by chr::ControlAppear::vf10
     virtual void vf88();
     virtual void vf8C(const atn::Vector3& v); // inferred: bound by chr::ControlAppear::vf10
-    virtual void vf90();
-    virtual void vf94();
+    virtual float vf90(); // inferred: returns f1 (0x800EF2AC), passed to fn_80107CEC
+    virtual atn::Vector3 vf94(); // inferred: returns a vector (0x800EF370 returns lbl_807C7030)
     virtual void vf98();
     virtual void vf9C(int arg); // inferred: fn_80145334 passes 0 (the target symbol says Fv)
     virtual void vfA0();
@@ -429,6 +429,40 @@ public:
     void fn_801647BC();
     void fn_80164B00(const CharaShade_unk& shade); // inferred: starts a shade (timers at mFC8)
     void fn_80164D24(); // inferred: counts the mFC8 timers down while mFlag28 is set
+    int fn_80164EF4(); // inferred: remaining shade time
+    void fn_80164F54(int arg); // inferred: chr::ControlDetect
+    void fn_80165284(CharaTask* target); // inferred: chr::ControlDetectHateAtt
+    void fn_801656A4(int time);
+    void fn_80165C5C(int id, const atn::Vector3& a, const atn::Vector3& b); // inferred: chr::ControlShoot
+    void fn_80165F54(const atn::Vector3& pos); // inferred: chr::ControlClimbDeck
+    // inferred: 0x8016624C-0x80168F94 start or end the status conditions (chr::ControlCdn*, effects)
+    void fn_8016624C(int a);
+    void fn_80166760();
+    void fn_8016676C();
+    void fn_80166A54();
+    void fn_80166D3C(int a);
+    void fn_80167344(int a);
+    void fn_8016794C();
+    void fn_80167C34();
+    void fn_80167F1C();
+    void fn_80168048();
+    void fn_80168170();
+    void fn_80168190();
+    void fn_801681B0(const atn::Vector3& dir, int time, int flag);
+    void fn_801684A0();
+    void fn_80168788();
+    void fn_801687D8();
+    void fn_80168824(int flag);
+    void fn_80168B1C();
+    void fn_80168E04();
+    void fn_80168E60();
+    void fn_80168E80();
+    void fn_80168EA0();
+    void fn_80168EC0();
+    void fn_80168F3C();
+    void fn_80168F5C();
+    void fn_80168F94();
+    void fn_8016939C(int a, int flags, float f); // inferred: chr::ControlCliffhang
     void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
     void fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c); // inferred: chr::ControlPushedDown
     void fn_8016D0A0(int a); // inferred: releases the gimmick and starts chr::ControlSlip

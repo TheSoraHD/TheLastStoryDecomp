@@ -10,6 +10,11 @@
 #include "chr/ControlRide.h"
 #include "chr/ControlJumpAt.h"
 #include "chr/ControlAttractHateCharge.h"
+#include "chr/ControlDetect.h"
+#include "chr/ControlLookAround.h"
+#include "chr/ControlShoot.h"
+#include "chr/ControlCdn.h"
+#include "chr/ControlCliffhang.h"
 #include "chr/ControlChant.h"
 #include "chr/ControlAppear.h"
 #include "chr/ControlUseSkill.h"
@@ -83,7 +88,8 @@ struct Settings_unk {
     unsigned int m368; // inferred: ARGB colors of the status effect (fn_8017A5D8)
     unsigned int m36C;
     unsigned int m370;
-    unsigned char m374[0x3D0 - 0x374];
+    unsigned char m374[0x3CC - 0x374];
+    int m3CC; // inferred: id passed to fn_80210220 by CharaTask::fn_80164EF4
     int m3D0; // inferred: tested by CharaTask::fn_80164D24
     unsigned char m3D4[0x3D8 - 0x3D4];
     int m3D8;
@@ -2245,8 +2251,9 @@ struct Vec4_unk {
 
 // inferred: camera state at lbl_8087EFA8 + 0x324; names invented
 struct CameraState_unk {
-    CameraState_unk(int mode, const CameraState_unk& o)
-        : m00(mode), m04(o.m04), m14(o.m14), m24(o.m24), m34(o.m34), m44(o.m44), m48(0), m4C(0.0f) {}
+    // inferred: m48 is 1 only in CharaTask::fn_80167F1C
+    CameraState_unk(int mode, const CameraState_unk& o, int arg = 0)
+        : m00(mode), m04(o.m04), m14(o.m14), m24(o.m24), m34(o.m34), m44(o.m44), m48(arg), m4C(0.0f) {}
     int m00;
     Vec4_unk m04;
     Vec4_unk m14;
@@ -6002,10 +6009,10 @@ static inline void Recover_unk(CharaTask* chara) {
         chara->mF14 = 1;
     }
     chara->mC58.fn_8011BEB8(0);
-    if (chara->mFlag31) {
+    if (chara->IsOnLedge_unk()) {
         chara->ReleaseLedge_unk();
     }
-    if (chara->mFlag5) {
+    if (chara->IsFlag5_unk()) {
         chara->mFlag5 = 0;
     }
     chara->Unlink_unk();
@@ -7006,8 +7013,6 @@ struct Unk8087F490_unk {
 };
 
 extern "C" void fn_80175A38(CharaTask* chara);
-extern "C" void fn_801681B0(CharaTask* chara, const atn::Vector3& dir, int time, int flag);
-extern "C" void fn_80168824(CharaTask* chara, int flag);
 
 // inferred: reaction to a hit (knock back, down, guard...) and record of the hit in m6D0
 void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3& v2, int arg, unsigned int flags,
@@ -7087,10 +7092,10 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
             fn_8016DA4C();
             fn_801698E4(rot);
         } else if (msg != 0 && HasFlags_unk(msg->mData->m90, 0x4000) && mStatus.IsState_unk(0x4000)) {
-            fn_801681B0(this, dir, 0, (msg->mData->mAC >> 9) & 1);
+            fn_801681B0(dir, 0, (msg->mData->mAC >> 9) & 1);
         } else if (msg != 0 && msg->mAttacker != 0 && msg->mAttacker->GetStatus_unk()->fn_80133EE8(24) != 0 &&
                    mStatus.IsState_unk(0x4000)) {
-            fn_801681B0(this, dir, msg->mAttacker->GetStatus_unk()->fn_80133F18(24, -1) * 30, 0);
+            fn_801681B0(dir, msg->mAttacker->GetStatus_unk()->fn_80133F18(24, -1) * 30, 0);
         } else if ((flags & 0x400) == 0x400 || (flags & 1) == 1) {
         } else if ((flags & 0x20) == 0x20) {
             if (!mFlag31 && !GetStatus_unk()->mParamB.fn_801404E0(0x10) && !(m55C == 6 && m560 == 23)) {
@@ -7109,7 +7114,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
                 }
             }
         } else if (msg != 0 && HasFlags_unk(msg->mData->m90, 0x20000) && mStatus.IsState_unk(0x20000)) {
-            fn_80168824(this, (msg->mData->mAC >> 9) & 1);
+            fn_80168824((msg->mData->mAC >> 9) & 1);
         } else if (lenSq > limit * limit || (flags & 0x10000) == 0x10000) {
             fn_8016DA4C();
             if (!(m55C == 6 && m560 == 23)) {
@@ -7737,31 +7742,13 @@ void CharaTask::vf48() {
         fn_80107FC8(lbl_8087F048, &mMotion);
         fn_80108080(lbl_8087F048, &mMotion);
     }
-    if (lbl_8087F048 != 0) {
-        fn_801079B0(lbl_8087F048, &mMotion);
-    }
-    if (mFlag20 && mType == 0) {
-        mFlag20 = 0;
-        GameState_unk* state = lbl_8087EFA8;
-        state->m324 = CameraState_unk(mFlag19, state->m324);
-    }
-    if (lbl_8087F048 != 0) {
-        fn_80107F10(lbl_8087F048, &mMotion);
-    }
-    if (m58C == 3) {
-        m58C = 0;
-        fn_8016E970(m564);
-    }
-    mStatus.fn_8013322C(0x40);
-    mF94 = -1;
-    if (lbl_8087F048 != 0) {
-        fn_80107BD8(lbl_8087F048, &mMotion);
-        fn_80107380(lbl_8087F048, this);
-    }
-    if (lbl_8087F048 != 0) {
-        fn_80107D94(lbl_8087F048, &mMotion);
-    }
+    fn_80168048();
+    fn_80168190();
+    fn_80166544();
+    fn_801687D8();
+    fn_80168E60();
 }
+
 
 // inferred: lbl_8087F9C0 (class unknown)
 struct Global9C0_unk {
@@ -9211,6 +9198,353 @@ void CharaTask::fn_80164D24() {
         mStatus.m20 = 0.0f;
         fn_80164DCC(1);
     }
+}
+
+extern "C" void fn_8010607C(Effect_unk* effect, CharaTask* chara);
+extern "C" void fn_80105F3C(Effect_unk* effect, CharaTask* chara);
+extern "C" void fn_8010608C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
+extern "C" void fn_8010652C(Effect_unk* effect, CharaTask* chara);
+
+// inferred: ends the shade started by fn_80164B00 (`arg`: with effect and sound)
+void CharaTask::fn_80164DCC(int arg) {
+    if (!mFlag28 && !(m55C == 6 && m560 == 0x2E)) {
+        return;
+    }
+    if (m55C == 6 && m560 == 0x2E) {
+        fn_8016EB48(0, 0, 0);
+    }
+    mFlag28 = 0;
+    mFlag27 = 0;
+    mStatus.m20 = 0.0f;
+    mStatus.m24 = 0.0f;
+    mStatus.m42C = 0.0f;
+    mFC8.x = 0.0f;
+    mFC8.y = 0.0f;
+    mFC8.z = 0.0f;
+    mFD4 = 0.0f;
+    m1028 = 1;
+    fn_8010607C(lbl_8087F048, this);
+    fn_80105F3C(lbl_8087F048, this);
+    if (arg != 0) {
+        fn_8010608C(lbl_8087F048, this, &mMotion);
+        fn_800C344C(sSoundNames_unk[2], &mPos, 0, -1, 1.0f);
+    }
+    fn_8010652C(lbl_8087F048, this);
+}
+
+// inferred: returns a record whose m4C is compared with the shade timer (unknown type)
+struct Record80210220_unk {
+    unsigned char m00[0x4C];
+    int m4C;
+};
+extern "C" Record80210220_unk* fn_80210220(int id);
+
+// inferred: remaining shade time (0 without a shade)
+int CharaTask::fn_80164EF4() {
+    if (mFlag28) {
+        Record80210220_unk* rec = fn_80210220(lbl_8087F0A8->m3CC);
+        int elapsed = (int)mFC8.z;
+        return rec->m4C - elapsed;
+    }
+    return 0;
+}
+
+// inferred: starts chr::ControlDetect while idle (m55C 2) or detecting (control 0x2F)
+void CharaTask::fn_80164F54(int arg) {
+    if (!mFlagB4 && ((m55C == 6 && m560 == 0x2F) || m55C == 2) && mMotion.mTracks[0].m00 != 0x1ED) {
+        chr::ControlDetect* control = new (0, "", "", 0) chr::ControlDetect(this, arg);
+        fn_80178208(control);
+    }
+}
+
+// inferred: starts chr::ControlDetectHateAtt when `target` has a shade (mFlag28)
+void CharaTask::fn_80165284(CharaTask* target) {
+    int can = 0;
+    int ok = 0;
+    if (m55C == 2) {
+        can = 1;
+    } else if (m55C == 6) {
+        switch (m560) {
+        case 2:
+        case 4:
+        case 12:
+        case 20:
+        case 22:
+        case 31:
+        case 47:
+        case 97:
+        case 98:
+        case 99:
+            can = 1;
+            break;
+        case 21:
+            break;
+        }
+    }
+    if (mFlag22 == 1 || (m54C & 0x2000000) == 0x2000000 || mFlag3) {
+        can = 0;
+    }
+    if (m138A > 0) {
+        can = 0;
+    }
+    if (can && target != 0) {
+        ok = target->mFlag28;
+        if (mMotion.fn_80097D40(0x1ED) == 0) {
+            ok = 0;
+        }
+        if (mC58.mB4 > 0 && target->mC58.mB4 > 0 && mC58.mB4 != target->mC58.mB4) {
+            ok = 0;
+        }
+    }
+    if (can && ok) {
+        chr::ControlDetectHateAtt* control = new (0, "", "", 0) chr::ControlDetectHateAtt(this);
+        fn_80178208(control);
+    }
+}
+
+// inferred: looks around for `time` frames (kind 0x18 uses chr::ControlLookAroundEgg for 90 frames)
+void CharaTask::fn_801656A4(int time) {
+    if (m60->m24 == 0x18) {
+        chr::ControlLookAroundEgg* control = new (0, "", "", 0) chr::ControlLookAroundEgg(this, 90);
+        fn_80178208(control);
+    } else {
+        chr::ControlLookAround* control = new (0, "", "", 0) chr::ControlLookAround(this, time);
+        fn_80178208(control);
+    }
+}
+
+// inferred: shoots the bullet `id` (called from BattleCharaTask)
+void CharaTask::fn_80165C5C(int id, const atn::Vector3& a, const atn::Vector3& b) {
+    if (id >= 0) {
+        chr::ControlShoot* control = new (0, "", "", 0) chr::ControlShoot(this, id, a, b);
+        fn_80178208(control);
+    }
+}
+
+void CharaTask::fn_80165F54(const atn::Vector3& pos) {
+    chr::ControlClimbDeck* control = new (0, "", "", 0) chr::ControlClimbDeck(this, pos);
+    fn_80178208(control);
+}
+
+// inferred: turns to stone (status 0x40, see CharaStatus)
+void CharaTask::fn_8016624C(int a) {
+    chr::ControlCdnStone* control = new (0, "", "", 0) chr::ControlCdnStone(this, a);
+    fn_80178208(control);
+}
+
+// inferred: recovers from stone (m58C 3 is the stone state)
+void CharaTask::fn_80166544() {
+    if (m58C == 3) {
+        m58C = 0;
+        fn_8016E970(m564);
+    }
+    mStatus.fn_8013322C(0x40);
+    mF94 = -1;
+}
+
+void CharaTask::fn_80166760() {
+    mF94 = mF98;
+}
+
+void CharaTask::fn_8016676C() {
+    chr::ControlCdnParalyzed* control = new (0, "", "", 0) chr::ControlCdnParalyzed(this);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80166A54() {
+    chr::ControlCdnRestoreParalyzed* control = new (0, "", "", 0) chr::ControlCdnRestoreParalyzed(this);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80166D3C(int a) {
+    chr::ControlCdnBetray* control = new (0, "", "", 0) chr::ControlCdnBetray(this, a, 0);
+    fn_80178208(control);
+}
+
+// inferred: recovers from status 0x100 (the shared part is Recover_unk, also inlined in fn_80175B18)
+void CharaTask::fn_80167038() {
+    mStatus.fn_8013322C(0x100);
+    fn_80107850(lbl_8087F048, &mMotion);
+    Recover_unk(this);
+}
+
+void CharaTask::fn_80167344(int a) {
+    chr::ControlCdnBetray* control = new (0, "", "", 0) chr::ControlCdnBetray(this, a, 1);
+    fn_80178208(control);
+}
+
+// inferred: recovers from status 0x10000
+void CharaTask::fn_80167640() {
+    mStatus.fn_8013322C(0x10000);
+    fn_80107B20(lbl_8087F048, &mMotion);
+    Recover_unk(this);
+}
+
+void CharaTask::fn_8016794C() {
+    chr::ControlCdnSleep* control = new (0, "", "", 0) chr::ControlCdnSleep(this);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80167C34() {
+    chr::ControlCdnRestoreSleep* control = new (0, "", "", 0) chr::ControlCdnRestoreSleep(this);
+    fn_80178208(control);
+}
+
+extern "C" void fn_80107908(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+
+// inferred: saves the camera mode (mFlag19) and switches the camera to mode 1
+void CharaTask::fn_80167F1C() {
+    if (lbl_8087F048 != 0) {
+        fn_80107908(lbl_8087F048, &mMotion, &mMotion);
+    }
+    if (mType == 0) {
+        mFlag20 = 1;
+        GameState_unk* state = lbl_8087EFA8;
+        int mode = state->m324.m00;
+        CameraState_unk cam(1, state->m324, 1);
+        mFlag19 = mode;
+        lbl_8087EFA8->m324 = cam;
+    }
+}
+
+// inferred: restores the camera mode saved by fn_80167F1C (also inlined in vf48)
+// NONMATCHING: ~45% by line (same instructions, different registers/schedule) - the original keeps
+// &state->m324.m34 in a register (addi r5,r10,0x358) for the read and the write of m34; tried:
+// temporary or named CameraState_unk, reloading lbl_8087EFA8, a reference/pointer to m324, a mode
+// local, explicit operator= and copy constructor in CameraState_unk.
+void CharaTask::fn_80168048() {
+    if (lbl_8087F048 != 0) {
+        fn_801079B0(lbl_8087F048, &mMotion);
+    }
+    if (mFlag20 && mType == 0) {
+        mFlag20 = 0;
+        GameState_unk* state = lbl_8087EFA8;
+        state->m324 = CameraState_unk(mFlag19, state->m324);
+    }
+}
+
+extern "C" void fn_80107E68(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+
+void CharaTask::fn_80168170() {
+    if (lbl_8087F048 != 0) {
+        fn_80107E68(lbl_8087F048, &mMotion, &mMotion);
+    }
+}
+
+void CharaTask::fn_80168190() {
+    if (lbl_8087F048 != 0) {
+        fn_80107F10(lbl_8087F048, &mMotion);
+    }
+}
+
+void CharaTask::fn_801681B0(const atn::Vector3& dir, int time, int flag) {
+    chr::ControlCdnPiyo* control = new (0, "", "", 0) chr::ControlCdnPiyo(this, dir, time, flag);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_801684A0() {
+    chr::ControlCdnRestorePiyo* control = new (0, "", "", 0) chr::ControlCdnRestorePiyo(this);
+    fn_80178208(control);
+}
+
+extern "C" void fn_80107B30(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+extern "C" void fn_80107274(Effect_unk* effect, CharaTask* chara);
+
+void CharaTask::fn_80168788() {
+    if (lbl_8087F048 != 0) {
+        fn_80107B30(lbl_8087F048, &mMotion, &mMotion);
+        fn_80107274(lbl_8087F048, this);
+    }
+}
+
+void CharaTask::fn_801687D8() {
+    if (lbl_8087F048 != 0) {
+        fn_80107BD8(lbl_8087F048, &mMotion);
+        fn_80107380(lbl_8087F048, this);
+    }
+}
+
+void CharaTask::fn_80168824(int flag) {
+    chr::ControlCdnPsycho* control = new (0, "", "", 0) chr::ControlCdnPsycho(this, flag);
+    fn_80178208(control);
+}
+
+void CharaTask::fn_80168B1C() {
+    chr::ControlCdnRestorePsycho* control = new (0, "", "", 0) chr::ControlCdnRestorePsycho(this);
+    fn_80178208(control);
+}
+
+extern "C" void fn_80107CEC(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion, float f);
+
+void CharaTask::fn_80168E04() {
+    Effect_unk* effect = lbl_8087F048;
+    if (effect != 0) {
+        fn_80107CEC(effect, &mMotion, &mMotion, vf90());
+    }
+}
+
+void CharaTask::fn_80168E60() {
+    if (lbl_8087F048 != 0) {
+        fn_80107D94(lbl_8087F048, &mMotion);
+    }
+}
+
+extern "C" void fn_801079C0(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+
+void CharaTask::fn_80168E80() {
+    if (lbl_8087F048 != 0) {
+        fn_801079C0(lbl_8087F048, &mMotion, &mMotion);
+    }
+}
+
+void CharaTask::fn_80168EA0() {
+    if (lbl_8087F048 != 0) {
+        fn_80107A68(lbl_8087F048, &mMotion);
+    }
+}
+
+extern "C" void fn_80107DA4(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion, float f,
+                            const atn::Vector3& v);
+
+void CharaTask::fn_80168EC0() {
+    Effect_unk* effect = lbl_8087F048;
+    if (effect != 0) {
+        fn_80107DA4(effect, &mMotion, &mMotion, vf90(), vf94());
+    }
+}
+
+void CharaTask::fn_80168F3C() {
+    if (lbl_8087F048 != 0) {
+        fn_80107E58(lbl_8087F048, &mMotion);
+    }
+}
+
+void CharaTask::fn_80168F5C() {
+    mStatus.fn_8012B3E8();
+    mStatus.fn_8012B988();
+}
+
+void CharaTask::fn_80168F94() {
+    mStatus.fn_8012B3E8();
+    mStatus.fn_8012B988();
+}
+
+// inferred: falls down backwards (knock down along the back direction)
+void CharaTask::vf88() {
+    atn::Vector3 dir(0.0f, 0.0f, -0.001f);
+    float rot = mRot.y;
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot);
+    PSMTXMultVec(m, &dir, &dir);
+    vf44();
+    fn_8015E7A0(dir, -1, 0);
+}
+
+// inferred: hangs from a cliff (chr::ControlCliffhang)
+void CharaTask::fn_8016939C(int a, int flags, float f) {
+    ClearEffect_unk();
+    chr::ControlCliffhang* control = new (0, "", "", 0) chr::ControlCliffhang(this, a, flags, f);
+    fn_80178208(control);
 }
 
 // inferred: pushed down along `dir` (also inlined in fn_8013CB68)

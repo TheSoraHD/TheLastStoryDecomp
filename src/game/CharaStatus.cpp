@@ -832,13 +832,6 @@ extern "C" float fn_8010CCD0(Effect_unk* effect);
 extern "C" void fn_80107FC8(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80108C10(Effect_unk* effect, StatusDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
-extern "C" void fn_80166A54(CharaTask* chara);
-extern "C" void fn_80168190(CharaTask* chara);
-extern "C" void fn_80168EA0(CharaTask* chara);
-extern "C" void fn_801687D8(CharaTask* chara);
-extern "C" void fn_80168E60(CharaTask* chara);
-extern "C" void fn_80168F3C(CharaTask* chara);
-extern "C" void fn_80168F94(CharaTask* chara);
 
 // inferred: status update run every frame (regeneration, status timers, refs timers)
 // NONMATCHING: 97.6% - the original reloads m0C for the second flag test of the first condition,
@@ -928,22 +921,22 @@ void CharaStatus::fn_8012E540() {
                 } else if (bit == (bit & (int)0x80000000)) {
                     mChara->vf88();
                 } else if (bit == (bit & 0x80)) {
-                    fn_80166A54(mChara);
+                    mChara->fn_80166A54();
                 } else if (bit == (bit & 0x400000)) {
-                    fn_80168190(mChara);
+                    mChara->fn_80168190();
                 } else if (bit == (bit & 0x2)) {
-                    fn_80168EA0(mChara);
+                    mChara->fn_80168EA0();
                 } else if (bit == (bit & 0x8000)) {
-                    fn_801687D8(mChara);
+                    mChara->fn_801687D8();
                 } else if (bit == (bit & 0x4)) {
-                    fn_80168E60(mChara);
+                    mChara->fn_80168E60();
                 } else if (bit == (bit & 0x10000)) {
                     mChara->fn_80167640();
                 } else if (bit == (bit & 0x80000)) {
-                    fn_80168F3C(mChara);
+                    mChara->fn_80168F3C();
                     m428 = 0.0f;
                 } else if (bit == (bit & 0x400)) {
-                    fn_80168F94(mChara);
+                    mChara->fn_80168F94();
                 } else if (bit == (bit & 0x2000000)) {
                     if (lbl_8087F048 != 0) {
                         fn_80107FC8(lbl_8087F048, &mChara->mMotion);
@@ -1011,22 +1004,6 @@ int CharaStatus::fn_8012F3D8() {
     return 3;
 }
 
-extern "C" void fn_80168048(CharaTask* chara);
-extern "C" void fn_80167F1C(CharaTask* chara);
-extern "C" void fn_80168170(CharaTask* chara);
-extern "C" void fn_80168788(CharaTask* chara);
-extern "C" void fn_80166D3C(CharaTask* chara, int arg);
-extern "C" void fn_8016624C(CharaTask* chara, int arg);
-extern "C" void fn_80166760(CharaTask* chara);
-extern "C" void fn_8016676C(CharaTask* chara);
-extern "C" void fn_80167344(CharaTask* chara, int arg);
-extern "C" void fn_8016794C(CharaTask* chara);
-extern "C" void fn_80167C34(CharaTask* chara);
-extern "C" void fn_801684A0(CharaTask* chara);
-extern "C" void fn_80168E04(CharaTask* chara);
-extern "C" void fn_80168E80(CharaTask* chara);
-extern "C" void fn_80168EC0(CharaTask* chara);
-extern "C" void fn_80168F5C(CharaTask* chara);
 extern "C" void fn_801067D0(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 extern "C" void fn_80107F20(Effect_unk* effect, chr::Motion_unk* a, chr::Motion_unk* b);
 extern "C" void fn_80101524(Effect_unk* effect, const atn::Vector3* pos, const atn::Vector3* rot, unsigned int old,
@@ -1076,7 +1053,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         fn_8012DD70();
     }
     if ((old & 0x1) == 0x1 && (m0C & 0x1) != 0x1) {
-        fn_80168048(mChara);
+        mChara->fn_80168048();
     } else if ((old & 0x1) != 0x1 && (m0C & 0x1) == 0x1) {
         if ((immune & 0x1) == 0 && mChara->mFlag22 != 1) {
             if (strong) {
@@ -1084,7 +1061,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             } else {
                 fn_80133130(0x1, power > 0 ? power : 900, both);
             }
-            fn_80167F1C(mChara);
+            mChara->fn_80167F1C();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
                 fn_80108F38(fx, fn_801781B0(mChara), 0x1);
@@ -1096,11 +1073,11 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         }
     }
     if ((old & 0x400000) == 0x400000 && (m0C & 0x400000) != 0x400000) {
-        fn_80168190(mChara);
+        mChara->fn_80168190();
     } else if ((old & 0x400000) != 0x400000 && (m0C & 0x400000) == 0x400000) {
         if ((immune & 0x400001) == 0) {
             fn_80133130(0x400000, power > 0 ? power : 900, both);
-            fn_80168170(mChara);
+            mChara->fn_80168170();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
                 fn_80108F38(fx, fn_801781B0(mChara), 0x400000);
@@ -1112,11 +1089,11 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         }
     }
     if ((old & 0x8000) == 0x8000 && (m0C & 0x8000) != 0x8000) {
-        fn_801687D8(mChara);
+        mChara->fn_801687D8();
     } else if ((old & 0x8000) != 0x8000 && (m0C & 0x8000) == 0x8000) {
         if ((immune & 0x8000) == 0) {
             fn_80133130(0x8000, power > 0 ? power : 300, both);
-            fn_80168788(mChara);
+            mChara->fn_80168788();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
                 fn_80108F38(fx, fn_801781B0(mChara), 0x8000);
@@ -1134,10 +1111,10 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             mChara->mType != 0) {
             CharaTask* chara = mChara;
             if (chara->mType == 2) {
-                fn_80166D3C(chara, 0);
+                chara->fn_80166D3C(0);
                 result = 1;
             } else if (chara->mType == 0 || chara->mType == 3) {
-                fn_80166D3C(chara, 1);
+                chara->fn_80166D3C(1);
                 result = 1;
             }
             if (effect) {
@@ -1154,9 +1131,9 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
     } else if ((old & 0x40) != 0x40 && (m0C & 0x40) == 0x40) {
         if ((immune & 0x40) == 0) {
             if (strong) {
-                fn_8016624C(mChara, 1);
+                mChara->fn_8016624C(1);
             } else {
-                fn_80166760(mChara);
+                mChara->fn_80166760();
             }
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
@@ -1169,13 +1146,13 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         }
     }
     if ((old & 0x80) == 0x80 && (m0C & 0x80) != 0x80) {
-        fn_80166A54(mChara);
+        mChara->fn_80166A54();
     } else if (remove == 0 && ((unsigned int)flags & 0x80) == 0x80) {
         if ((immune & 0x80) == 0 && (m0C & 0x40) != 0x40 && (m0C & 0x100) != 0x100 && (m0C & 0x4000) != 0x4000 &&
             (m0C & 0x10000) != 0x10000 && (m0C & 0x10) != 0x10) {
             fn_80133130(0x80, power > 0 ? power : 150, both);
             if ((old & 0x80) != 0x80) {
-                fn_8016676C(mChara);
+                mChara->fn_8016676C();
             }
             if ((old & 0x80) != 0x80 && effect) {
                 Effect_unk* fx = lbl_8087F048;
@@ -1193,10 +1170,10 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         if ((immune & 0x10000) == 0 && (m0C & 0x40) != 0x40 && (m0C & 0x100) != 0x100 && (m0C & 0x4000) != 0x4000 &&
             (m0C & 0x80) != 0x80 && (m0C & 0x10) != 0x10) {
             if (mChara->mType == 2) {
-                fn_80167344(mChara, 0);
+                mChara->fn_80167344(0);
                 result = 1;
             } else if (mChara->mType == 0 || mChara->mType == 3) {
-                fn_80167344(mChara, 1);
+                mChara->fn_80167344(1);
                 result = 1;
             }
             if (effect) {
@@ -1210,11 +1187,11 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
     }
     if ((old & 0x10) == 0x10 && (m0C & 0x10) != 0x10) {
         if (mChara->m55C == 6 && mChara->m560 == 0x6A) {
-            fn_80167C34(mChara);
+            mChara->fn_80167C34();
         }
     } else if ((old & 0x10) != 0x10 && (m0C & 0x10) == 0x10) {
         if ((immune & 0x10) == 0) {
-            fn_8016794C(mChara);
+            mChara->fn_8016794C();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
                 fn_80108F38(fx, fn_801781B0(mChara), 0x10);
@@ -1226,7 +1203,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         }
     }
     if ((old & 0x4000) == 0x4000 && (m0C & 0x4000) != 0x4000) {
-        fn_801684A0(mChara);
+        mChara->fn_801684A0();
     } else if ((old & 0x4000) != 0x4000 && (m0C & 0x4000) == 0x4000) {
         if ((immune & 0x4000) == 0 && (m0C & 0x40) != 0x40 && (m0C & 0x100) != 0x100 && (m0C & 0x10000) != 0x10000 &&
             (m0C & 0x80) != 0x80 && (m0C & 0x10) != 0x10) {
@@ -1250,11 +1227,11 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         }
     }
     if ((old & 0x4) == 0x4 && (m0C & 0x4) != 0x4) {
-        fn_80168E60(mChara);
+        mChara->fn_80168E60();
     } else if ((old & 0x4) != 0x4 && (m0C & 0x4) == 0x4) {
         if ((immune & 0x4) == 0) {
             fn_80133130(0x4, power > 0 ? power : 600, both);
-            fn_80168E04(mChara);
+            mChara->fn_80168E04();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
                 fn_80108F38(fx, fn_801781B0(mChara), 0x4);
@@ -1266,11 +1243,11 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         }
     }
     if ((old & 0x2) == 0x2 && (m0C & 0x2) != 0x2) {
-        fn_80168E60(mChara);
+        mChara->fn_80168E60();
     } else if ((old & 0x2) != 0x2 && (m0C & 0x2) == 0x2) {
         if ((immune & 0x2) == 0) {
             fn_80133130(0x2, power > 0 ? power : 450, both);
-            fn_80168E80(mChara);
+            mChara->fn_80168E80();
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
                 fn_80108F38(fx, fn_801781B0(mChara), 0x2);
@@ -1310,12 +1287,12 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         }
     }
     if ((old & 0x80000) == 0x80000 && (m0C & 0x80000) != 0x80000) {
-        fn_80168F3C(mChara);
+        mChara->fn_80168F3C();
     } else if ((old & 0x80000) != 0x80000 && (m0C & 0x80000) == 0x80000) {
         if ((immune & 0x80000) == 0) {
             fn_801067D0(lbl_8087F048, mChara, &mChara->mMotion);
             fn_80133130(0x80000, power > 0 ? power : 600, both);
-            fn_80168EC0(mChara);
+            mChara->fn_80168EC0();
             if (both) {
                 m428 = 0.2f;
             } else {
@@ -1342,11 +1319,11 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         }
     }
     if ((old & 0x400) == 0x400 && (m0C & 0x400) != 0x400) {
-        fn_80168F94(mChara);
+        mChara->fn_80168F94();
     } else if ((old & 0x400) != 0x400 && (m0C & 0x400) == 0x400) {
         if ((immune & 0x400) == 0) {
             fn_80133130(0x400, power > 0 ? power : 600, both);
-            fn_80168F5C(mChara);
+            mChara->fn_80168F5C();
             if (effect && !((old & 0x1000000) != 0x1000000 && (m0C & 0x1000000) == 0x1000000)) {
                 Effect_unk* fx = lbl_8087F048;
                 fn_80108F38(fx, fn_801781B0(mChara), 0x400);
