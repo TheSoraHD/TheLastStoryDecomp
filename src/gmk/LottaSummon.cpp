@@ -82,6 +82,13 @@ inline void PlayEfp_unk(GimmickCommon* owner, atn::EfpHandle_unk* efp, int arg) 
                 1.0f);
     lbl_8087F3C0->mB8 = 0;
 }
+inline void PlayEfp2_unk(GimmickCommon* owner, atn::EfpHandle_unk* efp, int arg) {
+    fn_80232B7C(owner, arg);
+    lbl_8087F3C0->mB8 = 1;
+    EffectMgr_unk* mgr = lbl_8087F3C0;
+    fn_8023A8B4(mgr, efp, 0, 0, owner->m6C, owner->m78, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+    lbl_8087F3C0->mB8 = 0;
+}
 
 // inferred: names invented
 inline void SetPos_unk(CharaTask* chara, const atn::Vector3& pos) { chara->mPos = pos; }
@@ -249,8 +256,8 @@ void LottaSummon::vf20() {
 
 void LottaSummon::vf24() {}
 
-// NONMATCHING: 95.7% - cases 3 and 4: the effect manager is loaded earlier for fn_8023A8B4 and the
-// state index goes through r0 (case 1/2 matches with the same inline)
+// inferred: cases 3 and 4 use a second copy of the effect helper that keeps the manager in a local
+// (the manager is then loaded before the arguments)
 int LottaSummon::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
@@ -280,10 +287,10 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
         atn::EfpHandle_unk* efp = &mEfp[msg->mType];
         EffectMgr_unk* mgr = lbl_8087F3C0;
         if (mgr != 0) {
-            PlayEfp_unk(this, efp, 1);
+            PlayEfp2_unk(this, efp, 1);
         }
         if (lbl_8087F3C0 != 0) {
-            PlayEfp_unk(this, &mEfp[4], 0);
+            PlayEfp2_unk(this, &mEfp[4], 0);
         }
         if (mDesc != 0) {
             mNpc = NpcManager::sInstance != 0 ? NpcManager::sInstance->Find_unk(mDesc->m20) : 0;
@@ -307,7 +314,7 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
         atn::EfpHandle_unk* efp = &mEfp[msg->mType];
         EffectMgr_unk* mgr = lbl_8087F3C0;
         if (mgr != 0) {
-            PlayEfp_unk(this, efp, 1);
+            PlayEfp2_unk(this, efp, 1);
         }
         if (mNpc != 0) {
             mNpc->mPos = m6C;
