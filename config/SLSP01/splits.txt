@@ -1226,7 +1226,7 @@ gmk/OnOff.cpp:
 
 gmk/ReinforcePoint.cpp:
 	.text       start:0x803F9420 end:0x803F9F34
-	.rodata     start:0x807524F8 end:0x8075250C
+	.rodata     start:0x807524F0 end:0x80752510
 	.data       start:0x8078CDF8 end:0x8078CE90
 	.sdata2     start:0x80886028 end:0x80886038
 
