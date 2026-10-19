@@ -434,7 +434,6 @@ public:
     atn::EfpHandle_unk mEfp[8];             // 0xD8
 };
 
-// NONMATCHING: 99.95% - only the call to the base constructor, still fn_8050F93C in symbols.txt
 NewCampPartsGmk* NewCampPartsGmk::fn_805128C0(atn::Task* parent) {
     if (parent != 0) {
         return new (1, "", "", 0) NewCampPartsGmk(parent);
@@ -453,7 +452,6 @@ NewCampPartsGmk::NewCampPartsGmk(atn::Task* parent) : NewCampPartsBase(parent) {
     mEfp[0].fn_8023780C("/effect/be010_007.efp");
 }
 
-// NONMATCHING: 99.86% - only the call to the base destructor, still fn_8050FA7C in symbols.txt
 NewCampPartsGmk::~NewCampPartsGmk() {}
 
 int NewCampPartsGmk::vf4C() {
@@ -514,7 +512,7 @@ void NewCampPartsGmk::fn_80512C90(int i) {
 
 // inferred: sets the clear color (`color` 0: the one of the scene, else sColors[color]) and plays
 // the effect on gimmick `i`; models 11 and 12 are shown only with the scene color
-// NONMATCHING: 99.97% - only the call to the scene destructor, still fn_800C1FB4 in symbols.txt
+// NONMATCHING: 99.98% - only the call to the state getter (0x805134F4, not matched yet)
 void NewCampPartsGmk::fn_80513020(int color, int i) {
     if (color == 0) {
         NewCampGmkInfo_unk* info = mInfo.mData;

@@ -5,6 +5,7 @@
 #include "game/NpcManager.h"
 #include "game/ResHandle.h"
 #include <boost/function.hpp>
+#include "game/MapManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -38,22 +39,10 @@ struct Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 
-// inferred: map part that receives the light (MapManager::fn_80491528 calls the callback on each)
-struct LightPart_unk {
-    unsigned char m00[0xBC];
-    int mBC;
-    CharaLightData_unk* mC0;
-    unsigned char mC4[0x114 - 0xC4];
-    int m114;
-};
-struct MapManager_unk;
-extern "C" MapManager_unk* lbl_8087F558; // inferred: MapManager::sInstance
-extern "C" void fn_80491528(MapManager_unk* manager, boost::function<void(LightPart_unk*, void*)> func, void* arg);
-
 // inferred: sets the light of a map part (callback of fn_80491528). It is at 0x804225E0, just
 // before the CharaLight split (the split will have to start there when the unit is linked).
-void fn_804225E0(LightPart_unk* part, void* light) {
-    part->mC0 = (CharaLightData_unk*)light;
+void fn_804225E0(MapModel_unk* part, void* light) {
+    part->mC0 = light;
     part->mBC = light != 0 || part->mBC != 0;
     part->m114 = -1;
 }
@@ -79,8 +68,8 @@ CharaLight::CharaLight(atn::Task* parent, GimmickDesc_unk* desc)
 
 CharaLight::~CharaLight() {
     fn_800C16B4(lbl_8087EFB4)->SetLight_unk(0);
-    if (lbl_8087F558 != 0) {
-        fn_80491528(lbl_8087F558, &fn_804225E0, 0);
+    if (MapManager::sInstance != 0) {
+        MapManager::sInstance->fn_80491528(&fn_804225E0, 0);
     }
 }
 
@@ -96,7 +85,7 @@ void CharaLight::vf28() {
     fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&mLight);
     LightTarget_unk* target = fn_800C16B4(lbl_8087EFB4);
     target->mC8 = -1;
-    fn_80491528(lbl_8087F558, &fn_804225E0, &mLight);
+    MapManager::sInstance->fn_80491528(&fn_804225E0, &mLight);
     switch (mDesc->m20) {
     case 0:
         mTarget = lbl_8087F8A0->mHead;

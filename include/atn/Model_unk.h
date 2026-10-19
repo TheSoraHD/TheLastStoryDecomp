@@ -3,6 +3,7 @@
 
 #include "atn/GXDecl.h"
 #include "math/Vec.h"
+#include "atn/Sphere.h"
 #include <boost/function.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -140,11 +141,8 @@ struct Model_unk {
 
     // inferred: accessors called out of line from CharaTask (names keep the address)
     Node_unk* fn_80147A00();
-    struct Sphere_unk {
-        atn::Vector3 mCenter;
-        float mRadius;
-    };
-    Sphere_unk fn_80094F98(); // inferred: bounding sphere
+    typedef atn::Sphere Sphere_unk;
+    Sphere_unk fn_80094F98(); // inferred: bounding sphere (passed to MapManager::fn_804918A4)
     float fn_80139550(int track);
     void fn_80139F24(int value);
     int fn_80139F2C(int track);

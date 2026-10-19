@@ -8,6 +8,9 @@ class LoadHandle {
 public:
     LoadHandle();          // 0x80473E74
     virtual ~LoadHandle(); // 0x80473E8C
+    // inferred: releases the current core and references the other one (0x804741C0, called by
+    // the copy of atn::Texture_unk in game/NewCampPartsGmk.cpp 0x80514218)
+    LoadHandle& operator=(const LoadHandle& o);
     virtual void vf0C(const char* path) = 0; // inferred: start loading `path`
 
     int fn_80473F50(); // inferred: nonzero while busy/not loaded
