@@ -1,4 +1,5 @@
 #include "game/TownTask.h"
+#include "atn/Memory.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -9,8 +10,15 @@ extern "C" void fn_8049B780(MapObject_unk* obj, void* arg);
 
 TownTask* lbl_8087FA20;
 
-// NONMATCHING: 82% - the array loop of m190 is unrolled by 8 in the target without the signed count check that MWCC
-// emits for our loop (tried member array with inline ctor, placement new, for/while/index loops)
+// inferred: creator of the task; not referenced (the task is created by another file), so the linker strips it,
+// but its "" literal stays at the start of the string pool. Name invented.
+TownTask* TownTask::Create_unk(atn::Task* parent) {
+    return new (1, "", "", 0) TownTask(parent);
+}
+
+// NONMATCHING: 85% - the array loop of m190 is unrolled by 8 in the target without the signed count check that MWCC
+// emits for our loop (tried member array with inline ctor, placement new, range helpers, body loops over
+// index/pointer, for/while forms)
 TownTask::TownTask(atn::Task* parent)
     : MapTask(parent), m120(0), m124(1), m128(0), m12C(2), m130(0), m134(50.0f), m138(0), m13C(0),
       m140(0.0f, 0.0f, 0.0f), m164(1.1f), m168(0.0f, 0.0f, 0.0f), m174(0), m178(0), m180(-1), m184(-1), m188(0),
@@ -22,8 +30,6 @@ TownTask::TownTask(atn::Task* parent)
 
 // NONMATCHING: the dtor (0x805B6EAC: two inlined tree erases, strings, ResHandle) is not written yet
 
-// NONMATCHING: 99.9% - code identical; the target string pool starts with "" (used by a function not written yet), so
-// every string offset is one byte lower here
 int TownTask::vf0C() {
     if (GetLoader_unk()->fn_80473F50() != 0) {
         return 0;

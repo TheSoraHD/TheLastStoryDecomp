@@ -47,6 +47,7 @@ struct TownTree_unk {
 // inferred from __vt__8TownTask (0x807978C8): the map task of the towns
 class TownTask : public MapTask {
 public:
+    static TownTask* Create_unk(atn::Task* parent); // inferred: stripped by the linker
     TownTask(atn::Task* parent); // 0x805B6C5C
     virtual ~TownTask();         // 0x805B6EAC
     virtual int vf0C();          // 0x805B721C
