@@ -29,7 +29,7 @@ public:
     virtual void vf24();
     virtual void vf28();
     virtual void vf2C();
-    virtual int vf30();
+    virtual int vf30(); // inferred: returns nonzero (tested by CharaTask::vf5C)
     virtual void vf34();
     virtual void vf38();
     virtual void vf3C();

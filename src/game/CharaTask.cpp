@@ -77,7 +77,9 @@ struct Settings_unk {
     int m2C0; // inferred: nonzero always tries fn_801749EC after a collision (fn_8013CB68)
     unsigned char m2C4[0x314 - 0x2C4];
     int m314; // inferred: tested with m50 == 1 before the chant effect (fn_80145334)
-    unsigned char m318[0x368 - 0x318];
+    unsigned char m318[0x334 - 0x318];
+    float m334; // inferred: guard angle in degrees (fn_80151448: cos(0.5 * m334))
+    unsigned char m338[0x368 - 0x338];
     unsigned int m368; // inferred: ARGB colors of the status effect (fn_8017A5D8)
     unsigned int m36C;
     unsigned int m370;
@@ -204,7 +206,6 @@ extern "C" void fn_800FD658(Effect_unk* mgr, int a, int b, void* bullet, int arg
 // inferred: globals returned by accessors that are called out of line
 extern "C" void* lbl_8087EE68;
 extern "C" void* lbl_8087EE98;
-extern "C" void* lbl_8087F490;
 
 // inferred: names of some status effects. The table itself is not in the DOL (unused, so the
 // compiler drops it), but its strings are the first .rodata objects of the file (0x80737390) and are
@@ -6545,6 +6546,43 @@ void CharaTask::fn_8014EF48() {
     AttachWeapons_unk(this);
 }
 
+extern "C" int fn_804EB750(Arena_unk* arena, CharaTask* chara, int index); // inferred: part id in the arena
+extern "C" void* fn_80206BE4(void* item);
+extern "C" void* fn_80211480(void* data);
+extern "C" void fn_80211940(void* data, int arg);
+extern "C" int fn_8044D3A0(Party_unk* party, int index, int id); // inferred: part id of a party member
+extern "C" void* fn_80206B14(int arg, int item);
+// inferred: creates a part (returns 0 on failure)
+extern "C" chr::CharaPart_unk* fn_800457A4(int kind, int id, int arg, CharaTask* chara, int arg2);
+
+void CharaTask::fn_8014F2B4(int a, int b, int index) {
+    if (lbl_8087F610 != 0) {
+        int kind = fn_80219558(m50);
+        if (kind >= 0 && 7 > kind && mParts.mCount < 2 && a == 0) {
+            int id = fn_804EB750(lbl_8087F610, this, index);
+            if (id >= 0) {
+                if (id >= 1000 && fn_80206B14(0, id) == 0) {
+                    fn_80211940(fn_80211480(fn_80206BE4(fn_80206B14(0, id % 1000))), id / 1000);
+                }
+                b = id;
+            }
+        }
+    } else if (lbl_8087F4F0 != 0 && index >= 0) {
+        int id = fn_8044D3A0(lbl_8087F4F0, index, m50);
+        if (id >= 0) {
+            b = id;
+        }
+    }
+    chr::CharaPart_unk* part = fn_800457A4(a, b, 0, this, 0);
+    if (part != 0) {
+        if (index >= 0) {
+            mParts.insert(&mParts.mData[index], part);
+        } else {
+            mParts.PushBack_unk(part);
+        }
+    }
+}
+
 // NONMATCHING: 90.1% - the original keeps the index in r31 and recomputes &mData[i] for the
 // erase ((i * 4) / 4); ours keeps the element address (lwzu) from the delete.
 void CharaTask::fn_8014F4FC(int a, int b) {
@@ -6565,8 +6603,36 @@ void CharaTask::fn_8014F5D4(int index, int a, int b) {
     fn_8014F2B4(a, b, index);
 }
 
+void CharaTask::fn_8014F698(int a, int b, int notify) {
+    if (m678 != 0) {
+        delete m678;
+        m678 = 0;
+        if (m67C != 0) {
+            delete m67C;
+            m67C = 0;
+        }
+        if (m674 == 0) {
+            fn_8014DEE4(0, 0, 0);
+        }
+    }
+    chr::CharaPart_unk* part = fn_800457A4(a, b, 0, this, 0);
+    m678 = part;
+    part->m288 = 5;
+    part->m28C = 1;
+    if (m5C->m11C == 2) {
+        part = fn_800457A4(a, b, 0, this, 0);
+        m67C = part;
+        part->m288 = 5;
+        part->m28C = 1;
+    }
+    mFlagB21 = 1;
+    if (notify != 0) {
+        fn_8014F8F4()->fn_8014F860(9, this, &b);
+    }
+}
+
 // NONMATCHING: the original loads mEnabled before saving the arguments (4 instructions moved).
-void CharaListeners_unk::fn_8014F860(int id, CharaTask* chara, int arg) {
+void CharaListeners_unk::fn_8014F860(int id, CharaTask* chara, void* arg) {
     int i;
     if (mEnabled != 0) {
         for (i = 0; i < (int)mList.size(); i++) {
@@ -6583,6 +6649,23 @@ CharaListeners_unk* fn_8014F8F4() {
     return &sListeners;
 }
 
+void CharaTask::fn_8014F960(int notify) {
+    if (m678 != 0) {
+        delete m678;
+        m678 = 0;
+        if (m67C != 0) {
+            delete m67C;
+            m67C = 0;
+        }
+        if (m674 == 0) {
+            fn_8014DEE4(0, 0, 0);
+        }
+        if (notify != 0) {
+            fn_8014F8F4()->fn_8014F860(9, this, 0);
+        }
+    }
+}
+
 bool CharaTask::fn_8014FAD0() {
     bool result = false;
     for (unsigned int i = 0; i < mParts.mCount; i++) {
@@ -6591,6 +6674,26 @@ bool CharaTask::fn_8014FAD0() {
         }
     }
     return result;
+}
+
+// inferred: whether the weapon parts can be shown (0 while a shield replaces them, during grabs...)
+int CharaTask::fn_8014FB60() {
+    if (lbl_8087F610 != 0 && m674 == 0) {
+        if (m678 != 0 && (m678->vf0C() != 0 || m678 != m648)) {
+            return 0;
+        }
+        if (m67C != 0 && (m67C->vf0C() != 0 || m67C != m64C)) {
+            return 0;
+        }
+    }
+    if (m648 != 0 && !mFlag3 && m1208 == 0 && mF54 == 0 && m139C == 0 && m13FC == 0 &&
+        (m55C != 6 || (m560 != 58 && m560 != 84 && m560 != 121 && m560 != 138))) {
+        if (mFlag2) {
+            return (unsigned int)(mMotion.mTracks[0].m00 - 108) > 4;
+        }
+        return 1;
+    }
+    return 0;
 }
 
 bool CharaTask::fn_8014FCC4() {
@@ -6617,6 +6720,99 @@ bool CharaTask::fn_8014FD0C() {
     return result;
 }
 
+void CharaTask::fn_8014FD30() {
+    if (mAC == 3) {
+        if (m680[0] != 0 && m680[0]->m004 % 1000 / 10 == 46) {
+            mMotion.fn_80093F1C("leftcoat1", lbl_807C7030, lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+            mMotion.fn_80093F1C("leftcoat2", lbl_807C7030, lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+            mMotion.fn_80093F1C("rightcoat1", lbl_807C7030, lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+            mMotion.fn_80093F1C("rightcoat2", lbl_807C7030, lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+            if (m484[0] == 2) {
+                fn_8014C0B4(0, 6);
+            }
+            if (m484[1] == 20) {
+                fn_8014C0B4(1, 23);
+            }
+            if (m484[2] == 26) {
+                fn_8014C0B4(2, 29);
+            }
+            if (m484[3] == 32) {
+                fn_8014C0B4(3, 36);
+            }
+        } else {
+            mMotion.fn_80094778("leftcoat1");
+            mMotion.fn_80094778("leftcoat2");
+            mMotion.fn_80094778("rightcoat1");
+            mMotion.fn_80094778("rightcoat2");
+            if (m484[0] == 6) {
+                fn_8014C0B4(0, 2);
+            }
+            if (m484[1] == 23) {
+                fn_8014C0B4(1, 20);
+            }
+            if (m484[2] == 29) {
+                fn_8014C0B4(2, 26);
+            }
+            if (m484[3] == 36) {
+                fn_8014C0B4(3, 32);
+            }
+        }
+    }
+}
+
+// inferred: equipment of an arena character (returned by fn_804EB650); names invented
+struct ArenaEquip_unk {
+    int mId;
+    unsigned short mHasData : 1; // inferred: m4C is passed to the equipment
+    unsigned short mFlag : 1;    // inferred: passed to the equipment instead of the caller's flag
+    unsigned short m04_rest : 14;
+    unsigned char m06[0x4C - 0x06];
+    unsigned char m4C[4]; // inferred: data passed to chr::CharaEquip_unk (size unknown)
+};
+extern "C" ArenaEquip_unk* fn_804EB650(Arena_unk* arena, CharaTask* chara, int slot);
+extern "C" void* fn_8020ED84(int slot, int item);
+extern "C" void* fn_8020EF80(void* item);
+extern "C" int fn_8044D1A4(Party_unk* party, int slot, int id); // inferred: equipment index of a party member
+extern "C" void* fn_8044D034(Party_unk* party, int index);      // inferred: equipment data
+
+// NONMATCHING: 99.2% - the original keeps the dead second null check of the delete (`beq` twice);
+// tried a local pointer, a reference, a pointer to the slot, an inline delete helper.
+void CharaTask::fn_8014FF9C(int slot, int id, int arg) {
+    if (m680[slot] != 0) {
+        delete m680[slot];
+        m680[slot] = 0;
+    }
+    void* data = 0;
+    int index = 0;
+    if (slot < 4) {
+        if (lbl_8087F610 != 0) {
+            int kind = fn_80219558(m50);
+            if (kind >= 0 && 7 > kind && fn_804EB650(lbl_8087F610, this, slot) != 0) {
+                ArenaEquip_unk* equip = fn_804EB650(lbl_8087F610, this, slot);
+                id = equip->mId;
+                if (id >= 1000 && fn_8020ED84(slot, id) == 0) {
+                    fn_80211940(fn_80211480(fn_8020EF80(fn_8020ED84(slot, id % 1000))), id / 1000);
+                }
+                index = 0;
+                if (equip->mHasData) {
+                    data = equip->m4C;
+                    arg = equip->mFlag;
+                }
+            }
+        } else if (lbl_8087F4F0 != 0) {
+            index = fn_8044D1A4(lbl_8087F4F0, slot, m50);
+            if (index >= 0) {
+                data = fn_8044D034(lbl_8087F4F0, index);
+            }
+        }
+    }
+    // inferred: the fifth argument of the constructor is a pointer (declared int)
+    m680[slot] = new (0, "", "", 0) chr::CharaEquip_unk(slot, id, index, this, (int)data, 0, arg, 1, 1);
+    if (slot == 0) {
+        fn_8014FD30();
+    }
+}
+
 void CharaTask::fn_80150178(int slot, chr::CharaEquip_unk* equip) {
     if (m680[slot] != 0) {
         delete m680[slot];
@@ -6627,10 +6823,771 @@ void CharaTask::fn_80150178(int slot, chr::CharaEquip_unk* equip) {
     }
 }
 
+extern "C" int fn_804EB814(Arena_unk* arena, CharaTask* chara);
+
+// inferred: name invented
+inline int CharaTask::ControlVf30_unk() {
+    return mControl ? mControl->vf30() : 0;
+}
+
+// NONMATCHING: ~92% - in the two inlined hit loops the original keeps the array pointer in r4
+// (reusing the register of `other`) and the hit in r5, ours the other way round; the rest are the
+// .data offsets of the scoped_ptr bool ptmf. tried: index/pointer/iterator loops, a free inline
+// function, the ternary written inline. (The same loop inlined in fn_80151448 matches.)
+void CharaTask::vf5C(CharaTask* other) {
+    if (other->GetFlaggedHitBullet_unk() == 0 && other != 0) {
+        if (other->ControlVf30_unk() != 0) {
+            return;
+        }
+    }
+    bool combo = false;
+    if (mFlagB31) {
+        combo = true;
+    } else {
+        if (other != mFDC) {
+            if (lbl_8087F610 == 0) {
+                if ((other != 0 && other->mType == 0) || (mFDC != 0 && mFDC->mType == 0)) {
+                    combo = true;
+                }
+            } else if (fn_804EB814(lbl_8087F610, other) == 0 && fn_804EB814(lbl_8087F610, mFDC) == 0 && other != 0 &&
+                       other->mF14 > 0 && mFDC != 0 && mFDC->mF14 > 0 && other->mF14 == mFDC->mF14) {
+                combo = true;
+            }
+        }
+        if (other->GetFlaggedHitBullet_unk() != 0) {
+            combo = true;
+        }
+    }
+    if (combo) {
+        fn_80150460(other, mFE4 + 1);
+    } else {
+        fn_80150460(other, 1);
+    }
+}
+
+// inferred: parameter of a part (returned by fn_80045694); names invented
+struct PartParam_unk {
+    int m00;
+    int m04; // inferred: value (x30 frames of combo time)
+};
+extern "C" PartParam_unk* fn_80045694(chr::CharaPart_unk* part, int kind, int arg, int id, int sub);
+
+// inferred: name invented
+inline bool HasPartParam_unk(chr::CharaPart_unk* part, int kind, int arg, int id, int sub) {
+    return fn_80045694(part, kind, arg, id, sub) != 0;
+}
+
+// inferred: starts the combo window against `other` (mFE0: frames, mFDC: last opponent?)
+// NONMATCHING: 91% - same r4/r5 swap as vf5C in the two inlined GetFlaggedHitBullet_unk loops;
+// tried index, pointer, iterator and break forms of the loop.
+void CharaTask::fn_80150460(CharaTask* other, int combo) {
+    CharaTask* prev = mFDC;
+    mFE4 = combo;
+    mFDC = other;
+    mFE0 = 60;
+    if (other != 0) {
+        CharaStatus* status = &other->mStatus;
+        if (status->fn_80133EE8(10) != 0) {
+            mFE0 += status->fn_80133F18(10, -1) * 30;
+        } else if (prev != 0 && prev->m648 != 0 && HasPartParam_unk(prev->m648, 8, 0, 10, -1)) {
+            mFE0 += fn_80045694(prev->m648, 8, 0, 10, -1)->m04 * 30;
+        }
+        if (other->GetFlaggedHitBullet_unk() != 0 || (prev != 0 && prev->GetFlaggedHitBullet_unk() != 0)) {
+            mFE0 += 150;
+        }
+    }
+}
+
+// inferred: type pairs that count as the same side (names invented)
+inline bool IsSideType_unk(int a, int b) {
+    bool result = false;
+    if (a == 0 && b == 3) {
+        result = true;
+    }
+    return result;
+}
+inline bool IsSameSideType_unk(int a, int b) {
+    bool result = true;
+    if (a != b && !IsSideType_unk(a, b)) {
+        result = false;
+    }
+    return result;
+}
+// inferred: whether a and b are on the same side (team ids in mF14, else the types); same test as
+// IsSameSideOf_unk and CharaTask::IsSameSide_unk, written differently (each form matches its callers)
+inline bool IsSameSidePair_unk(CharaTask* a, CharaTask* b) {
+    if (a != b) {
+        if (lbl_8087F610 != 0 && lbl_8087F610->m540 == 0) {
+            return false;
+        }
+        if ((a->mStatus.m0C & 2) == 2 || (b->mStatus.m0C & 2) == 2 || lbl_8087F0A8->mCC != 0) {
+            return false;
+        }
+    }
+    if (a->mF14 >= 0 && b->mF14 >= 0) {
+        return a->mF14 == b->mF14;
+    }
+    bool result = true;
+    if (!IsSameSideType_unk(a->mType, b->mType) && !IsSideType_unk(b->mType, a->mType)) {
+        result = false;
+    }
+    return result;
+}
+
+// inferred: whether `other` continues the combo of mFDC (same side)
+// NONMATCHING: 88% - register allocation of the type checks at the end (the original gives
+// b->mType r3, a->mType r6 and the inner bool r5); tried locals, nested ifs, a second pair helper.
+int CharaTask::fn_8015061C(CharaTask* other) {
+    int result = 0;
+    if (mFlagB31) {
+        result = 1;
+    } else if (lbl_8087F610 == 0) {
+        if (mFDC != 0 && mFDC->mType == 0) {
+            result = 1;
+        }
+    } else if (mFDC != 0 && mFDC != other && IsSameSidePair_unk(mFDC, other)) {
+        result = 1;
+    }
+    return result;
+}
+
+// inferred: 0x1C-byte record at 0x1470 in the player characters (names invented)
+struct PlayerState_unk {
+    PlayerState_unk(short id, int value)
+        : m00(id), m02(0), m04(0), m0C(0.0f, 0.0f, 0.0f), m18(0) {
+        m08 = value;
+    }
+    // inferred: weak copy 0x80151194
+    PlayerState_unk(short id) : m00(id), m02(0), m04(0), m08(150), m0C(0.0f, 0.0f, 0.0f), m18(0) {}
+    short m00;
+    short m02;
+    int m04;
+    int m08;
+    atn::Vector3 m0C;
+    int m18;
+};
+
+// inferred: player character as seen from here (PlayerTask: BattleCharaTask: CharaTask)
+struct Player_unk : public CharaTask {
+    // inferred: weak copies 0x800F7FB4 and 0x801511C4 (names invented)
+    int GetM146C_unk() { return m146C; }
+    void SetState_unk(const PlayerState_unk& state) { m1470 = state; }
+
+    unsigned char m1424[0x146C - 0x1424];
+    int m146C;
+    PlayerState_unk m1470;
+    unsigned char m148C[0x14AC - 0x148C];
+    Player_unk* mNext; // 0x14AC: inferred: next player in the manager list
+};
+
+
+// inferred: data passed to the listeners of event 14 by fn_8015076C (names invented)
+struct HitEvent_unk {
+    // inferred: implicit constructor (weak copy 0x80151218)
+    int mId;
+    atn::Vector3 mDir;
+    atn::Vector3 m10;
+    int m1C;
+    unsigned int mFlags;
+};
+
+// inferred: (mask & flags) == mask on a flag word (weak copy 0x80151168); name invented
+inline bool HasFlags_unk(const int& flags, unsigned int mask) {
+    return (mask & flags) == mask;
+}
+
+// inferred: object behind lbl_8087F490 (weak copies 0x80151204 and 0x80151210); names invented
+struct Unk8087F490_unk;
+extern "C" Unk8087F490_unk* lbl_8087F490;
+extern "C" void fn_803E2110(Unk8087F490_unk* obj, int arg, CharaTask* chara);
+struct Unk8087F490_unk {
+    static Unk8087F490_unk* Get_unk() { return lbl_8087F490; }
+    void Remove_unk(CharaTask* chara) { fn_803E2110(this, 1, chara); }
+};
+
+extern "C" void fn_80175A38(CharaTask* chara);
+extern "C" void fn_801681B0(CharaTask* chara, const atn::Vector3& dir, int time, int flag);
+extern "C" void fn_80168824(CharaTask* chara, int flag);
+
+// inferred: reaction to a hit (knock back, down, guard...) and record of the hit in m6D0
+void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3& v2, int arg, unsigned int flags,
+                            HitMsg_unk* msg) {
+    HitEvent_unk ev;
+    ev.mId = id;
+    ev.mDir = dir;
+    ev.m10 = v2;
+    ev.m1C = arg;
+    ev.mFlags = flags;
+    if (msg != 0 && msg->mFlag31) {
+        ev.mDir = msg->m28 * 5.0f;
+        ev.mFlags |= 0x10000;
+    }
+    fn_8014F8F4()->fn_8014F860(14, this, &ev);
+    if (fn_80139EBC()) {
+        fn_80175A38(this);
+    }
+    if (m6D0.full()) {
+        return;
+    }
+    if (fn_80148334() && (flags & 0x10000000) != 0x10000000) {
+        m6D0.PushBack_unk(CharaPair8_unk(id, arg));
+        return;
+    }
+    float lenSq = dir.LengthSq_unk();
+    bool magic = fn_80160324();
+    if (m55C == 6) {
+        switch (m560) {
+        case 35:
+        case 36:
+        case 46:
+        case 52:
+        case 53:
+        case 121:
+        case 132:
+        case 138:
+        case 142:
+            lenSq = 0.0f;
+            break;
+        }
+    }
+    if ((flags & 8) != 8 && m55C == 6 && m560 == 30 && m638 != 0 && (m638->m01 == 1 || m638->m01 == 4)) {
+        lenSq = 0.0f;
+    }
+    if (fn_8017B16C() && m55C == 6 && (m560 == 29 || m560 == 31) && m674 >= 0) {
+        fn_8014DEE4(0, 0, 0);
+    }
+    if (fn_80370174(fn_80121F00(), 0x67) && IsPlayer_unk() && !mStatus.fn_80139F4C()) {
+        CollResult_unk result;
+        atn::Vector3 from = mPos + atn::Vector3(0.0f, 5.0f, 0.0f);
+        atn::Vector3 to = (mPos + atn::Vector3(0.0f, 5.0f, 0.0f)) + dir * 8.0f;
+        if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) && (result.m3C & 4U) == 4U) {
+            result.m04 -= atn::Vector3(0.0f, 5.0f, 0.0f);
+            fn_8016DA4C();
+            if (m1208 != 0) {
+                fn_801750FC();
+            }
+            fn_8015CC70(atn::Vector3(mPos), atn::Vector3(result.m04), atn::Vector3(result.m28));
+            m6D0.PushBack_unk(CharaPair8_unk(id, arg));
+            return;
+        }
+    }
+    bool reset = m1208 != 0;
+    if (m58C != 3 && m58C != 4) {
+        float limit = fn_8013A158() ? 5.0f : 7.0f;
+        if ((m137C & 2) == 2) {
+            atn::Vector3 rot(mRot);
+            CollResult_unk result;
+            atn::Vector3 from = mPos + fn_8014052C() * 10.0f;
+            atn::Vector3 to = mPos + fn_8014052C() * -10.0f;
+            from.y -= 10.0f;
+            to.y -= 10.0f;
+            if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0)) {
+                rot = result.m28.ToRotation_unk();
+            }
+            fn_8016DA4C();
+            fn_801698E4(rot);
+        } else if (msg != 0 && HasFlags_unk(msg->mData->m90, 0x4000) && mStatus.IsState_unk(0x4000)) {
+            fn_801681B0(this, dir, 0, (msg->mData->mAC >> 9) & 1);
+        } else if (msg != 0 && msg->mAttacker != 0 && msg->mAttacker->GetStatus_unk()->fn_80133EE8(24) != 0 &&
+                   mStatus.IsState_unk(0x4000)) {
+            fn_801681B0(this, dir, msg->mAttacker->GetStatus_unk()->fn_80133F18(24, -1) * 30, 0);
+        } else if ((flags & 0x400) == 0x400 || (flags & 1) == 1) {
+        } else if ((flags & 0x20) == 0x20) {
+            if (!mFlag31 && !GetStatus_unk()->mParamB.fn_801404E0(0x10) && !(m55C == 6 && m560 == 23)) {
+                fn_8015E1B8(dir);
+            }
+        } else if ((flags & 8) == 8) {
+            if (!mFlag31 && !GetStatus_unk()->mParamB.fn_801404E0(0x10) && !(m55C == 6 && m560 == 23)) {
+                if ((flags & 0x2000) == 0x2000) {
+                    fn_8015DEC0((int)&dir); // inferred: the parameter is declared int (it receives &dir)
+                } else {
+                    float power = 0.1f;
+                    if (msg != 0 && (msg->mData->mAC & 0x20000000) == 0x20000000) {
+                        power = 0.6f;
+                    }
+                    fn_8015D8C0(power, dir, msg != 0 ? (int)msg->mAttacker : 0);
+                }
+            }
+        } else if (msg != 0 && HasFlags_unk(msg->mData->m90, 0x20000) && mStatus.IsState_unk(0x20000)) {
+            fn_80168824(this, (msg->mData->mAC >> 9) & 1);
+        } else if (lenSq > limit * limit || (flags & 0x10000) == 0x10000) {
+            fn_8016DA4C();
+            if (!(m55C == 6 && m560 == 23)) {
+                fn_8015E7A0(dir, msg != 0 ? msg->m58 : -1, 0);
+            }
+            if (mC58.mC4 != 0) {
+                mC58.mC4->fn_8016F5EC(this);
+            }
+        } else if (lenSq > 0.010000001f) {
+            int knock = 1;
+            if (m55C == 6) {
+                switch (m560) {
+                case 1:
+                case 2:
+                case 3:
+                case 6:
+                case 7:
+                case 10:
+                case 11:
+                case 15:
+                case 17:
+                case 18:
+                case 19:
+                case 23:
+                case 24:
+                case 25:
+                case 26:
+                case 27:
+                case 28:
+                case 35:
+                case 36:
+                case 40:
+                case 41:
+                case 45:
+                case 46:
+                case 48:
+                case 49:
+                case 50:
+                case 51:
+                case 52:
+                case 53:
+                case 62:
+                case 68:
+                case 76:
+                case 77:
+                case 84:
+                case 85:
+                case 91:
+                case 93:
+                case 101:
+                case 106:
+                case 110:
+                case 111:
+                case 112:
+                case 113:
+                case 114:
+                case 115:
+                case 116:
+                case 117:
+                case 118:
+                case 119:
+                case 123:
+                case 124:
+                case 125:
+                case 126:
+                case 127:
+                case 130:
+                case 132:
+                    knock = 0;
+                    break;
+                case 33:
+                    if (m1208 != 0 && m1208->fn_8013A18C()) {
+                        knock = 0;
+                    }
+                    break;
+                case 14:
+                    if (!mControl || !mControl->vf54()) {
+                        knock = 0;
+                    }
+                    break;
+                }
+            }
+            if (mFlag31 && IsPlayer_unk() && lenSq < 9.0f) {
+                knock = 0;
+            }
+            if (knock) {
+                fn_8016DA4C();
+                fn_8015E4B0(dir, msg != 0 ? msg->m54 : -1);
+                if (mC58.mC4 != 0) {
+                    mC58.mC4->fn_8016F5EC(this);
+                }
+            } else {
+                reset = false;
+            }
+        } else {
+            reset = false;
+        }
+    }
+    if (reset) {
+        fn_801750FC();
+    }
+    if (magic && !fn_80160324()) {
+        if (mStatus.fn_80134270() || mStatus.fn_80134290() || mStatus.fn_801342B0()) {
+            if (mStatus.fn_80151188()) {
+                PlayerState_unk state(2);
+                state.m04 = rand() % 5;
+                state.m08 = 60;
+                if ((fn_80140518() || fn_8013A158()) && ((Player_unk*)this)->GetM146C_unk() <= 0) {
+                    ((Player_unk*)this)->SetState_unk(state);
+                }
+            } else {
+                mC58.m2B4 = 30;
+            }
+        }
+        Unk8087F490_unk::Get_unk()->Remove_unk(this);
+    }
+    m6D0.PushBack_unk(CharaPair8_unk(id, arg));
+}
+
+// inferred: whether `chara` can be knocked back by a hit (name unknown)
+int fn_80151270(CharaTask* chara) {
+    if (chara == 0 || chara->mStatus.IsState_unk(0x20)) {
+        return 0;
+    }
+    if ((chara->m54C & 0x1000000) == 0x1000000 || (chara->m137C & 2) == 2) {
+        return 0;
+    }
+    if ((chara->m137C & 0x10000) == 0x10000) {
+        return 0;
+    }
+    if (chara->mFlag3) {
+        return 0;
+    }
+    switch (chara->m55C) {
+    case 5:
+        return 0;
+    case 6:
+        switch (chara->m560) {
+        case 2:
+            if (chara->mMotion.mTracks[0].m00 == 490) {
+                return 0;
+            }
+            break;
+        case 24:
+        case 25:
+        case 26:
+        case 40:
+        case 41:
+        case 44:
+            return 0;
+        case 68:
+            return 0;
+        }
+        break;
+    case 7:
+        if (chara->mType == 0) {
+            return 0;
+        }
+        break;
+    case 10:
+        return 0;
+    }
+    if (chara->mStatus.IsState_unk(0x10) || chara->mStatus.IsState_unk(0x40) || chara->mStatus.IsState_unk(0x4000) ||
+        chara->mStatus.IsState_unk(0x80)) {
+        return 0;
+    }
+    return 1;
+}
+
+extern "C" int fn_8021AA48(const char* name); // inferred
+
+void CharaTask::vf3C(HitInfo_unk* hit) {
+    if (!IsFlag_unk(1) || fn_8021AA48(hit->m08) != 0) {
+        fn_80151448((HitMsg_unk*)hit); // inferred: the parameter of vf3C is the hit message
+        vf40(hit);
+    }
+}
+
+
+// inferred: parameters of fn_8003EA3C (names invented)
+struct HitParam_unk {
+    HitParam_unk() : m00(1), m04(1.0f), m08(1.0f), m0C(0), m10(1.0f), m14(0) {}
+    int m00; // inferred: combo count
+    float m04;
+    float m08;
+    int m0C;
+    float m10;
+    int m14;
+};
+extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
+extern "C" void fn_8003EA3C(int* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner, unsigned int flags,
+                            const HitParam_unk* param, int arg, int arg2); // inferred: computes the damage
+extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* attacker);
+extern "C" int fn_8010CD3C(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
+extern "C" void fn_8010CF28(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
+
+// NONMATCHING: 99.9% - only CharaStatus::fn_801346C8 is called with a second argument 0 (li r5,0)
+// in the original (see vf4C; its symbol is fixed as Fi) and the .data offsets of the ptmf constants
+// (lbl_8077A720 noise).
+void CharaTask::fn_80151448(HitMsg_unk* msg) {
+    unsigned int flags;
+    unsigned int kinds = msg->m50;
+    flags = msg->m0C;
+    mFlag9 = 0;
+    if ((kinds & 0x40) != 0x40 && mFlag10) {
+        flags |= 0x40;
+    }
+    if ((kinds & 0x400) != 0x400 && m55C == 6 && (m560 == 1 || m560 == 2)) {
+        flags |= 0x400;
+    }
+    if ((kinds & 0x1000) != 0x1000) {
+        if (m55C == 6 && m560 == 96) {
+            flags |= 0x1000;
+        }
+        if ((!mC58.m11C.fn_8011D21C() && (mC58.m11C.m20 & 2) == 2) || (mC58.m11C.m20 & 4) == 4) {
+            flags |= 0x1000;
+        }
+    }
+    if ((msg->mData->mAC & 4) == 4) {
+        kinds |= 8;
+    }
+    if (msg->mAttacker != 0 && msg->mAttacker->mStatus.fn_80133EE8(0x48) != 0) {
+        kinds |= 8;
+    }
+    if ((kinds & 8) != 8 && msg->m48 != 0) {
+        flags |= 8;
+    }
+    if ((kinds & 8) == 8) {
+        flags |= 0x400000;
+    }
+    if ((kinds & 0x20) != 0x20 && (msg->mData->mAC & 0x400) == 0x400 && mFlag31) {
+        flags |= 0x20;
+    }
+    if ((kinds & 0x20000) != 0x20000 && mFlagB30) {
+        flags |= 0x20000;
+    }
+    if (msg->m44 == 0) {
+        atn::Vector3 dir(0.0f, 0.0f, mFlag31 ? 1.0f : -1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &dir, &dir);
+        float dot = PSVECDotProduct(&dir, &msg->m28);
+        if ((kinds & 0x10) == 0x10) {
+            flags &= ~0x10;
+            if (msg->mAttacker != 0) {
+                msg->mAttacker->mStatus.fn_80133E24(-1, 0x10);
+                if (msg->mAttacker->mStatus.fn_80133F6C(-1, -1) <= 0) {
+                    msg->m0C &= ~0x2000000;
+                    msg->m94 &= ~0x2000000;
+                }
+            }
+        }
+        if ((kinds & 8) != 8 && mFlag5) {
+            if (dot > (float)cos(0.5f * lbl_8087F0A8->m334) || mFlagB16 || (lbl_8087F610 != 0 && mType == 0)) {
+                if (!IsDown_unk() && !IsStill_unk()) {
+                    flags |= 8;
+                }
+            }
+        }
+        if (lbl_8087F048 != 0 && fn_8010CD3C(lbl_8087F048, 5, this, this)) {
+            fn_8010CF28(lbl_8087F048, 5, this, this);
+            flags |= 0x20;
+        }
+        if ((kinds & 0x80) != 0x80 && msg->m04 != 0) {
+            if (msg->m04->GetStatus_unk()->IsState_unk(0x10)) {
+                flags |= 0x80;
+            }
+            if (msg->m04->GetStatus_unk()->IsState_unk(0x4000)) {
+                flags |= 0x80;
+            }
+        }
+        bool combo = false;
+        if (msg->mAttacker != 0) {
+            if (msg->mAttacker->ControlVf30_unk() == 0) {
+                combo = true;
+            }
+            if (msg->mAttacker->ControlVf30_unk() % 2 == 0 &&
+                msg->mAttacker->GetFlaggedHitBullet_unk() != 0) {
+                combo = true;
+            }
+            if (msg->mAttacker->m55C == 6 && msg->mAttacker->m560 == 9) {
+                combo = true;
+            }
+        }
+        if (combo) {
+            vf5C(msg->mAttacker);
+            msg->m74 = mFE4;
+        } else {
+            msg->m74 = 0;
+        }
+        if (fn_80370174(lbl_8087F430, 0x548) == 1 && mType != 0 && msg->mData->m04 != 0xD0) {
+            flags |= 0x2008;
+            msg->mAttacker->vf7C(1);
+        } else if (fn_80370174(lbl_8087F430, 0x28) == 0 && msg->mAttacker != 0 &&
+                   ((unsigned int)msg->mAttacker->mStatus.mParamB.m9C & 4) != 4) {
+            bool guard = false;
+            if ((flags & 8) == 8 && mFlag5 && !mFlag31 && !msg->mFlag31) {
+                guard = true;
+            }
+            if (lbl_8087F610 == 0 && !mStatus.fn_801346C8(2) && !mStatus.fn_801346C8(3)) {
+                guard = false;
+            }
+            if (guard) {
+                if (fn_80041A28(1, this, msg->mAttacker) == 3) {
+                    flags |= 0x2008;
+                    msg->mAttacker->vf7C(1);
+                } else {
+                    mFlag9 = (mFlag5 && mF58 >= 15);
+                }
+            }
+        }
+        HitParam_unk param;
+        param.m00 = msg->m74;
+        param.m04 = msg->m5C;
+        param.m08 = msg->m60;
+        param.m14 = mFlag22;
+        fn_8003EA3C(&msg->m64, msg->mData, msg->mAttacker, msg->m04, flags, &param, 0, 0);
+        if (msg->mFlag30) {
+            flags &= ~8;
+            flags |= 0x200000;
+        }
+        if (msg->mFlag29) {
+            flags &= ~0x2000000;
+        }
+        if (msg->mFlag28) {
+            flags &= ~0x8000;
+        }
+        if (msg->m04 != 0 && msg->m04->mType == 2 && msg->m68 < 0) {
+            fn_80150460(msg->mAttacker, 1);
+        }
+        if (msg->m64 == 1) {
+            fn_8015076C(msg->m34, msg->m10, msg->m1C, msg->m38, flags, msg);
+        }
+        msg->m88 = msg->mData->mC4;
+        if ((flags & 0x20) == 0x20) {
+            msg->m84 = 2;
+        } else if ((flags & 8) == 8) {
+            msg->m84 = 1;
+        } else {
+            msg->m84 = 0;
+        }
+        msg->m8C = 1;
+        msg->m90 = 1;
+    } else if (msg->m44 == 1) {
+        if ((kinds & 8) != 8) {
+            Settings_unk* settings = lbl_8087F0A8;
+            if (mFlag5) {
+            atn::Vector3 dir(0.0f, 0.0f, mFlag31 ? 1.0f : -1.0f);
+            Mtx m;
+            PSMTXRotRad(m, 'y', mRot.y);
+            PSMTXMultVec(m, &dir, &dir);
+            float dot = PSVECDotProduct(&dir, &msg->m28);
+            if (dot > (float)cos(0.5f * settings->m334) || (lbl_8087F610 != 0 && mType == 0)) {
+                if (!IsDown_unk() && !IsStill_unk()) {
+                    flags |= 8;
+                }
+            }
+            }
+        }
+        if ((kinds & 1) != 1 && (mType == 0 || lbl_8087F610 != 0) && mFlag31 && !HasC48_unk()) {
+            flags |= 1;
+        }
+        HitParam_unk param;
+        param.m00 = 0;
+        param.m04 = 1.0f;
+        param.m08 = 1.0f;
+        param.m14 = mFlag22;
+        if (lbl_8087F430 != 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 && msg->mData != 0 &&
+            msg->mData->m04 == 0x133) {
+            param.m0C = fn_80370174(lbl_8087F430, 0xDA);
+        }
+        if (msg->mAttacker != 0 && msg->mAttacker->mStatus.fn_80134134(0x43) != 0) {
+            param.m10 = 100.0f / (100.0f + msg->mAttacker->mStatus.fn_80134168(0x43, -1));
+        }
+        fn_8003EA3C(&msg->m64, msg->mData, msg->mAttacker, msg->m04, flags, &param, 0, 0);
+        if (msg->mFlag30) {
+            flags &= ~8;
+            flags |= 0x200000;
+        }
+        if (msg->mFlag29) {
+            flags &= ~0x2000000;
+        }
+        if (msg->mFlag28) {
+            flags &= ~0x8000;
+        }
+        if (msg->m64 == 1) {
+            fn_8015076C(msg->m34, msg->m10, msg->m1C, msg->m38, flags, msg);
+        }
+        msg->m88 = msg->mData->mC4;
+        msg->m84 = (flags >> 3) & 1;
+        msg->m8C = 1;
+        msg->m90 = 1;
+        if ((msg->mData->mAC & 0x8000) == 0x8000) {
+            if (fn_80151270(this) && !mFlag2) {
+                fn_8016D0A0(1);
+            }
+            if (msg->mData->m04 == 0x147) {
+                msg->m90 = 0;
+            }
+        }
+    } else if (msg->m44 == 2) {
+        if ((kinds & 8) != 8) {
+            if (msg->mData->m01 == 1) {
+                if ((mType == 0 || lbl_8087F610 != 0) && mFlag31 && !HasC48_unk()) {
+                    flags |= 0x80009;
+                } else if (mFlag5 && !IsDown_unk() && !(atn::Abs_unk(mStatus.mParamB.m1C) < 1.1920929e-7f)) {
+                    flags |= 0x80008;
+                }
+            } else if (mFlag5 && !IsDown_unk() && !IsStill_unk()) {
+                flags |= 8;
+            }
+        }
+        HitParam_unk param;
+        param.m04 = msg->m5C;
+        fn_8003EA3C(&msg->m64, msg->mData, msg->mAttacker, msg->m04, flags, &param, 0, 0);
+        if (msg->mFlag30) {
+            flags &= ~8;
+            flags |= 0x200000;
+        }
+        if (msg->mFlag29) {
+            flags &= ~0x2000000;
+        }
+        if (msg->mFlag28) {
+            flags &= ~0x8000;
+        }
+        if (msg->m64 == 1) {
+            fn_8015076C(msg->m34, msg->m10, msg->m1C, msg->m38, flags, msg);
+        }
+        msg->m88 = -1;
+        if (msg->mData != 0 && msg->mData->m04 == 0xA4) {
+            msg->m88 = 2;
+        }
+        msg->m84 = 0;
+        msg->m8C = msg->mAttacker != 0;
+        msg->m90 = 1;
+        if ((msg->mData->mAC & 0x8000) == 0x8000) {
+            if (fn_80151270(this) && !mFlag2) {
+                fn_8016D0A0(1);
+            }
+            if (msg->mData->m04 == 0x147) {
+                msg->m90 = 0;
+            }
+        }
+    } else if (msg->m44 == 3) {
+        fn_8003EA3C(&msg->m64, msg->mData, msg->mAttacker, msg->m04, flags, &lbl_807C6B90, 0, 0);
+        if (msg->mFlag30) {
+            flags &= ~8;
+            flags |= 0x200000;
+        }
+        if (msg->mFlag29) {
+            flags &= ~0x2000000;
+        }
+        if (msg->mFlag28) {
+            flags &= ~0x8000;
+        }
+        msg->m88 = -1;
+        msg->m84 = 0;
+        msg->m8C = msg->mAttacker != 0;
+        if (msg->m68 == 0 && msg->m6C == 0 && msg->m70 == 0 && !msg->mFlag31) {
+            msg->m90 = 0;
+        } else {
+            msg->m90 = 1;
+        }
+    }
+    msg->m94 = flags;
+    if (msg->m68 > 0) {
+        mC4C = 0;
+    }
+    if (mFlag28 && !CanReact_unk()) {
+        fn_80164DCC(1);
+    }
+}
+
 void CharaTask::vf40(HitInfo_unk* hit) {}
 
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* ab);
-extern "C" int fn_8010CD3C(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
 
 // NONMATCHING: 98.4% - CharaStatus::fn_801346C8 is called with a second argument 0 (li r5,0) in
 // every caller of the game, but it is declared with one (its symbol is fixed as Fi).
@@ -8200,29 +9157,6 @@ struct CharaShade_unk {
     float m0C; // inferred: timer counted down by fn_80164D24
     int m10;   // inferred: overwritten with Field_unk::m5744
 };
-
-// inferred: 0x1C-byte record at 0x1470 in the player characters (names invented)
-struct PlayerState_unk {
-    PlayerState_unk(short id, int value)
-        : m00(id), m02(0), m04(0), m0C(0.0f, 0.0f, 0.0f), m18(0) {
-        m08 = value;
-    }
-    short m00;
-    short m02;
-    int m04;
-    int m08;
-    atn::Vector3 m0C;
-    int m18;
-};
-
-// inferred: player character as seen from here (PlayerTask: BattleCharaTask: CharaTask)
-struct Player_unk : public CharaTask {
-    unsigned char m1424[0x1470 - 0x1424];
-    PlayerState_unk m1470;
-    unsigned char m148C[0x14AC - 0x148C];
-    Player_unk* mNext; // 0x14AC: inferred: next player in the manager list
-};
-
 
 extern "C" void fn_80105F4C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 extern "C" void fn_8010337C(Effect_unk* effect, int arg, CharaTask* chara);

@@ -80,6 +80,9 @@ struct Model_unk {
     void fn_80094958(const char* name, const void* a, const void* b, const void* c); // inferred: material edit
     void fn_80093D98(const char* name, int arg); // inferred: material hide
     void fn_80093F58(const void* edit); // inferred: node edit
+    // inferred: node edit of `name` (offsets a, b and scale c); flags as fn_80089D70
+    void fn_80093F1C(const char* name, const atn::Vector3& a, const atn::Vector3& b, const atn::Vector3& c, int flags);
+    void fn_80094778(const char* name); // inferred: removes the node edit of `name`
     void fn_800973C0(void* csv); // inferred: scale
     void fn_80095D44(int node, int parent);
     void fn_80091CFC(const char* node);

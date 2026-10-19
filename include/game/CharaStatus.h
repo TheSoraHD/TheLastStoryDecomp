@@ -303,6 +303,8 @@ public:
 
     // inferred: accessor (name invented); keeps the flag word reloaded in fn_8012E540
     bool IsState_unk(unsigned int flag) const { return (m0C & flag) == flag; }
+    // inferred: bit 11 of m0C (weak copy 0x80151188); name unknown
+    int fn_80151188() const { return (m0C >> 11) & 1; }
 
     float m04; // inferred: current value capped by mParamB.m84 (hit points?)
     float m08; // inferred: current value capped by mParamB.m88
@@ -359,6 +361,15 @@ struct FixedArray_unk {
         mCount = mCount - 1;
     }
     bool full() const { return mCount >= N; }
+    // inferred: inserts before `it` (CharaTask::fn_8014F2B4)
+    void insert(T* it, const T& x) {
+        unsigned int pos = it - mData;
+        for (unsigned int i = mCount; i > pos; i--) {
+            mData[i] = mData[i - 1];
+        }
+        mData[pos] = x;
+        mCount++;
+    }
     // inferred: without the capacity check (CharaTask::fn_801371AC); name invented
     void PushBack_unk(const T& x) {
         new (end()) T(x);

@@ -31,6 +31,7 @@ struct HitInfo_unk {
     int mAC; // inferred: flags
     unsigned char mB0[0xC0 - 0xB0];
     int mC0; // inferred: chant time (CharaTask::fn_8015F568)
+    int mC4; // inferred: copied to the hit message (CharaTask::fn_80151448)
 };
 
 #endif

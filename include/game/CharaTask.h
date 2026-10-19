@@ -110,11 +110,11 @@ struct Chara1188Item_unk {
 // 0x8003EFB0); names invented
 struct CharaListener_unk {
     int mId; // inferred: -1 for every event
-    void (*mFunc)(int id, CharaTask* chara, int arg);
+    void (*mFunc)(int id, CharaTask* chara, void* arg);
 };
 struct CharaListeners_unk {
     CharaListeners_unk() : mEnabled(1) {}
-    void fn_8014F860(int id, CharaTask* chara, int arg); // inferred: notifies the listeners of `id`
+    void fn_8014F860(int id, CharaTask* chara, void* arg); // inferred: notifies the listeners of `id` (arg: event data)
 
     std::vector<CharaListener_unk> mList;
     int mEnabled;
@@ -238,8 +238,49 @@ struct CharaRes_unk {
     int m8C;
 };
 
+// inferred: hit message received by CharaTask::vf3C (declared there as HitInfo_unk, which is the
+// bullet data at m08); names invented
+struct HitMsg_unk {
+    CharaTask* mAttacker;
+    CharaTask* m04; // inferred: owner of the attack (type 2 starts a combo, fn_80151448)
+    HitInfo_unk* mData; // inferred: bullet/skill data
+    unsigned int m0C; // inferred: flags
+    atn::Vector3 m10; // inferred: knockback direction
+    atn::Vector3 m1C;
+    atn::Vector3 m28; // inferred: direction of the attack
+    int m34; // inferred: id recorded by fn_8015076C
+    int m38;
+    unsigned char m3C[0x44 - 0x3C];
+    int m44;
+    int m48;
+    unsigned char m4C[0x50 - 0x4C];
+    unsigned int m50; // inferred: flags
+    int m54; // inferred: passed to fn_8015E4B0
+    int m58; // inferred: passed to fn_8015E7A0
+    float m5C;
+    float m60;
+    int m64; // inferred: 1: the hit is applied by fn_8015076C
+    int m68;
+    int m6C;
+    int m70;
+    int m74; // inferred: combo count (CharaTask::mFE4)
+    unsigned char m78[0x80 - 0x78];
+    unsigned int mFlag31 : 1; // inferred: m28 is used as the knockback direction
+    unsigned int mFlag30 : 1;
+    unsigned int mFlag29 : 1;
+    unsigned int mFlag28 : 1;
+    unsigned int mFlag27_0 : 28;
+    int m84; // inferred: reaction (0, 1 knocked down, 2 guarded)
+    int m88;
+    int m8C;
+    int m90;
+    unsigned int m94; // inferred: flags
+};
+
 // inferred: 8-byte entry of CharaTask::m6D0 (id at 0); name invented
 struct CharaPair8_unk {
+    CharaPair8_unk() {}
+    CharaPair8_unk(int a, int b) : m00(a), m04(b) {} // inferred: weak copy 0x8015115C
     int m00;
     int m04;
 };
@@ -301,7 +342,7 @@ public:
     virtual void vf50();
     virtual void vf54();
     virtual void vf58();
-    virtual void vf5C();
+    virtual void vf5C(CharaTask* other); // inferred: other may be 0
     virtual void vf60();
     virtual atn::Vector3 vf64(int center); // inferred: position, or the center of the collision capsule
     virtual void vf68();
@@ -540,12 +581,18 @@ public:
     void fn_8014F2B4(int a, int b, int index);
     void fn_8014F4FC(int a, int b);
     void fn_8014F5D4(int index, int a, int b);
+    void fn_8014F698(int a, int b, int notify); // inferred: creates the parts m678 (and m67C)
+    void fn_8014F960(int notify); // inferred: deletes the parts m678 and m67C
     bool fn_8014FAD0();
     bool fn_8014FCC4();
     bool fn_8014FCE8();
     bool fn_8014FD0C();
     void fn_8014FD30();
     void fn_80150178(int slot, chr::CharaEquip_unk* equip);
+    void fn_80150460(CharaTask* other, int combo); // inferred
+    void fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3& v2, int arg, unsigned int flags,
+                     struct HitMsg_unk* msg); // inferred: also called by game/Bullet.cpp
+    void fn_80151448(struct HitMsg_unk* msg); // inferred: applies a hit (called by vf3C)
     void fn_8017ABD4(int arg);
     int fn_8017AC08();
     float fn_8017AC24();
@@ -665,12 +712,45 @@ public:
         }
     }
     // inferred: names invented
+    // inferred: names invented (fn_80151448)
+    inline int ControlVf30_unk();
+    bool IsStill_unk() { return atn::Abs_unk(mStatus.mParamB.m1C) < 1.1920929e-7f; }
+    bool HasC48_unk() {
+        bool result = false;
+        if (mFlag31 && mC48 != 0) {
+            result = true;
+        }
+        return result;
+    }
+    bool CanReact_unk() {
+        if (!CanAct_unk()) {
+            return false;
+        }
+        if (mStatus.IsState_unk(0x40) && mF94 == 0) {
+            return false;
+        }
+        if (m55C == 6 && m560 >= 17 && m560 <= 19) {
+            return false;
+        }
+        return true;
+    }
     bool IsDown_unk() {
         bool result = true;
         if (!mStatus.IsState_unk(0x80000) && !mStatus.IsState_unk(0x1000000)) {
             result = false;
         }
         return result;
+    }
+    // inferred: bullet of the first hit with flag 0x04000000 (name invented)
+    HitInfo_unk* GetFlaggedHitBullet_unk() {
+        CharaHit_unk* hits = m12D0.mData;
+        for (unsigned int i = 0; i < m12D0.mCount; i++) {
+            HitInfo_unk* hit = hits[i].mHit;
+            if ((hit->mAC & 0x04000000) == 0x04000000 && hit->m04 > 0) {
+                return fn_80219E6C(hit->m04);
+            }
+        }
+        return 0;
     }
     void* HasHitBullet_unk(int id) {
         CharaHit_unk* hits = m12D0.mData;
@@ -816,7 +896,7 @@ public:
     atn::Vector3 mFC8;
     float mFD4;
     int mFD8;
-    int mFDC;
+    CharaTask* mFDC; // inferred: last character passed to vf5C (attacker?)
     int mFE0;
     int mFE4;
     CharaTask* mFE8[16]; // inferred: linked characters (cleared with memset; fn_8015495C)
@@ -868,7 +948,7 @@ public:
     unsigned int mFlag1 : 1; // inferred: cleared by fn_80145334 when mFlag2 is set
     unsigned int mFlag0 : 1;
     // 0x12A8: second flag word
-    unsigned int mFlagB31 : 1; // inferred: set by fn_8014C540 when a hit has flag 2 (setting m294 clear)
+    unsigned int mFlagB31 : 1; // inferred: set by fn_8014C540 when a hit has flag 2 (setting m294 clear); vf5C then always counts the hit as a combo
     unsigned int mFlagB30 : 1; // inferred: same, setting m294 set
     unsigned int mFlagB29 : 1; // inferred: set when the damage sphere is created (vf50)
     unsigned int mFlagB28 : 1;
@@ -878,7 +958,7 @@ public:
     unsigned int mFlagB24 : 1; // inferred: set by fn_80145334 when the magic effect is shown
     unsigned int mFlagB23 : 1;
     unsigned int mFlagB22 : 1;
-    unsigned int mFlagB21 : 1;
+    unsigned int mFlagB21 : 1; // inferred: set when the shield parts m678/m67C are created (fn_8014F698)
     unsigned int mFlagB20 : 1;
     unsigned int mFlagB19 : 1;
     unsigned int mFlagB18 : 1;

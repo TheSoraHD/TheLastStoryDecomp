@@ -54,7 +54,7 @@ struct GmkTarget_unk {
     virtual void vf24();
     virtual void vf28();
     virtual void vf2C();
-    virtual int vf30();
+    virtual int vf30(); // inferred: returns nonzero (tested by CharaTask::vf5C)
     virtual void vf34();
     virtual void vf38();
     virtual void vf3C();
@@ -63,7 +63,7 @@ struct GmkTarget_unk {
     virtual void vf48();
     virtual void vf4C();
     virtual void vf50();
-    virtual void vf54();
+    virtual int vf54();
     virtual void vf58();
     virtual void vf5C();
     virtual void vf60();
