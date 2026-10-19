@@ -323,6 +323,10 @@ typedef struct DWCGameMatchKeyData {
     void* value;    // 0x08
 } DWCGameMatchKeyData;
 
+// inferred: release-build assertion (expands to an empty statement); the statements still count
+// for the automatic inlining limit (fn_806CCDB0 is called out of line by fn_806C10C0)
+#define DWC_ASSERT(exp) ((void)0)
+
 #define DWC_QR2_GAME_KEY_START 100
 #define DWC_QR2_GAME_KEY_NUM 154
 
@@ -592,6 +596,15 @@ void fn_806CD4E0(void);
 // inferred: defined at the end of the file (its strings follow all the others in .data), so it is
 // declared here and cannot be static
 extern char* stStateNames[DWC_MATCH_STATE_NUM];
+
+// inferred: restart level used when the matching is restarted
+static inline int DWCi_GetRestartLevel(void) {
+    int level = 2;
+    if ((stpMatchCnt->qr2MatchSubType == 0 || stpMatchCnt->qr2MatchSubType == 1) && !stpMatchCnt->unkD) {
+        level = 1;
+    }
+    return level;
+}
 
 // ---- functions ----
 // @806B3100
@@ -946,12 +959,18 @@ void fn_806B42B0(int unk8E0, u8 numEntry, const char* addFilter, DWCMatchedCallb
     }
 }
 
+static inline u32 DWCi_GetGroupIDBase(void) {
+    return fn_806ABB70(10000000) + 100000000;
+}
+
 // @806B4940
-// NONMATCHING: 97.28% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.82% - inlined DWCi_SetMatchStatus registers; group id temporary in r3 instead of r26;
+// tried: local cnt, operand orders, (u32) casts, inline DWCi_GetGroupIDBase with/without local
 void fn_806B4940(int unk8E0, u8 numEntry, DWCMatchedCallback callback, void* param,
                  void* unk8A8, void* unk8AC, DWCResvCallback resvCallback, const u8* unk8EC,
                  void* resvParam) {
     u32 groupID;
+    DWCMatchControl* cnt;
     fn_806BBBA0(2, numEntry, callback, param);
     stpMatchCnt->unk8A8 = unk8A8;
     stpMatchCnt->unk8AC = unk8AC;
@@ -975,7 +994,8 @@ void fn_806B4940(int unk8E0, u8 numEntry, DWCMatchedCallback callback, void* par
     if (stpMatchCnt->qr2Obj == NULL && fn_806B40C0(stpMatchCnt->profileID)) {
         return;
     }
-    groupID = stpMatchCnt->profileID + (fn_806ABB70(10000000) + 100000000);
+    cnt = stpMatchCnt;
+    groupID = cnt->profileID + DWCi_GetGroupIDBase();
     DWC_Printf(DWC_REPORTFLAG_INFO, "Create New Group ID:%u\n", groupID);
     stpMatchCnt->groupID = groupID;
     DWCi_SBStartup();
@@ -1059,7 +1079,9 @@ void fn_806B4D20(int unk8E0, int profileID, DWCMatchedCallback callback, void* p
 }
 
 // @806B5860
-// NONMATCHING: 93.77% - large state machine; register allocation, scheduling and the inlined status-string stack layout differ
+// NONMATCHING: 98.71% - large state machine; mostly register allocation (cnt reloads into r31 in the
+// target, inlined DWCi_SetMatchStatus); tried: separate ++ statements (kept where they help), an
+// elapsed-time inline helper for the CL_WAIT_RESV timeout
 void fn_806B5860(BOOL process) {
     DWCMatchControl* cnt;
     int level;
@@ -1090,7 +1112,8 @@ void fn_806B5860(BOOL process) {
                     DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "GroupID Timeout: wait server response %d/%d.\n",
                                stpMatchCnt->unk753, stpMatchCnt->unk8E6);
                 }
-                if (++stpMatchCnt->unk753 > stpMatchCnt->unk8E6) {
+                stpMatchCnt->unk753++;
+                if (stpMatchCnt->unk753 > stpMatchCnt->unk8E6) {
                     fn_806B9500((DWCError)25, -80432);
                     return;
                 }
@@ -1107,7 +1130,8 @@ void fn_806B5860(BOOL process) {
                     DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Timeout: wait server response %d/%d.\n",
                                stpMatchCnt->unk753, stpMatchCnt->unk8E6);
                 }
-                if (++stpMatchCnt->unk753 > stpMatchCnt->unk8E6) {
+                stpMatchCnt->unk753++;
+                if (stpMatchCnt->unk753 > stpMatchCnt->unk8E6) {
                     fn_806B9500((DWCError)25, -80430);
                     return;
                 }
@@ -1190,7 +1214,8 @@ void fn_806B5860(BOOL process) {
                 fn_806CCB70(DWC_MATCH_STATE_CL_WAITING);
                 break;
             }
-            if (++stpMatchCnt->resend.unk1 > 5) {
+            stpMatchCnt->resend.unk1++;
+            if (stpMatchCnt->resend.unk1 > 5) {
                 stpMatchCnt->resend.command = 0xFF;
                 stpMatchCnt->resend.unk1 = 0;
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Stop resending command %d.\n", 6);
@@ -1235,7 +1260,8 @@ void fn_806B5860(BOOL process) {
             break;
         }
         if (OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - cnt->resend.time) > 30000) {
-            if (++stpMatchCnt->resend.unk1 > 0) {
+            stpMatchCnt->resend.unk1++;
+            if (stpMatchCnt->resend.unk1 > 0) {
                 stpMatchCnt->resend.command = 0xFF;
                 stpMatchCnt->resend.unk1 = 0;
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Wait clients connecting timeout.\n");
@@ -2133,9 +2159,10 @@ void fn_806BBCA0(void) {
 }
 
 // @806BC010
-// NONMATCHING: 93.69% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 93.71% - the target reloads stpMatchCnt after the key loop and compares the random value
+// signed; tried: keyList size/order (fixed the frame), an inline key helper, (int) casts, ternaries
 int DWCi_SBUpdateAsync(int profileID) {
-    u8 keyList[DWC_QR2_GAME_KEY_NUM + 9];
+    u8 keyList[200]; // inferred: size from the stack frame
     char hostState[512];
     char filter[512];
     int numKeys;
@@ -2277,10 +2304,10 @@ inline static int DWCi_DoNatNegotiation(DWCNNData* nnData) {
     return result;
 }
 
-// NONMATCHING: 94.60% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 94.82% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 int fn_806BC4C0(int isChild, int cookie, DWCNodeInfo* node) {
-    int result = 0;
     BOOL doNN;
+    int result = 0;
     NNCancel(stpMatchCnt->nnData.cookie);
     if (!isChild) {
         cookie = (u16)stpMatchCnt->profileID | (stpMatchCnt->unk722 << 16);
@@ -3146,8 +3173,24 @@ int fn_806BFBA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve,
     return result;
 }
 
+// inferred: TRUE when profileID is one of the friends of the friend index list
+static inline BOOL DWCi_IsInFriendIdxList(int profileID) {
+    int i;
+    if (stpMatchCnt->friendList == NULL) {
+        return FALSE;
+    }
+    for (i = 0; i < stpMatchCnt->friendIdxListLen; i++) {
+        int pid = DWCi_GetProfileIDFromList(stpMatchCnt->friendIdxList[i]);
+        if (pid > 0 && pid == profileID) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 // @806BFEA0
-// NONMATCHING: 88.06% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.32% - our build loads stpMatchCnt into r24 before the call to fn_806B0DE0, the
+// target loads it after into r5; tried: operand order of the comparison, casts
 int fn_806BFEA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve, u32 topology,
                void* userData, BOOL illegal) {
     u8 result;
@@ -3171,24 +3214,11 @@ int fn_806BFEA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve,
             return 3;
         }
         if (stpMatchCnt->qr2MatchSubType == 1) {
-            BOOL found;
             if (!gpIsBuddy(stpMatchCnt->pGpObj, profileID) || DWCi_GetFriendListIndex(profileID) == -1) {
                 return 0xFF;
             }
-            if (stpMatchCnt->friendList == NULL) {
-                found = FALSE;
-            } else {
-                int i;
-                found = FALSE;
-                for (i = 0; i < stpMatchCnt->friendIdxListLen; i++) {
-                    int pid = DWCi_GetProfileIDFromList(stpMatchCnt->friendIdxList[i]);
-                    if (pid > 0 && pid == profileID) {
-                        found = TRUE;
-                        break;
-                    }
-                }
-            }
-            if (!found) {
+            if (!DWCi_IsInFriendIdxList(profileID)) {
+
                 stpMatchCnt->unk8E4 = 21;
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "This friend doesn't exist in friendIdxList.\n");
                 return 3;
@@ -3215,31 +3245,32 @@ int fn_806BFEA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve,
     } else if (fn_806CCF00(profileID) != NULL) {
         DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "*** pid(%u) has already been in list.\n", profileID);
         result = 0xFF;
-    } else if ((stpMatchCnt->state == DWC_MATCH_STATE_SV_WAITING ||
-                stpMatchCnt->state == DWC_MATCH_STATE_CL_SEARCH_HOST ||
-                stpMatchCnt->state == DWC_MATCH_STATE_CL_WAIT_RESV) &&
-               (stpMatchCnt->qr2IP != 0 || stpMatchCnt->qr2Port != 0) && (ip != 0 || port != 0)) {
-        if (stpMatchCnt->qr2MatchType != 2 && stpMatchCnt->unk7AC) {
-            if (profileID == stpMatchCnt->unk7AC) {
-                if (stpMatchCnt->profileID < profileID) {
-                    result = 2;
-                } else {
-                    result = 0xFF;
-                }
+    } else if ((stpMatchCnt->state != DWC_MATCH_STATE_SV_WAITING &&
+                stpMatchCnt->state != DWC_MATCH_STATE_CL_SEARCH_HOST &&
+                stpMatchCnt->state != DWC_MATCH_STATE_CL_WAIT_RESV) ||
+               (stpMatchCnt->qr2IP == 0 && stpMatchCnt->qr2Port == 0) || (ip == 0 && port == 0)) {
+        if (stpMatchCnt->state == DWC_MATCH_STATE_SV_OWN_NN && profileID == stpMatchCnt->unk700) {
+            result = 0xFF;
+        } else {
+            DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "please wait: qr2IP:%u qr2Port:%u qr2IPM:%u qr2PortM: %u\n",
+                       ip, port, stpMatchCnt->qr2IP, stpMatchCnt->qr2Port);
+            result = 4;
+        }
+    } else if (stpMatchCnt->qr2MatchType != 2 && stpMatchCnt->unk7AC) {
+        if (profileID == stpMatchCnt->unk7AC) {
+            if (stpMatchCnt->profileID < profileID) {
+                result = 2;
             } else {
-                stpMatchCnt->unk8E4 = 23;
-                result = 3;
+                result = 0xFF;
             }
         } else {
-            result = 2;
+            stpMatchCnt->unk8E4 = 23;
+            result = 3;
         }
-    } else if (stpMatchCnt->state == DWC_MATCH_STATE_SV_OWN_NN && profileID == stpMatchCnt->unk700) {
-        result = 0xFF;
     } else {
-        DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "please wait: qr2IP:%u qr2Port:%u qr2IPM:%u qr2PortM: %u\n", ip,
-                   port, stpMatchCnt->qr2IP, stpMatchCnt->qr2Port);
-        result = 4;
+        result = 2;
     }
+
     if (result == 2) {
         if (stpMatchCnt->resvCallback != NULL &&
             !stpMatchCnt->resvCallback(userData, stpMatchCnt->resvParam)) {
@@ -3279,9 +3310,11 @@ static u8 DWCi_GetNewAID(void) {
 }
 
 // @806C03B0
-// NONMATCHING: 98.34% - register allocation / small scheduling differences
+// NONMATCHING: 98.43% - inlined DWCi_GetNewAID: compare operands swapped and an extra clrlwi; tried:
+// comparison order, break/return forms, data size (frame fixed with data[16])
 int fn_806C03B0(int profileID, u32 ip, u16 port) {
-    u32 data[2];
+    u32 data[16]; // inferred: size from the stack frame
+
     DWCNodeInfo* myNode;
     int i;
     if (stpMatchCnt->unk18 && profileID == stpMatchCnt->unk700) {
@@ -3312,12 +3345,14 @@ int fn_806C03B0(int profileID, u32 ip, u16 port) {
 }
 
 // @806C05F0
-// NONMATCHING: 87.34% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 96.37% - the target keeps the address of data in r31 from before the stores
+// (one more saved register; all others shift by one); tried: pointer local, data size 11/15/16
 int fn_806C05F0(int profileID, BOOL delay) {
-    u32 data[11];
+    u32 data[16]; // inferred: size from the stack frame
     u32 ip = 0;
     u16 port = 0;
     DWCNodeInfo* myNode;
+    DWCMatchControl* cnt;
     if (delay || (stpMatchCnt->qr2IP == 0 && stpMatchCnt->qr2Port == 0)) {
         stpMatchCnt->unk760 = 1;
         stpMatchCnt->unk768 = DWCi_Np_GetTick();
@@ -3349,16 +3384,18 @@ int fn_806C05F0(int profileID, BOOL delay) {
     stpMatchCnt->unk778 = DWCi_Np_GetTick();
     stpMatchCnt->unk760 = 0;
     myNode = fn_806CCF00(stpMatchCnt->profileID);
-    data[0] = DWCi_SwapU32(stpMatchCnt->qr2MatchSubType);
+    cnt = stpMatchCnt;
+    data[0] = DWCi_SwapU32(cnt->qr2MatchSubType);
     data[1] = myNode->ip;
     data[2] = DWCi_SwapU32(myNode->port);
     data[3] = myNode->localIP;
     data[4] = DWCi_SwapU32(myNode->localPort);
     data[5] = DWCi_SwapU32(myNode->unk17);
-    data[6] = DWCi_SwapU32(stpMatchCnt->unk8C8);
-    data[7] = DWCi_SwapU32(stpMatchCnt->unk8E0);
-    data[8] = *(u32*)stpMatchCnt->unk8EC;
-    stpMatchCnt->resvCheckValue = fn_806ABB70(0xFFFFFFFE) + 1;
+    data[6] = DWCi_SwapU32(cnt->unk8C8);
+    data[7] = DWCi_SwapU32(cnt->unk8E0);
+    data[8] = *(u32*)cnt->unk8EC;
+    cnt->resvCheckValue = fn_806ABB70(0xFFFFFFFE) + 1;
+
     data[9] = DWCi_SwapU32(stpMatchCnt->resvCheckValue);
     data[10] = DWCi_SwapU32(stpMatchCnt->unk6C0 != 0);
     return fn_806BC860(1, profileID, ip, port, data, 11);
@@ -3372,13 +3409,15 @@ static void DWCi_InitTempNewNodeInfo(int profileID) {
 }
 
 // @806C0980
-// NONMATCHING: 93.60% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.96% - the target frame is 16 bytes larger (0x250 against 0x240); the code
+// is otherwise identical; tried: declaration orders, index/status at function scope
 int fn_806C0980(BOOL delay, BOOL keepIndex, int prevProfileID) {
-    BOOL found = FALSE;
-    int i;
     int profileID;
+    int i;
+    BOOL found = FALSE;
     if (!keepIndex) {
-        stpMatchCnt->friendIdxListIdx = (stpMatchCnt->friendIdxListIdx + 1) % stpMatchCnt->friendIdxListLen;
+        stpMatchCnt->friendIdxListIdx++;
+        stpMatchCnt->friendIdxListIdx = stpMatchCnt->friendIdxListIdx % stpMatchCnt->friendIdxListLen;
     }
     stpMatchCnt->qr2MatchType = 3;
     for (i = 0; i < stpMatchCnt->friendIdxListLen;
@@ -3470,7 +3509,7 @@ static BOOL DWCi_SendCancelMatchSynCommand(int profileID, u8 type) {
 }
 
 // @806C10C0
-// NONMATCHING: 76.05% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.84% - only the inlined DWCi_SetMatchStatus registers differ (oldState/anon base)
 BOOL fn_806C10C0(int profileID, int level) {
     int i;
     if (stpMatchCnt->tempNewNodeInfo.profileID) {
@@ -3482,7 +3521,7 @@ BOOL fn_806C10C0(int profileID, int level) {
         stpMatchCnt->nnData.cookie = 0;
     }
     stpMatchCnt->unk7AC = 0;
-    if (stpMatchCnt->qr2IsReserved == 2) {
+    if ((int)stpMatchCnt->qr2IsReserved == 2) {
         GT2Connection* connection;
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "DWCi_CancelPreConnectedServerProcess : server\n");
         stpMatchCnt->unk18 = 0;
@@ -3496,8 +3535,11 @@ BOOL fn_806C10C0(int profileID, int level) {
             stpMatchCnt->closing = TRUE;
             gt2CloseConnectionHard(*connection);
             stpMatchCnt->closing = FALSE;
+            fn_806CCDB0(profileID);
+        } else {
+            fn_806CCDB0(profileID);
         }
-        fn_806CCDB0(profileID);
+
         for (i = 1; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
             if (!DWCi_SendCancelMatchSynCommand(fn_806CCED0(i)->profileID, 0)) {
                 return FALSE;
@@ -3759,30 +3801,33 @@ BOOL fn_806C2F70(void) {
 }
 
 // @806C3270
-// NONMATCHING: 84.86% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 88.84% - the target folds the high half of DWCi_SwapU32(index) and keeps the
+// data pointer in r7 early (byte-swap register choice differs); unk748 is kept in r26 there.
+// tried: declaration orders, index as int/u32, casts on the swap argument, data[0]/data[1] order
 BOOL fn_806C3270(void) {
     DWCMatchControl* cnt = stpMatchCnt;
+    u32 data[16]; // inferred: size from the stack frame
     DWCNodeInfo newNode = cnt->tempNewNodeInfo;
-    u32 data[9];
     DWCNodeInfo* node;
     u8 index;
-    if (cnt->unk748 >= cnt->nodeInfoList.nodeNum - 1) {
+    if (cnt->unk748 < cnt->nodeInfoList.nodeNum - 1) {
+        index = (u8)(cnt->nodeInfoList.nodeNum - 1 - cnt->unk748);
+        DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Send client-client link request(%d).\n", index);
+        fn_806CCB70(DWC_MATCH_STATE_SV_WAIT_CL_LINK);
+        node = fn_806CCED0(index);
+        data[1] = DWCi_SwapU32(index);
+        data[0] = DWCi_SwapU32(node->profileID);
+        data[2] = DWCi_SwapU32(node->aid);
+        data[3] = node->ip;
+        data[4] = DWCi_SwapU32(node->port);
+        data[5] = node->localIP;
+        data[6] = DWCi_SwapU32(node->localPort);
+        data[7] = DWCi_SwapU32(node->unk17);
+        data[8] = node->unk28;
+    } else {
         cnt->unk748 = 0;
         return fn_806C2F70();
     }
-    index = (u8)(cnt->nodeInfoList.nodeNum - 1 - cnt->unk748);
-    DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Send client-client link request(%d).\n", index);
-    fn_806CCB70(DWC_MATCH_STATE_SV_WAIT_CL_LINK);
-    node = fn_806CCED0(index);
-    data[0] = DWCi_SwapU32(node->profileID);
-    data[1] = DWCi_SwapU32(index);
-    data[2] = DWCi_SwapU32(node->aid);
-    data[3] = node->ip;
-    data[4] = DWCi_SwapU32(node->port);
-    data[5] = node->localIP;
-    data[6] = DWCi_SwapU32(node->localPort);
-    data[7] = DWCi_SwapU32(node->unk17);
-    data[8] = node->unk28;
     if (stpMatchCnt->state != DWC_MATCH_STATE_SV_SYN) {
         if (DWCi_HandleMatchCommandError(
                 fn_806BC860(8, newNode.profileID, newNode.ip, newNode.port, data, 9))) {
@@ -4001,11 +4046,12 @@ BOOL fn_806C4430(u32 bitmap) {
 }
 
 // @806C4740
-// NONMATCHING: 94.16% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 97.25% - stpMatchCnt reuse across the case-4 branches differs; tried: declaration
+// orders, local cnt instead of node, shift forms
 void fn_806C4740(u8 aid, u16 type) {
     u8 buf[8];
-    u8* data = buf;
     int size = 4;
+    u8* data = buf;
     DWC_Printf(DWC_REPORTFLAG_MATCH_GT2, "Sent SYN %d packet to aid %d.\n", type - 2, aid);
     switch (type) {
     case 2:
@@ -4013,6 +4059,7 @@ void fn_806C4740(u8 aid, u16 type) {
             *(u32*)buf = DWCi_SwapU32(1);
         } else {
             u32* p;
+            DWCNodeInfo* node;
             size = 0x1C;
             data = DWC_Alloc(DWC_ALLOCTYPE_BASE, 0x1C);
             if (data == NULL) {
@@ -4020,19 +4067,18 @@ void fn_806C4740(u8 aid, u16 type) {
             }
             p = (u32*)data;
             p[0] = 0;
-            p[1] = DWCi_SwapU32((stpMatchCnt->tempNewNodeInfo.unk17 << 16) |
-                                stpMatchCnt->tempNewNodeInfo.aid);
-            p[2] = DWCi_SwapU32(stpMatchCnt->tempNewNodeInfo.profileID);
-            p[3] = stpMatchCnt->tempNewNodeInfo.ip;
-            p[4] = stpMatchCnt->tempNewNodeInfo.localIP;
-            p[5] = DWCi_SwapU32((stpMatchCnt->tempNewNodeInfo.port << 16) |
-                                stpMatchCnt->tempNewNodeInfo.localPort);
-            p[6] = stpMatchCnt->tempNewNodeInfo.unk28;
+            node = &stpMatchCnt->tempNewNodeInfo;
+            p[1] = DWCi_SwapU32((node->unk17 << 16) | node->aid);
+            p[2] = DWCi_SwapU32(node->profileID);
+            p[3] = node->ip;
+            p[4] = node->localIP;
+            p[5] = DWCi_SwapU32((node->port << 16) | node->localPort);
+            p[6] = node->unk28;
         }
         break;
     case 3:
         buf[0] = (u8)stpMatchCnt->unk758;
-        buf[1] = (u8)(stpMatchCnt->unk758 >> 8);
+        buf[1] = (u8)((stpMatchCnt->unk758 >> 8) & 0xFF);
         break;
     case 4:
         if (stpMatchCnt->tempNewNodeInfo.profileID && aid == stpMatchCnt->tempNewNodeInfo.aid) {
@@ -4107,16 +4153,19 @@ static void DWCi_SendTypeMatchAck(void) {
 }
 
 // @806C4B30
-// NONMATCHING: 95.04% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 98.31% - register allocation of the SYN-ACK loop and the inlined DWCi_SetMatchStatus;
+// tried: if/else form of the state check (kept), split ++, inline DWCi_GetRestartLevel (kept)
 BOOL fn_806C4B30(void) {
     DWCMatchControl* cnt = stpMatchCnt;
     u64 msec;
     int i;
-    if (cnt->state != DWC_MATCH_STATE_CL_SYN && cnt->state != DWC_MATCH_STATE_SV_SYN &&
-        cnt->state != DWC_MATCH_STATE_SV_SYN_CLOSE_WAIT && cnt->state != DWC_MATCH_STATE_SV_SYN_WAIT) {
+    if (cnt->state == DWC_MATCH_STATE_CL_SYN || cnt->state == DWC_MATCH_STATE_SV_SYN ||
+        cnt->state == DWC_MATCH_STATE_SV_SYN_CLOSE_WAIT || cnt->state == DWC_MATCH_STATE_SV_SYN_WAIT) {
+        msec = OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - cnt->unk788);
+    } else {
         return TRUE;
     }
-    msec = OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - cnt->unk788);
+
     switch (stpMatchCnt->state) {
     case DWC_MATCH_STATE_CL_SYN:
         if (msec > stpMatchCnt->unk7A0) {
@@ -4129,7 +4178,8 @@ BOOL fn_806C4B30(void) {
         break;
     case DWC_MATCH_STATE_SV_SYN:
         if (msec > 6000) {
-            if (++stpMatchCnt->unk754 > 5) {
+            stpMatchCnt->unk754++;
+            if (stpMatchCnt->unk754 > 5) {
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN,
                            "Timeout: wait SYN-ACK (aidbitmap 0x%x). Restart matching.\n",
                            stpMatchCnt->unk780);
@@ -4141,14 +4191,8 @@ BOOL fn_806C4B30(void) {
                         stpMatchCnt->unk788 = DWCi_Np_GetTick();
                         fn_806CCB70(DWC_MATCH_STATE_SV_SYN_CLOSE_WAIT);
                     } else {
-                        int level;
                         DWC_Printf(DWC_REPORTFLAG_DEBUG, "DWCi_ServerSynTimeoutExec: Restart match.\n");
-                        level = 2;
-                        if ((stpMatchCnt->qr2MatchSubType == 0 || stpMatchCnt->qr2MatchSubType == 1) &&
-                            !stpMatchCnt->unkD) {
-                            level = 1;
-                        }
-                        fn_806C10C0(stpMatchCnt->friendIdx, level);
+                        fn_806C10C0(stpMatchCnt->friendIdx, DWCi_GetRestartLevel());
                     }
                 }
             } else {
@@ -4251,16 +4295,18 @@ BOOL fn_806C50A0(int profileID, u8 command, int friendIdx) {
 }
 
 // @806C57F0
-// NONMATCHING: 93.05% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.69% - the inlined DWCi_SendCancelMatchSynCommand profileID gets r27 instead of r26;
+// tried: declaration orders
 BOOL fn_806C57F0(void) {
     DWCMatchControl* cnt = stpMatchCnt;
-    s64 msec;
+    u64 msec;
     int i;
-    if (cnt->state != DWC_MATCH_STATE_CL_CANCEL_SYN &&
-        (u32)(cnt->state - DWC_MATCH_STATE_SV_CANCEL_SYN) > 1) {
+    if (cnt->state == DWC_MATCH_STATE_CL_CANCEL_SYN || cnt->state == DWC_MATCH_STATE_SV_CANCEL_SYN ||
+        cnt->state == DWC_MATCH_STATE_SV_CANCEL_SYN_WAIT) {
+        msec = OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - cnt->unk790);
+    } else {
         return TRUE;
     }
-    msec = OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - cnt->unk790);
     switch (stpMatchCnt->state) {
     case DWC_MATCH_STATE_CL_CANCEL_SYN:
         if (msec > 6000) {
@@ -4271,7 +4317,8 @@ BOOL fn_806C57F0(void) {
         break;
     case DWC_MATCH_STATE_SV_CANCEL_SYN:
         if (msec > 6000) {
-            if (++stpMatchCnt->unk755 > 5) {
+            stpMatchCnt->unk755++;
+            if (stpMatchCnt->unk755 > 5) {
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Timeout: wait cancel SYN-ACK (aidbitmap 0x%x).\n",
                            stpMatchCnt->unk784);
                 if (!fn_806C4430(stpMatchCnt->unk784)) {
@@ -4736,13 +4783,12 @@ BOOL fn_806C89D0(BOOL sort) {
 }
 
 // @806C8BE0
-// NONMATCHING: 99.07% - register allocation / small scheduling differences
 void fn_806C8BE0(void) {
     int ratio[6];
-    int maxEval = 0;
-    int total = 0;
     int i;
     u32 r;
+    int maxEval = 0;
+    int total = 0;
     if (ServerBrowserCount(stpMatchCnt->sbObj) <= 1) {
         return;
     }
@@ -5233,6 +5279,7 @@ static int DWCi_HandleMatchCommandError(int result) {
 BOOL fn_806CB3A0(void) {
     int i;
     int num = stpMatchCnt->nodeInfoList.nodeNum;
+    DWC_ASSERT(stpMatchCnt != NULL);
     for (i = 1; i < num; i++) {
         DWCNodeInfo* node = fn_806CCED0(i);
         u32 data[1];
@@ -5495,22 +5542,29 @@ BOOL fn_806CC6D0(void) {
 }
 
 // @806CC850
-// NONMATCHING: 86.74% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// inferred: elapsed milliseconds since the last suspend request (unk20)
+static inline s64 DWCi_GetSuspendElapsed(void) {
+    DWCMatchControl* cnt = stpMatchCnt;
+    return OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - cnt->unk20);
+}
+
+// NONMATCHING: 93.27% - the reload of stpMatchCnt for unk900 is scheduled before __div2i in the
+// target, and the profileID for data[0] is reloaded there; tried: helper only in one of the two
+// checks, operand order, nested ifs, order of myNode/server/data[0..1]
 BOOL fn_806CC850(int suspend) {
     DWCNodeInfo* myNode;
     DWCNodeInfo* server;
     u32 data[4];
-    if (stpMatchCnt->qr2IsReserved == 2) {
+    if ((int)stpMatchCnt->qr2IsReserved == 2) {
         return fn_806CBB20(fn_806CCF00(stpMatchCnt->profileID)->aid, suspend, 0);
     }
     if (stpMatchCnt->state != DWC_MATCH_STATE_CL_WAITING) {
         return TRUE;
     }
-    if (stpMatchCnt->unk30 &&
-        OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - stpMatchCnt->unk20) < stpMatchCnt->unk900) {
+    if (stpMatchCnt->unk30 && DWCi_GetSuspendElapsed() < stpMatchCnt->unk900) {
         return TRUE;
     }
-    if (OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - stpMatchCnt->unk20) > 3000) {
+    if (DWCi_GetSuspendElapsed() > 3000) {
         myNode = fn_806CCF00(stpMatchCnt->profileID);
         server = fn_806CCED0(0);
         data[0] = DWCi_SwapU32(stpMatchCnt->profileID);
@@ -5533,6 +5587,11 @@ BOOL fn_806CCB40(void) {
 }
 
 // @806CCB70
+// note: in the inlined copies only the relative order of oldState and prev matters (the other
+// locals do not); declaring prev first fixes about 9 of the 54 inlined copies but breaks this
+// function and others, so the order that matches this function is kept. Also tried: nested
+// scopes, oldState read inside the if, a print helper taking oldState, a helper for the
+// elapsed time, an extra diff/now/frac local in every order, a macro (worse).
 void fn_806CCB70(DWCMatchState state) {
     int oldState;
     s64 prev;
@@ -5567,48 +5626,46 @@ int fn_806CCCB0(void) {
 }
 
 // @806CCCC0
-// NONMATCHING: 95.92% - register allocation / small scheduling differences
 BOOL fn_806CCCC0(u8 aid) {
-    DWCMatchControl* cnt = stpMatchCnt;
     int i;
-    if (cnt->nodeInfoList.nodeNum == 0) {
+    if (stpMatchCnt->nodeInfoList.nodeNum == 0) {
         return FALSE;
     }
-    for (i = 0; i < cnt->nodeInfoList.nodeNum; i++) {
-        if (aid == cnt->nodeInfoList.nodeInfo[i].aid) {
+    for (i = 0; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
+        if (aid == stpMatchCnt->nodeInfoList.nodeInfo[i].aid) {
             break;
         }
     }
-    if (i == cnt->nodeInfoList.nodeNum) {
+    if (i == stpMatchCnt->nodeInfoList.nodeNum) {
         return FALSE;
     }
-    for (; i < cnt->nodeInfoList.nodeNum - 1; i++) {
+    for (; i < stpMatchCnt->nodeInfoList.nodeNum - 1; i++) {
         stpMatchCnt->nodeInfoList.nodeInfo[i] = stpMatchCnt->nodeInfoList.nodeInfo[i + 1];
     }
-    cnt->nodeInfoList.nodeNum--;
+    stpMatchCnt->nodeInfoList.nodeNum--;
     return TRUE;
 }
 
 // @806CCDB0
-// NONMATCHING: 92.28% - register allocation / small scheduling differences
 BOOL fn_806CCDB0(int profileID) {
-    DWCNodeInfoList* list = &stpMatchCnt->nodeInfoList;
     int i;
-    if (list->nodeNum == 0) {
+    DWC_ASSERT(stpMatchCnt != NULL);
+    DWC_ASSERT(profileID != 0);
+    if (stpMatchCnt->nodeInfoList.nodeNum == 0) {
         return FALSE;
     }
-    for (i = 0; i < list->nodeNum; i++) {
-        if (profileID == list->nodeInfo[i].profileID) {
+    for (i = 0; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
+        if (profileID == stpMatchCnt->nodeInfoList.nodeInfo[i].profileID) {
             break;
         }
     }
-    if (i == list->nodeNum) {
+    if (i == stpMatchCnt->nodeInfoList.nodeNum) {
         return FALSE;
     }
-    for (; i < list->nodeNum - 1; i++) {
+    for (; i < stpMatchCnt->nodeInfoList.nodeNum - 1; i++) {
         stpMatchCnt->nodeInfoList.nodeInfo[i] = stpMatchCnt->nodeInfoList.nodeInfo[i + 1];
     }
-    list->nodeNum = list->nodeNum - 1;
+    stpMatchCnt->nodeInfoList.nodeNum--;
     return TRUE;
 }
 
@@ -5653,28 +5710,34 @@ DWCNodeInfo* fn_806CCF50(u8 aid) {
 }
 
 // @806CCFA0
-// NONMATCHING: 71.53% - the loop is rotated differently and the 64-bit tick products are
-// computed in another order (target multiplies count by the ticks per ms first)
+// inferred: the tick rate is widened to u64 (with OS_MSEC_TO_TICKS the zero high word of the
+// rate is not folded)
 s64 fn_806CCFA0(void) {
     DWCNodeInfo* myNode = fn_806CCF00(stpMatchCnt->profileID);
-    int count = 0;
-    int myIndex = 0;
+    s64 time;
+    int count;
+    int myIndex;
     int i;
-    s64 time = DWCi_Np_GetTick() + OS_MSEC_TO_TICKS((u64)3000);
-    for (i = 1; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
-
-        DWCNodeInfo* node = fn_806CCED0(i);
-        if (myNode == node) {
-            myIndex = i;
-        } else {
-            fn_806B14D0(node->aid);
-            if (fn_806B14D0(node->aid)) {
-                count++;
+    time = DWCi_Np_GetTick();
+    time += OS_MSEC_TO_TICKS((u64)3000);
+    count = 0;
+    myIndex = 0;
+    if (stpMatchCnt->nodeInfoList.nodeNum > 2) {
+        for (i = 1; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
+            DWCNodeInfo* node = fn_806CCED0(i);
+            if (myNode == node) {
+                myIndex = i;
+            } else {
+                fn_806B14D0(node->aid);
+                if (fn_806B14D0(node->aid)) {
+                    count++;
+                }
             }
         }
     }
-    time += OS_MSEC_TO_TICKS((s64)count) * 3000;
-    return time + OS_MSEC_TO_TICKS((s64)((stpMatchCnt->nodeInfoList.nodeNum - 1 - myIndex) * 6000));
+    time += (s64)count * (u64)(OS_TIME_SPEED / 1000) * 3000;
+    return time + (s64)((stpMatchCnt->nodeInfoList.nodeNum - 1 - myIndex) * 6000) *
+                      (u64)(OS_TIME_SPEED / 1000);
 }
 
 // @806CD150
@@ -5725,12 +5788,11 @@ BOOL fn_806CD3C0(void) {
 
 // @806CD3E0
 u8 fn_806CD3E0(const GPBuddyStatus* status) {
-    u8 locked = 0;
     char valueStr[4] = {0};
     if (fn_806ABA10("LCK", valueStr, status->statusString, '/') > 0) {
-        locked = (u8)strtoul(valueStr, NULL, 10);
+        return (u8)strtoul(valueStr, NULL, 10);
     }
-    return locked;
+    return 0;
 }
 
 // @806CD450
