@@ -91,13 +91,24 @@ struct Model_unk {
     void fn_80097510();
     atn::LoadHandle* fn_80097D40(int motion); // inferred: handle of the motion (12-byte entries of m228), zero if missing
 
-    unsigned char m58[0xAC - 0x58];
+    unsigned char m58[0x98 - 0x58];
+    float m98; // inferred: draw priority ("PRIORITY" of the map parts)
+    unsigned char m9C[0xAC - 0x9C];
     float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
     unsigned char mB4[0x104 - 0xB4];
-    unsigned char m104[0x1DC - 0x104]; // inferred: passed to fn_80089AD4 by CharaManager::vf14
+    unsigned char m104[0x16C - 0x104]; // inferred: passed to fn_80089AD4 by CharaManager::vf14
+    struct Res_unk;
+    Res_unk* m16C; // inferred: resource data (accessor fn_8000DD04; read directly by MapPartsModel::vf24)
+    unsigned char m170[0x1DC - 0x170];
     struct Lens_unk* m1DC; // inferred: own camera lens, else the global one (CharaTask::fn_8014C540)
-    unsigned char m1E0[0x208 - 0x1E0];
+    unsigned char m1E0[0x200 - 0x1E0];
+    // inferred: entry of the model in a map tree (set by MapPartsModel::vf24); names invented
+    struct TreeEntry_unk {
+        void* mTree;
+        void* mNode;
+    };
+    TreeEntry_unk m200;
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
     unsigned int m20C_31_16 : 16;
     unsigned int m20C_15_8 : 8; // inferred: saved copy of m50 (CharaTask::fn_80145334)
@@ -123,7 +134,10 @@ struct Model_unk {
         atn::Vector3 m40; // inferred: initial rotation (euler)
     };
     struct Res_unk {
-        unsigned char m00[0x48];
+        unsigned char m00[0x10];
+        atn::Vector3 mMin; // 0x10: inferred: bounding box (MapPartsModel::vf24)
+        atn::Vector3 mMax; // 0x1C
+        unsigned char m28[0x48 - 0x28];
         NodeRes_unk** m48;
     };
     Res_unk* fn_8000DD04(); // inferred: returns m16C

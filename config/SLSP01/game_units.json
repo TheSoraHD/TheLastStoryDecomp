@@ -2222,7 +2222,7 @@
   "classes": [
    "MapPartsModel"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsOcean.cpp",
