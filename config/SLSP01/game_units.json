@@ -1064,7 +1064,7 @@
   "classes": [
    "Em002Skelton"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em003LesserDaemon.cpp",
