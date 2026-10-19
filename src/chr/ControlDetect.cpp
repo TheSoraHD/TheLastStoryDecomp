@@ -39,8 +39,8 @@ ControlDetectHateAtt::ControlDetectHateAtt(Chara_unk* chara) : ControlBase(chara
     }
 }
 
-// NONMATCHING: 99.7% - the zero store of dir.y is scheduled first (original: z, x, y) and the stack
-// slots/registers of the movement temporaries differ (r3/r4 swapped)
+// NONMATCHING: 99.9% - copying the moved position back into mPos swaps r3/r4 (source temporary and
+// mChara)
 int ControlDetectHateAtt::vf0C() {
     float spd;
     float speed = 0.0f;
@@ -48,8 +48,8 @@ int ControlDetectHateAtt::vf0C() {
     atn::Vector3 rot = mChara->mRot;
     Motion_unk* motion = &mChara->mMotion;
     if (mChara->mC58.mC4 != 0) {
-        atn::Vector3 dir(mChara->mC58.mC4->mPos.x - mChara->mPos.x, 0.0f,
-                         mChara->mC58.mC4->mPos.z - mChara->mPos.z);
+        atn::Vector3 dir = mChara->mC58.mC4->mPos - mChara->mPos;
+        dir.y = 0.0f;
         if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
             dir.Normalize_unk();
         }
@@ -60,7 +60,8 @@ int ControlDetectHateAtt::vf0C() {
         atn::Vector3 newRot = mChara->mRot;
         newRot.y = dir.ToRotation_unk().y;
         mChara->mRot = newRot;
-        if (motion->mTracks[0].m08 >= 30.0f) {
+        float frame = motion->mTracks[0].m08;
+        if (frame >= 30.0f) {
             return 1;
         }
     }
