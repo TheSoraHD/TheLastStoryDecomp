@@ -27,7 +27,9 @@ struct CharaLightData_unk {
     int m00;
     atn::Vector2_unk m04;
     atn::Vector2_unk mSize;   // 0x0C
-    unsigned char m14[0x24 - 0x14];
+    atn::Vector2_unk m14; // inferred: "SPEED" (gmk::RoomLight)
+    float m1C;            // inferred: "ROT" (gmk::RoomLight)
+    float m20;
     atn::Vector3 mDir;        // 0x24
     unsigned char m30[0x3C - 0x30];
     TextureArray_unk mTextures; // 0x3C

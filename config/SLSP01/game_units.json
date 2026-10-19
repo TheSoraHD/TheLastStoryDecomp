@@ -1826,7 +1826,7 @@
   "classes": [
    "gmk::RoomLight"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/LandMine.cpp",
