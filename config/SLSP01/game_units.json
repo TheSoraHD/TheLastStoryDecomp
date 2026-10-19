@@ -325,7 +325,7 @@
    "atn::Sound3dActor",
    "atn::Sound3dListener"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Sound3dEngine.cpp",

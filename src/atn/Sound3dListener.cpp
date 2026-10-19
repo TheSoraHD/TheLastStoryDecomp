@@ -74,8 +74,7 @@ public:
     ut::LinkListNode mLinkNode; // 0x64
 };
 
-// inferred: 0x84 bytes. The constructor has no symbol name yet (fn_80714930); the destructor is
-// fn_807149C0.
+// inferred: 0x84 bytes. The constructor has no symbol name yet (fn_80714930).
 class Sound3DActor {
 public:
     Sound3DActor(void* player, void* manager) { fn_80714930(this, player, manager); }
@@ -223,8 +222,6 @@ void Sound3dListener::fn_800C7F08(const Vector3& pos, const Vector3& rot) {
     fn_80715BA0(&mListener, m.m);
 }
 
-// NONMATCHING: 99.8% - the NW4R destructor is called as __dt__Q34nw4r3snd12Sound3DActorFv, but
-// symbols.txt names it fn_807149C0
 Sound3dActor::~Sound3dActor() {}
 
 SoundCore::SoundCore()
@@ -233,7 +230,6 @@ SoundCore::SoundCore()
       mDC(lbl_80881168), mE0(lbl_80881168), mE4(lbl_80881168), mE8(0), mEC(lbl_8087D930), m10C(lbl_8087D934),
       m12C(lbl_8087D938) {}
 
-// NONMATCHING: 99.9% - same symbol name as ~Sound3dActor (fn_807149C0)
 SoundCore::~SoundCore() {
     mHandle.Stop(0);
     mHandle.DetachSound();
