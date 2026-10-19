@@ -68,7 +68,7 @@ const char* gt2AddressToString(u32 ip, u16 port, char* string);
 int GOAGetLastError(int socket);
 void qr2_send_statechanged(void* qrec);                            // qr2_send_statechanged
 void qr2_shutdown(void* qrec);                            // qr2_shutdown
-void fn_806FFA10(void* sb);                              // ServerBrowserFree
+void ServerBrowserFree(void* sb);                              // ServerBrowserFree
 void GSIStartAvailableCheckA(const char* gamename);
 int GSIAvailableCheckThink(void);
 int gethostbyname(const char* hostname); // inferred: caches the DNS query of hostname
@@ -121,7 +121,7 @@ typedef struct DWCNodeInfo {
 } DWCNodeInfo;
 
 // inferred: dwc_match entry points
-void fn_806B3DF0(void* matchcnt, GPConnection* pGpObj, GT2Socket* pGt2Socket,
+void DWCi_MatchInit(void* matchcnt, GPConnection* pGpObj, GT2Socket* pGt2Socket,
                  GT2ConnectionCallbacks* gt2Callbacks, const char* gameName,
                  const char* secretKey, DWCFriendData* friendList, int friendListLen);
 BOOL fn_806B3160(void);
@@ -355,7 +355,7 @@ void fn_806AF6A0(DWCUserData* userdata, int productID, const char* secretKey, in
     // inferred: the friend control keeps the player name in the field named userdata
     DWCi_FriendInit(&stpDwcCnt->friendcnt, &stpDwcCnt->gpObj,
                     (const DWCUserData*)stpDwcCnt->playerName, friendList, friendListLen);
-    fn_806B3DF0(&stpDwcCnt->matchcnt, &stpDwcCnt->gpObj, &stpDwcCnt->gt2Socket,
+    DWCi_MatchInit(&stpDwcCnt->matchcnt, &stpDwcCnt->gpObj, &stpDwcCnt->gt2Socket,
                 &stpDwcCnt->gt2Callbacks, gcd_gamename, gcd_secret_key, friendList, friendListLen);
     DWCi_InitTransport(&stpDwcCnt->transinfo);
 
@@ -378,7 +378,7 @@ void fn_806AF910(void) {
     }
     stpDwcCnt->matchcnt.unk050 = 0;
     if (stpDwcCnt->matchcnt.sbObj != NULL) {
-        fn_806FFA10(stpDwcCnt->matchcnt.sbObj);
+        ServerBrowserFree(stpDwcCnt->matchcnt.sbObj);
         stpDwcCnt->matchcnt.sbObj = NULL;
     }
 

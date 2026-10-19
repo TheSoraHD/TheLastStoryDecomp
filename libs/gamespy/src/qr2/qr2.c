@@ -24,11 +24,6 @@ typedef enum { nr_success, nr_deadbeatpartner, nr_inittimeout, nr_pingtimeout, n
 typedef enum { ne_noerror, ne_allocerror, ne_socketerror, ne_dnserror } NegotiateError;
 typedef void (*NegotiateProgressFunc)(NegotiateState state, void* userdata);
 typedef void (*NegotiateCompletedFunc)(NegotiateResult result, SOCKET gamesocket, struct sockaddr_in* remoteaddr, void* userdata);
-#define NNBeginNegotiationWithSocket fn_806FC5D0
-#define NNThink fn_806FCFE0
-#define NNFreeNegotiateList fn_806FBDB0
-#define NNProcessData fn_806FD420
-#define NNMagicData lbl_807C5D00
 NegotiateError NNBeginNegotiationWithSocket(SOCKET gamesocket, int cookie, int clientindex,
                                             NegotiateProgressFunc progresscallback,
                                             NegotiateCompletedFunc completedcallback, void* userdata);

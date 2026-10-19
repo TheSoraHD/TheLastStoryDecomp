@@ -45,16 +45,16 @@ int qr2_initA(void* qrec, const char* ip, int baseport, const char* gamename,
                 void* countCallback, void* addErrorCallback, void* userdata); // qr2_init
 void qr2_think(void* qrec);                                           // qr2_think
 void qr2_shutdown(void* qrec);                                           // qr2_shutdown
-ServerBrowser fn_806FF920(const char* queryForGamename, const char* queryFromGamename,
+ServerBrowser ServerBrowserNewA(const char* queryForGamename, const char* queryFromGamename,
                           const char* queryFromKey, int queryFromVersion,
                           int maxConcurrentUpdates, int queryVersion, int lanBrowse,
                           void* callback, void* instance);              // ServerBrowserNew
-void fn_806FFA10(ServerBrowser sb);                                     // ServerBrowserFree
-void fn_806FFBE0(ServerBrowser sb, int async, u16 startPort, u16 endPort); // ServerBrowserLANUpdate
-void fn_806FFDD0(ServerBrowser sb);                                     // ServerBrowserThink
-SBServer fn_806FFEA0(ServerBrowser sb, int index);                      // ServerBrowserGetServer
-int fn_806FFEB0(ServerBrowser sb);                                      // ServerBrowserCount
-u32 fn_806FEC90(SBServer server);                                       // SBServerGetPublicInetAddress
+void ServerBrowserFree(ServerBrowser sb);                                     // ServerBrowserFree
+void ServerBrowserLANUpdate(ServerBrowser sb, int async, u16 startPort, u16 endPort); // ServerBrowserLANUpdate
+void ServerBrowserThink(ServerBrowser sb);                                     // ServerBrowserThink
+SBServer ServerBrowserGetServer(ServerBrowser sb, int index);                      // ServerBrowserGetServer
+int ServerBrowserCount(ServerBrowser sb);                                      // ServerBrowserCount
+u32 SBServerGetPublicInetAddress(SBServer server);                                       // SBServerGetPublicInetAddress
 
 #define DWC_LAN_MAX_PLAYERS 16 // inferred
 #define DWC_LAN_GT2_PORT 12345 // inferred
@@ -200,10 +200,10 @@ void fn_806A8290(void) {
         gt2Think(spGT2->socket);
         if (spCntl->state < 8 && spSB->handle != NULL) {
             if (spSB->active) {
-                fn_806FFDD0(spSB->handle);
+                ServerBrowserThink(spSB->handle);
                 if (spSB->updated == 1) {
                     spSB->updated = 0;
-                    fn_806FFBE0(spSB->handle, 1, DWC_LAN_QR2_PORT, DWC_LAN_QR2_PORT);
+                    ServerBrowserLANUpdate(spSB->handle, 1, DWC_LAN_QR2_PORT, DWC_LAN_QR2_PORT);
                 }
             }
             qr2_think(NULL);
@@ -224,7 +224,7 @@ void fn_806A8290(void) {
                         DWCi_LanServerKeyCallback, DWCi_LanPlayerKeyCallback,
                         DWCi_LanTeamKeyCallback, DWCi_LanKeyListCallback, DWCi_LanCountCallback,
                         DWCi_LanAddErrorCallback, NULL);
-            spSB->handle = fn_806FF920(sGameName, sGameName, sSecretKey, 0, 10, 1, 1,
+            spSB->handle = ServerBrowserNewA(sGameName, sGameName, sSecretKey, 0, 10, 1, 1,
                                        DWCi_LanSBCallback, NULL);
             spSB->active = 1;
         } else {
@@ -237,14 +237,14 @@ void fn_806A8290(void) {
         break;
 
     case 1:
-        count = fn_806FFEB0(spSB->handle);
+        count = ServerBrowserCount(spSB->handle);
         num = spCntl->numPlayers;
         if (count < num) {
             break;
         }
         spSB->active = 0;
         for (i = 0; i < num; i++) {
-            spSB->addrs[i] = fn_806FEC90(fn_806FFEA0(spSB->handle, i));
+            spSB->addrs[i] = SBServerGetPublicInetAddress(ServerBrowserGetServer(spSB->handle, i));
         }
         DWCi_LanQuickSort(spSB->addrs, 0, num - 1);
         addr = spSB->addrs[0];
@@ -310,7 +310,7 @@ BOOL fn_806A8D90(int numPlayers, DWCLanStateCallback callback) {
 
 void fn_806A8DB0(void) {
     qr2_shutdown(NULL);
-    fn_806FFA10(spSB->handle);
+    ServerBrowserFree(spSB->handle);
     spSB = NULL;
     gt2CloseAllConnections(spGT2->socket);
     gt2CloseSocket(spGT2->socket);
