@@ -493,7 +493,7 @@ chr/ControlChant.cpp:
 
 chr/ControlOneMotion.cpp:
 	.text       start:0x801C3DCC end:0x801C4738
-	.rodata     start:0x8073B720 end:0x8073B774
+	.rodata     start:0x8073B718 end:0x8073B774
 	.data       start:0x80781BF0 end:0x80781D58
 	.sdata2     start:0x80882778 end:0x808827A8
 
