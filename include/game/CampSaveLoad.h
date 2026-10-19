@@ -40,7 +40,7 @@ struct CampSaveData_unk {
 class CampSaveLoad : public atn::Task {
 public:
     CampSaveLoad(atn::Task* parent); // 0x80117B54
-    virtual ~CampSaveLoad() { mEntries.Free_unk(); }
+    virtual ~CampSaveLoad(); // 0x80117EF4 (inlined in the destructors of the menus)
     virtual int vf0C();  // 0x80117FE4
     virtual void vf10(); // 0x801185E0
     virtual void vf14(); // 0x801189B4
@@ -51,13 +51,44 @@ public:
     int mMode;                  // 0x48: inferred: 0 save, 1 load
     CampSaveData_unk* m4C;      // 0x4C: inferred: save data of the save menu
     CampSaveData_unk* m50;      // 0x50: inferred: save data of the load menu
-    unsigned char m54[0x70 - 0x54];
+    int m54;
+    atn::Task* m58;             // 0x58: inferred: new map icon animation
+    atn::Task* m5C;             // 0x5C: inferred: info bar
+    atn::Task* m60;             // 0x60: inferred: camp info panels
+    atn::Task* m64;
+    atn::Task* m68;
+    atn::Task* m6C;             // 0x6C: inferred: cursor
     atn::Task* m70;             // 0x70: inferred: menu animation task (fn_801F3FF8)
-    unsigned char m74[0x128 - 0x74];
+    int m74[8];
+    atn::Task* m94[8];          // 0x94: inferred: slot icons
+    atn::Task* mB4[8];          // 0xB4: inferred: "no data" panels
+    int mD4[8];
+    atn::Task* mF4[8];          // 0xF4: inferred: "clear" marks
+    atn::Task* m114;
+    atn::Task* m118;            // 0x118: inferred: left arrow
+    int m11C;
+    atn::Task* m120;            // 0x120: inferred: right arrow
+    int m124;
     int m128;                   // 0x128: inferred: selected slot
-    unsigned char m12C[0x150 - 0x12C];
+    int m12C;
+    int m130;
+    int m134;
+    int m138;
+    int m13C;
+    unsigned char m140[0x148 - 0x140];
+    int m148;
+    unsigned char m14C[0x150 - 0x14C];
     int m150;
-    unsigned char m154[0x17C - 0x154];
+    int m154;
+    int m158;
+    int m15C;
+    int m160;
+    int m164;
+    int m168;
+    int m16C;
+    int m170;
+    int m174;
+    int m178;
     atn::Texture_unk mTextures[17]; // 0x17C
     ResRef_unk m4AC;
     int m4B4;
