@@ -152,7 +152,7 @@
   "classes": [
    "atn::DrawHelper"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/ComDrawTexture.cpp",
