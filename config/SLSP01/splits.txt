@@ -1286,7 +1286,7 @@ gmk/ChickenManager.cpp:
 
 gmk/TreasureBox.cpp:
 	.text       start:0x8040DC30 end:0x8040EC30
-	.rodata     start:0x80752B20 end:0x80752B34
+	.rodata     start:0x80752B10 end:0x80752B58
 	.data       start:0x8078D598 end:0x8078D630
 	.sdata2     start:0x80886388 end:0x808863A0
 
