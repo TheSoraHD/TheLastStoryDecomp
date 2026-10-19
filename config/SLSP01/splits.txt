@@ -230,9 +230,9 @@ atn/TextureCacheManager8x32.cpp:
 	.data       start:0x80779700 end:0x80779758
 
 atn/TextureComposite.cpp:
-	.text       start:0x800D71A4 end:0x800D810C
-	.rodata     start:0x807346A0 end:0x807346B8
-	.data       start:0x80779758 end:0x80779790
+	.text       start:0x800D71A4 end:0x800D81CC
+	.rodata     start:0x807346A0 end:0x80734740
+	.data       start:0x80779758 end:0x80779830
 	.sdata2     start:0x80881208 end:0x80881218
 
 atn/CompositeIntensityTintMulti.cpp:
