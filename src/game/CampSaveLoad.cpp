@@ -1,4 +1,5 @@
 #include "game/CampSaveLoad.h"
+#include "macros.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -68,6 +69,29 @@ extern "C" atn::SoundRef fn_80117228(int id);
 // inferred: creates a message window task
 extern "C" atn::Task* fn_805BC6C8(atn::Task* parent, int msg, int arg);
 extern "C" void fn_8036E964(Field_unk* field);
+
+extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+// inferred: 2D point of a d2anime pane (names invented)
+struct D2APoint_unk {
+    D2APoint_unk() {}
+    float x;
+    float y;
+    float mScaleX;
+    float mScaleY;
+    float m10;
+    float m14;
+};
+// inferred: position of the pane `hash` of `layout`
+extern "C" D2APoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
+extern "C" void fn_801F4728(D2ATask_unk* task, const char* name, const D2APoint_unk* pos);
+extern "C" void fn_801F6E78(atn::Task* task, const char* name, const D2APoint_unk* pos);
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+// inferred: sets the value `index` of the pane `name` (name invented)
+inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
 
@@ -294,6 +318,45 @@ void CampSaveLoad::fn_8011979C() {
 
 // NONMATCHING: 88.8% - the original converts each pad result to a bool value (neg/or/srwi)
 // before testing it
+// NONMATCHING: 98.7% - floating-point register allocation of the two frame values (and the
+// string pool offsets until all the functions of the file are written)
+void CampSaveLoad::fn_8011AD38() {
+    atn::Task* layout = m70;
+    for (int i = 0; i < 8; i++) {
+        char name[0x40];
+        sprintf(name, "save_data%02d", i);
+        D2APoint_unk pos = fn_801F4E8C(layout, fn_800DC6B4(name));
+        pos.mScaleX = 1.0f;
+        pos.mScaleY = 1.0f;
+        fn_801F4728(m74[i], "basePoint", &pos);
+        fn_801F6E78(mF4[i], "basePoint", &pos);
+        D2ATask_unk* frame = m74[i];
+        float cur = frame->m100;
+        float end = frame->mA0;
+        if (m13C == 0) {
+            frame->m100 = MIN(15.0f, cur + 1.0f);
+        } else if ((m128 - 1) % 8 == i) {
+            frame->m100 = MAX(15.0f, MIN(end, cur + 1.0f));
+        } else if (m128 == 0 && i == 0) {
+            frame->m100 = MAX(15.0f, MIN(end, cur + 1.0f));
+            SetPaneValue_unk(m74[i]->m58, "basePoint", 0, 270.0f);
+            SetPaneValue_unk(m74[i]->m58, "basePoint", 1, 160.0f);
+            SetPaneValue_unk(m74[i]->m58, "basePoint", 2, 1.5f);
+            SetPaneValue_unk(m74[i]->m58, "basePoint", 3, 1.5f);
+            fn_801F6D7C(mF4[i], "basePoint", 0, 270.0f);
+            fn_801F6D7C(mF4[i], "basePoint", 1, 160.0f);
+            fn_801F6D7C(mF4[i], "basePoint", 2, 1.5f);
+            fn_801F6D7C(mF4[i], "basePoint", 3, 1.5f);
+        } else {
+            frame->m100 = MAX(15.0f, cur - 1.0f);
+        }
+        mF4[i]->mFlags |= 4;
+        if (mD4[i] != 0 && m74[i]->m100 >= 15.0f) {
+            mF4[i]->mFlags &= ~4;
+        }
+    }
+}
+
 void CampSaveLoad::fn_8011B3D8(int wrap) {
     if (IsRepeated_unk(0) || IsRepeated_unk(0x1A)) {
         if (--m154 < 0) {

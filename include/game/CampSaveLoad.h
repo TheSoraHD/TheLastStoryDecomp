@@ -61,6 +61,16 @@ struct CampSaveData_unk {
     int mD64;
 };
 
+// inferred: d2anime task (made by fn_801F3FF8); only the members used here, names invented
+class D2ATask_unk : public atn::Task {
+public:
+    unsigned char m48[0x58 - 0x48];
+    unsigned char m58[0xA0 - 0x58]; // 0x58: inferred: layout (fn_801FED24)
+    float mA0;                      // 0xA0: inferred: last frame
+    unsigned char mA4[0x100 - 0xA4];
+    float m100;                     // 0x100: inferred: current frame
+};
+
 // inferred from __vt__12CampSaveLoad (0x8077A030) and its constructor (0x80117B54); base of the
 // save and load menus. The destructor is inlined in those of MenuSaveTask and MenuLoadTask.
 class CampSaveLoad : public atn::Task {
@@ -78,6 +88,7 @@ public:
     void fn_8011979C();                   // inferred: handles the confirmation window input
     void fn_8011B3D8(int wrap);           // inferred: moves the cursor m154 within [0, m158)
     void fn_8011B8D4(const wchar_t* text, int length); // inferred: reads the list of entries
+    void fn_8011AD38();                   // inferred: animates the slot frames
     int fn_8011BBD0(int slot);            // inferred: nonzero if the slot is newer than the current data
 
     int mMode;                  // 0x48: inferred: 0 save, 1 load
@@ -91,7 +102,7 @@ public:
     atn::Task* m68;
     atn::Task* m6C;             // 0x6C: inferred: cursor
     atn::Task* m70;             // 0x70: inferred: menu animation task (fn_801F3FF8)
-    int m74[8];
+    D2ATask_unk* m74[8];        // 0x74: inferred: slot frames
     atn::Task* m94[8];          // 0x94: inferred: slot icons
     atn::Task* mB4[8];          // 0xB4: inferred: "no data" panels
     int mD4[8];
