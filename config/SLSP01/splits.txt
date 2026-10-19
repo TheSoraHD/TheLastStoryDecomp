@@ -463,7 +463,7 @@ chr/ControlJumpAt.cpp:
 
 chr/ControlAttractHateCharge.cpp:
 	.text       start:0x801B73F0 end:0x801B7CD0
-	.rodata     start:0x8073B1C0 end:0x8073B1F8
+	.rodata     start:0x8073B190 end:0x8073B200
 	.data       start:0x80780ED0 end:0x80780FC0
 	.sdata2     start:0x808824F0 end:0x80882518
 

@@ -40,7 +40,8 @@ struct HitInfo_unk {
     int mA4;
     unsigned char mA8[0xAC - 0xA8];
     int mAC; // inferred: flags
-    unsigned char mB0[0xC0 - 0xB0];
+    int mB0; // inferred: effect id (chr::ControlOverdrive passes it to fn_801070C8)
+    unsigned char mB4[0xC0 - 0xB4];
     int mC0; // inferred: chant time (CharaTask::fn_8015F568)
     int mC4; // inferred: copied to the hit message (CharaTask::fn_80151448)
 
