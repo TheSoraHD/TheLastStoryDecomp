@@ -38,7 +38,7 @@ typedef struct _ServerBrowser* ServerBrowser;
 typedef struct _SBServer* SBServer;
 
 // inferred: GameSpy entry points; names from the GameSpy SDK, no source yet
-void gt2CloseAllConnectionsHard(GT2Socket socket);                                        // gt2CloseAllConnectionsHard
+void gt2CloseAllConnectionsHard(GT2Socket socket);
 SBServer ServerBrowserGetServer(ServerBrowser sb, int index);                         // ServerBrowserGetServer
 int SBServerGetIntValueA(SBServer server, const char* key, int idefault);           // SBServerGetIntValue
 const char* SBServerGetStringValueA(SBServer server, const char* key, const char* sdefault); // SBServerGetStringValue
@@ -95,6 +95,11 @@ typedef BOOL (*DWCResvCallback)(void* userData, void* param);
 
 // inferred: suspend callback (DWCSuspendCallback of the DWC API)
 typedef void (*DWCSuspendCallback)(DWCError error, BOOL suspend, void* param);
+
+// inferred: IPv4 address (SOInAddr of SO.h)
+typedef struct SOInAddr {
+    u32 addr;
+} SOInAddr;
 
 // inferred: socket address (SOSockAddrIn)
 typedef struct SOSockAddrIn {
@@ -323,24 +328,23 @@ typedef struct DWCGameMatchKeyData {
 
 
 
-// inferred: callback nesting/free requests of the SB and NN objects
-typedef struct DWCNNInfo {
-    int sbBusy;    // 0x00
-    int sbFreeReq; // 0x04
-    int nnBusy;    // 0x08
-    int nnFreeReq; // 0x0C
-    int unk10;     // 0x10
-} DWCNNInfo;
 
 // inferred: initialized data at the start of .data; names unknown
 static int stUnkData5 = 5;
 static int stServerSearchRatio = -2;
 
 static char* stpAddFilter = NULL;
-static DWCNNInfo stNNInfo = {0};
+// inferred: callback nesting/free requests of the SB and NN objects; separate statics (not a
+// struct): the target only pools their addresses where three or more statics are used
+static int stSBBusy = 0;
+static int stSBFreeReq = 0;
+static int stNNBusy = 0;
+static int stNNFreeReq = 0;
 static DWCGameMatchKeyData stGameMatchKeys[DWC_QR2_GAME_KEY_NUM] = {0};
 static s64 stLastStateTime = 0;
-static DWCMatchControl* stpMatchCnt = NULL;
+// inferred: defined (as a global) near the end of the file: every function before fn_806CD4E0
+// reaches it through its own symbol, never through the pooled .bss base like the statics
+extern DWCMatchControl* stpMatchCnt;
 
 // inferred: GameSpy QR2/SB/NN entry points
 typedef void (*qr2_serverkeycallback_t)(int keyid, void* outbuf, void* userdata);
@@ -354,15 +358,15 @@ int qr2_init_socketA(qr2_t* qrec, int s, int boundport, const char* gamename, co
                 qr2_playerteamkeycallback_t team_key_callback,
                 qr2_keylistcallback_t key_list_callback, qr2_countcallback_t playerteam_count_callback,
                 qr2_adderrorcallback_t adderror_callback, void* userdata); // qr2_init_socket
-void qr2_shutdown(qr2_t qrec);                                       // qr2_shutdown
-void qr2_send_statechanged(qr2_t qrec);                                       // qr2_send_statechanged
-void qr2_register_publicaddress_callback(qr2_t qrec, void* callback);                       // qr2_register_publicaddress_callback
-void qr2_register_natneg_callback(qr2_t qrec, void* callback);                       // qr2_register_natneg_callback
-void qr2_register_clientmessage_callback(qr2_t qrec, void* callback);                       // qr2_register_clientmessage_callback
-int gt2GetSocketSOCKET(GT2Socket socket);                                  // gt2GetSocketSOCKET
-int gt2GetLocalPort(GT2Socket socket);                                  // gt2GetLocalPort
+void qr2_shutdown(qr2_t qrec);
+void qr2_send_statechanged(qr2_t qrec);
+void qr2_register_publicaddress_callback(qr2_t qrec, void* callback);
+void qr2_register_natneg_callback(qr2_t qrec, void* callback);
+void qr2_register_clientmessage_callback(qr2_t qrec, void* callback);
+int gt2GetSocketSOCKET(GT2Socket socket);
+int gt2GetLocalPort(GT2Socket socket);
 void ServerBrowserFree(ServerBrowser sb);                                 // ServerBrowserFree
-void NNCancel(int cookie);                                       // NNCancel
+void NNCancel(int cookie);
 void NNFreeNegotiateList(void);                                             // NNFreeNegotiateList
 
 // inferred: dwc_main.c / dwc_login.c / dwc_common.c
@@ -376,11 +380,11 @@ ServerBrowser ServerBrowserNewA(const char* queryForGamename, const char* queryF
                           int queryVersion, int lanBrowse, void* callback, void* instance); // ServerBrowserNew
 void fn_806A9CA0(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
 u16 fn_806A4270(u16 x);                                 // SOHtoNs
-char* fn_806A420C(void* addr);                          // SOInetNtoA
+char* fn_806A420C(SOInAddr in);                         // SOInetNtoA
 void qr2_parse_queryA(qr2_t qrec, u8* query, int len, SOSockAddrIn* sender); // qr2_parse_query
 extern u8 NNMagicData[];                               // NNMagicData
 void NNProcessData(u8* data, int len, SOSockAddrIn* sender); // NNProcessData
-void qr2_keybuffer_add(void* keybuffer, int keyid);           // qr2_keybuffer_add
+void qr2_keybuffer_add(void* keybuffer, int keyid);
 void* fn_806B14D0(u8 aid);                              // DWCi_GetGT2Connection
 
 // EXTERNS
@@ -393,27 +397,27 @@ typedef struct DWCConnectionInfo {
 GT2Connection* fn_806B1660(int index);               // inferred: GT2 connection slot
 DWCConnectionInfo* fn_806B1710(int index);           // inferred: connection info slot
 void fn_806CE700(u8 aid);
-BOOL gt2Accept(GT2Connection connection, void* callbacks);              // gt2Accept
-void gt2Reject(GT2Connection connection, const char* message, int len); // gt2Reject
-void gt2SetConnectionData(GT2Connection connection, void* data);                   // gt2SetConnectionData
+BOOL gt2Accept(GT2Connection connection, void* callbacks);
+void gt2Reject(GT2Connection connection, const char* message, int len);
+void gt2SetConnectionData(GT2Connection connection, void* data);
 u16 fn_806A4264(u16 x);                              // SONtoHs
 GT2Result gt2Connect(GT2Socket socket, GT2Connection* connection, const char* remoteAddress,
                       const char* message, int len, int timeout, void* callbacks, int blocking); // gt2Connect
-u16 gt2GetRemotePort(GT2Connection connection);           // gt2GetRemotePort
+u16 gt2GetRemotePort(GT2Connection connection);
 void fn_806B0980(void);                              // inferred: server down handling (dwc_main)
-void qr2_think(qr2_t qrec);                        // qr2_think
-void gt2Think(GT2Socket socket);                  // gt2Think
+void qr2_think(qr2_t qrec);
+void gt2Think(GT2Socket socket);
 void ServerBrowserThink(ServerBrowser sb);                  // ServerBrowserThink
-int ServerBrowserState(ServerBrowser sb);                   // ServerBrowserState
+int ServerBrowserState(ServerBrowser sb);
 int NNThink(void);                               // NNThink
 // inferred: notification of a new client joining the group
 typedef void (*DWCNewClientCallback)(int index, void* param);
 GT2Connection* fn_806B1680(int profileID, BOOL unk); // inferred: GT2 connection of profileID
-void gt2CloseConnectionHard(GT2Connection connection);       // gt2CloseConnectionHard
+void gt2CloseConnectionHard(GT2Connection connection);
 BOOL DWCi_SendReliable(u32 type, u8 aid, const void* buffer, int size);
 void fn_806B1A00(u8 aid);                 // inferred: closes the connection to aid
 void fn_806CE750(u8 srcAid, u8 dstAid, const void* buffer, int size, int relay);
-BOOL gpIsBuddy(GPConnection* connection, int profileID); // gpIsBuddy
+BOOL gpIsBuddy(GPConnection* connection, int profileID);
 int gpSendBuddyMessageA(GPConnection* connection, int profileID, const char* message); // gpSendBuddyMessage
 const char* gt2AddressToString(u32 ip, int unk1, int unk2);
 int ServerBrowserSendMessageToServerA(ServerBrowser sb, const char* ip, u16 port, const void* data, int len); // ServerBrowserSendMessageToServer
@@ -423,8 +427,8 @@ int ServerBrowserSendNatNegotiateCookieToServerA(ServerBrowser sb, const char* i
 int NNBeginNegotiationWithSocket(int socket, int cookie, int clientindex, void* progresscallback,
                 void* completedcallback, void* userdata); // NNBeginNegotiationWithSocket
 const DWCUserData* fn_806AEAF0(void);                // DWCi_GetUserData
-int gpGetBuddyIndex(GPConnection* connection, int profileID, int* index); // gpGetBuddyIndex
-int gpGetBuddyStatus(GPConnection* connection, int index, GPBuddyStatus* status); // gpGetBuddyStatus
+int gpGetBuddyIndex(GPConnection* connection, int profileID, int* index);
+int gpGetBuddyStatus(GPConnection* connection, int index, GPBuddyStatus* status);
 const char* SBServerGetPrivateAddress(SBServer server); // SBServerGetPrivateAddress
 u32 SBServerGetPrivateInetAddress(SBServer server);         // SBServerGetPrivateInetAddress
 u16 SBServerGetPrivateQueryPort(SBServer server);         // SBServerGetPrivateQueryPort
@@ -433,12 +437,12 @@ u32 SBServerGetPublicInetAddress(SBServer server);         // SBServerGetPublicI
 u16 SBServerGetPublicQueryPort(SBServer server);         // SBServerGetPublicQueryPort
 int SBServerHasPrivateAddress(SBServer server);         // SBServerHasPrivateAddress
 int ServerBrowserCount(ServerBrowser sb);        // ServerBrowserCount
-void ServerBrowserRemoveServer(ServerBrowser sb, SBServer server); // ServerBrowserRemoveServer
+void ServerBrowserRemoveServer(ServerBrowser sb, SBServer server);
 void SBServerAddIntKeyValue(SBServer server, const char* key, int value); // SBServerSetIntValue
 void ServerBrowserSortA(ServerBrowser sb, int ascending, const char* sortkey, int sorttype); // ServerBrowserSort
 
 void ServerBrowserClear(ServerBrowser sb); // ServerBrowserClear
-void qr2_buffer_add_int(void* outbuf, int value);          // qr2_buffer_add_int
+void qr2_buffer_add_int(void* outbuf, int value);
 void qr2_buffer_addA(void* outbuf, const char* value);  // qr2_buffer_add
 int ServerBrowserLimitUpdateA(ServerBrowser sb, BOOL async, BOOL disconnectOnComplete, const u8* basicFields,
                 int numBasicFields, const char* serverFilter, int maxServers); // ServerBrowserLimitUpdate
@@ -501,7 +505,7 @@ inline static void DWCi_TempNewNodeInfo_Clear(void);
 BOOL fn_806BCD40(u8 command, int profileID, u32 ip, u16 port, const u32* data, int len);
 static BOOL DWCi_CanReserveServer(int profileID);
 int fn_806BFBA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve, u32 topology, void* userData, BOOL illegal);
-u8 fn_806BFEA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve, u32 topology, void* userData, BOOL illegal);
+int fn_806BFEA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve, u32 topology, void* userData, BOOL illegal);
 static int DWCi_NodeInfoList_FindAID(u8 aid);
 static u8 DWCi_GetNewAID(void);
 int fn_806C03B0(int profileID, u32 ip, u16 port);
@@ -637,7 +641,6 @@ static u8 DWCi_GetNewMatchKey(void) {
 }
 
 // @806B3220
-// NONMATCHING: 99.86% - code is identical; only string pool relocations differ from the split target
 u8 fn_806B3220(u8 keyID, const char* keyString, const int* valueSrc) {
     if (keyString == NULL || valueSrc == NULL) {
         return 0;
@@ -673,7 +676,6 @@ u8 fn_806B3220(u8 keyID, const char* keyString, const int* valueSrc) {
 }
 
 // @806B3680
-// NONMATCHING: 99.86% - code is identical; only string pool relocations differ from the split target
 u8 fn_806B3680(u8 keyID, const char* keyString, const char* valueSrc) {
     if (keyString == NULL || valueSrc == NULL) {
         return 0;
@@ -743,7 +745,6 @@ u32 fn_806B3C20(void) {
 }
 
 // @806B3C40
-// NONMATCHING: 99.48% - code is identical; only string pool relocations differ from the split target
 BOOL fn_806B3C40(BOOL suspend, void* callback, void* param) {
     DWC_Printf(DWC_REPORTFLAG_DEBUG, "!!DWC_RequestSuspendMatchAsync(%s) was called!!\n",
                suspend ? "TRUE" : "FALSE");
@@ -801,7 +802,7 @@ static void DWCi_ClearGameMatchKeys(void) {
     memset(stGameMatchKeys, 0, sizeof(stGameMatchKeys));
 }
 
-// NONMATCHING: 76.45% - stpMatchCnt/stLastStateTime are not pooled through the .bss base in the target
+// NONMATCHING: 99.44% - register allocation of the inlined DWCi_SetMatchStatus (oldState/stLastStateTime address swapped)
 void DWCi_MatchInit(DWCMatchControl* matchcnt, GPConnection* pGpObj, GT2Socket* pGt2Socket,
                  void* gt2Callbacks, const char* gameName, const char* secretKey, DWCFriendData* friendList,
                  int friendListLen) {
@@ -848,7 +849,7 @@ void DWCi_MatchInit(DWCMatchControl* matchcnt, GPConnection* pGpObj, GT2Socket* 
 }
 
 // @806B40C0
-// NONMATCHING: 99.05% - register allocation / small scheduling differences
+// NONMATCHING: 99.34% - register allocation / small scheduling differences
 int fn_806B40C0(int unused) {
     DWCMatchControl* cnt = stpMatchCnt;
     int result;
@@ -892,7 +893,7 @@ static void DWCi_SBStartup(void) {
 }
 
 // @806B42B0
-// NONMATCHING: 86.66% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 98.69% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806B42B0(int unk8E0, u8 numEntry, const char* addFilter, DWCMatchedCallback callback,
                  void* param, void* unk8A8, void* unk8AC, DWCEvalCallback evalCallback,
                  void* evalParam, DWCResvCallback resvCallback, const u8* unk8EC, void* resvParam) {
@@ -946,7 +947,7 @@ void fn_806B42B0(int unk8E0, u8 numEntry, const char* addFilter, DWCMatchedCallb
 }
 
 // @806B4940
-// NONMATCHING: 94.81% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 97.28% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806B4940(int unk8E0, u8 numEntry, DWCMatchedCallback callback, void* param,
                  void* unk8A8, void* unk8AC, DWCResvCallback resvCallback, const u8* unk8EC,
                  void* resvParam) {
@@ -985,7 +986,7 @@ void fn_806B4940(int unk8E0, u8 numEntry, DWCMatchedCallback callback, void* par
 }
 
 // @806B4D20
-// NONMATCHING: 98.30% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.95% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806B4D20(int unk8E0, int profileID, DWCMatchedCallback callback, void* param, void* unk8A8,
                  void* unk8AC, DWCResvCallback resvCallback, const u8* unk8EC, void* resvParam) {
     DWCNodeInfo tempNode;
@@ -1050,12 +1051,15 @@ void fn_806B4D20(int unk8E0, int profileID, DWCMatchedCallback callback, void* p
     qr2_send_statechanged(stpMatchCnt->qr2Obj);
     fn_806CCB70(DWC_MATCH_STATE_CL_WAIT_RESV);
     result = fn_806C05F0(profileID, FALSE);
-    if (stpMatchCnt->qr2MatchSubType == 0 ? fn_806C5EB0(result) : fn_806C5C10(result)) {
+    if (stpMatchCnt->qr2MatchSubType == 0) {
+        fn_806C5EB0(result);
+    } else if (fn_806C5C10(result)) {
+        return;
     }
 }
 
 // @806B5860
-// NONMATCHING: 9.32% - large state machine; register allocation, scheduling and the inlined status-string stack layout differ
+// NONMATCHING: 93.77% - large state machine; register allocation, scheduling and the inlined status-string stack layout differ
 void fn_806B5860(BOOL process) {
     DWCMatchControl* cnt;
     int level;
@@ -1423,11 +1427,11 @@ void fn_806B5860(BOOL process) {
         }
     }
     if (stpMatchCnt->sbObj != NULL) {
-        stNNInfo.sbBusy = 0;
-        stNNInfo.sbFreeReq = 0;
-        stNNInfo.nnBusy = 1;
+        stSBBusy = 0;
+        stSBFreeReq = 0;
+        stNNBusy = 1;
         ServerBrowserThink(stpMatchCnt->sbObj);
-        if (stNNInfo.sbFreeReq) {
+        if (stSBFreeReq) {
             ServerBrowserFree(stpMatchCnt->sbObj);
             stpMatchCnt->sbObj = NULL;
         }
@@ -1439,8 +1443,8 @@ void fn_806B5860(BOOL process) {
             DWC_Printf(DWC_REPORTFLAG_SB_UPDATE, "ServerBrowserLimitUpdate timeout.\n");
         }
     }
-    stNNInfo.nnFreeReq = 0;
-    stNNInfo.nnBusy = 1;
+    stNNFreeReq = 0;
+    stNNBusy = 1;
     {
         qr2_t qr2 = stpMatchCnt->qr2Obj;
         if (qr2 != NULL) {
@@ -1451,9 +1455,9 @@ void fn_806B5860(BOOL process) {
         }
     }
     NNThink();
-    stNNInfo.nnBusy = 0;
-    if (stNNInfo.nnFreeReq == 1) {
-        stNNInfo.nnFreeReq = 0;
+    stNNBusy = 0;
+    if (stNNFreeReq == 1) {
+        stNNFreeReq = 0;
         NNFreeNegotiateList();
     }
     if (stpMatchCnt->pGt2Socket != NULL) {
@@ -1477,7 +1481,6 @@ void fn_806B5860(BOOL process) {
 }
 
 // @806B8430
-// NONMATCHING: 99.79% - code is identical; only string pool relocations differ from the split target
 int fn_806B8430(GT2Socket socket, u32 ip, u16 port, u8* message, int len) {
     SOSockAddrIn addr;
     u8 c;
@@ -1510,7 +1513,7 @@ int fn_806B8430(GT2Socket socket, u32 ip, u16 port, u8* message, int len) {
 }
 
 // @806B85B0
-// NONMATCHING: 98.12% - inlined status string buffers use a 40-byte layout in the target; DWCi_SetMatchStatus scheduling
+// NONMATCHING: 99.48% - register allocation of the inlined DWCi_SetMatchStatus
 void fn_806B85B0(GT2Socket socket, GT2Connection connection, u32 ip, u16 port, int latency,
                  const char* message, int msgLen) {
     int profileID = 0;
@@ -1585,7 +1588,7 @@ void fn_806B85B0(GT2Socket socket, GT2Connection connection, u32 ip, u16 port, i
 }
 
 // @806B8D60
-// NONMATCHING: 96.88% - inlined status string buffers use a 40-byte layout in the target; DWCi_SetMatchStatus scheduling
+// NONMATCHING: 98.40% - register allocation of the inlined DWCi_SetMatchStatus
 void fn_806B8D60(GT2Connection connection, GT2Result result, const char* message, int len) {
     char pidStr[24];
     int index;
@@ -1726,7 +1729,6 @@ static void DWCi_CallMatchedCallback(DWCError error, BOOL cancel, BOOL self) {
 }
 
 // @806B9500
-// NONMATCHING: 99.75% - code is identical; only string pool relocations differ from the split target
 void fn_806B9500(DWCError error, int errorCode) {
     DWCMatchControl* cnt;
     if (stpMatchCnt == NULL || error == DWC_ERROR_NONE) {
@@ -1772,7 +1774,7 @@ inline static void DWCi_ReadSynNodeInfo(DWCNodeInfo* node, const u32* p) {
     memcpy(&node->unk28, &p[5], sizeof(node->unk28));
 }
 
-// NONMATCHING: 88.97% - loads of the SYN node entries are scheduled before the stores in our build
+// NONMATCHING: 90.23% - loads of the SYN node entries are scheduled before the stores in our build
 void fn_806B9820(u8 aid, u16 type, const u8* message) {
     const u32* data = (const u32*)message;
     DWCMatchControl* cnt;
@@ -1855,14 +1857,17 @@ void fn_806B9820(u8 aid, u16 type, const u8* message) {
 }
 
 // @806BAC80
-// NONMATCHING: 99.03% - register allocation / small scheduling differences
+// NONMATCHING: 99.44% - register allocation / small scheduling differences
 void fn_806BAC80(const u32* data) {
-    u32 profileID = DWCi_SwapU32(data[0]);
-    u32 bitmap = DWCi_SwapU32(data[1]);
-    u32 uid = DWCi_SwapU32(data[2]);
-    DWCNodeInfo* server;
-    u32 deadBitmap;
     u8 i;
+    u32 deadBitmap;
+    DWCNodeInfo* server;
+    u32 uid;
+    u32 bitmap;
+    u32 profileID;
+    profileID = DWCi_SwapU32(data[0]);
+    bitmap = DWCi_SwapU32(data[1]);
+    uid = DWCi_SwapU32(data[2]);
     DWC_Printf(DWC_REPORTFLAG_RECV_INFO, "Received Polling packet from pid %d(%08x).\n", profileID, bitmap);
     if (fn_806B12F0()) {
         DWC_Printf(DWC_REPORTFLAG_RECV_INFO, "I'm a server. ignore.\n");
@@ -1890,7 +1895,7 @@ void fn_806BAC80(const u32* data) {
 }
 
 // @806BAE10
-// NONMATCHING: 97.98% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.63% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806BAE10(DWCError error, int errorCode) {
     if (fn_806B1230() != 4) {
         return FALSE;
@@ -1957,9 +1962,8 @@ static BOOL DWCi_IsMatchLocked(void) {
 }
 
 // @806BB440
-// NONMATCHING: 99.66% - code is identical; only string pool relocations differ from the split target
 GPResult fn_806BB440(int status) {
-    char statusStr[44];
+    char statusStr[37]; // inferred: 37-39 bytes (rounded to 44 alone and to 40 when inlined)
     char valueStr[12];
     u32 numHost;
     snprintf(valueStr, sizeof(valueStr), "%u", stpMatchCnt->qr2NumEntry + 1);
@@ -1985,7 +1989,6 @@ static void DWCi_FreeAddFilter(void) {
     }
 }
 
-// NONMATCHING: 96.52% - register allocation / small scheduling differences
 void fn_806BB5E0(void) {
     stpMatchCnt = NULL;
     stLastStateTime = DWCi_Np_GetTick();
@@ -1999,11 +2002,14 @@ BOOL fn_806BB6A0(void) {
 }
 
 // @806BB6C0
-// NONMATCHING: 89.92% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.89% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806BB6C0(int level) {
     stpMatchCnt->unkC = 0;
     stpMatchCnt->unk720 = 0;
-    stpMatchCnt->unk722 = fn_806ABB70(0x10000);
+    {
+        DWCMatchControl* cnt = stpMatchCnt;
+        cnt->unk722 = fn_806ABB70(0x10000);
+    }
     stpMatchCnt->unk724 = 0;
     stpMatchCnt->unk728 = 0;
     stpMatchCnt->unk730 = 0;
@@ -2096,25 +2102,25 @@ void fn_806BBBA0(u8 matchType, u8 numEntry, DWCMatchedCallback callback, void* p
 }
 
 // @806BBCA0
-// NONMATCHING: 88.10% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.77% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806BBCA0(void) {
     DWC_Printf(DWC_REPORTFLAG_MATCH_NN, " Close Match....\n");
     if (stpMatchCnt == NULL) {
         return;
     }
     if (stpMatchCnt->sbObj != NULL) {
-        if (!stNNInfo.sbBusy) {
+        if (!stSBBusy) {
             ServerBrowserFree(stpMatchCnt->sbObj);
             stpMatchCnt->sbObj = NULL;
         } else {
-            stNNInfo.sbFreeReq = TRUE;
+            stSBFreeReq = TRUE;
         }
     }
     NNCancel(stpMatchCnt->nnData.cookie);
-    if (!stNNInfo.nnBusy) {
+    if (!stNNBusy) {
         NNFreeNegotiateList();
     } else {
-        stNNInfo.nnFreeReq = TRUE;
+        stNNFreeReq = TRUE;
     }
     fn_806CCB70(DWC_MATCH_STATE_INIT);
     DWCi_FreeAddFilter();
@@ -2127,7 +2133,7 @@ void fn_806BBCA0(void) {
 }
 
 // @806BC010
-// NONMATCHING: 84.60% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 93.69% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 int DWCi_SBUpdateAsync(int profileID) {
     u8 keyList[DWC_QR2_GAME_KEY_NUM + 9];
     char hostState[512];
@@ -2243,7 +2249,7 @@ static BOOL DWCi_IsPrivateAddress(u32 ip) {
     if (a == 10) {
         return TRUE;
     }
-    if (a == 172 && b >= 16 && b <= 31) {
+    if (a == 172 && 16 <= b && b <= 31) {
         return TRUE;
     }
     if (a == 192 && b == 168) {
@@ -2271,13 +2277,13 @@ inline static int DWCi_DoNatNegotiation(DWCNNData* nnData) {
     return result;
 }
 
-// NONMATCHING: 90.85% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 94.60% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 int fn_806BC4C0(int isChild, int cookie, DWCNodeInfo* node) {
     int result = 0;
     BOOL doNN;
     NNCancel(stpMatchCnt->nnData.cookie);
     if (!isChild) {
-        cookie = (stpMatchCnt->unk722 << 16) | (u16)stpMatchCnt->profileID;
+        cookie = (u16)stpMatchCnt->profileID | (stpMatchCnt->unk722 << 16);
         if (node->unk17) {
             if (node->ip == ServerBrowserGetMyPublicIPAddr(stpMatchCnt->sbObj)) {
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Server[%u] is behind same NAT as me.\n", node->profileID);
@@ -2299,8 +2305,12 @@ int fn_806BC4C0(int isChild, int cookie, DWCNodeInfo* node) {
             node->nnPort = node->port;
         }
         if (doNN) {
-            stpMatchCnt->unk722 = fn_806ABB70(0x10000);
+            {
+                DWCMatchControl* cnt = stpMatchCnt;
+                cnt->unk722 = fn_806ABB70(0x10000);
+            }
             stpMatchCnt->nnData.cookie = cookie;
+
         } else {
             u32 data[2];
             int ret;
@@ -2344,7 +2354,7 @@ static BOOL DWCi_IsGT2Target(int profileID) {
 }
 
 // @806BC860
-// NONMATCHING: 96.94% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 97.14% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 int fn_806BC860(u8 command, int profileID, u32 ip, u16 port, const u32* data, int len) {
     DWCMatchCommand sbCommand;
     DWCMatchCommand gt2Command;
@@ -2469,7 +2479,7 @@ inline static void DWCi_TempNewNodeInfo_Clear(void) {
     memset(&stpMatchCnt->tempNewNodeInfo, 0, sizeof(DWCNodeInfo));
 }
 
-// NONMATCHING: 93.51% - large command switch; register allocation and scheduling differ
+// NONMATCHING: 95.94% - large command switch; register allocation and scheduling differ
 BOOL fn_806BCD40(u8 command, int profileID, u32 ip, u16 port, const u32* data, int len) {
     int sendLen = 0;
     DWCNodeInfo* node;
@@ -2808,7 +2818,7 @@ BOOL fn_806BCD40(u8 command, int profileID, u32 ip, u16 port, const u32* data, i
         DWCNodeInfo* newNode;
         int newPID;
         u8 newAID;
-        u32 addr;
+        SOInAddr addr;
         if (stpMatchCnt->state != DWC_MATCH_STATE_CL_WAITING ||
             profileID != stpMatchCnt->tempNewNodeInfo.profileID) {
             DWC_Printf(DWC_REPORTFLAG_DEBUG, "Ignore delayed LINK_CLS_REQ command.\n");
@@ -2835,8 +2845,8 @@ BOOL fn_806BCD40(u8 command, int profileID, u32 ip, u16 port, const u32* data, i
         newNode->localPort = (u16)DWCi_SwapU32(data[6]);
         newNode->unk17 = (u8)DWCi_SwapU32(data[7]);
         memcpy(&newNode->unk28, &data[8], sizeof(newNode->unk28));
-        addr = newNode->ip;
-        DWC_Printf(DWC_REPORTFLAG_DEBUG, "Client IP:%s, port:%d\n", fn_806A420C(&addr), newNode->port);
+        addr.addr = newNode->ip;
+        DWC_Printf(DWC_REPORTFLAG_DEBUG, "Client IP:%s, port:%d\n", fn_806A420C(addr), newNode->port);
         fn_806CCB70(DWC_MATCH_STATE_CL_NN);
         stpMatchCnt->unk770 = 0;
         stpMatchCnt->unk760 = 0;
@@ -3079,7 +3089,7 @@ static BOOL DWCi_CanReserveServer(int profileID) {
 }
 
 // @806BFBA0
-// NONMATCHING: 98.09% - register allocation / small scheduling differences
+// NONMATCHING: 98.93% - register allocation / small scheduling differences
 int fn_806BFBA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve, u32 topology,
                 void* userData, BOOL illegal) {
     int result;
@@ -3137,8 +3147,8 @@ int fn_806BFBA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve,
 }
 
 // @806BFEA0
-// NONMATCHING: 87.95% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
-u8 fn_806BFEA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve, u32 topology,
+// NONMATCHING: 88.06% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+int fn_806BFEA0(int profileID, u32 ip, u16 port, u8 matchType, BOOL meshReserve, u32 topology,
                void* userData, BOOL illegal) {
     u8 result;
     if (DWCi_IsMatchLocked()) {
@@ -3406,7 +3416,7 @@ int fn_806C0980(BOOL delay, BOOL keepIndex, int prevProfileID) {
 }
 
 // @806C0C20
-// NONMATCHING: 95.81% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.49% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806C0C20(int prevProfileID) {
     stpMatchCnt->unk7AC = 0;
     stpMatchCnt->unk750 = 0;
@@ -3460,7 +3470,7 @@ static BOOL DWCi_SendCancelMatchSynCommand(int profileID, u8 type) {
 }
 
 // @806C10C0
-// NONMATCHING: 73.56% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 76.05% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806C10C0(int profileID, int level) {
     int i;
     if (stpMatchCnt->tempNewNodeInfo.profileID) {
@@ -3516,7 +3526,7 @@ static int DWCi_SendResvCancelCommand(void) {
 }
 
 // @806C1430
-// NONMATCHING: 98.14% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.64% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806C1430(int profileID) {
     BOOL result = TRUE;
     if (stpMatchCnt->unk8C8 || stpMatchCnt->qr2MatchSubType == 3) {
@@ -3566,7 +3576,7 @@ BOOL fn_806C1430(int profileID) {
 }
 
 // @806C1AC0
-// NONMATCHING: 95.76% - inlined status string buffers use a 40-byte layout in the target; register allocation
+// NONMATCHING: 98.25% - register allocation
 void fn_806C1AC0(int level) {
     DWCMatchControl* cnt;
     int i;
@@ -3714,7 +3724,7 @@ void fn_806C2880(void) {
 }
 
 // @806C2F70
-// NONMATCHING: 93.67% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 99.26% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806C2F70(void) {
     BOOL result = FALSE;
     int i;
@@ -3749,7 +3759,7 @@ BOOL fn_806C2F70(void) {
 }
 
 // @806C3270
-// NONMATCHING: 78.80% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 84.86% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806C3270(void) {
     DWCMatchControl* cnt = stpMatchCnt;
     DWCNodeInfo newNode = cnt->tempNewNodeInfo;
@@ -3791,7 +3801,7 @@ BOOL fn_806C3270(void) {
 }
 
 // @806C3670
-// NONMATCHING: 94.25% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 94.49% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806C3670(void) {
     BOOL hasConnection;
     DWC_Printf(DWC_REPORTFLAG_DEBUG, "CANCEL! state %d, numHost=%d.\n", stpMatchCnt->state,
@@ -3868,7 +3878,7 @@ static void DWCi_FinishCancelMatching(void) {
 }
 
 // @806C3ED0
-// NONMATCHING: 89.61% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 93.63% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806C3ED0(int level) {
     DWCMatchControl* cnt;
     if (level == 0) {
@@ -3991,7 +4001,7 @@ BOOL fn_806C4430(u32 bitmap) {
 }
 
 // @806C4740
-// NONMATCHING: 94.15% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 94.16% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806C4740(u8 aid, u16 type) {
     u8 buf[8];
     u8* data = buf;
@@ -4097,7 +4107,7 @@ static void DWCi_SendTypeMatchAck(void) {
 }
 
 // @806C4B30
-// NONMATCHING: 91.43% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 95.04% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806C4B30(void) {
     DWCMatchControl* cnt = stpMatchCnt;
     u64 msec;
@@ -4175,7 +4185,7 @@ BOOL fn_806C4B30(void) {
 }
 
 // @806C50A0
-// NONMATCHING: 94.66% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 97.33% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806C50A0(int profileID, u8 command, int friendIdx) {
     int i;
     DWC_Printf(DWC_REPORTFLAG_MATCH_GT2, "Received CANCEL SYN %d command from %u.\n", command - 0xD,
@@ -4241,7 +4251,7 @@ BOOL fn_806C50A0(int profileID, u8 command, int friendIdx) {
 }
 
 // @806C57F0
-// NONMATCHING: 92.95% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 93.05% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806C57F0(void) {
     DWCMatchControl* cnt = stpMatchCnt;
     s64 msec;
@@ -4295,7 +4305,6 @@ BOOL fn_806C57F0(void) {
 }
 
 // @806C5C10
-// NONMATCHING: 99.76% - code is identical; only string pool relocations differ from the split target
 int fn_806C5C10(GPResult result) {
     DWCError dwcError;
     int errorCode;
@@ -4326,7 +4335,6 @@ int fn_806C5C10(GPResult result) {
 }
 
 // @806C5EB0
-// NONMATCHING: 99.77% - code is identical; only string pool relocations differ from the split target
 int fn_806C5EB0(int result) {
     DWCError dwcError;
     int errorCode;
@@ -4365,7 +4373,6 @@ int fn_806C5EB0(int result) {
 }
 
 // @806C6180
-// NONMATCHING: 99.79% - code is identical; only string pool relocations differ from the split target
 int fn_806C6180(int result) {
     DWCError dwcError;
     int errorCode;
@@ -4410,7 +4417,6 @@ int fn_806C6180(int result) {
 }
 
 // @806C6470
-// NONMATCHING: 99.78% - code is identical; only string pool relocations differ from the split target
 int fn_806C6470(int result) {
     DWCError dwcError;
     int errorCode;
@@ -4482,11 +4488,11 @@ inline static void DWCi_SetTempNewNodeInfoFromServer(SBServer server) {
     stpMatchCnt->tempNewNodeInfo.unk17 = SBServerHasPrivateAddress(server);
 }
 
-// NONMATCHING: 90.12% - .bss accesses are pooled in our build but not in the target; register allocation differs
+// NONMATCHING: 96.14% - register allocation and scheduling differ
 void DWCi_SBCallback(ServerBrowser sb, int reason, SBServer server, void* instance) {
     int i;
     DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "SBCallback : reason %d (state = %d)\n", reason, stpMatchCnt->state);
-    stNNInfo.sbBusy++;
+    stSBBusy++;
     if (stpMatchCnt->unk718) {
         if ((u32)(reason - 4) <= 1) {
             stpMatchCnt->unk718 = 0;
@@ -4570,9 +4576,10 @@ void DWCi_SBCallback(ServerBrowser sb, int reason, SBServer server, void* instan
             break;
         case DWC_MATCH_STATE_CL_SEARCH_EVAL_HOST: {
             DWCMatchControl* cnt = stpMatchCnt;
-            u32 addr = cnt->tempNewNodeInfo.ip;
+            SOInAddr addr;
             int pid;
-            DWC_Printf(DWC_REPORTFLAG_DEBUG, "searchIP: %s, searchPort: %d\n", fn_806A420C(&addr),
+            addr.addr = cnt->tempNewNodeInfo.ip;
+            DWC_Printf(DWC_REPORTFLAG_DEBUG, "searchIP: %s, searchPort: %d\n", fn_806A420C(addr),
                        cnt->tempNewNodeInfo.port);
             while (ServerBrowserCount(sb)) {
                 server = ServerBrowserGetServer(sb, 0);
@@ -4647,11 +4654,10 @@ void DWCi_SBCallback(ServerBrowser sb, int reason, SBServer server, void* instan
         }
         break;
     }
-    stNNInfo.sbBusy--;
+    stSBBusy--;
 }
 
 // @806C8700
-// NONMATCHING: 99.10% - code is identical; only string pool relocations differ from the split target
 void fn_806C8700(SBServer server) {
     int i;
     DWC_Printf(DWC_REPORTFLAG_SB_UPDATE, "SBServerGetPrivateAddress     = %s\n", SBServerGetPrivateAddress(server));
@@ -4686,15 +4692,15 @@ void fn_806C8700(SBServer server) {
 }
 
 // @806C89D0
-// NONMATCHING: 98.30% - register allocation / small scheduling differences
 BOOL fn_806C89D0(BOOL sort) {
     BOOL deleted = FALSE;
     int i;
     for (i = 0; i < ServerBrowserCount(stpMatchCnt->sbObj); i++) {
         SBServer server = ServerBrowserGetServer(stpMatchCnt->sbObj, i);
         if (stpMatchCnt->qr2MatchSubType == 0) {
+            int pid = SBServerGetIntValueA(server, "dwc_pid", 0);
             BOOL removed = FALSE;
-            if (fn_806CCF00(SBServerGetIntValueA(server, "dwc_pid", 0)) != NULL) {
+            if (fn_806CCF00(pid) != NULL) {
                 ServerBrowserRemoveServer(stpMatchCnt->sbObj, server);
                 removed = TRUE;
                 i--;
@@ -4793,7 +4799,7 @@ static const char* DWCi_GetQR2KeyName(int keyid) {
 }
 
 // @806C8DB0
-// NONMATCHING: 96.98% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 98.18% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806C8DB0(int keyid, void* outbuf, void* userdata) {
     switch (keyid) {
     case 8: {
@@ -4908,10 +4914,8 @@ void fn_806C97A0(int error, char* errmsg, void* userdata) {
 }
 
 // @806C9810
-// NONMATCHING: 99.11% - register allocation / small scheduling differences
 void fn_806C9810(unsigned int ip, unsigned short port, void* userdata) {
-    u32 addr = ip;
-    DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Got my query IP %s & port %d.\n", fn_806A420C(&addr), port);
+    DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Got my query IP %s & port %d.\n", fn_806A420C(*(SOInAddr*)&ip), port);
     stpMatchCnt->qr2IP = ip;
     stpMatchCnt->qr2Port = port;
 }
@@ -4943,7 +4947,7 @@ static int DWCi_HandleNNError(int result) {
 }
 
 // @806C9880
-// NONMATCHING: 93.81% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 95.92% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806C9880(int cookie, void* userdata) {
     int state;
     int result;
@@ -4977,39 +4981,35 @@ void fn_806C9880(int cookie, void* userdata) {
 }
 
 // @806C9CE0
-// NONMATCHING: 99.76% - code is identical; only string pool relocations differ from the split target
 void fn_806C9CE0(const u8* message, u32 size) {
-    DWCMatchCommandHeader header;
-    u32 data[32];
+    DWCMatchCommand cmd;
     if (fn_806B1230() != 4 &&
         !(fn_806B1230() == 5 &&
           (stpMatchCnt->qr2MatchType == 2 || stpMatchCnt->qr2MatchType == 3))) {
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "Ignore delayed GT2 matching command.\n");
         return;
     }
-    fn_806A9CA0(&header, message, sizeof(header));
-    header.ver = DWCi_SwapU32(header.ver);
-    header.port = DWCi_SwapU16(header.port);
-    header.profileID = DWCi_SwapU32(header.profileID);
-    if (header.ver != 90) {
+    fn_806A9CA0(&cmd.header, message, sizeof(cmd.header));
+    cmd.header.ver = DWCi_SwapU32(cmd.header.ver);
+    cmd.header.port = DWCi_SwapU16(cmd.header.port);
+    cmd.header.profileID = DWCi_SwapU32(cmd.header.profileID);
+    if (cmd.header.ver != 90) {
         DWC_Printf(DWC_REPORTFLAG_WARNING, "Got different version GT2 command.\n");
         return;
     }
-    if (size != header.size + sizeof(header)) {
+    if (size != cmd.header.size + sizeof(cmd.header)) {
         DWC_Printf(DWC_REPORTFLAG_WARNING, "Got wrong data size GT2 command.\n");
         return;
     }
-    fn_806A9CA0(data, message + sizeof(header), header.size);
-    DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "<GT2> RECV-0x%02x <- [--------:-----] [pid=%u]\n", header.command,
-               header.profileID);
-    fn_806BCD40(header.command, header.profileID, header.ip, header.port, data, header.size >> 2);
+    fn_806A9CA0(cmd.data, message + sizeof(cmd.header), cmd.header.size);
+    DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "<GT2> RECV-0x%02x <- [--------:-----] [pid=%u]\n", cmd.header.command,
+               cmd.header.profileID);
+    fn_806BCD40(cmd.header.command, cmd.header.profileID, cmd.header.ip, cmd.header.port, cmd.data, cmd.header.size >> 2);
 }
 
 // @806C9E60
-// NONMATCHING: 99.76% - code is identical; only string pool relocations differ from the split target
 void fn_806C9E60(const u8* message, int len, void* userdata) {
-    DWCMatchCommandHeader header;
-    u32 data[32];
+    DWCMatchCommand cmd;
     int pos = 0;
     if (fn_806B1230() != 4 &&
         !(fn_806B1230() == 5 &&
@@ -5017,27 +5017,27 @@ void fn_806C9E60(const u8* message, int len, void* userdata) {
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "Ignore delayed SB matching command.\n");
         return;
     }
-    while (pos + (int)sizeof(header) <= len) {
-        fn_806A9CA0(&header, message, sizeof(header));
-        header.ver = DWCi_SwapU32(header.ver);
-        header.port = DWCi_SwapU16(header.port);
-        header.profileID = DWCi_SwapU32(header.profileID);
-        if (strncmp(header.magic, "\xBB\x49\xCC\x4D", 4) != 0) {
+    while (pos + (int)sizeof(cmd.header) <= len) {
+        fn_806A9CA0(&cmd.header, message, sizeof(cmd.header));
+        cmd.header.ver = DWCi_SwapU32(cmd.header.ver);
+        cmd.header.port = DWCi_SwapU16(cmd.header.port);
+        cmd.header.profileID = DWCi_SwapU32(cmd.header.profileID);
+        if (strncmp(cmd.header.magic, "\xBB\x49\xCC\x4D", 4) != 0) {
             DWC_Printf(DWC_REPORTFLAG_WARNING, "Got undefined SBcommand.\n");
             return;
         }
-        if (header.ver != 90) {
+        if (cmd.header.ver != 90) {
             DWC_Printf(DWC_REPORTFLAG_WARNING, "Got different version SBcommand.\n");
             return;
         }
-        fn_806A9CA0(data, message + sizeof(header), header.size);
-        DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "<SB> RECV-0x%02x <- [%08x:%d] [pid=%u]\n", header.command,
-                   header.ip, header.port, header.profileID);
-        if (!fn_806BCD40(header.command, header.profileID, header.ip, header.port, data,
-                         header.size >> 2)) {
+        fn_806A9CA0(cmd.data, message + sizeof(cmd.header), cmd.header.size);
+        DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "<SB> RECV-0x%02x <- [%08x:%d] [pid=%u]\n", cmd.header.command,
+                   cmd.header.ip, cmd.header.port, cmd.header.profileID);
+        if (!fn_806BCD40(cmd.header.command, cmd.header.profileID, cmd.header.ip, cmd.header.port, cmd.data,
+                         cmd.header.size >> 2)) {
             return;
         }
-        pos += header.size + sizeof(header);
+        pos += cmd.header.size + sizeof(cmd.header);
     }
 }
 
@@ -5055,18 +5055,18 @@ inline static BOOL DWCi_CountNNFailure(void* remoteaddr) {
     }
     if (stpMatchCnt->qr2MatchSubType == 3 || stpMatchCnt->unk8C8 || stpMatchCnt->unk721 >= 5) {
         if (remoteaddr) {
-            stNNInfo.sbBusy++;
+            stSBBusy++;
         }
         fn_806B9500(DWC_ERROR_NETWORK, -86420);
         if (remoteaddr) {
-            stNNInfo.sbBusy--;
+            stSBBusy--;
         }
         return FALSE;
     }
     return TRUE;
 }
 
-// NONMATCHING: 85.77% - .bss pooling, register allocation and inlined status buffers differ
+// NONMATCHING: 96.65% - register allocation and scheduling differ
 void fn_806CA040(int result, int socket, void* remoteaddr, void* userdata) {
     DWCNNData* nnData = (DWCNNData*)userdata;
     SOSockAddrIn* addr = (SOSockAddrIn*)remoteaddr;
@@ -5264,7 +5264,7 @@ BOOL fn_806CB4C0(void) {
 }
 
 // @806CB550
-// NONMATCHING: 94.38% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 97.02% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 void fn_806CB550(BOOL newGroup) {
     int status;
     if (newGroup) {
@@ -5298,7 +5298,6 @@ void fn_806CB550(BOOL newGroup) {
 }
 
 // @806CB8F0
-// NONMATCHING: 95.84% - register allocation / small scheduling differences
 int fn_806CB8F0(BOOL force) {
     DWCMatchControl* cnt;
     u32 data[3];
@@ -5307,30 +5306,30 @@ int fn_806CB8F0(BOOL force) {
         return TRUE;
     }
     cnt = stpMatchCnt;
-    if (cnt->state == DWC_MATCH_STATE_SV_SYN || cnt->state == DWC_MATCH_STATE_SV_SYN_WAIT) {
+    switch (cnt->state) {
+    case DWC_MATCH_STATE_SV_SYN:
+    case DWC_MATCH_STATE_SV_SYN_WAIT:
         return TRUE;
     }
-    if (!force && OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - cnt->unk8D0) <= 15000) {
-        return TRUE;
-    }
-    data[0] = DWCi_SwapU32(stpMatchCnt->profileID);
-    data[1] = DWCi_SwapU32(fn_806B0F80());
-    data[2] = DWCi_SwapU32(stpMatchCnt->unk8F8);
-    for (i = 0; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
-        DWCNodeInfo* node = fn_806CCED0(i);
-        if (node != fn_806CCF00(stpMatchCnt->profileID)) {
-            if (DWCi_HandleMatchCommandError(
-                    fn_806BC860(0x83, node->profileID, node->ip, node->port, data, 3))) {
-                return -1;
+    if (force || OS_TICKS_TO_MSEC(DWCi_Np_GetTick() - cnt->unk8D0) > 15000) {
+        data[0] = DWCi_SwapU32(stpMatchCnt->profileID);
+        data[1] = DWCi_SwapU32(fn_806B0F80());
+        data[2] = DWCi_SwapU32(stpMatchCnt->unk8F8);
+        for (i = 0; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
+            DWCNodeInfo* node = fn_806CCED0(i);
+            if (node != fn_806CCF00(stpMatchCnt->profileID)) {
+                if (DWCi_HandleMatchCommandError(
+                        fn_806BC860(0x83, node->profileID, node->ip, node->port, data, 3))) {
+                    return -1;
+                }
             }
         }
+        stpMatchCnt->unk8D0 = DWCi_Np_GetTick();
     }
-    stpMatchCnt->unk8D0 = DWCi_Np_GetTick();
     return TRUE;
 }
 
 // @806CBB20
-// NONMATCHING: 97.25% - register allocation / small scheduling differences
 BOOL fn_806CBB20(u8 aid, int suspend, int fromCommand) {
     DWCNodeInfo* server = fn_806CCED0(0);
     u8 serverAid = server->aid;
@@ -5358,11 +5357,12 @@ BOOL fn_806CBB20(u8 aid, int suspend, int fromCommand) {
     }
     result = fn_806B3CC0();
     sendAll = TRUE;
-    if (!(suspend && result)) {
-        if (suspend || result) {
+    if ((suspend && result) == FALSE) {
+        if ((suspend || result) != FALSE) {
             sendAll = FALSE;
         }
     }
+
     if (fromCommand == 1) {
         DWCNodeInfo* node = fn_806CCF50(aid);
         int len = 2;
@@ -5398,7 +5398,7 @@ BOOL fn_806CBB20(u8 aid, int suspend, int fromCommand) {
 }
 
 // @806CC020
-// NONMATCHING: 85.05% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 98.73% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806CC020(void) {
     if (stpMatchCnt->sbObj != NULL) {
         ServerBrowserClear(stpMatchCnt->sbObj);
@@ -5442,7 +5442,6 @@ static void DWCi_SetSuspendRequest(int suspend, DWCSuspendCallback callback, voi
 }
 
 // @806CC550
-// NONMATCHING: 99.78% - code is identical; only string pool relocations differ from the split target
 BOOL fn_806CC550(int suspend, DWCSuspendCallback callback, void* param) {
     if (DWCi_IsError() || stpMatchCnt == NULL || !stpMatchCnt->qr2IsReserved ||
         (fn_806B1230() != 4 && fn_806B1230() != 5) || !stpMatchCnt->qr2IsReserved ||
@@ -5464,7 +5463,6 @@ BOOL fn_806CC550(int suspend, DWCSuspendCallback callback, void* param) {
 }
 
 // @806CC6D0
-// NONMATCHING: 99.84% - code is identical; only string pool relocations differ from the split target
 BOOL fn_806CC6D0(void) {
     int suspend;
     BOOL result;
@@ -5497,7 +5495,7 @@ BOOL fn_806CC6D0(void) {
 }
 
 // @806CC850
-// NONMATCHING: 86.56% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 86.74% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
 BOOL fn_806CC850(int suspend) {
     DWCNodeInfo* myNode;
     DWCNodeInfo* server;
@@ -5535,18 +5533,20 @@ BOOL fn_806CCB40(void) {
 }
 
 // @806CCB70
-// NONMATCHING: 80.21% - scheduling after __div2i differs (names table/msec registers)
 void fn_806CCB70(DWCMatchState state) {
-    int oldState = stpMatchCnt->state;
+    int oldState;
+    s64 prev;
+    int msec;
+    int sec;
+    oldState = stpMatchCnt->state;
     if (oldState != state) {
-        s64 prev = stLastStateTime;
-        int msec;
-        int sec;
+        prev = stLastStateTime;
         stLastStateTime = DWCi_Np_GetTick();
         msec = (int)OS_TICKS_TO_MSEC(stLastStateTime - prev);
         sec = msec / 1000;
+        msec = (msec - sec + 50) / 100;
         DWC_Printf(DWC_REPORTFLAG_INFO, "status changed %s(%d.%d sec) -> %s\n", stStateNames[oldState],
-                   sec, (msec - sec + 50) / 100, stStateNames[state]);
+                   sec, msec, stStateNames[state]);
     }
     stpMatchCnt->state = state;
 }
@@ -5630,9 +5630,11 @@ DWCNodeInfo* fn_806CCED0(int index) {
 
 // @806CCF00
 DWCNodeInfo* fn_806CCF00(int profileID) {
+    int pid = profileID; // inferred: local copy (gives the register order of the inlined copies)
     int i;
     for (i = 0; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
-        if (profileID == stpMatchCnt->nodeInfoList.nodeInfo[i].profileID) {
+        if (pid == stpMatchCnt->nodeInfoList.nodeInfo[i].profileID) {
+
             return &stpMatchCnt->nodeInfoList.nodeInfo[i];
         }
     }
@@ -5651,14 +5653,16 @@ DWCNodeInfo* fn_806CCF50(u8 aid) {
 }
 
 // @806CCFA0
-// NONMATCHING: 67.58% - register allocation and scheduling differ (inlined DWCi_SetMatchStatus/DWCi_SetGPStatus)
+// NONMATCHING: 71.53% - the loop is rotated differently and the 64-bit tick products are
+// computed in another order (target multiplies count by the ticks per ms first)
 s64 fn_806CCFA0(void) {
     DWCNodeInfo* myNode = fn_806CCF00(stpMatchCnt->profileID);
     int count = 0;
     int myIndex = 0;
     int i;
-    s64 time = DWCi_Np_GetTick() + OS_MSEC_TO_TICKS(3000);
+    s64 time = DWCi_Np_GetTick() + OS_MSEC_TO_TICKS((u64)3000);
     for (i = 1; i < stpMatchCnt->nodeInfoList.nodeNum; i++) {
+
         DWCNodeInfo* node = fn_806CCED0(i);
         if (myNode == node) {
             myIndex = i;
@@ -5669,12 +5673,11 @@ s64 fn_806CCFA0(void) {
             }
         }
     }
-    return time + OS_MSEC_TO_TICKS((s64)count * 3000) +
-           OS_MSEC_TO_TICKS((stpMatchCnt->nodeInfoList.nodeNum - 1 - myIndex) * 6000);
+    time += OS_MSEC_TO_TICKS((s64)count) * 3000;
+    return time + OS_MSEC_TO_TICKS((s64)((stpMatchCnt->nodeInfoList.nodeNum - 1 - myIndex) * 6000));
 }
 
 // @806CD150
-// NONMATCHING: 99.90% - code is identical; only string pool relocations differ from the split target
 BOOL fn_806CD150(void) {
     DWC_Printf(DWC_REPORTFLAG_INFO, "mesh making stat(%d)\n", stpMatchCnt->unk6C0);
     if (!stpMatchCnt->unk6C0) {
@@ -5736,7 +5739,6 @@ void fn_806CD450(int profileID) {
 }
 
 // @806CD460
-// NONMATCHING: 99.06% - code is identical; only string pool relocations differ from the split target
 void fn_806CD460(void) {
     qr2_register_keyA(50, "dwc_pid");
     qr2_register_keyA(51, "dwc_mtype");
@@ -5747,14 +5749,15 @@ void fn_806CD460(void) {
     qr2_register_keyA(56, "dwc_suspend");
 }
 
+DWCMatchControl* stpMatchCnt = NULL;
+
 // @806CD4E0
-// NONMATCHING: 69.43% - register allocation / small scheduling differences
 void fn_806CD4E0(void) {
     NNCancel(stpMatchCnt->nnData.cookie);
-    if (!stNNInfo.nnBusy) {
+    if (!stNNBusy) {
         NNFreeNegotiateList();
     } else {
-        stNNInfo.nnFreeReq = TRUE;
+        stNNFreeReq = TRUE;
     }
 }
 
