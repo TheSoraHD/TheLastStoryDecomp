@@ -23,22 +23,22 @@ typedef struct GT2ConnectionCallbacks {
 } GT2ConnectionCallbacks;
 
 // inferred: GameSpy entry points; names from the GameSpy SDK, no source yet
-const char* fn_806EEDC0(u32 ip, u16 port, char* string);                // gt2AddressToString
-GT2Result fn_806EA840(GT2Socket* socket, const char* localAddress, int outgoingBufferSize,
-                      int incomingBufferSize, void* errorCallback);     // gt2CreateSocket
-void fn_806EA850(GT2Socket socket);                                     // gt2CloseSocket
-void fn_806EA8A0(GT2Socket socket);                                     // gt2Think
-void fn_806EA8F0(GT2Socket socket, void* callback);                     // gt2Listen
-void fn_806EA900(GT2Connection connection, GT2ConnectionCallbacks* callbacks); // gt2Accept
-void fn_806EA910(GT2Connection connection, const void* message, int len);      // gt2Reject
-GT2Result fn_806EA920(GT2Socket socket, GT2Connection* connection, const char* remoteAddress,
+const char* gt2AddressToString(u32 ip, u16 port, char* string);
+GT2Result gt2CreateSocket(GT2Socket* socket, const char* localAddress, int outgoingBufferSize,
+                      int incomingBufferSize, void* errorCallback);
+void gt2CloseSocket(GT2Socket socket);
+void gt2Think(GT2Socket socket);
+void gt2Listen(GT2Socket socket, void* callback);
+void gt2Accept(GT2Connection connection, GT2ConnectionCallbacks* callbacks);
+void gt2Reject(GT2Connection connection, const void* message, int len);
+GT2Result gt2Connect(GT2Socket socket, GT2Connection* connection, const char* remoteAddress,
                       const void* message, int len, int timeout,
-                      GT2ConnectionCallbacks* callbacks, int blocking); // gt2Connect
-GT2Result fn_806EAAD0(GT2Connection connection, const void* message, int len,
-                      int reliable);                                    // gt2Send
-void fn_806EABE0(GT2Connection connection);                             // gt2CloseConnection
-void fn_806EAC00(GT2Socket socket);                                     // gt2CloseAllConnections
-u32 fn_806EAC90(GT2Connection connection);                              // gt2GetRemoteIP
+                      GT2ConnectionCallbacks* callbacks, int blocking);
+GT2Result gt2Send(GT2Connection connection, const void* message, int len,
+                      int reliable);
+void gt2CloseConnectionHard(GT2Connection connection);
+void gt2CloseAllConnections(GT2Socket socket);
+u32 gt2GetRemoteIP(GT2Connection connection);
 int fn_806EF470(void* qrec, const char* ip, int baseport, const char* gamename,
                 const char* secretKey, int isPublic, int natNegotiate, void* serverKeyCallback,
                 void* playerKeyCallback, void* teamKeyCallback, void* keyListCallback,
@@ -197,7 +197,7 @@ void fn_806A8290(void) {
     }
 
     if (spCntl->state > 0) {
-        fn_806EA8A0(spGT2->socket);
+        gt2Think(spGT2->socket);
         if (spCntl->state < 8 && spSB->handle != NULL) {
             if (spSB->active) {
                 fn_806FFDD0(spSB->handle);
@@ -215,7 +215,7 @@ void fn_806A8290(void) {
         spCntl->mAddr = SOGetHostID();
         if (spCntl->mAddr != 0) {
             DWC_Printf(DWC_REPORTFLAG_INFO, "spCntl->mAddr = %s\n",
-                       fn_806EEDC0(spCntl->mAddr, 0, NULL));
+                       gt2AddressToString(spCntl->mAddr, 0, NULL));
             spCntl->state = 1;
             fn_806A9000(spCntl->mAddr);
             spSB = &spCntl->sb;
@@ -250,8 +250,8 @@ void fn_806A8290(void) {
         addr = spSB->addrs[0];
         if (addr != spCntl->mAddr) {
             spCntl->state = 5;
-            fn_806EA920(spGT2->socket, DWCi_LanAddConnection(0),
-                        fn_806EEDC0(addr, DWC_LAN_GT2_PORT, NULL), NULL, 0, 10000,
+            gt2Connect(spGT2->socket, DWCi_LanAddConnection(0),
+                        gt2AddressToString(addr, DWC_LAN_GT2_PORT, NULL), NULL, 0, 10000,
                         &spGT2->callbacks, 0);
         }
         break;
@@ -271,8 +271,8 @@ void fn_806A8290(void) {
             if (i > myIndex) {
                 spCntl->state = 6;
                 addr = spCntl->players[i].addr;
-                fn_806EA920(spGT2->socket, DWCi_LanAddConnection(i),
-                            fn_806EEDC0(addr, DWC_LAN_GT2_PORT, NULL), NULL, 0, 10000,
+                gt2Connect(spGT2->socket, DWCi_LanAddConnection(i),
+                            gt2AddressToString(addr, DWC_LAN_GT2_PORT, NULL), NULL, 0, 10000,
                             &spGT2->callbacks, 0);
             }
             break;
@@ -312,8 +312,8 @@ void fn_806A8DB0(void) {
     fn_806EF930(NULL);
     fn_806FFA10(spSB->handle);
     spSB = NULL;
-    fn_806EAC00(spGT2->socket);
-    fn_806EA850(spGT2->socket);
+    gt2CloseAllConnections(spGT2->socket);
+    gt2CloseSocket(spGT2->socket);
     spGT2 = NULL;
     if (spCntl != NULL) {
         DWC_Free(DWC_ALLOCTYPE_LANMATCH, spCntl, 0);
@@ -333,7 +333,7 @@ int fn_806A8E70(void) {
 }
 
 BOOL fn_806A8E80(int index, const void* data, int size, BOOL reliable) {
-    fn_806EAAD0(*DWCi_LanGetConnection(index), data, size, reliable);
+    gt2Send(*DWCi_LanGetConnection(index), data, size, reliable);
     if (spCntl->state == 8) {
         spCntl->sendCallback(size, index);
     }
@@ -406,9 +406,9 @@ void fn_806A9000(u32 addr) {
     spGT2->callbacks.connected = DWCi_LanConnectedCallback;
     spGT2->callbacks.received = DWCi_LanReceivedCallback;
     spGT2->callbacks.closed = DWCi_LanClosedCallback;
-    fn_806EA840(&spGT2->socket, fn_806EEDC0(addr, DWC_LAN_GT2_PORT, NULL), 0, 0,
+    gt2CreateSocket(&spGT2->socket, gt2AddressToString(addr, DWC_LAN_GT2_PORT, NULL), 0, 0,
                 DWCi_LanSocketErrorCallback);
-    fn_806EA8F0(spGT2->socket, DWCi_LanConnectAttemptCallback);
+    gt2Listen(spGT2->socket, DWCi_LanConnectAttemptCallback);
 }
 
 static void DWCi_LanConnectedCallback(GT2Connection connection, GT2Result result, void* message,
@@ -425,12 +425,12 @@ static void DWCi_LanConnectedCallback(GT2Connection connection, GT2Result result
         if (slot != -1) {
             spGT2->connIndex[index] = -1;
             spGT2->conns[slot].index = -1;
-            fn_806EABE0(spGT2->conns[slot].conn);
+            gt2CloseConnectionHard(spGT2->conns[slot].conn);
         }
     }
 
     DWC_Printf(DWC_REPORTFLAG_INFO, "connect to %s (%d)\n",
-               fn_806EEDC0(fn_806EAC90(connection), 0, NULL), result);
+               gt2AddressToString(gt2GetRemoteIP(connection), 0, NULL), result);
 }
 
 static void DWCi_LanReceivedCallback(GT2Connection connection, void* message, int len,
@@ -492,7 +492,7 @@ static void DWCi_LanConnectAttemptCallback(GT2Socket socket, GT2Connection conne
         }
         index = spGT2->numConnected++;
         *DWCi_LanAddConnection(index) = connection;
-        fn_806EA900(connection, &spGT2->callbacks);
+        gt2Accept(connection, &spGT2->callbacks);
         accepted = TRUE;
         if (spGT2->numConnected == spCntl->numPlayers) {
             spCntl->state = 4;
@@ -501,7 +501,7 @@ static void DWCi_LanConnectAttemptCallback(GT2Socket socket, GT2Connection conne
             memset(spCntl->msg.addrs, 0, sizeof(spCntl->msg.addrs));
             spCntl->msg.addrs[0] = spCntl->mAddr;
             for (i = 1; i < spGT2->numConnected; i++) {
-                spCntl->msg.addrs[i] = fn_806EAC90(*DWCi_LanGetConnection(i));
+                spCntl->msg.addrs[i] = gt2GetRemoteIP(*DWCi_LanGetConnection(i));
             }
             for (i = 1; i < spGT2->numConnected; i++) {
                 fn_806A8E80(i, &spCntl->msg, sizeof(DWCLanMessage), TRUE);
@@ -513,7 +513,7 @@ static void DWCi_LanConnectAttemptCallback(GT2Socket socket, GT2Connection conne
     case 7:
         {
             int j = 0;
-            u32 addr2 = fn_806EAC90(connection);
+            u32 addr2 = gt2GetRemoteIP(connection);
             for (; spCntl->players[j].addr != 0; j++) {
                 if (addr2 == spCntl->players[j].addr) {
                     break;
@@ -521,16 +521,16 @@ static void DWCi_LanConnectAttemptCallback(GT2Socket socket, GT2Connection conne
             }
             *DWCi_LanAddConnection(j) = connection;
         }
-        fn_806EA900(connection, &spGT2->callbacks);
+        gt2Accept(connection, &spGT2->callbacks);
         accepted = TRUE;
         break;
     default:
-        fn_806EA910(connection, NULL, 0);
+        gt2Reject(connection, NULL, 0);
         break;
     }
 
     DWC_Printf(DWC_REPORTFLAG_INFO, "%s %s (%d)\n", accepted ? "accept" : "reject",
-               fn_806EEDC0(ip, port, NULL), spCntl->state);
+               gt2AddressToString(ip, port, NULL), spCntl->state);
 }
 
 static void DWCi_LanSwap(u32* v, int i, int j) {

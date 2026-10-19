@@ -55,16 +55,16 @@ typedef struct GPBuddyStatus {
 } GPBuddyStatus;
 
 // inferred: GameSpy entry points; names from the GameSpy SDK, no source yet
-GT2Result fn_806EA840(GT2Socket* socket, const char* localAddress, int outgoingBufferSize,
-                      int incomingBufferSize, void* errorCallback); // gt2CreateSocket
-void fn_806EA850(GT2Socket socket);                                 // gt2CloseSocket
-void fn_806EA8F0(GT2Socket socket, void* callback);                 // gt2Listen
-void fn_806EABE0(GT2Connection connection);                         // gt2CloseConnectionHard
-void fn_806EAC30(GT2Socket socket);                                 // gt2CloseAllConnectionsHard
-int fn_806EAD00(GT2Socket socket);                                  // gt2GetSocketSOCKET
-void fn_806EAD10(GT2Socket socket, void* callback); // gt2SetUnrecognizedMessageCallback
-void* fn_806EAD30(GT2Connection connection);        // gt2GetConnectionData
-const char* fn_806EEDC0(u32 ip, u16 port, char* string); // gt2AddressToString
+GT2Result gt2CreateSocket(GT2Socket* socket, const char* localAddress, int outgoingBufferSize,
+                      int incomingBufferSize, void* errorCallback);
+void gt2CloseSocket(GT2Socket socket);
+void gt2Listen(GT2Socket socket, void* callback);
+void gt2CloseConnectionHard(GT2Connection connection);
+void gt2CloseAllConnectionsHard(GT2Socket socket);
+int gt2GetSocketSOCKET(GT2Socket socket);
+void gt2SetUnrecognizedMessageCallback(GT2Socket socket, void* callback);
+void* gt2GetConnectionData(GT2Connection connection);
+const char* gt2AddressToString(u32 ip, u16 port, char* string);
 int fn_806D7F20(int socket);                             // GOAGetLastError
 void fn_806EF8B0(void* qrec);                            // qr2_send_statechanged
 void fn_806EF930(void* qrec);                            // qr2_shutdown
@@ -403,7 +403,7 @@ void fn_806AF910(void) {
     DWCi_ShutdownTransport();
 
     if (stpDwcCnt->gt2Socket != NULL) {
-        fn_806EA850(stpDwcCnt->gt2Socket);
+        gt2CloseSocket(stpDwcCnt->gt2Socket);
         stpDwcCnt->gt2Socket = NULL;
     }
 
@@ -777,7 +777,7 @@ int fn_806B0980(void) {
     }
 
     stpDwcCnt->closing = TRUE;
-    fn_806EAC30(stpDwcCnt->gt2Socket);
+    gt2CloseAllConnectionsHard(stpDwcCnt->gt2Socket);
     while (fn_806CCCB0() > 1) {
         for (i = 0; i < fn_806CCCB0(); i++) {
             node = fn_806CCED0(i);
@@ -929,14 +929,14 @@ GT2Result fn_806B13C0(void) {
 
     port = (u16)(fn_806ABB70(0x4000) + 0xC000);
     DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "--- Private port = %d ---\n", port);
-    result = fn_806EA840(&stpDwcCnt->gt2Socket, fn_806EEDC0(0, port, NULL),
+    result = gt2CreateSocket(&stpDwcCnt->gt2Socket, gt2AddressToString(0, port, NULL),
                          stpDwcCnt->gt2SendBufSize, stpDwcCnt->gt2RecvBufSize,
                          fn_806B3030);
     if (fn_806B1910(result)) {
         return result;
     }
-    fn_806EA8F0(stpDwcCnt->gt2Socket, fn_806B85B0);
-    fn_806EAD10(stpDwcCnt->gt2Socket, fn_806B8430);
+    gt2Listen(stpDwcCnt->gt2Socket, fn_806B85B0);
+    gt2SetUnrecognizedMessageCallback(stpDwcCnt->gt2Socket, fn_806B8430);
     return result;
 }
 
@@ -949,7 +949,7 @@ GT2Connection fn_806B14D0(u8 aid) {
     }
     for (i = 0; i < DWC_MAX_CONNECTION; i++) {
         if (stGt2ConnectionList[i] != NULL &&
-            ((DWCConnectionInfo*)fn_806EAD30(stGt2ConnectionList[i]))->aid == aid) {
+            ((DWCConnectionInfo*)gt2GetConnectionData(stGt2ConnectionList[i]))->aid == aid) {
             return stGt2ConnectionList[i];
         }
     }
@@ -958,7 +958,7 @@ GT2Connection fn_806B14D0(u8 aid) {
 
 // DWCi_GetConnectionAID
 u8 fn_806B1570(GT2Connection connection) {
-    DWCConnectionInfo* info = fn_806EAD30(connection);
+    DWCConnectionInfo* info = gt2GetConnectionData(connection);
     if (info != NULL) {
         return info->aid;
     }
@@ -988,7 +988,7 @@ GT2Connection* fn_806B1680(int profileID) {
 
     for (i = 0; i < DWC_MAX_CONNECTION; i++) {
         if (stGt2ConnectionList[i] != NULL &&
-            ((DWCConnectionInfo*)fn_806EAD30(stGt2ConnectionList[i]))->profileID == profileID) {
+            ((DWCConnectionInfo*)gt2GetConnectionData(stGt2ConnectionList[i]))->profileID == profileID) {
             return &stGt2ConnectionList[i];
         }
     }
@@ -1006,7 +1006,7 @@ BOOL fn_806B1730(u8 aid) {
 
     for (i = 0; i < DWC_MAX_CONNECTION; i++) {
         if (stGt2ConnectionList[i] != NULL &&
-            ((DWCConnectionInfo*)fn_806EAD30(stGt2ConnectionList[i]))->aid == aid) {
+            ((DWCConnectionInfo*)gt2GetConnectionData(stGt2ConnectionList[i]))->aid == aid) {
             return TRUE;
         }
     }
@@ -1145,7 +1145,7 @@ int fn_806B1A00(u8 aid) {
         fn_806B2600(NULL, 0, TRUE, node->aid);
         return 0;
     }
-    fn_806EABE0(connection);
+    gt2CloseConnectionHard(connection);
     return 0;
 }
 
@@ -1197,7 +1197,7 @@ static void fn_806B1CF0(DWCError error, BOOL cancel, BOOL self, BOOL isServer, i
         for (i = 0; i < stpDwcCnt->matchcnt.nodeNum; i++) {
             DWC_Printf(DWC_REPORTFLAG_DEBUG, "[%02d] aid = %d, pid = %u, qr2 pub adr=%s\n", i,
                        stpDwcCnt->matchcnt.nodeInfo[i].aid, stpDwcCnt->matchcnt.nodeInfo[i].profileID,
-                       fn_806EEDC0(stpDwcCnt->matchcnt.nodeInfo[i].publicip,
+                       gt2AddressToString(stpDwcCnt->matchcnt.nodeInfo[i].publicip,
                                    stpDwcCnt->matchcnt.nodeInfo[i].publicport, NULL));
         }
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "[**user data]\n");
@@ -1398,7 +1398,7 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
 
     if (error == DWC_ERROR_NONE) {
         if (!pseudo) {
-            info = fn_806EAD30(connection);
+            info = gt2GetConnectionData(connection);
             if (info == NULL) {
                 return;
             }
@@ -1432,7 +1432,7 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
         }
 
         if (profileID == 0) {
-            profileID = ((DWCConnectionInfo*)fn_806EAD30(fn_806B14D0((u8)aid)))->profileID;
+            profileID = ((DWCConnectionInfo*)gt2GetConnectionData(fn_806B14D0((u8)aid)))->profileID;
             DWC_Printf(DWC_REPORTFLAG_DEBUG, "**** pid(%u) is not in node info.****\n", profileID);
         }
 
@@ -1512,7 +1512,7 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
     for (i = 0; i < stpDwcCnt->matchcnt.nodeNum; i++) {
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "[%02d] aid = %d, pid = %u, qr2 pub adr=%s\n", i,
                    stpDwcCnt->matchcnt.nodeInfo[i].aid, stpDwcCnt->matchcnt.nodeInfo[i].profileID,
-                   fn_806EEDC0(stpDwcCnt->matchcnt.nodeInfo[i].publicip,
+                   gt2AddressToString(stpDwcCnt->matchcnt.nodeInfo[i].publicip,
                                stpDwcCnt->matchcnt.nodeInfo[i].publicport, NULL));
     }
     DWC_Printf(DWC_REPORTFLAG_DEBUG, "[**user data]\n");
@@ -1571,7 +1571,7 @@ static void fn_806B2FD0(GT2Connection connection, int latency) {
 
 // DWCi_GT2SocketErrorCallback
 static void fn_806B3030(GT2Socket socket) {
-    stGt2SocketError = fn_806D7F20(fn_806EAD00(socket));
+    stGt2SocketError = fn_806D7F20(gt2GetSocketSOCKET(socket));
     DWC_Printf(DWC_REPORTFLAG_ERROR, "Socket fatal error! (%d)\n", stGt2SocketError);
     DWCi_SetError(DWC_ERROR_FATAL, -97003);
     stpDwcCnt->gt2Socket = NULL;

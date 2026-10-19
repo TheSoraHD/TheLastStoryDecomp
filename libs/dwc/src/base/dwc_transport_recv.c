@@ -18,12 +18,12 @@ typedef GT2Result (*DWCGT2SendFunc)(GT2Connection connection, const void* messag
                                     GT2Bool reliable);
 
 // inferred: GameSpy entry points; names from the GameSpy SDK, no source yet
-GT2Result fn_806EAAD0(GT2Connection connection, const void* message, int len,
-                      GT2Bool reliable);            // gt2Send
-void fn_806EABD0(GT2Connection connection);         // gt2Ping
-int fn_806EAC50(GT2Connection connection);          // gt2GetConnectionState
-int fn_806EACD0(GT2Connection connection);          // gt2GetIncomingBufferFreeSpace
-int fn_806EACF0(GT2Connection connection);          // gt2GetOutgoingBufferFreeSpace
+GT2Result gt2Send(GT2Connection connection, const void* message, int len,
+                      GT2Bool reliable);
+void gt2Ping(GT2Connection connection);
+int gt2GetConnectionState(GT2Connection connection);
+int gt2GetIncomingBufferFreeSpace(GT2Connection connection);
+int gt2GetOutgoingBufferFreeSpace(GT2Connection connection);
 
 // inferred: DWC matching functions (other units); names from older DWC builds where known
 void fn_806A9CA0(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
@@ -133,7 +133,7 @@ void DWCs_RecvDataBody(u8 aid, const u8* message, int len) {
     state = stpTransInfo->connections[aid].recvState;
     DWC_Printf(DWC_REPORTFLAG_RECV_INFO, "aid = %d size = %d/%d state = %d incoming buffer = %d\n",
                aid, conn->recvingSize, conn->requestRecvSize, state,
-               fn_806EACD0(fn_806B14D0(aid)));
+               gt2GetIncomingBufferFreeSpace(fn_806B14D0(aid)));
 
     if (conn->recvingSize == conn->requestRecvSize) {
         int recvSize = conn->requestRecvSize;

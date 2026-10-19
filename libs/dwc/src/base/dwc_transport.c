@@ -20,12 +20,12 @@ typedef GT2Result (*DWCGT2SendFunc)(GT2Connection connection, const void* messag
                                     GT2Bool reliable);
 
 // inferred: GameSpy entry points; names from the GameSpy SDK, no source yet
-GT2Result fn_806EAAD0(GT2Connection connection, const void* message, int len,
-                      GT2Bool reliable);            // gt2Send
-void fn_806EABD0(GT2Connection connection);         // gt2Ping
-int fn_806EAC50(GT2Connection connection);          // gt2GetConnectionState
-int fn_806EACD0(GT2Connection connection);          // gt2GetIncomingBufferFreeSpace
-int fn_806EACF0(GT2Connection connection);          // gt2GetOutgoingBufferFreeSpace
+GT2Result gt2Send(GT2Connection connection, const void* message, int len,
+                      GT2Bool reliable);
+void gt2Ping(GT2Connection connection);
+int gt2GetConnectionState(GT2Connection connection);
+int gt2GetIncomingBufferFreeSpace(GT2Connection connection);
+int gt2GetOutgoingBufferFreeSpace(GT2Connection connection);
 
 // inferred: DWC matching functions (other units); names from older DWC builds where known
 void fn_806A9CA0(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
@@ -121,7 +121,7 @@ DWCTransportInfo* stpTransInfo; // inferred: name
 // inferred: sends now if nothing is queued, otherwise queues the message
 static inline void DWCi_SendReliableData(GT2Connection connection, const void* data, int size) {
     if (fn_806CD610()) {
-        GT2Result result = fn_806EAAD0(connection, data, size, TRUE);
+        GT2Result result = gt2Send(connection, data, size, TRUE);
         if (result == 0) {
             return;
         }
@@ -135,7 +135,7 @@ static inline void DWCi_SendReliableData(GT2Connection connection, const void* d
 
 // inferred: free space of the GT2 outgoing buffer, minus a reserve
 static inline int DWCi_GetOutgoingFreeSpace(u8 aid) {
-    int freeSpace = fn_806EACF0(fn_806B14D0(aid)) - 519;
+    int freeSpace = gt2GetOutgoingBufferFreeSpace(fn_806B14D0(aid)) - 519;
     return freeSpace > 0 ? freeSpace : 0;
 }
 
@@ -296,12 +296,12 @@ BOOL DWC_Ping(u8 aid) {
     }
 
     connection = fn_806B14D0(aid);
-    if (aid == fn_806B0E30() || connection == NULL || fn_806EAC50(connection) != 1) {
+    if (aid == fn_806B0E30() || connection == NULL || gt2GetConnectionState(connection) != 1) {
         DWC_Printf(DWC_REPORTFLAG_SEND_INFO, "DWC_Ping:not connected yet:%d\n", aid);
         return FALSE;
     }
 
-    fn_806EABD0(connection);
+    gt2Ping(connection);
     return TRUE;
 }
 
@@ -605,12 +605,12 @@ void fn_806CE750(u8 srcAid, u8 dstAid, const void* buffer, int size, int relay) 
         header->aid = srcAid;
         header->aidBitmap = SWAP32(1 << dstAid);
         fn_806A9CA0(header + 1, buffer, size);
-        fn_806EAAD0(connection, header, size + sizeof(DWCRelayHeader), FALSE);
+        gt2Send(connection, header, size + sizeof(DWCRelayHeader), FALSE);
         if (header != NULL) {
             DWC_Free(DWC_ALLOCTYPE_BASE, header, 0);
         }
     } else {
-        fn_806EAAD0(connection, buffer, size, FALSE);
+        gt2Send(connection, buffer, size, FALSE);
     }
 }
 

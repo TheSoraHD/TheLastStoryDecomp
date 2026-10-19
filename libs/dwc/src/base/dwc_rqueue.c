@@ -18,12 +18,12 @@ typedef GT2Result (*DWCGT2SendFunc)(GT2Connection connection, const void* messag
                                     GT2Bool reliable);
 
 // inferred: GameSpy entry points; names from the GameSpy SDK, no source yet
-GT2Result fn_806EAAD0(GT2Connection connection, const void* message, int len,
-                      GT2Bool reliable);            // gt2Send
-void fn_806EABD0(GT2Connection connection);         // gt2Ping
-int fn_806EAC50(GT2Connection connection);          // gt2GetConnectionState
-int fn_806EACD0(GT2Connection connection);          // gt2GetIncomingBufferFreeSpace
-int fn_806EACF0(GT2Connection connection);          // gt2GetOutgoingBufferFreeSpace
+GT2Result gt2Send(GT2Connection connection, const void* message, int len,
+                      GT2Bool reliable);
+void gt2Ping(GT2Connection connection);
+int gt2GetConnectionState(GT2Connection connection);
+int gt2GetIncomingBufferFreeSpace(GT2Connection connection);
+int gt2GetOutgoingBufferFreeSpace(GT2Connection connection);
 
 // inferred: DWC matching functions (other units); names from older DWC builds where known
 void fn_806A9CA0(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
@@ -140,7 +140,7 @@ BOOL fn_806CD5E0(void) {
 }
 
 BOOL fn_806CD610(void) {
-    return DWCi_ProcessReliableQueue(fn_806EAAD0);
+    return DWCi_ProcessReliableQueue(gt2Send);
 }
 
 BOOL DWCi_ProcessReliableQueue(DWCGT2SendFunc sendFunc) {
