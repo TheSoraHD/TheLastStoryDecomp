@@ -1467,8 +1467,9 @@ gmk/OpenBoard.cpp:
 
 gmk/FloatingBox.cpp:
 	.text       start:0x8042C21C end:0x8042CE30
-	.rodata     start:0x80753868 end:0x8075387C
+	.rodata     start:0x80753868 end:0x807538B8
 	.data       start:0x8078E808 end:0x8078E8A0
+	.sbss       start:0x8087F4E0 end:0x8087F4E8
 	.sdata2     start:0x80886758 end:0x80886798
 
 gmk/CharaObj.cpp:

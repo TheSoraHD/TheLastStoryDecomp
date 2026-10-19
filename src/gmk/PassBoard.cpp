@@ -120,15 +120,15 @@ void PassBoard::vf20() {
             fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModel, &csv);
         } else if (strcmp(field, "COLLI_BOX") == 0) {
-            mColli.mBox[0] = fn_800DC288(csv.fn_8005B9CC());
-            mColli.mBox[1] = fn_800DC288(csv.fn_8005B9CC());
-            mColli.mBox[2] = fn_800DC288(csv.fn_8005B9CC());
-            mColli.mBox[3] = fn_800DC288(csv.fn_8005B9CC());
-            mColli.mBox[4] = fn_800DC288(csv.fn_8005B9CC());
-            mColli.mBox[5] = fn_800DC288(csv.fn_8005B9CC());
-            mColli.mBox[6] = fn_800DC288(csv.fn_8005B9CC());
-            mColli.mBox[7] = fn_800DC288(csv.fn_8005B9CC());
-            mColli.mBox[8] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[0] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[1] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[2] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[3] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[4] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[5] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[6] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[7] = fn_800DC288(csv.fn_8005B9CC());
+            mBox[8] = fn_800DC288(csv.fn_8005B9CC());
         } else if (strcmp(field, "MATERIAL_NAME") == 0) {
             for (int i = 0; i < 2; i++) {
                 strcpy(mMaterials[i], csv.fn_8005B9CC());

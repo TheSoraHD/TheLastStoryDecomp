@@ -43,14 +43,14 @@ public:
     float m48[12];
 };
 
-// The name is in the DOL (__vt__Q23atn8ColliBox, 0x807775F8). Layout inferred from gmk::PassBoard.
+// The name is in the DOL (__vt__Q23atn8ColliBox, 0x807775F8). 0x378 bytes: gmk::FloatingBox
+// has its own members right after it.
 class ColliBox : public ColliBase {
 public:
     ColliBox() : ColliBase(2) {}
     virtual ~ColliBox() {}
 
-    unsigned char m3C[0x378 - 0x3C];
-    float mBox[9]; // 0x378: inferred: read from "COLLI_BOX" (9 values)
+    unsigned char m3C[0x378 - 0x3C]; // inferred: m3C is the box tested by fn_80051CD8
 };
 
 // The name is in the DOL (__vt__Q23atn11ColliSphere, 0x80777668). Layout inferred from
