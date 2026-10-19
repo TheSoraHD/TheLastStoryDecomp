@@ -1,4 +1,5 @@
 #include "game/GameSoundControl.h"
+#include "game/GameBgm.h"
 #include "atn/Memory.h"
 
 // inferred: stream of the field (two at Field_unk::m5620/m5624); names invented
@@ -44,17 +45,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_803761FC(Field_unk* field);
 extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 extern "C" int fn_80375184(Field_unk* field);
-// inferred: BGM player (lbl_8087F448); names invented
-struct Bgm_unk {
-    unsigned char m00[0x84];
-    int m84;
-    unsigned char m88[0x8C - 0x88];
-    int m8C;
-    unsigned char m90[0xC4 - 0x90];
-    int mC4;
-};
-extern "C" Bgm_unk* lbl_8087F448;
-extern "C" void fn_8037D4C0(Bgm_unk* bgm, int id, int a, int b, int c, float volume);
 // inferred: battle state kept by the effect manager (lbl_8087F048); names invented
 struct BattleState_unk {
     unsigned char m00000[0x38C90];
@@ -109,10 +99,10 @@ GameSoundControl::~GameSoundControl() {
 }
 
 void GameSoundControl::fn_803CDAE4() {
-    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && lbl_8087F448 != 0) {
-        int state = lbl_8087F448->m84 != 0 ? lbl_8087F448->mC4 : lbl_8087F448->m8C;
+    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && GameBgm::sInstance != 0) {
+        int state = GameBgm::sInstance->m84 != 0 ? GameBgm::sInstance->mNext.mId : GameBgm::sInstance->mReq.mId;
         if (state <= 0 || state == 0x67) {
-            fn_8037D4C0(lbl_8087F448, 0x65, 0, 1, 0, 1.0f);
+            GameBgm::sInstance->fn_8037D4C0(0x65, 0, 1, 0, 1.0f);
         }
     }
 }
@@ -120,27 +110,27 @@ void GameSoundControl::fn_803CDAE4() {
 void GameSoundControl::fn_803CDB64() {}
 
 void GameSoundControl::fn_803CDB68() {
-    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && lbl_8087F448 != 0) {
+    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && GameBgm::sInstance != 0) {
         BattleState_unk* state = lbl_8087F048;
         if (state->m38CA0 == 0) {
             if (state->m38C9C >= 3) {
                 if (state->m38C90 * 2 <= state->m38C94) {
-                    fn_8037D4C0(lbl_8087F448, 0x6B, 0, 1, 0, 1.0f);
+                    GameBgm::sInstance->fn_8037D4C0(0x6B, 0, 1, 0, 1.0f);
                 } else {
-                    fn_8037D4C0(lbl_8087F448, 0x66, 0, 1, 0, 1.0f);
+                    GameBgm::sInstance->fn_8037D4C0(0x66, 0, 1, 0, 1.0f);
                 }
             } else {
-                fn_8037D4C0(lbl_8087F448, 0x65, 0, 1, 0, 1.0f);
+                GameBgm::sInstance->fn_8037D4C0(0x65, 0, 1, 0, 1.0f);
             }
         } else {
-            fn_8037D4C0(lbl_8087F448, 0xC9, 0, 1, 0, 1.0f);
+            GameBgm::sInstance->fn_8037D4C0(0xC9, 0, 1, 0, 1.0f);
         }
     }
 }
 
 void GameSoundControl::fn_803CDC48() {
-    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && lbl_8087F448 != 0) {
-        fn_8037D4C0(lbl_8087F448, 0x67, 0, 1, 0, 1.0f);
+    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && GameBgm::sInstance != 0) {
+        GameBgm::sInstance->fn_8037D4C0(0x67, 0, 1, 0, 1.0f);
     }
 }
 
@@ -220,7 +210,7 @@ void GameSoundControl::fn_803CDF84() {
     if (!HasSoundCfg_unk()) {
         return;
     }
-    if (lbl_8087F430 == 0 || lbl_8087F448 == 0) {
+    if (lbl_8087F430 == 0 || GameBgm::sInstance == 0) {
         return;
     }
     if (!Has8087F418_unk()) {
@@ -231,10 +221,10 @@ void GameSoundControl::fn_803CDF84() {
         if (state->m38CCC != state->m38CD0) {
             switch (state->m38CCC) {
             case 1:
-                fn_8037D4C0(lbl_8087F448, 0x6C, 0, 1, 0, 1.0f);
+                GameBgm::sInstance->fn_8037D4C0(0x6C, 0, 1, 0, 1.0f);
                 break;
             case 3:
-                fn_8037D4C0(lbl_8087F448, 0x6B, 0, 1, 0, 1.0f);
+                GameBgm::sInstance->fn_8037D4C0(0x6B, 0, 1, 0, 1.0f);
                 break;
             }
         }

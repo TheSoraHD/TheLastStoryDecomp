@@ -1123,9 +1123,10 @@ game/GameOverTask.cpp:
 	.sdata2     start:0x808857F8 end:0x80885830
 
 game/GameBgm.cpp:
-	.text       start:0x8037C8C4 end:0x8037D8B8
-	.rodata     start:0x8074DFF8 end:0x8074E000
+	.text       start:0x8037C71C end:0x8037D8B8
+	.rodata     start:0x8074DFD0 end:0x8074E008
 	.data       start:0x8078A4F0 end:0x8078A528
+	.sbss       start:0x8087F448 end:0x8087F450
 	.sdata2     start:0x808858D8 end:0x808858E8
 
 std/bad_cast.cpp:
