@@ -1488,7 +1488,7 @@ gmk/PassBoard.cpp:
 
 gmk/WaterLevel.cpp:
 	.text       start:0x8042E36C end:0x8042F0B4
-	.rodata     start:0x80753EC0 end:0x80753ED0
+	.rodata     start:0x80753EC0 end:0x80753F28
 	.data       start:0x8078EAD8 end:0x8078EB70
 	.sdata2     start:0x808867D8 end:0x80886800
 
