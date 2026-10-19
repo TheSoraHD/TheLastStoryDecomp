@@ -2849,15 +2849,15 @@ RVL_SDK/src/revolution/net/NETStartupErrorCode.c:
 	.text       start:0x806985B0 end:0x80698A20
 	.data       start:0x807BC100 end:0x807BC120
 
-smg2/src/RVL_SDK/net/NETVersion.c:
+RVL_SDK/src/revolution/net/NETVersion.c:
 	.text       start:0x80698A20 end:0x80698A28
 	.data       start:0x807BC120 end:0x807BC158
 	.sdata      start:0x8087ED40 end:0x8087ED48
 
-smg2/src/RVL_SDK/net/netmemcpy.c:
+RVL_SDK/src/revolution/net/netmemcpy.c:
 	.text       start:0x80698A2C end:0x80698DEC
 
-smg2/src/RVL_SDK/net/netmemset.c:
+RVL_SDK/src/revolution/net/netmemset.c:
 	.text       start:0x80698DEC end:0x80698EF0
 
 RVL_SDK/src/revolution/net/NETMD5.c:
@@ -2882,37 +2882,37 @@ RVL_SDK/src/revolution/nhttp/d_nhttp.c:
 	.sdata      start:0x8087EDC0 end:0x8087EDD0
 	.sbss       start:0x808803E8 end:0x808803F0
 
-smg2/src/RVL_SDK/nwc24/NWC24Config.c:
+RVL_SDK/src/revolution/nwc24/NWC24Config.c:
 	.text       start:0x806A12E8 end:0x806A1450
 	.sbss       start:0x808803F8 end:0x80880400
 
-smg2/src/RVL_SDK/nwc24/NWC24Manage.c:
+RVL_SDK/src/revolution/nwc24/NWC24Manage.c:
 	.text       start:0x806A1450 end:0x806A1564
 	.data       start:0x807BC960 end:0x807BC9B0
 	.sdata      start:0x8087EDD0 end:0x8087EDD8
 	.sbss       start:0x80880400 end:0x80880408
 
-smg2/src/RVL_SDK/nwc24/NWC24Schedule.c:
+RVL_SDK/src/revolution/nwc24/NWC24Schedule.c:
 	.text       start:0x806A1564 end:0x806A1C40
 	.data       start:0x807BC9B0 end:0x807BC9F8
 	.bss        start:0x80833E20 end:0x80833FA0
 	.sbss       start:0x80880408 end:0x80880418
 
-smg2/src/RVL_SDK/nwc24/NWC24UserId.c:
+RVL_SDK/src/revolution/nwc24/NWC24UserId.c:
 	.text       start:0x806A1C40 end:0x806A1F5C
 	.rodata     start:0x80767378 end:0x80767388
 
-smg2/src/RVL_SDK/nwc24/NWC24Time.c:
+RVL_SDK/src/revolution/nwc24/NWC24Time.c:
 	.text       start:0x806A1F5C end:0x806A2138
 	.data       start:0x807BC9F8 end:0x807BCA20
 	.bss        start:0x80833FA0 end:0x80834080
 	.sbss       start:0x80880418 end:0x80880420
 
-smg2/src/RVL_SDK/nwc24/NWC24Ipc.c:
+RVL_SDK/src/revolution/nwc24/NWC24Ipc.c:
 	.text       start:0x806A2138 end:0x806A22AC
 	.sbss       start:0x80880420 end:0x80880428
 
-smg2/src/RVL_SDK/nwc24/NWC24System.c:
+RVL_SDK/src/revolution/nwc24/NWC24System.c:
 	.text       start:0x806A22AC end:0x806A243C
 	.data       start:0x807BCA20 end:0x807BCA68
 	.bss        start:0x80834080 end:0x808340E0

@@ -11,3 +11,8 @@ mw_comment_version: 11
 # (optional) Custom template for `ldscript.lcf`, if needed.
 # See https://github.com/encounter/decomp-toolkit/blob/main/assets/ldscript_partial.lcf
 ldscript_template: config/SLSP01/module/ldscript.tpl
+
+# (optional) Symbols kept by the linker although nothing references them (functions of
+# library units linked from source that the original kept).
+force_active:
+  - NETGetRexPPCVersionPrintable

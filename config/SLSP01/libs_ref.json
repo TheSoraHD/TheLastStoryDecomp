@@ -5968,7 +5968,44 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/net/NETVersion.c",
+  "name": "RVL_SDK/src/revolution/net/NETVersion.c",
+  "mw_version": "Wii/1.0",
+  "cflags": [
+   "-nodefaults",
+   "-proc gekko",
+   "-align powerpc",
+   "-enum int",
+   "-fp hardware",
+   "-Cpp_exceptions off",
+   "-O4,p",
+   "-inline auto",
+   "-pragma \"cats off\"",
+   "-pragma \"warn_notinlined off\"",
+   "-maxerrors 1",
+   "-nosyspath",
+   "-RTTI off",
+   "-enc SJIS",
+   "-i libs/smg2/libs/MSL_C++/include",
+   "-i libs/smg2/libs/MSL_C/include",
+   "-i libs/smg2/libs/MetroTRK/include",
+   "-i libs/smg2/libs/RVLFaceLib/include",
+   "-i libs/smg2/libs/RVL_SDK/include",
+   "-i libs/smg2/libs/Runtime/include",
+   "-i libs/smg2/src/RVL_SDK/bte",
+   "-DVERSION=0",
+   "-ir libs/smg2/libs/RVL_SDK/revolution/bte",
+   "-DREVOLUTION",
+   "-str reuse",
+   "-lang=c",
+   "-ipa file",
+   "-fp_contract off",
+   "-func_align 16"
+  ],
+  "category": "sdk",
+  "matching": true
+ },
+ {
+  "name": "RVL_SDK/src/revolution/net/netmemcpy.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
@@ -6005,7 +6042,7 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/net/netmemcpy.c",
+  "name": "RVL_SDK/src/revolution/net/netmemset.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
@@ -6042,7 +6079,7 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/net/netmemset.c",
+  "name": "RVL_SDK/src/revolution/nwc24/NWC24Config.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
@@ -6079,7 +6116,7 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/nwc24/NWC24Config.c",
+  "name": "RVL_SDK/src/revolution/nwc24/NWC24Manage.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
@@ -6116,7 +6153,7 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/nwc24/NWC24Manage.c",
+  "name": "RVL_SDK/src/revolution/nwc24/NWC24Schedule.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
@@ -6153,7 +6190,7 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/nwc24/NWC24Schedule.c",
+  "name": "RVL_SDK/src/revolution/nwc24/NWC24UserId.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
@@ -6190,7 +6227,7 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/nwc24/NWC24UserId.c",
+  "name": "RVL_SDK/src/revolution/nwc24/NWC24Time.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
@@ -6227,7 +6264,7 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/nwc24/NWC24Time.c",
+  "name": "RVL_SDK/src/revolution/nwc24/NWC24Ipc.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
@@ -6264,44 +6301,7 @@
   "matching": false
  },
  {
-  "name": "smg2/src/RVL_SDK/nwc24/NWC24Ipc.c",
-  "mw_version": "Wii/1.0",
-  "cflags": [
-   "-nodefaults",
-   "-proc gekko",
-   "-align powerpc",
-   "-enum int",
-   "-fp hardware",
-   "-Cpp_exceptions off",
-   "-O4,p",
-   "-inline auto",
-   "-pragma \"cats off\"",
-   "-pragma \"warn_notinlined off\"",
-   "-maxerrors 1",
-   "-nosyspath",
-   "-RTTI off",
-   "-enc SJIS",
-   "-i libs/smg2/libs/MSL_C++/include",
-   "-i libs/smg2/libs/MSL_C/include",
-   "-i libs/smg2/libs/MetroTRK/include",
-   "-i libs/smg2/libs/RVLFaceLib/include",
-   "-i libs/smg2/libs/RVL_SDK/include",
-   "-i libs/smg2/libs/Runtime/include",
-   "-i libs/smg2/src/RVL_SDK/bte",
-   "-DVERSION=0",
-   "-ir libs/smg2/libs/RVL_SDK/revolution/bte",
-   "-DREVOLUTION",
-   "-str reuse",
-   "-lang=c",
-   "-ipa file",
-   "-fp_contract off",
-   "-func_align 16"
-  ],
-  "category": "sdk",
-  "matching": false
- },
- {
-  "name": "smg2/src/RVL_SDK/nwc24/NWC24System.c",
+  "name": "RVL_SDK/src/revolution/nwc24/NWC24System.c",
   "mw_version": "Wii/1.0",
   "cflags": [
    "-nodefaults",
