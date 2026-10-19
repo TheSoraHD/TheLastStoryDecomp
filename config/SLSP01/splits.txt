@@ -590,7 +590,7 @@ game/CrowdManager.cpp:
 
 game/CrowdSimulation.cpp:
 	.text       start:0x801EB93C end:0x801EC158
-	.rodata     start:0x8073CD28 end:0x8073CD38
+	.rodata     start:0x8073CD20 end:0x8073CD58
 	.data       start:0x80782A18 end:0x80782A50
 	.sdata2     start:0x80882BC0 end:0x80882BE0
 
