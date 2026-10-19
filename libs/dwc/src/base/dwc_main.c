@@ -72,15 +72,15 @@ void fn_806FFA10(void* sb);                              // ServerBrowserFree
 void GSIStartAvailableCheckA(const char* gamename);
 int GSIAvailableCheckThink(void);
 int gethostbyname(const char* hostname); // inferred: caches the DNS query of hostname
-GPResult fn_806DA880(GPConnection* connection, int productID, int namespaceID,
+GPResult gpInitialize(GPConnection* connection, int productID, int namespaceID,
                      int partnerID);                                     // gpInitialize
-void fn_806DA8B0(GPConnection* connection);                              // gpDestroy
-GPResult fn_806DA8D0(GPConnection* connection);                          // gpDisconnect
-GPResult fn_806DA910(GPConnection* connection, int func, void* callback,
+void gpDestroy(GPConnection* connection);                              // gpDestroy
+GPResult gpProcess(GPConnection* connection);                          // gpDisconnect
+GPResult gpSetCallback(GPConnection* connection, int func, void* callback,
                      void* param);                                       // gpSetCallback
-GPResult fn_806DB0A0(GPConnection* connection, int index, GPBuddyStatus* status); // gpGetBuddyStatus
-GPResult fn_806DB220(GPConnection* connection, GPProfile profile, int* index);   // gpGetBuddyIndex
-int fn_806DB310(GPConnection* connection, GPProfile profile);                   // gpIsBuddy
+GPResult gpGetBuddyStatus(GPConnection* connection, int index, GPBuddyStatus* status); // gpGetBuddyStatus
+GPResult gpGetBuddyIndex(GPConnection* connection, GPProfile profile, int* index);   // gpGetBuddyIndex
+int gpIsBuddy(GPConnection* connection, GPProfile profile);                   // gpIsBuddy
 void fn_806F87A0(void);                                                         // CloseStatsConnection
 
 // MSL strtoul (not declared by our stdlib.h)
@@ -388,12 +388,12 @@ void fn_806AF910(void) {
     fn_806AE4B0();
 
     if (stpDwcCnt->gpObj != NULL) {
-        fn_806DA910(&stpDwcCnt->gpObj, 0, NULL, NULL);
-        fn_806DA910(&stpDwcCnt->gpObj, 3, NULL, NULL);
-        fn_806DA910(&stpDwcCnt->gpObj, 1, NULL, NULL);
-        fn_806DA910(&stpDwcCnt->gpObj, 2, NULL, NULL);
-        fn_806DA8D0(&stpDwcCnt->gpObj);
-        fn_806DA8B0(&stpDwcCnt->gpObj);
+        gpSetCallback(&stpDwcCnt->gpObj, 0, NULL, NULL);
+        gpSetCallback(&stpDwcCnt->gpObj, 3, NULL, NULL);
+        gpSetCallback(&stpDwcCnt->gpObj, 1, NULL, NULL);
+        gpSetCallback(&stpDwcCnt->gpObj, 2, NULL, NULL);
+        gpProcess(&stpDwcCnt->gpObj);
+        gpDestroy(&stpDwcCnt->gpObj);
         stpDwcCnt->gpObj = NULL;
     }
 
@@ -422,28 +422,28 @@ void fn_806AFAA0(void) {
         switch (GSIAvailableCheckThink()) {
         case 1:
             DWC_Printf(DWC_REPORTFLAG_ACHECK, "Confirmed the backend of GameSpy server.\n");
-            if (fn_806B17B0(fn_806DA880(&stpDwcCnt->gpObj, stpDwcCnt->logcnt.productID,
+            if (fn_806B17B0(gpInitialize(&stpDwcCnt->gpObj, stpDwcCnt->logcnt.productID,
                                                16, 11))) {
                 return;
             }
             if (fn_806B17B0(
-                    fn_806DA910(&stpDwcCnt->gpObj, 0, fn_806B2000, NULL))) {
+                    gpSetCallback(&stpDwcCnt->gpObj, 0, fn_806B2000, NULL))) {
                 return;
             }
             if (fn_806B17B0(
-                    fn_806DA910(&stpDwcCnt->gpObj, 3, fn_806B2470, NULL))) {
+                    gpSetCallback(&stpDwcCnt->gpObj, 3, fn_806B2470, NULL))) {
                 return;
             }
             if (fn_806B17B0(
-                    fn_806DA910(&stpDwcCnt->gpObj, 7, DWCi_GPRecvBuddyAuthCallback, NULL))) {
+                    gpSetCallback(&stpDwcCnt->gpObj, 7, DWCi_GPRecvBuddyAuthCallback, NULL))) {
                 return;
             }
             if (fn_806B17B0(
-                    fn_806DA910(&stpDwcCnt->gpObj, 1, DWCi_GPRecvBuddyRequestCallback, NULL))) {
+                    gpSetCallback(&stpDwcCnt->gpObj, 1, DWCi_GPRecvBuddyRequestCallback, NULL))) {
                 return;
             }
             if (fn_806B17B0(
-                    fn_806DA910(&stpDwcCnt->gpObj, 2, DWCi_GPRecvBuddyStatusCallback, NULL))) {
+                    gpSetCallback(&stpDwcCnt->gpObj, 2, DWCi_GPRecvBuddyStatusCallback, NULL))) {
                 return;
             }
             DWCi_SetState(DWC_STATE_LOGIN);
@@ -676,14 +676,14 @@ BOOL fn_806B05B0(int a0, int serverIndex, DWCMatchedCallback matchedCallback, vo
 
     // inferred: the friend list index argument is reused for the profile ID
     serverIndex = DWCi_GetProfileIDFromList(serverIndex);
-    if (serverIndex == 0 || !fn_806DB310(&stpDwcCnt->gpObj, serverIndex)) {
+    if (serverIndex == 0 || !gpIsBuddy(&stpDwcCnt->gpObj, serverIndex)) {
         DWC_Printf(DWC_REPORTFLAG_ERROR, "pid %d is not buddy.\n", serverIndex);
         error = 11;
         goto fail;
     }
 
-    fn_806DB220(&stpDwcCnt->gpObj, serverIndex, &buddyIdx);
-    fn_806DB0A0(&stpDwcCnt->gpObj, buddyIdx, &status);
+    gpGetBuddyIndex(&stpDwcCnt->gpObj, serverIndex, &buddyIdx);
+    gpGetBuddyStatus(&stpDwcCnt->gpObj, buddyIdx, &status);
     if (status.status != 6) {
         DWC_Printf(DWC_REPORTFLAG_ERROR, "pid %d is not game server.\n", serverIndex);
         error = 11;

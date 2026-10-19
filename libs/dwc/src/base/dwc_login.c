@@ -30,14 +30,14 @@ typedef struct GPGetInfoResponseArg {
 
 // inferred: GameSpy Presence entry points (gpProcess, gpConnectPreAuthenticated, gpDisconnect,
 // gpGetInfo, gpSetInfos)
-GPResult fn_806DA8D0(GPConnection* connection);
-GPResult fn_806DA980(GPConnection* connection, const char* authtoken,
+GPResult gpProcess(GPConnection* connection);
+GPResult gpConnectPreAuthenticatedA(GPConnection* connection, const char* authtoken,
                      const char* partnerchallenge, int firewall, int blocking,
                      GPCallback callback, void* param);
-GPResult fn_806DAAB0(GPConnection* connection);
-GPResult fn_806DAC00(GPConnection* connection, int profile, int checkCache, int blocking,
+GPResult gpDisconnect(GPConnection* connection);
+GPResult gpGetInfo(GPConnection* connection, int profile, int checkCache, int blocking,
                      GPCallback callback, void* param);
-GPResult fn_806DACE0(GPConnection* connection, int info, const char* value);
+GPResult gpSetInfosA(GPConnection* connection, int info, const char* value);
 
 // inferred: remote authentication interface (dwc_auth_interface.c)
 int DWCi_Auth_StartAuthentication(const char* gamename, const char* ingamesn, u64 userid, void* alloc,
@@ -158,7 +158,7 @@ void fn_806AE960(void) {
     case DWC_LOGIN_STATE_GPGETINFO:
     case DWC_LOGIN_STATE_GPSETINFO:
         if (stpLoginCnt->pGpObj != NULL && *stpLoginCnt->pGpObj != NULL) {
-            fn_806DA8D0(stpLoginCnt->pGpObj);
+            gpProcess(stpLoginCnt->pGpObj);
         }
         if (stpLoginCnt->connectFlag) {
             s64 now = OSGetTime();
@@ -248,14 +248,14 @@ void fn_806AED20(GPConnection* connection, GPConnectResponseArg* arg, void* para
     stpLoginCnt->connectFlag = FALSE;
 
     snprintf(consoleId, 31, "%s:%016llu", fn_806AA7C0(), fn_806AA690());
-    if (fn_806AEBF0(fn_806DACE0(connection, 0x704, consoleId))) {
+    if (fn_806AEBF0(gpSetInfosA(connection, 0x704, consoleId))) {
         return;
     }
     fn_806CF3A0(DWCi_Auth_GetConsoleUserId(), 43, userid);
-    if (fn_806AEBF0(fn_806DACE0(connection, 0x717, userid))) {
+    if (fn_806AEBF0(gpSetInfosA(connection, 0x717, userid))) {
         return;
     }
-    if (fn_806AEBF0(fn_806DACE0(connection, 0x708, fn_806AA7D0()))) {
+    if (fn_806AEBF0(gpSetInfosA(connection, 0x708, fn_806AA7D0()))) {
         return;
     }
 
@@ -281,7 +281,7 @@ void fn_806AED20(GPConnection* connection, GPConnectResponseArg* arg, void* para
                 fn_806AEB10(DWC_ERROR_NETWORK, -60000);
             }
         } else if (stpLoginCnt->state == DWC_LOGIN_STATE_GPGETINFO) {
-            if (fn_806AEBF0(fn_806DAC00(connection, arg->profile, 0, 0, (GPCallback)fn_806AF3F0,
+            if (fn_806AEBF0(gpGetInfo(connection, arg->profile, 0, 0, (GPCallback)fn_806AF3F0,
                                         NULL))) {
                 return;
             }
@@ -334,7 +334,7 @@ static inline GPResult DWCi_ConnectGP(void) {
     s64 now = OSGetTime();
     stpLoginCnt->connectTime = now;
     stpLoginCnt->connectFlag = TRUE;
-    return fn_806DA980(stpLoginCnt->pGpObj, stpLoginCnt->authToken,
+    return gpConnectPreAuthenticatedA(stpLoginCnt->pGpObj, stpLoginCnt->authToken,
                        stpLoginCnt->partnerChallenge, 1, 0, (GPCallback)fn_806AED20, NULL);
 }
 
@@ -387,18 +387,18 @@ void fn_806AF3F0(GPConnection* connection, GPGetInfoResponseArg* arg, void* para
                            "    login id is authenticated. set lastname field.\n");
                 DWCi_Acc_LoginIdToUserName(&stpLoginCnt->userdata->pseudo, stpLoginCnt->gamecode,
                                            lastname);
-                if (fn_806AEBF0(fn_806DACE0(connection, 0x705, lastname))) {
+                if (fn_806AEBF0(gpSetInfosA(connection, 0x705, lastname))) {
                     return;
                 }
                 stpLoginCnt->state = DWC_LOGIN_STATE_GPSETINFO;
-                if (fn_806AEBF0(fn_806DAC00(connection, arg->profile, 0, 0,
+                if (fn_806AEBF0(gpGetInfo(connection, arg->profile, 0, 0,
                                             (GPCallback)fn_806AF3F0, NULL))) {
                     return;
                 }
                 DWC_Printf(DWC_REPORTFLAG_LOGIN, "    call gpSetInfos\n");
             } else {
                 DWC_Printf(DWC_REPORTFLAG_LOGIN, "    this login id is used by anybody.... retry.\n");
-                fn_806DAAB0(connection);
+                gpDisconnect(connection);
                 fn_806AEF90();
                 stpLoginCnt->state = DWC_LOGIN_STATE_REMOTE_AUTH;
             }
@@ -412,7 +412,7 @@ void fn_806AF3F0(GPConnection* connection, GPGetInfoResponseArg* arg, void* para
                            pseudoName, arg->profile);
                 DWCi_Acc_SetLoginIdToUserData(stpLoginCnt->userdata, &stpLoginCnt->tempLoginId,
                                               arg->profile);
-                fn_806DAAB0(connection);
+                gpDisconnect(connection);
                 DWC_Printf(DWC_REPORTFLAG_LOGIN, "Succeeded to remote authentication.\n");
                 if (fn_806AEBF0(DWCi_ConnectGP())) {
                     return;
@@ -422,7 +422,7 @@ void fn_806AF3F0(GPConnection* connection, GPGetInfoResponseArg* arg, void* para
                 DWC_Printf(DWC_REPORTFLAG_LOGIN,
                            "    Login but gpSetInfo failed... %s : %d retry gpGetInfo.\n",
                            arg->lastname, arg->profile);
-                if (fn_806AEBF0(fn_806DAC00(connection, arg->profile, 0, 0,
+                if (fn_806AEBF0(gpGetInfo(connection, arg->profile, 0, 0,
                                             (GPCallback)fn_806AF3F0, NULL))) {
                     return;
                 }

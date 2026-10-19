@@ -19,6 +19,8 @@ force_active:
 
 # (optional) Block relocations that dtk detected incorrectly.
 block_relocations:
+  # random table data whose value equals a jump target inside gpiProcessSearch
+  - source: .data:0x807B9D20
   # NETAES: lis/addi of the 0x80808080 mask constant (not a symbol)
   - source: .text:0x806998BC
   - source: .text:0x806998C8
