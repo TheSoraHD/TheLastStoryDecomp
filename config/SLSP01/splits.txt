@@ -3017,6 +3017,243 @@ dwc/src/auth/dwc_auth_interface.c:
 	.data       start:0x807C1DD8 end:0x807C2710
 	.bss        start:0x808608C0 end:0x80860D88
 
+dwc/src/enc/dwci_encsession.c:
+	.text       start:0x806D2D80 end:0x806D42D8
+	.rodata     start:0x8076B638 end:0x8076B660
+	.data       start:0x807C2710 end:0x807C2908
+	.bss        start:0x80860D88 end:0x80860D90
+
+dwc/src/prof/dwc_prof.c:
+	.text       start:0x806D42E0 end:0x806D49BC
+	.data       start:0x807C2908 end:0x807C29B8
+	.bss        start:0x80860D90 end:0x80860DC0
+
+dwc/src/ranking/dwc_ranking.c:
+	.text       start:0x806D49C0 end:0x806D52A8
+	.data       start:0x807C29B8 end:0x807C29E8
+	.bss        start:0x80860DC0 end:0x80860DD0
+
+dwc/src/ranking/dwci_ranking.c:
+	.text       start:0x806D52B0 end:0x806D5798
+	.data       start:0x807C29E8 end:0x807C2A48
+
+gamespy/darray.c:
+	.text       start:0x806D57A0 end:0x806D6244
+
+gamespy/hashtable.c:
+	.text       start:0x806D6250 end:0x806D679C
+
+gamespy/md5c.c:
+	.text       start:0x806D67A0 end:0x806D76D4
+	.rodata     start:0x8076B660 end:0x8076B678
+	.data       start:0x807C2A48 end:0x807C2A88
+
+gamespy/common/gsAvailable.c:
+	.text       start:0x806D76E0 end:0x806D7A30
+	.data       start:0x807C2A88 end:0x807C2AB0
+	.bss        start:0x80860DD0 end:0x80860EB0
+
+gamespy/common/gsMemory.c:
+	.text       start:0x806D7A30 end:0x806D7AE0
+	.data       start:0x807C2AB0 end:0x807C2AC0
+
+gamespy/common/gsPlatformSocket.c:
+	.text       start:0x806D7AE0 end:0x806D89AC
+	.data       start:0x807C2AC0 end:0x807C2AD8
+	.bss        start:0x80860EB0 end:0x80860F38
+
+gamespy/common/gsPlatformUtil.c:
+	.text       start:0x806D89B0 end:0x806D9608
+	.rodata     start:0x8076B678 end:0x8076B6C8
+	.data       start:0x807C2AD8 end:0x807C2AE0
+	.bss        start:0x80860F38 end:0x80860F58
+
+gamespy/common/gsUdpEngine.c:
+	.text       start:0x806D9610 end:0x806DA858
+	.bss        start:0x80860F58 end:0x80860F98
+
+gamespy/common/gsXML.c:
+	.text       start:0x806DA860 end:0x806DA878
+
+gamespy/GP/gp.c:
+	.text       start:0x806DA880 end:0x806DB808
+	.data       start:0x807C2AE0 end:0x807C2D00
+
+gamespy/GP/gpi.c:
+	.text       start:0x806DB810 end:0x806DC254
+	.data       start:0x807C2D00 end:0x807C2DD0
+
+gamespy/GP/gpiBuddy.c:
+	.text       start:0x806DC260 end:0x806DE2F0
+	.data       start:0x807C2DD0 end:0x807C2FC8
+
+gamespy/GP/gpiBuffer.c:
+	.text       start:0x806DE2F0 end:0x806DED80
+	.data       start:0x807C2FC8 end:0x807C3048
+
+gamespy/GP/gpiCallback.c:
+	.text       start:0x806DED80 end:0x806DF2E0
+	.data       start:0x807C3048 end:0x807C3098
+
+gamespy/GP/gpiConnect.c:
+	.text       start:0x806DF2E0 end:0x806E0A30
+	.data       start:0x807C3098 end:0x807C34D8
+
+gamespy/GP/gpiInfo.c:
+	.text       start:0x806E0A30 end:0x806E2EE4
+	.rodata     start:0x8076B6C8 end:0x8076B6D0
+	.data       start:0x807C34D8 end:0x807C38E8
+
+gamespy/GP/gpiKeys.c:
+	.text       start:0x806E2EF0 end:0x806E3578
+	.data       start:0x807C38E8 end:0x807C3938
+
+gamespy/GP/gpiOperation.c:
+	.text       start:0x806E3580 end:0x806E3CB8
+	.data       start:0x807C3938 end:0x807C3948
+
+gamespy/GP/gpiPeer.c:
+	.text       start:0x806E3CC0 end:0x806E53A4
+	.data       start:0x807C3948 end:0x807C3A78
+
+gamespy/GP/gpiProfile.c:
+	.text       start:0x806E53B0 end:0x806E5F88
+	.data       start:0x807C3A78 end:0x807C3C98
+
+gamespy/GP/gpiSearch.c:
+	.text       start:0x806E5F90 end:0x806E87A0
+	.data       start:0x807C3C98 end:0x807C4190
+
+gamespy/GP/gpiTransfer.c:
+	.text       start:0x806E87A0 end:0x806E8890
+	.data       start:0x807C4190 end:0x807C41C0
+
+gamespy/GP/gpiUnique.c:
+	.text       start:0x806E8890 end:0x806E8B04
+	.data       start:0x807C41C0 end:0x807C4298
+
+gamespy/GP/gpiUtility.c:
+	.text       start:0x806E8B10 end:0x806E92D0
+	.data       start:0x807C4298 end:0x807C4308
+
+gamespy/gt2/gt2Auth.c:
+	.text       start:0x806E92D0 end:0x806E9698
+	.data       start:0x807C4308 end:0x807C4330
+
+gamespy/gt2/gt2Buffer.c:
+	.text       start:0x806E96A0 end:0x806E985C
+
+gamespy/gt2/gt2Callback.c:
+	.text       start:0x806E9860 end:0x806EA11C
+
+gamespy/gt2/gt2Connection.c:
+	.text       start:0x806EA120 end:0x806EA834
+
+gamespy/gt2/gt2Main.c:
+	.text       start:0x806EA840 end:0x806EAD38
+
+gamespy/gt2/gt2Message.c:
+	.text       start:0x806EAD40 end:0x806EE1E0
+	.data       start:0x807C4330 end:0x807C4340
+	.bss        start:0x80860F98 end:0x80861F98
+
+gamespy/gt2/gt2Socket.c:
+	.text       start:0x806EE1E0 end:0x806EEDC0
+
+gamespy/gt2/gt2Utility.c:
+	.text       start:0x806EEDC0 end:0x806EF0B8
+	.data       start:0x807C4340 end:0x807C4358
+	.bss        start:0x80861F98 end:0x80861FC8
+
+gamespy/qr2/qr2.c:
+	.text       start:0x806EF0C0 end:0x806F1D74
+	.rodata     start:0x8076B6D0 end:0x8076B6D8
+	.data       start:0x807C4358 end:0x807C5220
+	.bss        start:0x80861FC8 end:0x80862120
+
+gamespy/qr2/qr2regkeys.c:
+	.text       start:0x806F1D80 end:0x806F1E10
+	.data       start:0x807C5220 end:0x807C5778
+
+gamespy/ghttp/ghttpBuffer.c:
+	.text       start:0x806F1E10 end:0x806F2750
+	.data       start:0x807C5778 end:0x807C5788
+
+gamespy/ghttp/ghttpCallbacks.c:
+	.text       start:0x806F2750 end:0x806F2880
+
+gamespy/ghttp/ghttpCommon.c:
+	.text       start:0x806F2880 end:0x806F2E6C
+	.data       start:0x807C5788 end:0x807C5790
+	.bss        start:0x80862120 end:0x80862128
+
+gamespy/ghttp/ghttpConnection.c:
+	.text       start:0x806F2E70 end:0x806F3804
+	.data       start:0x807C5790 end:0x807C57A0
+	.bss        start:0x80862128 end:0x80862138
+
+gamespy/ghttp/ghttpEncryption.c:
+	.text       start:0x806F3810 end:0x806F3C38
+	.data       start:0x807C57A0 end:0x807C57B0
+
+gamespy/ghttp/ghttpMain.c:
+	.text       start:0x806F3C40 end:0x806F4278
+	.bss        start:0x80862138 end:0x80862140
+
+gamespy/ghttp/ghttpPost.c:
+	.text       start:0x806F4280 end:0x806F5920
+	.rodata     start:0x8076B6D8 end:0x8076B6E0
+	.data       start:0x807C57B0 end:0x807C5A08
+
+gamespy/ghttp/ghttpProcess.c:
+	.text       start:0x806F5920 end:0x806F7554
+	.rodata     start:0x8076B6E0 end:0x8076B6F0
+	.data       start:0x807C5A08 end:0x807C5B30
+
+gamespy/gstats/gbucket.c:
+	.text       start:0x806F7560 end:0x806F879C
+	.rodata     start:0x8076B6F0 end:0x8076B6F8
+	.bss        start:0x80862140 end:0x80862150
+
+gamespy/gstats/gstats.c:
+	.text       start:0x806F87A0 end:0x806FB648
+	.rodata     start:0x8076B6F8 end:0x8076B848
+	.data       start:0x807C5B30 end:0x807C5CF0
+	.bss        start:0x80862150 end:0x80862590
+
+gamespy/natneg/NATify.c:
+	.text       start:0x806FB650 end:0x806FBDB0
+	.data       start:0x807C5CF0 end:0x807C5D00
+	.bss        start:0x80862590 end:0x808627E0
+
+gamespy/natneg/natneg.c:
+	.text       start:0x806FBDB0 end:0x806FD858
+	.data       start:0x807C5D00 end:0x807C5D70
+	.bss        start:0x808627E0 end:0x80862AF0
+
+gamespy/serverbrowsing/sb_crypt.c:
+	.text       start:0x806FD860 end:0x806FDCA0
+
+gamespy/serverbrowsing/sb_queryengine.c:
+	.text       start:0x806FDCA0 end:0x806FE7B0
+	.data       start:0x807C5D70 end:0x807C5DA0
+
+gamespy/serverbrowsing/sb_server.c:
+	.text       start:0x806FE7B0 end:0x806FF5C8
+	.rodata     start:0x8076B848 end:0x8076B850
+	.data       start:0x807C5DA0 end:0x807C5DD8
+	.bss        start:0x80862AF0 end:0x80862B00
+
+gamespy/serverbrowsing/sb_serverbrowsing.c:
+	.text       start:0x806FF5D0 end:0x806FFF58
+	.data       start:0x807C5DD8 end:0x807C5DE0
+
+gamespy/serverbrowsing/sb_serverlist.c:
+	.text       start:0x806FFF60 end:0x80703CF4
+	.rodata     start:0x8076B850 end:0x8076B868
+	.data       start:0x807C5DE0 end:0x807C5E28
+	.bss        start:0x80862B00 end:0x80862B20
+
 nw4r/AxManager.cpp:
 	.text       start:0x80703D00 end:0x80705340
 	.ctors      start:0x8072D404 end:0x8072D408
