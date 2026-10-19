@@ -2999,7 +2999,7 @@ dwc/src/base/dwc_rqueue.c:
 	.bss        start:0x808608A0 end:0x808608A8
 
 dwc/src/base/dwc_transport.c:
-	.text       start:0x806CD870 end:0x806CEED0
+	.text       start:0x806CD870 end:0x806CEED0 align:16
 	.data       start:0x807C1788 end:0x807C1C68
 	.bss        start:0x808608A8 end:0x808608B0
 
