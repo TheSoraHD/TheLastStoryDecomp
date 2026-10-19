@@ -56,7 +56,7 @@ struct SaveSlot_unk {
 struct CampSaveData_unk {
     unsigned char m000[0x4C];
     SaveSlot_unk mSlots[17]; // 0x4C
-    unsigned char mC94[0xD60 - 0xC94];
+    unsigned char mC84[0xD60 - 0xC84];
     int mD60;
     int mD64;
 };
