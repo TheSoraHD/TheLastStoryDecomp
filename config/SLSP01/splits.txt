@@ -1292,8 +1292,8 @@ gmk/TreasureBox.cpp:
 
 gmk/HealPoint.cpp:
 	.text       start:0x8040EC30 end:0x8040FAC0
-	.rodata     start:0x80752BF0 end:0x80752C00
-	.data       start:0x8078D650 end:0x8078D6E8
+	.rodata     start:0x80752B58 end:0x80752C28
+	.data       start:0x8078D630 end:0x8078D6E8
 	.sdata2     start:0x808863A0 end:0x808863A8
 
 gmk/FallingTower.cpp:

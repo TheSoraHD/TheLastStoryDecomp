@@ -32,6 +32,7 @@
 #include "gmk/SavePoint.h"
 #include "gmk/Augur.h"
 #include "gmk/FlyObjManager.h"
+#include "gmk/HealPoint.h"
 #include "gmk/Fireworks.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -207,7 +208,6 @@ extern "C" GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_8040EC30(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80412AFC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
@@ -224,7 +224,6 @@ extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80405DD4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8040ED00(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80416F74(atn::Task* parent, GimmickDesc_unk* desc);
@@ -253,7 +252,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 18: gimmick = fn_804093B4(parent, id, arg); break;
     case 19: gimmick = fn_803FE390(parent, id, arg); break;
     case 21: gimmick = gmk::TreasureBox::fn_8040DC30(parent, id, arg); break;
-    case 22: gimmick = fn_8040EC30(parent, id, arg); break;
+    case 22: gimmick = gmk::HealPoint::fn_8040EC30(parent, id, arg); break;
     case 24: gimmick = gmk::FallingTower::fn_8040FAC0(parent, id, arg); break;
     case 28: gimmick = fn_80412AFC(parent, id, arg); break;
     case 33: gimmick = gmk::Ocean::fn_80418198(parent, id, arg); break;
@@ -300,7 +299,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 15: gimmick = fn_80405DD4(parent, desc); break;
     case 16: gimmick = fn_804067D8(parent, desc); break;
     case 20: gimmick = fn_8040D1D0(parent, desc); break;
-    case 22: gimmick = fn_8040ED00(parent, desc); break;
+    case 22: gimmick = gmk::HealPoint::fn_8040ED00(parent, desc); break;
     case 26: gimmick = gmk::Trap::fn_80410A68(parent, desc); break;
     case 27: gimmick = fn_80411440(parent, desc); break;
     case 29: gimmick = gmk::SkeltonsMirror::fn_80414AC4(parent, desc); break;
