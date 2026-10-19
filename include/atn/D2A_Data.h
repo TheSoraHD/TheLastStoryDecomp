@@ -74,6 +74,18 @@ public:
         mSize++;
     }
 
+    // inferred: stores the address of `obj` (computed after the growth; D2A_Message::vf0C)
+    template <class U>
+    void PushBackRef_unk(U& obj) {
+        if (mData == 0 || mCapacity == 0) {
+            Reserve(8);
+        } else if (mSize >= mCapacity) {
+            Reserve(mSize * 2);
+        }
+        mData[mSize] = &obj;
+        mSize++;
+    }
+
     unsigned int Size() const { return mSize; }
     T& operator[](unsigned int i) { return mData[i]; }
 
@@ -102,12 +114,16 @@ public:
 };
 
 // inferred: layout of the elements (functions 0x801FDE94-0x801FF8EC; name invented)
+struct D2A_TextParam_unk;
+
 class D2A_Layout_unk {
 public:
     D2A_Layout_unk();  // 0x801FDE94
     ~D2A_Layout_unk(); // 0x801FDEE4
 
-    unsigned char m00[0x48];
+    unsigned char m00[0x30];
+    D2A_PtrArray_unk<D2A_TextParam_unk*> mTexts; // 0x30: inferred: text parameters of the messages
+    unsigned char m3C[0x48 - 0x3C];
 };
 
 // inferred: entries of the loader tables (sizes from the loader 0x801FFA04)
@@ -175,7 +191,7 @@ public:
     D2A_Buffer_unk<unsigned int> m80;
     D2A_Buffer_unk<D2A_Track_unk> mTracks; // 0x88
     D2A_Pool_unk mPool;                    // 0x90
-    int m9C;
+    void (*m9C)(D2A_Common* element, D2A_DrawColor* color, void* outlineColor); // inferred: message draw callback
     void* mA0; // inferred: draw callback (see D2A_Window)
     int mA4;
 };

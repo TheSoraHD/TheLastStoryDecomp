@@ -44,6 +44,7 @@ public:
     virtual int vf1C(); // inferred: nonzero while loading
     virtual void vf20();
 
+    void fn_801EC784(); // inferred: common setup, called by the vf0C of the elements
     int fn_801EDC78(); // inferred: nonzero when the element is drawn
     void fn_801ED928(D2A_DrawRect* rect, D2A_DrawColor* color, D2A_DrawExtra* extra, void* work); // inferred
 
@@ -52,7 +53,10 @@ public:
     unsigned short mId; // 0x0A
     unsigned char m0C[0x0E - 0x0C];
     unsigned short m0E; // inferred: outline mode of D2A_Window
-    unsigned char m10[0x18 - 0x10];
+    unsigned int m10_0 : 29;
+    unsigned int mOutline : 1; // inferred: draws the outline of the text (D2A_Message)
+    unsigned int m10_30 : 2;
+    unsigned char m14[0x18 - 0x14];
     float m18; // inferred: end frame of the element
     unsigned char m1C[0x30 - 0x1C];
     D2A_ParamTable m30;
