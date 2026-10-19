@@ -1,16 +1,31 @@
 #include "gmk/ArenaFloor.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "game/GimmickManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
+// inferred: object of a part of type 4 (placed by its matrix)
+struct ArenaObj_unk {
+    unsigned char m00[0x30];
+    atn::Matrix3x4 mMtx; // 0x30
+};
+// inferred: object embedded in a part (placed by its matrix)
+struct ArenaPartObj_unk {
+    unsigned char m00[0x8];
+    atn::Matrix3x4 mMtx; // 0x58 in the part
+};
 // inferred: map part of the group (type at 0x48, next at 0x4C)
 struct ArenaPart_unk {
     unsigned char m00[0x48];
     int mType;
     ArenaPart_unk* mNext;
+    ArenaPartObj_unk m50;
+    unsigned char m88[0x344 - 0x88];
+    int mObjCount;          // 0x344: inferred: objects of a part of type 4
+    ArenaObj_unk** mObjs;   // 0x348
 };
 extern "C" void fn_80499B9C(ArenaPart_unk* part);
 extern "C" void fn_80499C48(ArenaPart_unk* part);
@@ -24,6 +39,7 @@ struct ArenaGroup_unk {
     int mF4;
 };
 extern "C" ArenaGroup_unk* fn_8049D68C(void* owner, const char* name);
+extern "C" void fn_8049994C(ArenaPart_unk* part, atn::Vector3* pos, atn::Vector3* rot); // inferred: places the gimmicks of a part
 struct Params_unk {
     unsigned char m000[0x3A4];
     float mTimeScale; // 0x3A4
@@ -35,6 +51,71 @@ namespace gmk {
 GimmickCommon* ArenaFloor::fn_8041DDE4(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
         return new (12, "", "", 0) ArenaFloor(parent, id, arg);
+    }
+    return 0;
+}
+
+// NONMATCHING: 97.6% - in the case 0 entry the original computes the index before loading the
+// array (stwux base, index), and in the case 4 loop the counter and the entry pointer swap r6/r7.
+// The array is an atn::Buffer_unk (its inline Resize_unk has the new[] literals in .sdata).
+int ArenaFloor::vf0C() {
+    if (fn_803EC91C() == 0) {
+        m54 = 5;
+        if (mGroup != 0) {
+            int count = 0;
+            for (ArenaPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+                switch (part->mType) {
+                case 0:
+                    count++;
+                    break;
+                case 4:
+                    count += part->mObjCount;
+                    break;
+                case 5:
+                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                        if (g->m20 == part) {
+                            count++;
+                        }
+                    }
+                    break;
+                }
+            }
+            mEntries.Resize_unk(count, 0);
+            int n = 0;
+            for (ArenaPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+                switch (part->mType) {
+                case 0: {
+                    Entry_unk& e = mEntries.mData[n++];
+                    e.mType = part->mType;
+                    e.mObject = &part->m50;
+                    e.mPos = part->m50.mMtx.GetTrans_unk() + m6C;
+                    break;
+                }
+                case 4:
+                    for (int i = 0; i < part->mObjCount; i++) {
+                        ArenaObj_unk* obj = part->mObjs[i];
+                        Entry_unk& e = mEntries.mData[n];
+                        n++;
+                        e.mType = part->mType;
+                        e.mObject = obj;
+                        e.mPos = obj->mMtx.GetTrans_unk() + m6C;
+                    }
+                    break;
+                case 5:
+                    fn_8049994C(part, &m6C, &m78);
+                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                        if (g->m20 == part) {
+                            Entry_unk& e = mEntries.mData[n++];
+                            e.mType = part->mType;
+                            e.mObject = g;
+                            e.mPos = g->m6C + m6C;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return 1;
     }
     return 0;
 }

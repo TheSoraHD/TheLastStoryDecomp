@@ -2,6 +2,7 @@
 #define GMK_ARENAFLOOR_H
 
 #include "game/GimmickCommon.h"
+#include "atn/Array_unk.h"
 
 struct ArenaGroup_unk;
 
@@ -18,32 +19,13 @@ public:
         void* mObject;
         atn::Vector3 mPos;
     };
-    // inferred: array of entries with its count (destructor inlined in ~ArenaFloor)
-    struct Entries_unk {
-        ~Entries_unk() {
-            if (mData != 0) {
-                delete[] mData;
-            }
-            mData = 0;
-            mCount = 0;
-        }
-        int mCount;
-        Entry_unk* mData;
-    };
-
-    ArenaFloor(atn::Task* parent, int id, int arg) : GimmickCommon(parent, id, arg), mGroup(0) {
-        mOffset.x = 0.0f;
-        mOffset.y = 0.0f;
-        mOffset.z = 0.0f;
-        mTime = 0.0f;
-        mValue = 0.0f;
-        mEntries.mCount = 0;
-        mEntries.mData = 0;
+    ArenaFloor(atn::Task* parent, int id, int arg)
+        : GimmickCommon(parent, id, arg), mGroup(0), mOffset(0.0f, 0.0f, 0.0f), mTime(0.0f), mValue(0.0f) {
         m54 = 0;
     }
     static GimmickCommon* fn_8041DDE4(atn::Task* parent, int id, int arg); // inferred: factory
     virtual ~ArenaFloor() {}
-    virtual int vf0C(); // 0x8041DF38: not decompiled yet
+    virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
     virtual int vf1C();
@@ -59,7 +41,7 @@ public:
     atn::Vector3 mOffset;   // 0xF8
     float mTime;            // 0x104
     float mValue;           // 0x108
-    Entries_unk mEntries;   // 0x10C
+    atn::Buffer_unk<Entry_unk> mEntries; // 0x10C
     int m114;               // inferred: unused (the object is 0x118 bytes)
 };
 
