@@ -3,6 +3,16 @@
 
 #include "math/Vec.h"
 
+// inferred: values at HitInfo_unk::m74 (names invented)
+struct HitRange_unk {
+    float m00; // inferred: > 0 sets the hit flag 0x20 (CharaTask::fn_80179730)
+    float m04; // inferred: flag 0x40
+    float m08;
+    float m0C; // inferred: flag 0x400
+    float m10; // inferred: flag 0x200
+    unsigned char m14[0x1C - 0x14];
+};
+
 // inferred: hit/damage description passed to CharaTask::vf3C and vf40 (0x801513D0) and to
 // CharaStatus::fn_8012E244; name invented.
 struct HitInfo_unk {
@@ -16,11 +26,12 @@ struct HitInfo_unk {
     atn::Vector3 m10; // inferred: knockback direction
     unsigned char m1C[0x58 - 0x1C];
     float m58; // inferred: passed to chr::ControlChant (CharaTask::fn_8015F568)
-    unsigned char m5C[0x68 - 0x5C];
+    int m5C; // inferred: duration of the hit (CharaTask::fn_801784BC)
+    unsigned char m60[0x68 - 0x60];
     int m68;
-    unsigned char m6C[0x70 - 0x6C];
+    int m6C; // inferred: id of a second bullet (CharaTask::fn_801784BC); 2 and 5 are tested by fn_80178BFC
     int m70; // inferred: id of a sub bullet (CharaTask::fn_8014C540)
-    unsigned char m74[0x90 - 0x74]; // inferred: passed to fn_80040588
+    HitRange_unk m74; // inferred: passed to fn_80040588
     int m90;
     int m94;
     int m98;  // inferred: percentages applied to mParamB (fn_8012E244)
@@ -32,6 +43,10 @@ struct HitInfo_unk {
     unsigned char mB0[0xC0 - 0xB0];
     int mC0; // inferred: chant time (CharaTask::fn_8015F568)
     int mC4; // inferred: copied to the hit message (CharaTask::fn_80151448)
+
+    // inferred: the percentages m98-mA4 as an array (CharaTask::fn_80179730 loops over them); name
+    // invented
+    const int* GetRates_unk() const { return &m98; }
 };
 
 #endif

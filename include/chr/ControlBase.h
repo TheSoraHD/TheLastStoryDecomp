@@ -27,7 +27,7 @@ public:
     // inferred: returns the action to run when the control finishes (0x801B2A80 binds
     // CharaTask::fn_80178208 to the next control)
     virtual boost::function<void()> vf10();
-    virtual void vf14();
+    virtual atn::Vector3 vf14(); // inferred: a position (CharaTask::fn_80178088)
     virtual atn::Vector3 vf18(); // inferred: a direction (CharaTask::fn_80158E1C)
     virtual void vf1C();
     // inferred: vf20, vf24 and vf28 are inline (weak copies emitted in game/CharaTask.cpp at
@@ -37,8 +37,10 @@ public:
     virtual int vf28() { return 0; }
     virtual void vf2C();
     virtual int vf30(); // inferred: returns an int (0 in ControlBase, 0x800E60FC; compared with 5 by callers of CharaTask::fn_8017A450, tested by vf5C)
-    virtual void vf34();
-    virtual void vf38();
+    // inferred: inline (weak copies 0x8017A220 and 0x8017A2F8 in game/CharaTask.cpp, read through
+    // CharaTask::fn_8017A160 and fn_8017A228)
+    virtual int vf34() { return 0; }
+    virtual int vf38(int arg) { return -1; }
     // inferred: vf3C, vf40 and vf58 are inline too (weak copies 0x801446E8, 0x80147A0C, 0x80147A10 in
     // game/CharaTask.cpp)
     virtual int vf3C() { return 0; }

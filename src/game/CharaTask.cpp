@@ -87,7 +87,9 @@ struct Settings_unk {
     int m294; // inferred: selects the flag set by CharaTask::fn_8014C540 for hits with flag 2
     unsigned char m298[0x2C0 - 0x298];
     int m2C0; // inferred: nonzero always tries fn_801749EC after a collision (fn_8013CB68)
-    unsigned char m2C4[0x314 - 0x2C4];
+    unsigned char m2C4[0x308 - 0x2C4];
+    int m308; // inferred: nonzero lets the player react (CharaTask::fn_80179EBC)
+    unsigned char m30C[0x314 - 0x30C];
     int m314; // inferred: tested with m50 == 1 before the chant effect (fn_80145334)
     unsigned char m318[0x334 - 0x318];
     float m334; // inferred: guard angle in degrees (fn_80151448: cos(0.5 * m334))
@@ -189,6 +191,12 @@ extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 
+// inferred: 0x934-byte entry of Effect_unk::mCBF0 (only the character is known)
+struct EffectCharaSlot_unk {
+    CharaTask* mChara;
+    unsigned char m04[0x934 - 0x4];
+};
+
 // inferred: effect manager (lbl_8087F048, as in CharaStatus.cpp)
 struct Effect_unk {
     void fn_8013A19C(int value);
@@ -202,7 +210,9 @@ struct Effect_unk {
     void fn_80107574();
     void fn_80106728(int arg, Model_unk* model); // inferred: called when a part is destroyed
 
-    unsigned char m00[0x3E304];
+    unsigned char m00[0xCBF0];
+    EffectCharaSlot_unk mCBF0[0x48]; // inferred: characters known to the effect manager (fn_80176E30)
+    unsigned char m36290[0x3E304 - 0x36290];
     Model_unk::Float4_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
     unsigned char m3E314[0x3E39C - 0x3E314];
     int m3E39C;
@@ -398,7 +408,10 @@ struct MapArea_unk {
 // inferred: map data returned by fn_80373148 and held by the map manager; m104 is passed to
 // CharaTask::fn_80147A18 (map brightness, fn_80145334)
 struct MapInfo_unk {
-    unsigned char m00[0x104];
+    unsigned char m00[0x48];
+    int m48; // inferred: compared with 2 by CharaTask::fn_80176E30
+    int m4C; // inferred: compared with 13 by CharaTask::fn_80176E30
+    unsigned char m50[0x104 - 0x50];
     int m104;
 };
 struct MapManager_unk {
@@ -5929,7 +5942,12 @@ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_80107850(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80107B20(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void* lbl_8087F3C0; // inferred: effect manager (see gmk/PlayEffect.cpp)
+// inferred: effect manager (see gmk/PlayEffect.cpp); mB8 is set to 2 while CharaTask::vf98 starts its effect
+struct EffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8;
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8010C00C(Effect_unk* mgr, CharaTask* chara);
 extern "C" void fn_80107CA8(Effect_unk* effect, CharaTask* chara, int arg);
 extern "C" void fn_80107BE8(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
@@ -5939,13 +5957,14 @@ extern "C" bool fn_80051A88(const Model_unk::Sphere_unk* sphere, const atn::Vect
 extern "C" void* lbl_8087F0A0; // inferred: manager of the characters' emotes (fn_801847C0, fn_801840D8)
 extern "C" void fn_801847C0(void* mgr, CharaTask* chara);
 extern "C" void* fn_801840D8(void* mgr, int id, int arg);
-extern "C" void fn_80239DAC(void* mgr, atn::Matrix3x4* mtx, int a, int b);
-extern "C" void fn_80232B7C(atn::Matrix3x4* mtx, int arg);
+extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: stops the effects of `owner`
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpHandle_unk)
 extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
                             float scale, int e, int f, int g);
 extern "C" int rand();
 struct Input_unk {
     int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
+    float fn_801248DC(atn::Vector3* dir); // inferred: stick tilt, direction in `dir` (may be 0)
 };
 
 // inferred: lens of a camera (Model_unk::m1DC, or the one of the global camera); names invented
@@ -6310,7 +6329,7 @@ static inline void AttachWeapons_unk(CharaTask* chara) {
     }
 }
 
-extern "C" void* lbl_8087F9E8; // inferred: manager notified when the weapon changes
+extern "C" atn::Task* lbl_8087F9E8; // inferred: manager notified when the weapon changes (flags read as a task)
 extern "C" void fn_8059C084(void* mgr, CharaTask* chara);
 
 // NONMATCHING: ~90% (102/985 lines) - everything matches except the r3/r4 swap in the matrix copies
@@ -6921,6 +6940,14 @@ inline bool IsSideType_unk(int a, int b) {
     }
     return result;
 }
+// inferred: same test as IsSideType_unk(b, a), comparing `a` first
+inline bool IsSideTypeRev_unk(int a, int b) {
+    bool result = false;
+    if (a == 3 && b == 0) {
+        result = true;
+    }
+    return result;
+}
 inline bool IsSameSideType_unk(int a, int b) {
     bool result = true;
     if (a != b && !IsSideType_unk(a, b)) {
@@ -6944,6 +6971,28 @@ inline bool IsSameSidePair_unk(CharaTask* a, CharaTask* b) {
     }
     bool result = true;
     if (!IsSameSideType_unk(a->mType, b->mType) && !IsSideType_unk(b->mType, a->mType)) {
+        result = false;
+    }
+    return result;
+}
+// inferred: same test again, with the types read first (the hit functions 0x80178668 and
+// 0x80178BFC); name invented
+inline bool IsSameSideHit_unk(CharaTask* a, CharaTask* b) {
+    if (a != b) {
+        if (lbl_8087F610 != 0 && lbl_8087F610->m540 == 0) {
+            return false;
+        }
+        if ((a->mStatus.m0C & 2) == 2 || (b->mStatus.m0C & 2) == 2 || lbl_8087F0A8->mCC != 0) {
+            return false;
+        }
+    }
+    if (a->mF14 >= 0 && b->mF14 >= 0) {
+        return a->mF14 == b->mF14;
+    }
+    int ta = a->mType;
+    int tb = b->mType;
+    bool result = true;
+    if (!IsSameSideType_unk(ta, tb) && !IsSideTypeRev_unk(ta, tb)) {
         result = false;
     }
     return result;
@@ -10009,15 +10058,6 @@ void CharaTask::fn_8016EB48(int keepLedge, int keepFlag, int keepEffect) {
     }
 }
 
-// inferred: IsSideType_unk with the types the other way round (the original tests a first)
-inline bool IsSideTypeRev_unk(int a, int b) {
-    bool result = false;
-    if (a == 3 && b == 0) {
-        result = true;
-    }
-    return result;
-}
-
 bool CharaTask::fn_8016F368(int type) {
     bool result = true;
     if (!IsSameSideType_unk(mType, type) && !IsSideTypeRev_unk(mType, type)) {
@@ -11068,6 +11108,398 @@ void CharaTask::fn_801765D8() {
     }
 }
 
+
+// inferred: disables the collision and hides the effect of the character
+void CharaTask::fn_80176ACC() {
+    mFlags &= ~4;
+    mColli.mFlags |= 1;
+    vf38(1);
+    vf98();
+    if (lbl_8087F430 != 0) {
+        RouteTable_unk* table = lbl_8087F430->m10D8;
+        if (table != 0 && (table->m38 & 2) == 2) {
+            fn_803CC718(table, this, 1);
+        }
+    }
+}
+
+// inferred: color as four floats (as in gmk/PlayEffect.cpp)
+struct Color4f_unk {
+    Color4f_unk() {}
+    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+
+// NONMATCHING: ~75% (28/113 lines, 2 of them the ptmf .data noise) - the three argument temporaries
+// (pos, rot, color) get their stack slots in the opposite order (target: pos lowest); tried named locals
+// assigned field by field (then the ptmf temporaries move), temporaries, an inline accessor for the
+// m121C test.
+// inferred: starts the effect m121C on the model (mFlag18 is set while it is shown)
+void CharaTask::vf98() {
+    bool show = false;
+    if (m121C && !mFlag18) {
+        show = true;
+    }
+    if (mType == 0 && lbl_8087F430 != 0 && fn_80219558(m50) == 0) {
+        show = show && fn_80376150(lbl_8087F430);
+    }
+    if (m50 == 700023) {
+        show = show && mFlag5;
+    }
+    if (show) {
+        fn_80232B7C(m121C.get(), 0);
+        lbl_8087F3C0->mB8 = 2;
+        fn_8023A8B4(lbl_8087F3C0, m121C.get(), &mMotion, 0, atn::Vector3(0.0f, 0.0f, 0.0f),
+                    atn::Vector3(0.0f, 0.0f, 0.0f), Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+        lbl_8087F3C0->mB8 = 0;
+        mFlag18 = 1;
+    }
+}
+
+// inferred: stops the effect started by vf98
+void CharaTask::vf9C(int arg) {
+    if (m121C && mFlag18) {
+        fn_80239DAC(lbl_8087F3C0, m121C.get(), 0, arg);
+        mFlag18 = 0;
+    }
+}
+
+// NONMATCHING: same instructions, different scheduling/registers (the original converts b first and
+// builds the word in r4); tried ternaries and shifts in every order, | and +, bool locals, a bit field
+// struct, an inline helper with bool parameters, unsigned parameters.
+// inferred: flags of the motion command nodes (tested by fn_80145334)
+void CharaTask::fn_80176DFC(int a, int b, int c) {
+    m1254 = (a != 0) | (b != 0 ? 2 : 0) | (c != 0 ? 4 : 0);
+}
+
+// inferred: quicksort used by fn_80176E30 (the comparison only sees the keys m00). The two
+// instantiations of Sort_unk are 0x80177688 (comparison by value) and 0x80177AA0 (by reference,
+// recursive part); Median3_unk is 0x80177EB8. Names invented.
+typedef bool (*FloatLess_unk)(const float& a, const float& b);
+extern "C" void fn_801092C8(Effect_unk* effect, int id, CharaTask* chara, int a, int b);
+
+
+template <class T>
+inline void Swap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+
+template <class T>
+struct Ref_unk {
+    typedef T& type;
+};
+template <class T>
+struct Ref_unk<T&> {
+    typedef T& type;
+};
+
+template <class T, class Compare>
+void Median3_unk(T* a, T* b, T* c, Compare& comp) {
+    bool ca = !comp(c->m00, a->m00);
+    bool bc = !comp(b->m00, c->m00);
+    if (ca && bc) {
+        return;
+    }
+    if (!ca && !bc) {
+        Swap_unk(*a, *b);
+    } else {
+        if (comp(b->m00, a->m00)) {
+            Swap_unk(*a, *b);
+        }
+        if (ca) {
+            Swap_unk(*b, *c);
+        } else {
+            Swap_unk(*a, *c);
+        }
+    }
+}
+
+template <class T, class Compare>
+inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* result = first;
+    if (first != last) {
+        for (T* it = first + 1; it != last; it++) {
+            if (comp(it->m00, result->m00)) {
+                result = it;
+            }
+        }
+    }
+    return result;
+}
+
+template <class T, class Compare>
+inline void SelectionSort_unk(T* first, T* last, Compare& comp) {
+    if (first != last) {
+        for (T* end = last - 1; first != end; first++) {
+            T* min = MinElement_unk(first, last, comp);
+            if (min != first) {
+                Swap_unk(*min, *first);
+            }
+        }
+    }
+}
+
+// NONMATCHING: ~83% (44/262 lines in both instantiations) - the selection sort swaps the registers of
+// `end` and `it` (r30/r26 in the original) and the second pivot offset is scheduled differently;
+// tried inline min_element/selection sort helpers, loop forms, declaration orders, `3 * n / 4`.
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp) {
+    typedef typename Ref_unk<Compare>::type CompareRef;
+    static int sOffset; // inferred: lbl_8087D9D0 and lbl_8087D9D4 (one per instantiation), -4 to 4
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            if (first != last) {
+                for (T* end = last - 1; first != end; first++) {
+                    T* min = MinElement_unk(first, last, comp);
+                    if (min != first) {
+                        Swap_unk(*min, *first);
+                    }
+                }
+            }
+            return;
+        }
+        T* a = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* b = first + (n * 3 / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* j;
+        T* pivot = last - 1;
+        Median3_unk(a, b, pivot, comp);
+        T* i = first;
+        j = pivot;
+        while (comp(i->m00, pivot->m00)) {
+            i++;
+        }
+        while (i != --j && !comp(j->m00, pivot->m00)) {
+        }
+        if (i < j) {
+            Swap_unk(*i, *j);
+            i++;
+            while (true) {
+                while (comp(i->m00, pivot->m00)) {
+                    i++;
+                }
+                while (!comp((--j)->m00, pivot->m00)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                Swap_unk(*i, *j);
+                i++;
+            }
+        }
+        if (i == first) {
+            T* back = last - 1;
+            Swap_unk(*i, *pivot);
+            i++;
+            if (!comp(first->m00, back->m00)) {
+                while (i != last && !comp(first->m00, i->m00)) {
+                    i++;
+                }
+                if (i < back) {
+                    Swap_unk(*i, *back);
+                }
+            }
+            j = back;
+            if (i < j) {
+                while (true) {
+                    while (!comp(first->m00, i->m00)) {
+                        i++;
+                    }
+                    while (comp(first->m00, (--j)->m00)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    Swap_unk(*i, *j);
+                    i++;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            Sort_unk<T, CompareRef>(first, i, comp);
+            first = i;
+        } else {
+            Sort_unk<T, CompareRef>(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+// inferred: name invented
+inline EffectCharaSlot_unk* GetEffectSlots_unk() {
+    return lbl_8087F048 != 0 ? lbl_8087F048->mCBF0 : 0;
+}
+
+// NONMATCHING: ~99% - the original computes the slot address in r4 before moving it to r26 (tried
+// several forms of the ternary/accessor); the 2*pi double is the known .rodata pool noise.
+// inferred: sorts the characters around this one (m125C: angle, character) and sets mFlag10 when
+// they surround it
+void CharaTask::fn_80176E30() {
+    if (m12A0 > 0) {
+        m12A0--;
+        return;
+    }
+    EffectCharaSlot_unk* slots = GetEffectSlots_unk();
+    if (slots == 0) {
+        return;
+    }
+    m125C.mCount = 0;
+    for (int i = 0; i < 0x48; i++) {
+        if (m125C.full()) {
+            break;
+        }
+        CharaTask* chara = slots[i].mChara;
+        if (chara == 0 || !chara->CanAct_unk() || chara == this) {
+            continue;
+        }
+        bool facing = false;
+        if (chara->mType == 0) {
+            if (chara->mFC0 == this) {
+                facing = true;
+            } else {
+                atn::Vector3 dir = mPos - chara->mPos;
+                if (!(atn::Abs_unk(LengthSq_unk(dir)) < 1.1920929e-7f)) {
+                    dir.Normalize_unk();
+                }
+                if (Dot_unk(dir, chara->fn_8014052C()) < -0.5f) {
+                    facing = true;
+                }
+            }
+        } else {
+            if (chara->mC58.mMode != 4 && chara->mC58.mMode != 5) {
+                continue;
+            }
+            if (chara->mC58.mC4 == this) {
+                facing = true;
+            }
+        }
+        if (!facing) {
+            continue;
+        }
+        atn::Vector3 dir = chara->mPos - mPos;
+        if (!(atn::Abs_unk(LengthSq_unk(dir)) < 1.1920929e-7f)) {
+            dir.Normalize_unk();
+        }
+        m125C.PushBack_unk(CharaPair_unk(atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y), chara));
+    }
+    Sort_unk<CharaPair_unk, FloatLess_unk>(m125C.begin(), m125C.end(), fn_80135384);
+    if (m125C.mCount <= 1) {
+        mFlag10 = 0;
+        return;
+    }
+    float scaleA = 1.0f;
+    float scaleB = scaleA;
+    if (mFlag10) {
+        scaleA = 1.75f;
+        scaleB = scaleA;
+    }
+    if (m50 == 0x189C1 && lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 &&
+        fn_80373148(lbl_8087F430)->m48 == 2 && fn_80373148(lbl_8087F430)->m4C == 13) {
+        scaleA *= 2.0f;
+        scaleB *= 1.5f;
+    }
+    CharaPair_unk* it = m125C.begin();
+    bool wrapped = false;
+    unsigned int count = 0;
+    while (!wrapped) {
+        float angle = it->m00;
+        CharaTask* a = it->m04;
+        it++;
+        if (it == m125C.end()) {
+            angle -= 6.2831855f;
+            it = m125C.begin();
+            wrapped = true;
+        }
+        float angle2 = it->m00;
+        CharaTask* b = it->m04;
+        atn::Vector3 da = a->mPos - mPos;
+        atn::Vector3 db = b->mPos - mPos;
+        float distA = LengthSq_unk(da);
+        float distB = LengthSq_unk(db);
+        float radiusA = scaleA * (1.2f * a->m64->m30);
+        float sizeA = scaleB * a->vfA0();
+        if (a->mType != 2) {
+            radiusA *= 1.75f;
+            sizeA *= 1.2f;
+        }
+        float radiusB = scaleA * (1.2f * b->m64->m30);
+        float sizeB = scaleB * b->vfA0();
+        if (a->mType != 2) {
+            radiusB *= 1.75f;
+            sizeB *= 1.2f;
+        }
+        if (distA > radiusA * radiusA || distB > radiusB * radiusB) {
+            continue;
+        }
+        if (distA > 0.0f) {
+            da.Normalize_unk();
+        }
+        if (distB > 0.0f) {
+            db.Normalize_unk();
+        }
+        if (angle2 - angle <= 0.5f * (sizeA + sizeB)) {
+            count++;
+        }
+    }
+    if (count >= m125C.mCount) {
+        if (!mFlag10) {
+            mFlag10 = 1;
+            if (mType == 0 && lbl_8087F430 != 0 && fn_80375184(lbl_8087F430)) {
+                fn_801092C8(lbl_8087F048, 5, this, 0, 0);
+            }
+            m12A0 = mType == 2 ? 60 : 30;
+        }
+    } else {
+        mFlag10 = 0;
+    }
+}
+
+// inferred: input direction of the stick, the rotation when it is not tilted
+atn::Vector3 CharaTask::fn_80178018() {
+    atn::Vector3 dir;
+    if (((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_801248DC(&dir) < 0.4f) {
+        dir = mRot;
+    }
+    return dir;
+}
+
+// inferred: tilt of the stick
+float CharaTask::fn_80178078() {
+    return ((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_801248DC(0);
+}
+
+// inferred: position given by the running control, else the position
+atn::Vector3 CharaTask::fn_80178088() {
+    if (m55C == 6 && mControl) {
+        return mControl->vf14();
+    }
+    return mPos;
+}
+
+// inferred: top of the collision capsule
+atn::Vector3 CharaTask::fn_80178164() {
+    return mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
+}
+
+// inferred: center of the collision capsule
+atn::Vector3 CharaTask::fn_801781B0() {
+    return (mColli.m3C + mColli.m48) * 0.5f;
+}
+
 void CharaTask::fn_80178208(chr::ControlBase* control) {
     if (m55C == 6) {
         if (mControl) {
@@ -11076,6 +11508,618 @@ void CharaTask::fn_80178208(chr::ControlBase* control) {
     }
     fn_8016E970(6);
     mControl.reset(control);
+}
+
+// inferred: bullet instance that hits characters (class unknown): m04 is its data, m08 its owner and
+// m80 a copy of the data used when fn_8059A264 is set
+struct Bullet_unk {
+    int fn_8059A264(); // inferred: m80 is in use
+    // inferred: name invented
+    HitInfo_unk* GetData_unk() {
+        HitInfo_unk* data = m04;
+        if (fn_8059A264()) {
+            data = &m80;
+        }
+        return data;
+    }
+
+    unsigned char m00[0x04];
+    HitInfo_unk* m04;
+    CharaTask* m08;
+    unsigned char m0C[0x80 - 0x0C];
+    HitInfo_unk m80;
+};
+
+// inferred: arena modes 0 and 1 (name invented)
+inline bool IsArena01_unk() {
+    bool result = false;
+    if (lbl_8087F610 != 0 && IsArenaMode_unk(lbl_8087F610->m540)) {
+        result = true;
+    }
+    return result;
+}
+
+// inferred: records the hit of `bullet` (and of its second bullet) on the character
+int CharaTask::fn_801784BC(Bullet_unk* bullet, int flag) {
+    int result = 0;
+    HitInfo_unk* data = bullet->GetData_unk();
+    HitInfo_unk* sub = data->m6C > 0 ? fn_80219E6C(data->m6C) : 0;
+    if (data != 0) {
+        int time = sub != 0 ? 2 : data->m5C;
+        unsigned int flags = fn_80179730(data, flag);
+        if ((flags & 2) == 2 || (flags & 8) == 8 || (flags & 0x100) == 0x100) {
+            time = 2;
+        }
+        if ((flags & 0x20) == 0x20 || (flags & 0x40) == 0x40 || (flags & 0x200) == 0x200 || (flags & 0x400) == 0x400) {
+            time = 60;
+        }
+        result = fn_80178668(data, 0, time, bullet->m08, flag);
+    }
+    if (sub != 0) {
+        int time = sub->m5C;
+        unsigned int flags = fn_80179730(sub, flag);
+        if ((flags & 2) == 2 || (flags & 8) == 8 || (flags & 0x100) == 0x100) {
+            time = 2;
+        }
+        if ((flags & 0x20) == 0x20 || (flags & 0x40) == 0x40 || (flags & 0x200) == 0x200 || (flags & 0x400) == 0x400) {
+            time = 60;
+        }
+        result |= fn_80178668(sub, data, time, bullet->m08, flag);
+    }
+    return result;
+}
+
+// NONMATCHING: ~73% (34/127 lines) - register allocation in the inlined side test (the original keeps
+// the loop end in r0 and the side result in r25); tried other side-test helpers, no local for the
+// attacker, constructing the hit in place or through PushBack_unk.
+// inferred: adds a hit (or refreshes the one of the same bullet); returns 1 when recorded
+int CharaTask::fn_80178668(HitInfo_unk* hit, HitInfo_unk* parent, int time, CharaTask* attacker, int flag) {
+    for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
+        if (it->mHit == hit) {
+            CharaTask* other = (CharaTask*)it->m10;
+            if (other == 0 || attacker == 0 || IsSameSideHit_unk(other, attacker)) {
+                it->m04 = (int)parent;
+                it->m08 = time;
+                it->m10 = (int)attacker;
+                return 1;
+            }
+        }
+    }
+    if (!m12D0.full()) {
+        m12D0.PushBack_unk(CharaHit_unk(hit, (int)parent, time, fn_80179730(hit, flag), flag != 0, (int)attacker));
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: removes the hits of `hit` (or of its second bullet) made by `attacker`
+int CharaTask::fn_80178864(HitInfo_unk* hit, CharaTask* attacker) {
+    int result = 0;
+    HitInfo_unk* sub = hit->m6C > 0 ? fn_80219E6C(hit->m6C) : 0;
+    CharaHit_unk* it = m12D0.begin();
+    while (it != m12D0.end()) {
+        if ((it->mHit == hit || (sub != 0 && it->mHit == sub)) && (CharaTask*)it->m10 == attacker) {
+            RemoveHit_unk(it);
+            result = 1;
+        } else {
+            it++;
+        }
+    }
+    return result;
+}
+
+// inferred: whether a hit with bullet id `id` (any if <= 0) and all the flags `flags` is recorded
+int CharaTask::fn_801789D8(int id, unsigned int flags) {
+    return FindHit_unk(id, flags) != 0;
+}
+
+extern "C" void fn_8059C8D8(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CA74(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059C98C(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CB2C(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CC9C(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CBE4(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CFB0(atn::Task* mgr, CharaTask* chara, int arg);
+extern "C" void fn_8059D004(atn::Task* mgr, CharaTask* chara, int arg);
+extern "C" void fn_8059D058(atn::Task* mgr, CharaTask* chara, int arg);
+extern "C" void fn_8059D0AC(atn::Task* mgr, CharaTask* chara, int arg);
+extern "C" void fn_8059D168(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg);
+
+// inferred: ends the effects of the recorded hits and clears them
+void CharaTask::fn_80178A6C() {
+    if ((m1374 & 1) == 1) {
+        fn_8059C8D8(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 4) == 4) {
+        fn_8059CA74(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 2) == 2) {
+        fn_8059C98C(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 8) == 8) {
+        fn_8059CB2C(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 0x100) == 0x100) {
+        fn_8059CC9C(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 0x10) == 0x10) {
+        fn_8059CBE4(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 0x20) == 0x20) {
+        fn_8059CFB0(lbl_8087F9E8, this, 0);
+    }
+    if ((m1374 & 0x40) == 0x40) {
+        fn_8059D004(lbl_8087F9E8, this, 0);
+    }
+    if ((m1374 & 0x200) == 0x200) {
+        fn_8059D058(lbl_8087F9E8, this, 0);
+    }
+    if ((m1374 & 0x400) == 0x400) {
+        fn_8059D0AC(lbl_8087F9E8, this, 0);
+    }
+    if ((m1374 & 0x800) == 0x800) {
+        fn_8059D168(lbl_8087F9E8, this);
+    }
+    m1374 = 0;
+    m12D0.mCount = 0;
+    m1410 = 0.0f;
+    fn_800CB5C8(&m1414, 0, 0);
+}
+
+extern "C" void fn_8059C800(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059C99C(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059C8E8(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CA84(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CBF4(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CB3C(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CF70(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059CFC4(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059D018(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059D06C(atn::Task* mgr, CharaTask* chara);
+extern "C" void fn_8059D0C0(atn::Task* mgr, CharaTask* chara);
+extern "C" int fn_8021A960(HitInfo_unk* hit);
+extern "C" int fn_8021A984(HitInfo_unk* hit);
+extern "C" int fn_8021A9A8(HitInfo_unk* hit);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames);
+
+// NONMATCHING: ~86% (100/717 lines) - register allocation of the summary loop (it/timer/end), of the
+// inlined arena test (the original materializes the IsArenaMode_unk bool) and of the side tests;
+// tried the side test helpers, the arena helper written with nested ifs and locals.
+// inferred: per-frame update of the recorded hits (status effects, timers, the hit sound)
+void CharaTask::fn_80178BFC() {
+    if ((mStatus.m0C & 0x20) != 0x20 && (m54C & 0x2000) != 0x2000 && lbl_8087F9E8 != 0) {
+        fn_8059C084(lbl_8087F9E8, this);
+    }
+    int removed = 0;
+    if (m674 != 0 || m1208 != 0) {
+        CharaHit_unk* it = m12D0.begin();
+        while (it != m12D0.end()) {
+            if ((it->m0C & 0x20) == 0x20 || (it->m0C & 0x40) == 0x40 || (it->m0C & 0x200) == 0x200 ||
+                (it->m0C & 0x400) == 0x400) {
+                m12D0.erase(it);
+                removed = 1;
+            } else {
+                it++;
+            }
+        }
+    }
+    unsigned int effect = 0;
+    unsigned int flags = 0;
+    bool timer = false;
+    bool guard = false;
+    CharaHit_unk* end = m12D0.end();
+    for (CharaHit_unk* it = m12D0.begin(); it != end; it++) {
+        HitInfo_unk* hit = it->mHit;
+        flags |= it->m0C;
+        if (hit->m6C == 2 || hit->m6C == 5) {
+            guard = true;
+        }
+        if ((hit->mAC & 0x2000) == 0x2000) {
+            timer = true;
+        }
+    }
+    if (lbl_8087F9E8 != 0 && (lbl_8087F9E8->mFlags & 1) != 1 && (lbl_8087F9E8->mFlags & 4) != 4 && !timer) {
+        mStatus.m2F4 = 0.0f;
+    }
+    if (((unsigned int)mStatus.mParamB.m9C & 0x800) == 0x800) {
+        guard = true;
+    }
+    for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
+        if (it->m0E == 0 && it->m04 == 0 && !((guard || m55C == 5) && (it->m0C & 2) == 2) &&
+            !((it->m0C & 0x100) == 0x100 && (it->m10 == 0 || (CharaTask*)it->m10 == this))) {
+            mStatus.fn_8012E244(it->mHit);
+            if (it->mHit->m01 != 1 && it->mHit->m01 != 4) {
+                effect |= it->mHit->m90;
+            }
+        }
+        if ((it->m0C & 0x100) == 0x100 && (CharaTask*)it->m10 == this) {
+            flags |= 0x80;
+            flags &= ~0x100;
+        }
+    }
+    if ((m54C & 8) != 8 && !mFlagB1) {
+        if ((m1374 & 1) != 1 && (flags & 1) == 1) {
+            fn_8059C800(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 4) != 4 && (flags & 4) == 4) {
+            fn_8059C99C(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 2) != 2 && (flags & 2) == 2) {
+            fn_8059C8E8(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 8) != 8 && (flags & 8) == 8 &&
+            (mType != 2 || IsArena01_unk())) {
+            fn_8059CA84(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 0x100) != 0x100 && (flags & 0x100) == 0x100) {
+            fn_8059CBF4(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 0x10) != 0x10 && (flags & 0x10) == 0x10) {
+            fn_8059CB3C(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 0x20) != 0x20 && (flags & 0x20) == 0x20) {
+            fn_8059CF70(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 0x40) != 0x40 && (flags & 0x40) == 0x40) {
+            fn_8059CFC4(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 0x200) != 0x200 && (flags & 0x200) == 0x200) {
+            fn_8059D018(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 0x400) != 0x400 && (flags & 0x400) == 0x400) {
+            fn_8059D06C(lbl_8087F9E8, this);
+        }
+        if ((m1374 & 0x800) != 0x800 && (flags & 0x800) == 0x800) {
+            fn_8059D0C0(lbl_8087F9E8, this);
+        }
+    }
+    if ((m1374 & 1) == 1 && (flags & 1) != 1) {
+        fn_8059C8D8(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 4) == 4 && (flags & 4) != 4) {
+        fn_8059CA74(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 2) == 2 && (flags & 2) != 2) {
+        fn_8059C98C(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 8) == 8 && (flags & 8) != 8) {
+        fn_8059CB2C(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 0x100) == 0x100 && (flags & 0x100) != 0x100) {
+        fn_8059CC9C(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 0x10) == 0x10 && (flags & 0x10) != 0x10) {
+        fn_8059CBE4(lbl_8087F9E8, this);
+    }
+    if ((m1374 & 0x20) == 0x20 && (flags & 0x20) != 0x20) {
+        fn_8059CFB0(lbl_8087F9E8, this, removed);
+    }
+    if ((m1374 & 0x40) == 0x40 && (flags & 0x40) != 0x40) {
+        fn_8059D004(lbl_8087F9E8, this, removed);
+    }
+    if ((m1374 & 0x200) == 0x200 && (flags & 0x200) != 0x200) {
+        fn_8059D058(lbl_8087F9E8, this, removed);
+    }
+    if ((m1374 & 0x400) == 0x400 && (flags & 0x400) != 0x400) {
+        fn_8059D0AC(lbl_8087F9E8, this, removed);
+    }
+    if ((m1374 & 0x800) == 0x800 && (flags & 0x800) != 0x800) {
+        fn_8059D168(lbl_8087F9E8, this);
+    }
+    m1374 = flags;
+    mStatus.m240 = effect;
+    CharaHit_unk* it = m12D0.begin();
+    while (it != m12D0.end()) {
+        if (--it->m08 <= 0) {
+            RemoveHit_unk(it);
+        } else {
+            it++;
+        }
+    }
+    if (mType == 0) {
+        bool enemy = false;
+        bool friendly = false;
+        for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
+            if (fn_8021A960(it->mHit) && it->mHit->mA0 < 0 && it->m10 != 0 &&
+                !IsSameSideHit_unk((CharaTask*)it->m10, this)) {
+                enemy = true;
+            }
+            if (fn_8021A984(it->mHit) && it->m10 != 0 && IsSameSideHit_unk((CharaTask*)it->m10, this)) {
+                friendly = true;
+            }
+        }
+        if (enemy && !friendly) {
+            m1410 = 1.0f;
+            if (m1414.mPtr == 0) {
+                m1414 = fn_800C31F4(sSoundNames_unk[6], 0, -1, 1.0f);
+            } else {
+                fn_800CB5B4(&m1414, 10);
+            }
+        } else {
+            m1410 = MIN(MAX(m1410 - 1.0f / 30.0f, 0.0f), 1.0f);
+            if (m1410 > 0.0f) {
+                fn_800CB5B4(&m1414, 10);
+            } else if (m1414.mPtr != 0) {
+                fn_800CB5C8(&m1414, 0, 0);
+            }
+        }
+    }
+}
+
+// inferred: flags of a hit (0x1 and 0x4 percentage changes, 0x2/0x8/0x10/0x100 kinds, 0x20-0x400
+// timed effects, 0x800 special)
+unsigned int CharaTask::fn_80179730(HitInfo_unk* hit, int flag) {
+    unsigned int flags = 0;
+    if (fn_8021A8D0(hit)) {
+        for (int i = 0; i < 4; i++) {
+            if (hit->GetRates_unk()[i] != 0) {
+                flags |= 1;
+                break;
+            }
+        }
+    }
+    if (fn_8021A918(hit)) {
+        if ((hit->mAC & 0x2000) == 0x2000) {
+            flags |= 0x10;
+        } else if (fn_8021A9A8(hit)) {
+            for (int i = 0; i < 4; i++) {
+                if (hit->GetRates_unk()[i] != 0) {
+                    flags |= 4;
+                    break;
+                }
+            }
+        }
+    }
+    if (flag) {
+        if (hit->m74.m00 > 0.0f) {
+            flags |= 0x20;
+        }
+        if (hit->m74.m04 > 0.0f) {
+            flags |= 0x40;
+        }
+        if (hit->m74.m10 > 0.0f) {
+            flags |= 0x200;
+        }
+        if (hit->m74.m0C > 0.0f) {
+            flags |= 0x400;
+        }
+        if ((hit->mAC & 0x40000000) == 0x40000000) {
+            flags |= 0x1000;
+        }
+    } else if (fn_8021A960(hit)) {
+        flags |= 2;
+    }
+    if (hit->m98 != 0) {
+        if ((float)hit->m98 > 0.0f) {
+            flags |= 8;
+        }
+        flags &= ~0x14;
+    }
+    if ((hit->mAC & 0x100000) == 0x100000) {
+        flags |= 0x100;
+        flags &= ~0x1C;
+        lbl_8087F430->fn_803750E4(0xE9);
+    }
+    if ((hit->mAC & 0x400000) == 0x400000 && hit->m98 == 0) {
+        flags |= 0x800;
+        flags &= ~0x1D;
+    }
+    if ((flags & 0x10) == 0x10 && (mType == 2 || mStatus.HasTimer_unk())) {
+        flags &= ~0x10;
+    }
+    return flags;
+}
+
+// inferred: flags of all the recorded hits
+unsigned int CharaTask::fn_801799BC() {
+    unsigned int flags = 0;
+    for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
+        flags |= fn_80179730(it->mHit, it->m0E);
+    }
+    return flags;
+}
+
+// inferred: id of the character from its name ("..XX..YY.ZZ": XX * 10000 + YY * 100 + ZZ)
+int CharaTask::fn_80179A34() {
+    if (m60 != 0) {
+        int a;
+        int b;
+        b = atoi(m60->m10 + 8) * 100;
+        a = atoi(m60->m10 + 2) * 10000;
+        return atoi(m60->m10 + 11) + (a + b);
+    }
+    return 0;
+}
+
+// inferred: kind of the character from its name
+int CharaTask::fn_80179AB4() {
+    return m60 != 0 ? fn_80208748(m60->m10) : 0;
+}
+
+// NONMATCHING: ~16% by line (132/157, same instructions) - the original unrolls the equipment loop with
+// one pointer to m680[1] (offsets 4..0x18), ours advances a base by 8; tried int/unsigned index, a
+// local copy, a pointer loop (not unrolled), peeling element 0.
+// inferred: sets or clears model flags on the model, the weapons, the equipment and the items
+void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
+    if (clear) {
+        mMotion.mFlags &= ~mask;
+        if (m648 != 0) {
+            m648->m014 &= ~mask;
+            if (m64C != 0) {
+                m64C->m014 &= ~mask;
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            if (m680[i] != 0) {
+                m680[i]->m028 &= ~mask;
+            }
+        }
+        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+            m6A4.mData[i]->mModel.mFlags &= ~mask;
+        }
+    } else {
+        mMotion.mFlags |= mask;
+        if (m648 != 0) {
+            m648->m014 |= mask;
+            if (m64C != 0) {
+                m64C->m014 |= mask;
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            if (m680[i] != 0) {
+                m680[i]->m028 |= mask;
+            }
+        }
+        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+            m6A4.mData[i]->mModel.mFlags |= mask;
+        }
+    }
+}
+
+// inferred: arena mode 2 (name invented)
+inline bool IsArena2_unk() {
+    bool result = false;
+    if (lbl_8087F610 != 0 && lbl_8087F610->m540 == 2) {
+        result = true;
+    }
+    return result;
+}
+
+// NONMATCHING: ~68% by line (30/94, same instructions) - register names only (mType in r6, the arena
+// bool in r5 in the original); tried a type local, the arena test written inline, nested and as an
+// expression (the nested bool form gets the registers right but keeps 4 extra instructions).
+// inferred: collision mask of the character
+int CharaTask::fn_80179D44() {
+    unsigned int mask = 0;
+    if (mType == 0) {
+        mask |= 0x20;
+    } else if (mType == 3) {
+        mask |= 0x40;
+    } else if (mType == 2) {
+        if (!(lbl_8087F430 != 0 && lbl_8087F430->m48 == 2 && lbl_8087F430->m4C == 25 && lbl_8087F430->m50 == 2)) {
+            mask |= 0x80;
+        }
+    } else if (IsPartyMember_unk()) {
+        mask |= 0x800;
+    }
+    if (mFlag3) {
+        mask |= 0x10000;
+    }
+    if (m60 != 0) {
+        int kind = m60->m24;
+        if (kind == 0x1A || kind == 0x3B || kind == 0x3C || kind == 0x19 ||
+            (kind == 0x17 && atn::Abs_unk(m568) < 1.1920929e-7f)) {
+            mask |= 0x20000000;
+        }
+        if (kind == 0x23) {
+            mask |= 0x80000000;
+        }
+        if (IsArena2_unk() && mType == 2 && lbl_8087F430->m4C == 3 && lbl_8087F430->m50 == 6) {
+            mask |= 0x80000000;
+        }
+    }
+    if (mFlag22 == 1) {
+        mask |= 0x20000;
+    }
+    if (mFlagB1) {
+        mask |= 0x80000000;
+    }
+    return mask;
+}
+
+// inferred: whether the character can react to an action of kind `kind`
+bool CharaTask::fn_80179EBC(int kind) {
+    Settings_unk* settings = lbl_8087F0A8;
+    if ((mType == 0 && settings->m308 == 0) || (mFlags & 4) == 4 || (m54C & 0x2000) == 0x2000 || mC54 == 0) {
+        return false;
+    }
+    if (m7C == 0) {
+        return false;
+    }
+    if (kind != 10 && (mStatus.m0C & 0x20) == 0x20) {
+        return false;
+    }
+    if (m1380 > 0 && !((unsigned int)(kind - 0x24) <= 3) && !((unsigned int)(kind - 10) <= 1)) {
+        if (kind == 2) {
+            if (m1384 != 0 && m1384 != 1) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+// inferred: blocks the reactions for 90 frames (see fn_80179EBC)
+void CharaTask::fn_80179F98(int value) {
+    m1384 = value;
+    m1380 = 90;
+}
+
+extern "C" int fn_803761A4(Field_unk* field);
+
+// NONMATCHING: 1 instruction - the original passes 0 in r5 to CharaStatus::fn_801346C8 (every caller in
+// the DOL does: the function takes a second argument, but its symbol fn_801346C8__11CharaStatusFi says
+// one).
+// inferred: whether the character can use its weapon now
+bool CharaTask::fn_80179FA8() {
+    if (lbl_8087F430 == 0 || !fn_803761A4(lbl_8087F430)) {
+        return false;
+    }
+    if (!CanReact_unk()) {
+        return false;
+    }
+    if (lbl_8087F610 == 0 && !mStatus.fn_801346C8(0xE)) {
+        return false;
+    }
+    bool result = false;
+    if (HasWeapon_unk() && IsArenaMode_unk(m5C->m11C)) {
+        result = true;
+    }
+    return result;
+}
+
+// inferred: vf34 of the running control
+int CharaTask::fn_8017A160() {
+    if (m55C == 6 && mControl) {
+        return mControl->vf34();
+    }
+    return 0;
+}
+
+// inferred: vf38 of the running control
+int CharaTask::fn_8017A228(int arg) {
+    if (m55C == 6 && mControl) {
+        return mControl->vf38(arg);
+    }
+    return -1;
+}
+
+// inferred: changes the character data and updates the status
+void CharaTask::fn_8017A300(chr::CharaData_unk* data) {
+    m5C = data;
+    mStatus.fn_8012B3E8();
+    mStatus.fn_8012B988();
+}
+
+// inferred: makes `rider` follow the "spine" node of this character (0 releases the current one)
+void CharaTask::fn_8017A33C(CharaTask* rider, int release) {
+    if (rider != 0) {
+        mMotion.fn_80097C08(3, 0x1F3, 1, 0, 1, 1.0f, 0.1f);
+        rider->mF1C = (int)mMotion.GetNodeMtx_unk("spine");
+        rider->mColli.mFlags &= ~1;
+        rider->mFlag11 = 1;
+    } else if (m139C != 0) {
+        fn_80097CCC(&mMotion, 3, 0.0f);
+        if (release) {
+            m139C->mF1C = 0;
+            m139C->mColli.mFlags |= 1;
+            m139C->mFlag11 = 0;
+        }
+    }
+    m139C = rider;
 }
 
 void CharaTask::fn_8017ABD4(int arg) {
@@ -11177,7 +12221,6 @@ void CharaTask::fn_8017A504() {
     }
 }
 
-extern "C" int fn_8021A960(HitInfo_unk* hit);
 
 // inferred: whether the character shows its weapon-kind specific effect (kind from fn_8015487C)
 int CharaTask::fn_8017A9A8() {
@@ -11343,6 +12386,92 @@ bool CharaTask::fn_8017B3C0() {
     return result;
 }
 
+// inferred: route tables of the field (name invented)
+inline RouteTable_unk* GetRouteTable_unk() {
+    return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+}
+
+extern "C" void fn_8011C044(CharaC58_unk* c58, int arg);
+
+// inferred: reports a point move to a missing warp point (name invented)
+static void ReportPointMove_unk(CharaTask* chara, int id) {
+    if (lbl_8087EEB8 != 0) {
+        char message[0x100];
+        sprintf(message, "error: invalid pointmove chara[%d:%s] -> warppoint[%d]\n", chara->m58, chara->fn_8017C904(), id);
+        fn_800697D8(lbl_8087EEB8, message);
+    }
+}
+
+// NONMATCHING: ~94% (32/518 lines, 8 of them the ptmf/string pool noise) - the route table and the
+// loop offset swap r31/r30, and the m5B0 load goes to f31 instead of f2; tried locals in other orders,
+// the ternary written inline, the m5B0 accessor.
+// inferred: moves the character (or its rider, m13FC) to the next place of the list m1400
+void CharaTask::fn_8017B434() {
+    if (m1400.mSize < 2) {
+        return;
+    }
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table == 0) {
+        return;
+    }
+    float best = 1e16f;
+    RoutePlace_unk* nearest = 0;
+    for (unsigned int i = 0; i < m1400.mSize; i++) {
+        RoutePlace_unk* place = table->FindPlace_unk(m1400.mData[i]);
+        if (place != 0) {
+            float dist = LengthSq_unk(place->mPos - mPos);
+            if (dist < best) {
+                best = dist;
+                m140C = i;
+                nearest = place;
+            }
+        }
+    }
+    if (m140C < 0) {
+        return;
+    }
+    if (LengthSq_unk(nearest->mPos - mPos) < (1.2f * fn_8013C42C()) * (1.2f * fn_8013C42C())) {
+        m140C = (m140C + 1) % m1400.mSize;
+    }
+    int id = m1400.mData[m140C];
+    CharaTask* rider = (CharaTask*)m13FC;
+    if (rider != 0) {
+        if (rider->m13FC != 0) {
+            ((CharaTask*)rider->m13FC)->fn_8017039C(id, 8);
+            return;
+        }
+        if (GetRouteTable_unk() == 0) {
+            return;
+        }
+        if (id > 0) {
+            rider->mRoute.fn_80128818(id, &rider->mPos, 8);
+            if (rider->mRoute.fn_801255C8()) {
+                rider->fn_801718F8();
+                return;
+            }
+        }
+        ReportPointMove_unk(rider, id);
+        return;
+    }
+    if (GetRouteTable_unk() == 0) {
+        return;
+    }
+    if (id > 0) {
+        mRoute.fn_80128818(id, &mPos, 8);
+        if (mRoute.fn_801255C8()) {
+            Reset_unk(0, 1, 1, 1);
+            fn_8011C044(&mC58, 0);
+            fn_80017064(lbl_8087EE68, this);
+            fn_8016E970(7);
+            if (m1208 != 0) {
+                fn_801750FC();
+            }
+            return;
+        }
+    }
+    ReportPointMove_unk(this, id);
+}
+
 void CharaTask::fn_8017BC4C() {
     m140C = -1;
 }
@@ -11383,6 +12512,40 @@ bool CharaTask::vfC4() {
         }
     }
     return true;
+}
+
+// inferred: random value in [0, 1] (name invented)
+inline float RandRate_unk() {
+    return (float)(rand() % 1001) / 1000.0f;
+}
+
+// inferred: `v` transformed by `m` (name invented)
+inline atn::Vector3 TransformVec_unk(const Mtx m, const atn::Vector3& v) {
+    atn::Vector3 r(v);
+    PSMTXMultVec(m, &r, &r);
+    return r;
+}
+
+// NONMATCHING: ~90% (43/442 lines) - the original keeps each matrix address in r28 (this moves to r28
+// too) and adds the angle constant with the operands the other way round; tried an inline helper for
+// the whole point (worse stack layout), matrix pointer locals, other operand orders.
+// inferred: four points around the character away from `dir` (out[3] is the position behind it)
+void CharaTask::vfCC(atn::Vector3* out, const atn::Vector3& vec) {
+    Mtx m0;
+    Mtx m1;
+    Mtx m2;
+    atn::Vector3 dir(vec.x, 0.0f, vec.z);
+    if (!(atn::Abs_unk(LengthSq_unk(dir)) < 1.1920929e-7f)) {
+        dir.Normalize_unk();
+    }
+    float angle = atn::WrapAngle_unk(3.1415927f + dir.ToRotation_unk().y);
+    out[3] = mPos - dir;
+    PSMTXRotRad(m0, 'y', angle + 2.6179938f - 1.3962634f * RandRate_unk());
+    out[0] = out[3] - dir * 30.0f + TransformVec_unk(m0, atn::Vector3(0.0f, 0.0f, 10.0f * RandRate_unk() + 20.0f));
+    PSMTXRotRad(m1, 'y', angle + 0.6981317f - 1.3962634f * RandRate_unk());
+    out[1] = out[3] - dir * 30.0f + TransformVec_unk(m1, atn::Vector3(0.0f, 0.0f, 10.0f * RandRate_unk() + 20.0f));
+    PSMTXRotRad(m2, 'y', angle - 1.2217305f - 1.3962634f * RandRate_unk());
+    out[2] = out[3] - dir * 30.0f + TransformVec_unk(m2, atn::Vector3(0.0f, 0.0f, 10.0f * RandRate_unk() + 20.0f));
 }
 
 // NONMATCHING: the original loads 0.6f into f0 and m5B4 into f2 (ours the other way round);

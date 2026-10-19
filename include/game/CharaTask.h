@@ -323,8 +323,10 @@ struct SkillRef_unk {
 // inferred: element of CharaTask::m125C
 struct CharaPair_unk {
     CharaPair_unk() : m00(0.0f), m04(0) {}
+    // inferred: angle and character (fn_80176E30)
+    CharaPair_unk(float angle, CharaTask* chara) : m00(angle), m04(chara) {}
     float m00;
-    int m04;
+    CharaTask* m04;
 };
 
 // inferred from __vt__9CharaTask (0x8077C460). Base class of all characters
@@ -371,7 +373,7 @@ public:
     virtual atn::Vector3 vf94(); // inferred: returns a vector (0x800EF370 returns lbl_807C7030)
     virtual void vf98();
     virtual void vf9C(int arg); // inferred: fn_80145334 passes 0 (the target symbol says Fv)
-    virtual void vfA0();
+    virtual float vfA0(); // inferred: returns a size (fn_80176E30)
     virtual int vfA4();
     virtual void vfA8();
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
@@ -382,7 +384,7 @@ public:
     virtual void vfC0();
     virtual bool vfC4();
     virtual void vfC8();
-    virtual void vfCC();
+    virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // inferred: four points (the target symbol says Fv)
     virtual atn::Vector3 vfD0(float angle); // inferred: position at mid height
     virtual void vfD4();
     // inferred: a free position next to the character, away from `target` (8 directions tried)
@@ -540,6 +542,8 @@ public:
     void fn_8016125C(const SkillRef_unk* skill, CharaTask* target, int motion, const char* name, float f);
     void fn_80139560(); // inferred: per-frame movement update
     void fn_8017B434();
+    void fn_8017039C(int id, int arg); // inferred: moves to the place `id` (fn_8017B434)
+    void fn_801718F8();
     int fn_8013A4E8(float* a, atn::Vector3* rot, float* b); // inferred: same values as vf34
     int fn_8015061C(CharaTask* chara);
     bool fn_8016F368(int type); // inferred: the type is on the same side as mType
@@ -551,11 +555,9 @@ public:
     bool fn_8016F67C(); // inferred: nothing blocks the way in front of the character
     void fn_8016F824(int point, int arg); // inferred: "pointmove" to the route point `point`
     void fn_8016FDCC(int point, int arg); // inferred: "pointmove" to the hide point `point`
-    void fn_8017039C(int place, int arg); // inferred: "pointmove" to the warp point (forwarded to m13FC)
     void fn_80170A20(CharaTask* target, int arg, float radius);
     void fn_80170F20(const atn::Vector3* pos, int arg, float a, float radius);
     void fn_80171420(CharaTask* target, int arg, float radius);
-    void fn_801718F8(); // inferred: starts the route set by the "pointmove" functions
     void fn_80171DB0(); // inferred: stops the route (fn_80127EF4) and releases the character
     void fn_8016D74C(HitInfo_unk* data, int a, int b);
     // inferred: weak copy 0x800F52F0 (name invented)
@@ -597,6 +599,11 @@ public:
     void fn_80144F4C(int a, void* b, float y0, float y1); // inferred: orthographic camera on the model
     void fn_80175B18(float distSq); // inferred: per-frame update, gets the squared distance to the camera
     void fn_80176E30();
+    void fn_80176ACC();
+    void fn_80176DFC(int a, int b, int c);
+    atn::Vector3 fn_80178088();
+    atn::Vector3 fn_80178164();
+    atn::Vector3 fn_801781B0();
     atn::Vector3 fn_80178018(); // inferred: returns a direction or target vector (y used as an angle)
     float fn_80178078();
     void fn_8017AC3C(int arg);
@@ -761,6 +768,30 @@ public:
     void fn_8015B520();
     void fn_8015B808(const atn::Vector3& dir, int a);
     void fn_80178A6C();
+    int fn_801784BC(struct Bullet_unk* bullet, int flag);
+    int fn_80178668(HitInfo_unk* hit, HitInfo_unk* parent, int time, CharaTask* attacker, int flag);
+    int fn_80178864(HitInfo_unk* hit, CharaTask* attacker);
+    unsigned int fn_80179730(HitInfo_unk* hit, int flag);
+    unsigned int fn_801799BC();
+    int fn_80179A34();
+    int fn_80179AB4();
+    void fn_80179AD0(unsigned int mask, int clear);
+    bool fn_80179EBC(int kind);
+    void fn_80179F98(int value);
+    bool fn_80179FA8();
+    int fn_8017A160();
+    int fn_8017A228(int arg);
+    void fn_8017A300(chr::CharaData_unk* data);
+    void fn_8017A33C(CharaTask* rider, int release);
+    // inferred: removes the hit `it` and clears the references to its bullet (names invented)
+    void RemoveHit_unk(CharaHit_unk* it) {
+        for (CharaHit_unk* j = m12D0.begin(); j != m12D0.end(); j++) {
+            if ((HitInfo_unk*)j->m04 == it->mHit) {
+                j->m04 = 0;
+            }
+        }
+        m12D0.erase(it);
+    }
     int fn_8017A450();
     void fn_8017A504();
     void fn_8017A5D8(int on);
@@ -867,6 +898,29 @@ public:
             }
         }
         return 0;
+    }
+    // inferred: bullet of the first hit with bullet id `id` (any if <= 0) and the flags `flags` (any
+    // if 0); name invented
+    HitInfo_unk* FindHit_unk(int id, unsigned int flags) {
+        CharaHit_unk* hit = m12D0.mData;
+        for (unsigned int i = 0; i < m12D0.mCount; i++) {
+            if ((id <= 0 || hit->mHit->m04 == id) && (flags == 0 || flags == (flags & hit->mHit->mAC))) {
+                int bullet = hit->mHit->m04;
+                if (bullet > 0) {
+                    return fn_80219E6C(bullet);
+                }
+            }
+            hit++;
+        }
+        return 0;
+    }
+    // inferred: name invented
+    bool HasWeapon_unk() {
+        bool result = false;
+        if (m648 != 0 && m648->m04 == 0) {
+            result = true;
+        }
+        return result;
     }
     // inferred: state checks inlined in many places (names invented)
     bool IsActive_unk() { return (mFlags & 4) != 4 && (mFlags & 1) != 1; }
@@ -1097,7 +1151,7 @@ public:
     float m12CC;
     // inferred: hits on the character (CharaStatus::fn_8012E540)
     FixedArray_unk<CharaHit_unk, 8> m12D0;
-    int m1374;
+    unsigned int m1374; // inferred: hit flags of the previous frame (fn_80178BFC)
     unsigned char m1378[0x137C - 0x1378];
     unsigned int m137C; // inferred: flags (bit 3 clears the model flag 4 on load and hides the shadow, fn_80149A30)
     int m1380;
@@ -1123,7 +1177,7 @@ public:
     CharaTask* m13FC; // inferred: character that "pointmove" (fn_8017039C) is forwarded to; set by fn_8017AC3C
     atn::Vector_unk<int> m1400; // inferred: element type unknown (plain data)
     int m140C;
-    unsigned char m1410[0x1414 - 0x1410];
+    float m1410; // inferred: volume of the sound m1414 (fn_80178BFC)
     atn::SoundRef m1414;
     int m1418;
     float m141C;

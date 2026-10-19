@@ -726,7 +726,7 @@ void CharaStatus::fn_8012E244(HitInfo_unk* hit) {
     if ((float)hit->mA0 < 0.0f) {
         if ((mChara->m5C->mParam.m9C & 0x40000) == 0x40000) {
             mParamB.m8C -= 0.0001f;
-        } else if (fn_80040588(hit->m74, this, 0) <= 0.0f) {
+        } else if (fn_80040588(&hit->m74, this, 0) <= 0.0f) {
             mParamB.m8C += (float)hit->mA0 / 100.0f;
         }
     } else {

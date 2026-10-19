@@ -407,12 +407,15 @@ struct FixedArray_unk {
 // inferred: hit kept by a character (CharaTask::m12D0); name invented
 struct CharaHit_unk {
     CharaHit_unk() : mHit(0), m04(0), m08(0), m0C(0), m0E(0), m10(0) {}
+    // inferred: CharaTask::fn_80178668
+    CharaHit_unk(HitInfo_unk* hit, int parent, int time, unsigned short flags, unsigned char flag, int attacker)
+        : mHit(hit), m04(parent), m08(time), m0C(flags), m0E(flag), m10(attacker) {}
     HitInfo_unk* mHit;
-    int m04;
-    int m08;
-    short m0C;
+    int m04; // inferred: bullet whose second bullet is mHit (CharaTask::fn_801784BC)
+    int m08; // inferred: frames left (CharaTask::fn_80178BFC)
+    unsigned short m0C; // inferred: flags from CharaTask::fn_80179730
     unsigned char m0E;
-    int m10; // inferred: effect id (fn_8012E540)
+    int m10; // inferred: attacker (CharaTask*; CharaTask::fn_80178668, also passed to fn_800FDE60 by fn_8012E540)
 };
 
 // Embedded in CharaTask at 0x7D4 (callers pass CharaTask + 2004).
