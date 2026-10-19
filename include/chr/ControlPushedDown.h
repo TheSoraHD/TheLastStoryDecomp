@@ -27,6 +27,15 @@ public:
     unsigned char m08[0x3C - 0x08];
 };
 
+// inferred: created by CharaTask::fn_8016BBCC (motion 0x52); class name from the vtable
+class ControlOttotto : public ControlBase {
+public:
+    ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int a, int b); // 0x801C5A04
+    virtual int vf0C();
+
+    unsigned char m08[0x18 - 0x08];
+};
+
 } // namespace chr
 
 #endif

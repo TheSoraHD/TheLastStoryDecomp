@@ -28,6 +28,7 @@ struct Model_unk;
 
 namespace chr {
 class ControlBase;
+struct GmkTarget_unk;
 }
 
 // inferred: hit/damage description passed to CharaTask::vf3C and vf40 (0x801513D0);
@@ -466,6 +467,26 @@ public:
     void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
     void fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c); // inferred: chr::ControlPushedDown
     void fn_8016D0A0(int a); // inferred: releases the gimmick and starts chr::ControlSlip
+    // inferred: controls started by 0x8016939C-0x8016DC14 (class names from the constructors' vtables)
+    void fn_801696E0(); // inferred: leaves the cliffhang control (id 0x3A)
+    void fn_80169F04(const atn::Vector3& pos, float rotY);
+    void fn_8016A20C(const atn::Vector3& pos, int alt, float rotY);
+    void fn_8016A504(const atn::Vector3& pos, const atn::Vector3& rot);
+    bool fn_8016A7EC(); // inferred: false while control 0x5D runs
+    void fn_8016A814(float damage);
+    void fn_8016AB0C(chr::GmkTarget_unk* target, void* arg);
+    bool fn_8016ADF4(CharaTask* other); // inferred: `other` can swap places with this character
+    bool fn_8016AFE8(const atn::Vector3& dir); // inferred: swaps places with the character ahead
+    void fn_8016BEDC(CharaTask* other, atn::Vector3 v);
+    void fn_8016C1E0(CharaTask* other);
+    void fn_8016C4D8(int a, const atn::Vector3& v);
+    void fn_8016C7D8(int a);
+    void fn_8016CAD0();
+    void fn_8016CDB8(int a, int b);
+    bool fn_8016D3F8(); // inferred: control 0x63, or 0x27 with motion 0x8E
+    void fn_8016D454(float angle);
+    int fn_8016DAB0();
+    void fn_8016DC14(CharaTask* target, int quiet); // inferred: sets mFC4 (plays a UI sound)
     void fn_8015E4B0(const atn::Vector3& dir, int arg); // inferred: knock back along `dir` (0x801B59E0)
     void fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2);
     // inferred: the current motion (track 0) has reached its end (name invented)
@@ -926,7 +947,7 @@ public:
     float mFB8;
     float mFBC; // inferred: chant time (<= 0: the magic is cast at once)
     CharaTask* mFC0;
-    int mFC4;
+    CharaTask* mFC4; // inferred: target set by fn_8016DC14 (BattleCharaTask copies it to mFC0)
     atn::Vector3 mFC8;
     float mFD4;
     int mFD8;

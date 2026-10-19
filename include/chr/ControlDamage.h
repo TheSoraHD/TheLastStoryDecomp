@@ -70,8 +70,11 @@ public:
 
 class ControlFallDead : public ControlBase {
 public:
+    ControlFallDead(Chara_unk* chara, const atn::Vector3& rot); // 0x801AF264 (0x28 bytes)
     virtual int vf0C();
     bool fn_801AF81C(); // inferred: can be cancelled (control id 0x3B)
+
+    unsigned char m08[0x28 - 0x08];
 };
 
 class ControlDamageLastOne : public ControlBase {

@@ -16,6 +16,15 @@ public:
     unsigned char m08[0x30 - 0x08];
 };
 
+// inferred: created by CharaTask::fn_8016D74C; class name from the vtable
+class ControlCharge : public ControlBase {
+public:
+    ControlCharge(Chara_unk* chara, int a, int b, int c); // 0x801A2CEC
+    virtual int vf0C();
+
+    unsigned char m08[0x44 - 0x08];
+};
+
 } // namespace chr
 
 #endif

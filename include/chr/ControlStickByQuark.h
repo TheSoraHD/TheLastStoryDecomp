@@ -129,6 +129,42 @@ public:
     unsigned char m08[0x30 - 0x08];
 };
 
+// inferred: created by CharaTask 0x8016BEDC-0x8016CAD0; class names from the vtables stored by the
+// constructors, sizes from the operator new calls (the vectors are passed by value)
+class ControlStickByQuark : public ControlBase {
+public:
+    ControlStickByQuark(Chara_unk* chara, int a); // 0x80192908 (control id 0x53)
+    virtual int vf0C();
+    unsigned char m08[0x14 - 0x08];
+};
+
+class ControlThrust : public ControlBase {
+public:
+    ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 v, int b); // 0x8019356C
+    virtual int vf0C();
+    unsigned char m08[0x28 - 0x08];
+};
+
+class ControlThrustForCrab : public ControlBase {
+public:
+    ControlThrustForCrab(Chara_unk* chara, Chara_unk* other); // 0x80193EF8 (reads other->mPos)
+    virtual int vf0C();
+    unsigned char m08[0x24 - 0x08];
+};
+
+class ControlThrustForKraken : public ControlBase {
+public:
+    ControlThrustForKraken(Chara_unk* chara, int a, atn::Vector3 v); // 0x80194550
+    virtual int vf0C();
+    unsigned char m08[0x44 - 0x08];
+};
+
+class ControlAbsorbed : public ControlBase {
+public:
+    ControlAbsorbed(Chara_unk* chara); // 0x80196974 (8 bytes)
+    virtual int vf0C();
+};
+
 } // namespace chr
 
 #endif

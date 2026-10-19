@@ -24,6 +24,8 @@
 #include "chr/ControlWallUp.h"
 #include "chr/ControlPushedDown.h"
 #include "chr/ControlStagger.h"
+#include "chr/ControlGmkCoffinOpening.h"
+#include "chr/ControlTurnQuadruped.h"
 #include "game/HitInfo_unk.h"
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
@@ -2281,7 +2283,8 @@ extern "C" GameState_unk* lbl_8087EFA8;
 
 // inferred: object hit by a sweep test (the character is at 0x0C); name invented
 struct CollObj_unk {
-    unsigned char m00[0x0C];
+    unsigned char m00[0x08];
+    unsigned int m08; // inferred: flags (2: the object is a character, CharaTask::fn_8016AFE8)
     CharaTask* m0C;
 };
 
@@ -8806,9 +8809,15 @@ void CharaTask::fn_8015EFAC(int arg) {
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 
-extern "C" void* lbl_8087F9F8; // inferred: tactics manager (TacView)
-extern "C" int fn_805ADCC0(void* manager, CharaTask* chara, HitInfo_unk* hit, int arg);
-extern "C" void fn_805ADD80(void* manager, CharaTask* chara, HitInfo_unk* hit);
+// inferred: tactics manager (TacView); names invented
+struct TacView_unk {
+    unsigned char m00[0xA70];
+    int mA70; // inferred: nonzero while the view is active (CharaTask::fn_8016DAB0)
+};
+extern "C" TacView_unk* lbl_8087F9F8;
+extern "C" int fn_805ADCC0(TacView_unk* manager, CharaTask* chara, HitInfo_unk* hit, int arg);
+extern "C" void fn_805ADD80(TacView_unk* manager, CharaTask* chara, HitInfo_unk* hit);
+extern "C" HitInfo_unk* fn_805ADD3C(TacView_unk* manager, CharaTask* chara);
 
 // inferred: helpers inlined in fn_8015F568 (names invented)
 inline atn::Vector3 GetDir_unk(const float& yaw) {
@@ -9540,16 +9549,187 @@ void CharaTask::vf88() {
     fn_8015E7A0(dir, -1, 0);
 }
 
-// inferred: hangs from a cliff (chr::ControlCliffhang)
-void CharaTask::fn_8016939C(int a, int flags, float f) {
-    ClearEffect_unk();
-    chr::ControlCliffhang* control = new (0, "", "", 0) chr::ControlCliffhang(this, a, flags, f);
-    fn_80178208(control);
+namespace chr {
+// inferred: controls created by CharaTask 0x8016939C-0x8016AFE8; class names from the vtables stored by
+// the constructors, sizes from the operator new calls
+class ControlDropDown : public ControlBase {
+public:
+    ControlDropDown(Chara_unk* chara, const atn::Vector3& v); // 0x801B2EDC
+    virtual int vf0C();
+    unsigned char m08[0x34 - 0x08];
+};
+// inferred: chr/ControlDive.cpp
+class ControlSwapPos : public ControlBase {
+public:
+    ControlSwapPos(Chara_unk* chara, const atn::Vector3& dir); // 0x801B19E4 (sets the control id 0x3F)
+    virtual int vf0C();
+    unsigned char m08[0x18 - 0x08];
+};
+} // namespace chr
+
+extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
+
+// inferred: hangs from a cliff
+void CharaTask::fn_8016939C(int a, int b, float f) {
+    fn_8016DA4C();
+    fn_80178208(new (0, "", "", 0) chr::ControlCliffhang(this, a, b, f));
+}
+
+// inferred: leaves the cliffhang control and restores the previous state
+void CharaTask::fn_801696E0() {
+    if (m55C == 6 && m560 == 0x3A) {
+        fn_8016E970(m564);
+    }
+}
+
+// inferred: falls dead (enemies also notify BattleCharaTask)
+void CharaTask::fn_801698E4(const atn::Vector3& rot) {
+    fn_80178208(new (0, "", "", 0) chr::ControlFallDead(this, rot));
+    mFlag16 = 0;
+    if (mType == 2 && (m54C & 0x400) != 0x400) {
+        fn_800EE360(this);
+    }
+}
+
+// inferred: drops down
+void CharaTask::vf8C(const atn::Vector3& v) {
+    fn_80178208(new (0, "", "", 0) chr::ControlDropDown(this, v));
+}
+
+void CharaTask::fn_80169F04(const atn::Vector3& pos, float rotY) {
+    fn_80178208(new (0, "", "", 0) chr::ControlGmkCoffinOpening(this, pos, rotY));
+}
+
+void CharaTask::fn_8016A20C(const atn::Vector3& pos, int alt, float rotY) {
+    fn_80178208(new (0, "", "", 0) chr::ControlGmkCoffinOpen(this, pos, alt, rotY));
+}
+
+void CharaTask::fn_8016A504(const atn::Vector3& pos, const atn::Vector3& rot) {
+    fn_80178208(new (0, "", "", 0) chr::ControlGmkCoffinGetUp(this, pos, rot));
+}
+
+bool CharaTask::fn_8016A7EC() {
+    if (m55C == 6 && m560 == 0x5D) {
+        return false;
+    }
+    return true;
+}
+
+void CharaTask::fn_8016A814(float damage) {
+    fn_80178208(new (0, "", "", 0) chr::ControlGmkTrapBat(this, damage));
+}
+
+void CharaTask::fn_8016AB0C(chr::GmkTarget_unk* target, void* arg) {
+    fn_80178208(new (0, "", "", 0) chr::ControlGmkBreakArmor(this, target, arg));
+}
+
+// inferred: same side by type (players and type 3 together); name invented
+inline bool IsSameTypeOf_unk(int a, int b) {
+    return a == b || (a == 0 && b == 3) || (a == 3 && b == 0);
+}
+
+// inferred: `other` stands in front of this character, on the other side, and this character can
+// play the swap motion 0x46
+bool CharaTask::fn_8016ADF4(CharaTask* other) {
+    if (IsPartyMember_unk() || IsSameTypeOf_unk(mType, other->mType)) {
+        return false;
+    }
+    if (lbl_8087F610 != 0) {
+        return false;
+    }
+    if (!mMotion.fn_80097D40(0x46)) {
+        return false;
+    }
+    if (mFlag31) {
+        return false;
+    }
+    if (mStatus.IsState_unk(0x20)) {
+        return false;
+    }
+    if (mStatus.mParamB.fn_801404E0(0x80)) {
+        return false;
+    }
+    if (mFlag22 == 1) {
+        return false;
+    }
+    if (m55C == 6 && !((unsigned int)(m560 - 0x14) <= 2 || m560 == 4)) {
+        return false;
+    }
+    Mtx m;
+    atn::Vector3 diff = other->mPos - mPos;
+    if (atn::Abs_unk(diff.y) > 3.0f) {
+        return false;
+    }
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    PSMTXRotRad(m, 'y', mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    return !(PSVECDotProduct(&diff, &front) < 0.5f);
+}
+
+// inferred: the character found ahead along `dir` if it can swap places with `chara` (name invented)
+inline CharaTask* FindSwapTarget_unk(CharaTask* chara, const atn::Vector3& dir) {
+    CollResult_unk result;
+    atn::Vector3 from(chara->mPos);
+    from.y += 5.0f;
+    atn::Vector3 to = from + dir * 20.0f;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x20, &chara->mColli, 0) && result.m38 != 0 &&
+        (result.m38->m08 & 2) == 2) {
+        CharaTask* target = result.m38->m0C;
+        if (target->fn_8016ADF4(chara)) {
+            return target;
+        }
+    }
+    return 0;
+}
+
+// inferred: swaps places with the character found ahead along `dir`
+bool CharaTask::fn_8016AFE8(const atn::Vector3& dir) {
+    CharaTask* target = FindSwapTarget_unk(this, dir);
+    if (target == 0) {
+        return false;
+    }
+    target->fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(target, 0x46, 0, 0, -1.0f, -1.0f));
+    target->Reset_unk(0, 1, 1, 1);
+    target->m58C = 0;
+    mFC0 = target;
+    fn_80178208(new (0, "", "", 0) chr::ControlSwapPos(this, dir));
+    return true;
 }
 
 // inferred: pushed down along `dir` (also inlined in fn_8013CB68)
 void CharaTask::fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c) {
     fn_80178208(new (0, "", "", 0) chr::ControlPushedDown(this, dir, a, b, c));
+}
+
+// inferred: staggers back (motion 0x52)
+void CharaTask::fn_8016BBCC(const atn::Vector3* dir, int a, int b) {
+    if (mMotion.fn_80097D40(0x52) && m139C == 0) {
+        fn_80178208(new (0, "", "", 0) chr::ControlOttotto(this, dir, a, b));
+    }
+}
+
+void CharaTask::fn_8016BEDC(CharaTask* other, atn::Vector3 v) {
+    fn_80178208(new (0, "", "", 0) chr::ControlThrust(this, other, v, 1));
+}
+
+void CharaTask::fn_8016C1E0(CharaTask* other) {
+    fn_80178208(new (0, "", "", 0) chr::ControlThrustForCrab(this, other));
+}
+
+void CharaTask::fn_8016C4D8(int a, const atn::Vector3& v) {
+    fn_80178208(new (0, "", "", 0) chr::ControlThrustForKraken(this, a, v));
+}
+
+void CharaTask::fn_8016C7D8(int a) {
+    fn_80178208(new (0, "", "", 0) chr::ControlStickByQuark(this, a));
+}
+
+void CharaTask::fn_8016CAD0() {
+    fn_80178208(new (0, "", "", 0) chr::ControlAbsorbed(this));
+}
+
+void CharaTask::fn_8016CDB8(int a, int b) {
+    fn_80178208(new (0, "", "", 0) chr::ControlStagger(this, a, b));
 }
 
 // inferred: slips (also inlined in fn_8013CB68)
@@ -9558,8 +9738,94 @@ void CharaTask::fn_8016D0A0(int a) {
     fn_80178208(new (0, "", "", 0) chr::ControlSlip(this, a));
 }
 
+// inferred: names invented
+inline bool IsMotion8E_unk(CharaTask* chara) {
+    bool result = false;
+    if (chara->m560 == 0x27 && chara->mMotion.mTracks[0].m00 == 0x8E) {
+        result = true;
+    }
+    return result;
+}
+inline bool IsControl63_unk(CharaTask* chara) {
+    bool result = true;
+    if (chara->m560 != 0x63 && !IsMotion8E_unk(chara)) {
+        result = false;
+    }
+    return result;
+}
+// NONMATCHING: ~48% by line (12/23, same instructions) - the outer and middle bools get r6/r5 instead
+// of r5/r6; tried a plain || expression, int-parameter helpers, nested ifs, an || helper, an outer
+// inline helper, int result, a ternary, an && helper.
+bool CharaTask::fn_8016D3F8() {
+    bool result = false;
+    if (m55C == 6 && IsControl63_unk(this)) {
+        result = true;
+    }
+    return result;
+}
+
+void CharaTask::fn_8016D454(float angle) {
+    fn_80178208(new (0, "", "", 0) chr::ControlTurnQuadruped(this, angle));
+}
+
+// inferred: charges the attack `hit`
+void CharaTask::fn_8016D74C(HitInfo_unk* hit, int a, int b) {
+    if (hit != 0) {
+        SetHit_unk(hit);
+        fn_80178208(new (0, "", "", 0) chr::ControlCharge(this, a, b, 0));
+    }
+}
+
+void CharaTask::fn_8016DA4C() {
+    ClearEffect_unk();
+}
+
+// inferred: remaining chant time in frames, rounded for the tactics view
+// NONMATCHING: ~93% (6/89, same instructions) - mFBC is loaded before mFB8 and the second fctiwz store
+// gets its own stack slot; tried MAX in both orders, a named float/int local, an inline helper, an
+// if/else, a negated difference, MIN(result, 89).
+int CharaTask::fn_8016DAB0() {
+    int result = 0;
+    if (fn_80160324() && m638 != 0) {
+        result = MAX((int)(mFBC - mFB8), 0);
+        if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+            if (fn_805ADCC0(lbl_8087F9F8, this, m638, 1) && (m638->mAC & 0x40000) != 0x40000) {
+                result = MIN(89, result);
+            }
+            result = result / 30 * 30 + 15;
+        }
+    } else if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+        HitInfo_unk* hit = fn_805ADD3C(lbl_8087F9F8, this);
+        if (hit != 0) {
+            result = 75;
+            if ((hit->mAC & 0x40000) == 0x40000) {
+                result = hit->mC0 - 15;
+            }
+        }
+    }
+    return result;
+}
+
+extern "C" void fn_803E6BB4(Unk8087F490_unk* obj, CharaTask* target);
+
+void CharaTask::fn_8016DC14(CharaTask* target, int quiet) {
+    if (mFC4 != target) {
+        mFC4 = target;
+        if (lbl_8087F490 != 0) {
+            fn_803E6BB4(lbl_8087F490, target);
+            if (quiet == 0) {
+                if (target != 0) {
+                    fn_800C31F4(sSoundNames_unk[8], 0, -1, 1.0f);
+                } else {
+                    fn_800C31F4(sSoundNames_unk[9], 0, -1, 1.0f);
+                }
+            }
+        }
+    }
+}
+
 // fn_8016E970, fn_801750FC and fn_80178208 are needed by the functions above (inlined through
-// -ipa file); the functions between them are not written yet.
+// -ipa file).
 void CharaTask::fn_8016E970(int state) {
     if (m55C != state) {
         if (m55C != 6 && m55C != 8) {
