@@ -265,7 +265,11 @@
  {
   "name": "atn/Layer3D.cpp",
   "classes": [
-   "atn::Layer3D"
+   "atn::Layer3D",
+   "atn::Layer2D",
+   "atn::LayerPrerender",
+   "atn::LayerZPrePass",
+   "atn::Layer2D3D"
   ],
   "matching": false
  },

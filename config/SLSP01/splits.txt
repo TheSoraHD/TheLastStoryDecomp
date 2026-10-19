@@ -169,9 +169,9 @@ atn/Layer2DBlur.cpp:
 	.sdata2     start:0x80880F28 end:0x80880F30
 
 atn/Layer3D.cpp:
-	.text       start:0x800B326C end:0x800B38B8
-	.rodata     start:0x80732E18 end:0x80732E28
-	.data       start:0x8077906C end:0x807790A8
+	.text       start:0x800B326C end:0x800B3978
+	.rodata     start:0x80732DD8 end:0x80732E28
+	.data       start:0x80778F90 end:0x807790A8
 	.sdata2     start:0x80880F30 end:0x80880F40
 
 atn/LayerOcclusionCPU.cpp:
