@@ -2927,11 +2927,14 @@ RVL_SDK/src/revolution/so/SOBasic.c:
 	.sbss       start:0x80880438 end:0x80880448
 
 RVL_SDK/src/revolution/ssl/ssl.c:
-	.text       start:0x806A4F3C end:0x806A5C94
+	.text       start:0x806A4F3C end:0x806A5C88
 	.data       start:0x807BCCA0 end:0x807BCCF8
 	.bss        start:0x80834120 end:0x80837140
 	.sdata      start:0x8087EDF0 end:0x8087EDF8
 	.sbss       start:0x80880450 end:0x80880458
+
+RVL_SDK/src/revolution/ssl/ssl_mutex.c:
+	.text       start:0x806A5C88 end:0x806A5C94
 
 dwc/src/base/dwc_base64.c:
 	.text       start:0x806A6CA0 end:0x806A7018
