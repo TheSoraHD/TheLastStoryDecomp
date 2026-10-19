@@ -215,6 +215,14 @@ public:
     void fn_801496A8(float x, float y, float z); // inferred: *this = *this * rot_z * rot_y * rot_x
     // inferred: translation (weak copy 0x8000D0F8); name invented
     Vector3 GetTrans_unk() const { return Vector3(m[0][3], m[1][3], m[2][3]); }
+    // inferred: rotation around y by value (inlined by fn_80139F60); name invented
+    static Matrix3x4 RotY_unk(float rad) {
+        Matrix3x4 r;
+        r.fn_8013A13C(rad);
+        return r;
+    }
+    // inferred: name invented (inlined by fn_80139F60)
+    Vector3 GetRow_unk(int i) const { return Vector3(m[i][0], m[i][1], m[i][2]); }
     // inferred: copy without the translation (weak copy 0x8001336C); name invented
     Matrix3x4 GetRotation_unk() const {
         Matrix3x4 r(*this);
@@ -267,7 +275,7 @@ inline float Abs_unk(float x) {
     return __fabs(x);
 }
 inline float WrapAngle_unk(float a) {
-    a = fmod(a, 6.283185307179586);
+    a = fmod(a, 6.2831855f);
     if (a > 3.1415927f) {
         a -= 6.2831855f;
     }
@@ -283,42 +291,44 @@ inline float DegToRad_unk(float deg) {
     return deg * 0.017453292f;
 }
 
+// inferred: 4x4 matrix built from a 3x4 one, row by row (only inlined in fn_80139F60; the rows and
+// the translation go through Vector3 temporaries); names invented
+struct Matrix44_unk {
+    Matrix44_unk(const Matrix3x4& a) {
+        m[3][0] = 0.0f;
+        m[3][1] = 0.0f;
+        m[3][2] = 0.0f;
+        m[3][3] = 1.0f;
+        SetRow_unk(0, a.GetRow_unk(0));
+        SetRow_unk(1, a.GetRow_unk(1));
+        SetRow_unk(2, a.GetRow_unk(2));
+        SetTrans_unk(a.GetTrans_unk());
+    }
+    void SetRow_unk(int i, const Vector3& v) {
+        m[i][0] = v.x;
+        m[i][1] = v.y;
+        m[i][2] = v.z;
+    }
+    void SetTrans_unk(const Vector3& v) {
+        m[0][3] = v.x;
+        m[1][3] = v.y;
+        m[2][3] = v.z;
+    }
+    float m[4][4];
+};
+
 // inferred: in-place version of ToRotation_unk (weak copy 0x80139F60, inlined in ToRotation_unk
-// 0x80011034). NONMATCHING (measured on an out-of-line copy): same instructions count but the original
-// loads the 12 matrix values once (f30/f31 saved) and stores the dead copy `tmp` last; ours reloads
-// them. The dead 3x4 copy is in the original; how it was written is unknown (tried by-value matrix
-// parameters, copy loops before/after, a 4x4 class built from a 3x4 one).
+// 0x80011034).
 inline void Vector3::fn_80139F60() {
-    float m44[4][4];
-    Matrix3x4 rot;
     Vector3 r;
-    Vector3 v;
-    Mtx tmp;
     if (Abs_unk(z) < 1.1920929e-7f) {
         r.y = x > 0.0f ? 1.5707964f : -1.5707964f;
     } else {
         r.y = atan2(x, z);
     }
-    rot.fn_8013A13C(-r.y);
-    m44[3][0] = 0.0f;
-    m44[3][1] = 0.0f;
-    m44[3][2] = 0.0f;
-    m44[3][3] = 1.0f;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            m44[i][j] = rot.m[i][j];
-        }
-    }
-    for (int i = 0; i < 3; i++) {
-        m44[i][3] = rot.m[i][3];
-    }
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 4; j++) {
-            tmp[i][j] = rot.m[i][j];
-        }
-    }
-    v = *this;
-    PSMTX44MultVec(m44, &v, &v);
+    Matrix44_unk m44(Matrix3x4::RotY_unk(-r.y));
+    Vector3 v(*this);
+    PSMTX44MultVec(m44.m, &v, &v);
     if (Abs_unk(v.z) < 1.1920929e-7f) {
         r.x = -(v.y > 0.0f ? 1.5707964f : -1.5707964f);
     } else {

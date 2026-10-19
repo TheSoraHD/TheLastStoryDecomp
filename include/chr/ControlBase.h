@@ -39,7 +39,7 @@ public:
     virtual int vf30(); // inferred: returns an int (0 in ControlBase, 0x800E60FC; compared with 5 by callers of CharaTask::fn_8017A450)
     virtual void vf34();
     virtual void vf38();
-    virtual void vf3C();
+    virtual int vf3C(); // 0x801446E8 (in game/CharaTask.cpp): returns 0
     virtual void vf40();
     virtual int vf44() { return 0; }
     virtual int vf48() { return 0; }

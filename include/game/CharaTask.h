@@ -339,7 +339,7 @@ public:
     void fn_80137FC0(); // inferred: reads the model options from the character file
     void fn_80138528(); // inferred: reads the motion parameters (mA4)
     int fn_80138E1C(int arg); // inferred: plays a random motion
-    void fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& node, const atn::ModelNodeCallbackContext& context);
+    void fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& node, const atn::ModelNodeCallbackContext& context); // inferred: node matrix hook
     void fn_8014FF9C(int a, int b, int c);
     void fn_8017B1C4(atn::Vector_unk<int>* list);
     void fn_80178208(chr::ControlBase* control); // inferred: changes the current control
@@ -419,6 +419,8 @@ public:
     CharaStatus* GetStatus_unk() { return &mStatus; }
     void fn_801698E4(const atn::Vector3& rot);
     void fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest);
+    int fn_801720AC(atn::Vector3* pos, atn::Vector3* vel); // inferred: nonzero keeps the rotation (fn_80140588)
+    int fn_801749EC(atn::Vector3* pos, atn::Vector3* vel);
     void fn_8016BBCC(const atn::Vector3* dir, int a, int b);
     // inferred: weak copy 0x800F7F80 (name invented)
     bool IsPlayer_unk() { return mType == 0; }
@@ -455,10 +457,8 @@ public:
     void fn_8015495C(int a, int b, int c, int d);
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
     // inferred: collision responses called by fn_8013CB68 with the new position and the movement
-    int fn_801720AC(atn::Vector3* pos, atn::Vector3* move);
     int fn_80172EFC(atn::Vector3* pos, atn::Vector3* move);
     int fn_80174104(atn::Vector3* pos, atn::Vector3* move);
-    int fn_801749EC(atn::Vector3* pos, atn::Vector3* move);
     int fn_8016E484();
     void fn_8017AC2C();
     void fn_80166544();
@@ -498,7 +498,6 @@ public:
     void fn_80147A18(int value);
     int fn_80148334();
     void fn_80148B38(); // inferred: updates the parts and the equipment
-    void fn_80148CC4(atn::Matrix3x4* mtx, ModelNodeDesc_unk* node); // inferred: node matrix hook
     // inferred: entry of the array at m62C (0x14 bytes)
     // inferred: has a constructor but no destructor (delete[] frees p - 0x10 without a destroy loop)
     struct Item14_unk {
@@ -612,6 +611,7 @@ public:
     // inferred: bool accessors (the original reloads the flag word after testing them)
     bool IsOnLedge_unk() const { return mFlag31; }
     bool IsFlag5_unk() const { return mFlag5; }
+    bool IsFlag11_unk() const { return mFlag11; } // inferred: name invented (vf24 reloads the word)
     bool IsDoubleLink_unk() const { return mFlagB16; }
     bool CanClimbUp_unk(int kind) {
         bool result = false;
@@ -891,7 +891,7 @@ public:
     int m1390; // inferred: random value 0-3
     CharaSub_unk* m1394;
     int m1398;
-    int m139C;
+    CharaTask* m139C; // inferred: character whose motion follows this one (vf24)
     atn::Vector3 m13A0; // inferred: position of the bullets fired by fn_80139560
     int m13AC;
     int m13B0;
