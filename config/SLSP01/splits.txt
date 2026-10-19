@@ -2058,7 +2058,7 @@ nw4r/SeqNoteOnCallback.cpp:
 
 game/StrapTask.cpp:
 	.text       start:0x805A6208 end:0x805A6A80
-	.rodata     start:0x807637F0 end:0x807637FC
+	.rodata     start:0x807637E0 end:0x80763838
 	.data       start:0x807975B0 end:0x807975E8
 	.sdata2     start:0x808882A0 end:0x808882E0
 
