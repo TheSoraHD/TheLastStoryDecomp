@@ -51,13 +51,12 @@ extern "C" void fn_80714930(void* self, void* player, void* manager); // inferre
 extern "C" void fn_80709AD0(void* sound, int frames);       // inferred: nw4r::snd::detail::BasicSound::Stop
 extern "C" void C_MTXLookAt(Mtx m, const atn::Vector3* camPos, const atn::Vector3* camUp, const atn::Vector3* target);
 
-// The literals of the inline NW4R assert ("LinkList.h", "NW4R:Pointer must not be NULL (p)") and
-// the constants 0.0f and 1.0f are outside the split of this unit, so they are referenced by address.
-extern "C" const char lbl_80779564[];
-extern "C" const char lbl_80779540[];
+// The constants 0.0f and 1.0f are shared with the code that follows this split (0x800C8278), so
+// they are referenced by address.
 extern "C" const float lbl_80881168; // 0.0f
 extern "C" const float lbl_8088116C; // 1.0f
-// inferred: default values of the three SoundCore fades (.sdata)
+// inferred: initial values of the three SoundCore fades (.sdata: 1.0f, 0.0f, 0.0f). They are left
+// outside the split: MWCC places zero-initialised variables in .sbss, not in .sdata.
 extern "C" float lbl_8087D930;
 extern "C" float lbl_8087D934;
 extern "C" float lbl_8087D938;
@@ -104,7 +103,7 @@ struct Snd3DManager_unk {
     // inferred: inline ut::LinkList<Sound3DListener, 0x64> members with the NW4R pointer assert
     static nw4r::ut::LinkListNode* GetNodeFromPointer(nw4r::snd::Sound3DListener* p) {
         if (p == 0) {
-            nw4r::db::Panic(lbl_80779564, 0x233, lbl_80779540);
+            nw4r::db::Panic("LinkList.h", 0x233, "NW4R:Pointer must not be NULL (p)");
         }
         return &p->mLinkNode;
     }
