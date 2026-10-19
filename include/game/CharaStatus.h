@@ -249,8 +249,10 @@ struct CharaEquip_unk {
     int fn_8056405C();  // inferred: nonzero while loading
     void fn_80566010(); // inferred: attaches the model
     void fn_805663F8();
+    void fn_80566408(); // inferred: undoes fn_805663F8 (CharaTask::fn_80145334)
     int m000; // inferred: kind (4 is handled apart by CharaTask::fn_80149A30)
-    unsigned char m004[0x024 - 0x004];
+    int m004; // inferred: item id ((id % 1000) / 10 == 46: coat with "leftcoat"/"rightcoat" nodes)
+    unsigned char m008[0x024 - 0x008];
     unsigned char m024[0x028 - 0x024]; // inferred: model-like object (passed to fn_80094E2C)
     unsigned int m028; // inferred: flags of that model
     unsigned char m02C[0x414 - 0x02C];

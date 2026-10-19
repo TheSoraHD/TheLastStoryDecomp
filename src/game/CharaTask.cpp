@@ -75,7 +75,9 @@ struct Settings_unk {
     int m294; // inferred: selects the flag set by CharaTask::fn_8014C540 for hits with flag 2
     unsigned char m298[0x2C0 - 0x298];
     int m2C0; // inferred: nonzero always tries fn_801749EC after a collision (fn_8013CB68)
-    unsigned char m2C4[0x368 - 0x2C4];
+    unsigned char m2C4[0x314 - 0x2C4];
+    int m314; // inferred: tested with m50 == 1 before the chant effect (fn_80145334)
+    unsigned char m318[0x368 - 0x318];
     unsigned int m368; // inferred: ARGB colors of the status effect (fn_8017A5D8)
     unsigned int m36C;
     unsigned int m370;
@@ -138,7 +140,7 @@ struct Field_unk {
     unsigned char m54E8[0x54F4 - 0x54E8];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
     unsigned char m54F8[0x56D4 - 0x54F8];
-    int m56D4; // inferred: nonzero pauses the status updates of CharaTask::fn_8014C540
+    CharaTask* m56D4; // inferred: a character never hidden by distance (fn_80145334); nonzero also pauses the status updates of fn_8014C540
     unsigned char m56D8[0x5744 - 0x56D8];
     int m5744; // inferred: copied to CharaTask::mFD8 by fn_80164B00
     unsigned char m5748[0x5760 - 0x5748];
@@ -151,11 +153,26 @@ extern "C" Field_unk* lbl_8087F430;
 struct Camera_unk {
     Camera_unk(int a = 0, int b = 0);
     ~Camera_unk();
-    unsigned char m00[0x104];
+    void fn_8004B378(); // inferred: updates the matrices (as in atn/LH_Scene.cpp)
+    // inferred: fields 0x00-0x54 named as in atn/LH_Scene.cpp
+    int mType;          // 0x00
+    int mFovType;       // 0x04
+    atn::Vector3 mPos;    // 0x08
+    atn::Vector3 mTarget; // 0x14
+    atn::Vector3 mUp;     // 0x20: inferred: set to (0, 1, 0) by CharaTask::fn_80144F4C
+    atn::Vector3 mDir;    // 0x2C
+    float m38;
+    float m3C; // inferred: projection bounds (orthographic camera of fn_80144F4C)
+    float m40;
+    float m44;
+    float m48;
+    unsigned char m4C[0x104 - 0x4C];
     View_unk m104;
     unsigned char m124[0x1F4 - 0x124];
 };
 extern "C" Camera_unk* lbl_8087EFB4;
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 
 // inferred: effect manager (lbl_8087F048, as in CharaStatus.cpp)
 struct Effect_unk {
@@ -165,8 +182,14 @@ struct Effect_unk {
     void fn_80105B3C(CharaTask* chara);
     atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
     CharaTask* fn_8010C948(CharaTask* chara);   // inferred: a target for the character
+    // inferred: chant effect (fn_80145334): shown at pos, hidden by fn_80107574
+    void fn_8010743C(const atn::Vector3* pos, int changed, float f);
+    void fn_80107574();
+    void fn_80106728(int arg, Model_unk* model); // inferred: called when a part is destroyed
 
-    unsigned char m00[0x3E39C];
+    unsigned char m00[0x3E304];
+    Model_unk::Float4_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
+    unsigned char m3E314[0x3E39C - 0x3E314];
     int m3E39C;
 };
 extern "C" Effect_unk* lbl_8087F048;
@@ -328,6 +351,8 @@ struct Arena_unk {
     int m50C;
     unsigned char m510[0x540 - 0x510];
     int m540;
+    unsigned char m544[0x5C8 - 0x544];
+    float m5C8; // inferred: damping of CharaTask::m13D8 and m13E4 (fn_80145334)
 };
 extern "C" Arena_unk* lbl_8087F610;
 inline bool IsArenaMode_unk(int mode) {
@@ -356,7 +381,19 @@ struct MapArea_unk {
     int m00;
     char mName[1];
 };
-extern "C" void* lbl_8087F558;
+// inferred: map data returned by fn_80373148 and held by the map manager; m104 is passed to
+// CharaTask::fn_80147A18 (map brightness, fn_80145334)
+struct MapInfo_unk {
+    unsigned char m00[0x104];
+    int m104;
+};
+struct MapManager_unk {
+    unsigned char m00[0x48];
+    int m48;
+    MapInfo_unk* m4C;
+};
+extern "C" MapManager_unk* lbl_8087F558;
+extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 extern "C" MapArea_unk* fn_804918A4(void* map, const atn::Vector3* pos);
 
 extern "C" void* lbl_8087F540;
@@ -411,12 +448,12 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
       m12A0(0), mFlag31(0), mFlag30(0), mFlag29(1), mFlag28(0), mFlag27(0), mFlag25(0), mFlag24(1),
       mFlag23(0), mFlag22(0), mFlag21(0), mFlag20(0), mFlag19(0), mFlag18(0), mFlag17(1), mFlag16(1),
       mFlag15(0), mFlag14(1), mFlag13(1), mFlag12(0), mFlag11(0), mFlag10(0), mFlag9(0), mFlag8(0), mFlag7(0), mFlag6(0), mFlag5(0), mFlag4(0), mFlag3(0),
-      mFlag2(0), mFlag1_0(0), mFlagB31(0), mFlagB30(0), mFlagB29(0), mFlagB28(0), mFlagB27(0), mFlagB26(0), mFlagB25(0), mFlagB24_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16(0), mFlagB15(0), mFlagB14(1), mFlagB13_11(0),
-      mFlagB10(1), mFlagB9(0), mFlagB8(0), mFlagB7(1), mFlagB6(0), mFlagB5(0), mFlagB4_3(0), mFlagB2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
+      mFlag2(0), mFlag1(0), mFlag0(0), mFlagB31(0), mFlagB30(0), mFlagB29(0), mFlagB28(0), mFlagB27(0), mFlagB26(0), mFlagB25(0), mFlagB24(0), mFlagB23(0), mFlagB22(0), mFlagB21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16(0), mFlagB15(0), mFlagB14(1), mFlagB13(0), mFlagB12(0), mFlagB11(0),
+      mFlagB10(1), mFlagB9(0), mFlagB8(0), mFlagB7(1), mFlagB6(0), mFlagB5(0), mFlagB4(0), mFlagB3(0), mFlagB2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
       m12BC(-1), m12C0(0), m12C4(0), m12C8(0), m12CC(0.0f), m1374(0), m137C(0), m1380(0), m1384(0),
       m1388(0), m138A(0), m138C(0), m1390(rand() % 4), m1398(0), m139C(0), m13AC(0), m13B0(0),
-      m13B4(1.0f), m13D8(0.0f), m13DC(0.0f), m13E0(0.0f), m13E4(0.0f), m13E8(0.0f), m13EC(0.0f),
-      m13F0(0.0f), m13F4(4), m13F8(0), m13FC(0), m1418(0), m141C(0.0f),
+      m13B4(1.0f), m13D8(0.0f, 0.0f, 0.0f), m13E4(0.0f), m13E8(0.0f, 0.0f, 0.0f),
+      m13F4(4), m13F8(0), m13FC(0), m1418(0), m141C(0.0f),
       m1420(20.0f) {
     if (IsPartyMember_unk()) {
         mC54 = 0;
@@ -535,7 +572,7 @@ void CharaTask::fn_80136544(const char* path) {
 struct ModelCamera_unk {
     ModelCamera_unk() : m00(0) {}
     int m00;
-    int m04;
+    void* m04;
     Camera_unk mCamera; // 0x08
 };
 // inferred: inlined in fn_8013655C (its literals are @STRING@ objects in .sdata); name invented
@@ -2220,12 +2257,17 @@ struct CameraState_unk {
 };
 // inferred: game state (lbl_8087EFA8, see CharaStatus.cpp); names invented
 struct GameState_unk {
-    unsigned char m000[0x21C];
-    float m21C; // inferred: distance of the full motion blend for party members (vf24)
-    unsigned char m220[0x324 - 0x220];
+    unsigned char m000[0x218];
+    float m218; // inferred: distance beyond which characters are not updated (fn_80145334)
+    float m21C; // inferred: distance beyond which characters are updated every m220 frames; also
+                // the distance of the full motion blend for party members (vf24)
+    int m220;
+    unsigned char m224[0x324 - 0x224];
     CameraState_unk m324;
     unsigned char m374[0x3A4 - 0x374];
     float m3A4; // inferred: time of a frame
+    unsigned char m3A8[0x410 - 0x3A8];
+    int m410; // inferred: nonzero calls CharaEquip_unk::fn_805663F8 on the equipment (fn_80145334)
 };
 extern "C" GameState_unk* lbl_8087EFA8;
 
@@ -3764,10 +3806,6 @@ void CharaTask::vf24() {
     }
 }
 
-int chr::ControlBase::vf3C() {
-    return 0;
-}
-
 void atn::Matrix3x4::fn_80144ED4(float rad) {
     Mtx t;
     Mtx r;
@@ -3784,6 +3822,805 @@ void CharaTask::fn_801446F0() {
     m580 = 0.0f;
     m584 = 0.0f;
 }
+
+
+
+// inferred: camera parameter passed to fn_80095F10 (same block at DialogHead+0x1620); name invented
+struct ModelCameraParam_unk {
+    ModelCameraParam_unk() : m00(0) {}
+    int m00;
+    void* m04;
+    Camera_unk mCamera;
+};
+// inferred: applies a camera to a model (also called by DialogHead)
+extern "C" void fn_80095F10(void* model, ModelCameraParam_unk* param);
+
+// inferred: the float is an infinity or a NaN (exponent bits all set); name invented
+inline bool __IsInfNan_unk(float f) {
+    return (*(unsigned int*)&f & 0x7F800000) == 0x7F800000;
+}
+
+// inferred: rotation matrix y * x * z from euler angles (name invented)
+inline void __MakeRotationYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.y != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.z != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
+// inferred: copy with the arguments in the order of PSMTXCopy (src, dst) (name invented)
+inline void __MtxCopySD_unk(const Mtx src, Mtx dst) {
+    __MtxCopy(dst, src);
+}
+
+// inferred: m = m * r (name invented)
+inline void __MtxMul_unk(atn::Matrix3x4& m, const atn::Matrix3x4& r) {
+    Mtx t;
+    PSMTXConcat(m.m, r.m, t);
+    __MtxCopySD_unk(t, m.m);
+}
+
+// inferred: m = m * rotation(r) (name invented)
+inline void __MtxRotateYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    atn::Matrix3x4 rot;
+    __MakeRotationYXZ_unk(rot, r);
+    __MtxMul_unk(m, rot);
+}
+
+// inferred: sets a vector (the arguments are evaluated z first, as in GimmickCommon.cpp)
+inline void __Vec3Set_unk(atn::Vector3& v, float x, float y, float z) {
+    v.x = x;
+    v.y = y;
+    v.z = z;
+}
+
+// NONMATCHING: ~92% (same instruction count; differences ignoring stack offsets: 39/498) - in the
+// inlined ToRotation_unk the locals sit lower on the stack and row 0 / translation of the rotation take
+// the other float registers; tried __MtxRotate, by-value matrix helpers, operator*=, a reference to
+// the rotation, Matrix3x4 temporaries, PSMTXCopy argument order (kept: __MtxCopySD_unk)
+// inferred: builds the model matrix (mMotion.mMtx) from the position, rotation and scale, or
+// takes it from the matrix the character is attached to (mF1C)
+void CharaTask::fn_80144710() {
+    atn::Matrix3x4 mtx;
+    if (mF1C != 0) {
+        mtx = *(atn::Matrix3x4*)mF1C;
+        mPos = mtx.GetTrans_unk();
+        mtx.m[0][3] = 0.0f;
+        mtx.m[1][3] = 0.0f;
+        mtx.m[2][3] = 0.0f;
+        atn::Vector3 dir;
+        dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(mtx.m, &dir, &dir);
+        dir.y = 0.0f;
+        mRot = dir.ToRotation_unk();
+        mtx = *(atn::Matrix3x4*)mF1C;
+    } else {
+        if (__IsInfNan_unk(mPos.y) || __IsInfNan_unk(mPos.x) || __IsInfNan_unk(mPos.z)) {
+            mPos = m550;
+        } else {
+            m550 = mPos;
+        }
+        Mtx trans;
+        PSMTXTrans(trans, mPos.x, mPos.y, mPos.z);
+        __MtxCopy(mtx.m, trans);
+        if (__IsInfNan_unk(mRot.y) || __IsInfNan_unk(mRot.x) || __IsInfNan_unk(mRot.z)) {
+            mRot.x = 0.0f;
+            mRot.y = 0.0f;
+            mRot.z = 0.0f;
+        }
+        __MtxRotateYXZ_unk(mtx, mRot);
+        if (mStatus.mParamB.fn_801404E0(0x40) && m55C != 8) {
+            Mtx r;
+            PSMTXRotRad(r, 'z', 3.1415927f);
+            Mtx t;
+            PSMTXConcat(mtx.m, r, t);
+            __MtxCopySD_unk(t, mtx.m);
+        }
+        Mtx scale;
+        PSMTXScale(scale, m540.x, m540.y, m540.z);
+        Mtx t;
+        PSMTXConcat(mtx.m, scale, t);
+        __MtxCopySD_unk(t, mtx.m);
+    }
+    __MtxCopy(mMotion.mMtx, mtx.m);
+    atn::Vector3 ax;
+    atn::Vector3 ay;
+    atn::Vector3 az;
+    __Vec3Set_unk(az, mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
+    float sz = PSVECMag(&az);
+    __Vec3Set_unk(ay, mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
+    float sy = PSVECMag(&ay);
+    __Vec3Set_unk(ax, mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
+    float sx = PSVECMag(&ax);
+    atn::Vector3 s(sx, sy, sz);
+    mMotion.m54 = MAX(s.x, MAX(s.y, s.z));
+}
+
+// NONMATCHING: ~25% (155 vs 250 instructions; the code before and after the copy matches) - the copy
+// of the camera (implicit operator=) cannot match: the original copies
+// members with paired singles (Vector3, Matrix3x4, a 4x4 matrix at 0x88 and the frustum at 0x100);
+// the 4x4 matrix copy needs a paired-single helper that Vec.h does not have, so the layout is kept opaque.
+// Layout seen in the copy: 0x00 two ints, 0x08/0x14/0x20/0x2C Vector3, 0x38-0x54 floats, 0x58 Matrix3x4,
+// 0x88 4x4 matrix, 0xC8/0xCC floats, 0xD0 Matrix3x4, 0x100 frustum (Matrix3x4, int, 2 floats,
+// 4 x {Vector3, float}, 2 Vector3, 6 x {Vector3, float})
+// inferred: sets an orthographic camera spanning y0..y1 on the model and the equipment
+void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
+    Camera_unk camera(0, 1);
+    float center = 0.5f * (y1 + y0);
+    camera.mUp.Set_unk(0.0f, 1.0f, 0.0f);
+    camera.mPos.Set_unk(0.0f, center, -100.0f);
+    camera.mTarget.Set_unk(0.0f, center, 0.0f);
+    camera.m3C = y0 - y1;
+    camera.m40 = 0.0f;
+    camera.m44 = -10.0f;
+    camera.m48 = 10.0f;
+    camera.fn_8004B378();
+    ModelCameraParam_unk param;
+    param.mCamera = camera;
+    param.m00 = a;
+    param.m04 = b;
+    fn_80095F10(&mMotion, &param);
+    chr::CharaEquip_unk** p = m680;
+    for (unsigned int i = 0; i < 8; i++, p++) {
+        if (*p != 0) {
+            fn_80095F10((*p)->m024, &param);
+        }
+    }
+}
+
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
+// inferred: sphere cast against the collision (hit in `result`, nonzero on a hit)
+extern "C" int fn_80418318(); // inferred: id of the water (ground follow) used by fn_804188A0
+extern "C" atn::Vector3 fn_804188A0(int id, const Segment_unk* seg);
+extern "C" void fn_8009076C(Model_unk* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
+extern "C" void fn_8009757C(Model_unk* model);
+extern "C" void fn_80097CCC(Model_unk* model, int track, float weight);
+extern "C" void fn_80098698(Model_unk* model);
+extern "C" void fn_80093F1C(Model_unk* model, const char* node, const atn::Vector3* a, const atn::Vector3* b,
+                            const atn::Vector3* scale, int arg); // inferred: node edit
+extern "C" void fn_80094778(Model_unk* model, const char* node); // inferred: clears a node edit
+extern "C" const char* fn_80473F18(atn::LoadHandle* handle); // inferred: name of the loaded resource
+extern "C" int fn_802185FC(const char* name);
+extern "C" int fn_80376150(Field_unk* field);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+
+// inferred: WrapAngle_unk with the period as a float constant (the pool of this file holds
+// (double)6.2831855f, not 6.283185307179586); name invented
+inline float __WrapAngleF_unk(float a) {
+    a = fmod(a, 6.2831855f);
+    if (a > 3.1415927f) {
+        a -= 6.2831855f;
+    }
+    if (a < -3.1415927f) {
+        a += 6.2831855f;
+    }
+    return a;
+}
+
+// inferred: helpers of the distance check in fn_80145334 (names invented)
+inline bool __IsPartless_unk(CharaTask* chara) {
+    return chara->mType != 0 && chara->m648 == 0;
+}
+inline bool __IsEventView_unk() {
+    if (lbl_8087FA20 != 0) {
+        return true;
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->m48 == 2 && lbl_8087F430->m4C == 42 && lbl_8087F430->m50 == 2) {
+        return true;
+    }
+    return false;
+}
+
+// inferred: squared length of a vector (name invented)
+inline float __LengthSq_unk(const atn::Vector3& v) {
+    return fn_805F9920(&v);
+}
+
+// inferred: member-wise float copy (name invented)
+inline void __SetFloat4_unk(Model_unk::Float4_unk& d, const Model_unk::Float4_unk& v) {
+    d.m00 = v.m00;
+    d.m04 = v.m04;
+    d.m08 = v.m08;
+    d.m0C = v.m0C;
+}
+
+// inferred: sets four floats through a local block (name invented)
+inline void __SetFloat4_unk(Model_unk::Float4_unk& d, float a, float b, float c, float e) {
+    Model_unk::Float4_unk v;
+    v.m00 = a;
+    v.m04 = b;
+    v.m08 = c;
+    v.m0C = e;
+    __SetFloat4_unk(d, v);
+}
+
+// inferred: rotation matrix z * y * x (same as __MakeRotation_unk in GimmickCommon.cpp)
+inline void __MakeRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.z != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.y != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
+// NONMATCHING: ~87% (ignoring stack offsets: 336/2500 lines differ; 2471 vs 2473 instructions) -
+// stack layout, float/GPR register assignment (scale/extra/maxDist, node/reset), the inlined
+// ToRotation_unk (see fn_80144710), `mType != 3` folded away, the sphere radius (target converts the
+// constant with frsp), mF50 read once instead of twice, f1 = distSq passed to fn_80148B38 (declared Fv);
+// .data/.rodata pool references (ptmf constants, strings, the 2*pi double) shift until the earlier
+// functions exist. Tried: decl orders of the floats, Float4 assignment forms (kept the local block),
+// helper inlines for the distance checks, WrapAngle with a float period (kept), several `mType` forms.
+// inferred: per-frame update of the character (position fixes, model matrix, visibility by distance,
+// motion update, effects, timers)
+void CharaTask::fn_80145334() {
+    float maxDist = 10.0f;
+    float extra = 0.0f;
+    float scale = 0.0f;
+    bool check = false;
+    bool forward = false;
+    if (mType == 0) {
+        if (m55C == 6) {
+            switch (m560) {
+            case 4:
+            case 5:
+            case 2:
+                check = true;
+                break;
+            case 14:
+                if (m50 == 700022 || m50 == 700023) {
+                    extra = 2.0f;
+                    check = true;
+                    maxDist = 20.0f;
+                }
+                break;
+            case 98:
+                if (mFlag6) {
+                    scale = 7.0f;
+                    check = true;
+                    forward = true;
+                }
+                break;
+            }
+        } else if (m55C == 1) {
+            if (mFlag6) {
+                if (m674 >= 0) {
+                    scale = 7.0f;
+                    check = true;
+                    forward = true;
+                }
+            } else if (!mFlag31) {
+                check = m570 > 0.001f;
+                maxDist = 3.0f;
+            }
+        }
+    }
+    if (check && m520 >= 0) {
+        bool keep = true;
+        atn::Vector3 dir;
+        if (forward) {
+            dir = fn_8014052C() * scale;
+        } else {
+            atn::Vector3 from = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(m524))->GetTrans_unk();
+            atn::Vector3 to = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(m520))->GetTrans_unk();
+            dir = to - from;
+        }
+        dir.y = 0.0f;
+        if (fn_805F9920(&dir) > 0.01f) {
+            atn::Vector3 n = dir.GetNormalized_unk();
+            atn::Vector3 front = fn_8014052C();
+            if (PSVECDotProduct(&n, &front) > 0.5f) {
+                CollResult_unk result;
+                unsigned int mask = fn_80179D44() | 0x80000000;
+                Sphere_unk sphere;
+                sphere.mCenter = m614;
+                sphere.mRadius = m620;
+                sphere.mCenter = mPos + m5A4;
+                if (mStatus.mParamB.fn_801404E0(0x40)) {
+                    sphere.mCenter.y -= sphere.mRadius;
+                } else {
+                    sphere.mCenter.y += sphere.mRadius;
+                }
+                sphere.mRadius = (mFlag6 ? 4.0f : 3.0f) + extra;
+                if (fn_8004D388(lbl_8087EE98, &result, &sphere, &dir, mask, &mColli, 0, sphere.mRadius)) {
+                    atn::Vector3 end = sphere.mCenter + dir;
+                    atn::Vector3 back(result.m10.x - end.x, 0.0f, result.m10.z - end.z);
+                    if (fn_805F9920(&back) > 0.01f) {
+                        atn::Vector3 n1 = dir.GetNormalized_unk();
+                        atn::Vector3 n2 = back.GetNormalized_unk();
+                        if (PSVECDotProduct(&n1, &n2) < -0.5f && ((unsigned int)result.m3C & 4) != 4) {
+                            m588 = MIN(maxDist, back.Length_unk());
+                            keep = false;
+                        }
+                    }
+                }
+            }
+        }
+        if (keep) {
+            if (m588 > 0.01f) {
+                m588 -= MIN(m588, mFlag6 ? 0.4f : 0.2f);
+            }
+            if (mFlag6 && m55C == 1 && mMotion.mTracks[0].m00 == 0x25 && mMotion.mTracks[0].m00 != m484[4]) {
+                mMotion.fn_80097C08(0, m484[4], 1, 0, 1, 0.0f, 0.1f);
+            }
+        } else if (mFlag6 && m55C == 1 && mMotion.mTracks[0].m00 == 0x26) {
+            mMotion.fn_80097C08(0, 0x25, 1, 0, 1, 0.0f, 0.1f);
+        }
+    } else {
+        if (m55C == 8) {
+            m588 = 0.0f;
+        }
+        if (m588 > 0.01f) {
+            m588 -= MIN(m588, 0.5f);
+        }
+    }
+    mRot.x = __WrapAngleF_unk(mRot.x);
+    mRot.y = __WrapAngleF_unk(mRot.y);
+    mRot.z = __WrapAngleF_unk(mRot.z);
+    if (--m13F8 < 0) {
+        m13F8 = 0;
+    }
+    if (lbl_8087EFA8->m410 != 0) {
+        if (mMotion.IsFlag5_unk()) {
+            mMotion.mFlag4_unk = 1;
+            chr::CharaEquip_unk** equips = m680;
+            for (unsigned int i = 0; i < 8; i++, equips++) {
+                chr::CharaEquip_unk* equip = *equips;
+                if (equip != 0) {
+                    equip->fn_805663F8();
+                }
+            }
+        }
+    } else if (mMotion.IsFlag5_unk()) {
+        mMotion.mFlag4_unk = 0;
+        chr::CharaEquip_unk** equips = m680;
+        for (unsigned int i = 0; i < 8; i++, equips++) {
+            chr::CharaEquip_unk* equip = *equips;
+            if (equip != 0) {
+                equip->fn_80566408();
+            }
+        }
+    }
+    for (CharaPair8_unk* it = m6D0.begin(); it != m6D0.end();) {
+        if (--it->m04 <= 0) {
+            m6D0.erase(it);
+        } else {
+            it++;
+        }
+    }
+    if (mFlag5) {
+        mF5C = 0;
+        mF58++;
+    } else {
+        mF58 = 0;
+        mF5C++;
+    }
+    if ((mStatus.m0C & 0x40) == 0x40 || mFlag23) {
+        float height = m1420;
+        if (mF94 > 0) {
+            height *= MIN(0.75f, MAX(GetF94Rate_unk(), 0.01f));
+        }
+        fn_80144F4C(0, 0, mPos.y + height, mPos.y);
+    } else if (mFlag8) {
+        float height = 50.0f;
+        height *= MAX(1.0f - (float)mF9C / (float)mFA0, 0.01f);
+        fn_80144F4C(3, 0, mPos.y, mPos.y + height);
+    } else if (mFlagB1) {
+        fn_80144F4C(1, (char*)lbl_8087EEB0 + 0x70, 20.0f + mPos.y, 20.0f + mPos.y + 60.0f);
+    } else {
+        mMotion.mFlags &= ~0x80000;
+        for (int i = 0; i < 8; i++) {
+            if (m680[i] != 0) {
+                m680[i]->m028 &= ~0x80000;
+            }
+        }
+    }
+    if (mFlag7) {
+        mFlag7 = 0;
+        mMotion.mTracks[0].m10 = 1.0f;
+    }
+    if ((mStatus.m0C & 0x100) == 0x100) {
+        __SetFloat4_unk(mMotion.m40, 0.1f, 0.1f, 0.1f, 1.0f);
+    } else {
+        __SetFloat4_unk(mMotion.m40, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    m1154.fn_8007A7BC(&mMotion);
+    if (mF50 != 0) {
+        CharaTask* other = (CharaTask*)mF50; // inferred: mF50 holds the character dragging this one
+        mPos = other->mPos;
+        mRot = other->mRot;
+        atn::Vector3 offset(0.0f, 0.0f, 12.0f);
+        atn::Matrix3x4 rot;
+        __MakeRotationZYX_unk(rot, mRot);
+        PSMTXMultVec(rot.m, &offset, &offset);
+        mPos += offset;
+        mRot.y += 3.1415927f;
+    }
+    if ((m54C & 0x200000) == 0x200000 && fn_80418318() != 0) {
+        MtxPtr node = mMotion.GetNodeMtx_unk(m520);
+        if (node != 0) {
+            atn::Matrix3x4 inv;
+            __MtxCopy(inv.m, mMotion.mMtx);
+            PSMTXInverse(inv.m, inv.m);
+            fn_80144710();
+            fn_8009076C(&mMotion, &inv);
+            int id = fn_80418318();
+            float dy = node[1][3] - mPos.y;
+            atn::Vector3 pos = fn_804188A0(id, &Segment_unk(mPos, ((atn::Matrix3x4*)node)->GetTrans_unk()));
+            pos.y -= dy;
+            pos.y = (pos.y + (m13B8[0].y + m13B8[1].y)) / 3.0f;
+            mPos = pos;
+        }
+    }
+    if (mFlag2 && lbl_8087F610 != 0) {
+        if (!mFlag1) {
+            mPos += m13D8;
+            m13D8 *= lbl_8087F610->m5C8;
+            mRot.y += MIN(MAX(m13E4, -0.2617994f), 0.2617994f);
+            mRot.y = __WrapAngleF_unk(mRot.y);
+            m13E4 *= lbl_8087F610->m5C8;
+            m13E4 = __WrapAngleF_unk(m13E4);
+        } else {
+            mFlag1 = 0;
+        }
+    }
+    m13B8[1] = m13B8[0];
+    m13B8[0] = mPos;
+    m13D0[1] = m13D0[0];
+    m13D0[0] = mRot.y;
+    atn::Matrix3x4 prev;
+    __MtxCopy(prev.m, mMotion.mMtx);
+    atn::Matrix3x4 inv(prev);
+    PSMTXInverse(inv.m, inv.m);
+    fn_80144710();
+    int oldNode = mMotion.m50;
+    if (m55C == 8) {
+        mMotion.m20C_15_8 = mMotion.m50;
+        mMotion.m50 = 0;
+    } else {
+        mMotion.fn_80092A4C();
+    }
+    bool moved = oldNode != mMotion.m50;
+    if (!moved && __LengthSq_unk(prev.GetTrans_unk() - mPos) > 400.0f) {
+        moved = true;
+    }
+    if ((mStatus.m0C & 0x40) == 0x40 && mF94 == 0) {
+        atn::Vector3 offset = mF88;
+        atn::Matrix3x4* mtx = (atn::Matrix3x4*)mMotion.mMtx;
+        mtx->fn_801479E4(mtx->GetTrans_unk() + offset);
+    }
+    Model_unk::Node_unk* node = &mMotion.m220[m524];
+    bool reset = false;
+    atn::Vector3 nodePos;
+    atn::Vector3 nodeRot;
+    if (m1254 != 0) {
+        unsigned int motion = mMotion.mTracks[0].m04;
+        if (motion != (unsigned int)m518) {
+            reset = true;
+        }
+        m518 = motion;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame < m51C) {
+            reset = true;
+        }
+        m51C = frame;
+        nodePos = node->m04;
+        nodeRot.Set_unk(0.0f, 0.0f, 1.0f);
+        if (!(atn::Abs_unk(node->m10.x) < 1.1920929e-7f && atn::Abs_unk(node->m10.y) < 1.1920929e-7f &&
+              atn::Abs_unk(node->m10.z) < 1.1920929e-7f && atn::Abs_unk(node->m10.w) < 1.1920929e-7f)) {
+            Mtx m;
+            PSMTXQuat(m, &node->m10);
+            PSMTXMultVec(m, &nodeRot, &nodeRot);
+        }
+        nodeRot.fn_80139F60();
+    }
+    bool update = true;
+    float distSq = __LengthSq_unk(lbl_8087EFB4->m104.mEye - mPos);
+    bool far = !mFlagB3 && (IsPartyMember_unk() || __IsPartless_unk(this) || __IsEventView_unk());
+    if (lbl_8087F430 != 0 && lbl_8087F430->m56D4 == this) {
+        far = false;
+    }
+    if (far && (mC54 == 0 || distSq > 1600.0f) && !moved && m55C != 8) {
+        mMotion.mFlags |= 0x40;
+    } else {
+        mMotion.mFlags &= ~0x40;
+    }
+    m1390++;
+    if (far && !moved) {
+        float dist = lbl_8087EFA8->m218;
+        if (IsPartyMember_unk() && mC54 == 0 && (m1400.mSize == 0 || m140C == -1)) {
+            dist *= 0.75f;
+        }
+        if (m55C == 8) {
+            dist *= 15.0f;
+        }
+        if (distSq > dist * dist) {
+            update = false;
+        } else {
+            dist = lbl_8087EFA8->m21C;
+            if (IsPartyMember_unk() && mC54 == 0) {
+                dist *= 0.75f;
+            }
+            if (m55C == 8) {
+                dist *= 15.0f;
+            }
+            if (distSq > dist * dist && (m1390 + mId) % lbl_8087EFA8->m220 != 0) {
+                update = false;
+            }
+        }
+    }
+    bool animate = true;
+    if ((m55C != 8 || !mFlag23) && (mStatus.m0C & 0x40) == 0x40 && mF94 == 0) {
+        animate = false;
+        if (!moved) {
+            update = false;
+        }
+    }
+    if (mFlagB27 && mMotion.mTracks[0].m04 != 0) {
+        mFlagB26 = fn_802185FC(fn_80473F18((atn::LoadHandle*)mMotion.mTracks[0].m04)) == 0;
+    }
+    bool command = update;
+    if (IsPartyMember_unk()) {
+        if (distSq > 10000.0f) {
+            command = false;
+        }
+    } else if (mType != 3 && mType == 2 && mFlag22 != 1 && distSq > 90000.0f) {
+        command = false;
+    }
+    if (command) {
+        m1220.fn_8012111C();
+    }
+    if (update) {
+        fn_80175B18(distSq);
+        mLook.fn_80129A6C();
+        chr::CharaEquip_unk* coat = m680[0];
+        if (coat != 0 && coat->m004 % 1000 / 10 == 46) {
+            if (m648 != 0 || m55C == 8) {
+                fn_80093F1C(&mMotion, "leftcoat1", &chr::lbl_807C7030, &chr::lbl_807C7030, &atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+                fn_80093F1C(&mMotion, "leftcoat2", &chr::lbl_807C7030, &chr::lbl_807C7030, &atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+                fn_80093F1C(&mMotion, "rightcoat1", &chr::lbl_807C7030, &chr::lbl_807C7030, &atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+                fn_80093F1C(&mMotion, "rightcoat2", &chr::lbl_807C7030, &chr::lbl_807C7030, &atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+            } else {
+                fn_80094778(&mMotion, "leftcoat1");
+                fn_80094778(&mMotion, "leftcoat2");
+                fn_80094778(&mMotion, "rightcoat1");
+                fn_80094778(&mMotion, "rightcoat2");
+            }
+        }
+        int updated = mMotion.fn_80097E80(animate);
+        if (m55C == 6 && mControl) {
+            mControl->vf40();
+        }
+        if (mFlagB12) {
+            vf28();
+        }
+        if (mFlag2) {
+            mMotion.m220[m524].m04 = m13E8;
+        }
+        if (!reset && m1254 != 0) {
+            if ((m1254 & 1) == 1 && (node->m00 & 1) == 1) {
+                atn::Vector3 move = node->m04 - nodePos;
+                atn::Matrix3x4 rot = ((atn::Matrix3x4*)mMotion.mMtx)->GetRotation_unk();
+                PSMTXMultVec(rot.m, &move, &move);
+                mPos += move;
+                node->m00 &= ~1;
+            }
+            if ((m1254 & 2) == 2 && (node->m00 & 2) == 2) {
+                mRot -= nodeRot;
+                atn::Vector3 v(0.0f, 0.0f, 1.0f);
+                Mtx m;
+                PSMTXQuat(m, &node->m10);
+                PSMTXMultVec(m, &v, &v);
+                v.fn_80139F60();
+                mRot += v;
+                node->m00 &= ~2;
+            }
+            if ((m1254 & 4) == 4 && (node->m00 & 4) == 4) {
+                m540 = node->m20;
+                node->m00 &= ~4;
+            }
+            fn_80144710();
+        }
+        if (updated) {
+            if (m588 > 0.01f) {
+                mMotion.m220[m524].m04.y -= m588;
+            }
+            fn_8000D430(&mMotion, boost::function<void()>());
+            if (m588 > 0.01f) {
+                mMotion.m220[m524].m04.y += m588;
+            }
+        } else if (!IsPartyMember_unk() || mC54 != 0 || m55C != 2) {
+            fn_8009076C(&mMotion, &inv);
+        }
+        fn_8009757C(&mMotion);
+        if (m12BC >= 0) {
+            float frame = mMotion.mTracks[3].m08;
+            if (frame >= mMotion.fn_80097D7C(3)) {
+                m12BC = -1;
+                fn_80097CCC(&mMotion, 3, 1.0f);
+            }
+        }
+    } else {
+        mLook.fn_80129A48(0.3f);
+        mLook.fn_80129A6C();
+        if (animate) {
+            fn_80098698(&mMotion);
+        }
+        if (!IsPartyMember_unk() || mC54 != 0 || m55C != 2) {
+            fn_8009076C(&mMotion, &inv);
+        }
+    }
+    MapInfo_unk* map = 0;
+    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+        map = fn_80373148(lbl_8087F430);
+    }
+    if (map == 0 && lbl_8087F558 != 0 && lbl_8087F558->m48 != 0) {
+        map = lbl_8087F558->m4C;
+    }
+    if (mFlagB25 && map != 0) {
+        fn_80147A18(map->m104);
+    }
+    fn_80148B38();
+    vf20();
+    vf54();
+    if (IsPartyMember_unk() || lbl_8087FA20 != 0) {
+        if (!(m55C == 6 && m560 == 0x45) && m60 != 0 && m60->m24 != 0x35) {
+            if (distSq < 62500.0f && !mFlag12) {
+                mColli.mFlags |= 1;
+            } else {
+                mColli.mFlags &= ~1;
+            }
+        }
+        if (!mC58.mHeld_unk) {
+            if (distSq < 40000.0f) {
+                m54C |= 0x20;
+            } else {
+                m54C &= ~0x20;
+            }
+        }
+    }
+    if (mType == 0) {
+        bool chant = false;
+        if (m55C == 6) {
+            switch (m560) {
+            case 0x1D:
+                if (mControl && !mControl->vf58()) {
+                    __SetFloat4_unk(lbl_8087F048->m3E304, 1.0f, 1.0f, 1.0f, 1.0f);
+                    lbl_8087F048->fn_8010743C(&mF6C, m638 != m63C, mF78);
+                    chant = true;
+                }
+                break;
+            case 0xD:
+                if (lbl_8087F610 == 0 && lbl_8087F0A8->m314 != 0 && m50 == 1) {
+                    break;
+                }
+            case 0x21:
+                __SetFloat4_unk(lbl_8087F048->m3E304, 1.0f, 1.0f, 1.0f, 1.0f);
+            case 0xF:
+                lbl_8087F048->fn_8010743C(&mF6C, m638 != m63C, mF78);
+                chant = true;
+                break;
+            }
+        }
+        if (!chant && lbl_8087F048 != 0) {
+            lbl_8087F048->fn_80107574();
+        }
+        mFlagB24 = chant;
+        if (lbl_8087F430 != 0 && fn_80219558(m50) == 0) {
+            if (fn_80376150(lbl_8087F430)) {
+                if (!mFlag17) {
+                    vf98();
+                    mFlag17 = 1;
+                }
+            } else if (mFlag17) {
+                vf9C(0);
+                mFlag17 = 0;
+            }
+        }
+    }
+    if (m50 == 700023) {
+        if (mFlag5) {
+            vf98();
+        } else {
+            vf9C(0);
+        }
+    }
+    fn_80154C08();
+    if (!IsPartyMember_unk()) {
+        fn_80164D24();
+        fn_80176E30();
+        if (m12C4 > 0) {
+            m12C4--;
+            if (mC58.mC4 != (CharaTask*)mC58.mC8) {
+                m12C4 = 0;
+            }
+        }
+        if (m12C8 > 0) {
+            m12C8--;
+        }
+        if (m12CC > 0.0f) {
+            m12CC -= 0.011111111f;
+            if (m12CC <= 0.0f) {
+                m12CC = 0.0f;
+            }
+        }
+    }
+    if (m1380 > 0) {
+        m1380--;
+    }
+    if (m1388 > 0) {
+        m1388--;
+    }
+    if (m138A > 0) {
+        m138A--;
+    }
+    if (m678 != 0) {
+        if (mFlagB21 && !m678->vf0C() && (m67C == 0 || !m67C->vf0C())) {
+            if (m674 == 0) {
+                fn_8014DEE4(0, 0, 0);
+            }
+            mFlagB21 = 0;
+        }
+        bool broken = false;
+        if (m678->m28C != 0 && m678->m288 <= 0) {
+            broken = true;
+        }
+        if (broken) {
+            if (m678 != 0) {
+                delete m678;
+                m678 = 0;
+                if (m67C != 0) {
+                    delete m67C;
+                    m67C = 0;
+                }
+                if (m674 == 0) {
+                    fn_8014DEE4(0, 0, 0);
+                }
+                fn_8014F8F4()->fn_8014F860(9, this, 0);
+            }
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80106728(0, &mMotion);
+            }
+            fn_800C31F4(sSoundNames_unk[7], 0, -1, 1.0f);
+        }
+    }
+}
+
 
 int CharaTask::fn_801479D8() {
     return mFlag6;
@@ -4974,7 +5811,6 @@ struct MotionInfo_unk {
     int m00;
     float m04; // inferred: speed/blend value scaled by CharaTask::m514
 };
-extern "C" const char* fn_80473F18(atn::LoadHandle* handle); // inferred: name of the loaded resource
 extern "C" MotionInfo_unk* fn_802096A8(const char* name);
 
 // inferred: name invented
@@ -5793,6 +6629,7 @@ void CharaTask::fn_80150178(int slot, chr::CharaEquip_unk* equip) {
 
 void CharaTask::vf40(HitInfo_unk* hit) {}
 
+extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* ab);
 extern "C" int fn_8010CD3C(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
 
 // NONMATCHING: 98.4% - CharaStatus::fn_801346C8 is called with a second argument 0 (li r5,0) in
@@ -7583,8 +8420,6 @@ void CharaTask::fn_8017A5D8(int on) {
     }
 }
 
-extern "C" void* fn_80418318(); // inferred: collision world of the field
-extern "C" atn::Vector3 fn_804188A0(void* world, const Segment_unk* seg); // inferred: ground hit (returned by value)
 
 // inferred: puts the stored foot heights (m13B8) on the ground below the neck node
 // NONMATCHING: 58% - the segment and the hit point swap their stack slots and the x/z loads swap
@@ -7594,7 +8429,7 @@ void CharaTask::fn_8017A504() {
     m54C |= 0x200000;
     if (fn_80418318()) {
         MtxPtr node = mMotion.GetNodeMtx_unk(m520);
-        void* world = fn_80418318();
+        int world = fn_80418318();
         float x = node[0][3];
         float y = node[1][3];
         float z = node[2][3];

@@ -39,14 +39,16 @@ public:
     virtual int vf30(); // inferred: returns an int (0 in ControlBase, 0x800E60FC; compared with 5 by callers of CharaTask::fn_8017A450)
     virtual void vf34();
     virtual void vf38();
-    virtual int vf3C(); // 0x801446E8 (in game/CharaTask.cpp): returns 0
-    virtual void vf40();
+    // inferred: vf3C, vf40 and vf58 are inline too (weak copies 0x801446E8, 0x80147A0C, 0x80147A10 in
+    // game/CharaTask.cpp)
+    virtual int vf3C() { return 0; }
+    virtual void vf40() {}
     virtual int vf44() { return 0; }
     virtual int vf48() { return 0; }
     virtual atn::Vector3 vf4C() { return lbl_807C7030; }
     virtual void vf50();
     virtual void vf54();
-    virtual void vf58();
+    virtual int vf58() { return 0; }
     virtual void vf5C() {}
 
     Chara_unk* mChara; // 0x04

@@ -37,7 +37,7 @@ struct Model_unk {
     const char* fn_8008B130();                   // inferred: model name
     void fn_8008CD60();                          // inferred
     void fn_800954DC(void* owner, atn::Vector2_unk uv, float f); // inferred: UV scroll
-    void fn_80097E80(int arg);                                   // inferred
+    int fn_80097E80(int arg); // inferred: returns nonzero when the motion was updated (CharaTask::fn_80145334)
     void fn_8009385C(int motion, bool play, int arg2, int arg3);  // inferred
     int fn_8008B140();                                // inferred: nonzero while loading
     int fn_80092814(const char* name, int arg);       // inferred: node index by name, < 0 if missing
@@ -63,7 +63,7 @@ struct Model_unk {
         float m0C;
     };
     Float4_unk m40;
-    unsigned char m50[0x54 - 0x50];
+    int m50; // inferred: node index (moved into m20C bits 15-8 while m55C is 8, CharaTask::fn_80145334)
     float m54;       // inferred: largest scale axis
     // inferred: also the motion controller characters embed at +0xB0 (chr::Motion_unk is an alias:
     // CharaTask constructs it with this constructor, 0x80135588)
@@ -94,7 +94,9 @@ struct Model_unk {
     struct Lens_unk* m1DC; // inferred: own camera lens, else the global one (CharaTask::fn_8014C540)
     unsigned char m1E0[0x208 - 0x1E0];
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
-    unsigned int m20C_31_6 : 26;
+    unsigned int m20C_31_16 : 16;
+    unsigned int m20C_15_8 : 8; // inferred: saved copy of m50 (CharaTask::fn_80145334)
+    unsigned int m20C_7_6 : 2;
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
     unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
     unsigned int m20C_3_0 : 4;
@@ -106,7 +108,7 @@ struct Model_unk {
         unsigned int m00; // inferred: flags (2: the rotation m10 is set, CharaTask::fn_80148CC4)
         atn::Vector3 m04;
         atn::Quaternion_unk m10;
-        unsigned char m20[0x2C - 0x20];
+        atn::Vector3 m20; // inferred: scale (copied to CharaTask::m540 by fn_80145334)
     };
     // inferred: resource data of the model (accessor 0x8000DD04); names invented
     struct NodeRes_unk {
@@ -122,10 +124,11 @@ struct Model_unk {
     // inferred: motion track (0x30 bytes, six of them at 0x22C; accessors 0x80139550-0x8013C554)
     struct Track_unk {
         int m00;   // inferred: motion id
-        unsigned char m04[0x08 - 0x04];
+        int m04;   // inferred: compared with CharaTask::m518 (fn_80145334)
         float m08; // inferred: frame
         float m0C; // inferred: speed
-        unsigned char m10[0x18 - 0x10];
+        float m10; // inferred: set to 1.0 when CharaTask::mFlag7 is set (fn_80145334)
+        unsigned char m14[0x18 - 0x14];
         unsigned char m18; // inferred: nonzero = the end is tested one step early (CharaTask::fn_8015EB2C)
         unsigned char m19[0x20 - 0x19];
         float m20; // inferred: weight

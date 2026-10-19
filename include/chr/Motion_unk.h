@@ -30,6 +30,9 @@ struct CharaPart_unk {
     atn::Matrix3x4 m228; // inferred: offset matrix applied on top of m224 (fn_8014EF48)
     unsigned char m258[0x274 - 0x258];
     CharaPartData_unk* m274;
+    unsigned char m278[0x288 - 0x278];
+    int m288; // inferred: life (the part is removed when m28C is set and m288 <= 0, CharaTask::fn_80145334)
+    int m28C;
 };
 
 // inferred: data block pointed to by CharaTask::m5C (defined in game/CharaStatus.h)

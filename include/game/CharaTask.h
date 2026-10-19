@@ -190,6 +190,7 @@ struct CharaC58_unk {
 // inferred: object at CharaTask+0x1154 (constructor 0x8007A75C called out of line; class unknown)
 struct Chara1154_unk {
     Chara1154_unk();
+    void fn_8007A7BC(Model_unk* model); // inferred: per-frame update (CharaTask::fn_80145334)
 
     unsigned char m00[0x30];
     void* m30; // inferred: callback (CharaTask sets fn_80218260)
@@ -219,6 +220,7 @@ struct MotionCommand_unk {
     void fn_801210B4(const char* path); // inferred: loads the motion commands
     int fn_801210C4();                  // inferred: nonzero while loading
     void fn_80121114(CharaTask* chara);
+    void fn_8012111C(); // inferred: per-frame update (CharaTask::fn_80145334)
 
     unsigned char m00[0x34];
 };
@@ -317,7 +319,7 @@ public:
     virtual void vf90();
     virtual void vf94();
     virtual void vf98();
-    virtual void vf9C();
+    virtual void vf9C(int arg); // inferred: fn_80145334 passes 0 (the target symbol says Fv)
     virtual void vfA0();
     virtual int vfA4();
     virtual void vfA8();
@@ -452,6 +454,10 @@ public:
     void fn_80155DAC(int arg);
     void fn_8016DA4C();
     void fn_801446F0();
+    void fn_80144710(); // inferred: builds the model matrix from mPos/mRot/m540 (or from mF1C)
+    void fn_80144F4C(int a, void* b, float y0, float y1); // inferred: orthographic camera on the model
+    void fn_80175B18(float distSq); // inferred: per-frame update, gets the squared distance to the camera
+    void fn_80176E30();
     atn::Vector3 fn_80178018(); // inferred: returns a direction or target vector (y used as an angle)
     float fn_80178078();
     void fn_8017AC3C(int arg);
@@ -783,7 +789,7 @@ public:
     CharaC58_unk mC58;
     int mF14;
     int mF18;
-    int mF1C;  // inferred: cleared when chr::ControlRide ends
+    int mF1C;  // inferred: cleared when chr::ControlRide ends; address of a matrix the character follows (fn_80144710; chr::ControlCaught stores an int)
     atn::Matrix3x4 mF20;
     int mF50; // inferred: set by chr::ControlDraggedStart
     int mF54; // inferred: set by chr::ControlDraggingStart
@@ -859,7 +865,8 @@ public:
     unsigned int mFlag4 : 1;
     unsigned int mFlag3 : 1;
     unsigned int mFlag2 : 1; // inferred: tested by CharaStatus::fn_8012E244
-    unsigned int mFlag1_0 : 2;
+    unsigned int mFlag1 : 1; // inferred: cleared by fn_80145334 when mFlag2 is set
+    unsigned int mFlag0 : 1;
     // 0x12A8: second flag word
     unsigned int mFlagB31 : 1; // inferred: set by fn_8014C540 when a hit has flag 2 (setting m294 clear)
     unsigned int mFlagB30 : 1; // inferred: same, setting m294 set
@@ -868,7 +875,10 @@ public:
     unsigned int mFlagB27 : 1; // inferred: "HAIR_BACK_CONTROL", enables the "hair_b" hook (fn_80148CC4)
     unsigned int mFlagB26 : 1;
     unsigned int mFlagB25 : 1; // inferred: "USE_MAP_BRIGHTNESS"
-    unsigned int mFlagB24_21 : 4;
+    unsigned int mFlagB24 : 1; // inferred: set by fn_80145334 when the magic effect is shown
+    unsigned int mFlagB23 : 1;
+    unsigned int mFlagB22 : 1;
+    unsigned int mFlagB21 : 1;
     unsigned int mFlagB20 : 1;
     unsigned int mFlagB19 : 1;
     unsigned int mFlagB18 : 1;
@@ -876,14 +886,17 @@ public:
     unsigned int mFlagB16 : 1; // inferred: doubles the number of linked characters (mFE8)
     unsigned int mFlagB15 : 1;
     unsigned int mFlagB14 : 1;
-    unsigned int mFlagB13_11 : 3;
+    unsigned int mFlagB13 : 1;
+    unsigned int mFlagB12 : 1; // inferred: calls vf28 every frame (fn_80145334)
+    unsigned int mFlagB11 : 1;
     unsigned int mFlagB10 : 1;
     unsigned int mFlagB9 : 1;
     unsigned int mFlagB8 : 1; // inferred: cleared by fn_8016034C (end of a magic)
     unsigned int mFlagB7 : 1;
     unsigned int mFlagB6 : 1;
     unsigned int mFlagB5 : 1; // inferred: keeps the left weapon on the identity offset (fn_8014EF48)
-    unsigned int mFlagB4_3 : 2;
+    unsigned int mFlagB4 : 1;
+    unsigned int mFlagB3 : 1; // inferred: never hidden by distance (fn_80145334)
     unsigned int mFlagB2 : 1; // inferred: forces mFlag6 (fn_80155DAC)
     unsigned int mFlagB1 : 1; // inferred: set by fn_8017C7F8 (motion mode 4 instead of 1)
     unsigned int mFlagB0 : 1;
@@ -916,13 +929,9 @@ public:
     float m13B4;
     atn::Vector3 m13B8[2]; // inferred: cleared with memset, set to the position on load
     float m13D0[2];        // inferred: cleared with memset, set to the rotation on load
-    float m13D8;
-    float m13DC;
-    float m13E0;
-    float m13E4;
-    float m13E8;
-    float m13EC;
-    float m13F0;
+    atn::Vector3 m13D8; // inferred: velocity added to mPos while mFlag2 is set (fn_80145334)
+    float m13E4;        // inferred: turn speed added to mRot.y
+    atn::Vector3 m13E8; // inferred: copied to the node m524 while mFlag2 is set
     int m13F4;
     int m13F8;
     int m13FC;
