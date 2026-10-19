@@ -69,6 +69,14 @@ struct CharaObj1208_unk {
     int m9C;
 };
 
+// inferred: objects registered in CharaTask::m120C by fn_805989A4 (class unknown); m04 is compared
+// with the skill data of CharaStatus::m2D0 by CharaTask::fn_80176428
+struct CharaAttach_unk {
+    int m00;
+    HitInfo_unk* m04;
+    CharaTask* m08;
+};
+
 // inferred: object pointed to by CharaTask::mD68 (class unknown)
 struct CharaD68_unk {
     bool fn_8013C514();
@@ -334,7 +342,7 @@ public:
     virtual void vf2C(const char* params, int arg); // inferred: params "path=..." (BattleCharaTask passes two arguments)
     virtual void vf30(void* menu); // inferred: debug menu (the symbol is still named vf30__9CharaTaskFv)
     virtual void vf34(void* target, int arg, float a, float b); // inferred: look at target
-    virtual void vf38();
+    virtual void vf38(int arg); // inferred: fn_801765D8 passes 0 (the target symbol says Fv)
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
@@ -557,6 +565,8 @@ public:
     int fn_801720AC(atn::Vector3* pos, atn::Vector3* vel); // inferred: nonzero keeps the rotation (fn_80140588)
     int fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out); // inferred: climbs onto another character
     int fn_801749EC(atn::Vector3* pos, atn::Vector3* vel);
+    // inferred: also called by fn_801720AC and BattleCharaTask (other: the character hit, may be 0)
+    int fn_8017380C(atn::Vector3* pos, atn::Vector3* move);
     void fn_8016BBCC(const atn::Vector3* dir, int a, int b);
     // inferred: weak copy 0x800F7F80 (name invented)
     bool IsPlayer_unk() { return mType == 0; }
@@ -579,6 +589,7 @@ public:
 
     void fn_801539E0();
     Sphere_unk fn_80176548(const atn::Vector3& pos); // inferred
+    void fn_801765D8(); // inferred: disables the character (mFlags 4)
     void fn_80155DAC(int arg);
     void fn_8016DA4C();
     void fn_801446F0();
@@ -593,6 +604,14 @@ public:
     void fn_8016E4C4(int show); // inferred: shows/hides the model, parts and equipment
     int fn_80179D44();
     void fn_801750FC();
+    void fn_80174E04(GimmickCommon* cannon); // inferred: lifted by a cannon (chr::ControlCannonLift)
+    void fn_8017518C(); // inferred: thrown by a cannon (chr::ControlCannonThrow)
+    void fn_8017547C(CharaTask* other); // inferred: starts dragging `other`
+    void fn_80175A38(); // inferred: releases the dragged character (mF54)
+    bool fn_80175AEC(); // inferred: control 0x74-0x77 is running
+    int fn_8017639C(CharaAttach_unk* obj);
+    int fn_801763E0(CharaAttach_unk* obj);
+    int fn_80176428(int index);
     void fn_80154344();
     void fn_8015495C(int a, int b, int c, int d);
     void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
@@ -994,7 +1013,7 @@ public:
     Chara1154_unk m1154;
     Chara1188_unk m1188;
     CharaObj1208_unk* m1208;
-    unsigned char m120C[0x10]; // inferred: cleared with memset
+    CharaAttach_unk* m120C[4]; // inferred: cleared with memset; filled by fn_8017639C
     boost::scoped_ptr<atn::EfpHandle_unk> m121C;
     MotionCommand_unk m1220;
     int m1254;

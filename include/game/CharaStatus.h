@@ -41,6 +41,17 @@ struct RoutePlace_unk {
     float m14; // inferred: rotation around y
     unsigned char m18[0x28 - 0x18];
 };
+// inferred: point a character may look at (0x40 bytes, CharaTask::fn_80175B18); names invented
+struct RouteLook_unk {
+    int mId;
+    atn::Vector3 mPos; // 0x04
+    unsigned char m10[0x14 - 0x10];
+    float mRadius;     // 0x14
+    int mPriority;     // 0x18
+    unsigned char m1C[0x38 - 0x1C];
+    int mEnabled;      // 0x38
+    int mLink;         // 0x3C: inferred: id of another look point that replaces this one
+};
 // inferred: route between two points (8 bytes)
 struct RoutePath_unk;
 struct RouteTable_unk {
@@ -55,7 +66,9 @@ struct RouteTable_unk {
         return 0;
     }
 
-    unsigned char m00[0x74];
+    unsigned char m00[0x38];
+    unsigned int m38; // inferred: flags (bit 1 tested by CharaTask::fn_801765D8)
+    unsigned char m3C[0x74 - 0x3C];
     int mNumPoints;          // 0x74
     unsigned int mNumPlaces; // 0x78
     RoutePlace_unk* mPlaces; // 0x7C
@@ -66,7 +79,10 @@ struct RouteTable_unk {
     int mNumLinks;           // 0xA8
     unsigned char mAC[0xB0 - 0xAC];
     RouteLink_unk* mLinks;   // 0xB0
-    unsigned char mB4[0x134 - 0xB4];
+    unsigned char mB4[0xFC - 0xB4];
+    unsigned int mNumLooks;  // 0xFC
+    RouteLook_unk* mLooks;   // 0x100
+    unsigned char m104[0x134 - 0x104];
     void* m134; // inferred: passed to fn_803AB37C with a character (CharaTask::fn_80171DB0)
 };
 
