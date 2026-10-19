@@ -1375,8 +1375,9 @@ gmk/Fireworks.cpp:
 
 gmk/ArenaFloor.cpp:
 	.text       start:0x8041DDE4 end:0x8041EB80
-	.rodata     start:0x807531E0 end:0x807531F0
+	.rodata     start:0x807531E0 end:0x80753200
 	.data       start:0x8078DEF0 end:0x8078DF88
+	.sdata      start:0x8087DF98 end:0x8087DFA0
 	.sdata2     start:0x80886570 end:0x80886578
 
 gmk/Augur.cpp:
