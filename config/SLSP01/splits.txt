@@ -676,9 +676,9 @@ atn/CsvBase_char_124_13_34.cpp:
 	.data       start:0x80782FD0 end:0x80782FE8
 
 atn/ptr_string_base_wchar_t_0.cpp:
-	.text       start:0x8020C028 end:0x8020C4B0
-	.rodata     start:0x8073F5A0 end:0x8073F5C4
-	.data       start:0x80782FF0 end:0x80783008
+	.text       start:0x8020C028 end:0x8020C4C8
+	.rodata     start:0x8073F5A0 end:0x8073F600
+	.data       start:0x80782FF0 end:0x80783010
 
 db/GrowthParseGlobal.cpp:
 	.text       start:0x8020F7D0 end:0x8020FDEC
