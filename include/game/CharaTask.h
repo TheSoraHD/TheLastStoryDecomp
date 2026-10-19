@@ -47,7 +47,13 @@ struct CharaD74_unk {
     signed char m01; // inferred: label kind shown over the character (0x80149A30)
     unsigned char m02[0x04 - 0x02];
     short m04;
-    unsigned char m06[0x20 - 0x06];
+    unsigned char m06[0x08 - 0x06];
+    int m08;   // inferred: "WarpPointId" (debug menu, vf30)
+    int m0C;   // inferred: "SafeAreaId"
+    int m10;   // inferred: "UnsafeAreaId"
+    float m14; // inferred: "DetectRadius"
+    float m18; // inferred: "WarnRadius"
+    float m1C; // inferred: "SightRadius"
     unsigned int m20;
 };
 
@@ -281,7 +287,7 @@ public:
     virtual void vf24();
     virtual void vf28();
     virtual void vf2C(const char* params, int arg); // inferred: params "path=..." (BattleCharaTask passes two arguments)
-    virtual void vf30();
+    virtual void vf30(void* menu); // inferred: debug menu (the symbol is still named vf30__9CharaTaskFv)
     virtual void vf34(void* target, int arg, float a, float b); // inferred: look at target
     virtual void vf38();
     virtual void vf3C(HitInfo_unk* hit);
@@ -513,10 +519,18 @@ public:
     int fn_8014969C();
     void fn_8014C0B4(int a, int b);
     void fn_8014C228();
+    void fn_8014C540(); // inferred: per-frame update (called by the derived classes)
+    // inferred: inlined in fn_8014C540 (names invented)
+    struct Lens_unk* GetLens_unk();
+    void SetEmoteMtx_unk();
+    bool IsLedgeLocked_unk();
+    HitInfo_unk* FindHitBullet_unk();
+    bool IsSameSide_unk(CharaTask* other);
     void fn_8014C468();
     void fn_8014DEE4(int a, int b, int c);
     void fn_8014EE48();
     void fn_8014EEC4(int keep);
+    void fn_8014EF48(); // inferred: attaches the weapons (m648, m64C) to the hand nodes
     void fn_8014F2B4(int a, int b, int index);
     void fn_8014F4FC(int a, int b);
     void fn_8014F5D4(int index, int a, int b);
@@ -599,6 +613,7 @@ public:
         }
         return false;
     }
+    void fn_80178BFC();
     int fn_8017A9A8();
     // inferred: inlined helpers (names invented)
     bool IsPartsMode_unk();
@@ -846,7 +861,8 @@ public:
     unsigned int mFlag2 : 1; // inferred: tested by CharaStatus::fn_8012E244
     unsigned int mFlag1_0 : 2;
     // 0x12A8: second flag word
-    unsigned int mFlagB31_30 : 2;
+    unsigned int mFlagB31 : 1; // inferred: set by fn_8014C540 when a hit has flag 2 (setting m294 clear)
+    unsigned int mFlagB30 : 1; // inferred: same, setting m294 set
     unsigned int mFlagB29 : 1; // inferred: set when the damage sphere is created (vf50)
     unsigned int mFlagB28 : 1;
     unsigned int mFlagB27 : 1; // inferred: "HAIR_BACK_CONTROL", enables the "hair_b" hook (fn_80148CC4)
@@ -865,7 +881,9 @@ public:
     unsigned int mFlagB9 : 1;
     unsigned int mFlagB8 : 1; // inferred: cleared by fn_8016034C (end of a magic)
     unsigned int mFlagB7 : 1;
-    unsigned int mFlagB6_3 : 4;
+    unsigned int mFlagB6 : 1;
+    unsigned int mFlagB5 : 1; // inferred: keeps the left weapon on the identity offset (fn_8014EF48)
+    unsigned int mFlagB4_3 : 2;
     unsigned int mFlagB2 : 1; // inferred: forces mFlag6 (fn_80155DAC)
     unsigned int mFlagB1 : 1; // inferred: set by fn_8017C7F8 (motion mode 4 instead of 1)
     unsigned int mFlagB0 : 1;

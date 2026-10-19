@@ -27,7 +27,8 @@ struct CharaPart_unk {
     Model_unk::Float4_unk m050; // inferred: copied from the character model (CharaTask::fn_80148B38)
     unsigned char m060[0x224 - 0x060];
     MtxPtr m224; // inferred: node matrix followed by the weapon
-    unsigned char m228[0x274 - 0x228];
+    atn::Matrix3x4 m228; // inferred: offset matrix applied on top of m224 (fn_8014EF48)
+    unsigned char m258[0x274 - 0x258];
     CharaPartData_unk* m274;
 };
 

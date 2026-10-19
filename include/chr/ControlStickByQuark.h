@@ -9,6 +9,13 @@ namespace chr {
 // Only the constructors are declared; sizes from the operator new calls, argument types from the
 // constructors (ints stored as words, vectors read through pointers).
 
+class ControlCdnStone : public ControlBase {
+public:
+    ControlCdnStone(Chara_unk* chara, int a); // 0x8018EEC4 (first function of this unit)
+    virtual int vf0C();
+    unsigned char m08[0x28 - 0x08];
+};
+
 class ControlThrownAway : public ControlBase {
 public:
     ControlThrownAway(Chara_unk* chara, int a, int b); // 0x80199348

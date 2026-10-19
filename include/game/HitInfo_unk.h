@@ -18,7 +18,8 @@ struct HitInfo_unk {
     float m58; // inferred: passed to chr::ControlChant (CharaTask::fn_8015F568)
     unsigned char m5C[0x68 - 0x5C];
     int m68;
-    unsigned char m6C[0x74 - 0x6C];
+    unsigned char m6C[0x70 - 0x6C];
+    int m70; // inferred: id of a sub bullet (CharaTask::fn_8014C540)
     unsigned char m74[0x90 - 0x74]; // inferred: passed to fn_80040588
     int m90;
     int m94;

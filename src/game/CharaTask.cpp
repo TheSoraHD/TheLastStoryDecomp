@@ -30,6 +30,7 @@
 #include "std/string_members.h"
 #include "atn/Csv.h"
 #include "game/EquipItemData.h"
+#include "game/EnemyManager.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/tokenizer.hpp>
@@ -70,7 +71,9 @@ struct Settings_unk {
     int m260; // inferred: nonzero enables the jump/dash attacks (CharaTask::fn_801562A0)
     unsigned char m264[0x278 - 0x264];
     int m278; // inferred: parts mode (fn_801539E0)
-    unsigned char m27C[0x2C0 - 0x27C];
+    unsigned char m27C[0x294 - 0x27C];
+    int m294; // inferred: selects the flag set by CharaTask::fn_8014C540 for hits with flag 2
+    unsigned char m298[0x2C0 - 0x298];
     int m2C0; // inferred: nonzero always tries fn_801749EC after a collision (fn_8013CB68)
     unsigned char m2C4[0x368 - 0x2C4];
     unsigned int m368; // inferred: ARGB colors of the status effect (fn_8017A5D8)
@@ -82,7 +85,8 @@ struct Settings_unk {
     int m3D8;
     unsigned char m3DC[0x404 - 0x3DC];
     int m404; // inferred: level compared with 1, 2 and 3 by fn_8017A9A8
-    unsigned char m408[0x418 - 0x408];
+    unsigned char m408[0x414 - 0x408];
+    float m414; // inferred: amount added to CharaStatus by fn_8014C540 (divided by 30)
     int m418;
     unsigned char m41C[0x454 - 0x41C];
     Block454_unk m454;
@@ -133,7 +137,9 @@ struct Field_unk {
     int m54E4; // inferred: 9 makes every hit valid (fn_801533C8)
     unsigned char m54E8[0x54F4 - 0x54E8];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
-    unsigned char m54F8[0x5744 - 0x54F8];
+    unsigned char m54F8[0x56D4 - 0x54F8];
+    int m56D4; // inferred: nonzero pauses the status updates of CharaTask::fn_8014C540
+    unsigned char m56D8[0x5744 - 0x56D8];
     int m5744; // inferred: copied to CharaTask::mFD8 by fn_80164B00
     unsigned char m5748[0x5760 - 0x5748];
     int m5760;
@@ -405,8 +411,8 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
       m12A0(0), mFlag31(0), mFlag30(0), mFlag29(1), mFlag28(0), mFlag27(0), mFlag25(0), mFlag24(1),
       mFlag23(0), mFlag22(0), mFlag21(0), mFlag20(0), mFlag19(0), mFlag18(0), mFlag17(1), mFlag16(1),
       mFlag15(0), mFlag14(1), mFlag13(1), mFlag12(0), mFlag11(0), mFlag10(0), mFlag9(0), mFlag8(0), mFlag7(0), mFlag6(0), mFlag5(0), mFlag4(0), mFlag3(0),
-      mFlag2(0), mFlag1_0(0), mFlagB31_30(0), mFlagB29(0), mFlagB28(0), mFlagB27(0), mFlagB26(0), mFlagB25(0), mFlagB24_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16(0), mFlagB15(0), mFlagB14(1), mFlagB13_11(0),
-      mFlagB10(1), mFlagB9(0), mFlagB8(0), mFlagB7(1), mFlagB6_3(0), mFlagB2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
+      mFlag2(0), mFlag1_0(0), mFlagB31(0), mFlagB30(0), mFlagB29(0), mFlagB28(0), mFlagB27(0), mFlagB26(0), mFlagB25(0), mFlagB24_21(0), mFlagB20(1), mFlagB18(0), mFlagB17(0), mFlagB16(0), mFlagB15(0), mFlagB14(1), mFlagB13_11(0),
+      mFlagB10(1), mFlagB9(0), mFlagB8(0), mFlagB7(1), mFlagB6(0), mFlagB5(0), mFlagB4_3(0), mFlagB2(0), mFlagB1(0), mFlagB0(0), m12AC(2), m12B0(0), m12B4(100), m12B8(100),
       m12BC(-1), m12C0(0), m12C4(0), m12C8(0), m12CC(0.0f), m1374(0), m137C(0), m1380(0), m1384(0),
       m1388(0), m138A(0), m138C(0), m1390(rand() % 4), m1398(0), m139C(0), m13AC(0), m13B0(0),
       m13B4(1.0f), m13D8(0.0f), m13DC(0.0f), m13E0(0.0f), m13E4(0.0f), m13E8(0.0f), m13EC(0.0f),
@@ -2427,7 +2433,7 @@ inline bool IsHeld_unk(CharaTask* chara) {
     return result;
 }
 // inferred: the two characters are on the same side (names invented)
-inline bool IsSameSide_unk(CharaTask* a, CharaTask* b) {
+inline bool IsSameSideOf_unk(CharaTask* a, CharaTask* b) {
     if (a != b) {
         if (lbl_8087F610 != 0 && lbl_8087F610->m540 == 0) {
             return false;
@@ -2703,7 +2709,7 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
                     if (otherType == 0 || otherType == 3) {
                         push = 0;
                     }
-                    if (IsSameSide_unk(other, this)) {
+                    if (IsSameSideOf_unk(other, this)) {
                         push = 0;
                     }
                     if (mType == 0 && otherType == 3) {
@@ -3480,11 +3486,11 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
     m574 = vel;
 }
 
-extern "C" float fn_800A08D4(int motion); // inferred: length of the motion data returned by fn_80097D40
+extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data returned by fn_80097D40
 
 // inferred: length of a motion of the character, 30 frames when it is missing (name invented)
 inline float GetMotionLength_unk(Model_unk* model, int id) {
-    int motion = model->fn_80097D40(id);
+    atn::LoadHandle* motion = model->fn_80097D40(id);
     float length = motion != 0 ? fn_800A08D4(motion) : 30.0f;
     if (length == 0.0f) {
         length = 1.0f;
@@ -4915,6 +4921,467 @@ void CharaTask::fn_80149A30() {
     }
 }
 
+// inferred: debug menu helpers (signatures as in game/GimmickCommon.cpp)
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
+                            int arg7);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
+                            float max, float step);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
+                            float max, float step);
+extern "C" void fn_80087AA0(void* group, const char* name, unsigned int* flags, int bit, int arg4, int arg5); // inferred: bit toggle
+
+// NONMATCHING: pool offsets only - instructions identical; the @stringBase0 offsets of the menu
+// labels differ until the strings of the earlier functions (0x80136544-0x80149A30) exist.
+// inferred: debug menu of the character (the menu is created once, under `menu`)
+void CharaTask::vf30(void* menu) {
+    if (menu == 0) {
+        return;
+    }
+    char name[32];
+    sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
+    sprintf(name, "%s [%d]", lbl_807C7B28, m58);
+    void* group;
+    if (m54.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        group = m54.mRes = fn_8008937C(menu, name);
+    } else {
+        group = 0;
+    }
+    fn_80087E9C(group, "position", &mPos, 0, 0, -9999.0f, 9999.0f, 1.0f);
+    fn_80088724(group, "rotation", &mRot, 0, 0, -360.0f, 360.0f, 10.0f);
+    fn_80087E9C(group, "scale", &m540, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_8008771C(group, "moveSpeed", &m568, 0, 0, 0.0f, 9999.0f, 0.05f);
+    fn_800874C8(group, "ctrlMode", &m55C, 0, 10, 1, 0, 0);
+    fn_80087AA0(group, "invincible", &m54C, 4, 0, 0);
+    fn_800874C8(group, "attackedMax", &m1028, 0, 16, 1, 0, 0);
+    if (mType == 0 || mType == 3) {
+        mLook.fn_8012AD20(group);
+    }
+    if (mType == 2) {
+        void* pick = fn_8008937C(group, "Pick");
+        fn_8008771C(pick, "DetectRadius", &mC58.m11C.m14, 0, 0, 0.0f, 9999.0f, 1.0f);
+        fn_8008771C(pick, "WarnRadius", &mC58.m11C.m18, 0, 0, 0.0f, 9999.0f, 1.0f);
+        fn_800874C8(pick, "WarpPointId", &mC58.m11C.m08, 0, 9999999, 1, 0, 0);
+        fn_800874C8(pick, "SafeAreaId", &mC58.m11C.m0C, 0, 9999999, 1, 0, 0);
+        fn_8008771C(pick, "SightRadius", &mC58.m11C.m1C, 0, 0, 0.0f, 9999.0f, 1.0f);
+        fn_800874C8(pick, "UnsafeAreaId", &mC58.m11C.m10, 0, 9999999, 1, 0, 0);
+    }
+}
+
+// inferred: motion resource info (fn_802096A8 looks it up by the motion name)
+struct MotionInfo_unk {
+    int m00;
+    float m04; // inferred: speed/blend value scaled by CharaTask::m514
+};
+extern "C" const char* fn_80473F18(atn::LoadHandle* handle); // inferred: name of the loaded resource
+extern "C" MotionInfo_unk* fn_802096A8(const char* name);
+
+// inferred: name invented
+inline MotionInfo_unk* FindMotionInfo_unk(Model_unk& model, int motion) {
+    atn::LoadHandle* handle = model.fn_80097D40(motion);
+    return handle != 0 ? fn_802096A8(fn_80473F18(handle)) : 0;
+}
+
+void CharaTask::fn_8014C0B4(int index, int motion) {
+    m484[index] = motion;
+    switch (index) {
+    case 1: {
+        MotionInfo_unk* info = FindMotionInfo_unk(mMotion, motion);
+        float value;
+        if (info != 0) {
+            value = info->m04;
+        } else {
+            value = 0.2f;
+        }
+        m500 = value * m514;
+        break;
+    }
+    case 2: {
+        MotionInfo_unk* info = FindMotionInfo_unk(mMotion, motion);
+        float value;
+        if (info != 0) {
+            value = info->m04;
+        } else {
+            value = 0.8f;
+        }
+        m504 = value * m514;
+        break;
+    }
+    case 3: {
+        MotionInfo_unk* info = FindMotionInfo_unk(mMotion, motion);
+        float value;
+        if (info != 0) {
+            value = info->m04;
+        } else {
+            value = 1.0f;
+        }
+        m508 = value * m514;
+        break;
+    }
+    case 27: {
+        MotionInfo_unk* info = FindMotionInfo_unk(mMotion, motion);
+        float value;
+        if (info != 0) {
+            value = info->m04;
+        } else {
+            value = 0.25f;
+        }
+        m50C = value * m514;
+        break;
+    }
+    }
+}
+
+void CharaTask::fn_8014C228() {
+    fn_8014C0B4(0, m510);
+    fn_8014C0B4(1, 0x14);
+    fn_8014C0B4(2, 0x1A);
+    if (fn_80219558(m50) == 0) {
+        fn_8014C0B4(3, 0x23);
+    } else {
+        fn_8014C0B4(3, 0x20);
+    }
+    fn_8014C0B4(4, 0x28);
+    fn_8014C0B4(5, 0x195);
+    fn_8014C0B4(6, 0x196);
+    fn_8014C0B4(7, 0x1B1);
+    fn_8014C0B4(8, 0x1B2);
+    fn_8014C0B4(9, 0x197);
+    fn_8014C0B4(10, 0x198);
+    fn_8014C0B4(11, 0x1B3);
+    fn_8014C0B4(12, 0x1B4);
+    fn_8014C0B4(13, 0x199);
+    fn_8014C0B4(14, 0x19A);
+    fn_8014C0B4(15, 0x1B5);
+    fn_8014C0B4(16, 0x1B6);
+    fn_8014C0B4(17, 0x19B);
+    fn_8014C0B4(18, 0x19C);
+    fn_8014C0B4(19, 0x156);
+    fn_8014C0B4(20, 0x156);
+    fn_8014C0B4(22, 0x15C);
+    fn_8014C0B4(21, 0x15D);
+    fn_8014C0B4(23, 0x15E);
+    fn_8014C0B4(24, 0x15F);
+    fn_8014C0B4(25, 0x1C0);
+    fn_8014C0B4(26, 0x1C1);
+    fn_8014C0B4(27, 0x1C6);
+    fn_8014C0B4(28, 0x1C7);
+    fn_8014C0B4(29, 0x1C8);
+    fn_8014C0B4(30, 0x1C9);
+    fn_8014FD30();
+}
+
+
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" void fn_80107850(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void fn_80107B20(Effect_unk* effect, chr::Motion_unk* motion);
+extern "C" void* lbl_8087F3C0; // inferred: effect manager (see gmk/PlayEffect.cpp)
+extern "C" void fn_8010C00C(Effect_unk* mgr, CharaTask* chara);
+extern "C" void fn_80107CA8(Effect_unk* effect, CharaTask* chara, int arg);
+extern "C" void fn_80107BE8(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
+extern "C" void fn_800FC410(Effect_unk* effect, CharaTask* chara, CharaTask* target, int arg, HitInfo_unk* hit, int id,
+                            int frames);
+extern "C" bool fn_80051A88(const Model_unk::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
+extern "C" void* lbl_8087F0A0; // inferred: manager of the characters' emotes (fn_801847C0, fn_801840D8)
+extern "C" void fn_801847C0(void* mgr, CharaTask* chara);
+extern "C" void* fn_801840D8(void* mgr, int id, int arg);
+extern "C" void fn_80239DAC(void* mgr, atn::Matrix3x4* mtx, int a, int b);
+extern "C" void fn_80232B7C(atn::Matrix3x4* mtx, int arg);
+extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
+                            float scale, int e, int f, int g);
+extern "C" int rand();
+struct Input_unk {
+    int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
+};
+
+// inferred: lens of a camera (Model_unk::m1DC, or the one of the global camera); names invented
+struct Lens_unk {
+    unsigned char m000[0x158];
+    float m158;
+    float m15C;
+    float m160;
+};
+// inferred: the global camera seen with its lens pointer at 0x2FC
+struct CameraLens_unk {
+    unsigned char m000[0x2FC];
+    Lens_unk* m2FC;
+};
+// inferred: result of fn_800C122C (screen data of a sphere); m2C..m38 is a color
+struct ScreenInfo_unk {
+    unsigned char m00[0x2C];
+    float mColor[4];
+};
+extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const Model_unk::Sphere_unk* sphere);
+
+// inferred: link of the character lists of the managers (CharaTask + 0x14AC)
+struct CharaListNode_unk {
+    unsigned char m0000[0x14AC];
+    CharaTask* mNext;
+};
+inline CharaTask* NextChara_unk(CharaTask* chara) {
+    return ((CharaListNode_unk*)chara)->mNext;
+}
+
+// inferred: names invented
+inline Lens_unk* CharaTask::GetLens_unk() {
+    return (mMotion.m1DC == 0) ? ((CameraLens_unk*)lbl_8087EFB4)->m2FC : mMotion.m1DC;
+}
+
+// inferred: matrix of the emote above the head: translation to the head then the rotation
+inline void CharaTask::SetEmoteMtx_unk() {
+    atn::Vector3 pos(mPos);
+    pos.y = -GetLens_unk()->m160 * GetLens_unk()->m158 + 0.01f;
+    Mtx t;
+    PSMTXTrans(t, pos.x, pos.y, pos.z);
+    atn::Matrix3x4 rot;
+    atn::Matrix3x4* p = &rot;
+    atn::Matrix3x4* mtx = &mF20;
+    __MtxCopy(mtx->m, t);
+    p->SetIdentity();
+    if (0.0f != mRot.y) {
+        Rotate_unk(*p, 'y', mRot.y);
+    }
+    if (0.0f != mRot.x) {
+        Rotate_unk(*p, 'x', mRot.x);
+    }
+    if (0.0f != mRot.z) {
+        Rotate_unk(*p, 'z', mRot.z);
+    }
+    Mtx r;
+    PSMTXConcat(mtx->m, p->m, r);
+    __MtxCopy(mtx->m, r);
+}
+
+// inferred: the character recovers from a state (0x100 or 0x10000); the shared part (static so
+// that the sound name stays in the file pool)
+static inline void Recover_unk(CharaTask* chara) {
+    if (chara->mType != 2) {
+        chara->mF18 = chara->mF14;
+        chara->mF14 = 0;
+    } else {
+        chara->mF18 = chara->mF14;
+        chara->mF14 = 1;
+    }
+    chara->mC58.fn_8011BEB8(0);
+    if (chara->mFlag31) {
+        chara->ReleaseLedge_unk();
+    }
+    if (chara->mFlag5) {
+        chara->mFlag5 = 0;
+    }
+    chara->Unlink_unk();
+    chara->ClearEffect_unk();
+    chara->mC58.mC4 = 0;
+    if (chara->mType == 0) {
+        chara->m55C = 1;
+        chara->m564 = 1;
+    }
+    fn_800C344C("SE_BTCOM_076", &chara->mPos, 0, -1, 1.0f);
+}
+
+inline bool CharaTask::IsLedgeLocked_unk() {
+    return mFlag31 && mC48 != 0;
+}
+
+// inferred: bullet of a hit with flags 0x440000
+inline HitInfo_unk* CharaTask::FindHitBullet_unk() {
+    CharaHit_unk* hits = m12D0.mData;
+    for (unsigned int i = 0; i < m12D0.mCount; i++) {
+        HitInfo_unk* hit = hits[i].mHit;
+        if ((hit->mAC & 0x440000) == 0x440000 && hit->m04 > 0) {
+            return fn_80219E6C(hit->m04);
+        }
+    }
+    return 0;
+}
+
+// inferred: `other` is on the same side as this character
+inline bool CharaTask::IsSameSide_unk(CharaTask* other) {
+    if (other != this && ((lbl_8087F610 != 0 && lbl_8087F610->m540 == 0) || (other->mStatus.m0C & 2) == 2 ||
+                          (mStatus.m0C & 2) == 2 || lbl_8087F0A8->mCC != 0)) {
+        return false;
+    }
+    if (other->mF14 >= 0 && mF14 >= 0) {
+        return mF14 == other->mF14;
+    }
+    return other->mType == mType || (other->mType == 0 && mType == 3) || (other->mType == 3 && mType == 0);
+}
+
+// NONMATCHING: ~66% by line (554/1641; 1613 vs 1641 instructions) - first pass of a very long
+// function: same calls, constants and control flow; the frame is 0x50 bytes smaller (stack slots of
+// the locals/temporaries differ), the ptmf .data offsets are noise, fn_8018EEC4 needs a map entry,
+// and register allocation differs in the bullet loops; also the matrix of the emote and the
+// "hide" condition are scheduled differently. The bullet loop bodies are written in place because
+// a helper put the caller over the inline budget (nothing was inlined).
+// inferred: per-frame update of the character state (called by the derived classes)
+void CharaTask::fn_8014C540() {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m56D4 == 0 && lbl_8087F430->m54E4 != 8) {
+        mStatus.fn_8012E540();
+    }
+    mStatus.fn_8012B988();
+    fn_80178BFC();
+    mFlagB31 = 0;
+    mFlagB30 = 0;
+    if (mType == 2) {
+        for (CharaHit_unk* hit = m12D0.begin(); hit != m12D0.end(); hit++) {
+            if ((hit->m0C & 2) == 2) {
+                if (lbl_8087F0A8->m294 == 0) {
+                    mFlagB31 = 1;
+                } else {
+                    mFlagB30 = 1;
+                }
+                break;
+            }
+        }
+    }
+    if (m640 > 0) {
+        m640--;
+    }
+    if (--mFB0 < -60) {
+        mFB0 = -60;
+        mFB4 = 0;
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->m56D4 == 0 && mF94 > 0 && !mFlag23 && --mF94 == 0) {
+        chr::ControlCdnStone* control = new (0, "", "", 0) chr::ControlCdnStone(this, 0);
+        fn_80178208(control);
+    }
+    if (mFlag8 && mF9C > 0) {
+        mF9C--;
+    }
+    if (mType == 0) {
+        if (mStatus.IsState_unk(1)) {
+            CameraState_unk state(lbl_8087EFA8->m324);
+            float t = mStatus.fn_801333A4(1) / 900.0f;
+            state.m4C = 1.0f - t;
+            lbl_8087EFA8->m324 = state;
+        }
+        if (mF84 > 0) {
+            mF84--;
+            if (((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_8012476C(0x22)) {
+                mF84 -= 10;
+            }
+            if (mF84 <= 0) {
+                if (mStatus.IsState_unk(0x100)) {
+                    mStatus.fn_8013322C(0x100);
+                    mStatus.fn_8013322C(0x100);
+                    fn_80107850(lbl_8087F048, &mMotion);
+                    Recover_unk(this);
+                }
+                if (mStatus.IsState_unk(0x10000)) {
+                    mStatus.fn_8013322C(0x10000);
+                    mStatus.fn_8013322C(0x10000);
+                    fn_80107B20(lbl_8087F048, &mMotion);
+                    Recover_unk(this);
+                }
+            }
+        }
+    }
+    if (mFlagB7 && (mType == 0 || mType == 3)) {
+        if (--m1398 <= 0) {
+            m1398 = rand() % 60 + 60;
+            if (lbl_8087F0A0 != 0) {
+                fn_801847C0(lbl_8087F0A0, this);
+            }
+        }
+    }
+    int emote = 0;
+    if (lbl_8087F0A0 != 0 && (unsigned int)(m634 - 28) <= 1 && ((unsigned int)mStatus.mParamB.m9C & 0x200) != 0x200) {
+        emote = 1;
+    }
+    if (mStatus.IsState_unk(0x20)) {
+        emote = 0;
+    }
+    if (mFlagB28) {
+        SetEmoteMtx_unk();
+        if (!emote) {
+            fn_80239DAC(lbl_8087F3C0, &mF20, 0, 0);
+            mFlagB28 = 0;
+        }
+    } else if (emote) {
+        SetEmoteMtx_unk();
+        Camera_unk* camera = lbl_8087EFB4;
+        Model_unk::Sphere_unk sphere = mMotion.fn_80094F98();
+        ScreenInfo_unk* info = fn_800C122C(camera, &sphere);
+        float color[4];
+        color[0] = info->mColor[0];
+        color[1] = info->mColor[1];
+        color[2] = info->mColor[2];
+        color[3] = info->mColor[3];
+        void* res = fn_801840D8(lbl_8087F0A0, m634, 0);
+        if (res != 0) {
+            fn_80232B7C(&mF20, 0);
+            fn_8023A680(lbl_8087F3C0, res, -1, 5, &mF20, 0, 0, color, 1.0f, 0, -1, 1);
+            mFlagB28 = 1;
+        }
+    }
+    if (mFlag31 && !IsLedgeLocked_unk()) {
+        if (++mC4C > 30) {
+            mStatus.mParamB.m8C += mStatus.fn_80134168(0x38, -1) / 100.0f;
+            if (lbl_8087F610 != 0 && IsArenaMode_unk(lbl_8087F610->m540)) {
+                mStatus.mParamB.m8C += (lbl_8087F610 != 0 && lbl_8087F610->m540 == 1) ? 0.1f : 0.15f;
+            }
+        }
+    } else {
+        mC4C = 0;
+    }
+    if (mFE0 > 0) {
+        if (!mFlagB31) {
+            mFE0--;
+        }
+    } else {
+        mFDC = 0;
+        mFE0 = 0;
+        mFE4 = 0;
+    }
+    if (lbl_8087F048 != 0) {
+        int hide = 0;
+        if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && fn_80481654(lbl_8087F540) != 0) {
+            hide = 1;
+        }
+        fn_8010C00C(lbl_8087F048, this);
+        if (mFlagB18) {
+            if (!mStatus.IsState_unk(0x100000) || hide) {
+                mFlagB18 = 0;
+                fn_80107CA8(lbl_8087F048, this, 1);
+            }
+        } else if (mStatus.IsState_unk(0x100000) && !hide) {
+            mFlagB18 = 1;
+            fn_80107BE8(lbl_8087F048, this, &mMotion);
+        }
+    }
+    if (mType == 0 && FindHitBullet_unk() != 0) {
+        HitInfo_unk* bullet = FindHitBullet_unk();
+        if (bullet != 0 && lbl_8087F048 != 0) {
+            Model_unk::Sphere_unk sphere;
+            sphere.mCenter = mPos;
+            sphere.mRadius = bullet->m58;
+            HitInfo_unk* data;
+            int id = bullet->m70 + 100000;
+            int unused[4] = {0, 0, 0, 0}; // inferred: cleared but not used
+            data = fn_80219E6C(bullet->m70);
+            CharaTask* chara;
+            for (chara = (lbl_8087F8A0 != 0) ? lbl_8087F8A0->mHead : 0; chara != 0; chara = NextChara_unk(chara)) {
+                if (chara->CanAct_unk() && chara->fn_8015EB2C() && !chara->IsGrappled_unk() && chara->mFlag22 != 1 &&
+                    !IsSameSide_unk(chara) && !chara->fn_801533C8(id, data) && fn_80051A88(&sphere, &chara->m614)) {
+                    fn_800FC410(lbl_8087F048, this, chara, 0, data, id, 30);
+                }
+            }
+            for (chara = (EnemyManager::sInstance != 0) ? (CharaTask*)EnemyManager::sInstance->mHead : 0; chara != 0;
+                 chara = NextChara_unk(chara)) {
+                if (chara->CanAct_unk() && chara->fn_8015EB2C() && !chara->IsGrappled_unk() && chara->mFlag22 != 1 &&
+                    !IsSameSide_unk(chara) && !chara->fn_801533C8(id, data) && fn_80051A88(&sphere, &chara->m614)) {
+                    fn_800FC410(lbl_8087F048, this, chara, 0, data, id, 30);
+                }
+            }
+        }
+    }
+    if (mFlag28 && 0.0f != lbl_8087F0A8->m414) {
+        mStatus.fn_8012F188(lbl_8087F0A8->m414 / 30.0f);
+    }
+}
+
 void CharaTask::fn_8014C468() {
     if (m648 == 0) {
         fn_8014C0B4(0, m510);
@@ -4936,6 +5403,280 @@ void CharaTask::fn_8014C468() {
     case 2:
         fn_8014C0B4(0, 1);
         break;
+    }
+}
+
+extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
+
+// inferred: *this = *this * trans(v) (name invented)
+inline void Translate_unk(atn::Matrix3x4& mtx, const atn::Vector3& v) {
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 r;
+    PSMTXTrans(t.m, v.x, v.y, v.z);
+    PSMTXConcat(mtx.m, t.m, r.m);
+    mtx = r;
+}
+
+// NONMATCHING: ~16% by line in fn_8014EF48 (219 vs 219 instructions, identical except registers;
+// the diff tool misaligns the psq lines) - in the three matrix
+// copies the original swaps r3/r4 between source and destination (identity copies: source r3,
+// destination r4; final copy: source r4, destination r3), plus @stringBase0 offsets until the
+// earlier strings exist; tried: operator=, __MtxCopy, named reference/pointer to the destination,
+// local CharaPart_unk*, accessor for the identity, inline member setter, copy helper with
+// (src, dst) order, Mtx/Matrix3x4 temporaries.
+// inferred: attaches the weapons to the hand nodes (body of fn_8014EF48, inlined in fn_8014DEE4;
+// static so that its literals stay in the file pool); name invented
+static inline void AttachWeapons_unk(CharaTask* chara) {
+    if (chara->m648 == 0) {
+        return;
+    }
+    chara->m648->m224 = chara->mMotion.GetNodeMtx_unk("rightwepoint");
+    chara->m648->m228 = lbl_807C7060;
+    if (chara->m64C == 0) {
+        return;
+    }
+    if (chara->mFlagB5) {
+        chara->m64C->m224 = chara->mMotion.GetNodeMtx_unk("leftwepoint");
+        chara->m64C->m228 = lbl_807C7060;
+    } else {
+        chara->m64C->m224 = chara->mMotion.GetNodeMtx_unk("leftwepoint");
+        atn::Matrix3x4 mtx;
+        atn::Matrix3x4* p = &mtx;
+        const atn::Vector3& rot = atn::Vector3(3.1415927f, 3.1415927f, 0.0f);
+        p->SetIdentity();
+        if (0.0f != rot.z) {
+            Rotate_unk(*p, 'z', rot.z);
+        }
+        if (0.0f != rot.y) {
+            Rotate_unk(*p, 'y', rot.y);
+        }
+        if (0.0f != rot.x) {
+            Rotate_unk(*p, 'x', rot.x);
+        }
+        Translate_unk(mtx, atn::Vector3(0.0f, 0.6f, 0.0f));
+        chara->m64C->m228 = mtx;
+    }
+}
+
+extern "C" void* lbl_8087F9E8; // inferred: manager notified when the weapon changes
+extern "C" void fn_8059C084(void* mgr, CharaTask* chara);
+
+// NONMATCHING: ~90% (102/985 lines) - everything matches except the r3/r4 swap in the matrix copies
+// of the inlined AttachWeapons_unk (see there) and the @stringBase0 offsets.
+// inferred: selects the weapon part `index` and its motion set (keep: only the part; noMotion:
+// keep the motion ids)
+void CharaTask::fn_8014DEE4(int index, int keep, int noMotion) {
+    if (mParts.mCount != 0 && index < (int)mParts.mCount) {
+    if (lbl_8087F610 != 0 && m5C->m11C == 2 && mParts.mCount > 2) {
+        if ((index == 1 && mParts[1]->m04 == 0) || (index == 0 && mParts[2]->m04 == 0)) {
+            chr::CharaPart_unk* part = mParts[1];
+            mParts[1] = mParts[2];
+            mParts[2] = part;
+            m64C = index == 0 ? mParts[1] : 0;
+        }
+    }
+    if (m648 != 0) {
+        fn_80044E0C(m648, 1);
+    }
+    if (m64C != 0) {
+        fn_80044E0C(m64C, 1);
+    }
+    m674 = index;
+    m648 = mParts[index];
+    if (index == 0 && m678 != 0 && m678->vf0C() == 0) {
+        m648 = m678;
+    }
+    if (keep != 0) {
+        return;
+    }
+    CharaTask* other = mC58.mC4;
+    if (other != 0 && other->HasLink_unk(this)) {
+        other->RemoveLink_unk(this);
+    }
+    if (m648->m04 == 0) {
+        fn_8014EE48();
+    }
+    mStatus.fn_8012B988();
+    if (lbl_8087F9E8 != 0) {
+        fn_8059C084(lbl_8087F9E8, this);
+    }
+    mStatus.fn_8013407C();
+    if (lbl_8087F048 != 0) {
+        fn_8010C00C(lbl_8087F048, this);
+    }
+    if (noMotion == 0) {
+        switch (m648->m04) {
+        case 0:
+            if (m5C->m11C == 2) {
+                fn_8014C0B4(0, 0x4);
+                fn_8014C0B4(1, 0x16);
+                fn_8014C0B4(2, 0x1C);
+                fn_8014C0B4(3, 0x22);
+                fn_8014C0B4(4, 0x2A);
+                fn_8014C0B4(5, 0x19D);
+                fn_8014C0B4(6, 0x19E);
+                fn_8014C0B4(7, 0x1BA);
+                fn_8014C0B4(8, 0x1BB);
+                fn_8014C0B4(9, 0x19F);
+                fn_8014C0B4(10, 0x1A0);
+                fn_8014C0B4(11, 0x1BC);
+                fn_8014C0B4(12, 0x1BD);
+                fn_8014C0B4(13, 0x1A1);
+                fn_8014C0B4(14, 0x1A2);
+                fn_8014C0B4(15, 0x1BE);
+                fn_8014C0B4(16, 0x1BF);
+                fn_8014C0B4(17, 0x1A3);
+                fn_8014C0B4(18, 0x1A4);
+                fn_8014C0B4(19, 0x16A);
+                fn_8014C0B4(20, 0x16A);
+                fn_8014C0B4(22, 0x15C);
+                fn_8014C0B4(21, 0x15D);
+                fn_8014C0B4(23, 0x15E);
+                fn_8014C0B4(24, 0x15F);
+            } else {
+                if (fn_80219558(m50) == 0) {
+                    fn_8014C0B4(0, 5);
+                } else {
+                    fn_8014C0B4(0, 3);
+                }
+                fn_8014C0B4(1, 0x15);
+                fn_8014C0B4(2, 0x1B);
+                fn_8014C0B4(3, 0x21);
+                fn_8014C0B4(4, 0x29);
+                fn_8014C0B4(5, 0x195);
+                fn_8014C0B4(6, 0x196);
+                fn_8014C0B4(7, 0x1B1);
+                fn_8014C0B4(8, 0x1B2);
+                fn_8014C0B4(9, 0x197);
+                fn_8014C0B4(10, 0x198);
+                fn_8014C0B4(11, 0x1B3);
+                fn_8014C0B4(12, 0x1B4);
+                fn_8014C0B4(13, 0x199);
+                fn_8014C0B4(14, 0x19A);
+                fn_8014C0B4(15, 0x1B5);
+                fn_8014C0B4(16, 0x1B6);
+                fn_8014C0B4(17, 0x19B);
+                fn_8014C0B4(18, 0x19C);
+                if (m648->m274->mParam.m7C == 1) {
+                    fn_8014C0B4(19, 0x165);
+                    fn_8014C0B4(20, 0x165);
+                    fn_8014C0B4(22, 0x166);
+                    fn_8014C0B4(21, 0x167);
+                    fn_8014C0B4(23, 0x168);
+                    fn_8014C0B4(24, 0x169);
+                } else {
+                    fn_8014C0B4(19, 0x156);
+                    if (mMotion.fn_80097D40(0x157)) {
+                        fn_8014C0B4(20, 0x157);
+                    } else {
+                        fn_8014C0B4(20, 0x156);
+                    }
+                    fn_8014C0B4(22, 0x15C);
+                    fn_8014C0B4(21, 0x15D);
+                    fn_8014C0B4(23, 0x15E);
+                    fn_8014C0B4(24, 0x15F);
+                }
+            }
+            break;
+        case 1:
+            fn_8014C0B4(0, 0x0);
+            fn_8014C0B4(1, 0x12);
+            fn_8014C0B4(2, 0x18);
+            fn_8014C0B4(3, 0x1E);
+            int kind = fn_80219558(m50);
+            int motion = 0x25;
+            if (kind == 0) {
+                motion = 0x26;
+            }
+            fn_8014C0B4(4, motion);
+            fn_8014C0B4(5, 0x185);
+            fn_8014C0B4(6, 0x186);
+            fn_8014C0B4(7, 0x1A5);
+            fn_8014C0B4(8, 0x1A6);
+            fn_8014C0B4(9, 0x187);
+            fn_8014C0B4(10, 0x188);
+            fn_8014C0B4(11, 0x1A7);
+            fn_8014C0B4(12, 0x1A8);
+            fn_8014C0B4(13, 0x189);
+            fn_8014C0B4(14, 0x18A);
+            fn_8014C0B4(15, 0x1A9);
+            fn_8014C0B4(16, 0x1AA);
+            fn_8014C0B4(17, 0x18B);
+            fn_8014C0B4(18, 0x18C);
+            fn_8014C0B4(19, 0x156);
+            fn_8014C0B4(20, 0x156);
+            fn_8014C0B4(22, 0x15C);
+            fn_8014C0B4(21, 0x15D);
+            fn_8014C0B4(23, 0x15E);
+            fn_8014C0B4(24, 0x15F);
+            break;
+        case 2:
+            fn_8014C0B4(0, 0x1);
+            fn_8014C0B4(1, 0x13);
+            fn_8014C0B4(2, 0x19);
+            fn_8014C0B4(3, 0x1F);
+            fn_8014C0B4(4, 0x27);
+            fn_8014C0B4(5, 0x18D);
+            fn_8014C0B4(6, 0x18E);
+            fn_8014C0B4(7, 0x1AB);
+            fn_8014C0B4(8, 0x1AC);
+            fn_8014C0B4(9, 0x18F);
+            fn_8014C0B4(10, 0x190);
+            fn_8014C0B4(11, 0x1AD);
+            fn_8014C0B4(12, 0x1AE);
+            fn_8014C0B4(13, 0x191);
+            fn_8014C0B4(14, 0x192);
+            fn_8014C0B4(15, 0x1AF);
+            fn_8014C0B4(16, 0x1B0);
+            fn_8014C0B4(17, 0x193);
+            fn_8014C0B4(18, 0x194);
+            fn_8014C0B4(19, 0x156);
+            fn_8014C0B4(20, 0x156);
+            fn_8014C0B4(22, 0x15C);
+            fn_8014C0B4(21, 0x15D);
+            fn_8014C0B4(23, 0x15E);
+            fn_8014C0B4(24, 0x15F);
+            break;
+        }
+        if (m5C->m11C == 2) {
+            fn_8014C0B4(25, 0x1C4);
+            fn_8014C0B4(26, 0x1C5);
+            fn_8014C0B4(27, 0x1CE);
+            fn_8014C0B4(28, 0x1CF);
+            fn_8014C0B4(29, 0x1D0);
+            fn_8014C0B4(30, 0x1D1);
+        } else if (m680[4] != 0) {
+            fn_8014C0B4(25, 0x1C2);
+            fn_8014C0B4(26, 0x1C3);
+            fn_8014C0B4(27, 0x1CA);
+            fn_8014C0B4(28, 0x1CB);
+            fn_8014C0B4(29, 0x1CC);
+            fn_8014C0B4(30, 0x1CD);
+        } else if (m648->m274->mParam.m7C == 1) {
+            fn_8014C0B4(25, 0x1C4);
+            fn_8014C0B4(26, 0x1C5);
+            fn_8014C0B4(27, 0x1CE);
+            fn_8014C0B4(28, 0x1CB);
+            fn_8014C0B4(29, 0x1D0);
+            fn_8014C0B4(30, 0x1D1);
+        } else if (m50 == 100105) {
+            fn_8014C0B4(25, 0x2);
+            fn_8014C0B4(26, 0x33);
+            fn_8014C0B4(27, 0x14);
+            fn_8014C0B4(28, 0x14);
+            fn_8014C0B4(29, 0x14);
+            fn_8014C0B4(30, 0x14);
+        } else {
+            fn_8014C0B4(25, 0x1C0);
+            fn_8014C0B4(26, 0x1C1);
+            fn_8014C0B4(27, 0x1C6);
+            fn_8014C0B4(28, 0x1C7);
+            fn_8014C0B4(29, 0x1C8);
+            fn_8014C0B4(30, 0x1C9);
+        }
+        fn_8014FD30();
+    }
+    AttachWeapons_unk(this);
     }
 }
 
@@ -4961,6 +5702,11 @@ void CharaTask::fn_8014EEC4(int keep) {
     if (keep == 0) {
         fn_8014C228();
     }
+}
+
+// NONMATCHING: see AttachWeapons_unk (its body is also inlined in fn_8014DEE4)
+void CharaTask::fn_8014EF48() {
+    AttachWeapons_unk(this);
 }
 
 // NONMATCHING: 90.1% - the original keeps the index in r31 and recomputes &mData[i] for the
@@ -5171,10 +5917,8 @@ void CharaTask::vf44() {
     mFlagB10 = 1;
 }
 
-extern "C" void fn_80107850(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80107798(Effect_unk* effect, chr::Motion_unk* motion, int arg);
 extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_80107B20(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80107E58(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80107FC8(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80108080(Effect_unk* effect, chr::Motion_unk* motion);
@@ -5306,7 +6050,6 @@ bool CharaTask::fn_801533C8(int id, HitInfo_unk* hit) {
     return false;
 }
 
-extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 
 // NONMATCHING: instructions and stack identical; only the saved registers differ (the original
@@ -5429,7 +6172,6 @@ int CharaTask::fn_80153FA0() {
 }
 
 int fn_8013539C();
-extern "C" void* lbl_8087F3C0; // inferred: effect manager (see gmk/PlayEffect.cpp)
 extern "C" void fn_8023A02C(void* manager, void* owner, int arg2, int arg3);
 extern "C" void fn_8023A098(void* manager, void* owner, int arg2, int arg3);
 

@@ -7,6 +7,7 @@
 #include <boost/scoped_ptr.hpp>
 
 namespace atn {
+class LoadHandle;
 class Matrix3x4;
 struct NodeChunk;
 struct ModelNodeCallbackContext;
@@ -14,6 +15,8 @@ struct ModelNodeCallbackContext;
 // inferred: camera object owned by a model (0x1FC bytes, created on load by CharaTask::fn_8013655C
 // and by the equipment at 0x80564108); defined where it is used
 struct ModelCamera_unk;
+// inferred: camera lens (defined in game/CharaTask.cpp)
+struct Lens_unk;
 
 // inferred: material of a model node (returned by Model_unk::fn_80092954)
 struct Material_unk {
@@ -82,12 +85,14 @@ struct Model_unk {
     void fn_80091CFC(const char* node);
     void fn_80099E9C(const char* node, const char* name, float value);
     void fn_80097510();
-    int fn_80097D40(int motion); // inferred: zero if the motion is missing
+    atn::LoadHandle* fn_80097D40(int motion); // inferred: handle of the motion (12-byte entries of m228), zero if missing
 
     unsigned char m58[0xAC - 0x58];
     float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
-    unsigned char mB4[0x208 - 0xB4];
+    unsigned char mB4[0x1DC - 0xB4];
+    struct Lens_unk* m1DC; // inferred: own camera lens, else the global one (CharaTask::fn_8014C540)
+    unsigned char m1E0[0x208 - 0x1E0];
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
     unsigned int m20C_31_6 : 26;
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
