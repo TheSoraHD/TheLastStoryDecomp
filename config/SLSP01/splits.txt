@@ -891,15 +891,15 @@ game/Em208Queen.cpp:
 
 game/Em209BigGolem.cpp:
 	.text       start:0x802CCB20 end:0x802CCFD8
-	.rodata     start:0x80746EA8 end:0x80746EB8
-	.data       start:0x80786990 end:0x80786AC8
+	.rodata     start:0x80746EA8 end:0x80746ED0
+	.data       start:0x80786990 end:0x80786B00
 	.sdata2     start:0x808844C0 end:0x808844E0
 
 game/Em209SmallGolem.cpp:
 	.text       start:0x802CCFD8 end:0x802D0038
 	.ctors      start:0x8072D340 end:0x8072D344
-	.rodata     start:0x80746EB8 end:0x80746EC8
-	.data       start:0x80786AF8 end:0x80786C10
+	.rodata     start:0x80746ED0 end:0x80747098
+	.data       start:0x80786B00 end:0x80786C10
 	.sdata2     start:0x808844E0 end:0x80884558
 
 game/Em301LShade.cpp:

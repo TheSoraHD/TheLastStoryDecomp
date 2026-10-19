@@ -61,9 +61,8 @@ void Em209BigGolem::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.3% - the address registers of the two vector copies are swapped (r6/r7, r3/r4),
-// and "spine1" is lbl_80746EC8 in the target: the split puts this file's string pool
-// (0x80746EC8) outside its .rodata range.
+// NONMATCHING: 99.7% - the address registers of the copy of the node position into b are swapped
+// (r3/r4); the chained assignment of a fixes the same swap for a.
 void Em209BigGolem::vf20() {
     atn::Vector3 a;
     atn::Vector3 b;
@@ -71,8 +70,7 @@ void Em209BigGolem::vf20() {
     m620 = radius / 2.0f;
     m614 = mPos + m5A4;
     m614.y += m620;
-    a = mPos + m5A4;
-    a.y += 0.8f * radius;
+    (a = mPos + m5A4).y += 0.8f * radius;
     b = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
     mColli.m3C = a;
     mColli.m48 = b;
