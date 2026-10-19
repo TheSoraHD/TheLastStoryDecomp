@@ -349,9 +349,11 @@ game/ChaserGuard.cpp:
 	.sdata2     start:0x80881B78 end:0x80881BF8
 
 game/ChaserNpc.cpp:
-	.text       start:0x801805A4 end:0x80180AE0
-	.rodata     start:0x80738148 end:0x80738154
-	.data       start:0x8077CAE0 end:0x8077CC10
+	.text       start:0x8018059C end:0x801823A8
+	.rodata     start:0x80738120 end:0x80738198
+	.data       start:0x8077CAC8 end:0x8077CC10
+	.sbss       start:0x8087F090 end:0x8087F098
+	.sdata2     start:0x80881BF8 end:0x80881C48
 
 game/ChaseManager.cpp:
 	.text       start:0x801823A8 end:0x80183588
