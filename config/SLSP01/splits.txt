@@ -1346,8 +1346,10 @@ gmk/FlamingArrow.cpp:
 
 gmk/Ocean.cpp:
 	.text       start:0x80418198 end:0x80418EAC
-	.rodata     start:0x80752FC0 end:0x80752FCC
+	.rodata     start:0x80752FA8 end:0x80753038
 	.data       start:0x8078DBA8 end:0x8078DC40
+	.sdata      start:0x8087DF88 end:0x8087DF90
+	.sbss       start:0x8087F4B8 end:0x8087F4C0
 	.sdata2     start:0x808864B8 end:0x808864F8
 
 gmk/WaitObject.cpp:
