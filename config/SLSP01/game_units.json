@@ -2469,6 +2469,11 @@
   "matching": true
  },
  {
+  "name": "game/HeapInfo_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
   "name": "MP/func_enter_setting.cpp",
   "classes": [
    "MP::func_enter_setting"

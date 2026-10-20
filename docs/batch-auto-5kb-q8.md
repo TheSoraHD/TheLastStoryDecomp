@@ -51,7 +51,7 @@ Fusionada en `game/MapPartsOcean`.
     (`MpData_unk*`). `lbl_8087F630` sigue con tamano 0x8 en symbols.txt (aqui 4 bytes + relleno; enlaza OK).
   - Nombre real propuesto: un fichero de globales MP que incluye `<iostream>` (sin pruebas del nombre).
 
-## Event/Label (commit HASH3)
+## Event/Label (commit bb4920e)
 
 - Resultado: 1/2 al 100%, `matching: false`.
 - NONMATCHING: `__sinit_\Label_cpp` 93.8% - tras la ultima llamada al hash el original guarda el valor por
@@ -76,3 +76,18 @@ Fusionada en `game/MapPartsOcean`.
   - `game_units.json`: nueva entrada `Event/Label.cpp` tras `Event/Node.cpp`.
 - Hallazgos MWCC: las cadenas de las funciones de plantilla instanciadas (p. ej. `basic_string::__replace_unk`)
   van al `@stringBase0` del fichero que las instancia, aunque el enlazador descarte la copia debil.
+
+## game/HeapInfo_unk (commit HASH4)
+
+- Resultado: 4/4 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - Clase local inventada `HeapInfo_unk` (0x98, la crea `fn_8047A4C8` de main en `lbl_8087F534`): cinco
+    `FrameTimer_unk` (inicio/fin/transcurrido `OSTime`, main los rellena con `OSGetTime`), cuatro floats con
+    los microsegundos (`OSTicksToMicroseconds` sobre la parte baja), tres resultados de
+    `DLAllocator::fn_80084F84` de los heaps de `fn_800827E0()` (+0x138/+0x150/+0x168, `MemoryManager_unk`
+    local) y `fn_805A6D10` = 1000000.0f / microsegundos (fps). Macros del SDK copiadas en local con sufijo `_unk`.
+  - Los cinco temporizadores son miembros sueltos (con un array el constructor sale como bucle).
+  - `symbols.txt`: `fn_805A6B54` -> `__ct__12HeapInfo_unkFv`, `fn_805A6BD4`/`fn_805A6BD8`/`fn_805A6D10` ->
+    `...__12HeapInfo_unkFv`.
+- Hallazgos MWCC: `float = (unsigned)x` da `fsubs`; el original (`fsub` + `frsp`) pasa por `double`:
+  `f = (double)(unsigned)x`.
