@@ -2,6 +2,7 @@
 #define GMK_LEMON_H
 
 #include "game/GimmickCommon.h"
+#include "atn/Sphere.h"
 
 // inferred: shared data of a model instance (atn/ModelInstance.cpp); only what is used here
 struct InstData_unk {
@@ -21,15 +22,18 @@ public:
     void fn_8009EE30(const Matrix3x4& mtx); // inferred: sets the matrix
 
     InstData_unk* mData; // 0x04
-    unsigned char m08[0x30 - 0x08];
+    Sphere mBound;       // 0x08: inferred: bounding sphere (game/MapPartsLocatorSet::fn_8049B7CC)
+    unsigned char m18[0x30 - 0x18];
     Matrix3x4 mMtx;      // 0x30
     unsigned char m60[0x64 - 0x60];
     void* m64; // inferred: screen data
-    unsigned char m68[0x70 - 0x68];
+    unsigned char m68[0x6C - 0x68];
+    unsigned int m6C; // inferred: draw flags (copied from MapPartsLocatorSet::m10C)
     float m70; // inferred: LOD distance (game/MapInstance_unk)
     float m74; // inferred: LOD scale
     float m78; // inferred: LOD offset
-    unsigned char m7C[0x88 - 0x7C];
+    void* m7C; // inferred: light map texture (MapPartsLocatorSet::vf0C)
+    unsigned char m80[0x88 - 0x80];
 };
 
 } // namespace atn
