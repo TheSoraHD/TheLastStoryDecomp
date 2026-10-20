@@ -1,5 +1,6 @@
 #include "game/CopyRobotTask.h"
 #include "std/string.h"
+#include "macros.h"
 
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
@@ -36,6 +37,23 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
 extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
+
+extern "C" double acos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
+// inferred: camera (see game/CharaTask.cpp)
+struct CopyCamera_unk {
+    unsigned char m000[0x10C];
+    atn::Vector3 mEye; // 0x10C
+};
+extern "C" CopyCamera_unk* lbl_8087EFB4;
+// inferred: resource of the model (Model_unk::m16C); names invented
+struct CopyModelRes_unk {
+    unsigned char m00[0x44];
+    int mNumNodes; // 0x44
+};
 
 static atn::Vector3 sFront_unk(0.0f, 0.0f, 1.0f);
 static atn::Vector3 sOffset_unk(0.0f, 0.0f, 26.81f);
@@ -101,7 +119,134 @@ int CopyRobotTask::vf0C() {
     return 0;
 }
 
-// NONMATCHING: vf10 (0x801CC4F4, 0x798 bytes: copies the pose of m14B4/m14B8) is not written yet
+inline float LengthSq_unk(const atn::Vector3& v) {
+    return fn_805F9920(&v);
+}
+
+inline float Length3_unk(float x, float y, float z) {
+    atn::Vector3 v;
+    v.x = x;
+    v.y = y;
+    v.z = z;
+    return PSVECMag(&v);
+}
+
+// inferred: copies the model matrix and computes the largest scale axis (as CharaTask::fn_80144710);
+// name invented
+inline void SetModelMtx_unk(Model_unk* model, const Mtx mtx) {
+    __MtxCopy(model->mMtx, mtx);
+    float sz = Length3_unk(mtx[0][2], mtx[1][2], mtx[2][2]);
+    float sy = Length3_unk(mtx[0][1], mtx[1][1], mtx[2][1]);
+    float sx = Length3_unk(mtx[0][0], mtx[1][0], mtx[2][0]);
+    atn::Vector3 s(sx, sy, sz);
+    model->m54 = MAX(s.x, MAX(s.y, s.z));
+}
+
+// NONMATCHING: 99.7% - stack slots of the case 0/1 locals (d/dir, rot/rot2, front/v) are swapped, float
+// registers of the scale vectors, and the inlined ToRotation_unk converts z again (frsp) instead of reusing
+// the converted value (fmr), as in CharaTask::fn_80144710.
+// inferred: copies the pose and the motion tracks of another character (mode 0: whole pose of m14B4,
+// mode 1: mirrored motion of m14B8, modes 2-3: motion and position of m14B8)
+void CopyRobotTask::vf10() {
+    if (m624.mSize != 0) {
+        m624.clear();
+    }
+    if (mC58.mC0 == 0) {
+        fn_80145334();
+        return;
+    }
+    fn_8014C540();
+    switch (m14B0) {
+    case 0: {
+        if (m14B4 == 0) {
+            break;
+        }
+        if (m14B4->m674 != m674) {
+            fn_8014DEE4(m14B4->m674, 0, 0);
+        }
+        m54C |= 0x2000;
+        CharaTask* src = m14B4;
+        SetModelMtx_unk(&mMotion, src->mMotion.mMtx);
+        mPos = m14B4->mPos;
+        mRot = m14B4->mRot;
+        mMotion.fn_80097C08(0, m14B4->mMotion.mTracks[0].m00, 1, 0, 1, 0.0f, 0.1f);
+        memcpy(mMotion.m220, m14B4->mMotion.m220,
+               (*(CopyModelRes_unk**)((char*)&mMotion + 0x16C))->mNumNodes * sizeof(Model_unk::Node_unk));
+        fn_8000D430(&mMotion, boost::function<void()>());
+        LengthSq_unk(lbl_8087EFB4->mEye - mPos);
+        fn_80148B38();
+        vf20();
+        mColli.mFlags &= ~1;
+        vf54();
+        break;
+    }
+    case 1: {
+        if (m14B8 == 0) {
+            break;
+        }
+        if (m674 == 1) {
+            fn_8014DEE4(0, 0, 0);
+        }
+        m54C |= 0x2000;
+        CharaTask* src = m14B8;
+        mMotion.m34C = src->mMotion.m34C;
+        int n = mMotion.m34C;
+        Model_unk* model = &src->mMotion;
+        for (int i = 0; i < n; i++) {
+            mMotion.mTracks[i].m20 = model->mTracks[i].m20;
+            mMotion.mTracks[i].m0C = model->mTracks[i].m0C;
+            mMotion.mTracks[i].m08 = model->mTracks[i].m08;
+            mMotion.fn_80097C08(i, model->mTracks[i].m00, model->mTracks[i].m18, 0, 1, 1.0f, 0.1f);
+        }
+        src = m14B8;
+        mPos = src->mPos;
+        mPos.z = 2.0f * sOffset_unk.z - mPos.z;
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        Mtx rot;
+        PSMTXRotRad(rot, 'y', src->mRot.y);
+        PSMTXMultVec(rot, &dir, &dir);
+        float angle = acos(-1.0f * PSVECDotProduct(&dir, &sFront_unk));
+        if (dir.x < 0.0f) {
+            angle *= -1.0f;
+        }
+        Mtx rot2;
+        PSMTXRotRad(rot2, 'y', angle);
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        atn::Vector3 v = front;
+        PSMTXMultVec(rot2, &v, &v);
+        dir = v;
+        mRot = dir.ToRotation_unk();
+        fn_80145334();
+        mColli.mFlags &= ~1;
+        break;
+    }
+    case 2:
+    case 3: {
+        if (m14B8 == 0) {
+            break;
+        }
+        if (m674 == 1) {
+            fn_8014DEE4(0, 0, 0);
+        }
+        m54C |= 0x2000;
+        CharaTask* src = m14B8;
+        mMotion.m34C = src->mMotion.m34C;
+        int n = mMotion.m34C;
+        Model_unk* model = &src->mMotion;
+        for (int i = 0; i < n; i++) {
+            mMotion.mTracks[i].m20 = model->mTracks[i].m20;
+            mMotion.mTracks[i].m0C = model->mTracks[i].m0C;
+            mMotion.mTracks[i].m08 = model->mTracks[i].m08;
+            mMotion.fn_80097C08(i, model->mTracks[i].m00, model->mTracks[i].m18, 0, 1, 0.0f, 0.1f);
+        }
+        mPos = m14B8->mPos;
+        mRot = m14B8->mRot;
+        fn_80145334();
+        mColli.mFlags &= ~1;
+        break;
+    }
+    }
+}
 
 void CopyRobotTask::vf14() {
     fn_80149A30();
