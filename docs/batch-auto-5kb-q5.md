@@ -182,7 +182,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - Para que un inline reciba el mismo registro que el original a veces hay que pasar `*out` recargado tras
     `*out = buf + pos` en vez de un local (`fn_80208A3C`).
 
-## db/PaletteTable_unk (commit PENDIENTE)
+## db/PaletteTable_unk (commit b526c71)
 - Resultado: 12/14 al 100%, matching no.
 - NONMATCHING:
   - `fn_8020B2BC` (paletas: ids, colores y nombres UTF-16, 4 ficheros) 96.32% - solo reparto de registros (constante 0,
@@ -204,3 +204,35 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - Literales de inicializadores de tablas de punteros: los de > 4 bytes son objetos sueltos en `.rodata` (no van al
     pool), los de <= 4 bytes van a `.sdata2`; un array de punteros no `const` va a `.data`.
   - Un bucle de busqueda de 64/32 iteraciones constantes se desenrolla x8 con `ctr`.
+
+## db/CharaParam_unk (commit PENDIENTE)
+- Resultado: 9/11 al 100%, matching no.
+- NONMATCHING:
+  - `fn_80209960` (cargador, `boost::tokenizer` x3) 99.43% - numeracion de registros de los contadores de tokens y sus
+    offsets (el original da al contador el registro mas alto); probado mover la declaracion del contador.
+  - copia debil `tokenizer::assign<std::string>` (0x8020A5D4) 95.93% - el original copia las cadenas del separador
+    escribiendo primero la palabra 1 (como el ctor copia de `basic_string`); cambiar `operator=` en `std/string.h` a
+    `mRaw = str.mRaw` lo arregla (99.72%) pero baja `atn/D2A_Message` (`__ct__...D2A_Message` 66.54 -> 66.31 y `vf18`),
+    asi que NO se cambia la cabecera: decision pendiente para el usuario.
+- **Decisiones sin el usuario**
+  - Splits sin cambios. El `.rodata` de la unidad lleva tras el nombre del fichero las cadenas RTTI de `atn::Csv` /
+    `atn::CsvBase<char,44,13,34>` (este fichero emite la copia debil del ctor `atn::Csv()`, 0x8020A360).
+  - `symbols.txt`, funciones de esta unidad: `fn_8020A360` -> `__ct__Q23atn3CsvFv`, `fn_8020A3E4` -> `ResMgr_unk__Fv`
+    (accesor inline de `lbl_8087F518`, nombre inventado), `fn_8020A3EC` -> `__ct__19CharaParamEntry_unkFv`,
+    `fn_8020A59C` -> `__ct__18CharaParamPair_unkFv`, `fn_8020A5D4` -> `assign<...>__Q25boost163tokenizer<...>`,
+    `fn_8020A780` -> `__as__Q23std59basic_string<c,...>FPCc`, `fn_8020A808` -> `__as__18CharaParamPair_unkFRC18CharaParamPair_unk`;
+    datos `sKindsA` (0x8073EBC0, objeto de 0x70 que cubre las 4 tablas), `sFileNameStr` (0x8073EC30, incluye las cadenas
+    RTTI), `@stringBase0` (0x8073EC74), `sEntries`, `sCount`, `sFileName`.
+  - **Renombrados fuera de la unidad** (copias debiles en unidades asm, sin fuente que las nombre): `fn_8003E4A4` ->
+    `__ct__Q23std59basic_string<c,...>FPCc` (en `AI/AI_archer_attack01`), `fn_8004212C` -> `c_str__Q23std59basic_string<c,...>CFv`,
+    `fn_800ED4D8` -> `__rf__Q25boost368iterator_facade<...token_iterator...>CFv` (operator->), `fn_800EC254` ->
+    `__ne<...token_iterator...>` (operator!=). Ninguna funcion baja en `report.json`.
+  - `fn_800422CC` (accesor inline del campo actual de `atn::CsvBase`, 8 bytes) se llama como `extern "C"`: darle nombre
+    exigiria anadir un metodo a `include/atn/Csv.h` (compartida con las otras colas).
+  - Tipos inferidos `CharaParamEntry_unk` (0x13C), `CharaParamLists_unk` (miembro con dos listas de 7 floats),
+    `CharaParamPair_unk` (8 bytes, ctor con memset). Tablas de prefijos `sKindsA..D` (8, 10, 6 con hueco, 4).
+- Hallazgos MWCC
+  - Si un cargador supera el presupuesto de inline, todas las inline (incluso un getter de 1 instruccion) salen como
+    copias debiles tras el y con su nombre real: buena pista para nombrar `fn_` de 8 bytes.
+  - `it++` en un `boost::token_iterator` llama a `operator++(facade&, int)` (`__pp<...>__5boostF...i_`) y crea un
+    temporal; `++it` llama al miembro `__pp__Q25boost368iterator_facade...`.
