@@ -1085,16 +1085,20 @@ game/EnemyQuarkFirst.cpp:
 	.sdata2     start:0x80885190 end:0x80885238
 
 game/EnemyQuarkSecond.cpp:
-	.text       start:0x803388A4 end:0x8033C3D8
-	.rodata     start:0x8074A4A8 end:0x8074A4BC
-	.data       start:0x80789388 end:0x807894B8
-	.sdata2     start:0x80885244 end:0x80885298
+	.text       start:0x803388A4 end:0x80345384
+	.rodata     start:0x8074A490 end:0x8074A8D8
+	.data       start:0x80789330 end:0x807894B8
+	.sdata      start:0x8087DC58 end:0x8087DC80
+	.sdata2     start:0x80885238 end:0x80885378
 
 game/EnemyQuarkStand.cpp:
-	.text       start:0x80352EC8 end:0x803545E0
-	.rodata     start:0x8074AA48 end:0x8074AA58
-	.data       start:0x80789550 end:0x80789680
-	.sdata2     start:0x808854B8 end:0x808854D8
+	.text       start:0x80345384 end:0x803545E0
+	.rodata     start:0x8074A8D8 end:0x8074AF38
+	.data       start:0x807894B8 end:0x807896B8
+	.bss        start:0x807C8448 end:0x807C8458
+	.sdata      start:0x8087DC80 end:0x8087DCB0
+	.sbss       start:0x8087F410 end:0x8087F418
+	.sdata2     start:0x80885378 end:0x808854D8
 
 game/EnemySeaLizerd.cpp:
 	.text       start:0x803545E0 end:0x803559F8
@@ -1102,17 +1106,31 @@ game/EnemySeaLizerd.cpp:
 	.data       start:0x807896B8 end:0x807897E8
 	.sdata2     start:0x808854D8 end:0x80885528
 
+game/EnemyTasha.cpp:
+	.text       start:0x803559F8 end:0x8035B534
+	.rodata     start:0x8074B088 end:0x8074B388
+	.data       start:0x807897E8 end:0x80789A08
+	.sdata2     start:0x80885528 end:0x808855F8
+
+game/EnemyTask.cpp:
+	.text       start:0x8035B534 end:0x8035BC84
+	.rodata     start:0x8074B388 end:0x8074B398
+	.data       start:0x80789A08 end:0x80789B00
+	.sdata2     start:0x808855F8 end:0x80885600
+
 game/EnemyTrista.cpp:
-	.text       start:0x8035BC84 end:0x8035DF08
-	.rodata     start:0x8074B43C end:0x8074B448
-	.data       start:0x80789B88 end:0x80789CB8
+	.text       start:0x8035BC84 end:0x8035DF48
+	.rodata     start:0x8074B398 end:0x8074B528
+	.data       start:0x80789B00 end:0x80789CB8
 	.sdata2     start:0x80885600 end:0x80885670
 
 game/EnvSeManager.cpp:
-	.text       start:0x8035DFB8 end:0x8035E720
-	.rodata     start:0x8074B528 end:0x8074B538
+	.text       start:0x8035DF48 end:0x80360C5C
+	.rodata     start:0x8074B528 end:0x8074B630
 	.data       start:0x80789CB8 end:0x80789CF0
-	.sdata2     start:0x80885678 end:0x80885688
+	.sdata      start:0x8087DCB0 end:0x8087DCC8
+	.sbss       start:0x8087F418 end:0x8087F420
+	.sdata2     start:0x80885670 end:0x80885690
 
 game/EnvSeBase.cpp:
 	.text       start:0x80360C5C end:0x80363284
@@ -1224,15 +1242,18 @@ game/GimmickManager.cpp:
 	.sdata2     start:0x80885F88 end:0x80885F90
 
 game/GimmickStateCommand.cpp:
-	.text       start:0x803F11F8 end:0x803F1A38
-	.rodata     start:0x80752070 end:0x80752084
-	.data       start:0x8078CB40 end:0x8078CB78
-	.sdata2     start:0x80885F9C end:0x80885FB0
+	.text       start:0x803EF590 end:0x803F1BB4
+	.rodata     start:0x80751FF0 end:0x80752138
+	.data       start:0x8078CB40 end:0x8078CB98
+	.sdata      start:0x8087DF18 end:0x8087DF38
+	.sdata2     start:0x80885F90 end:0x80885FB0
 
 gmk/FragileObject.cpp:
-	.text       start:0x803F1C38 end:0x803F471C
-	.rodata     start:0x80752148 end:0x8075215C
+	.text       start:0x803F1BB4 end:0x803F471C
+	.rodata     start:0x80752138 end:0x807522E0
 	.data       start:0x8078CB98 end:0x8078CC30
+	.bss        start:0x807C8730 end:0x807C8740
+	.sdata      start:0x8087DF38 end:0x8087DF40
 	.sdata2     start:0x80885FB0 end:0x80885FF0
 
 gmk/AutomaticDoor.cpp:
