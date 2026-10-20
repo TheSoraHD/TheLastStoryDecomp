@@ -112,6 +112,7 @@ struct PostFxRainDrops_unk {
             mData = 0;
         }
     }
+    PostFxRainDrop_unk& operator[](unsigned int i) { return mData[i]; }
     unsigned int mCount;
     PostFxRainDrop_unk* mData;
 };
@@ -159,14 +160,14 @@ public:
 };
 
 // inferred: the dead store after __construct_new_array is the folded else branch of Alloc_unk; the clearing
-// loop is written here, not as an inline of PostFxRainDrops_unk (that swaps its registers)
+// loop is written here, not as an inline method of PostFxRainDrops_unk (that swaps its registers)
 PostFxRain::PostFxRain()
     : m04(0), m08(0), m0C(1.0f), m10(0.05f), m14(0), m18(0), m1C(0), m20(0.2f), m24(0.0f), m28(0.01f), m2C(10.0f),
       m30(5.0f), m34(0.0f), m38(224.0f), m3C(640.0f), m40(224.0f), m44(0.0f), m48(0.0f), m4C(1.0f), m50(1.0f),
       m54(0), m58(0.0f), m5C(0.0f) {
     m80.Alloc_unk(0x100);
     for (unsigned int i = 0; i < m80.mCount; i++) {
-        m80.mData[i].mState = 0;
+        m80[i].mState = 0;
     }
     mB8.m2D = 1;
     mB8.m2E = 1;
@@ -186,7 +187,8 @@ int PostFxRain::fn_800B0A48() {
 }
 
 // inferred: draws the drops into the indirect texture
-// NONMATCHING: 98.61% - registers of the loop (index/offset/drop pointer) and the order of two stfd
+// inferred: the drop pointer declared before the loop, the rectangle through int locals and operator[] give
+// the registers of the original
 void PostFxRain::fn_800B0A70() {
     GXInvalidateTexAll();
     GXSetNumChans(1);
@@ -205,10 +207,15 @@ void PostFxRain::fn_800B0A70() {
     GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
     fn_800763FC(lbl_8087EEE0, &m88.mObj, 0);
     GXSetBlendMode(1, 4, 5, 3);
+    PostFxRainDrop_unk* drop;
     for (unsigned int i = 0; i < m80.mCount; i++) {
-        PostFxRainDrop_unk* drop = &m80.mData[i];
+        drop = &m80[i];
         if (drop->mState != 0) {
-            fn_80075F58(lbl_8087EEE0, drop->mX, drop->mY, drop->mW, drop->mH);
+            int x = drop->mX;
+            int y = drop->mY;
+            int w = drop->mW;
+            int h = drop->mH;
+            fn_80075F58(lbl_8087EEE0, x, y, w, h);
             fn_800BFC18(lbl_8087EFB4, RainColor_unk(1.0f, 1.0f, 1.0f, drop->mAlpha * m0C), 0.0f, 0.0f);
         }
     }
@@ -369,7 +376,7 @@ void PostFxRain::vf10(void* camera) {
 void PostFxRain::fn_800B1554() {
     m20 = m0C = m10 = 0.0f;
     for (unsigned int i = 0; i < m80.mCount; i++) {
-        m80.mData[i].mState = 0;
+        m80[i].mState = 0;
     }
 }
 
@@ -379,7 +386,6 @@ inline float Rand_unk(float lo, float hi) {
 }
 
 // inferred: update: follows the settings and moves the drops
-// NONMATCHING: 99.65% - offset and drop pointer of the last loop in r6/r5 swapped (4 variants)
 void PostFxRain::fn_800B1598() {
     PostFxFrameBuffer_unk* fb = lbl_8087EFB4;
     m14 = &lbl_8087EFA8->m2AC;
@@ -427,7 +433,7 @@ void PostFxRain::fn_800B1598() {
         do {
             if (Rand_unk(0.0f, 1.0f) < n) {
                 for (unsigned int i = 0; i < m80.mCount; i++) {
-                    PostFxRainDrop_unk* drop = &m80.mData[i];
+                    PostFxRainDrop_unk* drop = &m80[i];
                     if (drop->mState == 0) {
                         drop->mState = 1;
                         drop->mX = Rand_unk(0.0f, lbl_8087EEE0->mWidth);
@@ -443,7 +449,7 @@ void PostFxRain::fn_800B1598() {
         } while (n > 0.0f);
         PostFxRainDrop_unk* drop;
         for (unsigned int i = 0; i < m80.mCount; i++) {
-            drop = &m80.mData[i];
+            drop = &m80[i];
             if (drop->mState != 0) {
                 drop->mTime += 1.0f / 30.0f;
                 if (drop->mState == 1) {
