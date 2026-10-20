@@ -244,9 +244,10 @@
  {
   "name": "atn/LinearAllocator.cpp",
   "classes": [
-   "atn::LinearAllocator"
+   "atn::LinearAllocator",
+   "atn::PostFxManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Rain.cpp",

@@ -56,9 +56,9 @@ game/Arms.cpp:
 	.sdata2     start:0x80880858 end:0x80880868
 
 atn/AABBTree.cpp:
-	.text       start:0x800458D4 end:0x80046214
-	.rodata     start:0x80730F10 end:0x80730F20
-	.data       start:0x807774F0 end:0x80777518
+	.text       start:0x800458D4 end:0x80046220
+	.rodata     start:0x80730F10 end:0x80730F38
+	.data       start:0x807774F0 end:0x80777520
 	.sdata2     start:0x80880868 end:0x80880870
 
 atn/AudioDevice.cpp:
@@ -153,8 +153,8 @@ atn/PBoneBasic.cpp:
 
 atn/LinearAllocator.cpp:
 	.text       start:0x800A8FF0 end:0x800A981C
-	.rodata     start:0x80732ADC end:0x80732AF4
-	.data       start:0x80778CA8 end:0x80778CE0
+	.rodata     start:0x80732AC0 end:0x80732B08
+	.data       start:0x80778C68 end:0x80778CE0
 	.sdata2     start:0x80880D20 end:0x80880D28
 
 atn/Rain.cpp:
@@ -239,8 +239,8 @@ atn/TextureComposite.cpp:
 
 atn/CompositeIntensityTintMulti.cpp:
 	.text       start:0x800D8894 end:0x800D9410
-	.rodata     start:0x80734760 end:0x80734784
-	.data       start:0x80779830 end:0x80779860
+	.rodata     start:0x80734760 end:0x807347E8
+	.data       start:0x80779830 end:0x80779868
 	.sdata2     start:0x80881220 end:0x80881228
 
 atn/TextAnimation.cpp:
@@ -710,9 +710,10 @@ db/MotionCommandCommon.cpp:
 	.sdata2     start:0x80882F40 end:0x80882F48
 
 atn/ptr_string_base_char_0.cpp:
-	.text       start:0x8021F47C end:0x80220108
-	.rodata     start:0x80742840 end:0x80742860
-	.data       start:0x807835B8 end:0x807835D0
+	.text       start:0x8021F47C end:0x80220168
+	.rodata     start:0x80742828 end:0x807428E0
+	.data       start:0x80783510 end:0x807835F0
+	.sdata      start:0x8087DBA8 end:0x8087DBB0
 	.sdata2     start:0x80882FE8 end:0x80882FF0
 
 Event/DialogHead.cpp:
@@ -728,10 +729,11 @@ Event/Dialog.cpp:
 	.sdata2     start:0x80883078 end:0x808830D0
 
 atn/EffectManager.cpp:
-	.text       start:0x80239798 end:0x8023A8B4
+	.text       start:0x80239798 end:0x8023B9D0
 	.rodata     start:0x8074300C end:0x80743020
 	.data       start:0x80783BB8 end:0x80783C20
-	.sdata2     start:0x80883168 end:0x80883170
+	.sdata      start:0x8087DC18 end:0x8087DC20
+	.sdata2     start:0x80883160 end:0x80883170
 
 std/char_traits_char_8023C080.cpp:
 	.text       start:0x8023C080 end:0x802411B8

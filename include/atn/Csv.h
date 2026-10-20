@@ -19,6 +19,11 @@ public:
         memset(m610, 0, sizeof(m610));
         vf08(text, length);
     }
+    // inferred: without text (inlined at 0x8021F47C, the text is set later with vf08)
+    CsvBase() : m04(0), m08(0), m0C(0), m630(0) {
+        memset(mField, 0, sizeof(mField));
+        memset(m610, 0, sizeof(m610));
+    }
     // inferred: sets the text to read (weak copies: tab 0x8004476C, comma 0x800420F4)
     virtual void vf08(const T* text, int length) {
         m04 = text;
@@ -53,12 +58,15 @@ public:
 // inferred: the classes below only fix the template arguments (vtables 0x807772B0, 0x807774B8,
 // 0x80782FB0, 0x8077A070, 0x8078B5E8)
 extern "C" char lbl_8087D708[3]; // inferred: " \t"
+extern "C" char lbl_8087D720[3]; // inferred: " \t"
 // inferred: the constructor also sets the field separators (weak copy at 0x8004203C)
 class Csv : public CsvBase<char, ',', '\r', '"'> {
 public:
     Csv(const char* text, int length) : CsvBase<char, ',', '\r', '"'>(text, length) {
         fn_8005BCE8(lbl_8087D708);
     }
+    // inferred: inlined at 0x8021F47C (another copy of " \t": lbl_8087D720)
+    Csv() { fn_8005BCE8(lbl_8087D720); }
 };
 class CsvTab : public CsvBase<char, '\t', '\r', '"'> {
 public:
