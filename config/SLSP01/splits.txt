@@ -1242,10 +1242,10 @@ gmk/PlayEffect.cpp:
 	.sdata2     start:0x80886010 end:0x80886018
 
 gmk/OnOff.cpp:
-	.text       start:0x803F75B8 end:0x803F9420
-	.rodata     start:0x807523E0 end:0x807523EC
+	.text       start:0x803F744C end:0x803F9420
+	.rodata     start:0x807523E0 end:0x807524F0
 	.data       start:0x8078CD60 end:0x8078CDF8
-	.sdata2     start:0x80886020 end:0x80886028
+	.sdata2     start:0x80886018 end:0x80886028
 
 gmk/ReinforcePoint.cpp:
 	.text       start:0x803F9420 end:0x803F9F34
@@ -1256,8 +1256,9 @@ gmk/ReinforcePoint.cpp:
 
 gmk/Cannonball.cpp:
 	.text       start:0x803F9F34 end:0x803FBFA8
-	.rodata     start:0x80752558 end:0x80752568
+	.rodata     start:0x80752510 end:0x807525A8
 	.data       start:0x8078CE90 end:0x8078CF28
+	.bss        start:0x807C8750 end:0x807C8760
 	.sdata2     start:0x80886038 end:0x80886078
 
 gmk/Item.cpp:
@@ -1281,8 +1282,9 @@ gmk/SwingObject.cpp:
 
 gmk/Leaf.cpp:
 	.text       start:0x80400728 end:0x80402978
-	.rodata     start:0x807527C8 end:0x807527D4
+	.rodata     start:0x80752798 end:0x80752830
 	.data       start:0x8078D130 end:0x8078D1C8
+	.sdata      start:0x8087DF58 end:0x8087DF68
 	.sdata2     start:0x80886118 end:0x80886198
 
 gmk/Bat.cpp:
@@ -1299,7 +1301,7 @@ gmk/PigeonManager.cpp:
 
 gmk/Brazier.cpp:
 	.text       start:0x80406754 end:0x80408324
-	.rodata     start:0x807528F0 end:0x80752900
+	.rodata     start:0x807528C0 end:0x80752948
 	.data       start:0x8078D328 end:0x8078D3C0
 	.sdata2     start:0x80886258 end:0x80886288
 
@@ -1336,7 +1338,7 @@ gmk/Trap.cpp:
 
 gmk/Coffin.cpp:
 	.text       start:0x80411440 end:0x80412AFC
-	.rodata     start:0x80752D08 end:0x80752D14
+	.rodata     start:0x80752CC0 end:0x80752D90
 	.data       start:0x8078D818 end:0x8078D8B0
 	.sdata2     start:0x808863E0 end:0x80886410
 
@@ -1354,7 +1356,7 @@ gmk/SkeltonsMirror.cpp:
 
 gmk/Lemon.cpp:
 	.text       start:0x8041524C end:0x804166B0
-	.rodata     start:0x80752E98 end:0x80752EA4
+	.rodata     start:0x80752E90 end:0x80752EC0
 	.data       start:0x8078D9E0 end:0x8078DA78
 	.sdata2     start:0x80886438 end:0x80886470
 
@@ -1540,7 +1542,7 @@ gmk/RandomMerchant.cpp:
 
 gmk/RandomItem.cpp:
 	.text       start:0x80432CF0 end:0x8043465C
-	.rodata     start:0x807541A8 end:0x807541B8
+	.rodata     start:0x807541A8 end:0x807541E0
 	.data       start:0x8078EE40 end:0x8078EED8
 	.sdata2     start:0x80886890 end:0x808868A8
 
@@ -1551,10 +1553,10 @@ gmk/SavePoint.cpp:
 	.sdata2     start:0x808868C8 end:0x80886900
 
 gmk/WindyItem.cpp:
-	.text       start:0x80436EB8 end:0x804392C0
-	.rodata     start:0x80754278 end:0x80754288
+	.text       start:0x80436E34 end:0x8043A770
+	.rodata     start:0x80754240 end:0x807542B0
 	.data       start:0x8078EF70 end:0x8078F008
-	.sdata2     start:0x80886904 end:0x80886934
+	.sdata2     start:0x80886900 end:0x80886958
 
 gmk/LottaSummon.cpp:
 	.text       start:0x8043A770 end:0x8043B778

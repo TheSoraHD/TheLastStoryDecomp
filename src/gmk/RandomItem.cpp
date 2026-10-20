@@ -1,0 +1,223 @@
+#include "gmk/RandomItem.h"
+#include "atn/Csv.h"
+#include "atn/Memory.h"
+#include "game/CharaStatus.h"
+
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int atoi(const char* s);
+extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
+extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+// inferred: field (lbl_8087F430) with its route tables
+struct RandomItemField_unk {
+    unsigned char m00[0x10D8];
+    RouteTable_unk* m10D8;
+};
+extern "C" RandomItemField_unk* lbl_8087F430;
+// inferred: sphere and oriented box of the collision tests
+struct RandomItemSphere_unk {
+    atn::Vector3 mCenter;
+    float mRadius;
+};
+struct RandomItemBox_unk {
+    atn::Vector3 mSize;    // inferred: half size
+    atn::Matrix3x4 mMtx;
+};
+extern "C" int fn_80051CD8(const RandomItemSphere_unk* sphere, const RandomItemBox_unk* box); // inferred: sphere in box
+// inferred: debug drawing (lbl_8087EEB0)
+extern "C" void* lbl_8087EEB0;
+extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
+extern "C" void fn_800629F0(void* dbg, const atn::Vector3* pos, const atn::Vector3* size, unsigned int color,
+                            const atn::Matrix3x4* mtx, float arg);
+
+inline void CopyMtx_unk(const Mtx src, Mtx dst) {
+    __MtxCopy(dst, src);
+}
+inline void SetTrans_unk(atn::Matrix3x4& m, const atn::Vector3& v) {
+    m.m[0][3] = v.x;
+    m.m[1][3] = v.y;
+    m.m[2][3] = v.z;
+}
+inline void SetLocTrans_unk(atn::Matrix3x4& m, const gmk::RandomItemLoc_unk& loc) {
+    atn::Vector3 off(0.0f, loc.mSize.y, 0.0f);
+    SetTrans_unk(m, loc.mPos + off);
+}
+// inferred: matrix of a place: rotation around y, then the position raised by half the box
+inline void MakeLocMtx_unk(atn::Matrix3x4& m, const gmk::RandomItemLoc_unk& loc) {
+    Mtx t;
+    Mtx r;
+    m.SetIdentity();
+    PSMTXRotRad(r, 'y', loc.mRotY);
+    PSMTXConcat(m.m, r, t);
+    __MtxCopy(m.m, t);
+    atn::Vector3 off(0.0f, loc.mSize.y, 0.0f);
+    SetTrans_unk(m, loc.mPos + off);
+}
+
+namespace gmk {
+
+GimmickCommon* RandomItem::fn_80432CF0(atn::Task* parent, int id, int arg) {
+    if (parent != 0) {
+        return new (12, "", "", 0) RandomItem(parent, id, arg);
+    }
+    return 0;
+}
+
+RandomItem::RandomItem(atn::Task* parent, int id, int arg)
+    : GimmickCommon(parent, id, arg), m118(0), m11C(0), m120(10.0f), m124(0), m128(0), m144(0), m148(0), m14C(0),
+      m150(0), m154(0.0f, 0.0f, 0.0f), m160(0), m164(5), m168(0), m260(0) {
+    m54 = 0;
+    mAnime.fn_8044D9BC(this);
+}
+
+RandomItem::~RandomItem() {}
+
+int RandomItem::vf0C() {
+    return fn_803EC91C() == 0;
+}
+
+void RandomItem::vf28() {
+    m54 = 1;
+    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (table == 0) {
+        return;
+    }
+    RoutePoint_unk* point;
+    int n = table->mNumPoints;
+    for (unsigned int i = 0; i < mDrops.mSize; i++) {
+        RandomItemDrop_unk& drop = mDrops[i];
+        for (int j = 1; j <= n; j++) {
+            point = &table->mPoints[j - 1];
+            RandomItemSphere_unk sphere;
+            sphere.mCenter = point->mPos;
+            sphere.mRadius = 0.5f * point->mRadius;
+            for (unsigned int k = 0; k < drop.mLocs.mSize; k++) {
+                RandomItemLoc_unk& loc = drop.mLocs[k];
+                RandomItemBox_unk box;
+                MakeLocMtx_unk(box.mMtx, loc);
+                box.mSize = loc.mSize;
+                if (fn_80051CD8(&sphere, &box) != 0) {
+                    drop.mPoints.push_back(point);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void RandomItem::vf10() {
+    if (m54 == 0) {
+        m118 = 0;
+        if (m11C != 0) {
+            fn_80435684(0);
+        }
+    } else {
+        fn_8043465C();
+        fn_804348C4();
+    }
+}
+
+// NONMATCHING: 99.9% - the two loop-invariant addresses (concat temporary and matrix) are hoisted
+// in the other order; tried the matrix code in an inline helper and both argument orders of the copy
+void RandomItem::vf14() {
+    if (m128 == 0) {
+        return;
+    }
+    if ((unsigned int)(m11C - 2) <= 1) {
+        fn_80063D3C(lbl_8087EEB0, &m154, 0xFFFFFF00, 3.0f, 0.0f);
+    }
+    for (unsigned int i = 0; i < mDrops.mSize; i++) {
+        RandomItemDrop_unk* drop = &mDrops[i];
+        unsigned int color = 0xFFFFAA00;
+        if (drop != m144) {
+            color = 0x66FFAA00;
+        }
+        for (unsigned int j = 0; j < drop->mLocs.mSize; j++) {
+            RandomItemLoc_unk& loc = drop->mLocs[j];
+            atn::Matrix3x4 mtx;
+            Mtx r;
+            Mtx t;
+            mtx.SetIdentity();
+            PSMTXRotRad(r, 'y', loc.mRotY);
+            PSMTXConcat(mtx.m, r, t);
+            CopyMtx_unk(t, mtx.m);
+            SetLocTrans_unk(mtx, loc);
+            fn_800629F0(lbl_8087EEB0, &lbl_807C7030, &loc.mSize, color, &mtx, 0.0f);
+        }
+    }
+}
+
+int RandomItem::vf1C() {
+    if (mEfp.fn_80237874() != 0 || mEfpItem.fn_80237874() != 0 || mEfpGet.fn_80237874() != 0) {
+        return 1;
+    }
+    return mAnime.fn_8044E1BC() != 0;
+}
+
+// NONMATCHING: 98.7% - register allocation of the inlined Vector_unk reserve/Assign_unk copies
+// (source and destination addresses of the copy loops are swapped, r17-r23 permuted); tried explicit
+// and implicit assignments of the elements and other orders of the "LOC" lookup
+void RandomItem::vf20() {
+    atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
+    csv.fn_8005BCE8(lbl_8087D710);
+    do {
+        const char* field = csv.fn_8005B9CC();
+        if (field[0] == ';') {
+            continue;
+        }
+        if (strcmp(field, "EFP") == 0) {
+            mEfp.fn_8023780C(csv.fn_8005B9CC());
+        } else if (strcmp(field, "EFP_ITEM") == 0) {
+            mEfpItem.fn_8023780C(csv.fn_8005B9CC());
+        } else if (strcmp(field, "EFP_GET") == 0) {
+            mEfpGet.fn_8023780C(csv.fn_8005B9CC());
+        } else if (strcmp(field, "DROP") == 0) {
+            m120 = fn_800DC288(csv.fn_8005B9CC());
+            m124 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(field, "ITEM") == 0) {
+            RandomItemDrop_unk drop;
+            drop.mId = atoi(csv.fn_8005B9CC());
+            drop.m04 = atoi(csv.fn_8005B9CC());
+            drop.m818 = fn_800DC288(csv.fn_8005B9CC());
+            drop.m81C = atoi(csv.fn_8005B9CC());
+            drop.m820 = atoi(csv.fn_8005B9CC());
+            drop.m824 = atoi(csv.fn_8005B9CC());
+            drop.m828 = atoi(csv.fn_8005B9CC());
+            drop.m82C = atoi(csv.fn_8005B9CC());
+            mDrops.push_back(drop);
+        } else if (strcmp(field, "LOC") == 0) {
+            int id = atoi(csv.fn_8005B9CC());
+            for (unsigned int i = 0; i < mDrops.mSize; i++) {
+                RandomItemDrop_unk& drop = mDrops[i];
+                if (id == drop.mId) {
+                    RandomItemLoc_unk loc;
+                    loc.mPos.x = fn_800DC288(csv.fn_8005B9CC());
+                    loc.mPos.y = fn_800DC288(csv.fn_8005B9CC());
+                    loc.mPos.z = fn_800DC288(csv.fn_8005B9CC());
+                    loc.mRotY = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+                    loc.mSize.x = fn_800DC288(csv.fn_8005B9CC());
+                    loc.mSize.y = fn_800DC288(csv.fn_8005B9CC());
+                    loc.mSize.z = fn_800DC288(csv.fn_8005B9CC());
+                    drop.mLocs.push_back(loc);
+                    break;
+                }
+            }
+        }
+    } while (csv.fn_8005BBF8() != 0);
+}
+
+int RandomItem::vf40(GimmickMsg_unk* msg) {
+    if (msg == 0) {
+        return 0;
+    }
+    return m54 = msg->mType;
+}
+
+void RandomItem::vf70(int state) {
+    GimmickMsg_unk msg(state);
+    vf40(&msg);
+}
+
+} // namespace gmk
