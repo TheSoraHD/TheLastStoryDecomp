@@ -61,7 +61,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     probar el miembro (`e->m = f(); if (e->m >= 0)`) da el salto directo.
   - `for (;;) { pos = find(); if (pos == npos) break; ... }` mantiene el test arriba (un `while` lo rota al final).
 
-## db/ArrowSet_unk (commit PENDIENTE)
+## db/ArrowSet_unk (commit 6298f72)
 - Resultado: 3/4 al 100%, matching no.
 - NONMATCHING: `fn_80207310` (cargador) 99.21% - camino rapido del `std::vector<int>::push_back` inline: el original carga
   el tamano antes que la capacidad (problema ya conocido de `include/std/vector.h`; probadas 8 formas de la comparacion,
@@ -79,3 +79,17 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - Un `std::vector<T>` local cuyo destructor prueba `this` 3 veces = clase derivada de `std::vector` (con
     `std/vector.h` un `std::vector` local da 2).
   - `Buffer_unk::operator[](int)` con indice `unsigned` crea una segunda variable de induccion: indexar `mData` directo.
+
+## db/CharaMotionParam_unk (commit PENDIENTE)
+- Resultado: 3/3 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_8073EB38` -> `sFileNameStr`, `lbl_8073EB58` -> `@stringBase0`, `lbl_8087F1A8` -> `sMoveParams`,
+    `lbl_8087F1AC` -> `sMoveCount`, `lbl_8087F1B0` -> `sAttackParams`, `lbl_8087F1B4` -> `sAttackCount`,
+    `lbl_80882D90` -> `sFileName`.
+  - Tipos inferidos `CharaMoveParam_unk` (8: hash + float) y `CharaAttackParam_unk` (0x58), secciones "@move"/"@attack".
+    Este cargador usa `fn_8006BA8C`/`fn_8006BB6C` (carga/libera) en vez del gestor `lbl_8087F518`.
+  - `fn_8006B174` declarado `extern "C" std::string fn_8006B174(const std::string&)` (devuelve una copia normalizada del
+    nombre; inferido).
+- Hallazgos MWCC: nada nuevo (una asignacion a una variable salvada se planifica donde esta en el fuente respecto a la llamada virtual).
