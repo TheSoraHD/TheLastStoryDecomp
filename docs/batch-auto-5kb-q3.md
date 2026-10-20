@@ -140,3 +140,22 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - `x ^ 0xFFFFFFFF` da `li r0,-1; xor`; `~x` da `not`.
   - El mismo cuerpo escrito como funcion normal o como inline llamada desde un envoltorio `extern "C"` asigna
     los FPR en orden distinto (atof: solo la version inline casa los registros de `value`/`scale`).
+
+## atn/D2A_MessageTable_unk (commit HASH6)
+
+- Resultado: 5/6 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_801F36C8` 93.49% (lector del CSV con `std::vector` de lineas y `push_back` inlineado):
+  reparto de registros (el original guarda la direccion del `CsvU` en r16 mientras lo construye y relee
+  tamano/capacidad del vector en `push_back`) y orden de los mensajes de `basic_string` en el pool. Ademas
+  nuestro `.o` mete en `.sdata` dos literales de 2 bytes de la copia debil de `__replace_unk` delante de los
+  dos `""` del `new[]` (el original solo tiene los dos `""` de 4 bytes): a revisar si se intenta enlazar.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - `symbols.txt` (pairnames): `fn_801F3490`/`fn_801F34F8` -> `__ct__/__dt__20D2A_MessageTable_unkFv` (solo
+    los llama `atn/D2A_Manager`, en asm). El resto conserva el nombre `extern "C"` (D2A_Task, MenuCommon_unk).
+  - Tipos inferidos locales: `D2A_MessageTable_unk` (entradas, estado, `LH_Binary`, bufer de textos),
+    `D2A_TextEntries_unk` (cuenta + `new (8, "", "", 0)` de entradas: sus `""` son los dos `.sdata` del fichero),
+    `D2A_TextLine_unk` (id + `wstring`) y una especializacion local de `__vec_split_unk` para las lineas (mover
+    como bytes y destruir; copiada del patron de `game/MenuCommonTask.cpp`).
+  - Nombre real propuesto: entre `atn_d2a_message` y `atn_d2a_reference` (p. ej. `atn_d2a_messagetable.cpp`).
+- Hallazgos MWCC: ninguno nuevo.
