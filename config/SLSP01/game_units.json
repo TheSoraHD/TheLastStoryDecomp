@@ -8,6 +8,13 @@
   "matching": false
  },
  {
+  "name": "atn/LH_Binary.cpp",
+  "classes": [
+   "atn::LH_Binary"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/AiTarget.cpp",
   "classes": [
    "AIManager",
