@@ -152,7 +152,7 @@ Fusionada en `game/FriendManager`.
 - Hallazgos MWCC: un `bool` inline escrito como `if (a()) return true; ... return f();` deja el valor en r0 (`li r0,1; b` por rama y `neg/or/srwi` en la ultima) y el llamador lo prueba con `cmpwi`; con `return a() || b() || ...` MWCC lo convierte en saltos directos.
 - Hallazgos MWCC: un literal dentro de una funcion inline va a un pool `@STRING@` en `.sdata`/`.data`; si el original lo tiene en `@stringBase0`, el codigo estaba en la propia funcion (aqui bloques con un local `name` para que el puntero quede en un registro salvado).
 
-## gmk/Cannon (commit HASH_GC)
+## gmk/Cannon (commit cd4dd46)
 
 - Resultado: 13/13 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
