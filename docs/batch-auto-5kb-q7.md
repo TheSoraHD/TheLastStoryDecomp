@@ -30,10 +30,19 @@ Fusionada en `game/FriendManager`.
   - Cabecera nueva `include/game/AiTarget.h` (clase `AiTarget`, 0x34 bytes, layout inferido de estas dos funciones; `AiTargetObj_unk` para el objetivo de tipo 2).
   - Nombre real propuesto del fichero: probablemente parte de `game/AiTarget.cpp` o un `AiTarget.cpp` propio (el split inferido esta lejos de AiTarget en .text, asi que es otro fichero; nombre sin pruebas).
 
-## Event/BehaviorGesture (commit HASH_BG)
+## Event/BehaviorGesture (commit f9c5123)
 
 - Resultado: 2/2 al 100%, `matching: true`. Splits ya correctos (vtable/RTTI/nombres y 1.0f/0.0f propios).
 - **Decisiones sin el usuario**
   - `symbols.txt`: `fn_8010E3F0` -> `vf08__Q25Event15BehaviorGestureFPQ25Event13ActionArg_unk`, `fn_8010E604` -> `vf0C__...ActionArg_unki` (por la vtable); `fn_800119C0` -> `fn_800119C0__Q25Event9Actor_unkFiiiiPviiff` (metodo de `Event::Actor_unk`, r3 = actor; firma inferida de los registros, el 5o argumento se usa como puntero).
   - `include/Event/Behavior.h`: declarado `Actor_unk::fn_800119C0`.
 - Hallazgos MWCC: objdiff compara `.sdata2` por posicion, no por valor: con dos floats pasados como argumento (1.0f, 0.0f) en orden cambiado da 100% igualmente; mirar `cmp.py -v` (muestra el valor del literal).
+
+## AI/AiUtil_unk (commit HASH_AU)
+
+- Resultado: 4/4 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - `splits.txt`: anadida `.sbss 0x8087EE60-0x8087EE68` (`lbl_8087EE60`/`lbl_8087EE64`, antes en `auto_10_8087EE60_sbss`): los escriben solo los setters `fn_800142C4`/`fn_800142CC` de esta unidad y los lee `AI/AiCommon_unk`; se definen aqui como globales `void*` (tipo desconocido). `lbl_8087EE68` (lo usan AiCommon/AI_archer/Em006) se queda en `auto_`.
+  - `symbols.txt`: `lbl_808806B0` (60.0f) tamano 0x8 -> 0x4.
+  - Tipo local `AiSettings_unk` para `lbl_8087F0A8` (solo `mA4`). `CharaStatus::m14` se lee con cast a `unsigned` (el original usa `cmplwi`); no se cambia la cabecera.
+- Hallazgos MWCC: un clamp que reevalua la llamada en cada rama (`f()` llamada hasta 3 veces) sale de macros `MIN(MAX(e, 0), 1)` sin locales.

@@ -8,6 +8,11 @@
   "matching": false
  },
  {
+  "name": "AI/AiUtil_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
   "name": "game/AiTarget.cpp",
   "classes": [
    "AIManager",

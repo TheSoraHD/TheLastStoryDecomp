@@ -30,6 +30,7 @@ Event/Puppeteer_CharaTask.cpp:
 
 AI/AiUtil_unk.cpp:
 	.text       start:0x800142C4 end:0x800144FC
+	.sbss       start:0x8087EE60 end:0x8087EE68
 	.sdata2     start:0x808806A0 end:0x808806B8
 
 game/AiTarget.cpp:
