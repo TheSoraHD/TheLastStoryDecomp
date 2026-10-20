@@ -672,7 +672,7 @@ game/MenuCommon_unk.cpp:
 	.text       start:0x80116EB8 end:0x8011770C
 	.ctors      start:0x8072D2D0 end:0x8072D2D4
 	.rodata     start:0x80736748 end:0x80736AA8
-	.bss        start:0x807C78E4 end:0x807C7AF0
+	.bss        start:0x807C7898 end:0x807C7AF0
 	.sdata      start:0x8087D988 end:0x8087D990
 	.sdata2     start:0x80881718 end:0x80881748
 

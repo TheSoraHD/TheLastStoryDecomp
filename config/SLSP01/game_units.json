@@ -471,6 +471,11 @@
   "matching": false
  },
  {
+  "name": "game/MenuCommon_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/CampSaveLoad.cpp",
   "classes": [
    "MenuLoadTask",

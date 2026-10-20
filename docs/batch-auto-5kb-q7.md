@@ -85,7 +85,7 @@ Fusionada en `game/FriendManager`.
 - Hallazgos MWCC: el orden de los parametros float respecto a los enteros no cambia los registros (bancos separados) pero si el orden de evaluacion de argumentos: si un literal float se carga tras la union de un ternario del argumento entero anterior (sin `fmr` con otro 0.0f), declarar ese float despues del entero.
 - Hallazgos MWCC: `return f() == 0;` da `cntlzw`; con saltos (`li r3,1 / li r3,0`) es `if (f() == 0) return 1; return 0;`.
 
-## game/GameSaveLoadBackgroundCommon (commit HASH_GL)
+## game/GameSaveLoadBackgroundCommon (commit 178cc6c)
 
 (Hecha antes de su turno en la cola porque comparte cabecera y simbolos con `game/GameSaveTask`.)
 
@@ -100,3 +100,15 @@ Fusionada en `game/FriendManager`.
   - `include/game/GameSaveLoadBackgroundCommon.h`: `m150` pasa de `int` a `unsigned char*` (buffer de `new[]`), incluye `atn/Memory.h` y declara `memset` y el inline `AllocBuffer_unk`; `fn_803B8AC4` no es miembro.
   - `src/auto_03_803B27AC_text.cpp` (GameLoadTask, sin configuracion, no se compila) declara en C `fn_803B82C0`, `fn_803B834C`, `fn_803BE8B4`, `fn_803B85EC`, `fn_803B8758`, `fn_803B87A8`, `fn_803B8B08`, `fn_803BEAB4`, `fn_803B8160`, que ahora tienen nombre C++: habra que actualizarlo cuando se decompile.
 - Hallazgos MWCC: un `char buf[8] = ""` estatico const va a `.rodata` (8 bytes) y se direcciona con `lis/addi`; un `const char* const p = ""` va a `.sdata2` (1 byte) y con `-sdata2 4` sale `li rX, sym@sda21`.
+
+## game/MenuCommon_unk (commit HASH_MC)
+
+- Resultado: 7/10 al 100%, `matching: false`.
+- NONMATCHING: `fn_80116FC0` 99.7% (y `fn_80116EB8`/`fn_801170C8`, que la inlinean, 99.7%) - en la busqueda de la tabla de mensajes (`lbl_8087F1E4`, entradas de 8 bytes) el original deja la tabla en r0 y el indice en r3 (`add r3, r0, r3`); aqui salen al reves (5 variantes probadas).
+- **Decisiones sin el usuario**
+  - `splits.txt`: `.bss` de la unidad 0x807C78E4-0x807C7AF0 -> 0x807C7898-0x807C7AF0: absorbe `auto_08_807C7898_bss` (los 4 colores que inicializa el `__sinit` de este fichero y el registro de destructor del `std::wstring` estatico; el `__sinit` direcciona todo desde 0x807C7898).
+  - `symbols.txt`: `fn_801175EC` -> `__sinit_\MenuCommon_unk_cpp` (`scope:local`); `lbl_807369E0` 0xC8 -> 0xC4 (tabla de 7 categorias; el resto es relleno); `lbl_807C78C8` 0x1C -> 0x10 y nuevo `@237` (0x807C78D8, 0xC, `scope:local`: registro de `__register_global_object`, como los `@NNN` de otras unidades). Es el unico simbolo anadido.
+  - Funciones `extern "C"` con los nombres de symbols.txt (las usan unidades MP con esas firmas). Tipos locales inferidos: `MenuCategory_unk` (tabla 0x807369E0: id de texto, "acepta todo", orden, 4 tipos de objeto), `MenuItem_unk` (solo `m04` id y `mBC` tipo), `MenuColor_unk`, `MenuMsgTable_unk`.
+  - Tablas como `const char* const[]`/`const int[]`: sus cadenas salen como objetos sueltos alineados a 8 en `.rodata` (igual que el original). `fn_80117228` devuelve `atn::SoundRef` por valor (como la declaran `include/MP/D2AMpMenu_unk.h`).
+- Hallazgos MWCC: un bucle de 4 iteraciones con `return` se desenrolla (2x2) solo si esta escrito en la propia funcion o en una inline; si la inline devuelve el resultado y el llamador hace `if (inline()) return x;`, MWCC materializa el bool (`li r0,1; b; li r0,0; cmpwi`).
+- Hallazgos MWCC: un `std::wstring` estatico con `= L""` y un `const wchar_t* const p = L""` dejan `L""` en `.sdata` (`@wstringBase0`) y en `.sdata2` respectivamente.
