@@ -1119,6 +1119,11 @@
   "matching": false
  },
  {
+  "name": "db/ItemParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "db/ItemRare_unk.cpp",
   "classes": [],
   "matching": false
