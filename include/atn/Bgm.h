@@ -14,7 +14,7 @@ public:
     int m04;
     SoundRef mSound; // 0x08
     int m0C;
-    int m10;
+    unsigned int m10; // inferred: flags (bit 0: the stream position is kept, game/GameBgm.cpp)
 };
 
 } // namespace atn

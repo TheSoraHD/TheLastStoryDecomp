@@ -43,9 +43,10 @@ game/AreaEffConfig.cpp:
 	.sdata2     start:0x80880830 end:0x80880838
 
 game/ArenaTask.cpp:
-	.text       start:0x8004318C end:0x80043D58
-	.rodata     start:0x80730E08 end:0x80730E14
-	.data       start:0x80777358 end:0x80777390
+	.text       start:0x8004318C end:0x80043EAC
+	.rodata     start:0x80730D48 end:0x80730E28
+	.data       start:0x80777358 end:0x807773A0
+	.sbss       start:0x8087EE78 end:0x8087EE80
 	.sdata2     start:0x80880838 end:0x80880858
 
 game/Arms.cpp:
@@ -315,7 +316,7 @@ game/CampSaveLoad.cpp:
 	.sdata2     start:0x80881748 end:0x80881798
 
 game/CharaManager_PlayerTask.cpp:
-	.text       start:0x8011F6FC end:0x8011FF78
+	.text       start:0x8011F6B0 end:0x8011FF78
 	.rodata     start:0x80737068 end:0x807370B4
 	.data       start:0x8077A168 end:0x8077A228
 
@@ -434,7 +435,7 @@ chr/ControlDamage.cpp:
 
 chr/ControlDetect.cpp:
 	.text       start:0x801B0710 end:0x801B0D88
-	.rodata     start:0x8073AB58 end:0x8073AB88
+	.rodata     start:0x8073AB58 end:0x8073AB90
 	.data       start:0x80780240 end:0x80780330
 	.sdata2     start:0x80882388 end:0x808823B0
 
@@ -470,7 +471,7 @@ chr/ControlJumpAt.cpp:
 
 chr/ControlAttractHateCharge.cpp:
 	.text       start:0x801B73F0 end:0x801B7CD0
-	.rodata     start:0x8073B1C0 end:0x8073B1F8
+	.rodata     start:0x8073B190 end:0x8073B200
 	.data       start:0x80780ED0 end:0x80780FC0
 	.sdata2     start:0x808824F0 end:0x80882518
 
@@ -500,7 +501,7 @@ chr/ControlChant.cpp:
 
 chr/ControlOneMotion.cpp:
 	.text       start:0x801C3DCC end:0x801C4738
-	.rodata     start:0x8073B720 end:0x8073B774
+	.rodata     start:0x8073B718 end:0x8073B774
 	.data       start:0x80781BF0 end:0x80781D58
 	.sdata2     start:0x80882778 end:0x808827A8
 
@@ -518,7 +519,7 @@ chr/ControlRide.cpp:
 
 chr/ControlShoot.cpp:
 	.text       start:0x801C7918 end:0x801C82F8
-	.rodata     start:0x8073B900 end:0x8073B918
+	.rodata     start:0x8073B8F8 end:0x8073B918
 	.data       start:0x80782000 end:0x80782078
 	.sdata2     start:0x80882848 end:0x80882878
 
@@ -574,9 +575,9 @@ game/CosEditProtector.cpp:
 
 game/CostumeEditChara.cpp:
 	.text       start:0x801E7FF8 end:0x801E9218
-	.rodata     start:0x8073CB78 end:0x8073CB8C
+	.rodata     start:0x8073CB78 end:0x8073CBD0
 	.data       start:0x807828C8 end:0x80782900
-	.sdata2     start:0x80882B1C end:0x80882B30
+	.sdata2     start:0x80882B10 end:0x80882B30
 
 game/CrossbowMenuTask.cpp:
 	.text       start:0x801E9398 end:0x801EA4B0
@@ -749,7 +750,7 @@ game/Em002_01BlackSkelton.cpp:
 
 game/Em002_02SkeltonKing.cpp:
 	.text       start:0x80248E88 end:0x8024A004
-	.rodata     start:0x807434C8 end:0x807434DC
+	.rodata     start:0x807434C8 end:0x807434F8
 	.data       start:0x80783F78 end:0x807840A8
 	.sdata2     start:0x80883218 end:0x80883258
 
@@ -1135,9 +1136,10 @@ game/GameOverTask.cpp:
 	.sdata2     start:0x808857F8 end:0x80885830
 
 game/GameBgm.cpp:
-	.text       start:0x8037C8C4 end:0x8037D8B8
-	.rodata     start:0x8074DFF8 end:0x8074E000
+	.text       start:0x8037C71C end:0x8037D8B8
+	.rodata     start:0x8074DFD0 end:0x8074E008
 	.data       start:0x8078A4F0 end:0x8078A528
+	.sbss       start:0x8087F448 end:0x8087F450
 	.sdata2     start:0x808858D8 end:0x808858E8
 
 std/bad_cast.cpp:
@@ -1192,7 +1194,7 @@ game/GameUI.cpp:
 	.text       start:0x803CE980 end:0x803CFC78
 	.rodata     start:0x80750698 end:0x807506A0
 	.data       start:0x8078C584 end:0x8078C5FC
-	.sdata2     start:0x80885D64 end:0x80885DD8
+	.sdata2     start:0x80885D58 end:0x80885DE0
 
 game/GimmickCommon.cpp:
 	.text       start:0x803EBC44 end:0x803EDF7C
@@ -1726,7 +1728,7 @@ game/MapPartsLocatorSet.cpp:
 
 game/MapPartsModel.cpp:
 	.text       start:0x8049B9B8 end:0x8049C8DC
-	.rodata     start:0x80756CC8 end:0x80756CD8
+	.rodata     start:0x80756CC8 end:0x80756E28
 	.data       start:0x80790630 end:0x80790688
 	.sdata2     start:0x80887110 end:0x80887128
 
@@ -1917,8 +1919,9 @@ game/NewCampTask.cpp:
 
 game/NewStaffRoll.cpp:
 	.text       start:0x8053108C end:0x80531E80
-	.rodata     start:0x8075D458 end:0x8075D468
-	.data       start:0x80793888 end:0x807938C0
+	.rodata     start:0x8075D450 end:0x8075D4C0
+	.data       start:0x80793888 end:0x80793940
+	.sdata      start:0x8087E4B0 end:0x8087E4B8
 	.sdata2     start:0x80887B30 end:0x80887B80
 
 game/NewTitleTask.cpp:
@@ -2007,7 +2010,7 @@ game/ReplayBuffer.cpp:
 
 game/SelectMember.cpp:
 	.text       start:0x8057162C end:0x805727A4
-	.rodata     start:0x8075FFC0 end:0x8075FFD0
+	.rodata     start:0x8075FFB8 end:0x807600C8
 	.data       start:0x80795850 end:0x80795888
 	.sdata2     start:0x80888060 end:0x80888088
 

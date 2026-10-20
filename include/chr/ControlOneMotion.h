@@ -5,30 +5,36 @@
 
 namespace chr {
 
-// inferred: controls of chr/ControlOneMotion.cpp created by CharaTask (0x80161570-0x80161B70).
-// Only the constructors are declared; sizes from the operator new calls, argument types from the
-// constructors (argument order of the floats unknown).
+// inferred: controls of chr/ControlOneMotion.cpp created by CharaTask (0x80161570-0x80161B70)
+// (control id 0x27). Implicit destructors at the end of the unit in class order.
 
 // inferred: plays one motion (the second argument is passed to Model_unk::fn_80097C08)
 class ControlOneMotion : public ControlBase {
 public:
-    ControlOneMotion(Chara_unk* chara, int motion, int a, int b, float c, float d); // 0x801C3DCC
+    // inferred: `start` >= 0 sets the first frame, `end` >= 0 the last one (motion length otherwise)
+    ControlOneMotion(Chara_unk* chara, int motion, int a, int b, float start, float end); // 0x801C3DCC
     virtual int vf0C();
-    unsigned char m08[0x18 - 0x08];
+    float mEnd;  // 0x08
+    int mLoop;   // 0x0C: inferred: nonzero plays the motion mCount frames instead of up to mEnd
+    int mCount;  // 0x10
+    int mFrames; // 0x14
 };
 
+// inferred: plays a motion turning towards a node matrix
 class ControlOneMotionTarget : public ControlBase {
 public:
     ControlOneMotionTarget(Chara_unk* chara, int motion, int target, int a); // 0x801C3FB0
     virtual int vf0C();
-    unsigned char m08[0xC - 0x08];
+    MtxPtr mTarget; // 0x08
 };
 
+// inferred: plays a motion moving the character from its position by an offset
 class ControlOneMotionTransition : public ControlBase {
 public:
-    ControlOneMotionTransition(Chara_unk* chara, int motion, const atn::Vector3& pos); // 0x801C43F0
+    ControlOneMotionTransition(Chara_unk* chara, int motion, const atn::Vector3& ofs); // 0x801C43F0
     virtual int vf0C();
-    unsigned char m08[0x20 - 0x08];
+    atn::Vector3 mStart; // 0x08
+    atn::Vector3 mOfs;   // 0x14
 };
 
 } // namespace chr

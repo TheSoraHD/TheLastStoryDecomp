@@ -13,7 +13,8 @@ class ControlDetect : public ControlBase {
 public:
     ControlDetect(Chara_unk* chara, int arg); // 0x801B0710
     virtual int vf0C();
-    int m08; // inferred: the constructor's second argument
+    virtual int vf3C() { return 1; } // inferred: weak copy 0x801B0D00
+    int m08; // inferred: the constructor's second argument (frames left)
 };
 
 class ControlDetectHateAtt : public ControlBase {
