@@ -3027,5 +3027,65 @@
    "HomeButtonMenu"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/Texture_unk.cpp",
+  "classes": [
+   "atn::Texture_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Se_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/CompositeCache_unk.cpp",
+  "classes": [
+   "atn::CompositeCache_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxDof.cpp",
+  "classes": [
+   "atn::PostFxDof"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/SequenceHolder.cpp",
+  "classes": [
+   "atn::SequenceHolder::SequenceUnit",
+   "atn::SequenceHolder::SequenceUnitBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxMotionBlur.cpp",
+  "classes": [
+   "atn::PostFxMotionBlur"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/TextureDraw_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxDamage.cpp",
+  "classes": [
+   "atn::PostFxDamage"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxRain.cpp",
+  "classes": [
+   "atn::PostFxRain"
+  ],
+  "matching": false
  }
 ]

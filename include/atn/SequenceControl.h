@@ -33,6 +33,7 @@ public:
     // inferred: creates the singleton under `parent` if it does not exist yet
     static SequenceControl* fn_800C3610(Task* parent, void* table);
     int fn_800C37D8(); // inferred: non-virtual, always returns 0
+    int fn_800C37FC(const char* name); // inferred: id of the sequence `name` (atn/SequenceHolder.cpp)
 
     Task* mCurrent;               // 0x48
     void* mTable;                 // 0x4C
