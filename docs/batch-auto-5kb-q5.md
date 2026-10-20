@@ -149,7 +149,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - Una carga que el original sube por encima de un `if` previo (`lwz` antes del primer `bgt`) = valor leido en un
     local antes del `if` (`int v = last->m; if (...) return; if (v <= x)`).
 
-## db/InitSetting_unk (commit PENDIENTE)
+## db/InitSetting_unk (commit 4214155)
 - Resultado: 2/2 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -161,3 +161,23 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - Inicializaciones que el original hace entre la construccion de dos arrays miembro = un miembro objeto con su propio
     ctor (el cuerpo del ctor de la clase iria al final); un `for` de 10 asignaciones constantes se desenrolla entero.
   - `static const char* const t[] = {"qu", ...}`: los literales cortos van a `.sdata2` y el array a `.rodata`.
+
+## db/CharaIdTable_unk (commit PENDIENTE)
+- Resultado: 14/16 al 100%, matching no.
+- NONMATCHING:
+  - `fn_80208BE8` (cargador UTF-16) 0% (tamano distinto): el original llama fuera de linea a `fn_802088A4`, `fn_802089C4`,
+    `fn_80208A3C`, `fn_80209184` y al ctor de `atn::CsvU`; aqui el presupuesto de inline no se supera y se inlinea todo
+    (bastan 3 llamadas mas a `fn_80208A3C` para superarlo: probablemente la reconstruccion de `std::basic_string` tiene
+    menos sentencias que la MSL real). El cuerpo es el mismo.
+  - `__ct__Q23atn4CsvUFPCwi` (0x80209048, copia debil del ctor de `atn::CsvU`): no se emite porque aqui se inlinea.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_80209048` -> `__ct__Q23atn4CsvUFPCwi`; datos `sFileNameStr`, `@stringBase0` (0x8073EAB8),
+    `@wstringBase0` (0x8087DB28, `.sdata`, `scope:local data:wstring`), `sEntries`, `sCount`, `sWideTexts`, `sTexts`,
+    `sFileName`. (`pairnames --data` empareja mal por el cargador distinto: renombrado a mano.)
+  - Tipo inferido `CharaIdEntry_unk` (0x30). `fn_80208814` declarado `extern "C" std::string (const std::basic_string<wchar_t>&)`
+    (conversion sin fuente: devuelve siempre ""). `lbl_8087EEC8` es la fuente (`fn_8006F420` convierte UTF-16).
+- Hallazgos MWCC
+  - Una funcion definida despues de su llamadora tambien se autoinlinea con `-ipa file` (`fn_8020924C` en `fn_802091E8`).
+  - Para que un inline reciba el mismo registro que el original a veces hay que pasar `*out` recargado tras
+    `*out = buf + pos` en vez de un local (`fn_80208A3C`).
