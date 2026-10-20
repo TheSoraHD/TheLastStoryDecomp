@@ -31,17 +31,19 @@ extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // in
 namespace chr {
 
 // inferred: pushed back along the facing direction (inlined three times; name invented)
-inline void ControlStagger::SetPushBack_unk() {
+static inline void Front_unk(atn::Vector3* out, float rotY) {
     Mtx r;
-    PSMTXRotRad(r, 'y', mChara->mRot.y);
+    PSMTXRotRad(r, 'y', rotY);
     atn::Vector3 dir;
     dir = atn::Vector3(0.0f, 0.0f, 1.0f);
     PSMTXMultVec(r, &dir, &dir);
-    mDir = dir;
+    *out = dir;
+}
+inline void ControlStagger::SetPushBack_unk() {
+    Front_unk(&mDir, mChara->mRot.y);
     mSpeed = 0.19736843f;
 }
 
-// NONMATCHING: 99.9% - inside the three SetPushBack_unk copies the temporary and dir use each other's stack slot
 ControlStagger::ControlStagger(Chara_unk* chara, int time, int kind)
     : ControlBase(chara), mDir(0.0f, 0.0f, 0.0f), mSpeed(0.0f) {
     chara->m58C = 0;
