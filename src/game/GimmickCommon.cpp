@@ -41,6 +41,7 @@
 #include "gmk/Chain.h"
 #include "gmk/PigeonManager.h"
 #include "gmk/RotaryRoom.h"
+#include "gmk/WaitObject.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -216,7 +217,6 @@ extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80412AFC(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80432CF0(atn::Task* parent, int id, int arg);
@@ -229,7 +229,6 @@ extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
 
 // inferred: creates the gimmick of type id / 1000 (ids below 1000 are types)
@@ -256,7 +255,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 24: gimmick = gmk::FallingTower::fn_8040FAC0(parent, id, arg); break;
     case 28: gimmick = fn_80412AFC(parent, id, arg); break;
     case 33: gimmick = gmk::Ocean::fn_80418198(parent, id, arg); break;
-    case 34: gimmick = fn_80418EAC(parent, id, arg); break;
+    case 34: gimmick = gmk::WaitObject::fn_80418EAC(parent, id, arg); break;
     case 36: gimmick = gmk::Courtyard::fn_8041C09C(parent, id, arg); break;
     case 37: gimmick = gmk::Fireworks::fn_8041CD54(parent, id, arg); break;
     case 38: gimmick = gmk::ArenaFloor::fn_8041DDE4(parent, id, arg); break;
@@ -306,7 +305,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 30: gimmick = fn_8041537C(parent, desc); break;
     case 31: gimmick = gmk::Banana::fn_804166B0(parent, desc); break;
     case 32: gimmick = gmk::FlamingArrow::fn_80416F74(parent, desc); break;
-    case 34: gimmick = fn_80418F30(parent, desc); break;
+    case 34: gimmick = gmk::WaitObject::fn_80418F30(parent, desc); break;
     case 35: gimmick = gmk::BulletPoint::fn_8041B970(parent, desc); break;
     case 39: gimmick = gmk::Augur::fn_8041EB80(parent, desc); break;
     case 41: gimmick = gmk::LandMine::fn_80420ADC(parent, desc); break;

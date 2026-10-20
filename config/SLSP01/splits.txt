@@ -1376,10 +1376,10 @@ gmk/Ocean.cpp:
 	.sdata2     start:0x808864B8 end:0x808864F8
 
 gmk/WaitObject.cpp:
-	.text       start:0x80419010 end:0x8041B284
-	.rodata     start:0x80753040 end:0x80753050
-	.data       start:0x8078DC88 end:0x8078DD20
-	.sdata2     start:0x80886500 end:0x80886528
+	.text       start:0x80418EAC end:0x8041B970
+	.rodata     start:0x80753038 end:0x80753110
+	.data       start:0x8078DC40 end:0x8078DD20
+	.sdata2     start:0x808864F8 end:0x80886528
 
 gmk/BulletPoint.cpp:
 	.text       start:0x8041B970 end:0x8041C09C
