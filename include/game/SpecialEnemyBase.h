@@ -4,6 +4,17 @@
 #include "atn/LH_Binary.h"
 #include "game/EnemyTask.h"
 
+// inferred: state of a special enemy copied by vf110 and restored by vf114 (multiplayer sync; the
+// base class copies m00/m04, Em305VampireMp the rest); names invented
+struct SpecialState_unk {
+    int m00;          // inferred: state (m58C)
+    int m04;          // inferred: step (m14BC)
+    short m08;
+    signed char m0A;
+    signed char m0B;
+    int m0C;
+};
+
 // inferred from __vt__16SpecialEnemyBase (0x80797368): base of the special enemies driven by a
 // state machine (vf100 sets the state m58C, vf104 runs it). Its members are out of line
 // (0x805A3C54-0x805A5078, not decompiled); names keep the offsets.
@@ -25,9 +36,9 @@ public:
     virtual void vf104() = 0;            // inferred: runs the state machine
     virtual void vf108() = 0;            // inferred: runs the current state
     virtual int vf10C(struct HitMsg_unk* msg); // 0x805A3FC8: inferred: filters a hit (1 = ignored)
-    virtual void vf110();                // 0x805A4F58
-    virtual void vf114();                // 0x805A4F6C
-    virtual void vf118();                // 0x805A4F80
+    virtual void vf110(SpecialState_unk* state);       // 0x805A4F58: inferred: saves the state
+    virtual void vf114(const SpecialState_unk* state); // 0x805A4F6C: inferred: restores the state
+    virtual void vf118(HitInfo_unk* hit);              // 0x805A4F80
 
     // inferred: reads "key=value" parameters; nonzero when `params` names a data file (written to `name`)
     int fn_805A3D68(char* name, const char* params);
