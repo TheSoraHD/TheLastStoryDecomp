@@ -433,6 +433,11 @@ game/ColliAttrManager.cpp:
 	.sbss       start:0x8087F0A0 end:0x8087F0A8
 	.sdata2     start:0x80881C88 end:0x80881CB8
 
+game/GameConfig_unk.cpp:
+	.text       start:0x80184A64 end:0x80187D04
+	.rodata     start:0x80738230 end:0x80738C18
+	.sdata2     start:0x80881CB8 end:0x80881E50
+
 chr/ControlBreakOpen.cpp:
 	.text       start:0x80187D04 end:0x801880D0
 	.rodata     start:0x80738C18 end:0x80738C48
@@ -729,15 +734,23 @@ atn/D2A_Frame.cpp:
 	.data       start:0x80782AA0 end:0x80782AD8
 	.sdata2     start:0x80882C10 end:0x80882C28
 
+atn/D2A_ParamTable_unk.cpp:
+	.text       start:0x801F0364 end:0x801F0AC0
+	.rodata     start:0x8073CDC8 end:0x8073CDD0
+	.sdata2     start:0x80882C28 end:0x80882C30
+
 atn/D2A_Line.cpp:
 	.text       start:0x801F0AC0 end:0x801F0D80
 	.rodata     start:0x8073CDD0 end:0x8073CDE0
 	.data       start:0x80782AD8 end:0x80782B10
 	.sdata2     start:0x80882C30 end:0x80882C40
 
-auto_fn_801F1EA0_text.cpp:
-	.text       start:0x801F1EA0 end:0x801F2398
+atn/D2A_Manager.cpp:
+	.text       start:0x801F0D80 end:0x801F2398
 	.ctors      start:0x8072D2F8 end:0x8072D2FC
+	.rodata     start:0x8073CDE0 end:0x8073E300
+	.data       start:0x80782B10 end:0x80782B68
+	.sdata2     start:0x80882C40 end:0x80882C44
 
 atn/D2A_Message.cpp:
 	.text       start:0x801F2398 end:0x801F3490
@@ -746,6 +759,11 @@ atn/D2A_Message.cpp:
 	.data       start:0x80782B68 end:0x80782BD0
 	.bss        start:0x807C7F68 end:0x807C7F80
 	.sdata2     start:0x80882C58 end:0x80882C78
+
+atn/D2A_MessageTable_unk.cpp:
+	.text       start:0x801F3490 end:0x801F3EF4
+	.rodata     start:0x8073E380 end:0x8073E3F0
+	.sdata      start:0x8087DAF0 end:0x8087DAF8
 
 atn/D2A_Reference.cpp:
 	.text       start:0x801F3EF4 end:0x801F3FF8
@@ -760,15 +778,17 @@ atn/D2A_Task.cpp:
 	.sdata2     start:0x80882C80 end:0x80882C90
 
 atn/D2A_TaskInstanceBase_64_8.cpp:
-	.text       start:0x801F51C8 end:0x801F8E6C
-	.rodata     start:0x8073E488 end:0x8073E4F0
-	.data       start:0x80782C70 end:0x80782D30
-	.sdata2     start:0x80882C98 end:0x80882CA0
+	.text       start:0x801F4FF4 end:0x801F94F4
+	.rodata     start:0x8073E480 end:0x8073E568
+	.data       start:0x80782C70 end:0x80782D80
+	.sbss       start:0x8087F148 end:0x8087F150
+	.sdata2     start:0x80882C90 end:0x80882CA0
 
 atn/D2A_Texture.cpp:
-	.text       start:0x801F94F4 end:0x801FDE94
-	.rodata     start:0x8073E568 end:0x8073E57C
+	.text       start:0x801F94F4 end:0x801FF1B8
+	.rodata     start:0x8073E568 end:0x8073E618
 	.data       start:0x80782D80 end:0x80782DB8
+	.sdata      start:0x8087DB00 end:0x8087DB08
 	.sdata2     start:0x80882CA0 end:0x80882CB8
 
 atn/D2A_Window.cpp:
@@ -776,6 +796,14 @@ atn/D2A_Window.cpp:
 	.rodata     start:0x8073E618 end:0x8073E628
 	.data       start:0x80782DB8 end:0x80782DF0
 	.sdata2     start:0x80882CB8 end:0x80882CD0
+
+atn/D2Anime_unk.cpp:
+	.text       start:0x801FFA04 end:0x80201E78
+	.ctors      start:0x8072D300 end:0x8072D304
+	.rodata     start:0x8073E628 end:0x8073E688
+	.bss        start:0x807C7F80 end:0x807C7F98
+	.sbss       start:0x8087F150 end:0x8087F158
+	.sdata2     start:0x80882CD0 end:0x80882CD8
 
 atn/D3Anime.cpp:
 	.text       start:0x80201E78 end:0x80202A6C

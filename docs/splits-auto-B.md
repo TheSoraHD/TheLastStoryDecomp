@@ -131,3 +131,19 @@ Se amplian (texto y datos `auto_` propios):
 ### Decisiones sin el usuario
 - `game/MotionCommand_unk.cpp` empieza su `.rodata` en 0x807370B4 (4 bytes de relleno, align 8 esperado): la unidad anterior `game/CharaManager_PlayerTask.cpp` esta enlazada y no se puede ampliar, y dejar el relleno sin unidad rompe objdiff ("gap symbol out of section bounds"). dtk solo avisa (WARN de alineacion).
 - `Event/BehaviorFollow.cpp` (con fuente) recibe el RTTI de `Singleton<BehaviorFollow>`: su fuente no lo genera aun.
+
+## Grupo 7 (0x80184A64 y zona D2A 0x801F0364-0x80201E78)
+
+| Tramo | Unidad | Prueba |
+|---|---|---|
+| 0x80184A64-0x80187D04 | `game/GameConfig_unk.cpp` (nuevo) | 0.0f/0.01f/1.0f/0.5f cambian de copia frente a ColliAttrManager y ControlBreakOpen; tabla de nombres de parametros ("Dialog", "UseWaitMotion", "Cam Pos", "Fog Mode", "LevelMul", "BGM Start", "Title Fade Start", "DebugMenu", "Config"). Nombre inventado. Su `.sbss` 0x8087EED0 queda en `auto_` (esta antes del de ColliAttrManager: ciclo de orden). |
+| 0x801F0364-0x801F0AC0 | `atn/D2A_ParamTable_unk.cpp` (nuevo) | La double int->float 0x8073CDC8 que usa esta detras del nombre RTTI de D2A_Frame (en un fichero va antes del RTTI) y su `.sdata2` 0x80882C28 entre las de Frame y Line; metodo `atn::D2A_ParamTable`. Por el orden alfabetico de `atn_*` el nombre real deberia ir entre D2A_Frame y D2A_Line. |
+| 0x801F0D80-0x801F2398 | `atn/D2A_Manager.cpp` (nuevo, `.ctors` 0x8072D2F8) | vtable/clase `atn::D2A_Manager`, `__sinit` 0x801F1EA0; pool y tablas "icon_skull.d2a", "/data/d2anime/d2a_text_xx.u16". Absorbe el bloque explicito `auto_fn_801F1EA0_text.cpp` que habia en splits.txt (era solo el `__sinit`). |
+| 0x801F3490-0x801F3EF4 | `atn/D2A_MessageTable_unk.cpp` (nuevo) | Pool propio 0x8073E380 con otra copia de las cadenas de basic_string (D2A_Message tiene la suya en 0x8073E314). Lee un CsvU de textos (`fn_801F3E20` = texto por id, lo usan los menus). Nombre inventado. |
+| 0x801F4FF4-0x801F51C8, 0x801F8E6C-0x801F94F4 | `atn/D2A_TaskInstanceBase_64_8.cpp` ampliada | 0x801F4FF4 usa el pool 0x8073E508 que esta detras de los nombres RTTI de `D2A_TaskInstanceBase<..>`/`ID2A_TaskInstance` (final de la `.rodata` de ese fichero) y copias de constantes distintas de D2A_Task; la cola comparte datos (0x80782D50). |
+| 0x801FDE94-0x801FF1B8 | `atn/D2A_Texture.cpp` ampliada | la cola comparte `.sdata` 0x8087DB00/0x8087DB04 con D2A_Texture. |
+| 0x801FFA04-0x80201E78 | `atn/D2Anime_unk.cpp` (nuevo, `.ctors` 0x8072D300) | 0.0f en otra copia (0x80882CD0) que D2A_Window (0x80882CBC); `__sinit` 0x80201E1C; cargador de ficheros d2a llamado por `D2A_Task::vf0C`. Nombre inventado (entre D2A_Window y D3Anime por orden alfabetico, de ahi "D2Anime"). Su `.sdata` queda en `auto_` (orden). |
+
+### Decisiones sin el usuario
+- Borrado el bloque `auto_fn_801F1EA0_text.cpp` de splits.txt (lo absorbe `atn/D2A_Manager.cpp`).
+- `atn/D2A_MessageTable_unk.cpp`: el string "Memory allocation failure" que usa (0x80782BB0) cae dentro del `.data` de `atn/D2A_Message.cpp` (con fuente): no lo he movido; contradice en parte el corte (a revisar).
