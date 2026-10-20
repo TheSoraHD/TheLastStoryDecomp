@@ -73,7 +73,7 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
   - Los colores locales `const GXColor c = {...}` pasados por valor van a `.sdata2` (los de 8 bytes, `GXColorS10`, a
     `.rodata`) y salen antes que los floats del cuerpo aunque se usen despues.
 
-## atn/PPDATAU (commit HASH)
+## atn/PPDATAU (commit 2b9d288)
 
 - Resultado: 14/18 al 100%, `matching: false` (`main.dol: OK`).
 - NONMATCHING (todas solo por reparto de registros/planificacion, anotadas en el fuente):
@@ -111,3 +111,43 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
   - Un indice `a[n++] = x` sobre un array local (en vez de un puntero que avanza) crea la variable de induccion
     tarde y le da el registro mas bajo.
   - Las copias debiles no referenciadas (dtor de `PPUser_unk`, holder de `std::list`) las quita el enlazador.
+
+## atn/FileSystem_unk (commit HASH)
+
+- Resultado: 11/22 al 100%, `matching: false` (`main.dol: OK`).
+- NONMATCHING (detalle en el fuente):
+  - `LoadManager_unk::fn_8046F460` 98.3%, `fn_8046F4D4` 91.8%, `fn_8046F544` 98.8%, `fn_8046F8B8` 93.2%,
+    `fn_8046F96C` 97.6% (reparto de registros), `fn_8046F5CC` 95.0% (insercion ordenada en la cache: una recarga).
+  - `PfsArchive_unk::fn_8046FD7C` 92.3% (listado de directorio con `std::string`; registros y el pool empieza por
+    un `"pfs"` que ninguna funcion usa).
+  - `PfsArchive_unk::fn_8046FD2C` 35.8%, `ResRef_unk::fn_80470364` 34.8%, `fn_8047043C` 32.4%, `fn_8047054C` 0%:
+    el original llama fuera de linea a funciones que aqui se inlinean porque parecen de **otro fichero**.
+- **Decisiones sin el usuario**
+  - **Pendiente (corte de unidad):** 0x80470364-0x80470580 (`ResRef_unk::fn_80470364/8047043C/80470528/8047054C`
+    y `fn_80470564`) parece un fichero propio entre `FileSystem_unk` y `LH_Binary`: llama fuera de linea a
+    funciones de este fichero que se autoinlinearian y su cadena `"%sh"` (0x80755BF0) es un objeto `.rodata` aparte
+    tras el pool. Haria falta una unidad nueva (p. ej. `atn/ResRef_unk`, `.text` 0x80470364-0x80470580,
+    `.rodata` 0x80755BF0-0x80755BF8); no esta permitido crearla en este lote.
+  - Tipos inventados: `PfsArchive_unk` (archivo pfs: indice + datos, entradas de 16 bytes ordenadas por hash;
+    ctor 0x8046FA18), `PathName_unk` (ruta fija de 0x40 con ctor que pone `[0] = 0` y `operator=` que copia solo si
+    no es el mismo bufer: con eso el ctor casa), `PfsEntry_unk`, `PfsDir_unk`, `PfsTable_unk`, `PfsHandle_unk`,
+    `FileListOut_unk` (salida de `fn_8006BD78`). `ResRef_unk` local (ya existe en `game/CampSaveLoad.h` y
+    `atn/LH_MotionSet.cpp` con otros metodos).
+  - `include/atn/LoadManager.h`: `LoadCache_unk` (cuenta + 4000 `LoadCore*` ordenados; `size/operator[]/begin/
+    push_back/insert` inline) sustituye a `m48[]` (mismos desplazamientos; `Find_unk` pasa `&m48`); nuevas listas
+    `mArchives` (0x4020) y `mMounted` (0x402C) y metodos `fn_8046F460/F4D4/F544/F8B8/F96C`.
+  - `include/atn/LoadCore.h`: `vf10(char* out)` (hace `sprintf(out, "size=%d", m50)`); renombrado en
+    `symbols.txt` `vf10__Q23atn8LoadCoreFv` -> `vf10__Q23atn8LoadCoreFPc` (las vtables de los `LH_*` enlazados
+    siguen casando). El formato es un `static char[]` (esta en `.data`).
+  - `symbols.txt`: metodos de `LoadManager_unk`/`PfsArchive_unk`/`ResRef_unk` (a mano; `fn_8046FBB0` y
+    `fn_8046FD1C` son `const`), `lbl_80755B88` -> `@stringBase0` (0x66).
+  - Nombre real propuesto: sin pruebas (podria ser `Pfs.cpp`/`FileSystem.cpp`; el principio del tramo,
+    0x8046F460-0x8046F9FC, son metodos de `LoadManager_unk` y quiza sean el final de `atn/LoadManager_unk`).
+- Hallazgos MWCC
+  - Un metodo que carga `this->mX` antes de guardar r31 casa al declararlo `const` (confirmado:
+    `fn_8046FBB0`); ademas una relectura de `mEntries` tras un bucle sale de un accesor (`fn_8046FD1C(i)->m`).
+  - Un indice `(n - 1)` sin plegar en el desplazamiento (`slwi`+`stwx` en vez de `stw -0x10`) sale pasando el
+    indice por un accesor inline `At(int i)`.
+  - Una busqueda binaria que relee `a[mid]` en cada rama casa con un `operator[]` inline sobre una referencia
+    (`T& c = *(T*)p; c[mid]`).
+  - `tolower` de MSL (`<ctype.h>`) da el patron `li 1 / li 0 / cmpwi` de la conversion a minusculas.

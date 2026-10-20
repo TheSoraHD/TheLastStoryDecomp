@@ -10,7 +10,7 @@ public:
     LoadCore(const char* path); // 0x80472FAC
     virtual ~LoadCore();        // 0x8047304C
     virtual void vf0C();
-    virtual void vf10(); // 0x8046F5B4
+    virtual void vf10(char* out); // 0x8046F5B4: inferred: writes a description
 
     void fn_80473104(unsigned char state); // inferred: sets mState
     void fn_804730D4();                    // inferred: adds a reference
