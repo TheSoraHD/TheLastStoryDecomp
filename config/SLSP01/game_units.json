@@ -3352,5 +3352,13 @@
    "atn::PostFxGodRay"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/CharaLightData_unk.cpp",
+  "classes": [
+   "CharaLightData_unk",
+   "NewCampScene2_unk"
+  ],
+  "matching": false
  }
 ]
