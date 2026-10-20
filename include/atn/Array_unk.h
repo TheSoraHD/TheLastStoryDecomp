@@ -171,6 +171,19 @@ public:
         }
         return *this;
     }
+    // inferred: as Resize_unk(n, heap); the third argument is the name of the owner, unused in release
+    // (weak copies 0x803F0280-0x803F0538, game/GimmickStateCommand.cpp)
+    void Resize_unk(int n, int heap, const char* name) {
+        if (mData != 0) {
+            delete[] mData;
+        }
+        mSize = n;
+        if (mSize != 0) {
+            mData = new (heap, "", "", 0) T[mSize];
+        } else {
+            mData = 0;
+        }
+    }
     T& operator[](int i) { return mData[i]; }
 
     int mSize;

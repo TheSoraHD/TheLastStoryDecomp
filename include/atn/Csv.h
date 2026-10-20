@@ -61,6 +61,7 @@ public:
 // 0x80782FB0, 0x8077A070, 0x8078B5E8)
 extern "C" char lbl_8087D708[3]; // inferred: " \t"
 extern "C" char lbl_8087D720[3]; // inferred: " \t"
+extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 // inferred: the constructor also sets the field separators (weak copy at 0x8004203C)
 class Csv : public CsvBase<char, ',', '\r', '"'> {
 public:
@@ -73,6 +74,10 @@ public:
 class CsvTab : public CsvBase<char, '\t', '\r', '"'> {
 public:
     CsvTab(const char* text, int length) : CsvBase<char, '\t', '\r', '"'>(text, length) {}
+    // inferred: weak copy 0x803EFCA8 (game/GimmickStateCommand.cpp): also sets the field separators
+    CsvTab(const void* text, int length) : CsvBase<char, '\t', '\r', '"'>((const char*)text, length) {
+        fn_8005BCE8(lbl_8087D710);
+    }
 };
 class CsvPipe : public CsvBase<char, '|', '\r', '"'> {};
 extern "C" wchar_t lbl_8077A0A8[3]; // inferred: L" \t"
