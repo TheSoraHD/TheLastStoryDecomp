@@ -152,7 +152,7 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
     (`T& c = *(T*)p; c[mid]`).
   - `tolower` de MSL (`<ctype.h>`) da el patron `li 1 / li 0 / cmpwi` de la conversion a minusculas.
 
-## atn/XsfParser_unk (commit HASH)
+## atn/XsfParser_unk (commit 83cd9b2)
 
 - Resultado: 9/24 al 100%, `matching: false` (`main.dol: OK`).
 - NONMATCHING: `fn_805BE8FC` 50.4% (lectura de claves con bytes invertidos: temporales en pila),
@@ -175,3 +175,26 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
     (las expresiones con desplazamientos y mascaras dan `rlwinm` + `or`).
   - `__stwbrx`/`__sthbrx` sobre un puntero pasado a un inline (`Swap(&p->m)`) acercan el orden de direcciones del
     original.
+
+## atn/Bezier_unk (commit HASH)
+
+- Resultado: 3/7 al 100%, `matching: false` (`main.dol: OK`).
+- NONMATCHING: `fn_805078A4` (zeroin/Brent) 99.0% y `fn_80508908` (engineHermiteCreate) 99.4% (registros/orden de
+  cargas), `fn_80508458` (engineBezierCreate) 98.2% (planificacion del test del flag y desplazamientos de
+  `.rodata` que dependen de `polyZeroes`). Sin escribir: `fn_80507BBC` (polyZeroes, 0x89C bytes).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - Es el `animEngine.c` publico del devkit de Maya (curvas de animacion: `engineBezierCreate/Evaluate`,
+    `engineHermiteCreate/Evaluate` inline, `checkMonotonic`, `constrainInsideBounds`, `init_tolerance`, `zeroin`,
+    `polyZeroes`) con dos funciones del juego (0x80507790 construye el segmento desde dos claves, 0x805077F0 lo
+    evalua). Funciones `extern "C"` con su nombre `fn_`; nombres de Maya propuestos en comentarios.
+  - `symbols.txt`: `lbl_8087F870` -> `sMachineTolerance`, `lbl_8087F874` -> `sToleranceInit` (`scope:local`).
+  - Nombre real propuesto: `animEngine.c` (o `.cpp`).
+- Hallazgos MWCC
+  - `fabs + frsp` = `fabs` de `double` (intrinseco `__fabs`) devuelto como `float` por un inline; `fabs` sin
+    `frsp` = el valor `double` usado directamente en la comparacion.
+  - Un `&&` cuyo resultado se guarda en un `bool` (o un inline que devuelve `bool`) da `li r0,0 ... li r0,1;
+    cmpwi r0,0` / `mfcr+extrwi`; con `if (a || b) return` directo no.
+  - Un `return` dentro de dos bucles infinitos queda en linea; con `goto done` el retorno va al final como en el
+    original.
+  - Leer un global `float` en un local antes del bucle cambia el orden de carga de las constantes (`eps` primero).
