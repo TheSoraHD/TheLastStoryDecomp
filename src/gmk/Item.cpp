@@ -179,7 +179,7 @@ int Item::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
     return 0;
 }
 
-void Item::vf4C() {
+void Item::vf4C(CharaTask* chara) {
     if (vf60() != 0) {
         mDrop->m194 = 1;
     }

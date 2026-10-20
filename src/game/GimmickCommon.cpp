@@ -11,6 +11,14 @@
 #include "gmk/InteractionSpot.h"
 #include "gmk/RainDrops.h"
 #include "gmk/SkeltonsMirror.h"
+#include "gmk/Lemon.h"
+#include "gmk/Coffin.h"
+#include "gmk/RandomItem.h"
+#include "gmk/Brazier.h"
+#include "gmk/Cannonball.h"
+#include "gmk/Leaf.h"
+#include "gmk/WindyItem.h"
+#include "gmk/OnOff.h"
 #include "gmk/TodomeCountUp.h"
 #include "gmk/ShakeCamera.h"
 #include "gmk/BulletPoint.h"
@@ -35,6 +43,21 @@
 #include "gmk/HealPoint.h"
 #include "gmk/FlamingArrow.h"
 #include "gmk/Fireworks.h"
+#include "gmk/MapLift.h"
+#include "gmk/MeetingSpot.h"
+#include "gmk/CharaPathMove.h"
+#include "gmk/Chain.h"
+#include "gmk/PigeonManager.h"
+#include "gmk/RotaryRoom.h"
+#include "gmk/WaitObject.h"
+#include "gmk/ChickenManager.h"
+#include "gmk/SparkCube.h"
+#include "gmk/LemonBucket.h"
+#include "gmk/MotionObject.h"
+#include "gmk/AutomaticDoor.h"
+#include "gmk/SwingObject.h"
+#include "gmk/Bat.h"
+#include "gmk/RandomMerchant.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -189,7 +212,7 @@ void GimmickMaterialFade_unk::fn_803EBE74(Model_unk* model) {
     }
 }
 
-void GimmickMotionSwitch_unk::fn_803EC0A4(atn::CsvTab* csv) {
+void GimmickMotionSwitch_unk::fn_803EC0A4(atn::CsvTab* csv, Model_unk* model) {
     mHash = fn_800DC6B4(csv->fn_8005B9CC());
     mFrame = atoi(csv->fn_8005B9CC());
 }
@@ -203,34 +226,7 @@ void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
 
 // inferred: gimmick constructors called by the factories below (one per gimmick class)
 extern "C" GimmickCommon* fn_803F1BB4(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803F471C(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803F744C(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80412AFC(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80432CF0(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80436E34(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80405DD4(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8043B778(atn::Task* parent, GimmickDesc_unk* desc);
 
 // inferred: creates the gimmick of type id / 1000 (ids below 1000 are types)
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
@@ -242,40 +238,40 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     }
     switch (type) {
     case 1: gimmick = fn_803F1BB4(parent, id, arg); break;
-    case 2: gimmick = fn_803F471C(parent, id, arg); break;
+    case 2: gimmick = gmk::AutomaticDoor::fn_803F471C(parent, id, arg); break;
     case 4: gimmick = gmk::PlayEffect::fn_803F69E4(parent, id, arg); break;
-    case 5: gimmick = fn_803F744C(parent, id, arg); break;
-    case 10: gimmick = fn_803FE390(parent, id, arg); break;
-    case 11: gimmick = fn_80400728(parent, id, arg); break;
-    case 16: gimmick = fn_80406754(parent, id, arg); break;
+    case 5: gimmick = gmk::OnOff::fn_803F744C(parent, id, arg); break;
+    case 10: gimmick = gmk::SwingObject::fn_803FE390(parent, id, arg); break;
+    case 11: gimmick = gmk::Leaf::fn_80400728(parent, id, arg); break;
+    case 16: gimmick = gmk::Brazier::fn_80406754(parent, id, arg); break;
     case 17: gimmick = fn_80408324(parent, id, arg); break;
     case 18: gimmick = fn_804093B4(parent, id, arg); break;
-    case 19: gimmick = fn_803FE390(parent, id, arg); break;
+    case 19: gimmick = gmk::SwingObject::fn_803FE390(parent, id, arg); break;
     case 21: gimmick = gmk::TreasureBox::fn_8040DC30(parent, id, arg); break;
     case 22: gimmick = gmk::HealPoint::fn_8040EC30(parent, id, arg); break;
     case 24: gimmick = gmk::FallingTower::fn_8040FAC0(parent, id, arg); break;
-    case 28: gimmick = fn_80412AFC(parent, id, arg); break;
+    case 28: gimmick = gmk::MotionObject::fn_80412AFC(parent, id, arg); break;
     case 33: gimmick = gmk::Ocean::fn_80418198(parent, id, arg); break;
-    case 34: gimmick = fn_80418EAC(parent, id, arg); break;
+    case 34: gimmick = gmk::WaitObject::fn_80418EAC(parent, id, arg); break;
     case 36: gimmick = gmk::Courtyard::fn_8041C09C(parent, id, arg); break;
     case 37: gimmick = gmk::Fireworks::fn_8041CD54(parent, id, arg); break;
     case 38: gimmick = gmk::ArenaFloor::fn_8041DDE4(parent, id, arg); break;
     case 40: gimmick = gmk::RoomLight::fn_8041FF08(parent, id, arg); break;
     case 45: gimmick = gmk::DoorSeal::fn_8042335C(parent, id, arg); break;
-    case 46: gimmick = fn_80423F64(parent, id, arg); break;
-    case 48: gimmick = fn_80426108(parent, id, arg); break;
+    case 46: gimmick = gmk::RotaryRoom::fn_80423F64(parent, id, arg); break;
+    case 48: gimmick = gmk::SparkCube::fn_80426108(parent, id, arg); break;
     case 52: gimmick = gmk::RainDrops::fn_8042AFE4(parent, id, arg); break;
     case 53: gimmick = gmk::OpenBoard::fn_8042B56C(parent, id, arg); break;
     case 54: gimmick = gmk::FloatingBox::fn_8042C21C(parent, id, arg); break;
     case 55: gimmick = gmk::CharaObj::fn_8042CE30(parent, id, arg); break;
     case 56: gimmick = gmk::PassBoard::fn_8042D628(parent, id, arg); break;
     case 57: gimmick = gmk::WaterLevel::fn_8042E36C(parent, id, arg); break;
-    case 60: gimmick = fn_804310B0(parent, id, arg); break;
-    case 61: gimmick = fn_80432CF0(parent, id, arg); break;
+    case 60: gimmick = gmk::RandomMerchant::fn_804310B0(parent, id, arg); break;
+    case 61: gimmick = gmk::RandomItem::fn_80432CF0(parent, id, arg); break;
     case 63: gimmick = gmk::SavePoint::fn_80435CE4(parent, id, arg); break;
-    case 64: gimmick = fn_80436E34(parent, id, arg); break;
+    case 64: gimmick = gmk::WindyItem::fn_80436E34(parent, id, arg); break;
     case 65: gimmick = gmk::LottaSummon::fn_8043A770(parent, id, arg); break;
-    case 67: gimmick = fn_8043D594(parent, id, arg); break;
+    case 67: gimmick = gmk::CharaPathMove::fn_8043D594(parent, id, arg); break;
     }
     return gimmick;
 }
@@ -288,25 +284,25 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
         type = desc->mId;
     }
     switch (type) {
-    case 5: gimmick = fn_803F74D0(parent, desc); break;
+    case 5: gimmick = gmk::OnOff::fn_803F74D0(parent, desc); break;
     case 6: gimmick = gmk::ReinforcePoint::fn_803F9420(parent, desc); break;
-    case 7: gimmick = fn_803F9F34(parent, desc); break;
+    case 7: gimmick = gmk::Cannonball::fn_803F9F34(parent, desc); break;
     case 8: gimmick = gmk::Item::fn_803FBFA8(parent, desc); break;
-    case 9: gimmick = fn_803FC8D8(parent, desc); break;
-    case 10: gimmick = fn_803FE570(parent, desc); break;
-    case 13: gimmick = fn_80402978(parent, desc); break;
-    case 14: gimmick = fn_80405DD4(parent, desc); break;
-    case 15: gimmick = fn_80405DD4(parent, desc); break;
-    case 16: gimmick = fn_804067D8(parent, desc); break;
-    case 20: gimmick = fn_8040D1D0(parent, desc); break;
+    case 9: gimmick = gmk::MeetingSpot::fn_803FC8D8(parent, desc); break;
+    case 10: gimmick = gmk::SwingObject::fn_803FE570(parent, desc); break;
+    case 13: gimmick = gmk::Bat::fn_80402978(parent, desc); break;
+    case 14: gimmick = gmk::PigeonManager::fn_80405DD4(parent, desc); break;
+    case 15: gimmick = gmk::PigeonManager::fn_80405DD4(parent, desc); break;
+    case 16: gimmick = gmk::Brazier::fn_804067D8(parent, desc); break;
+    case 20: gimmick = gmk::ChickenManager::fn_8040D1D0(parent, desc); break;
     case 22: gimmick = gmk::HealPoint::fn_8040ED00(parent, desc); break;
     case 26: gimmick = gmk::Trap::fn_80410A68(parent, desc); break;
-    case 27: gimmick = fn_80411440(parent, desc); break;
+    case 27: gimmick = gmk::Coffin::fn_80411440(parent, desc); break;
     case 29: gimmick = gmk::SkeltonsMirror::fn_80414AC4(parent, desc); break;
-    case 30: gimmick = fn_8041537C(parent, desc); break;
+    case 30: gimmick = gmk::Lemon::fn_8041537C(parent, desc); break;
     case 31: gimmick = gmk::Banana::fn_804166B0(parent, desc); break;
     case 32: gimmick = gmk::FlamingArrow::fn_80416F74(parent, desc); break;
-    case 34: gimmick = fn_80418F30(parent, desc); break;
+    case 34: gimmick = gmk::WaitObject::fn_80418F30(parent, desc); break;
     case 35: gimmick = gmk::BulletPoint::fn_8041B970(parent, desc); break;
     case 39: gimmick = gmk::Augur::fn_8041EB80(parent, desc); break;
     case 41: gimmick = gmk::LandMine::fn_80420ADC(parent, desc); break;
@@ -315,12 +311,12 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 44: gimmick = gmk::CharaLight::fn_80422610(parent, desc); break;
     case 49: gimmick = gmk::FlyObjManager::fn_80427EB4(parent, desc); break;
     case 50: gimmick = gmk::InteractionSpot::fn_80428B0C(parent, desc); break;
-    case 51: gimmick = fn_80429668(parent, desc); break;
+    case 51: gimmick = gmk::MapLift::fn_80429668(parent, desc); break;
     case 58: gimmick = gmk::TodomeCountUp::fn_8042F0B4(parent, desc); break;
-    case 59: gimmick = fn_8042F7EC(parent, desc); break;
+    case 59: gimmick = gmk::LemonBucket::fn_8042F7EC(parent, desc); break;
     case 63: gimmick = gmk::SavePoint::fn_80435DEC(parent, desc); break;
     case 65: gimmick = gmk::LottaSummon::fn_8043A850(parent, desc); break;
-    case 66: gimmick = fn_8043B778(parent, desc); break;
+    case 66: gimmick = gmk::Chain::fn_8043B778(parent, desc); break;
     }
     return gimmick;
 }

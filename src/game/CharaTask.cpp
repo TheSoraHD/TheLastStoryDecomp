@@ -8227,49 +8227,24 @@ bool CharaTask::fn_80154E38(CharaTask* target) {
 }
 
 namespace chr {
-// inferred: controls created by CharaTask; class names unknown (constructors 0x801B11BC,
-// 0x801B151C and 0x801B0D88 are in chr/ControlDive.cpp, 0x801C041C in the next unit)
-class Control801B11BC_unk : public ControlBase {
-public:
-    Control801B11BC_unk(Chara_unk* chara, int a, int b);
-    virtual int vf0C();
-    unsigned char m08[0x1C - 0x08];
-};
-class Control801B151C_unk : public ControlBase {
-public:
-    Control801B151C_unk(Chara_unk* chara);
-    virtual int vf0C();
-    unsigned char m08[0x18 - 0x08];
-};
+// inferred: control created by CharaTask; class name unknown (constructor 0x801C041C in the unit
+// after chr/ControlDive.cpp). The controls of chr/ControlDive.cpp are in chr/ControlDive.h.
 class Control801C041C_unk : public ControlBase {
 public:
     Control801C041C_unk(Chara_unk* chara, int a, float b);
     virtual int vf0C();
     unsigned char m08[0x30 - 0x08];
 };
-class Control801B0D88_unk : public ControlBase {
-public:
-    Control801B0D88_unk(Chara_unk* chara, const atn::Vector3& dir);
-    virtual int vf0C();
-    unsigned char m08[0x20 - 0x08];
-};
-// inferred: name from the vtable stored by the constructor (chr/ControlDive.cpp)
-class ControlBackStep : public ControlBase {
-public:
-    ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int a); // 0x801B1F4C
-    virtual int vf0C();
-    unsigned char m08[0x24 - 0x08];
-};
 } // namespace chr
 
 // fn_80154EC4, fn_801551AC, vf74, fn_80155790: same instructions as the target; only the .data
 // offsets of the ptmf constants differ until the earlier .data users exist.
-void CharaTask::fn_80154EC4(int a, int b) {
-    fn_80178208(new (0, "", "", 0) chr::Control801B11BC_unk(this, a, b));
+void CharaTask::fn_80154EC4(const atn::Vector3& pos, int link) {
+    fn_80178208(new (0, "", "", 0) chr::ControlSwatTurn(this, pos, link));
 }
 
 void CharaTask::fn_801551AC() {
-    fn_80178208(new (0, "", "", 0) chr::Control801B151C_unk(this));
+    fn_80178208(new (0, "", "", 0) chr::ControlCoverSlip(this));
 }
 
 // inferred: the parameter is read by the body, so the symbol vf74__9CharaTaskFv (in symbols.txt)
@@ -8280,7 +8255,7 @@ void CharaTask::vf74(int arg) {
 
 // inferred: the argument is a direction (fn_8013A4E8 passes a rotated vector)
 void CharaTask::fn_80155790(const atn::Vector3& dir) {
-    fn_80178208(new (0, "", "", 0) chr::Control801B0D88_unk(this, dir));
+    fn_80178208(new (0, "", "", 0) chr::ControlDive(this, dir));
 }
 void CharaTask::fn_80155A88(const atn::Vector3& dir, int a) {
     fn_80178208(new (0, "", "", 0) chr::ControlBackStep(this, dir, a));
@@ -9588,13 +9563,6 @@ void CharaTask::vf88() {
 namespace chr {
 // inferred: controls created by CharaTask 0x8016939C-0x8016AFE8; class names from the vtables stored by
 // the constructors, sizes from the operator new calls
-// inferred: chr/ControlDive.cpp
-class ControlSwapPos : public ControlBase {
-public:
-    ControlSwapPos(Chara_unk* chara, const atn::Vector3& dir); // 0x801B19E4 (sets the control id 0x3F)
-    virtual int vf0C();
-    unsigned char m08[0x18 - 0x08];
-};
 } // namespace chr
 
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)

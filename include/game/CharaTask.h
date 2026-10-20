@@ -15,6 +15,7 @@
 #include "std/vector.h"
 #include "math/Vec.h"
 #include <boost/scoped_ptr.hpp>
+#include <boost/function.hpp>
 
 class EquipItemData;
 namespace atn {
@@ -188,7 +189,8 @@ struct CharaC58_unk {
     int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
     int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
-    unsigned char m140[0x2B4 - 0x140];
+    unsigned char m140[0x2B0 - 0x140];
+    int m2B0; // 0xF08: inferred: counter of frames without moving (EnemyLizerdBlade tackle)
     int m2B4; // 0xF0C: inferred: wait counter
     int m2B8; // 0xF10: inferred: frame counter (fn_80154C08)
 
@@ -378,10 +380,12 @@ public:
     virtual void vfA8();
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
     virtual void vfB0();
-    virtual void vfB4();
+    // inferred: action to run for `chara` (empty in CharaTask: weak copy 0x800EF310; called by
+    // chr::ControlWallUp::vf10)
+    virtual boost::function<void()> vfB4(CharaTask* chara);
     virtual int vfB8(wchar_t* name); // inferred: copies the character name
     virtual void vfBC();
-    virtual void vfC0();
+    virtual void vfC0(void* draw); // inferred: Np131LivingArmor passes `draw` to fn_803E2A30
     virtual bool vfC4();
     virtual void vfC8();
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // inferred: four points (the target symbol says Fv)
@@ -729,7 +733,7 @@ public:
     int fn_8015487C();
     void fn_80154C08();
     bool fn_80154E38(CharaTask* target);
-    void fn_80154EC4(int a, int b);
+    void fn_80154EC4(const atn::Vector3& pos, int link); // inferred: starts chr::ControlSwatTurn
     void fn_801551AC();
     void fn_80155790(const atn::Vector3& dir);
     // inferred: 0x80155A88-0x8015B808 also create a control and switch to it
@@ -816,6 +820,8 @@ public:
     // inferred: bool accessors (the original reloads the flag word after testing them)
     bool IsOnLedge_unk() const { return mFlag31; }
     bool IsFlag5_unk() const { return mFlag5; }
+    bool IsFlag2_unk() const { return mFlag2; } // inferred: name invented (EnemySeaLizerd::vf40 reloads the word)
+    bool IsFlag3_unk() const { return mFlag3; } // inferred: name invented (EnemySeaLizerd::vf40)
     bool IsFlag11_unk() const { return mFlag11; } // inferred: name invented (vf24 reloads the word)
     bool IsDoubleLink_unk() const { return mFlagB16; }
     bool CanClimbUp_unk(int kind) {

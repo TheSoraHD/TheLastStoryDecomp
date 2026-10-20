@@ -6,8 +6,9 @@ extern "C" void fn_80097CCC(Model_unk* model, int track, float weight);
 namespace chr {
 
 // inferred: common end of the constructors (stops track 3 and the movement); name invented
-// NONMATCHING (in the three constructors, 99.2-99.5%): the address of lbl_807C7030 and the reloaded mChara
-// get r4/r5 the other way round. Tried: plain global, reference/pointer locals, a parameter, __VecCopy.
+// The local c2 before the m570 store gives the original r4/r5 order (lbl_807C7030 in r4, mChara in r5).
+// NONMATCHING (ControlOneMotionTransition ctor only, 99.26%): there r4/r5 are still swapped, with or
+// without c2. Tried: plain global, reference/pointer locals, a parameter, __VecCopy.
 inline void ResetMove_unk(ControlBase* control, const atn::Vector3& vel) {
     Chara_unk* c = control->mChara;
     c->m580 = 0.0f;
@@ -15,7 +16,8 @@ inline void ResetMove_unk(ControlBase* control, const atn::Vector3& vel) {
     Chara_unk* chara = control->mChara;
     fn_80097CCC(&chara->mMotion, 3, 0.0f);
     chara->m12BC = -1;
-    control->mChara->m570 = 0.0f;
+    Chara_unk* c2 = control->mChara;
+    c2->m570 = 0.0f;
     control->mChara->m574 = vel;
 }
 

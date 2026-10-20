@@ -161,7 +161,7 @@ public:
     }
     virtual void vf1C() {}
 
-    void fn_8009E6EC(); // inferred: culling and queueing
+    void fn_8009E6EC(int arg); // inferred: culling and queueing (arg unused; callers pass 0 or 1)
     void fn_8009EB20(); // inferred: LOD selection
     void fn_8009EE30(const Matrix3x4& mtx); // inferred: sets the matrix
     void fn_8009F4AC(InstModel_unk* model); // inferred: applies the instance matrices to the model
@@ -263,7 +263,7 @@ inline int HasShadow_unk(InstModel_unk* model) {
 
 // NONMATCHING: 97.53% - register choices in the inlined shadow tests (the original reuses the loaded
 // flags after the second shadow test instead of reloading them)
-void ModelInstance::fn_8009E6EC() {
+void ModelInstance::fn_8009E6EC(int arg) {
     Sphere* sphere = &mSphere;
     InstModel_unk* model = &mData->mModel;
     SetupLens_unk(model);

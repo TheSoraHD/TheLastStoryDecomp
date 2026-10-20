@@ -1748,7 +1748,7 @@
   "classes": [
    "gmk::Coffin"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/MotionObject.cpp",
@@ -2214,7 +2214,7 @@
   "classes": [
    "MapPartsFlare"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsGimmickLoc.cpp",

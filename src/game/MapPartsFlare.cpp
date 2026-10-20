@@ -12,8 +12,6 @@ MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, atn::Csv
     return 0;
 }
 
-// NONMATCHING: 99.7% - the loop increments of i and the element offset are scheduled in the
-// opposite order. Tried: local declaration orders, ++i, while loop, pointer arithmetic, casts.
 MapPartsFlare::MapPartsFlare(atn::Task* parent, void* arg, atn::CsvTab* csv) : MapPartsBase(parent, arg) {
     atn::LensFlareElem* e;
     int count = atoi(csv->fn_8005B9CC());
