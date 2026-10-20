@@ -26,7 +26,6 @@ public:
     int Load();              // 0x80202CA4
     D2AInstance_unk* GetTask() const; // 0x80202D00
     void Draw();             // 0x80203328
-    Matrix3x4 GetDrawMtx_unk(float w, float h, float z);
     void SetMatrix(const Matrix3x4& m); // 0x8020303C
     void UpdateMtx();                   // 0x80203260
 

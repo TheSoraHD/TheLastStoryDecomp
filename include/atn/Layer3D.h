@@ -39,17 +39,6 @@ public:
     int m10;
 };
 
-// inferred from the vtable __vt__Q23atn7Layer2D (0x80779048)
-class Layer2D : public IRenderLayer {
-public:
-    Layer2D(const char* name, int arg0C = -1, int arg10 = -1) : IRenderLayer(name, arg0C, arg10) {}
-    virtual ~Layer2D() {}
-    virtual void vf10() {} // 0x800B3228 (weak)
-    virtual void vf14(void* arg); // 0x800B3464
-    virtual void vf1C();          // 0x800B34C0
-    virtual void vf20();          // 0x800B35F4
-};
-
 // inferred from the vtable __vt__Q23atn7Layer3D
 class Layer3D : public IRenderLayer {
 public:
@@ -64,6 +53,17 @@ public:
     int m14;
     unsigned int m18;            // inferred: number of deferred nodes in m1C
     RenderNode_unk* m1C[16];     // inferred: deferred nodes (drawn by vf18)
+};
+
+// inferred from the vtable __vt__Q23atn7Layer2D (0x80779048)
+class Layer2D : public IRenderLayer {
+public:
+    Layer2D(const char* name, int arg0C = -1, int arg10 = -1) : IRenderLayer(name, arg0C, arg10) {}
+    virtual ~Layer2D() {}
+    virtual void vf10() {} // 0x800B3228 (weak)
+    virtual void vf14(void* arg); // 0x800B3464
+    virtual void vf1C();          // 0x800B34C0
+    virtual void vf20();          // 0x800B35F4
 };
 
 } // namespace atn

@@ -17,6 +17,14 @@ struct InstLens_unk {
     float m160;        // inferred: shadow plane distance
 };
 
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+// inferred: plane {normal, distance} (name invented)
+struct InstPlane_unk {
+    float Distance_unk(const atn::Vector3& p) const { return mDist + PSVECDotProduct(&mNormal, &p); }
+    atn::Vector3 mNormal;
+    float mDist;
+};
+
 // inferred: global camera (lbl_8087EFB4); names invented
 struct InstCamera_unk {
     unsigned char m000[0x15C];
@@ -104,6 +112,7 @@ struct InstBox_unk {
 
 // inferred: model data shared by the instances: a header followed by the model (names invented)
 struct InstData_unk {
+    void Release_unk() { mModel.mInstances--; } // inferred: name invented
     unsigned char m00[0x10];
     InstModel_unk mModel;
 };
@@ -161,6 +170,7 @@ public:
     static void fn_8009F448(ModelInstance* instance, InstModel_unk* model);
 
     // inferred: lens of the model and screen data of the instance (inline, name invented)
+    void DrawModel_unk(InstModel_unk* model, InstCamera_unk* camera);
     void SetupLens_unk(InstModel_unk* model) {
         InstLens_unk* lens = model->mLens;
         void* screen = m64;
@@ -222,9 +232,9 @@ ModelInstance::ModelInstance(InstData_unk* data) : mData(data) {
     mData->mModel.mInstances++;
 }
 
-// NONMATCHING: 86.96% - the original stores the vtable pointer first
+// inferred: the release is an inline call (a call in the body makes MWCC reset the vtable pointer)
 ModelInstance::~ModelInstance() {
-    mData->mModel.mInstances--;
+    mData->Release_unk();
 }
 
 // inferred: shadow test of the model flags (inline, name invented)
@@ -251,7 +261,8 @@ inline int HasShadow_unk(InstModel_unk* model) {
     return shadow;
 }
 
-// NONMATCHING: 97.06% - register choices in the inlined shadow tests and the plane test
+// NONMATCHING: 97.53% - register choices in the inlined shadow tests (the original reuses the loaded
+// flags after the second shadow test instead of reloading them)
 void ModelInstance::fn_8009E6EC() {
     Sphere* sphere = &mSphere;
     InstModel_unk* model = &mData->mModel;
@@ -293,7 +304,9 @@ void ModelInstance::fn_8009E6EC() {
                 if (lens == 0) {
                     lens = lbl_8087EFB4->m2FC;
                 }
-                if (lens->m160 + PSVECDotProduct(&lens->m154, &shadow.mCenter) < shadow.mRadius) {
+                InstPlane_unk* plane = (InstPlane_unk*)&lens->m154;
+                if (plane->Distance_unk(shadow.mCenter) < shadow.mRadius) {
+
                     fn_800BDB58(lbl_8087EFB4, this, mData->mModel.mDrawOrder, 4);
                 }
             }
@@ -340,28 +353,8 @@ void ModelInstance::fn_8009EB20() {
     }
 }
 
-// NONMATCHING: 97.38% - stack slots of the callback temporaries (reverse order) and this/camera
-// registers swapped
-void ModelInstance::vf10(InstCamera_unk* camera) {
-    InstModel_unk* model = &mData->mModel;
-    switch (camera->m2F8) {
-    case 0:
-        if (!mFlag40) {
-            return;
-        }
-        break;
-    case 4:
-        if (!mShadowVisible) {
-            return;
-        }
-        break;
-    case 6:
-    case 8:
-        if (!mVisible) {
-            return;
-        }
-        break;
-    }
+// inferred: draws the shared model with this instance (inline, name invented)
+inline void ModelInstance::DrawModel_unk(InstModel_unk* model, InstCamera_unk* camera) {
     if (model->mType == 8) {
         int flags = mFlags;
         model->mFlags |= flags;
@@ -385,6 +378,31 @@ void ModelInstance::vf10(InstCamera_unk* camera) {
     }
     int flags = mFlags;
     model->mFlags &= ~flags;
+}
+
+// NONMATCHING: 98.84% - r4/r5 for the two callbacks and the stack slots of the callback and lens
+// temporaries; the draw part is an inline (its camera parameter gives the saved registers)
+void ModelInstance::vf10(InstCamera_unk* camera) {
+    InstModel_unk* model = &mData->mModel;
+    switch (camera->m2F8) {
+    case 0:
+        if (!mFlag40) {
+            return;
+        }
+        break;
+    case 4:
+        if (!mShadowVisible) {
+            return;
+        }
+        break;
+    case 6:
+    case 8:
+        if (!mVisible) {
+            return;
+        }
+        break;
+    }
+    DrawModel_unk(model, camera);
 }
 
 // NONMATCHING: 49% - the original takes the smallest and largest corners with paired-single selects
@@ -443,10 +461,10 @@ void ModelInstance::fn_8009F444(ModelInstance* instance, InstModel_unk* model) {
     instance->fn_8009F4AC(model);
 }
 
-// NONMATCHING: 98.80% - r7/r8 swapped (counter and node array)
 void ModelInstance::fn_8009F448(ModelInstance* instance, InstModel_unk* model) {
+    unsigned int i;
     Matrix3x4* nodes = model->mNodeMtx;
-    for (unsigned int i = 0; i < model->mNodeCount; i++) {
+    for (i = 0; i < model->mNodeCount; i++) {
         nodes[i] = lbl_8087EF40[i];
     }
 }

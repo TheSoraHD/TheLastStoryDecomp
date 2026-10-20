@@ -4,7 +4,6 @@
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" double sqrt(double x);
-extern "C" double fabs(double x);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
@@ -44,11 +43,7 @@ namespace atn {
 
 // inferred: bounding sphere (names invented)
 struct Sphere_unk {
-    // inferred: sphere around the box [pos, pos + 2 * ext]
-    Sphere_unk(const Vector3& pos, Vector3 ext) : mCenter(pos + ext) {
-        mRadius = sqrt(ext.x * ext.x + ext.y * ext.y + ext.z * ext.z);
-    }
-    Sphere_unk(const Vector3& center, float radius) : mCenter(center), mRadius(radius) {}
+    Sphere_unk() {}
     Vector3 mCenter;
     float mRadius;
 };
@@ -100,52 +95,90 @@ int D3AnimeInstance::vf0C() {
     return UpdateLoad_unk() == 0;
 }
 
-// NONMATCHING: the original keeps the dead result of the inlined load check (li r5)
 void D3AnimeInstance::vf10() {
-    UpdateLoad_unk();
+    if (UpdateLoad_unk()) {
+        return;
+    }
 }
 
-// NONMATCHING: 92% - the original folds the sphere radius to sqrt(180000.0) and computes the
-// center before it; ours computes the radius from the extent at run time
-// NONMATCHING: the original folds the sphere radius to sqrt(180000.0), computes the center before
-// it and orders the stack differently
+// inferred: same as UpdateMtx with the two work matrices declared in the other order (inline)
+inline void CalcMtx_unk(Matrix3x4& mtx, const Matrix3x4& rot, const Vector3& pos, const Vector3& scl) {
+    mtx = rot;
+    mtx.m[0][3] = pos.x;
+    mtx.m[1][3] = pos.y;
+    mtx.m[2][3] = pos.z;
+    Mtx m;
+    Mtx scale;
+    PSMTXScale(scale, scl.x, scl.y, scl.z);
+    PSMTXConcat(mtx.m, scale, m);
+    __MtxCopy(mtx.m, m);
+}
+
+// inferred: mtx = mtx * scale(v) (inline, name invented)
+inline void ScaleMtx_unk(Matrix3x4& mtx, const Vector3& v) {
+    Mtx m;
+    Mtx scale;
+    PSMTXScale(scale, v.x, v.y, v.z);
+    PSMTXConcat(mtx.m, scale, m);
+    __MtxCopy(mtx.m, m);
+}
+
+// inferred: column lengths (scale) of a matrix (inline, names invented)
+inline float GetScaleX_unk(const Matrix3x4& m) { return PSVECMag(&Vector3(m.m[0][0], m.m[1][0], m.m[2][0])); }
+inline float GetScaleY_unk(const Matrix3x4& m) { return PSVECMag(&Vector3(m.m[0][1], m.m[1][1], m.m[2][1])); }
+inline float GetScaleZ_unk(const Matrix3x4& m) { return PSVECMag(&Vector3(m.m[0][2], m.m[1][2], m.m[2][2])); }
+
+// inferred: 1 / x, or 0 when x is too small (inline, name invented)
+inline float SafeInv_unk(float x) {
+    if (Abs_unk(x) < 1.1920929e-7f) {
+        return 0.0f;
+    }
+    return 1.0f / x;
+}
+
+// inferred: visibility test of the billboard (inline, name invented)
+inline bool IsVisible_unk(const Vector3& pos) {
+    Sphere_unk sphere;
+    sphere.mCenter = pos + Vector3(300.0f, 300.0f, 0.0f);
+    Frustum_unk* frustum = lbl_8087EFB4->GetFrustum_unk();
+    sphere.mRadius = sqrt(300.0f * 300.0f + 300.0f * 300.0f + 0.0f * 0.0f);
+    return !frustum->IsCulled_unk(sphere);
+}
+
+// NONMATCHING: 99.72% - only r4/r5 swapped for the busy flag and the reloaded task pointer in the
+// inlined load check (same as D3Anime::vf14)
 void D3AnimeInstance::vf14() {
     if (UpdateLoad_unk() != 0) {
         return;
     }
-    UpdateMtx();
+    CalcMtx_unk(mMtx, mRot, mPos, mScale);
     if (mTask != 0) {
         fn_801F69A8(mTask);
     }
     if (mVisible) {
-        Frustum_unk* frustum = lbl_8087EFB4->GetFrustum_unk();
-        Sphere_unk sphere(mPos, Vector3(300.0f, 300.0f, 0.0f));
-        if (!frustum->IsCulled_unk(sphere)) {
+        if (IsVisible_unk(mPos)) {
             Draw();
         }
     }
 }
 
-// NONMATCHING: same calls; float register use, stack and double/float conversions differ
+// NONMATCHING: 93.82% - same code and stack; float register numbers differ (position, the scale
+// reloads and the fabs/compare values of the inverse scale)
 void D3AnimeInstance::SetMatrix(const Matrix3x4& m) {
-    double sz = PSVECMag(&Vector3(m.m[0][2], m.m[1][2], m.m[2][2]));
-    float sy = PSVECMag(&Vector3(m.m[0][1], m.m[1][1], m.m[2][1]));
-    Vector3 scale(PSVECMag(&Vector3(m.m[0][0], m.m[1][0], m.m[2][0])), sy, sz);
-    mScale = scale;
-    Vector3 pos(m.m[0][3], m.m[1][3], m.m[2][3]);
-    mPos = pos;
+    Vector3 inv;
+    float sz = GetScaleZ_unk(m);
+    float sy = GetScaleY_unk(m);
+    float sx = GetScaleX_unk(m);
+    mScale = Vector3(sx, sy, sz);
+    mPos = Vector3(m.m[0][3], m.m[1][3], m.m[2][3]);
     mRot = m;
     mRot.m[0][3] = 0.0f;
     mRot.m[1][3] = 0.0f;
     mRot.m[2][3] = 0.0f;
-    Vector3 inv((float)fabs(mScale.x) < 1.1920929e-7f ? 0.0f : 1.0f / mScale.x,
-                (float)fabs(mScale.y) < 1.1920929e-7f ? 0.0f : 1.0f / mScale.y,
-                (float)fabs(mScale.z) < 1.1920929e-7f ? 0.0f : 1.0f / mScale.z);
-    Mtx m2;
-    Mtx s;
-    PSMTXScale(s, inv.x, inv.y, inv.z);
-    PSMTXConcat(mRot.m, s, m2);
-    __MtxCopy(mRot.m, m2);
+    inv.x = SafeInv_unk(mScale.x);
+    inv.y = SafeInv_unk(mScale.y);
+    inv.z = SafeInv_unk(mScale.z);
+    ScaleMtx_unk(mRot, inv);
 }
 
 void D3AnimeInstance::UpdateMtx() {
@@ -182,32 +215,45 @@ inline Vector3 operator*(const Matrix3x4& m, const Vector3& v) {
     PSMTXMultVec(m.m, &r, &r);
     return r;
 }
-inline void SetView_unk(Renderer2D_unk* r, Matrix3x4 m) {
-    r->mD4 = m;
+// inferred: scale matrix from components (the vector temporary is built inside)
+inline Matrix3x4 MakeScale_unk(float x, float y, float z) {
+    return MakeScale_unk(Vector3(x, y, z));
+}
+// inferred: m = m * trans(x, y, z); the translation is declared before the product (stack order)
+inline void Translate_unk(Matrix3x4& m, float x, float y, float z) {
+    Matrix3x4 t = MakeTrans_unk(Vector3(x, y, z));
+    m = m * t;
 }
 
-inline Matrix3x4 D3AnimeInstance::GetDrawMtx_unk(float w, float h, float z) {
-    Matrix3x4 m;
-    if (mFlag9) {
-        m = MakeScale_unk(Vector3(1.0f, -1.0f, 1.0f));
-        m = m * MakeTrans_unk(Vector3(0.5f * -w, 0.5f * -h, z));
-    } else {
-        m = MakeScale_unk(Vector3(1.0f, -1.0f, 1.0f));
-    }
-    PSMTXConcat(mMtx.m, m.m, m.m);
-    return m;
-}
-
-// NONMATCHING: same calls and stores as D3Anime::Draw; stack layout and register use differ
+// NONMATCHING: 99.03% - only volatile register numbers differ (camera/render state pointers and the
+// int->float constants at the top, the renderer pointer and the matrix addresses at the end)
 void D3AnimeInstance::Draw() {
+    const Matrix3x4& camView = lbl_8087EFB4->m15C;
+    int iw = lbl_8087EEE0->mWidth;
+    int ih = lbl_8087EEE0->mHeight;
     Matrix3x4 savedView(lbl_8087EEB0->mD4);
-    SetView_unk(lbl_8087EEB0, lbl_8087EFB4->m15C);
+    Matrix3x4 view(camView);
+    lbl_8087EEB0->mD4 = view;
     Matrix3x4 savedModel(lbl_8087EEB0->mA4);
     int mode = lbl_8087EEB0->mA0;
-    float w = lbl_8087EEE0->mWidth;
-    float h = lbl_8087EEE0->mHeight;
-    Matrix3x4 m = GetDrawMtx_unk(w, h, -0.001f);
-    m = GetDrawMtx_unk(w, h, 0.0f);
+    float w = iw;
+    float h = ih;
+    // inferred: the draw matrix is built twice (z = -0.001f, then 0.0f) and only the second is used
+    Matrix3x4 m;
+    if (mFlag9) {
+        m = MakeScale_unk(1.0f, -1.0f, 1.0f);
+        Translate_unk(m, 0.5f * -w, 0.5f * -h, -0.001f);
+    } else {
+        m = MakeScale_unk(1.0f, -1.0f, 1.0f);
+    }
+    PSMTXConcat(mMtx.m, m.m, m.m);
+    if (mFlag9) {
+        m = MakeScale_unk(1.0f, -1.0f, 1.0f);
+        Translate_unk(m, 0.5f * -w, 0.5f * -h, 0.0f);
+    } else {
+        m = MakeScale_unk(1.0f, -1.0f, 1.0f);
+    }
+    PSMTXConcat(mMtx.m, m.m, m.m);
     Vector3 quad[4];
     quad[0] = m * Vector3(0.0f, 0.0f, 0.0f);
     quad[1] = m * Vector3(1.0f, 0.0f, 0.0f);
