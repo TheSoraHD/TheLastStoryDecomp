@@ -77,7 +77,7 @@ Fusionada en `game/MapPartsOcean`.
 - Hallazgos MWCC: las cadenas de las funciones de plantilla instanciadas (p. ej. `basic_string::__replace_unk`)
   van al `@stringBase0` del fichero que las instancia, aunque el enlazador descarte la copia debil.
 
-## game/HeapInfo_unk (commit HASH4)
+## game/HeapInfo_unk (commit 83bf398)
 
 - Resultado: 4/4 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
@@ -91,3 +91,19 @@ Fusionada en `game/MapPartsOcean`.
     `...__12HeapInfo_unkFv`.
 - Hallazgos MWCC: `float = (unsigned)x` da `fsubs`; el original (`fsub` + `frsp`) pasa por `double`:
   `f = (double)(unsigned)x`.
+
+## MP/CharaListeners_unk (commit HASH5)
+
+- Resultado: 3/3 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - Clase local inventada `MpCharaRef_unk` (solo `CharaTask* mChara`): las tres funciones las llama
+    `atn/PacketPack` (MP::ManagerMP) con el puntero al personaje de un jugador. `fn_805010C0` lanza
+    `fn_800FDE60(lbl_8087F048, 0, chara, (0,1,0))` con los listeners desactivados; `fn_805011CC` reinicia el
+    personaje; `fn_80501288` es el setter (salvo sesion en estado 30 y `m50C` 3/4).
+  - `MpSession_unk` local (copia de la de `MP/D2AMpMenuCockpit.cpp` con `m4FC`) e inline `fn_8014F8F4` con el
+    estatico `sListeners` como en gmk/Item.cpp (el registro de destructor 0x807C8F98 ya estaba en el split).
+  - `symbols.txt`: `fn_805010C0`/`fn_805011CC` -> `...__14MpCharaRef_unkFv`, `fn_80501288` ->
+    `fn_80501288__14MpCharaRef_unkFP9CharaTask`.
+  - Nombre real propuesto: ninguno (parte de MP; sin pruebas).
+- Hallazgos MWCC: las copias debiles (destructor de `CharaListeners_unk` y de su `std::vector`) quedan en el
+  .o entre funciones propias y el enlazador las descarta sin romper el `.dol` (existen antes en 0x8003EFB0...).

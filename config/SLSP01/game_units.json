@@ -2481,6 +2481,11 @@
   "matching": false
  },
  {
+  "name": "MP/CharaListeners_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
   "name": "MP/Popup.cpp",
   "classes": [
    "MP::Popup"
