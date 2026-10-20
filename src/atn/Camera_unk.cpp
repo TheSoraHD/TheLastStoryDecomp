@@ -73,33 +73,31 @@ inline Matrix3x4 RotZYX_unk(const Vector3& rot) {
 }
 
 // inferred: rotation rot_z * rot_x * rot_y (name invented)
-inline Matrix3x4 RotZXY_unk(float x, float y, float z) {
+// (the work matrices are declared at the top in this order: their stack slots match the original)
+inline void RotZXY_unk(Matrix3x4* p, float x, float y, float z) {
+    Mtx ry;
+    Mtx ty;
+    Mtx rx;
+    Mtx tx;
+    Mtx rz;
+    Mtx tz;
     Vector3 rot(x, y, z);
-    Matrix3x4 m;
-    Matrix3x4* p = &m;
     p->SetIdentity();
     if (0.0f != rot.z) {
-        Mtx r;
-        Mtx t;
-        PSMTXRotRad(r, 'z', rot.z);
-        PSMTXConcat(p->m, r, t);
-        __MtxCopy(p->m, t);
+        PSMTXRotRad(rz, 'z', rot.z);
+        PSMTXConcat(p->m, rz, tz);
+        __MtxCopy(p->m, tz);
     }
     if (0.0f != rot.x) {
-        Mtx r;
-        Mtx t;
-        PSMTXRotRad(r, 'x', rot.x);
-        PSMTXConcat(p->m, r, t);
-        __MtxCopy(p->m, t);
+        PSMTXRotRad(rx, 'x', rot.x);
+        PSMTXConcat(p->m, rx, tx);
+        __MtxCopy(p->m, tx);
     }
     if (0.0f != rot.y) {
-        Mtx r;
-        Mtx t;
-        PSMTXRotRad(r, 'y', rot.y);
-        PSMTXConcat(p->m, r, t);
-        __MtxCopy(p->m, t);
+        PSMTXRotRad(ry, 'y', rot.y);
+        PSMTXConcat(p->m, ry, ty);
+        __MtxCopy(p->m, ty);
     }
-    return m;
 }
 
 // inferred: sets the rows and the translation of a view matrix (name invented)
@@ -164,8 +162,7 @@ Camera_unk::Camera_unk(int type, int projType)
 
 Camera_unk::~Camera_unk() {}
 
-// NONMATCHING: 98.28% - stack order of the rot_z * rot_x * rot_y temporaries, a few small
-// temporaries and FPR allocation in the roll branch (mType 2)
+// NONMATCHING: 99.97% - r3/r4 swapped in the copy of the cross product (__VecCopy, known blocker)
 void Camera_unk::fn_8004B378() {
     switch (mType) {
     case 0: {
@@ -173,7 +170,7 @@ void Camera_unk::fn_8004B378() {
             mTarget.z += 0.1f;
         }
         mView = LookAt_unk(mPos, mUp, mTarget);
-        mRot = Neg_unk((mTarget - mPos).GetNormalized_unk());
+        mRot = Neg_unk(Direction_unk(mPos, mTarget));
         mRot.fn_80139F60();
         mDist = (mTarget - mPos).Length_unk();
         break;
@@ -202,11 +199,20 @@ void Camera_unk::fn_8004B378() {
             u = Cross_unk(d, side);
             float cs = CosF_unk(mRoll);
             float sn = SinF_unk(mRoll);
-            Vector3 r(sn * u.x + cs * side.x, sn * u.y, sn * u.z + cs * side.z);
-            Vector3 v(cs * u.x - sn * side.x, cs * u.y, cs * u.z - sn * side.z);
-            float tz = -PSVECDotProduct(&mPos, &d);
-            float ty = -PSVECDotProduct(&mPos, &v);
-            float tx = -PSVECDotProduct(&mPos, &r);
+            Vector3 r;
+            r.x = sn * u.x + cs * side.x;
+            r.y = sn * u.y;
+            r.z = sn * u.z + cs * side.z;
+            Vector3 v;
+            v.x = cs * u.x - sn * side.x;
+            v.y = cs * u.y;
+            v.z = cs * u.z - sn * side.z;
+            float tx;
+            float ty;
+            float tz;
+            tz = -PSVECDotProduct(&mPos, &d);
+            ty = -PSVECDotProduct(&mPos, &v);
+            tx = -PSVECDotProduct(&mPos, &r);
             SetView_unk(mView, r, v, d, tx, ty, tz);
         }
         break;
@@ -218,11 +224,15 @@ void Camera_unk::fn_8004B378() {
         mView = t;
         Matrix3x4 rot = RotZYX_unk(mRot);
         PSMTXConcat(rot.m, mView.m, mView.m);
+        float rz = mRot.z;
         mUp.Set_unk(0.0f, 1.0f, 0.0f);
-        PSMTXRotRad(m.m, 'z', mRot.z);
+        PSMTXRotRad(m.m, 'z', rz);
         PSMTXMultVec(m.m, &mUp, &mUp);
         mTarget.Set_unk(0.0f, 0.0f, mDist);
-        m = RotZXY_unk(mRot.x, mRot.y, 0.0f);
+        Matrix3x4 rot2;
+        Matrix3x4* p = &rot2;
+        RotZXY_unk(p, mRot.x, mRot.y, 0.0f);
+        m = *p;
         PSMTXMultVec(m.m, &mTarget, &mTarget);
         break;
     }
