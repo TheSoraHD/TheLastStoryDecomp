@@ -346,6 +346,11 @@
   "matching": false
  },
  {
+  "name": "atn/WordWrap_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/Sound3dListener.cpp",
   "classes": [
    "atn::SoundCore",
