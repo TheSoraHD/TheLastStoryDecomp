@@ -40,7 +40,7 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
 - Hallazgos MWCC
   - Leer un `u8` a traves de un inline que devuelve `int` da `cmpwi` en vez de `cmplwi` al compararlo.
 
-## atn/DwcAllocator_unk (commit HASH)
+## atn/DwcAllocator_unk (commit de252cc)
 
 - Resultado: 6/6 al 100%, `matching: true`, `main.dol: OK`.
 - NONMATCHING: ninguna.
@@ -57,3 +57,18 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
 - Hallazgos MWCC
   - `f()->m = 1;` carga la constante en un registro salvado antes de la llamada; con `T* p = f(); p->m = 1;` sale
     `li r0` despues (como el original).
+
+## atn/THPDraw_unk (commit HASH)
+
+- Resultado: 3/3 al 100%, `matching: true`, `main.dol: OK`.
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits y `symbols.txt`: sin cambios.
+  - Es `THPDraw.c` del reproductor de ejemplo del SDK de THP (THPGXRestore 0x805B4DF0, THPGXYuv2RgbSetup 0x805B4F08,
+    THPGXYuv2RgbDraw 0x805B53CC), adaptado: las texturas se cargan con `fn_800763FC(lbl_8087EEE0, obj, map)` del
+    renderer del motor en vez de `GXLoadTexObj`. Funciones `extern "C"` con su nombre `fn_` (nombres del SDK
+    propuestos, no aplicados). Declaraciones GX locales en el `.cpp` (no se amplia `atn/GXDecl.h`).
+  - Nombre real propuesto del fichero: `THPDraw.c` (o `.cpp`); se mantiene la unidad `atn/THPDraw_unk`.
+- Hallazgos MWCC
+  - Los colores locales `const GXColor c = {...}` pasados por valor van a `.sdata2` (los de 8 bytes, `GXColorS10`, a
+    `.rodata`) y salen antes que los floats del cuerpo aunque se usen despues.
