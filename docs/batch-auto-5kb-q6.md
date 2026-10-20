@@ -56,7 +56,7 @@ funciones `extern "C" fn_<addr>`.
     reparte los registros salvados como el original (data en r31, entry en el mas bajo); declarado en el cuerpo del
     bucle deja `data` en el registro mas bajo.
 
-## db/PlayerPriority_unk (commit HASH)
+## db/PlayerPriority_unk (commit 7ec63ad)
 - Resultado: 4/4 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -67,3 +67,19 @@ funciones `extern "C" fn_<addr>`.
   - Tipos inferidos `PlayerPriority_unk` (0xF4: id + 30 pares `PlayerPriorityItem_unk` {tipo 1-6, valor}), 7 filas
     por tabla (armas y protectores). `fn_802188B4` recibe `atn::Csv*` (lee el resto de la fila).
 - Hallazgos MWCC: nada nuevo (declarar `field` fuera del `for` para que el contador reciba el registro mas bajo).
+
+## db/LevelEquipTable_unk (commit HASH)
+- Resultado: 4/4 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios (el inicio 0x8021414C, corte ambiguo segun `splits-auto-B`, cuadra: la unidad anterior
+    `db/ItemRare_unk` ya esta decompilada hasta ahi).
+  - `symbols.txt`: `lbl_8073FAB0` -> `sFileNameStr`, `lbl_8073FACC` -> `@stringBase0`, `lbl_8087F240` -> `sEntries`,
+    `lbl_8087F244` -> `sCount`, `lbl_80882EF8` -> `sFileName`.
+  - Tipo inferido `LevelEquipEntry_unk` (0x24: 2 ids con prefijo de 2 letras, 2x3 enteros, id final). Los accesores
+    limitan el indice con macros `MIN(MAX(i, 0), sCount - 1)` (el valor limitado se calcula dos veces).
+- Hallazgos MWCC
+  - `x = cond ? f() : 0` deja `li r3,0` + un solo `stw`; si el original guarda un 0 de registro salvado en la rama
+    `else` (`stw r31`), es `if/else` con una asignacion en cada rama.
+  - `if (0 > k || k >= N) return 0;` da `blt fallo; cmpwi; blt ok` (dos `cmpwi` con signo); `k >= 0 && k < N` se fusiona
+    en `cmplwi`.
