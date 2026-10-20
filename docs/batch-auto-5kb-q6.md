@@ -246,7 +246,7 @@ funciones `extern "C" fn_<addr>`.
     return false;` sale `li r0,1; b; li r0,0` como el original.
   - `if (x <= 0.0f) return r; ...` da `cror; bne` + copia del valor; `if (x > 0.0f) { ... } return r;` da el `ble` directo.
 
-## db/ParseUtil_unk (commit HASH)
+## db/ParseUtil_unk (commit 3391aac)
 - Resultado: 11/15 al 100%, matching no (ademas, las copias debiles de `std/string_members.h` meten 2 bytes de
   `.sdata` que el fichero original no tiene: no se podria enlazar sin tocar esa cabecera).
 - NONMATCHING: `fn_8021A684` 98.06%, `fn_8021A7A0` 98.97%, `fn_8021A9CC` 98.06%, `fn_8021AA48` 97.86% - una sola
@@ -269,3 +269,24 @@ funciones `extern "C" fn_<addr>`.
     `bool result = false; if (a || b) result = true; return result;` (con `return a || b;` devuelve directo).
   - Asignaciones en el cuerpo del ctor (no lista de inicializacion) para reproducir un orden de stores que no sigue la
     declaracion de los miembros.
+
+## db/MapEnvSeTable_unk (commit HASH)
+- Resultado: 10/11 al 100%, matching no.
+- NONMATCHING: `fn_80214F80` (sonido de un mapa por clave) 97.71% - solo asignacion de registros volatiles (el original
+  da r7/r8 al bucle interno y r9-r12 al externo); probadas formas indice/puntero de ambos bucles y `while`.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_80214BF4`/`fn_80214E24` -> `__ct__/__dt__12MapEnvSe_unkFv`, `fn_80214E04` -> `__ct__9EnvSe_unkFv`,
+    `fn_80214E14`/`fn_80214E94` -> `__ct__/__dt__16LoadingEnvSe_unkFv`; datos `sFileNameStr`, `sLoadingFileNameStr`,
+    `@stringBase0` (0x8073FB0C), `sEntries`, `sCount`, `sLoading`, `sLoadingCount`, `sFileName`, `sLoadingFileName` y los
+    `""` de `.sdata`: 0x8087DB70/74 -> `@STRING@reserve__Q23atn22Vector_unk<9EnvSe_unk>FUii(@0)` (del `push_back` inline),
+    0x8087DB78/7C -> `@STRING@InitList_unk__FRQ23atn22Vector_unk<9EnvSe_unk>Ui(@0)`.
+  - Tipos inferidos `MapEnvSe_unk` (0x18: id de mapa en 3 numeros + `atn::Vector_unk<EnvSe_unk>`; mismo patron que
+    `RareEntry_unk` de q5, con su inline `InitList_unk`), `EnvSe_unk` (clave, id de sonido), `LoadingEnvSe_unk` (0x14:
+    id de sonido + `atn::FixedString_unk<0x10>`), `EnvSeSound_unk` (solo `m04` de `lbl_8087EE90`).
+  - El pool tiene un 0 extra tras "GROUP_VRC%s": el literal se escribe `"GROUP_VRC%s\0"`.
+- Hallazgos MWCC
+  - Bucle de lectura con la prueba arriba (`campo; if (vacio) salir; ...; b arriba`) = `for (;;) { f = ...; if (!*f)
+    break; ... }` (con `while (*(f = ...))` MWCC lo rota).
+  - Contador reutilizado como indice de la segunda pasada (mismo registro en el original): una sola variable; si ademas
+    el `li` va antes de la llamada previa, desplazamiento en bytes.
