@@ -27,3 +27,22 @@ Datos: cada unidad recibe los objetos `auto_` que solo usan sus funciones, pegad
 
 ## Hallazgos
 - dtk acepta los bloques `.ctors` de 4 bytes de las `__sinit` aisladas junto a la unidad anterior sin `align:`.
+
+## Grupo 2 (chr::Control*)
+
+| Tramo | Unidad | Prueba |
+|---|---|---|
+| 0x8018EEC4-0x80192908 | `chr/ControlCdnStone.cpp` (nuevo) | Constantes nuevas (0.0f 0x80881F70, 1.0f 0x80881F7C...) frente a ControlAttackBase; todas las clases `chr::ControlCdn*` (Stone, RestoreStone, Paralyzed, RestoreParalyzed, Betray, Sleep, RestoreSleep, Piyo, RestorePiyo, Psycho, RestorePsycho) con sus RTTI contiguos en `.rodata` 0x807395B4-0x807396D4 en orden inverso (Stone ultima = primera del codigo). Incluye al final los debiles `vf14/vf18/vf10__Q23chr11ControlBaseFv` (0x80192578-0x80192908, con su propia copia 0.0f/1.0f 0x80881FB0) y la vtable de `chr::ControlBase` (0x8077DC90): primer fichero que los usa. ControlStickByQuark empieza en 0x80192908 (nuevas copias 0.5f/1.0f/0.0f 0x80881FB8...). |
+| 0x80192908-0x801963F4 | `chr/ControlStickByQuark.cpp` ampliada hacia atras | Mismas copias de constantes que el resto de ControlStickByQuark (0x80881FBC=1.0, 0x80881FCC=0.0...) hasta 0x801A0BA8; clases StickByQuark, Thrust, ThrustForCrab/Kraken/QuarkStand/Ghoul. |
+| 0x801AAAE4-0x801AAB64 | `chr/ControlChaseCaught.cpp` ampliada | Dos destructores debiles en las vtables de ControlChaseAssist/ControlChaseFollow (clases de ControlChaseCaught). |
+| 0x801C041C-0x801C3414 | `chr/ControlMountle.cpp` (nuevo) | Constantes nuevas frente a ControlChant (0x80882698...); clases Mountle, MountleQuadruped, GuardMountle, WallMountle, Jump. |
+| 0x801C3414-0x801C3DCC | `chr/ControlMoveCursor.cpp` (nuevo) | 0.0f/1.0f cambian de copia en 0x801C3414 (0x80882748) y otra vez en ControlOneMotion (0x801C3DCC); vtable `chr::ControlMoveCursor` 0x80781B90 justo antes de la de ControlOneMotion. |
+
+### Decisiones sin el usuario
+- `chr::ControlBase` (vtable y vf10/14/18 debiles) queda dentro de `chr/ControlCdnStone.cpp` (no es un fichero aparte: solo funciones debiles con su copia de constantes; a revisar).
+- `.bss` 0x807C7C78 (usado solo por ControlMountle) se queda en `auto_`: asignarlo creaba un ciclo de orden de enlace (ControlMountle -> ControlMoveCursor -> ControlOneMotion -> ControlPushedDown -> auto bss), porque el `.bss` de ControlPushedDown esta antes. Igual con `.bss` 0x807C7C30/0x807C7C38 de ControlChaseCaught (detras del bss de ControlPushedDown).
+- `.sbss` de ControlCdnStone extendido hasta 0x8087F0C0 para incluir el guard compartido `@GUARD@assign_to<...mf0<v,9CharaTask>...>` (0x8087F0BE, 1 byte): dejarlo solo en un trozo `auto_` de 2 bytes da `undefined` al enlazar.
+
+## Hallazgos (grupo 2)
+- Si un objeto solo usado por la unidad X queda detras de datos de otra unidad Y y X va antes que Y en .text, dtk falla por ciclo de orden de enlace: hay que dejar ese objeto en `auto_`.
+- Un guard `@GUARD@` (1 byte) compartido no puede quedarse solo en un hueco `auto_` minimo entre dos unidades: el enlace da `undefined`; meterlo en la unidad vecina.

@@ -424,11 +424,22 @@ chr/ControlAttackBase.cpp:
 	.data       start:0x8077CF80 end:0x8077D5F0
 	.sdata2     start:0x80881E90 end:0x80881F68
 
+chr/ControlCdnStone.cpp:
+	.text       start:0x8018EEC4 end:0x80192908
+	.rodata     start:0x80739130 end:0x80739700
+	.data       start:0x8077D5F0 end:0x8077DCF0
+	.bss        start:0x807C7B60 end:0x807C7B90
+	.sbss       start:0x8087F0B8 end:0x8087F0C0
+	.sdata2     start:0x80881F68 end:0x80881FB8
+
 chr/ControlStickByQuark.cpp:
-	.text       start:0x801963F4 end:0x801A0BA8
-	.rodata     start:0x80739BA0 end:0x80739F20
-	.data       start:0x8077DE00 end:0x8077ED78
-	.sdata2     start:0x808820C4 end:0x80882130
+	.text       start:0x80192908 end:0x801A0BA8
+	.rodata     start:0x80739700 end:0x80739F70
+	.data       start:0x8077DCF0 end:0x8077EFB0
+	.bss        start:0x807C7B98 end:0x807C7BD0
+	.sdata      start:0x8087DA00 end:0x8087DA08
+	.sbss       start:0x8087F0C0 end:0x8087F0C8
+	.sdata2     start:0x80881FB8 end:0x80882130
 
 chr/ControlCannonLift.cpp:
 	.text       start:0x801A0BA8 end:0x801A2290
@@ -451,9 +462,11 @@ chr/ControlCharge.cpp:
 	.sdata2     start:0x80882178 end:0x80882230
 
 chr/ControlChaseCaught.cpp:
-	.text       start:0x801A77BC end:0x801AAAE4
-	.rodata     start:0x8073A8B8 end:0x8073A950
-	.data       start:0x8077F7E8 end:0x8077FAB8
+	.text       start:0x801A77BC end:0x801AAB64
+	.rodata     start:0x8073A4F8 end:0x8073A958
+	.data       start:0x8077F688 end:0x8077FB48
+	.bss        start:0x807C7C18 end:0x807C7C28
+	.sbss       start:0x8087F0E0 end:0x8087F0E8
 	.sdata2     start:0x80882230 end:0x80882290
 
 chr/ControlCliffhang.cpp:
@@ -533,6 +546,19 @@ chr/ControlChant.cpp:
 	.rodata     start:0x8073B590 end:0x8073B5D0
 	.data       start:0x80781740 end:0x807818B8
 	.sdata2     start:0x808825E0 end:0x80882698
+
+chr/ControlMountle.cpp:
+	.text       start:0x801C041C end:0x801C3414
+	.rodata     start:0x8073B5D8 end:0x8073B718
+	.data       start:0x807818F0 end:0x80781B90
+	.sdata      start:0x8087DA10 end:0x8087DA40
+	.sbss       start:0x8087F108 end:0x8087F110
+	.sdata2     start:0x80882698 end:0x80882748
+
+chr/ControlMoveCursor.cpp:
+	.text       start:0x801C3414 end:0x801C3DCC
+	.data       start:0x80781B90 end:0x80781BF0
+	.sdata2     start:0x80882748 end:0x80882778
 
 chr/ControlOneMotion.cpp:
 	.text       start:0x801C3DCC end:0x801C4738
