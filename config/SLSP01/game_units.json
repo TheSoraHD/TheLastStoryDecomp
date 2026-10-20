@@ -2306,6 +2306,11 @@
   "matching": false
  },
  {
+  "name": "game/MapPartsFactory.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
   "name": "game/MapPartsFlare.cpp",
   "classes": [
    "MapPartsFlare"

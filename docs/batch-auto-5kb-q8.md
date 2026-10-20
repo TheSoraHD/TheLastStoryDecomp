@@ -92,7 +92,7 @@ Fusionada en `game/MapPartsOcean`.
 - Hallazgos MWCC: `float = (unsigned)x` da `fsubs`; el original (`fsub` + `frsp`) pasa por `double`:
   `f = (double)(unsigned)x`.
 
-## MP/CharaListeners_unk (commit HASH5)
+## MP/CharaListeners_unk (commit 66edd29)
 
 - Resultado: 3/3 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
@@ -107,3 +107,16 @@ Fusionada en `game/MapPartsOcean`.
   - Nombre real propuesto: ninguno (parte de MP; sin pruebas).
 - Hallazgos MWCC: las copias debiles (destructor de `CharaListeners_unk` y de su `std::vector`) quedan en el
   .o entre funciones propias y el enlazador las descarta sin romper el `.dol` (existen antes en 0x8003EFB0...).
+
+## game/MapPartsFactory (commit HASH6)
+
+- Resultado: 2/2 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - Funciones `extern "C"` con sus nombres de symbols.txt (`fn_80496A28` tipo por nombre: MODEL 0, OCEAN 1,
+    COLLI_TREE 2, EFP 3, LOCATORS 4, GIMMICK_LOC 5, AREAFILE 6, LENSFLARE 7; `fn_80496B3C` crea la pieza
+    pasando el tipo como `void* arg`, salvo OCEAN que pasa 0). Los creadores de `MapPartsLocatorSet`
+    (`fn_8049A018`), `MapPartsGimmickLoc` (`fn_80496EE8`) y `MapPartsArea` (`fn_80491EA0`) se declaran
+    `extern "C"` (sin cabecera; no se renombran).
+  - `symbols.txt`: `lbl_80756A10` -> `@stringBase0` (0x48 -> 0x43).
+- Hallazgos MWCC: el ultimo `if` de una cadena de `return` que sale `li r3,1; beq; li r3,-1` se escribe
+  `if (x != 0) return -1; return 1;` (con `== 0` salen invertidos).
