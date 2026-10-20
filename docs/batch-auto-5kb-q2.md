@@ -201,3 +201,30 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
 - Hallazgos MWCC:
   - `static int sLoaded;` declarado antes del `static Texture_unk sEdge;` coloca `sLoaded` antes que la guarda de `sEdge` en `.sbss`.
   - Una matriz local con stores en orden inverso de los ceros se escribe como cadena `m01 = m02 = ... = 0.0f` (la cadena guarda de derecha a izquierda).
+
+## atn/PostFxRain (commit HASH9)
+
+- Resultado: 2/8 al 100% (`PostFxRainDrop_unk::PostFxRainDrop_unk` vacio y `fn_800B0A48`), `matching: false`.
+- NONMATCHING (todas con la estructura y los datos ya correctos, `.sdata2` en el mismo orden):
+  - ctor 97.74% - store muerto del puntero tras `__construct_new_array` y registros del bucle de limpieza.
+  - `fn_800B0A70` (dibuja las gotas) 98.61%, `fn_800B1554` (Reset) 97.65% - registros de los bucles.
+  - `fn_800B0CD4` (ondas de calor) ~76% - disposicion de la pila: el original deja los 4 colores en orden ascendente
+    por encima de las copias de argumentos y el vector/matriz de escala por debajo, como locales de una inline;
+    probado una inline `DrawGradient_unk` y el orden inverso de declaracion sin exito.
+  - `vf10` 99.65% - `this`/tamano de pantalla en otros registros salvados y los dos colores de `GXSetCopyClear` en otros huecos.
+  - `fn_800B1598` (update) 99.65% - desplazamiento y puntero de gota del ultimo bucle intercambiados en r6/r5.
+- **Decisiones sin el usuario**:
+  - Split sin cambios. Los dos `.sdata` 0x8087D870/0x8087D874 (palabras a cero pasadas a `new[]` como fichero/funcion,
+    como los de LipSync_unk de q1) quedan solo declarados `extern "C" char[4]`: MWCC no deja un objeto a cero en
+    `.sdata`, asi que la unidad no se podra enlazar aunque el codigo llegue al 100% (pendiente, igual que en q1).
+  - `symbols.txt`: `fn_800B0A44` -> `__ct__18PostFxRainDrop_unkFv`, `fn_800B0A70`/`fn_800B0CD4` -> metodos de
+    `atn::PostFxRain`, `fn_800B105C` -> `vf10__Q23atn10PostFxRainFPv`, `lbl_80732D00` -> `@stringBase0`
+    (`"heat_waves01.texture"`, `"drop_warp.texture"`), `lbl_80880EC0` tamano 0x8 -> 0x4.
+  - Layout inferido de `PostFxRain` (0xE8; coincide con la copia local de `src/atn/LinearAllocator.cpp`): flags de gotas
+    y calor, intensidades suavizadas (0x0C/0x10/0x20), punteros a los ajustes activos (0x14 gotas, 0x54 calor:
+    `lbl_8087EFA8`+0x2AC/+0x2BC o la sustitucion de `fn_800C1424`+0x1E4/+0x1F8), desplazamiento de las ondas,
+    `GXTexObj` indirecta (0x60), array de 256 gotas de 0x1C (x, y, w, h, alfa, tiempo, estado) y dos `Texture_unk`.
+  - `fn_800BFCB4` recibe tambien el ancho y alto de pantalla (r8/r9) tras los 4 colores.
+- Hallazgos MWCC:
+  - Los literales de `.sdata2` siguen el orden del texto del fuente, incluidas las de inlines plantilla (`Max_unk`).
+  - Un bucle sobre `float m[2][3]` escrito como dos bucles anidados (2x3) se desenrolla por 3 con `ctr` = 2, igual que el original; un bucle plano de 6 se desenrolla entero.

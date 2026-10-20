@@ -2982,5 +2982,12 @@
    "atn::PostFxDamage"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/PostFxRain.cpp",
+  "classes": [
+   "atn::PostFxRain"
+  ],
+  "matching": false
  }
 ]
