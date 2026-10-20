@@ -2099,10 +2099,10 @@ game/TeamAIManager.cpp:
 
 game/TownTask.cpp:
 	.text       start:0x805B6C5C end:0x805B9B08
-	.rodata     start:0x80763DF0 end:0x80763EB8
-	.data       start:0x807978C8 end:0x80797908
+	.rodata     start:0x80763DE8 end:0x80763EB8
+	.data       start:0x807978C8 end:0x80797928
 	.sbss       start:0x8087FA20 end:0x8087FA28
-	.sdata2     start:0x808883E0 end:0x808883EC
+	.sdata2     start:0x808883E0 end:0x80888448
 
 game/TownTpcLoader.cpp:
 	.text       start:0x805B9B08 end:0x805B9EC8
