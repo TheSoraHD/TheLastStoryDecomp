@@ -20,7 +20,7 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
   - Store de un miembro seguido de su relectura (`stb` + `lbz` en vez de reusar el registro) = miembro `volatile`;
     dos miembros `volatile` dejan el store de la vtable entre sus stores en el ctor.
 
-## atn/LH_Handle (commit HASH)
+## atn/LH_Handle (commit 769538a)
 
 - Resultado: 8/9 al 100%, `matching: false` (`main.dol: OK`).
 - NONMATCHING: `fn_80473FCC__Q23atn10LoadHandleFPCc` 99.2% - solo reparto de registros (`this` r20 y desplazamiento
@@ -39,3 +39,21 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
     `lbl_8087EE94` (tambien lo recorren `atn::AudioDevice` 0x80046228 y `main`).
 - Hallazgos MWCC
   - Leer un `u8` a traves de un inline que devuelve `int` da `cmpwi` en vez de `cmplwi` al compararlo.
+
+## atn/DwcAllocator_unk (commit HASH)
+
+- Resultado: 6/6 al 100%, `matching: true`, `main.dol: OK`.
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (el split ya cubre `.text`, pool y `.sbss`).
+  - `symbols.txt`: `lbl_8075B180` -> `@stringBase0` (size 0x17, `scope:local data:string_table`).
+  - Funciones como `extern "C"` sin clase (callbacks de DWC: init 0x8050D3E8, fin 0x8050D484, `DWCAllocEx`/`DWCFreeEx`
+    0x8050D500/0x8050D5B8 y otro par alloc/free alineado a 32 0x8050D67C/0x8050D728). El primer parametro
+    (nombre/contexto) no se usa.
+  - Tipos locales repetidos de `atn/SmallAllocator_8.cpp` (`NamedAllocator_unk` con `vf0C(size, align, heap, name)`,
+    alias `extern "C"` de `DLAllocator::fn_80084EE8` con el nombre) y `MemoryManager_unk` minimo (`mUseMutex` 0x1B0).
+    Mutex de red `lbl_8087F628` con lock/unlock `fn_80509A88/90`.
+  - Nombre real propuesto: sin pruebas (podria ser parte del fichero de `atn/NetManager`).
+- Hallazgos MWCC
+  - `f()->m = 1;` carga la constante en un registro salvado antes de la llamada; con `T* p = f(); p->m = 1;` sale
+    `li r0` despues (como el original).
