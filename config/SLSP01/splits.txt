@@ -178,9 +178,11 @@ atn/Layer3D.cpp:
 	.sdata2     start:0x80880F30 end:0x80880F40
 
 atn/LayerOcclusionCPU.cpp:
-	.text       start:0x800B3A94 end:0x800B543C
-	.rodata     start:0x80732E30 end:0x80732E48
+	.text       start:0x800B3978 end:0x800B543C
+	.rodata     start:0x80732E30 end:0x80732E58
 	.data       start:0x807790B0 end:0x807790E8
+	.bss        start:0x807C7580 end:0x807C75A0
+	.sbss       start:0x8087EFA0 end:0x8087EFA8
 	.sdata2     start:0x80880F40 end:0x80880F60
 
 atn/LayerPost3D.cpp:
