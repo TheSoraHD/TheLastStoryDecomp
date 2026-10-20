@@ -15,3 +15,16 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
   - `include/game/SetConfig.h`: cuatro metodos nuevos y tipo inferido `SoundSettings_unk` (tipo de sonido + 3
     volumenes; `GameSaveData_unk` 0x803BD79C lo rellena y llama a 0x8057F1B4).
 - Hallazgos MWCC: ninguno nuevo.
+
+## game/GameTimer_cont (commit HASH)
+
+- Resultado: 7/7 al 100%, fusionada en `game/GameTimer` (`matching: true`, `main.dol: OK`).
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits: `game/GameTimer` .text 0x803CE4B0-0x803CE688 -> 0x803CE4B0-0x803CE854; borrada `game/GameTimer_cont`
+    (contigua, sin datos).
+  - `symbols.txt` (pairnames): `fn_803CE688..fn_803CE7E0` -> metodos de `GameTimer` (arrancar, pausar/reanudar,
+    parar, sumar, restar, cargar/guardar en las variables de juego 0x385/0x386 via `lbl_8087F430`).
+  - `include/game/GameTimer.h`: siete metodos nuevos. Externos locales `fn_803761EC` (getter del valor),
+    `fn_80370174`/`fn_80370320` (leer/escribir variable de juego; firmas como en `gmk/AttractHatePoint`).
+- Hallazgos MWCC: ninguno nuevo.
