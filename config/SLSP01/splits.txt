@@ -2227,10 +2227,20 @@ game/NpcManager.cpp:
 	.rodata     start:0x8075E380 end:0x8075E398
 	.data       start:0x80794738 end:0x80794780
 
+game/NpcManager_cont.cpp:
+	.text       start:0x80547980 end:0x80547C28
+
 game/NpcTask.cpp:
 	.text       start:0x80547C28 end:0x80547EA0
 	.rodata     start:0x8075E398 end:0x8075E3A8
 	.data       start:0x80794780 end:0x80794888
+
+game/PathData_unk.cpp:
+	.text       start:0x80547EA0 end:0x80548D54
+	.ctors      start:0x8072D3D4 end:0x8072D3D8
+	.rodata     start:0x8075E3A8 end:0x8075E3F8
+	.data       start:0x80794888 end:0x807948E8
+	.sdata2     start:0x80887D38 end:0x80887D40
 
 game/PickTask.cpp:
 	.text       start:0x80548D54 end:0x80549D8C
@@ -2239,48 +2249,75 @@ game/PickTask.cpp:
 	.sbss       start:0x8087F898 end:0x8087F8A0
 	.sdata2     start:0x80887D40 end:0x80887D58
 
+game/PlayerManager.cpp:
+	.text       start:0x80549D8C end:0x8054A3DC
+	.rodata     start:0x8075E458 end:0x8075E478
+	.data       start:0x80794920 end:0x80794968
+	.sdata2     start:0x80887D58 end:0x80887D60
+
+game/PlayerTask.cpp:
+	.text       start:0x8054A3DC end:0x8054A6E8
+	.rodata     start:0x8075E478 end:0x8075E480
+	.data       start:0x80794968 end:0x80794A60
+
 game/PopupTask.cpp:
-	.text       start:0x8054A750 end:0x8054D794
-	.rodata     start:0x8075E490 end:0x8075E49C
-	.data       start:0x80794A84 end:0x80794AC0
-	.sdata2     start:0x80887D64 end:0x80887E04
+	.text       start:0x8054A6E8 end:0x8054E574
+	.rodata     start:0x8075E480 end:0x8075E800
+	.data       start:0x80794A60 end:0x80794AE0
+	.sdata2     start:0x80887D60 end:0x80887E20
 
 Event/ActionActorBehavior.cpp:
 	.text       start:0x8054E574 end:0x80551108
-	.rodata     start:0x8075E800 end:0x8075E81C
-	.data       start:0x80794AE0 end:0x80794B10
+	.rodata     start:0x8075E800 end:0x8075E850
+	.data       start:0x80794AE0 end:0x80794B18
 	.sdata2     start:0x80887E20 end:0x80887E30
 
 Event/ActionActorPosition.cpp:
-	.text       start:0x80552460 end:0x8055A400
-	.rodata     start:0x8075E860 end:0x8075EB2C
-	.data       start:0x80794B48 end:0x80794D70
-	.sdata2     start:0x80887E48 end:0x80887E70
+	.text       start:0x80551108 end:0x8055A49C
+	.ctors      start:0x8072D3D8 end:0x8072D3DC
+	.rodata     start:0x8075E850 end:0x8075EC98
+	.data       start:0x80794B18 end:0x80794D78
+	.bss        start:0x807C9220 end:0x807C9238
+	.sbss       start:0x8087F978 end:0x8087F980
+	.sdata2     start:0x80887E30 end:0x80887E70
 
 Event/ActionCameraMode.cpp:
-	.text       start:0x8055A49C end:0x8055D6B4
-	.rodata     start:0x8075EFC0 end:0x8075F028
-	.data       start:0x80794EE0 end:0x80794F48
+	.text       start:0x8055A49C end:0x8055DBF4
+	.rodata     start:0x8075EC98 end:0x8075F028
+	.data       start:0x80794D78 end:0x80794F48
 	.sdata2     start:0x80887E70 end:0x80887EB0
 
 Event/ActionEffectPlay.cpp:
 	.text       start:0x8055DBF4 end:0x805634D0
 	.ctors      start:0x8072D3DC end:0x8072D3E0
-	.rodata     start:0x8075F408 end:0x8075FAC8
-	.data       start:0x80795120 end:0x80795658
+	.rodata     start:0x8075F408 end:0x8075FB48
+	.data       start:0x80795120 end:0x80795660
 	.sdata2     start:0x80887EB0 end:0x80887F30
 
+chr/CharaEquip_unk.cpp:
+	.text       start:0x805634D0 end:0x80566420
+	.rodata     start:0x8075FB48 end:0x8075FCA0
+	.data       start:0x80795660 end:0x807956B8
+	.sdata2     start:0x80887F30 end:0x80887F40
+
 game/QuadrupedTask.cpp:
-	.text       start:0x80566420 end:0x80568EE0
-	.rodata     start:0x8075FE20 end:0x8075FE30
-	.data       start:0x807956F0 end:0x80795820
-	.sdata2     start:0x80887F44 end:0x80888004
+	.text       start:0x80566420 end:0x8056A84C
+	.rodata     start:0x8075FCA0 end:0x8075FE68
+	.data       start:0x807956B8 end:0x80795820
+	.bss        start:0x807C9560 end:0x807C9568
+	.sdata2     start:0x80887F40 end:0x80888018
 
 game/ReplayBuffer.cpp:
-	.text       start:0x8056BF8C end:0x8056F5B4
-	.rodata     start:0x8075FF50 end:0x8075FF60
-	.data       start:0x80795828 end:0x80795848
-	.sdata2     start:0x80888044 end:0x80888058
+	.text       start:0x8056A84C end:0x80570A14
+	.rodata     start:0x8075FE68 end:0x8075FFB0
+	.data       start:0x80795820 end:0x80795850
+	.bss        start:0x807C9568 end:0x807C9570
+	.sdata2     start:0x80888018 end:0x80888058
+
+game/GameSystem_unk.cpp:
+	.text       start:0x80570A14 end:0x8057162C
+	.rodata     start:0x8075FFB0 end:0x8075FFB8
+	.sdata2     start:0x80888058 end:0x80888060
 
 game/SelectMember.cpp:
 	.text       start:0x8057162C end:0x805727A4
@@ -2313,6 +2350,9 @@ game/SetConfig.cpp:
 	.data       start:0x80796790 end:0x807967A8
 	.sbss       start:0x8087F9C0 end:0x8087F9C8
 	.sdata2     start:0x80888098 end:0x808880C0
+
+game/SetConfig_cont.cpp:
+	.text       start:0x8057F0F8 end:0x8057F280
 
 game/ShopBase.cpp:
 	.text       start:0x8057F280 end:0x80584FE4
@@ -2362,7 +2402,7 @@ nw4r/DvdSoundArchive.cpp:
 	.data       start:0x80796B60 end:0x80796C28
 
 nw4r/SoundArchive.cpp:
-	.text       start:0x8059E21C end:0x8059E280
+	.text       start:0x8059E21C end:0x8059E7EC
 	.rodata     start:0x80762360 end:0x80762378
 	.data       start:0x80796C70 end:0x80796D38
 

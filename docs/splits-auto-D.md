@@ -149,3 +149,24 @@
 ### Decisiones sin el usuario (grupo 9)
 - Nombre inventado game/MapPartsFactory.cpp; `_cont`: game/MapPartsOcean_cont.cpp, game/MarketTask_cont.cpp.
 - 0x804BBB60/0x804BBBA0 (sin datos) asignadas a D2AMpMenuLobby sin pruebas (podrian ser cola de D2AMpMenuFriendRoom).
+
+## Grupo 10: 0x80547980-0x8059E7EC (verificado: main.dol OK, lost: 0)
+- `game/NpcManager_cont.cpp` (nuevo, `_cont`; NpcManager y NpcTask enlazadas): 0x80547980-0x80547C28, 4 metodos que llama GameTask; sin datos. Revisar (podria ser otro fichero).
+- `game/PathData_unk.cpp` (nuevo, nombre INVENTADO; encaja alfabeticamente entre NpcTask y PickTask): 0x80547EA0-0x80548D54, funciones que llama Event/Path, tabla "pos_x/pos_y/pos_z/rot_y" (.data 0x80794888 / .rodata 0x8075E3A8), pool propio 0x8075E3C8 y `__sinit` 0x80548C98 (ctors 0x8072D3D4).
+- `game/PlayerManager.cpp` (nuevo): 0x80549D8C-0x8054A3DC (vtable/RTTI PlayerManager, pool 0x8075E468, .sdata2 0x80887D58).
+- `game/PlayerTask.cpp` (nuevo): 0x8054A3DC-0x8054A6E8 (creador + ctor/dtor/metodos de PlayerTask, vtable 0x80794968, .rodata 0x8075E478). Corte con PlayerManager: el orden de las vtables (PlayerManager, PlayerTask) es el del codigo (dentro de un fichero seria el inverso) y 0x8075E478 esta tras el pool de PlayerManager.
+- `game/PopupTask.cpp` (sin fuente): .text 0x8054A6E8-0x8054E574 (creador que usa su pool 0x8075E49C + cola), .rodata desde 0x8075E480 (dobles), .data 0x80794A60-0x80794AE0, .sdata2 0x80887D60-0x80887E20.
+- `Event/ActionActorBehavior.cpp`: .rodata/.data + nombre/RTTI de su SingletonNoStatic (0x8075E81C / 0x80794B10).
+- `Event/ActionActorPosition.cpp` (sin fuente): .text 0x80551108-0x8055A49C (funciones que llama su primer metodo + su `__sinit` 0x8055A440, ctors 0x8072D3D8), .rodata 0x8075E850-0x8075EC98, .data 0x80794B18-0x80794D78, .bss 0x807C9220, .sbss 0x8087F978, .sdata2 desde 0x80887E30.
+- `Event/ActionCameraMode.cpp` (sin fuente): .text hasta 0x8055DBF4 (metodos de ActionCameraFocus/Motion/Inertia/Setting/Shake, cuyas vtables/RTTI estan en sus datos), .rodata 0x8075EC98-0x8075F028, .data 0x80794D78-0x80794F48.
+- `Event/ActionEffectPlay.cpp`: .rodata hasta 0x8075FB48, .data hasta 0x80795660.
+- `chr/CharaEquip_unk.cpp` (nuevo, nombre a partir de los simbolos chr::CharaEquip_unk ya existentes): 0x805634D0-0x80566420, .rodata 0x8075FB48-0x8075FCA0, .data 0x80795660-0x807956B8, .sdata2 0x80887F30-0x80887F40.
+- `game/QuadrupedTask.cpp` (sin fuente): .text hasta 0x8056A84C, .rodata 0x8075FCA0-0x8075FE68, .data desde 0x807956B8, .bss 0x807C9560, .sdata2 hasta 0x80888018.
+- `game/ReplayBuffer.cpp` (sin fuente): .text 0x8056A84C-0x80570A14 (comparten su .sdata2 0x80888018.. y el doble 0x8075FE68), .rodata 0x8075FE68-0x8075FFB0, .data desde 0x80795820, .bss 0x807C9568, .sdata2 desde 0x80888018.
+- `game/GameSystem_unk.cpp` (nuevo, nombre INVENTADO): 0x80570A14-0x8057162C, utilidades que llaman main/GameTask/HomeButtonMenu; su .rodata 0x8075FFB0 esta tras el pool de ReplayBuffer y su .sdata2 0x80888058 tras la de ReplayBuffer.
+- `game/SetConfig_cont.cpp` (nuevo, `_cont`; SetConfig enlazada): 0x8057F0F8-0x8057F280, accesores sin datos.
+- `nw4r/SoundArchive.cpp` (sin fuente): .text hasta 0x8059E7EC (metodos de nw4r::snd::SoundArchive, p. ej. detail_ReadSound3DParam). Su pool 0x80762660 queda en auto (no es contiguo a su .rodata).
+
+### Decisiones sin el usuario (grupo 10)
+- Nombres inventados: game/PathData_unk, game/GameSystem_unk; `_cont`: game/NpcManager_cont, game/SetConfig_cont (ambos sin datos, a revisar).
+- Corte ReplayBuffer/GameSystem_unk en 0x80570A14: las funciones 0x80570A14-0x80570A74 no tienen datos.
