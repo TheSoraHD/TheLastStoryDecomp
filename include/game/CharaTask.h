@@ -188,7 +188,8 @@ struct CharaC58_unk {
     int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
     int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
-    unsigned char m140[0x2B4 - 0x140];
+    unsigned char m140[0x2B0 - 0x140];
+    int m2B0; // 0xF08: inferred: counter of frames without moving (EnemyLizerdBlade tackle)
     int m2B4; // 0xF0C: inferred: wait counter
     int m2B8; // 0xF10: inferred: frame counter (fn_80154C08)
 
