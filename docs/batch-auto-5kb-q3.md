@@ -34,7 +34,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
     ajustado: sirve para reproducir thunks `@N@` fuera de su fichero. Un parametro `short` reenviado anade `extsh`:
     usar `int`.
 
-## atn/D2A_ParamTable_unk (commit HASH2)
+## atn/D2A_ParamTable_unk (commit d6e5655)
 
 - Resultado: 6/6 al 100%, `matching: true`, `main.dol: OK`.
 - NONMATCHING: ninguna.
