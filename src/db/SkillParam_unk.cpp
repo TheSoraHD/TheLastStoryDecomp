@@ -125,7 +125,7 @@ extern "C" void fn_80219C30() {
 // inferred: bullet/skill data by id (0 if there is none)
 extern "C" SkillParam_unk* fn_80219E6C(int id) {
     for (int i = 0; i < sCount; i++) {
-        if (id == sEntries[i].m04) {
+        if (id == sEntries[i].mId) {
             return &sEntries[i];
         }
     }
@@ -146,7 +146,7 @@ SkillParam_unk::SkillParam_unk() {
     mC4 = 1;
     mCC = 0;
     m00 = 0;
-    m01 = 0;
+    mKind = 0;
     m64 = 4;
 }
 

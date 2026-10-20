@@ -228,7 +228,7 @@ funciones `extern "C" fn_<addr>`.
     bucle sale el `blt` directo del original (y la funcion sin inline da `bltlr` igual).
   - Indice `player * 32 + i` con `player` `unsigned` no se reduce (se recalcula con `mulli` cada vez); con `int` si.
 
-## db/TreasureBoxTable_unk (commit HASH)
+## db/TreasureBoxTable_unk (commit a4a42af)
 - Resultado: 6/7 al 100%, matching no.
 - NONMATCHING: `fn_8021E5A4` (sorteo de un objeto del cofre) 96.86% - el original vuelve a calcular las mascaras de
   `flags` del inline `GetRate_unk` antes del segundo bucle (aqui se comparten con el primero) y los registros salvados
@@ -245,3 +245,27 @@ funciones `extern "C" fn_<addr>`.
   - Un inline `bool` escrito `return a || b;` da `li r0,0` antes de las comparaciones; con `if (a || b) return true;
     return false;` sale `li r0,1; b; li r0,0` como el original.
   - `if (x <= 0.0f) return r; ...` da `cror; bne` + copia del valor; `if (x > 0.0f) { ... } return r;` da el `ble` directo.
+
+## db/ParseUtil_unk (commit HASH)
+- Resultado: 11/15 al 100%, matching no (ademas, las copias debiles de `std/string_members.h` meten 2 bytes de
+  `.sdata` que el fichero original no tiene: no se podria enlazar sin tocar esa cabecera).
+- NONMATCHING: `fn_8021A684` 98.06%, `fn_8021A7A0` 98.97%, `fn_8021A9CC` 98.06%, `fn_8021AA48` 97.86% - una sola
+  instruccion: el original copia el 0 del primer `bool` inlinado desde el registro del resultado (`mr r4, r6`) y aqui se
+  vuelve a cargar (`li r4, 0`); probadas cadenas if/else, ternario, local para el primer test y otras formas de los
+  predicados.
+- **Decisiones sin el usuario**
+  - Splits sin cambios (fichero propio: pool ":" + cadenas de `basic_string` en 0x80742560).
+  - `include/db/ParseUtil_unk.h` (creada en SkillParam) completada con la disposicion de `BulletParam_unk` (0xBC, a
+    partir del ctor 0x8021A4E0 y del lector `fn_80219F84`); `mName`/`mText` son `const wchar_t*` (textos UTF-16).
+  - `symbols.txt`: `fn_8021A4CC` -> `__ct__Q23std59basic_string<c,...>Fv` (copia debil del ctor por defecto de
+    `std::string`, emitida aqui porque el lector supera el presupuesto de inline y llama a todo fuera de linea),
+    `lbl_80742560` -> `@stringBase0`.
+  - `atn::DegToRad_unk` se declara solo (sin incluir `math/Vec.h`): el original la llama fuera de linea y su constante
+    (pi/180) no esta en el `.sdata2` de este fichero.
+  - Predicados de tipo de bala (`mKind` 0-6) como funciones `extern "C" bool`. **Nombre real propuesto**: algo como
+    `db/BulletParam` (no es un util generico: lee y clasifica parametros de bala/habilidad).
+- Hallazgos MWCC
+  - Funciones `bool` que el original materializa (`li r5,0 ... li r5,1; mr r3,r5`) aunque el cuerpo sea un `||`: escribir
+    `bool result = false; if (a || b) result = true; return result;` (con `return a || b;` devuelve directo).
+  - Asignaciones en el cuerpo del ctor (no lista de inicializacion) para reproducir un orden de stores que no sigue la
+    declaracion de los miembros.

@@ -10,20 +10,50 @@ struct BulletParam_unk {
     BulletParam_unk(); // 0x8021A4E0
 
     unsigned char m00;
-    signed char m01;
+    signed char mKind; // inferred: 0-6 (tested by fn_8021A684..fn_8021AA48)
     unsigned char m02;
     unsigned char m03;
-    int m04; // inferred: id
-    unsigned char m08[0x60 - 0x08];
+    int mId;
+    const wchar_t* mName; // inferred: texts of the UTF-16 text file (fn_8021A5F8)
+    const wchar_t* mText;
+    int m10;
+    int m14;
+    int m18;
+    int m1C;
+    int m20;
+    int m24;
+    float m28;
+    float m2C;
+    float m30;
+    float m34;
+    float m38;
+    int m3C;
+    float m40;
+    float m44;
+    int m48;
+    float m4C;
+    float m50; // inferred: angle (read in degrees)
+    float m54;
+    float m58;
+    int m5C;
     int m60;
     int m64;
-    unsigned char m68[0x70 - 0x68];
+    int m68;
+    int m6C;
     int m70;
-    unsigned char m74[0xBC - 0x74];
+    float m74[7]; // inferred: ":"-separated list
+    int m90;      // inferred: "a:b" pair
+    int m94;
+    int m98[4]; // inferred: ":"-separated list
+    int mA8;
+    int mAC; // inferred: flags
+    int mB0;
+    int mB4;
+    float mB8;
 };
 
 // inferred: reads the parameters of a row (0x80219F84); version is the "Version" of the file,
-// buf/texts are the text buffers and *a/*b their used sizes
+// buf/texts are the text buffers and *a/*b their used sizes (only used by fn_8021A5F8)
 extern "C" void fn_80219F84(BulletParam_unk* param, atn::Csv* csv, int version, char* buf, wchar_t* texts, int* a,
                             int* b);
 // inferred: reads the two texts of a row of the UTF-16 text file (0x8021A5F8)
