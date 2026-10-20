@@ -1696,16 +1696,40 @@ game/LogMessageTask.cpp:
 	.sbss       start:0x8087F528 end:0x8087F530
 	.sdata2     start:0x80886F10 end:0x80886F70
 
+game/main.cpp:
+	.text       start:0x80479998 end:0x8047B768
+	.rodata     start:0x80756168 end:0x80756310
+	.data       start:0x80790060 end:0x807900A0
+	.bss        start:0x807C8A98 end:0x807C8AB0
+	.sdata      start:0x8087E078 end:0x8087E088
+	.sbss       start:0x8087F530 end:0x8087F540
+	.sdata2     start:0x80886F70 end:0x80886F80
+
 Event/Manager.cpp:
-	.text       start:0x80487184 end:0x80488050
-	.rodata     start:0x80756348 end:0x80756358
-	.data       start:0x807900C0 end:0x807900F8
-	.sdata2     start:0x80887014 end:0x80887034
+	.text       start:0x8047B768 end:0x8048FF60
+	.rodata     start:0x80756310 end:0x80756358
+	.data       start:0x807900A0 end:0x807900F8
+	.sdata      start:0x8087E088 end:0x8087E0B8
+	.sbss       start:0x8087F540 end:0x8087F550
+	.sdata2     start:0x80886F80 end:0x80887048
 
 Event/PostSequence.cpp:
 	.text       start:0x8048FF60 end:0x8049003C
 	.rodata     start:0x80756358 end:0x80756380
 	.data       start:0x807900F8 end:0x80790168
+
+Event/Manager_cont.cpp:
+	.text       start:0x8049003C end:0x80490884
+	.ctors      start:0x8072D380 end:0x8072D384
+	.rodata     start:0x80756380 end:0x80756690
+	.data       start:0x80790168 end:0x807901D8
+	.bss        start:0x807C8AB0 end:0x807C8AC8
+	.sdata2     start:0x80887048 end:0x80887050
+
+game/MapInstance_unk.cpp:
+	.text       start:0x80490884 end:0x80490EB8
+	.sbss       start:0x8087F550 end:0x8087F558
+	.sdata2     start:0x80887050 end:0x80887060
 
 game/MapManager.cpp:
 	.text       start:0x80490EB8 end:0x80491EA0
@@ -1919,22 +1943,28 @@ game/NewCampPartsHint.cpp:
 	.sdata2     start:0x8088783C end:0x808878B0
 
 game/NewCampPartsItem.cpp:
-	.text       start:0x80516A5C end:0x8051B900
-	.rodata     start:0x8075BB6C end:0x8075BB80
-	.data       start:0x80793450 end:0x807934D8
-	.sdata2     start:0x808878B4 end:0x808878E0
+	.text       start:0x805169F8 end:0x8051B920
+	.ctors      start:0x8072D3B0 end:0x8072D3B4
+	.rodata     start:0x8075B988 end:0x8075BD28
+	.data       start:0x80793450 end:0x80793508
+	.bss        start:0x807C90F0 end:0x807C9100
+	.sdata      start:0x8087E488 end:0x8087E498
+	.sdata2     start:0x808878B0 end:0x808878E8
 
 game/NewCampPartsMapSelect.cpp:
-	.text       start:0x8051B984 end:0x80521DF8
-	.rodata     start:0x8075BF28 end:0x8075BF40
-	.data       start:0x80793508 end:0x80793590
-	.sdata2     start:0x808878EC end:0x808879E8
+	.text       start:0x8051B920 end:0x80521E1C
+	.ctors      start:0x8072D3B4 end:0x8072D3B8
+	.rodata     start:0x8075BD28 end:0x8075C260
+	.data       start:0x80793508 end:0x80793598
+	.bss        start:0x807C9100 end:0x807C9110
+	.sdata2     start:0x808878E8 end:0x808879E8
 
 game/NewCampPartsOption.cpp:
-	.text       start:0x80521E80 end:0x80526358
-	.rodata     start:0x8075C6B0 end:0x8075C6C4
-	.data       start:0x80793610 end:0x80793698
-	.sdata2     start:0x808879EC end:0x80887A58
+	.text       start:0x80521E1C end:0x805268C8
+	.rodata     start:0x8075C260 end:0x8075CC30
+	.data       start:0x80793598 end:0x80793698
+	.sdata      start:0x8087E498 end:0x8087E4A0
+	.sdata2     start:0x808879E8 end:0x80887A58
 
 game/NewCampPartsStatus.cpp:
 	.text       start:0x805268C8 end:0x80529118
@@ -1952,10 +1982,13 @@ game/NewCampPartsTop.cpp:
 	.sdata2     start:0x80887A88 end:0x80887AB0
 
 game/NewCampTask.cpp:
-	.text       start:0x8052A8EC end:0x8052C108
-	.rodata     start:0x8075D310 end:0x8075D31C
-	.data       start:0x80793830 end:0x80793868
-	.sdata2     start:0x80887AC4 end:0x80887B14
+	.text       start:0x8052A888 end:0x8053108C
+	.ctors      start:0x8072D3BC end:0x8072D3C0
+	.rodata     start:0x8075D310 end:0x8075D450
+	.data       start:0x807937E8 end:0x80793888
+	.bss        start:0x807C9120 end:0x807C9140
+	.sdata      start:0x8087E4A4 end:0x8087E4B0
+	.sdata2     start:0x80887AB0 end:0x80887B30
 
 game/NewStaffRoll.cpp:
 	.text       start:0x8053108C end:0x80531E80
