@@ -32,3 +32,21 @@ Fusionada en `game/MapPartsOcean`.
     `sStatic1_unk`, `sStatic2_unk`, `sStaticRef0_unk`, `sStaticRef1_unk`, `sStaticRef2_unk` (`scope:local`).
 - Hallazgos MWCC: un objeto estatico sin usar cuyo constructor inline solo guarda un puntero no se elimina y
   genera `__sinit` (`li` x3 + `stw` x3); estaticos POD sin usar si se eliminan.
+
+## MP/NetGlobals_unk (commit HASH2)
+
+- Resultado: 1/1 al 100% (`__sinit_\NetGlobals_unk_cpp`), `matching: true`.
+- **Decisiones sin el usuario**
+  - El `__sinit` construye y registra los dos estaticos de `<iostream>` de MSL: cabecera nueva
+    `include/std/ios_init.h` con `std::ios_base::Init` (0x8068B770 crea cin/cout/cerr/clog sobre `__files`)
+    y `std::wios_base_Init_unk` (0x8068BD60, lo mismo con otro fichero de la libreria; nombre real
+    desconocido) y los estaticos `__msl_ios_init_unk`/`__msl_wios_init_unk` (nombres inventados). La usaran
+    `MP/CryptMP` (0x804AE7C4), `MP/func_enter_setting` (0x80501064) y `Event/ActionActorPosition` (0x8055A440).
+  - `symbols.txt`: `fn_8068B770` -> `__ct__Q33std8ios_base4InitFv`, `fn_8068BC30` -> `__dt__Q33std8ios_base4InitFv`,
+    `fn_8068BD60` -> `__ct__Q23std18wios_base_Init_unkFv`, `fn_8068C240` -> `__dt__Q23std18wios_base_Init_unkFv`
+    (funciones de libreria en asm; ningun fuente las declaraba); `fn_804FF960` -> `__sinit_\NetGlobals_unk_cpp`,
+    `lbl_8087F620`/`lbl_8087F624` -> `__msl_ios_init_unk`/`__msl_wios_init_unk` (`scope:local`).
+  - Los `.sbss` 0x8087F628/2C/30 (en el split de la unidad) se definen aqui como globales `extern "C" void*`
+    con su nombre `lbl_`: los escribe `atn/PacketPack` (MP::ManagerMP) y los leen los menus MP
+    (`MpData_unk*`). `lbl_8087F630` sigue con tamano 0x8 en symbols.txt (aqui 4 bytes + relleno; enlaza OK).
+  - Nombre real propuesto: un fichero de globales MP que incluye `<iostream>` (sin pruebas del nombre).
