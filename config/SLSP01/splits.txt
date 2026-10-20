@@ -1281,15 +1281,18 @@ game/U16Table_unk.cpp:
 	.data       start:0x8078BCB8 end:0x8078BCD8
 
 game/GameSoundControl.cpp:
-	.text       start:0x803CD9A8 end:0x803CE070
+	.text       start:0x803CD9A8 end:0x803CE4B0
 	.rodata     start:0x80750530 end:0x80750548
-	.data       start:0x8078BDD0 end:0x8078BE08
+	.data       start:0x8078BCD8 end:0x8078BE08
 	.sdata2     start:0x80885D48 end:0x80885D58
 
 game/GameTimer.cpp:
 	.text       start:0x803CE4B0 end:0x803CE688
 	.rodata     start:0x80750548 end:0x80750558
 	.data       start:0x8078BE08 end:0x8078BE40
+
+game/GameTimer_cont.cpp:
+	.text       start:0x803CE688 end:0x803CE854
 
 game/GameUI.cpp:
 	.text       start:0x803CE854 end:0x803E836C

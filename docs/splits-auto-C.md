@@ -170,3 +170,16 @@
 - `game/Gun.cpp` en `game/` (clase sin namespace, base Arms); ColliObjectData_unk/ColliTreeData_unk podrian ser otro
   fichero, pero no hay constante ni `__sinit` entre medias: quedan dentro de Gun. Revisar.
 - La entrada sdata2 0x80886A1C ("Gun") queda en Gun; 0x80886A20+ es del agente D (HomeButtonMenu).
+
+## Grupo 6 (tramos menores 0x803CE070-0x803CE4B0, 0x803CE688-0x803CE854)
+
+- `game/GameSoundControl.cpp` (fuente) ampliado: .text hasta 0x803CE4B0 y .data desde 0x8078BCD8 (tabla de saltos de
+  0x803CE278). 0x803CE074/0x803CE0B4 recorren la tabla m64/m68 de GameSoundControl (layout de su cabecera);
+  0x803CE160/0x803CE278 los llama GameBgm junto a esos; Unk_803CE3B8 (lo usa GameSaveBackground) queda dentro por
+  no haber prueba de corte. No se pierde ninguna funcion al 100%.
+- **0x803CE688-0x803CE854** -> `game/GameTimer_cont.cpp`: helpers que escriben los campos 0x48/0x4C/0x50/0x54 de
+  GameTimer (mState/mValue/mLimit/mCountDown) y 0x803CE768/0x803CE7E0 que los cargan/guardan; GameTimer esta enlazada.
+
+### Decisiones sin el usuario (grupo 6)
+- `game/GameTimer_cont.cpp` (resto de GameTimer, enlazada): fusionar al decompilar.
+- Unk_803CE3B8 (0x803CE3B8-0x803CE4B0) incluido en GameSoundControl sin prueba fuerte (podria ser fichero propio).
