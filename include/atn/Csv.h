@@ -24,6 +24,10 @@ public:
         memset(mField, 0, sizeof(mField));
         memset(m610, 0, sizeof(m610));
     }
+    // inferred: an empty destructor (the class has none in the DOL, but with it a wchar_t reader
+    // built with the BOM-skipping constructor keeps its address in a saved register while the
+    // inline constructor runs, as in 0x8011B8D4/0x803B9324; the char readers do not change)
+    ~CsvBase() {}
     // inferred: sets the text to read (weak copies: tab 0x8004476C, comma 0x800420F4)
     virtual void vf08(const T* text, int length) {
         m04 = text;
