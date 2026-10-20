@@ -131,7 +131,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - `p->m = f(x)` con `p` global: MWCC carga `p` despues de la llamada; con un accesor inline (`Config()->m = f(x)`) lo
     carga antes y lo guarda en un registro salvado. Con `k * f(x)` el original lo carga despues (asignacion directa).
 
-## db/ChapterList_unk (commit PENDIENTE)
+## db/ChapterList_unk (commit 5fbed0f)
 - Resultado: 9/9 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -148,3 +148,16 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     `cmpw rParam, rCampo` aunque se inviertan los operandos.
   - Una carga que el original sube por encima de un `if` previo (`lwz` antes del primer `bgt`) = valor leido en un
     local antes del `if` (`int v = last->m; if (...) return; if (v <= x)`).
+
+## db/InitSetting_unk (commit PENDIENTE)
+- Resultado: 2/2 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_8073F970` -> `sProtectorKinds`, `lbl_8073F984` -> `sWeaponKinds`, `lbl_8073F990` -> `sFileNameStr`,
+    `lbl_8073F9A8` -> `@stringBase0`, `lbl_8087F218` -> `sInstance`, `lbl_80882ED8` -> `sFileName`.
+  - Tipos inferidos `InitSetting_unk` (0x434), `InitItem_unk`, `InitDrop_unk` (miembro objeto), `InitEquip_unk`.
+- Hallazgos MWCC
+  - Inicializaciones que el original hace entre la construccion de dos arrays miembro = un miembro objeto con su propio
+    ctor (el cuerpo del ctor de la clase iria al final); un `for` de 10 asignaciones constantes se desenrolla entero.
+  - `static const char* const t[] = {"qu", ...}`: los literales cortos van a `.sdata2` y el array a `.rodata`.
