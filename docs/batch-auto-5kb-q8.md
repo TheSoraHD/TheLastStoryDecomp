@@ -121,7 +121,7 @@ Fusionada en `game/MapPartsOcean`.
 - Hallazgos MWCC: el ultimo `if` de una cadena de `return` que sale `li r3,1; beq; li r3,-1` se escribe
   `if (x != 0) return -1; return 1;` (con `== 0` salen invertidos).
 
-## game/PlayerTask (commit HASH7)
+## game/PlayerTask (commit a4d7b24)
 
 - Resultado: 6/6 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
@@ -132,3 +132,23 @@ Fusionada en `game/MapPartsOcean`.
   - `include/game/PlayerTask.h`: declarados `fn_8054A3DC` y `fn_8054A68C`.
   - `symbols.txt`: `fn_8054A3DC` -> `fn_8054A3DC__10PlayerTaskFPQ23atn4TaskiPv`, `fn_8054A68C` ->
     `fn_8054A68C__10PlayerTaskFv`, `lbl_8075E478` -> `@stringBase0` (0x8 -> 0x1).
+
+## Event/EventLoader_unk (commit HASH8)
+
+- Resultado: 3/5 al 100%, `matching: false`.
+- NONMATCHING:
+  - `fn_80576030` 97.4% - registros salvados: el original deja seq/pool/p/arg/path en r31/r30/r29/r28/r27
+    (path el ultimo); aqui path toma r31 (probado: metodo, helper estatico autoinlineado, locales arriba,
+    `&p[n]`, `memset`).
+  - `fn_80576258` 95.2% - el original guarda los cuatro contadores en r31..r28 y los punteros en volatiles;
+    aqui el puntero al cut toma r31 (probado contador int/unsigned, accesor, `switch`). El accesor
+    `Size_unk()` hace que la comprobacion de rango reutilice el tamano cargado por la condicion del bucle.
+- **Decisiones sin el usuario**
+  - Funciones `extern "C"` (nombres de symbols.txt) sobre un `EventSequence_unk` local con los campos de
+    `Event::Sequence` usados (bit alto de +0x98, vector de cuts +0xB8, id +0x190, estado +0x194,
+    `atn::LH_Binary` +0x1C4, tamano/datos +0x1CC/+0x1D0, `FixedString_unk<0x100>` +0x2A0). Vectores de
+    `shared_ptr` como `EventVec_unk<T>` local con accesor comprobado (`i >= 0 && i < size`).
+  - Funcion reconstruida `fn_Stripped_unk` (`strstr(path, ".xml")`): el pool tiene `".xml"` antes de los
+    mensajes de `basic_string` (lector eliminado por el enlazador); se incluye `std/string_members.h` para
+    que `reserve`/`__replace_unk` instanciados pongan sus mensajes. Pool identico (0x71).
+  - `symbols.txt`: `lbl_80760D70` -> `@stringBase0` (0x78 -> 0x71).
