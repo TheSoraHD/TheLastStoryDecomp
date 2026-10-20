@@ -38,6 +38,7 @@
 #include "gmk/MapLift.h"
 #include "gmk/MeetingSpot.h"
 #include "gmk/CharaPathMove.h"
+#include "gmk/Chain.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -230,7 +231,6 @@ extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8043B778(atn::Task* parent, GimmickDesc_unk* desc);
 
 // inferred: creates the gimmick of type id / 1000 (ids below 1000 are types)
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
@@ -320,7 +320,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 59: gimmick = fn_8042F7EC(parent, desc); break;
     case 63: gimmick = gmk::SavePoint::fn_80435DEC(parent, desc); break;
     case 65: gimmick = gmk::LottaSummon::fn_8043A850(parent, desc); break;
-    case 66: gimmick = fn_8043B778(parent, desc); break;
+    case 66: gimmick = gmk::Chain::fn_8043B778(parent, desc); break;
     }
     return gimmick;
 }

@@ -127,7 +127,7 @@ public:
     // Trivial inline virtuals: the weak copies of several of them were kept in the first object
     // that used them (only gimmick vtables point to them), so they live far from this file.
     virtual Model_unk* vf38() { return 0; } // 0x80012A14: inferred: main model
-    virtual void vf3C() {}
+    virtual void vf3C(void* lens) {} // inferred: one argument (gmk::Chain stores it as the model lens)
     virtual int vf40(GimmickMsg_unk* msg) { return 0; } // 0x80012714: inferred: receives a message
     virtual int vf44(GimmickHitMsg_unk* msg) { return 0; } // 0x800FA4F4
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag); // 0x803EDE34
