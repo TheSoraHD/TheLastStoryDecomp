@@ -238,8 +238,8 @@ atn/TextureComposite.cpp:
 
 atn/CompositeIntensityTintMulti.cpp:
 	.text       start:0x800D8894 end:0x800D9410
-	.rodata     start:0x80734760 end:0x80734784
-	.data       start:0x80779830 end:0x80779860
+	.rodata     start:0x80734760 end:0x807347E8
+	.data       start:0x80779830 end:0x80779868
 	.sdata2     start:0x80881220 end:0x80881228
 
 atn/TextAnimation.cpp:
