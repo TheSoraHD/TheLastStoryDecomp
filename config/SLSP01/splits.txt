@@ -2827,15 +2827,12 @@ game/MapPartsModel.cpp:
 	.sdata2     start:0x80887110 end:0x80887128
 
 game/MapPartsOcean.cpp:
-	.text       start:0x8049C8DC end:0x8049CDA0
+	.text       start:0x8049C8DC end:0x8049CDBC
+	.ctors      start:0x8072D384 end:0x8072D388
 	.rodata     start:0x80756E28 end:0x80756E70
 	.data       start:0x80790688 end:0x807906E8
-	.sdata2     start:0x80887128 end:0x80887160
-
-game/MapPartsOcean_cont.cpp:
-	.text       start:0x8049CDA0 end:0x8049CDBC
-	.ctors      start:0x8072D384 end:0x8072D388
 	.sbss       start:0x8087F560 end:0x8087F578
+	.sdata2     start:0x80887128 end:0x80887160
 
 game/MapPartsRain.cpp:
 	.text       start:0x8049CDBC end:0x8049D264
