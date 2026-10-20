@@ -189,7 +189,8 @@ struct CharaC58_unk {
     int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
     int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
-    unsigned char m140[0x2B4 - 0x140];
+    unsigned char m140[0x2B0 - 0x140];
+    int m2B0; // 0xF08: inferred: counter of frames without moving (EnemyLizerdBlade tackle)
     int m2B4; // 0xF0C: inferred: wait counter
     int m2B8; // 0xF10: inferred: frame counter (fn_80154C08)
 
@@ -384,7 +385,7 @@ public:
     virtual boost::function<void()> vfB4(CharaTask* chara);
     virtual int vfB8(wchar_t* name); // inferred: copies the character name
     virtual void vfBC();
-    virtual void vfC0();
+    virtual void vfC0(void* draw); // inferred: Np131LivingArmor passes `draw` to fn_803E2A30
     virtual bool vfC4();
     virtual void vfC8();
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // inferred: four points (the target symbol says Fv)
@@ -819,6 +820,8 @@ public:
     // inferred: bool accessors (the original reloads the flag word after testing them)
     bool IsOnLedge_unk() const { return mFlag31; }
     bool IsFlag5_unk() const { return mFlag5; }
+    bool IsFlag2_unk() const { return mFlag2; } // inferred: name invented (EnemySeaLizerd::vf40 reloads the word)
+    bool IsFlag3_unk() const { return mFlag3; } // inferred: name invented (EnemySeaLizerd::vf40)
     bool IsFlag11_unk() const { return mFlag11; } // inferred: name invented (vf24 reloads the word)
     bool IsDoubleLink_unk() const { return mFlagB16; }
     bool CanClimbUp_unk(int kind) {

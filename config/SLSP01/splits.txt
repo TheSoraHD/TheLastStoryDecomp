@@ -1051,7 +1051,7 @@ game/Em403WarLion.cpp:
 
 game/EnemyFieldMagician.cpp:
 	.text       start:0x8032C52C end:0x8032DEA0
-	.rodata     start:0x80749DAC end:0x80749DC0
+	.rodata     start:0x80749D70 end:0x80749F58
 	.data       start:0x80788D20 end:0x80788E50
 	.sdata2     start:0x80885040 end:0x80885070
 
@@ -1063,7 +1063,7 @@ game/EnemyJill.cpp:
 
 game/EnemyLizerdBlade.cpp:
 	.text       start:0x803335C4 end:0x80334B38
-	.rodata     start:0x8074A140 end:0x8074A154
+	.rodata     start:0x8074A138 end:0x8074A298
 	.data       start:0x80788FC0 end:0x807890F0
 	.sdata2     start:0x80885130 end:0x80885190
 
@@ -1092,7 +1092,7 @@ game/EnemyQuarkStand.cpp:
 
 game/EnemySeaLizerd.cpp:
 	.text       start:0x803545E0 end:0x803559F8
-	.rodata     start:0x8074AF48 end:0x8074AF58
+	.rodata     start:0x8074AF38 end:0x8074B088
 	.data       start:0x807896B8 end:0x807897E8
 	.sdata2     start:0x808854D8 end:0x80885528
 
@@ -1971,10 +1971,12 @@ Event/StringData.cpp:
 	.data       start:0x80794430 end:0x80794480
 
 game/Np131LivingArmor.cpp:
-	.text       start:0x80546000 end:0x80547468
-	.rodata     start:0x8075E310 end:0x8075E324
+	.text       start:0x80546000 end:0x805477C8
+	.rodata     start:0x8075E300 end:0x8075E380
 	.data       start:0x80794608 end:0x80794738
-	.sdata2     start:0x80887CD8 end:0x80887D30
+	.sdata      start:0x8087E4D8 end:0x8087E4E8
+	.sbss       start:0x8087F888 end:0x8087F890
+	.sdata2     start:0x80887CD8 end:0x80887D38
 
 game/NpcManager.cpp:
 	.text       start:0x805477C8 end:0x80547980
