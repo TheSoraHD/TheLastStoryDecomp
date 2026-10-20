@@ -39,6 +39,7 @@ struct MenuD2A_unk : public atn::Task {
     unsigned int mFC_rest : 28;
     float mFrame;   // 0x100: inferred: current frame
     float mSpeed;   // 0x104: inferred: playback speed
+    int m108;       // inferred: draw priority
 };
 
 // inferred: data of a layout anime (returned by fn_801F6C10); only the callback is known

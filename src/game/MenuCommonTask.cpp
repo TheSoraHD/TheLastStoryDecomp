@@ -1,5 +1,8 @@
 #include "game/MenuCommonTask.h"
 #include "atn/Memory.h"
+#include "atn/D3AnimeInstance.h"
+#include "atn/D2A_Message.h"
+#include "std/vector.h"
 #include "atn/SoundRef.h"
 #include "math/Vec.h"
 #include "macros.h"
@@ -11,6 +14,8 @@ namespace atn {
 class D2A_Task : public Task {
 public:
     void SetParam2_unk(const char* name, const float* v);
+
+    D2A_Data mData; // 0x48
 };
 } // namespace atn
 extern "C" MenuCursor_unk* fn_80202A6C(atn::Task* parent, const char* path, int arg);
@@ -33,7 +38,6 @@ struct D2APoint_unk {
     float mScaleX;
     float mScaleY;
     float m10;
-    float m14;
 };
 extern "C" D2APoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
@@ -48,7 +52,12 @@ inline D2APoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
 inline void SetPaneValue2_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
-extern "C" void* lbl_8087EEE0;
+// inferred: render manager (see game/CharaTask.cpp); only the member used here
+struct MenuRender_unk {
+    unsigned char m00[0x44];
+    int mWide; // 0x44: inferred: 16:9 screen
+};
+extern "C" MenuRender_unk* lbl_8087EEE0;
 extern "C" float fn_80076FF8(void* obj); // inferred: screen aspect ratio
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
@@ -392,7 +401,57 @@ extern "C" void fn_804A3BD4(int a, int b, int c) {
     }
 }
 
-// NONMATCHING: fn_804A3C24 (0x640) is not written yet
+namespace std {
+// inferred: wstring elements are moved as raw bytes when push_back reallocates and the buffer
+// destroys its elements before releasing them (fn_804A3C24); local to this file
+template <>
+struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_string<wchar_t> > {
+    typedef basic_string<wchar_t> T;
+    __vec_split_unk(void* alloc) : mAlloc(alloc), mStart(0) {}
+    ~__vec_split_unk() {
+        T* b = begin();
+        T* p = b + this->mSize;
+        while (p > b) {
+            (--p)->~T();
+        }
+        this->mSize = 0;
+    }
+    T* begin() { return this->mData + mStart; }
+    void push_back(const T& x) {
+        new (begin() + this->mSize) T(x);
+        this->mSize++;
+    }
+    void __push_front_unk(T* first, T* last) {
+        int n = last - first;
+        mStart -= n;
+        memcpy(this->mData + mStart, first, n * sizeof(T));
+        memset(first, 0, n * sizeof(T));
+        this->mSize += n;
+    }
+    void* mAlloc;
+    unsigned int mStart;
+};
+} // namespace std
+
+extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, float width,
+                            float size, int a, int b, int c, float d); // inferred: splits a text in lines
+extern "C" void fn_804A5D34(MenuCommonTask* menu, int id, const wchar_t* desc0, const wchar_t* desc1,
+                            const wchar_t* desc2);
+extern "C" wchar_t lbl_8087E0E0[2]; // inferred: empty text
+
+// inferred: shows a description (up to three lines) in the info bar
+extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id) {
+    if (text == 0) {
+        return;
+    }
+    std::vector<std::basic_string<wchar_t> > lines;
+    fn_800E0000(&lines, text, 100000.0f, 16.0f, 1, 1, 0, 0.0f);
+    while (lines.size() < 3) {
+        lines.push_back(std::basic_string<wchar_t>(lbl_8087E0E0));
+    }
+    fn_804A5D34(menu, 0, lines[0].data(), lines[1].data(), lines[2].data());
+    menu->m1C4 = id;
+}
 
 // inferred: info bar helpers (names keep the address)
 extern "C" float fn_804A4264(MenuCommonTask* menu) {
@@ -521,7 +580,7 @@ extern "C" void* fn_801FEB9C(void* layout, const char* name); // inferred: track
 extern "C" float fn_801F0544(void* table, int key);            // inferred: value at key
 extern "C" void fn_801F791C(MenuLayout_unk* layout, const char* name, int index, float value);
 extern "C" void* fn_801F6C38(MenuLayout_unk* layout, const char* name);
-extern "C" void fn_801F6C80(MenuLayout_unk* layout, const char* name, float value);
+extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value);
 
 extern "C" void fn_804A473C(MenuD2A_unk* anime, int pos, int count, int page);
 // inferred: sets the scroll bar of a d2anime list (wrapper; names keep the address)
@@ -645,22 +704,290 @@ extern "C" void fn_804A4CE4(MenuLayout_unk* layout, int id, int cols, int rows) 
     SetUV_unk(layout, "faceSubMUV", uv);
 }
 
-// NONMATCHING: fn_804A4EEC .. fn_804A5B9C are not written yet
+extern "C" void fn_801F6D7C(atn::Task* layout, const char* name, int index, float value); // inferred: sets a value
+extern "C" float fn_801F6C2C(atn::Task* layout); // inferred: last frame
+
+inline atn::D3AnimeInstance* GetCursor_unk(MenuCursor_unk* cursor) {
+    return (atn::D3AnimeInstance*)cursor;
+}
+
+// inferred: places the next 3D cursor and adds an entry (id in m00)
+extern "C" void fn_804A4EEC(MenuCommonTask* menu, int id, const char* name, const atn::Matrix3x4& mtx, int end,
+                            float x, float y, float w, float h, float z) {
+    int i = ++menu->m74;
+    if (0 <= i && i < 4 && menu->m78[i] != 0) {
+        GetCursor_unk(menu->m78[i])->SetMatrix(mtx);
+        GetCursor_unk(menu->m78[i])->UpdateMtx();
+        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 0, x);
+        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 1, y);
+        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 4, z);
+        fn_801F6C80(GetCursor_unk(menu->m78[i])->GetTask(), "wRate", w);
+        fn_801F6C80(GetCursor_unk(menu->m78[i])->GetTask(), "hRate", h);
+        if (end) {
+            float frame = fn_801F6C2C(GetCursor_unk(menu->m78[i])->GetTask()) - 2.0f;
+            ((MenuLayout_unk*)GetCursor_unk(menu->m78[i])->GetTask())->mFrame = frame;
+        }
+    }
+    if (id != 0 && (unsigned int)menu->m9C < 4) {
+        MenuCommonEntry_unk entry;
+        entry.m00 = id;
+        if (name != 0) {
+            strcpy(entry.m08.mText, name);
+        }
+        new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
+        menu->m9C++;
+    }
+}
+
+// inferred: same as fn_804A4EEC with the id in m04
+extern "C" void fn_804A5160(MenuCommonTask* menu, int id, const char* name, const atn::Matrix3x4& mtx, int end,
+                            float x, float y, float w, float h, float z) {
+    int i = ++menu->m74;
+    if (0 <= i && i < 4 && menu->m78[i] != 0) {
+        GetCursor_unk(menu->m78[i])->SetMatrix(mtx);
+        GetCursor_unk(menu->m78[i])->UpdateMtx();
+        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 0, x);
+        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 1, y);
+        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 4, z);
+        fn_801F6C80(GetCursor_unk(menu->m78[i])->GetTask(), "wRate", w);
+        fn_801F6C80(GetCursor_unk(menu->m78[i])->GetTask(), "hRate", h);
+        if (end) {
+            float frame = fn_801F6C2C(GetCursor_unk(menu->m78[i])->GetTask()) - 2.0f;
+            ((MenuLayout_unk*)GetCursor_unk(menu->m78[i])->GetTask())->mFrame = frame;
+        }
+    }
+    if (id != 0 && (unsigned int)menu->m9C < 4) {
+        MenuCommonEntry_unk entry;
+        entry.m04 = id;
+        if (name != 0) {
+            strcpy(entry.m08.mText, name);
+        }
+        new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
+        menu->m9C++;
+    }
+}
+
+// inferred: places the next 2D cursor and adds an entry (id in m00)
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int id, const char* name, const D2APoint_unk* rect, int end) {
+    if (menu->m88 + 1 < 4) {
+        menu->m88++;
+        if (menu->m8C[menu->m88] != 0) {
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 0, rect->x);
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 1, rect->y);
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 4, rect->m10);
+            fn_801F6C80(menu->m8C[menu->m88], "wRate", rect->mScaleX);
+            fn_801F6C80(menu->m8C[menu->m88], "hRate", rect->mScaleY);
+            if (end) {
+                menu->m8C[menu->m88]->mFrame = fn_801F6C2C(menu->m8C[menu->m88]) - 2.0f;
+            }
+        }
+    }
+    if (id != 0 && (unsigned int)menu->m9C < 4) {
+        MenuCommonEntry_unk entry;
+        entry.m00 = id;
+        if (name != 0) {
+            strcpy(entry.m08.mText, name);
+        }
+        new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
+        menu->m9C++;
+    }
+}
+
+// inferred: same as fn_804A53D4 with the id in m04
+extern "C" void fn_804A55FC(MenuCommonTask* menu, int id, const char* name, const D2APoint_unk* rect, int end) {
+    if (menu->m88 + 1 < 4) {
+        menu->m88++;
+        if (menu->m8C[menu->m88] != 0) {
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 0, rect->x);
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 1, rect->y);
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 4, rect->m10);
+            fn_801F6C80(menu->m8C[menu->m88], "wRate", rect->mScaleX);
+            fn_801F6C80(menu->m8C[menu->m88], "hRate", rect->mScaleY);
+            if (end) {
+                menu->m8C[menu->m88]->mFrame = fn_801F6C2C(menu->m8C[menu->m88]) - 2.0f;
+            }
+        }
+    }
+    if (id != 0 && (unsigned int)menu->m9C < 4) {
+        MenuCommonEntry_unk entry;
+        entry.m04 = id;
+        if (name != 0) {
+            strcpy(entry.m08.mText, name);
+        }
+        new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
+        menu->m9C++;
+    }
+}
+
+extern "C" std::basic_string<wchar_t> fn_800A4450(atn::D2A_TextParam_unk* text, int index, int table); // inferred
+extern "C" void* lbl_8087EEC8; // inferred: font
+extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+
+// NONMATCHING: 98.8% - scheduling of the size argument of fn_8006EF48
+// inferred: places the next 2D cursor on the text pane `name` of a d2anime (the anime is the id of the entry)
+extern "C" void fn_804A5824(MenuCommonTask* self, atn::D2A_Task* anime, const char* name, int end) {
+    if (anime == 0 || name == 0) {
+        return;
+    }
+    atn::D2A_Common* element = anime->mData.fn_801EFA78(fn_800DC6B4(name));
+    if (element == 0 || element->mType != 1) {
+        return;
+    }
+    atn::D2A_Message* msg = (atn::D2A_Message*)element;
+    D2APoint_unk rect = GetPanePos_unk(anime, name);
+    float width;
+    {
+        std::basic_string<wchar_t> text = fn_800A4450(&msg->mText, 0, 0);
+        width = fn_8006EF48(lbl_8087EEC8, text.data(), rect.mScaleX, 0.0f, 1, msg->mFont);
+    }
+    if (msg->mAlign == 1) {
+        rect.x -= 0.5f * width + 1.0f;
+    } else if (msg->mAlign == 2) {
+        rect.x -= 1.0f + width;
+    } else {
+        rect.x -= 1.0f;
+    }
+    rect.mScaleX = 0.01f * (1.0f + (1.0f + width));
+    rect.mScaleY = 0.01f * rect.mScaleY;
+    rect.m10 = rect.m10 - 10.0f;
+    // inferred: same code as fn_804A53D4 (written again in the original: its strings are in @stringBase0)
+    MenuCommonTask* menu = MenuCommonTask::sInstance;
+    int id = (int)anime;
+    const D2APoint_unk* r = &rect;
+    if (menu->m88 + 1 < 4) {
+        menu->m88++;
+        if (menu->m8C[menu->m88] != 0) {
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 0, r->x);
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 1, r->y);
+            fn_801F6D7C(menu->m8C[menu->m88], "cursor_pos", 4, r->m10);
+            fn_801F6C80(menu->m8C[menu->m88], "wRate", r->mScaleX);
+            fn_801F6C80(menu->m8C[menu->m88], "hRate", r->mScaleY);
+            if (end) {
+                menu->m8C[menu->m88]->mFrame = fn_801F6C2C(menu->m8C[menu->m88]) - 2.0f;
+            }
+        }
+    }
+    if (id != 0 && (unsigned int)menu->m9C < 4) {
+        MenuCommonEntry_unk entry;
+        entry.m00 = id;
+        if (name != 0) {
+            strcpy(entry.m08.mText, name);
+        }
+        new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
+        menu->m9C++;
+    }
+}
+
+// inferred: adds an entry (id + name) to the array at 0xA0
+extern "C" void fn_804A5B9C(MenuCommonTask* menu, int id, const char* name) {
+    if (!(id != 0 && (unsigned int)menu->m9C < 4)) {
+        return;
+    }
+    MenuCommonEntry_unk entry;
+    entry.m00 = id;
+    if (name != 0) {
+        strcpy(entry.m08.mText, name);
+    }
+    new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
+    menu->m9C++;
+}
 
 // inferred: position of the info bar
 extern "C" void fn_804A5CD8(MenuCommonTask* menu, float value) {
     SetPaneValue_unk(menu->m1C8->m58, "pos0015", 4, value);
 }
 
-// NONMATCHING: fn_804A5D34 .. fn_804A62C8 are not written yet
-
-// inferred: shows a warning in the info window (third camp_info.d2a)
-extern "C" void fn_804A65A0(MenuCommonTask* menu, const wchar_t* text) {
-    SetPaneText_unk(menu->m60->m58, "warning_msg", text);
-    menu->m5C = 1;
+// NONMATCHING: 92.9% - register allocation of the layout pointers (r30/r31 swapped)
+// inferred: sets the descriptions of the info bar
+extern "C" void fn_804A5D34(MenuCommonTask* menu, int id, const wchar_t* desc0, const wchar_t* desc1,
+                            const wchar_t* desc2) {
+    menu->m1C0 = id;
+    SetPaneText_unk(menu->m1C8->m58, "desc0", desc0 != 0 ? desc0 : lbl_8087E0E0);
+    SetPaneText_unk(menu->m1C8->m58, "desc1", desc1 != 0 ? desc1 : lbl_8087E0E0);
+    SetPaneText_unk(menu->m1C8->m58, "desc2", desc2 != 0 ? desc2 : lbl_8087E0E0);
+    const wchar_t* desc3 = 0;
+    SetPaneText_unk(menu->m1C8->m58, "desc3", desc3 != 0 ? desc3 : lbl_8087E0E0);
 }
 
-// NONMATCHING: fn_804A660C and fn_804A71F0 (events of the animes, 0xBE4 each) are not written yet
+// inferred: placement and contents of the A button prompts (17 types)
+struct MenuButtonInfo_unk {
+    float mX;     // 16:9
+    float mY;
+    float mX43;   // 4:3
+    float mY43;
+    float mZ;
+    float mCross; // "crossOn"
+    wchar_t mButton[4];
+    int mUV;      // inferred: button icon
+    int mMsg;     // inferred: action name
+};
+static const MenuButtonInfo_unk lbl_80757110[17] = {
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"c", 50, 10070},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"c", 50, 10071},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"c", 50, 10072},
+    {70.0f, 407.0f, 80.0f, 395.0f, 0.0f, 0.0f, L"c", 50, 10073},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 0, 10076},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"b", 1, 10074},
+    {570.0f, 407.0f, 560.0f, 395.0f, -1000.0f, 0.0f, L"a", 0, 107},
+    {570.0f, 407.0f, 560.0f, 395.0f, -1000.0f, 0.0f, L"+", 40, 107},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 0, 10036},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 0, 10075},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 0, 107},
+    {70.0f, 407.0f, 80.0f, 395.0f, 0.0f, 0.0f, L"b", 1, 10074},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 0, 10077},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 0, 10078},
+    {570.0f, 407.0f, 560.0f, 395.0f, -1000.0f, 0.0f, L"a", 0, 107},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 0, 23},
+    {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 51, 10079},
+};
+
+// inferred: game settings (lbl_8087F0A8, see game/CampSaveLoad.cpp); only the member used here
+struct MenuSettings_unk {
+    unsigned char m00[0x48C];
+    unsigned char m48C[4]; // 0x48C: inferred: button icon table
+};
+extern "C" MenuSettings_unk* lbl_8087F0A8;
+extern "C" MenuUV_unk fn_80124C6C(void* table, int index); // inferred: UV of a button icon
+extern "C" const wchar_t* fn_80116FC0(int group, int id); // inferred: message text
+
+// inferred: shows an A button prompt (ui_abtn_reaction_*.d2a)
+extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, const float* ofs, int id) {
+    if (!(0 <= type && type < 17)) {
+        return;
+    }
+    if (menu->m1CC >= 2) {
+        return;
+    }
+    int wide = lbl_8087EEE0->mWide;
+    const MenuButtonInfo_unk* info = &lbl_80757110[type];
+    float x = wide != 0 ? info->mX : info->mX43;
+    float y = wide != 0 ? info->mY : info->mY43;
+    menu->m1D0[menu->m1CC] = id;
+    SetPaneValue_unk(menu->m1D8[menu->m1CC]->m58, "basePos", 0, x + ofs[0]);
+    SetPaneValue_unk(menu->m1D8[menu->m1CC]->m58, "basePos", 1, y + ofs[1]);
+    SetPaneValue_unk(menu->m1D8[menu->m1CC]->m58, "basePos", 4, info->mZ);
+    SetPaneValue2_unk(menu->m1D8[menu->m1CC]->m58, "crossOn", info->mCross);
+    SetUV_unk((atn::D2A_Task*)menu->m1D8[menu->m1CC], "btnUv", fn_80124C6C(lbl_8087F0A8->m48C, info->mUV));
+    SetUV_unk((atn::D2A_Task*)menu->m1D8[menu->m1CC], "btnUvMask", fn_80124C6C(lbl_8087F0A8->m48C, info->mUV));
+    SetPaneText_unk(menu->m1D8[menu->m1CC]->m58, "buttonStr", info->mButton);
+    SetPaneText_unk(menu->m1D8[menu->m1CC]->m58, "action_name", fn_80116FC0(0, info->mMsg));
+    SetPaneValue_unk(menu->m1E0[menu->m1CC]->m58, "basePos", 0, x + ofs[0]);
+    SetPaneValue_unk(menu->m1E0[menu->m1CC]->m58, "basePos", 1, y + ofs[1]);
+    SetPaneValue_unk(menu->m1E0[menu->m1CC]->m58, "basePos", 4, info->mZ);
+    SetPaneValue2_unk(menu->m1E0[menu->m1CC]->m58, "crossOn", info->mCross);
+    SetUV_unk((atn::D2A_Task*)menu->m1E0[menu->m1CC], "btnUv", fn_80124C6C(lbl_8087F0A8->m48C, info->mUV));
+    SetUV_unk((atn::D2A_Task*)menu->m1E0[menu->m1CC], "btnUvMask", fn_80124C6C(lbl_8087F0A8->m48C, info->mUV));
+    SetPaneText_unk(menu->m1E0[menu->m1CC]->m58, "buttonStr", info->mButton);
+    SetPaneText_unk(menu->m1E0[menu->m1CC]->m58, "action_name", fn_80116FC0(0, info->mMsg));
+    if (type == 6 || type == 7) {
+        menu->m1D8[menu->m1CC]->m108 = 0x13;
+        menu->m1E0[menu->m1CC]->m108 = 0x13;
+    } else {
+        menu->m1D8[menu->m1CC]->m108 = 0x12;
+        menu->m1E0[menu->m1CC]->m108 = 0x12;
+    }
+    menu->m1CC++;
+}
 
 // inferred: message table (lbl_8087F1E4, see game/CharaTask.cpp)
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -669,10 +996,191 @@ struct MenuMsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" MenuMsgTable_unk* lbl_8087F1E4;
+
+// inferred: shows a confirmation message in camp_info2.d2a
+extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel) {
+    MenuD2A_unk* anime = menu->m6C;
+    if (anime == 0) {
+        return;
+    }
+    switch (type) {
+    case 0:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x104));
+        break;
+    case 1:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x108));
+        break;
+    case 2:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x109));
+        break;
+    case 3:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x10A));
+        break;
+    case 4:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x10B));
+        break;
+    case 7:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x10C));
+        break;
+    case 8:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x10E));
+        break;
+    case 9:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x10F));
+        break;
+    case 10:
+        SetPaneText_unk(menu->m6C->m58, "check_msg", fn_80116FC0(1, 0x110));
+        break;
+    default:
+        SetPaneText_unk(anime->m58, "check_msg", lbl_8087F1E4->Get_unk(0x36D));
+        break;
+    }
+    menu->m64 = 1;
+    menu->m68 = noCancel == 0;
+}
+
+// inferred: shows a warning in the info window (third camp_info.d2a)
+extern "C" void fn_804A65A0(MenuCommonTask* menu, const wchar_t* text) {
+    SetPaneText_unk(menu->m60->m58, "warning_msg", text);
+    menu->m5C = 1;
+}
+
+// inferred: event of an anime element (only the members used here)
+struct MenuAnimeEvent_unk {
+    int m00;
+    unsigned int mHash;  // 0x04: inferred: hash of the element name
+    int m08;
+    int m0C;
+    unsigned int mFlags; // 0x10
+};
+// inferred: object with the menu colors (lbl_8087F490); only the members used here
+struct MenuColors_unk {
+    unsigned char m00[0x288C];
+    float mText[4];   // 0x288C: inferred: text color
+    float mShadow[4]; // 0x289C: inferred: second color
+};
+extern "C" MenuColors_unk* lbl_8087F490;
+
+// inferred: 8-bit color packed as ARGB (names invented)
+inline unsigned int ColorByte_unk(float f) {
+    return f >= 1.0f ? 0xFF : (f <= 0.0f ? 0 : (unsigned int)(255.0f * f + 0.5f));
+}
+struct MenuColor_unk {
+    MenuColor_unk(const float* v, unsigned int alpha = 0) {
+        unsigned int r = ColorByte_unk(v[0]);
+        unsigned int g = ColorByte_unk(v[1]);
+        unsigned int b = ColorByte_unk(v[2]);
+        unsigned int a = ColorByte_unk(v[3]);
+        mColor = alpha | ((a << 24) | (r << 16) | (g << 8) | b);
+    }
+    void Get_unk(float* v) const {
+        v[0] = 0.003921569f * ((mColor >> 16) & 0xFF);
+        v[1] = 0.003921569f * ((mColor >> 8) & 0xFF);
+        v[2] = 0.003921569f * (mColor & 0xFF);
+        v[3] = 0.003921569f * (mColor >> 24);
+    }
+    unsigned int mColor;
+};
+struct MenuColor4_unk {
+    MenuColor4_unk(float r, float g, float b, float a) {
+        v[0] = r;
+        v[1] = g;
+        v[2] = b;
+        v[3] = a;
+    }
+    float v[4];
+};
+
+// inferred: replaces the default text colors of the registered elements by the colors of the settings
+inline void ApplyColors_unk(const float* color, float* outColor, float* outColor2) {
+    unsigned int alpha = MenuColor_unk(color).mColor & 0xFF000000;
+    unsigned int rgb = MenuColor_unk(color).mColor & 0x00FFFFFF;
+    if (rgb == MenuColor_unk(MenuColor4_unk(0.11764706f, 0.11764706f, 0.11764706f, 0.0f).v).mColor ||
+        rgb == MenuColor_unk(MenuColor4_unk(0.78431374f, 0.78431374f, 0.78431374f, 0.0f).v).mColor ||
+        rgb == MenuColor_unk(MenuColor4_unk(1.0f, 1.0f, 1.0f, 0.0f).v).mColor ||
+        rgb == MenuColor_unk(MenuColor4_unk(0.84313726f, 0.8784314f, 0.91764706f, 0.0f).v).mColor) {
+        if (lbl_8087F490 != 0) {
+            MenuColor_unk c(lbl_8087F490->mText, alpha);
+            c.Get_unk(outColor);
+        }
+        if (outColor2 != 0 && lbl_8087F490 != 0) {
+            MenuColor_unk(lbl_8087F490->mShadow).Get_unk(outColor2);
+        }
+    }
+}
+
+// NONMATCHING: 98.9% - scheduling of the color conversion back to floats
+// inferred: event of a d2anime: recolors the registered elements (entries with the anime in m00)
+void MenuCommonTask::fn_804A660C(void* anime, int a, int b, int c) {
+    const MenuAnimeEvent_unk* event = (const MenuAnimeEvent_unk*)a;
+    float* color = (float*)b;
+    float* color2 = (float*)c;
+    if (anime == 0 || event == 0) {
+        return;
+    }
+    unsigned int hash;
+    MenuCommonEntry_unk* entry = mA0;
+    int found = 0;
+    for (unsigned int i = 0; i < m9C; entry++, i++) {
+        if ((void*)entry->m00 == anime) {
+            if (entry->m08.mText[0] == 0) {
+                if ((event->mFlags & 2) == 2) {
+                    found = 1;
+                }
+            } else {
+                hash = event->mHash;
+                if (hash == fn_800DC6B4(entry->m08.mText)) {
+                    found = 1;
+                }
+            }
+        }
+    }
+    if (found == 0) {
+        return;
+    }
+    if (color == 0) {
+        return;
+    }
+    ApplyColors_unk(color, color, color2);
+}
+
+// NONMATCHING: 98.9% - as fn_804A660C
+// inferred: same as fn_804A660C for a layout anime (entries with the layout in m04)
+void MenuCommonTask::fn_804A71F0(void* layout, int a, int b, int c) {
+    const MenuAnimeEvent_unk* event = (const MenuAnimeEvent_unk*)a;
+    float* color = (float*)b;
+    float* color2 = (float*)c;
+    if (layout == 0 || event == 0) {
+        return;
+    }
+    unsigned int hash;
+    MenuCommonEntry_unk* entry = mA0;
+    int found = 0;
+    for (unsigned int i = 0; i < m9C; entry++, i++) {
+        if ((void*)entry->m04 == layout) {
+            if (entry->m08.mText[0] == 0) {
+                if ((event->mFlags & 2) == 2) {
+                    found = 1;
+                }
+            } else {
+                hash = event->mHash;
+                if (hash == fn_800DC6B4(entry->m08.mText)) {
+                    found = 1;
+                }
+            }
+        }
+    }
+    if (found == 0) {
+        return;
+    }
+    if (color == 0) {
+        return;
+    }
+    ApplyColors_unk(color, color, color2);
+}
+
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void* lbl_8087EEC8; // inferred: font
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
 extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
                             const wchar_t* text, unsigned int color, int a, int b, int c, int d,
                             unsigned int color2); // inferred: text
@@ -690,4 +1198,5 @@ extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id) {
     }
 }
 
-// fn_804A7EA4 (0x804A7EA4) is the creator of MiniMapTask (it uses the MiniMapTask string pool): see notes_G.md
+// fn_804A7EA4 (0x804A7EA4) is the creator of MiniMapTask (it uses the MiniMapTask string pool): the .text
+// split of this file ends before it (see notes_G.md)
