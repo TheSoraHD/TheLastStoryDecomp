@@ -1,5 +1,11 @@
 #include "MP/CryptMP.h"
 
+// inferred: inline in the class (weak copy 0x804AE3C4); defined here so that atn/PPDATAU.cpp, which
+// calls it, does not emit a copy
+inline int atn::net::PacketPack::vf0C() {
+    return 0;
+}
+
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" unsigned short OSCalcCRC16(const void* data, unsigned long len);
 extern "C" unsigned long fn_806B3C20();

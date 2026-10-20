@@ -2154,6 +2154,13 @@
   "matching": false
  },
  {
+  "name": "atn/LH_Core.cpp",
+  "classes": [
+   "atn::LoadCore"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/LH_Effect.cpp",
   "classes": [
    "atn::LoadEffect",
@@ -2166,6 +2173,20 @@
   "classes": [
    "atn::LoadEfp",
    "atn::LH_Efp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/FileSystem_unk.cpp",
+  "classes": [
+   "atn::PfsArchive_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Handle.cpp",
+  "classes": [
+   "atn::LoadHandle"
   ],
   "matching": false
  },
@@ -2474,8 +2495,9 @@
  {
   "name": "atn/PPDATAU.cpp",
   "classes": [
-   "atn::net::PPDATAR",
-   "atn::net::PPDATAU"
+   "atn::net::PPDATA",
+   "atn::net::PPDATAU",
+   "atn::net::PPDATAR"
   ],
   "matching": false
  },
@@ -2812,6 +2834,31 @@
    "TutorialPopup",
    "TutorialTask"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/DwcAllocator_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/THPDraw_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/XsfParser_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Bezier_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/NetFriend_unk.cpp",
+  "classes": [],
   "matching": false
  }
 ]
