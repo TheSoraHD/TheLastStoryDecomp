@@ -20,6 +20,7 @@ Helper scripts used while decompiling. All of them work on the repo that contain
 | `regress.py <report.json> <ref report.json>...` | Per-function comparison of two builds: functions at 100% in a reference that are not any more (integration check). |
 | `symresolve.py config/SLSP01/symbols.txt` | Resolve symbols.txt conflict blocks by address (real name over `fn_`/`lbl_`); fallback when `symmerge.py` finds nothing. |
 | `refmerge.py <other libs_ref.json>` | Add missing libs_ref.json entries from another copy. |
+| `autoscan.py [--min N] [--md f] [--tsv f]` / `--unit <auto_unit>` / `--data` | Inventory of the auto_ (unsplit) .text ranges with split hints: classes whose vtable methods are in the range, TU boundary candidates from constants duplicated per file, neighbour units; per-function view of one range; data objects left in auto_ data ranges that only one split unit uses. |
 
 `maps/map_<unit>.txt`: optional address -> mangled-name map used by `cmp.py` for calls whose target
 symbol is still `fn_<ADDR>` but our code uses a real name.
