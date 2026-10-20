@@ -2934,6 +2934,13 @@
   "matching": false
  },
  {
+  "name": "game/SpecialEnemyBase.cpp",
+  "classes": [
+   "SpecialEnemyBase"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/StrapTask.cpp",
   "classes": [
    "StrapTask"

@@ -15,9 +15,15 @@ struct SpecialState_unk {
     int m0C;
 };
 
+struct SpecialFlag_unk;
+struct SpecialAim_unk;
+namespace atn {
+class Csv;
+}
+
 // inferred from __vt__16SpecialEnemyBase (0x80797368): base of the special enemies driven by a
 // state machine (vf100 sets the state m58C, vf104 runs it). Its members are out of line
-// (0x805A3C54-0x805A5078, not decompiled); names keep the offsets.
+// (game/SpecialEnemyBase.cpp, 0x805A3C54-0x805A5078); names keep the offsets.
 class SpecialEnemyBase : public EnemyTask {
 public:
     SpecialEnemyBase(atn::Task* parent, EnemyInfo_unk* info); // 0x805A3C54
@@ -43,10 +49,17 @@ public:
     // inferred: reads "key=value" parameters; nonzero when `params` names a data file (written to `name`)
     int fn_805A3D68(char* name, const char* params);
     void fn_805A40B8(); // inferred: state 2 (dead)
+    void fn_805A4188(HitMsg_unk* msg); // inferred: shows the hit label
     void fn_805A4254(); // inferred: update while not in control mode 2
-    void fn_805A4F1C(int motion, int arg2, int arg3, float blend, float speed); // inferred: plays a motion
+    int fn_805A45F8(float radius, float angle, float rotOffset); // inferred: characters in a cone in front
+    void fn_805A4980(SpecialFlag_unk* flag, atn::Csv* csv); // inferred: reads a flag reference
+    int fn_805A49E4(SpecialFlag_unk* flag);                 // inferred: reads the flag (-1 without field)
+    void fn_805A4A1C(SpecialFlag_unk* flag, int value);     // inferred: writes the flag
+    int fn_805A4A54(SpecialAim_unk* aim); // inferred: nonzero when the player aims at `aim`
+    void fn_805A4F1C(int motion, int arg2, int arg3, float speed, float blend); // inferred: plays a motion
+    void fn_805A5220(void* group); // inferred: debug menu entries
 
-    int m14B0;
+    int m14B0;            // inferred: spawn description (EnemyInfo_unk*)
     atn::LH_Binary m14B4; // inferred: data file of the enemy
     int m14BC;            // inferred: step of the current state
     int m14C0;            // inferred: frame counter

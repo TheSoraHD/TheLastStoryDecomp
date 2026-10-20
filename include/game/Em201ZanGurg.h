@@ -52,6 +52,7 @@ public:
     atn::EfpHandle_unk m16F8; // inferred: "/effect/ef_sk026a.efp"
     ResHandle m1704;      // inferred: debug menu group
     int m1708;            // inferred: "DebugDisp"
+    int m170C;            // inferred: the factory allocates 0x1710 bytes (fn_805A5374)
 };
 
 #endif
