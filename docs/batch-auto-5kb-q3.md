@@ -33,3 +33,29 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - MWCC convierte en salto de cola (`addi r3,r3,-0x48; b f`) una funcion que solo llama a otra con el puntero
     ajustado: sirve para reproducir thunks `@N@` fuera de su fichero. Un parametro `short` reenviado anade `extsh`:
     usar `int`.
+
+## atn/D2A_ParamTable_unk (commit HASH2)
+
+- Resultado: 6/6 al 100%, `matching: true`, `main.dol: OK`.
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (el tramo ya cubre `.text`, el double int->float de `.rodata` y su `.sdata2`).
+  - `symbols.txt`: `lbl_80882C28` (0.0f) pasa de `size:0x8` a `size:0x4` (los 4 bytes siguientes son relleno;
+    con 8 objdiff lo trataba como double y no casaba el `lfs`).
+  - Contenido: tablas `{clave, valor}` de los elementos D2A con setter (busca la clave exacta) y getter interpolado
+    linealmente entre las claves vecinas, para `int` (`fn_801F0364/03AC`), `float` (`D2A_ParamTable::fn_801F04FC`,
+    `fn_801F0544`) y `std::wstring` (`fn_801F0670/0758`, sin interpolar: valor de la clave anterior). Tipos
+    inferidos locales `D2A_IntParamTable_unk` y `D2A_StringParamTable_unk`. Los nombres `extern "C"` se mantienen
+    (los llaman asi D2A_Common, D2A_Message, D2A_Data, D2A_Texture y MenuCommonTask); `fn_801F04FC` conserva su
+    firma `(int key, int arg, float value)` aunque por los llamadores parece `(key, value, flag)` (mismos registros).
+  - **Cabecera compartida `include/std/string.h`**: `operator=` copia dos cadenas cortas con `mRaw = str.mRaw` en vez
+    de `mLong = str.mLong` (el original carga la palabra 1 antes de guardar la 0, como el ctor copia). Efecto en el
+    resto (report.json): suben `db/CharaParam_unk` tokenizer::assign (95.9 -> 99.7) y `LibraryTask`
+    `BookTask::fn_8046B798` (96.2 -> 97.0); bajan un poco `D2A_Message` ctor (66.54 -> 66.31) y `vf18`
+    (91.59 -> 91.58), ambas ya NONMATCHING. Ninguna funcion al 100% se pierde.
+  - Nombre real propuesto: entre `atn_d2a_frame` y `atn_d2a_line` (ver splits-auto-B), p. ej. `atn_d2a_param.cpp`.
+- Hallazgos MWCC
+  - Locales de un bucle de busqueda (`prev`, `next`, `found`): el orden de declaracion decide r7/r8/r9; probar las
+    6 permutaciones con un script es mas rapido que razonarlo.
+  - Temporales (tags de iterador) en orden ascendente en la pila = el codigo esta en una inline (aqui la seleccion
+    del valor anterior/siguiente): sacarlo a un helper inline los reordena.

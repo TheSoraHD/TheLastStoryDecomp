@@ -909,6 +909,13 @@
   "matching": false
  },
  {
+  "name": "atn/D2A_ParamTable_unk.cpp",
+  "classes": [
+   "atn::D2A_ParamTable"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/D2A_Line.cpp",
   "classes": [
    "atn::D2A_Line"
