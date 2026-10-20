@@ -147,7 +147,7 @@ funciones `extern "C" fn_<addr>`.
   - Elemento de tabla usado dos veces en el cuerpo de un bucle de busqueda (`t = tabla[i]; strncmp(s, t, strlen(t))`):
     declararlo dentro del cuerpo le da el registro mas bajo (se crea despues del puntero reducido).
 
-## db/SkillGrowth_unk (commit HASH)
+## db/SkillGrowth_unk (commit abf7a3e)
 - Resultado: 6/6 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -166,3 +166,23 @@ funciones `extern "C" fn_<addr>`.
 - Hallazgos MWCC
   - Segundo caso (tras TreasureList) de fila indexada por desplazamiento en bytes explicito: si el `li rX, 0` del
     indice va antes de una llamada (o de un inline como `vf08`) previa al bucle, no es un indice reducido.
+
+## db/SkillParam_unk (commit HASH)
+- Resultado: 6/7 al 100%, matching no.
+- NONMATCHING: `fn_80219C30` (textos UTF-16) 87.77% - el original llama fuera de linea a `fn_80219F1C` (aqui se inlinea:
+  no se supera el presupuesto, como en `db/CharaIdTable_unk`; con `static` se inlinea y desaparece) y guarda la
+  direccion del `atn::CsvU` en un registro salvado durante su ctor inline (como `db/TutorialTable_unk`).
+- **Decisiones sin el usuario**
+  - Splits sin cambios. `db/ParseUtil_unk` (siguiente en `.text`) es otro fichero (tiene su propio pool ":" + cadenas de
+    `basic_string` en 0x80742560 tras el pool de esta unidad); no se fusionan.
+  - Cabecera nueva `include/db/ParseUtil_unk.h`: `BulletParam_unk` (0xBC, parametros de bala/habilidad, ctor
+    0x8021A4E0; mismo objeto que `HitInfo_unk` de `game/HitInfo_unk.h`, que no se toca) y las funciones de lectura
+    `fn_80219F84`/`fn_8021A5F8` de `db/ParseUtil_unk`.
+  - `symbols.txt`: `fn_80219EC4` -> `__ct__14SkillParam_unkFv`, `fn_8021A4E0` (en `db/ParseUtil_unk`) ->
+    `__ct__15BulletParam_unkFv`; datos `sTextFileNameStr`, `@stringBase0` (0x80742540: ruta del CSV, "Version", ""),
+    `@wstringBase0` (0x8087DB98, `.sdata`, L""), `sEntries`, `sCount`, `sBuf`, `sTexts`, `sTextFileName`.
+  - Tipo inferido `SkillParam_unk : BulletParam_unk` (0xD0). `fn_80219E6C` (dato de bala/habilidad por id, usado en
+    muchas unidades como `HitInfo_unk*`) devuelve aqui `SkillParam_unk*`.
+- Hallazgos MWCC
+  - Una direccion de un local (`csv.mField + 2`) que el original tiene en un registro salvado antes del bucle
+    (`addi r26, r1, 0x26`) sale escribiendola en un puntero local antes del bucle; MWCC no saca solo esas direcciones.
