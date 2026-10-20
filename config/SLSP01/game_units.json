@@ -2534,6 +2534,11 @@
   "matching": false
  },
  {
+  "name": "game/main.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/MapPartsLocatorSet.cpp",
   "classes": [
    "MapPartsLocatorSet"
