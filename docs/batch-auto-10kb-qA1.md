@@ -12,8 +12,9 @@ Cola: `atn/Camera_unk`, `atn/Frustum_unk`, `atn/PostFxGamma`, `atn/PostFxGodRay`
   - `symbols.txt`: `fn_8004BF64` -> `fn_8004BF64__10Camera_unkFff` (metodo `bool Camera_unk::fn_8004BF64(float, float)`,
     camara libre de depuracion movida con el pad; la llaman game/NewCampTask y game/NewTitleTask, en asm).
   - Cabecera nueva `include/atn/Camera_unk.h`: `Camera_unk` (0x1F4: tipo, proyeccion, pos/target/up/angulos, roll,
-    limites de proyeccion, mView 0x58, mProj 0x88, near/far, mInvView 0xD0) y `Frustum_unk` (0xF4 en +0x100, metodos
-    0x8004F50C/0x8004F5B8). Los `.cpp` que ya declaraban su propio `Camera_unk` local no se han tocado.
+    limites de proyeccion, mView 0x58, mProj 0x88, near/far, mInvView 0xD0) y `Frustum_unk` (0xF4 en +0x100; sus
+    funciones se quedan `extern "C"`, ver atn/Frustum_unk). Los `.cpp` que ya declaraban su propio `Camera_unk` local
+    no se han tocado.
   - Cabecera compartida `include/math/Vec.h`: `Matrix44_unk::operator=` (copia de 8 paired singles). regress: lost 0.
   - Helpers inline inventados en el .cpp (LookAt_unk, Perspective_unk, Ortho_unk, Rotate_unk, RotZYX_unk, RotZXY_unk,
     SetView_unk, MultVec_unk, Direction_unk, Neg_unk, Cross_unk, CosF_unk/SinF_unk, RadToDeg_unk).
@@ -28,3 +29,27 @@ Cola: `atn/Camera_unk`, `atn/Frustum_unk`, `atn/PostFxGamma`, `atn/PostFxGodRay`
   - `Direction_unk(a, b)` inline con la resta dentro baja el temporal de la resta a la zona de inline.
 - Pendientes para otras unidades: `lbl_8087EFB4` (camara global) es otra clase que contiene un `Camera_unk` en +0x104
   (GeoCamera_unk de atn/Geometry_unk: vista 0x15C = 0x104+0x58, proyeccion 0x18C = 0x104+0x88).
+
+## atn/Frustum_unk (commit 013c918)
+- Resultado: 7/7 al 100%, `matching: true`, `main.dol: OK`.
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**:
+  - Splits sin cambios (el split cubria justo el fichero: .text 0x8004F45C-0x80050900, .sdata2 0x80880930-0x80880940).
+  - Simbolos sin renombrar: las 7 funciones quedan como `extern "C"` (`fn_8004F45C` bounds de n puntos,
+    `fn_8004F50C`/`fn_8004F5B8` construccion, `fn_8004FF58` esfera, `fn_800500FC`/`fn_800502A8` caja, `fn_80050420`
+    recorte de segmento) porque ya las llaman como `extern "C"` gmk/Brazier, atn/LensFlare, atn/ModelInstance,
+    atn/D3Anime*, atn/AABBTree, atn/Rain y atn/LayerOcclusionCPU (seguramente eran metodos de una clase frustum).
+  - Tipos inventados en `include/atn/Camera_unk.h`: `Frustum_unk` (vista 0x00, ortho 0x30, -near 0x34, -far 0x38,
+    4 planos laterales en espacio vista 0x3C, bounds 0x7C/0x88, 6 planos en mundo 0x94; normales hacia fuera) y
+    `Plane_unk` (normal, distancia). En el .cpp: `Segment_unk` y helpers inline (SetPlane_unk, ClipPlane_unk...).
+  - Nombre real propuesto del fichero: quiza `atn_frustum.cpp` o parte de `atn_colli*` (esta entre ColliBaseFunc y
+    ColliTest).
+- Hallazgos MWCC:
+  - `float t = TanF(x); t *= n;` da `frsp` + `fmuls t, n`; `TanF(x) * n` invierte los operandos.
+  - Un plano con temporales `b - a`, `c - a` en orden ascendente en la pila = locales con nombre dentro de la inline
+    (`Vector3 e1 = b - a; ...`); como argumentos directos salen en orden inverso.
+  - Bucle sobre un array local con el puntero ya en registro: `Vector3* p = pts; for (...; p++)` evita el `mr` extra.
+  - Dos resultados en ramas distintas de una inline que el original deja juntos en la pila (antes de los
+    temporales de cada rama) = locales con nombre `Vector3 h = ...;` en cada rama.
+  - `Lerp_unk(a, b, t)` de Vec.h no da el orden de temporales de `a + (b - a) * t` escrito en linea.
+- Pendientes para otras unidades: ninguno.
