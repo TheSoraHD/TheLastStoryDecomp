@@ -92,3 +92,24 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - Desenrollado: `while (count-- > 0)` / `for (; count > 0; count--)` con `count` entero da el esquema
     `srwi. ctr,count,3` + resto `andi.`; `for (i = 0; i < count; i++)` da el esquema generico (comprobacion de
     desbordamiento con 0x7FFFFFFE y `count - 8`).
+
+## atn/NumberFormat_unk (commit HASH4)
+
+- Resultado: 3/4 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_800DD3FC` 99.39% - solo reparto de registros (`text`/`num`/`number`); el resto (estructura del
+  `switch`, pila, constantes) igual.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (cubre `.text`, el double int->float de `.rodata` y el 1e7f de `.sdata2`).
+  - Contenido: un `swprintf` reducido del juego (`fn_800DD3FC`: `%s %c %b %o %x %d %f %%`, flags `+`/espacio y
+    digitos de ancho/precision; coma decimal si `fn_8006BA30()` (idioma) esta entre 2 y 5), el relleno de ancho
+    (`fn_800DD1EC`) y de decimales (`fn_800DD2A8`), y `fn_800DD8A8` (sustituye `%s<n>` por la n-esima cadena).
+    Nombres `extern "C"` sin cambiar (los llaman asi D2AMpMenuCockpit, RandomMerchant...).
+  - Externos inferidos: `fn_80686AC4` = `wcscat`, `fn_800DC1DC` = cadena ancha a entero (Util_unk),
+    `fn_8068B2A0` = entero a texto (`itow(value, buf, radix)`, devuelve `buf`).
+  - Nombre real propuesto: desconocido (formateo de texto; `atn_wsprintf.cpp`?).
+- Hallazgos MWCC
+  - Funcion con muchas variables en registros salvados: declararlas todas al principio (estilo C) en el orden de
+    los registros del original (de r31 hacia abajo) ordena la asignacion mucho mejor que declararlas en su ambito.
+  - `float x = __fabs((double)expr)` da `fabs` + `frsp` antes de `fctiwz` (con `__fabs(float)` no sale `frsp`).
+  - Un helper inline de pocas sentencias dentro de una funcion pequena la hace autoinlinable en sus llamadoras;
+    escribir el bucle directamente (sin helper) la dejo fuera de linea sin necesitar `((void)0)`.
