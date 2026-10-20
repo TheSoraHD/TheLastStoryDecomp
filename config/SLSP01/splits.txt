@@ -400,10 +400,12 @@ chr/ControlStickByQuark.cpp:
 	.sdata2     start:0x808820C4 end:0x80882130
 
 chr/ControlCannonLift.cpp:
-	.text       start:0x801A0BA8 end:0x801A226C
-	.rodata     start:0x8073A024 end:0x8073A070
-	.data       start:0x8077EFD0 end:0x8077F140
-	.sdata2     start:0x80882130 end:0x80882158
+	.text       start:0x801A0BA8 end:0x801A2290
+	.ctors      start:0x8072D2DC end:0x8072D2E0
+	.rodata     start:0x80739F70 end:0x8073A090
+	.data       start:0x8077EFB0 end:0x8077F178
+	.bss        start:0x807C7BD0 end:0x807C7BF0
+	.sdata2     start:0x80882130 end:0x80882168
 
 chr/ControlCaught.cpp:
 	.text       start:0x801A2290 end:0x801A2CEC
@@ -425,8 +427,8 @@ chr/ControlChaseCaught.cpp:
 
 chr/ControlCliffhang.cpp:
 	.text       start:0x801AAB64 end:0x801AC434
-	.rodata     start:0x8073A960 end:0x8073A978
-	.data       start:0x8077FB60 end:0x8077FBD8
+	.rodata     start:0x8073A958 end:0x8073A978
+	.data       start:0x8077FB48 end:0x8077FBD8
 	.sdata2     start:0x80882290 end:0x808822E8
 
 chr/ControlDamage.cpp:
@@ -443,7 +445,7 @@ chr/ControlDetect.cpp:
 
 chr/ControlDive.cpp:
 	.text       start:0x801B0D88 end:0x801B2888
-	.rodata     start:0x8073AB98 end:0x8073AC30
+	.rodata     start:0x8073AB90 end:0x8073AC30
 	.data       start:0x80780330 end:0x80780678
 	.sdata2     start:0x808823B0 end:0x80882410
 
@@ -478,9 +480,9 @@ chr/ControlAttractHateCharge.cpp:
 	.sdata2     start:0x808824F0 end:0x80882518
 
 chr/ControlInteractionBase.cpp:
-	.text       start:0x801B7CD0 end:0x801B9A14
-	.rodata     start:0x8073B228 end:0x8073B2E8
-	.data       start:0x80781040 end:0x80781438
+	.text       start:0x801B7CD0 end:0x801B9A54
+	.rodata     start:0x8073B200 end:0x8073B308
+	.data       start:0x80780FC0 end:0x80781438
 	.sdata2     start:0x80882518 end:0x80882550
 
 chr/ControlLadder.cpp:
@@ -508,10 +510,11 @@ chr/ControlOneMotion.cpp:
 	.sdata2     start:0x80882778 end:0x808827A8
 
 chr/ControlPushedDown.cpp:
-	.text       start:0x801C48B4 end:0x801C6F90
-	.rodata     start:0x8073B798 end:0x8073B7DC
-	.data       start:0x80781D68 end:0x80781ED0
-	.sdata2     start:0x808827AC end:0x80882838
+	.text       start:0x801C4738 end:0x801C6F90
+	.rodata     start:0x8073B778 end:0x8073B810
+	.data       start:0x80781D58 end:0x80781ED0
+	.bss        start:0x807C7C28 end:0x807C7C30
+	.sdata2     start:0x808827A8 end:0x80882838
 
 chr/ControlRide.cpp:
 	.text       start:0x801C6F90 end:0x801C7918
@@ -551,8 +554,8 @@ chr/ControlSitting.cpp:
 
 chr/ControlWallUp.cpp:
 	.text       start:0x801C9F6C end:0x801CC0AC
-	.rodata     start:0x8073BBD4 end:0x8073BC18
-	.data       start:0x80782310 end:0x80782480
+	.rodata     start:0x8073B9A8 end:0x8073BC20
+	.data       start:0x807822D0 end:0x807824D8
 	.sdata2     start:0x80882920 end:0x80882998
 
 game/CopyRobotTask.cpp:
