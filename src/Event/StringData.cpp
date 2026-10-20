@@ -8,14 +8,14 @@
 namespace Event {
 
 // inferred: returns 1 (li r3, 0x1)
-int StringData::vf10() { return 1; }
+int StringData::vf10() const { return 1; }
 
 void StringData::vf0C() {}
 
 void StringData::vf08() {}
 
 // inferred: returns 1 (li r3, 0x1)
-int DummyData::vf10() { return 1; }
+int DummyData::vf10() const { return 1; }
 
 void DummyData::vf0C() {}
 

@@ -410,6 +410,13 @@
   "matching": false
  },
  {
+  "name": "Event/Behavior_unk.cpp",
+  "classes": [
+   "Event::BehaviorRef_unk"
+  ],
+  "matching": true
+ },
+ {
   "name": "Event/BehaviorFollow.cpp",
   "classes": [
    "Event::BehaviorFollow"
@@ -999,7 +1006,7 @@
    "db::GrowthParse",
    "db::GrowthParseGlobal"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/MotionCommandCommon.cpp",
@@ -2255,7 +2262,7 @@
   "classes": [
    "MarketTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MenuCommonTask.cpp",
@@ -2613,7 +2620,7 @@
   "classes": [
    "SetConfig"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/ShopBase.cpp",

@@ -11,7 +11,7 @@ class CommonData {
 public:
     virtual void vf08();
     virtual void vf0C();
-    virtual int vf10();
+    virtual int vf10() const;
 };
 
 } // namespace Event

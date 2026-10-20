@@ -10,6 +10,7 @@ struct ResLoader_unk {
     ~ResLoader_unk();                   // 0x802375C4
     void fn_80237654(const char* path); // inferred: starts loading
     int fn_802376D0();                  // inferred: nonzero while loading
+    void fn_8023772C();                 // inferred: releases the resource (Event::EffectData::vf0C)
 
     void* mResource;
     unsigned char m04[0x0C - 0x04];

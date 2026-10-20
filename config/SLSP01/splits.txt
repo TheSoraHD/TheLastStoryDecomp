@@ -26,9 +26,9 @@ game/AiTarget.cpp:
 	.sdata2     start:0x808806C0 end:0x80880744
 
 std/runtime_error.cpp:
-	.text       start:0x8001A268 end:0x8001A34C
-	.rodata     start:0x8072FCAC end:0x8072FCDC
-	.data       start:0x80775B30 end:0x80775B88
+	.text       start:0x8001A268 end:0x8001A444
+	.rodata     start:0x8072FCAC end:0x8072FD8C
+	.data       start:0x80775B30 end:0x80775BE8
 
 AI/AI_archer_attack01.cpp:
 	.text       start:0x80025DE0 end:0x80035EB4
@@ -282,9 +282,14 @@ game/BattleTask.cpp:
 	.data       start:0x80779DA0 end:0x80779DD8
 	.sdata2     start:0x808813D4 end:0x80881508
 
-Event/BehaviorFollow.cpp:
-	.text       start:0x8010D98C end:0x8010E3F0
+Event/Behavior_unk.cpp:
+	.text       start:0x8010D98C end:0x8010DB94
 	.ctors      start:0x8072D2CC end:0x8072D2D0
+	.bss        start:0x807C7858 end:0x807C7888
+	.sbss       start:0x8087F050 end:0x8087F068
+
+Event/BehaviorFollow.cpp:
+	.text       start:0x8010DB94 end:0x8010E3F0
 	.rodata     start:0x80736548 end:0x80736560
 	.data       start:0x80779E30 end:0x80779E60
 	.sdata2     start:0x808815F8 end:0x80881618
@@ -355,10 +360,11 @@ game/ChaserNpc.cpp:
 	.sdata2     start:0x80881BF8 end:0x80881C48
 
 game/ChaseManager.cpp:
-	.text       start:0x801823A8 end:0x80183588
-	.rodata     start:0x80738198 end:0x807381A8
+	.text       start:0x801823A8 end:0x801839FC
+	.rodata     start:0x80738198 end:0x807381E8
 	.data       start:0x8077CC10 end:0x8077CC48
-	.sdata2     start:0x80881C50 end:0x80881C80
+	.sbss       start:0x8087F098 end:0x8087F0A0
+	.sdata2     start:0x80881C48 end:0x80881C88
 
 game/ColliAttrManager.cpp:
 	.text       start:0x801839FC end:0x80184A64
@@ -549,8 +555,9 @@ chr/ControlWallUp.cpp:
 game/CopyRobotTask.cpp:
 	.text       start:0x801CC0AC end:0x801CCE50
 	.ctors      start:0x8072D2E0 end:0x8072D2E4
-	.rodata     start:0x8073BC20 end:0x8073BC30
+	.rodata     start:0x8073BC20 end:0x8073BCD0
 	.data       start:0x807824D8 end:0x80782608
+	.bss        start:0x807C7CA0 end:0x807C7CB8
 	.sdata2     start:0x80882998 end:0x808829C8
 
 game/CosEditBase.cpp:
@@ -574,19 +581,21 @@ game/CostumeEditChara.cpp:
 game/CrossbowMenuTask.cpp:
 	.text       start:0x801E9398 end:0x801EA4B0
 	.ctors      start:0x8072D2F4 end:0x8072D2F8
-	.rodata     start:0x8073CBD8 end:0x8073CBEC
-	.data       start:0x8078298C end:0x807829C8
+	.rodata     start:0x8073CBD0 end:0x8073CC68
+	.data       start:0x80782900 end:0x807829E0
+	.sbss       start:0x8087F120 end:0x8087F128
 	.sdata2     start:0x80882B30 end:0x80882B70
 
 game/CrowdManager.cpp:
-	.text       start:0x801EA4B0 end:0x801EB7C4
-	.rodata     start:0x8073CC70 end:0x8073CC80
+	.text       start:0x801EA4B0 end:0x801EB93C
+	.rodata     start:0x8073CC70 end:0x8073CD20
 	.data       start:0x807829E0 end:0x80782A18
-	.sdata2     start:0x80882B70 end:0x80882BB8
+	.sbss       start:0x8087F128 end:0x8087F130
+	.sdata2     start:0x80882B70 end:0x80882BC0
 
 game/CrowdSimulation.cpp:
 	.text       start:0x801EB93C end:0x801EC158
-	.rodata     start:0x8073CD28 end:0x8073CD38
+	.rodata     start:0x8073CD20 end:0x8073CD58
 	.data       start:0x80782A18 end:0x80782A50
 	.sdata2     start:0x80882BC0 end:0x80882BE0
 
@@ -670,7 +679,7 @@ atn/D3AnimeInstance.cpp:
 
 Event/MotionData.cpp:
 	.text       start:0x80203930 end:0x80204958
-	.rodata     start:0x8073E6E0 end:0x8073E780
+	.rodata     start:0x8073E6E0 end:0x8073E800
 	.data       start:0x80782E60 end:0x80782FB0
 	.sdata2     start:0x80882D18 end:0x80882D28
 
@@ -686,8 +695,9 @@ atn/ptr_string_base_wchar_t_0.cpp:
 
 db/GrowthParseGlobal.cpp:
 	.text       start:0x8020F7D0 end:0x8020FDEC
-	.rodata     start:0x8073F918 end:0x8073F940
+	.rodata     start:0x8073F900 end:0x8073F950
 	.data       start:0x80783078 end:0x807830B8
+	.sbss       start:0x8087F208 end:0x8087F210
 	.sdata2     start:0x80882EA8 end:0x80882EB0
 
 db/MotionCommandCommon.cpp:
@@ -1157,8 +1167,8 @@ game/GameSaveBackground.cpp:
 
 game/GameSaveBanner.cpp:
 	.text       start:0x803B9044 end:0x803B9804
-	.rodata     start:0x80750058 end:0x8075009C
-	.data       start:0x8078B5E8 end:0x8078B658
+	.rodata     start:0x80750038 end:0x807500A8
+	.data       start:0x8078B5E8 end:0x8078B6C8
 	.sdata2     start:0x80885C98 end:0x80885CA0
 
 game/GameScene.cpp:
@@ -1654,8 +1664,10 @@ atn/LH_Xsca.cpp:
 game/LogMessageTask.cpp:
 	.text       start:0x80478714 end:0x80479998
 	.ctors      start:0x8072D37C end:0x8072D380
-	.rodata     start:0x807560F8 end:0x80756108
+	.rodata     start:0x807560D8 end:0x80756168
 	.data       start:0x80790028 end:0x80790060
+	.bss        start:0x807C8A68 end:0x807C8A98
+	.sbss       start:0x8087F528 end:0x8087F530
 	.sdata2     start:0x80886F10 end:0x80886F70
 
 Event/Manager.cpp:
@@ -1737,15 +1749,17 @@ game/MapTask.cpp:
 
 game/MarketTask.cpp:
 	.text       start:0x804A1DDC end:0x804A24C4
-	.rodata     start:0x807570C8 end:0x807570D4
+	.rodata     start:0x807570C8 end:0x80757108
 	.data       start:0x80790778 end:0x807907B0
+	.sbss       start:0x8087F578 end:0x8087F580
 	.sdata2     start:0x808871B0 end:0x808871C0
 
 game/MenuCommonTask.cpp:
-	.text       start:0x804A2A34 end:0x804A39EC
-	.rodata     start:0x807573C0 end:0x807573D0
+	.text       start:0x804A29C4 end:0x804A7F18
+	.rodata     start:0x807573C0 end:0x80757650
 	.data       start:0x807907DC end:0x80790818
-	.sdata2     start:0x808871D4 end:0x8088720C
+	.sbss       start:0x8087F580 end:0x8087F588
+	.sdata2     start:0x808871D0 end:0x80887254
 
 game/MiniMapTask.cpp:
 	.text       start:0x804A7F18 end:0x804A9E44
@@ -1760,9 +1774,9 @@ MP/D2ACommonDialog.cpp:
 	.sdata2     start:0x808872D0 end:0x80887308
 
 MP/CryptMP.cpp:
-	.text       start:0x804ADCAC end:0x804AE4C4
-	.rodata     start:0x80757A50 end:0x80757A5C
-	.data       start:0x807908D0 end:0x80790908
+	.text       start:0x804ADCAC end:0x804AE7C4
+	.rodata     start:0x80757A30 end:0x80757A70
+	.data       start:0x807908C0 end:0x80790930
 
 MP/D2AMpMenu.cpp:
 	.text       start:0x804AE888 end:0x804B4400
@@ -1943,8 +1957,9 @@ game/NpcTask.cpp:
 
 game/PickTask.cpp:
 	.text       start:0x80548D54 end:0x80549D8C
-	.rodata     start:0x8075E448 end:0x8075E454
+	.rodata     start:0x8075E438 end:0x8075E458
 	.data       start:0x807948E8 end:0x80794920
+	.sbss       start:0x8087F898 end:0x8087F8A0
 	.sdata2     start:0x80887D40 end:0x80887D58
 
 game/PopupTask.cpp:
@@ -2003,8 +2018,9 @@ atn/SequenceUnitParam1_const_int.cpp:
 
 game/SetConfig.cpp:
 	.text       start:0x8057E83C end:0x8057F0F8
-	.rodata     start:0x80761050 end:0x8076105C
+	.rodata     start:0x80761050 end:0x807611F0
 	.data       start:0x80796790 end:0x807967A8
+	.sbss       start:0x8087F9C0 end:0x8087F9C8
 	.sdata2     start:0x80888098 end:0x808880C0
 
 game/ShopBase.cpp:
@@ -2060,7 +2076,7 @@ nw4r/SeqNoteOnCallback.cpp:
 
 game/StrapTask.cpp:
 	.text       start:0x805A6208 end:0x805A6A80
-	.rodata     start:0x807637F0 end:0x807637FC
+	.rodata     start:0x807637E0 end:0x80763838
 	.data       start:0x807975B0 end:0x807975E8
 	.sdata2     start:0x808882A0 end:0x808882E0
 
@@ -2082,9 +2098,10 @@ game/TeamAIManager.cpp:
 	.sdata2     start:0x80888390 end:0x808883C0
 
 game/TownTask.cpp:
-	.text       start:0x805B6C5C end:0x805B7B24
-	.rodata     start:0x80763DF0 end:0x80763DFC
+	.text       start:0x805B6C5C end:0x805B9B08
+	.rodata     start:0x80763DF0 end:0x80763EB8
 	.data       start:0x807978C8 end:0x80797908
+	.sbss       start:0x8087FA20 end:0x8087FA28
 	.sdata2     start:0x808883E0 end:0x808883EC
 
 game/TownTpcLoader.cpp:
@@ -2844,6 +2861,12 @@ PowerPC_EABI_Support/src/Runtime/NMWException.cp:
 PowerPC_EABI_Support/src/Runtime/runtime.c:
 	.text       start:0x80695D84 end:0x80696578
 	.rodata     start:0x807667C0 end:0x807667D8
+
+PowerPC_EABI_Support/src/Runtime/__init_cpp_exceptions.cpp:
+	.text       start:0x80696578 end:0x806965E8
+	.ctors      start:0x8072D2A0 end:0x8072D2A4
+	.dtors      start:0x8072D440 end:0x8072D448
+	.sdata      start:0x8087ED28 end:0x8087ED30
 
 PowerPC_EABI_Support/src/Runtime/Gecko_ExceptionPPC.cp:
 	extab       start:0x80007BE4 end:0x80007C58

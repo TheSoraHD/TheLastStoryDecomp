@@ -80,7 +80,26 @@ public:
         m0C = 0;
     }
 };
-class CsvTabU : public CsvBase<wchar_t, '\t', '\r', '"'> {};
+extern "C" wchar_t lbl_8087DD98[2]; // inferred: L"\t"
+// inferred: as CsvU (constructor inlined at 0x803B9324, vf08 weak copy at 0x803B97D8)
+class CsvTabU : public CsvBase<wchar_t, '\t', '\r', '"'> {
+public:
+    CsvTabU(const wchar_t* text, int length)
+        : CsvBase<wchar_t, '\t', '\r', '"'>(length != 0 ? text + 1 : text, length != 0 ? length - 1 : length) {
+        fn_8005BCE8(lbl_8087DD98);
+    }
+    virtual void vf08(const wchar_t* text, int length) {
+        if (length != 0) {
+            text++;
+        }
+        m04 = text;
+        if (length != 0) {
+            length--;
+        }
+        m08 = length;
+        m0C = 0;
+    }
+};
 
 } // namespace atn
 
