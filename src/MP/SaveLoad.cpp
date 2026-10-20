@@ -15,9 +15,9 @@ extern "C" unsigned char lbl_807C8508[0xB8]; // inferred: save header (same size
 struct CalendarTime_unk {
     int m00[10];
 };
-extern "C" void fn_8004B20C(CalendarTime_unk* out); // inferred: current calendar time
+// fn_8004B20C (current calendar time) is declared in game/GameSaveLoadBackgroundCommon.h with SaveTime_unk
 extern "C" void fn_803BE550(MP::SaveData_unk* data);
-extern "C" void fn_803BE8C0(MP::SaveWork_unk* work, void* data, CalendarTime_unk* time);
+// fn_803BE8C0 is GameSaveSlot_unk::fn_803BE8C0 (game/GameSaveLoadBackgroundCommon.h); work is the slot header
 extern "C" void fn_803BEA08(MP::SaveWork_unk* work, void* header);
 extern "C" void fn_803BEA7C(MP::SaveWork_unk* work);
 
@@ -119,8 +119,8 @@ void SaveLoad::fn_8050272C() {
     memcpy(mWork.mPtr->mData, m48, sizeof(mWork.mPtr->mData));
     SaveWork_unk* work = mWork.mPtr;
     CalendarTime_unk time;
-    fn_8004B20C(&time);
-    fn_803BE8C0(work, work->mData, &time);
+    fn_8004B20C((SaveTime_unk*)&time);
+    ((GameSaveSlot_unk*)work)->fn_803BE8C0((GameSaveData_unk*)work->mData, (SaveTime_unk*)&time);
     fn_803BEA08(mWork.mPtr, lbl_807C8508);
     mWork.mPtr->m04 = m50;
     fn_803BEA7C(mWork.mPtr);
