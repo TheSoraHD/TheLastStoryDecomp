@@ -9,7 +9,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
 `lbl_8087F518`) mas accesores por id. Funciones `extern "C" fn_<addr>` (sin clase en el binario), como en
 `db/GrowthParseGlobal.cpp`.
 
-## db/BgmIdTable_unk (commit PENDIENTE)
+## db/BgmIdTable_unk (commit 1b6dae5)
 - Resultado: 3/3 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -20,3 +20,15 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
 - Hallazgos MWCC
   - `static const char* const p = "";` pone el literal `""` en `.sdata2` (objeto de 1 byte `@N`), no en `@stringBase0`;
     un `static const char a[] = "";` va a `.sbss2`.
+
+## db/ColliAttrTable_unk (commit PENDIENTE)
+- Resultado: 4/4 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_8073EEB0` -> `sSeKinds`, `lbl_8073EF10` -> `sEffKinds` (tamano 0x8 en symbols.txt aunque el objeto
+    real es `char[1][0x20]`; no lo cambio), `lbl_8073EF30` -> `sFileNameStr`, `lbl_8073EF4C` -> `@stringBase0`,
+    `lbl_8087F1C0` -> `sEntries`, `lbl_80882E20` -> `sFileName` (`scope:local`).
+  - Tipo inferido `ColliAttrEntry_unk` (0x80: 3 nombres `ATR_*_SE` + 1 `ATR_EFF`, tabla fija de 0x21 filas).
+- Hallazgos MWCC
+  - `0 > id || id >= N` da dos `cmpwi` con signo (como `0 <= i`); `id < 0 || id >= N` se fusiona en `cmplwi`.
