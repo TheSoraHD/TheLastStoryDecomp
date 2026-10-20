@@ -244,7 +244,151 @@ extern "C" atn::Vector3 fn_805B81F0(TownTask* town, int x, int z) {
     return v + town->m140;
 }
 
-// NONMATCHING: fn_805B827C (0xB38) and fn_805B8DB4 (0x8F4, block loading) are not written yet
+// inferred: field (lbl_8087F430); only the members used here
+struct TownField_unk {
+    unsigned char m0000[0x38];
+    unsigned int m38; // inferred: bit 1: town field
+    unsigned char m003C[0x553C - 0x3C];
+    int m553C;
+};
+extern "C" TownField_unk* lbl_8087F430;
+extern "C" int fn_80370174(TownField_unk* field, int id); // inferred: event flag
+extern "C" float fn_805F9920(const atn::Vector3* v);      // inferred: squared length
+
+// inferred: tree::find of the block trees (names invented)
+inline TownNode_unk* TownTreeFind_unk(TownTree_unk* tree, int key) {
+    TownNode_unk* result = (TownNode_unk*)&tree->mRoot;
+    TownNode_unk* node = tree->mRoot;
+    while (node != 0) {
+        if (!(node->mValue.mKey < key)) {
+            result = node;
+            node = node->mLeft;
+        } else {
+            node = node->mRight;
+        }
+    }
+    if (result == (TownNode_unk*)&tree->mRoot || key < result->mValue.mKey) {
+        result = (TownNode_unk*)&tree->mRoot;
+    }
+    return result;
+}
+
+// inferred: fills the list (macro: the elements are stored in order)
+#define TOWN_SET(l, a0, a1, a2, a3, a4, a5, a6, a7, a8) \
+    (l).m[0] = (a0);                                     \
+    (l).m[1] = (a1);                                     \
+    (l).m[2] = (a2);                                     \
+    (l).m[3] = (a3);                                     \
+    (l).m[4] = (a4);                                     \
+    (l).m[5] = (a5);                                     \
+    (l).m[6] = (a6);                                     \
+    (l).m[7] = (a7);                                     \
+    (l).m[8] = (a8)
+
+// inferred: id of the block (x, z)
+#define TOWN_ID(x, z) ((x) + (z) * town->m138)
+
+// inferred: blocks to show around the block (x, z): special cases of the town map near some positions, the
+// BLOCKSHOW list of the block, or the blocks of the mWidth x mHeight area around it (names invented)
+extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int special) {
+    TownBlockList_unk list;
+    if (special != 0 && lbl_8087F430 != 0 && (lbl_8087F430->m38 & 2) == 2 && lbl_8087F430->m553C == 0) {
+        atn::Vector3 v = town->m168 - atn::Vector3(104.0f, 0.0f, 235.0f);
+        v.y = 0.0f;
+        if (fn_805F9920(&v) < 900.0f && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x713)) {
+            TOWN_SET(list, TOWN_ID(3, 2), TOWN_ID(2, 2), TOWN_ID(4, 2), TOWN_ID(2, 3), TOWN_ID(3, 3), -1, -1, -1, -1);
+            return list;
+        }
+        v = town->m168 - atn::Vector3(186.0f, 0.0f, -893.0f);
+        v.y = 0.0f;
+        if (fn_805F9920(&v) < 2500.0f) {
+            TOWN_SET(list, TOWN_ID(3, 0), TOWN_ID(2, 1), TOWN_ID(3, 1), TOWN_ID(4, 1), TOWN_ID(3, 2), -1, -1, -1, -1);
+            return list;
+        }
+        v = town->m168 - atn::Vector3(-751.0f, 0.0f, -213.0f);
+        v.y = 0.0f;
+        if (fn_805F9920(&v) < 3600.0f) {
+            TOWN_SET(list, TOWN_ID(1, 2), TOWN_ID(0, 1), TOWN_ID(1, 1), TOWN_ID(0, 2), TOWN_ID(1, 2), TOWN_ID(2, 2), -1, -1, -1);
+            return list;
+        }
+        v = town->m168 - atn::Vector3(964.0f, 0.0f, 189.0f);
+        v.y = 0.0f;
+        if (fn_805F9920(&v) < 900.0f) {
+            TOWN_SET(list, TOWN_ID(4, 2), TOWN_ID(4, 1), TOWN_ID(4, 3), TOWN_ID(5, 1), TOWN_ID(5, 2), TOWN_ID(5, 3), -1, -1, -1);
+            return list;
+        }
+        v = town->m168 - atn::Vector3(698.0f, 0.0f, -409.0f);
+        v.y = 0.0f;
+        if (fn_805F9920(&v) < 900.0f) {
+            TOWN_SET(list, TOWN_ID(4, 1), TOWN_ID(3, 1), TOWN_ID(3, 2), TOWN_ID(4, 2), TOWN_ID(5, 1), TOWN_ID(5, 2), -1, -1, -1);
+            return list;
+        }
+    }
+    if (town->m168.y < 45.0f) {
+        if (x == 4 && z == 2) {
+            TOWN_SET(list, TOWN_ID(4, 2), TOWN_ID(3, 1), TOWN_ID(3, 2), TOWN_ID(3, 3), TOWN_ID(4, 1), TOWN_ID(4, 3), TOWN_ID(5, 1), TOWN_ID(5, 2), TOWN_ID(2, 2));
+            return list;
+        }
+    } else {
+        if (x == 4 && z == 2) {
+            atn::Vector3 c = fn_805B81F0(town, x, z);
+            if (town->m168.x < c.x && town->m168.z > c.z) {
+                TOWN_SET(list, TOWN_ID(4, 2), TOWN_ID(2, 2), TOWN_ID(3, 2), TOWN_ID(3, 3), TOWN_ID(4, 1), TOWN_ID(4, 3), TOWN_ID(2, 3), TOWN_ID(5, 2), TOWN_ID(5, 3));
+                return list;
+            }
+        }
+        if (x == 2 && z == 2) {
+            atn::Vector3 c = fn_805B81F0(town, x, z);
+            if (town->m168.x > c.x && town->m168.z < c.z) {
+                TOWN_SET(list, TOWN_ID(2, 2), TOWN_ID(3, 0), TOWN_ID(1, 1), TOWN_ID(1, 2), TOWN_ID(2, 1), TOWN_ID(2, 3), TOWN_ID(3, 1), TOWN_ID(3, 2), TOWN_ID(3, 3));
+                return list;
+            }
+        }
+        if (x == 3 && z == 1) {
+            atn::Vector3 d(480.0f, 0.0f, -521.0f);
+            d.x -= town->m168.x;
+            d.y -= town->m168.y;
+            d.z -= town->m168.z;
+            d.y = 0.0f;
+            if (fn_805F9920(&d) < 22500.0f) {
+                TOWN_SET(list, TOWN_ID(3, 1), TOWN_ID(5, 2), TOWN_ID(2, 1), TOWN_ID(2, 2), TOWN_ID(3, 0), TOWN_ID(3, 2), TOWN_ID(4, 1), TOWN_ID(4, 2), TOWN_ID(5, 1));
+                return list;
+            }
+        }
+        if (x == 4 && z == 3) {
+            atn::Vector3 d(535.0f, 0.0f, 245.0f);
+            d.x -= town->m168.x;
+            d.y -= town->m168.y;
+            d.z -= town->m168.z;
+            d.y = 0.0f;
+            if (fn_805F9920(&d) < 4900.0f) {
+                TOWN_SET(list, TOWN_ID(4, 3), TOWN_ID(2, 2), TOWN_ID(3, 2), TOWN_ID(3, 3), TOWN_ID(4, 1), TOWN_ID(4, 2), TOWN_ID(2, 3), TOWN_ID(5, 2), TOWN_ID(5, 3));
+                return list;
+            }
+        }
+    }
+    int key = TOWN_ID(x, z);
+    TownNode_unk* node = TownTreeFind_unk(&town->m230, key);
+    if (node != (TownNode_unk*)&town->m230.mRoot) {
+        return ((TownPair_unk*)&node->mValue)->mList;
+    }
+    list.m[0] = key;
+    int* p = &list.m[1];
+    for (int i = x - town->mWidth / 2; i <= x + town->mWidth / 2; i++) {
+        if (i >= 0 && i < town->m138) {
+            for (int j = z - town->mHeight / 2; j <= z + town->mHeight / 2; j++) {
+                if (j >= 0 && j < town->m13C) {
+                    if (i != x || j != z) {
+                        *p++ = TOWN_ID(i, j);
+                    }
+                }
+            }
+        }
+    }
+    return list;
+}
+
+// NONMATCHING: fn_805B8DB4 (0x8F4, block loading) is not written yet
 
 // NONMATCHING: 96.5% - float registers of the cell computation
 // inferred: nonzero when the position is in the town area (the block under it is flagged)
@@ -291,6 +435,10 @@ extern "C" TownNode_unk* fn_805B9838(TownTree_unk* tree, TownNode_unk* parent, b
         tree->mBegin = node;
     }
     return node;
+}
+
+inline void TownFreeNode_unk(TownNode_unk* node) {
+    ::operator delete(node);
 }
 
 // NONMATCHING: 9% - MWCC inlines the recursion one level deeper here (31 calls instead of 15)
