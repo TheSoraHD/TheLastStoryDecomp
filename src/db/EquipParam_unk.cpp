@@ -1,5 +1,6 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "db/EquipParam_unk.h"
 #include "gmk/SeTable.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -19,70 +20,6 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 // inferred: loads a whole file / releases it
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
 extern "C" void fn_8006BB6C(void* data, int arg);
-
-// inferred: two lists of up to 7 values (":"-separated columns), as in db/CharaParam_unk.cpp
-struct EquipParamLists_unk {
-    EquipParamLists_unk() {
-        for (int i = 0; i < 7; i++) {
-            mA[i] = 0.0f;
-            mB[i] = 0.0f;
-        }
-    }
-    float mA[7];
-    float mB[7];
-};
-
-// inferred: five numbers
-struct EquipParamFive_unk {
-    EquipParamFive_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0) {}
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-};
-
-// inferred: one row of /boot/equip_param.csv (0x10C bytes)
-struct EquipParamEntry_unk {
-    EquipParamEntry_unk()
-        : m00(0.0f), m04(0.0f), m08(0.0f), m0C(0.0f), m10(1.0f), m14(1.0f), m18(0.0f), m1C(0.0f), m20(0), m24(0),
-          m28(0.0f), m2C(0.0f), m30(0), m34(0), mKind(5), mId(0), mBC(0), mE0(0) {
-        memset(mAC, 0, sizeof(mAC));
-        mName = 0;
-        mText = 0;
-    }
-    ~EquipParamEntry_unk() {}
-
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    int m20;
-    int m24;
-    float m28;
-    float m2C;
-    int m30;
-    int m34;
-    EquipParamLists_unk m38;
-    int m70;
-    int m74;
-    int mKind; // inferred: index of the id prefix (sKinds)
-    int mId;   // inferred: number after the prefix
-    const wchar_t* mName;
-    const wchar_t* mText;
-    atn::FixedString_unk<0x20> mModel; // inferred: "pc..." model names
-    int mA8;   // inferred: from the 10th letter of a "pc" model name
-    int mAC[4];
-    int mBC;
-    atn::FixedString_unk<0x10> mC0;
-    atn::FixedString_unk<0x10> mD0;
-    int mE0;
-    EquipParamFive_unk mE4[2];
-};
 
 static const char* const sKinds[5] = {"qu", "ql", "qg", "qw", "qs"};
 static const char* const sSlots[5] = {"up", "lo", "ga", "wa", "qs"};
