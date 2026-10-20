@@ -3,7 +3,7 @@
 Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`, `atn/THPDraw_unk`,
 `atn/PPDATAU`, `atn/FileSystem_unk`, `atn/XsfParser_unk`, `atn/Bezier_unk`, `atn/NetFriend_unk`.
 
-## atn/LH_Core (commit HASH)
+## atn/LH_Core (commit 6ecfb23)
 
 - Resultado: 7/7 al 100%, `matching: true`, `main.dol: OK`.
 - NONMATCHING: ninguna.
