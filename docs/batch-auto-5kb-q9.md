@@ -74,3 +74,23 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
   - `include/atn/LH_Motion.h`: `fn_804768B4`, `fn_804768D0`.
   - Pendiente para el usuario: fusionar cuando `Get_unk` llegue al 100% (o aceptar `LH_Motion` en `matching: false`).
 - Hallazgos MWCC: ninguno nuevo.
+
+## game/NpcManager_cont (commit HASH)
+
+- Resultado: 4/4 al 100%, fusionada en `game/NpcManager` (`matching: true`, `main.dol: OK`).
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits: `game/NpcManager` .text 0x805477C8-0x80547980 -> 0x805477C8-0x80547C28; borrada `game/NpcManager_cont`
+    (contigua, sin datos). Mismo fichero: trabaja sobre los seis campos 0x5C-0x70 que inicializa el ctor de
+    `NpcManager` y sobre su lista `mHead`.
+  - `symbols.txt`: pairnames `fn_80547980/A20/A84/B54` -> metodos de `NpcManager` (crear los NPC fijos 1-6 salvo
+    el 4, borrarlos, borrar los demas NPC, descargarlos devolviendo si alguno sigue cargando). Renombrado a mano
+    `fn_80097A20` -> `fn_80097A20__9Model_unkFUi` (necesario para enlazar: lo llama `fn_80547B54` como metodo).
+  - `include/game/NpcManager.h`: `m5C..m70` pasan a `NpcTask* mNpcs[6]` (el ctor los pone a 0 en el cuerpo; mismo
+    codigo). `NpcManager.cpp` incluye ahora `game/NpcTask.h`.
+  - `include/atn/Model_unk.h`: `m224[8]` se parte en `unsigned int mMotionCount` (0x224) + `m228[4]`; nuevo
+    `fn_80097A20(unsigned int)` (libera el slot de motion).
+  - El argumento `data` de `NpcTask::fn_80547C28` recibe aqui un entero (100001 + i * 100) pasado como `void*`.
+- Hallazgos MWCC
+  - Bucle sobre un array miembro con contador aparte (`T** p = a; for (i...; i++, p++)`) da `addi rX, this, off`
+    + `lwz 0(rX)`; con indice (`a[i]`) sale `mr rX, this` + `lwz off(rX)`. La busqueda de 6 elementos se desenrolla.

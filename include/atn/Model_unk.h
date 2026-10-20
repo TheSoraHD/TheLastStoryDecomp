@@ -77,6 +77,7 @@ struct Model_unk {
     void fn_80092F1C(const char* path, const char* node, float distance); // inferred: adds a LOD
     void fn_80092EC8(const char* path);   // inferred: shadow LOD
     void fn_80097A88(int motion, const char* path); // inferred: loads a motion
+    void fn_80097A20(unsigned int motion);          // inferred: releases a motion slot
     void fn_80092F90();
     void fn_80093014(int arg);
     void fn_8009373C(const char* name, int part); // inferred: shows/hides the named node (option part)
@@ -174,7 +175,8 @@ struct Model_unk {
     float GetSpeed_unk(int track) { return mTracks[track].m0C; } // inferred: name invented
 
     Node_unk* m220;
-    unsigned char m224[0x22C - 0x224];
+    unsigned int mMotionCount; // 0x224: inferred: number of motion slots (NpcManager::fn_80547B54)
+    unsigned char m228[0x22C - 0x228];
     Track_unk mTracks[6]; // 0x22C (track 0: frame at 0x234, speed at 0x238)
     int m34C;
     float m350; // inferred: time scale of the character (multiplied with the frame time, CharaTask::fn_8013CB68)
