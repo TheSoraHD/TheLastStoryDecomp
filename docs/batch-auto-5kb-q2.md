@@ -108,7 +108,7 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - Un `GXColor c = {..}` constante declarado dentro del `if` donde se usa va igualmente a `.sdata2` en el orden del primer uso.
   - Los `if/else` de saturacion escritos en linea (no en inline) cambian el reparto de FPR del bucle.
 
-## atn/SequenceHolder (commit HASH5)
+## atn/SequenceHolder (commit 88106bb)
 
 - Resultado: 7/11 al 100%, `matching: false`.
 - NONMATCHING / sin escribir:
