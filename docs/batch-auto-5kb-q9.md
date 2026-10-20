@@ -29,7 +29,7 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
     `fn_80370174`/`fn_80370320` (leer/escribir variable de juego; firmas como en `gmk/AttractHatePoint`).
 - Hallazgos MWCC: ninguno nuevo.
 
-## MP/SaveLoad_cont (commit HASH)
+## MP/SaveLoad_cont (commit 74ace86)
 
 - Resultado: 4/4 al 100%, fusionada en `MP/SaveLoad` (`matching: true`, `main.dol: OK`).
 - NONMATCHING: ninguna.
