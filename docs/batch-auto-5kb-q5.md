@@ -162,7 +162,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     ctor (el cuerpo del ctor de la clase iria al final); un `for` de 10 asignaciones constantes se desenrolla entero.
   - `static const char* const t[] = {"qu", ...}`: los literales cortos van a `.sdata2` y el array a `.rodata`.
 
-## db/CharaIdTable_unk (commit PENDIENTE)
+## db/CharaIdTable_unk (commit 4d70d57)
 - Resultado: 14/16 al 100%, matching no.
 - NONMATCHING:
   - `fn_80208BE8` (cargador UTF-16) 0% (tamano distinto): el original llama fuera de linea a `fn_802088A4`, `fn_802089C4`,
@@ -181,3 +181,26 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - Una funcion definida despues de su llamadora tambien se autoinlinea con `-ipa file` (`fn_8020924C` en `fn_802091E8`).
   - Para que un inline reciba el mismo registro que el original a veces hay que pasar `*out` recargado tras
     `*out = buf + pos` en vez de un local (`fn_80208A3C`).
+
+## db/PaletteTable_unk (commit PENDIENTE)
+- Resultado: 12/14 al 100%, matching no.
+- NONMATCHING:
+  - `fn_8020B2BC` (paletas: ids, colores y nombres UTF-16, 4 ficheros) 96.32% - solo reparto de registros (constante 0,
+    puntero de datos, direccion del `CsvU` en registro en el original). Probado separar cada bloque en una funcion
+    estatica (entonces no se inlinean).
+  - `fn_8020BB0C` (presets) 99.41% - el original tiene locales sin usar bajo el path (1.0f en 0x14, 0x28, 0x3c y 0x40 del
+    marco, pila 0x7B0): tipo desconocido; aqui un array de 4 colores no usado da otro tamano de pila.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_8020BAC0`/`fn_8020BACC` -> `__ct__/__dt__11Palette_unkFv`; datos `sGroupNames`, `sColorNames`,
+    `sEffNames`, `sInvNames` (`.data`), `@stringBase0` (0x8073F4A0), `@wstringBase0` (0x8087DB30, `.sdata`), `sPalettes`,
+    `sEffPalettes`, `sPresets`, `sPaletteIds`, `sEffPaletteIds`.
+  - Tipos inferidos `Palette_unk` (0x54: id, color, nombre `wchar_t[0x20]`), `PaletteSet_unk`/`EffPaletteSet_unk`
+    (arrays de 64/32 construidos con `__construct_array`), `PaletteIds_unk`, `PaletteSlots_unk` (7x8).
+  - `fn_8020BD78`/`fn_8020BDAC` devuelven `sEffNames[32]` aunque la tabla tiene 32 entradas (31 nombres + ""): lectura
+    fuera de rango en el original, reproducida tal cual.
+- Hallazgos MWCC
+  - `*wfield == L';'` compara con `cmplwi` (wchar_t sin signo); con `';'` sale `cmpwi`.
+  - Literales de inicializadores de tablas de punteros: los de > 4 bytes son objetos sueltos en `.rodata` (no van al
+    pool), los de <= 4 bytes van a `.sdata2`; un array de punteros no `const` va a `.data`.
+  - Un bucle de busqueda de 64/32 iteraciones constantes se desenrolla x8 con `ctr`.
