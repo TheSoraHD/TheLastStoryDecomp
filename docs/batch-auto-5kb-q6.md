@@ -351,7 +351,7 @@ Cambios fuera de las unidades de la cola: renombrados en `symbols.txt` de `fn_80
     `/boot/map_sub_id_table.csv`). `fn_802174F4` sale sin liberar el fichero si un id no existe (como el original).
 - Hallazgos MWCC: nada nuevo.
 
-## db/RandomItemTable_unk (commit HASH)
+## db/RandomItemTable_unk (commit eddd641)
 - Resultado: 16/17 al 100%, matching no.
 - NONMATCHING: copia debil `__dt__Q23atn34FixedArray_unk<14RandomItem_unk,8>Fv` (0x8021D58C) 96.30% - el original
   vuelve a probar la direccion del array de elementos antes de `__destroy_arr` (un `beq` mas); un destructor vacio
