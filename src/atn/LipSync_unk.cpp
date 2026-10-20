@@ -10,36 +10,24 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void fn_80097CCC(Model_unk* model, int track, float weight); // inferred: stops a track
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 
-// inferred: file names of the debug allocator (also used by Event::Dialog). In the original they are
-// two zeroed words in .sdata (0x8087D760-0x8087D768), which MWCC never emits for a zero initializer
-// (it moves them to .sbss), so they are only declared here (the unit cannot be linked).
-extern "C" char lbl_8087D760[4];
-extern "C" char lbl_8087D764[4];
-
 #define LS_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define LS_MAX(a, b) ((a) > (b) ? (a) : (b))
 
-// NONMATCHING: 99.22% - register allocation of the loop (offset/pool/key registers swapped)
+// NONMATCHING: 99.51% - register allocation of the loop (offset of the key and base of the string pool swapped)
 void LipSyncData_unk::fn_8007A530(const char* text, int size) {
     atn::CsvTab csv(text, size);
     csv.fn_8005BCE8(lbl_8087D710);
     unsigned int count = fn_800DC12C(csv.fn_8005B9CC());
-    if (mKeys != 0) {
-        delete[] mKeys;
-    }
-    mCount = count;
-    if (count != 0) {
-        mKeys = new (4, lbl_8087D764, lbl_8087D760, 0) LipSyncKey_unk[count];
-    } else {
-        mKeys = 0;
-    }
+    Resize_unk(count, 4);
     m08 = fn_800DC12C(csv.fn_8005B9CC());
-    for (unsigned int i = 0; csv.fn_8005BBF8() != 0; i++) {
+    unsigned int i;
+    for (i = 0; csv.fn_8005BBF8() != 0; i++) {
         if (strcmp(csv.fn_8005B9CC(), "") == 0) {
             break;
         }
+        const char* s;
         LipSyncKey_unk* key = &mKeys[i];
-        const char* s = csv.fn_8005B9CC();
+        s = csv.fn_8005B9CC();
         key->mVowel = strcmp(s, "A") == 0   ? 0
                       : strcmp(s, "I") == 0 ? 1
                       : strcmp(s, "U") == 0 ? 2

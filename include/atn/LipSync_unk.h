@@ -4,6 +4,8 @@
 // inferred: lip sync of the characters (atn/LipSync_unk.cpp, file name invented). The data comes from
 // a tab CSV loaded by GameVoice: a key count, a second value and one line per key (vowel, time).
 
+#include "atn/Memory.h"
+
 struct Model_unk;
 
 // inferred: one key of the lip sync (constructor 0x8007A748, also used by Event::Dialog)
@@ -16,6 +18,20 @@ struct LipSyncKey_unk {
 // inferred: lip sync data (fn_8007A530 called by GameVoice::fn_803E8A50)
 struct LipSyncData_unk {
     void fn_8007A530(const char* text, int size); // inferred: parses the CSV
+    // inferred: inline resize of the key array (name invented). Its "" literals are the weak @STRING@ pool
+    // of .sdata 0x8087D760/0x8087D764; Event::Dialog uses the same pool with heaps 4 and 0, so the heap is
+    // a parameter (probably the original is a shared array template, not reconstructed).
+    void Resize_unk(unsigned int count, int heap) {
+        if (mKeys != 0) {
+            delete[] mKeys;
+        }
+        mCount = count;
+        if (count != 0) {
+            mKeys = new (heap, "", "", 0) LipSyncKey_unk[count];
+        } else {
+            mKeys = 0;
+        }
+    }
 
     unsigned int mCount;
     LipSyncKey_unk* mKeys;
