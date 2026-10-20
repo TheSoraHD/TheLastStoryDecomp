@@ -104,11 +104,39 @@ atn/Bgm.cpp:
 	.rodata     start:0x80731028 end:0x80731034
 	.data       start:0x80777570 end:0x80777588
 
+atn/Bgm_cont.cpp:
+	.text       start:0x8004AE84 end:0x8004B290
+	.sdata2     start:0x80880890 end:0x80880898
+
+atn/Camera_unk.cpp:
+	.text       start:0x8004B290 end:0x8004C9B4
+	.sdata2     start:0x80880898 end:0x808808D0
+
+atn/ColliBaseFunc_unk.cpp:
+	.text       start:0x8004C9B4 end:0x8004F45C
+	.rodata     start:0x80731038 end:0x80731048
+	.sdata2     start:0x808808D0 end:0x80880930
+
+atn/Frustum_unk.cpp:
+	.text       start:0x8004F45C end:0x80050900
+	.sdata2     start:0x80880930 end:0x80880940
+
+atn/ColliTest_unk.cpp:
+	.text       start:0x80050900 end:0x80056DB8
+	.rodata     start:0x80731048 end:0x80731058
+	.sdata2     start:0x80880940 end:0x80880960
+
 atn/atn_colli.cpp:
 	.text       start:0x80056DB8 end:0x80059784
 	.rodata     start:0x80731058 end:0x807310C8
 	.data       start:0x80777588 end:0x807776C8
 	.sdata2     start:0x80880960 end:0x80880980
+
+atn/ColliCalc_unk.cpp:
+	.text       start:0x80059784 end:0x8005C248
+	.bss        start:0x807C6BC8 end:0x807C6C08
+	.sbss       start:0x8087EEA0 end:0x8087EEA8
+	.sdata2     start:0x80880980 end:0x80880998
 
 atn/SinusCurve.cpp:
 	.text       start:0x8005C248 end:0x8005DD60
@@ -122,10 +150,15 @@ atn/DrawHelper.cpp:
 	.data       start:0x807777C0 end:0x807777D8
 
 atn/ComDrawTexture.cpp:
-	.text       start:0x8005E000 end:0x80068BF0
-	.rodata     start:0x807312B8 end:0x80731300
-	.data       start:0x80777A30 end:0x80777AB0
+	.text       start:0x8005DED8 end:0x80068DB0
+	.rodata     start:0x80731170 end:0x80731390
+	.data       start:0x807777D8 end:0x80777B08
 	.sdata2     start:0x808809A8 end:0x808809E8
+
+atn/FileUtil_unk.cpp:
+	.text       start:0x80068DB0 end:0x8006A09C
+	.rodata     start:0x80731390 end:0x80731408
+	.sdata2     start:0x808809E8 end:0x80880A08
 
 atn/FadeCommon.cpp:
 	.text       start:0x8006A09C end:0x8006A950
@@ -134,9 +167,32 @@ atn/FadeCommon.cpp:
 	.sdata2     start:0x80880A08 end:0x80880A18
 
 atn/FileList.cpp:
-	.text       start:0x8006BBCC end:0x8006BD78
-	.rodata     start:0x8073147C end:0x8073148C
-	.data       start:0x80777BC0 end:0x80777BD8
+	.text       start:0x8006A950 end:0x8006C6A0
+	.rodata     start:0x80731460 end:0x80731510
+	.data       start:0x80777BC0 end:0x80777BF8
+	.sbss       start:0x8087EEC0 end:0x8087EEC8
+	.sdata2     start:0x80880A18 end:0x80880A38
+
+atn/Font_unk.cpp:
+	.text       start:0x8006C6A0 end:0x8006FAB0
+	.rodata     start:0x80731510 end:0x807316A0
+	.sdata      start:0x8087D730 end:0x8087D738
+	.sdata2     start:0x80880A38 end:0x80880A58
+
+atn/Geometry_unk.cpp:
+	.text       start:0x8006FAB0 end:0x80070E14
+	.rodata     start:0x807316A0 end:0x807316B8
+	.sdata2     start:0x80880A58 end:0x80880A70
+
+atn/GraphicsDevice.cpp:
+	.text       start:0x80070E14 end:0x8007708C
+	.ctors      start:0x8072D2B0 end:0x8072D2B4
+	.rodata     start:0x807316B8 end:0x80731838
+	.data       start:0x80777C18 end:0x80777D08
+	.bss        start:0x807C6C08 end:0x807C7028
+	.sdata      start:0x8087D738 end:0x8087D740
+	.sbss       start:0x8087EED8 end:0x8087EEF0
+	.sdata2     start:0x80880A70 end:0x80880AD0
 
 atn/LensFlare.cpp:
 	.text       start:0x80077160 end:0x80079044

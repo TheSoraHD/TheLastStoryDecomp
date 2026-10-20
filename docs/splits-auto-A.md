@@ -73,6 +73,45 @@ Solo particion de tramos `auto_` (sin decompilar). Cada grupo verificado con `ma
 - Resto del fichero real de Sound3dListener (SoundCore/Sound3dActor: comparte 0.0f/1.0f de .sdata2 0x80881168/0x8088116C con la parte enlazada).
 - Datos: .rodata 0x8073416C-0x80734188 ("SoundError: %s [%s]"), .data 0x80779570-0x807795C0 (cadenas SoundHandle.h), .sdata2 0x80881160-0x80881180.
 
+## Grupo 2 (0x8004AE84-0x8007708C)
+
+Pista general: los ficheros reales del motor se llaman `atn_<nombre>.cpp` (cadenas `atn_graphics_device.cpp`, `atn_nand.cpp`,
+`atn_video_thp.cpp` en el .dol) y van en orden alfabetico: atn_audio_device < atn_bgm < atn_camera < atn_colli* < atn_curve (SinusCurve)
+< atn_draw_helper < (f...) < atn_fade < atn_file_list < atn_font < atn_geometry < atn_graphics_device < atn_lens_flare.
+
+- `atn/Bgm_cont.cpp` (nuevo, `_cont`) 0x8004AE84-0x8004B290: metodos de atn::Bgm (GameBgm::fn_8037D274(Bgm*) llama a fn_8004AE84);
+  .sdata2 propio 0x80880890 (0.0f/1.0f) distinto del de la camara (1.0f/0.0f en 0x80880898) => corte en 0x8004B290.
+- `atn/Camera_unk.cpp` (nuevo, inventado) 0x8004B290-0x8004C9B4: Camera_unk (ctor/dtor/fn_8004B378), .sdata2 0x80880898-0x808808D0.
+- `atn/ColliBaseFunc_unk.cpp` (nuevo, inventado) 0x8004C9B4-0x8004F45C: virtuales de atn::ColliBase (fn_8004CF34..fn_8004D310, en la vtable
+  0x807776A0) y fn_8004CB70/fn_8004CBB0 (los usan los ctor/dtor de ColliBase/ColliObject/ColliTree), test de rayo fn_8004D388/fn_8004ED34.
+  -1.0f en 0x808808D0 (la camara tiene su -1.0f en 0x808808A4) y .rodata 0x80731038-0x80731048 (double int->float + objeto).
+- `atn/Frustum_unk.cpp` (nuevo, inventado) 0x8004F45C-0x80050900: planos (cross/normalize/dot) llamados desde Camera_unk; 0.0f propio 0x80880934.
+- `atn/ColliTest_unk.cpp` (nuevo, inventado) 0x80050900-0x80056DB8: tests de interseccion; 0.0f/1.0f/-1.0f propios en 0x80880940; .rodata 0x80731048.
+- `atn/ColliCalc_unk.cpp` (nuevo, inventado) 0x80059784-0x8005C248: funciones llamadas desde atn_colli (fn_80058120->fn_80059B5C,
+  fn_80058C20->fn_8005AAD4), 0.0f propio en 0x80880980 (atn_colli tiene el suyo en 0x80880960). Al final, funciones debiles de
+  plantilla atn::CsvBase<...> (fn_8005B3CC..fn_8005BFCC) y dos funciones pequenas (fn_8005C1F8, fn_8005C220) sin datos: se quedan en esta unidad.
+  .sbss 0x8087EEA0, .bss 0x807C6BC8-0x807C6C08.
+- `atn/ComDrawTexture` ampliada a 0x8005DED8-0x80068DB0: es el resto del fichero de atn::DrawHelper (enlazada): comparte el 0.0f/1.0f
+  0x808809A0 con DrawHelper::fn_8005DD60 y la pool 0x80731340 ("/common/sys_white.texture"...). Incluye las 7 clases DrawHelper::ComDraw*
+  y sus dtors debiles al final (0x80068BF0-0x80068DB0). Datos: .rodata 0x80731170-0x80731390 (nombres RTTI + pool), .data 0x807777D8-0x80777B08
+  (vtables/RTTI ComDraw*, ComDrawLine, DrawCommand). 0x80731140-0x80731160 (tabla y doubles) y .sdata2 0x808809A0 quedan en auto porque
+  van antes que DrawHelper o los usa DrawHelper.
+- `atn/FileUtil_unk.cpp` (nuevo, inventado) 0x80068DB0-0x8006A09C: compresion de color (fn_80068DB0..), carga de ficheros ("LoadError: ",
+  "dvdroot") e init fn_80069E50 (llamada desde main). Sin pruebas para partirlo mas: se deja entero. .rodata 0x80731390-0x80731408, .sdata2 0x808809E8-0x80880A08.
+- `atn/FileList` ampliada (fuente, no enlazada) a 0x8006A950-0x8006C6A0: lo anunciaba su propio fuente (pool 0x8073148C usada por
+  0x8006AC08-0x8006C3F0). Datos: .rodata 0x80731460-0x80731510, .data 0x80777BC0-0x80777BF8, .sbss 0x8087EEC0-0x8087EEC8, .sdata2 0x80880A18-0x80880A38
+  ("_jp".."_xx"). symbols.txt: lbl_8073148C -> @stringBase0 (scope:local data:string_table).
+- `atn/Font_unk.cpp` (nuevo, inventado) 0x8006C6A0-0x8006FAB0: "font_%02d_%02d%s_jp.texture", "[ConvertUnicode]...", "cp932_unicode.tbl".
+  .rodata 0x80731510-0x807316A0, .sdata 0x8087D730-0x8087D738, .sdata2 0x80880A38-0x80880A58 (0.0f propio; el siguiente en 0x80880A5C).
+- `atn/Geometry_unk.cpp` (nuevo, inventado) 0x8006FAB0-0x80070E14: AABB_unk::Merge_unk y afines; .rodata 0x807316A0-0x807316B8, .sdata2 0x80880A58-0x80880A70.
+  Corte final dudoso: fn_80070E14/fn_80071088 no usan datos (fn_80071088 solo la llama graphics_device); puse el corte tras el ultimo usuario de sus constantes.
+- `atn/GraphicsDevice.cpp` (nuevo; nombre real `atn_graphics_device.cpp` por la cadena de su pool) 0x80070E14-0x8007708C, `__sinit` 0x80077058
+  (.ctors 0x8072D2B0) construye TextureCacheManager8x32/4x128 en 0x807C6C08/0x807C6DB4. .rodata 0x807316B8-0x80731838, .data 0x80777C18-0x80777D08
+  (jumptables), .sdata 0x8087D738-0x8087D740, .sbss 0x8087EED8-0x8087EEF0, .bss 0x807C6C08-0x807C7028, .sdata2 0x80880A70-0x80880AD0.
+- Sin tocar: 0x8007708C-0x80077160 (una funcion de mascara de botones llamada desde MindowsCommon, entre el `__sinit` de graphics_device y LensFlare):
+  podria ser fichero propio o el inicio de LensFlare; sin pruebas.
+- Decisiones: `atn/Bgm_cont.cpp` (fusionar con Bgm al decompilar); nombres inventados arriba; renombrado @stringBase0 de FileList.
+
 ## Decisiones tomadas sin el usuario
 - Nombres inventados: `Event/EventCommandDef_unk.cpp`, `AI/AiCommon_unk.cpp`, `game/TargetPos_unk.cpp`, `game/DamageCalc_unk.cpp`, `atn/Shader_unk.cpp`.
 - `atn/Sound3dListener_cont.cpp`: deberia fusionarse con atn/Sound3dListener al decompilar. dtk no deja que la parte `_cont` tenga
