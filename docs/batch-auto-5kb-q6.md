@@ -8,7 +8,7 @@ Cola (de menor a mayor): `db/TreasureList_unk`, `db/MarketPrice_unk`, `db/Strate
 Mismo patron que la cola q5 (`docs/batch-auto-5kb-q5.md`): cargador de `/boot/*.csv` con `atn::Csv` + accesores,
 funciones `extern "C" fn_<addr>`.
 
-## db/TreasureList_unk (commit HASH)
+## db/TreasureList_unk (commit 16e9845)
 - Resultado: 2/2 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
