@@ -2135,9 +2135,23 @@ game/SelectMember.cpp:
 	.sdata2     start:0x80888060 end:0x80888088
 
 atn/SequenceUnitParam1_const_int.cpp:
-	.text       start:0x80574750 end:0x80575018
-	.rodata     start:0x80760C58 end:0x80760D14
-	.data       start:0x80796718 end:0x80796790
+	.text       start:0x805727A4 end:0x80575F0C
+	.ctors      start:0x8072D3E0 end:0x8072D3E4
+	.rodata     start:0x807600C8 end:0x80760D70
+	.data       start:0x80795888 end:0x80796790
+	.bss        start:0x807C9570 end:0x807C95A0
+	.sdata      start:0x8087E680 end:0x8087E688
+	.sbss       start:0x8087F9A8 end:0x8087F9B8
+
+Event/EventLoader_unk.cpp:
+	.text       start:0x80575F0C end:0x805763F8
+	.rodata     start:0x80760D70 end:0x80760DE8
+
+Event/EventParser_unk.cpp:
+	.text       start:0x805763F8 end:0x8057E83C
+	.rodata     start:0x80760DE8 end:0x80761050
+	.sbss       start:0x8087F9B8 end:0x8087F9C0
+	.sdata2     start:0x80888088 end:0x80888098
 
 game/SetConfig.cpp:
 	.text       start:0x8057E83C end:0x8057F0F8
@@ -2174,15 +2188,19 @@ game/ShopIdentify.cpp:
 	.sdata2     start:0x80888130 end:0x80888150
 
 game/ShopUpGrade.cpp:
-	.text       start:0x8058AC90 end:0x8058CA44
-	.rodata     start:0x80761D28 end:0x80761D5C
-	.data       start:0x80796A44 end:0x80796AB0
+	.text       start:0x8058AABC end:0x80598874
+	.rodata     start:0x80761C90 end:0x80762118
+	.data       start:0x80796A20 end:0x80796AF0
+	.sdata      start:0x8087E6A8 end:0x8087E6D0
+	.sbss       start:0x8087F9E0 end:0x8087F9E8
+	.sdata2     start:0x80888150 end:0x80888178
 
 game/SkillEffectManager.cpp:
-	.text       start:0x8059AB98 end:0x8059C084
-	.rodata     start:0x80762128 end:0x807622E0
-	.data       start:0x80796B28 end:0x80796B60
-	.sdata2     start:0x808881C0 end:0x808881FC
+	.text       start:0x80598874 end:0x8059D7D8
+	.rodata     start:0x80762118 end:0x807622E0
+	.data       start:0x80796AF0 end:0x80796B60
+	.sbss       start:0x8087F9E8 end:0x8087F9F0
+	.sdata2     start:0x80888178 end:0x80888218
 
 nw4r/DvdSoundArchive.cpp:
 	.text       start:0x8059D7D8 end:0x8059E21C
