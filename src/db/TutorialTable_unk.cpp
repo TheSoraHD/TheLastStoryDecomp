@@ -61,9 +61,6 @@ static TutorialEntry_unk* sEntries;
 static int sCount;
 
 // inferred: loads the tutorial table (UTF-16 CSV, the demo has its own table)
-// NONMATCHING: 97.71% - registers only: the original keeps the address of the atn::CsvU in a saved
-// register while its inline constructor runs (same as db/PaletteTable_unk and db/EquipParam_unk);
-// here it is recomputed. Tried calling vf08 through another inline in the CsvBase constructor.
 extern "C" void fn_8021ED08() {
     if (sEntries == 0) {
         unsigned long size;

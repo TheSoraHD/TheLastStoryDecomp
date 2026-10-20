@@ -169,9 +169,10 @@ int NewStaffRoll::vf0C() {
     return 1;
 }
 
-// NONMATCHING: 97.8% - the original keeps the address of csv in a saved register while it is
-// constructed (as in CampSaveLoad::fn_8011B8D4), so the other saved registers are shifted and the
-// frame is 0x10 bytes larger.
+// NONMATCHING: 99.3% - registers only: the original gives r26 to this, r27 to text and r28 to length
+// (ours: r27, r24, r23) and swaps the registers of i and the line offset in the second loop. Tried
+// declaring count/i earlier, computing the arguments inside the constructor call and a reference
+// to mLoader. The csv address is in a saved register as in the original (empty ~CsvBase()).
 void NewStaffRoll::fn_80531394() {
     unsigned int length = (unsigned int)mLoader.fn_8047059C() / 2;
     const wchar_t* text = (const wchar_t*)mLoader.fn_80470580();
