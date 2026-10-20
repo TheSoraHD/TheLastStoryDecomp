@@ -58,21 +58,21 @@ CrowdManager* CrowdManager::fn_801EA4B0(atn::Task* parent, CrowdDesc_unk* desc, 
     return sInstance;
 }
 
-// NONMATCHING: 98.9% - the store of mLimit is scheduled earlier and desc->mNumGroups lands in r29 instead of r28
 CrowdManager::CrowdManager(atn::Task* parent, CrowdDesc_unk* desc, int arg)
     : atn::Task(parent), mCenter(0.0f, 0.0f, 0.0f), mInner(220.0f), mOuter(300.0f), mKill(330.0f), mCount(0),
       mTpcSize(0), m78(1), mDesc(desc), m80(arg), mDebug(0) {
     mNpcSizeMax = 100;
     mSizeMax = desc->mNumGroups != 0 ? 14 : 0;
-    mLimit = 0;
     mSizeMin = desc->mNumGroups != 0 ? 5 : 0;
+    mLimit = 0;
     if (mSizeMax > 0 && lbl_8087F430->mArea == 1) {
         int map = lbl_8087F430->mMap;
         if (map == 0xE || map == 0x3C || map == 0x15 || map == 0x1F || map == 0x21 || map == 0x29) {
             mSizeMax = 5;
         }
     }
-    mGroupCount.Resize_unk(mDesc->mNumGroups, 3);
+    int n = mDesc->mNumGroups;
+    mGroupCount.Resize_unk(n, 3);
     for (unsigned int i = 0; i < mGroupCount.mSize; i++) {
         mGroupCount.mData[i] = 0;
     }
@@ -295,19 +295,23 @@ void CrowdManager::fn_801EB188() {
     }
 }
 
-// NONMATCHING: 97.2% - callee-saved registers of sim/npc/routes differ (declaration orders tried)
+// NONMATCHING: 98.3% - the original shares the zero register between `walker->mChara = 0` and the loop
+// offset (li r4, 0); tried NULL/(void*)i, store orders, chained assignments, inline search helper.
+// Registers of routes/sim/npc fixed by the declaration order (routes, sim, npc, i).
 void CrowdManager::fn_801EB7C4(CrowdWalker_unk* walker) {
     void* routes;
     CrowdSimulation* sim = CrowdSimulation::sInstance;
     NpcTask* npc = (NpcTask*)walker->mChara;
+    int i;
     mCount--;
     mGroupCount.mData[npc->m142C]--;
     routes = lbl_8087F430->mRoutes;
-    int point = fn_803C1560(routes, &npc->mPos, npc->fn_80179D44(), 0, 0, 1, 1.0f);
+    int point = fn_803C1560(routes, &npc->mPos, npc->fn_80179D44(), 0, 0, 1, -1.0f);
+    i = 0;
     walker->mPoint = point;
     walker->mDest = point;
     walker->mChara = 0;
-    for (int i = 0; i < (int)sim->mWalkers.mSize; i++) {
+    for (; i < (int)sim->mWalkers.mSize; i++) {
         if (walker == &sim->mWalkers.mData[i]) {
             break;
         }
