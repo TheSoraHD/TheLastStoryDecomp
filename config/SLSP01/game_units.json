@@ -2975,5 +2975,12 @@
   "name": "atn/TextureDraw_unk.cpp",
   "classes": [],
   "matching": false
+ },
+ {
+  "name": "atn/PostFxDamage.cpp",
+  "classes": [
+   "atn::PostFxDamage"
+  ],
+  "matching": false
  }
 ]

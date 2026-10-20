@@ -177,3 +177,27 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
     con `memset` previo; las llaman GraphicsDevice, ModelDraw_unk, PostFxDamage, LayerShadow y RenderSystem_unk en asm).
   - Nombre real propuesto: ninguno (sin cadenas); el contenido es de matrices de textura, no de dibujo.
 - Hallazgos MWCC: reutilizar un unico `tmp` (como el SDK) en vez de dos locales cambia el orden de planificacion de las divisiones y los stores.
+
+## atn/PostFxDamage (commit HASH8)
+
+- Resultado: 1/3 al 100% (ctor), `matching: false`.
+- NONMATCHING:
+  - `fn_800AB774` (desenfoque giratorio: 5 pasadas con escala 1-4 y rotacion 0, 1, 2, -1, -2 veces el angulo; el reparto
+    de pesos es el de `fn_800A981C` de PostFxBloom mas la correccion de redondeo `k0.r += 255 - 5*c0`) 97.93% -
+    huecos de pila de los colores K y registros del bucle TEV; ademas `.sdata2` sale con 3.0f antes que -1.0f
+    (el original al reves; 3 variantes del orden de argumentos sin exito).
+  - `PostFxDamage::vf10` 98.11% - registros de tamanos/imagenes al principio, el `shift` del tinte sale con `mfcr`
+    en vez de ramas y los huecos del color K intercambiados (~12 variantes).
+- **Decisiones sin el usuario**:
+  - Split sin cambios.
+  - `symbols.txt`: `fn_800ABD94` -> `vf10__Q23atn12PostFxDamageFPv`; `lbl_80732BD4` -> `@stringBase0`
+    (`"slime_edge.texture"`); estaticas locales de `vf10`: `lbl_807C7410` -> `@LOCAL@vf10__Q23atn12PostFxDamageFPv@sEdge@0`
+    (`Texture_unk`), `lbl_807C7440` -> `@LOCAL@...@sBlur@1` (`GXTexObj`), `lbl_8087EF90` -> `@LOCAL@...@sLoaded`,
+    `lbl_8087EF94` -> `@GUARD@...@sEdge@0` (todas `scope:local`); `lbl_80880DA0` tamano 0x8 -> 0x4.
+    `fn_800AB774` queda `extern "C"` (solo la llama vf10).
+  - Structs locales: `DamageParams_unk` (lbl_8087EFA8 0x378-0x394: debug, tinte RGBA, angulo/longitud del desenfoque,
+    zoom del borde), `DamageColor_unk` con ctor de copia de floats.
+  - `src/atn/LinearAllocator.cpp` tiene su copia local de la clase (`IRender` como base); aqui se usa `IPostFx` de PostFx.h (el RTTI lo exige).
+- Hallazgos MWCC:
+  - `static int sLoaded;` declarado antes del `static Texture_unk sEdge;` coloca `sLoaded` antes que la guarda de `sEdge` en `.sbss`.
+  - Una matriz local con stores en orden inverso de los ceros se escribe como cadena `m01 = m02 = ... = 0.0f` (la cadena guarda de derecha a izquierda).
