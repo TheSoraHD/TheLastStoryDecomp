@@ -163,6 +163,37 @@ basic_string<T, Tr, A>& basic_string<T, Tr, A>::__replace_unk(size_type pos, siz
     return *this;
 }
 
+// 0x8006A004 (char)
+template <class T, class Tr, class A>
+typename basic_string<T, Tr, A>::size_type basic_string<T, Tr, A>::find(const T* s, size_type pos,
+                                                                          size_type n) const {
+    const T* p;
+    size_type sz;
+    if (!is_long()) {
+        p = (const T*)this + 1;
+        sz = mShort.mSize & 0x7F;
+    } else {
+        p = mLong.mData;
+        sz = mLong.mSize;
+    }
+    if (pos <= sz) {
+        size_type rem = sz - pos;
+        const T* send = s + n;
+        for (const T* q = p + pos; rem >= n; ++q, --rem) {
+            const T* b = q;
+            const T* a = s;
+            for (; a < send; ++a, ++b) {
+                if (*a != *b) {
+                    goto next;
+                }
+            }
+            return q - p;
+        next:;
+        }
+    }
+    return npos;
+}
+
 } // namespace std
 
 #endif

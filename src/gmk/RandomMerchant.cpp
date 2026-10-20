@@ -50,7 +50,10 @@ struct MerchantItem_unk {
 extern "C" MerchantItem_unk* fn_80211480(int id);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" void* lbl_8087EEB8; // inferred: debug message output
-extern "C" void fn_800697D8(void* output, const char* message);
+// inferred: debug message list (atn/FileUtil_unk.cpp)
+struct DebugMessages_unk {
+    void fn_800697D8(const char* message);
+};
 // inferred: message of the message table (class unknown)
 struct MerchantMsg_unk {
     int m00;
@@ -306,7 +309,7 @@ void RandomMerchant::vf10() {
             } else {
                 char buf[0x100];
                 sprintf(buf, "cannot found item %d!", mItemId);
-                fn_800697D8(lbl_8087EEB8, buf);
+                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
             }
             MerchantMsg_unk* msg = fn_803CC6B4(lbl_8087F430->m10D8, mEntries[mCur].m290);
             wchar_t numText[0x40] = {0};

@@ -26,7 +26,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - Split sin cambios. Los dos `.sdata` 0x8087D760/0x8087D764 (palabras a cero que pasa `new[]` como nombre de fichero;
     tambien los usa `Event::Dialog`) quedan solo declarados `extern "C" char[4]`: MWCC manda a `.sbss` cualquier
     inicializador a cero (probado `char[4] = ""`, `{0}`, `int = 0`, `__declspec(section ".sdata")`), asi que la unidad no
-    se puede enlazar aunque el codigo llegue al 100%. Pendiente: averiguar que construccion deja ceros en `.sdata`.
+    se puede enlazar aunque el codigo llegue al 100%. Explicacion probable: el original se compilo con `#pragma explicit_zero_data on` (o equivalente); ver PostFxColorMatrix.
   - `symbols.txt`: `fn_8007A530` -> `fn_8007A530__15LipSyncData_unkFPCci`, `fn_8007A748` -> `__ct__14LipSyncKey_unkFv`,
     `lbl_80731900` -> `@stringBase0` (pool `"\0A\0I\0U\0E\0O"`, dtk lo veia como wstring). `pairnames.py` emparejo mal
     `fn_8007A748` con la copia debil de `CsvBase::vf08` (se corrigio a mano).
@@ -118,7 +118,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
 - Hallazgos MWCC: la cadena `m[..] = ... = 0.0f` de `Matrix3x4::SetIdentity` reproduce el orden de stores del original
   (de la ultima a la primera); `float s = 0.0f; for (5) s += w[i];` mantiene el `0.0f +` que una expresion unica pliega.
 
-## atn/PostFxColorMatrix (commit COMMIT_CM)
+## atn/PostFxColorMatrix (commit da4ffaa)
 
 - Resultado: 2/4 al 100% (ctor, `fn_800AAE20`), `matching: false`.
 - NONMATCHING:
@@ -137,3 +137,24 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
     de los miembros escalares respecto a las copias psq: con la lista de inicializacion sale el orden del original.
   - `float a[4] = {x, y, z};` inicializa a cero con `stw` enteros las 4 palabras antes de escribir x, y, z.
   - Un clamp contra variables globales escrito como expresion (no inline con parametros) carga cada limite justo antes de su comparacion.
+
+## atn/FileUtil_unk (commit COMMIT_FU)
+
+- Resultado: 7/16 al 100%, `matching: false`.
+- NONMATCHING: codificador CMPR `fn_80068DB0` 92.9%, `fn_80069060` 78.8%, `fn_80069288` 77.9%, `fn_8006945C` 73.7%
+  (registros/planificacion; no iterado a fondo); `fn_8006969C`/`fn_800696B4` 99% (solo el tamano del objeto de `.sdata2`);
+  `DebugMessages_unk::fn_800698DC` 99.71% y `fn_80069E50` ~90% (registros); `basic_string(const basic_string&, pos, n)`
+  82% (ya NONMATCHING en `string_members.h`).
+- **Decisiones sin el usuario**:
+  - `splits.txt`: anadido `.sbss 0x8087EEB8-0x8087EEC0` (singleton `lbl_8087EEB8` de la lista de mensajes, solo lo crea `fn_800696C8`).
+  - `symbols.txt`: pool `lbl_80731398` -> `@stringBase0`; metodos de `DebugMessages_unk`/`DebugMessage_unk` con nombre
+    mangled (`fn_800697D8__17DebugMessages_unkFPCc`, `fn_800698DC...`, `fn_80069D48...`, `fn_80069E50__17DebugMessages_unkFi`,
+    ctor/dtor de `DebugMessage_unk`). Se mantiene el nombre `__dt__Q23gmk18MerchantString_unkFv` (copia debil que usa RandomMerchant).
+  - **Cambios fuera de la unidad**: `src/gmk/RandomMerchant.cpp` y `src/game/CharaTask.cpp` llamaban a `extern "C" fn_800697D8(void*, const char*)`;
+    ahora declaran `struct DebugMessages_unk { void fn_800697D8(const char*); }` y llaman al metodo (regress: lost 0).
+  - `include/std/string_members.h`: anadida la definicion de `basic_string::find(const T*, pos, n)` (0x8006A004, al 100%).
+  - Nombre real propuesto: no hay; el fichero mezcla el codificador CMPR, la prueba de orden de bytes y la lista de mensajes
+    de depuracion: puede que sean 2-3 ficheros (sin pruebas de corte).
+- Hallazgos MWCC:
+  - Un `static const` escalar se pliega siempre; para conservar el `lhz` del original hubo que leerlo por un puntero `volatile`.
+  - Los objetos de mas de 4 bytes van a `.rodata` (no a `.sdata2`) con `-sdata2 4`: el tamano 8 de dtk es relleno.

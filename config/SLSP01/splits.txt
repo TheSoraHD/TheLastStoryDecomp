@@ -163,6 +163,7 @@ atn/ComDrawTexture.cpp:
 atn/FileUtil_unk.cpp:
 	.text       start:0x80068DB0 end:0x8006A09C
 	.rodata     start:0x80731390 end:0x80731408
+	.sbss       start:0x8087EEB8 end:0x8087EEC0
 	.sdata2     start:0x808809E8 end:0x80880A08
 
 atn/FadeCommon.cpp:
