@@ -351,8 +351,10 @@ public:
     virtual void vf5C(CharaTask* other); // inferred: other may be 0
     virtual void vf60();
     virtual atn::Vector3 vf64(int center); // inferred: position, or the center of the collision capsule
-    virtual void vf68();
-    virtual void vf6C();
+    // inferred: finishing move offered to `attacker` (EnemyTask 0x8035B8B0 returns a control kind 9-11)
+    virtual int vf68(CharaTask* attacker);
+    // inferred: starts the reaction control `kind` facing away from `other` (EnemyTask 0x8035BBCC)
+    virtual void vf6C(int kind, CharaTask* other);
     virtual void vf70();
     virtual void vf74(int arg); // inferred: starts a control (the symbol is still named vf74__9CharaTaskFv)
     virtual int vf78(); // inferred: nonzero while a held character keeps hold (fn_8013A4E8)

@@ -19,13 +19,16 @@ struct EnemyInfo_unk {
 class EnemyTask : public BattleCharaTask {
 public:
     EnemyTask(atn::Task* parent, void* data); // 0x8035B694
+    // inferred: creates an enemy from its spawn description (fn_805A5374 first unless `noCheck`)
+    static EnemyTask* fn_8035B534(atn::Task* parent, EnemyInfo_unk* info, int noCheck);
     virtual ~EnemyTask();                     // 0x8035B78C
-    virtual void vf68();
-    virtual void vf6C();
+    virtual int vf68(CharaTask* attacker);
+    virtual void vf6C(int kind, CharaTask* other);
     virtual int vfF4() { return 0; } // inline: weak copy at the end of ChaserGuard.cpp (0x80180594)
 
     void fn_8035B808(EnemyTask* enemy); // inferred: append to the list starting at this
     void fn_8035B824(EnemyTask* enemy); // inferred: unlink from the list starting at this
+    EnemyTask* fn_8035B854();           // inferred: previous enemy in the manager list (wraps to the last)
 
     EnemyTask* mNext; // 0x14AC: inferred: next enemy in the EnemyManager list
 };

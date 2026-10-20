@@ -2929,5 +2929,96 @@
   "name": "atn/BoneCalc_unk.cpp",
   "classes": [],
   "matching": false
+ },
+ {
+  "name": "AI/AiUtil_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "game/TargetPos_unk.cpp",
+  "classes": [
+   "AiTarget"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/BattleCalc_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "game/BattleEfp_unk.cpp",
+  "classes": [
+   "BattleEfpEntry_unk"
+  ],
+  "matching": true
+ },
+ {
+  "name": "Event/BehaviorGesture.cpp",
+  "classes": [
+   "Event::BehaviorGesture"
+  ],
+  "matching": true
+ },
+ {
+  "name": "Event/BehaviorMoveTo.cpp",
+  "classes": [
+   "Event::BehaviorMoveTo"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MenuCommon_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlMoveCursor.cpp",
+  "classes": [
+   "chr::ControlMoveCursor"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyTask.cpp",
+  "classes": [
+   "EnemyTask"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/GameSaveTask.cpp",
+  "classes": [
+   "GameSaveTask"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/GameSaveLoadBackgroundCommon.cpp",
+  "classes": [
+   "GameSaveLoadBackgroundCommon",
+   "GameSaveLoadCommon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/U16Table_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "gmk/Cannon.cpp",
+  "classes": [
+   "gmk::Cannon"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/HomeButtonMenu.cpp",
+  "classes": [
+   "HomeButtonMenu"
+  ],
+  "matching": false
  }
 ]
