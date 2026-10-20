@@ -1255,6 +1255,7 @@ gmk/Item.cpp:
 	.text       start:0x803FBFA8 end:0x803FC8D8
 	.rodata     start:0x807525A8 end:0x807525B8
 	.data       start:0x8078CF28 end:0x8078CFC0
+	.bss        start:0x807C8760 end:0x807C8770
 	.sdata2     start:0x80886078 end:0x80886090
 
 gmk/MeetingSpot.cpp:

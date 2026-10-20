@@ -1663,7 +1663,7 @@
   "classes": [
    "gmk::Item"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/MeetingSpot.cpp",
