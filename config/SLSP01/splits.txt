@@ -1907,10 +1907,13 @@ game/NewCampPartsOption.cpp:
 	.sdata2     start:0x808879EC end:0x80887A58
 
 game/NewCampPartsStatus.cpp:
-	.text       start:0x8052692C end:0x805290F8
-	.rodata     start:0x8075CEC0 end:0x8075CED4
+	.text       start:0x805268C8 end:0x80529118
+	.ctors      start:0x8072D3B8 end:0x8072D3BC
+	.rodata     start:0x8075CC30 end:0x8075D0D0
 	.data       start:0x80793698 end:0x80793720
-	.sdata2     start:0x80887A5C end:0x80887A88
+	.bss        start:0x807C9110 end:0x807C9120
+	.sdata      start:0x8087E4A0 end:0x8087E4A4
+	.sdata2     start:0x80887A58 end:0x80887A88
 
 game/NewCampPartsTop.cpp:
 	.text       start:0x80529118 end:0x8052A888

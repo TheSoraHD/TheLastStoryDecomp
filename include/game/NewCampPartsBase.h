@@ -52,7 +52,7 @@ struct NewCampPartsEntry_unk {
 struct NewCampPartsFile_unk {
     const char* mModel;
     const char* mAnime;
-    int m08;
+    unsigned char m08; // inferred: flag (1 for some status boards)
 };
 
 // inferred: scene whose nodes are searched by NewCampPartsGmk::vf1C (0x80512B44)
