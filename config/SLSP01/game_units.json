@@ -1017,6 +1017,81 @@
   "matching": true
  },
  {
+  "name": "db/BgmIdTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/ColliAttrTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/HateParam_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/AiTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/ArrowSet_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/CharaMotionParam_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/EventIdTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ChaseParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ChapterList_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/InitSetting_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/CharaIdTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/PaletteTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/CharaParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/EquipParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ItemRare_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/ptr_string_base_char_0.cpp",
   "classes": [
    "atn::ptr_string_base<char, 0>"
