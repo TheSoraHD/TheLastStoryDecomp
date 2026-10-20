@@ -16,7 +16,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - Nombre real propuesto: `atn_math.cpp` (sin prueba directa).
 - Hallazgos MWCC: objetos de `.bss` de mas de 8 bytes alineados a 8 dentro del fichero (Vector3 de 0xC ocupa 0x10).
 
-## atn/LipSync_unk (commit COMMIT_LIPSYNC)
+## atn/LipSync_unk (commit eb61b3e)
 
 - Resultado: 2/4 al 100%, `matching: false`.
 - NONMATCHING:
@@ -37,3 +37,20 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
     no {5, 1.0f} como dice su comentario); no se toca Dialog.cpp.
 - Hallazgos MWCC: un objeto global con inicializador todo a cero va siempre a `.bss`/`.sbss`, incluso con
   `__declspec(section ".sdata")`; un pool de cadenas anchas de <= 4 bytes (`L""`) si va a `.sdata`.
+
+## atn/Pad_unk (commit COMMIT_PAD)
+
+- Resultado: 15/17 al 100%, `matching: false`.
+- NONMATCHING: `fn_800A58D0` y `fn_800A58F8` 97% - solo registros: el original deja el gestor en r3 y la tabla en r5
+  (como si r3 siguiera vivo al principio); ~8 variantes (local, accesor miembro/libre, puntero, referencia) sin exito.
+- **Decisiones sin el usuario**:
+  - `splits.txt`: anadido `.sbss 0x8087EF70-0x8087EF78` (el singleton `lbl_8087EF70`, solo lo escribe `fn_800A5508`).
+    El hueco `.sbss 0x8087EF68` (singleton de NandManager, lo crea `fn_800A2C48`) sigue sin asignar: pendiente de NandManager.
+  - `symbols.txt`: `lbl_80732930` (0x50) partido en `lbl_80732930`/`lbl_80732958` (0x28 cada uno; son dos tablas de ejes
+    distintas: con un solo array se pierde la base comun de 3 estaticas y cambia el codigo); `lbl_80880CB8` tamano 0x8 -> 0x4
+    (float + relleno, objdiff lo trataba como double); `lbl_80732980` -> `@stringBase0` (pool `""`).
+  - Funciones como `extern "C"` libres con nombres `fn_` (otras unidades ya las declaran asi: D2AMpMenu*, MenuCommonTask);
+    probablemente son metodos de una clase de mando vacia (`new (1, "", "", 0)` de 1 byte), `Pad_unk` inventada.
+  - Tipos locales inferidos: `WPad_unk` (gestor de Wii Remote `lbl_8087F018`, banderas por mando en +0x3C00) y tablas
+    `sPortMap`/`sButtonMap`(34)/`sAxisMap`/`sAxisMap2`.
+- Hallazgos MWCC: nada nuevo (confirmado: tablas `static const` > 8 bytes alineadas a 8 en `.rodata`; base comun con >= 3 estaticas).

@@ -300,6 +300,7 @@ atn/NandManager.cpp:
 atn/Pad_unk.cpp:
 	.text       start:0x800A5508 end:0x800A5B40
 	.rodata     start:0x80732898 end:0x80732988
+	.sbss       start:0x8087EF70 end:0x8087EF78
 	.sdata2     start:0x80880CB0 end:0x80880CC0
 
 atn/ParseTree.cpp:
