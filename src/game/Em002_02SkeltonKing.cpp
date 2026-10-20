@@ -135,18 +135,19 @@ inline atn::Vector3 Em002_02SkeltonKing::GetFront_unk(float dist) {
     return mPos + front * dist;
 }
 
-// NONMATCHING: 98.5% - the target state is loaded once (original: reloaded by CanAct_unk) and the stack slots of
-// the rotation temporaries are 0x18 higher
+// NONMATCHING: 98.6% - m55C of the target is loaded once (original: reloaded by CanAct_unk) and the stack slots
+// of the rotation temporaries are 0x18 higher (GetFront_unk's locals are below them here). Reading mTarget
+// directly (no local) fixed the target registers. Tried: if/else for `to`, GetFront_unk as static (inline or
+// not), the first check as an inline, `!(x < 15)`.
 void Em002_02SkeltonKing::fn_80249588() {
     int motion = mMotion.mTracks[0].m00;
     if (motion == 0x6C) {
-        CharaTask* target = mTarget;
-        if (target == 0) {
+        if (mTarget == 0) {
             m58C = 0;
             fn_8016EB48(0, 0, 0);
             ReleaseTarget_unk(this);
-        } else if (!(target->m55C == 6 && target->m560 == 0x71) && mMotion.mTracks[0].m08 >= 15.0f) {
-            if (target->CanAct_unk()) {
+        } else if (!(mTarget->m55C == 6 && mTarget->m560 == 0x71) && mMotion.mTracks[0].m08 >= 15.0f) {
+            if (mTarget->CanAct_unk()) {
                 mTarget->fn_80178208(new (3, "", "", 0) chr::ControlCaughtSkelton(mTarget, this));
             } else {
                 mTarget = 0;
@@ -207,13 +208,14 @@ void Em002_02SkeltonKing::vf3C(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.4% - m5B0 and the copy of `a` use other registers (f3/f4, r6/r7)
+// NONMATCHING: 99.9% - the copy of `a` swaps r6/r7 (the __VecCopy register family); m620 = m5B0 first fixed
+// the float registers
 void Em002_02SkeltonKing::vf20() {
     atn::Vector3 a;
     atn::Vector3 b;
     atn::Vector3 c;
-    m614 = mPos + m5A4;
     m620 = m5B0;
+    m614 = mPos + m5A4;
     m614.y += m620;
     MtxPtr left = mMotion.GetNodeMtx_unk("leftleg");
     MtxPtr right = mMotion.GetNodeMtx_unk("rightleg");

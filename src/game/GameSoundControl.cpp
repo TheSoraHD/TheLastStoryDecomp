@@ -134,7 +134,8 @@ void GameSoundControl::fn_803CDC48() {
     }
 }
 
-// NONMATCHING: 93.0% - the second test of STREAM_ENDING is compiled as a branch; the original computes the unsigned
+// NONMATCHING: 93.0% - the second test of STREAM_ENDING is compiled as a branch (tried: bool local/inline, == false,
+// != 1, bitfields, ternary); the original computes the unsigned
 // comparison as a value (xor/cntlzw/slw idiom) and uses other registers
 void GameSoundControl::vf10() {
     fn_803CDF84();
@@ -202,18 +203,12 @@ void GameSoundControl::vf10() {
     }
 }
 
-// NONMATCHING: 93.6% - two of the early returns are `bne; b` in the original
+// NONMATCHING: 99.2% - the battle state: base/current/previous registers differ (r3/r0 in the original)
 void GameSoundControl::fn_803CDF84() {
-    if (lbl_8087EE90 == 0) {
+    if (lbl_8087EE90 == 0 || !HasSoundCfg_unk()) {
         return;
     }
-    if (!HasSoundCfg_unk()) {
-        return;
-    }
-    if (lbl_8087F430 == 0 || GameBgm::sInstance == 0) {
-        return;
-    }
-    if (!Has8087F418_unk()) {
+    if (lbl_8087F430 == 0 || GameBgm::sInstance == 0 || !Has8087F418_unk()) {
         return;
     }
     if (fn_80375184(lbl_8087F430) && fn_803761FC(lbl_8087F430) && lbl_8087F048 != 0) {

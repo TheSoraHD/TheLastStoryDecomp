@@ -1,5 +1,6 @@
 #include "chr/ControlShoot.h"
 #include "macros.h"
+#include "game/CrossbowMenuTask.h"
 
 // inferred: effect/bullet manager (lbl_8087F048, as in game/CharaTask.cpp); class unknown
 struct Effect_unk;
@@ -18,8 +19,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                    // inferred: event flag
 extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
-extern "C" void* lbl_8087F120;
-extern "C" void fn_801EA0B4(void* arg);
 // inferred: shot speed ranges (arena and normal)
 extern "C" float lbl_8087DA48;
 extern "C" float lbl_8087DA4C;
@@ -152,7 +151,7 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
     c->m640 = wait;
     mChara->mFlagB8 = 0;
     if (mChara->mType == 0) {
-        fn_801EA0B4(lbl_8087F120);
+        CrossbowMenuTask::sInstance->fn_801EA0B4();
     }
     mChara->mFB0 = 0;
     mChara->mFB4 += mData->m48;

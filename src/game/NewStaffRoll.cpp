@@ -1,4 +1,5 @@
 #include "game/NewStaffRoll.h"
+#include "atn/FadeCommon.h"
 #include "game/GimmickCommon.h"
 #include "macros.h"
 
@@ -11,7 +12,6 @@ extern "C" void fn_8008771C(void* menu, const char* name, float* value, int arg3
                             float step); // inferred: debug float slider
 extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
-extern "C" StaffRollFade_unk* fn_8006A250(void* field, int arg, unsigned int color, int arg3); // inferred: fade
 
 // inferred: field (lbl_8087F430)
 extern "C" void* lbl_8087F430;
@@ -153,7 +153,7 @@ NewStaffRoll::NewStaffRoll(atn::Task* parent)
 
 NewStaffRoll::~NewStaffRoll() {
     if (lbl_8087F430 != 0) {
-        mFade = fn_8006A250(lbl_8087F430, 15, 0xFF000000, 0);
+        mFade = (StaffRollFade_unk*)atn::FadeColor::Create((atn::Task*)lbl_8087F430, 15, 0xFF000000, 0);
         mFade->m58 = 99999;
         mFade->m74 = 10.0f;
         mFade->m68 = 1;

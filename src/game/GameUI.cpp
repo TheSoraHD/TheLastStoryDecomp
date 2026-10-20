@@ -1,5 +1,6 @@
 #include "game/GameUI.h"
 #include "atn/SoundRef.h"
+#include "string.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" GameUI* lbl_8087F490;      // inferred: the HUD instance
@@ -22,16 +23,189 @@ inline bool __IsBit_unk(unsigned int mask, int i) {
     return ((1 << i) & mask) == (1 << i);
 }
 
-// NOT DECOMPILED: GameUI::GameUI (0x803CE980, 0xDB4 bytes) builds a class of more than 0x28B0 bytes
-// with dozens of inline member constructors (arrays of 0x7C/0x3E0/0x20-byte entries, colour tables);
-// it is left for later. Its float constants are the first ones of .sdata2 (0x80885D58-0x80885DD0).
+#define GAMEUI_CHECK(m, off) typedef char __check_##m[(int)&((GameUI*)0)->m == off ? 1 : -1]
+GAMEUI_CHECK(m2F0, 0x2F0);
+GAMEUI_CHECK(m30C, 0x30C);
+GAMEUI_CHECK(m3D8, 0x3D8);
+GAMEUI_CHECK(m3F0, 0x3F0);
+GAMEUI_CHECK(m574, 0x574);
+GAMEUI_CHECK(m748, 0x748);
+GAMEUI_CHECK(m7B8, 0x7B8);
+GAMEUI_CHECK(m814, 0x814);
+GAMEUI_CHECK(m844, 0x844);
+GAMEUI_CHECK(m8D0, 0x8D0);
+GAMEUI_CHECK(mA84, 0xA84);
+GAMEUI_CHECK(mB38, 0xB38);
+GAMEUI_CHECK(mC38, 0xC38);
+GAMEUI_CHECK(mD40, 0xD40);
+GAMEUI_CHECK(mD90, 0xD90);
+GAMEUI_CHECK(mDD0, 0xDD0);
+GAMEUI_CHECK(mF14, 0xF14);
+GAMEUI_CHECK(m10B4, 0x10B4);
+GAMEUI_CHECK(m1158, 0x1158);
+GAMEUI_CHECK(m1174, 0x1174);
+GAMEUI_CHECK(m15BC, 0x15BC);
+GAMEUI_CHECK(m253C, 0x253C);
+GAMEUI_CHECK(m2568, 0x2568);
+GAMEUI_CHECK(m2610, 0x2610);
+GAMEUI_CHECK(m2664, 0x2664);
+GAMEUI_CHECK(m2678, 0x2678);
+GAMEUI_CHECK(m288C, 0x288C);
+
+// NONMATCHING: 98.1% - scheduling only: (1) the original keeps the load of the list count (Clear of 0x30C)
+// after the six resets of m318, here it is hoisted above them (the scheduling windows of the block end one
+// node earlier); (2) the zero of the resets after the 0x5BC loop is materialised twice in the original (r3
+// up to mB08, r30 from mB20 on, across the memset) and once here (r30). Wrapper structs with constructors
+// (W262C_unk, W25CC_unk, W2568_unk, MarkerList_unk) were needed for the scheduling windows and the loop
+// bounds of the arrays; `m30C.mMid.mBase.mCount -= (int)...` reproduces the lwz/subf of the inlined Clear.
+GameUI::GameUI(atn::Task* parent)
+    : atn::Task(parent), m48(0.0f), m4C(-1.0f), m2F0(0), m834(0), m85C(0), m8D0(0), mD84(0), mD88(0),
+      mD8C(0), mDA4(0), mDA8(0), mDAC(0), mDB0(0), mDC8(0), m1118(0), m1130(0), m1140(0), m1144(0), m1148(0), m114C(0), m1150(0), m1154(0), m1170(0), m15B4(0), m15B8(0),
+      m253C(0), m2540(0), m254C(0), m255C(-1), m2560(0.0f), m2658(0), mSeState(0), mSeMask(0), m2668(1.0f), m266C(0.07f), m2670(5.0f), m2674(3000.0f),
+      m2678(128, 128, 128, 255), m2688(10, 10, 128, 255), m2698(128, 128, 128, 255), m26A8(10, 10, 255, 255), m26B8(0, 0, 0, 255), m26C8(19, 59, 23, 255), m26D8(220, 220, 200, 255), m26E8(250, 150, 90, 255), m26F8(140, 170, 220, 255), m2708(60, 100, 70, 255), m2718(250, 240, 130, 255), m2728(255, 180, 0, 0), m2738(0, 180, 80, 0), m2748(255, 100, 100, 0), m2758(90, 90, 90, 0), m2768(50, 20, 90, 0), m2778(150, 100, 200, 0), m288C(255, 255, 255, 0), m289C(85, 112, 206, 255) {
+    m2788 = 0;
+    for (int i = 0; i < 6; i++) {
+        m318[i].m00 = 0;
+        m318[i].m04 = 0;
+        m318[i].m08 = 0;
+        m318[i].m0C = 0;
+        m318[i].m10 = 0;
+    }
+    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+    m3D8 = 0;
+    m3DC = 0;
+    m3E0 = 0;
+    m3E4 = 0;
+    m3E8 = 0;
+    m3EC = 0;
+    m3F0.mCount = 0;
+    mDCC = 1;
+    mDD0 = 0.0f;
+    for (int i = 0; i < 32; i++) {
+        mF14[i] = 0;
+        mF94[i] = 0;
+        m1014[i] = i;
+    }
+    for (int i = 0; i < 8; i++) {
+        m10B4[i] = 0;
+        m10D4[i] = 0;
+    }
+    m10F4 = 0;
+    for (int i = 0; i < 8; i++) {
+        m574[i] = 0;
+        m594[i] = 0;
+    }
+    m5B8 = 0;
+    for (int i = 0; i < 80; i++) {
+        m5BC[i] = 0;
+    }
+    m6FC = 0;
+    m700 = 0;
+    m704 = 0;
+    m708 = 0;
+    m70C = 0;
+    m710 = 0;
+    m714 = 0;
+    m718 = 0;
+    m720 = 0;
+    m724 = 0;
+    m728 = 0;
+    m72C = 0;
+    m730 = 0;
+    m734 = 0;
+    m738 = 0;
+    for (int i = 0; i < 12; i++) {
+        m8A0[i] = 0;
+    }
+    mA84 = 0;
+    mA88 = 0;
+    m8D0 = 0;
+    m73C = 0;
+    m740 = 0;
+    m744 = 0;
+    m7B8 = 0;
+    m7BC = 0;
+    for (int i = 0; i < 4; i++) {
+        m814[i * 2] = 0;
+    }
+    for (int i = 0; i < 4; i++) {
+        m814[i * 2 + 1] = 0;
+    }
+    m834 = 0;
+    m844 = 0;
+    m85C = 0;
+    m870 = 0;
+    for (int i = 0; i < 5; i++) {
+        m848[i] = 0;
+    }
+    for (int i = 0; i < 5; i++) {
+        m874[i] = 0;
+    }
+    m838 = 0;
+    m263C = 0;
+    m2640 = 0;
+    mD78 = 0;
+    mD7C = 5;
+    mD80 = 0;
+    m10F8 = 0;
+    m10FC = 0;
+    m1100 = 64.0f;
+    for (int i = 0; i < 6; i++) {
+        mB08[i] = 0;
+    }
+    mB20[0] = 0;
+    mB20[1] = 0;
+    mB20[2] = 0;
+    mB20[3] = 0;
+    mB20[4] = 0;
+    mB20[5] = 0;
+    for (int i = 0; i < 8; i++) {
+        mB38[i].m00 = 0;
+        mB38[i].m04 = 0;
+    }
+    mD6C = 0;
+    m264C = 0x2D;
+    m2654 = 0;
+    m2644 = 0;
+    m2648 = 0;
+    m2650 = 0;
+    for (int i = 0; i < 5; i++) {
+        m1104[i] = 0;
+    }
+    m1120 = 0;
+    m1124 = 0;
+    m1128 = 0;
+    m1130 = 0;
+    m2544 = 0;
+    m2548 = 0;
+    mDB8 = 0;
+    mDBC = 0;
+    mA8C = 0;
+    for (int i = 0; i < 10; i++) {
+        mA90[i] = 0;
+        mAB8[i] = 0;
+        mAE0[i] = 0;
+    }
+    mDB4 = 0;
+    memset(m2550, 0, sizeof(m2550));
+    m2564 = 0;
+    m2568.m00 = 0;
+    m25CC.m00 = 0;
+    for (int i = 0; i < 7; i++) {
+        m2610[i] = 0;
+    }
+    mDC0 = 0;
+    mDC4 = 0;
+    fn_803CF740();
+    fn_803CF74C();
+}
 
 void GameUICounter_unk::fn_803CF734() {
     mCount = 0;
 }
 
 void GameUI::fn_803CF740() {
-    mC38 = 0;
+    mC38.mCount = 0;
 }
 
 void GameUI::fn_803CF74C() {
@@ -61,8 +235,8 @@ int GameUI::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.78% - only the literals differ: the .sdata2 offsets depend on the constants of the
-// constructor (not decompiled) and the int-to-float double is in the auto .rodata (0x80750650).
+// NONMATCHING: 99.95% - only the int-to-float double differs: it is in the auto .rodata (0x80750650), outside
+// the split (the .rodata of the real file also holds the tables of fn_803CFC78).
 void GameUI::vf10() {
     fn_803E668C(this);
     if (m840 != 0 && !m840->IsFlag_unk(4) && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0 &&
