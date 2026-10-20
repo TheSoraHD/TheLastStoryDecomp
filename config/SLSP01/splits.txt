@@ -22,10 +22,15 @@ Event/EventCommandDef_unk.cpp:
 	.sdata2     start:0x808805A0 end:0x80880668
 
 Event/Puppeteer_CharaTask.cpp:
-	.text       start:0x8000CBD0 end:0x80013D60
-	.rodata     start:0x8072F8A8 end:0x8072F8E4
+	.text       start:0x8000CBD0 end:0x800142C4
+	.rodata     start:0x8072F890 end:0x8072FA00
 	.data       start:0x807759B0 end:0x80775A20
+	.sdata      start:0x8087D6C8 end:0x8087D6DC
 	.sdata2     start:0x80880668 end:0x808806A0
+
+AI/AiUtil_unk.cpp:
+	.text       start:0x800142C4 end:0x800144FC
+	.sdata2     start:0x808806A0 end:0x808806B8
 
 game/AiTarget.cpp:
 	.text       start:0x800144FC end:0x8001A268
@@ -81,7 +86,7 @@ game/ArenaTask.cpp:
 	.sdata2     start:0x80880838 end:0x80880858
 
 game/Arms.cpp:
-	.text       start:0x80043EAC end:0x800457A4
+	.text       start:0x80043EAC end:0x800458D4
 	.rodata     start:0x80730E28 end:0x80730F10
 	.data       start:0x807773A8 end:0x807774F0
 	.sdata2     start:0x80880858 end:0x80880868
@@ -488,16 +493,49 @@ atn/Sound3dEngine.cpp:
 	.data       start:0x807795C0 end:0x80779678
 	.sdata2     start:0x80881180 end:0x80881188
 
+atn/SoundManager.cpp:
+	.text       start:0x800CB360 end:0x800D1C60
+	.rodata     start:0x80734208 end:0x80734628
+	.data       start:0x80779678 end:0x807796B0
+	.bss        start:0x807C75B0 end:0x807C75D0
+	.sbss       start:0x8087EFEC end:0x8087EFF0
+	.sdata2     start:0x80881188 end:0x808811D8
+
+atn/Task.cpp:
+	.text       start:0x800D1C60 end:0x800D5738
+	.ctors      start:0x8072D2C4 end:0x8072D2C8
+	.rodata     start:0x80734628 end:0x80734638
+	.data       start:0x807796B0 end:0x80779700
+	.bss        start:0x807C75D0 end:0x807C75E8
+	.sbss       start:0x8087EFF0 end:0x8087EFF8
+
+atn/Texture_unk.cpp:
+	.text       start:0x800D5738 end:0x800D5C84
+	.rodata     start:0x80734638 end:0x80734640
+	.sdata2     start:0x808811D8 end:0x808811E0
+
+atn/TextureDraw_unk.cpp:
+	.text       start:0x800D5C84 end:0x800D6898
+	.bss        start:0x807C75E8 end:0x807C77E8
+	.sbss       start:0x8087EFF8 end:0x8087F000
+	.sdata2     start:0x808811E0 end:0x80881208
+
 atn/TextureCacheManager8x32.cpp:
-	.text       start:0x800D69A8 end:0x800D6BE0
+	.text       start:0x800D6898 end:0x800D6BE0
 	.rodata     start:0x80734640 end:0x807346A0
 	.data       start:0x80779700 end:0x80779758
 
 atn/TextureComposite.cpp:
-	.text       start:0x800D71A4 end:0x800D81CC
-	.rodata     start:0x807346A0 end:0x80734740
+	.text       start:0x800D6BE0 end:0x800D81CC
+	.rodata     start:0x807346A0 end:0x80734758
 	.data       start:0x80779758 end:0x80779830
 	.sdata2     start:0x80881208 end:0x80881218
+
+atn/CompositeCache_unk.cpp:
+	.text       start:0x800D81CC end:0x800D8894
+	.rodata     start:0x80734758 end:0x80734760
+	.bss        start:0x807C77E8 end:0x807C77F4
+	.sdata2     start:0x80881218 end:0x80881220
 
 atn/CompositeIntensityTintMulti.cpp:
 	.text       start:0x800D8894 end:0x800D9410
@@ -506,16 +544,37 @@ atn/CompositeIntensityTintMulti.cpp:
 	.sdata2     start:0x80881220 end:0x80881228
 
 atn/TextAnimation.cpp:
-	.text       start:0x800D9410 end:0x800DBF68
+	.text       start:0x800D9410 end:0x800DC12C
 	.rodata     start:0x807347E8 end:0x807347FC
 	.data       start:0x80779868 end:0x807798A0
 	.sdata2     start:0x80881228 end:0x80881258
+
+atn/Util_unk.cpp:
+	.text       start:0x800DC12C end:0x800DCA70
+	.rodata     start:0x80734870 end:0x80734D00
+	.sdata2     start:0x80881258 end:0x80881260
 
 atn/VideoTHP.cpp:
 	.text       start:0x800DCA70 end:0x800DD1EC
 	.rodata     start:0x80734D00 end:0x80734DC0
 	.data       start:0x807798D8 end:0x80779950
 	.sdata2     start:0x80881260 end:0x80881290
+
+atn/NumberFormat_unk.cpp:
+	.text       start:0x800DD1EC end:0x800DDA34
+	.rodata     start:0x80734DC0 end:0x80734DC8
+	.sdata2     start:0x80881290 end:0x80881298
+
+atn/WPad_unk.cpp:
+	.text       start:0x800DDA34 end:0x800DF22C
+	.rodata     start:0x80734DC8 end:0x80734DD8
+	.data       start:0x80779950 end:0x807799A0
+	.sdata2     start:0x80881298 end:0x808812C8
+
+atn/WordWrap_unk.cpp:
+	.text       start:0x800DF22C end:0x800E0AC0
+	.rodata     start:0x80734DD8 end:0x80735070
+	.sdata2     start:0x808812C8 end:0x808812D0
 
 std/char_traits_char.cpp:
 	.text       start:0x800E0AC0 end:0x800E0B18
@@ -527,11 +586,23 @@ std/allocator_char.cpp:
 	.rodata     start:0x807350E4 end:0x80735130
 	.data       start:0x80779A08 end:0x80779A58
 
+game/BattleCalc_unk.cpp:
+	.text       start:0x800E2A24 end:0x800E2AF8
+	.sdata2     start:0x808812D0 end:0x808812D8
+
 game/BattleCharaTask.cpp:
-	.text       start:0x800E2D4C end:0x800EF3EC
-	.rodata     start:0x80735308 end:0x80735318
+	.text       start:0x800E2AF8 end:0x800EF3EC
+	.rodata     start:0x80735308 end:0x80735428
 	.data       start:0x80779B68 end:0x80779C80
-	.sdata2     start:0x808812E0 end:0x808813B8
+	.bss        start:0x807C7828 end:0x807C7840
+	.sbss       start:0x8087F028 end:0x8087F030
+	.sdata2     start:0x808812D8 end:0x808813B8
+
+game/BattleEfp_unk.cpp:
+	.text       start:0x800EF3EC end:0x800EFF68
+	.rodata     start:0x80735428 end:0x80735440
+	.sdata      start:0x8087D968 end:0x8087D970
+	.sbss       start:0x8087F030 end:0x8087F040
 
 game/BattleResult.cpp:
 	.text       start:0x800EFF68 end:0x800F13BC

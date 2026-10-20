@@ -162,6 +162,45 @@ Pista general: los ficheros reales del motor se llaman `atn_<nombre>.cpp` (caden
 - `atn/Se_unk.cpp` (nuevo, inventado) 0x800C3094-0x800C3610: envoltorios de sonido (atn::SoundRef, dispositivo 0x8087EE90), 1.0f/0.0f propios
   0x80881138. El corte 0x800C3094 se apoya en el contenido (todo sonido a partir de ahi), no en datos.
 
+## Grupo 5 (resto del rango: 0x80013D60-0x800144FC, 0x800457A4, 0x800CB360-0x800EFF68)
+
+- `Event/Puppeteer_CharaTask` (inferida) ampliada: .text hasta 0x800142C4 (funciones debiles std::basic_string<char> dtor/reserve/
+  __replace_unk + dtor_80014250, al final del primer fichero que las usa), .rodata 0x8072F890-0x8072FA00 (doubles de WrapAngle_unk y pool
+  de basic_string), .sdata 0x8087D6C8-0x8087D6DC.
+- `AI/AiUtil_unk.cpp` (nuevo, inventado) 0x800142C4-0x800144FC: fn_800142D4/fn_800143E8 (los llama AiCommon_unk) con su propio bloque
+  .sdata2 0x808806A0-0x808806B8 (0.0f propio; AiTarget tiene otro 0.0f en 0x808806B8). fn_800142C4/CC (las usa AiTarget, sin datos) van aqui sin prueba.
+- `game/Arms` (fuente, no enlazada): .text hasta 0x800458D4 (fn_800457A4 usa el objeto .rodata 0x80730F08 que ya era de Arms).
+- `atn/SoundManager.cpp` (nuevo) 0x800CB360-0x800D1C60: atn::SoundRef (metodos al principio, sin datos) + atn::SoundManager (vtable 0x80779698,
+  nombre RTTI, 4 nombres boost::bind_t y pool 0x80734440). .rodata 0x80734208-0x80734628, .data 0x80779678-0x807796B0, .sbss 0x8087EFEC,
+  .bss 0x807C75B0-0x807C75D0, .sdata2 0x80881188-0x808811D8. Las funciones de SoundRef podrian ser un fichero aparte (sin datos para decidirlo).
+- `atn/Task.cpp` (nuevo) 0x800D1C60-0x800D5738: atn::Task / atn::TaskBase (vtables 0x807796D0/0x807796F0), `__sinit` 0x800D5714 (.ctors 0x8072D2C4).
+  fn_800D1C60/fn_800D1CD4 (sin datos propios salvo la jumptable 0x807796B0) se ponen aqui. .rodata 0x80734628, .sbss 0x8087EFF0, .bss 0x807C75D0-0x807C75E8.
+- `atn/Texture_unk.cpp` (nuevo, inventado) 0x800D5738-0x800D5C84: atn::Texture_unk (ctor/dtor/fn_800D5B58), 0.0f propio 0x808811D8, .rodata 0x80734638.
+- `atn/TextureDraw_unk.cpp` (nuevo, inventado) 0x800D5C84-0x800D6898: utilidades GX de textura usadas por todo el motor; 0.0f propio 0x808811E0,
+  .sbss 0x8087EFF8, .bss 0x807C75E8-0x807C77E8.
+- `atn/TextureCacheManager8x32` (fuente, no enlazada): .text desde 0x800D6898 (ITextureCacheManager::fn_800D6898, metodo de la base que solo
+  llaman los vf0C de las dos clases del fichero).
+- `atn/TextureComposite` (fuente, no enlazada): .text desde 0x800D6BE0 (fn_800D6BE0/fn_800D6E48, solo para TextureComposite::vf10) y .rodata
+  hasta 0x80734758 (objeto 0x80734740 que usa fn_800D6E48, situado tras su pool).
+- `atn/CompositeCache_unk.cpp` (nuevo, inventado) 0x800D81CC-0x800D8894: CompositeCache_unk (usada por CompositeIntensityTintMulti);
+  .sdata2 0x80881218 alineado a 8 propio, .rodata 0x80734758, .bss 0x807C77E8. La estatica local @LOCAL@/@GUARD@ Get_unk se deja en auto (compartida).
+- `atn/TextAnimation` (inferida) ampliada hasta 0x800DC12C: reserve de std::basic_string<wchar_t> (debil; TextAnimation es su primer usuario).
+- `atn/Util_unk.cpp` (nuevo, inventado) 0x800DC12C-0x800DCA70: utilidades de cadenas y hashes (fn_800DC880, tabla 0x807348A0), boost::throw_exception
+  al final. .rodata 0x80734870-0x80734D00, .sdata2 0x80881258-0x80881260.
+- `atn/NumberFormat_unk.cpp` (nuevo, inventado) 0x800DD1EC-0x800DDA34: formateo de numeros (D2A_Task::SetNumber_unk...); double int->float propio 0x80734DC0.
+- `atn/WPad_unk.cpp` (nuevo, inventado) 0x800DDA34-0x800DF22C: mando (lo llama Pad_unk); segundo double int->float 0x80734DC8 (misma constante
+  que el fichero anterior en otra direccion => corte), .data 0x80779950-0x807799A0, .sdata2 0x80881298-0x808812C8. Corte en 0x800DDA34 porque
+  fn_800DDA34 solo la llama fn_800DDB4C.
+- `atn/WordWrap_unk.cpp` (nuevo, inventado) 0x800DF22C-0x800E0AC0: tabla de kinsoku 0x80734DD8 (caracteres de puntuacion), 0.0f propio 0x808812C8
+  (el de WPad esta en 0x80881298), basic_string<wchar_t> ctor debil. Termina antes de std/char_traits_char.
+- `game/BattleCalc_unk.cpp` (nuevo, inventado) 0x800E2A24-0x800E2AF8: una funcion (la usan BattleTask y el tramo 0x800F7250) con 1.0f propio 0x808812D0.
+- `game/BattleCharaTask` (inferida) ampliada: .text desde 0x800E2AF8 (su ctor estaba fuera), .rodata hasta 0x80735428, .sbss 0x8087F028,
+  .bss 0x807C7828-0x807C7840, .sdata2 desde 0x808812D8.
+- `game/BattleEfp_unk.cpp` (nuevo, inventado) 0x800EF3EC-0x800EFF68: EfpHandle_unk, dtor debil LH_Xsca; lo llama GameTask. .rodata 0x80735428,
+  .sdata 0x8087D968, .sbss 0x8087F030-0x8087F040.
+- Sin tocar (sin pruebas o fuera de mi alcance): zona iostream de MSL 0x800E0B18-0x800E0B90 y 0x800E24CC-0x800E2A24 (`__sinit` 0x800E29B4,
+  vtables de consola, unidades std/ ya existentes alrededor); fn_800F13BC (0x74, sin datos, entre BattleResult y BattleTask); fn_8007708C.
+
 ## Decisiones tomadas sin el usuario
 - Nombres inventados: `Event/EventCommandDef_unk.cpp`, `AI/AiCommon_unk.cpp`, `game/TargetPos_unk.cpp`, `game/DamageCalc_unk.cpp`, `atn/Shader_unk.cpp`.
 - `atn/Sound3dListener_cont.cpp`: deberia fusionarse con atn/Sound3dListener al decompilar. dtk no deja que la parte `_cont` tenga
