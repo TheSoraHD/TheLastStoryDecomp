@@ -108,3 +108,42 @@ Cola: `atn/Camera_unk`, `atn/Frustum_unk`, `atn/PostFxGamma`, `atn/PostFxGodRay`
   - Inicializar en la lista del ctor un miembro struct con constructor de 4 floats da los 4 `stfs` antes del ctor
     del siguiente miembro (Texture_unk), como el original.
 - Pendientes para otras unidades: ninguno.
+
+## atn/CharaLightData_unk (commit 36e6ed6)
+- Resultado: 14/23 al 100%, `matching: false`, `main.dol: OK`. El fichero real es la escena del campamento/mapa
+  (`NewCampScene2_unk`: LH_Scene + luces/camaras extra + dos `CharaLightData_unk` + plano de reflexion), con los
+  metodos de `CharaLightData_unk` delante.
+- NONMATCHING: ctor `NewCampScene2_unk` 67.54% (orden en pila de temporales y FPR); `fn_800C23E8`/`fn_800C2418`
+  99.17% y `fn_800C2D88` 99.76% (orden de operandos del `add` final); `fn_800C258C` 99.4% (FPR del 0.5);
+  `fn_800C2634` 85.55% y `fn_800C289C` 85.85% (el original indexa las texturas con `mulli` en el bucle desenrollado);
+  `fn_800C2C20` 67.43% y `fn_800C2EE0` 71.86% (FPR/orden de la matriz de reflexion).
+- **Decisiones sin el usuario**:
+  - Split ampliado: `.sdata 0x8087D918-0x8087D920` (antes hueco `auto_09_8087D918_sdata`): son los dos pools `""`
+    del `new (heap, "", "", 0) Texture_unk[n]` inline, que tambien usan NewCampTask/NewCampPartsGmk (el enlazador
+    se queda la primera copia).
+  - `symbols.txt`: `fn_800C1A1C` -> `__ct__17NewCampScene2_unkFv`; `lbl_807337B0` -> `@stringBase0` (size 0x3F);
+    `lbl_8087D918`/`lbl_8087D91C` -> `@STRING@ResizeTextures_unk__FR16TextureArray_unkii@0` / `...unkii` (nombre de
+    la inline inventada `ResizeTextures_unk`). Resto de funciones `extern "C"` (fn_800C18BC, fn_800C2448,
+    fn_800C24B4 y fn_800C2C20 ya se llaman asi desde gmk/RoomLight, game/TownTask, atn/LensFlare, gmk/AutomaticDoor...).
+  - Cabecera compartida `include/gmk/CharaLight.h`: `TextureArray_unk` con ctor `(0, 0)`; `CharaLightData_unk`:
+    `m30[0xC]` -> `float m30, m34, m38`, `m44[0xC]` -> `int m44` (textura actual), `m48` (frames por textura), `m4C`
+    (contador). regress: lost 0.
+  - Tipos inventados en el .cpp: `NewCampScene2_unk` (0x2B4, nombre ya usado por el simbolo del dtor), `SceneColor_unk`,
+    `SceneFog_unk`, `ScenePlane_unk`, `SceneRow_unk`, `SceneLightData_unk`; helpers inline `ResizeTextures_unk`,
+    `SetWrap_unk`, `SetLight_unk`, `EnableLight_unk`, `GetLight_unk`, `NumLights_unk`, `Reflect_unk`,
+    `SetIdentityRows_unk`, `Mul2_unk`/`Sub2_unk`, `WrapDeg_unk`. La clase `NewCampScene2_unk` de
+    game/NewCampPartsGmk.cpp tiene el mismo layout (`SceneRec50_unk` = `CharaLightData_unk`).
+  - Nombre real propuesto: fichero de la escena (quiza `atn_scene*.cpp`); `CharaLightData_unk` podria ser otra clase
+    del mismo fichero.
+- Hallazgos MWCC:
+  - `busy = busy || f();` con `int busy` da el patron `cmpwi; li 0; bne; bl; beq; li 1` del original.
+  - Temporales de argumentos de una inline: se reservan en el orden de los parametros (izquierda a derecha) aunque se
+    evaluen de derecha a izquierda; para invertir su orden en la pila, invertir el orden de los parametros.
+  - `i -= f(); return &v[i];` o `int j = i - f(); return &v[j];` cambian que registro recibe la resta (r0 frente al
+    del parametro) sin tocar el resto.
+  - Las stores enteras simples (`mOn = 1`) se programan tarde: escribirlas antes de las copias de vectores da el
+    orden del original.
+  - Un miembro asignado en el cuerpo (`m = v.GetNormalized_unk();`) deja temporal + copia psq; en la lista de
+    inicializacion se normaliza en sitio.
+- Pendientes para otras unidades: game/NewCampPartsGmk.cpp y game/NewCampTask/RenderSystem_unk podrian usar la
+  `NewCampScene2_unk` de este .cpp (falta cabecera comun); los `.sdata` 0x8087D918 ya estan en esta unidad.
