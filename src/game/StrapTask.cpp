@@ -1,5 +1,8 @@
 #include "game/StrapTask.h"
 #include "atn/Memory.h"
+#include "std/string.h"
+#include "std/vector.h"
+#include "macros.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned char SCGetLanguage();
@@ -25,11 +28,17 @@ struct Unk_8087F018 {
     int m40E0;
 };
 extern "C" Unk_8087F018* lbl_8087F018;
-struct Pad_unk {
-    unsigned char m00[0x10];
-    unsigned short m10; // inferred: buttons
+// inferred: render manager (see atn/LayerReflect.cpp); vf10 reads the frame buffer height
+struct StrapRender_unk {
+    unsigned char m00[0x0E];
+    unsigned short mFbWidth;  // 0x0E
+    unsigned short mFbHeight; // 0x10
+    unsigned char m12[0x3C - 0x12];
+    int mWidth;  // 0x3C
+    int mHeight; // 0x40
+    int mWide;   // 0x44: inferred: 16:9
 };
-extern "C" Pad_unk* lbl_8087EEE0;
+extern "C" StrapRender_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was pressed
 extern "C" void* lbl_8087F9AC;
@@ -98,7 +107,7 @@ void StrapTask::vf10() {
         break;
     }
     case 1:
-        if ((float)(int)lbl_8087EEE0->m10 > 0.0f) {
+        if ((float)(int)lbl_8087EEE0->mFbHeight > 500.0f) {
             m4C = 0;
             m48 = 3;
         }
@@ -124,4 +133,82 @@ void StrapTask::vf10() {
     }
 }
 
-// NONMATCHING: vf14 (0x805A6610, 0x470 bytes: draws the strap screen and debug texts) is not written yet
+// inferred: message table (lbl_8087F1E4, see game/CharaTask.cpp)
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+struct StrapMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" StrapMsgTable_unk* lbl_8087F1E4;
+extern "C" void* lbl_8087EEB0; // inferred: debug drawing
+extern "C" void* lbl_8087EEC8; // inferred: font
+extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, int arg2, int font,
+                            void* callback, float maxWidth, float size, float spacing); // inferred: splits the lines
+extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
+                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
+                            unsigned int color2); // inferred: text
+extern "C" void fn_8005DFC8(void* renderer, unsigned int color, atn::Texture_unk* tex, int arg, float x, float y,
+                            float z, float w, float h); // inferred: draw texture
+
+// inferred: draws a texture of texW x texH over the screen (4:3 or 16:9); name invented
+inline float Ratio_unk(int a, int b) {
+    return (float)a / (float)b;
+}
+inline void DrawScreen_unk(atn::Texture_unk* tex, unsigned int color, float texW, float texH) {
+    float w = texW;
+    float h = texH;
+    StrapRender_unk* render = lbl_8087EEE0;
+    float scrW = render->mWidth;
+    float sx = Ratio_unk(render->mWidth, render->mFbWidth);
+    float sy = Ratio_unk(render->mHeight, render->mFbHeight);
+    float kx = 1.0f;
+    float ky = 1.0f;
+    float x0;
+    if (render->mWide != 0) {
+        sx = 1.0f;
+        kx = 1.3333334f;
+        x0 = 30.0f;
+    } else {
+        ky = 0.88f;
+        x0 = 3.0f;
+    }
+    float fx = kx * sx;
+    float fy = sy * ky;
+    h *= fy;
+    float s = (sy * fx) / ky;
+    w /= s;
+    float x = 0.5f * (scrW * s - texW) + x0;
+    fn_8005DFC8(lbl_8087EEB0, color, tex, 1, x, 0.0f, 0.0f, w, h);
+}
+
+// NONMATCHING: 83.5% - the line address is reloaded after the width call in the original (kept in a register
+// here), and the scheduling/registers of the screen ratio computations differ.
+// inferred: draws the strap texture (two pages alternating every 150 frames) or the message of states 3-4
+void StrapTask::vf14() {
+    float alpha = 1.0f;
+    int page = (m50 / 150) % 2;
+    switch (m48) {
+    case 1:
+        alpha = m4C / 15.0f;
+        break;
+    case 2:
+        alpha = (15 - m4C) / 15.0f;
+        break;
+    case 3:
+    case 4: {
+        alpha = MIN(alpha, m4C / 15.0f);
+        std::vector<std::basic_string<wchar_t> > lines;
+        fn_800E0000(&lines, lbl_8087F1E4->Get_unk(0x38F), 1, 1, 0, 560.0f, 20.0f, 0.0f);
+        for (unsigned int i = 0; i < lines.size(); i++) {
+            float w = fn_8006EF48(lbl_8087EEC8, lines[i].c_str(), 20.0f, 0.0f, 1, 1);
+            float x = 0.5f * (640.0f - w);
+            float y = 30.0f * i + 50.0f;
+            fn_80061824(lbl_8087EEB0, x, y, 0.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f,
+                        lines[i].c_str(), ((unsigned int)(255.0f * alpha) << 24) | 0xFFFFFF, 1, 1, 0, 0, 0xFF000000);
+        }
+        return;
+    }
+    }
+    DrawScreen_unk(&m54[page], ((unsigned int)(255.0f * alpha) << 24) | 0xFFFFFF, 1024.0f, 512.0f);
+}
