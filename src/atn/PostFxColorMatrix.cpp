@@ -111,7 +111,8 @@ public:
 
 PostFxColorMatrix::PostFxColorMatrix() : mOwner(0), mTime(0.0f) {}
 
-// NONMATCHING: 96.85% - FPR allocation of the interpolation factors and scheduling of the desaturation
+// inferred: "1.0f - s" and "1.0f - k" written in the loops (hoisted by the compiler) and the gray vector built
+// from lum[i] directly give the FPR allocation and scheduling of the original
 void PostFxColorMatrix::fn_800AA8DC() {
     ColorMatrixOwner_unk* owner = fn_800C1424(lbl_8087EFB4);
     ColorMatrix_unk* src = owner->m260 != 0 ? &owner->m264 : &lbl_8087EFA8->m324;
@@ -136,9 +137,8 @@ void PostFxColorMatrix::fn_800AA8DC() {
     float t = mTime;
     float t2 = t * t;
     float s = 3.0f * t2 - 2.0f * (t * t2);
-    float u = 1.0f - s;
     for (int i = 0; i < 4; i++) {
-        mCurrent.mRows[i] = mFrom.mRows[i] * u + mTo.mRows[i] * s;
+        mCurrent.mRows[i] = mFrom.mRows[i] * (1.0f - s) + mTo.mRows[i] * s;
     }
     ColorMatrixParams2_unk* p = (ColorMatrixParams2_unk*)lbl_8087EFA8;
     if (p->m36C != 0) {
@@ -147,11 +147,9 @@ void PostFxColorMatrix::fn_800AA8DC() {
         float k = 3.0f * g2 - 2.0f * (g * g2);
         float lumScale = CM_MAX(1.0f, p->m370);
         float lum[4] = {0.298912f * lumScale, 0.586611f * lumScale, 0.114478f * lumScale};
-        float inv = 1.0f - k;
         for (int i = 0; i < 4; i++) {
-            float l = lum[i];
-            ColorVec4_unk gray(l, l, l, l);
-            mCurrent.mRows[i] = mCurrent.mRows[i] * CM_MAX(0.0f, inv) + gray * k;
+            ColorVec4_unk gray(lum[i], lum[i], lum[i], lum[i]);
+            mCurrent.mRows[i] = mCurrent.mRows[i] * CM_MAX(0.0f, 1.0f - k) + gray * k;
         }
     }
 }
