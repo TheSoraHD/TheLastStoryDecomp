@@ -78,9 +78,29 @@ Cola: `atn/D2A_Manager`, `atn/D2Anime_unk`, `atn/DLMalloc_unk`, `atn/EffectDesc_
   - Nombre real propuesto: desconocido (cargador de d2anime; por orden alfabetico entre D2A_Window y
     D3Anime).
 - Hallazgos MWCC
-  - Un ctor inline que llama a `basic_string::clear()` sobre una cadena recien puesta a cero deja la rama
+  - Un ctor que llama a `basic_string::clear()` sobre una cadena recien puesta a cero deja la rama
     larga muerta (`sth r4,0(r4); stw r4,8(r3); blr`) detras del `blr`: dtk la parte como funcion propia.
   - Una funcion miembro inline definida en la clase pone sus literales en `@STRING@` de `.data`; para que
     "vector length error" vaya al `@stringBase0` hay que sacarla fuera de la clase (y que sea pequena para
     que `-inline auto` la siga inlineando).
 - Pendientes: el `.sdata` 0x8087DB08-0x8087DB20 (6 `""`) deberia entrar en este split si se enlaza.
+
+## atn/DLMalloc_unk (commit 2867603)
+
+- Resultado: 12/12 al 100%, `matching: true`, `main.dol: OK`.
+- Es dlmalloc 2.8.3 tal cual (copia de libffi 3.0.13 sin sus cambios `FFI_MMAP_EXEC_WRIT`), con
+  `ONLY_MSPACES 1`, `HAVE_MMAP 0`, `USE_LOCKS 0` (de ahi `HAVE_MORECORE 0`, granularidad 64K, magic
+  0x58585858); las cabeceras del sistema se sustituyen por declaraciones. `abort` debe declararse
+  `__declspec(noreturn)` (si no, sobra un `b` tras la llamada y cambian los registros salvados).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - `symbols.txt`: nombres reales de dlmalloc: `internal_mallinfo`, `sys_alloc`, `sys_trim`,
+    `tmalloc_large`, `tmalloc_small`, `internal_memalign` (locales), `create_mspace_with_base`,
+    `destroy_mspace`, `mspace_malloc`, `mspace_free`, `mspace_memalign`, `mspace_mallinfo`; datos
+    `mparams` y `_gm_` (locales).
+  - `src/atn/DLAllocator.cpp`: los `extern "C"` `fn_8022AB18`/`ADB8`/`B848`/`B114`/`B84C` pasan a los nombres
+    reales (sigue 10/10).
+  - Nombre real propuesto: `malloc.c`/`dlmalloc.c` (el nombre "DLMalloc_unk" es inventado); en el juego es
+    C++ (o C con `extern "C"`), compilado con los flags del juego.
+- Hallazgos MWCC: ninguno nuevo (el `noreturn` de `abort` ya estaba en `std/msl_common.h`).
+- Pendientes: ninguno.
