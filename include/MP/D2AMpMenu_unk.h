@@ -15,6 +15,7 @@ namespace atn {
 // (atn/D2A_Task.h declares fn_801F3FF8 with another return type, as game/MenuCommonTask.cpp notes)
 class D2A_Task : public Task {
 public:
+    void SetParam2_unk(const char* name, const float* v);             // 0x801F48C8
     void SetColor_unk(const char* name, unsigned int color);          // 0x801F4998
     void SetColor_unk(const char* name, float r, float g, float b);   // 0x801F4AA0
     void SetText_unk(const char* name, int textId);                   // 0x801F4C14
