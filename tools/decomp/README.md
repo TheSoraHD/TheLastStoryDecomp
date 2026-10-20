@@ -17,6 +17,8 @@ Helper scripts used while decompiling. All of them work on the repo that contain
 | `datarefs.py <unit> [section]` | Per function, number of distinct data objects referenced (ours vs target). |
 | `pairnames.py <unit> [--data] [--apply]` | Rename target `fn_`/`lbl_` symbols in symbols.txt from our object (check pairings). |
 | `symmerge.py config/SLSP01/symbols.txt` | Resolve git conflict blocks in symbols.txt by address, preferring real names. |
+| `regress.py <report.json> <ref report.json>...` | Per-function comparison of two builds: functions at 100% in a reference that are not any more (integration check). |
+| `symresolve.py config/SLSP01/symbols.txt` | Resolve symbols.txt conflict blocks by address (real name over `fn_`/`lbl_`); fallback when `symmerge.py` finds nothing. |
 | `refmerge.py <other libs_ref.json>` | Add missing libs_ref.json entries from another copy. |
 
 `maps/map_<unit>.txt`: optional address -> mangled-name map used by `cmp.py` for calls whose target
