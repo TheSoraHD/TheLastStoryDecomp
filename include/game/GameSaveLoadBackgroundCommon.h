@@ -2,6 +2,9 @@
 #define GAME_GAMESAVELOADBACKGROUNDCOMMON_H
 
 #include "atn/Task.h"
+#include "atn/Memory.h"
+
+extern "C" void* memset(void* dst, int c, unsigned long n);
 
 // inferred: save/load manager (class unknown), global instance at 0x8087EF68
 struct SaveLoadMgr_unk {
@@ -57,6 +60,7 @@ public:
     virtual ~GameSaveLoadBackgroundCommon() {}
 
     void fn_803B8160(int slot); // inferred: writes an empty save file in `slot`
+    void AllocBuffer_unk(); // inferred: allocates the file buffer (inlined)
     void fn_803B8200(int arg); // inferred
     void fn_803B8270();        // inferred
     static void fn_803B83A4(char* name, int* out, int arg); // inferred: builds the save file name
@@ -66,7 +70,7 @@ public:
     char mName[0x100];  // 0x48: inferred: strcpy destination
     unsigned char m148;
     int m14C;
-    int m150;
+    unsigned char* m150; // inferred: file buffer (0x13560 bytes, new[])
     unsigned char m154; // inferred: active flag
 };
 
@@ -79,7 +83,6 @@ public:
     void fn_803B85EC();                         // inferred: reads every slot header synchronously
     void fn_803B8758(int slot);                 // inferred: starts reading `slot` (-1: all)
     int fn_803B87A8();                          // inferred: read state machine; 0 when done
-    int fn_803B8AC4();                          // inferred: nonzero if the home directory exists
     void fn_803B8B08(GameSaveSlot_unk* slots);  // inferred: draws the slot list
 
     int m48; // inferred: selected slot

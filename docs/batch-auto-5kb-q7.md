@@ -74,7 +74,7 @@ Fusionada en `game/FriendManager`.
   - `vf6C` construye la direccion con `mPos.y` y luego pone `y = 0` (unica forma encontrada de que los stores salgan z, x, y).
 - Hallazgos MWCC: una unidad enlazada que emite RTTI debiles (y sus cadenas) de clases cuya RTTI vive en otro fichero anterior enlaza bien (`main.dol: OK`): el enlazador las descarta.
 
-## game/GameSaveTask (commit HASH_GS)
+## game/GameSaveTask (commit 8b1b777)
 
 - Resultado: 7/7 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
@@ -84,3 +84,19 @@ Fusionada en `game/FriendManager`.
   - Declaracion local de `fn_800616C0` con el float `f6` despues del color (`..., text, color, f6, a, b, c)`): mismo ABI que las otras declaraciones, pero cambia el orden de evaluacion.
 - Hallazgos MWCC: el orden de los parametros float respecto a los enteros no cambia los registros (bancos separados) pero si el orden de evaluacion de argumentos: si un literal float se carga tras la union de un ternario del argumento entero anterior (sin `fmr` con otro 0.0f), declarar ese float despues del entero.
 - Hallazgos MWCC: `return f() == 0;` da `cntlzw`; con saltos (`li r3,1 / li r3,0`) es `if (f() == 0) return 1; return 0;`.
+
+## game/GameSaveLoadBackgroundCommon (commit HASH_GL)
+
+(Hecha antes de su turno en la cola porque comparte cabecera y simbolos con `game/GameSaveTask`.)
+
+- Resultado: 12/16 al 100%, `matching: false`.
+- NONMATCHING:
+  - `fn_803B8160__28GameSaveLoadBackgroundCommonFi` 14.9% - el original llama a `fn_803B83A4` fuera de linea; aqui se inlinea (en `fn_803B85EC`/`fn_803B87A8` el original tambien la inlinea). Probado: helper `static inline` + envoltorio, llamada a `fn_803B8200(1)`; el resto de la funcion es identico.
+  - `fn_803B85EC__18GameSaveLoadCommonFv` 97.5% - el original compara `NANDGetHomeDir` con `beq cuerpo; b salto` (arriba y en la copia inline de `fn_803B83A4`) en vez de `bne salto` (con un `switch` se consigue arriba, no se ha dejado), y `cmpw r3, offset` tras `NANDSeek`.
+  - `fn_803B87A8__18GameSaveLoadCommonFv` 99.9% - solo el nombre de la tabla de saltos (`jumptable_8078B568` frente a `@NNN`).
+  - `fn_803B8B08__18GameSaveLoadCommonFP16GameSaveSlot_unk` 99.9% - offsets en `@stringBase0`: el pool original tiene `""`, `"%s/save%02d.dat"`, `""`, `"%s/save_sys.dat"`, `""` entre `"%s/%s"` y sus cadenas (literales de funciones eliminadas por el enlazador; no reconstruidas para no inventar).
+- **Decisiones sin el usuario**
+  - `symbols.txt`: `lbl_8074FFB8` -> `@stringBase0` (0x68 -> 0x64), `lbl_8074FF88` -> `sEmpty_unk` (`scope:local`; objeto de 8 bytes a cero que el original pasa como nombre/fichero a `new[]`: se reproduce con `static const char sEmpty_unk[8] = ""`), `lbl_80885C90` (16.0f) 0x8 -> 0x4; `fn_803B8AC4` se queda con nombre C (`extern "C"`, la usa NewTitleTask). `lbl_80885C78`/`lbl_80885C7C` son `const char* const` a "savedata.dat"/"banner.bin" (mantienen el nombre).
+  - `include/game/GameSaveLoadBackgroundCommon.h`: `m150` pasa de `int` a `unsigned char*` (buffer de `new[]`), incluye `atn/Memory.h` y declara `memset` y el inline `AllocBuffer_unk`; `fn_803B8AC4` no es miembro.
+  - `src/auto_03_803B27AC_text.cpp` (GameLoadTask, sin configuracion, no se compila) declara en C `fn_803B82C0`, `fn_803B834C`, `fn_803BE8B4`, `fn_803B85EC`, `fn_803B8758`, `fn_803B87A8`, `fn_803B8B08`, `fn_803BEAB4`, `fn_803B8160`, que ahora tienen nombre C++: habra que actualizarlo cuando se decompile.
+- Hallazgos MWCC: un `char buf[8] = ""` estatico const va a `.rodata` (8 bytes) y se direcciona con `lis/addi`; un `const char* const p = ""` va a `.sdata2` (1 byte) y con `-sdata2 4` sale `li rX, sym@sda21`.

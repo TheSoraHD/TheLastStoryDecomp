@@ -1597,6 +1597,14 @@
   "matching": true
  },
  {
+  "name": "game/GameSaveLoadBackgroundCommon.cpp",
+  "classes": [
+   "GameSaveLoadBackgroundCommon",
+   "GameSaveLoadCommon"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/GameSaveBackground.cpp",
   "classes": [
    "GameSaveBackground"
