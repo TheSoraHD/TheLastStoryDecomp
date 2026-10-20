@@ -361,9 +361,11 @@ game/ChaseManager.cpp:
 
 game/ColliAttrManager.cpp:
 	.text       start:0x801839FC end:0x80184A64
-	.rodata     start:0x80738208 end:0x8073821C
+	.rodata     start:0x807381E8 end:0x80738230
 	.data       start:0x8077CC48 end:0x8077CC80
-	.sdata2     start:0x80881C94 end:0x80881CB8
+	.sdata      start:0x8087D9F8 end:0x8087DA00
+	.sbss       start:0x8087F0A0 end:0x8087F0A8
+	.sdata2     start:0x80881C88 end:0x80881CB8
 
 chr/ControlBreakOpen.cpp:
 	.text       start:0x80187D04 end:0x801880D0
