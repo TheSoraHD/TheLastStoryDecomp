@@ -23,6 +23,13 @@ public:
     virtual int vf58() { return m24; }
     // inferred: moves the cursor (toward `target` when it is not null); 0x801C3458
     void fn_801C3458(const CursorTarget_unk* target, float a, float b, float c);
+    // inferred: moves the cursor with the stick (m24 clear); 0x801C346C
+    void fn_801C346C(const CursorTarget_unk* target, float maxDist, float maxRadius, float turn);
+    // inferred: places the cursor where the camera of the field looks (m24 set); 0x801C3944
+    void fn_801C3944(const CursorTarget_unk* target, float a, float dist, float c);
+    // inferred: nonzero when nothing blocks the space above the character (ray test from +5 to +23);
+    // 0x801C3D1C, used by ControlCharge and ControlChant
+    int fn_801C3D1C();
 
     atn::Vector3 m08; // inferred: cursor position (starts at the character position)
     atn::Vector3 m14; // inferred: starts at the character position too

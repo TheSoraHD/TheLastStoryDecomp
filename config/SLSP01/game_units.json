@@ -804,6 +804,13 @@
   "matching": false
  },
  {
+  "name": "chr/ControlMoveCursor.cpp",
+  "classes": [
+   "chr::ControlMoveCursor"
+  ],
+  "matching": false
+ },
+ {
   "name": "chr/ControlOneMotion.cpp",
   "classes": [
    "chr::ControlOneMotionTransition",

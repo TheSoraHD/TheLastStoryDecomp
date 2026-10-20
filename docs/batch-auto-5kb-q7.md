@@ -101,7 +101,7 @@ Fusionada en `game/FriendManager`.
   - `src/auto_03_803B27AC_text.cpp` (GameLoadTask, sin configuracion, no se compila) declara en C `fn_803B82C0`, `fn_803B834C`, `fn_803BE8B4`, `fn_803B85EC`, `fn_803B8758`, `fn_803B87A8`, `fn_803B8B08`, `fn_803BEAB4`, `fn_803B8160`, que ahora tienen nombre C++: habra que actualizarlo cuando se decompile.
 - Hallazgos MWCC: un `char buf[8] = ""` estatico const va a `.rodata` (8 bytes) y se direcciona con `lis/addi`; un `const char* const p = ""` va a `.sdata2` (1 byte) y con `-sdata2 4` sale `li rX, sym@sda21`.
 
-## game/MenuCommon_unk (commit HASH_MC)
+## game/MenuCommon_unk (commit b52c507)
 
 - Resultado: 7/10 al 100%, `matching: false`.
 - NONMATCHING: `fn_80116FC0` 99.7% (y `fn_80116EB8`/`fn_801170C8`, que la inlinean, 99.7%) - en la busqueda de la tabla de mensajes (`lbl_8087F1E4`, entradas de 8 bytes) el original deja la tabla en r0 y el indice en r3 (`add r3, r0, r3`); aqui salen al reves (5 variantes probadas).
@@ -112,3 +112,19 @@ Fusionada en `game/FriendManager`.
   - Tablas como `const char* const[]`/`const int[]`: sus cadenas salen como objetos sueltos alineados a 8 en `.rodata` (igual que el original). `fn_80117228` devuelve `atn::SoundRef` por valor (como la declaran `include/MP/D2AMpMenu_unk.h`).
 - Hallazgos MWCC: un bucle de 4 iteraciones con `return` se desenrolla (2x2) solo si esta escrito en la propia funcion o en una inline; si la inline devuelve el resultado y el llamador hace `if (inline()) return x;`, MWCC materializa el bool (`li r0,1; b; li r0,0; cmpwi`).
 - Hallazgos MWCC: un `std::wstring` estatico con `= L""` y un `const wchar_t* const p = L""` dejan `L""` en `.sdata` (`@wstringBase0`) y en `.sdata2` respectivamente.
+
+## chr/ControlMoveCursor (commit HASH_CM)
+
+- Resultado: 3/6 al 100%, `matching: false`.
+- NONMATCHING:
+  - `fn_801C346C` 97.6% - el original no llama a ningun constructor para los dos `atn::Matrix3x4` locales (no existe `__ct__Q23atn9Matrix3x4Fv` debil en el juego: su constructor por defecto era trivial); aqui se llama al `Matrix3x4() {}` de `include/math/Vec.h` (la funcion supera el presupuesto de inline). No se toca la cabecera compartida.
+  - `fn_801C3944` 96.6% - orden de los stores del punto final del rayo alrededor del ctor de `CollResult_unk`.
+  - `fn_801C3D1C` 89.3% - planificacion (el original carga `mChara` antes de las constantes).
+- **Decisiones sin el usuario**
+  - `symbols.txt`: `fn_801C346C`/`fn_801C3944` -> `...__Q23chr17ControlMoveCursorFPCQ23chr16CursorTarget_unkfff` (los llama `fn_801C3458` con los mismos argumentos), `fn_801C3D1C` -> `fn_801C3D1C__Q23chr17ControlMoveCursorFv` (metodo; lo llaman ControlCharge/ControlChant con `this`).
+  - `include/chr/ControlMoveCursor.h`: declarados `fn_801C346C`, `fn_801C3944`, `fn_801C3D1C`.
+  - Los getters minusculos que el original llama fuera de linea (`fn_801156BC` pad, `fn_8008B964` camara, `fn_800F7258`, `fn_80116E6C`, `fn_801C1060` cos, `fn_801A03E8` producto escalar, `fn_801C3910` longitud XZ, `fn_801C0738` setter de `mRot`) se declaran `extern "C" inline` (son copias debiles); `fn_801C3910` es la copia debil emitida aqui tras su primer uso.
+  - Tipos locales: `CursorField_unk` (`lbl_8087F430`, estado 0x868/0x86C y dos `CursorView_unk` en 0x74 y 0x268 con `GetDir_unk()` inline, deducido del orden de los temporales), `CollResult_unk` (copiado de gmk/MotionObject.cpp, con `fn_8004ED34` tomando `from`/`to` por referencia).
+- Hallazgos MWCC: `if (a != 4 || a != b) { return; }` genera `bne fin; cmpw; beq cuerpo; b fin` (el patron `beq/b` que no salia con `if` anidados ni con `&&`).
+- Hallazgos MWCC: un `if (x) A(); else B();` con `A`/`B` metodos no inline de la misma clase definidos despues: MWCC autoinlinea la llamada si la funcion tiene <= ~13 sentencias, aunque genere mucho codigo (`fn_801C3944`); para que el original la llame hace falta que tenga mas sentencias.
+- Hallazgos MWCC: los temporales de una inline anidada (p. ej. `a - b` dentro de `GetDir_unk()`) van por debajo de los temporales del cuerpo en la pila.
