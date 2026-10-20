@@ -1337,8 +1337,8 @@ gmk/Coffin.cpp:
 	.sdata2     start:0x808863E0 end:0x80886410
 
 gmk/MotionObject.cpp:
-	.text       start:0x80412B80 end:0x80414AC4
-	.rodata     start:0x80752DA0 end:0x80752DB4
+	.text       start:0x80412AFC end:0x80414AC4
+	.rodata     start:0x80752D90 end:0x80752E58
 	.data       start:0x8078D8B0 end:0x8078D948
 	.sdata2     start:0x80886410 end:0x80886430
 
