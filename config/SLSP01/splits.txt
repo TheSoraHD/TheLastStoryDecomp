@@ -553,8 +553,8 @@ chr/ControlSitting.cpp:
 
 chr/ControlWallUp.cpp:
 	.text       start:0x801C9F6C end:0x801CC0AC
-	.rodata     start:0x8073BBD4 end:0x8073BC18
-	.data       start:0x80782310 end:0x80782480
+	.rodata     start:0x8073B9A8 end:0x8073BC20
+	.data       start:0x807822D0 end:0x807824D8
 	.sdata2     start:0x80882920 end:0x80882998
 
 game/CopyRobotTask.cpp:

@@ -15,6 +15,7 @@
 #include "std/vector.h"
 #include "math/Vec.h"
 #include <boost/scoped_ptr.hpp>
+#include <boost/function.hpp>
 
 class EquipItemData;
 namespace atn {
@@ -378,7 +379,9 @@ public:
     virtual void vfA8();
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
     virtual void vfB0();
-    virtual void vfB4();
+    // inferred: action to run for `chara` (empty in CharaTask: weak copy 0x800EF310; called by
+    // chr::ControlWallUp::vf10)
+    virtual boost::function<void()> vfB4(CharaTask* chara);
     virtual int vfB8(wchar_t* name); // inferred: copies the character name
     virtual void vfBC();
     virtual void vfC0();
