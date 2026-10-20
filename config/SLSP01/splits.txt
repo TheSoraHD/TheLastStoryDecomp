@@ -1270,8 +1270,8 @@ gmk/Item.cpp:
 
 gmk/MeetingSpot.cpp:
 	.text       start:0x803FC8D8 end:0x803FDFC0
-	.rodata     start:0x807525C0 end:0x807525D4
-	.data       start:0x8078CFE8 end:0x8078D080
+	.rodata     start:0x807525B8 end:0x807525D8
+	.data       start:0x8078CFC0 end:0x8078D080
 	.sdata2     start:0x80886090 end:0x808860C0
 
 gmk/SwingObject.cpp:
@@ -1294,10 +1294,11 @@ gmk/Bat.cpp:
 	.sdata2     start:0x80886198 end:0x808861F0
 
 gmk/PigeonManager.cpp:
-	.text       start:0x804048CC end:0x80406754
-	.rodata     start:0x80752898 end:0x807528AC
+	.text       start:0x804047A4 end:0x80406754
+	.rodata     start:0x80752858 end:0x807528C0
 	.data       start:0x8078D290 end:0x8078D328
-	.sdata2     start:0x808861F8 end:0x80886258
+	.sdata      start:0x8087DF70 end:0x8087DF78
+	.sdata2     start:0x808861F0 end:0x80886258
 
 gmk/Brazier.cpp:
 	.text       start:0x80406754 end:0x80408324
@@ -1306,10 +1307,11 @@ gmk/Brazier.cpp:
 	.sdata2     start:0x80886258 end:0x80886288
 
 gmk/ChickenManager.cpp:
-	.text       start:0x8040B668 end:0x8040DC30
-	.rodata     start:0x80752AE8 end:0x80752AFC
+	.text       start:0x8040B560 end:0x8040DC30
+	.rodata     start:0x80752AA8 end:0x80752B10
 	.data       start:0x8078D500 end:0x8078D598
-	.sdata2     start:0x8088631C end:0x80886388
+	.sdata      start:0x8087DF78 end:0x8087DF80
+	.sdata2     start:0x80886318 end:0x80886388
 
 gmk/TreasureBox.cpp:
 	.text       start:0x8040DC30 end:0x8040EC30
@@ -1381,10 +1383,10 @@ gmk/Ocean.cpp:
 	.sdata2     start:0x808864B8 end:0x808864F8
 
 gmk/WaitObject.cpp:
-	.text       start:0x80419010 end:0x8041B284
-	.rodata     start:0x80753040 end:0x80753050
-	.data       start:0x8078DC88 end:0x8078DD20
-	.sdata2     start:0x80886500 end:0x80886528
+	.text       start:0x80418EAC end:0x8041B970
+	.rodata     start:0x80753038 end:0x80753110
+	.data       start:0x8078DC40 end:0x8078DD20
+	.sdata2     start:0x808864F8 end:0x80886528
 
 gmk/BulletPoint.cpp:
 	.text       start:0x8041B970 end:0x8041C09C
@@ -1457,8 +1459,9 @@ gmk/DoorSeal.cpp:
 gmk/RotaryRoom.cpp:
 	.text       start:0x80423F64 end:0x80426108
 	.ctors      start:0x8072D36C end:0x8072D370
-	.rodata     start:0x80753620 end:0x80753630
+	.rodata     start:0x80753498 end:0x80753670
 	.data       start:0x8078E3D8 end:0x8078E470
+	.bss        start:0x807C88F8 end:0x807C8A28
 	.sdata2     start:0x80886668 end:0x808866A0
 
 gmk/SparkCube.cpp:
@@ -1481,9 +1484,11 @@ gmk/InteractionSpot.cpp:
 	.sdata2     start:0x80886700 end:0x80886720
 
 gmk/MapLift.cpp:
-	.text       start:0x804296DC end:0x8042AB58
-	.rodata     start:0x80753758 end:0x80753768
+	.text       start:0x80429668 end:0x8042AFE4
+	.rodata     start:0x80753758 end:0x80753800
 	.data       start:0x8078E640 end:0x8078E6D8
+	.sdata      start:0x8087DFB0 end:0x8087DFB8
+	.sdata2     start:0x80886720 end:0x80886728
 
 gmk/RainDrops.cpp:
 	.text       start:0x8042AFE4 end:0x8042B56C
@@ -1565,14 +1570,14 @@ gmk/LottaSummon.cpp:
 	.sdata2     start:0x80886958 end:0x80886990
 
 gmk/Chain.cpp:
-	.text       start:0x8043B7E8 end:0x8043D594
-	.rodata     start:0x80754364 end:0x80754370
-	.data       start:0x8078F0C0 end:0x8078F158
+	.text       start:0x8043B778 end:0x8043D594
+	.rodata     start:0x807542E8 end:0x807543A0
+	.data       start:0x8078F0A0 end:0x8078F178
 	.sdata2     start:0x80886990 end:0x808869C8
 
 gmk/CharaPathMove.cpp:
 	.text       start:0x8043D594 end:0x8043F028
-	.rodata     start:0x807543A8 end:0x807543BC
+	.rodata     start:0x807543A0 end:0x80754498
 	.data       start:0x8078F178 end:0x8078F210
 	.sdata2     start:0x808869C8 end:0x80886A10
 
