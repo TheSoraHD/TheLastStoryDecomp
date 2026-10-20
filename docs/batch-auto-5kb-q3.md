@@ -113,3 +113,30 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - `float x = __fabs((double)expr)` da `fabs` + `frsp` antes de `fctiwz` (con `__fabs(float)` no sale `frsp`).
   - Un helper inline de pocas sentencias dentro de una funcion pequena la hace autoinlinable en sus llamadoras;
     escribir el bucle directamente (sin helper) la dejo fuera de linea sin necesitar `((void)0)`.
+
+## atn/Util_unk (commit HASH5)
+
+- Resultado: 6/12 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING:
+  - `fn_800DC12C` 97.73%, `fn_800DC1DC` 90.81%, `fn_800DC288` 94.56%, `fn_800DC3CC` 94.87% (atoi/atof char y
+    anchas): el original empieza con un `b` a la instruccion siguiente (bloque de entrada vacio) que no he
+    reproducido (etiquetas, bucles, do/while, helpers inline...); ademas en atof el cuerpo vuelve a comparar
+    '.' (el original salta desde la condicion del bucle a cada caso) y en la ancha de atoi el bucle usa otro
+    registro puntero.
+  - `fn_800DC500` 81.56% y `fn_800DC6B4` 82.78% (CRC-32 por tabla): reparto de registros y planificacion del
+    bucle desenrollado (el original guarda el CRC en r0).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - `symbols.txt`: `lbl_807348A0` pasa de `size:0x460` a `size:0x400` (la tabla CRC) y se ANADE
+    `@stringBase0 = .rodata:0x80734CA0` (0x59, los mensajes de `basic_string` del pool del fichero: el fichero
+    incluye `std/string_members.h`). `lbl_80734870` (seis doubles en un objeto de 0x30) se deja como esta.
+  - Contenido: atoi/atof (char con punteros, anchas con indice; la prueba de digito ancha sale como
+    `c + (wchar_t)-L'0'`, `addis`+`subi`), envoltorios de `wcstok` (`fn_80686B90`), `fn_8068B1A4` y `itoa`
+    (`fn_8068B29C`), CRC-32 (tabla y bit a bit, polinomio 0x04C11DB7), `fn_800DC980` = printf a `std::string`
+    (`vsprintf` a un bufer de 0x200) y `boost::throw_exception` vacio (BOOST_NO_EXCEPTIONS). Nombres `extern "C"`
+    sin cambiar (los llaman asi LibraryTask, D2A..., FileList).
+  - Nombre real propuesto: desconocido (`atn_util.cpp`?).
+- Hallazgos MWCC
+  - `x ^ 0xFFFFFFFF` da `li r0,-1; xor`; `~x` da `not`.
+  - El mismo cuerpo escrito como funcion normal o como inline llamada desde un envoltorio `extern "C"` asigna
+    los FPR en orden distinto (atof: solo la version inline casa los registros de `value`/`scale`).
