@@ -270,7 +270,7 @@ funciones `extern "C" fn_<addr>`.
   - Asignaciones en el cuerpo del ctor (no lista de inicializacion) para reproducir un orden de stores que no sigue la
     declaracion de los miembros.
 
-## db/MapEnvSeTable_unk (commit HASH)
+## db/MapEnvSeTable_unk (commit 2dedd1a)
 - Resultado: 10/11 al 100%, matching no.
 - NONMATCHING: `fn_80214F80` (sonido de un mapa por clave) 97.71% - solo asignacion de registros volatiles (el original
   da r7/r8 al bucle interno y r9-r12 al externo); probadas formas indice/puntero de ambos bucles y `while`.
@@ -290,3 +290,26 @@ funciones `extern "C" fn_<addr>`.
     break; ... }` (con `while (*(f = ...))` MWCC lo rota).
   - Contador reutilizado como indice de la segunda pasada (mismo registro en el original): una sola variable; si ademas
     el `li` va antes de la llamada previa, desplazamiento en bytes.
+
+## db/MapIdTable_unk (commit HASH)
+- Resultado: 5/7 al 100%, matching no.
+- NONMATCHING:
+  - `fn_80216CD0` (cargador de las 3 tablas de mapas) 98.23% - el original guarda la direccion del `atn::CsvU` en un
+    registro salvado durante su ctor inline (mismo problema que TutorialTable/PaletteTable), y se desplazan los demas.
+  - `fn_802174F4` (`/boot/map_chara_list.csv`) 97.22% - solo numeracion de registros salvados; probado el orden de
+    los locales de la busqueda inline.
+- **Decisiones sin el usuario**
+  - Splits sin cambios. **Propuesta**: las dos primeras funciones (0x80216A2C, 0x80216A94: destructores
+    `{size, cap, T* data}` con `delete[]`) van detras del `__sinit` de `db/MapLink_unk` (que las registra para sus
+    listas globales): son copias debiles de `atn::Vector_unk<T>::~Vector_unk` de ese fichero. Mover el limite
+    MapLink/MapIdTable a 0x80216AFC toca una unidad ajena: pendiente. Se escriben aqui como clases no plantilla
+    `MapLinkListA_unk`/`MapLinkListB_unk` (como `SpTextBuffer_unk`).
+  - `symbols.txt`: `fn_80216A2C`/`fn_80216A94` -> `__dt__16MapLinkListA_unkFv`/`__dt__16MapLinkListB_unkFv`,
+    `fn_802174E8` -> `__ct__9MapId_unkFv`; datos `sFileNameStr`, `sMotionFileNameStr`, `sCharaFileNameStr`,
+    `sSubIdFileNameStr`, `@stringBase0` (0x8073FBF0: "wd", "tw", "dg", "mp", ""), `@wstringBase0` (0x8087DB90, `.sdata`,
+    L""), `sEntries`, `sCount`, `sMembers`, `sTexts` y los 4 punteros de `.sdata2` (renombrados a mano: `pairnames --data`
+    emparejaba mal por las funciones no al 100%).
+  - Tipo inferido `MapId_unk` (0xCC: id de texto, nombre UTF-16, tipo/mapa/punto del id, textos, 16 enteros, bits de
+    personajes de `/boot/map_motion_table.csv`, lista de miembros de `/boot/map_chara_list.csv`, datos de
+    `/boot/map_sub_id_table.csv`). `fn_802174F4` sale sin liberar el fichero si un id no existe (como el original).
+- Hallazgos MWCC: nada nuevo.
