@@ -3,6 +3,20 @@
 Cola (de menor a mayor direccion): `db/WeaponParam_unk`, `db/OptionParts_unk`, `db/ItemParam_unk`, `db/MapLink_unk`,
 `db/SpText_unk`.
 
+## Resumen
+
+| Unidad | 100% | matching |
+|---|---|---|
+| db/WeaponParam_unk | 14/16 | no |
+| db/OptionParts_unk | 12/16 | no |
+| db/ItemParam_unk | 12/17 | no |
+| db/MapLink_unk | 13/17 | no |
+| db/SpText_unk | 4/10 | no |
+
+Total 55/76 funciones al 100%. Build final `main.dol: OK`, `regress.py` contra `base_qD.json` lost: 0. Ningun limite
+de split cambiado. Cabeceras nuevas `include/db/WeaponParam_unk.h` y `include/db/EquipParam_unk.h` (tocando
+`src/db/EquipParam_unk.cpp` para usarla).
+
 Patron comun: como las colas q5/q6 del lote anterior (`docs/batch-auto-5kb-q5.md`, `-q6.md`): cargador de un CSV con
 `atn::Csv` en pila + accesores `extern "C" fn_<addr>`.
 
