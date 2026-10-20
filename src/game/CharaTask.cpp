@@ -32,9 +32,11 @@
 #include "chr/ControlTurnQuadruped.h"
 #include "chr/ControlSitting.h"
 #include "chr/ControlDraggingStart.h"
+#include "chr/ControlDropDown.h"
 #include "game/HitInfo_unk.h"
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
+#include "game/ColliAttrManager.h"
 #include "game/CharaStatus.h"
 #include "game/MapManager.h"
 #include "game/GimmickCommon.h"
@@ -5946,9 +5948,6 @@ extern "C" void fn_80107BE8(Effect_unk* effect, CharaTask* chara, chr::Motion_un
 extern "C" void fn_800FC410(Effect_unk* effect, CharaTask* chara, CharaTask* target, int arg, HitInfo_unk* hit, int id,
                             int frames);
 extern "C" bool fn_80051A88(const Model_unk::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
-extern "C" void* lbl_8087F0A0; // inferred: manager of the characters' emotes (fn_801847C0, fn_801840D8)
-extern "C" void fn_801847C0(void* mgr, CharaTask* chara);
-extern "C" void* fn_801840D8(void* mgr, int id, int arg);
 extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: stops the effects of `owner`
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpHandle_unk)
 extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
@@ -6144,13 +6143,13 @@ void CharaTask::fn_8014C540() {
     if (mFlagB7 && (mType == 0 || mType == 3)) {
         if (--m1398 <= 0) {
             m1398 = rand() % 60 + 60;
-            if (lbl_8087F0A0 != 0) {
-                fn_801847C0(lbl_8087F0A0, this);
+            if (ColliAttrManager::sInstance != 0) {
+                ColliAttrManager::sInstance->fn_801847C0(this);
             }
         }
     }
     int emote = 0;
-    if (lbl_8087F0A0 != 0 && (unsigned int)(m634 - 28) <= 1 && ((unsigned int)mStatus.mParamB.m9C & 0x200) != 0x200) {
+    if (ColliAttrManager::sInstance != 0 && (unsigned int)(m634 - 28) <= 1 && ((unsigned int)mStatus.mParamB.m9C & 0x200) != 0x200) {
         emote = 1;
     }
     if (mStatus.IsState_unk(0x20)) {
@@ -6172,7 +6171,7 @@ void CharaTask::fn_8014C540() {
         color[1] = info->mColor[1];
         color[2] = info->mColor[2];
         color[3] = info->mColor[3];
-        void* res = fn_801840D8(lbl_8087F0A0, m634, 0);
+        void* res = ColliAttrManager::sInstance->fn_801840D8(m634, 0);
         if (res != 0) {
             fn_80232B7C(&mF20, 0);
             fn_8023A680(lbl_8087F3C0, res, -1, 5, &mF20, 0, 0, color, 1.0f, 0, -1, 1);
@@ -9589,12 +9588,6 @@ void CharaTask::vf88() {
 namespace chr {
 // inferred: controls created by CharaTask 0x8016939C-0x8016AFE8; class names from the vtables stored by
 // the constructors, sizes from the operator new calls
-class ControlDropDown : public ControlBase {
-public:
-    ControlDropDown(Chara_unk* chara, const atn::Vector3& v); // 0x801B2EDC
-    virtual int vf0C();
-    unsigned char m08[0x34 - 0x08];
-};
 // inferred: chr/ControlDive.cpp
 class ControlSwapPos : public ControlBase {
 public:

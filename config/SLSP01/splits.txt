@@ -369,9 +369,11 @@ game/ChaseManager.cpp:
 
 game/ColliAttrManager.cpp:
 	.text       start:0x801839FC end:0x80184A64
-	.rodata     start:0x80738208 end:0x8073821C
+	.rodata     start:0x807381E8 end:0x80738230
 	.data       start:0x8077CC48 end:0x8077CC80
-	.sdata2     start:0x80881C94 end:0x80881CB8
+	.sdata      start:0x8087D9F8 end:0x8087DA00
+	.sbss       start:0x8087F0A0 end:0x8087F0A8
+	.sdata2     start:0x80881C88 end:0x80881CB8
 
 chr/ControlBreakOpen.cpp:
 	.text       start:0x80187D04 end:0x801880D0
@@ -453,7 +455,7 @@ chr/ControlDraggingStart.cpp:
 
 chr/ControlDropDown.cpp:
 	.text       start:0x801B2EDC end:0x801B409C
-	.rodata     start:0x8073AD38 end:0x8073AD70
+	.rodata     start:0x8073AD30 end:0x8073AD70
 	.data       start:0x80780818 end:0x80780910
 	.sdata2     start:0x80882420 end:0x80882480
 
@@ -743,10 +745,10 @@ game/Em001Necromancer.cpp:
 	.sdata2     start:0x80883180 end:0x808831D8
 
 game/Em002_01BlackSkelton.cpp:
-	.text       start:0x802476D0 end:0x80247FB0
-	.rodata     start:0x80743480 end:0x80743498
-	.data       start:0x80783E48 end:0x80783F78
-	.sdata2     start:0x808831DC end:0x808831E4
+	.text       start:0x802476D0 end:0x80248E88
+	.rodata     start:0x807433F0 end:0x807434C8
+	.data       start:0x80783E38 end:0x80783F78
+	.sdata2     start:0x808831D8 end:0x80883218
 
 game/Em002_02SkeltonKing.cpp:
 	.text       start:0x80248E88 end:0x8024A004
@@ -773,9 +775,9 @@ game/Em005DoppelGanger.cpp:
 	.sdata2     start:0x80883338 end:0x8088339C
 
 game/Em006DarkMaster.cpp:
-	.text       start:0x8025457C end:0x8025589C
-	.rodata     start:0x80743C70 end:0x80743C80
-	.data       start:0x807844E8 end:0x80784640
+	.text       start:0x8025457C end:0x802558B0
+	.rodata     start:0x80743C70 end:0x80743CF0
+	.data       start:0x807844E8 end:0x80784678
 	.sdata2     start:0x808833B0 end:0x808833E0
 
 game/Em101ElderZesya.cpp:
@@ -1574,7 +1576,7 @@ RecycleBuffer_gmk/ItemSlotAnime.cpp:
 
 game/LastCocoonChrysalis.cpp:
 	.text       start:0x80452710 end:0x80452F14
-	.rodata     start:0x807548E8 end:0x807548FC
+	.rodata     start:0x807548E8 end:0x807549B0
 	.data       start:0x8078F500 end:0x8078F630
 	.sdata2     start:0x80886B68 end:0x80886B78
 
