@@ -2063,9 +2063,9 @@ game/ShopUpGrade.cpp:
 
 game/SkillEffectManager.cpp:
 	.text       start:0x8059AB98 end:0x8059C084
-	.rodata     start:0x80762260 end:0x80762274
+	.rodata     start:0x80762128 end:0x807622E0
 	.data       start:0x80796B28 end:0x80796B60
-	.sdata2     start:0x808881C0 end:0x808881F8
+	.sdata2     start:0x808881C0 end:0x808881FC
 
 nw4r/DvdSoundArchive.cpp:
 	.text       start:0x8059D7D8 end:0x8059E21C
