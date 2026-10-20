@@ -1598,13 +1598,13 @@ game/LastCocoonQuadruped.cpp:
 	.text       start:0x8045FAB0 end:0x80468F48
 	.rodata     start:0x80755174 end:0x80755188
 	.data       start:0x8078F980 end:0x8078FAB0
-	.sdata2     start:0x80886D60 end:0x80886E84
+	.sdata2     start:0x80886D60 end:0x80886E88
 
 game/LibraryTask.cpp:
-	.text       start:0x80468FBC end:0x8046ACDC
-	.rodata     start:0x8075537C end:0x80755394
-	.data       start:0x8078FAB0 end:0x8078FB30
-	.sdata2     start:0x80886E90 end:0x80886EBC
+	.text       start:0x80468F54 end:0x8046BBB0
+	.rodata     start:0x807552E0 end:0x80755608
+	.data       start:0x8078FAB0 end:0x8078FB50
+	.sdata2     start:0x80886E88 end:0x80886EC0
 
 atn/LH_ColliObject.cpp:
 	.text       start:0x80472344 end:0x80472C90
