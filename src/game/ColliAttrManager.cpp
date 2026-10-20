@@ -225,7 +225,6 @@ inline void ColliAttrManager::PlayEffect_unk(ResLoader_unk* res, const atn::Vect
     fn_8023A680(lbl_8087F3C0, res, -1, 0, 0, pos, rot, color, 1.0f, 0, -1, 1);
 }
 
-// NONMATCHING: 99.9% - the copy of the sum into `pos` uses r4/r5 the other way round
 void ColliAttrManager::fn_80184188(int index, CharaTask* chara, int useNode, int node, const atn::Vector3* ofs) {
     atn::Vector3 pos;
     atn::Vector3 rot = chara->mRot;
@@ -240,9 +239,10 @@ void ColliAttrManager::fn_80184188(int index, CharaTask* chara, int useNode, int
     CollResult_unk result;
     int attr = fn_80184864(&result, chara, useNode, node);
     if (attr >= 0 && (unsigned int)(attr - 0x1C) > 1) {
-        pos = result.mPos + *ofs;
+        // inferred: through the reference returned by operator= (a plain assignment swaps r4/r5 of the copy)
+        atn::Vector3& p = (pos = result.mPos + *ofs);
         if ((unsigned int)(attr - 0x14) <= 1) {
-            pos.y = -chara->GetLens_unk()->m160 * chara->GetLens_unk()->m158 + 0.01f;
+            p.y = -chara->GetLens_unk()->m160 * chara->GetLens_unk()->m158 + 0.01f;
         }
         if (attr == 0x1F) {
             pos.y += 1.0f;
