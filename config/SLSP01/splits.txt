@@ -1835,9 +1835,10 @@ MP/D2AMpMenuSetMessage.cpp:
 	.sdata2     start:0x808874E4 end:0x80887548
 
 MP/D2AMpMenuSetRule.cpp:
-	.text       start:0x804CD9E4 end:0x804CF190
-	.rodata     start:0x807595F8 end:0x80759610
-	.data       start:0x80790F30 end:0x80790F70
+	.text       start:0x804CD97C end:0x804CF190
+	.rodata     start:0x807595E0 end:0x807596F0
+	.data       start:0x80790F30 end:0x80790F78
+	.sbss       start:0x8087F5F0 end:0x8087F5F8
 	.sdata2     start:0x80887548 end:0x80887570
 
 atn/PacketPack.cpp:
