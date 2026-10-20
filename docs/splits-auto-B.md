@@ -168,3 +168,18 @@ Resultado: ~50 unidades ampliadas (sobre todo `.rodata`/`.data` de enemigos `gam
 ### Hallazgos
 - dtk falla con ciclo de orden de enlace si una seccion de datos de una unidad queda antes que la de otra unidad anterior en `.text`; el `.bss`/`.sbss` de muchos ficheros `chr/Control*` esta intercalado (statics de plantillas `assign_to` de boost), por eso muchos `.bss`/`.sbss` quedan en `auto_`.
 - Un hueco `auto_` de <= 8 bytes entre dos unidades con un objeto referenciado (guards `@GUARD@`, un puntero de `.sbss`) acaba en `undefined` al enlazar; los de solo relleno no molestan.
+
+## Resumen final
+
+- `.text` `auto_` en el rango 0x800F7250-0x8033C3D8 (autoscan): antes 0x8EFB4 bytes (585652, 77 tramos), despues 0x180 bytes (384, 1 tramo: 0x801E9218-0x801E9398, sin pruebas).
+- Build limpio: `main.dol: OK`; `regress.py` -> `lost: 0` (4757 funciones al 100%, igual que la referencia).
+
+### Decisiones a revisar (resumen)
+1. `game/BattleTask.cpp` (sin fuente) cubre 0x800F1430-0x8010D98C (~0x1D55C): ninguna prueba de corte interna.
+2. `game/CosEditItemList_unk.cpp` 0x801D80A0-0x801E7FF8 (~0xFF58) sin cortes internos.
+3. EffectManager: el fichero real parece ser `atn/EffectManager` + `std/char_traits_char_8023C080` + `atn/EffectManager_cont` (0x80239798-0x80243758); no fusionado (unidad std existente en game_units.json).
+4. `atn/CsvBase_char_124_13_34.cpp` queda en 0x802078C4-0x80207CC0 (el plan decia que empezaba en 0x80204958; las pruebas dan 6 ficheros).
+5. Nombres inventados: todos los `*_unk.cpp` nuevos (39 `db/`, CosEdit*, Effect*, D2A*, Event/DebugInfo, GameConfig, MenuCommon, CharaC58, MotionCommand, PlayerInput, DLMalloc). `atn/D2A_ParamTable_unk` y `atn/D2Anime_unk` por orden alfabetico.
+6. Borrados los bloques explicitos `auto_fn_801F1EA0_text.cpp` y `auto_fn_8030DA1C_text.cpp` (absorbidos).
+7. `.rodata` de `game/MotionCommand_unk.cpp` empieza en 0x807370B4 (relleno; WARN de alineacion).
+8. `0x8025FE30` -> Em101LittleZesya (decision debil).
