@@ -1654,8 +1654,10 @@ atn/LH_Xsca.cpp:
 game/LogMessageTask.cpp:
 	.text       start:0x80478714 end:0x80479998
 	.ctors      start:0x8072D37C end:0x8072D380
-	.rodata     start:0x807560F8 end:0x80756108
+	.rodata     start:0x807560D8 end:0x80756168
 	.data       start:0x80790028 end:0x80790060
+	.bss        start:0x807C8A68 end:0x807C8A98
+	.sbss       start:0x8087F528 end:0x8087F530
 	.sdata2     start:0x80886F10 end:0x80886F70
 
 Event/Manager.cpp:
