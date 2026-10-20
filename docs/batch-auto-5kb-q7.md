@@ -128,3 +128,16 @@ Fusionada en `game/FriendManager`.
 - Hallazgos MWCC: `if (a != 4 || a != b) { return; }` genera `bne fin; cmpw; beq cuerpo; b fin` (el patron `beq/b` que no salia con `if` anidados ni con `&&`).
 - Hallazgos MWCC: un `if (x) A(); else B();` con `A`/`B` metodos no inline de la misma clase definidos despues: MWCC autoinlinea la llamada si la funcion tiene <= ~13 sentencias, aunque genere mucho codigo (`fn_801C3944`); para que el original la llame hace falta que tenga mas sentencias.
 - Hallazgos MWCC: los temporales de una inline anidada (p. ej. `a - b` dentro de `GetDir_unk()`) van por debajo de los temporales del cuerpo en la pila.
+
+## game/U16Table_unk (commit HASH_UT)
+
+- Resultado: 2/5 al 100%, `matching: false`.
+- NONMATCHING:
+  - `fn_803CCF68` 89.6% y `fn_803CD598` 88.5% - `std::vector::push_back` inlineado: el original carga el tamano antes que la capacidad (problema abierto de `include/std/vector.h`) y difiere el reparto de registros salvados.
+  - `fn_803CD958` 98.0% - reparto de registros (mRuns en r6 y los datos en r5 en el original); 4 variantes probadas.
+- **Decisiones sin el usuario**
+  - Tipos inferidos (locales): `U16Table_unk` (cuenta, numero de tramos, puntero), `U16Run_unk` (POD, lo que guarda la tabla: `new[]` sin cookie) y `U16RunPair_unk` (el mismo par con constructor, el elemento del `std::vector` temporal). Especializaciones locales `std::__vec_imp_unk<U16RunPair_unk>` (insercion rapida como la de `int`) y `std::__vec_split_unk<U16RunPair_unk>` (insercion por asignacion, traslado con `new` de copia) en el .cpp.
+  - Funciones `extern "C"` con los nombres de symbols.txt (las declaran asi ChaserNpc, CrowdSimulation, Augur y MeetingSpot).
+  - `symbols.txt`: `lbl_80750518` -> `@stringBase0` (0x14 -> 0x15, "vector length error" + ""), `lbl_8078BCB8` -> `@STRING@__allocate__Q23std24vector<14U16RunPair_unk>FUi` ("Memory allocation failure", literal de la inline `__allocate`; el nombre lleva el tipo inventado).
+- Hallazgos MWCC: `delete[]` de un tipo con constructor (aunque sea POD de facto) mete la cookie de 16 bytes y la comprobacion de nulo; `new[]` sin `__construct_new_array` ni cookie y `__dla` directo = tipo sin constructores.
+- Hallazgos MWCC: `while (*(p = f()) != 0)` sale rotado (salto al test del final); `for (;;) { p = f(); if (*p == 0) break; ... }` deja el test arriba como el original.

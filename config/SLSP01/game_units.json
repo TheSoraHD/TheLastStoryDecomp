@@ -1640,6 +1640,11 @@
   "matching": false
  },
  {
+  "name": "game/U16Table_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/GameSoundControl.cpp",
   "classes": [
    "GameSoundControl"
