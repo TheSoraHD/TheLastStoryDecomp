@@ -79,3 +79,19 @@
 ### Decisiones sin el usuario (grupo 5)
 - Nombres inventados game/HomeButton_unk.cpp y game/ItemManager_unk.cpp (familia `game/` supuesta).
 - El tramo ItemManager_unk (~42 KB) se deja entero: no hay constantes duplicadas dentro.
+
+## Grupo 6: cargador atn (0x8046BBB0-0x80478714) (verificado: main.dol OK, lost: 0)
+- `atn/LoadManager_unk.cpp` (nuevo, nombre INVENTADO a partir de los simbolos fn_..__Q23atn15LoadManager_unk ya existentes): 0x8046BBB0-0x8046CBB0. Su pool ".pk" (0x80755608) y su "Memory allocation failure" (.data 0x8078FB50) estan justo antes del nombre RTTI/vtable de atn::Loader (cada fichero pone su pool al final de su .rodata) -> fichero anterior a Loader. sbss 0x8087F510.
+- `atn/Loader.cpp` (nuevo): 0x8046CBB0-0x8046F460. RTTI/vtable atn::Loader, pool 0x8075561C (rutas data/model/, pack/*.pk, preload/*.pk ... + errores de basic_string), .sdata 0x8087E050-0x8087E058, .sdata2 0x80886EC0-0x80886EE0.
+- `atn/FileSystem_unk.cpp` (nuevo, nombre INVENTADO): 0x8046F460-0x80470580 (LoadCore::vf10, pfs, ResRef_unk). Su propio pool 0x80755B88 ("pfs", "%s/%s" + los mismos errores de basic_string que el pool de Loader -> fichero distinto), "%sh", .data "size=%d" (0x8078FBA8).
+- `atn/LH_Binary.cpp` (nuevo): 0x80470580-0x80472344 (metodos de atn::LH_Binary, parser de chunks 0x804716B8, SceneTrack_unk). Nombres RTTI atn::LH_Binary/atn::LoadHandle (0x80755BF8) despues del pool de FileSystem_unk -> fichero nuevo; sus 1.0f/0.0f (0x80886EE0/E4) duplican los de Loader. .data 0x8078FBB0-0x8078FC10 (vtable/RTTI LH_Binary, functor, tabla).
+- `atn/LH_Core.cpp` (nuevo, nombre INVENTADO por orden alfabetico de ficheros atn: LH_ColliTree < LH_Core < LH_Effect): 0x80472FAC-0x804731C0, ctor/dtor/metodos de atn::LoadCore, vtable 0x8078FCB8 (entre los datos de LH_ColliTree y LH_Effect).
+- `atn/LH_Handle.cpp` (nuevo, nombre INVENTADO por el mismo criterio: LH_Efp < LH_Handle < LH_Material): 0x80473E74-0x80474224, atn::LoadHandle (ctor/dtor/operator=), vtable 0x8078FD70.
+- `atn/LH_Motion_cont.cpp` (nuevo, `_cont`): 0x804766B0-0x804768EC; LH_Motion esta enlazada. 0x804766B0 lo llama LH_Motion::vf0C y usa el pool 0x80755F68 (justo tras los nombres RTTI de LH_Motion) -> es el mismo fichero.
+- Ampliadas (todas con fuente, matching: false salvo nota): LH_ColliObject (.text +0x80472C90, .rodata hasta 0x80755C68 con el nombre RTTI "atn::LoadCore" y 0x80755C64, .data +RTTI LoadCore 0x8078FC60), LH_Effect (.rodata + pool 0x80755CB8), LH_Material (.text +0x80474860-0x80474888, .rodata + pool 0x80755D68), LH_Model (.text +0x80476130-0x80476220, accesores), LH_MotionCommandData (.text +0x80476CE4, metodo propio), LH_MotionSet (.text desde 0x80476D00 con el dtor de MotionSetEntry_unk, hasta 0x80477778; .rodata + pool 0x80756030; .data + "Memory allocation failure"), LH_Scene (.text +0x80477FA4-0x80478054), LH_Xsca (.text +0x804786F8).
+- symbols.txt: lbl_80755CB8 / lbl_80755D68 / lbl_80756030 -> @stringBase0 (scope:local data:string_table) en LH_Effect / LH_Material / LH_MotionSet.
+
+### Decisiones sin el usuario (grupo 6)
+- Nombres inventados: atn/LoadManager_unk, atn/FileSystem_unk, atn/LH_Core, atn/LH_Handle; `_cont` atn/LH_Motion_cont.
+- Los accesores pequenos sin pruebas propias (0x80472C90, 0x80474860, 0x80476130.., 0x80477FA4.., 0x804786F8) se asignan a la unidad LH_* anterior (no hay huecos de datos que indiquen otro fichero; podrian ser copias debiles).
+- Quedan en auto: 0x80755D80 (nombre de tipo de puntero a funcion, usado por LH_Model) y __RTTI__ 0x8078FDD0.

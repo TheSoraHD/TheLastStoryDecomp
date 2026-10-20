@@ -1654,10 +1654,34 @@ game/LibraryTask.cpp:
 	.data       start:0x8078FAB0 end:0x8078FB50
 	.sdata2     start:0x80886E88 end:0x80886EC0
 
+atn/LoadManager_unk.cpp:
+	.text       start:0x8046BBB0 end:0x8046CBB0
+	.rodata     start:0x80755608 end:0x80755610
+	.data       start:0x8078FB50 end:0x8078FB70
+	.sbss       start:0x8087F510 end:0x8087F518
+
+atn/Loader.cpp:
+	.text       start:0x8046CBB0 end:0x8046F460
+	.rodata     start:0x80755610 end:0x80755B88
+	.data       start:0x8078FB70 end:0x8078FBA8
+	.sdata      start:0x8087E050 end:0x8087E058
+	.sdata2     start:0x80886EC0 end:0x80886EE0
+
+atn/FileSystem_unk.cpp:
+	.text       start:0x8046F460 end:0x80470580
+	.rodata     start:0x80755B88 end:0x80755BF8
+	.data       start:0x8078FBA8 end:0x8078FBB0
+
+atn/LH_Binary.cpp:
+	.text       start:0x80470580 end:0x80472344
+	.rodata     start:0x80755BF8 end:0x80755C28
+	.data       start:0x8078FBB0 end:0x8078FC10
+	.sdata2     start:0x80886EE0 end:0x80886EE8
+
 atn/LH_ColliObject.cpp:
-	.text       start:0x80472344 end:0x80472C90
-	.rodata     start:0x80755C28 end:0x80755C54
-	.data       start:0x8078FC10 end:0x8078FC60
+	.text       start:0x80472344 end:0x80472CAC
+	.rodata     start:0x80755C28 end:0x80755C68
+	.data       start:0x8078FC10 end:0x8078FC68
 	.sdata2     start:0x80886EE8 end:0x80886F00
 
 atn/LH_ColliTree.cpp:
@@ -1665,9 +1689,13 @@ atn/LH_ColliTree.cpp:
 	.rodata     start:0x80755C68 end:0x80755C98
 	.data       start:0x8078FC68 end:0x8078FCB8
 
+atn/LH_Core.cpp:
+	.text       start:0x80472FAC end:0x804731C0
+	.data       start:0x8078FCB8 end:0x8078FCD0
+
 atn/LH_Effect.cpp:
 	.text       start:0x804731C0 end:0x80473B20
-	.rodata     start:0x80755C98 end:0x80755CB8
+	.rodata     start:0x80755C98 end:0x80755D20
 	.data       start:0x8078FCD0 end:0x8078FD20
 
 atn/LH_Efp.cpp:
@@ -1675,13 +1703,17 @@ atn/LH_Efp.cpp:
 	.rodata     start:0x80755D20 end:0x80755D40
 	.data       start:0x8078FD20 end:0x8078FD70
 
+atn/LH_Handle.cpp:
+	.text       start:0x80473E74 end:0x80474224
+	.data       start:0x8078FD70 end:0x8078FD80
+
 atn/LH_Material.cpp:
-	.text       start:0x80474224 end:0x80474860
-	.rodata     start:0x80755D40 end:0x80755D68
+	.text       start:0x80474224 end:0x80474888
+	.rodata     start:0x80755D40 end:0x80755D80
 	.data       start:0x8078FD80 end:0x8078FDD0
 
 atn/LH_Model.cpp:
-	.text       start:0x80474888 end:0x80476130
+	.text       start:0x80474888 end:0x80476220
 	.rodata     start:0x80755EF0 end:0x80755F48
 	.data       start:0x8078FDD8 end:0x8078FE28
 	.sdata2     start:0x80886F00 end:0x80886F08
@@ -1691,18 +1723,22 @@ atn/LH_Motion.cpp:
 	.rodata     start:0x80755F48 end:0x80755F68
 	.data       start:0x8078FE28 end:0x8078FE78
 
+atn/LH_Motion_cont.cpp:
+	.text       start:0x804766B0 end:0x804768EC
+	.rodata     start:0x80755F68 end:0x80755FC8
+
 atn/LH_MotionCommandData.cpp:
-	.text       start:0x804768EC end:0x80476CE4
+	.text       start:0x804768EC end:0x80476D00
 	.rodata     start:0x80755FC8 end:0x80756008
 	.data       start:0x8078FE78 end:0x8078FEC8
 
 atn/LH_MotionSet.cpp:
-	.text       start:0x80476D64 end:0x80477694
-	.rodata     start:0x80756008 end:0x80756030
-	.data       start:0x8078FEC8 end:0x8078FF18
+	.text       start:0x80476D00 end:0x80477778
+	.rodata     start:0x80756008 end:0x80756058
+	.data       start:0x8078FEC8 end:0x8078FF38
 
 atn/LH_Scene.cpp:
-	.text       start:0x80477778 end:0x80477FA4
+	.text       start:0x80477778 end:0x80478054
 	.rodata     start:0x80756058 end:0x80756080
 	.data       start:0x8078FF38 end:0x8078FF88
 	.sdata2     start:0x80886F08 end:0x80886F10
@@ -1713,7 +1749,7 @@ atn/LH_Texture.cpp:
 	.data       start:0x8078FF88 end:0x8078FFD8
 
 atn/LH_Xsca.cpp:
-	.text       start:0x804783DC end:0x804786F8
+	.text       start:0x804783DC end:0x80478714
 	.rodata     start:0x807560B0 end:0x807560D8
 	.data       start:0x8078FFD8 end:0x80790028
 
