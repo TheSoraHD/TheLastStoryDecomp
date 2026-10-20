@@ -223,10 +223,22 @@ void PostFxRain::fn_800B0A70() {
     GXSetBlendMode(0, 1, 0, 3);
 }
 
+// inferred: scale matrix (its vector is a local of the inline)
+static inline void ScaleMtx_unk(Matrix3x4& m, const Vector2_unk& scale) {
+    Vector3 s(scale.x, scale.y, 1.0f);
+    PSMTXScale(m.m, s.x, s.y, s.z);
+}
+
+// inferred: sets the translation column of a matrix
+static inline void SetTrans_unk(Matrix3x4& m, float x, float y, float z) {
+    m.m[0][3] = x;
+    m.m[1][3] = y;
+    m.m[2][3] = z;
+}
+
 // inferred: draws the scrolling heat waves into the indirect texture
-// NONMATCHING: ~76% - stack layout: the original keeps the four colors in ascending order above the argument
-// copies and the scale vector/matrix below them (as if they were locals of an inlined function); the
-// structure and the calls match
+// inferred: the four colors are an array (ascending on the stack), the scale vector a local of an inline, the
+// screen size is read into locals before the call and the translation is set by an inline with parameters
 void PostFxRain::fn_800B0CD4() {
     GXInvalidateTexAll();
     GXSetNumChans(1);
@@ -236,8 +248,8 @@ void PostFxRain::fn_800B0CD4() {
     GXSetNumTexGens(1);
     GXSetTexCoordGen2(0, 1, 4, 0x1E, 0, 0x7D);
     RainHeatSet_unk* heat = m54;
-    m58 += heat->mScrollU;
     Vector2_unk scale = heat->mScale;
+    m58 += heat->mScrollU;
     m5C += heat->mScrollV;
     if (m5C > scale.y) {
         m5C -= scale.y;
@@ -245,12 +257,9 @@ void PostFxRain::fn_800B0CD4() {
     if (m58 > scale.x) {
         m58 -= scale.x;
     }
-    Vector3 s(scale.x, scale.y, 1.0f);
     Matrix3x4 m;
-    PSMTXScale(m.m, s.x, s.y, s.z);
-    m.m[0][3] = m58;
-    m.m[1][3] = m5C;
-    m.m[2][3] = 0.0f;
+    ScaleMtx_unk(m, scale);
+    SetTrans_unk(m, m58, m5C, 0.0f);
     GXLoadTexMtxImm(m.m, 0x1E, 1);
     GXSetTevColorIn(0, 0xF, 0xF, 0xF, 8);
     GXSetTevColorOp(0, 0, 0, 0, 1, 0);
@@ -259,12 +268,16 @@ void PostFxRain::fn_800B0CD4() {
     GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
     fn_800763FC(lbl_8087EEE0, &mB8.mObj, 0);
     GXSetBlendMode(1, 4, 5, 3);
-    RainColor_unk c0(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[0]);
-    RainColor_unk c1(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[1]);
-    RainColor_unk c2(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[2]);
-    RainColor_unk c3(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[3]);
+    RainColor_unk c[4] = {
+        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[0]),
+        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[1]),
+        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[2]),
+        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[3]),
+    };
     fn_80075F58(lbl_8087EEE0, m54->mX, m54->mY, m54->mW, m54->mH);
-    fn_800BFCB4(lbl_8087EFB4, c0, c1, c2, c3, lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight, 0.0f, 0.0f);
+    int sh = lbl_8087EEE0->mHeight;
+    int sw = lbl_8087EEE0->mWidth;
+    fn_800BFCB4(lbl_8087EFB4, c[0], c[1], c[2], c[3], sw, sh, 0.0f, 0.0f);
     fn_80075DEC(lbl_8087EEE0);
     GXSetBlendMode(0, 1, 0, 3);
 }
@@ -274,8 +287,26 @@ inline const T& Max_unk(const T& a, const T& b) {
     return a < b ? b : a;
 }
 
-// NONMATCHING: 99.65% - `this` and the screen size in other saved registers and the two colors of
-// GXSetCopyClear in other stack slots (~6 variants)
+// inferred: color helpers (their results are temporaries of the caller)
+static inline GXColor RainGXColor_unk(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+    GXColor c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
+    c.a = a;
+    return c;
+}
+static inline GXColor RainARGB_unk(unsigned int argb) {
+    GXColor c;
+    c.b = argb;
+    c.r = argb >> 16;
+    c.g = argb >> 8;
+    c.a = argb >> 24;
+    return c;
+}
+
+// NONMATCHING: 99.72% - `this`, the screen size and the 0xFFFFFF of GXSetCopyClear in other saved registers
+// (~16 variants; the colors built by inline helpers give the stack slots of the original)
 void PostFxRain::vf10(void* camera) {
     if (!fn_800B0A48()) {
         return;
@@ -288,20 +319,9 @@ void PostFxRain::vf10(void* camera) {
     GXInitTexObj(&m60, image, w, h, 1, 0, 0, 0);
     GXInitTexObjLOD(&m60, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     GXPixModeSync();
-    GXColor gray;
-    gray.r = 0x7F;
-    gray.g = 0x7F;
-    gray.b = 0x7F;
-    gray.a = 0x7F;
-    GXSetCopyClear(gray, 0xFFFFFF);
+    GXSetCopyClear(RainGXColor_unk(0x7F, 0x7F, 0x7F, 0x7F), 0xFFFFFF);
     fn_800C0508(lbl_8087EFB4, 1);
-    unsigned int argb = ((RainRenderMgr_unk*)lbl_8087EEE0)->mClearColor;
-    GXColor clear;
-    clear.b = argb;
-    clear.r = argb >> 16;
-    clear.g = argb >> 8;
-    clear.a = argb >> 24;
-    GXSetCopyClear(clear, 0xFFFFFF);
+    GXSetCopyClear(RainARGB_unk(((RainRenderMgr_unk*)lbl_8087EEE0)->mClearColor), 0xFFFFFF);
     fn_800B0CD4();
     fn_800B0A70();
     GXSetTexCopySrc(0, 0, (unsigned short)w * 2, (unsigned short)h * 2);
