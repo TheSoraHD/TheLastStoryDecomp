@@ -38,7 +38,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
 - Hallazgos MWCC: un objeto global con inicializador todo a cero va siempre a `.bss`/`.sbss`, incluso con
   `__declspec(section ".sdata")`; un pool de cadenas anchas de <= 4 bytes (`L""`) si va a `.sdata`.
 
-## atn/Pad_unk (commit COMMIT_PAD)
+## atn/Pad_unk (commit b8d3240)
 
 - Resultado: 15/17 al 100%, `matching: false`.
 - NONMATCHING: `fn_800A58D0` y `fn_800A58F8` 97% - solo registros: el original deja el gestor en r3 y la tabla en r5
@@ -54,3 +54,22 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - Tipos locales inferidos: `WPad_unk` (gestor de Wii Remote `lbl_8087F018`, banderas por mando en +0x3C00) y tablas
     `sPortMap`/`sButtonMap`(34)/`sAxisMap`/`sAxisMap2`.
 - Hallazgos MWCC: nada nuevo (confirmado: tablas `static const` > 8 bytes alineadas a 8 en `.rodata`; base comun con >= 3 estaticas).
+
+## atn/LightUtil_unk (commit COMMIT_LU)
+
+- Resultado: 4/7 al 100%, `matching: false`.
+- NONMATCHING:
+  - `LightList_unk::fn_8007A154` 98.73% - el original vuelve a leer `mCount` tras la comprobacion de rango (aqui se reutiliza); ~8 variantes.
+  - `LightSet_unk::fn_8007A36C` / `fn_8007A41C` 99.50% - orden de los dos incrementos del bucle (indice antes que offset).
+- **Decisiones sin el usuario**:
+  - `splits.txt`: anadido `.sbss 0x8087EEF8-0x8087EF00` (singleton `lbl_8087EEF8` de la lista de luces, lo crea `fn_8007A100`).
+  - `symbols.txt`: `lbl_807318F0` -> `@stringBase0` (pool `""`); funciones con nombre mangled por `pairnames`
+    (`__ct__12LightSet_unkFv`, `fn_80079EFC__12LightSet_unkFP9Light_unkf`, `fn_8007A154__13LightList_unkFi`,
+    `fn_8007A36C__12LightSet_unkFP13LightList_unkRCQ23atn7Vector3fi`, `fn_8007A41C__12LightSet_unkFP13LightList_unk`,
+    `fn_8007A4CC__13LightList_unkFv`); `fn_8007A100` queda como `extern "C"`.
+  - Cabecera nueva compartida `include/atn/Light_unk.h`: `Light_unk` (0x44, color RGBA en +0x34 copiado como struct),
+    `LightList_unk` {datos, cuenta, capacidad}, `LightSet_unk` (4 luces ordenadas por distancia, 0x24). `LH_Scene.cpp` y
+    `NewCampPartsGmk.cpp` tienen copias locales de `Light_unk` que no se han tocado.
+  - `fn_8007A36C` recibe 3 argumentos mas que no usa (posicion, radio, entero: los pasa `ModelDraw_unk`).
+- Hallazgos MWCC: la copia implicita de un struct con `atn::Vector3` sale con la z cargada primero (`lfs` antes del `psq_l`),
+  aunque el `operator=` de Vector3 use `__VecCopy`.

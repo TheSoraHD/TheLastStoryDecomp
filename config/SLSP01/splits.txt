@@ -214,6 +214,7 @@ atn/Light_unk.cpp:
 atn/LightUtil_unk.cpp:
 	.text       start:0x80079ECC end:0x8007A530
 	.rodata     start:0x807318F0 end:0x807318F8
+	.sbss       start:0x8087EEF8 end:0x8087EF00
 	.sdata2     start:0x80880B40 end:0x80880B48
 
 atn/LipSync_unk.cpp:

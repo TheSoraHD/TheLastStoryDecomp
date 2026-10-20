@@ -2758,5 +2758,13 @@
    "Pad_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/LightUtil_unk.cpp",
+  "classes": [
+   "LightSet_unk",
+   "LightList_unk"
+  ],
+  "matching": false
  }
 ]
