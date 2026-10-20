@@ -2555,11 +2555,14 @@ game/HomeButton_unk.cpp:
 	.sdata2     start:0x80886A40 end:0x80886A80
 
 game/HomingBullet.cpp:
-	.text       start:0x80441590 end:0x80442F10
+	.text       start:0x80441590 end:0x80442B50
 	.rodata     start:0x807545F0 end:0x80754628
 	.data       start:0x8078F2B8 end:0x8078F2F8
 	.bss        start:0x807C8A38 end:0x807C8A48
 	.sdata2     start:0x80886A80 end:0x80886AE8
+
+game/IffChunkFile_unk.cpp:
+	.text       start:0x80442B50 end:0x80442F10
 
 game/ItemManager_unk.cpp:
 	.text       start:0x80442F10 end:0x8044D710

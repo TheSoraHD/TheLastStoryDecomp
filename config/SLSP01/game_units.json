@@ -2520,6 +2520,20 @@
   "matching": false
  },
  {
+  "name": "game/HomingBullet.cpp",
+  "classes": [
+   "HomingBullet"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/IffChunkFile_unk.cpp",
+  "classes": [
+   "ChunkFile_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/MapPartsLocatorSet.cpp",
   "classes": [
    "MapPartsLocatorSet"
