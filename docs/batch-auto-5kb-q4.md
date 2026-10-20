@@ -199,7 +199,7 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
     original.
   - Leer un global `float` en un local antes del bucle cambia el orden de carga de las constantes (`eps` primero).
 
-## atn/NetFriend_unk (commit HASH)
+## atn/NetFriend_unk (commit 2c5b9f2)
 
 - Resultado: 19/30 al 100%, `matching: false` (`main.dol: OK`).
 - NONMATCHING: `fn_8050F5A8` 94.0% (indice/puntero intercambiados), `fn_8050F734` 99.3% (desplazamiento de
