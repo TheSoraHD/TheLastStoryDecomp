@@ -113,9 +113,11 @@ atn/LensFlare.cpp:
 	.sdata2     start:0x80880AD0 end:0x80880B00
 
 atn/SmallAllocator_8.cpp:
-	.text       start:0x80082AC8 end:0x80084E50
-	.rodata     start:0x807320B8 end:0x807320E8
-	.data       start:0x80778560 end:0x807785D0
+	.text       start:0x80081E54 end:0x80084E50
+	.rodata     start:0x80732048 end:0x80732128
+	.data       start:0x80778550 end:0x807785D8
+	.bss        start:0x807C7090 end:0x807C7268
+	.sbss       start:0x8087EF08 end:0x8087EF10
 
 atn/DLAllocator.cpp:
 	.text       start:0x80084E50 end:0x80084FD8
