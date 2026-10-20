@@ -7,8 +7,8 @@
 #include "std/string.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
-extern "C" void* lbl_8087EEB8;                                 // inferred: listener of failed loads
-extern "C" void fn_800698DC(void* listener, const char* path); // inferred: reports a failed load
+struct DebugMessages_unk { void fn_800698DC(const char* path); }; // inferred: see atn/FileUtil_unk.cpp
+extern "C" DebugMessages_unk* lbl_8087EEB8;                                 // inferred: listener of failed loads
 extern "C" int fn_805F9EF0(const char* name);                  // inferred: opens the archive file
 extern "C" std::string fn_8006AC08(const std::string& path);     // inferred: extension of a path
 
@@ -452,7 +452,7 @@ void ResRef_unk::fn_80470364(const char* name, int a, int b, int c) {
         mRes->m70 = a;
         mRes->m74 = b;
     } else {
-        fn_800698DC(lbl_8087EEB8, name);
+        lbl_8087EEB8->fn_800698DC(name);
     }
 }
 
@@ -473,7 +473,7 @@ void ResRef_unk::fn_8047043C(const char* name, int a, int b) {
         mRes->m70 = a;
         mRes->m74 = b;
     } else {
-        fn_800698DC(lbl_8087EEB8, name);
+        lbl_8087EEB8->fn_800698DC(name);
     }
 }
 

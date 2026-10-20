@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "atn/LoadHandle.h"
 #include "game/CrowdManager.h"
 #include "game/CharaTask.h"
 #include "atn/Model_unk.h"
@@ -4027,7 +4028,6 @@ extern "C" void fn_80098698(Model_unk* model);
 extern "C" void fn_80093F1C(Model_unk* model, const char* node, const atn::Vector3* a, const atn::Vector3* b,
                             const atn::Vector3* scale, int arg); // inferred: node edit
 extern "C" void fn_80094778(Model_unk* model, const char* node); // inferred: clears a node edit
-extern "C" const char* fn_80473F18(atn::LoadHandle* handle); // inferred: name of the loaded resource
 extern "C" int fn_802185FC(const char* name);
 extern "C" int fn_80376150(Field_unk* field);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -4421,7 +4421,7 @@ void CharaTask::fn_80145334() {
         }
     }
     if (mFlagB27 && mMotion.mTracks[0].m04 != 0) {
-        mFlagB26 = fn_802185FC(fn_80473F18((atn::LoadHandle*)mMotion.mTracks[0].m04)) == 0;
+        mFlagB26 = fn_802185FC(((atn::LoadHandle*)((atn::LoadHandle*)mMotion.mTracks[0].m04))->fn_80473F18()) == 0;
     }
     bool command = update;
     if (IsPartyMember_unk()) {
@@ -5842,7 +5842,7 @@ extern "C" MotionInfo_unk* fn_802096A8(const char* name);
 // inferred: name invented
 inline MotionInfo_unk* FindMotionInfo_unk(Model_unk& model, int motion) {
     atn::LoadHandle* handle = model.fn_80097D40(motion);
-    return handle != 0 ? fn_802096A8(fn_80473F18(handle)) : 0;
+    return handle != 0 ? fn_802096A8(((atn::LoadHandle*)(handle))->fn_80473F18()) : 0;
 }
 
 void CharaTask::fn_8014C0B4(int index, int motion) {

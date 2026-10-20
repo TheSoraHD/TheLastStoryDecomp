@@ -1,4 +1,5 @@
 #include "game/LibraryTask.h"
+#include "atn/LoadHandle.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -37,7 +38,6 @@ extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size);
 extern "C" std::basic_string<wchar_t> fn_800DFB40(const wchar_t* text, float width, float size, float f3, int a,
                                                    int b, int c, int d);
 extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
-extern "C" int fn_80473F18(atn::LoadHandle* handle); // inferred: resource of the handle
 // inferred: the same function is named as a member of GimmickUvOwner_unk elsewhere
 struct GimmickUvOwner_unk {
     int fn_800D59B8(); // inferred: nonzero while loading
@@ -403,10 +403,10 @@ int BookTask::vf0C() {
         }
         LibraryPage_unk* page = &mPages[0];
         if (page->mLeft == 2) {
-            m54[2]->fn_801F4E30("picture", fn_80473F18(&page->mPicture.m20));
+            m54[2]->fn_801F4E30("picture", (int)((atn::LoadHandle*)(&page->mPicture.m20))->fn_80473F18());
         }
         if (page->mRight == 2) {
-            m60[2]->fn_801F4E30("picture", fn_80473F18(&page->mPicture.m20));
+            m60[2]->fn_801F4E30("picture", (int)((atn::LoadHandle*)(&page->mPicture.m20))->fn_80473F18());
         }
         mLoad = 2;
         return 1;
@@ -513,10 +513,10 @@ void BookTask::fn_8046A9D0() {
             }
             LibraryPage_unk* page = &mPages[mPage];
             if (page->mLeft == 2) {
-                m54[2]->fn_801F4E30("picture", fn_80473F18(&page->mPicture.m20));
+                m54[2]->fn_801F4E30("picture", (int)((atn::LoadHandle*)(&page->mPicture.m20))->fn_80473F18());
             }
             if (page->mRight == 2) {
-                m60[2]->fn_801F4E30("picture", fn_80473F18(&page->mPicture.m20));
+                m60[2]->fn_801F4E30("picture", (int)((atn::LoadHandle*)(&page->mPicture.m20))->fn_80473F18());
             }
         } else if (frame > m50->mData.mEndFrame - 6.0f) {
             mTextFade = 1.0f - (m50->mData.mEndFrame - frame) / 6.0f;

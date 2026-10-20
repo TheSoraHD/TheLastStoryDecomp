@@ -2,8 +2,8 @@
 #include "atn/LoadManager.h"
 #include <string.h>
 
-extern "C" void* lbl_8087EEB8;                               // inferred: listener of failed loads
-extern "C" void fn_800698DC(void* listener, const char* path); // inferred: reports a failed load
+struct DebugMessages_unk { void fn_800698DC(const char* path); }; // inferred: see atn/FileUtil_unk.cpp
+extern "C" DebugMessages_unk* lbl_8087EEB8;                               // inferred: listener of failed loads
 extern "C" void fn_8046DD20(void* manager, void* data);        // inferred: frees loaded data
 
 namespace atn {
@@ -43,7 +43,7 @@ void LoadCore::fn_804730E4() {
 void LoadCore::fn_80473104(unsigned char state) {
     mState = state;
     if (mState == 4 && lbl_8087EEB8 != 0) {
-        fn_800698DC(lbl_8087EEB8, mPath);
+        lbl_8087EEB8->fn_800698DC(mPath);
     }
 }
 
