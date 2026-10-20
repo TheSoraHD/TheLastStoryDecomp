@@ -77,3 +77,31 @@ Cola: `game/SystemErrorMessage_unk`, `game/GameOverTask`, `game/GimmickStateComm
   - Test `(x & 8) != 8` materializado con subfic/or/srwi. = bool devuelto por un inline.
 - Pendientes: gmk/Item (decompilada) y DropItem comparten el static local de CharaTask; para enlazar
   hay que resolver como referenciar el de CharaTask.cpp sin definirlo.
+
+## game/SystemErrorMessage_unk (commit 7bd3fca)
+- Resultado: 9/11 al 100%, `matching: false` (unidad nueva en game_units.json), `main.dol: OK` (regress lost: 0).
+- NONMATCHING:
+  - `fn_80363DBC` 99.47%: el original relee lbl_8087F018 para m40C0 y mError al conservarlo; orden de
+    registros de las constantes 3/0 y de los contadores del fade.
+  - `fn_803646C4` 98.04%: huecos de pila del color y del test del puntero a miembro, registros del bucle
+    de la fuente (constante 1.0 y doble de conversion intercambiados).
+- Decisiones sin el usuario:
+  - Split sin cambios (splits-auto-C.md grupo 2). Clase `SystemErrorMessage_unk` (0x4C, nombre inventado;
+    la misma que GameFlow_unk de game/GameSystem_unk.cpp, instancia lbl_8087F420). Miembros con nombres inventados.
+  - symbols.txt: ctor y metodos fn_80363DBC/fn_803646C4/fn_80364BE8/fn_80364DB4 (Fiiii)/fn_80364E7C/
+    fn_8036503C/fn_80365320 con mangling de la clase; fn_80364DAC -> `get__Q25boost14scoped_ptr<Uc>CFv`
+    (copia debil, apuntada por el puntero a miembro de 0x80789EC8); lbl_8074D8C0 -> @stringBase0;
+    lbl_8074CCD0 -> sMessages, lbl_80789EB0/EC0 -> sLinePanes/sChoicePanes (scope:local).
+  - Tabla de mensajes `sMessages[6][31][4]` generada desde los datos del DOL (escapes \x de SJIS); el orden
+    de primera aparicion coincide con el orden de los literales en .rodata.
+  - fn_80363C28 y fn_80363CE4 quedan `extern "C"`. m48 es `boost::scoped_ptr<unsigned char>` (operator
+    unspecified_bool_type de Boost para MWCC: ptmf a get()).
+  - Literal `"%s\0"` en el sprintf (cero extra en el pool tras "%s", como en GimmickStateCommand).
+- Hallazgos MWCC:
+  - `extsh` de todos los parametros al principio = parametros int copiados a locales `short` (GX s16);
+    `x1 = x0 + w` con el local corto y `s1 = s + w` con el parametro.
+  - Un setter inline que recibe el puntero ya calculado (`&task->mData.m10`) fija el orden: direccion del
+    layout antes del hash (con la tarea como argumento, la direccion se calcula despues).
+  - Conversion float->u8 con `__cvt_fp2unsigned` = cast a `unsigned int`, no a `unsigned char` (fctiwz).
+  - Comprobacion "visible" que relee mFlags antes del `|= 4` = `Task::IsFlag_unk(4)`.
+- Pendientes: nada.
