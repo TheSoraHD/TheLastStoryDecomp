@@ -35,7 +35,7 @@ funciones `extern "C" fn_<addr>`.
   - Bucle con la prueba arriba y el `next()` del CSV abajo = `do { if (row >= N) break; ...; row++; } while (next());`.
   - `0 <= a && a < N && ...` con `return` del valor dentro y el literal al final reproduce `blt/bge` a la rama final.
 
-## db/StrategyAiTable_unk (commit HASH)
+## db/StrategyAiTable_unk (commit 39b8259)
 - Resultado: 3/3 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -55,3 +55,15 @@ funciones `extern "C" fn_<addr>`.
   - El puntero de fila (`entry = &sEntries[i]`) declarado antes de `data` (resultado de la carga) en el mismo bloque
     reparte los registros salvados como el original (data en r31, entry en el mas bajo); declarado en el cuerpo del
     bucle deja `data` en el registro mas bajo.
+
+## db/PlayerPriority_unk (commit HASH)
+- Resultado: 4/4 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_80742370` -> `sProtectorFileNameStr`, `lbl_80742394` -> `sWeaponFileNameStr`, `lbl_807423B8` ->
+    `@stringBase0` ("ATK".."AGI", ""), `lbl_8087F2B0` -> `sProtectors`, `lbl_8087F2B4` -> `sWeapons`, `lbl_80882F48` ->
+    `sProtectorFileName`, `lbl_80882F4C` -> `sWeaponFileName`.
+  - Tipos inferidos `PlayerPriority_unk` (0xF4: id + 30 pares `PlayerPriorityItem_unk` {tipo 1-6, valor}), 7 filas
+    por tabla (armas y protectores). `fn_802188B4` recibe `atn::Csv*` (lee el resto de la fila).
+- Hallazgos MWCC: nada nuevo (declarar `field` fuera del `for` para que el contador reciba el registro mas bajo).
