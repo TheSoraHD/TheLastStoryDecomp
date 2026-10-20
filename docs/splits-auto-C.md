@@ -32,7 +32,7 @@
 - `gmk/FragileObject.cpp` ampliado: .text desde 0x803F1BB4 (creador `new`+ctor de FragileObject con su
   pool 0x8075215C); .rodata 0x80752138-0x807522E0, .bss 0x807C8730-0x807C8740, .sdata 0x8087DF38-0x8087DF40.
 
-### Decisiones sin el usuario
+### Decisiones sin el usuario (grupo 1)
 - Nombres nuevos `game/EnemyTasha.cpp` y `game/EnemyTask.cpp` (por clase/RTTI; EnemyTask: RTTI vive
   en ChaserGuard, pero su vtable/ctor/dtor estan aqui).
 - GimmickCommonB0_unk (0x803EF608..) queda dentro de GimmickStateCommand (el nombre `_unk` de la clase ya existia).
@@ -40,3 +40,53 @@
 ### Hallazgos
 - Los "creadores" `X* create(parent)` con `new(size, 0xC, pool, pool, 0)` van al principio del fichero
   de la clase creada, antes del ctor (EnvSeManager 0x8035DF48, FragileObject 0x803F1BB4).
+
+## Grupo 2 (0x80363C28-0x803B33F8)
+
+- **0x80363C28-0x80365390** -> `game/SystemErrorMessage_unk.cpp` (nombre inventado). Contenido: conversion
+  char->wchar (0x80363C28), creador del singleton sbss 0x8087F420 (0x80363CE4, `new` con pool 0x8074D8C0:
+  camp_info*.d2a/camp_cursor.d2a), y la ventana de mensajes de sistema que usa la tabla 0x8074CCD0 de
+  mensajes de error de disco/memoria en 6 idiomas ("Please insert The Last Story disc."...). Constantes
+  propias en .sdata2 0x808856C8..0x808856F8 (0, -1, 1 distintas de EquipItemData 0x808856C0 y de GameTask
+  0x80885708). Datos: .rodata 0x8074B820-0x8074D968, .data 0x80789EB0-0x80789ED8, .sbss 0x8087F420,
+  .sdata2 0x808856C8-0x80885700. Clase sin vtable/RTTI: no se pudo dar un nombre real.
+- **0x8036554C-0x8036555C** -> `game/FriendManager_cont.cpp` (`fn_8036554C__13FriendManagerFv`, ya con
+  nombre de FriendManager; FriendManager es unidad enlazada, no se toca). Revisar: fusionar al decompilar.
+- **game/GameTask.cpp** ampliado (sin fuente): .text 0x8036555C-0x80376B68. 0x8036555C/0x8036562C (tablas
+  de saltos 0x8078A070/0x8078A150) solo los llaman funciones de GameTask; 0x80365708 usa el pool de GameTask
+  0x8074DC1C y el bss 0x807C8458 (inicializado por el `__sinit` 0x80376AD4). El tramo 0x8036CA60-0x80376AD4
+  (GamePauseTask y funciones de campo/flags) comparte todas sus constantes .sdata2 0x80885708/0x8088570C y el
+  pool 0x8074DC1C con GameTask; `__sinit` 0x80376AD4 cierra el fichero (.ctors 0x8072D354). Datos: .rodata
+  0x8074D9A0-0x8074DDF8, .data 0x8078A070-0x8078A4B8, .bss 0x807C8458-0x807C84F0, .sdata 0x8087DCD0-0x8087DCE0,
+  .sbss 0x8087F438, .sdata2 0x80885708-0x808857F8.
+- **game/GameOverTask.cpp** ampliado: .text desde 0x80376B68 (creador del singleton sbss 0x8087F440, pool
+  0x8074DEC0 compartido con 0x80376BE8); .rodata 0x8074DDF8-0x8074DF88, .sbss 0x8087F440.
+- **0x80378474-0x8037C71C** -> `game/FinishCamera_unk.cpp` (nombre inventado por la cadena "FinishCamera" de
+  su pool 0x8074DF98). Corte inicial: copia propia de 0.0f/1.0f (0x80885830..) frente a GameOverTask
+  (0x808857F8..); corte final: GameBgm (unidad con fuente) empieza en 0x8037C71C.
+- **0x8037D8B8-0x803935AC** -> `game/GameCamera_unk.cpp` (nombre inventado: pool 0x8074E210 con "GameCamera",
+  modos Default/Hide/Shoot/...). Copias propias de constantes 0x808858E8..0x80885ACC; corte final: 0x803935AC
+  usa la tabla 0x8074EF78 que usan las funciones del script de eventos.
+- **std/bad_cast.cpp** (GameEventScript) ampliado: .text 0x803935AC-0x803B27AC (incluye 0x8039BDB4-0x803B2780
+  y su `__sinit` 0x803B2780, .ctors 0x8072D358). Pruebas: pool 0x8074F8CC usado de 0x80393610 a 0x803AE1D4,
+  tabla 0x8074ED24 y constantes 0x80885B10/14/30 usadas en todo el tramo; el creador 0x80393610 hace `new` +
+  ctor 0x803936A4. La vtable `gmk::Cannon` que autoscan ve es solo vf64 de GimmickCommon (no es Cannon).
+  Datos: .rodata 0x8074E440-0x8074FB78 (incluye nombres RTTI de basic_stringstream/iostream/istream), .data
+  0x8078A780-0x8078B3A0, .sdata 0x8087DD38-0x8087DD60, .sbss 0x8087F450, .sdata2 0x80885AD0-0x80885C00.
+- **auto_03_803B27AC_text.cpp** (fuente, GameLoadTask) ampliado con su `__sinit` 0x803B338C (.ctors
+  0x8072D35C) y datos: .rodata 0x8074FB78-0x8074FC08 ("(New)", RTTI GameLoadTask/GameSaveLoadCommon, pool),
+  .data 0x8078B3A0-0x8078B400 (vtable GameLoadTask), .bss 0x807C84F0-0x807C8600, .sdata 0x8087DD68,
+  .sbss 0x8087F458, .sdata2 0x80885C00-0x80885C18.
+
+### Decisiones sin el usuario (grupo 2)
+- Nombres inventados: `game/SystemErrorMessage_unk.cpp`, `game/FinishCamera_unk.cpp`, `game/GameCamera_unk.cpp`.
+- `game/FriendManager_cont.cpp` (resto de FriendManager, enlazado).
+- `std/bad_cast.cpp` es en realidad el fichero de GameEventScript (nombre heredado, no lo cambio; deberia
+  renombrarse a algo como `game/GameEventScript.cpp`). `auto_03_803B27AC_text.cpp` es GameLoadTask
+  (`game/GameLoadTask.cpp`); no se renombra porque esta en configure.py.
+- No renombre el pool de `auto_03_803B27AC_text` a `@stringBase0`: su fuente lo referencia como `lbl_8074FBA4`.
+- Las unidades nuevas dan "Missing configuration" en configure (no estan en game_units.json, que no toco).
+
+### Hallazgos
+- Los `__sinit` aislados como `auto_fn_*` llevan su entrada .ctors: hay que dar el rango .ctors a la unidad.
+- Varios "creadores de singleton" (`if (!sInst) sInst = new(...) X(...)`) preceden al ctor y comparten pool.

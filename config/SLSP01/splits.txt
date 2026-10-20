@@ -1144,6 +1144,13 @@ game/EquipItemData.cpp:
 	.data       start:0x80789E98 end:0x80789EB0
 	.sdata2     start:0x808856C0 end:0x808856C8
 
+game/SystemErrorMessage_unk.cpp:
+	.text       start:0x80363C28 end:0x80365390
+	.rodata     start:0x8074B820 end:0x8074D968
+	.data       start:0x80789EB0 end:0x80789ED8
+	.sbss       start:0x8087F420 end:0x8087F428
+	.sdata2     start:0x808856C8 end:0x80885700
+
 game/FriendArganan.cpp:
 	.text       start:0x80365390 end:0x80365464
 	.rodata     start:0x8074D968 end:0x8074D978
@@ -1155,17 +1162,31 @@ game/FriendManager.cpp:
 	.rodata     start:0x8074D988 end:0x8074D9A0
 	.data       start:0x8078A038 end:0x8078A070
 
+game/FriendManager_cont.cpp:
+	.text       start:0x8036554C end:0x8036555C
+
 game/GameTask.cpp:
-	.text       start:0x803658B8 end:0x8036CA60
-	.rodata     start:0x8074DC00 end:0x8074DC1C
-	.data       start:0x8078A394 end:0x8078A408
-	.sdata2     start:0x80885710 end:0x80885790
+	.text       start:0x8036555C end:0x80376B68
+	.ctors      start:0x8072D354 end:0x8072D358
+	.rodata     start:0x8074D9A0 end:0x8074DDF8
+	.data       start:0x8078A070 end:0x8078A4B8
+	.bss        start:0x807C8458 end:0x807C84F0
+	.sdata      start:0x8087DCD0 end:0x8087DCE0
+	.sbss       start:0x8087F438 end:0x8087F440
+	.sdata2     start:0x80885708 end:0x808857F8
 
 game/GameOverTask.cpp:
-	.text       start:0x80376BE8 end:0x80378474
-	.rodata     start:0x8074DE94 end:0x8074DEC0
+	.text       start:0x80376B68 end:0x80378474
+	.rodata     start:0x8074DDF8 end:0x8074DF88
 	.data       start:0x8078A4B8 end:0x8078A4F0
+	.sbss       start:0x8087F440 end:0x8087F448
 	.sdata2     start:0x808857F8 end:0x80885830
+
+game/FinishCamera_unk.cpp:
+	.text       start:0x80378474 end:0x8037C71C
+	.rodata     start:0x8074DF88 end:0x8074DFD0
+	.sdata      start:0x8087DCE0 end:0x8087DCF0
+	.sdata2     start:0x80885830 end:0x808858D8
 
 game/GameBgm.cpp:
 	.text       start:0x8037C71C end:0x8037D8B8
@@ -1174,14 +1195,31 @@ game/GameBgm.cpp:
 	.sbss       start:0x8087F448 end:0x8087F450
 	.sdata2     start:0x808858D8 end:0x808858E8
 
+game/GameCamera_unk.cpp:
+	.text       start:0x8037D8B8 end:0x803935AC
+	.rodata     start:0x8074E008 end:0x8074E440
+	.data       start:0x8078A528 end:0x8078A780
+	.sdata      start:0x8087DCF0 end:0x8087DD38
+	.sdata2     start:0x808858E8 end:0x80885AD0
+
 std/bad_cast.cpp:
-	.text       start:0x803936A4 end:0x8039BDB4
-	.rodata     start:0x8074F710 end:0x8074F8CC
-	.data       start:0x8078B128 end:0x8078B1C0
-	.sdata2     start:0x80885B1C end:0x80885B74
+	.text       start:0x803935AC end:0x803B27AC
+	.ctors      start:0x8072D358 end:0x8072D35C
+	.rodata     start:0x8074E440 end:0x8074FB78
+	.data       start:0x8078A780 end:0x8078B3A0
+	.sdata      start:0x8087DD38 end:0x8087DD60
+	.sbss       start:0x8087F450 end:0x8087F458
+	.sdata2     start:0x80885AD0 end:0x80885C00
 
 auto_03_803B27AC_text.cpp:
-	.text       start:0x803B27AC end:0x803B338C
+	.text       start:0x803B27AC end:0x803B33F8
+	.ctors      start:0x8072D35C end:0x8072D360
+	.rodata     start:0x8074FB78 end:0x8074FC08
+	.data       start:0x8078B3A0 end:0x8078B400
+	.bss        start:0x807C84F0 end:0x807C8600
+	.sdata      start:0x8087DD68 end:0x8087DD70
+	.sbss       start:0x8087F458 end:0x8087F460
+	.sdata2     start:0x80885C00 end:0x80885C18
 
 game/GameLoadBackground.cpp:
 	.text       start:0x803B33F8 end:0x803B35FC
