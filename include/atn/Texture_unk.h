@@ -19,7 +19,7 @@ public:
     unsigned char m2C;
     signed char m2D; // inferred: wrap mode S (set to 1 by LoadEffect::vf0C); read with extsb
     signed char m2E; // inferred: wrap mode T
-    unsigned char m2F;
+    signed char m2F; // inferred: mip levels of an allocated texture (read with extsb)
 };
 
 } // namespace atn

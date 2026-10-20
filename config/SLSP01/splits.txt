@@ -536,7 +536,7 @@ atn/TextureComposite.cpp:
 	.sdata2     start:0x80881208 end:0x80881218
 
 atn/CompositeCache_unk.cpp:
-	.text       start:0x800D81CC end:0x800D8894
+	.text       start:0x800D81CC end:0x800D87A4
 	.rodata     start:0x80734758 end:0x80734760
 	.bss        start:0x807C77E8 end:0x807C77F4
 	.sdata2     start:0x80881218 end:0x80881220

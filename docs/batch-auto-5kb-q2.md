@@ -52,3 +52,37 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
     se pliega a `cmpwi r3,0`.
   - Para el orden de ramas: `if (a == 0 || b == 0 || c == 0) return r;` da `beq` a la salida en cada termino;
     con `c` en un `if` aparte el termino anterior sale como `bne`+`b`.
+
+## atn/CompositeCache_unk (commit HASH3)
+
+- Resultado: 5/7 al 100%, `matching: false`.
+- NONMATCHING:
+  - `CompositeCacheEntry_unk::fn_800D8458` (Release) 99.04% - iteradores begin/end de la lista intercambiados en r30/r31 (~10 variantes del bucle; el
+    vaciado como inline miembro `Purge_unk` de la cache arreglo el resto).
+  - `CompositeCache_unk::fn_800D8698` (crear entrada) 97.99% - registros del `push_back` inlineado: el mismo problema
+    conocido de `std/list.h` en las 12 copias de `LoadManager_unk::Get_unk`.
+- **Decisiones sin el usuario**:
+  - `splits.txt`: `.text` de `atn/CompositeCache_unk` reducido de 0x800D8894 a **0x800D87A4**. Las 9 funciones
+    0x800D87A4-0x800D8894 (ctor/AddRef/Release/textura del handle, ctor de color RGBA, accesores de textura) no
+    pueden ser de este fichero: `fn_800D87B0` llama fuera de linea a `fn_800D8448` (una sentencia) y `fn_800D87C4` a
+    `fn_800D8458`, cosa imposible con `-ipa file` en el mismo fichero. Quedan como tramo `auto_` sin asignar.
+    **Pendiente**: probablemente son el principio de `atn/CompositeIntensityTintMulti` (su fuente ya las trata como
+    copias debiles de sus inline, `fn_800D8808`...); ampliar esa unidad hacia atras es mover un limite ajeno.
+  - `symbols.txt`: `lbl_80734758` -> `@stringBase0` (pool `""` del `new`); `lbl_80881218` tamano 0x8 -> 0x4
+    (FLT_EPSILON + relleno); `pairnames`: `fn_800D81CC` -> `__ct__Q23atn16CompositeKey_unkFPCcPCQ23atn22CompositeLayerDesc_unki`,
+    `fn_800D82BC`/`fn_800D8448`/`fn_800D8458`/`fn_800D8624`/`fn_800D8698` con nombre mangled (los de 8448/8458/8624/8698
+    coinciden con las declaraciones de `CompositeIntensityTintMulti.cpp`). Los `@LOCAL@`/`@GUARD@` de `Get_unk` y el
+    registro `lbl_807C77E8` sin cambios.
+  - `include/std/list.h`: anadidos `erase(iterator)`, `erase(first, last)` y `clear()` (miembros de plantilla: no cambian
+    a los demas usuarios). Sin ctor/dtor en `std::list` para no tocar `LoadManager`/`PacketPack`: el ctor y el dtor
+    (`clear`) estan en una jerarquia local `CacheListImp_unk`/`CacheListMid_unk`/`CacheList_unk` (cuatro comprobaciones
+    de `this` en `~CompositeCache_unk`, como el `__list_imp` de MSL).
+  - `include/atn/Texture_unk.h`: `m2F` pasa a `signed char` (`fn_800D8870` lo lee con `extsb`).
+  - Tipos inventados (duplicados de los locales de CompositeIntensityTintMulti, que no se toca): `CompositeKey_unk` (0x188:
+    hash del fichero base, numero de capas y 6 capas {hash, 3 colores, 3 usos}), `CompositeCacheEntry_unk` (0x1BC:
+    referencias, clave, `Texture_unk` en 0x18C).
+- Hallazgos MWCC:
+  - `b = b && x;` en sentencias separadas reutiliza el registro de `b`; el original `t = eq && x1; t = t && x2; ...;
+    eq = t && x4;` (un temporal distinto) se reconoce por `li r5,0`/`li r5,1` intermedios y el ultimo en el registro de `eq`.
+  - Una comparacion de floats dentro de una inline que devuelve `bool` sale con `mfcr`; escrita en linea, con `bge`.
+  - Las clases plantilla derivadas vacias con dtor emiten sus dtors debiles aunque nadie los llame (el enlazador los elimina).
