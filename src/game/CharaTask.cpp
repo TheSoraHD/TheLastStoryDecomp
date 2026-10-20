@@ -1148,9 +1148,6 @@ atn::Vector3 CharaTask::vf64(int center) {
     return result;
 }
 
-// NONMATCHING: ~76% (112/461 lines) - the inlined fn_80178208/fn_8016E970 chain: the stack slots of
-// two ptmf temporaries are swapped and "m55C = 6" is stored before the mControl load (see
-// fn_8016E970); everything else matches.
 int CharaTask::fn_80138E1C(int arg) {
     int result = 0;
     if (arg == 0) {
@@ -1166,7 +1163,7 @@ int CharaTask::fn_80138E1C(int arg) {
             if (m12B0 >= m12B4) {
                 m12B0 = 0;
                 int motion = rand() % 4 + 0x71;
-                fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(this, motion, 0, 0, -1.0f, -1.0f));
+                fn_80161570(motion, 0, 0, -1.0f, -1.0f);
                 result = 1;
             }
             break;
@@ -1174,7 +1171,7 @@ int CharaTask::fn_80138E1C(int arg) {
         case 2:
             if (m12B4 > 0 && rand() % m12B4 == 0) {
                 int motion = rand() % 4 + 0x71;
-                fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(this, motion, 0, 0, -1.0f, -1.0f));
+                fn_80161570(motion, 0, 0, -1.0f, -1.0f);
                 result = 1;
             }
             break;
@@ -2533,12 +2530,19 @@ static bool IsPushingChara_unk(CharaTask* chara) {
     return false;
 }
 
+// inferred: name invented; inlined into fn_8013CB68 (the extra inline level gives the ptmf
+// temporaries of this chain the stack slots of the target)
+static void StartPushedAvoid_unk(CharaTask* chara, const atn::Vector3& dir, CharaTask* other) {
+    chara->fn_80178208(new (0, "", "", 0) chr::ControlPushedAvoid(chara, dir, other));
+}
+
 // NONMATCHING: ~86% exact-opcode (98.6% ignoring registers and stack offsets; same 3678 instructions and
 // frame size) - the saved-register allocation differs (this is r27 in the original), plus small
 // scheduling differences (turn update, sin/cos stores, inlined fn_80176548/fn_80139F60 order, the
 // "special model" helper's nested bools); tried: fused/unfused float expressions, temporaries vs
 // named vectors, top-of-function declarations in all orders, the hit result reusing `arg`, inline vs
-// static helpers, wrappers fn_8016B8D4/fn_8016D0A0 for the control changes.
+// static helpers, wrappers fn_8016B8D4/fn_8016D0A0 for the control changes (the ptmf slots of
+// the chains now match through fn_8016B8D4/fn_8016D0A0/StartPushedAvoid_unk).
 // inferred: moves the character towards the rotation `target` (speed `a` in 0..1, rate `b`), with
 // gravity, collisions and the push between characters
 void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
@@ -2792,7 +2796,7 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
                             if (other->m55C != 6 || other->m560 == 0x68) {
                                 other->m13F8 += 2;
                                 if (other->m13F8 > 6) {
-                                    other->fn_80178208(new (0, "", "", 0) chr::ControlPushedAvoid(other, dir, this));
+                                    StartPushedAvoid_unk(other, dir, this);
                                 }
                             }
                         }
@@ -3146,8 +3150,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
             updateRot = false;
         } else if (mStatus.IsState_unk(0x2000000) && (m55C == 1 || m55C == 2) && !fn_8013C404(0x1000000) && !mFlag3 &&
                    (fn_805F9920(&m574) > 1.0f || m570 > 0.5f)) {
-            fn_801750FC();
-            fn_80178208(new (0, "", "", 0) chr::ControlSlip(this, 0));
+            fn_8016D0A0(0);
             return;
         }
     } else {
@@ -3534,8 +3537,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
         m610 = 0;
         if (!fn_801720AC(&pos, &vel) && mStatus.IsState_unk(0x2000000) && (m55C == 1 || m55C == 2) &&
             !fn_8013C404(0x1000000) && !mFlag3 && (fn_805F9920(&m574) > 1.0f || m570 > 0.5f)) {
-            fn_801750FC();
-            fn_80178208(new (0, "", "", 0) chr::ControlSlip(this, 0));
+            fn_8016D0A0(0);
             return;
         }
     } else {
@@ -10772,12 +10774,16 @@ void CharaTask::fn_8017518C() {
     fn_80178208(new (0, "", "", 0) chr::ControlCannonThrow(this, mF6C, mF78));
 }
 
-// NONMATCHING: 88% - the stack slots of the ptmf temporaries of the two inlined fn_80178208 chains
-// are swapped (known issue) plus .data offsets.
+// inferred: name invented; inlined into fn_8017547C (the extra inline level gives the ptmf
+// temporaries of the second chain the stack slots of the target)
+static void StartDragged_unk(CharaTask* chara, CharaTask* dragger) {
+    chara->fn_80178208(new (0, "", "", 0) chr::ControlDraggedStart(chara, (int)dragger));
+}
+
 void CharaTask::fn_8017547C(CharaTask* other) {
     if (other != 0 && (other->mStatus.m0C & 0x20) == 0x20) {
         fn_80178208(new (0, "", "", 0) chr::ControlDraggingStart(this, (int)other));
-        other->fn_80178208(new (0, "", "", 0) chr::ControlDraggedStart(other, (int)this));
+        StartDragged_unk(other, this);
     }
 }
 
