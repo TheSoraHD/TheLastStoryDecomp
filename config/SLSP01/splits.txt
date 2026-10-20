@@ -1808,10 +1808,12 @@ MP/D2AMpMenuFriend.cpp:
 	.sdata2     start:0x808873AC end:0x808873C4
 
 MP/D2AMpMenuFriendRoom.cpp:
-	.text       start:0x804B9DAC end:0x804BBB60
-	.rodata     start:0x80758628 end:0x80758640
+	.text       start:0x804B9D44 end:0x804BBB60
+	.rodata     start:0x80758600 end:0x80758848
 	.data       start:0x80790C08 end:0x80790C48
-	.sdata2     start:0x808873D0 end:0x808873F8
+	.sdata      start:0x8087E108 end:0x8087E118
+	.sbss       start:0x8087F5B8 end:0x8087F5C0
+	.sdata2     start:0x808873D0 end:0x808873FC
 
 MP/D2AMpMenuLobby.cpp:
 	.text       start:0x804BBC28 end:0x804C18A8

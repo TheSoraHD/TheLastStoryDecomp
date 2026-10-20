@@ -17,6 +17,7 @@ class D2A_Task : public Task {
 public:
     void SetColor_unk(const char* name, unsigned int color);          // 0x801F4998
     void SetColor_unk(const char* name, float r, float g, float b);   // 0x801F4AA0
+    void SetText_unk(const char* name, int textId);                   // 0x801F4C14
     void SetNumber_unk(const char* name, int value, int digits);      // 0x801F4CB4
 };
 } // namespace atn
