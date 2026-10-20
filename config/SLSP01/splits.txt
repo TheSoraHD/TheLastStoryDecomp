@@ -140,9 +140,10 @@ atn/NandManager.cpp:
 	.sdata2     start:0x80880CA0 end:0x80880CB0
 
 atn/ParseTree.cpp:
-	.text       start:0x800A5D14 end:0x800A7314
-	.rodata     start:0x80732990 end:0x807329A0
-	.data       start:0x80778B20 end:0x80778B38
+	.text       start:0x800A5B40 end:0x800A73A4
+	.rodata     start:0x80732988 end:0x80732A20
+	.data       start:0x80778AD8 end:0x80778BB8
+	.sbss       start:0x8087EF78 end:0x8087EF88
 	.sdata2     start:0x80880CC0 end:0x80880CC8
 
 atn/PBoneBasic.cpp:
