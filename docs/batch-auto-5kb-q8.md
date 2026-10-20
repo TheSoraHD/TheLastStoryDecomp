@@ -33,7 +33,7 @@ Fusionada en `game/MapPartsOcean`.
 - Hallazgos MWCC: un objeto estatico sin usar cuyo constructor inline solo guarda un puntero no se elimina y
   genera `__sinit` (`li` x3 + `stw` x3); estaticos POD sin usar si se eliminan.
 
-## MP/NetGlobals_unk (commit HASH2)
+## MP/NetGlobals_unk (commit 6a60737)
 
 - Resultado: 1/1 al 100% (`__sinit_\NetGlobals_unk_cpp`), `matching: true`.
 - **Decisiones sin el usuario**
@@ -50,3 +50,29 @@ Fusionada en `game/MapPartsOcean`.
     con su nombre `lbl_`: los escribe `atn/PacketPack` (MP::ManagerMP) y los leen los menus MP
     (`MpData_unk*`). `lbl_8087F630` sigue con tamano 0x8 en symbols.txt (aqui 4 bytes + relleno; enlaza OK).
   - Nombre real propuesto: un fichero de globales MP que incluye `<iostream>` (sin pruebas del nombre).
+
+## Event/Label (commit HASH3)
+
+- Resultado: 1/2 al 100%, `matching: false`.
+- NONMATCHING: `__sinit_\Label_cpp` 93.8% - tras la ultima llamada al hash el original guarda el valor por
+  defecto de "frame" (+0x3C) antes que su hash (+0x34) e intercala el epilogo; probados valor por defecto
+  int/puntero/clase/union/omitido, clase para el hash, tabla static/global/const (unas 10 variantes). El
+  mismo patron final aparece en el `__sinit` de `Event/Cut`.
+- **Decisiones sin el usuario**
+  - Cabeceras nuevas `include/Event/Node.h` (`Event::Node`: vtable + `NodeName_unk` en +0x04 con `delete[]`
+    en el destructor; `ParamDef_unk`, entrada de 0x18 de las tablas de atributos: nombre, hash
+    `fn_800DC880(nombre)`, tipo (0 int, 0x1C cadena, 0x1F enum...), valor por defecto `ParamValue_unk`,
+    numero y tabla de nombres del enum; `ParamValue_unk` tiene constructor porque el `__sinit` guarda
+    tambien los 0) y `include/Event/Label.h` (`Label : Node`, 0x14: `Cut*`, indice, frame).
+  - `~Node` se declara en la clase y se define `inline` despues: el destructor de Label (0x8053B7B4, copia
+    debil en `Event/Cut`) lleva el cuerpo de `~Node` inlineado sin reponer la vtable.
+  - Funcion reconstruida `Label::fn_Stripped_unk(std::string&)` (`path += "."`): el pool `@stringBase0`
+    empieza por `"."`, `"basic_string: out_of_range"`, `"basic_string: length_error"` (literales de
+    funciones eliminadas por el enlazador: el lector de atributos y el `__replace_unk` instanciado). Con ella
+    el pool sale identico (0x47 bytes).
+  - `symbols.txt`: `fn_8053C6A4` -> `__ct__Q25Event5LabelFPQ25Event3Cuti`, `fn_8053C6C8` -> `__sinit_\Label_cpp`,
+    `lbl_80793DF0` -> `sParamDefs_unk__5Event` (`scope:local`), `lbl_8075DD20` -> `@stringBase0` (0x48 -> 0x47),
+    `fn_8053B7B4` (en Event/Cut) -> `__dt__Q25Event5LabelFv`, `fn_80537780` (en Event/Node) -> `__dt__Q25Event4NodeFv`.
+  - `game_units.json`: nueva entrada `Event/Label.cpp` tras `Event/Node.cpp`.
+- Hallazgos MWCC: las cadenas de las funciones de plantilla instanciadas (p. ej. `basic_string::__replace_unk`)
+  van al `@stringBase0` del fichero que las instancia, aunque el enlazador descarte la copia debil.

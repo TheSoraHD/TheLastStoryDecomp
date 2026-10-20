@@ -2585,6 +2585,13 @@
   "matching": false
  },
  {
+  "name": "Event/Label.cpp",
+  "classes": [
+   "Event::Label"
+  ],
+  "matching": false
+ },
+ {
   "name": "Event/StringData.cpp",
   "classes": [
    "Event::DummyData",
