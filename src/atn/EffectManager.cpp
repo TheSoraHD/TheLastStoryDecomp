@@ -407,11 +407,11 @@ extern "C" void fn_80239DAC(EffectManager* mgr, unsigned int owner, int group, i
     }
 }
 
-// NONMATCHING: 99% - the original increments the index before the strength-reduced offset
+// inferred: int index converted to the unsigned operator[] (the index is incremented before the offset)
 extern "C" void fn_8023A02C(EffectManager* mgr, unsigned int owner, int group, unsigned int flags) {
     EffectEntry_unk* e;
-    for (unsigned int i = 0; i < mgr->mEntries.mSize; i++) {
-        e = &mgr->mEntries.mData[i];
+    for (int i = 0; i < mgr->mEntries.mSize; i++) {
+        e = &mgr->mEntries[(unsigned int)i];
         if (e->mOwner == owner && (e->mGroup == group || group == -2)) {
             e->mFlags |= flags;
         }
@@ -421,12 +421,12 @@ extern "C" void fn_8023A02C(EffectManager* mgr, unsigned int owner, int group, u
     }
 }
 
-// NONMATCHING: 99% - the original increments the index before the strength-reduced offset
+// inferred: int index converted to the unsigned operator[] (the index is incremented before the offset)
 extern "C" void fn_8023A098(EffectManager* mgr, unsigned int owner, int group, unsigned int flags) {
     EffectEntry_unk* e;
     unsigned int mask = ~flags;
-    for (unsigned int i = 0; i < mgr->mEntries.mSize; i++) {
-        e = &mgr->mEntries.mData[i];
+    for (int i = 0; i < mgr->mEntries.mSize; i++) {
+        e = &mgr->mEntries[(unsigned int)i];
         if (e->mOwner == owner && (e->mGroup == group || group == -2)) {
             e->mFlags &= mask;
         }
@@ -447,11 +447,11 @@ extern "C" void fn_8023A108(EffectManager* mgr, unsigned int owner, int group, i
 
 namespace atn {
 
-// NONMATCHING: 99% - the original increments the index before the strength-reduced offset
+// inferred: int index converted to the unsigned operator[] (the index is incremented before the offset)
 void EffectManager::fn_8023A184(unsigned int owner, int group, const EffectColor_unk* color) {
     EffectEntry_unk* e;
-    for (unsigned int i = 0; i < mEntries.mSize; i++) {
-        e = &mEntries.mData[i];
+    for (int i = 0; i < mEntries.mSize; i++) {
+        e = &mEntries[(unsigned int)i];
         if (e->mOwner == owner && (e->mGroup == group || group == -2)) {
             e->mColor.r = color->r;
             e->mColor.g = color->g;
@@ -464,8 +464,8 @@ void EffectManager::fn_8023A184(unsigned int owner, int group, const EffectColor
 
 void EffectManager::fn_8023A1F4(unsigned int owner, int group, const atn::Vector3* vec) {
     EffectEntry_unk* e;
-    for (unsigned int i = 0; i < mEntries.mSize; i++) {
-        e = &mEntries.mData[i];
+    for (int i = 0; i < mEntries.mSize; i++) {
+        e = &mEntries[(unsigned int)i];
         if (e->mOwner == owner && (e->mGroup == group || group == -2)) {
             e->m34 = *vec;
         }
@@ -473,11 +473,11 @@ void EffectManager::fn_8023A1F4(unsigned int owner, int group, const atn::Vector
     mSystem.fn_802331B0(owner, group, vec);
 }
 
-// NONMATCHING: 99% - the original increments the index before the strength-reduced offset
+// inferred: int index converted to the unsigned operator[] (the index is incremented before the offset)
 void EffectManager::fn_8023A254(unsigned int owner, int group, float rate) {
     EffectEntry_unk* e;
-    for (unsigned int i = 0; i < mEntries.mSize; i++) {
-        e = &mEntries.mData[i];
+    for (int i = 0; i < mEntries.mSize; i++) {
+        e = &mEntries[(unsigned int)i];
         if (e->mOwner == owner && (e->mGroup == group || group == -2)) {
             e->mRate = rate;
         }
