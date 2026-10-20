@@ -4,6 +4,16 @@
 #include "macros.h"
 #include "game/MenuCommonTask.h"
 
+// Only the two members called here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
+// clash with the local ones of this file).
+namespace atn {
+class D2A_Task : public Task {
+public:
+    void SetColor_unk(const char* name, float r, float g, float b); // 0x801F4AA0
+    void SetNumber_unk(const char* name, int value, int digits);    // 0x801F4CB4
+};
+} // namespace atn
+
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" SelectMemberAnim_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: d2anime task
@@ -29,8 +39,6 @@ struct SelectMemberPoint_unk {
 extern "C" SelectMemberPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_801F6E78(atn::Task* task, const char* name, const SelectMemberPoint_unk* pos);
 extern "C" void fn_804A53D4(void* cursor, int a, int b, const SelectMemberPoint_unk* pos, int c);
-extern "C" void fn_801F4CB4(atn::Task* task, const char* name, int value, int arg); // inferred: sets a number
-extern "C" void fn_801F4AA0(atn::Task* task, const char* name, float r, float g, float b); // inferred: color
 extern "C" void fn_801F837C(atn::Task* task, const char* name, int text); // inferred: sets a text id
 extern "C" void fn_801F8598(atn::Task* task, const char* name, int value, int arg);
 extern "C" void fn_801F6C80(atn::Task* task, const char* name, float value);
@@ -39,10 +47,7 @@ extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4); name invented
 struct SelectMemberMsg_unk {
     const wchar_t* Get_unk(int id) {
-        if (mText[id] != 0) {
-            return mText[id];
-        }
-        return lbl_808813D0;
+        return mText[id] != 0 ? mText[id] : lbl_808813D0;
     }
     const wchar_t* mText[1];
 };
@@ -117,7 +122,8 @@ SelectMember* SelectMember::fn_8057162C(atn::Task* parent, int type, unsigned ch
     return 0;
 }
 
-// NONMATCHING: 99.6% - the list path and the slot offset swap r30/r31.
+// NONMATCHING: 99.6% - the list path and the slot offset swap r30/r31 (tried: literal in the call, list
+// declared first / in the loop, i + 1, 1..8, do-while, an inline accessor).
 SelectMember::SelectMember(atn::Task* parent, int type, unsigned char save)
     : atn::Task(parent), mCursor(0), mDecided(0), mSave(save), mType(type), mCursor2(0), mC8(0) {
     (mAnims[0] = fn_801F3FF8(this, "/data/d2anime/member_select_base.d2a", 0))->fn_800D246C(1);
@@ -218,7 +224,6 @@ void SelectMember::vf14() {
     }
 }
 
-// NONMATCHING: 96.7% - `this` takes r30 instead of r31 (and the texts of cases 3b/4 r31 instead of r30).
 void SelectMember::fn_80571C64(int state) {
     mPrevState = mState;
     mState = state;
@@ -286,7 +291,6 @@ void SelectMember::fn_80571DB8() {
     }
 }
 
-// NONMATCHING: 99.3% - registers of the order loop (front/back/member pointer).
 void SelectMember::fn_80571FD8() {
     void* pad = lbl_8087EF70;
     fn_804A436C(&mCursor2, 2, 2, 1, 3);
@@ -311,9 +315,11 @@ void SelectMember::fn_80571FD8() {
                 }
             }
             if (selected) {
-                lbl_8087F4F0->mOrder[front++] = i;
+                lbl_8087F4F0->mOrder[front] = i;
+                front++;
             } else {
-                lbl_8087F4F0->mOrder[back--] = i;
+                lbl_8087F4F0->mOrder[back] = i;
+                back--;
             }
         }
         mDecided = 1;
@@ -377,18 +383,20 @@ void SelectMember::fn_80572290() {
     }
 }
 
-// NONMATCHING: 95.8% - the original indexes the members with this + 8 * i (no strength reduction to
+// NONMATCHING: 99.9% - only the register of the selected count (r22 in the original, shared with the exp;
+// here r25). Fixed: (unsigned int) index of the members (offset counter), ternary for status, 0x64EC + id * 0x43C.
+// Old note: the original indexes the members with this + 8 * i (no strength reduction to
 // a pointer), so one more saved register is used and the others shift.
 void SelectMember::fn_80572450() {
     mAnims[0]->mFlags &= ~4;
     int n = CountSelected_unk();
-    fn_801F4CB4(mAnims[0], "memberNum(1)", n, 0);
-    fn_801F4CB4(mAnims[0], "memberMax(1)", mMax, 0);
+    ((atn::D2A_Task*)mAnims[0])->SetNumber_unk("memberNum(1)", n, 0);
+    ((atn::D2A_Task*)mAnims[0])->SetNumber_unk("memberMax(1)", mMax, 0);
     if (n >= mMax) {
-        fn_801F4AA0(mAnims[0], "memberNumCol", 20.0f, 100.0f, 200.0f);
+        ((atn::D2A_Task*)mAnims[0])->SetColor_unk("memberNumCol", 20.0f, 100.0f, 200.0f);
         mAnims[0]->m100 = 10.0f;
     } else {
-        fn_801F4AA0(mAnims[0], "memberNumCol", 255.0f, 255.0f, 255.0f);
+        ((atn::D2A_Task*)mAnims[0])->SetColor_unk("memberNumCol", 255.0f, 255.0f, 255.0f);
         mAnims[0]->m100 = 9.0f;
     }
     SelectMemberPoint_unk pos;
@@ -405,17 +413,12 @@ void SelectMember::fn_80572450() {
         sprintf(name, "member%02d", i);
         pos = __GetPos_unk(mAnims[0], name);
         fn_801F6E78(mAnims[1 + i], "base_pos", &pos);
-        Member_unk* member = &mMembers.mData[i];
+        Member_unk* member = &mMembers.mData[(unsigned int)i];
         SelectMemberInfo_unk* info = fn_8020924C(fn_80219544(member->mId));
         mAnims[1 + i]->mFlags &= ~4;
         fn_801F837C(mAnims[1 + i], "name(1)", info->m08);
-        CharaStatus* status;
         SelectMemberChara_unk* chara = fn_8054A33C(lbl_8087F8A0, member->mId);
-        if (chara != 0) {
-            status = &chara->mStatus;
-        } else {
-            status = (CharaStatus*)((char*)lbl_8087F4F0 + member->mId * 0x43C + 0x64EC);
-        }
+        CharaStatus* status = chara != 0 ? &chara->mStatus : (CharaStatus*)((char*)lbl_8087F4F0 + 0x64EC + member->mId * 0x43C);
         CharaParam_unk param = fn_80134800(status, member->mId, 0, 0, 0, 0, 0, 0);
         fn_801F8598(mAnims[1 + i], "nowLv", param.m78, 0);
         float rate = (float)status->m1A8.mExp / MAX(1.0f, (float)(status->m1A8.mExp + status->fn_8012B028()));
