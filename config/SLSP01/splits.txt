@@ -315,6 +315,62 @@ atn/LinearAllocator.cpp:
 	.data       start:0x80778C68 end:0x80778CE0
 	.sdata2     start:0x80880D20 end:0x80880D28
 
+atn/PostFxBloom.cpp:
+	.text       start:0x800A981C end:0x800AA6C4
+	.rodata     start:0x80732B08 end:0x80732B60
+	.data       start:0x80778CE0 end:0x80778D38
+	.sdata2     start:0x80880D28 end:0x80880D50
+
+atn/PostFxColorMatrix.cpp:
+	.text       start:0x800AA6C4 end:0x800AB774
+	.rodata     start:0x80732B60 end:0x80732B88
+	.data       start:0x80778D38 end:0x80778D78
+	.sdata      start:0x8087D828 end:0x8087D850
+	.sdata2     start:0x80880D50 end:0x80880D78
+
+atn/PostFxDamage.cpp:
+	.text       start:0x800AB774 end:0x800AC5F4
+	.rodata     start:0x80732B88 end:0x80732BE8
+	.data       start:0x80778D78 end:0x80778DB8
+	.bss        start:0x807C7400 end:0x807C7460
+	.sbss       start:0x8087EF90 end:0x8087EF98
+	.sdata2     start:0x80880D78 end:0x80880DA8
+
+atn/PostFxDof.cpp:
+	.text       start:0x800AC5F4 end:0x800ACFC8
+	.rodata     start:0x80732BE8 end:0x80732C08
+	.data       start:0x80778DB8 end:0x80778DF8
+	.sdata2     start:0x80880DA8 end:0x80880DC8
+
+atn/PostFxGamma.cpp:
+	.text       start:0x800ACFC8 end:0x800AE568
+	.rodata     start:0x80732C08 end:0x80732C78
+	.data       start:0x80778DF8 end:0x80778E38
+	.sdata      start:0x8087D850 end:0x8087D858
+	.sdata2     start:0x80880DC8 end:0x80880E08
+
+atn/PostFxGodRay.cpp:
+	.text       start:0x800AE568 end:0x800AFE40
+	.rodata     start:0x80732C78 end:0x80732CC0
+	.data       start:0x80778E38 end:0x80778E78
+	.bss        start:0x807C7460 end:0x807C74A0
+	.sdata      start:0x8087D858 end:0x8087D870
+	.sbss       start:0x8087EF98 end:0x8087EFA0
+	.sdata2     start:0x80880E08 end:0x80880E40
+
+atn/PostFxMotionBlur.cpp:
+	.text       start:0x800AFE40 end:0x800B089C
+	.rodata     start:0x80732CC0 end:0x80732CE8
+	.data       start:0x80778E78 end:0x80778EB8
+	.sdata2     start:0x80880E40 end:0x80880E60
+
+atn/PostFxRain.cpp:
+	.text       start:0x800B089C end:0x800B1B28
+	.rodata     start:0x80732CE8 end:0x80732D28
+	.data       start:0x80778EB8 end:0x80778EF8
+	.sdata      start:0x8087D870 end:0x8087D878
+	.sdata2     start:0x80880E60 end:0x80880EC8
+
 atn/Rain.cpp:
 	.text       start:0x800B1B28 end:0x800B2E2C
 	.rodata     start:0x80732D28 end:0x80732D98
@@ -335,10 +391,12 @@ atn/Layer3D.cpp:
 	.sdata2     start:0x80880F30 end:0x80880F40
 
 atn/LayerOcclusionCPU.cpp:
-	.text       start:0x800B3978 end:0x800B543C
-	.rodata     start:0x80732E30 end:0x80732E58
-	.data       start:0x807790B0 end:0x807790E8
-	.bss        start:0x807C7580 end:0x807C75A0
+	.text       start:0x800B3978 end:0x800B66A4
+	.ctors      start:0x8072D2BC end:0x8072D2C0
+	.rodata     start:0x80732E28 end:0x80732E58
+	.data       start:0x807790A8 end:0x807790E8
+	.bss        start:0x807C74A0 end:0x807C75A0
+	.sdata      start:0x8087D888 end:0x8087D8F8
 	.sbss       start:0x8087EFA0 end:0x8087EFA8
 	.sdata2     start:0x80880F40 end:0x80880F60
 
@@ -361,9 +419,31 @@ atn/LayerReflect.cpp:
 
 atn/LayerShadow.cpp:
 	.text       start:0x800B6BEC end:0x800B95C4
-	.rodata     start:0x80732EE0 end:0x80732EF4
+	.rodata     start:0x80732EE0 end:0x80732F00
 	.data       start:0x807791A0 end:0x807791E0
 	.sdata2     start:0x80880F78 end:0x80880FB8
+
+atn/RenderSetting_unk.cpp:
+	.text       start:0x800B95C4 end:0x800BC468
+	.rodata     start:0x80732F00 end:0x807336A8
+	.sdata2     start:0x80880FB8 end:0x80881088
+
+atn/RenderSystem_unk.cpp:
+	.text       start:0x800BC468 end:0x800C16C0
+	.rodata     start:0x807336A8 end:0x807337A8
+	.data       start:0x807791E0 end:0x807792C0
+	.sdata      start:0x8087D8F8 end:0x8087D918
+	.sbss       start:0x8087EFB8 end:0x8087EFC0
+	.sdata2     start:0x80881088 end:0x808810D0
+
+atn/CharaLightData_unk.cpp:
+	.text       start:0x800C16C0 end:0x800C3094
+	.rodata     start:0x807337A8 end:0x807337F0
+	.sdata2     start:0x808810D0 end:0x80881138
+
+atn/Se_unk.cpp:
+	.text       start:0x800C3094 end:0x800C3610
+	.sdata2     start:0x80881138 end:0x80881140
 
 atn/SequenceControl.cpp:
 	.text       start:0x800C3610 end:0x800C37FC

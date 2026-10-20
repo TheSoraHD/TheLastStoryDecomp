@@ -144,6 +144,24 @@ Pista general: los ficheros reales del motor se llaman `atn_<nombre>.cpp` (caden
 - `atn/Pad_unk.cpp` (nuevo, inventado) 0x800A5508-0x800A5B40: tabla de botones 0x80732898-0x80732988 y 0.0f propio 0x80880CB0
   (NandManager tiene el suyo en 0x80880CA0). Incluye fn_800A5B30/fn_800A5B38 (8 bytes, sin datos) antes de ParseTree.
 
+## Grupo 4 (0x800A981C-0x800C3610)
+
+- 0x800A981C-0x800B1B28 -> 8 unidades `atn/PostFx<Clase>.cpp` (Bloom, ColorMatrix, Damage, Dof, Gamma, GodRay, MotionBlur, Rain), en orden
+  alfabetico. Cada una con su double int->float, su nombre RTTI y su vtable/RTTI en .data (0x80778CE0-0x80778EF8, 0x40 por clase);
+  cortes en los ctors salvo fn_800ACFC8 (va con Gamma: usa su primer .sdata2 0x80880DC8) y fn_800AB774 (va con Damage: .rodata 0x80732B88).
+  PostFxBloom incluye el RTTI debil de atn::IPostFx.
+- `atn/LayerOcclusionCPU` (fuente, no enlazada) ampliada como ya decia su nota: .text hasta 0x800B66A4 (funciones de debug + `__sinit`
+  0x800B6684, .ctors 0x8072D2BC), .rodata desde 0x80732E28, .data desde 0x807790A8, .bss 0x807C74A0-0x807C75A0, .sdata 0x8087D888-0x8087D8F8.
+- `atn/LayerShadow` (fuente, no enlazada): .rodata hasta 0x80732F00 (cadena "Shadow" que usa su ctor).
+- `atn/RenderSetting_unk.cpp` (nuevo, inventado) 0x800B95C4-0x800BC468: menu de debug de render ("Render", "VFilter", "ScreenShot", "Gamma"...,
+  pool 0x80732F00), 0.0f/1.0f propios 0x80880FB8.
+- `atn/RenderSystem_unk.cpp` (nuevo, inventado) 0x800BC468-0x800C16C0: crea las capas (Layer2D3D, ZPrePass, Prerender...), fn_800BDBC8 llamada
+  desde main; 0.0f propio 0x80881088. .rodata 0x807336A8-0x807337A8, .data 0x807791E0-0x807792C0, .sdata 0x8087D8F8-0x8087D918, .sbss 0x8087EFB8.
+- `atn/CharaLightData_unk.cpp` (nuevo, inventado) 0x800C16C0-0x800C3094: CharaLightData_unk, dtors debiles de LH_Scene/NewCampScene2_unk;
+  0.0f propio 0x808810D0, .rodata 0x807337A8-0x807337F0.
+- `atn/Se_unk.cpp` (nuevo, inventado) 0x800C3094-0x800C3610: envoltorios de sonido (atn::SoundRef, dispositivo 0x8087EE90), 1.0f/0.0f propios
+  0x80881138. El corte 0x800C3094 se apoya en el contenido (todo sonido a partir de ahi), no en datos.
+
 ## Decisiones tomadas sin el usuario
 - Nombres inventados: `Event/EventCommandDef_unk.cpp`, `AI/AiCommon_unk.cpp`, `game/TargetPos_unk.cpp`, `game/DamageCalc_unk.cpp`, `atn/Shader_unk.cpp`.
 - `atn/Sound3dListener_cont.cpp`: deberia fusionarse con atn/Sound3dListener al decompilar. dtk no deja que la parte `_cont` tenga
