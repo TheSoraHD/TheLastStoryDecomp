@@ -237,7 +237,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - Un bucle interno que lee `curve->mCount` en cada vuelta no se desenrolla; con la cuenta y el puntero en
     locales se desenrolla x8 y entonces el bucle externo (3 vueltas) ya no se desenrolla.
 
-## atn/LoadManager_unk (commit HASH10)
+## atn/LoadManager_unk (commit 8c0a153)
 
 - Resultado: 3/8 al 100% (`__ct__Q23atn12ReadSlot_unkFv`, `fn_8046BBE0`, `fn_8046C2D4`), `matching: false`.
   `main.dol: OK`.
