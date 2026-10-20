@@ -624,16 +624,38 @@ game/CopyRobotTask.cpp:
 	.sdata2     start:0x80882998 end:0x808829C8
 
 game/CosEditBase.cpp:
-	.text       start:0x801CCE50 end:0x801CFC58
-	.rodata     start:0x8073BCD0 end:0x8073BCDC
-	.data       start:0x80782608 end:0x807826A8
-	.sdata2     start:0x808829CC end:0x80882A20
+	.text       start:0x801CCE50 end:0x801CFD68
+	.ctors      start:0x8072D2E4 end:0x8072D2E8
+	.rodata     start:0x8073BCD0 end:0x8073BEC8
+	.data       start:0x80782608 end:0x807826C8
+	.bss        start:0x807C7CB8 end:0x807C7D18
+	.sdata2     start:0x808829C8 end:0x80882A50
 
 game/CosEditProtector.cpp:
-	.text       start:0x801CFDCC end:0x801D5420
-	.rodata     start:0x8073C558 end:0x8073C56C
-	.data       start:0x807827A8 end:0x80782850
-	.sdata2     start:0x80882A54 end:0x80882ACC
+	.text       start:0x801CFD68 end:0x801D54C0
+	.ctors      start:0x8072D2E8 end:0x8072D2EC
+	.rodata     start:0x8073BEC8 end:0x8073CA10
+	.data       start:0x807826C8 end:0x80782850
+	.bss        start:0x807C7D18 end:0x807C7D28
+	.sdata      start:0x8087DA58 end:0x8087DA70
+	.sdata2     start:0x80882A50 end:0x80882AD0
+
+game/CosEditPalette_unk.cpp:
+	.text       start:0x801D54C0 end:0x801D80A0
+	.ctors      start:0x8072D2EC end:0x8072D2F0
+	.rodata     start:0x8073CA10 end:0x8073CAA0
+	.data       start:0x80782850 end:0x80782860
+	.bss        start:0x807C7D28 end:0x807C7D38
+	.sdata2     start:0x80882AD0 end:0x80882AF0
+
+game/CosEditItemList_unk.cpp:
+	.text       start:0x801D80A0 end:0x801E7FF8
+	.ctors      start:0x8072D2F0 end:0x8072D2F4
+	.rodata     start:0x8073CAA0 end:0x8073CB78
+	.data       start:0x80782860 end:0x807828C8
+	.bss        start:0x807C7D38 end:0x807C7D48
+	.sdata      start:0x8087DA70 end:0x8087DAA0
+	.sdata2     start:0x80882AF0 end:0x80882B10
 
 game/CostumeEditChara.cpp:
 	.text       start:0x801E7FF8 end:0x801E9218
@@ -746,18 +768,107 @@ Event/MotionData.cpp:
 	.data       start:0x80782E60 end:0x80782FB0
 	.sdata2     start:0x80882D18 end:0x80882D28
 
+db/AiTable_unk.cpp:
+	.text       start:0x80204958 end:0x80204E54
+	.rodata     start:0x8073E800 end:0x8073E880
+	.sbss       start:0x8087F158 end:0x8087F160
+	.sdata2     start:0x80882D28 end:0x80882D30
+
+db/WeaponParam_unk.cpp:
+	.text       start:0x80204E54 end:0x80207310
+	.rodata     start:0x8073E880 end:0x8073E9C8
+	.sbss       start:0x8087F160 end:0x8087F178
+	.sdata2     start:0x80882D30 end:0x80882D60
+
+db/ArrowSet_unk.cpp:
+	.text       start:0x80207310 end:0x802078C4
+	.rodata     start:0x8073E9C8 end:0x8073E9F8
+	.sbss       start:0x8087F178 end:0x8087F180
+	.sdata2     start:0x80882D60 end:0x80882D68
+
 atn/CsvBase_char_124_13_34.cpp:
-	.text       start:0x80204958 end:0x80207C00
-	.rodata     start:0x8073E800 end:0x8073EA50
+	.text       start:0x802078C4 end:0x80207CC0
+	.rodata     start:0x8073E9F8 end:0x8073EA50
 	.data       start:0x80782FB0 end:0x80782FE8
 	.sdata      start:0x8087DB20 end:0x8087DB28
-	.sbss       start:0x8087F158 end:0x8087F180
-	.sdata2     start:0x80882D28 end:0x80882D70
+	.sbss       start:0x8087F180 end:0x8087F188
+	.sdata2     start:0x80882D68 end:0x80882D70
+
+db/BgmIdTable_unk.cpp:
+	.text       start:0x80207CC0 end:0x80207F80
+	.rodata     start:0x8073EA50 end:0x8073EA70
+	.sbss       start:0x8087F188 end:0x8087F190
+	.sdata2     start:0x80882D70 end:0x80882D80
+
+db/ChapterList_unk.cpp:
+	.text       start:0x80207F80 end:0x80208748
+	.rodata     start:0x8073EA70 end:0x8073EA98
+	.sbss       start:0x8087F190 end:0x8087F198
+	.sdata2     start:0x80882D80 end:0x80882D88
+
+db/CharaIdTable_unk.cpp:
+	.text       start:0x80208748 end:0x80209300
+	.rodata     start:0x8073EA98 end:0x8073EB38
+	.sdata      start:0x8087DB28 end:0x8087DB30
+	.sbss       start:0x8087F198 end:0x8087F1A8
+	.sdata2     start:0x80882D88 end:0x80882D90
+
+db/CharaMotionParam_unk.cpp:
+	.text       start:0x80209300 end:0x802098E0
+	.rodata     start:0x8073EB38 end:0x8073EBC0
+	.sbss       start:0x8087F1A8 end:0x8087F1B8
+	.sdata2     start:0x80882D90 end:0x80882D98
+
+db/CharaParam_unk.cpp:
+	.text       start:0x802098E0 end:0x8020A90C
+	.rodata     start:0x8073EBC0 end:0x8073ECD8
+	.sbss       start:0x8087F1B8 end:0x8087F1C0
+	.sdata2     start:0x80882D98 end:0x80882E18
+
+db/ChaseParam_unk.cpp:
+	.text       start:0x8020A90C end:0x8020AFF4
+	.rodata     start:0x8073ECD8 end:0x8073EEB0
+	.sdata2     start:0x80882E18 end:0x80882E20
+
+db/ColliAttrTable_unk.cpp:
+	.text       start:0x8020AFF4 end:0x8020B2BC
+	.rodata     start:0x8073EEB0 end:0x8073EF50
+	.sbss       start:0x8087F1C0 end:0x8087F1C8
+	.sdata2     start:0x80882E20 end:0x80882E28
+
+db/PaletteTable_unk.cpp:
+	.text       start:0x8020B2BC end:0x8020C028
+	.rodata     start:0x8073EF50 end:0x8073F5A0
+	.data       start:0x80782FE8 end:0x80782FF0
+	.sdata      start:0x8087DB30 end:0x8087DB38
+	.sbss       start:0x8087F1C8 end:0x8087F1E0
+	.sdata2     start:0x80882E28 end:0x80882E30
 
 atn/ptr_string_base_wchar_t_0.cpp:
 	.text       start:0x8020C028 end:0x8020C4C8
 	.rodata     start:0x8073F5A0 end:0x8073F600
 	.data       start:0x80782FF0 end:0x80783010
+
+db/OptionParts_unk.cpp:
+	.text       start:0x8020C4C8 end:0x8020DF88
+	.rodata     start:0x8073F600 end:0x8073F7A8
+	.sbss       start:0x8087F1E8 end:0x8087F1F0
+	.sdata2     start:0x80882E30 end:0x80882E68
+
+db/EquipParam_unk.cpp:
+	.text       start:0x8020DF88 end:0x8020F130
+	.rodata     start:0x8073F7A8 end:0x8073F870
+	.data       start:0x80783010 end:0x80783078
+	.sbss       start:0x8087F1F0 end:0x8087F200
+	.sdata2     start:0x80882E68 end:0x80882EA0
+
+db/EventIdTable_unk.cpp:
+	.text       start:0x8020F130 end:0x8020F7D0
+	.rodata     start:0x8073F870 end:0x8073F900
+	.bss        start:0x807C7F98 end:0x807C7FB0
+	.sdata      start:0x8087DB38 end:0x8087DB40
+	.sbss       start:0x8087F200 end:0x8087F208
+	.sdata2     start:0x80882EA0 end:0x80882EA8
 
 db/GrowthParseGlobal.cpp:
 	.text       start:0x8020F7D0 end:0x8020FDEC
@@ -766,11 +877,166 @@ db/GrowthParseGlobal.cpp:
 	.sbss       start:0x8087F208 end:0x8087F210
 	.sdata2     start:0x80882EA8 end:0x80882EB0
 
+db/HateParam_unk.cpp:
+	.text       start:0x8020FDEC end:0x80210244
+	.rodata     start:0x8073F950 end:0x8073F970
+	.sbss       start:0x8087F210 end:0x8087F218
+	.sdata2     start:0x80882EB0 end:0x80882EB8
+
+db/InitSetting_unk.cpp:
+	.text       start:0x80210244 end:0x80210ACC
+	.rodata     start:0x8073F970 end:0x8073F9E0
+	.sbss       start:0x8087F218 end:0x8087F220
+	.sdata2     start:0x80882EB8 end:0x80882EE0
+
+db/ItemParam_unk.cpp:
+	.text       start:0x80210ACC end:0x80212F68
+	.rodata     start:0x8073F9E0 end:0x8073FA88
+	.sdata      start:0x8087DB40 end:0x8087DB60
+	.sbss       start:0x8087F220 end:0x8087F238
+	.sdata2     start:0x80882EE0 end:0x80882EF0
+
+db/ItemRare_unk.cpp:
+	.text       start:0x80212F68 end:0x8021414C
+	.rodata     start:0x8073FA88 end:0x8073FAB0
+	.sdata      start:0x8087DB60 end:0x8087DB70
+	.sbss       start:0x8087F238 end:0x8087F240
+	.sdata2     start:0x80882EF0 end:0x80882EF8
+
+db/LevelEquipTable_unk.cpp:
+	.text       start:0x8021414C end:0x802144A8
+	.rodata     start:0x8073FAB0 end:0x8073FAD0
+	.sbss       start:0x8087F240 end:0x8087F248
+	.sdata2     start:0x80882EF8 end:0x80882F00
+
+db/MapEnvSeTable_unk.cpp:
+	.text       start:0x802144A8 end:0x802150F0
+	.rodata     start:0x8073FAD0 end:0x8073FB28
+	.sdata      start:0x8087DB70 end:0x8087DB80
+	.sbss       start:0x8087F248 end:0x8087F258
+	.sdata2     start:0x80882F00 end:0x80882F08
+
+db/MapLink_unk.cpp:
+	.text       start:0x802150F0 end:0x80216A2C
+	.ctors      start:0x8072D304 end:0x8072D308
+	.rodata     start:0x8073FB28 end:0x8073FB80
+	.bss        start:0x807C7FB0 end:0x807C7FF8
+	.sdata      start:0x8087DB80 end:0x8087DB90
+	.sbss       start:0x8087F258 end:0x8087F270
+	.sdata2     start:0x80882F08 end:0x80882F18
+
+db/MapIdTable_unk.cpp:
+	.text       start:0x80216A2C end:0x80217778
+	.rodata     start:0x8073FB80 end:0x8073FC00
+	.sdata      start:0x8087DB90 end:0x8087DB98
+	.sbss       start:0x8087F270 end:0x8087F280
+	.sdata2     start:0x80882F18 end:0x80882F28
+
+db/MarketPrice_unk.cpp:
+	.text       start:0x80217778 end:0x802179FC
+	.rodata     start:0x8073FC00 end:0x8073FC20
+	.sbss       start:0x8087F280 end:0x8087F288
+	.sdata2     start:0x80882F28 end:0x80882F38
+
+db/MemberList_unk.cpp:
+	.text       start:0x802179FC end:0x80217E18
+	.rodata     start:0x8073FC20 end:0x8073FC58
+	.sbss       start:0x8087F288 end:0x8087F290
+	.sdata2     start:0x80882F38 end:0x80882F40
+
+db/HairBackControl_unk.cpp:
+	.text       start:0x80217E18 end:0x80218720
+	.rodata     start:0x8073FC58 end:0x80742330
+	.sbss       start:0x8087F290 end:0x8087F2A8
+
 db/MotionCommandCommon.cpp:
 	.text       start:0x80218720 end:0x802188B4
 	.rodata     start:0x80742330 end:0x80742370
 	.data       start:0x807830C0 end:0x807830F8
 	.sdata2     start:0x80882F40 end:0x80882F48
+
+db/PlayerPriority_unk.cpp:
+	.text       start:0x802188B4 end:0x80218BD4
+	.rodata     start:0x80742370 end:0x807423D0
+	.sbss       start:0x8087F2B0 end:0x8087F2B8
+	.sdata2     start:0x80882F48 end:0x80882F50
+
+db/PlayerParam_unk.cpp:
+	.text       start:0x80218BD4 end:0x80219544
+	.rodata     start:0x807423D0 end:0x80742418
+	.sbss       start:0x8087F2B8 end:0x8087F2C0
+	.sdata2     start:0x80882F50 end:0x80882F58
+
+db/ReverbPresetParam_unk.cpp:
+	.text       start:0x80219544 end:0x8021996C
+	.rodata     start:0x80742418 end:0x80742520
+	.sbss       start:0x8087F2C0 end:0x8087F2C8
+	.sdata2     start:0x80882F58 end:0x80882F60
+
+db/SkillParam_unk.cpp:
+	.text       start:0x8021996C end:0x80219F84
+	.rodata     start:0x80742520 end:0x80742560
+	.sdata      start:0x8087DB98 end:0x8087DBA0
+	.sbss       start:0x8087F2C8 end:0x8087F2D8
+	.sdata2     start:0x80882F60 end:0x80882F68
+
+db/ParseUtil_unk.cpp:
+	.text       start:0x80219F84 end:0x8021AAB8
+	.rodata     start:0x80742560 end:0x807425C0
+	.sdata2     start:0x80882F68 end:0x80882F78
+
+db/SkillGrowth_unk.cpp:
+	.text       start:0x8021AAB8 end:0x8021B060
+	.rodata     start:0x807425C0 end:0x80742600
+	.data       start:0x807830F8 end:0x80783100
+	.sbss       start:0x8087F2D8 end:0x8087F2E8
+	.sdata2     start:0x80882F78 end:0x80882F80
+
+db/SpText_unk.cpp:
+	.text       start:0x8021B060 end:0x8021CC50
+	.ctors      start:0x8072D308 end:0x8072D30C
+	.rodata     start:0x80742600 end:0x80742660
+	.data       start:0x80783100 end:0x80783510
+	.bss        start:0x807C7FF8 end:0x807C8088
+	.sdata      start:0x8087DBA0 end:0x8087DBA8
+	.sbss       start:0x8087F2E8 end:0x8087F308
+	.sdata2     start:0x80882F80 end:0x80882F98
+
+db/StrategyAiTable_unk.cpp:
+	.text       start:0x8021CC50 end:0x8021CF4C
+	.rodata     start:0x80742660 end:0x807426A0
+	.sbss       start:0x8087F308 end:0x8087F310
+	.sdata2     start:0x80882F98 end:0x80882FA0
+
+db/RandomItemTable_unk.cpp:
+	.text       start:0x8021CF4C end:0x8021E0B0
+	.rodata     start:0x807426A0 end:0x80742708
+	.sbss       start:0x8087F310 end:0x8087F328
+	.sdata2     start:0x80882FA0 end:0x80882FB0
+
+db/TreasureBoxTable_unk.cpp:
+	.text       start:0x8021E0B0 end:0x8021EB04
+	.rodata     start:0x80742708 end:0x80742740
+	.sbss       start:0x8087F328 end:0x8087F338
+	.sdata2     start:0x80882FB0 end:0x80882FD0
+
+db/TreasureList_unk.cpp:
+	.text       start:0x8021EB04 end:0x8021ED08
+	.rodata     start:0x80742740 end:0x80742760
+	.sbss       start:0x8087F338 end:0x8087F340
+	.sdata2     start:0x80882FD0 end:0x80882FD8
+
+db/TutorialTable_unk.cpp:
+	.text       start:0x8021ED08 end:0x8021F100
+	.rodata     start:0x80742760 end:0x807427A8
+	.sbss       start:0x8087F340 end:0x8087F348
+	.sdata2     start:0x80882FD8 end:0x80882FE0
+
+db/VoiceLengthTable_unk.cpp:
+	.text       start:0x8021F100 end:0x8021F47C
+	.rodata     start:0x807427A8 end:0x80742828
+	.sbss       start:0x8087F348 end:0x8087F350
+	.sdata2     start:0x80882FE0 end:0x80882FE8
 
 atn/ptr_string_base_char_0.cpp:
 	.text       start:0x8021F47C end:0x80220168

@@ -46,3 +46,35 @@ Datos: cada unidad recibe los objetos `auto_` que solo usan sus funciones, pegad
 ## Hallazgos (grupo 2)
 - Si un objeto solo usado por la unidad X queda detras de datos de otra unidad Y y X va antes que Y en .text, dtk falla por ciclo de orden de enlace: hay que dejar ese objeto en `auto_`.
 - Un guard `@GUARD@` (1 byte) compartido no puede quedarse solo en un hueco `auto_` minimo entre dos unidades: el enlace da `undefined`; meterlo en la unidad vecina.
+
+## Grupo 3 (CosEdit y cargadores de tablas `db/`)
+
+Metodo nuevo (herramienta `part.py` en el scratchpad): pruebas duras de corte = (1) mismo valor (constante float/double o
+cadena, p. ej. "basic_string: out_of_range") en dos direcciones distintas usado por dos funciones; (2) el pool de cadenas
+de un fichero (objeto `.rodata` con varias cadenas, o `""`) es el ultimo objeto de su `.rodata`: un objeto privado detras
+de el es de otro fichero. El corte se pone en la posicion donde los datos privados quedan ordenados en todas las secciones
+y que menos llamadas cruza. Validado sobre unidades ya partidas (chr/Control*, Em002-Em006, Em202-Em204, gmk 0x8040A000-0x80440000,
+0x80338000-0x80370000, 0x804F0000-0x80530000, 0x80125320-0x80184A64): 0 cortes falsos (solo omite cortes sin pruebas).
+
+| Tramo | Unidades | Prueba |
+|---|---|---|
+| 0x801CFC58-0x801CFD68 | `game/CosEditBase.cpp` ampliada (+`__sinit` 0x801CFC58, `.ctors` 0x8072D2E4) | `__sinit` usa la `.sdata2` de CosEditBase; 0x801CFD68 (creador `new CosEditProtector`) ya usa el pool de CosEditProtector. |
+| 0x801CFD68-0x801CFDCC, 0x801D5420-0x801D54C0 | `game/CosEditProtector.cpp` ampliada (`.ctors` 0x8072D2E8) | creador + `__sinit` 0x801D54A0 con `.bss` de CosEditProtector; cadenas compartidas con el pool 0x8073C56C. |
+| 0x801D54C0-0x801D80A0 | `game/CosEditPalette_unk.cpp` (nuevo, `.ctors` 0x8072D2EC) | 1.0f/3.0f/0.0f nuevos (0x80882AD0...), cadenas "base_pos"/"reference" duplicadas con CosEditProtector; `__sinit` 0x801D8080; lo usa CosEditProtector (paleta de colores: "slt_palette%d%d", "paletteColor"). Nombre inventado. |
+| 0x801D80A0-0x801E7FF8 | `game/CosEditItemList_unk.cpp` (nuevo, `.ctors` 0x8072D2F0) | double int->float 0x8073CAA0 y 1.0f 0x80882AF4 nuevos; cadenas "uv0001"/"mask_uv0001"/"basePos" duplicadas; `__sinit` 0x801E7FD8. Listas de protectores/armas ("protector01", "mainIconUv"). Nombre inventado. Tramo de 0xFF38 sin mas pruebas internas: queda entero. |
+| 0x80204958-0x8021F47C | 39 unidades `db/*_unk.cpp` (nombres inventados por el CSV que cargan) y `atn/CsvBase_char_124_13_34.cpp` reducida a 0x802078C4-0x80207CC0 | Cada cargador de `/boot/*.csv` es un fichero: copias distintas de las cadenas de `std::basic_string` ("basic_string::reserve length_error"...) y de 0.0f/1.0f, y pools de cadenas separados por objetos no-cadena. `atn/CsvBase_char_124_13_34` = cargador de battle_eff_se_table (CsvPipe, vtable/RTTI de CsvBase<char,'|'>, pool `""`) + los 3 accesores 0x80207C00-0x80207CC0 (usan las variables de esa tabla). |
+
+Unidades `db/` (texto): AiTable 0x80204958, WeaponParam 0x80204E54, ArrowSet 0x80207310, BgmIdTable 0x80207CC0, ChapterList 0x80207F80,
+CharaIdTable 0x80208748, CharaMotionParam 0x80209300, CharaParam 0x802098E0, ChaseParam 0x8020A90C, ColliAttrTable 0x8020AFF4,
+PaletteTable 0x8020B2BC, OptionParts 0x8020C4C8, EquipParam 0x8020DF88, EventIdTable 0x8020F130, HateParam 0x8020FDEC,
+InitSetting 0x80210244, ItemParam 0x80210ACC, ItemRare 0x80212F68, LevelEquipTable 0x8021414C, MapEnvSeTable 0x802144A8,
+MapLink 0x802150F0 (+`__sinit`, `.ctors` 0x8072D304), MapIdTable 0x80216A2C, MarketPrice 0x80217778, MemberList 0x802179FC,
+HairBackControl 0x80217E18, PlayerPriority 0x802188B4, PlayerParam 0x80218BD4, ReverbPresetParam 0x80219544, SkillParam 0x8021996C,
+ParseUtil 0x80219F84 (sin CSV propio: funciones de parseo/consulta, `fn_80219E6C` "bullet data by id" queda en SkillParam),
+SkillGrowth 0x8021AAB8, SpText 0x8021B060 (+`__sinit`, `.ctors` 0x8072D308), StrategyAiTable 0x8021CC50, RandomItemTable 0x8021CF4C,
+TreasureBoxTable 0x8021E0B0, TreasureList 0x8021EB04, TutorialTable 0x8021ED08, VoiceLengthTable 0x8021F100.
+
+### Decisiones sin el usuario
+- Todos los nombres `db/*_unk.cpp`, `game/CosEditPalette_unk.cpp`, `game/CosEditItemList_unk.cpp` son inventados (por el CSV/uso).
+- `atn/CsvBase_char_124_13_34.cpp` (con fuente, no enlazada): en el grupo 1 la amplie hasta 0x80204958 siguiendo el plan; con las pruebas nuevas el tramo son 6 ficheros y la unidad queda en 0x802078C4-0x80207CC0. Contradice la nota del plan ("23 funciones mas"): a revisar. Los 3 accesores 0x80207C00-0x80207CC0 podrian ser del fichero siguiente (BgmIdTable); los dejo con la tabla cuyas variables usan.
+- Posiciones de corte ambiguas (varias posiciones validas, elegida la que menos llamadas cruza): CharaParam/ChaseParam (0x802098E0 vs 0x80209960), EventIdTable (0x8020F0AC..0x8020F248), LevelEquipTable (0x80213B78..0x8021414C), HairBackControl, SkillParam/ParseUtil/SkillGrowth (0x80219EC4.., 0x8021A4CC..0x8021AAB8), RandomItemTable (0x8021CF4C vs 0x8021CF8C).
