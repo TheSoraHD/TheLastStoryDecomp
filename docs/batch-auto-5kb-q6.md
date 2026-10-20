@@ -1,0 +1,377 @@
+# Lote batch-auto-5kb - cola q6
+
+Cola (de menor a mayor): `db/TreasureList_unk`, `db/MarketPrice_unk`, `db/StrategyAiTable_unk`, `db/PlayerPriority_unk`,
+`db/LevelEquipTable_unk`, `db/VoiceLengthTable_unk`, `db/TutorialTable_unk`, `db/MemberList_unk`,
+`db/ReverbPresetParam_unk`, `db/SkillGrowth_unk`, `db/SkillParam_unk`, `db/HairBackControl_unk`, `db/PlayerParam_unk`,
+`db/TreasureBoxTable_unk`, `db/ParseUtil_unk`, `db/MapEnvSeTable_unk`, `db/MapIdTable_unk`, `db/RandomItemTable_unk`.
+
+Mismo patron que la cola q5 (`docs/batch-auto-5kb-q5.md`): cargador de `/boot/*.csv` con `atn::Csv` + accesores,
+funciones `extern "C" fn_<addr>`.
+
+## Resumen
+
+| Unidad | 100% | matching |
+|---|---|---|
+| db/TreasureList_unk | 2/2 | si |
+| db/MarketPrice_unk | 4/4 | si |
+| db/StrategyAiTable_unk | 3/3 | si |
+| db/PlayerPriority_unk | 4/4 | si |
+| db/LevelEquipTable_unk | 4/4 | si |
+| db/VoiceLengthTable_unk | 2/2 | si |
+| db/TutorialTable_unk | 5/6 | no |
+| db/MemberList_unk | 2/3 | no |
+| db/ReverbPresetParam_unk | 3/3 | si |
+| db/SkillGrowth_unk | 6/6 | si |
+| db/SkillParam_unk | 6/7 | no |
+| db/HairBackControl_unk | 8/8 | si |
+| db/PlayerParam_unk | 4/7 | no |
+| db/TreasureBoxTable_unk | 6/7 | no |
+| db/ParseUtil_unk | 11/15 | no |
+| db/MapEnvSeTable_unk | 10/11 | no |
+| db/MapIdTable_unk | 5/7 | no |
+| db/RandomItemTable_unk | 16/17 | no |
+
+Total 102/116 funciones al 100%; 9 unidades `matching: true`. Build final: `main.dol: OK`, `regress.py` lost: 0 (y
+ninguna funcion baja de fuzzy frente a `report_main.json`). Ningun cambio de limites en `splits.txt`.
+Cambios fuera de las unidades de la cola: renombrados en `symbols.txt` de `fn_8021BE40` (db/SpText_unk) y
+`fn_8021A4E0`/`fn_8021A4CC` (de ParseUtil, si en la cola); cabecera compartida `include/atn/Csv.h` (ctor `CsvU()` y
+`CsvU::vf08` con ternario, equivalente); cabecera nueva `include/db/ParseUtil_unk.h`.
+
+### Pendiente para el usuario
+- Mover limites de unidades ajenas: 0x8021CC50-0x8021CCC4 (destructor debil de `db/SpText_unk`, hoy en
+  StrategyAiTable) y 0x80216A2C-0x80216AFC (dos destructores debiles de `db/MapLink_unk`, hoy en MapIdTable).
+- Nombres reales propuestos: `db/HairBackControl_unk` -> tabla de nombres de motion; `db/ParseUtil_unk` -> lector de
+  parametros de bala/habilidad (`BulletParam`).
+- Problema comun sin resolver: el original guarda la direccion del `atn::CsvU` en un registro salvado durante su ctor
+  inline (TutorialTable, SkillParam, MapIdTable; ya visto en q5) y llama fuera de linea a helpers que aqui se inlinean.
+
+## db/TreasureList_unk (commit 16e9845)
+- Resultado: 2/2 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_80742740` -> `sFileNameStr`, `lbl_80742758` -> `@stringBase0`, `lbl_8087F338` -> `sEntries`,
+    `lbl_8087F33C` -> `sCount`, `lbl_80882FD0` -> `sFileName` (`scope:local`).
+  - Tipo inferido `TreasureListEntry_unk` (0x10, 4 enteros; filas cuya primera columna esta vacia).
+- Hallazgos MWCC
+  - Un indice `i` de bucle (`&sEntries[i]`) se reduce a un desplazamiento inicializado en el preheader (tras la llamada
+    previa); si el original pone el `li rX, 0` antes de esa llamada, el desplazamiento es una variable del fuente
+    (`(T*)((char*)p + ofs)`, `ofs += sizeof(T)`), declarada antes para el orden de registros.
+
+## db/MarketPrice_unk (commit 3ffbd99)
+- Resultado: 4/4 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_802178C4` -> `__ct__15MarketPrice_unkFv`, `lbl_8073FC00` -> `sFileNameStr`, `lbl_8073FC18` ->
+    `@stringBase0`, `lbl_8087F280` -> `sEntries`, `lbl_80882F28` -> `sFileName`. **Tamano cambiado**: `lbl_80882F30`
+    (1.0f) de 0x8 a 0x4 (float + relleno: objdiff lo trataba como `double`).
+  - Tipo inferido `MarketPrice_unk` (0xE8 = 58 floats a 100.0f; 10 columnas del CSV, sin cabecera ni comprobacion de carga
+    previa); ctor inline cuya copia fuera de linea usa `__construct_new_array`.
+- Hallazgos MWCC
+  - Bucle con la prueba arriba y el `next()` del CSV abajo = `do { if (row >= N) break; ...; row++; } while (next());`.
+  - `0 <= a && a < N && ...` con `return` del valor dentro y el literal al final reproduce `blt/bge` a la rama final.
+
+## db/StrategyAiTable_unk (commit 39b8259)
+- Resultado: 3/3 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios. **Propuesta**: la primera funcion (0x8021CC50, destructor `{size, T* data}` con
+    `__destroy_new_array` de `fn_8021BE40`) va justo detras del `__sinit` de `db/SpText_unk` (0x8021CB7C, que la
+    registra para sus 6 buffers globales): es la copia debil de `atn::Buffer_unk<T>::~Buffer_unk` del fichero de SpText.
+    Mover el limite SpText/StrategyAiTable a 0x8021CCC4 toca una unidad ajena: pendiente. Mientras, se escribe aqui
+    como clase no plantilla `SpTextBuffer_unk` con destructor no inline (la instanciacion explicita
+    `template atn::Buffer_unk<X>::~Buffer_unk();` compila pero MWCC no emite nada).
+  - `symbols.txt`: `fn_8021CC50` -> `__dt__16SpTextBuffer_unkFv`, **fuera de la unidad** `fn_8021BE40` (en
+    `db/SpText_unk`) -> `__dt__15SpTextEntry_unkFv` (necesario para enlazar la llamada); datos `lbl_80742660` ->
+    `sFileNameStr`, `lbl_8074268C` -> `sKinds`, `lbl_80742698` -> `@stringBase0`, `lbl_8087F308` -> `sEntries`,
+    `lbl_8087F30C` -> `sCount`, `lbl_80882F98` -> `sFileName`. Las cadenas "ATTACK"/"GUARD" (objetos sueltos) quedan
+    como `lbl_`.
+  - Tipo inferido `StrategyAiEntry_unk` (0x20: id, tipo "ATTACK"/"GUARD"/2, 6 enteros).
+- Hallazgos MWCC
+  - El puntero de fila (`entry = &sEntries[i]`) declarado antes de `data` (resultado de la carga) en el mismo bloque
+    reparte los registros salvados como el original (data en r31, entry en el mas bajo); declarado en el cuerpo del
+    bucle deja `data` en el registro mas bajo.
+
+## db/PlayerPriority_unk (commit 7ec63ad)
+- Resultado: 4/4 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_80742370` -> `sProtectorFileNameStr`, `lbl_80742394` -> `sWeaponFileNameStr`, `lbl_807423B8` ->
+    `@stringBase0` ("ATK".."AGI", ""), `lbl_8087F2B0` -> `sProtectors`, `lbl_8087F2B4` -> `sWeapons`, `lbl_80882F48` ->
+    `sProtectorFileName`, `lbl_80882F4C` -> `sWeaponFileName`.
+  - Tipos inferidos `PlayerPriority_unk` (0xF4: id + 30 pares `PlayerPriorityItem_unk` {tipo 1-6, valor}), 7 filas
+    por tabla (armas y protectores). `fn_802188B4` recibe `atn::Csv*` (lee el resto de la fila).
+- Hallazgos MWCC: nada nuevo (declarar `field` fuera del `for` para que el contador reciba el registro mas bajo).
+
+## db/LevelEquipTable_unk (commit 7739345)
+- Resultado: 4/4 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios (el inicio 0x8021414C, corte ambiguo segun `splits-auto-B`, cuadra: la unidad anterior
+    `db/ItemRare_unk` ya esta decompilada hasta ahi).
+  - `symbols.txt`: `lbl_8073FAB0` -> `sFileNameStr`, `lbl_8073FACC` -> `@stringBase0`, `lbl_8087F240` -> `sEntries`,
+    `lbl_8087F244` -> `sCount`, `lbl_80882EF8` -> `sFileName`.
+  - Tipo inferido `LevelEquipEntry_unk` (0x24: 2 ids con prefijo de 2 letras, 2x3 enteros, id final). Los accesores
+    limitan el indice con macros `MIN(MAX(i, 0), sCount - 1)` (el valor limitado se calcula dos veces).
+- Hallazgos MWCC
+  - `x = cond ? f() : 0` deja `li r3,0` + un solo `stw`; si el original guarda un 0 de registro salvado en la rama
+    `else` (`stw r31`), es `if/else` con una asignacion en cada rama.
+  - `if (0 > k || k >= N) return 0;` da `blt fallo; cmpwi; blt ok` (dos `cmpwi` con signo); `k >= 0 && k < N` se fusiona
+    en `cmplwi`.
+
+## db/VoiceLengthTable_unk (commit 390b4de)
+- Resultado: 2/2 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_807427A8` -> `sFileNameStr`, `lbl_807427C8` -> `@stringBase0` ("" + cadenas de `basic_string`),
+    `lbl_8087F348` -> `sEntries`, `lbl_8087F34C` -> `sCount`, `lbl_80882FE0` -> `sFileName`.
+  - Tipo inferido `VoiceLengthEntry_unk` (8: hash del nombre + duracion). `fn_8006B53C` declarado
+    `extern "C" std::string (const std::string&)` (ruta con el sufijo de idioma "_xx" sustituido; inferido). Incluye
+    `std/string_members.h` (el pool lleva las cadenas de error de `basic_string`).
+- Hallazgos MWCC: nada nuevo (`std::string path(p); path = f(path);` reproduce el `operator=` inline de `std/string.h`).
+
+## db/TutorialTable_unk (commit 3047ccf)
+- Resultado: 5/6 al 100%, matching no.
+- NONMATCHING: `fn_8021ED08` (cargador UTF-16) 97.71% - solo registros: el original guarda la direccion del
+  `atn::CsvU` en un registro salvado mientras corre su ctor inline (mismo problema que `db/PaletteTable_unk` y
+  `db/EquipParam_unk` de q5). Probado (en copia local de `include/atn/Csv.h`) llamar a `vf08` desde otro inline en el
+  ctor de `CsvBase`: sin efecto. No se toca la cabecera compartida.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_8021F040`/`fn_8021F054` -> `__ct__/__dt__17TutorialEntry_unkFv`; datos `lbl_80742760` ->
+    `sFileNameStr`, `lbl_8074277C` -> `sDemoFileNameStr`, `lbl_807427A0` -> `@stringBase0`, `lbl_8087F340` -> `sEntries`,
+    `lbl_8087F344` -> `sCount`, `lbl_80882FD8` -> `sFileName`, `lbl_80882FDC` -> `sDemoFileName`.
+    (`pairnames --apply` emparejo mal el ctor con `vf08` y `lbl_8077A0A8`/`lbl_8087EEC8` con simbolos de funciones:
+    corregido a mano; revisar siempre su salida en unidades con copias debiles.)
+  - Tipos inferidos `TutorialEntry_unk` (0xEC: id, entero, `atn::FixedString_unk<0x20>`, `WFixedString_unk<0x40>`
+    (wide, nuevo y local al .cpp), entero, `FixedString_unk<0x40>`); `TutorialSettings_unk` (solo `m194`, version demo,
+    de `lbl_8087F0A8`). `fn_8006F5E8` declarado `extern "C" void (void* font, std::string*, const wchar_t*)` (convierte
+    UTF-16 a `std::string`).
+- Hallazgos MWCC: nada nuevo.
+
+## db/MemberList_unk (commit 1b721e2)
+- Resultado: 2/3 al 100%, matching no.
+- NONMATCHING: `fn_80217D9C` (fila de un nivel) 98.39% - solo registros (`count - 1` y su desplazamiento `* 0x14`
+  intercambiados entre r4 y r5); probados locales para el contador, la tabla y el primer nivel, puntero de fila y otros
+  ordenes de comparacion. Se autoinlinea en el cargador (definida despues) y ahi si sale igual.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_80217D64` -> `__ct__14MemberList_unkFv`; datos `sFileNameStr`, `sCampFileNameStr`, `@stringBase0`
+    (0x8073FC54), `sEntries`, `sCount`, `sFileName`, `sCampFileName`.
+  - Tipo inferido `MemberList_unk` (0x14: nivel, 7 `bool` de miembros + contador, 7 `bool` de campamento + contador;
+    ctor con `memset`). Dos ficheros: `/boot/member_list.csv` y `/boot/member_camp_list.csv`.
+- Hallazgos MWCC
+  - `a[j] = *f() != 0;` calcula `&a[j]` antes de la llamada (registro salvado); leyendo antes el campo en un local
+    (`const char* field = f(); a[j] = *field != 0;`) la direccion se calcula despues, como el original.
+
+## db/ReverbPresetParam_unk (commit 1962d2a)
+- Resultado: 3/3 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_80742418` -> `sMapIds`, `lbl_80742460` -> `sOtherIds`, `lbl_807424A8` -> `sFileNameStr`,
+    `lbl_80742500` -> `sTypes`, `lbl_8074251C` -> `@stringBase0`, `lbl_8087F2C0` -> `sEntries`, `lbl_8087F2C4` -> `sCount`,
+    `lbl_80882F58` -> `sFileName`. Las cadenas "normal".."cave" quedan como `lbl_`.
+  - Tipo inferido `ReverbPreset_unk` (0x24: id, tipo por prefijo "normal".."cave" o -1, 7 floats). El cargador solo
+    corre si existe el motor de sonido `lbl_8087EE90`, y le pasa cada fila (`fn_80049E54`) tras vaciarlo (`fn_8004A03C`).
+    `fn_80219558` da el indice de jugador (0-6) de un id de chara (lo usa `db/PlayerParam_unk`; tablas de 18 ids,
+    casos especiales 0x1870E -> 1 y 0x30F7A -> 9); con `fn_80219544` (id por indice) y sus tablas podrian ser de otro
+    fichero entre PlayerParam y el cargador de reverb (sin pruebas para cortar).
+- Hallazgos MWCC
+  - 7 campos seguidos de un struct leidos con la misma llamada no salen como bucle: el original los escribe uno a uno
+    (con un array y un `for` MWCC no desenrolla 7 iteraciones con llamadas).
+  - Elemento de tabla usado dos veces en el cuerpo de un bucle de busqueda (`t = tabla[i]; strncmp(s, t, strlen(t))`):
+    declararlo dentro del cuerpo le da el registro mas bajo (se crea despues del puntero reducido).
+
+## db/SkillGrowth_unk (commit abf7a3e)
+- Resultado: 6/6 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - **Cabecera compartida `include/atn/Csv.h`** (cambios aditivos/equivalentes): nuevo ctor `atn::CsvU()` sin texto
+    (separadores `lbl_807830B8`, otra copia de L" \t" que usan tambien `MP/Text`, `db/MapLink_unk`, `db/SpText_unk`;
+    declarado `extern "C" wchar_t lbl_807830B8[3]`), y `CsvU::vf08` escrito con `m04 = length != 0 ? text + 1 : text;`
+    (el original inlinado aqui usa `beq; addi r0; b; mr r0`). La copia debil `vf08__Q23atn4CsvUFPCwi` (0x8011BB90,
+    `game/CampSaveLoad`) sigue al 100% y no baja ninguna funcion en `report.json`.
+  - `symbols.txt`: `fn_8021AEF0`/`fn_8021AF10` -> `__ct__/__dt__15SkillGrowth_unkFv` (pairnames emparejaba el dtor con
+    el de `ptr_string_base`: corregido a mano); datos `sFileNameStr`, `sTextFileNameStr`, `@stringBase0` (0x807425F8),
+    `@wstringBase0` (0x807830F8, `.data`, L"%s"), `sEntries`, `sCount`, `sTexts`, `sFileName`, `sTextFileName`.
+  - Tipo inferido `SkillGrowth_unk` (0x18: id, id de habilidad, dos `atn::ptr_string_base<wchar_t,0>` a textos de
+    `/boot/skill_growth_text_xx.u16`). `atn::ptr_string_base` se redeclara igual que en
+    `atn/ptr_string_base_wchar_t_0.cpp` (no hay cabecera; candidata a `include/atn/`).
+- Hallazgos MWCC
+  - Segundo caso (tras TreasureList) de fila indexada por desplazamiento en bytes explicito: si el `li rX, 0` del
+    indice va antes de una llamada (o de un inline como `vf08`) previa al bucle, no es un indice reducido.
+
+## db/SkillParam_unk (commit 770dcce)
+- Resultado: 6/7 al 100%, matching no.
+- NONMATCHING: `fn_80219C30` (textos UTF-16) 87.77% - el original llama fuera de linea a `fn_80219F1C` (aqui se inlinea:
+  no se supera el presupuesto, como en `db/CharaIdTable_unk`; con `static` se inlinea y desaparece) y guarda la
+  direccion del `atn::CsvU` en un registro salvado durante su ctor inline (como `db/TutorialTable_unk`).
+- **Decisiones sin el usuario**
+  - Splits sin cambios. `db/ParseUtil_unk` (siguiente en `.text`) es otro fichero (tiene su propio pool ":" + cadenas de
+    `basic_string` en 0x80742560 tras el pool de esta unidad); no se fusionan.
+  - Cabecera nueva `include/db/ParseUtil_unk.h`: `BulletParam_unk` (0xBC, parametros de bala/habilidad, ctor
+    0x8021A4E0; mismo objeto que `HitInfo_unk` de `game/HitInfo_unk.h`, que no se toca) y las funciones de lectura
+    `fn_80219F84`/`fn_8021A5F8` de `db/ParseUtil_unk`.
+  - `symbols.txt`: `fn_80219EC4` -> `__ct__14SkillParam_unkFv`, `fn_8021A4E0` (en `db/ParseUtil_unk`) ->
+    `__ct__15BulletParam_unkFv`; datos `sTextFileNameStr`, `@stringBase0` (0x80742540: ruta del CSV, "Version", ""),
+    `@wstringBase0` (0x8087DB98, `.sdata`, L""), `sEntries`, `sCount`, `sBuf`, `sTexts`, `sTextFileName`.
+  - Tipo inferido `SkillParam_unk : BulletParam_unk` (0xD0). `fn_80219E6C` (dato de bala/habilidad por id, usado en
+    muchas unidades como `HitInfo_unk*`) devuelve aqui `SkillParam_unk*`.
+- Hallazgos MWCC
+  - Una direccion de un local (`csv.mField + 2`) que el original tiene en un registro salvado antes del bucle
+    (`addi r26, r1, 0x26`) sale escribiendola en un puntero local antes del bucle; MWCC no saca solo esas direcciones.
+
+## db/HairBackControl_unk (commit 1e9fc07)
+- Resultado: 8/8 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_807417C0` -> `sNames`, `lbl_80742210` -> `sNames2`, `lbl_807422B0` -> `@stringBase0` ("", ruta,
+    "_ev", cadenas de `basic_string`), `lbl_8087F290` -> `sHashes`, `lbl_8087F294` -> `sHashes2`, `lbl_8087F298` ->
+    `sEnabled`, `lbl_8087F29C` -> `sHairHashes`, `lbl_8087F2A0` -> `sHairCount`. Los 610 nombres "CH_*" (objetos sueltos
+    de `.rodata`) quedan como `lbl_`; las tablas de la fuente se generaron del asm (orden de los objetos = orden de
+    primer uso, comprobado).
+  - Contenido real: tabla de nombres de motion (570 + 40), su hash, cuales estan disponibles en el mapa actual
+    (`fn_80218268`, bits de `MapAttr_unk::mFlags` 0xB4 de `fn_8021771C`) y la lista `/boot/hair_back_control.csv`.
+    **Nombre real propuesto**: algo como `db/MotionNameTable` (el CSV es solo una parte). El cargador del CSV escribe
+    siempre `sHairHashes[0]` (fallo del original, reproducido).
+  - `fn_80473FCC` declarado `extern "C" void (atn::LoadHandle*, const char*)` (carga sincrona; inferido).
+    `fn_80218260` (`return &p->mD0`) sobre un tipo desconocido `Unk_80218260`.
+- Hallazgos MWCC
+  - `T obj(a(), b())` con dos llamadas como argumentos: se evalua primero la de la derecha; si el original llama antes a
+    `size()` que a `data()`, no hay local para el tamano.
+
+## db/PlayerParam_unk (commit 2eaac9e)
+- Resultado: 4/7 al 100%, matching no.
+- NONMATCHING:
+  - `fn_80218BD4` (cargador) 88.66% - el original recalcula `player * 32` dentro del bucle interno (aqui MWCC lo saca
+    del bucle y reduce el indice del hueco), lo que cambia registros y el desenrollado; probados otros ordenes del
+    indice, puntero de fila y accesor inline.
+  - `fn_8021921C`, `fn_80219344` 99.05% - solo registros dentro de la busqueda inlinada (dos niveles de inline).
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_80219018` -> `__ct__15PlayerParam_unkFv`; datos `sFileNameStr`, `sDemoFileNameStr`,
+    `@stringBase0` (0x80742404: "", "begin", "skill", "end"), `sEntries`, `sFileName`, `sDemoFileName`.
+  - Tipos inferidos `PlayerParam_unk` (0x88: jugador, nivel, 0x80 `bool` de habilidades, 6 huecos; 32 por jugador, 7
+    jugadores), `PlayerChara_unk` (solo id 0x50 y nivel 0x874), `PlayerParamSettings_unk` (`m194`, version demo).
+  - Corregido el comentario de `fn_80219558` en `db/ReverbPresetParam_unk.cpp` (es indice de jugador, no preset).
+- Hallazgos MWCC
+  - Un `return found;` dentro de un bucle inlinado sale como `bge; b` al final; con `break` + `return found` tras el
+    bucle sale el `blt` directo del original (y la funcion sin inline da `bltlr` igual).
+  - Indice `player * 32 + i` con `player` `unsigned` no se reduce (se recalcula con `mulli` cada vez); con `int` si.
+
+## db/TreasureBoxTable_unk (commit a4a42af)
+- Resultado: 6/7 al 100%, matching no.
+- NONMATCHING: `fn_8021E5A4` (sorteo de un objeto del cofre) 96.86% - el original vuelve a calcular las mascaras de
+  `flags` del inline `GetRate_unk` antes del segundo bucle (aqui se comparten con el primero) y los registros salvados
+  cambian; probado el primer bucle en su propio inline (peor).
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_8021E41C` -> `__ct__15TreasureBox_unkFv`, `fn_8021E42C` -> `__ct__16TreasureItem_unkFv`; datos
+    `sFileNameStr`, `@stringBase0` (0x80742730: "begin", "end", ""), `sBoxes`, `sItems`, `sBoxCount`, `sItemCount`,
+    `sFileName` (renombrados a mano: `pairnames --data` emparejaba `lbl_80882FB4` con `fn_80211480`).
+  - Tipos inferidos `TreasureBox_unk` (0xC: id, puntero a sus objetos, numero), `TreasureItem_unk` (0xC: id, cantidad,
+    probabilidad), `TreasureItemData_unk` (solo `mKind` 0xBC de `fn_80211480`), `TreasureMpSession_unk` (solo `m540` de
+    `lbl_8087F610`). Inlines inventados `IsSpecial_unk`, `IsGil_unk`, `GetItemData_unk`, `IsKind_unk`, `GetRate_unk`.
+- Hallazgos MWCC
+  - Un inline `bool` escrito `return a || b;` da `li r0,0` antes de las comparaciones; con `if (a || b) return true;
+    return false;` sale `li r0,1; b; li r0,0` como el original.
+  - `if (x <= 0.0f) return r; ...` da `cror; bne` + copia del valor; `if (x > 0.0f) { ... } return r;` da el `ble` directo.
+
+## db/ParseUtil_unk (commit 3391aac)
+- Resultado: 11/15 al 100%, matching no (ademas, las copias debiles de `std/string_members.h` meten 2 bytes de
+  `.sdata` que el fichero original no tiene: no se podria enlazar sin tocar esa cabecera).
+- NONMATCHING: `fn_8021A684` 98.06%, `fn_8021A7A0` 98.97%, `fn_8021A9CC` 98.06%, `fn_8021AA48` 97.86% - una sola
+  instruccion: el original copia el 0 del primer `bool` inlinado desde el registro del resultado (`mr r4, r6`) y aqui se
+  vuelve a cargar (`li r4, 0`); probadas cadenas if/else, ternario, local para el primer test y otras formas de los
+  predicados.
+- **Decisiones sin el usuario**
+  - Splits sin cambios (fichero propio: pool ":" + cadenas de `basic_string` en 0x80742560).
+  - `include/db/ParseUtil_unk.h` (creada en SkillParam) completada con la disposicion de `BulletParam_unk` (0xBC, a
+    partir del ctor 0x8021A4E0 y del lector `fn_80219F84`); `mName`/`mText` son `const wchar_t*` (textos UTF-16).
+  - `symbols.txt`: `fn_8021A4CC` -> `__ct__Q23std59basic_string<c,...>Fv` (copia debil del ctor por defecto de
+    `std::string`, emitida aqui porque el lector supera el presupuesto de inline y llama a todo fuera de linea),
+    `lbl_80742560` -> `@stringBase0`.
+  - `atn::DegToRad_unk` se declara solo (sin incluir `math/Vec.h`): el original la llama fuera de linea y su constante
+    (pi/180) no esta en el `.sdata2` de este fichero.
+  - Predicados de tipo de bala (`mKind` 0-6) como funciones `extern "C" bool`. **Nombre real propuesto**: algo como
+    `db/BulletParam` (no es un util generico: lee y clasifica parametros de bala/habilidad).
+- Hallazgos MWCC
+  - Funciones `bool` que el original materializa (`li r5,0 ... li r5,1; mr r3,r5`) aunque el cuerpo sea un `||`: escribir
+    `bool result = false; if (a || b) result = true; return result;` (con `return a || b;` devuelve directo).
+  - Asignaciones en el cuerpo del ctor (no lista de inicializacion) para reproducir un orden de stores que no sigue la
+    declaracion de los miembros.
+
+## db/MapEnvSeTable_unk (commit 2dedd1a)
+- Resultado: 10/11 al 100%, matching no.
+- NONMATCHING: `fn_80214F80` (sonido de un mapa por clave) 97.71% - solo asignacion de registros volatiles (el original
+  da r7/r8 al bucle interno y r9-r12 al externo); probadas formas indice/puntero de ambos bucles y `while`.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_80214BF4`/`fn_80214E24` -> `__ct__/__dt__12MapEnvSe_unkFv`, `fn_80214E04` -> `__ct__9EnvSe_unkFv`,
+    `fn_80214E14`/`fn_80214E94` -> `__ct__/__dt__16LoadingEnvSe_unkFv`; datos `sFileNameStr`, `sLoadingFileNameStr`,
+    `@stringBase0` (0x8073FB0C), `sEntries`, `sCount`, `sLoading`, `sLoadingCount`, `sFileName`, `sLoadingFileName` y los
+    `""` de `.sdata`: 0x8087DB70/74 -> `@STRING@reserve__Q23atn22Vector_unk<9EnvSe_unk>FUii(@0)` (del `push_back` inline),
+    0x8087DB78/7C -> `@STRING@InitList_unk__FRQ23atn22Vector_unk<9EnvSe_unk>Ui(@0)`.
+  - Tipos inferidos `MapEnvSe_unk` (0x18: id de mapa en 3 numeros + `atn::Vector_unk<EnvSe_unk>`; mismo patron que
+    `RareEntry_unk` de q5, con su inline `InitList_unk`), `EnvSe_unk` (clave, id de sonido), `LoadingEnvSe_unk` (0x14:
+    id de sonido + `atn::FixedString_unk<0x10>`), `EnvSeSound_unk` (solo `m04` de `lbl_8087EE90`).
+  - El pool tiene un 0 extra tras "GROUP_VRC%s": el literal se escribe `"GROUP_VRC%s\0"`.
+- Hallazgos MWCC
+  - Bucle de lectura con la prueba arriba (`campo; if (vacio) salir; ...; b arriba`) = `for (;;) { f = ...; if (!*f)
+    break; ... }` (con `while (*(f = ...))` MWCC lo rota).
+  - Contador reutilizado como indice de la segunda pasada (mismo registro en el original): una sola variable; si ademas
+    el `li` va antes de la llamada previa, desplazamiento en bytes.
+
+## db/MapIdTable_unk (commit 6e46502)
+- Resultado: 5/7 al 100%, matching no.
+- NONMATCHING:
+  - `fn_80216CD0` (cargador de las 3 tablas de mapas) 98.23% - el original guarda la direccion del `atn::CsvU` en un
+    registro salvado durante su ctor inline (mismo problema que TutorialTable/PaletteTable), y se desplazan los demas.
+  - `fn_802174F4` (`/boot/map_chara_list.csv`) 97.22% - solo numeracion de registros salvados; probado el orden de
+    los locales de la busqueda inline.
+- **Decisiones sin el usuario**
+  - Splits sin cambios. **Propuesta**: las dos primeras funciones (0x80216A2C, 0x80216A94: destructores
+    `{size, cap, T* data}` con `delete[]`) van detras del `__sinit` de `db/MapLink_unk` (que las registra para sus
+    listas globales): son copias debiles de `atn::Vector_unk<T>::~Vector_unk` de ese fichero. Mover el limite
+    MapLink/MapIdTable a 0x80216AFC toca una unidad ajena: pendiente. Se escriben aqui como clases no plantilla
+    `MapLinkListA_unk`/`MapLinkListB_unk` (como `SpTextBuffer_unk`).
+  - `symbols.txt`: `fn_80216A2C`/`fn_80216A94` -> `__dt__16MapLinkListA_unkFv`/`__dt__16MapLinkListB_unkFv`,
+    `fn_802174E8` -> `__ct__9MapId_unkFv`; datos `sFileNameStr`, `sMotionFileNameStr`, `sCharaFileNameStr`,
+    `sSubIdFileNameStr`, `@stringBase0` (0x8073FBF0: "wd", "tw", "dg", "mp", ""), `@wstringBase0` (0x8087DB90, `.sdata`,
+    L""), `sEntries`, `sCount`, `sMembers`, `sTexts` y los 4 punteros de `.sdata2` (renombrados a mano: `pairnames --data`
+    emparejaba mal por las funciones no al 100%).
+  - Tipo inferido `MapId_unk` (0xCC: id de texto, nombre UTF-16, tipo/mapa/punto del id, textos, 16 enteros, bits de
+    personajes de `/boot/map_motion_table.csv`, lista de miembros de `/boot/map_chara_list.csv`, datos de
+    `/boot/map_sub_id_table.csv`). `fn_802174F4` sale sin liberar el fichero si un id no existe (como el original).
+- Hallazgos MWCC: nada nuevo.
+
+## db/RandomItemTable_unk (commit eddd641)
+- Resultado: 16/17 al 100%, matching no.
+- NONMATCHING: copia debil `__dt__Q23atn34FixedArray_unk<14RandomItem_unk,8>Fv` (0x8021D58C) 96.30% - el original
+  vuelve a probar la direccion del array de elementos antes de `__destroy_arr` (un `beq` mas); un destructor vacio
+  declarado en `include/atn/FixedArray.h` no lo cambia (probado y revertido: la cabecera queda igual).
+- **Decisiones sin el usuario**
+  - Splits sin cambios (el corte ambiguo 0x8021CF4C/0x8021CF8C cuadra: 0x8021CF4C es el destructor no inline de
+    `RandomItem_unk`, primera funcion del fichero y solo usada aqui).
+  - `symbols.txt`: `fn_8021CF4C` -> `__dt__14RandomItem_unkFv`, `fn_8021D574` -> `__ct__14RandomItem_unkFv`,
+    `fn_8021D520`/`fn_8021D58C` -> `__ct__/__dt__Q23atn34FixedArray_unk<14RandomItem_unk,8>Fv`, `fn_8021D4C4`/`fn_8021D650`
+    -> `__ct__/__dt__15RandomTable_unkFv`, `fn_8021D5F8`/`fn_8021D6B8` -> `__ct__/__dt__13WindTable_unkFv`, `fn_8021DE50`
+    -> `__ct__17MerchantTable_unkFv`; datos `sFileNameStr`, `sMerchantFileNameStr`, `@stringBase0` (0x807426E8:
+    "begin", "Random", "Wind", "", "end", "%s"), `sRandom`, `sRandomCount`, `sWind`, `sWindCount`, `sMerchant`,
+    `sMerchantCount`, `sFileName`, `sMerchantFileName` (a mano: `pairnames` confundia los destructores).
+  - Tipos inferidos `RandomItem_unk` (0x18: id, nombre `atn::FixedString_unk<0x10>`, probabilidad 10 por defecto),
+    `RandomSlot_unk` = `atn::FixedArray_unk<RandomItem_unk, 8>` (de `include/atn/FixedArray.h`), `RandomTable_unk`
+    (0x3E0), `WindTable_unk` (0x3DC), `MerchantTable_unk` (0x108, `/boot/marchant_item_table.csv`).
+  - `fn_8021D770` usa un accesor inline `GetItem_unk(slot, unsigned i)` y `fn_8021D9D4` `mData[(unsigned int)i]`: cada
+    forma reproduce una de las dos funciones gemelas (con la otra forma bajan al 95-97%).
+- Hallazgos MWCC
+  - Indice `int` convertido a `unsigned` en el acceso (`a[(unsigned)i]` o un inline con parametro `unsigned`): el bucle
+    desenrollado recalcula cada `(i+k)*size` con `mulli` en vez de reducirlo a un puntero.
+  - `obj->arr[k].size()` / `obj->arr[k].push_back(x)` sin puntero local crean dos variables de induccion (una con el
+    desplazamiento del miembro plegado), como el original; con `T* p = &obj->arr[k]` solo una.

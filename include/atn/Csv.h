@@ -74,6 +74,7 @@ public:
 };
 class CsvPipe : public CsvBase<char, '|', '\r', '"'> {};
 extern "C" wchar_t lbl_8077A0A8[3]; // inferred: L" \t"
+extern "C" wchar_t lbl_807830B8[3]; // inferred: L" \t"
 // inferred: the text starts with a byte order mark, which is skipped (constructor inlined at
 // 0x8011B8D4, vf08 weak copy at 0x8011BB90)
 class CsvU : public CsvBase<wchar_t, ',', '\r', '"'> {
@@ -82,11 +83,11 @@ public:
         : CsvBase<wchar_t, ',', '\r', '"'>(length != 0 ? text + 1 : text, length != 0 ? length - 1 : length) {
         fn_8005BCE8(lbl_8077A0A8);
     }
+    // inferred: without text (inlined at 0x8021AAB8, db/SkillGrowth_unk; another copy of L" \t":
+    // lbl_807830B8, also used by MP/Text, MapLink_unk, SpText_unk)
+    CsvU() { fn_8005BCE8(lbl_807830B8); }
     virtual void vf08(const wchar_t* text, int length) {
-        if (length != 0) {
-            text++;
-        }
-        m04 = text;
+        m04 = length != 0 ? text + 1 : text;
         if (length != 0) {
             length--;
         }

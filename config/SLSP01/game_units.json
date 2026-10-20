@@ -1092,6 +1092,96 @@
   "matching": false
  },
  {
+  "name": "db/TreasureList_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/MarketPrice_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/StrategyAiTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/PlayerPriority_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/LevelEquipTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/VoiceLengthTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/TutorialTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/MemberList_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ReverbPresetParam_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/SkillGrowth_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/SkillParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/HairBackControl_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/PlayerParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/TreasureBoxTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ParseUtil_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/MapEnvSeTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/MapIdTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/RandomItemTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/ptr_string_base_char_0.cpp",
   "classes": [
    "atn::ptr_string_base<char, 0>"
