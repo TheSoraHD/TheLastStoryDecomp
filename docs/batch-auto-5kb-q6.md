@@ -167,7 +167,7 @@ funciones `extern "C" fn_<addr>`.
   - Segundo caso (tras TreasureList) de fila indexada por desplazamiento en bytes explicito: si el `li rX, 0` del
     indice va antes de una llamada (o de un inline como `vf08`) previa al bucle, no es un indice reducido.
 
-## db/SkillParam_unk (commit HASH)
+## db/SkillParam_unk (commit 770dcce)
 - Resultado: 6/7 al 100%, matching no.
 - NONMATCHING: `fn_80219C30` (textos UTF-16) 87.77% - el original llama fuera de linea a `fn_80219F1C` (aqui se inlinea:
   no se supera el presupuesto, como en `db/CharaIdTable_unk`; con `static` se inlinea y desaparece) y guarda la
@@ -186,3 +186,23 @@ funciones `extern "C" fn_<addr>`.
 - Hallazgos MWCC
   - Una direccion de un local (`csv.mField + 2`) que el original tiene en un registro salvado antes del bucle
     (`addi r26, r1, 0x26`) sale escribiendola en un puntero local antes del bucle; MWCC no saca solo esas direcciones.
+
+## db/HairBackControl_unk (commit HASH)
+- Resultado: 8/8 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_807417C0` -> `sNames`, `lbl_80742210` -> `sNames2`, `lbl_807422B0` -> `@stringBase0` ("", ruta,
+    "_ev", cadenas de `basic_string`), `lbl_8087F290` -> `sHashes`, `lbl_8087F294` -> `sHashes2`, `lbl_8087F298` ->
+    `sEnabled`, `lbl_8087F29C` -> `sHairHashes`, `lbl_8087F2A0` -> `sHairCount`. Los 610 nombres "CH_*" (objetos sueltos
+    de `.rodata`) quedan como `lbl_`; las tablas de la fuente se generaron del asm (orden de los objetos = orden de
+    primer uso, comprobado).
+  - Contenido real: tabla de nombres de motion (570 + 40), su hash, cuales estan disponibles en el mapa actual
+    (`fn_80218268`, bits de `MapAttr_unk::mFlags` 0xB4 de `fn_8021771C`) y la lista `/boot/hair_back_control.csv`.
+    **Nombre real propuesto**: algo como `db/MotionNameTable` (el CSV es solo una parte). El cargador del CSV escribe
+    siempre `sHairHashes[0]` (fallo del original, reproducido).
+  - `fn_80473FCC` declarado `extern "C" void (atn::LoadHandle*, const char*)` (carga sincrona; inferido).
+    `fn_80218260` (`return &p->mD0`) sobre un tipo desconocido `Unk_80218260`.
+- Hallazgos MWCC
+  - `T obj(a(), b())` con dos llamadas como argumentos: se evalua primero la de la derecha; si el original llama antes a
+    `size()` que a `data()`, no hay local para el tamano.
