@@ -42,15 +42,24 @@ struct CharaShade_unk;
 
 // inferred: object at CharaTask+0xD74 (class unknown)
 struct CharaD74_unk {
+    // inferred: inlined in the CharaC58_unk constructor (0x8011BD14)
+    CharaD74_unk()
+        : m00(0), m01(0), m02(0), m04(0), m06(0), m08(0), m0C(0), m10(0), m14(0.0f), m18(0.0f), m1C(0.0f), m20(0) {}
     int fn_8013A144();
+    // inferred: sets the kind and starts it (BattleCharaTask, Em002Skelton, PickTask; name invented)
+    void fn_8011CD84(CharaTask* chara, int kind);
     int fn_8011D1FC();
     int fn_8011D21C();
+    // inferred: flag accessors of m20 (they reload the word, CharaD74_unk::fn_8011CD84); names invented
+    bool IsFlag_unk(unsigned int flag) const { return (m20 & flag) == flag; }
+    void SetFlag_unk(unsigned int flag) { m20 |= flag; }
+    void ClearFlag_unk(unsigned int flag) { m20 &= ~flag; }
 
     signed char m00; // inferred: kind (6 is checked by CharaTask::fn_80139560)
     signed char m01; // inferred: label kind shown over the character (0x80149A30)
     short m02; // inferred: counter (game/PickTask)
     short m04;
-    unsigned char m06[0x08 - 0x06];
+    short m06; // inferred: step counter of kinds 2 and 4 (fn_8011CD84)
     int m08;   // inferred: "WarpPointId" (debug menu, vf30)
     int m0C;   // inferred: "SafeAreaId"
     int m10;   // inferred: "UnsafeAreaId"
@@ -160,14 +169,15 @@ struct CharaC58_unk {
     int m08;
     RouteWalker_unk m0C; // 0xC64
     int mB4; // 0xD0C: inferred: compared with the player's (fn_8017A9A8); a group or map id
-    unsigned char mB8[0xBC - 0xB8];
+    int mB8;
     int mBC;        // 0xD14: inferred: timer of mode 0 and 4
     int mC0;        // 0xD18 in CharaTask: inferred: nonzero stops chr::ControlRide (0x801C6FE8)
     CharaTask* mC4; // 0xD1C: inferred: another character (its status is read by CharaStatus::fn_8012DB04)
     int mC8;
     CharaTask* mCC; // 0xD24: inferred: character followed in mode 9
     GimmickCommon* mD0; // 0xD28: inferred: gimmick (its position, vf54, is used by CharaTask::fn_80154488)
-    unsigned char mD4[0xDC - 0xD4];
+    int mD4;
+    unsigned int mD8; // 0xD30: inferred: flags (bit 2 is set by fn_8011BEB8)
     SkillRef_unk* mDC; // 0xD34: inferred: skill in use (its id is passed to fn_80219E6C)
     unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot
     unsigned short mDone_unk : 1; // 0xD38 bit 14: inferred: the current mode has finished
@@ -190,14 +200,43 @@ struct CharaC58_unk {
     int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
     int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
-    unsigned char m140[0x2B0 - 0x140];
+    unsigned char m140[0x60]; // inferred: cleared together by fn_8011BE54
+    unsigned char m1A0[0x10];
+    unsigned char m1B0[0x100];
     int m2B0; // 0xF08: inferred: counter of frames without moving (EnemyLizerdBlade tackle)
     int m2B4; // 0xF0C: inferred: wait counter
     int m2B8; // 0xF10: inferred: frame counter (fn_80154C08)
 
     void fn_8011BE54();
     void fn_8011BEB8(int arg);
+    void fn_8011BF94(); // inferred: full reset (BattleCharaTask 0x800EBA5C)
     void fn_8011C044(int arg);
+    // inferred: AI orders (called by the dispatcher fn_8001AEDC of AI/AiCommon_unk); each one sets
+    // the mode with fn_8011C074 and then its parameters. Names invented.
+    void fn_8011C074(CharaTask* chara, int mode);
+    void fn_8011C2D4(CharaTask* chara, int time);
+    void fn_8011C314(CharaTask* chara, int start);
+    void fn_8011C378(CharaTask* chara, int link);
+    void fn_8011C3F4(CharaTask* chara, CharaTask* target, float radius);
+    void fn_8011C46C(CharaTask* chara, int time);
+    void fn_8011C4AC(CharaTask* chara);
+    void fn_8011C610(CharaTask* chara, int count);
+    void fn_8011C650(CharaTask* chara, unsigned int skill, CharaTask* target);
+    void fn_8011C6C4(CharaTask* chara, int place, float radius);
+    void fn_8011C7C0(CharaTask* chara, CharaTask* target, float radius);
+    void fn_8011C850(CharaTask* chara);
+    void fn_8011C8E4(CharaTask* chara);
+    void fn_8011C8EC(CharaTask* chara, int place);
+    void fn_8011C92C(CharaTask* chara, int place, float radius);
+    void fn_8011C97C(CharaTask* chara, CharaTask* target, float radius);
+    void fn_8011C9F8(CharaTask* chara);
+    void fn_8011CA00(CharaTask* chara);
+    void fn_8011CA08(CharaTask* chara, CharaTask* target, float radius);
+    void fn_8011CA5C(CharaTask* chara, CharaTask* target, float radius, float angle);
+    void fn_8011CAE4(CharaTask* chara, float radius);
+    void fn_8011CC30(CharaTask* chara, int motion, int loop);
+    void fn_8011CCA0(CharaTask* chara, int motion0, int motion1, int loop);
+    void fn_8011CD1C(CharaTask* chara, int motion0, int motion1, int motion2, int loop);
 };
 
 // inferred: object at CharaTask+0x1188 (constructor 0x8011D24C called out of line; class unknown)

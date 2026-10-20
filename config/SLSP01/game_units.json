@@ -461,6 +461,14 @@
   "matching": false
  },
  {
+  "name": "game/CharaC58_unk.cpp",
+  "classes": [
+   "CharaC58_unk",
+   "CharaD74_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/CharaManager_PlayerTask.cpp",
   "classes": [
    "CharaManager<NpcTask>",
