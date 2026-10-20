@@ -1663,7 +1663,7 @@
   "classes": [
    "gmk::Item"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/MeetingSpot.cpp",
@@ -1951,7 +1951,7 @@
   "classes": [
    "gmk::WaterLevel"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/TodomeCountUp.cpp",
