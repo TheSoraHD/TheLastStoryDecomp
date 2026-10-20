@@ -83,3 +83,41 @@ Cola: `game/Gun`, `game/HomingBullet`, `game/main`, `game/MapPartsLocatorSet`, `
     el resultado anterior (`lfs f0; fmr f28,f1; fmr f1,f0`).
   - Comparacion de un `unsigned char` con `cmpwi` (no `cmplwi`): `(int)c == 6`.
 - Pendientes: `HomingBullet::vf1C`; `game/Bullet` (asm) tiene la clase base completa para decompilar.
+
+## game/main (commit 8395d0f)
+- Resultado: 11/14 al 100%, `matching: false`, `main.dol: OK`, regress lost: 0.
+- NONMATCHING:
+  - `main` 98.6%: reparto de registros salvados (el original deja el desplazamiento del bucle de
+    callbacks en r31); probados bucle sin local, referencia e inline.
+  - `fn_8047A4C8` (arranque) 39.7%: el original inlinea los ctores de `boost::function` desde
+    `boost::bind`, las `std::string`, `LightDesc_unk` y `ResRef_unk` pero llama a
+    `Vector_unk::push_back` fuera de linea (0x8047AEBC). Aqui los tres `push_back` sacan de linea a
+    todas las candidatas (todo o nada). Probablemente el `push_back` original recibe el elemento por
+    valor (nunca se inlinea); no se cambia `include/atn/Array_unk.h` porque lo usan otras unidades con
+    tipos POD. Ademas empieza con `OSInitFastCast` (asm inline de la cabecera del SDK, `mtspr GQR2-5`),
+    no escrito (regla 2): pendiente de permiso si se quiere usar `revolution/os/OSFastCast.h`.
+  - `atn::Vector_unk<boost::function<void()>>::push_back` (copia debil, 0x8047AEBC) 99.4%: huecos de
+    pila de los temporales del `operator=` de `boost::function` en el bucle de `reserve`.
+- **Decisiones sin el usuario**:
+  - Splits sin cambios.
+  - Cabecera nueva `include/game/HeapInfo_unk.h` (struct `HeapInfo_unk`/`FrameTimer_unk` sacados de
+    `src/game/HeapInfo_unk.cpp`, que ahora la incluye; anadidos los inline `Start_unk`/`Stop_unk`).
+    HeapInfo_unk sigue `matching: true` y el DOL OK.
+  - Clases con nombre real por los nombres de tipo de boost en .rodata: `ResetShutdown` (es el
+    `GameSystem_unk` de `src/game/GameSystem_unk.cpp`) y `ErrorManager` (lbl_8087F420).
+    `main` llama a `fn_80570CF8` como `extern "C"` (asi lo define GameSystem_unk.cpp) y el bind usa
+    `ResetShutdown::fn_80570CF8` (simbolo sin definir: el puntero a miembro de .data 0x80790068 no
+    empareja). Pendiente: renombrar `GameSystem_unk` -> `ResetShutdown` con `fn_80570CF8` como metodo.
+  - symbols.txt: `fn_80363DBC` -> `fn_80363DBC__12ErrorManagerFv`, `fn_803646C4` ->
+    `fn_803646C4__12ErrorManagerFv` (unidad asm, solo referenciados por los punteros a miembro),
+    `fn_800BD94C` -> `__ct__18RenderCallback_unkFQ25boost36function<FPv_v,Q23std12allocator<v>>i`
+    (unidad asm atn/RenderSystem_unk), `fn_8047A4C8` -> `fn_8047A4C8__Fv`, invokers/managers de boost
+    y `fn_80479EA0`/`fn_8047A158` (`RenderSystem_unk`, inline del sistema de render: tipos y nombres
+    inventados) por pairnames y a mano.
+  - game_units.json: entrada nueva `game/main.cpp`.
+- Hallazgos MWCC:
+  - Un llamador con varias llamadas a una candidata grande (push_back) saca de linea tambien
+    `boost::bind` y el ctor plantilla de `boost::function` (todo o nada); con una sola llamada se
+    inlinea todo.
+  - Las inline con una sola sentencia `m8B0 = Callback(func, arg);` (ctor de otro fichero que recibe
+    `boost::function` por valor) salen como copias debiles identicas a las del original.
