@@ -114,7 +114,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - Un helper inline de pocas sentencias dentro de una funcion pequena la hace autoinlinable en sus llamadoras;
     escribir el bucle directamente (sin helper) la dejo fuera de linea sin necesitar `((void)0)`.
 
-## atn/Util_unk (commit HASH5)
+## atn/Util_unk (commit 8a6bc87)
 
 - Resultado: 6/12 al 100%, `matching: false`. `main.dol: OK`.
 - NONMATCHING:
