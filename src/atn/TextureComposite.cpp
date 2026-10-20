@@ -176,7 +176,6 @@ void TextureComposite::vf10(Camera_unk* camera) {
     Texture_unk* tex = m0C;
     unsigned char* image = (unsigned char*)tex->mImage;
     int mips = GetMipCount_unk(tex);
-
     int w = GXGetTexObjWidth(&m0C->mObj);
     int h = GXGetTexObjHeight(&m0C->mObj);
     format = m08;

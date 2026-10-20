@@ -131,7 +131,6 @@ void D3Anime::vf14() {
         Frustum_unk* frustum = lbl_8087EFB4->GetFrustum_unk();
         sphere.mRadius = sqrt(300.0f * 300.0f + 300.0f * 300.0f + 0.0f * 0.0f);
         if (!frustum->IsCulled_unk(sphere)) {
-
             Draw();
         }
     }
