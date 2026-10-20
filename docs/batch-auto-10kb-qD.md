@@ -154,3 +154,40 @@ Patron comun: como las colas q5/q6 del lote anterior (`docs/batch-auto-5kb-q5.md
     llamador: dos funciones identicas seguidas de sus llamadores = dos instancias de una plantilla.
   - Un `unsigned long size;` compartido por varios bloques (en vez de uno por bloque) da el marco del original.
 - Pendientes para otras unidades: ninguno.
+
+## db/SpText_unk (commit b0d5b6b)
+- Resultado: 4/10 al 100%, `matching: false`, `main.dol: OK`.
+- NONMATCHING:
+  - `fn_8021B060` (`sp_types_text_xx.u16`) 95.04% - numeracion de registros (el original usa un registro salvado mas).
+  - `fn_8021B2F8` (`sp_conds_text_xx.u16`: nombres + 6 secciones de valores) 99.49% - registros de los contadores de la
+    primera pasada (probadas las 6 permutaciones de declaracion; la segunda pasada necesita variables propias).
+  - `fn_8021BFA0` (texto de condicion) 86.23% - el original recarga los datos del buffer al encontrar el valor (aqui
+    se reutiliza el registro) y numera distinto la busqueda de personaje (caso 20).
+  - `fn_8021C3F4` (`sp_text_xx.u16`) 98.43% - registros.
+  - `fn_8021C6A4` (texto de un efecto) 99.94% - solo el orden de los literales anchos en `@wstringBase0` (el original
+    tiene `L""`, `L"%s %s"`, `L""` antes de los formatos de porcentaje: codigo no reconstruido).
+  - `__sinit_\SpText_unk_cpp` 94.34% - mismo caso que MapLink (base `lbl_807C7FF8` frente a la seccion).
+- **Decisiones sin el usuario**
+  - Splits sin cambios (el placeholder de la fase 0 se sustituye por `atn::Buffer_unk<SpTextEntry_unk>::~Buffer_unk`
+    de `include/atn/Array_unk.h`, al 100%).
+  - `symbols.txt`: `__dt__16SpTextBuffer_unkFv` -> `__dt__Q23atn29Buffer_unk<15SpTextEntry_unk>Fv`, `fn_8021BE80` ->
+    `__ct__15SpTextEntry_unkFv`, `fn_8021CB7C` -> `__sinit_\SpText_unk_cpp` (local); datos `sTypesFileNameStr`,
+    `sCondsFileNameStr`, `sTextFileNameStr`, `@stringBase0` (0x80742658), `@wstringBase0` (0x807834D4, `.data`),
+    `sCondValues1` (0x807C8008, **tamano 0x80 -> 0x8**) y **simbolos nuevos** `sCondValues2..6` (0x807C8020,
+    0x807C8038, 0x807C8050, 0x807C8068, 0x807C8080), `@STRING@Resize_unk__Q23atn29Buffer_unk<15SpTextEntry_unk>Fii(@0)`
+    (0x8087DBA0/A4), `sTypes`, `sTypeTexts`, `sConds`, `sCondTexts`, `sTexts`, `sTextCount`, `sTextTexts` (**0x8 ->
+    0x4**), `sTypesFileName`, `sCondsFileName`, `sTextFileName`. `lbl_808813D0` (texto vacio, usado como
+    `extern "C"` en muchas unidades MP/game) se deja con su nombre: `ptr_string_base::c_str` lo usa directamente.
+  - `atn::ptr_string_base<T, N>` redefinida localmente (como en `atn/ptr_string_base_wchar_t_0.cpp` y
+    `_char_0.cpp`, sin cabecera comun); tipos inferidos `SpTextEntry_unk` (0xC), `SpEffect_unk` (tipo/valor/condicion/
+    valor/porcentaje), `SpText_unk` (0x14), `SpCharaId_unk` (prefijo de la fila de `db/CharaIdTable_unk`); macros
+    locales `SP_COUNT_SECTION`/`SP_READ_SECTION` para las 6 secciones repetidas.
+  - Nombre real propuesto: `db/SpText.cpp` (textos de efectos especiales de objetos).
+- Hallazgos MWCC
+  - Bloques de `switch` en el orden del fuente: un `default:` seguido de `case 0:` explica tablas de saltos con el caso 0
+    al final.
+  - `/ 50` sale como la constante de `/ 100` (0x51EB851F) con `srawi 4` (no 5).
+  - Varias pasadas sobre el mismo CSV con variables propias por pasada (no reutilizar `section = 0`) reproducen los
+    registros del original.
+- Pendientes para otras unidades: una cabecera comun `include/atn/ptr_string_base.h` para las tres unidades que la
+  redefinen.
