@@ -183,3 +183,24 @@
 ### Decisiones sin el usuario (grupo 6)
 - `game/GameTimer_cont.cpp` (resto de GameTimer, enlazada): fusionar al decompilar.
 - Unk_803CE3B8 (0x803CE3B8-0x803CE4B0) incluido en GameSoundControl sin prueba fuerte (podria ser fichero propio).
+
+## Grupo 7 (datos `auto_` de unidades con fuente del rango)
+
+Objetos usados solo por una unidad y pegados a sus datos (comprobado con xref, tambien referencias desde otros datos):
+- .rodata: Banana 0x80752EC0-0x80752EE8, BulletPoint desde 0x80753110, CharaLight hasta 0x80753450, InteractionSpot
+  hasta 0x80753758, LandMine hasta 0x80753310, OpenBoard hasta 0x80753868, PassBoard 0x80753960-0x80753EC0,
+  ShakeCamera 0x80753310-0x80753388, TodomeCountUp hasta 0x80753F98, WindyItem desde 0x80754230.
+- .bss: SwingObject 0x807C8770-0x807C8878 (incluye el @LOCAL de su boost::function), Brazier 0x807C8878, HealPoint
+  0x807C8898 (@LOCAL boost::function), Lemon 0x807C88A0, Banana 0x807C88E0, GimmickManager 0x807C8728.
+- .sbss: SwingObject 0x8087F4A8 y HealPoint 0x8087F4B0 (@GUARD de sus boost::function), GimmickManager 0x8087F4A4.
+- .sdata: AutomaticDoor 0x8087DF50, Bat 0x8087DF68 (@STRING Resize de 0x804038D0), RotaryRoom 0x8087DFA0, OpenBoard
+  0x8087DFB8, LemonBucket 0x8087DFC8, RandomMerchant 0x8087DFD0, RandomItem 0x8087DFD8-0x8087DFF0.
+- **symbols.txt**: pools de cadenas `lbl_` -> `@stringBase0` (scope:local data:string_table): 0x80752ED4 (Banana),
+  0x80753410 (CharaLight), 0x807532E0 (LandMine), 0x80753830 (OpenBoard), 0x80753E98 (PassBoard), 0x8075332C
+  (ShakeCamera), 0x80753F3C (TodomeCountUp). Todos son cadenas puras (sin relocalizaciones) que empiezan por "".
+
+### Decisiones sin el usuario (grupo 7)
+- Renombrados `@stringBase0` listados arriba.
+- No asignados por compartidos: `@LOCAL@assign_to<PFP12MapModel_unk...>` (bss 0x807C88F0, lo usan CharaLight,
+  Fireworks y RoomLight) y `__RTTI__PFP12MapModel_unkPv_v` (.data 0x8078DE50, entre Courtyard y Fireworks).
+- 0x8087DFC0/C4 (.sdata) usados por PassBoard (0x8042D140) y CharaPathMove (0x8043E134): compartidos, sin asignar.
