@@ -79,8 +79,8 @@ atn/atn_colli.cpp:
 
 atn/SinusCurve.cpp:
 	.text       start:0x8005C248 end:0x8005DD60
-	.rodata     start:0x807310C8 end:0x80731130
-	.data       start:0x807776C8 end:0x807777B8
+	.rodata     start:0x807310C8 end:0x80731140
+	.data       start:0x807776C8 end:0x807777C0
 	.sdata2     start:0x80880998 end:0x808809A0
 
 atn/DrawHelper.cpp:
@@ -107,14 +107,17 @@ atn/FileList.cpp:
 
 atn/LensFlare.cpp:
 	.text       start:0x80077160 end:0x80079044
-	.rodata     start:0x80731840 end:0x80731850
+	.rodata     start:0x80731838 end:0x807318A0
 	.data       start:0x80777D08 end:0x80777D40
+	.sdata      start:0x8087D758 end:0x8087D760
 	.sdata2     start:0x80880AD0 end:0x80880B00
 
 atn/SmallAllocator_8.cpp:
-	.text       start:0x80082AC8 end:0x80084E50
-	.rodata     start:0x807320B8 end:0x807320E8
-	.data       start:0x80778560 end:0x807785D0
+	.text       start:0x80081E54 end:0x80084E50
+	.rodata     start:0x80732048 end:0x80732128
+	.data       start:0x80778550 end:0x807785D8
+	.bss        start:0x807C7090 end:0x807C7268
+	.sbss       start:0x8087EF08 end:0x8087EF10
 
 atn/DLAllocator.cpp:
 	.text       start:0x80084E50 end:0x80084FD8
@@ -140,16 +143,17 @@ atn/NandManager.cpp:
 	.sdata2     start:0x80880CA0 end:0x80880CB0
 
 atn/ParseTree.cpp:
-	.text       start:0x800A5D14 end:0x800A7314
-	.rodata     start:0x80732990 end:0x807329A0
-	.data       start:0x80778B20 end:0x80778B38
+	.text       start:0x800A5B40 end:0x800A73A4
+	.rodata     start:0x80732988 end:0x80732A20
+	.data       start:0x80778AD8 end:0x80778BB8
+	.sbss       start:0x8087EF78 end:0x8087EF88
 	.sdata2     start:0x80880CC0 end:0x80880CC8
 
 atn/PBoneBasic.cpp:
-	.text       start:0x800A787C end:0x800A8FF0
-	.rodata     start:0x80732A20 end:0x80732A48
-	.data       start:0x80778BB8 end:0x80778C60
-	.sdata2     start:0x80880CDC end:0x80880D20
+	.text       start:0x800A73A4 end:0x800A8FF0
+	.rodata     start:0x80732A20 end:0x80732AC0
+	.data       start:0x80778BB8 end:0x80778C68
+	.sdata2     start:0x80880CC8 end:0x80880D20
 
 atn/LinearAllocator.cpp:
 	.text       start:0x800A8FF0 end:0x800A981C
@@ -177,9 +181,11 @@ atn/Layer3D.cpp:
 	.sdata2     start:0x80880F30 end:0x80880F40
 
 atn/LayerOcclusionCPU.cpp:
-	.text       start:0x800B3A94 end:0x800B543C
-	.rodata     start:0x80732E30 end:0x80732E48
+	.text       start:0x800B3978 end:0x800B543C
+	.rodata     start:0x80732E30 end:0x80732E58
 	.data       start:0x807790B0 end:0x807790E8
+	.bss        start:0x807C7580 end:0x807C75A0
+	.sbss       start:0x8087EFA0 end:0x8087EFA8
 	.sdata2     start:0x80880F40 end:0x80880F60
 
 atn/LayerPost3D.cpp:
