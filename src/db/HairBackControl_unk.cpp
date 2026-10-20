@@ -8,7 +8,7 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name
 extern "C" std::string fn_8006B174(const std::string& s); // inferred: normalised copy of a name
 // inferred: loads a resource synchronously (path relative to the data root)
-extern "C" void fn_80473FCC(atn::LoadHandle* handle, const char* path);
+// fn_80473FCC is atn::LoadHandle::fn_80473FCC (atn/LoadHandle.h)
 
 // inferred: attributes of a map (fn_8021771C, db/MapIdTable_unk); mB4 has one bit per group of
 // motions available in the map
@@ -653,7 +653,7 @@ extern "C" void fn_80217E18() {
         sHashes2[i] = fn_800DC6B4(sNames2[i]);
     }
     atn::LH_Binary handle;
-    fn_80473FCC(&handle, "/boot/hair_back_control.csv");
+    handle.fn_80473FCC("/boot/hair_back_control.csv");
     atn::Csv csv((const char*)handle.fn_80470580(), handle.fn_8047059C());
     do {
         if (*csv.fn_8005B9CC() != '\0') {
