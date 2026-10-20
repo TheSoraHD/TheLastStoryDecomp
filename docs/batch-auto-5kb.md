@@ -7,11 +7,11 @@ Permisos del usuario para este lote: ampliar splits de las unidades del lote, re
 ## Resultado
 
 - Build limpio (`rm -rf build/SLSP01`) con `main.dol: OK`; `regress.py` contra `main` (8c2a8fd): **lost: 0**.
-- Funciones al 100%: **4758 -> 5356** (+598). Codigo 15,12% -> 16,57%; fuzzy 24,72% -> 27,35%; datos 15,21% -> 15,88%; ficheros enlazados 299 -> 335.
+- Funciones al 100%: **4758 -> 5356** (+598) al cerrar el lote, **5375** tras las excepciones aprobadas. Codigo 15,12% -> 16,69%; fuzzy 24,72% -> 27,45%; datos 15,21% -> 15,89%; ficheros enlazados 299 -> 335.
 - Unico descenso de fuzzy: `atn::D2A_Message` ctor 66,54% -> 66,31% y `vf18` 91,59% -> 91,54%, por el cambio de `std::basic_string::operator=` de q3 (ver decisiones).
 - De las 109 unidades del lote: 108 con fuente (queda en asm `Event/Manager_cont`), 44 enlazadas (`matching: true`, contando las unidades enlazadas que absorbieron un `_cont`).
 - `_cont`: fusionados 8 (`FriendManager`, `MapPartsOcean`, `SetConfig`, `GameTimer`, `MP/SaveLoad`, `NpcManager`, `atn/Bgm`, `MarketTask`); quedan 3: `atn/EffectManager_cont` (unidad propia enlazada, 2/2), `atn/LH_Motion_cont` (unidad propia 3/4), `Event/Manager_cont` (sin fuente).
-- Casi todos los NONMATCHING son reparto de registros o huecos de pila (96-99,9%). Bloqueos repetidos: el ctor inline de `atn::CsvU` en registro salvado (q5, q6; ya conocido), `boost::shared_ptr` (asm de boost, q8), datos a cero en `.sdata` (q1, q2), plantillas de MSL/boost sin reconstruir (`std::map` en XsfParser, `boost::lambda` en SequenceHolder).
+- Casi todos los NONMATCHING son reparto de registros o huecos de pila (96-99,9%). Bloqueos repetidos: el ctor inline de `atn::CsvU` en registro salvado (q5, q6; ya conocido), `push_back` de `std::vector`, plantillas de MSL/boost sin reconstruir (`std::map` en XsfParser, `boost::lambda` en SequenceHolder).
 
 ## Arreglos de integracion (hechos al juntar ramas)
 
@@ -25,10 +25,10 @@ Renombrados de una cola que otra seguia usando como `extern "C"` (fallo de enlac
 
 ## Decisiones a revisar
 
-**Permisos que piden los agentes (no aplicados):**
-1. `#pragma explicit_zero_data` (o equivalente): `atn/LipSync_unk` (0x8087D760), `atn/PostFxColorMatrix` (0x8087D828) y `atn/PostFxRain` (0x8087D870) tienen ceros en `.sdata` que MWCC manda siempre a `.sbss` (tambien con `__declspec(section)`). Sin eso esas unidades no pueden enlazar; los datos van como `extern`.
-2. Ampliar el asm de `include/math/Vec.h` con min/max paired-single (`ps_sel`/`fsel`): `AABB_unk::Merge_unk`, `fn_8006FEBC`, `fn_800704DC` de `atn/Geometry_unk`.
-3. `boost::shared_ptr` con el contador atomico en asm de boost para CodeWarrior (`lwarx/stwcx.`): sin ello las funciones que copian/sueltan `shared_ptr` en `Event/Section`, `Event/Channel` (y `Event/Cut`) se quedan en 38-49%.
+**Excepciones a la regla 2 aprobadas por el usuario (2026-10-20) y aplicadas tras el lote** (ramas `agent-pz`, `agent-pv`, `agent-ps`; build `main.dol: OK`, `regress.py` lost: 0, ninguna funcion baja de fuzzy; 5356 -> 5375 funciones al 100%):
+1. `#pragma explicit_zero_data on` (con `push`/`pop`, solo alrededor de las definiciones) para los cinco `0.0f` de `.sdata` 0x8087D828-0x8087D850 de `atn/PostFxColorMatrix` (3/4). En `atn/LipSync_unk` y `atn/PostFxRain` no hizo falta: esos ceros de `.sdata` eran pools `@STRING@` de los `""` de un `new (heap, "", "", 0) T[n]` dentro de una inline (renombrados en `symbols.txt` con tamano 0x1); LipSync 2/4, PostFxRain 2/8 -> 7/8.
+2. Asm paired-single de `include/math/Vec.h` ampliado con min/max por componentes (`ps_sel`/`fsel`): `__VecMin`/`__VecMax` (f0-f7, ejemplo 0x80070C98) y `__VecMinMax` (f0-f9, ejemplo 0x8006FEBC). Patron en 10 funciones de 6 ficheros (atn_colli, Model, ModelInstance, LayerOcclusionCPU, LayerShadow, MapPartsLocatorSet). `atn/Geometry_unk` 4/10 -> 7/10; el inline de proyeccion de 8 esquinas queda como `ProjectBox_unk` local en Geometry_unk.cpp (moverlo a cabecera al decompilar las demas).
+3. `boost::shared_ptr` real de Boost 1.35.0 (`boostorg/smart_ptr` tag `boost-1.35.0`, con `detail/sp_counted_base_cw_ppc.hpp`: atomicos `lwarx/stwcx.`) en `libs/boost/include`, sustituye a `include/Event/SharedPtr_unk.h`; unico cambio, el include relativo de `sp_typeinfo.hpp` (anotado en `libs/boost/README.md`). `Channel::~Channel` 49% -> 98,9%; `Event/Cut` decompilada (10/15). Lo que queda (~40%) es el `push_back` inline de `std::vector`.
 
 **Splits pendientes (fuera de las unidades del lote, no tocados):**
 - `atn/FileSystem_unk`: el tramo 0x80470364-0x80470580 (`ResRef_unk`, `fn_80470564`) parece otro fichero entre FileSystem_unk y LH_Binary (llama fuera de linea a lo que aqui se inlinea; `"%sh"` en objeto `.rodata` aparte). Unidad nueva propuesta.
