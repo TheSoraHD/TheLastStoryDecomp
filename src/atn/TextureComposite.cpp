@@ -50,14 +50,7 @@ struct CompositeColor_unk {
     CompositeColor_unk() {}
     CompositeColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     CompositeColor_unk operator*(float f) const { return CompositeColor_unk(r * f, g * f, b * f, a * f); }
-    GXColor ToGX() const {
-        GXColor c;
-        c.r = (unsigned char)(255.0f * r);
-        c.g = (unsigned char)(255.0f * g);
-        c.b = (unsigned char)(255.0f * b);
-        c.a = (unsigned char)(255.0f * a);
-        return c;
-    }
+    GXColor ToGX() const;
     float r, g, b, a;
 };
 
@@ -146,6 +139,17 @@ void TextureComposite::Request_unk(Texture_unk* texture, int format) {
     fn_800BDB58(lbl_8087EFB4, this, 0.0f, 1);
 }
 
+// inferred: not inline; every use is auto-inlined and the out-of-line copy is removed by the linker,
+// but its 255.0f stays first in .sdata2 (before the 0.25f of MaskIntensitySingle::vf0C)
+GXColor CompositeColor_unk::ToGX() const {
+    GXColor c;
+    c.r = (unsigned char)(255.0f * r);
+    c.g = (unsigned char)(255.0f * g);
+    c.b = (unsigned char)(255.0f * b);
+    c.a = (unsigned char)(255.0f * a);
+    return c;
+}
+
 // inferred: number of mipmap levels of a texture (inline, name invented)
 // inferred: the original reads the image through another view of the texture (the two loads of
 // 0x28 are not merged); the view is a guess
@@ -163,16 +167,19 @@ inline int GetMipCount_unk(Texture_unk* tex) {
     return tex->m20.fn_80478198();
 }
 
-// NONMATCHING: 97.72% - the original loads the image pointer twice (test and variable), which
-// shifts the saved registers by one; tried other views of the texture and statement orders
+// NONMATCHING: 98.34% - the original loads the image pointer twice (test and variable), which
+// shifts some saved registers; tried other views of the texture (also relative to the LH_Texture
+// member, which splits the loads but adds an addi), accessor inlines, field types and statement orders
 void TextureComposite::vf10(Camera_unk* camera) {
     fn_80071E04(lbl_8087EEE0);
+    int format;
     Texture_unk* tex = m0C;
     unsigned char* image = (unsigned char*)tex->mImage;
     int mips = GetMipCount_unk(tex);
+
     int w = GXGetTexObjWidth(&m0C->mObj);
     int h = GXGetTexObjHeight(&m0C->mObj);
-    int format = m08;
+    format = m08;
     unsigned char* dst = image;
     if (format == -1) {
         format = 6;
@@ -270,7 +277,6 @@ void TextureComposite::vf10(Camera_unk* camera) {
     mCommands.__shrink_unk(0);
 }
 
-// NONMATCHING (data only): the original pools 255.0f before 0.25f in .sdata2
 void TextureCompositeMaskIntensitySingle::vf0C() {
     GXSetNumTexGens(3);
     GXSetNumChans(0);
