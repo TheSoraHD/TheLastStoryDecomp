@@ -15,6 +15,11 @@
   "matching": false
  },
  {
+  "name": "atn/THPPlayer_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/AiTarget.cpp",
   "classes": [
    "AIManager",
