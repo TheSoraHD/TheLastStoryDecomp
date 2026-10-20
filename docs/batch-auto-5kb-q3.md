@@ -11,7 +11,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   otra cola habia renombrado a `GameSaveSlot_unk::fn_803BE8C0`. Arreglo: `typedef SaveTime_unk CalendarTime_unk` y
   llamada como metodo sobre la cabecera de 0xB8 de `SaveWork_unk`. `MP/SaveLoad` sigue 8/8 al 100%.
 
-## atn/EffectManager_cont (commit HASH1)
+## atn/EffectManager_cont (commit bc7b982)
 
 - Resultado: 2/2 al 100%, unidad propia `matching: true` (no fusionada). `main.dol: OK`.
 - NONMATCHING: ninguna.
