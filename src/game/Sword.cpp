@@ -12,4 +12,4 @@ int Sword::vf0C() {
     return result;
 }
 
-void Sword::vf18() {}
+void Sword::vf18(const atn::Vector3& a, const atn::Vector3& b, int c, int d) {}

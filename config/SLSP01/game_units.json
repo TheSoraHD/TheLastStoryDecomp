@@ -2505,6 +2505,21 @@
   "matching": false
  },
  {
+  "name": "game/Gun.cpp",
+  "classes": [
+   "Gun"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/HColliData_unk.cpp",
+  "classes": [
+   "ColliObjectData_unk",
+   "ColliTreeData_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/MapPartsLocatorSet.cpp",
   "classes": [
    "MapPartsLocatorSet"
