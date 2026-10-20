@@ -36,9 +36,9 @@ struct ShopLayout_unk : public atn::Task {
 // inferred: entry of the first list of the shop (0x64 bytes, 128 entries; cleared by the constructor
 // 0x8057F280); names invented
 struct ShopEntry64_unk {
-    int m00;
-    int m04;
-    char m08[0x40];
+    int m00;           // inferred: item id
+    int m04;           // inferred: price
+    wchar_t m08[0x20]; // inferred: name override
     float m48;
     int m4C;
     int m50;
@@ -159,6 +159,11 @@ extern "C" void fn_805847EC(ShopBase* self, int arg);
 extern "C" void fn_80584808(ShopBase* self, int arg);
 extern "C" void fn_80584D78(ShopBase* self, ShopEntry5C_unk* entry, int arg);
 extern "C" void fn_8057FF38(ShopBase* self);
+extern "C" void fn_80580B50(ShopBase* self);
+extern "C" void fn_80581660(ShopBase* self, int index);
+extern "C" int fn_8058482C(ShopBase* self, ShopEntry64_unk* entry); // inferred: checks the entry, returns an error code
+extern "C" int fn_805848E0(ShopBase* self, ShopEntry64_unk* entry);
+extern "C" void fn_805849E8(ShopBase* self, ShopEntry64_unk* entry, int num);
 extern "C" void fn_805800FC(ShopBase* self);
 extern "C" void fn_80580580(ShopBase* self);
 extern "C" void fn_80580690(ShopBase* self);
