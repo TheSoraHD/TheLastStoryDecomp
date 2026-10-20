@@ -1143,6 +1143,11 @@
   "matching": false
  },
  {
+  "name": "atn/EffectRes_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/EffectManager.cpp",
   "classes": [
    "atn::EffectManager"

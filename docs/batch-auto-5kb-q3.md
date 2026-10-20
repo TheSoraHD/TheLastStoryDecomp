@@ -191,3 +191,28 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
     (aunque `-Cpp_exceptions off`).
   - Literales `""` de un `new (heap, "", "", 0)` en `.sdata` (y no en `@stringBase0`) = la funcion es `inline`
     (o plantilla); marcarla `inline` (aunque se emita debil) los coloca bien y conserva el orden de emision.
+
+## atn/EffectRes_unk (commit HASH8)
+
+- Resultado: 7/14 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING (todas por registros/planificacion salvo una):
+  - `fn_80237C88` 98.46%, `fn_80237CF0` 98.26%, `fn_80237DA8` 99.94%, `fn_80238588` 99.73% (un `Vector3` a cero
+    que el original tiene contiguo en pila), `fn_802386FC` 98.51%, `fn_80238218` 94.14%.
+  - `fn_802383D8` 57.07% (iniciar particula): el original repite la misma prueba de `m00` y conserva el cuerpo
+    inalcanzable; solo escribiendo la prueba con un inline (`IsActive_unk`) MWCC no lo elimina, pero lo planifica
+    con otros registros.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - `symbols.txt` (pairnames): `fn_80238148`..`fn_80238588` -> metodos de `EffectParticle_unk` (ctor, dtor
+    fuera de linea, update, init, reset, transform). Los demas siguen `extern "C"` (los llama EffectSystem_unk,
+    EffectDesc_unk y EfpHandle_unk en asm o como `extern "C"`).
+  - Tipos inferidos locales: `EffectNode_unk` (listas intrusivas prev/next), `EffectRes_unk` (emisores 0x26C,
+    definiciones 0x110, banderas, curvas 13x{n, claves}), `EffectDef_unk`, `EffectParticle_unk` (0x94, con
+    `atn::Matrix3x4` en 0x48), `EffectInstDef_unk`, `EffectSystemData_unk`.
+  - Nombre real propuesto: desconocido (parte de datos/particulas del sistema de efectos).
+- Hallazgos MWCC
+  - Dos pruebas identicas seguidas (`if (m00) return 0; if (m00) {...}`) hacen que MWCC elimine el cuerpo; con un
+    inline `bool IsActive() { return m00 != 0; }` en ambas lo conserva (como el original).
+  - Macros MAX/MIN que evaluan dos veces sus argumentos se ven como `cmplw; ble L; b fin; L: <recalculo>`.
+  - `a = b = c = 0.0f` guarda de derecha a izquierda (c primero); asi salen `Matrix3x4::SetIdentity` y los
+    ceros en orden descendente.
