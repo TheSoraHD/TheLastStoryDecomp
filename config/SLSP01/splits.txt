@@ -79,8 +79,8 @@ atn/atn_colli.cpp:
 
 atn/SinusCurve.cpp:
 	.text       start:0x8005C248 end:0x8005DD60
-	.rodata     start:0x807310C8 end:0x80731130
-	.data       start:0x807776C8 end:0x807777B8
+	.rodata     start:0x807310C8 end:0x80731140
+	.data       start:0x807776C8 end:0x807777C0
 	.sdata2     start:0x80880998 end:0x808809A0
 
 atn/DrawHelper.cpp:
@@ -147,10 +147,10 @@ atn/ParseTree.cpp:
 	.sdata2     start:0x80880CC0 end:0x80880CC8
 
 atn/PBoneBasic.cpp:
-	.text       start:0x800A787C end:0x800A8FF0
-	.rodata     start:0x80732A20 end:0x80732A48
-	.data       start:0x80778BB8 end:0x80778C60
-	.sdata2     start:0x80880CDC end:0x80880D20
+	.text       start:0x800A73A4 end:0x800A8FF0
+	.rodata     start:0x80732A20 end:0x80732AC0
+	.data       start:0x80778BB8 end:0x80778C68
+	.sdata2     start:0x80880CC8 end:0x80880D20
 
 atn/LinearAllocator.cpp:
 	.text       start:0x800A8FF0 end:0x800A981C
