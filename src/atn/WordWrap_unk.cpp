@@ -219,8 +219,23 @@ std::basic_string<wchar_t> fn_800DFB40(const wchar_t* text, float maxWidth, floa
     return result;
 }
 
+// inferred: accessors of a small container used by game/Em203GreaterDaemon (class unknown, names
+// invented; the word at +4 is a count)
+struct Count4_unk {
+    void* m00;
+    int m04;
+};
+
+int fn_800E0AA8(const Count4_unk* c) {
+    return c->m04;
+}
+
+bool fn_800E0AB0(const Count4_unk* c) {
+    return c->m04 == 0;
+}
+
 } // extern "C"
 
 // Not decompiled yet: fn_800E0000 (splits the wrapped text into a std::vector<std::wstring>), the weak
-// copy of the std::wstring substring constructor (0x800E0908) and the weak MSL iostream helpers
-// 0x800E0A64 (basic_ios::clear), 0x800E0AA8 and 0x800E0AB0.
+// copy of the std::wstring substring constructor (0x800E0908) and the weak MSL iostream helper
+// 0x800E0A64 (basic_ios::clear).

@@ -111,14 +111,15 @@ Cola: `atn/Shader_unk`, `atn/SoftKeyboardBase_wchar_t_0` (prioridad 1), `atn/WPa
   - `fabs` de math.h no es intrinseca si se declara a mano: usar `(float)__fabs((double)v)` para fabs + frsp.
 - Pendientes: ninguno.
 
-## atn/WordWrap_unk (commit 41c9d99)
-- Resultado: 2/8 al 100%, `matching: false`, `main.dol: OK` (regress lost: 0).
+## atn/WordWrap_unk (commits 41c9d99 y siguiente)
+- Resultado: 4/8 al 100%, `matching: false`, `main.dol: OK` (regress lost: 0).
 - NONMATCHING: `fn_800DFB40` (word wrap, devuelve std::wstring) 75.8%: mismos bloques; el original carga el tag
   de iterador de cada caracter anadido antes de los bucles y no guarda direcciones de pila en registros.
 - Sin decompilar: `fn_800E0000` (parte el texto en un std::vector<std::wstring>, push_back inline de wstring),
   la copia debil del ctor de subcadena de std::wstring (0x800E0908) y los helpers debiles de iostream de MSL
-  0x800E0A64 (basic_ios::clear, usa "ios_base failure in clear" de la .data de std/allocator_char),
-  0x800E0AA8 y 0x800E0AB0 (no hay fuente de iostream de MSL C++).
+  0x800E0A64 (basic_ios::clear, usa "ios_base failure in clear" de la .data de std/allocator_char; no hay
+  fuente de iostream de MSL C++). `fn_800E0AA8`/`fn_800E0AB0` (los llama game/Em203GreaterDaemon) se escriben
+  como accesores `extern "C"` de un struct inventado `Count4_unk` (contador en +4).
 - Decisiones sin el usuario:
   - Split sin cambios; entrada nueva en game_units.json (`atn/WordWrap_unk.cpp`, matching false).
   - Funciones `extern "C"` (como las declaran D2A_Message, LibraryTask, MenuCommonTask...). Tabla de kinsoku
