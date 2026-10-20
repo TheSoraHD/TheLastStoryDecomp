@@ -1536,7 +1536,7 @@ gmk/RandomMerchant.cpp:
 
 gmk/RandomItem.cpp:
 	.text       start:0x80432CF0 end:0x8043465C
-	.rodata     start:0x807541A8 end:0x807541B8
+	.rodata     start:0x807541A8 end:0x807541E0
 	.data       start:0x8078EE40 end:0x8078EED8
 	.sdata2     start:0x80886890 end:0x808868A8
 

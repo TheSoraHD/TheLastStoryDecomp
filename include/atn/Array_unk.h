@@ -67,6 +67,12 @@ public:
             mData[i] = o[i];
         }
     }
+    // inferred: the copy of gmk::RandomItemDrop_unk (inlined in gmk::RandomItem::vf20) calls
+    // Assign_unk through the assignment of this member
+    Vector_unk& operator=(const Vector_unk& o) {
+        Assign_unk(o);
+        return *this;
+    }
     T& operator[](unsigned int i) { return mData[i]; }
     const T& operator[](int i) const { return mData[i]; }
     void push_back(const T& value) {
