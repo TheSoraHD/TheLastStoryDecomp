@@ -567,12 +567,9 @@ void TownTask::fn_805B8DB4(int reload) {
 // NONMATCHING: 96.5% - float registers of the cell computation
 // inferred: nonzero when the position is in the town area (the block under it is flagged)
 extern "C" int fn_805B96A8(TownTask* town, const atn::Vector3* pos) {
-    float inv = 1.0f / town->m134;
-    atn::Vector3 cell = (*pos - town->m140) * inv;
-    int x = (int)cell.x;
-    int z = (int)cell.z;
-    x = TOWN_CLAMP(x, lbl_8087E6F8, town->m138);
-    z = TOWN_CLAMP(z, lbl_8087E6FC, town->m13C);
+    int x;
+    int z;
+    fn_805B8110(town, pos, &x, &z);
     if (x == 2 && z == 0) {
         return 1;
     }
