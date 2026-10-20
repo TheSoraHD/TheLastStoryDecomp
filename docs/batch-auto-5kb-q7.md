@@ -38,7 +38,7 @@ Fusionada en `game/FriendManager`.
   - `include/Event/Behavior.h`: declarado `Actor_unk::fn_800119C0`.
 - Hallazgos MWCC: objdiff compara `.sdata2` por posicion, no por valor: con dos floats pasados como argumento (1.0f, 0.0f) en orden cambiado da 100% igualmente; mirar `cmp.py -v` (muestra el valor del literal).
 
-## AI/AiUtil_unk (commit HASH_AU)
+## AI/AiUtil_unk (commit 4798db2)
 
 - Resultado: 4/4 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
@@ -46,3 +46,13 @@ Fusionada en `game/FriendManager`.
   - `symbols.txt`: `lbl_808806B0` (60.0f) tamano 0x8 -> 0x4.
   - Tipo local `AiSettings_unk` para `lbl_8087F0A8` (solo `mA4`). `CharaStatus::m14` se lee con cast a `unsigned` (el original usa `cmplwi`); no se cambia la cabecera.
 - Hallazgos MWCC: un clamp que reevalua la llamada en cada rama (`f()` llamada hasta 3 veces) sale de macros `MIN(MAX(e, 0), 1)` sin locales.
+
+## game/HomeButtonMenu (commit HASH_HB)
+
+- Resultado: 4/5 al 100%, `matching: false`.
+- NONMATCHING: `fn_80440994__14HomeButtonMenuFv` 83.4% - planificacion del calculo de la relacion de pantalla (el original copia el tamano 64 con `fmr` y calcula `sy` tras `k * sx`; mismo problema que `StrapTask::vf14`). Con un helper inline que recibe el tamano, la funcion pasa a inlinearse en `fn_8044073C`.
+- Pendiente para `matching: true`: el .o emite la RTTI debil de `atn::IRender` (cadena "atn::IRender" en .rodata antes del pool), que el original no tiene aqui; comprobar al enlazar si el enlazador la descarta.
+- **Decisiones sin el usuario**
+  - `symbols.txt`: `fn_804405F8` -> `fn_804405F8__14HomeButtonMenuFPv` (crea el singleton), `fn_804406C4` -> `__dt__14HomeButtonMenuFv`, `fn_8044073C` -> `fn_8044073C__14HomeButtonMenuFv`, `fn_80440990` -> `vf10__14HomeButtonMenuFPv`, `fn_80440994` -> `fn_80440994__14HomeButtonMenuFv`, `lbl_8087F4E8` -> `sInstance__14HomeButtonMenu`, `lbl_807544E0` -> `@stringBase0` (tamano 0x20 -> 0x1E, `scope:local data:string_table`).
+  - Clase inferida `HomeButtonMenu : atn::IRender` (0xD4 bytes; `IRender` declarada localmente como en otras unidades). El constructor no es `inline` (su literal va en `@stringBase0`) y se define despues de `fn_804405F8` para que el pool empiece por `""`.
+  - `game/HomeButton_unk` (siguiente unidad, 0x80440B24-0x80441590) contiene las funciones HBM que usa esta clase (`fn_80440F64`, `fn_804410C0`, `fn_80441170`, `fn_804411DC`, `fn_804413D4`); sigue como unidad aparte (1.0f propio).

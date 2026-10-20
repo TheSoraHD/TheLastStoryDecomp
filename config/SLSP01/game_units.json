@@ -2762,5 +2762,12 @@
    "TutorialTask"
   ],
   "matching": false
+ },
+ {
+  "name": "game/HomeButtonMenu.cpp",
+  "classes": [
+   "HomeButtonMenu"
+  ],
+  "matching": false
  }
 ]
