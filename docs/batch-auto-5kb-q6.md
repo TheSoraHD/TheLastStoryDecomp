@@ -8,6 +8,43 @@ Cola (de menor a mayor): `db/TreasureList_unk`, `db/MarketPrice_unk`, `db/Strate
 Mismo patron que la cola q5 (`docs/batch-auto-5kb-q5.md`): cargador de `/boot/*.csv` con `atn::Csv` + accesores,
 funciones `extern "C" fn_<addr>`.
 
+## Resumen
+
+| Unidad | 100% | matching |
+|---|---|---|
+| db/TreasureList_unk | 2/2 | si |
+| db/MarketPrice_unk | 4/4 | si |
+| db/StrategyAiTable_unk | 3/3 | si |
+| db/PlayerPriority_unk | 4/4 | si |
+| db/LevelEquipTable_unk | 4/4 | si |
+| db/VoiceLengthTable_unk | 2/2 | si |
+| db/TutorialTable_unk | 5/6 | no |
+| db/MemberList_unk | 2/3 | no |
+| db/ReverbPresetParam_unk | 3/3 | si |
+| db/SkillGrowth_unk | 6/6 | si |
+| db/SkillParam_unk | 6/7 | no |
+| db/HairBackControl_unk | 8/8 | si |
+| db/PlayerParam_unk | 4/7 | no |
+| db/TreasureBoxTable_unk | 6/7 | no |
+| db/ParseUtil_unk | 11/15 | no |
+| db/MapEnvSeTable_unk | 10/11 | no |
+| db/MapIdTable_unk | 5/7 | no |
+| db/RandomItemTable_unk | 16/17 | no |
+
+Total 102/116 funciones al 100%; 9 unidades `matching: true`. Build final: `main.dol: OK`, `regress.py` lost: 0 (y
+ninguna funcion baja de fuzzy frente a `report_main.json`). Ningun cambio de limites en `splits.txt`.
+Cambios fuera de las unidades de la cola: renombrados en `symbols.txt` de `fn_8021BE40` (db/SpText_unk) y
+`fn_8021A4E0`/`fn_8021A4CC` (de ParseUtil, si en la cola); cabecera compartida `include/atn/Csv.h` (ctor `CsvU()` y
+`CsvU::vf08` con ternario, equivalente); cabecera nueva `include/db/ParseUtil_unk.h`.
+
+### Pendiente para el usuario
+- Mover limites de unidades ajenas: 0x8021CC50-0x8021CCC4 (destructor debil de `db/SpText_unk`, hoy en
+  StrategyAiTable) y 0x80216A2C-0x80216AFC (dos destructores debiles de `db/MapLink_unk`, hoy en MapIdTable).
+- Nombres reales propuestos: `db/HairBackControl_unk` -> tabla de nombres de motion; `db/ParseUtil_unk` -> lector de
+  parametros de bala/habilidad (`BulletParam`).
+- Problema comun sin resolver: el original guarda la direccion del `atn::CsvU` en un registro salvado durante su ctor
+  inline (TutorialTable, SkillParam, MapIdTable; ya visto en q5) y llama fuera de linea a helpers que aqui se inlinean.
+
 ## db/TreasureList_unk (commit 16e9845)
 - Resultado: 2/2 al 100%, matching si.
 - NONMATCHING: ninguno.
@@ -291,7 +328,7 @@ funciones `extern "C" fn_<addr>`.
   - Contador reutilizado como indice de la segunda pasada (mismo registro en el original): una sola variable; si ademas
     el `li` va antes de la llamada previa, desplazamiento en bytes.
 
-## db/MapIdTable_unk (commit HASH)
+## db/MapIdTable_unk (commit 6e46502)
 - Resultado: 5/7 al 100%, matching no.
 - NONMATCHING:
   - `fn_80216CD0` (cargador de las 3 tablas de mapas) 98.23% - el original guarda la direccion del `atn::CsvU` en un
@@ -313,3 +350,28 @@ funciones `extern "C" fn_<addr>`.
     personajes de `/boot/map_motion_table.csv`, lista de miembros de `/boot/map_chara_list.csv`, datos de
     `/boot/map_sub_id_table.csv`). `fn_802174F4` sale sin liberar el fichero si un id no existe (como el original).
 - Hallazgos MWCC: nada nuevo.
+
+## db/RandomItemTable_unk (commit HASH)
+- Resultado: 16/17 al 100%, matching no.
+- NONMATCHING: copia debil `__dt__Q23atn34FixedArray_unk<14RandomItem_unk,8>Fv` (0x8021D58C) 96.30% - el original
+  vuelve a probar la direccion del array de elementos antes de `__destroy_arr` (un `beq` mas); un destructor vacio
+  declarado en `include/atn/FixedArray.h` no lo cambia (probado y revertido: la cabecera queda igual).
+- **Decisiones sin el usuario**
+  - Splits sin cambios (el corte ambiguo 0x8021CF4C/0x8021CF8C cuadra: 0x8021CF4C es el destructor no inline de
+    `RandomItem_unk`, primera funcion del fichero y solo usada aqui).
+  - `symbols.txt`: `fn_8021CF4C` -> `__dt__14RandomItem_unkFv`, `fn_8021D574` -> `__ct__14RandomItem_unkFv`,
+    `fn_8021D520`/`fn_8021D58C` -> `__ct__/__dt__Q23atn34FixedArray_unk<14RandomItem_unk,8>Fv`, `fn_8021D4C4`/`fn_8021D650`
+    -> `__ct__/__dt__15RandomTable_unkFv`, `fn_8021D5F8`/`fn_8021D6B8` -> `__ct__/__dt__13WindTable_unkFv`, `fn_8021DE50`
+    -> `__ct__17MerchantTable_unkFv`; datos `sFileNameStr`, `sMerchantFileNameStr`, `@stringBase0` (0x807426E8:
+    "begin", "Random", "Wind", "", "end", "%s"), `sRandom`, `sRandomCount`, `sWind`, `sWindCount`, `sMerchant`,
+    `sMerchantCount`, `sFileName`, `sMerchantFileName` (a mano: `pairnames` confundia los destructores).
+  - Tipos inferidos `RandomItem_unk` (0x18: id, nombre `atn::FixedString_unk<0x10>`, probabilidad 10 por defecto),
+    `RandomSlot_unk` = `atn::FixedArray_unk<RandomItem_unk, 8>` (de `include/atn/FixedArray.h`), `RandomTable_unk`
+    (0x3E0), `WindTable_unk` (0x3DC), `MerchantTable_unk` (0x108, `/boot/marchant_item_table.csv`).
+  - `fn_8021D770` usa un accesor inline `GetItem_unk(slot, unsigned i)` y `fn_8021D9D4` `mData[(unsigned int)i]`: cada
+    forma reproduce una de las dos funciones gemelas (con la otra forma bajan al 95-97%).
+- Hallazgos MWCC
+  - Indice `int` convertido a `unsigned` en el acceso (`a[(unsigned)i]` o un inline con parametro `unsigned`): el bucle
+    desenrollado recalcula cada `(i+k)*size` con `mulli` en vez de reducirlo a un puntero.
+  - `obj->arr[k].size()` / `obj->arr[k].push_back(x)` sin puntero local crean dos variables de induccion (una con el
+    desplazamiento del miembro plegado), como el original; con `T* p = &obj->arr[k]` solo una.
