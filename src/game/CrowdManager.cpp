@@ -110,7 +110,7 @@ inline void CrowdManager::UpdateLimit_unk() {
     }
 }
 
-// NONMATCHING: 99.8% - the index/offset increments of the walker loop are swapped (3 loop forms tried)
+// inferred: unsigned index through Buffer_unk::operator[](int) (the index is incremented before the offset)
 void CrowdManager::vf10() {
     mCenter = lbl_8087EFB4->mPos;
     UpdateLimit_unk();
@@ -127,9 +127,9 @@ void CrowdManager::vf10() {
                 atn::Vector3 d(npc->mPos.x - mCenter.x, npc->mPos.y - mCenter.y, npc->mPos.z - mCenter.z);
                 if (fn_805F9920(&d) > kill) {
                     CrowdSimulation* sim = CrowdSimulation::sInstance;
-                    for (int i = 0; i < (int)sim->mWalkers.mSize; i++) {
-                        if (npc == sim->mWalkers.mData[i].mChara) {
-                            fn_801EB7C4(&sim->mWalkers.mData[i]);
+                    for (unsigned int i = 0; (int)i < sim->mWalkers.mSize; i++) {
+                        if (npc == sim->mWalkers[i].mChara) {
+                            fn_801EB7C4(&sim->mWalkers[i]);
                         }
                     }
                 }
@@ -233,8 +233,9 @@ inline void* GetWorld_unk() {
     return lbl_8087EE98;
 }
 
-// NONMATCHING: 98.6% - register numbering (one more saved register in the original) and the walker loop
-// increments are swapped, as in vf10.
+// NONMATCHING: 98.7% - register numbering: the original gives the loop walker r31 (here the lowest saved
+// register); tried the vf10 loop form (unsigned index through operator[]), reference/indexed walker,
+// walker declared first.
 // inferred: spawns an NPC on a random free walker between mInner and mKill from the camera (anywhere inside
 // mKill while m78 is set)
 void CrowdManager::fn_801EB188() {
