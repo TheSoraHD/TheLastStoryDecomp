@@ -78,6 +78,11 @@ public:
     static ResultLog_unk* sInstance;
 };
 
+// inferred: wrapper of fn_801F64D0 (the paths given to it are hoisted out of the loops); name invented
+inline ResultLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
+    return fn_801F64D0(parent, path);
+}
+
 // inferred: plays `anime`; at its end it shows `next` instead (name invented)
 inline void Play_unk(ResultLayout_unk* anime, ResultLayout_unk* next, float speed) {
     anime->mSpeed = speed;
@@ -102,21 +107,14 @@ BattleResult* BattleResult::fn_800EFF68(atn::Task* parent) {
     return sInstance;
 }
 
-// NONMATCHING: 99.54% - register allocation only: the original keeps the last path in the register of the
-// string pool (r30) and the loop offset in r26; with named locals the two are swapped, without them the
-// paths are not hoisted out of the loop
 BattleResult::BattleResult(atn::Task* parent)
     : atn::Task(parent), mState(0), mCount(0), mTimer(0), mRate(0.0f), mItemCount(0) {
     (mBase = fn_801F3FF8(this, "/data/d2anime/ui_result_name_op.d2a", 0))->fn_800D246C(1);
-    const char* expOp = "/data/d2anime/ui_result_exp_op.d2a";
-    const char* expLoop = "/data/d2anime/ui_result_exp_loop.d2a";
-    const char* lvUpOp = "/data/d2anime/ui_result_LvUP_op_xx.d2a";
-    const char* lvUpLoop = "/data/d2anime/ui_result_LvUP_loop_xx.d2a";
     for (unsigned int i = 0; i < 7; i++) {
-        (mExpOp[i] = fn_801F64D0(this, expOp))->fn_800D246C(1);
-        (mExpLoop[i] = fn_801F64D0(this, expLoop))->fn_800D246C(1);
-        (mLvUpOp[i] = fn_801F64D0(this, lvUpOp))->fn_800D246C(1);
-        (mLvUpLoop[i] = fn_801F64D0(this, lvUpLoop))->fn_800D246C(1);
+        (mExpOp[i] = CreateLayout_unk(this, "/data/d2anime/ui_result_exp_op.d2a"))->fn_800D246C(1);
+        (mExpLoop[i] = CreateLayout_unk(this, "/data/d2anime/ui_result_exp_loop.d2a"))->fn_800D246C(1);
+        (mLvUpOp[i] = CreateLayout_unk(this, "/data/d2anime/ui_result_LvUP_op_xx.d2a"))->fn_800D246C(1);
+        (mLvUpLoop[i] = CreateLayout_unk(this, "/data/d2anime/ui_result_LvUP_loop_xx.d2a"))->fn_800D246C(1);
     }
     (mItemOp = fn_801F64D0(this, "/data/d2anime/ui_result_item_op.d2a"))->fn_800D246C(1);
     (mItemLoop = fn_801F64D0(this, "/data/d2anime/ui_result_item_loop.d2a"))->fn_800D246C(1);
