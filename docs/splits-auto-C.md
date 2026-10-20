@@ -204,3 +204,9 @@ Objetos usados solo por una unidad y pegados a sus datos (comprobado con xref, t
 - No asignados por compartidos: `@LOCAL@assign_to<PFP12MapModel_unk...>` (bss 0x807C88F0, lo usan CharaLight,
   Fireworks y RoomLight) y `__RTTI__PFP12MapModel_unkPv_v` (.data 0x8078DE50, entre Courtyard y Fireworks).
 - 0x8087DFC0/C4 (.sdata) usados por PassBoard (0x8042D140) y CharaPathMove (0x8043E134): compartidos, sin asignar.
+
+## Resumen final
+- `.text` `auto_` en el rango 0x8033C3D8-0x804405F8: antes 0x932B4 bytes (autoscan), despues 0 (calculado sobre
+  splits.txt; el directorio build/SLSP01/asm conserva .s `auto_` viejos que autoscan sigue leyendo).
+- Build limpio: `main.dol: OK`, regress `lost: 0` (matched 4757 -> 4758 por `fn_804225E0` de CharaLight).
+- El aviso "Alignment for std/runtime_error.cpp .rodata" ya existia antes y no es de este rango.
