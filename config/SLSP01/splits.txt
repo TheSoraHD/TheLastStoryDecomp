@@ -1530,8 +1530,8 @@ gmk/LemonBucket.cpp:
 	.sdata2     start:0x80886808 end:0x80886868
 
 gmk/RandomMerchant.cpp:
-	.text       start:0x8043119C end:0x80432CF0
-	.rodata     start:0x80754078 end:0x807540A0
+	.text       start:0x804310B0 end:0x80432CF0
+	.rodata     start:0x80754070 end:0x80754180
 	.data       start:0x8078ECA0 end:0x8078EE40
 	.sdata2     start:0x80886868 end:0x80886890
 

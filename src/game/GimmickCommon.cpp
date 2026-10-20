@@ -41,6 +41,7 @@
 #include "gmk/AutomaticDoor.h"
 #include "gmk/SwingObject.h"
 #include "gmk/Bat.h"
+#include "gmk/RandomMerchant.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -215,7 +216,6 @@ extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80432CF0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80436E34(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
@@ -269,7 +269,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 55: gimmick = gmk::CharaObj::fn_8042CE30(parent, id, arg); break;
     case 56: gimmick = gmk::PassBoard::fn_8042D628(parent, id, arg); break;
     case 57: gimmick = gmk::WaterLevel::fn_8042E36C(parent, id, arg); break;
-    case 60: gimmick = fn_804310B0(parent, id, arg); break;
+    case 60: gimmick = gmk::RandomMerchant::fn_804310B0(parent, id, arg); break;
     case 61: gimmick = fn_80432CF0(parent, id, arg); break;
     case 63: gimmick = gmk::SavePoint::fn_80435CE4(parent, id, arg); break;
     case 64: gimmick = fn_80436E34(parent, id, arg); break;
