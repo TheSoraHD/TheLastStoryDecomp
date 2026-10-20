@@ -46,7 +46,7 @@ struct CharaD74_unk {
 
     signed char m00; // inferred: kind (6 is checked by CharaTask::fn_80139560)
     signed char m01; // inferred: label kind shown over the character (0x80149A30)
-    unsigned char m02[0x04 - 0x02];
+    short m02; // inferred: counter (game/PickTask)
     short m04;
     unsigned char m06[0x08 - 0x06];
     int m08;   // inferred: "WarpPointId" (debug menu, vf30)
