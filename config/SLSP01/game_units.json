@@ -414,6 +414,13 @@
   "matching": false
  },
  {
+  "name": "game/BattleEfp_unk.cpp",
+  "classes": [
+   "BattleEfpEntry_unk"
+  ],
+  "matching": true
+ },
+ {
   "name": "game/BattleResult.cpp",
   "classes": [
    "BattleResult"

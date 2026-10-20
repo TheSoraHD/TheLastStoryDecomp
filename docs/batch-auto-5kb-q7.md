@@ -129,7 +129,7 @@ Fusionada en `game/FriendManager`.
 - Hallazgos MWCC: un `if (x) A(); else B();` con `A`/`B` metodos no inline de la misma clase definidos despues: MWCC autoinlinea la llamada si la funcion tiene <= ~13 sentencias, aunque genere mucho codigo (`fn_801C3944`); para que el original la llame hace falta que tenga mas sentencias.
 - Hallazgos MWCC: los temporales de una inline anidada (p. ej. `a - b` dentro de `GetDir_unk()`) van por debajo de los temporales del cuerpo en la pila.
 
-## game/U16Table_unk (commit HASH_UT)
+## game/U16Table_unk (commit 5317039)
 
 - Resultado: 2/5 al 100%, `matching: false`.
 - NONMATCHING:
@@ -141,3 +141,13 @@ Fusionada en `game/FriendManager`.
   - `symbols.txt`: `lbl_80750518` -> `@stringBase0` (0x14 -> 0x15, "vector length error" + ""), `lbl_8078BCB8` -> `@STRING@__allocate__Q23std24vector<14U16RunPair_unk>FUi` ("Memory allocation failure", literal de la inline `__allocate`; el nombre lleva el tipo inventado).
 - Hallazgos MWCC: `delete[]` de un tipo con constructor (aunque sea POD de facto) mete la cookie de 16 bytes y la comprobacion de nulo; `new[]` sin `__construct_new_array` ni cookie y `__dla` directo = tipo sin constructores.
 - Hallazgos MWCC: `while (*(p = f()) != 0)` sale rotado (salto al test del final); `for (;;) { p = f(); if (*p == 0) break; ... }` deja el test arriba como el original.
+
+## game/BattleEfp_unk (commit HASH_BE)
+
+- Resultado: 17/17 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - Tipos inferidos (locales): `BattleEfpData_unk` (fila de la tabla de efectos de batalla: id, cuatro nombres de efecto/recurso, tres nombres en 0x84/0xA4/0xC4, dos animaciones de camara `.xsca`, bandera 0x124) y `BattleEfpEntry_unk` (0x48 bytes: fila + 3 `atn::EfpHandle_unk`, `ResLoader_unk`, 2 `atn::LH_Xsca`, bandera de cargado) con `IsLoading_unk()` y `Unload_unk()` inline.
+  - `symbols.txt`: `fn_800EF6BC` -> `__ct__18BattleEfpEntry_unkFv`, `fn_800EF7F8` -> `__dt__18BattleEfpEntry_unkFv` (copias debiles que usan `__construct_new_array`/`__destroy_new_array`), `lbl_80735428` -> `@stringBase0`. El resto mantiene sus nombres C (`extern "C"`; las llama GameTask).
+  - Globales `lbl_8087D968` (modo, = 2), `lbl_8087F030/34/38` (entradas, cuantas, nivel) definidas aqui con esos nombres.
+- Hallazgos MWCC: un `bool` inline escrito como `if (a()) return true; ... return f();` deja el valor en r0 (`li r0,1; b` por rama y `neg/or/srwi` en la ultima) y el llamador lo prueba con `cmpwi`; con `return a() || b() || ...` MWCC lo convierte en saltos directos.
+- Hallazgos MWCC: un literal dentro de una funcion inline va a un pool `@STRING@` en `.sdata`/`.data`; si el original lo tiene en `@stringBase0`, el codigo estaba en la propia funcion (aqui bloques con un local `name` para que el puntero quede en un registro salvado).
