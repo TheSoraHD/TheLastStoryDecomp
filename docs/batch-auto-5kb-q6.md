@@ -21,7 +21,7 @@ funciones `extern "C" fn_<addr>`.
     previa); si el original pone el `li rX, 0` antes de esa llamada, el desplazamiento es una variable del fuente
     (`(T*)((char*)p + ofs)`, `ofs += sizeof(T)`), declarada antes para el orden de registros.
 
-## db/MarketPrice_unk (commit HASH)
+## db/MarketPrice_unk (commit 3ffbd99)
 - Resultado: 4/4 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -34,3 +34,24 @@ funciones `extern "C" fn_<addr>`.
 - Hallazgos MWCC
   - Bucle con la prueba arriba y el `next()` del CSV abajo = `do { if (row >= N) break; ...; row++; } while (next());`.
   - `0 <= a && a < N && ...` con `return` del valor dentro y el literal al final reproduce `blt/bge` a la rama final.
+
+## db/StrategyAiTable_unk (commit HASH)
+- Resultado: 3/3 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios. **Propuesta**: la primera funcion (0x8021CC50, destructor `{size, T* data}` con
+    `__destroy_new_array` de `fn_8021BE40`) va justo detras del `__sinit` de `db/SpText_unk` (0x8021CB7C, que la
+    registra para sus 6 buffers globales): es la copia debil de `atn::Buffer_unk<T>::~Buffer_unk` del fichero de SpText.
+    Mover el limite SpText/StrategyAiTable a 0x8021CCC4 toca una unidad ajena: pendiente. Mientras, se escribe aqui
+    como clase no plantilla `SpTextBuffer_unk` con destructor no inline (la instanciacion explicita
+    `template atn::Buffer_unk<X>::~Buffer_unk();` compila pero MWCC no emite nada).
+  - `symbols.txt`: `fn_8021CC50` -> `__dt__16SpTextBuffer_unkFv`, **fuera de la unidad** `fn_8021BE40` (en
+    `db/SpText_unk`) -> `__dt__15SpTextEntry_unkFv` (necesario para enlazar la llamada); datos `lbl_80742660` ->
+    `sFileNameStr`, `lbl_8074268C` -> `sKinds`, `lbl_80742698` -> `@stringBase0`, `lbl_8087F308` -> `sEntries`,
+    `lbl_8087F30C` -> `sCount`, `lbl_80882F98` -> `sFileName`. Las cadenas "ATTACK"/"GUARD" (objetos sueltos) quedan
+    como `lbl_`.
+  - Tipo inferido `StrategyAiEntry_unk` (0x20: id, tipo "ATTACK"/"GUARD"/2, 6 enteros).
+- Hallazgos MWCC
+  - El puntero de fila (`entry = &sEntries[i]`) declarado antes de `data` (resultado de la carga) en el mismo bloque
+    reparte los registros salvados como el original (data en r31, entry en el mas bajo); declarado en el cuerpo del
+    bucle deja `data` en el registro mas bajo.
