@@ -288,6 +288,8 @@ inline TownNode_unk* TownTreeFind_unk(TownTree_unk* tree, int key) {
 // inferred: id of the block (x, z)
 #define TOWN_ID(x, z) ((x) + (z) * town->m138)
 
+// NONMATCHING: 98.5% - the -1 of the list gets r31 here and r27 in the original (the parameters are one
+// register higher); tried other forms of the list constructor and of its declaration.
 // inferred: blocks to show around the block (x, z): special cases of the town map near some positions, the
 // BLOCKSHOW list of the block, or the blocks of the mWidth x mHeight area around it (names invented)
 extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int special) {
