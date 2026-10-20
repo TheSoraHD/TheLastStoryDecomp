@@ -2120,29 +2120,69 @@ game/NewCampTask.cpp:
 	.sdata2     start:0x80887AB0 end:0x80887B30
 
 game/NewStaffRoll.cpp:
-	.text       start:0x8053108C end:0x80531E80
+	.text       start:0x8053108C end:0x80531ED0
 	.rodata     start:0x8075D450 end:0x8075D4C0
 	.data       start:0x80793888 end:0x80793940
 	.sdata      start:0x8087E4B0 end:0x8087E4B8
 	.sdata2     start:0x80887B30 end:0x80887B80
 
 game/NewTitleTask.cpp:
-	.text       start:0x80531F44 end:0x80536CA8
-	.rodata     start:0x8075D558 end:0x8075D5B0
-	.data       start:0x80793A20 end:0x80793A58
+	.text       start:0x80531ED0 end:0x80537708
+	.rodata     start:0x8075D4C0 end:0x8075D928
+	.data       start:0x80793940 end:0x80793AB0
 	.sdata2     start:0x80887B80 end:0x80887C68
 
 Event/Node.cpp:
-	.text       start:0x80537708 end:0x8053D3F8
-	.ctors      start:0x8072D3C0 end:0x8072D3D0
-	.rodata     start:0x8075D930 end:0x8075D94C
-	.data       start:0x80793AB0 end:0x80793AF0
+	.text       start:0x80537708 end:0x8053A4DC
+	.rodata     start:0x8075D928 end:0x8075D998
+	.data       start:0x80793AB0 end:0x80793B28
+	.sdata      start:0x8087E4B8 end:0x8087E4C0
 	.sdata2     start:0x80887C68 end:0x80887C80
+
+Event/Channel.cpp:
+	.text       start:0x8053A4DC end:0x8053AFB8
+	.ctors      start:0x8072D3C0 end:0x8072D3C4
+	.rodata     start:0x8075D998 end:0x8075DA90
+	.data       start:0x80793B28 end:0x80793C18
+
+Event/Cut.cpp:
+	.text       start:0x8053AFB8 end:0x8053C6A4
+	.ctors      start:0x8072D3C4 end:0x8072D3C8
+	.rodata     start:0x8075DA90 end:0x8075DD00
+	.data       start:0x80793C18 end:0x80793DF0
+	.sdata2     start:0x80887C80 end:0x80887C88
+
+Event/Label.cpp:
+	.text       start:0x8053C6A4 end:0x8053C750
+	.ctors      start:0x8072D3C8 end:0x8072D3CC
+	.rodata     start:0x8075DD00 end:0x8075DD68
+	.data       start:0x80793DF0 end:0x80793E58
+	.sdata2     start:0x80887C88 end:0x80887C90
+
+Event/Section.cpp:
+	.text       start:0x8053C750 end:0x8053D0F4
+	.ctors      start:0x8072D3CC end:0x8072D3D0
+	.rodata     start:0x8075DD68 end:0x8075DEF8
+	.data       start:0x80793E58 end:0x807940F0
+	.sdata2     start:0x80887C90 end:0x80887C98
+
+Event/Sequence.cpp:
+	.text       start:0x8053D0F4 end:0x805430E8
+	.rodata     start:0x8075DEF8 end:0x8075E120
+	.data       start:0x807940F0 end:0x80794430
+	.sdata      start:0x8087E4C0 end:0x8087E4D8
+	.sdata2     start:0x80887C98 end:0x80887CD8
 
 Event/StringData.cpp:
 	.text       start:0x805430E8 end:0x80543108
 	.rodata     start:0x8075E120 end:0x8075E148
 	.data       start:0x80794430 end:0x80794480
+
+Event/Sequence_cont.cpp:
+	.text       start:0x80543108 end:0x80546000
+	.ctors      start:0x8072D3D0 end:0x8072D3D4
+	.rodata     start:0x8075E148 end:0x8075E300
+	.data       start:0x80794480 end:0x80794608
 
 game/Np131LivingArmor.cpp:
 	.text       start:0x80546000 end:0x805477C8

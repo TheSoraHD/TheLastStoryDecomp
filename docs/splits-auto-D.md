@@ -95,3 +95,21 @@
 - Nombres inventados: atn/LoadManager_unk, atn/FileSystem_unk, atn/LH_Core, atn/LH_Handle; `_cont` atn/LH_Motion_cont.
 - Los accesores pequenos sin pruebas propias (0x80472C90, 0x80474860, 0x80476130.., 0x80477FA4.., 0x804786F8) se asignan a la unidad LH_* anterior (no hay huecos de datos que indiquen otro fichero; podrian ser copias debiles).
 - Quedan en auto: 0x80755D80 (nombre de tipo de puntero a funcion, usado por LH_Model) y __RTTI__ 0x8078FDD0.
+
+## Grupo 7: Event::Node .. Event::Sequence (0x80531E80-0x80546000) (verificado: main.dol OK, lost: 0)
+- La unidad inferida `Event/Node.cpp` (sin fuente) cubria 5 ficheros. Pruebas: 4 `__sinit` en su .ctors (0x8053AF34, 0x8053C560, 0x8053C6C8, 0x8053CF44), cada uno el ultimo de su fichero; cada fichero tiene su propio pool con "vector length error" (0x8075D94C, 0x8075DA28, 0x8075DC04, 0x8075DD20, 0x8075DE90), su nombre RTTI y su "Memory allocation failure"; cadenas "id" duplicadas en .sdata2 (0x80887C84/88/94). Orden alfabetico Channel < Cut < Label < Section < Sequence.
+  - `Event/Node.cpp` (reducida): .text 0x80537708-0x8053A4DC (Action/Node), .rodata 0x8075D928-0x8075D998 (doble de 0x805393A4 + nombres + pool), .data hasta 0x80793B28, .sdata 0x8087E4B8-0x8087E4C0.
+  - `Event/Channel.cpp`: 0x8053A4DC-0x8053AFB8 (ctor de Event::Channel ... __sinit 0x8053AF34), ctors 0x8072D3C0.
+  - `Event/Cut.cpp`: 0x8053AFB8-0x8053C6A4 (ctor de Event::Cut ... __sinit 0x8053C560), ctors 0x8072D3C4, .sdata2 "all"/"id".
+  - `Event/Label.cpp`: 0x8053C6A4-0x8053C750 (ctor ... __sinit 0x8053C6C8), ctors 0x8072D3C8.
+  - `Event/Section.cpp`: 0x8053C750-0x8053D0F4 (ctor ... __sinit 0x8053CF44), ctors 0x8072D3CC.
+- `Event/Sequence.cpp` (nuevo): 0x8053D0F4-0x805430E8 (ctor con vtable Event::Sequence 0x807943E0, pool 0x8075E148), .rodata 0x8075DEF8-0x8075E120 (tablas de parametros, dobles, nombre RTTI), .data 0x807940F0-0x80794430, .sdata 0x8087E4C0-0x8087E4D8, .sdata2 0x80887C98-0x80887CD8.
+- `Event/Sequence_cont.cpp` (nuevo, `_cont`): 0x80543108-0x80546000, tras la unidad enlazada Event/StringData (cuyas funciones son los virtuales debiles de StringData/DummyData emitidos en el TU de Sequence). Usa el pool de Sequence (0x8075E148, que esta tras los datos de StringData) y acaba con su `__sinit` 0x80545CE8 (ctors 0x8072D3D0) + 0x80545FF8. .rodata 0x8075E148-0x8075E300, .data 0x80794480-0x80794608.
+- `game/NewTitleTask.cpp` (ampliada, sin fuente): .text 0x80531ED0-0x80537708 (creador 0x80531ED0 y la cola 0x80536CA8, ambos usan su pool 0x8075D5B0), .rodata 0x8075D4C0-0x8075D928, .data 0x80793940-0x80793AB0.
+- `game/NewStaffRoll.cpp` (ampliada, con fuente): .text hasta 0x80531ED0 (fn_80531E80, accesor de los campos 0x6C/0x70 del objeto; sin otras pruebas).
+
+### Decisiones sin el usuario (grupo 7)
+- Se ha REDUCIDO la unidad inferida Event/Node (sin fuente) para separar Channel/Cut/Label/Section; revisar.
+- `Event/Sequence_cont.cpp`: Event/StringData (enlazada) esta en medio del TU de Sequence; deberia fusionarse cuando se decompile.
+- Los "Memory allocation failure" de 0x80794480-0x80794608 los usan tambien funciones de Event/EventParser_unk (0x80576F70...): parecen @STRING@ debiles deduplicados por el enlazador, asi que no indican fichero; se dejan en Sequence_cont por contigüidad.
+- fn_80531E80 asignada a NewStaffRoll sin pruebas fuertes.
