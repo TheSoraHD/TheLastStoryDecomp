@@ -192,7 +192,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - Literales `""` de un `new (heap, "", "", 0)` en `.sdata` (y no en `@stringBase0`) = la funcion es `inline`
     (o plantilla); marcarla `inline` (aunque se emita debil) los coloca bien y conserva el orden de emision.
 
-## atn/EffectRes_unk (commit HASH8)
+## atn/EffectRes_unk (commit 5a42a6b)
 
 - Resultado: 7/14 al 100%, `matching: false`. `main.dol: OK`.
 - NONMATCHING (todas por registros/planificacion salvo una):
