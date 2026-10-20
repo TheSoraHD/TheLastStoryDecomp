@@ -390,6 +390,13 @@
   "matching": false
  },
  {
+  "name": "game/TargetPos_unk.cpp",
+  "classes": [
+   "AiTarget"
+  ],
+  "matching": true
+ },
+ {
   "name": "game/BattleCalc_unk.cpp",
   "classes": [],
   "matching": true
