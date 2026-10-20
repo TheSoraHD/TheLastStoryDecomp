@@ -729,7 +729,7 @@ public:
     int fn_8015487C();
     void fn_80154C08();
     bool fn_80154E38(CharaTask* target);
-    void fn_80154EC4(int a, int b);
+    void fn_80154EC4(const atn::Vector3& pos, int link); // inferred: starts chr::ControlSwatTurn
     void fn_801551AC();
     void fn_80155790(const atn::Vector3& dir);
     // inferred: 0x80155A88-0x8015B808 also create a control and switch to it
