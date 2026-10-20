@@ -30,3 +30,31 @@ Cola: `atn/LH_Binary`, `atn/THPPlayer_unk`, `atn/Xsca_unk`, `game/SongManager`, 
   - Funciones de 3-4 sentencias con un inline de 5 sentencias dentro necesitan ~12 `((void)0)` para dejar de
     autoinlinearse; con un bucle, 6-8.
 - Pendientes: ninguno.
+
+## atn/THPPlayer_unk (commit 48e71f6)
+- Resultado: 18/22 al 100%, `matching: false`, `main.dol: OK`.
+- NONMATCHING: `fn_805B5AD4` (THPSimpleSetBuffer) 95.74% (un registro cero de mas), `fn_805B602C`
+  (THPSimpleLoadStop) 89.26% (planificacion de cargas y r6/r7), `fn_805B6120` (THPSimpleDecode) 99.81% y
+  `fn_805B6504` (MixAudio) 97.62%: solo registros.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - Es `THPSimple.c` del ejemplo "thpsimple" del SDK THP (sin hilos), con un campo extra `soundMode` (0x188) y
+    una funcion nueva `fn_805B6C44` (estereo/mono). Funciones publicas con su nombre automatico `extern "C"`
+    (las llama `atn/VideoTHP.cpp`; los nombres del SDK van en comentarios); las tres `static` del SDK
+    (ReadFrameAsyncCallback, MixAudio, THPAudioMixCallback) tambien conservan su `fn_`.
+  - `symbols.txt`: datos con nombres del SDK (`SimpleControl`, `WorkBuffer`, `SoundBuffer`, `Initialized`,
+    `SoundBufferIndex`, `OldAIDCallback`, `LastAudioBuffer`, `CurAudioBuffer`, `AudioSystem`, `VolumeTable`,
+    todos `scope:local`), `lbl_80763DE0` -> `@stringBase0` ("THP"), constantes `@938` (doble int->float),
+    `@638` (127.0f), `@918` (0.0f).
+  - Tipos del SDK declarados localmente (THPHeader, THPFrameCompInfo, THPVideoInfo, THPAudioInfo, THPSimple...).
+  - Nombre real propuesto: `THPSimple.c` (o una copia `.cpp` del juego).
+- Hallazgos MWCC
+  - `__attribute__((aligned(32)))` en una variable global grande desactiva optimizaciones en las funciones que
+    la usan: `x + 1 >= 10 ? 0 : x + 1` deja de salir sin saltos (addc/subfe/andc) y los bucles de 10
+    iteraciones dejan de desenrollarse del todo. Sin el atributo, todo casa (la alineacion la da la variable
+    siguiente).
+  - `x + 1 >= N ? 0 : x + 1` da la secuencia `xoris/addc/subfe/andc`; `x + 1 < N ? x + 1 : 0` da
+    `subfc/srwi/subfe/and`.
+  - `n = 48; if (f() == 0) n = 32;` deja el `li` antes de la llamada; con `u32 r = f(); n = 48; if (r == 0)`
+    sale despues, como en el original.
+- Pendientes: ninguno.
