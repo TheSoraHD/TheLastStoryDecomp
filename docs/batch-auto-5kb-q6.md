@@ -115,7 +115,7 @@ funciones `extern "C" fn_<addr>`.
     UTF-16 a `std::string`).
 - Hallazgos MWCC: nada nuevo.
 
-## db/MemberList_unk (commit HASH)
+## db/MemberList_unk (commit 1b721e2)
 - Resultado: 2/3 al 100%, matching no.
 - NONMATCHING: `fn_80217D9C` (fila de un nivel) 98.39% - solo registros (`count - 1` y su desplazamiento `* 0x14`
   intercambiados entre r4 y r5); probados locales para el contador, la tabla y el primer nivel, puntero de fila y otros
@@ -129,3 +129,20 @@ funciones `extern "C" fn_<addr>`.
 - Hallazgos MWCC
   - `a[j] = *f() != 0;` calcula `&a[j]` antes de la llamada (registro salvado); leyendo antes el campo en un local
     (`const char* field = f(); a[j] = *field != 0;`) la direccion se calcula despues, como el original.
+
+## db/ReverbPresetParam_unk (commit HASH)
+- Resultado: 3/3 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_80742418` -> `sMapIds`, `lbl_80742460` -> `sOtherIds`, `lbl_807424A8` -> `sFileNameStr`,
+    `lbl_80742500` -> `sTypes`, `lbl_8074251C` -> `@stringBase0`, `lbl_8087F2C0` -> `sEntries`, `lbl_8087F2C4` -> `sCount`,
+    `lbl_80882F58` -> `sFileName`. Las cadenas "normal".."cave" quedan como `lbl_`.
+  - Tipo inferido `ReverbPreset_unk` (0x24: id, tipo por prefijo "normal".."cave" o -1, 7 floats). El cargador solo
+    corre si existe el motor de sonido `lbl_8087EE90`, y le pasa cada fila (`fn_80049E54`) tras vaciarlo (`fn_8004A03C`).
+    `fn_80219558` traduce un id de mapa a preset (tablas de 18 ids; casos especiales 0x1870E -> 1 y 0x30F7A -> 9).
+- Hallazgos MWCC
+  - 7 campos seguidos de un struct leidos con la misma llamada no salen como bucle: el original los escribe uno a uno
+    (con un array y un `for` MWCC no desenrolla 7 iteraciones con llamadas).
+  - Elemento de tabla usado dos veces en el cuerpo de un bucle de busqueda (`t = tabla[i]; strncmp(s, t, strlen(t))`):
+    declararlo dentro del cuerpo le da el registro mas bajo (se crea despues del puntero reducido).
