@@ -170,6 +170,7 @@ public:
     static void fn_8009F448(ModelInstance* instance, InstModel_unk* model);
 
     // inferred: lens of the model and screen data of the instance (inline, name invented)
+    void DrawModel_unk(InstModel_unk* model, InstCamera_unk* camera);
     void SetupLens_unk(InstModel_unk* model) {
         InstLens_unk* lens = model->mLens;
         void* screen = m64;
@@ -352,8 +353,35 @@ void ModelInstance::fn_8009EB20() {
     }
 }
 
-// NONMATCHING: 97.47% - this/camera saved registers swapped (the original copies the camera after
-// the switch) and r4/r5 for the two callbacks; the stack matches with a named empty callback
+// inferred: draws the shared model with this instance (inline, name invented)
+inline void ModelInstance::DrawModel_unk(InstModel_unk* model, InstCamera_unk* camera) {
+    if (model->mType == 8) {
+        int flags = mFlags;
+        model->mFlags |= flags;
+        *(Matrix3x4*)(model->m08) = mMtx;
+        model->mCallback = InstCallback_unk((void (*)(ModelInstance*, Model_unk*))fn_8009F444,
+                                            (void (*)(ModelInstance*, Model_unk*))fn_8009F448, this,
+                                            (Model_unk*)model);
+        model->mLod = mLod;
+        int count = model->mLodCount;
+        if (model->mLod >= count) {
+            model->mLod = count - 1;
+        }
+        if (model == &mData->mModel) {
+            SetupLens_unk(model);
+        }
+    }
+    model->vf10(camera);
+    model->mCallback.Clear_unk();
+    if (model == &mData->mModel) {
+        model->mLens = mLens;
+    }
+    int flags = mFlags;
+    model->mFlags &= ~flags;
+}
+
+// NONMATCHING: 98.84% - r4/r5 for the two callbacks and the stack slots of the callback and lens
+// temporaries; the draw part is an inline (its camera parameter gives the saved registers)
 void ModelInstance::vf10(InstCamera_unk* camera) {
     InstModel_unk* model = &mData->mModel;
     switch (camera->m2F8) {
@@ -374,31 +402,7 @@ void ModelInstance::vf10(InstCamera_unk* camera) {
         }
         break;
     }
-    if (model->mType == 8) {
-        int flags = mFlags;
-        model->mFlags |= flags;
-        *(Matrix3x4*)(model->m08) = mMtx;
-        model->mCallback = InstCallback_unk((void (*)(ModelInstance*, Model_unk*))fn_8009F444,
-                                            (void (*)(ModelInstance*, Model_unk*))fn_8009F448, this,
-                                            (Model_unk*)model);
-        model->mLod = mLod;
-        int count = model->mLodCount;
-        if (model->mLod >= count) {
-            model->mLod = count - 1;
-        }
-        if (model == &mData->mModel) {
-            SetupLens_unk(model);
-        }
-    }
-    model->vf10(camera);
-    InstCallback_unk empty;
-    model->mCallback = empty;
-
-    if (model == &mData->mModel) {
-        model->mLens = mLens;
-    }
-    int flags = mFlags;
-    model->mFlags &= ~flags;
+    DrawModel_unk(model, camera);
 }
 
 // NONMATCHING: 49% - the original takes the smallest and largest corners with paired-single selects
