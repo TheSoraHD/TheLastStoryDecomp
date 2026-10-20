@@ -48,6 +48,14 @@ void GXInitLightDistAttn(GXLightObj* lt, float refDistance, float refBrightness,
 void GXInitLightPos(GXLightObj* lt, float x, float y, float z);
 void GXInitLightDir(GXLightObj* lt, float nx, float ny, float nz);
 void GXInitLightColor(GXLightObj* lt, GXColor color);
+void GXInvalidateTexAll();
+void GXSetTevKColor(int id, GXColor color);
+void GXSetTevKColorSel(int stage, int sel);
+void GXSetTevColorIn(int stage, int a, int b, int c, int d);
+void GXSetTevColorOp(int stage, int op, int bias, int scale, unsigned char clamp, int outReg);
+void GXSetTevSwapMode(int stage, int rasSel, int texSel);
+void GXSetTevSwapModeTable(int table, int red, int green, int blue, int alpha);
+void GXLoadTexMtxImm(const float mtx[][4], unsigned int id, int type);
 }
 
 #endif

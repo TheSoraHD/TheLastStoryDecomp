@@ -74,7 +74,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
 - Hallazgos MWCC: la copia implicita de un struct con `atn::Vector3` sale con la z cargada primero (`lfs` antes del `psq_l`),
   aunque el `operator=` de Vector3 use `__VecCopy`.
 
-## atn/Light_unk (commit COMMIT_LIGHT)
+## atn/Light_unk (commit d2f4d39)
 
 - Resultado: 7/10 al 100%, `matching: false`.
 - NONMATCHING:
@@ -100,3 +100,20 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - `x = (double)f;` (f float) genera `frsp` + `stfs`; sirve para un `frsp` aislado antes de un store.
   - Un temporal devuelto por una inline (`ToGXColor_unk()`) va por debajo de la copia del argumento por valor; un local con nombre por encima.
   - `!(a != 2 && a != 3)` evita la fusion en `cmplwi` de `a == 2 || a == 3` (dos `cmpwi` + `beq`/`bne`).
+
+## atn/PostFxBloom (commit COMMIT_BLOOM)
+
+- Resultado: 1/3 al 100% (ctor), `matching: false`.
+- NONMATCHING:
+  - `fn_800A981C` (pasada de desenfoque direccional, `extern "C"`: la llama tambien Layer2DBlur) 96.87% - registros
+    (el color K1 se queda en registro durante la primera llamada; contadores del bucle TEV en r25/r26).
+  - `PostFxBloom::vf10` 85.65% - registros y las expresiones u16 de los tamanos de copia; el original guarda mas valores en f28-f31.
+- **Decisiones sin el usuario**:
+  - Split sin cambios (ya incluia RTTI/vtable y el RTTI debil de `atn::IPostFx`).
+  - `symbols.txt`: `fn_800A9E64` -> `vf10__Q23atn11PostFxBloomFPv` (entrada 4 de la vtable).
+  - Cabecera nueva `include/atn/PostFx.h` (IRender con `vf14`/`vf18` no puros como en la vtable, `IPostFx`,
+    `PostFxManager::fn_800A96AC`, globales de render). Jerarquia inferida del RTTI: `PostFxBloom : IPostFx : IRender`.
+  - `include/atn/GXDecl.h`: anadidas funciones TEV/K-color/`GXLoadTexMtxImm`/`GXInvalidateTexAll`.
+  - Parametros de bloom (`lbl_8087EFA8`) con nombres inferidos en un struct local (`BloomParams_unk`).
+- Hallazgos MWCC: la cadena `m[..] = ... = 0.0f` de `Matrix3x4::SetIdentity` reproduce el orden de stores del original
+  (de la ultima a la primera); `float s = 0.0f; for (5) s += w[i];` mantiene el `0.0f +` que una expresion unica pliega.

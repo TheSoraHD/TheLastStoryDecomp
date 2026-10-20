@@ -2773,5 +2773,13 @@
    "Light_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/PostFxBloom.cpp",
+  "classes": [
+   "atn::PostFxBloom",
+   "atn::IPostFx"
+  ],
+  "matching": false
  }
 ]
