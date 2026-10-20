@@ -1027,6 +1027,11 @@
   "matching": true
  },
  {
+  "name": "db/HateParam_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
   "name": "atn/ptr_string_base_char_0.cpp",
   "classes": [
    "atn::ptr_string_base<char, 0>"
