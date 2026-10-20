@@ -68,3 +68,14 @@
 ### Decisiones sin el usuario (grupo 4)
 - No se ha partido el tramo de 0x28DC4 bytes: no hay pruebas de corte (constantes unicas para todo el tramo). Queda todo en atn/PacketPack.cpp, cuyo nombre ya existia (probablemente el fichero real sea un MP/ManagerMP.cpp o similar; revisar).
 - Nombres inventados MP/NetGlobals_unk.cpp y MP/CharaListeners_unk.cpp.
+
+## Grupo 5: 0x804405F8-0x8044D710 (HomeButtonMenu/HomingBullet) (verificado: main.dol OK, lost: 0)
+- `game/HomeButtonMenu.cpp` (nuevo): 0x804405F8-0x80440B24. Vtable/RTTI HomeButtonMenu (0x8078F258), sInstance 0x8087F4E8, pool "/hbm/ban_home_button.texture" (0x807544E0), doble 0x807544C8, .sdata2 0x80886A20-0x80886A40 (su 1.0f 0x80886A24).
+- `game/HomeButton_unk.cpp` (nuevo, nombre INVENTADO): 0x80440B24-0x80441590, la parte de la libreria HBM (pool "/homeBtn.arc", "/homeBtn_ENG.arc"..., "/hbm/HomeButton2", jumptable 0x8078F290). Corte con HomeButtonMenu: 1.0f duplicado (0x80886A24 frente a 0x80886A44) y pools separados. Podria ser parte de HomeButtonMenu (no hay __sinit) -> revisar.
+- `game/HomingBullet.cpp` (nuevo): 0x80441590-0x80442F10. Vtable/RTTI HomingBullet (0x8078F2B8), pool SE_DG036_015/SE_BTCOM_015, doble 0x807545F0, .bss 0x807C8A38, .sdata2 0x80886A80-0x80886AE8 (su 0.0f 0x80886A80). Incluye al final 5 funciones pequenas (0x80442B50-0x80442F10) que usa el tramo Arms 0x8043F028 (podrian ser copias debiles).
+- `game/ItemManager_unk.cpp` (nuevo, nombre INVENTADO): 0x80442F10-0x8044D710. Singleton en sbss 0x8087F4F0 (creador 0x80442F10 con pool "any/dg/to_dg" 0x80754760, dtor 0x80442F68), lo usan tiendas, CosEdit, cofres, etc. Sus propios 1.0f/doble (0x80886AE8, 0x80754750). Datos: .rodata 0x80754628-0x80754770, .data 0x8078F2F8-0x8078F348 (2 jumptables), .sdata 0x8087DFF0-0x8087E008, .sdata2 0x80886AE8-0x80886B30.
+- `RecycleBuffer_gmk/ItemSlotAnime.cpp` (ampliada, sin fuente): .text desde 0x8044D710 (ctor/dtor de gmk::ItemSlotAnime y el creador de gmk::ItemSlotTextCache, cuyo nombre RTTI 0x80754858 y vtable 0x8078F348 estan justo antes de los de la unidad). Datos: .rodata desde 0x80754770, .data desde 0x8078F348, .sdata 0x8087E008-0x8087E030, .sbss 0x8087F4F8-0x8087F500.
+
+### Decisiones sin el usuario (grupo 5)
+- Nombres inventados game/HomeButton_unk.cpp y game/ItemManager_unk.cpp (familia `game/` supuesta).
+- El tramo ItemManager_unk (~42 KB) se deja entero: no hay constantes duplicadas dentro.

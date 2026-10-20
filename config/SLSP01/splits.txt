@@ -1588,10 +1588,40 @@ gmk/CharaPathMove.cpp:
 	.data       start:0x8078F178 end:0x8078F210
 	.sdata2     start:0x808869C8 end:0x80886A10
 
+game/HomeButtonMenu.cpp:
+	.text       start:0x804405F8 end:0x80440B24
+	.rodata     start:0x807544C8 end:0x80754500
+	.data       start:0x8078F258 end:0x8078F290
+	.sbss       start:0x8087F4E8 end:0x8087F4F0
+	.sdata2     start:0x80886A20 end:0x80886A40
+
+game/HomeButton_unk.cpp:
+	.text       start:0x80440B24 end:0x80441590
+	.rodata     start:0x80754500 end:0x807545F0
+	.data       start:0x8078F290 end:0x8078F2B8
+	.sdata2     start:0x80886A40 end:0x80886A80
+
+game/HomingBullet.cpp:
+	.text       start:0x80441590 end:0x80442F10
+	.rodata     start:0x807545F0 end:0x80754628
+	.data       start:0x8078F2B8 end:0x8078F2F8
+	.bss        start:0x807C8A38 end:0x807C8A48
+	.sdata2     start:0x80886A80 end:0x80886AE8
+
+game/ItemManager_unk.cpp:
+	.text       start:0x80442F10 end:0x8044D710
+	.rodata     start:0x80754628 end:0x80754770
+	.data       start:0x8078F2F8 end:0x8078F348
+	.sdata      start:0x8087DFF0 end:0x8087E008
+	.sbss       start:0x8087F4F0 end:0x8087F4F8
+	.sdata2     start:0x80886AE8 end:0x80886B30
+
 RecycleBuffer_gmk/ItemSlotAnime.cpp:
-	.text       start:0x8044D9BC end:0x80452710
-	.rodata     start:0x80754870 end:0x807548CC
-	.data       start:0x8078F388 end:0x8078F400
+	.text       start:0x8044D710 end:0x80452710
+	.rodata     start:0x80754770 end:0x807548CC
+	.data       start:0x8078F348 end:0x8078F400
+	.sdata      start:0x8087E008 end:0x8087E030
+	.sbss       start:0x8087F4F8 end:0x8087F500
 	.sdata2     start:0x80886B30 end:0x80886B68
 
 game/LastCocoonChrysalis.cpp:
