@@ -121,3 +121,40 @@ Cola: `game/Gun`, `game/HomingBullet`, `game/main`, `game/MapPartsLocatorSet`, `
     inlinea todo.
   - Las inline con una sola sentencia `m8B0 = Callback(func, arg);` (ctor de otro fichero que recibe
     `boost::function` por valor) salen como copias debiles identicas a las del original.
+
+## game/MapPartsLocatorSet (commit 0ba230e)
+- Resultado: 9/13 al 100%, `matching: false`, `main.dol: OK`, regress lost: 0.
+- NONMATCHING:
+  - ctor 99.91%: r27/r28 (longitud y cadena del `std::string`) cambiados en el segundo bloque
+    "merge_%s_loc.model" (el primero sale igual); probado un inline comun para los dos bloques (peor).
+  - `vf24` 87.9%: el original lee la caja de cada instancia dos veces (dos copias de min/max, la z
+    pasa por `frsp`) y coloca los temporales de las esquinas de otra forma. Reutiliza el patron
+    `ProjectBox_unk` de atn/Geometry_unk con matriz 3x4 (`TransformBox_unk`) y el asm aprobado
+    `__VecMinMax`.
+  - `fn_8049B1F0` 97.3%: el original calcula `i * 4` del hueco de la instancia en cada iteracion (aqui
+    se reduce a otra variable de induccion y gasta un registro salvado mas).
+  - `vf2C` 99.45%: registros del puntero del nombre y su longitud.
+- **Decisiones sin el usuario**:
+  - Splits sin cambios (el pool 0x80756B84 ya estaba dentro del split .rodata).
+  - Cabecera nueva `include/game/MapPartsLocatorSet.h` (layout completo 0x350, `aligned(8)` como
+    MapPartsModel; bitfield 0x340 con 6 flags `int x : 1`).
+  - Cabecera nueva `include/game/MapInstance_unk.h`: las declaraciones (`MapLod_unk`, `MapLocator_unk`,
+    `MapLocatorShear_unk`, `MapInstance_unk`) salen de `src/game/MapInstance_unk.cpp`, que la incluye
+    (`MapLod_unk::m00` pasa a `const char* mName`).
+  - `include/gmk/Lemon.h` (vista de `atn::ModelInstance`): `m08` -> `atn::Sphere mBound`, nombres
+    `m6C` (flags) y `m7C` (textura de luz); mismos offsets.
+  - `include/gmk/SeTable.h` (`atn::FixedString_unk`): anadidos ctor desde `const char*` y
+    `Equals_unk(const char*)` (comparacion inline del original).
+  - La textura de 0xDC es `atn::Texture_unk`, pero su metodo 0x800D59B8 esta declarado en
+    `GimmickUvOwner_unk` (game/GimmickCommon.h): se llama con un cast. Pendiente: mover
+    `fn_800D59B8` a `atn::Texture_unk` (renombrar simbolo y actualizar GimmickCommon).
+  - El creador `fn_8049A018` queda `extern "C"` (asi lo declara game/MapPartsFactory.cpp).
+  - symbols.txt: metodos de MapPartsLocatorSet renombrados a sus nombres C++; `lbl_80756B84` ->
+    `@stringBase0` (scope:local, 0x142).
+- Hallazgos MWCC:
+  - Bucles "todos listos": `ready = ready && f();` da `cmpwi; li 0; beq` como el original
+    (`int prev = ready; ready = 0; if (prev && f()) ready = 1;` da `mr.`).
+  - `delete p;` sin `if (p)` previo: el `if` explicito anade un `beq` duplicado.
+  - Copia de un `atn::Sphere` campo a campo (xy primero) frente al ctor de copia (z primero).
+- Pendientes para otras unidades: al renombrar simbolos hay que buscar tambien llamadores
+  `extern "C"` en unidades enlazadas (aqui `atn/LH_Motion.cpp` usa `fn_804714A4/B0` = `Loader_unk`).
