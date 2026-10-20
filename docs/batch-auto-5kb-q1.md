@@ -175,7 +175,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
     de asm de Vec.h (necesita permiso del usuario).
 - Hallazgos MWCC: `(float)__fabs(x) < eps` da `fabs` + `frsp` + `fcmpo` con el eps en `.sdata2` (sin el cast compara en double y lo saca a `.rodata`).
 
-## atn/BoneCalc_unk (commit COMMIT_BC)
+## atn/BoneCalc_unk (commit 76c9816)
 
 - Resultado: 1/3 al 100% (`fn_8009B938`, funcion vacia), `matching: false`.
 - NONMATCHING / sin escribir: `fn_8009A5CC` (0x7D8) y `fn_8009ADA4` (0xB94): calculo recursivo de matrices de huesos con
