@@ -105,3 +105,23 @@ Cola: `game/SystemErrorMessage_unk`, `game/GameOverTask`, `game/GimmickStateComm
   - Conversion float->u8 con `__cvt_fp2unsigned` = cast a `unsigned int`, no a `unsigned char` (fctiwz).
   - Comprobacion "visible" que relee mFlags antes del `|= 4` = `Task::IsFlag_unk(4)`.
 - Pendientes: nada.
+
+## game/GameOverTask (commit fa40541)
+- Resultado: 2/7 al 100% (ctor 99.59%, fn_80377298 99.45%), `matching: false`, `main.dol: OK` (regress lost: 0).
+- NONMATCHING:
+  - ctor 99.59%: registros de la copia del nombre (origen/destino intercambiados).
+  - `vf0C` 48.93%: la preparacion de la escena (luz, entorno y estado de camara de lbl_8087EFA8) se copia
+    con structs temporales cuyo layout no se reconstruyo (muchos stores muertos en pila).
+  - `fn_80377298` 99.45%: registro de la direccion de la unica opcion en .sdata2.
+  - `vf10` 89.58%: el original mantiene las seis tablas de textos en registros, pasa un tercer argumento a
+    MenuLoadTask::fn_80117914 (la declaracion conocida tiene dos, como en NewCampPartsTop) y otros stores del fade.
+  - `vf14` 84.74%: posicion/objetivo de la camara via copias locales y planificacion de la copia de Camera_unk.
+- Decisiones sin el usuario:
+  - Split sin cambios (ya cubre .rodata 0x8074DDF8-0x8074DF88).
+  - symbols.txt: ctor, dtor, vf0C, vf10, vf14 y fn_80377298 con nombre de clase; lbl_8074DEC0 -> @stringBase0.
+  - Clase definida en el .cpp (sin cabecera): tamano 0x298 (relleno m290 inferido), FixedArray_unk<int, 5>
+    de opciones, Camera_unk en 0x94. Tablas de mensajes/opciones por modo como arrays const separados
+    (el bucle de textos lee 5 entradas de tablas de 4: lee la primera opcion, como el original).
+  - Literal `"\0"` para el nombre vacio del CampSaveArg (dos ceros en el pool en 0x69/0x6A).
+  - Declaraciones locales copiadas de game/NewCampPartsTop.cpp (CampSaveData_unk, MenuLoadTask, MenuCommonTask...).
+- Pendientes: reconstruir los structs de escena de lbl_8087EFA8 (0x3C, 0x54-0xD0, 0x324, 0x374) para vf0C.
