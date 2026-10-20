@@ -31,7 +31,9 @@ extern "C" void fn_8007FAF0(Material_unk* material, int mode); // inferred: sets
 // inferred: model instance embedded at MapPartsModel+0x50 (probably the same class as
 // chr::Motion_unk, which characters embed at +0xB0). Names invented.
 struct Model_unk {
-    Model_unk(int flags, int arg); // 0x80096E94
+    // inferred: default arguments: arrays of models construct them with (8, 32) through a helper
+    // (0x80412E94 in gmk::MotionObject)
+    Model_unk(int flags = 8, int arg = 32); // 0x80096E94
     virtual ~Model_unk();          // 0x800971D4 (the real class is atn::Model, __vt__Q23atn5Model)
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     void fn_80092A4C();                          // inferred
@@ -110,9 +112,11 @@ struct Model_unk {
     };
     TreeEntry_unk m200;
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
-    unsigned int m20C_31_16 : 16;
+    unsigned int m20C_31_24 : 8;
+    int m20C_23_16 : 8; // inferred: LOD counter (gmk::SwingObject::vf10 restores m50 from it)
     unsigned int m20C_15_8 : 8; // inferred: saved copy of m50 (CharaTask::fn_80145334)
-    unsigned int m20C_7_6 : 2;
+    unsigned int m20C_7 : 1;
+    int mFlag6_unk : 1; // inferred: tested by gmk::SwingObject::vf10
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
     unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
     unsigned int m20C_3 : 1;

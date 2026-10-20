@@ -1236,8 +1236,8 @@ gmk/FragileObject.cpp:
 	.sdata2     start:0x80885FB0 end:0x80885FF0
 
 gmk/AutomaticDoor.cpp:
-	.text       start:0x803F47A0 end:0x803F69E4
-	.rodata     start:0x807522E0 end:0x807522F4
+	.text       start:0x803F471C end:0x803F69E4
+	.rodata     start:0x807522E0 end:0x807523A0
 	.data       start:0x8078CC30 end:0x8078CCC8
 	.sdata2     start:0x80885FF0 end:0x80886010
 
@@ -1281,9 +1281,9 @@ gmk/MeetingSpot.cpp:
 	.sdata2     start:0x80886090 end:0x808860C0
 
 gmk/SwingObject.cpp:
-	.text       start:0x803FE390 end:0x80400728
-	.rodata     start:0x807526A8 end:0x807526BC
-	.data       start:0x8078D098 end:0x8078D130
+	.text       start:0x803FDFC0 end:0x80400728
+	.rodata     start:0x807525D8 end:0x80752798 align:4
+	.data       start:0x8078D080 end:0x8078D130
 	.sdata2     start:0x808860C0 end:0x80886118
 
 gmk/Leaf.cpp:
@@ -1295,8 +1295,8 @@ gmk/Leaf.cpp:
 
 gmk/Bat.cpp:
 	.text       start:0x80402978 end:0x804047A4
-	.rodata     start:0x80752838 end:0x80752844
-	.data       start:0x8078D1F8 end:0x8078D290
+	.rodata     start:0x80752830 end:0x80752858
+	.data       start:0x8078D1C8 end:0x8078D290
 	.sdata2     start:0x80886198 end:0x808861F0
 
 gmk/PigeonManager.cpp:
@@ -1351,8 +1351,8 @@ gmk/Coffin.cpp:
 	.sdata2     start:0x808863E0 end:0x80886410
 
 gmk/MotionObject.cpp:
-	.text       start:0x80412B80 end:0x80414AC4
-	.rodata     start:0x80752DA0 end:0x80752DB4
+	.text       start:0x80412AFC end:0x80414AC4
+	.rodata     start:0x80752D90 end:0x80752E58
 	.data       start:0x8078D8B0 end:0x8078D948
 	.sdata2     start:0x80886410 end:0x80886430
 
@@ -1471,9 +1471,10 @@ gmk/RotaryRoom.cpp:
 	.sdata2     start:0x80886668 end:0x808866A0
 
 gmk/SparkCube.cpp:
-	.text       start:0x8042618C end:0x80427730
-	.rodata     start:0x80753678 end:0x80753688
+	.text       start:0x80426108 end:0x80427730
+	.rodata     start:0x80753670 end:0x80753700
 	.data       start:0x8078E470 end:0x8078E508
+	.bss        start:0x807C8A28 end:0x807C8A38
 	.sdata2     start:0x808866A0 end:0x808866D0
 
 gmk/FlyObjManager.cpp:
@@ -1540,14 +1541,14 @@ gmk/TodomeCountUp.cpp:
 	.sdata2     start:0x80886800 end:0x80886808
 
 gmk/LemonBucket.cpp:
-	.text       start:0x8042F860 end:0x804310B0
-	.rodata     start:0x80753FC8 end:0x80753FDC
+	.text       start:0x8042F7EC end:0x804310B0
+	.rodata     start:0x80753F98 end:0x80754070
 	.data       start:0x8078EC08 end:0x8078ECA0
 	.sdata2     start:0x80886808 end:0x80886868
 
 gmk/RandomMerchant.cpp:
-	.text       start:0x8043119C end:0x80432CF0
-	.rodata     start:0x80754078 end:0x807540A0
+	.text       start:0x804310B0 end:0x80432CF0
+	.rodata     start:0x80754070 end:0x80754180
 	.data       start:0x8078ECA0 end:0x8078EE40
 	.sdata2     start:0x80886868 end:0x80886890
 
