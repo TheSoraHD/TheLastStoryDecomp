@@ -317,6 +317,21 @@
   "matching": true
  },
  {
+  "name": "atn/Shader_unk.cpp",
+  "classes": [
+   "ShaderTex_unk",
+   "ShaderLOD_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ShaderManager_unk.cpp",
+  "classes": [
+   "ShaderManager_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/SoftKeyboardBase_wchar_t_0.cpp",
   "classes": [
    "atn::SoftKeyboardBase<wchar_t, 0>"
