@@ -94,7 +94,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     nombre; inferido).
 - Hallazgos MWCC: nada nuevo (una asignacion a una variable salvada se planifica donde esta en el fuente respecto a la llamada virtual).
 
-## db/EventIdTable_unk (commit PENDIENTE)
+## db/EventIdTable_unk (commit aa4e5bf)
 - Resultado: 5/7 al 100%, matching no.
 - NONMATCHING:
   - `EventIdTable_unk::fn_8020F248` (cargador) 97.86% - solo reparto de registros (el original deja `this` en r24 y el
@@ -115,3 +115,18 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
 - Hallazgos MWCC
   - `strcmp(a, b) ? 0 : N` da `neg/or/srawi/andc` (`== 0 ? N : 0` da `cntlzw`); un `if/else` que asigna en cada rama a
     un miembro sale como valor en r0 y un solo `stw` cuando es un inline que devuelve el valor.
+
+## db/ChaseParam_unk (commit PENDIENTE)
+- Resultado: 0/1 al 100%, matching no.
+- NONMATCHING: `fn_8020A90C` 97.94% - solo reparto de registros (data/cero y nombre/puntero de configuracion
+  intercambiados; el original guarda la parte alta del pool en r29 desde la primera llamada). Probado el orden de
+  declaracion de path, size, data y name.
+- **Decisiones sin el usuario**
+  - Splits sin cambios (la unidad no tiene `.sbss`: escribe en el objeto global `lbl_8087F0A8`).
+  - `symbols.txt`: `lbl_8073ECD8` -> `@stringBase0` (el nombre del fichero esta en el pool, no en un array aparte).
+  - Tipo inferido `ChaseConfig_unk` (solo los miembros 0x4E0-0x580 que se escriben aqui, nombres de las claves del CSV)
+    para `lbl_8087F0A8` (en `game/EnvSeBase.cpp` el mismo simbolo se declara como `EnvSeConfig_unk*`; no se unifica).
+  - `lbl_80882E18` (grados a radianes) tiene tamano 8 en `symbols.txt` (float + relleno): sin cambiar.
+- Hallazgos MWCC
+  - `p->m = f(x)` con `p` global: MWCC carga `p` despues de la llamada; con un accesor inline (`Config()->m = f(x)`) lo
+    carga antes y lo guarda en un registro salvado. Con `k * f(x)` el original lo carga despues (asignacion directa).
