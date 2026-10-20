@@ -111,3 +111,41 @@ Cola: `game/Em201ZanGurg`, `game/Em305VampireMp`, `game/EnemyTrista`, `game/Spec
   - El vector diferencia con nombre (`Vector3 d = a - b; d.Length_unk()`) en vez de temporal sube su
     hueco por encima de los temporales.
   - El dtor implicito de la clase y el de la clase local salen al final del .o en ese orden.
+
+## game/SpecialEnemyBase (commit 25f764f)
+- Resultado: 15/22 al 100%, `matching: false`, `main.dol: OK` (regress lost: 0). Unidad nueva en
+  game_units.json (antes no tenia entrada).
+- NONMATCHING:
+  - fn_805A3D68 99.9%: registro del literal ".csv".
+  - fn_805A45F8 98.2%: registros/orden de cargas de los dos bucles de personajes.
+  - fn_805A4A54 66.3%: aproximacion (test de punteria de la camara con rectangulo en pantalla).
+  - fn_805A5078 98.1%: orden de cargas (copia z-primero de `dir`).
+  - fn_805A5220 99.6%: solo offsets del pool (el original tiene "" y "basic_string: out_of_range"
+    antes de "position").
+  - fn_805A52F4 99.4%: datos de la tabla de nombres (entrada "").
+  - fn_805A5374 73.3% (fabrica de enemigos): registros salvados y el "" del new (el original usa un
+    objeto aparte de 4 bytes tras la tabla, lbl_807637DC).
+- Decisiones sin el usuario:
+  - Split sin cambios.
+  - game_units.json: entrada nueva game/SpecialEnemyBase.cpp (matching false).
+  - symbols.txt: nombres de las funciones (pairnames + fn_805A45F8/fn_805A4A54 a mano) y
+    lbl_807632A0 -> @stringBase0. fn_805A5078, fn_805A52F4 y fn_805A5374 quedan como extern "C"
+    (los llamadores en src ya usan esos nombres: EnemyTask.cpp, db/CharaIdTable_unk.cpp).
+  - CABECERA COMPARTIDA include/game/SpecialEnemyBase.h: miembros nuevos declarados
+    (fn_805A4188, fn_805A45F8, fn_805A4980/49E4/4A1C con SpecialFlag_unk, fn_805A4A54 con
+    SpecialAim_unk, fn_805A5220); nombres de parametros de fn_805A4F1C corregidos (speed, blend;
+    misma firma). Ver tambien los cambios de vf110/vf114/vf118 en la seccion de Em305VampireMp.
+  - include/game/Em201ZanGurg.h: `int m170C` (la fabrica reserva 0x1710 bytes).
+  - La fabrica llama a los constructores no decompilados como `extern "C" void* fn_XXXXXXXX(void* self,
+    atn::Task* parent, EnemyInfo_unk* info | void* data)` tras `::operator new(size, 3, "", "", 0)`;
+    los decompilados con `new (3, "", "", 0) Clase(...)`. Los tamanos de clase coinciden con los
+    del original (comprobado al compilar los new de las clases existentes).
+  - Inventados: GimmickObj_unk/GimmickList_unk (lbl_8087F4A0), Field_unk (m74/m80/m13C/m868),
+    SpecialFlag_unk, SpecialAim_unk, SpecialRect_unk.
+- Hallazgos MWCC:
+  - El vtable de SpecialEnemyBase mide 0x11C (el 0 siguiente es relleno antes de la jumptable);
+    vf11C la introduce Em305Vampire.
+  - Un `if (p != 0) { p = ctor(p, ...); } enemy = p;` reproduce el patron de `new T(...)` con
+    constructores llamados como funciones.
+- Pendientes para otras colas: Em305Vampire (sin decompilar) tiene su .rodata partida: su pool
+  0x80747F70 cae fuera de su split (0x80747F60-0x80747F70).
