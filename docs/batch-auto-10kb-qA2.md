@@ -86,3 +86,27 @@ Cola: `atn/Shader_unk`, `atn/SoftKeyboardBase_wchar_t_0` (prioridad 1), `atn/WPa
   - Un metodo `const` carga el primer miembro antes de guardar r31 (confirmado en fn_800C4F38/fn_800C5FF0).
 - Pendientes: `atn/MaterialParser_unk` (otra cola): 0x8007AA30/0x8007E9EC/0x8007AA64 son ctor(int)/ctor()/dtor
   de la etapa de textura de 0x18 bytes y 0x8007C144 el ctor del material de 0x54 bytes.
+
+## atn/WPad_unk (commit a9ccb6b)
+- Resultado: 16/18 al 100%, `matching: false`, `main.dol: OK` (regress lost: 0).
+- NONMATCHING:
+  - `WPad_unk::WPad_unk` (0x800DDB4C) 99.8%: el contador del bucle de fn_806540A0 es r31 en el original.
+  - `fn_800DDD18` (actualizacion por frame, 0xDEC bytes) 93.7%: mismos bloques; el original guarda un puntero
+    base por array y por mando (this + port * 4, 0x64, 0x2C, 0x50, 8) y otro orden de registros/constantes.
+- Decisiones sin el usuario:
+  - Split: anadido `.sbss 0x8087F018-0x8087F020` (`lbl_8087F018`, la instancia, que estaba en el hueco
+    auto_10_8087F000). Entrada nueva en game_units.json (`atn/WPad_unk.cpp`, matching false).
+  - Cabecera nueva `include/atn/WPad_unk.h` (WPad_unk de 0x40F8 bytes, KPADStatus_unk de 0xF0 bytes;
+    nombres inventados; helpers inline Press_unk/Release_unk de la logica de botones). No se toca
+    atn/Pad_unk.cpp (tiene su propia vista local del struct).
+  - Funciones como `extern "C"` con el gestor como primer parametro (como las llama atn/Pad_unk.cpp y
+    SoftKeyboardBase: fn_800DF154 devuelve atn::Vector2_unk); solo el ctor es C++: fn_800DDB4C ->
+    `__ct__8WPad_unkFv` en symbols.txt. `lbl_80734DD0` -> `@stringBase0`.
+  - Funciones del SDK (KPAD/WPAD) sin nombre declaradas con su fn_ e `inferred` (KPADRead = fn_806572D0, ...).
+  - Nombre real propuesto: un gestor de mando del motor (WPadManager o similar).
+- Hallazgos MWCC:
+  - `if (0 <= a && a <= 3) { if ((unsigned)a <= 1) ...` reproduce cmpwi/blt + cmpwi/bgt + cmplwi del original.
+  - Un struct POD local con metodo Set(x, y) inline: los argumentos se evaluan de derecha a izquierda y el
+    struct queda en la pila (copias lwz/stw del original).
+  - `fabs` de math.h no es intrinseca si se declara a mano: usar `(float)__fabs((double)v)` para fabs + frsp.
+- Pendientes: ninguno.
