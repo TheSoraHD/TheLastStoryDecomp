@@ -24,6 +24,9 @@ public:
     virtual void vf6C();
     virtual int vfF4() { return 0; } // inline: weak copy at the end of ChaserGuard.cpp (0x80180594)
 
+    void fn_8035B808(EnemyTask* enemy); // inferred: append to the list starting at this
+    void fn_8035B824(EnemyTask* enemy); // inferred: unlink from the list starting at this
+
     EnemyTask* mNext; // 0x14AC: inferred: next enemy in the EnemyManager list
 };
 

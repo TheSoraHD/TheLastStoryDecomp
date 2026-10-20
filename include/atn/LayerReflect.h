@@ -13,7 +13,6 @@ public:
     virtual void vf1C();
     virtual void vf20();
 
-    unsigned char m1C[0x5C - 0x1C];
     Texture_unk mTexture; // 0x5C
 };
 

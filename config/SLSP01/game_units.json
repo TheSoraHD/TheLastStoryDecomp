@@ -165,11 +165,11 @@
  {
   "name": "atn/FadeCommon.cpp",
   "classes": [
-   "atn::FadeCapture",
+   "atn::FadeCommon",
    "atn::FadeColor",
-   "atn::FadeCommon"
+   "atn::FadeCapture"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/FileList.cpp",
@@ -244,9 +244,10 @@
  {
   "name": "atn/LinearAllocator.cpp",
   "classes": [
-   "atn::LinearAllocator"
+   "atn::LinearAllocator",
+   "atn::PostFxManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Rain.cpp",
@@ -265,9 +266,13 @@
  {
   "name": "atn/Layer3D.cpp",
   "classes": [
-   "atn::Layer3D"
+   "atn::Layer3D",
+   "atn::Layer2D",
+   "atn::LayerPrerender",
+   "atn::LayerZPrePass",
+   "atn::Layer2D3D"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/LayerOcclusionCPU.cpp",
@@ -332,7 +337,7 @@
   "classes": [
    "atn::Sound3dEngine"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureCacheManager8x32.cpp",
@@ -365,7 +370,8 @@
  {
   "name": "atn/VideoTHP.cpp",
   "classes": [
-   "atn::VideoTHP"
+   "atn::VideoTHP",
+   "atn::Video"
   ],
   "matching": false
  },
@@ -403,6 +409,13 @@
    "BattleTask"
   ],
   "matching": false
+ },
+ {
+  "name": "Event/Behavior_unk.cpp",
+  "classes": [
+   "Event::BehaviorRef_unk"
+  ],
+  "matching": true
  },
  {
   "name": "Event/BehaviorFollow.cpp",
@@ -444,7 +457,7 @@
    "CharaManager<EnemyTask>",
    "CharaManager<PlayerTask>"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/RouteWalker_unk.cpp",
@@ -944,7 +957,7 @@
   "classes": [
    "atn::D2A_Window"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D3Anime.cpp",
@@ -994,7 +1007,7 @@
    "db::GrowthParse",
    "db::GrowthParseGlobal"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/MotionCommandCommon.cpp",
@@ -1085,7 +1098,7 @@
   "classes": [
    "Em006DarkMaster"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em101ElderZesya.cpp",
@@ -1651,7 +1664,7 @@
   "classes": [
    "gmk::Item"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/MeetingSpot.cpp",
@@ -1707,7 +1720,7 @@
   "classes": [
    "gmk::TreasureBox"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/HealPoint.cpp",
@@ -1728,7 +1741,7 @@
   "classes": [
    "gmk::Trap"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Coffin.cpp",
@@ -1798,7 +1811,7 @@
   "classes": [
    "gmk::Courtyard"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Fireworks.cpp",
@@ -1826,7 +1839,7 @@
   "classes": [
    "gmk::RoomLight"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/LandMine.cpp",
@@ -1847,7 +1860,7 @@
   "classes": [
    "gmk::AttractHatePoint"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/CharaLight.cpp",
@@ -1861,7 +1874,7 @@
   "classes": [
    "gmk::DoorSeal"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/RotaryRoom.cpp",
@@ -1939,7 +1952,7 @@
   "classes": [
    "gmk::WaterLevel"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/TodomeCountUp.cpp",
@@ -1975,7 +1988,7 @@
   "classes": [
    "gmk::SavePoint"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/WindyItem.cpp",
@@ -2222,7 +2235,7 @@
   "classes": [
    "MapPartsModel"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsOcean.cpp",
@@ -2250,7 +2263,7 @@
   "classes": [
    "MarketTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MenuCommonTask.cpp",
@@ -2608,7 +2621,7 @@
   "classes": [
    "SetConfig"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/ShopBase.cpp",

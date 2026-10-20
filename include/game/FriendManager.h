@@ -10,6 +10,7 @@ public:
 
     // inferred: creates the singleton under `parent` if it does not exist yet
     static FriendManager* fn_80365464(atn::Task* parent);
+    class CharaTask* fn_8036554C(); // inferred: first character of the list (game/Em002_01BlackSkelton.cpp)
 
     static FriendManager* sInstance; // inferred name (0x8087F428)
 };

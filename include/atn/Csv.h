@@ -19,6 +19,11 @@ public:
         memset(m610, 0, sizeof(m610));
         vf08(text, length);
     }
+    // inferred: without text (inlined at 0x8021F47C, the text is set later with vf08)
+    CsvBase() : m04(0), m08(0), m0C(0), m630(0) {
+        memset(mField, 0, sizeof(mField));
+        memset(m610, 0, sizeof(m610));
+    }
     // inferred: sets the text to read (weak copies: tab 0x8004476C, comma 0x800420F4)
     virtual void vf08(const T* text, int length) {
         m04 = text;
@@ -29,6 +34,12 @@ public:
     // inferred: reads the next field into mField and returns it (0 at the end of the data).
     // Tab instance at 0x8005B9CC, pipe instance at 0x8005BFCC.
     // Comma instance at 0x8005B3CC.
+    // inferred: rereads the text from the start (inlined at 0x80531548); name invented
+    void Reset_unk() {
+        memset(mField, 0, sizeof(mField));
+        memset(m610, 0, sizeof(m610));
+        vf08(m04, m08);
+    }
     const T* fn_8005B9CC();
     int fn_8005BBF8(); // inferred: moves to the next line, 0 at the end (comma 0x8005B5F8)
     void fn_8005BCE8(const T* separators); // inferred (tab 0x8005BCE8, comma 0x8005B6E8)
@@ -47,12 +58,15 @@ public:
 // inferred: the classes below only fix the template arguments (vtables 0x807772B0, 0x807774B8,
 // 0x80782FB0, 0x8077A070, 0x8078B5E8)
 extern "C" char lbl_8087D708[3]; // inferred: " \t"
+extern "C" char lbl_8087D720[3]; // inferred: " \t"
 // inferred: the constructor also sets the field separators (weak copy at 0x8004203C)
 class Csv : public CsvBase<char, ',', '\r', '"'> {
 public:
     Csv(const char* text, int length) : CsvBase<char, ',', '\r', '"'>(text, length) {
         fn_8005BCE8(lbl_8087D708);
     }
+    // inferred: inlined at 0x8021F47C (another copy of " \t": lbl_8087D720)
+    Csv() { fn_8005BCE8(lbl_8087D720); }
 };
 class CsvTab : public CsvBase<char, '\t', '\r', '"'> {
 public:
@@ -80,7 +94,26 @@ public:
         m0C = 0;
     }
 };
-class CsvTabU : public CsvBase<wchar_t, '\t', '\r', '"'> {};
+extern "C" wchar_t lbl_8087DD98[2]; // inferred: L"\t"
+// inferred: as CsvU (constructor inlined at 0x803B9324, vf08 weak copy at 0x803B97D8)
+class CsvTabU : public CsvBase<wchar_t, '\t', '\r', '"'> {
+public:
+    CsvTabU(const wchar_t* text, int length)
+        : CsvBase<wchar_t, '\t', '\r', '"'>(length != 0 ? text + 1 : text, length != 0 ? length - 1 : length) {
+        fn_8005BCE8(lbl_8087DD98);
+    }
+    virtual void vf08(const wchar_t* text, int length) {
+        if (length != 0) {
+            text++;
+        }
+        m04 = text;
+        if (length != 0) {
+            length--;
+        }
+        m08 = length;
+        m0C = 0;
+    }
+};
 
 } // namespace atn
 

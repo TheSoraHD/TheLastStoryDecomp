@@ -22,7 +22,7 @@ struct D2A_Array {
 
 class D2A_Reference : public D2A_Common {
 public:
-    D2A_Reference();
+    D2A_Reference(D2A_Data* owner, unsigned short id);
     virtual ~D2A_Reference();
     virtual void vf18();
 

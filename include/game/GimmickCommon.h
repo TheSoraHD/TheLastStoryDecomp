@@ -46,10 +46,15 @@ struct GimmickDesc_unk {
     int m20;           // inferred: kind (gmk::TodomeCountUp: 0 player, 1 npc, 2 enemy, 3 ally)
     int m24;           // inferred: character id (gmk::TodomeCountUp)
     int m28;
-    unsigned char m2C[0x40 - 0x2C];
+    int m2C;           // inferred: frames (gmk::ReinforcePoint)
+    int m30;           // inferred: appearance kind (gmk::ReinforcePoint)
+    int m34;           // inferred: frames (gmk::ReinforcePoint)
+    int m38;           // inferred: id of a route place or character (gmk::ReinforcePoint)
+    unsigned char m3C[0x40 - 0x3C];
     float m40;         // inferred: gmk::ShakeCamera shake_x
     float m44;         // inferred: gmk::ShakeCamera shake_y
-    unsigned char m48[0x7C - 0x48];
+    float m48;         // inferred: gmk::FlyObjManager: vertical component of the direction
+    unsigned char m4C[0x7C - 0x4C];
     int m7C;           // inferred: flag read by gmk::SkeltonsMirror::vf60
 };
 
@@ -89,7 +94,11 @@ struct GimmickMsg_unk {
 // character steps on gmk::LandMine)
 struct GimmickHitMsg_unk {
     int mType;
-    unsigned char m04[0x30 - 0x04];
+    int m04;
+    int m08;
+    int m0C;
+    atn::Vector3 mPos; // 0x10: inferred: hit position (gmk::FlyObjManager)
+    unsigned char m1C[0x30 - 0x1C];
 };
 
 // Base of the gimmicks (gmk::*). The name is in the DOL (vtable 0x8078C9D0, RTTI bases
@@ -130,7 +139,8 @@ public:
     virtual int vf5C() { return 0; }       // 0x80017944
     virtual int vf60() { return 0; }       // 0x801B7794
     virtual int vf64(int arg) { return 0; } // 0x803A04B8
-    virtual void vf68() {}                 // 0x800E2FDC
+    // 0x800E2FDC: inferred: two arguments (gmk::Item passes desc->m20 and 0; gmk::DropItem stores the first)
+    virtual void vf68(int arg1, int arg2) {}
     virtual void vf6C(void* menu);  // 0x803ED92C: inferred: debug menu
     virtual void vf70(int state);   // 0x803EDAF0
 

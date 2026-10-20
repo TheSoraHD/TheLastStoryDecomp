@@ -64,7 +64,7 @@ public:
         clear();
         Resize_unk(o.mSize);
         for (unsigned int i = 0; i < mSize; i++) {
-            (*this)[i] = o[i];
+            mData[i] = o[i];
         }
     }
     T& operator[](unsigned int i) { return mData[i]; }

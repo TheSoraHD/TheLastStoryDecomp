@@ -3915,6 +3915,41 @@
   "matching": true
  },
  {
+  "name": "PowerPC_EABI_Support/src/Runtime/__init_cpp_exceptions.cpp",
+  "mw_version": "Wii/1.1",
+  "cflags": [
+   "-nodefaults",
+   "-proc gekko",
+   "-align powerpc",
+   "-enum int",
+   "-fp hardware",
+   "-Cpp_exceptions off",
+   "-O4,p",
+   "-inline auto",
+   "-pragma \"cats off\"",
+   "-pragma \"warn_notinlined off\"",
+   "-maxerrors 1",
+   "-nosyspath",
+   "-RTTI off",
+   "-fp_contract on",
+   "-str reuse",
+   "-enc SJIS",
+   "-i include",
+   "-i libs/PowerPC_EABI_Support/include/stl",
+   "-i libs/PowerPC_EABI_Support/include/",
+   "-DNDEBUG=1",
+   "-use_lmw_stmw on",
+   "-str reuse,pool,readonly",
+   "-gccinc",
+   "-common off",
+   "-inline on",
+   "-func_align 4",
+   "-i libs/RVL_SDK/include/"
+  ],
+  "category": "mw",
+  "matching": true
+ },
+ {
   "name": "nw4r/src/snd/snd_AxManager.cpp",
   "mw_version": "Wii/1.0",
   "cflags": [

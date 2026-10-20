@@ -10,6 +10,11 @@ public:
     virtual ~PlayerTask();                               // 0x8054A5C4
     // inline: weak copy emitted after FriendArganan (0x8036545C)
     virtual int vfF4() { return 0; }
+
+    void fn_8054A640(PlayerTask* player); // inferred: append to the list starting at this
+    void fn_8054A65C(PlayerTask* player); // inferred: unlink from the list starting at this
+
+    PlayerTask* mNext; // 0x14AC: inferred: next player in the CharaManager<PlayerTask> list
 };
 
 #endif
