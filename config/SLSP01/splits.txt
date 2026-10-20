@@ -1559,7 +1559,7 @@ RecycleBuffer_gmk/ItemSlotAnime.cpp:
 
 game/LastCocoonChrysalis.cpp:
 	.text       start:0x80452710 end:0x80452F14
-	.rodata     start:0x807548E8 end:0x807548FC
+	.rodata     start:0x807548E8 end:0x807549B0
 	.data       start:0x8078F500 end:0x8078F630
 	.sdata2     start:0x80886B68 end:0x80886B78
 
