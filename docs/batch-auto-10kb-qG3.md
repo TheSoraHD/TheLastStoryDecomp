@@ -48,3 +48,32 @@ Cola: `game/SystemErrorMessage_unk`, `game/GameOverTask`, `game/GimmickStateComm
     0x80120700, 0x801207D4, 0x80120D34) y MotionCmdElemD_unk::operator= (0x8012044C): sirve
     include/std/vector_string.h. Probablemente tiene el mismo problema de presupuesto.
   - gmk/Cannonball usa fn_803EFDA4/fn_803EFDAC (accesores de MapInfo_unk) como extern "C" inline.
+
+## gmk/DropItem (commit 9e33934)
+- Resultado: 10/13 al 100%, `matching: false` (unidad nueva en game_units.json), `main.dol: OK` (regress lost: 0).
+- NONMATCHING:
+  - `vf10` 90.61%: asignacion de registros (el original tiene el jugador en r22 y usa r16-r31), orden de
+    los stores del mensaje de tutorial y de los locales de la prueba de contacto con las balas.
+  - `vf14` 84.49%: el original construye un local muerto con m9C del campo y compara las 4 componentes
+    del color con 0 y 1 sin usar el resultado (44 instrucciones; no se encontro el fuente).
+  - `vf40` 99.92%: posicion en pila del temporal de la animacion del item (debajo de los temporales del rayo).
+- Decisiones sin el usuario:
+  - Split sin cambios (ver splits-auto-C.md grupo 5). Unidad anadida a game_units.json (`gmk/DropItem.cpp`,
+    `gmk::DropItem`, matching false). No enlazable igual que gmk/Item: define el static local de
+    fn_8014F8F4 (CharaListeners) y su guarda.
+  - symbols.txt: ctor, vf0C, vf10, vf14, vf1C, vf20, vf40, vf68, vf6C, dtor y fn_8040B200 de gmk::DropItem
+    con nombre real; lbl_80752A5C -> @stringBase0, lbl_8078D4F0 -> @wstringBase0, lbl_808862B8/BC ->
+    sGetSound/sPosPane, lbl_80752A18/40 -> sTextPanes/sColorPanes (scope:local).
+  - include/gmk/DropItem.h ampliada con el layout completo (0x2A8; m2A4 de relleno inferido) y
+    DropLayout_unk/DropItemData_unk; los nombres antiguos usados por Item/Cannonball se conservan.
+  - include/gmk/ItemSlotAnime.h (compartida): 5 metodos declarados, `IsState56_unk`, y la palabra de
+    flags en +0xEC como campos de bits (mFlag31 raro, mFlag26 aviso visible, ...). Sin cambios en otras unidades.
+  - fn_8040B394 queda `extern "C"` (efecto por tipo de item). El pool ancho del original tiene L"" en +6
+    y +0xA (y ceros en +4/+8): aqui solo L"?" + L"".
+- Hallazgos MWCC:
+  - `const T& r = a + b;` (referencia a temporal) se coloca como local con nombre, no como temporal.
+  - Pasar el vector como `const Vector3&` a una funcion (fn_8004ECC0) hace que los `a + b` de los
+    argumentos sean temporales en orden de evaluacion (derecha a izquierda).
+  - Test `(x & 8) != 8` materializado con subfic/or/srwi. = bool devuelto por un inline.
+- Pendientes: gmk/Item (decompilada) y DropItem comparten el static local de CharaTask; para enlazar
+  hay que resolver como referenciar el de CharaTask.cpp sin definirlo.
