@@ -79,3 +79,33 @@ Cola: `AI/AiCommon_unk`, `game/AreaEffConfig`, `game/CharaC58_unk`, `game/CharaF
     que mete el ternario de objetos; el temporal debe construirse dentro del bloque (no asignarse).
 - Pendientes: `CharaTask::mStatus.m2CC` se compara sin signo (`cmplwi`/`cmplw`): aqui con cast; quiza
   deberia ser `unsigned int` en `CharaStatus.h`.
+
+## AI/AiCommon_unk (commit 1fe1adf)
+
+- Resultado: 25/31 al 100%, `matching: false`, `main.dol: OK`, regress lost 0. Funciones libres
+  (`extern "C"`, nombres `fn_` sin cambio); la 31.a (`fn_8001BEE0`, 0x64) no estaba en la lista de
+  `fasm` por el orden del .s.
+- NONMATCHING:
+  - `fn_8001A464` 92.79%: el original recarga `lbl_8087EE64` dentro del bucle de copia.
+  - `fn_8001A65C` 98.87%, `fn_8001A788` 98.10%: registros.
+  - `fn_8001AEDC` (despachador de ordenes de la IA, switch de 23 casos) 98.96%: personaje y su
+    `CharaC58_unk` en r30/r31 cambiados y uso de r4/r5 frente a sus copias salvadas.
+  - `fn_8001B508` 99.88%, `fn_8001B5B4` 99.50%: orden de `.sdata2` (el original tiene -1.0f antes del 1.5f
+    del despachador; ningun uso anterior visible: probados helper inline y local `float`).
+- **Decisiones sin el usuario**
+  - `game_units.json`: entrada nueva `AI/AiCommon_unk.cpp` (sin clases).
+  - `symbols.txt`: `lbl_8072FF58` ("neck") -> `@stringBase0` (`scope:local data:string_table`).
+  - `include/game/HitInfo_unk.h` (compartida): `m1C[0x48-0x1C]` partido en `m1C[0x40-0x1C]`,
+    `float m40`, `float m44` (alcances de la habilidad).
+  - `include/game/CharaTask.h` (compartida): `CharaRes_unk` gana `float m34`, `float m38` (antes relleno).
+  - Tipos locales (inventados): `AiList_unk` (`lbl_8087EE64`), `AiEnemyMgr_unk` (`lbl_8087F048`, como en
+    ArenaTask), `AiTeam_unk`/`AiTeamMember_unk` (`lbl_8087FA00`, miembros de 0x37C), `AiSettings_unk::m468`.
+  - El orden de los casos del switch del despachador en el fuente es 0-9, 15, 10-14, 16, 17, 20-22, 18, 19
+    (el del codigo del original).
+- Hallazgos MWCC nuevos
+  - El codigo de un `switch` con tabla de saltos sale en el orden de los `case` del fuente, no en el
+    numerico: sirve para deducir el orden original.
+  - Un resultado `float` con valor por defecto (`float d = 0.0f; if (...) d = f(); return d;`) carga el 0.0f
+    al principio; con `return 0.0f;` al final sale despues.
+  - `int count` que continua en el bucle de relleno (`for (; count < 16; count++)`) frente a un indice
+    nuevo cambia todo el desenrollado del relleno.
