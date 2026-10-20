@@ -102,6 +102,12 @@ inline void SetPaneValue2_unk(void* layout, const char* name, int index, float v
 inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
     fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
+// inferred: sets the text of a pane of a task (the layout is taken inside; this form gives the
+// register order of some calls of the original, see D2AMpMenuResult::fn_804C6888)
+inline void SetTaskText_unk(MpD2A_unk* task, const char* name, const wchar_t* text) {
+    void* layout = task->mLayout;
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
 // inferred: starts playing an anime at `speed`
 inline void Play_unk(MpD2A_unk* task, int repeat, float speed) {
     if (task != 0) {

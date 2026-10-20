@@ -243,12 +243,6 @@ D2AMpMenuResult* D2AMpMenuResult::sInstance;
 inline void Show_unk(MpD2A_unk* task) {
     task->mFlags &= ~4;
 }
-// inferred: sets the text of a pane of a task (layout taken inside, see fn_804C6888)
-inline void SetTaskText_unk(MpD2A_unk* task, const char* name, const wchar_t* text) {
-    void* layout = task->mLayout;
-    fn_801FEE08(layout, fn_800DC6B4(name), text);
-}
-
 D2AMpMenuResult* D2AMpMenuResult::fn_804C566C(atn::Task* parent) {
     if (sInstance == 0) {
         sInstance = new (1, "", "", 0) D2AMpMenuResult(parent);
