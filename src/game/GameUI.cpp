@@ -52,10 +52,12 @@ GAMEUI_CHECK(m2664, 0x2664);
 GAMEUI_CHECK(m2678, 0x2678);
 GAMEUI_CHECK(m288C, 0x288C);
 
-static void Clear2_unk(GameUIListBase_unk* l) {
-    l->mCount -= (int)l->mCount;
-}
-
+// NONMATCHING: 98.1% - scheduling only: (1) the original keeps the load of the list count (Clear of 0x30C)
+// after the six resets of m318, here it is hoisted above them (the scheduling windows of the block end one
+// node earlier); (2) the zero of the resets after the 0x5BC loop is materialised twice in the original (r3
+// up to mB08, r30 from mB20 on, across the memset) and once here (r30). Wrapper structs with constructors
+// (W262C_unk, W25CC_unk, W2568_unk, MarkerList_unk) were needed for the scheduling windows and the loop
+// bounds of the arrays; `m30C.mMid.mBase.mCount -= (int)...` reproduces the lwz/subf of the inlined Clear.
 GameUI::GameUI(atn::Task* parent)
     : atn::Task(parent), m48(0.0f), m4C(-1.0f), m2F0(0), m834(0), m85C(0), m8D0(0), mD84(0), mD88(0),
       mD8C(0), mDA4(0), mDA8(0), mDAC(0), mDB0(0), mDC8(0), m1118(0), m1130(0), m1140(0), m1144(0), m1148(0), m114C(0), m1150(0), m1154(0), m1170(0), m15B4(0), m15B8(0),
@@ -104,7 +106,6 @@ GameUI::GameUI(atn::Task* parent)
     m70C = 0;
     m710 = 0;
     m714 = 0;
-    m71C = 0;
     m718 = 0;
     m720 = 0;
     m724 = 0;
@@ -234,8 +235,8 @@ int GameUI::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.78% - only the literals differ: the .sdata2 offsets depend on the constants of the
-// constructor (not decompiled) and the int-to-float double is in the auto .rodata (0x80750650).
+// NONMATCHING: 99.95% - only the int-to-float double differs: it is in the auto .rodata (0x80750650), outside
+// the split (the .rodata of the real file also holds the tables of fn_803CFC78).
 void GameUI::vf10() {
     fn_803E668C(this);
     if (m840 != 0 && !m840->IsFlag_unk(4) && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0 &&

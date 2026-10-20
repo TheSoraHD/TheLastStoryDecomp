@@ -245,8 +245,7 @@ public:
     int m70C;
     int m710;
     int m714;
-    int m718;
-    int m71C;
+    long long m718;
     int m720;
     int m724;
     int m728;
