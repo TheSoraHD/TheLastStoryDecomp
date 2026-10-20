@@ -176,7 +176,7 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
   - `__stwbrx`/`__sthbrx` sobre un puntero pasado a un inline (`Swap(&p->m)`) acercan el orden de direcciones del
     original.
 
-## atn/Bezier_unk (commit HASH)
+## atn/Bezier_unk (commit 4abd183)
 
 - Resultado: 3/7 al 100%, `matching: false` (`main.dol: OK`).
 - NONMATCHING: `fn_805078A4` (zeroin/Brent) 99.0% y `fn_80508908` (engineHermiteCreate) 99.4% (registros/orden de
@@ -198,3 +198,25 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
   - Un `return` dentro de dos bucles infinitos queda en linea; con `goto done` el retorno va al final como en el
     original.
   - Leer un global `float` en un local antes del bucle cambia el orden de carga de las constantes (`eps` primero).
+
+## atn/NetFriend_unk (commit HASH)
+
+- Resultado: 19/30 al 100%, `matching: false` (`main.dol: OK`).
+- NONMATCHING: `fn_8050F5A8` 94.0% (indice/puntero intercambiados), `fn_8050F734` 99.3% (desplazamiento de
+  `L"%s"` en el pool ancho, que depende de funciones no escritas). Sin escribir (9): `fn_8050E994` (informe de
+  datos DWC con `std::wstring`), `fn_8050EBC8/EF14/EFCC/F198` (alta/baja de amigos), `fn_8050F2F0`,
+  `fn_8050F404`, `fn_8050F464/F470` (clave de amigo como texto).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - Tipos inventados: `NetStats_unk` (periodo en ticks, ultima actualizacion y cuatro `NetCounter_unk`
+    {actual, maximo, ultimo}; ctor 0x8050E67C, 0x8050E6CC/E6F4/E7DC), `MpFriendList_unk` (lista de amigos DWC:
+    datos de usuario, 32 amigos de 12 bytes, nombres, claves; ctor 0x8050E8C8) y `DWCFriendData_unk`. El resto son
+    `extern "C"` con su nombre `fn_` (`MP/D2AMpMenuFriend.cpp` los declara asi).
+  - `symbols.txt`: `fn_8050E67C/E6CC/E6F4/E7DC/E8C8` -> metodos/ctores de `NetStats_unk` y `MpFriendList_unk`.
+  - `MpFriendList_unk` se define aqui con mas campos que la vista parcial de `MP/D2AMpMenuFriend.cpp`
+    (mismos desplazamientos); no se ha unificado en una cabecera.
+  - Nombre real propuesto: sin pruebas (el corte con `atn/PPDATAU` en 0x8050E67C sigue siendo debil: el timer
+    `NetStats_unk` lo usa `atn/NetManager`).
+- Hallazgos MWCC
+  - Un inline `bool` escrito como `if (a && b) return true; return false;` deja el `li r0,1/li r0,0` despues de
+    las llamadas (como el original); con `return a && b;` el resultado va a un registro salvado antes de llamar.
