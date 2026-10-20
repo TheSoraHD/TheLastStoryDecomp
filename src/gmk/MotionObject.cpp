@@ -521,7 +521,7 @@ int MotionObject::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int fla
     return 0;
 }
 
-void MotionObject::fn_8041482C(CharaTask* chara) {
+void MotionObject::vf4C(CharaTask* chara) {
     if (mActions[m54].mEnabled != 0) {
         atn::Vector3 pos(mActions[m54].mPos);
         PSMTXMultVec(mModels[m54].mMtx, &pos, &pos);

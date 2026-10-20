@@ -39,9 +39,7 @@ public:
     virtual int vf60();
     virtual void vf70(int state);
     // inferred: vtable slot 0x4C. Here it takes the character that uses the cannonball, but
-    // GimmickCommon::vf4C is declared without arguments, so it is not declared as an override
-    // (the vtable of this object points to GimmickCommon::vf4C instead).
-    void fn_803FB800(CharaTask* chara);
+    virtual void vf4C(CharaTask* chara); // 0x803FB800
     float fn_803FB830(); // inferred: radius of the explosion bullet (chr::ControlCannonLift)
     void fn_803FB870(const atn::Vector3* pos, CharaTask* owner, int flag); // inferred: explodes
     void fn_803FBC34(const atn::Vector3* pos); // inferred: hits a wall while thrown

@@ -74,8 +74,7 @@ public:
     virtual void vf6C(void* menu);
     void fn_803FEF78(atn::Matrix3x4* mtx, const atn::NodeChunk& node); // inferred: node callback
     void fn_803FFC50(); // inferred: selects the parameters of the state
-    // inferred: vtable slot 0x3C (GimmickCommon::vf3C is declared without arguments)
-    void fn_80400714(Lens_unk* lens);
+    virtual void vf3C(void* lens); // 0x80400714
 
     EffectModel_unk mModel;     // 0xF4: "MODEL"
     MtxPtr mNodeMtx[3];         // 0x308

@@ -485,7 +485,7 @@ inline void RandomMerchant::PlayMotion_unk(int motion) {
     chara->mMotion.mTracks[0].m0C = 1.0f;
 }
 
-void RandomMerchant::vf4C() {
+void RandomMerchant::vf4C(CharaTask* chara) {
     if (m54 == 1) {
         if (mState == 2) {
             if (mLimit >= 0) {

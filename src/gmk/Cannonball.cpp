@@ -654,7 +654,7 @@ int Cannonball::vf60() {
     return ret;
 }
 
-void Cannonball::fn_803FB800(CharaTask* chara) {
+void Cannonball::vf4C(CharaTask* chara) {
     if (chara == 0) {
         return;
     }

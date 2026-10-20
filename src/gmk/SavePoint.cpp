@@ -343,7 +343,7 @@ int SavePoint::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) 
     return 0;
 }
 
-void SavePoint::vf4C() {
+void SavePoint::vf4C(CharaTask* chara) {
     if (lbl_8087F430 != 0) {
         fn_8036E92C(lbl_8087F430, 1);
         fn_800C31F4("SE_UICOM_049", 0, -1, 1.0f);

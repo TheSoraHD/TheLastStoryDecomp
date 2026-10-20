@@ -30,7 +30,7 @@ public:
     virtual void vf28();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
-    virtual void vf4C();
+    virtual void vf4C(CharaTask* chara);
     virtual int vf60();
     virtual void vf6C(void* menu);
     virtual void vf70(int state);

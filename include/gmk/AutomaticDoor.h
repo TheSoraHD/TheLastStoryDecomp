@@ -52,8 +52,7 @@ public:
     virtual void vf70(int state);
     void fn_803F53E0(); // inferred: projects the texture on the model
     void fn_803F6448(int from, int to, int loop, float speed, float frame); // inferred: plays a motion
-    // inferred: vtable slot 0x3C (GimmickCommon::vf3C is declared without arguments)
-    void fn_803F69C8(Lens_unk* lens);
+    virtual void vf3C(void* lens); // 0x803F69C8
 
     Model_unk mModel;             // 0xF4: "MODEL"
     atn::ColliObject mColliClose; // 0x4C4: "COLLISION_BEFORE"

@@ -443,8 +443,8 @@ int SwingObject::vf40(GimmickMsg_unk* msg) {
     return 0;
 }
 
-void SwingObject::fn_80400714(Lens_unk* lens) {
-    mModel.GetModel_unk()->m1DC = lens;
+void SwingObject::vf3C(void* lens) {
+    mModel.GetModel_unk()->m1DC = (Lens_unk*)lens;
     mModel.GetModel_unk()->mFlags |= 0x10000;
 }
 

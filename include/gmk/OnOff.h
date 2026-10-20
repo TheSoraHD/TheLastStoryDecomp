@@ -28,9 +28,10 @@ public:
     virtual void vf20();
     virtual void vf28();
     virtual Model_unk* vf38();
+    virtual void vf3C(void* lens); // 0x803F940C
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
-    virtual void vf4C();
+    virtual void vf4C(CharaTask* chara);
     void fn_803F8324(); // inferred: places the collisions
     void fn_803F8C98(atn::CsvTab* csv); // inferred: reads the "FLAG" names
     void fn_803F8F30(int on);           // inferred: switches on or off

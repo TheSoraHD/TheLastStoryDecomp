@@ -688,8 +688,8 @@ int AutomaticDoor::vf64(int arg) {
     return 0;
 }
 
-void AutomaticDoor::fn_803F69C8(Lens_unk* lens) {
-    mModel.m1DC = lens;
+void AutomaticDoor::vf3C(void* lens) {
+    mModel.m1DC = (Lens_unk*)lens;
     mModel.mFlags |= 0x10000;
 }
 

@@ -590,9 +590,11 @@ int OnOff::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
     return 0;
 }
 
-void OnOff::vf4C() {}
+void OnOff::vf4C(CharaTask* chara) {}
 
-// NOTE: vf3C (0x803F940C) is not decompiled: it takes an argument (stored in the model at 0x1DC,
-// then mModel flag 0x10000 is set) while GimmickCommon::vf3C is declared without arguments.
+void OnOff::vf3C(void* lens) {
+    mModel.m1DC = (Lens_unk*)lens;
+    mModel.mFlags |= 0x10000;
+}
 
 } // namespace gmk

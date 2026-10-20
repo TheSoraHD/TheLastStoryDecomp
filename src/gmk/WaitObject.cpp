@@ -149,7 +149,7 @@ int WaitObject::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag)
     return 0;
 }
 
-void WaitObject::vf4C() {
+void WaitObject::vf4C(CharaTask* chara) {
     for (unsigned int i = 0; i < mNumTriggers; i++) {
         WaitTrigger_unk& t = mTriggers[i];
         if (t.mState == m54 && t.mType == 4) {

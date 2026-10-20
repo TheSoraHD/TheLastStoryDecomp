@@ -384,7 +384,7 @@ int LemonBucket::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag
     return 0;
 }
 
-void LemonBucket::vf4C() {
+void LemonBucket::vf4C(CharaTask* chara) {
     if (m54 == 1) {
         GimmickMsg_unk msg(3);
         vf40(&msg);

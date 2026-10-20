@@ -10,6 +10,8 @@
 #include "game/ResHandle.h"
 #include "math/Vec.h"
 
+class CharaTask;
+
 class GimmickCommon;
 
 
@@ -132,7 +134,7 @@ public:
     virtual int vf40(GimmickMsg_unk* msg) { return 0; } // 0x80012714: inferred: receives a message
     virtual int vf44(GimmickHitMsg_unk* msg) { return 0; } // 0x800FA4F4
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag); // 0x803EDE34
-    virtual void vf4C() {}
+    virtual void vf4C(CharaTask* chara) {} // inferred: one argument (Cannonball and MotionObject use it as a CharaTask*)
     virtual int vf50() { return 0; }       // 0x802AEABC
     // NONMATCHING (standalone): psq_st and stfs of the copy are in the other order
     virtual atn::Vector3 vf54() { return m6C; } // 0x800EB488: inferred: position

@@ -111,8 +111,7 @@ public:
     virtual void vf70(int state);
     void fn_804137F4(); // inferred: places the collisions
     void fn_804139D8(); // inferred: updates the material fades and node switches
-    // inferred: vtable slot 0x4C (GimmickCommon::vf4C is declared without arguments)
-    void fn_8041482C(CharaTask* chara);
+    virtual void vf4C(CharaTask* chara); // 0x8041482C
 
     int mPrevState;                   // 0xF4
     int mFrame;                       // 0xF8
