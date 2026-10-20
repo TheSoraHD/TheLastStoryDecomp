@@ -52,3 +52,25 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
     pila (`stw` a `0x8(r1)`...) ademas de la copia propagada desde registros. Sin array, MWCC lo elimina entero.
   - `if (a == 0 || b == 0 || c < 0) return;`: la ultima condicion de la cadena `||` sale invertida con salto
     incondicional (`bge L; b fin`), las anteriores con `beq fin`.
+
+## atn/LH_Motion_cont (commit HASH)
+
+- Resultado: 3/4 al 100%, **sin fusionar**: unidad propia `atn/LH_Motion_cont` con fuente, `matching: false`
+  (`atn/LH_Motion` sigue `matching: true`; `main.dol: OK`).
+- NONMATCHING: `fn_804766B0` (copia debil de `LoadManager_unk::Get_unk<LoadMotion>`): es la plantilla comun de
+  los doce `atn::LH_*`, NONMATCHING en todos (~96%, solo reparto de registros; ver `include/atn/LoadManager.h`).
+  Se instancia explicitamente en el `_cont` para que objdiff la tenga (no se empareja por nombre: el simbolo se
+  queda `fn_804766B0`, como en las demas `LH_*`).
+- Motivo de no fusionar: la primera funcion del tramo es esa plantilla (la emite `LH_Motion.cpp` tras
+  `LH_Motion::vf0C`), asi que `LH_Motion` no puede quedar al 100% con el tramo fusionado. El fichero real es
+  0x80476220-0x804768EC con el pool 0x80755F68 (mensajes de `std::string` + el `""` del `new`).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (el `_cont` ya tiene `.text` y su pool `.rodata` 0x80755F68-0x80755FC8).
+  - `game_units.json`: nueva entrada `atn/LH_Motion_cont.cpp` (`matching: false`) tras `atn/LH_Motion.cpp`.
+  - `symbols.txt` (pairnames): `fn_804768B4`/`fn_804768D0` -> `LH_Motion::fn_804768B4/D0` (devuelven `m5C`/`m60`
+    de `LoadMotion`). `fn_80476884` ya tenia nombre.
+  - Cabecera nueva compartida `include/atn/LoadMotion.h` (clase `LoadMotion` sacada de `LH_Motion.cpp`; se
+    incluye la ultima en `LH_Motion.cpp`, mismo orden de clases/vtables, sigue al 100%).
+  - `include/atn/LH_Motion.h`: `fn_804768B4`, `fn_804768D0`.
+  - Pendiente para el usuario: fusionar cuando `Get_unk` llegue al 100% (o aceptar `LH_Motion` en `matching: false`).
+- Hallazgos MWCC: ninguno nuevo.

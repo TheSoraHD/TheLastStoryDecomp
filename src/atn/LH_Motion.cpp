@@ -2,26 +2,17 @@
 #include "atn/LoadCore.h"
 #include "std/string.h"
 #include "atn/Loader_unk.h"
+#include "atn/LoadMotion.h"
 
 extern "C" int fn_800DC500(const char* name, unsigned long len); // inferred: name to id
 extern "C" char* fn_806825B4(const char* s, int c);               // inferred: strrchr
 extern "C" void* lbl_8087F518;                                    // inferred: resource manager
-extern "C" void* fn_804766B0(void* manager, const char* path, int arg); // inferred: get/load a motion
+// inferred: get/load a motion = LoadManager_unk::Get_unk<LoadMotion> (weak copy emitted by this file at
+// 0x804766B0, see atn/LH_Motion_cont.cpp)
+extern "C" void* fn_804766B0(void* manager, const char* path, int arg);
 
 
 namespace atn {
-
-// Declared after LH_Motion (in the header): the vtables are emitted in reverse order of declaration.
-// inferred: motion resource (path stored without directory and extension)
-class LoadMotion : public LoadCore {
-public:
-    LoadMotion(const char* path); // 0x80476220
-    virtual ~LoadMotion();        // 0x8047656C
-    virtual void vf0C();          // 0x804765C4
-
-    int m5C; // inferred: result of fn_800DC500 on the motion name
-    int m60; // 4 for "fc_*" files, -1 otherwise
-};
 
 // inferred: file name part of a path (after the last '\\' or '/')
 inline const char* __FileName_unk(const char* path) {

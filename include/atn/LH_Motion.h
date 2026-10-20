@@ -15,6 +15,8 @@ public:
     void fn_800A03E4(const char* path); // inferred: releases m08 and starts loading `path`
     int fn_800A0448();                  // inferred: nonzero while loading; fetches m08 when done
     void* fn_80476884();                // inferred: returns the loaded motion
+    int fn_804768B4();                  // inferred: LoadMotion::m5C (motion name id)
+    int fn_804768D0();                  // inferred: LoadMotion::m60
 
     void* m08; // inferred: loaded motion (from fn_80476884)
 };
