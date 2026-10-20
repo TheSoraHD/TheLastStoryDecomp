@@ -4,9 +4,9 @@ Cola: `atn/Camera_unk`, `atn/Frustum_unk`, `atn/PostFxGamma`, `atn/PostFxGodRay`
 
 ## atn/Camera_unk (commit a5d920c)
 - Resultado: 2/4 al 100% (ctor, dtor), `matching: false`, `main.dol: OK`.
-- NONMATCHING: `Camera_unk::fn_8004B378` 98.28% (orden en pila de los temporales de rot_z*rot_x*rot_y y de
-  algunos temporales pequenos; FPR del caso con roll); `Camera_unk::fn_8004BF64` 99.94% (r3/r4 intercambiados en
-  las dos copias de vector tras las rotaciones).
+- NONMATCHING: `Camera_unk::fn_8004B378` 99.97% (commit e6ad11a; solo r3/r4 en la copia `__VecCopy` del producto
+  vectorial, bloqueo conocido); `Camera_unk::fn_8004BF64` 99.94% (r3/r4 intercambiados en las dos copias de vector
+  tras las rotaciones, mismo bloqueo).
 - **Decisiones sin el usuario**:
   - Splits sin cambios.
   - `symbols.txt`: `fn_8004BF64` -> `fn_8004BF64__10Camera_unkFff` (metodo `bool Camera_unk::fn_8004BF64(float, float)`,
@@ -27,6 +27,13 @@ Cola: `atn/Camera_unk`, `atn/Frustum_unk`, `atn/PostFxGamma`, `atn/PostFxGodRay`
   - Proyeccion escrita como `inline void F(Matrix44& out, ...) { Matrix44 m; ...; out = m; }` deja sus 0x40 al final de
     la zona de inline (como el original), devolviendola por valor no.
   - `Direction_unk(a, b)` inline con la resta dentro baja el temporal de la resta a la zona de inline.
+  - Matrices de trabajo de una inline: su orden en la pila sigue el orden de declaracion (ascendente) y no el de uso;
+    declararlas todas al principio (`Mtx ry, ty, rx, tx, rz, tz;`) reproduce el orden del original. Llamar a otra
+    inline (profundidad 2) invierte el orden.
+  - Una carga de miembro que el original hace antes de unas stores a otro miembro (`lfs mRot.z` antes de
+    `stfs mUp`) = el valor se leyo a un local antes (`float rz = mRot.z;`).
+  - `Vector3 r; r.x = ...; r.y = ...;` (sentencias sueltas) en vez del constructor cambia el orden de calculo y la
+    asignacion de FPR igual que en el original.
 - Pendientes para otras unidades: `lbl_8087EFB4` (camara global) es otra clase que contiene un `Camera_unk` en +0x104
   (GeoCamera_unk de atn/Geometry_unk: vista 0x15C = 0x104+0x58, proyeccion 0x18C = 0x104+0x88).
 
