@@ -1,5 +1,4 @@
 // inferred file name (splits-auto): preloading of the battle effects listed in battle_eff_se_table
-#include "atn/LoadHandle.h"
 // (atn/CsvBase_char_124_13_34.cpp); used by GameTask.
 #include "atn/Memory.h"
 #include "atn/EfpHandle_unk.h"
@@ -203,7 +202,7 @@ extern "C" BattleEfpEntry_unk* fn_800EFB78(int id) {
 
 extern "C" atn::EfpHandle_unk* fn_800EFBC4(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
-    if (entry != 0 && !entry->m04.fn_80237874() && ((atn::LoadHandle*)(&entry->m04.mLoader))->fn_80473F18() != 0) {
+    if (entry != 0 && !entry->m04.fn_80237874() && entry->m04.mLoader.fn_80473F18() != 0) {
         return &entry->m04;
     }
     return 0;
@@ -211,7 +210,7 @@ extern "C" atn::EfpHandle_unk* fn_800EFBC4(int id) {
 
 extern "C" atn::EfpHandle_unk* fn_800EFC64(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
-    if (entry != 0 && !entry->m10.fn_80237874() && ((atn::LoadHandle*)(&entry->m10.mLoader))->fn_80473F18() != 0) {
+    if (entry != 0 && !entry->m10.fn_80237874() && entry->m10.mLoader.fn_80473F18() != 0) {
         return &entry->m10;
     }
     return 0;

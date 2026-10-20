@@ -3177,5 +3177,85 @@
    "atn::PostFxRain"
   ],
   "matching": false
+ },
+ {
+  "name": "game/MapInstance_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsFactory.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "MP/NetGlobals_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "game/HeapInfo_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "MP/CharaListeners_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "Event/Channel.cpp",
+  "classes": [
+   "Event::Channel"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Label.cpp",
+  "classes": [
+   "Event::Label"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Section.cpp",
+  "classes": [
+   "Event::Section"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/EventLoader_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/PathData_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/PlayerManager.cpp",
+  "classes": [
+   "PlayerManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/PlayerTask.cpp",
+  "classes": [
+   "PlayerTask"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/GameSystem_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/HomeButton_unk.cpp",
+  "classes": [],
+  "matching": false
  }
 ]

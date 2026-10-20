@@ -81,3 +81,18 @@ void MapPartsOcean::vf10() {
     mTime += 1.0f / 30.0f;
     MapPartsModel::vf10();
 }
+
+// inferred: file statics that only the __sinit touches (0x8049CDA0, formerly
+// game/MapPartsOcean_cont): three 4-byte objects and three objects whose constructor keeps their
+// address. The same __sinit appears in gmk/CharaLight and atn/SequenceHolder, so it probably comes
+// from a shared header; real types unknown.
+struct StaticRef_unk {
+    StaticRef_unk(void* p) : mPtr(p) {}
+    void* mPtr;
+};
+static int sStatic0_unk;
+static int sStatic1_unk;
+static int sStatic2_unk;
+static StaticRef_unk sStaticRef0_unk(&sStatic0_unk);
+static StaticRef_unk sStaticRef1_unk(&sStatic1_unk);
+static StaticRef_unk sStaticRef2_unk(&sStatic2_unk);

@@ -25,7 +25,11 @@ public:
     Matrix3x4 mMtx;      // 0x30
     unsigned char m60[0x64 - 0x60];
     void* m64; // inferred: screen data
-    unsigned char m68[0x88 - 0x68];
+    unsigned char m68[0x70 - 0x68];
+    float m70; // inferred: LOD distance (game/MapInstance_unk)
+    float m74; // inferred: LOD scale
+    float m78; // inferred: LOD offset
+    unsigned char m7C[0x88 - 0x7C];
 };
 
 } // namespace atn
