@@ -14,6 +14,7 @@
 #include "gmk/Lemon.h"
 #include "gmk/Coffin.h"
 #include "gmk/RandomItem.h"
+#include "gmk/Brazier.h"
 #include "gmk/TodomeCountUp.h"
 #include "gmk/ShakeCamera.h"
 #include "gmk/BulletPoint.h"
@@ -210,7 +211,6 @@ extern "C" GimmickCommon* fn_803F471C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F744C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80412AFC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
@@ -225,7 +225,6 @@ extern "C" GimmickCommon* fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80405DD4(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
@@ -247,7 +246,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 5: gimmick = fn_803F744C(parent, id, arg); break;
     case 10: gimmick = fn_803FE390(parent, id, arg); break;
     case 11: gimmick = fn_80400728(parent, id, arg); break;
-    case 16: gimmick = fn_80406754(parent, id, arg); break;
+    case 16: gimmick = gmk::Brazier::fn_80406754(parent, id, arg); break;
     case 17: gimmick = fn_80408324(parent, id, arg); break;
     case 18: gimmick = fn_804093B4(parent, id, arg); break;
     case 19: gimmick = fn_803FE390(parent, id, arg); break;
@@ -297,7 +296,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 13: gimmick = fn_80402978(parent, desc); break;
     case 14: gimmick = fn_80405DD4(parent, desc); break;
     case 15: gimmick = fn_80405DD4(parent, desc); break;
-    case 16: gimmick = fn_804067D8(parent, desc); break;
+    case 16: gimmick = gmk::Brazier::fn_804067D8(parent, desc); break;
     case 20: gimmick = fn_8040D1D0(parent, desc); break;
     case 22: gimmick = gmk::HealPoint::fn_8040ED00(parent, desc); break;
     case 26: gimmick = gmk::Trap::fn_80410A68(parent, desc); break;

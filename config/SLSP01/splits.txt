@@ -1295,7 +1295,7 @@ gmk/PigeonManager.cpp:
 
 gmk/Brazier.cpp:
 	.text       start:0x80406754 end:0x80408324
-	.rodata     start:0x807528F0 end:0x80752900
+	.rodata     start:0x807528C0 end:0x80752948
 	.data       start:0x8078D328 end:0x8078D3C0
 	.sdata2     start:0x80886258 end:0x80886288
 

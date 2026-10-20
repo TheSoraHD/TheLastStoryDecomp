@@ -98,7 +98,8 @@ struct GimmickHitMsg_unk {
     int m08;
     int m0C;
     atn::Vector3 mPos; // 0x10: inferred: hit position (gmk::FlyObjManager)
-    unsigned char m1C[0x30 - 0x1C];
+    atn::Vector3 mDir; // 0x1C: inferred: push direction (gmk::Brazier)
+    unsigned char m28[0x30 - 0x28];
 };
 
 // Base of the gimmicks (gmk::*). The name is in the DOL (vtable 0x8078C9D0, RTTI bases
