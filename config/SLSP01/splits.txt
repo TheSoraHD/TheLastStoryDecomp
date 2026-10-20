@@ -1795,9 +1795,10 @@ MP/D2AMpMenu.cpp:
 	.sdata2     start:0x8088730C end:0x80887348
 
 MP/D2AMpMenuCockpit.cpp:
-	.text       start:0x804B4CB8 end:0x804B6988
-	.rodata     start:0x80758138 end:0x80758150
-	.data       start:0x80790B78 end:0x80790BB8
+	.text       start:0x804B4C50 end:0x804B6988
+	.rodata     start:0x80758110 end:0x80758368
+	.data       start:0x80790B78 end:0x80790BC8
+	.sbss       start:0x8087F5A8 end:0x8087F5B0
 	.sdata2     start:0x80887348 end:0x808873A8
 
 MP/D2AMpMenuFriend.cpp:

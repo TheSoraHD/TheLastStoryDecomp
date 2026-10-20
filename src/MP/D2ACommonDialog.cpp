@@ -45,15 +45,6 @@ extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect
 
 namespace MP {
 
-// inferred: stops an anime on its first frame
-inline void Stop_unk(MpD2A_unk* task) {
-    if (task != 0) {
-        task->fn_800D246C(1);
-        task->mSpeed = -1.0f;
-        task->mFrame = 0.0f;
-    }
-}
-
 inline float GetFrame_unk(MpD2A_unk* task) { return task->mFrame; }
 
 D2ACommonDialog* D2ACommonDialog::sInstance;
