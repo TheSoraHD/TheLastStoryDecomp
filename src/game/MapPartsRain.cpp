@@ -73,12 +73,12 @@ MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, atn::CsvTab* csv)
     } while (field != 0 && strcmp("", field) != 0);
 }
 
-void MapPartsRain::fn_8049D1A4(MapPartsRain* a, MapPartsRain* b) {
-    mRain.fn_800B28F8(&a->mRain, &b->mRain);
+void MapPartsRain::fn_8049D1A4(MapPartsRain* a, MapPartsRain* b, float t) {
+    mRain.fn_800B28F8(&a->mRain, &b->mRain, t);
 }
 
 void MapPartsRain::vf1C(void* menu) {
-    mRain.fn_800B23C8();
+    mRain.fn_800B23C8(menu);
 }
 
 MapPartsRain::~MapPartsRain() {}

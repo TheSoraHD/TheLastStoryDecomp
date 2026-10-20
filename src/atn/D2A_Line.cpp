@@ -11,7 +11,7 @@ inline unsigned int fn_ToU8(float f) {
     return (f >= 1.0f) ? 255 : (f <= 0.0f) ? 0 : (unsigned int)(f * 255.0f + 0.5f);
 }
 
-D2A_Line::D2A_Line() {
+D2A_Line::D2A_Line(D2A_Data* owner, unsigned short id) : D2A_Common(owner, id) {
     mType = 4;
 }
 

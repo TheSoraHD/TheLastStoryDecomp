@@ -7,7 +7,7 @@ namespace atn {
 
 class D2A_Line : public D2A_Common {
 public:
-    D2A_Line(); // 0x801F0AC0
+    D2A_Line(D2A_Data* owner, unsigned short id); // 0x801F0AC0
     virtual ~D2A_Line();
     virtual void vf18(); // inferred: draw
 };

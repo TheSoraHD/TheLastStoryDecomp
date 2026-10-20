@@ -3,6 +3,9 @@
 
 namespace atn {
 
+struct D2A_Owner_unk;
+class D2A_Data;
+
 // inferred: table of {key, value} float parameters; fn_801F04FC sets the value of `key`.
 struct D2A_ParamTable {
     struct Entry {
@@ -20,6 +23,7 @@ struct D2A_DrawRect {
     float x, y, w, h, z;
 };
 struct D2A_DrawColor {
+    D2A_DrawColor() {} // 0x80041B8C (weak)
     float r, g, b, a;
 };
 struct D2A_DrawExtra {
@@ -31,26 +35,37 @@ struct D2A_DrawExtra {
 // inferred from __vt__Q23atn10D2A_Common; field layout only as far as derived classes use it.
 class D2A_Common {
 public:
-    D2A_Common();          // 0x801EC158
+    D2A_Common(D2A_Data* owner, unsigned short id); // 0x801EC158
     virtual ~D2A_Common(); // 0x801EC6C0
     virtual void vf0C();
     virtual void vf10();
     virtual void vf14();
     virtual void vf18();
-    virtual void vf1C();
+    virtual int vf1C(); // inferred: nonzero while loading
     virtual void vf20();
 
+    void fn_801EC784(); // inferred: common setup, called by the vf0C of the elements
     int fn_801EDC78(); // inferred: nonzero when the element is drawn
     void fn_801ED928(D2A_DrawRect* rect, D2A_DrawColor* color, D2A_DrawExtra* extra, void* work); // inferred
 
     int m04;
     unsigned short mType; // 0x08
-    unsigned char m0A[0x30 - 0x0A];
+    unsigned short mId; // 0x0A
+    unsigned char m0C[0x0E - 0x0C];
+    unsigned short m0E; // inferred: outline mode of D2A_Window
+    unsigned int m10_0 : 29;
+    unsigned int mOutline : 1; // inferred: draws the outline of the text (D2A_Message)
+    unsigned int m10_30 : 2;
+    unsigned char m14[0x18 - 0x14];
+    float m18; // inferred: end frame of the element
+    unsigned char m1C[0x30 - 0x1C];
     D2A_ParamTable m30;
     D2A_ParamTable m38;
     unsigned char m40[0x58 - 0x40];
     float m58;
-    unsigned char m5C[0x12C - 0x5C];
+    unsigned char m5C[0xFC - 0x5C];
+    D2A_Owner_unk* mFC; // inferred: owner (layout or data), see D2A_Window::vf18
+    unsigned char m100[0x12C - 0x100];
 };
 
 } // namespace atn

@@ -95,7 +95,7 @@ atn/ComDrawTexture.cpp:
 
 atn/FadeCommon.cpp:
 	.text       start:0x8006A09C end:0x8006A950
-	.rodata     start:0x80731418 end:0x80731450
+	.rodata     start:0x80731408 end:0x80731460
 	.data       start:0x80777B08 end:0x80777BC0
 	.sdata2     start:0x80880A08 end:0x80880A18
 
@@ -128,7 +128,7 @@ atn/MindowsCommon.cpp:
 
 atn/ModelInstance.cpp:
 	.text       start:0x8009E5A0 end:0x8009F70C
-	.rodata     start:0x807326B8 end:0x807326CC
+	.rodata     start:0x807326B8 end:0x807326D0
 	.data       start:0x80778958 end:0x80778990
 	.sdata2     start:0x80880C78 end:0x80880C88
 
@@ -158,8 +158,9 @@ atn/LinearAllocator.cpp:
 
 atn/Rain.cpp:
 	.text       start:0x800B1B28 end:0x800B2E2C
-	.rodata     start:0x80732D30 end:0x80732D3C
+	.rodata     start:0x80732D28 end:0x80732D98
 	.data       start:0x80778EF8 end:0x80778F30
+	.sdata      start:0x8087D878 end:0x8087D888
 	.sdata2     start:0x80880EC8 end:0x80880F28
 
 atn/Layer2DBlur.cpp:
@@ -169,9 +170,9 @@ atn/Layer2DBlur.cpp:
 	.sdata2     start:0x80880F28 end:0x80880F30
 
 atn/Layer3D.cpp:
-	.text       start:0x800B326C end:0x800B38B8
-	.rodata     start:0x80732E18 end:0x80732E28
-	.data       start:0x8077906C end:0x807790A8
+	.text       start:0x800B326C end:0x800B3978
+	.rodata     start:0x80732DD8 end:0x80732E28
+	.data       start:0x80778F90 end:0x807790A8
 	.sdata2     start:0x80880F30 end:0x80880F40
 
 atn/LayerOcclusionCPU.cpp:
@@ -220,8 +221,8 @@ atn/Sound3dListener.cpp:
 
 atn/Sound3dEngine.cpp:
 	.text       start:0x800CAD9C end:0x800CB360
-	.rodata     start:0x807341AC end:0x807341C0
-	.data       start:0x807795C0 end:0x807795F8
+	.rodata     start:0x80734188 end:0x80734208
+	.data       start:0x807795C0 end:0x80779678
 	.sdata2     start:0x80881180 end:0x80881188
 
 atn/TextureCacheManager8x32.cpp:
@@ -230,9 +231,9 @@ atn/TextureCacheManager8x32.cpp:
 	.data       start:0x80779700 end:0x80779758
 
 atn/TextureComposite.cpp:
-	.text       start:0x800D71A4 end:0x800D810C
-	.rodata     start:0x807346A0 end:0x807346B8
-	.data       start:0x80779758 end:0x80779790
+	.text       start:0x800D71A4 end:0x800D81CC
+	.rodata     start:0x807346A0 end:0x80734740
+	.data       start:0x80779758 end:0x80779830
 	.sdata2     start:0x80881208 end:0x80881218
 
 atn/CompositeIntensityTintMulti.cpp:
@@ -249,8 +250,8 @@ atn/TextAnimation.cpp:
 
 atn/VideoTHP.cpp:
 	.text       start:0x800DCA70 end:0x800DD1EC
-	.rodata     start:0x80734D10 end:0x80734D20
-	.data       start:0x807798D8 end:0x80779938
+	.rodata     start:0x80734D00 end:0x80734DC0
+	.data       start:0x807798D8 end:0x80779950
 	.sdata2     start:0x80881260 end:0x80881290
 
 std/char_traits_char.cpp:
@@ -618,9 +619,11 @@ auto_fn_801F1EA0_text.cpp:
 	.ctors      start:0x8072D2F8 end:0x8072D2FC
 
 atn/D2A_Message.cpp:
-	.text       start:0x801F2398 end:0x801F33A8
-	.rodata     start:0x8073E300 end:0x8073E314
-	.data       start:0x80782B68 end:0x80782BA0
+	.text       start:0x801F2398 end:0x801F3490
+	.ctors      start:0x8072D2FC end:0x8072D300
+	.rodata     start:0x8073E300 end:0x8073E380
+	.data       start:0x80782B68 end:0x80782BD0
+	.bss        start:0x807C7F68 end:0x807C7F80
 	.sdata2     start:0x80882C58 end:0x80882C78
 
 atn/D2A_Reference.cpp:
@@ -630,9 +633,9 @@ atn/D2A_Reference.cpp:
 	.sdata2     start:0x80882C78 end:0x80882C80
 
 atn/D2A_Task.cpp:
-	.text       start:0x801F3FF8 end:0x801F4F84
-	.rodata     start:0x8073E410 end:0x8073E420
-	.data       start:0x80782C08 end:0x80782C40
+	.text       start:0x801F3FF8 end:0x801F4FF4
+	.rodata     start:0x8073E408 end:0x8073E480
+	.data       start:0x80782C08 end:0x80782C70
 	.sdata2     start:0x80882C80 end:0x80882C90
 
 atn/D2A_TaskInstanceBase_64_8.cpp:
@@ -648,20 +651,20 @@ atn/D2A_Texture.cpp:
 	.sdata2     start:0x80882CA0 end:0x80882CB8
 
 atn/D2A_Window.cpp:
-	.text       start:0x801FF1B8 end:0x801FF8EC
+	.text       start:0x801FF1B8 end:0x801FFA04
 	.rodata     start:0x8073E618 end:0x8073E628
 	.data       start:0x80782DB8 end:0x80782DF0
 	.sdata2     start:0x80882CB8 end:0x80882CD0
 
 atn/D3Anime.cpp:
 	.text       start:0x80201E78 end:0x80202A6C
-	.rodata     start:0x8073E698 end:0x8073E6A8
+	.rodata     start:0x8073E688 end:0x8073E6B0
 	.data       start:0x80782DF0 end:0x80782E28
 	.sdata2     start:0x80882CD8 end:0x80882CF8
 
 atn/D3AnimeInstance.cpp:
 	.text       start:0x80202A6C end:0x80203930
-	.rodata     start:0x8073E6C0 end:0x8073E6D8
+	.rodata     start:0x8073E6B0 end:0x8073E6E0
 	.data       start:0x80782E28 end:0x80782E60
 	.sdata2     start:0x80882CF8 end:0x80882D18
 

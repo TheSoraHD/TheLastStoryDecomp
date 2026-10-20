@@ -46,6 +46,15 @@ struct __vec_storage_unk {
         }
     }
 
+    // inferred: moves [first, last) behind the stored elements as raw bytes (reserve of
+    // std::wstring elements in atn::D2A_Message::vf18, 0x801F2A8C)
+    void __append_raw_unk(T* first, T* last) {
+        unsigned int n = last - first;
+        memcpy(mData + mSize, first, n * sizeof(T));
+        memset(first, 0, n * sizeof(T));
+        mSize += n;
+    }
+
     T* mData;
     unsigned int mSize;
     unsigned int mCap;
@@ -208,6 +217,18 @@ public:
     // original loads the size before the capacity (and keeps the capacity in r5); tried accessors,
     // the comparison reversed, if/else forms and a helper for the length check.
     void push_back(const T& x);
+    // inferred: inlined in atn::D2A_Message::vf18 (0x801F2A8C, std::wstring elements)
+    void reserve(size_type n) {
+        if (this->mCap < n) {
+            __vec_storage_unk<T> buf;
+            buf.mData = __allocate(n);
+            buf.mCap = n;
+            buf.__append_raw_unk(this->mData, this->mData + this->mSize);
+            __vec_swap_unk(this->mCap, buf.mCap);
+            __vec_swap_unk(this->mData, buf.mData);
+            __vec_swap_unk(this->mSize, buf.mSize);
+        }
+    }
 
 private:
     void __init_unk(const T* first, const T* last);

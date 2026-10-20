@@ -165,11 +165,11 @@
  {
   "name": "atn/FadeCommon.cpp",
   "classes": [
-   "atn::FadeCapture",
+   "atn::FadeCommon",
    "atn::FadeColor",
-   "atn::FadeCommon"
+   "atn::FadeCapture"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/FileList.cpp",
@@ -265,7 +265,11 @@
  {
   "name": "atn/Layer3D.cpp",
   "classes": [
-   "atn::Layer3D"
+   "atn::Layer3D",
+   "atn::Layer2D",
+   "atn::LayerPrerender",
+   "atn::LayerZPrePass",
+   "atn::Layer2D3D"
   ],
   "matching": false
  },
@@ -332,7 +336,7 @@
   "classes": [
    "atn::Sound3dEngine"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureCacheManager8x32.cpp",
@@ -365,7 +369,8 @@
  {
   "name": "atn/VideoTHP.cpp",
   "classes": [
-   "atn::VideoTHP"
+   "atn::VideoTHP",
+   "atn::Video"
   ],
   "matching": false
  },
@@ -944,7 +949,7 @@
   "classes": [
    "atn::D2A_Window"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D3Anime.cpp",
