@@ -3324,5 +3324,12 @@
   "name": "db/MapLink_unk.cpp",
   "classes": [],
   "matching": false
+ },
+ {
+  "name": "atn/Camera_unk.cpp",
+  "classes": [
+   "Camera_unk"
+  ],
+  "matching": false
  }
 ]
