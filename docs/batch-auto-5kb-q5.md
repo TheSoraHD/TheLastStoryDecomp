@@ -33,7 +33,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
 - Hallazgos MWCC
   - `0 > id || id >= N` da dos `cmpwi` con signo (como `0 <= i`); `id < 0 || id >= N` se fusiona en `cmplwi`.
 
-## db/HateParam_unk (commit PENDIENTE)
+## db/HateParam_unk (commit 6111012)
 - Resultado: 3/3 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -42,3 +42,21 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     `lbl_8073F968` -> `@stringBase0`, `lbl_8087F210` -> `sEntries`, `lbl_8087F214` -> `sCount`, `lbl_80882EB0` -> `sFileName`.
   - Tipo inferido `HateParamEntry_unk` (0x6C, 27 campos int/float sin nombre), ctor vacio fuera de linea.
 - Hallazgos MWCC: nada nuevo (ctor vacio no inline definido tras su uso => `__construct_new_array` con puntero al ctor).
+
+## db/AiTable_unk (commit PENDIENTE)
+- Resultado: 2/2 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_8073E800` -> `sFileNameStr`, `lbl_8073E814` -> `@stringBase0`, `lbl_8087F158` -> `sEntries`,
+    `lbl_8087F15C` -> `sCount`, `lbl_80882D28` -> `sFileName`.
+  - Tipo inferido `AiTableEntry_unk` (0x90). Dos funciones reconstruidas que el original no conserva (`GetType_unk`,
+    `GetNumber_unk`: tipo por prefijo "np/em/fr/pc/gn" y numero sin '_' via `std::string`): globales, se inlinean en el
+    cargador y el enlazador las elimina; hacen falta para el orden del pool ("np".."gn", "_", "" y luego las cadenas de
+    `basic_string`).
+- Hallazgos MWCC
+  - Literales de una funcion `static inline` entran en el pool al usarse (en el llamador); los de una funcion no inline
+    definida antes (aunque se autoinlinee y luego se elimine) entran antes: sirve para reconstruir el orden del pool.
+  - Una funcion que devuelve `bool` (o el tipo) inlinada deja un test repetido; asignar el resultado a un miembro y
+    probar el miembro (`e->m = f(); if (e->m >= 0)`) da el salto directo.
+  - `for (;;) { pos = find(); if (pos == npos) break; ... }` mantiene el test arriba (un `while` lo rota al final).
