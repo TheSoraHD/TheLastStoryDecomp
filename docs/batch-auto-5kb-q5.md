@@ -43,7 +43,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - Tipo inferido `HateParamEntry_unk` (0x6C, 27 campos int/float sin nombre), ctor vacio fuera de linea.
 - Hallazgos MWCC: nada nuevo (ctor vacio no inline definido tras su uso => `__construct_new_array` con puntero al ctor).
 
-## db/AiTable_unk (commit PENDIENTE)
+## db/AiTable_unk (commit 532d3d1)
 - Resultado: 2/2 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -60,3 +60,22 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - Una funcion que devuelve `bool` (o el tipo) inlinada deja un test repetido; asignar el resultado a un miembro y
     probar el miembro (`e->m = f(); if (e->m >= 0)`) da el salto directo.
   - `for (;;) { pos = find(); if (pos == npos) break; ... }` mantiene el test arriba (un `while` lo rota al final).
+
+## db/ArrowSet_unk (commit PENDIENTE)
+- Resultado: 3/4 al 100%, matching no.
+- NONMATCHING: `fn_80207310` (cargador) 99.21% - camino rapido del `std::vector<int>::push_back` inline: el original carga
+  el tamano antes que la capacidad (problema ya conocido de `include/std/vector.h`; probadas 8 formas de la comparacion,
+  sin tocar la cabecera: una variable local mas saca `push_back` del autoinline).
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_802077F8` -> `__ct__17ArrowSetEntry_unkFv`, `fn_80207808` -> `__dt__17ArrowSetEntry_unkFv`,
+    `lbl_8073E9C8` -> `sFileNameStr`, `lbl_8073E9DC` -> `@stringBase0`, `lbl_8087F178` -> `sEntries`,
+    `lbl_8087F17C` -> `sCount`, `lbl_80882D60` -> `sFileName`.
+  - Tipos inferidos `ArrowSetEntry_unk` (id + `atn::Buffer_unk<int>`; ctor/dtor implicitos) e `IntList_unk`
+    (derivada vacia de `std::vector<int>`: el destructor del local comprueba `this` tres veces).
+  - Las cadenas de `Buffer_unk<int>::Resize_unk` (`lbl_8087D6E8/EC`, `.sdata` compartido) y "Memory allocation
+    failure" (`lbl_80775A88`) son de otros ficheros (deduplicadas): no se renombran.
+- Hallazgos MWCC
+  - Un `std::vector<T>` local cuyo destructor prueba `this` 3 veces = clase derivada de `std::vector` (con
+    `std/vector.h` un `std::vector` local da 2).
+  - `Buffer_unk::operator[](int)` con indice `unsigned` crea una segunda variable de induccion: indexar `mData` directo.
