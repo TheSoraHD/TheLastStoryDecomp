@@ -138,7 +138,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - `float a[4] = {x, y, z};` inicializa a cero con `stw` enteros las 4 palabras antes de escribir x, y, z.
   - Un clamp contra variables globales escrito como expresion (no inline con parametros) carga cada limite justo antes de su comparacion.
 
-## atn/FileUtil_unk (commit COMMIT_FU)
+## atn/FileUtil_unk (commit dcf2d82)
 
 - Resultado: 7/16 al 100%, `matching: false`.
 - NONMATCHING: codificador CMPR `fn_80068DB0` 92.9%, `fn_80069060` 78.8%, `fn_80069288` 77.9%, `fn_8006945C` 73.7%
@@ -158,3 +158,19 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
 - Hallazgos MWCC:
   - Un `static const` escalar se pliega siempre; para conservar el `lhz` del original hubo que leerlo por un puntero `volatile`.
   - Los objetos de mas de 4 bytes van a `.rodata` (no a `.sdata2`) con `-sdata2 4`: el tamano 8 de dtk es relleno.
+
+## atn/Geometry_unk (commit COMMIT_GEO)
+
+- Resultado: 4/10 al 100%, `matching: false`.
+- NONMATCHING: `fn_8006FAB0` (rayo contra caja) 98.09% (FPR de constantes izadas); `fn_80070D04` (cilindro contra esfera)
+  97.41%; `fn_80070B60` (escalar caja) ~58%; `AABB_unk::Merge_unk` 0% y `fn_8006FEBC`/`fn_800704DC` (proyeccion de la caja
+  a pantalla) sin escribir (solo declaradas).
+- **Decisiones sin el usuario**:
+  - Split sin cambios.
+  - `symbols.txt`: `lbl_80880A68` tamano 0x8 -> 0x4 (float + relleno).
+  - Las funciones se dejan `extern "C"` con su nombre `fn_` (las declaran asi AABBTree, MapPartsModel, MapManager,
+    LensFlare, ModelInstance); `AABB_unk` local como en `atn/AABBTree.cpp`.
+  - **Pendiente**: `Merge_unk`, `fn_8006FEBC` y `fn_800704DC` usan un min/max paired-single en asm (`psq_lu`/`ps_sub`/
+    `ps_sel`/`fsel`, tipo `VECMin`/`VECMax`) que no existe en `include/math/Vec.h`; anadirlo seria ampliar la excepcion
+    de asm de Vec.h (necesita permiso del usuario).
+- Hallazgos MWCC: `(float)__fabs(x) < eps` da `fabs` + `frsp` + `fcmpo` con el eps en `.sdata2` (sin el cast compara en double y lo saca a `.rodata`).
