@@ -6,6 +6,12 @@
 #include "atn/Model_unk.h"
 #include "game/GimmickCommon.h"
 
+// inferred: plane (normal and distance)
+struct Plane_unk {
+    atn::Vector3 mNormal;
+    float mDist;
+};
+
 namespace gmk {
 
 // inferred: water surface: a collision box ("COLLI_BOX") that follows a node of the model and an
@@ -41,8 +47,7 @@ public:
     atn::EfpHandle_unk mEfp;   // 0x86C: "EFP"
     int mReflect;              // 0x878
     int mNode;                 // 0x87C: inferred: node of the reflection plane
-    atn::Vector3 mPlaneNormal; // 0x880: "REFLECT_PLANE"
-    float mPlaneDist;          // 0x88C
+    Plane_unk mPlane;          // 0x880: "REFLECT_PLANE"
 };
 
 } // namespace gmk

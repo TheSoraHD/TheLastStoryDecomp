@@ -50,11 +50,6 @@ struct ScreenInfo_unk {
     unsigned char m000[0x120];
     int m120;
 };
-// inferred: plane (normal and distance)
-struct Plane_unk {
-    atn::Vector3 mNormal;
-    float mDist;
-};
 struct Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const Model_unk::Sphere_unk* sphere);
@@ -69,6 +64,19 @@ inline void SafeNormalize_unk(atn::Vector3* v) {
 }
 
 namespace gmk {
+
+// inferred: the box update is an inline (its locals go to the bottom of the frame); name invented
+inline void UpdateBox_unk(WaterLevel* self) {
+    MtxPtr node = self->mModel.GetNodeMtx_unk(self->mNode);
+    atn::Vector3 pos = self->mBoxPos;
+    if (node != 0) {
+        pos = ((atn::Matrix3x4*)node)->GetTrans_unk();
+    }
+    pos.x += self->mBoxOffset.x;
+    pos.y += self->mBoxOffset.y;
+    pos.z += self->mBoxOffset.z;
+    fn_800575BC(&self->mColli, &pos, &self->m78, &self->mBoxSize);
+}
 
 GimmickCommon* WaterLevel::fn_8042E36C(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
@@ -99,8 +107,6 @@ void WaterLevel::vf28() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.4% - stack layout (the original puts the box position at the bottom of the frame and
-// the reflection plane and matrix above the temporaries).
 void WaterLevel::vf10() {
     if (m54 == 0) {
         vf28();
@@ -111,23 +117,13 @@ void WaterLevel::vf10() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    MtxPtr node = mModel.GetNodeMtx_unk(mNode);
-    atn::Vector3 pos = mBoxPos;
-    if (node != 0) {
-        pos = ((atn::Matrix3x4*)node)->GetTrans_unk();
-    }
-    pos.x += mBoxOffset.x;
-    pos.y += mBoxOffset.y;
-    pos.z += mBoxOffset.z;
-    fn_800575BC(&mColli, &pos, &m78, &mBoxSize);
+    UpdateBox_unk(this);
     mColli.mFlags |= 1;
     if (mReflect != 0 && mNode != -1) {
         Camera_unk* camera = lbl_8087EFB4;
         ScreenInfo_unk* info = fn_800C122C(camera, &mModel.fn_80094F98());
         if (info != 0) {
-            Plane_unk plane;
-            plane.mNormal = mPlaneNormal;
-            plane.mDist = mPlaneDist;
+            Plane_unk plane = mPlane;
             MtxPtr mtx = mModel.GetNodeMtx_unk(mNode);
             atn::Matrix3x4 m(*(atn::Matrix3x4*)mtx);
             PSMTXInverse(m.m, m.m);
@@ -135,7 +131,8 @@ void WaterLevel::vf10() {
             SafeNormalize_unk(&plane.mNormal);
             PSMTXMultVec(m.m, &plane.mNormal, &plane.mNormal);
             SafeNormalize_unk(&plane.mNormal);
-            plane.mDist = -PSVECDotProduct(&plane.mNormal, &((atn::Matrix3x4*)mtx)->GetTrans_unk());
+            atn::Vector3 trans = ((atn::Matrix3x4*)mtx)->GetTrans_unk();
+            plane.mDist = -PSVECDotProduct(&plane.mNormal, &trans);
             info->m120 = 0;
             fn_800C2C20(info, &plane);
         }
@@ -199,10 +196,10 @@ void WaterLevel::vf24() {
             mBoxSize.z = fn_800DC288(csv.fn_8005B9CC());
         } else if (strcmp(field, "REFLECT_PLANE") == 0) {
             mReflect = 1;
-            mPlaneNormal.x = fn_800DC288(csv.fn_8005B9CC());
-            mPlaneNormal.y = fn_800DC288(csv.fn_8005B9CC());
-            mPlaneNormal.z = fn_800DC288(csv.fn_8005B9CC());
-            mPlaneDist = fn_800DC288(csv.fn_8005B9CC());
+            mPlane.mNormal.x = fn_800DC288(csv.fn_8005B9CC());
+            mPlane.mNormal.y = fn_800DC288(csv.fn_8005B9CC());
+            mPlane.mNormal.z = fn_800DC288(csv.fn_8005B9CC());
+            mPlane.mDist = fn_800DC288(csv.fn_8005B9CC());
             mNode = mModel.fn_80092814(csv.fn_8005B9CC(), 0);
         }
     } while (csv.fn_8005BBF8() != 0);
