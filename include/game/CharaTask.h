@@ -381,7 +381,7 @@ public:
     virtual void vfB4();
     virtual int vfB8(wchar_t* name); // inferred: copies the character name
     virtual void vfBC();
-    virtual void vfC0();
+    virtual void vfC0(void* draw); // inferred: Np131LivingArmor passes `draw` to fn_803E2A30
     virtual bool vfC4();
     virtual void vfC8();
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // inferred: four points (the target symbol says Fv)

@@ -1949,10 +1949,12 @@ Event/StringData.cpp:
 	.data       start:0x80794430 end:0x80794480
 
 game/Np131LivingArmor.cpp:
-	.text       start:0x80546000 end:0x80547468
-	.rodata     start:0x8075E310 end:0x8075E324
+	.text       start:0x80546000 end:0x805477C8
+	.rodata     start:0x8075E300 end:0x8075E380
 	.data       start:0x80794608 end:0x80794738
-	.sdata2     start:0x80887CD8 end:0x80887D30
+	.sdata      start:0x8087E4D8 end:0x8087E4E8
+	.sbss       start:0x8087F888 end:0x8087F890
+	.sdata2     start:0x80887CD8 end:0x80887D38
 
 game/NpcManager.cpp:
 	.text       start:0x805477C8 end:0x80547980
