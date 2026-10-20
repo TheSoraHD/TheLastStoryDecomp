@@ -27,3 +27,20 @@
 ### Hallazgos
 - Los creadores `fn_xxx` de 0x64 bytes justo antes de cada split NewCampParts* son la primera funcion del fichero (usan el pool del fichero).
 - Un `__sinit` puede ir seguido de la funcion destructora que registra (copia generada).
+
+## Grupo 2: zona de red 0x80502708-0x805128C0 (verificado: main.dol OK, lost: 0)
+- `MP/SaveLoad_cont.cpp` (nuevo, `_cont`): 0x80502708-0x805028D8, 4 funciones sobre el objeto MP::SaveLoad (campos 0x48/0x4C/0x50/0x64/0x36C del layout de src/MP/SaveLoad.cpp); SaveLoad esta enlazada (matching: true), asi que no se tocan sus limites. Sin datos propios.
+- `atn/SoftKeyboardU.cpp` (ampliada, sin fuente): .text desde 0x805028D8 (helper que solo usa el ctor de SoftKeyboard, tabla de teclas 0x8075A988), .rodata 0x8075A988-0x8075B000 (tabla de teclas, nombres boost::bind_t, RTTI, pool con /data/d2anime/online_name_*.d2a), .data 0x80792AE0-0x80792DC0 (tabla de teclas en u16 -> .sdata2 L"1"..), .bss 0x807C8FA8-0x807C8FC8, .sdata 0x8087E440-0x8087E458, .sbss 0x8087F848-0x8087F868, .sdata2 desde 0x808876B8.
+- `MP/Text.cpp` (nuevo): 0x80505DD0-0x80507790. Vtable/RTTI MP::Text (0x80792DC0), "/database/online/message_table_xx.u16", pool begin/PVP/end/RAID/title/point (0x8075B038), L"%s" x2; corte final: a partir de 0x80507790 empieza otro conjunto de constantes (.sdata2 0x80887798..) y otro .rodata (0x8075B058).
+- `atn/Bezier_unk.cpp` (nuevo, nombre INVENTADO): 0x80507790-0x805089E0, matematica de curvas (1/3, 2/3, 4/3, evaluacion polinomica, recursion), con sus propios 0.0f/0.5f/1.0f (.sdata2 0x80887798-0x808877C0) y dobles (.rodata 0x8075B058-0x8075B090). Lo usa solo 0x805BF214.
+- `atn/NetManager.cpp` (nuevo, nombre INVENTADO a partir de la clase atn::net::Manager, vtable 0x807930F0): 0x805089E0-0x8050D3E8. Pool 0x8075B098 ("laststorywii", estados INITIALIZE/REGISTER/JOIN..., clave), 12 jumptables .data 0x80792E08-0x807930F0, "lw_debug = 1", .bss 0x807C8FC8-0x807C8FF0.
+- `atn/DwcAllocator_unk.cpp` (nuevo, nombre INVENTADO): 0x8050D3E8-0x8050D7EC, 6 funciones con su propio pool ("DwcAllocator", "DWCAlloc", 0x8075B180) y su sbss 0x8087F878.
+- `atn/PPDATAU.cpp` (ampliada, sin fuente): .text hasta 0x8050E67C (PPDATA/PPDATAU/PPDATAR + helpers que usan su pool "in adduser"/"assert in sendmessage" 0x8075B1D4), .rodata hasta 0x8075B1F8 (incluye nombre RTTI "atn::net::PPDATA"), .data hasta 0x807931A0 (vtable/RTTI PPDATA + "Memory allocation failure"), .sdata 0x8087E468-0x8087E480.
+- `atn/NetFriend_unk.cpp` (nuevo, nombre INVENTADO): 0x8050E67C-0x8050F93C, temporizadores OSGetTime y lista de amigos: tabla L"Friend%02d"/OFFLINE/ONLINE/MATCH... (.data 0x807931B4), "lw_mode/lw_group/..." (0x807931A0), "online/playerinfo7" + cadenas basic_string (pool 0x8075B238), su doble int->float 0x8075B1F8 y su 0.0f (0x808877C0).
+- `game/NewCampPartsBase.cpp` (nuevo): 0x8050F93C-0x805128C0. Ctor/dtor de NewCampPartsBase (simbolos con nombre) y metodos de su vtable (0x807932B8), pool 0x8075B2B8 (reference/OffsetPos/...), dobles 0x8075B2A8/B0 y constantes .sdata2 0x808877C8-0x808877E0.
+- Cortes por constantes duplicadas en .sdata2/.rodata (cada fichero su copia: 0.0f 0x8088779C / 0x808877C0 / 0x808877CC; dobles 0x8075B078 / 0x8075B090 / 0x8075B1F8 / 0x8075B2A8) y por pools de cadenas separados.
+
+### Decisiones sin el usuario (grupo 2)
+- Nombres inventados: atn/Bezier_unk.cpp, atn/NetManager.cpp (por atn::net::Manager), atn/DwcAllocator_unk.cpp, atn/NetFriend_unk.cpp.
+- `MP/SaveLoad_cont.cpp` sin datos: revisar si es parte de SaveLoad (fusion cuando se decompile) o de otro fichero MP.
+- El corte DwcAllocator/NetManager (0x8050D3E8) y NetFriend/PPDATAU (0x8050E67C) son los menos seguros (se basan en pools/sbss separados, no en constantes duplicadas); NetFriend podria ser parte de PPDATAU.

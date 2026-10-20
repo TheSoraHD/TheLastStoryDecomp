@@ -1917,16 +1917,61 @@ MP/SaveLoad.cpp:
 	.rodata     start:0x8075A970 end:0x8075A988
 	.data       start:0x80792AA8 end:0x80792AE0
 
+MP/SaveLoad_cont.cpp:
+	.text       start:0x80502708 end:0x805028D8
+
 atn/SoftKeyboardU.cpp:
-	.text       start:0x805029DC end:0x80505DD0
-	.rodata     start:0x8075AE74 end:0x8075AEDC
-	.data       start:0x80792D38 end:0x80792DC0
-	.sdata2     start:0x80887750 end:0x80887790
+	.text       start:0x805028D8 end:0x80505DD0
+	.rodata     start:0x8075A988 end:0x8075B000
+	.data       start:0x80792AE0 end:0x80792DC0
+	.bss        start:0x807C8FA8 end:0x807C8FC8
+	.sdata      start:0x8087E440 end:0x8087E458
+	.sbss       start:0x8087F848 end:0x8087F868
+	.sdata2     start:0x808876B8 end:0x80887790
+
+MP/Text.cpp:
+	.text       start:0x80505DD0 end:0x80507790
+	.rodata     start:0x8075B000 end:0x8075B058
+	.data       start:0x80792DC0 end:0x80792E08
+	.sdata      start:0x8087E458 end:0x8087E468
+	.sbss       start:0x8087F868 end:0x8087F870
+	.sdata2     start:0x80887790 end:0x80887798
+
+atn/Bezier_unk.cpp:
+	.text       start:0x80507790 end:0x805089E0
+	.rodata     start:0x8075B058 end:0x8075B090
+	.sbss       start:0x8087F870 end:0x8087F878
+	.sdata2     start:0x80887798 end:0x808877C0
+
+atn/NetManager.cpp:
+	.text       start:0x805089E0 end:0x8050D3E8
+	.rodata     start:0x8075B090 end:0x8075B180
+	.data       start:0x80792E08 end:0x80793118
+	.bss        start:0x807C8FC8 end:0x807C8FF0
+
+atn/DwcAllocator_unk.cpp:
+	.text       start:0x8050D3E8 end:0x8050D7EC
+	.rodata     start:0x8075B180 end:0x8075B198
+	.sbss       start:0x8087F878 end:0x8087F880
 
 atn/PPDATAU.cpp:
-	.text       start:0x8050D7EC end:0x8050DDDC
-	.rodata     start:0x8075B198 end:0x8075B1C0
-	.data       start:0x80793118 end:0x80793168
+	.text       start:0x8050D7EC end:0x8050E67C
+	.rodata     start:0x8075B198 end:0x8075B1F8
+	.data       start:0x80793118 end:0x807931A0
+	.sdata      start:0x8087E468 end:0x8087E480
+
+atn/NetFriend_unk.cpp:
+	.text       start:0x8050E67C end:0x8050F93C
+	.rodata     start:0x8075B1F8 end:0x8075B2A8
+	.data       start:0x807931A0 end:0x807932B8
+	.sbss       start:0x8087F880 end:0x8087F888
+	.sdata2     start:0x808877C0 end:0x808877C8
+
+game/NewCampPartsBase.cpp:
+	.text       start:0x8050F93C end:0x805128C0
+	.rodata     start:0x8075B2A8 end:0x8075B320
+	.data       start:0x807932B8 end:0x80793320
+	.sdata2     start:0x808877C8 end:0x808877E0
 
 game/NewCampPartsGmk.cpp:
 	.text       start:0x805128C0 end:0x80514720
