@@ -53,7 +53,7 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
   - `if (a == 0 || b == 0 || c < 0) return;`: la ultima condicion de la cadena `||` sale invertida con salto
     incondicional (`bge L; b fin`), las anteriores con `beq fin`.
 
-## atn/LH_Motion_cont (commit HASH)
+## atn/LH_Motion_cont (commit 12fd05a)
 
 - Resultado: 3/4 al 100%, **sin fusionar**: unidad propia `atn/LH_Motion_cont` con fuente, `matching: false`
   (`atn/LH_Motion` sigue `matching: true`; `main.dol: OK`).
