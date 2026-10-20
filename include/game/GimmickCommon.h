@@ -184,6 +184,9 @@ public:
 
 // inferred: fades the alpha of a model material (used by gmk::MotionObject and others)
 struct GimmickMaterialFade_unk {
+    // inferred: weak copy 0x803F3334 (gmk::FragileObject); also emitted by gmk::SparkCube
+    GimmickMaterialFade_unk()
+        : mMaterial(0), mStart(0), mLength(0), mFrom(1.0f), mTo(1.0f), mMode(-1), mReverse(0) {}
     void fn_803EBC44(atn::CsvTab* csv, Model_unk* model);
     void fn_803EBD6C(Model_unk* model, const char* name, int start, int length, float to);
     void fn_803EBE74(Model_unk* model);

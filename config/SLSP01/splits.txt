@@ -1456,9 +1456,10 @@ gmk/RotaryRoom.cpp:
 	.sdata2     start:0x80886668 end:0x808866A0
 
 gmk/SparkCube.cpp:
-	.text       start:0x8042618C end:0x80427730
-	.rodata     start:0x80753678 end:0x80753688
+	.text       start:0x80426108 end:0x80427730
+	.rodata     start:0x80753670 end:0x80753700
 	.data       start:0x8078E470 end:0x8078E508
+	.bss        start:0x807C8A28 end:0x807C8A38
 	.sdata2     start:0x808866A0 end:0x808866D0
 
 gmk/FlyObjManager.cpp:
