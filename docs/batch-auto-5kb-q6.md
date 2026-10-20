@@ -96,7 +96,7 @@ funciones `extern "C" fn_<addr>`.
     `std/string_members.h` (el pool lleva las cadenas de error de `basic_string`).
 - Hallazgos MWCC: nada nuevo (`std::string path(p); path = f(path);` reproduce el `operator=` inline de `std/string.h`).
 
-## db/TutorialTable_unk (commit HASH)
+## db/TutorialTable_unk (commit 3047ccf)
 - Resultado: 5/6 al 100%, matching no.
 - NONMATCHING: `fn_8021ED08` (cargador UTF-16) 97.71% - solo registros: el original guarda la direccion del
   `atn::CsvU` en un registro salvado mientras corre su ctor inline (mismo problema que `db/PaletteTable_unk` y
@@ -114,3 +114,18 @@ funciones `extern "C" fn_<addr>`.
     de `lbl_8087F0A8`). `fn_8006F5E8` declarado `extern "C" void (void* font, std::string*, const wchar_t*)` (convierte
     UTF-16 a `std::string`).
 - Hallazgos MWCC: nada nuevo.
+
+## db/MemberList_unk (commit HASH)
+- Resultado: 2/3 al 100%, matching no.
+- NONMATCHING: `fn_80217D9C` (fila de un nivel) 98.39% - solo registros (`count - 1` y su desplazamiento `* 0x14`
+  intercambiados entre r4 y r5); probados locales para el contador, la tabla y el primer nivel, puntero de fila y otros
+  ordenes de comparacion. Se autoinlinea en el cargador (definida despues) y ahi si sale igual.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_80217D64` -> `__ct__14MemberList_unkFv`; datos `sFileNameStr`, `sCampFileNameStr`, `@stringBase0`
+    (0x8073FC54), `sEntries`, `sCount`, `sFileName`, `sCampFileName`.
+  - Tipo inferido `MemberList_unk` (0x14: nivel, 7 `bool` de miembros + contador, 7 `bool` de campamento + contador;
+    ctor con `memset`). Dos ficheros: `/boot/member_list.csv` y `/boot/member_camp_list.csv`.
+- Hallazgos MWCC
+  - `a[j] = *f() != 0;` calcula `&a[j]` antes de la llamada (registro salvado); leyendo antes el campo en un local
+    (`const char* field = f(); a[j] = *field != 0;`) la direccion se calcula despues, como el original.
