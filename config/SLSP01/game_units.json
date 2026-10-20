@@ -2605,6 +2605,13 @@
   "matching": false
  },
  {
+  "name": "Event/Channel.cpp",
+  "classes": [
+   "Event::Channel"
+  ],
+  "matching": false
+ },
+ {
   "name": "Event/Label.cpp",
   "classes": [
    "Event::Label"

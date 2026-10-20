@@ -245,7 +245,7 @@ Fusionada en `game/MapPartsOcean`.
 - Hallazgos MWCC: MWCC pone el puntero a la vtable detras de los miembros de datos declarados antes de la
   primera funcion virtual (boost `sp_counted_base`: contadores en 0/4, vptr en 8).
 
-## game/HomeButton_unk (commit HASH13)
+## game/HomeButton_unk (commit be4b98b)
 
 - Resultado: 6/8 al 100%, `matching: false`.
 - NONMATCHING:
@@ -268,3 +268,29 @@ Fusionada en `game/MapPartsOcean`.
     fichero propio del ejemplo HBM; se deja separado.
 - Hallazgos MWCC: `float s = 1.0f;` local no se propaga: `228.0f * -s` sale `lfs 1.0; fneg; fmuls`, y si
   el local esta en cada rama la constante se carga dentro de cada una.
+
+## Event/Channel (commit HASH14)
+
+- Resultado: 8/11 al 100%, `matching: false`.
+- NONMATCHING:
+  - `fn_8053A510__Q25Event7ChannelFi` 38% y `__dt__Q25Event7ChannelFv` 49% - copia/liberacion de
+    `boost::shared_ptr<Action>` con contadores atomicos (`lwarx/stwcx.`, asm de boost) en el original.
+  - `__sinit_\Channel_cpp` 93.6% - mismo problema que `Event/Label` (el valor por defecto del ultimo atributo
+    se guarda antes que su hash); aqui los registros coinciden con el original, asi que es el orden del IR.
+    Probado ademas: hash como clase con ctor + defecto escalar (`(int)""` sale estatico, no sirve).
+- **Decisiones sin el usuario**
+  - `include/Event/Action.h` nueva (`Action : Node`, 0x40, ctor `(Channel*, int)` en Event/Node);
+    `include/Event/Channel.h` declara `fn_8053A510` (crea y anade una accion) y el lector eliminado.
+  - Las funciones debiles que el original emite aqui por primera vez salen al 100%:
+    `sp_counted_base::destroy`, `sp_enable_shared_from_this`, `std::bad_alloc::~bad_alloc`/`what`,
+    `sp_counted_impl_p<Action>::dispose`/`get_deleter`/destructor.
+  - Funcion reconstruida `Channel::fn_Stripped_unk` (`path += "."`) por el pool, como en Label/Section.
+  - `symbols.txt`: `fn_8053A4DC` -> `__ct__Q25Event7ChannelFPQ25Event7Section`, `fn_8053A510` ->
+    `fn_8053A510__Q25Event7ChannelFi`, `fn_8053AD50` -> `__dt__Q25Event7ChannelFv`, `fn_8053AF34` ->
+    `__sinit_\Channel_cpp`, `fn_8053ACD8`/`fn_8053AD18` -> `__dt__`/`what__` de `std::bad_alloc`,
+    `fn_8053AD24`/`fn_8053AD48`/`fn_8053AEF4` -> `dispose`/`get_deleter`/`__dt__` de
+    `sp_counted_impl_p<Event::Action>`, `lbl_8075DA28` -> `@stringBase0` (0x68 -> 0x62),
+    `lbl_80793C0C` -> `@STRING@what__Q23std9bad_allocCFv`, `lbl_80793BF0` ->
+    `@STRING@__allocate__Q23std45vector<Q25boost27shared_ptr<Q25Event6Action>>FUi` (`scope:local`); en
+    Event/Node `fn_80537708` -> `__ct__Q25Event6ActionFPQ25Event7Channeli`, `fn_8053A40C` ->
+    `__dt__Q25Event6ActionFv`, `fn_8053A3CC` -> `vf0C__Q25Event6ActionFv` (por la vtable de Action).
