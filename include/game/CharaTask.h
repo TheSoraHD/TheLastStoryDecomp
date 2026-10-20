@@ -274,7 +274,9 @@ struct CharaRes_unk {
     int m04; // inferred: returned by fn_8017AC08
     unsigned char m08[0x30 - 0x08];
     float m30;
-    unsigned char m34[0x54 - 0x34];
+    float m34; // inferred: m30-m38 picked by the kind of the part in hand (AI/AiCommon_unk fn_8001BD14)
+    float m38;
+    unsigned char m3C[0x54 - 0x3C];
     float m54;
     unsigned char m58[0x88 - 0x58];
     int m88;

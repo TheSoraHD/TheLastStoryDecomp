@@ -24,7 +24,9 @@ struct HitInfo_unk {
     const char* m08;
     unsigned char m0C[0x10 - 0x0C];
     atn::Vector3 m10; // inferred: knockback direction
-    unsigned char m1C[0x48 - 0x1C];
+    unsigned char m1C[0x40 - 0x1C];
+    float m40; // inferred: range added to the character reach when m01 is 0 (AI/AiCommon_unk fn_8001BB04)
+    float m44; // inferred: range used otherwise
     int m48; // inferred: added to CharaTask::mFB4 by chr::ControlShoot
     float m4C; // inferred: speed of the bullet (gmk::FlamingArrow)
     unsigned char m50[0x58 - 0x50];

@@ -3091,6 +3091,11 @@
   "matching": true
  },
  {
+  "name": "AI/AiCommon_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/TargetPos_unk.cpp",
   "classes": [
    "AiTarget"
