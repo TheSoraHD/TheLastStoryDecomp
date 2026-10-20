@@ -95,7 +95,7 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
   - Bucle sobre un array miembro con contador aparte (`T** p = a; for (i...; i++, p++)`) da `addi rX, this, off`
     + `lwz 0(rX)`; con indice (`a[i]`) sale `mr rX, this` + `lwz off(rX)`. La busqueda de 6 elementos se desenrolla.
 
-## atn/Bgm_cont (commit HASH)
+## atn/Bgm_cont (commit 9333b72)
 
 - Resultado: 6/6 al 100%, fusionada en `atn/Bgm` (`matching: true`, `main.dol: OK`).
 - NONMATCHING: ninguna.
