@@ -201,6 +201,26 @@ Pista general: los ficheros reales del motor se llaman `atn_<nombre>.cpp` (caden
 - Sin tocar (sin pruebas o fuera de mi alcance): zona iostream de MSL 0x800E0B18-0x800E0B90 y 0x800E24CC-0x800E2A24 (`__sinit` 0x800E29B4,
   vtables de consola, unidades std/ ya existentes alrededor); fn_800F13BC (0x74, sin datos, entre BattleResult y BattleTask); fn_8007708C.
 
+## Grupo 6 (datos `auto_` de unidades del rango, `autoscan.py --data`, y zona iostream)
+
+- `std/allocator_char` (inferida) ampliada a 0x800E0B18-0x800E2A24: dtor de basic_ostream<char> y su thunk fn_800E2A10, resto de plantillas
+  debiles de iostream y el `__sinit` 0x800E29B4 (.ctors 0x8072D2C8) que registra los objetos de consola (igual que el `__sinit` de Motion_unk).
+  .rodata 0x807350E4-0x807351F8, .data 0x80779A08-0x80779AD8 (vtables basic_streambuf/basic_ostream, "ios_base failure in clear"),
+  .sdata 0x8087D960, .sbss 0x8087F020-0x8087F028, .bss 0x807C7810-0x807C7828.
+  Hallazgo: std/char_traits_char + std/allocator_char son en realidad la cola de plantillas debiles + `__sinit` (<iostream>) de un fichero
+  del juego anterior (probablemente el de WordWrap_unk); se dejan como unidades aparte para no romper nada.
+- `std/char_traits_char` (fuente): .rodata hasta 0x807350E4 ("std::ios_base"), .data hasta 0x80779A08 (RTTI ios_base).
+- `atn/WordWrap_unk`: .rodata hasta 0x807350A4 (nombre RTTI basic_ostream<char>), .data 0x807799A0-0x807799E0.
+- `game/AiTarget`: .rodata desde 0x8072FA00 (tablas/cadenas de debug "[TPC]", "[Enemy]"... y el objeto 0x8072FA00 que usa fn_80014A5C).
+- `atn/LayerShadow` (fuente): .rodata desde 0x80732ED0. `atn/ModelInstance` (fuente): .sbss 0x8087EF40-0x8087EF48.
+- `atn/CompositeIntensityTintMulti` (fuente): .bss 0x807C7800-0x807C7810. `atn/TextAnimation`: .rodata hasta 0x80734870, .data hasta 0x807798D8,
+  .sdata 0x8087D940-0x8087D960. `game/BattleCharaTask`: .rodata desde 0x807351F8 (cadenas SE_BTCOM_*, tabla, doubles, nombre bind_t),
+  .data 0x80779AD8-0x80779CA8 (jumptables, RTTI debil CharaTask, L"%d"). `game/BattleResult` (fuente): .sdata 0x8087D970-0x8087D978.
+- No asignados a proposito: datos de Sound3dListener_cont (0x8073401C-0x80734130) y de ComDrawTexture (0x80731140-0x80731160) porque van
+  antes que los de su unidad enlazada (ciclo de orden); .data 0x807B09F0... de GraphicsDevice (dentro del bloque GX, no contiguo).
+- **game/BattleTask cruza mi limite 0x800F7250**: en su zona de .data (0x80779CE0-0x80779DA0) hay jumptables de fn_800FDF14 y fn_801092C8
+  (tramo del agente B) y su .rodata 0x807355C8-0x80736018 (cadenas referenciadas desde su .sdata2) la usan tambien funciones de B. No toque sus datos.
+
 ## Decisiones tomadas sin el usuario
 - Nombres inventados: `Event/EventCommandDef_unk.cpp`, `AI/AiCommon_unk.cpp`, `game/TargetPos_unk.cpp`, `game/DamageCalc_unk.cpp`, `atn/Shader_unk.cpp`.
 - `atn/Sound3dListener_cont.cpp`: deberia fusionarse con atn/Sound3dListener al decompilar. dtk no deja que la parte `_cont` tenga
@@ -211,6 +231,9 @@ Pista general: los ficheros reales del motor se llaman `atn_<nombre>.cpp` (caden
   0x80035EB4-0x8003E688 no se parte en ficheros por clase: comparte el double 0x8072FF60 y el .sdata2 con el resto.
 
 ## Hallazgos
+- Aviso preexistente de dtk: "Alignment for std/runtime_error.cpp .rodata expected 8, but starts at 0x8072FCAC" (no lo introducen estos cambios).
+- Los `.s` de build/SLSP01/asm de tramos ya partidos no se borran al reconfigurar: las herramientas (xref, autoscan) los siguen leyendo.
+  Conviene borrar los `.s` mas antiguos que build/SLSP01/main.dol antes de reindexar.
 - La lista .ctors de 0x8072D2A4 en adelante da el orden y el final de cada fichero con `__sinit` (0x800082AC, 0x8003E688, 0x80041A50,
   0x80077058, 0x80081DC8, 0x800A291C, 0x800B6684, 0x800C41B4, 0x800D5714, 0x800E29B4 en este rango).
 - Una unidad `_cont` situada despues de una enlazada no puede tener datos en una seccion antes que los de la enlazada (dtk: "Cyclic dependency").
