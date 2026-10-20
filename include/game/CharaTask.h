@@ -8,6 +8,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/LH_Binary.h"
 #include "atn/LH_MotionSet.h"
+#include "atn/LH_MotionCommandData.h"
 #include "atn/SoundRef.h"
 #include "chr/Motion_unk.h"
 #include "game/CharaStatus.h"
@@ -231,18 +232,33 @@ struct CharaC58_unk {
 };
 
 
-// inferred: motion command player at CharaTask+0x1220 (holds an atn::LH_MotionCommandData and a
-// sound; constructor 0x80120F5C called out of line); name invented
+// inferred: motion command player at CharaTask+0x1220 (plays the effects, sounds and camera shakes
+// listed for the frames of the current motion; constructor 0x80120F5C called out of line). Names
+// invented; game/MotionCommand_unk.cpp
 struct MotionCommand_unk {
     MotionCommand_unk();  // 0x80120F5C
     ~MotionCommand_unk(); // 0x80121048
-    void fn_80121E14(int arg);
+    void fn_80121E14(int arg);          // inferred: stops the looping effect and sound
     void fn_801210B4(const char* path); // inferred: loads the motion commands
     int fn_801210C4();                  // inferred: nonzero while loading
     void fn_80121114(CharaTask* chara);
     void fn_8012111C(); // inferred: per-frame update (CharaTask::fn_80145334)
+    // inferred: runs the commands of `data` for the current frame; nonzero when one ran
+    int fn_8012133C(MotionCmdData_unk* data, int* found);
 
-    unsigned char m00[0x34];
+    CharaTask* mChara;      // 0x00
+    int m04;                // 0x04: inferred: motion id of the selected track
+    int m08;                // 0x08: inferred: selected track (largest weight)
+    int m0C;
+    unsigned char m10;      // inferred: enabled
+    unsigned char m11;      // inferred: sounds enabled
+    unsigned char m12;      // inferred: a command was found on the last update (run again)
+    atn::LH_MotionCommandData mLoader; // 0x14
+    MotionCmdData_unk* m20; // inferred: loaded data
+    atn::EfpHandle_unk* m24; // inferred: looping effect ("EFP_LOOP")
+    atn::SoundRef m28;      // inferred: looping sound ("SE_LOOP")
+    MtxPtr m2C;             // inferred: node the looping sound follows
+    unsigned int m30;       // inferred: motion resource id of the last update
 };
 
 // inferred: resource entry returned by fn_80204E04 (CharaTask::m68); name invented

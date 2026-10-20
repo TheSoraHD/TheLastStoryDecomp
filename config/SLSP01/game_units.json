@@ -477,6 +477,13 @@
   "matching": false
  },
  {
+  "name": "game/MotionCommand_unk.cpp",
+  "classes": [
+   "MotionCommand_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/CharaManager_PlayerTask.cpp",
   "classes": [
    "CharaManager<NpcTask>",

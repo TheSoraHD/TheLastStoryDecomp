@@ -3,7 +3,9 @@
 
 #include "atn/LoadHandle.h"
 
-extern "C" void fn_8011FFF8(); // inferred: motion command data parser (callback)
+struct MotionCmdData_unk;
+// inferred: motion command data parser (callback, game/MotionCommand_unk.cpp)
+extern "C" void fn_8011FFF8(MotionCmdData_unk* data, void* buffer, int size);
 
 namespace atn {
 

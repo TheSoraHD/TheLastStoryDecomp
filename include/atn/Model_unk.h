@@ -45,6 +45,7 @@ struct Model_unk {
     void fn_8009385C(int motion, bool play, int arg2, int arg3);  // inferred
     int fn_8008B140();                                // inferred: nonzero while loading
     int fn_80092814(const char* name, int arg);       // inferred: node index by name, < 0 if missing
+    int fn_800928B0(unsigned int hash, int arg);      // inferred: node index by name hash, < 0 if missing
 
     // inferred: matrix of node `index`, null for a missing node (inlined at 0x8049CCD4)
     MtxPtr GetNodeMtx_unk(int index) {

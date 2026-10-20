@@ -59,6 +59,21 @@ public:
         mSize = n;
         mCapacity = n;
     }
+    // inferred: same from the given heap; the weak copies of game/MotionCommand_unk.cpp
+    // (0x801204A8, 0x80120C30, 0x80120D44, 0x80120E48) take a third argument they never read
+    void Resize_unk(unsigned int n, int heap, int unused) {
+        T* data = (n != 0) ? new (heap, "", "", 0) T[n] : 0;
+        if (mData != 0) {
+            unsigned int count = (n > mSize) ? mSize : n;
+            for (unsigned int i = 0; i < count; i++) {
+                data[i] = mData[i];
+            }
+            delete[] mData;
+        }
+        mData = data;
+        mSize = n;
+        mCapacity = n;
+    }
     // inferred: copy of another vector (name invented; CharaTask::fn_8017B1C4)
     void Assign_unk(const Vector_unk& o) {
         clear();
