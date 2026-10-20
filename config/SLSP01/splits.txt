@@ -13,6 +13,14 @@ Sections:
 	.sdata2     type:rodata align:32
 	.sbss2      type:bss align:8
 
+Event/EventCommandDef_unk.cpp:
+	.text       start:0x800081C0 end:0x8000CBD0
+	.ctors      start:0x8072D2A4 end:0x8072D2A8
+	.rodata     start:0x8072D480 end:0x8072F890
+	.data       start:0x807704A0 end:0x807759B0
+	.sdata      start:0x8087D6C0 end:0x8087D6C8
+	.sdata2     start:0x808805A0 end:0x80880668
+
 Event/Puppeteer_CharaTask.cpp:
 	.text       start:0x8000CBD0 end:0x80013D60
 	.rodata     start:0x8072F8A8 end:0x8072F8E4
@@ -20,26 +28,49 @@ Event/Puppeteer_CharaTask.cpp:
 	.sdata2     start:0x80880668 end:0x808806A0
 
 game/AiTarget.cpp:
-	.text       start:0x800144FC end:0x800185B4
+	.text       start:0x800144FC end:0x8001A268
 	.rodata     start:0x8072FC78 end:0x8072FCAC
 	.data       start:0x80775AE0 end:0x80775B30
-	.sdata2     start:0x808806C0 end:0x80880744
+	.bss        start:0x807C66C0 end:0x807C68C0
+	.sdata2     start:0x808806B8 end:0x80880760
 
 std/runtime_error.cpp:
 	.text       start:0x8001A268 end:0x8001A444
 	.rodata     start:0x8072FCAC end:0x8072FD8C
 	.data       start:0x80775B30 end:0x80775BE8
 
+AI/AiCommon_unk.cpp:
+	.text       start:0x8001A444 end:0x8001BF44
+	.rodata     start:0x8072FF50 end:0x8072FF60
+	.data       start:0x80775BE8 end:0x80775C48
+	.sdata2     start:0x80880760 end:0x80880798
+
 AI/AI_archer_attack01.cpp:
-	.text       start:0x80025DE0 end:0x80035EB4
-	.rodata     start:0x8072FF78 end:0x8073078C
-	.data       start:0x80775C84 end:0x80777288
-	.sdata2     start:0x808807B4 end:0x808807B8
+	.text       start:0x8001BF44 end:0x8003E918
+	.ctors      start:0x8072D2A8 end:0x8072D2AC
+	.rodata     start:0x8072FF60 end:0x80730C68
+	.data       start:0x80775C48 end:0x807772B0
+	.bss        start:0x807C68C0 end:0x807C6B90
+	.sdata      start:0x8087D6F0 end:0x8087D6F8
+	.sdata2     start:0x80880798 end:0x808807C0
+
+game/TargetPos_unk.cpp:
+	.text       start:0x8003E918 end:0x8003EA3C
+	.sdata2     start:0x808807C0 end:0x808807C8
+
+game/DamageCalc_unk.cpp:
+	.text       start:0x8003EA3C end:0x80041A80
+	.ctors      start:0x8072D2AC end:0x8072D2B0
+	.rodata     start:0x80730C68 end:0x80730C78
+	.bss        start:0x807C6B90 end:0x807C6BC8
+	.sbss       start:0x8087EE70 end:0x8087EE78
+	.sdata2     start:0x808807C8 end:0x80880830
 
 game/AreaEffConfig.cpp:
-	.text       start:0x80041A80 end:0x80042E20
-	.rodata     start:0x80730C84 end:0x80730CB4
-	.data       start:0x807772D0 end:0x80777320
+	.text       start:0x80041A80 end:0x8004318C
+	.rodata     start:0x80730C78 end:0x80730D48
+	.data       start:0x807772B0 end:0x80777358
+	.sdata      start:0x8087D6F8 end:0x8087D700
 	.sdata2     start:0x80880830 end:0x80880838
 
 game/ArenaTask.cpp:
@@ -62,9 +93,11 @@ atn/AABBTree.cpp:
 	.sdata2     start:0x80880868 end:0x80880870
 
 atn/AudioDevice.cpp:
-	.text       start:0x800463FC end:0x80046EE0
-	.rodata     start:0x80730F40 end:0x80730F54
-	.data       start:0x80777520 end:0x80777538
+	.text       start:0x80046220 end:0x8004AD9C
+	.rodata     start:0x80730F38 end:0x80731028
+	.data       start:0x80777520 end:0x80777570
+	.sdata      start:0x8087D718 end:0x8087D720
+	.sdata2     start:0x80880870 end:0x80880890
 
 atn/Bgm.cpp:
 	.text       start:0x8004AD9C end:0x8004AE84
@@ -216,15 +249,37 @@ atn/SequenceControl.cpp:
 	.rodata     start:0x807337F0 end:0x80733810
 	.data       start:0x807792C0 end:0x807792F8
 
+atn/SequenceHolder.cpp:
+	.text       start:0x800C37FC end:0x800C41D0
+	.ctors      start:0x8072D2C0 end:0x8072D2C4
+	.rodata     start:0x80733810 end:0x80733878
+	.data       start:0x807792F8 end:0x80779348
+	.sbss       start:0x8087EFC8 end:0x8087EFE0
+
+atn/Shader_unk.cpp:
+	.text       start:0x800C41D0 end:0x800C6128
+	.rodata     start:0x80733878 end:0x80733FF8
+	.data       start:0x80779348 end:0x807794A8
+	.bss        start:0x807C75A0 end:0x807C75B0
+	.sdata      start:0x8087D920 end:0x8087D930
+	.sdata2     start:0x80881140 end:0x80881158
+
 atn/SoftKeyboardBase_wchar_t_0.cpp:
-	.text       start:0x800C63D8 end:0x800C6E60
+	.text       start:0x800C6128 end:0x800C7DC4
 	.rodata     start:0x80733FF8 end:0x8073401C
-	.data       start:0x807794D8 end:0x807794F8
+	.data       start:0x807794A8 end:0x807794F8
+	.sdata2     start:0x80881158 end:0x80881160
 
 atn/Sound3dListener.cpp:
 	.text       start:0x800C7DC4 end:0x800C8278
 	.rodata     start:0x80734130 end:0x8073416C
 	.data       start:0x807794F8 end:0x80779570
+
+atn/Sound3dListener_cont.cpp:
+	.text       start:0x800C8278 end:0x800CAD9C
+	.rodata     start:0x8073416C end:0x80734188
+	.data       start:0x80779570 end:0x807795C0
+	.sdata2     start:0x80881160 end:0x80881180
 
 atn/Sound3dEngine.cpp:
 	.text       start:0x800CAD9C end:0x800CB360
