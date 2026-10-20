@@ -199,14 +199,14 @@ void D2AMpMenuSetRule::fn_804CDE1C(int state) {
         m68 = 0;
         m5C = state;
         if (prev == 3) {
-            fn_804ACAF8(D2ACommonDialog::sInstance);
-            fn_804ACDBC(D2ACommonDialog::sInstance);
+            D2ACommonDialog::sInstance->fn_804ACAF8();
+            D2ACommonDialog::sInstance->fn_804ACDBC();
         }
         switch (m5C) {
         case 1:
             vf1C();
-            Play_unk(m48, 1.0f);
-            Play_unk(m58, 1.0f);
+            Play_unk(m48, 0, 1.0f);
+            Play_unk(m58, 0, 1.0f);
             fn_804CECEC();
             UpdateListPos_unk();
             m68 = 0;
@@ -218,15 +218,15 @@ void D2AMpMenuSetRule::fn_804CDE1C(int state) {
             m68 = row;
             break;
         case 3:
-            fn_804AC96C(D2ACommonDialog::sInstance, 0, 1.0f, 1, 0);
-            fn_804ACD10(D2ACommonDialog::sInstance);
-            fn_804AD000(D2ACommonDialog::sInstance, lbl_8087F1E4->Get_unk(0x37D), 0);
+            D2ACommonDialog::sInstance->fn_804AC96C(0, 1.0f, 1, 0);
+            D2ACommonDialog::sInstance->fn_804ACD10();
+            D2ACommonDialog::sInstance->fn_804AD000(lbl_8087F1E4->Get_unk(0x37D), 0);
             m68 = row;
             break;
         case 4:
             vf20();
-            Play_unk(m48, -1.0f);
-            Play_unk(m58, -1.0f);
+            Play_unk(m48, 0, -1.0f);
+            Play_unk(m58, 0, -1.0f);
             break;
         case 5:
             fn_804CF078(0);
@@ -256,10 +256,10 @@ void D2AMpMenuSetRule::vf10() {
         break;
     case 3:
         if (D2ACommonDialog::sInstance->m4C != 0) {
-            if (fn_804AC79C(D2ACommonDialog::sInstance) != 0) {
+            if (D2ACommonDialog::sInstance->fn_804AC79C() != 0) {
                 fn_804CEF84();
                 fn_804CDE1C(2);
-            } else if (fn_804AC7EC(D2ACommonDialog::sInstance) != 0) {
+            } else if (D2ACommonDialog::sInstance->fn_804AC7EC() != 0) {
                 fn_804CDE1C(2);
             }
         }
@@ -351,7 +351,7 @@ void D2AMpMenuSetRule::fn_804CE82C(int row, int before, int after, int dir) {
         fn_800DD3FC(textBefore, lbl_8087F86C->Get_unk(0xDA), sTimes[before]);
         fn_800DD3FC(textAfter, lbl_8087F86C->Get_unk(0xDA), sTimes[after]);
     }
-    Play_unk(m4C[row], dir);
+    Play_unk(m4C[row], 0, dir);
     SetPaneText_unk(m4C[row]->mLayout, "conf_before(1)", textBefore);
     SetPaneText_unk(m4C[row]->mLayout, "conf_after(1)", textAfter);
     if (dir > 0) {

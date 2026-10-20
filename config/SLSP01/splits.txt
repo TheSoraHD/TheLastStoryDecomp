@@ -1776,9 +1776,11 @@ game/MiniMapTask.cpp:
 	.sdata2     start:0x80887254 end:0x808872B0
 
 MP/D2ACommonDialog.cpp:
-	.text       start:0x804AC488 end:0x804ADCAC
-	.rodata     start:0x80757820 end:0x80757834
+	.text       start:0x804AC430 end:0x804ADCAC
+	.rodata     start:0x80757820 end:0x80757A30
 	.data       start:0x80790888 end:0x807908C0
+	.sdata      start:0x8087E0E8 end:0x8087E0F0
+	.sbss       start:0x8087F588 end:0x8087F590
 	.sdata2     start:0x808872D0 end:0x80887308
 
 MP/CryptMP.cpp:

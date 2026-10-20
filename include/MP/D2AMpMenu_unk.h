@@ -81,11 +81,11 @@ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text)
     fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
 // inferred: starts playing an anime at `speed`
-inline void Play_unk(MpD2A_unk* task, float speed) {
+inline void Play_unk(MpD2A_unk* task, int repeat, float speed) {
     if (task != 0) {
         task->fn_800D246C(0);
         task->mSpeed = speed;
-        task->mRepeat = 0;
+        task->mRepeat = repeat;
     }
 }
 
