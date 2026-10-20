@@ -108,7 +108,7 @@ Fusionada en `game/MapPartsOcean`.
 - Hallazgos MWCC: las copias debiles (destructor de `CharaListeners_unk` y de su `std::vector`) quedan en el
   .o entre funciones propias y el enlazador las descarta sin romper el `.dol` (existen antes en 0x8003EFB0...).
 
-## game/MapPartsFactory (commit HASH6)
+## game/MapPartsFactory (commit 2556bc6)
 
 - Resultado: 2/2 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
@@ -120,3 +120,15 @@ Fusionada en `game/MapPartsOcean`.
   - `symbols.txt`: `lbl_80756A10` -> `@stringBase0` (0x48 -> 0x43).
 - Hallazgos MWCC: el ultimo `if` de una cadena de `return` que sale `li r3,1; beq; li r3,-1` se escribe
   `if (x != 0) return -1; return 1;` (con `== 0` salen invertidos).
+
+## game/PlayerTask (commit HASH7)
+
+- Resultado: 6/6 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - Mismo esquema que `game/EnemyTask` (q7): creador estatico `PlayerTask::fn_8054A3DC(parent, type, data)`
+    (si `fn_8020924C((int)data)->m24 == 0x42` crea un `FriendArganan`; el ctor de PlayerTask se autoinlinea
+    en el creador), ctor/dtor con `CharaManager<PlayerTask>` `lbl_8087F8A0` (`NextId_unk`, `Add_unk`,
+    `Remove_unk`), lista enlazada `mNext` y `fn_8054A68C` (jugador anterior, el ultimo para el primero).
+  - `include/game/PlayerTask.h`: declarados `fn_8054A3DC` y `fn_8054A68C`.
+  - `symbols.txt`: `fn_8054A3DC` -> `fn_8054A3DC__10PlayerTaskFPQ23atn4TaskiPv`, `fn_8054A68C` ->
+    `fn_8054A68C__10PlayerTaskFv`, `lbl_8075E478` -> `@stringBase0` (0x8 -> 0x1).

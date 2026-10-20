@@ -2643,6 +2643,13 @@
   "matching": false
  },
  {
+  "name": "game/PlayerTask.cpp",
+  "classes": [
+   "PlayerTask"
+  ],
+  "matching": true
+ },
+ {
   "name": "game/PopupTask.cpp",
   "classes": [
    "PopupTask"
