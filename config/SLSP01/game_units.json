@@ -390,6 +390,11 @@
   "matching": false
  },
  {
+  "name": "game/BattleCalc_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
   "name": "game/BattleCharaTask.cpp",
   "classes": [
    "BattleCharaTask"
