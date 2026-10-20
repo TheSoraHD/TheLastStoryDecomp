@@ -18,7 +18,6 @@ public:
     D2A_Data mData; // 0x48
 };
 } // namespace atn
-extern "C" MenuCursor_unk* fn_80202A6C(atn::Task* parent, const char* path, int arg);
 extern "C" MenuLayout_unk* fn_801F64D0(atn::Task* parent, const char* path);
 extern "C" void fn_805115D0(MenuD2A_unk* anime, int arg1, int arg2, float a, float b);
 extern "C" void fn_805114D4(atn::Task* anime, int arg1, int arg2, float a, float b);
@@ -92,7 +91,7 @@ MenuCommonTask::MenuCommonTask(atn::Task* parent)
     m68 = 0;
     m74 = -1;
     for (int i = 0; i < 4; i++) {
-        m78[i] = fn_80202A6C(this, "/data/d2anime/camp_cursor.d2a", 1);
+        m78[i] = (MenuCursor_unk*)atn::D3AnimeInstance::Create(this, "/data/d2anime/camp_cursor.d2a", 1);
         m78[i]->fn_800D246C(1);
     }
     int i;

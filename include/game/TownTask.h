@@ -4,6 +4,7 @@
 #include "game/MapTask.h"
 #include "game/ResHandle.h"
 #include "math/Vec.h"
+#include "atn/LH_Binary.h"
 #include "std/string.h"
 #include "std/vector.h"
 
@@ -81,6 +82,8 @@ public:
     void fn_805B7B04(const atn::Vector3& pos); // inferred: sets the position
     void fn_805B7B24();
     void fn_805B8DB4(int arg);
+    // inferred: the loader at 0x58 holds the minimap csv (name invented)
+    atn::LH_Binary* GetBinary_unk() { return (atn::LH_Binary*)m58; }
 
     ResHandle m11C; // inferred: debug menu group
     int m120;       // inferred: initialized flag

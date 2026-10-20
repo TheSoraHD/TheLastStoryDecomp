@@ -1,5 +1,7 @@
 #include "game/TownTask.h"
 #include "atn/Memory.h"
+#include "atn/Csv.h"
+#include "atn/LH_Binary.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -98,7 +100,92 @@ void TownTask::vf14() {
     MapTask::vf14();
 }
 
-// NONMATCHING: fn_805B7B24 (0x58C) is not written yet
+// inferred: list of the blocks shown with a block (block ids, -1 = none); names invented
+struct TownBlockList_unk {
+    TownBlockList_unk() {
+        for (int i = 0; i < 9; i++) {
+            m[i] = -1;
+        }
+    }
+    int m[9];
+};
+// inferred: element of the block trees (key, list)
+struct TownPair_unk {
+    TownPair_unk(const int& key, const TownBlockList_unk& list) : mKey(key), mList(list) {}
+    int mKey;
+    TownBlockList_unk mList;
+};
+
+inline TownPair_unk TownMakePair_unk(const int& key, const TownBlockList_unk& list) {
+    return TownPair_unk(key, list);
+}
+
+extern "C" TownNode_unk* fn_805B80B0(TownTree_unk* tree, const int* key, TownNode_unk** found, bool* left,
+                                     bool* first);
+extern "C" TownNode_unk* fn_805B9838(TownTree_unk* tree, TownNode_unk* parent, bool left, bool first,
+                                     const TownValue_unk* value);
+
+// inferred: map::operator[] of the block trees (names invented)
+inline TownPair_unk& TownTreeAt_unk(TownTree_unk* tree, const int& key, TownNode_unk*& found) {
+    bool left;
+    bool first;
+    TownNode_unk* parent = fn_805B80B0(tree, &key, &found, &left, &first);
+    TownPair_unk* pair;
+    if (found == 0 || (pair = (TownPair_unk*)&found->mValue, pair->mKey < key)) {
+        TownNode_unk* node =
+            fn_805B9838(tree, parent, left, first, (const TownValue_unk*)&TownPair_unk(key, TownBlockList_unk()));
+        pair = (TownPair_unk*)&node->mValue;
+    }
+    return *pair;
+}
+
+extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int atoi(const char* s);
+extern "C" double strtod(const char* s); // inferred: called without the end pointer argument
+extern "C" int sscanf(const char* s, const char* format, ...);
+
+// inferred: reads a list of blocks ("xx_zz" fields up to an empty one) into a block tree (name invented)
+static void ReadBlockList_unk(TownTask* town, atn::CsvTab& csv, TownTree_unk* tree) {
+    const char* field = csv.fn_8005B9CC();
+    int x = -1;
+    int z = -1;
+    TownNode_unk* found;
+    TownBlockList_unk list;
+    int i = 0;
+    do {
+        sscanf(field, "%02d_%02d", &x, &z);
+        list.m[i++] = x + z * town->m138;
+        field = csv.fn_8005B9CC();
+    } while (strcmp("", field) != 0);
+    TownTreeAt_unk(tree, list.m[0], found).mList = list;
+}
+
+// inferred: reads the town description (minimap csv already loaded at 0x58)
+void TownTask::fn_805B7B24() {
+    atn::CsvTab csv((const char*)GetBinary_unk()->fn_80470580(), GetBinary_unk()->fn_8047059C());
+    csv.fn_8005BCE8(lbl_8087D710);
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "MAPS") == 0) {
+            m158 = csv.fn_8005B9CC();
+        } else if (strcmp(key, "PATTERN") == 0) {
+            m14C = csv.fn_8005B9CC();
+        } else if (strcmp(key, "SIZE") == 0) {
+            m138 = atoi(csv.fn_8005B9CC());
+            m13C = atoi(csv.fn_8005B9CC());
+            m134 = strtod(csv.fn_8005B9CC());
+        } else if (strcmp(key, "ORIGIN") == 0) {
+            m140.x = strtod(csv.fn_8005B9CC());
+            m140.y = strtod(csv.fn_8005B9CC());
+            m140.z = strtod(csv.fn_8005B9CC());
+        } else if (strcmp(key, "BLOCKVIS") == 0) {
+            ReadBlockList_unk(this, csv, &m230);
+        } else if (strcmp(key, "BLOCKSHOW") == 0) {
+            ReadBlockList_unk(this, csv, &m240);
+        }
+    } while (csv.fn_8005BBF8() != 0);
+}
 
 // inferred: lower bounds of the block coordinates (globals of another file)
 extern "C" int lbl_8087E6F8;
