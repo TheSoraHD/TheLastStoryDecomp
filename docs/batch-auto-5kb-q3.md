@@ -93,7 +93,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
     `srwi. ctr,count,3` + resto `andi.`; `for (i = 0; i < count; i++)` da el esquema generico (comprobacion de
     desbordamiento con 0x7FFFFFFE y `count - 8`).
 
-## atn/NumberFormat_unk (commit HASH4)
+## atn/NumberFormat_unk (commit 87693a3)
 
 - Resultado: 3/4 al 100%, `matching: false`. `main.dol: OK`.
 - NONMATCHING: `fn_800DD3FC` 99.39% - solo reparto de registros (`text`/`num`/`number`); el resto (estructura del
