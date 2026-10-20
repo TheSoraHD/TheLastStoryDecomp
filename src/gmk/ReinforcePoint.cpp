@@ -115,9 +115,10 @@ void ReinforcePoint::vf28() {
     mRespawn = (mDesc->m28 >> 1) & 1;
 }
 
-// NONMATCHING: 99.7% - register allocation in the desc->m30 == 3 branch (the two position copies, the
-// route table pointer and the place search loop use other registers). Tried: if/ternary/inline
-// helper for the search, declaration orders, direct global access.
+// NONMATCHING: 99.8% - register allocation in the desc->m30 == 3 branch (the two position addresses,
+// the global and the place search loop use other volatile registers). Tried: if/ternary/inline
+// helper for the search, declaration orders (table before place fixes table/place), id local,
+// copy constructors.
 void ReinforcePoint::vf10() {
     if (mChara == 0 || mChara->mFlag2 || vf60() == 0) {
         if (mChara != 0 && HasCharaFlag_unk(mChara, 0x80000)) {
@@ -225,8 +226,8 @@ void ReinforcePoint::vf10() {
     } else if (mDesc->m30 == 3) {
         atn::Vector3 to = mDesc->mPos;
         atn::Vector3 from = mDesc->mPos;
-        RoutePlace_unk* place = 0;
         RouteTable_unk* table = lbl_8087F430->m10D8;
+        RoutePlace_unk* place = 0;
         if (table != 0) {
             place = table->FindPlace_unk(mDesc->m38);
         }
