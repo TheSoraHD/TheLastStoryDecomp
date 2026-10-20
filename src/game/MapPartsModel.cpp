@@ -14,7 +14,14 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" int fn_800709F4(const MapPartsBox_unk* box, const atn::Vector3* pos); // inferred: pos inside box
 
 // inferred: inserts a box into the map tree (atn/AABBTree.cpp)
-extern "C" Model_unk::TreeEntry_unk fn_80045A24(MapPartsTree_unk* tree, const MapPartsBox_unk& box);
+namespace atn {
+struct AABB_unk;
+// inferred: only the member used here (full class in src/atn/AABBTree.cpp)
+class AABBTree {
+public:
+    Model_unk::TreeEntry_unk fn_80045A24(const AABB_unk* box);
+};
+} // namespace atn
 extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
 
 // inferred: camera (lbl_8087EFB4)
@@ -258,7 +265,7 @@ MapPartsBox_unk MapPartsModel::vf24(MapPartsTree_unk* tree) {
         box.mMin = atn::Vector3(res->mMin);
         box.mMax = atn::Vector3(res->mMax);
         if (tree != 0) {
-            Model_unk::TreeEntry_unk e = Model_unk::TreeEntry_unk(fn_80045A24(tree, box));
+            Model_unk::TreeEntry_unk e = Model_unk::TreeEntry_unk(((atn::AABBTree*)tree)->fn_80045A24((const atn::AABB_unk*)&box));
             mModel.m200 = Model_unk::TreeEntry_unk(e);
         }
     } else {
