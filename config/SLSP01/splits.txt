@@ -567,9 +567,9 @@ game/CosEditProtector.cpp:
 
 game/CostumeEditChara.cpp:
 	.text       start:0x801E7FF8 end:0x801E9218
-	.rodata     start:0x8073CB78 end:0x8073CB8C
+	.rodata     start:0x8073CB78 end:0x8073CBD0
 	.data       start:0x807828C8 end:0x80782900
-	.sdata2     start:0x80882B1C end:0x80882B30
+	.sdata2     start:0x80882B10 end:0x80882B30
 
 game/CrossbowMenuTask.cpp:
 	.text       start:0x801E9398 end:0x801EA4B0
