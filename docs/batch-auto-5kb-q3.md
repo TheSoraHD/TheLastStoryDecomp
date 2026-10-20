@@ -141,7 +141,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - El mismo cuerpo escrito como funcion normal o como inline llamada desde un envoltorio `extern "C"` asigna
     los FPR en orden distinto (atof: solo la version inline casa los registros de `value`/`scale`).
 
-## atn/D2A_MessageTable_unk (commit HASH6)
+## atn/D2A_MessageTable_unk (commit 595201a)
 
 - Resultado: 5/6 al 100%, `matching: false`. `main.dol: OK`.
 - NONMATCHING: `fn_801F36C8` 93.49% (lector del CSV con `std::vector` de lineas y `push_back` inlineado):
