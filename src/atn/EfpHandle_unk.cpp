@@ -5,7 +5,7 @@
 // swapper of the effect files. Name of the file invented.
 
 struct EffectRes_unk;
-extern "C" int fn_802386FC(void* res); // inferred: (EffectRes_unk.cpp)
+extern "C" int fn_802386FC(void* res, int frames); // inferred: (EffectRes_unk.cpp)
 
 namespace atn {
 // inferred: only the two methods used here (see src/atn/EffectManager.cpp)
@@ -18,25 +18,7 @@ public:
 
 extern "C" atn::EffectManager* lbl_8087F3C0; // inferred: EffectManager instance
 
-namespace std {
-// inferred: the static objects of <iostream> (MSL): fn_8068B770 builds cin/cout/cerr on __files,
-// fn_8068BD60 the wide streams. Names invented except ios_base.
-class ios_base {
-public:
-    class Init {
-    public:
-        Init();
-        ~Init();
-    };
-};
-class __wInit_unk {
-public:
-    __wInit_unk();
-    ~__wInit_unk();
-};
-static ios_base::Init __msl_ios_init_unk;
-static __wInit_unk __msl_wios_init_unk;
-} // namespace std
+#include "std/ios_init_unk.h"
 
 // inferred: byte swap description of a binary structure: list of {type, count} terminated by
 // type -1; type 0 skips `count` bytes, 1/2/3 swap `count` 16/32/64-bit values, 4 repeats the
@@ -141,10 +123,10 @@ void ResLoader_unk::fn_8023772C() {
     }
 }
 
-// inferred: (ResLoader_unk) value computed by the effect resource, 0 without resource
-extern "C" int fn_80237784(ResLoader_unk* loader) {
+// inferred: (ResLoader_unk) length of the effect played for `frames` frames, 0 without resource
+extern "C" int fn_80237784(ResLoader_unk* loader, int frames) {
     if (loader->mResource != 0) {
-        return fn_802386FC(loader->mResource);
+        return fn_802386FC(loader->mResource, frames);
     }
     return 0;
 }

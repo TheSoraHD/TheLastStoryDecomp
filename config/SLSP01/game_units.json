@@ -1164,6 +1164,11 @@
   "matching": true
  },
  {
+  "name": "atn/EffectSequencer_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/Em001Necromancer.cpp",
   "classes": [
    "Em001Necromancer"

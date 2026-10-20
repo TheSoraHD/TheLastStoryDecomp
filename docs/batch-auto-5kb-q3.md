@@ -159,3 +159,35 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
     como bytes y destruir; copiada del patron de `game/MenuCommonTask.cpp`).
   - Nombre real propuesto: entre `atn_d2a_message` y `atn_d2a_reference` (p. ej. `atn_d2a_messagetable.cpp`).
 - Hallazgos MWCC: ninguno nuevo.
+
+## atn/EffectSequencer_unk (commit HASH7)
+
+- Resultado: 13/14 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_802440F0__11EfpData_unkFv` 95.55% (longitud de la secuencia): solo registros (elemento y su
+  desplazamiento intercambiados r30/r31); probados ordenes de declaracion, referencias y helpers inline.
+- **Decisiones sin el usuario**
+  - Splits: el `.text` empieza en 0x8024373C (absorbe `EfpData_unk::EfpData_unk()` del `_cont`, ver arriba).
+  - `symbols.txt`: pairnames (`fn_802438C4`, `fn_80243EF0` -> `GetType_unk__14TextParser_unkFv`, `fn_80243EF8`
+    -> `fn_DegToRad_unk__FPf`, `fn_80243F24` -> `__dt__14TextParser_unkFv`, `fn_8024405C` -> ctor de
+    `EfpElem_unk`, `fn_802440F0`, `__sinit`), a mano `fn_802438D4`/`fn_80243FAC` -> metodos de `EfpData_unk`.
+    Fuera de la unidad (necesarios para casar las llamadas): `fn_800E0CF0` -> `__ct__14TextParser_unkFPvPv`
+    (lector de ficheros de texto con etiquetas, en `std/allocator_char`) y `fn_800E19AC` -> ctor copia de
+    `std::string` (`__ct__Q23std59basic_string<c,...>FRCQ23std59basic_string<c,...>`, su copia debil).
+    Datos: `lbl_80743140` -> `@stringBase0` (0xA9), `lbl_8087DC20/24` -> `@STRING@fn_80243FAC...@0`/`@STRING@...`
+    (tamano 0x4 -> 0x1, como los `@STRING@` vecinos de EffectManager).
+  - Cabeceras nuevas: `include/atn/EfpData_unk.h` (`EfpElem_unk` de 0x54 con todos sus campos y `EfpData_unk`;
+    `atn/LH_Efp.cpp` conserva su definicion local con `Buffer_unk`, ver nota en la cabecera) y
+    `include/std/ios_init_unk.h` (estaticos de `<iostream>`, ahora tambien en `EfpHandle_unk.cpp`).
+  - `EfpHandle_unk.cpp`: `fn_80237784` recibe el segundo argumento (fotogramas) que pasa a `fn_802386FC`
+    (sigue al 100%).
+  - Tipo inferido `TextParser_unk` (lector de texto: tipo de token 1 abre bloque, 2 cierra; sus funciones
+    siguen `extern "C"` salvo el ctor).
+  - Nombre real propuesto: `atn_effect_sequencer.cpp` (pool "EffectSequencer"...).
+- Hallazgos MWCC
+  - El presupuesto de inlining depende de la forma de las expresiones de las inline candidatas: con
+    `v[0] *= k` la funcion grande inlineaba todo; con `x = v[0]; x = k * x; v[0] = x` supera el presupuesto y
+    todo sale fuera de linea como en el original.
+  - Un miembro con destructor inline hace que el constructor emita la copia debil de ese destructor justo detras
+    (aunque `-Cpp_exceptions off`).
+  - Literales `""` de un `new (heap, "", "", 0)` en `.sdata` (y no en `@stringBase0`) = la funcion es `inline`
+    (o plantilla); marcarla `inline` (aunque se emita debil) los coloca bien y conserva el orden de emision.
