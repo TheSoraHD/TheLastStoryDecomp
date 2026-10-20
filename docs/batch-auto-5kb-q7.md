@@ -47,7 +47,7 @@ Fusionada en `game/FriendManager`.
   - Tipo local `AiSettings_unk` para `lbl_8087F0A8` (solo `mA4`). `CharaStatus::m14` se lee con cast a `unsigned` (el original usa `cmplwi`); no se cambia la cabecera.
 - Hallazgos MWCC: un clamp que reevalua la llamada en cada rama (`f()` llamada hasta 3 veces) sale de macros `MIN(MAX(e, 0), 1)` sin locales.
 
-## game/HomeButtonMenu (commit HASH_HB)
+## game/HomeButtonMenu (commit 303f02c)
 
 - Resultado: 4/5 al 100%, `matching: false`.
 - NONMATCHING: `fn_80440994__14HomeButtonMenuFv` 83.4% - planificacion del calculo de la relacion de pantalla (el original copia el tamano 64 con `fmr` y calcula `sy` tras `k * sx`; mismo problema que `StrapTask::vf14`). Con un helper inline que recibe el tamano, la funcion pasa a inlinearse en `fn_8044073C`.
@@ -56,3 +56,10 @@ Fusionada en `game/FriendManager`.
   - `symbols.txt`: `fn_804405F8` -> `fn_804405F8__14HomeButtonMenuFPv` (crea el singleton), `fn_804406C4` -> `__dt__14HomeButtonMenuFv`, `fn_8044073C` -> `fn_8044073C__14HomeButtonMenuFv`, `fn_80440990` -> `vf10__14HomeButtonMenuFPv`, `fn_80440994` -> `fn_80440994__14HomeButtonMenuFv`, `lbl_8087F4E8` -> `sInstance__14HomeButtonMenu`, `lbl_807544E0` -> `@stringBase0` (tamano 0x20 -> 0x1E, `scope:local data:string_table`).
   - Clase inferida `HomeButtonMenu : atn::IRender` (0xD4 bytes; `IRender` declarada localmente como en otras unidades). El constructor no es `inline` (su literal va en `@stringBase0`) y se define despues de `fn_804405F8` para que el pool empiece por `""`.
   - `game/HomeButton_unk` (siguiente unidad, 0x80440B24-0x80441590) contiene las funciones HBM que usa esta clase (`fn_80440F64`, `fn_804410C0`, `fn_80441170`, `fn_804411DC`, `fn_804413D4`); sigue como unidad aparte (1.0f propio).
+
+## Event/BehaviorMoveTo (commit HASH_MT)
+
+- Resultado: 1/2 al 100%, `matching: false`.
+- NONMATCHING: `vf0C__Q25Event14BehaviorMoveToFPQ25Event13ActionArg_unki` 97.8% - en `case 6` el desplazamiento y el puntero de la busqueda inline del actor intercambian r4/r5 (mismo problema que `BehaviorFollow::vf0C`; probadas 7 variantes).
+- **Decisiones sin el usuario**
+  - `symbols.txt`: `fn_8010E60C` -> `vf0C__Q25Event14BehaviorMoveToFPQ25Event13ActionArg_unki`, `fn_8010E7B8` -> `vf08__Q25Event14BehaviorMoveToFPQ25Event13ActionArg_unk` (por la vtable; mismo orden de fuente que BehaviorFollow).

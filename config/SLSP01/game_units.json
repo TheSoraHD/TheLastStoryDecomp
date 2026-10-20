@@ -449,6 +449,13 @@
   "matching": true
  },
  {
+  "name": "Event/BehaviorMoveTo.cpp",
+  "classes": [
+   "Event::BehaviorMoveTo"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/Bullet.cpp",
   "classes": [
    "BootTask",
