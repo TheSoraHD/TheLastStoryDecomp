@@ -101,7 +101,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - Un temporal devuelto por una inline (`ToGXColor_unk()`) va por debajo de la copia del argumento por valor; un local con nombre por encima.
   - `!(a != 2 && a != 3)` evita la fusion en `cmplwi` de `a == 2 || a == 3` (dos `cmpwi` + `beq`/`bne`).
 
-## atn/PostFxBloom (commit COMMIT_BLOOM)
+## atn/PostFxBloom (commit ed4d408)
 
 - Resultado: 1/3 al 100% (ctor), `matching: false`.
 - NONMATCHING:
@@ -117,3 +117,23 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - Parametros de bloom (`lbl_8087EFA8`) con nombres inferidos en un struct local (`BloomParams_unk`).
 - Hallazgos MWCC: la cadena `m[..] = ... = 0.0f` de `Matrix3x4::SetIdentity` reproduce el orden de stores del original
   (de la ultima a la primera); `float s = 0.0f; for (5) s += w[i];` mantiene el `0.0f +` que una expresion unica pliega.
+
+## atn/PostFxColorMatrix (commit COMMIT_CM)
+
+- Resultado: 2/4 al 100% (ctor, `fn_800AAE20`), `matching: false`.
+- NONMATCHING:
+  - `fn_800AA8DC` (actualizacion/interpolacion) 96.85% - registros FPR de los factores y planificacion de la desaturacion.
+  - `PostFxColorMatrix::vf10` 76% - estructura aproximada (busqueda de escala y colores K con temporales Vec4); no se ha iterado.
+- **Decisiones sin el usuario**:
+  - Split sin cambios.
+  - `symbols.txt`: `fn_800AAE2C` -> `vf10__Q23atn17PostFxColorMatrixFPv`.
+  - Los 10 floats de `.sdata` 0x8087D828-0x8087D850 (pares 0.0/1.0 usados como limites de clamp) quedan solo declarados
+    (`extern "C"`): MWCC solo deja un 0.0f en `.sdata` con `#pragma explicit_zero_data` (prohibido); la unidad no se
+    podria enlazar aunque el codigo llegase al 100%. Pendiente de decision del usuario.
+  - Tipos locales inventados: `ColorVec4_unk` (copia paired-single con `__Vec4Copy`), `ColorMatrix_unk` (0x50),
+    `ColorMatrixOwner_unk` (devuelto por `fn_800C1424`).
+- Hallazgos MWCC:
+  - Orden de inicializacion en una ctor inline (lista de inicializacion vs cuerpo) cambia la planificacion de los stores
+    de los miembros escalares respecto a las copias psq: con la lista de inicializacion sale el orden del original.
+  - `float a[4] = {x, y, z};` inicializa a cero con `stw` enteros las 4 palabras antes de escribir x, y, z.
+  - Un clamp contra variables globales escrito como expresion (no inline con parametros) carga cada limite justo antes de su comparacion.
