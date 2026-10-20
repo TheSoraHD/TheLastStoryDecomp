@@ -96,3 +96,22 @@ Se amplian (texto y datos `auto_` propios):
 | `game/Em203GreaterDaemon.cpp` | 0x80287E7C-0x80293738 | 16 |
 | `game/Em204Mulue.cpp` | 0x802A4BBC-0x802AC364 | 17 |
 | `game/Em401_01_WhiteLeoPard.cpp` | 0x8031EB3C-0x80322C68 | 10 |
+
+## Grupo 5 (0x80220168-0x80244228: Event debug, DialogHead, dlmalloc, sistema de efectos)
+
+| Tramo | Unidad | Prueba |
+|---|---|---|
+| 0x80220168-0x802251F8 | `Event/DebugInfo_unk.cpp` (nuevo, `.ctors` 0x8072D30C) | Pool propio 0x807428F4 ("Event Info:", "Cut List:", estados "playing"/"paused"...: volcado de depuracion de eventos); copias propias de las cadenas de basic_string; `__sinit` 0x80224A2C + destructores de arrays estaticos 0x8022513C-0x802251DC (registrados por ese `__sinit`). Nombre inventado. |
+| 0x802251F8-0x8022526C, 0x8022808C-0x802280B4 | `Event/DialogHead.cpp` ampliada | 0x802251F8 (creador `new DialogHead`) usa el pool 0x80742D7C de DialogHead; 0x8022808C-0x802280B4 son 5 funciones de su vtable. |
+| 0x80229DF0-0x8022B850 | `atn/DLMalloc_unk.cpp` (nuevo) | Sin datos propios salvo `.bss` 0x807C80B0; funciones llamadas solo desde `atn::DLAllocator` (malloc de Doug Lea: create_mspace/mspace_malloc/free). 0.0f/1.0f del siguiente fichero cambian de copia. Nombre inventado. |
+| 0x8022B850-0x80234A8C | `atn/EffectSystem_unk.cpp` (nuevo, `.ctors` 0x8072D310) | Metodos `EffectSystem_unk` (nombre del repo); constantes propias (0x808830D0...); `__sinit` 0x80234A60. |
+| 0x80234A8C-0x802371BC | `atn/EffectDesc_unk.cpp` (nuevo, `.ctors` 0x8072D314) | Pool "Effect"/"FadeNear"; 0.0f/1.0f nuevos; `__sinit` 0x802371AC. Nombre inventado. |
+| 0x802371BC-0x8023793C | `atn/EfpHandle_unk.cpp` (nuevo, `.ctors` 0x8072D318) | ctor `atn::EfpHandle_unk`, dtor `atn::LH_Effect`; `__sinit` 0x802378E0. |
+| 0x8023793C-0x80238808, 0x80238808-0x80239798 | `atn/EffectRes_unk.cpp`, `atn/EffectLoader_unk.cpp` (nuevos) | 0.0f/1.0f cambian de copia en 0x80238CA0 (posicion elegida 0x80238808 entre 0x802386FC y 0x80238CA0); pool "old eff version!" del cargador. Nombres inventados. |
+| 0x8023B9D0-0x8024372C | `std/char_traits_char_8023C080.cpp` ampliada (`.ctors` 0x8072D31C) | Plantillas `std::num_put`/`numpunct` y `__sinit` 0x80243700 (guards de ids de facetas). |
+| 0x8024372C-0x80243758 | `atn/EffectManager_cont.cpp` (nuevo) | Thunks de la vtable de `atn::EffectManager` (`fn_8024372C`, `fn_80243734`). |
+| 0x80243758-0x80244228 | `atn/EffectSequencer_unk.cpp` (nuevo, `.ctors` 0x8072D320) | Pool propio 0x80743140 ("EffectSequencer", "EffectLine", ...) pegado al de EffectManager (dos pools = dos ficheros); cadena "Effect" duplicada. |
+
+### Decisiones sin el usuario
+- **EffectManager**: las pruebas indican que el fichero real `EffectManager.cpp` va de 0x80239798 a 0x80243758 (incluye las plantillas std de 0x8023B9D0-0x8024372C y los thunks): su pool de cadenas 0x8074308C ("EfpInfoList", ...) esta detras de los nombres RTTI de num_put/numpunct, su `.sdata` 0x8087DC18 va detras del `.sdata` "inf"/"nan" de la parte std (dtk da ciclo de orden si se separan), y la vtable apunta a los thunks de 0x8024372C (el propio `src/atn/EffectManager.cpp` lo dice). No he fusionado porque `std/char_traits_char_8023C080.cpp` es una unidad existente de `game_units.json` (no se puede borrar sin tocarlo): la amplio a todo el tramo std y dejo los thunks como `atn/EffectManager_cont.cpp`. A revisar: fusionar las tres unidades en EffectManager. Por la misma razon el `.sdata` 0x8087DC10 ("inf"/"nan") y el pool 0x8074308C quedan en `auto_`.
+- `.sbss` de la unidad std ampliado a 0x8087F3D0 para incluir los guards compartidos 0x8087F3CC/0x8087F3CD (si no, `undefined` al enlazar).

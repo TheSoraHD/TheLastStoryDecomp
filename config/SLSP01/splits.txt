@@ -1045,10 +1045,19 @@ atn/ptr_string_base_char_0.cpp:
 	.sdata      start:0x8087DBA8 end:0x8087DBB0
 	.sdata2     start:0x80882FE8 end:0x80882FF0
 
+Event/DebugInfo_unk.cpp:
+	.text       start:0x80220168 end:0x802251F8
+	.ctors      start:0x8072D30C end:0x8072D310
+	.rodata     start:0x807428E0 end:0x80742D68
+	.data       start:0x807835F0 end:0x80783888
+	.bss        start:0x807C8088 end:0x807C80B0
+	.sdata2     start:0x80882FF0 end:0x80883020
+
 Event/DialogHead.cpp:
-	.text       start:0x8022526C end:0x8022808C
-	.rodata     start:0x80742D68 end:0x80742D7C
-	.data       start:0x807838A0 end:0x807839E0
+	.text       start:0x802251F8 end:0x802280B4
+	.rodata     start:0x80742D68 end:0x80742E48
+	.data       start:0x80783888 end:0x807839E0
+	.sdata      start:0x8087DBB0 end:0x8087DBB8
 	.sdata2     start:0x80883020 end:0x80883078
 
 Event/Dialog.cpp:
@@ -1056,6 +1065,44 @@ Event/Dialog.cpp:
 	.rodata     start:0x80742E48 end:0x80742F68
 	.data       start:0x807839E0 end:0x80783A18
 	.sdata2     start:0x80883078 end:0x808830D0
+
+atn/DLMalloc_unk.cpp:
+	.text       start:0x80229DF0 end:0x8022B850
+	.bss        start:0x807C80B0 end:0x807C8290
+
+atn/EffectSystem_unk.cpp:
+	.text       start:0x8022B850 end:0x80234A8C
+	.ctors      start:0x8072D310 end:0x8072D314
+	.rodata     start:0x80742F68 end:0x80742F98
+	.bss        start:0x807C8290 end:0x807C82D0
+	.sdata      start:0x8087DBE0 end:0x8087DBF8
+	.sbss       start:0x8087F360 end:0x8087F378
+	.sdata2     start:0x808830D0 end:0x80883118
+
+atn/EffectDesc_unk.cpp:
+	.text       start:0x80234A8C end:0x802371BC
+	.ctors      start:0x8072D314 end:0x8072D318
+	.rodata     start:0x80742F98 end:0x80742FD8
+	.sdata      start:0x8087DBF8 end:0x8087DC10
+	.sbss       start:0x8087F378 end:0x8087F3B8
+	.sdata2     start:0x80883118 end:0x80883140
+
+atn/EfpHandle_unk.cpp:
+	.text       start:0x802371BC end:0x8023793C
+	.ctors      start:0x8072D318 end:0x8072D31C
+	.bss        start:0x807C82D0 end:0x807C82E8
+	.sbss       start:0x8087F3B8 end:0x8087F3C0
+
+atn/EffectRes_unk.cpp:
+	.text       start:0x8023793C end:0x80238808
+	.rodata     start:0x80742FD8 end:0x80742FE0
+	.sdata2     start:0x80883140 end:0x80883150
+
+atn/EffectLoader_unk.cpp:
+	.text       start:0x80238808 end:0x80239798
+	.rodata     start:0x80742FE0 end:0x80742FF8
+	.data       start:0x80783A18 end:0x80783A50
+	.sdata2     start:0x80883150 end:0x80883160
 
 atn/EffectManager.cpp:
 	.text       start:0x80239798 end:0x8023B9D0
@@ -1065,9 +1112,23 @@ atn/EffectManager.cpp:
 	.sdata2     start:0x80883160 end:0x80883170
 
 std/char_traits_char_8023C080.cpp:
-	.text       start:0x8023C080 end:0x802411B8
-	.rodata     start:0x80743020 end:0x8074306C
-	.data       start:0x80783C20 end:0x80783C60
+	.text       start:0x8023B9D0 end:0x8024372C
+	.ctors      start:0x8072D31C end:0x8072D320
+	.rodata     start:0x80743020 end:0x8074308C
+	.data       start:0x80783C20 end:0x80783CC8
+	.sbss       start:0x8087F3C4 end:0x8087F3D0
+
+atn/EffectManager_cont.cpp:
+	.text       start:0x8024372C end:0x80243758
+
+atn/EffectSequencer_unk.cpp:
+	.text       start:0x80243758 end:0x80244228
+	.ctors      start:0x8072D320 end:0x8072D324
+	.rodata     start:0x80743140 end:0x807431F0
+	.bss        start:0x807C82E8 end:0x807C8300
+	.sdata      start:0x8087DC20 end:0x8087DC28
+	.sbss       start:0x8087F3D0 end:0x8087F3D8
+	.sdata2     start:0x80883170 end:0x80883180
 
 game/Em001Necromancer.cpp:
 	.text       start:0x80244228 end:0x80247674
