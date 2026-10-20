@@ -1756,7 +1756,7 @@ game/MarketTask.cpp:
 
 game/MenuCommonTask.cpp:
 	.text       start:0x804A29C4 end:0x804A7F18
-	.rodata     start:0x807573C0 end:0x80757650
+	.rodata     start:0x80757108 end:0x80757650
 	.data       start:0x807907DC end:0x80790818
 	.sbss       start:0x8087F580 end:0x8087F588
 	.sdata2     start:0x808871D0 end:0x80887254
