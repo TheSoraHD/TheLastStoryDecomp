@@ -1896,15 +1896,33 @@ MP/D2AMpMenuSetRule.cpp:
 	.sdata2     start:0x80887548 end:0x80887570
 
 atn/PacketPack.cpp:
-	.text       start:0x804F7F54 end:0x804FC7E0
-	.rodata     start:0x80759D30 end:0x80759E18
-	.data       start:0x80791570 end:0x80791740
-	.sdata2     start:0x808875DC end:0x80887678
+	.text       start:0x804CF190 end:0x804FF960
+	.ctors      start:0x8072D3A0 end:0x8072D3A4
+	.rodata     start:0x807596F0 end:0x8075A168
+	.data       start:0x80790F78 end:0x80791B20
+	.bss        start:0x807C8AE8 end:0x807C8F68
+	.sdata      start:0x8087E160 end:0x8087E430
+	.sbss       start:0x8087F5F8 end:0x8087F620
+	.sdata2     start:0x80887570 end:0x80887678
+
+MP/NetGlobals_unk.cpp:
+	.text       start:0x804FF960 end:0x804FF9BC
+	.ctors      start:0x8072D3A4 end:0x8072D3A8
+	.bss        start:0x807C8F68 end:0x807C8F80
+	.sbss       start:0x8087F620 end:0x8087F638
 
 MP/func_enter_setting.cpp:
-	.text       start:0x804FFE04 end:0x80500734
-	.rodata     start:0x8075A168 end:0x8075A180
-	.data       start:0x80791C28 end:0x80791C60
+	.text       start:0x804FF9BC end:0x805010C0
+	.ctors      start:0x8072D3A8 end:0x8072D3AC
+	.rodata     start:0x8075A168 end:0x8075A858
+	.data       start:0x80791B20 end:0x80792A70
+	.bss        start:0x807C8F80 end:0x807C8F98
+	.sbss       start:0x8087F638 end:0x8087F840
+
+MP/CharaListeners_unk.cpp:
+	.text       start:0x805010C0 end:0x805012C4
+	.bss        start:0x807C8F98 end:0x807C8FA8
+	.sdata2     start:0x80887678 end:0x80887680
 
 MP/Popup.cpp:
 	.text       start:0x805012C4 end:0x805020FC
