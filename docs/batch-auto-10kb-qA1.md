@@ -53,3 +53,31 @@ Cola: `atn/Camera_unk`, `atn/Frustum_unk`, `atn/PostFxGamma`, `atn/PostFxGodRay`
     temporales de cada rama) = locales con nombre `Vector3 h = ...;` en cada rama.
   - `Lerp_unk(a, b, t)` de Vec.h no da el orden de temporales de `a + (b - a) * t` escrito en linea.
 - Pendientes para otras unidades: ninguno.
+
+## atn/PostFxGamma (commit 8b169ad)
+- Resultado: 3/6 al 100% (`fn_800ACFC8`, ctor, `fn_800AD648`), `matching: false` (como el resto de PostFx: el .o
+  emite copias debiles de `~IPostFx`/`~IRender`/`~PostFxGamma` que en el original estan en atn/LinearAllocator),
+  `main.dol: OK`.
+- NONMATCHING: `fn_800AD340` 81% (el original guarda el flag de cambio en un solo registro y tiene una variable de
+  induccion muerta `+3`); `fn_800AD484` 99.19% (r30/r31 intercambiados); `vf10` 97.09% (registros de los log2
+  inline y del bucle de reduccion; el original no reutiliza `cw * 2` entre viewport y copia).
+- **Decisiones sin el usuario**:
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_800AD484`/`fn_800AD648` -> metodos de `atn::PostFxGamma`; `fn_800AD834` ->
+    `vf10__Q23atn11PostFxGammaFPv`; `lbl_80732C4C` -> `@stringBase0` (size 0x27); `lbl_8087D850`/`lbl_8087D854` ->
+    `gGammaRampMin_unk`/`gGammaRampMax_unk` (floats escribibles de .sdata, limites de la rampa; nombres inventados);
+    `fn_800BC2E0` (unidad ajena atn/RenderSetting_unk, en asm) -> `__ct__15GammaParams_unkFv` (constructor de los
+    parametros del efecto, 0x34 bytes en lbl_8087EFA8+0x3DC; nombre de clase inventado).
+  - Tipos inventados en el .cpp: `GammaParams_unk`, `GammaRenderParams_unk`, `GammaFrameBuffer_unk`, `GammaColor_unk`;
+    clase `atn::PostFxGamma` (0x350: parametros 0x04, 8 GXTexObj 0x38, Texture_unk media 0x138, contadores
+    0x168/0x16C, 8 Texture_unk de luminancia 0x170, LUT 0x2F0, rampa 0x320). `fn_800ACFC8` (normaliza una matriz
+    indirecta 2x3) queda `extern "C"`.
+- Hallazgos MWCC:
+  - Macros MIN/MAX del original: llamadas duplicadas (`pow` dos veces, 4 expansiones de log2) y el orden de la
+    comparacion (`a > b ? a : b` en float, `MAX(1, x)` en int) se ven en el asm.
+  - Tablas locales `const int b[] = {...}` de una inline: se copian a la pila en cada expansion (lwz/stw desde .rodata).
+  - Quitar una sentencia (`*p++` -> `data[y * 64 + x]`) puede hacer que una funcion pase a autoinlinearse en sus
+    dos llamadoras: comprobar el `.o` tras cada cambio.
+  - Un color con constructor de 4 floats deja los 4 `stfs` y un solo `fctiwz`; con inicializador `{...}` copia
+    desde .rodata.
+- Pendientes para otras unidades: ninguno.
