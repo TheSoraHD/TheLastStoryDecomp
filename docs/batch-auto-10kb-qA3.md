@@ -44,3 +44,43 @@ Cola: `atn/D2A_Manager`, `atn/D2Anime_unk`, `atn/DLMalloc_unk`, `atn/EffectDesc_
     sitio.
 - Pendientes para otras unidades: `src/auto_fn_801F1EA0_text.cpp` es un resto huerfano (sigue en
   configure.py como objeto, sin split); se podria borrar.
+
+## atn/D2Anime_unk (commit 270c9d8)
+
+- Resultado: 4/7 al 100% (ctors de `D2A_Entry8a_unk`, `D2A_Entry8b_unk`, `D2A_Name_unk` y `__sinit`),
+  `matching: false`, `main.dol: OK`.
+- NONMATCHING:
+  - `fn_801FFA04` 91.99% (cargador del .d2b): planificacion de los stores del lector/contexto en el
+    prologo; el `vector<float*>::resize` inline pliega la comprobacion de longitud con tamano/capacidad
+    conocidos (el original los recarga y conserva un camino rapido muerto); registros de los bucles.
+  - `fn_80200ED0` 98.73% (campos comunes de los elementos) y `fn_80201794` 95.98% (textura): el original
+    vuelve a materializar el 0 de cada `ReadTracks` inline (el nuestro lo deja en un registro salvado);
+    en la textura ademas el `assign` de `std::string` copia el puntero antes de sumar la longitud.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (el `.sdata` 0x8087DB08-0x8087DB20 con los `""` de los `Alloc` sigue en `auto_`).
+  - `symbols.txt`: `fn_80201DC4`/`DD4`/`DE8` -> ctors de `D2A_Entry8a_unk`/`D2A_Entry8b_unk`/`D2A_Name_unk`;
+    **`fn_80201E10` borrado** y el ctor de `D2A_Name_unk` pasa de 0x28 a 0x34: esos 0xC bytes son la rama
+    muerta de `clear()` que MWCC deja tras el `blr` del ctor (dtk la tomo por una funcion); `fn_80201E1C`
+    -> `__sinit_\D2Anime_unk_cpp`; `lbl_8073E628` -> `@stringBase0` (0x60 -> 0x59);
+    `lbl_8087F150/54` -> `__msl_ios_init_unk`/`__msl_wios_init_unk` (`std/ios_init.h`).
+  - Cabeceras compartidas:
+    - `include/atn/D2A_Data.h`: `D2A_Buffer_unk::Alloc` (inline nuevo, nombre inventado; sus `""` son
+      `@STRING@` debiles por instanciacion); `m80` pasa a `D2A_Buffer_unk<unsigned char>` (codigo de
+      expresiones, ver `fn_800A6E8C` de ParseTree); `D2A_NameEntry_unk::mName` pasa a
+      `basic_string<wchar_t>`; `D2A_Entry8b_unk::m04` pasa a `float`. regress sin perdidas.
+    - `include/std/vector.h`: `vector::resize` y `__append_unk` (inline) con `__check_append_unk` fuera de la
+      clase (su "vector length error" va al pool del fichero), y `__vec_split_unk<T*>::__append_zero_unk`.
+  - Tipos inventados (locales): `D2A_Reader_unk` (lector {datos, tamano, pos, contexto} con `Read<T>`,
+    `ReadBytes`, `ReadArray`, `ReadString`, `ReadTracks<N>`), `D2A_LoadContext_unk`, `D2A_TrackGroup_unk<N>`,
+    vistas `D2A_ElementData_unk`/`D2A_TextureData_unk`/`D2A_MessageData_unk`/`D2A_ParamsData_unk`/
+    `D2A_GroupData_unk` de los campos de los elementos que lee el cargador (D2A_Common.h solo nombra
+    unos pocos) y `D2A_LayoutHeader_unk`.
+  - Nombre real propuesto: desconocido (cargador de d2anime; por orden alfabetico entre D2A_Window y
+    D3Anime).
+- Hallazgos MWCC
+  - Un ctor inline que llama a `basic_string::clear()` sobre una cadena recien puesta a cero deja la rama
+    larga muerta (`sth r4,0(r4); stw r4,8(r3); blr`) detras del `blr`: dtk la parte como funcion propia.
+  - Una funcion miembro inline definida en la clase pone sus literales en `@STRING@` de `.data`; para que
+    "vector length error" vaya al `@stringBase0` hay que sacarla fuera de la clase (y que sea pequena para
+    que `-inline auto` la siga inlineando).
+- Pendientes: el `.sdata` 0x8087DB08-0x8087DB20 (6 `""`) deberia entrar en este split si se enlaza.
