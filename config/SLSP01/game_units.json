@@ -1714,6 +1714,13 @@
   "matching": true
  },
  {
+  "name": "game/SystemErrorMessage_unk.cpp",
+  "classes": [
+   "SystemErrorMessage_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/FriendArganan.cpp",
   "classes": [
    "FriendArganan"
