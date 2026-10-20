@@ -7,15 +7,19 @@ namespace Event {
 
 Channel::Channel(Section* section) : mSection(section), m0C(0), m10(1) {}
 
-// NONMATCHING: the boost::shared_ptr reference counts are lwarx/stwcx. loops in the original
-// (asm functions of boost), plain increments here.
+// NONMATCHING: 40.5% - the boost::shared_ptr counts (lwarx/stwcx. of sp_counted_base_cw_ppc.hpp)
+// now match; what differs is the inlined std::vector::push_back growth path of std/vector.h
+// (the original keeps max_size() in a register and divides it at run time, and keeps an
+// unreachable copy of the fast path after the length check).
 Action* Channel::fn_8053A510(int index) {
     boost::shared_ptr<Action> action(new (4, "", "", 0) Action(this, index));
     mActions.push_back(action);
     return mActions[mActions.size() - 1].get();
 }
 
-// NONMATCHING: same atomic decrements when the actions are released.
+// NONMATCHING: 98.9% - only register numbers: the original gives the vector destroy loop
+// (count, element, &pn, pi) r25-r28 in the opposite order (tried std/vector.h variants: loop
+// variable order, clear() instead of __shrink_unk, extra inline levels for the element destructor).
 Channel::~Channel() {}
 
 // inferred: the reader of the channel attributes was stripped by the linker; only its literals are
