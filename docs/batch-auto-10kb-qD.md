@@ -121,3 +121,36 @@ Patron comun: como las colas q5/q6 del lote anterior (`docs/batch-auto-5kb-q5.md
     constante en un registro salvado.
 - Pendientes para otras unidades: completar `BulletParam_unk` (`include/db/ParseUtil_unk.h`) con los sub-agregados
   que delata la copia de `fn_80211940` (0x14-0x73 como bloque, parejas 0x90/0x94 y 0xB4/0xB8).
+
+## db/MapLink_unk (commit 14bfa9f)
+- Resultado: 13/17 al 100%, `matching: false`, `main.dol: OK`.
+- NONMATCHING:
+  - `fn_802150F0` (cargador de `maplink_jump.csv`, `maplink_disp.csv` y `maplink_name_xx.u16`) 98.58% - numeracion
+    de registros; las busquedas en los vectores de celdas salen con puntero (el original: desplazamiento con
+    `lbzx`+`add`) y el original reutiliza el tamano cargado como indice nuevo.
+  - `fn_80216544` / `fn_80216700` (celda de un enlace) 92.23% - puntero de datos y contador de la busqueda de columna
+    con registros intercambiados (probadas 6 formas).
+  - `__sinit_\MapLink_unk_cpp` 96.84% - el original direcciona los registros de destructor con `lbl_807C7FB0` como
+    base y aqui sale la seccion (`...bss.0`); mismos bytes.
+- **Decisiones sin el usuario**
+  - Splits sin cambios (el placeholder de la fase 0 ya cubria los destructores debiles finales; se sustituyen por
+    `atn::Vector_unk<T>::~Vector_unk` de `include/atn/Array_unk.h`, al 100%).
+  - `symbols.txt`: `__dt__16MapLinkListA_unkFv`/`B` -> `__dt__Q23atn29Vector_unk<15MapLinkJump_unk>Fv` /
+    `<15MapLinkDisp_unk>`; `fn_80216440..fn_80216500` -> ctores de `MapLinkJumpRow_unk`, `MapLinkJump_unk`,
+    `MapLinkDispRow_unk`, `MapLinkDisp_unk`, `MapLinkName_unk`; `fn_80216624`/`fn_802167E0` -> plantilla
+    `FindRow_unk<...>` (copias debiles tras su primer uso); `fn_80216994` -> `__sinit_\MapLink_unk_cpp` (local);
+    datos `sJumpFileNameStr`, `sDispFileNameStr`, `sNameFileNameStr`, `@stringBase0` (0x8073FB74), `sColumns`
+    (0x807C7FBC, **tamano 0x18 -> 0xC**), `sJumps` (0x807C7FD4, **0x18 -> 0xC**), `sDisps`, `sJumpRows`..`sNameCount`,
+    `sJumpFileName`/`sDispFileName`/`sNameFileName` (este **0x8 -> 0x4**), y las cadenas `@STRING@reserve__...` de
+    `Vector_unk<15MapLinkJump_unk>`/`<15MapLinkDisp_unk>` (0x8087DB80-0x8087DB8C). **Fuera de la unidad**:
+    `lbl_8087D9E8`/`lbl_8087D9EC` -> `@STRING@reserve__Q23atn13Vector_unk<i>FUii@0`/`...FUii` (en un hueco sin unidad;
+    tambien los usa `push_back__Q23atn13Vector_unk<i>FRCi` de `game/CharaTask`).
+  - Tipos inferidos: `MapLinkJump_unk` (8: tipo/mapa/punto de `fn_80216AFC` + entrada tras ':'), `MapLinkDisp_unk`
+    (2: numero + bit "bold"), filas `MapLinkJumpRow_unk`/`MapLinkDispRow_unk` (0x78, mismos campos pero clases
+    distintas: hay dos ctores iguales), `MapLinkName_unk` (0x88), plantillas `FindRow_unk` e `IndexOf_unk`.
+  - Nombre real propuesto: `db/MapLink.cpp`.
+- Hallazgos MWCC
+  - Una plantilla de funcion no `inline` (aunque grande) se emite como copia debil justo despues de su primer
+    llamador: dos funciones identicas seguidas de sus llamadores = dos instancias de una plantilla.
+  - Un `unsigned long size;` compartido por varios bloques (en vez de uno por bloque) da el marco del original.
+- Pendientes para otras unidades: ninguno.
