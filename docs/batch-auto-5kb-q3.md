@@ -236,3 +236,46 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
     | (v >> 24) | ((v << 8) & 0xFF0000)` da `slwi` + 3 `rlwimi` y, guardada directamente en memoria, `stwbrx`.
   - Un bucle interno que lee `curve->mCount` en cada vuelta no se desenrolla; con la cuenta y el puntero en
     locales se desenrolla x8 y entonces el bucle externo (3 vueltas) ya no se desenrolla.
+
+## atn/LoadManager_unk (commit HASH10)
+
+- Resultado: 3/8 al 100% (`__ct__Q23atn12ReadSlot_unkFv`, `fn_8046BBE0`, `fn_8046C2D4`), `matching: false`.
+  `main.dol: OK`.
+- NONMATCHING (todo reparto de registros):
+  - `fn_8046BBF0` 99.95% (procesa un hueco de lectura terminado): registro de `slot->mLength` en la primera
+    comparacion (r5 en el original).
+  - `fn_8046BEE4` 93.78% (siguiente peticion: la urgente o la mas cercana al inicio del disco): el original
+    devuelve el iterador por puntero oculto; aqui se escribe con puntero de salida explicito.
+  - `fn_8046BF88` 98.05% (arranca la siguiente lectura pendiente): orden de cargas del erase y r6/r7 en el
+    `Start_unk` inlineado.
+  - `fn_8046C1C8` 98.73% (crea el lector y procesa los huecos terminados): registros intercambiados.
+  - `atn::LoadManager_unk::fn_8046C3FC` 99.14% (encola la carga de un recurso): iterador/fin de los bucles
+    intercambiados, el insert de `std/list.h` (r4/r5, igual que en LoadColliTree) y r6/r7 en `Start_unk`.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_8046BBB0` -> `__ct__Q23atn12ReadSlot_unkFv` (pairnames); `lbl_80755608` -> `@stringBase0`
+    (tamano 0x8 -> 0x5, `""` + ".pk", local); `lbl_8078FB50` -> `@STRING@__allocate__Q23std29list<Q23atn15PendingLoad_unk>Fv`
+    (cadena debil "Memory allocation failure" del `std::list` de cargas pendientes).
+  - `include/atn/LoadManager.h` (compartida con q4/q9): `m3ED8` pasa de relleno a `int` (prioridad del disco
+    sobre los archivos) y se anade `std::list<PendingLoad_unk> mPending` en 0x4038 (cargas de archivos con el
+    indice aun sin leer, 0x4C bytes con ctor y ruta `Path_unk` sin ctor). Nada mas usa esos campos.
+  - `Reader_unk::Get_unk` es una funcion miembro normal definida al principio y autoinlineada en sus dos
+    llamadores: su copia fuera de linea no esta en el DOL pero hace que el pool empiece por `""` (como el
+    original). Queda como funcion extra en el `.o`.
+  - `PfsArchive_unk`/`PfsEntry_unk` se redeclaran localmente con solo lo usado (la clase completa es local de
+    `atn/FileSystem_unk.cpp`); conviene moverla a una cabecera cuando se toque ese fichero.
+  - El segundo "Memory allocation failure" (`std::list` del lector) es en el original la cadena debil de un
+    fichero anterior (0x80779810, la de las listas de los `LH_*`): la lista del lector es del mismo tipo que
+    esas (`std::list<LoadCore*>` o similar), no reconstruido.
+  - Tipos inferidos locales: `ReadRequest_unk` (0x50: recurso, tamano, bufer, posicion de 64 bits en disco,
+    desplazamiento, bytes leidos, tamano comprimido, descompresor 0x18, urgente, entrada del disco),
+    `ReadSlot_unk` (0x400B8: estado, `DVDFileInfo`, 16 peticiones en `FixedArray_unk`, bufer de 256 KB alineado
+    a 32), `Reader_unk` (0x1C, global 0x8087F510: lista de peticiones, huecos activos, 2 huecos, KB por trozo).
+  - Nombre real propuesto: lector asincrono del gestor de carga (`atn_load_reader.cpp`?).
+- Hallazgos MWCC
+  - Struct con constructor de usuario: su copia (p.ej. en `std::list::insert`) es miembro a miembro y desenrolla
+    el array de 0x40 en pares de palabras; sin constructor es un bucle `lwzu/stwu` de 8 bytes.
+  - Una `if (a.size() == 0)` tras un bucle cuya condicion usa `a.mSize` fuerza la recarga del campo (el original);
+    con el mismo acceso directo MWCC reutiliza el registro de la condicion.
+  - Locales de funciones inline expandidas (DVDFileInfo de 0x3C) se colocan en la pila en orden inverso de
+    expansion; un local del cuerpo de la funcion va por encima de todos ellos.
