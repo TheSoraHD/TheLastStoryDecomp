@@ -9,7 +9,8 @@
 // inferred: group of walkers of the crowd description (0x20 bytes); names invented
 struct CrowdGroup_unk {
     // inferred: the group walks at `time` (inlined; the members are reloaded through the owner)
-    unsigned char m00[0x08];
+    int mChara;          // 0x00: inferred: character id ("Unit %d, Chara %d"), passed to NpcTask::fn_80547C28
+    int m04;             // 0x04: inferred: second argument of CharaTask::fn_80154654
     unsigned int mCount; // 0x08
     unsigned char m0C[0x10 - 0x0C];
     float mSpeed;        // 0x10
