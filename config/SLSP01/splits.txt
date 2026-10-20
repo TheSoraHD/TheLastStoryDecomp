@@ -1549,10 +1549,10 @@ gmk/SavePoint.cpp:
 	.sdata2     start:0x808868C8 end:0x80886900
 
 gmk/WindyItem.cpp:
-	.text       start:0x80436EB8 end:0x804392C0
-	.rodata     start:0x80754278 end:0x80754288
+	.text       start:0x80436E34 end:0x8043A770
+	.rodata     start:0x80754240 end:0x807542B0
 	.data       start:0x8078EF70 end:0x8078F008
-	.sdata2     start:0x80886904 end:0x80886934
+	.sdata2     start:0x80886900 end:0x80886958
 
 gmk/LottaSummon.cpp:
 	.text       start:0x8043A770 end:0x8043B778

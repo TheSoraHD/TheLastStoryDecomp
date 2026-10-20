@@ -17,6 +17,7 @@
 #include "gmk/Brazier.h"
 #include "gmk/Cannonball.h"
 #include "gmk/Leaf.h"
+#include "gmk/WindyItem.h"
 #include "gmk/OnOff.h"
 #include "gmk/TodomeCountUp.h"
 #include "gmk/ShakeCamera.h"
@@ -218,7 +219,6 @@ extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80436E34(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
@@ -271,7 +271,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 60: gimmick = fn_804310B0(parent, id, arg); break;
     case 61: gimmick = gmk::RandomItem::fn_80432CF0(parent, id, arg); break;
     case 63: gimmick = gmk::SavePoint::fn_80435CE4(parent, id, arg); break;
-    case 64: gimmick = fn_80436E34(parent, id, arg); break;
+    case 64: gimmick = gmk::WindyItem::fn_80436E34(parent, id, arg); break;
     case 65: gimmick = gmk::LottaSummon::fn_8043A770(parent, id, arg); break;
     case 67: gimmick = fn_8043D594(parent, id, arg); break;
     }
