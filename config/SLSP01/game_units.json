@@ -2766,5 +2766,12 @@
    "LightList_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/Light_unk.cpp",
+  "classes": [
+   "Light_unk"
+  ],
+  "matching": false
  }
 ]

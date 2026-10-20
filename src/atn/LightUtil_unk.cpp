@@ -3,7 +3,6 @@
 #include "atn/Light_unk.h"
 #include "atn/Memory.h"
 
-extern "C" void fn_800795DC(Light_unk* light); // inferred: updates a light (atn/Light_unk.cpp)
 
 LightSet_unk::LightSet_unk() {
     Clear_unk();
@@ -65,7 +64,7 @@ void LightSet_unk::fn_8007A36C(LightList_unk* list, const atn::Vector3& pos, flo
     }
     for (int i = 0; i < n; i++) {
         Light_unk* light = &list->mData[i];
-        if (light->m04 != 0) {
+        if (light->mType != 0) {
             fn_80079EFC(light, 0.0f);
         }
     }
@@ -80,7 +79,7 @@ void LightSet_unk::fn_8007A41C(LightList_unk* list) {
     }
     for (int i = 0; i < n; i++) {
         Light_unk* light = &list->mData[i];
-        if (light->m04 != 0) {
+        if (light->mType != 0) {
             fn_80079EFC(light, 0.0f);
         }
     }
@@ -88,6 +87,6 @@ void LightSet_unk::fn_8007A41C(LightList_unk* list) {
 
 void LightList_unk::fn_8007A4CC() {
     for (unsigned int i = 0; i < mCount; i++) {
-        fn_800795DC(&mData[i]);
+        mData[i].fn_800795DC();
     }
 }

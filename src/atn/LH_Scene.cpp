@@ -69,8 +69,10 @@ struct LightPair_unk {
     int a;
     int b;
 };
+struct LightData_unk;
 struct Light_unk {
     Light_unk();
+    Light_unk(LightData_unk* data); // inferred: builds a light from the file data (atn/Light_unk.cpp)
     int m00;
     int m04;
     atn::Vector3 m08;
@@ -83,7 +85,6 @@ struct Light_unk {
     LightPair_unk m34;
     LightPair_unk m3C;
 };
-extern "C" Light_unk fn_80079090(void* data); // inferred: builds a light from the file data
 
 // inferred: value of a track at frame 0 (each call has its own frame variable on the stack)
 static inline float __EvalTrack_unk(SceneTrack_unk& track) {
@@ -164,7 +165,8 @@ void LoadScene::fn_804778DC(SceneHeader_unk* header) {
     }
     mLights.Resize_unk(header->mNumLights, 0);
     for (int i = 0; i < header->mNumLights; i++) {
-        mLights[i] = fn_80079090(header->mLights[i]);
+        Light_unk light((LightData_unk*)header->mLights[i]);
+        mLights[i] = light;
     }
 }
 

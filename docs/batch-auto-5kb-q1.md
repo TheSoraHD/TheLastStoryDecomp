@@ -55,7 +55,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
     `sPortMap`/`sButtonMap`(34)/`sAxisMap`/`sAxisMap2`.
 - Hallazgos MWCC: nada nuevo (confirmado: tablas `static const` > 8 bytes alineadas a 8 en `.rodata`; base comun con >= 3 estaticas).
 
-## atn/LightUtil_unk (commit COMMIT_LU)
+## atn/LightUtil_unk (commit 14a12c7)
 
 - Resultado: 4/7 al 100%, `matching: false`.
 - NONMATCHING:
@@ -73,3 +73,30 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - `fn_8007A36C` recibe 3 argumentos mas que no usa (posicion, radio, entero: los pasa `ModelDraw_unk`).
 - Hallazgos MWCC: la copia implicita de un struct con `atn::Vector3` sale con la z cargada primero (`lfs` antes del `psq_l`),
   aunque el `operator=` de Vector3 use `__VecCopy`.
+
+## atn/Light_unk (commit COMMIT_LIGHT)
+
+- Resultado: 7/10 al 100%, `matching: false`.
+- NONMATCHING:
+  - `Light_unk::fn_80079280` 99.74% - FPR de la formula del radio (b2/a2 intercambiados, orden de operandos de `(4*c2)*k`).
+  - `Light_unk::fn_800795DC` 96.52% - planificacion de los argumentos de la llamada tras convertir el color.
+  - `Light_unk::fn_80079994` 76% - el original niega `mDir` con `fneg` (valores tratados como double) pero `-1.0f` sigue
+    en `.sdata2` antes de `1000000.0f`; escrito `-1.0f * x` se respeta el orden del pool (y `fn_80079BC8` llega al 100%)
+    pero sale `fmuls`. Ademas el prologo va intercalado con la conversion del color.
+- **Decisiones sin el usuario**:
+  - Split sin cambios.
+  - `symbols.txt`: `lbl_807318A0` -> `@stringBase0`; `fn_80079090` -> `__ct__9Light_unkFP13LightData_unk` (es un ctor:
+    devuelve `this`) y los demas metodos con nombre mangled de `Light_unk`.
+  - **Cambio fuera de la unidad**: `src/atn/LH_Scene.cpp` llamaba a `extern "C" Light_unk fn_80079090(void*)`; ahora declara
+    el ctor `Light_unk(LightData_unk*)` y hace `Light_unk light(...); mLights[i] = light;` (sigue al 100%
+    `LoadScene::fn_804778DC`, comprobado). `src/atn/LightUtil_unk.cpp` llama ya a `Light_unk::fn_800795DC`.
+  - `include/atn/Light_unk.h` ampliada: `SceneTrack_unk` (duplicada de la local de LH_Scene.cpp), `LightData_unk`
+    (pistas de la luz en el fichero de escena), `LightColor_unk` con ctor, campos de `Light_unk` con nombre
+    (`mType`, `mPos`, `mDir`, `mAttnType`, `mRadius`, `mRefDist`, `mRefBright`, `mAngle`, `mColor`).
+  - `include/atn/GXDecl.h`: anadidos `GXLightObj` y `GXInitLight{Attn,Spot,DistAttn,Pos,Dir,Color}`.
+- Hallazgos MWCC:
+  - El resultado de una llamada que devuelve `float` se trata como double si se guarda en un local `float`: usarlo en una
+    resta mete `frsp`, guardarlo en memoria no (`stfs` directo).
+  - `x = (double)f;` (f float) genera `frsp` + `stfs`; sirve para un `frsp` aislado antes de un store.
+  - Un temporal devuelto por una inline (`ToGXColor_unk()`) va por debajo de la copia del argumento por valor; un local con nombre por encima.
+  - `!(a != 2 && a != 3)` evita la fusion en `cmplwi` de `a == 2 || a == 3` (dos `cmpwi` + `beq`/`bne`).
