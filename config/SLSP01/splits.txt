@@ -2549,10 +2549,40 @@ game/Gun.cpp:
 	.data       start:0x8078F210 end:0x8078F258
 	.sdata2     start:0x80886A10 end:0x80886A20
 
+game/HomeButtonMenu.cpp:
+	.text       start:0x804405F8 end:0x80440B24
+	.rodata     start:0x807544C8 end:0x80754500
+	.data       start:0x8078F258 end:0x8078F290
+	.sbss       start:0x8087F4E8 end:0x8087F4F0
+	.sdata2     start:0x80886A20 end:0x80886A40
+
+game/HomeButton_unk.cpp:
+	.text       start:0x80440B24 end:0x80441590
+	.rodata     start:0x80754500 end:0x807545F0
+	.data       start:0x8078F290 end:0x8078F2B8
+	.sdata2     start:0x80886A40 end:0x80886A80
+
+game/HomingBullet.cpp:
+	.text       start:0x80441590 end:0x80442F10
+	.rodata     start:0x807545F0 end:0x80754628
+	.data       start:0x8078F2B8 end:0x8078F2F8
+	.bss        start:0x807C8A38 end:0x807C8A48
+	.sdata2     start:0x80886A80 end:0x80886AE8
+
+game/ItemManager_unk.cpp:
+	.text       start:0x80442F10 end:0x8044D710
+	.rodata     start:0x80754628 end:0x80754770
+	.data       start:0x8078F2F8 end:0x8078F348
+	.sdata      start:0x8087DFF0 end:0x8087E008
+	.sbss       start:0x8087F4F0 end:0x8087F4F8
+	.sdata2     start:0x80886AE8 end:0x80886B30
+
 RecycleBuffer_gmk/ItemSlotAnime.cpp:
-	.text       start:0x8044D9BC end:0x80452710
-	.rodata     start:0x80754870 end:0x807548CC
-	.data       start:0x8078F388 end:0x8078F400
+	.text       start:0x8044D710 end:0x80452710
+	.rodata     start:0x80754770 end:0x807548E8
+	.data       start:0x8078F348 end:0x8078F500
+	.sdata      start:0x8087E008 end:0x8087E030
+	.sbss       start:0x8087F4F8 end:0x8087F500
 	.sdata2     start:0x80886B30 end:0x80886B68
 
 game/LastCocoonChrysalis.cpp:
@@ -2562,33 +2592,63 @@ game/LastCocoonChrysalis.cpp:
 	.sdata2     start:0x80886B68 end:0x80886B78
 
 game/LastCocoonEgg.cpp:
-	.text       start:0x80452F14 end:0x804576D4
-	.rodata     start:0x807549C0 end:0x807549D0
-	.data       start:0x8078F630 end:0x8078F760
-	.sdata2     start:0x80886B7C end:0x80886C00
+	.text       start:0x80452F14 end:0x80458270
+	.ctors      start:0x8072D374 end:0x8072D378
+	.rodata     start:0x807549B0 end:0x80754BF8
+	.data       start:0x8078F630 end:0x8078F7A0
+	.bss        start:0x807C8A48 end:0x807C8A58
+	.sdata2     start:0x80886B78 end:0x80886C1C
 
 game/LastCocoonImago.cpp:
 	.text       start:0x80458270 end:0x8045FAB0
-	.rodata     start:0x80754DD0 end:0x80754DE0
-	.data       start:0x8078F7F0 end:0x8078F920
+	.rodata     start:0x80754BF8 end:0x80754F40
+	.data       start:0x8078F7A0 end:0x8078F928
 	.sdata2     start:0x80886C1C end:0x80886D60
 
 game/LastCocoonQuadruped.cpp:
-	.text       start:0x8045FAB0 end:0x80468F48
-	.rodata     start:0x80755174 end:0x80755188
-	.data       start:0x8078F980 end:0x8078FAB0
+	.text       start:0x8045FAB0 end:0x80468F54
+	.ctors      start:0x8072D378 end:0x8072D37C
+	.rodata     start:0x80754F40 end:0x807552E0
+	.data       start:0x8078F928 end:0x8078FAB0
+	.bss        start:0x807C8A58 end:0x807C8A60
+	.sbss       start:0x8087F500 end:0x8087F508
 	.sdata2     start:0x80886D60 end:0x80886E88
 
 game/LibraryTask.cpp:
 	.text       start:0x80468F54 end:0x8046BBB0
 	.rodata     start:0x807552E0 end:0x80755608
 	.data       start:0x8078FAB0 end:0x8078FB50
+	.sdata      start:0x8087E030 end:0x8087E050
 	.sdata2     start:0x80886E88 end:0x80886EC0
 
+atn/LoadManager_unk.cpp:
+	.text       start:0x8046BBB0 end:0x8046CBB0
+	.rodata     start:0x80755608 end:0x80755610
+	.data       start:0x8078FB50 end:0x8078FB70
+	.sbss       start:0x8087F510 end:0x8087F518
+
+atn/Loader.cpp:
+	.text       start:0x8046CBB0 end:0x8046F460
+	.rodata     start:0x80755610 end:0x80755B88
+	.data       start:0x8078FB70 end:0x8078FBA8
+	.sdata      start:0x8087E050 end:0x8087E058
+	.sdata2     start:0x80886EC0 end:0x80886EE0
+
+atn/FileSystem_unk.cpp:
+	.text       start:0x8046F460 end:0x80470580
+	.rodata     start:0x80755B88 end:0x80755BF8
+	.data       start:0x8078FBA8 end:0x8078FBB0
+
+atn/LH_Binary.cpp:
+	.text       start:0x80470580 end:0x80472344
+	.rodata     start:0x80755BF8 end:0x80755C28
+	.data       start:0x8078FBB0 end:0x8078FC10
+	.sdata2     start:0x80886EE0 end:0x80886EE8
+
 atn/LH_ColliObject.cpp:
-	.text       start:0x80472344 end:0x80472C90
-	.rodata     start:0x80755C28 end:0x80755C54
-	.data       start:0x8078FC10 end:0x8078FC60
+	.text       start:0x80472344 end:0x80472CAC
+	.rodata     start:0x80755C28 end:0x80755C68
+	.data       start:0x8078FC10 end:0x8078FC68
 	.sdata2     start:0x80886EE8 end:0x80886F00
 
 atn/LH_ColliTree.cpp:
@@ -2596,9 +2656,13 @@ atn/LH_ColliTree.cpp:
 	.rodata     start:0x80755C68 end:0x80755C98
 	.data       start:0x8078FC68 end:0x8078FCB8
 
+atn/LH_Core.cpp:
+	.text       start:0x80472FAC end:0x804731C0
+	.data       start:0x8078FCB8 end:0x8078FCD0
+
 atn/LH_Effect.cpp:
 	.text       start:0x804731C0 end:0x80473B20
-	.rodata     start:0x80755C98 end:0x80755CB8
+	.rodata     start:0x80755C98 end:0x80755D20
 	.data       start:0x8078FCD0 end:0x8078FD20
 
 atn/LH_Efp.cpp:
@@ -2606,15 +2670,22 @@ atn/LH_Efp.cpp:
 	.rodata     start:0x80755D20 end:0x80755D40
 	.data       start:0x8078FD20 end:0x8078FD70
 
+atn/LH_Handle.cpp:
+	.text       start:0x80473E74 end:0x80474224
+	.data       start:0x8078FD70 end:0x8078FD80
+
 atn/LH_Material.cpp:
-	.text       start:0x80474224 end:0x80474860
-	.rodata     start:0x80755D40 end:0x80755D68
+	.text       start:0x80474224 end:0x80474888
+	.rodata     start:0x80755D40 end:0x80755D80
 	.data       start:0x8078FD80 end:0x8078FDD0
 
 atn/LH_Model.cpp:
-	.text       start:0x80474888 end:0x80476130
-	.rodata     start:0x80755EF0 end:0x80755F48
-	.data       start:0x8078FDD8 end:0x8078FE28
+	.text       start:0x80474888 end:0x80476220
+	.rodata     start:0x80755D80 end:0x80755F48
+	.data       start:0x8078FDD0 end:0x8078FE28
+	.bss        start:0x807C8A60 end:0x807C8A68
+	.sdata      start:0x8087E058 end:0x8087E060
+	.sbss       start:0x8087F520 end:0x8087F528
 	.sdata2     start:0x80886F00 end:0x80886F08
 
 atn/LH_Motion.cpp:
@@ -2622,20 +2693,26 @@ atn/LH_Motion.cpp:
 	.rodata     start:0x80755F48 end:0x80755F68
 	.data       start:0x8078FE28 end:0x8078FE78
 
+atn/LH_Motion_cont.cpp:
+	.text       start:0x804766B0 end:0x804768EC
+	.rodata     start:0x80755F68 end:0x80755FC8
+
 atn/LH_MotionCommandData.cpp:
-	.text       start:0x804768EC end:0x80476CE4
+	.text       start:0x804768EC end:0x80476D00
 	.rodata     start:0x80755FC8 end:0x80756008
 	.data       start:0x8078FE78 end:0x8078FEC8
 
 atn/LH_MotionSet.cpp:
-	.text       start:0x80476D64 end:0x80477694
-	.rodata     start:0x80756008 end:0x80756030
-	.data       start:0x8078FEC8 end:0x8078FF18
+	.text       start:0x80476D00 end:0x80477778
+	.rodata     start:0x80756008 end:0x80756058
+	.data       start:0x8078FEC8 end:0x8078FF38
+	.sdata      start:0x8087E060 end:0x8087E068
 
 atn/LH_Scene.cpp:
-	.text       start:0x80477778 end:0x80477FA4
+	.text       start:0x80477778 end:0x80478054
 	.rodata     start:0x80756058 end:0x80756080
 	.data       start:0x8078FF38 end:0x8078FF88
+	.sdata      start:0x8087E068 end:0x8087E078
 	.sdata2     start:0x80886F08 end:0x80886F10
 
 atn/LH_Texture.cpp:
@@ -2644,7 +2721,7 @@ atn/LH_Texture.cpp:
 	.data       start:0x8078FF88 end:0x8078FFD8
 
 atn/LH_Xsca.cpp:
-	.text       start:0x804783DC end:0x804786F8
+	.text       start:0x804783DC end:0x80478714
 	.rodata     start:0x807560B0 end:0x807560D8
 	.data       start:0x8078FFD8 end:0x80790028
 
@@ -2657,16 +2734,40 @@ game/LogMessageTask.cpp:
 	.sbss       start:0x8087F528 end:0x8087F530
 	.sdata2     start:0x80886F10 end:0x80886F70
 
+game/main.cpp:
+	.text       start:0x80479998 end:0x8047B768
+	.rodata     start:0x80756168 end:0x80756310
+	.data       start:0x80790060 end:0x807900A0
+	.bss        start:0x807C8A98 end:0x807C8AB0
+	.sdata      start:0x8087E078 end:0x8087E088
+	.sbss       start:0x8087F530 end:0x8087F540
+	.sdata2     start:0x80886F70 end:0x80886F80
+
 Event/Manager.cpp:
-	.text       start:0x80487184 end:0x80488050
-	.rodata     start:0x80756348 end:0x80756358
-	.data       start:0x807900C0 end:0x807900F8
-	.sdata2     start:0x80887014 end:0x80887034
+	.text       start:0x8047B768 end:0x8048FF60
+	.rodata     start:0x80756310 end:0x80756358
+	.data       start:0x807900A0 end:0x807900F8
+	.sdata      start:0x8087E088 end:0x8087E0B8
+	.sbss       start:0x8087F540 end:0x8087F550
+	.sdata2     start:0x80886F80 end:0x80887048
 
 Event/PostSequence.cpp:
 	.text       start:0x8048FF60 end:0x8049003C
 	.rodata     start:0x80756358 end:0x80756380
 	.data       start:0x807900F8 end:0x80790168
+
+Event/Manager_cont.cpp:
+	.text       start:0x8049003C end:0x80490884
+	.ctors      start:0x8072D380 end:0x8072D384
+	.rodata     start:0x80756380 end:0x80756690
+	.data       start:0x80790168 end:0x807901D8
+	.bss        start:0x807C8AB0 end:0x807C8AC8
+	.sdata2     start:0x80887048 end:0x80887050
+
+game/MapInstance_unk.cpp:
+	.text       start:0x80490884 end:0x80490EB8
+	.sbss       start:0x8087F550 end:0x8087F558
+	.sdata2     start:0x80887050 end:0x80887060
 
 game/MapManager.cpp:
 	.text       start:0x80490EB8 end:0x80491EA0
@@ -2678,7 +2779,7 @@ game/MapManager.cpp:
 
 game/MapPartsBase.cpp:
 	.text       start:0x80491EA0 end:0x80496420
-	.rodata     start:0x807566E0 end:0x80756700
+	.rodata     start:0x807566E0 end:0x807569C8
 	.data       start:0x80790218 end:0x80790320
 	.sdata2     start:0x80887068 end:0x808870D0
 
@@ -2693,6 +2794,11 @@ game/MapPartsEfp.cpp:
 	.data       start:0x80790378 end:0x807903D0
 	.sdata2     start:0x808870D0 end:0x808870D8
 
+game/MapPartsFactory.cpp:
+	.text       start:0x80496A28 end:0x80496C3C
+	.rodata     start:0x80756A10 end:0x80756A58
+	.data       start:0x807903D0 end:0x807903F0
+
 game/MapPartsFlare.cpp:
 	.text       start:0x80496C3C end:0x80496EE8
 	.rodata     start:0x80756A58 end:0x80756A70
@@ -2700,15 +2806,17 @@ game/MapPartsFlare.cpp:
 	.sdata2     start:0x808870D8 end:0x808870E0
 
 game/MapPartsGimmickLoc.cpp:
-	.text       start:0x80496F6C end:0x8049A018
-	.rodata     start:0x80756A78 end:0x80756A8C
-	.data       start:0x80790560 end:0x807905B8
+	.text       start:0x80496EE8 end:0x8049A018
+	.rodata     start:0x80756A70 end:0x80756B70
+	.data       start:0x80790448 end:0x807905D8
+	.sdata      start:0x8087E0B8 end:0x8087E0C8
 	.sdata2     start:0x808870E0 end:0x80887100
 
 game/MapPartsLocatorSet.cpp:
-	.text       start:0x8049A09C end:0x8049B9B8
-	.rodata     start:0x80756B70 end:0x80756B84
+	.text       start:0x8049A018 end:0x8049B9B8
+	.rodata     start:0x80756B70 end:0x80756CC8
 	.data       start:0x807905D8 end:0x80790630
+	.sdata      start:0x8087E0C8 end:0x8087E0D0
 	.sdata2     start:0x80887100 end:0x80887110
 
 game/MapPartsModel.cpp:
@@ -2723,16 +2831,23 @@ game/MapPartsOcean.cpp:
 	.data       start:0x80790688 end:0x807906E8
 	.sdata2     start:0x80887128 end:0x80887160
 
+game/MapPartsOcean_cont.cpp:
+	.text       start:0x8049CDA0 end:0x8049CDBC
+	.ctors      start:0x8072D384 end:0x8072D388
+	.sbss       start:0x8087F560 end:0x8087F578
+
 game/MapPartsRain.cpp:
 	.text       start:0x8049CDBC end:0x8049D264
 	.rodata     start:0x80756E70 end:0x80756EB8
 	.data       start:0x807906E8 end:0x80790740
+	.sdata      start:0x8087E0D0 end:0x8087E0D8
 
 game/MapTask.cpp:
-	.text       start:0x8049D7E4 end:0x8049ED90
-	.rodata     start:0x80756EC0 end:0x80756EC8
+	.text       start:0x8049D264 end:0x804A1DDC
+	.rodata     start:0x80756EB8 end:0x807570C0
 	.data       start:0x80790740 end:0x80790778
-	.sdata2     start:0x80887168 end:0x80887174
+	.sdata      start:0x8087E0D8 end:0x8087E0E0
+	.sdata2     start:0x80887160 end:0x808871B0
 
 game/MarketTask.cpp:
 	.text       start:0x804A1DDC end:0x804A24C4
@@ -2741,18 +2856,23 @@ game/MarketTask.cpp:
 	.sbss       start:0x8087F578 end:0x8087F580
 	.sdata2     start:0x808871B0 end:0x808871C0
 
+game/MarketTask_cont.cpp:
+	.text       start:0x804A24C4 end:0x804A29C4
+	.sdata2     start:0x808871C0 end:0x808871D0
+
 game/MenuCommonTask.cpp:
 	.text       start:0x804A29C4 end:0x804A7EA4
 	.rodata     start:0x80757108 end:0x80757650
 	.data       start:0x807907B0 end:0x80790818
+	.sdata      start:0x8087E0E0 end:0x8087E0E8
 	.sbss       start:0x8087F580 end:0x8087F588
 	.sdata2     start:0x808871D0 end:0x80887254
 
 game/MiniMapTask.cpp:
-	.text       start:0x804A7EA4 end:0x804A9E44
-	.rodata     start:0x80757650 end:0x8075765C
+	.text       start:0x804A7EA4 end:0x804AC430
+	.rodata     start:0x80757650 end:0x80757820
 	.data       start:0x80790818 end:0x80790888
-	.sdata2     start:0x80887254 end:0x808872B0
+	.sdata2     start:0x80887254 end:0x808872D0
 
 MP/D2ACommonDialog.cpp:
 	.text       start:0x804AC430 end:0x804ADCAC
@@ -2763,15 +2883,21 @@ MP/D2ACommonDialog.cpp:
 	.sdata2     start:0x808872D0 end:0x80887308
 
 MP/CryptMP.cpp:
-	.text       start:0x804ADCAC end:0x804AE7C4
+	.text       start:0x804ADCAC end:0x804AE820
+	.ctors      start:0x8072D388 end:0x8072D38C
 	.rodata     start:0x80757A30 end:0x80757A70
 	.data       start:0x807908C0 end:0x80790930
+	.bss        start:0x807C8AD0 end:0x807C8AE8
+	.sbss       start:0x8087F590 end:0x8087F598
 
 MP/D2AMpMenu.cpp:
-	.text       start:0x804AE888 end:0x804B4400
-	.rodata     start:0x80757AA8 end:0x80757AD0
-	.data       start:0x80790A78 end:0x80790AF0
-	.sdata2     start:0x8088730C end:0x80887348
+	.text       start:0x804AE820 end:0x804B4C50
+	.ctors      start:0x8072D38C end:0x8072D390
+	.rodata     start:0x80757A70 end:0x80758110
+	.data       start:0x80790930 end:0x80790B78
+	.sdata      start:0x8087E0F0 end:0x8087E100
+	.sbss       start:0x8087F598 end:0x8087F5A8
+	.sdata2     start:0x80887308 end:0x80887348
 
 MP/D2AMpMenuCockpit.cpp:
 	.text       start:0x804B4C50 end:0x804B6988
@@ -2797,9 +2923,11 @@ MP/D2AMpMenuFriendRoom.cpp:
 	.sdata2     start:0x808873D0 end:0x808873FC
 
 MP/D2AMpMenuLobby.cpp:
-	.text       start:0x804BBC28 end:0x804C18A8
-	.rodata     start:0x807588AC end:0x807588DC
-	.data       start:0x80790CCC end:0x80790D10
+	.text       start:0x804BBB60 end:0x804C2FF8
+	.ctors      start:0x8072D390 end:0x8072D394
+	.rodata     start:0x80758848 end:0x80758D30
+	.data       start:0x80790C48 end:0x80790DB8
+	.sbss       start:0x8087F5C0 end:0x8087F5D0
 	.sdata2     start:0x808873FC end:0x80887470
 
 MP/D2AMpMenuMessageList.cpp:
@@ -2820,10 +2948,13 @@ MP/D2AMpMenuResult.cpp:
 	.sdata2     start:0x808874B0 end:0x808874E0
 
 MP/D2AMpMenuSetMessage.cpp:
-	.text       start:0x804C87E0 end:0x804CC618
-	.rodata     start:0x80759340 end:0x80759374
+	.text       start:0x804C8778 end:0x804CD97C
+	.ctors      start:0x8072D39C end:0x8072D3A0
+	.rodata     start:0x80759290 end:0x807595E0
 	.data       start:0x80790EF0 end:0x80790F30
-	.sdata2     start:0x808874E4 end:0x80887548
+	.sdata      start:0x8087E140 end:0x8087E160
+	.sbss       start:0x8087F5E8 end:0x8087F5F0
+	.sdata2     start:0x808874E0 end:0x80887548
 
 MP/D2AMpMenuSetRule.cpp:
 	.text       start:0x804CD97C end:0x804CF190
@@ -2833,20 +2964,39 @@ MP/D2AMpMenuSetRule.cpp:
 	.sdata2     start:0x80887548 end:0x80887570
 
 atn/PacketPack.cpp:
-	.text       start:0x804F7F54 end:0x804FC7E0
-	.rodata     start:0x80759D30 end:0x80759E18
-	.data       start:0x80791570 end:0x80791740
-	.sdata2     start:0x808875DC end:0x80887678
+	.text       start:0x804CF190 end:0x804FF960
+	.ctors      start:0x8072D3A0 end:0x8072D3A4
+	.rodata     start:0x807596F0 end:0x8075A168
+	.data       start:0x80790F78 end:0x80791B20
+	.bss        start:0x807C8AE8 end:0x807C8F68
+	.sdata      start:0x8087E160 end:0x8087E430
+	.sbss       start:0x8087F5F8 end:0x8087F620
+	.sdata2     start:0x80887570 end:0x80887678
+
+MP/NetGlobals_unk.cpp:
+	.text       start:0x804FF960 end:0x804FF9BC
+	.ctors      start:0x8072D3A4 end:0x8072D3A8
+	.bss        start:0x807C8F68 end:0x807C8F80
+	.sbss       start:0x8087F620 end:0x8087F638
 
 MP/func_enter_setting.cpp:
-	.text       start:0x804FFE04 end:0x80500734
-	.rodata     start:0x8075A168 end:0x8075A180
-	.data       start:0x80791C28 end:0x80791C60
+	.text       start:0x804FF9BC end:0x805010C0
+	.ctors      start:0x8072D3A8 end:0x8072D3AC
+	.rodata     start:0x8075A168 end:0x8075A858
+	.data       start:0x80791B20 end:0x80792A70
+	.bss        start:0x807C8F80 end:0x807C8F98
+	.sbss       start:0x8087F638 end:0x8087F840
+
+MP/CharaListeners_unk.cpp:
+	.text       start:0x805010C0 end:0x805012C4
+	.bss        start:0x807C8F98 end:0x807C8FA8
+	.sdata2     start:0x80887678 end:0x80887680
 
 MP/Popup.cpp:
 	.text       start:0x805012C4 end:0x805020FC
-	.rodata     start:0x8075A874 end:0x8075A880
+	.rodata     start:0x8075A858 end:0x8075A970
 	.data       start:0x80792A70 end:0x80792AA8
+	.sdata      start:0x8087E430 end:0x8087E440
 	.sdata2     start:0x80887680 end:0x808876B8
 
 MP/SaveLoad.cpp:
@@ -2854,16 +3004,61 @@ MP/SaveLoad.cpp:
 	.rodata     start:0x8075A970 end:0x8075A988
 	.data       start:0x80792AA8 end:0x80792AE0
 
+MP/SaveLoad_cont.cpp:
+	.text       start:0x80502708 end:0x805028D8
+
 atn/SoftKeyboardU.cpp:
-	.text       start:0x805029DC end:0x80505DD0
-	.rodata     start:0x8075AE74 end:0x8075AEDC
-	.data       start:0x80792D38 end:0x80792DC0
-	.sdata2     start:0x80887750 end:0x80887790
+	.text       start:0x805028D8 end:0x80505DD0
+	.rodata     start:0x8075A988 end:0x8075B000
+	.data       start:0x80792AE0 end:0x80792DC0
+	.bss        start:0x807C8FA8 end:0x807C8FC8
+	.sdata      start:0x8087E440 end:0x8087E458
+	.sbss       start:0x8087F848 end:0x8087F868
+	.sdata2     start:0x808876B8 end:0x80887790
+
+MP/Text.cpp:
+	.text       start:0x80505DD0 end:0x80507790
+	.rodata     start:0x8075B000 end:0x8075B058
+	.data       start:0x80792DC0 end:0x80792E08
+	.sdata      start:0x8087E458 end:0x8087E468
+	.sbss       start:0x8087F868 end:0x8087F870
+	.sdata2     start:0x80887790 end:0x80887798
+
+atn/Bezier_unk.cpp:
+	.text       start:0x80507790 end:0x805089E0
+	.rodata     start:0x8075B058 end:0x8075B090
+	.sbss       start:0x8087F870 end:0x8087F878
+	.sdata2     start:0x80887798 end:0x808877C0
+
+atn/NetManager.cpp:
+	.text       start:0x805089E0 end:0x8050D3E8
+	.rodata     start:0x8075B090 end:0x8075B180
+	.data       start:0x80792E08 end:0x80793118
+	.bss        start:0x807C8FC8 end:0x807C8FF0
+
+atn/DwcAllocator_unk.cpp:
+	.text       start:0x8050D3E8 end:0x8050D7EC
+	.rodata     start:0x8075B180 end:0x8075B198
+	.sbss       start:0x8087F878 end:0x8087F880
 
 atn/PPDATAU.cpp:
-	.text       start:0x8050D7EC end:0x8050DDDC
-	.rodata     start:0x8075B198 end:0x8075B1C0
-	.data       start:0x80793118 end:0x80793168
+	.text       start:0x8050D7EC end:0x8050E67C
+	.rodata     start:0x8075B198 end:0x8075B1F8
+	.data       start:0x80793118 end:0x807931A0
+	.sdata      start:0x8087E468 end:0x8087E480
+
+atn/NetFriend_unk.cpp:
+	.text       start:0x8050E67C end:0x8050F93C
+	.rodata     start:0x8075B1F8 end:0x8075B2A8
+	.data       start:0x807931A0 end:0x807932B8
+	.sbss       start:0x8087F880 end:0x8087F888
+	.sdata2     start:0x808877C0 end:0x808877C8
+
+game/NewCampPartsBase.cpp:
+	.text       start:0x8050F93C end:0x805128C0
+	.rodata     start:0x8075B2A8 end:0x8075B320
+	.data       start:0x807932B8 end:0x80793320
+	.sdata2     start:0x808877C8 end:0x808877E0
 
 game/NewCampPartsGmk.cpp:
 	.text       start:0x805128C0 end:0x80514720
@@ -2880,22 +3075,28 @@ game/NewCampPartsHint.cpp:
 	.sdata2     start:0x8088783C end:0x808878B0
 
 game/NewCampPartsItem.cpp:
-	.text       start:0x80516A5C end:0x8051B900
-	.rodata     start:0x8075BB6C end:0x8075BB80
-	.data       start:0x80793450 end:0x807934D8
-	.sdata2     start:0x808878B4 end:0x808878E0
+	.text       start:0x805169F8 end:0x8051B920
+	.ctors      start:0x8072D3B0 end:0x8072D3B4
+	.rodata     start:0x8075B988 end:0x8075BD28
+	.data       start:0x80793450 end:0x80793508
+	.bss        start:0x807C90F0 end:0x807C9100
+	.sdata      start:0x8087E488 end:0x8087E498
+	.sdata2     start:0x808878B0 end:0x808878E8
 
 game/NewCampPartsMapSelect.cpp:
-	.text       start:0x8051B984 end:0x80521DF8
-	.rodata     start:0x8075BF28 end:0x8075BF40
-	.data       start:0x80793508 end:0x80793590
-	.sdata2     start:0x808878EC end:0x808879E8
+	.text       start:0x8051B920 end:0x80521E1C
+	.ctors      start:0x8072D3B4 end:0x8072D3B8
+	.rodata     start:0x8075BD28 end:0x8075C260
+	.data       start:0x80793508 end:0x80793598
+	.bss        start:0x807C9100 end:0x807C9110
+	.sdata2     start:0x808878E8 end:0x808879E8
 
 game/NewCampPartsOption.cpp:
-	.text       start:0x80521E80 end:0x80526358
-	.rodata     start:0x8075C6B0 end:0x8075C6C4
-	.data       start:0x80793610 end:0x80793698
-	.sdata2     start:0x808879EC end:0x80887A58
+	.text       start:0x80521E1C end:0x805268C8
+	.rodata     start:0x8075C260 end:0x8075CC30
+	.data       start:0x80793598 end:0x80793698
+	.sdata      start:0x8087E498 end:0x8087E4A0
+	.sdata2     start:0x808879E8 end:0x80887A58
 
 game/NewCampPartsStatus.cpp:
 	.text       start:0x805268C8 end:0x80529118
@@ -2913,35 +3114,78 @@ game/NewCampPartsTop.cpp:
 	.sdata2     start:0x80887A88 end:0x80887AB0
 
 game/NewCampTask.cpp:
-	.text       start:0x8052A8EC end:0x8052C108
-	.rodata     start:0x8075D310 end:0x8075D31C
-	.data       start:0x80793830 end:0x80793868
-	.sdata2     start:0x80887AC4 end:0x80887B14
+	.text       start:0x8052A888 end:0x8053108C
+	.ctors      start:0x8072D3BC end:0x8072D3C0
+	.rodata     start:0x8075D310 end:0x8075D450
+	.data       start:0x807937E8 end:0x80793888
+	.bss        start:0x807C9120 end:0x807C9140
+	.sdata      start:0x8087E4A4 end:0x8087E4B0
+	.sdata2     start:0x80887AB0 end:0x80887B30
 
 game/NewStaffRoll.cpp:
-	.text       start:0x8053108C end:0x80531E80
+	.text       start:0x8053108C end:0x80531ED0
 	.rodata     start:0x8075D450 end:0x8075D4C0
 	.data       start:0x80793888 end:0x80793940
 	.sdata      start:0x8087E4B0 end:0x8087E4B8
 	.sdata2     start:0x80887B30 end:0x80887B80
 
 game/NewTitleTask.cpp:
-	.text       start:0x80531F44 end:0x80536CA8
-	.rodata     start:0x8075D558 end:0x8075D5B0
-	.data       start:0x80793A20 end:0x80793A58
+	.text       start:0x80531ED0 end:0x80537708
+	.rodata     start:0x8075D4C0 end:0x8075D928
+	.data       start:0x80793940 end:0x80793AB0
 	.sdata2     start:0x80887B80 end:0x80887C68
 
 Event/Node.cpp:
-	.text       start:0x80537708 end:0x8053D3F8
-	.ctors      start:0x8072D3C0 end:0x8072D3D0
-	.rodata     start:0x8075D930 end:0x8075D94C
-	.data       start:0x80793AB0 end:0x80793AF0
+	.text       start:0x80537708 end:0x8053A4DC
+	.rodata     start:0x8075D928 end:0x8075D998
+	.data       start:0x80793AB0 end:0x80793B28
+	.sdata      start:0x8087E4B8 end:0x8087E4C0
 	.sdata2     start:0x80887C68 end:0x80887C80
+
+Event/Channel.cpp:
+	.text       start:0x8053A4DC end:0x8053AFB8
+	.ctors      start:0x8072D3C0 end:0x8072D3C4
+	.rodata     start:0x8075D998 end:0x8075DA90
+	.data       start:0x80793B28 end:0x80793C18
+
+Event/Cut.cpp:
+	.text       start:0x8053AFB8 end:0x8053C6A4
+	.ctors      start:0x8072D3C4 end:0x8072D3C8
+	.rodata     start:0x8075DA90 end:0x8075DD00
+	.data       start:0x80793C18 end:0x80793DF0
+	.sdata2     start:0x80887C80 end:0x80887C88
+
+Event/Label.cpp:
+	.text       start:0x8053C6A4 end:0x8053C750
+	.ctors      start:0x8072D3C8 end:0x8072D3CC
+	.rodata     start:0x8075DD00 end:0x8075DD68
+	.data       start:0x80793DF0 end:0x80793E58
+	.sdata2     start:0x80887C88 end:0x80887C90
+
+Event/Section.cpp:
+	.text       start:0x8053C750 end:0x8053D0F4
+	.ctors      start:0x8072D3CC end:0x8072D3D0
+	.rodata     start:0x8075DD68 end:0x8075DEF8
+	.data       start:0x80793E58 end:0x807940F0
+	.sdata2     start:0x80887C90 end:0x80887C98
+
+Event/Sequence.cpp:
+	.text       start:0x8053D0F4 end:0x805430E8
+	.rodata     start:0x8075DEF8 end:0x8075E120
+	.data       start:0x807940F0 end:0x80794430
+	.sdata      start:0x8087E4C0 end:0x8087E4D8
+	.sdata2     start:0x80887C98 end:0x80887CD8
 
 Event/StringData.cpp:
 	.text       start:0x805430E8 end:0x80543108
 	.rodata     start:0x8075E120 end:0x8075E148
 	.data       start:0x80794430 end:0x80794480
+
+Event/Sequence_cont.cpp:
+	.text       start:0x80543108 end:0x80546000
+	.ctors      start:0x8072D3D0 end:0x8072D3D4
+	.rodata     start:0x8075E148 end:0x8075E300
+	.data       start:0x80794480 end:0x80794608
 
 game/Np131LivingArmor.cpp:
 	.text       start:0x80546000 end:0x805477C8
@@ -2956,10 +3200,20 @@ game/NpcManager.cpp:
 	.rodata     start:0x8075E380 end:0x8075E398
 	.data       start:0x80794738 end:0x80794780
 
+game/NpcManager_cont.cpp:
+	.text       start:0x80547980 end:0x80547C28
+
 game/NpcTask.cpp:
 	.text       start:0x80547C28 end:0x80547EA0
 	.rodata     start:0x8075E398 end:0x8075E3A8
 	.data       start:0x80794780 end:0x80794888
+
+game/PathData_unk.cpp:
+	.text       start:0x80547EA0 end:0x80548D54
+	.ctors      start:0x8072D3D4 end:0x8072D3D8
+	.rodata     start:0x8075E3A8 end:0x8075E3F8
+	.data       start:0x80794888 end:0x807948E8
+	.sdata2     start:0x80887D38 end:0x80887D40
 
 game/PickTask.cpp:
 	.text       start:0x80548D54 end:0x80549D8C
@@ -2968,48 +3222,86 @@ game/PickTask.cpp:
 	.sbss       start:0x8087F898 end:0x8087F8A0
 	.sdata2     start:0x80887D40 end:0x80887D58
 
+game/PlayerManager.cpp:
+	.text       start:0x80549D8C end:0x8054A3DC
+	.rodata     start:0x8075E458 end:0x8075E478
+	.data       start:0x80794920 end:0x80794968
+	.sdata2     start:0x80887D58 end:0x80887D60
+
+game/PlayerTask.cpp:
+	.text       start:0x8054A3DC end:0x8054A6E8
+	.rodata     start:0x8075E478 end:0x8075E480
+	.data       start:0x80794968 end:0x80794A60
+
 game/PopupTask.cpp:
-	.text       start:0x8054A750 end:0x8054D794
-	.rodata     start:0x8075E490 end:0x8075E49C
-	.data       start:0x80794A84 end:0x80794AC0
-	.sdata2     start:0x80887D64 end:0x80887E04
+	.text       start:0x8054A6E8 end:0x8054E574
+	.rodata     start:0x8075E480 end:0x8075E800
+	.data       start:0x80794A60 end:0x80794AE0
+	.sdata2     start:0x80887D60 end:0x80887E20
 
 Event/ActionActorBehavior.cpp:
 	.text       start:0x8054E574 end:0x80551108
-	.rodata     start:0x8075E800 end:0x8075E81C
-	.data       start:0x80794AE0 end:0x80794B10
+	.rodata     start:0x8075E800 end:0x8075E850
+	.data       start:0x80794AE0 end:0x80794B18
+	.bss        start:0x807C9140 end:0x807C9220
+	.sdata      start:0x8087E4E8 end:0x8087E670
+	.sbss       start:0x8087F8B0 end:0x8087F978
 	.sdata2     start:0x80887E20 end:0x80887E30
 
 Event/ActionActorPosition.cpp:
-	.text       start:0x80552460 end:0x8055A400
-	.rodata     start:0x8075E860 end:0x8075EB2C
-	.data       start:0x80794B48 end:0x80794D70
-	.sdata2     start:0x80887E48 end:0x80887E70
+	.text       start:0x80551108 end:0x8055A49C
+	.ctors      start:0x8072D3D8 end:0x8072D3DC
+	.rodata     start:0x8075E850 end:0x8075EC98
+	.data       start:0x80794B18 end:0x80794D78
+	.bss        start:0x807C9220 end:0x807C9238
+	.sdata      start:0x8087E670 end:0x8087E678
+	.sbss       start:0x8087F978 end:0x8087F980
+	.sdata2     start:0x80887E30 end:0x80887E70
 
 Event/ActionCameraMode.cpp:
-	.text       start:0x8055A49C end:0x8055D6B4
-	.rodata     start:0x8075EFC0 end:0x8075F028
-	.data       start:0x80794EE0 end:0x80794F48
+	.text       start:0x8055A49C end:0x8055DBF4
+	.rodata     start:0x8075EC98 end:0x8075F060
+	.data       start:0x80794D78 end:0x80794F50
+	.bss        start:0x807C9238 end:0x807C9248
+	.sbss       start:0x8087F980 end:0x8087F988
 	.sdata2     start:0x80887E70 end:0x80887EB0
 
 Event/ActionEffectPlay.cpp:
 	.text       start:0x8055DBF4 end:0x805634D0
 	.ctors      start:0x8072D3DC end:0x8072D3E0
-	.rodata     start:0x8075F408 end:0x8075FAC8
-	.data       start:0x80795120 end:0x80795658
+	.rodata     start:0x8075F408 end:0x8075FB48
+	.data       start:0x80795120 end:0x80795660
+	.bss        start:0x807C9248 end:0x807C9558
+	.sdata      start:0x8087E678 end:0x8087E680
+	.sbss       start:0x8087F988 end:0x8087F990
 	.sdata2     start:0x80887EB0 end:0x80887F30
 
+chr/CharaEquip_unk.cpp:
+	.text       start:0x805634D0 end:0x80566420
+	.rodata     start:0x8075FB48 end:0x8075FCA0
+	.data       start:0x80795660 end:0x807956B8
+	.sdata2     start:0x80887F30 end:0x80887F40
+
 game/QuadrupedTask.cpp:
-	.text       start:0x80566420 end:0x80568EE0
-	.rodata     start:0x8075FE20 end:0x8075FE30
-	.data       start:0x807956F0 end:0x80795820
-	.sdata2     start:0x80887F44 end:0x80888004
+	.text       start:0x80566420 end:0x8056A84C
+	.rodata     start:0x8075FCA0 end:0x8075FE68
+	.data       start:0x807956B8 end:0x80795820
+	.bss        start:0x807C9558 end:0x807C9568
+	.sbss       start:0x8087F990 end:0x8087F998
+	.sdata2     start:0x80887F40 end:0x80888018
 
 game/ReplayBuffer.cpp:
-	.text       start:0x8056BF8C end:0x8056F5B4
-	.rodata     start:0x8075FF50 end:0x8075FF60
-	.data       start:0x80795828 end:0x80795848
-	.sdata2     start:0x80888044 end:0x80888058
+	.text       start:0x8056A84C end:0x80570A14
+	.rodata     start:0x8075FE68 end:0x8075FFB0
+	.data       start:0x80795820 end:0x80795850
+	.bss        start:0x807C9568 end:0x807C9570
+	.sbss       start:0x8087F998 end:0x8087F9A0
+	.sdata2     start:0x80888018 end:0x80888058
+
+game/GameSystem_unk.cpp:
+	.text       start:0x80570A14 end:0x8057162C
+	.rodata     start:0x8075FFB0 end:0x8075FFB8
+	.sdata2     start:0x80888058 end:0x80888060
 
 game/SelectMember.cpp:
 	.text       start:0x8057162C end:0x805727A4
@@ -3018,9 +3310,23 @@ game/SelectMember.cpp:
 	.sdata2     start:0x80888060 end:0x80888088
 
 atn/SequenceUnitParam1_const_int.cpp:
-	.text       start:0x80574750 end:0x80575018
-	.rodata     start:0x80760C58 end:0x80760D14
-	.data       start:0x80796718 end:0x80796790
+	.text       start:0x805727A4 end:0x80575F0C
+	.ctors      start:0x8072D3E0 end:0x8072D3E4
+	.rodata     start:0x807600C8 end:0x80760D70
+	.data       start:0x80795888 end:0x80796790
+	.bss        start:0x807C9570 end:0x807C95A0
+	.sdata      start:0x8087E680 end:0x8087E688
+	.sbss       start:0x8087F9A8 end:0x8087F9B8
+
+Event/EventLoader_unk.cpp:
+	.text       start:0x80575F0C end:0x805763F8
+	.rodata     start:0x80760D70 end:0x80760DE8
+
+Event/EventParser_unk.cpp:
+	.text       start:0x805763F8 end:0x8057E83C
+	.rodata     start:0x80760DE8 end:0x80761050
+	.sbss       start:0x8087F9B8 end:0x8087F9C0
+	.sdata2     start:0x80888088 end:0x80888098
 
 game/SetConfig.cpp:
 	.text       start:0x8057E83C end:0x8057F0F8
@@ -3029,10 +3335,14 @@ game/SetConfig.cpp:
 	.sbss       start:0x8087F9C0 end:0x8087F9C8
 	.sdata2     start:0x80888098 end:0x808880C0
 
+game/SetConfig_cont.cpp:
+	.text       start:0x8057F0F8 end:0x8057F280
+
 game/ShopBase.cpp:
 	.text       start:0x8057F280 end:0x80584FE4
-	.rodata     start:0x80761290 end:0x807612E4
-	.data       start:0x807967A8 end:0x80796808
+	.rodata     start:0x807611F0 end:0x80761670
+	.data       start:0x807967A8 end:0x80796840
+	.sdata      start:0x8087E688 end:0x8087E690
 	.sdata2     start:0x808880C0 end:0x808880F0
 
 game/ShopBuySell.cpp:
@@ -3053,35 +3363,55 @@ game/ShopIdentify.cpp:
 	.text       start:0x80588684 end:0x8058AABC
 	.rodata     start:0x80761AA0 end:0x80761C90
 	.data       start:0x80796970 end:0x80796A20
+	.sdata      start:0x8087E690 end:0x8087E6A8
 	.sbss       start:0x8087F9D8 end:0x8087F9E0
 	.sdata2     start:0x80888130 end:0x80888150
 
 game/ShopUpGrade.cpp:
-	.text       start:0x8058AC90 end:0x8058CA44
-	.rodata     start:0x80761D28 end:0x80761D5C
-	.data       start:0x80796A44 end:0x80796AB0
+	.text       start:0x8058AABC end:0x80598874
+	.rodata     start:0x80761C90 end:0x80762118
+	.data       start:0x80796A20 end:0x80796AF0
+	.sdata      start:0x8087E6A8 end:0x8087E6D0
+	.sbss       start:0x8087F9E0 end:0x8087F9E8
+	.sdata2     start:0x80888150 end:0x80888178
 
 game/SkillEffectManager.cpp:
-	.text       start:0x8059AB98 end:0x8059C084
-	.rodata     start:0x80762128 end:0x807622E0
-	.data       start:0x80796B28 end:0x80796B60
-	.sdata2     start:0x808881C0 end:0x808881FC
+	.text       start:0x80598874 end:0x8059D7D8
+	.rodata     start:0x80762118 end:0x807622E0
+	.data       start:0x80796AF0 end:0x80796B60
+	.sbss       start:0x8087F9E8 end:0x8087F9F0
+	.sdata2     start:0x80888178 end:0x80888218
 
 nw4r/DvdSoundArchive.cpp:
 	.text       start:0x8059D7D8 end:0x8059E21C
 	.rodata     start:0x807622E0 end:0x80762328
-	.data       start:0x80796B60 end:0x80796C28
+	.data       start:0x80796B60 end:0x80796C70
 
 nw4r/SoundArchive.cpp:
-	.text       start:0x8059E21C end:0x8059E280
+	.text       start:0x8059E21C end:0x8059E7EC
 	.rodata     start:0x80762360 end:0x80762378
 	.data       start:0x80796C70 end:0x80796D38
 
 nw4r/SeqNoteOnCallback.cpp:
-	.text       start:0x8059E7EC end:0x805A21C0
-	.rodata     start:0x80762700 end:0x80762780
-	.data       start:0x80796D38 end:0x80796DD8
+	.text       start:0x8059E7EC end:0x805A2240
+	.rodata     start:0x807626F8 end:0x80763228
+	.data       start:0x80796D38 end:0x80797330
 	.sdata2     start:0x80888218 end:0x80888220
+
+game/SongManager.cpp:
+	.text       start:0x805A2240 end:0x805A3C54
+	.rodata     start:0x80763228 end:0x80763290
+	.data       start:0x80797330 end:0x80797368
+	.sdata      start:0x8087E6D0 end:0x8087E6E0
+	.sbss       start:0x8087F9F0 end:0x8087F9F8
+	.sdata2     start:0x80888220 end:0x80888248
+
+game/SpecialEnemyBase.cpp:
+	.text       start:0x805A3C54 end:0x805A6208
+	.rodata     start:0x80763290 end:0x807637E0
+	.data       start:0x80797368 end:0x807975B0
+	.bss        start:0x807C95A0 end:0x807C95B0
+	.sdata2     start:0x80888248 end:0x808882A0
 
 game/StrapTask.cpp:
 	.text       start:0x805A6208 end:0x805A6A80
@@ -3094,22 +3424,54 @@ game/Sword.cpp:
 	.rodata     start:0x80763838 end:0x80763840
 	.data       start:0x807975E8 end:0x80797618
 
+game/HeapInfo_unk.cpp:
+	.text       start:0x805A6B54 end:0x805A6D20
+	.rodata     start:0x80763840 end:0x80763848
+	.sdata2     start:0x808882E0 end:0x808882E8
+
 game/TacView.cpp:
-	.text       start:0x805A6D20 end:0x805A96D4
-	.rodata     start:0x807639C8 end:0x807639F8
-	.data       start:0x807976EC end:0x80797728
-	.sdata2     start:0x808882EC end:0x80888328
+	.text       start:0x805A6D20 end:0x805AE26C
+	.ctors      start:0x8072D3E4 end:0x8072D3E8
+	.rodata     start:0x80763848 end:0x80763C28
+	.data       start:0x80797618 end:0x80797740
+	.bss        start:0x807C95B0 end:0x807C9AA0
+	.sdata      start:0x8087E6E0 end:0x8087E6E8
+	.sbss       start:0x8087F9F8 end:0x8087FA00
+	.sdata2     start:0x808882E8 end:0x80888368
+
+game/TeamAI_unk.cpp:
+	.text       start:0x805AE26C end:0x805B3420
+	.rodata     start:0x80763C28 end:0x80763C98
+	.data       start:0x80797740 end:0x80797790
+	.sdata      start:0x8087E6E8 end:0x8087E6F0
+	.sdata2     start:0x80888368 end:0x80888390
 
 game/TeamAIManager.cpp:
-	.text       start:0x805B3420 end:0x805B4D90
-	.rodata     start:0x80763CF0 end:0x80763D00
+	.text       start:0x805B3420 end:0x805B4DF0
+	.rodata     start:0x80763C98 end:0x80763DC8
 	.data       start:0x80797790 end:0x807977C8
+	.sdata      start:0x8087E6F0 end:0x8087E6F8
+	.sbss       start:0x8087FA04 end:0x8087FA08
 	.sdata2     start:0x80888390 end:0x808883C0
+
+atn/THPDraw_unk.cpp:
+	.text       start:0x805B4DF0 end:0x805B55A8
+	.rodata     start:0x80763DC8 end:0x80763DD8
+	.sdata2     start:0x808883C0 end:0x808883D8
+
+atn/THPPlayer_unk.cpp:
+	.text       start:0x805B55A8 end:0x805B6C5C
+	.rodata     start:0x80763DD8 end:0x80763DE8
+	.data       start:0x807977C8 end:0x807978C8
+	.bss        start:0x807C9AA0 end:0x807C9F80
+	.sbss       start:0x8087FA08 end:0x8087FA20
+	.sdata2     start:0x808883D8 end:0x808883E0
 
 game/TownTask.cpp:
 	.text       start:0x805B6C5C end:0x805B9B08
 	.rodata     start:0x80763DE8 end:0x80763EB8
 	.data       start:0x807978C8 end:0x80797928
+	.sdata      start:0x8087E6F8 end:0x8087E700
 	.sbss       start:0x8087FA20 end:0x8087FA28
 	.sdata2     start:0x808883E0 end:0x80888448
 
@@ -3120,10 +3482,22 @@ game/TownTpcLoader.cpp:
 	.sdata2     start:0x80888448 end:0x80888450
 
 game/TutorialTask.cpp:
-	.text       start:0x805B9FC4 end:0x805BD4B8
-	.rodata     start:0x80763F18 end:0x80763F38
-	.data       start:0x80797974 end:0x807979E8
+	.text       start:0x805B9EC8 end:0x805BD4B8
+	.rodata     start:0x80763ED0 end:0x80764040
+	.data       start:0x80797960 end:0x807979E8
 	.sdata2     start:0x80888450 end:0x808884B8
+
+atn/Xsca_unk.cpp:
+	.text       start:0x805BD4B8 end:0x805BE8FC
+	.rodata     start:0x80764040 end:0x807640B0
+	.data       start:0x807979E8 end:0x80797A08
+
+atn/XsfParser_unk.cpp:
+	.text       start:0x805BE8FC end:0x805BFAC0
+	.rodata     start:0x807640B0 end:0x80764138
+	.data       start:0x80797A08 end:0x80797A28
+	.sdata      start:0x8087E700 end:0x8087E708
+	.sdata2     start:0x808884B8 end:0x808884C8
 
 RVL_SDK/src/revolution/esp/esp.c:
 	.text       start:0x805BFAC0 end:0x805C00E0
