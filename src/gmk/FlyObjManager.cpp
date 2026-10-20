@@ -141,8 +141,8 @@ FlyObj::FlyObj() : mRadius(3.0f), mModel(8, 32), mPos(0.0f, 0.0f, 0.0f), mRot(0.
 
 FlyObj::~FlyObj() {}
 
-// NONMATCHING: 96.2% - stack order of the temporaries (state 3 vectors, direction copy, sphere) and a
-// few float registers
+// NONMATCHING: 98.8% - the sphere temporaries at the end sit below the state 3 temporaries here (above
+// in the original) and a few float registers. The fall is applied before the rotation reset.
 void FlyObj::fn_80427870() {
     if (mState <= 1) {
         return;
@@ -154,8 +154,8 @@ void FlyObj::fn_80427870() {
         if (--mTimer < 0) {
             return;
         }
-        mRot = atn::Vector3(0.0f, 0.0f, 0.0f);
         mPos += atn::Vector3(0.0f, -2.0f, 0.0f);
+        mRot = atn::Vector3(0.0f, 0.0f, 0.0f);
         mRot.x = 1.5707964f;
     }
     mModel.fn_80092A4C();
