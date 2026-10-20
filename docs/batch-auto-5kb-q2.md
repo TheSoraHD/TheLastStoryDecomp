@@ -87,7 +87,7 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - Una comparacion de floats dentro de una inline que devuelve `bool` sale con `mfcr`; escrita en linea, con `bge`.
   - Las clases plantilla derivadas vacias con dtor emiten sus dtors debiles aunque nadie los llame (el enlazador los elimina).
 
-## atn/PostFxDof (commit HASH4)
+## atn/PostFxDof (commit 951459c)
 
 - Resultado: 2/3 al 100% (ctor y `vf10`, 0x5DC), `matching: false`.
 - NONMATCHING: `PostFxDof::fn_800ACCB8` (reconstruye la tabla de profundidad 256x256 IA8) 97.47% - reparto de FPR de la
