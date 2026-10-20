@@ -56,7 +56,9 @@ GimmickCommon* HealPoint::fn_8040EC30(atn::Task* parent, int id, int arg) {
     return 0;
 }
 
-// NONMATCHING: 93.8% - scheduling of the inline constructor (rotation loaded before the position)
+// NONMATCHING: 93.8% - scheduling of the inline constructor (the original loads desc->mRotY and the
+// position between the stores of mWait and m54). Tried: rotation temporary/local first, member
+// helpers, mWait/m54 stores before/after the copies, m78 before m6C.
 GimmickCommon* HealPoint::fn_8040ED00(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
         return new (12, "", "", 0) HealPoint(parent, desc);
@@ -74,15 +76,14 @@ int HealPoint::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.3% - r3/r4 swapped (the zero of mWait and the collision flags)
 void HealPoint::vf28() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
     mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
-    mWait = 0;
     mColli.mFlags |= 1;
+    mWait = 0;
     GimmickMsg_unk msg(2);
     if (m58 == 1) {
         msg.mType = 1;
