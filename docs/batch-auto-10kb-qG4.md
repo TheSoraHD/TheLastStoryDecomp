@@ -50,3 +50,36 @@ Cola: `game/Gun`, `game/HomingBullet`, `game/main`, `game/MapPartsLocatorSet`, `
   - `float sz = Col(2); float sy = Col(1); float sx = Col(0); Vector3 s(sx, sy, sz);` dentro de un
     inline da el orden de pila del original (s debajo de los tres temporales de columna).
 - Pendientes: `__sinit` con guards de facetas MSL (si se quiere enlazar HColliData_unk).
+
+## game/HomingBullet + game/IffChunkFile_unk (commit 7e04e15)
+- Resultado: `game/HomingBullet` 8/10 al 100%, `matching: false`; `game/IffChunkFile_unk` (nueva) 4/5 al
+  100%, `matching: false`. `main.dol: OK`, regress lost: 0.
+- NONMATCHING:
+  - `HomingBullet::vf28` 84.3%: el original carga todo el bloque de parametros antes de guardar los campos
+    del dueno (planificacion; probados parametro por valor, copia a local, struct sin ctor) y elige
+    otros registros en el evento de replay.
+  - `HomingBullet::vf10` 99.93%: r3/r4 de la copia de vector inline (familia `__VecCopy`).
+  - `HomingBullet::vf1C` (0x80441F24, 0xB78) sin escribir (declarado): reaccion al impacto, rebote
+    con matrices 4x4, `atan2`, `chr::Control` nuevo, sonidos (pool "SE_DG036_015"/"SE_BTCOM_015").
+  - `ChunkFile_unk::ChunkFile_unk` 86.6%: registros de la rama con cambio de endianness; el original
+    calcula las direcciones de la cabecera con `addi` donde aqui sale `lwzu`.
+- **Decisiones sin el usuario**:
+  - splits.txt: `game/HomingBullet` .text 0x80441590-0x80442F10 -> 0x80441590-0x80442B50; nueva
+    `game/IffChunkFile_unk.cpp` .text 0x80442B50-0x80442F10 (solo .text). Prueba: las 5 funciones del
+    lector de chunks no usan datos de HomingBullet y se llaman fuera de linea desde otro fichero
+    (HColliData_unk). Nombre inventado: el orden alfabetico de enlace exige un nombre entre
+    "HomingBullet" y el del gestor de objetos (`ItemManager_unk`, tambien inventado).
+  - Cabeceras nuevas: `include/game/Bullet.h` (clase base `Bullet` inferida: layout desde HomingBullet,
+    metodos no virtuales como `extern "C"` con `Bullet*`, `BulletShot_unk`), `include/game/HomingBullet.h`
+    (`HomingParam_unk`, 0x24 bytes en mA0).
+  - symbols.txt: `fn_8010ED4C` -> `__ct__6BulletFv`, `fn_8010EE38` -> `__dt__6BulletFv` (unidad asm
+    game/Bullet), `fn_800F1EE0` -> `__dt__12HomingBulletFv` (copia debil del dtor implicito, unidad asm
+    game/BattleTask); funciones de HomingBullet por pairnames y a mano (vf0C, vf10, vf1C, vf28),
+    `lbl_80754608` -> `@stringBase0` (scope:local, 0x1D).
+  - game_units.json: entradas nuevas `game/HomingBullet.cpp`, `game/IffChunkFile_unk.cpp`.
+- Hallazgos MWCC:
+  - `int r = ((m04 >> 2) & 1) ^ 1;` da `rlwinm` + `xori`; `!((m04 >> 2) & 1)` da `cntlzw/srwi`.
+  - `cos()` llamado desde un inline `float CosF(float x)` deja la carga del argumento antes de guardar
+    el resultado anterior (`lfs f0; fmr f28,f1; fmr f1,f0`).
+  - Comparacion de un `unsigned char` con `cmpwi` (no `cmplwi`): `(int)c == 6`.
+- Pendientes: `HomingBullet::vf1C`; `game/Bullet` (asm) tiene la clase base completa para decompilar.
