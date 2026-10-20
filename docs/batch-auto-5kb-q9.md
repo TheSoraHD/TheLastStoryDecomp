@@ -16,7 +16,7 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
     volumenes; `GameSaveData_unk` 0x803BD79C lo rellena y llama a 0x8057F1B4).
 - Hallazgos MWCC: ninguno nuevo.
 
-## game/GameTimer_cont (commit HASH)
+## game/GameTimer_cont (commit 87a8ab4)
 
 - Resultado: 7/7 al 100%, fusionada en `game/GameTimer` (`matching: true`, `main.dol: OK`).
 - NONMATCHING: ninguna.
