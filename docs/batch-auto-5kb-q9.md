@@ -114,7 +114,7 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
   - Nombre real propuesto del fichero: `atn_bgm.cpp` (pista de `splits-auto-A`), sin cambios.
 - Hallazgos MWCC: ninguno nuevo.
 
-## game/MarketTask_cont (commit HASH)
+## game/MarketTask_cont (commit f8a6cdf)
 
 - Resultado: 6/6 al 100%, fusionada en `game/MarketTask` (`matching: true`, `main.dol: OK`).
 - NONMATCHING: ninguna.
