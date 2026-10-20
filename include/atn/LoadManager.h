@@ -27,12 +27,69 @@ struct __HashIs_unk {
     unsigned int mHash;
 };
 
+class PfsArchive_unk;
+
+// inferred: load from an archive whose index is not read yet (0x4C bytes, atn/LoadManager_unk.cpp
+// 0x8046C3FC). Name invented.
+struct PendingLoad_unk {
+    // inferred: path copied only from another buffer, without constructor (none is called for the
+    // local copy of 0x8046C3FC)
+    struct Path_unk {
+        void operator=(const char* src) {
+            if (src != m) {
+                memcpy(m, src, strlen(src) + 1);
+            }
+        }
+        char m[0x40];
+    };
+    PendingLoad_unk(PfsArchive_unk* archive, LoadCore* core, const char* path, int index)
+        : mArchive(archive), mCore(core) {
+        mPath = path;
+        mIndex = index;
+    }
+    PfsArchive_unk* mArchive;
+    LoadCore* mCore;
+    Path_unk mPath;
+    int mIndex;
+};
+
+// inferred: loaded resources sorted by path hash (count, then the array). Name invented.
+struct LoadCache_unk {
+    unsigned int size() const { return mCount; }
+    LoadCore*& operator[](int i) { return mItems[i]; }
+    LoadCore** begin() { return mItems; }
+    void push_back(LoadCore* core) {
+        new (&mItems[mCount]) LoadCore*(core);
+        mCount++;
+    }
+    void insert(LoadCore** pos, LoadCore* core) {
+        unsigned int index = pos - begin();
+        for (unsigned int i = mCount; i > index; i--) {
+            mItems[i] = mItems[i - 1];
+        }
+        mItems[index] = core;
+        mCount++;
+    }
+
+    unsigned int mCount;
+    LoadCore* mItems[(0x3ECC - 0x4C) / 4];
+};
+
 // inferred: manager of the resources being loaded (global at 0x8087F518). Name invented.
 class LoadManager_unk {
 public:
+    // inferred: it has a vtable (0x80473FCC calls the slot 0x10); the other slots are unknown
+    virtual void vf08();
+    virtual void vf0C();
+    virtual void vf10(); // inferred: advances the pending loads
     int fn_8046C3FC(LoadCore* core);  // inferred: queues the resource, 0 on failure
-    void fn_8046F5CC(LoadCore* core); // inferred: releases a resource that could not be queued
+    PfsArchive_unk* fn_8046F460(const char* path); // inferred: archive by name
+    int fn_8046F4D4(const char* path);             // inferred: some mounted archive has `path`
+    int fn_8046F544(void* out, const char* dir, const char* ext, int flags);
+    void fn_8046F5CC(LoadCore* core); // inferred: adds a resource to the sorted cache
     LoadCore* fn_8046F834(void* list, unsigned int hash); // inferred: lookup in another container
+    void fn_8046F8B8(unsigned int* hashes, unsigned int count); // inferred: references cached resources
+    void fn_8046F96C(unsigned int* hashes, unsigned int count); // inferred: releases them
 
     // inferred: lookup of a resource by path hash. The early return gives the bne+b of 0x80472E5C.
     LoadCore* Find_unk(unsigned int hash) {
@@ -44,7 +101,7 @@ public:
                 return core;
             }
         }
-        return fn_8046F834(m48, hash);
+        return fn_8046F834(&m48, hash);
     }
 
     // inferred: returns the resource for `path`, creating it if needed. A template instantiated by
@@ -52,9 +109,15 @@ public:
     template <class T>
     T* Get_unk(const char* path, int cached);
 
-    unsigned char m00[0x48];
-    unsigned char m48[0x3ECC - 0x48]; // inferred: another container, see fn_8046F834
+    unsigned char m04[0x48 - 0x04];
+    LoadCache_unk m48;                // inferred: another container, see fn_8046F834
     std::list<LoadCore*> mList;       // 0x3ECC
+    int m3ED8; // inferred: nonzero when the files on disc take priority over the archives
+    int m3EDC; // inferred: set when a resource loses its last reference (0x804730E4)
+    unsigned char m3EE0[0x4020 - 0x3EE0];
+    std::list<PfsArchive_unk*> mArchives; // 0x4020: inferred: every opened archive
+    std::list<PfsArchive_unk*> mMounted;  // 0x402C: inferred: archives searched by path
+    std::list<PendingLoad_unk> mPending;  // 0x4038: inferred: loads waiting for an archive index
 };
 
 // Defined out of the class: its literals are in the file string pool (0x80755C90).

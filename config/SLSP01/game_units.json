@@ -376,6 +376,16 @@
   "matching": false
  },
  {
+  "name": "atn/Util_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/NumberFormat_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "std/char_traits_char.cpp",
   "classes": [
    "std::basic_ios<char, std::char_traits<char>>"
@@ -909,6 +919,13 @@
   "matching": false
  },
  {
+  "name": "atn/D2A_ParamTable_unk.cpp",
+  "classes": [
+   "atn::D2A_ParamTable"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/D2A_Line.cpp",
   "classes": [
    "atn::D2A_Line"
@@ -920,6 +937,11 @@
   "classes": [
    "atn::D2A_Message"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_MessageTable_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {
@@ -1017,6 +1039,171 @@
   "matching": true
  },
  {
+  "name": "db/BgmIdTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/ColliAttrTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/HateParam_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/AiTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/ArrowSet_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/CharaMotionParam_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/EventIdTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ChaseParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ChapterList_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/InitSetting_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/CharaIdTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/PaletteTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/CharaParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/EquipParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ItemRare_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/TreasureList_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/MarketPrice_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/StrategyAiTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/PlayerPriority_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/LevelEquipTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/VoiceLengthTable_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/TutorialTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/MemberList_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ReverbPresetParam_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/SkillGrowth_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/SkillParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/HairBackControl_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "db/PlayerParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/TreasureBoxTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/ParseUtil_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/MapEnvSeTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/MapIdTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/RandomItemTable_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/ptr_string_base_char_0.cpp",
   "classes": [
    "atn::ptr_string_base<char, 0>"
@@ -1038,6 +1225,29 @@
   "matching": false
  },
  {
+  "name": "atn/EfpHandle_unk.cpp",
+  "classes": [
+   "atn::EfpHandle_unk",
+   "ResLoader_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/EffectRes_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/EffectLoader_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/LoadManager_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/EffectManager.cpp",
   "classes": [
    "atn::EffectManager"
@@ -1049,6 +1259,18 @@
   "classes": [
    "std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char>>>"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/EffectManager_cont.cpp",
+  "classes": [
+   "atn::EffectManager"
+  ],
+  "matching": true
+ },
+ {
+  "name": "atn/EffectSequencer_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {
@@ -2079,6 +2301,13 @@
   "matching": false
  },
  {
+  "name": "atn/LH_Core.cpp",
+  "classes": [
+   "atn::LoadCore"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/LH_Effect.cpp",
   "classes": [
    "atn::LoadEffect",
@@ -2091,6 +2320,20 @@
   "classes": [
    "atn::LoadEfp",
    "atn::LH_Efp"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/FileSystem_unk.cpp",
+  "classes": [
+   "atn::PfsArchive_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LH_Handle.cpp",
+  "classes": [
+   "atn::LoadHandle"
   ],
   "matching": false
  },
@@ -2117,6 +2360,13 @@
    "atn::LH_Motion"
   ],
   "matching": true
+ },
+ {
+  "name": "atn/LH_Motion_cont.cpp",
+  "classes": [
+   "atn::LH_Motion"
+  ],
+  "matching": false
  },
  {
   "name": "atn/LH_MotionCommandData.cpp",
@@ -2399,8 +2649,9 @@
  {
   "name": "atn/PPDATAU.cpp",
   "classes": [
-   "atn::net::PPDATAR",
-   "atn::net::PPDATAU"
+   "atn::net::PPDATA",
+   "atn::net::PPDATAU",
+   "atn::net::PPDATAR"
   ],
   "matching": false
  },
@@ -2737,6 +2988,338 @@
    "TutorialPopup",
    "TutorialTask"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/DwcAllocator_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/THPDraw_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/XsfParser_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Bezier_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/NetFriend_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Math_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/LipSync_unk.cpp",
+  "classes": [
+   "Chara1154_unk",
+   "LipSyncData_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Pad_unk.cpp",
+  "classes": [
+   "Pad_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LightUtil_unk.cpp",
+  "classes": [
+   "LightSet_unk",
+   "LightList_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Light_unk.cpp",
+  "classes": [
+   "Light_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxBloom.cpp",
+  "classes": [
+   "atn::PostFxBloom",
+   "atn::IPostFx"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxColorMatrix.cpp",
+  "classes": [
+   "atn::PostFxColorMatrix"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/FileUtil_unk.cpp",
+  "classes": [
+   "DebugMessages_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Geometry_unk.cpp",
+  "classes": [
+   "atn::AABB_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/BoneCalc_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "AI/AiUtil_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "game/TargetPos_unk.cpp",
+  "classes": [
+   "AiTarget"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/BattleCalc_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "game/BattleEfp_unk.cpp",
+  "classes": [
+   "BattleEfpEntry_unk"
+  ],
+  "matching": true
+ },
+ {
+  "name": "Event/BehaviorGesture.cpp",
+  "classes": [
+   "Event::BehaviorGesture"
+  ],
+  "matching": true
+ },
+ {
+  "name": "Event/BehaviorMoveTo.cpp",
+  "classes": [
+   "Event::BehaviorMoveTo"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MenuCommon_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlMoveCursor.cpp",
+  "classes": [
+   "chr::ControlMoveCursor"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyTask.cpp",
+  "classes": [
+   "EnemyTask"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/GameSaveTask.cpp",
+  "classes": [
+   "GameSaveTask"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/GameSaveLoadBackgroundCommon.cpp",
+  "classes": [
+   "GameSaveLoadBackgroundCommon",
+   "GameSaveLoadCommon"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/U16Table_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "gmk/Cannon.cpp",
+  "classes": [
+   "gmk::Cannon"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/HomeButtonMenu.cpp",
+  "classes": [
+   "HomeButtonMenu"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Texture_unk.cpp",
+  "classes": [
+   "atn::Texture_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Se_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/CompositeCache_unk.cpp",
+  "classes": [
+   "atn::CompositeCache_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxDof.cpp",
+  "classes": [
+   "atn::PostFxDof"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/SequenceHolder.cpp",
+  "classes": [
+   "atn::SequenceHolder::SequenceUnit",
+   "atn::SequenceHolder::SequenceUnitBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxMotionBlur.cpp",
+  "classes": [
+   "atn::PostFxMotionBlur"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/TextureDraw_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxDamage.cpp",
+  "classes": [
+   "atn::PostFxDamage"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxRain.cpp",
+  "classes": [
+   "atn::PostFxRain"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MapInstance_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/MapPartsFactory.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "MP/NetGlobals_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "game/HeapInfo_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "MP/CharaListeners_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "Event/Channel.cpp",
+  "classes": [
+   "Event::Channel"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Cut.cpp",
+  "classes": [
+   "Event::Cut"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Label.cpp",
+  "classes": [
+   "Event::Label"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/Section.cpp",
+  "classes": [
+   "Event::Section"
+  ],
+  "matching": false
+ },
+ {
+  "name": "Event/EventLoader_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/PathData_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/PlayerManager.cpp",
+  "classes": [
+   "PlayerManager"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/PlayerTask.cpp",
+  "classes": [
+   "PlayerTask"
+  ],
+  "matching": true
+ },
+ {
+  "name": "game/GameSystem_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/HomeButton_unk.cpp",
+  "classes": [],
   "matching": false
  }
 ]

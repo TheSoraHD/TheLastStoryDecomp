@@ -89,6 +89,69 @@ inline void __Mtx44Copy(register float (*dst)[4], register const float (*src)[4]
     }
 }
 
+// inferred: component-wise min/max of two vectors with paired singles: ps_sub/fsub of a - b, then
+// ps_sel/fsel pick the smaller (or larger) component without branches (like VECMin/VECMax of other
+// SDKs). Union of two boxes at 0x80070C98 (atn::AABB_unk::Merge_unk), also in 0x80058EE4.
+// Names invented. The loads use psq_lu with offset 0 as in the original.
+inline void __VecMin(register float* dst, register const float* a, register const float* b) {
+    asm {
+        psq_lu fp0, 0(a), 0, 0
+        psq_lu fp2, 0(b), 0, 0
+        lfs fp1, 8(a)
+        lfs fp3, 8(b)
+        ps_sub fp4, fp0, fp2
+        fsub fp5, fp1, fp3
+        ps_sel fp6, fp4, fp2, fp0
+        fsel fp7, fp5, fp3, fp1
+        psq_stu fp6, 0(dst), 0, 0
+        stfs fp7, 8(dst)
+    }
+}
+
+inline void __VecMax(register float* dst, register const float* a, register const float* b) {
+    asm {
+        psq_lu fp0, 0(a), 0, 0
+        psq_lu fp2, 0(b), 0, 0
+        lfs fp1, 8(a)
+        lfs fp3, 8(b)
+        ps_sub fp4, fp0, fp2
+        fsub fp5, fp1, fp3
+        ps_sel fp6, fp4, fp0, fp2
+        fsel fp7, fp5, fp1, fp3
+        psq_stu fp6, 0(dst), 0, 0
+        stfs fp7, 8(dst)
+    }
+}
+
+// inferred: grows the bounds (min, max) to contain p in one block: p is loaded once and compared
+// against both (ps_sel/fsel). Bounds of the 8 projected corners of a box, 7 times in a row, at
+// 0x80070138 (fn_8006FEBC) and in 0x800704DC, 0x8008EEDC, 0x8008F5F8, 0x8009EE30, 0x800B5994,
+// 0x800B7090 and 0x8049AC18. Name invented. In and out pointers are separate parameters: the
+// original copies each one to its own register (psq_lu updates them).
+inline void __VecMinMax(register float* minOut, register float* maxOut, register const float* minIn,
+                        register const float* maxIn, register const float* p) {
+    asm {
+        psq_lu fp0, 0(p), 0, 0
+        lfs fp1, 8(p)
+        psq_lu fp2, 0(minIn), 0, 0
+        lfs fp3, 8(minIn)
+        psq_lu fp4, 0(maxIn), 0, 0
+        lfs fp5, 8(maxIn)
+        ps_sub fp6, fp0, fp2
+        fsub fp7, fp1, fp3
+        ps_sub fp8, fp0, fp4
+        fsub fp9, fp1, fp5
+        ps_sel fp6, fp6, fp2, fp0
+        fsel fp7, fp7, fp3, fp1
+        ps_sel fp8, fp8, fp0, fp4
+        fsel fp9, fp9, fp1, fp5
+        psq_stu fp6, 0(minOut), 0, 0
+        stfs fp7, 8(minOut)
+        psq_stu fp8, 0(maxOut), 0, 0
+        stfs fp9, 8(maxOut)
+    }
+}
+
 namespace atn {
 
 class Matrix3x4;
@@ -96,6 +159,8 @@ class Matrix3x4;
 // inferred: engine quaternion (copied with two paired-single loads/stores, 0x80149888); name invented
 struct Quaternion_unk {
     Quaternion_unk() {}
+    // inferred: constructor by components (constants of atn/Math_unk.cpp)
+    Quaternion_unk(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
     Quaternion_unk(const Quaternion_unk& q) {
         __Vec4Copy(&x, &q.x);
     }
@@ -215,6 +280,13 @@ namespace atn {
 class Matrix3x4 {
 public:
     Matrix3x4() {}
+    // inferred: constructor by elements (identity of atn/Math_unk.cpp)
+    Matrix3x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13,
+              float m20, float m21, float m22, float m23) {
+        m[0][0] = m00; m[0][1] = m01; m[0][2] = m02; m[0][3] = m03;
+        m[1][0] = m10; m[1][1] = m11; m[1][2] = m12; m[1][3] = m13;
+        m[2][0] = m20; m[2][1] = m21; m[2][2] = m22; m[2][3] = m23;
+    }
     // inferred: copies with the paired-single matrix copy (0x803ECC28)
     Matrix3x4(const Matrix3x4& o) {
         __MtxCopy(m, o.m);

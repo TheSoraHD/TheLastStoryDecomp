@@ -57,6 +57,7 @@ public:
     iterator begin() { return iterator(mTail.mNext); }
     iterator end() { return iterator(&mTail); }
     size_type size() const { return mSize; }
+    T& back() { return ((__list_node_unk<T>*)mTail.mPrev)->mData; }
 
     iterator insert(iterator pos, const T& x) {
         __list_node_unk<T>* node = __allocate();
@@ -71,6 +72,34 @@ public:
         return iterator(node);
     }
     void push_back(const T& x) { insert(end(), x); }
+    // inferred from atn/CompositeCache_unk.cpp (0x800D8458, 0x800D8568)
+    iterator erase(iterator pos) {
+        __list_node_base_unk* node = pos.mNode;
+        __list_node_base_unk* next = node->mNext;
+        node->mPrev->mNext = next;
+        node->mNext->mPrev = node->mPrev;
+        ::operator delete(node);
+        mSize--;
+        return iterator(next);
+    }
+    iterator erase(iterator first, iterator last) {
+        if (first != last) {
+            __list_node_base_unk* lastPrev = last.mNode->mPrev;
+            first.mNode->mPrev->mNext = lastPrev->mNext;
+            lastPrev->mNext->mPrev = first.mNode->mPrev;
+            while (first != last) {
+                __list_node_base_unk* node = first.mNode;
+                ++first;
+                ::operator delete(node);
+                mSize--;
+            }
+        }
+        return last;
+    }
+    void clear() {
+        iterator b = begin();
+        erase(b, end());
+    }
 
 private:
     static void __link_before(__list_node_base_unk* pos, __list_node_base_unk* node) {

@@ -30,6 +30,7 @@ Event/Puppeteer_CharaTask.cpp:
 
 AI/AiUtil_unk.cpp:
 	.text       start:0x800142C4 end:0x800144FC
+	.sbss       start:0x8087EE60 end:0x8087EE68
 	.sdata2     start:0x808806A0 end:0x808806B8
 
 game/AiTarget.cpp:
@@ -105,12 +106,9 @@ atn/AudioDevice.cpp:
 	.sdata2     start:0x80880870 end:0x80880890
 
 atn/Bgm.cpp:
-	.text       start:0x8004AD9C end:0x8004AE84
+	.text       start:0x8004AD9C end:0x8004B290
 	.rodata     start:0x80731028 end:0x80731034
 	.data       start:0x80777570 end:0x80777588
-
-atn/Bgm_cont.cpp:
-	.text       start:0x8004AE84 end:0x8004B290
 	.sdata2     start:0x80880890 end:0x80880898
 
 atn/Camera_unk.cpp:
@@ -163,6 +161,7 @@ atn/ComDrawTexture.cpp:
 atn/FileUtil_unk.cpp:
 	.text       start:0x80068DB0 end:0x8006A09C
 	.rodata     start:0x80731390 end:0x80731408
+	.sbss       start:0x8087EEB8 end:0x8087EEC0
 	.sdata2     start:0x808809E8 end:0x80880A08
 
 atn/FadeCommon.cpp:
@@ -214,6 +213,7 @@ atn/Light_unk.cpp:
 atn/LightUtil_unk.cpp:
 	.text       start:0x80079ECC end:0x8007A530
 	.rodata     start:0x807318F0 end:0x807318F8
+	.sbss       start:0x8087EEF8 end:0x8087EF00
 	.sdata2     start:0x80880B40 end:0x80880B48
 
 atn/LipSync_unk.cpp:
@@ -300,6 +300,7 @@ atn/NandManager.cpp:
 atn/Pad_unk.cpp:
 	.text       start:0x800A5508 end:0x800A5B40
 	.rodata     start:0x80732898 end:0x80732988
+	.sbss       start:0x8087EF70 end:0x8087EF78
 	.sdata2     start:0x80880CB0 end:0x80880CC0
 
 atn/ParseTree.cpp:
@@ -533,7 +534,7 @@ atn/TextureComposite.cpp:
 	.sdata2     start:0x80881208 end:0x80881218
 
 atn/CompositeCache_unk.cpp:
-	.text       start:0x800D81CC end:0x800D8894
+	.text       start:0x800D81CC end:0x800D87A4
 	.rodata     start:0x80734758 end:0x80734760
 	.bss        start:0x807C77E8 end:0x807C77F4
 	.sdata2     start:0x80881218 end:0x80881220
@@ -671,7 +672,7 @@ game/MenuCommon_unk.cpp:
 	.text       start:0x80116EB8 end:0x8011770C
 	.ctors      start:0x8072D2D0 end:0x8072D2D4
 	.rodata     start:0x80736748 end:0x80736AA8
-	.bss        start:0x807C78E4 end:0x807C7AF0
+	.bss        start:0x807C7898 end:0x807C7AF0
 	.sdata      start:0x8087D988 end:0x8087D990
 	.sdata2     start:0x80881718 end:0x80881748
 
@@ -1513,7 +1514,7 @@ atn/EffectRes_unk.cpp:
 atn/EffectLoader_unk.cpp:
 	.text       start:0x80238808 end:0x80239798
 	.rodata     start:0x80742FE0 end:0x80742FF8
-	.data       start:0x80783A18 end:0x80783A50
+	.data       start:0x80783A18 end:0x80783BB0
 	.sdata2     start:0x80883150 end:0x80883160
 
 atn/EffectManager.cpp:
@@ -1531,10 +1532,10 @@ std/char_traits_char_8023C080.cpp:
 	.sbss       start:0x8087F3C4 end:0x8087F3D0
 
 atn/EffectManager_cont.cpp:
-	.text       start:0x8024372C end:0x80243758
+	.text       start:0x8024372C end:0x8024373C
 
 atn/EffectSequencer_unk.cpp:
-	.text       start:0x80243758 end:0x80244228
+	.text       start:0x8024373C end:0x80244228
 	.ctors      start:0x8072D320 end:0x8072D324
 	.rodata     start:0x80743140 end:0x807431F0
 	.bss        start:0x807C82E8 end:0x807C8300
@@ -1978,12 +1979,9 @@ game/FriendArganan.cpp:
 	.sdata2     start:0x80885700 end:0x80885708
 
 game/FriendManager.cpp:
-	.text       start:0x80365464 end:0x8036554C
+	.text       start:0x80365464 end:0x8036555C
 	.rodata     start:0x8074D988 end:0x8074D9A0
 	.data       start:0x8078A038 end:0x8078A070
-
-game/FriendManager_cont.cpp:
-	.text       start:0x8036554C end:0x8036555C
 
 game/GameTask.cpp:
 	.text       start:0x8036555C end:0x80376B68
@@ -2107,12 +2105,9 @@ game/GameSoundControl.cpp:
 	.sdata2     start:0x80885D48 end:0x80885D58
 
 game/GameTimer.cpp:
-	.text       start:0x803CE4B0 end:0x803CE688
+	.text       start:0x803CE4B0 end:0x803CE854
 	.rodata     start:0x80750548 end:0x80750558
 	.data       start:0x8078BE08 end:0x8078BE40
-
-game/GameTimer_cont.cpp:
-	.text       start:0x803CE688 end:0x803CE854
 
 game/GameUI.cpp:
 	.text       start:0x803CE854 end:0x803E836C
@@ -2826,15 +2821,12 @@ game/MapPartsModel.cpp:
 	.sdata2     start:0x80887110 end:0x80887128
 
 game/MapPartsOcean.cpp:
-	.text       start:0x8049C8DC end:0x8049CDA0
+	.text       start:0x8049C8DC end:0x8049CDBC
+	.ctors      start:0x8072D384 end:0x8072D388
 	.rodata     start:0x80756E28 end:0x80756E70
 	.data       start:0x80790688 end:0x807906E8
-	.sdata2     start:0x80887128 end:0x80887160
-
-game/MapPartsOcean_cont.cpp:
-	.text       start:0x8049CDA0 end:0x8049CDBC
-	.ctors      start:0x8072D384 end:0x8072D388
 	.sbss       start:0x8087F560 end:0x8087F578
+	.sdata2     start:0x80887128 end:0x80887160
 
 game/MapPartsRain.cpp:
 	.text       start:0x8049CDBC end:0x8049D264
@@ -2850,15 +2842,11 @@ game/MapTask.cpp:
 	.sdata2     start:0x80887160 end:0x808871B0
 
 game/MarketTask.cpp:
-	.text       start:0x804A1DDC end:0x804A24C4
-	.rodata     start:0x807570C8 end:0x80757108
+	.text       start:0x804A1DDC end:0x804A29C4
+	.rodata     start:0x807570C0 end:0x80757108
 	.data       start:0x80790778 end:0x807907B0
 	.sbss       start:0x8087F578 end:0x8087F580
-	.sdata2     start:0x808871B0 end:0x808871C0
-
-game/MarketTask_cont.cpp:
-	.text       start:0x804A24C4 end:0x804A29C4
-	.sdata2     start:0x808871C0 end:0x808871D0
+	.sdata2     start:0x808871B0 end:0x808871D0
 
 game/MenuCommonTask.cpp:
 	.text       start:0x804A29C4 end:0x804A7EA4
@@ -3000,12 +2988,9 @@ MP/Popup.cpp:
 	.sdata2     start:0x80887680 end:0x808876B8
 
 MP/SaveLoad.cpp:
-	.text       start:0x805020FC end:0x80502708
+	.text       start:0x805020FC end:0x805028D8
 	.rodata     start:0x8075A970 end:0x8075A988
 	.data       start:0x80792AA8 end:0x80792AE0
-
-MP/SaveLoad_cont.cpp:
-	.text       start:0x80502708 end:0x805028D8
 
 atn/SoftKeyboardU.cpp:
 	.text       start:0x805028D8 end:0x80505DD0
@@ -3196,12 +3181,9 @@ game/Np131LivingArmor.cpp:
 	.sdata2     start:0x80887CD8 end:0x80887D38
 
 game/NpcManager.cpp:
-	.text       start:0x805477C8 end:0x80547980
+	.text       start:0x805477C8 end:0x80547C28
 	.rodata     start:0x8075E380 end:0x8075E398
 	.data       start:0x80794738 end:0x80794780
-
-game/NpcManager_cont.cpp:
-	.text       start:0x80547980 end:0x80547C28
 
 game/NpcTask.cpp:
 	.text       start:0x80547C28 end:0x80547EA0
@@ -3329,14 +3311,11 @@ Event/EventParser_unk.cpp:
 	.sdata2     start:0x80888088 end:0x80888098
 
 game/SetConfig.cpp:
-	.text       start:0x8057E83C end:0x8057F0F8
+	.text       start:0x8057E83C end:0x8057F280
 	.rodata     start:0x80761050 end:0x807611F0
 	.data       start:0x80796790 end:0x807967A8
 	.sbss       start:0x8087F9C0 end:0x8087F9C8
 	.sdata2     start:0x80888098 end:0x808880C0
-
-game/SetConfig_cont.cpp:
-	.text       start:0x8057F0F8 end:0x8057F280
 
 game/ShopBase.cpp:
 	.text       start:0x8057F280 end:0x80584FE4

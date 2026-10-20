@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "atn/LoadHandle.h"
 #include "game/CrowdManager.h"
 #include "game/CharaTask.h"
 #include "atn/Model_unk.h"
@@ -319,7 +320,10 @@ extern "C" int fn_8036823C(Field_unk* field);
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
-extern "C" void fn_800697D8(void* output, const char* message);
+// inferred: debug message list (atn/FileUtil_unk.cpp)
+struct DebugMessages_unk {
+    void fn_800697D8(const char* message);
+};
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" int fn_802092C0(char* path, const char* name);
 extern "C" chr::CharaData_unk* fn_8020A81C(int id);
@@ -489,7 +493,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
                 char message[0x100];
                 sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
                 sprintf(message, "character not found! %s", lbl_807C7B28);
-                fn_800697D8(lbl_8087EEB8, message);
+                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
             }
             m60 = fn_8020924C(0);
         }
@@ -4024,7 +4028,6 @@ extern "C" void fn_80098698(Model_unk* model);
 extern "C" void fn_80093F1C(Model_unk* model, const char* node, const atn::Vector3* a, const atn::Vector3* b,
                             const atn::Vector3* scale, int arg); // inferred: node edit
 extern "C" void fn_80094778(Model_unk* model, const char* node); // inferred: clears a node edit
-extern "C" const char* fn_80473F18(atn::LoadHandle* handle); // inferred: name of the loaded resource
 extern "C" int fn_802185FC(const char* name);
 extern "C" int fn_80376150(Field_unk* field);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -4418,7 +4421,7 @@ void CharaTask::fn_80145334() {
         }
     }
     if (mFlagB27 && mMotion.mTracks[0].m04 != 0) {
-        mFlagB26 = fn_802185FC(fn_80473F18((atn::LoadHandle*)mMotion.mTracks[0].m04)) == 0;
+        mFlagB26 = fn_802185FC(((atn::LoadHandle*)((atn::LoadHandle*)mMotion.mTracks[0].m04))->fn_80473F18()) == 0;
     }
     bool command = update;
     if (IsPartyMember_unk()) {
@@ -5839,7 +5842,7 @@ extern "C" MotionInfo_unk* fn_802096A8(const char* name);
 // inferred: name invented
 inline MotionInfo_unk* FindMotionInfo_unk(Model_unk& model, int motion) {
     atn::LoadHandle* handle = model.fn_80097D40(motion);
-    return handle != 0 ? fn_802096A8(fn_80473F18(handle)) : 0;
+    return handle != 0 ? fn_802096A8(((atn::LoadHandle*)(handle))->fn_80473F18()) : 0;
 }
 
 void CharaTask::fn_8014C0B4(int index, int motion) {
@@ -8116,7 +8119,7 @@ struct FieldRes_unk {
 };
 extern "C" FieldRes_unk* fn_80375254(Field_unk* field);
 
-void CharaTask::fn_801546F4() {
+void CharaTask::fn_801546F4(int arg, atn::Vector3 pos, float rot) {
     int kind = fn_8015487C();
     if (kind != 6 && lbl_8087F430 != 0) {
         int type = m60 != 0 ? fn_80208748(m60->m10) : 0;
@@ -10108,7 +10111,7 @@ void CharaTask::fn_8016F824(int point, int arg) {
         char message[0x100];
         sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
         sprintf(message, "error: invalid pointmove chara[%d:%s] -> movepoint[%d]\n", m58, lbl_807C7B28, point);
-        fn_800697D8(lbl_8087EEB8, message);
+        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
     }
 }
 
@@ -10134,7 +10137,7 @@ void CharaTask::fn_8016FDCC(int point, int arg) {
         char message[0x100];
         sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
         sprintf(message, "error: invalid pointmove chara[%d:%s] -> hidepoint[%d]\n", m58, lbl_807C7B28, point);
-        fn_800697D8(lbl_8087EEB8, message);
+        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
     }
 }
 
@@ -10157,7 +10160,7 @@ void CharaTask::fn_8017039C(int place, int arg) {
         char message[0x100];
         sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
         sprintf(message, "error: invalid pointmove chara[%d:%s] -> warppoint[%d]\n", m58, lbl_807C7B28, place);
-        fn_800697D8(lbl_8087EEB8, message);
+        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
     }
 }
 
@@ -12339,7 +12342,7 @@ static void ReportPointMove_unk(CharaTask* chara, int id) {
     if (lbl_8087EEB8 != 0) {
         char message[0x100];
         sprintf(message, "error: invalid pointmove chara[%d:%s] -> warppoint[%d]\n", chara->m58, chara->fn_8017C904(), id);
-        fn_800697D8(lbl_8087EEB8, message);
+        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
     }
 }
 

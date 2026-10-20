@@ -2,6 +2,7 @@
 #define GAME_CHARATASK_H
 
 #include "atn/Task.h"
+#include "atn/LipSync_unk.h"
 #include "atn/Array_unk.h"
 #include "atn/ColliBase.h"
 #include "atn/EfpHandle_unk.h"
@@ -199,15 +200,6 @@ struct CharaC58_unk {
     void fn_8011C044(int arg);
 };
 
-// inferred: object at CharaTask+0x1154 (constructor 0x8007A75C called out of line; class unknown)
-struct Chara1154_unk {
-    Chara1154_unk();
-    void fn_8007A7BC(Model_unk* model); // inferred: per-frame update (CharaTask::fn_80145334)
-
-    unsigned char m00[0x30];
-    void* m30; // inferred: callback (CharaTask sets fn_80218260)
-};
-
 // inferred: object at CharaTask+0x1188 (constructor 0x8011D24C called out of line; class unknown)
 struct Chara1188_unk {
     Chara1188_unk();
@@ -359,8 +351,10 @@ public:
     virtual void vf5C(CharaTask* other); // inferred: other may be 0
     virtual void vf60();
     virtual atn::Vector3 vf64(int center); // inferred: position, or the center of the collision capsule
-    virtual void vf68();
-    virtual void vf6C();
+    // inferred: finishing move offered to `attacker` (EnemyTask 0x8035B8B0 returns a control kind 9-11)
+    virtual int vf68(CharaTask* attacker);
+    // inferred: starts the reaction control `kind` facing away from `other` (EnemyTask 0x8035BBCC)
+    virtual void vf6C(int kind, CharaTask* other);
     virtual void vf70();
     virtual void vf74(int arg); // inferred: starts a control (the symbol is still named vf74__9CharaTaskFv)
     virtual int vf78(); // inferred: nonzero while a held character keeps hold (fn_8013A4E8)
@@ -729,7 +723,8 @@ public:
     int fn_80153FD8(int kind);
     void fn_80154488();
     void fn_80154654(int type, int arg);
-    void fn_801546F4();
+    // inferred: the callers pass (int, Vector3 by value, float); this body does not read them
+    void fn_801546F4(int arg, atn::Vector3 pos, float rot);
     int fn_8015487C();
     void fn_80154C08();
     bool fn_80154E38(CharaTask* target);

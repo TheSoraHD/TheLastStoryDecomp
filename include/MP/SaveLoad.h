@@ -57,6 +57,10 @@ template <class T, int N>
 struct Queue_unk {
     Queue_unk() : mCount(0), mHead(0) {}
     T& Front_unk() { return mData[mHead]; }
+    void Push_unk(const T& x) {
+        mData[(mHead + mCount) % N] = x;
+        mCount++;
+    }
     void Pop_unk() {
         mHead = (mHead + 1) % N;
         mCount--;
@@ -65,19 +69,36 @@ struct Queue_unk {
     T mData[N];
     unsigned int mHead;
 };
-// inferred: zero-filled work buffer of 0x13560 bytes
+// inferred: zero-filled work buffer of 0x13560 bytes: a 0xB8-byte header (same size as lbl_807C8508)
+// followed by a copy of the 0x134A8-byte save data (fn_8050272C)
 struct SaveWork_unk {
     SaveWork_unk();
-    unsigned char m00000[0x13560];
+    unsigned char m00000[4];
+    int m04;
+    unsigned char m00008[0xB0];
+    unsigned char mData[0x134A8]; // 0xB8
 };
 
 // inferred: queue of save/load requests served by GameLoadBackground/GameSaveBackground
 class SaveLoad : public atn::Task {
 public:
     struct Request_unk {
-        Request_unk() : mType(3), m04(3), mData(0), mSize(0) {}
-        int mType;   // 0: load, 1: save, 2: inferred: other save request, 3: none
-        int m04;
+        Request_unk() {
+            mType[0] = 3;
+            mType[1] = 3;
+            mData = 0;
+            mSize = 0;
+        }
+        Request_unk(int type, void* data, int size) {
+            mType[0] = type;
+            mType[1] = type;
+            mData = data;
+            mSize = size;
+        }
+        // 0: load, 1: save, 2: inferred: other save request, 3: none.
+        // inferred: an array (the type is stored twice); a struct with an array member is not kept in
+        // registers, which leaves the dead stack copy of the request in fn_80502870/fn_8050272C
+        int mType[2];
         void* mData;
         int mSize;
     };
@@ -87,6 +108,10 @@ public:
     virtual void vf10();
 
     static SaveLoad* fn_805020FC(atn::Task* parent); // inferred: create
+    void fn_80502708(); // inferred: takes the pending save data (lbl_8087F460) and its slot
+    void fn_8050272C(); // inferred: builds the save work buffer and queues a type 2 request
+    int fn_80502848();  // inferred: busy (state or queued requests)
+    int fn_80502870(int type, void* data, int size); // inferred: queues a request
 
     SaveData_unk* m48;
     int m4C;

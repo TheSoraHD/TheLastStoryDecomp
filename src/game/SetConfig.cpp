@@ -202,3 +202,55 @@ void SetConfig::fn_8057EF40() {
     }
 }
 
+
+void SetConfig::fn_8057F0F8() {
+    unsigned char mode = SCGetSoundMode();
+    if (mode == 0) {
+        mSoundType = 2;
+    } else if (mode == 2) {
+        mSoundType = 0;
+    } else {
+        mSoundType = 1;
+    }
+}
+
+void SetConfig::fn_8057F154(int soundType) {
+    mSoundType = soundType;
+    if (soundType == 2) {
+        lbl_8087EFE8->mOutputMode = 3;
+    } else if (soundType == 0) {
+        lbl_8087EFE8->mOutputMode = 2;
+    } else {
+        lbl_8087EFE8->mOutputMode = 0;
+    }
+}
+
+void SetConfig::fn_8057F198(int value) {
+    mA4 = value;
+    if (lbl_8087EFA8 != 0) {
+        lbl_8087EFA8->m34 = value + 10;
+    }
+}
+
+void SetConfig::fn_8057F1B4(const SoundSettings_unk* settings) {
+    mSoundType = settings->mSoundType;
+    mBgmVolume = settings->mBgmVolume;
+    mSeVolume = settings->mSeVolume;
+    mVoiceVolume = settings->mVoiceVolume;
+    if (lbl_8087EFE8 != 0) {
+        fn_800D0240(lbl_8087EFE8, 0, mBgmVolume, 0);
+        fn_800D0240(lbl_8087EFE8, 1, mSeVolume, 0);
+        fn_800D0240(lbl_8087EFE8, 2, mVoiceVolume, 0);
+        switch (mSoundType) {
+        case 0:
+            lbl_8087EFE8->mOutputMode = 2;
+            break;
+        case 2:
+            lbl_8087EFE8->mOutputMode = 3;
+            break;
+        default:
+            lbl_8087EFE8->mOutputMode = 0;
+            break;
+        }
+    }
+}

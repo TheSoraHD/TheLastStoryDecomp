@@ -11,15 +11,15 @@ class Texture_unk {
 public:
     Texture_unk();  // 0x800D5738
     ~Texture_unk(); // 0x800D5808
-    void fn_800D5B58(int width, int height, int format, int arg, const char* name); // inferred: allocate
+    int fn_800D5B58(int width, int height, int format, int lods, const char* name); // inferred: allocate (returns 1)
 
     GXTexObj mObj;              // 0x00
     LH_Texture m20;             // 0x20: inferred: stored with the LH_Texture vtable by the copy 0x805143C8
     void* mImage;               // 0x28
     unsigned char m2C;
-    unsigned char m2D; // inferred: flags set after a load (LoadEffect::vf0C)
-    unsigned char m2E;
-    unsigned char m2F;
+    signed char m2D; // inferred: wrap mode S (set to 1 by LoadEffect::vf0C); read with extsb
+    signed char m2E; // inferred: wrap mode T
+    signed char m2F; // inferred: mip levels of an allocated texture (read with extsb)
 };
 
 } // namespace atn

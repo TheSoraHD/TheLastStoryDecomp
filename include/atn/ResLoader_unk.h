@@ -1,7 +1,7 @@
 #ifndef ATN_RESLOADER_UNK_H
 #define ATN_RESLOADER_UNK_H
 
-#include "atn/LoadHandle.h"
+#include "atn/LH_Effect.h"
 
 // inferred: resource with its loader (0xC bytes): resource at 0x00, loader at 0x04. Destructor at
 // 0x802375C4 (also declared locally in atn/LH_MotionCommandData.cpp). Name invented.
@@ -12,8 +12,8 @@ struct ResLoader_unk {
     int fn_802376D0();                  // inferred: nonzero while loading
     void fn_8023772C();                 // inferred: releases the resource (Event::EffectData::vf0C, ColliAttrManager)
 
-    void* mResource;
-    unsigned char m04[0x0C - 0x04];
+    void* mResource;        // 0x00
+    atn::LH_Effect mLoader; // 0x04
 };
 
 #endif

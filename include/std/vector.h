@@ -182,6 +182,28 @@ struct __vec_split_unk<int> : public __vec_split_base_unk<int> {
     unsigned int mStart;
 };
 
+// inferred: temporary buffer of vector<T*>::reserve (0x800C3834): {data, size, capacity}; the
+// elements are moved as raw bytes and the size is cleared before the storage is freed
+template <class T>
+struct __vec_raw_buf_unk {
+    __vec_raw_buf_unk() : mData(0), mSize(0), mCap(0) {}
+    ~__vec_raw_buf_unk() {
+        if (mData != 0) {
+            mSize = 0;
+            ::operator delete(mData);
+        }
+    }
+    void __append_raw_unk(T* first, T* last) {
+        unsigned int n = ((char*)last - (char*)first) / (int)sizeof(T);
+        memcpy(mData + mSize, first, n * sizeof(T));
+        memset(first, 0, n * sizeof(T));
+        mSize += n;
+    }
+    T* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+};
+
 template <class T>
 inline void __vec_swap_unk(T& a, T& b) {
     T tmp = a;
@@ -220,8 +242,24 @@ public:
     // original loads the size before the capacity (and keeps the capacity in r5); tried accessors,
     // the comparison reversed, if/else forms and a helper for the length check.
     void push_back(const T& x);
-    // inferred: inlined in atn::D2A_Message::vf18 (0x801F2A8C, std::wstring elements)
-    void reserve(size_type n) {
+    // inferred: inlined in atn::D2A_Message::vf18 (0x801F2A8C, std::wstring elements); pointer
+    // elements take another buffer (atn::SequenceHolder::SequenceHolder, 0x800C3834)
+    void reserve(size_type n) { __reserve_unk(n, (T*)0); }
+    template <class U>
+    void __reserve_unk(size_type n, U**) {
+        if (this->mCap < n) {
+            __vec_raw_buf_unk<T> buf;
+            buf.mData = __allocate(n);
+            buf.mCap = n;
+            buf.__append_raw_unk(this->mData, this->mData + this->mSize);
+            this->mSize = 0;
+            __vec_swap_unk(this->mCap, buf.mCap);
+            __vec_swap_unk(this->mData, buf.mData);
+            __vec_swap_unk(this->mSize, buf.mSize);
+        }
+    }
+    template <class U>
+    void __reserve_unk(size_type n, U*) {
         if (this->mCap < n) {
             __vec_storage_unk<T> buf;
             buf.mData = __allocate(n);

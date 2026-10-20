@@ -15,6 +15,7 @@
 #include "gmk/Coffin.h"
 #include "gmk/RandomItem.h"
 #include "gmk/Brazier.h"
+#include "gmk/Cannon.h"
 #include "gmk/Cannonball.h"
 #include "gmk/Leaf.h"
 #include "gmk/WindyItem.h"
@@ -226,7 +227,6 @@ void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
 
 // inferred: gimmick constructors called by the factories below (one per gimmick class)
 extern "C" GimmickCommon* fn_803F1BB4(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
 
 // inferred: creates the gimmick of type id / 1000 (ids below 1000 are types)
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
@@ -244,7 +244,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 10: gimmick = gmk::SwingObject::fn_803FE390(parent, id, arg); break;
     case 11: gimmick = gmk::Leaf::fn_80400728(parent, id, arg); break;
     case 16: gimmick = gmk::Brazier::fn_80406754(parent, id, arg); break;
-    case 17: gimmick = fn_80408324(parent, id, arg); break;
+    case 17: gimmick = gmk::Cannon::fn_80408324(parent, id, arg); break;
     case 18: gimmick = fn_804093B4(parent, id, arg); break;
     case 19: gimmick = gmk::SwingObject::fn_803FE390(parent, id, arg); break;
     case 21: gimmick = gmk::TreasureBox::fn_8040DC30(parent, id, arg); break;

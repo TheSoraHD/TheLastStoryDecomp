@@ -209,7 +209,9 @@ extern "C" void fn_8005E7F4(void* draw, unsigned int color, int a, atn::Texture_
                             float z, float w, float h, float u0, float v0, float u1, float v1);
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 
-extern "C" const char lbl_8087D764[]; // inferred: file name of the debug allocator (another unit)
+// inferred: weak @STRING@ pool of LipSyncData_unk::Resize_unk (atn/LipSync_unk; symbols.txt names them
+// @STRING@Resize_unk__15LipSyncData_unkFUii and ...@0): to link, use the same inline/template
+extern "C" const char lbl_8087D764[];
 extern "C" const char lbl_8087D760[];
 
 namespace Event {

@@ -1,4 +1,5 @@
 #include "gmk/MapLift.h"
+#include "atn/LoadHandle.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/GimmickManager.h"
@@ -37,7 +38,6 @@ struct MapPart_unk {
     int mObjCount;               // 0x344
     atn::ModelInstance** mObjs;  // 0x348
 };
-extern "C" const char* fn_80473F18(void* res); // inferred: name of a resource
 // inferred: map information (as ArenaGroup_unk in gmk/ArenaFloor.cpp)
 struct MapGroup_unk {
     unsigned char m00[0x38];
@@ -143,7 +143,7 @@ int MapLift::vf0C() {
                 }
                 break;
             case 5:
-                if (HasLocator_unk(fn_80473F18(part->m50 + 8))) {
+                if (HasLocator_unk(((atn::LoadHandle*)(part->m50 + 8))->fn_80473F18())) {
                     count++;
                     for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
                         if (g->m20 == part) {
@@ -178,7 +178,7 @@ int MapLift::vf0C() {
                 }
                 break;
             case 5:
-                if (HasLocator_unk(fn_80473F18(part->m50 + 8))) {
+                if (HasLocator_unk(((atn::LoadHandle*)(part->m50 + 8))->fn_80473F18())) {
                     Entry_unk& e = mEntries.mData[n++];
                     e.mType = 3;
                     e.mObject = part;
