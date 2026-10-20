@@ -86,10 +86,6 @@ extern "C" void fn_800BFC18(PostFxFrameBuffer_unk* fb, RainColor_unk color, floa
 extern "C" void fn_800BFCB4(PostFxFrameBuffer_unk* fb, RainColor_unk c0, RainColor_unk c1, RainColor_unk c2,
                             RainColor_unk c3, int width, int height, float a, float b);
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture and waits
-// inferred: empty strings in .sdata given to new[] as file and function (also used by Event::Dialog). MWCC
-// puts a zero initialized object in .sbss, so they are only declared (see docs/batch-auto-5kb-q1.md).
-extern "C" char lbl_8087D870[4];
-extern "C" char lbl_8087D874[4];
 
 // inferred: rain drop on the lens (0x1C bytes)
 struct PostFxRainDrop_unk {
@@ -103,18 +99,20 @@ struct PostFxRainDrop_unk {
 // inferred: array of rain drops (see atn/LinearAllocator.cpp)
 struct PostFxRainDrops_unk {
     PostFxRainDrops_unk() : mCount(0), mData(0) {}
+    // inferred: its "" literals are the weak @STRING@ pool of .sdata 0x8087D870/0x8087D874; the
+    // "!= 0" test is folded in the constructor but the store of the else branch stays
     void Alloc_unk(unsigned int n) {
         if (mData != 0) {
             delete[] mData;
         }
         mCount = n;
-        mData = new (0, lbl_8087D874, lbl_8087D870, 0) PostFxRainDrop_unk[mCount];
-    }
-    void Clear_unk() {
-        for (unsigned int i = 0; i < mCount; i++) {
-            mData[i].mState = 0;
+        if (mCount != 0) {
+            mData = new (0, "", "", 0) PostFxRainDrop_unk[mCount];
+        } else {
+            mData = 0;
         }
     }
+    PostFxRainDrop_unk& operator[](unsigned int i) { return mData[i]; }
     unsigned int mCount;
     PostFxRainDrop_unk* mData;
 };
@@ -161,14 +159,16 @@ public:
     Texture_unk mB8;      // 0xB8: "heat_waves01.texture"
 };
 
-// NONMATCHING: 97.74% - the original keeps a dead store of the array pointer after __construct_new_array and
-// swaps the registers of the clearing loop
+// inferred: the dead store after __construct_new_array is the folded else branch of Alloc_unk; the clearing
+// loop is written here, not as an inline method of PostFxRainDrops_unk (that swaps its registers)
 PostFxRain::PostFxRain()
     : m04(0), m08(0), m0C(1.0f), m10(0.05f), m14(0), m18(0), m1C(0), m20(0.2f), m24(0.0f), m28(0.01f), m2C(10.0f),
       m30(5.0f), m34(0.0f), m38(224.0f), m3C(640.0f), m40(224.0f), m44(0.0f), m48(0.0f), m4C(1.0f), m50(1.0f),
       m54(0), m58(0.0f), m5C(0.0f) {
     m80.Alloc_unk(0x100);
-    m80.Clear_unk();
+    for (unsigned int i = 0; i < m80.mCount; i++) {
+        m80[i].mState = 0;
+    }
     mB8.m2D = 1;
     mB8.m2E = 1;
     fn_800D594C(&mB8, "heat_waves01.texture");
@@ -187,7 +187,8 @@ int PostFxRain::fn_800B0A48() {
 }
 
 // inferred: draws the drops into the indirect texture
-// NONMATCHING: 98.61% - registers of the loop (index/offset/drop pointer) and the order of two stfd
+// inferred: the drop pointer declared before the loop, the rectangle through int locals and operator[] give
+// the registers of the original
 void PostFxRain::fn_800B0A70() {
     GXInvalidateTexAll();
     GXSetNumChans(1);
@@ -206,10 +207,15 @@ void PostFxRain::fn_800B0A70() {
     GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
     fn_800763FC(lbl_8087EEE0, &m88.mObj, 0);
     GXSetBlendMode(1, 4, 5, 3);
+    PostFxRainDrop_unk* drop;
     for (unsigned int i = 0; i < m80.mCount; i++) {
-        PostFxRainDrop_unk* drop = &m80.mData[i];
+        drop = &m80[i];
         if (drop->mState != 0) {
-            fn_80075F58(lbl_8087EEE0, drop->mX, drop->mY, drop->mW, drop->mH);
+            int x = drop->mX;
+            int y = drop->mY;
+            int w = drop->mW;
+            int h = drop->mH;
+            fn_80075F58(lbl_8087EEE0, x, y, w, h);
             fn_800BFC18(lbl_8087EFB4, RainColor_unk(1.0f, 1.0f, 1.0f, drop->mAlpha * m0C), 0.0f, 0.0f);
         }
     }
@@ -217,10 +223,22 @@ void PostFxRain::fn_800B0A70() {
     GXSetBlendMode(0, 1, 0, 3);
 }
 
+// inferred: scale matrix (its vector is a local of the inline)
+static inline void ScaleMtx_unk(Matrix3x4& m, const Vector2_unk& scale) {
+    Vector3 s(scale.x, scale.y, 1.0f);
+    PSMTXScale(m.m, s.x, s.y, s.z);
+}
+
+// inferred: sets the translation column of a matrix
+static inline void SetTrans_unk(Matrix3x4& m, float x, float y, float z) {
+    m.m[0][3] = x;
+    m.m[1][3] = y;
+    m.m[2][3] = z;
+}
+
 // inferred: draws the scrolling heat waves into the indirect texture
-// NONMATCHING: ~76% - stack layout: the original keeps the four colors in ascending order above the argument
-// copies and the scale vector/matrix below them (as if they were locals of an inlined function); the
-// structure and the calls match
+// inferred: the four colors are an array (ascending on the stack), the scale vector a local of an inline, the
+// screen size is read into locals before the call and the translation is set by an inline with parameters
 void PostFxRain::fn_800B0CD4() {
     GXInvalidateTexAll();
     GXSetNumChans(1);
@@ -230,8 +248,8 @@ void PostFxRain::fn_800B0CD4() {
     GXSetNumTexGens(1);
     GXSetTexCoordGen2(0, 1, 4, 0x1E, 0, 0x7D);
     RainHeatSet_unk* heat = m54;
-    m58 += heat->mScrollU;
     Vector2_unk scale = heat->mScale;
+    m58 += heat->mScrollU;
     m5C += heat->mScrollV;
     if (m5C > scale.y) {
         m5C -= scale.y;
@@ -239,12 +257,9 @@ void PostFxRain::fn_800B0CD4() {
     if (m58 > scale.x) {
         m58 -= scale.x;
     }
-    Vector3 s(scale.x, scale.y, 1.0f);
     Matrix3x4 m;
-    PSMTXScale(m.m, s.x, s.y, s.z);
-    m.m[0][3] = m58;
-    m.m[1][3] = m5C;
-    m.m[2][3] = 0.0f;
+    ScaleMtx_unk(m, scale);
+    SetTrans_unk(m, m58, m5C, 0.0f);
     GXLoadTexMtxImm(m.m, 0x1E, 1);
     GXSetTevColorIn(0, 0xF, 0xF, 0xF, 8);
     GXSetTevColorOp(0, 0, 0, 0, 1, 0);
@@ -253,12 +268,16 @@ void PostFxRain::fn_800B0CD4() {
     GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
     fn_800763FC(lbl_8087EEE0, &mB8.mObj, 0);
     GXSetBlendMode(1, 4, 5, 3);
-    RainColor_unk c0(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[0]);
-    RainColor_unk c1(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[1]);
-    RainColor_unk c2(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[2]);
-    RainColor_unk c3(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[3]);
+    RainColor_unk c[4] = {
+        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[0]),
+        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[1]),
+        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[2]),
+        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[3]),
+    };
     fn_80075F58(lbl_8087EEE0, m54->mX, m54->mY, m54->mW, m54->mH);
-    fn_800BFCB4(lbl_8087EFB4, c0, c1, c2, c3, lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight, 0.0f, 0.0f);
+    int sh = lbl_8087EEE0->mHeight;
+    int sw = lbl_8087EEE0->mWidth;
+    fn_800BFCB4(lbl_8087EFB4, c[0], c[1], c[2], c[3], sw, sh, 0.0f, 0.0f);
     fn_80075DEC(lbl_8087EEE0);
     GXSetBlendMode(0, 1, 0, 3);
 }
@@ -268,8 +287,26 @@ inline const T& Max_unk(const T& a, const T& b) {
     return a < b ? b : a;
 }
 
-// NONMATCHING: 99.65% - `this` and the screen size in other saved registers and the two colors of
-// GXSetCopyClear in other stack slots (~6 variants)
+// inferred: color helpers (their results are temporaries of the caller)
+static inline GXColor RainGXColor_unk(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+    GXColor c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
+    c.a = a;
+    return c;
+}
+static inline GXColor RainARGB_unk(unsigned int argb) {
+    GXColor c;
+    c.b = argb;
+    c.r = argb >> 16;
+    c.g = argb >> 8;
+    c.a = argb >> 24;
+    return c;
+}
+
+// NONMATCHING: 99.72% - `this`, the screen size and the 0xFFFFFF of GXSetCopyClear in other saved registers
+// (~16 variants; the colors built by inline helpers give the stack slots of the original)
 void PostFxRain::vf10(void* camera) {
     if (!fn_800B0A48()) {
         return;
@@ -282,20 +319,9 @@ void PostFxRain::vf10(void* camera) {
     GXInitTexObj(&m60, image, w, h, 1, 0, 0, 0);
     GXInitTexObjLOD(&m60, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     GXPixModeSync();
-    GXColor gray;
-    gray.r = 0x7F;
-    gray.g = 0x7F;
-    gray.b = 0x7F;
-    gray.a = 0x7F;
-    GXSetCopyClear(gray, 0xFFFFFF);
+    GXSetCopyClear(RainGXColor_unk(0x7F, 0x7F, 0x7F, 0x7F), 0xFFFFFF);
     fn_800C0508(lbl_8087EFB4, 1);
-    unsigned int argb = ((RainRenderMgr_unk*)lbl_8087EEE0)->mClearColor;
-    GXColor clear;
-    clear.b = argb;
-    clear.r = argb >> 16;
-    clear.g = argb >> 8;
-    clear.a = argb >> 24;
-    GXSetCopyClear(clear, 0xFFFFFF);
+    GXSetCopyClear(RainARGB_unk(((RainRenderMgr_unk*)lbl_8087EEE0)->mClearColor), 0xFFFFFF);
     fn_800B0CD4();
     fn_800B0A70();
     GXSetTexCopySrc(0, 0, (unsigned short)w * 2, (unsigned short)h * 2);
@@ -367,10 +393,11 @@ void PostFxRain::vf10(void* camera) {
 }
 
 // inferred: removes every drop
-// NONMATCHING: 97.65% - registers of the clearing loop
 void PostFxRain::fn_800B1554() {
     m20 = m0C = m10 = 0.0f;
-    m80.Clear_unk();
+    for (unsigned int i = 0; i < m80.mCount; i++) {
+        m80[i].mState = 0;
+    }
 }
 
 // inferred: random value in [lo, hi]
@@ -379,7 +406,6 @@ inline float Rand_unk(float lo, float hi) {
 }
 
 // inferred: update: follows the settings and moves the drops
-// NONMATCHING: 99.65% - offset and drop pointer of the last loop in r6/r5 swapped (4 variants)
 void PostFxRain::fn_800B1598() {
     PostFxFrameBuffer_unk* fb = lbl_8087EFB4;
     m14 = &lbl_8087EFA8->m2AC;
@@ -427,7 +453,7 @@ void PostFxRain::fn_800B1598() {
         do {
             if (Rand_unk(0.0f, 1.0f) < n) {
                 for (unsigned int i = 0; i < m80.mCount; i++) {
-                    PostFxRainDrop_unk* drop = &m80.mData[i];
+                    PostFxRainDrop_unk* drop = &m80[i];
                     if (drop->mState == 0) {
                         drop->mState = 1;
                         drop->mX = Rand_unk(0.0f, lbl_8087EEE0->mWidth);
@@ -443,7 +469,7 @@ void PostFxRain::fn_800B1598() {
         } while (n > 0.0f);
         PostFxRainDrop_unk* drop;
         for (unsigned int i = 0; i < m80.mCount; i++) {
-            drop = &m80.mData[i];
+            drop = &m80[i];
             if (drop->mState != 0) {
                 drop->mTime += 1.0f / 30.0f;
                 if (drop->mState == 1) {

@@ -228,3 +228,32 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
 - Hallazgos MWCC:
   - Los literales de `.sdata2` siguen el orden del texto del fuente, incluidas las de inlines plantilla (`Max_unk`).
   - Un bucle sobre `float m[2][3]` escrito como dos bucles anidados (2x3) se desenrolla por 3 con `ctr` = 2, igual que el original; un bucle plano de 6 se desenrolla entero.
+
+## Excepcion explicit_zero_data: PostFxRain (rama agent-pz, 2026-10-20)
+
+Excepcion aprobada (`#pragma explicit_zero_data`, ver `docs/batch-auto-5kb-q1.md`), **no usada** en esta unidad.
+Split sin cambios (ya cubria `.sdata` 0x8087D870-0x8087D878).
+
+- Hallazgo: como en LipSync_unk, las dos palabras a cero de `.sdata` 0x8087D870/0x8087D874 son el pool `@STRING@` de
+  los `""` de `new (0, "", "", 0)` dentro de la inline `PostFxRainDrops_unk::Alloc_unk`. Se quitan los `extern` y se
+  escriben los literales. `symbols.txt`: `lbl_8087D870` -> `@STRING@Alloc_unk__19PostFxRainDrops_unkFUi@0`,
+  `lbl_8087D874` -> `@STRING@Alloc_unk__19PostFxRainDrops_unkFUi`, tamano 0x1. objdiff `.sdata` 100% (commit b796887).
+- Funciones (antes -> despues):
+  - ctor 97,74% -> **100%**: `Alloc_unk` con `if (mCount != 0) ... else mData = 0;` (la condicion se pliega pero queda
+    el store muerto del else, como en `Buffer_unk::Alloc`) y el bucle de limpieza escrito en el sitio.
+  - `fn_800B1554` 97,65% -> **100%**: bucle de limpieza escrito en el sitio (con la inline `Clear_unk`, eliminada, se
+    intercambiaban los registros).
+  - `fn_800B0A70` 98,61% -> **100%**: `operator[]` inline de `PostFxRainDrops_unk`, puntero a la gota declarado antes
+    del bucle y rectangulo por locales `int`.
+  - `fn_800B1598` 99,65% -> **100%**: `operator[]` en sus dos bucles.
+  - `fn_800B0CD4` 75,77% -> **100%**: colores en un array (ascendentes en la pila), vector de escala como local de una
+    inline (`ScaleMtx_unk`), escala copiada antes de sumar el desplazamiento, ancho/alto en locales antes de la
+    llamada y traslacion con una inline con parametros (`SetTrans_unk`).
+  - `vf10` 99,65% -> 99,72% (10 intentos): los colores de `GXSetCopyClear` construidos por inlines (`RainGXColor_unk`,
+    `RainARGB_unk`) dan los huecos de pila; queda `this`/tamano de pantalla/`0xFFFFFF` en otros registros salvados.
+  - Total 2/8 -> 7/8, `matching: false` (falta `vf10`).
+- Comprobado enlazando a modo de prueba: el `.dol` solo difiere en 18 rangos de bytes, todos dentro de `vf10`
+  (registros); datos y resto del codigo identicos. En cuanto `vf10` llegue al 100% la unidad deberia enlazar.
+- Hallazgos MWCC: un array local de objetos queda en orden ascendente en la pila (a diferencia de varios locales con
+  nombre); un `Vector3` local de una inline va por debajo de las copias de argumentos del llamador; leer en locales los
+  argumentos escalares antes de la llamada hace que se evaluen antes que las copias de los objetos por valor.

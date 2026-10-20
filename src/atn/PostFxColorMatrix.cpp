@@ -54,25 +54,39 @@ struct ColorMatrixOwner_unk {
 extern "C" ColorMatrixOwner_unk* fn_800C1424(PostFxFrameBuffer_unk* fb);
 extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 
-// inferred: clamp limits kept in .sdata (zero-initialized data in .sdata needs explicit_zero_data,
-// which this build does not use, so they are only declared here)
-extern "C" float lbl_8087D828;
-extern "C" float lbl_8087D82C;
-extern "C" float lbl_8087D830;
-extern "C" float lbl_8087D834;
-extern "C" float lbl_8087D838;
-extern "C" float lbl_8087D83C;
-extern "C" float lbl_8087D840;
-extern "C" float lbl_8087D844;
-extern "C" float lbl_8087D848;
-extern "C" float lbl_8087D84C;
+// inferred: clamp limits (0.0f, 1.0f) of the time and of the four components, kept as globals in .sdata.
+// The original keeps the zeros in .sdata, which MWCC only does with explicit_zero_data (approved exception,
+// only around the zero definitions; without it they go to .sbss).
+extern "C" {
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D828 = 0.0f;
+#pragma pop
+float lbl_8087D82C = 1.0f;
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D830 = 0.0f;
+#pragma pop
+float lbl_8087D834 = 1.0f;
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D838 = 0.0f;
+#pragma pop
+float lbl_8087D83C = 1.0f;
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D840 = 0.0f;
+#pragma pop
+float lbl_8087D844 = 1.0f;
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D848 = 0.0f;
+#pragma pop
+float lbl_8087D84C = 1.0f;
+}
 
 #define CM_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define CM_MAX(a, b) ((a) > (b) ? (a) : (b))
-
-static inline float Clamp_unk(float v, float lo, float hi) {
-    return v < lo ? lo : (v > hi ? hi : v);
-}
 
 namespace atn {
 
@@ -93,7 +107,8 @@ public:
 
 PostFxColorMatrix::PostFxColorMatrix() : mOwner(0), mTime(0.0f) {}
 
-// NONMATCHING: 96.85% - FPR allocation of the interpolation factors and scheduling of the desaturation
+// inferred: "1.0f - s" and "1.0f - k" written in the loops (hoisted by the compiler) and the gray vector built
+// from lum[i] directly give the FPR allocation and scheduling of the original
 void PostFxColorMatrix::fn_800AA8DC() {
     ColorMatrixOwner_unk* owner = fn_800C1424(lbl_8087EFB4);
     ColorMatrix_unk* src = owner->m260 != 0 ? &owner->m264 : &lbl_8087EFA8->m324;
@@ -118,9 +133,8 @@ void PostFxColorMatrix::fn_800AA8DC() {
     float t = mTime;
     float t2 = t * t;
     float s = 3.0f * t2 - 2.0f * (t * t2);
-    float u = 1.0f - s;
     for (int i = 0; i < 4; i++) {
-        mCurrent.mRows[i] = mFrom.mRows[i] * u + mTo.mRows[i] * s;
+        mCurrent.mRows[i] = mFrom.mRows[i] * (1.0f - s) + mTo.mRows[i] * s;
     }
     ColorMatrixParams2_unk* p = (ColorMatrixParams2_unk*)lbl_8087EFA8;
     if (p->m36C != 0) {
@@ -129,11 +143,9 @@ void PostFxColorMatrix::fn_800AA8DC() {
         float k = 3.0f * g2 - 2.0f * (g * g2);
         float lumScale = CM_MAX(1.0f, p->m370);
         float lum[4] = {0.298912f * lumScale, 0.586611f * lumScale, 0.114478f * lumScale};
-        float inv = 1.0f - k;
         for (int i = 0; i < 4; i++) {
-            float l = lum[i];
-            ColorVec4_unk gray(l, l, l, l);
-            mCurrent.mRows[i] = mCurrent.mRows[i] * CM_MAX(0.0f, inv) + gray * k;
+            ColorVec4_unk gray(lum[i], lum[i], lum[i], lum[i]);
+            mCurrent.mRows[i] = mCurrent.mRows[i] * CM_MAX(0.0f, 1.0f - k) + gray * k;
         }
     }
 }
@@ -142,13 +154,22 @@ void PostFxColorMatrix::fn_800AAE20() {
     mOwner = 0;
 }
 
-static inline GXColor ToGXColor_unk(const ColorVec4_unk& v) {
+// inferred: float color with a plain (member-wise, lfs/stfs) copy, used by vf10 (name invented; not the
+// paired-single ColorVec4_unk)
+struct ColorF_unk {
+    ColorF_unk() {}
+    ColorF_unk(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
+    ColorF_unk(const ColorVec4_unk& v, float w_) : x(v.x), y(v.y), z(v.z), w(w_) {}
+    float x, y, z, w;
+};
+static inline GXColor ToGXColorF_unk(const ColorF_unk& v) {
     GXColor c = {(unsigned char)(255.0f * v.x), (unsigned char)(255.0f * v.y), (unsigned char)(255.0f * v.z),
                  (unsigned char)(255.0f * v.w)};
     return c;
 }
 
-// NONMATCHING: 76% - structure approximated (scale search and K colors through Vec4 temporaries)
+// NONMATCHING: 97.12% - FPR allocation only (0.0f of the columns, copy of the column and clamp limits in other
+// registers); the clamps are expressions on the globals (the limit is loaded just before its comparison)
 void PostFxColorMatrix::vf10(void* camera) {
     fn_800C0508(lbl_8087EFB4, 1);
     GXInvalidateTexAll();
@@ -159,42 +180,46 @@ void PostFxColorMatrix::vf10(void* camera) {
     fn_800763FC(lbl_8087EEE0, (GXTexObj*)((char*)lbl_8087EFB4 + 0x74C), 0);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     // inferred: columns of the matrix (rgb rows transposed, alpha 0)
-    ColorVec4_unk cols[4] = {
-        ColorVec4_unk(mCurrent.mRows[0].x, mCurrent.mRows[0].y, mCurrent.mRows[0].z, 0.0f),
-        ColorVec4_unk(mCurrent.mRows[1].x, mCurrent.mRows[1].y, mCurrent.mRows[1].z, 0.0f),
-        ColorVec4_unk(mCurrent.mRows[2].x, mCurrent.mRows[2].y, mCurrent.mRows[2].z, 0.0f),
-        ColorVec4_unk(mCurrent.mRows[3].x, mCurrent.mRows[3].y, mCurrent.mRows[3].z, 0.0f),
+    ColorF_unk cols[4] = {
+        ColorF_unk(mCurrent.mRows[0], 0.0f),
+        ColorF_unk(mCurrent.mRows[1], 0.0f),
+        ColorF_unk(mCurrent.mRows[2], 0.0f),
+        ColorF_unk(mCurrent.mRows[3], 0.0f),
     };
     int scale = 0;
-    for (int i = 0; i < 4; i++) {
-        ColorVec4_unk c = cols[i];
-        for (int j = 0; j < 4; j++) {
-            float v = (&c.x)[j];
-            if (v > 2.0f) {
-                scale = CM_MAX(scale, 2);
-            } else if (v > 1.0f) {
-                scale = CM_MAX(scale, 1);
-            }
-        }
+    for (int i = 0; i < 3; i++) {
+        ColorF_unk c = cols[i];
+#define CM_SCALE(v)                         \
+    if ((v) > 2.0f) {                       \
+        scale = CM_MAX(scale, 2);           \
+    } else if ((v) > 1.0f) {                \
+        scale = CM_MAX(scale, 1);           \
+    }
+        CM_SCALE(c.x)
+        CM_SCALE(c.y)
+        CM_SCALE(c.z)
+        CM_SCALE(c.w)
+#undef CM_SCALE
     }
     float inv = 1.0f / (1 << scale);
-    ColorVec4_unk k[4];
-    for (int i = 0; i < 4; i++) {
-        ColorVec4_unk c = cols[i];
-        c.x = Clamp_unk(c.x * inv, lbl_8087D830, lbl_8087D834);
-        c.y = Clamp_unk(c.y * inv, lbl_8087D838, lbl_8087D83C);
-        c.z = Clamp_unk(c.z * inv, lbl_8087D840, lbl_8087D844);
-        c.w = Clamp_unk(c.w * inv, lbl_8087D848, lbl_8087D84C);
-        GXColor b = ToGXColor_unk(c);
-        k[i] = ColorVec4_unk(b.r / 255.0f, b.g / 255.0f, b.b / 255.0f, b.a / 255.0f);
+    ColorF_unk k[4];
+    for (int i = 0; i < 3; i++) {
+        ColorF_unk c = cols[i];
+#define CM_CLAMP(v, lo, hi) ((v) < (lo) ? (lo) : ((v) > (hi) ? (hi) : (v)))
+        c.x = CM_CLAMP(c.x * inv, lbl_8087D830, lbl_8087D834);
+        c.y = CM_CLAMP(c.y * inv, lbl_8087D838, lbl_8087D83C);
+        c.z = CM_CLAMP(c.z * inv, lbl_8087D840, lbl_8087D844);
+        c.w = CM_CLAMP(c.w * inv, lbl_8087D848, lbl_8087D84C);
+#undef CM_CLAMP
+        GXColor b = ToGXColorF_unk(ColorF_unk(c));
+        k[i] = ColorF_unk(b.r / 255.0f, b.g / 255.0f, b.b / 255.0f, b.a / 255.0f);
     }
-    ColorVec4_unk bias(0.5f + mCurrent.mRows[3].x, 0.5f + mCurrent.mRows[3].y, 0.5f + mCurrent.mRows[3].z,
-                       0.5f + mCurrent.mRows[3].w);
-    k[3] = bias;
-    GXSetTevKColor(0, ToGXColor_unk(k[0]));
-    GXSetTevKColor(1, ToGXColor_unk(k[1]));
-    GXSetTevKColor(2, ToGXColor_unk(k[2]));
-    GXSetTevKColor(3, ToGXColor_unk(k[3]));
+    k[3] = ColorF_unk(0.5f + mCurrent.mRows[3].x, 0.5f + mCurrent.mRows[3].y, 0.5f + mCurrent.mRows[3].z,
+                      0.5f + mCurrent.mRows[3].w);
+    GXSetTevKColor(0, ToGXColorF_unk(k[0]));
+    GXSetTevKColor(1, ToGXColorF_unk(k[1]));
+    GXSetTevKColor(2, ToGXColorF_unk(k[2]));
+    GXSetTevKColor(3, ToGXColorF_unk(k[3]));
     GXSetTevSwapModeTable(0, 0, 0, 0, 0);
     GXSetTevSwapModeTable(1, 1, 1, 1, 1);
     GXSetTevSwapModeTable(2, 2, 2, 2, 2);
