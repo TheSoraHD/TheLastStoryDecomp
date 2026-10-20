@@ -2,17 +2,36 @@
 #define ATN_CAMERA_UNK_H
 
 #include "math/Vec.h"
+#include "atn/Sphere.h"
 
-// inferred: view frustum of the engine camera (0xF4 bytes at Camera_unk+0x100, built by
-// 0x8004F50C/0x8004F5B8 in atn/Frustum_unk.cpp). Names invented.
-struct Frustum_unk {
-    // inferred: perspective frustum (fovy in radians)
-    void fn_8004F50C(const Mtx view, float fovy, float aspect, float n, float f);
-    // inferred: frustum from the projection bounds (ortho = 1 for an orthographic camera)
-    void fn_8004F5B8(const Mtx view, int ortho, float t, float b, float l, float r, float n, float f,
-                     float scale);
-    unsigned char m00[0xF4];
+// inferred: plane (normal, distance); names invented
+struct Plane_unk {
+    atn::Vector3 mNormal;
+    float mDist;
 };
+
+// inferred: view frustum of the engine camera (0xF4 bytes at Camera_unk+0x100, atn/Frustum_unk.cpp).
+// Names invented.
+struct Frustum_unk {
+    atn::Matrix3x4 mView;  // 0x00
+    int mOrtho;            // 0x30
+    float mNear;           // 0x34: -near (view space z)
+    float mFar;            // 0x38: -far
+    Plane_unk mSides[4];   // 0x3C: view space side planes
+    atn::Vector3 mMin;     // 0x7C: world space bounds of the corners
+    atn::Vector3 mMax;     // 0x88
+    Plane_unk mPlanes[6];  // 0x94: world space planes
+};
+
+// inferred: perspective frustum (fovy in radians)
+extern "C" void fn_8004F50C(Frustum_unk* fr, const Mtx view, float fovy, float aspect, float n, float f);
+// inferred: frustum from the projection bounds (ortho = 1 for an orthographic camera; scale = far / near)
+extern "C" void fn_8004F5B8(Frustum_unk* fr, const Mtx view, int ortho, float t, float b, float l, float r, float n,
+                            float f, float scale);
+extern "C" int fn_8004FF58(const Frustum_unk* fr, const atn::Sphere* sphere); // inferred: sphere test
+extern "C" int fn_800500FC(const Frustum_unk* fr, const atn::Vector3* box); // inferred: box: 0 out, 1 partly, 2 in
+extern "C" int fn_800502A8(const Frustum_unk* fr, const atn::Vector3* box); // inferred: box: 0 out, 1 in
+extern "C" int fn_80050420(const Frustum_unk* fr, const atn::Vector3* seg, atn::Vector3* out); // inferred: clips a segment
 
 // inferred: engine camera (0x1F4 bytes; also atn/LH_Scene.cpp, game/CharaTask.cpp). Names invented.
 struct Camera_unk {

@@ -243,10 +243,10 @@ void Camera_unk::fn_8004B378() {
 
     switch (mProjType) {
     case 0:
-        mFrustum.fn_8004F50C(mView.m, mFovy, mAspect, mNear, mFar);
+        fn_8004F50C(&mFrustum, mView.m, mFovy, mAspect, mNear, mFar);
         break;
     case 1:
-        mFrustum.fn_8004F5B8(mView.m, 1, mTop, mBottom, mLeft, mRight, mNear, mFar, 1.0f);
+        fn_8004F5B8(&mFrustum, mView.m, 1, mTop, mBottom, mLeft, mRight, mNear, mFar, 1.0f);
         break;
     }
 }
