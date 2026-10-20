@@ -205,7 +205,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     pool), los de <= 4 bytes van a `.sdata2`; un array de punteros no `const` va a `.data`.
   - Un bucle de busqueda de 64/32 iteraciones constantes se desenrolla x8 con `ctr`.
 
-## db/CharaParam_unk (commit PENDIENTE)
+## db/CharaParam_unk (commit a45db18)
 - Resultado: 9/11 al 100%, matching no.
 - NONMATCHING:
   - `fn_80209960` (cargador, `boost::tokenizer` x3) 99.43% - numeracion de registros de los contadores de tokens y sus
@@ -236,3 +236,22 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     copias debiles tras el y con su nombre real: buena pista para nombrar `fn_` de 8 bytes.
   - `it++` en un `boost::token_iterator` llama a `operator++(facade&, int)` (`__pp<...>__5boostF...i_`) y crea un
     temporal; `++it` llama al miembro `__pp__Q25boost368iterator_facade...`.
+
+## db/EquipParam_unk (commit PENDIENTE)
+- Resultado: 13/14 al 100%, matching no.
+- NONMATCHING: `fn_8020EB0C` (textos UTF-16) 96.22% - el original guarda la direccion del `atn::CsvU` en un registro
+  salvado mientras corre su ctor inline (igual en `db/PaletteTable_unk`); aqui se recalcula. Parece cosa de como esta
+  escrito el ctor de `CsvU` en `include/atn/Csv.h` (compartida): pendiente.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_8020E990`/`fn_8020EACC` -> `__ct__/__dt__19EquipParamEntry_unkFv`; datos `sKinds`, `sSlots`,
+    `sLetters`, `sFileNameStr`, `sTextFileNameStr`, `@stringBase0`, `sEntries`, `sTexts`, `sCount`, `sFileName`,
+    `sTextFileName`.
+  - Tipo inferido `EquipParamEntry_unk` (0x10C; mismo prefijo 0x00-0x78 que `CharaParamEntry_unk`, con
+    `atn::FixedString_unk` de `gmk/SeTable.h`). El cargador inlinea entero el `boost::tokenizer` y sale al 100% con las
+    cabeceras actuales.
+- Hallazgos MWCC
+  - Una suma con constante (`200000 + a*1000 + ...`) se pliega al final con `addis/addi`; para que la constante se
+    cargue primero hay que acumular en un local (`int c = 200000; c += ...;`).
+  - `(unsigned)(x - 8) <= 2` como `bool` devuelto sale sin saltos (`subfic/orc/srwi`); `x >= 8 && x <= 10` da `cmplwi`+`bgtlr`.
+  - `/ 100000` usa la constante magica 0x14F8B589 con `srawi 13` (`/ 10000` da 0x68DB8BAD con `srawi 12`).
