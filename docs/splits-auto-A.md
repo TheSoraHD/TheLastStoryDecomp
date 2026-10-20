@@ -222,7 +222,18 @@ Pista general: los ficheros reales del motor se llaman `atn_<nombre>.cpp` (caden
   (tramo del agente B) y su .rodata 0x807355C8-0x80736018 (cadenas referenciadas desde su .sdata2) la usan tambien funciones de B. No toque sus datos.
 
 ## Decisiones tomadas sin el usuario
-- Nombres inventados: `Event/EventCommandDef_unk.cpp`, `AI/AiCommon_unk.cpp`, `game/TargetPos_unk.cpp`, `game/DamageCalc_unk.cpp`, `atn/Shader_unk.cpp`.
+- Nombres inventados (todas las `_unk`): Event/EventCommandDef_unk, AI/AiCommon_unk, AI/AiUtil_unk, game/TargetPos_unk, game/DamageCalc_unk,
+  game/BattleCalc_unk, game/BattleEfp_unk, atn/Shader_unk, atn/Camera_unk, atn/ColliBaseFunc_unk, atn/Frustum_unk, atn/ColliTest_unk,
+  atn/ColliCalc_unk, atn/FileUtil_unk, atn/Font_unk, atn/Geometry_unk, atn/Light_unk, atn/LightUtil_unk, atn/LipSync_unk, atn/MaterialParser_unk,
+  atn/Math_unk, atn/BoneCalc_unk, atn/ModelDraw_unk, atn/Motion_unk, atn/Pad_unk, atn/RenderSetting_unk, atn/RenderSystem_unk,
+  atn/CharaLightData_unk, atn/Se_unk, atn/Texture_unk, atn/TextureDraw_unk, atn/CompositeCache_unk, atn/Util_unk, atn/NumberFormat_unk,
+  atn/WPad_unk, atn/WordWrap_unk. Nombres por clase/cadena (no `_unk`): atn/SequenceHolder, atn/GraphicsDevice (cadena atn_graphics_device.cpp),
+  atn/Model, atn/SoundManager, atn/Task, atn/PostFx* (8).
+- `_cont` (fusionar con su unidad enlazada al decompilar): atn/Sound3dListener_cont, atn/Bgm_cont. Ademas atn/ComDrawTexture (inferida) es en
+  realidad la continuacion del fichero de atn/DrawHelper (enlazada); se amplio en vez de crear DrawHelper_cont.
+- symbols.txt: solo un renombrado (lbl_8073148C -> @stringBase0 de atn/FileList). Ningun `align:`.
+- Cortes sin datos que los apoyen (elegidos en el primer punto consistente): Geometry_unk/GraphicsDevice en 0x80070E14, inicio de Model en 0x800899DC,
+  BoneCalc_unk en 0x8009A5CC, Se_unk en 0x800C3094 (por contenido), SoundManager/Task en 0x800D1C60.
 - `atn/Sound3dListener_cont.cpp`: deberia fusionarse con atn/Sound3dListener al decompilar. dtk no deja que la parte `_cont` tenga
   .rodata ANTES que la unidad enlazada (ciclo de orden de enlace), asi que la tabla de errores de sonido 0x8073401C-0x80734130
   ("success", "low priority"... + tabla de punteros 0x807340F0 + doubles 0x80734120/28), que usan las funciones de `_cont`, queda en auto.
