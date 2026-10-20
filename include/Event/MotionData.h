@@ -10,6 +10,7 @@
 #include "atn/LH_Motion.h"
 #include "math/Vec.h"
 #include "std/string.h"
+#include "Event/PoseKey_unk.h"
 
 struct Model_unk;
 struct ResLoader_unk;
@@ -99,25 +100,6 @@ public:
     std::string m08;
     int m14;
     atn::LH_Xsca* m18;
-};
-
-// inferred: one key of a pose (0x2C bytes; constructor 0x8000FAE4)
-struct PoseKey_unk {
-    PoseKey_unk() {}
-    PoseKey_unk& operator=(const PoseKey_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        m08.Assign_unk(o.m08);
-        m14.Assign_unk(o.m14);
-        m20.Assign_unk(o.m20);
-        return *this;
-    }
-
-    int m00;
-    int m04;
-    atn::Vector3 m08;
-    atn::Vector3 m14;
-    atn::Vector3 m20;
 };
 
 class PoseData : public CommonData {

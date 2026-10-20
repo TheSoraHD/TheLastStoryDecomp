@@ -1,8 +1,8 @@
 #include "game/MapManager.h"
 #include "atn/Memory.h"
+#include "game/AreaEffConfig.h"
 
 
-extern "C" MapColor_unk* fn_80043014(void* material, int type, int arg);
 
 // inferred: the atn::Scene part of a model (null-checked cast, 0x80491504)
 inline atn::Scene* ToScene_unk(MapModel_unk* model) {
@@ -228,7 +228,7 @@ MapModel_unk* MapManager::fn_804918A4(atn::Sphere sphere) {
 MapColor_unk MapManager::fn_80491D50(atn::Sphere sphere) {
     MapModel_unk* model = fn_804918A4(sphere);
     if (model != 0 && model->mMaterial != 0) {
-        return *fn_80043014(model->mMaterial, 2, 0);
+        return *(const MapColor_unk*)((AreaEffConfig*)model->mMaterial)->fn_80043014(2, 0);
     }
     return MapColor_unk(0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -238,7 +238,7 @@ MapColor_unk MapManager::fn_80491D50(atn::Sphere sphere) {
 MapColor_unk MapManager::fn_80491DF8(atn::Sphere sphere) {
     MapModel_unk* model = fn_804918A4(sphere);
     if (model != 0 && model->mMaterial != 0) {
-        return *fn_80043014(model->mMaterial, 3, 0);
+        return *(const MapColor_unk*)((AreaEffConfig*)model->mMaterial)->fn_80043014(3, 0);
     }
     return MapColor_unk(0.0f, 0.0f, 0.0f, 0.0f);
 }

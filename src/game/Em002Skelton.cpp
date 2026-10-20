@@ -3,7 +3,6 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask
 extern "C" void fn_800EB49C(CharaTask* chara); // inferred: BattleCharaTask (knocked back)
-extern "C" void fn_8011CD84(CharaD74_unk* label, CharaTask* chara, int kind); // inferred: shows a label
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -105,12 +104,12 @@ void Em002Skelton::vfE8(HitMsg_unk* msg) {
     }
     if (CanAct_unk() && (mStatus.m0C & 0x40) != 0x40 && mC58.m11C.m00 >= 2) {
         if (msg->mAttacker != 0 && msg->mAttacker->mFlag28) {
-            fn_8011CD84(&mC58.m11C, this, 1);
+            mC58.m11C.fn_8011CD84(this, 1);
         } else if (mC58.m11C.m08 >= 0 && mC58.m11C.m00 >= 2) {
             if (msg->m44 == 1) {
-                fn_8011CD84(&mC58.m11C, this, 4);
+                mC58.m11C.fn_8011CD84(this, 4);
             } else {
-                fn_8011CD84(&mC58.m11C, this, 1);
+                mC58.m11C.fn_8011CD84(this, 1);
             }
         }
     }

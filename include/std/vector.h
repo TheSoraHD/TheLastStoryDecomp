@@ -231,6 +231,8 @@ public:
     T* begin() { return this->mData; }
     T* end() { return this->mData + this->mSize; }
     size_type size() const { return this->mSize; }
+    // inferred: weak copy 0x80120C20 (game/MotionCommand_unk.cpp)
+    bool empty() const { return this->mSize == 0; }
     T& operator[](size_type i) { return this->mData[i]; }
     size_type max_size() const { return size_type(-1) / sizeof(T); }
     // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...),

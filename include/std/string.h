@@ -83,6 +83,8 @@ public:
         }
     }
     size_type max_size() const { return 0x7FFFFFFE; }
+    // inferred: weak copy 0x80042218 (char, game/AreaEffConfig.cpp)
+    bool empty() const { return size() == 0; }
     ~basic_string() {
         if (is_long()) {
             ::operator delete(mLong.mData);

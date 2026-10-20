@@ -76,7 +76,7 @@ game/AreaEffConfig.cpp:
 	.text       start:0x80041A80 end:0x8004318C
 	.rodata     start:0x80730C78 end:0x80730D48
 	.data       start:0x807772B0 end:0x80777358
-	.sdata      start:0x8087D6F8 end:0x8087D700
+	.sdata      start:0x8087D6F8 end:0x8087D708
 	.sdata2     start:0x80880830 end:0x80880838
 
 game/ArenaTask.cpp:
@@ -694,7 +694,7 @@ game/CharaFaceControl.cpp:
 	.rodata     start:0x80736EF0 end:0x80737068
 	.data       start:0x8077A150 end:0x8077A168
 	.bss        start:0x807C7AF0 end:0x807C7B10
-	.sdata      start:0x8087D9A8 end:0x8087D9B0
+	.sdata      start:0x8087D9A0 end:0x8087D9B0
 	.sbss       start:0x8087F070 end:0x8087F078
 	.sdata2     start:0x808817C0 end:0x808817E8
 

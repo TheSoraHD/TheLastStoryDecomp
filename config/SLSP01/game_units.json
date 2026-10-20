@@ -461,6 +461,29 @@
   "matching": false
  },
  {
+  "name": "game/CharaC58_unk.cpp",
+  "classes": [
+   "CharaC58_unk",
+   "CharaD74_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CharaFaceControl.cpp",
+  "classes": [
+   "CharaFaceControl",
+   "FaceData_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MotionCommand_unk.cpp",
+  "classes": [
+   "MotionCommand_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/CharaManager_PlayerTask.cpp",
   "classes": [
    "CharaManager<NpcTask>",
@@ -3103,6 +3126,11 @@
   "name": "AI/AiUtil_unk.cpp",
   "classes": [],
   "matching": true
+ },
+ {
+  "name": "AI/AiCommon_unk.cpp",
+  "classes": [],
+  "matching": false
  },
  {
   "name": "game/TargetPos_unk.cpp",

@@ -11,7 +11,7 @@ namespace atn {
 class Scene; // the name is in the DOL (type_info 0x80756690)
 }
 
-// inferred: color returned by the material of a model (fn_80043014)
+// inferred: color returned by the material of a model (AreaEffConfig::fn_80043014)
 struct MapColor_unk {
     MapColor_unk() {}
     MapColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
