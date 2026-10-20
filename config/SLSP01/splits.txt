@@ -754,7 +754,7 @@ game/ChaserGuard.cpp:
 game/ChaserNpc.cpp:
 	.text       start:0x8018059C end:0x801823A8
 	.rodata     start:0x80738120 end:0x80738198
-	.data       start:0x8077CAE0 end:0x8077CC10
+	.data       start:0x8077CAC8 end:0x8077CC10
 	.sbss       start:0x8087F090 end:0x8087F098
 	.sdata2     start:0x80881BF8 end:0x80881C48
 
@@ -767,7 +767,7 @@ game/ChaseManager.cpp:
 
 game/ColliAttrManager.cpp:
 	.text       start:0x801839FC end:0x80184A64
-	.rodata     start:0x807381E8 end:0x8073821C
+	.rodata     start:0x807381E8 end:0x80738230
 	.data       start:0x8077CC48 end:0x8077CC80
 	.sdata      start:0x8087D9F8 end:0x8087DA00
 	.sbss       start:0x8087F0A0 end:0x8087F0A8
@@ -904,7 +904,7 @@ chr/ControlAttractHateCharge.cpp:
 
 chr/ControlInteractionBase.cpp:
 	.text       start:0x801B7CD0 end:0x801B9A54
-	.rodata     start:0x8073B200 end:0x8073B2E8
+	.rodata     start:0x8073B200 end:0x8073B308
 	.data       start:0x80780FC0 end:0x80781438
 	.sdata2     start:0x80882518 end:0x80882550
 
@@ -948,7 +948,7 @@ chr/ControlOneMotion.cpp:
 
 chr/ControlPushedDown.cpp:
 	.text       start:0x801C4738 end:0x801C6F90
-	.rodata     start:0x8073B778 end:0x8073B7DC
+	.rodata     start:0x8073B778 end:0x8073B810
 	.data       start:0x80781D58 end:0x80781ED0
 	.bss        start:0x807C7C28 end:0x807C7C30
 	.sdata      start:0x8087DA40 end:0x8087DA48
@@ -1042,7 +1042,7 @@ game/CosEditItemList_unk.cpp:
 
 game/CostumeEditChara.cpp:
 	.text       start:0x801E7FF8 end:0x801E9218
-	.rodata     start:0x8073CB78 end:0x8073CB8C
+	.rodata     start:0x8073CB78 end:0x8073CBD0
 	.data       start:0x807828C8 end:0x80782900
 	.sdata2     start:0x80882B10 end:0x80882B30
 
@@ -1057,14 +1057,14 @@ game/CrossbowMenuTask.cpp:
 
 game/CrowdManager.cpp:
 	.text       start:0x801EA4B0 end:0x801EB93C
-	.rodata     start:0x8073CC68 end:0x8073CC80
+	.rodata     start:0x8073CC68 end:0x8073CD20
 	.data       start:0x807829E0 end:0x80782A18
 	.sbss       start:0x8087F128 end:0x8087F130
 	.sdata2     start:0x80882B70 end:0x80882BC0
 
 game/CrowdSimulation.cpp:
 	.text       start:0x801EB93C end:0x801EC158
-	.rodata     start:0x8073CD20 end:0x8073CD38
+	.rodata     start:0x8073CD20 end:0x8073CD58
 	.data       start:0x80782A18 end:0x80782A50
 	.sdata      start:0x8087DAA8 end:0x8087DAB0
 	.sdata2     start:0x80882BC0 end:0x80882BE0
@@ -1128,8 +1128,8 @@ atn/D2A_Reference.cpp:
 
 atn/D2A_Task.cpp:
 	.text       start:0x801F3FF8 end:0x801F4FF4
-	.rodata     start:0x8073E408 end:0x8073E420
-	.data       start:0x80782C08 end:0x80782C40
+	.rodata     start:0x8073E408 end:0x8073E480
+	.data       start:0x80782C08 end:0x80782C70
 	.sdata2     start:0x80882C80 end:0x80882C90
 
 atn/D2A_TaskInstanceBase_64_8.cpp:
@@ -1473,7 +1473,7 @@ Event/DialogHead.cpp:
 
 Event/Dialog.cpp:
 	.text       start:0x802280B4 end:0x80229DF0
-	.rodata     start:0x80742E48 end:0x80742EA8
+	.rodata     start:0x80742E48 end:0x80742F68
 	.data       start:0x807839E0 end:0x80783A18
 	.sdata      start:0x8087DBB8 end:0x8087DBE0
 	.sdata2     start:0x80883078 end:0x808830D0
@@ -1550,7 +1550,7 @@ game/Em001Necromancer.cpp:
 
 game/Em002_01BlackSkelton.cpp:
 	.text       start:0x802476D0 end:0x80248E88
-	.rodata     start:0x807433F0 end:0x80743498
+	.rodata     start:0x807433F0 end:0x807434C8
 	.data       start:0x80783E38 end:0x80783F78
 	.sdata2     start:0x808831D8 end:0x80883218
 
@@ -1877,7 +1877,7 @@ game/Em403WarLion.cpp:
 
 game/EnemyFieldMagician.cpp:
 	.text       start:0x8032C52C end:0x8032DEA0
-	.rodata     start:0x80749D70 end:0x80749DC0
+	.rodata     start:0x80749D70 end:0x80749F58
 	.data       start:0x80788D20 end:0x80788E50
 	.sdata2     start:0x80885040 end:0x80885070
 
@@ -1889,7 +1889,7 @@ game/EnemyJill.cpp:
 
 game/EnemyLizerdBlade.cpp:
 	.text       start:0x803335C4 end:0x80334B38
-	.rodata     start:0x8074A138 end:0x8074A154
+	.rodata     start:0x8074A138 end:0x8074A298
 	.data       start:0x80788FC0 end:0x807890F0
 	.sdata2     start:0x80885130 end:0x80885190
 
