@@ -3,7 +3,7 @@
 Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveLoad_cont`, `atn/LH_Motion_cont`,
 `game/NpcManager_cont`, `atn/Bgm_cont`, `game/MarketTask_cont`. Todas `_cont`: se fusionan en su unidad enlazada.
 
-## game/SetConfig_cont (commit HASH)
+## game/SetConfig_cont (commit 382ae8c)
 
 - Resultado: 4/4 al 100%, fusionada en `game/SetConfig` (`matching: true`, `main.dol: OK`).
 - NONMATCHING: ninguna.
