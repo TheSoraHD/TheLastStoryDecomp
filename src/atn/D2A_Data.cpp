@@ -29,8 +29,8 @@ D2A_Data::D2A_Data() : mEndFrame(1.0f), m60(0.0f), m64(-1.0f), m9C(0), mA0(0), m
 
 D2A_Name_unk::~D2A_Name_unk() {}
 
-// NONMATCHING: 99.67% - track loop: the loop counter and the element offset are incremented in the other order (or use swapped
-// registers); tried while/for, ++i, locals, int counters and accessors
+// NONMATCHING: 99.67% - track loop: counter and offset registers swapped (r28/r29); the element
+// loops match with `int i < Size()` and operator[], but this one needs the unsigned form
 D2A_Data::~D2A_Data() {
     vf14();
     for (unsigned int i = 0; i < mTracks.mCount; i++) {
@@ -84,11 +84,9 @@ D2A_Common* D2A_Data::fn_801EF36C(int type, unsigned short id) {
     return element;
 }
 
-// NONMATCHING: 99.51% - the loop counter and the element offset are incremented in the other order (or use swapped
-// registers); tried while/for, ++i, locals, int counters and accessors
 void D2A_Data::vf14() {
-    for (unsigned int i = 0; i < mElements.mSize; i++) {
-        mElements.mData[i]->~D2A_Common();
+    for (int i = 0; i < mElements.Size(); i++) {
+        mElements[i]->~D2A_Common();
     }
     mElements.mSize = 0;
     mElements.mCapacity = 0;
@@ -104,41 +102,37 @@ void D2A_Data::vf14() {
     mPool.mUsed = 0;
 }
 
-// NONMATCHING: 93.93% - the loop counter and the element offset are incremented in the other order (or use swapped
-// registers); tried while/for, ++i, locals, int counters and accessors
+// NONMATCHING: 94.77% - track loop: track pointer and offset registers swapped (r30/r31)
 void D2A_Data::vf0C() {
+    D2A_Track_unk* track;
     for (unsigned int i = 0; i < mTracks.mCount; i++) {
-        D2A_Track_unk* track = &mTracks.mData[i];
+        track = &mTracks.mData[i];
         track->mValue = fn_801F0544(&track->mEntries, 0);
     }
-    for (unsigned int i = 0; i < mElements.mSize; i++) {
-        mElements.mData[i]->vf14();
+
+    for (int i = 0; i < mElements.Size(); i++) {
+        mElements[i]->vf14();
     }
 }
 
-// NONMATCHING: 99.21% - the loop counter and the element offset are incremented in the other order (or use swapped
-// registers); tried while/for, ++i, locals, int counters and accessors
 void D2A_Data::vf10() {
-    for (unsigned int i = 0; i < mElements.mSize; i++) {
-        mElements.mData[i]->vf18();
+    for (int i = 0; i < mElements.Size(); i++) {
+        mElements[i]->vf18();
     }
 }
 
-// NONMATCHING: 99.33% - the loop counter and the element offset are incremented in the other order (or use swapped
-// registers); tried while/for, ++i, locals, int counters and accessors
 int D2A_Data::fn_801EF9B4() {
-    for (unsigned int i = 0; i < mElements.mSize; i++) {
-        if (mElements.mData[i]->vf1C()) {
+    for (int i = 0; i < mElements.Size(); i++) {
+        if (mElements[i]->vf1C()) {
             return 1;
         }
     }
     return 0;
 }
 
-// NONMATCHING: 97.19% - offset and element registers swapped (r5/r6)
 D2A_Common* D2A_Data::fn_801EFA38(unsigned int id) {
-    for (unsigned int i = 0; i < mElements.mSize; i++) {
-        D2A_Common* element = mElements.mData[i];
+    for (int i = 0; i < mElements.Size(); i++) {
+        D2A_Common* element = mElements[i];
         if (id == element->mId) {
             return element;
         }
@@ -146,10 +140,9 @@ D2A_Common* D2A_Data::fn_801EFA38(unsigned int id) {
     return 0;
 }
 
-// NONMATCHING: 97.19% - offset and element registers swapped (r5/r6)
 D2A_Common* D2A_Data::fn_801EFA78(unsigned int id) {
-    for (unsigned int i = 0; i < mElements.mSize; i++) {
-        D2A_Common* element = mElements.mData[i];
+    for (int i = 0; i < mElements.Size(); i++) {
+        D2A_Common* element = mElements[i];
         if (id == element->m04) {
             return element;
         }
@@ -166,13 +159,15 @@ D2A_Track_unk::D2A_Track_unk() : m00(0), mEntries(0), mCount(0) {
     }
 }
 
-// NONMATCHING: 95.79% - f0/f1 and r4/r5 swapped
 void D2A_Data::fn_801EFB00() {
     float end = 1.0f;
-    for (unsigned int i = 0; i < mElements.mSize; i++) {
-        D2A_Common* element = mElements.mData[i];
-        if (element->mType != 5 && end < element->m18) {
-            end = element->m18;
+    for (int i = 0; i < mElements.Size(); i++) {
+        D2A_Common* element = mElements[i];
+        if (element->mType != 5) {
+            float t = element->m18;
+            if (end < t) {
+                end = t;
+            }
         }
     }
     mEndFrame = end;
