@@ -70,3 +70,44 @@ Cola: `game/Em201ZanGurg`, `game/Em305VampireMp`, `game/EnemyTrista`, `game/Spec
   - `Vector3 d = pos - mPos; d.y = 0.0f;` elimina la resta de y y guarda x, z, y en ese orden.
   - `mRot.y = dir.ToRotation_unk().y;` (temporal) coloca la copia por debajo de los locales con nombre.
   - `m++; if (m >= n)` en lugar de `if (++m >= n)` cambia el orden de carga de los operandos.
+
+## game/EnemyTrista (commit b086b63)
+- Resultado: 12/18 al 100%, `matching: false`, `main.dol: OK` (regress lost: 0).
+- NONMATCHING:
+  - ctor 98.6%: el original carga info->m20 antes de guardar los registros.
+  - vf10 98.8%: registros puntero/contador del bucle de eventos (StartEvent_unk).
+  - fn_8035C8CC 82.1%: huecos de pila de los temporales del salto lateral (Side_unk); codigo igual.
+  - fn_8035CF78 98.0%: hueco del test del scoped_ptr (copia del ptmf) y orden de argumentos.
+  - fn_8035D294 60.9%: copia miembro a miembro de los parametros de camara por defecto (el original
+    los carga en FPR salvados antes del test de modo).
+  - vf3C 95.0%: el original conserva r5 (segundo argumento de vf3C, que CharaTask::vf3C no usa) y lo
+    pasa a CharaTask::vf3C. Cambiar la firma de vf3C afecta a toda la jerarquia: no hecho.
+- Decisiones sin el usuario:
+  - Split sin cambios (ya ampliado en splits-auto-C).
+  - CABECERA COMPARTIDA include/game/CharaTask.h + src/game/CharaTask.cpp + symbols.txt:
+    `fn_8015783C(HitInfo_unk*, const Vector3&)` -> `fn_8015783C(HitInfo_unk*, const Vector3&, float dist)`
+    (los 8 llamadores del DOL pasan f1; la funcion no lo lee; sigue al 99.74%). Mangled:
+    fn_8015783C__9CharaTaskFP11HitInfo_unkRCQ23atn7Vector3f.
+  - CABECERA COMPARTIDA include/game/CharaTask.h + symbols.txt: `virtual void vfA8()` ->
+    `virtual int vfA8(int kind)` (CharaTask::vfA8 en 0x80041A20 devuelve -1; EnemyTrista la
+    sobrescribe con un int). vfA8__9CharaTaskFv -> vfA8__9CharaTaskFi (76 vtables en asm, se
+    regeneran solas). Nadie en src la llamaba.
+  - CABECERA COMPARTIDA include/game/HitInfo_unk.h: `float m40` (alcance) partiendo m1C[].
+  - Cabecera nueva include/game/EnemyTrista.h (TristaEvent_unk inventado). Clase local
+    ControlShingan en namespace anonimo; sus simbolos en symbols.txt usan
+    `@unnamed@EnemyTrista_cpp@` (nombre de nuestro fichero) y lbl_80789B10/80 -> su vtable y RTTI.
+  - NOMBRE REAL del fichero: enemy_trista.cpp (el RTTI dice `@unnamed@enemy_trista_cpp@::ControlShingan`).
+    Pendiente: renombrar la unidad (afecta a splits/game_units) para que el nombre RTTI y los
+    simbolos de ControlShingan casen; no hecho.
+  - Inlines inventados en el .cpp: ResetCamera_unk, FireEvent_unk, StartEvent_unk, ClampHp_unk,
+    HasHit_unk, Side_unk, FrontDir_unk, PlayMotion_unk, PlayEffect_unk; structs Field_unk/
+    FieldCamera_unk/FieldLook_unk/TristaCamParam_unk (campos de lbl_8087F430 0x4D8-0x9A0).
+  - fn_800F8C6C devuelve int (balas lanzadas, se resta de m594).
+- Hallazgos MWCC:
+  - Un bloque con orden de pila ascendente dentro de una funcion = inline propio (FireEvent_unk).
+  - `float scale = g->m3A4; m -= scale;` da el orden de registros del original para `m -= g->m3A4`.
+  - Un global cargado antes de una llamada que calcula otro argumento (`fn_8004ED34(lbl_8087EE98, ...,
+    fn_80179D44() | 0x80000000, ...)`) = local `void* world = lbl_8087EE98;` (anade un GPR salvado).
+  - El vector diferencia con nombre (`Vector3 d = a - b; d.Length_unk()`) en vez de temporal sube su
+    hueco por encima de los temporales.
+  - El dtor implicito de la clase y el de la clase local salen al final del .o en ese orden.
