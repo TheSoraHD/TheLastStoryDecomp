@@ -38,3 +38,35 @@ Cola: `game/Em201ZanGurg`, `game/Em305VampireMp`, `game/EnemyTrista`, `game/Spec
   - Un local float declarado antes que otros (aunque se cargue tarde) recibe el FPR mas alto.
   - `int id = m590;` antes de una llamada fija el orden de carga miembro/global de los argumentos.
 - Pendientes: ninguno para otras unidades.
+
+## game/Em305VampireMp (commit 7a8c060)
+- Resultado: 12/14 al 100%, `matching: false`, `main.dol: OK` (regress lost: 0).
+- NONMATCHING:
+  - ctor 96.7%: orden de carga de las palabras de flags y de los tamanos de los vectores, y registros
+    del segundo std::string (mismo caso que Em201ZanGurg).
+  - vf0C 94.0%: los push_back inline de std::vector (bloqueo conocido: la via rapida del elemento de
+    16 bytes no lleva la comprobacion de null del placement new) y registros.
+- Decisiones sin el usuario:
+  - Split sin cambios. Pendiente: los 0x20 bytes .data 0x80787548-0x80787568 ("Memory allocation
+    failure" del __allocate inline de std::vector<VampireDoor_unk>) estan en un hueco entre
+    Em305Vampire y Em305VampireMp; pertenecen a esta unidad (ampliar .data a 0x80787548 cuando se
+    enlace).
+  - Cabecera nueva include/game/Em305Vampire.h (clase base sin decompilar: miembros 0x14D4-0x1608
+    deducidos de su ctor y de los usos en Mp; VampireDoor_unk inventado) e include/game/Em305VampireMp.h.
+  - symbols.txt (unidad Em305Vampire, ajena, solo nombres): fn_802E8580 -> ctor, fn_802E89B0 -> dtor,
+    fn_802EA27C -> vf20, fn_802EB9F8 -> vfEC, fn_802EA994 -> vf11C y los 15 metodos no virtuales que
+    llama Mp -> fn_XXXXXXXX__12Em305VampireFv (todos void(), comprobado que no leen r4).
+  - CABECERA COMPARTIDA include/game/SpecialEnemyBase.h: struct SpecialState_unk nuevo; firmas
+    vf110(SpecialState_unk*), vf114(const SpecialState_unk*), vf118(HitInfo_unk*) (el asm de la base
+    las usa: guarda/restaura m58C/m14BC; vf118 lee r4). symbols.txt: renombrados sus manglings
+    (vf110__16SpecialEnemyBaseFP16SpecialState_unk, vf114__...FPC16SpecialState_unk,
+    vf118__...FP11HitInfo_unk). Em006DarkMaster sigue al 100% y main.dol OK.
+  - fn_803E6850 recibe 5 argumentos (arena, chara, restantes, total, 0).
+- Hallazgos MWCC:
+  - Dos colores locales en ambitos anidados: el declarado en el ambito interior va mas abajo; para el
+    orden del original declarar ambos al principio del bloque exterior (constructor vacio + campos).
+  - Un `bool r = true; if (a == 0 || b == 0) r = false;` inline da el patron li 1 / li 0 del original;
+    `return a != 0 && b != 0` invierte las ramas.
+  - `Vector3 d = pos - mPos; d.y = 0.0f;` elimina la resta de y y guarda x, z, y en ese orden.
+  - `mRot.y = dir.ToRotation_unk().y;` (temporal) coloca la copia por debajo de los locales con nombre.
+  - `m++; if (m >= n)` en lugar de `if (++m >= n)` cambia el orden de carga de los operandos.
