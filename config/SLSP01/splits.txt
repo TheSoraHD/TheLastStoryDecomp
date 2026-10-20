@@ -272,10 +272,11 @@ game/BattleCharaTask.cpp:
 	.sdata2     start:0x808812E0 end:0x808813B8
 
 game/BattleResult.cpp:
-	.text       start:0x800EFF68 end:0x800F1378
-	.rodata     start:0x80735450 end:0x80735460
+	.text       start:0x800EFF68 end:0x800F13BC
+	.rodata     start:0x80735440 end:0x807355C8
 	.data       start:0x80779CA8 end:0x80779CE0
-	.sdata2     start:0x808813BC end:0x808813D0
+	.sbss       start:0x8087F040 end:0x8087F048
+	.sdata2     start:0x808813B8 end:0x808813D0
 
 game/BattleTask.cpp:
 	.text       start:0x800F1430 end:0x800F7250
