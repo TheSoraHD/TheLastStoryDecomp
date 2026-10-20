@@ -237,7 +237,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - `it++` en un `boost::token_iterator` llama a `operator++(facade&, int)` (`__pp<...>__5boostF...i_`) y crea un
     temporal; `++it` llama al miembro `__pp__Q25boost368iterator_facade...`.
 
-## db/EquipParam_unk (commit PENDIENTE)
+## db/EquipParam_unk (commit 17bd678)
 - Resultado: 13/14 al 100%, matching no.
 - NONMATCHING: `fn_8020EB0C` (textos UTF-16) 96.22% - el original guarda la direccion del `atn::CsvU` en un registro
   salvado mientras corre su ctor inline (igual en `db/PaletteTable_unk`); aqui se recalcula. Parece cosa de como esta
@@ -255,3 +255,25 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     cargue primero hay que acumular en un local (`int c = 200000; c += ...;`).
   - `(unsigned)(x - 8) <= 2` como `bool` devuelto sale sin saltos (`subfic/orc/srwi`); `x >= 8 && x <= 10` da `cmplwi`+`bgtlr`.
   - `/ 100000` usa la constante magica 0x14F8B589 con `srawi 13` (`/ 10000` da 0x68DB8BAD con `srawi 12`).
+
+## db/ItemRare_unk (commit PENDIENTE)
+- Resultado: 6/8 al 100%, matching no.
+- NONMATCHING: `fn_80213B78` 98.68% y `fn_80213E60` 98.90% - numeracion de registros dentro del inline `HasItem_unk`
+  (el original deja tipo/valor en r5/r6, intercambiados en `fn_80213E60`); probados otros ordenes de parametros y formas.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_802137DC`/`fn_80213A98` -> `__ct__/__dt__13RareEntry_unkFv`, `fn_80213A7C` -> `__ct__12RareItem_unkFv`;
+    datos `sFileNameStr`, `@stringBase0`, `sEntries`, `sCount`, `sFileName` y los cuatro `""` de `.sdata`:
+    0x8087DB60/64 -> `@STRING@reserve__Q23atn26Vector_unk<12RareItem_unk>FUii(@0)` (del `push_back` inline del cargador),
+    0x8087DB68/6C -> `@STRING@InitItems_unk__FRQ23atn26Vector_unk<12RareItem_unk>Ui(@0)`.
+  - Tipos inferidos `RareItem_unk` (0x10, ctor tipo 3), `RareEntry_unk` (0x18, `atn::Vector_unk<RareItem_unk>`); funcion
+    inline inventada `InitItems_unk` (= `reserve` sin la comprobacion de capacidad y vaciando la lista) para el ctor: el
+    original tiene otro par de literales `""` distinto al de `reserve`, asi que es otra funcion (quizas un metodo de
+    `atn::Vector_unk` que no esta en `include/atn/Array_unk.h`; no se toca la cabecera compartida).
+  - Estructuras parciales de otras tablas (`ItemData_unk`, `WeaponData_unk`, `EquipData_unk`) locales al .cpp.
+- Hallazgos MWCC
+  - Un `return` en la rama `else` (`if (x == 9) {...} else return e;`) da `bne; blr; blr` donde `if (x != 9) return e;`
+    da `bnelr` + `beqlr`.
+  - Un inline que devuelve `bool` usado en `a || (b && f())` deja el resultado en un registro distinto: con el inline
+    devolviendo `int` el resultado sale en r0 y el epilogo hace `mr r3, r0` como el original.
+  - Literales de funciones inline en `.sdata` (`@STRING@<func>`): cada funcion distinta tiene su par aunque el cuerpo sea igual.
