@@ -36,6 +36,7 @@
 #include "gmk/FlamingArrow.h"
 #include "gmk/Fireworks.h"
 #include "gmk/SparkCube.h"
+#include "gmk/LemonBucket.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -190,7 +191,7 @@ void GimmickMaterialFade_unk::fn_803EBE74(Model_unk* model) {
     }
 }
 
-void GimmickMotionSwitch_unk::fn_803EC0A4(atn::CsvTab* csv) {
+void GimmickMotionSwitch_unk::fn_803EC0A4(atn::CsvTab* csv, Model_unk* model) {
     mHash = fn_800DC6B4(csv->fn_8005B9CC());
     mFrame = atoi(csv->fn_8005B9CC());
 }
@@ -229,7 +230,6 @@ extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80429668(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8043B778(atn::Task* parent, GimmickDesc_unk* desc);
 
 // inferred: creates the gimmick of type id / 1000 (ids below 1000 are types)
@@ -317,7 +317,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 50: gimmick = gmk::InteractionSpot::fn_80428B0C(parent, desc); break;
     case 51: gimmick = fn_80429668(parent, desc); break;
     case 58: gimmick = gmk::TodomeCountUp::fn_8042F0B4(parent, desc); break;
-    case 59: gimmick = fn_8042F7EC(parent, desc); break;
+    case 59: gimmick = gmk::LemonBucket::fn_8042F7EC(parent, desc); break;
     case 63: gimmick = gmk::SavePoint::fn_80435DEC(parent, desc); break;
     case 65: gimmick = gmk::LottaSummon::fn_8043A850(parent, desc); break;
     case 66: gimmick = fn_8043B778(parent, desc); break;

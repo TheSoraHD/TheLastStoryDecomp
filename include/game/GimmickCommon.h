@@ -202,7 +202,10 @@ struct GimmickMaterialFade_unk {
 
 // inferred: motion switch by frame (used by gmk::MotionObject and others)
 struct GimmickMotionSwitch_unk {
-    void fn_803EC0A4(atn::CsvTab* csv);
+    // inferred: weak copy 0x803F3360 (gmk::FragileObject)
+    GimmickMotionSwitch_unk() : mHash(0), mFrame(-1) {}
+    // inferred: the callers pass the model too (r5), unused
+    void fn_803EC0A4(atn::CsvTab* csv, Model_unk* model);
     void fn_803EC0F8(Model_unk* model);
 
     int mHash;

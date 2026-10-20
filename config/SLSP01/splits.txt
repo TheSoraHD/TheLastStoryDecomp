@@ -1524,8 +1524,8 @@ gmk/TodomeCountUp.cpp:
 	.sdata2     start:0x80886800 end:0x80886808
 
 gmk/LemonBucket.cpp:
-	.text       start:0x8042F860 end:0x804310B0
-	.rodata     start:0x80753FC8 end:0x80753FDC
+	.text       start:0x8042F7EC end:0x804310B0
+	.rodata     start:0x80753F98 end:0x80754070
 	.data       start:0x8078EC08 end:0x8078ECA0
 	.sdata2     start:0x80886808 end:0x80886868
 
