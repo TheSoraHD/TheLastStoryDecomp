@@ -2,6 +2,7 @@
 #include "atn/Memory.h"
 #include "atn/Csv.h"
 #include "atn/LH_Binary.h"
+#include "game/TownTpcLoader.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -222,10 +223,10 @@ extern "C" TownNode_unk* fn_805B80B0(TownTree_unk* tree, const int* key, TownNod
     return parent;
 }
 
-// NONMATCHING: 99.6% - registers of the 1/size division
 // inferred: block coordinates of a position, clamped to the town size
 extern "C" void fn_805B8110(TownTask* town, const atn::Vector3* pos, int* x, int* z) {
-    float inv = 1.0f / town->m134;
+    float size = town->m134;
+    float inv = 1.0f / size;
     atn::Vector3 d = *pos - town->m140;
     atn::Vector3 cell = d * inv;
     *x = (int)cell.x;
@@ -390,7 +391,178 @@ extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int speci
     return list;
 }
 
-// NONMATCHING: fn_805B8DB4 (0x8F4, block loading) is not written yet
+extern "C" void fn_805B8110(TownTask* town, const atn::Vector3* pos, int* x, int* z);
+
+// inferred: the position is inside the area (name invented)
+inline bool TownInside_unk(const atn::Vector3& pos, float minX, float maxX, float minZ, float maxZ) {
+    if (pos.x >= minX && pos.x <= maxX && pos.z >= minZ && pos.z <= maxZ) {
+        return true;
+    }
+    return false;
+}
+
+// inferred: debug settings (lbl_8087F0A8); only the member used here
+struct TownSettings_unk {
+    unsigned char m000[0x164];
+    int mLoadAllBlocks; // 0x164: inferred: debug, loads every block of the town
+};
+extern "C" TownSettings_unk* lbl_8087F0A8;
+extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
+extern "C" TownBlockParts_unk* fn_8049D68C(void* owner, const char* name); // inferred: loads a map part
+extern "C" void fn_800D2338(void* task); // inferred: deletes the task
+
+// inferred: loads the blocks around the player (all of them with the debug setting); `reload` is set by
+// vf0C on the first frame (the NPC loaders do not wait for the map part then)
+void TownTask::fn_805B8DB4(int reload) {
+    if (lbl_8087F0A8->mLoadAllBlocks != 0) {
+        if (m124 == 0) {
+            return;
+        }
+        for (int x = 0; x < 6; x++) {
+            for (int z = 0; z < 5; z++) {
+                char name[0x100];
+                sprintf(name, m14C.data(), x, z);
+                char path[0x100];
+                sprintf(path, "%s/%s.map", m158.data(), name);
+                if (fn_8006AA20(path) != 0) {
+                    TownBlockParts_unk* parts = fn_8049D68C(this, path);
+                    if (parts != 0) {
+                        parts->mF4 = 1;
+                    }
+                    if (lbl_8087F430 != 0) {
+                        TownTpcLoader::fn_805B9B08(this, x, z, 0);
+                    }
+                }
+            }
+        }
+        return;
+    }
+    int x;
+    int z;
+    fn_805B8110(this, &m168, &x, &z);
+    if (m174 != x || m178 != z) {
+        float minX = m134 * (m174 - (m164 - 1.0f) / 2.0f) + m140.x;
+        float minZ = m134 * (m178 - (m164 - 1.0f) / 2.0f) + m140.z;
+        if (!TownInside_unk(m168, minX, m134 * m164 + minX, minZ, m134 * m164 + minZ)) {
+            m174 = x;
+            m178 = z;
+        }
+    }
+    for (int i = 0; i < 9; i++) {
+        mBlocks[i].m00 = 0;
+    }
+    TownBlockList_unk list = fn_805B827C(this, m174, m178, reload);
+    TownBlock_unk* blocks = mBlocks;
+    for (int i = 0; i < 9; i++) {
+        TownBlock_unk* block = &blocks[i];
+        int id = block->mX + block->mZ * m138;
+        for (int k = 0; k < 9; k++) {
+            if (list.m[k] == -1) {
+                break;
+            }
+            if (id == list.m[k]) {
+                mBlocks[i].m00 = 1;
+            }
+        }
+    }
+    for (int i = 0; i < 9; i++) {
+        TownBlock_unk* block = &blocks[i];
+        if (block->m00 == 0 && block->mParts != 0) {
+            fn_800D2338(block->mParts);
+            block->mParts = 0;
+            if (block->m10 != 0) {
+                block->m10->fn_805B9D58();
+                block->m10 = 0;
+            }
+        }
+    }
+    for (int k = 0; k < 9; k++) {
+        int id = list.m[k];
+        if (id < 0) {
+            continue;
+        }
+        int bz = id / m138;
+        int bx = id - bz * m138;
+        if ((bx == 0 && bz == 3) || (bx == 0 && bz == 4) || (bx == 1 && bz == 4)) {
+            continue;
+        }
+        bool loaded = false;
+        for (int i = 0; i < 9; i++) {
+            TownBlock_unk* block = &blocks[i];
+            if (block->m00 != 0 && block->mZ == bz && block->mX == bx && block->mParts != 0) {
+                loaded = true;
+                break;
+            }
+        }
+        if (loaded) {
+            continue;
+        }
+        for (int i = 0; i < 9; i++) {
+            TownBlock_unk* block = &blocks[i];
+            if (block->m00 == 0) {
+                char name[0x100];
+                sprintf(name, m14C.data(), bx, bz);
+                char path[0x100];
+                sprintf(path, "%s/%s.map", m158.data(), name);
+                if (fn_8006AA20(path) != 0) {
+                    block->mX = bx;
+                    block->mZ = bz;
+                    block->m00 = 1;
+                    block->mParts = fn_8049D68C(this, path);
+                    if (block->mParts != 0) {
+                        block->mParts->mF4 = 1;
+                    }
+                    if (lbl_8087F430 != 0) {
+                        block->m10 =
+                            TownTpcLoader::fn_805B9B08(this, bx, bz, reload != 0 ? 0 : (atn::Task*)block->mParts);
+                    }
+                }
+                break;
+            }
+        }
+    }
+    TownNode_unk* node = TownTreeFind_unk(&m240, m174 + m178 * m138);
+    if (m174 == 4 && m178 == 3) {
+        atn::Vector3 v(535.0f, 0.0f, 245.0f);
+        v.x -= m168.x;
+        v.y -= m168.y;
+        v.z -= m168.z;
+        v.y = 0.0f;
+        if (fn_805F9920(&v) < 4900.0f) {
+            node = (TownNode_unk*)&m240.mRoot;
+        }
+    }
+    if (node != (TownNode_unk*)&m240.mRoot) {
+        TownBlockList_unk& show = ((TownPair_unk*)&node->mValue)->mList;
+        for (int i = 0; i < 9; i++) {
+            if (blocks[i].mParts != 0 && blocks[i].mParts->IsTown_unk()) {
+                blocks[i].mParts->SetHidden_unk();
+            }
+        }
+        for (int k = 0; k < 9; k++) {
+            int id = show.m[k];
+            if (id < 0) {
+                continue;
+            }
+            int bz = id / m138;
+            int bx = id - bz * m138;
+            for (int i = 0; i < 9; i++) {
+                TownBlock_unk* block = &blocks[i];
+                if (block->m00 != 0 && block->mZ == bz && block->mX == bx && block->mParts != 0) {
+                    block->mParts->m38 &= ~4;
+                    break;
+                }
+            }
+        }
+    } else {
+        for (int i = 0; i < 9; i++) {
+            if (blocks[i].mParts != 0) {
+                blocks[i].mParts->m38 &= ~4;
+            }
+        }
+    }
+}
 
 // NONMATCHING: 96.5% - float registers of the cell computation
 // inferred: nonzero when the position is in the town area (the block under it is flagged)
