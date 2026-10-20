@@ -9,6 +9,29 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
 `lbl_8087F518`) mas accesores por id. Funciones `extern "C" fn_<addr>` (sin clase en el binario), como en
 `db/GrowthParseGlobal.cpp`.
 
+## Resumen
+
+| Unidad | 100% | matching |
+|---|---|---|
+| db/BgmIdTable_unk | 3/3 | si |
+| db/ColliAttrTable_unk | 4/4 | si |
+| db/HateParam_unk | 3/3 | si |
+| db/AiTable_unk | 2/2 | si |
+| db/ArrowSet_unk | 3/4 | no |
+| db/CharaMotionParam_unk | 3/3 | si |
+| db/EventIdTable_unk | 5/7 | no |
+| db/ChaseParam_unk | 0/1 | no |
+| db/ChapterList_unk | 9/9 | si |
+| db/InitSetting_unk | 2/2 | si |
+| db/CharaIdTable_unk | 14/16 | no |
+| db/PaletteTable_unk | 12/14 | no |
+| db/CharaParam_unk | 9/11 | no |
+| db/EquipParam_unk | 13/14 | no |
+| db/ItemRare_unk | 6/8 | no |
+
+Total 89/101 funciones al 100%; 7 unidades `matching: true`. Build final: `main.dol: OK`, `regress.py` lost: 0.
+Ningun cambio de `splits.txt`. Cabecera nueva `include/db/EventIdTable_unk.h`.
+
 ## db/BgmIdTable_unk (commit 1b6dae5)
 - Resultado: 3/3 al 100%, matching si.
 - NONMATCHING: ninguno.
@@ -256,7 +279,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - `(unsigned)(x - 8) <= 2` como `bool` devuelto sale sin saltos (`subfic/orc/srwi`); `x >= 8 && x <= 10` da `cmplwi`+`bgtlr`.
   - `/ 100000` usa la constante magica 0x14F8B589 con `srawi 13` (`/ 10000` da 0x68DB8BAD con `srawi 12`).
 
-## db/ItemRare_unk (commit PENDIENTE)
+## db/ItemRare_unk (commit 7e00332)
 - Resultado: 6/8 al 100%, matching no.
 - NONMATCHING: `fn_80213B78` 98.68% y `fn_80213E60` 98.90% - numeracion de registros dentro del inline `HasItem_unk`
   (el original deja tipo/valor en r5/r6, intercambiados en `fn_80213E60`); probados otros ordenes de parametros y formas.
