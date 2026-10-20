@@ -15,6 +15,7 @@
 #include "gmk/Coffin.h"
 #include "gmk/RandomItem.h"
 #include "gmk/Brazier.h"
+#include "gmk/Cannonball.h"
 #include "gmk/OnOff.h"
 #include "gmk/TodomeCountUp.h"
 #include "gmk/ShakeCamera.h"
@@ -219,7 +220,6 @@ extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80436E34(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
@@ -288,7 +288,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     switch (type) {
     case 5: gimmick = gmk::OnOff::fn_803F74D0(parent, desc); break;
     case 6: gimmick = gmk::ReinforcePoint::fn_803F9420(parent, desc); break;
-    case 7: gimmick = fn_803F9F34(parent, desc); break;
+    case 7: gimmick = gmk::Cannonball::fn_803F9F34(parent, desc); break;
     case 8: gimmick = gmk::Item::fn_803FBFA8(parent, desc); break;
     case 9: gimmick = fn_803FC8D8(parent, desc); break;
     case 10: gimmick = fn_803FE570(parent, desc); break;

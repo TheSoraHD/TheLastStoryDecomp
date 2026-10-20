@@ -37,7 +37,7 @@ struct CollResult_unk {
     atn::Vector3 m04; // inferred: hit position
     atn::Vector3 m10; // inferred: position after the sweep
     atn::Vector3 m1C; // inferred: normal
-    unsigned char m28[0x34 - 0x28];
+    atn::Vector3 m28; // inferred: normal of the hit (gmk::Cannonball)
     void* m34;
     void* m38;
     unsigned int m3C;

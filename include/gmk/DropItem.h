@@ -12,9 +12,29 @@ public:
     // inferred: setters (names invented); they give the register order of gmk::Item constructor
     void SetPos_unk(const atn::Vector3& pos) { m6C = pos; }
     void SetRot_unk(const atn::Vector3& rot) { m78 = rot; }
+    // inferred: in the states 3-5 (name invented)
+    bool IsOut_unk() {
+        bool ret = false;
+        if (3 <= m54 && m54 <= 5) {
+            ret = true;
+        }
+        return ret;
+    }
+    // inferred: nonzero in the states 3-5 while m168 is not negative (weak copy 0x803FB788, kept
+    // from gmk::Cannonball)
+    // NONMATCHING: 98.12% (in gmk/Cannonball) - registers of m54 and the result swapped (r4/r5)
+    virtual int vf60() {
+        int ret = 0;
+        if (IsOut_unk() && m168 >= 0) {
+            ret = 1;
+        }
+        return ret;
+    }
     unsigned char mF4[0x154 - 0xF4];
     int m154; // inferred: set by vf68
-    unsigned char m158[0x180 - 0x158];
+    unsigned char m158[0x168 - 0x158];
+    int m168;
+    unsigned char m16C[0x180 - 0x16C];
     int m180;
     unsigned char m184[0x190 - 0x184];
     int m190;

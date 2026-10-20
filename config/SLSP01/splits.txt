@@ -1252,8 +1252,9 @@ gmk/ReinforcePoint.cpp:
 
 gmk/Cannonball.cpp:
 	.text       start:0x803F9F34 end:0x803FBFA8
-	.rodata     start:0x80752558 end:0x80752568
+	.rodata     start:0x80752510 end:0x807525A8
 	.data       start:0x8078CE90 end:0x8078CF28
+	.bss        start:0x807C8750 end:0x807C8760
 	.sdata2     start:0x80886038 end:0x80886078
 
 gmk/Item.cpp:
