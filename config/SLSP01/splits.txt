@@ -731,10 +731,10 @@ game/Em001Necromancer.cpp:
 	.sdata2     start:0x80883180 end:0x808831D8
 
 game/Em002_01BlackSkelton.cpp:
-	.text       start:0x802476D0 end:0x80247FB0
-	.rodata     start:0x80743480 end:0x80743498
-	.data       start:0x80783E48 end:0x80783F78
-	.sdata2     start:0x808831DC end:0x808831E4
+	.text       start:0x802476D0 end:0x80248E88
+	.rodata     start:0x807433F0 end:0x807434C8
+	.data       start:0x80783E38 end:0x80783F78
+	.sdata2     start:0x808831D8 end:0x80883218
 
 game/Em002_02SkeltonKing.cpp:
 	.text       start:0x80248E88 end:0x8024A004
