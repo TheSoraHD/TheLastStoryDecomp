@@ -8459,7 +8459,7 @@ void CharaTask::fn_80157444(HitInfo_unk* hit, const atn::Vector3& pos) {
 }
 
 // inferred: multi attack toward `pos`
-void CharaTask::fn_8015783C(HitInfo_unk* hit, const atn::Vector3& pos) {
+void CharaTask::fn_8015783C(HitInfo_unk* hit, const atn::Vector3& pos, float dist) {
     m59D = 1;
     m59C = 0;
     m59F = 0;

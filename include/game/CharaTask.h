@@ -371,7 +371,7 @@ public:
     virtual void vf9C(int arg); // inferred: fn_80145334 passes 0 (the target symbol says Fv)
     virtual float vfA0(); // inferred: returns a size (fn_80176E30)
     virtual int vfA4();
-    virtual void vfA8();
+    virtual int vfA8(int kind); // inferred: returns -1 (0x80041A20); EnemyTrista::vfA8 returns 0, 2 or 3
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
     virtual void vfB0();
     // inferred: action to run for `chara` (empty in CharaTask: weak copy 0x800EF310; called by
@@ -740,7 +740,7 @@ public:
     void fn_801562A0(HitInfo_unk* hit, const atn::Vector3& pos, int type, int a, int b, CharaTask* target,
                      float dist);
     void fn_80157444(HitInfo_unk* hit, const atn::Vector3& pos);
-    void fn_8015783C(HitInfo_unk* hit, const atn::Vector3& pos);
+    void fn_8015783C(HitInfo_unk* hit, const atn::Vector3& pos, float dist); // inferred: all callers pass f1 (unused here)
     void fn_80157C34(HitInfo_unk* hit, const atn::Vector3& pos);
     void fn_8015802C(HitInfo_unk* hit, CharaTask* target);
     // inferred: name invented
