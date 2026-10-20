@@ -510,10 +510,11 @@ chr/ControlOneMotion.cpp:
 	.sdata2     start:0x80882778 end:0x808827A8
 
 chr/ControlPushedDown.cpp:
-	.text       start:0x801C48B4 end:0x801C6F90
-	.rodata     start:0x8073B798 end:0x8073B7DC
-	.data       start:0x80781D68 end:0x80781ED0
-	.sdata2     start:0x808827AC end:0x80882838
+	.text       start:0x801C4738 end:0x801C6F90
+	.rodata     start:0x8073B778 end:0x8073B810
+	.data       start:0x80781D58 end:0x80781ED0
+	.bss        start:0x807C7C28 end:0x807C7C30
+	.sdata2     start:0x808827A8 end:0x80882838
 
 chr/ControlRide.cpp:
 	.text       start:0x801C6F90 end:0x801C7918
