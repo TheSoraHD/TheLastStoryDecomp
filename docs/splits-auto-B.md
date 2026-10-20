@@ -155,3 +155,16 @@ Se amplian (texto y datos `auto_` propios):
 - Funciones sueltas despues de una unidad y llamadas solo desde ella / su familia: 0x80247674 -> `game/Em001Necromancer.cpp` (la llama Necromancer); 0x8025FE30 -> `game/Em101LittleZesya.cpp` (setter llamado desde Em101ElderZesya; sin datos: **decision debil**, podria ser el inicio de Em101LittleZesyaSecond).
 - Datos: cada unidad recibe sus tablas/jumptables/`.bss` `auto_` contiguos (generado con `gen.py`).
 - Se deja sin asignar 0x801E9218-0x801E9398 (2 funciones entre CostumeEditChara y CrossbowMenuTask, llamadas desde CosEditBase, sin datos ni constantes): sin pruebas.
+
+## Grupo 9 (datos `auto_` de las unidades del rango)
+
+Para cada unidad no enlazada con `.text` en mi rango, `gen.py` le da los objetos de datos `auto_` que solo usan sus
+funciones (directamente o via vtables/tablas) y que estan pegados a su rango. Se descartan las ampliaciones que:
+(a) invierten el orden respecto a otra unidad (dtk: "Cyclic dependency ... link order"), comprobado con `inv.py`
+(pares de unidades con orden de `.text` distinto al de una seccion de datos); (b) dejan un hueco pequeno (<= 8 bytes) con
+objetos entre dos unidades (el enlazador da `undefined` para guards/objetos que quedan solos en un trozo `auto_`), comprobado con `gaps.py`.
+Resultado: ~50 unidades ampliadas (sobre todo `.rodata`/`.data` de enemigos `game/Em*`, `game/Enemy*` y `chr/Control*`).
+
+### Hallazgos
+- dtk falla con ciclo de orden de enlace si una seccion de datos de una unidad queda antes que la de otra unidad anterior en `.text`; el `.bss`/`.sbss` de muchos ficheros `chr/Control*` esta intercalado (statics de plantillas `assign_to` de boost), por eso muchos `.bss`/`.sbss` quedan en `auto_`.
+- Un hueco `auto_` de <= 8 bytes entre dos unidades con un objeto referenciado (guards `@GUARD@`, un puntero de `.sbss`) acaba en `undefined` al enlazar; los de solo relleno no molestan.
