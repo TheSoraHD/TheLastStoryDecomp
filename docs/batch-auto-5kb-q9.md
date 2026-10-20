@@ -94,3 +94,22 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
 - Hallazgos MWCC
   - Bucle sobre un array miembro con contador aparte (`T** p = a; for (i...; i++, p++)`) da `addi rX, this, off`
     + `lwz 0(rX)`; con indice (`a[i]`) sale `mr rX, this` + `lwz off(rX)`. La busqueda de 6 elementos se desenrolla.
+
+## atn/Bgm_cont (commit HASH)
+
+- Resultado: 6/6 al 100%, fusionada en `atn/Bgm` (`matching: true`, `main.dol: OK`).
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits: `atn/Bgm` .text 0x8004AD9C-0x8004AE84 -> 0x8004AD9C-0x8004B290 y gana el `.sdata2` 0x80880890-0x80880898
+    (0.0f/1.0f) que tenia el `_cont`; borrada `atn/Bgm_cont` (contigua; los datos siguen el orden de `.text`).
+  - `symbols.txt` (pairnames): `fn_8004AE84/AFAC/B0E4/B158/B1EC` -> metodos de `atn::Bgm` (arrancar BGM por nombre,
+    variante con opcion de stream si `lbl_8087EFE8->m34A0`, preparando, reproducir con fade, parar con fade).
+    `fn_8004B20C` (hora de calendario, `OSTicksToCalendarTime(OSGetTime())`) queda como `extern "C"` con su nombre
+    (lo usa `MP/SaveLoad`, enlazada); no parece de `Bgm`, pero esta antes del corte de `.sdata2` del fichero.
+  - `include/atn/Bgm.h`: cinco metodos nuevos. `include/atn/SoundRef.h`: `SoundObject` gana `m90` (0x90) y `mA8`
+    (0xA8; `sizeof` pasa de 0xA8 a 0xAC, nadie lo usa).
+  - **Fuera de mis unidades**: `src/game/GameBgm.cpp` (`matching: false`) llamaba a esas funciones como
+    `extern "C"`; cambiado a llamadas de metodo para seguir emparejando las relocalizaciones. Comprobado: ninguna
+    funcion de `GameBgm` cambia de porcentaje.
+  - Nombre real propuesto del fichero: `atn_bgm.cpp` (pista de `splits-auto-A`), sin cambios.
+- Hallazgos MWCC: ninguno nuevo.

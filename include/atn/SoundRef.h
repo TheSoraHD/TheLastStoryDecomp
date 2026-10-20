@@ -8,8 +8,11 @@ namespace atn {
 struct SoundObject {
     void* m00;
     void* mSound; // 0x04
-    char pad[0xA4 - 0x08];
+    char pad[0x90 - 0x08];
+    int m90;       // inferred: zero when the sound must still be prepared (atn::Bgm::fn_8004AE84)
+    char pad94[0xA4 - 0x94];
     int mRefCount; // 0xA4
+    int mA8;       // inferred: set from fn_800CFDA0 (atn::Bgm)
 };
 
 // inferred name: intrusive reference-counted pointer to a SoundObject. Out-of-line functions
