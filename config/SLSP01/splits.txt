@@ -51,8 +51,8 @@ game/ArenaTask.cpp:
 
 game/Arms.cpp:
 	.text       start:0x80043EAC end:0x800457A4
-	.rodata     start:0x80730E28 end:0x80730E30
-	.data       start:0x80777494 end:0x807774B8
+	.rodata     start:0x80730E28 end:0x80730F10
+	.data       start:0x807773A8 end:0x807774F0
 	.sdata2     start:0x80880858 end:0x80880868
 
 atn/AABBTree.cpp:
