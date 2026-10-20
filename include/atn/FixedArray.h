@@ -12,6 +12,7 @@ class FixedArray_unk {
 public:
     FixedArray_unk() : mSize(0) {}
     unsigned int size() const { return mSize; }
+    void clear() { mSize = 0; }
     T& operator[](int i) { return mData[i]; }
     void push_back(const T& value) {
         new (&mData[mSize]) T(value);

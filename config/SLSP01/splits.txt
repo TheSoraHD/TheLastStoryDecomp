@@ -728,7 +728,7 @@ Event/DialogHead.cpp:
 
 Event/Dialog.cpp:
 	.text       start:0x802280B4 end:0x80229DF0
-	.rodata     start:0x80742E98 end:0x80742EA8
+	.rodata     start:0x80742E48 end:0x80742F68
 	.data       start:0x807839E0 end:0x80783A18
 	.sdata2     start:0x80883078 end:0x808830D0
 
@@ -1780,9 +1780,11 @@ game/MiniMapTask.cpp:
 	.sdata2     start:0x80887254 end:0x808872B0
 
 MP/D2ACommonDialog.cpp:
-	.text       start:0x804AC488 end:0x804ADCAC
-	.rodata     start:0x80757820 end:0x80757834
+	.text       start:0x804AC430 end:0x804ADCAC
+	.rodata     start:0x80757820 end:0x80757A30
 	.data       start:0x80790888 end:0x807908C0
+	.sdata      start:0x8087E0E8 end:0x8087E0F0
+	.sbss       start:0x8087F588 end:0x8087F590
 	.sdata2     start:0x808872D0 end:0x80887308
 
 MP/CryptMP.cpp:
@@ -1797,22 +1799,27 @@ MP/D2AMpMenu.cpp:
 	.sdata2     start:0x8088730C end:0x80887348
 
 MP/D2AMpMenuCockpit.cpp:
-	.text       start:0x804B4CB8 end:0x804B6988
-	.rodata     start:0x80758138 end:0x80758150
-	.data       start:0x80790B78 end:0x80790BB8
+	.text       start:0x804B4C50 end:0x804B6988
+	.rodata     start:0x80758110 end:0x80758368
+	.data       start:0x80790B78 end:0x80790BC8
+	.sbss       start:0x8087F5A8 end:0x8087F5B0
 	.sdata2     start:0x80887348 end:0x808873A8
 
 MP/D2AMpMenuFriend.cpp:
-	.text       start:0x804B69F0 end:0x804B9014
-	.rodata     start:0x807583C8 end:0x807583DC
+	.text       start:0x804B6988 end:0x804B9D44
+	.rodata     start:0x80758368 end:0x80758600
 	.data       start:0x80790BC8 end:0x80790C08
-	.sdata2     start:0x808873AC end:0x808873C4
+	.sdata      start:0x8087E100 end:0x8087E108
+	.sbss       start:0x8087F5B0 end:0x8087F5B8
+	.sdata2     start:0x808873A8 end:0x808873D0
 
 MP/D2AMpMenuFriendRoom.cpp:
-	.text       start:0x804B9DAC end:0x804BBB60
-	.rodata     start:0x80758628 end:0x80758640
+	.text       start:0x804B9D44 end:0x804BBB60
+	.rodata     start:0x80758600 end:0x80758848
 	.data       start:0x80790C08 end:0x80790C48
-	.sdata2     start:0x808873D0 end:0x808873F8
+	.sdata      start:0x8087E108 end:0x8087E118
+	.sbss       start:0x8087F5B8 end:0x8087F5C0
+	.sdata2     start:0x808873D0 end:0x808873FC
 
 MP/D2AMpMenuLobby.cpp:
 	.text       start:0x804BBC28 end:0x804C18A8
@@ -1821,16 +1828,21 @@ MP/D2AMpMenuLobby.cpp:
 	.sdata2     start:0x808873FC end:0x80887470
 
 MP/D2AMpMenuMessageList.cpp:
-	.text       start:0x804C3060 end:0x804C50C0
-	.rodata     start:0x80758D30 end:0x80758D4C
-	.data       start:0x80790DB8 end:0x80790DF8
-	.sdata2     start:0x80887478 end:0x80887480
+	.text       start:0x804C2FF8 end:0x804C566C
+	.ctors      start:0x8072D394 end:0x8072D398
+	.rodata     start:0x80758D30 end:0x80758E28
+	.data       start:0x80790DB8 end:0x80790E20
+	.sbss       start:0x8087F5D0 end:0x8087F5E0
+	.sdata2     start:0x80887470 end:0x808874B0
 
 MP/D2AMpMenuResult.cpp:
-	.text       start:0x804C56D4 end:0x804C7408
-	.rodata     start:0x80758E30 end:0x80758E44
-	.data       start:0x80790EB0 end:0x80790EF0
-	.sdata2     start:0x808874B8 end:0x808874D4
+	.text       start:0x804C566C end:0x804C8778
+	.ctors      start:0x8072D398 end:0x8072D39C
+	.rodata     start:0x80758E28 end:0x80759290
+	.data       start:0x80790E20 end:0x80790EF0
+	.sdata      start:0x8087E118 end:0x8087E140
+	.sbss       start:0x8087F5E0 end:0x8087F5E8
+	.sdata2     start:0x808874B0 end:0x808874E0
 
 MP/D2AMpMenuSetMessage.cpp:
 	.text       start:0x804C87E0 end:0x804CC618
@@ -1839,9 +1851,10 @@ MP/D2AMpMenuSetMessage.cpp:
 	.sdata2     start:0x808874E4 end:0x80887548
 
 MP/D2AMpMenuSetRule.cpp:
-	.text       start:0x804CD9E4 end:0x804CF190
-	.rodata     start:0x807595F8 end:0x80759610
-	.data       start:0x80790F30 end:0x80790F70
+	.text       start:0x804CD97C end:0x804CF190
+	.rodata     start:0x807595E0 end:0x807596F0
+	.data       start:0x80790F30 end:0x80790F78
+	.sbss       start:0x8087F5F0 end:0x8087F5F8
 	.sdata2     start:0x80887548 end:0x80887570
 
 atn/PacketPack.cpp:
