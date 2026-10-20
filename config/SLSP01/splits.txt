@@ -1631,10 +1631,12 @@ game/LastCocoonChrysalis.cpp:
 	.sdata2     start:0x80886B68 end:0x80886B78
 
 game/LastCocoonEgg.cpp:
-	.text       start:0x80452F14 end:0x804576D4
+	.text       start:0x80452F14 end:0x80458270
+	.ctors      start:0x8072D374 end:0x8072D378
 	.rodata     start:0x807549C0 end:0x807549D0
 	.data       start:0x8078F630 end:0x8078F760
-	.sdata2     start:0x80886B7C end:0x80886C00
+	.bss        start:0x807C8A48 end:0x807C8A58
+	.sdata2     start:0x80886B7C end:0x80886C1C
 
 game/LastCocoonImago.cpp:
 	.text       start:0x80458270 end:0x8045FAB0
@@ -1643,9 +1645,12 @@ game/LastCocoonImago.cpp:
 	.sdata2     start:0x80886C1C end:0x80886D60
 
 game/LastCocoonQuadruped.cpp:
-	.text       start:0x8045FAB0 end:0x80468F48
+	.text       start:0x8045FAB0 end:0x80468F54
+	.ctors      start:0x8072D378 end:0x8072D37C
 	.rodata     start:0x80755174 end:0x80755188
 	.data       start:0x8078F980 end:0x8078FAB0
+	.bss        start:0x807C8A58 end:0x807C8A60
+	.sbss       start:0x8087F500 end:0x8087F508
 	.sdata2     start:0x80886D60 end:0x80886E88
 
 game/LibraryTask.cpp:
@@ -1822,6 +1827,11 @@ game/MapPartsEfp.cpp:
 	.data       start:0x80790378 end:0x807903D0
 	.sdata2     start:0x808870D0 end:0x808870D8
 
+game/MapPartsFactory.cpp:
+	.text       start:0x80496A28 end:0x80496C3C
+	.rodata     start:0x80756A10 end:0x80756A58
+	.data       start:0x807903D0 end:0x807903F0
+
 game/MapPartsFlare.cpp:
 	.text       start:0x80496C3C end:0x80496EE8
 	.rodata     start:0x80756A58 end:0x80756A70
@@ -1829,13 +1839,13 @@ game/MapPartsFlare.cpp:
 	.sdata2     start:0x808870D8 end:0x808870E0
 
 game/MapPartsGimmickLoc.cpp:
-	.text       start:0x80496F6C end:0x8049A018
+	.text       start:0x80496EE8 end:0x8049A018
 	.rodata     start:0x80756A78 end:0x80756A8C
 	.data       start:0x80790560 end:0x807905B8
 	.sdata2     start:0x808870E0 end:0x80887100
 
 game/MapPartsLocatorSet.cpp:
-	.text       start:0x8049A09C end:0x8049B9B8
+	.text       start:0x8049A018 end:0x8049B9B8
 	.rodata     start:0x80756B70 end:0x80756B84
 	.data       start:0x807905D8 end:0x80790630
 	.sdata2     start:0x80887100 end:0x80887110
@@ -1852,16 +1862,21 @@ game/MapPartsOcean.cpp:
 	.data       start:0x80790688 end:0x807906E8
 	.sdata2     start:0x80887128 end:0x80887160
 
+game/MapPartsOcean_cont.cpp:
+	.text       start:0x8049CDA0 end:0x8049CDBC
+	.ctors      start:0x8072D384 end:0x8072D388
+	.sbss       start:0x8087F560 end:0x8087F578
+
 game/MapPartsRain.cpp:
 	.text       start:0x8049CDBC end:0x8049D264
 	.rodata     start:0x80756E70 end:0x80756EB8
 	.data       start:0x807906E8 end:0x80790740
 
 game/MapTask.cpp:
-	.text       start:0x8049D7E4 end:0x8049ED90
-	.rodata     start:0x80756EC0 end:0x80756EC8
+	.text       start:0x8049D264 end:0x804A1DDC
+	.rodata     start:0x80756EB8 end:0x807570C0
 	.data       start:0x80790740 end:0x80790778
-	.sdata2     start:0x80887168 end:0x80887174
+	.sdata2     start:0x80887160 end:0x808871B0
 
 game/MarketTask.cpp:
 	.text       start:0x804A1DDC end:0x804A24C4
@@ -1869,6 +1884,10 @@ game/MarketTask.cpp:
 	.data       start:0x80790778 end:0x807907B0
 	.sbss       start:0x8087F578 end:0x8087F580
 	.sdata2     start:0x808871B0 end:0x808871C0
+
+game/MarketTask_cont.cpp:
+	.text       start:0x804A24C4 end:0x804A29C4
+	.sdata2     start:0x808871C0 end:0x808871D0
 
 game/MenuCommonTask.cpp:
 	.text       start:0x804A29C4 end:0x804A7EA4
@@ -1878,10 +1897,10 @@ game/MenuCommonTask.cpp:
 	.sdata2     start:0x808871D0 end:0x80887254
 
 game/MiniMapTask.cpp:
-	.text       start:0x804A7EA4 end:0x804A9E44
-	.rodata     start:0x80757650 end:0x8075765C
+	.text       start:0x804A7EA4 end:0x804AC430
+	.rodata     start:0x80757650 end:0x80757820
 	.data       start:0x80790818 end:0x80790888
-	.sdata2     start:0x80887254 end:0x808872B0
+	.sdata2     start:0x80887254 end:0x808872D0
 
 MP/D2ACommonDialog.cpp:
 	.text       start:0x804AC430 end:0x804ADCAC
@@ -1892,15 +1911,21 @@ MP/D2ACommonDialog.cpp:
 	.sdata2     start:0x808872D0 end:0x80887308
 
 MP/CryptMP.cpp:
-	.text       start:0x804ADCAC end:0x804AE7C4
+	.text       start:0x804ADCAC end:0x804AE820
+	.ctors      start:0x8072D388 end:0x8072D38C
 	.rodata     start:0x80757A30 end:0x80757A70
 	.data       start:0x807908C0 end:0x80790930
+	.bss        start:0x807C8AD0 end:0x807C8AE8
+	.sbss       start:0x8087F590 end:0x8087F598
 
 MP/D2AMpMenu.cpp:
-	.text       start:0x804AE888 end:0x804B4400
-	.rodata     start:0x80757AA8 end:0x80757AD0
-	.data       start:0x80790A78 end:0x80790AF0
-	.sdata2     start:0x8088730C end:0x80887348
+	.text       start:0x804AE820 end:0x804B4C50
+	.ctors      start:0x8072D38C end:0x8072D390
+	.rodata     start:0x80757A70 end:0x80758110
+	.data       start:0x80790930 end:0x80790B78
+	.sdata      start:0x8087E0F0 end:0x8087E100
+	.sbss       start:0x8087F598 end:0x8087F5A8
+	.sdata2     start:0x80887308 end:0x80887348
 
 MP/D2AMpMenuCockpit.cpp:
 	.text       start:0x804B4C50 end:0x804B6988
@@ -1926,9 +1951,11 @@ MP/D2AMpMenuFriendRoom.cpp:
 	.sdata2     start:0x808873D0 end:0x808873FC
 
 MP/D2AMpMenuLobby.cpp:
-	.text       start:0x804BBC28 end:0x804C18A8
-	.rodata     start:0x807588AC end:0x807588DC
-	.data       start:0x80790CCC end:0x80790D10
+	.text       start:0x804BBB60 end:0x804C2FF8
+	.ctors      start:0x8072D390 end:0x8072D394
+	.rodata     start:0x80758848 end:0x80758D30
+	.data       start:0x80790C48 end:0x80790DB8
+	.sbss       start:0x8087F5C0 end:0x8087F5D0
 	.sdata2     start:0x808873FC end:0x80887470
 
 MP/D2AMpMenuMessageList.cpp:
@@ -1949,10 +1976,13 @@ MP/D2AMpMenuResult.cpp:
 	.sdata2     start:0x808874B0 end:0x808874E0
 
 MP/D2AMpMenuSetMessage.cpp:
-	.text       start:0x804C87E0 end:0x804CC618
-	.rodata     start:0x80759340 end:0x80759374
+	.text       start:0x804C8778 end:0x804CD97C
+	.ctors      start:0x8072D39C end:0x8072D3A0
+	.rodata     start:0x80759290 end:0x807595E0
 	.data       start:0x80790EF0 end:0x80790F30
-	.sdata2     start:0x808874E4 end:0x80887548
+	.sdata      start:0x8087E140 end:0x8087E160
+	.sbss       start:0x8087F5E8 end:0x8087F5F0
+	.sdata2     start:0x808874E0 end:0x80887548
 
 MP/D2AMpMenuSetRule.cpp:
 	.text       start:0x804CD97C end:0x804CF190

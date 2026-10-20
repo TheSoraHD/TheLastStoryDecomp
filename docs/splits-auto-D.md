@@ -131,3 +131,21 @@
 - Nombres inventados: game/HeapInfo_unk, game/TeamAI_unk, atn/THPDraw_unk, atn/THPPlayer_unk, atn/Xsca_unk, atn/XsfParser_unk.
 - Corte Xsca_unk/XsfParser_unk en 0x805BE8FC: hay dos pools (dos ficheros) pero el limite exacto entre 0x805BE8FC y 0x805BEB54 no tiene pruebas; se ha puesto tras el ultimo usuario del primer pool.
 - 0x805A38F0 (sin constantes) queda en SongManager por estar antes del ctor de SpecialEnemyBase.
+
+## Grupo 9: huecos menores 0x804576D4-0x804CD97C (verificado: main.dol OK, lost: 0)
+- `game/LastCocoonEgg.cpp` (sin fuente): .text hasta 0x80458270 (cola que solo llama LastCocoonEgg + su `__sinit` 0x8045824C), ctors 0x8072D374, .bss 0x807C8A48, .sdata2 hasta 0x80886C1C.
+- `game/LastCocoonQuadruped.cpp` (sin fuente): .text +`__sinit` 0x80468F48, ctors 0x8072D378, .bss 0x807C8A58, .sbss 0x8087F500.
+- `game/MapPartsFactory.cpp` (nuevo, nombre INVENTADO; encaja alfabeticamente entre MapPartsEfp y MapPartsFlare): 0x80496A28-0x80496C3C, crea las piezas de mapa (llama a los creadores de cada MapParts*), tabla .rodata 0x80756A10 y jumptable 0x807903D0 situadas entre los datos de Efp y Flare.
+- `game/MapPartsGimmickLoc.cpp` / `game/MapPartsLocatorSet.cpp` (sin fuente): .text desde su creador (0x80496EE8 / 0x8049A018, `new` + ctor del fichero).
+- `game/MapPartsOcean_cont.cpp` (nuevo, `_cont`): `__sinit` 0x8049CDA0 (ultimo del fichero de MapPartsOcean, que esta enlazada), ctors 0x8072D384, .sbss 0x8087F560-0x8087F578.
+- `game/MapTask.cpp` (sin fuente): .text 0x8049D264-0x804A1DDC (todas las funciones usan su pool 0x80756EC8, situado tras su nombre RTTI), .rodata 0x80756EB8-0x807570C0, .sdata2 0x80887160-0x808871B0.
+- `game/MarketTask_cont.cpp` (nuevo, `_cont`; MarketTask enlazada): 0x804A24C4-0x804A29C4 con .sdata2 0x808871C0 (tras la de MarketTask). Su doble 0x807570C0 queda en auto (esta antes de la .rodata de MarketTask).
+- `game/MiniMapTask.cpp` (sin fuente): .text hasta 0x804AC430 (metodos de su vtable), .rodata + pool 0x8075765C, .sdata2 hasta 0x808872D0.
+- `MP/CryptMP.cpp` (con fuente): .text +`__sinit` 0x804AE7C4, ctors 0x8072D388, .bss 0x807C8AD0, .sbss 0x8087F590.
+- `MP/D2AMpMenu.cpp` (sin fuente): .text 0x804AE820 (creador, usa sInstance 0x8087F59C y el pool) - 0x804B4C50 (clases RANKING_DATA_LIST_IMPL_* + `__sinit` 0x804B4C20), ctors 0x8072D38C, .rodata 0x80757A70-0x80758110 (pool 0x80757B7C), .data 0x80790930-0x80790B78, .sdata 0x8087E0F0, .sbss 0x8087F598-0x8087F5A8, .sdata2 desde 0x80887308.
+- `MP/D2AMpMenuLobby.cpp` (sin fuente): .text 0x804BBB60-0x804C2FF8 (+cola que usa su .sdata2 y su `__sinit` 0x804C2FC8), ctors 0x8072D390, .rodata 0x80758848-0x80758D30, .data 0x80790C48-0x80790DB8, .sbss 0x8087F5C0-0x8087F5D0.
+- `MP/D2AMpMenuSetMessage.cpp` (sin fuente): .text 0x804C8778 (creador) - 0x804CD97C (cola + `__sinit` 0x804CD94C), ctors 0x8072D39C, .rodata 0x80759290-0x807595E0, .sdata 0x8087E140, .sbss 0x8087F5E8, .sdata2 desde 0x808874E0.
+
+### Decisiones sin el usuario (grupo 9)
+- Nombre inventado game/MapPartsFactory.cpp; `_cont`: game/MapPartsOcean_cont.cpp, game/MarketTask_cont.cpp.
+- 0x804BBB60/0x804BBBA0 (sin datos) asignadas a D2AMpMenuLobby sin pruebas (podrian ser cola de D2AMpMenuFriendRoom).
