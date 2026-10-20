@@ -178,7 +178,7 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - Nombre real propuesto: ninguno (sin cadenas); el contenido es de matrices de textura, no de dibujo.
 - Hallazgos MWCC: reutilizar un unico `tmp` (como el SDK) en vez de dos locales cambia el orden de planificacion de las divisiones y los stores.
 
-## atn/PostFxDamage (commit HASH8)
+## atn/PostFxDamage (commit 0ac9e10)
 
 - Resultado: 1/3 al 100% (ctor), `matching: false`.
 - NONMATCHING:
