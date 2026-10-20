@@ -110,3 +110,51 @@ Cola: `atn/Shader_unk`, `atn/SoftKeyboardBase_wchar_t_0` (prioridad 1), `atn/WPa
     struct queda en la pila (copias lwz/stw del original).
   - `fabs` de math.h no es intrinseca si se declara a mano: usar `(float)__fabs((double)v)` para fabs + frsp.
 - Pendientes: ninguno.
+
+## atn/WordWrap_unk (commit 41c9d99)
+- Resultado: 2/8 al 100%, `matching: false`, `main.dol: OK` (regress lost: 0).
+- NONMATCHING: `fn_800DFB40` (word wrap, devuelve std::wstring) 75.8%: mismos bloques; el original carga el tag
+  de iterador de cada caracter anadido antes de los bucles y no guarda direcciones de pila en registros.
+- Sin decompilar: `fn_800E0000` (parte el texto en un std::vector<std::wstring>, push_back inline de wstring),
+  la copia debil del ctor de subcadena de std::wstring (0x800E0908) y los helpers debiles de iostream de MSL
+  0x800E0A64 (basic_ios::clear, usa "ios_base failure in clear" de la .data de std/allocator_char),
+  0x800E0AA8 y 0x800E0AB0 (no hay fuente de iostream de MSL C++).
+- Decisiones sin el usuario:
+  - Split sin cambios; entrada nueva en game_units.json (`atn/WordWrap_unk.cpp`, matching false).
+  - Funciones `extern "C"` (como las declaran D2A_Message, LibraryTask, MenuCommonTask...). Tabla de kinsoku
+    `lbl_80734DD8` -> `sKinsoku` (scope:local; 138 entradas {wchar_t, no empieza linea, no acaba linea}).
+  - CABECERA COMPARTIDA `include/std/string.h`: anadido `operator+=(T c)` (size() + __replace_unk de &c);
+    regress sin perdidas.
+  - Fusion con std/char_traits_char y std/allocator_char: NO hecha. Pruebas a favor de que es un solo fichero:
+    la .data de las tres unidades es continua (RTTI de basic_ostream<char> en WordWrap, de ios_base en
+    char_traits, vtables de stringbuf/streambuf/ostream y "ios_base failure in clear" en allocator_char) y el
+    helper debil 0x800E0A64 de WordWrap usa la cadena de allocator_char. Pero el codigo de iostream (debil, sin
+    fuente) ocupa la mayor parte y no se puede enlazar igualmente; se deja como pendiente fusionar las tres
+    unidades (0x800DF22C-0x800E2A24) cuando haya una reconstruccion del iostream de MSL.
+  - Nombre real propuesto: un fichero de utilidades de texto (word wrap + TextParser).
+- Hallazgos MWCC:
+  - Una expresion booleana con funciones inline evaluada como sentencia suelta (resultado sin usar) deja en el
+    codigo sus bucles (aqui la busqueda binaria): el original tiene esa copia muerta antes del `return`.
+  - El orden de registros de los locales de una inline (lo/hi de la busqueda binaria) depende de la profundidad
+    de anidado: con la misma inline llamada desde distintas profundidades hay que aplanar un nivel.
+  - `c == 9 || c == 13 || c == 0x20 || c == 0x3000` en contexto de valor sale con cntlzw; en un `if`, con li 0/1.
+- Pendientes: fusion WordWrap_unk + std/char_traits_char + std/allocator_char (ver arriba).
+
+## std/allocator_char (commit 98edb82)
+- Resultado: 6/35 al 100% (TextParser_unk: ctor, fn_800E0D54, fn_800E0D70, fn_800E1374 y 2 NONMATCHING),
+  `matching: false`, `main.dol: OK` (regress lost: 0).
+- NONMATCHING: `fn_800E0F84` 99.7% (registros del puntero/tamano en el assign inline de std::string);
+  `fn_800E114C` 93.1% (el original guarda la constante 1 del test de espacio en r31 y desplaza el resto).
+- Sin decompilar: el resto son plantillas debiles de iostream de MSL (basic_stringbuf/basic_streambuf/
+  basic_ostream, sentries 0x800E14A4/0x800E1630/0x800E1A48, dtors 0x800E0B18-0x800E0C8C, vtables) y el
+  `__sinit` 0x800E29B4; sin fuente de iostream de MSL C++.
+- Decisiones sin el usuario:
+  - Split sin cambios (la unidad ya existia en game_units.json sin fuente). Fuente nueva
+    `src/std/allocator_char.cpp` con TextParser_unk (struct local, misma vista que atn/EffectSequencer_unk.cpp;
+    se conserva el mangling `__ct__14TextParser_unkFPvPv` que ya usaba esa unidad). Funciones `extern "C"`.
+  - std/char_traits_char no se toca (sigue 1/1 al 100%).
+- Hallazgos MWCC:
+  - Un `char` local cargado de memoria se extiende con signo al cargarlo; si el original lee `p[i]` varias veces
+    (CSE), el byte queda sin extender y el extsb aparece solo en la comparacion: escribir las lecturas directas.
+  - `c == 9 || c == 10 || c == 13 || c == ' '` sale como `(c - 9) <= 23 && (1 << (c - 9)) & 0x800013`.
+- Pendientes: ver la fusion propuesta en atn/WordWrap_unk.
