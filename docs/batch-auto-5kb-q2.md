@@ -164,7 +164,7 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - `x / 4.0f` sale como `fmuls x, 0.25` igual que `x * 0.25f`, pero con otro orden de operandos (y de `fnmsubs`).
   - Declarar un local `float` del cuerpo del bucle antes del acumulador (`float a; ... float sum = 0.0f;`) intercambia sus FPR salvados.
 
-## atn/TextureDraw_unk (commit HASH7)
+## atn/TextureDraw_unk (commit 71dd1dc)
 
 - Resultado: 3/4 al 100%, `matching: false`.
 - Sin escribir: `fn_800D5F68` (0x930: matriz de proyeccion de textura de las pasadas de luz/sombra segun un modo 1-4,
