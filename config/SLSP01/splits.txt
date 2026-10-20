@@ -2337,10 +2337,25 @@ nw4r/SoundArchive.cpp:
 	.data       start:0x80796C70 end:0x80796D38
 
 nw4r/SeqNoteOnCallback.cpp:
-	.text       start:0x8059E7EC end:0x805A21C0
-	.rodata     start:0x80762700 end:0x80762780
-	.data       start:0x80796D38 end:0x80796DD8
+	.text       start:0x8059E7EC end:0x805A2240
+	.rodata     start:0x80762700 end:0x80763228
+	.data       start:0x80796D38 end:0x80797330
 	.sdata2     start:0x80888218 end:0x80888220
+
+game/SongManager.cpp:
+	.text       start:0x805A2240 end:0x805A3C54
+	.rodata     start:0x80763228 end:0x80763290
+	.data       start:0x80797330 end:0x80797368
+	.sdata      start:0x8087E6D0 end:0x8087E6E0
+	.sbss       start:0x8087F9F0 end:0x8087F9F8
+	.sdata2     start:0x80888220 end:0x80888248
+
+game/SpecialEnemyBase.cpp:
+	.text       start:0x805A3C54 end:0x805A6208
+	.rodata     start:0x80763290 end:0x807637E0
+	.data       start:0x80797368 end:0x807975B0
+	.bss        start:0x807C95A0 end:0x807C95B0
+	.sdata2     start:0x80888248 end:0x808882A0
 
 game/StrapTask.cpp:
 	.text       start:0x805A6208 end:0x805A6A80
@@ -2353,17 +2368,47 @@ game/Sword.cpp:
 	.rodata     start:0x80763838 end:0x80763840
 	.data       start:0x807975E8 end:0x80797618
 
+game/HeapInfo_unk.cpp:
+	.text       start:0x805A6B54 end:0x805A6D20
+	.rodata     start:0x80763840 end:0x80763848
+	.sdata2     start:0x808882E0 end:0x808882E8
+
 game/TacView.cpp:
-	.text       start:0x805A6D20 end:0x805A96D4
-	.rodata     start:0x807639C8 end:0x807639F8
-	.data       start:0x807976EC end:0x80797728
-	.sdata2     start:0x808882EC end:0x80888328
+	.text       start:0x805A6D20 end:0x805AE26C
+	.ctors      start:0x8072D3E4 end:0x8072D3E8
+	.rodata     start:0x80763848 end:0x80763C28
+	.data       start:0x80797618 end:0x80797740
+	.bss        start:0x807C95B0 end:0x807C9AA0
+	.sdata      start:0x8087E6E0 end:0x8087E6E8
+	.sbss       start:0x8087F9F8 end:0x8087FA00
+	.sdata2     start:0x808882E8 end:0x80888368
+
+game/TeamAI_unk.cpp:
+	.text       start:0x805AE26C end:0x805B3420
+	.rodata     start:0x80763C28 end:0x80763C98
+	.data       start:0x80797740 end:0x80797790
+	.sdata      start:0x8087E6E8 end:0x8087E6F0
+	.sdata2     start:0x80888368 end:0x80888390
 
 game/TeamAIManager.cpp:
-	.text       start:0x805B3420 end:0x805B4D90
-	.rodata     start:0x80763CF0 end:0x80763D00
+	.text       start:0x805B3420 end:0x805B4DF0
+	.rodata     start:0x80763C98 end:0x80763DC8
 	.data       start:0x80797790 end:0x807977C8
+	.sdata      start:0x8087E6F0 end:0x8087E6F8
 	.sdata2     start:0x80888390 end:0x808883C0
+
+atn/THPDraw_unk.cpp:
+	.text       start:0x805B4DF0 end:0x805B55A8
+	.rodata     start:0x80763DC8 end:0x80763DD8
+	.sdata2     start:0x808883C0 end:0x808883D8
+
+atn/THPPlayer_unk.cpp:
+	.text       start:0x805B55A8 end:0x805B6C5C
+	.rodata     start:0x80763DD8 end:0x80763DE8
+	.data       start:0x807977C8 end:0x807978C8
+	.bss        start:0x807C9AA0 end:0x807C9F80
+	.sbss       start:0x8087FA08 end:0x8087FA20
+	.sdata2     start:0x808883D8 end:0x808883E0
 
 game/TownTask.cpp:
 	.text       start:0x805B6C5C end:0x805B9B08
@@ -2379,10 +2424,22 @@ game/TownTpcLoader.cpp:
 	.sdata2     start:0x80888448 end:0x80888450
 
 game/TutorialTask.cpp:
-	.text       start:0x805B9FC4 end:0x805BD4B8
-	.rodata     start:0x80763F18 end:0x80763F38
-	.data       start:0x80797974 end:0x807979E8
+	.text       start:0x805B9EC8 end:0x805BD4B8
+	.rodata     start:0x80763ED0 end:0x80764040
+	.data       start:0x80797960 end:0x807979E8
 	.sdata2     start:0x80888450 end:0x808884B8
+
+atn/Xsca_unk.cpp:
+	.text       start:0x805BD4B8 end:0x805BE8FC
+	.rodata     start:0x80764040 end:0x807640B0
+	.data       start:0x807979E8 end:0x80797A08
+
+atn/XsfParser_unk.cpp:
+	.text       start:0x805BE8FC end:0x805BFAC0
+	.rodata     start:0x807640B0 end:0x80764138
+	.data       start:0x80797A08 end:0x80797A28
+	.sdata      start:0x8087E700 end:0x8087E708
+	.sdata2     start:0x808884B8 end:0x808884C8
 
 RVL_SDK/src/revolution/esp/esp.c:
 	.text       start:0x805BFAC0 end:0x805C00E0

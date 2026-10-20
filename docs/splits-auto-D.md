@@ -113,3 +113,21 @@
 - `Event/Sequence_cont.cpp`: Event/StringData (enlazada) esta en medio del TU de Sequence; deberia fusionarse cuando se decompile.
 - Los "Memory allocation failure" de 0x80794480-0x80794608 los usan tambien funciones de Event/EventParser_unk (0x80576F70...): parecen @STRING@ debiles deduplicados por el enlazador, asi que no indican fichero; se dejan en Sequence_cont por contigüidad.
 - fn_80531E80 asignada a NewStaffRoll sin pruebas fuertes.
+
+## Grupo 8: 0x805A21C0-0x805BFAC0 (verificado: main.dol OK, lost: 0)
+- `nw4r/SeqNoteOnCallback.cpp` (ampliada, sin fuente): .text hasta 0x805A2240 (4 metodos de la vtable de nw4r::snd::SoundArchivePlayer, que esta al principio de los datos de esta unidad), .rodata hasta 0x80763228 (nombres RTTI nw4r + pool 0x80762810, solo usados por esta unidad), .data hasta 0x80797330 (RTTI nw4r y cadenas de assert "SoundInstanceManager.h", "Bank.h", "SoundArchivePlayer.h"). El fichero real es probablemente SoundArchivePlayer.cpp.
+- `game/SongManager.cpp` (nuevo): 0x805A2240-0x805A3C54; vtable/RTTI SongManager (0x80797330), tabla SE_DG063_*, sus 1.0f/0.0f (0x80888220/24), .sdata 0x8087E6D0, .sbss 0x8087F9F0.
+- `game/SpecialEnemyBase.cpp` (nuevo): 0x805A3C54-0x805A6208; ctor/dtor/virtuales de SpecialEnemyBase, vtable 0x80797368, tabla de nombres de enemigos (NECROMANCER, EM002...), jumptable, sus 0.0f/1.0f (0x8088824C/50) duplicados de SongManager -> corte. (Su RTTI esta emitido en Em006DarkMaster.)
+- `game/HeapInfo_unk.cpp` (nuevo, nombre INVENTADO): 0x805A6B54-0x805A6D20, 4 funciones que solo llama `main` (estadisticas de DLAllocator); su doble unsigned->float 0x80763840 duplica el de TacView (0x807639C0) -> fichero distinto.
+- `game/TacView.cpp` (ampliada, sin fuente): .text 0x805A6D20-0x805AE26C (hasta su `__sinit` 0x805AE24C, ctors 0x8072D3E4), .rodata 0x80763848-0x80763C28 (tablas, RTTI, pool 0x807639F8), .data 0x80797618-0x80797740, .bss 0x807C95B0-0x807C9AA0, .sdata 0x8087E6E0, .sbss 0x8087F9F8, .sdata2 0x808882E8-0x80888368.
+- `game/TeamAI_unk.cpp` (nuevo, nombre INVENTADO): 0x805AE26C-0x805B3420, ayudantes de TeamAIManager; pool "[TeamAI] Error: ExecuteAimGimmick..." + "tree::insert length error" (0x80763C38) ANTES del nombre RTTI de TeamAIManager -> fichero anterior; sus 0.0f/1.0f (0x80888368..) duplicados con los de TeamAIManager (0x808883B4).
+- `game/TeamAIManager.cpp` (ampliada, sin fuente): .text +0x805B4D90 (accesor), .rodata desde 0x80763C98 (tabla) hasta 0x80763DC8 (pool tras el nombre RTTI), .sdata 0x8087E6F0.
+- `atn/THPDraw_unk.cpp` y `atn/THPPlayer_unk.cpp` (nuevos, nombres INVENTADOS, reproductor THP que usa atn/VideoTHP): 0x805B4DF0-0x805B55A8 (conversion YUV->RGB) y 0x805B55A8-0x805B6C5C ("THP", bss 0x807C9AA0-0x807C9F80, sbss 0x8087FA08-0x8087FA20). Corte: doble int->float duplicado (0x80763DD0 / 0x80763DD8).
+- `game/TutorialTask.cpp` (ampliada, sin fuente): .text desde 0x805B9EC8 (2 funciones que usan su pool 0x80763F38 / las llama TutorialTask), .rodata 0x80763ED0-0x80764040, .data desde 0x80797960 (tabla tt005..).
+- `atn/Xsca_unk.cpp` (nuevo, nombre INVENTADO por la clase Xsca_unk cuyo ctor/dtor contiene, llamados por LH_Xsca): 0x805BD4B8-0x805BE8FC, pool 0x80764040.
+- `atn/XsfParser_unk.cpp` (nuevo, nombre INVENTADO): 0x805BE8FC-0x805BFAC0 (hasta el RVL SDK), constantes magicas "XSF@"/"@FSX" (0x807640B0), pool propio 0x807640C0 ("tree::insert..."), su 0.0f 0x808884B8, .sdata 0x8087E700.
+
+### Decisiones sin el usuario (grupo 8)
+- Nombres inventados: game/HeapInfo_unk, game/TeamAI_unk, atn/THPDraw_unk, atn/THPPlayer_unk, atn/Xsca_unk, atn/XsfParser_unk.
+- Corte Xsca_unk/XsfParser_unk en 0x805BE8FC: hay dos pools (dos ficheros) pero el limite exacto entre 0x805BE8FC y 0x805BEB54 no tiene pruebas; se ha puesto tras el ultimo usuario del primer pool.
+- 0x805A38F0 (sin constantes) queda en SongManager por estar antes del ctor de SpecialEnemyBase.
