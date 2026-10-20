@@ -2955,5 +2955,13 @@
    "atn::PostFxDof"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/SequenceHolder.cpp",
+  "classes": [
+   "atn::SequenceHolder::SequenceUnit",
+   "atn::SequenceHolder::SequenceUnitBase"
+  ],
+  "matching": false
  }
 ]

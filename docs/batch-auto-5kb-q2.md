@@ -107,3 +107,39 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
     MWCC copia un objeto de `.rodata` con `lwz`/`stw`.
   - Un `GXColor c = {..}` constante declarado dentro del `if` donde se usa va igualmente a `.sdata2` en el orden del primer uso.
   - Los `if/else` de saturacion escritos en linea (no en inline) cambian el reparto de FPR del bucle.
+
+## atn/SequenceHolder (commit HASH5)
+
+- Resultado: 7/11 al 100%, `matching: false`.
+- NONMATCHING / sin escribir:
+  - `SequenceHolder::SequenceHolder` 99.44% - el `reserve(0x80)` inlineado: puntero nuevo y numero de elementos movidos
+    intercambiados en r29/r30 (3 variantes).
+  - `SequenceHolder::fn_800C3990` (anade una unidad) 97.25% - `push_back` inlineado (el problema conocido de
+    `std/vector.h`: el original carga la capacidad antes que el tamano) y el pool del fichero tiene `""` antes que
+    `"vector length error"` (en el original al reves).
+  - `fn_800C3D74` (busqueda por nombre) y `fn_800C3E84` (por id, con `__ptmf_scall` a `fn_800C3D6C`) sin escribir:
+    son `std::find_if` con predicados de **boost::lambda** (el predicado se copia 4 y 7 veces en la pila); boost::lambda
+    no esta en `libs/boost`.
+- **Decisiones sin el usuario**:
+  - Split sin cambios. `fn_800C37FC` (al principio del split) es un metodo de `SequenceControl` (usa `mTable`; lo llaman
+    Bullet y SequenceUnitParam1 con `SequenceControl::sInstance`): se define aqui como `SequenceControl::fn_800C37FC`
+    y se declara en `include/atn/SequenceControl.h` (sin cambiar el layout). Podria ser la ultima funcion de
+    `SequenceControl.cpp`, que ya esta enlazada: no se mueve.
+  - `symbols.txt`: `fn_800C37FC__Q23atn15SequenceControlFPCc`, `__ct__Q23atn14SequenceHolderFv`,
+    `__dt__Q33atn14SequenceHolder16SequenceUnitBaseFv`, `fn_800C3990__Q23atn14SequenceHolderFRCQ33atn14SequenceHolder12SequenceUnit`,
+    `fn_800C3D6C__Q33atn14SequenceHolder16SequenceUnitBaseCFv`, `vf0C__Q33atn14SequenceHolder12SequenceUnitFPQ23atn4Task`,
+    `__dt__Q33atn14SequenceHolder12SequenceUnitFv`, `__sinit_\SequenceHolder_cpp` (scope:local) y `lbl_8073385C` ->
+    `@stringBase0` (tamano 0x15: `"vector length error"` + `""`). `fn_800C3D74`/`fn_800C3E84`/`fn_800C3FB0` quedan
+    `extern "C"` (SequenceControl.cpp, enlazada, llama asi a las dos ultimas).
+  - Tipos inferidos: `SequenceHolder` {contador, `std::vector<SequenceUnitBase*>`}; `SequenceUnitBase` {id, nombre
+    char[0x40]} con `vf0C` que devuelve 0 (su copia debil es la 0x800C37D8 que `symbols.txt` llama
+    `SequenceControl::fn_800C37D8`); `SequenceUnit` con `boost::function<Task*(Task*)>` en 0x48 (con `function1` el
+    destructor tiene una comprobacion de `this` menos).
+  - Los objetos `.sbss` 0x8087EFC8-0x8087EFDC son `free1..3` y las referencias `_1.._3` de boost::lambda: se reproducen
+    con structs vacios locales (el `__sinit` coincide).
+  - `include/std/vector.h`: `reserve` despacha a `__reserve_unk(n, U**)` para punteros, con un bufer nuevo
+    `__vec_raw_buf_unk` {data, size, cap} que mueve los bytes y pone el tamano a 0 antes de liberar; el caso general
+    no cambia (D2A_Message sin cambios, regress lost 0).
+- Hallazgos MWCC:
+  - `T& r = obj;` a nivel de espacio de nombres se inicializa en el `__sinit` (dos `li`/`stw` por referencia), como los placeholders de boost::lambda.
+  - `boost::function<R(A)>` y `boost::function1<R, A>` no generan el mismo destructor: la forma portable anade un nivel de herencia.
