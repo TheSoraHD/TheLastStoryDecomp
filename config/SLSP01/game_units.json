@@ -1730,6 +1730,13 @@
   "matching": false
  },
  {
+  "name": "gmk/Cannon.cpp",
+  "classes": [
+   "gmk::Cannon"
+  ],
+  "matching": true
+ },
+ {
   "name": "gmk/Cannonball.cpp",
   "classes": [
    "gmk::Cannonball"

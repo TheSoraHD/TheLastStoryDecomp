@@ -142,7 +142,7 @@ Fusionada en `game/FriendManager`.
 - Hallazgos MWCC: `delete[]` de un tipo con constructor (aunque sea POD de facto) mete la cookie de 16 bytes y la comprobacion de nulo; `new[]` sin `__construct_new_array` ni cookie y `__dla` directo = tipo sin constructores.
 - Hallazgos MWCC: `while (*(p = f()) != 0)` sale rotado (salto al test del final); `for (;;) { p = f(); if (*p == 0) break; ... }` deja el test arriba como el original.
 
-## game/BattleEfp_unk (commit HASH_BE)
+## game/BattleEfp_unk (commit cae2cd9)
 
 - Resultado: 17/17 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
@@ -151,3 +151,13 @@ Fusionada en `game/FriendManager`.
   - Globales `lbl_8087D968` (modo, = 2), `lbl_8087F030/34/38` (entradas, cuantas, nivel) definidas aqui con esos nombres.
 - Hallazgos MWCC: un `bool` inline escrito como `if (a()) return true; ... return f();` deja el valor en r0 (`li r0,1; b` por rama y `neg/or/srwi` en la ultima) y el llamador lo prueba con `cmpwi`; con `return a() || b() || ...` MWCC lo convierte en saltos directos.
 - Hallazgos MWCC: un literal dentro de una funcion inline va a un pool `@STRING@` en `.sdata`/`.data`; si el original lo tiene en `@stringBase0`, el codigo estaba en la propia funcion (aqui bloques con un local `name` para que el puntero quede en un registro salvado).
+
+## gmk/Cannon (commit HASH_GC)
+
+- Resultado: 13/13 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - Cabecera nueva `include/gmk/Cannon.h` (clase `gmk::Cannon : GimmickCommon`, 0x930 bytes; campos deducidos de las claves "MODEL", "MODEL_CRUSH", "MOTION", "EFP_SHOOT", "EFP_CRUSH", "PARAM", "SE_PARAM" y del menu de depuracion "shootWait", "shootWaitRand", "windDirection"; los "SE_PARAM" son `atn::FixedString_unk<0x20>`).
+  - `symbols.txt`: los 13 `fn_8040xxxx` -> nombres de `gmk::Cannon` segun la vtable (`fn_80408324` creador, `__ct__`, `__dt__`, `vf0C`, `vf10`, `vf14`, `vf1C`, `vf20`, `vf28`, `vf38`, `vf40`, `vf6C`, `vf70`); `lbl_80752954` -> `@stringBase0`.
+  - **Cambio fuera de mi unidad:** `src/game/GimmickCommon.cpp` (enlazada) declaraba `extern "C" fn_80408324`; ahora incluye `gmk/Cannon.h` y llama a `gmk::Cannon::fn_80408324` (sin cambio de codigo; necesario para enlazar con el nombre nuevo). `regress.py`: lost 0.
+  - El destructor no es inline: se define tras el constructor (el original lo tiene en 0x80408464; con `virtual ~Cannon() {}` la copia debil sale al final del .o y el `.dol` no coincide).
+- Hallazgos MWCC: `if (mModel.mTracks[0].m08 >= f())` carga el campo despues de la llamada; el original lo carga antes (en un FPR salvado): `float frame = ...; if (frame >= f())`.
