@@ -209,7 +209,7 @@ funciones `extern "C" fn_<addr>`.
   - `T obj(a(), b())` con dos llamadas como argumentos: se evalua primero la de la derecha; si el original llama antes a
     `size()` que a `data()`, no hay local para el tamano.
 
-## db/PlayerParam_unk (commit HASH)
+## db/PlayerParam_unk (commit 2eaac9e)
 - Resultado: 4/7 al 100%, matching no.
 - NONMATCHING:
   - `fn_80218BD4` (cargador) 88.66% - el original recalcula `player * 32` dentro del bucle interno (aqui MWCC lo saca
@@ -227,3 +227,21 @@ funciones `extern "C" fn_<addr>`.
   - Un `return found;` dentro de un bucle inlinado sale como `bge; b` al final; con `break` + `return found` tras el
     bucle sale el `blt` directo del original (y la funcion sin inline da `bltlr` igual).
   - Indice `player * 32 + i` con `player` `unsigned` no se reduce (se recalcula con `mulli` cada vez); con `int` si.
+
+## db/TreasureBoxTable_unk (commit HASH)
+- Resultado: 6/7 al 100%, matching no.
+- NONMATCHING: `fn_8021E5A4` (sorteo de un objeto del cofre) 96.86% - el original vuelve a calcular las mascaras de
+  `flags` del inline `GetRate_unk` antes del segundo bucle (aqui se comparten con el primero) y los registros salvados
+  cambian; probado el primer bucle en su propio inline (peor).
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_8021E41C` -> `__ct__15TreasureBox_unkFv`, `fn_8021E42C` -> `__ct__16TreasureItem_unkFv`; datos
+    `sFileNameStr`, `@stringBase0` (0x80742730: "begin", "end", ""), `sBoxes`, `sItems`, `sBoxCount`, `sItemCount`,
+    `sFileName` (renombrados a mano: `pairnames --data` emparejaba `lbl_80882FB4` con `fn_80211480`).
+  - Tipos inferidos `TreasureBox_unk` (0xC: id, puntero a sus objetos, numero), `TreasureItem_unk` (0xC: id, cantidad,
+    probabilidad), `TreasureItemData_unk` (solo `mKind` 0xBC de `fn_80211480`), `TreasureMpSession_unk` (solo `m540` de
+    `lbl_8087F610`). Inlines inventados `IsSpecial_unk`, `IsGil_unk`, `GetItemData_unk`, `IsKind_unk`, `GetRate_unk`.
+- Hallazgos MWCC
+  - Un inline `bool` escrito `return a || b;` da `li r0,0` antes de las comparaciones; con `if (a || b) return true;
+    return false;` sale `li r0,1; b; li r0,0` como el original.
+  - `if (x <= 0.0f) return r; ...` da `cror; bne` + copia del valor; `if (x > 0.0f) { ... } return r;` da el `ble` directo.
