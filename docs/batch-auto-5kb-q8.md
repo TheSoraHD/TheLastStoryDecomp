@@ -14,7 +14,7 @@ La copia recibida (merge de q1/q4/q5/q7) no enlazaba: `undefined fn_800698DC` (d
   `lbl_8087EEB8->fn_800698DC(mPath)`; `src/game/BattleEfp_unk.cpp` llama a `mLoader.fn_80473F18()`
   (miembro de `atn::LoadHandle`). Mismo codigo; ambas siguen al 100%, `main.dol: OK`, lost 0.
 
-## game/MapPartsOcean_cont (commit HASH1)
+## game/MapPartsOcean_cont (commit 06f950f)
 
 Fusionada en `game/MapPartsOcean`.
 
