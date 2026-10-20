@@ -1978,12 +1978,9 @@ game/FriendArganan.cpp:
 	.sdata2     start:0x80885700 end:0x80885708
 
 game/FriendManager.cpp:
-	.text       start:0x80365464 end:0x8036554C
+	.text       start:0x80365464 end:0x8036555C
 	.rodata     start:0x8074D988 end:0x8074D9A0
 	.data       start:0x8078A038 end:0x8078A070
-
-game/FriendManager_cont.cpp:
-	.text       start:0x8036554C end:0x8036555C
 
 game/GameTask.cpp:
 	.text       start:0x8036555C end:0x80376B68
