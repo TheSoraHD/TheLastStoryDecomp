@@ -39,6 +39,7 @@
 #include "gmk/MeetingSpot.h"
 #include "gmk/CharaPathMove.h"
 #include "gmk/Chain.h"
+#include "gmk/PigeonManager.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -224,7 +225,6 @@ extern "C" GimmickCommon* fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80405DD4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
@@ -295,8 +295,8 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 9: gimmick = gmk::MeetingSpot::fn_803FC8D8(parent, desc); break;
     case 10: gimmick = fn_803FE570(parent, desc); break;
     case 13: gimmick = fn_80402978(parent, desc); break;
-    case 14: gimmick = fn_80405DD4(parent, desc); break;
-    case 15: gimmick = fn_80405DD4(parent, desc); break;
+    case 14: gimmick = gmk::PigeonManager::fn_80405DD4(parent, desc); break;
+    case 15: gimmick = gmk::PigeonManager::fn_80405DD4(parent, desc); break;
     case 16: gimmick = fn_804067D8(parent, desc); break;
     case 20: gimmick = fn_8040D1D0(parent, desc); break;
     case 22: gimmick = gmk::HealPoint::fn_8040ED00(parent, desc); break;

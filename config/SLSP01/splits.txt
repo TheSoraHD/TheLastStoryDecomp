@@ -1288,10 +1288,11 @@ gmk/Bat.cpp:
 	.sdata2     start:0x80886198 end:0x808861F0
 
 gmk/PigeonManager.cpp:
-	.text       start:0x804048CC end:0x80406754
-	.rodata     start:0x80752898 end:0x807528AC
+	.text       start:0x804047A4 end:0x80406754
+	.rodata     start:0x80752858 end:0x807528C0
 	.data       start:0x8078D290 end:0x8078D328
-	.sdata2     start:0x808861F8 end:0x80886258
+	.sdata      start:0x8087DF70 end:0x8087DF78
+	.sdata2     start:0x808861F0 end:0x80886258
 
 gmk/Brazier.cpp:
 	.text       start:0x80406754 end:0x80408324
