@@ -116,7 +116,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - `strcmp(a, b) ? 0 : N` da `neg/or/srawi/andc` (`== 0 ? N : 0` da `cntlzw`); un `if/else` que asigna en cada rama a
     un miembro sale como valor en r0 y un solo `stw` cuando es un inline que devuelve el valor.
 
-## db/ChaseParam_unk (commit PENDIENTE)
+## db/ChaseParam_unk (commit 8b057fc)
 - Resultado: 0/1 al 100%, matching no.
 - NONMATCHING: `fn_8020A90C` 97.94% - solo reparto de registros (data/cero y nombre/puntero de configuracion
   intercambiados; el original guarda la parte alta del pool en r29 desde la primera llamada). Probado el orden de
@@ -130,3 +130,21 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
 - Hallazgos MWCC
   - `p->m = f(x)` con `p` global: MWCC carga `p` despues de la llamada; con un accesor inline (`Config()->m = f(x)`) lo
     carga antes y lo guarda en un registro salvado. Con `k * f(x)` el original lo carga despues (asignacion directa).
+
+## db/ChapterList_unk (commit PENDIENTE)
+- Resultado: 9/9 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios. La primera funcion (`fn_80207F80`) es la que llama a todos los cargadores `/boot/*.csv`
+    (48 llamadas); queda en esta unidad como en el split (podria ser de otro fichero: sin pruebas para cortar).
+  - `symbols.txt`: `fn_802085B4` -> `__ct__16ChapterEntry_unkFv`, `lbl_8073EA70` -> `sFileNameStr`,
+    `lbl_8073EA88` -> `@stringBase0`, `lbl_8087F190` -> `sEntries`, `lbl_8087F194` -> `sCount`, `lbl_80882D80` -> `sFileName`.
+  - Cabecera nueva `include/db/EventIdTable_unk.h` (clases de `db/EventIdTable_unk.cpp`, usada aqui para llamar al
+    singleton). `TextTable_unk` se declara localmente (solo `static fn_8020C028`); los cargadores de otras unidades
+    `db/` se declaran `extern "C" void fn_XXXXXXXX()`: si otra cola les da nombre con clase, hay que actualizar esta lista.
+  - Tipo inferido `ChapterEntry_unk` (0x64, enlazada con mPrev/mNext; ctor inline cuya copia debil es `fn_802085B4`).
+- Hallazgos MWCC
+  - Comparar `entry->m == x` a traves de un puntero local da `cmpw rCampo, rParam`; con `a[i].m == x` sale
+    `cmpw rParam, rCampo` aunque se inviertan los operandos.
+  - Una carga que el original sube por encima de un `if` previo (`lwz` antes del primer `bgt`) = valor leido en un
+    local antes del `if` (`int v = last->m; if (...) return; if (v <= x)`).
