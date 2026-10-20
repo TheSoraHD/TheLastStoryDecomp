@@ -96,6 +96,8 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
+// NONMATCHING: 99.8% - registers of the second std::string constructor (literal/this swapped, r26/r27)
+// and of the strlen of the parameters
 Em201ZanGurg::Em201ZanGurg(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m16CC(0), m16D0(0),
       m16D4(1500), m16D8(1502), m1708(0) {
@@ -122,6 +124,7 @@ Em201ZanGurg::Em201ZanGurg(atn::Task* parent, EnemyInfo_unk* info)
 
 Em201ZanGurg::~Em201ZanGurg() {}
 
+// NONMATCHING: 98.0% - r3/r4 swapped between the flag word mStatus.m18 and the string pool address
 int Em201ZanGurg::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m16F8.fn_80237874() == 0 &&
         m14B0.fn_80473F50() == 0) {
@@ -266,6 +269,8 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     }
 }
 
+// NONMATCHING: 99.7% - in the inlined ToRotation_unk the original keeps the rounded z in f3 for atan2
+// (fabs into f4); ours rounds it again
 void Em201ZanGurg::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 *= 0.0f;
@@ -375,6 +380,8 @@ void Em201ZanGurg::fn_80264024() {
     fn_80263CF0();
 }
 
+// NONMATCHING: 99.9% - f0/f3 swapped for mRot.y and rot.y in AngleDiffDeg_unk (the same inline matches
+// in vf10)
 void Em201ZanGurg::fn_802640FC() {
     if (m16DC < 0) {
         atn::Vector3 pos = m14B8->mPos;
