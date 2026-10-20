@@ -301,21 +301,34 @@ Event/Behavior_unk.cpp:
 
 Event/BehaviorFollow.cpp:
 	.text       start:0x8010DB94 end:0x8010E3F0
-	.rodata     start:0x80736548 end:0x80736560
-	.data       start:0x80779E30 end:0x80779E60
+	.rodata     start:0x80736548 end:0x80736588
+	.data       start:0x80779E30 end:0x80779E68
 	.sdata2     start:0x808815F8 end:0x80881618
+
+Event/BehaviorGesture.cpp:
+	.text       start:0x8010E3F0 end:0x8010E60C
+	.rodata     start:0x80736588 end:0x807365C8
+	.data       start:0x80779E68 end:0x80779EA0
+	.sdata2     start:0x80881618 end:0x80881620
+
+Event/BehaviorMoveTo.cpp:
+	.text       start:0x8010E60C end:0x8010EB58
+	.rodata     start:0x807365C8 end:0x80736608
+	.data       start:0x80779EA0 end:0x80779ED8
+	.sdata2     start:0x80881620 end:0x80881640
 
 game/Bullet.cpp:
 	.text       start:0x8010EB58 end:0x80112220
-	.rodata     start:0x80736608 end:0x807366A8
+	.rodata     start:0x80736608 end:0x807366B0
 	.data       start:0x80779ED8 end:0x80779F40
 	.sdata2     start:0x80881640 end:0x808816A8
 
 Event/Path.cpp:
-	.text       start:0x80112254 end:0x80116EB8
-	.rodata     start:0x807366C8 end:0x807366D4
+	.text       start:0x80112220 end:0x80116EB8
+	.rodata     start:0x807366B0 end:0x80736748
 	.data       start:0x80779F40 end:0x80779F68
-	.sdata2     start:0x808816B4 end:0x80881718
+	.sdata      start:0x8087D980 end:0x8087D988
+	.sdata2     start:0x808816A8 end:0x80881718
 
 game/MenuCommon_unk.cpp:
 	.text       start:0x80116EB8 end:0x8011770C
@@ -350,6 +363,20 @@ game/CharaManager_PlayerTask.cpp:
 	.text       start:0x8011F6B0 end:0x8011FF78
 	.rodata     start:0x80737068 end:0x807370B4
 	.data       start:0x8077A168 end:0x8077A228
+
+game/MotionCommand_unk.cpp:
+	.text       start:0x8011FF78 end:0x80121F00
+	.ctors      start:0x8072D2D4 end:0x8072D2D8
+	.rodata     start:0x807370B4 end:0x807371F8
+	.sdata      start:0x8087D9B0 end:0x8087D9D0
+	.sbss       start:0x8087F078 end:0x8087F088
+	.sdata2     start:0x808817E8 end:0x80881818
+
+game/PlayerInput_unk.cpp:
+	.text       start:0x80121F00 end:0x80125320
+	.ctors      start:0x8072D2D8 end:0x8072D2DC
+	.data       start:0x8077A228 end:0x8077A678
+	.sdata2     start:0x80881818 end:0x80881858
 
 game/RouteWalker_unk.cpp:
 	.text       start:0x80125320 end:0x8012980C

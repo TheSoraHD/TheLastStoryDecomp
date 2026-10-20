@@ -115,3 +115,19 @@ Se amplian (texto y datos `auto_` propios):
 ### Decisiones sin el usuario
 - **EffectManager**: las pruebas indican que el fichero real `EffectManager.cpp` va de 0x80239798 a 0x80243758 (incluye las plantillas std de 0x8023B9D0-0x8024372C y los thunks): su pool de cadenas 0x8074308C ("EfpInfoList", ...) esta detras de los nombres RTTI de num_put/numpunct, su `.sdata` 0x8087DC18 va detras del `.sdata` "inf"/"nan" de la parte std (dtk da ciclo de orden si se separan), y la vtable apunta a los thunks de 0x8024372C (el propio `src/atn/EffectManager.cpp` lo dice). No he fusionado porque `std/char_traits_char_8023C080.cpp` es una unidad existente de `game_units.json` (no se puede borrar sin tocarlo): la amplio a todo el tramo std y dejo los thunks como `atn/EffectManager_cont.cpp`. A revisar: fusionar las tres unidades en EffectManager. Por la misma razon el `.sdata` 0x8087DC10 ("inf"/"nan") y el pool 0x8074308C quedan en `auto_`.
 - `.sbss` de la unidad std ampliado a 0x8087F3D0 para incluir los guards compartidos 0x8087F3CC/0x8087F3CD (si no, `undefined` al enlazar).
+
+## Grupo 6 (0x8010E3F0-0x80125320)
+
+| Tramo | Unidad | Prueba |
+|---|---|---|
+| 0x8010E3F0-0x8010E60C | `Event/BehaviorGesture.cpp` (nuevo) | Metodos de la vtable `Event::BehaviorGesture`; 0.0f/1.0f propios (0x80881618); datos: nombre RTTI + `Singleton<BehaviorGesture>` (rodata 0x80736588, data 0x80779E68). |
+| 0x8010E60C-0x8010EB58 | `Event/BehaviorMoveTo.cpp` (nuevo) | vtable `Event::BehaviorMoveTo`; 1.0f cambia de copia en 0x8010E60C. |
+| (datos) | `Event/BehaviorFollow.cpp`: `.rodata`/`.data` ampliados con el RTTI de `atn::Singleton<Event::BehaviorFollow>` | Patron de los tres ficheros: nombre de la clase y despues el del Singleton. |
+| (datos) | `game/Bullet.cpp`: `.rodata` hasta 0x807366B0 | cadena "spine" usada solo por Bullet. |
+| 0x80112220-0x80112254 | `Event/Path.cpp` ampliada hacia atras (`.sdata2` desde 0x808816A8, `.rodata` desde 0x807366B0) | `fn_80112220` usa las mismas copias de 1.0f/-1.0f/0.0f que Path (0x808816A8-0x808816B0) y solo la llama Path. |
+| 0x8011FF78-0x80121F00 | `game/MotionCommand_unk.cpp` (nuevo, `.ctors` 0x8072D2D4) | `__sinit` 0x80121EB0 al final; empieza tras las plantillas de `CharaManager<T>` (funciones debiles = final del fichero anterior). Metodos de `MotionCommand_unk` (nombre del repo) y tabla "EFF_ATR". Nombre inventado. |
+| 0x80121F00-0x80125320 | `game/PlayerInput_unk.cpp` (nuevo, `.ctors` 0x8072D2D8) | `__sinit` 0x80124FFC al final; metodos de `Input_unk` (botones, iconos de botones). Nombre inventado. |
+
+### Decisiones sin el usuario
+- `game/MotionCommand_unk.cpp` empieza su `.rodata` en 0x807370B4 (4 bytes de relleno, align 8 esperado): la unidad anterior `game/CharaManager_PlayerTask.cpp` esta enlazada y no se puede ampliar, y dejar el relleno sin unidad rompe objdiff ("gap symbol out of section bounds"). dtk solo avisa (WARN de alineacion).
+- `Event/BehaviorFollow.cpp` (con fuente) recibe el RTTI de `Singleton<BehaviorFollow>`: su fuente no lo genera aun.
