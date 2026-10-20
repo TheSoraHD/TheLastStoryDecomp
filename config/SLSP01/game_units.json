@@ -2079,6 +2079,13 @@
   "matching": false
  },
  {
+  "name": "atn/LH_Core.cpp",
+  "classes": [
+   "atn::LoadCore"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/LH_Effect.cpp",
   "classes": [
    "atn::LoadEffect",
