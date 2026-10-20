@@ -724,7 +724,7 @@ Event/DialogHead.cpp:
 
 Event/Dialog.cpp:
 	.text       start:0x802280B4 end:0x80229DF0
-	.rodata     start:0x80742E98 end:0x80742EA8
+	.rodata     start:0x80742E48 end:0x80742F68
 	.data       start:0x807839E0 end:0x80783A18
 	.sdata2     start:0x80883078 end:0x808830D0
 
