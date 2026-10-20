@@ -13,7 +13,9 @@ public:
     ColliBase(int type);  // 0x80056DB8 (inlined in this TU's own constructors)
     virtual ~ColliBase(); // 0x80056E40
     virtual void vf0C();
-    virtual void vf10();
+    // inferred: segment test against the collision (result: collision data whose +4 is the hit
+    // position; EnemyFieldMagician::vf3C); nonzero on a hit
+    virtual int vf10(void* result, int mask, const void* segment, int a, int b);
     virtual void vf14();
     virtual void vf18();
     virtual void vf1C();

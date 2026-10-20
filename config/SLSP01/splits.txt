@@ -1047,7 +1047,7 @@ game/Em403WarLion.cpp:
 
 game/EnemyFieldMagician.cpp:
 	.text       start:0x8032C52C end:0x8032DEA0
-	.rodata     start:0x80749DAC end:0x80749DC0
+	.rodata     start:0x80749D70 end:0x80749F58
 	.data       start:0x80788D20 end:0x80788E50
 	.sdata2     start:0x80885040 end:0x80885070
 
