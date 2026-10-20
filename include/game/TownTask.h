@@ -4,14 +4,22 @@
 #include "game/MapTask.h"
 #include "game/ResHandle.h"
 #include "math/Vec.h"
+#include "atn/LH_Binary.h"
 #include "std/string.h"
 #include "std/vector.h"
 
 // inferred: map part shown in a block (only the flags are used here)
 struct TownBlockParts_unk {
+    // inferred: name invented
+    bool IsTown_unk() const { return (m38 & 2) == 2; }
+    void SetHidden_unk() { m38 |= 4; }
+
     unsigned char m00[0x38];
-    unsigned int m38; // inferred: bit 1: the block belongs to the town area
+    unsigned int m38; // inferred: bit 1: the block belongs to the town area, bit 2: hidden
+    unsigned char m3C[0xF4 - 0x3C];
+    int mF4;
 };
+class TownTpcLoader;
 
 // inferred: one of the 3x3 loaded map blocks around the player (0x14 bytes); names invented
 struct TownBlock_unk {
@@ -20,7 +28,7 @@ struct TownBlock_unk {
     int mX;  // 0x04
     int mZ;  // 0x08
     TownBlockParts_unk* mParts; // 0x0C
-    int m10;
+    TownTpcLoader* m10;         // 0x10: inferred: NPC loader of the block
 };
 
 // inferred: value of the town trees (0x28 bytes: key and data, copied word by word); names invented
@@ -81,6 +89,8 @@ public:
     void fn_805B7B04(const atn::Vector3& pos); // inferred: sets the position
     void fn_805B7B24();
     void fn_805B8DB4(int arg);
+    // inferred: the loader at 0x58 holds the minimap csv (name invented)
+    atn::LH_Binary* GetBinary_unk() { return (atn::LH_Binary*)m58; }
 
     ResHandle m11C; // inferred: debug menu group
     int m120;       // inferred: initialized flag

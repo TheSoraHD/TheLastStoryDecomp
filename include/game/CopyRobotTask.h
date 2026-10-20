@@ -8,7 +8,7 @@
 // inferred from __vt__13CopyRobotTask (0x807824D8): an enemy that copies the pose of another character
 class CopyRobotTask : public EnemyTask {
 public:
-    CopyRobotTask(atn::Task* parent, EnemyInfo_unk* info); // 0x801CC0AC
+    CopyRobotTask(atn::Task* parent, const EnemyInfo_unk* info); // 0x801CC0AC
     virtual ~CopyRobotTask();                              // 0x801CC3AC
     virtual int vf0C();
     virtual void vf10();

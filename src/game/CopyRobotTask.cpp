@@ -59,7 +59,7 @@ static atn::Vector3 sFront_unk(0.0f, 0.0f, 1.0f);
 static atn::Vector3 sOffset_unk(0.0f, 0.0f, 26.81f);
 
 // inferred: character data id used for the copy robot (name invented)
-inline void* GetCharaId_unk(EnemyInfo_unk* info) {
+inline void* GetCharaId_unk(const EnemyInfo_unk* info) {
     int id = (int)info->m20;
     if ((unsigned int)(id - 0x31416) <= 9) {
         id = fn_80219544(lbl_8087F4F0->mMembers[id % 10]);
@@ -91,9 +91,8 @@ inline void* GetCharaId_unk(EnemyInfo_unk* info) {
     return (void*)id;
 }
 
-// NONMATCHING: 96.9% - info->m20 is loaded after the parameter copies instead of being interleaved with the
-// LR save in the prologue (tried int/pointer/member/static helpers, local index, return/assign forms)
-CopyRobotTask::CopyRobotTask(atn::Task* parent, EnemyInfo_unk* info)
+// inferred: const info (the load of info->m20 is scheduled into the prologue only through a const pointer)
+CopyRobotTask::CopyRobotTask(atn::Task* parent, const EnemyInfo_unk* info)
     : EnemyTask(parent, GetCharaId_unk(info)), m14B0(0), m14B4(0), m14B8(0) {
     m54C |= 0x2000;
     m14BC.fn_8023780C("/effect/ef_bu016.efp");
@@ -123,28 +122,32 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return fn_805F9920(&v);
 }
 
-inline float Length3_unk(float x, float y, float z) {
-    atn::Vector3 v;
-    v.x = x;
-    v.y = y;
-    v.z = z;
+// inferred: length of a matrix column (name invented)
+inline float ColLength2_unk(const Mtx m, int c) {
+    atn::Vector3 v(m[0][c], m[1][c], m[2][c]);
     return PSVECMag(&v);
+}
+
+// inferred: m * v (name invented)
+inline atn::Vector3 MultVec_unk(const Mtx m, const atn::Vector3& in) {
+    atn::Vector3 v = in;
+    PSMTXMultVec(m, &v, &v);
+    return v;
 }
 
 // inferred: copies the model matrix and computes the largest scale axis (as CharaTask::fn_80144710);
 // name invented
 inline void SetModelMtx_unk(Model_unk* model, const Mtx mtx) {
     __MtxCopy(model->mMtx, mtx);
-    float sz = Length3_unk(mtx[0][2], mtx[1][2], mtx[2][2]);
-    float sy = Length3_unk(mtx[0][1], mtx[1][1], mtx[2][1]);
-    float sx = Length3_unk(mtx[0][0], mtx[1][0], mtx[2][0]);
+    float sz = ColLength2_unk(mtx, 2);
+    float sy = ColLength2_unk(mtx, 1);
+    float sx = ColLength2_unk(mtx, 0);
     atn::Vector3 s(sx, sy, sz);
     model->m54 = MAX(s.x, MAX(s.y, s.z));
 }
 
-// NONMATCHING: 99.7% - stack slots of the case 0/1 locals (d/dir, rot/rot2, front/v) are swapped, float
-// registers of the scale vectors, and the inlined ToRotation_unk converts z again (frsp) instead of reusing
-// the converted value (fmr), as in CharaTask::fn_80144710.
+// NONMATCHING: 99.8% - the inlined ToRotation_unk converts z again (frsp f2) instead of reusing the converted
+// value (fmr f2, f7); tried named result, Assign_unk, inline fn_80139F60, chained assignment.
 // inferred: copies the pose and the motion tracks of another character (mode 0: whole pose of m14B4,
 // mode 1: mirrored motion of m14B8, modes 2-3: motion and position of m14B8)
 void CopyRobotTask::vf10() {
@@ -201,6 +204,7 @@ void CopyRobotTask::vf10() {
         src = m14B8;
         mPos = src->mPos;
         mPos.z = 2.0f * sOffset_unk.z - mPos.z;
+        Mtx rot2;
         atn::Vector3 dir(0.0f, 0.0f, 1.0f);
         Mtx rot;
         PSMTXRotRad(rot, 'y', src->mRot.y);
@@ -209,12 +213,8 @@ void CopyRobotTask::vf10() {
         if (dir.x < 0.0f) {
             angle *= -1.0f;
         }
-        Mtx rot2;
         PSMTXRotRad(rot2, 'y', angle);
-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        atn::Vector3 v = front;
-        PSMTXMultVec(rot2, &v, &v);
-        dir = v;
+        dir = MultVec_unk(rot2, atn::Vector3(0.0f, 0.0f, 1.0f));
         mRot = dir.ToRotation_unk();
         fn_80145334();
         mColli.mFlags &= ~1;

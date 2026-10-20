@@ -21,6 +21,9 @@ struct LogColor_unk {
     LogColor_unk operator*(float f) const;
     float r, g, b, a;
 };
+static const char sSeLog_unk[] = "SE_UICOM_012";
+static const char* const sSeLogName_unk = sSeLog_unk;
+
 static LogColor_unk sColor0_unk(0.800000072f, 0.800000072f, 0.800000072f, 1.0f);
 static LogColor_unk sColor1_unk(1.0f, 0.800000072f, 0.200000018f, 1.0f);
 static LogColor_unk sColor2_unk(1.0f, 0.0f, 0.0f, 1.0f);
@@ -90,9 +93,6 @@ extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, floa
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" double sin(double x);
 
-static const char sSeLog_unk[] = "SE_UICOM_012";
-static const char* const sSeLogName_unk = sSeLog_unk;
-
 inline bool HasFlag_unk(unsigned int flags, unsigned int flag) {
     return (flags & flag) == flag;
 }
@@ -127,8 +127,8 @@ void LogMessageTask::vf14() {
                 x += 640.0f * ((10 - entry.mFrames) / 10.0f);
             }
             float t = MAX((6 - mTimer) / 6.0f, 0.0f);
-            float y = 14.0f * (lines - i) + 30.0f + 14.0f * t;
-            LogColor_unk color(0.8f, 0.8f, 0.8f, 1.0f);
+            float y = 14.0f * (8 - i) + 30.0f + 14.0f * t;
+            LogColor_unk color(0.800000072f, 0.800000072f, 0.800000072f, 1.0f);
             if (!HasFlag_unk(entry.mFlags, 1)) {
                 if (10 <= entry.mFrames && entry.mFrames < 40) {
                     int frames = entry.mFrames - 10;
