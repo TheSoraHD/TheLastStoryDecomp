@@ -355,9 +355,8 @@ el enlazador descarta (main.dol OK); en el DOL no existe ese simbolo. La vtable 
 | game/CampSaveLoad | fn_8011B8D4 | 92.10 | 94.64 |
 | db/SkillParam_unk | fn_80219C30 | 87.80 | 91.91 |
 
-Total: 5378 funciones al 100% (antes 5375 en `main`; +1 mas con TextTable = 5376 en report tras commit 2:
-la cifra 5378 de regress.py incluye las 3 del header; con TextTable son 5379). 0 bajadas, lost 0,
-main.dol OK en cada commit.
+Total: 5379 funciones al 100% (5375 en `main` + 3 del header + TextTable). 0 bajadas, lost 0, main.dol OK
+en cada commit.
 
 ## Decisiones tomadas sin el usuario
 
