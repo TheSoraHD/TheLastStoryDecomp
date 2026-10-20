@@ -21,7 +21,9 @@ public:
 
     void* mVtbl_unk;     // 0x00
     InstData_unk* mData; // 0x04
-    unsigned char m08[0x64 - 0x08];
+    unsigned char m08[0x30 - 0x08];
+    Matrix3x4 mMtx;      // 0x30
+    unsigned char m60[0x64 - 0x60];
     void* m64; // inferred: screen data
     unsigned char m68[0x88 - 0x68];
 };

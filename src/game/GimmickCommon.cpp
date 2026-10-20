@@ -15,6 +15,7 @@
 #include "gmk/Coffin.h"
 #include "gmk/RandomItem.h"
 #include "gmk/Brazier.h"
+#include "gmk/OnOff.h"
 #include "gmk/TodomeCountUp.h"
 #include "gmk/ShakeCamera.h"
 #include "gmk/BulletPoint.h"
@@ -208,7 +209,6 @@ void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
 // inferred: gimmick constructors called by the factories below (one per gimmick class)
 extern "C" GimmickCommon* fn_803F1BB4(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F471C(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803F744C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
@@ -219,7 +219,6 @@ extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80436E34(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
@@ -243,7 +242,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 1: gimmick = fn_803F1BB4(parent, id, arg); break;
     case 2: gimmick = fn_803F471C(parent, id, arg); break;
     case 4: gimmick = gmk::PlayEffect::fn_803F69E4(parent, id, arg); break;
-    case 5: gimmick = fn_803F744C(parent, id, arg); break;
+    case 5: gimmick = gmk::OnOff::fn_803F744C(parent, id, arg); break;
     case 10: gimmick = fn_803FE390(parent, id, arg); break;
     case 11: gimmick = fn_80400728(parent, id, arg); break;
     case 16: gimmick = gmk::Brazier::fn_80406754(parent, id, arg); break;
@@ -287,7 +286,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
         type = desc->mId;
     }
     switch (type) {
-    case 5: gimmick = fn_803F74D0(parent, desc); break;
+    case 5: gimmick = gmk::OnOff::fn_803F74D0(parent, desc); break;
     case 6: gimmick = gmk::ReinforcePoint::fn_803F9420(parent, desc); break;
     case 7: gimmick = fn_803F9F34(parent, desc); break;
     case 8: gimmick = gmk::Item::fn_803FBFA8(parent, desc); break;
