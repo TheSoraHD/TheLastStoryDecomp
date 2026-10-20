@@ -19,6 +19,7 @@ extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // infer
 extern "C" std::string fn_8006B174(const std::string& path);          // inferred: file name of a path
 extern "C" int fn_8006AA20(const char* path);                          // inferred: the file exists
 // inferred: reads the poses of a binary file
+extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node); // inferred: loads a model
 extern "C" void fn_8008A00C(atn::Vector_unk<Event::PoseKey_unk>* poses, void* data, int size);
 // inferred: debug text
 extern "C" void* lbl_8087EEB0;
@@ -87,7 +88,7 @@ int AnimationData::vf10() const {
 
 void ModelData::vf08() {
     m24 = new (4, "", "", 0) Model_unk(0x100, 0x28);
-    m24->fn_8008AD4C(m08.c_str(), 0);
+    fn_8008AD4C(m24, m08.c_str(), 0);
 }
 
 void ModelData::vf0C() {
@@ -178,15 +179,30 @@ int PoseData::vf10() const {
     return m18->fn_80473F50() == 0;
 }
 
-// NONMATCHING: 97.6% - in the copy loop of atn::Vector_unk::Assign_unk the original loads the
-// source element first, and the temporary vector's destructor tests its address (addic.)
+// inferred: the temporary list is of a class derived from atn::Vector_unk (its inlined destructor
+// tests the address of the object, as for derived classes elsewhere)
+struct PoseList_unk : public atn::Vector_unk<PoseKey_unk> {};
+
+// (copy loop: Assign_unk writes mData[i] = o[i]; the "" literals are the shared @STRING@ of
+// Resize_unk<PoseKey_unk>, renamed in symbols.txt)
 void PoseData::fn_80204230() {
     if (m1C == 0) {
         m1C = new (4, "", "", 0) atn::Vector_unk<PoseKey_unk>;
-        atn::Vector_unk<PoseKey_unk> poses;
+        PoseList_unk poses;
         fn_8008A00C(&poses, m18->fn_80470580(), m18->fn_8047059C());
         m1C->Assign_unk(poses);
     }
+}
+
+// inferred: kind of an RTMV movie (3 for ev5407); a separate function auto-inlined in the
+// constructor (written in the constructor, the constructor is no longer inlined in vf08)
+static int MovieKind_unk(const std::string& name) {
+    unsigned int pos = name.find("ev5407");
+    int kind = 2;
+    if (pos != std::string::npos) {
+        kind = 3;
+    }
+    return kind;
 }
 
 // inferred: a real function (its literals are in the file pool before "Movie : %s"), inlined in
@@ -197,7 +213,7 @@ MovieTask::MovieTask(atn::Task* parent, const std::string& name) : atn::Task(par
     if (fn_8006AA20(name.c_str()) != 0) {
         m4C = new (6, "", "", 0) atn::VideoTHP(name.c_str());
         if (name.find("RTMV") != std::string::npos) {
-            m4C->m04 = (name.find("ev5407") != std::string::npos) ? 3 : 2;
+            m4C->m04 = MovieKind_unk(name);
         } else {
             m4C->m04 = 0;
         }
@@ -226,8 +242,9 @@ void MovieTask::vf14() {
     }
 }
 
-// NONMATCHING: 96.5% - the 3/2 kind of RTMV movies is a branch in the original (branchless here)
-// and two saved registers swap
+// NONMATCHING: 99.8% - two saved registers swap (r28/r29: the original coalesces parent with the
+// pool base and the two literal pointers of the find calls; here parent with the "RTMV" pointer).
+// Tried: ternary/if-else forms of the task creation, RTMV check in a helper, literal as argument.
 void MovieData::vf08() {
     for (int i = 0; i < (int)m08.size(); i++) {
         if (m08[i] == '\\') {

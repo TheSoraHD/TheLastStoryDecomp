@@ -144,9 +144,9 @@ void ColliAttrManager::vf10() {
 
 void ColliAttrManager::vf14() {}
 
-// NONMATCHING: 0% (fnstat) - fn_80183FFC is inlined here (4 calls) but called in the original: our
-// fn_80183FFC costs a few statements less than the original for the inlining budget (with ~5 more
-// statements in it the calls appear and the rest of the function is as in the original)
+// NONMATCHING: 99.7% - saved register choice of the loop index of the first branch (r30 in the
+// original, r29 here) and of efp (the original reuses the register of attr). Tried: shared index
+// declared at the top, int indices, index declared before Release_unk, no efp local.
 void ColliAttrManager::fn_80183D00(int id, int arg1, int arg2) {
     if (id == -1) {
         Release_unk();
@@ -178,9 +178,17 @@ void ColliAttrManager::fn_80183D00(int id, int arg1, int arg2) {
     }
 }
 
+// inferred: compiled-out assertions (the original calls this function out of line from
+// fn_80183D00; without four more statements MWCC inlines it there)
+#define ASSERT_UNK(x) ((void)0)
+
 // NONMATCHING: 90.9% - register allocation: the original keeps `this` in r31 (here r26) and the
-// other variables one register lower
+// other variables one register lower (tried also: early return, local se pointer, mData[index])
 void ColliAttrManager::fn_80183FFC(int index, int id) {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(index >= 0);
+    ASSERT_UNK(index < mEntries.mSize);
+    ASSERT_UNK(id >= 0);
     ColliAttrData_unk* data = fn_8020B1E0(id);
     if (data != 0) {
         mEntries[index].mId = id;
