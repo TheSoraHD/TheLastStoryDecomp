@@ -2997,12 +2997,9 @@ MP/Popup.cpp:
 	.sdata2     start:0x80887680 end:0x808876B8
 
 MP/SaveLoad.cpp:
-	.text       start:0x805020FC end:0x80502708
+	.text       start:0x805020FC end:0x805028D8
 	.rodata     start:0x8075A970 end:0x8075A988
 	.data       start:0x80792AA8 end:0x80792AE0
-
-MP/SaveLoad_cont.cpp:
-	.text       start:0x80502708 end:0x805028D8
 
 atn/SoftKeyboardU.cpp:
 	.text       start:0x805028D8 end:0x80505DD0

@@ -28,3 +28,27 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
   - `include/game/GameTimer.h`: siete metodos nuevos. Externos locales `fn_803761EC` (getter del valor),
     `fn_80370174`/`fn_80370320` (leer/escribir variable de juego; firmas como en `gmk/AttractHatePoint`).
 - Hallazgos MWCC: ninguno nuevo.
+
+## MP/SaveLoad_cont (commit HASH)
+
+- Resultado: 4/4 al 100%, fusionada en `MP/SaveLoad` (`matching: true`, `main.dol: OK`).
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits: `MP/SaveLoad` .text 0x805020FC-0x80502708 -> 0x805020FC-0x805028D8; borrada `MP/SaveLoad_cont`
+    (contigua, sin datos). Mismo fichero: usa la cola de peticiones de 0x64 y los campos 0x48/0x4C/0x50/0x54.
+  - `symbols.txt` (pairnames): `fn_80502708` (toma los datos pendientes `lbl_8087F460` y el slot
+    `lbl_8087DD60/64`), `fn_8050272C` (prepara el bufer de trabajo y encola una peticion tipo 2),
+    `fn_80502848` (ocupado), `fn_80502870` (encola una peticion) -> metodos de `MP::SaveLoad`.
+  - `include/MP/SaveLoad.h`:
+    - `Request_unk::mType`/`m04` pasan a `int mType[2]` (el tipo se guarda dos veces) y los ctores asignan en el
+      cuerpo: necesario para la copia muerta en pila de la peticion (ver hallazgo) y el orden de stores del ctor.
+    - `Queue_unk::Push_unk(const T&)`; ctor `Request_unk(type, data, size)`.
+    - `SaveWork_unk` partido en cabecera de 0xB8 (`m04` en 0x4) + `mData[0x134A8]` (mismo tamano total).
+  - Externos locales en `SaveLoad.cpp`: `fn_8004B20C` (hora de calendario, `CalendarTime_unk` de 0x28 inferido
+    como `OSCalendarTime`), `fn_803BE550/8C0/A08/A7C` (operaciones de `GameSaveData_unk`), `lbl_807C8508`
+    (cabecera de 0xB8).
+- Hallazgos MWCC
+  - Un struct con un miembro array no se escalariza: construirlo como temporal y copiarlo deja sus stores muertos en
+    pila (`stw` a `0x8(r1)`...) ademas de la copia propagada desde registros. Sin array, MWCC lo elimina entero.
+  - `if (a == 0 || b == 0 || c < 0) return;`: la ultima condicion de la cadena `||` sale invertida con salto
+    incondicional (`bge L; b fin`), las anteriores con `beq fin`.
