@@ -285,10 +285,13 @@ game/BattleResult.cpp:
 	.sdata2     start:0x808813B8 end:0x808813D0
 
 game/BattleTask.cpp:
-	.text       start:0x800F1430 end:0x800F7250
-	.rodata     start:0x80736018 end:0x80736040
-	.data       start:0x80779DA0 end:0x80779DD8
-	.sdata2     start:0x808813D4 end:0x80881508
+	.text       start:0x800F1430 end:0x8010D98C
+	.rodata     start:0x807355C8 end:0x80736040
+	.data       start:0x80779CE0 end:0x80779E28
+	.bss        start:0x807C7840 end:0x807C7858
+	.sdata      start:0x8087D978 end:0x8087D980
+	.sbss       start:0x8087F04C end:0x8087F050
+	.sdata2     start:0x808813D4 end:0x808815F8
 
 Event/Behavior_unk.cpp:
 	.text       start:0x8010D98C end:0x8010DB94
@@ -314,6 +317,14 @@ Event/Path.cpp:
 	.data       start:0x80779F40 end:0x80779F68
 	.sdata2     start:0x808816B4 end:0x80881718
 
+game/MenuCommon_unk.cpp:
+	.text       start:0x80116EB8 end:0x8011770C
+	.ctors      start:0x8072D2D0 end:0x8072D2D4
+	.rodata     start:0x80736748 end:0x80736AA8
+	.bss        start:0x807C78E4 end:0x807C7AF0
+	.sdata      start:0x8087D988 end:0x8087D990
+	.sdata2     start:0x80881718 end:0x80881748
+
 game/CampSaveLoad.cpp:
 	.text       start:0x8011770C end:0x8011BD14
 	.rodata     start:0x80736AB0 end:0x80736EF0
@@ -321,6 +332,19 @@ game/CampSaveLoad.cpp:
 	.sdata      start:0x8087D990 end:0x8087D9A0
 	.sbss       start:0x8087F068 end:0x8087F070
 	.sdata2     start:0x80881748 end:0x80881798
+
+game/CharaC58_unk.cpp:
+	.text       start:0x8011BD14 end:0x8011D24C
+	.sdata2     start:0x80881798 end:0x808817C0
+
+game/CharaFaceControl.cpp:
+	.text       start:0x8011D24C end:0x8011F6B0
+	.rodata     start:0x80736EF0 end:0x80737068
+	.data       start:0x8077A150 end:0x8077A168
+	.bss        start:0x807C7AF0 end:0x807C7B10
+	.sdata      start:0x8087D9A8 end:0x8087D9B0
+	.sbss       start:0x8087F070 end:0x8087F078
+	.sdata2     start:0x808817C0 end:0x808817E8
 
 game/CharaManager_PlayerTask.cpp:
 	.text       start:0x8011F6B0 end:0x8011FF78
@@ -697,9 +721,12 @@ Event/MotionData.cpp:
 	.sdata2     start:0x80882D18 end:0x80882D28
 
 atn/CsvBase_char_124_13_34.cpp:
-	.text       start:0x80207BEC end:0x80207C00
-	.rodata     start:0x8073EA28 end:0x8073EA48
-	.data       start:0x80782FD0 end:0x80782FE8
+	.text       start:0x80204958 end:0x80207C00
+	.rodata     start:0x8073E800 end:0x8073EA50
+	.data       start:0x80782FB0 end:0x80782FE8
+	.sdata      start:0x8087DB20 end:0x8087DB28
+	.sbss       start:0x8087F158 end:0x8087F180
+	.sdata2     start:0x80882D28 end:0x80882D70
 
 atn/ptr_string_base_wchar_t_0.cpp:
 	.text       start:0x8020C028 end:0x8020C4C8
@@ -817,16 +844,17 @@ game/Em101LittleZesyaSecond.cpp:
 	.sdata2     start:0x80883578 end:0x808835F8
 
 game/Em201ZanGurg.cpp:
-	.text       start:0x80262938 end:0x80263CF0
-	.rodata     start:0x807443B0 end:0x807443C0
+	.text       start:0x80262938 end:0x80264DB4
+	.rodata     start:0x80744398 end:0x807444D0
 	.data       start:0x80784BF8 end:0x80784D28
-	.sdata2     start:0x80883604 end:0x80883638
+	.sdata2     start:0x808835F8 end:0x80883670
 
 game/Em201ZanGurgFinal.cpp:
-	.text       start:0x80264DB4 end:0x80267F88
-	.rodata     start:0x807445F0 end:0x80744604
-	.data       start:0x80784DD8 end:0x80784F08
-	.sdata2     start:0x8088367C end:0x80883684
+	.text       start:0x80264DB4 end:0x8026FC0C
+	.rodata     start:0x807444D0 end:0x807448D8
+	.data       start:0x80784D28 end:0x80784F08
+	.sdata      start:0x8087DC30 end:0x8087DC38
+	.sdata2     start:0x80883670 end:0x80883798
 
 game/Em202_01_BSpider.cpp:
 	.text       start:0x8026FC0C end:0x80272660
@@ -1032,16 +1060,19 @@ game/Em315Coffin.cpp:
 	.sdata2     start:0x80884CF0 end:0x80884D60
 
 game/Em316LaserSphere.cpp:
-	.text       start:0x803161F8 end:0x8031B09C
-	.rodata     start:0x80749588 end:0x8074959C
-	.data       start:0x80788760 end:0x80788890
-	.sdata2     start:0x80884D60 end:0x80884DE8
+	.text       start:0x803161F8 end:0x8031B0A8
+	.ctors      start:0x8072D350 end:0x8072D354
+	.rodata     start:0x80749538 end:0x80749718
+	.data       start:0x80788728 end:0x80788890
+	.sdata      start:0x8087DC48 end:0x8087DC58
+	.sbss       start:0x8087F3F0 end:0x8087F3F8
+	.sdata2     start:0x80884D60 end:0x80884DF0
 
 game/Em316LastLaser.cpp:
-	.text       start:0x8031B0A8 end:0x8031CA30
-	.rodata     start:0x80749720 end:0x80749730
-	.data       start:0x80788890 end:0x807889C0
-	.sdata2     start:0x80884DF4 end:0x80884E34
+	.text       start:0x8031B0A8 end:0x8031EB3C
+	.rodata     start:0x80749718 end:0x80749898
+	.data       start:0x80788890 end:0x807889D8
+	.sdata2     start:0x80884DF0 end:0x80884E48
 
 game/Em401_01_WhiteLeoPard.cpp:
 	.text       start:0x8031EB3C end:0x803227A0
