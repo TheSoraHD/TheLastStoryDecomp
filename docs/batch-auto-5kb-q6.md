@@ -130,7 +130,7 @@ funciones `extern "C" fn_<addr>`.
   - `a[j] = *f() != 0;` calcula `&a[j]` antes de la llamada (registro salvado); leyendo antes el campo en un local
     (`const char* field = f(); a[j] = *field != 0;`) la direccion se calcula despues, como el original.
 
-## db/ReverbPresetParam_unk (commit HASH)
+## db/ReverbPresetParam_unk (commit 1962d2a)
 - Resultado: 3/3 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -146,3 +146,23 @@ funciones `extern "C" fn_<addr>`.
     (con un array y un `for` MWCC no desenrolla 7 iteraciones con llamadas).
   - Elemento de tabla usado dos veces en el cuerpo de un bucle de busqueda (`t = tabla[i]; strncmp(s, t, strlen(t))`):
     declararlo dentro del cuerpo le da el registro mas bajo (se crea despues del puntero reducido).
+
+## db/SkillGrowth_unk (commit HASH)
+- Resultado: 6/6 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - **Cabecera compartida `include/atn/Csv.h`** (cambios aditivos/equivalentes): nuevo ctor `atn::CsvU()` sin texto
+    (separadores `lbl_807830B8`, otra copia de L" \t" que usan tambien `MP/Text`, `db/MapLink_unk`, `db/SpText_unk`;
+    declarado `extern "C" wchar_t lbl_807830B8[3]`), y `CsvU::vf08` escrito con `m04 = length != 0 ? text + 1 : text;`
+    (el original inlinado aqui usa `beq; addi r0; b; mr r0`). La copia debil `vf08__Q23atn4CsvUFPCwi` (0x8011BB90,
+    `game/CampSaveLoad`) sigue al 100% y no baja ninguna funcion en `report.json`.
+  - `symbols.txt`: `fn_8021AEF0`/`fn_8021AF10` -> `__ct__/__dt__15SkillGrowth_unkFv` (pairnames emparejaba el dtor con
+    el de `ptr_string_base`: corregido a mano); datos `sFileNameStr`, `sTextFileNameStr`, `@stringBase0` (0x807425F8),
+    `@wstringBase0` (0x807830F8, `.data`, L"%s"), `sEntries`, `sCount`, `sTexts`, `sFileName`, `sTextFileName`.
+  - Tipo inferido `SkillGrowth_unk` (0x18: id, id de habilidad, dos `atn::ptr_string_base<wchar_t,0>` a textos de
+    `/boot/skill_growth_text_xx.u16`). `atn::ptr_string_base` se redeclara igual que en
+    `atn/ptr_string_base_wchar_t_0.cpp` (no hay cabecera; candidata a `include/atn/`).
+- Hallazgos MWCC
+  - Segundo caso (tras TreasureList) de fila indexada por desplazamiento en bytes explicito: si el `li rX, 0` del
+    indice va antes de una llamada (o de un inline como `vf08`) previa al bucle, no es un indice reducido.
