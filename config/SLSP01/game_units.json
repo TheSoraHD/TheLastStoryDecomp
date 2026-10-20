@@ -2215,6 +2215,13 @@
   "matching": true
  },
  {
+  "name": "atn/LH_Motion_cont.cpp",
+  "classes": [
+   "atn::LH_Motion"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/LH_MotionCommandData.cpp",
   "classes": [
    "atn::LoadMotionCommandData",

@@ -3,6 +3,14 @@
 
 #include "game/ResHandle.h"
 
+// inferred: sound part of the save data (GameSaveData_unk copies it from 0x68..0x74)
+struct SoundSettings_unk {
+    int mSoundType;     // 0x0
+    float mBgmVolume;   // 0x4
+    float mSeVolume;    // 0x8
+    float mVoiceVolume; // 0xC
+};
+
 // inferred from __vt__9SetConfig (0x80796790): the option settings (debug menu "SetConfig").
 // The member names come from the debug menu labels registered in fn_8057EAF0.
 class SetConfig {
@@ -13,6 +21,10 @@ public:
     void fn_8057EAF0(); // inferred: registers the debug menu
     void fn_8057EF40(); // inferred: resets the settings to their defaults
     void Init_unk();    // inferred: inline body shared by the ctor and fn_8057EF40
+    void fn_8057F0F8(); // inferred: sound type from the console sound mode
+    void fn_8057F154(int soundType); // inferred: sets the sound type and the output mode
+    void fn_8057F198(int value);     // inferred: sets mA4 (+10 into lbl_8087EFA8)
+    void fn_8057F1B4(const SoundSettings_unk* settings); // inferred: loads the sound settings
 
     ResHandle mMenu;       // 0x00
     int mShakeType;        // 0x04

@@ -106,12 +106,9 @@ atn/AudioDevice.cpp:
 	.sdata2     start:0x80880870 end:0x80880890
 
 atn/Bgm.cpp:
-	.text       start:0x8004AD9C end:0x8004AE84
+	.text       start:0x8004AD9C end:0x8004B290
 	.rodata     start:0x80731028 end:0x80731034
 	.data       start:0x80777570 end:0x80777588
-
-atn/Bgm_cont.cpp:
-	.text       start:0x8004AE84 end:0x8004B290
 	.sdata2     start:0x80880890 end:0x80880898
 
 atn/Camera_unk.cpp:
@@ -2108,12 +2105,9 @@ game/GameSoundControl.cpp:
 	.sdata2     start:0x80885D48 end:0x80885D58
 
 game/GameTimer.cpp:
-	.text       start:0x803CE4B0 end:0x803CE688
+	.text       start:0x803CE4B0 end:0x803CE854
 	.rodata     start:0x80750548 end:0x80750558
 	.data       start:0x8078BE08 end:0x8078BE40
-
-game/GameTimer_cont.cpp:
-	.text       start:0x803CE688 end:0x803CE854
 
 game/GameUI.cpp:
 	.text       start:0x803CE854 end:0x803E836C
@@ -2851,15 +2845,11 @@ game/MapTask.cpp:
 	.sdata2     start:0x80887160 end:0x808871B0
 
 game/MarketTask.cpp:
-	.text       start:0x804A1DDC end:0x804A24C4
-	.rodata     start:0x807570C8 end:0x80757108
+	.text       start:0x804A1DDC end:0x804A29C4
+	.rodata     start:0x807570C0 end:0x80757108
 	.data       start:0x80790778 end:0x807907B0
 	.sbss       start:0x8087F578 end:0x8087F580
-	.sdata2     start:0x808871B0 end:0x808871C0
-
-game/MarketTask_cont.cpp:
-	.text       start:0x804A24C4 end:0x804A29C4
-	.sdata2     start:0x808871C0 end:0x808871D0
+	.sdata2     start:0x808871B0 end:0x808871D0
 
 game/MenuCommonTask.cpp:
 	.text       start:0x804A29C4 end:0x804A7EA4
@@ -3001,12 +2991,9 @@ MP/Popup.cpp:
 	.sdata2     start:0x80887680 end:0x808876B8
 
 MP/SaveLoad.cpp:
-	.text       start:0x805020FC end:0x80502708
+	.text       start:0x805020FC end:0x805028D8
 	.rodata     start:0x8075A970 end:0x8075A988
 	.data       start:0x80792AA8 end:0x80792AE0
-
-MP/SaveLoad_cont.cpp:
-	.text       start:0x80502708 end:0x805028D8
 
 atn/SoftKeyboardU.cpp:
 	.text       start:0x805028D8 end:0x80505DD0
@@ -3197,12 +3184,9 @@ game/Np131LivingArmor.cpp:
 	.sdata2     start:0x80887CD8 end:0x80887D38
 
 game/NpcManager.cpp:
-	.text       start:0x805477C8 end:0x80547980
+	.text       start:0x805477C8 end:0x80547C28
 	.rodata     start:0x8075E380 end:0x8075E398
 	.data       start:0x80794738 end:0x80794780
-
-game/NpcManager_cont.cpp:
-	.text       start:0x80547980 end:0x80547C28
 
 game/NpcTask.cpp:
 	.text       start:0x80547C28 end:0x80547EA0
@@ -3330,14 +3314,11 @@ Event/EventParser_unk.cpp:
 	.sdata2     start:0x80888088 end:0x80888098
 
 game/SetConfig.cpp:
-	.text       start:0x8057E83C end:0x8057F0F8
+	.text       start:0x8057E83C end:0x8057F280
 	.rodata     start:0x80761050 end:0x807611F0
 	.data       start:0x80796790 end:0x807967A8
 	.sbss       start:0x8087F9C0 end:0x8087F9C8
 	.sdata2     start:0x80888098 end:0x808880C0
-
-game/SetConfig_cont.cpp:
-	.text       start:0x8057F0F8 end:0x8057F280
 
 game/ShopBase.cpp:
 	.text       start:0x8057F280 end:0x80584FE4

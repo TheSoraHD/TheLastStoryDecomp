@@ -79,11 +79,7 @@ extern "C" int fn_803CE278(int a, int b, int c);
 extern "C" void fn_803CE0B4(GameSoundControl* control, int id, int position);
 extern "C" int fn_803CE074(GameSoundControl* control, int id);
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the stream is ready
-// inferred: atn::Bgm and atn::SoundRef helpers (names keep the address)
-extern "C" void fn_8004AE84(atn::Bgm* bgm, const char* name, int start);
-extern "C" int fn_8004B0E4(atn::Bgm* bgm);
-extern "C" void fn_8004B158(atn::Bgm* bgm, float volume, int fade);
-extern "C" void fn_8004B1EC(atn::Bgm* bgm, int fade);
+// inferred: atn::SoundRef helpers (names keep the address)
 extern "C" int fn_800CA910(atn::SoundObject* sound); // inferred: length
 extern "C" int fn_800CAA88(atn::SoundObject* sound); // inferred: position
 extern "C" int fn_800CB4C4(atn::SoundRef* sound);
@@ -160,7 +156,7 @@ GameBgm::GameBgm(atn::Task* parent) : atn::Task(parent), mState(0), mIndex(1), m
 
 GameBgm::~GameBgm() {
     for (int i = 0; i < 2; i++) {
-        fn_8004B1EC(mBgm.Get(i), 0);
+        mBgm.Get(i)->fn_8004B1EC(0);
         mBgm.Get(i)->mSound.Reset();
     }
     sInstance = 0;
@@ -190,7 +186,7 @@ static inline void __FadeOut_unk(atn::Bgm* bgm, int fade) {
         GameSoundControl* control = GameSoundControl::sInstance;
         fn_803CE0B4(control, fn_800CB6F8(&bgm->mSound), pos);
     }
-    fn_8004B1EC(bgm, fade);
+    bgm->fn_8004B1EC(fade);
 }
 
 static inline void __FadeOutIf_unk(atn::Bgm* bgm, int fade) {
@@ -266,10 +262,10 @@ void GameBgm::vf10() {
             fn_803605EC(env, mReq.mFade, env->m188);
         }
     } else if (mState == 2) {
-        if (fn_8004B0E4(mCur) != 0 || m80 == 0) {
+        if (mCur->fn_8004B0E4() != 0 || m80 == 0) {
             return;
         }
-        fn_8004B158(mCur, mReq.mVolume, mReq.mFade);
+        mCur->fn_8004B158(mReq.mVolume, mReq.mFade);
         if (mReq.mCross != 0) {
             int fade = 15;
             if (mReq.mFade > 15) {
@@ -365,7 +361,7 @@ void GameBgm::fn_8037D274(atn::Bgm* bgm, const char* name) {
     lbl_8087EFE8->m34D0 = 1;
     lbl_8087EFE8->m34D4 = 1;
     lbl_8087EFE8->m34C8 = 0;
-    fn_8004AE84(bgm, name, start);
+    bgm->fn_8004AE84(name, start);
     lbl_8087EFE8->m34D0 = 0;
     lbl_8087EFE8->m34D4 = save;
     lbl_8087EFE8->m34C8 = 1;
