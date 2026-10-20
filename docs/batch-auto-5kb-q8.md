@@ -214,7 +214,7 @@ Fusionada en `game/MapPartsOcean`.
 - Propuesta: fusionar `Event/Manager`, `Event/PostSequence` y `Event/Manager_cont` en `Event/Manager.cpp`
   cuando se decompile Event::Manager.
 
-## Event/Section (commit HASH12)
+## Event/Section (commit d3b009a)
 
 - Resultado: 5/6 al 100%, `matching: false`.
 - NONMATCHING: `fn_8053C788__Q25Event7SectionFv` 38% - crea un `boost::shared_ptr<Channel>` y lo mete en
@@ -244,3 +244,27 @@ Fusionada en `game/MapPartsOcean`.
     objdiff no da el 100% al `__sinit` aunque las instrucciones sean identicas.
 - Hallazgos MWCC: MWCC pone el puntero a la vtable detras de los miembros de datos declarados antes de la
   primera funcion virtual (boost `sp_counted_base`: contadores en 0/4, vptr en 8).
+
+## game/HomeButton_unk (commit HASH13)
+
+- Resultado: 6/8 al 100%, `matching: false`.
+- NONMATCHING:
+  - `fn_804411DC` 99.8% - el original carga el stick x/y en f0/f1 (aqui f1/f0) e intercambia los registros
+    del contador y el desplazamiento del bucle (r28/r29).
+  - `fn_804413D4` 84.5% - el original guarda las palabras altas (0x4330) de las dos conversiones int->float
+    al principio de la funcion; aqui junto a la conversion.
+- **Decisiones sin el usuario**
+  - Codigo calcado del ejemplo HBM del SDK: tipos locales `HBMDataInfo_unk`, `HBMKPadData_unk`,
+    `HBMControllerData_unk`, `KPADStatus_unk` (solo los campos usados; el `HBMTypes.h` de libs no esta en el
+    camino de includes del juego). Las funciones de la libreria HBM se llaman por sus nombres de
+    symbols.txt (`fn_805C3C70` HBMCreate, `fn_805C3F40` HBMCreateSound, `fn_805C3D90` HBMDelete,
+    `fn_805C3FA0` HBMDeleteSound, `fn_805C3E00` HBMInit, `fn_805C3ED0` HBMSetAdjustFlag, `fn_805C3FB0`
+    HBMUpdateSound, `fn_805C3E30` HBMCalc, `fn_805C3E70` HBMDraw, `fn_80660CF0` WPADProbe; no se renombran).
+  - Funciones `extern "C"` con sus nombres (las declara asi `game/HomeButtonMenu.cpp`).
+  - `fn_804413D4`: el factor 1.0f es un local por rama (`228.0f * -scale` da `fneg`; con literales o una
+    inline se pliega todo).
+  - `symbols.txt`: `lbl_80754520` -> `@stringBase0` (0xD0 -> 0xCD).
+  - Nombre real propuesto: parte de `game/HomeButtonMenu.cpp` (sin `__sinit` ni pruebas en contra), o un
+    fichero propio del ejemplo HBM; se deja separado.
+- Hallazgos MWCC: `float s = 1.0f;` local no se propaga: `228.0f * -s` sale `lfs 1.0; fneg; fmuls`, y si
+  el local esta en cada rama la constante se carga dentro de cada una.
