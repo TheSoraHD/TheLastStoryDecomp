@@ -43,11 +43,7 @@ namespace atn {
 
 // inferred: bounding sphere (names invented)
 struct Sphere_unk {
-    // inferred: sphere around the box [pos, pos + 2 * ext]
-    Sphere_unk(const Vector3& pos, Vector3 ext) : mCenter(pos + ext) {
-        mRadius = sqrt(ext.x * ext.x + ext.y * ext.y + ext.z * ext.z);
-    }
-    Sphere_unk(const Vector3& center, float radius) : mCenter(center), mRadius(radius) {}
+    Sphere_unk() {}
     Vector3 mCenter;
     float mRadius;
 };
@@ -100,13 +96,14 @@ int D3Anime::vf0C() {
     return UpdateLoad_unk() == 0;
 }
 
-// NONMATCHING: 85% - the original keeps the dead result of the inlined load check (li r5)
 void D3Anime::vf10() {
-    UpdateLoad_unk();
+    if (UpdateLoad_unk()) {
+        return;
+    }
 }
 
-// NONMATCHING: 92% - the original folds the sphere radius to sqrt(180000.0) and computes the
-// center before it; ours computes the radius from the extent at run time
+// NONMATCHING: 99.53% - only r4/r5 swapped for the busy flag and the reloaded task pointer in the
+// inlined load check (vf10 with the same inline matches); tried other forms of the inline/test
 void D3Anime::vf14() {
     if (!mEnabled) {
         return;
@@ -128,9 +125,13 @@ void D3Anime::vf14() {
         fn_801F4484(mTask);
     }
     if (mVisible) {
+        // inferred: the radius is a folded constant (sqrt(180000.0)), so it was written with literals
+        Sphere_unk sphere;
+        sphere.mCenter = mPos + Vector3(300.0f, 300.0f, 0.0f);
         Frustum_unk* frustum = lbl_8087EFB4->GetFrustum_unk();
-        Sphere_unk sphere(mPos, Vector3(300.0f, 300.0f, 0.0f));
+        sphere.mRadius = sqrt(300.0f * 300.0f + 300.0f * 300.0f + 0.0f * 0.0f);
         if (!frustum->IsCulled_unk(sphere)) {
+
             Draw();
         }
     }
@@ -157,32 +158,45 @@ inline Vector3 operator*(const Matrix3x4& m, const Vector3& v) {
     PSMTXMultVec(m.m, &r, &r);
     return r;
 }
-inline void SetView_unk(Renderer2D_unk* r, Matrix3x4 m) {
-    r->mD4 = m;
+// inferred: scale matrix from components (the vector temporary is built inside)
+inline Matrix3x4 MakeScale_unk(float x, float y, float z) {
+    return MakeScale_unk(Vector3(x, y, z));
+}
+// inferred: m = m * trans(x, y, z); the translation is declared before the product (stack order)
+inline void Translate_unk(Matrix3x4& m, float x, float y, float z) {
+    Matrix3x4 t = MakeTrans_unk(Vector3(x, y, z));
+    m = m * t;
 }
 
-inline Matrix3x4 D3Anime::GetDrawMtx_unk(float w, float h, float z) {
-    Matrix3x4 m;
-    if (mFlag9) {
-        m = MakeScale_unk(Vector3(1.0f, -1.0f, 1.0f));
-        m = m * MakeTrans_unk(Vector3(0.5f * -w, 0.5f * -h, z));
-    } else {
-        m = MakeScale_unk(Vector3(1.0f, -1.0f, 1.0f));
-    }
-    PSMTXConcat(mMtx.m, m.m, m.m);
-    return m;
-}
-
-// NONMATCHING: 79% - same calls and stores; stack layout and register use differ
+// NONMATCHING: 99.29% - only volatile register numbers differ (camera/render state pointers and the
+// int->float constants at the top, the renderer pointer and the matrix addresses at the end)
 void D3Anime::Draw() {
+    const Matrix3x4& camView = lbl_8087EFB4->m15C;
+    int iw = lbl_8087EEE0->mWidth;
+    int ih = lbl_8087EEE0->mHeight;
     Matrix3x4 savedView(lbl_8087EEB0->mD4);
-    SetView_unk(lbl_8087EEB0, lbl_8087EFB4->m15C);
+    Matrix3x4 view(camView);
+    lbl_8087EEB0->mD4 = view;
     Matrix3x4 savedModel(lbl_8087EEB0->mA4);
     int mode = lbl_8087EEB0->mA0;
-    float w = lbl_8087EEE0->mWidth;
-    float h = lbl_8087EEE0->mHeight;
-    Matrix3x4 m = GetDrawMtx_unk(w, h, -0.001f);
-    m = GetDrawMtx_unk(w, h, 0.0f);
+    float w = iw;
+    float h = ih;
+    // inferred: the draw matrix is built twice (z = -0.001f, then 0.0f) and only the second is used
+    Matrix3x4 m;
+    if (mFlag9) {
+        m = MakeScale_unk(1.0f, -1.0f, 1.0f);
+        Translate_unk(m, 0.5f * -w, 0.5f * -h, -0.001f);
+    } else {
+        m = MakeScale_unk(1.0f, -1.0f, 1.0f);
+    }
+    PSMTXConcat(mMtx.m, m.m, m.m);
+    if (mFlag9) {
+        m = MakeScale_unk(1.0f, -1.0f, 1.0f);
+        Translate_unk(m, 0.5f * -w, 0.5f * -h, 0.0f);
+    } else {
+        m = MakeScale_unk(1.0f, -1.0f, 1.0f);
+    }
+    PSMTXConcat(mMtx.m, m.m, m.m);
     Vector3 quad[4];
     quad[0] = m * Vector3(0.0f, 0.0f, 0.0f);
     quad[1] = m * Vector3(1.0f, 0.0f, 0.0f);

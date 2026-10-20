@@ -25,7 +25,6 @@ public:
     int Load(int arg);       // 0x802020B4
     D2ATask_unk* GetTask() const; // 0x80202118
     void Draw();             // 0x80202460
-    Matrix3x4 GetDrawMtx_unk(float w, float h, float z);
 
     int UpdateLoad_unk() {
         int busy;
