@@ -64,7 +64,7 @@ Fusionada en `game/FriendManager`.
 - **Decisiones sin el usuario**
   - `symbols.txt`: `fn_8010E60C` -> `vf0C__Q25Event14BehaviorMoveToFPQ25Event13ActionArg_unki`, `fn_8010E7B8` -> `vf08__Q25Event14BehaviorMoveToFPQ25Event13ActionArg_unk` (por la vtable; mismo orden de fuente que BehaviorFollow).
 
-## game/EnemyTask (commit HASH_ET)
+## game/EnemyTask (commit f8f045c)
 
 - Resultado: 8/8 al 100%, `matching: true`.
 - **Decisiones sin el usuario**
@@ -73,3 +73,14 @@ Fusionada en `game/FriendManager`.
   - `include/game/CharaStatus.h`: `chr::CharaData_unk` gana `mCC`/`mD0` (antes relleno `mCC[0x1C]`); `include/game/EnemyTask.h`: declarados `fn_8035B534` y `fn_8035B854`.
   - `vf6C` construye la direccion con `mPos.y` y luego pone `y = 0` (unica forma encontrada de que los stores salgan z, x, y).
 - Hallazgos MWCC: una unidad enlazada que emite RTTI debiles (y sus cadenas) de clases cuya RTTI vive en otro fichero anterior enlaza bien (`main.dol: OK`): el enlazador las descarta.
+
+## game/GameSaveTask (commit HASH_GS)
+
+- Resultado: 7/7 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - Clase `GameSaveTask : GameSaveLoadCommon` declarada en el .cpp (menu de guardado de depuracion: lista de 17 ranuras, "上書きしますか？", "はい"/"いいえ", "セーブ中です").
+  - `include/game/GameSaveLoadBackgroundCommon.h`: nuevas `GameSaveLoadCommon` (base, ctor 0x803B82C0 / dtor 0x803B834C en la unidad siguiente), `GameSaveSlot_unk` (cabecera de ranura 0xB8), `GameSaveData_unk` (estado serializado 0x134A8), `GameSaveFile_unk` (0x13560), `SaveTime_unk` (0x28, como OSCalendarTime) y `GameSaveLoadBackgroundCommon::fn_803B8160(int)`.
+  - `symbols.txt` (renombrados): `fn_803B7944` -> `fn_803B7944__12GameSaveTaskFPQ23atn4TaskP18GameSaveBackground`, `fn_803B7A08` -> `__dt__12GameSaveTaskFv`, `fn_803B7A60/7AD0/7E20` -> `vf0C/vf10/vf14__12GameSaveTaskFv`, `fn_803B7FC8`/`fn_803B807C` -> `...__12GameSaveTaskFi`; en la unidad siguiente `fn_803B82C0` -> `__ct__18GameSaveLoadCommonFPQ23atn4Task`, `fn_803B834C` -> `__dt__18GameSaveLoadCommonFv`, `fn_803B8160` -> `fn_803B8160__28GameSaveLoadBackgroundCommonFi`, `fn_803B85EC/8758/87A8/8AC4/8B08` -> metodos de `GameSaveLoadCommon`; en `game/GameSaveData_unk`: `fn_803BE8B4` -> `__ct__16GameSaveSlot_unkFv` (se construye en bucle sin `__construct_array`), `fn_803BE8C0`, `fn_803BEAB4` (`GameSaveSlot_unk`), `fn_803BDEE4` (`GameSaveData_unk`); `lbl_8074FF58` -> `@stringBase0` (0x30 -> 0x2B); `lbl_80885C70` (260.0f) 0x8 -> 0x4.
+  - Declaracion local de `fn_800616C0` con el float `f6` despues del color (`..., text, color, f6, a, b, c)`): mismo ABI que las otras declaraciones, pero cambia el orden de evaluacion.
+- Hallazgos MWCC: el orden de los parametros float respecto a los enteros no cambia los registros (bancos separados) pero si el orden de evaluacion de argumentos: si un literal float se carga tras la union de un ternario del argumento entero anterior (sin `fmr` con otro 0.0f), declarar ese float despues del entero.
+- Hallazgos MWCC: `return f() == 0;` da `cntlzw`; con saltos (`li r3,1 / li r3,0`) es `if (f() == 0) return 1; return 0;`.
