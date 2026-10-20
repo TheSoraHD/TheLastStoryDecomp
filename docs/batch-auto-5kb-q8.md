@@ -153,7 +153,7 @@ Fusionada en `game/MapPartsOcean`.
     que `reserve`/`__replace_unk` instanciados pongan sus mensajes. Pool identico (0x71).
   - `symbols.txt`: `lbl_80760D70` -> `@stringBase0` (0x78 -> 0x71).
 
-## game/MapInstance_unk (commit HASH9)
+## game/MapInstance_unk (commit 0130406)
 
 - Resultado: 3/5 al 100%, `matching: false`.
 - NONMATCHING: los dos constructores, 94.1% y 93.1% - planificacion: los stores del contador/id frente a la
@@ -175,3 +175,25 @@ Fusionada en `game/MapPartsOcean`.
   al reves.
 - Hallazgos MWCC: `0.017453292f * x` en un helper inline (`DegToRad_unk`) deja la constante en f0 y los
   campos en f9/f8/f7, como el original; escrito en linea la constante toma f9.
+
+## game/PlayerManager (commit HASH10)
+
+- Resultado: 6/8 al 100%, `matching: false`.
+- NONMATCHING:
+  - `fn_80549F14__13PlayerManagerFi` 99.5% - registros salvados (el original reutiliza r30 para el id y la
+    cabeza y deja el jugador en r29 en las dos ramas).
+  - `fn_8054A09C__13PlayerManagerFP10PlayerTaski` 97.2% - numeracion de registros volatiles en los bucles
+    que intercambian lider/jugador en la tabla de huecos del campo.
+- **Decisiones sin el usuario**
+  - Cabecera nueva `include/game/PlayerManager.h`: `PlayerManager : CharaManager<PlayerTask>` (0x60; `m54`
+    lider inicial, `ResHandle mMenu` en +0x58 con el grupo de menu de depuracion, `m5C`). El constructor no
+    es `inline` (su literal va en `@stringBase0`); su copia fuera de linea sobra y la quita el enlazador.
+  - **Cambio fuera de mis unidades:** `CharaTask::fn_801546F4` pasa de `()` a
+    `(int arg, atn::Vector3 pos, float rot)` en `include/game/CharaTask.h` y `src/game/CharaTask.cpp`
+    (todos los llamadores pasan r4, un Vector3 por valor y f1; el cuerpo no los lee y sigue al 100%);
+    `symbols.txt`: `fn_801546F4__9CharaTaskFv` -> `fn_801546F4__9CharaTaskFiQ23atn7Vector3f`. CharaTask no
+    se enlaza (`matching: false`); `regress.py` lost 0.
+  - Tipos locales: `PartyTable_unk`/`PartySlot_unk` (tabla `lbl_8087F430->m10D8`, huecos de 0x90 con 32
+    punteros a jugador + uno), `LeaderListener_unk` (`lbl_8087FA00`, elementos de 0x37C), `MpPlayer_unk`.
+  - `symbols.txt`: los 8 `fn_8054xxxx` -> metodos de `PlayerManager` (creador, `__dt__`, `vf0C`, `vf1C`,
+    `fn_80549F14`, `fn_8054A09C`, `fn_8054A33C`, `fn_8054A398`); `lbl_8075E468` -> `@stringBase0` (0x10 -> 0xF).

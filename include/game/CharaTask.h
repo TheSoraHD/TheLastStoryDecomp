@@ -723,7 +723,8 @@ public:
     int fn_80153FD8(int kind);
     void fn_80154488();
     void fn_80154654(int type, int arg);
-    void fn_801546F4();
+    // inferred: the callers pass (int, Vector3 by value, float); this body does not read them
+    void fn_801546F4(int arg, atn::Vector3 pos, float rot);
     int fn_8015487C();
     void fn_80154C08();
     bool fn_80154E38(CharaTask* target);

@@ -2653,6 +2653,13 @@
   "matching": false
  },
  {
+  "name": "game/PlayerManager.cpp",
+  "classes": [
+   "PlayerManager"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/PlayerTask.cpp",
   "classes": [
    "PlayerTask"

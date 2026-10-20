@@ -8119,7 +8119,7 @@ struct FieldRes_unk {
 };
 extern "C" FieldRes_unk* fn_80375254(Field_unk* field);
 
-void CharaTask::fn_801546F4() {
+void CharaTask::fn_801546F4(int arg, atn::Vector3 pos, float rot) {
     int kind = fn_8015487C();
     if (kind != 6 && lbl_8087F430 != 0) {
         int type = m60 != 0 ? fn_80208748(m60->m10) : 0;
