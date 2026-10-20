@@ -1226,8 +1226,8 @@ gmk/FragileObject.cpp:
 	.sdata2     start:0x80885FB0 end:0x80885FF0
 
 gmk/AutomaticDoor.cpp:
-	.text       start:0x803F47A0 end:0x803F69E4
-	.rodata     start:0x807522E0 end:0x807522F4
+	.text       start:0x803F471C end:0x803F69E4
+	.rodata     start:0x807522E0 end:0x807523A0
 	.data       start:0x8078CC30 end:0x8078CCC8
 	.sdata2     start:0x80885FF0 end:0x80886010
 

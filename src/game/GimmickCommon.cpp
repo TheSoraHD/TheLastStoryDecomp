@@ -38,6 +38,7 @@
 #include "gmk/SparkCube.h"
 #include "gmk/LemonBucket.h"
 #include "gmk/MotionObject.h"
+#include "gmk/AutomaticDoor.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -206,7 +207,6 @@ void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
 
 // inferred: gimmick constructors called by the factories below (one per gimmick class)
 extern "C" GimmickCommon* fn_803F1BB4(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803F471C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F744C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
@@ -242,7 +242,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     }
     switch (type) {
     case 1: gimmick = fn_803F1BB4(parent, id, arg); break;
-    case 2: gimmick = fn_803F471C(parent, id, arg); break;
+    case 2: gimmick = gmk::AutomaticDoor::fn_803F471C(parent, id, arg); break;
     case 4: gimmick = gmk::PlayEffect::fn_803F69E4(parent, id, arg); break;
     case 5: gimmick = fn_803F744C(parent, id, arg); break;
     case 10: gimmick = fn_803FE390(parent, id, arg); break;
