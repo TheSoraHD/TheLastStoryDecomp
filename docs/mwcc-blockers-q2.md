@@ -314,3 +314,63 @@ lo compatible con el DOL.
 - Ctores fuera de la clase (con y sin `inline`, antes o despues de las derivadas), plantillas miembro, clase
   intermedia, pasar `this` como parametro al ctor base, bucles de ceros: nada.
 - Ctor base con los separadores como parametro: registro OK pero orden de stores incorrecto.
+
+## Despues del cambio de cabecera: trabajo en las unidades
+
+- `atn/ptr_string_base_wchar_t_0` `TextTable_unk::TextTable_unk` (0x8020C0BC): 95.5% -> 99.1% con la cabecera,
+  100% reordenando locales por orden de registros salvados del original: `pos` (r31) declarado al principio,
+  luego `text` del segundo paso (r24), `i` (r23) y `total` (r24 reutilizado); un solo indice `i` en los dos
+  bucles del segundo paso con `i++` entre ambos (hueco de una entrada) en vez de `count`/`i`.
+- `db/MapIdTable_unk` `fn_80216CD0`: 98.2% -> 99.8%: `data` declarado antes y asignado despues, `i` antes
+  de `pos`. Queda: el original reutiliza el registro de la longitud (r27) para el `font` del primer bucle y el
+  de la direccion del CsvU (r28) para el indice; probado `font` declarado fuera, pasar el global
+  directamente (peor), `i`/`pos`/`textSize` en distintos sitios: no.
+- `game/NewStaffRoll` `fn_80531394`: 97.8% -> 99.3% (solo registros: this/text/length r26/r27/r28 frente a
+  r27/r24/r23; probado `count` antes, `i` antes de `y`, argumentos dentro de la llamada al ctor, referencia
+  a `mLoader`, `int` en vez de `unsigned`: nada mejor que 99.3/99.4).
+- `game/CampSaveLoad` `fn_8011B8D4`: 92.1% -> 94.6%: lo que queda es el pool `@wstringBase0` de la unidad
+  (`L""` esta en el offset 0x90 del pool y el original lo guarda en registro; nuestro pool solo tiene `L""`
+  en sdata porque el resto de funciones de la unidad siguen en asm). No es cosa de Csv.h.
+- `game/LibraryTask` (98.9%, 99.1%), `db/PaletteTable_unk` (98.0%), `atn/D2A_MessageTable_unk` (94.6%),
+  `db/SkillParam_unk` (91.9%): suben; el resto de cada una es otro bloqueo (push_back size/cap, pools de
+  basic_string, inline de fn_80219F1C, constante cero).
+
+Nota: con `~CsvBase() {}` cada unidad emite una copia debil `__dt__Q23atn19CsvBase<...>Fv` (0x40 bytes) que
+el enlazador descarta (main.dol OK); en el DOL no existe ese simbolo. La vtable no cambia (sin dtor virtual).
+
+## Tabla antes/despues (funciones afectadas por el bloqueo, con fuente)
+
+| unidad | funcion | antes | despues |
+|---|---|---|---|
+| game/GameSaveBanner | fn_803B9324 | 97.46 | **100** |
+| db/TutorialTable_unk | fn_8021ED08 | 97.71 | **100** |
+| db/EquipParam_unk | fn_8020EB0C | 96.22 | **100** |
+| atn/ptr_string_base_wchar_t_0 | TextTable_unk::TextTable_unk | 95.50 | **100** (+ cambios en la unidad) |
+| db/MapIdTable_unk | fn_80216CD0 | 98.25 | 99.80 (+ cambios en la unidad) |
+| game/NewStaffRoll | fn_80531394 | 97.76 | 99.31 |
+| game/LibraryTask | fn_80469D60 | 97.34 | 98.90 |
+| game/LibraryTask | BookTask::fn_8046B798 | 97.03 | 99.08 |
+| db/PaletteTable_unk | fn_8020B2BC | 96.32 | 98.03 |
+| atn/D2A_MessageTable_unk | fn_801F36C8 | 93.61 | 94.57 |
+| game/CampSaveLoad | fn_8011B8D4 | 92.10 | 94.64 |
+| db/SkillParam_unk | fn_80219C30 | 87.80 | 91.91 |
+
+Total: 5378 funciones al 100% (antes 5375 en `main`; +1 mas con TextTable = 5376 en report tras commit 2:
+la cifra 5378 de regress.py incluye las 3 del header; con TextTable son 5379). 0 bajadas, lost 0,
+main.dol OK en cada commit.
+
+## Decisiones tomadas sin el usuario
+
+- `include/atn/Csv.h`: anadido `~CsvBase() {}` con comentario `// inferred`. Es un cambio de cabecera
+  compartida por ~230 sitios; validado con `ninja -j1` completo + `regress.py` + script de bajadas de fuzzy
+  (`/home/claude/scratch/agent-2/fuzzy.py`): 0 bajadas.
+- Quitados los `// NONMATCHING` de las 4 funciones que llegan al 100% y actualizados los comentarios de las
+  8 que suben sin llegar (porcentaje nuevo y causa restante).
+- `symbols.txt` sin cambios (el ctor de TextTable_unk ya tenia nombre).
+
+## Commits (rama agent-2)
+
+1. `f4e5f7d` CsvU this in saved register: empty ~CsvBase() in Csv.h (+3 funciones)
+2. `49654be` Match TextTable_unk::TextTable_unk (0x8020C0BC)
+3. `5b1a0e3` db/MapIdTable_unk: fn_80216CD0 98.2% -> 99.8%
+4. `33224fb` CsvU: update NONMATCHING notes of the units that improved
