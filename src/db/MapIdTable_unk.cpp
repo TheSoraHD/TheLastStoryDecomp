@@ -163,14 +163,16 @@ extern "C" MapId_unk* fn_8021771C(int type, int map, int point);
 
 // inferred: loads the map tables (/boot/map_id_table_xx.u16, map_sub_id_table.csv,
 // map_motion_table.csv and map_chara_list.csv)
-// NONMATCHING: 98.23% - the original keeps the address of the atn::CsvU in a saved register while
-// its inline constructor runs (as in db/TutorialTable_unk), which shifts the saved registers
+// NONMATCHING: 99.80% - registers only: the original reuses the register of the CSV length for the
+// font of the first loop (r27) and the one of the CSV address for the index (r28); here both get
+// new registers. Tried declaring font/i/pos earlier and passing the font global directly.
 extern "C" void fn_80216CD0() {
+    void* data;
     unsigned long size = 0;
-    void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
+    int textSize = 0;
+    data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
     atn::CsvU wcsv((const wchar_t*)data, (int)size / 2);
     char id[0x40];
-    int textSize = 0;
     while (wcsv.fn_8005BBF8() != 0) {
         if (wcscmp(wcsv.fn_8005B9CC(), L"") != 0) {
             continue;
@@ -207,9 +209,9 @@ extern "C" void fn_80216CD0() {
     }
     sEntries = new (1, "", "", 0) MapId_unk[sCount];
     sTexts = new (3, "", "", 0) char[textSize];
+    int i = 0;
     int pos = 0;
     wcsv.vf08((const wchar_t*)data, (int)size / 2);
-    int i = 0;
     while (wcsv.fn_8005BBF8() != 0) {
         if (wcscmp(wcsv.fn_8005B9CC(), L"") != 0) {
             continue;
