@@ -149,7 +149,8 @@ public:
                 p = str.mLong.mData;
                 n = str.mLong.mSize;
             }
-            __replace_unk(0, sz, p, p + n, random_access_iterator_tag());
+            // inferred: returns the result of the replace (weak copy 0x801F1818, wchar_t)
+            return __replace_unk(0, sz, p, p + n, random_access_iterator_tag());
         }
         return *this;
     }

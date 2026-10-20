@@ -1114,6 +1114,7 @@ atn/D2A_Manager.cpp:
 	.rodata     start:0x8073CDE0 end:0x8073E300
 	.data       start:0x80782B10 end:0x80782B68
 	.bss        start:0x807C7D48 end:0x807C7F68
+	.sbss       start:0x8087F138 end:0x8087F140
 	.sdata2     start:0x80882C40 end:0x80882C58
 
 atn/D2A_Message.cpp:

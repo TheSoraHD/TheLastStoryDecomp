@@ -983,6 +983,13 @@
   "matching": true
  },
  {
+  "name": "atn/D2A_Manager.cpp",
+  "classes": [
+   "atn::D2A_Manager"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/D2A_Message.cpp",
   "classes": [
    "atn::D2A_Message"
@@ -1030,6 +1037,11 @@
    "atn::D2A_Window"
   ],
   "matching": true
+ },
+ {
+  "name": "atn/D2Anime_unk.cpp",
+  "classes": [],
+  "matching": false
  },
  {
   "name": "atn/D3Anime.cpp",
@@ -1295,6 +1307,16 @@
    "atn::EfpHandle_unk",
    "ResLoader_unk"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/DLMalloc_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/EffectDesc_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {
