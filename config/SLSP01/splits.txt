@@ -761,9 +761,9 @@ game/Em005DoppelGanger.cpp:
 	.sdata2     start:0x80883338 end:0x8088339C
 
 game/Em006DarkMaster.cpp:
-	.text       start:0x8025457C end:0x8025589C
-	.rodata     start:0x80743C70 end:0x80743C80
-	.data       start:0x807844E8 end:0x80784640
+	.text       start:0x8025457C end:0x802558B0
+	.rodata     start:0x80743C70 end:0x80743CF0
+	.data       start:0x807844E8 end:0x80784678
 	.sdata2     start:0x808833B0 end:0x808833E0
 
 game/Em101ElderZesya.cpp:

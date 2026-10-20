@@ -1085,7 +1085,7 @@
   "classes": [
    "Em006DarkMaster"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em101ElderZesya.cpp",
