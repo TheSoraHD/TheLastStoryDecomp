@@ -80,7 +80,7 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
     `std/vector.h` un `std::vector` local da 2).
   - `Buffer_unk::operator[](int)` con indice `unsigned` crea una segunda variable de induccion: indexar `mData` directo.
 
-## db/CharaMotionParam_unk (commit PENDIENTE)
+## db/CharaMotionParam_unk (commit e7cfa76)
 - Resultado: 3/3 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -93,3 +93,25 @@ Patron comun: cada unidad es el cargador de un `/boot/*.csv` (`atn::Csv` en pila
   - `fn_8006B174` declarado `extern "C" std::string fn_8006B174(const std::string&)` (devuelve una copia normalizada del
     nombre; inferido).
 - Hallazgos MWCC: nada nuevo (una asignacion a una variable salvada se planifica donde esta en el fuente respecto a la llamada virtual).
+
+## db/EventIdTable_unk (commit PENDIENTE)
+- Resultado: 5/7 al 100%, matching no.
+- NONMATCHING:
+  - `EventIdTable_unk::fn_8020F248` (cargador) 97.86% - solo reparto de registros (el original deja `this` en r24 y el
+    cero de size/i en r23, y el 0 de `mFlags` es copia de ese registro); probado mover declaraciones de count, i, entry.
+  - `EventIdTable_unk::fn_8020F75C` (id por subcadena del nombre) 99.24% - el original incrementa i antes del offset;
+    probados for/while, orden de declaraciones y aritmetica de punteros.
+- **Decisiones sin el usuario**
+  - Splits sin cambios. Pendiente: el pool original (`@stringBase0` 0x8073F890) incluye las cadenas de error de
+    `basic_string`, asi que el fichero real usaba `std::string` en algo que no se ha reconstruido (funcion eliminada o
+    inline); con la unidad no enlazada no afecta al build.
+  - `symbols.txt`: funciones a metodos de la clase inventada `EventIdTable_unk` (`fn_8020F130__16EventIdTable_unkFv`
+    singleton, `fn_8020F248__...Fv` cargador, `fn_8020F71C__...Fi`, `fn_8020F75C__...FPCc`), `fn_8020F190` ->
+    `__dt__16EventIdEntry_unkFv`, `fn_8020F1D0` -> `__dt__16EventIdTable_unkFv`, `fn_8020F710` -> `__ct__16EventIdEntry_unkFv`;
+    datos: `sFileNameStr`, `@stringBase0`, `sFileName`, `@LOCAL@/@GUARD@fn_8020F130...@sInstance` (0x807C7FA8/0x8087F200),
+    `@STRING@Resize_unk__Q23atn30Buffer_unk<16EventIdEntry_unk>Fii(@0)` (0x8087DB3C/0x8087DB38, en el `.sdata` de la unidad).
+  - Tipos inferidos: `EventIdEntry_unk` (0x60, nombre `atn::FixedString_unk<0x40>` de `gmk/SeTable.h`, destructor vacio
+    inline) y `EventIdTable_unk` (`atn::Buffer_unk<EventIdEntry_unk>`; singleton con static local).
+- Hallazgos MWCC
+  - `strcmp(a, b) ? 0 : N` da `neg/or/srawi/andc` (`== 0 ? N : 0` da `cntlzw`); un `if/else` que asigna en cada rama a
+    un miembro sale como valor en r0 y un solo `stw` cuando es un inline que devuelve el valor.
