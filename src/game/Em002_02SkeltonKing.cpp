@@ -207,13 +207,14 @@ void Em002_02SkeltonKing::vf3C(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.4% - m5B0 and the copy of `a` use other registers (f3/f4, r6/r7)
+// NONMATCHING: 99.9% - the copy of `a` swaps r6/r7 (the __VecCopy register family); m620 = m5B0 first fixed
+// the float registers
 void Em002_02SkeltonKing::vf20() {
     atn::Vector3 a;
     atn::Vector3 b;
     atn::Vector3 c;
-    m614 = mPos + m5A4;
     m620 = m5B0;
+    m614 = mPos + m5A4;
     m614.y += m620;
     MtxPtr left = mMotion.GetNodeMtx_unk("leftleg");
     MtxPtr right = mMotion.GetNodeMtx_unk("rightleg");
