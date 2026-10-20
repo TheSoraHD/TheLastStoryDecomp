@@ -2860,5 +2860,74 @@
   "name": "atn/NetFriend_unk.cpp",
   "classes": [],
   "matching": false
+ },
+ {
+  "name": "atn/Math_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/LipSync_unk.cpp",
+  "classes": [
+   "Chara1154_unk",
+   "LipSyncData_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Pad_unk.cpp",
+  "classes": [
+   "Pad_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/LightUtil_unk.cpp",
+  "classes": [
+   "LightSet_unk",
+   "LightList_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Light_unk.cpp",
+  "classes": [
+   "Light_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxBloom.cpp",
+  "classes": [
+   "atn::PostFxBloom",
+   "atn::IPostFx"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxColorMatrix.cpp",
+  "classes": [
+   "atn::PostFxColorMatrix"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/FileUtil_unk.cpp",
+  "classes": [
+   "DebugMessages_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Geometry_unk.cpp",
+  "classes": [
+   "atn::AABB_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/BoneCalc_unk.cpp",
+  "classes": [],
+  "matching": false
  }
 ]

@@ -163,6 +163,7 @@ atn/ComDrawTexture.cpp:
 atn/FileUtil_unk.cpp:
 	.text       start:0x80068DB0 end:0x8006A09C
 	.rodata     start:0x80731390 end:0x80731408
+	.sbss       start:0x8087EEB8 end:0x8087EEC0
 	.sdata2     start:0x808809E8 end:0x80880A08
 
 atn/FadeCommon.cpp:
@@ -214,6 +215,7 @@ atn/Light_unk.cpp:
 atn/LightUtil_unk.cpp:
 	.text       start:0x80079ECC end:0x8007A530
 	.rodata     start:0x807318F0 end:0x807318F8
+	.sbss       start:0x8087EEF8 end:0x8087EF00
 	.sdata2     start:0x80880B40 end:0x80880B48
 
 atn/LipSync_unk.cpp:
@@ -300,6 +302,7 @@ atn/NandManager.cpp:
 atn/Pad_unk.cpp:
 	.text       start:0x800A5508 end:0x800A5B40
 	.rodata     start:0x80732898 end:0x80732988
+	.sbss       start:0x8087EF70 end:0x8087EF78
 	.sdata2     start:0x80880CB0 end:0x80880CC0
 
 atn/ParseTree.cpp:

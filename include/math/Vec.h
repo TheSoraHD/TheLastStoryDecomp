@@ -96,6 +96,8 @@ class Matrix3x4;
 // inferred: engine quaternion (copied with two paired-single loads/stores, 0x80149888); name invented
 struct Quaternion_unk {
     Quaternion_unk() {}
+    // inferred: constructor by components (constants of atn/Math_unk.cpp)
+    Quaternion_unk(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
     Quaternion_unk(const Quaternion_unk& q) {
         __Vec4Copy(&x, &q.x);
     }
@@ -215,6 +217,13 @@ namespace atn {
 class Matrix3x4 {
 public:
     Matrix3x4() {}
+    // inferred: constructor by elements (identity of atn/Math_unk.cpp)
+    Matrix3x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13,
+              float m20, float m21, float m22, float m23) {
+        m[0][0] = m00; m[0][1] = m01; m[0][2] = m02; m[0][3] = m03;
+        m[1][0] = m10; m[1][1] = m11; m[1][2] = m12; m[1][3] = m13;
+        m[2][0] = m20; m[2][1] = m21; m[2][2] = m22; m[2][3] = m23;
+    }
     // inferred: copies with the paired-single matrix copy (0x803ECC28)
     Matrix3x4(const Matrix3x4& o) {
         __MtxCopy(m, o.m);
