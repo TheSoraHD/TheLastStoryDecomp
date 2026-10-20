@@ -60,7 +60,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - Temporales (tags de iterador) en orden ascendente en la pila = el codigo esta en una inline (aqui la seleccion
     del valor anterior/siguiente): sacarlo a un helper inline los reordena.
 
-## atn/EfpHandle_unk (commit HASH3)
+## atn/EfpHandle_unk (commit 9fdd1e7)
 
 - Resultado: 14/15 al 100%, `matching: false`. `main.dol: OK`.
 - NONMATCHING: `fn_802371BC` 74.74% - intercambiador de bytes guiado por una tabla `{tipo, cuenta, sub}`
