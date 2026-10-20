@@ -272,10 +272,11 @@ game/BattleCharaTask.cpp:
 	.sdata2     start:0x808812E0 end:0x808813B8
 
 game/BattleResult.cpp:
-	.text       start:0x800EFF68 end:0x800F1378
-	.rodata     start:0x80735450 end:0x80735460
+	.text       start:0x800EFF68 end:0x800F13BC
+	.rodata     start:0x80735440 end:0x807355C8
 	.data       start:0x80779CA8 end:0x80779CE0
-	.sdata2     start:0x808813BC end:0x808813D0
+	.sbss       start:0x8087F040 end:0x8087F048
+	.sdata2     start:0x808813B8 end:0x808813D0
 
 game/BattleTask.cpp:
 	.text       start:0x800F1430 end:0x800F7250
@@ -1885,8 +1886,8 @@ game/NewCampPartsGmk.cpp:
 	.sdata2     start:0x808877E0 end:0x8088783C
 
 game/NewCampPartsHint.cpp:
-	.text       start:0x80514784 end:0x805169F8
-	.rodata     start:0x8075B790 end:0x8075B7A4
+	.text       start:0x80514720 end:0x805169F8
+	.rodata     start:0x8075B580 end:0x8075B988
 	.data       start:0x807933C8 end:0x80793450
 	.sdata2     start:0x8088783C end:0x808878B0
 
@@ -1909,15 +1910,18 @@ game/NewCampPartsOption.cpp:
 	.sdata2     start:0x808879EC end:0x80887A58
 
 game/NewCampPartsStatus.cpp:
-	.text       start:0x8052692C end:0x805290F8
-	.rodata     start:0x8075CEC0 end:0x8075CED4
+	.text       start:0x805268C8 end:0x80529118
+	.ctors      start:0x8072D3B8 end:0x8072D3BC
+	.rodata     start:0x8075CC30 end:0x8075D0D0
 	.data       start:0x80793698 end:0x80793720
-	.sdata2     start:0x80887A5C end:0x80887A88
+	.bss        start:0x807C9110 end:0x807C9120
+	.sdata      start:0x8087E4A0 end:0x8087E4A4
+	.sdata2     start:0x80887A58 end:0x80887A88
 
 game/NewCampPartsTop.cpp:
 	.text       start:0x80529118 end:0x8052A888
-	.rodata     start:0x8075D190 end:0x8075D1A0
-	.data       start:0x80793740 end:0x807937C8
+	.rodata     start:0x8075D0D0 end:0x8075D310
+	.data       start:0x80793720 end:0x807937E8
 	.sdata2     start:0x80887A88 end:0x80887AB0
 
 game/NewCampTask.cpp:
@@ -2042,21 +2046,24 @@ game/ShopBase.cpp:
 	.sdata2     start:0x808880C0 end:0x808880F0
 
 game/ShopBuySell.cpp:
-	.text       start:0x80585080 end:0x80586DB0
-	.rodata     start:0x807616A8 end:0x807616DC
-	.data       start:0x80796864 end:0x807968D0
+	.text       start:0x80584FE4 end:0x80586DB0
+	.rodata     start:0x80761670 end:0x80761908
+	.data       start:0x80796840 end:0x807968E8
+	.sbss       start:0x8087F9C8 end:0x8087F9D0
 	.sdata2     start:0x808880F0 end:0x80888110
 
 game/ShopColor.cpp:
-	.text       start:0x80586E3C end:0x80588684
-	.rodata     start:0x80761908 end:0x80761914
-	.data       start:0x807968E8 end:0x80796950
+	.text       start:0x80586DB0 end:0x80588684
+	.rodata     start:0x80761908 end:0x80761AA0
+	.data       start:0x807968E8 end:0x80796970
+	.sbss       start:0x8087F9D0 end:0x8087F9D8
 	.sdata2     start:0x80888110 end:0x80888130
 
 game/ShopIdentify.cpp:
-	.text       start:0x80588710 end:0x8058A3AC
-	.rodata     start:0x80761AA0 end:0x80761AB0
-	.data       start:0x80796994 end:0x80796A00
+	.text       start:0x80588684 end:0x8058AABC
+	.rodata     start:0x80761AA0 end:0x80761C90
+	.data       start:0x80796970 end:0x80796A20
+	.sbss       start:0x8087F9D8 end:0x8087F9E0
 	.sdata2     start:0x80888130 end:0x80888150
 
 game/ShopUpGrade.cpp:

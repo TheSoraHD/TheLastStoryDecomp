@@ -25,7 +25,10 @@ struct __vec_storage_unk {
     void clear() {
         unsigned int n = mSize;
         T* p = mData + n;
-        mSize -= n;
+        // inferred: through a reference, so that `mSize - mSize` is not folded to 0 for elements
+        // without a destructor (ShopColor::vf38, 0x80587624)
+        unsigned int& size = mSize;
+        size -= n;
         for (; n != 0; n--) {
             --p;
             p->~T();
