@@ -78,3 +78,46 @@ Patron comun: como las colas q5/q6 del lote anterior (`docs/batch-auto-5kb-q5.md
   - `group = groups + count; count++;` (unsigned) da puntero inductivo; `&groups[count++]` da un desplazamiento.
   - Dos `""` sin fusionar en el pool tras otro `""` ya usado = `strcmp(x, "\0")`.
 - Pendientes para otras unidades: `src/atn/CompositeIntensityTintMulti.cpp` podria exportar su clase a una cabecera.
+
+## db/ItemParam_unk (commit c701ab6)
+- Resultado: 12/17 al 100%, `matching: false`, `main.dol: OK`.
+- NONMATCHING:
+  - `fn_80211244` (textos UTF-16) 94.95% - bloqueo conocido del ctor inline de `atn::CsvU`.
+  - `fn_80211770` (nombre "<nombre>+<nivel>" de un objeto mejorado) 97.28% - numeracion de registros (slot/entry/level).
+  - `fn_80211940` (crea el objeto mejorado en un hueco libre) 90.59% - el original copia la parte `BulletParam_unk`
+    con bloques (0x14-0x74 en bucle, parejas en 0x90 y 0xB4): sub-agregados que `include/db/ParseUtil_unk.h` no
+    tiene (cambiarlo toca ParseUtil/SkillParam/HitInfo: pendiente); mas lo de los dos inline de abajo.
+  - `fn_80212840` (arma mejorada) 90.90% y `fn_80212C34` (equipo mejorado) 85.25% - reparto de registros y orden de
+    planificacion alrededor de la copia (el original guarda `base` en un quinto registro salvado y calcula el bonus
+    antes del id nuevo).
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - Unidad nueva en `game_units.json`.
+  - **Cabeceras nuevas** `include/db/WeaponParam_unk.h` y `include/db/EquipParam_unk.h`: se mueven ahi los tipos de las
+    filas (`WeaponParamEntry_unk`, `EquipParamEntry_unk` y sus listas/quintetos) y se declaran sus accesores
+    `extern "C"`. **Se toca `src/db/EquipParam_unk.cpp`** (unidad de otra cola ya integrada) solo para incluir la cabecera
+    en vez de definir los tipos (objeto identico salvo numeracion de etiquetas `@N`; EquipParam sigue 13/14).
+  - Cambios de layout en esas cabeceras para que las copias de estructura salgan como en el original: `m70`/`m74` ->
+    `int m70[2]` (se copian como pareja) y `operator=` explicito en `EquipParamLists_unk`/`WeaponParamLists_unk` que
+    copia cada lista de 7 floats como bloque propio (sin el, MWCC copia las dos listas como un unico bloque; con las
+    listas como miembros directos del registro, el ctor cambia de orden). Inventado e indicado con comentario.
+  - `symbols.txt`: `fn_8021154C` -> `__ct__18ItemParamEntry_unkFv`; datos `sKinds` (0x8073FA10), `sUsers`,
+    `sTextFileNameStr`, `@stringBase0` (0x8073FA60), `@wstringBase0` (0x8087DB40, `.sdata`, `data:wstring`),
+    `sEntries`, `sCount`, `sBuf`, `sTexts`, `sNames` (**tamano 0x8 -> 0x4**), `sTextFileName`.
+  - Tipo inferido `ItemParamEntry_unk` (0x138, deriva de `BulletParam_unk`; las ultimas 0x100 filas son huecos para
+    las mejoras); macros locales `IP_MIN`/`IP_MAX` (el original calcula dos veces el `MAX` dentro del `MIN`).
+  - Nombre real propuesto: `db/ItemParam.cpp` (mismo esquema que `db/SkillParam_unk.cpp`).
+- Hallazgos MWCC
+  - La copia implicita de una estructura con ctor copia por miembros, pero un miembro struct trivialmente copiable
+    (aunque tenga ctor propio) se copia como un unico bloque de palabras: dos arrays de 7 floats dentro de un struct
+    salen fusionados en parejas; como miembros directos (o con `operator=` propio) sale cada array por separado
+    (3 parejas + 1).
+  - Una funcion no inline de ~16 sentencias no se autoinlinea; agrupar el calculo en una expresion con macros
+    `MIN/MAX` la deja por debajo del umbral y el llamador la inlinea como el original.
+  - `p[2] >= L'0' && p[2] <= L'9'` sale como `addis +1`/`subi 0x30`/`clrlwi 16`/`cmplwi 9`.
+  - El orden de operandos de `add` de `f() + j` (j unsigned) se consigue con `int n = f(); g(n + j - 0x80);`, y
+    `sEntries[sCount - 0x100 + i]` da `add rCount, ri` (no `sCount + i - 0x100`).
+  - Asignar `-1` a traves de punteros locales con nombre (`T* p = f(); p->m = -1;`) evita que MWCC guarde la
+    constante en un registro salvado.
+- Pendientes para otras unidades: completar `BulletParam_unk` (`include/db/ParseUtil_unk.h`) con los sub-agregados
+  que delata la copia de `fn_80211940` (0x14-0x73 como bloque, parejas 0x90/0x94 y 0xB4/0xB8).
