@@ -1748,7 +1748,7 @@
   "classes": [
    "gmk::Coffin"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/MotionObject.cpp",

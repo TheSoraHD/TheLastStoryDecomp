@@ -1332,7 +1332,7 @@ gmk/Trap.cpp:
 
 gmk/Coffin.cpp:
 	.text       start:0x80411440 end:0x80412AFC
-	.rodata     start:0x80752D08 end:0x80752D14
+	.rodata     start:0x80752CC0 end:0x80752D90
 	.data       start:0x8078D818 end:0x8078D8B0
 	.sdata2     start:0x808863E0 end:0x80886410
 
