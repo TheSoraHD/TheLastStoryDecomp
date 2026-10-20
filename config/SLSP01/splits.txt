@@ -107,8 +107,9 @@ atn/FileList.cpp:
 
 atn/LensFlare.cpp:
 	.text       start:0x80077160 end:0x80079044
-	.rodata     start:0x80731840 end:0x80731850
+	.rodata     start:0x80731838 end:0x807318A0
 	.data       start:0x80777D08 end:0x80777D40
+	.sdata      start:0x8087D758 end:0x8087D760
 	.sdata2     start:0x80880AD0 end:0x80880B00
 
 atn/SmallAllocator_8.cpp:
