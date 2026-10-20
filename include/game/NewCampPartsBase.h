@@ -5,6 +5,7 @@
 #include "atn/Memory.h"
 #include "std/string.h"
 #include "math/Vec.h"
+#include "atn/LH_Xsca.h"
 
 namespace atn {
 class D3Anime;
@@ -76,7 +77,7 @@ public:
     virtual void vf34();                 // 0x80512018
     virtual unsigned char vf38() { return m94; } // 0x801CFC30
     virtual void vf3C(int arg);          // 0x80511208
-    virtual void vf40();                 // 0x805112F8
+    virtual void vf40(void* group);      // 0x805112F8: inferred: adds the debug menu items
     virtual void vf44();                 // 0x80511714
     virtual void vf48();                 // 0x805117BC
     virtual int vf4C() { return 0; }     // 0x801CFC28
@@ -84,14 +85,15 @@ public:
     virtual void vf54(NewCampPartsEntry_unk* entry, const char* name); // 0x805100FC
     virtual void vf58(NewCampPartsEntry_unk* entry, const char* name); // 0x80510720
     virtual void vf5C(NewCampPartsEntry_unk* entry);                   // 0x80510564
-    virtual void vf60();                 // 0x805109CC
+    virtual void vf60(NewCampPartsEntry_unk* entry, int a, int b, float c); // 0x805109CC
 
     atn::Task* m48;                      // inferred: the parent given to the constructor
     int m4C;                             // inferred: number of entries of the derived tables
     ArrayPtr_unk<NewCampPartsEntry_unk> m50; // inferred: entries (m4C)
     void* m54;                           // inferred: array of 0x0C-byte objects with a LoadHandle (dtor 0x801D0960)
     float m58;
-    unsigned char m5C[0x7C - 0x5C];      // 0x5C: atn::LH_Xsca, floats
+    atn::LH_Xsca m5C;                    // 0x5C: inferred: camera
+    float m64[6];
     int m7C;                             // inferred: state of the derived parts
     unsigned int m80;                    // inferred: cursor
     int m84;                             // inferred: number of cursor positions
@@ -99,9 +101,14 @@ public:
     int m8C;
     int m90;
     unsigned char m94;
-    unsigned char m95[0x98 - 0x95];
+    unsigned char m95;
+    unsigned char m96; // inferred: the list must be read again
+    unsigned char m97;
     std::string m98;
-    unsigned char mA4[0xD4 - 0xA4];
+    atn::Vector3 mA4;                    // inferred: "OffsetPos"
+    atn::Vector3 mB0;                    // inferred: "OffsetScl"
+    atn::Vector3 mBC;                    // inferred: "LocatorScl"
+    atn::Vector3 mC8;                    // inferred: "BasePos"
 };
 
 #endif

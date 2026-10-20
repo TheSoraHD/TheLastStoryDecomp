@@ -1883,8 +1883,8 @@ game/NewCampPartsGmk.cpp:
 	.sdata2     start:0x808877E0 end:0x8088783C
 
 game/NewCampPartsHint.cpp:
-	.text       start:0x80514784 end:0x805169F8
-	.rodata     start:0x8075B790 end:0x8075B7A4
+	.text       start:0x80514720 end:0x805169F8
+	.rodata     start:0x8075B580 end:0x8075B988
 	.data       start:0x807933C8 end:0x80793450
 	.sdata2     start:0x8088783C end:0x808878B0
 
