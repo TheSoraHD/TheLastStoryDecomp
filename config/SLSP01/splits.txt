@@ -400,10 +400,12 @@ chr/ControlStickByQuark.cpp:
 	.sdata2     start:0x808820C4 end:0x80882130
 
 chr/ControlCannonLift.cpp:
-	.text       start:0x801A0BA8 end:0x801A226C
-	.rodata     start:0x8073A024 end:0x8073A070
-	.data       start:0x8077EFD0 end:0x8077F140
-	.sdata2     start:0x80882130 end:0x80882158
+	.text       start:0x801A0BA8 end:0x801A2290
+	.ctors      start:0x8072D2DC end:0x8072D2E0
+	.rodata     start:0x80739F70 end:0x8073A090
+	.data       start:0x8077EFB0 end:0x8077F178
+	.bss        start:0x807C7BD0 end:0x807C7BF0
+	.sdata2     start:0x80882130 end:0x80882168
 
 chr/ControlCaught.cpp:
 	.text       start:0x801A2290 end:0x801A2CEC
