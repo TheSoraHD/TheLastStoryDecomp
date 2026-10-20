@@ -194,6 +194,17 @@ void PoseData::fn_80204230() {
     }
 }
 
+// inferred: kind of an RTMV movie (3 for ev5407); a separate function auto-inlined in the
+// constructor (written in the constructor, the constructor is no longer inlined in vf08)
+static int MovieKind_unk(const std::string& name) {
+    unsigned int pos = name.find("ev5407");
+    int kind = 2;
+    if (pos != std::string::npos) {
+        kind = 3;
+    }
+    return kind;
+}
+
 // inferred: a real function (its literals are in the file pool before "Movie : %s"), inlined in
 // MovieData::vf08 and then dropped by the linker
 MovieTask::MovieTask(atn::Task* parent, const std::string& name) : atn::Task(parent), m48(2), m4C(0) {
@@ -202,7 +213,7 @@ MovieTask::MovieTask(atn::Task* parent, const std::string& name) : atn::Task(par
     if (fn_8006AA20(name.c_str()) != 0) {
         m4C = new (6, "", "", 0) atn::VideoTHP(name.c_str());
         if (name.find("RTMV") != std::string::npos) {
-            m4C->m04 = (name.find("ev5407") != std::string::npos) ? 3 : 2;
+            m4C->m04 = MovieKind_unk(name);
         } else {
             m4C->m04 = 0;
         }
@@ -231,8 +242,9 @@ void MovieTask::vf14() {
     }
 }
 
-// NONMATCHING: 96.5% - the 3/2 kind of RTMV movies is a branch in the original (branchless here)
-// and two saved registers swap
+// NONMATCHING: 99.8% - two saved registers swap (r28/r29: the original coalesces parent with the
+// pool base and the two literal pointers of the find calls; here parent with the "RTMV" pointer).
+// Tried: ternary/if-else forms of the task creation, RTMV check in a helper, literal as argument.
 void MovieData::vf08() {
     for (int i = 0; i < (int)m08.size(); i++) {
         if (m08[i] == '\\') {
