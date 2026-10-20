@@ -59,3 +59,36 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
     6 permutaciones con un script es mas rapido que razonarlo.
   - Temporales (tags de iterador) en orden ascendente en la pila = el codigo esta en una inline (aqui la seleccion
     del valor anterior/siguiente): sacarlo a un helper inline los reordena.
+
+## atn/EfpHandle_unk (commit HASH3)
+
+- Resultado: 14/15 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_802371BC` 74.74% - intercambiador de bytes guiado por una tabla `{tipo, cuenta, sub}`
+  (tipos 0 saltar, 1/2/3 invertir 16/32/64 bits, 4 recursion). Conseguidos: la estructura del `switch`, el
+  desenrollado (`while (count-- > 0)`), `stwbrx` en el bucle de 32 bits con las mismas direcciones y el bucle de
+  64 bits desenrollado x2 con los stores muertos en pila (struct con array). Falla: el bucle de 16 bits sale con
+  `lhzu` (forma con actualizacion) en vez de desplazamientos + direcciones aparte, el orden del cuerpo de 64 bits y
+  los registros salvados (r26-r31 frente a r25-r31). ~20 variantes probadas.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (el tramo cubre `.text`, `.ctors`, `.bss` de los registros de destructor y `.sbss`).
+  - `symbols.txt`: `fn_802378E0` -> `__sinit_\EfpHandle_unk_cpp` (pairnames). Renombrados a mano (necesarios
+    para que el `__sinit` reproducido enlace con nombre): `fn_8068B770`/`fn_8068BC30` ->
+    `__ct__/__dt__Q33std8ios_base4InitFv` (construye cin/cout/cerr sobre `__files`: es el `ios_base::Init` de
+    `<iostream>` de MSL) y `fn_8068BD60`/`fn_8068C240` -> `__ct__/__dt__Q23std11__wInit_unkFv` (nombre INVENTADO
+    para el equivalente ancho). El mismo `__sinit` aparece en CryptMP, NetGlobals_unk, func_enter_setting,
+    EffectSequencer_unk...: el fichero incluye `<iostream>`.
+  - `include/atn/ResLoader_unk.h`: `m04[8]` pasa a `atn::LH_Effect mLoader` (mismo tamano 0xC; incluye
+    `atn/LH_Effect.h`). Comprobado en report.json: ningun otro porcentaje cambia.
+  - Contenido: `ResLoader_unk` (recurso + `LH_Effect`) y `atn::EfpHandle_unk` (recurso + `LH_Efp`): ctor, dtor
+    (debil de `LH_Effect` emitido aqui), cargar, comprobar carga, liberar (avisando a `EffectManager`). Los
+    accesores `fn_80237784`/`fn_8023779C`/`fn_802378C4` se quedan `extern "C"` (asi los llaman ReplayBuffer,
+    EffectSequencer y MotionObject). Declaracion minima local de `atn::EffectManager` (dos metodos).
+  - Nombre real propuesto: desconocido (contiene los cargadores de efectos; quizas `atn_effect_handle.cpp`).
+- Hallazgos MWCC
+  - MWCC reconoce como `sthbrx`/`stwbrx` algunas expresiones de inversion de bytes con mascaras (16 bits:
+    `((v & 0xFF) << 8) | ((v >> 8) & 0xFF)` sin signo; 32 bits: `((v & 0xFF) << 24) | ((v & 0xFF00) << 8) |
+    ((v & 0xFF0000) >> 8) | ((v & 0xFF000000) >> 24)` con `int`), y entonces desenrolla el bucle; con los
+    intrinsecos `__sthbrx`/`__stwbrx` el bucle no se desenrolla nunca. La de 64 bits no se reconoce.
+  - Desenrollado: `while (count-- > 0)` / `for (; count > 0; count--)` con `count` entero da el esquema
+    `srwi. ctr,count,3` + resto `andi.`; `for (i = 0; i < count; i++)` da el esquema generico (comprobacion de
+    desbordamiento con 0x7FFFFFFE y `count - 8`).

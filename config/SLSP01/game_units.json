@@ -1120,6 +1120,14 @@
   "matching": false
  },
  {
+  "name": "atn/EfpHandle_unk.cpp",
+  "classes": [
+   "atn::EfpHandle_unk",
+   "ResLoader_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/EffectManager.cpp",
   "classes": [
    "atn::EffectManager"
