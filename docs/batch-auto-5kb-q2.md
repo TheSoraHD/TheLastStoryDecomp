@@ -163,3 +163,17 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - Un color pasado por valor que se copia con `lfs`/`stfs` (no `lwz`/`stw`) indica un ctor de copia explicito.
   - `x / 4.0f` sale como `fmuls x, 0.25` igual que `x * 0.25f`, pero con otro orden de operandos (y de `fnmsubs`).
   - Declarar un local `float` del cuerpo del bucle antes del acumulador (`float a; ... float sum = 0.0f;`) intercambia sus FPR salvados.
+
+## atn/TextureDraw_unk (commit HASH7)
+
+- Resultado: 3/4 al 100%, `matching: false`.
+- Sin escribir: `fn_800D5F68` (0x930: matriz de proyeccion de textura de las pasadas de luz/sombra segun un modo 1-4,
+  con copias `Matrix3x4` por psq, `PSVECCrossProduct`/`PSVECNormalize`/`PSMTXConcat` y una estatica local con guarda en
+  `.bss` 0x807C75F4/`.sbss` 0x8087EFF8). No escrita por tiempo; es la unica que usa los `.bss`/`.sbss` del split.
+- **Decisiones sin el usuario**:
+  - Split sin cambios.
+  - `symbols.txt` sin cambios: las cuatro funciones quedan `extern "C"` con su nombre (`fn_800D5C84` matriz UV 2D con
+    escala/rotacion/desplazamiento; `fn_800D5D00` = `C_MTXLightPerspective`; `fn_800D5E18` = `C_MTXLightOrtho`, ambas
+    con `memset` previo; las llaman GraphicsDevice, ModelDraw_unk, PostFxDamage, LayerShadow y RenderSystem_unk en asm).
+  - Nombre real propuesto: ninguno (sin cadenas); el contenido es de matrices de textura, no de dibujo.
+- Hallazgos MWCC: reutilizar un unico `tmp` (como el SDK) en vez de dos locales cambia el orden de planificacion de las divisiones y los stores.
