@@ -179,12 +179,16 @@ int PoseData::vf10() const {
     return m18->fn_80473F50() == 0;
 }
 
-// NONMATCHING: 97.6% - in the copy loop of atn::Vector_unk::Assign_unk the original loads the
-// source element first, and the temporary vector's destructor tests its address (addic.)
+// inferred: the temporary list is of a class derived from atn::Vector_unk (its inlined destructor
+// tests the address of the object, as for derived classes elsewhere)
+struct PoseList_unk : public atn::Vector_unk<PoseKey_unk> {};
+
+// (copy loop: Assign_unk writes mData[i] = o[i]; the "" literals are the shared @STRING@ of
+// Resize_unk<PoseKey_unk>, renamed in symbols.txt)
 void PoseData::fn_80204230() {
     if (m1C == 0) {
         m1C = new (4, "", "", 0) atn::Vector_unk<PoseKey_unk>;
-        atn::Vector_unk<PoseKey_unk> poses;
+        PoseList_unk poses;
         fn_8008A00C(&poses, m18->fn_80470580(), m18->fn_8047059C());
         m1C->Assign_unk(poses);
     }
