@@ -86,10 +86,6 @@ extern "C" void fn_800BFC18(PostFxFrameBuffer_unk* fb, RainColor_unk color, floa
 extern "C" void fn_800BFCB4(PostFxFrameBuffer_unk* fb, RainColor_unk c0, RainColor_unk c1, RainColor_unk c2,
                             RainColor_unk c3, int width, int height, float a, float b);
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture and waits
-// inferred: empty strings in .sdata given to new[] as file and function (also used by Event::Dialog). MWCC
-// puts a zero initialized object in .sbss, so they are only declared (see docs/batch-auto-5kb-q1.md).
-extern "C" char lbl_8087D870[4];
-extern "C" char lbl_8087D874[4];
 
 // inferred: rain drop on the lens (0x1C bytes)
 struct PostFxRainDrop_unk {
@@ -103,12 +99,13 @@ struct PostFxRainDrop_unk {
 // inferred: array of rain drops (see atn/LinearAllocator.cpp)
 struct PostFxRainDrops_unk {
     PostFxRainDrops_unk() : mCount(0), mData(0) {}
+    // inferred: its "" literals are the weak @STRING@ pool of .sdata 0x8087D870/0x8087D874
     void Alloc_unk(unsigned int n) {
         if (mData != 0) {
             delete[] mData;
         }
         mCount = n;
-        mData = new (0, lbl_8087D874, lbl_8087D870, 0) PostFxRainDrop_unk[mCount];
+        mData = new (0, "", "", 0) PostFxRainDrop_unk[mCount];
     }
     void Clear_unk() {
         for (unsigned int i = 0; i < mCount; i++) {
