@@ -183,3 +183,37 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   constantes `{0, -1, fn_8009B938}` de `.data`), angulos de Euler via `fn_8072D210` (128/pi y medio angulo) y
   `PSMTXConcat`/`PSMTXMultVec`. No se escribieron por tiempo (son las dos funciones mas grandes de la cola).
 - **Decisiones sin el usuario**: split sin cambios; `fn_8009B938` queda `extern "C"` (su clase es desconocida).
+
+## Excepcion aprobada: min/max paired-single en `include/math/Vec.h` (commit ef59c51)
+
+- **Cambio aplicado**: el usuario aprobo ampliar la excepcion de asm paired-single de `include/math/Vec.h` con
+  helpers inline genericos de min/max por componentes (`psq_lu` + `ps_sub`/`fsub` + `ps_sel`/`fsel`), con registros
+  fijos como el resto de la cabecera y comentario `// inferred:` con direcciones del patron:
+  - `__VecMin(dst, a, b)` / `__VecMax(dst, a, b)` (f0-f7): `AABB_unk::Merge_unk` 0x80070C98 y `fn_80058EE4` (`atn/atn_colli`).
+  - `__VecMinMax(minOut, maxOut, minIn, maxIn, p)` (f0-f9, p se carga una vez): 8 esquinas proyectadas de una caja,
+    7 llamadas seguidas, en `fn_8006FEBC`, `fn_800704DC`, `fn_8008EEDC`, `fn_8008F5F8` (`atn/Model`),
+    `ModelInstance::fn_8009EE30`, `fn_800B5994` (`atn/LayerOcclusionCPU`), `fn_800B7090` (`atn/LayerShadow`) y
+    `fn_8049AC18` (`game/MapPartsLocatorSet`). Inventario: grep de `ps_sel` en `build/SLSP01/asm` (10 funciones en 6 ficheros;
+    ademas un `fsel` escalar suelto en `fn_800B5528`, que no es este patron).
+  - No hay asm dentro de funciones de `src/`.
+- **Funciones antes/despues**: `Merge_unk` 0% -> 100%; `fn_8006FEBC` sin escribir -> 100%; `fn_800704DC` sin escribir -> 100%.
+  `atn/Geometry_unk` pasa de 4/10 a 7/10. Sin perdidas (`regress.py`: lost 0; ninguna funcion baja frente al report inicial).
+- **Unidades que pasan a matching**: ninguna (`atn/Geometry_unk` sigue con `fn_8006FAB0` 98.09%, `fn_80070B60` ~58% y
+  `fn_80070D04` 97.41%).
+- **Decisiones**:
+  - Dos formas del patron con registros distintos (f0-f7 frente a f0-f9, diferencia en el mismo registro o en otro), asi que
+    son tres helpers y no uno: con registros fijos no se puede expresar con una sola funcion.
+  - `__VecMinMax` lleva punteros de entrada y salida separados: el original copia cada uso a su propio registro (`mr r5..r8`).
+  - Las cargas son `psq_lu` con desplazamiento 0, como en el original. El planificador de MWCC reordena el asm en linea
+    (se intercala con el codigo de alrededor), asi que el orden del fuente del helper no tiene que coincidir con el del .dol.
+  - `fn_8006FEBC`/`fn_800704DC`: las 8 esquinas, la transformacion y los min/max van en un inline `ProjectBox_unk`
+    (sus locales y temporales quedan en orden ascendente en la pila); la matriz 4x4 de la vista sale de otro inline local
+    `ToMatrix44_unk` (pone a cero la columna 3 antes que la fila 3, distinto del ctor de `atn::Matrix44_unk`, que no se toca).
+    Las coordenadas de la caja se leen a locales en el orden max.z, max.y, max.x, min.x, min.y, min.z (decide que valores
+    van a FPR salvados; encontrado probando las 720 permutaciones). El orden de las 6 asignaciones de pantalla tambien se
+    busco por fuerza bruta (max.x, min.x, min.y, max.y, max.z, min.z).
+  - `fn_800704DC` pasa a `void` (no deja nada en r3; su unico llamador, `fn_800B5994`, no lo usa).
+  - `PSMTX44Concat`/`PSMTX44MultVecArray` se declaran con sus nombres de `symbols.txt` (`fn_805F9640`, `fn_805F97D0`);
+    `symbols.txt` sin cambios. Tipos locales nuevos: `GeoCamera_unk` (vista 0x15C, proyeccion 0x18C) y `GeoRenderState_unk`.
+  - Los otros 6 usos de `__VecMinMax` (Model, ModelInstance, LayerOcclusionCPU, LayerShadow, MapPartsLocatorSet) parecen el
+    mismo `ProjectBox_unk` inlineado: candidato a moverlo a una cabecera compartida cuando se decompilen.
