@@ -100,8 +100,6 @@ void Layer2D::vf14(void* arg) {
     }
 }
 
-// NONMATCHING: 99.87% - code matches; only the .sdata2 order differs (the original pools -100.0f
-// before 0.0f, ours follows first use)
 void Layer2D::vf1C() {
     RenderState_unk* rs = lbl_8087EEE0;
     fn_80071E04(rs);
@@ -112,7 +110,10 @@ void Layer2D::vf1C() {
         Matrix44_unk ortho;
         int h = rs->mHeight;
         int w = rs->mWidth;
-        C_MTXOrtho(ortho.m, 0.0f, h, 0.0f, w, 0.0f, -100.0f);
+        float fh = h;
+        float fw = w;
+        float zfar = -100.0f; // inferred: locals give the .sdata2 order of the original (-100.0f, 0.0f)
+        C_MTXOrtho(ortho.m, 0.0f, fh, 0.0f, fw, 0.0f, zfar);
         __Mtx44Copy(proj.m, ortho.m);
     }
     fn_80071D74(rs, proj);
@@ -154,16 +155,17 @@ void LayerZPrePass::vf20() {
     Layer3D::vf20();
 }
 
-// NONMATCHING: 96% - r30/r31 swapped for this and the render state in the inlined Layer3D::vf1C
-// (LayerZPrePass::vf1C, with the same inline, matches)
-void Layer2D3D::vf1C() {
-    Layer3D::vf1C();
-    GXSetColorUpdate(0);
-    int w = lbl_8087EEE0->mWidth;
-    int h = lbl_8087EEE0->mHeight;
+// inferred: copies the frame buffer to the camera copy texture (inline, name invented)
+inline void CopyTex_unk(int w, int h) {
     GXSetTexCopySrc(0, 0, w, h);
     GXSetTexCopyDst(w, h, 0x13, 0);
     GXCopyTex(lbl_8087EFB4->m79C, 1);
+}
+
+void Layer2D3D::vf1C() {
+    Layer3D::vf1C();
+    GXSetColorUpdate(0);
+    CopyTex_unk(lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight);
     GXSetColorUpdate(1);
 }
 

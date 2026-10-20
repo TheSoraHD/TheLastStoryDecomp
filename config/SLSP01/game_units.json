@@ -271,7 +271,7 @@
    "atn::LayerZPrePass",
    "atn::Layer2D3D"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/LayerOcclusionCPU.cpp",
