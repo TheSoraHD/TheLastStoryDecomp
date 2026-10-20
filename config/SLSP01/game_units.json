@@ -2667,6 +2667,11 @@
   "matching": false
  },
  {
+  "name": "game/PathData_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/PlayerManager.cpp",
   "classes": [
    "PlayerManager"

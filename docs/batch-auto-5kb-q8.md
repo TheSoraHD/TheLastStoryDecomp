@@ -295,7 +295,7 @@ Fusionada en `game/MapPartsOcean`.
     Event/Node `fn_80537708` -> `__ct__Q25Event6ActionFPQ25Event7Channeli`, `fn_8053A40C` ->
     `__dt__Q25Event6ActionFv`, `fn_8053A3CC` -> `vf0C__Q25Event6ActionFv` (por la vtable de Action).
 
-## game/GameSystem_unk (commit HASH15)
+## game/GameSystem_unk (commit 493aefd)
 
 - Resultado: 10/12 al 100%, `matching: false`.
 - NONMATCHING:
@@ -314,3 +314,29 @@ Fusionada en `game/MapPartsOcean`.
     estas cinco funciones no tienen datos y podrian ser de `game/ReplayBuffer`.
   - Todas las funciones siguen `extern "C"` (las declaran asi HomeButtonMenu/Arms).
   - `symbols.txt`: `lbl_8075FFB0` -> `@stringBase0` (0x8 -> 0x1).
+
+## game/PathData_unk (commit HASH16)
+
+- Resultado: 1/4 al 100% (`__sinit`), `matching: false`.
+- NONMATCHING:
+  - `fn_80547EA0` 95.7% (quita un punto y reconstruye; inlinea `fn_8054875C`) y `fn_8054875C` 97.8%
+    (reconstruye el spline) - el original rehace la direccion del `Vector3` por defecto del constructor
+    `vector(n, value)` tras la reserva (aqui queda en r29) y salva r27-r31.
+  - `fn_8054856C` 89.9% (posicion en `t`) - orden del store de z en las copias de `Vector3` y recarga del
+    numero de segmentos.
+- **Decisiones sin el usuario**
+  - Tipos inventados: `PathData_unk` (puntos `PathPoint_unk` {pos, rot_y} en un vector en +0x28, dueno en
+    +0x04, spline en +0x34), `PathSpline_unk` (numero de segmentos, longitud, inicio/fin, cubicas
+    `PathCubic_unk` por eje en +0x20/+0x2C/+0x38 y longitudes por segmento en +0x44), `PathVec_unk<T>`
+    (layout de `std::vector`). Las funciones del spline de otra unidad (`fn_8032B314`, `fn_8032B6F8`,
+    `fn_8032B7F0`, `fn_8032BE88`, `fn_8032C1EC`, `fn_8000D844`) se declaran `extern "C"`.
+  - Definido aqui el constructor `std::vector<T>::vector(size_type n, const T& value)` de
+    `include/std/vector.h` (solo declarado): su "vector length error" abre el pool de esta unidad.
+  - `include/Event/Node.h`: `ParamValue_unk(float)` (guarda los bits del float: el `__sinit` pasa el 0.0f
+    por la pila con `stfs`/`lwz`).
+  - `symbols.txt`: `fn_80548C98` -> `__sinit_\PathData_unk_cpp`, `lbl_8075E3C8` -> `@stringBase0`
+    (0x30 -> 0x2C). Funciones `extern "C"` con sus nombres (las llama Event/Path).
+- Hallazgos MWCC: `float x = ...; unsigned& s = n; s -= m;` no basta: para que `size -= size` no se pliegue a
+  0 hay que cargar el tamano en un local antes (`n = mSize; size -= n`), como en `std/vector.h`.
+- Hallazgos MWCC: argumentos que son llamadas a accesores inline (`v.Data_unk()`) se evaluan de derecha a
+  izquierda; con el miembro directo (`v.mData`) de izquierda a derecha.

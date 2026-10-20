@@ -11,6 +11,15 @@ namespace Event {
 struct ParamValue_unk {
     ParamValue_unk(int value) : mValue(value) {}
     ParamValue_unk(const char* str) : mValue((int)str) {}
+    // inferred: float defaults keep their bits (game/PathData_unk)
+    ParamValue_unk(float value) {
+        union {
+            float f;
+            int i;
+        } u;
+        u.f = value;
+        mValue = u.i;
+    }
     int mValue;
 };
 
