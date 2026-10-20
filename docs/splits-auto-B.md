@@ -78,3 +78,21 @@ TreasureBoxTable 0x8021E0B0, TreasureList 0x8021EB04, TutorialTable 0x8021ED08, 
 - Todos los nombres `db/*_unk.cpp`, `game/CosEditPalette_unk.cpp`, `game/CosEditItemList_unk.cpp` son inventados (por el CSV/uso).
 - `atn/CsvBase_char_124_13_34.cpp` (con fuente, no enlazada): en el grupo 1 la amplie hasta 0x80204958 siguiendo el plan; con las pruebas nuevas el tramo son 6 ficheros y la unidad queda en 0x802078C4-0x80207CC0. Contradice la nota del plan ("23 funciones mas"): a revisar. Los 3 accesores 0x80207C00-0x80207CC0 podrian ser del fichero siguiente (BgmIdTable); los dejo con la tabla cuyas variables usan.
 - Posiciones de corte ambiguas (varias posiciones validas, elegida la que menos llamadas cruza): CharaParam/ChaseParam (0x802098E0 vs 0x80209960), EventIdTable (0x8020F0AC..0x8020F248), LevelEquipTable (0x80213B78..0x8021414C), HairBackControl, SkillParam/ParseUtil/SkillGrowth (0x80219EC4.., 0x8021A4CC..0x8021AAB8), RandomItemTable (0x8021CF4C vs 0x8021CF8C).
+
+## Grupo 4 (colas de enemigos `game/Em*`)
+
+Tramos `auto_` justo detras de una unidad de enemigo sin fuente: en todos, `part.py` no encuentra ninguna prueba de corte
+y la cola comparte constantes privadas de `.sdata2`/`.rodata` (misma direccion) con la unidad anterior, asi que es el mismo fichero.
+Se amplian (texto y datos `auto_` propios):
+
+| Unidad | Nuevo `.text` | Prueba (objetos privados compartidos cabeza/cola) |
+|---|---|---|
+| `game/Em003LesserDaemon.cpp` | 0x8024A650-0x80250A24 | 17 (p. ej. sdata2 0x808832AC) |
+| `game/Em005DoppelGanger.cpp` | 0x80250A24-0x8025457C (+`__sinit`, `.ctors` 0x8072D324) | 4 |
+| `game/Em101ElderZesya.cpp` | 0x802558B0-0x8025A060 (+`__sinit`, `.ctors` 0x8072D328) | 6 |
+| `game/Em202_01_BSpider.cpp` | 0x8026FC0C-0x8027278C (+`__sinit`, `.ctors` 0x8072D32C) | 4 |
+| `game/Em202Spider.cpp` | 0x8027C990-0x80282AE8 | 10 |
+| `game/Em202SpiderBase.cpp` | 0x80282AE8-0x80287E7C (+`__sinit`, `.ctors` 0x8072D330) | 11 |
+| `game/Em203GreaterDaemon.cpp` | 0x80287E7C-0x80293738 | 16 |
+| `game/Em204Mulue.cpp` | 0x802A4BBC-0x802AC364 | 17 |
+| `game/Em401_01_WhiteLeoPard.cpp` | 0x8031EB3C-0x80322C68 | 10 |
