@@ -16,6 +16,7 @@
 #include "gmk/RandomItem.h"
 #include "gmk/Brazier.h"
 #include "gmk/Cannonball.h"
+#include "gmk/Leaf.h"
 #include "gmk/OnOff.h"
 #include "gmk/TodomeCountUp.h"
 #include "gmk/ShakeCamera.h"
@@ -211,7 +212,6 @@ void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
 extern "C" GimmickCommon* fn_803F1BB4(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F471C(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80412AFC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
@@ -244,7 +244,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 4: gimmick = gmk::PlayEffect::fn_803F69E4(parent, id, arg); break;
     case 5: gimmick = gmk::OnOff::fn_803F744C(parent, id, arg); break;
     case 10: gimmick = fn_803FE390(parent, id, arg); break;
-    case 11: gimmick = fn_80400728(parent, id, arg); break;
+    case 11: gimmick = gmk::Leaf::fn_80400728(parent, id, arg); break;
     case 16: gimmick = gmk::Brazier::fn_80406754(parent, id, arg); break;
     case 17: gimmick = fn_80408324(parent, id, arg); break;
     case 18: gimmick = fn_804093B4(parent, id, arg); break;

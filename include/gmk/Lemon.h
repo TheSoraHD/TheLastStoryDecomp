@@ -15,11 +15,11 @@ namespace atn {
 class ModelInstance {
 public:
     ModelInstance(InstData_unk* data);
-    ~ModelInstance();
+    virtual ~ModelInstance(); // inferred: virtual (gmk::Leaf deletes its instances through the vtable)
     void fn_8009E6EC(int arg); // inferred: culling and queueing (callers pass 0 or 1 in r4)
+    void fn_8009EB20();        // inferred: LOD selection
     void fn_8009EE30(const Matrix3x4& mtx); // inferred: sets the matrix
 
-    void* mVtbl_unk;     // 0x00
     InstData_unk* mData; // 0x04
     unsigned char m08[0x30 - 0x08];
     Matrix3x4 mMtx;      // 0x30
