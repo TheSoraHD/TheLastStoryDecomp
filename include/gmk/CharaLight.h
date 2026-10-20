@@ -6,6 +6,7 @@
 
 // inferred: array of textures with its count (destructor inlined)
 struct TextureArray_unk {
+    TextureArray_unk() : mCount(0), mData(0) {}
     ~TextureArray_unk() {
         if (mData != 0) {
             delete[] mData;
@@ -32,9 +33,13 @@ struct CharaLightData_unk {
     float m1C;            // inferred: "ROT" (gmk::RoomLight)
     float m20;
     atn::Vector3 mDir;        // 0x24
-    unsigned char m30[0x3C - 0x30];
+    float m30;
+    float m34;
+    float m38;
     TextureArray_unk mTextures; // 0x3C
-    unsigned char m44[0x50 - 0x44];
+    int m44; // inferred: current texture
+    int m48; // inferred: frames of each texture (0 = no animation)
+    int m4C; // inferred: frame counter
 };
 
 namespace gmk {

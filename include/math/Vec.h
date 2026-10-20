@@ -398,6 +398,11 @@ struct Matrix44_unk {
     Matrix44_unk(const Matrix44_unk& o) {
         __Mtx44Copy(m, o.m);
     }
+    // inferred: same copy (projection of the engine camera, 0x8004BD8C)
+    Matrix44_unk& operator=(const Matrix44_unk& o) {
+        __Mtx44Copy(m, o.m);
+        return *this;
+    }
     Matrix44_unk(const Matrix3x4& a) {
         m[3][0] = 0.0f;
         m[3][1] = 0.0f;

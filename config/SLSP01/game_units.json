@@ -3346,5 +3346,41 @@
   "name": "db/MapLink_unk.cpp",
   "classes": [],
   "matching": false
+ },
+ {
+  "name": "atn/Camera_unk.cpp",
+  "classes": [
+   "Camera_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Frustum_unk.cpp",
+  "classes": [
+   "Frustum_unk"
+  ],
+  "matching": true
+ },
+ {
+  "name": "atn/PostFxGamma.cpp",
+  "classes": [
+   "atn::PostFxGamma"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxGodRay.cpp",
+  "classes": [
+   "atn::PostFxGodRay"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/CharaLightData_unk.cpp",
+  "classes": [
+   "CharaLightData_unk",
+   "NewCampScene2_unk"
+  ],
+  "matching": false
  }
 ]

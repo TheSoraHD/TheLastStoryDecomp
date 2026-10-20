@@ -446,6 +446,7 @@ atn/RenderSystem_unk.cpp:
 atn/CharaLightData_unk.cpp:
 	.text       start:0x800C16C0 end:0x800C3094
 	.rodata     start:0x807337A8 end:0x807337F0
+	.sdata      start:0x8087D918 end:0x8087D920
 	.sdata2     start:0x808810D0 end:0x80881138
 
 atn/Se_unk.cpp:
