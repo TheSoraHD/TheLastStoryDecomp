@@ -1088,7 +1088,7 @@ game/EnemyQuarkStand.cpp:
 
 game/EnemySeaLizerd.cpp:
 	.text       start:0x803545E0 end:0x803559F8
-	.rodata     start:0x8074AF48 end:0x8074AF58
+	.rodata     start:0x8074AF38 end:0x8074B088
 	.data       start:0x807896B8 end:0x807897E8
 	.sdata2     start:0x808854D8 end:0x80885528
 

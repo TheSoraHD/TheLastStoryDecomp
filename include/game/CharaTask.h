@@ -816,6 +816,8 @@ public:
     // inferred: bool accessors (the original reloads the flag word after testing them)
     bool IsOnLedge_unk() const { return mFlag31; }
     bool IsFlag5_unk() const { return mFlag5; }
+    bool IsFlag2_unk() const { return mFlag2; } // inferred: name invented (EnemySeaLizerd::vf40 reloads the word)
+    bool IsFlag3_unk() const { return mFlag3; } // inferred: name invented (EnemySeaLizerd::vf40)
     bool IsFlag11_unk() const { return mFlag11; } // inferred: name invented (vf24 reloads the word)
     bool IsDoubleLink_unk() const { return mFlagB16; }
     bool CanClimbUp_unk(int kind) {
