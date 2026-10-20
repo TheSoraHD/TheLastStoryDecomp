@@ -145,8 +145,13 @@ void Ocean::fn_804186D8() {
 } // namespace gmk
 
 // inferred: point of the sea surface under `pos` (the start of a segment)
-// NONMATCHING: 71% - stack layout (one temporary for both joints in the original), the double results of
-// modf converted later and the order of the index arithmetic.
+// NONMATCHING: 77.8% - scheduling/registers of the index arithmetic, the table copy and the bilinear
+// weights. Found: joints in a 2-iteration loop (one shared temporary), modf results kept as double,
+// z offset uses origin.x, ints converted to locals before the modulo, bilinear weights in an inline.
+// inferred: bilinear interpolation of the four corners (name invented)
+inline float Bilinear_unk(const float* c, float u, float w) {
+    return c[0] * ((1.0f - u) * (1.0f - w)) + c[1] * (u * (1.0f - w)) + c[2] * ((1.0f - u) * w) + c[3] * (u * w);
+}
 extern "C" atn::Vector3 fn_804188A0(gmk::Ocean* ocean, const atn::Vector3* pos) {
     atn::Vector3 origin(-1000.0f, 0.0f, -1000.0f);
     atn::Matrix3x4 inv(*(atn::Matrix3x4*)ocean->mModel.mMtx);
@@ -154,28 +159,30 @@ extern "C" atn::Vector3 fn_804188A0(gmk::Ocean* ocean, const atn::Vector3* pos) 
     atn::Vector3 local(*pos);
     PSMTXMultVec(inv.m, &local, &local);
     double ix;
-    float fx = modf((local.x - origin.x) / sGridSize, &ix);
+    double fx = modf((local.x - origin.x) / sGridSize, &ix);
     double iz;
-    float fz = modf((local.z - origin.z) / sGridSize, &iz);
+    double fz = modf((local.z - origin.x) / sGridSize, &iz);
     float table[4] = {1.0f, 0.5f, 0.0f, 0.5f};
-    int base = (int)ix % 4 + (4 - (int)iz % 4);
+    int xi = (int)ix;
+    int zi = (int)iz;
+    int zoff = 4 - zi % 4;
+    int base = xi % 4 + zoff;
     float corners[4];
     corners[0] = table[base % 4];
     corners[1] = table[(base + 1) % 4];
     corners[2] = table[(base + 3) % 4];
     corners[3] = table[(base + 4) % 4];
-    float v = corners[0] * ((1.0f - fx) * (1.0f - fz)) + corners[1] * (fx * (1.0f - fz)) +
-              corners[2] * ((1.0f - fx) * fz) + corners[3] * (fx * fz);
+    float v = Bilinear_unk(corners, fx, fz);
     float t = 1.0f <= v ? 1.0f : v;
     t = 0.0f >= t ? 0.0f : t;
     float y[2];
-    int n0 = ocean->mModel.fn_80092814("joint1", 0);
-    int n1 = ocean->mModel.fn_80092814("joint2", 0);
-    if (n0 > -1) {
-        y[0] = ((atn::Matrix3x4*)ocean->mModel.mNodeMtx[n0])->GetTrans_unk().y;
-    }
-    if (n1 > -1) {
-        y[1] = ((atn::Matrix3x4*)ocean->mModel.mNodeMtx[n1])->GetTrans_unk().y;
+    int nodes[2];
+    nodes[0] = ocean->mModel.fn_80092814("joint1", 0);
+    nodes[1] = ocean->mModel.fn_80092814("joint2", 0);
+    for (int i = 0; i < 2; i++) {
+        if (nodes[i] > -1) {
+            y[i] = ((atn::Matrix3x4*)ocean->mModel.mNodeMtx[nodes[i]])->GetTrans_unk().y;
+        }
     }
     atn::Vector3 ret(*pos);
     ret.y = y[0] * t + y[1] * (1.0f - t);
