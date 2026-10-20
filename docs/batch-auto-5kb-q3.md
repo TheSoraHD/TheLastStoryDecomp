@@ -160,7 +160,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - Nombre real propuesto: entre `atn_d2a_message` y `atn_d2a_reference` (p. ej. `atn_d2a_messagetable.cpp`).
 - Hallazgos MWCC: ninguno nuevo.
 
-## atn/EffectSequencer_unk (commit HASH7)
+## atn/EffectSequencer_unk (commit 1b3d686)
 
 - Resultado: 13/14 al 100%, `matching: false`. `main.dol: OK`.
 - NONMATCHING: `fn_802440F0__11EfpData_unkFv` 95.55% (longitud de la secuencia): solo registros (elemento y su
