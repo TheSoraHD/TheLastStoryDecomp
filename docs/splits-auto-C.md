@@ -90,3 +90,40 @@
 ### Hallazgos
 - Los `__sinit` aislados como `auto_fn_*` llevan su entrada .ctors: hay que dar el rango .ctors a la unidad.
 - Varios "creadores de singleton" (`if (!sInst) sInst = new(...) X(...)`) preceden al ctor y comparten pool.
+
+## Grupo 3 (0x803B35FC-0x803CD9A8)
+
+- **game/GameChoiceWindow.cpp** ampliado (sin fuente): .text 0x803B35FC-0x803B7944. 0x803B35FC..0x803B4338
+  (ventanas de texto: ui_talk.d2a/ui_friend_mes.d2a, tabla SE 0x8074FCE8 usada por 0x803B4338 que llama
+  GameChoiceWindow 0x803B6324; 0x803B3D2C lo llaman GameChoiceWindow y LogMessageTask) y 0x803B6970..0x803B78E8
+  (usan las constantes .sdata2 0x80885C20/34/44/48/4C de GameChoiceWindow y el sbss 0x8087F468). Datos:
+  .rodata 0x8074FC40-0x8074FF48 (pool 0x8074FD38), .sdata 0x8087DD70-0x8087DD98, .sbss 0x8087F468,
+  .sdata2 hasta 0x80885C58.
+- **0x803B7944-0x803B80F4** -> `game/GameSaveTask.cpp` (vtable/RTTI GameSaveTask, constantes propias
+  0x80885C58..0x80885C70, pool 0x8074FF58). Incluye 0x803B7FC8/0x803B807C (mismos campos 0xd6c/0xd70/0xd80 que
+  los metodos de GameSaveTask).
+- **0x803B80F4-0x803B8C6C** -> `game/GameSaveLoadBackgroundCommon.cpp` (ctor y metodos
+  `__28GameSaveLoadBackgroundCommon`, vtables GameSaveLoadBackgroundCommon/GameSaveLoadCommon; pool
+  "savedata.dat"/"banner.bin"/"%s/save%02d.dat"; dobles 0x8074FF88/0x8074FFB0, .sdata2 0x80885C78-0x80885C98).
+  Termina donde empieza GameSaveBackground (enlazada).
+- `game/GameSaveBanner.cpp` (fuente): .sdata 0x8087DD98 (solo lo usa 0x803B9324).
+- **0x803B9804-0x803BEBAC** -> `game/GameSaveData_unk.cpp` (nombre inventado; sin vtable; serializa el
+  estado de juego: lo llaman GameTask, GameSaveTask, CampSaveLoad, GameLoadTask). Constantes propias
+  .sdata2 0x80885CA0-0x80885CB8 (0, 1, -1 distintas de GameScene 0x80885CB8/BC); .data 0x8078B6C8-0x8078BBE0,
+  .rodata 0x807500A8, .sdata 0x8087DDA0.
+- **game/GameScene.cpp** ampliado (sin fuente): .text 0x803BEBAC (creador `new`+ctor 0x803BEC40, pool 0x807500DC)
+  hasta 0x803CCF64 (incluye su `__sinit` 0x803CCF38, .ctors 0x8072D360). Todo el tramo 0x803C3664-0x803CCF38 usa
+  el pool 0x807500DC y las constantes 0x80885CB8/0x80885CBC de GameScene. Datos: .rodata 0x807500B0-0x80750518,
+  .data 0x8078BBE0-0x8078BCB8, .bss 0x807C8600-0x807C8628, .sdata 0x8087DDA8-0x8087DEE8, .sbss 0x8087F478,
+  .sdata2 0x80885CB8-0x80885D48.
+- **0x803CCF64-0x803CD9A8** -> `game/U16Table_unk.cpp` (nombre inventado). Tras el `__sinit` de GameScene, asi
+  que es otro fichero; pool propio 0x80750518 ("vector length error") y "Memory allocation failure" 0x8078BCB8;
+  funciones de tabla de u16 (lectura de fichero, liberar, busqueda acumulada) usadas por GameScene y otros.
+
+### Decisiones sin el usuario (grupo 3)
+- Nombres inventados: `game/GameSaveData_unk.cpp`, `game/U16Table_unk.cpp`. Nombres nuevos por clase:
+  `game/GameSaveTask.cpp`, `game/GameSaveLoadBackgroundCommon.cpp`.
+- 0x803B35FC-0x803B434C incluido en GameChoiceWindow sin constante duplicada que lo separe (no usa .sdata2);
+  podria ser un fichero aparte de ventanas de texto. Revisar.
+- Sin tocar: 0x803CE070-0x803CE4B0 (tras GameSoundControl, con fuente; parece GameBgm helpers + Unk_803CE3B8
+  de GameSaveBackground) y 0x803CE688-0x803CE980 (entre GameTimer y GameUI): sin pruebas claras de a quien pertenecen.

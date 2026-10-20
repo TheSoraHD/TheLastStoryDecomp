@@ -1227,10 +1227,24 @@ game/GameLoadBackground.cpp:
 	.data       start:0x8078B400 end:0x8078B460
 
 game/GameChoiceWindow.cpp:
-	.text       start:0x803B434C end:0x803B6970
-	.rodata     start:0x8074FCF8 end:0x8074FD38
+	.text       start:0x803B35FC end:0x803B7944
+	.rodata     start:0x8074FC40 end:0x8074FF48
 	.data       start:0x8078B460 end:0x8078B508
-	.sdata2     start:0x80885C18 end:0x80885C54
+	.sdata      start:0x8087DD70 end:0x8087DD98
+	.sbss       start:0x8087F468 end:0x8087F470
+	.sdata2     start:0x80885C18 end:0x80885C58
+
+game/GameSaveTask.cpp:
+	.text       start:0x803B7944 end:0x803B80F4
+	.rodata     start:0x8074FF48 end:0x8074FF88
+	.data       start:0x8078B508 end:0x8078B548
+	.sdata2     start:0x80885C58 end:0x80885C78
+
+game/GameSaveLoadBackgroundCommon.cpp:
+	.text       start:0x803B80F4 end:0x803B8C6C
+	.rodata     start:0x8074FF88 end:0x80750020
+	.data       start:0x8078B548 end:0x8078B5A8
+	.sdata2     start:0x80885C78 end:0x80885C98
 
 game/GameSaveBackground.cpp:
 	.text       start:0x803B8C6C end:0x803B9044
@@ -1241,13 +1255,30 @@ game/GameSaveBanner.cpp:
 	.text       start:0x803B9044 end:0x803B9804
 	.rodata     start:0x80750038 end:0x807500A8
 	.data       start:0x8078B5E8 end:0x8078B6C8
+	.sdata      start:0x8087DD98 end:0x8087DDA0
 	.sdata2     start:0x80885C98 end:0x80885CA0
 
+game/GameSaveData_unk.cpp:
+	.text       start:0x803B9804 end:0x803BEBAC
+	.rodata     start:0x807500A8 end:0x807500B0
+	.data       start:0x8078B6C8 end:0x8078BBE0
+	.sdata      start:0x8087DDA0 end:0x8087DDA8
+	.sdata2     start:0x80885CA0 end:0x80885CB8
+
 game/GameScene.cpp:
-	.text       start:0x803BEC40 end:0x803C3664
-	.rodata     start:0x807500D0 end:0x807500DC
-	.data       start:0x8078BC48 end:0x8078BC80
-	.sdata2     start:0x80885CC0 end:0x80885CF0
+	.text       start:0x803BEBAC end:0x803CCF64
+	.ctors      start:0x8072D360 end:0x8072D364
+	.rodata     start:0x807500B0 end:0x80750518
+	.data       start:0x8078BBE0 end:0x8078BCB8
+	.bss        start:0x807C8600 end:0x807C8628
+	.sdata      start:0x8087DDA8 end:0x8087DEE8
+	.sbss       start:0x8087F478 end:0x8087F480
+	.sdata2     start:0x80885CB8 end:0x80885D48
+
+game/U16Table_unk.cpp:
+	.text       start:0x803CCF64 end:0x803CD9A8
+	.rodata     start:0x80750518 end:0x80750530
+	.data       start:0x8078BCB8 end:0x8078BCD8
 
 game/GameSoundControl.cpp:
 	.text       start:0x803CD9A8 end:0x803CE070
