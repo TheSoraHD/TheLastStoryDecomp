@@ -57,6 +57,7 @@ public:
     iterator begin() { return iterator(mTail.mNext); }
     iterator end() { return iterator(&mTail); }
     size_type size() const { return mSize; }
+    T& back() { return ((__list_node_unk<T>*)mTail.mPrev)->mData; }
 
     iterator insert(iterator pos, const T& x) {
         __list_node_unk<T>* node = __allocate();

@@ -58,7 +58,7 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
   - `f()->m = 1;` carga la constante en un registro salvado antes de la llamada; con `T* p = f(); p->m = 1;` sale
     `li r0` despues (como el original).
 
-## atn/THPDraw_unk (commit HASH)
+## atn/THPDraw_unk (commit 0b9fa5f)
 
 - Resultado: 3/3 al 100%, `matching: true`, `main.dol: OK`.
 - NONMATCHING: ninguna.
@@ -72,3 +72,42 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
 - Hallazgos MWCC
   - Los colores locales `const GXColor c = {...}` pasados por valor van a `.sdata2` (los de 8 bytes, `GXColorS10`, a
     `.rodata`) y salen antes que los floats del cuerpo aunque se usen despues.
+
+## atn/PPDATAU (commit HASH)
+
+- Resultado: 14/18 al 100%, `matching: false` (`main.dol: OK`).
+- NONMATCHING (todas solo por reparto de registros/planificacion, anotadas en el fuente):
+  - `PacketPack::fn_8050D7EC` 97.7% (alta de un peer: `id` en r28 y vtable en r31 en el original).
+  - `PacketPack::fn_8050DC58` 99.7% (orden de los dos primeros `addi`).
+  - `PacketPack::fn_8050DEA8` 99.5% (cuenta de aids y fin de lista intercambian r30/r31).
+  - `PacketPack::fn_8050E094` 95.5% (bucle exterior con registros bajos en el original).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (el split ya cubre `.text`, `.rodata`, `.data`, `.sdata`; el layout de datos de nuestro
+    `.o` coincide: RTTI, vtables R/U/PPDATA, `@STRING@` de `__msl_error` en `.data`, `.sdata` 5/3 + literales).
+  - La unidad son metodos de `atn::net::PacketPack` (lista de peers `std::list<PPUser_unk>` en 0x4, `Crypt*` en
+    0x10) mas `PPDATA/PPDATAU/PPDATAR` (colas por peer). Nueva cabecera `include/atn/net/PPDATA.h`; ampliada
+    `include/atn/net/PacketPack.h` (miembros, `PPUser_unk` inventado de 0x920 bytes con ctor/dtor inline,
+    `__Deactivate_unk` inline; `vf10/vf14` devuelven `unsigned char`). `PPDATA` declara los datos antes que las
+    virtuales: asi MWCC pone el puntero a vtable al final (0x460) y el objeto mide 0x480.
+  - `PacketPack::vf0C` deja de estar definida en la clase: se define `inline` en `MP/CryptMP.cpp` (si no, este
+    fichero emite una copia debil). `CryptMP` sube de 8/11 a 9/11 (la copia 0x804AE3C4 ahora casa).
+  - `include/MP/FuncMessage.h`: `vf18` devuelve `unsigned int` y `vf1C` pasa a `unsigned int vf1C(const char* data,
+    const void* arg)` en las 65 clases (0x8050E094 la llama con dos argumentos y compara con `cmplwi`). Renombrado
+    en `symbols.txt` `vf1C__Q22MP18func_enter_settingFv` -> `vf1C__Q22MP18func_enter_settingFPCcPCv`.
+  - `include/std/list.h`: nuevo `back()`.
+  - `symbols.txt`: pairnames (vf08/vf0C de las tres clases y metodos de `PacketPack`) y a mano
+    `fn_8050D7EC/DC58/E094/E510/E530/E598` -> `...__Q33atn3net10PacketPackF...`; `lbl_8075B1D4` -> `@stringBase0`
+    (0x22). Se dejan `extern "C"` `fn_8050E410` (lo usa `MP/CryptMP.cpp` con ese nombre) y `fn_8050E618`.
+  - Los literales de la reserva del bufer de trabajo compartido (`lbl_8087F600`) son de `atn/NetManager`
+    (`lbl_8087E1B0/1AC`): se referencian como `extern` en vez de literales para no emitir copias.
+  - Nombre real propuesto: sin pruebas; la unidad podria ser el final de `atn/PacketPack.cpp` (`PacketPack.cpp`)
+    o un `PPDATA.cpp` propio (los nombres RTTI `atn::net::PPDATA*` son de este fichero).
+- Hallazgos MWCC
+  - Data miembro declarado antes que las virtuales en una clase sin bases => vptr al final de la clase.
+  - Literales `""` de una funcion inline van a `.sdata` como objetos debiles `@STRING@<func>` (uno por literal, sin
+    fusionar entre inlines); en direcciones crecientes en orden inverso de uso.
+  - Iterar con `iterator end = l.end();` local da `addi r3, r3, 8` (fin en r3) como el original; con
+    `it != l.end()` en la condicion sale en r0.
+  - Un indice `a[n++] = x` sobre un array local (en vez de un puntero que avanza) crea la variable de induccion
+    tarde y le da el registro mas bajo.
+  - Las copias debiles no referenciadas (dtor de `PPUser_unk`, holder de `std::list`) las quita el enlazador.
