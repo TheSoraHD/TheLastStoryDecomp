@@ -7,8 +7,15 @@
 
 // inferred: d2anime task (made by fn_801F3FF8); only the members used by the shops
 struct ShopD2A_unk : public atn::Task {
+    // inferred: as MenuD2A_unk::IsEnd_unk (name invented)
+    bool IsEnd_unk() {
+        float last = mLastFrame;
+        return mFrame >= last;
+    }
     unsigned char m48[0x58 - 0x48];
-    unsigned char mLayout[0xFC - 0x58]; // 0x58: inferred: layout
+    unsigned char mLayout[0xA0 - 0x58]; // 0x58: inferred: layout
+    float mLastFrame;                   // 0xA0
+    unsigned char mA4[0xFC - 0xA4];
     unsigned int mLoop : 1;             // 0xFC (as atn::D2A_Task)
     unsigned int mVisible : 1;
     unsigned int mPlaying : 1;
@@ -42,10 +49,14 @@ struct ShopEntry64_unk {
 };
 // inferred: entry of the second list of the shop (0x5C bytes, 1536 entries); names invented
 struct ShopEntry5C_unk {
-    int m00;
+    int m00; // inferred: item id
     int m04;
     char m08[0x40];
-    unsigned char m48[0x5C - 0x48];
+    int m48;
+    int m4C;
+    int m50;
+    int m54;
+    int m58;
 };
 
 // inferred: list cursor of the shop (0x25B04); names invented
@@ -64,7 +75,7 @@ public:
     virtual ~ShopBase();                                // 0x8057F7A8
     virtual void vf1C(int state) = 0;  // inferred: changes the state
     virtual void vf20(int result) = 0; // inferred: result of the confirmation window
-    virtual void vf24();               // 0x8057FDE0
+    virtual void vf24(int message);    // 0x8057FDE0: inferred: end of a message window
     virtual void vf28();               // 0x8057FB68
     virtual void vf2C();               // 0x8057FC24
     virtual void vf30();               // 0x8057FCFC
@@ -147,5 +158,17 @@ extern "C" void fn_80584750(ShopBase* self, ShopD2A_unk* anime, int top, int cou
 extern "C" void fn_805847EC(ShopBase* self, int arg);
 extern "C" void fn_80584808(ShopBase* self, int arg);
 extern "C" void fn_80584D78(ShopBase* self, ShopEntry5C_unk* entry, int arg);
+extern "C" void fn_8057FF38(ShopBase* self);
+extern "C" void fn_805800FC(ShopBase* self);
+extern "C" void fn_80580580(ShopBase* self);
+extern "C" void fn_80580690(ShopBase* self);
+extern "C" void fn_805807A4(ShopBase* self);
+extern "C" void fn_80581008(ShopBase* self, int id);
+extern "C" void fn_805811DC(ShopBase* self, int id);
+extern "C" void fn_80581570(ShopBase* self, int id, int arg);
+extern "C" void fn_80581964(ShopBase* self, int a, int message, int b); // inferred: opens a confirmation window
+extern "C" void fn_805846C0(ShopBase* self, ShopD2A_unk* anime, ShopLayout_unk* layout, int cursor, int top, int arg);
+extern "C" int fn_80584F44(ShopBase* self, void* item, float rate); // inferred: price of an item
+extern "C" int fn_80584DD8(ShopBase* self, void* item, int num, float a, float b, float c); // inferred: sell price
 
 #endif
