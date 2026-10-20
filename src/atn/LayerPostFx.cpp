@@ -20,10 +20,16 @@ struct RenderState {
 };
 
 extern "C" void* lbl_8087EFB4;
-extern "C" void* lbl_8087EF8C;
+namespace atn {
+// inferred: see atn/LinearAllocator.cpp
+class PostFxManager {
+public:
+    void fn_800A9788();
+    void fn_800A9794();
+};
+} // namespace atn
+extern "C" atn::PostFxManager* lbl_8087EF8C;
 extern "C" RenderState* lbl_8087EEE0;
-extern "C" void fn_800A9788(void*);
-extern "C" void fn_800A9794(void*);
 extern "C" void fn_80071E04(RenderState*);
 extern "C" void fn_80076174(RenderState*, int);
 extern "C" void fn_800C0590(void*, int, int);
@@ -35,9 +41,9 @@ LayerPostFx::LayerPostFx() : IRenderLayer("PostFX") {}
 void LayerPostFx::vf14(void* arg) {
     void* p = lbl_8087EFB4;
     for (RenderNode* node = (RenderNode*)arg; node != 0; node = node->mNext) {
-        fn_800A9788(lbl_8087EF8C);
+        lbl_8087EF8C->fn_800A9788();
         node->mObj->vf10(p);
-        fn_800A9794(lbl_8087EF8C);
+        lbl_8087EF8C->fn_800A9794();
     }
 }
 

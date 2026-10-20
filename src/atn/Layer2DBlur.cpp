@@ -23,10 +23,16 @@ struct FrameBuffer_unk {
 extern "C" RenderMgr_unk* lbl_8087EEE0;
 extern "C" DebugParams_unk* lbl_8087EFA8;
 extern "C" FrameBuffer_unk* lbl_8087EFB4;
-extern "C" void* lbl_8087EF8C;
+namespace atn {
+// inferred: see atn/LinearAllocator.cpp
+class PostFxManager {
+public:
+    void* fn_800A96AC(int width, int height, int format); // inferred: temporary texture
+};
+} // namespace atn
+extern "C" atn::PostFxManager* lbl_8087EF8C;
 extern "C" void fn_800C0508(FrameBuffer_unk* fb, int arg);
 extern "C" void fn_800BFB70(FrameBuffer_unk* fb);
-extern "C" void* fn_800A96AC(void* pool, int width, int height, int format); // inferred: temporary texture
 extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, int arg5, int arg6,
                             float offsetX, float offsetY); // inferred: directional blur pass
 extern "C" void fn_800763FC(RenderMgr_unk* mgr, GXTexObj* obj, int map);
@@ -52,11 +58,11 @@ void Layer2DBlur::vf20() {
     w /= 4;
     h /= 4;
     GXTexObj obj0;
-    void* image0 = fn_800A96AC(lbl_8087EF8C, w, h, 6);
+    void* image0 = lbl_8087EF8C->fn_800A96AC(w, h, 6);
     GXInitTexObj(&obj0, image0, w, h, 6, 0, 0, 0);
     GXInitTexObjLOD(&obj0, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     GXTexObj obj1;
-    void* image1 = fn_800A96AC(lbl_8087EF8C, w, h, 6);
+    void* image1 = lbl_8087EF8C->fn_800A96AC(w, h, 6);
     GXInitTexObj(&obj1, image1, w, h, 6, 0, 0, 0);
     GXInitTexObjLOD(&obj1, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     GXSetNumTexGens(1);

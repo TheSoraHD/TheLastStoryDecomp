@@ -152,8 +152,8 @@ atn/PBoneBasic.cpp:
 
 atn/LinearAllocator.cpp:
 	.text       start:0x800A8FF0 end:0x800A981C
-	.rodata     start:0x80732ADC end:0x80732AF4
-	.data       start:0x80778CA8 end:0x80778CE0
+	.rodata     start:0x80732AC0 end:0x80732B08
+	.data       start:0x80778C68 end:0x80778CE0
 	.sdata2     start:0x80880D20 end:0x80880D28
 
 atn/Rain.cpp:
