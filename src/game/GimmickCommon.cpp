@@ -40,6 +40,7 @@
 #include "gmk/CharaPathMove.h"
 #include "gmk/Chain.h"
 #include "gmk/PigeonManager.h"
+#include "gmk/RotaryRoom.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -216,7 +217,6 @@ extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80412AFC(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80418EAC(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_80423F64(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80432CF0(atn::Task* parent, int id, int arg);
@@ -262,7 +262,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 38: gimmick = gmk::ArenaFloor::fn_8041DDE4(parent, id, arg); break;
     case 40: gimmick = gmk::RoomLight::fn_8041FF08(parent, id, arg); break;
     case 45: gimmick = gmk::DoorSeal::fn_8042335C(parent, id, arg); break;
-    case 46: gimmick = fn_80423F64(parent, id, arg); break;
+    case 46: gimmick = gmk::RotaryRoom::fn_80423F64(parent, id, arg); break;
     case 48: gimmick = fn_80426108(parent, id, arg); break;
     case 52: gimmick = gmk::RainDrops::fn_8042AFE4(parent, id, arg); break;
     case 53: gimmick = gmk::OpenBoard::fn_8042B56C(parent, id, arg); break;
