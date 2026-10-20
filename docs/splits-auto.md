@@ -24,6 +24,12 @@ Cuatro agentes en paralelo, cada uno con un rango contiguo de `.text` y su copia
 - Avisos de alineación de dtk en el build: 67 → 20 (`.rodata`/`.sbss`/`.sdata2` de unidades en asm; inocuos). Aparecen 179 avisos "Missing configuration" (uno por unidad nueva, inocuos).
 - `targets.py --max-unit 100000000` ve ahora 303 unidades partidas sin fuente.
 
+## Revisión antes del merge (2026-10-20)
+
+- Clon limpio de la rama: `main.dol: OK`, `regress.py` lost: 0, ninguna función baja de fuzzy, ninguna desaparece; suben `gmk/CharaLight` `fn_804225E0` (0 → 100%) y `atn/LH_MotionSet` `__dt__18MotionSetEntry_unkFv` (0 → 96%).
+- Unidades enlazadas: ningún límite cambiado. `symbols.txt`: solo 13 renombrados de pools a `@stringBase0` con el mismo tamaño. Sin `align:` nuevos, sin nombres duplicados, `.text` en orden.
+- **Corregido:** la pasada de datos del agente B (commit c397664) había reducido sin anotarlo el `.rodata`/`.data` de 12 unidades con fuente (ChaserNpc, ColliAttrManager, ControlInteractionBase, ControlPushedDown, CostumeEditChara, CrowdManager, CrowdSimulation, D2A_Task ×2, Event/Dialog, Em002_01BlackSkelton, EnemyFieldMagician, EnemyLizerdBlade), dejando fuera su pool `@stringBase0` (o la tabla siguiente) que los lotes anteriores habían metido a propósito; esos pools quedaban en tramos `auto_` con `scope:local`. Restaurados los rangos de `main` (bddf7ac). Símbolos `scope:local` fuera de unidades: 555 en `main` → 238, ninguno nuevo. La única reducción que queda es la deliberada de `Event/Node`.
+
 ## Decisiones a revisar (tomadas sin el usuario)
 
 Resumen; el detalle con las pruebas está en las notas de cada agente.
