@@ -99,17 +99,17 @@ struct PostFxRainDrop_unk {
 // inferred: array of rain drops (see atn/LinearAllocator.cpp)
 struct PostFxRainDrops_unk {
     PostFxRainDrops_unk() : mCount(0), mData(0) {}
-    // inferred: its "" literals are the weak @STRING@ pool of .sdata 0x8087D870/0x8087D874
+    // inferred: its "" literals are the weak @STRING@ pool of .sdata 0x8087D870/0x8087D874; the
+    // "!= 0" test is folded in the constructor but the store of the else branch stays
     void Alloc_unk(unsigned int n) {
         if (mData != 0) {
             delete[] mData;
         }
         mCount = n;
-        mData = new (0, "", "", 0) PostFxRainDrop_unk[mCount];
-    }
-    void Clear_unk() {
-        for (unsigned int i = 0; i < mCount; i++) {
-            mData[i].mState = 0;
+        if (mCount != 0) {
+            mData = new (0, "", "", 0) PostFxRainDrop_unk[mCount];
+        } else {
+            mData = 0;
         }
     }
     unsigned int mCount;
@@ -158,14 +158,16 @@ public:
     Texture_unk mB8;      // 0xB8: "heat_waves01.texture"
 };
 
-// NONMATCHING: 97.74% - the original keeps a dead store of the array pointer after __construct_new_array and
-// swaps the registers of the clearing loop
+// inferred: the dead store after __construct_new_array is the folded else branch of Alloc_unk; the clearing
+// loop is written here, not as an inline of PostFxRainDrops_unk (that swaps its registers)
 PostFxRain::PostFxRain()
     : m04(0), m08(0), m0C(1.0f), m10(0.05f), m14(0), m18(0), m1C(0), m20(0.2f), m24(0.0f), m28(0.01f), m2C(10.0f),
       m30(5.0f), m34(0.0f), m38(224.0f), m3C(640.0f), m40(224.0f), m44(0.0f), m48(0.0f), m4C(1.0f), m50(1.0f),
       m54(0), m58(0.0f), m5C(0.0f) {
     m80.Alloc_unk(0x100);
-    m80.Clear_unk();
+    for (unsigned int i = 0; i < m80.mCount; i++) {
+        m80.mData[i].mState = 0;
+    }
     mB8.m2D = 1;
     mB8.m2E = 1;
     fn_800D594C(&mB8, "heat_waves01.texture");
@@ -364,10 +366,11 @@ void PostFxRain::vf10(void* camera) {
 }
 
 // inferred: removes every drop
-// NONMATCHING: 97.65% - registers of the clearing loop
 void PostFxRain::fn_800B1554() {
     m20 = m0C = m10 = 0.0f;
-    m80.Clear_unk();
+    for (unsigned int i = 0; i < m80.mCount; i++) {
+        m80.mData[i].mState = 0;
+    }
 }
 
 // inferred: random value in [lo, hi]
