@@ -447,7 +447,7 @@ chr/ControlDraggingStart.cpp:
 
 chr/ControlDropDown.cpp:
 	.text       start:0x801B2EDC end:0x801B409C
-	.rodata     start:0x8073AD38 end:0x8073AD70
+	.rodata     start:0x8073AD30 end:0x8073AD70
 	.data       start:0x80780818 end:0x80780910
 	.sdata2     start:0x80882420 end:0x80882480
 

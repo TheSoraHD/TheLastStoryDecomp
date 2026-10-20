@@ -30,6 +30,7 @@
 #include "chr/ControlTurnQuadruped.h"
 #include "chr/ControlSitting.h"
 #include "chr/ControlDraggingStart.h"
+#include "chr/ControlDropDown.h"
 #include "game/HitInfo_unk.h"
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
@@ -9592,12 +9593,6 @@ void CharaTask::vf88() {
 namespace chr {
 // inferred: controls created by CharaTask 0x8016939C-0x8016AFE8; class names from the vtables stored by
 // the constructors, sizes from the operator new calls
-class ControlDropDown : public ControlBase {
-public:
-    ControlDropDown(Chara_unk* chara, const atn::Vector3& v); // 0x801B2EDC
-    virtual int vf0C();
-    unsigned char m08[0x34 - 0x08];
-};
 // inferred: chr/ControlDive.cpp
 class ControlSwapPos : public ControlBase {
 public:
