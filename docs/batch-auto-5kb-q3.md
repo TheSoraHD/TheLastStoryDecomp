@@ -217,7 +217,7 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - `a = b = c = 0.0f` guarda de derecha a izquierda (c primero); asi salen `Matrix3x4::SetIdentity` y los
     ceros en orden descendente.
 
-## atn/EffectLoader_unk (commit HASH9)
+## atn/EffectLoader_unk (commit 41271b3)
 
 - Resultado: 4/5 al 100%, `matching: false`. `main.dol: OK`.
 - NONMATCHING: `fn_80239030` 90.51% (carga del .eff: intercambio de bytes, reubicacion de desplazamientos,
