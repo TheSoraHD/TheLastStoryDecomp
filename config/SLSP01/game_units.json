@@ -321,7 +321,7 @@
   "classes": [
    "atn::SoftKeyboardBase<wchar_t, 0>"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Sound3dListener.cpp",
