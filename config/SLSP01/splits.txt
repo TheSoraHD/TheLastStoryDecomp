@@ -158,8 +158,9 @@ atn/LinearAllocator.cpp:
 
 atn/Rain.cpp:
 	.text       start:0x800B1B28 end:0x800B2E2C
-	.rodata     start:0x80732D30 end:0x80732D3C
+	.rodata     start:0x80732D28 end:0x80732D98
 	.data       start:0x80778EF8 end:0x80778F30
+	.sdata      start:0x8087D878 end:0x8087D888
 	.sdata2     start:0x80880EC8 end:0x80880F28
 
 atn/Layer2DBlur.cpp:

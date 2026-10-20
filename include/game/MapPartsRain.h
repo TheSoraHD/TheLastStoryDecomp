@@ -29,7 +29,7 @@ public:
 
     // inferred: factory used by the map parts loader
     static MapPartsRain* fn_8049CDBC(atn::Task* parent, void* arg, atn::CsvTab* csv);
-    void fn_8049D1A4(MapPartsRain* a, MapPartsRain* b);
+    void fn_8049D1A4(MapPartsRain* a, MapPartsRain* b, float t);
 
     int mOn;          // 0x50
     atn::Rain mRain;  // 0x54
