@@ -1350,7 +1350,7 @@ gmk/SkeltonsMirror.cpp:
 
 gmk/Lemon.cpp:
 	.text       start:0x8041524C end:0x804166B0
-	.rodata     start:0x80752E98 end:0x80752EA4
+	.rodata     start:0x80752E90 end:0x80752EC0
 	.data       start:0x8078D9E0 end:0x8078DA78
 	.sdata2     start:0x80886438 end:0x80886470
 
