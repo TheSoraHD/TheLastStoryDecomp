@@ -51,8 +51,8 @@ game/ArenaTask.cpp:
 
 game/Arms.cpp:
 	.text       start:0x80043EAC end:0x800457A4
-	.rodata     start:0x80730E28 end:0x80730E30
-	.data       start:0x80777494 end:0x807774B8
+	.rodata     start:0x80730E28 end:0x80730F10
+	.data       start:0x807773A8 end:0x807774F0
 	.sdata2     start:0x80880858 end:0x80880868
 
 atn/AABBTree.cpp:
@@ -1116,9 +1116,9 @@ game/EnvSeManager.cpp:
 
 game/EnvSeBase.cpp:
 	.text       start:0x80360C5C end:0x80363284
-	.rodata     start:0x8074B670 end:0x8074B6B8
+	.rodata     start:0x8074B630 end:0x8074B770
 	.data       start:0x80789CF0 end:0x80789E98
-	.sdata2     start:0x80885694 end:0x808856C0
+	.sdata2     start:0x80885690 end:0x808856C0
 
 game/EquipItemData.cpp:
 	.text       start:0x80363284 end:0x80363C28
@@ -1616,13 +1616,13 @@ game/LastCocoonQuadruped.cpp:
 	.text       start:0x8045FAB0 end:0x80468F48
 	.rodata     start:0x80755174 end:0x80755188
 	.data       start:0x8078F980 end:0x8078FAB0
-	.sdata2     start:0x80886D60 end:0x80886E84
+	.sdata2     start:0x80886D60 end:0x80886E88
 
 game/LibraryTask.cpp:
-	.text       start:0x80468FBC end:0x8046ACDC
-	.rodata     start:0x8075537C end:0x80755394
-	.data       start:0x8078FAB0 end:0x8078FB30
-	.sdata2     start:0x80886E90 end:0x80886EBC
+	.text       start:0x80468F54 end:0x8046BBB0
+	.rodata     start:0x807552E0 end:0x80755608
+	.data       start:0x8078FAB0 end:0x8078FB50
+	.sdata2     start:0x80886E88 end:0x80886EC0
 
 atn/LH_ColliObject.cpp:
 	.text       start:0x80472344 end:0x80472C90
@@ -2102,9 +2102,9 @@ game/ShopUpGrade.cpp:
 
 game/SkillEffectManager.cpp:
 	.text       start:0x8059AB98 end:0x8059C084
-	.rodata     start:0x80762260 end:0x80762274
+	.rodata     start:0x80762128 end:0x807622E0
 	.data       start:0x80796B28 end:0x80796B60
-	.sdata2     start:0x808881C0 end:0x808881F8
+	.sdata2     start:0x808881C0 end:0x808881FC
 
 nw4r/DvdSoundArchive.cpp:
 	.text       start:0x8059D7D8 end:0x8059E21C
