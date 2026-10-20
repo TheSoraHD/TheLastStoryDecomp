@@ -143,3 +143,23 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
 - Hallazgos MWCC:
   - `T& r = obj;` a nivel de espacio de nombres se inicializa en el `__sinit` (dos `li`/`stw` por referencia), como los placeholders de boost::lambda.
   - `boost::function<R(A)>` y `boost::function1<R, A>` no generan el mismo destructor: la forma portable anade un nivel de herencia.
+
+## atn/PostFxMotionBlur (commit HASH6)
+
+- Resultado: 2/3 al 100% (ctor y `fn_800AFEBC`), `matching: false`.
+- NONMATCHING: `PostFxMotionBlur::vf10` 99.78% - solo registros: el bloque de parametros/el flag al principio (r4/r6)
+  y los FPR del bucle de desvanecimiento; ~14 variantes. Estructura, pila y `.sdata2` ya coinciden.
+- **Decisiones sin el usuario**:
+  - Split sin cambios.
+  - `symbols.txt`: `fn_800AFEBC` -> `fn_800AFEBC__Q23atn16PostFxMotionBlurFi` (reserva el anillo de texturas para un
+    divisor), `fn_800AFFEC` -> `vf10__Q23atn16PostFxMotionBlurFPv`, `lbl_80732CE0` -> `@stringBase0` (pool `""`),
+    `lbl_80880E58` tamano 0x8 -> 0x4 (0.7f + relleno).
+  - Clase `PostFxMotionBlur : IPostFx` con campos inferidos: anillo de 4 `GXTexObj` + 4 imagenes, indice del ultimo
+    fotograma (-1), numero de fotogramas viejos (max 3), exponentes de la curva de pesos, flag/factor de fundido y divisor.
+  - Structs locales por offset: `MotionBlurParams_unk` (lbl_8087EFA8 0x240-0x260), `MotionBlurFrameBuffer_unk`
+    (textura de color 0x74C) y `MotionBlurColor_unk` (con ctor de copia que carga los 4 floats antes de guardarlos,
+    como `Color4f_unk` de CompositeIntensityTintMulti).
+- Hallazgos MWCC:
+  - Un color pasado por valor que se copia con `lfs`/`stfs` (no `lwz`/`stw`) indica un ctor de copia explicito.
+  - `x / 4.0f` sale como `fmuls x, 0.25` igual que `x * 0.25f`, pero con otro orden de operandos (y de `fnmsubs`).
+  - Declarar un local `float` del cuerpo del bucle antes del acumulador (`float a; ... float sum = 0.0f;`) intercambia sus FPR salvados.
