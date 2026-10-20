@@ -933,6 +933,13 @@
   "matching": true
  },
  {
+  "name": "atn/D2A_Manager.cpp",
+  "classes": [
+   "atn::D2A_Manager"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/D2A_Message.cpp",
   "classes": [
    "atn::D2A_Message"
