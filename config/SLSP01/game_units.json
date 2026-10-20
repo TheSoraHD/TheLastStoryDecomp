@@ -3345,5 +3345,12 @@
    "atn::PostFxGamma"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/PostFxGodRay.cpp",
+  "classes": [
+   "atn::PostFxGodRay"
+  ],
+  "matching": false
  }
 ]
