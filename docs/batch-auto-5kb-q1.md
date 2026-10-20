@@ -183,3 +183,48 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   constantes `{0, -1, fn_8009B938}` de `.data`), angulos de Euler via `fn_8072D210` (128/pi y medio angulo) y
   `PSMTXConcat`/`PSMTXMultVec`. No se escribieron por tiempo (son las dos funciones mas grandes de la cola).
 - **Decisiones sin el usuario**: split sin cambios; `fn_8009B938` queda `extern "C"` (su clase es desconocida).
+
+## Excepcion explicit_zero_data: LipSync_unk y PostFxColorMatrix (rama agent-pz, 2026-10-20)
+
+Excepcion aprobada por el usuario: `#pragma explicit_zero_data on` (con `push`/`pop`, solo alrededor de las
+definiciones a cero que el original tiene en `.sdata`) en `atn/LipSync_unk`, `atn/PostFxColorMatrix` y
+`atn/PostFxRain` (esta ultima en `docs/batch-auto-5kb-q2.md`). Splits sin cambios (los tres ya cubrian su `.sdata`).
+
+**atn/LipSync_unk (commit b366953): sin pragma.**
+- Hallazgo: las dos palabras a cero de `.sdata` 0x8087D760/0x8087D764 no son datos, son el pool `@STRING@` (debil) de
+  los `""` de un `new (4, "", "", 0) T[n]` dentro de una funcion **inline** (igual que `LensFlareElems_unk::Resize_unk`
+  en 0x8087D758). Un `""` en una inline va a `.sdata` como `@STRING@<func>` / `@STRING@<func>@0`; en una funcion normal
+  iria al `@stringBase0` de `.rodata`. No hace falta la excepcion.
+- Cambio: `LipSyncData_unk::Resize_unk(unsigned int count, int heap)` inline en `include/atn/LipSync_unk.h` (nombre
+  inventado; `heap` es parametro porque `Event::Dialog` usa el mismo pool con heaps 4 y 0: probablemente es una
+  plantilla de array compartida, no reconstruida). `symbols.txt`: `lbl_8087D760` -> `@STRING@Resize_unk__15LipSyncData_unkFUii@0`,
+  `lbl_8087D764` -> `@STRING@Resize_unk__15LipSyncData_unkFUii`, tamano 0x4 -> 0x1 (objdiff `.sdata` 76,9% -> 100%).
+  `src/Event/Dialog.cpp` (sin enlazar) sigue declarando `lbl_8087D76x`: anotado; para enlazarla tendra que usar la
+  misma inline/plantilla.
+- Comprobado enlazando la unidad a modo de prueba (`matching: true` temporal): `.sdata`, `.sdata2` y `.rodata` identicos
+  al original; solo difieren bytes de registros en las dos funciones NONMATCHING.
+- Funciones: `fn_8007A530` 99,22% -> 99,51% (puntero a la clave declarado antes de leer la cadena; queda el
+  offset del bucle y la base del pool intercambiados, 10 intentos); `fn_8007A7BC` 99,70% sin cambios (10 intentos mas:
+  locales, orden de operandos, puntero/referencia a la pista, clamps). 2/4, `matching: false`.
+
+**atn/PostFxColorMatrix (commits 36ef8cd, b8b5a0b, 516174a): unico uso real de la excepcion.**
+- Los 10 floats de `.sdata` 0x8087D828-0x8087D850 se definen en la unidad (`extern "C"`, nombres `lbl_` como antes):
+  los cinco `0.0f` envueltos cada uno en `#pragma push` / `#pragma explicit_zero_data on` / `#pragma pop`, los `1.0f`
+  fuera (ya van a `.sdata`). Orden y valores identicos; objdiff `.sdata` 100%. Aqui no hay alternativa: son floats de 4
+  bytes a cero (globales mutables) y con `-sdata 4` un struct {0, 1} de 8 bytes iria a `.data`.
+- Funciones: `fn_800AA8DC` 96,85% -> **100%** (`1.0f - s` y `1.0f - k` escritos dentro de los bucles, que el compilador
+  saca fuera; vector gris construido directamente de `lum[i]`). `vf10` 76,01% -> 97,12% (10 intentos): tipo de color
+  `ColorF_unk` con copia miembro a miembro (lfs/stfs, no paired single), bucles de 3 columnas, comprobaciones de escala
+  desenrolladas, clamps como expresion sobre los globales, colores K convertidos por referencia; queda solo reparto de
+  FPR. 3/4, `matching: false`.
+- Comprobado enlazando a modo de prueba: los datos (`.sdata`, vtable, RTTI) coinciden con el original salvo el
+  desplazamiento que causa el tamano distinto de `vf10`; el vtable/RTTI debil de `IPostFx` que emite nuestro `.o` lo
+  elimina el enlazador (no bloquea enlazar las PostFx).
+
+**Hallazgos MWCC**
+- `""` dentro de una funcion inline -> objeto `@STRING@<func>[@N]` debil de 1 byte en `.sdata` (alineado a 4); con
+  dos `""` el `@0` (direccion menor) es el segundo argumento. Dos unidades que inlinean la misma funcion comparten el
+  pool. En `symbols.txt` darles tamano 0x1 para que objdiff compare `.sdata` al 100%.
+- `#pragma explicit_zero_data on` deja un `float x = 0.0f;` en `.sdata` en su orden de definicion.
+- Un valor invariante escrito dentro del bucle (`v * (1.0f - s)`) se saca fuera con otro reparto de FPR que la
+  misma expresion en un local con nombre antes del bucle.
