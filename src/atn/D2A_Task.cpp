@@ -118,17 +118,10 @@ int D2A_Task::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 15% - MWCC inlines Update (fn_801F4484) here, the original tail-calls it; ((void)0),
-// dead code and a member Update did not stop the inlining
-void D2A_Task::vf10() {
-    if (mVisible) {
-        fn_801F4484(this);
-    }
-}
-
 } // namespace atn
 
-void fn_801F4484(atn::D2A_Task* task) {
+// inferred: frame update shared by vf10 and fn_801F4484 (inline, name invented)
+inline void UpdateFrame_unk(atn::D2A_Task* task) {
     if (!task->mLoaded) {
         return;
     }
@@ -151,6 +144,20 @@ void fn_801F4484(atn::D2A_Task* task) {
             task->mFrame = 0.0f;
         }
     }
+}
+
+namespace atn {
+
+void D2A_Task::vf10() {
+    if (mVisible) {
+        UpdateFrame_unk(this);
+    }
+}
+
+} // namespace atn
+
+void fn_801F4484(atn::D2A_Task* task) {
+    UpdateFrame_unk(task);
 }
 
 namespace atn {
