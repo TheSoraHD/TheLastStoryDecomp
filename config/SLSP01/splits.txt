@@ -540,7 +540,7 @@ atn/CompositeCache_unk.cpp:
 	.sdata2     start:0x80881218 end:0x80881220
 
 atn/CompositeIntensityTintMulti.cpp:
-	.text       start:0x800D8894 end:0x800D9410
+	.text       start:0x800D87A4 end:0x800D9410
 	.rodata     start:0x80734760 end:0x807347E8
 	.data       start:0x80779830 end:0x80779868
 	.bss        start:0x807C7800 end:0x807C7810

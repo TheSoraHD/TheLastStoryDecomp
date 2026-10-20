@@ -5,7 +5,8 @@
 // The cache of composed textures (0x800D81CC-0x800D87A4) comes from another file (own "" pool at
 // 0x80734758, own destructor chain entry 0x807C77E8); its object is a function-level static of an inline
 // function, so this file constructs it too (chain entry 0x807C7800). The original emits the weak copies
-// of its inline helpers (0x800D8894-0x800D8C14) before the constructor.
+// of its inline helpers (0x800D87A4-0x800D8C14: handle ctor/AddRef/Release/texture, RGBA ctor, texture
+// accessors, push_back of the command list...) before the constructor.
 
 struct Camera_unk;
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
