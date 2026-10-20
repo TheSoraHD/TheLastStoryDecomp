@@ -46,3 +46,36 @@ Cola: `AI/AiCommon_unk`, `game/AreaEffConfig`, `game/CharaC58_unk`, `game/CharaF
     `vector::__swap_out_unk` solo quedan diferencias de registros; no aplicado a `include/std/vector.h`
     (compartido) porque aqui no se emite.
 - Pendientes: el presupuesto de `fn_80041D44` (ver arriba).
+
+## game/CharaC58_unk (commit 0ed6c68)
+
+- Resultado: 31/33 al 100%, `matching: false` (dos NONMATCHING), `main.dol: OK`, regress lost 0.
+- NONMATCHING:
+  - `CharaC58_unk::fn_8011CAE4` 99.46%: registros del bucle que busca el punto por `CharaTask::m58`.
+  - `CharaD74_unk::fn_8011CD84` 97.97%: registros (copia del estado temporal, bucle del tipo 6, orden de
+    carga de los dos radios) y un salto muerto tras el `MAX` del radio del tipo 4.
+- **Decisiones sin el usuario**
+  - `game_units.json`: entrada nueva `game/CharaC58_unk.cpp` (`CharaC58_unk`, `CharaD74_unk`).
+  - `symbols.txt` (pairnames + a mano): las 25 `fn_8011BF94..fn_8011CD1C` pasan a miembros
+    `CharaC58_unk::fn_8011C074(CharaTask* chara, int mode)` y las ordenes `fn_8011C2D4..fn_8011CD1C`
+    (todas con `CharaTask* chara` primero; firmas en `include/game/CharaTask.h`);
+    `fn_8011CD84` -> `fn_8011CD84__12CharaD74_unkFP9CharaTaski`. Llamadores `extern "C"` actualizados:
+    `src/game/PickTask.cpp`, `src/game/Em002Skelton.cpp` (sin cambio en report).
+  - `include/game/CharaTask.h` (compartida): `CharaC58_unk` gana `int mB8`, `int mD4`, `unsigned int mD8`
+    (flags) y parte `m140` en `m140[0x60]`, `m1A0[0x10]`, `m1B0[0x100]` (los tres `memset`);
+    `CharaD74_unk` gana constructor inline (lista de inicializacion, inlineado en el de `CharaC58_unk`),
+    `short m06` (antes 2 bytes sin tipo) y accesores `IsFlag_unk/SetFlag_unk/ClearFlag_unk` de `m20`
+    (recargan la palabra como el original).
+  - `include/game/CharaStatus.h` (compartida): `RouteTable_unk::m80` pasa a `RouteSpots_unk m80[3]`
+    (`{count, RouteSpot_unk*}` por tipo de personaje 1/4, 2, 3; `RouteSpot_unk` de 0x148 bytes, nombres
+    inventados).
+  - Tipos locales: `LabelState_unk`/`LabelPlayer_unk` (registro 0x1C en 0x1470 de los jugadores, como
+    `PlayerState_unk` de `CharaTask.cpp`).
+  - Nombre real del fichero: sin pistas (el struct de 0xC58 son las ordenes de la IA; las llama el
+    despachador `fn_8001AEDC` de `AI/AiCommon_unk`).
+- Hallazgos MWCC nuevos
+  - `return 1 <= x;` (constante a la izquierda) da `srawi/subfc/adde` en vez de `neg/andc/srwi` de `x > 0`.
+  - Un `Vector3` temporal elegido por rama (`const Vector3* p = cond ? &tmp : &member`) evita la copia
+    que mete el ternario de objetos; el temporal debe construirse dentro del bloque (no asignarse).
+- Pendientes: `CharaTask::mStatus.m2CC` se compara sin signo (`cmplwi`/`cmplw`): aqui con cast; quiza
+  deberia ser `unsigned int` en `CharaStatus.h`.
