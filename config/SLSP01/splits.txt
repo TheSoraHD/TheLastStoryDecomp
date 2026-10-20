@@ -2630,9 +2630,13 @@ atn/Loader.cpp:
 	.sdata2     start:0x80886EC0 end:0x80886EE0
 
 atn/FileSystem_unk.cpp:
-	.text       start:0x8046F460 end:0x80470580
-	.rodata     start:0x80755B88 end:0x80755BF8
+	.text       start:0x8046F460 end:0x80470364
+	.rodata     start:0x80755B88 end:0x80755BF0
 	.data       start:0x8078FBA8 end:0x8078FBB0
+
+atn/ResRef_unk.cpp:
+	.text       start:0x80470364 end:0x80470580
+	.rodata     start:0x80755BF0 end:0x80755BF8
 
 atn/LH_Binary.cpp:
 	.text       start:0x80470580 end:0x80472344

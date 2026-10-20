@@ -2331,6 +2331,13 @@
   "matching": false
  },
  {
+  "name": "atn/ResRef_unk.cpp",
+  "classes": [
+   "ResRef_unk"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/LH_Handle.cpp",
   "classes": [
    "atn::LoadHandle"
