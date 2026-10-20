@@ -81,3 +81,30 @@ Cola: `atn/Camera_unk`, `atn/Frustum_unk`, `atn/PostFxGamma`, `atn/PostFxGodRay`
   - Un color con constructor de 4 floats deja los 4 `stfs` y un solo `fctiwz`; con inicializador `{...}` copia
     desde .rodata.
 - Pendientes para otras unidades: ninguno.
+
+## atn/PostFxGodRay (commit 1169ddf)
+- Resultado: 2/6 al 100% (ctor, `fn_800AEF4C`), `matching: false` (mismo motivo que PostFxGamma: dtors debiles de
+  IPostFx/IRender/PostFxGodRay), `main.dol: OK`.
+- NONMATCHING: `fn_800AE568` 98.75% (registros y hueco en pila del temporal del color K); `fn_800AECD4` 92.5%
+  (registro del ancho y momento de la conversion u16->int antes de fn_800C0D4C); `fn_800AEF68` 97.59% (huecos en
+  pila de los temporales del caso 0 y FPR del tamano de pantalla); `vf10` 99.84% (FPR del lerp del color).
+- **Decisiones sin el usuario**:
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_800AF544` -> `vf10__Q23atn12PostFxGodRayFPv`; `lbl_80732C9C` -> `@stringBase0` (size 0x23);
+    `lbl_8087D858..6C` -> `gGodRayRectMinX_unk`, `gGodRayRectMinY_unk`, `gGodRayRectMaxX_unk`, `gGodRayRectMaxY_unk`,
+    `gGodRayIndScale_unk`, `gGodRayIndExp_unk` (globales escribibles de .sdata; nombres inventados).
+    `fn_800AE568` (pasada de blur radial) y `fn_800AECD4` (limpia la rampa) quedan `extern "C"`. Los simbolos del
+    static local `sRadial` (`lbl_807C7470`, registro de destructor `lbl_807C7460`, guarda `lbl_8087EF98`) no se han
+    renombrado.
+  - Tipos inventados en el .cpp: `GodRayParams_unk` (0x48 en lbl_8087EFA8+0x264 o en la escena +0x198),
+    `GodRayRenderParams_unk`, `GodRayOverride_unk`, `GodRayFrameBuffer_unk` (ojo 0x10C, objetivo 0x118, vista 0x15C),
+    `GodRayColor_unk`; clase `atn::PostFxGodRay` (0x78). Uso de `GimmickUvOwner_unk::fn_800D59B8` con cast, como
+    gmk/AutomaticDoor (el simbolo ya tenia ese nombre).
+- Hallazgos MWCC:
+  - Registros de GPR en funciones grandes: declarar las variables sin inicializar al principio (`int fullW; ...`) y
+    asignarlas despues ordena los registros salvados como en el original sin mover el codigo.
+  - Constantes float en locales con nombre (`float rate = k;`) fijan el orden de operandos de `fmadds`
+    (`d * rate + x`) y cargan la constante una sola vez.
+  - Inicializar en la lista del ctor un miembro struct con constructor de 4 floats da los 4 `stfs` antes del ctor
+    del siguiente miembro (Texture_unk), como el original.
+- Pendientes para otras unidades: ninguno.
