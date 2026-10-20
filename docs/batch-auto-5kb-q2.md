@@ -33,7 +33,7 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - Una funcion que llama a otra autoinlineable del fichero con argumentos fijos (`fn_800D5A3C` -> `fn_800D5B58(w, h, 4, 0)`)
     se reconoce porque los registros de los parametros se crean antes que los locales del cuerpo inlineado.
 
-## atn/Se_unk (commit HASH2)
+## atn/Se_unk (commit d113613)
 
 - Resultado: 11/11 al 100%, `matching: true` (enlazada, `main.dol: OK`).
 - NONMATCHING: ninguno.
