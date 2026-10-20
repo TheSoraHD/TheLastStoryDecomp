@@ -1104,6 +1104,11 @@
   "matching": false
  },
  {
+  "name": "db/WeaponParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "db/EquipParam_unk.cpp",
   "classes": [],
   "matching": false
