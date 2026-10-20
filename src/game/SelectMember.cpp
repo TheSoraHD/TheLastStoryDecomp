@@ -2,6 +2,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "macros.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -27,7 +28,6 @@ struct SelectMemberPoint_unk {
 };
 extern "C" SelectMemberPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_801F6E78(atn::Task* task, const char* name, const SelectMemberPoint_unk* pos);
-extern "C" void* lbl_8087F580; // inferred: menu cursor
 extern "C" void fn_804A53D4(void* cursor, int a, int b, const SelectMemberPoint_unk* pos, int c);
 extern "C" void fn_801F4CB4(atn::Task* task, const char* name, int value, int arg); // inferred: sets a number
 extern "C" void fn_801F4AA0(atn::Task* task, const char* name, float r, float g, float b); // inferred: color
@@ -194,7 +194,7 @@ void SelectMember::vf14() {
             sprintf(name, "cursur_point%d", mCursor);
         }
         SelectMemberPoint_unk pos = __GetPos_unk(mAnims[0], name);
-        fn_804A53D4(lbl_8087F580, 0, 0, &pos, 0);
+        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &pos, 0);
         break;
     }
     case 3: {
@@ -203,7 +203,7 @@ void SelectMember::vf14() {
         char name[64];
         sprintf(name, "cursor_point%d", mCursor2 + 1);
         SelectMemberPoint_unk pos = __GetPos_unk(mAnims[8], name);
-        fn_804A53D4(lbl_8087F580, 0, 0, &pos, 0);
+        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &pos, 0);
         break;
     }
     case 4: {
@@ -212,7 +212,7 @@ void SelectMember::vf14() {
         char name[64];
         sprintf(name, "cursor_point%d", mCursor2 + 1);
         SelectMemberPoint_unk pos = __GetPos_unk(mAnims[8], name);
-        fn_804A53D4(lbl_8087F580, 0, 0, &pos, 0);
+        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &pos, 0);
         break;
     }
     }

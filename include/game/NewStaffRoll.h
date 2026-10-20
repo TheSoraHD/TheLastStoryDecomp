@@ -7,7 +7,7 @@
 #include "atn/Texture_unk.h"
 #include "game/ResHandle.h"
 
-// inferred: fade task returned by fn_8006A250; names invented
+// inferred: atn::FadeColor returned by atn::FadeColor::Create (0x8006A250); names invented
 struct StaffRollFade_unk {
     unsigned char m00[0x48];
     int m48;
