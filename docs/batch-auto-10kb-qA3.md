@@ -104,3 +104,46 @@ Cola: `atn/D2A_Manager`, `atn/D2Anime_unk`, `atn/DLMalloc_unk`, `atn/EffectDesc_
     C++ (o C con `extern "C"`), compilado con los flags del juego.
 - Hallazgos MWCC: ninguno nuevo (el `noreturn` de `abort` ya estaba en `std/msl_common.h`).
 - Pendientes: ninguno.
+
+## atn/EffectDesc_unk (commits 621238f, 60ef198)
+
+- Resultado: 7/14 al 100% (init `fn_80234A8C`, ctors de los elementos, `fn_80234C84`, los dos metodos de
+  `EffectSystem_unk` y `__sinit`), `matching: false`, `main.dol: OK`.
+- Que es: cola de dibujo ordenado de los efectos: tiras de poligonos (0x70 bytes) y modelos (0x5C) que el
+  sistema de efectos encola al actualizar; se ordenan por profundidad en 0x400 cubos (plantilla
+  `SortByDepth_unk`, dos copias debiles) y se dibujan con fundido cercano (menu de depuracion "Effect":
+  FadeNear, FadeNearWidth).
+- NONMATCHING:
+  - `fn_80234CD8` 95.14% (dibuja modelos y tiras): un registro salvado de mas, la bandera de la camara
+    con salto (el original materializa la comparacion sin signo con `orc/subf`), orden en pila de los
+    temporales de la escala.
+  - `SortByDepth_unk` (las dos) 99.63%: f4/f5 intercambiados.
+  - `fn_80236938` 94.73% (dibuja una tira): planificacion de cargas/escrituras al FIFO y registros.
+  - `fn_80236B84` 99.77%: el original redondea con `frsp` el minimo de profundidad del bucle.
+  - `fn_80236FFC` 99.95%: codigo identico; la constante 6.0f esta en otra posicion de `.sdata2`.
+  - **`fn_80235BF8` sin decompilar** (0xC74 bytes: dibuja con textura indirecta las tiras diferidas de
+    `sBuf`; matrices indirectas, siete coordenadas por vertice con bucles desenrollados). Queda como
+    `extern "C"`; sus constantes 0.2f y 1/7 de `.sdata2` y la tabla `lbl_80742FA0` faltan en nuestro `.o`.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - `symbols.txt`: `fn_80234C24`/`C54` -> ctors `__ct__15EffectStrip_unkFv`/`__ct__19EffectModelItem_unkFv`;
+    `fn_80235968`/`AB0` -> `SortByDepth_unk<...>`; `fn_802371AC` -> `__sinit_\EffectDesc_unk_cpp`;
+    `lbl_80742FB8` -> `@stringBase0` (0x20 -> 0x1F); datos `.sdata`/`.sbss` con nombres inventados y locales
+    (`sMaxStrips`, `sMaxModels`, `sMaxBuf`, `sFadeNear`, `sFadeNearWidth`, `sMaxVerts`, `sBuckets`,
+    `sStripNear/Far`, `sStrips`, `sStripCount`, `sModelNear/Far`, `sModels`, `sModelCount`, `sBuf`,
+    `sBufCount`, `sVerts`, `sVertPos`, `sVertUsed` (0x8 -> 0x4)).
+  - Tipos inventados (locales): `EffectStrip_unk`, `EffectModelItem_unk`, `EffectItemColor_unk`,
+    `EffectVertex_unk` (posicion `atn::Vector3` + uv; se reserva como bytes porque el original no llama a
+    ningun ctor), `EffectCamera_unk` (vista de los campos de la camara `lbl_8087EFB4`), `EffectBlend_unk`
+    (campos de bits del estado de mezcla de `fn_80076A28`), `EffectModelVt_unk` (virtuales 0x10/0x18 de los
+    modelos), declaracion minima de `EffectSystem_unk` (definida en `atn/EffectManager.cpp`).
+  - Nombre real propuesto: desconocido (las dos funciones de `EffectSystem_unk` sugieren que es parte del
+    sistema de efectos; "EffectDesc" es inventado).
+- Hallazgos MWCC
+  - Los valores de una escritura al FIFO (`GXWGFifo`, volatil) se recargan tras ella; si el original los
+    reutiliza, estaban en locales (`float x = v.x; ... GXPosition3f32(x, y, z)`).
+  - Un `new T[n]` de un struct con un `atn::Vector3` (ctor vacio no trivial) genera
+    `__construct_new_array`; si el original no lo tiene, la reserva era de bytes.
+  - `GXColor` devuelto por una inline (en vez de construido en el llamador) coloca el temporal de la
+    llamada por encima del color, como el original.
+- Pendientes: `fn_80235BF8`.
