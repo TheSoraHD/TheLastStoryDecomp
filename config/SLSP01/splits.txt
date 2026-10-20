@@ -1518,21 +1518,13 @@ atn/EffectLoader_unk.cpp:
 	.sdata2     start:0x80883150 end:0x80883160
 
 atn/EffectManager.cpp:
-	.text       start:0x80239798 end:0x8023B9D0
-	.rodata     start:0x8074300C end:0x80743020
-	.data       start:0x80783BB8 end:0x80783C20
-	.sdata      start:0x8087DC18 end:0x8087DC20
-	.sdata2     start:0x80883160 end:0x80883170
-
-std/char_traits_char_8023C080.cpp:
-	.text       start:0x8023B9D0 end:0x8024372C
+	.text       start:0x80239798 end:0x8024373C
 	.ctors      start:0x8072D31C end:0x8072D320
-	.rodata     start:0x80743020 end:0x8074308C
-	.data       start:0x80783C20 end:0x80783CC8
+	.rodata     start:0x8074300C end:0x80743140
+	.data       start:0x80783BB8 end:0x80783CC8
+	.sdata      start:0x8087DC10 end:0x8087DC20
 	.sbss       start:0x8087F3C4 end:0x8087F3D0
-
-atn/EffectManager_cont.cpp:
-	.text       start:0x8024372C end:0x8024373C
+	.sdata2     start:0x80883160 end:0x80883170
 
 atn/EffectSequencer_unk.cpp:
 	.text       start:0x8024373C end:0x80244228

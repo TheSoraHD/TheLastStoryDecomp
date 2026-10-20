@@ -1255,20 +1255,6 @@
   "matching": false
  },
  {
-  "name": "std/char_traits_char_8023C080.cpp",
-  "classes": [
-   "std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char>>>"
-  ],
-  "matching": false
- },
- {
-  "name": "atn/EffectManager_cont.cpp",
-  "classes": [
-   "atn::EffectManager"
-  ],
-  "matching": true
- },
- {
   "name": "atn/EffectSequencer_unk.cpp",
   "classes": [],
   "matching": false
