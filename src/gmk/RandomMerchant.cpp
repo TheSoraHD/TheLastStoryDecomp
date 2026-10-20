@@ -38,8 +38,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 extern "C" void* fn_8021DE88(void* lottery);                              // inferred: next lot (null when none is left)
 extern "C" int fn_8021DECC(void* lot, int* item, int* num, int* price);  // inferred: item of the lot
-extern "C" int fn_804A24C4(MarketTask* market, int item);                    // inferred: the market sells it
-extern "C" int fn_804A251C(MarketTask* market, int item);                    // inferred: market price
 // inferred: item definition (class unknown)
 struct MerchantItem_unk {
     unsigned char m00[0x08];
@@ -241,8 +239,8 @@ void RandomMerchant::vf10() {
                     mItemNum = num;
                     mItemId = item;
                     mPrice = price;
-                    if (MarketTask::sInstance != 0 && fn_804A24C4(MarketTask::sInstance, item) != 0) {
-                        mPrice = 0.2f * (mItemNum * fn_804A251C(MarketTask::sInstance, mItemId));
+                    if (MarketTask::sInstance != 0 && MarketTask::sInstance->fn_804A24C4(item) != 0) {
+                        mPrice = 0.2f * (mItemNum * MarketTask::sInstance->fn_804A251C(mItemId));
                     } else {
                         MerchantItem_unk* def = fn_80211480(item);
                         if (def != 0) {

@@ -113,3 +113,26 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
     funcion de `GameBgm` cambia de porcentaje.
   - Nombre real propuesto del fichero: `atn_bgm.cpp` (pista de `splits-auto-A`), sin cambios.
 - Hallazgos MWCC: ninguno nuevo.
+
+## game/MarketTask_cont (commit HASH)
+
+- Resultado: 6/6 al 100%, fusionada en `game/MarketTask` (`matching: true`, `main.dol: OK`).
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits: `game/MarketTask` .text 0x804A1DDC-0x804A24C4 -> 0x804A1DDC-0x804A29C4, `.sdata2` 0x808871B0-0x808871C0 ->
+    0x808871B0-0x808871D0 (100.0f/3.0f/4.0f del `_cont`) y `.rodata` 0x807570C8 -> **0x807570C0** (absorbe el double
+    int->float `lbl_807570C0` que estaba en un hueco `auto_`; dentro de la misma unidad no hay ciclo de orden de
+    enlace). Borrada `game/MarketTask_cont`.
+  - `symbols.txt`: pairnames `fn_804A24C4/251C/26DC/2724/2800/28F8` -> metodos de `MarketTask` (vende el item,
+    precio actual, flag 251 % 11, precio medio comprado, registrar compra, borrar registro). **Tamano cambiado**:
+    `lbl_808871C8` 0x8 -> 0x4 (float + relleno; con 8 objdiff lo trataba como double; regla de CLAUDE_lite).
+  - `include/game/MarketTask.h`: seis metodos e inline `Find_unk(id)` (0x26E-0x270 comparten la entrada de 0x26D).
+    `Field_unk` local gana `m10D0` (progreso de la historia: x3 entre 300000 y 400000, x4 desde 400000).
+  - **Fuera de mis unidades**: `src/gmk/RandomMerchant.cpp` (`matching: false`) llamaba a `fn_804A24C4/251C` como
+    `extern "C"`; cambiado a llamadas de metodo. Ningun porcentaje baja.
+- Hallazgos MWCC
+  - `total += f() * n;` da `mullw rD, rN, rRes` (operandos al reves); con el resultado en un local con nombre
+    (`int p = f(); total += p * n;`) sale `mullw rD, rRes, rN`.
+  - `x = f() + n` como argumento deja `mr r0, r3` y suma tras cargar el resto de argumentos; con `int c = f(); c += n;`
+    la suma va directa al registro del argumento.
+  - `(int)(a * b / c) / 10 * 10` reparte r0/r3/r4 distinto que guardando antes el `(int)` en un local.

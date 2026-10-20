@@ -28,6 +28,26 @@ public:
     virtual void vf10();
     virtual void vf14();
     void fn_804A233C(); // inferred: updates the prices
+    int fn_804A24C4(int id);          // inferred: the market sells the item `id`
+    int fn_804A251C(int id);          // inferred: current price of the item `id`
+    int fn_804A26DC();                // inferred: event flag 251 modulo 11
+    int fn_804A2724(int id);          // inferred: average of the bought prices (flag2 / flag3)
+    void fn_804A2800(int id, int num); // inferred: records a purchase of `num` items
+    void fn_804A28F8(int id);         // inferred: clears the purchase record
+
+    // inferred: entry of the item `id` (0x26E-0x270 share the entry of 0x26D)
+    MarketItem_unk* Find_unk(int id) {
+        if ((unsigned int)(id - 0x26E) <= 2) {
+            id = 0x26D;
+        }
+        MarketItem_unk* item = &m58[0];
+        for (unsigned int i = 0; i < m58.size(); i++, item++) {
+            if (id == item->mId) {
+                return item;
+            }
+        }
+        return 0;
+    }
 
     int m48;
     int m4C;   // inferred: interval

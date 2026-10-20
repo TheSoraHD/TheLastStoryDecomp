@@ -2844,15 +2844,11 @@ game/MapTask.cpp:
 	.sdata2     start:0x80887160 end:0x808871B0
 
 game/MarketTask.cpp:
-	.text       start:0x804A1DDC end:0x804A24C4
-	.rodata     start:0x807570C8 end:0x80757108
+	.text       start:0x804A1DDC end:0x804A29C4
+	.rodata     start:0x807570C0 end:0x80757108
 	.data       start:0x80790778 end:0x807907B0
 	.sbss       start:0x8087F578 end:0x8087F580
-	.sdata2     start:0x808871B0 end:0x808871C0
-
-game/MarketTask_cont.cpp:
-	.text       start:0x804A24C4 end:0x804A29C4
-	.sdata2     start:0x808871C0 end:0x808871D0
+	.sdata2     start:0x808871B0 end:0x808871D0
 
 game/MenuCommonTask.cpp:
 	.text       start:0x804A29C4 end:0x804A7EA4
