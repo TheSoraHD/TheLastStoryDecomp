@@ -6,8 +6,10 @@ namespace Event {
 
 Section::Section(Cut* cut, int index) : mCut(cut), m0C(0), m10(0), m14(1) {}
 
-// NONMATCHING: the boost::shared_ptr reference counts are lwarx/stwcx. loops in the original
-// (asm functions of boost), plain increments here.
+// NONMATCHING: 41.2% - the boost::shared_ptr counts (lwarx/stwcx. of sp_counted_base_cw_ppc.hpp)
+// now match; what differs is the inlined std::vector::push_back growth path of std/vector.h
+// (the original keeps max_size() in a register and divides it at run time, and keeps an
+// unreachable copy of the fast path after the length check).
 Channel* Section::fn_8053C788() {
     boost::shared_ptr<Channel> channel(new (4, "", "", 0) Channel(this));
     mChannels.push_back(channel);

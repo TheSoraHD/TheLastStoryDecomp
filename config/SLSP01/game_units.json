@@ -3268,6 +3268,13 @@
   "matching": false
  },
  {
+  "name": "Event/Cut.cpp",
+  "classes": [
+   "Event::Cut"
+  ],
+  "matching": false
+ },
+ {
   "name": "Event/Label.cpp",
   "classes": [
    "Event::Label"

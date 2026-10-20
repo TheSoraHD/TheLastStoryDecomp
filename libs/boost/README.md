@@ -1,6 +1,7 @@
 # Boost (subset, 2007 snapshot)
 
-Headers of Boost used by the game (`boost::function`, `boost::bind`, `boost::mem_fn`), taken from
+Headers of Boost used by the game (`boost::function`, `boost::bind`, `boost::mem_fn`,
+`boost::shared_ptr`), taken from
 the `boostorg/*` repositories. Only the files the compiler opens for `function.hpp`, `bind.hpp` and
 `mem_fn.hpp` are kept. Licence: `LICENSE_1_0.txt` (Boost Software License 1.0). Non-ASCII
 characters (in comments) were replaced by ASCII equivalents, as sjiswrap rejects them; nothing else
@@ -22,6 +23,16 @@ changed.
 - `boost/scoped_ptr.hpp` and `boost/checked_delete.hpp`: tag `boost-1.35.0` of `boostorg/smart_ptr`
   and `boostorg/utility` (CharaTask::mControl; the `__MWERKS__` safe-bool branch uses a member
   function pointer to `get()`, 0x8013A1A8).
+- `boost/shared_ptr.hpp` and `boost/detail/{shared_count,bad_weak_ptr,sp_counted_base,
+  sp_counted_base_cw_ppc,sp_counted_impl,sp_typeinfo}.hpp`: tag `boost-1.35.0` of
+  `boostorg/smart_ptr` (commit `e56e474`), used by the Event tree (`Event::Section`, `Channel`,
+  `Cut`). With `__MWERKS__` and `__POWERPC__` the reference counts are the CodeWarrior PPC
+  `atomic_increment`/`atomic_decrement`/`atomic_conditional_increment` of
+  `sp_counted_base_cw_ppc.hpp` (inline functions with `lwarx`/`stwcx.` asm blocks), which the game
+  inlines (e.g. 0x8053ADC8 in `Event::Channel::~Channel`). Using this library asm was approved by
+  the user (project rule 2 exception). Only change: `#include "sp_typeinfo.hpp"` in
+  `sp_counted_base_cw_ppc.hpp` is written `#include <boost/detail/sp_typeinfo.hpp>`, because with
+  `-nosyspath` MWCC does not search the directory of the including file.
 - Everything else: tag `boost-1.35.0`.
 
 ## boost::tokenizer
@@ -75,3 +86,5 @@ from the binary; only the code it produces is checked.
 not reconstructions of MSL: only enough to compile Boost. `std::type_info` follows the CodeWarrior
 layout (`{name, bases}`, compared with `strcmp`). `std::allocator::allocate` reports failure with
 `fprintf` + `abort` like `basic_string` (0x801B2D3C: "Memory allocation failure").
+`std::less` (in `functional`) and `iosfwd` (forward declarations of `char_traits` and
+`basic_ostream`) are only there for `boost/shared_ptr.hpp`.

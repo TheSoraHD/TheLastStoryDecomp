@@ -340,3 +340,65 @@ Fusionada en `game/MapPartsOcean`.
   cargar el tamano en un local y restarlo por una referencia (`n = mSize; size -= n`), como en `std/vector.h`.
 - Hallazgos MWCC: argumentos que son llamadas a accesores inline (`v.Data_unk()`) se evaluan de derecha a
   izquierda; con el miembro directo (`v.mData`) de izquierda a derecha.
+
+## Excepcion aprobada: boost::shared_ptr con el contador atomico de CodeWarrior PPC (rama agent-ps)
+
+Excepcion a la regla 2 aprobada por el usuario: usar el contador atomico de `boost::shared_ptr` para
+CodeWarrior/PowerPC tal como lo trae Boost 1.35.0 (`boost/detail/sp_counted_base_cw_ppc.hpp`:
+`atomic_increment`/`atomic_decrement`/`atomic_conditional_increment`, funciones inline con bloques
+`asm` `lwarx/stwcx.`). Es codigo de libreria real; no se ha escrito asm propio.
+
+- **Cambio aplicado** (commits cb9722f y 7113a07)
+  - `libs/boost/include/boost/shared_ptr.hpp` y `boost/detail/{shared_count,bad_weak_ptr,sp_counted_base,
+    sp_counted_base_cw_ppc,sp_counted_impl,sp_typeinfo}.hpp`: tag `boost-1.35.0` de `boostorg/smart_ptr`
+    (commit e56e474, clonado de GitHub, con su licencia). Unico cambio: `#include "sp_typeinfo.hpp"` ->
+    `#include <boost/detail/sp_typeinfo.hpp>` (con `-nosyspath` MWCC no busca en el directorio del
+    fichero que incluye). Anotado en `libs/boost/README.md`.
+  - `libs/boost/msl_shim`: `std::less` en `functional` y `iosfwd` nuevo (declaraciones de `char_traits`
+    y `basic_ostream`), solo para `shared_ptr.hpp`.
+  - Se borra `include/Event/SharedPtr_unk.h`; `include/Event/Channel.h` incluye `<boost/shared_ptr.hpp>`.
+    El `boost::shared_ptr` real sirve sin cambios: con `__MWERKS__`/`__POWERPC__` elige
+    `sp_counted_base_cw_ppc.hpp`, y `sp_enable_shared_from_this(shared_count const&, ...)` es la variadica.
+  - `Event/Cut` decompilada (cabeceras nuevas `include/Event/Cut.h` y `include/Event/Sequence.h`).
+  - Otras unidades: solo Event/Channel, Cut, Section y Sequence (sin fuente) tienen `lwarx` en el DOL;
+    `Event/EventLoader_unk` solo lee `get()` de los `shared_ptr` y no se toca.
+- **Funciones antes/despues**
+  - `Event::Channel::~Channel` 49,36% -> 98,90%; `Channel::fn_8053A510` 38,36% -> 40,48% (8/11 sin cambio).
+  - `Event::Section::fn_8053C788` 37,85% -> 41,23% (5/6 sin cambio).
+  - `Event/Cut` (antes sin fuente, 0/15) -> 10/15 al 100%: ctor, `fn_8053B028` (siguiente cut),
+    `fn_8053C124` (nombres de "skip"), `~Label` debil, `dispose`/`get_deleter`/destructor de
+    `sp_counted_impl_p<Label>` y `<Section>`. NONMATCHING: `fn_8053B030` (anade label) 41,5%,
+    `fn_8053B828` (anade section) 40,5%, `~Cut` 98,7%, `~Section` debil 98,9%, `__sinit` 97,5%.
+  - Total: 5356 -> 5366 funciones al 100%; `regress.py` lost 0 contra main y contra el report inicial,
+    ninguna funcion baja de fuzzy; `main.dol: OK`.
+- **Unidades que pasan a matching**: ninguna (Channel, Section y Cut siguen con funciones < 100%).
+- **Lo que sigue sin casar**
+  - Los bucles atomicos ya salen identicos (incluido el `lwarx r4, r0, r0` del `weak_release` y el uso de
+    `cr1` en toda la funcion). Las funciones que crean y anaden un `shared_ptr` (~40%) fallan por el
+    `std::vector::push_back` inline de `include/std/vector.h` (problema abierto ya conocido): el original
+    guarda `max_size()` en un registro y divide entre 3 en tiempo de ejecucion (`mulhwu 0xAAAAAAAB`),
+    tiene una comprobacion de longitud dentro del calculo de crecimiento descartado y una copia
+    inalcanzable del camino rapido detras. No se ha tocado `std/vector.h` (cabecera compartida).
+  - Los destructores (98,7-98,9%) solo difieren en numeros de registro: el bucle que destruye los
+    elementos del vector (contador, elemento, `&pn`, `pi`) recibe r25-r28 en orden inverso al original.
+    Probado en `std/vector.h` (revertido): orden de las variables del bucle, `clear()` en lugar de
+    `__shrink_unk(0)`, un nivel inline mas para el destructor del elemento y para el bucle entero, y
+    `~shared_ptr() {}` explicito; nada cambia el reparto salvo el registro del elemento.
+  - `__sinit_\Cut_cpp`: mismo problema que Label/Channel (el valor por defecto del ultimo atributo se
+    guarda antes que su hash).
+- **Decisiones tomadas**
+  - Se usa el `shared_ptr.hpp` real en lugar de adaptar `SharedPtr_unk.h` (era viable sin cambios).
+  - `Event::Cut` (0x4C): `Node` + `Sequence*` +0x08, indice +0x0C, skip +0x10, cinematic +0x14 (=1),
+    +0x18..+0x24, next_cut +0x28 (=-1), +0x2C, `vector<shared_ptr<Label> >` +0x30,
+    `vector<shared_ptr<Section> >` +0x3C, cuatro banderas +0x48 (las de EventLoader_unk). Nombres de los
+    miembros por los atributos de la tabla (`skip`, `cinematic`, `next_cut`, ...).
+  - `include/Event/Sequence.h`: `Event::Sequence` parcial, solo `mLabelCount` (+0x1A8). La clase es de
+    `Event/Sequence.cpp` (crea los cuts en 0x80540A08); EventLoader_unk sigue con su tipo local.
+  - Funcion reconstruida `Cut::fn_Stripped_unk` (copia de un `std::string`) para que el pool tenga los
+    mensajes de `reserve` y `__replace_unk` en el orden del original (pool identico, 0xFB).
+  - `symbols.txt` (renombrados): `fn_8053AFB8` -> `__ct__Q25Event3CutFPQ25Event8Sequencei`,
+    `fn_8053B028`/`fn_8053B030`/`fn_8053B828`/`fn_8053C124` -> miembros de `Event::Cut`,
+    `fn_8053C208` -> `__dt__Q25Event3CutFv`, `fn_8053C1B0..C200`/`fn_8053C4E0`/`fn_8053C520` -> miembros de
+    `sp_counted_impl_p<Section/Label>`, `fn_8053C560` -> `__sinit_\Cut_cpp`, `lbl_8075DC04` ->
+    `@stringBase0` (0xFC -> 0xFB), `lbl_80793C18` -> `sParamDefs_unk__5Event` (local).
+  - `game_units.json`: entrada nueva `Event/Cut.cpp` (`matching: false`).

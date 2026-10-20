@@ -2,7 +2,7 @@
 #define EVENT_CHANNEL_H
 
 #include "Event/Node.h"
-#include "Event/SharedPtr_unk.h"
+#include <boost/shared_ptr.hpp>
 #include "std/vector.h"
 #include "std/string.h"
 

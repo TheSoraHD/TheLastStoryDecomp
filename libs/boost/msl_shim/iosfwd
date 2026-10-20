@@ -1,0 +1,8 @@
+#ifndef SHIM_IOSFWD
+#define SHIM_IOSFWD
+// Stand-in for MSL C++ <iosfwd> (only the declarations boost/shared_ptr.hpp names).
+namespace std {
+template <class charT> struct char_traits;
+template <class charT, class traits> class basic_ostream;
+}
+#endif
