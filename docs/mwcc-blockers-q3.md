@@ -220,3 +220,8 @@ nombre de la copia debil del operator= y esta descartada por CharaLook_unk.
 ## Decisiones tomadas sin el usuario
 - No commitear ninguna variante de cabecera (condicion 8).
 - Dejar `Assign_unk`/`__VecCopyZFirst` donde estan.
+16. En ControlUseSkill real: `Vector3 t = GetTrans(); pos = t;` o `const Vector3& t = GetTrans(); pos = t;`
+   cambian la disposicion de pila (44 lineas distintas) sin arreglar los registros. NO vale.
+
+Estado final: rama `agent-3` limpia, ultimo commit = notas; `ninja -j1`: main.dol OK, regress lost 0,
+5375 funciones al 100% (igual que la referencia).
