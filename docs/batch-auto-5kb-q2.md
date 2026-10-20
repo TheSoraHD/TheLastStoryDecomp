@@ -32,3 +32,23 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - `(signed char)campo_unsigned` no reproduce `lbz`+`extsb` en el mismo orden que un campo `signed char`: el tipo del campo importa.
   - Una funcion que llama a otra autoinlineable del fichero con argumentos fijos (`fn_800D5A3C` -> `fn_800D5B58(w, h, 4, 0)`)
     se reconoce porque los registros de los parametros se crean antes que los locales del cuerpo inlineado.
+
+## atn/Se_unk (commit HASH2)
+
+- Resultado: 11/11 al 100%, `matching: true` (enlazada, `main.dol: OK`).
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**:
+  - Split sin cambios (`.text` + `.sdata2` 0x80881138-0x80881140 con 1.0f/0.0f).
+  - `symbols.txt` sin cambios: todas las funciones quedan `extern "C"` con su nombre `fn_` (Event, gmk y game ya las
+    declaran asi: `fn_800C3094`/`fn_800C3124` cargan/liberan grupos, `fn_800C31F4`/`fn_800C344C` devuelven `atn::SoundRef`).
+  - Tipos locales inventados con solo los campos usados: `SoundEngineSe_unk` (lbl_8087EE90), `SoundManagerSe_unk`
+    (lbl_8087EFE8, banderas 0x34A0/0x34B4/0x34B8) y `SoundObjectSe_unk` (`mSound` 0x04, `mA8`).
+  - `fn_800C31F4` recibe un tercer entero que no usa (los llamadores pasan -1; se llama a `fn_800C32E0` con -1 literal).
+  - Nombre real propuesto: ninguno (sin cadenas); parece la API de efectos de sonido del motor (`atn_se.cpp`?).
+- Hallazgos MWCC:
+  - `strlen` de `<string.h>` es intrinseca: el compilador mantiene un global en registro a traves de la llamada;
+    declarada a mano (`extern "C" unsigned long strlen(const char*)`) se recarga el global despues, como en el original.
+  - `bool v = f() - 1 != -1; if (v)` en el cuerpo da `subfic/addi/or/srwi.`; dentro de una inline o en el `if` directo
+    se pliega a `cmpwi r3,0`.
+  - Para el orden de ramas: `if (a == 0 || b == 0 || c == 0) return r;` da `beq` a la salida en cada termino;
+    con `c` en un `if` aparte el termino anterior sale como `bne`+`b`.
