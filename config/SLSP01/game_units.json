@@ -2214,7 +2214,7 @@
   "classes": [
    "MapPartsFlare"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsGimmickLoc.cpp",
