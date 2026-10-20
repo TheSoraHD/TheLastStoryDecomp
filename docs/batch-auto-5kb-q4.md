@@ -112,7 +112,7 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
     tarde y le da el registro mas bajo.
   - Las copias debiles no referenciadas (dtor de `PPUser_unk`, holder de `std::list`) las quita el enlazador.
 
-## atn/FileSystem_unk (commit HASH)
+## atn/FileSystem_unk (commit 15191aa)
 
 - Resultado: 11/22 al 100%, `matching: false` (`main.dol: OK`).
 - NONMATCHING (detalle en el fuente):
@@ -151,3 +151,27 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
   - Una busqueda binaria que relee `a[mid]` en cada rama casa con un `operator[]` inline sobre una referencia
     (`T& c = *(T*)p; c[mid]`).
   - `tolower` de MSL (`<ctype.h>`) da el patron `li 1 / li 0 / cmpwi` de la conversion a minusculas.
+
+## atn/XsfParser_unk (commit HASH)
+
+- Resultado: 9/24 al 100%, `matching: false` (`main.dol: OK`).
+- NONMATCHING: `fn_805BE8FC` 50.4% (lectura de claves con bytes invertidos: temporales en pila),
+  `fn_805BEA34` 99.5%, `XsfFile_unk::fn_805BEB54` 94.6%, `XsfIter_unk::fn_805BEE04` 87.3% (registros);
+  `XsfCurveSet_unk::fn_805BF204` 98.8% y `fn_805BF410` 99.6% (solo porque llaman a `fn_805BF214`, no reconstruida).
+  Sin escribir (13): el codigo de `std::map<float, clave>` de MSL (`__tree`: ctor/dtor del array de 13 mapas
+  0x805BEEC4/0x805BEFCC/0x805BEFE4/0x805BF164, busqueda+interpolacion 0x805BF214, insercion 0x805BF4B4/0x805BF590/
+  0x805BF794/0x805BFA54, destruccion recursiva 0x805BF8F4) y el rango 0x805BF660: el proyecto no tiene `<map>` de
+  MSL y reconstruirlo es un trabajo propio.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - Tipos inventados: `XsfFile_unk` (cabecera, comprueba `"XSF@"`/`"@FSX"` e invierte los bytes de los trozos),
+    `XsfIter_unk` (recorrido de trozos `{size, type, flags}`), `XsfChunk_unk`, `XsfCurveSet_unk` (13 canales de 16
+    bytes en 0x24).
+  - `symbols.txt`: metodos de esas clases (a mano), incluidos los no definidos `fn_805BF214/F4B4/F590` para que
+    casen las llamadas.
+  - Nombre real propuesto: sin pruebas (lector XSF de curvas; lo usa `atn/Xsca_unk`).
+- Hallazgos MWCC
+  - El intercambio de bytes `slwi 24` + tres `rlwimi` encadenados solo sale con el intrinseco `__rlwimi`
+    (las expresiones con desplazamientos y mascaras dan `rlwinm` + `or`).
+  - `__stwbrx`/`__sthbrx` sobre un puntero pasado a un inline (`Swap(&p->m)`) acercan el orden de direcciones del
+    original.
