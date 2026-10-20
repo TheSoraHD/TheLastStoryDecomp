@@ -147,3 +147,26 @@
 - 0x803CE688-0x803CE854 (entre GameTimer y GameUI, enlazada/fuente) se deja `auto_`: helpers de contador
   (llamados desde bad_cast/GameEventScript y GameSaveData_unk), sin constantes ni pool que lo asignen.
 - Renombrado en symbols.txt: `lbl_807506A0` -> `@stringBase0`.
+
+## Grupo 5 (gmk: 0x80408324-0x8040B560, 0x804225E0, 0x80423340, 0x8043465C-0x80435CE4, 0x8043F028-0x804405F8)
+
+- **0x80408324-0x8040B560** -> `gmk/Cannon.cpp` (0x80408324-0x804093B4) + `gmk/DropItem.cpp` (0x804093B4-0x8040B560).
+  Pruebas: vtables/RTTI `gmk::Cannon` y `gmk::DropItem` seguidas en .data; constante 0.0f propia (Cannon 0x80886294,
+  DropItem 0x808862C0); cada uno con su creador (0x80408324 / 0x804093B4, `new` con su pool 0x80752954 / 0x80752A5C)
+  y sus cadenas RTTI "gmk::Cannon" / "gmk::DropItem". DropItem: .bss 0x807C8888 (solo lo usa DropItem).
+- `gmk/CharaLight.cpp` (fuente) ampliado: .text desde 0x804225E0 (`fn_804225E0`, ya escrito en su fuente con la nota
+  "el split tendra que empezar ahi") hasta 0x8042335C (su `__sinit` 0x80423340 de los boost::function locales,
+  .ctors 0x8072D368, .sbss 0x8087F4C0-0x8087F4E0 con el @GUARD); .rodata desde 0x807533F0 (dobles de 0x80422BF4).
+  Resultado: `fn_804225E0` pasa a 100% (matched 4757 -> 4758).
+- `gmk/RandomItem.cpp` (fuente) ampliado: .text hasta 0x80435CE4 (`fn_8043465C/804348C4/80435684__Q23gmk10RandomItem`
+  ya nombrados como metodos de RandomItem; 0x80435908 lo llama 0x80435684; 0x80435CBC lee campos de RandomItem);
+  .rodata desde 0x80754180 (cadenas SE + tabla 0x807541A0 usada por 0x804348C4), .sdata2 hasta 0x808868C8.
+- **0x8043F028-0x804405F8** -> `game/Gun.cpp` (vtable 0x8078F228 con RTTI "Gun" 0x80886A1C, base Arms; constantes
+  0x80886A10-0x80886A18; pool 0x80754498 "it090_00.model"). Incluye ColliObjectData_unk/ColliTreeData_unk
+  (0x8043F5C4..0x8044058C) y el `__sinit` 0x804405CC (.ctors 0x8072D370), que cierra el fichero justo en el limite
+  con el agente D. Datos: .rodata 0x80754498-0x807544C8, .data 0x8078F210-0x8078F258, .sdata2 0x80886A10-0x80886A20.
+
+### Decisiones sin el usuario (grupo 5)
+- `game/Gun.cpp` en `game/` (clase sin namespace, base Arms); ColliObjectData_unk/ColliTreeData_unk podrian ser otro
+  fichero, pero no hay constante ni `__sinit` entre medias: quedan dentro de Gun. Revisar.
+- La entrada sdata2 0x80886A1C ("Gun") queda en Gun; 0x80886A20+ es del agente D (HomeButtonMenu).

@@ -1412,6 +1412,19 @@ gmk/Brazier.cpp:
 	.data       start:0x8078D328 end:0x8078D3C0
 	.sdata2     start:0x80886258 end:0x80886288
 
+gmk/Cannon.cpp:
+	.text       start:0x80408324 end:0x804093B4
+	.rodata     start:0x80752948 end:0x807529D0
+	.data       start:0x8078D3C0 end:0x8078D458
+	.sdata2     start:0x80886288 end:0x808862B8
+
+gmk/DropItem.cpp:
+	.text       start:0x804093B4 end:0x8040B560
+	.rodata     start:0x807529D0 end:0x80752AA8
+	.data       start:0x8078D458 end:0x8078D500
+	.bss        start:0x807C8888 end:0x807C8898
+	.sdata2     start:0x808862B8 end:0x80886318
+
 gmk/ChickenManager.cpp:
 	.text       start:0x8040B560 end:0x8040DC30
 	.rodata     start:0x80752AA8 end:0x80752B10
@@ -1551,9 +1564,11 @@ gmk/AttractHatePoint.cpp:
 	.sdata2     start:0x80886618 end:0x80886630
 
 gmk/CharaLight.cpp:
-	.text       start:0x80422610 end:0x80423340
-	.rodata     start:0x80753400 end:0x80753410
+	.text       start:0x804225E0 end:0x8042335C
+	.ctors      start:0x8072D368 end:0x8072D36C
+	.rodata     start:0x807533F0 end:0x80753410
 	.data       start:0x8078E2A8 end:0x8078E340
+	.sbss       start:0x8087F4C0 end:0x8087F4E0
 	.sdata2     start:0x80886630 end:0x80886658
 
 gmk/DoorSeal.cpp:
@@ -1653,10 +1668,10 @@ gmk/RandomMerchant.cpp:
 	.sdata2     start:0x80886868 end:0x80886890
 
 gmk/RandomItem.cpp:
-	.text       start:0x80432CF0 end:0x8043465C
-	.rodata     start:0x807541A8 end:0x807541E0
+	.text       start:0x80432CF0 end:0x80435CE4
+	.rodata     start:0x80754180 end:0x807541E0
 	.data       start:0x8078EE40 end:0x8078EED8
-	.sdata2     start:0x80886890 end:0x808868A8
+	.sdata2     start:0x80886890 end:0x808868C8
 
 gmk/SavePoint.cpp:
 	.text       start:0x80435CE4 end:0x80436E34
@@ -1687,6 +1702,13 @@ gmk/CharaPathMove.cpp:
 	.rodata     start:0x807543A0 end:0x80754498
 	.data       start:0x8078F178 end:0x8078F210
 	.sdata2     start:0x808869C8 end:0x80886A10
+
+game/Gun.cpp:
+	.text       start:0x8043F028 end:0x804405F8
+	.ctors      start:0x8072D370 end:0x8072D374
+	.rodata     start:0x80754498 end:0x807544C8
+	.data       start:0x8078F210 end:0x8078F258
+	.sdata2     start:0x80886A10 end:0x80886A20
 
 RecycleBuffer_gmk/ItemSlotAnime.cpp:
 	.text       start:0x8044D9BC end:0x80452710
