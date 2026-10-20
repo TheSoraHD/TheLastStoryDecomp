@@ -144,7 +144,7 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - `T& r = obj;` a nivel de espacio de nombres se inicializa en el `__sinit` (dos `li`/`stw` por referencia), como los placeholders de boost::lambda.
   - `boost::function<R(A)>` y `boost::function1<R, A>` no generan el mismo destructor: la forma portable anade un nivel de herencia.
 
-## atn/PostFxMotionBlur (commit HASH6)
+## atn/PostFxMotionBlur (commit c984be9)
 
 - Resultado: 2/3 al 100% (ctor y `fn_800AFEBC`), `matching: false`.
 - NONMATCHING: `PostFxMotionBlur::vf10` 99.78% - solo registros: el bloque de parametros/el flag al principio (r4/r6)
