@@ -19,3 +19,23 @@ Cola (de menor a mayor): `atn/LH_Core`, `atn/LH_Handle`, `atn/DwcAllocator_unk`,
 - Hallazgos MWCC
   - Store de un miembro seguido de su relectura (`stb` + `lbz` en vez de reusar el registro) = miembro `volatile`;
     dos miembros `volatile` dejan el store de la vtable entre sus stores en el ctor.
+
+## atn/LH_Handle (commit HASH)
+
+- Resultado: 8/9 al 100%, `matching: false` (`main.dol: OK`).
+- NONMATCHING: `fn_80473FCC__Q23atn10LoadHandleFPCc` 99.2% - solo reparto de registros (`this` r20 y desplazamiento
+  del bucle r19 en el original; aqui al reves). 8 variantes probadas (anotadas en el fuente).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (sin `.rodata` propio; RTTI de `LoadHandle` en `LH_Binary`).
+  - `symbols.txt` (pairnames): `fn_80473F18`/`fn_80473F34` -> metodos de `LoadHandle` (ruta y hash del recurso),
+    `fn_80473FCC` -> `fn_80473FCC__Q23atn10LoadHandleFPCc` (carga y espera: corre el cargador, la lista de
+    callbacks `boost::function<void()>` de `lbl_8087EE94` y `OSSleepTicks(1 ms)` mientras esta ocupado).
+  - `include/atn/LoadHandle.h`: `operator=` devuelve `void` (0x804741C0 no devuelve `this`); nuevas
+    declaraciones `fn_80473F18/F34/FCC`.
+  - `include/atn/LoadCore.h`: `GetState_unk()` inline que devuelve `int` (0x80473F50 compara con `cmpwi`).
+  - `include/atn/LoadManager.h`: `LoadManager_unk` tiene vtable (0x80473FCC llama al slot 0x10): tres virtuales
+    `vf08/vf0C/vf10` declaradas, `m00[0x48]` pasa a `m04[0x44]` (mismos desplazamientos).
+  - Tipo inventado `LoadCallbacks_unk` (cuenta en 0x0, array de `boost::function<void()>` en 0x8) para
+    `lbl_8087EE94` (tambien lo recorren `atn::AudioDevice` 0x80046228 y `main`).
+- Hallazgos MWCC
+  - Leer un `u8` a traves de un inline que devuelve `int` da `cmpwi` en vez de `cmplwi` al compararlo.

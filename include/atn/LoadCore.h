@@ -16,6 +16,8 @@ public:
     void fn_804730D4();                    // inferred: adds a reference
     void fn_804730E4();                    // inferred: drops a reference
     void fn_80473130();
+    // inferred: the state as an int (0x80473F50 compares it signed)
+    int GetState_unk() const { return mState; }
 
     volatile unsigned char mState; // 0x04: inferred volatile (threaded loader): 0x80473104 reloads it after the store
     volatile unsigned char m05;

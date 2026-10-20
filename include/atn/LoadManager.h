@@ -30,6 +30,10 @@ struct __HashIs_unk {
 // inferred: manager of the resources being loaded (global at 0x8087F518). Name invented.
 class LoadManager_unk {
 public:
+    // inferred: it has a vtable (0x80473FCC calls the slot 0x10); the other slots are unknown
+    virtual void vf08();
+    virtual void vf0C();
+    virtual void vf10(); // inferred: advances the pending loads
     int fn_8046C3FC(LoadCore* core);  // inferred: queues the resource, 0 on failure
     void fn_8046F5CC(LoadCore* core); // inferred: releases a resource that could not be queued
     LoadCore* fn_8046F834(void* list, unsigned int hash); // inferred: lookup in another container
@@ -52,7 +56,7 @@ public:
     template <class T>
     T* Get_unk(const char* path, int cached);
 
-    unsigned char m00[0x48];
+    unsigned char m04[0x48 - 0x04];
     unsigned char m48[0x3ECC - 0x48]; // inferred: another container, see fn_8046F834
     std::list<LoadCore*> mList;       // 0x3ECC
     unsigned char m3ED8[0x3EDC - 0x3ED8];
