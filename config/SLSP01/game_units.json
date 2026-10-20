@@ -3184,6 +3184,13 @@
   "matching": true
  },
  {
+  "name": "gmk/DropItem.cpp",
+  "classes": [
+   "gmk::DropItem"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/HomeButtonMenu.cpp",
   "classes": [
    "HomeButtonMenu"
