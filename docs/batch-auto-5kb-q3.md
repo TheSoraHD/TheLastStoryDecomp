@@ -216,3 +216,23 @@ Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `at
   - Macros MAX/MIN que evaluan dos veces sus argumentos se ven como `cmplw; ble L; b fin; L: <recalculo>`.
   - `a = b = c = 0.0f` guarda de derecha a izquierda (c primero); asi salen `Matrix3x4::SetIdentity` y los
     ceros en orden descendente.
+
+## atn/EffectLoader_unk (commit HASH9)
+
+- Resultado: 4/5 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_80239030` 90.51% (carga del .eff: intercambio de bytes, reubicacion de desplazamientos,
+  copias de curvas de versiones antiguas): reparto de registros (cabecera r26 / recurso r27 en el original).
+- **Decisiones sin el usuario**
+  - Splits: `.data` 0x80783A18-0x80783A50 -> 0x80783A18-0x80783BB0: absorbe el tramo `auto_07_80783A50_data`
+    (las tablas de intercambio de bytes, solo las usa este fichero desde la base `lbl_80783A18`).
+  - `symbols.txt`: `lbl_80742FE0` -> `@stringBase0` (0x12, `""` + "old eff version!").
+  - Cabecera nueva compartida `include/atn/SwapDesc_unk.h` (descripcion de intercambio de bytes y
+    `fn_802371BC`), usada tambien por `EfpHandle_unk.cpp` (sigue 14/15).
+  - Tipos inferidos locales: cabecera del fichero, `EffectResData_unk` (misma estructura que `EffectRes_unk` de
+    `EffectRes_unk.cpp`, con mas campos nombrados), emisor de 0x26C con los campos convertidos.
+  - Nombre real propuesto: `atn_effect_loader.cpp`?
+- Hallazgos MWCC
+  - La forma exacta de la expresion de inversion de 32 bits decide la secuencia: `(v << 24) | ((v >> 8) & 0xFF00)
+    | (v >> 24) | ((v << 8) & 0xFF0000)` da `slwi` + 3 `rlwimi` y, guardada directamente en memoria, `stwbrx`.
+  - Un bucle interno que lee `curve->mCount` en cada vuelta no se desenrolla; con la cuenta y el puntero en
+    locales se desenrolla x8 y entonces el bucle externo (3 vueltas) ya no se desenrolla.

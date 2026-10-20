@@ -1148,6 +1148,11 @@
   "matching": false
  },
  {
+  "name": "atn/EffectLoader_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/EffectManager.cpp",
   "classes": [
    "atn::EffectManager"

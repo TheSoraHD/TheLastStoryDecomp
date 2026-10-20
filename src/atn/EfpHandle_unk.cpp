@@ -1,5 +1,6 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/ResLoader_unk.h"
+#include "atn/SwapDesc_unk.h"
 
 // Loaders of the effect resources (ResLoader_unk: LH_Effect, EfpHandle_unk: LH_Efp) and the byte
 // swapper of the effect files. Name of the file invented.
@@ -20,14 +21,6 @@ extern "C" atn::EffectManager* lbl_8087F3C0; // inferred: EffectManager instance
 
 #include "std/ios_init_unk.h"
 
-// inferred: byte swap description of a binary structure: list of {type, count} terminated by
-// type -1; type 0 skips `count` bytes, 1/2/3 swap `count` 16/32/64-bit values, 4 repeats the
-// sub-description `count` times. Names invented.
-struct SwapDesc_unk {
-    short mType;
-    short mCount;
-    SwapDesc_unk* mSub;
-};
 
 // inferred: 64-bit value in a struct with an array member: it is not scalarised, so its copy leaves
 // dead stores on the stack like the original
@@ -40,7 +33,7 @@ struct Swap64_unk {
 // (update form) instead of offsets + separate addresses, the 64-bit body schedules differently
 // and the saved registers are shifted by one (r26-r31 vs r25-r31 in the original)
 // inferred: swaps `data` in place following `desc`; returns the size processed
-extern "C" int fn_802371BC(unsigned char* data, SwapDesc_unk* desc) {
+extern "C" int fn_802371BC(unsigned char* data, const SwapDesc_unk* desc) {
     int size = 0;
     if (desc != 0) {
         for (; desc->mType != -1; desc++) {
