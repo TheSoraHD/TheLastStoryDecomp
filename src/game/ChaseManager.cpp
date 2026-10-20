@@ -282,7 +282,8 @@ void ChaseManager::vf10() {
         pos += offset;
         atn::Vector3 angle = dir.ToRotation_unk();
         if (mEffect == 0) {
-            pos.y += 0.5f * (float)sin(0.017453292f * (3.0f * m1B4));
+            float s = sin(atn::DegToRad_unk(3.0f * m1B4));
+            pos.y += 0.5f * s;
             pos.y += 5.0f * -(float)sin(angle.x);
             if (player->mFlag28) {
                 pos.y += 5.0f;
@@ -374,10 +375,12 @@ inline ChaseGoal_unk* ChaseGoalTable_unk::Find_unk(int id) {
     return 0;
 }
 
-// NONMATCHING: 99.4% - registers of the inlined goal search loop differ (table/offset/index); 5 variants tried
+// NONMATCHING: 99.6% - registers of the inlined goal search loop differ (offset/table swapped); tried
+// Find_unk forms (pointer sum, result variable, local data pointer), free helpers, declaration orders
 void ChaseManager::fn_80183618(int id) {
     RemoveMarker_unk();
-    ChaseGoal_unk* goal = lbl_8087F430->m10D8->Find_unk(id);
+    ChaseGoalTable_unk* table = lbl_8087F430->m10D8;
+    ChaseGoal_unk* goal = table->Find_unk(id);
     if (goal != 0) {
         mGoalId = id;
         mGoal = goal->mPos;
