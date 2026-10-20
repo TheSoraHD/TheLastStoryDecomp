@@ -54,18 +54,36 @@ struct ColorMatrixOwner_unk {
 extern "C" ColorMatrixOwner_unk* fn_800C1424(PostFxFrameBuffer_unk* fb);
 extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 
-// inferred: clamp limits kept in .sdata (zero-initialized data in .sdata needs explicit_zero_data,
-// which this build does not use, so they are only declared here)
-extern "C" float lbl_8087D828;
-extern "C" float lbl_8087D82C;
-extern "C" float lbl_8087D830;
-extern "C" float lbl_8087D834;
-extern "C" float lbl_8087D838;
-extern "C" float lbl_8087D83C;
-extern "C" float lbl_8087D840;
-extern "C" float lbl_8087D844;
-extern "C" float lbl_8087D848;
-extern "C" float lbl_8087D84C;
+// inferred: clamp limits (0.0f, 1.0f) of the time and of the four components, kept as globals in .sdata.
+// The original keeps the zeros in .sdata, which MWCC only does with explicit_zero_data (approved exception,
+// only around the zero definitions; without it they go to .sbss).
+extern "C" {
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D828 = 0.0f;
+#pragma pop
+float lbl_8087D82C = 1.0f;
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D830 = 0.0f;
+#pragma pop
+float lbl_8087D834 = 1.0f;
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D838 = 0.0f;
+#pragma pop
+float lbl_8087D83C = 1.0f;
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D840 = 0.0f;
+#pragma pop
+float lbl_8087D844 = 1.0f;
+#pragma push
+#pragma explicit_zero_data on
+float lbl_8087D848 = 0.0f;
+#pragma pop
+float lbl_8087D84C = 1.0f;
+}
 
 #define CM_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define CM_MAX(a, b) ((a) > (b) ? (a) : (b))
