@@ -2,6 +2,7 @@
 #define GAME_CHARATASK_H
 
 #include "atn/Task.h"
+#include "atn/LipSync_unk.h"
 #include "atn/Array_unk.h"
 #include "atn/ColliBase.h"
 #include "atn/EfpHandle_unk.h"
@@ -197,15 +198,6 @@ struct CharaC58_unk {
     void fn_8011BE54();
     void fn_8011BEB8(int arg);
     void fn_8011C044(int arg);
-};
-
-// inferred: object at CharaTask+0x1154 (constructor 0x8007A75C called out of line; class unknown)
-struct Chara1154_unk {
-    Chara1154_unk();
-    void fn_8007A7BC(Model_unk* model); // inferred: per-frame update (CharaTask::fn_80145334)
-
-    unsigned char m00[0x30];
-    void* m30; // inferred: callback (CharaTask sets fn_80218260)
 };
 
 // inferred: object at CharaTask+0x1188 (constructor 0x8011D24C called out of line; class unknown)

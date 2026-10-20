@@ -2743,5 +2743,13 @@
   "name": "atn/Math_unk.cpp",
   "classes": [],
   "matching": true
+ },
+ {
+  "name": "atn/LipSync_unk.cpp",
+  "classes": [
+   "Chara1154_unk",
+   "LipSyncData_unk"
+  ],
+  "matching": false
  }
 ]

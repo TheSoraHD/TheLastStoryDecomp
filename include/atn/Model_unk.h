@@ -153,9 +153,10 @@ struct Model_unk {
         float m08; // inferred: frame
         float m0C; // inferred: speed
         float m10; // inferred: set to 1.0 when CharaTask::mFlag7 is set (fn_80145334)
-        unsigned char m14[0x18 - 0x14];
+        float m14; // inferred: weight (set by the lip sync, Chara1154_unk::fn_8007A7BC)
         unsigned char m18; // inferred: nonzero = the end is tested one step early (CharaTask::fn_8015EB2C)
-        unsigned char m19[0x20 - 0x19];
+        unsigned char m19[0x1C - 0x19];
+        float m1C; // inferred: current value (moved towards the key by the lip sync)
         float m20; // inferred: weight
         unsigned char m24[0x30 - 0x24];
     };
