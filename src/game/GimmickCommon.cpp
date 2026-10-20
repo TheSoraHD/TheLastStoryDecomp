@@ -40,6 +40,7 @@
 #include "gmk/MotionObject.h"
 #include "gmk/AutomaticDoor.h"
 #include "gmk/SwingObject.h"
+#include "gmk/Bat.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -221,7 +222,6 @@ extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80405DD4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
@@ -293,7 +293,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 8: gimmick = gmk::Item::fn_803FBFA8(parent, desc); break;
     case 9: gimmick = fn_803FC8D8(parent, desc); break;
     case 10: gimmick = gmk::SwingObject::fn_803FE570(parent, desc); break;
-    case 13: gimmick = fn_80402978(parent, desc); break;
+    case 13: gimmick = gmk::Bat::fn_80402978(parent, desc); break;
     case 14: gimmick = fn_80405DD4(parent, desc); break;
     case 15: gimmick = fn_80405DD4(parent, desc); break;
     case 16: gimmick = fn_804067D8(parent, desc); break;
