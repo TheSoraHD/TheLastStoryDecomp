@@ -1914,8 +1914,8 @@ game/NewCampPartsStatus.cpp:
 
 game/NewCampPartsTop.cpp:
 	.text       start:0x80529118 end:0x8052A888
-	.rodata     start:0x8075D190 end:0x8075D1A0
-	.data       start:0x80793740 end:0x807937C8
+	.rodata     start:0x8075D0D0 end:0x8075D310
+	.data       start:0x80793720 end:0x807937E8
 	.sdata2     start:0x80887A88 end:0x80887AB0
 
 game/NewCampTask.cpp:
