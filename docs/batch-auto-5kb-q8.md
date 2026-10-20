@@ -176,7 +176,7 @@ Fusionada en `game/MapPartsOcean`.
 - Hallazgos MWCC: `0.017453292f * x` en un helper inline (`DegToRad_unk`) deja la constante en f0 y los
   campos en f9/f8/f7, como el original; escrito en linea la constante toma f9.
 
-## game/PlayerManager (commit HASH10)
+## game/PlayerManager (commit 7a2a1e5)
 
 - Resultado: 6/8 al 100%, `matching: false`.
 - NONMATCHING:
@@ -197,3 +197,50 @@ Fusionada en `game/MapPartsOcean`.
     punteros a jugador + uno), `LeaderListener_unk` (`lbl_8087FA00`, elementos de 0x37C), `MpPlayer_unk`.
   - `symbols.txt`: los 8 `fn_8054xxxx` -> metodos de `PlayerManager` (creador, `__dt__`, `vf0C`, `vf1C`,
     `fn_80549F14`, `fn_8054A09C`, `fn_8054A33C`, `fn_8054A398`); `lbl_8075E468` -> `@stringBase0` (0x10 -> 0xF).
+
+## Event/Manager_cont (sin commit propio: no decompilada)
+
+- Resultado: 0/3, se deja como unidad en asm (sin fuente ni entrada en `game_units.json`).
+- **Decision sin el usuario: no se fusiona ni se decompila.** El `_cont` no es la continuacion de
+  `Event/PostSequence` (la unica unidad enlazada vecina) sino del fichero de `Event/Manager` (sin fuente,
+  `matching: false`): su `.rodata` 0x80756380 es el pool entero de cadenas de Event::Manager (rutas d2a,
+  nombres del menu de depuracion "DebugCamera", "MAStartOffset"..., "event2/%s.event", "SE_UICOM_011",
+  "basePos"/"colorR"...), el `__sinit` 0x80490850 lee constantes de la `.sdata2` de Event/Manager
+  (0x80886F98, 0x80887000) y las dos funciones grandes son plantillas de `std::vector` de un elemento de
+  0x194 bytes de Event::Manager. El fichero real seria Event/Manager + Event/PostSequence (+SequenceRoot)
+  + Event/Manager_cont (0x8047B768-0x80490884). Con Event/Manager sin decompilar no se puede reproducir
+  ni el pool ni las constantes compartidas, asi que ni la fusion en PostSequence (romperia su
+  `matching: true`) ni una unidad propia llegan al 100%.
+- Propuesta: fusionar `Event/Manager`, `Event/PostSequence` y `Event/Manager_cont` en `Event/Manager.cpp`
+  cuando se decompile Event::Manager.
+
+## Event/Section (commit HASH12)
+
+- Resultado: 5/6 al 100%, `matching: false`.
+- NONMATCHING: `fn_8053C788__Q25Event7SectionFv` 38% - crea un `boost::shared_ptr<Channel>` y lo mete en
+  el vector: el original cuenta referencias con bucles `lwarx/stwcx.` (funciones asm de boost para
+  CodeWarrior PPC), imposibles sin asm; aqui son incrementos normales. Mientras no se acepte asm, ninguna
+  funcion que copie o libere un `shared_ptr` puede llegar al 100% (afecta a Cut, Channel, Section).
+- **Decisiones sin el usuario**
+  - Cabecera nueva `include/Event/SharedPtr_unk.h`: reconstruccion minima de `boost::shared_ptr`,
+    `detail::shared_count`, `sp_counted_base` (vptr en +8, tras los dos contadores) y
+    `sp_counted_impl_p<T>`, con `sp_enable_shared_from_this(const shared_count&, ...)` vacia y variadica.
+    Con ella salen al 100% `dispose`, `get_deleter` y el destructor de `sp_counted_impl_p<Channel>`.
+  - Cabeceras nuevas `include/Event/Section.h` (`Section : Node`, 0x24: `Cut*`, `m0C`, `m10`, `m14`=1,
+    `std::vector<shared_ptr<Channel> >` en +0x18; el ctor recibe un indice que no guarda) y
+    `include/Event/Channel.h` (`Channel : Node`, 0x20, `std::vector<shared_ptr<Action> >` en +0x14).
+    `include/Event/Node.h`: `ParamEnum_unk` (pares nombre/etiqueta de los enums) como tipo de `mEnumNames`.
+  - Cuatro tablas de atributos (una por tipo de seccion: director, camera, character, dialog) como
+    arrays estaticos separados: el `__sinit` recalcula `base + 0x60*k` para cada una.
+  - Funcion reconstruida `Section::fn_Stripped_unk` (`path += "."`) por el pool, como en Label.
+  - `symbols.txt`: `fn_8053C750` -> `__ct__Q25Event7SectionFPQ25Event3Cuti`, `fn_8053C788` ->
+    `fn_8053C788__Q25Event7SectionFv`, `fn_8053CED8`/`fn_8053CEFC`/`fn_8053CF04` -> `dispose`/`get_deleter`/
+    `__dt__` de `boost::detail::sp_counted_impl_p<Event::Channel>`, `fn_8053CF44` -> `__sinit_\Section_cpp`,
+    `lbl_8075DE90` -> `@stringBase0` (0x68 -> 0x66); en Event/Cut `fn_8053BF80` -> `__dt__Q25Event7SectionFv`;
+    en Event/Channel `fn_8053AC68` -> `destroy__Q35boost6detail15sp_counted_baseFv` y `fn_8053AC88` ->
+    `sp_enable_shared_from_this__Q25boost6detailFRCQ35boost6detail12shared_counte`.
+  - `symbols.txt` (**simbolos anadidos**): `lbl_80793E58` (0x180) se parte en cuatro de 0x60
+    (`lbl_80793E58`, `lbl_80793EB8`, `lbl_80793F18`, `lbl_80793F78`), uno por tabla; con un solo simbolo
+    objdiff no da el 100% al `__sinit` aunque las instrucciones sean identicas.
+- Hallazgos MWCC: MWCC pone el puntero a la vtable detras de los miembros de datos declarados antes de la
+  primera funcion virtual (boost `sp_counted_base`: contadores en 0/4, vptr en 8).

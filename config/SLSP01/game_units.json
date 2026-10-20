@@ -2612,6 +2612,13 @@
   "matching": false
  },
  {
+  "name": "Event/Section.cpp",
+  "classes": [
+   "Event::Section"
+  ],
+  "matching": false
+ },
+ {
   "name": "Event/EventLoader_unk.cpp",
   "classes": [],
   "matching": false

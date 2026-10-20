@@ -14,6 +14,12 @@ struct ParamValue_unk {
     int mValue;
 };
 
+// inferred: name of an enum value of an attribute (xml name, label; both the same string)
+struct ParamEnum_unk {
+    const char* mName;
+    const char* mLabel;
+};
+
 // inferred: attribute of an event node read from the event file (tables of 0x18 bytes in
 // Event/Channel, Cut, Label and Section; only their __sinit is left, the readers were stripped)
 struct ParamDef_unk {
@@ -22,7 +28,7 @@ struct ParamDef_unk {
     int mType;               // 0x08: inferred: 0 int, 0x1C string, 0x1F enum...
     ParamValue_unk mDefault; // 0x0C
     int mEnumCount;          // 0x10
-    const char** mEnumNames; // 0x14
+    const ParamEnum_unk* mEnumNames; // 0x14
 };
 
 // inferred: name buffer of a node (freed with delete[] by ~Node, 0x80537780)
