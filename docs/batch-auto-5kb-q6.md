@@ -84,7 +84,7 @@ funciones `extern "C" fn_<addr>`.
   - `if (0 > k || k >= N) return 0;` da `blt fallo; cmpwi; blt ok` (dos `cmpwi` con signo); `k >= 0 && k < N` se fusiona
     en `cmplwi`.
 
-## db/VoiceLengthTable_unk (commit HASH)
+## db/VoiceLengthTable_unk (commit 390b4de)
 - Resultado: 2/2 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -95,3 +95,22 @@ funciones `extern "C" fn_<addr>`.
     `extern "C" std::string (const std::string&)` (ruta con el sufijo de idioma "_xx" sustituido; inferido). Incluye
     `std/string_members.h` (el pool lleva las cadenas de error de `basic_string`).
 - Hallazgos MWCC: nada nuevo (`std::string path(p); path = f(path);` reproduce el `operator=` inline de `std/string.h`).
+
+## db/TutorialTable_unk (commit HASH)
+- Resultado: 5/6 al 100%, matching no.
+- NONMATCHING: `fn_8021ED08` (cargador UTF-16) 97.71% - solo registros: el original guarda la direccion del
+  `atn::CsvU` en un registro salvado mientras corre su ctor inline (mismo problema que `db/PaletteTable_unk` y
+  `db/EquipParam_unk` de q5). Probado (en copia local de `include/atn/Csv.h`) llamar a `vf08` desde otro inline en el
+  ctor de `CsvBase`: sin efecto. No se toca la cabecera compartida.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_8021F040`/`fn_8021F054` -> `__ct__/__dt__17TutorialEntry_unkFv`; datos `lbl_80742760` ->
+    `sFileNameStr`, `lbl_8074277C` -> `sDemoFileNameStr`, `lbl_807427A0` -> `@stringBase0`, `lbl_8087F340` -> `sEntries`,
+    `lbl_8087F344` -> `sCount`, `lbl_80882FD8` -> `sFileName`, `lbl_80882FDC` -> `sDemoFileName`.
+    (`pairnames --apply` emparejo mal el ctor con `vf08` y `lbl_8077A0A8`/`lbl_8087EEC8` con simbolos de funciones:
+    corregido a mano; revisar siempre su salida en unidades con copias debiles.)
+  - Tipos inferidos `TutorialEntry_unk` (0xEC: id, entero, `atn::FixedString_unk<0x20>`, `WFixedString_unk<0x40>`
+    (wide, nuevo y local al .cpp), entero, `FixedString_unk<0x40>`); `TutorialSettings_unk` (solo `m194`, version demo,
+    de `lbl_8087F0A8`). `fn_8006F5E8` declarado `extern "C" void (void* font, std::string*, const wchar_t*)` (convierte
+    UTF-16 a `std::string`).
+- Hallazgos MWCC: nada nuevo.
