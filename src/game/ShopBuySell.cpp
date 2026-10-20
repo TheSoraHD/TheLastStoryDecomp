@@ -616,7 +616,7 @@ void ShopBuySell::fn_80586620(int id) {
     }
 }
 
-// NONMATCHING: about 95% - the layout of SetPaneText_unk is kept in a saved register in the original, the
+// NONMATCHING: 93.58% - the layout of SetPaneText_unk is kept in a saved register in the original, the
 // icon rectangle is computed in another order (0.5f first) and several temporaries take other registers
 void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     ShopPoint_unk pos;
