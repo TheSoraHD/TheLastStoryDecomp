@@ -427,8 +427,8 @@ chr/ControlChaseCaught.cpp:
 
 chr/ControlCliffhang.cpp:
 	.text       start:0x801AAB64 end:0x801AC434
-	.rodata     start:0x8073A960 end:0x8073A978
-	.data       start:0x8077FB60 end:0x8077FBD8
+	.rodata     start:0x8073A958 end:0x8073A978
+	.data       start:0x8077FB48 end:0x8077FBD8
 	.sdata2     start:0x80882290 end:0x808822E8
 
 chr/ControlDamage.cpp:
