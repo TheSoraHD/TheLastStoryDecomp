@@ -2948,5 +2948,12 @@
    "atn::CompositeCache_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/PostFxDof.cpp",
+  "classes": [
+   "atn::PostFxDof"
+  ],
+  "matching": false
  }
 ]

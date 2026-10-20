@@ -182,5 +182,5 @@ CompositeCacheEntry_unk* CompositeCache_unk::fn_800D8698(const char* base, const
 
 } // namespace atn
 
-// 0x800D87A4-0x800D8894 (handle helpers, color ctor, texture accessors) is not part of this file: they are not
-// inlined in their callers, so they come from another file (probably atn/CompositeIntensityTintMulti).
+// 0x800D87A4-0x800D8894 (handle helpers, color ctor, texture accessors) is not part of this file: they call
+// fn_800D8448/fn_800D8458 out of line, so they come from another file (probably atn/CompositeIntensityTintMulti).

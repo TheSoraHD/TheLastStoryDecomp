@@ -86,3 +86,24 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
     eq = t && x4;` (un temporal distinto) se reconoce por `li r5,0`/`li r5,1` intermedios y el ultimo en el registro de `eq`.
   - Una comparacion de floats dentro de una inline que devuelve `bool` sale con `mfcr`; escrita en linea, con `bge`.
   - Las clases plantilla derivadas vacias con dtor emiten sus dtors debiles aunque nadie los llame (el enlazador los elimina).
+
+## atn/PostFxDof (commit HASH4)
+
+- Resultado: 2/3 al 100% (ctor y `vf10`, 0x5DC), `matching: false`.
+- NONMATCHING: `PostFxDof::fn_800ACCB8` (reconstruye la tabla de profundidad 256x256 IA8) 97.47% - reparto de FPR de la
+  conversion distancia -> profundidad del principio (n/f en f9/f3 en el original); ~12 variantes (locales, inline,
+  orden de operandos). El bucle de la tabla y la limpieza de la esquina ya coinciden.
+- **Decisiones sin el usuario**:
+  - Split sin cambios (ya tenia `.rodata`, vtable/RTTI en `.data` y `.sdata2`; el dtor es la copia debil 0x800A91D4 de otro fichero).
+  - `symbols.txt`: `fn_800AC6DC` -> `vf10__Q23atn9PostFxDofFPv` (entrada 4 de la vtable); `fn_800ACCB8` ->
+    `fn_800ACCB8__Q23atn9PostFxDofFv`; `lbl_80732C00` -> `@stringBase0` (pool `""` de `fn_800839EC`).
+  - Clase `atn::PostFxDof : IPostFx` (de `include/atn/PostFx.h`) con campos inferidos: `m04` (ultimo `mE0`), tres
+    `GXTexObj` (copia reducida, copia desenfocada, tabla), `mTable` y las cuatro profundidades de la tabla (`m6C`-`m78`, -1 al crear).
+  - Structs locales por offset: `DofParams_unk` (lbl_8087EFA8: 0xD8-0x100) y `DofFrameBuffer_unk` (lbl_8087EFB4:
+    near/far 0x1CC/0x1D0, texturas de profundidad 0x74C y color 0x77C). Funciones GX que faltaban declaradas en el
+    `.cpp` (no en `GXDecl.h`: hay declaraciones locales incompatibles de `GXGetTexBufferSize`/`DCFlushRange` en otros ficheros).
+- Hallazgos MWCC:
+  - `float m[2][3]` rellenado elemento a elemento en orden reproduce `lfs f0/f1` + `stfs`; con inicializador de llaves
+    MWCC copia un objeto de `.rodata` con `lwz`/`stw`.
+  - Un `GXColor c = {..}` constante declarado dentro del `if` donde se usa va igualmente a `.sdata2` en el orden del primer uso.
+  - Los `if/else` de saturacion escritos en linea (no en inline) cambian el reparto de FPR del bucle.
