@@ -269,7 +269,7 @@ Fusionada en `game/MapPartsOcean`.
 - Hallazgos MWCC: `float s = 1.0f;` local no se propaga: `228.0f * -s` sale `lfs 1.0; fneg; fmuls`, y si
   el local esta en cada rama la constante se carga dentro de cada una.
 
-## Event/Channel (commit HASH14)
+## Event/Channel (commit d70b142)
 
 - Resultado: 8/11 al 100%, `matching: false`.
 - NONMATCHING:
@@ -294,3 +294,23 @@ Fusionada en `game/MapPartsOcean`.
     `@STRING@__allocate__Q23std45vector<Q25boost27shared_ptr<Q25Event6Action>>FUi` (`scope:local`); en
     Event/Node `fn_80537708` -> `__ct__Q25Event6ActionFPQ25Event7Channeli`, `fn_8053A40C` ->
     `__dt__Q25Event6ActionFv`, `fn_8053A3CC` -> `vf0C__Q25Event6ActionFv` (por la vtable de Action).
+
+## game/GameSystem_unk (commit HASH15)
+
+- Resultado: 10/12 al 100%, `matching: false`.
+- NONMATCHING:
+  - `fn_80570A74` 89.4% - reparto de registros (el original deja el contador externo en r31 y el indice del
+    borrado en un volatil); probado contadores fuera del `for`, int/unsigned y un `Erase_unk` inline.
+  - `fn_80570CF8` 99.9% - en el bloque del fundido el original carga `mFade` en r4 y el menu HOME en r3.
+- **Decisiones sin el usuario**
+  - Estructura inventada `GameSystem_unk` (0x30, singleton `lbl_8087F9A0`): banderas de reinicio/reset/vuelta
+    al menu/canal del disco/apagado, fundido `atn::FadeColor`, contador de inactividad (5400 frames si
+    `lbl_8087F0A8->m194`), bloqueo con peticiones diferidas. Callbacks de power (`fn_80570B48`) y reset
+    (`fn_80570BD0`, `fn_805F69E0` = OSSetResetCallback sin nombre). Inline `StopGame_unk` (repetida en todas
+    las funciones) y `GameSystem_StartFade_unk`; `GameFlow_unk::IsBusy_unk` como `int busy = 0; if (...)
+    busy = 1;` (con `return a || b || ...` sale `cntlzw`).
+  - Vista local de `HomeButtonMenu` (solo `sInstance`, `m84`, `m88`, `m90`) y tipos locales para el objeto de
+    GameTask (`fn_80570A14..A64`) y la lista de efectos del campo (`fn_80570A74`, llamada por game/Arms);
+    estas cinco funciones no tienen datos y podrian ser de `game/ReplayBuffer`.
+  - Todas las funciones siguen `extern "C"` (las declaran asi HomeButtonMenu/Arms).
+  - `symbols.txt`: `lbl_8075FFB0` -> `@stringBase0` (0x8 -> 0x1).
