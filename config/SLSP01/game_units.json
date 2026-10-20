@@ -3328,5 +3328,15 @@
   "name": "game/HomeButton_unk.cpp",
   "classes": [],
   "matching": false
+ },
+ {
+  "name": "db/SpText_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/MapLink_unk.cpp",
+  "classes": [],
+  "matching": false
  }
 ]

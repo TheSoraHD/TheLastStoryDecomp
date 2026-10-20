@@ -1328,7 +1328,7 @@ db/MapEnvSeTable_unk.cpp:
 	.sdata2     start:0x80882F00 end:0x80882F08
 
 db/MapLink_unk.cpp:
-	.text       start:0x802150F0 end:0x80216A2C
+	.text       start:0x802150F0 end:0x80216AFC
 	.ctors      start:0x8072D304 end:0x8072D308
 	.rodata     start:0x8073FB28 end:0x8073FB80
 	.bss        start:0x807C7FB0 end:0x807C7FF8
@@ -1337,7 +1337,7 @@ db/MapLink_unk.cpp:
 	.sdata2     start:0x80882F08 end:0x80882F18
 
 db/MapIdTable_unk.cpp:
-	.text       start:0x80216A2C end:0x80217778
+	.text       start:0x80216AFC end:0x80217778
 	.rodata     start:0x8073FB80 end:0x8073FC00
 	.sdata      start:0x8087DB90 end:0x8087DB98
 	.sbss       start:0x8087F270 end:0x8087F280
@@ -1404,7 +1404,7 @@ db/SkillGrowth_unk.cpp:
 	.sdata2     start:0x80882F78 end:0x80882F80
 
 db/SpText_unk.cpp:
-	.text       start:0x8021B060 end:0x8021CC50
+	.text       start:0x8021B060 end:0x8021CCC4
 	.ctors      start:0x8072D308 end:0x8072D30C
 	.rodata     start:0x80742600 end:0x80742660
 	.data       start:0x80783100 end:0x80783510
@@ -1414,7 +1414,7 @@ db/SpText_unk.cpp:
 	.sdata2     start:0x80882F80 end:0x80882F98
 
 db/StrategyAiTable_unk.cpp:
-	.text       start:0x8021CC50 end:0x8021CF4C
+	.text       start:0x8021CCC4 end:0x8021CF4C
 	.rodata     start:0x80742660 end:0x807426A0
 	.sbss       start:0x8087F308 end:0x8087F310
 	.sdata2     start:0x80882F98 end:0x80882FA0

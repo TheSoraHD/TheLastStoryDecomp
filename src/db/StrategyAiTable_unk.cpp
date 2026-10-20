@@ -11,32 +11,6 @@ extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
-// inferred: element of the global buffers of db/SpText_unk.cpp (its destructor, fn_8021BE40, is
-// defined there)
-struct SpTextEntry_unk {
-    ~SpTextEntry_unk();
-};
-
-// inferred: the destructor at 0x8021CC50 comes after the __sinit of db/SpText_unk.cpp (which
-// registers it for six global buffers), so it is the weak copy of a destructor of that file
-// (body of atn::Buffer_unk<T>::~Buffer_unk); the split puts it at the start of this unit and an
-// explicit instantiation of the template destructor emits nothing, so it is written here as a
-// non-template class (name invented)
-struct SpTextBuffer_unk {
-    ~SpTextBuffer_unk();
-
-    int mSize;
-    SpTextEntry_unk* mData;
-};
-
-SpTextBuffer_unk::~SpTextBuffer_unk() {
-    if (mData != 0) {
-        delete[] mData;
-    }
-    mData = 0;
-    mSize = 0;
-}
-
 // inferred: one row of /boot/strategy_ai_table.csv (0x20 bytes, no constructor)
 struct StrategyAiEntry_unk {
     int mId;
