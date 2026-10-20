@@ -9,7 +9,6 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
 // inferred: plays a face motion on CharaTask::m1188
-extern "C" void fn_8011E81C(Chara1188_unk* face, int motion, int arg2, int arg3, int arg4, float speed, float blend);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -63,7 +62,7 @@ void CharaObj::vf28() {
         mChara->mMotion.mTracks[0].m0C = 1.0f;
         mChara->mMotion.fn_80097C08(0, 0x13F, 1, 0, 1, 1.0f, 0.1f);
         if (mHasFace != 0) {
-            fn_8011E81C(&mChara->m1188, 0x142, 1, 1, 1, 1.0f, 0.0f);
+            mChara->m1188.fn_8011E81C(0x142, 1, 1, 1, 1.0f, 0.0f);
         }
     }
 }

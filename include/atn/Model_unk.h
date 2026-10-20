@@ -12,6 +12,7 @@ class LoadHandle;
 class Matrix3x4;
 struct NodeChunk;
 struct ModelNodeCallbackContext;
+struct MotionBuffer; // inferred: node pose passed to the m370 callback (name from the RTTI of CharaFaceControl)
 }
 // inferred: camera object owned by a model (0x1FC bytes, created on load by CharaTask::fn_8013655C
 // and by the equipment at 0x80564108); defined where it is used
@@ -135,14 +136,18 @@ struct Model_unk {
     };
     // inferred: resource data of the model (accessor 0x8000DD04); names invented
     struct NodeRes_unk {
-        unsigned char m00[0x40];
+        unsigned char m00[0x14];
+        unsigned int m14; // inferred: name hash (CharaFaceControl)
+        int m18;          // inferred: index of the node in m220
+        unsigned char m1C[0x40 - 0x1C];
         atn::Vector3 m40; // inferred: initial rotation (euler)
     };
     struct Res_unk {
         unsigned char m00[0x10];
         atn::Vector3 mMin; // 0x10: inferred: bounding box (MapPartsModel::vf24)
         atn::Vector3 mMax; // 0x1C
-        unsigned char m28[0x48 - 0x28];
+        unsigned char m28[0x44 - 0x28];
+        int m44; // inferred: number of nodes
         NodeRes_unk** m48;
     };
     Res_unk* fn_8000DD04(); // inferred: returns m16C
@@ -181,7 +186,10 @@ struct Model_unk {
     Track_unk mTracks[6]; // 0x22C (track 0: frame at 0x234, speed at 0x238)
     int m34C;
     float m350; // inferred: time scale of the character (multiplied with the frame time, CharaTask::fn_8013CB68)
-    unsigned char m354[0x3D0 - 0x354];
+    unsigned char m354[0x370 - 0x354];
+    // inferred: callback run on the node poses (set by CharaFaceControl::fn_8011D424)
+    boost::function<void(atn::MotionBuffer*, int)> m370;
+    unsigned char m384[0x3D0 - 0x384];
 };
 
 // inferred: take an empty boost::function by value (signature unknown, void() assumed)

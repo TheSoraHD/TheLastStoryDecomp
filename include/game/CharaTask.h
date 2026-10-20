@@ -12,6 +12,7 @@
 #include "chr/Motion_unk.h"
 #include "game/CharaStatus.h"
 #include "game/CharaSub_unk.h"
+#include "game/CharaFaceControl.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
 #include "math/Vec.h"
@@ -115,16 +116,6 @@ struct Chara480_unk {
     ~Chara480_unk();
 };
 
-// inferred: elements of the object at CharaTask+0x1188 (classes unknown)
-struct Chara1188Entry_unk {
-    Chara1188Entry_unk();  // 0x8011D2E0
-    ~Chara1188Entry_unk(); // 0x8011D394
-    unsigned char m00[0x20];
-};
-struct Chara1188Item_unk {
-    Chara1188Item_unk();
-    unsigned char m00[0x10];
-};
 
 // inferred: listeners notified by CharaTask (function-local static of fn_8014F8F4, destructor
 // 0x8003EFB0); names invented
@@ -239,20 +230,6 @@ struct CharaC58_unk {
     void fn_8011CD1C(CharaTask* chara, int motion0, int motion1, int motion2, int loop);
 };
 
-// inferred: object at CharaTask+0x1188 (constructor 0x8011D24C called out of line; class unknown)
-struct Chara1188_unk {
-    Chara1188_unk();
-    void fn_8011D424(Model_unk* model);
-
-    int m00;
-    Chara1188Entry_unk m04[2];
-    atn::Vector_unk<Chara1188Item_unk> m44[2];
-    int m5C;
-    float m60;
-    unsigned char m64[0x78 - 0x64];
-    unsigned char m78;
-    float m7C;
-};
 
 // inferred: motion command player at CharaTask+0x1220 (holds an atn::LH_MotionCommandData and a
 // sound; constructor 0x80120F5C called out of line); name invented
@@ -1107,7 +1084,7 @@ public:
     RouteWalker_unk mRoute; // 0x1030
     CharaLook_unk mLook;    // 0x10D8
     Chara1154_unk m1154;
-    Chara1188_unk m1188;
+    CharaFaceControl m1188;
     CharaObj1208_unk* m1208;
     CharaAttach_unk* m120C[4]; // inferred: cleared with memset; filled by fn_8017639C
     boost::scoped_ptr<atn::EfpHandle_unk> m121C;

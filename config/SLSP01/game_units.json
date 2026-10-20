@@ -469,6 +469,14 @@
   "matching": false
  },
  {
+  "name": "game/CharaFaceControl.cpp",
+  "classes": [
+   "CharaFaceControl",
+   "FaceData_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/CharaManager_PlayerTask.cpp",
   "classes": [
    "CharaManager<NpcTask>",
