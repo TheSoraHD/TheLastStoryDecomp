@@ -224,7 +224,8 @@ void Rain::vf10(Camera_unk* camera) {
     }
 }
 
-// NONMATCHING: 99.67% - volatile registers of the two vertex loops differ
+// NONMATCHING: 99.79% - volatile registers of the two vertex loops differ (offset/FIFO address in
+// the first, vector/drop address in the second)
 void fn_800B1C44(Rain* rain, Camera_unk* camera) {
     if (rain->mCount <= 0) {
         return;
@@ -272,8 +273,8 @@ void fn_800B1C44(Rain* rain, Camera_unk* camera) {
     if (sRainLines == 0) {
         GXBegin(0xB8, 0, rain->mCount);
         for (unsigned int i = 0; i < rain->mCount; i++) {
-            RainDrop_unk* drop = &rain->mDrops.mData[i];
-            GXPosition3f32_unk(drop->mPos.x, drop->mPos.y, drop->mPos.z);
+            GXPosition3f32_unk(rain->mDrops.mData[i].mPos.x, rain->mDrops.mData[i].mPos.y,
+                               rain->mDrops.mData[i].mPos.z);
         }
     } else {
         GXBegin(0xA8, 0, rain->mCount * 2);
