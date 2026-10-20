@@ -150,3 +150,51 @@ Cola: `AI/AiCommon_unk`, `game/AreaEffConfig`, `game/CharaC58_unk`, `game/CharaF
     registro con un `frsp` delante del `fadds`.
 - Pendientes: probar en `include/std/vector.h` (compartido) cargar el tamano antes que la capacidad en
   `push_back` sin romper el autoinline (un local extra lo saca de linea).
+
+## game/MotionCommand_unk (commit 5ae297b)
+
+- Resultado: 24/28 al 100%, `matching: false`, `main.dol: OK`, regress lost 0 (5483 funciones).
+  Entrada nueva en `game_units.json` (`classes: ["MotionCommand_unk"]`). Nombre real no encontrado
+  (sin RTTI ni cadenas de la clase).
+- NONMATCHING
+  - `fn_8011FFF8` (parser, 99.89%): solo registros (tamano y contador r24/r27 frente a r25/r24). Aqui,
+    a diferencia de AreaEffConfig, el parser escrito de forma natural ya queda sobre el presupuesto de
+    inlining y llama todo fuera de linea como el original (las copias debiles 0x8012044C-0x80120F4C
+    casan al 100%).
+  - `fn_8012133C` (93.92%): el pool de cadenas del original empieza por "vector length error" (su
+    `push_back` se instancia junto al parser; el de `std/vector.h` se instancia al final del fichero),
+    asi que los literales SE_ATTR usan otros desplazamientos; ademas orden de huecos de pila de los
+    Vector3 temporales, planificacion de argumentos de `fn_8023A680/fn_8023A8B4` y `fabs` a temporal.
+  - `push_back` de `std::vector<std::string>` (copia debil 0x801207D4, 69%): cabecera compartida
+    `include/std/vector.h`, no tocada (mueve con memcpy y es mas larga, 0x44C).
+  - `__sinit` (90%): mismo desplazamiento del pool de cadenas.
+- Decisiones sin el usuario
+  - `include/game/CharaTask.h`: `MotionCommand_unk` pasa de `m00[0x34]` a campos (chara, motion, pista,
+    flags, `atn::LH_MotionCommandData mLoader` 0x14, datos 0x20, efecto/sonido en bucle 0x24-0x2C, `m30`)
+    y gana el miembro `fn_8012133C`; incluye `atn/LH_MotionCommandData.h`.
+  - Cabecera nueva `include/game/MotionCmdData_unk.h` (`MotionCmdEntry_unk` 0x34 y `MotionCmdData_unk`
+    0x30; `atn/LH_MotionCommandData.cpp` mantiene su definicion local).
+  - Compartidas: `atn/LH_MotionCommandData.h` declara `fn_8011FFF8(MotionCmdData_unk*, void*, int)`;
+    `atn/Array_unk.h` sobrecarga `Vector_unk::Resize_unk(n, heap, unused)` (la de un argumento queda
+    igual para no cambiar los `@STRING@...FUi` de otras unidades); `std/vector.h` gana `empty()`;
+    `atn/Model_unk.h` declara `fn_800928B0(hash, arg)` (indice de nodo por hash). Los accesores de pista
+    `fn_80139550/fn_80139F2C/fn_8013C3DC/fn_8013C3E4` se definen `inline` en el .cpp (en CharaTask siguen
+    siendo copias debiles fuera de linea).
+  - `symbols.txt`: `fn_8012133C` -> `fn_8012133C__17MotionCommand_unkFP17MotionCmdData_unkPi`, copias
+    debiles a nombres mangled (pairnames + `push_back` a mano), pools `@STRING@Resize_unk...FUiii`
+    0x8087D9B0-CC, `sTypeNames`/`sAreaNames`/`@stringBase0` y `sLeftFoot`/`sRightFoot`/`sParts` como
+    `scope:local` (sin local el obj extraido choca con `@stringBase0` de LipSync_unk al enlazar).
+  - `ColliAttrManager::fn_8018412C/fn_80184548` reciben el nombre (`MotionCmdElemD_unk::mStr`) con
+    cast a `int`, por no cambiar su firma (unidad ajena).
+  - Splits sin tocar: dtk avisa que `.rodata` de la unidad empieza en 0x807370B4 (4 bytes de relleno de
+    CharaManager_PlayerTask); el enlace sale igual.
+- Hallazgos MWCC
+  - Los accesores inline (`GetModel_unk()`, `GetSpeed_unk()`, `GetTime_unk()`, `fn_8013C3DC/E4`) cambian
+    la asignacion de registros respecto al acceso directo a campos: `fn_8012111C` paso de 36 lineas
+    distintas a 100% solo con ellos.
+  - `(h == x) ? 0 : -1` y el `if/return` equivalente salen sin saltos; el original materializa 0/-1 y
+    lo compara: es un bucle de busqueda en un array de un elemento (`sParts[1]`).
+  - Asignaciones desde la matriz de nodo: `float z = m[2][3]; float y = ...; float x = ...;` da el
+    orden de cargas del original (el constructor Vector3(x, y, z) no).
+- Pendientes: instanciar `push_back` en el punto de uso (definicion dentro de la clase) en
+  `include/std/vector.h` arreglaria el orden del pool aqui, pero toca a todas las unidades.
