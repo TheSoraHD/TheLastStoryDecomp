@@ -1475,9 +1475,11 @@ gmk/InteractionSpot.cpp:
 	.sdata2     start:0x80886700 end:0x80886720
 
 gmk/MapLift.cpp:
-	.text       start:0x804296DC end:0x8042AB58
-	.rodata     start:0x80753758 end:0x80753768
+	.text       start:0x80429668 end:0x8042AFE4
+	.rodata     start:0x80753758 end:0x80753800
 	.data       start:0x8078E640 end:0x8078E6D8
+	.sdata      start:0x8087DFB0 end:0x8087DFB8
+	.sdata2     start:0x80886720 end:0x80886728
 
 gmk/RainDrops.cpp:
 	.text       start:0x8042AFE4 end:0x8042B56C
