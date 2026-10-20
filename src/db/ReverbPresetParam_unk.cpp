@@ -32,7 +32,8 @@ struct ReverbPreset_unk {
     float m20;
 };
 
-// inferred: map ids (fn_80219544) and a second id list searched by fn_80219558
+// inferred: chara ids of the players (fn_80219544) and a second id list searched by fn_80219558
+// (db/PlayerParam_unk uses fn_80219558 as "player index of a chara id")
 static const int sMapIds[18] = {
     1, 0x18705, 0x18769, 0x187CD, 0x18831, 0x18895, 0x188F9, 0x1895D, 0x189C1,
     0x18706, 0x18707, 0x18AED, 0x18709, 0x1876B, 0x18AEE, 2, 3, 4,
@@ -52,7 +53,7 @@ extern "C" int fn_80219544(int index) {
     return sMapIds[index];
 }
 
-// inferred: reverb preset of an id
+// inferred: player index of a chara id (-1 if none)
 extern "C" int fn_80219558(int id) {
     for (int i = 0; i < 18; i++) {
         if (id == sMapIds[i]) {

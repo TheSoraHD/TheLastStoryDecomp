@@ -140,7 +140,9 @@ funciones `extern "C" fn_<addr>`.
     `lbl_80882F58` -> `sFileName`. Las cadenas "normal".."cave" quedan como `lbl_`.
   - Tipo inferido `ReverbPreset_unk` (0x24: id, tipo por prefijo "normal".."cave" o -1, 7 floats). El cargador solo
     corre si existe el motor de sonido `lbl_8087EE90`, y le pasa cada fila (`fn_80049E54`) tras vaciarlo (`fn_8004A03C`).
-    `fn_80219558` traduce un id de mapa a preset (tablas de 18 ids; casos especiales 0x1870E -> 1 y 0x30F7A -> 9).
+    `fn_80219558` da el indice de jugador (0-6) de un id de chara (lo usa `db/PlayerParam_unk`; tablas de 18 ids,
+    casos especiales 0x1870E -> 1 y 0x30F7A -> 9); con `fn_80219544` (id por indice) y sus tablas podrian ser de otro
+    fichero entre PlayerParam y el cargador de reverb (sin pruebas para cortar).
 - Hallazgos MWCC
   - 7 campos seguidos de un struct leidos con la misma llamada no salen como bucle: el original los escribe uno a uno
     (con un array y un `for` MWCC no desenrolla 7 iteraciones con llamadas).
@@ -187,7 +189,7 @@ funciones `extern "C" fn_<addr>`.
   - Una direccion de un local (`csv.mField + 2`) que el original tiene en un registro salvado antes del bucle
     (`addi r26, r1, 0x26`) sale escribiendola en un puntero local antes del bucle; MWCC no saca solo esas direcciones.
 
-## db/HairBackControl_unk (commit HASH)
+## db/HairBackControl_unk (commit 1e9fc07)
 - Resultado: 8/8 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -206,3 +208,22 @@ funciones `extern "C" fn_<addr>`.
 - Hallazgos MWCC
   - `T obj(a(), b())` con dos llamadas como argumentos: se evalua primero la de la derecha; si el original llama antes a
     `size()` que a `data()`, no hay local para el tamano.
+
+## db/PlayerParam_unk (commit HASH)
+- Resultado: 4/7 al 100%, matching no.
+- NONMATCHING:
+  - `fn_80218BD4` (cargador) 88.66% - el original recalcula `player * 32` dentro del bucle interno (aqui MWCC lo saca
+    del bucle y reduce el indice del hueco), lo que cambia registros y el desenrollado; probados otros ordenes del
+    indice, puntero de fila y accesor inline.
+  - `fn_8021921C`, `fn_80219344` 99.05% - solo registros dentro de la busqueda inlinada (dos niveles de inline).
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_80219018` -> `__ct__15PlayerParam_unkFv`; datos `sFileNameStr`, `sDemoFileNameStr`,
+    `@stringBase0` (0x80742404: "", "begin", "skill", "end"), `sEntries`, `sFileName`, `sDemoFileName`.
+  - Tipos inferidos `PlayerParam_unk` (0x88: jugador, nivel, 0x80 `bool` de habilidades, 6 huecos; 32 por jugador, 7
+    jugadores), `PlayerChara_unk` (solo id 0x50 y nivel 0x874), `PlayerParamSettings_unk` (`m194`, version demo).
+  - Corregido el comentario de `fn_80219558` en `db/ReverbPresetParam_unk.cpp` (es indice de jugador, no preset).
+- Hallazgos MWCC
+  - Un `return found;` dentro de un bucle inlinado sale como `bge; b` al final; con `break` + `return found` tras el
+    bucle sale el `blt` directo del original (y la funcion sin inline da `bltlr` igual).
+  - Indice `player * 32 + i` con `player` `unsigned` no se reduce (se recalcula con `mulli` cada vez); con `int` si.
