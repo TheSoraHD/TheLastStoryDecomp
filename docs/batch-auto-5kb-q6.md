@@ -68,7 +68,7 @@ funciones `extern "C" fn_<addr>`.
     por tabla (armas y protectores). `fn_802188B4` recibe `atn::Csv*` (lee el resto de la fila).
 - Hallazgos MWCC: nada nuevo (declarar `field` fuera del `for` para que el contador reciba el registro mas bajo).
 
-## db/LevelEquipTable_unk (commit HASH)
+## db/LevelEquipTable_unk (commit 7739345)
 - Resultado: 4/4 al 100%, matching si.
 - NONMATCHING: ninguno.
 - **Decisiones sin el usuario**
@@ -83,3 +83,15 @@ funciones `extern "C" fn_<addr>`.
     `else` (`stw r31`), es `if/else` con una asignacion en cada rama.
   - `if (0 > k || k >= N) return 0;` da `blt fallo; cmpwi; blt ok` (dos `cmpwi` con signo); `k >= 0 && k < N` se fusiona
     en `cmplwi`.
+
+## db/VoiceLengthTable_unk (commit HASH)
+- Resultado: 2/2 al 100%, matching si.
+- NONMATCHING: ninguno.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `lbl_807427A8` -> `sFileNameStr`, `lbl_807427C8` -> `@stringBase0` ("" + cadenas de `basic_string`),
+    `lbl_8087F348` -> `sEntries`, `lbl_8087F34C` -> `sCount`, `lbl_80882FE0` -> `sFileName`.
+  - Tipo inferido `VoiceLengthEntry_unk` (8: hash del nombre + duracion). `fn_8006B53C` declarado
+    `extern "C" std::string (const std::string&)` (ruta con el sufijo de idioma "_xx" sustituido; inferido). Incluye
+    `std/string_members.h` (el pool lleva las cadenas de error de `basic_string`).
+- Hallazgos MWCC: nada nuevo (`std::string path(p); path = f(path);` reproduce el `operator=` inline de `std/string.h`).
