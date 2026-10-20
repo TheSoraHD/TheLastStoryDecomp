@@ -105,16 +105,6 @@ inline unsigned int GetFlag31_unk(const CharaTask* chara) {
 }
 
 
-inline int Min_unk(int a, int b) {
-    int r;
-    if (a < b) {
-        r = a;
-    } else {
-        r = b;
-    }
-    return r;
-}
-
 // inferred: dot product of `d` with the facing direction of `chara` (name invented)
 inline float FacingDot_unk(CharaTask* chara, const atn::Vector3* d) {
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
@@ -136,9 +126,11 @@ inline void RotateY_unk(Mtx m, float rad) {
     __MtxCopy(m, t);
 }
 
-// NONMATCHING: 96% - register allocation of the second loop (the original keeps i*0x120 in r14 and spills
-// wasSafe/near/detect to the stack), `n = min(count, 72)` emitted as bge/b/li, and the player sub-state test
-// `== 6 || == 7` is folded into a range check here.
+// NONMATCHING: 96.5% - register allocation of the second loop (the original keeps i*0x120 in r14 and spills
+// wasSafe/near/detect to the stack); `n = min(count, 72)` (bge/b/li in the original) comes out right only
+// with a local list pointer (`l->mCount < 72 ? l->mCount : 72`), which shifts other registers; the player
+// sub-state test `== 6 || == 7` uses two cmpwi in the original only because r0 is live there (bool of
+// fn_8011D21C), here it is folded into a range check.
 // inferred: every frame, builds m4C (which enemy sees which character) and updates the alert label of every
 // enemy (CharaD74_unk) from what it sees, its safe/unsafe areas and the player
 void PickTask::vf10() {
@@ -158,7 +150,10 @@ void PickTask::vf10() {
     }
     bool onLedge = GetFlag31_unk(player) == 1;
     memset(m4C, 0, sizeof(m4C));
-    int n = Min_unk(lbl_8087F048->mCount, 0x48);
+    int n = lbl_8087F048->mCount;
+    if (n >= 0x48) {
+        n = 0x48;
+    }
     int numSeers = 0;
     for (int i = 0; i < n; i++) {
         CharaTask* a = lbl_8087F048->mSlots.GetChara_unk(i);
