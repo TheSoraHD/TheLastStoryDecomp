@@ -75,7 +75,7 @@ Cola (de menor a mayor): `game/SetConfig_cont`, `game/GameTimer_cont`, `MP/SaveL
   - Pendiente para el usuario: fusionar cuando `Get_unk` llegue al 100% (o aceptar `LH_Motion` en `matching: false`).
 - Hallazgos MWCC: ninguno nuevo.
 
-## game/NpcManager_cont (commit HASH)
+## game/NpcManager_cont (commit db860c6)
 
 - Resultado: 4/4 al 100%, fusionada en `game/NpcManager` (`matching: true`, `main.dol: OK`).
 - NONMATCHING: ninguna.
