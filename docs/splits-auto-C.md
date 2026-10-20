@@ -127,3 +127,23 @@
   podria ser un fichero aparte de ventanas de texto. Revisar.
 - Sin tocar: 0x803CE070-0x803CE4B0 (tras GameSoundControl, con fuente; parece GameBgm helpers + Unk_803CE3B8
   de GameSaveBackground) y 0x803CE688-0x803CE980 (entre GameTimer y GameUI): sin pruebas claras de a quien pertenecen.
+
+## Grupo 4 (0x803CE854-0x803EBC44)
+
+- **game/GameUI.cpp** (fuente) ampliado: .text 0x803CE854-0x803E836C. Todo el tramo 0x803CFC78-0x803E78B4 usa las
+  copias de constantes de GameUI (0x80885D58/0x80885D60, ya en su split) y su pool 0x807506A0; el `__sinit`
+  0x803E78B4 (.ctors 0x8072D364) cierra el fichero. Por delante: 0x803CE910 es el creador de GameUI (`new` con el
+  pool 0x807506A0 + `__ct__6GameUI`) y 0x803CE854/0x803CE8A8 usan el sbss 0x8087F494 de GameUI.
+  Datos: .rodata 0x80750558-0x80751D08 (tabla SE 0x80750618 que la fuente ya cita, dobles, pool), .data
+  0x8078BE40-0x8078C690, .bss 0x807C8628-0x807C8728, .sdata 0x8087DEE8-0x8087DEF8, .sbss 0x8087F490-0x8087F498,
+  .sdata2 0x80885D58-0x80885F48. Ninguna funcion al 100% perdida (regress lost: 0).
+  - **symbols.txt**: `lbl_807506A0` -> `@stringBase0` (scope:local data:string_table), pool de cadenas de GameUI
+    (empieza por "" y "GameUI"; 0x1668 bytes solo de cadenas).
+- **0x803E836C-0x803EBC44** -> `game/GameVoice.cpp` (vtable/RTTI GameVoice, ctor 0x803E836C; constantes propias
+  0x80885F48/0x80885F4C distintas de GameUI y de GimmickCommon). Datos: .rodata 0x80751D08-0x80751DB0 (doble,
+  "GameVoice", pool "SoundWarning..."/"/database/lip/%s.lip"), .data 0x8078C690-0x8078C6C8, .sdata2 0x80885F48.
+
+### Decisiones sin el usuario (grupo 4)
+- 0x803CE688-0x803CE854 (entre GameTimer y GameUI, enlazada/fuente) se deja `auto_`: helpers de contador
+  (llamados desde bad_cast/GameEventScript y GameSaveData_unk), sin constantes ni pool que lo asignen.
+- Renombrado en symbols.txt: `lbl_807506A0` -> `@stringBase0`.

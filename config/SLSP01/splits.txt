@@ -1292,10 +1292,20 @@ game/GameTimer.cpp:
 	.data       start:0x8078BE08 end:0x8078BE40
 
 game/GameUI.cpp:
-	.text       start:0x803CE980 end:0x803CFC78
-	.rodata     start:0x80750698 end:0x807506A0
-	.data       start:0x8078C584 end:0x8078C5FC
-	.sdata2     start:0x80885D58 end:0x80885DE0
+	.text       start:0x803CE854 end:0x803E836C
+	.ctors      start:0x8072D364 end:0x8072D368
+	.rodata     start:0x80750558 end:0x80751D08
+	.data       start:0x8078BE40 end:0x8078C690
+	.bss        start:0x807C8628 end:0x807C8728
+	.sdata      start:0x8087DEE8 end:0x8087DEF8
+	.sbss       start:0x8087F490 end:0x8087F498
+	.sdata2     start:0x80885D58 end:0x80885F48
+
+game/GameVoice.cpp:
+	.text       start:0x803E836C end:0x803EBC44
+	.rodata     start:0x80751D08 end:0x80751DB0
+	.data       start:0x8078C690 end:0x8078C6C8
+	.sdata2     start:0x80885F48 end:0x80885F50
 
 game/GimmickCommon.cpp:
 	.text       start:0x803EBC44 end:0x803EDF7C
