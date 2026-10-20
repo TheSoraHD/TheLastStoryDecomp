@@ -202,7 +202,7 @@ Cola (de menor a mayor): `atn/Texture_unk`, `atn/Se_unk`, `atn/CompositeCache_un
   - `static int sLoaded;` declarado antes del `static Texture_unk sEdge;` coloca `sLoaded` antes que la guarda de `sEdge` en `.sbss`.
   - Una matriz local con stores en orden inverso de los ceros se escribe como cadena `m01 = m02 = ... = 0.0f` (la cadena guarda de derecha a izquierda).
 
-## atn/PostFxRain (commit HASH9)
+## atn/PostFxRain (commit 4fca6a9)
 
 - Resultado: 2/8 al 100% (`PostFxRainDrop_unk::PostFxRainDrop_unk` vacio y `fn_800B0A48`), `matching: false`.
 - NONMATCHING (todas con la estructura y los datos ya correctos, `.sdata2` en el mismo orden):
