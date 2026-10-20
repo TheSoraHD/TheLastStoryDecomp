@@ -41,6 +41,8 @@ public:
         vf08(m04, m08);
     }
     const T* fn_8005B9CC();
+    // inferred: current field (weak copy 0x800422CC in game/AreaEffConfig.cpp; name invented)
+    const T* GetField_unk() { return mField; }
     int fn_8005BBF8(); // inferred: moves to the next line, 0 at the end (comma 0x8005B5F8)
     void fn_8005BCE8(const T* separators); // inferred (tab 0x8005BCE8, comma 0x8005B6E8)
 

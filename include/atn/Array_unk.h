@@ -145,6 +145,17 @@ public:
             mData = 0;
         }
     }
+    // inferred: Resize_unk from heap 0 (weak copies 0x8004269C and 0x80042E28 in
+    // game/AreaEffConfig.cpp; name invented)
+    void Alloc0_unk(int n) { Resize_unk(n, 0); }
+    // inferred: weak copy inside AreaEffConfig's row assignment (0x80042EEC)
+    Buffer_unk& operator=(const Buffer_unk& o) {
+        Resize_unk(o.mSize, 0);
+        for (unsigned int i = 0; i < mSize; i++) {
+            mData[i] = o.mData[i];
+        }
+        return *this;
+    }
     T& operator[](int i) { return mData[i]; }
 
     int mSize;
