@@ -112,6 +112,38 @@ Pista general: los ficheros reales del motor se llaman `atn_<nombre>.cpp` (caden
   podria ser fichero propio o el inicio de LensFlare; sin pruebas.
 - Decisiones: `atn/Bgm_cont.cpp` (fusionar con Bgm al decompilar); nombres inventados arriba; renombrado @stringBase0 de FileList.
 
+## Grupo 3 (0x80077160-0x800A5B40)
+
+- `atn/LensFlare` (fuente, no enlazada): .sdata ampliada a 0x8087D740-0x8087D760 (6 floats usados solo por fn_80077548).
+- `atn/Light_unk.cpp` (nuevo, inventado) 0x80079044-0x80079ECC: Light_unk (ctor) + funciones con 0.0f/1.0f propios (.sdata2 0x80880B00-0x80880B40),
+  .rodata 0x807318A0-0x807318F0.
+- `atn/LightUtil_unk.cpp` (nuevo, inventado) 0x80079ECC-0x8007A530: 1e16f/0.0f propios en 0x80880B40, .rodata 0x807318F0. fn_8007A4CC (sin datos) va aqui sin prueba.
+- `atn/LipSync_unk.cpp` (nuevo, inventado) 0x8007A530-0x8007A994: cadena ancha "AIUEO" y Chara1154_unk (ctor/fn_8007A7BC), usada por
+  Event::Dialog; 0.0f/1.0f propios en 0x80880B48. .rodata 0x807318F8-0x80731910, .sdata 0x8087D760-0x8087D768.
+- `atn/MaterialParser_unk.cpp` (nuevo, inventado) 0x8007A994-0x80081DC8: parser de materiales ("Shader", "MatColor", "Opacity", "TexColor1"...),
+  .rodata 0x80731910-0x80732048, .data 0x80777D40-0x80778550 (tablas + 14 jumptables), .sdata 0x8087D768-0x8087D798, .sdata2 0x80880B70-0x80880BC8.
+  Los 0.0f repetidos 0x80880B90/94/98 son un mismo array const (no candidatos de corte). fn_80081D00 (sin datos) va aqui.
+- `atn/Math_unk.cpp` (nuevo, inventado) 0x80081DC8-0x80081E54: solo el `__sinit` (.ctors 0x8072D2B4) que rellena las constantes
+  globales 0x807C7028-0x807C7090 (vector cero, identidades...) con su propio 0.0f/1.0f (0x80880BC8). Nombre real probable `atn_math.cpp`.
+- `atn/MindowsCommon` (inferida) ampliada: .rodata 0x80732140-0x80732248 y .data 0x80778610-0x80778840 (vtables/RTTI MindowsFolder y
+  MindowsRadian, tabla 0x807321F0): solo los usan funciones de su .text.
+- `atn/Model.cpp` (nuevo) 0x800899DC-0x8009A5CC: atn::Model / atn::ModelBase (vtables 0x80778888/0x807788D0, nombres RTTI y pool 0x80732368).
+  .rodata 0x80732248-0x80732638, .data 0x80778840-0x80778930, .sdata 0x8087D798-0x8087D818, .sbss 0x8087EF18-0x8087EF28, .bss 0x807C7268,
+  .sdata2 0x80880BF8-0x80880C38. Las 4 primeras funciones (0x800899DC-0x80089C28, sin datos) van aqui sin prueba (podrian ser de MindowsCommon).
+- `atn/BoneCalc_unk.cpp` (nuevo, inventado) 0x8009A5CC-0x8009B93C: calculo recursivo de matrices de huesos (fn_8009A5CC/fn_8009ADA4,
+  usado por ModelPose_unk y PBoneBasic); 0.0f/40.74f propios en 0x80880C38 (Model tiene 0.0f en 0x80880BF8). .data 0x80778930-0x80778958.
+- `atn/ModelDraw_unk.cpp` (nuevo, inventado) 0x8009B93C-0x8009E5A0: dibujo GX (GXLoadPosMtxImm..., "common/mip64.texture"...);
+  fn_8009E448 la llama fn_8009B93C => fn_8009E1E4/fn_8009E448 son del mismo fichero. .rodata 0x80732638-0x807326B8, .sdata 0x8087D818,
+  .sbss 0x8087EF28-0x8087EF40, .bss 0x807C7270-0x807C73A0, .sdata2 0x80880C48-0x80880C78.
+- `atn/Motion_unk.cpp` (nuevo, inventado) 0x8009F70C-0x800A2978: LH_Motion (ctor y metodos), MotionPose_unk, MotionCmdData_unk y `__sinit`
+  0x800A291C (.ctors 0x8072D2B8). Empieza tras ModelInstance porque el double int->float 0x807326D0 va despues del nombre RTTI de ModelInstance.
+  No hay pruebas para separar 0x8009F70C-0x800A03A0 (lo llaman gimmicks) del resto: se deja junto. .rodata 0x807326D0-0x807327A0,
+  .data 0x80778990-0x807789D8, .sbss 0x8087EF48-0x8087EF68, .bss 0x807C73A0-0x807C7400, .sdata2 0x80880C88-0x80880CA0.
+- `atn/NandManager` (inferida) ampliada a 0x800A2978-0x800A5508: 12 funciones de 0x3C solo llamadas desde NandManager; .rodata hasta 0x80732898
+  (pool 0x807327B4), .data 0x807789D8-0x80778AD8 (2 jumptables).
+- `atn/Pad_unk.cpp` (nuevo, inventado) 0x800A5508-0x800A5B40: tabla de botones 0x80732898-0x80732988 y 0.0f propio 0x80880CB0
+  (NandManager tiene el suyo en 0x80880CA0). Incluye fn_800A5B30/fn_800A5B38 (8 bytes, sin datos) antes de ParseTree.
+
 ## Decisiones tomadas sin el usuario
 - Nombres inventados: `Event/EventCommandDef_unk.cpp`, `AI/AiCommon_unk.cpp`, `game/TargetPos_unk.cpp`, `game/DamageCalc_unk.cpp`, `atn/Shader_unk.cpp`.
 - `atn/Sound3dListener_cont.cpp`: deberia fusionarse con atn/Sound3dListener al decompilar. dtk no deja que la parte `_cont` tenga

@@ -198,8 +198,37 @@ atn/LensFlare.cpp:
 	.text       start:0x80077160 end:0x80079044
 	.rodata     start:0x80731838 end:0x807318A0
 	.data       start:0x80777D08 end:0x80777D40
-	.sdata      start:0x8087D758 end:0x8087D760
+	.sdata      start:0x8087D740 end:0x8087D760
 	.sdata2     start:0x80880AD0 end:0x80880B00
+
+atn/Light_unk.cpp:
+	.text       start:0x80079044 end:0x80079ECC
+	.rodata     start:0x807318A0 end:0x807318F0
+	.sdata2     start:0x80880B00 end:0x80880B40
+
+atn/LightUtil_unk.cpp:
+	.text       start:0x80079ECC end:0x8007A530
+	.rodata     start:0x807318F0 end:0x807318F8
+	.sdata2     start:0x80880B40 end:0x80880B48
+
+atn/LipSync_unk.cpp:
+	.text       start:0x8007A530 end:0x8007A994
+	.rodata     start:0x807318F8 end:0x80731910
+	.sdata      start:0x8087D760 end:0x8087D768
+	.sdata2     start:0x80880B48 end:0x80880B70
+
+atn/MaterialParser_unk.cpp:
+	.text       start:0x8007A994 end:0x80081DC8
+	.rodata     start:0x80731910 end:0x80732048
+	.data       start:0x80777D40 end:0x80778550
+	.sdata      start:0x8087D768 end:0x8087D798
+	.sdata2     start:0x80880B70 end:0x80880BC8
+
+atn/Math_unk.cpp:
+	.text       start:0x80081DC8 end:0x80081E54
+	.ctors      start:0x8072D2B4 end:0x8072D2B8
+	.bss        start:0x807C7028 end:0x807C7090
+	.sdata2     start:0x80880BC8 end:0x80880BD0
 
 atn/SmallAllocator_8.cpp:
 	.text       start:0x80081E54 end:0x80084E50
@@ -215,9 +244,31 @@ atn/DLAllocator.cpp:
 
 atn/MindowsCommon.cpp:
 	.text       start:0x80084FD8 end:0x800899DC
-	.rodata     start:0x80732178 end:0x807321EC
-	.data       start:0x807786A0 end:0x80778840
+	.rodata     start:0x80732140 end:0x80732248
+	.data       start:0x80778610 end:0x80778840
 	.sdata2     start:0x80880BD0 end:0x80880BF8
+
+atn/Model.cpp:
+	.text       start:0x800899DC end:0x8009A5CC
+	.rodata     start:0x80732248 end:0x80732638
+	.data       start:0x80778840 end:0x80778930
+	.bss        start:0x807C7268 end:0x807C7270
+	.sdata      start:0x8087D798 end:0x8087D818
+	.sbss       start:0x8087EF18 end:0x8087EF28
+	.sdata2     start:0x80880BF8 end:0x80880C38
+
+atn/BoneCalc_unk.cpp:
+	.text       start:0x8009A5CC end:0x8009B93C
+	.data       start:0x80778930 end:0x80778958
+	.sdata2     start:0x80880C38 end:0x80880C48
+
+atn/ModelDraw_unk.cpp:
+	.text       start:0x8009B93C end:0x8009E5A0
+	.rodata     start:0x80732638 end:0x807326B8
+	.bss        start:0x807C7270 end:0x807C73A0
+	.sdata      start:0x8087D818 end:0x8087D81C
+	.sbss       start:0x8087EF28 end:0x8087EF40
+	.sdata2     start:0x80880C48 end:0x80880C78
 
 atn/ModelInstance.cpp:
 	.text       start:0x8009E5A0 end:0x8009F70C
@@ -225,11 +276,25 @@ atn/ModelInstance.cpp:
 	.data       start:0x80778958 end:0x80778990
 	.sdata2     start:0x80880C78 end:0x80880C88
 
+atn/Motion_unk.cpp:
+	.text       start:0x8009F70C end:0x800A2978
+	.ctors      start:0x8072D2B8 end:0x8072D2BC
+	.rodata     start:0x807326D0 end:0x807327A0
+	.data       start:0x80778990 end:0x807789D8
+	.bss        start:0x807C73A0 end:0x807C7400
+	.sbss       start:0x8087EF48 end:0x8087EF68
+	.sdata2     start:0x80880C88 end:0x80880CA0
+
 atn/NandManager.cpp:
-	.text       start:0x800A2C48 end:0x800A5508
-	.rodata     start:0x807327A0 end:0x807327B4
-	.data       start:0x80778A9C end:0x80778AD8
+	.text       start:0x800A2978 end:0x800A5508
+	.rodata     start:0x807327A0 end:0x80732898
+	.data       start:0x807789D8 end:0x80778AD8
 	.sdata2     start:0x80880CA0 end:0x80880CB0
+
+atn/Pad_unk.cpp:
+	.text       start:0x800A5508 end:0x800A5B40
+	.rodata     start:0x80732898 end:0x80732988
+	.sdata2     start:0x80880CB0 end:0x80880CC0
 
 atn/ParseTree.cpp:
 	.text       start:0x800A5B40 end:0x800A73A4
