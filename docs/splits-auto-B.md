@@ -147,3 +147,11 @@ Se amplian (texto y datos `auto_` propios):
 ### Decisiones sin el usuario
 - Borrado el bloque `auto_fn_801F1EA0_text.cpp` de splits.txt (lo absorbe `atn/D2A_Manager.cpp`).
 - `atn/D2A_MessageTable_unk.cpp`: el string "Memory allocation failure" que usa (0x80782BB0) cae dentro del `.data` de `atn/D2A_Message.cpp` (con fuente): no lo he movido; contradice en parte el corte (a revisar).
+
+## Grupo 8 (restos pequenos de enemigos)
+
+- `__sinit` aislados (siempre ultima funcion de su fichero) unidos a la unidad anterior con su `.ctors`: Em204MulueMp (0x802B753C, ctors 0x8072D334), Em206EggMonster (0x802C7BC8, 0x8072D338), Em208Queen (0x802CCAFC, 0x8072D33C), Em302Kraken (0x802DDCFC, 0x8072D344), Em302KrakenMp (0x802E20FC, 0x8072D348), Em310Gargoyle (0x8030DA1C, 0x8072D34C; absorbe el bloque explicito `auto_fn_8030DA1C_text.cpp`, borrado).
+- Funciones sueltas antes de una unidad y usadas solo por ella, con datos de esa unidad: 0x802D73E4 -> `game/Em302Kraken.cpp` (tabla `.rodata` 0x807473F8), 0x802DDD1C -> `game/Em302KrakenMp.cpp` (tabla 0x807479E8), 0x80310314 -> `game/Em314Ivy.cpp` (usa el 1.0f 0x80884CA4 de Ivy).
+- Funciones sueltas despues de una unidad y llamadas solo desde ella / su familia: 0x80247674 -> `game/Em001Necromancer.cpp` (la llama Necromancer); 0x8025FE30 -> `game/Em101LittleZesya.cpp` (setter llamado desde Em101ElderZesya; sin datos: **decision debil**, podria ser el inicio de Em101LittleZesyaSecond).
+- Datos: cada unidad recibe sus tablas/jumptables/`.bss` `auto_` contiguos (generado con `gen.py`).
+- Se deja sin asignar 0x801E9218-0x801E9398 (2 funciones entre CostumeEditChara y CrossbowMenuTask, llamadas desde CosEditBase, sin datos ni constantes): sin pruebas.
