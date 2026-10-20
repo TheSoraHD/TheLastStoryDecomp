@@ -726,10 +726,11 @@ Event/Dialog.cpp:
 	.sdata2     start:0x80883078 end:0x808830D0
 
 atn/EffectManager.cpp:
-	.text       start:0x80239798 end:0x8023A8B4
+	.text       start:0x80239798 end:0x8023B9D0
 	.rodata     start:0x8074300C end:0x80743020
 	.data       start:0x80783BB8 end:0x80783C20
-	.sdata2     start:0x80883168 end:0x80883170
+	.sdata      start:0x8087DC18 end:0x8087DC20
+	.sdata2     start:0x80883160 end:0x80883170
 
 std/char_traits_char_8023C080.cpp:
 	.text       start:0x8023C080 end:0x802411B8
