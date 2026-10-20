@@ -1127,6 +1127,13 @@
   "matching": false
  },
  {
+  "name": "atn/EffectManager_cont.cpp",
+  "classes": [
+   "atn::EffectManager"
+  ],
+  "matching": true
+ },
+ {
   "name": "game/Em001Necromancer.cpp",
   "classes": [
    "Em001Necromancer"

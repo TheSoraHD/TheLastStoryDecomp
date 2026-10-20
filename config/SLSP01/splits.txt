@@ -1532,10 +1532,10 @@ std/char_traits_char_8023C080.cpp:
 	.sbss       start:0x8087F3C4 end:0x8087F3D0
 
 atn/EffectManager_cont.cpp:
-	.text       start:0x8024372C end:0x80243758
+	.text       start:0x8024372C end:0x8024373C
 
 atn/EffectSequencer_unk.cpp:
-	.text       start:0x80243758 end:0x80244228
+	.text       start:0x8024373C end:0x80244228
 	.ctors      start:0x8072D320 end:0x8072D324
 	.rodata     start:0x80743140 end:0x807431F0
 	.bss        start:0x807C82E8 end:0x807C8300
