@@ -3338,5 +3338,12 @@
    "Frustum_unk"
   ],
   "matching": true
+ },
+ {
+  "name": "atn/PostFxGamma.cpp",
+  "classes": [
+   "atn::PostFxGamma"
+  ],
+  "matching": false
  }
 ]
