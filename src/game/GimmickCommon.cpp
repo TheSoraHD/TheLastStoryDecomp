@@ -42,6 +42,7 @@
 #include "gmk/PigeonManager.h"
 #include "gmk/RotaryRoom.h"
 #include "gmk/WaitObject.h"
+#include "gmk/ChickenManager.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -226,7 +227,6 @@ extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80411440(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_8042F7EC(atn::Task* parent, GimmickDesc_unk* desc);
@@ -297,7 +297,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 14: gimmick = gmk::PigeonManager::fn_80405DD4(parent, desc); break;
     case 15: gimmick = gmk::PigeonManager::fn_80405DD4(parent, desc); break;
     case 16: gimmick = fn_804067D8(parent, desc); break;
-    case 20: gimmick = fn_8040D1D0(parent, desc); break;
+    case 20: gimmick = gmk::ChickenManager::fn_8040D1D0(parent, desc); break;
     case 22: gimmick = gmk::HealPoint::fn_8040ED00(parent, desc); break;
     case 26: gimmick = gmk::Trap::fn_80410A68(parent, desc); break;
     case 27: gimmick = fn_80411440(parent, desc); break;

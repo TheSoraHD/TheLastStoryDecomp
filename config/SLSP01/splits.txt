@@ -1301,10 +1301,11 @@ gmk/Brazier.cpp:
 	.sdata2     start:0x80886258 end:0x80886288
 
 gmk/ChickenManager.cpp:
-	.text       start:0x8040B668 end:0x8040DC30
-	.rodata     start:0x80752AE8 end:0x80752AFC
+	.text       start:0x8040B560 end:0x8040DC30
+	.rodata     start:0x80752AA8 end:0x80752B10
 	.data       start:0x8078D500 end:0x8078D598
-	.sdata2     start:0x8088631C end:0x80886388
+	.sdata      start:0x8087DF78 end:0x8087DF80
+	.sdata2     start:0x80886318 end:0x80886388
 
 gmk/TreasureBox.cpp:
 	.text       start:0x8040DC30 end:0x8040EC30
