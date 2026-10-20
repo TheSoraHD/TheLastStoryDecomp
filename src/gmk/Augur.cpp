@@ -84,7 +84,6 @@ int Augur::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.8% - r4/r5 swapped (temporary of the front position and the field pointer)
 void Augur::vf28() {
     GimmickDesc_unk* desc = mDesc;
     m6C = desc->mPos;
@@ -95,7 +94,8 @@ void Augur::vf28() {
     Mtx mtx;
     PSMTXRotRad(mtx, 'y', m78.y);
     PSMTXMultVec(mtx, &front, &front);
-    AugurRoutes_unk* routes = lbl_8087F430->m10D8;
+    Field_unk* field = lbl_8087F430;
+    AugurRoutes_unk* routes = field->m10D8;
     mFront = m6C + front;
     mFrontRot = m78;
     mFrontRot.y = atn::WrapAngle_unk(1.5707964f + mFrontRot.y);
@@ -107,11 +107,9 @@ void Augur::vf28() {
     fn_8041EE28();
 }
 
-// NONMATCHING: 99.9% - objdiff: the first "keep" branch of the flag test targets the reload of mAugur
-// in the original (ours jumps past it)
 void Augur::fn_8041EE28() {
     mAugur = NpcManager::sInstance->Find_unk(mDesc->m20);
-    if (mAugur != 0 && (mAugur->IsFlag_unk(0xDEAD0000) || (mAugur->IsFlag_unk(2) && mAugur->IsFlag_unk(1)))) {
+    if (mAugur != 0 && (mAugur->IsFlag_unk(0xDEAD0000) || !mAugur->IsFlag_unk(2) || mAugur->IsFlag_unk(1))) {
         mAugur = 0;
     }
     if (mAugur != 0) {
@@ -130,7 +128,8 @@ void Augur::fn_8041EE28() {
 }
 
 // NONMATCHING: 99.2% - state 5: the original keeps the modulo in r5 and sets up `this` before the
-// compare
+// compare (as if `this` were evaluated before a branchy argument). Tried: compare order, rate local,
+// ternaries (become subfc/subfe), if/else, inline PickState(r, rate), state declared first.
 void Augur::vf10() {
     if (mAugur != 0 && mAugur->IsFlag_unk(0xDEAD0000)) {
         CharaTask* target = mTarget;
