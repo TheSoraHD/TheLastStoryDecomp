@@ -159,7 +159,7 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
   - Un `static const` escalar se pliega siempre; para conservar el `lhz` del original hubo que leerlo por un puntero `volatile`.
   - Los objetos de mas de 4 bytes van a `.rodata` (no a `.sdata2`) con `-sdata2 4`: el tamano 8 de dtk es relleno.
 
-## atn/Geometry_unk (commit COMMIT_GEO)
+## atn/Geometry_unk (commit 36c31b8)
 
 - Resultado: 4/10 al 100%, `matching: false`.
 - NONMATCHING: `fn_8006FAB0` (rayo contra caja) 98.09% (FPR de constantes izadas); `fn_80070D04` (cilindro contra esfera)
@@ -174,3 +174,12 @@ Cola (de menor a mayor): `atn/Math_unk`, `atn/LipSync_unk`, `atn/Pad_unk`, `atn/
     `ps_sel`/`fsel`, tipo `VECMin`/`VECMax`) que no existe en `include/math/Vec.h`; anadirlo seria ampliar la excepcion
     de asm de Vec.h (necesita permiso del usuario).
 - Hallazgos MWCC: `(float)__fabs(x) < eps` da `fabs` + `frsp` + `fcmpo` con el eps en `.sdata2` (sin el cast compara en double y lo saca a `.rodata`).
+
+## atn/BoneCalc_unk (commit COMMIT_BC)
+
+- Resultado: 1/3 al 100% (`fn_8009B938`, funcion vacia), `matching: false`.
+- NONMATCHING / sin escribir: `fn_8009A5CC` (0x7D8) y `fn_8009ADA4` (0xB94): calculo recursivo de matrices de huesos con
+  `boost::function<>` locales (vtable de `boost::bad_function_call`), punteros a miembro (`__ptmf_null` y las tres
+  constantes `{0, -1, fn_8009B938}` de `.data`), angulos de Euler via `fn_8072D210` (128/pi y medio angulo) y
+  `PSMTXConcat`/`PSMTXMultVec`. No se escribieron por tiempo (son las dos funciones mas grandes de la cola).
+- **Decisiones sin el usuario**: split sin cambios; `fn_8009B938` queda `extern "C"` (su clase es desconocida).
