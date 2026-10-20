@@ -109,3 +109,44 @@ Cola: `AI/AiCommon_unk`, `game/AreaEffConfig`, `game/CharaC58_unk`, `game/CharaF
     al principio; con `return 0.0f;` al final sale despues.
   - `int count` que continua en el bucle de relleno (`for (; count < 16; count++)`) frente a un indice
     nuevo cambia todo el desenrollado del relleno.
+
+## game/CharaFaceControl (commit 6519b3b)
+
+- Resultado: 12/17 al 100%, `matching: false`, `main.dol: OK`, regress lost 0.
+- NONMATCHING:
+  - `CharaFaceControl::fn_8011D844` (callback de nodos) 85.74%: planificacion y huecos de pila de los
+    temporales `Vector3` de los tres bucles (el original salva menos FPR y mas GPR); misma forma.
+  - `fn_8011E200` 97.36%, `fn_8011EB18` 99.21%: asignacion de registros.
+  - `fn_8011EE58` 87.67%: el original pasa el valor absoluto a f1.
+  - `FaceData_unk::fn_8011EF14` 99.30%: el `push_back` inline de `std::vector<int>` carga el tamano
+    antes que la capacidad (diferencia conocida de `include/std/vector.h`).
+- **Decisiones sin el usuario**
+  - Nombre real: `Chara1188_unk` es `CharaFaceControl` (RTTI del `bind_t` de boost::function, 0x80736EF0);
+    `typedef CharaFaceControl Chara1188_unk;` en la cabecera nueva `include/game/CharaFaceControl.h`
+    (con `FaceKey_unk`, `Chara1188Entry_unk` y `FaceData_unk`, nombres inventados). `CharaTask.h` incluye
+    esa cabecera y quita las definiciones viejas.
+  - `Chara1188Item_unk` (0x10 bytes) era en realidad `Event::PoseKey_unk` (0x2C): movida a la cabecera
+    nueva `include/Event/PoseKey_unk.h` (la incluye `Event/MotionData.h`); su `m00` pasa a `unsigned int`
+    (hash de nodo, se compara sin signo).
+  - `include/atn/Model_unk.h` (compartida): `NodeRes_unk` gana `m14` (hash) y `m18` (indice), `Res_unk`
+    gana `int m44` (numero de nodos), y `m354` se parte para `boost::function<void(atn::MotionBuffer*, int)>
+    m370` (callback de nodos); `atn::MotionBuffer` declarado (definido en el .cpp como pose de nodo).
+  - `splits.txt`: `.sdata` de la unidad 0x8087D9A8-0x8087D9B0 -> 0x8087D9A0-0x8087D9B0 (pools `""` de
+    `Buffer_unk<int>::Resize_unk`, solo los usa esta unidad; estaban en hueco).
+  - `symbols.txt`: `__ct__13Chara1188_unkFv` -> `__ct__16CharaFaceControlFv`,
+    `fn_8011D424__13Chara1188_unkFP9Model_unk` -> `...16CharaFaceControl...`,
+    `__dt__Q23atn31Vector_unk<17Chara1188Item_unk>Fv` (0x8000D7DC, unidad en asm) ->
+    `__dt__Q23atn33Vector_unk<Q25Event11PoseKey_unk>Fv`; el resto de `fn_8011D2E0..fn_8011EF14` a
+    nombres mangled (invocador/gestor de boost::function, `FaceData_unk::fn_8011EEA0/fn_8011EF14`, que
+    llama `Event/DialogHead` en asm); datos: `@stringBase0` 0x80736FA8, RTTI del `bind_t` 0x8077A160,
+    `@LOCAL@`/`@GUARD@` del `stored_vtable` (0x807C7AF0/0x8087F070), pools `@STRING@` 0x8087D9A8/AC.
+  - `src/gmk/CharaObj.cpp`: la llamada `extern "C"` a `fn_8011E81C` pasa a miembro (sin cambio en report).
+  - `lbl_807C7AF8` (0x18, buffer de trabajo de `fn_800A0548`) se define aqui como global C.
+- Hallazgos MWCC nuevos
+  - `model->m370 = function(bind(...))` no da los temporales del original; el original equivale a
+    `function cb(bind(...)); Model_unk* m = m00; function copy(cb); copy.swap(m->m370);` (orden de huecos
+    de pila y modelo en r31 recalculando `+0x370`).
+  - Valor recien guardado y releido como float (`m6C = m64 + m68` tras `m64 = p`): MWCC reenvia el
+    registro con un `frsp` delante del `fadds`.
+- Pendientes: probar en `include/std/vector.h` (compartido) cargar el tamano antes que la capacidad en
+  `push_back` sin romper el autoinline (un local extra lo saca de linea).
