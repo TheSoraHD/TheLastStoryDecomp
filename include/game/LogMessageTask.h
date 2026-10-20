@@ -12,10 +12,13 @@ extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 template <int N>
 struct FixedWString_unk {
     FixedWString_unk() { mText[0] = 0; }
+    FixedWString_unk(const wchar_t* s) { Assign_unk(s); }
     FixedWString_unk& operator=(const FixedWString_unk& o) {
         Assign_unk(o.mText);
         return *this;
     }
+    // inferred: compares with `s` (wcsncmp over the longer length); defined in LogMessageTask.cpp
+    bool operator==(const wchar_t* s) const;
     void Assign_unk(const wchar_t* s) {
         if (s != mText) {
             wmemcpy(mText, s, wcslen(s) + 1);

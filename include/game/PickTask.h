@@ -17,7 +17,7 @@ public:
     static PickTask* sInstance;
 
     int m48;
-    unsigned char m4C[0x5100]; // inferred: pick tables (cleared every frame by vf10)
+    int m4C[0x48][0x48]; // inferred: m4C[i][j] bit 0: i sees j, bit 1: j is near i (cleared every frame by vf10)
     int m514C;
 };
 

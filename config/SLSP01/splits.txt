@@ -591,7 +591,7 @@ game/CrossbowMenuTask.cpp:
 
 game/CrowdManager.cpp:
 	.text       start:0x801EA4B0 end:0x801EB93C
-	.rodata     start:0x8073CC70 end:0x8073CD20
+	.rodata     start:0x8073CC68 end:0x8073CD20
 	.data       start:0x807829E0 end:0x80782A18
 	.sbss       start:0x8087F128 end:0x8087F130
 	.sdata2     start:0x80882B70 end:0x80882BC0
@@ -1763,14 +1763,14 @@ game/MarketTask.cpp:
 	.sdata2     start:0x808871B0 end:0x808871C0
 
 game/MenuCommonTask.cpp:
-	.text       start:0x804A29C4 end:0x804A7F18
-	.rodata     start:0x807573C0 end:0x80757650
-	.data       start:0x807907DC end:0x80790818
+	.text       start:0x804A29C4 end:0x804A7EA4
+	.rodata     start:0x80757108 end:0x80757650
+	.data       start:0x807907B0 end:0x80790818
 	.sbss       start:0x8087F580 end:0x8087F588
 	.sdata2     start:0x808871D0 end:0x80887254
 
 game/MiniMapTask.cpp:
-	.text       start:0x804A7F18 end:0x804A9E44
+	.text       start:0x804A7EA4 end:0x804A9E44
 	.rodata     start:0x80757650 end:0x8075765C
 	.data       start:0x80790818 end:0x80790888
 	.sdata2     start:0x80887254 end:0x808872B0
@@ -1966,7 +1966,7 @@ game/NpcTask.cpp:
 
 game/PickTask.cpp:
 	.text       start:0x80548D54 end:0x80549D8C
-	.rodata     start:0x8075E438 end:0x8075E458
+	.rodata     start:0x8075E3F8 end:0x8075E458
 	.data       start:0x807948E8 end:0x80794920
 	.sbss       start:0x8087F898 end:0x8087F8A0
 	.sdata2     start:0x80887D40 end:0x80887D58
@@ -2108,10 +2108,10 @@ game/TeamAIManager.cpp:
 
 game/TownTask.cpp:
 	.text       start:0x805B6C5C end:0x805B9B08
-	.rodata     start:0x80763DF0 end:0x80763EB8
-	.data       start:0x807978C8 end:0x80797908
+	.rodata     start:0x80763DE8 end:0x80763EB8
+	.data       start:0x807978C8 end:0x80797928
 	.sbss       start:0x8087FA20 end:0x8087FA28
-	.sdata2     start:0x808883E0 end:0x808883EC
+	.sdata2     start:0x808883E0 end:0x80888448
 
 game/TownTpcLoader.cpp:
 	.text       start:0x805B9B08 end:0x805B9EC8

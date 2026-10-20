@@ -233,6 +233,19 @@ public:
 private:
     void __init_unk(const T* first, const T* last);
     size_type __grow_cap_unk(size_type n);
+    // inferred: growth without the length checks; push_back computes it once for one element and drops the
+    // result (dead code that stays when push_back is inlined into a large function, CrowdManager 0x801EB188)
+    size_type __recommend_unk(size_type n) {
+        size_type cap = this->mCap;
+        if (cap < max_size() / 3) {
+            cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
+        } else if (cap < max_size() / 3 * 2) {
+            cap += __vec_max_unk(size_type((cap + 1) / 2), n);
+        } else {
+            cap = max_size();
+        }
+        return cap;
+    }
     void __swap_out_unk(__vec_split_unk<T>& buf) {
         buf.__push_front_unk(this->mData, this->mData + this->mSize);
         this->mSize = 0;
@@ -258,6 +271,7 @@ void vector<T>::push_back(const T& x) {
     if (max_size() - this->mCap < 1) {
         __msl_error("vector length error");
     }
+    __recommend_unk(1);
     __vec_split_unk<T> buf(&this->mCap);
     size_type cap = __grow_cap_unk(this->mSize + 1 - this->mCap);
     buf.mData = __allocate(cap);

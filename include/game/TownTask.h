@@ -5,43 +5,68 @@
 #include "game/ResHandle.h"
 #include "math/Vec.h"
 #include "std/string.h"
+#include "std/vector.h"
 
-// inferred: 0x14-byte entry of the array at 0x190 (class unknown)
+// inferred: map part shown in a block (only the flags are used here)
+struct TownBlockParts_unk {
+    unsigned char m00[0x38];
+    unsigned int m38; // inferred: bit 1: the block belongs to the town area
+};
+
+// inferred: one of the 3x3 loaded map blocks around the player (0x14 bytes); names invented
 struct TownBlock_unk {
-    void Init_unk() {
-        m04 = -1;
-        m08 = -1;
-        m0C = 0;
-        m10 = 0;
-    }
+    TownBlock_unk() : mX(-1), mZ(-1), mParts(0), m10(0) {}
     int m00;
-    int m04;
-    int m08;
-    int m0C;
+    int mX;  // 0x04
+    int mZ;  // 0x08
+    TownBlockParts_unk* mParts; // 0x0C
     int m10;
 };
 
-// inferred: fixed-size array whose ctor constructs its elements in a loop (name invented)
-template <typename T, int N>
-struct FixedArray_unk {
-    FixedArray_unk() {
-        T* p = mData;
-        T* end = mData + N;
-        while (p < end) {
-            p->Init_unk();
-            p++;
+// inferred: value of the town trees (0x28 bytes: key and data, copied word by word); names invented
+struct TownValue_unk {
+    int mKey;
+    int m04[9];
+};
+// inferred: red-black tree node (0x34 bytes); names invented
+struct TownNode_unk {
+    TownNode_unk* mLeft;   // 0x00
+    TownNode_unk* mRight;  // 0x04
+    TownNode_unk* mParent; // 0x08
+    TownValue_unk mValue;  // 0x0C
+};
+struct TownTree_unk;
+extern "C" void fn_805B99A8(TownTree_unk* tree, TownNode_unk* node); // inferred: frees a subtree
+// inferred: tree header (size, root, ?, leftmost; the end node is &mRoot); nodes are freed by fn_805B99A8.
+// The destructor is inlined through five levels (five null checks of the address in ~TownTask); the class
+// names are invented.
+struct TownTreeBase_unk {
+    TownTreeBase_unk() : mSize(0), mRoot(0), mBegin((TownNode_unk*)&mRoot) {}
+    ~TownTreeBase_unk() {
+        if (mRoot != 0) {
+            fn_805B99A8((TownTree_unk*)this, mRoot);
         }
     }
-    T mData[N];
-};
-
-// inferred: binary tree header (Dinkumware-like; nodes are freed by fn_805B99A8)
-struct TownTree_unk {
-    TownTree_unk() : m00(0), mRoot(0), mBegin(&mRoot) {}
-    int m00;
-    void* mRoot;
+    unsigned int mSize;
+    TownNode_unk* mRoot;
     int m08;
-    void** mBegin;
+    TownNode_unk* mBegin;
+};
+struct TownTree1_unk : public TownTreeBase_unk {
+    ~TownTree1_unk() {}
+};
+struct TownTree2_unk : public TownTree1_unk {
+    ~TownTree2_unk() {}
+};
+struct TownTree3_unk : public TownTree2_unk {
+    ~TownTree3_unk() {}
+};
+struct TownTree_unk : public TownTree3_unk {
+    ~TownTree_unk() {}
+};
+// inferred: vector of the town (destructor inlined through four levels); element type unknown
+struct TownList_unk : public std::vector<void*> {
+    ~TownList_unk() {}
 };
 
 // inferred from __vt__8TownTask (0x807978C8): the map task of the towns
@@ -73,20 +98,13 @@ public:
     atn::Vector3 m168;
     int m174;
     int m178;
-    int m17C;
-    int m180;
-    int m184;
-    int m188;
-    int m18C;
-    FixedArray_unk<TownBlock_unk, 8> m190;
+    TownBlock_unk mBlocks[9]; // 0x17C
     TownTree_unk m230;
     TownTree_unk m240;
     int mWidth;  // 0x250
     int mHeight; // 0x254
     void* m258;  // inferred: minimap csv data
-    int m25C;
-    int m260;
-    int m264;
+    TownList_unk m25C;
 };
 
 // inferred: TownTask::sInstance (kept under the label name: CharaTask, ChaserGuard, GimmickCommon, MarketTask and

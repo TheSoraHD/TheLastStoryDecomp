@@ -10,25 +10,51 @@ extern "C" void fn_8049B780(MapObject_unk* obj, void* arg);
 
 TownTask* lbl_8087FA20;
 
+extern "C" void fn_8003E120(TownNode_unk* node, TownNode_unk* root); // inferred: rebalances after an insert
+// inferred: allocates a tree node
+inline TownNode_unk* TownAllocNode_unk() {
+    TownNode_unk* node = (TownNode_unk*)::operator new(sizeof(TownNode_unk));
+    if (node == 0) {
+        __msl_error("Memory allocation failure");
+    }
+    return node;
+}
+// inferred: owner of a node being inserted (freed if the insertion fails); names invented
+struct TownNodeHolder_unk {
+    TownNodeHolder_unk(TownNode_unk** alloc, TownNode_unk* node) : mAlloc(alloc), mNode(node) {}
+    TownNode_unk* Release_unk() {
+        TownNode_unk* node = mNode;
+        mNode = 0;
+        return node;
+    }
+    ~TownNodeHolder_unk() {
+        if (mNode != 0) {
+            ::operator delete(mNode);
+        }
+    }
+    TownNode_unk** mAlloc;
+    TownNode_unk* mNode;
+};
+
 // inferred: creator of the task; not referenced (the task is created by another file), so the linker strips it,
 // but its "" literal stays at the start of the string pool. Name invented.
 TownTask* TownTask::Create_unk(atn::Task* parent) {
     return new (1, "", "", 0) TownTask(parent);
 }
 
-// NONMATCHING: 85% - the array loop of m190 is unrolled by 8 in the target without the signed count check that MWCC
-// emits for our loop (tried member array with inline ctor, placement new, range helpers, body loops over
-// index/pointer, for/while forms)
 TownTask::TownTask(atn::Task* parent)
     : MapTask(parent), m120(0), m124(1), m128(0), m12C(2), m130(0), m134(50.0f), m138(0), m13C(0),
-      m140(0.0f, 0.0f, 0.0f), m164(1.1f), m168(0.0f, 0.0f, 0.0f), m174(0), m178(0), m180(-1), m184(-1), m188(0),
-      m18C(0), mWidth(3), mHeight(3), m25C(0), m260(0), m264(0) {
+      m140(0.0f, 0.0f, 0.0f), m164(1.1f), m168(0.0f, 0.0f, 0.0f), m174(0), m178(0), mWidth(3), mHeight(3) {
     lbl_8087FA20 = this;
     mF8 = 1;
     m258 = fn_804A7EA4(this, "boot/minimap_town.csv");
 }
 
-// NONMATCHING: the dtor (0x805B6EAC: two inlined tree erases, strings, ResHandle) is not written yet
+// NONMATCHING: 26% - the tree erase is inlined one recursion level deeper here than in the original (the
+// rest of the code is the same: vector, two trees, two strings, ResHandle)
+TownTask::~TownTask() {
+    lbl_8087FA20 = 0;
+}
 
 int TownTask::vf0C() {
     if (GetLoader_unk()->fn_80473F50() != 0) {
@@ -72,4 +98,122 @@ void TownTask::vf14() {
     MapTask::vf14();
 }
 
-// NONMATCHING: fn_805B7B24 .. fn_805B99A8 (minimap/block loading and the tree helpers) are not written yet
+// NONMATCHING: fn_805B7B24 (0x58C) is not written yet
+
+// inferred: lower bounds of the block coordinates (globals of another file)
+extern "C" int lbl_8087E6F8;
+extern "C" int lbl_8087E6FC;
+
+// inferred: clamp evaluating the lower bound twice (macro; name invented)
+template <class T>
+inline T TownClamp_unk(const T& x, const T& lo, const T& hi) {
+    return x < lo ? lo : (x > hi ? hi : x);
+}
+#define TOWN_CLAMP(x, lo, hi) TownClamp_unk(x, lo, hi)
+
+// inferred: finds where `key` goes in the tree: returns the parent node (or the end node) and sets the last
+// node not greater than the key, the side and whether it is the leftmost position (names invented)
+extern "C" TownNode_unk* fn_805B80B0(TownTree_unk* tree, const int* key, TownNode_unk** found, bool* left,
+                                     bool* first) {
+    *found = 0;
+    TownNode_unk* parent = (TownNode_unk*)&tree->mRoot;
+    TownNode_unk* node = tree->mRoot;
+    *left = true;
+    *first = true;
+    while (node != 0) {
+        parent = node;
+        if (*key < node->mValue.mKey) {
+            node = node->mLeft;
+            *left = true;
+        } else {
+            *found = node;
+            node = node->mRight;
+            *left = false;
+            *first = false;
+        }
+    }
+    return parent;
+}
+
+// NONMATCHING: 99.6% - registers of the 1/size division
+// inferred: block coordinates of a position, clamped to the town size
+extern "C" void fn_805B8110(TownTask* town, const atn::Vector3* pos, int* x, int* z) {
+    float inv = 1.0f / town->m134;
+    atn::Vector3 d = *pos - town->m140;
+    atn::Vector3 cell = d * inv;
+    *x = (int)cell.x;
+    *z = (int)cell.z;
+    *x = TOWN_CLAMP(*x, lbl_8087E6F8, town->m138);
+    *z = TOWN_CLAMP(*z, lbl_8087E6FC, town->m13C);
+}
+
+// NONMATCHING: 88% - scheduling of the x/z fmadds
+// inferred: center of a block
+extern "C" atn::Vector3 fn_805B81F0(TownTask* town, int x, int z) {
+    atn::Vector3 v;
+    v.x = x * town->m134 + 0.5f * town->m134;
+    v.y = 0.0f;
+    v.z = z * town->m134 + 0.5f * town->m134;
+    return v + town->m140;
+}
+
+// NONMATCHING: fn_805B827C (0xB38) and fn_805B8DB4 (0x8F4, block loading) are not written yet
+
+// NONMATCHING: 96.5% - float registers of the cell computation
+// inferred: nonzero when the position is in the town area (the block under it is flagged)
+extern "C" int fn_805B96A8(TownTask* town, const atn::Vector3* pos) {
+    float inv = 1.0f / town->m134;
+    atn::Vector3 cell = (*pos - town->m140) * inv;
+    int x = (int)cell.x;
+    int z = (int)cell.z;
+    x = TOWN_CLAMP(x, lbl_8087E6F8, town->m138);
+    z = TOWN_CLAMP(z, lbl_8087E6FC, town->m13C);
+    if (x == 2 && z == 0) {
+        return 1;
+    }
+    for (int i = 0; i < 9; i++) {
+        TownBlock_unk* block = &town->mBlocks[i];
+        if (block->mParts != 0 && block->mX == x && block->mZ == z) {
+            return (block->mParts->m38 >> 1) & 1;
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 97% - the node gets r26 in the original (created after the parameters)
+// inferred: inserts a new node under `parent` (tree::insert); names invented
+extern "C" TownNode_unk* fn_805B9838(TownTree_unk* tree, TownNode_unk* parent, bool left, bool first,
+                                     const TownValue_unk* value) {
+    if (tree->mSize == 0xFFFFFFFF) {
+        __msl_error("tree::insert length error");
+    }
+    TownNodeHolder_unk holder(&tree->mRoot, TownAllocNode_unk());
+    new (&holder.mNode->mValue) TownValue_unk(*value);
+    TownNode_unk* node = holder.Release_unk();
+    node->mRight = 0;
+    node->mLeft = 0;
+    new (&node->mParent) TownNode_unk*(parent);
+    if (left) {
+        parent->mLeft = node;
+    } else {
+        parent->mRight = node;
+    }
+    tree->mSize++;
+    fn_8003E120(node, tree->mRoot);
+    if (first) {
+        tree->mBegin = node;
+    }
+    return node;
+}
+
+// NONMATCHING: 9% - MWCC inlines the recursion one level deeper here (31 calls instead of 15)
+// inferred: frees a subtree (inlined into itself)
+extern "C" void fn_805B99A8(TownTree_unk* tree, TownNode_unk* node) {
+    if (node->mLeft != 0) {
+        fn_805B99A8(tree, node->mLeft);
+    }
+    if (node->mRight != 0) {
+        fn_805B99A8(tree, node->mRight);
+    }
+    delete node;
+}

@@ -3,6 +3,9 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "atn/Memory.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
+#include "game/ChaserGuard.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F418;
@@ -32,9 +35,13 @@ struct ChaseGoalTable_unk {
     ChaseGoal_unk* mGoals;
 };
 struct ChaseField_unk {
-    unsigned char m0000[0x10D8];
+    unsigned char m0000[0x8A0];
+    CharaTask* m8A0; // inferred: caught character (cleared every frame while chasing)
+    unsigned char m08A4[0x10D8 - 0x8A4];
     ChaseGoalTable_unk* m10D8;
-    unsigned char m10DC[0x5660 - 0x10DC];
+    unsigned char m10DC[0x54E4 - 0x10DC];
+    int m54E4;
+    unsigned char m54E8[0x5660 - 0x54E8];
     int m5660;
 };
 extern "C" ChaseField_unk* lbl_8087F430;
@@ -183,7 +190,151 @@ int ChaseManager::vf0C() {
     return ret;
 }
 
-// NONMATCHING: vf10 (0x801829B4, 0xBD0 bytes: chase update and effects) is not written yet
+extern "C" int fn_80239D58(ChaseEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_8023A098(ChaseEffectMgr_unk* mgr, void* owner, int arg2, int arg3);
+extern "C" void fn_8023A680(ChaseEffectMgr_unk* mgr, ResLoader_unk* res, int a, int b, Mtx* mtx, int c, int d,
+                            const float* color, float scale, int e, int f, int g); // inferred: starts an effect
+extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
+extern "C" double sin(double x);
+// inferred: camera (only the members used here)
+struct ChaseCamera_unk {
+    unsigned char m000[0x10C];
+    atn::Vector3 mEye;    // 0x10C
+    atn::Vector3 mTarget; // 0x118
+};
+extern "C" ChaseCamera_unk* lbl_8087EFB4;
+
+// inferred: rotate `m` around `axis` when the angle is not zero (the constant is compared first)
+inline void ChaseRotate_unk(Mtx m, char axis, float rad) {
+    if (0.0f != rad) {
+        Mtx r;
+        PSMTXRotRad(r, axis, rad);
+        Mtx t;
+        PSMTXConcat(m, r, t);
+        __MtxCopy(m, t);
+    }
+}
+// inferred: m = m * rotation (z, y, then x), skipping zero angles (name invented)
+inline void __MtxRotateZYX_unk(Mtx m, const atn::Vector3& r) {
+    ChaseRotate_unk(m, 'z', r.z);
+    ChaseRotate_unk(m, 'y', r.y);
+    ChaseRotate_unk(m, 'x', r.x);
+}
+// inferred: holding a ledge (name invented)
+inline bool IsLedgeHold_unk(CharaTask* chara) {
+    return chara->mFlag31 && chara->mC48 != 0;
+}
+
+// NONMATCHING: 97.4% - the switch on the guard state tests 1..2 with two signed compares in the original (a
+// range check here), one more callee-saved register is used here, stack/load order of the locals.
+// inferred: counts the guards by state, then places the goal marker (two effects) in front of the player
+void ChaseManager::vf10() {
+    if (mState != 0 && lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
+        mFrames++;
+        lbl_8087F430->m8A0 = 0;
+        if (lbl_8087F8A0->mHead->m484[3] != 0x1F) {
+            lbl_8087F8A0->mHead->fn_8014C0B4(3, 0x1F);
+            lbl_8087F8A0->mHead->fn_8014C0B4(2, 0x19);
+        }
+        m54 = 0;
+        m50 = 0;
+        m4C = 0;
+        for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+            if (enemy->CanAct_unk() && enemy->m60->m24 == 0x35) {
+                switch (((ChaserGuard*)enemy)->m14B0) {
+                case 3:
+                    m54++;
+                    m50++;
+                    break;
+                case 1:
+                case 2:
+                    m50++;
+                    break;
+                case 4:
+                    m4C++;
+                    break;
+                }
+            }
+        }
+    }
+    if (mState == 2) {
+        m6C++;
+        lbl_8087F430->m8A0 = mCaught;
+    }
+    CharaTask* player = lbl_8087F8A0->mHead;
+    if (mShowGoal != 0 && lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 0 && mGoalId > 0 && !player->mFlag25 &&
+        !IsLedgeHold_unk(player)) {
+        atn::Vector3 pos = player->mPos;
+        atn::Vector3 dir = mGoal - pos;
+        float dist = PSVECMag(&dir);
+        PSVECNormalize(&dir, &dir);
+        if (mEffect == 1) {
+            dir.y = 0.0f;
+        }
+        atn::Vector3 offset = lbl_8087F0A8->m52C;
+        atn::Vector3 rot = dir.ToRotation_unk();
+        Mtx rotY;
+        PSMTXRotRad(rotY, 'y', rot.y);
+        PSMTXMultVec(rotY, &offset, &offset);
+        pos += offset;
+        atn::Vector3 angle = dir.ToRotation_unk();
+        if (mEffect == 0) {
+            pos.y += 0.5f * (float)sin(0.017453292f * (3.0f * m1B4));
+            pos.y += 5.0f * -(float)sin(angle.x);
+            if (player->mFlag28) {
+                pos.y += 5.0f;
+            }
+        }
+        atn::Vector3 view;
+        view = lbl_8087EFB4->mTarget - lbl_8087EFB4->mEye;
+        PSVECNormalize(&view, &view);
+        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+        atn::Vector3 axis;
+        PSVECCrossProduct(&view, &up, &axis);
+        Mtx tilt;
+        PSMTXRotAxisRad(tilt, &axis, lbl_8087F0A8->m538);
+        Mtx trans;
+        PSMTXTrans(trans, pos.x, pos.y, pos.z);
+        Mtx t;
+        PSMTXConcat(trans, tilt, t);
+        __MtxCopy(m144, t);
+        atn::Matrix3x4 m;
+        m.SetIdentity();
+        __MtxRotateZYX_unk(m.m, angle);
+        Mtx trans2;
+        PSMTXTrans(trans2, pos.x, pos.y, pos.z);
+        Mtx t2;
+        PSMTXConcat(tilt, m.m, t2);
+        Mtx t3;
+        PSMTXConcat(trans2, t2, t3);
+        __MtxCopy(m174, t3);
+        fn_8023A098(lbl_8087F3C0, this, 0, 2);
+        if (dist < 15.0f) {
+            if (m1B4 > 0.5f) {
+                if (fn_80239D58(lbl_8087F3C0, this, 0) != 0) {
+                    fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+                }
+                fn_80232B7C(0, 0);
+                fn_8023A680(lbl_8087F3C0, &m12C[mEffect], -1, 5, &m174, 0, 0, 0, 1.0f, 0, -1, 1);
+                m1B4 = 0.0f;
+            }
+        } else if (fn_80239D58(lbl_8087F3C0, this, 0) == 0) {
+            fn_80232B7C(this, 0);
+            if (mEffect != 0) {
+                fn_8023A680(lbl_8087F3C0, &mFC[mEffect], -1, 5, &m144, 0, 0, 0, 1.0f, 0, -1, 1);
+            }
+            fn_8023A680(lbl_8087F3C0, &m114[mEffect], -1, 5, &m174, 0, 0, 0, 1.0f, 0, -1, 1);
+            m1B4 = 1.0f;
+        } else {
+            m1B4 += 1.0f;
+        }
+    } else if (fn_80239D58(lbl_8087F3C0, this, 0) != 0) {
+        fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+    }
+}
 
 void ChaseManager::fn_80183588(int id) {
     if (id == 0) {

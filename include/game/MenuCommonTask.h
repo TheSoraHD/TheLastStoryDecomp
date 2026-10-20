@@ -29,9 +29,31 @@ struct MenuD2A_unk : public atn::Task {
     unsigned char m48[0x58 - 0x48];
     unsigned char m58[0xA0 - 0x58]; // 0x58: inferred: layout
     float mLastFrame; // 0xA0
-    unsigned char mA4[0x100 - 0xA4];
+    unsigned char mA4[0xE4 - 0xA4];
+    void (*mCallback)(int, int, int); // 0xE4: inferred: event callback of the anime (atn::D2A_Data + 0x9C)
+    unsigned char mE8[0xFC - 0xE8];
+    unsigned int mLoop : 1;   // 0xFC (as atn::D2A_Task)
+    unsigned int mVisible : 1;
+    unsigned int mPlaying : 1;
+    unsigned int mRepeat : 1;
+    unsigned int mFC_rest : 28;
     float mFrame;   // 0x100: inferred: current frame
     float mSpeed;   // 0x104: inferred: playback speed
+    int m108;       // inferred: draw priority
+};
+
+// inferred: data of a layout anime (returned by fn_801F6C10); only the callback is known
+struct MenuLayoutData_unk {
+    unsigned char m00[0x9C];
+    void (*mCallback)(int, int, int); // 0x9C
+};
+// inferred: layout anime task (made by fn_801F64D0); only the members used here
+struct MenuLayout_unk : public atn::Task {
+    unsigned char m48[0x4D - 0x48];
+    bool mRepeat;   // 0x4D
+    unsigned char m4E[0x50 - 0x4E];
+    float mFrame;   // 0x50
+    float mSpeed;   // 0x54
 };
 
 // inferred: cursor task (made by fn_80202A6C); only the members used here
@@ -55,6 +77,8 @@ public:
     void fn_804A2FBC(); // inferred: resets everything
     void fn_804A313C(); // inferred: resets the info windows
     void ResetInfo_unk(); // inferred: inline body of fn_804A313C (name invented)
+    void fn_804A660C(void* anime, int a, int b, int c); // inferred: event of a d2anime
+    void fn_804A71F0(void* layout, int a, int b, int c); // inferred: event of a layout anime
 
     static MenuCommonTask* sInstance;
 
@@ -72,7 +96,7 @@ public:
     int m74;
     MenuCursor_unk* m78[4]; // inferred: cursors
     int m88;
-    atn::Task* m8C[4]; // inferred: cursors
+    MenuLayout_unk* m8C[4]; // inferred: cursors
     int m9C;
     MenuCommonEntry_unk mA0[4];
     int m1C0;
