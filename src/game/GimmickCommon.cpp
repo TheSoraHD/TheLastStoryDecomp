@@ -37,6 +37,7 @@
 #include "gmk/Fireworks.h"
 #include "gmk/MapLift.h"
 #include "gmk/MeetingSpot.h"
+#include "gmk/CharaPathMove.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -218,7 +219,6 @@ extern "C" GimmickCommon* fn_80426108(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_804310B0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80432CF0(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80436E34(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
@@ -275,7 +275,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 63: gimmick = gmk::SavePoint::fn_80435CE4(parent, id, arg); break;
     case 64: gimmick = fn_80436E34(parent, id, arg); break;
     case 65: gimmick = gmk::LottaSummon::fn_8043A770(parent, id, arg); break;
-    case 67: gimmick = fn_8043D594(parent, id, arg); break;
+    case 67: gimmick = gmk::CharaPathMove::fn_8043D594(parent, id, arg); break;
     }
     return gimmick;
 }

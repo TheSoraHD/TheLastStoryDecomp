@@ -1568,7 +1568,7 @@ gmk/Chain.cpp:
 
 gmk/CharaPathMove.cpp:
 	.text       start:0x8043D594 end:0x8043F028
-	.rodata     start:0x807543A8 end:0x807543BC
+	.rodata     start:0x807543A0 end:0x80754498
 	.data       start:0x8078F178 end:0x8078F210
 	.sdata2     start:0x808869C8 end:0x80886A10
 
