@@ -108,6 +108,18 @@ public:
         mData = 0;
         mCount = 0;
     }
+    // inferred: used by the loader 0x801FFA04 (name invented)
+    void Alloc(unsigned int count) {
+        if (mData != 0) {
+            delete[] mData;
+        }
+        mCount = count;
+        if (count != 0) {
+            mData = new (8, "", "", 0) T[count];
+        } else {
+            mData = 0;
+        }
+    }
 
     unsigned int mCount; // 0x00
     T* mData;            // 0x04
@@ -135,11 +147,11 @@ struct D2A_Entry8a_unk {
 struct D2A_Entry8b_unk {
     D2A_Entry8b_unk(); // 0x80201DD4
     int m00;
-    int m04;
+    float m04; // inferred: cleared with 0.0f (same layout as D2A_ParamTable::Entry)
 };
 struct D2A_NameEntry_unk {
     unsigned int mKey;
-    std::string mName; // 0x04
+    std::basic_string<wchar_t> mName; // 0x04: inferred: wide (assigned from UTF-16 by the loader)
 };
 struct D2A_Name_unk {
     D2A_Name_unk(); // 0x80201DE8
@@ -188,7 +200,7 @@ public:
     D2A_Buffer_unk<D2A_Entry8a_unk> m68;
     D2A_Buffer_unk<D2A_Entry8b_unk> m70;
     D2A_Buffer_unk<D2A_Name_unk> m78;
-    D2A_Buffer_unk<unsigned int> m80;
+    D2A_Buffer_unk<unsigned char> m80; // inferred: byte code of the expressions (see fn_800A6E8C)
     D2A_Buffer_unk<D2A_Track_unk> mTracks; // 0x88
     D2A_Pool_unk mPool;                    // 0x90
     void (*m9C)(D2A_Common* element, D2A_DrawColor* color, void* outlineColor); // inferred: message draw callback

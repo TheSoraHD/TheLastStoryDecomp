@@ -137,6 +137,11 @@ template <class T>
 struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<T*>(alloc), mStart(0) {}
     T** begin() { return this->mData + mStart; }
+    // inferred: appends n null pointers (resize, 0x801FFA04)
+    void __append_zero_unk(unsigned int n) {
+        memset(begin() + this->mSize, 0, n * sizeof(T*));
+        this->mSize += n;
+    }
     void push_back(T* const& x) {
         begin()[this->mSize] = x;
         this->mSize++;
@@ -245,6 +250,15 @@ public:
     // inferred: inlined in atn::D2A_Message::vf18 (0x801F2A8C, std::wstring elements); pointer
     // elements take another buffer (atn::SequenceHolder::SequenceHolder, 0x800C3834)
     void reserve(size_type n) { __reserve_unk(n, (T*)0); }
+    // inferred: inlined in the d2anime loader (0x801FFA04, float* elements): new elements are
+    // zeroed, removed ones are dropped through __shrink_unk
+    void resize(size_type n) {
+        if (n > this->mSize) {
+            __append_unk(n - this->mSize);
+        } else if (n < this->mSize) {
+            this->__shrink_unk(n);
+        }
+    }
     template <class U>
     void __reserve_unk(size_type n, U**) {
         if (this->mCap < n) {
@@ -272,6 +286,25 @@ public:
     }
 
 private:
+    // inferred: growth of resize (0x801FFA04, pointer elements); the length check is defined out
+    // of the class (its "vector length error" goes to the file pool) and auto-inlined
+    void __append_unk(size_type n) {
+        if (this->mCap - this->mSize >= n) {
+            memset(this->mData + this->mSize, 0, n * sizeof(T));
+            this->mSize += n;
+        } else {
+            __check_append_unk(n);
+            __recommend_unk(this->mSize + n);
+            __vec_split_unk<T> buf(&this->mCap);
+            size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
+            buf.mData = __allocate(cap);
+            buf.mCap = cap;
+            buf.mStart = this->mSize;
+            buf.__append_zero_unk(n);
+            __swap_out_unk(buf);
+        }
+    }
+    void __check_append_unk(size_type n);
     void __init_unk(const T* first, const T* last);
     size_type __grow_cap_unk(size_type n);
     // inferred: growth without the length checks; push_back computes it once for one element and drops the
@@ -320,6 +353,13 @@ void vector<T>::push_back(const T& x) {
     buf.mStart = this->mSize;
     buf.push_back(x);
     __swap_out_unk(buf);
+}
+
+template <class T>
+void vector<T>::__check_append_unk(size_type n) {
+    if (max_size() - this->mCap < this->mSize + n) {
+        __msl_error("vector length error");
+    }
 }
 
 // inferred: copy of a range into an empty vector (names invented)
