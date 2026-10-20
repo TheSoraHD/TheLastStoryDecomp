@@ -29,6 +29,30 @@ struct __HashIs_unk {
 
 class PfsArchive_unk;
 
+// inferred: load from an archive whose index is not read yet (0x4C bytes, atn/LoadManager_unk.cpp
+// 0x8046C3FC). Name invented.
+struct PendingLoad_unk {
+    // inferred: path copied only from another buffer, without constructor (none is called for the
+    // local copy of 0x8046C3FC)
+    struct Path_unk {
+        void operator=(const char* src) {
+            if (src != m) {
+                memcpy(m, src, strlen(src) + 1);
+            }
+        }
+        char m[0x40];
+    };
+    PendingLoad_unk(PfsArchive_unk* archive, LoadCore* core, const char* path, int index)
+        : mArchive(archive), mCore(core) {
+        mPath = path;
+        mIndex = index;
+    }
+    PfsArchive_unk* mArchive;
+    LoadCore* mCore;
+    Path_unk mPath;
+    int mIndex;
+};
+
 // inferred: loaded resources sorted by path hash (count, then the array). Name invented.
 struct LoadCache_unk {
     unsigned int size() const { return mCount; }
@@ -88,11 +112,12 @@ public:
     unsigned char m04[0x48 - 0x04];
     LoadCache_unk m48;                // inferred: another container, see fn_8046F834
     std::list<LoadCore*> mList;       // 0x3ECC
-    unsigned char m3ED8[0x3EDC - 0x3ED8];
+    int m3ED8; // inferred: nonzero when the files on disc take priority over the archives
     int m3EDC; // inferred: set when a resource loses its last reference (0x804730E4)
     unsigned char m3EE0[0x4020 - 0x3EE0];
     std::list<PfsArchive_unk*> mArchives; // 0x4020: inferred: every opened archive
     std::list<PfsArchive_unk*> mMounted;  // 0x402C: inferred: archives searched by path
+    std::list<PendingLoad_unk> mPending;  // 0x4038: inferred: loads waiting for an archive index
 };
 
 // Defined out of the class: its literals are in the file string pool (0x80755C90).

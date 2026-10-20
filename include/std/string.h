@@ -135,7 +135,7 @@ public:
     // inferred: inlined at 0x80476220: two short strings are copied word by word
     basic_string& operator=(const basic_string& str) {
         if (!is_long() && !str.is_long()) {
-            mLong = str.mLong;
+            mRaw = str.mRaw;
         } else {
             size_type sz = is_long() ? mLong.mSize : (mShort.mSize & 0x7F);
             const T* p;

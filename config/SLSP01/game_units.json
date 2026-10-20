@@ -376,6 +376,16 @@
   "matching": false
  },
  {
+  "name": "atn/Util_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/NumberFormat_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "std/char_traits_char.cpp",
   "classes": [
    "std::basic_ios<char, std::char_traits<char>>"
@@ -909,6 +919,13 @@
   "matching": false
  },
  {
+  "name": "atn/D2A_ParamTable_unk.cpp",
+  "classes": [
+   "atn::D2A_ParamTable"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/D2A_Line.cpp",
   "classes": [
    "atn::D2A_Line"
@@ -920,6 +937,11 @@
   "classes": [
    "atn::D2A_Message"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/D2A_MessageTable_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {
@@ -1203,6 +1225,29 @@
   "matching": false
  },
  {
+  "name": "atn/EfpHandle_unk.cpp",
+  "classes": [
+   "atn::EfpHandle_unk",
+   "ResLoader_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/EffectRes_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/EffectLoader_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/LoadManager_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/EffectManager.cpp",
   "classes": [
    "atn::EffectManager"
@@ -1214,6 +1259,18 @@
   "classes": [
    "std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char>>>"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/EffectManager_cont.cpp",
+  "classes": [
+   "atn::EffectManager"
+  ],
+  "matching": true
+ },
+ {
+  "name": "atn/EffectSequencer_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {

@@ -1,0 +1,281 @@
+# Lote batch-auto-5kb - cola q3
+
+Cola (de menor a mayor): `atn/EffectManager_cont`, `atn/D2A_ParamTable_unk`, `atn/EfpHandle_unk`,
+`atn/NumberFormat_unk`, `atn/Util_unk`, `atn/D2A_MessageTable_unk`, `atn/EffectSequencer_unk`, `atn/EffectRes_unk`,
+`atn/EffectLoader_unk`, `atn/LoadManager_unk`.
+
+## Arreglo previo fuera de la cola (commit d0c4289)
+
+- La copia integrada (q1+q4+q5+q7+q9) no compilaba: `src/MP/SaveLoad.cpp` (q9) declaraba `fn_8004B20C` con otro tipo
+  que `include/game/GameSaveLoadBackgroundCommon.h` (otra cola) y llamaba a `fn_803BE8C0` como `extern "C"`, que la
+  otra cola habia renombrado a `GameSaveSlot_unk::fn_803BE8C0`. Arreglo: `typedef SaveTime_unk CalendarTime_unk` y
+  llamada como metodo sobre la cabecera de 0xB8 de `SaveWork_unk`. `MP/SaveLoad` sigue 8/8 al 100%.
+
+## atn/EffectManager_cont (commit bc7b982)
+
+- Resultado: 2/2 al 100%, unidad propia `matching: true` (no fusionada). `main.dol: OK`.
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - No se fusiona con `atn/EffectManager`: entre ambas esta `std/char_traits_char_8023C080` (0x8023B9D0-0x8024372C,
+    unidad ajena en `game_units.json`), que segun `splits-auto-B` es parte del mismo fichero real. Ademas
+    `atn/EffectManager` esta en `matching: false` (no esta enlazada). **Pendiente para el usuario**: fusionar las
+    tres unidades en `atn/EffectManager` (0x80239798-0x80243758) cuando esa unidad y la parte std esten al 100%.
+  - Las dos funciones son los thunks de ajuste de `this` de `EffectManager` para su base `IRender` en 0x48
+    (`@72@vf10__Q23atn13EffectManagerFP10Camera_unk` y `@72@__dt__Q23atn13EffectManagerFv`; nuestro
+    `EffectManager.o` los emite debiles al final). Como unidad aparte se escriben como llamadas de cola normales
+    (`extern "C"`, nombres `fn_8024372C`/`fn_80243734` sin cambiar en `symbols.txt`); al fusionar habra que borrarlas.
+  - Splits: `atn/EffectManager_cont` .text 0x8024372C-0x80243758 -> 0x8024372C-0x8024373C; los 0x1C bytes de
+    `EfpData_unk::EfpData_unk()` (0x8024373C) pasan a `atn/EffectSequencer_unk` (0x80243758 -> 0x8024373C): los
+    thunks cierran el fichero de EffectManager y `EfpData_unk` tiene mas metodos dentro de EffectSequencer
+    (`fn_802437B4__11EfpData_unkFPCc`).
+  - `game_units.json`: entrada nueva `atn/EffectManager_cont.cpp` tras `std/char_traits_char_8023C080.cpp`.
+- Hallazgos MWCC
+  - MWCC convierte en salto de cola (`addi r3,r3,-0x48; b f`) una funcion que solo llama a otra con el puntero
+    ajustado: sirve para reproducir thunks `@N@` fuera de su fichero. Un parametro `short` reenviado anade `extsh`:
+    usar `int`.
+
+## atn/D2A_ParamTable_unk (commit d6e5655)
+
+- Resultado: 6/6 al 100%, `matching: true`, `main.dol: OK`.
+- NONMATCHING: ninguna.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (el tramo ya cubre `.text`, el double int->float de `.rodata` y su `.sdata2`).
+  - `symbols.txt`: `lbl_80882C28` (0.0f) pasa de `size:0x8` a `size:0x4` (los 4 bytes siguientes son relleno;
+    con 8 objdiff lo trataba como double y no casaba el `lfs`).
+  - Contenido: tablas `{clave, valor}` de los elementos D2A con setter (busca la clave exacta) y getter interpolado
+    linealmente entre las claves vecinas, para `int` (`fn_801F0364/03AC`), `float` (`D2A_ParamTable::fn_801F04FC`,
+    `fn_801F0544`) y `std::wstring` (`fn_801F0670/0758`, sin interpolar: valor de la clave anterior). Tipos
+    inferidos locales `D2A_IntParamTable_unk` y `D2A_StringParamTable_unk`. Los nombres `extern "C"` se mantienen
+    (los llaman asi D2A_Common, D2A_Message, D2A_Data, D2A_Texture y MenuCommonTask); `fn_801F04FC` conserva su
+    firma `(int key, int arg, float value)` aunque por los llamadores parece `(key, value, flag)` (mismos registros).
+  - **Cabecera compartida `include/std/string.h`**: `operator=` copia dos cadenas cortas con `mRaw = str.mRaw` en vez
+    de `mLong = str.mLong` (el original carga la palabra 1 antes de guardar la 0, como el ctor copia). Efecto en el
+    resto (report.json): suben `db/CharaParam_unk` tokenizer::assign (95.9 -> 99.7) y `LibraryTask`
+    `BookTask::fn_8046B798` (96.2 -> 97.0); bajan un poco `D2A_Message` ctor (66.54 -> 66.31) y `vf18`
+    (91.59 -> 91.58), ambas ya NONMATCHING. Ninguna funcion al 100% se pierde.
+  - Nombre real propuesto: entre `atn_d2a_frame` y `atn_d2a_line` (ver splits-auto-B), p. ej. `atn_d2a_param.cpp`.
+- Hallazgos MWCC
+  - Locales de un bucle de busqueda (`prev`, `next`, `found`): el orden de declaracion decide r7/r8/r9; probar las
+    6 permutaciones con un script es mas rapido que razonarlo.
+  - Temporales (tags de iterador) en orden ascendente en la pila = el codigo esta en una inline (aqui la seleccion
+    del valor anterior/siguiente): sacarlo a un helper inline los reordena.
+
+## atn/EfpHandle_unk (commit 9fdd1e7)
+
+- Resultado: 14/15 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_802371BC` 74.74% - intercambiador de bytes guiado por una tabla `{tipo, cuenta, sub}`
+  (tipos 0 saltar, 1/2/3 invertir 16/32/64 bits, 4 recursion). Conseguidos: la estructura del `switch`, el
+  desenrollado (`while (count-- > 0)`), `stwbrx` en el bucle de 32 bits con las mismas direcciones y el bucle de
+  64 bits desenrollado x2 con los stores muertos en pila (struct con array). Falla: el bucle de 16 bits sale con
+  `lhzu` (forma con actualizacion) en vez de desplazamientos + direcciones aparte, el orden del cuerpo de 64 bits y
+  los registros salvados (r26-r31 frente a r25-r31). ~20 variantes probadas.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (el tramo cubre `.text`, `.ctors`, `.bss` de los registros de destructor y `.sbss`).
+  - `symbols.txt`: `fn_802378E0` -> `__sinit_\EfpHandle_unk_cpp` (pairnames). Renombrados a mano (necesarios
+    para que el `__sinit` reproducido enlace con nombre): `fn_8068B770`/`fn_8068BC30` ->
+    `__ct__/__dt__Q33std8ios_base4InitFv` (construye cin/cout/cerr sobre `__files`: es el `ios_base::Init` de
+    `<iostream>` de MSL) y `fn_8068BD60`/`fn_8068C240` -> `__ct__/__dt__Q23std11__wInit_unkFv` (nombre INVENTADO
+    para el equivalente ancho). El mismo `__sinit` aparece en CryptMP, NetGlobals_unk, func_enter_setting,
+    EffectSequencer_unk...: el fichero incluye `<iostream>`.
+  - `include/atn/ResLoader_unk.h`: `m04[8]` pasa a `atn::LH_Effect mLoader` (mismo tamano 0xC; incluye
+    `atn/LH_Effect.h`). Comprobado en report.json: ningun otro porcentaje cambia.
+  - Contenido: `ResLoader_unk` (recurso + `LH_Effect`) y `atn::EfpHandle_unk` (recurso + `LH_Efp`): ctor, dtor
+    (debil de `LH_Effect` emitido aqui), cargar, comprobar carga, liberar (avisando a `EffectManager`). Los
+    accesores `fn_80237784`/`fn_8023779C`/`fn_802378C4` se quedan `extern "C"` (asi los llaman ReplayBuffer,
+    EffectSequencer y MotionObject). Declaracion minima local de `atn::EffectManager` (dos metodos).
+  - Nombre real propuesto: desconocido (contiene los cargadores de efectos; quizas `atn_effect_handle.cpp`).
+- Hallazgos MWCC
+  - MWCC reconoce como `sthbrx`/`stwbrx` algunas expresiones de inversion de bytes con mascaras (16 bits:
+    `((v & 0xFF) << 8) | ((v >> 8) & 0xFF)` sin signo; 32 bits: `((v & 0xFF) << 24) | ((v & 0xFF00) << 8) |
+    ((v & 0xFF0000) >> 8) | ((v & 0xFF000000) >> 24)` con `int`), y entonces desenrolla el bucle; con los
+    intrinsecos `__sthbrx`/`__stwbrx` el bucle no se desenrolla nunca. La de 64 bits no se reconoce.
+  - Desenrollado: `while (count-- > 0)` / `for (; count > 0; count--)` con `count` entero da el esquema
+    `srwi. ctr,count,3` + resto `andi.`; `for (i = 0; i < count; i++)` da el esquema generico (comprobacion de
+    desbordamiento con 0x7FFFFFFE y `count - 8`).
+
+## atn/NumberFormat_unk (commit 87693a3)
+
+- Resultado: 3/4 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_800DD3FC` 99.39% - solo reparto de registros (`text`/`num`/`number`); el resto (estructura del
+  `switch`, pila, constantes) igual.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios (cubre `.text`, el double int->float de `.rodata` y el 1e7f de `.sdata2`).
+  - Contenido: un `swprintf` reducido del juego (`fn_800DD3FC`: `%s %c %b %o %x %d %f %%`, flags `+`/espacio y
+    digitos de ancho/precision; coma decimal si `fn_8006BA30()` (idioma) esta entre 2 y 5), el relleno de ancho
+    (`fn_800DD1EC`) y de decimales (`fn_800DD2A8`), y `fn_800DD8A8` (sustituye `%s<n>` por la n-esima cadena).
+    Nombres `extern "C"` sin cambiar (los llaman asi D2AMpMenuCockpit, RandomMerchant...).
+  - Externos inferidos: `fn_80686AC4` = `wcscat`, `fn_800DC1DC` = cadena ancha a entero (Util_unk),
+    `fn_8068B2A0` = entero a texto (`itow(value, buf, radix)`, devuelve `buf`).
+  - Nombre real propuesto: desconocido (formateo de texto; `atn_wsprintf.cpp`?).
+- Hallazgos MWCC
+  - Funcion con muchas variables en registros salvados: declararlas todas al principio (estilo C) en el orden de
+    los registros del original (de r31 hacia abajo) ordena la asignacion mucho mejor que declararlas en su ambito.
+  - `float x = __fabs((double)expr)` da `fabs` + `frsp` antes de `fctiwz` (con `__fabs(float)` no sale `frsp`).
+  - Un helper inline de pocas sentencias dentro de una funcion pequena la hace autoinlinable en sus llamadoras;
+    escribir el bucle directamente (sin helper) la dejo fuera de linea sin necesitar `((void)0)`.
+
+## atn/Util_unk (commit 8a6bc87)
+
+- Resultado: 6/12 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING:
+  - `fn_800DC12C` 97.73%, `fn_800DC1DC` 90.81%, `fn_800DC288` 94.56%, `fn_800DC3CC` 94.87% (atoi/atof char y
+    anchas): el original empieza con un `b` a la instruccion siguiente (bloque de entrada vacio) que no he
+    reproducido (etiquetas, bucles, do/while, helpers inline...); ademas en atof el cuerpo vuelve a comparar
+    '.' (el original salta desde la condicion del bucle a cada caso) y en la ancha de atoi el bucle usa otro
+    registro puntero.
+  - `fn_800DC500` 81.56% y `fn_800DC6B4` 82.78% (CRC-32 por tabla): reparto de registros y planificacion del
+    bucle desenrollado (el original guarda el CRC en r0).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - `symbols.txt`: `lbl_807348A0` pasa de `size:0x460` a `size:0x400` (la tabla CRC) y se ANADE
+    `@stringBase0 = .rodata:0x80734CA0` (0x59, los mensajes de `basic_string` del pool del fichero: el fichero
+    incluye `std/string_members.h`). `lbl_80734870` (seis doubles en un objeto de 0x30) se deja como esta.
+  - Contenido: atoi/atof (char con punteros, anchas con indice; la prueba de digito ancha sale como
+    `c + (wchar_t)-L'0'`, `addis`+`subi`), envoltorios de `wcstok` (`fn_80686B90`), `fn_8068B1A4` y `itoa`
+    (`fn_8068B29C`), CRC-32 (tabla y bit a bit, polinomio 0x04C11DB7), `fn_800DC980` = printf a `std::string`
+    (`vsprintf` a un bufer de 0x200) y `boost::throw_exception` vacio (BOOST_NO_EXCEPTIONS). Nombres `extern "C"`
+    sin cambiar (los llaman asi LibraryTask, D2A..., FileList).
+  - Nombre real propuesto: desconocido (`atn_util.cpp`?).
+- Hallazgos MWCC
+  - `x ^ 0xFFFFFFFF` da `li r0,-1; xor`; `~x` da `not`.
+  - El mismo cuerpo escrito como funcion normal o como inline llamada desde un envoltorio `extern "C"` asigna
+    los FPR en orden distinto (atof: solo la version inline casa los registros de `value`/`scale`).
+
+## atn/D2A_MessageTable_unk (commit 595201a)
+
+- Resultado: 5/6 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_801F36C8` 93.49% (lector del CSV con `std::vector` de lineas y `push_back` inlineado):
+  reparto de registros (el original guarda la direccion del `CsvU` en r16 mientras lo construye y relee
+  tamano/capacidad del vector en `push_back`) y orden de los mensajes de `basic_string` en el pool. Ademas
+  nuestro `.o` mete en `.sdata` dos literales de 2 bytes de la copia debil de `__replace_unk` delante de los
+  dos `""` del `new[]` (el original solo tiene los dos `""` de 4 bytes): a revisar si se intenta enlazar.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - `symbols.txt` (pairnames): `fn_801F3490`/`fn_801F34F8` -> `__ct__/__dt__20D2A_MessageTable_unkFv` (solo
+    los llama `atn/D2A_Manager`, en asm). El resto conserva el nombre `extern "C"` (D2A_Task, MenuCommon_unk).
+  - Tipos inferidos locales: `D2A_MessageTable_unk` (entradas, estado, `LH_Binary`, bufer de textos),
+    `D2A_TextEntries_unk` (cuenta + `new (8, "", "", 0)` de entradas: sus `""` son los dos `.sdata` del fichero),
+    `D2A_TextLine_unk` (id + `wstring`) y una especializacion local de `__vec_split_unk` para las lineas (mover
+    como bytes y destruir; copiada del patron de `game/MenuCommonTask.cpp`).
+  - Nombre real propuesto: entre `atn_d2a_message` y `atn_d2a_reference` (p. ej. `atn_d2a_messagetable.cpp`).
+- Hallazgos MWCC: ninguno nuevo.
+
+## atn/EffectSequencer_unk (commit 1b3d686)
+
+- Resultado: 13/14 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_802440F0__11EfpData_unkFv` 95.55% (longitud de la secuencia): solo registros (elemento y su
+  desplazamiento intercambiados r30/r31); probados ordenes de declaracion, referencias y helpers inline.
+- **Decisiones sin el usuario**
+  - Splits: el `.text` empieza en 0x8024373C (absorbe `EfpData_unk::EfpData_unk()` del `_cont`, ver arriba).
+  - `symbols.txt`: pairnames (`fn_802438C4`, `fn_80243EF0` -> `GetType_unk__14TextParser_unkFv`, `fn_80243EF8`
+    -> `fn_DegToRad_unk__FPf`, `fn_80243F24` -> `__dt__14TextParser_unkFv`, `fn_8024405C` -> ctor de
+    `EfpElem_unk`, `fn_802440F0`, `__sinit`), a mano `fn_802438D4`/`fn_80243FAC` -> metodos de `EfpData_unk`.
+    Fuera de la unidad (necesarios para casar las llamadas): `fn_800E0CF0` -> `__ct__14TextParser_unkFPvPv`
+    (lector de ficheros de texto con etiquetas, en `std/allocator_char`) y `fn_800E19AC` -> ctor copia de
+    `std::string` (`__ct__Q23std59basic_string<c,...>FRCQ23std59basic_string<c,...>`, su copia debil).
+    Datos: `lbl_80743140` -> `@stringBase0` (0xA9), `lbl_8087DC20/24` -> `@STRING@fn_80243FAC...@0`/`@STRING@...`
+    (tamano 0x4 -> 0x1, como los `@STRING@` vecinos de EffectManager).
+  - Cabeceras nuevas: `include/atn/EfpData_unk.h` (`EfpElem_unk` de 0x54 con todos sus campos y `EfpData_unk`;
+    `atn/LH_Efp.cpp` conserva su definicion local con `Buffer_unk`, ver nota en la cabecera) y
+    `include/std/ios_init_unk.h` (estaticos de `<iostream>`, ahora tambien en `EfpHandle_unk.cpp`).
+  - `EfpHandle_unk.cpp`: `fn_80237784` recibe el segundo argumento (fotogramas) que pasa a `fn_802386FC`
+    (sigue al 100%).
+  - Tipo inferido `TextParser_unk` (lector de texto: tipo de token 1 abre bloque, 2 cierra; sus funciones
+    siguen `extern "C"` salvo el ctor).
+  - Nombre real propuesto: `atn_effect_sequencer.cpp` (pool "EffectSequencer"...).
+- Hallazgos MWCC
+  - El presupuesto de inlining depende de la forma de las expresiones de las inline candidatas: con
+    `v[0] *= k` la funcion grande inlineaba todo; con `x = v[0]; x = k * x; v[0] = x` supera el presupuesto y
+    todo sale fuera de linea como en el original.
+  - Un miembro con destructor inline hace que el constructor emita la copia debil de ese destructor justo detras
+    (aunque `-Cpp_exceptions off`).
+  - Literales `""` de un `new (heap, "", "", 0)` en `.sdata` (y no en `@stringBase0`) = la funcion es `inline`
+    (o plantilla); marcarla `inline` (aunque se emita debil) los coloca bien y conserva el orden de emision.
+
+## atn/EffectRes_unk (commit 5a42a6b)
+
+- Resultado: 7/14 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING (todas por registros/planificacion salvo una):
+  - `fn_80237C88` 98.46%, `fn_80237CF0` 98.26%, `fn_80237DA8` 99.94%, `fn_80238588` 99.73% (un `Vector3` a cero
+    que el original tiene contiguo en pila), `fn_802386FC` 98.51%, `fn_80238218` 94.14%.
+  - `fn_802383D8` 57.07% (iniciar particula): el original repite la misma prueba de `m00` y conserva el cuerpo
+    inalcanzable; solo escribiendo la prueba con un inline (`IsActive_unk`) MWCC no lo elimina, pero lo planifica
+    con otros registros.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios.
+  - `symbols.txt` (pairnames): `fn_80238148`..`fn_80238588` -> metodos de `EffectParticle_unk` (ctor, dtor
+    fuera de linea, update, init, reset, transform). Los demas siguen `extern "C"` (los llama EffectSystem_unk,
+    EffectDesc_unk y EfpHandle_unk en asm o como `extern "C"`).
+  - Tipos inferidos locales: `EffectNode_unk` (listas intrusivas prev/next), `EffectRes_unk` (emisores 0x26C,
+    definiciones 0x110, banderas, curvas 13x{n, claves}), `EffectDef_unk`, `EffectParticle_unk` (0x94, con
+    `atn::Matrix3x4` en 0x48), `EffectInstDef_unk`, `EffectSystemData_unk`.
+  - Nombre real propuesto: desconocido (parte de datos/particulas del sistema de efectos).
+- Hallazgos MWCC
+  - Dos pruebas identicas seguidas (`if (m00) return 0; if (m00) {...}`) hacen que MWCC elimine el cuerpo; con un
+    inline `bool IsActive() { return m00 != 0; }` en ambas lo conserva (como el original).
+  - Macros MAX/MIN que evaluan dos veces sus argumentos se ven como `cmplw; ble L; b fin; L: <recalculo>`.
+  - `a = b = c = 0.0f` guarda de derecha a izquierda (c primero); asi salen `Matrix3x4::SetIdentity` y los
+    ceros en orden descendente.
+
+## atn/EffectLoader_unk (commit 41271b3)
+
+- Resultado: 4/5 al 100%, `matching: false`. `main.dol: OK`.
+- NONMATCHING: `fn_80239030` 90.51% (carga del .eff: intercambio de bytes, reubicacion de desplazamientos,
+  copias de curvas de versiones antiguas): reparto de registros (cabecera r26 / recurso r27 en el original).
+- **Decisiones sin el usuario**
+  - Splits: `.data` 0x80783A18-0x80783A50 -> 0x80783A18-0x80783BB0: absorbe el tramo `auto_07_80783A50_data`
+    (las tablas de intercambio de bytes, solo las usa este fichero desde la base `lbl_80783A18`).
+  - `symbols.txt`: `lbl_80742FE0` -> `@stringBase0` (0x12, `""` + "old eff version!").
+  - Cabecera nueva compartida `include/atn/SwapDesc_unk.h` (descripcion de intercambio de bytes y
+    `fn_802371BC`), usada tambien por `EfpHandle_unk.cpp` (sigue 14/15).
+  - Tipos inferidos locales: cabecera del fichero, `EffectResData_unk` (misma estructura que `EffectRes_unk` de
+    `EffectRes_unk.cpp`, con mas campos nombrados), emisor de 0x26C con los campos convertidos.
+  - Nombre real propuesto: `atn_effect_loader.cpp`?
+- Hallazgos MWCC
+  - La forma exacta de la expresion de inversion de 32 bits decide la secuencia: `(v << 24) | ((v >> 8) & 0xFF00)
+    | (v >> 24) | ((v << 8) & 0xFF0000)` da `slwi` + 3 `rlwimi` y, guardada directamente en memoria, `stwbrx`.
+  - Un bucle interno que lee `curve->mCount` en cada vuelta no se desenrolla; con la cuenta y el puntero en
+    locales se desenrolla x8 y entonces el bucle externo (3 vueltas) ya no se desenrolla.
+
+## atn/LoadManager_unk (commit 8c0a153)
+
+- Resultado: 3/8 al 100% (`__ct__Q23atn12ReadSlot_unkFv`, `fn_8046BBE0`, `fn_8046C2D4`), `matching: false`.
+  `main.dol: OK`.
+- NONMATCHING (todo reparto de registros):
+  - `fn_8046BBF0` 99.95% (procesa un hueco de lectura terminado): registro de `slot->mLength` en la primera
+    comparacion (r5 en el original).
+  - `fn_8046BEE4` 93.78% (siguiente peticion: la urgente o la mas cercana al inicio del disco): el original
+    devuelve el iterador por puntero oculto; aqui se escribe con puntero de salida explicito.
+  - `fn_8046BF88` 98.05% (arranca la siguiente lectura pendiente): orden de cargas del erase y r6/r7 en el
+    `Start_unk` inlineado.
+  - `fn_8046C1C8` 98.73% (crea el lector y procesa los huecos terminados): registros intercambiados.
+  - `atn::LoadManager_unk::fn_8046C3FC` 99.14% (encola la carga de un recurso): iterador/fin de los bucles
+    intercambiados, el insert de `std/list.h` (r4/r5, igual que en LoadColliTree) y r6/r7 en `Start_unk`.
+- **Decisiones sin el usuario**
+  - Splits sin cambios.
+  - `symbols.txt`: `fn_8046BBB0` -> `__ct__Q23atn12ReadSlot_unkFv` (pairnames); `lbl_80755608` -> `@stringBase0`
+    (tamano 0x8 -> 0x5, `""` + ".pk", local); `lbl_8078FB50` -> `@STRING@__allocate__Q23std29list<Q23atn15PendingLoad_unk>Fv`
+    (cadena debil "Memory allocation failure" del `std::list` de cargas pendientes).
+  - `include/atn/LoadManager.h` (compartida con q4/q9): `m3ED8` pasa de relleno a `int` (prioridad del disco
+    sobre los archivos) y se anade `std::list<PendingLoad_unk> mPending` en 0x4038 (cargas de archivos con el
+    indice aun sin leer, 0x4C bytes con ctor y ruta `Path_unk` sin ctor). Nada mas usa esos campos.
+  - `Reader_unk::Get_unk` es una funcion miembro normal definida al principio y autoinlineada en sus dos
+    llamadores: su copia fuera de linea no esta en el DOL pero hace que el pool empiece por `""` (como el
+    original). Queda como funcion extra en el `.o`.
+  - `PfsArchive_unk`/`PfsEntry_unk` se redeclaran localmente con solo lo usado (la clase completa es local de
+    `atn/FileSystem_unk.cpp`); conviene moverla a una cabecera cuando se toque ese fichero.
+  - El segundo "Memory allocation failure" (`std::list` del lector) es en el original la cadena debil de un
+    fichero anterior (0x80779810, la de las listas de los `LH_*`): la lista del lector es del mismo tipo que
+    esas (`std::list<LoadCore*>` o similar), no reconstruido.
+  - Tipos inferidos locales: `ReadRequest_unk` (0x50: recurso, tamano, bufer, posicion de 64 bits en disco,
+    desplazamiento, bytes leidos, tamano comprimido, descompresor 0x18, urgente, entrada del disco),
+    `ReadSlot_unk` (0x400B8: estado, `DVDFileInfo`, 16 peticiones en `FixedArray_unk`, bufer de 256 KB alineado
+    a 32), `Reader_unk` (0x1C, global 0x8087F510: lista de peticiones, huecos activos, 2 huecos, KB por trozo).
+  - Nombre real propuesto: lector asincrono del gestor de carga (`atn_load_reader.cpp`?).
+- Hallazgos MWCC
+  - Struct con constructor de usuario: su copia (p.ej. en `std::list::insert`) es miembro a miembro y desenrolla
+    el array de 0x40 en pares de palabras; sin constructor es un bucle `lwzu/stwu` de 8 bytes.
+  - Una `if (a.size() == 0)` tras un bucle cuya condicion usa `a.mSize` fuerza la recarga del campo (el original);
+    con el mismo acceso directo MWCC reutiliza el registro de la condicion.
+  - Locales de funciones inline expandidas (DVDFileInfo de 0x3C) se colocan en la pila en orden inverso de
+    expansion; un local del cuerpo de la funcion va por encima de todos ellos.
