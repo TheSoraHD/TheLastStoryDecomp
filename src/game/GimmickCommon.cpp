@@ -39,6 +39,7 @@
 #include "gmk/LemonBucket.h"
 #include "gmk/MotionObject.h"
 #include "gmk/AutomaticDoor.h"
+#include "gmk/SwingObject.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -208,7 +209,6 @@ void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
 // inferred: gimmick constructors called by the factories below (one per gimmick class)
 extern "C" GimmickCommon* fn_803F1BB4(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F744C(atn::Task* parent, int id, int arg);
-extern "C" GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80400728(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80406754(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_80408324(atn::Task* parent, int id, int arg);
@@ -221,7 +221,6 @@ extern "C" GimmickCommon* fn_8043D594(atn::Task* parent, int id, int arg);
 extern "C" GimmickCommon* fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc);
-extern "C" GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80402978(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_80405DD4(atn::Task* parent, GimmickDesc_unk* desc);
 extern "C" GimmickCommon* fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc);
@@ -245,12 +244,12 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     case 2: gimmick = gmk::AutomaticDoor::fn_803F471C(parent, id, arg); break;
     case 4: gimmick = gmk::PlayEffect::fn_803F69E4(parent, id, arg); break;
     case 5: gimmick = fn_803F744C(parent, id, arg); break;
-    case 10: gimmick = fn_803FE390(parent, id, arg); break;
+    case 10: gimmick = gmk::SwingObject::fn_803FE390(parent, id, arg); break;
     case 11: gimmick = fn_80400728(parent, id, arg); break;
     case 16: gimmick = fn_80406754(parent, id, arg); break;
     case 17: gimmick = fn_80408324(parent, id, arg); break;
     case 18: gimmick = fn_804093B4(parent, id, arg); break;
-    case 19: gimmick = fn_803FE390(parent, id, arg); break;
+    case 19: gimmick = gmk::SwingObject::fn_803FE390(parent, id, arg); break;
     case 21: gimmick = gmk::TreasureBox::fn_8040DC30(parent, id, arg); break;
     case 22: gimmick = gmk::HealPoint::fn_8040EC30(parent, id, arg); break;
     case 24: gimmick = gmk::FallingTower::fn_8040FAC0(parent, id, arg); break;
@@ -293,7 +292,7 @@ extern "C" GimmickCommon* fn_803EC374(atn::Task* parent, GimmickDesc_unk* desc) 
     case 7: gimmick = fn_803F9F34(parent, desc); break;
     case 8: gimmick = gmk::Item::fn_803FBFA8(parent, desc); break;
     case 9: gimmick = fn_803FC8D8(parent, desc); break;
-    case 10: gimmick = fn_803FE570(parent, desc); break;
+    case 10: gimmick = gmk::SwingObject::fn_803FE570(parent, desc); break;
     case 13: gimmick = fn_80402978(parent, desc); break;
     case 14: gimmick = fn_80405DD4(parent, desc); break;
     case 15: gimmick = fn_80405DD4(parent, desc); break;

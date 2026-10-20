@@ -1270,9 +1270,9 @@ gmk/MeetingSpot.cpp:
 	.sdata2     start:0x80886090 end:0x808860C0
 
 gmk/SwingObject.cpp:
-	.text       start:0x803FE390 end:0x80400728
-	.rodata     start:0x807526A8 end:0x807526BC
-	.data       start:0x8078D098 end:0x8078D130
+	.text       start:0x803FDFC0 end:0x80400728
+	.rodata     start:0x807525D8 end:0x80752798 align:4
+	.data       start:0x8078D080 end:0x8078D130
 	.sdata2     start:0x808860C0 end:0x80886118
 
 gmk/Leaf.cpp:

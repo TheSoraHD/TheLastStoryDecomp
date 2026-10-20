@@ -112,9 +112,11 @@ struct Model_unk {
     };
     TreeEntry_unk m200;
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
-    unsigned int m20C_31_16 : 16;
+    unsigned int m20C_31_24 : 8;
+    int m20C_23_16 : 8; // inferred: LOD counter (gmk::SwingObject::vf10 restores m50 from it)
     unsigned int m20C_15_8 : 8; // inferred: saved copy of m50 (CharaTask::fn_80145334)
-    unsigned int m20C_7_6 : 2;
+    unsigned int m20C_7 : 1;
+    int mFlag6_unk : 1; // inferred: tested by gmk::SwingObject::vf10
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
     unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
     unsigned int m20C_3 : 1;
