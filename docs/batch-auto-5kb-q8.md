@@ -133,7 +133,7 @@ Fusionada en `game/MapPartsOcean`.
   - `symbols.txt`: `fn_8054A3DC` -> `fn_8054A3DC__10PlayerTaskFPQ23atn4TaskiPv`, `fn_8054A68C` ->
     `fn_8054A68C__10PlayerTaskFv`, `lbl_8075E478` -> `@stringBase0` (0x8 -> 0x1).
 
-## Event/EventLoader_unk (commit HASH8)
+## Event/EventLoader_unk (commit e2e7629)
 
 - Resultado: 3/5 al 100%, `matching: false`.
 - NONMATCHING:
@@ -152,3 +152,26 @@ Fusionada en `game/MapPartsOcean`.
     mensajes de `basic_string` (lector eliminado por el enlazador); se incluye `std/string_members.h` para
     que `reserve`/`__replace_unk` instanciados pongan sus mensajes. Pool identico (0x71).
   - `symbols.txt`: `lbl_80760D70` -> `@stringBase0` (0x78 -> 0x71).
+
+## game/MapInstance_unk (commit HASH9)
+
+- Resultado: 3/5 al 100%, `matching: false`.
+- NONMATCHING: los dos constructores, 94.1% y 93.1% - planificacion: los stores del contador/id frente a la
+  conversion de grados y la carga del nombre en el bloque de LOD (probado id antes/despues de la rotacion,
+  inicializadores de miembro, `Vector3 * float`, helper `DegToRad_unk`, rotacion de Euler inline).
+- **Decisiones sin el usuario**
+  - Clase inventada `MapInstance_unk` (0x90, `new(0xC)` desde `MapPartsLocatorSet::fn_8049B1F0`) con un
+    `atn::ModelInstance` como primer miembro (el constructor no guarda vtable propia), bitfield en +0x88
+    (oculto:1, contador de frames:15, id:16) y hash del nombre en +0x8C. Dos constructores sobrecargados
+    (`MapLocator_unk*` y `MapLocatorShear_unk*`, este con cizalla en +0x30/0x34/0x38): escala, cizalla,
+    rotacion z/y/x (inline `RotateEuler_unk` -> `Rotate_unk`, como `Matrix3x4::fn_801496A8`) y traslacion.
+  - `include/gmk/Lemon.h` (vista de `atn::ModelInstance`): `m68[0x20]` se parte en `m68[8]`, `m70`, `m74`,
+    `m78` (LOD) y `m7C[0xC]`; mismo layout.
+  - `symbols.txt`: `fn_80490884` -> `__ct__15MapInstance_unkFPCcP14MapLocator_unk`, `fn_80490B0C` ->
+    `__ct__15MapInstance_unkFPCcP19MapLocatorShear_unk`, `fn_80490DE8`/`fn_80490E38`/`fn_80490EA0` ->
+    metodos de `MapInstance_unk`, `lbl_8087F550` -> `sCount_unk` (`scope:local`).
+- Hallazgos MWCC: varios bloques `if (...) Rotate_unk(...)` (inline con dos `Mtx`) dentro de otra inline
+  colocan sus locales en orden ascendente (el primero mas abajo); llamados directamente desde la funcion,
+  al reves.
+- Hallazgos MWCC: `0.017453292f * x` en un helper inline (`DegToRad_unk`) deja la constante en f0 y los
+  campos en f9/f8/f7, como el original; escrito en linea la constante toma f9.

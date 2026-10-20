@@ -2277,6 +2277,11 @@
   "matching": true
  },
  {
+  "name": "game/MapInstance_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/MapManager.cpp",
   "classes": [
    "MapManager"
