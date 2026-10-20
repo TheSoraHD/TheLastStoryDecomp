@@ -1,0 +1,132 @@
+#ifndef ATN_SHADER_UNK_H
+#define ATN_SHADER_UNK_H
+
+// Shaders of the models (src/atn/Shader_unk.cpp) and their manager (src/atn/ShaderManager_unk.cpp).
+// All names are invented.
+#include "atn/Array_unk.h"
+#include "atn/GXDecl.h"
+#include "std/vector.h"
+
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+
+namespace atn {
+class LH_Model;
+}
+
+namespace atn {
+
+// inferred: material description of a model file (layout from the readers below, names invented)
+struct ShaderDesc_unk {
+    unsigned char m000[0x10];
+    const char* m010; // inferred: shader name
+    GXColor m014;
+    GXColor m018;
+    GXColor m01C;
+    unsigned char m020[4];
+    int m024[12];
+    unsigned char m054;
+    unsigned char m055[0x64 - 0x55];
+    int m064;
+    unsigned char m068[0x7C - 0x68];
+    int m07C;
+    unsigned char m080[0x8C - 0x80];
+    int m08C;
+    int m090;
+    unsigned char m094[0xA4 - 0x94];
+    int m0A4;
+    int m0A8;
+    unsigned char m0AC[0xE4 - 0xAC];
+    int m0E4; // inferred: number of texture stages
+    unsigned char m0E8[0x18C - 0xE8];
+    unsigned char m18C[4];
+    unsigned char m190[0xA14 - 0x190];
+    int mA14;
+    int mA18;
+    unsigned char mA1C[0xA28 - 0xA1C];
+    int mA28;
+    int mA2C;
+    int mA30;
+    unsigned char mA34[4];
+    int mA38;
+    unsigned char mA3C[0xA48 - 0xA3C];
+    unsigned int mA48;    // inferred: number of textures
+    const char** mA4C;    // inferred: texture names
+};
+
+} // namespace atn
+
+// inferred: one texture of a shader (12 bytes); the shader sorts them by id. The fields are in a
+// POD base: copies of the entries go through the stack, as in the original
+struct ShaderTexEntryData_unk {
+    int mId;
+    int mIndex;
+    struct TexStage_unk* mBind;
+};
+
+struct ShaderTexEntry_unk : ShaderTexEntryData_unk {
+    ShaderTexEntry_unk() {
+        mId = -1;
+        mIndex = -1;
+        mBind = 0;
+    }
+    ShaderTexEntry_unk(int id, int index) {
+        mId = id;
+        mIndex = index;
+        mBind = 0;
+    }
+    bool operator<(const ShaderTexEntry_unk& o) const { return mId < o.mId; }
+};
+
+// inferred: a shader (0x14 bytes)
+struct ShaderTex_unk {
+    ShaderTex_unk(void* model, atn::ShaderDesc_unk* desc);
+    ~ShaderTex_unk();
+
+    atn::Buffer_unk<ShaderTexEntry_unk> mTextures; // inferred: sorted by id
+    atn::Buffer_unk<int> mOrder;                   // inferred: index of each texture in mTextures
+    atn::ShaderDesc_unk* mDesc;
+};
+
+// inferred: one level of detail of a material: a shader and the distance where it starts
+struct ShaderLODEntry_unk {
+    ShaderTex_unk* mShader;
+    float mDistance;
+};
+
+// inferred: shaders of a material sorted by distance (0x10 bytes)
+struct ShaderLOD_unk {
+    ShaderLOD_unk();
+    ~ShaderLOD_unk();
+    void fn_800C4ECC(ShaderTex_unk* shader, float distance);
+    void fn_800C4F38(struct ShaderMaterial_unk** out) const;
+    void fn_800C4F70(void* parent);
+
+    int m00; // inferred: reference count (debug menu "RefCount")
+    std::vector<ShaderLODEntry_unk> mLODs;
+};
+
+// inferred: owner of all the shaders (0x24 bytes, lbl_8087EFE0)
+struct ShaderManager_unk {
+    ShaderManager_unk();
+    void LoadShaders_unk();
+    void CreateLODs_unk();
+    ShaderLOD_unk* fn_800C5F5C(const char* name); // inferred: LOD list of a shader by name
+    ShaderLOD_unk* fn_800C5FF0(unsigned int hash) const;
+    struct ShaderMaterial_unk* fn_800C607C(int code);
+    // inferred: shader by name (name invented)
+    ShaderTex_unk* FindShader_unk(const char* name) {
+        unsigned int hash = fn_800DC6B4(name);
+        for (ShaderTex_unk** it = mShaders.begin(); it != mShaders.end(); it++) {
+            if (hash == fn_800DC6B4((*it)->mDesc->m010)) {
+                return *it;
+            }
+        }
+        return 0;
+    }
+
+    std::vector<ShaderTex_unk*> mShaders;
+    std::vector<atn::LH_Model*> mModels; // inferred: the shader files
+    std::vector<ShaderLOD_unk*> mLODs;
+};
+
+#endif

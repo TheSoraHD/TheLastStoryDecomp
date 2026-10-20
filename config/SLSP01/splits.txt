@@ -466,12 +466,19 @@ atn/SequenceHolder.cpp:
 	.sbss       start:0x8087EFC8 end:0x8087EFE0
 
 atn/Shader_unk.cpp:
-	.text       start:0x800C41D0 end:0x800C6128
-	.rodata     start:0x80733878 end:0x80733FF8
-	.data       start:0x80779348 end:0x807794A8
-	.bss        start:0x807C75A0 end:0x807C75B0
+	.text       start:0x800C41D0 end:0x800C5644
+	.rodata     start:0x80733878 end:0x807338C8
+	.data       start:0x80779348 end:0x80779368
 	.sdata      start:0x8087D920 end:0x8087D930
-	.sdata2     start:0x80881140 end:0x80881158
+	.sdata2     start:0x80881140 end:0x80881150
+
+atn/ShaderManager_unk.cpp:
+	.text       start:0x800C5644 end:0x800C6128
+	.rodata     start:0x807338C8 end:0x80733FF8
+	.data       start:0x80779368 end:0x807794A8
+	.bss        start:0x807C75A0 end:0x807C75B0
+	.sbss       start:0x8087EFE0 end:0x8087EFE8
+	.sdata2     start:0x80881150 end:0x80881158
 
 atn/SoftKeyboardBase_wchar_t_0.cpp:
 	.text       start:0x800C6128 end:0x800C7DC4
@@ -574,6 +581,7 @@ atn/WPad_unk.cpp:
 	.text       start:0x800DDA34 end:0x800DF22C
 	.rodata     start:0x80734DC8 end:0x80734DD8
 	.data       start:0x80779950 end:0x807799A0
+	.sbss       start:0x8087F018 end:0x8087F020
 	.sdata2     start:0x80881298 end:0x808812C8
 
 atn/WordWrap_unk.cpp:

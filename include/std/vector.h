@@ -273,6 +273,16 @@ public:
         }
     }
 
+    // inferred: insertion of one element (weak copy 0x800C507C, 8-byte elements of atn/Shader_unk);
+    // the out-of-line helper takes a flag by reference.
+    // NONMATCHING (0x800C507C, 66%): the original lays out the length check of the slow path before
+    // the in-place path, and its copy loops differ.
+    T* insert(T* pos, const T& x) {
+        bool flag = false;
+        return __insert_one_unk(pos, x, flag);
+    }
+    T* __insert_one_unk(T* pos, const T& x, const bool& flag);
+
 private:
     void __init_unk(const T* first, const T* last);
     size_type __grow_cap_unk(size_type n);
@@ -322,6 +332,51 @@ void vector<T>::push_back(const T& x) {
     buf.mStart = this->mSize;
     buf.push_back(x);
     __swap_out_unk(buf);
+}
+
+template <class T>
+T* vector<T>::__insert_one_unk(T* pos, const T& x, const bool& flag) {
+    if (this->mSize < this->mCap) {
+        T* last = this->mData + this->mSize;
+        const T* px = &x;
+        if (pos <= px && px < last) {
+            px++;
+        }
+        this->mSize++;
+        T* dst = last + 1;
+        while (last > pos) {
+            *--dst = *--last;
+        }
+        *pos = *px;
+        return pos;
+    }
+    if (max_size() - this->mCap < 1) {
+        __msl_error("vector length error");
+    }
+    __recommend_unk(1);
+    T* old = this->mData;
+    size_type idx = pos - old;
+    size_type cap = __grow_cap_unk(1);
+    T* p = __allocate(cap);
+    this->mData = p;
+    this->mCap = cap;
+    p[idx] = x;
+    if (old != 0) {
+        T* src = old;
+        T* end = old + idx;
+        T* dst = this->mData;
+        while (src < end) {
+            *dst++ = *src++;
+        }
+        dst++;
+        end = old + this->mSize;
+        while (src < end) {
+            *dst++ = *src++;
+        }
+        ::operator delete(old);
+    }
+    this->mSize++;
+    return this->mData + idx;
 }
 
 // inferred: copy of a range into an empty vector (names invented)
