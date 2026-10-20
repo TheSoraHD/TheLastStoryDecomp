@@ -1,0 +1,181 @@
+# splits-auto agente D (rango .text 0x804405F8-0x805BFAC0)
+
+## Grupo 1: Event/Manager y NewCamp* (verificado: main.dol OK, lost: 0)
+
+### 0x80479998-0x80490EB8 (auto_03_80479998, Event/Manager, auto_03_80488050, auto_03_8049003C, auto_fn_80490850, auto_03_80490884)
+- `game/main.cpp` (nuevo, 0x80479998-0x8047B768): contiene `main` (0x80479A18), sus helpers (OSGetTime de arranque/fin de frame, sbss 0x8087F530-0x8087F540) y las funciones boost::function de ErrorManager/ResetShutdown. Datos propios contiguos: .rodata 0x80756168-0x80756310 (nombres de tipo boost `void (*)(void *)`, `bind_t<..ErrorManager..>`, `bind_t<..ResetShutdown..>`, tabla 0x8075626C), .data 0x80790060-0x807900A0 (functors), .bss 0x807C8A98-0x807C8AB0, .sdata 0x8087E078-0x8087E088, .sdata2 0x80886F70-0x80886F80 (0.6f, 1.0f, 0.0f propias: duplicadas con las de Event/Manager -> corte).
+  - Corte main/Event::Manager en 0x8047B768: constantes 0/1 duplicadas (0x80886F74/78 frente a 0x80886F8C/90), y a partir de 0x8047B768 las funciones las llama codigo de Event (0x8048871C, 0x80488B5C).
+- `Event/Manager.cpp` (ampliada, sin fuente): .text 0x8047B768-0x8048FF60 (todo el tramo auto anterior desde el corte + el tramo auto_03_80488050 posterior, hasta Event/PostSequence). Prueba: un solo pool de cadenas 0x80756380 (Event, DebugCamera, ... `event2/%s.event`, `/game_scene/%s.gs`) usado por todas las funciones del tramo; una sola copia de 0.0f/1.0f (0x80886F8C/90) en todo el rango; ctor del Manager (vtable) en 0x8047DF70; sInstance del Manager 0x8087F540.
+  - Datos: .rodata 0x80756310-0x80756358 (GROUP_SYSTEM/GROUP_PC001, tabla, dobles int->float, nombre RTTI), .data 0x807900A0-0x807900F8 (jumptable de 0x80489D08 + vtable), .sdata 0x8087E088-0x8087E0B8, .sbss 0x8087F540-0x8087F550 (sInstance de Manager y, por contigüidad, los de SequenceRoot/PostSequence, que el ctor del Manager escribe), .sdata2 0x80886F80-0x80887048.
+- `Event/Manager_cont.cpp` (nuevo, `_cont`): 0x8049003C-0x80490884, tras la unidad enlazada Event/PostSequence (matching: true, no se tocan sus limites). Usa el mismo pool 0x80756380 (+0x1C8: "vector length error"), y su `__sinit` 0x80490850 (ctors 0x8072D380) cierra el fichero. Datos: .rodata 0x80756380-0x80756690 (el pool entero), .data 0x80790168-0x807901D8 ("Memory allocation failure" x4), .bss 0x807C8AB0-0x807C8AC8, .sdata2 0x80887048-0x80887050.
+- `game/MapInstance_unk.cpp` (nuevo, nombre INVENTADO): 0x80490884-0x80490EB8, 5 funciones de una instancia de modelo (atn::ModelInstance) que solo usa game/MapPartsLocatorSet; tiene sus propias copias de 0.0f/1.0f (0x80887054/58) -> fichero distinto del Event/Manager y de MapManager (cuyo 1.0f es 0x80887060). Datos: .sbss 0x8087F550 (contador), .sdata2 0x80887050-0x80887060.
+
+### NewCamp* (0x805169F8-0x8053108C)
+- Patron: cada fichero NewCampParts* empieza por su creador `fn_xxx` (0x64 bytes, `new` + ctor, usa el pool del fichero) y acaba en su `__sinit`; dtk los habia dejado fuera.
+- `game/NewCampPartsItem.cpp` (ampliada, sin fuente): .text 0x805169F8-0x8051B920 (creador + `__sinit` 0x8051B900), .ctors 0x8072D3B0, .rodata 0x8075B988-0x8075BD28 (cadenas de la tabla, tabla 0x8075BAD0, "item_board", nombre RTTI, pool 0x8075BB80), .data hasta 0x80793508 ("Memory allocation failure", L"%s"), .bss 0x807C90F0, .sdata 0x8087E488-0x8087E498, .sdata2 0x808878B0-0x808878E8.
+- `game/NewCampPartsMapSelect.cpp` (ampliada): .text 0x8051B920-0x80521E1C (creador + `__sinit` 0x80521DF8), .ctors 0x8072D3B4, .rodata 0x8075BD28-0x8075C260 (pool 0x8075BF40), .data hasta 0x80793598 (L"???"), .bss 0x807C9100, .sdata2 desde 0x808878E8.
+- `game/NewCampPartsOption.cpp` (ampliada): .text 0x80521E1C-0x805268C8 (creador + tramo auto_03_80526358, que usa el pool 0x8075C6C4 y la jumptable 0x807935E0), .rodata 0x8075C260-0x8075CC30, .data desde 0x80793598 (3 jumptables), .sdata 0x8087E498, .sdata2 desde 0x808879E8.
+- `game/NewCampTask.cpp` (ampliada, sin fuente): .text 0x8052A888-0x8053108C (creador, tramo auto_03_8052C108, `__sinit` 0x80530FB0 y su destructor de objeto global 0x80531014, que solo referencia el __sinit), .ctors 0x8072D3BC, .rodata hasta 0x8075D450 (pool 0x8075D31C), .data 0x807937E8-0x80793888 (2 jumptables + vtable + "Memory allocation failure"), .bss 0x807C9120-0x807C9140, .sdata 0x8087E4A4-0x8087E4B0, .sdata2 0x80887AB0-0x80887B30.
+
+### Decisiones sin el usuario (grupo 1)
+- Nombre inventado `game/main.cpp` (no hay RTTI; contiene el simbolo `main`).
+- `Event/Manager_cont.cpp`: continuacion de Event/Manager tras la unidad enlazada Event/PostSequence. Hay que revisar: o PostSequence/SequenceRoot estaban en Event/Manager.cpp (el pool y las constantes son comunes), o las funciones de `_cont` son otro fichero; las pruebas (mismo pool) apuntan a que todo es un solo fichero.
+- Nombre inventado `game/MapInstance_unk.cpp`.
+- La .sbss de Event/Manager incluye sInstance de SequenceRoot/PostSequence (0x8087F544/48) porque un split es contiguo.
+- La funcion 0x80531014 (tras el __sinit de NewCampTask) se ha dejado en NewCampTask: es el destructor registrado por su __sinit (__register_global_object), no un fichero aparte.
+
+### Hallazgos
+- Los creadores `fn_xxx` de 0x64 bytes justo antes de cada split NewCampParts* son la primera funcion del fichero (usan el pool del fichero).
+- Un `__sinit` puede ir seguido de la funcion destructora que registra (copia generada).
+
+## Grupo 2: zona de red 0x80502708-0x805128C0 (verificado: main.dol OK, lost: 0)
+- `MP/SaveLoad_cont.cpp` (nuevo, `_cont`): 0x80502708-0x805028D8, 4 funciones sobre el objeto MP::SaveLoad (campos 0x48/0x4C/0x50/0x64/0x36C del layout de src/MP/SaveLoad.cpp); SaveLoad esta enlazada (matching: true), asi que no se tocan sus limites. Sin datos propios.
+- `atn/SoftKeyboardU.cpp` (ampliada, sin fuente): .text desde 0x805028D8 (helper que solo usa el ctor de SoftKeyboard, tabla de teclas 0x8075A988), .rodata 0x8075A988-0x8075B000 (tabla de teclas, nombres boost::bind_t, RTTI, pool con /data/d2anime/online_name_*.d2a), .data 0x80792AE0-0x80792DC0 (tabla de teclas en u16 -> .sdata2 L"1"..), .bss 0x807C8FA8-0x807C8FC8, .sdata 0x8087E440-0x8087E458, .sbss 0x8087F848-0x8087F868, .sdata2 desde 0x808876B8.
+- `MP/Text.cpp` (nuevo): 0x80505DD0-0x80507790. Vtable/RTTI MP::Text (0x80792DC0), "/database/online/message_table_xx.u16", pool begin/PVP/end/RAID/title/point (0x8075B038), L"%s" x2; corte final: a partir de 0x80507790 empieza otro conjunto de constantes (.sdata2 0x80887798..) y otro .rodata (0x8075B058).
+- `atn/Bezier_unk.cpp` (nuevo, nombre INVENTADO): 0x80507790-0x805089E0, matematica de curvas (1/3, 2/3, 4/3, evaluacion polinomica, recursion), con sus propios 0.0f/0.5f/1.0f (.sdata2 0x80887798-0x808877C0) y dobles (.rodata 0x8075B058-0x8075B090). Lo usa solo 0x805BF214.
+- `atn/NetManager.cpp` (nuevo, nombre INVENTADO a partir de la clase atn::net::Manager, vtable 0x807930F0): 0x805089E0-0x8050D3E8. Pool 0x8075B098 ("laststorywii", estados INITIALIZE/REGISTER/JOIN..., clave), 12 jumptables .data 0x80792E08-0x807930F0, "lw_debug = 1", .bss 0x807C8FC8-0x807C8FF0.
+- `atn/DwcAllocator_unk.cpp` (nuevo, nombre INVENTADO): 0x8050D3E8-0x8050D7EC, 6 funciones con su propio pool ("DwcAllocator", "DWCAlloc", 0x8075B180) y su sbss 0x8087F878.
+- `atn/PPDATAU.cpp` (ampliada, sin fuente): .text hasta 0x8050E67C (PPDATA/PPDATAU/PPDATAR + helpers que usan su pool "in adduser"/"assert in sendmessage" 0x8075B1D4), .rodata hasta 0x8075B1F8 (incluye nombre RTTI "atn::net::PPDATA"), .data hasta 0x807931A0 (vtable/RTTI PPDATA + "Memory allocation failure"), .sdata 0x8087E468-0x8087E480.
+- `atn/NetFriend_unk.cpp` (nuevo, nombre INVENTADO): 0x8050E67C-0x8050F93C, temporizadores OSGetTime y lista de amigos: tabla L"Friend%02d"/OFFLINE/ONLINE/MATCH... (.data 0x807931B4), "lw_mode/lw_group/..." (0x807931A0), "online/playerinfo7" + cadenas basic_string (pool 0x8075B238), su doble int->float 0x8075B1F8 y su 0.0f (0x808877C0).
+- `game/NewCampPartsBase.cpp` (nuevo): 0x8050F93C-0x805128C0. Ctor/dtor de NewCampPartsBase (simbolos con nombre) y metodos de su vtable (0x807932B8), pool 0x8075B2B8 (reference/OffsetPos/...), dobles 0x8075B2A8/B0 y constantes .sdata2 0x808877C8-0x808877E0.
+- Cortes por constantes duplicadas en .sdata2/.rodata (cada fichero su copia: 0.0f 0x8088779C / 0x808877C0 / 0x808877CC; dobles 0x8075B078 / 0x8075B090 / 0x8075B1F8 / 0x8075B2A8) y por pools de cadenas separados.
+
+### Decisiones sin el usuario (grupo 2)
+- Nombres inventados: atn/Bezier_unk.cpp, atn/NetManager.cpp (por atn::net::Manager), atn/DwcAllocator_unk.cpp, atn/NetFriend_unk.cpp.
+- `MP/SaveLoad_cont.cpp` sin datos: revisar si es parte de SaveLoad (fusion cuando se decompile) o de otro fichero MP.
+- El corte DwcAllocator/NetManager (0x8050D3E8) y NetFriend/PPDATAU (0x8050E67C) son los menos seguros (se basan en pools/sbss separados, no en constantes duplicadas); NetFriend podria ser parte de PPDATAU.
+
+## Grupo 3: SequenceUnit / eventos / ShopUpGrade / SkillEffectManager (verificado: main.dol OK, lost: 0)
+- `atn/SequenceUnitParam1_const_int.cpp` (ampliada, sin fuente): .text 0x805727A4-0x80575F0C. Es el fichero del arranque del juego por secuencias (pool 0x80760D18: BootTask/Title/Multiplayer/GameLoadMultiplayer/Game/GameLoad/Strap; lo llama `main`), con las tablas de depuracion de mapas (.data 0x80795890/0x807959A8/0x807964C0 con "dg042_01 Lizard's Cave..."), los boost::function de creadores (StrapTask/MP::Manager2/GameLoadTask/NewTitleTask) y las tres clases SequenceUnitParam1 (vtables 0x80796718..). El `__sinit` 0x80575018 (ctors 0x8072D3E0) cierra el fichero. Datos: .rodata 0x807600C8-0x80760D70, .data 0x80795888-0x80796790, .bss 0x807C9570-0x807C95A0, .sdata 0x8087E680-0x8087E688, .sbss 0x8087F9A8-0x8087F9B8.
+- `Event/EventLoader_unk.cpp` (nuevo, nombre INVENTADO): 0x80575F0C-0x805763F8, carga de ficheros de evento (pool 0x80760D70: ".event", "event2/", ".pk", ".xml" + errores de basic_string); lo usan Event::Manager y Event::Sequence.
+- `Event/EventParser_unk.cpp` (nuevo, nombre INVENTADO): 0x805763F8-0x8057E83C, parser de chunks del fichero de evento: tabla de etiquetas 0x80760DE8 (`CAT `, `SEQ2`, `MOID`, `ANID`, `EFID`, `MDID`, `CAID`, `PATH`, `ACID`, `STID`, `CURV`...) -> manejadores 0x805767D4..0x8057D598, pool 0x80760FC0 (pos_x/offset/layout/transition). Datos: .rodata 0x80760DE8-0x80761050, .sbss 0x8087F9B8, .sdata2 0x80888088-0x80888098. Corte con EventLoader: la tabla y el pool son distintos y EventLoader tiene su propio pool con las cadenas de basic_string (repetidas en el pool del parser -> ficheros distintos).
+- `game/ShopUpGrade.cpp` (ampliada, sin fuente): .text 0x8058AABC-0x80598874 (fn_8058AABC, creador, vtable, los metodos vf3C/vf40 y las instanciaciones de sort hasta antes de Bullet_unk). Datos: .rodata 0x80761C90-0x80762118 (tablas, RTTI, pool 0x80761D5C "ofsOn/myMoney/..."), .data 0x80796A20-0x80796AF0, .sdata 0x8087E6A8-0x8087E6D0, .sbss 0x8087F9E0, .sdata2 0x80888150-0x80888178 (sus 0.0f/1.0f).
+- `game/SkillEffectManager.cpp` (ampliada, CON fuente, matching: false): .text 0x80598874-0x8059D7D8 (metodos de Bullet_unk antes y metodos de SkillEffectManager despues del split previo, como ya indicaba docs/batch-10kb-units.md). Corte con ShopUpGrade: 0.0f/1.0f duplicados (0x80888150/54 frente a 0x80888178/7C); con nw4r/DvdSoundArchive: inicio del split nw4r. Datos: .rodata desde 0x80762118 (dobles de Bullet_unk), .data desde 0x80796AF0, .sbss 0x8087F9E8 (sInstance), .sdata2 hasta 0x80888218. regress: 0 perdidas. No se renombran pools (su @stringBase0 ya existia).
+
+### Decisiones sin el usuario (grupo 3)
+- Nombres inventados Event/EventLoader_unk.cpp y Event/EventParser_unk.cpp. EventParser podria ser la parte final de Event/Sequence o de un fichero "EventData"; no hay RTTI propio.
+- SequenceUnitParam1_const_int: el nombre de la unidad existente no es el del fichero real (es el de la plantilla); el fichero real parece ser el del arranque (BootTask/secuencias) - revisar nombre.
+- ShopUpGrade: el tramo hasta 0x80598874 incluye funciones que usa 0x8058CA44.. (la cola del fichero); no hay pruebas de corte dentro (todas usan el mismo 0.0f 0x80888150 o el pool 0x80761D5C).
+
+## Grupo 4: zona MP 0x804CF190-0x805012C4 (verificado: main.dol OK, lost: 0)
+- `atn/PacketPack.cpp` (ampliada, sin fuente): .text 0x804CF190-0x804FF960, es decir todo el tramo auto_03_804CF190 (342 funciones: MP::Manager2, MP::ManagerMP, MP::Chara<EnemyTask>, SpecialEnemyBase::vf40...) + el split anterior + auto_03_804FC7E0 + su `__sinit` 0x804FF478 (ctors 0x8072D3A0, registra objetos globales en lbl_8087F604-0C con el pool 0x80759E48). Pruebas: una sola copia de 0.0f/1.0f (0x80887570/0x80887590) y del doble int->float (0x80759748) usada desde 0x804CF198 hasta 0x804FB674; el pool 0x80759E48 lo usan funciones de todo el tramo (0x804D0328..0x804FF478); los nombres RTTI de PacketPack (0x80759D30..) ya eran de esta unidad. Antes del tramo, D2AMpMenuSetRule tiene su propio 0.0f (0x80887548).
+  - Datos: .rodata 0x807596F0-0x8075A168 (tablas, rutas /database/online/*.csv, VO_AR*, GROUP_*, RTTI, nombre "atn::net::Manager" 0x80759E18 y pool 0x80759E48), .data 0x80790F78-0x80791B20 (tablas, jumptables, vtables, "Memory allocation failure" x3, cadenas anchas de estados de red, "lw_debug", L"<none>"), .bss 0x807C8AE8-0x807C8F68, .sdata 0x8087E160-0x8087E430, .sbss 0x8087F5F8-0x8087F620, .sdata2 0x80887570-0x80887678.
+  - Fichero muy grande (~200 KB de .text); si en el futuro aparecen cortes (p. ej. MP::Manager2 / ManagerMP en ficheros separados) habra que partirlo, pero no hay constantes duplicadas que lo justifiquen.
+- `MP/NetGlobals_unk.cpp` (nuevo, nombre INVENTADO): solo el `__sinit` 0x804FF960 (ctors 0x8072D3A4) que construye/registra dos objetos globales de libreria (fn_8068B770/fn_8068BD60) en sbss 0x8087F620/24 y bss 0x807C8F68-0x807C8F80. Es un `__sinit` aparte del de PacketPack (dos .ctors seguidos) -> fichero distinto; el mismo patron se repite en el __sinit de func_enter_setting (0x80501064), asi que son ficheros que incluyen la misma cabecera con estaticos.
+- `MP/func_enter_setting.cpp` (ampliada, CON fuente, matching: false): .text 0x804FF9BC-0x805010C0 (PacketPackMP::vf14/18, todas las clases MP::func_* y su `__sinit` 0x80501064, ctors 0x8072D3A8). Datos: .rodata 0x8075A168-0x8075A858 (nombres RTTI de todas las func_*, PacketPackMP, "invalid messageID\n"), .data 0x80791B20-0x80792A70 (estaticos locales de vf18 y vtables/RTTI de las func_*), .bss 0x807C8F80, .sbss 0x8087F638-0x8087F840 (guardas de los estaticos). regress: 0 perdidas.
+- `MP/CharaListeners_unk.cpp` (nuevo, nombre INVENTADO): 0x805010C0-0x805012C4, 3 funciones con su propio 0.0f/1.0f (.sdata2 0x80887678) y bss 0x807C8F98; usa el estatico @LOCAL@fn_8014F8F4@sListeners (copia debil de CharaListeners).
+
+### Decisiones sin el usuario (grupo 4)
+- No se ha partido el tramo de 0x28DC4 bytes: no hay pruebas de corte (constantes unicas para todo el tramo). Queda todo en atn/PacketPack.cpp, cuyo nombre ya existia (probablemente el fichero real sea un MP/ManagerMP.cpp o similar; revisar).
+- Nombres inventados MP/NetGlobals_unk.cpp y MP/CharaListeners_unk.cpp.
+
+## Grupo 5: 0x804405F8-0x8044D710 (HomeButtonMenu/HomingBullet) (verificado: main.dol OK, lost: 0)
+- `game/HomeButtonMenu.cpp` (nuevo): 0x804405F8-0x80440B24. Vtable/RTTI HomeButtonMenu (0x8078F258), sInstance 0x8087F4E8, pool "/hbm/ban_home_button.texture" (0x807544E0), doble 0x807544C8, .sdata2 0x80886A20-0x80886A40 (su 1.0f 0x80886A24).
+- `game/HomeButton_unk.cpp` (nuevo, nombre INVENTADO): 0x80440B24-0x80441590, la parte de la libreria HBM (pool "/homeBtn.arc", "/homeBtn_ENG.arc"..., "/hbm/HomeButton2", jumptable 0x8078F290). Corte con HomeButtonMenu: 1.0f duplicado (0x80886A24 frente a 0x80886A44) y pools separados. Podria ser parte de HomeButtonMenu (no hay __sinit) -> revisar.
+- `game/HomingBullet.cpp` (nuevo): 0x80441590-0x80442F10. Vtable/RTTI HomingBullet (0x8078F2B8), pool SE_DG036_015/SE_BTCOM_015, doble 0x807545F0, .bss 0x807C8A38, .sdata2 0x80886A80-0x80886AE8 (su 0.0f 0x80886A80). Incluye al final 5 funciones pequenas (0x80442B50-0x80442F10) que usa el tramo Arms 0x8043F028 (podrian ser copias debiles).
+- `game/ItemManager_unk.cpp` (nuevo, nombre INVENTADO): 0x80442F10-0x8044D710. Singleton en sbss 0x8087F4F0 (creador 0x80442F10 con pool "any/dg/to_dg" 0x80754760, dtor 0x80442F68), lo usan tiendas, CosEdit, cofres, etc. Sus propios 1.0f/doble (0x80886AE8, 0x80754750). Datos: .rodata 0x80754628-0x80754770, .data 0x8078F2F8-0x8078F348 (2 jumptables), .sdata 0x8087DFF0-0x8087E008, .sdata2 0x80886AE8-0x80886B30.
+- `RecycleBuffer_gmk/ItemSlotAnime.cpp` (ampliada, sin fuente): .text desde 0x8044D710 (ctor/dtor de gmk::ItemSlotAnime y el creador de gmk::ItemSlotTextCache, cuyo nombre RTTI 0x80754858 y vtable 0x8078F348 estan justo antes de los de la unidad). Datos: .rodata desde 0x80754770, .data desde 0x8078F348, .sdata 0x8087E008-0x8087E030, .sbss 0x8087F4F8-0x8087F500.
+
+### Decisiones sin el usuario (grupo 5)
+- Nombres inventados game/HomeButton_unk.cpp y game/ItemManager_unk.cpp (familia `game/` supuesta).
+- El tramo ItemManager_unk (~42 KB) se deja entero: no hay constantes duplicadas dentro.
+
+## Grupo 6: cargador atn (0x8046BBB0-0x80478714) (verificado: main.dol OK, lost: 0)
+- `atn/LoadManager_unk.cpp` (nuevo, nombre INVENTADO a partir de los simbolos fn_..__Q23atn15LoadManager_unk ya existentes): 0x8046BBB0-0x8046CBB0. Su pool ".pk" (0x80755608) y su "Memory allocation failure" (.data 0x8078FB50) estan justo antes del nombre RTTI/vtable de atn::Loader (cada fichero pone su pool al final de su .rodata) -> fichero anterior a Loader. sbss 0x8087F510.
+- `atn/Loader.cpp` (nuevo): 0x8046CBB0-0x8046F460. RTTI/vtable atn::Loader, pool 0x8075561C (rutas data/model/, pack/*.pk, preload/*.pk ... + errores de basic_string), .sdata 0x8087E050-0x8087E058, .sdata2 0x80886EC0-0x80886EE0.
+- `atn/FileSystem_unk.cpp` (nuevo, nombre INVENTADO): 0x8046F460-0x80470580 (LoadCore::vf10, pfs, ResRef_unk). Su propio pool 0x80755B88 ("pfs", "%s/%s" + los mismos errores de basic_string que el pool de Loader -> fichero distinto), "%sh", .data "size=%d" (0x8078FBA8).
+- `atn/LH_Binary.cpp` (nuevo): 0x80470580-0x80472344 (metodos de atn::LH_Binary, parser de chunks 0x804716B8, SceneTrack_unk). Nombres RTTI atn::LH_Binary/atn::LoadHandle (0x80755BF8) despues del pool de FileSystem_unk -> fichero nuevo; sus 1.0f/0.0f (0x80886EE0/E4) duplican los de Loader. .data 0x8078FBB0-0x8078FC10 (vtable/RTTI LH_Binary, functor, tabla).
+- `atn/LH_Core.cpp` (nuevo, nombre INVENTADO por orden alfabetico de ficheros atn: LH_ColliTree < LH_Core < LH_Effect): 0x80472FAC-0x804731C0, ctor/dtor/metodos de atn::LoadCore, vtable 0x8078FCB8 (entre los datos de LH_ColliTree y LH_Effect).
+- `atn/LH_Handle.cpp` (nuevo, nombre INVENTADO por el mismo criterio: LH_Efp < LH_Handle < LH_Material): 0x80473E74-0x80474224, atn::LoadHandle (ctor/dtor/operator=), vtable 0x8078FD70.
+- `atn/LH_Motion_cont.cpp` (nuevo, `_cont`): 0x804766B0-0x804768EC; LH_Motion esta enlazada. 0x804766B0 lo llama LH_Motion::vf0C y usa el pool 0x80755F68 (justo tras los nombres RTTI de LH_Motion) -> es el mismo fichero.
+- Ampliadas (todas con fuente, matching: false salvo nota): LH_ColliObject (.text +0x80472C90, .rodata hasta 0x80755C68 con el nombre RTTI "atn::LoadCore" y 0x80755C64, .data +RTTI LoadCore 0x8078FC60), LH_Effect (.rodata + pool 0x80755CB8), LH_Material (.text +0x80474860-0x80474888, .rodata + pool 0x80755D68), LH_Model (.text +0x80476130-0x80476220, accesores), LH_MotionCommandData (.text +0x80476CE4, metodo propio), LH_MotionSet (.text desde 0x80476D00 con el dtor de MotionSetEntry_unk, hasta 0x80477778; .rodata + pool 0x80756030; .data + "Memory allocation failure"), LH_Scene (.text +0x80477FA4-0x80478054), LH_Xsca (.text +0x804786F8).
+- symbols.txt: lbl_80755CB8 / lbl_80755D68 / lbl_80756030 -> @stringBase0 (scope:local data:string_table) en LH_Effect / LH_Material / LH_MotionSet.
+
+### Decisiones sin el usuario (grupo 6)
+- Nombres inventados: atn/LoadManager_unk, atn/FileSystem_unk, atn/LH_Core, atn/LH_Handle; `_cont` atn/LH_Motion_cont.
+- Los accesores pequenos sin pruebas propias (0x80472C90, 0x80474860, 0x80476130.., 0x80477FA4.., 0x804786F8) se asignan a la unidad LH_* anterior (no hay huecos de datos que indiquen otro fichero; podrian ser copias debiles).
+- Quedan en auto: 0x80755D80 (nombre de tipo de puntero a funcion, usado por LH_Model) y __RTTI__ 0x8078FDD0.
+
+## Grupo 7: Event::Node .. Event::Sequence (0x80531E80-0x80546000) (verificado: main.dol OK, lost: 0)
+- La unidad inferida `Event/Node.cpp` (sin fuente) cubria 5 ficheros. Pruebas: 4 `__sinit` en su .ctors (0x8053AF34, 0x8053C560, 0x8053C6C8, 0x8053CF44), cada uno el ultimo de su fichero; cada fichero tiene su propio pool con "vector length error" (0x8075D94C, 0x8075DA28, 0x8075DC04, 0x8075DD20, 0x8075DE90), su nombre RTTI y su "Memory allocation failure"; cadenas "id" duplicadas en .sdata2 (0x80887C84/88/94). Orden alfabetico Channel < Cut < Label < Section < Sequence.
+  - `Event/Node.cpp` (reducida): .text 0x80537708-0x8053A4DC (Action/Node), .rodata 0x8075D928-0x8075D998 (doble de 0x805393A4 + nombres + pool), .data hasta 0x80793B28, .sdata 0x8087E4B8-0x8087E4C0.
+  - `Event/Channel.cpp`: 0x8053A4DC-0x8053AFB8 (ctor de Event::Channel ... __sinit 0x8053AF34), ctors 0x8072D3C0.
+  - `Event/Cut.cpp`: 0x8053AFB8-0x8053C6A4 (ctor de Event::Cut ... __sinit 0x8053C560), ctors 0x8072D3C4, .sdata2 "all"/"id".
+  - `Event/Label.cpp`: 0x8053C6A4-0x8053C750 (ctor ... __sinit 0x8053C6C8), ctors 0x8072D3C8.
+  - `Event/Section.cpp`: 0x8053C750-0x8053D0F4 (ctor ... __sinit 0x8053CF44), ctors 0x8072D3CC.
+- `Event/Sequence.cpp` (nuevo): 0x8053D0F4-0x805430E8 (ctor con vtable Event::Sequence 0x807943E0, pool 0x8075E148), .rodata 0x8075DEF8-0x8075E120 (tablas de parametros, dobles, nombre RTTI), .data 0x807940F0-0x80794430, .sdata 0x8087E4C0-0x8087E4D8, .sdata2 0x80887C98-0x80887CD8.
+- `Event/Sequence_cont.cpp` (nuevo, `_cont`): 0x80543108-0x80546000, tras la unidad enlazada Event/StringData (cuyas funciones son los virtuales debiles de StringData/DummyData emitidos en el TU de Sequence). Usa el pool de Sequence (0x8075E148, que esta tras los datos de StringData) y acaba con su `__sinit` 0x80545CE8 (ctors 0x8072D3D0) + 0x80545FF8. .rodata 0x8075E148-0x8075E300, .data 0x80794480-0x80794608.
+- `game/NewTitleTask.cpp` (ampliada, sin fuente): .text 0x80531ED0-0x80537708 (creador 0x80531ED0 y la cola 0x80536CA8, ambos usan su pool 0x8075D5B0), .rodata 0x8075D4C0-0x8075D928, .data 0x80793940-0x80793AB0.
+- `game/NewStaffRoll.cpp` (ampliada, con fuente): .text hasta 0x80531ED0 (fn_80531E80, accesor de los campos 0x6C/0x70 del objeto; sin otras pruebas).
+
+### Decisiones sin el usuario (grupo 7)
+- Se ha REDUCIDO la unidad inferida Event/Node (sin fuente) para separar Channel/Cut/Label/Section; revisar.
+- `Event/Sequence_cont.cpp`: Event/StringData (enlazada) esta en medio del TU de Sequence; deberia fusionarse cuando se decompile.
+- Los "Memory allocation failure" de 0x80794480-0x80794608 los usan tambien funciones de Event/EventParser_unk (0x80576F70...): parecen @STRING@ debiles deduplicados por el enlazador, asi que no indican fichero; se dejan en Sequence_cont por contigüidad.
+- fn_80531E80 asignada a NewStaffRoll sin pruebas fuertes.
+
+## Grupo 8: 0x805A21C0-0x805BFAC0 (verificado: main.dol OK, lost: 0)
+- `nw4r/SeqNoteOnCallback.cpp` (ampliada, sin fuente): .text hasta 0x805A2240 (4 metodos de la vtable de nw4r::snd::SoundArchivePlayer, que esta al principio de los datos de esta unidad), .rodata hasta 0x80763228 (nombres RTTI nw4r + pool 0x80762810, solo usados por esta unidad), .data hasta 0x80797330 (RTTI nw4r y cadenas de assert "SoundInstanceManager.h", "Bank.h", "SoundArchivePlayer.h"). El fichero real es probablemente SoundArchivePlayer.cpp.
+- `game/SongManager.cpp` (nuevo): 0x805A2240-0x805A3C54; vtable/RTTI SongManager (0x80797330), tabla SE_DG063_*, sus 1.0f/0.0f (0x80888220/24), .sdata 0x8087E6D0, .sbss 0x8087F9F0.
+- `game/SpecialEnemyBase.cpp` (nuevo): 0x805A3C54-0x805A6208; ctor/dtor/virtuales de SpecialEnemyBase, vtable 0x80797368, tabla de nombres de enemigos (NECROMANCER, EM002...), jumptable, sus 0.0f/1.0f (0x8088824C/50) duplicados de SongManager -> corte. (Su RTTI esta emitido en Em006DarkMaster.)
+- `game/HeapInfo_unk.cpp` (nuevo, nombre INVENTADO): 0x805A6B54-0x805A6D20, 4 funciones que solo llama `main` (estadisticas de DLAllocator); su doble unsigned->float 0x80763840 duplica el de TacView (0x807639C0) -> fichero distinto.
+- `game/TacView.cpp` (ampliada, sin fuente): .text 0x805A6D20-0x805AE26C (hasta su `__sinit` 0x805AE24C, ctors 0x8072D3E4), .rodata 0x80763848-0x80763C28 (tablas, RTTI, pool 0x807639F8), .data 0x80797618-0x80797740, .bss 0x807C95B0-0x807C9AA0, .sdata 0x8087E6E0, .sbss 0x8087F9F8, .sdata2 0x808882E8-0x80888368.
+- `game/TeamAI_unk.cpp` (nuevo, nombre INVENTADO): 0x805AE26C-0x805B3420, ayudantes de TeamAIManager; pool "[TeamAI] Error: ExecuteAimGimmick..." + "tree::insert length error" (0x80763C38) ANTES del nombre RTTI de TeamAIManager -> fichero anterior; sus 0.0f/1.0f (0x80888368..) duplicados con los de TeamAIManager (0x808883B4).
+- `game/TeamAIManager.cpp` (ampliada, sin fuente): .text +0x805B4D90 (accesor), .rodata desde 0x80763C98 (tabla) hasta 0x80763DC8 (pool tras el nombre RTTI), .sdata 0x8087E6F0.
+- `atn/THPDraw_unk.cpp` y `atn/THPPlayer_unk.cpp` (nuevos, nombres INVENTADOS, reproductor THP que usa atn/VideoTHP): 0x805B4DF0-0x805B55A8 (conversion YUV->RGB) y 0x805B55A8-0x805B6C5C ("THP", bss 0x807C9AA0-0x807C9F80, sbss 0x8087FA08-0x8087FA20). Corte: doble int->float duplicado (0x80763DD0 / 0x80763DD8).
+- `game/TutorialTask.cpp` (ampliada, sin fuente): .text desde 0x805B9EC8 (2 funciones que usan su pool 0x80763F38 / las llama TutorialTask), .rodata 0x80763ED0-0x80764040, .data desde 0x80797960 (tabla tt005..).
+- `atn/Xsca_unk.cpp` (nuevo, nombre INVENTADO por la clase Xsca_unk cuyo ctor/dtor contiene, llamados por LH_Xsca): 0x805BD4B8-0x805BE8FC, pool 0x80764040.
+- `atn/XsfParser_unk.cpp` (nuevo, nombre INVENTADO): 0x805BE8FC-0x805BFAC0 (hasta el RVL SDK), constantes magicas "XSF@"/"@FSX" (0x807640B0), pool propio 0x807640C0 ("tree::insert..."), su 0.0f 0x808884B8, .sdata 0x8087E700.
+
+### Decisiones sin el usuario (grupo 8)
+- Nombres inventados: game/HeapInfo_unk, game/TeamAI_unk, atn/THPDraw_unk, atn/THPPlayer_unk, atn/Xsca_unk, atn/XsfParser_unk.
+- Corte Xsca_unk/XsfParser_unk en 0x805BE8FC: hay dos pools (dos ficheros) pero el limite exacto entre 0x805BE8FC y 0x805BEB54 no tiene pruebas; se ha puesto tras el ultimo usuario del primer pool.
+- 0x805A38F0 (sin constantes) queda en SongManager por estar antes del ctor de SpecialEnemyBase.
+
+## Grupo 9: huecos menores 0x804576D4-0x804CD97C (verificado: main.dol OK, lost: 0)
+- `game/LastCocoonEgg.cpp` (sin fuente): .text hasta 0x80458270 (cola que solo llama LastCocoonEgg + su `__sinit` 0x8045824C), ctors 0x8072D374, .bss 0x807C8A48, .sdata2 hasta 0x80886C1C.
+- `game/LastCocoonQuadruped.cpp` (sin fuente): .text +`__sinit` 0x80468F48, ctors 0x8072D378, .bss 0x807C8A58, .sbss 0x8087F500.
+- `game/MapPartsFactory.cpp` (nuevo, nombre INVENTADO; encaja alfabeticamente entre MapPartsEfp y MapPartsFlare): 0x80496A28-0x80496C3C, crea las piezas de mapa (llama a los creadores de cada MapParts*), tabla .rodata 0x80756A10 y jumptable 0x807903D0 situadas entre los datos de Efp y Flare.
+- `game/MapPartsGimmickLoc.cpp` / `game/MapPartsLocatorSet.cpp` (sin fuente): .text desde su creador (0x80496EE8 / 0x8049A018, `new` + ctor del fichero).
+- `game/MapPartsOcean_cont.cpp` (nuevo, `_cont`): `__sinit` 0x8049CDA0 (ultimo del fichero de MapPartsOcean, que esta enlazada), ctors 0x8072D384, .sbss 0x8087F560-0x8087F578.
+- `game/MapTask.cpp` (sin fuente): .text 0x8049D264-0x804A1DDC (todas las funciones usan su pool 0x80756EC8, situado tras su nombre RTTI), .rodata 0x80756EB8-0x807570C0, .sdata2 0x80887160-0x808871B0.
+- `game/MarketTask_cont.cpp` (nuevo, `_cont`; MarketTask enlazada): 0x804A24C4-0x804A29C4 con .sdata2 0x808871C0 (tras la de MarketTask). Su doble 0x807570C0 queda en auto (esta antes de la .rodata de MarketTask).
+- `game/MiniMapTask.cpp` (sin fuente): .text hasta 0x804AC430 (metodos de su vtable), .rodata + pool 0x8075765C, .sdata2 hasta 0x808872D0.
+- `MP/CryptMP.cpp` (con fuente): .text +`__sinit` 0x804AE7C4, ctors 0x8072D388, .bss 0x807C8AD0, .sbss 0x8087F590.
+- `MP/D2AMpMenu.cpp` (sin fuente): .text 0x804AE820 (creador, usa sInstance 0x8087F59C y el pool) - 0x804B4C50 (clases RANKING_DATA_LIST_IMPL_* + `__sinit` 0x804B4C20), ctors 0x8072D38C, .rodata 0x80757A70-0x80758110 (pool 0x80757B7C), .data 0x80790930-0x80790B78, .sdata 0x8087E0F0, .sbss 0x8087F598-0x8087F5A8, .sdata2 desde 0x80887308.
+- `MP/D2AMpMenuLobby.cpp` (sin fuente): .text 0x804BBB60-0x804C2FF8 (+cola que usa su .sdata2 y su `__sinit` 0x804C2FC8), ctors 0x8072D390, .rodata 0x80758848-0x80758D30, .data 0x80790C48-0x80790DB8, .sbss 0x8087F5C0-0x8087F5D0.
+- `MP/D2AMpMenuSetMessage.cpp` (sin fuente): .text 0x804C8778 (creador) - 0x804CD97C (cola + `__sinit` 0x804CD94C), ctors 0x8072D39C, .rodata 0x80759290-0x807595E0, .sdata 0x8087E140, .sbss 0x8087F5E8, .sdata2 desde 0x808874E0.
+
+### Decisiones sin el usuario (grupo 9)
+- Nombre inventado game/MapPartsFactory.cpp; `_cont`: game/MapPartsOcean_cont.cpp, game/MarketTask_cont.cpp.
+- 0x804BBB60/0x804BBBA0 (sin datos) asignadas a D2AMpMenuLobby sin pruebas (podrian ser cola de D2AMpMenuFriendRoom).
+
+## Grupo 10: 0x80547980-0x8059E7EC (verificado: main.dol OK, lost: 0)
+- `game/NpcManager_cont.cpp` (nuevo, `_cont`; NpcManager y NpcTask enlazadas): 0x80547980-0x80547C28, 4 metodos que llama GameTask; sin datos. Revisar (podria ser otro fichero).
+- `game/PathData_unk.cpp` (nuevo, nombre INVENTADO; encaja alfabeticamente entre NpcTask y PickTask): 0x80547EA0-0x80548D54, funciones que llama Event/Path, tabla "pos_x/pos_y/pos_z/rot_y" (.data 0x80794888 / .rodata 0x8075E3A8), pool propio 0x8075E3C8 y `__sinit` 0x80548C98 (ctors 0x8072D3D4).
+- `game/PlayerManager.cpp` (nuevo): 0x80549D8C-0x8054A3DC (vtable/RTTI PlayerManager, pool 0x8075E468, .sdata2 0x80887D58).
+- `game/PlayerTask.cpp` (nuevo): 0x8054A3DC-0x8054A6E8 (creador + ctor/dtor/metodos de PlayerTask, vtable 0x80794968, .rodata 0x8075E478). Corte con PlayerManager: el orden de las vtables (PlayerManager, PlayerTask) es el del codigo (dentro de un fichero seria el inverso) y 0x8075E478 esta tras el pool de PlayerManager.
+- `game/PopupTask.cpp` (sin fuente): .text 0x8054A6E8-0x8054E574 (creador que usa su pool 0x8075E49C + cola), .rodata desde 0x8075E480 (dobles), .data 0x80794A60-0x80794AE0, .sdata2 0x80887D60-0x80887E20.
+- `Event/ActionActorBehavior.cpp`: .rodata/.data + nombre/RTTI de su SingletonNoStatic (0x8075E81C / 0x80794B10).
+- `Event/ActionActorPosition.cpp` (sin fuente): .text 0x80551108-0x8055A49C (funciones que llama su primer metodo + su `__sinit` 0x8055A440, ctors 0x8072D3D8), .rodata 0x8075E850-0x8075EC98, .data 0x80794B18-0x80794D78, .bss 0x807C9220, .sbss 0x8087F978, .sdata2 desde 0x80887E30.
+- `Event/ActionCameraMode.cpp` (sin fuente): .text hasta 0x8055DBF4 (metodos de ActionCameraFocus/Motion/Inertia/Setting/Shake, cuyas vtables/RTTI estan en sus datos), .rodata 0x8075EC98-0x8075F028, .data 0x80794D78-0x80794F48.
+- `Event/ActionEffectPlay.cpp`: .rodata hasta 0x8075FB48, .data hasta 0x80795660.
+- `chr/CharaEquip_unk.cpp` (nuevo, nombre a partir de los simbolos chr::CharaEquip_unk ya existentes): 0x805634D0-0x80566420, .rodata 0x8075FB48-0x8075FCA0, .data 0x80795660-0x807956B8, .sdata2 0x80887F30-0x80887F40.
+- `game/QuadrupedTask.cpp` (sin fuente): .text hasta 0x8056A84C, .rodata 0x8075FCA0-0x8075FE68, .data desde 0x807956B8, .bss 0x807C9560, .sdata2 hasta 0x80888018.
+- `game/ReplayBuffer.cpp` (sin fuente): .text 0x8056A84C-0x80570A14 (comparten su .sdata2 0x80888018.. y el doble 0x8075FE68), .rodata 0x8075FE68-0x8075FFB0, .data desde 0x80795820, .bss 0x807C9568, .sdata2 desde 0x80888018.
+- `game/GameSystem_unk.cpp` (nuevo, nombre INVENTADO): 0x80570A14-0x8057162C, utilidades que llaman main/GameTask/HomeButtonMenu; su .rodata 0x8075FFB0 esta tras el pool de ReplayBuffer y su .sdata2 0x80888058 tras la de ReplayBuffer.
+- `game/SetConfig_cont.cpp` (nuevo, `_cont`; SetConfig enlazada): 0x8057F0F8-0x8057F280, accesores sin datos.
+- `nw4r/SoundArchive.cpp` (sin fuente): .text hasta 0x8059E7EC (metodos de nw4r::snd::SoundArchive, p. ej. detail_ReadSound3DParam). Su pool 0x80762660 queda en auto (no es contiguo a su .rodata).
+
+### Decisiones sin el usuario (grupo 10)
+- Nombres inventados: game/PathData_unk, game/GameSystem_unk; `_cont`: game/NpcManager_cont, game/SetConfig_cont (ambos sin datos, a revisar).
+- Corte ReplayBuffer/GameSystem_unk en 0x80570A14: las funciones 0x80570A14-0x80570A74 no tienen datos.
+
+## Grupo 11: datos auto_ de unidades del rango (verificado: main.dol OK, lost: 0)
+- Script propio: objetos de datos auto_ usados solo por una unidad de mi rango (directamente o a traves de otros objetos auto_ suyos) y contiguos a sus secciones (solo con objetos auto_ propios o sin referencias entre medias). Se aplicaron 52 ampliaciones: ActionActorBehavior (.bss/.sbss/.sdata), ActionActorPosition/ActionEffectPlay (.sdata), ActionCameraMode (.bss/.data/.rodata/.sbss), ActionEffectPlay (.bss/.sbss), MP/Popup (.rodata con sPathStr, .sdata), ItemSlotAnime (.data/.rodata), LH_Model (.bss/.data/.rodata con el nombre de tipo 0x80755D80 y su RTTI 0x8078FDD0, .sbss/.sdata), LH_MotionSet/LH_Scene (.sdata), LastCocoonEgg/Imago/Quadruped (.data/.rodata/.sdata2), LibraryTask (.sdata: FontW/FontH/...), MapPartsBase (.rodata, pool 0x80756700), MapPartsGimmickLoc/LocatorSet/Rain, MapTask, MenuCommonTask (.sdata/.data/.rodata), QuadrupedTask/ReplayBuffer (.bss/.sbss), ShopBase (.data/.rodata/.sdata), ShopIdentify (.sdata L""/L"1"/L"WEAPON"), TeamAIManager (.sbss), TownTask (.sdata), nw4r/DvdSoundArchive (.data), nw4r/SeqNoteOnCallback (.rodata 0x807626F8).
+- Descartadas: ShopUpGrade .bss 0x807C78C8 y MarketTask_cont .rodata 0x807570C0 (dtk: "Cyclic dependency encountered while resolving link order": el objeto queda antes de las secciones de unidades anteriores en el orden de enlace); NewCampPartsHint .sdata 0x8087E480 (decision previa documentada de dejar esos floats como extern).
+- Hallazgo: dtk exige que el orden de las unidades sea coherente en todas las secciones; un bloque de datos de una unidad situado antes de los de otra unidad que la precede en .text produce un ciclo de orden de enlace.
+
+## Resumen final
+- .text `auto_` en 0x804405F8-0x805BFAC0: 0xB76FC bytes (93 tramos) al empezar -> 0x0 al terminar (autoscan.py).
+- Build limpio: main.dol OK; regress.py: lost 0 (4757 funciones al 100%, igual que la referencia).
