@@ -51,15 +51,25 @@ Fusionada en `game/FriendManager`.
 
 - Resultado: 4/5 al 100%, `matching: false`.
 - NONMATCHING: `fn_80440994__14HomeButtonMenuFv` 83.4% - planificacion del calculo de la relacion de pantalla (el original copia el tamano 64 con `fmr` y calcula `sy` tras `k * sx`; mismo problema que `StrapTask::vf14`). Con un helper inline que recibe el tamano, la funcion pasa a inlinearse en `fn_8044073C`.
-- Pendiente para `matching: true`: el .o emite la RTTI debil de `atn::IRender` (cadena "atn::IRender" en .rodata antes del pool), que el original no tiene aqui; comprobar al enlazar si el enlazador la descarta.
+- Nota: el .o emite la RTTI debil de `atn::IRender` (y su cadena) que el original no tiene aqui; con `game/EnemyTask` (mismo caso con 5 RTTI debiles) el enlace da `main.dol: OK`, asi que no deberia impedir `matching: true`.
 - **Decisiones sin el usuario**
   - `symbols.txt`: `fn_804405F8` -> `fn_804405F8__14HomeButtonMenuFPv` (crea el singleton), `fn_804406C4` -> `__dt__14HomeButtonMenuFv`, `fn_8044073C` -> `fn_8044073C__14HomeButtonMenuFv`, `fn_80440990` -> `vf10__14HomeButtonMenuFPv`, `fn_80440994` -> `fn_80440994__14HomeButtonMenuFv`, `lbl_8087F4E8` -> `sInstance__14HomeButtonMenu`, `lbl_807544E0` -> `@stringBase0` (tamano 0x20 -> 0x1E, `scope:local data:string_table`).
   - Clase inferida `HomeButtonMenu : atn::IRender` (0xD4 bytes; `IRender` declarada localmente como en otras unidades). El constructor no es `inline` (su literal va en `@stringBase0`) y se define despues de `fn_804405F8` para que el pool empiece por `""`.
   - `game/HomeButton_unk` (siguiente unidad, 0x80440B24-0x80441590) contiene las funciones HBM que usa esta clase (`fn_80440F64`, `fn_804410C0`, `fn_80441170`, `fn_804411DC`, `fn_804413D4`); sigue como unidad aparte (1.0f propio).
 
-## Event/BehaviorMoveTo (commit HASH_MT)
+## Event/BehaviorMoveTo (commit 48a2786)
 
 - Resultado: 1/2 al 100%, `matching: false`.
 - NONMATCHING: `vf0C__Q25Event14BehaviorMoveToFPQ25Event13ActionArg_unki` 97.8% - en `case 6` el desplazamiento y el puntero de la busqueda inline del actor intercambian r4/r5 (mismo problema que `BehaviorFollow::vf0C`; probadas 7 variantes).
 - **Decisiones sin el usuario**
   - `symbols.txt`: `fn_8010E60C` -> `vf0C__Q25Event14BehaviorMoveToFPQ25Event13ActionArg_unki`, `fn_8010E7B8` -> `vf08__Q25Event14BehaviorMoveToFPQ25Event13ActionArg_unk` (por la vtable; mismo orden de fuente que BehaviorFollow).
+
+## game/EnemyTask (commit HASH_ET)
+
+- Resultado: 8/8 al 100%, `matching: true`.
+- **Decisiones sin el usuario**
+  - `include/game/CharaTask.h`: firmas de las virtuales `vf68` -> `int vf68(CharaTask* attacker)` y `vf6C` -> `void vf6C(int kind, CharaTask* other)` (deducidas de EnemyTask; nadie mas las define en `src/`). `symbols.txt`: `vf68__9CharaTaskFv` -> `vf68__9CharaTaskFP9CharaTask`, `vf6C__9CharaTaskFv` -> `vf6C__9CharaTaskFiP9CharaTask` (copias de 0x800E8FAC/0x800E8FB4) y lo mismo para `EnemyTask`.
+  - `symbols.txt`: `fn_8035B534` -> `fn_8035B534__9EnemyTaskFPQ23atn4TaskP13EnemyInfo_unki` (creador estatico), `fn_8035B854` -> `fn_8035B854__9EnemyTaskFv` (enemigo anterior, como `NpcTask::fn_80547E44`), `fn_801AFAC0` -> `__ct__17EnemyReaction_unkFP9CharaTaskPCQ23atn7Vector3i` (ctor de un control de 0x24 bytes de clase desconocida, declarado local), `lbl_8074B390` -> `@stringBase0` (0x8 -> 0x1), `lbl_808855F8` (0.0f) 0x8 -> 0x4.
+  - `include/game/CharaStatus.h`: `chr::CharaData_unk` gana `mCC`/`mD0` (antes relleno `mCC[0x1C]`); `include/game/EnemyTask.h`: declarados `fn_8035B534` y `fn_8035B854`.
+  - `vf6C` construye la direccion con `mPos.y` y luego pone `y = 0` (unica forma encontrada de que los stores salgan z, x, y).
+- Hallazgos MWCC: una unidad enlazada que emite RTTI debiles (y sus cadenas) de clases cuya RTTI vive en otro fichero anterior enlaza bien (`main.dol: OK`): el enlazador las descarta.
