@@ -437,6 +437,13 @@
   "matching": false
  },
  {
+  "name": "Event/BehaviorGesture.cpp",
+  "classes": [
+   "Event::BehaviorGesture"
+  ],
+  "matching": true
+ },
+ {
   "name": "game/Bullet.cpp",
   "classes": [
    "BootTask",

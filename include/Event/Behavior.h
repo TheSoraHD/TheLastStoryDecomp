@@ -29,6 +29,9 @@ namespace Event {
 struct Actor_unk {
     CharaTask* fn_800128FC();      // inferred: character of the actor (0 if none)
     atn::Vector3 fn_80010374();    // inferred: position of the actor
+    // inferred: plays motion `motion` on the actor (used by Event::BehaviorGesture)
+    void fn_800119C0(int arg1, int motion, int arg3, int arg4, void* arg5, int arg6, int arg7, float arg8,
+                     float arg9);
     void SetWait_unk(unsigned int v) { mWait_unk = v; } // inferred: inlined setter
     unsigned int GetWait_unk() const { return mWait_unk; }
 
