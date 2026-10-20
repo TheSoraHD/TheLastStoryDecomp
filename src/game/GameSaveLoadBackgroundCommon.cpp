@@ -149,25 +149,23 @@ extern "C" void fn_803B854C(char* name, int* size) {
     }
 }
 
-// NONMATCHING: 97.5% - the original tests NANDGetHomeDir (here and in the inlined fn_803B83A4) with
-// `beq body; b skip` instead of `bne skip`, and compares the NANDSeek result as `cmpw r3, offset`
+// NONMATCHING: 98.8% - in the inlined fn_803B83A4 of the loop the original tests NANDGetHomeDir with
+// `beq body; b skip` instead of `bne skip` (the same inline gives `bne` in fn_803B87A8)
 void GameSaveLoadCommon::fn_803B85EC() {
     unsigned char header[0xC0] __attribute__((aligned(32)));
     NandFileInfo_unk info;
     char name[0x100];
     char home[0x40];
     unsigned char buffer[0x8000] __attribute__((aligned(32)));
-    if (lbl_8087F0A8->m198 != 0) {
-        return;
-    }
-    if (NANDGetHomeDir(home) != 0) {
+    if (lbl_8087F0A8->m198 != 0 || NANDGetHomeDir(home) != 0) {
         return;
     }
     for (int i = 0; i < 17; i++) {
         int offset;
         GameSaveLoadBackgroundCommon::fn_803B83A4(name, &offset, i);
         if (fn_8061FC70(name, &info, 1, buffer, sizeof(buffer)) == 0) {
-            if (NANDSeek(&info, offset, 0) == offset) {
+            int pos = NANDSeek(&info, offset, 0);
+            if (pos == offset) {
                 if (NANDRead(&info, header, sizeof(header)) > 0) {
                     memcpy(&mSlots[i], header, sizeof(GameSaveSlot_unk));
                 }

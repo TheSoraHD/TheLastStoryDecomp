@@ -92,7 +92,7 @@ Fusionada en `game/FriendManager`.
 - Resultado: 12/16 al 100%, `matching: false`.
 - NONMATCHING:
   - `fn_803B8160__28GameSaveLoadBackgroundCommonFi` 14.9% - el original llama a `fn_803B83A4` fuera de linea; aqui se inlinea (en `fn_803B85EC`/`fn_803B87A8` el original tambien la inlinea). Probado: helper `static inline` + envoltorio, llamada a `fn_803B8200(1)`; el resto de la funcion es identico.
-  - `fn_803B85EC__18GameSaveLoadCommonFv` 97.5% - el original compara `NANDGetHomeDir` con `beq cuerpo; b salto` (arriba y en la copia inline de `fn_803B83A4`) en vez de `bne salto` (con un `switch` se consigue arriba, no se ha dejado), y `cmpw r3, offset` tras `NANDSeek`.
+  - `fn_803B85EC__18GameSaveLoadCommonFv` 98.8% - en la copia inline de `fn_803B83A4` dentro del bucle el original compara `NANDGetHomeDir` con `beq cuerpo; b salto` en vez de `bne salto` (la misma inline da `bne` en `fn_803B87A8`). Arriba se resolvio con `if (m198 != 0 || NANDGetHomeDir(home) != 0) return;` (ver hallazgo en chr/ControlMoveCursor) y el `cmpw` con `int pos = NANDSeek(...)`.
   - `fn_803B87A8__18GameSaveLoadCommonFv` 99.9% - solo el nombre de la tabla de saltos (`jumptable_8078B568` frente a `@NNN`).
   - `fn_803B8B08__18GameSaveLoadCommonFP16GameSaveSlot_unk` 99.9% - offsets en `@stringBase0`: el pool original tiene `""`, `"%s/save%02d.dat"`, `""`, `"%s/save_sys.dat"`, `""` entre `"%s/%s"` y sus cadenas (literales de funciones eliminadas por el enlazador; no reconstruidas para no inventar).
 - **Decisiones sin el usuario**
@@ -113,7 +113,7 @@ Fusionada en `game/FriendManager`.
 - Hallazgos MWCC: un bucle de 4 iteraciones con `return` se desenrolla (2x2) solo si esta escrito en la propia funcion o en una inline; si la inline devuelve el resultado y el llamador hace `if (inline()) return x;`, MWCC materializa el bool (`li r0,1; b; li r0,0; cmpwi`).
 - Hallazgos MWCC: un `std::wstring` estatico con `= L""` y un `const wchar_t* const p = L""` dejan `L""` en `.sdata` (`@wstringBase0`) y en `.sdata2` respectivamente.
 
-## chr/ControlMoveCursor (commit HASH_CM)
+## chr/ControlMoveCursor (commit 2a1af24)
 
 - Resultado: 3/6 al 100%, `matching: false`.
 - NONMATCHING:
