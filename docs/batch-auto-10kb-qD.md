@@ -38,3 +38,43 @@ Patron comun: como las colas q5/q6 del lote anterior (`docs/batch-auto-5kb-q5.md
   - Pasar los argumentos de una llamada inline por locales (`int kind = ...; int id = ...; return f(kind, id);`) cambia
     el orden de carga de los globales dentro del inline (sCount antes que sEntries).
 - Pendientes para otras unidades: ninguno.
+
+## db/OptionParts_unk (commit ce42b1a)
+- Resultado: 12/16 al 100%, `matching: false`, `main.dol: OK`.
+- NONMATCHING:
+  - `fn_8020C5D4` (lector de `database/cosedit/option/*.csv` sobre `OptionParts_unk`) 99.26% - numeracion de registros
+    en las busquedas de "hide"/"base_hide" (el original da registros distintos a las dos ramas identicas) y operandos
+    del `std::equal` inline.
+  - `fn_8020CC64` (texturas tintadas por grupo con `atn::CompositeIntensityTintMulti`) 99.61% - numeracion de
+    registros de las busquedas de grupo/capa (~12 variantes probadas).
+  - `fn_8020D688` (cargador de `option_parts.csv` + nombres UTF-16) 97.57% - bloqueo conocido del ctor inline de
+    `atn::CsvU` + registros de la busqueda del slot.
+  - `fn_8020DE0C` (nivel de las partes desde el nombre del modelo) 99.79% - el original incrementa el puntero de
+    niveles antes que el contador (con `*p++` salen los registros intercambiados).
+- **Decisiones sin el usuario**
+  - Splits sin cambios. El hueco `.sbss` 0x8087F1E0-0x8087F1E8 es de `atn/ptr_string_base_wchar_t_0` (TextTable) y
+    `MP/D2AMpMenu`, no de esta unidad.
+  - Unidad nueva en `game_units.json`.
+  - `symbols.txt`: `fn_8020D4E8`/`fn_8020D5A0` -> `__ct__/__dt__15OptionGroup_unkFv`, `fn_8020D548`/`fn_8020D560` ->
+    `__ct__/__dt__15OptionLayer_unkFv`, `fn_8020DA08`/`fn_8020DAB4` -> `__ct__/__dt__19OptionLevelList_unkFv`,
+    `fn_8020DA68`/`fn_8020DA74` -> `__ct__/__dt__15OptionLevel_unkFv`; datos `sSlots` (0x8073F600), `sLetters`,
+    `sColorSlots`, `sSlotNames`, `@stringBase0` (0x8073F678), `sLevels` (0x8087F1E8), `sSets` (0x8087F1EC).
+  - Tipos inferidos (locales al .cpp): `OptionParts_unk` (0x10E0: 16 partes, 24 colores, 8 "hide", 4 "base_hide"),
+    `OptionPart_unk`, `OptionColor_unk`, `OptionHide_unk`, `OptionColorOut_unk` (0x14; el original lee 4 floats desde
+    +0x8, el cuarto es la palabra 0 del elemento siguiente: reproducido con un cast), `OptionGroup_unk`/`OptionLayer_unk`
+    (array local de 32 grupos), `OptionLevel_unk`/`OptionLevelList_unk`/`OptionLevelTable_unk` (11 letras x 4 slots),
+    `OptionSetTable_unk` (bool[10][11][4][16]), `WFixedString_unk`. `atn::CompositeIntensityTintMulti` y
+    `CompositeLayerDesc_unk` se redeclaran en minimo (estan definidos en `src/atn/CompositeIntensityTintMulti.cpp`, sin
+    cabecera); `Model_unk` minimo con `fn_8008B130`. Externos nuevos declarados: `fn_8006AFF8` (union de rutas),
+    `fn_80095750` (pone el compositor en el modelo).
+  - Tablas sin uso `sRanks` {"－","S","A","B","C"} y `sKinds` {"qu",..,"qs"} anadidas antes de `sSlots`: el enlazador
+    las elimina pero fijan el orden de `.sdata2` del original ("S","A","B","qs","up",...). Inferidas por el orden.
+  - Nombre real propuesto: `cosedit/OptionParts.cpp` (editor de trajes).
+- Hallazgos MWCC
+  - Una tabla `static const char* const t[]` sin usar no se emite, pero sus literales que tambien usa otra tabla
+    posterior salen en `.sdata2` en el orden de la tabla sin usar: explica ordenes de `.sdata2` "imposibles".
+  - `p[row]` con `bool* p = t->m[a][b][c];` reproduce la reasociacion del original (`stbx` con la fila aparte);
+    `t->m[a][b][c][row]` la pliega distinto.
+  - `group = groups + count; count++;` (unsigned) da puntero inductivo; `&groups[count++]` da un desplazamiento.
+  - Dos `""` sin fusionar en el pool tras otro `""` ya usado = `strcmp(x, "\0")`.
+- Pendientes para otras unidades: `src/atn/CompositeIntensityTintMulti.cpp` podria exportar su clase a una cabecera.
