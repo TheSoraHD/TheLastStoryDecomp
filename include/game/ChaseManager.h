@@ -45,7 +45,8 @@ public:
     ResLoader_unk mFC[2];
     ResLoader_unk m114[2];
     ResLoader_unk m12C[2];
-    unsigned char m144[0x1A4 - 0x144];
+    Mtx m144; // inferred: matrix of the first marker effect
+    Mtx m174; // inferred: matrix of the second marker effect
     float m1A4;
     float m1A8;
     float m1AC;
