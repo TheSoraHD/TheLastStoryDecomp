@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/CrowdManager.h"
 #include "game/CharaTask.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
@@ -309,7 +310,6 @@ static const ModelName_unk sModelNames_unk[] = {
     {"em102_00_bs00.model", "em102_00_bs01.model"},
 };
 
-extern "C" atn::Task* lbl_8087F128;
 extern "C" int lbl_8087FA20;
 extern "C" void* lbl_8087EEB8; // inferred: debug message output
 extern "C" char lbl_807C7B28[32];
@@ -339,7 +339,7 @@ inline int GetModelHeap_unk(atn::Task* parent, int id) {
     if (id == 1) {
         return 0x23A;
     }
-    if (parent == lbl_8087F128) {
+    if (parent == CrowdManager::sInstance) {
         return 0xEF;
     }
     return IsTownField_unk() ? 0x13F : 0x23A;

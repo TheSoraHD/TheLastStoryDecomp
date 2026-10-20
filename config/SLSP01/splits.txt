@@ -586,10 +586,11 @@ game/CrossbowMenuTask.cpp:
 	.sdata2     start:0x80882B30 end:0x80882B70
 
 game/CrowdManager.cpp:
-	.text       start:0x801EA4B0 end:0x801EB7C4
-	.rodata     start:0x8073CC70 end:0x8073CC80
+	.text       start:0x801EA4B0 end:0x801EB93C
+	.rodata     start:0x8073CC70 end:0x8073CD20
 	.data       start:0x807829E0 end:0x80782A18
-	.sdata2     start:0x80882B70 end:0x80882BB8
+	.sbss       start:0x8087F128 end:0x8087F130
+	.sdata2     start:0x80882B70 end:0x80882BC0
 
 game/CrowdSimulation.cpp:
 	.text       start:0x801EB93C end:0x801EC158
