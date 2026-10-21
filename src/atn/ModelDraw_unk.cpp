@@ -508,9 +508,11 @@ void fn_8009E448(DrawEntry_unk* entry, DrawNode_unk* root);
 }
 
 static float sFogStart_unk = 0.8f; // inferred: start of the fog (ratio of its distance)
-static unsigned char sShadowRecv_unk; // inferred: shadow receiver
-static unsigned char sSecondPass_unk; // inferred: second pass of the transparent parts
-static ShaderMaterial_unk* sLastMat_unk; // inferred: last material
+// inferred: explicitly zero-initialised (they come before the guards of fn_8009D1A4 in .sbss)
+static unsigned char sShadowRecv_unk = 0; // inferred: shadow receiver
+static unsigned char sSecondPass_unk = 0; // inferred: second pass of the transparent parts
+static ShaderMaterial_unk* sLastMat_unk = 0; // inferred: last material
+static int sMipLoaded_unk = 0; // inferred: the mip test textures are loaded
 
 // inferred: is the texture loaded (inline of the texture class)
 static inline int TexReady_unk(atn::Texture_unk* t) {
@@ -548,6 +550,7 @@ static inline unsigned char SwapG_unk(GXColor c) { return c.g; }
 static inline unsigned char SwapB_unk(GXColor c) { return c.b; }
 static inline unsigned char SwapA_unk(GXColor c) { return c.a; }
 
+// NONMATCHING: 98.37% - r4/r5 swapped in the dead copy of the camera matrix (__MtxCopy, as the __VecCopy family)
 void fn_8009B93C(DrawEntry_unk* entry) {
     atn::Matrix3x4 view = lbl_8087EFB4->m15C;
     if ((entry->m04 & 0x20000) && lbl_8087EFB0 == 0) {
@@ -558,6 +561,7 @@ void fn_8009B93C(DrawEntry_unk* entry) {
     fn_8009E448(entry, entry->m0C->m48[0]);
 }
 
+// NONMATCHING: 98.30% - saved registers of the two loops shifted by one
 void fn_8009B9E8(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mtx* mtx, int* cache) {
     MtxPtr m;
     if (mesh->m14 != -1) {
@@ -604,6 +608,7 @@ void fn_8009B9E8(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* s
     }
 }
 
+// NONMATCHING: 82.64% - register allocation reversed (loop locals get the highest registers in the original), f30/f31 swapped
 void fn_8009BB9C(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
     DrawDesc_unk* desc = mat->m08->mDesc;
     int texMtx = 0x40;
@@ -652,38 +657,39 @@ void fn_8009BB9C(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
 }
 
 // inferred: material and ambient colours of a material (written with paired singles in the
-// original)
-static inline void SetMatColor_unk(ShaderMaterial_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
-    GXColor mc = mat->m18;
-    GXColor ac;
-    GXColor src = mat->m1C;
-    float amb[4];
-    amb[0] = (float)src.r / 255.0f;
-    amb[1] = (float)src.g / 255.0f;
-    amb[2] = (float)src.b / 255.0f;
-    amb[3] = (float)src.a / 255.0f;
-    mc.r = (unsigned char)(mc.r * (1.0f / 255.0f) * color->m[0] * 255.0f);
-    mc.g = (unsigned char)(mc.g * (1.0f / 255.0f) * color->m[1] * 255.0f);
-    mc.b = (unsigned char)(mc.b * (1.0f / 255.0f) * color->m[2] * 255.0f);
-    mc.a = (unsigned char)(mc.a * (1.0f / 255.0f) * color->m[3] * 255.0f);
-    ac.r = (unsigned char)(lens->m0C[0] * amb[0] * 255.0f);
-    ac.g = (unsigned char)(lens->m0C[1] * amb[1] * 255.0f);
-    ac.b = (unsigned char)(lens->m0C[2] * amb[2] * 255.0f);
-    ac.a = (unsigned char)(lens->m0C[3] * amb[3] * 255.0f);
-    GXSetChanMatColor(4, mc);
-    if (mat->m4E == 1) {
-        GXSetTevKColor(1, mc);
-    } else {
-        GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
-        GXSetTevKColor(1, white);
+// original; written out twice there: each copy has its own white constant in .sdata2)
+#define SET_MAT_COLOR_UNK(mat, lens, color)                    \
+    {                                                                      \
+    GXColor mc = mat->m18;                                                                          \
+    GXColor ac;                                                                                     \
+    GXColor src = mat->m1C;                                                                         \
+    float amb[4];                                                                                   \
+    amb[0] = (float)src.r / 255.0f;                                                                 \
+    amb[1] = (float)src.g / 255.0f;                                                                 \
+    amb[2] = (float)src.b / 255.0f;                                                                 \
+    amb[3] = (float)src.a / 255.0f;                                                                 \
+    mc.r = (unsigned char)(mc.r * (1.0f / 255.0f) * color->m[0] * 255.0f);                          \
+    mc.g = (unsigned char)(mc.g * (1.0f / 255.0f) * color->m[1] * 255.0f);                          \
+    mc.b = (unsigned char)(mc.b * (1.0f / 255.0f) * color->m[2] * 255.0f);                          \
+    mc.a = (unsigned char)(mc.a * (1.0f / 255.0f) * color->m[3] * 255.0f);                          \
+    ac.r = (unsigned char)(lens->m0C[0] * amb[0] * 255.0f);                                         \
+    ac.g = (unsigned char)(lens->m0C[1] * amb[1] * 255.0f);                                         \
+    ac.b = (unsigned char)(lens->m0C[2] * amb[2] * 255.0f);                                         \
+    ac.a = (unsigned char)(lens->m0C[3] * amb[3] * 255.0f);                                         \
+    GXSetChanMatColor(4, mc);                                                                       \
+    if (mat->m4E == 1) {                                                                            \
+        GXSetTevKColor(1, mc);                                                                      \
+    } else {                                                                                        \
+        GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};                                                   \
+        GXSetTevKColor(1, white);                                                                   \
+    }                                                                                               \
+    GXColor k = {(unsigned char)(255.0f * lens->m1C[0]), (unsigned char)(255.0f * lens->m1C[1]),    \
+                 (unsigned char)(255.0f * lens->m1C[2]), (unsigned char)(255.0f * lens->m1C[3])};   \
+    GXSetTevKColor(2, k);                                                                           \
+    GXSetChanAmbColor(4, ac);                                                                       \
     }
-    GXColor k = {(unsigned char)(255.0f * lens->m1C[0]), (unsigned char)(255.0f * lens->m1C[1]),
-                 (unsigned char)(255.0f * lens->m1C[2]), (unsigned char)(255.0f * lens->m1C[3])};
-    GXSetTevKColor(2, k);
-    GXSetChanAmbColor(4, ac);
-}
 
-// NONMATCHING: the colours are scaled with hand-written paired-single code (GQR6, psq_l/psq_st
+// NONMATCHING: 35.93% - the colours are scaled with hand-written paired-single code (GQR6, psq_l/psq_st
 // quantized) that cannot be written without asm
 void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
     if (mat == 0) {
@@ -697,7 +703,7 @@ void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens
     }
     if (mat == sLastMat_unk && lbl_8087EFA8->m3A0 != 0) {
         fn_8009DCE0(mat);
-        SetMatColor_unk(mat, lens, color);
+        SET_MAT_COLOR_UNK(mat, lens, color)
         if (mat->m4C) {
             DrawRender_unk* rs = lbl_8087EEE0;
             fn_8007642C(rs, 0, (void*)fn_800C24B4(lens, 0));
@@ -715,7 +721,7 @@ void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens
     GXSetTevColor(1, mat->m24);
     GXSetTevColor(2, mat->m28);
     GXSetTevColor(3, mat->m2C);
-    SetMatColor_unk(mat, lens, color);
+    SET_MAT_COLOR_UNK(mat, lens, color)
     if (mat->m4C) {
         DrawRender_unk* rs = lbl_8087EEE0;
         fn_8007642C(rs, 0, (void*)fn_800C24B4(lens, 0));
@@ -732,6 +738,7 @@ void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens
     fn_800761A8(lbl_8087EEE0);
 }
 
+// NONMATCHING: 90.72% - the original keeps the address of the light set in a saved register (one more saved register)
 void fn_8009C508(ShaderMaterial_unk* mat) {
     DrawDesc_unk* desc = mat->m08->mDesc;
     DrawChan_unk* ch = desc->m084;
@@ -772,6 +779,7 @@ void fn_8009C508(ShaderMaterial_unk* mat) {
     }
 }
 
+// NONMATCHING: 92.89% - register allocation of the loop
 void fn_8009C688(ShaderMaterial_unk* mat) {
     DrawShader_unk* shader = mat->m08;
     int hint = 0;
@@ -823,6 +831,7 @@ void fn_8009C688(ShaderMaterial_unk* mat) {
 
 static inline const float& MaxRef_unk(const float& a, const float& b) { return a < b ? b : a; }
 
+// NONMATCHING: 95.12% - register allocation and scheduling of the scale loop
 void fn_8009C84C(ShaderMaterial_unk* mat) {
     DrawShader_unk* shader = mat->m08;
     DrawDesc_unk* desc = shader->mDesc;
@@ -868,6 +877,7 @@ void fn_8009C84C(ShaderMaterial_unk* mat) {
     }
 }
 
+// NONMATCHING: 99.12% - r3/r4 of the two globals swapped, f26-f31 shifted, colour temporary at 0x1c instead of 0x8
 void fn_8009CC28(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawShader_unk* shader, int flag, float dist) {
     fn_800C08B0(lbl_8087EFB4);
     DrawLens_unk* lens = lbl_8087EFB4->m2FC;
@@ -953,6 +963,7 @@ void fn_8009CC28(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawShader_unk* sh
     }
 }
 
+// NONMATCHING: 99.84% - stage and texture registers swapped in the width loop
 void fn_8009D1A4(ShaderMaterial_unk* mat) {
     GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
     GXSetChanMatColor(4, white);
@@ -970,9 +981,8 @@ void fn_8009D1A4(ShaderMaterial_unk* mat) {
     static atn::Texture_unk sMip256;
     static atn::Texture_unk sMip512;
     static atn::Texture_unk sMip1024;
-    static int sLoaded;
-    if (sLoaded == 0) {
-        sLoaded = 1;
+    if (sMipLoaded_unk == 0) {
+        sMipLoaded_unk = 1;
         fn_800D594C(&sMip64, "common/mip64.texture");
         fn_800D594C(&sMip128, "common/mip128.texture");
         fn_800D594C(&sMip256, "common/mip256.texture");
@@ -1021,6 +1031,7 @@ static inline int IsShadowB_unk(DrawEntry_unk* entry, DrawLens_unk* lens) {
     return (lens->mC8 & 2) == 2 && (entry->m04 & 8) == 8;
 }
 
+// NONMATCHING: 83.57% - flag tests and the queue capacity test (orc/srwi idiom) not reproduced, register allocation
 void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, int visible) {
     int index;
     DrawRemap_unk* remap = entry->m24;
@@ -1148,6 +1159,7 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     }
 }
 
+// NONMATCHING: 95.19% - register allocation (loop locals get the highest registers in the original)
 void fn_8009DCE0(ShaderMaterial_unk* mat) {
     DrawShader_unk* shader = mat->m08;
     int hint = 0;
@@ -1185,6 +1197,7 @@ void fn_8009DCE0(ShaderMaterial_unk* mat) {
     }
 }
 
+// NONMATCHING: 97.48% - register allocation
 void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     ShaderMaterial_unk* mat = cmd->m08;
     DrawLens_unk* lens = cmd->m10;
@@ -1262,6 +1275,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
 
 static inline const float& MaxF_unk(const float& a, const float& b) { return a > b ? a : b; }
 
+// NONMATCHING: 87.64% - order of the copies of the light set and of the scale vector
 DrawEntry_unk::DrawEntry_unk(atn::LH_Model* model, Mtx* mtx, Mtx* nodes, int m18, DrawColor_unk* color,
                              DrawMaterials_unk* mats, DrawRemap_unk* remap, const atn::Sphere* sphere, int* m40,
                              unsigned int flags, DrawLens_unk* lens, int m98, const DrawCallback_unk* cb)

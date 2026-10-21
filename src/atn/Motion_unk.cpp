@@ -60,14 +60,14 @@ static std::vector<MapModel_unk*>& GetMapModels_unk() {
     return sModels;
 }
 
+// NONMATCHING: 99.82% - iterator register of the second loop, pool name of the vector allocation error
 extern "C" MapModel_unk* fn_8009F788(const char* path) {
     std::basic_string<char> name = fn_8006B174(std::basic_string<char>(path));
     unsigned int hash = fn_800DC6B4(name.c_str());
     MapModel_unk** it;
     for (it = GetMapModels_unk().begin(); it != GetMapModels_unk().end(); it++) {
-        MapModel_unk* m = *it;
-        if (m != 0 && hash == m->m224) {
-            return m;
+        if (*it != 0 && hash == (*it)->m224) {
+            return *it;
         }
     }
     MapModel_unk* model = new (6, "", "", 0) MapModel_unk(path);
@@ -85,6 +85,7 @@ extern "C" MapModel_unk* fn_8009F788(const char* path) {
     return model;
 }
 
+// NONMATCHING: 98.95% - the model is reloaded after the delete test in the original
 extern "C" void fn_8009FE24() {
     for (MapModel_unk** it = GetMapModels_unk().begin(); it != GetMapModels_unk().end(); it++) {
         MapModel_unk* m = *it;
@@ -117,8 +118,10 @@ extern "C" int fn_8009FFCC(MapModel_unk* model) {
     return 0;
 }
 
+// NONMATCHING: 84.11% - evaluation order of the sprintf arguments and register allocation
 extern "C" void fn_800A005C(MapModel_unk* model) {
     atn::CsvTab csv((const char*)model->mFile.fn_80470580(), model->mFile.fn_8047059C());
+    csv.fn_8005BCE8(atn::lbl_8087D710);
     std::basic_string<char> folder = fn_8006B0C8(std::basic_string<char>(model->mFile.fn_80473F18()));
     float scale = 0.6f;
     do {
@@ -187,6 +190,7 @@ struct MotionData_unk {
     MotionNode_unk** m18;
 };
 
+// NONMATCHING: 90.45% - order of the track/key increments and scheduling of the stores
 extern "C" void fn_800A0610(atn::LH_Motion* motion, MotionPose_unk* pose, MotionNode_unk* node, short* keys,
                             float frame);
 
@@ -217,6 +221,7 @@ extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigne
 
 // inferred: the original calls it out of line from fn_800A09D0; the empty release asserts keep it
 // over the autoinline threshold
+// NONMATCHING: 97.25% - volatile register allocation (data/count/offset)
 extern "C" int fn_800A05AC(atn::LH_Motion* motion, unsigned int hash, int start) {
     ((void)0);
     ((void)0);
@@ -311,6 +316,7 @@ MotionPose_unk::MotionPose_unk() {
 }
 
 // inferred: nonzero while one of the effects or efp files is loading
+// NONMATCHING: 99.02% - order of the two loop increments (as atn/LightUtil_unk)
 int MotionCmdData_unk::fn_800A091C() {
     for (unsigned int i = 0; i < mEffects.mSize; i++) {
         if (mEffects.mData[i].fn_802376D0()) {

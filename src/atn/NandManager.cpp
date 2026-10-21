@@ -228,6 +228,7 @@ void NandManager::OpenTmp_unk() {
     }
 }
 
+// NONMATCHING: 90.26% - the string built from mPath keeps the pointer in a register of its own in the original (one more saved register), stack offsets of the temporaries
 void NandManager::vf10() {
     switch (mState) {
     case 1:
@@ -611,6 +612,7 @@ static inline D2A_DrawRect GetRect_unk(D2A_Task* task, const char* name) {
     return fn_801F4E8C(task, fn_800DC6B4(name));
 }
 
+// NONMATCHING: 96.34% - one more saved register (pane/icon registers) and the load of the rect width
 void NandManager::fn_800A4244() {
     if (mIcon->IsFlag_unk(4)) {
         mIcon->mFrame = 0.0f;
