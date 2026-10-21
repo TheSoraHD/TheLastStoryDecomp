@@ -507,12 +507,16 @@ atn/SoundManager.cpp:
 	.sdata2     start:0x80881188 end:0x808811D8
 
 atn/Task.cpp:
-	.text       start:0x800D1C60 end:0x800D5738
+	.text       start:0x800D1C60 end:0x800D5618
+	.data       start:0x807796B0 end:0x807796F0
+	.sbss       start:0x8087EFF0 end:0x8087EFF8
+
+atn/TaskBase.cpp:
+	.text       start:0x800D5618 end:0x800D5738
 	.ctors      start:0x8072D2C4 end:0x8072D2C8
 	.rodata     start:0x80734628 end:0x80734638
-	.data       start:0x807796B0 end:0x80779700
+	.data       start:0x807796F0 end:0x80779700
 	.bss        start:0x807C75D0 end:0x807C75E8
-	.sbss       start:0x8087EFF0 end:0x8087EFF8
 
 atn/Texture_unk.cpp:
 	.text       start:0x800D5738 end:0x800D5C84

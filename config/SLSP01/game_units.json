@@ -406,6 +406,20 @@
   "matching": true
  },
  {
+  "name": "atn/Task.cpp",
+  "classes": [
+   "atn::Task"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/TaskBase.cpp",
+  "classes": [
+   "atn::TaskBase"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/TextureCacheManager8x32.cpp",
   "classes": [
    "atn::TextureCacheManager8x32"

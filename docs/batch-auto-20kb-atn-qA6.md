@@ -41,3 +41,42 @@ Cola: `atn/Sound3dListener_cont` (fusion con `atn/Sound3dListener`), `atn/Task`,
   - Interpolacion sin fmadds: `float d = t * (b - a); float v = a + d; m1C = v - m18; m18 = v;`.
   - `if (a && b && !c) X(); else if (!a && d && c) X();`: el else-if usa las copias en registros salvados.
 - Pendientes: ninguno.
+
+## atn/Task (+ atn/TaskBase nuevo)
+- Resultado: `atn/Task` 11/25 al 100%, `atn/TaskBase` 3/4 al 100%, ambas `matching: false`, `main.dol: OK`.
+- NONMATCHING (comentados en el fuente):
+  - Recorridos recursivos inlineados (fn_800D2494/2868/2AD8/2C50/2D7C/32B8, dtor, 3FA4/4280: 90-99%): el
+    original reparte los registros salvados de los niveles inlineados en otro orden (p. ej. r25/r26 en el 2o/3er
+    nivel). fn_800D26A4, fn_800D37B8 y fn_800D3B74 si casan.
+  - fn_800D4558/498C/4DB8/51EC (42.7%): el original inlinea un nivel mas de la recursion (assert del hijo en el
+    llamador y luego la llamada); con el assert dentro de la funcion se llega a la profundidad pero cambia la
+    entrada. Probado tambien un helper inline (assert + llamada): MWCC emite el helper fuera de linea.
+  - fn_800D1D94 (95%): el recorrido hasta el ultimo hijo compara `*link` en r0 y lo recarga (lwz + lwzu).
+  - `TaskBase::TaskBase` (58.86%): orden de cargas del contador de ids y de la etiqueta.
+- **Decisiones sin el usuario**
+  - Splits: `atn/Task` partida en `atn/Task.cpp` (`.text 0x800D1C60-0x800D5618`, `.data 0x807796B0-0x807796F0`,
+    `.sbss 0x8087EFF0-0x8087EFF8`) y `atn/TaskBase.cpp` nueva (`.text 0x800D5618-0x800D5738`, `.ctors`, `.rodata
+    0x80734628-0x80734638` "XTASKTAG", `.data 0x807796F0-0x80779700` vtable TaskBase, `.bss 0x807C75D0-0x807C75E8`).
+    Prueba: Task.cpp conserva todas las llamadas a `IsValid` cuyo resultado se ignora (asserts de release);
+    MWCC las elimina si ve la definicion en el mismo fichero (comprobado). El `__sinit` (etiqueta "XTASKTAG") va
+    al final, detras de TaskBase.
+  - fn_800D1C60/fn_800D1CD4 (tablas de modos que usan MaterialParser_unk/Shader_unk) se quedan en Task.cpp como
+    `extern "C"`; pueden ser de otro fichero (estan al principio del split).
+  - `include/atn/Task.h`: `TaskBase` con `IsValid`, ctor `TaskBase(int)` y `mTag`/`mId` de 64 bits guardados como
+    `unsigned long[2]` (+ relleno `m04`/`m2C`): un `long long` alinea la clase a 8 y mueve miembros de
+    CharaTask/ControlCannonLift (comprobado con regress). Acceso con la macro `TASK_U64`. `Task`: miembros con
+    nombre (`m18` primer hijo, `m1C` hermano, `m20` padre (sigue `void*`: gmk/OnOff lo compara con otro tipo),
+    `m24` raiz, `m28`/`m30` tarea avisada por vf18 y su id, `m3C` contador, `m40` espera, `m44` borrador),
+    inlines `AddChild_unk`/`RemoveChild_unk`, metodos `fn_800D1D94`, `fn_800D4558`, `fn_800D4DB8`.
+    `TaskStats_unk` (lbl_807C75D8: tareas vivas + ultimo id) se queda con nombre `lbl_807C75D8` (extern "C").
+  - Flags de `mFlags` deducidos: 1 solo hijos, 2 listo (vf0C devolvio != 0), 4 parado, 0x10, 0x20 vf10 hecho,
+    0x40 destruido, 0xDEAD0000 matado (fn_800D2338).
+  - `symbols.txt`: pairnames (estaticas `fn_XXXXXXXX__3atnFPQ23atn4Task`, metodos, `__ct__Q23atn8TaskBaseFi`,
+    `IsValid__Q23atn8TaskBaseCFv`, `__sinit_\TaskBase_cpp`), `lbl_80734628` -> `@stringBase0`, `lbl_807C75D0` ->
+    `sTaskTag__3atn` (locales).
+- Hallazgos MWCC
+  - Con `-ipa file`, una llamada a una funcion sin efectos visible en el fichero cuyo resultado no se usa se
+    elimina (assert de release): si el original la conserva, la funcion esta en otro fichero.
+  - Los bucles `if (c) do {...} while (c)` del original (guarda + test al final) no salen de `for`/`while`.
+  - Leer los flags en un local antes de varias pruebas evita las recargas; la funcion inline `IsKilled` (sin local)
+    las fuerza cuando el original las tiene (fn_800D2338).
