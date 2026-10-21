@@ -20,6 +20,13 @@
   "matching": false
  },
  {
+  "name": "atn/Xsca_unk.cpp",
+  "classes": [
+   "Xsca_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/AiTarget.cpp",
   "classes": [
    "AIManager",
