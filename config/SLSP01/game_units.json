@@ -8,10 +8,36 @@
   "matching": false
  },
  {
+  "name": "atn/LH_Binary.cpp",
+  "classes": [
+   "atn::LH_Binary"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/THPPlayer_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Xsca_unk.cpp",
+  "classes": [
+   "Xsca_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/AiTarget.cpp",
   "classes": [
    "AIManager",
    "AiTarget"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/SongManager.cpp",
+  "classes": [
+   "SongManager"
   ],
   "matching": false
  },

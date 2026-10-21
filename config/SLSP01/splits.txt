@@ -3443,7 +3443,7 @@ game/TeamAIManager.cpp:
 	.rodata     start:0x80763C98 end:0x80763DC8
 	.data       start:0x80797790 end:0x807977C8
 	.sdata      start:0x8087E6F0 end:0x8087E6F8
-	.sbss       start:0x8087FA04 end:0x8087FA08
+	.sbss       start:0x8087FA00 end:0x8087FA08
 	.sdata2     start:0x80888390 end:0x808883C0
 
 atn/THPDraw_unk.cpp:

@@ -261,6 +261,22 @@ public:
             this->__shrink_unk(n);
         }
     }
+    // inferred: reserve with a length check, elements moved as raw bytes (atn/Xsca_unk 0x805BD4B8,
+    // 8-byte entries); the check is out of the class so that its message goes to the file pool
+    void __reserve_checked_unk(size_type n) {
+        if (n > this->mCap) {
+            __vec_raw_buf_unk<T> buf;
+            __check_length_unk(n);
+            buf.mData = __allocate(n);
+            buf.mCap = n;
+            buf.__append_raw_unk(this->mData, this->mData + this->mSize);
+            this->mSize = 0;
+            __vec_swap_unk(this->mCap, buf.mCap);
+            __vec_swap_unk(this->mData, buf.mData);
+            __vec_swap_unk(this->mSize, buf.mSize);
+        }
+    }
+    void __check_length_unk(size_type n);
     template <class U>
     void __reserve_unk(size_type n, U**) {
         if (this->mCap < n) {
@@ -410,6 +426,13 @@ T* vector<T>::__insert_one_unk(T* pos, const T& x, const bool& flag) {
     }
     this->mSize++;
     return this->mData + idx;
+}
+
+template <class T>
+void vector<T>::__check_length_unk(size_type n) {
+    if (n > max_size()) {
+        __msl_error("vector length error");
+    }
 }
 
 template <class T>
