@@ -83,7 +83,7 @@ static const wchar_t sKeyChars_unk[3][4][11] = {
 // out of line this function, the Vector2_unk and key constructors, SoftKeyboardU's constructor,
 // fn_80503AB8/fn_80503B04, the seven boost::bind and the seven boost::function constructors (all
 // weak copies of this file, 0x805028D8-0x80503B04). Here it stays one statement below the budget
-// (one more inline call makes everything go out of line), so those 15 functions are not emitted.
+// (one more inline call makes everything go out of line), so those 14 functions are not emitted.
 // Also, the original builds the key corners in place (Vector2 constructor on the key) without an
 // operator=: not reproduced (tried temporaries, named locals, a corner type with implicit copy).
 // inferred: character of a key for the current language

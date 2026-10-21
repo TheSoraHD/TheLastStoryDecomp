@@ -58,13 +58,13 @@ Cola: `atn/Loader`, `atn/SoftKeyboardU`.
   - Cadenas del pool que no usa nadie: "wt" y "%08x %s ref=%d %s pack=%d\n" (funcion de volcado eliminada por el
     enlazador) y los errores de basic_string (el original los tiene en `@stringBase0`, aqui van a `@STRING@`).
 
-## atn/SoftKeyboardU (MP::SoftKeyboard) (commit PENDIENTE)
+## atn/SoftKeyboardU (MP::SoftKeyboard) (commit d12e982)
 - Resultado: 27/46 al 100% (+27 en el total; todo el lote: 5961 -> 6006), `matching: false`, `main.dol: OK`,
   regress lost: 0, fuzzdrop 0.
 - Contenido real del split: `MP::SoftKeyboard` (Task de la entrada de nombre del modo online, singleton
   `lbl_8087F860`) con un `atn::SoftKeyboardU` en 0xF8. Los nombres de tipo de `boost::bind` en .rodata dan la
   clase `MP::SoftKeyboard` y que los callbacks reciben `const Key&` (aqui `Key*`, como la cabecera de qA2).
-- Sin escribir/emparejar (15): el ctor del original supera el presupuesto de inline y llama fuera de linea a
+- Sin emparejar (14): el ctor del original supera el presupuesto de inline y llama fuera de linea a
   `fn_805028D8` (caracter de la tecla), `Vector2_unk(float, float)`, `SoftKey_unk()`, `SoftKeyboardU()`,
   `fn_80503AB8` (SetKey), `fn_80503B04` (longitud maxima), los 4 `boost::bind` y los 4 ctor de `boost::function`
   (copias debiles 0x805028D8-0x80503B04). Aqui el ctor queda justo por debajo del presupuesto (una llamada inline
@@ -95,4 +95,4 @@ Cola: `atn/Loader`, `atn/SoftKeyboardU`.
   - Las implicitas `operator=` de structs pequenos tambien salen fuera de linea (`__as__`) cuando la llamadora
     supera el presupuesto de inline.
 - Pendientes
-  - Encontrar la forma del ctor que supere el presupuesto (desbloquearia 15 funciones casi triviales).
+  - Encontrar la forma del ctor que supere el presupuesto (desbloquearia 14 funciones casi triviales).
