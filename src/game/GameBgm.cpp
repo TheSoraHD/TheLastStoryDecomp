@@ -1,4 +1,5 @@
 #include "game/GameBgm.h"
+#include "atn/SoundCore.h"
 #include "game/GameSoundControl.h"
 #include "atn/Memory.h"
 
@@ -80,8 +81,6 @@ extern "C" void fn_803CE0B4(GameSoundControl* control, int id, int position);
 extern "C" int fn_803CE074(GameSoundControl* control, int id);
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the stream is ready
 // inferred: atn::SoundRef helpers (names keep the address)
-extern "C" int fn_800CA910(atn::SoundObject* sound); // inferred: length
-extern "C" int fn_800CAA88(atn::SoundObject* sound); // inferred: position
 extern "C" int fn_800CB4C4(atn::SoundRef* sound);
 extern "C" int fn_800CB538(atn::SoundRef* sound);
 extern "C" int fn_800CB58C(atn::SoundRef* sound);
@@ -179,9 +178,9 @@ static inline bool __IsKeepPos_unk(atn::Bgm* bgm) {
 // inferred: fades `bgm` out, keeping its position for the stream control (name invented)
 static inline void __FadeOut_unk(atn::Bgm* bgm, int fade) {
     if (GameSoundControl::sInstance != 0 && bgm->mSound.mPtr != 0 && (bgm->m10 & 1) == 1) {
-        int pos = fn_800CAA88(bgm->mSound.mPtr) + fade * 1000 / 30;
-        if (pos > fn_800CA910(bgm->mSound.mPtr)) {
-            pos -= fn_800CA910(bgm->mSound.mPtr);
+        int pos = ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CAA88() + fade * 1000 / 30;
+        if (pos > ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CA910()) {
+            pos -= ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CA910();
         }
         GameSoundControl* control = GameSoundControl::sInstance;
         fn_803CE0B4(control, fn_800CB6F8(&bgm->mSound), pos);

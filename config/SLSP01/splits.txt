@@ -487,14 +487,9 @@ atn/SoftKeyboardBase_wchar_t_0.cpp:
 	.sdata2     start:0x80881158 end:0x80881160
 
 atn/Sound3dListener.cpp:
-	.text       start:0x800C7DC4 end:0x800C8278
-	.rodata     start:0x80734130 end:0x8073416C
-	.data       start:0x807794F8 end:0x80779570
-
-atn/Sound3dListener_cont.cpp:
-	.text       start:0x800C8278 end:0x800CAD9C
-	.rodata     start:0x8073416C end:0x80734188
-	.data       start:0x80779570 end:0x807795C0
+	.text       start:0x800C7DC4 end:0x800CAD9C
+	.rodata     start:0x8073401C end:0x80734180
+	.data       start:0x807794F8 end:0x807795C0
 	.sdata2     start:0x80881160 end:0x80881180
 
 atn/Sound3dEngine.cpp:
