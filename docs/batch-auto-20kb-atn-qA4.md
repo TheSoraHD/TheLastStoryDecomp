@@ -4,7 +4,7 @@ Cola: `atn/ModelDraw_unk`, `atn/Motion_unk`, `atn/NandManager`.
 Las tres unidades quedan `matching: false` (no todas sus funciones al 100%); `main.dol: OK`, `lost: 0`
 contra main y contra la integracion, sin bajadas de fuzzy.
 
-## atn/ModelDraw_unk (commit 9d6da5b + ultimo commit de la cola)
+## atn/ModelDraw_unk (commit 9d6da5b + dfc3b8d)
 - Resultado: 1/14 al 100% (`fn_8009E448`), `matching: false`.
 - Contenido: dibujo GX de las mallas de un modelo. `atn::Model` (fn_8008E818) construye en la pila un
   `DrawEntry_unk` (ctor 0x8009E1E4) y llama a fn_8009B93C; cada nodo visible dibuja sus partes con
@@ -44,7 +44,7 @@ contra main y contra la integracion, sin bajadas de fuzzy.
   - Un agregado local (`GXColor white = {...}`) en una inline compartida da una sola constante en .sdata2.
 - Pendientes: asm paired-single de fn_8009BF3C (necesita aprobacion); registros del resto.
 
-## atn/NandManager (commit f5d20ee + ultimo commit de la cola)
+## atn/NandManager (commit f5d20ee + dfc3b8d)
 - Resultado: 32/34 al 100%, `matching: false`.
 - Nombre real del fichero: `atn_nand.cpp` (cadena del pool). Clase `atn::NandManager` (Task, 0x82E0 bytes)
   en `include/atn/NandManager.h` (nuevo). Los llamadores externos siguen usando los `fn_` extern "C"
@@ -72,7 +72,7 @@ contra main y contra la integracion, sin bajadas de fuzzy.
     al principio cambia la disposicion.
 - Pendientes: los dos NONMATCHING.
 
-## atn/Motion_unk (commit 8285e6f + ultimo commit de la cola)
+## atn/Motion_unk (commit 8285e6f + dfc3b8d)
 - Resultado: 11/30 al 100%, `matching: false`. 11 funciones sin escribir.
 - Contenido: cache de modelos de mapa (vector estatico local; csv "FOLDER"/"MODEL"/"MODEL_LOD"), miembros
   fuera de linea de `atn::LH_Motion`, pose de un nodo de una motion (`fn_800A04A0`/`fn_800A0610`,
