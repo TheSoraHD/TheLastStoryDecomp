@@ -2,6 +2,7 @@
 // ColliSphere, ColliCapsule, ColliBox, ColliObject and ColliTree). The file name is inferred from
 // the engine files atn_<name>.cpp, which are linked in alphabetical order.
 #include "atn/ColliBase.h"
+#include "atn/ColliData_unk.h"
 #include "atn/Camera_unk.h"
 #include "math/Vec.h"
 
@@ -58,9 +59,11 @@ extern "C" int fn_8005A084(atn::ColliResult_unk* r, int max, const atn::ColliCap
                            const atn::Matrix3x4* mtx, unsigned int mask, int arg);
 extern "C" int fn_8005A5AC(atn::ColliResult_unk* r, int max, const void* b, void* object, const atn::Matrix3x4* mtx,
                            unsigned int mask, int arg);
-extern "C" int fn_8005AAD4(atn::ColliResult_unk* r, int max, const atn::ColliSphereShape_unk* s, void* tree);
-extern "C" int fn_8005AD74(atn::ColliResult_unk* r, int max, const atn::ColliCapsuleShape_unk* c, void* tree);
-extern "C" int fn_8005B05C(atn::ColliResult_unk* r, int max, const void* b, void* tree);
+extern "C" int fn_8005AAD4(atn::ColliResult_unk* r, int max, const atn::ColliSphereShape_unk* s, void* tree,
+                           unsigned int mask, int arg);
+extern "C" int fn_8005AD74(atn::ColliResult_unk* r, int max, const atn::ColliCapsuleShape_unk* c, void* tree,
+                           unsigned int mask, int arg);
+extern "C" int fn_8005B05C(atn::ColliResult_unk* r, int max, const void* b, void* tree, unsigned int mask, int arg);
 
 // inferred: bounding sphere of a loaded collision object (LH_ColliObject)
 extern "C" atn::ColliSphereShape_unk* fn_80472C90(atn::LH_ColliObject* loader);
@@ -87,70 +90,6 @@ static inline void GXPosition3f32(float x, float y, float z) {
 static inline void GXColor1u32(unsigned int c) {
     GXWGFifo.u = c;
 }
-
-// inferred: plain vector of the loaded data (copied member by member)
-struct ColliVec_unk {
-    float x, y, z;
-};
-// inferred: data vector as an engine vector (name invented)
-inline atn::Vector3 __ToVec_unk(const ColliVec_unk& v) {
-    atn::Vector3 r;
-    r.x = v.x;
-    r.y = v.y;
-    r.z = v.z;
-    return r;
-}
-// inferred: triangle list of a loaded collision object node (triangles of 0x44 bytes)
-struct ColliObjTriangle_unk {
-    float mVertex[9];
-    unsigned char m24[0x44 - 0x24];
-};
-struct ColliObjTriList_unk {
-    int m00;
-    unsigned int mCount;            // 0x04
-    ColliObjTriangle_unk* mTriangles; // 0x08
-};
-struct ColliObjNode_unk {
-    unsigned char m00[0x0C];
-    ColliObjTriList_unk* mList; // 0x0C
-    unsigned char m10[0x38 - 0x10];
-    ColliObjNode_unk* m38;      // inferred: children
-    ColliObjNode_unk* m3C;
-};
-struct ColliObjData_unk {
-    unsigned char m00[0x0C];
-    ColliObjNode_unk* mRoot; // 0x0C
-};
-
-// inferred: loaded collision tree (octree)
-struct ColliTreeAttr_unk {
-    unsigned char m00[0x08];
-    unsigned int mColor; // 0x08
-};
-struct ColliTreeTriangle_unk {
-    ColliTreeAttr_unk* mAttr; // 0x00
-    int m04;
-    atn::Vector3 mVertex[3];  // 0x08
-};
-// inferred: sum (name invented)
-inline atn::Vector3 __Add_unk(atn::Vector3 a, atn::Vector3 b) {
-    atn::Vector3 r;
-    r.x = a.x + b.x;
-    r.y = a.y + b.y;
-    r.z = a.z + b.z;
-    return r;
-}
-struct ColliTreeNode_unk {
-    int mCount;                        // 0x00
-    ColliVec_unk mBox[2];              // 0x04: min, max
-    ColliTreeNode_unk* mChildren[8];   // 0x1C
-    ColliTreeTriangle_unk** mTriangles; // 0x3C
-};
-struct ColliTreeData_unk {
-    unsigned char m00[0x08];
-    ColliVec_unk mOffset;     // 0x08
-    ColliTreeNode_unk* mRoot; // 0x14
-};
 
 namespace atn {
 
@@ -490,10 +429,10 @@ int ColliObject::fn_800584B4(int a, int b, int c) {
 int ColliObject::fn_800584D8(int a, int b, int n, ColliObjNode_unk* node, int c, int d, int e) {
     if (node->mList != 0 && node->mList->mTriangles != 0) {
         for (unsigned int i = 0; i < node->mList->mCount; i++) {
-            const float* t = node->mList->mTriangles[i].mVertex;
-            Vector3 v0 = __ToVec_unk(*(const ColliVec_unk*)&t[0]);
-            Vector3 v1 = __ToVec_unk(*(const ColliVec_unk*)&t[3]);
-            Vector3 v2 = __ToVec_unk(*(const ColliVec_unk*)&t[6]);
+            const ColliVec_unk* t = (const ColliVec_unk*)node->mList->mTriangles[i].mTri.mVertex;
+            Vector3 v0 = __ToVec_unk(t[0]);
+            Vector3 v1 = __ToVec_unk(t[1]);
+            Vector3 v2 = __ToVec_unk(t[2]);
             Matrix3x4 m = mMtx;
             Vector3 trans = m.GetTrans_unk();
             m.m[0][3] = 0.0f;
@@ -526,12 +465,6 @@ void ColliObject::vf1C(const ColliGrid_unk* grid) {
 // inferred: column of the rotation part (name invented)
 inline Vector3 __GetColumn_unk(const Matrix3x4& m, int i) {
     return Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
-}
-
-// inferred: scale of the rotation part (name invented)
-inline Vector3 __GetScale_unk(const Matrix3x4& m) {
-    return Vector3(__GetColumn_unk(m, 0).Length_unk(), __GetColumn_unk(m, 1).Length_unk(),
-                   __GetColumn_unk(m, 2).Length_unk());
 }
 
 void ColliObject::fn_800588FC() {
@@ -575,7 +508,7 @@ int ColliTree::fn_80058BBC() {
 
 int ColliTree::vf0C(ColliResult_unk* results, int max, const ColliSphereShape_unk* sphere, unsigned int mask,
                     int arg) {
-    int n = fn_8005AAD4(results, max, sphere, mTree);
+    int n = fn_8005AAD4(results, max, sphere, mTree, mask, arg);
     for (int i = 0; i < n; i++) {
         results[i].m38 = this;
     }
@@ -584,7 +517,7 @@ int ColliTree::vf0C(ColliResult_unk* results, int max, const ColliSphereShape_un
 
 int ColliTree::vf10(ColliResult_unk* results, int max, const ColliCapsuleShape_unk* capsule, unsigned int mask,
                     int arg) {
-    int n = fn_8005AD74(results, max, capsule, mTree);
+    int n = fn_8005AD74(results, max, capsule, mTree, mask, arg);
     for (int i = 0; i < n; i++) {
         results[i].m38 = this;
     }
@@ -592,7 +525,7 @@ int ColliTree::vf10(ColliResult_unk* results, int max, const ColliCapsuleShape_u
 }
 
 int ColliTree::vf14(ColliResult_unk* results, int max, const void* box, unsigned int mask, int arg) {
-    int n = fn_8005B05C(results, max, box, mTree);
+    int n = fn_8005B05C(results, max, box, mTree, mask, arg);
     for (int i = 0; i < n; i++) {
         results[i].m38 = this;
     }
@@ -648,13 +581,13 @@ int ColliTree::fn_80059264(int a, int b, int n, ColliTreeNode_unk* node, int c, 
                 }
             }
             GXBegin(0xB0, 0, 4);
-            GXPosition3f32(t->mVertex[0].x, t->mVertex[0].y, t->mVertex[0].z);
+            GXPosition3f32(t->mTri.mVertex[0][0], t->mTri.mVertex[0][1], t->mTri.mVertex[0][2]);
             GXColor1u32((color << 8) | (color >> 24));
-            GXPosition3f32(t->mVertex[1].x, t->mVertex[1].y, t->mVertex[1].z);
+            GXPosition3f32(t->mTri.mVertex[1][0], t->mTri.mVertex[1][1], t->mTri.mVertex[1][2]);
             GXColor1u32((color << 8) | (color >> 24));
-            GXPosition3f32(t->mVertex[2].x, t->mVertex[2].y, t->mVertex[2].z);
+            GXPosition3f32(t->mTri.mVertex[2][0], t->mTri.mVertex[2][1], t->mTri.mVertex[2][2]);
             GXColor1u32((color << 8) | (color >> 24));
-            GXPosition3f32(t->mVertex[0].x, t->mVertex[0].y, t->mVertex[0].z);
+            GXPosition3f32(t->mTri.mVertex[0][0], t->mTri.mVertex[0][1], t->mTri.mVertex[0][2]);
             GXColor1u32((color << 8) | (color >> 24));
             n += 3;
         }
