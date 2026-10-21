@@ -1148,9 +1148,6 @@ atn::Vector3 CharaTask::vf64(int center) {
     return result;
 }
 
-// NONMATCHING: ~76% (112/461 lines) - the inlined fn_80178208/fn_8016E970 chain: the stack slots of
-// two ptmf temporaries are swapped and "m55C = 6" is stored before the mControl load (see
-// fn_8016E970); everything else matches.
 int CharaTask::fn_80138E1C(int arg) {
     int result = 0;
     if (arg == 0) {
@@ -1166,7 +1163,7 @@ int CharaTask::fn_80138E1C(int arg) {
             if (m12B0 >= m12B4) {
                 m12B0 = 0;
                 int motion = rand() % 4 + 0x71;
-                fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(this, motion, 0, 0, -1.0f, -1.0f));
+                fn_80161570(motion, 0, 0, -1.0f, -1.0f);
                 result = 1;
             }
             break;
@@ -1174,7 +1171,7 @@ int CharaTask::fn_80138E1C(int arg) {
         case 2:
             if (m12B4 > 0 && rand() % m12B4 == 0) {
                 int motion = rand() % 4 + 0x71;
-                fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(this, motion, 0, 0, -1.0f, -1.0f));
+                fn_80161570(motion, 0, 0, -1.0f, -1.0f);
                 result = 1;
             }
             break;
@@ -2533,12 +2530,19 @@ static bool IsPushingChara_unk(CharaTask* chara) {
     return false;
 }
 
+// inferred: name invented; inlined into fn_8013CB68 (the extra inline level gives the ptmf
+// temporaries of this chain the stack slots of the target)
+static void StartPushedAvoid_unk(CharaTask* chara, const atn::Vector3& dir, CharaTask* other) {
+    chara->fn_80178208(new (0, "", "", 0) chr::ControlPushedAvoid(chara, dir, other));
+}
+
 // NONMATCHING: ~86% exact-opcode (98.6% ignoring registers and stack offsets; same 3678 instructions and
 // frame size) - the saved-register allocation differs (this is r27 in the original), plus small
 // scheduling differences (turn update, sin/cos stores, inlined fn_80176548/fn_80139F60 order, the
 // "special model" helper's nested bools); tried: fused/unfused float expressions, temporaries vs
 // named vectors, top-of-function declarations in all orders, the hit result reusing `arg`, inline vs
-// static helpers, wrappers fn_8016B8D4/fn_8016D0A0 for the control changes.
+// static helpers, wrappers fn_8016B8D4/fn_8016D0A0 for the control changes (the ptmf slots of
+// the chains now match through fn_8016B8D4/fn_8016D0A0/StartPushedAvoid_unk).
 // inferred: moves the character towards the rotation `target` (speed `a` in 0..1, rate `b`), with
 // gravity, collisions and the push between characters
 void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
@@ -2792,7 +2796,7 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
                             if (other->m55C != 6 || other->m560 == 0x68) {
                                 other->m13F8 += 2;
                                 if (other->m13F8 > 6) {
-                                    other->fn_80178208(new (0, "", "", 0) chr::ControlPushedAvoid(other, dir, this));
+                                    StartPushedAvoid_unk(other, dir, this);
                                 }
                             }
                         }
@@ -3146,8 +3150,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
             updateRot = false;
         } else if (mStatus.IsState_unk(0x2000000) && (m55C == 1 || m55C == 2) && !fn_8013C404(0x1000000) && !mFlag3 &&
                    (fn_805F9920(&m574) > 1.0f || m570 > 0.5f)) {
-            fn_801750FC();
-            fn_80178208(new (0, "", "", 0) chr::ControlSlip(this, 0));
+            fn_8016D0A0(0);
             return;
         }
     } else {
@@ -3534,8 +3537,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
         m610 = 0;
         if (!fn_801720AC(&pos, &vel) && mStatus.IsState_unk(0x2000000) && (m55C == 1 || m55C == 2) &&
             !fn_8013C404(0x1000000) && !mFlag3 && (fn_805F9920(&m574) > 1.0f || m570 > 0.5f)) {
-            fn_801750FC();
-            fn_80178208(new (0, "", "", 0) chr::ControlSlip(this, 0));
+            fn_8016D0A0(0);
             return;
         }
     } else {
@@ -7364,8 +7366,6 @@ extern "C" void fn_8010CF28(Effect_unk* effect, int kind, CharaTask* chara, void
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 
-// Same instructions as the target; only the .data offsets of the ptmf constants differ (lbl_8077A720)
-// until the earlier .data users exist.
 void CharaTask::fn_80151448(HitMsg_unk* msg) {
     unsigned int flags;
     unsigned int kinds = msg->m50;
@@ -8240,8 +8240,6 @@ public:
 };
 } // namespace chr
 
-// fn_80154EC4, fn_801551AC, vf74, fn_80155790: same instructions as the target; only the .data
-// offsets of the ptmf constants differ until the earlier .data users exist.
 void CharaTask::fn_80154EC4(const atn::Vector3& pos, int link) {
     fn_80178208(new (0, "", "", 0) chr::ControlSwatTurn(this, pos, link));
 }
@@ -8254,6 +8252,13 @@ void CharaTask::fn_801551AC() {
 // has the wrong signature.
 void CharaTask::vf74(int arg) {
     fn_80178208(new (0, "", "", 0) chr::Control801C041C_unk(this, arg, 1.0f));
+}
+
+// inferred: control launcher with no caller left in the game (stripped by the linker); only the
+// three ptmf constants of its inlined fn_80178208 remain in .data (see docs/mwcc-blockers-q4.md).
+// Body and name invented; what matters is that it inlines fn_80178208 exactly once.
+void CharaTask::Stripped1_unk() {
+    fn_80178208(0);
 }
 
 // inferred: the argument is a direction (fn_8013A4E8 passes a rotated vector)
@@ -8618,6 +8623,13 @@ void CharaTask::fn_801591E8(const atn::Vector3& dir) {
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000020, 0, 0)) {
         StartWallUp_unk(this, result.m04, -result.m28);
     }
+}
+
+// inferred: control launcher with no caller left in the game (stripped by the linker); only the
+// three ptmf constants of its inlined fn_80178208 remain in .data (see docs/mwcc-blockers-q4.md).
+// Body and name invented; what matters is that it inlines fn_80178208 exactly once.
+void CharaTask::Stripped2_unk() {
+    fn_80178208(0);
 }
 
 void CharaTask::fn_801595BC(int a, int count, int motion, int releaseMotion) {
@@ -9697,9 +9709,23 @@ bool CharaTask::fn_8016AFE8(const atn::Vector3& dir) {
     return true;
 }
 
+// inferred: control launcher with no caller left in the game (stripped by the linker); only the
+// three ptmf constants of its inlined fn_80178208 remain in .data (see docs/mwcc-blockers-q4.md).
+// Body and name invented; what matters is that it inlines fn_80178208 exactly once.
+void CharaTask::Stripped3_unk() {
+    fn_80178208(0);
+}
+
 // inferred: pushed down along `dir` (also inlined in fn_8013CB68)
 void CharaTask::fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c) {
     fn_80178208(new (0, "", "", 0) chr::ControlPushedDown(this, dir, a, b, c));
+}
+
+// inferred: control launcher with no caller left in the game (stripped by the linker); only the
+// three ptmf constants of its inlined fn_80178208 remain in .data (see docs/mwcc-blockers-q4.md).
+// Body and name invented; what matters is that it inlines fn_80178208 exactly once.
+void CharaTask::Stripped4_unk() {
+    fn_80178208(0);
 }
 
 // inferred: staggers back (motion 0x52)
@@ -9709,8 +9735,22 @@ void CharaTask::fn_8016BBCC(const atn::Vector3* dir, int a, int b) {
     }
 }
 
+// inferred: control launcher with no caller left in the game (stripped by the linker); only the
+// three ptmf constants of its inlined fn_80178208 remain in .data (see docs/mwcc-blockers-q4.md).
+// Body and name invented; what matters is that it inlines fn_80178208 exactly once.
+void CharaTask::Stripped5_unk() {
+    fn_80178208(0);
+}
+
 void CharaTask::fn_8016BEDC(CharaTask* other, atn::Vector3 v) {
     fn_80178208(new (0, "", "", 0) chr::ControlThrust(this, other, v, 1));
+}
+
+// inferred: control launcher with no caller left in the game (stripped by the linker); only the
+// three ptmf constants of its inlined fn_80178208 remain in .data (see docs/mwcc-blockers-q4.md).
+// Body and name invented; what matters is that it inlines fn_80178208 exactly once.
+void CharaTask::Stripped6_unk() {
+    fn_80178208(0);
 }
 
 void CharaTask::fn_8016C1E0(CharaTask* other) {
@@ -10664,8 +10704,6 @@ int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
     return 0;
 }
 
-// Same instructions as the target; only the .data offsets of the ptmf constants and the
-// chr::ControlJump map entry differ.
 // inferred: jumps down when there is no ground ahead (chr::ControlJump)
 int CharaTask::fn_801749EC(atn::Vector3* pos, atn::Vector3* vel) {
     if (mType != 0) {
@@ -10708,8 +10746,6 @@ public:
 };
 } // namespace chr
 
-// fn_80174E04, fn_8017518C: same instructions as the target; only the .data offsets of the ptmf
-// constants and the constructor map entries differ.
 void CharaTask::fn_80174E04(GimmickCommon* cannon) {
     fn_80178208(new (0, "", "", 0) chr::ControlCannonLift(this, cannon));
 }
@@ -10738,13 +10774,24 @@ void CharaTask::fn_8017518C() {
     fn_80178208(new (0, "", "", 0) chr::ControlCannonThrow(this, mF6C, mF78));
 }
 
-// NONMATCHING: 88% - the stack slots of the ptmf temporaries of the two inlined fn_80178208 chains
-// are swapped (known issue) plus .data offsets.
+// inferred: name invented; inlined into fn_8017547C (the extra inline level gives the ptmf
+// temporaries of the second chain the stack slots of the target)
+static void StartDragged_unk(CharaTask* chara, CharaTask* dragger) {
+    chara->fn_80178208(new (0, "", "", 0) chr::ControlDraggedStart(chara, (int)dragger));
+}
+
 void CharaTask::fn_8017547C(CharaTask* other) {
     if (other != 0 && (other->mStatus.m0C & 0x20) == 0x20) {
         fn_80178208(new (0, "", "", 0) chr::ControlDraggingStart(this, (int)other));
-        other->fn_80178208(new (0, "", "", 0) chr::ControlDraggedStart(other, (int)this));
+        StartDragged_unk(other, this);
     }
+}
+
+// inferred: control launcher with no caller left in the game (stripped by the linker); only the
+// three ptmf constants of its inlined fn_80178208 remain in .data (see docs/mwcc-blockers-q4.md).
+// Body and name invented; what matters is that it inlines fn_80178208 exactly once.
+void CharaTask::Stripped7_unk() {
+    fn_80178208(0);
 }
 
 void CharaTask::fn_80175A38() {
@@ -11025,7 +11072,6 @@ CharaTask::Sphere_unk CharaTask::fn_80176548(const atn::Vector3& pos) {
 
 extern "C" void fn_803CC718(RouteTable_unk* table, CharaTask* chara, int arg);
 
-// Same instructions as the target; only the .data offsets of the ptmf constants differ.
 void CharaTask::fn_801765D8() {
     mFlags |= 4;
     mColli.mFlags &= ~1;

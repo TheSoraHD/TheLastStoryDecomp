@@ -1,0 +1,95 @@
+# Rama `mwcc-blockers` (2026-10-21): bloqueos recurrentes de MWCC
+
+Propuesta C de `SIGUIENTE_sesion.md`: 4 agentes, uno por bloqueo, cada uno en su copia del repo y
+su rama `agent-N`, con tope de ~30 intentos documentados. Condicion de commit: `main.dol: OK`,
+`regress.py` lost: 0, mas funciones al 100% y ninguna funcion baja de fuzzy. Base: `main` 6ace171.
+Notas por agente: `docs/mwcc-blockers-q{1..4}.md`.
+
+## Resultado
+
+Build limpio (`rm -rf build/SLSP01`) de la rama: `main.dol: OK`, `regress.py` **lost: 0**, 0 bajadas
+de fuzzy (127 subidas), **5375 -> 5486 funciones al 100%** (codigo 16,7% -> 18,0%), 335 -> 338
+ficheros enlazados. Sin asm ni pragmas nuevos.
+
+| bloqueo | agente | resultado | funciones al 100% |
+|---|---|---|---|
+| 1. `std::vector::push_back` inline | q1 | sin cambio commiteable (22 variantes de cabecera) | +0 |
+| 2. `atn::CsvU` ctor inline, `this` en registro salvado | q2 | **resuelto**: `~CsvBase() {}` en `Csv.h` | +4 (y 7 unidades suben de fuzzy) |
+| 3. `__VecCopy` r3/r4 cruzados y copias z-primero | q3 | sin cambio commiteable (16 intentos, patron documentado) | +0 |
+| 4. 18 ptmf huerfanos de `.data` de `CharaTask` | q4 | **resuelto**: 7 lanzadores eliminados por el enlazador + envoltorios inline | +107 |
+
+Por unidad (solo las que cambian de funciones al 100%):
+
+| unidad | antes | despues |
+|---|---|---|
+| `game/CharaTask` | 264/436 | 371/436 |
+| `atn/ptr_string_base_wchar_t_0` | 3/4 | 4/4, **enlazada** |
+| `db/EquipParam_unk` | 13/14 | 14/14, **enlazada** |
+| `db/TutorialTable_unk` | 5/6 | 6/6, **enlazada** |
+| `game/GameSaveBanner` | 7/9 | 8/9 |
+
+Suben de fuzzy sin llegar al 100%: `db/SkillParam_unk` (87,8 -> 91,9 en `fn_80219C30`),
+`db/MapIdTable_unk` (98,2 -> 99,8), `game/NewStaffRoll` (97,8 -> 99,3), `atn/D2A_MessageTable_unk`,
+`game/LibraryTask` (x2), `db/PaletteTable_unk`, `game/CampSaveLoad` (`fn_8011B8D4` 92,1 -> 94,6; lo
+que queda es el pool `@wstringBase0`).
+
+## Hallazgos (una linea cada uno; tambien en CLAUDE.md / CLAUDE_lite.md)
+
+- **Constantes de `.data` sin referencias (ptmf `00000000 ffffffff 00000000`)**: son restos de
+  funciones que el enlazador elimino; su `.o` original conservaba los datos pero no el codigo.
+  Reponerlas como stubs (`Stripped1_unk..7_unk`, cuerpo `fn_80178208(0);`) en la posicion que
+  indica el indice de ptmf por funcion (`ptmfmap.py`) recoloca todo `.data` (+105 en CharaTask).
+- **Dos cadenas inline iguales en una funcion** (dos `fn_80178208`): el original lanza la segunda
+  a traves de un envoltorio inline mas (metodo existente o `static StartX_unk`); el nivel extra da a
+  los temporales ptmf los slots de pila del original. Con envoltorio en las dos, se intercambian.
+- **`this` de un objeto local en registro salvado durante su ctor inline** (CsvU/CsvTabU): un
+  destructor vacio `~CsvBase() {}` en la base lo reproduce (la clase no tiene dtor en el DOL; la
+  copia debil `__dt__` que se emite la descarta el enlazador). Solo cambia las derivadas cuyo ctor
+  base recibe dos ternarios; los lectores `char` no cambian. La receta de `basic_string` (cast de
+  `this` a palabras) no sirve aqui.
+- **`push_back`**: `n = mSize; if (n < mCap) { mSize = n + 1; mData[mSize - 1] = x; }` reproduce el
+  camino rapido de la copia debil (size antes que cap, cap en el registro bajo); un store a traves de
+  `void**` hace que MWCC recargue el elemento tras el store del tamano (un store a `unsigned` no);
+  una variable local mas saca `push_back` del autoinline (compensar sacando sentencias a un helper).
+  El bloque muerto de `__recommend(1)` solo sobrevive en funciones grandes. Residuo abierto: en
+  bucles el original da size r4 / cap r3 y nosotros al reves (11 funciones a 0,02 puntos).
+- **`__VecCopy`**: el original tiene UN solo `operator=(const Vector3&)` (CharaLook_unk llama la
+  copia debil para lvalues no-const). El orden z-primero/x-primero NO es un helper distinto: el
+  scheduler reordena las 4 instrucciones del asm segun el contexto (DOL: ZLST 1423, LZTS 1144, LZST
+  357); LZST en ctor y operator= es con diferencia la mejor partida. El cruce r3/r4 aparece cuando el
+  src es un temporal (rvalue de un inline): el original materializa el dst antes; con src con nombre
+  materializa el src antes (ahi ya coincidimos). Ninguna de las ~25 firmas de helper lo reproduce.
+
+## Lo probado que no funciona (resumen; detalle en cada `-qN.md`)
+
+- q1: comparaciones negadas/invertidas, accesores o referencias para size/cap, `cap`/`n` pasados
+  al camino lento, `max` por valor/no inline/if-else/puntero, indexar por `n`, formas con `end()`.
+  La mejor variante (`vector_a7.h`, diff completo en q1) da +1 al 100% y 13 subidas con 11 bajadas
+  de 0,02-0,04: **decision pendiente del usuario** (aceptarla relajando la condicion o no).
+- q2: cast de `this` a palabras, `memset` sobre `this`, alias `CsvBase& self = *this`, helpers
+  inline/static para los ternarios, ctores fuera de clase, plantillas miembro, clase intermedia,
+  pasar `this` como parametro, ctor base con separadores como parametro.
+- q3: orden de parametros del helper (src primero: +9 pero 2 perdidas y 4 bajadas), dos sobrecargas
+  de operator=, helpers con `Vector3*`/`void*`/referencias, casts, locales `register`, `volatile`,
+  cualquier orden de instrucciones distinto de LZST, `__vec2x32float__` (genera `psq_lx`), quitar
+  `Assign_unk` donde esta.
+- q4: orden de definicion de la cadena; envoltorio en los dos lanzamientos consecutivos; duplicar
+  `fn_801750FC`. `CharaStatus` no inlinea la cadena (sus NONMATCHING son otra cosa).
+
+## Decisiones tomadas sin el usuario
+
+- Stubs `CharaTask::Stripped1_unk..7_unk` (nombres y cuerpo inventados; no estan en el DOL) y
+  helpers `static StartPushedAvoid_unk`/`StartDragged_unk` en `CharaTask.cpp`.
+- `~CsvBase() {}` en `include/atn/Csv.h` (cabecera compartida; `regress.py` lost: 0).
+- Tres unidades pasadas a `matching: true` al quedar al 100% (enlazan con `main.dol: OK`).
+- Ningun cambio en `std/vector.h` ni en `math/Vec.h`.
+
+## Adenda (2026-10-21, tras el cierre): `vector_a7.h` aplicada por decision del usuario
+
+El usuario acepto la variante de `std/vector.h` de q1 (camino rapido `n = mSize; if (n < mCap) {
+mSize = n + 1; ...}`, store de punteros a traves de `void**`, helper `__vec_set_buf_unk`), relajando
+la condicion 8 para sus bajadas de centesimas. Las especializaciones locales de `__vec_imp_unk`
+(`U16Table_unk.cpp`, `ShopColor.h`, `LibraryTask.h`) se adaptaron a la firma nueva. Build completo:
+`main.dol: OK`, lost: 0, **5486 -> 5487** (`Em002_01BlackSkelton::fn_80248A4C` al 100%), 139 subidas
+y 10 bajadas de 0,01-0,04 puntos (NewCampPartsHint x3, ChaserNpc ctor, D2AMpMenuFriend x2,
+ArrowSet, Np131LivingArmor, D2AMpMenuFriendRoom, ShopColor), todas por el reparto size/cap en bucles.

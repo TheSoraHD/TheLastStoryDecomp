@@ -751,6 +751,13 @@ public:
     void fn_801588A0(HitInfo_unk* hit, const atn::Vector3& pos);
     bool fn_80158BB4();
     float GetControlF20_unk();
+    void Stripped1_unk(); // inferred: stripped by the linker (only .data ptmf constants remain)
+    void Stripped2_unk();
+    void Stripped3_unk();
+    void Stripped4_unk();
+    void Stripped5_unk();
+    void Stripped6_unk();
+    void Stripped7_unk();
     int fn_80158CA4();
     atn::Vector3 fn_80158E1C(); // inferred: direction given by the running control
     void fn_80158EF0(int a);

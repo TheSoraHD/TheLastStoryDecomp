@@ -230,8 +230,6 @@ extern "C" void fn_8020DF88() {
 }
 
 // inferred: loads the names and texts (UTF-16) of the equipment
-// NONMATCHING: 96.22% - the original keeps the address of the atn::CsvU in a saved register while
-// its inlined constructor runs (same in db/PaletteTable_unk.cpp); here it is recomputed
 extern "C" void fn_8020EB0C() {
     if (sEntries == 0) {
         return;

@@ -305,9 +305,9 @@ void LibraryTask::fn_80469C64() {
     }
 }
 
-// NONMATCHING: 97.30% - the original keeps the CsvU address in a saved register while it is
-// constructed (as in CampSaveLoad::fn_8011B8D4), and push_back loads the size before the
-// capacity (see std/vector.h)
+// NONMATCHING: 98.9% - push_back loads the size before the capacity (see std/vector.h) and the
+// registers of the book pointer and the string pool shift; the CsvU address is now in a saved
+// register as in the original (empty ~CsvBase())
 void LibraryTask::fn_80469D60(const void* data, unsigned int size, int unlock) {
     mBooks.__shrink_unk(0);
     atn::CsvU csv((const wchar_t*)data, size / 2);
@@ -616,9 +616,9 @@ void BookTask::fn_8046AE7C() {
     m60[1]->fn_801F4DDC("textObj", lbl_8087E040);
 }
 
-// NONMATCHING: 96.14% - CsvU address kept in a saved register (see fn_80469D60), offset of
-// ".texture" in the pool (the original emits the basic_string strings in another order) and
-// order of the stores of the short string copy
+// NONMATCHING: 99.1% - offset of ".texture" in the pool (the original emits the basic_string
+// strings in another order) and the register of the page counter; the CsvU address is now in a
+// saved register as in the original (empty ~CsvBase())
 void BookTask::fn_8046B798(const void* data, unsigned int size) {
     mPages.Free_unk();
     atn::CsvU csv((const wchar_t*)data, size / 2);

@@ -136,9 +136,9 @@ extern "C" int fn_801F362C(D2A_MessageTable_unk* table) {
     return 0;
 }
 
-// NONMATCHING: 93.49% - register allocation (the original keeps the address of the CsvU in r16
-// while it is built and the vector size/capacity in memory in push_back); the order of the
-// basic_string messages in the pool also differs
+// NONMATCHING: 94.57% - register allocation (the vector size/capacity in memory in push_back, the
+// other saved registers shifted); the order of the basic_string messages in the pool also differs.
+// The CsvU address is in a saved register as in the original (empty ~CsvBase())
 // inferred: reads the CSV text (two header lines, then "id,text"; '#', ';' and empty lines are
 // skipped) into one buffer of texts
 extern "C" void fn_801F36C8(D2A_MessageTable_unk* table, const wchar_t* text, int length) {
