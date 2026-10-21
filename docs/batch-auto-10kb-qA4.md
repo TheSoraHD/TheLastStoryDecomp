@@ -123,3 +123,44 @@ Cola: `atn/LH_Binary`, `atn/THPPlayer_unk`, `atn/Xsca_unk`, `game/SongManager`, 
     (el original hace `lwz r0,8(r3)` para el test y `lwz r3,8(r3)` para la llamada).
   - `a = (b - c) * t; r = c + a;` en dos sentencias evita el `fmadds` (con `fp_contract on`).
 - Pendientes: ninguno.
+
+## game/TeamAIManager (commit ab61461)
+- Resultado: 7/17 al 100%, `matching: false`, `main.dol: OK`.
+- NONMATCHING: `Rebuild_unk` 98.87% (registros del bucle que enlaza los equipos y orden de las variables de
+  induccion), los manejadores de mensajes `OnTarget_unk`/`OnTarget2_unk` 91.24%, `OnMsg20_unk` 98.85%,
+  `OnParent_unk` 96.89%, `OnMembers_unk` 99.04%, `OnMsg21_unk`/`OnMsg24_unk` 98.75%, `OnChara_unk` 99.25% (todos por
+  la asignacion de registros del `Find_unk` inline: en el original el indice va en el registro mas bajo y tipo/id
+  despues; no lo consegui con ~15 variantes), `vf14` 98.39% (x/z intercambiados en f29/f30 y orden de operandos
+  del `cmpw` del buffer circular).
+- **Decisiones sin el usuario**
+  - Splits: `.sbss` de la unidad empieza en 0x8087FA00 (antes 0x8087FA04): la instancia `lbl_8087FA00` estaba en un
+    hueco sin unidad y la define este .cpp (va antes de `lbl_8087FA04`, como en el DOL).
+  - `lbl_8087FA00`/`lbl_8087FA04` conservan el nombre (`extern "C"`): `AI/AiCommon_unk.cpp` y
+    `game/PlayerManager.cpp` usan `lbl_8087FA00` con sus propios tipos.
+  - `symbols.txt`: metodos con nombres inventados (`Create_unk`, `Rebuild_unk`, `IsTop_unk`, `On*_unk`,
+    `Find_unk`), `vf0C/vf10/vf14`, dtor, ctor inline `__ct__10TeamAI_unkFv` (0x805B37F8). Datos: cadenas SJIS de
+    estados `@891..@895`, tabla `sStateNames`, nombre RTTI `@1015`, `@stringBase0`, lista RTTI base `@1016`,
+    `@STRING@Resize_unk__Q23atn24Buffer_unk<10TeamAI_unk>Fii(@0)` (.sdata) y `.sdata2` `@2085..@2096`.
+  - Clase `TeamAIManager` local en el .cpp (`atn::Task`, `atn::Buffer_unk<TeamAI_unk>` de 0x37C, nodo raiz de un
+    arbol de equipos, `ResHandle` "TeamAI", modo debug, 5 `atn::LH_Binary`). Vista local `TeamAI_unk` (clase de
+    game/TeamAI_unk.cpp: nodo, 2 buffers circulares de 32, bytes de estado, miembros en 0x250) y
+    `TeamTable_unk` (tablas de lbl_8087F430->m10D8: enemigos/amigos de 0x90 en 0x148/0x150, 3 listas de objetivos
+    de 0x94 en 0x158).
+  - El constructor de TeamAIManager no es inline: se define antes de `Create_unk` (se autoinlinea y el enlazador lo
+    elimina) para que "TeamAI"/"DebugMode" vayan al principio del pool. Dos funciones eliminadas reconstruidas
+    (`TeamDefault_unk`, `TeamName_unk`) con los literales "team_default\0" y "ai_team%03d\0" (el cero extra es el
+    "" que sigue a cada uno en el pool).
+  - Una tabla `static` sin uso (`sWaitName_unk`) con el literal del segundo estado antes de `sStateNames`: en el
+    DOL ese literal va primero en .rodata.
+- Hallazgos MWCC
+  - Un literal en el inicializador de una tabla `static const` sin uso no se emite, pero fija el orden del objeto
+    del literal cuando otra tabla lo reutiliza despues.
+  - Reutilizar la variable del total como limite del primer bucle (`for (i = 0; i < (count = t->n); i++)` y luego
+    `count + i`) da la carga del original en el registro de `count` y evita recargar el limite en el 2o bucle.
+  - Para el cursor vertical de un HUD, reutilizar la variable `y` del rectangulo (y no otra local) da los registros
+    del original para las columnas.
+  - Una comparacion `int` de un `unsigned char` en if/else (`int type = t->mType; if (type == 1)`) da `cmpwi`; el
+    `switch` sobre el byte se compila igual que la cadena pero `t->mType == 1` da `cmplwi`.
+  - `int n = mSize; if (++sel >= n)` da el orden de registros del original (`sel` en r0, `n` en r4).
+- Pendientes para otras colas: game/TeamAI_unk.cpp (0x805AE26C-0x805B3420) usa la misma clase `TeamAI_unk`; si
+  se descompila, la vista local de este .cpp deberia pasar a un header compartido.
