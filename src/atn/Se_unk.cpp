@@ -1,6 +1,7 @@
 // inferred: sound effect helpers (play a SE by name, load/release sound groups) on top of the sound
 // engine lbl_8087EE90 and atn::SoundManager lbl_8087EFE8. File name invented.
 #include "atn/SoundRef.h"
+#include "atn/SoundCore.h"
 extern "C" unsigned long strlen(const char* s);
 
 // inferred: sound engine of the game (lbl_8087EE90; see atn/Sound3dListener.cpp); only the members used here
@@ -45,12 +46,6 @@ extern "C" SoundObjectSe_unk* fn_800D0AB0(SoundManagerSe_unk* mgr, unsigned int 
 extern "C" int fn_800CFDA0(SoundManagerSe_unk* mgr, int arg);
 extern "C" int fn_800D0C1C(SoundManagerSe_unk* mgr, SoundObjectSe_unk* obj);
 extern "C" void fn_800D19FC(SoundManagerSe_unk* mgr, SoundObjectSe_unk* obj, float arg);
-extern "C" void fn_800CA7D4(SoundObjectSe_unk* obj, int arg);
-extern "C" void fn_800C9010(SoundObjectSe_unk* obj, unsigned int id);
-extern "C" void fn_800CA0AC(SoundObjectSe_unk* obj, float volume, int arg);
-extern "C" void fn_800CA2FC(SoundObjectSe_unk* obj, float x, float y, float z);
-extern "C" void fn_800C8BA4(SoundObjectSe_unk* obj, const char* name, const void* pos);
-extern "C" void fn_800C8780(SoundObjectSe_unk* obj, const char* name);
 extern "C" void fn_80709AD0(void* sound, int frames); // inferred: nw4r::snd::detail::BasicSound::Stop
 
 extern "C" atn::SoundRef fn_800C32E0(unsigned int id, int arg2, int arg3, float volume);
@@ -138,13 +133,13 @@ extern "C" atn::SoundRef fn_800C32E0(unsigned int id, int arg2, int arg3, float 
         return ref;
     }
     obj->mA8 = fn_800CFDA0(lbl_8087EFE8, arg3 < 0 ? 1 : arg3);
-    fn_800CA7D4(obj, arg2);
-    fn_800C9010(obj, id);
-    fn_800CA0AC(obj, volume, 0);
+    ((atn::SoundCore*)obj)->fn_800CA7D4(arg2);
+    ((atn::SoundCore*)obj)->fn_800C9010(id);
+    ((atn::SoundCore*)obj)->fn_800CA0AC(volume, 0);
     if (lbl_8087EFE8->m34B4 != 0) {
-        fn_800CA2FC(obj, 1.0f, 1.0f, 1.0f);
+        ((atn::SoundCore*)obj)->fn_800CA2FC(1.0f, 1.0f, 1.0f);
     } else {
-        fn_800CA2FC(obj, 0.0f, 0.0f, 0.0f);
+        ((atn::SoundCore*)obj)->fn_800CA2FC(0.0f, 0.0f, 0.0f);
     }
     float f = fn_80049E44(lbl_8087EE90, obj);
     if (fn_800D0C1C(lbl_8087EFE8, obj) == 0) {
@@ -170,16 +165,16 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
         return ref;
     }
     obj->mA8 = fn_800CFDA0(lbl_8087EFE8, arg3 < 0 ? 1 : arg3);
-    fn_800CA7D4(obj, arg2);
+    ((atn::SoundCore*)obj)->fn_800CA7D4(arg2);
     if (lbl_8087EFE8->m34A0 != 0) {
-        fn_800C8BA4(obj, name, pos);
+        ((atn::SoundCore*)obj)->fn_800C8BA4(name, (const atn::Vector3*)pos);
     } else {
-        fn_800C8780(obj, name);
+        ((atn::SoundCore*)obj)->fn_800C8780(name);
     }
-    fn_800CA0AC(obj, volume, 0);
-    fn_800CA2FC(obj, 1.0f, 1.0f, 1.0f);
+    ((atn::SoundCore*)obj)->fn_800CA0AC(volume, 0);
+    ((atn::SoundCore*)obj)->fn_800CA2FC(1.0f, 1.0f, 1.0f);
     if (fn_80049C3C(lbl_8087EE90, name) != 0) {
-        fn_800CA2FC(obj, 0.0f, 0.0f, 0.0f);
+        ((atn::SoundCore*)obj)->fn_800CA2FC(0.0f, 0.0f, 0.0f);
     }
     float f = fn_80049E44(lbl_8087EE90, obj);
     if (fn_800D0C1C(lbl_8087EFE8, obj) == 0) {

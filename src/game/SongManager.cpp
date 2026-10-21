@@ -1,4 +1,5 @@
 #include "atn/Task.h"
+#include "atn/SoundCore.h"
 #include "atn/Bgm.h"
 #include "atn/Memory.h"
 #include "game/GameBgm.h"
@@ -9,12 +10,9 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 // inferred: atn::SoundRef helpers (names keep the address, as in game/GameBgm.cpp)
-extern "C" int fn_800CAA88(atn::SoundObject* sound); // inferred: position
 extern "C" int fn_800CB58C(atn::SoundRef* sound);    // inferred: playing
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 extern "C" atn::Vector3* fn_800CB6C4(atn::SoundRef* sound); // inferred: position of the sound
-extern "C" void fn_800CA798(atn::SoundObject* sound, int arg, float value);
-extern "C" void fn_800CAC48(atn::SoundObject* sound, int channel, float volume, int frames); // inferred: channel volume
 
 struct SongEnv_unk;
 extern "C" void fn_803605EC(SongEnv_unk* env, int fade, float volume);
@@ -289,8 +287,8 @@ void SongManager::vf10() {
         mBgm->fn_8004B158(1.75f, 60);
         UpdateEnvSe_unk();
         if (__IsValid_unk(mBgm->mSound)) {
-            fn_800CAC48(mBgm->mSound.mPtr, 0, 0.0f, 0);
-            fn_800CAC48(mBgm->mSound.mPtr, 1, 0.0f, 0);
+            ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CAC48(0, 0.0f, 0);
+            ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CAC48(1, 0.0f, 0);
         }
         return;
     }
@@ -300,7 +298,7 @@ void SongManager::vf10() {
     mMinVolume.Update_unk();
     if (mBgm->mSound.mPtr != 0) {
         fn_800CB6E4(&mBgm->mSound, &mPos.mCur);
-        fn_800CA798(mBgm->mSound.mPtr, 1, mDistance.mCur);
+        ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CA798(1, mDistance.mCur);
         SongChara_unk* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->m48 : 0;
         if (leader == 0) {
             return;
@@ -342,18 +340,18 @@ void SongManager::vf10() {
             float right = 1.0f - pan;
             pan *= volume;
             right *= volume;
-            fn_800CAC48(bgm->mSound.mPtr, 0, pan, 60);
-            fn_800CAC48(mBgm->mSound.mPtr, 1, right, 60);
+            ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CAC48(0, pan, 60);
+            ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CAC48(1, right, 60);
         } else {
             if (sSongs[m4C].mLeft != 0) {
-                fn_800CAC48(bgm->mSound.mPtr, 0, volume, 60);
+                ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CAC48(0, volume, 60);
             } else {
-                fn_800CAC48(bgm->mSound.mPtr, 0, 0.0f, 60);
+                ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CAC48(0, 0.0f, 60);
             }
             if (sSongs[m4C].mRight != 0) {
-                fn_800CAC48(mBgm->mSound.mPtr, 1, volume, 60);
+                ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CAC48(1, volume, 60);
             } else {
-                fn_800CAC48(mBgm->mSound.mPtr, 1, 0.0f, 60);
+                ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CAC48(1, 0.0f, 60);
             }
         }
     } else {
@@ -394,7 +392,7 @@ void SongManager::fn_805A32C8(int song) {
     if (m48 == 1 && old != song) {
         int pos = 0;
         if (mBgm != 0 && mBgm->mSound.mPtr != 0 && fn_800CB58C(&mBgm->mSound) != 0) {
-            pos = fn_800CAA88(mBgm->mSound.mPtr) + 0x85;
+            pos = ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CAA88() + 0x85;
             mBgm->fn_8004B1EC(GetFade_unk());
         }
         GameBgm::sInstance->fn_8037D4C0(m4C * -100 - 1000, GetFade_unk(), 1, 0, 1.0f);
