@@ -84,6 +84,8 @@ public:
             mLeftmost = end();
         }
     }
+    // NONMATCHING: 9.31% (0x8004A664/0x8004A8FC/0x8004ABDC) - el original inlinea dos niveles de la
+    // recursion y aqui salen tres (mismo problema que game/TownTask y atn/ptr_string_base_char_0)
     void Destroy(Node* node);
     static Node* __allocate() {
         Node* p = (Node*)::operator new(sizeof(Node));
@@ -626,6 +628,7 @@ extern "C" void fn_80046220(int result, unsigned long arg) {
 extern "C" void fn_80046224(int result, unsigned long arg) {
 }
 
+// NONMATCHING: 91.96% - registros del bucle de callbacks (el original guarda un GPR mas; igual que LoadHandle)
 // inferred: wait callback of the sound archive: runs the per-frame callbacks and sleeps 1 ms
 extern "C" void fn_80046228() {
     FrameCallbacks_unk* callbacks = lbl_8087EE94;
@@ -671,6 +674,8 @@ AudioDevice::AudioDevice()
     sprintf(lbl_8087EE8C, "stream");
 }
 
+// NONMATCHING: 29.45% - el MWCC de aqui inlinea un nivel mas la recursion de Destroy de los mapas y saca de
+// linea los destructores de los miembros (el original lo inlinea todo)
 AudioDevice::~AudioDevice() {
     fn_80047628(this);
     delete[] lbl_8087EE88;
@@ -771,6 +776,7 @@ extern "C" void fn_8059EDE4(nw4r::snd::SoundArchivePlayer* player); // inferred:
 extern "C" void fn_8059DA40(nw4r::snd::DvdSoundArchive* archive);   // inferred: Close
 extern "C" void ShutdownSoundSystem__Q34nw4r3snd11SoundSystemFv();
 
+// NONMATCHING: 24.03% - misma recursion de Destroy de los mapas (un nivel mas de inline)
 // inferred: shuts the device down
 extern "C" void fn_80047628(AudioDevice* audio) {
     audio->UnloadBanks_unk();
@@ -796,6 +802,10 @@ extern "C" void fn_80047628(AudioDevice* audio) {
 
 // inferred: sets the size of the bank heap
 extern "C" void fn_80047B54(AudioDevice* audio, unsigned long size) {
+    ((void)0); // inferred: release asserts (the original calls this function out of line)
+    ((void)0);
+    ((void)0);
+    ((void)0);
     if (audio->m04 == 0) {
         return;
     }
@@ -1010,6 +1020,7 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
 
 extern "C" void fn_8059E38C(nw4r::snd::DvdSoundArchive* archive, unsigned long id, unsigned int* info); // inferred: ReadGroupInfo
 
+// NONMATCHING: 99.98% - orden de operandos de un add (m2FC + info[5])
 // inferred: loads the banks `names` into the queue heap
 extern "C" int fn_8004829C(AudioDevice* audio, const char** names, unsigned int n) {
     if (audio->m2F8 == 0) {
@@ -1090,6 +1101,7 @@ extern "C" int fn_800489F4(AudioDevice* audio, const char* name) {
     return 1;
 }
 
+// NONMATCHING: 92.06% - registros (name/this) y el bool de IsExtraLoading_unk materializado en el original
 // inferred: a bank (or any bank when name is 0) is still loading
 extern "C" int fn_80048F8C(AudioDevice* audio, const char* name) {
     if (audio->m04 == 0) {
@@ -1135,6 +1147,7 @@ extern "C" int fn_80049268(AudioDevice* audio, const char* name) {
     return 0;
 }
 
+// NONMATCHING: 99.40% - forma de salto de la comprobacion del heap (bne + b en el original)
 // inferred: releases a bank; the heap is rolled back to the highest state still in use
 extern "C" void fn_8004937C(AudioDevice* audio, const char* name) {
     if (audio->m04 == 0) {
@@ -1283,7 +1296,7 @@ extern "C" int fn_80049C3C(AudioDevice* audio, const char* name) {
     return audio->GetBank_unk(name);
 }
 
-// NONMATCHING: registros de la clave (id - 1) en la busqueda del mapa
+// NONMATCHING: 95.08% - registros de la clave (id - 1) en la busqueda del mapa
 // inferred: label of a sound id
 extern "C" unsigned long fn_80049CDC(AudioDevice* audio, unsigned int id) {
     return audio->GetLabel_unk(id);
@@ -1320,6 +1333,7 @@ extern "C" unsigned long fn_8070E830(void* fx);                        // inferr
 #define AUDIO_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
 #define AUDIO_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
 
+// NONMATCHING: 99.75% - registros del clamp del numero de reflexiones
 // inferred: adds a reverb preset
 extern "C" void fn_80049E54(AudioDevice* audio, const ReverbPreset_unk* preset) {
     AudioFxPreset_unk param;
@@ -1345,6 +1359,7 @@ extern "C" void fn_80049E54(AudioDevice* audio, const ReverbPreset_unk* preset) 
     }
 }
 
+// NONMATCHING: 16.21% - misma recursion de Destroy de los mapas
 // inferred: removes the reverb presets
 extern "C" void fn_8004A03C(AudioDevice* audio) {
     fn_8004A1D4(audio, 0);
@@ -1358,6 +1373,7 @@ extern "C" void ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi(vo
 extern "C" int AppendEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusPQ34nw4r3snd6FxBase(void* mgr, int bus,
                                                                                                void* fx);
 
+// NONMATCHING: 98.79% - registros nodo/resultado en la busqueda del mapa
 // inferred: selects the reverb preset (0: none)
 extern "C" void fn_8004A1D4(AudioDevice* audio, int preset) {
     if (audio->m408 == 0) {

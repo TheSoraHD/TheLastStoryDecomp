@@ -93,8 +93,8 @@ extern "C" int fn_8004CD5C(ColliManager_unk* mgr, ColliResult_unk* results, int 
 extern "C" int fn_8004CF3C(ColliManager_unk* mgr, ColliResult_unk* results, int max,
                            const ColliSegment_unk* segment, unsigned int mask, ColliBase* ignore, int attr,
                            const ColliCell_unk* cell);
-extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const ColliSphereShape_unk* sphere,
-                           const Vector3* move, unsigned int mask, ColliBase* ignore, int attr, float radius);
+extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const Vector3* pos, const Vector3* move,
+                           unsigned int mask, ColliBase* ignore, int attr, float radius);
 extern "C" int fn_8004ED34(ColliManager_unk* mgr, ColliResult_unk* result, const Vector3* from, const Vector3* to,
                            unsigned int mask, ColliBase* ignore, int attr);
 
@@ -311,32 +311,6 @@ void ColliBase::vf18(int a, int b, int c, int d) {
 
 } // namespace atn
 
-// inferred: moving sphere query returning only the hit position
-extern "C" int fn_8004D314(ColliManager_unk* mgr, Vector3* hit, const ColliSphereShape_unk* sphere, const Vector3* move,
-                           unsigned int mask, ColliBase* ignore, int attr, float radius) {
-    ColliResult_unk result;
-    if (fn_8004D388(mgr, &result, sphere, move, mask, ignore, attr, radius) != 0) {
-        if (hit != 0) {
-            *hit = result.m10;
-        }
-        return 1;
-    }
-    return 0;
-}
-
-// inferred: segment query returning only the hit position
-extern "C" int fn_8004ECC0(ColliManager_unk* mgr, Vector3* hit, const Vector3* from, const Vector3* to,
-                           unsigned int mask, ColliBase* ignore, int attr) {
-    ColliResult_unk result;
-    if (fn_8004ED34(mgr, &result, from, to, mask, ignore, attr) != 0) {
-        if (hit != 0) {
-            *hit = result.m10;
-        }
-        return 1;
-    }
-    return 0;
-}
-
 // inferred: segment query in the grid cells covered by the segment (inlined; same form as
 // fn_8004CCA0; name invented)
 inline int QuerySegment_unk(ColliManager_unk* mgr, ColliResult_unk* results, int max, const ColliSegment_unk& s,
@@ -373,6 +347,471 @@ inline bool IsSide_unk(const ColliResult_unk* r) {
 // inferred: flags of the attribute of a hit
 inline unsigned int AttrFlags_unk(const ColliResult_unk* r) {
     return ((const ColliAttr_unk*)r->m34)->mFlags;
+}
+
+// inferred: moving sphere query returning only the hit position
+extern "C" int fn_8004D314(ColliManager_unk* mgr, Vector3* hit, const Vector3* pos, const Vector3* move,
+                           unsigned int mask, ColliBase* ignore, int attr, float radius) {
+    ColliResult_unk result;
+    if (fn_8004D388(mgr, &result, pos, move, mask, ignore, attr, radius) != 0) {
+        if (hit != 0) {
+            *hit = result.m10;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: line in the xz plane (point and direction; arguments of fn_80050900/fn_80050C38)
+struct ColliLine_unk {
+    Vector3 mPoint;
+    Vector3 mDir;
+};
+// inferred: closest points of two lines
+struct ColliLinePoints_unk {
+    Vector3 mA;
+    Vector3 mB;
+};
+extern "C" float fn_80050900(const Vector3* p, const ColliLine_unk* line, float* t, Vector3* out); // inferred
+extern "C" void fn_80050C38(const ColliLine_unk* a, const ColliLine_unk* b, ColliLinePoints_unk* out); // inferred
+extern "C" double acos(double x);
+extern "C" double cos(double x);
+extern "C" double sqrt(double x);
+
+#define COLLI_MAX_UNK(a, b) ((a) < (b) ? (b) : (a))
+#define COLLI_MIN_UNK(a, b) ((a) > (b) ? (b) : (a))
+
+// NONMATCHING: 85.80% - borrador: deslizamiento de una esfera por pasos (esquinas entre dos paredes, empuje
+// de suelo); orden de bloques, registros y pila sin ajustar
+// inferred: moving sphere query: moves the sphere by `move` in steps, sliding along the hit
+// triangles; returns nonzero when something was hit
+extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const Vector3* pos, const Vector3* move,
+                           unsigned int mask, ColliBase* ignore, int attr, float radius) {
+    if (radius <= 0.0f) {
+        return 0;
+    }
+    Vector3 mv = *move;
+    ColliResult_unk* results = mgr->mResults;
+    ColliSphereShape_unk sphere(*pos, radius);
+    int hit = 0;
+    void* hitAttr = 0;
+    Vector3 up(0.0f, 1.0f, 0.0f);
+    float moveSq = fn_805F9920(&mv);
+    unsigned int flags = 0;
+    Vector3 dir = moveSq > 0.0001f ? mv.GetNormalized_unk() : up;
+    ColliBase* hitObj = 0;
+    ColliResult_unk local[8];
+    Vector3 special(0.0f, 0.0f, 0.0f);
+    if (moveSq > 0.25f * (radius * radius)) {
+        ColliResult_unk ray;
+        Vector3 to = sphere.mCenter + mv;
+        if (fn_8004ED34(mgr, &ray, pos, &to, mask | 0x800000, ignore, attr) != 0) {
+            mv = ray.m04 - *pos;
+            float len = mv.Length_unk();
+            if (len > 0.01f) {
+                Vector3 n = mv.GetNormalized_unk();
+                Vector3 back(n.x * COLLI_MIN_UNK(0.5f * radius, 0.95f * len), n.y * COLLI_MIN_UNK(0.5f * radius, 0.95f * len),
+                             n.z * COLLI_MIN_UNK(0.5f * radius, 0.95f * len));
+                mv -= back;
+            }
+            if (Dot_unk(ray.m28, up) > 0.70710677f) {
+                if (ray.m34 != 0) {
+                    hitAttr = ray.m34;
+                }
+                if (IsSide_unk(&ray)) {
+                    flags |= 1;
+                }
+            } else if (Dot_unk(ray.m28, up) < -0.70710677f) {
+                if (IsSide_unk(&ray)) {
+                    flags |= 0x100;
+                }
+            } else if (IsSide_unk(&ray)) {
+                flags |= 0x20;
+            }
+            if (ray.m38 != 0 && (ray.m38->mFlags & 2) == 2) {
+                flags |= 2;
+                hitObj = ray.m38;
+            }
+            unsigned int fl = 0;
+            if (ray.m34 != 0) {
+                if ((AttrFlags_unk(&ray) & 0x100) == 0x100) {
+                    fl |= 4;
+                    if (mgr->m9034 != 0) {
+                        fl |= 1;
+                    }
+                    if (Dot_unk(ray.m28, dir) < -0.8660254f) {
+                        fl |= 8;
+                    }
+                }
+                if ((AttrFlags_unk(&ray) & 0x200) == 0x200) {
+                    fl |= 0x10;
+                }
+                if ((AttrFlags_unk(&ray) & 0x1000) == 0x1000) {
+                    fl |= 0x40;
+                    special = ray.m04;
+                }
+                if ((AttrFlags_unk(&ray) & 0x2000) == 0x2000) {
+                    fl |= 0x80;
+                    special = ray.m04;
+                }
+                if ((AttrFlags_unk(&ray) & 0x4000) == 0x4000) {
+                    fl |= 0x200;
+                    special = ray.m04;
+                }
+                if ((AttrFlags_unk(&ray) & 0x8000) == 0x8000) {
+                    fl |= 0x400;
+                }
+                if ((AttrFlags_unk(&ray) & 0x40000) == 0x40000) {
+                    fl |= 0x800;
+                }
+            }
+            flags |= fl;
+        }
+    }
+    int maxHits = 4;
+    if ((mask & 0x20) == 0x20) {
+        maxHits = 8;
+    }
+    int steps;
+    if ((mask & 0x01000000) != 0x01000000) {
+        steps = COLLI_MIN_UNK(COLLI_MAX_UNK((int)(mv.Length_unk() / (0.2f * radius)), 1), 8);
+    } else {
+        steps = 1;
+    }
+    Vector3 stepMove = mv * (1.0f / (float)steps);
+    double floorLimit = -0.8660254f;
+    for (int s = 0; s < steps; s++) {
+        mv = stepMove;
+        int n = 0;
+        while (n < maxHits) {
+            Vector3 prev = sphere.mCenter;
+            sphere.mCenter += mv;
+            ColliCell_unk cell;
+            const ColliGrid_unk* grid = (const ColliGrid_unk*)&mgr->mBounds;
+            float size = grid->mCellSize;
+            float inv = 1.0f / size;
+            Vector3 c = sphere.mCenter - grid->mOrigin;
+            c *= inv;
+            cell.x = (int)c.x;
+            cell.z = (int)c.z;
+            cell.size = (int)(sphere.mRadius / size) + 1;
+            int k = fn_8004CD5C(mgr, results, 0x100, &sphere, mask, ignore, attr, &cell);
+            if (k == 0) {
+                break;
+            }
+            float best = 1e16f;
+            int bi = -1;
+            unsigned int prio = 4;
+            ColliResult_unk* r = results;
+            for (int i = 0; i < k; i++, r++) {
+                if ((AttrFlags_unk(r) & 0x400) == 0x400) {
+                    flags |= 4;
+                    continue;
+                }
+                if (prio < (unsigned int)r->m00) {
+                    continue;
+                }
+                Vector3 d = prev - r->m04;
+                float dist = fn_805F9920(&d);
+                for (int j = 0; j < n; j++) {
+                    if (local[j].m40 == r->m40) {
+                        dist += 4.0f * (radius * radius);
+                    }
+                }
+                if (prio > (unsigned int)r->m00 || best > dist) {
+                    best = dist;
+                    prio = r->m00;
+                    bi = i;
+                }
+            }
+            if (bi < 0) {
+                break;
+            }
+            ColliResult_unk* h = &results[bi];
+            float cosv = 0.0f;
+            float best2 = 1e16f;
+            int b2 = -1;
+            int corner = 0;
+            r = results;
+            for (int i = 0; i < k; i++, r++) {
+                if ((AttrFlags_unk(r) & 0x400) == 0x400 || i == bi || r->m00 != 1) {
+                    continue;
+                }
+                Vector3 d = prev - r->m04;
+                float dist = fn_805F9920(&d);
+                if (best2 > dist && Dot_unk(r->m28, up) < 0.25881904f) {
+                    float cs = Dot_unk(h->m28, r->m28);
+                    if (cs > -0.9659258f && cs < 0.9659258f) {
+                        best2 = dist;
+                        b2 = i;
+                        cosv = cs;
+                    }
+                }
+            }
+            float hitUp = Dot_unk(h->m28, up);
+            local[n] = *h;
+            int found = -1;
+            for (int j = 0; j < n; j++) {
+                if (local[j].m40 == local[n].m40) {
+                    found = j;
+                    break;
+                }
+            }
+            if (found >= 0) {
+                if (results[bi].m00 == 1) {
+                    if (hitUp < 0.25881904f && n >= 2) {
+                        int w = -1;
+                        ColliResult_unk* l = local;
+                        for (int j = 0; j < n; j++, l++) {
+                            if (l->m00 == 1 && l->m40 != h->m40 && Dot_unk(l->m28, up) < 0.25881904f) {
+                                float cs = Dot_unk(h->m28, l->m28);
+                                if (cs > -0.9659258f && cs < 0.9659258f) {
+                                    cosv = cs;
+                                    w = j;
+                                    break;
+                                }
+                            }
+                        }
+                        if (w >= 0) {
+                            b2 = bi == 0;
+                            corner = 1;
+                            results[b2] = local[w];
+                        }
+                    }
+                } else if ((mask & 0x20) != 0x20) {
+                    break;
+                }
+            }
+            hit = 1;
+            int slide = 1;
+            n++;
+            if (b2 >= 0 && results[bi].m00 == 1 && hitUp < 0.25881904f) {
+                float half = (float)cos(0.5f * (float)acos(cosv));
+                Vector3 bis = results[bi].m28 + results[b2].m28;
+                if (fn_805F9920(&bis) > 0.00001f) {
+                    bis.Normalize_unk();
+                    Vector3 hdir(dir.x, 0.0f, dir.z);
+                    bool ok = true;
+                    if (corner == 0) {
+                        if (!(fn_805F9920(&hdir) > 0.00001f)) {
+                            ok = false;
+                        } else {
+                            Vector3 hd = hdir.GetNormalized_unk();
+                            Vector3 nb(-bis.x, -bis.y, -bis.z);
+                            if (!(Dot_unk(hd, nb) >= half)) {
+                                ok = false;
+                            }
+                        }
+                    }
+                    if (ok) {
+                        ColliLine_unk l1;
+                        l1.mPoint.Set_unk(results[bi].m04.x, 0.0f, results[bi].m04.z);
+                        PSVECCrossProduct(&results[bi].m28, &up, &l1.mDir);
+                        ColliLine_unk l2;
+                        l2.mPoint.Set_unk(results[b2].m04.x, 0.0f, results[b2].m04.z);
+                        PSVECCrossProduct(&results[b2].m28, &up, &l2.mDir);
+                        Vector3 q(results[bi].m10.x, 0.0f, results[bi].m10.z);
+                        if (fn_80050900(&q, &l2, 0, &q) < sphere.mRadius * sphere.mRadius) {
+                            ColliLinePoints_unk pts;
+                            fn_80050C38(&l1, &l2, &pts);
+                            Vector3 mid = (pts.mA + pts.mB) * 0.5f;
+                            Vector3 e1 = l1.mPoint - mid;
+                            Vector3 e2 = l2.mPoint - mid;
+                            Vector3 sum = e1 + e2;
+                            if (fn_805F9920(&sum) > 0.00001f && Dot_unk(sum, bis) > 0.0f) {
+                                float t = (sphere.mRadius + 0.01f) / half;
+                                Vector3 np = bis * t + mid;
+                                np.y = sphere.mCenter.y;
+                                Vector3 dd = sphere.mCenter - np;
+                                if (fn_805F9920(&dd) < sphere.mRadius * sphere.mRadius) {
+                                    slide = 0;
+                                    sphere.mCenter = np;
+                                    mv.x = mv.y = mv.z = 0.0f;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (slide != 0) {
+                if (hitUp > 0.5f && results[bi].m38 != 0 && (results[bi].m38->mFlags & 2) != 2 &&
+                    results[bi].m00 == 1) {
+                    float dist = (float)sqrt(best);
+                    float f = dist / hitUp;
+                    sphere.mCenter.y += radius * f / dist - f + 1e-7f;
+                    if (sphere.mCenter.y < results[bi].m10.y + 0.001f) {
+                        sphere.mCenter.y = results[bi].m10.y + 0.001f;
+                    }
+                    mv.x = mv.y = mv.z = 0.0f;
+                } else {
+                    ColliResult_unk* b = &results[bi];
+                    mv = sphere.mCenter - b->m10;
+                    sphere.mCenter = b->m10 + b->m1C * 0.001f;
+                    mv -= b->m1C * Dot_unk(mv, b->m1C);
+                }
+            }
+            if (hitUp > 0.70710677f) {
+                if (results[bi].m34 != 0) {
+                    hitAttr = results[bi].m34;
+                }
+                if (IsSide_unk(&results[bi])) {
+                    flags |= 1;
+                }
+            } else if (hitUp < -0.70710677f) {
+                if (IsSide_unk(&results[bi])) {
+                    flags |= 0x100;
+                }
+            } else if (IsSide_unk(&results[bi])) {
+                flags |= 0x20;
+            }
+            if (results[bi].m38 != 0 && (results[bi].m38->mFlags & 2) == 2) {
+                flags |= 2;
+                hitObj = results[bi].m38;
+            }
+            unsigned int fl = 0;
+            ColliResult_unk* hr = &results[bi];
+            if (hr->m34 != 0) {
+                if ((AttrFlags_unk(hr) & 0x100) == 0x100) {
+                    fl |= 4;
+                    if (mgr->m9034 != 0) {
+                        fl |= 1;
+                    }
+                    if (Dot_unk(hr->m28, dir) < floorLimit) {
+                        fl |= 8;
+                    }
+                }
+                if ((AttrFlags_unk(hr) & 0x200) == 0x200) {
+                    fl |= 0x10;
+                }
+                if ((AttrFlags_unk(hr) & 0x1000) == 0x1000) {
+                    fl |= 0x40;
+                    special = hr->m04;
+                }
+                if ((AttrFlags_unk(hr) & 0x2000) == 0x2000) {
+                    fl |= 0x80;
+                    special = hr->m04;
+                }
+                if ((AttrFlags_unk(hr) & 0x4000) == 0x4000) {
+                    fl |= 0x200;
+                    special = hr->m04;
+                }
+                if ((AttrFlags_unk(hr) & 0x8000) == 0x8000) {
+                    fl |= 0x400;
+                }
+                if ((AttrFlags_unk(hr) & 0x40000) == 0x40000) {
+                    fl |= 0x800;
+                }
+            }
+            flags |= fl;
+        }
+    }
+    int probed = 0;
+    Vector3 total = sphere.mCenter - *pos;
+    if (fn_805F9920(&total) > 0.25f * (radius * radius)) {
+        total.Normalize_unk();
+        ColliResult_unk ray;
+        Vector3 to = sphere.mCenter + total * radius;
+        if (fn_8004ED34(mgr, &ray, pos, &to, mask | 0x80000000, ignore, attr) != 0) {
+            sphere.mCenter = ray.m04 + ray.m1C * radius;
+            if (Dot_unk(ray.m28, up) > 0.70710677f) {
+                if (ray.m34 != 0) {
+                    hitAttr = ray.m34;
+                }
+                if (IsSide_unk(&ray)) {
+                    flags |= 1;
+                }
+            } else if (Dot_unk(ray.m28, up) < -0.70710677f) {
+                if (IsSide_unk(&ray)) {
+                    flags |= 0x100;
+                }
+            } else if (IsSide_unk(&ray)) {
+                flags |= 0x20;
+            }
+            if (ray.m38 != 0 && (ray.m38->mFlags & 2) == 2) {
+                flags |= 2;
+                hitObj = ray.m38;
+            }
+            unsigned int fl = 0;
+            if (ray.m34 != 0) {
+                if ((AttrFlags_unk(&ray) & 0x100) == 0x100) {
+                    fl |= 4;
+                    if (mgr->m9034 != 0) {
+                        fl |= 1;
+                    }
+                    if (Dot_unk(ray.m28, dir) < -0.8660254f) {
+                        fl |= 8;
+                    }
+                }
+                if ((AttrFlags_unk(&ray) & 0x200) == 0x200) {
+                    fl |= 0x10;
+                }
+                if ((AttrFlags_unk(&ray) & 0x1000) == 0x1000) {
+                    fl |= 0x40;
+                    special = ray.m04;
+                }
+                if ((AttrFlags_unk(&ray) & 0x2000) == 0x2000) {
+                    fl |= 0x80;
+                    special = ray.m04;
+                }
+                if ((AttrFlags_unk(&ray) & 0x4000) == 0x4000) {
+                    fl |= 0x200;
+                    special = ray.m04;
+                }
+                if ((AttrFlags_unk(&ray) & 0x8000) == 0x8000) {
+                    fl |= 0x400;
+                }
+                if ((AttrFlags_unk(&ray) & 0x40000) == 0x40000) {
+                    fl |= 0x800;
+                }
+            }
+            flags |= fl;
+        }
+        probed = 1;
+    }
+    if (result != 0) {
+        result->m10 = sphere.mCenter;
+        result->m04 = sphere.mCenter;
+        result->m34 = hitAttr;
+        result->m3C = flags;
+        result->m38 = hitObj;
+        result->m44 = special;
+        float lim = 10000.0f + (radius * radius + fn_805F9920(move));
+        if (!((result->m10.x - pos->x) * (result->m10.x - pos->x) < lim &&
+              (result->m10.y - pos->y) * (result->m10.y - pos->y) < lim &&
+              (result->m10.z - pos->z) * (result->m10.z - pos->z) < lim)) {
+            result->m10 = *pos;
+            result->m04 = *pos;
+            result->m34 = 0;
+            result->m3C = 0;
+            result->m38 = 0;
+            return 0;
+        }
+    }
+    if (result != 0 && hit != 0 && (probed != 0 || (flags & 2) == 2) && (mask & 0x02000000) == 0x02000000 &&
+        (mask & 0x01000000) != 0x01000000) {
+        mv = sphere.mCenter - *pos;
+        if (fn_805F9920(&mv) > 0.04f * (radius * radius)) {
+            fn_8004D388(mgr, result, pos, &mv, mask | 0x81000000, ignore, attr, radius);
+            result->m34 = hitAttr;
+            result->m3C = flags;
+            result->m38 = hitObj;
+            result->m44 = special;
+        }
+    }
+    return hit;
+}
+
+// inferred: segment query returning only the hit position
+extern "C" int fn_8004ECC0(ColliManager_unk* mgr, Vector3* hit, const Vector3* from, const Vector3* to,
+                           unsigned int mask, ColliBase* ignore, int attr) {
+    ColliResult_unk result;
+    if (fn_8004ED34(mgr, &result, from, to, mask, ignore, attr) != 0) {
+        if (hit != 0) {
+            *hit = result.m10;
+        }
+        return 1;
+    }
+    return 0;
 }
 
 // NONMATCHING: 93.20% - numeracion de GPR salvados, forma de la referencia a hit->m38 en los flags de lado
