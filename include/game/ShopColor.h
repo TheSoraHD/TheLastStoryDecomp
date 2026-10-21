@@ -18,8 +18,8 @@ namespace std {
 template <>
 struct __vec_imp_unk<ShopColorEntry_unk> : public __vec_storage_unk<ShopColorEntry_unk> {
     ~__vec_imp_unk() {}
-    void __push_fast_unk(const ShopColorEntry_unk& x) {
-        this->mSize++;
+    void __push_fast_unk(unsigned int n, const ShopColorEntry_unk& x) {
+        this->mSize = n + 1;
         this->mData[this->mSize - 1] = x;
     }
 };

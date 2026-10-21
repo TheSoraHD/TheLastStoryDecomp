@@ -83,3 +83,13 @@ que queda es el pool `@wstringBase0`).
 - `~CsvBase() {}` en `include/atn/Csv.h` (cabecera compartida; `regress.py` lost: 0).
 - Tres unidades pasadas a `matching: true` al quedar al 100% (enlazan con `main.dol: OK`).
 - Ningun cambio en `std/vector.h` ni en `math/Vec.h`.
+
+## Adenda (2026-10-21, tras el cierre): `vector_a7.h` aplicada por decision del usuario
+
+El usuario acepto la variante de `std/vector.h` de q1 (camino rapido `n = mSize; if (n < mCap) {
+mSize = n + 1; ...}`, store de punteros a traves de `void**`, helper `__vec_set_buf_unk`), relajando
+la condicion 8 para sus bajadas de centesimas. Las especializaciones locales de `__vec_imp_unk`
+(`U16Table_unk.cpp`, `ShopColor.h`, `LibraryTask.h`) se adaptaron a la firma nueva. Build completo:
+`main.dol: OK`, lost: 0, **5486 -> 5487** (`Em002_01BlackSkelton::fn_80248A4C` al 100%), 139 subidas
+y 10 bajadas de 0,01-0,04 puntos (NewCampPartsHint x3, ChaserNpc ctor, D2AMpMenuFriend x2,
+ArrowSet, Np131LivingArmor, D2AMpMenuFriendRoom, ShopColor), todas por el reparto size/cap en bucles.
