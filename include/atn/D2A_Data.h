@@ -133,9 +133,12 @@ public:
     D2A_Layout_unk();  // 0x801FDE94
     ~D2A_Layout_unk(); // 0x801FDEE4
 
-    unsigned char m00[0x30];
+    D2A_PtrArray_unk<D2A_Anim_unk<1>*> mAnims1; // 0x00: inferred: animated values registered by the elements
+    D2A_PtrArray_unk<D2A_Anim_unk<5>*> mAnims5; // 0x0C
+    unsigned char m18[0x24 - 0x18];
+    D2A_PtrArray_unk<D2A_Anim_unk<4>*> mAnims4; // 0x24
     D2A_PtrArray_unk<D2A_TextParam_unk*> mTexts; // 0x30: inferred: text parameters of the messages
-    unsigned char m3C[0x48 - 0x3C];
+    D2A_PtrArray_unk<D2A_IntAnim_unk*> mIntAnims; // 0x3C
 };
 
 // inferred: entries of the loader tables (sizes from the loader 0x801FFA04)
