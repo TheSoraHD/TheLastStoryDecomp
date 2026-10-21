@@ -35,6 +35,13 @@
   "matching": false
  },
  {
+  "name": "game/SongManager.cpp",
+  "classes": [
+   "SongManager"
+  ],
+  "matching": false
+ },
+ {
   "name": "std/runtime_error.cpp",
   "classes": [
    "boost::bad_function_call",
