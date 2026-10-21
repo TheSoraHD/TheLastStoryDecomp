@@ -336,6 +336,19 @@
   "matching": false
  },
  {
+  "name": "atn/RenderSetting_unk.cpp",
+  "classes": [
+   "RenderSetting_unk",
+   "GodRayParam_unk",
+   "RainParam_unk",
+   "HazeParam_unk",
+   "ShadowParam_unk",
+   "ColorMatrixParam_unk",
+   "GammaParams_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/SequenceControl.cpp",
   "classes": [
    "atn::SequenceControl"
