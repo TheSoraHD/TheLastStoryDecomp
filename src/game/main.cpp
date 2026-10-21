@@ -6,6 +6,7 @@
 #include "atn/Task.h"
 #include "game/HeapInfo_unk.h"
 #include "std/string.h"
+#include "std/string_members.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 

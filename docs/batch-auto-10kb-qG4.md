@@ -158,3 +158,36 @@ Cola: `game/Gun`, `game/HomingBullet`, `game/main`, `game/MapPartsLocatorSet`, `
   - Copia de un `atn::Sphere` campo a campo (xy primero) frente al ctor de copia (z primero).
 - Pendientes para otras unidades: al renombrar simbolos hay que buscar tambien llamadores
   `extern "C"` en unidades enlazadas (aqui `atn/LH_Motion.cpp` usa `fn_804714A4/B0` = `Loader_unk`).
+
+## MP/Text (commit df23e7b)
+- Resultado: 7/16 al 100%, `matching: false`, `main.dol: OK`, regress lost: 0.
+- Contenido: `MP::Text` (creador, dtor, vf0C, lectura de "message_table_xx.u16" con `atn::CsvU`) y las
+  tablas del modo online que usa atn/PacketPack (recompensas "begin"/"PVP"/"RAID"/"end" y
+  titulos/puntos "title"/"point"), todas `extern "C"` con structs inventados (`MpRewardTable_unk`,
+  `MpLevelTable_unk`...).
+- NONMATCHING: creador 99.7% (el "" de `new` es un objeto .rodata aparte de 4 bytes, 0x8075B034;
+  probado `static const char[]`, que va a .sdata2), `fn_80505FC4` 92.6% (registros: el original
+  reutiliza el registro de `size` para el total; prueba del tamano con `bne/b`), `fn_805061C8`
+  93.2% y `fn_80507310` 98.6% (offsets del pool: el original no tiene "" al principio y si uno tras
+  "RAID", que usa `fn_80506D94`), `fn_805075C4` 98.2% (registro del contador), `fn_80507654` 93.8%
+  (el original relee los datos de la tabla en las dos busquedas inline).
+- Sin escribir: `fn_8050655C` (0x6B4), `fn_80506C10` (0x184), `fn_80506D94` (0x530) (logica de
+  recompensas de la sesion, `lbl_8087F610`).
+- **Decisiones sin el usuario**:
+  - Splits sin cambios.
+  - symbols.txt: `fn_80505DD0` -> `fn_80505DD0__Q22MP4TextFPQ23atn4Task`, `fn_80505EA0` ->
+    `__dt__Q22MP4TextFv`, `fn_80505F54` -> `vf0C__Q22MP4TextFv`, `fn_80505FC4` ->
+    `fn_80505FC4__Q22MP4TextFPCwUl`, `fn_805072C4` -> `__ct__15MpTextEntry_unkFv`, `lbl_8075B038` ->
+    `@stringBase0` (scope:local, 0x1F), `lbl_80887790` tamano 8 -> 4 (puntero `sPath` en .sdata2).
+    Las funciones de tablas conservan su nombre `fn_` (`extern "C"`, como las declara
+    MP/D2AMpMenuResult.cpp).
+  - `atn::ptr_string_base<T, N>` copiado localmente (como en db/SpText_unk.cpp).
+  - game_units.json: entrada nueva `MP/Text.cpp`.
+- Hallazgos MWCC:
+  - Una fila con dos arrays de 32 int que se copia con dos bucles de 16 iteraciones = cada array es
+    un struct aparte (copia implicita propia); un `int[32]` directo da un solo bucle de 32.
+  - `return a != 0 && b != 0 && a != b;` da la cadena `li r3,0; beqlr` del original.
+
+## game/main (retoque)
+- `src/game/main.cpp` incluye `std/string_members.h`: su pool tiene los mensajes de
+  `basic_string::reserve`/`out_of_range`/`length_error` (.rodata 69.6% -> 80.9%).
