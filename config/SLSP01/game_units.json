@@ -3594,5 +3594,12 @@
    "atn::CsvBase"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/ColliBaseFunc_unk.cpp",
+  "classes": [
+   "atn::ColliBase"
+  ],
+  "matching": false
  }
 ]

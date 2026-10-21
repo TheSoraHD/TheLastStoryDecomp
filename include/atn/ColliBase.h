@@ -80,15 +80,20 @@ struct ColliTriangle_unk {
 
 // inferred: one hit of a query (0x50 bytes, arrays of them are filled by the vf0C/vf10/vf14 tests;
 // other files declare their own copy as CollResult_unk)
+// (the constructor clears m34-m40: the results array of the collision manager and the local results
+// of atn/ColliBaseFunc_unk.cpp; the copies are member by member, the vectors with psq)
 struct ColliResult_unk {
-    unsigned char m00[0x04];
-    Vector3 m04;        // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
+    ColliResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    int m00;
+    Vector3 m04;        // inferred: point of the shape that touches (distance to the query start)
+    Vector3 m10;        // inferred: hit position (returned by fn_8004ECC0/fn_8004D314)
+    Vector3 m1C;
+    Vector3 m28;        // inferred: normal of the hit (its y classifies floor/wall/ceiling)
     void* m34;          // inferred: attribute of the hit (&ColliBase::m1C, or the mesh attribute)
     ColliBase* m38;     // inferred: hit object
-    int m3C;
+    unsigned int m3C;   // inferred: flags of the hit, set by the queries of the collision manager
     void* m40;          // inferred: hit triangle of a mesh
-    unsigned char m44[0x50 - 0x44];
+    Vector3 m44;        // inferred: position of a special attribute (0x1000/0x2000/0x4000)
 };
 
 // inferred: grid of the collision manager (argument of vf1C, which updates the cell of the shape)
