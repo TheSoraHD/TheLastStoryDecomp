@@ -92,3 +92,34 @@ Cola: `atn/LH_Binary`, `atn/THPPlayer_unk`, `atn/Xsca_unk`, `game/SongManager`, 
     (`float z; float y; float x;`). Un `p + 4` intermedio en otra sentencia (`str = data + 4; str += align`)
     evita que el +4 se pliegue en el desplazamiento de las cargas.
 - Pendientes: el corte Xsca_unk/XsfParser_unk (ver arriba).
+
+## game/SongManager (commit d5a7727)
+- Resultado: 7/13 al 100%, `matching: false`, `main.dol: OK`.
+- NONMATCHING: creador `fn_805A2240` 92.19% (orden de creacion de 1.0f/0.0f en el ctor inline y un `frsp` de
+  0.1f), `vf10` 99.02% (pila/registros de los temporales de la interpolacion de Vector3), `fn_805A2FD4` 97.88% y
+  `fn_805A32C8` 68.12% (el original carga el 1.0f del volumen de `GameBgm::fn_8037D4C0` antes de las ramas del
+  `GetFade` inline; objdiff alinea mal), `fn_805A3448` 95.96% (1.0f al inicio), `fn_805A38F0` 99.77% (r3/r4 en
+  `type == 8`).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios. `fn_805A38F0` (la llama GameBgm como `extern "C"`) sigue en esta unidad; no hay pruebas de
+    que sea de SongManager.cpp (no usa nada de la clase).
+  - `symbols.txt`: pairnames de los metodos (`fn_805A2240` creador estatico, `fn_805A2404` estatico de 3 ints,
+    dtor, `vf10`, `vf14`, setters), `lbl_8087F9F0` -> `sInstance__11SongManager` (0x4), datos `sSongs` (tabla de
+    canciones, local), `sSongDistance_unk`/`sSongMinVolume_unk`/`sSongMaxVolume_unk` (.sdata 300/0.1/1.0, globales:
+    el ctor los relee), `lbl_8076328C` -> `@stringBase0`, constantes `.sdata2` -> `@1894..@2137`, doble `@2338`.
+  - Clase `SongManager` local en el .cpp (nadie la usa desde C++): `atn::Task` + estado, cancion, 4 interpoladores
+    (`SongInterp_unk<T>`: tiempo/duracion/velocidad/activo + from/to/cur/delta; nombre inventado) y `atn::Bgm*`.
+    Vistas locales de los globales: `SongEnv_unk` (lbl_8087F418, con `Lower_unk`/`Restore_unk` inline),
+    `SongSoundCfg_unk`, `SongParty_unk`/`SongChara_unk`, `SongBattle_unk`, `SongLimit_unk`.
+  - `operator*(float, const atn::Vector3&)` local (no esta en math/Vec.h): `return atn::Vector3(v * f);` da los
+    temporales del original.
+  - Nombre real propuesto: SongManager.cpp (el nombre de la clase esta en el DOL).
+- Hallazgos MWCC
+  - Un metodo inline `const` (`GetFade_unk() const`) evita que el compilador reutilice la comparacion de un
+    miembro ya probado (`bne cr1`) y lo relee, como el original.
+  - Un parametro que el inline guarda en un miembro y luego lee del miembro (`mF0 = x; ...if (mF0)`) no se
+    pliega como constante en las llamadoras: se comprueba en tiempo de ejecucion (`cmpwi r3,0` con r3 = 0).
+  - Probar un puntero como palabra (`*(const int*)&ref != 0`) y usarlo despues como puntero obliga a recargarlo
+    (el original hace `lwz r0,8(r3)` para el test y `lwz r3,8(r3)` para la llamada).
+  - `a = (b - c) * t; r = c + a;` en dos sentencias evita el `fmadds` (con `fp_contract on`).
+- Pendientes: ninguno.
