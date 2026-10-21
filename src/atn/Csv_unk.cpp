@@ -26,6 +26,7 @@ inline bool __IsOneOf_unk(T c, const T* list) {
     return false;
 }
 
+// NONMATCHING: 99.68% (char) / 98.93% (wchar_t) - numeracion de registros en el recorte inicial
 template <class T, int Sep, int Eol, int Quote>
 const T* CsvBase<T, Sep, Eol, Quote>::fn_8005B9CC() {
     memset(mField, 0, sizeof(mField) + sizeof(m410));

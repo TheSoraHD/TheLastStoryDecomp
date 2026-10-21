@@ -42,8 +42,10 @@ extern "C" int fn_8005A0D4(ColliResult_unk* results, int max, const ColliCapsule
                            const Matrix3x4* mtx, const Vector3* scale, unsigned int mask, int attr);
 extern "C" int fn_8005A5FC(ColliResult_unk* results, int max, const ColliSweepShape_unk* b, ColliObjNode_unk* node,
                            const Matrix3x4* mtx, const Vector3* scale, unsigned int mask, int attr);
+// NONMATCHING: 99.86% - registros f4/f5 del radio y la z en la primera prueba de rango
 extern "C" int fn_8005AADC(ColliResult_unk* results, int max, const ColliSphereShape_unk* s, ColliTreeNode_unk* node,
                            unsigned int mask, int attr);
+// NONMATCHING: 99.88% - orden de carga de max.z / end.z en la segunda prueba de rango
 extern "C" int fn_8005AD7C(ColliResult_unk* results, int max, const ColliCapsuleShape_unk* c, ColliTreeNode_unk* node,
                            unsigned int mask, int attr);
 extern "C" int fn_8005B064(ColliResult_unk* results, int max, const ColliSweepShape_unk* b, ColliTreeNode_unk* node,
@@ -120,6 +122,7 @@ extern "C" int fn_80059660(ColliResult_unk* results, int max, const ColliSphereS
     return n;
 }
 
+// NONMATCHING: 97.40% - numeracion de GPR (src/atributo r24, tri r18)
 extern "C" int fn_80059784(ColliResult_unk* results, int max, const ColliCapsuleShape_unk* c,
                            ColliObjTriList_unk* list, const Matrix3x4* mtx, const ColliSphereShape_unk* bound,
                            unsigned int mask, int attr, float scale) {

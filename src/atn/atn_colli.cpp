@@ -155,6 +155,7 @@ void ColliSphere::vf1C(const ColliGrid_unk* grid) {
     SetCell_unk(mSphere, grid);
 }
 
+// NONMATCHING: 99.77% - y/z de la resta de SetUpright_unk en registros cruzados (f4/f5)
 int ColliCapsule::vf0C(ColliResult_unk* results, int max, const ColliSphereShape_unk* sphere, unsigned int mask,
                        int arg) {
     if (max > 0) {
@@ -174,6 +175,7 @@ int ColliCapsule::vf0C(ColliResult_unk* results, int max, const ColliSphereShape
     return 0;
 }
 
+// NONMATCHING: 99.78% - y/z de la resta de SetUpright_unk en registros cruzados (f5/f6)
 int ColliCapsule::vf10(ColliResult_unk* results, int max, const ColliCapsuleShape_unk* capsule, unsigned int mask,
                        int arg) {
     if (max > 0) {
@@ -207,6 +209,7 @@ void ColliCapsule::vf18(int a, int b, int c, int d) {
     fn_8006471C(lbl_8087EEB0, &m3C, &m48, 0xFF00FF00, m54, 0.0f);
 }
 
+// NONMATCHING: 84.74% - orden de carga del 0.5f y de los stores muertos de a/b (planificacion)
 void ColliCapsule::vf1C(const ColliGrid_unk* grid) {
     float size = grid->mCellSize;
     float inv = 1.0f / size;
@@ -242,6 +245,7 @@ inline void __MtxRotateXYZ_unk(Matrix3x4& m, const Vector3& v) {
     __MtxCopy(m.m, b);
 }
 
+// NONMATCHING: 98.16% - bloques de rotacion en la pila en orden inverso (z abajo) y orden de carga de 0.0f
 void ColliBox::fn_800575BC(const Vector3* pos, const Vector3* rot, const Vector3* size) {
     Matrix3x4 m;
     PSMTXTrans(m.m, pos->x, pos->y, pos->z);
@@ -357,6 +361,7 @@ void ColliBox::vf18(int a, int b, int c, int d) {
     fn_800629F0(lbl_8087EEB0, &zero, &m3C, 0xFF00FF00, &m3C.mMtx, 0.0f);
 }
 
+// NONMATCHING: 99.08% - f9/f10 (tamano/inverso) cruzados y f0/f3 al cargar la traslacion
 void ColliBox::vf1C(const ColliGrid_unk* grid) {
     SetCell_unk(GetBound_unk(), grid);
 }
@@ -467,6 +472,7 @@ inline Vector3 __GetColumn_unk(const Matrix3x4& m, int i) {
     return Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
 }
 
+// NONMATCHING: 99.83% - orden de los stores de la escala (y antes que x)
 void ColliObject::fn_800588FC() {
     ColliSphereShape_unk* bound = fn_80472C90(&mLoader);
     if (bound != 0) {
@@ -564,6 +570,7 @@ int ColliTree::fn_80059240(int a, int b, int c) {
     return fn_80059264(0, 0x30, 0, ((ColliTreeData_unk*)mTree)->mRoot, a, b, c);
 }
 
+// NONMATCHING: 99.78% - orden de los incrementos de tris e i al final del bucle
 int ColliTree::fn_80059264(int a, int b, int n, ColliTreeNode_unk* node, int c, int colored, int e) {
     if (fn_800502A8(&lbl_8087EFB4->mFrustum, (const Vector3*)node->mBox) == 0) {
         return n;
