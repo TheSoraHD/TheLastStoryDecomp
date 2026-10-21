@@ -295,6 +295,7 @@ atn/NandManager.cpp:
 	.text       start:0x800A2978 end:0x800A5508
 	.rodata     start:0x807327A0 end:0x80732898
 	.data       start:0x807789D8 end:0x80778AD8
+	.sbss       start:0x8087EF68 end:0x8087EF70
 	.sdata2     start:0x80880CA0 end:0x80880CB0
 
 atn/Pad_unk.cpp:
