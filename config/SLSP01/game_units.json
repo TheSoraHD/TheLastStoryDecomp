@@ -2546,6 +2546,13 @@
   "matching": false
  },
  {
+  "name": "MP/Text.cpp",
+  "classes": [
+   "MP::Text"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/MapPartsModel.cpp",
   "classes": [
    "MapPartsModel"
