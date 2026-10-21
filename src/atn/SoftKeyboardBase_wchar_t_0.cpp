@@ -414,7 +414,7 @@ void SoftKeyboardBase<T, N>::fn_800C7568(int row, int col) {
 template class SoftKeyboardBase<wchar_t, 0>;
 
 bool SoftKey_unk::Contains_unk(const Pos2_unk& p) const {
-    return m08 <= p.x && p.x < m10 && m0C <= p.y && p.y < m14;
+    return mMin.x <= p.x && p.x < mMax.x && mMin.y <= p.y && p.y < mMax.y;
 }
 
 } // namespace atn

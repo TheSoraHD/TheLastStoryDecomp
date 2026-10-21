@@ -2,7 +2,7 @@
 
 Cola: `atn/Loader`, `atn/SoftKeyboardU`.
 
-## atn/Loader (commit PENDIENTE)
+## atn/Loader (commit 5858545)
 - Resultado: 18/31 al 100% (+18 en el total), `matching: false`, `main.dol: OK`, regress lost: 0, fuzzdrop 0.
   - 2 funciones sin escribir: `fn_8046CBB0` (`m4044 = 0`) y `fn_8046CBBC` (vacia), ver pendientes.
 - NONMATCHING (casi todo asignacion de registros):
