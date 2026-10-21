@@ -1,6 +1,7 @@
 #include "atn/GXDecl.h"
 #include "atn/Camera_unk.h"
 #include "math/Vec.h"
+#include "atn/RenderSetting_unk.h"
 
 namespace atn {
 
@@ -27,34 +28,8 @@ extern "C" void GXSetColorUpdate(unsigned char enable);
 // inferred: registers a debug toggle `name` bound to `flag` (see atn/Layer3D.h)
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
 
-// inferred: render settings (debug menu object of atn/RenderSetting_unk.cpp; only the shadow members)
-struct ShadowSetting_unk {
-    unsigned char m000[0x120];
-    float m120; // 0x120: inferred: default light direction (negated)
-    float m124;
-    float m128;
-    int m12C; // inferred: debug drawing
-    unsigned char m130[0x134 - 0x130];
-    int m134; // inferred: keep the depth texture (skips the depth copy)
-    int m138; // inferred: fit the box to the casters
-    unsigned char m13C[0x140 - 0x13C];
-    int m140; // inferred: update the box
-    unsigned char m144[0x158 - 0x144];
-    int m158; // inferred: shadow texture width
-    int m15C; // inferred: shadow texture height
-    float m160; // inferred: fixed box (max z, min z, max y, min y, max x, min x)
-    float m164;
-    float m168;
-    float m16C;
-    float m170;
-    float m174;
-    unsigned char m178[0x17C - 0x178];
-    int m17C;   // inferred: snap the box to a grid
-    float m180; // inferred: grid step
-    unsigned char m184[0x190 - 0x184];
-    float m190; // inferred: box margin
-};
-extern "C" ShadowSetting_unk* lbl_8087EFA8;
+// render settings (atn/RenderSetting_unk.cpp)
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: render system (lbl_8087EFB4): current camera at 0x104, shadow camera at 0x318
 struct ShadowRenderSystem_unk {
@@ -291,6 +266,7 @@ public:
 LayerShadow::LayerShadow() : Layer3D("Shadow") {}
 
 // inferred: box snapped outwards to a grid of `step` units
+// NONMATCHING: 99.88% - the last two (int)step conversions get new stack slots instead of reusing 0x38/0x30
 AABB_unk LayerShadow::fn_800B6C70(float step, const AABB_unk& box) {
     int minX = (int)Ceil_unk(box.mMin.x);
     int minY = (int)Ceil_unk(box.mMin.y);
@@ -315,8 +291,10 @@ AABB_unk LayerShadow::fn_800B6C70(float step, const AABB_unk& box) {
 }
 
 // inferred: orthographic light camera looking along `dir` that covers `box`
+// NONMATCHING: 82.01% - the original has one more saved GPR and 0x10 more stack (corner temporaries
+// start at 0x30), so most registers and stack offsets differ
 Camera_unk LayerShadow::fn_800B7090(const AABB_unk& box, const Vector3& dir) {
-    Vector3 center = (box.mMin + box.mMax) * 0.5f;
+    Vector3 center = (box.mMax + box.mMin) * 0.5f;
     float t = 0.0f;
     fn_8006FAB0(&box, &t, &center, &dir);
     Camera_unk cam(lbl_8087EFB4->mCamera);
@@ -348,13 +326,15 @@ Camera_unk LayerShadow::fn_800B7090(const AABB_unk& box, const Vector3& dir) {
     return cam;
 }
 
+// NONMATCHING: 22.90% - over the inline budget: the camera copies, the frustum copy and the vector
+// helpers are called out of line (weak copies), while the original inlines all of them
 void LayerShadow::vf10(void* arg) {
     if (arg == 0) {
         fn_800BDB58(lbl_8087EFB4, 0, 0.0f, 3);
     }
     mCamera = lbl_8087EFB4->mCamera;
-    ShadowSetting_unk* s = lbl_8087EFA8;
-    Vector3 dir(-s->m120, -s->m124, -s->m128);
+    RenderSetting_unk* s = lbl_8087EFA8;
+    Vector3 dir(-s->m104.mDir.x, -s->m104.mDir.y, -s->m104.mDir.z);
     ShadowLight_unk* light = fn_800C1424(lbl_8087EFB4);
     if (light->m234 != 0) {
         dir = Vector3(-light->m254, -light->m258, -light->m25C);
@@ -441,8 +421,10 @@ void LayerShadow::vf10(void* arg) {
     }
 }
 
+// NONMATCHING: 86.69% - registers of the frustum copy inside the camera copy (base and loop pointers
+// swapped) and scheduling of the clear color conversion
 void LayerShadow::vf1C() {
-    ShadowSetting_unk* s = lbl_8087EFA8;
+    RenderSetting_unk* s = lbl_8087EFA8;
     int w = s->m158;
     int h = s->m15C;
     lbl_8087EFB0 = 1;
@@ -469,8 +451,10 @@ void LayerShadow::vf1C() {
     GXSetCopyClear(clear8, 0xFFFFFF);
 }
 
+// NONMATCHING: 93.95% - registers of the frustum copy inside the camera copy, operand order of the
+// debug sizes and load order of the arguments of fn_800D5E18
 void LayerShadow::vf20() {
-    ShadowSetting_unk* s = lbl_8087EFA8;
+    RenderSetting_unk* s = lbl_8087EFA8;
     int w = s->m158;
     int h = s->m15C;
     if (s->m134 == 0) {
