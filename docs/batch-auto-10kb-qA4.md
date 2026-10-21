@@ -58,3 +58,37 @@ Cola: `atn/LH_Binary`, `atn/THPPlayer_unk`, `atn/Xsca_unk`, `game/SongManager`, 
   - `n = 48; if (f() == 0) n = 32;` deja el `li` antes de la llamada; con `u32 r = f(); n = 48; if (r == 0)`
     sale despues, como en el original.
 - Pendientes: ninguno.
+
+## atn/Xsca_unk (commit 35b43a2)
+- Resultado: 4/6 al 100%, `matching: false`, `main.dol: OK`.
+- NONMATCHING: `fn_805BD4B8` 99.09% (push_back inline: carga capacidad antes que tamano, como en
+  `std/vector.h`; dos temporales del crecimiento intercambiados en pila; registros de los pasos del bucle),
+  `fn_805BE37C` 97.02% (planificacion de los tres `stwbrx` de floats).
+- **Decisiones sin el usuario**
+  - Splits: sin cambios. **Pendiente (corte con `atn/XsfParser_unk`)**: `fn_805BE8FC`/`fn_805BEA34` reciben el
+    `Xsca_unk` como primer argumento y solo los llaman `fn_805BDE48`/`fn_805BE37C`: probablemente son metodos de
+    Xsca_unk y el corte real estaria en 0x805BEACC (ctor de XsfFile_unk). No se ha movido (unidad ajena); aqui se
+    llaman como `extern "C"`.
+  - `symbols.txt`: metodos de Xsca_unk (`fn_805BD4B8`, `fn_805BDCBC`, `fn_805BDE48`, `fn_805BE37C`); en el tramo de
+    XsfParser_unk (sin llamadores en C++): `fn_805BEEC4` -> `__ct__15XsfCurveSet_unkFPCc`, `fn_805BF164` ->
+    `__dt__15XsfCurveSet_unkFv`, `fn_805BF660` -> `fn_805BF660__15XsfCurveSet_unkFv`; datos `lbl_80764040` ->
+    `@stringBase0` (0x6E), `lbl_807979E8` -> `@STRING@__allocate__Q23std23vector<13XscaEntry_unk>FUi`.
+  - Cabecera compartida `include/std/vector.h` (solo anadidos): `vector::__reserve_checked_unk(n)` (reserve con
+    comprobacion de longitud y bufer crudo) y `vector::__check_length_unk(n)` fuera de clase (mensaje al pool del
+    fichero). regress: lost 0.
+  - Tipos inventados locales: `XscaEntry_unk` {chunk, curvas}, especializaciones locales de
+    `std::__vec_imp_unk`/`__vec_split_unk` para `XscaEntry_unk` (se guardan como punteros: tamano primero, sin
+    comprobar null), `ScopedArray_unk<std::string>` (como `boost::scoped_array`: `reset` + `delete[]`),
+    `XsfVec_unk` (3 floats). Redeclaradas localmente `XsfFile_unk`, `XsfIter_unk`, `XsfCurveSet_unk`.
+  - Instanciacion explicita `template void std::string::reserve(unsigned long);` para que su mensaje entre en
+    el pool en su sitio (copia debil que el enlazador descarta).
+  - Nombre real propuesto: sin pruebas.
+- Hallazgos MWCC
+  - `for (int j = 0; j < n; j++)` con `n` unsigned da `cmplwi n,0; ble` + `srwi.` (bucle de punteros);
+    con `unsigned j`, `cmpwi n,0; beq` + `cmplwi n,8` (bucle indexado).
+  - Los locales de un helper inline quedan por debajo de los temporales de otro inline (orden de pila): el codigo
+    de nombres de fn_805BD4B8 estaba en dos helpers inline.
+  - Tres floats copiados a la pila salen en el orden del original declarando los locales al reves
+    (`float z; float y; float x;`). Un `p + 4` intermedio en otra sentencia (`str = data + 4; str += align`)
+    evita que el +4 se pliegue en el desplazamiento de las cargas.
+- Pendientes: el corte Xsca_unk/XsfParser_unk (ver arriba).
