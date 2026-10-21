@@ -18,7 +18,6 @@ extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // infe
 extern "C" int fn_80097B34(Model_unk* model); // inferred: number of motions
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
-extern "C" void fn_800577D8(atn::ColliBox* box); // inferred: updates the box
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct OnOffEffectMgr_unk {
@@ -129,8 +128,8 @@ struct OnOffBox_unk {
 };
 // inferred: names invented
 inline void SetBox_unk(atn::ColliBox* colli, const OnOffBox_unk& box) {
-    *(OnOffBox_unk*)colli->m3C = box;
-    fn_800577D8(colli);
+    *(OnOffBox_unk*)&colli->m3C = box;
+    colli->fn_800577D8();
 }
 inline void SetSphere_unk(atn::ColliSphere* colli, const atn::Vector3& center, float radius) {
     colli->mSphere.mCenter = center;

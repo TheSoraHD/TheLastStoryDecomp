@@ -3553,5 +3553,29 @@
    "NewCampScene2_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "atn/atn_colli.cpp",
+  "classes": [
+   "atn::ColliBase",
+   "atn::ColliSphere",
+   "atn::ColliCapsule",
+   "atn::ColliBox",
+   "atn::ColliObject",
+   "atn::ColliTree"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ColliCalc_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Csv_unk.cpp",
+  "classes": [
+   "atn::CsvBase"
+  ],
+  "matching": false
  }
 ]

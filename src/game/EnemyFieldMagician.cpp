@@ -414,7 +414,7 @@ void EnemyFieldMagician::vf3C(HitInfo_unk* hit) {
             to.y += 10.0f;
             CollSegResult_unk* result = &lbl_8087EE98->m4008;
             Segment_unk seg(from, to);
-            if (m14B0[0].vf10(result, 0x100, &seg, 0, 0) != 0) {
+            if (m14B0[0].vf10((atn::ColliResult_unk*)result, 0x100, (const atn::ColliCapsuleShape_unk*)&seg, 0, 0) != 0) {
                 CharaTask* attacker = msg->mAttacker;
                 if (attacker->m55C == 6 && ((unsigned int)(attacker->m560 - 4) <= 1 || attacker->m560 == 9)) {
                     attacker->vf7C(0);

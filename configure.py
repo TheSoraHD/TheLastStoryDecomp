@@ -336,8 +336,6 @@ config.libs.append({
         Object(NonMatching, "auto_03_803B27AC_text.cpp"),
         Object(NonMatching, "auto_fn_801F1EA0_text.cpp"),
         Object(NonMatching, "auto_fn_8030DA1C_text.cpp"),
-        # inferido: TU de las clases atn::Colli* (vtables contiguas en .data, nombre por orden alfabético)
-        Object(NonMatching, "atn/atn_colli.cpp"),
     ],
 })
 
