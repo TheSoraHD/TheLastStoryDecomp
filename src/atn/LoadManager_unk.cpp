@@ -1,5 +1,5 @@
 // Asynchronous disc reader of the load manager: requests read in 256 KB chunks by two read slots,
-// decompressed while they arrive, and the queue of the loads (atn::LoadManager_unk::fn_8046C3FC).
+// decompressed while they arrive, and the queue of the loads (atn::Loader::fn_8046C3FC).
 // Names invented (the pool only has ".pk").
 #include "atn/LoadManager.h"
 #include "atn/LH_Binary.h"
@@ -344,7 +344,7 @@ extern "C" void fn_8046C1C8() {
     }
 }
 
-extern "C" void fn_8046C2D4(LoadManager_unk* mgr, PfsArchive_unk* archive, LoadCore* core, const char* path,
+extern "C" void fn_8046C2D4(Loader* mgr, PfsArchive_unk* archive, LoadCore* core, const char* path,
                             int index) {
     archive->fn_8046FD1C(index);
     unsigned int size = archive->fn_8046FD1C(index)->mSize;
@@ -375,7 +375,7 @@ extern "C" void fn_8046C2D4(LoadManager_unk* mgr, PfsArchive_unk* archive, LoadC
 }
 
 // inferred: looks for `path` in the mounted archives
-inline void FindMounted_unk(LoadManager_unk* mgr, const char* path, ReadRequest_unk* req, int& index,
+inline void FindMounted_unk(Loader* mgr, const char* path, ReadRequest_unk* req, int& index,
                             unsigned int& offset, unsigned int& size, unsigned int& packed,
                             unsigned long long& pos) {
     for (std::list<PfsArchive_unk*>::iterator it = mgr->mMounted.begin(); it != mgr->mMounted.end(); ++it) {
@@ -417,7 +417,7 @@ inline int IsLoaded_unk(PfsArchive_unk* archive) {
 // The second "Memory allocation failure" (std::list<ReadRequest_unk*>) is the weak string of an
 // earlier file in the original (0x80779810, shared by the LH_* lists): the list holds the same
 // type as those (probably std::list<LoadCore*> or a void* list), not reconstructed.
-int LoadManager_unk::fn_8046C3FC(LoadCore* core) {
+int Loader::fn_8046C3FC(LoadCore* core) {
     int index = -1;
     const char* path = core->mPath;
     ReadRequest_unk* req;

@@ -1,5 +1,5 @@
 // inferred: separate file between atn/FileSystem_unk and atn/LH_Binary (0x80470364-0x80470580): it calls
-// LoadManager_unk::fn_8046F460, PfsArchive_unk::fn_80470198/804701F8/80470264 out of line and "%sh" is a
+// Loader::fn_8046F460, PfsArchive_unk::fn_80470198/804701F8/80470264 out of line and "%sh" is a
 // .rodata object after the FileSystem_unk string pool. Name invented.
 #include "atn/PfsArchive_unk.h"
 

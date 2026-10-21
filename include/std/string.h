@@ -73,6 +73,8 @@ public:
     size_type size() const { return !is_long() ? (mShort.mSize & 0x7F) : mLong.mSize; }
     const T* data() const { return !is_long() ? (const T*)this + 1 : mLong.mData; }
     T& operator[](size_type i) { return (!is_long() ? (T*)this + 1 : mLong.mData)[i]; }
+    // inferred: weak copy 0x8046D1CC (char, atn/Loader.cpp)
+    const T& operator[](size_type i) const { return (!is_long() ? (const T*)this + 1 : mLong.mData)[i]; }
     void clear() {
         if (!is_long()) {
             mShort.mData[0] = 0;

@@ -2639,6 +2639,7 @@ atn/Loader.cpp:
 	.rodata     start:0x80755610 end:0x80755B88
 	.data       start:0x8078FB70 end:0x8078FBA8
 	.sdata      start:0x8087E050 end:0x8087E058
+	.sbss       start:0x8087F518 end:0x8087F520
 	.sdata2     start:0x80886EC0 end:0x80886EE0
 
 atn/FileSystem_unk.cpp:
