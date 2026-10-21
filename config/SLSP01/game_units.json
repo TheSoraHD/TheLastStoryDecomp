@@ -239,10 +239,20 @@
   "matching": false
  },
  {
+  "name": "atn/ModelDraw_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/ModelInstance.cpp",
   "classes": [
    "atn::ModelInstance"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/Motion_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {
