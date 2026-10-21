@@ -33,8 +33,6 @@ public:
 extern "C" TextTable_unk* lbl_8087F1E4; // inferred: singleton
 extern "C" wchar_t* lbl_8087F1E0;       // inferred: buffer holding all the texts
 
-// NONMATCHING: 99.8% - only the name of the constructor differs (fn_8020C0BC in symbols.txt;
-// pairnames.py cannot pair it because the constructor does not match yet)
 void TextTable_unk::fn_8020C028() {
     if (lbl_8087F1E4 == 0) {
         lbl_8087F1E4 = new (1, "", "", 0) TextTable_unk;
@@ -45,10 +43,10 @@ void TextTable_unk::fn_8020C028() {
 // ptr_string_base comes before the constructor (0x8020C07C)
 TextTable_unk::~TextTable_unk() {}
 
-// NONMATCHING: the original keeps the address of each atn::CsvU in a saved register while it is
-// constructed (as in CampSaveLoad::fn_8011B8D4), so the registers shift; the callees
-// fn_8005B710, fn_8005B8F8, fn_8005B9AC and fn_8020C4B0 have unnamed symbols
+// inferred: the locals are declared in the order the original allocates its saved registers
+// (pos, then the text of the second pass, then the index, then the total)
 TextTable_unk::TextTable_unk() {
+    int pos = 0;
     unsigned int size0 = 0;
     void* data0 = fn_8006BA8C("/boot/common_text_xx.u16", &size0, 0);
     unsigned int size1 = 0;
@@ -74,26 +72,24 @@ TextTable_unk::TextTable_unk() {
     csv0.vf08((const wchar_t*)data0, size0 / 2);
     csv1.vf08((const wchar_t*)data1, size1 / 2);
 
-    int count = 0;
-    int pos = 0;
+    const wchar_t* text;
     int i = 0;
+    pos = 0;
     do {
         const wchar_t* field = csv0.fn_8005B9CC();
         if (field[0] != L'#' && field[0] != 0) {
-            const wchar_t* text = csv0.fn_8005B9CC();
+            text = csv0.fn_8005B9CC();
             fn_800DD3FC(lbl_8087F1E0 + pos, L"%s", text);
             mStrings[i].mPtr = lbl_8087F1E0 + pos;
             pos += wcslen(text) + 1;
             i++;
-            count++;
         }
     } while (csv0.fn_8005BBF8());
-    count++;
-    i = count;
+    i++; // inferred: one empty slot between the two tables
     do {
         const wchar_t* field = csv1.fn_8005B9CC();
         if (field[0] != L'#' && field[0] != 0) {
-            const wchar_t* text = csv1.fn_8005B9CC();
+            text = csv1.fn_8005B9CC();
             fn_800DD3FC(lbl_8087F1E0 + pos, L"%s", text);
             mStrings[i].mPtr = lbl_8087F1E0 + pos;
             pos += wcslen(text) + 1;

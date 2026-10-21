@@ -86,8 +86,6 @@ int GameSaveBanner::vf0C() {
     return 1;
 }
 
-// NONMATCHING: 97.5% - the original keeps the address of the CSV reader in a saved register while it
-// is constructed (same problem as CampSaveLoad::fn_8011B8D4 with atn::CsvU)
 void GameSaveBanner::fn_803B9324() {
     char path[0x100];
     atn::CsvTabU csv((const wchar_t*)m50.fn_80470580(), (unsigned int)m50.fn_8047059C() / 2);

@@ -125,8 +125,9 @@ static inline int FindEffColor_unk(const char* name) {
 }
 
 // inferred: loads the colour palettes of the costume editor (ids, colours and names)
-// NONMATCHING: 96.32% - register allocation (zero constant, data pointer, address of the UTF-16 CSV
-// kept in a register by the original); tried static helpers per block (not inlined then)
+// NONMATCHING: 98.03% - register allocation (zero constant, data pointer) and one byte less in the
+// string pool; tried static helpers per block (not inlined then). The UTF-16 CSV address is now in
+// a saved register as in the original (empty ~CsvBase())
 extern "C" void fn_8020B2BC() {
     if (sPaletteIds == 0) {
         sPaletteIds = new (1, "", "", 0) PaletteIds_unk;

@@ -67,8 +67,8 @@ template <class T>
 struct __vec_imp_unk : public __vec_storage_unk<T> {
     ~__vec_imp_unk() {}
     // inferred: generic elements are copy-constructed in place (0x80476ED4)
-    void __push_fast_unk(const T& x) {
-        new (this->mData + this->mSize) T(x);
+    void __push_fast_unk(unsigned int n, const T& x) {
+        new (this->mData + n) T(x);
         this->mSize++;
     }
 };
@@ -77,9 +77,9 @@ struct __vec_imp_unk : public __vec_storage_unk<T> {
 template <class T>
 struct __vec_imp_unk<T*> : public __vec_storage_unk<T*> {
     ~__vec_imp_unk() {}
-    void __push_fast_unk(T* const& x) {
-        this->mSize++;
-        this->mData[this->mSize - 1] = x;
+    void __push_fast_unk(unsigned int n, T* const& x) {
+        this->mSize = n + 1;
+        ((void**)this->mData)[this->mSize - 1] = x;
     }
 };
 
@@ -163,8 +163,8 @@ struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
 template <>
 struct __vec_imp_unk<int> : public __vec_storage_unk<int> {
     ~__vec_imp_unk() {}
-    void __push_fast_unk(const int& x) {
-        this->mSize++;
+    void __push_fast_unk(unsigned int n, const int& x) {
+        this->mSize = n + 1;
         this->mData[this->mSize - 1] = x;
     }
 };
@@ -348,6 +348,13 @@ private:
         }
         return cap;
     }
+    // inferred: allocation of the temporary buffer (split off so that push_back stays within the
+    // auto-inline limit)
+    void __vec_set_buf_unk(__vec_split_unk<T>& buf, size_type cap) {
+        buf.mData = __allocate(cap);
+        buf.mCap = cap;
+        buf.mStart = this->mSize;
+    }
     void __swap_out_unk(__vec_split_unk<T>& buf) {
         buf.__push_front_unk(this->mData, this->mData + this->mSize);
         this->mSize = 0;
@@ -366,8 +373,9 @@ private:
 
 template <class T>
 void vector<T>::push_back(const T& x) {
-    if (this->mSize < this->mCap) {
-        this->__push_fast_unk(x);
+    size_type n = this->mSize;
+    if (n < this->mCap) {
+        this->__push_fast_unk(n, x);
         return;
     }
     if (max_size() - this->mCap < 1) {
@@ -375,10 +383,7 @@ void vector<T>::push_back(const T& x) {
     }
     __recommend_unk(1);
     __vec_split_unk<T> buf(&this->mCap);
-    size_type cap = __grow_cap_unk(this->mSize + 1 - this->mCap);
-    buf.mData = __allocate(cap);
-    buf.mCap = cap;
-    buf.mStart = this->mSize;
+    __vec_set_buf_unk(buf, __grow_cap_unk(this->mSize + 1 - this->mCap));
     buf.push_back(x);
     __swap_out_unk(buf);
 }

@@ -395,8 +395,6 @@ void Em002_01BlackSkelton::fn_80248854(CharaTask* target, GimmickCommon* mirror)
     }
 }
 
-// NONMATCHING: 99.5% - inlined std::vector::push_back: the original loads the size before the capacity
-// and reloads m14B8 after the size store (same open case as the weak copies, include/std/vector.h)
 void Em002_01BlackSkelton::fn_80248A4C(int arg) {
     m14B0 = 0;
     m14B4 = 0;

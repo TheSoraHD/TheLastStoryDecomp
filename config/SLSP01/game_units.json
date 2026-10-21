@@ -1109,7 +1109,7 @@
   "classes": [
    "atn::ptr_string_base<wchar_t, 0>"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/GrowthParseGlobal.cpp",
@@ -1204,7 +1204,7 @@
  {
   "name": "db/EquipParam_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/ItemParam_unk.cpp",
@@ -1249,7 +1249,7 @@
  {
   "name": "db/TutorialTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/MemberList_unk.cpp",
