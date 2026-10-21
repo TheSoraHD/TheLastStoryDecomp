@@ -1087,8 +1087,9 @@ game/CrowdSimulation.cpp:
 
 atn/D2A_Common.cpp:
 	.text       start:0x801EC158 end:0x801EEE54
-	.rodata     start:0x8073CD58 end:0x8073CD68
+	.rodata     start:0x8073CD58 end:0x8073CDA8
 	.data       start:0x80782A50 end:0x80782A80
+	.sdata      start:0x8087DAB0 end:0x8087DAD0
 	.sdata2     start:0x80882BE0 end:0x80882C00
 
 atn/D2A_Data.cpp:

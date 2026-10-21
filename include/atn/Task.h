@@ -30,7 +30,8 @@ public:
     // inferred: sizeof(atn::Task) == 0x48 (FriendManager adds no members and is allocated with 0x48)
     unsigned char m04[0x20 - 0x04];
     void* m20; // inferred: compared with the argument of GimmickManager::fn_803EE374
-    unsigned char m24[0x38 - 0x24];
+    Task* m24; // inferred: parent of the shared d2anime tasks (D2A_TaskInstanceBase)
+    unsigned char m28[0x38 - 0x28];
     unsigned int mFlags; // 0x38
     unsigned char m3C[0x48 - 0x3C];
 };
