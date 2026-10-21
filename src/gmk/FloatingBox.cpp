@@ -16,9 +16,6 @@ extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float l
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
-// inferred: sets the box (center, rotation, half size)
-extern "C" void fn_800575BC(atn::ColliBox* colli, const atn::Vector3* pos, const atn::Vector3* rot,
-                            const atn::Vector3* size);
 extern "C" int fn_80051CD8(const CharaTask::Sphere_unk* sphere, const void* box); // inferred: sphere in box
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -80,7 +77,7 @@ int FloatingBox::vf0C() {
                           AbsF_unk(box.mMax.z - box.mMin.z) * 0.5f);
         fn_803EDB18(&mModel);
         mColli.m0C = (int)this;
-        fn_800575BC(&mColli, &m6C, &m78, &size);
+        mColli.fn_800575BC(&m6C, &m78, &size);
         return 1;
     }
     return 0;
@@ -122,7 +119,7 @@ void FloatingBox::vf10() {
         if (fn_805F9920(&d) < 1.5f * (size.z * size.z)) {
             CharaTask::Sphere_unk sphere = chara->fn_80176548(chara->mPos);
             sphere.mCenter.y -= 5.0f;
-            if (fn_80051CD8(&sphere, mColli.m3C) != 0) {
+            if (fn_80051CD8(&sphere, &mColli.m3C) != 0) {
                 inside = 1;
             }
         }
@@ -151,7 +148,7 @@ void FloatingBox::vf10() {
     }
     m6C = mBasePos;
     m6C.y += mCurAmp * (float)sin(mPhase);
-    fn_800575BC(&mColli, &m6C, &m78, &size);
+    mColli.fn_800575BC(&m6C, &m78, &size);
     if (vf38() != 0) {
         fn_803ED5D0(vf38());
     }

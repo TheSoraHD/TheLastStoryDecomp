@@ -130,16 +130,19 @@ atn/ColliTest_unk.cpp:
 	.sdata2     start:0x80880940 end:0x80880960
 
 atn/atn_colli.cpp:
-	.text       start:0x80056DB8 end:0x80059784
+	.text       start:0x80056DB8 end:0x80059660
 	.rodata     start:0x80731058 end:0x807310C8
 	.data       start:0x80777588 end:0x807776C8
 	.sdata2     start:0x80880960 end:0x80880980
 
 atn/ColliCalc_unk.cpp:
-	.text       start:0x80059784 end:0x8005C248
+	.text       start:0x80059660 end:0x8005B3CC
 	.bss        start:0x807C6BC8 end:0x807C6C08
 	.sbss       start:0x8087EEA0 end:0x8087EEA8
 	.sdata2     start:0x80880980 end:0x80880998
+
+atn/Csv_unk.cpp:
+	.text       start:0x8005B3CC end:0x8005C248
 
 atn/SinusCurve.cpp:
 	.text       start:0x8005C248 end:0x8005DD60
