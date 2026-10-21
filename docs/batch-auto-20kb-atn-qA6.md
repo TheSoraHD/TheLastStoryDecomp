@@ -80,3 +80,28 @@ Cola: `atn/Sound3dListener_cont` (fusion con `atn/Sound3dListener`), `atn/Task`,
   - Los bucles `if (c) do {...} while (c)` del original (guarda + test al final) no salen de `for`/`while`.
   - Leer los flags en un local antes de varias pruebas evita las recargas; la funcion inline `IsKilled` (sin local)
     las fuerza cuando el original las tiene (fn_800D2338).
+
+## atn/TextAnimation (borrador)
+- Resultado: 14/29 al 100%, `matching: false`, `main.dol: OK`. Fuente nuevo `src/atn/TextAnimation.cpp` (la entrada
+  de `game_units.json` ya existia).
+- Al 100%: ctor, `vector<float>` ctor y `operator[]`/`size` debiles, las cuatro funciones de efecto
+  (fn_800D98C8/98F4/9918/993C), vf0C, vf10, vf14 (fn_800DA9A4), `floorf` debil (0x800DAD48), fn_800D9880/98C0.
+- NONMATCHING / sin decompilar:
+  - fn_800D9960 (0x1044, dibujo de un texto: copia a un buffer `wchar_t`, `\n` -> salto, wcstok, medida y
+    dibujo por caracter): sin decompilar (declarado `extern "C"`).
+  - Copias debiles de plantillas sin reconstruir: fn_800DAD6C (push_back de `TextAnimEntry_unk`, copia el
+    `wstring`), fn_800DB3EC (push_back de 4 bytes, ya documentado NONMATCHING en `std/vector.h`), fn_800DB6E0
+    (push_back de `vector<float>`), fn_800DB3D4 (back()), fn_800DAD3C, fn_800D98DC (ctor de `TextAnimVec_unk`),
+    `basic_string<wchar_t>::reserve`.
+  - Borradores: fn_800D9560 73%, fn_800DAA3C 49%, fn_800DAB68 95%, fn_800DBC1C 98%, fn_800DBCC8 87%, dtor 70%.
+- **Decisiones sin el usuario**
+  - Splits: sin cambios. Pendiente: el double 0x807347E0 (int->float) solo lo usa fn_800D9960 de este fichero,
+    pero esta dentro de `atn/CompositeIntensityTintMulti` (.rodata hasta 0x807347E8); no se ha movido (unidad ajena).
+  - Clase local `atn::TextAnimation` (Task + seis `std::vector`, cuatro punteros a funcion de efecto, mA0..mAC),
+    `TextAnimEntry_unk` (= `DialogText_unk` de Event/Dialog + m44), `TextAnimVec_unk`. Las funciones que llama
+    Event/Dialog siguen `extern "C"` con el objeto como primer argumento (Dialog las declara asi).
+  - `symbols.txt`: pairnames (ctor, vf14, copias debiles de vector), a mano `__dt__`/`vf0C`/`vf10` de
+    TextAnimation, `lbl_807347FC` -> `@stringBase0`. `fn_800D9890` (size de `wstring`) se deja con nombre `fn_`:
+    renombrarlo a `size__...CFv` choca al enlazar con la copia de `atn/D2A_Manager` (multiply-defined).
+    `fn_800DB3EC` tambien se deja (pairnames lo emparejaba con un push_back de `int` por tamano).
+- Pendientes: fn_800D9960 y las copias debiles de push_back.
