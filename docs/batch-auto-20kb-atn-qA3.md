@@ -57,3 +57,42 @@ Cola: `atn/Loader`, `atn/SoftKeyboardU`.
     (no es de mi cola: no toco su split).
   - Cadenas del pool que no usa nadie: "wt" y "%08x %s ref=%d %s pack=%d\n" (funcion de volcado eliminada por el
     enlazador) y los errores de basic_string (el original los tiene en `@stringBase0`, aqui van a `@STRING@`).
+
+## atn/SoftKeyboardU (MP::SoftKeyboard) (commit PENDIENTE)
+- Resultado: 27/46 al 100% (+27 en el total; todo el lote: 5961 -> 6006), `matching: false`, `main.dol: OK`,
+  regress lost: 0, fuzzdrop 0.
+- Contenido real del split: `MP::SoftKeyboard` (Task de la entrada de nombre del modo online, singleton
+  `lbl_8087F860`) con un `atn::SoftKeyboardU` en 0xF8. Los nombres de tipo de `boost::bind` en .rodata dan la
+  clase `MP::SoftKeyboard` y que los callbacks reciben `const Key&` (aqui `Key*`, como la cabecera de qA2).
+- Sin escribir/emparejar (15): el ctor del original supera el presupuesto de inline y llama fuera de linea a
+  `fn_805028D8` (caracter de la tecla), `Vector2_unk(float, float)`, `SoftKey_unk()`, `SoftKeyboardU()`,
+  `fn_80503AB8` (SetKey), `fn_80503B04` (longitud maxima), los 4 `boost::bind` y los 4 ctor de `boost::function`
+  (copias debiles 0x805028D8-0x80503B04). Aqui el ctor queda justo por debajo del presupuesto (una llamada inline
+  mas lo saca todo de linea) y no se emiten. El original ademas construye las esquinas de la tecla en su sitio
+  (ctor de Vector2 sobre la tecla, sin operator=): no reproducido.
+- NONMATCHING: ctor (0%, todo inlineado), `fn_80504C00` 92% (indice base+desplazamiento), `vf14` 99.3% (registros),
+  `fn_80505510` 95.9% (orden de carga, registros, reenvio del ptr_string_base local), `fn_80505C1C` 96.3% (un
+  store programado una posicion despues).
+- **Decisiones sin el usuario**
+  - `include/atn/SoftKeyboardBase.h`: `SoftKey_unk` pasa de 4 floats a `Vector2_unk mMin, mMax` (fn_80503AB8 los
+    copia con psq); `Contains_unk` de la base adaptado (sigue al 100%, `main.dol: OK`).
+  - Cabecera nueva `include/atn/SoftKeyboardU.h` con `atn::SoftKeyboardU` (solo miembros inline: SetKey, longitud y
+    los 7 setters de callbacks que devuelven el anterior). NO puede ir en SoftKeyboardBase.h: sus inline instancian
+    miembros de boost::function y cambian el orden de las copias debiles de SoftKeyboardBase_wchar_t_0 (rompia
+    `main.dol`).
+  - Tablas inventadas: `sKeyChars_unk[3][4][11]` (QWERTY/AZERTY/QWERTZ, 0x8075A988), tres tablas de etiquetas
+    (`sKeyLabels*_unk`, .data 0x80792AE0), `sSpecialText_unk` (ids de mensajes 0x1A5-0x1A8).
+  - `atn::ptr_string_base<wchar_t, 0>` redeclarada localmente (como en MP/Text.cpp) con un ctor desde puntero.
+  - symbols.txt: renombrados las 31 funciones emitidas (mas los nombres previstos de las no emitidas), datos
+    (`sKeyChars_unk`, `sSpecialText_unk`, `@9316`, `@stringBase0`, `@wstringBase0`, `sKeyLabels_unk` reducido a
+    0x1C8 + 7 constantes ptmf `@8749`-`@8755` NUEVAS en 0x80792CA8, RTTI de los bind_t, `@LOCAL@`/`@GUARD@` de
+    `assign_to`, placeholders `_1`-`_6` locales en .sbss).
+- Hallazgos MWCC
+  - `x / 2.0f` y `x / 4.0f` dan `fmuls x, 0.5`/`fmadds x, 0.25` con `x` como primer operando; con `0.5f * x` o
+    `x * 0.5f` el compilador pone la constante primero (fnmsubs/fmadds con los operandos cruzados).
+  - `float v = a; if (c) v = b;` da `lfs; beq; lfs` como el original; el ternario da dos ramas con `b`.
+  - `if (0.0f == x)` no cambia nada; copiar `x` a un local antes de comparar si (carga de la constante primero).
+  - Las implicitas `operator=` de structs pequenos tambien salen fuera de linea (`__as__`) cuando la llamadora
+    supera el presupuesto de inline.
+- Pendientes
+  - Encontrar la forma del ctor que supere el presupuesto (desbloquearia 15 funciones casi triviales).
