@@ -9,7 +9,7 @@
 #include "std/string_members.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include "revolution/os/OSFastCast.h" // OSInitFastCast (SDK header asm, approved 2026-10-21)
+#include "sdk/OSFastCast.h" // OSInitFastCast (SDK header asm, approved 2026-10-21)
 
 extern "C" void OSInit();
 extern "C" void OSReport(const char* fmt, ...);
