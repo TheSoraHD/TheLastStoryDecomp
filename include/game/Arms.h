@@ -49,7 +49,9 @@ public:
     virtual int vf0C();                                  // 0x8004424C
     virtual void vf10();                                 // 0x80044780
     virtual void vf14();                                 // 0x80044BB0
-    virtual void vf18();                                 // 0x800457A0
+    // inferred: called by CharaTask with the zero vector twice, 0 and 200 when an attack starts
+    // (see chr::CharaPart_unk); only Gun::vf18 reads an argument (d)
+    virtual void vf18(const atn::Vector3& a, const atn::Vector3& b, int c, int d); // 0x800457A0
 
     void fn_8004439C();                 // inferred: reads the .chr file
     atn::Vector3 fn_80044BD4();         // inferred: position of the "shot" node (or of the model)

@@ -9,7 +9,7 @@ public:
     Sword(void* arg04, int arg08, int arg0C, int arg270);
     virtual ~Sword();
     virtual int vf0C();
-    virtual void vf18();
+    virtual void vf18(const atn::Vector3& a, const atn::Vector3& b, int c, int d);
 };
 
 #endif

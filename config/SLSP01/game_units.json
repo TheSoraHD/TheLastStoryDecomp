@@ -1788,7 +1788,7 @@
  {
   "name": "game/SystemErrorMessage_unk.cpp",
   "classes": [
-   "SystemErrorMessage_unk"
+   "ErrorManager"
   ],
   "matching": false
  },
@@ -2561,9 +2561,50 @@
   "matching": false
  },
  {
+  "name": "game/Gun.cpp",
+  "classes": [
+   "Gun"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/HColliData_unk.cpp",
+  "classes": [
+   "ColliObjectData_unk",
+   "ColliTreeData_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/HomingBullet.cpp",
+  "classes": [
+   "HomingBullet"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/IffChunkFile_unk.cpp",
+  "classes": [
+   "ChunkFile_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/main.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/MapPartsLocatorSet.cpp",
   "classes": [
    "MapPartsLocatorSet"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/Text.cpp",
+  "classes": [
+   "MP::Text"
   ],
   "matching": false
  },

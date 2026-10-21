@@ -2540,11 +2540,15 @@ gmk/CharaPathMove.cpp:
 	.sdata2     start:0x808869C8 end:0x80886A10
 
 game/Gun.cpp:
-	.text       start:0x8043F028 end:0x804405F8
-	.ctors      start:0x8072D370 end:0x8072D374
-	.rodata     start:0x80754498 end:0x807544C8
+	.text       start:0x8043F028 end:0x8043F5C4
+	.rodata     start:0x80754498 end:0x807544B8
 	.data       start:0x8078F210 end:0x8078F258
 	.sdata2     start:0x80886A10 end:0x80886A20
+
+game/HColliData_unk.cpp:
+	.text       start:0x8043F5C4 end:0x804405F8
+	.ctors      start:0x8072D370 end:0x8072D374
+	.rodata     start:0x807544B8 end:0x807544C8
 
 game/HomeButtonMenu.cpp:
 	.text       start:0x804405F8 end:0x80440B24
@@ -2560,11 +2564,14 @@ game/HomeButton_unk.cpp:
 	.sdata2     start:0x80886A40 end:0x80886A80
 
 game/HomingBullet.cpp:
-	.text       start:0x80441590 end:0x80442F10
+	.text       start:0x80441590 end:0x80442B50
 	.rodata     start:0x807545F0 end:0x80754628
 	.data       start:0x8078F2B8 end:0x8078F2F8
 	.bss        start:0x807C8A38 end:0x807C8A48
 	.sdata2     start:0x80886A80 end:0x80886AE8
+
+game/IffChunkFile_unk.cpp:
+	.text       start:0x80442B50 end:0x80442F10
 
 game/ItemManager_unk.cpp:
 	.text       start:0x80442F10 end:0x8044D710

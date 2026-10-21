@@ -1,6 +1,6 @@
 // inferred file name (splits-auto-C.md, group 2): window of the system error messages (disc, Wii Remote,
 // Nunchuk) shown over the game, with a direct GX text fallback while its layouts are not loaded.
-// No vtable or RTTI: the class name is invented. Instance at lbl_8087F420 (see game/GameSystem_unk.cpp).
+// No vtable or RTTI; class name ErrorManager from the boost::bind type names (game/main.cpp). Instance at lbl_8087F420 (see game/GameSystem_unk.cpp).
 
 #include "atn/D2A_Task.h"
 #include "atn/FadeCommon.h"
@@ -339,9 +339,10 @@ static const char* const sMessages[6][31][4] = {
 };
 
 // inferred: error window (0x4C bytes, instance lbl_8087F420); names invented
-class SystemErrorMessage_unk {
+// Real class name ErrorManager (boost::function type names in .rodata, see game/main.cpp).
+class ErrorManager {
 public:
-    SystemErrorMessage_unk();
+    ErrorManager();
     void fn_80363DBC();      // inferred: per-frame update
     void fn_803646C4();      // inferred: draws the message without the layouts
     void fn_80364BE8();      // inferred: loads the OS font and sets up GX
@@ -378,7 +379,7 @@ public:
     atn::FadeColor* mFade; // 0x44
     boost::scoped_ptr<unsigned char> mFont; // 0x48
 };
-extern "C" SystemErrorMessage_unk* lbl_8087F420;
+extern "C" ErrorManager* lbl_8087F420;
 
 // inferred: setters of the layout panes (as in atn/D2A_Task.cpp; names invented)
 inline void SetText_unk(void* layout, const char* name, const wchar_t* text) {
@@ -419,11 +420,11 @@ extern "C" int fn_80363C28(wchar_t* dst, const char* src, unsigned int size) {
 // inferred: creates the instance
 extern "C" void fn_80363CE4() {
     if (lbl_8087F420 == 0) {
-        lbl_8087F420 = new (1, "", "", 0) SystemErrorMessage_unk();
+        lbl_8087F420 = new (1, "", "", 0) ErrorManager();
     }
 }
 
-SystemErrorMessage_unk::SystemErrorMessage_unk()
+ErrorManager::ErrorManager()
     : mError(0), mPrev(0), mDelay(0), m0C(0), m10(0), mPaused(0), m18(0), m1C(0), m20(0), mWindow(0), mChoice(0),
       mChoice2(0), mCursor(0), mReady(0), m38(0), m3C(0), mSelect(0), mFade(0) {
     DVDSetAutoFatalMessaging(1);
@@ -432,7 +433,7 @@ SystemErrorMessage_unk::SystemErrorMessage_unk()
 
 // NONMATCHING: 99.47% - the original reloads lbl_8087F018 for m40C0 (here the copy in a register is
 // used) and mError when it is kept; register order of the constants 3/0 and of the fade counters
-void SystemErrorMessage_unk::fn_80363DBC() {
+void ErrorManager::fn_80363DBC() {
     if (m20 != 0) {
         return;
     }
@@ -639,7 +640,7 @@ inline unsigned int ToU8_unk(float f) {
 
 // NONMATCHING: 98.04% - stack slots of the colour and of the pointer to member test, registers of the
 // font loop (the scale constant and the double of the int conversion are swapped)
-void SystemErrorMessage_unk::fn_803646C4() {
+void ErrorManager::fn_803646C4() {
     if (!IsBusy_unk()) {
         if (mError == 0) {
             return;
@@ -709,7 +710,7 @@ void SystemErrorMessage_unk::fn_803646C4() {
     }
 }
 
-void SystemErrorMessage_unk::fn_80364BE8() {
+void ErrorManager::fn_80364BE8() {
     if ((unsigned short)OSGetFontEncode() == 1) {
         mFont.reset(new (1, "", "", 0) unsigned char[0x120F00]);
     } else {
@@ -737,7 +738,7 @@ void SystemErrorMessage_unk::fn_80364BE8() {
     GXSetVtxAttrFmt(0, 13, 1, 3, 0);
 }
 
-void SystemErrorMessage_unk::fn_80364DB4(int x, int y, int s, int t) {
+void ErrorManager::fn_80364DB4(int x, int y, int s, int t) {
     short x0 = x;
     short x1 = x0 + ((SysFont_unk*)mFont.get())->m10;
     short y0 = y;
@@ -757,7 +758,7 @@ void SystemErrorMessage_unk::fn_80364DB4(int x, int y, int s, int t) {
     GXTexCoord2s16_unk(s0, t1);
 }
 
-void SystemErrorMessage_unk::fn_80364E7C(int message) {
+void ErrorManager::fn_80364E7C(int message) {
     if (mReady == 0) {
         return;
     }
@@ -788,7 +789,7 @@ void SystemErrorMessage_unk::fn_80364E7C(int message) {
     }
 }
 
-void SystemErrorMessage_unk::fn_8036503C() {
+void ErrorManager::fn_8036503C() {
     if (mReady == 0) {
         return;
     }
@@ -824,7 +825,7 @@ void SystemErrorMessage_unk::fn_8036503C() {
     }
 }
 
-void SystemErrorMessage_unk::fn_80365320() {
+void ErrorManager::fn_80365320() {
     if (mReady == 0) {
         return;
     }

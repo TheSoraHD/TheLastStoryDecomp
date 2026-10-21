@@ -13,6 +13,8 @@ namespace atn {
 template <int N>
 struct FixedString_unk {
     FixedString_unk() { mStr[0] = 0; }
+    // inferred: construction from a literal goes through the assignment (MapPartsLocatorSet ctor)
+    FixedString_unk(const char* str) { *this = str; }
     // inferred: the copy goes through the const char* assignment and an accessor (name invented);
     // otherwise the source pointer is not kept in a saved register (0x803EE7FC)
     FixedString_unk& operator=(const FixedString_unk& other) { return *this = other.c_str(); }
@@ -23,6 +25,24 @@ struct FixedString_unk {
         return *this;
     }
     const char* c_str() const { return mStr; }
+    // inferred: comparison with a literal: lengths first, then the characters (inlined in
+    // MapPartsLocatorSet::fn_8049B1F0; name invented)
+    bool Equals_unk(const char* str) const {
+        unsigned long n = strlen(mStr);
+        bool r = str[n] == 0;
+        if (r) {
+            r = __equal_unk(mStr, mStr + n, str);
+        }
+        return r;
+    }
+    static bool __equal_unk(const char* first, const char* last, const char* str) {
+        for (; first != last; first++, str++) {
+            if (*first != *str) {
+                return false;
+            }
+        }
+        return true;
+    }
     char mStr[N];
 };
 
