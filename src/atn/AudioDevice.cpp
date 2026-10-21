@@ -41,6 +41,8 @@ template <class K, class V, int Extra>
 class AudioMap_unk {
 public:
     struct Value {
+        Value() {}
+        Value(const K& k, const V& v) : first(k), second(v) {}
         K first;
         V second;
     };
@@ -82,15 +84,7 @@ public:
             mLeftmost = end();
         }
     }
-    void Destroy(Node* node) {
-        if (node->mLeft != 0) {
-            Destroy(node->mLeft);
-        }
-        if (node->mRight != 0) {
-            Destroy(node->mRight);
-        }
-        delete node;
-    }
+    void Destroy(Node* node);
     static Node* __allocate() {
         Node* p = (Node*)::operator new(sizeof(Node));
         if (p == 0) {
@@ -127,16 +121,14 @@ public:
     }
     V& operator[](const K& key) {
         Node* pred;
-        bool leftmost;
         bool left;
+        bool leftmost;
         Node* parent = FindInsertPos(key, pred, left, leftmost);
-        if (pred == 0 || pred->mValue.first < key) {
-            Value value;
-            value.first = key;
-            value.second = V();
-            pred = InsertNode(parent, left, leftmost, value);
+        Value* v;
+        if (pred == 0 || (v = &pred->mValue, v->first < key)) {
+            v = &InsertNode(parent, left, leftmost, Value(key, V()))->mValue;
         }
-        return pred->mValue.second;
+        return v->second;
     }
 
     unsigned long mSize;
@@ -193,6 +185,17 @@ typename AudioMap_unk<K, V, Extra>::Node* AudioMap_unk<K, V, Extra>::InsertNode(
     return node;
 }
 
+template <class K, class V, int Extra>
+void AudioMap_unk<K, V, Extra>::Destroy(Node* node) {
+    if (node->mLeft != 0) {
+        Destroy(node->mLeft);
+    }
+    if (node->mRight != 0) {
+        Destroy(node->mRight);
+    }
+    delete node;
+}
+
 // inferred: the maps without the extra word
 template <class K, class V>
 class AudioMap_unk<K, V, 0> {
@@ -239,24 +242,26 @@ public:
             mLeftmost = end();
         }
     }
-    void Destroy(Node* node) {
-        if (node->mLeft != 0) {
-            Destroy(node->mLeft);
-        }
-        if (node->mRight != 0) {
-            Destroy(node->mRight);
-        }
-        delete node;
-    }
+    void Destroy(Node* node);
 
     unsigned long mSize;
     Node* mRoot;
     Node* mLeftmost;
 };
 
+template <class K, class V>
+void AudioMap_unk<K, V, 0>::Destroy(Node* node) {
+    if (node->mLeft != 0) {
+        Destroy(node->mLeft);
+    }
+    if (node->mRight != 0) {
+        Destroy(node->mRight);
+    }
+    delete node;
+}
+
 // inferred: sound id of a name in rsid.csv (id and bank)
 struct AudioSoundId_unk {
-    AudioSoundId_unk() : mId(0), mBank(0) {}
     int mId;
     int mBank;
 };
@@ -475,6 +480,8 @@ public:
         }
         return 0;
     }
+    // inferred: index of the sound in the archive (name invented)
+    unsigned int GetSoundIndex_unk(const char* name) { return GetSoundId_unk(name) - 1; }
     // inferred: names invented (fn_80049B74, fn_80049C3C, fn_80049CDC)
     unsigned int GetGroupId_unk(const char* name) {
         if (m8E0 != 0) {
@@ -1102,7 +1109,7 @@ extern "C" int fn_80048F8C(AudioDevice* audio, const char* name) {
         }
         return 0;
     }
-    if (lbl_8087EE90->GetSoundId_unk(name) - 1 == 0xFFFFFFFF) {
+    if (lbl_8087EE90->GetSoundIndex_unk(name) == 0xFFFFFFFF) {
         return 0;
     }
     unsigned int id = audio->GetSoundId_unk(name);
