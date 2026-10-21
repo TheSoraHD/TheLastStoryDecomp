@@ -118,8 +118,8 @@ public:
     Node* InsertNode(Node* parent, bool left, bool leftmost, const Value& value);
     void insert(const Value& value) {
         Node* pred;
-        bool left;
         bool leftmost;
+        bool left;
         Node* parent = FindInsertPos(value.first, pred, left, leftmost);
         if (pred == 0 || pred->mValue.first < value.first) {
             InsertNode(parent, left, leftmost, value);
@@ -261,8 +261,10 @@ struct AudioSoundId_unk {
     int mBank;
 };
 
-// inferred: effect preset (0x28 bytes after the key)
+// inferred: effect preset (0x28 bytes after the key; parameters of the reverb with their defaults)
 struct AudioFxPreset_unk {
+    AudioFxPreset_unk()
+        : m00(0.02f), m08(0.6f), m0C(0.4f), m10(1.0f), m14(5), m18(0.02f), m20(0.0f), m24(1.0f) {}
     float m00;
     float m04;
     float m08;
@@ -290,6 +292,13 @@ extern "C" void OSUnlockMutex(OSMutex_unk* mutex);
 
 extern "C" int fn_8070DC00(void* frameHeap);           // inferred: FrameHeap::GetCurrentLevel
 extern "C" unsigned long fn_8070DC10(void* frameHeap); // inferred: FrameHeap::GetFreeSize
+
+// inferred: nw4r::ut::AutoMutexLock
+struct AutoMutexLock_unk {
+    AutoMutexLock_unk(OSMutex_unk& mutex) : mMutex(mutex) { OSLockMutex(&mMutex); }
+    ~AutoMutexLock_unk() { OSUnlockMutex(&mMutex); }
+    OSMutex_unk& mMutex;
+};
 
 namespace nw4r {
 namespace ut {
@@ -335,16 +344,12 @@ public:
     virtual void* Alloc(unsigned long size); // 0x0C
     // inferred: inline members of the NW4R header
     int GetCurrentLevel() {
-        OSLockMutex(&mMutex);
-        int level = fn_8070DC00(mFrameHeap);
-        OSUnlockMutex(&mMutex);
-        return level;
+        AutoMutexLock_unk lock(mMutex);
+        return fn_8070DC00(mFrameHeap);
     }
     unsigned long GetFreeSize() {
-        OSLockMutex(&mMutex);
-        unsigned long size = fn_8070DC10(mFrameHeap);
-        OSUnlockMutex(&mMutex);
-        return size;
+        AutoMutexLock_unk lock(mMutex);
+        return fn_8070DC10(mFrameHeap);
     }
     bool IsValid() { return *(void**)mFrameHeap != 0; }
 
@@ -388,6 +393,18 @@ struct AudioPath_unk {
 // inferred: the NW4R effects of the AUX bus (their classes are not reconstructed: the constructors
 // are called by address and the inline destructors set the vtable of the library and call the
 // Shutdown/ReleaseWorkBuffer virtuals)
+// inferred: virtual functions of nw4r::snd::FxBase used here (never constructed here)
+class AudioFxBase_unk {
+public:
+    virtual void vf08();
+    virtual void vf0C();
+    virtual void Shutdown();
+    virtual void vf14();
+    virtual void vf18();
+    virtual int AssignWorkBuffer(void* buf, unsigned long size);
+    virtual void ReleaseWorkBuffer();
+};
+
 #define AUDIO_FX_UNK(Name, Size, Ctor, Vtable)                                                     \
     extern "C" void Ctor(void* fx);                                                                \
     extern "C" void* Vtable[];                                                                     \
@@ -395,13 +412,13 @@ struct AudioPath_unk {
         Name() { Ctor(this); }                                                                     \
         ~Name() {                                                                                  \
             *(void***)this = Vtable;                                                               \
-            ((void (*)(Name*))(*(void***)this)[4])(this);                                          \
-            ((void (*)(Name*))(*(void***)this)[8])(this);                                          \
+            ((AudioFxBase_unk*)this)->Shutdown();                                                  \
+            ((AudioFxBase_unk*)this)->ReleaseWorkBuffer();                                         \
         }                                                                                          \
         void AssignWorkBuffer(void* buf, unsigned long size) {                                     \
-            ((void (*)(Name*, void*, unsigned long))(*(void***)this)[7])(this, buf, size);         \
+            ((AudioFxBase_unk*)this)->AssignWorkBuffer(buf, size);                                 \
         }                                                                                          \
-        void ReleaseWorkBuffer() { ((void (*)(Name*))(*(void***)this)[8])(this); }                  \
+        void ReleaseWorkBuffer() { ((AudioFxBase_unk*)this)->ReleaseWorkBuffer(); }                \
         unsigned char m00[Size];                                                                   \
     };
 AUDIO_FX_UNK(AudioFxA_unk, 0x230, fn_8070E760, lbl_807C5F28)
@@ -534,7 +551,7 @@ public:
         }
     }
 
-    int m04; // inferred: initialized
+    volatile int m04; // inferred: initialized (reloaded after each test)
     nw4r::snd::DvdSoundArchive mArchive; // 0x08
     void* m194; // inferred: header buffer of the archive
     void* m198; // inferred: label buffer of the archive
@@ -639,7 +656,7 @@ static inline void* AudioAlloc_unk(unsigned long size) {
 
 AudioDevice::AudioDevice()
     : m04(0), m194(0), m198(0), m2C4(0), m2C8(0), m2F8(0), m2FC(0), m32C(0), m35C(0), m360(0x1E000), m390(0),
-      m400(0), m404(0), m408(0), m40C(0), m8BC(0), m8C0(0), m8C4(0), m8C8(0), m8CC(1), m8E0(0), m8E4(0) {
+      m404(0), m408(0), m40C(0), m8BC(0), m8C0(0), m8C4(0), m8C8(0), m8CC(1), m8E0(0), m8E4(0) {
     lbl_8087EE88 = new (10, "", "", 0) unsigned int[0x200];
     memset(lbl_8087EE88, 0, 0x800);
     lbl_8087EE8C = new (10, "", "", 0) char[0x100];
@@ -884,7 +901,7 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
                 }
             } else if (bank->mState == 4) {
                 char buf[0x100];
-                sprintf(buf, "SoundError: LoadError Bank[%s]", bank);
+                sprintf(buf, "SoundError: LoadError Bank[%s]\0", bank);
                 if (lbl_8087EEB8 != 0) {
                     lbl_8087EEB8->fn_800697D8(buf);
                 }
@@ -932,7 +949,7 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
             audio->m404 = 0;
         } else if (bank->mState == 4) {
             char buf[0x100];
-            sprintf(buf, "SoundError: LoadError ExtraBank[%s]", bank);
+            sprintf(buf, "SoundError: LoadError Extra Bank[%s]\0", bank);
             if (lbl_8087EEB8 != 0) {
                 lbl_8087EEB8->fn_800697D8(buf);
             }
@@ -974,7 +991,7 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
                 }
             } else if (bank->mState == 4) {
                 char buf[0x100];
-                sprintf(buf, "SoundError: LoadError Bank[%s]", bank);
+                sprintf(buf, "SoundError: LoadError Bank[%s]\0", bank);
                 if (lbl_8087EEB8 != 0) {
                     lbl_8087EEB8->fn_800697D8(buf);
                 }
@@ -996,7 +1013,7 @@ extern "C" int fn_8004829C(AudioDevice* audio, const char** names, unsigned int 
                 unsigned int info[6];
                 fn_8059E38C(&audio->mArchive, audio->GetSoundId_unk(name) - 1, info);
                 audio->m2FC += info[3];
-                audio->m2FC += info[5] + 0x100;
+                audio->m2FC = info[5] + audio->m2FC + 0x100;
             }
         }
         audio->m2F8 = AudioAlloc_unk(audio->m2FC);
@@ -1010,7 +1027,7 @@ extern "C" int fn_8004829C(AudioDevice* audio, const char** names, unsigned int 
         if (name != 0 && strlen(name) != 0) {
             unsigned int id = audio->GetSoundId_unk(name);
             AudioBank_unk bank;
-            sprintf(bank.mName, "%s", names[i]);
+            sprintf(bank.mName, "%s\0", names[i]);
             bank.mId = id;
             fn_8059E38C(&audio->mArchive, id - 1, bank.mInfo);
             bank.mBuffer0 = audio->m2CC.Alloc(bank.mInfo[3]);
@@ -1055,7 +1072,7 @@ extern "C" int fn_800489F4(AudioDevice* audio, const char* name) {
         }
     }
     AudioBank_unk bank;
-    sprintf(bank.mName, "%s", name);
+    sprintf(bank.mName, "%s\0", name);
     bank.mId = id;
     fn_8059E38C(&audio->mArchive, id - 1, bank.mInfo);
     bank.mBuffer0 = audio->m300.Alloc(bank.mInfo[3]);
@@ -1164,12 +1181,12 @@ extern "C" int fn_800496C0(AudioDevice* audio, const char* name) {
     memset(audio->m35C, 0, audio->m360);
     fn_80717740(&audio->m330, audio->m35C, audio->m360);
     AudioBank_unk* bank = &audio->mExtraBank;
-    sprintf(bank->mName, "%s", name);
+    sprintf(bank->mName, "%s\0", name);
     bank->mId = id;
     fn_8059E38C(&audio->mArchive, id - 1, bank->mInfo);
     bank->mBuffer0 = audio->m330.Alloc(bank->mInfo[3]);
     bank->mBuffer1 = audio->m330.Alloc(bank->mInfo[5]);
-    bank->mHeapState = audio->m330.GetCurrentLevel();
+    bank->mHeapState = audio->m300.GetCurrentLevel(); // inferred: the original reads the bank heap here
     audio->m404 = 1;
     return 1;
 }
@@ -1299,14 +1316,6 @@ extern "C" unsigned long fn_8070E830(void* fx);                        // inferr
 // inferred: adds a reverb preset
 extern "C" void fn_80049E54(AudioDevice* audio, const ReverbPreset_unk* preset) {
     AudioFxPreset_unk param;
-    param.m00 = 0.02f;
-    param.m08 = 0.6f;
-    param.m0C = 0.4f;
-    param.m10 = 1.0f;
-    param.m14 = 5;
-    param.m18 = 0.02f;
-    param.m20 = 0.0f;
-    param.m24 = 1.0f;
     param.m1C = preset->mType;
     param.m04 = preset->m08;
     int n = AUDIO_MIN_UNK(AUDIO_MAX_UNK((int)preset->m0C, 5), 40);
@@ -1412,7 +1421,7 @@ extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path) {
     ((atn::CsvBase<char, ',', '\r', '"'>&)csv).vf08((const char*)data, size);
     do {
         char name[0x100];
-        sprintf(name, "%s", csv.fn_8005B9CC());
+        sprintf(name, "%s\0", csv.fn_8005B9CC());
         int id = fn_800DC12C(csv.fn_8005B9CC());
         int bit = fn_800DC12C(csv.fn_8005B9CC());
         if (fn_800DC12C(csv.fn_8005B9CC()) > 0) {
