@@ -1,6 +1,6 @@
 // inferred file name (splits-auto): model instances placed by game/MapPartsLocatorSet (0x90 bytes,
 // created with new(0xC)); names invented.
-#include "gmk/Lemon.h"
+#include "game/MapInstance_unk.h"
 
 extern "C" InstData_unk* fn_8009F788(const char* path); // inferred: instance data of a model file
 extern "C" int fn_8009FFCC(InstData_unk* data);          // inferred: nonzero while loading
@@ -9,46 +9,6 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
-
-// inferred: LOD distances of a locator
-struct MapLod_unk {
-    unsigned char m00[0x04];
-    float m04;
-    float m08;
-    float m0C;
-};
-
-// inferred: locator of a map model (name, position, rotation in degrees, scale)
-struct MapLocator_unk {
-    const char* mName;     // 0x00
-    atn::Vector3 mPos;     // 0x04
-    atn::Vector3 mRot;     // 0x10
-    atn::Vector3 mScale;   // 0x1C
-    unsigned char m28[0x04];
-    MapLod_unk* mLod;      // 0x2C
-};
-
-// inferred: locator with a shear (m30: xy, m34: xz, m38: yz)
-struct MapLocatorShear_unk : public MapLocator_unk {
-    float m30;
-    float m34;
-    float m38;
-};
-
-class MapInstance_unk {
-public:
-    MapInstance_unk(const char* path, MapLocator_unk* loc);
-    MapInstance_unk(const char* path, MapLocatorShear_unk* loc);
-    int fn_80490DE8();
-    void fn_80490E38();
-    void fn_80490EA0(int arg);
-
-    atn::ModelInstance mInst;  // 0x00
-    unsigned int mHidden : 1;  // 0x88
-    unsigned int mFrame : 15;
-    unsigned int mId : 16;
-    unsigned int mHash;        // 0x8C
-};
 
 static int sCount_unk;
 

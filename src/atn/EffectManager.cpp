@@ -4,8 +4,10 @@
 #include "math/Vec.h"
 #include "std/vector.h"
 
-// The real file goes on after 0x8023B9D0 with the std:: template code it instantiates (iostream
-// facets, up to 0x802411B8) and the EfpInfoList loader; the thunks of EffectManager are at 0x8024372C.
+// The real file (0x80239798-0x8024373C, fused with the former std/char_traits_char_8023C080 and
+// atn/EffectManager_cont units) goes on after 0x8023B9D0 with the std:: template code it instantiates
+// (iostream facets, up to 0x802411B8) and the EfpInfoList loader, and ends with the this-adjusting
+// thunks of EffectManager for its IRender base (0x8024372C/0x80243734, emitted by MWCC at the end).
 
 struct Camera_unk;
 struct Model_unk;

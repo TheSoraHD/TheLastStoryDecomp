@@ -137,6 +137,11 @@ template <class T>
 struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<T*>(alloc), mStart(0) {}
     T** begin() { return this->mData + mStart; }
+    // inferred: appends n null pointers (resize, 0x801FFA04)
+    void __append_zero_unk(unsigned int n) {
+        memset(begin() + this->mSize, 0, n * sizeof(T*));
+        this->mSize += n;
+    }
     void push_back(T* const& x) {
         begin()[this->mSize] = x;
         this->mSize++;
@@ -231,6 +236,8 @@ public:
     T* begin() { return this->mData; }
     T* end() { return this->mData + this->mSize; }
     size_type size() const { return this->mSize; }
+    // inferred: weak copy 0x80120C20 (game/MotionCommand_unk.cpp)
+    bool empty() const { return this->mSize == 0; }
     T& operator[](size_type i) { return this->mData[i]; }
     size_type max_size() const { return size_type(-1) / sizeof(T); }
     // inferred: weak copies of size 0x2F4 for pointer elements (0x800DB3EC, 0x80244CCC, ...),
@@ -245,6 +252,31 @@ public:
     // inferred: inlined in atn::D2A_Message::vf18 (0x801F2A8C, std::wstring elements); pointer
     // elements take another buffer (atn::SequenceHolder::SequenceHolder, 0x800C3834)
     void reserve(size_type n) { __reserve_unk(n, (T*)0); }
+    // inferred: inlined in the d2anime loader (0x801FFA04, float* elements): new elements are
+    // zeroed, removed ones are dropped through __shrink_unk
+    void resize(size_type n) {
+        if (n > this->mSize) {
+            __append_unk(n - this->mSize);
+        } else if (n < this->mSize) {
+            this->__shrink_unk(n);
+        }
+    }
+    // inferred: reserve with a length check, elements moved as raw bytes (atn/Xsca_unk 0x805BD4B8,
+    // 8-byte entries); the check is out of the class so that its message goes to the file pool
+    void __reserve_checked_unk(size_type n) {
+        if (n > this->mCap) {
+            __vec_raw_buf_unk<T> buf;
+            __check_length_unk(n);
+            buf.mData = __allocate(n);
+            buf.mCap = n;
+            buf.__append_raw_unk(this->mData, this->mData + this->mSize);
+            this->mSize = 0;
+            __vec_swap_unk(this->mCap, buf.mCap);
+            __vec_swap_unk(this->mData, buf.mData);
+            __vec_swap_unk(this->mSize, buf.mSize);
+        }
+    }
+    void __check_length_unk(size_type n);
     template <class U>
     void __reserve_unk(size_type n, U**) {
         if (this->mCap < n) {
@@ -271,7 +303,36 @@ public:
         }
     }
 
+    // inferred: insertion of one element (weak copy 0x800C507C, 8-byte elements of atn/Shader_unk);
+    // the out-of-line helper takes a flag by reference.
+    // NONMATCHING (0x800C507C, 66%): the original lays out the length check of the slow path before
+    // the in-place path, and its copy loops differ.
+    T* insert(T* pos, const T& x) {
+        bool flag = false;
+        return __insert_one_unk(pos, x, flag);
+    }
+    T* __insert_one_unk(T* pos, const T& x, const bool& flag);
+
 private:
+    // inferred: growth of resize (0x801FFA04, pointer elements); the length check is defined out
+    // of the class (its "vector length error" goes to the file pool) and auto-inlined
+    void __append_unk(size_type n) {
+        if (this->mCap - this->mSize >= n) {
+            memset(this->mData + this->mSize, 0, n * sizeof(T));
+            this->mSize += n;
+        } else {
+            __check_append_unk(n);
+            __recommend_unk(this->mSize + n);
+            __vec_split_unk<T> buf(&this->mCap);
+            size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
+            buf.mData = __allocate(cap);
+            buf.mCap = cap;
+            buf.mStart = this->mSize;
+            buf.__append_zero_unk(n);
+            __swap_out_unk(buf);
+        }
+    }
+    void __check_append_unk(size_type n);
     void __init_unk(const T* first, const T* last);
     size_type __grow_cap_unk(size_type n);
     // inferred: growth without the length checks; push_back computes it once for one element and drops the
@@ -325,6 +386,65 @@ void vector<T>::push_back(const T& x) {
     __vec_set_buf_unk(buf, __grow_cap_unk(this->mSize + 1 - this->mCap));
     buf.push_back(x);
     __swap_out_unk(buf);
+}
+
+template <class T>
+T* vector<T>::__insert_one_unk(T* pos, const T& x, const bool& flag) {
+    if (this->mSize < this->mCap) {
+        T* last = this->mData + this->mSize;
+        const T* px = &x;
+        if (pos <= px && px < last) {
+            px++;
+        }
+        this->mSize++;
+        T* dst = last + 1;
+        while (last > pos) {
+            *--dst = *--last;
+        }
+        *pos = *px;
+        return pos;
+    }
+    if (max_size() - this->mCap < 1) {
+        __msl_error("vector length error");
+    }
+    __recommend_unk(1);
+    T* old = this->mData;
+    size_type idx = pos - old;
+    size_type cap = __grow_cap_unk(1);
+    T* p = __allocate(cap);
+    this->mData = p;
+    this->mCap = cap;
+    p[idx] = x;
+    if (old != 0) {
+        T* src = old;
+        T* end = old + idx;
+        T* dst = this->mData;
+        while (src < end) {
+            *dst++ = *src++;
+        }
+        dst++;
+        end = old + this->mSize;
+        while (src < end) {
+            *dst++ = *src++;
+        }
+        ::operator delete(old);
+    }
+    this->mSize++;
+    return this->mData + idx;
+}
+
+template <class T>
+void vector<T>::__check_length_unk(size_type n) {
+    if (n > max_size()) {
+        __msl_error("vector length error");
+    }
+}
+
+template <class T>
+void vector<T>::__check_append_unk(size_type n) {
+    if (max_size() - this->mCap < this->mSize + n) {
+        __msl_error("vector length error");
+    }
 }
 
 // inferred: copy of a range into an empty vector (names invented)

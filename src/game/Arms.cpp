@@ -584,4 +584,4 @@ ArmsCond_unk* Arms::fn_80045694(int kind, int value, int kind2, int value2) {
     return found;
 }
 
-void Arms::vf18() {}
+void Arms::vf18(const atn::Vector3& a, const atn::Vector3& b, int c, int d) {}

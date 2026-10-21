@@ -8,10 +8,36 @@
   "matching": false
  },
  {
+  "name": "atn/LH_Binary.cpp",
+  "classes": [
+   "atn::LH_Binary"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/THPPlayer_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Xsca_unk.cpp",
+  "classes": [
+   "Xsca_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/AiTarget.cpp",
   "classes": [
    "AIManager",
    "AiTarget"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/SongManager.cpp",
+  "classes": [
+   "SongManager"
   ],
   "matching": false
  },
@@ -317,10 +343,37 @@
   "matching": true
  },
  {
+  "name": "atn/Shader_unk.cpp",
+  "classes": [
+   "ShaderTex_unk",
+   "ShaderLOD_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ShaderManager_unk.cpp",
+  "classes": [
+   "ShaderManager_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/SoftKeyboardBase_wchar_t_0.cpp",
   "classes": [
    "atn::SoftKeyboardBase<wchar_t, 0>"
   ],
+  "matching": true
+ },
+ {
+  "name": "atn/WPad_unk.cpp",
+  "classes": [
+   "WPad_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/WordWrap_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {
@@ -457,6 +510,29 @@
    "CampSaveLoad",
    "atn::CsvU",
    "atn::CsvBase<wchar_t, 44, 13, 34>"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CharaC58_unk.cpp",
+  "classes": [
+   "CharaC58_unk",
+   "CharaD74_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CharaFaceControl.cpp",
+  "classes": [
+   "CharaFaceControl",
+   "FaceData_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/MotionCommand_unk.cpp",
+  "classes": [
+   "MotionCommand_unk"
   ],
   "matching": false
  },
@@ -933,6 +1009,13 @@
   "matching": true
  },
  {
+  "name": "atn/D2A_Manager.cpp",
+  "classes": [
+   "atn::D2A_Manager"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/D2A_Message.cpp",
   "classes": [
    "atn::D2A_Message"
@@ -980,6 +1063,11 @@
    "atn::D2A_Window"
   ],
   "matching": true
+ },
+ {
+  "name": "atn/D2Anime_unk.cpp",
+  "classes": [],
+  "matching": false
  },
  {
   "name": "atn/D3Anime.cpp",
@@ -1104,9 +1192,24 @@
   "matching": false
  },
  {
+  "name": "db/WeaponParam_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/OptionParts_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "db/EquipParam_unk.cpp",
   "classes": [],
   "matching": true
+ },
+ {
+  "name": "db/ItemParam_unk.cpp",
+  "classes": [],
+  "matching": false
  },
  {
   "name": "db/ItemRare_unk.cpp",
@@ -1233,6 +1336,16 @@
   "matching": false
  },
  {
+  "name": "atn/DLMalloc_unk.cpp",
+  "classes": [],
+  "matching": true
+ },
+ {
+  "name": "atn/EffectDesc_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/EffectRes_unk.cpp",
   "classes": [],
   "matching": false
@@ -1253,20 +1366,6 @@
    "atn::EffectManager"
   ],
   "matching": false
- },
- {
-  "name": "std/char_traits_char_8023C080.cpp",
-  "classes": [
-   "std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char>>>"
-  ],
-  "matching": false
- },
- {
-  "name": "atn/EffectManager_cont.cpp",
-  "classes": [
-   "atn::EffectManager"
-  ],
-  "matching": true
  },
  {
   "name": "atn/EffectSequencer_unk.cpp",
@@ -1711,6 +1810,13 @@
    "EquipItemData"
   ],
   "matching": true
+ },
+ {
+  "name": "game/SystemErrorMessage_unk.cpp",
+  "classes": [
+   "ErrorManager"
+  ],
+  "matching": false
  },
  {
   "name": "game/FriendArganan.cpp",
@@ -2331,6 +2437,13 @@
   "matching": false
  },
  {
+  "name": "atn/ResRef_unk.cpp",
+  "classes": [
+   "ResRef_unk"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/LH_Handle.cpp",
   "classes": [
    "atn::LoadHandle"
@@ -2474,9 +2587,50 @@
   "matching": false
  },
  {
+  "name": "game/Gun.cpp",
+  "classes": [
+   "Gun"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/HColliData_unk.cpp",
+  "classes": [
+   "ColliObjectData_unk",
+   "ColliTreeData_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/HomingBullet.cpp",
+  "classes": [
+   "HomingBullet"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/IffChunkFile_unk.cpp",
+  "classes": [
+   "ChunkFile_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/main.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/MapPartsLocatorSet.cpp",
   "classes": [
    "MapPartsLocatorSet"
+  ],
+  "matching": false
+ },
+ {
+  "name": "MP/Text.cpp",
+  "classes": [
+   "MP::Text"
   ],
   "matching": false
  },
@@ -2941,6 +3095,13 @@
   "matching": false
  },
  {
+  "name": "game/SpecialEnemyBase.cpp",
+  "classes": [
+   "SpecialEnemyBase"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/StrapTask.cpp",
   "classes": [
    "StrapTask"
@@ -3090,6 +3251,11 @@
   "matching": true
  },
  {
+  "name": "AI/AiCommon_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/TargetPos_unk.cpp",
   "classes": [
    "AiTarget"
@@ -3167,6 +3333,13 @@
    "gmk::Cannon"
   ],
   "matching": true
+ },
+ {
+  "name": "gmk/DropItem.cpp",
+  "classes": [
+   "gmk::DropItem"
+  ],
+  "matching": false
  },
  {
   "name": "game/HomeButtonMenu.cpp",
@@ -3320,6 +3493,52 @@
  {
   "name": "game/HomeButton_unk.cpp",
   "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/SpText_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "db/MapLink_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Camera_unk.cpp",
+  "classes": [
+   "Camera_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/Frustum_unk.cpp",
+  "classes": [
+   "Frustum_unk"
+  ],
+  "matching": true
+ },
+ {
+  "name": "atn/PostFxGamma.cpp",
+  "classes": [
+   "atn::PostFxGamma"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/PostFxGodRay.cpp",
+  "classes": [
+   "atn::PostFxGodRay"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/CharaLightData_unk.cpp",
+  "classes": [
+   "CharaLightData_unk",
+   "NewCampScene2_unk"
+  ],
   "matching": false
  }
 ]

@@ -83,6 +83,8 @@ public:
         }
     }
     size_type max_size() const { return 0x7FFFFFFE; }
+    // inferred: weak copy 0x80042218 (char, game/AreaEffConfig.cpp)
+    bool empty() const { return size() == 0; }
     ~basic_string() {
         if (is_long()) {
             ::operator delete(mLong.mData);
@@ -147,7 +149,8 @@ public:
                 p = str.mLong.mData;
                 n = str.mLong.mSize;
             }
-            __replace_unk(0, sz, p, p + n, random_access_iterator_tag());
+            // inferred: returns the result of the replace (weak copy 0x801F1818, wchar_t)
+            return __replace_unk(0, sz, p, p + n, random_access_iterator_tag());
         }
         return *this;
     }
@@ -205,6 +208,8 @@ public:
         return __replace_unk(sz, 0, p, p + n, random_access_iterator_tag());
     }
     basic_string& operator+=(const basic_string& str) { return append(str); }
+    // inferred: one character (atn/WordWrap_unk 0x800DFB40: size() then the range replace of &c)
+    basic_string& operator+=(T c) { return __replace_unk(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
     // inferred: inlined in operator==(const basic_string&, const T*) (0x8000EB8C, char)
     // inferred: matches the weak copy 0x8000EB8C: n2 copied to a local that stays in a register
     // (n2 itself is passed by address to __min), the first __min takes the size first, and the

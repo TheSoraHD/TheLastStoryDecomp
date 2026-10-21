@@ -2,6 +2,8 @@
 #define GAME_GIMMICKCOMMON_H
 
 #include "atn/Csv.h"
+#include "atn/FixedArray.h"
+#include "atn/SoundRef.h"
 #include "atn/GXDecl.h"
 #include "atn/LH_Binary.h"
 #include "atn/Model_unk.h"
@@ -15,8 +17,30 @@ class CharaTask;
 class GimmickCommon;
 
 
-// inferred: 0x34-byte member of GimmickCommon at 0xB0 (sound/effect tables: its destructor
-// frees arrays of atn::SoundRef); its members are out of line (0x803EF608-0x803F11F8, not split)
+// inferred: motion command of a gimmick (0x28 bytes): a line "MOTCMD" of the gimmick binary
+// (game/GimmickStateCommand.cpp). Fires an effect, sound, camera shake or explosion when the motion
+// reaches a frame. Names invented.
+struct GimmickMotionCmd_unk {
+    GimmickMotionCmd_unk() : mMotion(-1), mFrame(-1), mType(-1), mIndex(-1), mOffset(0.0f, 0.0f, 0.0f), mScale(1.0f), mNode(0), mDone(0) {}
+    int mMotion;          // inferred: motion id (fn_802180A8)
+    int mFrame;
+    int mType;            // inferred: index in the command names ("EFF_PLAY".."EXPLODE")
+    int mIndex;           // inferred: resource index of its type
+    atn::Vector3 mOffset; // 0x10
+    float mScale;         // 0x1C
+    int mNode;            // 0x20: inferred: node name hash (fn_800DC6B4)
+    int mDone;            // 0x24
+};
+
+struct ResLoader_unk;
+struct MotionCmdElemD_unk;
+namespace atn {
+class EfpHandle_unk;
+class SoundRef;
+}
+
+// inferred: 0x34-byte member of GimmickCommon at 0xB0: motion commands of the gimmick and their
+// resources (effects, sounds); its members are in game/GimmickStateCommand.cpp
 struct GimmickCommonB0_unk {
     GimmickCommonB0_unk();  // 0x803EF608
     ~GimmickCommonB0_unk(); // 0x803EF64C
@@ -25,15 +49,43 @@ struct GimmickCommonB0_unk {
     void fn_803F0764(GimmickCommon* gimmick);
     void fn_803F10AC(int arg);
     void fn_803F11F8(void* menu);           // inferred: debug menu
-    unsigned char m00[0x34];
+
+    atn::Buffer_unk<GimmickMotionCmd_unk> mCmds;  // 0x00
+    atn::Buffer_unk<ResLoader_unk> mEff;          // 0x08: "EFF_PLAY"
+    atn::Buffer_unk<atn::EfpHandle_unk> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
+    atn::Buffer_unk<atn::SoundRef> mSounds;       // 0x18: "SE_LOOP"
+    atn::Buffer_unk<MotionCmdElemD_unk> mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"
+    int mMotion;   // 0x28: inferred: motion of the last update
+    int mEnabled;  // 0x2C
+    int mSoundOn;  // 0x30
 };
 
-// inferred: state command task created for some gimmick types (GimmickStateCommand.cpp)
+// inferred: state command task created for some gimmick types (GimmickStateCommand.cpp): plays the
+// sounds of the gimmick sound table (gmk::SeTable) when the state of the gimmick changes
 class GimmickStateCommand : public atn::Task {
 public:
+    // inferred: one sound being played (names invented)
+    struct Entry_unk {
+        Entry_unk() : mTable(0), mFrame(0), mDone(0) {}
+        const gmk::SeTable* mTable;
+        int mFrame;
+        int mDone;
+        atn::SoundRef mSound;
+    };
+    GimmickStateCommand(GimmickCommon* gimmick);
+    virtual ~GimmickStateCommand();
+    virtual void vf10();
     void fn_803F1A38(int arg);
-    unsigned char m48[0x58 - 0x48];
-    int m58;
+
+    GimmickCommon* mGimmick; // 0x48
+    int mState;              // 0x4C: inferred: state of the gimmick seen last
+    int m50;
+    int m54;
+    int m58;                 // inferred: frames to wait
+    // inferred: one more destructor level than atn::FixedArray_unk (as LogList_unk in
+    // game/LogMessageTask.h); name invented
+    struct EntryList_unk : public atn::FixedArray_unk<Entry_unk, 16> {};
+    EntryList_unk mEntries; // 0x5C
 };
 extern "C" GimmickStateCommand* fn_803F1310(GimmickCommon* gimmick);
 

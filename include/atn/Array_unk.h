@@ -59,6 +59,21 @@ public:
         mSize = n;
         mCapacity = n;
     }
+    // inferred: same from the given heap; the weak copies of game/MotionCommand_unk.cpp
+    // (0x801204A8, 0x80120C30, 0x80120D44, 0x80120E48) take a third argument they never read
+    void Resize_unk(unsigned int n, int heap, int unused) {
+        T* data = (n != 0) ? new (heap, "", "", 0) T[n] : 0;
+        if (mData != 0) {
+            unsigned int count = (n > mSize) ? mSize : n;
+            for (unsigned int i = 0; i < count; i++) {
+                data[i] = mData[i];
+            }
+            delete[] mData;
+        }
+        mData = data;
+        mSize = n;
+        mCapacity = n;
+    }
     // inferred: copy of another vector (name invented; CharaTask::fn_8017B1C4)
     void Assign_unk(const Vector_unk& o) {
         clear();
@@ -135,6 +150,30 @@ public:
     // inferred: as Alloc, but from the given heap and without clearing (atn::LoadScene 0x804778DC
     // uses heap 0, atn::LoadModel 0x804749C8 heap 6)
     void Resize_unk(int n, int heap) {
+        if (mData != 0) {
+            delete[] mData;
+        }
+        mSize = n;
+        if (mSize != 0) {
+            mData = new (heap, "", "", 0) T[mSize];
+        } else {
+            mData = 0;
+        }
+    }
+    // inferred: Resize_unk from heap 0 (weak copies 0x8004269C and 0x80042E28 in
+    // game/AreaEffConfig.cpp; name invented)
+    void Alloc0_unk(int n) { Resize_unk(n, 0); }
+    // inferred: weak copy inside AreaEffConfig's row assignment (0x80042EEC)
+    Buffer_unk& operator=(const Buffer_unk& o) {
+        Resize_unk(o.mSize, 0);
+        for (unsigned int i = 0; i < mSize; i++) {
+            mData[i] = o.mData[i];
+        }
+        return *this;
+    }
+    // inferred: as Resize_unk(n, heap); the third argument is the name of the owner, unused in release
+    // (weak copies 0x803F0280-0x803F0538, game/GimmickStateCommand.cpp)
+    void Resize_unk(int n, int heap, const char* name) {
         if (mData != 0) {
             delete[] mData;
         }

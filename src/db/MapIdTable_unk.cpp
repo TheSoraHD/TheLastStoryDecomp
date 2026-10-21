@@ -26,45 +26,6 @@ extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
-// inferred: element of the global lists of db/MapLink_unk.cpp (its constructor makes new[] keep a
-// cookie)
-struct MapLinkItemA_unk {
-    MapLinkItemA_unk();
-    int m00;
-};
-struct MapLinkItemB_unk {
-    MapLinkItemB_unk();
-    int m00;
-};
-
-// inferred: the destructors at 0x80216A2C and 0x80216A94 come after the __sinit of
-// db/MapLink_unk.cpp, which registers them for its global lists: they are weak copies of
-// atn::Vector_unk<T>::~Vector_unk of that file. The split puts them at the start of this unit, so
-// they are written here as non-template classes (as SpTextBuffer_unk in db/StrategyAiTable_unk.cpp).
-struct MapLinkListA_unk {
-    ~MapLinkListA_unk();
-    unsigned int mSize;
-    unsigned int mCapacity;
-    MapLinkItemA_unk* mData;
-};
-MapLinkListA_unk::~MapLinkListA_unk() {
-    if (mData != 0) {
-        delete[] mData;
-    }
-}
-
-struct MapLinkListB_unk {
-    ~MapLinkListB_unk();
-    unsigned int mSize;
-    unsigned int mCapacity;
-    MapLinkItemB_unk* mData;
-};
-MapLinkListB_unk::~MapLinkListB_unk() {
-    if (mData != 0) {
-        delete[] mData;
-    }
-}
-
 // inferred: one map of /boot/map_id_table_xx.u16 (0xCC bytes); the inline constructor is emitted
 // out of line (fn_802174E8) for __construct_new_array
 struct MapId_unk {

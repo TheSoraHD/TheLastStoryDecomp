@@ -54,6 +54,19 @@ struct RouteLook_unk {
 };
 // inferred: route between two points (8 bytes)
 struct RoutePath_unk;
+// inferred: spot of the route tables (0x148 bytes): id, position and radius (names invented)
+struct RouteSpot_unk {
+    int mId;
+    atn::Vector3 mPos; // 0x04
+    unsigned char m10[0x14 - 0x10];
+    float mRadius;     // 0x14
+    unsigned char m18[0x148 - 0x18];
+};
+// inferred: {count, spots} (names invented)
+struct RouteSpots_unk {
+    unsigned int mCount;
+    RouteSpot_unk* mSpots;
+};
 struct RouteTable_unk {
     // inferred: names invented
     RouteLink_unk* GetLink_unk(int link) { return &mLinks[link - 1]; }
@@ -72,7 +85,8 @@ struct RouteTable_unk {
     int mNumPoints;          // 0x74
     unsigned int mNumPlaces; // 0x78
     RoutePlace_unk* mPlaces; // 0x7C
-    unsigned char m80[0x9C - 0x80];
+    RouteSpots_unk m80[3]; // inferred: by character type (1/4, 2, 3; CharaC58_unk::fn_8011CAE4)
+    unsigned char m98[0x9C - 0x98];
     RoutePoint_unk* mPoints; // 0x9C
     unsigned char mA0[0xA4 - 0xA0];
     RoutePath_unk* mPaths;   // 0xA4

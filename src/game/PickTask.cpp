@@ -67,7 +67,6 @@ struct PickBox_unk {
     atn::Matrix3x4 mMtx;
 };
 extern "C" int fn_80051CD8(const CharaTask::Sphere_unk* sphere, const PickBox_unk* box); // inferred: sphere in box
-extern "C" void fn_8011CD84(CharaD74_unk* label, CharaTask* chara, int kind); // inferred: shows a label
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 // inferred: link of the character lists (CharaTask + 0x14A8)
 struct PickCharaNode_unk {
@@ -368,14 +367,14 @@ void PickTask::vf10() {
         switch (label->m00) {
         case 2:
             if (seen || alert) {
-                fn_8011CD84(label, c, 3);
+                label->fn_8011CD84(c, 3);
             }
             break;
         case 3:
             if (alert) {
-                fn_8011CD84(label, c, 4);
+                label->fn_8011CD84(c, 4);
             } else if (!seen) {
-                fn_8011CD84(label, c, 2);
+                label->fn_8011CD84(c, 2);
             } else if (++label->m02 > 150) {
                 lost = true;
             }
@@ -384,7 +383,7 @@ void PickTask::vf10() {
             if (seen) {
                 lost = true;
             } else if (c->mRoute.m2C != 0) {
-                fn_8011CD84(label, c, 5);
+                label->fn_8011CD84(c, 5);
             } else {
                 if (seen) {
                     label->m02++;
@@ -401,16 +400,16 @@ void PickTask::vf10() {
             if (seen) {
                 lost = true;
             } else if (c->m55C != 6) {
-                fn_8011CD84(label, c, 6);
+                label->fn_8011CD84(c, 6);
             }
             break;
         case 6:
             if (alert) {
-                fn_8011CD84(label, c, 4);
+                label->fn_8011CD84(c, 4);
             } else if (seen) {
                 lost = true;
             } else if (c->mRoute.m2C != 0) {
-                fn_8011CD84(label, c, 2);
+                label->fn_8011CD84(c, 2);
             }
             break;
         case 1:
@@ -421,7 +420,7 @@ void PickTask::vf10() {
             if (++label->m04 < 45 && !near) {
                 continue;
             }
-            fn_8011CD84(label, c, 1);
+            label->fn_8011CD84(c, 1);
         }
     }
 }
