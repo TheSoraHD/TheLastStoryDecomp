@@ -9,6 +9,7 @@
 #include "std/string_members.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "revolution/os/OSFastCast.h" // OSInitFastCast (SDK header asm, approved 2026-10-21)
 
 extern "C" void OSInit();
 extern "C" void OSReport(const char* fmt, ...);
@@ -276,10 +277,11 @@ int main() {
 // NONMATCHING: 39.7% - the original inlines the boost::bind/boost::function constructors, the
 // strings and LightDesc_unk while calling Vector_unk::push_back out of line (here the three push_back
 // calls make every candidate go out of line; push_back probably takes the function by value in the
-// original); it also starts with OSInitFastCast (inline asm of the SDK header: mtspr GQR2-5),
-// not written here (rule 2)
+// original). Over the budget OSInitFastCast (approved SDK header asm) is also called out of line here,
+// while the original inlines its four mtspr GQR2-5 after OSInit.
 void fn_8047A4C8() {
     OSInit();
+    OSInitFastCast();
     OSInitMutex((char*)fn_800827E0() + 0x1B4);
     DVDInit();
     VIInit();
