@@ -55,7 +55,7 @@ inline void __CopyName_unk(char* dst, const char* src) {
 }
 
 // NONMATCHING: 98.3% - temporaries of the loop take other volatile registers
-PfsArchive_unk* LoadManager_unk::fn_8046F460(const char* path) {
+PfsArchive_unk* Loader::fn_8046F460(const char* path) {
     if (*path == '/') {
         path++;
     }
@@ -71,7 +71,7 @@ PfsArchive_unk* LoadManager_unk::fn_8046F460(const char* path) {
 }
 
 // NONMATCHING: 91.8% - list end/iterator swap r30/r31 (tried local end, iterator first, find_if)
-int LoadManager_unk::fn_8046F4D4(const char* path) {
+int Loader::fn_8046F4D4(const char* path) {
     for (std::list<PfsArchive_unk*>::iterator it = mMounted.begin(); it != mMounted.end(); ++it) {
         if ((*it)->fn_8046FBB0(path) != -1) {
             return 1;
@@ -81,7 +81,7 @@ int LoadManager_unk::fn_8046F4D4(const char* path) {
 }
 
 // NONMATCHING: 98.8% - list end/iterator swap r30/r31
-int LoadManager_unk::fn_8046F544(void* out, const char* dir, const char* ext, int flags) {
+int Loader::fn_8046F544(void* out, const char* dir, const char* ext, int flags) {
     int count = 0;
     std::list<PfsArchive_unk*>::iterator it = mMounted.begin();
     std::list<PfsArchive_unk*>::iterator end = mMounted.end();
@@ -99,7 +99,7 @@ void LoadCore::vf10(char* out) {
 
 // NONMATCHING: 95.0% - the original reloads m48[mid] for the second test of the search and computes
 // the index of the first insert without the begin pointer. Tried a reference to the cache.
-void LoadManager_unk::fn_8046F5CC(LoadCore* core) {
+void Loader::fn_8046F5CC(LoadCore* core) {
     if (m48.size() == 0) {
         m48.push_back(core);
         return;
@@ -123,7 +123,7 @@ void LoadManager_unk::fn_8046F5CC(LoadCore* core) {
     }
 }
 
-LoadCore* LoadManager_unk::fn_8046F834(void* list, unsigned int hash) {
+LoadCore* Loader::fn_8046F834(void* list, unsigned int hash) {
     LoadCache_unk& cache = *(LoadCache_unk*)list;
     int lo = 0;
     int hi = cache.size() - 1;
@@ -144,7 +144,7 @@ LoadCore* LoadManager_unk::fn_8046F834(void* list, unsigned int hash) {
 }
 
 // NONMATCHING: 93.2% - register allocation (the hash pointer and the cache pointer)
-void LoadManager_unk::fn_8046F8B8(unsigned int* hashes, unsigned int count) {
+void Loader::fn_8046F8B8(unsigned int* hashes, unsigned int count) {
     unsigned int j = 0;
     for (unsigned int i = 0; i < count; i++) {
         while (j < m48.mCount && hashes[i] > m48.mItems[j]->m48) {
@@ -159,7 +159,7 @@ void LoadManager_unk::fn_8046F8B8(unsigned int* hashes, unsigned int count) {
 }
 
 // NONMATCHING: 97.6% - register allocation
-void LoadManager_unk::fn_8046F96C(unsigned int* hashes, unsigned int count) {
+void Loader::fn_8046F96C(unsigned int* hashes, unsigned int count) {
     unsigned int j = 0;
     for (unsigned int i = 0; i < count; i++) {
         if (hashes[i] == 0) {

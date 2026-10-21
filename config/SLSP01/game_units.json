@@ -1361,6 +1361,13 @@
   "matching": false
  },
  {
+  "name": "atn/Loader.cpp",
+  "classes": [
+   "atn::Loader"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/EffectManager.cpp",
   "classes": [
    "atn::EffectManager"

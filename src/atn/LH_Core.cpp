@@ -4,7 +4,6 @@
 
 struct DebugMessages_unk { void fn_800698DC(const char* path); }; // inferred: see atn/FileUtil_unk.cpp
 extern "C" DebugMessages_unk* lbl_8087EEB8;                               // inferred: listener of failed loads
-extern "C" void fn_8046DD20(void* manager, void* data);        // inferred: frees loaded data
 
 namespace atn {
 

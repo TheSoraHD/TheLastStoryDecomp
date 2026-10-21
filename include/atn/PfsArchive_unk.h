@@ -74,7 +74,7 @@ struct ResRef_unk {
     void* m04;
 };
 
-extern "C" atn::PfsArchive_unk* fn_8046EF08(atn::LoadManager_unk* mgr, const char* name, const char* index,
+extern "C" atn::PfsArchive_unk* fn_8046EF08(atn::Loader* mgr, const char* name, const char* index,
                                             int flags); // inferred: opens an archive
 
 #endif

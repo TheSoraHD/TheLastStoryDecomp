@@ -2,7 +2,7 @@
 #define STD_LIST_H
 
 // Partial reconstruction of the MSL C++ list used by the game. Only what the game code inlines is
-// here. Layout inferred from the loader manager (atn::LoadManager_unk, 0x80472DCC): size, then the
+// here. Layout inferred from the loader manager (atn::Loader, 0x80472DCC): size, then the
 // sentinel node {prev, next}; nodes are {prev, next, value}. Class names are invented.
 
 #include "std/msl_common.h"
@@ -119,6 +119,29 @@ private:
 public:
     size_type mSize;
     __list_node_base_unk mTail;
+};
+
+// inferred: list with the constructor and destructor of the MSL list (list above has neither so
+// that its other users are not changed; same shape as CacheListImp_unk of
+// atn/CompositeCache_unk.cpp). Used by atn::Loader (constructor 0x8046D84C, destructor 0x8046D9B0).
+template <class T>
+struct __list_owned_imp_unk : public list<T> {
+    __list_owned_imp_unk() {
+        __list_owned_imp_unk* self = this;
+        self->mSize = 0;
+        __list_node_base_unk* tail = &self->mTail;
+        tail->mNext = tail;
+        tail->mPrev = tail;
+    }
+    ~__list_owned_imp_unk() { this->clear(); }
+};
+template <class T>
+struct __list_owned_mid_unk : public __list_owned_imp_unk<T> {
+    ~__list_owned_mid_unk() {}
+};
+template <class T>
+struct __list_owned_unk : public __list_owned_mid_unk<T> {
+    ~__list_owned_unk() {}
 };
 
 } // namespace std

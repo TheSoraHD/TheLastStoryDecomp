@@ -7,7 +7,7 @@
 extern "C" int fn_800DC500(const char* name, unsigned long len); // inferred: name to id
 extern "C" char* fn_806825B4(const char* s, int c);               // inferred: strrchr
 extern "C" void* lbl_8087F518;                                    // inferred: resource manager
-// inferred: get/load a motion = LoadManager_unk::Get_unk<LoadMotion> (weak copy emitted by this file at
+// inferred: get/load a motion = Loader::Get_unk<LoadMotion> (weak copy emitted by this file at
 // 0x804766B0, see atn/LH_Motion_cont.cpp)
 extern "C" void* fn_804766B0(void* manager, const char* path, int arg);
 
