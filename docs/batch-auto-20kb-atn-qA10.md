@@ -2,7 +2,7 @@
 
 Cola: `atn/NetManager`.
 
-## atn/NetManager (commits 63c7c99, y el siguiente "Match atn/NetManager (71/73)")
+## atn/NetManager (commits 63c7c99, de4d208)
 - Resultado: 71/73 al 100% (+71 en el total), `matching: false`, `main.dol: OK`, regress lost: 0 (main e
   integracion), fuzzdrop 0.
 - Contenido del fichero: `atn::net::Manager` (ctor/dtor/vf0C, inicializacion de DWC y sockets, update por
