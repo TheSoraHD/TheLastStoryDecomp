@@ -3172,6 +3172,13 @@
   "matching": false
  },
  {
+  "name": "atn/NetManager.cpp",
+  "classes": [
+   "atn::net::Manager"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/DwcAllocator_unk.cpp",
   "classes": [],
   "matching": true
