@@ -86,8 +86,8 @@ extern "C" int DWC_RnkResGetRowCount(unsigned long* count);
 
 // DWC (unnamed in symbols.txt)
 extern "C" void fn_806A8200(int arg);
-extern "C" void fn_806A8270(void (*cb)(unsigned char aid, void* data, int size));
-extern "C" void fn_806A8280(void (*cb)(int size, unsigned char aid));
+extern "C" void fn_806A8270(void (*cb)(int aid, void* data, int size));
+extern "C" void fn_806A8280(void (*cb)(int size, int aid));
 extern "C" void fn_806A8290();
 extern "C" void fn_806A8D90(int count, void (*cb)(int error));
 extern "C" void fn_806A8DB0();
@@ -182,8 +182,8 @@ namespace atn {
 namespace net {
 
 static void fn_8050AAE0(int error, int arg, void* param);
-void fn_8050AAD0(unsigned char aid, void* data, int size);
-void fn_8050AA8C(int size, unsigned char aid);
+void fn_8050AAD0(int aid, void* data, int size);
+void fn_8050AA8C(int size, int aid);
 static void fn_8050B224(int error, int cancel, int self, int isServer, int index, void* param);
 static void fn_8050B658(int error);
 void fn_8050B1A8(int result, int open, void* param);
@@ -217,6 +217,8 @@ extern "C" int fn_805089E0(Crypt* crypt, int decode, void* data, unsigned int* s
     return result;
 }
 
+// NONMATCHING: 97.92% - register allocation of the constructor loop of the players (the end pointer
+// takes r31 here and r27 in the original; same instructions)
 Manager::Manager() : m04(0), m08(0), mState(0), mE38(-1) {
     fn_8050D3E8();
 }
@@ -586,8 +588,8 @@ int Manager::fn_80509F48() {
 // 0x8050A100
 int Manager::fn_8050A100() {
     memset(m10, 0, sizeof(m10));
-    mC210 = 0;
     m26C = 0;
+    mC210 = 0;
     __SetDebugKey_unk();
     __SetDebugFilter_unk(m10);
     NetFilterKey_unk* key = mKeys;
@@ -750,18 +752,51 @@ void fn_8050A990(unsigned int aid, const unsigned char* data) {
     }
 }
 
-// 0x8050AA6C: inferred: send callback
+// 0x8050AA6C: inferred: send callback (release asserts: the original calls it out of line from
+// fn_8050AA8C)
 void fn_8050AA6C(int size, unsigned char aid, void* param) {
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
     lbl_8087F628->mStats.AddSend_unk(size);
 }
 
 // 0x8050AA8C
-void fn_8050AA8C(int size, unsigned char aid) {
+void fn_8050AA8C(int size, int aid) {
     fn_8050AA6C(size, aid, 0);
 }
 
-// 0x8050AA98: inferred: receive callback
+// 0x8050AA98: inferred: receive callback (release asserts: called out of line from fn_8050AAD0)
 void fn_8050AA98(unsigned char aid, void* data, int size, void* param) {
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
     lbl_8087F628->mStats.AddRecv_unk(size);
     if (lbl_8087F628->mCallbacks.mRecv != 0) {
         lbl_8087F628->mCallbacks.mRecv(aid, data, size);
@@ -769,7 +804,7 @@ void fn_8050AA98(unsigned char aid, void* data, int size, void* param) {
 }
 
 // 0x8050AAD0
-void fn_8050AAD0(unsigned char aid, void* data, int size) {
+void fn_8050AAD0(int aid, void* data, int size) {
     fn_8050AA98(aid, data, size, 0);
 }
 
@@ -791,36 +826,33 @@ static void fn_8050B1A4(int index, int status, void* param);
 
 // 0x8050AB58
 void Manager::fn_8050AB58(int error, int arg) {
-    if (lbl_8087F628->mState != 6) {
-        return;
-    }
-    if (error != 0) {
-        goto error;
-    }
-    if (DWC_GetIngamesnCheckResult() == 2) {
-        lbl_8087F628->PushError_unk(7, 0);
-        lbl_8087F628->mState = 3;
-        return;
-    }
-    lbl_8087F628->mFlags.mB1 = 1;
-    DWC_SetBuddyFriendCallback(fn_8050ADA4, 0);
     if (lbl_8087F628->mState == 6) {
-        lbl_8087F628->mFlags.mB3 = 1;
-        if (fn_806B0180(0, fn_8050AE3C, 0, fn_8050B1A4, 0, fn_8050ADF0, 0) == 0) {
-            lbl_8087F628->PushError_unk(10, 0);
-            lbl_8087F628->mState = 3;
+        if (error == 0) {
+            if (DWC_GetIngamesnCheckResult() == 2) {
+                lbl_8087F628->PushError_unk(7, 0);
+                lbl_8087F628->mState = 3;
+                return;
+            }
+            lbl_8087F628->mFlags.mB1 = 1;
+            DWC_SetBuddyFriendCallback(fn_8050ADA4, 0);
+            if (lbl_8087F628->mState == 6) {
+                lbl_8087F628->mFlags.mB3 = 1;
+                if (fn_806B0180(0, fn_8050AE3C, 0, fn_8050B1A4, 0, fn_8050ADF0, 0) == 0) {
+                    lbl_8087F628->PushError_unk(10, 0);
+                    lbl_8087F628->mState = 3;
+                } else {
+                    fn_8050F198(&lbl_8087F628->mFriendList);
+                    lbl_8087F628->mFlags.mB4 = 1;
+                    lbl_8087F628->mFlags.mB5 = 0;
+                }
+            }
+            lbl_8087F628->mE38 = arg;
+            lbl_8087F628->mFlags.mB2 = 1;
+            lbl_8087F628->mFlags.mB3 = 0;
         } else {
-            fn_8050F198(&lbl_8087F628->mFriendList);
-            lbl_8087F628->mFlags.mB4 = 1;
-            lbl_8087F628->mFlags.mB5 = 0;
+            lbl_8087F628->mState = 3;
         }
     }
-    lbl_8087F628->mE38 = arg;
-    lbl_8087F628->mFlags.mB2 = 1;
-    lbl_8087F628->mFlags.mB3 = 0;
-    return;
-error:
-    lbl_8087F628->mState = 3;
 }
 
 // 0x8050ADA4: inferred: friend callback
@@ -1096,7 +1128,7 @@ extern "C" int fn_8050BA68(unsigned char** aids) {
 int Manager::fn_8050BAC4() {
     int unchanged = 1;
     for (int i = 0; i < (int)mPlayers.mSize; i++) {
-        NetPlayerInfo_unk* info = &mPlayers.mData[i];
+        NetPlayerInfo_unk* info = &mPlayers.mData[(unsigned int)i];
         if (info->mAid != i) {
             info->mAid = i;
             unchanged = 0;
@@ -1126,7 +1158,7 @@ int Manager::fn_8050BAC4() {
     }
     if (mFrame % m258 == 0) {
         for (int i = 0; i < (int)mPlayers.mSize; i++) {
-            if (mPlayers.mData[i].mFlags.mConnected) {
+            if (mPlayers.mData[(unsigned int)i].mFlags.mConnected) {
                 if ((unsigned char)i != GetMyAid_unk() && mC215 == 0) {
                     DWC_Ping(i);
                 }
@@ -1573,6 +1605,8 @@ inline int Manager::IsJoined_unk() {
 }
 
 // 0x8050CFC8: inferred: main function of the worker thread
+// NONMATCHING: 98.47% - command 5 reloads lbl_8087F628 for m260 in the original (here it reuses mgr),
+// and commands 8/default reuse mgr + 0x10000 from the switch (r4) instead of recomputing it
 void* fn_8050CFC8(void* arg) {
     while (true) {
         Manager* mgr = lbl_8087F628;
