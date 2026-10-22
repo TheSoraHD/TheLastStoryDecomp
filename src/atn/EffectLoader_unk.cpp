@@ -225,8 +225,9 @@ extern "C" void fn_80238CA0(EffectFileHeader_unk* header, EffectResData_unk* res
 }
 
 // inferred: builds the resource from the loaded file; 0 for unsupported versions
-// NONMATCHING: 90.51% - register allocation (the original keeps the header in r26 and the resource
-// in r27, here r27/r28) and the schedule of the relocations that follows from it
+// NONMATCHING: 93.20% - register allocation (the original keeps the header in r26 and the resource
+// in r27, here r27/r28) and the schedule of the relocations that follows from it; the old-version
+// curve tables are allocated as new T[n][22] (one mulli by 0xB0 as in the original)
 extern "C" int fn_80239030(EffectFileHeader_unk* header, EffectResData_unk* res) {
     fn_802371BC((unsigned char*)header, sHeaderDesc);
     if (header->mVersion < 0x22) {
@@ -275,7 +276,7 @@ extern "C" int fn_80239030(EffectFileHeader_unk* header, EffectResData_unk* res)
     }
     if (res->mVersion <= 0x23) {
         unsigned int* src = (unsigned int*)header->mEmitterCurves;
-        res->mEmitterCurves = (EffectCurveData_unk(*)[22]) new (7, "", "", 0) EffectCurveData_unk[res->mCount * 22];
+        res->mEmitterCurves = new (7, "", "", 0) EffectCurveData_unk[res->mCount][22];
         for (unsigned int i = 0; i < res->mCount; i++) {
             for (int c = 0; c < 22; c++) {
                 unsigned int n = *src;
@@ -311,7 +312,7 @@ extern "C" int fn_80239030(EffectFileHeader_unk* header, EffectResData_unk* res)
     }
     if (res->mVersion <= 0x23) {
         unsigned int* src = (unsigned int*)header->mDefCurves;
-        res->mDefCurves = (EffectCurveData_unk(*)[13]) new (7, "", "", 0) EffectCurveData_unk[res->mDefCount * 13];
+        res->mDefCurves = new (7, "", "", 0) EffectCurveData_unk[res->mDefCount][13];
         for (unsigned int i = 0; i < res->mDefCount; i++) {
             for (int c = 0; c < 13; c++) {
                 unsigned int n = *src;

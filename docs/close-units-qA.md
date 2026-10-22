@@ -13,3 +13,10 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
   No se puede arreglar sin tocar `atn/WordWrap_unk` (unidad con fuente, su .rodata acaba en 0x807350A4): se queda
   `matching: false`. Solo enlazara fusionada con el fichero anterior (WordWrap_unk + char_traits_char + allocator_char,
   ver batch-auto-10kb-qA2.md).
+- `atn/D2A_Frame` (2/3): sin cambios. `vf18` sigue 99.85% tras 10 intentos (orden de declaraciones, copia
+  del color, temporales del alfa, forma de fn_ToU8, bloques): solo cambia el reparto de registros flotantes.
+- `atn/D2A_MessageTable_unk` (5/6): saltada, bloqueo documentado (`push_back` en bucle: tamano/capacidad).
+- `atn/EffectLoader_unk` (4/5): `fn_80239030` 90.51% -> 93.20% (10 intentos). Las tablas de curvas de
+  versiones antiguas se reservan como `new EffectCurveData_unk[n][22]` (un solo `mulli 0xB0`, como el
+  original). Queda reparto de registros (cabecera r26/recurso r27 en el original).
+  - Hallazgo MWCC: `(T(*)[N]) new T[n * N]` sale con `mulli N` + `slwi`; `new T[n][N]` con un solo `mulli N*sizeof(T)`.
