@@ -373,7 +373,7 @@
    "-DHBM_VERSION=20090303"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_TagProcessorBase.cpp",
