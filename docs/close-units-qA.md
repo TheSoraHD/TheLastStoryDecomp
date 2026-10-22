@@ -58,3 +58,11 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
   `std/char_traits_char`.
 - `atn/AABBTree` (11/13): `vf18` sigue 97.37% (6 intentos: orden de `mr r3` del frustum en el inline de
   `fn_80045C88`); `fn_80045D7C` 85% saltada (bucle de ctores de `AABB_unk[4]`, ya investigado).
+- `atn/Camera_unk` (2/4): saltada (bloqueo `__VecCopy` r3/r4).
+- `atn/ColliBaseFunc_unk` (15/17): saltada (borradores de 85.8%/93.2% de 6.4 KB/1.8 KB; fuera del alcance del lote).
+- `atn/CompositeCache_unk` (5/7): saltada (`push_back` en Get_unk-like y bucle de lista ya investigado, ~10 variantes).
+- `atn/LayerPostFx`: ENLAZADA (6/6). `Vec2f` (include/atn/LayerPostFx.h, solo la usa este fichero) copia con
+  `__Vec2Copy` (asm aprobado de math/Vec.h, como DialogVec2_unk): vf20 47% -> 100%. vf1C 78% -> 100% guardando
+  `mSaved` con `__Vec2Copy` explicito (con el operator= salian r4/r5 intercambiados). Las copias debiles de
+  IRenderLayer que emite el .o las descarta el enlazador (como en Layer3D/LayerReflect).
+  - CABECERA (solo de esta unidad): `include/atn/LayerPostFx.h` incluye math/Vec.h y da a Vec2f ctor de copia y operator=.

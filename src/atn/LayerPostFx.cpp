@@ -1,6 +1,5 @@
-// NONMATCHING: ctor, vf14, vf10 and dtor match; vf1C (78%) and vf20 (47%) differ only in the
-// 8-byte float pair copies, which the original emits as psq_l/psq_st. Wii/1.0-1.3 and GC/3.0a*
-// emit lfs/stfs pairs; to be retried with Wii/1.5+.
+// The 8-byte float pair copies are psq_l/psq_st in the original: Vec2f copies through __Vec2Copy
+// (math/Vec.h, approved paired-single helper).
 #include "atn/LayerPostFx.h"
 
 // inferred: unknown callees and globals (automatic names)
@@ -51,7 +50,8 @@ void LayerPostFx::vf1C() {
     Vec2f zero;
     zero.x = 0.0f;
     zero.y = 0.0f;
-    mSaved = lbl_8087EEE0->m58;
+    // inferred: the save is a direct paired-single copy (assigning through Vec2f::operator= swaps r4/r5)
+    __Vec2Copy(&mSaved.x, &lbl_8087EEE0->m58.x);
     lbl_8087EEE0->m58 = zero;
     fn_80071E04(lbl_8087EEE0);
     fn_80076174(lbl_8087EEE0, 0);
