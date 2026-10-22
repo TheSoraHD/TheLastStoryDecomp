@@ -101,3 +101,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   (registros/pila ya investigados) sin tocar.
   - Hallazgo MWCC: `__MtxRotate` de Vec.h declara `Mtx r` antes que `Mtx t`; varias unidades (ChaserNpc,
     ControlJumpAt, quiza ControlTurnQuadruped 85%) quieren `Mtx t; Mtx r;` y el SetIdentity dentro del mismo inline.
+- `game/EnemyTrista` (12/18): saltada; sus pendientes son prologo (ctor), registros del bucle de eventos, pila de
+  Side_unk (82%), copia de parametros de camara por FPR (61%, estructura sin reconstruir) y el r5 extra de vf3C:
+  todos documentados en batch-auto-10kb-qG2.md.
