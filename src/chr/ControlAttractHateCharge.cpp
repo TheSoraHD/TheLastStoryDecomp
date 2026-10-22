@@ -28,7 +28,10 @@ extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data
                             int a, int time, int b, int c);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
-extern "C" const char* fn_8021FD7C(int table, int id); // inferred: text of `id` in a table
+// inferred: one line of the voice table (defined in atn/ptr_string_base_char_0.cpp)
+struct VoiceEntry_unk {
+    const char* fn_8021FD7C(int kind) const;
+};
 // inferred: effect manager behind lbl_8087F498 (as in chr/ControlGmkCoffinOpening.cpp)
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F498;
@@ -174,9 +177,9 @@ ControlOverdrive::ControlOverdrive(Chara_unk* chara, int skill)
             fn_801070C8(lbl_8087F048, hit->mB0, 0, 0, &mChara->mMotion, &lbl_807C7030, &lbl_807C7030, &color, 1.0f);
         }
     }
-    if (mChara->m7C != 0 && fn_8021FD7C(mChara->m7C, 0x24) != 0) {
+    if (mChara->m7C != 0 && ((VoiceEntry_unk*)mChara->m7C)->fn_8021FD7C(0x24) != 0) {
         char buf[0x100];
-        sprintf(buf, "%s", fn_8021FD7C(mChara->m7C, 0x24));
+        sprintf(buf, "%s", ((VoiceEntry_unk*)mChara->m7C)->fn_8021FD7C(0x24));
         buf[strlen(buf) - 1] = 0;
         fn_800C31F4(buf, 0, -1, 1.0f);
     }
@@ -186,7 +189,8 @@ ControlOverdrive::ControlOverdrive(Chara_unk* chara, int skill)
     mChara->SetHit_unk(fn_80219E6C(mSkill));
 }
 
-// NONMATCHING: 99.9% - the dead comparison (0.2 against the frame time) uses f0/f1 the other way round
+// NONMATCHING: 99.87% - the dead comparison (0.2 against the frame time) uses f0/f1 the other way round
+// (tried: operand order, >=/!<=, ternary, min helpers, locals for 0.1/0.2, split subtraction)
 int ControlOverdrive::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     int result = 0;
