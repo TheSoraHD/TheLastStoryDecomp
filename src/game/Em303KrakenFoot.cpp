@@ -447,7 +447,6 @@ void Em303KrakenFoot::vf54() {
     item.m04.mCenter = mPos + m5A4;
     bool up = (mStatus.mParamB.m9C & 0x40U) == 0x40U;
     if (up) {
-
         item.m04.mCenter.y -= item.m04.mRadius;
     } else {
         item.m04.mCenter.y += item.m04.mRadius;
