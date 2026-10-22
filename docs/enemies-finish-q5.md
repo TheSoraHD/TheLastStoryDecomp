@@ -97,6 +97,10 @@ game/Em315Coffin.
     Campos 0x14EC, 0x150C-0x1528, 0x1588-0x1590, 0x15D0 sacados del relleno (nombres desconocidos).
   - vf20 (0x8030D348, capsula desde el nodo "hips" una unidad hacia delante con rotacion y, x, z) escrita:
     NONMATCHING 99.71% (orden en pila de los tres bloques de rotacion; ~12 variantes).
+  - fn_8030D0D8 (inicio del aterrizaje, estado 8: punto de ruta m158C, punto de control 150 por delante, asientos
+    m1538[m14E8] por lugar de ruta, posicion del nodo "neck") escrita: NONMATCHING 99.63% (ranuras en pila de la
+    direccion y del temporal de la suma; ~10 variantes). Campos 0x14B0, 0x14E8, 0x1538 (10 pares de ids de lugar,
+    struct `Seat_unk` inventado), 0x1594-0x15CC y 0x15E4 sacados del relleno.
   - Cabecera: campos sacados del relleno (m14F1, m14F4[3] ids de jinete, m1500[3], m15E0, m1604, m1608, m160C).
 - `game/Em309Ghoul` (8/33 -> 10/33): vf0C (0x802FD134, espera de 10 efectos y 2 xsca, busca el gimmick 0x80A)
   y fn_802FF6C4 (eleccion del objetivo: el lider del grupo cuando m1524 llega a m16F8; pesos por jugador del

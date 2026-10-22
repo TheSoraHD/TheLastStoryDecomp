@@ -28,6 +28,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (as in game/Em309Ghoul.cpp)
 
 // inferred: node position (name invented, as in game/Em205Ogre.cpp)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
@@ -207,6 +208,31 @@ void Em310Gargoyle::fn_8030CF84(int warp) {
     m150C = 0;
 }
 
+
+// NONMATCHING: 99.63% - stack slots of the direction and of the sum temporary swapped, r4/r5 of the copy of
+// the neck position (__VecCopy family); ~10 variants (local order, named sum, += form, scale helper)
+void Em310Gargoyle::fn_8030D0D8() {
+    m58C = 8;
+    fn_8016E970(3);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    m1594 = GetRoutePoint_unk(table, m158C)->mPos;
+    m15A0 = mPos;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    atn::Vector3 front = dir * 150.0f;
+    m15AC = mPos + front;
+    m15AC.y += 20.0f;
+    int id = m1538[m14E8].m00;
+    m15B8 = table->FindPlace_unk(id)->mPos;
+    id = m1538[m14E8].m04;
+    m15C4 = table->FindPlace_unk(id)->mPos;
+    m1590 = 0.0f;
+    m14B0 = 0;
+    m15E4 = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    fn_800EB7A0(this);
+}
 // inferred: unused file-scope object with an empty constructor: only its (empty) static
 // initializer remains (fn_8030DA1C, the .ctors entry of this unit)
 static Color4f_unk sUnused_unk;
