@@ -215,3 +215,16 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   - **symbols.txt (decision sin el usuario)**: los 13 metodos de la vtable renombrados (ctor, dtor, vf0C, vf10, vf14,
     vf30, vf40, vfF8, vfFC, vf100, vf104, vf108, vf10C de Em314Ivy), lbl_80749264 -> @stringBase0 (local),
     lbl_80884CA0 -> sSounds_unk (local). Build limpio OK.
+- `game/Em316LastLaser` (0/19 -> 5/19, unidad SIN FUENTE hasta ahora): **fuente nueva `src/game/Em316LastLaser.cpp` y
+  cabecera nueva `include/game/Em316LastLaser.h`** (subclase de EnemyTask, layout 0x14B0-0x15D0; clases auxiliares
+  `LaserTrace` (vtable propia 0x807889C0) y `LaserList_unk` (derivada de std::vector, como CharaList_unk de
+  Em002_01BlackSkelton); nombres inventados). Al 100%: vf14, vf3C, fn_8031D27C, fn_8031D2BC,
+  LaserList_unk::Back_unk (0x8031E060). LaserTrace ctor 99.85% (solo el float del pool), ~LaserTrace 91.7% y
+  ~Em316LastLaser 97.2% (registros del iterador/this en el Reset_unk inline; probados orden de sentencias, for y
+  local para el puntero borrado). Ctor (tokenizer boost, presupuesto de inline), vf0C, vf10, vf40, vf80, vfEC y
+  helpers grandes en asm.
+  - game/SpecialEnemyBase.cpp crea el enemigo de tipo 46 con `new (3, "", "", 0) Em316LastLaser(parent, info)` en
+    lugar de `fn_8031B0A8` extern "C" (incluye game/Em316LastLaser.h).
+  - **symbols.txt (decision sin el usuario)**: fn_8031B0A8/B3CC/B6E0/B9B4/C530/C534/C584/C754/C894 -> ctor, dtor,
+    vf0C, vf10, vf14, vf3C, vf40, vf80, vfEC de Em316LastLaser; fn_8031D27C/D2BC -> metodos de Em316LastLaser;
+    fn_8031D4F4/D57C -> ctor/dtor de LaserTrace; fn_8031E060 -> Back_unk__13LaserList_unkFv. Build limpio OK.
