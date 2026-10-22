@@ -22,6 +22,8 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+extern "C" int fn_80370A78(Field_unk* field, int index);         // inferred: reads an event flag
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
                            float arg6); // inferred: nearest route point (as in gmk/MeetingSpot.cpp)
 // inferred: collision world and its ray test (as in game/ChaserNpc.cpp)
@@ -262,6 +264,95 @@ extern "C" void fn_8025D704(Em101LittleZesya* zesya) {
     zesya->m14F8 = 0;
 }
 
+// inferred: back to state 0 (name invented; the same block is inlined in fn_8025DE7C and fn_8025E9E4)
+inline void ResetState_unk(Em101LittleZesya* z) {
+    z->m14D0 = 0;
+    z->m14F4 = 0;
+    z->m58C = 0;
+    z->fn_8016E970(3);
+    fn_80239DAC(lbl_8087F3C0, z, 500, 1);
+    fn_80239DAC(lbl_8087F3C0, z, 102, 1);
+}
+
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 GetTrans_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: rotation matrix z, y, x (as ElderRotZYX_unk in game/Em101ElderZesya.cpp; name invented)
+inline void ZesyaRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    __MtxRotate(m.m, 'z', rot.z);
+    __MtxRotate(m.m, 'y', rot.y);
+    __MtxRotate(m.m, 'x', rot.x);
+}
+
+// inferred: center of the party (as in game/Em101ElderZesya.cpp; name invented)
+inline atn::Vector3 PartyCenter_unk() {
+    atn::Vector3 center = lbl_807C7030;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        center += p->mPos;
+    }
+    center *= 1.0f / (float)lbl_8087F8A0->mCount;
+    return center;
+}
+
+// inferred: index of the point of m14C4 nearest to `pos` on the ground plane (name invented)
+inline int Em101LittleZesya::Nearest_unk(const atn::Vector3& pos) {
+    float dist = 1e16f;
+    unsigned int i;
+    int best = -1;
+    for (i = 0; i < m14C4.mSize; i++) {
+        atn::Vector3 d = pos - m14C4.mData[i];
+        float len = sqrt(d.x * d.x + d.z * d.z);
+        if (dist > len) {
+            dist = len;
+            best = i;
+        }
+    }
+    return best;
+}
+
+// inferred: route point next to `target` (at most 40 from it, dropped to the ground) and the rotation
+// looking at the target; name invented
+inline void Em101LittleZesya::WarpNear_unk(CharaTask* target, atn::Vector3* dest, float* rot) {
+    int point = fn_803C1560(lbl_8087F430->m10D8, &target->mPos, 0, 0, 0, 1, -1.0f);
+    *dest = lbl_8087F430->m10D8->mPoints[point - 1].mPos;
+    *rot = (target->mPos - *dest).ToRotationZ_unk().y;
+    atn::Vector3 e = *dest - target->mPos;
+    e.y = 0.0f;
+    if (PSVECMag(&e) > 40.0f) {
+        *dest = target->mPos + e.GetNormalized_unk() * 40.0f;
+        CollResult_unk result;
+        atn::Vector3 to = atn::Vector3(0.0f, -500.0f, 0.0f) + *dest;
+        if (fn_8004ED34(lbl_8087EE98, &result, dest, &to, 0x80000000, &mColli, 0) != 0) {
+            *dest = result.m10;
+        }
+    }
+}
+
+// inferred: Em101ElderZesya seen through m1530 (only the flag at 0x16AC is read; name invented)
+struct ElderView_unk {
+    unsigned char m0000[0x16AC];
+    int m16AC; // inferred: nonzero while the elder keeps the little Zesya waiting
+    bool IsFree_unk() const { return !m16AC; }
+};
+
+// inferred: homing parameters with their defaults (name invented)
+struct ZesyaHoming_unk : public HomingParam_unk {
+    ZesyaHoming_unk() {
+        mTarget = 0;
+        mAccel = 0.0f;
+        m08 = -1.0f;
+        mMaxSpeed = 10.0f;
+        mTurn = 0.09424778f;
+        mTime = 300.0f;
+        mDelay = 5.0f;
+        mNode = 0;
+        mCount = -1;
+    }
+};
+
 // inferred: the state functions are not inlined here in the original; with -ipa file ours were, until each
 // got empty release asserts (ASSERT_UNK) that push it over the auto-inline threshold
 void Em101LittleZesya::fn_8025D7B0() {
@@ -320,54 +411,6 @@ void Em101LittleZesya::fn_8025D7B0() {
     }
 }
 
-void Em101LittleZesya::fn_8025DE54() {
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    if (m55C - 6U > 1) {
-        mFlag5 = 1;
-        mFC0 = m14B8;
-    }
-    fn_80139560();
-}
-
-void Em101LittleZesya::fn_8025DE7C() {
-    if (fn_80158BB4()) {
-        m14D0 = 0;
-        m14F4 = 0;
-        m58C = 0;
-        fn_8016E970(3);
-        fn_80239DAC(lbl_8087F3C0, this, 500, 1);
-        fn_80239DAC(lbl_8087F3C0, this, 102, 1);
-    } else {
-        fn_80139560();
-        if (lbl_8087F048 != 0 && fn_80158CA4() != 0) {
-            if (mControl && mControl->vf30() > m598) {
-                m598 = mControl->vf30();
-                m594 = 1;
-                m590 = fn_800F8548(lbl_8087F048);
-            }
-            fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f);
-        }
-    }
-}
-
-// inferred: Em101ElderZesya seen through m1530 (only the flag at 0x16AC is read; name invented)
-struct ElderView_unk {
-    unsigned char m0000[0x16AC];
-    int m16AC; // inferred: nonzero while the elder keeps the little Zesya waiting
-    bool IsFree_unk() const { return !m16AC; }
-};
-
 // NONMATCHING: 99.04% - stack slots: the original keeps the rows of the 4x4 matrix of ToRotation_unk in
 // descending order and the effect locals higher (8 variants: helper inlines, locals hoisted,
 // GetNormalized_unk form); r3/r4/r5 of the first block
@@ -422,6 +465,66 @@ void Em101LittleZesya::fn_8025D90C() {
         PlayEffectA_unk(&m156C, &mMotion);
         m1548 = 1;
     }
+}
+
+void Em101LittleZesya::fn_8025DE54() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    if (m55C - 6U > 1) {
+        mFlag5 = 1;
+        mFC0 = m14B8;
+    }
+    fn_80139560();
+}
+
+void Em101LittleZesya::fn_8025DE7C() {
+    if (fn_80158BB4()) {
+        m14D0 = 0;
+        m14F4 = 0;
+        m58C = 0;
+        fn_8016E970(3);
+        fn_80239DAC(lbl_8087F3C0, this, 500, 1);
+        fn_80239DAC(lbl_8087F3C0, this, 102, 1);
+    } else {
+        fn_80139560();
+        if (lbl_8087F048 != 0 && fn_80158CA4() != 0) {
+            if (mControl && mControl->vf30() > m598) {
+                m598 = mControl->vf30();
+                m594 = 1;
+                m590 = fn_800F8548(lbl_8087F048);
+            }
+            fn_80144710();
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f);
+        }
+    }
+}
+
+void Em101LittleZesya::fn_8025E008() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    m14D0 = 0;
+    m14F4 = 0;
+    m58C = 11;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x1C4, 1, 0, 1, 0.0f, 0.1f);
+    fn_80232B7C(this, 101);
+    PlayEffect_unk(&m156C, &mMotion);
+    m1548 = 2;
 }
 
 // NONMATCHING: 99.89% - r3/r4 of the copy of the route point (__VecCopy family; 6 variants)
@@ -494,25 +597,6 @@ void Em101LittleZesya::fn_8025E100() {
     }
 }
 
-void Em101LittleZesya::fn_8025E008() {
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    m14D0 = 0;
-    m14F4 = 0;
-    m58C = 11;
-    fn_8016E970(3);
-    mMotion.m34C = 1;
-    mMotion.mTracks[0].m20 = 1.0f;
-    mMotion.mTracks[0].m0C = 1.0f;
-    mMotion.fn_80097C08(0, 0x1C4, 1, 0, 1, 0.0f, 0.1f);
-    fn_80232B7C(this, 101);
-    PlayEffect_unk(&m156C, &mMotion);
-    m1548 = 2;
-}
-
 void Em101LittleZesya::fn_8025E748() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -533,7 +617,6 @@ void Em101LittleZesya::fn_8025E748() {
     m1540 = mMotion.mTracks[0].m08;
 }
 
-// NONMATCHING: ~95% - f1/f2 of the int->float conversion of the maximum HP (4 variants)
 void Em101LittleZesya::fn_8025E834() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -554,23 +637,25 @@ void Em101LittleZesya::fn_8025E834() {
     }
 }
 
-// inferred: back to state 0 (name invented; the same block is inlined in fn_8025DE7C and fn_8025E9E4)
-inline void ResetState_unk(Em101LittleZesya* z) {
-    z->m14D0 = 0;
-    z->m14F4 = 0;
-    z->m58C = 0;
-    z->fn_8016E970(3);
-    fn_80239DAC(lbl_8087F3C0, z, 500, 1);
-    fn_80239DAC(lbl_8087F3C0, z, 102, 1);
+void Em101LittleZesya::fn_8025E930() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    mStatus.mParamB.m8C += m1568;
+    if (HpRate_unk() >= 0.99f) {
+        Idle_unk();
+    }
 }
 
-// inferred: translation of a node matrix (name invented)
-inline atn::Vector3 GetTrans_unk(MtxPtr m) {
-    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
-}
-
-// NONMATCHING: 96.3% - only the offset of "hips" in @stringBase0 and the .sdata2 floats: the strings and
-// floats of the unwritten functions are missing from the pools
 void Em101LittleZesya::fn_8025E9E4() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -592,38 +677,11 @@ void Em101LittleZesya::fn_8025E9E4() {
     }
 }
 
-// inferred: rotation matrix z, y, x (as ElderRotZYX_unk in game/Em101ElderZesya.cpp; name invented)
-inline void ZesyaRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
-    m.SetIdentity();
-    __MtxRotate(m.m, 'z', rot.z);
-    __MtxRotate(m.m, 'y', rot.y);
-    __MtxRotate(m.m, 'x', rot.x);
-}
-
-// inferred: homing parameters with their defaults (name invented)
-struct ZesyaHoming_unk : public HomingParam_unk {
-    ZesyaHoming_unk() {
-        mTarget = 0;
-        mAccel = 0.0f;
-        m08 = -1.0f;
-        mMaxSpeed = 10.0f;
-        mTurn = 0.09424778f;
-        mTime = 300.0f;
-        mDelay = 5.0f;
-        mNode = 0;
-        mCount = -1;
-    }
-};
-
-// inferred: angle of the i-th of n bullets on a circle, in degrees (name invented)
-inline float SpreadAngle_unk(int n, int i) {
-    return 360.0f / (float)n * (float)i;
-}
-
 // inferred: fires one homing light sword at each player, spread in a circle around the spine
-// NONMATCHING: 93.79% - the original stores the 0x43300000 words of the two int->float conversions in the
+// NONMATCHING: 94.30% - the original stores the 0x43300000 words of the two int->float conversions in the
 // prologue and keeps one more FPR for the constants (f16-f31 against our f17-f31 plus a GPR), so the saved
-// registers shift by one (r20 against r19) and the stack slots differ (8 variants)
+// registers shift by one (r20 against r19) and the stack slots differ; the 0.5f of vf40 sits before
+// these constants in the original pool (11 variants)
 void Em101LittleZesya::fn_8025EAE4() {
     if (m1524 != 0) {
         int i = 0;
@@ -637,9 +695,10 @@ void Em101LittleZesya::fn_8025EAE4() {
             m.m[2][3] = 0.0f;
             PSMTXMultVec(m.m, &ofs, &ofs);
             pos += ofs;
+            float angle = 360.0f / lbl_8087F8A0->mCount * i;
             atn::Vector3 dir(6.0f, 0.0f, 3.0f);
             Mtx rz;
-            PSMTXRotRad(rz, 'z', 0.017453292f * (360.0f / lbl_8087F8A0->mCount * i));
+            PSMTXRotRad(rz, 'z', 0.017453292f * angle);
             PSMTXMultVec(rz, &dir, &dir);
             atn::Matrix3x4 r;
             ZesyaRotZYX_unk(r, mRot);
@@ -684,57 +743,6 @@ void Em101LittleZesya::fn_8025F07C() {
     fn_80178208(new (1, "", "", 0) chr::ControlWarp(this, m1590, dir));
 }
 
-// inferred: center of the party (as in game/Em101ElderZesya.cpp; name invented)
-inline atn::Vector3 PartyCenter_unk() {
-    atn::Vector3 center = lbl_807C7030;
-    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
-        center += p->mPos;
-    }
-    center *= 1.0f / (float)lbl_8087F8A0->mCount;
-    return center;
-}
-
-// inferred: index of the point of m14C4 nearest to `pos` on the ground plane (name invented)
-inline int Em101LittleZesya::Nearest_unk(const atn::Vector3& pos) {
-    float dist = 1e16f;
-    unsigned int i;
-    int best = -1;
-    for (i = 0; i < m14C4.mSize; i++) {
-        atn::Vector3 d = pos - m14C4.mData[i];
-        float len = sqrt(d.x * d.x + d.z * d.z);
-        if (dist > len) {
-            dist = len;
-            best = i;
-        }
-    }
-    return best;
-}
-
-// NONMATCHING: 98.2% - registers of the loop (index/offset/best swapped and the order of the two
-// increments, as in Em101ElderZesya::fn_802598DC) and the stack slot of the party center (10 variants:
-// written out, helper, pointer walk, signed index, while, declaration orders, comparison order)
-void Em101LittleZesya::fn_8025F45C() {
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    m58C = 10;
-    m14D0 = 0;
-    m14F4 = 0;
-    wchar_t text[256];
-    memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xAB), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
-    if (m15BC != 0) {
-        m1590 = m14C4.mData[Nearest_unk(m15A8.m08)];
-    } else {
-        m1590 = m14C4.mData[Nearest_unk(PartyCenter_unk())];
-    }
-    // inferred: the third argument is the address of the destination (CharaTask declares it int)
-    fn_8016D74C(m1520, 0, (int)&m1590);
-}
-
 void Em101LittleZesya::fn_8025F35C() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -760,23 +768,29 @@ void Em101LittleZesya::fn_8025F35C() {
     fn_80139560();
 }
 
-void Em101LittleZesya::fn_8025E930() {
+// NONMATCHING: 98.2% - registers of the loop (index/offset/best swapped and the order of the two
+// increments, as in Em101ElderZesya::fn_802598DC) and the stack slot of the party center (10 variants:
+// written out, helper, pointer walk, signed index, while, declaration orders, comparison order)
+void Em101LittleZesya::fn_8025F45C() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    mStatus.mParamB.m8C += m1568;
-    if (HpRate_unk() >= 0.99f) {
-        Idle_unk();
+    m58C = 10;
+    m14D0 = 0;
+    m14F4 = 0;
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xAB), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+    if (m15BC != 0) {
+        m1590 = m14C4.mData[Nearest_unk(m15A8.m08)];
+    } else {
+        m1590 = m14C4.mData[Nearest_unk(PartyCenter_unk())];
     }
+    // inferred: the third argument is the address of the destination (CharaTask declares it int)
+    fn_8016D74C(m1520, 0, (int)&m1590);
 }
 
 void Em101LittleZesya::fn_8025F754() {
@@ -816,6 +830,56 @@ void Em101LittleZesya::vf3C(HitInfo_unk* hit) {
     fn_80151448(msg);
     vf40(hit);
     m14D0 += 30;
+}
+
+// NONMATCHING: 99.53% - r27/r29 of the elder and of the rotation temporary, and the .sdata2 label of 0.5f
+// (9 variants: helper shared with fn_8025E100, declaration orders, pointer to the destination, HpRate_unk)
+// inferred: on a hit: below half HP the elder is told to warp next to its own route point (warp action 2);
+// HP never drops below 20%
+void Em101LittleZesya::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (m55C == 6) {
+        switch (m560) {
+        case 22:
+            goto reset;
+        case 23:
+            fn_8015E4B0(m6B8, -1);
+        case 20:
+        reset:
+            m58C = 0;
+            m14D0 = 0;
+            m14F4 = 0;
+            break;
+        }
+    }
+    float rate = mStatus.m04 / (float)mStatus.mParamB.m84;
+    if (rate < 0.5f) {
+        if (msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
+            if (fn_80370A78(lbl_8087F430, 0x6B) == 0) {
+                fn_80370AE4(lbl_8087F430, 0x6B, 1);
+            }
+        }
+        if (m15BC == 0) {
+            ZesyaWarp_unk warp;
+            warp.m00 = 2;
+            atn::Vector3* dest = &warp.m08;
+            CharaTask* elder = (CharaTask*)m1530;
+            if (elder != 0) {
+                float rot;
+                WarpNear_unk(elder, dest, &rot);
+            }
+            warp.m04 = 20;
+            m15BC = 1;
+            m15A8 = warp;
+        }
+    }
+    if (rate < 0.2f) {
+        mStatus.m04 = 0.2f * (float)mStatus.mParamB.m84;
+    }
+    if (mStatus.IsState_unk(0x20)) {
+        mStatus.fn_8013322C(0x20);
+        fn_8015E4B0(msg->m28 * 2.0f, -1);
+    }
 }
 
 extern "C" void fn_8025FE30(Em101LittleZesya* zesya, const ZesyaWarp_unk* warp) {
