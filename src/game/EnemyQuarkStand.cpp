@@ -23,6 +23,7 @@ extern "C" double sqrt(double x);
 extern "C" double acos(double x);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -979,6 +980,11 @@ static float sLaserNear_unk = 100.0f;
 static float sLaserFar_unk = 500.0f;
 static float sBurstNear_unk = 100.0f;
 static float sBurstFar_unk = 500.0f;
+// inferred: scale of the rain effect (lbl_8087DCA0/A4) and while it fades (lbl_8087DCA8/AC)
+static float sRainFrom_unk = 0.1f;
+static float sRainTo_unk = 4.0f;
+static float sRainEndFrom_unk = 4.0f;
+static float sRainEndTo_unk = 0.01f;
 // inferred: height of the sonic wave while it charges (lbl_8087DC90/94) and while it ends (lbl_8087DC98/9C)
 static float sSonicFrom_unk = 90.0f;
 static float sSonicTo_unk = 0.0f;
@@ -1579,6 +1585,85 @@ void EnemyQuarkStand::fn_8034C060(int full) {
     mPos += m15DC.mDir * m570;
 }
 
+// inferred: random float in [min, min + range] and random wave delay in [20, 50] (names invented)
+inline float QuarkRand_unk(float min, float range) {
+    return range * ((float)rand() / 32767.0f) + min;
+}
+inline float QuarkRandDelay_unk() {
+    return 30.0f * ((float)(rand() % 1001) / 1000.0f) + 20.0f;
+}
+
+// inferred: state 7 (sword rain, from fn_8034F788): flies to the centre, then (motion 0x14D) the effect
+// "ef_bs051b.eff" grows in front for 20 frames while four "RainSkill" bullets fall around each player per
+// frame, and the motion ends with the landing (0x141)
+// NONMATCHING: 88.99% - the original keeps the rain origin and the scale in f20-f31 (it saves twelve FPRs
+// and uses _savegpr_27) and the locals 32 bytes higher in the frame; ~3 forms
+void EnemyQuarkStand::fn_8034C714() {
+    if (m14B4 == 0) {
+        mPos.y += 120.0f / mMotion.fn_80097D7C(0);
+        fn_8034C060(1);
+        if (mMotion.mTracks[0].m00 == 0x141) {
+            m14B4++;
+            mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+            atn::Vector3 off = QuarkFrontY_unk(this) * 35.0f;
+            atn::Matrix3x4 m;
+            PSMTXTrans(m.m, mPos.x + off.x, mPos.y + off.y + 30.0f, mPos.z + off.z);
+            QuarkLaserMtx_unk(this) = m;
+            QuarkScaleF_unk(QuarkLaserMtx_unk(this), 0.1f);
+            fn_80232B7C(this, 0x3EF);
+            fn_8023A680(lbl_8087F3C0, &m17D8, -1, 5, &m1660, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_800C31F4("SE_EM211_028", 0, -1, 1.0f);
+        }
+    } else if (m14B4 == 1) {
+        atn::Vector3 off = QuarkFrontY_unk(this) * 35.0f;
+        float frame = mMotion.mTracks[0].m08;
+        atn::Vector3 at(mPos.x + off.x, mPos.y + off.y + 30.0f, mPos.z + off.z);
+        float scale = (sRainTo_unk - sRainFrom_unk) * (frame / 35.0f) + sRainFrom_unk;
+        if (frame >= 35.0f) {
+            scale = (sRainEndTo_unk - sRainEndFrom_unk) * ((frame - 35.0f) / 35.0f) + sRainEndFrom_unk;
+            for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
+                for (int i = 0; i < 4; i++) {
+                    atn::Vector3 pos = p->mPos;
+                    float dz = QuarkRand_unk(-20.0f, 40.0f);
+                    float dy = QuarkRand_unk(-20.0f, 40.0f);
+                    pos.y += dy;
+                    pos.z += dz;
+                    pos.x += QuarkRand_unk(-20.0f, 40.0f);
+                    atn::Vector3 dir(pos.x - at.x, pos.y - at.y, pos.z - at.z);
+                    PSVECNormalize(&dir, &dir);
+                    float len = QuarkRand_unk(-10.0f, 30.0f);
+                    atn::Vector3 from(at.x + dir.x * len, at.y + dir.y * len, at.z + dir.z * len);
+                    fn_800F8574(lbl_8087F048, this, m1554[rand() % 2], &from, &dir, 0, 0x1000000, 0, 0.0f, 1.0f);
+                }
+            }
+            if (frame >= 70.0f) {
+                m14B4++;
+                fn_80239DAC(lbl_8087F3C0, this, 0x3EF, 0);
+            }
+        }
+        atn::Matrix3x4 m;
+        PSMTXTrans(m.m, at.x, at.y, at.z);
+        QuarkLaserMtx_unk(this) = m;
+        QuarkScaleF_unk(QuarkLaserMtx_unk(this), scale);
+    } else if (m14B4 == 2) {
+        float end = mMotion.fn_80097D7C(0) - 1.0f;
+        if (mMotion.mTracks[0].m08 >= end) {
+            m14B4++;
+            fn_80239DAC(lbl_8087F3C0, this, 0x3EF, 0);
+            mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
+        }
+    } else {
+        mPos.y -= 120.0f / mMotion.fn_80097D7C(0);
+        if (mPos.y < 0.0f) {
+            mPos.y = 0.0f;
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
+        }
+    }
+}
+
 // inferred: state 19 (warp, motion 0x143): turns toward the target and moves from the start to the aim
 // between frames 15 and 40; 10 frames before the end it grabs (state 12) or waits ("AttackWaitTime")
 void EnemyQuarkStand::fn_8034CF48() {
@@ -1594,14 +1679,6 @@ void EnemyQuarkStand::fn_8034CF48() {
         }
         m14C0 = m1CD0;
     }
-}
-
-// inferred: random float in [min, min + range] and random wave delay in [20, 50] (names invented)
-inline float QuarkRand_unk(float min, float range) {
-    return range * ((float)rand() / 32767.0f) + min;
-}
-inline float QuarkRandDelay_unk() {
-    return 30.0f * ((float)(rand() % 1001) / 1000.0f) + 20.0f;
 }
 
 // inferred: queues the thunder waves: four around Quark (50-100 units away), one in front of each player
