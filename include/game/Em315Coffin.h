@@ -24,6 +24,75 @@ struct CoffinSkill_unk {
     int mCount;    // inferred: frames left
 };
 
+// inferred: value interpolated over a number of frames (fade of the material "em315_02"); names invented
+struct CoffinFade_unk {
+    void End_unk() {
+        if (mSpeed >= 0.0f) {
+            mValue = mTo;
+            mTime = mDuration;
+        } else {
+            mValue = mFrom;
+            mTime = 0.0f;
+        }
+        mActive = 0;
+    }
+    void FadeTo_unk(const float& to, float frames) {
+        mTime = 0.0f;
+        mDuration = frames;
+        mSpeed = 1.0f;
+        mActive = 1;
+        mFrom = mValue;
+        mTo = to;
+        mDelta = mValue - mFrom;
+        if (mDuration <= 0.0f) {
+            End_unk();
+        }
+    }
+    void Lerp_unk() {
+        float ratio = mTime / mDuration;
+        float range = mTo - mFrom;
+        float prev = mValue;
+        float d = ratio * range;
+        mValue = mFrom + d;
+        mDelta = mValue - prev;
+    }
+    bool IsActive_unk() const { return mActive; }
+    void Update_unk() {
+        if (!mActive) {
+            return;
+        }
+        mTime += mSpeed;
+        if (mSpeed >= 0.0f) {
+            if (mTime < 0.0f) {
+                mValue = mFrom;
+                mTime = 0.0f;
+            } else if (mTime < mDuration) {
+                Lerp_unk();
+            } else {
+                End_unk();
+            }
+        } else {
+            if (mTime < 0.0f) {
+                End_unk();
+            } else if (mTime < mDuration) {
+                Lerp_unk();
+            } else {
+                mValue = mTo;
+                mTime = mDuration;
+            }
+        }
+    }
+
+    float mTime;
+    float mDuration;
+    float mSpeed;
+    unsigned char mActive;
+    float mFrom;
+    float mTo;
+    float mValue;
+    float mDelta;
+};
+
 // inferred from __vt__11Em315Coffin (0x807885D0): coffin enemy. Data file "/database/chara/special/" +
 // db_name (default "db_em315_00_00.csv").
 class Em315Coffin : public SpecialEnemyBase {
@@ -65,14 +134,7 @@ public:
     int m162C;
     int m1630;
     int m1634;                // inferred: "StableStart"
-    float m1638;
-    float m163C;
-    float m1640;
-    unsigned char m1644;
-    float m1648;
-    float m164C;
-    float m1650;
-    float m1654;
+    CoffinFade_unk m1638;     // inferred: alpha of the material m1658
     Material_unk* m1658;      // inferred: material "em315_02" (faded out by "StableStart")
     ResHandle m165C;          // inferred: debug menu group
 };

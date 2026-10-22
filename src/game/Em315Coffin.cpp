@@ -20,11 +20,13 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 // inferred: color as four floats (as ColorF_unk in game/Em305VampireMp.cpp)
 struct ColorF_unk {
     ColorF_unk() {}
+    ColorF_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
     GXColor ToGX() const {
         GXColor c;
         c.r = (unsigned char)(255.0f * r);
@@ -43,13 +45,16 @@ static float sOne_unk = 1.0f;
 // NONMATCHING: ~35% - the struct copy of the character resource is done in pairs of words in the original
 // (lwz/lwz/stw/stw) and the statics of .sdata are read in another order
 Em315Coffin::Em315Coffin(atn::Task* parent, EnemyInfo_unk* info)
-    : SpecialEnemyBase(parent, info), m15B8(90), m162C(-1), m1630(0), m1634(0), m1638(0.0f), m163C(0.0f),
-      m1640(1.0f), m1644(0) {
-    m1648 = sZero_unk;
+    : SpecialEnemyBase(parent, info), m15B8(90), m162C(-1), m1630(0), m1634(0) {
+    m1638.mTime = 0.0f;
+    m1638.mDuration = 0.0f;
+    m1638.mSpeed = 1.0f;
+    m1638.mActive = 0;
+    m1638.mFrom = sZero_unk;
     float z = sZero_unk;
-    m164C = z;
-    m1650 = sZero_unk;
-    m1654 = z - m1648;
+    m1638.mTo = z;
+    m1638.mValue = sZero_unk;
+    m1638.mDelta = z - m1638.mFrom;
     char name[0x100];
     char path[0x100];
     if (fn_805A3D68(name, info->m2C)) {
@@ -274,6 +279,123 @@ void Em315Coffin::vf100(int state) {
         mFC0 = mC58.mC4;
     } else {
         mFC0 = 0;
+    }
+}
+
+// inferred: names invented
+inline bool CanLinkTo_unk(Em315Coffin* self) {
+    if (self->mC58.mC4->fn_8016F4D8(self)) {
+        return true;
+    }
+    return self->mC58.mC4->fn_8016F530(0) != 0;
+}
+
+// NONMATCHING: 99.81% - FPR numbering of the inlined fade start/update (the original gives the lowest
+// registers to the values loaded first); ~16 variants of the interpolation statements and parameters tried
+void Em315Coffin::vf104() {
+    m14C0++;
+    if (m1634 != 0) {
+        if (mC58.mC0 > 0) {
+            m1634 = 0;
+            m1638.FadeTo_unk(sOne_unk, 30.0f);
+            vf100(13);
+        }
+        return;
+    }
+    if (m1638.IsActive_unk()) {
+        m1638.Update_unk();
+        if (m1658 != 0) {
+            ColorF_unk c(m1658->mColor);
+            c.a = m1638.mValue;
+            m1658->mColor = c.ToGX();
+        }
+    }
+    if (CanAct_unk() && m58C != 6 && m58C != 2 && m58C != 9 && m58C != 13) {
+        CharaTask* target;
+        if (mC58.mC0 == 0 || (target = mC58.mC4) == 0 || target->mC58.mC0 == 0) {
+            vf100(6);
+        } else if (target != (CharaTask*)mC58.mC8) {
+            vf100(6);
+        }
+    }
+    switch (m58C) {
+    case 6:
+        if (mC58.mC0 != 0 && mC58.mC4 != 0 && mC58.mC4->mC58.mC0 != 0) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 7:
+        if (mFlag31) {
+            atn::Vector3 d = mC58.mC4->mPos - mPos;
+            float dist = fn_805F9920(&d);
+            float r = m64->m30;
+            if (dist < 1.2f * (1.2f * (r * r))) {
+                vf100(8);
+            } else {
+                vf100(7);
+            }
+        }
+        vf108();
+        break;
+    case 8: {
+        atn::Vector3 d = mC58.mC4->mPos - mPos;
+        float dist = fn_805F9920(&d);
+        float r = m64->m30;
+        if (dist > 2.0f * (2.0f * (r * r))) {
+            vf100(7);
+        } else if (m15D8.mCount <= 0 && m125C.mCount >= 2) {
+            vf100(9);
+        } else if (m15E8.mCount <= 0 && mC58.mC4->mFlag10 && mC58.mC4->mStatus.m0C == 0) {
+            CharaTask* target = mC58.mC4;
+            if (!(target->m55C == 6 && target->m560 == 0x7A)) {
+                target->fn_80164168(m15B8, m15E8.mId);
+                fn_805A4A1C((SpecialFlag_unk*)&m162C, mC58.mC4->mType == 0 ? -1 : mC58.mC4->m58);
+            }
+            mC58.mC4->fn_8016F530(this);
+            vf100(10);
+        } else if (m15C8.mCount <= 0) {
+            if ((mC58.mC4->m125C.mCount < 2 || mC58.mC4->mStatus.m0C != 0) && CanLinkTo_unk(this)) {
+                mC58.mC4->fn_8016F530(this);
+                vf100(9);
+            }
+        }
+        vf108();
+        break;
+    }
+    case 9:
+        if (mFlag31) {
+            vf100(8);
+        }
+        vf108();
+        break;
+    case 10:
+        if (mFlag31) {
+            vf100(8);
+        }
+        vf108();
+        break;
+    case 11:
+        vf108();
+        break;
+    case 12:
+        vf108();
+        break;
+    case 13:
+        if (mFlag31) {
+            vf100(6);
+        }
+        vf108();
+        break;
+    case 2:
+        fn_805A40B8();
+        if (!mFlag31) {
+            vf108();
+        }
+        break;
+    default:
+        vf100(6);
+        break;
     }
 }
 
