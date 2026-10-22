@@ -39,6 +39,12 @@ game/Em315Coffin.
   99.92%: offsets del pool). Las grandes (vf100/104/108, fn_803067E0 vf40, fn_80308E6C) y fn_803097AC (slot 0xB0:
   CharaTask::vfB0 esta declarada `void vfB0()` en la cabecera compartida, devuelve int y recibe un Vector3*) sin
   escribir; fn_80309D20/fn_80309D50 son invoker/manager de boost::function (bind de ControlThrustForGhoul).
+- `game/Em310Gargoyle` (2/21 -> 3/21): vf40 (0x8030B5B0, derrota: banderas 0xCF/0x66 del campo y efecto
+  ef_uc037) al 100%. vf3C (0x8030B41C, modos de dano "DamageCalcMode") 99.99%: solo el offset de "head" en el
+  pool. vf0C (0x8030A6A0) 98.41%: r3/r4 de la palabra de banderas y del pool, r3/r4/r5 de los stores finales
+  (~30 variantes). Ctor (tabla de jinetes lbl_80787F68 de 0x78 bytes por tipo y rutas del campo) y el resto
+  (vf10/vf14 grandes, fn_8030B408/fn_8030C190 copias debiles sin tipo) sin escribir.
+  - Cabecera: campos sacados del relleno (m14F1, m14F4[3] ids de jinete, m1500[3], m15E0, m1604, m1608, m160C).
 - Pools de cadenas renombrados a `@stringBase0` en Em309Ghoul (0x80748A14), Em309GhoulSimple (0x80748DC0),
   Em310Gargoyle (0x80748FE8) y Em315Coffin (0x80749390): sin cambio en el recuento, pero las llamadas con
   cadenas ya comparan el nombre real.
@@ -57,6 +63,8 @@ game/Em315Coffin.
   fn_8030E710 -> `vf100__16Em312DarkServantFi`, fn_8030F380 -> `fn_8030F380__16Em312DarkServantFv`.
 - symbols.txt: fn_8030646C -> `vf10__16Em309GhoulSimpleFv`, fn_80308D14 -> `vf20__16Em309GhoulSimpleFv`,
   fn_80309E6C -> `vf30__16Em309GhoulSimpleFPv`; include/game/Em309GhoulSimple.h declara vf20 y vf30.
+- symbols.txt: fn_8030A6A0 -> `vf0C__13Em310GargoyleFv`, fn_8030B41C -> `vf3C__13Em310GargoyleFP11HitInfo_unk`,
+  fn_8030B5B0 -> `vf40__13Em310GargoyleFP11HitInfo_unk`.
 - symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
   (scope:local).
 - include/game/Em314Ivy.h: m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
