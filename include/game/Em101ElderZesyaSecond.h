@@ -20,11 +20,15 @@ public:
     Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* info); // 0x8025A060
     virtual ~Em101ElderZesyaSecond();                               // 0x8025A4A4
     virtual void vf14();                                            // 0x8025B5D4
+    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf40(HitInfo_unk* hit);
     // inferred: returns 4 (hit refused) unless the hit has the range of the current mode
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir); // 0x8025C92C
 
+    void fn_8025C624(); // inferred: the barrier breaks
+
     atn::LH_Binary m14B0;
-    int m14B8;
+    CharaTask* m14B8;   // inferred: target
     float m14BC;
     ElderList_unk m14C0;
     int m14CC;
@@ -33,8 +37,10 @@ public:
     int m14D8;
     int m14DC;
     int m14E0;
-    unsigned char m14E4[0x1504 - 0x14E4];
-    int m1504;
+    unsigned char m14E4[0x14FC - 0x14E4];
+    int m14FC; // inferred: bullet/skill id (0x5E6)
+    int m1500; // inferred: bullet/skill id (0x5EA)
+    CharaTask* m1504;
     unsigned char m1508[0x1518 - 0x1508];
     atn::EfpHandle_unk m1518;
     atn::EfpHandle_unk m1524;
@@ -50,8 +56,8 @@ public:
     int m15CC;
     int m15D0;
     int m15D4; // inferred: mode (0 and 1 accept different hit ranges)
-    int m15D8;
-    int m15DC;
+    int m15D8; // inferred: hit counter
+    int m15DC; // inferred: barrier break counter
     ResHandle m15E0; // inferred: debug menu group
     int m15E4;
 };
