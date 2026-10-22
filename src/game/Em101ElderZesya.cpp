@@ -5,12 +5,18 @@
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "chr/ControlBase.h"
+#include "game/CharaStatus.h"
+#include "game/EnemyManager.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" int atoi(const char* s);
+extern "C" int fn_800DC12C(const char* s); // inferred: string to int
+// inferred: kind of each barrier (rodata table 0x80743CF0: indexes into the HitRange_unk values)
+static const int sBarrierKinds_unk[4] = {3, 0, 1, 4};
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
@@ -38,7 +44,11 @@ inline atn::Vector3 FlatDiff_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return atn::Vector3(a.x - b.x, 0.0f, a.z - b.z);
 }
 
-struct Field_unk;
+// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
+struct Field_unk {
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8;
+};
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
@@ -206,6 +216,80 @@ int Em101ElderZesya::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// NONMATCHING: 99.85% - r24/r25 of the route table and the barrier pointer (8 variants: declaration orders,
+// field local, table copy, pointer/offset forms); the push_back of the points is the inlined Vector_unk one
+void Em101ElderZesya::fn_80256384() {
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    int barrier = 0;
+    atn::Csv csv((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (*key == ';' || *key == '\0') {
+            continue;
+        }
+        if (strcmp(key, "WaitFrame") == 0) {
+            m16B0 = atoi(csv.fn_8005B9CC());
+        }
+        if (strcmp(key, "ComboWaitTime") == 0) {
+            m14FC = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "HighJumpAttackPointID") == 0) {
+            while (true) {
+                int id = atoi(csv.fn_8005B9CC());
+                if (id <= 0) {
+                    break;
+                }
+                RoutePlace_unk* place = table->FindPlace_unk(id);
+                if (place != 0) {
+                    m14BC.push_back(place->mPos);
+                }
+            }
+        } else if (strncmp(key, "ChantPoint", 10) == 0) {
+            if (barrier < 4) {
+                Barrier_unk* b = &m151C[barrier];
+                b->m00 = (Gimmick_unk*)table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                b->mDesc = (Gimmick_unk*)table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                for (int i = 0; i < 3; i++) {
+                    b->m04.mObjects[0][i] = new (12, "", "", 0) atn::ColliObject();
+                    b->m04.mObjects[0][i]->fn_80058078("ef_col02n.hcb");
+                    b->m04.mObjects[1][i] = new (12, "", "", 0) atn::ColliObject();
+                    b->m04.mObjects[1][i]->fn_80058078("ef_col02n.hcb");
+                    for (int j = 0; j < 3; j++) {
+                        if (b->m04.mObjects[j][i] != 0) {
+                            b->m04.mObjects[j][i]->mFlags &= ~1;
+                            b->m04.mObjects[j][i]->mFlags |= 2;
+                            b->m04.mObjects[j][i]->mFlags |= 0x40000000;
+                            b->m04.mObjects[j][i]->m0C = (int)this;
+                            atn::Matrix3x4 m;
+                            m.SetIdentity();
+                            b->m04.mObjects[j][i]->SetMtx_unk(m);
+                        }
+                    }
+                }
+                b->m04.mKind = sBarrierKinds_unk[barrier];
+                barrier++;
+            }
+        } else if (strcmp(key, "LittleID") == 0) {
+            EnemyManager* mgr = EnemyManager::sInstance;
+            m16A0 = (int)mgr->Find_unk(atoi(csv.fn_8005B9CC()));
+            *(Em101ElderZesya**)((char*)m16A0 + 0x1530) = this;
+        } else if (strcmp(key, "NormalAttackID") == 0) {
+            m1500 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "HighJumpAttackID") == 0) {
+            m1510 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "FlareID") == 0) {
+            m1504 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "ThunderID") == 0) {
+            m1518 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "FlarelusID") == 0) {
+            m1508 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "LightSwordID") == 0) {
+            m150C = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "HealID") == 0) {
+            m1514 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        }
+    } while (csv.fn_8005BBF8());
 }
 
 atn::Vector3 Em101ElderZesya::vf64(int center) {
