@@ -127,6 +127,9 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   (fn_80306078, 9/22; "SummonEnemy" llena un array {id, punto} de 8 con placement new, "SummonWarpPoint" lo
   recorre con puntero).
 
+- game/Em312DarkServant: lector del CSV fn_8030DEB0 al 100% (12/21). symbols.txt: fn_8030DEB0 ->
+  `fn_8030DEB0__16Em312DarkServantFPCci`.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
@@ -151,3 +154,6 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
 - `for (...; p++, i++)` frente a `i++, p++`: el orden de los incrementos del for decide el orden de los addi.
 - `while (true) { int id = f(); if (id == 0) break; ... }` reproduce la prueba al principio del bucle; con
   `while ((id = f()) != 0)` MWCC rota el bucle y la prueba va al final.
+- El orden de las definiciones en la TU decide el orden de las cadenas en el pool (@stringBase0): una funcion
+  escrita al final del fichero pone sus literales despues; hay que colocarla en su sitio (por direccion) para
+  que los desplazamientos coincidan.

@@ -10,6 +10,8 @@
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int atoi(const char* s);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;  // inferred: player manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -127,6 +129,38 @@ int Em312DarkServant::vf0C() {
     }
     vfFC();
     return 1;
+}
+
+void Em312DarkServant::fn_8030DEB0(const char* text, int length) {
+    atn::Csv csv(text, length);
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "MoveRadius") == 0) {
+            m14E4 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackLength") == 0) {
+            m14E8 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "BreathIntervalInit") == 0) {
+            m1570 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "BreathInterval") == 0) {
+            m1574 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackCountMax") == 0) {
+            m1578 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "DamageCountMax") == 0) {
+            m157C = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "VertSkillId") == 0) {
+            m14EC[0].mSkillId = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "VertIntervalFrame") == 0) {
+            m14EC[0].mCoolTime = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "HorzSkillId") == 0) {
+            m14EC[1].mSkillId = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "HorzIntervalFrame") == 0) {
+            m14EC[1].mCoolTime = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackAllSkillId") == 0) {
+            m14EC[2].mSkillId = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "BreathSkillId") == 0) {
+            m14EC[3].mSkillId = atoi(csv.fn_8005B9CC());
+        }
+    } while (csv.fn_8005BBF8());
 }
 
 void Em312DarkServant::vf10() {
@@ -307,3 +341,4 @@ void Em312DarkServant::vf30(void* menu) {
     sub = fn_8008937C(group, "BreathAttack");
     fn_800874C8(sub, "SkillId", &m14EC[3].mSkillId, 0, 99999, 1, 0, 0);
 }
+
