@@ -40,6 +40,11 @@ struct QueenDamage_unk {
         m1C = 0;
         m18 = -1;
     }
+    // inferred: kind and value (name invented)
+    void Set_unk(int kind, int value) {
+        m00 = kind;
+        m04 = value;
+    }
     int m00;
     int m04;
     int m08;
@@ -150,6 +155,17 @@ static const int sRoutePoints_unk[8] = {0x259, 0x25A, 0x25B, 0x25C, 0x25D, 0x25E
 // inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (register order of the
 // original)
 inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
+    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
+        RoutePlace_unk* places = table->mPlaces;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+// inferred: as FindRoutePlace2_unk on the field table (name invented)
+inline RoutePlace_unk* FindRoutePlace3_unk(int id) {
+    RouteTable_unk* table = lbl_8087F430->m10D8;
     for (unsigned int i = 0; i < table->mNumPlaces; i++) {
         RoutePlace_unk* places = table->mPlaces;
         if (id == places[i].mId) {
@@ -832,7 +848,7 @@ void Em208Queen::fn_802CA8C0() {
     }
 }
 
-// NONMATCHING: 95.51% - order of the stores of the damage record (constructor inlined before m00)
+// NONMATCHING: 99.92% - r0/r5 of the bit field of the damage record (kind/value set through Set_unk)
 void Em208Queen::fn_802CAFB8() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -840,8 +856,7 @@ void Em208Queen::fn_802CAFB8() {
     } else if (m14BC == 5 && m14D0 != 0) {
         if (m14D0->mType == 2) {
             QueenDamage_unk damage;
-            damage.m00 = 1;
-            damage.m04 = (int)(0.2f * -m14D0->mStatus.m04);
+            damage.Set_unk(1, (int)(0.2f * -m14D0->mStatus.m04));
             atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
             mStatus.fn_8012DF7C(damage.m04, 0, 0);
@@ -918,8 +933,7 @@ void Em208Queen::fn_802CB43C() {
             PSMTXMultVec(r, &offset, &offset);
             pos += offset;
             QueenDamage_unk info;
-            info.m00 = 1;
-            info.m04 = damage;
+            info.Set_unk(1, damage);
             fn_80108C10(lbl_8087F048, &info, pos, this, m14D0, 0, 0);
         }
         m14CC = m14CC < 1.0f ? m14CC : 1.0f;
@@ -1095,7 +1109,7 @@ inline int Em208Queen::CollectPoints_unk(int* ids) {
     return count;
 }
 
-// NONMATCHING: 99.65% - r5/r6 of the second route search (the first one matches with FindRoutePlace2_unk)
+// inferred: the second route search reads the field table inside the helper (FindRoutePlace3_unk)
 void Em208Queen::fn_802CC4C8(int arg, CharaTask* target) {
     SetState_unk(15);
     m1518 = arg;
@@ -1109,7 +1123,7 @@ void Em208Queen::fn_802CC4C8(int arg, CharaTask* target) {
     int id = count > 0 ? ids[rand() % count] : -1;
     m1510 = id;
     m1514 = 0;
-    RoutePlace_unk* place = FindRoutePlace2_unk(lbl_8087F430->m10D8, id);
+    RoutePlace_unk* place = FindRoutePlace3_unk(id);
     if (place == 0) {
         SetState_unk(6);
     } else {
