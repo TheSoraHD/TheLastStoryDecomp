@@ -74,6 +74,9 @@ game/Em315Coffin.
   pool. vf0C (0x8030A6A0) 98.41%: r3/r4 de la palabra de banderas y del pool, r3/r4/r5 de los stores finales
   (~30 variantes). Ctor (tabla de jinetes lbl_80787F68 de 0x78 bytes por tipo y rutas del campo) y el resto
   (vf10/vf14 grandes, fn_8030B408/fn_8030C190 copias debiles sin tipo) sin escribir.
+  - Segunda vuelta (4/21): fn_8030DA1C (blr de 4 bytes en .ctors) es el `__sinit` vacio de la unidad: un objeto
+    estatico de fichero con constructor vacio (`static Color4f_unk sUnused_unk;`) lo genera al 100%; renombrado a
+    `__sinit_\Em310Gargoyle_cpp` (scope:local).
   - Cabecera: campos sacados del relleno (m14F1, m14F4[3] ids de jinete, m1500[3], m15E0, m1604, m1608, m160C).
 - `game/Em309Ghoul` (8/33 -> 10/33): vf0C (0x802FD134, espera de 10 efectos y 2 xsca, busca el gimmick 0x80A)
   y fn_802FF6C4 (eleccion del objetivo: el lider del grupo cuando m1524 llega a m16F8; pesos por jugador del
@@ -94,6 +97,8 @@ game/Em315Coffin.
   constante de .sdata2; el report completo las da al 100%. Fiarse del report.
 
 ## Decisiones tomadas sin el usuario
+- Em310Gargoyle: objeto estatico `sUnused_unk` (Color4f_unk) inventado solo para reproducir el `__sinit` vacio
+  (fn_8030DA1C); el tipo real del objeto es desconocido.
 
 - symbols.txt (renombrados): fn_80313E44 -> `vf10__11Em315CoffinFv`, fn_80313FC8 ->
   `vf10C__11Em315CoffinFP10HitMsg_unk`, fn_80313FE8 -> `vf40__11Em315CoffinFP11HitInfo_unk`, fn_80314130 ->
@@ -134,6 +139,8 @@ game/Em315Coffin.
   0x1638-0x1654 agrupados en `CoffinFade_unk` (nombre inventado).
 
 ## Hallazgos MWCC
+- Un `__sinit` de 4 bytes (solo `blr`) en `.ctors` sale de un objeto estatico de fichero con constructor inline
+  vacio (Em310Gargoyle); el objeto no ocupa .bss si no se usa.
 - `if (!(s != 9 && s != 10))` evita que MWCC fusione `s == 9 || s == 10` en `subi/cmplwi` (Em314Ivy::fn_80312EF8;
   ya estaba en la guia para 2/3, confirmado).
 - Un argumento elegido con `?:` entre dos constantes se evalua en otro orden que `int x; if (...) x = A; else

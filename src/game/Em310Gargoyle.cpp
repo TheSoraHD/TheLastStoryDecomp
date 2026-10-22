@@ -131,3 +131,7 @@ void Em310Gargoyle::vf54() {
         item->m04.mRadius = m620;
     }
 }
+
+// inferred: unused file-scope object with an empty constructor: only its (empty) static
+// initializer remains (fn_8030DA1C, the .ctors entry of this unit)
+static Color4f_unk sUnused_unk;
