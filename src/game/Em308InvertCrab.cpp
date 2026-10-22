@@ -1,0 +1,150 @@
+#include "game/Em308InvertCrab.h"
+#include "atn/Csv.h"
+#include "math/Vec.h"
+#include "std/string.h"
+#include "std/string_members.h"
+
+extern "C" unsigned long strlen(const char* s);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+// inferred: std::string concatenation (weak copy 0x8006AFF8)
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
+// inferred: effect/bullet manager (lbl_8087F048); class unknown
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk;
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+
+// NONMATCHING: 99.81% - r26/r27 of the second std::string constructor (known blocker of the string
+// constructors, as in Em101LittleZesya/Em305Vampire)
+Em308InvertCrab::Em308InvertCrab(atn::Task* parent, EnemyInfo_unk* info)
+    : EnemyTask(parent, info->m20), m14B0(0), m14E4(60), m14E8(70.0f), m14F0(180.0f), m1524(30.0f),
+      m152C(180.0f), m1534(0), m1538(0.0f), m153C(0.0f), m1554(0), m157C(0), m1580(0), m1584(0), m158C(0),
+      m1590(0), m1594(0), m1598(0), m159C(90), m15A0(90), m15D0(0) {
+    std::string dir("database/chara/special/");
+    std::string name("db_em308_00_00.csv");
+    atn::Csv csv(info->m2C, strlen(info->m2C));
+    do {
+        const char* s = csv.fn_8005B9CC();
+        if (s == 0 || strcmp(s, "") == 0) {
+            break;
+        }
+        if (strncmp(s, "db_name=", 8) == 0) {
+            name = s + 8;
+        }
+    } while (csv.fn_8005BBF8());
+    std::string path = fn_8006AFF8(dir, name);
+    m15C4.vf0C(path.c_str());
+    m568 = 0.5f;
+    mColli.mFlags &= ~0x80000000;
+    m1528 = fn_80219E6C(0x3F8);
+    m14EC = fn_80219E6C(0x3F7);
+    m1550 = fn_80219E6C(0x400);
+    m15A8 = 10;
+    m15AC.fn_8023780C("/effect/ef_uc001.efp");
+    m1518.fn_8023780C("/effect/ef_sk002d.efp");
+    m14D8.fn_8023780C("/effect/ef_uc007.efp");
+    m15B8.fn_80237654("/effect/ef_sp008_01.eff");
+}
+
+Em308InvertCrab::~Em308InvertCrab() {}
+
+// NONMATCHING: 98.80% - r5/r6 of the down test and of the direction temporaries, stack slots of the two
+// vectors (~10 forms)
+// inferred: the crab only takes knockback while it is down or from behind (guard angle m152C)
+void Em308InvertCrab::vf3C(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (msg->mData->m04 != 0xD1 && m58C - 14U <= 4) {
+        msg->m68 = 0;
+        msg->m8C = 0;
+        msg->m84 = 1;
+        msg->m90 = 0;
+        return;
+    }
+    if (!IsDown_unk()) {
+        if (m58C == 8) {
+            msg->m10 = lbl_807C7030;
+        }
+        if (!(atn::Abs_unk(m152C) < 1.1920929e-7f) && msg->mData->m04 != 0xD1) {
+            atn::Vector3 dir;
+            dir = msg->m1C - mPos;
+            PSVECNormalize(&dir, &dir);
+            if (m58C == 8) {
+                dir *= -1.0f;
+            }
+            if (msg->mData->m01 != 1) {
+                atn::Vector3 front(0.0f, 0.0f, 1.0f);
+                Mtx m;
+                PSMTXRotRad(m, 'y', mRot.y);
+                PSMTXMultVec(m, &front, &front);
+                float dot = PSVECDotProduct(&dir, &front);
+                if (dot < (float)cos(atn::DegToRad_unk(m152C * 0.5f))) {
+                    msg->m48 = 1;
+                    msg->m10 = lbl_807C7030;
+                }
+            }
+        }
+    }
+    if (msg->m48 == 0 && m58C == 8 && m1590 == 1) {
+        fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+        fn_800CB5C8(&m1514, 0, 0);
+    }
+    fn_80151448(msg);
+    vf40(hit);
+}
+
+// inferred: dead with the skill 0xD1 (needle): state 17 (motion 0x14C) if m15D0, else fn_802F66CC; with
+// another attack: state 14 (motion 0x14)
+void Em308InvertCrab::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    m1554++;
+    if (m55C == 6 && m560 - 22U <= 1) {
+        m58C = 6;
+        m1590 = 0;
+        m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+        m590 = fn_800F8548(lbl_8087F048);
+        fn_800CB5C8(&m1514, 15, 0);
+    }
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        if (msg->mData->m04 != 0xD1) {
+            mStatus.fn_8013322C(0x20);
+            mStatus.m04 = 1.0f;
+            m1590 = 0;
+            m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+            m590 = fn_800F8548(lbl_8087F048);
+            m58C = 14;
+            m54C |= 0x2000;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 0.5f;
+            mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+        } else if (m15D0 != 0) {
+            mStatus.fn_8013322C(0x20);
+            mStatus.m04 = 1.0f;
+            m1590 = 0;
+            m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+            m590 = fn_800F8548(lbl_8087F048);
+            m58C = 17;
+            m54C &= ~0x2000;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14C, 1, 0, 1, 0.0f, 0.1f);
+            m1594 = 1;
+            m1598 = 0;
+        } else {
+            fn_802F66CC();
+        }
+    }
+}
+
