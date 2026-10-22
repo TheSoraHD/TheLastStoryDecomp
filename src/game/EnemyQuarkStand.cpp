@@ -31,6 +31,9 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00(); // inferred: field accessor
 extern "C" void fn_80370320(Field_unk* field, int id, int a, int b); // inferred: event flag of the area
+extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 // inferred: effect manager (lbl_8087F3C0) and its methods (as in game/EnemyTasha.cpp)
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -55,6 +58,12 @@ struct QColor_unk {
     float r, g, b, a;
 };
 
+// inferred: game settings (lbl_8087F0A8): m30 is the frame rate (as in chr/ControlJumpAt.cpp)
+struct QuarkSettings_unk {
+    unsigned char m000[0x30];
+    int mFrameRate;
+};
+extern "C" QuarkSettings_unk* lbl_8087F0A8;
 // inferred: weak copies of small inline helpers of other files, called out of line because vf0C is over
 // the inline budget (names kept)
 extern "C" void fn_803396EC(CharaTask* chara, unsigned int flags);   // inferred: m54C |= flags
@@ -77,8 +86,7 @@ inline QuarkStandState_unk::QuarkStandState_unk()
 inline QuarkSlot_unk::QuarkSlot_unk() : m14(0) {}
 inline QuarkDir_unk::QuarkDir_unk() {}
 inline Mtx34_unk::Mtx34_unk() {}
-inline QuarkShotList_unk::QuarkShotList_unk() : mCount(0) {}
-inline QuarkWaveList_unk::QuarkWaveList_unk() : mCount(0) {}
+inline QuarkShot_unk::QuarkShot_unk() {}
 
 EnemyQuarkStand::EnemyQuarkStand(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m153C(0),
@@ -289,6 +297,64 @@ void EnemyQuarkStand::vf3C(HitInfo_unk* hit) {
     }
 }
 
+// inferred: plays motion `motion` from the start (name invented)
+inline void QuarkPlayMotion_unk(Model_unk* model, int motion, int arg3, int arg4, float speed) {
+    model->m34C = 1;
+    model->mTracks[0].m20 = 1.0f;
+    model->mTracks[0].m0C = speed;
+    model->fn_80097C08(0, motion, arg3, arg4, 1, 0.0f, 0.1f);
+}
+
+void EnemyQuarkStand::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (m58C == 15) {
+        if (msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
+            m1804++;
+        }
+    } else if (m58C == 12) {
+        m17E8++;
+    }
+    switch (m14BC) {
+    case 0:
+        m1814++;
+        if (mStatus.m04 <= 0.0f) {
+            m14BC = 1;
+            ReleaseCamera_unk();
+            mStatus.m04 = 1.0f;
+            mStatus.fn_8013322C(0x20);
+            fn_8034F384();
+            fn_8016E970(3);
+            m58C = 16;
+            QuarkPlayMotion_unk(&mMotion, 0x38, 0, 0, 0.25f);
+            m14BC = 1;
+            if (fn_80370A78(lbl_8087F430, 0xC9) == 0) {
+                fn_80370AE4(lbl_8087F430, 0xC9, 1);
+            }
+            fn_80370320(lbl_8087F430, 0x389, 1, 0);
+            m14A8 &= ~0x04000000;
+            fn_800C31F4("SE_EM211_028", 0, -1, 1.0f);
+        } else if (msg->mData->m04 == 0x1791) {
+            fn_8034F384();
+            fn_8016E970(3);
+            m58C = 15;
+            QuarkPlayMotion_unk(&mMotion, 0x3D, 0, 0, 1.0f);
+            ReleaseCamera_unk();
+            if (m17E4 != 0) {
+                m17E4->fn_8015ECC4();
+                m17E4 = 0;
+            }
+            m574.y = 0.0f;
+        }
+        break;
+    case 1:
+        if (mStatus.m04 < 1.0f) {
+            mStatus.m04 = 1.0f;
+            mStatus.fn_8013322C(0x20);
+        }
+        break;
+    }
+}
+
 atn::Vector3 EnemyQuarkStand::vf64(int center) {
     return m624.mData->m04.mCenter;
 }
@@ -302,6 +368,50 @@ inline void EnemyQuarkStand::ReleaseCamera_unk() {
         field->m97C = 0;
         m180B = 0;
     }
+}
+
+// inferred: leaves the current action: clears the counters, takes a new bullet id and stops the effects
+// of the attacks (names invented)
+void EnemyQuarkStand::fn_8034F384() {
+    m14B4 = 0;
+    m14B8 = 0;
+    m14C0 = 0;
+    m17E8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80239DAC(lbl_8087F3C0, this, 0x3EA, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 0x3ED, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 0x3EF, 1);
+}
+
+// inferred: state 0 (wait): waits 30 +- 30 frames
+void EnemyQuarkStand::fn_8034F41C() {
+    fn_8034F384();
+    m14C0 += 30 - rand() % 60;
+    fn_8016E970(3);
+    m58C = 0;
+    QuarkPlayMotion_unk(&mMotion, 2, 1, 0, 1.0f);
+}
+
+// inferred: state 20 (motion 0x144)
+void EnemyQuarkStand::fn_803519C4() {
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 20;
+    QuarkPlayMotion_unk(&mMotion, 0x144, 0, 0, 1.0f);
+    m1CB8 = 0;
+    m1CBC = 0;
+}
+
+// inferred: plays motion `motion` at `speed` (out of line in vf10)
+void EnemyQuarkStand::fn_803524AC(int motion, int arg3, float speed) {
+    QuarkPlayMotion_unk(&mMotion, motion, arg3, 0, speed);
+}
+
+// inferred: shows the two direction arrows of the d2anime
+void EnemyQuarkStand::fn_80352EA4() {
+    m17F4->mFlags |= 4;
+    m17F8->mFlags |= 4;
 }
 
 int EnemyQuarkStand::vf78() {

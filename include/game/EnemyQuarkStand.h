@@ -5,6 +5,7 @@
 #include "atn/LH_Binary.h"
 #include "atn/LH_Xsca.h"
 #include "atn/ResLoader_unk.h"
+#include "game/CharaStatus.h"
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
@@ -63,32 +64,22 @@ struct QuarkSlot_unk {
     unsigned char m15[0x18 - 0x15];
 };
 
-// inferred: table of 0x20C bytes at 0x181C: count and 32 entries of 0x10 bytes ({timer, position});
-// ctor 0x803458D0 clears the count
+// inferred: delayed explosion (0x10 bytes: timer and position); entries of the fixed array at 0x181C
+// (FixedArray_unk<QuarkShot_unk, 32>: full 0x80349450, push 0x80349470). The empty constructor is a weak
+// copy (0x803458DC). Names invented.
 struct QuarkShot_unk {
+    QuarkShot_unk();
     float m00;          // inferred: timer
     atn::Vector3 m04;   // inferred: position
 };
-struct QuarkShotList_unk {
-    QuarkShotList_unk();
-    unsigned int mCount;
-    QuarkShot_unk mData[32];
-    unsigned char m204[0x20C - 0x204];
-};
 
-// inferred: table of 0x284 bytes at 0x1A28: count and 32 entries of 0x14 bytes ({position, timer, two
-// bytes}); ctor 0x803458E0 clears the count
+// inferred: delayed wave (0x14 bytes: position, timer, started flag and effect id); entries of the fixed
+// array at 0x1A28. Names invented.
 struct QuarkWave_unk {
     atn::Vector3 m00;
     float m0C;          // inferred: timer
     unsigned char m10;  // inferred: the effect is started
     unsigned char m11;  // inferred: effect id
-    unsigned char m12[2];
-};
-struct QuarkWaveList_unk {
-    QuarkWaveList_unk();
-    unsigned int mCount;
-    QuarkWave_unk mData[32];
 };
 
 // inferred: empty object at 0x15DC (inline ctor 0x803458CC is a blr); 0x30 bytes of floats
@@ -130,6 +121,11 @@ public:
     virtual float vfDC();                                    // 0x80354388
     virtual float vfE0();                                    // 0x80354378
     inline void ReleaseCamera_unk();
+    void fn_8034F384(); // inferred: leaves the current action
+    void fn_8034F41C(); // inferred: state 0
+    void fn_803519C4(); // inferred: state 20
+    void fn_803524AC(int motion, int arg3, float speed);
+    void fn_80352EA4();
     void fn_80353370(); // inferred: debug menu entries
 
     int m14B0;                     // inferred: target (CharaTask*)
@@ -202,8 +198,10 @@ public:
     atn::LH_Binary m180C;          // inferred: data file
     int m1814;                     // inferred: hits received
     int m1818;                     // inferred: "GatheringBurstCount"
-    QuarkShotList_unk m181C;       // inferred: delayed explosions
-    QuarkWaveList_unk m1A28;       // inferred: delayed waves
+    FixedArray_unk<QuarkShot_unk, 32> m181C; // inferred: delayed explosions
+    int m1A20;                     // inferred: bullet id of the explosions
+    int m1A24;                     // inferred: explosions fired
+    FixedArray_unk<QuarkWave_unk, 32> m1A28; // inferred: delayed waves
     atn::EfpHandle_unk m1CAC;      // inferred: "ef_bs049e.efp"
     int m1CB8;
     int m1CBC;
