@@ -34,19 +34,82 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: field (lbl_8087F430): camera taken by the boss (m8A0/m4D8/m97C, as in game/EnemyTrista.cpp)
 struct RouteTable_unk;
+// inferred: camera parameters of the field (0x3C bytes, as TristaCamParam_unk of game/EnemyTrista.cpp)
+struct QuarkCamParam_unk {
+    QuarkCamParam_unk(const QuarkCamParam_unk& o) {
+        Copy_unk(o);
+    }
+    QuarkCamParam_unk& operator=(const QuarkCamParam_unk& o) {
+        Copy_unk(o);
+        return *this;
+    }
+    void Copy_unk(const QuarkCamParam_unk& o) {
+        m00 = o.m00;
+        m04 = o.m04;
+        m08 = o.m08;
+        m0C = o.m0C;
+        m10 = o.m10;
+        for (int i = 0; i < 9; i++) {
+            m14[i] = o.m14[i];
+        }
+        m38 = o.m38;
+    }
+    float m00;
+    float m04;
+    float m08;
+    float m0C;
+    float m10;
+    float m14[9];
+    int m38;
+};
+// inferred: camera mode of the field (lbl_8087F430 + 0x4D8, as FieldCamera_unk of game/EnemyTrista.cpp)
+struct QuarkFieldCamera_unk {
+    void Set_unk(int mode, const QuarkCamParam_unk& param) {
+        if (mMode != mode) {
+            mMode = mode;
+            mParam = param;
+            m08 = 0.05f;
+            m04 = 1.0f;
+        }
+    }
+    int mMode;
+    float m04;
+    float m08;
+    QuarkCamParam_unk mParam;
+};
+// inferred: point the camera looks at (lbl_8087F430 + 0x97C, as FieldLook_unk of game/EnemyTrista.cpp)
+struct QuarkFieldLook_unk {
+    void Set_unk(const atn::Vector3& pos, bool flag) {
+        m01 = m00;
+        m00 = 1;
+        mPos = pos;
+        m24 = 0.0f;
+        m04 = flag ? 1 : 0;
+    }
+    unsigned char m00;
+    unsigned char m01;
+    unsigned char m02[2];
+    int m04;
+    unsigned char m08[4];
+    atn::Vector3 mPos;
+    unsigned char m18[0x24 - 0x18];
+    float m24;
+};
 struct Field_unk {
     RouteTable_unk* fn_8013C504(); // inferred: route tables (as in game/Em302Kraken.cpp)
     unsigned char m0000[0x4D8];
-    int m4D8;
-    unsigned char m4DC[0x8A0 - 0x4DC];
-    CharaTask* m8A0;
+    QuarkFieldCamera_unk m4D8;
+    unsigned char m520[0x588 - 0x520];
+    QuarkCamParam_unk m588; // inferred: default camera parameters
+    unsigned char m5C4[0x8A0 - 0x5C4];
+    CharaTask* m8A0;        // inferred: character the camera follows
     unsigned char m8A4[0x96C - 0x8A4];
     int m96C;   // inferred: camera shake (as in game/Em101ElderZesyaSecond.cpp)
     int m970;   // inferred: shake frames
     float m974;
     float m978;
-    unsigned char m97C;
-    unsigned char m97D[0x10D8 - 0x97D];
+    QuarkFieldLook_unk m97C;
+    unsigned char m9A4[0x10D8 - 0x9A4];
     RouteTable_unk* m10D8; // inferred: route tables (as in game/ArenaTask.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -108,6 +171,7 @@ extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
+extern "C" void fn_80192FB4(chr::ControlBase* control); // inferred: chr::ControlStickByQuark, stuck pose
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
@@ -1199,13 +1263,98 @@ void EnemyQuarkStand::fn_8034AE48() {
     }
 }
 
+// inferred: state 13 (the sword is stuck in a character, motion 0x14A from state 12): at frame 27 the
+// character is stuck (chr::ControlStickByQuark), then the camera follows the "rightarm" node and at frame 88
+// the sword fires "StickSkill"; the state ends after "AttackedMaxInStick" hits
+// NONMATCHING: 86.43% - the original copies the default camera parameters (Field_unk::m588) with the
+// FPRs f29-f31 live across Set_unk (same open case as EnemyTrista::fn_8035D294) and the look/node copies sit
+// in other slots; ~4 forms (copy ctor, member copy, inline Set_unk)
+void EnemyQuarkStand::fn_8034B8CC() {
+    Field_unk* field = lbl_8087F430;
+    if (m14B4 == 0) {
+        if (m17E4 == 0) {
+            fn_8034F41C();
+        } else if (mMotion.mTracks[0].m08 >= 27.0f) {
+            if (m17E4->m55C != 6 || m17E4->m560 != 0x53) {
+                m17E4->fn_8016C7D8((int)this);
+            }
+            fn_80192FB4(m17E4->mControl.get());
+            m14B4++;
+        }
+    } else if (m14B4 == 1) {
+        if (m17E4 != 0 && m17E4->mType == 0) {
+            if (field->m8A0 == 0) {
+                QuarkCamParam_unk param = field->m588;
+                field->m8A0 = (CharaTask*)this;
+                param.m00 = 25.0f;
+                param.m04 = 0.9599311f;
+                param.m08 = 0.2617994f;
+                param.m10 = 10.0f;
+                field->m4D8.Set_unk(4, param);
+                field->m97C.Set_unk(GetTransOf_unk(mMotion.GetNodeMtx_unk("rightarm")), false);
+                m180B = 1;
+            } else {
+                field->m8A0 = (CharaTask*)this;
+                field->m97C.mPos = GetTransOf_unk(mMotion.GetNodeMtx_unk("rightarm"));
+                m180B = 1;
+            }
+        }
+        mMotion.mTracks[0].m0C = mMotion.mTracks[0].m08 < 60.0f ? 0.5f : 1.0f;
+        ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m16A8, 0, mMotion.mTracks[0].m0C);
+        if (mMotion.mTracks[0].m08 >= 88.0f) {
+            Field_unk* f = lbl_8087F430;
+            f->m96C %= 2;
+            f->m970 = 10;
+            f->m974 = 4.0f;
+            f->m978 = 5.0f;
+            if (m17E4 != 0 && m17EC == 0) {
+                atn::Vector3 front = QuarkFrontOf_unk(this);
+                atn::Vector3 pos = m17E4->mPos - front * 0.5f;
+                Effect_unk* mgr = lbl_8087F048;
+                fn_800FAB80(mgr, this, m154C, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            }
+            m14B4++;
+        }
+    } else {
+        if (m180B != 0) {
+            field->m8A0 = 0;
+            field->m4D8.mMode = 0;
+            field->m97C.m00 = 0;
+            m180B = 0;
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
+            if (m17E4 != 0) {
+                m17E4->fn_8015ECC4();
+                m17E4 = 0;
+            }
+        }
+    }
+    if (m14B4 < 2 && m1CD4 <= m17E8) {
+        fn_8034F41C();
+        if (m180B != 0) {
+            Field_unk* f = lbl_8087F430;
+            f->m8A0 = 0;
+            f->m4D8.mMode = 0;
+            f->m97C.m00 = 0;
+            m180B = 0;
+        }
+        if (m17E4 != 0) {
+            m17E4->fn_8015ECC4();
+            m17E4 = 0;
+        }
+        m17E8 = 0;
+    }
+}
+
 // inferred: lets the camera go back to the field (name invented)
 inline void EnemyQuarkStand::ReleaseCamera_unk() {
     if (m180B != 0) {
         Field_unk* field = lbl_8087F430;
         field->m8A0 = 0;
-        field->m4D8 = 0;
-        field->m97C = 0;
+        field->m4D8.mMode = 0;
+        field->m97C.m00 = 0;
         m180B = 0;
     }
 }
