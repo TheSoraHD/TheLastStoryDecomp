@@ -39,6 +39,7 @@ public:
     void fn_802F33A0(); // inferred: movement
     void fn_802F389C(); // inferred: chooses the next action
     void fn_802F3BE8(); // inferred: state 8 (needle)
+    void fn_802F42CC(); // inferred: state 9 (turn)
     void fn_802F566C();
     inline void ResetAttack_unk();
     void fn_802F58A0();

@@ -135,7 +135,6 @@ struct CrabWeights_unk {
 extern "C" CrabWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 extern "C" int fn_80108378(CrabWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 extern "C" void fn_802F693C(Em308InvertCrab* crab, CharaTask* target);
-extern "C" void fn_802F42CC(Em308InvertCrab* crab);
 extern "C" void fn_802F469C(Em308InvertCrab* crab);
 extern "C" void fn_802F4A98(Em308InvertCrab* crab);
 extern "C" void fn_802F5370(Em308InvertCrab* crab);
@@ -327,7 +326,7 @@ void Em308InvertCrab::vf10() {
             vfEC();
             break;
         case 9:
-            fn_802F42CC(this);
+            fn_802F42CC();
             break;
         case 10:
             fn_802F469C(this);
@@ -804,6 +803,66 @@ void Em308InvertCrab::fn_802F3BE8() {
             }
         }
         break;
+    }
+}
+
+// inferred: state 9 (turn): between the frames 5 and 16 turns from m1538 to m153C in 12 steps; at the end starts
+// the state m1530 against m1588 / m1580 and resets the effect weights to 1
+void Em308InvertCrab::fn_802F42CC() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        switch (m1530) {
+        case 6:
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+            break;
+        case 7:
+            fn_802F5BCC(m1588);
+            break;
+        case 8:
+            fn_802F5F20(m1588);
+            break;
+        case 10:
+            if (fn_802F62A0(m1588, 10) == 0) {
+                ResetAttack_unk();
+                m58C = 10;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                m1584 = m1580;
+            }
+            break;
+        case 11:
+            if (fn_802F62A0((CharaTask*)m1580, 11) == 0) {
+                ResetAttack_unk();
+                m58C = 11;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                m159C = m1528 != 0 ? m1528->m68 : 60;
+                m1584 = m1580;
+            }
+            break;
+        case 12:
+            fn_802F693C(this, (CharaTask*)m1580);
+            break;
+        }
+        CrabWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+        for (int j = 0; j < 72; j++) {
+            w->mWeight[j] = 1.0f;
+        }
+    } else {
+        float f = mMotion.mTracks[0].m08;
+        if (5.0f <= f && f <= 16.0f) {
+            m1534 += 2;
+            float d = atn::WrapAngle_unk(m153C - m1538);
+            mRot.y = atn::WrapAngle_unk(m1538 + (float)m1534 * d / 12.0f);
+        }
     }
 }
 
