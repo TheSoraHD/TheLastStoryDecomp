@@ -4304,10 +4304,11 @@
    "-i libs/smg2/src/RVL_SDK/bte",
    "-DVERSION=0",
    "-ir libs/smg2/libs/RVL_SDK/revolution/bte",
-   "-DREVOLUTION"
+   "-DREVOLUTION",
+   "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/bte/bte_logmsg.c",
