@@ -25,6 +25,10 @@ Em205Ogre 14/21, Em208Queen 0/29 (sin fuente), Em209SmallGolem 7/22.
 - Em208Queen: m1540 es la d2anime "ui_point_slash.d2a" vista con un struct local `QueenD2A_unk` (como MenuD2A_unk);
   la tabla de mensajes lbl_8087F1E4 como `QueenMsgTable_unk` local (como en Em309Ghoul).
 
+- **splits.txt (Em209SmallGolem)**: fin de .rodata 0x80747098 -> 0x80747080 (aviso del coordinador). Los tres
+  doubles lbl_80747080/88/90 solo los usa Em301LShade (fn_802D0B84, fn_802D3C74; xref.py), ninguna referencia
+  desde el codigo de Em209SmallGolem. El split de Em301LShade NO se toca (lo ajusta el coordinador al integrar).
+
 ## Hallazgos MWCC
 
 - vf0C con `int result` y la carga en un `if (result != 0) { ...; return 1; } return 0;` da el bloque `li r3,0`

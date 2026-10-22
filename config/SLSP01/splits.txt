@@ -1744,7 +1744,7 @@ game/Em209BigGolem.cpp:
 game/Em209SmallGolem.cpp:
 	.text       start:0x802CCFD8 end:0x802D0038
 	.ctors      start:0x8072D340 end:0x8072D344
-	.rodata     start:0x80746ED0 end:0x80747098
+	.rodata     start:0x80746ED0 end:0x80747080
 	.data       start:0x80786B00 end:0x80786C10
 	.bss        start:0x807C83C8 end:0x807C83F8
 	.sdata2     start:0x808844E0 end:0x80884558
