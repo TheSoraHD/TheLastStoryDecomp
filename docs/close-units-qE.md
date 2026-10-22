@@ -94,3 +94,10 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     del pool); `chara = mChara` local antes de la matriz.
   - Struct local `GrappleCollResult_unk` (copia de la de ControlTurnQuadruped) y `mFrameRate` (0x30) anadido al
     struct local `Unk_8087F0A8` del .cpp. Resto de funciones de la unidad: planificacion/registros documentados.
+- `game/ChaserNpc` (8/14 -> 10/14): `fn_8018161C` 97.62% -> 100% (rotacion z/y/x en un inline `ChaserRotZYX_unk`
+  con SetIdentity dentro y `Mtx t; Mtx r;`, y el frente leido como `chara->mRot.y` dentro del inline
+  `GetFrontOf_unk`). `fn_8018128C` 99.93% -> 100% (`m14C4 = max(...); m14C4 *= 1.32f;` en dos sentencias).
+  `fn_80181D94` 99.57% -> 99.63% (id del sitio en local; 3 intentos). ctor (push_back), fn_80180AE0 y fn_80181A64
+  (registros/pila ya investigados) sin tocar.
+  - Hallazgo MWCC: `__MtxRotate` de Vec.h declara `Mtx r` antes que `Mtx t`; varias unidades (ChaserNpc,
+    ControlJumpAt, quiza ControlTurnQuadruped 85%) quieren `Mtx t; Mtx r;` y el SetIdentity dentro del mismo inline.
