@@ -29,6 +29,13 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask
 extern "C" int rand();
+extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
+// inferred: effect manager methods (as in game/CharaTask.cpp)
+struct Effect_unk;
+Effect_unk* fn_8013A194();
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" void fn_802F0964(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int arg7, int arg8,
+                            float arg9); // inferred: fires a bullet (weak copy, game/Em306GurgBeast.cpp)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -465,6 +472,208 @@ void Em312DarkServant::vf104() {
     default:
         vf100(6);
         break;
+    }
+}
+
+void Em312DarkServant::vf108() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot = mRot;
+    int follow = 0;
+    if (m55C == 2) {
+        switch (m58C) {
+        case 6:
+            mFlag31 = 1;
+            break;
+        case 7: {
+            follow = 1;
+            float near = 0.8f * m14E4;
+            float far = 1.2f * m14E4;
+            if (m14BC == 0) {
+                atn::Vector3 dir;
+                if (mC58.mC4 != 0) {
+                    dir = *mC58.mC4->fn_8013C38C() - *m14D4->fn_8013C38C();
+                } else {
+                    dir = mPos - *m14D4->fn_8013C38C();
+                }
+                far = dir.Length_unk();
+                if (far > 0.0f) {
+                    dir.Normalize_unk();
+                }
+                float len = far / 2.0f;
+                if (len > near) {
+                    len = near;
+                }
+                atn::Vector3 goal = *m14D4->fn_8013C38C() + dir * len;
+                goal.y = mPos.y;
+                atn::Vector3 d = goal - mPos;
+                speed = d.Length_unk();
+                if (speed > 0.0f) {
+                    d.Normalize_unk();
+                }
+                if (speed < 0.1f) {
+                    speed = 0.0f;
+                    rot = mRot;
+                } else if (speed < 10.0f) {
+                    speed = 0.0f;
+                    rot = d.ToRotation_unk();
+                } else if (speed < 40.0f) {
+                    rot = d.ToRotation_unk();
+                } else if (speed < 70.0f) {
+                    rot = d.ToRotation_unk();
+                    rate = 3.0f;
+                } else {
+                    m14BC = 1;
+                    mC58.m0C.fn_80128930(m14D4, &mPos, 0);
+                    mC58.m0C.fn_801255C8();
+                }
+            } else if (m14BC == 1) {
+                mC58.m0C.fn_80126214();
+                atn::Vector3 dir(*mC58.m0C.fn_80139F58());
+                if (dir.LengthSq_unk() > 0.0f) {
+                    speed = dir.Length_unk();
+                    dir.Normalize_unk();
+                    rot = dir.ToRotation_unk();
+                }
+                if (mC58.m0C.fn_8013C3F4() || (mPos - mC58.mDest).LengthSq_unk() < far * far) {
+                    m14BC = 0;
+                }
+                rate = 1.5f;
+            }
+            if (m14D4 == 0 || !m14D4->CanAct_unk()) {
+                m14BC = -1;
+                mFlag31 = 1;
+            }
+            break;
+        }
+        case 8: {
+            mC58.m0C.fn_80126214();
+            atn::Vector3 dir(*mC58.m0C.fn_80139F58());
+            speed = dir.Length_unk();
+            if (speed > 0.0001f) {
+                rot = dir.GetNormalized_unk().ToRotation_unk();
+            }
+            if (mC58.m0C.fn_8013C3F4()) {
+                mFlag31 = 1;
+            }
+            break;
+        }
+        case 9:
+        case 10:
+        case 12:
+            if (mC58.mC4 != 0) {
+                float frame = mMotion.fn_80139550(0);
+                int idx = m58C - 9;
+                ServantAttack_unk* atk = &m14EC[idx];
+                ServantRange_unk* range = &m152C[idx];
+                atn::Vector3 dir = *mC58.mC4->fn_8013C38C() - mPos;
+                if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
+                    dir.Normalize_unk();
+                }
+                if (range->m0C == 0 || m14C0 < 15) {
+                    rot = dir.ToRotation_unk();
+                }
+                if (m14BC == 0) {
+                    if (range->m0C == 1) {
+                        rot = dir.ToRotation_unk();
+                    }
+                    if (frame >= range->m04) {
+                        int id = range->m08 >= 0 ? range->m08 : fn_800F8548(fn_8013A194());
+                        HitInfo_unk* bullet = fn_80219E6C(atk->mSkillId);
+                        fn_802F0964(fn_8013A194(), this, bullet, id, 30, -1, 0.0f);
+                        m14BC++;
+                    }
+                } else {
+                    float len = mMotion.fn_80097D7C(0);
+                    if (mMotion.fn_80139550(0) >= len) {
+                        mFlag31 = 1;
+                    }
+                }
+            } else {
+                mFlag31 = 1;
+            }
+            break;
+        case 11: {
+            float frame = mMotion.fn_80139550(0);
+            int idx = m58C - 9;
+            ServantAttack_unk* atk = &m14EC[idx];
+            ServantRange_unk* range = &m152C[idx];
+            atn::Vector3 dir;
+            if (mC58.mC4 != 0) {
+                // inferred: the original computes the difference but never stores it (dir stays unset)
+                *mC58.mC4->fn_8013C38C() - mPos;
+                if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
+                    dir.Normalize_unk();
+                }
+            } else {
+                dir = fn_8014052C();
+            }
+            if (range->m0C == 0 || m14C0 < 15) {
+                rot = dir.ToRotation_unk();
+            }
+            if (m14BC == 0) {
+                if (range->m0C == 1) {
+                    rot = dir.ToRotation_unk();
+                }
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    m14BC++;
+                    mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
+                    fn_8030FFF0();
+                }
+            } else if (m14BC == 1) {
+                if (range->m0C == 1) {
+                    rot = dir.ToRotation_unk();
+                }
+                if (++m14D0 >= 60) {
+                    m14BC++;
+                    mMotion.fn_80097C08(0, 0x147, 0, 0, 1, 0.0f, 0.1f);
+                    fn_80310084();
+                }
+            } else if (m14BC == 2) {
+                if (range->m0C == 1) {
+                    rot = dir.ToRotation_unk();
+                }
+                if (frame >= range->m04) {
+                    int id = range->m08 >= 0 ? range->m08 : fn_800F8548(fn_8013A194());
+                    HitInfo_unk* bullet = fn_80219E6C(atk->mSkillId);
+                    fn_802F0964(fn_8013A194(), this, bullet, id, 30, -1, 0.0f);
+                    m14BC++;
+                }
+            } else {
+                float len = mMotion.fn_80097D7C(0);
+                if (mMotion.fn_80139550(0) >= len) {
+                    mFlag31 = 1;
+                }
+            }
+            break;
+        }
+        case 13: {
+            float frame = mMotion.fn_80139550(0);
+            if (m14BC == 0) {
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    m14BC++;
+                    mMotion.fn_80097C08(0, 0x1E2, 1, 0, 1, 0.0f, 0.1f);
+                }
+            } else if (m14BC == 1) {
+                if (!fn_8030E490(this)) {
+                    m14BC++;
+                    mMotion.fn_80097C08(0, 0x1E3, 0, 1, 1, 0.0f, 0.1f);
+                }
+            } else if (frame >= mMotion.fn_80097D7C(0)) {
+                m14BC++;
+                mFlag31 = 1;
+            }
+            break;
+        }
+        }
+    } else {
+        fn_805A4254();
+        return;
+    }
+    if (follow && fn_8013C478()) {
+        fn_80140588(&rot, speed, m568 * rate);
+    } else {
+        fn_8013CB68(&rot, 0, speed, m568 * rate);
     }
 }
 

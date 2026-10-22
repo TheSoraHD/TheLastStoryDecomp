@@ -57,6 +57,11 @@ game/Em315Coffin.
     aleatorio de m1580 en un inline `ServantEffect_unk` (el color dentro del inline da el orden de pila del
     original), proporcion de vida del amo (`mStatus.m04 / mParamB.m84`) y el bloque de los estados 9-12 escrito
     justo antes del 13 en el switch. El bit del estado 2 es mFlag25 (0x02000000 de 0x12A4).
+  - vf108 (0x8030F564, 2.4 KB) al 100% (19/21): movimiento alrededor del amo (estado 7), ruta (8), ataques con
+    tabla m152C (9-12; `id = range->m08 >= 0 ? range->m08 : fn_800F8548(...)` en una expresion, punteros a la
+    entrada calculados una vez) y la caida (13). En el estado 11 el original calcula `mC4->pos - mPos` sin
+    guardarlo (la direccion queda sin inicializar); se reproduce con la expresion descartada. `far / 2.0f`.
+    Quedan fn_8030E5C8 y vf100 (recursion inlineada tres niveles, bloqueo documentado).
   - ctor al 100% (17/21): `ServantAttack_unk` con constructor inline que pone a cero (el original construye
     m14EC y m152C con bucles de array de paso 16) y los cuatro enteros por defecto en la lista de inicializacion.
 - `game/Em309GhoulSimple` (9/22, sin nuevas al 100%): escritas vf10 (0x8030646C, 99.57%: registros volatiles del
@@ -97,7 +102,7 @@ game/Em315Coffin.
 - symbols.txt (renombrados): fn_80310C64 -> `fn_80310C64__8Em314IvyFPCci`, fn_80312EF8 ->
   `fn_80312EF8__8Em314IvyFv`, fn_8031319C -> `fn_8031319C__8Em314IvyFP9CharaTask`, fn_803132D0 ->
   `fn_803132D0__8Em314IvyFv`. Ningun otro .cpp los usaba.
-- symbols.txt: fn_8030EA28 -> `vf104__16Em312DarkServantFv`.
+- symbols.txt: fn_8030EA28 -> `vf104__16Em312DarkServantFv`, fn_8030F564 -> `vf108__16Em312DarkServantFv`.
 - symbols.txt: `lbl_807490AC` -> `@stringBase0` (scope:local, pool de cadenas de Em312DarkServant);
   fn_8030E710 -> `vf100__16Em312DarkServantFi`, fn_8030F380 -> `fn_8030F380__16Em312DarkServantFv`.
 - symbols.txt: fn_8030646C -> `vf10__16Em309GhoulSimpleFv`, fn_80308D14 -> `vf20__16Em309GhoulSimpleFv`,
