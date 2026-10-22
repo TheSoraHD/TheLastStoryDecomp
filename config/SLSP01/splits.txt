@@ -256,6 +256,7 @@ atn/MindowsCommon.cpp:
 	.text       start:0x80084FD8 end:0x800899DC
 	.rodata     start:0x80732140 end:0x80732248
 	.data       start:0x80778610 end:0x80778840
+	.sbss       start:0x8087EF10 end:0x8087EF18
 	.sdata2     start:0x80880BD0 end:0x80880BF8
 
 atn/Model.cpp:

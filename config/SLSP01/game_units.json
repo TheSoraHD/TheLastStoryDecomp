@@ -8,6 +8,14 @@
   "matching": false
  },
  {
+  "name": "atn/Font_unk.cpp",
+  "classes": [
+   "atn::Font_unk",
+   "atn::FontInfo_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/LH_Binary.cpp",
   "classes": [
    "atn::LH_Binary"
@@ -229,12 +237,15 @@
  {
   "name": "atn/MindowsCommon.cpp",
   "classes": [
-   "atn::MindowsFlag",
-   "atn::MindowsBool",
-   "atn::MindowsFloat",
-   "atn::MindowsUInt",
+   "atn::MindowsCommon",
    "atn::MindowsInt",
-   "atn::MindowsCommon"
+   "atn::MindowsUInt",
+   "atn::MindowsFloat",
+   "atn::MindowsBool",
+   "atn::MindowsFlag",
+   "atn::MindowsRadian",
+   "atn::MindowsFolder",
+   "atn::Mindows_unk"
   ],
   "matching": false
  },
