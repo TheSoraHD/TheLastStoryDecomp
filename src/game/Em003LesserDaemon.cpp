@@ -1517,6 +1517,88 @@ void Em003LesserDaemon::fn_8024FE18(int arg) {
     m14E4 = 0;
 }
 
+// inferred: index of the warp point nearest to `pos` (name invented)
+inline int Em003LesserDaemon::NearestPoint_unk(const atn::Vector3& pos) {
+    float bestDist = 1e16f;
+    int best = -1;
+    for (unsigned int i = 0; i < mPoints.mSize; i++) {
+        atn::Vector3 d = pos - GetPoint_unk(i);
+        float dist = fn_805F9920(&d);
+        if (dist < bestDist) {
+            best = i;
+            bestDist = dist;
+        }
+    }
+    return best;
+}
+
+// inferred: event of the phase change: warps to the barrier, restores it and places the linked daemons
+// around in a triangle (their next action is the warp of action 11)
+void Em003LesserDaemon::fn_8024FFE8() {
+    m58C = 9;
+    fn_8016E970(3);
+    m14B8 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
+    fn_80232B7C(&m1504, 0);
+    PlayEffectAM_unk(lbl_8087F3C0, &m14F8, &mMotion);
+    m1624 = m1628[m14C0];
+    m1600 = mPos;
+    mWarpDest = mPos;
+    m160C = 0.0f;
+    if (mLinks.size() == 0) {
+        return;
+    }
+    atn::Vector3 pts[3];
+    atn::Vector3 dests[3];
+    int r = rand() % 3;
+    int next = m1654;
+    Mtx m2;
+    Mtx m;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    PSMTXRotRad(m, 'y', mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    atn::Vector3 side(20.0f, 0.0f, 0.0f);
+    PSMTXRotRad(m2, 'y', mRot.y);
+    PSMTXMultVec(m2, &side, &side);
+    pts[r] = m1600;
+    pts[(r + 1) % 3] = m1600 + side + front;
+    pts[(r + 2) % 3] = m1600 - side + front;
+    mWarpDest = pts[0];
+    int best = NearestPoint_unk(m1600);
+    if (best < 3) {
+        dests[r] = GetPoint_unk(best + 3);
+        dests[(r + 1) % 3] = GetPoint_unk((best + 1) % 3 + 3);
+        dests[(r + 2) % 3] = GetPoint_unk((best + 2) % 3 + 3);
+    } else {
+        best -= 3;
+        dests[r] = GetPoint_unk(best);
+        dests[(r + 1) % 3] = GetPoint_unk((best + 1) % 3);
+        dests[(r + 2) % 3] = GetPoint_unk((best + 2) % 3);
+    }
+    m1610 = dests[0];
+    m1654 = 11;
+    m1658 = rand() % 2 != 0 ? next : -1;
+    for (unsigned int i = 0; i < mLinks.mSize; i++) {
+        mLinks.mData[i]->fn_80176ACC();
+        mLinks.mData[i]->mStatus.fn_8012D8B8();
+        mLinks.mData[i]->mStatus.m04 = mStatus.m04;
+        mLinks.mData[i]->mPos = mPos;
+        mLinks.mData[i]->mRot = mRot;
+        mLinks.mData[i]->m14C0 = m14C0;
+        mLinks.mData[i]->fn_8024FFE8();
+        mLinks.mData[i]->mWarpDest = pts[i + 1];
+        mLinks.mData[i]->m1610 = dests[i + 1];
+        mLinks.mData[i]->m1654 = 11;
+        mLinks.mData[i]->m1658 = rand() % 2 != 0 ? next : -1;
+    }
+    if (fn_80370A78(lbl_8087F430, 0xFA) == 0) {
+        fn_80370AE4(lbl_8087F430, 0xFA, 1);
+    }
+}
+
 // NONMATCHING: 99.49% - the point pointer and the index of the loop get r28/r30 swapped (12 variants:
 // pointer walk, index, while, helper inline, declaration orders)
 void Em003LesserDaemon::fn_802506AC() {

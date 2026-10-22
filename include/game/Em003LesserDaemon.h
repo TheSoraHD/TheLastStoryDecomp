@@ -46,6 +46,7 @@ public:
     inline void StartWarp_unk();
     inline int FarthestFromSelf_unk();
     inline int FarthestFromSelfB_unk();
+    inline int NearestPoint_unk(const atn::Vector3& pos);
     const atn::Vector3& GetPoint_unk(unsigned int i) const { return mPoints.mData[i]; }
 
     CharaTask* m14B0;         // inferred: target (its position is read by fn_802506AC)
