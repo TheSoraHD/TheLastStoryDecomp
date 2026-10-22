@@ -153,3 +153,9 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - Revisitas con los trucos nuevos: ControlCannonTarget ctor llega a 99.93% con `front` y `c2 = mChara` locales,
   pero baja ControlCannonLift::vf10 (98.92 -> 98.54, que lo lleva inline): descartado. ControlBackStep ctor con
   ToRotationZ/RotZ/fn_80139F60 empeora (86-90%): descartado.
+- `game/HColliData_unk` (4/12): saltada, bloqueo documentado (MWCC Wii/1.3 no desenrolla bucles con `__stwbrx`).
+- `game/NewTitleTask` (0/9): saltada; unidad sin fuente (0x5838 bytes de .text, funciones de hasta 3.9 KB): reconstruccion completa, fuera del alcance de este lote.
+- `game/RouteWalker_unk` (4/19): saltada. Las 7 funciones al 99.4-99.9% solo difieren en el desplazamiento de las
+  constantes de .sdata2 (-1.0f, 3.0f...): el pool del original lo ordenan las funciones grandes sin escribir
+  (fn_801255C8 3 KB, fn_80126214 6 KB, fn_801279E8, fn_80128090, fn_80128CF8, fn_80129144, fn_80129670). Se
+  arreglaran solas al escribir esas.
