@@ -8,6 +8,7 @@
 
 #include "game/ChaserGuard.h"
 #include "game/Em314Ivy.h"
+#include "game/Em316LaserSphere.h"
 #include "game/Em316LastLaser.h"
 #include "game/ChaserNpc.h"
 #include "game/CopyRobotTask.h"
@@ -600,7 +601,6 @@ extern "C" void* fn_802F1524(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_802F6E64(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802FC850(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8030A144(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_803161F8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_803388A4(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80345384(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_803559F8(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -838,11 +838,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) EnemyTrista(parent, info);
             break;
         case 49:
-            p = ::operator new(0x1ca0, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_803161F8(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em316LaserSphere(parent, info);
             break;
         case 56:
             p = ::operator new(0x2a50, 3, "", "", 0);
@@ -882,11 +878,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) EnemyJill(parent, info);
             break;
         case 45:
-            p = ::operator new(0x1ca0, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_803161F8(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em316LaserSphere(parent, info);
             break;
         case 46:
             enemy = new (3, "", "", 0) Em316LastLaser(parent, info);
