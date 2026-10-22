@@ -114,7 +114,9 @@ void Fireworks::vf28() {
 }
 
 // NONMATCHING: 97.9% - flash loop: the original recomputes the element address from an offset
-// induction variable each iteration (ours keeps a decremented pointer)
+// induction variable each iteration (ours keeps a decremented pointer). Tried: reference/pointer to
+// the element, mData[i]/operator[] each time, delay local, list pointer local, Size_unk() bound,
+// i declared outside, --i >= 0 condition, continue instead of else.
 void Fireworks::vf10() {
     if (m54 == 0) {
         vf28();

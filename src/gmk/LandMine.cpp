@@ -104,7 +104,8 @@ int LandMine::vf0C() {
 
 // NONMATCHING: float register allocation, and the target converts the z of the sphere with frsp
 // (as if it went through a double). Tried: radius local, sphere local, Vector3 temporary, inline
-// setter.
+// setter, (float)(double) casts of z, a center copy, component helper, direct member stores, the
+// order/chaining of the m78 stores.
 void LandMine::vf28() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
