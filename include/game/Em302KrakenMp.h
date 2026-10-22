@@ -117,9 +117,9 @@ public:
     atn::EfpHandle_unk m15C0;
     atn::EfpHandle_unk m15CC; // inferred: "/effect/ef_bd005.efp"
     CharaTask* m15D8;           // inferred: target
-    RoutePlace_unk* m15DC;      // inferred: current appear point
-    unsigned int m15E0;         // inferred: index into m15E4
-    int m15E4;
+    int m15DC;
+    RoutePlace_unk* m15E0;      // inferred: current appear point
+    unsigned int m15E4;         // inferred: index into m15E8
     KrakenMpPlaceList_unk m15E8; // inferred: "appear_point"
     KrakenMpIntList_unk m15F4;   // inferred: "pillar_id"
     float m1600;                 // inferred: not set by the constructor

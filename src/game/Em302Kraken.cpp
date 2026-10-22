@@ -404,7 +404,8 @@ inline void Em302Kraken::Reset_unk() {
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 97.6% - registers of the camera block (the original addresses the look object through a
+// pointer, as EnemyTrista::fn_8035D294) and stack slots of the gimmick message
 void Em302Kraken::vf10() {
     if (m58C != 8) {
         mC58.mC8 = (int)mC58.mC4;
@@ -540,9 +541,8 @@ void Em302Kraken::vf10() {
         mPos = place->mPos;
         mRot.y = 3.1415927f + place->m14;
     }
-    mPos.x += m15C8.x;
-    mPos.y = mPos.y + m15C8.y + m14CC;
-    mPos.z += m15C8.z;
+    mPos += m15C8;
+    mPos.y += m14CC;
     if (m14B8 == 3) {
         mPos.y -= 1000.0f;
     }

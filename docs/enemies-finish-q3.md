@@ -40,7 +40,7 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 - La tabla de comandos de "act_command" (`sCommands_unk`, {nombre[0x40], id}) y su busqueda fn_802D73E4 son
   estaticas del fichero.
 
-### game/Em302KrakenMp (0/39 -> 9/39)
+### game/Em302KrakenMp (0/39 -> 10/39)
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302KrakenMp.cpp` y cabecera nueva
   `include/game/Em302KrakenMp.h` (subclase de SpecialEnemyBase, vtable 0x11C; layout 0x14D4-0x1660; nombres
   inventados). Misma tabla de comandos que Em302Kraken pero con ids 8/9/10 ({"swing","pound","wait"}).
@@ -51,6 +51,8 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   fn_802DEE18 (`At_unk<Em303KrakenFootMp*>`). symbols.txt: fn_802DE80C/fn_802DEB00 -> push_back de
   vector<Em303KrakenFootMp*> (99.85%) y vector<KrakenMpCommand_unk> (85%, push_back de elementos de 8 bytes:
   familia conocida del push_back de MSL).
+- vf10 escrita (98.8%); vf114 sube al 100% con el pool ordenado. Decision: m15DC/m15E0/m15E4 corregidos
+  (int, punto de aparicion actual, indice) tras ver los accesos de vf10.
 
 ## Decisiones tomadas sin el usuario
 - **splits.txt**: `.rodata` de game/Em301LShade ampliada de 0x807470A4 a 0x807473F8: absorbe el tramo
@@ -83,6 +85,10 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   Em101ElderZesya, para no tocar CharaTask.h.
 
 ## Hallazgos MWCC
+- `mPos += m15A0; mPos.y += m14F0;` (operador de Vec.h y suma aparte) reproduce el orden de cargas del
+  original en vf10 de los krakens; escrito componente a componente cambia el reparto de FPR.
+- Un `int index = m15E4;` leido antes de la comprobacion de tamano fija el orden de cargas (tamano, indice)
+  del original.
 - Un `CharaTask* target = m1620;` local antes de construir el vector de offset (no despues) evita la segunda
   carga de m1620 en la rotacion (fn_802D4378).
 - `float r = m620;` antes de las tres copias a mColli fija el reparto de FPR del original en vf20 de los

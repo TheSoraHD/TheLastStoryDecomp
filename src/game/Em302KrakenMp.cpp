@@ -4,6 +4,8 @@
 #include "game/CharaManager.h"
 #include "game/CharaStatus.h"
 #include "game/Em303KrakenFootMp.h"
+#include "game/GimmickManager.h"
+#include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -67,6 +69,74 @@ T* At_unk(std::vector<T>* v, unsigned int i) {
 inline void ClearModelFlag_unk(Model_unk* model, unsigned int flag) {
     model->mFlags &= ~flag;
 }
+
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: gimmicks (lbl_8087F4A0, as in game/Em302Kraken.cpp); names invented
+struct KrakenMpGimmick_unk {
+    virtual void vf08();
+    virtual void vf0C();
+    virtual void vf10();
+    virtual void vf14();
+    virtual void vf18();
+    virtual void vf1C();
+    virtual void vf20();
+    virtual void vf24();
+    virtual void vf28();
+    virtual void vf2C();
+    virtual void vf30();
+    virtual void vf34();
+    virtual void vf38();
+    virtual void vf3C();
+    virtual void vf40(void* msg);
+    unsigned char m04[0x48 - 0x04];
+    int m48;
+    unsigned char m4C[0x54 - 0x4C];
+    int m54;
+    unsigned char m58[0x5C - 0x58];
+    KrakenMpGimmick_unk* mNext;
+};
+extern "C" GimmickManager* lbl_8087F4A0;
+inline KrakenMpGimmick_unk* FirstGimmick_unk() {
+    return (KrakenMpGimmick_unk*)lbl_8087F4A0->mHead;
+}
+// inferred: message sent to the gimmicks (0x20 bytes); names invented
+struct KrakenMpGimmickMsg_unk {
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    float m14;
+    float m18;
+    float m1C;
+};
+// inferred: hit parameters (as in game/CharaTask.cpp); names invented
+struct HitParam_unk {
+    int m00;
+    float m04;
+    float m08;
+    int m0C;
+    float m10;
+    int m14;
+};
+extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
+// inferred: damage result of fn_8003EA3C (0x20 bytes); names invented
+struct KrakenMpDamage_unk {
+    KrakenMpDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(-1) { mFlags = 0; }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int mFlags : 4;
+    unsigned int m1C_0 : 28;
+};
+extern "C" void fn_8003EA3C(KrakenMpDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+                            unsigned int flags, const HitParam_unk* param, int arg, int arg2);
 
 // inferred: commands of "act_command" ({name, id}, terminated by a negative id; names invented)
 struct KrakenMpCommandName_unk {
@@ -172,7 +242,7 @@ int Em302KrakenMp::vf0C() {
                             }
                         } while (id != 0);
                         if (!fn_800E0AB0((const Count4_unk*)&m15E8)) {
-                            m15DC = *At_unk(&m15E8, m15E4);
+                            m15E0 = *At_unk(&m15E8, m15E4);
                         }
                     } else if (strcmp(key, "pillar_id") == 0) {
                         int id = zero;
@@ -266,6 +336,111 @@ int Em302KrakenMp::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// inferred: message to the gimmick `g` (names invented)
+inline void SendGimmick_unk(KrakenMpGimmick_unk* g, int kind) {
+    KrakenMpGimmickMsg_unk msg;
+    msg.m00 = kind;
+    msg.m04 = 0;
+    msg.m08 = 0;
+    msg.m0C = 0;
+    msg.m10 = 0;
+    msg.m14 = 0.0f;
+    msg.m18 = 0.0f;
+    msg.m1C = 0.0f;
+    g->vf40(&msg);
+}
+
+// NONMATCHING: 98.8% - registers of the pillar loop (index/count/offset rotated) and of the inlined
+// "can act" checks, and the stack slot of the damage result (7 variants)
+void Em302KrakenMp::vf10() {
+    if (m1540 != m1544) {
+        if (m1540 == 1) {
+            fn_80370AE4(lbl_8087F430, 11, 1);
+            m1648++;
+        } else if (m1540 == 2) {
+            fn_80370AE4(lbl_8087F430, 10, 1);
+            m1648++;
+        } else if (m1540 == 3) {
+            fn_80370AE4(lbl_8087F430, 11, 1);
+            m1648++;
+        } else if (m1540 == 4) {
+            fn_80370AE4(lbl_8087F430, 10, 1);
+            m1648++;
+        }
+        m1544 = m1540;
+    }
+    if (m154C != m1550) {
+        for (KrakenMpGimmick_unk* g = FirstGimmick_unk(); g != 0; g = g->mNext) {
+            if (g->m48 == 0x444) {
+                SendGimmick_unk(g, 0);
+            }
+        }
+        m1550 = m154C;
+    }
+    if (m1554 != m1558) {
+        if (m1554 == 1) {
+            int index = m15E4;
+            if (m15F4.size() != 0) {
+                KrakenMpGimmick_unk* g =
+                    (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, m15F4[index]);
+                if (g != 0) {
+                    SendGimmick_unk(g, 1);
+                }
+            }
+        } else if (m1554 == 2) {
+            unsigned int skip = m15E4;
+            for (unsigned int i = 0; i < m15F4.size(); i++) {
+                KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, m15F4[i]);
+                if (g == 0) {
+                    continue;
+                }
+                int state = g->m54;
+                if (i != skip && state == 1) {
+                    SendGimmick_unk(g, 2);
+                }
+            }
+        }
+        m1558 = m1554;
+    }
+    if (!mFlag2) {
+        if (mC58.mC4 == 0) {
+            mC58.mC4 = lbl_8087F8A0->mHead;
+        }
+        if (CanAct_unk() && m58C != 0 && m14DC != 3 && vfF8() == 0) {
+            vf100(0);
+        }
+        if (m164C == 0 && m1648 > 3) {
+            m164C = 1;
+            KrakenMpDamage_unk result;
+            fn_8003EA3C(&result, fn_80219E6C(0x271), this, this, 0, &lbl_807C6B90, 0, 0);
+        }
+        vf104();
+        RoutePlace_unk* place = m15E0;
+        if (place != 0) {
+            mPos = place->mPos;
+            mRot.y = 3.1415927f + place->m14;
+        } else {
+            mPos = atn::Vector3(0.0f, -1000.0f, 0.0f);
+        }
+        mPos += m15A0;
+        mPos.y += m14F0;
+        if (m14DC == 3 && m58C != 7) {
+            mPos.y -= 1000.0f;
+        }
+    } else if (m58C == 2) {
+        vfEC();
+    }
+    mC58.mC0 = m14DC != 3;
+    if (m14DC == 3) {
+        m54C |= 0x2000;
+    } else {
+        m54C &= ~0x2000;
+    }
+    m14FC++;
+    fn_8014C540();
+    fn_80145334();
 }
 
 void Em302KrakenMp::vf14() {
