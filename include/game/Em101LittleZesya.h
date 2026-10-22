@@ -27,6 +27,8 @@ public:
 
     void fn_8025D7B0(); // inferred: runs the state machine
     void fn_8025DE54(); // inferred: state 0
+    void fn_8025E008(); // inferred: starts state 11 (effect m156C)
+    void fn_8025E834(); // inferred: starts state 13 after 10 frames (effect m1578)
     void fn_8025DE7C(); // inferred: state 0 of the spell (casts m638 while the control allows it)
     void fn_8025E748(); // inferred: state of the attack
     void fn_8025E930();
@@ -59,7 +61,9 @@ public:
     int m1538;
     int m153C;
     float m1540;            // inferred: last frame
-    unsigned char m1544[0x1568 - 0x1544];
+    unsigned char m1544[0x1548 - 0x1544];
+    int m1548;
+    unsigned char m154C[0x1568 - 0x154C];
     float m1568;            // inferred: added to the regeneration (CharaStatus +0x174)
     atn::EfpHandle_unk m156C;
     atn::EfpHandle_unk m1578;

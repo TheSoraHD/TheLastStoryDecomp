@@ -124,6 +124,9 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   - Segunda pasada (10/25): fn_8025DE7C al 100% (copia del bloque de EnemyTrista::fn_8035CF78: `mControl &&`
     es el safe-bool por puntero a miembro + __ptmf_test; objdiff no compara la etiqueta del ptmf local).
     Se incluye chr/ControlBase.h en la fuente.
+  - Tercera pasada (12/25): fn_8025E008 (estado 11) y fn_8025E834 (estado 13) al 100%; el inline
+    PlayEffect_unk necesita los locales en el orden color, rot, pos (pila 0x10/0x20/0x2C), como en
+    Em003LesserDaemon; en Em305Vampire el orden es pos, rot, color. Renombrados en symbols.txt.
 
 - game/Em401_01_WhiteLeoPard (0/25 -> 1/25, NUEVA fuente + cabecera minima): dtor al 100%; ctor 99.9% (la
   carga de info->m20 en el prologo solo sale con un puntero const, y el simbolo no es const). El resto de

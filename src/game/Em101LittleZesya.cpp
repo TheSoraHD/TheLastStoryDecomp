@@ -14,6 +14,32 @@ extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, int
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+
+// inferred: plays an effect on the model (locals in the order of game/Em003LesserDaemon.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
 Em101LittleZesya::~Em101LittleZesya() {}
@@ -91,6 +117,20 @@ void Em101LittleZesya::fn_8025DE7C() {
     }
 }
 
+void Em101LittleZesya::fn_8025E008() {
+    m14D0 = 0;
+    m14F4 = 0;
+    m58C = 11;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x1C4, 1, 0, 1, 0.0f, 0.1f);
+    fn_80232B7C(this, 101);
+    PlayEffect_unk(&m156C, &mMotion);
+    m1548 = 2;
+}
+
 void Em101LittleZesya::fn_8025E748() {
     float frame = mMotion.mTracks[0].m08;
     if (17.0f < frame && frame <= 19.0f) {
@@ -105,6 +145,21 @@ void Em101LittleZesya::fn_8025E748() {
 }
 
 // NONMATCHING: ~95% - f1/f2 of the int->float conversion of the maximum HP (4 variants)
+void Em101LittleZesya::fn_8025E834() {
+    if (m14D0 > 10) {
+        m14D0 = 0;
+        m14F4 = 0;
+        m58C = 13;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x1C4, 1, 0, 1, 0.0f, 0.1f);
+        fn_80232B7C(this, 500);
+        PlayEffect_unk(&m1578, &mMotion);
+    }
+}
+
 void Em101LittleZesya::fn_8025E930() {
     mStatus.mParamB.m8C += m1568;
     if (HpRate_unk() >= 0.99f) {
