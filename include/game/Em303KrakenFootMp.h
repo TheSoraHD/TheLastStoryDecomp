@@ -38,6 +38,7 @@ public:
     inline void SetState_unk(int state);   // inferred: names invented
     inline void PlayMotion_unk(int motion);
     inline void FaceTarget_unk();
+    void UpdateColli_unk(); // inferred: inline (name invented)
 
     atn::LH_Binary m14D4;    // inferred: data file
     int m14DC;

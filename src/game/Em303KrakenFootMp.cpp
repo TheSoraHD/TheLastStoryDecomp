@@ -148,8 +148,26 @@ void Em303KrakenFootMp::fn_802E5CD0(const char* text, int length) {
     } while (csv.fn_8005BBF8());
 }
 
-// NONMATCHING: ~75% - the two inlined CanAct_unk tests keep their flags in other registers (the original
-// tests r4/r0/r5 per call), and stack slots/r3-r5 of the node position copies (__VecCopy family)
+// inferred: capsule around the node "reference" (name invented, as in game/Em303KrakenFoot.cpp)
+void Em303KrakenFootMp::UpdateColli_unk() {
+    atn::Vector3 base = mPos;
+    MtxPtr ref = mMotion.GetNodeMtx_unk("reference");
+    if (ref != 0) {
+        base = GetNodePos_unk(ref);
+    }
+    m620 = m5B0;
+    m614 = base + m5A4;
+    m614.y += m620;
+    atn::Vector3 a = m614;
+    atn::Vector3 top = a;
+    top.y += m5B4 - 2.0f * m620;
+    mColli.m3C = a;
+    mColli.m48 = top;
+    mColli.m54 = m620;
+}
+
+// NONMATCHING: 99.23% - registers of the two inlined CanAct_unk tests (r0/r4/r6 rotated, as in
+// Em303KrakenFoot::vf40) and r3/r4 of the copy of the "reference" node position (__VecCopy family)
 void Em303KrakenFootMp::vf10() {
     bool act = CanAct_unk();
     if (act) {
@@ -170,19 +188,7 @@ void Em303KrakenFootMp::vf10() {
     }
     fn_8014C540();
     fn_80145334();
-    atn::Vector3 base = mPos;
-    MtxPtr ref = mMotion.GetNodeMtx_unk("reference");
-    if (ref != 0) {
-        base = GetNodePos_unk(ref);
-    }
-    m620 = m5B0;
-    m614 = base + m5A4;
-    m614.y += m620;
-    atn::Vector3 top = m614;
-    top.y += m5B4 - 2.0f * m620;
-    mColli.m3C = m614;
-    mColli.m48 = top;
-    mColli.m54 = m620;
+    UpdateColli_unk();
 }
 
 void Em303KrakenFootMp::vf14() {
