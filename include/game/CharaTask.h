@@ -443,7 +443,7 @@ public:
     // inferred: a free position next to the character, away from `target` (8 directions tried)
     virtual atn::Vector3 vfD8(CharaTask* target);
     virtual float vfDC(); // inferred: returns f1 (0x800EF270: scaled vf90)
-    virtual void vfE0();
+    virtual float vfE0(); // inferred: returns f1 (0x800EF080 returns the yaw of a vector passed in r4, the parameter is not declared; EnemyQuarkStand 0x80354378)
 
     int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading
     int fn_801370B8(int index);
