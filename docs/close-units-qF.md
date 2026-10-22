@@ -140,14 +140,17 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
 - game/Em309Ghoul (0/33 -> 2/33, NUEVA fuente + cabecera con relleno): dtor (array de 2 LH_Xsca destruido con
   __destroy_arr) y vf64 al 100%. symbols.txt: fn_802FCF50/F4B4 -> dtor/vf64; fn_802FCF14 ->
   `__ct__Q23atn7LH_XscaFv` (copia debil del ctor, lo usa el ctor de la unidad, sin escribir).
-  Segunda pasada (5/33): fn_80300654 / fn_803009F4 (estados 1 y 9: mensaje de batalla 0x141/0x145 con el nombre
+  Segunda pasada (6/33): fn_803010BC (estado 12, dos mensajes; m1670 sacado del relleno), fn_80300654 / fn_803009F4 (estados 1 y 9: mensaje de batalla 0x141/0x145 con el nombre
   de m60, sprintf ancho fn_800DD3FC + fn_80109828) y fn_80301200 (estado 13) al 100%; renombrados a
   `<fn>__10Em309GhoulFv` en symbols.txt. La tabla de mensajes lbl_8087F1E4 se declara local (GhoulMsgTable_unk).
 
 - game/Em202Spider (0/25 -> 1/25) y game/Em202SpiderBase (0/23 -> 1/23): NUEVAS fuentes con cabeceras de
   relleno; los dtors (0x8027CD9C, 0x80282EA4) al 100% (vectores envueltos como ChaserGuard).
   Segunda pasada: Em202Spider 3/25 (vf7C = fn_8027EA84 por la ranura 0x80 de la vtable, fn_80281ED8) y
-  Em202SpiderBase 2/23 (vf7C = fn_802846F8); renombrados en symbols.txt; campos sueltos sacados del relleno.
+  Em202SpiderBase 3/23 (vf7C = fn_802846F8, fn_80287788 = muerte); renombrados en symbols.txt; campos sueltos
+  sacados del relleno.
+- game/Em308ParmCrab 3/24: fn_802FC188 (muerte, mismo esquema que Em202SpiderBase::fn_80287788) al 100%;
+  symbols.txt fn_802FC188 -> `fn_802FC188__13Em308ParmCrabFv`; campos m14B0/m14F4/m15CC/m15D4 en la cabecera.
 
 - game/Em003LesserDaemon (0/22 -> 4/22, NUEVA fuente + cabecera con relleno): dtor, vf88 (salta a
   fn_8024FCDC), vf14, vfEC al 100%. symbols.txt: fn_8024AB20/BE90/C468/E690/FCDC -> nombres de la clase.

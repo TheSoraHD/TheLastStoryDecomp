@@ -71,6 +71,29 @@ void Em309Ghoul::fn_803009F4() {
     fn_80109828(lbl_8087F048, text);
 }
 
+void Em309Ghoul::fn_803010BC() {
+    m14F0 = 0;
+    m14F4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80097CCC(&mMotion, 2, 0.0f);
+    m58C = 12;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    fn_8017A300(m1670);
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x149), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14B), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+    if (mFlag22) {
+        fn_80370AE4(lbl_8087F430, 0xA8, 1);
+    }
+}
+
 void Em309Ghoul::fn_80301200() {
     m14F0 = 0;
     m14F4 = 0;

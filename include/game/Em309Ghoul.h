@@ -18,6 +18,7 @@ public:
 
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
     void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
+    void fn_803010BC(); // inferred: starts state 12 (messages 0x149/0x14B)
     void fn_80301200(); // inferred: starts state 13
 
     unsigned char m14B0[0x14F0 - 0x14B0];
@@ -36,7 +37,8 @@ public:
     atn::EfpHandle_unk m1594;
     atn::EfpHandle_unk m15A0;
     atn::SoundRef m15AC;
-    unsigned char m15B0[0x1674 - 0x15B0];
+    unsigned char m15B0[0x1670 - 0x15B0];
+    chr::CharaData_unk* m1670; // inferred: passed to fn_8017A300
     atn::LH_Xsca m1674[2];
     unsigned char m1684[0x168C - 0x1684];
     ResHandle m168C;          // inferred: debug menu group

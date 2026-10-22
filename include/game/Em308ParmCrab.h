@@ -20,17 +20,26 @@ public:
     virtual ~Em308ParmCrab();
     virtual float vf90();
 
-    unsigned char m14B0[0x14D8 - 0x14B0];
+    void fn_802FC188(); // inferred: death
+
+    int m14B0;
+    unsigned char m14B4[0x14D8 - 0x14B4];
     atn::SoundRef m14D8;
     atn::EfpHandle_unk m14DC;
-    unsigned char m14E8[0x151C - 0x14E8];
+    unsigned char m14E8[0x14F4 - 0x14E8];
+    HitInfo_unk* m14F4;       // inferred: skill (its m68 gives the wait frames)
+    unsigned char m14F8[0x151C - 0x14F8];
     atn::SoundRef m151C;
     atn::EfpHandle_unk m1520;
     unsigned char m152C[0x1558 - 0x152C];
     CrabList_unk m1558;
     unsigned char m1564[0x15AC - 0x1564];
     CrabList_unk m15AC;
-    unsigned char m15B8[0x15F4 - 0x15B8];
+    unsigned char m15B8[0x15CC - 0x15B8];
+    int m15CC;
+    int m15D0;
+    int m15D4;
+    unsigned char m15D8[0x15F4 - 0x15D8];
     atn::EfpHandle_unk m15F4;
     atn::EfpHandle_unk m1600;
     atn::LH_Binary m160C;     // inferred: data file

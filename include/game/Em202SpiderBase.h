@@ -20,6 +20,8 @@ public:
     virtual ~Em202SpiderBase();
     virtual void vf7C(int arg);
 
+    void fn_80287788(); // inferred: death
+
     int m14B0;
     unsigned char m14B4[0x14D8 - 0x14B4];
     atn::SoundRef m14D8;
