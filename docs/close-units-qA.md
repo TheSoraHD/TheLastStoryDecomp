@@ -106,3 +106,11 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
     r30/r31, 7 intentos).
   - Decision sin el usuario: los nuevos `extern "C"` mantienen el nombre `fn_` de symbols.txt; solo se renombran a
     miembro los que nadie llama desde fuente (Material, Xsca).
+- `std/char_traits_char`: probado tambien `align:4` en su .rodata de splits.txt: no sirve (la alineacion a 8 la
+  impone el .o de MWCC); revertido.
+- `atn/NetFriend_unk` (22/30, era 19/30): `fn_8050EF14` (borrar amigo y guardar en "online/playerinfo7"),
+  `fn_8050F404` (primer hueco libre) y `fn_8050F464` al 100%; `fn_8050F470` (clave de amigo como texto) 99.85%
+  (solo desplazamientos del pool de cadenas anchas, como fn_8050F734).
+- Saltadas por bloqueo documentado: `atn/D2A_Manager` (presupuesto de inline), `atn/CompositeIntensityTintMulti`
+  (presupuesto de inline de vf14), `atn/SmallAllocator_8` (ciclo de inline del gestor), `atn/Geometry_unk`
+  fn_80070D04 (`__VecCopy` r3/r4), `atn/FileList` y `atn/TextureDraw_unk` (sin escribir, grandes).

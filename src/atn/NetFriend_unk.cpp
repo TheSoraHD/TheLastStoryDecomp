@@ -1,8 +1,9 @@
 // inferred: network statistics timer (counters per second) and the friend list of the Wi-Fi
 // Connection (DWC friend data, names and friend keys). Names invented. Not reconstructed:
-// 0x8050E994 (DWC user data report, std::wstring), 0x8050EBC8/0x8050EF14/0x8050EFCC/0x8050F198
-// (adding/removing friends), 0x8050F2F0 (friend name), 0x8050F404, 0x8050F464/0x8050F470 (friend
-// key as text).
+// 0x8050E994 (DWC user data report, std::wstring), 0x8050EBC8/0x8050EFCC/0x8050F198 (adding
+// friends), 0x8050F2F0 (friend name).
+
+#include "std/string.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -154,6 +155,59 @@ extern "C" int fn_8050EB2C(MpFriendList_unk* list) {
 extern "C" int fn_8050EB88(MpFriendList_unk* list) {
     list->mFriendKey = DWC_CreateFriendKey(list);
     return list->mFriendKey != 0;
+}
+
+extern "C" int DWC_CanChangeFriendList();
+extern "C" void DWC_DeleteBuddyFriendData(void* friendData);
+extern "C" void DWC_ClearDirtyFlag(void* data);
+// inferred: writes `size` bytes at `offset` of a save file (atn/NandManager.cpp)
+extern "C" int fn_800A5218(const char* path, int offset, const void* data, int size);
+
+// inferred: removes friend `id`; with `save`, writes the user data (if changed) and the friend list
+extern "C" int fn_8050EF14(MpFriendList_unk* list, int id, int save) {
+    if (!DWC_CanChangeFriendList()) {
+        return 0;
+    }
+    DWC_DeleteBuddyFriendData(&list->mFriends[id]);
+    if (save) {
+        if (DWC_CheckDirtyFlag(list)) {
+            DWC_ClearDirtyFlag(list);
+            fn_800A5218("online/playerinfo7", 0, list, sizeof(list->mUserData));
+        }
+        fn_800A5218("online/playerinfo7", sizeof(list->mUserData), list->mFriends, 0x9B0);
+    }
+    return 1;
+}
+
+// inferred: first free friend slot (-1: none)
+extern "C" int fn_8050F404(MpFriendList_unk* list) {
+    for (int i = 0; i < 32; i++) {
+        if (!DWC_IsValidFriendData(&list->mFriends[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long key);
+
+// inferred: friend key of the list as text
+extern "C" std::basic_string<wchar_t> fn_8050F464(MpFriendList_unk* list) {
+    return fn_8050F470(list->mFriendKey);
+}
+
+// inferred: friend key as text ("0000-0000-0000", dashes when there is none)
+// NONMATCHING: 99.85% - only the offsets of the two strings in the wide string pool (the strings
+// before them belong to functions that are not reconstructed, as for fn_8050F734)
+extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long key) {
+    wchar_t buf[0x100];
+    if (key != 0) {
+        fn_800DD3FC(buf, L"%04d-%04d-%04d", (int)(key / 10000 / 10000 % 10000), (int)(key / 10000 % 10000),
+                    (int)(key % 10000));
+    } else {
+        fn_800DD3FC(buf, L"----------------");
+    }
+    return std::basic_string<wchar_t>(buf);
 }
 
 static unsigned int lbl_8087F880;
