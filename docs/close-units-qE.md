@@ -113,3 +113,7 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - `game/NewCampPartsStatus` (23/29, sin cambios): `fn_80528310/454/574` (base + 0x58 recalculado en cada llamada en
   el original) 2 intentos mas (`(char*)task + 0x58`, `&t->mLayout[0]`): MWCC sigue reutilizando la direccion.
   vf14/fn_80527938/vf3C son solo registros (ya investigados). Saltada.
+- `game/SongManager` (sin cambios): `fn_805A38F0` 99.77% (4 intentos mas: limite con if/else, local, comparacion
+  dentro del inline, puntero a counts[8]); el resto ya investigado (pool 1.0f/0.0f, planificacion del 1.0f).
+  Nota: `fnstat.py` muestra fn_805A358C/3660/3734 al 99.81% compilando la unidad suelta, pero el report completo
+  las da al 100% (igual que las referencias): no hay perdida.
