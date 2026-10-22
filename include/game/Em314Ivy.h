@@ -23,20 +23,25 @@ public:
     virtual void vf108();                   // 0x803123D0
     virtual int vf10C(struct HitMsg_unk* msg); // 0x80311130
 
+    void fn_80310C64(const char* text, int length); // inferred: reads the data file
+    void fn_80312EF8(); // inferred: picks the nearest player as target (states 9 and 10)
+    void fn_8031319C(CharaTask* target); // inferred: catches `target`
+    void fn_803132D0(); // inferred: releases the caught character
+
     float m14D4;
     float m14D8; // inferred: rotation from the spawn description
     float m14DC;
     float m14E0;
-    CharaTask* m14E4; // inferred: target
-    int m14E8;
-    int m14EC;
-    int m14F0;
-    int m14F4;
-    int m14F8;
-    float m14FC;
-    float m1500;
-    float m1504;
-    float m1508;
+    CharaTask* m14E4; // inferred: caught character
+    void* m14E8;      // inferred: matrix of the "catch_point" node
+    int m14EC;        // inferred: "SkillId"
+    int m14F0;        // inferred: "HideWaitFrame"
+    int m14F4;        // inferred: "ReleaseWaitFrame"
+    int m14F8;        // inferred: "HoldDamageInterval"
+    float m14FC;      // inferred: "ReleaseForce"
+    float m1500;      // inferred: "AppearDistance"
+    float m1504;      // inferred: "HideDistance"
+    float m1508;      // inferred: "CatchDistance"
     int m150C;
     // inferred: random appear positions {count, new[] data} (the dtor frees m1518)
     struct Positions_unk {
@@ -57,11 +62,11 @@ public:
         unsigned char m10[0x14 - 0x10];
         float m14;
     }* m1520[0x20];
-    int m15A0;
+    int m15A0;        // inferred: "RandomPosition" == 1
     int m15A4;
     int m15A8;
-    int m15AC;
-    int m15B0;
+    int m15AC;        // inferred: "Strong"
+    int m15B0;        // inferred: "CatchNotifyFlag" (SpecialFlag_unk)
     int m15B4;
     int m15B8; // inferred: DebugDisp
 };
