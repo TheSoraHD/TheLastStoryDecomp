@@ -29,8 +29,27 @@ Cola: game/Em316LaserSphere, game/Em316LastLaser, game/Em401_01_WhiteLeoPard.
   inline; 3 variantes mas: for, Clear_unk en la lista, funcion libre). Sin escribir: vf10 (2.9 KB),
   fn_8031CA30, fn_8031D350, fn_8031D6DC, fn_8031E078, fn_8031E8BC.
 
+- `game/Em401_01_WhiteLeoPard` (empezada en close-units): 2/25 -> 13/25 (report). Al 100%: ctor (con
+  `const EnemyInfo_unk*`: la carga de info->m20 va al prologo, como EnemyJill), vf0C (dos `boost::bind` como
+  Em403WarLion::vf0C; el indice de "lefthand" se reutiliza), sus invokers/managers (0x8031F48C-0x8031F59C),
+  fn_8031F2A4 (`model->m35C = callback;`, la segunda callback de pose del modelo que tambien usa WarLion), vf10
+  (con un accesor inline del mFlag28 del lider), fn_8031FAA4 (eleccion del objetivo), vf3C y fn_8031FD34 (con
+  `((void)0)` para que no se autoinlinee en vf3C). vf14 99.85% en el diff directo (solo etiquetas de los dos
+  double de .rodata; el report lo da al 100%: no se cuenta). NONMATCHING: fn_80321724 97.83% y fn_80321900
+  98.79% (copias de las callbacks de WarLion, mismo bloqueo), vf54 99.64% (__VecCopy). Sin escribir:
+  fn_8031FE4C (maquina de estados), fn_803202E0, fn_803209E0 (con vf34 de 16 bytes que salta a ella), vf24,
+  vf20, vf50, fn_803227A0, fn_80322AD4.
+
 ## Decisiones tomadas sin el usuario
 
+- **symbols.txt (Em401_01_WhiteLeoPard)**: ctor pasa a `__ct__21Em401_01_WhiteLeoPardFPQ23atn4TaskPC13EnemyInfo_unk`
+  (puntero const, como EnemyJill), vf0C/vf10/vf14/vf20/vf24/vf34/vf3C/vf50/vf54 y metodos `fn_XXXXXXXX__21Em401_01_WhiteLeoPardF...`;
+  invokers/managers/RTTI de los dos `boost::bind`, `@LOCAL@`/`@GUARD@` de `assign_to` (0x807C8428/30,
+  0x8087F3F8/9) y `lbl_80749A70` -> `@stringBase0`. fn_8031F2A4 se queda con su nombre (lo llama
+  game/Em403WarLion.cpp por `extern "C"`).
+- **Cabecera compartida `include/atn/Model_unk.h`**: el relleno `m354[0x370 - 0x354]` se parte en
+  `m354[0x35C - 0x354]` + `boost::function<void(atn::MotionBuffer*, int)> m35C` (0x14 bytes, mismo layout);
+  regress/fuzzdrop 0.
 - **symbols.txt (Em316LastLaser)**: `lbl_8074973C` -> `@stringBase0` (scope:local).
 - **symbols.txt (Em316LaserSphere)**: renombrados ctor, dtor, vf0C/vf10/vf14/vf3C/vf40/vf80/vfE4/vfEC y los
   metodos no virtuales `fn_XXXXXXXX__16Em316LaserSphereF...`; `lbl_8074959C` -> `@stringBase0` (scope:local);
@@ -44,6 +63,12 @@ Cola: game/Em316LaserSphere, game/Em316LastLaser, game/Em401_01_WhiteLeoPard.
   No cambia el codigo de nadie (regress/fuzzdrop 0).
 
 ## Hallazgos MWCC
+- Asignar un `boost::function` por valor a un miembro (`model->m35C = callback;`) da el marco del original en
+  fn_8031F2A4; la copia + swap de CharaFaceControl::fn_8011D424 deja los temporales en otro orden.
+- Una lectura de un global encadenado (`lbl_8087F8A0->mHead->mFlag28`) a traves de un accesor inline cambia el
+  registro volatil que recibe el puntero (Em401_01_WhiteLeoPard::vf10 al 100%).
+- Argumentos temporales `&Color(material->m20), &Color(material->m1C)`: se construyen de derecha a izquierda,
+  asi que el orden de los campos del original se obtiene invirtiendolos en la llamada.
 - Los locales del efecto (pos, rot, color) declarados en el cuerpo de la funcion, antes de un helper inline
   que guarda en miembros, dan el orden de pila del original (Em316LastLaser::vf80 al 100%); dentro del inline
   del efecto quedan por encima.
