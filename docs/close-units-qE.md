@@ -120,3 +120,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - `game/SpecialEnemyBase` (14/22, sin cambios): `fn_805A3D68` 99.88% (3 intentos: literal en local antes/despues,
   `find(..., 0)`): el original reutiliza r29 (el `lis` del pool) para ".csv". Resto: pool de cadenas, datos de la
   tabla de nombres, aproximaciones grandes (66%/73%) y registros ya investigados.
+- `game/ChaserGuard` (6/13, sin nuevas): `fn_8017F4A0` 99.39% -> 99.86% (frente leido dentro de `GetFrontOf_unk`
+  como en ChaserNpc, `base = (2pi * n) / 8.0f`); quedan los slots del frente (8 intentos). `fn_8017FBEC` es el
+  r4/r5 de __VecCopy; ctor (push_back), resto registros/pila ya investigados.

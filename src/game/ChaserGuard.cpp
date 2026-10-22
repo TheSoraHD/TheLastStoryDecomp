@@ -120,6 +120,12 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: front direction for a rotation around y (as in CharaTask.cpp)
+inline atn::Vector3 GetFrontOf_unk(Mtx m, CharaTask* chara) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &v, &v);
+    return v;
+}
 inline atn::Vector3 GetFront_unk(Mtx m, float ry) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     PSMTXRotRad(m, 'y', ry);
@@ -506,7 +512,8 @@ void ChaserGuard::fn_8017F348() {
     fn_8017FED0();
 }
 
-// NONMATCHING: 99.4% - stack slots of the loop temporaries and two swapped address registers.
+// NONMATCHING: 99.86% - stack slots of the loop temporaries (the front vector is above them in the
+// original) and two swapped address registers.
 void ChaserGuard::fn_8017F4A0(int state) {
     m14B4 = 0;
     m14D0 = 0;
@@ -554,11 +561,11 @@ void ChaserGuard::fn_8017F4A0(int state) {
             m150C = lbl_8087F098->m70;
             m1510 = mPos;
             if (m150C != 0) {
-                float base = 6.2831855f * (float)(lbl_8087F098->m74 - 2) * 0.125f;
+                float base = 6.2831855f * (float)(lbl_8087F098->m74 - 2) / 8.0f;
                 for (int i = 0; i < 8; i++) {
                     Mtx m2;
                     Mtx m1;
-                    atn::Vector3 dir = Negate_unk(GetFront_unk(m1, m150C->mRot.y));
+                    atn::Vector3 dir = Negate_unk(GetFrontOf_unk(m1, m150C));
                     PSMTXRotRad(m2, 'y', base + 6.2831855f * (float)i / 9.0f);
                     PSMTXMultVec(m2, &dir, &dir);
                     atn::Vector3 to = m150C->mPos + dir * 20.0f;
