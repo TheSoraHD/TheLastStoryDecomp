@@ -300,14 +300,6 @@ inline void PlayEffectC_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-// inferred: plays a motion on track 0 after stopping it (names invented)
-inline void RestartMotion_unk(Em301LShade* e, int motion) {
-    fn_80097CCC((Model_unk*)&e->mMotion, 0, 0.0f);
-    e->mMotion.m34C = 1;
-    e->mMotion.mTracks[0].m20 = 1.0f;
-    e->mMotion.mTracks[0].m0C = 1.0f;
-    e->mMotion.fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
-}
 
 // inferred: names invented
 inline bool ShadeInactive_unk(CharaTask* c) {
@@ -903,6 +895,200 @@ atn::Vector3 Em301LShade::vf64(int center) {
     return result;
 }
 
+// inferred: release assert of the original (empty; without the two of fn_802D5674 MWCC inlines it into
+// fn_802D3370, which the original calls out of line; as in game/ColliAttrManager.cpp)
+#define ASSERT_UNK(x) ((void)0)
+
+// inferred: plays a motion on track 0 after stopping it (names invented)
+inline void RestartMotion_unk(Em301LShade* e, int motion) {
+    fn_80097CCC((Model_unk*)&e->mMotion, 0, 0.0f);
+    e->mMotion.m34C = 1;
+    e->mMotion.mTracks[0].m20 = 1.0f;
+    e->mMotion.mTracks[0].m0C = 1.0f;
+    e->mMotion.fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
+}
+
+// inferred: starts state 9 (absorbs, looped motion 0x33) with its effect (names invented)
+inline void StartAbsorbAttack_unk(Em301LShade* e) {
+    fn_80232B7C(e, 13);
+    PlayEffect_unk(&e->m1588, (Model_unk*)&e->mMotion);
+    e->SetState_unk(9);
+    e->mMotion.m34C = 1;
+    e->mMotion.mTracks[0].m20 = 1.0f;
+    e->mMotion.mTracks[0].m0C = 1.0f;
+    e->mMotion.fn_80097C08(0, 0x33, 1, 0, 1, 0.0f, 0.1f);
+    fn_80370AE4(lbl_8087F430, 0x32, 3);
+}
+
+// inferred: starts state 12 (hides) with the hide kind m1510 (names invented)
+inline void StartHide_unk(Em301LShade* e, int kind) {
+    e->m1510 = kind;
+    e->SetState_unk(12);
+    RestartMotion_unk(e, 0x14A);
+    e->m15E8 = 0;
+    e->m15EC = 0;
+}
+
+// inferred: behaviour of the shade by rounds (m14DC: 0 and 2 appear at "first_appear_number", 1 and 3
+// at a random point); in each round m14E0 is the phase (0: appears and absorbs if it can, 1: attacks,
+// 2: hides, 3: calls the reinforcements)
+void Em301LShade::fn_802D3370() {
+    if (m14DC == 0) {
+        switch (m14E0) {
+        case 0:
+            if (m14E4 == 0) {
+                fn_802D5674(m1628);
+            }
+            if (m14E4 == 1) {
+                if (fn_802D6004()) {
+                    StartAbsorbAttack_unk(this);
+                }
+                m14E0 = 1;
+                m14E4 = 0;
+                m1500 = 0;
+                return;
+            }
+            break;
+        case 1:
+            if (fn_802D3C74() == 0) {
+                return;
+            }
+            break;
+        case 2:
+            if (m14E4 == 0) {
+                StartHide_unk(this, 0);
+            }
+            if (m14E4 == 1) {
+                m14E0 = 3;
+                m14E4 = 0;
+                return;
+            }
+            break;
+        case 3:
+            if (fn_802D404C() == 0) {
+                m14DC = 1;
+                return;
+            }
+            break;
+        }
+    } else if (m14DC == 1) {
+        switch (m14E0) {
+        case 0:
+            if (m14E4 == 0) {
+                fn_802D5674(rand() % m162C.size());
+            }
+            if (m14E4 == 1) {
+                if (fn_802D6004()) {
+                    StartAbsorbAttack_unk(this);
+                }
+                m14E0 = 1;
+                m14E4 = 0;
+                m1500 = 0;
+                return;
+            }
+            break;
+        case 1:
+            if (fn_802D3C74() == 0) {
+                return;
+            }
+            break;
+        case 2:
+            if (m14E4 == 0) {
+                StartHide_unk(this, 3);
+            }
+            if (m14E4 == 1) {
+                m14E0 = 3;
+                m14E4 = 0;
+                return;
+            }
+            break;
+        case 3:
+            if (fn_802D404C() == 0) {
+                m14DC = 2;
+                return;
+            }
+            break;
+        }
+    } else if (m14DC == 2) {
+        switch (m14E0) {
+        case 0:
+            if (m14E4 == 0) {
+                fn_802D5674(m1628);
+            }
+            if (m14E4 == 1) {
+                if (fn_802D6004()) {
+                    StartAbsorbAttack_unk(this);
+                }
+                m14E0 = 1;
+                m14E4 = 0;
+                m1500 = 0;
+                return;
+            }
+            break;
+        case 1:
+            if (fn_802D3C74() == 0) {
+                return;
+            }
+            break;
+        case 2:
+            if (m14E4 == 0) {
+                StartHide_unk(this, 1);
+            }
+            if (m14E4 == 1) {
+                m14E0 = 3;
+                m14E4 = 0;
+                return;
+            }
+            break;
+        case 3:
+            if (fn_802D404C() == 0) {
+                m14DC = 3;
+                return;
+            }
+            break;
+        }
+    } else if (m14DC == 3) {
+        switch (m14E0) {
+        case 0:
+            if (m14E4 == 0) {
+                fn_802D5674(rand() % m162C.size());
+            }
+            if (m14E4 == 1) {
+                if (fn_802D6004()) {
+                    StartAbsorbAttack_unk(this);
+                }
+                m14E0 = 1;
+                m14E4 = 0;
+                m1500 = 0;
+                return;
+            }
+            break;
+        case 1:
+            if (fn_802D3C74() == 0) {
+                return;
+            }
+            break;
+        case 2:
+            if (m14E4 == 0) {
+                StartHide_unk(this, 1);
+            }
+            if (m14E4 == 1) {
+                m14E0 = 3;
+                m14E4 = 0;
+                return;
+            }
+            break;
+        case 3:
+            if (fn_802D404C() == 0) {
+                m14DC = 2;
+                return;
+            }
+            break;
+        }
+    }
+    m14E4++;
+}
+
 // inferred: party members alive and the ones inside the absorb range (38 * scale around the body)
 inline void CountNear_unk(Em301LShade* e, int* outNear, int* outCount) {
     atn::Vector3 center = e->mPos;
@@ -1163,7 +1349,9 @@ void Em301LShade::vfEC() {
 }
 
 void Em301LShade::fn_802D5674(int count) {
-    fn_80232B7C(this, 20);
+    ASSERT_UNK(count >= 0);
+    ASSERT_UNK(this != 0);
+fn_80232B7C(this, 20);
     PlayEffect_unk(&m15CC, (Model_unk*)&mMotion);
     SetState_unk(6);
     if (count >= (int)m162C.size()) {
