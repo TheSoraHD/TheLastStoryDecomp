@@ -35,6 +35,33 @@ Em305Vampire 15/30, Em306GurgBeast 9/22, Em308InvertCrab 0/29 (sin fuente), Em30
   (lwzux del punto de ruta + r3/r4 de copias de Vector3; ~12 formas) y fn_802EB61C 99.4% (f3/f4/f5 del cociente de
   vida y r28/r29 del bucle; ~20 formas). Em305VampireMp sigue 12/14.
 
+- `game/Em306GurgBeast` (9/22 -> 11/22): al 100% vf100 (0x802EF16C, switch de estados; el caso 2 va entre el 13
+  y el 14 como en el original y usa mF14) y fn_802F0F60. Con el pool `lbl_80748488` renombrado a @stringBase0
+  (tamano 0xA9) no cambia nada mas. NONMATCHING: vf10 97.62%, fn_802F1120 96.3% y fn_802F1320 97.8%
+  (planificacion/registros, ver los comentarios en la fuente). include/game/Em306GurgBeast.h: m152C pasa a
+  `BattleCharaTask*`. Quedan vf104 (fn_802EF5FC, 3.3 KB), vf108 (fn_802F0328, 1.6 KB: llama fuera de linea a
+  las copias debiles fn_802F0964/0988/0990/0998, que solo aparecen al escribirla) y fn_802F09D4 (1.4 KB).
+- `game/Em308InvertCrab` (0/29 -> 9/29, fuente nueva): cabecera include/game/Em308InvertCrab.h (deriva de
+  EnemyTask, 0x15D8 bytes; vf68/vf6C/vf90 inline, sus copias debiles salen al final del fichero) y
+  src/game/Em308InvertCrab.cpp. La factoria (SpecialEnemyBase.cpp, caso 38) pasa a `new (3, "", "", 0)
+  Em308InvertCrab(parent, info)`. Al 100%: dtor, vf14, vf40, vf68, vf6C, vf90, vfEC (0x802F59D8, muerte con
+  cuenta atras m1434), fn_802F2C50 (rayo al suelo: atributos 0x14/0x15/0x1A-0x1D) y fn_802F58A0.
+  NONMATCHING: ctor 99.81% (r26/r27 del segundo constructor de std::string, bloqueo conocido), vf20 99.77%
+  (r3/r4 del __VecCopy), vf3C 98.80% (r5/r6), vf80 94.64% (pila del destino del salto) y fn_802F66CC 99.86%
+  (r3/r4 del __VecCopy de la traslacion del nodo "hit_top" del jugador). Quedan fn_802F1A2C/fn_802F2294 (vf0C y
+  vf10, 2 KB cada una) y los estados fn_802F33A0-fn_802F693C. fn_802F6E5C (slot vf60, devuelve 8.0f) no se
+  escribe: CharaTask::vf60 esta declarada void en la cabecera compartida.
+- `game/Em308ParmCrab` (3/24 -> 5/24): ctor escrito (99.83%, mismo bloqueo de std::string que InvertCrab) y la
+  factoria (caso 37) pasa a `new`; cabecera completada con los campos que tocan las funciones escritas. Al 100%:
+  vf40 (0x802F8A60; el efecto se escribe en linea con sus locales en el orden del original y lbl_8087F048 en un
+  local), fn_802FBE00 (giro hacia el objetivo: `ToRotationZ_unk` y la comparacion `-0.3927f < d && d < 0.3927f`
+  dan el 100%), ademas del dtor, vf90 y fn_802FC188 ya existentes. NONMATCHING: vf14 94.14% (temporales del
+  color), vf20 99.78% (r3/r4 del __VecCopy), vf3C 98.84%, vf80 82.04%, vfEC 98.67% (el original pasa &rot desde
+  r31), fn_802FB6AC y fn_802FBA30 99.96% (slots de pila de dir y del temporal de ToRotation_unk intercambiados).
+  Quedan vf0C/vf10 y los estados (fn_802F8EBC-fn_802FB0C4, fn_802FC2E0).
+
+## Decisiones tomadas sin el usuario
+
 - **symbols.txt**: `lbl_8087D9E0`/`lbl_8087D9E4` (.sdata) -> `@STRING@reserve__Q23atn36Vector_unk<Q29CharaTask10Item14_unk>FUii@0`
   y `...FUii`: son los "" del `new (0, "", "", 0)` del reserve inline de `Vector_unk<CharaTask::Item14_unk>`
   (CharaTask::vf50 lo menciona en un comentario; los usan muchos enemigos en asm). Mismo criterio que q1 con
@@ -58,6 +85,13 @@ Em305Vampire 15/30, Em306GurgBeast 9/22, Em308InvertCrab 0/29 (sin fuente), Em30
   kraken) siguen como int con comentario (se guardan/leen como int en funciones ya al 100%). Struct local
   `FootAction_unk` {kind, arg} para el resultado de `fn_802DC8B0` (Em302Kraken, sin fuente).
 
+- **symbols.txt (Em308)**: pools `lbl_80748558` (InvertCrab, 0x205) y `lbl_80748780` (ParmCrab, 0x278) ->
+  `@stringBase0` (scope:local, string_table; sin scope:local el enlazador da multiply-defined). Renombrados: ctor
+  de ParmCrab (fn_802F6E64), vf14/vf20/vf3C/vf40/vf80/vfEC de ParmCrab (fn_802F83E4/8678/87E0/8A60/8CA4/B39C),
+  fn_802FB6AC/fn_802FBA30/fn_802FBE00 con firma; InvertCrab vf20 (fn_802F2AF8), fn_802F2C50, fn_802F58A0.
+- **SpecialEnemyBase.cpp** (compartido, cambio minimo): casos 37 y 38 de la factoria con `new` de las clases
+  nuevas; se quitan los `extern "C"` de fn_802F1524 y fn_802F6E64 y se anaden los dos includes.
+
 ## Hallazgos MWCC
 
 - Si el original llama fuera de linea a inlines diminutas en una funcion (presupuesto superado), repartir el
@@ -69,5 +103,10 @@ Em305Vampire 15/30, Em306GurgBeast 9/22, Em308InvertCrab 0/29 (sin fuente), Em30
   de vf54 (Item14_unk); el if directo o el orden centro/radio no.
 - `float z = b.z - a.z; d.x = ...; d.z = z; d.y = 0` antes de `ToRotationZ_unk().y` en un `float` fija el orden
   de cargas de los dos operandos de la resta.
+
+- `float ry = rot.y; PSMTXRotRad(m, 'y', ry)` dentro de un helper inline del vector frontal fija la
+  planificacion de los argumentos de PSMTXRotRad (Em308 vf20); sin el local el compilador lee mRot.y por r3.
+- En Em308ParmCrab::fn_802FBE00, `ToRotationZ_unk` (z leida una vez) da el 100% donde `ToRotation_unk` deja un
+  frsp de mas; en fn_802FBA30/fn_802FB6AC es al reves.
 
 ## Pendientes para otras colas
