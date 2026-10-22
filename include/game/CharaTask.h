@@ -426,7 +426,9 @@ public:
     virtual int vfA4();
     virtual int vfA8(int kind); // inferred: returns -1 (0x80041A20); EnemyTrista::vfA8 returns 0, 2 or 3
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
-    virtual void vfB0();
+    // inferred: point to aim at, nonzero if there is one (0x800EF31C returns 0; GameUI passes a
+    // vector at 0x803D3C80; Em302Kraken/Em302KrakenMp fill it); the target symbol said Fv
+    virtual int vfB0(atn::Vector3* out);
     // inferred: action to run for `chara` (empty in CharaTask: weak copy 0x800EF310; called by
     // chr::ControlWallUp::vf10)
     virtual boost::function<void()> vfB4(CharaTask* chara);
@@ -434,13 +436,13 @@ public:
     virtual void vfBC();
     virtual void vfC0(void* draw); // inferred: Np131LivingArmor passes `draw` to fn_803E2A30
     virtual bool vfC4();
-    virtual void vfC8();
+    virtual atn::Vector3 vfC8(); // inferred: returns a position (0x800EF2F0 copies mPos; Em302Kraken)
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // inferred: four points (the target symbol says Fv)
     virtual atn::Vector3 vfD0(float angle); // inferred: position at mid height
-    virtual void vfD4();
+    virtual float vfD4(); // inferred: returns f1 (0x800EF2B4: scaled vf90)
     // inferred: a free position next to the character, away from `target` (8 directions tried)
     virtual atn::Vector3 vfD8(CharaTask* target);
-    virtual void vfDC();
+    virtual float vfDC(); // inferred: returns f1 (0x800EF270: scaled vf90)
     virtual void vfE0();
 
     int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading

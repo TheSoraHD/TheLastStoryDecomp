@@ -1751,7 +1751,7 @@ game/Em209SmallGolem.cpp:
 
 game/Em301LShade.cpp:
 	.text       start:0x802D0038 end:0x802D73E4
-	.rodata     start:0x80747098 end:0x807470A4
+	.rodata     start:0x80747098 end:0x807473F8
 	.data       start:0x80786C10 end:0x80786DC0
 	.sdata2     start:0x80884558 end:0x808845E8
 
