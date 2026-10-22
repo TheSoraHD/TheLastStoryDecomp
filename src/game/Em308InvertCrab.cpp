@@ -130,6 +130,25 @@ void Em308InvertCrab::vf3C(HitInfo_unk* hit) {
     vf40(hit);
 }
 
+// inferred: the ground under the crab (ray from 5 above to 100 below) has an attribute 0x14, 0x15 or
+// 0x1A-0x1D (sand/water?)
+int Em308InvertCrab::fn_802F2C50() {
+    int ret = 0;
+    atn::Vector3 to;
+    atn::Vector3 from = mPos;
+    from.y += 5.0f;
+    to = mPos;
+    to.y -= 100.0f;
+    CollResult_unk result;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x20000000, 0, 0) != 0 && result.m34 != 0) {
+        unsigned int attr = *result.m34;
+        if (attr == 0x14 || attr == 0x15 || attr - 0x1A <= 3) {
+            ret = 1;
+        }
+    }
+    return ret;
+}
+
 // inferred: dead with the skill 0xD1 (needle): state 17 (motion 0x14C) if m15D0, else fn_802F66CC; with
 // another attack: state 14 (motion 0x14)
 void Em308InvertCrab::vf40(HitInfo_unk* hit) {
@@ -198,6 +217,35 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 // inferred: gravity per frame (as fn_802F0998 of gmk/Cannonball.cpp)
 inline float Gravity_unk(CrabSettings_unk* s) {
     return -98.1f / (float)(s->mFps * s->mFps);
+}
+
+// inferred: capsule from the centre down by 0.7 * radius; in state 8 it is moved 10 units forwards
+// NONMATCHING: 96.55% - scheduling of the PSMTXRotRad arguments (mRot.y read through r3 before the
+// call) and the r3/r4 of the off copy; ~10 forms (front as inline helper gave the best result)
+inline atn::Vector3 CrabFront_unk(const atn::Vector3& rot) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot.y);
+    PSMTXMultVec(m, &front, &front);
+    return front;
+}
+
+void Em308InvertCrab::vf20() {
+    atn::Vector3 pos = mPos;
+    atn::Vector3 off(0.0f, 0.0f, 0.0f);
+    atn::Vector3 bottom;
+    if (m58C == 8) {
+        off = CrabFront_unk(mRot) * 10.0f;
+    }
+    pos += off;
+    bottom = pos;
+    m620 = 0.7f * m5B0;
+    m614 = pos;
+    m614.y -= 0.7f * m5B0;
+    bottom.y = mPos.y - 0.7f * m5B0;
+    mColli.m3C = pos;
+    mColli.m48 = bottom;
+    mColli.m54 = m620;
 }
 
 // inferred: jump to pos + offset (state 13): flight time from the motion length, gravity from the frame rate
