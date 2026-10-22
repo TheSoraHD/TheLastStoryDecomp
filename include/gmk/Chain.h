@@ -41,7 +41,7 @@ public:
     void fn_8043B9E0(); // inferred: builds the joints; not decompiled yet
     void fn_8043C508(); // inferred: update
     void fn_8043CA58(); // inferred: relaxes the joints (20 passes of length constraints)
-    void fn_8043CF58(); // not decompiled yet
+    void fn_8043CF58(); // inferred: orients the joints along the chain
 
     GimmickDesc_unk* mDesc; // 0xF4
     EffectModel_unk mModel; // 0xF8

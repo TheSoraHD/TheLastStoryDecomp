@@ -7,6 +7,10 @@
 extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void C_QUATMtx(atn::Quaternion_unk* q, const Mtx m);
+extern "C" void fn_805F9AB0(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
+extern "C" double acos(double x);
 // inferred: camera (only the position)
 struct CameraPos_unk {
     unsigned char m00[0x10C];
@@ -197,6 +201,89 @@ void Chain::fn_8043CA58() {
         mJoints.mData[i].m10 = mJoints.mData[i].m04;
     }
     delete[] tmp;
+}
+
+// NONMATCHING: 91.0% - stack layout of the vector/quaternion temporaries (declaration order).
+void Chain::fn_8043CF58() {
+    atn::Matrix3x4 rot;
+    for (int i = 0; i < mNumJoints - 1; i++) {
+        atn::Vector3 d = mJoints.mData[i + 1].m04 - mJoints.mData[i].m04;
+        atn::Vector3 dir = d;
+        if (PSVECMag(&dir) > 0.00001f) {
+            atn::Vector3 cur = dir;
+            atn::Vector3 prev;
+            if (i == 0) {
+                atn::Vector3 p = mJoints2.mData[i + 1].m04 - mJoints2.mData[i].m04;
+                prev = p;
+            } else {
+                atn::Vector3 p = mJoints.mData[i].m04 - mJoints.mData[i - 1].m04;
+                prev = p;
+            }
+            PSVECNormalize(&prev, &prev);
+            PSVECNormalize(&cur, &cur);
+            atn::Vector3 c;
+            PSVECCrossProduct(&prev, &cur, &c);
+            atn::Vector3 axis = c;
+            PSVECNormalize(&axis, &axis);
+            float dot = PSVECDotProduct(&prev, &cur);
+            dot = dot > 1.0f ? 1.0f : (dot < -1.0f ? -1.0f : dot);
+            if (dot < 1.0f) {
+                float a = acos(dot);
+                rot.SetIdentity();
+                if (i == 0) {
+                    rot = mJoints2.mData[i].m1C;
+                } else {
+                    rot = mJoints.mData[i - 1].m1C;
+                }
+                rot.m[0][3] = 0.0f;
+                rot.m[1][3] = 0.0f;
+                rot.m[2][3] = 0.0f;
+                atn::Quaternion_unk q;
+                C_QUATMtx(&q, rot.m);
+                atn::Quaternion_unk q0 = q;
+                atn::Quaternion_unk r;
+                if (PSVECMag(&axis) > 0.0f) {
+                    atn::Quaternion_unk t;
+                    fn_805F9AB0(&t, &axis, a);
+                    r = t;
+                } else {
+                    r = atn::Quaternion_unk(0.0f, 0.0f, 0.0f, 1.0f);
+                }
+                atn::Quaternion_unk res;
+                PSQUATMultiply(&r, &q0, &res);
+                atn::Quaternion_unk qr = res;
+                Mtx m;
+                PSMTXQuat(m, &qr);
+                __MtxCopy(rot.m, m);
+                rot.m[0][3] = mJoints.mData[i].m04.x;
+                rot.m[1][3] = mJoints.mData[i].m04.y;
+                rot.m[2][3] = mJoints.mData[i].m04.z;
+                mJoints.mData[i].m1C = rot;
+            } else {
+                if (i != 0) {
+                    mJoints.mData[i].m1C = mJoints.mData[i - 1].m1C;
+                }
+                mJoints.mData[i].m1C.m[0][3] = mJoints.mData[i].m04.x;
+                mJoints.mData[i].m1C.m[1][3] = mJoints.mData[i].m04.y;
+                mJoints.mData[i].m1C.m[2][3] = mJoints.mData[i].m04.z;
+            }
+        } else {
+            if (i != 0) {
+                mJoints.mData[i].m1C = mJoints.mData[i - 1].m1C;
+            }
+            mJoints.mData[i].m1C.m[0][3] = mJoints.mData[i].m04.x;
+            mJoints.mData[i].m1C.m[1][3] = mJoints.mData[i].m04.y;
+            mJoints.mData[i].m1C.m[2][3] = mJoints.mData[i].m04.z;
+        }
+    }
+    mJoints.mData[mNumJoints - 1].m1C = rot;
+    mJoints.mData[mNumJoints - 1].m1C.m[0][3] = mJoints.mData[mNumJoints - 1].m04.x;
+    mJoints.mData[mNumJoints - 1].m1C.m[1][3] = mJoints.mData[mNumJoints - 1].m04.y;
+    mJoints.mData[mNumJoints - 1].m1C.m[2][3] = mJoints.mData[mNumJoints - 1].m04.z;
+    for (int i = 0; i < mNumJoints; i++) {
+        MtxPtr node = mModel.GetModel_unk()->GetNodeMtx_unk(mJoints.mData[i].mNode);
+        *(atn::Matrix3x4*)node = mJoints.mData[i].m1C;
+    }
 }
 
 void Chain::vf14() {
