@@ -9,8 +9,16 @@
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 
-// inferred: resource manager (lbl_8087F518): releases a buffer of fn_8046DC5C
-struct Unk_8087F518;
+// inferred: resource manager (lbl_8087F518, atn::Loader): releases a buffer of fn_8046DC5C
+namespace atn {
+// inferred: minimal view of atn::Loader (include/atn/LoadManager.h declares these functions with
+// other signatures)
+class Loader {
+public:
+    int fn_8046F4D4(const char* path); // inferred: some mounted archive has `path`
+};
+} // namespace atn
+typedef atn::Loader Unk_8087F518;
 extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 struct MemoryManager_unk;
@@ -62,6 +70,36 @@ extern "C" char* fn_8006B404(char* path) {
 
 namespace atn {
 std::string fn_8046CC90(const std::string& in); // inferred: path resolved by the loader (atn/Loader.cpp)
+}
+
+// inferred: converts the backslashes of a path to slashes (std::string version)
+inline void __ToSlashes_unk(std::string& path) {
+    for (unsigned long i = 0; i < path.size(); i++) {
+        if (path[i] == '\\') {
+            path[i] = '/';
+        }
+    }
+}
+
+extern "C" void fn_8006A9A4(std::string& path) {
+    for (unsigned long i = 0; i < path.size(); i++) {
+        if (path[i] == '\\') {
+            path[i] = '/';
+        }
+    }
+}
+
+extern "C" std::string fn_8006AB54(const char* path);
+extern "C" int fn_805F9EF0(const char* path); // inferred: DVDConvertPathToEntrynum
+
+// inferred: nonzero when the file exists (in a mounted archive or on the disc)
+extern "C" int fn_8006AA20(const char* name) {
+    std::string path = fn_8006AB54(name);
+    if (lbl_8087F518 != 0 && lbl_8087F518->fn_8046F4D4(path.c_str())) {
+        return 1;
+    }
+    __ToSlashes_unk(path);
+    return fn_805F9EF0(path.c_str()) != -1;
 }
 
 // inferred: path resolved by the loader, from a C string
