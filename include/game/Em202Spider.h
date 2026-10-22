@@ -12,37 +12,72 @@
 // game/ChaserGuard.h); name invented
 struct SpiderList_unk : public std::vector<int> {};
 
-// inferred from __vt__11Em202Spider. Members keep their offsets (names unknown).
+// inferred: color of the materials of the spider (r, g, b, a; starts white); name invented
+struct SpiderColor_unk {
+    SpiderColor_unk() : r(1.0f), g(1.0f), b(1.0f), a(1.0f) {}
+    float r, g, b, a;
+};
+
+// inferred from __vt__11Em202Spider (0x807854C8). Data file "database/chara/special/" + db_name (default
+// "db_em202_00_00.csv"). The factory allocates 0x15B0 bytes. Members keep their offsets (names invented).
 class Em202Spider : public EnemyTask {
 public:
-    Em202Spider(atn::Task* parent, EnemyInfo_unk* info);
-    virtual ~Em202Spider();
-    virtual void vf7C(int arg);
+    Em202Spider(atn::Task* parent, EnemyInfo_unk* info); // 0x8027C990
+    virtual ~Em202Spider();                              // 0x8027CD9C
+    virtual int vf0C();                                  // 0x8027CF28
+    virtual void vf10();                                 // 0x8027D838
+    virtual void vf14();                                 // 0x8027E19C
+    virtual void vf3C(HitInfo_unk* hit);                 // 0x8027E410
+    virtual void vf40(HitInfo_unk* hit);                 // 0x8027E678
+    virtual void vf54();                                 // 0x8027E8EC
+    virtual void vf7C(int arg);                          // 0x8027EA84
+    virtual void vfEC();                                 // 0x80280EF8
 
     void fn_802829DC(); // inferred: death
     void fn_80281ED8(); // inferred: starts state 7 (moves to the place m14B8)
 
     atn::LH_Binary m14B0;     // inferred: data file
     int m14B8;                // inferred: place id
-    unsigned char m14BC[0x14C0 - 0x14BC];
+    int m14BC;
     SpiderList_unk m14C0;
     SpiderList_unk m14CC;
     int m14D8;
-    unsigned char m14DC[0x1504 - 0x14DC];
+    float m14DC;              // inferred: 55.0f
+    unsigned char m14E0[0x14E4 - 0x14E0];
+    int m14E4;
+    int m14E8;
+    int m14EC;
+    int m14F0;
+    int m14F4;
+    int m14F8;
+    int m14FC;                // inferred: damage taken (vf40)
+    int m1500;
     int m1504;
-    unsigned char m1508[0x151C - 0x1508];
+    int m1508;
+    int m150C;
+    int m1510;
+    int m1514;
+    int m1518;
     int m151C;
     int m1520;
-    unsigned char m1524[0x1530 - 0x1524];
+    int m1524;
+    int m1528;
+    int m152C;
     int m1530;
-    unsigned char m1534[0x1550 - 0x1534];
-    atn::EfpHandle_unk m1550;
-    ResLoader_unk m155C;
-    atn::EfpHandle_unk m1568;
-    atn::EfpHandle_unk m1574;
-    atn::EfpHandle_unk m1580;
-    atn::EfpHandle_unk m158C;
-    unsigned char m1598[0x15A8 - 0x1598];
+    int m1534;                // inferred: 60
+    int m1538;
+    float m153C;
+    unsigned char m1540[0x1544 - 0x1540];
+    int m1544;
+    int m1548;
+    int m154C;
+    atn::EfpHandle_unk m1550; // inferred: "/effect/ef_uc019.efp"
+    ResLoader_unk m155C;      // inferred: "/effect/ef_sk002b.eff"
+    atn::EfpHandle_unk m1568; // inferred: "/effect/ef_uc001.efp"
+    atn::EfpHandle_unk m1574; // inferred: "/effect/ef_sk002d.efp"
+    atn::EfpHandle_unk m1580; // inferred: "/effect/ef_uc007.efp"
+    atn::EfpHandle_unk m158C; // inferred: "/effect/ef_sc003_01b.efp"
+    SpiderColor_unk m1598;    // inferred: color of the materials "em202_body"/"em202_tail" (vf14)
     atn::SoundRef m15A8;
 };
 
