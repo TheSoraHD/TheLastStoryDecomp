@@ -17,6 +17,13 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+extern "C" int fn_80370A78(Field_unk* field, int index);
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
+// inferred: word at 0x1C of the running control (class unknown)
+struct Control1C_unk {
+    unsigned char m00[0x1C];
+    int m1C;
+};
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -138,6 +145,37 @@ void Em101LittleZesyaSecond::vf40(HitInfo_unk* hit) {
     if ((mStatus.m0C & 0x20) == 0x20) {
         fn_802620A8();
     }
+}
+
+void Em101LittleZesyaSecond::fn_80261948() {
+    switch (m55C) {
+    case 6:
+        if (m560 == 10) {
+            m598 = 0;
+            m59D = 0;
+            m59C = 0;
+            m59F = 1;
+            m590 = fn_800F8548(lbl_8087F048);
+            SetHit_unk(fn_80219E6C(0xE5));
+            ((Control1C_unk*)mControl.get())->m1C = 1;
+            m58C = 1;
+            Field_unk* field = lbl_8087F430;
+            fn_80370AE4(field, 0xF1, fn_80370A78(field, 0xF0) + 1);
+        }
+        break;
+    case 7:
+        mFC0 = 0;
+        mFlag5 = 0;
+        break;
+    default:
+        fn_8016E970(3);
+        if (m58C == 0) {
+            mFlag5 = 1;
+        }
+        mFC0 = m14B8;
+        break;
+    }
+    fn_80139560();
 }
 
 void Em101LittleZesyaSecond::fn_802620A8() {

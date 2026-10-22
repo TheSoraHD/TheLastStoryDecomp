@@ -22,9 +22,10 @@ public:
 
     void fn_80260324(); // inferred: reads the data file
     void fn_802620A8(); // inferred: death
+    void fn_80261948(); // inferred: state 0 (control updates)
 
     atn::LH_Binary m14B0;
-    int m14B8;
+    CharaTask* m14B8;   // inferred: target
     int m14BC;
     int m14C0;
     int m14C4;          // inferred: frame counter
