@@ -107,3 +107,8 @@ Hallazgos MWCC (8):
 - chr/ControlCliffhang: 4/8. fn_801AC14C (0x801AC14C) SUBIDA: la rama vacia de `right` en la direccion 3 lleva tambien la condicion `m74 > 0.0f` (como las direcciones 2 y 4): `else if (right != 0 && m74 > 0.0f) {}`.
 - game/GameUI: no intentada (170 funciones pendientes, la mayoria copias debiles de inlines/accessors; requiere decidir el orden de la TU).
 - game/Em305VampireMp: no intentada (ctor con std::string, registros).
+- game/Arms: 18/21. fn_8004439C (0x8004439C) SUBIDA: la conversion de ROTATION es `m258.x = atn::DegToRad_unk(m258.x);` por componente (inline de math/Vec.h, copia debil 0x801125F8) en vez del producto escrito a mano.
+- game/GameOverTask ctor: la copia de "\0" escrita a mano (dst/src locales, `src != dst`) arregla los registros pero mueve un addi (98.6% < 99.59%); revertido. game/U16Table_unk fn_803CD958, game/MapPartsLocatorSet vf2C, game/HomingBullet vf10 (`__VecCopy`): sin cambios.
+
+Hallazgos MWCC (9):
+- Usar el inline `atn::DegToRad_unk(x)` en vez de `0.017453292f * x` cambia el reparto de FPR (Arms::fn_8004439C).
