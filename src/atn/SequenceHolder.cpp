@@ -1,10 +1,7 @@
 // atn/SequenceHolder.cpp: table of the game sequences (atn::SequenceHolder::SequenceUnit, created by the
 // SequenceUnitParam1<> templates and looked up by atn::SequenceControl).
 #include "atn/SequenceControl.h"
-#include "std/vector.h"
-#include "atn/Memory.h"
-#include <boost/function.hpp>
-#include <string.h>
+#include "atn/SequenceHolder.h"
 
 // inferred: boost::lambda placeholders (free1..3 and the references _1.._3, set up by the __sinit)
 struct LambdaPlaceholder1_unk {};
@@ -18,37 +15,6 @@ LambdaPlaceholder1_unk& _1 = free1;
 LambdaPlaceholder2_unk& _2 = free2;
 LambdaPlaceholder3_unk& _3 = free3;
 } // namespace
-
-namespace atn {
-
-// inferred: layout from the copies in fn_800C3990 (0x5C bytes per unit)
-class SequenceHolder {
-public:
-    class SequenceUnitBase {
-    public:
-        virtual ~SequenceUnitBase();
-        virtual Task* vf0C(Task* parent) { return 0; } // weak copy 0x800C37D8 (named after SequenceControl)
-        int fn_800C3D6C() const;
-
-        int mId;          // 0x04
-        char mName[0x40]; // 0x08
-    };
-    class SequenceUnit : public SequenceUnitBase {
-    public:
-        virtual ~SequenceUnit();
-        virtual Task* vf0C(Task* parent);
-
-        boost::function<Task*(Task*)> mFunc; // 0x48
-    };
-
-    SequenceHolder();
-    int fn_800C3990(const SequenceUnit& unit);
-
-    int mCount;                                // 0x00
-    std::vector<SequenceUnitBase*> mUnits;     // 0x04
-};
-
-} // namespace atn
 
 // inferred: lookups used through a void* by SequenceControl (see include/atn/SequenceControl.h)
 extern "C" atn::SequenceHolder::SequenceUnitBase* fn_800C3D74(atn::SequenceHolder* holder, const char* name);
@@ -69,8 +35,6 @@ int SequenceControl::fn_800C37FC(const char* name) {
 SequenceHolder::SequenceHolder() : mCount(0) {
     mUnits.reserve(0x80);
 }
-
-SequenceHolder::SequenceUnitBase::~SequenceUnitBase() {}
 
 // NONMATCHING: 97.25% - the inlined push_back loads the capacity before the size (known std/vector.h
 // problem, see vector::push_back) and the file pool has "" before "vector length error"
@@ -106,6 +70,5 @@ Task* SequenceHolder::SequenceUnit::vf0C(Task* parent) {
     return mFunc(parent);
 }
 
-SequenceHolder::SequenceUnit::~SequenceUnit() {}
 
 } // namespace atn

@@ -41,8 +41,7 @@ struct StrapRender_unk {
 extern "C" StrapRender_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was pressed
-extern "C" void* lbl_8087F9AC;
-extern "C" void fn_80572B6C(void* obj, const char* name); // inferred: goes to the named sequence
+#include "atn/SequenceBoot_unk.h"
 extern "C" void* lbl_8087F9A0;
 extern "C" void fn_8057155C(void* obj, int arg);
 
@@ -120,7 +119,7 @@ void StrapTask::vf10() {
             fn_800D2338(this);
             lbl_8087F4E8->m88 = 1;
             lbl_8087F4E8->m90 = 1;
-            fn_80572B6C(lbl_8087F9AC, "Title");
+            sSequenceBoot_unk->SetNext_unk("Title");
         }
         break;
     case 3:
