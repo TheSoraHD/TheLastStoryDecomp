@@ -105,7 +105,7 @@ extern "C" void fn_804DA4A0(MpSession_unk* session, int arg);
 Em305Vampire::Em305Vampire(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14F8(0), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m1510(0),
       m1514(0), m1524(0), m1528(0), m152C(0.0f), m1530(0), m1534(0), m1538(1.0f), m153C(0), m1540(0),
-      m1544(0.0f), m1548(0.0f), m154C(0.0f), m1550(0.0f), m1554(0.0f), m1558(0.0f), m155C(0), m1560(0),
+      m1544(0.0f, 0.0f, 0.0f), m1550(0.0f, 0.0f, 0.0f), m155C(0), m1560(0),
       m15B8(450), m15C0(0), m15D4(1.0f), m15F0(0.0f), m15F4(0.0f), m15F8(0.0f), m15FC(0), m1600(0), m1604(1) {
     m15C4.m00 = 0.1f;
     m15C4.m04 = 0.1f;
@@ -409,6 +409,83 @@ inline void Em305Vampire::StartFlee_unk() {
     }
 }
 
+// inferred: route point by 1-based index (as in game/Em310Gargoyle.cpp; name invented)
+inline RoutePoint_unk* GetRoutePoint_unk(RouteTable_unk* table, int index) {
+    return &table->mPoints[index - 1];
+}
+
+// inferred: door of "door_route" between two route points, in either direction (name invented)
+inline VampireDoor_unk* Em305Vampire::FindDoor_unk(int a, int b) {
+    for (unsigned int i = 0; i < m14DC.size(); i++) {
+        if (a == m14DC[i].m00 && b == m14DC[i].m04) {
+            return &m14DC[i];
+        }
+        if (a == m14DC[i].m04 && b == m14DC[i].m00) {
+            return &m14DC[i];
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.82% - the original loads the next route point with lwzux (address kept for the copy) and
+// r3/r4 of the two vector copies (__VecCopy family); ~12 forms
+// inferred: movement along the route; when the walker goes through a door of "door_route" it starts state 8
+void Em305Vampire::fn_802EA490() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot = mRot;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 v = mRoute.m58;
+        if (lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0 && mRoute.mDestPoint > 0 && mRoute.mPointA > 0) {
+            RouteTable_unk* table = lbl_8087F430->m10D8;
+            int a = table->mPoints[mRoute.mDestPoint - 1].m00;
+            RoutePoint_unk* to = &table->mPoints[mRoute.mPointA - 1];
+            int b = to->m00;
+            VampireDoor_unk* door = FindDoor_unk(a, b);
+            if (door != 0) {
+                atn::Vector3 dest = to->mPos;
+                m14F8 = 0;
+                m14FC = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 8;
+                fn_8016E970(6);
+                m560 = 4;
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.1f);
+                m1544 = mPos;
+                m1550 = dest;
+                m155C = door;
+                return;
+            }
+        }
+        speed = v.Length_unk();
+        if (speed < 0.0001f) {
+            rot = mRot;
+        } else {
+            rot = v.GetNormalized_unk().ToRotation_unk();
+        }
+        if (m1528 == 1) {
+            rate *= m1538 * (m15D8[0] + m152C);
+        } else if (m1528 == 2) {
+            rate *= m1538 * (m15D8[1] + m152C);
+        } else if (m1528 == 3) {
+            rate *= m1538 * (m15D8[2] + m152C);
+        } else {
+            rate *= m15D4;
+        }
+        if (m1528 != 0) {
+            rate *= mStatus.fn_8012DB04();
+        }
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_8013CB68(&rot, 1, speed, rate * m568);
+}
+
 // inferred: picks the next action (as Em305VampireMp::vf11C without the ray test)
 void Em305Vampire::vf11C() {
     if (m1500 == 0 && m14F4 != 0) {
@@ -516,7 +593,7 @@ void Em305Vampire::fn_802EAF68() {
 
 // inferred: state 8 (through a door): opens the door gimmick, turns to the exit and moves through
 void Em305Vampire::fn_802EB1F4() {
-    atn::Vector3 d(m1550 - m1544, m1554 - m1548, m1558 - m154C);
+    atn::Vector3 d(m1550.x - m1544.x, m1550.y - m1544.y, m1550.z - m1544.z);
     if (m14F8 == 0) {
         if (m14FC > m15AC) {
             m14FC = 0;
@@ -654,6 +731,38 @@ void Em305Vampire::fn_802EBABC() {
 
 void Em305Vampire::fn_802EBB14() {
     StartTackle_unk();
+}
+
+// inferred: starts state 7 (tackle) towards the target; the move is rotated by the facing when it is zero
+void Em305Vampire::fn_802EBBA8() {
+    if (m14F4 == 0) {
+        return;
+    }
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 7;
+    fn_8016E970(6);
+    m560 = 4;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.1f);
+    CharaTask* target = m14F4;
+    atn::Vector3 d = target->mPos - mPos;
+    m1518 = d;
+    m1518.y = 0.0f;
+    if (m1518.IsZero_unk()) {
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        atn::Vector3 front;
+        front = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(m, &front, &front);
+        m1518 = front;
+    }
+    m1518.Normalize_unk();
+    mRot = m1518.ToRotation_unk();
+    m1518 *= 2.5f;
 }
 
 void Em305Vampire::fn_802EBF40() {

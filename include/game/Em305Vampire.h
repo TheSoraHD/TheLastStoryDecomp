@@ -63,6 +63,7 @@ public:
     inline void StartTackle_unk();
     inline void StartFlee_unk();
     inline int NearestWeakenPoint_unk();
+    inline VampireDoor_unk* FindDoor_unk(int a, int b);
 
     atn::LH_Binary m14D4;                         // inferred: data file
     std::vector<VampireDoor_unk> m14DC;           // inferred: "door_route"
@@ -85,12 +86,8 @@ public:
     float m1538;                                  // inferred: speed factor
     int m153C;
     int m1540;                                    // inferred: silver arrows received
-    float m1544;
-    float m1548;
-    float m154C;
-    float m1550;
-    float m1554;
-    float m1558;
+    atn::Vector3 m1544;                           // inferred: start of the door crossing (state 8)
+    atn::Vector3 m1550;                           // inferred: end of the door crossing
     VampireDoor_unk* m155C;                       // inferred: door being crossed (state 8)
     int m1560;                                    // inferred: index into m14E8
     atn::EfpHandle_unk m1564;
