@@ -70,6 +70,8 @@ public:
     void fn_802868A0(); // inferred: walks to the base point m1564, then attacks m1580
     void fn_80284CC8(); // inferred: chooses the attack on m1580 by the distance
     void fn_802878EC(CharaTask* target); // inferred: escape
+    void fn_802857B4(); // inferred: state 9 (turn), then the action m1538
+    void fn_80285B7C(); // inferred: state 7 (follows m1580 until it is in reach)
     void fn_80286CB0(CharaTask* target); // inferred: starts state 7 (move), or the attack on m1580
     void fn_8028702C(CharaTask* target); // inferred: starts the attack (state 6, or state 8 in needle mode)
     int fn_80287400(CharaTask* target, int arg); // inferred: starts state 9 (turn) when the target is not in front
@@ -91,7 +93,7 @@ public:
     HitInfo_unk* m1530;       // inferred: skill 0x3F8 ("TackleID")
     float m1534;              // inferred: pi
     int m1538;                // inferred: argument of the turn (state 9, fn_80287400)
-    int m153C;
+    int m153C;                // inferred: frames of the turn
     float m1540;              // inferred: start angle of the turn (state 9)
     float m1544;              // inferred: target angle of the turn (state 9)
     atn::Vector3 m1548;       // inferred: jump velocity (state 13, vf80)

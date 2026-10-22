@@ -151,6 +151,100 @@ void Em202SpiderBase::fn_802868A0() {
     fn_802847CC();
 }
 
+// NONMATCHING: 99.17% - only the .rodata/.sdata2 offsets (constants of the unwritten functions)
+void Em202SpiderBase::fn_802857B4() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        switch (m1538) {
+        case 6:
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+            break;
+        case 7:
+            fn_80286CB0(m1588);
+            break;
+        case 8:
+            fn_80286CB0(m1588);
+            break;
+        case 10:
+            if (fn_80287400(m1588, 10) == 0) {
+                ResetAttack_unk();
+                m58C = 10;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                m1584 = m1580;
+            }
+            break;
+        case 11:
+            if (fn_80287400(m1580, 11) == 0) {
+                ResetAttack_unk();
+                m58C = 11;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                m1590 = m1530 != 0 ? m1530->m68 : 60;
+                m1584 = m1580;
+            }
+            break;
+        case 12:
+            fn_802878EC(m1580);
+            break;
+        }
+    } else if (5.0f <= mMotion.mTracks[0].m08 && mMotion.mTracks[0].m08 <= 16.0f) {
+        m153C += 2;
+        float d = atn::WrapAngle_unk(m1544 - m1540);
+        mRot.y = atn::WrapAngle_unk(m1540 + m153C * d / 12.0f);
+    }
+}
+
+// NONMATCHING: 99.85% - only the .sdata2 offsets (constants of the unwritten functions)
+// inferred: the direction to the target is turned into a rotation that is not used; the test of the
+// turn is repeated (as in the original)
+void Em202SpiderBase::fn_80285B7C() {
+    atn::Vector3 rot;
+    atn::Vector3 d = m1580->mPos - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    rot = d.ToRotation_unk();
+    float reach = 30.0f;
+    if (m1530 != 0) {
+        reach = m1530->m40;
+    }
+    if (m1554 >= m1558 && !m1570.empty()) {
+        fn_802878EC(m1580);
+    }
+    if (dist < reach) {
+        fn_8016E970(3);
+        if (fn_80287400(m1580, 11) == 0 && fn_80287400(m1580, 11) == 0) {
+            ResetAttack_unk();
+            m58C = 11;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+            m1590 = m1530 != 0 ? m1530->m68 : 60;
+            m1584 = m1580;
+        }
+    } else if (dist > m152C) {
+        fn_8016E970(3);
+        if (fn_80287400(m1580, 8) == 0) {
+            fn_8028702C(m1580);
+        }
+    } else {
+        if (m55C - 6U > 1) {
+            m55C = 3;
+            fn_80170A20(m1580, 0, -1.0f);
+        }
+        fn_802847CC();
+    }
+}
+
 // NONMATCHING: 99.84% - only the .sdata2 offsets (constants of the unwritten functions)
 void Em202SpiderBase::fn_80286CB0(CharaTask* target) {
     if ((m157C & 2) != 2) {
