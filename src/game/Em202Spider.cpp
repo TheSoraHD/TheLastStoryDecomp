@@ -289,6 +289,76 @@ void Em202Spider::vfEC() {
     }
 }
 
+// NONMATCHING: 99.70% - only the .sdata2 offsets (constants of the unwritten functions)
+void Em202Spider::fn_8027F8A8() {
+    if (m1520 < 0) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m1520 = 0;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14C, 1, 0, 1, 0.0f, 0.1f);
+        }
+        return;
+    }
+    if (m1520 < 30) {
+        m1520++;
+        return;
+    }
+    switch (m1528) {
+    case 5:
+        fn_80281924(m14EC);
+        break;
+    case 6: {
+        int place = m14BC;
+        if (m14B8 > 0) {
+            m14D8 = 0;
+            m590 = fn_800F8548(lbl_8087F048);
+            m58C = 6;
+            fn_8016E970(6);
+            m560 = 4;
+            m1504 = place;
+            fn_8017039C(place, 2);
+            m151C = 1;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 2.0f;
+            mMotion.fn_80097C08(0, 0x14, 1, 1, 1, 0.0f, 0.1f);
+        }
+        break;
+    }
+    default:
+        m14D8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 0;
+        fn_8016E970(3);
+        fn_800CB5C8(&m15A8, 15, 0);
+        fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+        break;
+    }
+    m1528 = 0;
+    m1520 = -1;
+}
+
+// NONMATCHING: 99.65% - only the .sdata2 offsets (constants of the unwritten functions)
+void Em202Spider::fn_80281054(CharaTask* target) {
+    if (fn_802826A0(target, 1) != 0) {
+        return;
+    }
+    m14D8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 1;
+    fn_8016E970(6);
+    m560 = 4;
+    atn::Vector3 pos(target->mPos);
+    mRot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.1f);
+}
+
 void Em202Spider::fn_80281ED8() {
     if (m14B8 > 0) {
         m14D8 = 0;
@@ -303,6 +373,30 @@ void Em202Spider::fn_80281ED8() {
         mMotion.mTracks[0].m0C = 2.0f;
         mMotion.fn_80097C08(0, 0x14, 0, 0, 1, 0.0f, 0.1f);
     }
+}
+
+// NONMATCHING: 99.32% - f0/f3 of the 0.0f of ToRotationZ_unk (same case as Em003LesserDaemon::vf24) and
+// the .rodata double of fmod placed by the unwritten functions
+int Em202Spider::fn_802826A0(CharaTask* target, int arg) {
+    if (m58C == 9) {
+        return 0;
+    }
+    float ry = mRot.y;
+    atn::Vector3 rot = (target->mPos - mPos).ToRotationZ_unk();
+    m153C = atn::WrapAngle_unk(rot.y - ry);
+    if (-0.3926991f < m153C && m153C < 0.3926991f) {
+        return 0;
+    }
+    m1538 = arg;
+    m1540 = target;
+    m14D8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 9;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 2.0f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 1, 1, 0.0f, 0.1f);
+    return 1;
 }
 
 void Em202Spider::fn_802829DC() {

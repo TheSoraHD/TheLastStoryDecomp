@@ -46,6 +46,10 @@ public:
     virtual void vfEC();                                 // 0x80280EF8
 
     void fn_802829DC(); // inferred: death
+    void fn_8027F8A8(); // inferred: wait of m1520 frames, then the action m1528
+    void fn_80281924(CharaTask* target);
+    void fn_80281054(CharaTask* target); // inferred: starts state 1 (faces the target)
+    int fn_802826A0(CharaTask* target, int arg); // inferred: starts state 9 (turn) when the target is not in front
     void fn_80281ED8(); // inferred: starts state 7 (moves to the place m14B8)
 
     atn::LH_Binary m14B0;     // inferred: data file
@@ -58,7 +62,7 @@ public:
     unsigned char m14E0[0x14E4 - 0x14E0];
     int m14E4;
     int m14E8;
-    int m14EC;
+    CharaTask* m14EC;         // inferred: target (passed to fn_80281924/fn_80281054)
     int m14F0;
     int m14F4;
     int m14F8;
@@ -77,9 +81,9 @@ public:
     int m152C;
     int m1530;
     int m1534;                // inferred: 60
-    int m1538;
-    float m153C;
-    unsigned char m1540[0x1544 - 0x1540];
+    int m1538;                // inferred: argument of the turn (state 9, fn_802826A0)
+    float m153C;              // inferred: angle left to turn (state 9)
+    CharaTask* m1540;         // inferred: target of the turn (state 9)
     int m1544;
     int m1548;
     int m154C;
