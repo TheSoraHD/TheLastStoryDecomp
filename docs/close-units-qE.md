@@ -32,3 +32,9 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     `lbl_80730F08` (8 bytes, aparte de `@stringBase0`), lo que apunta a otra TU, y pasa sus 5 parametros tal cual a
     los ctores (kind -> m04, id -> m08; r8 de mas: el ctor real tendria un quinto parametro sin usar). Pendiente (necesitaria partir el split de Arms en 0x800457A4).
   - Hallazgo MWCC: `x = k * x` y `x = x * k` (float) reparten distinto los registros volatiles en una secuencia de tres.
+- `game/Em201ZanGurg` (11/15 -> 12/15): `fn_802640FC` 99.9% -> 100% escribiendo la diferencia de angulo en linea
+  (con el inline `AngleDiffDeg_unk` salen f0/f3 cambiados; en `SelectAttack_unk`/vf10 el inline si casa).
+  - `vf0C` 98.0% -> 99.89%: los tres colores como locales con nombre (`c`, `b`, `a`) y llamada directa a
+    `fn_80094958`; arregla el r3/r4 del pool. Quedan los slots de a/c (6 ordenes probados).
+  - ctor 99.77% (3 intentos mas: literal con `=`, puntero aparte, params aparte) y vf3C 99.71% (frsp de la z en el
+    ToRotation inline, familia ya documentada; 3 intentos): sin cambios.
