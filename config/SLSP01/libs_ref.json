@@ -1160,7 +1160,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/ax/AXVPB.c",
@@ -1194,7 +1194,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/ax/AXProf.c",
