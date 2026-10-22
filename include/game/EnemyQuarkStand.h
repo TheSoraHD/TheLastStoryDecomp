@@ -82,10 +82,19 @@ struct QuarkWave_unk {
     unsigned char m11;  // inferred: effect id
 };
 
-// inferred: empty object at 0x15DC (inline ctor 0x803458CC is a blr); 0x30 bytes of floats
+// inferred: aim of the current attack (0x30 bytes at 0x15DC, set when an attack starts; its empty
+// constructor is the weak copy 0x803458CC). Names invented.
 struct QuarkDir_unk {
     QuarkDir_unk();
-    float m00[12];
+    // inferred: takes the position by value (the original copies it to a temporary)
+    void SetTarget_unk(atn::Vector3 v) {
+        mTarget = v;
+        mTarget.y = 0.0f;
+    }
+    atn::Vector3 mTarget; // inferred: target position on the ground (y = 0)
+    atn::Vector3 mRot;    // inferred: rotation toward the target
+    atn::Vector3 mDir;    // inferred: horizontal direction toward the target
+    atn::Vector3 mStart;  // inferred: position when the attack started
 };
 
 // inferred: object of 0x30 bytes with an empty out-of-line constructor (weak copy 0x803165E0 in
@@ -126,6 +135,45 @@ public:
     void fn_803519C4(); // inferred: state 20
     void fn_803524AC(int motion, int arg3, float speed);
     void fn_80352EA4();
+    // inferred: states and helpers still in asm (names keep the address)
+    void fn_80346D8C(); // inferred: picks the next attack
+    void fn_8034701C(int kind); // inferred: starts attack `kind`
+    inline void AimAt_unk();
+    inline void TurnTo_unk(float rate);
+    inline IntVector_unk& Table_unk(int range);
+    inline int NextShort_unk();
+    inline int NextMiddle_unk();
+    inline int NextLong_unk();
+    void fn_8034FB50();
+    void fn_80350070();
+    void fn_80350464();
+    void fn_8035083C();
+    void fn_80351480(int arg);
+    void fn_803470F0();
+    void fn_80348568();
+    void fn_80348FF4();
+    void fn_803494AC();
+    void fn_80349BA0();
+    void fn_8034A194();
+    void fn_8034A644();
+    void fn_8034AE48();
+    void fn_8034B8CC();
+    void fn_8034C714();
+    void fn_8034CF48();
+    void fn_8034DA0C();
+    void fn_8034DE90();
+    void fn_8034E898();
+    void fn_8034EA50();
+    void fn_8034ECE8();
+    void fn_8034F53C();
+    void fn_8034F788();
+    void fn_80350F64();
+    void fn_803520D8();
+    void fn_8035223C();
+    void fn_803524E4();
+    void fn_803526A8();
+    void fn_80352C3C(int arg, int camera, float a, float b);
+    void fn_8035359C();
     void fn_80353370(); // inferred: debug menu entries
 
     int m14B0;                     // inferred: target (CharaTask*)
@@ -148,7 +196,9 @@ public:
     HitInfo_unk* m1550;            // inferred: "HoneSlashSkill"
     HitInfo_unk* m1554[2];         // inferred: "RainSkill" (zero terminated)
     HitInfo_unk* m155C;            // inferred: "ThunderSkill"
-    IntVector_unk m1560[9];        // inferred: ShortRange ... LongRangeTableMode3
+    // inferred: attack tables per mode, short/middle/long range (ShortRangeTableMode1 ... LongRangeTableMode3);
+    // a flat array (the constructor builds the nine lists with one __construct_array)
+    IntVector_unk m1560[9];
     int m15CC;                     // inferred: mode (0-2, from the hit point ratio)
     int m15D0;                     // inferred: index into the short range table
     int m15D4;                     // inferred: index into the middle range table
@@ -193,7 +243,7 @@ public:
     int m1804;                     // inferred: hits received in state 15
     unsigned char m1808;
     unsigned char m1809;           // inferred: rising (state 1)
-    unsigned char m180A;           // inferred: the action is state 19
+    bool m180A;                    // inferred: the action is state 19
     unsigned char m180B;           // inferred: the camera was taken
     atn::LH_Binary m180C;          // inferred: data file
     int m1814;                     // inferred: hits received
