@@ -33,7 +33,7 @@ public:
 
     // inferred: hides every lemon (name invented)
     void HideLemons_unk() {
-        for (unsigned int i = 0; i < mLemons.mSize; i++) {
+        for (int i = 0; i < (unsigned int)mLemons.mSize; i++) {
             mLemons[i]->mFlags |= 4;
         }
     }

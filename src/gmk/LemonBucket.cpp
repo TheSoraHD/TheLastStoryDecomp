@@ -118,12 +118,14 @@ LemonBucket::LemonBucket(atn::Task* parent, GimmickDesc_unk* desc)
     PSMTXMultVec(mtx, &mDir, &mDir);
 }
 
-// NONMATCHING: 98.71% - the registers of the HideLemons_unk loop (element and offset swapped;
-// tried int/unsigned index, pointer, reference and setter forms)
+// The loop is written here (not HideLemons_unk) with the int index compared as unsigned
 int LemonBucket::vf0C() {
     if (fn_803EC91C() == 0 && fn_800D3FA4() != 0) {
         m54 = 1;
-        HideLemons_unk();
+        for (int i = 0; i < (unsigned int)mLemons.mSize; i++) {
+            GimmickCommon* lemon = mLemons[i];
+            lemon->mFlags |= 4;
+        }
         return 1;
     }
     return 0;
@@ -138,7 +140,8 @@ void LemonBucket::vf28() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.01% - loop registers (index and offset swapped in the fade/switch loops, as in vf0C)
+// NONMATCHING: 99.77% - loop registers (index and offset swapped in the fade/switch loops; the int
+// index compared as unsigned gives the order but not the registers)
 void LemonBucket::vf10() {
     if (mDesc->m7C == 0) {
         if (mScattered != 0) {
@@ -301,7 +304,7 @@ void LemonBucket::vf24() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 98.61% - loop registers of the inlined HideLemons_unk (as in vf0C)
+// HideLemons_unk with the int index compared as unsigned gives the loop of the original
 int LemonBucket::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
