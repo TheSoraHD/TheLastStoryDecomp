@@ -26,6 +26,8 @@ public:
     void fn_80253C9C(); // inferred: swaps places with a random party member (end of state)
     void fn_80252E6C(); // inferred: state 0 (chooses the next action)
     inline void ResetStep_unk();
+    void fn_80253884(); // inferred: state 1 (spell / move along the route)
+    inline void Move_unk();
 
     int m14B0;
     int m14B4; // inferred: step of the state

@@ -36,6 +36,8 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f);
 extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -398,6 +400,58 @@ void Em005DoppelGanger::fn_80252E6C() {
         ResetStep_unk();
         m58C = 0;
         fn_8016E970(3);
+    }
+}
+
+// inferred: moves along the route, or updates the control (names invented)
+inline void Em005DoppelGanger::Move_unk() {
+    atn::Vector3 rot = mRot;
+    float dist = 0.0f;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 move = mRoute.m58;
+        dist = PSVECMag(&move);
+        if (dist > 0.0001f) {
+            rot = move.GetNormalized_unk().ToRotation_unk();
+        }
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_8013CB68(&rot, 1, dist, m568);
+}
+
+void Em005DoppelGanger::fn_80253884() {
+    atn::Vector3 rot0 = mRot;
+    if (fn_80158BB4()) {
+        int kind = m560;
+        if (kind == 10) {
+            ResetStep_unk();
+            m58C = 6;
+            fn_8016E970(3);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, 0x140, 0, 1, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = 1.3f;
+        } else if (kind - 21U <= 1) {
+            m58C = 10;
+        } else {
+            ResetStep_unk();
+            m58C = 0;
+            fn_8016E970(3);
+        }
+    } else {
+        Move_unk();
+        if (lbl_8087F048 != 0 && fn_80158CA4() != 0) {
+            fn_80144710();
+            HitInfo_unk* data;
+            if (m560 == 10) {
+                data = fn_80219E6C(0xE5);
+            } else {
+                data = fn_80219E6C(0xC8);
+            }
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        }
     }
 }
 
