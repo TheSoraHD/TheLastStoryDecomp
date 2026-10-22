@@ -1,8 +1,157 @@
 #include "atn/FileList.h"
+#include "atn/Memory.h"
+#include "std/string.h"
 
-// NOTE: both functions match 100%, but the unit is not linked yet: its .rodata starts at a
-// 4-aligned address (0x8073147C) and the data right after it (0x8073148C) is used by the
-// functions around 0x8006AC08-0x8006BF00, so the real file is larger than this split.
+// File and path utilities of the engine (path normalisation, language suffixes, loaded file
+// buffers) and atn::FileList (files of a directory). Functions 0x8006A950-0x8006BBCC are free
+// functions called as extern "C" by the game; only some are reconstructed.
+
+extern "C" char* strstr(const char* s, const char* sub);
+extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
+
+// inferred: resource manager (lbl_8087F518): releases a buffer of fn_8046DC5C
+struct Unk_8087F518;
+extern "C" Unk_8087F518* lbl_8087F518;
+extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
+struct MemoryManager_unk;
+extern "C" MemoryManager_unk* fn_800827E0();                  // inferred: memory manager
+extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p); // inferred: frees a block
+extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
+                             const char* file, int line, int arg);
+extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
+extern "C" char* strcpy(char* dst, const char* src);
+
+// inferred: DVDFileInfo of the RVL SDK (0x3C bytes; the length is at 0x34)
+struct DVDFileInfo_unk {
+    unsigned char m00[0x34];
+    unsigned long mLength;
+    unsigned char m38[4];
+};
+extern "C" int fn_805FA270(const char* path, DVDFileInfo_unk* info); // DVDOpen
+extern "C" int DVDReadPrio(DVDFileInfo_unk* info, void* addr, long length, long offset, long prio);
+extern "C" int DVDClose(DVDFileInfo_unk* info);
+
+// inferred: language suffixes of the localised files, indexed by the language (0 Japanese)
+static const char* const sLangSuffix[7] = {"_jp", "_en", "_de", "_fr", "_es", "_it", "_xx"};
+
+extern "C" {
+int lbl_8087EEC0; // inferred: language of the files
+int lbl_8087EEC4; // inferred: language of the text
+}
+
+// inferred: converts the backslashes of a path to slashes
+extern "C" void fn_8006A950(char* path) {
+    unsigned long len = strlen(path);
+    for (unsigned long i = 0; i < len; i++) {
+        if (*path == '\\') {
+            *path = '/';
+        }
+        path++;
+    }
+}
+
+// inferred: replaces "_xx" in `path` by the suffix of the file language
+extern "C" char* fn_8006B404(char* path) {
+    char* p = strstr(path, sLangSuffix[6]);
+    if (p != 0) {
+        strncpy(p, sLangSuffix[lbl_8087EEC0], 3);
+        return path;
+    }
+    return path;
+}
+
+// inferred: copy of a path with "_xx" replaced by the suffix of the file language
+extern "C" std::string fn_8006B46C(const std::string& path) {
+    char buf[0x100];
+    strcpy(buf, path.c_str());
+    char* p = strstr(buf, sLangSuffix[6]);
+    if (p != 0) {
+        strncpy(p, sLangSuffix[lbl_8087EEC0], 3);
+    }
+    return std::string(buf);
+}
+
+// inferred: sets the file language (ignored when out of range); inlined in fn_8006B53C
+static inline void __SetLang_unk(int lang) {
+    if (lang < 0) {
+        return;
+    }
+    if (lang >= 6) {
+        return;
+    }
+    lbl_8087EEC0 = lang;
+}
+
+// inferred: as fn_8006B46C with the text language
+// NONMATCHING: 75.9% - the inlined range checks are merged into one cmplwi 5 here; the original keeps
+// both compares (as in fn_8006BA54, where early returns give them; inlined, 7 forms tried)
+extern "C" std::string fn_8006B53C(const std::string& path) {
+    int lang = lbl_8087EEC0;
+    __SetLang_unk(lbl_8087EEC4);
+    std::string r = fn_8006B46C(path);
+    __SetLang_unk(lang);
+    return r;
+}
+
+extern "C" int fn_8006BA30() {
+    return lbl_8087EEC0;
+}
+
+// inferred: suffix of the file language without the underscore ("jp", "en"...)
+extern "C" const char* fn_8006BA38() {
+    return sLangSuffix[lbl_8087EEC0] + 1;
+}
+
+// inferred: sets the file language (ignored when out of range)
+extern "C" void fn_8006BA54(int lang) {
+    if (lang < 0) {
+        return;
+    }
+    if (lang >= 6) {
+        return;
+    }
+    lbl_8087EEC0 = lang;
+}
+
+extern "C" int fn_8006BA6C() {
+    return lbl_8087EEC4;
+}
+
+extern "C" void fn_8006BA74(int lang) {
+    if (lang < 0) {
+        return;
+    }
+    if (lang >= 6) {
+        return;
+    }
+    lbl_8087EEC4 = lang;
+}
+
+// inferred: loads a whole file (through the loader unless `own` is set: then read from the disc into a
+// new block rounded up to 32 bytes)
+extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int own) {
+    if (lbl_8087F518 != 0 && own == 0) {
+        return fn_8046DC5C(lbl_8087F518, path, size, 0x20);
+    }
+    DVDFileInfo_unk info;
+    void* data = 0;
+    if (fn_805FA270(path, &info)) {
+        *size = info.mLength;
+        data = fn_800839EC(fn_800827E0(), (*size + 0x1F) & ~0x1F, 0x20, 1, "", "", 0, 0);
+        DVDReadPrio(&info, data, (*size + 0x1F) & ~0x1F, 0, 2);
+        DVDClose(&info);
+    }
+    return data;
+}
+
+// inferred: releases a loaded file (through the loader unless `own` is set)
+extern "C" void fn_8006BB6C(void* data, int own) {
+    if (lbl_8087F518 != 0 && own == 0) {
+        fn_8046DD20(lbl_8087F518, data);
+    } else if (data != 0) {
+        fn_80083AD4(fn_800827E0(), data);
+    }
+}
 
 namespace atn {
 

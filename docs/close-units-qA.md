@@ -123,3 +123,9 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
 - `atn/LayerOcclusionCPU` (3/18): `__sinit_\LayerOcclusionCPU_cpp` (0x800B6684) al 100%: array global
   `atn::Vector3 lbl_807C74A0[16]` (.bss de la unidad) construido con __construct_array. symbols.txt: `fn_800B6684`
   -> `__sinit_\LayerOcclusionCPU_cpp` (scope:local). `fn_800B4390` es paired-single a mano (no escribible sin asm).
+- `atn/FileList` (12/27, era 2/27): utilidades de rutas/idioma/carga reconstruidas al 100%: `fn_8006A950`
+  (barras), `fn_8006B404`/`fn_8006B46C` (sufijo "_xx" -> idioma), `fn_8006BA30`/`BA38`/`BA54`/`BA6C`/`BA74`
+  (idioma de ficheros y de texto, `lbl_8087EEC0/C4` definidos aqui), `fn_8006BA8C` (cargar fichero, DVD si no hay
+  Loader), `fn_8006BB6C` (liberar). Tabla `sLangSuffix` (.rodata 0x80731460 + .sdata2). `fn_8006B53C` 75.9%.
+  - Hallazgo MWCC: `if (x < 0 || x >= 6) return;` se fusiona en `cmplwi 5`; con dos `if` y `return` separados se
+    conservan las dos comparaciones (cmpwi/blt + cmpwi/bge), pero no cuando la funcion se inlinea.
