@@ -24,6 +24,7 @@ extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferr
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" double cos(double x);
+extern "C" double sqrt(double x);
 // inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
 struct System_unk {
     unsigned char m00[0x30];
@@ -123,6 +124,28 @@ void Em202SpiderBase::fn_802847CC() {
         rot = mRot;
         fn_8013CB68(&rot, 0, speed, m568 * rate);
     }
+}
+
+// NONMATCHING: 99.81% - only the .sdata2 offsets (constants of the unwritten functions)
+// inferred: the direction to the point is turned into a rotation that is not used
+void Em202SpiderBase::fn_802868A0() {
+    atn::Vector3 rot;
+    atn::Vector3 d = m1564 - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    rot = d.ToRotation_unk();
+    if (dist < 20.0f) {
+        fn_8016E970(3);
+        m1554 = 0;
+        if (fn_80287400(m1580, 8) == 0) {
+            fn_8028702C(m1580);
+        }
+        return;
+    }
+    if (m55C - 6U > 1) {
+        m55C = 3;
+        fn_8017039C(*m1560, 0);
+    }
+    fn_802847CC();
 }
 
 // NONMATCHING: 99.84% - only the .sdata2 offsets (constants of the unwritten functions)

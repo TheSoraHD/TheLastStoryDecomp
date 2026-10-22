@@ -62,6 +62,7 @@ public:
     void fn_80287788(); // inferred: death
     inline void ResetAttack_unk();
     void fn_802847CC(); // inferred: movement of the frame (route in state 7, facing m1580)
+    void fn_802868A0(); // inferred: walks to the base point m1564, then attacks m1580
     void fn_80286CB0(CharaTask* target); // inferred: starts state 7 (move), or the attack on m1580
     void fn_8028702C(CharaTask* target); // inferred: starts the attack (state 6, or state 8 in needle mode)
     int fn_80287400(CharaTask* target, int arg); // inferred: starts state 9 (turn) when the target is not in front
@@ -90,7 +91,8 @@ public:
     int m1554;
     unsigned char m1558[0x155C - 0x1558];
     float m155C;              // inferred: speed rate of state 12 (fn_802847CC)
-    unsigned char m1560[0x1570 - 0x1560];
+    int* m1560;               // inferred: current base point (place id at 0, fn_802868A0)
+    atn::Vector3 m1564;       // inferred: position of the base point
     SpiderBaseList_unk m1570;
     int m157C;                // inferred: flags (4: needle mode, fn_8028702C)
     CharaTask* m1580;         // inferred: target of the attack (fn_80286CB0)
