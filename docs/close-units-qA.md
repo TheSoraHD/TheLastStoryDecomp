@@ -120,3 +120,6 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
     Tercera pasada: escrita `fn_8050EBC8` (anadir amigo por clave, 99.24%; helpers inline de recorrido/hueco libre).
     Todas las funciones de la unidad tienen ya fuente; las 8 restantes difieren por los desplazamientos del pool
     de cadenas anchas (el original tiene tres L"" en 0x16/0x18/0x20, nosotros uno) y algun registro.
+- `atn/LayerOcclusionCPU` (3/18): `__sinit_\LayerOcclusionCPU_cpp` (0x800B6684) al 100%: array global
+  `atn::Vector3 lbl_807C74A0[16]` (.bss de la unidad) construido con __construct_array. symbols.txt: `fn_800B6684`
+  -> `__sinit_\LayerOcclusionCPU_cpp` (scope:local). `fn_800B4390` es paired-single a mano (no escribible sin asm).
