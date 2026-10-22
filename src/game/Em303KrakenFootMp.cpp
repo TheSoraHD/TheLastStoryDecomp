@@ -3,6 +3,8 @@
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "game/CharaStatus.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -37,6 +39,10 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" int rand();
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f); // inferred: attack hit (as in game/Em303KrakenFoot.cpp)
 
 Em303KrakenFootMp::Em303KrakenFootMp(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14DC(0), m14E0(0), m14E4(0), m14EC(20.0f), m14F0(0), m14F4(0), m14F8(0),
@@ -248,6 +254,138 @@ void Em303KrakenFootMp::vf100(int state) {
     }
 }
 
+// inferred: state machine of the foot
+// NONMATCHING: 99.82% - stack slots of the temporaries of the two inlined movement blocks (written out with a
+// goto; with the helper Move_unk they get other FPRs, 99.0%)
+void Em303KrakenFootMp::vf104() {
+    m14F4 = (int)mC58.mC4;
+    if (m14F4 == 0) {
+        m14F4 = (int)lbl_8087F8A0->mHead;
+        mC58.mC4 = (CharaTask*)m14F4;
+    }
+    m14E0++;
+    if (mC58.mC0 == 0 || m14F4 == 0) {
+        switch (m58C) {
+        case 2:
+            vfEC();
+            break;
+        case 12:
+            mPos.y = -10000.0f;
+            break;
+        default:
+            fn_8016E970(3);
+            break;
+        }
+    } else {
+        float frame;
+        switch (m58C) {
+        case 7:
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                Reset_unk();
+                m14E4 = 0;
+            }
+            break;
+        case 8:
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                if (m14E4 == 0) {
+                    SetState_unk(10);
+                    m1500 = 10;
+                } else {
+                    Reset_unk();
+                }
+            } else if (mMotion.mTracks[0].m08 >= 19.0f && mMotion.mTracks[0].m08 <= 23.0f) {
+                int id = m590;
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, m14F8, id, 30, -1, 0.0f);
+            }
+            break;
+        case 9:
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                Reset_unk();
+            } else if (mMotion.mTracks[0].m08 >= 24.0f && mMotion.mTracks[0].m08 <= 28.0f) {
+                int id = m590;
+                HitInfo_unk* data = m14FC;
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+            }
+            break;
+        case 10:
+            if (m55C != 6) {
+                fn_8016E970(3);
+            }
+            {
+                float speed = 0.0f;
+                float rate = 1.0f;
+                atn::Vector3 rot = mRot;
+                if (m55C == 7) {
+                    mRoute.fn_80126214();
+                    atn::Vector3 v = mRoute.m58;
+                    speed = v.Length_unk();
+                    if (speed > 0.0001f) {
+                        rot = v.GetNormalized_unk().ToRotation_unk();
+                    }
+                } else if (m55C == 6) {
+                    fn_8013A258();
+                    goto moved1;
+                }
+                fn_8013CB68(&rot, 0, speed, rate * m568);
+            }
+            moved1:
+            if (m14E0 >= m1500) {
+                Reset_unk();
+            }
+            break;
+        case 2:
+            vfEC();
+            break;
+        case 12:
+            mPos.y = -10000.0f;
+            break;
+        default:
+            if (m55C != 6) {
+                if (m55C == 7) {
+                    if (m14E4 == 1 && (CharaTask*)m14F4 != mRoute.mTarget) {
+                        fn_8016E970(3);
+                    }
+                } else {
+                    switch (m14E4) {
+                    case 1:
+                        fn_80170A20((CharaTask*)m14F4, 0, -1.0f);
+                        break;
+                    case 3:
+                        if (m1504 != 0) {
+                            fn_8017039C(m1504->mId, 0);
+                        }
+                        break;
+                    }
+                }
+            }
+            {
+                float speed = 0.0f;
+                float rate = 1.0f;
+                atn::Vector3 rot = mRot;
+                if (m55C == 7) {
+                    mRoute.fn_80126214();
+                    atn::Vector3 v = mRoute.m58;
+                    speed = v.Length_unk();
+                    if (speed > 0.0001f) {
+                        rot = v.GetNormalized_unk().ToRotation_unk();
+                    }
+                } else if (m55C == 6) {
+                    fn_8013A258();
+                    goto moved2;
+                }
+                fn_8013CB68(&rot, 0, speed, rate * m568);
+            }
+            moved2:
+            fn_802E7740();
+            break;
+        }
+    }
+    mPos.y = m14EC;
+}
+
 void Em303KrakenFootMp::vf108() {}
 
 void Em303KrakenFootMp::vf3C(HitInfo_unk* hit) {
@@ -301,6 +439,74 @@ void Em303KrakenFootMp::vf54() {
         item.m04.mCenter.y += item.m04.mRadius;
     }
     m624.push_back(item);
+}
+
+// inferred: action state machine (m14E4): attacks the target when it is near, else walks to it and
+// back to the base point
+void Em303KrakenFootMp::fn_802E7740() {
+    switch (m14E4) {
+    case 0:
+        if (m14E0 > 30) {
+            atn::Vector3 d = ((CharaTask*)m14F4)->mPos - mPos;
+            d.y = 0.0f;
+            if (d.Length_unk() < 30.0f) {
+                SetState_unk(8);
+                PlayMotion_unk(0x142);
+                FaceTarget_unk();
+            } else {
+                m14E4 = 1;
+                if (rand() % 2 == 0) {
+                    m14E8 = 8;
+                } else {
+                    m14E8 = 9;
+                }
+            }
+        }
+        break;
+    case 1: {
+        CharaTask* target = (CharaTask*)m14F4;
+        if (target != 0) {
+            float dist = (target->mPos - mPos).Length_unk();
+            switch (m14E8) {
+            case 8:
+                if (dist < 60.0f) {
+                    SetState_unk(8);
+                    PlayMotion_unk(0x142);
+                    FaceTarget_unk();
+                    m14E4 = 2;
+                }
+                break;
+            case 9:
+                if (dist < 60.0f) {
+                    SetState_unk(9);
+                    PlayMotion_unk(0x14D);
+                    FaceTarget_unk();
+                    m14E4 = 2;
+                }
+                break;
+            }
+        }
+        break;
+    }
+    case 2:
+        m14E4 = 3;
+        break;
+    case 3:
+        if (m1504 != 0) {
+            atn::Vector3 d = m1504->mPos - mPos;
+            d.y = 0.0f;
+            if (d.Length_unk() < 5.0f) {
+                SetState_unk(10);
+                m1500 = 5;
+                m14E4 = 0;
+            }
+        } else {
+            SetState_unk(10);
+            m1500 = 5;
+            m14E4 = 0;
+        }
+        break;
+    }
 }
 
 void Em303KrakenFootMp::fn_802E8084(int kind) {

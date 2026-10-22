@@ -33,6 +33,7 @@ public:
 
     void fn_802E5B30(int value); // inferred: setter of m14F0 (called by the kraken)
     void fn_802E5CD0(const char* text, int length); // inferred: reads the data file
+    void fn_802E7740(); // inferred: action state machine (m14E4)
     void fn_802E8084(int kind);
     inline void Reset_unk(); // inferred: starts the damage reaction
     inline void SetState_unk(int state);   // inferred: names invented
