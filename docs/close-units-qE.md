@@ -107,3 +107,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - `game/EnvSeBase` (35/41, sin cambios): `EnvSeLine::vf14` 99.93% (6 intentos: punto medio en local, color en local,
   factor en local, operandos cambiados, Lerp): pa/pb siguen 4 bytes mas abajo. Resto ya investigado (vf1C 14.7%
   presupuesto de inline; las demas pila/registros).
+- `game/GameBgm` (8/14): saltada (caso de inlining abierto del creador al 0% y registros/prologo documentados).
+- `game/NewCampPartsGmk` (14/21): saltada; las 6 al 0% son las copias debiles de la copia del estado de escena
+  (0x805134F4-0x805143C8), caso de inlining abierto documentado en el propio .cpp.
