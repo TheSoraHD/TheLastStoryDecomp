@@ -160,7 +160,8 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
 
 - game/Em202Spider (0/25 -> 1/25) y game/Em202SpiderBase (0/23 -> 1/23): NUEVAS fuentes con cabeceras de
   relleno; los dtors (0x8027CD9C, 0x80282EA4) al 100% (vectores envueltos como ChaserGuard).
-  Segunda pasada: Em202Spider 3/25 (vf7C = fn_8027EA84 por la ranura 0x80 de la vtable, fn_80281ED8) y
+  Segunda pasada: Em202Spider 4/25 (vf7C = fn_8027EA84 por la ranura 0x80 de la vtable, fn_80281ED8,
+  fn_802829DC = muerte) y
   Em202SpiderBase 3/23 (vf7C = fn_802846F8, fn_80287788 = muerte); renombrados en symbols.txt; campos sueltos
   sacados del relleno.
 - game/Em308ParmCrab 3/24: fn_802FC188 (muerte, mismo esquema que Em202SpiderBase::fn_80287788) al 100%;

@@ -19,6 +19,7 @@ public:
     virtual ~Em202Spider();
     virtual void vf7C(int arg);
 
+    void fn_802829DC(); // inferred: death
     void fn_80281ED8(); // inferred: starts state 7 (moves to the place m14B8)
 
     atn::LH_Binary m14B0;     // inferred: data file
@@ -32,7 +33,9 @@ public:
     unsigned char m1508[0x151C - 0x1508];
     int m151C;
     int m1520;
-    unsigned char m1524[0x1550 - 0x1524];
+    unsigned char m1524[0x1530 - 0x1524];
+    int m1530;
+    unsigned char m1534[0x1550 - 0x1534];
     atn::EfpHandle_unk m1550;
     ResLoader_unk m155C;
     atn::EfpHandle_unk m1568;
