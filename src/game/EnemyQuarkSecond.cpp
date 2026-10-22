@@ -1397,8 +1397,24 @@ void EnemyQuarkSecond::fn_80342004() {
     fn_800C31F4("SE_EM211_009_1", 0, -1, 1.0f);
 }
 
-// NONMATCHING: draft - the original copies the arena centre and its rotation (ToRotation_unk inlined)
-// into m1568 field by field; layout of QuarkMtxA_unk unknown
+// inferred: starts a jump to `target` (inlined in the jump attacks); name invented
+inline void EnemyQuarkSecond::SetJump_unk(const atn::Vector3& target) {
+    atn::Vector3 t = target;
+    m1568.mTarget = t;
+    m1568.mTarget.y = 0.0f;
+    atn::Vector3 rot = (t - mPos).ToRotation_unk();
+    rot.z = 0.0f;
+    m1568.mRot = rot;
+    atn::Vector3 dir = t - mPos;
+    dir.y = 0.0f;
+    m1568.mDir = dir;
+    PSVECNormalize(&m1568.mDir, &m1568.mDir);
+    m1568.mStart = mPos;
+    m570 = 0.0f;
+}
+
+// NONMATCHING: ~80% - draft: the original keeps more temporaries of the jump (the target is copied
+// through two Vector3 and the rotation is computed with the frame of ToRotation_unk in other slots)
 void EnemyQuarkSecond::fn_8034228C() {
     ResetState_unk();
     fn_8016E970(3);
@@ -1406,19 +1422,7 @@ void EnemyQuarkSecond::fn_8034228C() {
     m1648 = 0.0f;
     m1644 = 0;
     PlayMotion_unk(0x13F, 0, 1.0f);
-    m1568.m[2][0] = m1598.z;
-    atn::Vector3 d = m1598 - mPos;
-    atn::Vector3 rot = d.ToRotation_unk();
-    *(atn::Vector3*)&m1568.m[0][0] = m1598;
-    m1568.m[1][0] = 0.0f;
-    *(atn::Vector3*)&m1568.m[0][3] = rot;
-    atn::Vector3 dir = m1598 - mPos;
-    dir.y = 0.0f;
-    m1568.m[1][3] = 0.0f;
-    *(atn::Vector3*)&m1568.m[1][1] = dir;
-    PSVECNormalize((atn::Vector3*)&m1568.m[1][1], (atn::Vector3*)&m1568.m[1][1]);
-    *(atn::Vector3*)&m1568.m[2][0] = mPos;
-    m570 = 0.0f;
+    SetJump_unk(m1598);
 }
 
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* owner, HitInfo_unk* data, int id, int time,
@@ -1448,4 +1452,34 @@ void EnemyQuarkSecond::fn_8033D750() {
     if (mMotion.mTracks[0].m08 >= 47.0f && mMotion.mTracks[0].m08 < 49.0f) {
         fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
     }
+}
+
+// inferred: same as PlayEffect_unk with the locals declared pos, rot, color (as PlayEffect_unk of
+// game/Em301LShade.cpp); name invented
+inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model, float scale) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+void EnemyQuarkSecond::fn_80342FB4() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 14;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x15C, 0, 1.0f);
+    m16C8 = 0;
+    fn_80232B7C(this, 0x3F0);
+    PlayEffectA_unk(&m15A4, &mMotion, 1.0f);
 }

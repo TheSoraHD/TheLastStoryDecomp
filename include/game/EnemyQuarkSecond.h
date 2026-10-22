@@ -28,11 +28,14 @@ struct MtxBlock_unk {
     float m[3][4];
 };
 
-// inferred: 0x30-byte member at 0x1568 with an empty constructor (weak copy 0x80338D04); twelve floats.
-// Name invented.
-struct QuarkMtxA_unk {
-    QuarkMtxA_unk() {}
-    float m[3][4];
+// inferred: jump of the boss (0x30 bytes at 0x1568, empty constructor: weak copy 0x80338D04): target on
+// the ground, rotation towards it, horizontal direction and start position. Names invented.
+struct QuarkJump_unk {
+    QuarkJump_unk() {}
+    atn::Vector3 mTarget;
+    atn::Vector3 mRot;
+    atn::Vector3 mDir;
+    atn::Vector3 mStart;
 };
 
 // inferred: hits received in the stick attack: a count and 32 words (constructor fn_80338D08 clears the
@@ -94,6 +97,7 @@ public:
     inline void StartDown_unk();
     inline void Fall_unk();
     inline bool IsMotionEnd_unk();
+    inline void SetJump_unk(const atn::Vector3& target);
     void fn_8033AB88(); // inferred: moves the collision sphere in front
     void fn_8033C000(); // inferred: moves towards the target
     void fn_8033C3D8(); // inferred: state 0 (wait)
@@ -128,7 +132,7 @@ public:
     int m155C; // inferred: index in the short range table
     int m1560; // inferred: index in the middle range table
     int m1564; // inferred: index in the long range table
-    QuarkMtxA_unk m1568;
+    QuarkJump_unk m1568; // inferred: current jump
     atn::Vector3 m1598; // inferred: centre of the arena
     atn::EfpHandle_unk m15A4; // inferred: "ef_bs072f.efp"
     atn::EfpHandle_unk m15B0; // inferred: "ef_bs054d.efp"
