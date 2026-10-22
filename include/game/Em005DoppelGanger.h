@@ -24,9 +24,9 @@ public:
     virtual void vfF0();                                        // 0x80253684
 
     int m14B0;
-    int m14B4;
+    int m14B4; // inferred: step of the state
     int m14B8;
-    int m14BC; // inferred: state (0 while hidden)
+    int m14BC; // inferred: phase (0 while hidden, 2 copying a character)
     int m14C0;
     int m14C4;
     atn::EfpHandle_unk m14C8;
@@ -36,14 +36,14 @@ public:
     int m14F8;
     int m14FC;
     int m1500;
-    int m1504;
+    CharaTask* m1504; // inferred: the only attacker that can hurt it while hidden
     atn::LH_Binary m1508;
     int m1510;
     int m1514;
     int m1518;
     int m151C;
-    int m1520;
-    int m1524;
+    int m1520; // inferred: hit counter of phase 2
+    int m1524; // inferred: hits before the stagger (4)
     int m1528;
     int m152C;
     unsigned char m1530[0x1540 - 0x1530];
