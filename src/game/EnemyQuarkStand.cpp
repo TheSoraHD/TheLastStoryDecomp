@@ -1,5 +1,7 @@
 #include "game/EnemyQuarkStand.h"
 #include "atn/Csv.h"
+#include "chr/ControlStickByQuark.h"
+#include <boost/bind.hpp>
 #include "atn/D2A_Task.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -16,6 +18,11 @@ extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
+                            int arg7);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -103,6 +110,9 @@ extern "C" QuarkPair_unk* fn_80339718(QuarkPair_unk* pair, int id);
 extern "C" void fn_803396FC(CharaStatus* status, int index, const QuarkPair_unk* pair);
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 extern "C" void* lbl_8087F498; // inferred: voice manager
+extern "C" void fn_803EBAC8(void* mgr, int a, int b); // inferred: voice mode (as in Event/Dialog.cpp)
+extern "C" void* lbl_8087EFE8; // inferred: sound manager
+extern "C" void fn_800CF45C(void* mgr, int a, int b); // inferred: sound mode
 extern "C" void fn_803EA77C(void* mgr, CharaTask* chara, int id, int arg, float a, float b); // inferred: voice
 
 // inferred: inline constructors of the helper members (weak copies 0x8034585C-0x803458E0)
@@ -468,6 +478,11 @@ void EnemyQuarkStand::vf10() {
     }
 }
 
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 GetTransOf_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
 // inferred: plays an effect on the model (as PlayEffect_unk of game/EnemyTrista.cpp)
 inline void QuarkPlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     atn::Vector3 pos;
@@ -726,6 +741,48 @@ void EnemyQuarkStand::fn_80348568() {
     }
 }
 
+// NONMATCHING: 99.50% - stack slots of the front direction and its temporaries (the original builds the
+// direction before the item); the rest only differs in the pool offsets
+// inferred: damage spheres: one in front of the capsule and three on the nodes "hips", "spine" and
+// "spine1"
+void EnemyQuarkStand::vf50() {
+    Item14_unk item;
+    item.m04.mCenter = m614 + QuarkFrontOf_unk(this) * 10.0f;
+    item.m04.mRadius = m620;
+    item.m04.mCenter.y -= 10.0f;
+    m624.push_back(item);
+    item.m04.mRadius = 10.0f;
+    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("hips"));
+    m624.push_back(item);
+    item.m04.mRadius = 18.0f;
+    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
+    m624.push_back(item);
+    item.m04.mRadius = 18.0f;
+    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine1"));
+    m624.push_back(item);
+    mFlagB29 = 1;
+}
+
+// inferred: updates the damage spheres of vf50
+// NONMATCHING: 93.56% - el original guarda el radio del primer item antes de preparar PSMTXRotRad (lee
+// mRot.y con r3) y numera distinto los registros de la copia de los nodos; ~8 variantes (indices, temporales,
+// inline del frente)
+void EnemyQuarkStand::vf54() {
+    if (m624.mSize == 0) {
+        return;
+    }
+    unsigned int i = 0;
+    m624[i].m04.mRadius = m620;
+    m624[i].m04.mCenter = m614 + QuarkFrontOf_unk(this) * 10.0f;
+    m624[i++].m04.mCenter.y -= 10.0f;
+    m624[i].m04.mRadius = 10.0f;
+    m624[i++].m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("hips"));
+    m624[i].m04.mRadius = 18.0f;
+    m624[i++].m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
+    m624[i].m04.mRadius = 18.0f;
+    m624[i].m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine1"));
+}
+
 atn::Vector3 EnemyQuarkStand::vf64(int center) {
     return m624.mData->m04.mCenter;
 }
@@ -837,6 +894,53 @@ void EnemyQuarkStand::fn_80352EA4() {
     m17F8->mFlags |= 4;
 }
 
+// inferred: position of the "spine" node while Quark is down (state 16, step 1, after two frames)
+int EnemyQuarkStand::vfB0(atn::Vector3* out) {
+    if (m14BC == 1 && m58C == 16 && m14B4 >= 2) {
+        *out = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: a party member grabs the sword: the field event 0x6F starts and the character thrusts
+// (chr::ControlThrustForQuarkStand); the return is a boost::function of fn_80178208
+boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
+    if (m14BC == 1) {
+        fn_80370AE4(lbl_8087F430, 0x6F, 1);
+        fn_80351AB8(chara, 2);
+        chara->SetHit_unk(m1550);
+        if (lbl_8087EFE8 != 0) {
+            fn_800CF45C(lbl_8087EFE8, 0x5A, 0);
+        }
+        if (lbl_8087F498 != 0) {
+            fn_803EBAC8(lbl_8087F498, 15, 0);
+        }
+        fn_800C31F4("SE_EM211_012", 0, -1, 1.0f);
+        mC58.mC0 = 0;
+        chr::ControlThrustForQuarkStand* next = new (0, "", "", 0) chr::ControlThrustForQuarkStand(chara, this, 2);
+        return boost::bind(&CharaTask::fn_80178208, chara, next);
+    }
+    return boost::function<void()>();
+}
+
+// inferred: debug menu "Quark"
+void EnemyQuarkStand::fn_80353370() {
+    void* group = m1CC0.Load("Quark");
+    fn_80087994(group, "DebugDisp", &m1CC4, 0, 0);
+    fn_800874C8(group, "AttackWaitTime", &m1CD0, 1, 999999, 1, 0, 0);
+    fn_800874C8(group, "GatheringBurstCount", &m1818, 1, 999999, 1, 0, 0);
+    fn_800874C8(group, "DownCount", &m17FC, 1, 999999, 1, 0, 0);
+    fn_800874C8(group, "StundUpDamageCount", &m1800, 1, 999999, 1, 0, 0);
+    fn_800874C8(group, "AttakedInStick", &m1CD4, 1, 999, 1, 0, 0);
+    fn_8008771C(group, "ShortRange", &m1CE0, 0, 0, 0.0f, 9999.0f, 0.01f);
+    fn_8008771C(group, "MiddleRange", &m1CE4, 0, 0, 0.0f, 9999.0f, 0.01f);
+    fn_8008771C(group, "LongRange", &m1CE8, 0, 0, 0.0f, 9999.0f, 0.01f);
+    fn_8008771C(group, "SwordDirectionLine", &m1CD8, 0, 0, 0.0f, 1000.0f, 0.01f);
+    fn_800874C8(group, "SwordThrowTime", &m1CDC, 0, 999999, 1, 0, 0);
+    fn_8008771C(group, "ShockExpandSonicWave", &m1CC8, 0, 0, 0.0f, 100.0f, 0.01f);
+}
+
 int EnemyQuarkStand::vf78() {
     float frame;
     if (m14B0 != 0) {
@@ -917,10 +1021,6 @@ atn::Vector3 EnemyQuarkStand::vfD0(float angle) {
     return pos;
 }
 
-// inferred: translation of a node matrix (name invented)
-inline atn::Vector3 GetTransOf_unk(MtxPtr m) {
-    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
-}
 
 // NONMATCHING: 99.53% - stack slots of the front direction and of the scaled temporary swapped; ~8 forms
 atn::Vector3 EnemyQuarkStand::vfD8(CharaTask* target) {

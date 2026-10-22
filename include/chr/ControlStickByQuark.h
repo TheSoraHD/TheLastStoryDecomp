@@ -190,6 +190,15 @@ public:
     unsigned char m08[0x44 - 0x08];
 };
 
+// inferred: constructor 0x80194E2C (0x38 bytes; the vtable 0x8077EB20 is stored first), called by
+// EnemyQuarkStand (game/EnemyQuarkStand.cpp); `other` is the enemy, `kind` 1 or 2
+class ControlThrustForQuarkStand : public ControlBase {
+public:
+    ControlThrustForQuarkStand(Chara_unk* chara, Chara_unk* other, int kind); // 0x80194E2C
+    virtual int vf0C();
+    unsigned char m08[0x38 - 0x08];
+};
+
 class ControlAbsorbed : public ControlBase {
 public:
     ControlAbsorbed(Chara_unk* chara); // 0x80196974 (8 bytes)
