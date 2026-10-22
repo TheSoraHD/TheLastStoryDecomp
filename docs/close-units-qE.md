@@ -29,6 +29,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   la condicion: `if ((last = chara->mFDC) != user)`). No enlaza:
   - `vf10` sigue 99.90% (6 intentos: Set_unk, asignacion, floats sueltos, inline, orden t/m de las matrices).
   - `fn_800457A4` (0%, factoria Sword/Gun) sin escribir: el borrador da 78.8%. El original toma los "" del objeto
-    `lbl_80730F08` (8 bytes, aparte de `@stringBase0`), lo que apunta a otra TU, y pasa un quinto argumento (r8) a
-    los ctores de 4 parametros. Pendiente (necesitaria partir el split de Arms en 0x800457A4).
+    `lbl_80730F08` (8 bytes, aparte de `@stringBase0`), lo que apunta a otra TU, y pasa sus 5 parametros tal cual a
+    los ctores (kind -> m04, id -> m08; r8 de mas: el ctor real tendria un quinto parametro sin usar). Pendiente (necesitaria partir el split de Arms en 0x800457A4).
   - Hallazgo MWCC: `x = k * x` y `x = x * k` (float) reparten distinto los registros volatiles en una secuencia de tres.
