@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
+#include "game/GimmickManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -143,6 +144,92 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087EE98;                     // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
+
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct WindyEffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8;
+};
+struct WindyColor_unk {
+    WindyColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r, g, b, a;
+};
+extern "C" WindyEffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const WindyColor_unk& color,
+                            int arg7, int arg8, int arg9, float scale);
+extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80232B7C(void* owner, int arg);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
+extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
+extern "C" const char* lbl_80754260[4]; // inferred: sound effects of the wind
+// inferred: camera (only the position)
+struct WindyCamera_unk {
+    unsigned char m00[0x10C];
+    atn::Vector3 mPos; // 0x10C
+};
+extern "C" WindyCamera_unk* lbl_8087EFB4;
+struct WindySphere_unk {
+    atn::Vector3 mCenter;
+    float mRadius;
+};
+// inferred: gimmicks that react to the gust (scale and length set from the strength)
+struct WindyTarget_unk {
+    unsigned char m00[0x124];
+    float m124;
+    int m128;
+};
+
+// inferred: starts a gust in the area of the player (name unknown)
+// NONMATCHING: 96.7% - the address of the sphere is computed once before the branch in the original.
+void gmk::WindyItem::fn_804392C0() {
+    if (mArea == 0) {
+        return;
+    }
+    mED8 = mEDC + mEE0 * mEE4;
+    if (lbl_8087F3C0 != 0) {
+        CharaTask* player = lbl_8087F8A0 != 0 ? (CharaTask*)lbl_8087F8A0->mHead : 0;
+        WindySphere_unk sphere;
+        if (player != 0) {
+            sphere.mCenter = player->m614;
+            sphere.mRadius = player->m620;
+        } else {
+            sphere.mCenter = lbl_8087EFB4->mPos;
+            sphere.mRadius = 5.0f;
+        }
+        atn::Vector3 pos = sphere.mCenter;
+        pos.y = mArea->mPos.y;
+        atn::Vector3 rot(0.0f, 3.1415927f + mArea->mRotY, 0.0f);
+        fn_80239DAC(lbl_8087F3C0, this, 0, 1);
+        fn_80232B7C(this, 0);
+        fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, 0, pos, rot, WindyColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
+                    1.0f);
+    }
+    for (int i = 1; i <= 16; i++) {
+        WindyTarget_unk* g = lbl_8087F4A0 != 0 ? (WindyTarget_unk*)lbl_8087F4A0->fn_803EEE10(11001, i) : 0;
+        if (g != 0) {
+            int len = (int)(0.8f * (float)mED8);
+            g->m124 = 7.0f;
+            g->m128 = len;
+        }
+    }
+    atn::SoundRef sound = fn_800C31F4(lbl_80754260[2], 0, -1, 1.0f);
+    fn_800CB518(&sound, 30);
+    int n = 1;
+    int free = mECC - mActive - mEE4;
+    if (free > 1) {
+        n = free;
+    }
+    WindySlot_unk* slot = mSlots;
+    for (int i = 0; i < 8; i++, slot++) {
+        if (slot->mState == 0) {
+            fn_80439574(slot);
+            if (--n <= 0) {
+                break;
+            }
+        }
+    }
+}
 
 // inferred: number of blown items the player can see during a gust (called by GameScene; name
 // unknown)
