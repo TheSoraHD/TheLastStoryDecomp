@@ -261,8 +261,6 @@ void ControlWallDown::vf1C() {
     mChara->mPos = m14;
 }
 
-// NONMATCHING: 99.6% - the original converts d.z with frsp before the fabs of the inlined
-// ToRotation_unk.
 ControlWallSlash::ControlWallSlash(Chara_unk* chara, const atn::Vector3& target, const atn::Vector3* land)
     : ControlBase(chara), m2C(26.0f), m30(0), m34(land != 0) {
     chara->m560 = 0xB;
@@ -277,7 +275,7 @@ ControlWallSlash::ControlWallSlash(Chara_unk* chara, const atn::Vector3& target,
     m->fn_80097C08(0, 0x16C, 0, 0, 1, 1.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
     atn::Vector3 d(m14.x - m20.x, 0.0f, m14.z - m20.z);
-    mChara->mRot = d.ToRotation_unk();
+    mChara->mRot = d.ToRotationZ_unk();
     m08 = m20;
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
         fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);

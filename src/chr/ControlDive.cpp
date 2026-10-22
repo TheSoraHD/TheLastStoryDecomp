@@ -126,11 +126,11 @@ ControlSwatTurn::ControlSwatTurn(Chara_unk* chara, const atn::Vector3& pos, int 
     LeaveLedge_unk(mChara);
 }
 
-// NONMATCHING: 99.5% - register swap (r4/r5) in the difference vector and an fmr/frsp of z.
+// NONMATCHING: 99.84% - register swap (r4/r5) in the difference vector.
 int ControlSwatTurn::vf0C() {
     int ret = 0;
     atn::Vector3 d = m08 - mChara->mPos;
-    atn::Vector3 rot = d.ToRotation_unk();
+    atn::Vector3 rot = d.ToRotationZ_unk();
     float len = PSVECMag(&d);
     float speed = 1.0f;
     if (len > 16.0f) {

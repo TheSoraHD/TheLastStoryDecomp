@@ -265,7 +265,7 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     m58C = 12;
     fn_8016E970(6);
     m560 = 10;
-    atn::Vector3 rot = (attacker->mPos - mPos).ToRotation_unk();
+    atn::Vector3 rot = (attacker->mPos - mPos).ToRotationZ_unk();
     mRot.y = rot.y;
     PlayMotion_unk(&mMotion, 0x1D2, 0, 0);
     if (lbl_8087F498 != 0) {
@@ -273,8 +273,6 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     }
 }
 
-// NONMATCHING: 99.7% - in the inlined ToRotation_unk the original keeps the rounded z in f3 for atan2
-// (fabs into f4); ours rounds it again
 void Em201ZanGurg::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 *= 0.0f;

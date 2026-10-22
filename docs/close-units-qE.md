@@ -128,3 +128,16 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   Setup_unk). Queda solo la forma del ToRotation inline (frsp de z antes del fabs, reutilizado en atan2), que
   necesitaria otra variante en `include/math/Vec.h` (compartida; no tocada). Una copia local del inline cambia
   demasiado (88%).
+- **CABECERA COMPARTIDA `include/math/Vec.h` (decision sin el usuario)**: anadidos `Vector3::RotZ_unk()` y
+  `Vector3::ToRotationZ_unk()`, otra forma de `fn_80139F60`/`ToRotation_unk` que lee z en un local
+  (`float fz = z; Abs_unk(fz) ... atan2(x, fz)`): el original redondea z una vez (frsp) y lo reutiliza para atan2.
+  No cambia los inlines existentes (regress/fuzzdrop: 0). Con ella:
+  - `chr/ControlInteractionBase` 13/21 -> 17/21: ctores de ControlConstrict, ControlBumpHead, ControlStepOn y
+    ControlThroughRope al 100% (`mChara->mRot = m24.ToRotationZ_unk();` en Setup_unk).
+  - `game/Em201ZanGurg::vf3C` 99.71% -> 100% (13/15).
+  - `chr/ControlWallUp`: ctor de ControlWallSlash 99.61% -> 100%.
+  - `chr/ControlDive`: ControlSwatTurn::vf0C 99.52% -> 99.84% (queda r4/r5).
+  - Pendiente para la cola C: `game/CopyRobotTask::vf10` (99.8%, mismo sintoma "converts z again") deberia
+    cerrarse con `ToRotationZ_unk()`; no tocado (no es de esta cola).
+  - Hallazgo MWCC: leer `z` a un `float` local antes del `Abs_unk` hace que el `frsp` se emita una sola vez
+    (antes del fabs) y que atan2 reciba el valor ya redondeado (`fmr f2, f3`).
