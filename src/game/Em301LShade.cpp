@@ -1427,12 +1427,12 @@ void Em301LShade::fn_802D5020() {
 
 // inferred: the event camera looks at the head from "dead_camera"; when the death motion ends the
 // enemy is removed and the camera and the time scale go back to normal
-// NONMATCHING: 99.1% - registers r5/r6 of the copy of "dead_camera" (the __VecCopy family) and the
-// string pool offsets
+// NONMATCHING: 99.9% - only the pool offset of "head", which depends on vf0C (0%)
 void Em301LShade::vfEC() {
     ShadeCamera_unk c;
     atn::Vector3 dir;
-    c.mPos = *(atn::Vector3*)&m15BC;
+    const atn::Vector3* cam = (const atn::Vector3*)&m15BC;
+    c.mPos = *cam;
     atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     c.mTarget = head;
     c.mFov = 0.7853982f;

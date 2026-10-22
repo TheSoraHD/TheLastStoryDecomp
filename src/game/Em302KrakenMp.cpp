@@ -317,8 +317,8 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
     m15E8.clear();
     m15F4.clear();
     m1624.clear();
-    m1618.clear();
     m160C.clear();
+    m1618.clear();
     m1638.clear();
     m1644 = 0;
 }
@@ -1217,13 +1217,13 @@ void Em302KrakenMp::vf114(const SpecialState_unk* state) {
     m15E4 = *(const short*)&state->m0A;
 }
 
-// NONMATCHING: 99.8% - stack slots of the two temporaries are swapped (13 variants: early return,
-// if/else, ternary, named offsets, result local, helper inline)
+// inferred: the named offset of the second return takes the upper stack slot, as in the original
 atn::Vector3 Em302KrakenMp::vfAC() {
     if (m624.mSize == 0) {
         return mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
     }
-    return m624.mData[0].m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
+    atn::Vector3 offset(0.0f, 15.0f, 0.0f);
+    return m624.mData[0].m04.mCenter + offset;
 }
 
 Em302KrakenMp::~Em302KrakenMp() {}
