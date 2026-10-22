@@ -18,7 +18,16 @@
 #include "game/Em002_01BlackSkelton.h"
 #include "game/Em002_02SkeltonKing.h"
 #include "game/Em006DarkMaster.h"
+#include "game/Em101ElderZesya.h"
 #include "game/Em201ZanGurg.h"
+#include "game/Em205Ogre.h"
+#include "game/Em303KrakenFoot.h"
+#include "game/Em303KrakenFootMp.h"
+#include "game/Em306GurgBeast.h"
+#include "game/Em309GhoulSimple.h"
+#include "game/Em312DarkServant.h"
+#include "game/Em315Coffin.h"
+#include "game/Em401_01_WhiteLeoPard.h"
 #include "game/Em209BigGolem.h"
 #include "game/Em209SmallGolem.h"
 #include "game/Em305VampireMp.h"
@@ -566,7 +575,6 @@ extern "C" int fn_805A52F4(const char* s) {
 // inferred: constructors of the enemies that are not decompiled yet (called through new)
 extern "C" void* fn_80244228(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8024A650(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802558B0(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8025C998(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80264DB4(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8026FC0C(void* self, atn::Task* parent, void* data);
@@ -580,25 +588,17 @@ extern "C" void* fn_8029CB00(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_802A4BBC(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802AC364(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802B23E8(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802B77AC(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802BA92C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802C0C38(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_802C7BE4(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_802D0038(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802D7480(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802DDDB8(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802E211C(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802E59E0(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802EE604(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802F1524(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802F6E64(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802FC850(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_80305C74(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8030A144(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_8030DA20(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_80313544(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_803161F8(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_8031EB3C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80322C68(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_8032DEA0(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_803388A4(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -635,11 +635,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 36:
-            p = ::operator new(0x1568, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802EE604(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em306GurgBeast(parent, info);
             break;
         case 12:
             p = ::operator new(0x15b0, 3, "", "", 0);
@@ -717,11 +713,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 40:
-            p = ::operator new(0x1658, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80305C74(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em309GhoulSimple(parent, info);
             break;
         case 41:
             p = ::operator new(0x1610, 3, "", "", 0);
@@ -731,11 +723,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 47:
-            p = ::operator new(0x15a8, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_8031EB3C(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em401_01_WhiteLeoPard(parent, info);
             break;
         case 48:
             p = ::operator new(0x1610, 3, "", "", 0);
@@ -745,11 +733,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 23:
-            p = ::operator new(0x1518, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802B77AC(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em205Ogre(parent, info);
             break;
         case 26:
             p = ::operator new(0x1558, 3, "", "", 0);
@@ -824,11 +808,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 31:
-            p = ::operator new(0x1510, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802E211C(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em303KrakenFoot(parent, info);
             break;
         case 32:
             p = ::operator new(0x1660, 3, "", "", 0);
@@ -838,31 +818,19 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 33:
-            p = ::operator new(0x1528, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802E59E0(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em303KrakenFootMp(parent, info);
             break;
         case 51:
             enemy = new (3, "", "", 0) CopyRobotTask(parent, info);
             break;
         case 44:
-            p = ::operator new(0x1660, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80313544(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em315Coffin(parent, info);
             break;
         case 6:
             enemy = new (3, "", "", 0) Em006DarkMaster(parent, info);
             break;
         case 42:
-            p = ::operator new(0x1598, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_8030DA20(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em312DarkServant(parent, info);
             break;
         case 53:
             enemy = new (3, "", "", 0) ChaserGuard(parent, info);
@@ -905,11 +873,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 7:
-            p = ::operator new(0x1710, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802558B0(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em101ElderZesya(parent, info);
             break;
         case 9:
             p = ::operator new(0x15d0, 3, "", "", 0);

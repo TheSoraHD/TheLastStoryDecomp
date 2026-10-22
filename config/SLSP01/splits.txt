@@ -1780,7 +1780,7 @@ game/Em303KrakenFoot.cpp:
 
 game/Em303KrakenFootMp.cpp:
 	.text       start:0x802E59E0 end:0x802E8580
-	.rodata     start:0x80747E88 end:0x80747E9C
+	.rodata     start:0x80747E88 end:0x80747F58
 	.data       start:0x80787290 end:0x807873E8
 	.sdata2     start:0x80884758 end:0x808847A8
 
