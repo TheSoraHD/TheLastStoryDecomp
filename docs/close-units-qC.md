@@ -98,3 +98,5 @@ Hallazgos MWCC (8):
 - game/NewStaffRoll: 8/9. fn_80531E80 (0x80531E80) escrita desde cero (`extern "C"`, la llama Event/ActionEffectPlay): el staff roll llego a la linea END (sin lineas -> 1; ultima linea tipo 4 y mPos >= su Y). Queda fn_80531394 (99.3%, registros).
 - game/HColliData_unk: fn_804405CC (inicializador de dos guardas de .sbss, lbl_8087F3CC/CD) no intentada: sin llamadores y fuera de un patron claro de la fuente.
 - game/GimmickStateCommand: saltada - las funciones pequenas al 0% son copias debiles de inlines que el original llama fuera de linea (presupuesto de inline, documentado en la unidad).
+- game/NewStaffRoll fn_80531394: 3 variantes de orden texto/longitud sin mejora.
+- game/CampSaveLoad: MenuLoadTask::fn_80117914 llama ahora a `GameSaveLoadCommon::fn_803B8758(int)` (vista local de la clase, como GameOverTask) en vez del `extern "C"` con dos argumentos: el simbolo del original es el metodo. Queda el intercambio r29/r31 del CopyString_unk (literal/destino); un local para el destino da el orden pero baja la puntuacion (98.44%), no aplicado.
