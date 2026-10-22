@@ -3,12 +3,16 @@
 
 #include "atn/EfpHandle_unk.h"
 #include "atn/SoundRef.h"
+#include "game/ResHandle.h"
 #include "game/SpecialEnemyBase.h"
 #include "std/vector.h"
 
 struct RoutePlace_unk;
 
 // inferred: entry of "door_route" (four values read with fn_800DC12C); names invented
+// inferred: wrapper struct (the destructor tests the address of the member one extra time)
+struct RoutePlaceList_unk : public std::vector<RoutePlace_unk*> {};
+
 struct VampireDoor_unk {
     VampireDoor_unk(int a, int b, int c, int d) : m00(a), m04(b), m08(c), m0C(d) {}
     int m00;
@@ -57,7 +61,7 @@ public:
 
     atn::LH_Binary m14D4;                         // inferred: data file
     std::vector<VampireDoor_unk> m14DC;           // inferred: "door_route"
-    std::vector<RoutePlace_unk*> m14E8;           // inferred: "weaken_route"
+    RoutePlaceList_unk m14E8;                     // inferred: "weaken_route"
     CharaTask* m14F4;                             // inferred: target (mC58.mC4)
     int m14F8;
     int m14FC;                                    // inferred: frame counter
@@ -98,7 +102,7 @@ public:
     int m15B0;
     int m15B4;
     int m15B8;                                    // inferred: "stun_time"
-    int m15BC;
+    ResHandle m15BC;                              // inferred: released in the destructor
     int m15C0;
     Model_unk::Float4_unk m15C4;                  // inferred: model color while m1528 is set
     float m15D4;

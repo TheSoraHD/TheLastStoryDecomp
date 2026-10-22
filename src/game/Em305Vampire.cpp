@@ -38,11 +38,19 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
+extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+
 // inferred: multiplayer session (lbl_8087F610), as in Em305VampireMp.cpp
 struct MpSession_unk;
 extern "C" MpSession_unk* lbl_8087F610;
 extern "C" void fn_804DA48C(MpSession_unk* session, int arg);
 extern "C" void fn_804DA4A0(MpSession_unk* session, int arg);
+
+Em305Vampire::~Em305Vampire() {
+    fn_800CB5C8(&m15A0, 5, 0);
+    fn_800CB5C8(&m15A4, 5, 0);
+}
 
 // NONMATCHING: ~95% - only the offset of "op_02_cloud" in the string pool (the pool is in the auto split
 // after the unit and starts with the strings of functions not written yet)
@@ -174,6 +182,26 @@ void Em305Vampire::fn_802EC160() {
     Effect_unk* mgr = lbl_8087F048;
     atn::Vector3 pos = fn_801781B0();
     fn_80108F38(mgr, &pos, 0x80);
+}
+
+void Em305Vampire::fn_802EC280() {
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = 2;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+    fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+    fn_800CB5C8(&m15A0, 5, 0);
+    fn_800CB5C8(&m15A4, 5, 0);
+    fn_800EB7A0(this);
 }
 
 void Em305Vampire::vf108() {}
