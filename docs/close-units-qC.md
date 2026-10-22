@@ -60,3 +60,8 @@ Hallazgos MWCC (3):
 - game/EnemyFieldMagician, game/LogMessageTask, game/MapManager, game/Np131LivingArmor, game/PathData_unk, game/U16Table_unk, game/main: saltadas - push_back en bucle / pila / orden de z / presupuesto de inline segun sus comentarios.
 - game/NewCampPartsTop: saltada - vf2C necesita un tercer argumento en MenuLoadTask::fn_80117914 (firma compartida con CampSaveLoad/GameOverTask); vf14/ctor: SetPaneText_unk / std::string.
 - game/ShopBuySell: 14/16. fn_80586620 (0x80586620) SUBIDA: `int slot = 0; fn_805866F4(id, 0, slot++);` (el contador empieza en 0 y se incrementa en la primera llamada; asi el li 1 se planifica como en el original).
+- game/Em201ZanGurg: 13/15. SUBIDAS vf0C (0x80262CF8): los colores del material como temporales pasados por direccion directamente a `mMotion.fn_80094958` (el inline MaterialEdit_unk con referencias, o locales con nombre, cambiaban r3/r4 de la palabra de flags y el literal; inline eliminado), y fn_802640FC (0x802640FC): `float my = mRot.y;` antes de AngleDiffDeg_unk. Quedan ctor 99.77% (std::string) y vf3C 99.71% (ToRotation_unk, como CopyRobotTask).
+
+Hallazgos MWCC (4):
+- Pasar un argumento float de un miembro a un inline a traves de un local con nombre cambia el orden de carga f0/f3 (Em201ZanGurg::fn_802640FC).
+- `&Color4_unk(...)` (direccion de temporal) frente a un inline con `const Color4_unk&`: cambia la asignacion de r3/r4 de las instrucciones previas.
