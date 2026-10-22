@@ -742,10 +742,34 @@ int Em302KrakenMp::vfB0(atn::Vector3* out) {
     return 1;
 }
 
+// inferred: legs not in state 12; name invented
+inline int CountActiveFeet_unk(Em302KrakenMp* k) {
+    int count = 0;
+    for (unsigned int i = 0; i < k->m1624.size(); i++) {
+        if (k->m1624[i]->m58C != 12) {
+            count++;
+        }
+    }
+    return count;
+}
+
+// inferred: picks the next attack kind (4 under 40% of the hit points, otherwise 1 and 2 by turns);
+// name invented
+inline void NextAttack_unk(Em302KrakenMp* k) {
+    k->m1540 = k->m1548;
+    if (k->mStatus.m04 / k->mStatus.mParamB.m84 < 0.4f) {
+        k->m1548 = 4;
+    } else {
+        int next = 1;
+        if (k->m1540 == 1) {
+            next = 2;
+        }
+        k->m1548 = next;
+    }
+}
+
 // inferred: changes the behaviour step m14DC (0: appears at the next point, 1: attacks, 2: sinks,
 // 3: waits for the reinforcements, 4: anger); m14E4 counts the frames of the step
-// NONMATCHING: 99.5% - registers of the hit point rate blocks (r4/r6 against r0) and of the leg loop
-// (count/offset swapped); 6 variants
 void Em302KrakenMp::fn_802E03F0() {
     switch (m14DC) {
     case 0:
@@ -780,20 +804,10 @@ void Em302KrakenMp::fn_802E03F0() {
         break;
     case 1:
         if (m153C != 0 || m14F4 >= 5) {
-            float rate = mStatus.m04 / mStatus.mParamB.m84;
             m14E0 = m14DC;
             m14DC = 3;
             m14E4 = 0;
-            m1540 = m1548;
-            if (rate < 0.4f) {
-                m1548 = 4;
-            } else {
-                int next = 1;
-                if (m1540 == 1) {
-                    next = 2;
-                }
-                m1548 = next;
-            }
+            NextAttack_unk(this);
             return;
         } else {
             int next;
@@ -825,17 +839,7 @@ void Em302KrakenMp::fn_802E03F0() {
             fn_802E1290();
         }
         if (m14E4 == 1) {
-            float rate = mStatus.m04 / mStatus.mParamB.m84;
-            m1540 = m1548;
-            if (rate < 0.4f) {
-                m1548 = 4;
-            } else {
-                int next = 1;
-                if (m1540 == 1) {
-                    next = 2;
-                }
-                m1548 = next;
-            }
+            NextAttack_unk(this);
             m14E0 = m14DC;
             m14DC = 3;
             m14E4 = 0;
@@ -843,12 +847,7 @@ void Em302KrakenMp::fn_802E03F0() {
         }
         break;
     case 3: {
-        int count = 0;
-        for (unsigned int i = 0; i < m1624.size(); i++) {
-            if (m1624[i]->m58C != 12) {
-                count++;
-            }
-        }
+        int count = CountActiveFeet_unk(this);
         if (count <= 0) {
             m15E0 = 0;
             m14E0 = m14DC;

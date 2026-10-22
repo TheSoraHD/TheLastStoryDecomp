@@ -720,6 +720,199 @@ inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const
     fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
+// inferred: same as PlayEffect_unk with the locals in the other order (color, rot, pos; as in
+// fn_802DB7C8); name invented
+inline void PlayEffectC_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: legs alive and free (mC58.mC0 == 1); name invented
+inline int CountFreeFeet_unk(Em302Kraken* k) {
+    int count = 0;
+    for (unsigned int i = 0; i < k->m1678.size(); i++) {
+        Em303KrakenFoot* foot = k->m1678[i];
+        if ((foot->mStatus.m0C & 0x20) != 0x20 && foot->mC58.mC0 == 1) {
+            count++;
+        }
+    }
+    return count;
+}
+
+// inferred: changes the behaviour step m14B8 (0: appears at the next point, 1: attacks, 2: sinks,
+// 3: waits while the legs are free, 4: anger/thunder); m14C0 counts the frames of the step (as
+// Em302KrakenMp::fn_802E03F0)
+void Em302Kraken::fn_802DA174() {
+    switch (m14B8) {
+    case 0:
+        if (m14C0 == 0) {
+            if (m163C.size() != 0) {
+                if ((int)m163C.size() <= (int)++m1638) {
+                    m1638 = 0;
+                }
+                m1634 = m163C[m1638];
+                RoutePlace_unk* place = m1634;
+                if (place != 0) {
+                    mPos = place->mPos;
+                    mRot.y = 3.1415927f + place->m14;
+                }
+                mPos += m15C8;
+                mPos.y += m14CC;
+                if (m14B8 == 3) {
+                    mPos.y -= 1000.0f;
+                }
+            }
+            fn_802DBE70(0);
+        }
+        if (m14C0 == 1) {
+            m14BC = m14B8;
+            m14B8 = 4;
+            m14C0 = 0;
+            m14D4 = 0;
+            return;
+        }
+        break;
+    case 1:
+        if (m1580 != 0 || m14D0 >= 5) {
+            m14BC = m14B8;
+            m14B8 = 3;
+            m14C0 = 0;
+            fn_802DDA90();
+            return;
+        } else {
+            int next;
+            if (m14C0 > 300) {
+                mC58.mC0 = 1;
+                m54C &= ~0x2000;
+                m14BC = m14B8;
+                m14B8 = 3;
+                m14C0 = 0;
+                next = 0;
+            } else {
+                if (m14D4 > 0) {
+                    m14C8 = 0;
+                    m14C4 = 0;
+                    m590 = fn_800F8548(lbl_8087F048);
+                    m58C = 8;
+                    fn_8016E970(3);
+                    fn_800C344C("SE_EM302_013", &m614, 0, -1, 1.0f);
+                    m14D4 = 0;
+                    m14D0++;
+                }
+                next = 1;
+            }
+            if (next == 0) {
+                return;
+            }
+        }
+        break;
+    case 2:
+        if (m14C0 == 0) {
+            int n = m14DC + 1;
+            if (n >= 1) {
+                n = 0;
+            }
+            m14DC = n;
+            m14C8 = 0;
+            m14C4 = 0;
+            m590 = fn_800F8548(lbl_8087F048);
+            m58C = 10;
+            fn_8016E970(3);
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+            fn_802DC014();
+        }
+        if (m14C0 == 1) {
+            fn_802DDA90();
+            m14BC = m14B8;
+            m14B8 = 3;
+            m14C0 = 0;
+            return;
+        }
+        break;
+    case 3: {
+        int count = CountFreeFeet_unk(this);
+        if (count <= 0) {
+            mC58.mC0 = 1;
+            m54C &= ~0x2000;
+            m14BC = m14B8;
+            m14B8 = 0;
+            m14C0 = 0;
+            return;
+        }
+        mC58.mC0 = 0;
+        m54C |= 0x2000;
+        if (m14C0 == 0) {
+            fn_802DC014();
+        }
+        int next;
+        if (m14C0 > 900) {
+            mC58.mC0 = 1;
+            m54C &= ~0x2000;
+            m14BC = m14B8;
+            m14B8 = 0;
+            m14C0 = 0;
+            next = 0;
+        } else {
+            next = 1;
+        }
+        if (next == 0) {
+            return;
+        }
+        break;
+    }
+    case 4:
+        if (m14C0 == 0 && m14BC == 3) {
+            fn_802DBE70(1);
+        }
+        if (m14C0 == 1) {
+            if (m1604 != 0) {
+                m14C8 = 0;
+                m14C4 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 13;
+                fn_8016E970(3);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+                fn_80232B7C(this, 100);
+                PlayEffectC_unk(&m160C, (Model_unk*)&mMotion);
+                fn_800C31F4("SE_SP016_001", 0, -1, 1.0f);
+            } else {
+                fn_80370AE4(lbl_8087F430, 0xCC, 1);
+                fn_802DC1C0();
+            }
+        }
+        if (m14C0 == 2) {
+            m14BC = m14B8;
+            m14B8 = 1;
+            m14C0 = 0;
+            m14D4 = 0;
+            m14D0 = 0;
+            m1580 = 0;
+            return;
+        }
+        break;
+    }
+    m14C0++;
+}
+
 // inferred: state 4 (shades): marks the ground under the target at frame 15 and fires at frame 65
 // NONMATCHING: 90.2% - the original rounds x/z with frsp after the +0.3 (double somewhere) and keeps
 // the constants of the two effects in saved registers; stack slots of the fire position
