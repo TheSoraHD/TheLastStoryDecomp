@@ -253,8 +253,9 @@ extern "C" void fn_80216CD0() {
 }
 
 // inferred: loads /boot/map_chara_list.csv (the members of each map, -1 terminated)
-// NONMATCHING: 97.22% - saved register numbering only (constant 0/-1, size, the inlined search and
-// the member counter); tried the declaration order of the search locals
+// NONMATCHING: 99.70% - the inlined search loads sCount before sEntries here (r26/r27 swapped) and
+// the stack address of the CSV is set up after the pointer increment. The unsigned subscript of the
+// members fixed the rest. Tried: declaration orders/forms of Find_unk (they move fn_80216CD0).
 extern "C" void fn_802174F4() {
     unsigned long size = 0;
     void* data = fn_8046DC5C(lbl_8087F518, sCharaFileName, &size, 0x20);
@@ -279,7 +280,7 @@ extern "C" void fn_802174F4() {
         entry->mMembers = &sMembers[pos];
         int n = 0;
         for (const char* field = csv.fn_8005B9CC(); strlen(field) != 0; field = csv.fn_8005B9CC()) {
-            entry->mMembers[n] = atoi(field);
+            entry->mMembers[(unsigned int)n] = atoi(field);
             n++;
         }
         entry->mMembers[n++] = -1;
