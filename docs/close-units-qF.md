@@ -96,6 +96,16 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   Pendientes: lector del CSV (0x80306078), vf10, vf40, vf100/vf104/vf108, vf20/vf30/vf50, vfB0/vfB4.
   - symbols.txt: fn_80305C74/5EDC/6078/66F0/66F4/6AF8/9698/9704/8030A074/8030A07C -> nombres de Em309GhoulSimple.
 
+- game/Em209SmallGolem (2/22 -> 9/22, NUEVA fuente; cabecera existente ampliada): al 100% dtor, vf14, vf3C,
+  vf40, vf84, fn_802CFAE4 (`extern "C"`, lo llama Em209BigGolem) y el `__sinit` (0x802CFFC8, tres colores
+  estaticos). vf54 99.9% (recarga de m624.mData, caso abierto de CharaTask::vf54). Pendientes: ctor (std::string
+  + boost::tokenizer), vf0C/vf10, vf1C/vf20/vf50/vf80/vf98/vf9C/vfEC.
+  - CABECERA (solo la usan Em209SmallGolem/Em209BigGolem): include/game/Em209SmallGolem.h: m14B0 pasa a
+    atn::LH_Binary y m1550 a ResHandle (mismo tamano).
+  - symbols.txt: fn_802CE42C/E430/E504/ED80/EF0C -> vf14/vf3C/vf40/vf54/vf84; fn_802CFFC8 ->
+    `__sinit_\Em209SmallGolem_cpp`; lbl_807C83C8 (0x30) partido en sColor0_unk/sColor1_unk/sColor2_unk
+    (0x807C83C8/D8/E8, scope:local).
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
@@ -109,3 +119,5 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   de cargas de FPR del original en el calculo de la capsula.
 - `fn_80097C08(..., 1.0f, 0.1f)`: cuando el original reutiliza el registro del 1.0f de la velocidad para el
   sexto argumento, el blend es 1.0f (no 0.0f); comprobar el valor de f1 en la llamada.
+- Tres estaticos con constructor seguidos (`static C a(...), b(...), c(...)`) dan el `__sinit` con una base y
+  desplazamientos 0/0x10/0x20; un array `static C x[3] = {...}` da otro orden de cargas.
