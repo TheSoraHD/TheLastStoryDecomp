@@ -182,12 +182,16 @@ extern "C" LoadingEnvSe_unk* fn_80214F38(unsigned int se) {
 }
 
 // inferred: environment sound of a map for a key (the first one if the key is not listed)
-// NONMATCHING: 97.71% - volatile register allocation only (the original gives r7/r8 to the inner
-// loop and r9-r12 to the outer one); tried index/pointer forms of both loops and while loops.
+// NONMATCHING: 99.21% - volatile register allocation only: the original gives r12 to the counter i
+// and r8 to the element address of the inner loop (here swapped). The counter declared first and
+// the increments in the order entry++, i++ fixed the rest. Tried: index/pointer forms of both
+// loops, while loops, declaration orders, pre-increments, reference/pointer to the element,
+// continue on size == 0.
 extern "C" unsigned int fn_80214F80(int a, int b, int c, int key) {
+    int i = 0;
     MapEnvSe_unk* entry = sEntries;
     int count = sCount;
-    for (int i = 0; i < count; i++, entry++) {
+    for (; i < count; entry++, i++) {
         if (entry->m00 == a && entry->m04 == b && entry->m08 == c) {
             unsigned int size = entry->mList.mSize;
             for (unsigned int j = 0; j < size; j++) {
