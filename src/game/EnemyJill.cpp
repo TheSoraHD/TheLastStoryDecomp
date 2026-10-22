@@ -1149,8 +1149,6 @@ inline void EnemyJill::StartAbsorb_unk() {
     PlayEffect_unk(&m17A4, &mMotion);
 }
 
-// NONMATCHING: 99.69% - r5/r6 of the target and of the difference vector (6 variants: named locals for the
-// direction/rotation, separate target local, Length_unk)
 void EnemyJill::fn_80331DAC() {
     if (m55C == 6) {
         if (m560 != 0x27) {
@@ -1161,7 +1159,8 @@ void EnemyJill::fn_80331DAC() {
                 StartAbsorb_unk();
             }
         } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 20.0f) < 1.1920929e-7f) {
-            atn::Vector3 d = mC58.mC4->mPos - mPos;
+            CharaTask* target = mC58.mC4;
+            atn::Vector3 d = target->mPos - mPos;
             atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
             float a = fmod(57.295776f * (rot.y - mRot.y), 360.0);
             if (a > 180.0f) {

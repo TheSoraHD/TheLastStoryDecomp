@@ -1755,6 +1755,10 @@ extern "C" void fn_8032ABA4(WarLionPoints_unk* v, int flag);                // i
 extern "C" void fn_8032AC1C(WarLionPoints_unk* v, const atn::Vector3* p);   // inferred: push_back
 extern "C" void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* pts); // inferred: builds the path
 
+// NONMATCHING: 7.68% - borrador: el original llama fuera de linea a los ctores de Vector3 y a
+// fn_8013C504/FindPlace_unk (supera el presupuesto de inline); los helpers de vector/spline
+// fn_8032AB90..fn_8032C1EC (copias debiles de std::vector<Vector3> y del spline de game/PathData_unk.cpp)
+// no estan escritos
 // inferred: builds the path m1524 through the place `id` and the two next places of the circuit
 int Em403WarLion::fn_8032A9F4(WarLionPath_unk* path, int id, int* next) {
     int second = 0;
