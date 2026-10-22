@@ -120,7 +120,6 @@ extern "C" double sqrt(double x);
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
 extern "C" void fn_802F97B8(Em308ParmCrab* crab);
-extern "C" void fn_802F9F3C(Em308ParmCrab* crab);
 extern "C" void fn_802FA2F4(Em308ParmCrab* crab);
 extern "C" void fn_802FA764(Em308ParmCrab* crab);
 extern "C" void fn_802FB0C4(Em308ParmCrab* crab);
@@ -332,7 +331,7 @@ void Em308ParmCrab::vf10() {
             vfEC();
             break;
         case 9:
-            fn_802F9F3C(this);
+            fn_802F9F3C();
             break;
         case 10:
             fn_802FA2F4(this);
@@ -669,6 +668,61 @@ void Em308ParmCrab::fn_802F93F0() {
                     mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
                 }
             }
+        }
+    }
+}
+
+// inferred: state 9 (turn, as Em308InvertCrab::fn_802F42CC): turns from m1544 to m1548 in 12 steps between the
+// frames 5 and 16; at the end starts the state m153C against m15C4 / m15BC
+// NONMATCHING: 99.81% - only .sdata2 offsets (the constants of fn_802F97B8, not written yet, come first)
+void Em308ParmCrab::fn_802F9F3C() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        switch (m153C) {
+        case 6:
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+            break;
+        case 7:
+            fn_802FB6AC(m15C4);
+            break;
+        case 8:
+            fn_802FBA30(m15C4);
+            break;
+        case 10:
+            if (fn_802FBE00(m15C4, 10) == 0) {
+                ResetAttack_unk();
+                m58C = 10;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+            }
+            break;
+        case 11:
+            if (fn_802FBE00(m15BC, 11) == 0) {
+                ResetAttack_unk();
+                m58C = 11;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                m15D0 = m1530 != 0 ? m1530->m68 : 60;
+            }
+            break;
+        case 12:
+            fn_802FC2E0(this, m15BC);
+            break;
+        }
+    } else {
+        float f = mMotion.mTracks[0].m08;
+        if (5.0f <= f && f <= 16.0f) {
+            m1540 += 2;
+            float d = atn::WrapAngle_unk(m1548 - m1544);
+            mRot.y = atn::WrapAngle_unk(m1544 + (float)m1540 * d / 12.0f);
         }
     }
 }
