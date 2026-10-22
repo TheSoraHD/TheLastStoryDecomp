@@ -261,17 +261,36 @@ struct MotionCommand_unk {
     unsigned int m30;       // inferred: motion resource id of the last update
 };
 
+// inferred: pair of words copied together (lwz/lwz/stw/stw); name invented
+struct CharaResPair_unk {
+    int m00;
+    int m04;
+};
+
 // inferred: resource entry returned by fn_80204E04 (CharaTask::m68); name invented
 struct CharaRes_unk {
     int m00;
     int m04; // inferred: returned by fn_8017AC08
-    unsigned char m08[0x30 - 0x08];
+    // inferred: the member types below follow the copy in Em315Coffin's constructor (words copied in
+    // pairs = 8-byte members, lfs/stfs = floats); names unknown
+    CharaResPair_unk m08_unk[4];
+    float m28;
+    float m2C;
     float m30;
     float m34; // inferred: m30-m38 picked by the kind of the part in hand (AI/AiCommon_unk fn_8001BD14)
     float m38;
-    unsigned char m3C[0x54 - 0x3C];
+    int m3C;
+    int m40;
+    int m44;
+    int m48;
+    float m4C;
+    float m50;
     float m54;
-    unsigned char m58[0x88 - 0x58];
+    float m58;
+    float m5C;
+    float m60;
+    CharaResPair_unk m64_unk[4];
+    int m84;
     int m88;
     int m8C;
 };

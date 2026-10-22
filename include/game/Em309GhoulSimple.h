@@ -7,6 +7,7 @@
 
 // inferred: fixed string of 0x80 bytes, assigned inline (strlen + memcpy); name invented
 struct GhoulStr_unk {
+    GhoulStr_unk() { mStr[0] = '\0'; }
     GhoulStr_unk& operator=(const char* str);
     char mStr[0x80];
 };
@@ -35,6 +36,9 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
+    virtual void vf20();
+    virtual void vf30(void* menu);
+    virtual void vf40(HitInfo_unk* hit);
     virtual void vf54();
     virtual atn::Vector3 vf64(int center);
     virtual float vf90();
@@ -47,8 +51,8 @@ public:
     void fn_80306078(const char* text, int length); // inferred: reads the data file
     inline bool IsDownState_unk();
 
-    int m14D4;
-    atn::Vector3 m14D8;
+    CharaTask* m14D4;          // inferred: target when the state starts
+    atn::Vector3 m14D8;        // inferred: direction of the attack
     float m14E4;               // inferred: "AttackDistance"
     int m14E8;                 // inferred: "AttackNormalSkillId"
     int m14EC;
@@ -70,9 +74,7 @@ public:
     atn::EfpHandle_unk m152C;  // inferred: "/effect/ef_sk030b.efp"
     int m1538;
     float m153C;               // inferred: "Speed"
-    float m1540;
-    float m1544;
-    float m1548;
+    atn::Vector3 m1540;        // inferred: backwards direction (state 12)
     float m154C;
     float m1550;
     float m1554;
@@ -81,8 +83,8 @@ public:
     GhoulFlag_unk m1560;       // inferred: "HeadAttackNotifyFlag"
     GhoulFlag_unk m1568;       // inferred: "SummonNotifyFlag"
     int m1570;
-    unsigned int m1574;        // inferred: count of m1578
-    GhoulPair_unk m1578[8];    // inferred: "SummonEnemy" (id) and "SummonWarpPoint" per enemy
+    // inferred: "SummonEnemy" (id) and "SummonWarpPoint" per enemy
+    FixedArray_unk<GhoulPair_unk, 8> m1574;
     float m15B8;               // inferred: "SummonHp"
     GhoulStr_unk m15BC;        // inferred: "SummonEfp"
     atn::EfpHandle_unk m163C;  // inferred: effect of the summon
