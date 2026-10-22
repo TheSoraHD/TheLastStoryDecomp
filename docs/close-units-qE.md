@@ -192,3 +192,16 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     vf0C__Q23chr15ControlCrawlingFv, fn_801BC188/1C8/208/248 -> __dt__ de Ladder/AlleyWay/ClimbDeck/Crawling
     (orden de las vtables), lbl_8073B36C -> @stringBase0 (scope:local, "spine\0hips"). Ningun .cpp los usaba.
     Build limpio OK.
+- `game/PopupTask` (0/14 -> 8/14, unidad SIN FUENTE hasta ahora): **fuente nueva `src/game/PopupTask.cpp`** con el
+  creador `fn_8054A6E8`, ctor, `PopupEntry_unk` (ctor/dtor del __construct_array, 0xB4 bytes), vf0C,
+  `fn_8054AF08` (borra los d2anime), `fn_8054E51C` y `fn_8054E528` (100%); dtor 97.1% (el original comprueba dos
+  veces la direccion del array antes de __destroy_arr: dtor inline de la clase del array no reproducido). vf10,
+  vf14 (9 KB) y los helpers grandes (0x8054A9A8, 0x8054D794, 0x8054E0FC) siguen en asm.
+  - **symbols.txt (decision sin el usuario)**: fn_8054A750 -> __ct__9PopupTaskFPQ23atn4Task, fn_8054A854 ->
+    __ct__14PopupEntry_unkFv, fn_8054A8E0 -> __dt__14PopupEntry_unkFv, fn_8054A920 -> __dt__9PopupTaskFv,
+    fn_8054AF08 -> fn_8054AF08__9PopupTaskFv, fn_8054B044/B09C/B324 -> vf0C/vf10/vf14__9PopupTaskFv,
+    fn_8054E51C -> fn_8054E51C__9PopupTaskFv, fn_8054E528 -> fn_8054E528__9PopupTaskFUi (lo llaman gmk/RandomItem y
+    gmk/WindyItem, ambos en asm), lbl_8075E49C -> @stringBase0 (scope:local). gmk/FlyObjManager.cpp llama
+    fn_8054D794 `extern "C"` (no renombrada).
+  - Hallazgo MWCC: comparar `(void*)a == (void*)b` en vez de `unsigned == unsigned` cambia el orden de los operandos
+    del `cmplw` (mismo orden que una comparacion de punteros).
