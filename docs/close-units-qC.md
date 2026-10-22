@@ -82,3 +82,8 @@ Hallazgos MWCC (5):
 
 Hallazgos MWCC (6):
 - Una subexpresion float (`1 - t`) usada dentro de un temporal Vector3 en un local con nombre cambia la asignacion de FPR respecto a escribirla en linea (ControlWallUp::vf40).
+- game/SpecialEnemyBase: sin cambios. fn_805A3D68 99.88% (".csv" en r27; 3 variantes con local/reutilizar `s`).
+- game/SongManager: fn_805A38F0 (0x805A38F0) SUBIDA: en los dos `case 8` el contador en un local (`int n = counts[8]; if (n >= __Limit_unk())`) para que la carga de counts[8] vaya despues del limite como en el original. (fnstat da valores algo distintos de report.json en otras funciones de la unidad; report.json sin bajadas.)
+
+Hallazgos MWCC (7):
+- Comparar `array[k]` contra un inline que carga un global: con el elemento en un local con nombre, el global se carga primero (r3) y el elemento despues (r4), como en el original.
