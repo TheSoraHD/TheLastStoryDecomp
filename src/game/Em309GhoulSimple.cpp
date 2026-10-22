@@ -16,6 +16,7 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
+extern "C" int rand();
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -345,6 +346,96 @@ void Em309GhoulSimple::vf100(int state) {
             vf44();
         }
         fn_805A4F1C(0x2E, 0, 1, 1.0f, 0.0f);
+        break;
+    }
+}
+
+// inferred: hit point ratio (name invented)
+inline float GhoulHpRatio_unk(CharaTask* c) {
+    int max = c->mStatus.mParamB.m84;
+    return max > 0 ? c->mStatus.m04 / max : 0.0f;
+}
+
+void Em309GhoulSimple::vf104() {
+    m14C0++;
+    if (CanAct_unk() && (m58C == 7 || m58C == 8)) {
+        if (!vfF8()) {
+            vf100(6);
+        } else if (m1648 != 0 && GhoulHpRatio_unk(this) <= m15B8) {
+            vf100(14);
+        }
+    }
+    switch (m58C) {
+    case 6:
+        if (vfF8()) {
+            vf100(8);
+        }
+        vf108();
+        break;
+    case 7:
+        if (mFlag31) {
+            if (m1538 > rand() % 100 && m1514 <= 0) {
+                vf100(11);
+            } else {
+                vf100(8);
+            }
+        }
+        vf108();
+        break;
+    case 8: {
+        CharaTask* target = m14D4;
+        if (mC58.mC4 != target) {
+            if (m1538 > rand() % 100 && m1514 <= 0) {
+                vf100(11);
+            } else {
+                vf100(8);
+            }
+        } else {
+            int state = target->m55C;
+            int sub = target->m560;
+            fn_805A45F8(50.0f, 360.0f, 0.0f);
+            if (m14C0 % 10 == 0 && m1514 <= 0 && state == 6 && (sub == 0x1D || sub == 0xD)) {
+                vf100(11);
+            } else if (mFlag31) {
+                atn::Vector3 d = m14D4->mPos - mPos;
+                if (fn_805F9920(&d) < m14E4 * m14E4) {
+                    if (m14F4 <= 0) {
+                        vf100(9);
+                    }
+                } else {
+                    vf100(8);
+                }
+            }
+        }
+        vf108();
+        break;
+    }
+    case 9:
+    case 10:
+    case 11:
+    case 13:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 12:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 14:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 2:
+        fn_805A40B8();
+        break;
+    default:
+        vf100(6);
         break;
     }
 }

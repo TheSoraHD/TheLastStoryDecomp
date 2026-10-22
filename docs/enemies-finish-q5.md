@@ -86,6 +86,7 @@ game/Em315Coffin.
   del CSV usa `PushBack_unk` y sigue al 100%.
   - vf100 (0x80306B40) escrita: 99.96% (pila de los temporales de direccion; ~15 variantes). Bits: los estados de
     ataque ponen mFlag28 (0x1000 de 0x14CC). m1540-m1548 pasa a Vector3 (direccion hacia atras del estado 12).
+  - vf104 (0x80306EB0) al 100% (11/22): casos del switch en el orden del original, 12 y 14 duplicados aparte.
 - Pools de cadenas renombrados a `@stringBase0` en Em309Ghoul (0x80748A14), Em309GhoulSimple (0x80748DC0),
   Em310Gargoyle (0x80748FE8) y Em315Coffin (0x80749390): sin cambio en el recuento, pero las llamadas con
   cadenas ya comparan el nombre real.
