@@ -124,3 +124,26 @@ void LH_MotionSet::vf0C(const char* path) {
 }
 
 } // namespace atn
+
+// inferred: sets a motion of `model` (atn::Model; id and LH_Motion of the set entry)
+extern "C" void fn_80097A9C(void* model, int id, atn::LH_Motion* motion);
+
+// inferred: as LH_MotionSet::vf0C but always loads a new copy (not shared) and marks it
+extern "C" void fn_80477694(atn::LH_MotionSet* set, const char* path) {
+    set->fn_80473F88();
+    set->mCore = lbl_8087F518->Get_unk<atn::LoadMotionSet>(path, 0);
+    ((atn::LoadMotionSet*)set->mCore)->mCallback = (MotionSetCallback_unk)set->mCallback;
+    ((atn::LoadMotionSet*)set->mCore)->m6C.m04 = (void*)1;
+}
+
+// inferred: gives every motion of the set to `model`
+// NONMATCHING: ~98% - the loop counter and the entry offset swap r30/r31 (7 variants tried)
+extern "C" void fn_804776F4(atn::LH_MotionSet* set, void* model) {
+    unsigned int i;
+    atn::LoadMotionSet* core = (atn::LoadMotionSet*)set->mCore;
+    if (core != 0) {
+        for (i = 0; i < core->mEntries.mSize; i++) {
+            fn_80097A9C(model, core->mEntries.mData[i].mId, &core->mEntries.mData[i].mMotion);
+        }
+    }
+}

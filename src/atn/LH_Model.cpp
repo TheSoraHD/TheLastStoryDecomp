@@ -156,3 +156,65 @@ void LH_Model::vf0C(const char* path) {
 }
 
 } // namespace atn
+
+// Accessors of the loaded model, called as free functions (atn/ModelDraw_unk, atn/LayerOcclusionCPU...).
+// inferred: inverse joint matrices
+extern "C" atn::Matrix3x4* fn_80476130(atn::LH_Model* model) {
+    if (model->mCore != 0) {
+        return ((atn::LoadModel*)model->mCore)->mMatrices.mData;
+    }
+    return 0;
+}
+
+// inferred: vertex arrays of mesh `mesh` (0x144 bytes each)
+extern "C" void* fn_8047614C(atn::LH_Model* model, int mesh) {
+    if (model->mCore != 0) {
+        return (char*)((atn::LoadModel*)model->mCore)->m84.mData + mesh * 0x144;
+    }
+    return 0;
+}
+
+// inferred: vertex description of mesh `mesh` (index into a table of the texture manager)
+extern "C" void* fn_80476170(atn::LH_Model* model, int mesh) {
+    int index = ((int*)((atn::LoadModel*)model->mCore)->mTextures.mData)[mesh];
+    return *(void**)((char*)lbl_8087EEE0 + index * 8 + 0xE0);
+}
+
+// inferred: 'omdl' chunk (occlusion meshes)
+extern "C" void* fn_80476194(atn::LH_Model* model) {
+    if (model->mCore != 0) {
+        return ((atn::LoadModel*)model->mCore)->m60;
+    }
+    return 0;
+}
+
+// inferred: 'occt' chunk (occlusion tree)
+extern "C" void* fn_804761B0(atn::LH_Model* model) {
+    if (model->mCore != 0) {
+        return ((atn::LoadModel*)model->mCore)->m64;
+    }
+    return 0;
+}
+
+// inferred: joints with a parent (m70 > 0)
+extern "C" unsigned short* fn_804761CC(atn::LH_Model* model) {
+    if (model->mCore != 0) {
+        return ((atn::LoadModel*)model->mCore)->mJoints.mData;
+    }
+    return 0;
+}
+
+// inferred: number of those joints
+extern "C" int fn_804761E8(atn::LH_Model* model) {
+    if (model->mCore != 0) {
+        return ((atn::LoadModel*)model->mCore)->mJoints.mSize;
+    }
+    return 0;
+}
+
+extern "C" int fn_80476204(atn::LH_Model* model) {
+    if (model->mCore != 0) {
+        return ((atn::LoadModel*)model->mCore)->m78;
+    }
+    return 0;
+}

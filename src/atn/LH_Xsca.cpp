@@ -38,4 +38,11 @@ void LH_Xsca::vf0C(const char* path) {
     mCore = lbl_8087F518->Get_unk<LoadXsca>(path, 1);
 }
 
+void* LH_Xsca::fn_804786F8() {
+    if (mCore != 0) {
+        return ((LoadXsca*)mCore)->m5C;
+    }
+    return 0;
+}
+
 } // namespace atn

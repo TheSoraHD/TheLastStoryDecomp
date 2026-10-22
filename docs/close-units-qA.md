@@ -90,3 +90,19 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
     separadores `lbl_8087DB20` (" \t", .sdata de la unidad) como `atn::Csv`; regress lost 0, fuzzdrop 0.
   - Hallazgo MWCC: con declaraciones C al principio, el orden decide la numeracion de los GPR salvados
     (la primera declarada recibe el registro mas alto entre las que viven en todo el bucle).
+- Accesores pequenos de las `LH_*` (0% -> 100%, 20 funciones):
+  - `atn/LH_ColliObject`: `fn_80472C90` (esfera envolvente, `extern "C"` como lo declara atn_colli).
+  - `atn/LH_Material`: `LH_Material::fn_80474860` (lista de materiales) y `fn_8047486C` (cuenta); symbols.txt
+    renombrados a `fn_80474860__Q23atn11LH_MaterialFv` / `fn_8047486C__Q23atn11LH_MaterialFv`; cabecera
+    `include/atn/LH_Material.h` (solo la usa esta unidad y quien la incluye para el tipo).
+  - `atn/LH_Xsca`: `LH_Xsca::fn_804786F8` (animacion cargada); symbols.txt `fn_804786F8__Q23atn7LH_XscaFv`;
+    cabecera `include/atn/LH_Xsca.h`.
+  - `atn/LH_MotionCommandData`: `fn_80476CE4` (ya declarada en su cabecera).
+  - `atn/LH_Scene` (11/12): `fn_80477FA4/FC0/FDC/FF8/80478014/80478034` (luces, camaras y registros de luz;
+    `extern "C"` como los declara CharaLightData_unk). `SceneHeader_unk` gana `m18`/`m1C`.
+  - `atn/LH_Model` (15/17): `fn_80476130`..`fn_80476204` (8 accesores, `extern "C"` como los declaran
+    ModelDraw_unk/LayerOcclusionCPU).
+  - `atn/LH_MotionSet` (5/9): `fn_80477694` (carga sin compartir) al 100%; `fn_804776F4` ~98% (contador/desplazamiento
+    r30/r31, 7 intentos).
+  - Decision sin el usuario: los nuevos `extern "C"` mantienen el nombre `fn_` de symbols.txt; solo se renombran a
+    miembro los que nadie llama desde fuente (Material, Xsca).

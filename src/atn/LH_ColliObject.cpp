@@ -206,3 +206,11 @@ void LH_ColliObject::vf0C(const char* path) {
 }
 
 } // namespace atn
+
+// inferred: bounding sphere of the loaded object (called by atn/atn_colli.cpp as a free function)
+extern "C" Sphere_unk* fn_80472C90(atn::LH_ColliObject* loader) {
+    if (loader->mCore != 0) {
+        return &((atn::LoadColliObject*)loader->mCore)->mBound;
+    }
+    return 0;
+}

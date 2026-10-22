@@ -32,7 +32,8 @@ struct SceneHeader_unk {
     unsigned char m00[0x10];
     int mNumCameras;                  // 0x10
     SceneCameraData_unk** mCameras;   // 0x14
-    unsigned char m18[8];
+    int m18;                          // inferred: number of light records (fn_80478014)
+    void** m1C;                       // inferred: light records (fn_80478034)
     int mNumLights;                   // 0x20
     void** mLights;                   // 0x24
 };
@@ -176,3 +177,52 @@ void LH_Scene::vf0C(const char* path) {
 }
 
 } // namespace atn
+
+// Accessors called as free functions by atn/CharaLightData_unk.cpp (names kept).
+// inferred: lights built from the file
+extern "C" Light_unk* fn_80477FA4(atn::LH_Scene* scene) {
+    if (scene->mCore != 0) {
+        return ((atn::LoadScene*)scene->mCore)->mLights.mData;
+    }
+    return 0;
+}
+
+// inferred: cameras built from the file
+extern "C" Camera_unk* fn_80477FC0(atn::LH_Scene* scene) {
+    if (scene->mCore != 0) {
+        return ((atn::LoadScene*)scene->mCore)->mCameras.mData;
+    }
+    return 0;
+}
+
+// inferred: number of lights
+extern "C" int fn_80477FDC(atn::LH_Scene* scene) {
+    if (scene->mCore != 0) {
+        return ((atn::LoadScene*)scene->mCore)->mLights.mSize;
+    }
+    return 0;
+}
+
+// inferred: number of cameras
+extern "C" int fn_80477FF8(atn::LH_Scene* scene) {
+    if (scene->mCore != 0) {
+        return ((atn::LoadScene*)scene->mCore)->mCameras.mSize;
+    }
+    return 0;
+}
+
+// inferred: number of light records of the file (header at 0x10 of the data)
+extern "C" int fn_80478014(atn::LH_Scene* scene) {
+    if (scene->mCore != 0) {
+        return ((SceneHeader_unk*)((char*)((atn::LoadScene*)scene->mCore)->m54 + 0x10))->m18;
+    }
+    return 0;
+}
+
+// inferred: light records of the file
+extern "C" void** fn_80478034(atn::LH_Scene* scene) {
+    if (scene->mCore != 0) {
+        return ((SceneHeader_unk*)((char*)((atn::LoadScene*)scene->mCore)->m54 + 0x10))->m1C;
+    }
+    return 0;
+}

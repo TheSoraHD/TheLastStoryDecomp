@@ -9,6 +9,8 @@ namespace atn {
 class LH_Xsca : public LoadHandle {
 public:
     virtual void vf0C(const char* path); // 0x804784CC
+
+    void* fn_804786F8(); // inferred: returns the loaded animation (LoadXsca::m5C)
 };
 
 } // namespace atn
