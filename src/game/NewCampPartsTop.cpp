@@ -174,8 +174,7 @@ public:
     int fn_8037D4C0(int id, int fade, int b, int c, float volume); // inferred: requests a BGM
     static GameBgm* sInstance;
 };
-extern "C" void* lbl_8087F9AC;
-extern "C" void fn_80572B6C(void* p, const char* name);
+#include "atn/SequenceBoot_unk.h"
 class MenuCommonTask {
 public:
     static MenuCommonTask* sInstance;
@@ -433,7 +432,7 @@ void NewCampPartsTop::vf2C() {
                 break;
             case 2:
                 fn_800D2338((atn::Task*)lbl_8087F430);
-                fn_80572B6C(lbl_8087F9AC, "Title");
+                sSequenceBoot_unk->SetNext_unk("Title");
                 break;
             case 3:
                 fn_8052CA6C(m48);
