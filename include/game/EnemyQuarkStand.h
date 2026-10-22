@@ -5,6 +5,7 @@
 #include "atn/LH_Binary.h"
 #include "atn/LH_Xsca.h"
 #include "atn/ResLoader_unk.h"
+#include "game/Bullet.h"
 #include "game/CharaStatus.h"
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
@@ -71,6 +72,12 @@ struct QuarkShot_unk {
     QuarkShot_unk();
     float m00;          // inferred: timer
     atn::Vector3 m04;   // inferred: position
+};
+
+// inferred: shot parameters with the constructor of the weak copy 0x80349424 (m00 0.1, m18 1.0, the rest
+// zero; the inline fields of gmk/BulletPoint are set in another order, so it is kept apart). Name invented.
+struct QuarkBulletShot_unk : public BulletShot_unk {
+    QuarkBulletShot_unk();
 };
 
 // inferred: delayed wave (0x14 bytes: position, timer, started flag and effect id); entries of the fixed
@@ -151,6 +158,7 @@ public:
     void fn_80351480(int arg);
     void fn_80351AB8(CharaTask* chara, int kind);
     void fn_803470F0();
+    void fn_80352938(float rate); // inferred: turns toward the target
     void fn_803489F4(const atn::Vector3& target); // inferred: matrix of the laser
     void fn_80348568();
     void fn_80348FF4();

@@ -57,6 +57,21 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+Effect_unk* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
+extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
+extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
+extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
+extern "C" int fn_800EFDA0(int id);
+extern "C" void fn_8010EE78(Bullet* bullet, BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir,
+                            CharaTask* owner, int id, int arg, float speed); // inferred: fires the bullet
+extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
+extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
+extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, void* mtx, int arg5,
+                            int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, void* model, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int a, int b, int c, float scale);
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
@@ -124,6 +139,14 @@ inline QuarkSlot_unk::QuarkSlot_unk() : m14(0) {}
 inline QuarkDir_unk::QuarkDir_unk() {}
 inline Mtx34_unk::Mtx34_unk() {}
 inline QuarkShot_unk::QuarkShot_unk() {}
+inline QuarkBulletShot_unk::QuarkBulletShot_unk() {
+    m00 = 0.1f;
+    m04 = 0;
+    m08 = 0;
+    m10 = 0;
+    m14 = 0.0f;
+    m18 = 1.0f;
+}
 
 EnemyQuarkStand::EnemyQuarkStand(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m153C(0),
@@ -744,7 +767,7 @@ void EnemyQuarkStand::fn_80348568() {
 
 // NONMATCHING: 99.50% - stack slots of the front direction and its temporaries (the original builds the
 // direction before the item); the rest only differs in the pool offsets
-// inferred: damage spheres: one in front of the capsule and three on the nodes "hips", "spine" and
+// inferred: damage spheres: one in front of the capsule and three on the nodes "head", "spine" and
 // "spine1"
 void EnemyQuarkStand::vf50() {
     Item14_unk item;
@@ -753,7 +776,7 @@ void EnemyQuarkStand::vf50() {
     item.m04.mCenter.y -= 10.0f;
     m624.push_back(item);
     item.m04.mRadius = 10.0f;
-    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("hips"));
+    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("head"));
     m624.push_back(item);
     item.m04.mRadius = 18.0f;
     item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
@@ -796,19 +819,18 @@ void EnemyQuarkStand::fn_803470F0() {
 }
 
 // inferred: updates the damage spheres of vf50
-// NONMATCHING: 93.56% - el original guarda el radio del primer item antes de preparar PSMTXRotRad (lee
-// mRot.y con r3) y numera distinto los registros de la copia de los nodos; ~8 variantes (indices, temporales,
-// inline del frente)
+// NONMATCHING: 95.35% - registros de la copia de los nodos "spine"/"spine1" (r3/r5 del original frente a
+// r5/r6, familia __VecCopy); ~10 variantes (indices, temporales, inline del frente)
 void EnemyQuarkStand::vf54() {
     if (m624.mSize == 0) {
         return;
     }
     unsigned int i = 0;
     m624[i].m04.mRadius = m620;
-    m624[i].m04.mCenter = m614 + QuarkFrontOf_unk(this) * 10.0f;
+    m624[i].m04.mCenter = m614 + QuarkFrontY_unk(this) * 10.0f;
     m624[i++].m04.mCenter.y -= 10.0f;
     m624[i].m04.mRadius = 10.0f;
-    m624[i++].m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("hips"));
+    m624[i++].m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("head"));
     m624[i].m04.mRadius = 18.0f;
     m624[i++].m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
     m624[i].m04.mRadius = 18.0f;
@@ -899,6 +921,66 @@ void EnemyQuarkStand::fn_803489F4(const atn::Vector3& target) {
     QuarkLaserMtx_unk(this).m[0][3] = target.x;
     QuarkLaserMtx_unk(this).m[1][3] = target.y;
     QuarkLaserMtx_unk(this).m[2][3] = target.z;
+}
+
+// inferred: laser attack: aims, starts the beam effect at frame 56, fires the laser bullet between frames
+// 58.9 and 80.1 and queues the explosions along the beam
+void EnemyQuarkStand::fn_80348FF4() {
+    if (m14B4 == 0) {
+        fn_80352938(0.7f);
+        if (mMotion.fn_80139550(0) >= 56.0f) {
+            fn_80239DAC(fn_800F7FA0(), this, 0x3E8, 1);
+            fn_800F7FA8(fn_800F7FA0(), this, 0x3E8);
+            fn_80276AE4(fn_800F7FA0(), &m163C, &mMotion, &lbl_807C7030, &lbl_807C7030, -1, -1, 1, 1.0f);
+            m14B4++;
+        }
+    } else if (m14B4 == 1) {
+        if (mMotion.fn_80139550(0) >= 58.9f) {
+            atn::Vector3 pos(0.0f, 0.0f, 20.0f);
+            pos.fn_80011410(*(atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"));
+            fn_803489F4(pos);
+            fn_800F7FA8(fn_800F7FA0(), this, 0x3E8);
+            fn_8023A680(fn_800F7FA0(), &m1648, -1, 5, &m1660, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_800C31F4("SE_EM211_009_2", 0, -1, 1.0f);
+            m1A24 = 0;
+            m1A20 = fn_800F8548(fn_8013A194());
+            m14B4++;
+        }
+    } else if (m14B4 == 2) {
+        if (mMotion.fn_80139550(0) <= 80.1f) {
+            atn::Vector3 pos(0.0f, 0.0f, 20.0f);
+            pos.fn_80011410(*(atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"));
+            fn_803489F4(pos);
+            Bullet* bullet = fn_801010A0(fn_8013A194());
+            if (bullet != 0) {
+                QuarkBulletShot_unk shot;
+                shot.m00 = fn_8010B250(fn_8013A194(), m152C->m3C, 0);
+                shot.m04 = fn_800EFD04(m152C->mB0);
+                shot.m08 = fn_800EFDA0(m152C->mB0);
+                shot.m0C = m152C;
+                shot.m10 = 0;
+                shot.m14 = 0.0f;
+                fn_8010EE78(bullet, &shot, &pos, &m1654, this, m590, 0, -1.0f);
+            }
+            float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.fn_80139550(0) - 60.0f) / 20.0f));
+            float dist = fn_800F8524(&sBurstNear_unk, &sBurstFar_unk, t);
+            atn::Vector3 at = mPos + fn_8014052C() * dist;
+            if (!m181C.full()) {
+                QuarkShot_unk item;
+                item.m00 = 25.0f;
+                item.m04 = at;
+                m181C.PushBack_unk(item);
+            }
+        } else {
+            fn_80239DAC(fn_800F7FA0(), this, 0x3E8, 1);
+            m14B4++;
+        }
+    } else {
+        float end = mMotion.fn_80097D7C(0);
+        if (mMotion.fn_80139550(0) >= end) {
+            fn_8034F41C();
+        }
+    }
 }
 
 // inferred: lets the camera go back to the field (name invented)
@@ -1000,6 +1082,27 @@ void EnemyQuarkStand::fn_803519C4() {
 // inferred: plays motion `motion` at `speed` (out of line in vf10)
 void EnemyQuarkStand::fn_803524AC(int motion, int arg3, float speed) {
     QuarkPlayMotion_unk(&mMotion, motion, arg3, 0, speed);
+}
+
+// inferred: out-of-line turn toward the target (the same body as TurnTo_unk)
+// NONMATCHING: 99.11% - slots de pila de la diferencia y de la copia de ToRotationZ_unk intercambiados
+// (0x50/0x5C); ~8 variantes (inline TurnTo_unk, temporales, bloques)
+void EnemyQuarkStand::fn_80352938(float rate) {
+    CharaTask* target = (CharaTask*)m14B0;
+    atn::Vector3 d(target->mPos - mPos);
+    float y = d.ToRotationZ_unk().y;
+    float diff = atn::WrapAngle_unk(y - mRot.y);
+    float step = 12.0f * rate;
+    float abs = diff < 0.0f ? -diff : diff;
+    step = 0.017453292f * step;
+    if (abs <= step) {
+        fn_80097CCC(&mMotion, 1, 0.0f);
+        mRot.y = y;
+    } else if (diff <= 0.0f) {
+        mRot.y -= step;
+    } else {
+        mRot.y += step;
+    }
 }
 
 // inferred: shows the two direction arrows of the d2anime
