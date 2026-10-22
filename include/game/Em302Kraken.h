@@ -67,7 +67,7 @@ public:
 
     inline void Reset_unk();
     void fn_802DA174();
-    void fn_802DA718();
+    void fn_802DA718(); // inferred: state 4 (shades)
     void fn_802DAA38();
     void fn_802DB2D0();
     void fn_802DB534();
@@ -80,6 +80,8 @@ public:
     void fn_802DC3D0();
     void fn_802DC618(); // inferred: starts state 2 (dead)
     KrakenCommand_unk* fn_802DC8B0();
+    void fn_802DCA34(int state, int kind); // inferred: calls the reinforcements
+    void fn_802DD1B4(int count);
     void fn_802DDA90(); // inferred: releases the feet
     void fn_802DDBB0(); // inferred: debug menu entries
     void fn_802DC5B4(int arg); // inferred: starts state 15
@@ -99,9 +101,7 @@ public:
     atn::EfpHandle_unk m14E0; // inferred: "/effect/ef_bs033a.efp"
     atn::EfpHandle_unk m14EC; // inferred: "/effect/ef_bs033c.efp"
     int m14F8;                  // inferred: "shades_skill_id"
-    int m14FC;
-    int m1500;
-    int m1504;
+    atn::Vector3 m14FC;         // inferred: position of the shades attack (fn_802DA718)
     atn::EfpHandle_unk m1508; // inferred: "/effect/ef_bs030c.efp"
     float m1514;                // inferred: "absorb_rate"
     float m1518;

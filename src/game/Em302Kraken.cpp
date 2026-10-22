@@ -77,6 +77,22 @@ extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: Em303KrakenFoot method of another queue (starts a state of the leg); kept extern "C"
 extern "C" void fn_802E55B0(Em303KrakenFoot* foot, int kind);
+// inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
+struct KrakenColl_unk {
+    KrakenColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10; // inferred: position after the sweep
+    unsigned char m1C[0x34 - 0x1C];
+    void* m34;
+    void* m38;
+    unsigned int m3C;
+    int m40;
+    atn::Vector3 m44;
+};
+extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, KrakenColl_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
@@ -94,6 +110,15 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+// inferred: link of the character lists (CharaTask + 0x14AC, as in game/CharaTask.cpp)
+struct CharaListNode_unk {
+    unsigned char m0000[0x14AC];
+    CharaTask* mNext;
+};
+inline CharaTask* NextChara_unk(CharaTask* chara) {
+    return ((CharaListNode_unk*)chara)->mNext;
+}
+
 // inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)
 inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     atn::Vector3 pos;
@@ -179,7 +204,7 @@ struct KrakenCommandName_unk {
     char mName[0x40];
     int mId;
 };
-// inferred: static vector of the file built by the __sinit (offset of the thunder)
+// inferred: static vector of the file built by the __sinit (offset of the shades effect, fn_802DA718)
 static atn::Vector3 sOffset_unk(0.0f, 6.0f, 0.0f);
 
 static const KrakenCommandName_unk sCommands_unk[] = {
@@ -668,6 +693,100 @@ inline void PlayMotion_unk(Model_unk* model, int motion, int loop) {
     model->fn_80097C08(0, motion, loop, 0, 1, 0.0f, 0.1f);
 }
 
+// inferred: plays an effect at a world position (same code in game/Em302KrakenMp.cpp); name invented
+inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+    fn_80232B7C(owner, id);
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
+}
+
+// inferred: state 4 (shades): marks the ground under the target at frame 15 and fires at frame 65
+// NONMATCHING: 90.2% - the original rounds x/z with frsp after the +0.3 (double somewhere) and keeps
+// the constants of the two effects in saved registers; stack slots of the fire position
+void Em302Kraken::fn_802DA718() {
+    HitInfo_unk* skill = fn_80219E6C(m14F8);
+    if (m14C4 > 120) {
+        Reset_unk();
+    }
+    if (m14C4 == 15) {
+        m14FC = m1630->mPos;
+        m14FC.y += 0.1f;
+        atn::Vector3 to = m14FC;
+        to.y -= 100.0f;
+        KrakenColl_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &m14FC, &to, 0, &m1630->mColli, 0) != 0) {
+            m14FC = result.m10;
+        }
+        m14FC.x += 0.3f;
+        m14FC.z += 0.3f;
+        atn::Vector3 pos = m14FC + sOffset_unk;
+        Color4f_unk color;
+        float one = 1.0f;
+        fn_80232B7C(this, 10);
+        color.r = one;
+        color.g = one;
+        color.b = one;
+        color.a = one;
+        fn_8023A8B4(lbl_8087F3C0, &m1508, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, one);
+        fn_80232B7C(this, 500);
+        Color4f_unk color2;
+        color2.r = one;
+        color2.g = one;
+        color2.b = one;
+        color2.a = one;
+        fn_8023A8B4(lbl_8087F3C0, &m1570, 0, 0, m14FC, lbl_807C7030, color2, -1, -1, 1, one);
+    }
+    if (m14C4 == 30) {
+        fn_80239DAC(lbl_8087F3C0, this, 500, 1);
+    }
+    if (m14C4 == 65) {
+        atn::Vector3 pos = m14FC + sOffset_unk;
+        fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        fn_800C344C("SE_EM301_002", &m14FC, 0, -1, 1.0f);
+    }
+}
+
+// inferred: state 9 (absorbs the party): effect on every member at frame 50, then the reinforcements
+// (the count grows as the hit points go down) and back to state 0
+void Em302Kraken::fn_802DB2D0() {
+    if (m14C4 == 3) {
+        atn::Vector3 pos(0.0f, 10.0f, 0.0f);
+        Color4f_unk color;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m14E0, (Model_unk*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 3.0f);
+    }
+    if (m14C4 == 50) {
+        for (CharaTask* c = (CharaTask*)lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
+            fn_80232B7C(c, 1000);
+            PlayEffect_unk(&m14EC, (Model_unk*)&c->mMotion);
+        }
+    }
+    if (m14C4 > 60) {
+        fn_802DD1B4((int)(3.0f * (1.0f - mStatus.m04 / mStatus.mParamB.m84)));
+        int kind = 1;
+        switch (m14DC) {
+        case 2:
+            kind = 3;
+            break;
+        case 0:
+            kind = 3;
+            break;
+        case 3:
+            kind = 1;
+            break;
+        }
+        fn_802DCA34(m14DC, kind);
+        Reset_unk();
+    }
+}
+
 // inferred: state 12 (big laser)
 void Em302Kraken::fn_802DB534() {
     float frame = mMotion.mTracks[0].m08;
@@ -775,16 +894,6 @@ void Em302Kraken::fn_802DB7C8() {
     }
 }
 
-// inferred: plays an effect at a world position (same code in game/Em302KrakenMp.cpp); name invented
-inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
-    fn_80232B7C(owner, id);
-    Color4f_unk color;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
-}
 
 // inferred: state 14 (thunder)
 void Em302Kraken::fn_802DBA3C() {
