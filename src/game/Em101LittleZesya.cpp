@@ -3,10 +3,14 @@
 #include "chr/ControlDive.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/HomingBullet.h"
 #include "math/Vec.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
+
+// inferred: empty release assert (the original functions are not auto-inlined)
+#define ASSERT_UNK(x) ((void)0)
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -58,6 +62,9 @@ extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, Hit
                             int c, float f);
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em101ElderZesya.cpp)
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
@@ -255,7 +262,76 @@ extern "C" void fn_8025D704(Em101LittleZesya* zesya) {
     zesya->m14F8 = 0;
 }
 
+// inferred: the state functions are not inlined here in the original; with -ipa file ours were, until each
+// got empty release asserts (ASSERT_UNK) that push it over the auto-inline threshold
+void Em101LittleZesya::fn_8025D7B0() {
+    if (m14F8 > 0) {
+        return;
+    }
+    if (m55C == 2) {
+        fn_8016E970(3);
+    }
+    if (m15BC != 0 && --m15A8.m04 <= 0 && m55C == 3) {
+        switch (m15A8.m00) {
+        case 0:
+            fn_8025F07C();
+            break;
+        case 1:
+            fn_8025F45C();
+            break;
+        case 2:
+            fn_8025E008();
+            break;
+        }
+        m15BC = 0;
+        return;
+    }
+    switch (m58C) {
+    case 1:
+        fn_8025DE7C();
+        break;
+    case 11:
+        fn_8025E100();
+        break;
+    case 9:
+        fn_8025E748();
+        break;
+    case 12:
+        fn_8025E834();
+        break;
+    case 13:
+        fn_8025E930();
+        break;
+    case 8:
+        fn_8025F35C();
+        break;
+    case 10:
+        fn_8025F754();
+        break;
+    case 14:
+        fn_8025E9E4();
+        break;
+    default:
+        fn_8025DE54();
+        if (m55C != 6) {
+            fn_8025D90C();
+        }
+        break;
+    }
+}
+
 void Em101LittleZesya::fn_8025DE54() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     if (m55C - 6U > 1) {
         mFlag5 = 1;
         mFC0 = m14B8;
@@ -419,6 +495,11 @@ void Em101LittleZesya::fn_8025E100() {
 }
 
 void Em101LittleZesya::fn_8025E008() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     m14D0 = 0;
     m14F4 = 0;
     m58C = 11;
@@ -433,6 +514,13 @@ void Em101LittleZesya::fn_8025E008() {
 }
 
 void Em101LittleZesya::fn_8025E748() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     float frame = mMotion.mTracks[0].m08;
     if (17.0f < frame && frame <= 19.0f) {
         fn_800F8C6C(lbl_8087F048, 0, 0, this, m1528, m590, 30, -1, 0.0f);
@@ -447,6 +535,11 @@ void Em101LittleZesya::fn_8025E748() {
 
 // NONMATCHING: ~95% - f1/f2 of the int->float conversion of the maximum HP (4 variants)
 void Em101LittleZesya::fn_8025E834() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     if (m14D0 > 10) {
         m14D0 = 0;
         m14F4 = 0;
@@ -479,6 +572,11 @@ inline atn::Vector3 GetTrans_unk(MtxPtr m) {
 // NONMATCHING: 96.3% - only the offset of "hips" in @stringBase0 and the .sdata2 floats: the strings and
 // floats of the unwritten functions are missing from the pools
 void Em101LittleZesya::fn_8025E9E4() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     if (m14F4 == 0) {
         if (mMotion.mTracks[0].m08 > 60.0f) {
             m12CC = 1.0f;
@@ -494,7 +592,83 @@ void Em101LittleZesya::fn_8025E9E4() {
     }
 }
 
+// inferred: rotation matrix z, y, x (as ElderRotZYX_unk in game/Em101ElderZesya.cpp; name invented)
+inline void ZesyaRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    __MtxRotate(m.m, 'z', rot.z);
+    __MtxRotate(m.m, 'y', rot.y);
+    __MtxRotate(m.m, 'x', rot.x);
+}
+
+// inferred: homing parameters with their defaults (name invented)
+struct ZesyaHoming_unk : public HomingParam_unk {
+    ZesyaHoming_unk() {
+        mTarget = 0;
+        mAccel = 0.0f;
+        m08 = -1.0f;
+        mMaxSpeed = 10.0f;
+        mTurn = 0.09424778f;
+        mTime = 300.0f;
+        mDelay = 5.0f;
+        mNode = 0;
+        mCount = -1;
+    }
+};
+
+// inferred: angle of the i-th of n bullets on a circle, in degrees (name invented)
+inline float SpreadAngle_unk(int n, int i) {
+    return 360.0f / (float)n * (float)i;
+}
+
+// inferred: fires one homing light sword at each player, spread in a circle around the spine
+// NONMATCHING: 93.79% - the original stores the 0x43300000 words of the two int->float conversions in the
+// prologue and keeps one more FPR for the constants (f16-f31 against our f17-f31 plus a GPR), so the saved
+// registers shift by one (r20 against r19) and the stack slots differ (8 variants)
+void Em101LittleZesya::fn_8025EAE4() {
+    if (m1524 != 0) {
+        int i = 0;
+        Model_unk* model = GetModel_unk();
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            atn::Vector3 pos = GetTrans_unk(model->GetNodeMtx_unk("spine"));
+            atn::Vector3 ofs(0.0f, 0.0f, 30.0f);
+            atn::Matrix3x4 m(model->GetNodeMtx_unk("spine"));
+            m.m[0][3] = 0.0f;
+            m.m[1][3] = 0.0f;
+            m.m[2][3] = 0.0f;
+            PSMTXMultVec(m.m, &ofs, &ofs);
+            pos += ofs;
+            atn::Vector3 dir(6.0f, 0.0f, 3.0f);
+            Mtx rz;
+            PSMTXRotRad(rz, 'z', 0.017453292f * (360.0f / lbl_8087F8A0->mCount * i));
+            PSMTXMultVec(rz, &dir, &dir);
+            atn::Matrix3x4 r;
+            ZesyaRotZYX_unk(r, mRot);
+            PSMTXMultVec(r.m, &dir, &dir);
+            ZesyaHoming_unk param;
+            PlayerTask* leader = lbl_8087F8A0->mHead;
+            if (leader->mFlag28) {
+                if (p != leader) {
+                    continue;
+                }
+                param.mTarget = leader;
+            } else {
+                param.mTarget = p->CanAct_unk() ? p : leader;
+            }
+            param.mDelay = 10.0f;
+            param.mAccel = 0.3f;
+            param.mMaxSpeed = 2.5f;
+            param.mTurn = 0.5235988f;
+            param.mTime = (float)m1524->m5C;
+            fn_800F8574(lbl_8087F048, this, m1524, &pos, &dir, &param, 0x24, 30, 0.0f, 1.0f);
+            i++;
+        }
+    }
+}
+
 void Em101LittleZesya::fn_8025F07C() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     m58C = 8;
     m14D0 = 0;
     m14F4 = 0;
@@ -540,6 +714,11 @@ inline int Em101LittleZesya::Nearest_unk(const atn::Vector3& pos) {
 // increments, as in Em101ElderZesya::fn_802598DC) and the stack slot of the party center (10 variants:
 // written out, helper, pointer walk, signed index, while, declaration orders, comparison order)
 void Em101LittleZesya::fn_8025F45C() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     m58C = 10;
     m14D0 = 0;
     m14F4 = 0;
@@ -557,6 +736,13 @@ void Em101LittleZesya::fn_8025F45C() {
 }
 
 void Em101LittleZesya::fn_8025F35C() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     switch (m55C) {
     case 6:
         if (m560 != 2) {
@@ -575,6 +761,18 @@ void Em101LittleZesya::fn_8025F35C() {
 }
 
 void Em101LittleZesya::fn_8025E930() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     mStatus.mParamB.m8C += m1568;
     if (HpRate_unk() >= 0.99f) {
         Idle_unk();
@@ -582,6 +780,18 @@ void Em101LittleZesya::fn_8025E930() {
 }
 
 void Em101LittleZesya::fn_8025F754() {
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
+    ASSERT_UNK(this != 0);
     if (m55C != 6) {
         Idle_unk();
     }
