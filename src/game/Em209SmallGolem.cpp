@@ -483,12 +483,10 @@ inline void PlayDeathEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model, int f
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, flag, 1, 1.0f);
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, flag, 1.0f);
     lbl_8087F3C0->mC4 = 0;
 }
 
-// NONMATCHING: 96.54% - r0/r11 of the constant 1 and the stack slots of pos/rot/color (inline helper
-// with the locals in both orders, the flag as parameter)
 void Em209SmallGolem::vfEC() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
