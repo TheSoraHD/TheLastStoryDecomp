@@ -4,7 +4,7 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 
 ## Unidades
 
-### game/Em301LShade (0/31 -> 14/31)
+### game/Em301LShade (0/31 -> 16/31)
 - fn_802D5D18 (refuerzos, sellado de miembros del grupo) escrita: NONMATCHING 92.9% (relectura del estado
   dentro del inline "libre" y r26/r29; 8 variantes).
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em301LShade.cpp` y cabecera nueva
@@ -21,8 +21,16 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 - NONMATCHING >= 99% (casi todo es la posicion de las constantes de .sdata2 y de las cadenas del pool, que
   fija vf10 (5.9 KB, sin escribir) y vf0C): ctor, vf54, vf64, fn_802D404C, fn_802D4378, fn_802D4E9C,
   fn_802D5020, fn_802D5674.
+- Segunda pasada: fuente ordenada por direccion; fn_802D3370 (rondas del sombra) al 100% con dos
+  `ASSERT_UNK` vacios en fn_802D5674 (sin ellos MWCC la inlinea; el original la llama). fn_802D4378 y
+  fn_802D5674 al 100%. Escritas: vfEC (99.1%, r5/r6 de la copia de "dead_camera"), fn_802D57B8 (99.2%,
+  pila), fn_802D3C74 (99.9%, orden del contador y la constante int->float lbl_80747090, que esta en el
+  split de Em209SmallGolem: pendiente), fn_802D6004 (85%, push_back inlineado en bucle: familia conocida),
+  fn_802D4628 (85.3%, absorcion; mismo caso abierto que Em302Kraken::fn_802DAA38). Sin escribir:
+  fn_802D67F8 (refuerzos, push_back inlineado).
+- vf54/vf50 99.92%: la cadena "head" de vf54 y los "" de Vector_unk::reserve dependen de vf0C (0%).
 
-### game/Em302Kraken (0/49 -> 11/49, ~40 escritas)
+### game/Em302Kraken (0/49 -> 36/49)
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302Kraken.cpp` y cabecera nueva
   `include/game/Em302Kraken.h` (subclase directa de EnemyTask: el ctor llama a `__ct__9EnemyTask` y la vtable
   tiene 0xF8 bytes; layout 0x14B0-0x16B8 del ctor/dtor; nombres inventados).
@@ -45,8 +53,14 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   las funciones aun sin escribir). fn_802DBA3C sube a 99.88% con el inline PlayEffectAt_unk.
 - fn_802DA718 (estado 4, sombras): NONMATCHING 90.2% - el original redondea x/z con frsp tras el +0.3 y
   guarda las constantes de los dos efectos en registros salvados; 8 variantes.
+- Tercera pasada (pool ordenado): fuente ordenada por direccion, instanciacion explicita de los dos
+  push_back tras vf0C y la constante 15.0f de vf10 (caso 11, valor sin usar): 36/49. Al 100% vf20, vf54,
+  vfB0, vfB4 (+ sus copias boost invoke/manage), vfC8, vfD0, vfD8, fn_802DA174, fn_802DB2D0, los estados
+  6/7/11/12/13/14/15, la muerte fn_802DC618, fn_802DC8B0, __sinit. Escritas: vfCC (96.6%, programacion
+  del z del temporal; 6 variantes), fn_802DAA38 (86.5%, absorcion: borrador). Sin escribir: fn_802DCA34 y
+  fn_802DD1B4 (refuerzos, push_back inlineado).
 
-### game/Em302KrakenMp (0/39 -> 13/39)
+### game/Em302KrakenMp (0/39 -> 31/39)
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302KrakenMp.cpp` y cabecera nueva
   `include/game/Em302KrakenMp.h` (subclase de SpecialEnemyBase, vtable 0x11C; layout 0x14D4-0x1660; nombres
   inventados). Misma tabla de comandos que Em302Kraken pero con ids 8/9/10 ({"swing","pound","wait"}).
@@ -62,6 +76,11 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 - Segunda pasada: vf3C y fn_802E0890 (espera de refuerzos) al 100%; vfB0 (99.9%), __sinit (99.4%), estados
   2/6/7/9/10 (fn_802E177C, fn_802E10D8, fn_802E1290, fn_802E1414, fn_802E1624) y fn_802E0EC8 (estado de
   ira): 99.8-99.95%, solo offsets del pool.
+- Tercera pasada (pool ordenado como en Kraken): 31/39. vf104 al 100% a la primera; fn_802E03F0 al 100%
+  con inlines NextAttack_unk/CountActiveFeet_unk; fn_802E0C60, vf100, vf114, vfB4, vfC8 y todos los
+  estados al 100%. Quedan: ctor (98.1%, std::string), vf0C (99.3%), vf10 (98.8%), vf50 (99.9%, "" de
+  reserve), vfAC (99.8%, 13 variantes), fn_802E094C (81.9%, mismo frsp que Kraken::fn_802DA718) y los
+  push_back (99.95% nombre de @STRING@ de otra unidad; 85.5% familia conocida).
 
 ## Decisiones tomadas sin el usuario
 - **splits.txt**: `.rodata` de game/Em301LShade ampliada de 0x807470A4 a 0x807473F8: absorbe el tramo
@@ -98,6 +117,16 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   (local); fn_802D9938/fn_802E0100 -> vfB0; lbl_80786DC0 -> `sDefaultCommand_unk` (local, comando por
   defecto {8, 0} de fn_802DC8B0); estados como metodos (`fn_802DBE70__11Em302KrakenFi`,
   `fn_802DCA34__11Em302KrakenFii`, `fn_802DD1B4__11Em302KrakenFi`, `fn_802E10D8__13Em302KrakenMpFi`, ...).
+- **symbols.txt (segunda/tercera pasada)**: fn_802D9C10/fn_802D9C40 y lbl_807C8408/lbl_8087F3E0/
+  lbl_80786E18/lbl_80786F6C con los nombres de boost::bind<..., chr::ControlThrustForKraken*> (copias
+  debiles de Em302Kraken::vfB4); lbl_80786F88/lbl_80787114 -> `@STRING@vfC8__11Em302KrakenFv` /
+  `__13Em302KrakenMpFv`; lbl_80786DA0 -> `@STRING@__allocate__Q23std25vector<15ShadeTarget_unk>FUi`.
+- Layouts cambiados en las cabeceras de la cola: Em302Kraken m14FC y m1518, Em302KrakenMp m1504 y
+  Em301LShade m1570 pasan de tres campos sueltos a atn::Vector3 (se acceden como vector).
+- Em301LShade::fn_802D5674 lleva dos `ASSERT_UNK(...)` vacios (macro `((void)0)`, patron aceptado de
+  game/ColliAttrManager.cpp) para que no se autoinlinee en fn_802D3370.
+- Valores sin usar `frame / 15.0f` en Em302Kraken::vf10 y Em302KrakenMp::vf104: el original convierte el
+  contador a float y deja 15.0f en el pool en ese punto; es la unica forma encontrada de ordenar .sdata2.
 - Em302Kraken::fn_802DC618 llama a fn_802E55B0 (metodo de Em303KrakenFoot, unidad de otra cola) como
   `extern "C"`; no se renombra.
 - HitMsg_unk+0x40 (indice de la esfera de dano) se lee con un cast (`*(int*)&msg->m3C[4]`), como en
@@ -118,7 +147,19 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 - Leer `EffectMgr_unk* mgr = lbl_8087F3C0;` despues de rellenar los vectores/color (en el inline) mueve la
   carga del manager al final, como en los estados 9/11 de los krakens.
 - `Item14_unk* it = m624.mData;` y luego `it->m04.mCenter` fija el reparto r5/r6 del original en vfB0.
+- El pool de cadenas sigue el orden de definicion tambien para las copias debiles: instanciar
+  explicitamente los push_back justo detras de vf0C (`template void std::vector<T>::push_back(...)`) coloca
+  "vector length error" donde el original.
+- Un bucle de recuento metido en un inline (`CountFreeFeet_unk`) reproduce el reparto de registros del
+  original en las maquinas de estados de los krakens; escrito en linea salen intercambiados.
+- En las copias de vfC8 el original carga la traslacion del nodo en orden z, y, x (locales en ese orden).
+- La camara de eventos (Field_unk+0x568) se copia con el patron de CameraMgr_unk::SetParam_unk
+  (dos Vector3 a traves de un puntero) en Em301LShade::vfEC/fn_802D57B8.
 
 ## Pendientes para otras colas
+- game/Em209SmallGolem (cola q2): sus `.rodata` terminan en 0x80747098 pero los tres double
+  lbl_80747080/88/90 (2*pi y las constantes int->float) solo los usa Em301LShade; probablemente son de
+  Em301LShade (split a 0x80747080). No lo toco (limite de otra cola); impide el 100% de fn_802D3C74,
+  fn_802D5020 y la parte de vf10 que convierte enteros.
 - Em303KrakenFoot: fn_802E55B0 (llamada por Em302Kraken::fn_802DC618 como extern "C") deberia ser un metodo
   (`fn_802E55B0__15Em303KrakenFootFi`); al nombrarlo hay que actualizar el extern de Em302Kraken.cpp.
