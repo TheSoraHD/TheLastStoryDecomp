@@ -65,3 +65,7 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   investigadas) y `fn_8011EF14` (push_back de vector<int>) saltadas.
   - Hallazgo MWCC: `atn::Abs_unk(x) < k` reutiliza el registro del fabs para el redondeo; `(float)__fabs(x) < k`
     redondea a un registro nuevo.
+- `game/CostumeEditChara` (6/11, sin cambios): `vf14` 98.9% (7 intentos mas: desplazamiento en bytes, `+0x680` a mano,
+  puntero al array, local, inline, doble lectura): MWCC siempre pliega 0x680 en el `lwz` (add + lwz 0x680) y el
+  original hace addi + lwzx. `vf10` 99.99% y las tres copias "z primero" (fn_801E9168/917C/91A0, sin helper en Vec.h
+  y sin asm permitido) saltadas: ya investigadas.
