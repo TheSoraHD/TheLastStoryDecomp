@@ -119,7 +119,9 @@ extern "C" void fn_802FC2E0(Em308ParmCrab* crab, CharaTask* target);
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
-extern "C" void fn_802F97B8(Em308ParmCrab* crab);
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_802FA2F4(Em308ParmCrab* crab);
 extern "C" void fn_802FA764(Em308ParmCrab* crab);
 extern "C" void fn_802FB0C4(Em308ParmCrab* crab);
@@ -325,7 +327,7 @@ void Em308ParmCrab::vf10() {
             }
             break;
         case 8:
-            fn_802F97B8(this);
+            fn_802F97B8();
             break;
         case 2:
             vfEC();
@@ -672,9 +674,126 @@ void Em308ParmCrab::fn_802F93F0() {
     }
 }
 
+
+// inferred: plays an effect on the model (as in game/Em308InvertCrab.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: rotation z, y, x of the identity (as ChaserRotZYX_unk of game/ChaserNpc.cpp; name invented)
+inline void CrabRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    if (rot.z != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.y != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.x != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
+// inferred: state 8 (needle, as Em308InvertCrab::fn_802F3BE8): charge effect and sound, wait m14E8 frames, then
+// shoots from the node "hips" towards the target between the frames 7 and 8 (repeating 12.5-13.5 while m15D8 <
+// m14EC); m1538 is set while charging
+void Em308ParmCrab::fn_802F97B8() {
+    switch (m15CC) {
+    case 0: {
+        if (mMotion.mTracks[0].m08 >= 20.0f) {
+            m1538 = 1;
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m15CC = 1;
+            fn_80232B7C(this, 0);
+            PlayEffect_unk(&m1520, &mMotion);
+            m151C = fn_800C344C(m14FC, &mPos, 0, -1, 1.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x143, 1, 0, 1, 0.0f, 0.1f);
+        }
+        break;
+    }
+    case 1:
+        if (++m15D8, m1538 = 1, m15D8 >= m14E8) { // inferred: comma form gives the store order
+            m15CC = 2;
+            m15D8 = 0;
+            fn_8016E970(6);
+            m560 = 4;
+            fn_80239DAC(lbl_8087F3C0, this, 0, 1);
+            fn_800CB5C8(&m151C, 15, 0);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
+        }
+        break;
+    case 2:
+        if (fn_80158BB4()) {
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+        } else {
+            float f = mMotion.mTracks[0].m08;
+            if (12.5f < f && f < 13.5f) {
+                if (++m15D8 < m14EC) {
+                    mMotion.mTracks[0].m08 = 12.0f;
+                }
+            } else if (mMotion.mTracks[0].m08 >= 7.0f && mMotion.mTracks[0].m08 < 8.0f) {
+                atn::Vector3 rot = (m15BC->fn_80148B0C(0)->m04.mCenter - mPos).ToRotationZ_unk();
+                float d = rot.y - mRot.y;
+                if (d >= m14F8 / 2.0f) {
+                    rot.y = m14F8 / 2.0f;
+                } else if (d <= -m14F8 / 2.0f) {
+                    rot.y = -m14F8 / 2.0f;
+                }
+                atn::Matrix3x4 m;
+                CrabRotZYX_unk(m, rot);
+                Model_unk* model = &mMotion;
+                atn::Vector3 pos = ((atn::Matrix3x4*)model->GetNodeMtx_unk("hips"))->GetTrans_unk();
+                atn::Vector3 dir(0.0f, 0.0f, 3.0f);
+                PSMTXMultVec(m.m, &dir, &dir);
+                if (m14F4 != 0) {
+                    fn_800F8574(lbl_8087F048, this, m14F4, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                }
+            }
+        }
+        if (mMotion.mTracks[0].m08 < 15.0f) {
+            m1538 = 1;
+        }
+        break;
+    }
+}
+
 // inferred: state 9 (turn, as Em308InvertCrab::fn_802F42CC): turns from m1544 to m1548 in 12 steps between the
 // frames 5 and 16; at the end starts the state m153C against m15C4 / m15BC
-// NONMATCHING: 99.81% - only .sdata2 offsets (the constants of fn_802F97B8, not written yet, come first)
 void Em308ParmCrab::fn_802F9F3C() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -725,24 +844,6 @@ void Em308ParmCrab::fn_802F9F3C() {
             mRot.y = atn::WrapAngle_unk(m1544 + (float)m1540 * d / 12.0f);
         }
     }
-}
-
-// inferred: plays an effect on the model (as in game/Em308InvertCrab.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
-    atn::Vector3 pos;
-    atn::Vector3 rot;
-    Color4f_unk color;
-    rot.x = 0.0f;
-    rot.y = 0.0f;
-    rot.z = 0.0f;
-    pos.x = 0.0f;
-    pos.y = 0.0f;
-    pos.z = 0.0f;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
 // inferred: death motion: at its end counts m1434 down (the effect at 29), else faces the direction m6B8
