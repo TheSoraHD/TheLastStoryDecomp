@@ -30,8 +30,6 @@ inline bool __IsUnk_80154344(Chara_unk* chara) {
     return chara->mFlag31 && chara->mC48 != 0;
 }
 
-// NONMATCHING: 98.7% - when clearing mFlag31 the original keeps the character in r3 and reloads the
-// flag word; ours keeps the word loaded for the test (character in r4).
 ControlCaught::ControlCaught(Chara_unk* chara, int arg, int count, int motion, int releaseMotion)
     : ControlBase(chara), mCount(count), mMotion(motion), mReleaseMotion(releaseMotion), m18(true),
       m19(true), m1A(true) {
@@ -45,7 +43,7 @@ ControlCaught::ControlCaught(Chara_unk* chara, int arg, int count, int motion, i
     mChara->m560 = 0x11;
     mChara->fn_8016DA4C();
     mChara->fn_80164DCC(1);
-    if (mChara->mFlag31) {
+    if (mChara->IsOnLedge_unk()) {
         mChara->mFlag31 = 0;
     }
     if (mChara->m1208 != 0) {

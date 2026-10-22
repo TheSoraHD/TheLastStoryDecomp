@@ -743,7 +743,7 @@
    "chr::ControlRelease",
    "chr::ControlCaught"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlCharge.cpp",
