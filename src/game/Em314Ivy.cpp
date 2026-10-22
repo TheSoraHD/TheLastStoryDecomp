@@ -273,7 +273,7 @@ void Em314Ivy::fn_803132D0() {
 
 void Em314Ivy::vf30(void* menu) {
     char name[0x100];
-    sprintf(name, "Em314 Ivy[%d]", m58);
+    sprintf(name, "Em314 Ivy[%d]\0", m58);
     void* group;
     if (m54.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
         group = m54.mRes = fn_8008937C(menu, name);

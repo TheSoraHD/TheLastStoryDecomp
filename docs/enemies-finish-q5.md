@@ -23,6 +23,7 @@ game/Em315Coffin.
   variantes). vf0C, vf100/104/108 grandes sin escribir.
   - En el report completo fn_80312EF8 y fn_8031319C estan al 100% (fnstat.py suelto las daba al 99.9% por el
     desplazamiento del pool de .sdata2): 9/18.
+  - vf30 al 100% con el `\0` final del formato "Em314 Ivy[%d]\0" (10/18).
   - vf40: `int state; if (...) state = 8; else state = 13; vf100(state);` da el 100% (el ternario y el if/else con
     dos llamadas no).
 
