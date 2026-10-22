@@ -258,6 +258,31 @@ inline atn::Vector3 GhoulNeg_unk(const atn::Vector3& v) {
     return atn::Vector3(-v.x, -v.y, -v.z);
 }
 
+// inferred: hit by skill 0xCB: the ghoul turns its back to the knockback direction and plays state 12;
+// a hit by skill 0x658 during the head attack (13) raises "HeadAttackNotifyFlag"
+void Em309GhoulSimple::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        vf100(2);
+        return;
+    }
+    if (msg->mData != 0 && msg->mData->m04 == 0xCB) {
+        atn::Vector3 dir = msg->m10;
+        dir.y = 0.0f;
+        if (!((float)__fabs(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+            PSVECNormalize(&dir, &dir);
+            mRot = dir.ToRotation_unk();
+            mRot.y += 3.1415927f;
+        }
+        vfFC();
+        vf100(12);
+    }
+    if (m58C == 13 && msg->mData != 0 && msg->mData->m04 == 0x658) {
+        fn_805A4A1C((SpecialFlag_unk*)&m1560, 1);
+        m1570 = 1;
+    }
+}
+
 // NONMATCHING: 99.96% - stack slots of the direction temporaries of states 9-11 and 12 (~15 variants)
 void Em309GhoulSimple::vf100(int state) {
     if (CharaTask::mFlag2) {

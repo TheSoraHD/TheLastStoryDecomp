@@ -38,6 +38,7 @@ public:
     virtual void vf14();
     virtual void vf20();
     virtual void vf30(void* menu);
+    virtual void vf40(HitInfo_unk* hit);
     virtual void vf54();
     virtual atn::Vector3 vf64(int center);
     virtual float vf90();
