@@ -303,6 +303,25 @@ inline bool Em301LShade::IsMotionEnd_unk() {
     return frame >= mMotion.fn_80097D7C(0);
 }
 
+// inferred: same as PlayEffect_unk with the manager read first (name invented)
+inline void PlayEffectD_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    EffectMgr_unk* mgr = lbl_8087F3C0;
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: same as PlayEffect_unk with the locals in the order color, rot, pos and the manager read last
 // (name invented)
 inline void PlayEffectC_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
@@ -353,7 +372,7 @@ inline void Em301LShade::StartAbsorb_unk(int kind) {
     vf9C(1);
     fn_80239DAC(lbl_8087F3C0, m15F0, 0, 1);
     fn_80232B7C(m15F0, 0);
-    PlayEffectB_unk(&m15F0[m15E4], (Model_unk*)&mMotion);
+    PlayEffectD_unk(&m15F0[m15E4], (Model_unk*)&mMotion);
     m15EC = 300;
     if (m1680.mGlobal >= 0 && fn_805A49E4((SpecialFlag_unk*)&m1680) == 0) {
         fn_805A4A1C((SpecialFlag_unk*)&m1680, 1);
@@ -792,7 +811,6 @@ void Em301LShade::vf14() {
     fn_80149A30();
 }
 
-// NONMATCHING: draft
 void Em301LShade::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mData->m04 == 10000) {
@@ -1113,6 +1131,11 @@ void Em301LShade::fn_802D3370() {
 }
 
 // inferred: party members alive and the ones inside the absorb range (38 * scale around the body)
+// inferred: squared length of a temporary vector (name invented)
+inline float DistSq_unk(const atn::Vector3& v) {
+    return fn_805F9920(&v);
+}
+
 inline void CountNear_unk(Em301LShade* e, int* outNear, int* outCount) {
     atn::Vector3 center = e->mPos;
     int near = 0;
@@ -1121,9 +1144,8 @@ inline void CountNear_unk(Em301LShade* e, int* outNear, int* outCount) {
     center.y += 13.0f * e->m540.x;
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
         if ((c->mStatus.m0C & 0x20) != 0x20) {
-            atn::Vector3 d = c->mPos - center;
             count++;
-            if (fn_805F9920(&d) < radius * radius) {
+            if (DistSq_unk(c->mPos - center) < radius * radius) {
                 near++;
             }
         }
@@ -1135,8 +1157,6 @@ inline void CountNear_unk(Em301LShade* e, int* outNear, int* outCount) {
 // inferred: choice of the next attack (wait state): returns 0 when the shade leaves (hit too often or
 // absorbed); after two attacks it waits, with 40% of the party near it absorbs (state 10), otherwise it
 // swings (state 8)
-// NONMATCHING: 99.9% - scheduling of the count increment in the party loop, and the int-to-float
-// constant lbl_80747090, which is in the .rodata split of game/Em209SmallGolem (other queue, pending)
 int Em301LShade::fn_802D3C74() {
     if (m14E4 == 0) {
         m14EC = 0;
