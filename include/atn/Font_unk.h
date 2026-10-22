@@ -10,9 +10,9 @@ namespace atn {
 // signed widths in 1/32767 units (left bearing, width, right bearing?)
 struct FontGlyph_unk {
     unsigned short mCode; // 0x00
-    unsigned short m02;
-    unsigned short m04;
-    unsigned short m06;
+    short m02; // u
+    short m04; // v
+    short m06; // width in the texture
     short m08;
     short m0A;
     short m0C;
@@ -56,9 +56,11 @@ struct FontGlyphRef_unk {
     int mFont;  // 0x0C
 };
 
-// inferred: 0x20 bytes, 0x100 of them at 0x1260 (used by the text drawing fn_8006D7B0)
-struct FontCache_unk {
-    unsigned char m00[0x20];
+// inferred: vertex of the text drawing fn_8006D7B0 (0x20 bytes, 4 per character)
+struct FontVertex_unk {
+    float mPos[3];         // 0x00
+    unsigned int mColor;   // 0x0C
+    float mUV[4];          // 0x10: u, v and the corner (0/1, 0/1)
 };
 
 // inferred: entry of "cp932_unicode.tbl"
@@ -76,7 +78,7 @@ public:
     Texture_unk mTextures[7][2][4];  // 0x0000: [font][style][size]
     FontInfo_unk mInfos[7][2][4];    // 0x0A80
     LH_Binary mBinaries[7][2][4];    // 0x10A0
-    FontCache_unk m1260[0x100];      // 0x1260
+    FontVertex_unk mVertices[0x40][4]; // 0x1260: quads waiting to be drawn
     unsigned short m3260[0x80][0x100];   // 0x3260: SJIS -> unicode ([lead byte - 0x80][trail byte])
     unsigned short m13260[0x100][0x100]; // 0x13260: unicode -> SJIS ([high byte][low byte])
     LH_Binary mTable;                // 0x33260: "cp932_unicode.tbl"

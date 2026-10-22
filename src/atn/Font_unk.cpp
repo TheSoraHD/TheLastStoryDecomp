@@ -252,7 +252,177 @@ extern "C" int fn_8006D680(Font_unk* self, unsigned int code, float size, int fo
     return found;
 }
 
-// fn_8006D7B0 (0x1798 bytes): text drawing with GX, not decompiled yet
+// inferred: text drawing with GX (0x1798 bytes)
+// NONMATCHING: draft - the original keeps the constants in double stack slots, builds the
+// positions with Vector3 temporaries and has its own register allocation; structure only.
+
+union FontWGPipe_unk {
+    float f;
+    unsigned int u;
+};
+#define FONT_GX_FIFO (*(volatile FontWGPipe_unk*)0xCC008000)
+
+extern "C" void* lbl_8087EEE0; // inferred: graphics device
+extern "C" void fn_800763C0(void* device, int map, Texture_unk* tex); // inferred: loads a texture
+extern "C" void GXBegin(int type, int fmt, unsigned short n);
+extern "C" double floor(double x);
+
+// inferred: draws the pending quads (written out at every use in the original: no calls)
+#define FONT_FLUSH(tex)                                                                                       \
+    if ((flags & 4) == 4) {                                                                                   \
+        fn_800763C0(lbl_8087EEE0, 0, tex);                                                                    \
+        GXBegin(0x80, 0, count * 4);                                                                          \
+        FontVertex_unk* fv = self->mVertices[0];                                                              \
+        for (int fi = 0; fi < count; fi++) {                                                                  \
+            for (int fj = 0; fj < 4; fj++) {                                                                  \
+                FONT_GX_FIFO.f = fv[fj].mPos[0];                                                              \
+                FONT_GX_FIFO.f = fv[fj].mPos[1];                                                              \
+                FONT_GX_FIFO.f = fv[fj].mPos[2];                                                              \
+                FONT_GX_FIFO.u = (fv[fj].mColor << 8) | (fv[fj].mColor >> 24);                                \
+                FONT_GX_FIFO.f = fv[fj].mUV[0];                                                               \
+                FONT_GX_FIFO.f = fv[fj].mUV[1];                                                               \
+            }                                                                                                 \
+            fv += 4;                                                                                          \
+        }                                                                                                     \
+    } else {                                                                                                  \
+        fn_800763C0(lbl_8087EEE0, 0, tex);                                                                    \
+        GXBegin(0x80, 0, count * 4);                                                                          \
+        FontVertex_unk* fv = self->mVertices[0];                                                              \
+        for (int fi = 0; fi < count; fi++) {                                                                  \
+            for (int fj = 0; fj < 4; fj++) {                                                                  \
+                FONT_GX_FIFO.f = fv[fj].mPos[0];                                                              \
+                FONT_GX_FIFO.f = fv[fj].mPos[1];                                                              \
+                FONT_GX_FIFO.u = (fv[fj].mColor << 8) | (fv[fj].mColor >> 24);                                \
+                FONT_GX_FIFO.f = fv[fj].mUV[0];                                                               \
+                FONT_GX_FIFO.f = fv[fj].mUV[1];                                                               \
+            }                                                                                                 \
+            fv += 4;                                                                                          \
+        }                                                                                                     \
+    }
+
+#define FONT_VERTEX(v, px, py, u, t, s, r)                                                                    \
+    {                                                                                                         \
+        Vector3 p;                                                                                            \
+        p = Vector3(px, py, 0.0f);                                                                            \
+        PSMTXMultVec(self->m33268, &p, &p);                                                                   \
+        *(Vector3*)(v).mPos = p;                                                                              \
+        (v).mColor = color;                                                                                   \
+        (v).mUV[0] = u;                                                                                       \
+        (v).mUV[1] = t;                                                                                       \
+        (v).mUV[2] = s;                                                                                       \
+        (v).mUV[3] = r;                                                                                       \
+    }
+
+// inferred: adds the quad of a character
+#define FONT_QUAD(l, t, r, b)                                                                                 \
+    {                                                                                                         \
+        FontVertex_unk* qv = self->mVertices[count];                                                          \
+        FONT_VERTEX(qv[0], l, t, u0, v0, 0.0f, 0.0f)                                                          \
+        FONT_VERTEX(qv[1], r, t, u1, v0, 1.0f, 0.0f)                                                          \
+        FONT_VERTEX(qv[2], r, b, u1, v1, 1.0f, 1.0f)                                                          \
+        FONT_VERTEX(qv[3], l, b, u0, v1, 0.0f, 1.0f)                                                          \
+        count++;                                                                                              \
+    }
+
+extern "C" void fn_8006D7B0(Font_unk* self, float x, float y, float size, float height, float spacing,
+                            const wchar_t* text, int arg6, unsigned int flags, int font, unsigned int color, float ox,
+                            float oy) {
+    unsigned int len = wcslen(text);
+    int count = 0;
+    Texture_unk* curTex = 0;
+    int passes = ((flags & 2) == 2 || (flags & 8) == 8 || (flags & 0x10) == 0x10) + 1;
+    for (int pass = 0; pass < passes; pass++) {
+        float w = 0.0f;
+        for (unsigned int i = 0; i < len; i++) {
+            unsigned short c = text[i];
+            FontGlyphRef_unk ref;
+            if (!fn_8006D680(self, c, size, font, &ref)) {
+                w += size;
+            } else {
+                Texture_unk* tex = &self->mTextures[ref.mFont][ref.mStyle][ref.mSize];
+                if ((curTex != tex && count > 0) || count >= 0x40) {
+                    FONT_FLUSH(curTex)
+                    count = 0;
+                }
+                FontInfo_unk& info = self->mInfos[ref.mFont][ref.mStyle][ref.mSize];
+                FontGlyph_unk& g = info.mGlyphs[ref.mGlyph];
+                float base = floor(info.m14 * height + 0.1f);
+                float a = g.m08 / 32767.0f;
+                float b = g.m0C / 32767.0f;
+                float gw = g.m0A / 32767.0f;
+                float u0 = g.m02 / 32767.0f;
+                float v0 = g.m04 / 32767.0f;
+                float uw = g.m06 / 32767.0f;
+                float a2 = 2.0f * a;
+                float gw2 = 2.0f * gw;
+                float b2 = 2.0f * b;
+                float u1 = u0 + uw;
+                float v1 = v0 + info.m0C;
+                curTex = tex;
+                float off;
+                if ((flags & 1) == 1) {
+                    w += a2 * size;
+                    off = 0.0f;
+                } else if (c < 0xFF) {
+                    off = 0.5f * (0.5f * ((1.0f - gw2) * size));
+                } else {
+                    off = 0.5f * ((1.0f - gw2) * size);
+                }
+                unsigned int repeat = 0;
+                if (c == 0x2015) {
+                    for (unsigned int k = i + 1; k < len && text[k] == c; k++) {
+                        gw2 += gw2;
+                        repeat++;
+                    }
+                }
+                w -= size * 0.0f;
+                float top = y + base;
+                float bottom = top + height;
+                float left = off + w + x;
+                float right = gw2 * size + left;
+                if ((flags & 2) == 2 && pass == 0) {
+                    FONT_QUAD(left + ox, top + oy, right + ox, bottom + oy)
+                } else if ((flags & 8) == 8 && pass == 0) {
+                    for (int k = 0; k < 4; k++) {
+                        if (count >= 0x40) {
+                            FONT_FLUSH(curTex)
+                            count = 0;
+                        }
+                        float dx = k == 0 ? -ox : (k == 1 ? ox : 0.0f);
+                        float dy = k == 2 ? -oy : (k == 3 ? oy : 0.0f);
+                        FONT_QUAD(left + dx, top + dy, right + dx, bottom + dy)
+                    }
+                } else if ((flags & 0x10) == 0x10 && pass == 0) {
+                    for (int k = 0; k < 8; k++) {
+                        if (count >= 0x40) {
+                            FONT_FLUSH(curTex)
+                            count = 0;
+                        }
+                        float dx = k < 3 ? -ox : (k >= 5 ? ox : 0.0f);
+                        float dy = (k == 0 || k == 3 || k == 5) ? -oy : ((k == 2 || k == 4 || k == 7) ? oy : 0.0f);
+                        FONT_QUAD(left + dx, top + dy, right + dx, bottom + dy)
+                    }
+                } else {
+                    FONT_QUAD(left, top, right, bottom)
+                }
+                if ((flags & 1) == 1) {
+                    w += gw2 * size;
+                    w += b2 * size;
+                } else if (c < 0xFF) {
+                    w += 0.5f * size;
+                } else {
+                    w += size;
+                }
+                w -= size * 0.0f;
+                i += repeat;
+            }
+            w += spacing;
+        }
+    }
+    if (curTex != 0 && count > 0) {
+        FONT_FLUSH(curTex)
+    }
+}
 
 // inferred: width of a wide string
 // NONMATCHING: 90% - float register allocation and loop shape
