@@ -38,3 +38,8 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     `fn_80094958`; arregla el r3/r4 del pool. Quedan los slots de a/c (6 ordenes probados).
   - ctor 99.77% (3 intentos mas: literal con `=`, puntero aparte, params aparte) y vf3C 99.71% (frsp de la z en el
     ToRotation inline, familia ya documentada; 3 intentos): sin cambios.
+- `game/MapPartsLocatorSet` (9/13, sin cambios): `vf2C` 99.45% (3 intentos: puntero aparte, temporal con nombre,
+  conversion implicita) y ctor 99.91% son registros del ctor inline de `std::string` desde `const char*`
+  (r27/r28, r29/r30: misma familia que el ctor de Em201ZanGurg); `fn_8049B1F0` 97.3% (6 intentos: `mData[i]`,
+  local `inst`, offset en bytes, indice sin signo, helper): MWCC reduce `i * 4` a una variable de induccion que el
+  original no tiene. `vf24` 87.9% saltada (ya investigada, lectura doble de la caja).
