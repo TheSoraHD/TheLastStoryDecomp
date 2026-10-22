@@ -36,6 +36,7 @@ public:
     void fn_802F93F0(); // inferred: chooses the next action
     void fn_802F97B8(); // inferred: state 8 (needle)
     void fn_802F9F3C(); // inferred: state 9 (turn)
+    void fn_802FB0C4(); // inferred: state 12 (escape)
     inline int OnWater_unk();
     inline void ResetAttack_unk();
     inline void StopAttack_unk();
@@ -78,7 +79,8 @@ public:
     int m1590;
     float m1594;              // inferred: "EscapeHpRate"
     float m1598;              // inferred: "EscapeSpeed"
-    unsigned char m159C[0x15AC - 0x159C];
+    RoutePlace_unk* m159C;    // inferred: escape place (fn_802FB0C4)
+    atn::Vector3 m15A0;       // inferred: escape point (fn_802FB0C4)
     CrabPlaceList_unk m15AC;  // inferred: "BasePoints"
     int m15B8;                // inferred: flags 1 Move, 2 NormalAttack, 4 Needle, 8 Recover, 0x10 RecoverMove
     CharaTask* m15BC;         // inferred: target

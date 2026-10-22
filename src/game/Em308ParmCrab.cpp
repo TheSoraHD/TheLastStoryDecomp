@@ -124,7 +124,6 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_802FA2F4(Em308ParmCrab* crab);
 extern "C" void fn_802FA764(Em308ParmCrab* crab);
-extern "C" void fn_802FB0C4(Em308ParmCrab* crab);
 extern "C" void fn_80108F38(Effect_unk* effect, const atn::Vector3& pos, int status); // inferred: status effect
 
 // NONMATCHING: 99.83% - r26/r27 of the second std::string constructor (known blocker, as in Em308InvertCrab)
@@ -342,7 +341,7 @@ void Em308ParmCrab::vf10() {
             fn_802FA764(this);
             break;
         case 12:
-            fn_802FB0C4(this);
+            fn_802FB0C4();
             break;
         case 13:
             if (m15CC == 0) {
@@ -845,6 +844,30 @@ void Em308ParmCrab::fn_802F9F3C() {
         }
     }
 }
+
+// inferred: state 12 (escape, as Em308InvertCrab::fn_802F5370): runs to the escape point m15A0 (route place m159C)
+// and attacks the target when it arrives (within 20). inferred: the rotation is computed and not used
+// NONMATCHING: 99.86% - only .sdata2 offsets (constants of fn_802FA2F4/fn_802FA764, not written yet)
+void Em308ParmCrab::fn_802FB0C4() {
+    atn::Vector3 rot;
+    atn::Vector3 d = m15A0 - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    rot = d.ToRotation_unk();
+    if (dist < 20.0f) {
+        fn_8016E970(3);
+        m1590 = 0;
+        if (fn_802FBE00(m15BC, 8) == 0) {
+            fn_802FBA30(m15BC);
+        }
+    } else {
+        if (m55C - 6U > 1) {
+            m55C = 3;
+            fn_8017039C(m159C->mId, 0);
+        }
+        fn_802F8EBC();
+    }
+}
+
 
 // inferred: death motion: at its end counts m1434 down (the effect at 29), else faces the direction m6B8
 // NONMATCHING: 98.67% - the original passes &rot to fn_8013CB68 from r31 (the base of the inlined
