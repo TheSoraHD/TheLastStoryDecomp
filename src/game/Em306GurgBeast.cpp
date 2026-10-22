@@ -27,6 +27,56 @@ extern "C" double cos(double x);
 extern "C" void fn_801028E4(Effect_unk* mgr, int arg, CharaTask* chara, int arg2);
 extern "C" void fn_80102824(Effect_unk* mgr, CharaTask* chara, PlayerTask* leader);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
+extern "C" float fn_80011220(float x);       // inferred: fabs (weak copy of another file)
+extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
+Effect_unk* fn_8013A194();                   // inferred: effect/bullet manager (weak copy of another file)
+void* fn_801404F8();                         // inferred: collision world (weak copy of another file)
+// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
+struct BeastSettings_unk {
+    unsigned char m00[0x30];
+    int mFps;
+};
+extern "C" BeastSettings_unk* fn_800F52F8();
+// inferred: frame parameters (lbl_8087EFA8, as in gmk/SparkCube.cpp)
+struct BeastParams_unk {
+    unsigned char m000[0x3A4];
+    float mTimeScale; // 0x3A4
+};
+extern "C" BeastParams_unk* lbl_8087EFA8;
+// inferred: sweep result (as in gmk/Cannonball.cpp); the constructor is called out of line
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x10];
+    atn::Vector3 m10; // inferred: position reached
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    unsigned int m3C; // inferred: flags (bit 0: on the ground)
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f); // inferred: attack hit
+// inferred: weak copies emitted after vf108 (fn_802F0964 is also called by game/Em312DarkServant.cpp,
+// fn_802F0998 by gmk/Cannonball.cpp and gmk/FlamingArrow.cpp)
+// NONMATCHING (fn_802F0998): 56% - the original loads settings->mFps before the lis of the int->float constant
+// (scheduling of the prologue; 6 forms)
+extern "C" inline void fn_802F0964(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int time, int c,
+                                   float f) {
+    fn_800F8C6C(mgr, 0, 0, owner, bullet, id, time, c, f);
+}
+extern "C" inline float fn_802F0988(BeastParams_unk* params) {
+    return params->mTimeScale;
+}
+extern "C" inline BeastParams_unk* fn_802F0990() {
+    return lbl_8087EFA8;
+}
+extern "C" inline float fn_802F0998(BeastSettings_unk* settings) {
+    return -98.1f / (float)(settings->mFps * settings->mFps);
+}
 
 // inferred: the rider's hit handler is called with a second argument (CharaTask::vf3C takes one)
 struct Rider_unk {
@@ -362,6 +412,150 @@ void Em306GurgBeast::vf30(void* menu) {
         group = 0;
     }
     fn_805A5220(group);
+}
+
+// inferred: movement of the states (6/7 wait, 8/9 turn to the goal, 10/11 charge while firing the skill
+// m14EC, 12 jump, 13 skid, 14 end); every inline is called out of line here (inline budget)
+// NONMATCHING: 97.84% - r5/r7 order of the two fn_802F0964 calls (skill and its m5C); the jump table name
+// differs only in the symbol (~8 forms)
+void Em306GurgBeast::vf108() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot(mRot);
+    if (m55C == 2) {
+    switch (m58C) {
+    case 6:
+        mFlag31 = 1;
+        break;
+    case 7:
+        if (m14C0 > m14F0) {
+            mFlag31 = 1;
+        }
+        break;
+    case 8:
+    case 9: {
+        atn::Vector3 goal(m1518 == 0 ? *m14D4->fn_8013C38C() : m1518->mPos);
+        atn::Vector3 d = goal - mPos;
+        if (!(fn_80011220(d.LengthSq_unk()) < 1.1920929e-7f)) {
+            d.Normalize_unk();
+        }
+        m14D8 = d;
+        m14D8.y = 0.0f;
+        float frame = mMotion.fn_80139550(0);
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (frame >= 15.0f) {
+            rot = m14D8.ToRotation_unk();
+        }
+        break;
+    }
+    case 10:
+    case 11:
+        if (m14BC == 0) {
+            float len = mMotion.fn_80097D7C(0);
+            if (mMotion.fn_80139550(0) >= len) {
+                m14BC++;
+                mMotion.fn_80097C08(0, 0x140, 1, 0, 1, 0.0f, 0.1f);
+            }
+        } else if (m14BC == 1) {
+            atn::Vector3 goal(m1518 == 0 ? *m14D4->fn_8013C38C() : m1518->mPos);
+            atn::Vector3 d = goal - mPos;
+            d.y = 0.0f;
+            if (!(fn_80011220(d.LengthSq_unk()) < 1.1920929e-7f)) {
+                d.Normalize_unk();
+            }
+            float step = 0.009424779f;
+            atn::Vector3 diff = d.ToRotation_unk() - m14D8.ToRotation_unk();
+            diff.y = atn::WrapAngle_unk(diff.y);
+            Mtx m;
+            ((atn::Matrix3x4*)m)->fn_8013A13C(diff.y > 0.0f ? step : -step);
+            m14D8.fn_80011410(*(atn::Matrix3x4*)m);
+            speed = 1.0f;
+            rot = m14D8.ToRotation_unk();
+            rate = 2.0f;
+            if (m58C == 10) {
+                if (!m14D4->CanAct_unk() || m14D4->fn_801533C8(m14C8, 0)) {
+                    mFlag31 = 1;
+                    if (fn_801A03E8(m14D8, d) > 0.9659258f) {
+                        m14C4 = 13;
+                    } else {
+                        m14C4 = 12;
+                    }
+                } else if (fn_801A03E8(m14D8, d) < -0.25881904f) {
+                    mFlag31 = 1;
+                    m14C4 = 13;
+                } else if (m14C0 > 180) {
+                    mFlag31 = 1;
+                    m14C4 = 8;
+                } else {
+                    HitInfo_unk* skill = fn_80219E6C(m14EC);
+                    fn_802F0964(fn_8013A194(), this, skill, m14C8, skill->m5C, -1, 0.0f);
+                }
+            } else if (fn_801A03E8(m14D8, d) < -0.25881904f) {
+                mFlag31 = 1;
+                m14C4 = 12;
+            } else if (m14C0 > 180) {
+                mFlag31 = 1;
+                m14C4 = 12;
+            } else {
+                HitInfo_unk* skill = fn_80219E6C(m14EC);
+                fn_802F0964(fn_8013A194(), this, skill, m14C8, skill->m5C, -1, 0.0f);
+            }
+        }
+        break;
+    case 12: {
+        float frame = mMotion.fn_80139550(0);
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (frame <= 57.0f) {
+            float k = 2.0175438f;
+            float scale = fn_802F0988(fn_802F0990());
+            atn::Vector3 move = m14D8 * k;
+            move *= scale;
+            CollResult_unk result;
+            fn_8004D388(fn_801404F8(), &result, &m614, &move, 0x80, &mColli, 0, m620);
+            mPos = result.m10;
+            mPos -= m5A4;
+            mPos.y -= m620;
+            if ((result.m3C & 1) != 1) {
+                m14D8.y += fn_802F0998(fn_800F52F8());
+            } else {
+                m14D8.y = 0.0f;
+            }
+            mRot.y += 0.055115663f;
+            return;
+        }
+        break;
+    }
+    case 13: {
+        float frame = mMotion.fn_80139550(0);
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (frame <= 15.0f) {
+            atn::Vector3 vel(m574);
+            float v = m570;
+            fn_8013CB68(&rot, 1, speed, rate);
+            m574.x = vel.x;
+            m574.z = vel.z;
+            m570 = v;
+            return;
+        }
+        break;
+    }
+    case 14:
+        mFlag31 = 1;
+        break;
+    case 16:
+        return;
+    }
+    } else {
+        fn_805A4254();
+        return;
+    }
+    fn_8013CB68(&rot, 0, speed, m568 * rate);
 }
 
 // inferred: names invented

@@ -22,6 +22,7 @@ public:
     Em308InvertCrab(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em308InvertCrab();
     virtual int vf0C();
+    virtual void vf10();
     virtual void vf14();
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
@@ -35,8 +36,19 @@ public:
     virtual float vf90() { return 3.5f; }
 
     int fn_802F2C50(); // inferred: ground below is water/lava (ray test attributes 0x14, 0x15, 0x1A-0x1D)
+    void fn_802F33A0(); // inferred: movement
+    void fn_802F389C(); // inferred: chooses the next action
+    void fn_802F3BE8(); // inferred: state 8 (needle)
+    void fn_802F42CC(); // inferred: state 9 (turn)
+    void fn_802F469C(); // inferred: state 10 (tackle run)
+    void fn_802F4A98(); // inferred: state 11 (keeps the distance)
+    void fn_802F5370(); // inferred: state 12 (escape)
     void fn_802F566C();
+    inline void ResetAttack_unk();
     void fn_802F58A0();
+    void fn_802F5BCC(CharaTask* target);
+    void fn_802F5F20(CharaTask* target);
+    int fn_802F62A0(CharaTask* target, int next); // inferred: starts a turn towards target
     void fn_802F66CC(); // inferred: death
 
     int m14B0;
@@ -53,7 +65,7 @@ public:
     float m1524;
     HitInfo_unk* m1528;       // inferred: skill 0x3F8
     float m152C;
-    unsigned char m1530[0x1534 - 0x1530];
+    int m1530;                // inferred: next state after the turn (fn_802F62A0)
     int m1534;
     float m1538;
     float m153C;
@@ -63,19 +75,20 @@ public:
     int m1554;
     int m1558;                // inferred: "EscapeCount"
     float m155C;              // inferred: "EscapeSpeed"
-    unsigned char m1560[0x1570 - 0x1560];
+    RoutePlace_unk* m1560;    // inferred: escape place (fn_802F5370)
+    atn::Vector3 m1564;       // inferred: escape point (fn_802F5370)
     InvertList_unk m1570;     // inferred: "BasePoints" (route places)
     int m157C;                // inferred: flags 2 "NormalAttack", 4 "Needle", 8 "Recover"
     int m1580;
     int m1584;
-    unsigned char m1588[0x158C - 0x1588];
+    CharaTask* m1588;         // inferred: target of the turn (fn_802F62A0)
     int m158C;
     int m1590;
     int m1594;
     int m1598;
     int m159C;
     int m15A0;
-    unsigned char m15A4[0x15A8 - 0x15A4];
+    int m15A4;                // inferred: charge counter of the needle (fn_802F3BE8)
     int m15A8;
     atn::EfpHandle_unk m15AC;
     ResLoader_unk m15B8;

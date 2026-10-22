@@ -22,6 +22,7 @@ public:
     Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em308ParmCrab();
     virtual int vf0C();
+    virtual void vf10();
     virtual void vf14();
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
@@ -31,6 +32,14 @@ public:
     virtual float vf90();
 
     void fn_802FC188(); // inferred: death
+    void fn_802F8EBC(); // inferred: movement
+    void fn_802F93F0(); // inferred: chooses the next action
+    void fn_802F97B8(); // inferred: state 8 (needle)
+    void fn_802F9F3C(); // inferred: state 9 (turn)
+    void fn_802FA2F4(); // inferred: state 10 (tackle run)
+    void fn_802FA764(); // inferred: state 11 (keeps the distance)
+    void fn_802FB0C4(); // inferred: state 12 (escape)
+    inline int OnWater_unk();
     inline void ResetAttack_unk();
     inline void StopAttack_unk();
     void fn_802FB6AC(CharaTask* target); // inferred: with the flag 2 of m15B8 moves towards target (state 7)
@@ -60,7 +69,8 @@ public:
     float m1548;
     atn::Vector3 m154C;       // inferred: jump velocity (vf80)
     CrabList_unk m1558;
-    unsigned char m1564[0x1574 - 0x1564];
+    RoutePlace_unk* m1564;    // inferred: place of state 12 (vf10 moves there with fn_8017039C)
+    unsigned char m1568[0x1574 - 0x1568];
     int m1574;
     HitInfo_unk* m1578;       // inferred: skill 0x400
     int m157C;
@@ -71,7 +81,8 @@ public:
     int m1590;
     float m1594;              // inferred: "EscapeHpRate"
     float m1598;              // inferred: "EscapeSpeed"
-    unsigned char m159C[0x15AC - 0x159C];
+    RoutePlace_unk* m159C;    // inferred: escape place (fn_802FB0C4)
+    atn::Vector3 m15A0;       // inferred: escape point (fn_802FB0C4)
     CrabPlaceList_unk m15AC;  // inferred: "BasePoints"
     int m15B8;                // inferred: flags 1 Move, 2 NormalAttack, 4 Needle, 8 Recover, 0x10 RecoverMove
     CharaTask* m15BC;         // inferred: target

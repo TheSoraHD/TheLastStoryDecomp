@@ -31,14 +31,14 @@ public:
     void fn_802F1240(CharaTask* rider); // inferred: drops the rider
     void fn_802F1320(int restart); // inferred: throws the rider off
 
-    int m14D4;
+    CharaTask* m14D4;          // inferred: character the beast charges (vf108)
     atn::Vector3 m14D8;
     int m14E4;                 // inferred: id of the rider ("ride=")
     EnemyTask* m14E8;          // inferred: rider
     int m14EC;                 // inferred: "SkillId"
     int m14F0;                 // inferred: "WaitFrame"
     atn::FixedArray_unk<RoutePlace_unk*, 8> m14F4; // inferred: "HomePoint" list
-    int m1518;
+    RoutePlace_unk* m1518;     // inferred: route place the beast runs to (vf108)
     ResHandle m151C;           // inferred: debug menu group
     int m1520;
     int m1524;                 // inferred: "rideplayer"
