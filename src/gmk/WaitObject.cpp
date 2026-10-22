@@ -1,5 +1,6 @@
 #include "gmk/WaitObject.h"
 #include "atn/Memory.h"
+#include "atn/Csv.h"
 #include "game/CharaTask.h"
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
@@ -20,6 +21,15 @@ extern "C" int sprintf(char* dst, const char* fmt, ...);
 extern "C" double cos(double x);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int rand();
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" int atoi(const char* s);
+extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
+extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
 // inferred: camera (lbl_8087EFB4) and field (lbl_8087F430); classes unknown
 struct WaitCamera_unk {
     unsigned char m00[0x10C];
@@ -195,10 +205,10 @@ void WaitObject::vf10() {
     }
     if ((mStates[m54].mFlags & 8) == 8) {
         float rate = Min_unk(Max_unk((float)m7F8 / mStates[m54].m24, 0.0f), 1.0f);
-        m6C = m7FC + *(atn::Vector3*)&mStates[m54].m18 * rate;
+        m6C = m7FC + mStates[m54].mMove * rate;
     } else if ((mStates[m54].mFlags & 0x10) == 0x10) {
         float rate = Min_unk(Max_unk(1.0f - (float)m7F8 / mStates[m54].m24, 0.0f), 1.0f);
-        m6C = m7FC + *(atn::Vector3*)&mStates[m54].m18 * rate;
+        m6C = m7FC + mStates[m54].mMove * rate;
     } else {
         m6C = m7FC;
     }
@@ -222,6 +232,125 @@ void WaitObject::vf10() {
         GimmickMsg_unk msg(mTriggers[trigger].mNext);
         vf40(&msg);
     }
+}
+
+// inferred: reads the gimmick file (MODEL, MODEL_LOD, MOTION, COLLI_OBJECT, EFP, STATE blocks ended by
+// an empty field, TRIGGER, ROTATION, SCALE)
+// NONMATCHING: 99.95% - the two loop flags of STATE are converted with extrwi instead of srwi, the
+// COLLI temporaries swap r25/r26 and the TRIGGER values are addressed from the trigger (+8)
+void WaitObject::vf20() {
+    char path[0x100];
+    atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
+    csv.fn_8005BCE8(lbl_8087D710);
+    do {
+        const char* field = csv.fn_8005B9CC();
+        if (field[0] == ';') {
+            continue;
+        }
+        if (strcmp(field, "MODEL") == 0) {
+            fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
+            fn_803EC7A0(&mModel, &csv);
+        } else if (strcmp(field, "MODEL_LOD") == 0) {
+            strcpy(path, csv.fn_8005B9CC());
+            fn_80092F1C(&mModel, path, 0, fn_800DC288(csv.fn_8005B9CC()));
+        } else if (strcmp(field, "MOTION") == 0) {
+            strcpy(path, csv.fn_8005B9CC());
+            fn_80097A88(&mModel, fn_802180A8(csv.fn_8005B9CC()), path);
+        } else if (strcmp(field, "COLLI_OBJECT") == 0) {
+            mColli.reset(new (12, "", "", 0) atn::ColliObject());
+            mColli->fn_80058078(csv.fn_8005B9CC());
+        } else if (strcmp(field, "EFP") == 0) {
+            strcpy(path, csv.fn_8005B9CC());
+            mEfp[atoi(csv.fn_8005B9CC())].fn_8023780C(path);
+        } else if (strcmp(field, "STATE") == 0) {
+            WaitState_unk state;
+            int index = atoi(csv.fn_8005B9CC());
+            state.m00 = fn_802180A8(csv.fn_8005B9CC());
+            state.m04 = fn_800DC288(csv.fn_8005B9CC());
+            state.m08 = atoi(csv.fn_8005B9CC()) == 1 ? 1 : 0;
+            state.m09 = atoi(csv.fn_8005B9CC()) == 1 ? 1 : 0;
+            state.m0C = fn_800DC288(csv.fn_8005B9CC());
+            for (;;) {
+                const char* key = csv.fn_8005B9CC();
+                if (*key == 0) {
+                    break;
+                }
+                if (strcmp(key, "COLLI") == 0) {
+                    atn::Vector3 pos;
+                    pos.x = fn_800DC288(csv.fn_8005B9CC());
+                    pos.y = fn_800DC288(csv.fn_8005B9CC());
+                    pos.z = fn_800DC288(csv.fn_8005B9CC());
+                    atn::Matrix3x4 rot;
+                    PSMTXRotRad(rot.m, 'y', m78.y);
+                    PSMTXMultVec(rot.m, &pos, &pos);
+                    pos += m6C;
+                    atn::ColliSphere::Sphere_unk sphere;
+                    sphere.mCenter = pos;
+                    sphere.mRadius = fn_800DC288(csv.fn_8005B9CC());
+                    if (sphere.mRadius > 0.0f) {
+                        atn::ColliSphere* colli = new (12, "", "", 0) atn::ColliSphere();
+                        state.mColli = colli;
+                        colli->mSphere = sphere;
+                        state.mFlags |= 1;
+                    }
+                } else if (strcmp(key, "DRAWOFF") == 0) {
+                    state.mFlags |= 2;
+                } else if (strcmp(key, "NOMOTION") == 0) {
+                    state.mFlags |= 4;
+                } else if (strcmp(key, "TRANS") == 0) {
+                    state.mMove.x = fn_800DC288(csv.fn_8005B9CC());
+                    state.mMove.y = fn_800DC288(csv.fn_8005B9CC());
+                    state.mMove.z = fn_800DC288(csv.fn_8005B9CC());
+                    state.m24 = fn_800DC288(csv.fn_8005B9CC());
+                    atn::Matrix3x4 rot;
+                    PSMTXRotRad(rot.m, 'y', m78.y);
+                    PSMTXMultVec(rot.m, &state.mMove, &state.mMove);
+                    state.mFlags |= 8;
+                } else if (strcmp(key, "TRANSINV") == 0) {
+                    state.mMove.x = fn_800DC288(csv.fn_8005B9CC());
+                    state.mMove.y = fn_800DC288(csv.fn_8005B9CC());
+                    state.mMove.z = fn_800DC288(csv.fn_8005B9CC());
+                    state.m24 = fn_800DC288(csv.fn_8005B9CC());
+                    atn::Matrix3x4 rot;
+                    PSMTXRotRad(rot.m, 'y', m78.y);
+                    PSMTXMultVec(rot.m, &state.mMove, &state.mMove);
+                    state.mFlags |= 0x10;
+                } else if (strcmp(key, "PLAYERONLY") == 0) {
+                    state.mFlags |= 0x20;
+                } else if (strcmp(key, "ATTENTION") == 0) {
+                    state.mFlags |= 0x40;
+                }
+            }
+            mStates[index] = state;
+        } else if (strcmp(field, "TRIGGER") == 0) {
+            WaitTrigger_unk trigger;
+            trigger.mState = atoi(csv.fn_8005B9CC());
+            trigger.mNext = atoi(csv.fn_8005B9CC());
+            trigger.mType = atoi(csv.fn_8005B9CC());
+            for (int i = 0; i < 5; i++) {
+                ((float*)trigger.m08)[i] = fn_800DC288(csv.fn_8005B9CC());
+            }
+            WaitTrigger_unk* slot = &mTriggers[mNumTriggers];
+            if (slot != 0) {
+                *slot = trigger;
+            }
+            mNumTriggers++;
+        } else if (strcmp(field, "ROTATION") == 0) {
+            atn::Vector3 rot;
+            rot.x = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+            rot.y = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+            rot.z = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+            m78 += rot;
+        } else if (strcmp(field, "SCALE") == 0) {
+            atn::Vector3 scale;
+            scale.x = fn_800DC288(csv.fn_8005B9CC());
+            scale.y = fn_800DC288(csv.fn_8005B9CC());
+            scale.z = fn_800DC288(csv.fn_8005B9CC());
+            m90.x *= scale.x;
+            m90.y *= scale.y;
+            m90.z *= scale.z;
+        }
+    } while (csv.fn_8005BBF8() != 0);
 }
 
 // inferred: places the collision object with the model and enables it, then enters the start state

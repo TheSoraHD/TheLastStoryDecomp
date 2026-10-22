@@ -15,8 +15,7 @@ namespace gmk {
 // inferred: data of one state ("STATE"/"COLLI"; 0x28 bytes, seven of them). Names invented.
 struct WaitState_unk {
     WaitState_unk()
-        : m00(0), m04(0.0f), m08(1), m09(1), m0C(0.0f), mFlags(0), mColli(0), m18(0.0f), m1C(0.0f), m20(0.0f),
-          m24(0.0f) {}
+        : m00(0), m04(0.0f), m08(1), m09(1), m0C(0.0f), mFlags(0), mColli(0), mMove(0.0f, 0.0f, 0.0f), m24(0.0f) {}
     int m00;
     float m04;
     unsigned char m08;
@@ -24,10 +23,8 @@ struct WaitState_unk {
     float m0C;
     unsigned int mFlags; // 0x10: inferred: bit 1 = no debug draw
     atn::ColliBase* mColli; // 0x14
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
+    atn::Vector3 mMove; // 0x18: inferred: offset of TRANS/TRANSINV
+    float m24;          // inferred: frames of the move
 };
 
 // inferred: trigger of a state ("TRIGGER"; 0x1C bytes, up to 16). Names invented.
@@ -52,7 +49,7 @@ public:
     virtual void vf10();
     virtual void vf14();
     virtual int vf1C();
-    virtual void vf20(); // not decompiled yet
+    virtual void vf20();
     virtual void vf28();
     virtual Model_unk* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
