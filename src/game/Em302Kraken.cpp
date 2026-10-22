@@ -41,6 +41,7 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" float fn_802E2360(Em303KrakenFoot* foot);
+extern "C" int fn_802E2328(Em303KrakenFoot* foot); // inferred: nonzero when the leg can act
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/EnemyTrista.cpp); names invented
 struct KrakenLook_unk {
@@ -169,6 +170,9 @@ struct KrakenGame_unk {
     KrakenBlur_unk m2AC;
 };
 extern "C" KrakenGame_unk* lbl_8087EFA8;
+
+// inferred: default command of fn_802DC8B0 (first object of .data)
+static KrakenCommand_unk sDefaultCommand_unk = {8, 0};
 
 // inferred: commands of "act_command" ({name, id}, terminated by a negative id; names invented)
 struct KrakenCommandName_unk {
@@ -772,8 +776,8 @@ void Em302Kraken::fn_802DB7C8() {
 }
 
 // inferred: plays an effect at a world position (same code in game/Em302KrakenMp.cpp); name invented
-inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
-    fn_80232B7C(0, 0);
+inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+    fn_80232B7C(owner, id);
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -792,7 +796,7 @@ void Em302Kraken::fn_802DBA3C() {
     if (m14C4 - 20U <= 159) {
         if (m14C4 == 23) {
             atn::Vector3 at = mPos + atn::Vector3(0.0f, 70.0f, 0.0f);
-            PlayEffectAt_unk(&m1624, at, 2.5f);
+            PlayEffectAt_unk(0, 0, &m1624, at, 2.5f);
         }
         HitInfo_unk* skill = fn_80219E6C(m1608);
         MtxPtr head = mMotion.GetNodeMtx_unk("head");
@@ -801,6 +805,134 @@ void Em302Kraken::fn_802DBA3C() {
     } else if (m14C4 >= 180) {
         fn_80239DAC(lbl_8087F3C0, this, 101, 1);
     }
+}
+
+// inferred: starts state 6 (rises from the water; kind 0 or 1 picks the motion)
+void Em302Kraken::fn_802DBE70(int kind) {
+    m14C8 = 0;
+    m14C4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 6;
+    fn_8016E970(3);
+    m157C = kind;
+    vf98();
+    m1560 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    switch (m157C) {
+    case 0:
+        mMotion.fn_80097C08(0, 0x2B, 0, 0, 1, 0.0f, 0.1f);
+        break;
+    case 1:
+        mMotion.fn_80097C08(0, 0x2D, 0, 0, 1, 0.0f, 0.1f);
+        break;
+    }
+    m15C8 = lbl_807C7030;
+    PlayEffectAt_unk(this, 20, &m1564, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
+}
+
+// inferred: starts state 7 (sinks): sound, effect and the camp message
+void Em302Kraken::fn_802DC014() {
+    m14C8 = 0;
+    m14C4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 7;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = -1.0f;
+    mMotion.fn_80097C08(0, 0x2D, 0, 0, 1, 0.0f, 0.1f);
+    mMotion.mTracks[0].m08 = mMotion.fn_80097D7C(0);
+    fn_800C344C("SE_EM302_014", &m614, 0, -1, 1.0f);
+    PlayEffectAt_unk(this, 21, &m1570, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x135), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+}
+
+// inferred: same as PlayEffect_unk with the manager read first (as in game/Em302KrakenMp.cpp); name
+// invented
+inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    EffectMgr_unk* mgr = lbl_8087F3C0;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: starts state 11 (anger): effects, sound and the camp message
+void Em302Kraken::fn_802DC1C0() {
+    m14C8 = 0;
+    m14C4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 11;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    m1588 = fn_800C344C("SE_EM302_011", &m614, 0, -1, 1.0f);
+    fn_80232B7C(this, 100);
+    PlayEffect2_unk(&m158C, (Model_unk*)&mMotion);
+    fn_80232B7C(this, 101);
+    PlayEffect2_unk(&m15B0, (Model_unk*)&mMotion);
+    m15C8 = lbl_807C7030;
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+}
+
+// inferred: starts state 12 (dives): asks the pillar of the current appear point to sink
+void Em302Kraken::fn_802DC3D0() {
+    m14C8 = 0;
+    m14C4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 12;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x147, 0, 0, 1, 0.0f, 0.1f);
+    fn_800C344C("SE_EM302_012", &m614, 0, -1, 1.0f);
+    fn_800CB5C8(&m1588, 0, 0);
+    fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+    fn_80232B7C(0, 0);
+    PlayEffect_unk(&m1598, (Model_unk*)&mMotion);
+    GimmickCommon* g;
+    unsigned int index = m1638;
+    if (m1648.empty()) {
+        g = 0;
+    } else {
+        g = lbl_8087F4A0->fn_803EEE10(0x6DD6, m1648[index]);
+        if (g != 0) {
+            KrakenGimmickMsg_unk msg;
+            msg.m00 = 1;
+            msg.m04 = 0;
+            msg.m08 = 0;
+            msg.m0C = 0;
+            msg.m10 = 0;
+            msg.m14 = 0.0f;
+            msg.m18 = 0.0f;
+            msg.m1C = 0.0f;
+            ((KrakenGimmick_unk*)g)->vf40(&msg);
+        } else {
+            g = 0;
+        }
+    }
+    m1654 = g;
 }
 
 // inferred: state 15 (anger)
@@ -884,6 +1016,49 @@ void Em302Kraken::fn_802DC618() {
     game->m2AC = blur;
     fn_800C31F4("SE_EM302_020", 0, -1, 1.0f);
     fn_800EB7A0(this);
+}
+
+// inferred: next command of "act_command" for the legs (called by Em303KrakenFoot); the default
+// command (id 8) when no leg is busy. The limit of idle legs depends on the hit points.
+KrakenCommand_unk* Em302Kraken::fn_802DC8B0() {
+    if (m168C.size() == 0) {
+        return 0;
+    }
+    int busy = 0;
+    int idle = 0;
+    for (unsigned int i = 0; i < m1678.size(); i++) {
+        Em303KrakenFoot* foot = m1678[i];
+        if (fn_802E2328(foot) == 0) {
+            idle++;
+        }
+        if ((foot->mStatus.m0C & 0x20) != 0x20) {
+            if (foot->m58C - 8U <= 3) {
+                busy++;
+            } else if (foot->m14C4 - 8U <= 3) {
+                busy++;
+            }
+        }
+    }
+    float rate = mStatus.m04 / mStatus.mParamB.m84;
+    int limit;
+    if (rate < 0.5f) {
+        limit = 8;
+    } else if (rate < 0.8f) {
+        limit = 6;
+    } else {
+        limit = 4;
+    }
+    if (idle >= limit) {
+        return 0;
+    }
+    if (busy < 1 && m169C <= 0) {
+        m169C = 0;
+        return &sDefaultCommand_unk;
+    }
+    if (m168C.size() <= m1698) {
+        m1698 = 0;
+    }
+    return &m168C[m1698++];
 }
 
 void Em302Kraken::fn_802DDA90() {

@@ -745,8 +745,8 @@ int Em302KrakenMp::fn_802E0890() {
 }
 
 // inferred: plays an effect at a world position (same code in game/Em302Kraken.cpp); name invented
-inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
-    fn_80232B7C(0, 0);
+inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+    fn_80232B7C(owner, id);
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -777,7 +777,7 @@ void Em302KrakenMp::fn_802E10D8(int kind) {
         break;
     }
     m15A0 = lbl_807C7030;
-    PlayEffectAt_unk(&m1520, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
+    PlayEffectAt_unk(0, 0, &m1520, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
     if (lbl_8087F610 != 0) {
         fn_804DA48C(lbl_8087F610, 0);
     }
@@ -796,7 +796,7 @@ void Em302KrakenMp::fn_802E1290() {
     mMotion.fn_80097C08(0, 0x2D, 0, 0, 1, 0.0f, 0.1f);
     mMotion.mTracks[0].m08 = mMotion.fn_80097D7C(0);
     fn_800C344C("SE_EM302_014", &m614, 0, -1, 1.0f);
-    PlayEffectAt_unk(&m152C, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
+    PlayEffectAt_unk(0, 0, &m152C, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
     if (m14FC >= 150 && lbl_8087F610 != 0) {
         fn_804DA48C(lbl_8087F610, 1);
     }

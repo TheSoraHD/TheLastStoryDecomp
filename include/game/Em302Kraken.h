@@ -74,8 +74,12 @@ public:
     void fn_802DB7C8();
     void fn_802DBA3C();
     void fn_802DBC68();
+    void fn_802DBE70(int kind);
+    void fn_802DC014();
+    void fn_802DC1C0();
     void fn_802DC3D0();
     void fn_802DC618(); // inferred: starts state 2 (dead)
+    KrakenCommand_unk* fn_802DC8B0();
     void fn_802DDA90(); // inferred: releases the feet
     void fn_802DDBB0(); // inferred: debug menu entries
     void fn_802DC5B4(int arg); // inferred: starts state 15
@@ -147,7 +151,7 @@ public:
     KrakenFootList_unk m1678;   // inferred: "foot_chara"
     atn::LH_Binary m1684;       // inferred: data file
     std::vector<KrakenCommand_unk> m168C; // inferred: "act_command"
-    int m1698;
+    unsigned int m1698;         // inferred: index into m168C
     int m169C;
     float m16A0;
     ResHandle m16A4;            // inferred: debug menu group
