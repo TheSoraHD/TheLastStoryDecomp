@@ -100,12 +100,12 @@ static inline AiList_unk* GetList_unk() {
     return lbl_8087EE64;
 }
 
-// NONMATCHING: 92.79% - the original reloads lbl_8087EE64 inside the copy loop (ours reuses the
-// load of the condition); tried an inline accessor and a pointer walk
+// inferred: the original reloads lbl_8087EE64 inside the copy loop; only a volatile read of the
+// pointer in the body reproduces it (the loop condition alone keeps the plain load)
 extern "C" void fn_8001A464(CharaTask** list) {
     int i;
     for (i = 0; i < GetList_unk()->mCount && i < 16; i++) {
-        list[i] = GetList_unk()->mCharas[i];
+        list[i] = (*(AiList_unk* volatile*)&lbl_8087EE64)->mCharas[i];
     }
     for (; i < 16; i++) {
         list[i] = 0;

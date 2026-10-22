@@ -21,9 +21,7 @@ INCLUDES
 
 #define assert(x)
 
-// inferred: stripped from the game; MSL stricmp stands in for strcasecmp
-extern int stricmp(const char*, const char*);
-#define strcasecmp stricmp
+extern int strcasecmp(const char*, const char*);
 // inferred: stripped from the game (no definition left)
 extern void TableMap(HashTable table, TableMapFn fn, void* clientData);
 

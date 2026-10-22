@@ -61,9 +61,9 @@ int stricmp(const char*, const char*);
 /* the target symbol of strnicmp (a branch to __msl_strnicmp) has an automatic name */
 #define strnicmp fn_8068B1F8
 int strnicmp(const char*, const char*, size_t);
-#define _stricmp stricmp
+#define _stricmp strcasecmp
 #define _strnicmp strnicmp
-#define strcasecmp stricmp
+int strcasecmp(const char*, const char*);
 #define strncasecmp strnicmp
 
 /* gsPlatformSocket.h, Revolution */

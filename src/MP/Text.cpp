@@ -230,6 +230,56 @@ extern "C" MpRewardRow_unk* fn_8050652C(MpRewardTable_unk* table, int id) {
     return 0;
 }
 
+// inferred: pair of values of a reward row (both > 0 when set)
+struct MpRewardPair_unk {
+    int m00;
+    int m04;
+    int m08;
+};
+
+extern "C" int rand();
+
+// inferred: shuffles the values of the 16 rows of `pairs` (fields +4/+8, stopping at the first one
+// that is not positive) into `out`; returns 0 if there were none. fn_8050655C (not decompiled)
+// is between this function and fn_8050652C in the original.
+// NONMATCHING: 94.5% - the original loads each value once into r5 before the size check and keeps
+// an unused counter in r7; registers of the erase loop (tried value locals, index/pointer loops,
+// pair struct forms: 10 attempts)
+extern "C" int fn_80506C10(atn::FixedArray_unk<int, 16>* out, MpRewardPair_unk* pairs) {
+    atn::FixedArray_unk<int, 16> values;
+    for (int i = 0; i < 16; ++i, pairs = (MpRewardPair_unk*)((char*)pairs + 8)) {
+        if (pairs->m04 <= 0) {
+            break;
+        }
+        if (values.size() < 16) {
+            values.push_back(pairs->m04);
+        }
+        if (pairs->m08 <= 0) {
+            break;
+        }
+        if (values.size() < 16) {
+            values.push_back(pairs->m08);
+        }
+    }
+    if (values.size() == 0) {
+        return 0;
+    }
+    out->clear();
+    unsigned int n = values.size();
+    for (unsigned int i = 0; i < n; i++) {
+        unsigned int k = rand() % values.size();
+        if (out->size() < 16) {
+            out->push_back(values[k]);
+        }
+        int* it = &values[k];
+        for (unsigned int j = (it - &values[0]); j < values.size() - 1; j++) {
+            values.mData[j] = values.mData[j + 1];
+        }
+        values.mSize = values.size() - 1;
+    }
+    return 1;
+}
+
 // ---------------------------------------------------------------------------------------------
 // inferred: entry with a text (0x1C bytes; constructor 0x805072C4, which clears the whole object
 // after constructing the string member)
@@ -322,11 +372,14 @@ extern "C" void fn_80507310(MpLevelTable_unk* table, const char* data, int size)
 }
 
 // inferred: level reached with `exp` (the first one above it, else the last)
-// NONMATCHING: 98.2% - r5/r7 of the count
+// NONMATCHING: 98.2% - r5/r7 of the count (close-units qD: size local, separate assignment, pointer
+// arithmetic, unsigned/int index forms: no change)
 extern "C" MpLevel_unk* fn_805075C4(MpLevelTable_unk* table, int exp) {
     unsigned int n = table->mLevels.mSize - 1;
     for (unsigned int i = 0; i < n; i++) {
-        MpLevel_unk* e = &table->mLevels.mData[i];
+        // inferred: the data pointer is reloaded every iteration (volatile read; visible where the
+        // function is inlined twice in fn_80507654)
+        MpLevel_unk* e = &(*(MpLevel_unk* volatile*)&table->mLevels.mData)[i];
         if (exp < e->mExp) {
             return e;
         }
@@ -349,7 +402,6 @@ extern "C" MpLevel_unk* fn_80507610(MpLevelTable_unk* table, int exp) {
 }
 
 // inferred: the two experiences are in different levels
-// NONMATCHING: 93.8% - the original reloads the table data in both inlined searches
 extern "C" int fn_80507654(MpLevelTable_unk* table, int a, int b) {
     MpLevel_unk* la = fn_805075C4(table, a);
     MpLevel_unk* lb = fn_805075C4(table, b);

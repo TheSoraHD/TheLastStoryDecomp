@@ -4,6 +4,8 @@
 #include "atn/Task.h"
 #include "atn/FixedArray.h"
 
+class GimmickCommon;
+
 namespace MP {
 
 // inferred: d2anime task used by the popup (fn_801F3FF8); only the members used here
@@ -15,7 +17,7 @@ struct PopupD2A_unk : public atn::Task {
 // inferred: one popup slot (0xC bytes); names invented
 struct PopupSlot_unk {
     PopupSlot_unk() : mTarget(0), mDist(1.0e16f), mDot(0.0f) {}
-    void* mTarget; // inferred: character shown in the slot
+    GimmickCommon* mTarget; // inferred: item shown in the slot (a gimmick of type 0x12)
     float mDist;
     float mDot;
 };

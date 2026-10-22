@@ -123,8 +123,6 @@ extern "C" void fn_80575FCC(EventSequence_unk* seq) {
 }
 
 // inferred: loads the event `path`
-// NONMATCHING: 97.4% - saved registers: the original keeps seq/pool/p/arg/path in r31/r30/r29/r28/r27
-// (path last), here path gets r31 (tried member function, static helper, locals moved up).
 extern "C" void fn_80576030(EventSequence_unk* seq, const char* path, void* arg) {
     if (strstr(path, ".event") != 0) {
         fn_8057D5F4(seq, path, arg);
@@ -134,7 +132,8 @@ extern "C" void fn_80576030(EventSequence_unk* seq, const char* path, void* arg)
             if (*p == '/') {
                 p++;
             }
-            strcpy(name, p + strlen("event2/"));
+            p += strlen("event2/");
+            strcpy(name, p);
             char* ext = strstr(name, ".event");
             if (ext != 0) {
                 *ext = 0;
@@ -164,7 +163,8 @@ extern "C" int fn_Stripped_unk(const char* path) {
 // inferred: flags the cuts that contain actions of kinds 0x10, 0x2F, 0x11 and 0x12
 // NONMATCHING: 95.2% - register allocation: the original keeps the four counters in r31..r28 and the
 // pointers in volatile registers; here the cut pointer takes r31 (tried int/unsigned counter,
-// accessor for the cut, switch).
+// accessor for the cut, switch; close-units qD: 10 more forms of the counters, cut access and
+// tests, none better).
 extern "C" void fn_80576258(EventSequence_unk* seq) {
     for (unsigned int i = 0; i < seq->mCuts.mSize; i++) {
         EventCut_unk* cut = seq->mCuts.mData[i].mPtr;

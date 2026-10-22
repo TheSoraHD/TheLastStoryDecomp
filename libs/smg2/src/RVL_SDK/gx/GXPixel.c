@@ -53,6 +53,9 @@ void GXSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz, f32 farz, GXColor
 
         SC_TEV_FOG_PARAM_2_SET_B_SHF(fog2, b_s);
         SC_TEV_FOG_PARAM_2_SET_RID(fog2, 0xF0);
+
+        GX_WRITE_RA_REG(fog1);
+        GX_WRITE_RA_REG(fog2);
     }
 
     a_hex = (*(u32*)&a);
@@ -75,8 +78,6 @@ void GXSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz, f32 farz, GXColor
     SC_TEV_FOG_COLOR_SET_RID(fogclr, 0xF2);
 
     GX_WRITE_RA_REG(fog0);
-    GX_WRITE_RA_REG(fog1);
-    GX_WRITE_RA_REG(fog2);
     GX_WRITE_RA_REG(fog3);
     GX_WRITE_RA_REG(fogclr);
     BP_SENT();
