@@ -21,6 +21,7 @@
 #include "game/Em101ElderZesya.h"
 #include "game/Em201ZanGurg.h"
 #include "game/Em205Ogre.h"
+#include "game/Em301LShade.h"
 #include "game/Em303KrakenFoot.h"
 #include "game/Em303KrakenFootMp.h"
 #include "game/Em306GurgBeast.h"
@@ -591,7 +592,6 @@ extern "C" void* fn_802B23E8(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_802BA92C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802C0C38(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_802C7BE4(void* self, atn::Task* parent, void* data);
-extern "C" void* fn_802D0038(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802D7480(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802DDDB8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802F1524(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -652,11 +652,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 29:
-            p = ::operator new(0x16b0, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802D0038(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em301LShade(parent, info);
             break;
         case 20:
             p = ::operator new(0x1860, 3, "", "", 0);
