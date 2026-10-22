@@ -55,7 +55,7 @@ public:
     virtual void vf20(); // not decompiled yet
     virtual void vf28();
     virtual Model_unk* vf38();
-    virtual int vf40(GimmickMsg_unk* msg);    // not decompiled yet
+    virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual void vf4C(CharaTask* chara);
@@ -67,6 +67,7 @@ public:
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
+    inline void PlayEfp_unk(); // inferred: name invented
     int fn_8041AAC0(); // inferred: index of the trigger of the current state that fires (-1 if none)
     // inferred: a character of the manager is in the area of the trigger (weak copies 0x8041B28C
     // npc, 0x8041B4D8 enemy, 0x8041B724 player)

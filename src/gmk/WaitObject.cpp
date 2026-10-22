@@ -19,6 +19,22 @@ extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" int sprintf(char* dst, const char* fmt, ...);
 extern "C" double cos(double x);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" int rand();
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8;
+};
+struct Color4f_unk {
+    Color4f_unk(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
+    float r, g, b, a;
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: bullet manager (lbl_8087F048, see gmk/Brazier.cpp)
 struct WaitBullets_unk;
 extern "C" WaitBullets_unk* lbl_8087F048;
@@ -60,6 +76,20 @@ struct WaitTarget_unk {
 };
 
 namespace gmk {
+
+// inferred: plays the effect of a state on the model (the vectors and the color are locals; name
+// invented)
+inline void WaitObject::PlayEfp_unk() {
+    fn_80232B7C(this, m54);
+    lbl_8087F3C0->mB8 = 1;
+    atn::EfpHandle_unk* efp = &mEfp[m54];
+    Model_unk* model = &mModel;
+    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+    Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+    lbl_8087F3C0->mB8 = 0;
+}
 
 GimmickCommon* WaitObject::fn_80418EAC(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
@@ -131,7 +161,8 @@ void WaitObject::vf14() {
 }
 
 // inferred: places the collision object with the model and enables it, then enters the start state
-// NONMATCHING: 99.9% - only the names of the safe-bool member pointers of boost::scoped_ptr
+// NONMATCHING: 99.9% - stack slots of the two safe-bool temporaries swapped, and the names of the
+// safe-bool member pointers of boost::scoped_ptr
 // (lbl_8078DC40/lbl_8078DC4C in the original, local objects here; see vf1C)
 void WaitObject::vf28() {
     vf2C();
@@ -385,6 +416,62 @@ int WaitObject::vf44(GimmickHitMsg_unk* msg) {
         GimmickMsg_unk next(t->mNext);
         vf40(&next);
         break;
+    }
+    return m54;
+}
+
+// inferred: switches the state: effect and motion of the state, collision of the state, timers of
+// the type 1 triggers (mValue frames plus a random part)
+// NONMATCHING: 99.2% - order of the stores of the two zero vectors of the effect (as
+// gmk::OpenBoard::vf10) and the load of the blend of the state before the motion id
+int WaitObject::vf40(GimmickMsg_unk* msg) {
+    if (msg == 0) {
+        return 0;
+    }
+    if (msg->mType >= 1) {
+        fn_80239DAC(lbl_8087F3C0, this, m54, 1);
+        m54 = msg->mType;
+        if ((unsigned int)m54 > 6) {
+            m54 = 0;
+        }
+        PlayEfp_unk();
+        m7F8 = 0;
+        if (mColli) {
+            mColli->mFlags |= 1;
+        }
+        WaitState_unk* state = &mStates[m54];
+        mModel.fn_80097C08(0, state->m00, state->m08, state->m09, 1, state->m04, 0.1f);
+        mModel.mTracks[0].m08 = state->m0C;
+        if ((state->mFlags & 4) == 4) {
+            mModel.mTracks[0].m0C = 0.0f;
+        } else {
+            mModel.mTracks[0].m0C = 1.0f;
+        }
+        for (int i = 0; i < 7; i++) {
+            if (mStates[i].mColli != 0) {
+                mStates[i].mColli->mFlags &= ~1;
+            }
+        }
+        if (vf5C() != 0 && state->mColli != 0) {
+            state->mColli->mFlags |= 1;
+        }
+        for (unsigned int i = 0; i < mNumTriggers; i++) {
+            WaitTrigger_unk* t = &mTriggers[i];
+            if (t->mState == m54 && t->mType == 1) {
+                WaitArea_unk* area = (WaitArea_unk*)t->m08;
+                area->mAngle = area->mRadius;
+                if (area->mValue > 0.0f) {
+                    area->mAngle += (float)(rand() % (int)area->mValue);
+                }
+            }
+        }
+    } else {
+        vf2C();
+        fn_80239DAC(lbl_8087F3C0, this, m54, 1);
+        m54 = msg->mType;
+        if (mColli) {
+            mColli->mFlags &= ~1;
+        }
     }
     return m54;
 }
