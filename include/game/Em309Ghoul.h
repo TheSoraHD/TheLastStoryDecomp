@@ -19,12 +19,15 @@ public:
     virtual int vf0C();
     virtual void vf14();
     virtual void vf20();
+    virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
+    virtual void vf54();
     virtual atn::Vector3 vf64(int center);
 
     void fn_803057A8(); // inferred: reads the data file
     void fn_802FF6C4(); // inferred: picks the target (the party leader when m1524 reaches m16F8)
     int fn_80304B40();  // inferred: nonzero while the players stay grouped
+    inline void Die_unk(int motion, int flag);
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
     void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
     void fn_803010BC(); // inferred: starts state 12 (messages 0x149/0x14B)
@@ -34,7 +37,9 @@ public:
     CharaTask* m14EC;         // inferred: target
     int m14F0;
     int m14F4;
-    unsigned char m14F8[0x150C - 0x14F8];
+    unsigned char m14F8[0x14FC - 0x14F8];
+    float m14FC;              // inferred: damage taken
+    unsigned char m1500[0x150C - 0x1500];
     int m150C;
     unsigned char m1510[0x1518 - 0x1510];
     int m1518;
@@ -61,12 +66,16 @@ public:
     unsigned char m1618[0x1670 - 0x1618];
     chr::CharaData_unk* m1670; // inferred: passed to fn_8017A300
     atn::LH_Xsca m1674[2];
-    unsigned char m1684[0x168C - 0x1684];
+    unsigned char m1684;      // inferred: set at death (1 if the ghoul dies in state 12)
+    float m1688;
     ResHandle m168C;          // inferred: debug menu group
     int m1690;                // inferred: "DebugDisp"
     unsigned char m1694[0x16E0 - 0x1694];
     float m16E0;              // inferred: debug sphere radius
-    unsigned char m16E4[0x16F8 - 0x16E4];
+    unsigned char m16E4[0x16EC - 0x16E4];
+    float m16EC;              // inferred: radius of the damage spheres
+    float m16F0;              // inferred: height offset of the damage spheres
+    unsigned char m16F4[0x16F8 - 0x16F4];
     int m16F8;                // inferred: frames before the leader becomes the target
     unsigned char m16FC[0x1700 - 0x16FC];
 };

@@ -27,6 +27,11 @@ extern "C" void fn_800638B0(void* draw, float a, float b, const atn::Vector3* fr
                             unsigned int color);
 extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, float radius, int color, float arg);
 
+extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk;
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: per-player weights of an effect (floats at +0x128); names invented
 struct GhoulWeights_unk {
@@ -41,8 +46,14 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
+extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 
 Em309Ghoul::~Em309Ghoul() {}
+
+// inferred: node position (name invented, as in game/Em205Ogre.cpp)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
 
 int Em309Ghoul::vf0C() {
     int ret = 1;
@@ -87,6 +98,46 @@ int Em309Ghoul::vf0C() {
     return ret;
 }
 
+// inferred: start of the death state (names invented)
+inline void Em309Ghoul::Die_unk(int motion, int flag) {
+    m14F0 = 0;
+    m14F4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80097CCC(&mMotion, 2, 0.0f);
+    m58C = 2;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
+    m1684 = flag;
+    m1688 = 0.0f;
+    fn_80370320(lbl_8087F430, 0xD0, 1, 0);
+}
+
+void Em309Ghoul::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    m14FC += msg->m68;
+    if (m55C == 6 && m560 == 22 && (m58C == 1 || m58C == 6 || m58C == 8)) {
+        m58C = 0;
+        m14F0 = 0;
+        m14F4 = 0;
+    }
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        if (m58C == 12) {
+            vf44();
+            Die_unk(0x37, 1);
+            fn_80239DAC(lbl_8087F3C0, this, 0x131, 1);
+            fn_800EB7A0(this);
+        } else {
+            fn_80239DAC(lbl_8087F3C0, this, 0x190, 1);
+            vf44();
+            Die_unk(0x2E, 0);
+            fn_800EB7A0(this);
+        }
+    }
+}
+
 atn::Vector3 Em309Ghoul::vf64(int center) {
     atn::Vector3 result = mPos;
     if (center == 0) {
@@ -109,6 +160,25 @@ void Em309Ghoul::vf44() {
     m15B0 = 30;
     if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+    }
+}
+
+// NONMATCHING: 93.27% - r6/r7 of the sum temporaries and the place of the "spine1" address load (scheduled
+// before the first copy in the original); 6 variants (named temporaries, helpers, node pointer apart)
+void Em309Ghoul::vf54() {
+    if (m624.mSize != 0) {
+        m624.mData[0].m04.mRadius = 10.0f;
+        m624.mData[0].m04.mCenter = mPos + m5A4;
+        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
+        m624.mData[1].m04.mRadius = m16EC;
+        m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+        m624.mData[1].m04.mCenter.y += m16F0;
+        m624.mData[2].m04.mRadius = 0.7f * m16EC;
+        m624.mData[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+        m624.mData[2].m04.mCenter.y += 0.5f * m16F0;
+    }
+    if (m1690 != 0) {
+        fn_80063D3C(lbl_8087EEB0, &m624.mData[1].m04.mCenter, 20.0f, 0xFFFF00FF, 1000.0f);
     }
 }
 

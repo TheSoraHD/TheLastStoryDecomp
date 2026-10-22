@@ -49,6 +49,8 @@ game/Em315Coffin.
   y fn_802FF6C4 (eleccion del objetivo: el lider del grupo cuando m1524 llega a m16F8; pesos por jugador del
   efecto) al 100%. vf20 (0x802FF604, capsula) 99.48%: r5/r6 de las copias de temporales (familia `__VecCopy`).
   Las 20 restantes son grandes (0.5-4.6 KB).
+  - Segunda vuelta (11/33): vf40 (0x802FE3E4, dano acumulado y muerte con dos motions, inline `Die_unk`) al 100%;
+    vf54 (0x802FF2E4, tres esferas de dano en "spine1") 93.27% (r6/r7 de los temporales de suma).
 - Pools de cadenas renombrados a `@stringBase0` en Em309Ghoul (0x80748A14), Em309GhoulSimple (0x80748DC0),
   Em310Gargoyle (0x80748FE8) y Em315Coffin (0x80749390): sin cambio en el recuento, pero las llamadas con
   cadenas ya comparan el nombre real.
@@ -71,7 +73,8 @@ game/Em315Coffin.
   fn_8030B5B0 -> `vf40__13Em310GargoyleFP11HitInfo_unk`.
 - symbols.txt: fn_802FD134 -> `vf0C__10Em309GhoulFv`, fn_802FF604 -> `vf20__10Em309GhoulFv`, fn_802FF6C4 ->
   `fn_802FF6C4__10Em309GhoulFv`, fn_80304B40 -> `fn_80304B40__10Em309GhoulFv`, fn_803057A8 ->
-  `fn_803057A8__10Em309GhoulFv` (las dos ultimas solo declaradas, sin escribir).
+  `fn_803057A8__10Em309GhoulFv` (las dos ultimas solo declaradas, sin escribir), fn_802FE3E4 ->
+  `vf40__10Em309GhoulFP11HitInfo_unk`, fn_802FF2E4 -> `vf54__10Em309GhoulFv`.
 - include/game/Em309Ghoul.h: campos sacados del relleno (m14EC, m150C, m1518, m1524, m1614 `GimmickCommon*`,
   m16F8); solo la usa Em309Ghoul.cpp.
 - symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
