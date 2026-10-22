@@ -17,7 +17,7 @@ Em205Ogre 17/21, Em208Queen 21/29, Em209SmallGolem 14/22.
   fn_80281ED8 y fn_802829DC. NONMATCHING: ctor 96.45% (registros de std::string), vf0C 99.90% (push_back,
   caso abierto; pool de __allocate en otra unidad), vf10 99.23% (slots de pila, ~20 variantes), vf14
   93.04%, vf54 99.31% (__VecCopy), fn_8027EB14 99.76% (slots del dash), fn_8027F69C 99.12%, fn_80281924
-  99.84%, fn_80281F88 97.13%, fn_802826A0 99.88% (f0/f3 de ToRotationZ_unk).
+  99.84%, fn_80281F88 97.51%, fn_802826A0 99.88% (f0/f3 de ToRotationZ_unk).
 - `game/Em202SpiderBase` (14/23 -> 15/23): escritas vf0C (lector CSV), vf10, fn_80285064 (estado 8, aguja
   con matriz z/y/x) y fn_80285FA0 (estado 11, mantiene la distancia). El fuente estaba en otro orden que el
   .dol: reordenado por direccion, el pool .sdata2 queda identico. fn_802857B4 al 100% (if anidado con el
@@ -43,7 +43,24 @@ Em205Ogre 17/21, Em208Queen 21/29, Em209SmallGolem 14/22.
   cambiando a mano el 5.0f de la cabecera: las 5 funciones suben al 100%. No se toca la cabecera compartida
   (CharaTask.h): pendiente.
 
+## Resumen final
+
+report.json: 7139 -> 7149 funciones al 100% (lost 0, fuzzdrop sin bajadas contra start-q11; main.dol OK).
+Por unidad (inicio -> final): Em202Spider 11 -> 15/25, Em202SpiderBase 14 -> 15/23, Em205Ogre 17 -> 19/21,
+Em208Queen 21 -> 22/29, Em209SmallGolem 14 -> 16/22. Ninguna unidad enlazada (`matching: true`): todas
+tienen funciones NONMATCHING (registros/pila, push_back, __VecCopy, std::string del ctor). Ya no queda
+ninguna funcion sin escribir en las cinco unidades.
+
 ## Decisiones tomadas sin el usuario
+
+- **symbols.txt (Em209SmallGolem)**: fn_802CD73C -> vf10__15Em209SmallGolemFv (ranura 0x10 de la vtable).
+- **Orden del fuente**: Em202SpiderBase y Em205Ogre reordenados por direccion del .dol (solo se mueven
+  definiciones; el pool de cadenas/.sdata2 sigue el orden de definicion).
+- Em209SmallGolem vf10: `GolemUIHint_unk` (derivada de GameUIElem1C_unk con un ctor de tres valores) para
+  la pista del HUD, y `GolemMaterial_unk` como vista local de Material_unk con los colores 0x1C/0x20 (la
+  cabecera compartida solo nombra el de 0x18; no se toca).
+- Em208Queen: `QueenDamage_unk::Set_unk(kind, value)` (setter inventado) y `FindRoutePlace3_unk` (copia del
+  helper que lee lbl_8087F430->m10D8 dentro).
 
 - **symbols.txt (Em202Spider)**: fn_8027CF28/D838 -> vf0C/vf10__11Em202SpiderFv (ranuras 0x0C/0x10 de la
   vtable 0x80785500); fn_8027EB14/F504/FA7C/80280184/805C8/81F88 -> `<fn>__11Em202SpiderFv`. Datos locales:

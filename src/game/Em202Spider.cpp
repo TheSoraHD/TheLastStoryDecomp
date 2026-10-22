@@ -1153,27 +1153,21 @@ inline int WrapIndex_unk(int i, int n) {
 
 // inferred: starts state 8: finds the wall at the left or the right (whichever is nearer), the outer
 // point nearest to it and the two needle points around it (m14F4), and runs to the outer point
-// NONMATCHING: 97.13% - registers and stack slots of the ray results and of the distance temporaries
+// NONMATCHING: 97.51% - r29/r30 of this and the temporaries, stack slots of the distance temporaries (the
+// original keeps them at the bottom of the frame); 4 variants (local order, FrontDir_unk, named vectors)
 void Em202Spider::fn_80281F88() {
+    int outer = 0;
     CollResult_unk left;
     CollResult_unk right;
     atn::Vector3 to;
     atn::Vector3 wall;
-    atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', mRot.y);
-    PSMTXMultVec(m, &fwd, &fwd);
-    to = atn::Vector3(1000.0f * -fwd.x, 0.0f, 0.0f);
+    to = atn::Vector3(1000.0f * -FrontDir_unk(this).x, 0.0f, 0.0f);
     to += mPos;
     int hitLeft = fn_8004ED34(lbl_8087EE98, &left, &mPos, &to, 0x80000000, 0, 0);
     if (hitLeft != 0 && (left.m38->m08 & 4) != 4) {
         hitLeft = 0;
     }
-    atn::Vector3 fwd2(0.0f, 0.0f, 1.0f);
-    Mtx m2;
-    PSMTXRotRad(m2, 'y', mRot.y);
-    PSMTXMultVec(m2, &fwd2, &fwd2);
-    to = atn::Vector3(0.0f, 0.0f, 1000.0f * -fwd2.z);
+    to = atn::Vector3(0.0f, 0.0f, 1000.0f * -FrontDir_unk(this).z);
     to += mPos;
     int hitRight = fn_8004ED34(lbl_8087EE98, &right, &mPos, &to, 0x80000000, 0, 0);
     if (hitRight != 0 && (right.m38->m08 & 4) != 4) {
@@ -1192,7 +1186,6 @@ void Em202Spider::fn_80281F88() {
     } else {
         return;
     }
-    int outer = 0;
     float best = 1e16f;
     for (unsigned int i = 0; i < m14CC.size(); i++) {
         float dist = DistSq_unk(wall - m14CC[i]->mPos);
