@@ -10,6 +10,10 @@
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" double sqrt(double x);
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11);
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
@@ -463,6 +467,73 @@ void Em309Ghoul::vf14() {
     if (m1690 != 0) {
         fn_800638B0(lbl_8087EEB0, 1000.0f, -1.0f, &mPos, &(m15D8 * 100.0f + mPos), 0xFF0000FF);
         fn_80063D3C(lbl_8087EEB0, &m1608, m16E0, -1, 1000.0f);
+    }
+}
+
+// NONMATCHING: 99.55% - only the offset of "righthand" in the string pool and the label of the 2*pi double
+// (strings/constants of functions not written yet); the angle wrap is written out because the inline
+// WrapAngle_unk uses the float 2*pi
+void Em309Ghoul::fn_80302B84() {
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
+        m14F0 = 0;
+        m14F4 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        fn_80097CCC(&mMotion, 2, 0.0f);
+        m58C = 0;
+        fn_8016E970(3);
+        m15F0++;
+    }
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= 32.0f && frame <= 45.0f) {
+        atn::Vector3 hand = GetNodePos_unk(mMotion.GetNodeMtx_unk("righthand"));
+        hand.y -= m16F4;
+        atn::Vector3 d = hand - lbl_8087F8A0->mHead->mPos;
+        float dist = sqrt(d.x * d.x + d.z * d.z);
+        atn::Vector3 rot = lbl_8087F8A0->mHead->mRot;
+        float a = fmod(rot.y - mRot.y, 6.2831854820251465);
+        if (a > 3.1415927f) {
+            a -= 6.2831855f;
+        }
+        if (a < -3.1415927f) {
+            a += 6.2831855f;
+        }
+        atn::Vector3 ofs(0.0f, 0.0f, 0.0f);
+        ofs.x = atn::Abs_unk(a) > 1.5707964f ? 5.0f : -5.0f;
+        atn::Matrix3x4 m;
+        Mtx ry;
+        Mtx ty;
+        Mtx rx;
+        Mtx tx;
+        Mtx rz;
+        Mtx tz;
+        atn::Matrix3x4* p = &m;
+        p->SetIdentity();
+        if (0.0f != rot.z) {
+            PSMTXRotRad(rz, 'z', rot.z);
+            PSMTXConcat(p->m, rz, tz);
+            __MtxCopy(p->m, tz);
+        }
+        if (0.0f != rot.x) {
+            PSMTXRotRad(rx, 'x', rot.x);
+            PSMTXConcat(p->m, rx, tx);
+            __MtxCopy(p->m, tx);
+        }
+        if (0.0f != rot.y) {
+            PSMTXRotRad(ry, 'y', rot.y);
+            PSMTXConcat(p->m, ry, ty);
+            __MtxCopy(p->m, ty);
+        }
+        PSMTXMultVec(m.m, &ofs, &ofs);
+        if (dist < 20.0f) {
+            atn::Vector3 pos = lbl_8087F8A0->mHead->mPos + ofs;
+            Effect_unk* mgr = lbl_8087F048;
+            fn_800FAB80(mgr, this, fn_80219E6C(0x64E), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        }
+        mRot.y += 0.11219973f;
+        if (m1690 != 0) {
+            fn_80063D3C(lbl_8087EEB0, &hand, 10.0f, 0xFFFF0000, 10000.0f);
+        }
     }
 }
 

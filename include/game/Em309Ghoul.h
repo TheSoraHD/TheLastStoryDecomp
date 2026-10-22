@@ -31,6 +31,7 @@ public:
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
     void fn_8030073C(); // inferred: starts state 6 (motion 0x145) facing the target
     void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
+    void fn_80302B84(); // inferred: update of state 7 (throws bullets 0x64E at the leader, frames 32-45)
     void fn_80304718(); // inferred: update of the appearance (m14F0 0: rising from the coffin, 1: jump out)
     void fn_80300AD8(); // inferred: starts state 10 (motion 0x14A, message 0x147) keeping the state 11 rotation
     void fn_80300DF4(); // inferred: starts state 11 (motion 0x14A, effect m15A0)
@@ -89,7 +90,7 @@ public:
     unsigned char m16E4[0x16EC - 0x16E4];
     float m16EC;              // inferred: radius of the damage spheres
     float m16F0;              // inferred: height offset of the damage spheres
-    unsigned char m16F4[0x16F8 - 0x16F4];
+    float m16F4;              // inferred: height subtracted from the hand when aiming
     int m16F8;                // inferred: frames before the leader becomes the target
     unsigned char m16FC[0x1700 - 0x16FC];
 };

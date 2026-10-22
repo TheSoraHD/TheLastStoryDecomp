@@ -89,6 +89,10 @@ game/Em315Coffin.
   NONMATCHING 99.38% (99.79% en el report): registros del bucle inline de FindPlace_unk y offset de
   "em_dg010Boss" en el pool. El efecto va en un helper inline con locales pos/rot/color en ese orden y el modelo
   se pide antes de los locales.
+  fn_80302B84 (estado 7: lanza balas 0x64E hacia el lider entre los fotogramas 32 y 45 desde el nodo
+  "righthand", girando 0.1122 rad por fotograma) escrita: NONMATCHING 99.55% (99.996% en el report): solo el
+  offset de "righthand" en el pool y la etiqueta del double 2*pi. El ajuste del angulo va escrito con
+  `fmod(a, 6.2831854820251465)` (double) porque `WrapAngle_unk` usa el float.
 - `game/Em310Gargoyle` (2/21 -> 3/21): vf40 (0x8030B5B0, derrota: banderas 0xCF/0x66 del campo y efecto
   ef_uc037) al 100%. vf3C (0x8030B41C, modos de dano "DamageCalcMode") 99.99%: solo el offset de "head" en el
   pool. vf0C (0x8030A6A0) 98.41%: r3/r4 de la palabra de banderas y del pool, r3/r4/r5 de los stores finales
