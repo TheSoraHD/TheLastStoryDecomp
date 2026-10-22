@@ -177,7 +177,22 @@ extern "C" RareEntry_unk* fn_80213B08(int kind, int sub, int num) {
 // inferred: whether a row has an item of a kind and sub kind whose number (range) contains value
 static inline int HasItem_unk(RareEntry_unk* entry, int kind, int sub, int value) {
     for (unsigned int i = 0; i < entry->mItems.mSize; i++) {
-        RareItem_unk* item = &entry->mItems.mData[i];
+        RareItem_unk* item = &entry->mItems.mData[(int)i];
+
+        if (item->mKind == kind && item->mSub == sub) {
+            if (item->mNum2 > 0) {
+                return item->mNum <= value && value <= item->mNum2;
+            }
+            return item->mNum == value;
+        }
+    }
+    return false;
+}
+// inferred: the same with the value before the sub kind (second copy used by fn_80213E60)
+static inline int HasItem2_unk(RareEntry_unk* entry, int kind, int value, int sub) {
+    for (unsigned int i = 0; i < entry->mItems.mSize; i++) {
+        RareItem_unk* item = &entry->mItems.mData[(int)i];
+
         if (item->mKind == kind && item->mSub == sub) {
             if (item->mNum2 > 0) {
                 return item->mNum <= value && value <= item->mNum2;
@@ -189,8 +204,7 @@ static inline int HasItem_unk(RareEntry_unk* entry, int kind, int sub, int value
 }
 
 // inferred: whether an item is rare for a row
-// NONMATCHING: 98.68% - register numbering inside the inlined HasItem_unk (the original keeps the
-// sub kind and value in r5/r6, swapped in fn_80213E60); tried other parameter orders and forms
+// The int index compared as unsigned gives the register order of the original
 extern "C" bool fn_80213B78(int id, int kind, int sub, int num) {
     ItemData_unk* item = fn_80211480(id);
     bool result;
@@ -212,7 +226,9 @@ extern "C" bool fn_80213B78(int id, int kind, int sub, int num) {
 }
 
 // inferred: as fn_80213B78 for item data
-// NONMATCHING: 98.90% - as fn_80213B78
+// NONMATCHING: 99.87% - the original loads the value (0x80/0x7C) before the sub kind (0x78) for the
+// inlined search; with HasItem2_unk (value before sub) the registers match but the loads are in the
+// other order. Tried: HasItem_unk, locals for the arguments, reference parameters, compare orders.
 extern "C" bool fn_80213E60(ItemData_unk* item, int kind, int sub, int num) {
     if (item == 0) {
         return false;
@@ -220,13 +236,13 @@ extern "C" bool fn_80213E60(ItemData_unk* item, int kind, int sub, int num) {
     if (fn_80206B9C(item->m04)) {
         WeaponData_unk* weapon = fn_80206C50(item->m04);
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
-        return weapon->m114 != 0 || (entry != 0 && HasItem_unk(entry, 1, weapon->m78, weapon->m80));
+        return weapon->m114 != 0 || (entry != 0 && HasItem2_unk(entry, 1, weapon->m80, weapon->m78));
     }
     if (fn_8020EF04(item->m04)) {
         EquipData_unk* equip = fn_8020EFEC(item->m04);
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
-        return entry != 0 && HasItem_unk(entry, 2, equip->mKind, equip->mId);
+        return entry != 0 && HasItem2_unk(entry, 2, equip->mId, equip->mKind);
     }
     RareEntry_unk* entry = fn_80213B08(kind, sub, num);
-    return item->mC2 != 0 || (entry != 0 && HasItem_unk(entry, 0, 0, item->m04));
+    return item->mC2 != 0 || (entry != 0 && HasItem2_unk(entry, 0, item->m04, 0));
 }
