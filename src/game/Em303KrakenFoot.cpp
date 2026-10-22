@@ -26,6 +26,34 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+// inferred: ray test result (as in game/Em101LittleZesya.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04;
+    atn::Vector3 m10; // inferred: hit position
+    unsigned char m1C[0x28 - 0x1C];
+    atn::Vector3 m28; // inferred: offset added to the hit position
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em303KrakenFootMp.cpp)
+struct EffectMgr_unk;
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 
 Em303KrakenFoot::Em303KrakenFoot(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C8(20.0f), m14CC(0), m14D0(0), m14D8(0),
@@ -139,6 +167,112 @@ void Em303KrakenFoot::vf3C(HitInfo_unk* hit) {
     vf40(hit);
 }
 
+void Em303KrakenFoot::vf54() {
+    m624.clear();
+    Item14_unk item;
+    item.m04.mRadius = m5B0;
+    item.m04.mCenter = mPos + m5A4;
+    bool up = (mStatus.mParamB.m9C & 0x40U) == 0x40U;
+    if (up) {
+
+        item.m04.mCenter.y -= item.m04.mRadius;
+    } else {
+        item.m04.mCenter.y += item.m04.mRadius;
+    }
+    m624.push_back(item);
+}
+
+// inferred: CharaTask::CanAct_unk written out (names invented)
+inline bool FootActive_unk(CharaTask* c) {
+    bool r = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        r = true;
+    }
+    return r;
+}
+inline bool FootFree_unk(CharaTask* c) {
+    bool r = false;
+    if (FootActive_unk(c) && !c->mStatus.IsState_unk(0x20)) {
+        r = true;
+    }
+    return r;
+}
+inline bool FootGrappled_unk(CharaTask* c) {
+    return c->m55C == 6 && c->m560 == 28;
+}
+inline bool FootCanAct_unk(CharaTask* c) {
+    bool r = false;
+    if (FootFree_unk(c) && !FootGrappled_unk(c)) {
+        r = true;
+    }
+    return r;
+}
+
+// inferred: releases the caught character and puts it back on the ground (name invented)
+inline void Em303KrakenFoot::Release_unk() {
+    if (m14D0 != 0) {
+        if (FootCanAct_unk(m14D0)) {
+            m14D0->fn_8015AC48(-1);
+        }
+        if (m14D0 != 0) {
+            m14D0->mF1C = 0;
+            atn::Vector3 to = m14D0->mPos;
+            atn::Vector3 from = mPos;
+            from.y = to.y;
+            CollResult_unk result;
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
+                result.m10 += result.m28;
+                m14D0->mPos = result.m10;
+            }
+            m14D0 = 0;
+        }
+    }
+}
+
+// NONMATCHING: 99.33% - registers of the inlined CanAct_unk of the caught character (r0/r4/r6 rotated; same
+// family as Em314Ivy::vf104 and Em309GhoulSimple::vf10; ~12 forms of the inline tried)
+void Em303KrakenFoot::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    int heavy = 0;
+    if (msg->mData->m01 == 0) {
+        heavy = 1;
+    }
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        if (heavy) {
+            fn_802E55B0(1);
+        } else {
+            fn_802E55B0(2);
+        }
+    } else {
+        m14B8 = 0;
+        m14BC = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 16;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x33, 0, 1, 1, 0.0f, 0.1f);
+        if (m14D0 != 0) {
+            if (FootCanAct_unk(m14D0)) {
+                m14D0->fn_8015AC48(-1);
+            }
+            if (m14D0 != 0) {
+                m14D0->mF1C = 0;
+                atn::Vector3 to = m14D0->mPos;
+                atn::Vector3 from = mPos;
+                from.y = to.y;
+                CollResult_unk result;
+                if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
+                    result.m10 += result.m28;
+                    m14D0->mPos = result.m10;
+                }
+                m14D0 = 0;
+            }
+        }
+    }
+}
+
 void Em303KrakenFoot::fn_802E3D60() {
     m14B8 = 0;
     m14BC = 0;
@@ -182,6 +316,52 @@ void Em303KrakenFoot::fn_802E554C(int arg) {
     m58C = 15;
     fn_8016E970(3);
     m14EC = arg;
+}
+
+// NONMATCHING: 99.60% - registers of the inlined CanAct_unk (see vf40)
+void Em303KrakenFoot::fn_802E55B0(int kind) {
+    m14B8 = 0;
+    m14BC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = 2;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    switch (kind) {
+    case 1: {
+        mMotion.fn_80097C08(0, 0x2F, 0, 0, 1, 0.0f, 0.1f);
+        fn_80232B7C(0, 0);
+        Color4f_unk color;
+        atn::Vector3 rot;
+        atn::Vector3 pos;
+        rot.x = 0.0f;
+        rot.y = 0.0f;
+        rot.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        EffectMgr_unk* mgr = lbl_8087F3C0;
+        fn_8023A8B4(mgr, &m14F8, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        break;
+    }
+    case 2:
+        mMotion.fn_80097C08(0, 0x30, 0, 0, 1, 0.0f, 0.1f);
+        break;
+    case 3:
+        mMotion.mTracks[0].m0C = 0.5f;
+        mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+        break;
+    }
+    Release_unk();
 }
 
 void Em303KrakenFoot::vfEC() {

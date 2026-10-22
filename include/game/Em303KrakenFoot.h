@@ -28,6 +28,8 @@ public:
     void fn_802E3D60(); // inferred: starts state 7 (called by the kraken)
     void fn_802E3E38(int arg); // inferred: starts state 8 (m14CC)
     void fn_802E554C(int arg);
+    void fn_802E55B0(int kind); // inferred: damage reaction (called by the kraken)
+    inline void Release_unk(); // inferred: releases the caught character (name invented)
 
     atn::LH_Binary m14B0;     // inferred: data file
     int m14B8;
@@ -36,7 +38,7 @@ public:
     int m14C4;
     float m14C8;
     int m14CC;
-    int m14D0;
+    CharaTask* m14D0;         // inferred: caught character (released by vf40/fn_802E55B0)
     void* m14D4;              // inferred: node "catch_point"
     HitInfo_unk* m14D8;       // inferred: "SwingSkillId"
     HitInfo_unk* m14DC;       // inferred: "PoundSkillId"
