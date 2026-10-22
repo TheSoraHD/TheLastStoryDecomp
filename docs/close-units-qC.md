@@ -95,3 +95,6 @@ Hallazgos MWCC (7):
 Hallazgos MWCC (8):
 - Rango con la constante a la izquierda (`v < 0 || 999 < v`) mantiene las dos comparaciones con signo; `v > 999` se pliega en una comparacion sin signo (fn_803CE44C).
 - Campos de un struct empaquetado leidos via inline que toma el struct por valor reproducen la copia a pila (stw x3 + lbz/lhz) del original.
+- game/NewStaffRoll: 8/9. fn_80531E80 (0x80531E80) escrita desde cero (`extern "C"`, la llama Event/ActionEffectPlay): el staff roll llego a la linea END (sin lineas -> 1; ultima linea tipo 4 y mPos >= su Y). Queda fn_80531394 (99.3%, registros).
+- game/HColliData_unk: fn_804405CC (inicializador de dos guardas de .sbss, lbl_8087F3CC/CD) no intentada: sin llamadores y fuera de un patron claro de la fuente.
+- game/GimmickStateCommand: saltada - las funciones pequenas al 0% son copias debiles de inlines que el original llama fuera de linea (presupuesto de inline, documentado en la unidad).

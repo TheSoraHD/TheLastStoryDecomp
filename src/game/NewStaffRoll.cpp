@@ -294,3 +294,15 @@ void NewStaffRoll::vf14() {
         lbl_8087EEB0->mA0 = 18;
     }
 }
+
+// inferred: the staff roll reached its END line
+extern "C" int fn_80531E80(NewStaffRoll* roll) {
+    if (roll->mLines.mSize == 0) {
+        return 1;
+    }
+    NewStaffRoll::Line_unk& last = roll->mLines.mData[roll->mLines.mSize - 1];
+    if (last.mType == 4 && roll->mPos >= last.mY) {
+        return 1;
+    }
+    return 0;
+}
