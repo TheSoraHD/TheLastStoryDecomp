@@ -788,13 +788,13 @@ void Em101ElderZesya::vf50() {
     item.m04.mCenter = mPos + m5A4;
     item.m04.mCenter.y += item.m04.mRadius;
     m624.push_back(item);
-    item.m04.mRadius = 1.5f;
+    item.m04.mRadius = 10.0f;
     item.m04.mCenter = mPos;
     m624.push_back(item);
     mFlagB29 = 1;
 }
 
-// NONMATCHING: 99.9% - the original reloads m624.mData before the copy of the center (one lwz more,
+// NONMATCHING: 99.24% - the original reloads m624.mData before the copy of the center (one lwz more,
 // same open case as CharaTask::vf54)
 // inferred: damage sphere of the body; while a barrier is up a second sphere covers it
 void Em101ElderZesya::vf54() {
@@ -845,7 +845,6 @@ inline void Em101ElderZesya::GetWarp_unk(atn::Vector3* pos, float* rot) {
     }
 }
 
-// NONMATCHING: 99.95% in the direct objdiff (100% in report.json) - only the labels of two .sdata2 floats
 // inferred: same as PlayEffect_unk with the locals in the order of game/Em003LesserDaemon.cpp
 inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     Color4f_unk color;
@@ -957,7 +956,7 @@ void Em101ElderZesya::fn_80258574() {
     *(int*)(m16A0 + 0x14EC) = m14CC;
 }
 
-// NONMATCHING: 99.19% - nonvolatile registers shifted by one (r24-r30: the original keeps the list base in
+// NONMATCHING: 99.33% - nonvolatile registers shifted by one (r24-r30: the original keeps the list base in
 // r24 and the control in r25) and f20/f21 of the frame; same layout as Em003LesserDaemon::fn_8024ED68
 // (8 variants: helper forms of the player test, list hoisted, control hoisted)
 void Em101ElderZesya::fn_80258A50() {
@@ -1077,7 +1076,7 @@ void Em101ElderZesya::fn_80258F1C() {
     }
 }
 
-// NONMATCHING: 94.9% - the original addresses the camera mode (0x4D8) through a base register (addi) while
+// NONMATCHING: 95.14% - the original addresses the camera mode (0x4D8) through a base register (addi) while
 // loading the default parameters; same open case as EnemyJill::fn_80330D74 (3 variants)
 // inferred: state 9 (jump: the camera follows it with the parameters of mode 4)
 void Em101ElderZesya::fn_8025922C() {
@@ -1221,7 +1220,7 @@ inline atn::Vector3 PartyCenter_unk() {
     return center;
 }
 
-// NONMATCHING: 98.8% - r3/r4 of the vector copies (the zero vector and the chosen point; __VecCopy family,
+// NONMATCHING: 99.22% - r3/r4 of the vector copies (the zero vector and the chosen point; __VecCopy family,
 // docs/mwcc-blockers-q3.md) and the order of the two increments of the loop
 // inferred: picks the chant point nearest to the center of the party (m1694)
 void Em101ElderZesya::fn_802598DC() {
@@ -1255,7 +1254,7 @@ inline void Em101ElderZesya::PlayBarrierM_unk(EffectMgr_unk* mgr, atn::EfpHandle
     fn_8023A8B4(mgr, efp, 0, 0, pos, rot, *(const Color4f_unk*)&(&m16C0)[kind], -1, -1, 1, 1.5f);
 }
 
-// NONMATCHING: 98.70% - the argument scheduling of the second and third barrier effects (r4/r5/r7/r8; 4
+// NONMATCHING: 98.87% - the argument scheduling of the second and third barrier effects (r4/r5/r7/r8; 4
 // variants); the dead `b` of the look point flag comes from an if/else in ElderLook_unk::Set_unk
 // inferred: changes the state of a barrier (0 up, 1 hit, 2 broken) and plays its three effects
 void Em101ElderZesya::fn_80259AB4(int index, int state) {

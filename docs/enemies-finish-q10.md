@@ -53,7 +53,9 @@ Em101ElderZesya 10/20, Em101ElderZesyaSecond 11/15, Em101LittleZesya 18/25, Em10
   Siguen: ctor 99.81%, fn_80261A50 98.11%, vf4C 99.83%.
 
 - Repaso de `game/Em101ElderZesya`: `ElderLook_unk::Set_unk` con if/else reproduce la rama muerta del original:
-  fn_80259AB4 97.67% -> 98.70% y vf10 97.39% -> 97.84%.
+  fn_80259AB4 97.67% -> 98.87% y vf10 97.39% -> 97.84%. Corregido un valor de vf50: el radio de la segunda
+  esfera es 10.0f (lbl_80883458), no 1.5f; objdiff lo daba al 100% porque solo compara etiquetas. Con el pool
+  ya identico, fn_80258F1C y fn_8025941C quedan al 100% tambien en el objdiff directo.
 
 ## Decisiones tomadas sin el usuario
 
@@ -141,9 +143,11 @@ Em101ElderZesya 10/20, Em101ElderZesyaSecond 11/15, Em101LittleZesya 18/25, Em10
 
 - El truco de `ElderLook_unk::Set_unk` con if/else deberia servir a los demas usuarios del punto de mira de
   lbl_8087F430 + 0x97C (EnemyJill, Em203GreaterDaemon).
+- objdiff no compara el valor de los floats de .sdata2 (solo la etiqueta): conviene comparar el pool entero
+  (`objdump -s -j .sdata2` de obj/ y src/) para cazar constantes equivocadas (Em101ElderZesya::vf50).
 - `fn_80261A50` de Em101LittleZesyaSecond y los ctor de las tres unidades Zesya siguen con el bloqueo del
   segundo std::string (r26/r27), comun a Em201ZanGurg.
 
 Resultado (report.json, funciones al 100%): em005 8 -> 9/17, Em003LesserDaemon 10 -> 14/22, Em101ElderZesya
-10 -> 12/20 (una de ellas, fn_80258F1C, solo en el report), Em101ElderZesyaSecond 11 -> 12/15, Em101LittleZesya
+10 -> 12/20 (fn_80258F1C ya tambien en el objdiff directo), Em101ElderZesyaSecond 11 -> 12/15, Em101LittleZesya
 18 -> 19/25, Em101LittleZesyaSecond 8 -> 9/15. Global 7110 -> 7120.
