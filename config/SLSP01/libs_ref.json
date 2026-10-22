@@ -139,7 +139,7 @@
    "-DHBM_VERSION=20090303"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/hbm/nw4hbm/math/math_triangular.cpp",
