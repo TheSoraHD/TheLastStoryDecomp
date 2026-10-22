@@ -1176,9 +1176,6 @@ static void fn_806B1CD0(DWCError error, BOOL isChanged, void* param) {
 }
 
 // DWCi_MatchedCallback
-// NONMATCHING: 96.4% - the [**user data] loop reuses stpDwcCnt loaded by the loop test, the
-// original reloads it at the top of the body (same in fn_806B2600); tried node pointer locals,
-// inline accessors and helpers, while loop
 static void fn_806B1CF0(DWCError error, BOOL cancel, BOOL self, BOOL isServer, int index,
                         void* param) {
     int i;
@@ -1202,10 +1199,9 @@ static void fn_806B1CF0(DWCError error, BOOL cancel, BOOL self, BOOL isServer, i
         }
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "[**user data]\n");
         for (i = 0; i < stpDwcCnt->matchcnt.nodeNum; i++) {
+            u8* buf = stpDwcCnt->matchcnt.nodeInfo[i].buf;
             DWC_Printf(DWC_REPORTFLAG_DEBUG, "[%02d] aid = %d  buf[ 0=%d 1=%d 2=%d 3=%d ]\n", i,
-                       stpDwcCnt->matchcnt.nodeInfo[i].aid, stpDwcCnt->matchcnt.nodeInfo[i].buf[0],
-                       stpDwcCnt->matchcnt.nodeInfo[i].buf[1], stpDwcCnt->matchcnt.nodeInfo[i].buf[2],
-                       stpDwcCnt->matchcnt.nodeInfo[i].buf[3]);
+                       stpDwcCnt->matchcnt.nodeInfo[i].aid, buf[0], buf[1], buf[2], buf[3]);
         }
     }
 
@@ -1358,7 +1354,6 @@ static inline void DWCi_DeleteNodeInfo(u8 aid) {
 }
 
 // DWCi_GT2ClosedProcess
-// NONMATCHING: 98.9% - same [**user data] loop difference as fn_806B1CF0
 void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
                  int aid) {
     int profileID = 0;
@@ -1517,10 +1512,9 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
     }
     DWC_Printf(DWC_REPORTFLAG_DEBUG, "[**user data]\n");
     for (i = 0; i < stpDwcCnt->matchcnt.nodeNum; i++) {
+        u8* buf = stpDwcCnt->matchcnt.nodeInfo[i].buf;
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "[%02d] aid = %d  buf[ 0=%d 1=%d 2=%d 3=%d ]\n", i,
-                   stpDwcCnt->matchcnt.nodeInfo[i].aid, stpDwcCnt->matchcnt.nodeInfo[i].buf[0],
-                   stpDwcCnt->matchcnt.nodeInfo[i].buf[1], stpDwcCnt->matchcnt.nodeInfo[i].buf[2],
-                   stpDwcCnt->matchcnt.nodeInfo[i].buf[3]);
+                   stpDwcCnt->matchcnt.nodeInfo[i].aid, buf[0], buf[1], buf[2], buf[3]);
     }
 
     if (stpDwcCnt->matchcnt.qr2IsReserved == 2) {
