@@ -26,6 +26,7 @@ public:
     // inferred: sets the state (m58C) and restarts its step and frame counters (inlined everywhere)
     // (the destructor is implicit: 0x8031AF88, emitted at the end of the file)
     void SetState_unk(int state);
+    void SetAppear_unk(const atn::Vector3& pos, const atn::Vector3& offset); // inferred: inline (name invented)
     void fn_80318F98(); // inferred: empty (called by vf10 before fn_80317EF8)
     // inferred: the move of fn_80319384 has finished (name invented)
     bool IsMoveDone_unk() const { return m151C >= 1.0f; }
