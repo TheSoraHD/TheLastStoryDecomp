@@ -113,6 +113,8 @@ struct KrakenDamage_unk {
 extern "C" void fn_80108C10(Effect_unk* effect, KrakenDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
 extern "C" void fn_80107850(Effect_unk* effect, Model_unk* model);
+extern "C" void fn_801077A8(Effect_unk* effect, Model_unk* model, Model_unk* model2); // inferred: same model twice
+extern "C" int rand();
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
@@ -1045,7 +1047,6 @@ void Em302Kraken::fn_802DAA38() {
             KrakenTarget_unk* t = &m1554[i];
             t->m10 = GetNodePos_unk(m1554[i].mChara->mMotion.GetNodeMtx_unk("hips"));
             m1554[i].m04 = m1554[i].m10;
-            float color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
             fn_8023A680(lbl_8087F3C0, &m1524, -1, 6, &m1554[i].m04, 0, 0, 0, 1.0f, 0, -1, 1);
             PlayEffect_unk(&m1530, (Model_unk*)&m1554[i].mChara->mMotion);
         }
@@ -1144,24 +1145,25 @@ inline void BreakPillars_unk(Em302Kraken* k) {
     unsigned int skip = k->m1638;
     for (i = 0; i < k->m1648.size(); i++) {
         GimmickCommon* g = lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m1648[i]);
-        if (g != 0 && i != skip && g->m54 == 1) {
-            KrakenGimmickMsg_unk msg;
-            msg.m00 = 2;
-            msg.m04 = 0;
-            msg.m08 = 0;
-            msg.m0C = 0;
-            msg.m10 = 0;
-            msg.m14 = 0.0f;
-            msg.m18 = 0.0f;
-            msg.m1C = 0.0f;
-            ((KrakenGimmick_unk*)g)->vf40(&msg);
+        if (g != 0) {
+            int state = g->m54;
+            if (i != skip && state == 1) {
+                KrakenGimmickMsg_unk msg;
+                msg.m00 = 2;
+                msg.m04 = 0;
+                msg.m08 = 0;
+                msg.m0C = 0;
+                msg.m10 = 0;
+                msg.m14 = 0.0f;
+                msg.m18 = 0.0f;
+                msg.m1C = 0.0f;
+                ((KrakenGimmick_unk*)g)->vf40(&msg);
+            }
         }
     }
 }
 
 // inferred: state 12 (big laser)
-// NONMATCHING: 98.8% - the original schedules the load of g->m54 between the compare with `skip` and its
-// branch; 6 variants of the pillar loop
 void Em302Kraken::fn_802DB534() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0) && m14C4 > 180) {
@@ -1508,6 +1510,128 @@ KrakenCommand_unk* Em302Kraken::fn_802DC8B0() {
     return &m168C[m1698++];
 }
 
+// inferred: bit 25 of the flag word at 0x12A4 through an accessor (reloaded before it is cleared, as in
+// gmk/ReinforcePoint.cpp; name invented)
+inline unsigned int IsFlag25_unk(const CharaTask* chara) {
+    return chara->mFlag25;
+}
+
+// inferred: local list of party members (derived from std::vector like the other lists; name invented)
+struct KrakenCharaList_unk : public std::vector<CharaTask*> {};
+
+// inferred: reinforcements of the party: up to `count` members (alive, not held, not hidden) are taken
+// in a fixed order starting at a random slot; state 2 stops them, state 0 stuns them for 900 frames,
+// state 3 binds them (names invented)
+// NONMATCHING: draft - the two push_back of the local vectors are inlined (known open family, see
+// docs/mwcc-blockers.md)
+void Em302Kraken::fn_802DCA34(int state, int count) {
+    static const int sOrder_unk[] = {1, 3, 0, 2, 4, 0};
+    KrakenCharaList_unk party;
+    for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
+        if ((c->mStatus.m0C & 1) == 1 || (c->mStatus.m0C & 0x40) == 0x40 || (c->mStatus.m0C & 0x100) == 0x100 ||
+            (c->mStatus.m0C & 0x20) == 0x20) {
+            continue;
+        }
+        party.push_back(c);
+    }
+    int slot = rand() % 5;
+    int n = party.size();
+    if (count < n) {
+        n = count;
+    }
+    KrakenCharaList_unk targets;
+    while (n > 0) {
+        int index = sOrder_unk[slot];
+        if (index < (int)party.size()) {
+            targets.push_back(party[index]);
+            n--;
+        }
+        if (++slot >= 5) {
+            slot = 0;
+        }
+    }
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    switch (state) {
+    case 2:
+        for (unsigned int i = 0; i < targets.size(); i++) {
+            targets[i]->fn_80166760();
+        }
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x139), *(const wchar_t**)((char*)m60 + 4));
+        fn_80109828(lbl_8087F048, text);
+        break;
+    case 0:
+        for (unsigned int i = 0; i < targets.size(); i++) {
+            targets[i]->mStatus.fn_80133130(1, 900, 0);
+            targets[i]->fn_80167F1C();
+        }
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13B), *(const wchar_t**)((char*)m60 + 4));
+        fn_80109828(lbl_8087F048, text);
+        break;
+    case 3:
+        for (unsigned int i = 0; i < targets.size(); i++) {
+            targets[i]->mStatus.fn_8013310C(0x100, 0);
+            targets[i]->fn_80166D3C(1);
+        }
+        break;
+    }
+}
+
+// inferred: calls the reinforcement enemies: a random share of "reinforce_chara" (range of `level`)
+// appears at the "reinforce_point" places (names invented)
+// NONMATCHING: draft - the two push_back of the local vectors are inlined (known open family)
+void Em302Kraken::fn_802DD1B4(int level) {
+    static const float sRange_unk[3][2] = {{0.25f, 0.5f}, {0.3f, 0.75f}, {0.7f, 1.0f}};
+    if (level < 0 || level >= 3) {
+        return;
+    }
+    float lo = sRange_unk[level][0];
+    float hi = sRange_unk[level][1];
+    unsigned int n = (int)((lo + (hi - lo) * ((float)(rand() % 1001) / 1000.0f)) * m166C.size());
+    if ((int)n <= 0) {
+        return;
+    }
+    KrakenEnemyList_unk enemies;
+    for (unsigned int i = 0; i < n; i++) {
+        enemies.push_back(m166C[i]);
+    }
+    KrakenPlaceList_unk places;
+    for (unsigned int i = 0; i < n; i++) {
+        if (m1660.size() <= i) {
+            break;
+        }
+        places.push_back(m1660[i]);
+    }
+    for (unsigned int i = 0; i < enemies.size(); i++) {
+        if (places.size() <= i) {
+            break;
+        }
+        EnemyTask* e = enemies[i];
+        RoutePlace_unk* place = places[i];
+        fn_80107850(lbl_8087F048, &e->mMotion);
+        fn_801077A8(lbl_8087F048, &e->mMotion, &e->mMotion);
+        fn_80232B7C(e, 1000);
+        PlayEffect_unk(&m14EC, (Model_unk*)&e->mMotion);
+        e->mFlag15 = 0;
+        e->mFlags &= ~4;
+        e->fn_800D246C(0);
+        if (IsFlag25_unk(e)) {
+            e->mFlag25 = 0;
+        }
+        e->mStatus.fn_8012D8B8();
+        e->m58C = 0;
+        e->mC58.mC0 = 1;
+        e->fn_8015495C(0, 1, 1, 1);
+        e->mPos = place->mPos;
+        e->mRot = atn::Vector3(0.0f, place->m14, 0.0f);
+        e->fn_80145334();
+    }
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13D), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+}
+
 void Em302Kraken::fn_802DDA90() {
     for (unsigned int i = 0; i < m1678.size(); i++) {
         Em303KrakenFoot* foot = m1678[i];
@@ -1515,7 +1639,7 @@ void Em302Kraken::fn_802DDA90() {
             foot->mFlag15 = 0;
             foot->mFlags &= ~4;
             foot->fn_800D246C(0);
-            if (foot->mFlag25) {
+            if (IsFlag25_unk(foot)) {
                 foot->mFlag25 = 0;
             }
             foot->mStatus.fn_8012D8B8();

@@ -73,6 +73,7 @@ struct ShadeDamage_unk {
 extern "C" void fn_80108C10(Effect_unk* effect, ShadeDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
 extern "C" void fn_80107850(Effect_unk* effect, Model_unk* model);
+extern "C" void fn_801077A8(Effect_unk* effect, Model_unk* model, Model_unk* model2); // inferred: same model twice
 struct EffectMgr_unk;
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
@@ -1634,6 +1635,68 @@ int Em301LShade::fn_802D6004() {
         }
     }
     return m15AC.size();
+}
+
+// inferred: bit 25 of the flag word at 0x12A4 through an accessor (reloaded before it is cleared, as in
+// gmk/ReinforcePoint.cpp; name invented)
+inline unsigned int IsFlag25_unk(const CharaTask* chara) {
+    return chara->mFlag25;
+}
+
+// inferred: calls the reinforcements: two members of "reinforce_chara" (four the first time) appear at
+// the "reinforce_point" places (names invented)
+// NONMATCHING: draft - the two push_back of the local vectors are inlined (known open family, see
+// docs/mwcc-blockers.md)
+void Em301LShade::fn_802D67F8(int index) {
+    if (index >= 0 && index < 3) {
+        unsigned int n = 2;
+        if (m1624 != 0) {
+            m1624 = 0;
+            n = 4;
+        }
+        ShadeEnemyList_unk enemies;
+        for (unsigned int i = 0; i < n; i++) {
+            if (m1644.size() <= i) {
+                break;
+            }
+            enemies.push_back(m1644[i]);
+        }
+        ShadePlaceList_unk places;
+        for (unsigned int i = 0; i < n; i++) {
+            if (m1638.size() <= i) {
+                break;
+            }
+            places.push_back(m1638[i]);
+        }
+        for (unsigned int i = 0; i < enemies.size(); i++) {
+            if (places.size() <= i) {
+                break;
+            }
+            EnemyTask* e = enemies[i];
+            RoutePlace_unk* place = places[i];
+            fn_80107850(lbl_8087F048, (Model_unk*)&e->mMotion);
+            fn_801077A8(lbl_8087F048, (Model_unk*)&e->mMotion, (Model_unk*)&e->mMotion);
+            fn_80232B7C(e, 1000);
+            PlayEffect_unk(&m1520, (Model_unk*)&e->mMotion);
+            e->mFlag15 = 0;
+            e->fn_80176ACC();
+            e->fn_800D246C(0);
+            if (IsFlag25_unk(e)) {
+                e->mFlag25 = 0;
+            }
+            e->mStatus.fn_8012D8B8();
+            e->m58C = 0;
+            e->mC58.mC0 = 1;
+            e->fn_8015495C(0, 1, 1, 1);
+            e->mPos = place->mPos;
+            e->mRot = atn::Vector3(0.0f, place->m14, 0.0f);
+            e->fn_80145334();
+        }
+        wchar_t text[256];
+        memset(text, 0, sizeof(text));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x127), *(const wchar_t**)((char*)m60 + 4));
+        fn_80109828(lbl_8087F048, text);
+    }
 }
 
 int Em301LShade::fn_802D7058() {
