@@ -32,6 +32,7 @@ public:
     virtual float vf90();
 
     void fn_802FC188(); // inferred: death
+    void fn_802F8EBC(); // inferred: movement
     inline int OnWater_unk();
     inline void ResetAttack_unk();
     inline void StopAttack_unk();

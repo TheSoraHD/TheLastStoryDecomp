@@ -115,7 +115,6 @@ extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStat
                             unsigned int flags, const HitParam_unk* param); // inferred: applies the skill
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: attack hit
-extern "C" void fn_802F8EBC(Em308ParmCrab* crab);
 extern "C" void fn_802F93F0(Em308ParmCrab* crab);
 extern "C" void fn_802F97B8(Em308ParmCrab* crab);
 extern "C" void fn_802F9F3C(Em308ParmCrab* crab);
@@ -310,7 +309,7 @@ void Em308ParmCrab::vf10() {
         if (m58C == 2) {
             vfEC();
         } else {
-            fn_802F8EBC(this);
+            fn_802F8EBC();
         }
     } else {
         switch (m58C) {
@@ -372,7 +371,7 @@ void Em308ParmCrab::vf10() {
                     fn_80170A20(m15BC, 0, 30.0f < r ? 30.0f : r);
                 }
             }
-            fn_802F8EBC(this);
+            fn_802F8EBC();
             fn_802F93F0(this);
             break;
         }
@@ -570,6 +569,43 @@ void Em308ParmCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
     m15D0 = 0;
     mColli.mFlags &= ~1;
     m154C.y -= 0.5f * ((float)m15DC * Gravity_unk(lbl_8087F0A8));
+}
+
+// inferred: movement (as Em308InvertCrab::fn_802F33A0): slower while 0x8000 is set in the status and scaled by the
+// speed rate of the status. inferred: in the route branch `rot` is only written when moving (the original reads
+// it uninitialised otherwise; kept as in the binary)
+void Em308ParmCrab::fn_802F8EBC() {
+    float rate = 1.0f;
+    float speed = 0.0f;
+    if (mStatus.IsState_unk(0x8000)) {
+        rate *= 0.5f;
+    }
+    rate *= mStatus.fn_8012DB04();
+    atn::Vector3 rot;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 v = mRoute.m58;
+        speed = v.Length_unk();
+        if (speed > 0.0001f) {
+            rot = v.GetNormalized_unk().ToRotation_unk();
+        }
+        CharaTask* target = m15BC;
+        v = target->mPos - mPos;
+        v.y = 0.0f;
+        v.Normalize_unk();
+        v.fn_80139F60();
+        mRot.y = v.y;
+        if (m58C == 12) {
+            rate *= m1598;
+        }
+        rate *= mStatus.fn_8012DB04();
+        fn_801426A4(&rot, speed, m568 * rate);
+    } else if (m55C == 6) {
+        fn_8013A258();
+    } else {
+        rot = mRot;
+        fn_8013CB68(&rot, 0, speed, m568 * rate);
+    }
 }
 
 // inferred: plays an effect on the model (as in game/Em308InvertCrab.cpp)
