@@ -22,6 +22,7 @@ public:
     Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em308ParmCrab();
     virtual int vf0C();
+    virtual void vf10();
     virtual void vf14();
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
@@ -31,6 +32,7 @@ public:
     virtual float vf90();
 
     void fn_802FC188(); // inferred: death
+    inline int OnWater_unk();
     inline void ResetAttack_unk();
     inline void StopAttack_unk();
     void fn_802FB6AC(CharaTask* target); // inferred: with the flag 2 of m15B8 moves towards target (state 7)
@@ -60,7 +62,8 @@ public:
     float m1548;
     atn::Vector3 m154C;       // inferred: jump velocity (vf80)
     CrabList_unk m1558;
-    unsigned char m1564[0x1574 - 0x1564];
+    RoutePlace_unk* m1564;    // inferred: place of state 12 (vf10 moves there with fn_8017039C)
+    unsigned char m1568[0x1574 - 0x1568];
     int m1574;
     HitInfo_unk* m1578;       // inferred: skill 0x400
     int m157C;

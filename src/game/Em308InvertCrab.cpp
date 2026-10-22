@@ -101,7 +101,7 @@ struct CrabDamage_unk {
     unsigned int mFlags27_0 : 28;
 };
 extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStatus* status, CharaStatus* owner,
-                            unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred
+                            unsigned int flags, const HitParam_unk* param); // inferred: applies the skill
 // inferred: tutorial message request (as DropTutorial_unk of gmk/DropItem.cpp)
 struct CrabTutorial_unk {
     int m00;
@@ -281,7 +281,7 @@ inline void Em308InvertCrab::ResetAttack_unk() {
 }
 
 // inferred: state machine of the crab
-// NONMATCHING: 98.97% - stack slots of the vectors of states 13/17 and of the tutorial request, registers of the
+// NONMATCHING: 99.43% - stack slots of the vectors of states 13/17 and of the tutorial request, registers of the
 // route table search and of the damage result (~8 forms)
 void Em308InvertCrab::vf10() {
     m1580 = (int)mC58.mC4;
@@ -415,7 +415,7 @@ void Em308InvertCrab::vf10() {
                         1.0f);
         } else {
             CrabDamage_unk result;
-            fn_80040B40(&result, m1550, &mStatus, &mStatus, 0, &lbl_807C6B90, -1, 0);
+            fn_80040B40(&result, m1550, &mStatus, &mStatus, 0, &lbl_807C6B90);
         }
     }
     fn_8014C540();
