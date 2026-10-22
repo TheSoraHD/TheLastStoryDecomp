@@ -47,14 +47,26 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
 
 // inferred: colors of the golem (static array of the file, built by the __sinit 0x802CFFC8)
 struct GolemColor_unk {
+    GolemColor_unk() {}
     GolemColor_unk(float r_, float g_, float b_, float a_) {
         r = r_;
         g = g_;
         b = b_;
         a = a_;
     }
+    GolemColor_unk operator-(const GolemColor_unk& o) const {
+        return GolemColor_unk(r - o.r, g - o.g, b - o.b, a - o.a);
+    }
+    GolemColor_unk operator*(float f) const { return GolemColor_unk(r * f, g * f, b * f, a * f); }
+    GolemColor_unk operator+(const GolemColor_unk& o) const {
+        return GolemColor_unk(r + o.r, g + o.g, b + o.b, a + o.a);
+    }
     float r, g, b, a;
 };
+// inferred: names invented
+inline GolemColor_unk GolemLerp_unk(const GolemColor_unk& a, const GolemColor_unk& b, float t) {
+    return (b - a) * t + a;
+}
 static GolemColor_unk sColor0_unk(0.03f, 0.08f, 0.04f, 1.0f);
 static GolemColor_unk sColor1_unk(0.14f, 0.56f, 0.7f, 1.0f);
 static GolemColor_unk sColor2_unk(0.8f, 0.28f, 0.085f, 1.0f);
@@ -305,6 +317,146 @@ void Em209SmallGolem::vf20() {
     mColli.m3C = a;
     mColli.m48 = b;
     mColli.m54 = radius;
+}
+
+void Em209SmallGolem::fn_802CF054() {
+    float speed = 0.0f;
+    float scale = 1.0f;
+    atn::Vector3 rot = mRot;
+    if (m55C == 7) {
+        atn::Vector3 d = m14B8->mPos - mPos;
+        atn::Vector3 dir = d.GetNormalized_unk();
+        d.y = 0.0f;
+        if (d.Length_unk() < 0.8f * m1518) {
+            speed = 0.0f;
+        } else {
+            speed = dir.Length_unk();
+        }
+        rot = dir.ToRotation_unk();
+    } else if (m55C == 9) {
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = scale;
+        mMotion.mTracks[0].m0C = scale;
+        mMotion.fn_80097C08(0, 2, 1, 0, 1, speed, 0.1f);
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_8013CB68(&rot, 0, speed, m568 * scale);
+}
+
+// inferred: turns to the target on the ground plane (name invented)
+inline void Em209SmallGolem::FaceTarget_unk() {
+    atn::Vector3 d = m14B8->mPos - mPos;
+    d.y = 0.0f;
+    if (!d.IsZero_unk()) {
+        d.Normalize_unk();
+    }
+    mRot = d.ToRotation_unk();
+}
+
+
+// inferred: node position (name invented, as in game/Em209BigGolem.cpp)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: chooses the next attack (state 8 close to the target, else the needles)
+void Em209SmallGolem::fn_802CF3AC() {
+    if (m14B8 == 0) {
+        return;
+    }
+    if (m150C == 0) {
+        if (m14C0 > m1520) {
+            atn::Vector3 d = m14B8->mPos - mPos;
+            d.y = 0.0f;
+            float dist = d.Length_unk();
+            if (dist < m1518) {
+                m14BC = 0;
+                m14C0 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 8;
+                fn_8016E970(3);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.1f);
+                FaceTarget_unk();
+            } else if (dist > m151C && m14C0 > m1524) {
+                fn_802CFB24();
+            }
+        }
+    } else if (m150C == 1 && m14C0 > m1524) {
+        fn_802CFB24();
+    }
+}
+
+extern "C" void fn_801028E4(Effect_unk* mgr, int a, CharaTask* chara, int b); // inferred: revives the character
+
+// inferred: turns back from stone (or to the color of a friend) and revives
+void Em209SmallGolem::fn_802CF728() {
+    bool own = true;
+    if (m154C != 0 && ((CharaTask*)m154C)->mType != 2) {
+        own = false;
+    }
+    float frame0 = mMotion.mTracks[0].m08;
+    float t = frame0 / mMotion.fn_80097D7C(0);
+    if (own) {
+        *(GolemColor_unk*)m14FC = GolemLerp_unk(sColor0_unk, sColor2_unk, t);
+    } else {
+        *(GolemColor_unk*)m14FC = GolemLerp_unk(sColor0_unk, sColor1_unk, t);
+    }
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_801028E4(lbl_8087F048, 0, this, 0);
+        fn_8015495C(0, 1, 1, 1);
+        mC58.mC4 = 0;
+        if (own) {
+            mF18 = mF14;
+            mF14 = 1;
+        } else {
+            mF18 = mF14;
+            mF14 = 0;
+            if (m1544 != 0) {
+                fn_8017A300(m1544);
+            }
+        }
+        mStatus.fn_8012D8B8();
+        mStatus.m224 = mStatus.mParamB.m98;
+        m14BC = 0;
+        m14C0 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 0;
+        fn_8016E970(3);
+    }
+}
+
+// inferred: starts the needle attack (state 6) aimed at the hips of the target
+void Em209SmallGolem::fn_802CFB24() {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 6;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    atn::Vector3 d = m14B8->mPos - mPos;
+    d.y = 0.0f;
+    if (!d.IsZero_unk()) {
+        d.Normalize_unk();
+    }
+    mRot = d.ToRotation_unk();
+    MtxPtr hips = m14B8->mMotion.GetNodeMtx_unk("hips");
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    m14D8 = m14B8->mPos;
+    if (hips != 0) {
+        m14D8 = GetNodePos_unk(hips);
+    }
 }
 
 // inferred: plays the effect of the death sequence (locals in ascending order as in an inline; name invented)

@@ -25,8 +25,14 @@ public:
     virtual void vf9C(int arg);
     virtual void vfEC();
 
+    void fn_802CF054(); // inferred: moves toward the target
+    inline void FaceTarget_unk();
+    void fn_802CF3AC();
+    void fn_802CFB24();
+    void fn_802CF728(); // inferred: state of the revival
+
     atn::LH_Binary m14B0; // inferred: data file
-    int m14B8;
+    CharaTask* m14B8; // inferred: target
     int m14BC;
     int m14C0;
     int m14C4;
