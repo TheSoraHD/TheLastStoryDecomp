@@ -142,3 +142,9 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
   sigue 99.4% (7 intentos sobre el 0.5f). `atn/FileUtil_unk` fn_8006969C/96B4: probado `sEndian` de 8 bytes:
   va a .rodata en vez de .sdata2 (peor), revertido.
   - Hallazgo MWCC: `return call() + n;` da `add r3, r31, r3`; con el resultado en un local, `add r3, r3, r31`.
+
+## Cierre (05:32, ~70 min)
+- Cola recorrida entera. Lo que queda son bloqueos ya documentados o unidades sin fuente y grandes
+  (ComDrawTexture 66 funciones, D2A_Texture 30, std/bad_cast 219, PacketPack 380, iostream de MSL en
+  std/allocator_char y EffectManager): no encajan en "cerrar unidades casi terminadas".
+- report.json: 6528 funciones al 100% (referencia main 6476: +52). regress lost 0, fuzzdrop 0, main.dol OK.
