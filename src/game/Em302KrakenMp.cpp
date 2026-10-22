@@ -81,6 +81,11 @@ inline void ClearModelFlag_unk(Model_unk* model, unsigned int flag) {
     model->mFlags &= ~flag;
 }
 
+extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
+extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
+extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -585,6 +590,43 @@ void Em302KrakenMp::vfEC() {
         mFlag15 = 1;
         fn_801765D8();
     }
+}
+
+// inferred: starts state 2 (dead)
+void Em302KrakenMp::fn_802E177C() {
+    m1650 = 1;
+    m14EC = 0;
+    m14E8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = 2;
+    fn_8016E970(6);
+    m560 = 23;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = -0.5f;
+    mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+    mMotion.mTracks[0].m08 = mMotion.fn_80097D7C(0);
+    m1654 = (int)mMotion.fn_80097D7C(0) + 30;
+    for (unsigned int i = 0; i < m1624.size(); i++) {
+        Em303KrakenFootMp* foot = m1624[i];
+        foot->vf44();
+        foot->fn_802E8084(3);
+    }
+    fn_80232B7C(0, 0);
+    PlayEffect_unk(&m15CC, (Model_unk*)&mMotion);
+    fn_800CB5C8(&m1560, 0, 0);
+    fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+    }
+    fn_800C31F4("SE_EM302_020", 0, -1, 1.0f);
+    fn_800EB7A0(this);
 }
 
 void Em302KrakenMp::fn_802E1A0C() {

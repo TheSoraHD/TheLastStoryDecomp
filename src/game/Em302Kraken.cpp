@@ -70,6 +70,12 @@ struct Field_unk {
     atn::Vector3 m988;
 };
 extern "C" Field_unk* lbl_8087F430;
+extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
+extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
+extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+// inferred: Em303KrakenFoot method of another queue (starts a state of the leg); kept extern "C"
+extern "C" void fn_802E55B0(Em303KrakenFoot* foot, int kind);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
@@ -837,6 +843,47 @@ void Em302Kraken::fn_802DC5B4(int arg) {
     m58C = 15;
     fn_8016E970(3);
     m1600 = arg;
+}
+
+// inferred: starts state 2 (dead)
+void Em302Kraken::fn_802DC618() {
+    m14C8 = 0;
+    m14C4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = 2;
+    fn_8016E970(3);
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = -0.5f;
+    mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+    mMotion.mTracks[0].m08 = mMotion.fn_80097D7C(0);
+    for (unsigned int i = 0; i < m1678.size(); i++) {
+        Em303KrakenFoot* foot = m1678[i];
+        foot->vf44();
+        fn_802E55B0(foot, 3);
+    }
+    fn_80232B7C(0, 0);
+    PlayEffect_unk(&m15E8, (Model_unk*)&mMotion);
+    fn_800CB5C8(&m1588, 0, 0);
+    fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+    }
+    KrakenBlur_unk blur;
+    KrakenGame_unk* game = lbl_8087EFA8;
+    blur.m04 = game->m2AC.m04;
+    blur.m08 = game->m2AC.m08;
+    blur.m00 = 0;
+    blur.m0C = m16A0;
+    game->m2AC = blur;
+    fn_800C31F4("SE_EM302_020", 0, -1, 1.0f);
+    fn_800EB7A0(this);
 }
 
 void Em302Kraken::fn_802DDA90() {
