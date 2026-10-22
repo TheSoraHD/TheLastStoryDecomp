@@ -3,6 +3,17 @@
 Inicio: 2026-10-22 13:21 CEST. Rama agent-q6 (sale de main 64df7a6 + merge q7; referencia start-q6: 6940 funciones al 100%).
 Cola: game/Em316LaserSphere, game/Em316LastLaser, game/Em401_01_WhiteLeoPard.
 
+## Resumen final (16:06 CEST)
+
+report.json: 6940 -> 6969 funciones al 100% (+29); regress lost 0, fuzzdrop 0 contra start-q6; main.dol OK.
+Ninguna unidad enlazada (a las tres les quedan funciones grandes sin escribir).
+
+| Unidad | Antes | Despues (diff directo) | Report | Nota |
+|---|---|---|---|---|
+| Em316LaserSphere | 0/40 | 14/40 | 14/40 | fuente nueva |
+| Em316LastLaser | 6/19 | 8/19 | 8/19 | |
+| Em401_01_WhiteLeoPard | 1/25 | 12/25 | 14/25 | vf14 (99.85%) y fn_80322AD4 (99.95%) son 100% en el report pero solo por etiquetas/posiciones del pool en el diff directo: siguen NONMATCHING y no se cuentan |
+
 ## Unidades
 
 - `game/Em316LaserSphere` (unidad SIN FUENTE hasta ahora): 0/40 -> 14/40. Fuente nueva
@@ -83,3 +94,8 @@ Cola: game/Em316LaserSphere, game/Em316LastLaser, game/Em401_01_WhiteLeoPard.
   justo despues del ctor que construye el array.
 
 ## Pendientes para otras colas
+- Em403WarLion (cola q7): sus callbacks fn_803256F8/fn_803258D4 tienen copias identicas en WhiteLeoPard
+  (fn_80321724/fn_80321900, mismos porcentajes); si alguien las resuelve, aplicar lo mismo en las dos.
+- Em316LastLaser fn_8031D350 / fn_8031E8BC y Em316LaserSphere vf10: el original esta por encima del presupuesto
+  de inline (operadores de Vector3, GetNormalized_unk, ToRotation_unk y Normalize_unk llamados fuera de linea);
+  mismo caso abierto que LoadSeTableTask::vf0C (docs/inlining.md).
