@@ -144,3 +144,9 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   - Barrido automatico (script en el scratch: cambia cada `ToRotation_unk()` por `ToRotationZ_unk()` y se queda
     solo con los que suben sin bajar nada): ControlOttotto::vf0C 99.33% -> 99.56%, ChaserGuard::fn_8017FED0
     99.32% -> 99.46%. Sin efecto/peor en ControlDive, ControlWallUp, ControlCliffhang, ChaserNpc, SpecialEnemyBase.
+- `chr/ControlWallUp` (17/24 -> 19/24, contando el ctor de WallSlash de arriba): `vf40` 98.75% -> 100%
+  (`float s = 1.0f - t;` en local); ctor de ControlWallUp 97.80% -> 100% (`Chara_unk* c = mChara` locales: uno
+  para m560 al principio, otro dentro del bloque del frente y otro para `m08 = c2->mPos - ...`). vf0C/vf10/
+  WallSlash::vf0C (99.7-99.8%, registros) y vf14/vf18 (copia "z primero", 60%) sin tocar.
+  - Hallazgo MWCC (repetido en ControlCannonTarget, ControlWallUp): leer `mChara` a un local justo antes de
+    escribir un campo del personaje cambia que registro volatil recibe el puntero (r3/r5 intercambiados).
