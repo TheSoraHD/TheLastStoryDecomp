@@ -95,6 +95,28 @@ struct KrakenColl_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, KrakenColl_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
+// inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
+struct KrakenDamage_unk {
+    KrakenDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
+        m1C = 0;
+        m18 = -1;
+        m00 = 1;
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int m1C : 4;
+    unsigned int m1C_rest : 28;
+};
+extern "C" void fn_80108C10(Effect_unk* effect, KrakenDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
+                            int b, int c);
+extern "C" void fn_80107850(Effect_unk* effect, Model_unk* model);
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
+                            float scale, int e, int f, int g);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
@@ -332,8 +354,8 @@ inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 // game/Em201ZanGurg.cpp) and the load order of the eight vector clears
 Em302Kraken::Em302Kraken(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(2), m14BC(2), m14C0(0), m14C4(0), m14C8(0),
-      m14CC(-70.0f), m14D0(0), m14D4(0), m14D8(10), m14DC(-1), m14F8(0x450), m1514(0.5f), m1518(0.0f),
-      m151C(0.0f), m1520(0.0f), m1560(0), m157C(0), m1580(0), m1584(0x712), m15C8(0.0f, 0.0f, 0.0f), m15D4(0), m15D8(-1),
+      m14CC(-70.0f), m14D0(0), m14D4(0), m14D8(10), m14DC(-1), m14F8(0x450), m1514(0.5f), m1518(0.0f, 0.0f, 0.0f),
+      m1560(0), m157C(0), m1580(0), m1584(0x712), m15C8(0.0f, 0.0f, 0.0f), m15D4(0), m15D8(-1),
       m15DC(1420.0f), m15E0(20.0f), m15E4(-1720.0f), m1600(0), m1604(0), m1608(0x717), m1630(0), m1634(0),
       m1638(0), m1654(0), m1658(0), m165C(0), m169C(0), m16A8(0) {
     mFlag22 = 1;
@@ -615,7 +637,9 @@ void Em302Kraken::vf10() {
                 mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
                 fn_80370AE4(lbl_8087F430, 0x5B, 1);
             } else if (frame < 20) {
-                (void)(float)frame;
+                // inferred: an unused value (the original converts the frame to float here and pools
+                // 15.0f right after 0.1f, as in Em302KrakenMp::vf104)
+                float rate = frame / 15.0f;
             } else if (frame >= 45) {
                 fn_802DC3D0();
             }
@@ -762,6 +786,33 @@ boost::function<void()> Em302Kraken::vfB4(CharaTask* chara) {
     chr::ControlThrustForKraken* next =
         new (0, "", "", 0) chr::ControlThrustForKraken(chara, (int)this, chara->mPos);
     return boost::bind(&CharaTask::fn_80178208, chara, next);
+}
+
+// inferred: the point transformed by the matrix (as in game/CharaTask.cpp); name invented
+inline atn::Vector3 TransformVec_unk(const Mtx m, const atn::Vector3& v) {
+    atn::Vector3 r(v);
+    PSMTXMultVec(m, &r, &r);
+    return r;
+}
+
+// inferred: four points around the head (the places the party can climb to), rotated with the kraken
+// NONMATCHING: 96.4% - the original stores z of the sum temporary after the paired copy to out[i] and
+// reloads mRot.y for the last rotation only; 6 variants
+void Em302Kraken::vfCC(atn::Vector3* out, const atn::Vector3& dir) {
+    Mtx m0;
+    Mtx m1;
+    Mtx m2;
+    Mtx m3;
+    atn::Vector3 base = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
+    float ry = mRot.y;
+    PSMTXRotRad(m0, 'y', ry);
+    out[0] = base + TransformVec_unk(m0, atn::Vector3(16.0f, 15.0f, 16.0f));
+    PSMTXRotRad(m1, 'y', mRot.y);
+    out[1] = base + TransformVec_unk(m1, atn::Vector3(-12.0f, 15.0f, 12.0f));
+    PSMTXRotRad(m2, 'y', mRot.y);
+    out[2] = base + TransformVec_unk(m2, atn::Vector3(20.0f, 15.0f, 12.0f));
+    PSMTXRotRad(m3, 'y', mRot.y);
+    out[3] = base + TransformVec_unk(m3, atn::Vector3(-16.0f, 15.0f, 16.0f));
 }
 
 atn::Vector3 Em302Kraken::vfD0(float angle) {
@@ -981,6 +1032,73 @@ void Em302Kraken::fn_802DA718() {
         atn::Vector3 pos = m14FC + sOffset_unk;
         fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800C344C("SE_EM301_002", &m14FC, 0, -1, 1.0f);
+    }
+}
+
+// NONMATCHING: draft
+// inferred: state 10 (absorbs the party): binds the targets of m1554 at frame 10 and pulls them to the
+// head (frames 21-90), then deals the damage, pushes them away and back to state 0
+void Em302Kraken::fn_802DAA38() {
+    if (m14C4 == 10) {
+        m1518 = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+        fn_80232B7C(this, 12);
+        for (unsigned int i = 0; i < m1554.size(); i++) {
+            KrakenTarget_unk* t = &m1554[i];
+            t->m10 = GetNodePos_unk(m1554[i].mChara->mMotion.GetNodeMtx_unk("hips"));
+            m1554[i].m04 = m1554[i].m10;
+            float color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+            fn_8023A680(lbl_8087F3C0, &m1524, -1, 6, &m1554[i].m04, 0, 0, 0, 1.0f, 0, -1, 1);
+            PlayEffect_unk(&m1530, (Model_unk*)&m1554[i].mChara->mMotion);
+        }
+        wchar_t text[256];
+        memset(text, 0, sizeof(text));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12D), *(const wchar_t**)((char*)m60 + 4));
+        fn_80109828(lbl_8087F048, text);
+    }
+    if (m14C4 > 20 && m14C4 <= 90) {
+        float t = (m14C4 - 20) / 70.0f;
+        float a = 1.0f - t * t;
+        float b = t * t;
+        float c = 1.0f - t;
+        for (unsigned int i = 0; i < m1554.size(); i++) {
+            KrakenTarget_unk* e = &m1554[i];
+            atn::Vector3 from = e->m10 * a;
+            atn::Vector3 to = m1518 * b;
+            e->m04 = to + from;
+            m1554[i].m04.y = m1518.y * t + c * m1554[i].m10.y;
+        }
+    }
+    if (m14C4 > 100) {
+        fn_80239DAC(lbl_8087F3C0, this, 102, 0);
+        fn_80232B7C(0, 0);
+        PlayEffect_unk(&m1548, (Model_unk*)&mMotion);
+        KrakenDamage_unk damage;
+        int total = 0;
+        for (unsigned int i = 0; i < m1554.size(); i++) {
+            CharaTask* chara = m1554[i].mChara;
+            int hp = (int)chara->mStatus.m04;
+            damage.m04 = hp + 1;
+            total -= (int)(m1514 * chara->mStatus.m04) + 1;
+            chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
+            fn_80108C10(lbl_8087F048, &damage, chara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), (int)this, chara, 0, 0);
+            fn_80107850(lbl_8087F048, &chara->mMotion);
+            atn::Vector3 rot = chara->mRot.ToRotation_unk();
+            atn::Vector3 dir = rot * -1.0f;
+            dir.Normalize_unk();
+            dir *= 0.01f;
+            chara->fn_8015E7A0(dir, -1, 0);
+        }
+        if (total < 0) {
+            damage.m04 = total;
+            atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
+            mStatus.fn_8012DF7C(total, 0, 0);
+            fn_80108C10(lbl_8087F048, &damage, pos, 0, this, 0, 0);
+            wchar_t text[256];
+            memset(text, 0, sizeof(text));
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12F), *(const wchar_t**)((char*)m60 + 4));
+            fn_80109828(lbl_8087F048, text);
+        }
+        Reset_unk();
     }
 }
 

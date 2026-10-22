@@ -65,6 +65,7 @@ public:
         float x = m[0][3];
         return atn::Vector3(x, y, z) + m5A4;
     }
+    virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir);
     virtual atn::Vector3 vfD0(float angle);
     virtual float vfD4() { return 1.0f; } // inferred: weak copy 0x802DDC34
     virtual atn::Vector3 vfD8(CharaTask* target);
@@ -109,9 +110,7 @@ public:
     atn::Vector3 m14FC;         // inferred: position of the shades attack (fn_802DA718)
     atn::EfpHandle_unk m1508; // inferred: "/effect/ef_bs030c.efp"
     float m1514;                // inferred: "absorb_rate"
-    float m1518;
-    float m151C;
-    float m1520;
+    atn::Vector3 m1518;         // inferred: centre of the absorption (head node, fn_802DAA38)
     ResLoader_unk m1524;        // inferred: "/effect/ef_bs034b_01.eff"
     atn::EfpHandle_unk m1530; // inferred: "/effect/ef_bs034c.efp"
     atn::EfpHandle_unk m153C; // inferred: "/effect/ef_bs034a.efp"
