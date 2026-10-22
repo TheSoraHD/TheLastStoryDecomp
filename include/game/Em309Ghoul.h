@@ -8,25 +8,38 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 
+class GimmickCommon;
+
 // inferred from __vt__10Em309Ghoul: ghoul. The factory allocates 0x1700 bytes (SpecialEnemyBase.cpp).
 // Members keep their offsets (names unknown).
 class Em309Ghoul : public EnemyTask {
 public:
     Em309Ghoul(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em309Ghoul();
+    virtual int vf0C();
     virtual void vf14();
+    virtual void vf20();
     virtual void vf44();
     virtual atn::Vector3 vf64(int center);
 
+    void fn_803057A8(); // inferred: reads the data file
+    void fn_802FF6C4(); // inferred: picks the target (the party leader when m1524 reaches m16F8)
+    int fn_80304B40();  // inferred: nonzero while the players stay grouped
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
     void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
     void fn_803010BC(); // inferred: starts state 12 (messages 0x149/0x14B)
     void fn_80301200(); // inferred: starts state 13
 
-    unsigned char m14B0[0x14F0 - 0x14B0];
+    unsigned char m14B0[0x14EC - 0x14B0];
+    CharaTask* m14EC;         // inferred: target
     int m14F0;
     int m14F4;
-    unsigned char m14F8[0x1528 - 0x14F8];
+    unsigned char m14F8[0x150C - 0x14F8];
+    int m150C;
+    unsigned char m1510[0x1518 - 0x1510];
+    int m1518;
+    unsigned char m151C[0x1524 - 0x151C];
+    int m1524;                // inferred: frames the players stayed grouped
     atn::EfpHandle_unk m1528;
     atn::EfpHandle_unk m1534;
     atn::EfpHandle_unk m1540;
@@ -44,7 +57,8 @@ public:
     atn::Vector3 m15D8;       // inferred: debug line direction
     unsigned char m15E4[0x1608 - 0x15E4];
     atn::Vector3 m1608;       // inferred: debug sphere center
-    unsigned char m1614[0x1670 - 0x1614];
+    GimmickCommon* m1614;     // inferred: gimmick with id 0x80A
+    unsigned char m1618[0x1670 - 0x1618];
     chr::CharaData_unk* m1670; // inferred: passed to fn_8017A300
     atn::LH_Xsca m1674[2];
     unsigned char m1684[0x168C - 0x1684];
@@ -52,7 +66,9 @@ public:
     int m1690;                // inferred: "DebugDisp"
     unsigned char m1694[0x16E0 - 0x1694];
     float m16E0;              // inferred: debug sphere radius
-    unsigned char m16E4[0x1700 - 0x16E4];
+    unsigned char m16E4[0x16F8 - 0x16E4];
+    int m16F8;                // inferred: frames before the leader becomes the target
+    unsigned char m16FC[0x1700 - 0x16FC];
 };
 
 #endif

@@ -1,4 +1,8 @@
 #include "game/Em309Ghoul.h"
+#include "game/CharaManager.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
+#include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include <string.h>
 
@@ -23,6 +27,14 @@ extern "C" void fn_800638B0(void* draw, float a, float b, const atn::Vector3* fr
                             unsigned int color);
 extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, float radius, int color, float arg);
 
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: per-player weights of an effect (floats at +0x128); names invented
+struct GhoulWeights_unk {
+    unsigned char m00[0x128];
+    float mWeight[4];
+};
+extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
+extern "C" int fn_80108378(GhoulWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
@@ -31,6 +43,49 @@ extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 
 Em309Ghoul::~Em309Ghoul() {}
+
+int Em309Ghoul::vf0C() {
+    int ret = 1;
+    if (fn_8013655C() != 0) {
+        ret = 0;
+    }
+    if (m1528.fn_80237874() || m1534.fn_80237874() || m1588.fn_802376D0() || m1540.fn_80237874() ||
+        m1564.fn_80237874() || m157C.fn_80237874() || m1570.fn_80237874() || m1558.fn_80237874() ||
+        m1594.fn_80237874() || m15A0.fn_80237874()) {
+        ret = 0;
+    }
+    if (m1674[0].fn_80473F50() || m1674[1].fn_80473F50()) {
+        ret = 0;
+    }
+    if (m1438 != 0 && (m1438->mFlags & 2) != 2) {
+        ret = 0;
+    }
+    if (ret != 0) {
+        fn_803057A8();
+        if (m1438 != 0) {
+            m1438->fn_800D246C(0);
+            m1438->mFlags |= 4;
+        }
+        if (lbl_8087F430 != 0 && *(int*)((char*)lbl_8087F430 + 0x10D8) != 0) {
+            m1518 = m150C;
+        }
+        mRoute.mA0 = 1;
+        m58C = 0;
+        fn_8016E970(3);
+        for (m1614 = lbl_8087F4A0->mHead; m1614 != 0; m1614 = m1614->m5C) {
+            if (m1614->mId == 0x80A) {
+                break;
+            }
+        }
+        m56C = 35.0f;
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0x4011;
+        mStatus.m18 |= 0x3000000;
+        mStatus.m18 |= 0x8004;
+    }
+    return ret;
+}
 
 atn::Vector3 Em309Ghoul::vf64(int center) {
     atn::Vector3 result = mPos;
@@ -55,6 +110,49 @@ void Em309Ghoul::vf44() {
     if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
+}
+
+// NONMATCHING: 99.48% - r5/r6 of the copies of the temporaries (__VecCopy family, documented blocker)
+void Em309Ghoul::vf20() {
+    m620 = m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Vector3 base(mPos.x, mPos.y, mPos.z);
+    atn::Vector3 head = base;
+    head.y += 1.5f * m620;
+    float r = m620;
+    mColli.m3C = base;
+    mColli.m48 = head;
+    mColli.m54 = r;
+}
+
+void Em309Ghoul::fn_802FF6C4() {
+    mC58.mC8 = (int)mC58.mC4;
+    if (fn_80304B40()) {
+        m1524++;
+    } else {
+        m1524 = 0;
+    }
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    if (m1524 >= m16F8) {
+        m1454 = 0;
+        m14EC = leader;
+    } else {
+        m1454 = 1;
+        m14EC = mC58.mC4;
+    }
+    GhoulWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        int i = fn_80108378(w, p);
+        if (i >= 0) {
+            if (m1524 >= m16F8) {
+                w->mWeight[i] = p == leader ? 1.0f : 0.0f;
+            } else {
+                w->mWeight[i] = 1.0f;
+            }
+        }
+    }
+    mC58.mC4 = m14EC;
 }
 
 void Em309Ghoul::fn_80300654() {

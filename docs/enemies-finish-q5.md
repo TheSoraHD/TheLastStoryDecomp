@@ -45,6 +45,10 @@ game/Em315Coffin.
   (~30 variantes). Ctor (tabla de jinetes lbl_80787F68 de 0x78 bytes por tipo y rutas del campo) y el resto
   (vf10/vf14 grandes, fn_8030B408/fn_8030C190 copias debiles sin tipo) sin escribir.
   - Cabecera: campos sacados del relleno (m14F1, m14F4[3] ids de jinete, m1500[3], m15E0, m1604, m1608, m160C).
+- `game/Em309Ghoul` (8/33 -> 10/33): vf0C (0x802FD134, espera de 10 efectos y 2 xsca, busca el gimmick 0x80A)
+  y fn_802FF6C4 (eleccion del objetivo: el lider del grupo cuando m1524 llega a m16F8; pesos por jugador del
+  efecto) al 100%. vf20 (0x802FF604, capsula) 99.48%: r5/r6 de las copias de temporales (familia `__VecCopy`).
+  Las 20 restantes son grandes (0.5-4.6 KB).
 - Pools de cadenas renombrados a `@stringBase0` en Em309Ghoul (0x80748A14), Em309GhoulSimple (0x80748DC0),
   Em310Gargoyle (0x80748FE8) y Em315Coffin (0x80749390): sin cambio en el recuento, pero las llamadas con
   cadenas ya comparan el nombre real.
@@ -65,6 +69,11 @@ game/Em315Coffin.
   fn_80309E6C -> `vf30__16Em309GhoulSimpleFPv`; include/game/Em309GhoulSimple.h declara vf20 y vf30.
 - symbols.txt: fn_8030A6A0 -> `vf0C__13Em310GargoyleFv`, fn_8030B41C -> `vf3C__13Em310GargoyleFP11HitInfo_unk`,
   fn_8030B5B0 -> `vf40__13Em310GargoyleFP11HitInfo_unk`.
+- symbols.txt: fn_802FD134 -> `vf0C__10Em309GhoulFv`, fn_802FF604 -> `vf20__10Em309GhoulFv`, fn_802FF6C4 ->
+  `fn_802FF6C4__10Em309GhoulFv`, fn_80304B40 -> `fn_80304B40__10Em309GhoulFv`, fn_803057A8 ->
+  `fn_803057A8__10Em309GhoulFv` (las dos ultimas solo declaradas, sin escribir).
+- include/game/Em309Ghoul.h: campos sacados del relleno (m14EC, m150C, m1518, m1524, m1614 `GimmickCommon*`,
+  m16F8); solo la usa Em309Ghoul.cpp.
 - symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
   (scope:local).
 - include/game/Em314Ivy.h: m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
