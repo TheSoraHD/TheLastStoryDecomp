@@ -172,6 +172,13 @@ extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, 
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
 extern "C" void fn_80192FB4(chr::ControlBase* control); // inferred: chr::ControlStickByQuark, stuck pose
+// inferred: item manager (lbl_8087F4F0, as in gmk/RandomMerchant.cpp) and the equipment slots of a player
+extern "C" void* lbl_8087F4F0;
+extern "C" void fn_804439FC(void* mgr, void* item, int num, int arg3, int arg4, int arg5, int arg6, int arg7);
+extern "C" void* fn_80206B14(int arg, int item); // inferred: weapon data
+extern "C" void* fn_80206BE4(void* item);
+extern "C" void* fn_8020ED84(int slot, int item); // inferred: armor data
+extern "C" void* fn_8020EF80(void* item);
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
@@ -1826,6 +1833,65 @@ void EnemyQuarkStand::fn_80351480(int near) {
     fn_80232B7C(&m16B4, 0);
     QuarkPlayEffect_unk(&m16B4, &mMotion);
     ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m16B4, 0, mMotion.mTracks[0].m0C);
+}
+
+// inferred: item slot of the item manager (8 bytes: item id and a second word; name invented)
+struct QuarkItemSlot_unk {
+    int mItem;
+    int m04;
+};
+inline QuarkItemSlot_unk* QuarkSlots_unk(void* mgr) {
+    return (QuarkItemSlot_unk*)((char*)mgr + 0x8310);
+}
+
+// inferred: Quark loses the sword to `chara` (state 13): faces it (motion 0x3C when `kind` is 2, else 0x36 or
+// 0x37) and gives back the two weapons and two armors kept in the item manager
+// NONMATCHING: 99.23% - the original builds the slot address (lbl_8087F4F0 + 0x8310) through r3 before r31
+// and schedules `li r4,0` of the motion call earlier; ~6 forms (pointer forms, inline motion)
+void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
+    m16F0 = (int)chara;
+    m16F4 = kind;
+    m1714 = 1;
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 13;
+    if (kind == 2) {
+        QuarkPlayMotion_unk(&mMotion, 0x3C, 0, 0, 1.0f);
+        m16F8 = chara->mPos - mPos;
+        m16F8.y = 0.0f;
+        PSVECNormalize(&m16F8, &m16F8);
+        m16F8.RotZ_unk();
+        fn_80239DAC(lbl_8087F3C0, this, 0x3EE, 1);
+    } else {
+        Model_unk* model = &mMotion;
+        model->m34C = 1;
+        model->mTracks[0].m20 = 1.0f;
+        model->mTracks[0].m0C = 1.0f;
+        int motion = 0x36;
+        if (kind == 0) {
+            motion = 0x37;
+        }
+        model->fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
+        m16F8 = chara->mPos - mPos;
+        m16F8.y = 0.0f;
+        PSVECNormalize(&m16F8, &m16F8);
+        m16F8.RotZ_unk();
+    }
+    mPos.y = 0.0f;
+    QuarkItemSlot_unk* slots = QuarkSlots_unk(lbl_8087F4F0);
+    QuarkItemSlot_unk* weapon = slots;
+    for (int i = 0; i < 2; i++, weapon++) {
+        void* data = fn_80206B14(0, weapon[4].mItem);
+        if (data != 0) {
+            fn_804439FC(lbl_8087F4F0, fn_80206BE4(data), 1, 1, 0, 0, 1, 0);
+        }
+    }
+    for (int i = 0; i < 2; i++, slots++) {
+        void* data = fn_8020ED84(i, slots->mItem);
+        if (data != 0) {
+            fn_804439FC(lbl_8087F4F0, fn_8020EF80(data), 1, 1, 0, 0, 1, 0);
+        }
+    }
 }
 
 // inferred: state 20 (motion 0x144)
