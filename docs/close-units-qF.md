@@ -142,6 +142,9 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
 - game/Em202Spider (0/25 -> 1/25) y game/Em202SpiderBase (0/23 -> 1/23): NUEVAS fuentes con cabeceras de
   relleno; los dtors (0x8027CD9C, 0x80282EA4) al 100% (vectores envueltos como ChaserGuard).
 
+- game/Em003LesserDaemon (0/22 -> 4/22, NUEVA fuente + cabecera con relleno): dtor, vf88 (salta a
+  fn_8024FCDC), vf14, vfEC al 100%. symbols.txt: fn_8024AB20/BE90/C468/E690/FCDC -> nombres de la clase.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
