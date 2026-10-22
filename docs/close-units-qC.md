@@ -116,3 +116,5 @@ Hallazgos MWCC (9):
 
 Hallazgos MWCC (10):
 - `max -= height - bar; unit = max / count;` (resta en sitio en el parametro/local) reproduce el uso de FPR del original donde `(max - (12 - bar)) / count` crea un fmr de mas (MenuCommonTask::fn_804A4934).
+- chr/ControlAppear: invoke/manage del bind con MOTION_ID salen al 0% solo por el numero del enum anonimo en el nombre decorado (`@enum$3246ControlAppear_cpp` en el original, `$5814` aqui: depende de los tipos anonimos declarados antes en la TU); el codigo es identico (cmp.py OK).
+- game/SpecialEnemyBase fn_805A5078 (copia z-primero de `dir`, sub-bloqueo B), chr/ControlStagger ControlSlip::vf0C (direccion de la rotacion en r31 reutilizado; 3 variantes), game/ChaserNpc ctor (push_back), game/EnemySeaLizerd fn_80355390 (6 variantes de GetFrontPos_unk): sin cambios.
