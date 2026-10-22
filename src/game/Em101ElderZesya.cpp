@@ -4,12 +4,20 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
+#include "chr/ControlBase.h"
+#include "game/CharaStatus.h"
+#include "game/EnemyManager.h"
+#include "game/HomingBullet.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" int atoi(const char* s);
+extern "C" int fn_800DC12C(const char* s); // inferred: string to int
+// inferred: kind of each barrier (rodata table 0x80743CF0: indexes into the HitRange_unk values)
+static const int sBarrierKinds_unk[4] = {3, 0, 1, 4};
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
@@ -37,7 +45,11 @@ inline atn::Vector3 FlatDiff_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return atn::Vector3(a.x - b.x, 0.0f, a.z - b.z);
 }
 
-struct Field_unk;
+// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
+struct Field_unk {
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8;
+};
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
@@ -47,8 +59,117 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_80102EAC(Effect_unk* mgr, int id, CharaTask* attacker, int arg, int arg2);
 
+// inferred: collision world and its ray test (see game/ChaserNpc.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10; // inferred: position after the sweep (as in gmk/Lemon.h)
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk;
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+struct Color4f_unk {
+    Color4f_unk() {}
+    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+
+// inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
+// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
+extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
+
+extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
+struct ElderMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" ElderMsgTable_unk* lbl_8087F1E4;
+// inferred: order sent to the little Zesya (game/Em101LittleZesya.h ZesyaWarp_unk)
+struct ElderOrder_unk {
+    int m00;
+    int m04;
+    atn::Vector3 m08;
+};
+extern "C" void fn_8025FE30(int zesya, const ElderOrder_unk* order); // inferred: Em101LittleZesya order
+
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em101LittleZesyaSecond.cpp)
+extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
+extern "C" int rand();
+// inferred: fields of the running magic control (class unknown; as in game/Em003LesserDaemon.cpp)
+struct ControlMagic_unk {
+    unsigned char m00[0x14];
+    CharaTask* m14; // inferred: target
+    unsigned char m18[0x1D - 0x18];
+    unsigned char m1D; // inferred: nonzero once the bullets are fired
+};
+// inferred: list of free players (up to 16; names invented)
+struct ElderTargets_unk {
+    ElderTargets_unk() : mCount(0) {}
+    unsigned int size() const { return mCount; }
+    void push_back(PlayerTask* const& x) {
+        new (&mData[mCount]) PlayerTask*(x);
+        mCount++;
+    }
+    PlayerTask*& operator[](unsigned int i) { return mData[i]; }
+    unsigned int mCount;
+    PlayerTask* mData[16];
+};
+// inferred: alive, not hidden and not grappled (written out as in the original; name invented)
+inline bool IsTarget_unk(CharaTask* p) {
+    bool ok = false;
+    bool dead = false;
+    if ((p->mFlags & 4) == 4 || (p->mFlags & 1) == 1) {
+        dead = true;
+    }
+    if (!dead && (p->mStatus.m0C & 0x20) != 0x20 && !p->IsGrappled_unk()) {
+        ok = true;
+    }
+    return ok;
+}
 extern "C" double sqrt(double x);
 
 // inferred: barrier sizes (radius, height); static vector of the file built by the __sinit (0x8025A03C)
@@ -152,6 +273,80 @@ int Em101ElderZesya::vf0C() {
     return 0;
 }
 
+// NONMATCHING: 99.85% - r24/r25 of the route table and the barrier pointer (8 variants: declaration orders,
+// field local, table copy, pointer/offset forms); the push_back of the points is the inlined Vector_unk one
+void Em101ElderZesya::fn_80256384() {
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    int barrier = 0;
+    atn::Csv csv((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (*key == ';' || *key == '\0') {
+            continue;
+        }
+        if (strcmp(key, "WaitFrame") == 0) {
+            m16B0 = atoi(csv.fn_8005B9CC());
+        }
+        if (strcmp(key, "ComboWaitTime") == 0) {
+            m14FC = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "HighJumpAttackPointID") == 0) {
+            while (true) {
+                int id = atoi(csv.fn_8005B9CC());
+                if (id <= 0) {
+                    break;
+                }
+                RoutePlace_unk* place = table->FindPlace_unk(id);
+                if (place != 0) {
+                    m14BC.push_back(place->mPos);
+                }
+            }
+        } else if (strncmp(key, "ChantPoint", 10) == 0) {
+            if (barrier < 4) {
+                Barrier_unk* b = &m151C[barrier];
+                b->m00 = (Gimmick_unk*)table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                b->mDesc = (Gimmick_unk*)table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                for (int i = 0; i < 3; i++) {
+                    b->m04.mObjects[0][i] = new (12, "", "", 0) atn::ColliObject();
+                    b->m04.mObjects[0][i]->fn_80058078("ef_col02n.hcb");
+                    b->m04.mObjects[1][i] = new (12, "", "", 0) atn::ColliObject();
+                    b->m04.mObjects[1][i]->fn_80058078("ef_col02n.hcb");
+                    for (int j = 0; j < 3; j++) {
+                        if (b->m04.mObjects[j][i] != 0) {
+                            b->m04.mObjects[j][i]->mFlags &= ~1;
+                            b->m04.mObjects[j][i]->mFlags |= 2;
+                            b->m04.mObjects[j][i]->mFlags |= 0x40000000;
+                            b->m04.mObjects[j][i]->m0C = (int)this;
+                            atn::Matrix3x4 m;
+                            m.SetIdentity();
+                            b->m04.mObjects[j][i]->SetMtx_unk(m);
+                        }
+                    }
+                }
+                b->m04.mKind = sBarrierKinds_unk[barrier];
+                barrier++;
+            }
+        } else if (strcmp(key, "LittleID") == 0) {
+            EnemyManager* mgr = EnemyManager::sInstance;
+            m16A0 = (int)mgr->Find_unk(atoi(csv.fn_8005B9CC()));
+            *(Em101ElderZesya**)((char*)m16A0 + 0x1530) = this;
+        } else if (strcmp(key, "NormalAttackID") == 0) {
+            m1500 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "HighJumpAttackID") == 0) {
+            m1510 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "FlareID") == 0) {
+            m1504 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "ThunderID") == 0) {
+            m1518 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "FlarelusID") == 0) {
+            m1508 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "LightSwordID") == 0) {
+            m150C = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "HealID") == 0) {
+            m1514 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        }
+    } while (csv.fn_8005BBF8());
+}
+
 atn::Vector3 Em101ElderZesya::vf64(int center) {
     atn::Vector3 result = mPos;
     Barrier_unk* barrier = &m151C[m1680];
@@ -219,6 +414,274 @@ void Em101ElderZesya::vf54() {
             }
         }
     }
+}
+
+// inferred: warp point of the current barrier (name invented)
+inline void Em101ElderZesya::GetWarp_unk(atn::Vector3* pos, float* rot) {
+    Gimmick_unk* desc = 0;
+    if (m1680 < 4) {
+        desc = m151C[m1680].m00;
+    }
+    if (desc != 0) {
+        *pos = desc->mPos;
+        *rot = desc->mRotY_unk;
+    }
+}
+
+// NONMATCHING: 99.99% - only the offset of "SE_SP016_001_2" in @stringBase0 (strings of the unwritten
+// functions before it are missing)
+// inferred: same as PlayEffect_unk with the locals in the order of game/Em003LesserDaemon.cpp
+inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: starts the magic of state 10 (name invented)
+inline void Em101ElderZesya::StartMagic_unk() {
+    m14C8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m14D0 = 0;
+    m1660 = 0;
+    m58C = 10;
+    fn_8016E970(6);
+    m560 = 29;
+    m638 = m1518;
+    m1668 = mPos;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x66, 1, 0, 1, 0.0f, 0.1f);
+    mFB8 = 0.0f;
+}
+
+void Em101ElderZesya::fn_80258574() {
+    if (m14F4 != 0) {
+        if (++m1680 >= 4) {
+            m1680 = 0;
+        }
+        m14CC = 0;
+        m14F4 = 0;
+        m16AC = 0;
+    }
+    atn::Vector3 target = mC58.mC4->mPos;
+    atn::Vector3 d = target - mPos;
+    PSVECMag(&d);
+    switch (m14CC) {
+    case 0:
+        m14C8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m14D0 = 0;
+        m1660 = 0;
+        m58C = 12;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
+        fn_80232B7C(this, 101);
+        PlayEffectB_unk(&m15F8, &mMotion);
+        m14CC = 1;
+        break;
+    case 1:
+        m14C8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m14D0 = 0;
+        m1660 = 0;
+        m58C = 14;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x67, 0, 0, 1, 0.0f, 0.1f);
+        m14CC = 3;
+        break;
+    case 2: {
+        m58C = 9;
+        m14C8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m14D0 = 0;
+        m1660 = 0;
+        wchar_t text[256];
+        memset(text, 0, sizeof(text));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x9F), *(const wchar_t**)((char*)m60 + 4));
+        fn_80109828(lbl_8087F048, text);
+        fn_802598DC();
+        fn_8016D74C(m1510, 0, (int)&m1694);
+        ElderOrder_unk order;
+        order.m00 = 1;
+        order.m08 = m1694;
+        order.m04 = 2;
+        fn_8025FE30(m16A0, &order);
+        break;
+    }
+    case 3:
+        StartMagic_unk();
+        break;
+    case 4:
+        StartMagic_unk();
+        m14CC = 5;
+        break;
+    case 5:
+        StartMagic_unk();
+        m14CC = 3;
+        break;
+    }
+    *(int*)(m16A0 + 0x14EC) = m14CC;
+}
+
+// NONMATCHING: 99.19% - nonvolatile registers shifted by one (r24-r30: the original keeps the list base in
+// r24 and the control in r25) and f20/f21 of the frame; same layout as Em003LesserDaemon::fn_8024ED68
+// (8 variants: helper forms of the player test, list hoisted, control hoisted)
+void Em101ElderZesya::fn_80258A50() {
+    if (m55C == 6) {
+        if (m560 == 0x1E) {
+        HitInfo_unk* hit = m638;
+        if (hit == m150C) {
+            ControlMagic_unk* control = (ControlMagic_unk*)mControl.get();
+            bool fire = false;
+            if (control->m1D == 0 && mMotion.mTracks[0].m08 >= 24.0f) {
+                fire = true;
+            }
+            if (fire) {
+                HomingParam_unk param;
+                Mtx rot;
+                Mtx m;
+                Mtx m2;
+                fn_8016DA4C();
+                control->m1D = 1;
+                atn::Vector3 pos = mPos;
+                pos.y += 30.0f;
+                atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+                PSMTXRotRad(m, 'y', mRot.y);
+                PSMTXMultVec(m, &fwd, &fwd);
+                fwd.y += 1.0f;
+                PSVECNormalize(&fwd, &fwd);
+                int count = 10;
+                int n = count - 1;
+                for (int i = 0; i < count; i++) {
+                    atn::Vector3 dir = fwd;
+                    float t = ((float)i - 0.5f * (float)n) / (0.5f * (float)n);
+                    atn::Vector3 axis(0.0f, 0.0f, 1.0f);
+                    PSMTXRotRad(m2, 'y', mRot.y);
+                    PSMTXMultVec(m2, &axis, &axis);
+                    PSMTXRotAxisRad(rot, &axis, 0.7853982f * t);
+                    PSMTXMultVec(rot, &dir, &dir);
+                    param.mTarget = 0;
+                    param.mAccel = 0.0f;
+                    param.m08 = -1.0f;
+                    param.mMaxSpeed = 10.0f;
+                    param.mTurn = 0.09424778f;
+                    param.mTime = 300.0f;
+                    param.mDelay = 5.0f;
+                    param.mNode = 0;
+                    param.mCount = -1;
+                    param.mTarget = control->m14;
+                    if (i > 0) {
+                        ElderTargets_unk list;
+                        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                            if (IsTarget_unk(p)) {
+                                list.push_back(p);
+                                if (list.size() >= 16) {
+                                    break;
+                                }
+                            }
+                        }
+                        if (list.size() != 0) {
+                            param.mTarget = list[rand() % list.size()];
+                        }
+                    }
+                    param.mDelay = rand() % 3 + 5;
+                    param.mTurn = 0.18849556f;
+                    fn_800F8574(lbl_8087F048, this, hit, &pos, &dir, &param, 0x44, 0, 0.0f, 1.0f);
+                }
+            } else {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    void* p = ::operator new(0x34, 1, "", "", 0);
+                    chr::ControlBase* c = (chr::ControlBase*)p;
+                    if (p != 0) {
+                        c = fn_801C02F4(p, this);
+                    }
+                    fn_80178208(c);
+                }
+            }
+        }
+        }
+    } else {
+        m58C = 6;
+        m14C8 = 0;
+    }
+    fn_80139560();
+}
+
+void Em101ElderZesya::fn_80258F1C() {
+    m638 = m1518;
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+        mFB8 = 0.0f;
+        m58C = 6;
+        m14C8 = 0;
+        void* p = ::operator new(0x34, 0, "", "", 0);
+        chr::ControlBase* c = (chr::ControlBase*)p;
+        if (p != 0) {
+            c = fn_801C02F4(p, this);
+        }
+        fn_80178208(c);
+        return;
+    }
+    if ((float)__fabs(mMotion.mTracks[0].m08 - 12.0f) < 1.1920929e-7f) {
+        m1674 = mC58.mC4->mPos;
+        atn::Vector3 from = m1674 + atn::Vector3(0.0f, 1.0f, 0.0f);
+        atn::Vector3 to = m1674 + atn::Vector3(0.0f, -100.0f, 0.0f);
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
+            m1674 = result.m10;
+        }
+        m1674 += atn::Vector3(0.0f, 0.0f, 1.0f);
+        fn_80232B7C(this, 1000);
+        fn_8023A8B4(lbl_8087F3C0, &m1604, 0, 0, m1674, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+        fn_800C31F4("SE_SP016_001_2", 0, -1, 1.0f);
+    } else if ((float)__fabs(mMotion.mTracks[0].m08 - 62.0f) < 1.1920929e-7f) {
+        fn_80232B7C(this, 1000);
+        fn_8023A8B4(lbl_8087F3C0, &m1610, 0, 0, m1674, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+        fn_800FAB80(lbl_8087F048, this, m638, m590, &m1674, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    }
+}
+
+void Em101ElderZesya::fn_8025941C() {
+    m14C8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m14D0 = 0;
+    m1660 = 0;
+    m58C = 13;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
+    GetWarp_unk(&m1684, &m1690);
+    CollResult_unk result;
+    mPos = m1684;
+    atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + m1684;
+    if (fn_8004ED34(lbl_8087EE98, &result, &m1684, &to, 0x80000000, &mColli, 0) != 0) {
+        mPos = result.m10;
+    }
+    mRot.y = m1690;
+    fn_80232B7C(this, 101);
+    PlayEffect_unk(&m15F8, &mMotion);
 }
 
 // inferred: hit handling: in states 9, 12 and 13 the hits are ignored; while a barrier is up a hit on the

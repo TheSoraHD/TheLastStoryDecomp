@@ -30,7 +30,7 @@ public:
         // inferred: names invented
         bool IsUp_unk() const { return m04.mState != 2 && mDesc != 0; }
         inline const atn::Vector3& GetPos_unk() const;
-        int m00;
+        Gimmick_unk* m00; // inferred: warp point next to the barrier (position at 0x04, rotation at 0x14)
         // inferred: collision objects of the barrier (destroyed with the barrier)
         struct Colli_unk {
             ~Colli_unk() {
@@ -61,15 +61,21 @@ public:
     virtual void vf54();
     virtual atn::Vector3 vf64(int center);
 
-    void fn_80256384(); // inferred: reads the data file
+    void fn_80256384(); // inferred: reads the data file (called by vf0C)
     void fn_80259AB4(int index, int state);
     void fn_802598DC(); // inferred: picks the chant point // inferred: changes the state of a barrier
+    void fn_8025941C(); // inferred: warps next to the current barrier (state 13)
+    inline void GetWarp_unk(atn::Vector3* pos, float* rot);
+    void fn_80258F1C(); // inferred: state 12 (casts the magic at frame 62)
+    void fn_80258A50(); // inferred: state of the light sword magic (10 homing bullets)
+    void fn_80258574(); // inferred: starts the next action of the phase (m14CC)
+    inline void StartMagic_unk();
 
     int m14B0;                          // inferred: loading state (0, 1 collision objects, 2 ready)
     atn::LH_Binary m14B4;               // inferred: data file
-    atn::Vector_unk<atn::Vector3> m14BC; // inferred: "ChantPoint" positions
+    atn::Vector_unk<atn::Vector3> m14BC; // inferred: "HighJumpAttackPointID" positions
     int m14C8;
-    int m14CC;                          // inferred: "bossActPhase_" (3-5)
+    int m14CC;                          // inferred: "bossActPhase_" (3-5): next action (0-5)
     int m14D0;
     int m14D4;
     unsigned char m14D8[0x14F0 - 0x14D8];
@@ -77,10 +83,13 @@ public:
     int m14F4;
     int m14F8;
     int m14FC;                          // inferred: "ComboWaitTime"
-    int m1500;
-    unsigned char m1504[0x1510 - 0x1504];
-    int m1510;
-    unsigned char m1514[0x151C - 0x1514];
+    HitInfo_unk* m1500; // inferred: "NormalAttackID"
+    HitInfo_unk* m1504; // inferred: "FlareID"
+    HitInfo_unk* m1508; // inferred: "FlarelusID"
+    HitInfo_unk* m150C; // inferred: "LightSwordID"
+    HitInfo_unk* m1510; // inferred: "HighJumpAttackID"
+    HitInfo_unk* m1514; // inferred: "HealID"
+    HitInfo_unk* m1518; // inferred: "ThunderID" (cast by state 12)
     Barrier_unk m151C[4];               // 0x151C
     int m15EC;
     int m15F0;
@@ -98,12 +107,12 @@ public:
     int m1660;
     int m1664;
     atn::Vector3 m1668;
-    atn::Vector3 m1674;
+    atn::Vector3 m1674;       // inferred: position of the magic
     int m1680;                // inferred: current barrier (index into m151C)
     atn::Vector3 m1684;
     float m1690;
     atn::Vector3 m1694;       // inferred: chosen chant point
-    int m16A0;
+    int m16A0;                // inferred: the little Zesya (Em101LittleZesya*, "LittleID")
     int m16A4;
     int m16A8;
     int m16AC;
