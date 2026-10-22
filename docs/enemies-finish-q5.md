@@ -101,6 +101,12 @@ game/Em315Coffin.
     m1538[m14E8] por lugar de ruta, posicion del nodo "neck") escrita: NONMATCHING 99.63% (ranuras en pila de la
     direccion y del temporal de la suma; ~10 variantes). Campos 0x14B0, 0x14E8, 0x1538 (10 pares de ids de lugar,
     struct `Seat_unk` inventado), 0x1594-0x15CC y 0x15E4 sacados del relleno.
+  - Ctor (0x8030A144) escrito: NONMATCHING 99.93% (r9/r12/r28 del puntero al campo y del tipo; ~8 variantes).
+    Copia un registro de 0x78 bytes por tipo (lbl_80787F68[tipo - 0x385], struct `Data_unk` inventado en 0x1510:
+    10 enteros, 4 pares de asientos y 4 desplazamientos entre los lugares de cada asiento) y lee "ride1..3", "sp"
+    y "ep" del texto de parametros. El bucle del CSV va como `for (;;) { tok = ...; if (!tok || !strcmp) break; }`
+    (con `while ((tok = ...) && ...)` salia 95%). Con las cadenas del ctor ya en el pool, vf0C sube a 99.91%
+    (un registro) con la palabra m14A8 leida a un local antes de los otros stores.
   - Cabecera: campos sacados del relleno (m14F1, m14F4[3] ids de jinete, m1500[3], m15E0, m1604, m1608, m160C).
 - `game/Em309Ghoul` (8/33 -> 10/33): vf0C (0x802FD134, espera de 10 efectos y 2 xsca, busca el gimmick 0x80A)
   y fn_802FF6C4 (eleccion del objetivo: el lider del grupo cuando m1524 llega a m16F8; pesos por jugador del

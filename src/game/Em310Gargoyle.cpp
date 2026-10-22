@@ -1,6 +1,8 @@
 #include "game/Em310Gargoyle.h"
+#include "atn/Csv.h"
 #include "game/EnemyManager.h"
 #include "math/Vec.h"
+#include <string.h>
 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -15,6 +17,9 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_803C17FC(RouteTable_unk* table, int point); // inferred: route point -> index
+extern "C" int fn_800DC12C(const char* s); // inferred: string to int
+// inferred: per type data, indexed by type - 0x385
+extern "C" Em310Gargoyle::Data_unk lbl_80787F68[];
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -35,10 +40,50 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
+// NONMATCHING: 99.93% - the field pointer is kept in r28 and the type read into r9 (here r9/r12); ~8 variants
+// (field/table locals in several orders, type read apart)
+Em310Gargoyle::Em310Gargoyle(atn::Task* parent, EnemyInfo_unk* info)
+    : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14C4(1.0f), m14C8(0), m14CC(0.0f), m14D0(0),
+      m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14EC(0), m14F0(0), m14F1(0), m150D(1), m1588(0), m158C(0),
+      m15D0(0.0f), m15E0(2), m15F0(0), m15F1(0), m1604(0), m1608(1.3f), m160C(0.5f) {
+    int type = *(int*)info - 0x385;
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    m14C0 = type;
+    mData = lbl_80787F68[type];
+    for (int i = 0; i < 4; i++) {
+        mData.mOfs[i] = table->FindPlace_unk(mData.mSeats[i].m04)->mPos - table->FindPlace_unk(mData.mSeats[i].m00)->mPos;
+    }
+    for (int i = 0; i < 3; i++) {
+        m1500[i] = 0;
+        m14F4[i] = 0;
+    }
+    atn::Csv csv(info->m2C, strlen(info->m2C));
+    for (;;) {
+        const char* tok = csv.fn_8005B9CC();
+        if (tok == 0 || strcmp(tok, "") == 0) {
+            break;
+        }
+        if (strncmp(tok, "ride1", 5) == 0) {
+            m14F4[0] = fn_800DC12C(tok + 6);
+        } else if (strncmp(tok, "ride2", 5) == 0) {
+            m14F4[1] = fn_800DC12C(tok + 6);
+        } else if (strncmp(tok, "ride3", 5) == 0) {
+            m14F4[2] = fn_800DC12C(tok + 6);
+        } else if (strncmp(tok, "sp", 2) == 0) {
+            mData.m14 = fn_800DC12C(tok + 3);
+        } else if (strncmp(tok, "ep", 2) == 0) {
+            mData.m18 = fn_800DC12C(tok + 3);
+        }
+    }
+    m150C = 0;
+    m15D4.fn_8023780C("ef_uc037.efp");
+    m15F4.fn_8023780C("ef_cm008.efp");
+}
+
 Em310Gargoyle::~Em310Gargoyle() {}
 
-// NONMATCHING: 98.41% - r3/r4 of the flag word and of the string pool (the original computes "em310" first)
-// and r3/r4/r5 of the stores at the end; ~30 variants (load helper, statement order)
+// NONMATCHING: 99.91% - r4/r5 of the flag word m14A8 (the original loads it straight into r5); the flags
+// are read into a local before the other stores (~35 variants in total)
 int Em310Gargoyle::vf0C() {
     if (fn_8013655C() == 0 && !m15D4.fn_80237874() && !m15F4.fn_80237874()) {
         for (int i = 0; i < 3; i++) {
@@ -53,9 +98,10 @@ int Em310Gargoyle::vf0C() {
         fn_800874C8(group, "DamageCalcMode", &m15E0, 0, 2, 1, 0, 0);
         fn_8008771C(group, "BulletRotX", &m1608, 0, 0, -3.14f, 3.14f, 0.01f);
         fn_8008771C(group, "BulletRotY", &m160C, 0, 0, -3.14f, 3.14f, 0.01f);
+        int flags = m14A8;
         mRoute.mA0 = 2;
         m56C = 1.0f;
-        m14A8 &= ~0x04000000;
+        m14A8 = flags & ~0x04000000;
         m58C = 6;
         fn_8016E970(3);
         return 1;
@@ -185,8 +231,8 @@ inline RoutePoint_unk* GetRoutePoint_unk(RouteTable_unk* table, int index) {
 void Em310Gargoyle::fn_8030CF84(int warp) {
     m58C = 7;
     if (warp != 0) {
-        int start = fn_803C17FC(lbl_8087F430->m10D8, m1524);
-        m158C = fn_803C17FC(lbl_8087F430->m10D8, m1528);
+        int start = fn_803C17FC(lbl_8087F430->m10D8, mData.m14);
+        m158C = fn_803C17FC(lbl_8087F430->m10D8, mData.m18);
         m1588 = start;
         m1590 = 0.0f;
         mPos = GetRoutePoint_unk(lbl_8087F430->m10D8, start)->mPos;
@@ -202,7 +248,7 @@ void Em310Gargoyle::fn_8030CF84(int warp) {
          ((m1500[2]->mFlags & 4) != 4 && (m1500[2]->mStatus.m0C & 0x20) != 0x20))) {
         down = 0;
     }
-    fn_80370AE4(lbl_8087F430, m1518, down);
+    fn_80370AE4(lbl_8087F430, mData.m08, down);
     m150D = 0;
     m14EC = 0;
     m150C = 0;
@@ -224,9 +270,9 @@ void Em310Gargoyle::fn_8030D0D8() {
     atn::Vector3 front = dir * 150.0f;
     m15AC = mPos + front;
     m15AC.y += 20.0f;
-    int id = m1538[m14E8].m00;
+    int id = mData.mSeats[m14E8].m00;
     m15B8 = table->FindPlace_unk(id)->mPos;
-    id = m1538[m14E8].m04;
+    id = mData.mSeats[m14E8].m04;
     m15C4 = table->FindPlace_unk(id)->mPos;
     m1590 = 0.0f;
     m14B0 = 0;
