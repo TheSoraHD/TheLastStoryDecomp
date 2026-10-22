@@ -9,7 +9,7 @@
 
 // inferred from __vt__17Em005DoppelGanger (0x80784210): doppelganger enemy (copies a character,
 // "SrcCopyCharaId"/"DstCopyRobotId"). Data file "database/chara/special/" + db_name (default
-// "db_em005_00_00.csv"). Only the small functions are written (game/Em005DoppelGanger.cpp).
+// "db_em005_00_00.csv"). Only the small functions are written (game/em005_doppel_ganger.cpp, real file name from the RTTI of @unnamed@em005_doppel_ganger_cpp@::ControlCall).
 // Names invented; the factory allocates 0x1558 bytes.
 class Em005DoppelGanger : public EnemyTask {
 public:

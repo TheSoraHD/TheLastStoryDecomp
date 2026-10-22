@@ -1582,7 +1582,7 @@ game/Em003LesserDaemon.cpp:
 	.data       start:0x807841D8 end:0x80784340
 	.sdata2     start:0x80883268 end:0x80883338
 
-game/Em005DoppelGanger.cpp:
+game/em005_doppel_ganger.cpp:
 	.text       start:0x80250A24 end:0x8025457C
 	.ctors      start:0x8072D324 end:0x8072D328
 	.rodata     start:0x80743AA8 end:0x80743C70
