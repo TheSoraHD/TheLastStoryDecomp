@@ -56,6 +56,7 @@ public:
     virtual void vf3C(HitInfo_unk* hit);                       // 0x80283FD4
     virtual void vf40(HitInfo_unk* hit);                       // 0x8028429C
     virtual void vf7C(int arg);
+    virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset); // 0x802844E0
     virtual void vfEC();                                       // 0x80286B78
 
     void fn_80287788(); // inferred: death
@@ -81,7 +82,7 @@ public:
     int m153C;
     float m1540;              // inferred: 0.0f
     float m1544;              // inferred: 0.0f
-    unsigned char m1548[0x1554 - 0x1548];
+    atn::Vector3 m1548;       // inferred: jump velocity (state 13, vf80)
     int m1554;
     unsigned char m1558[0x1570 - 0x1558];
     SpiderBaseList_unk m1570;
@@ -93,7 +94,7 @@ public:
     int m1590;                // inferred: 90
     int m1594;                // inferred: 90
     unsigned char m1598[0x159C - 0x1598];
-    int m159C;
+    int m159C;                // inferred: frames of the jump (vf80)
     float m15A0;              // inferred: 1.0f
     atn::EfpHandle_unk m15A4; // inferred: "/effect/ef_uc001.efp"
     atn::EfpHandle_unk m15B0; // inferred: "/effect/ef_sc003_01b.efp"

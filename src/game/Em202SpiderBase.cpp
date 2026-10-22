@@ -24,6 +24,12 @@ extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferr
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" double cos(double x);
+// inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
+struct System_unk {
+    unsigned char m00[0x30];
+    int mFrameRate; // 0x30
+};
+extern "C" System_unk* lbl_8087F0A8;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
@@ -272,4 +278,26 @@ void Em202SpiderBase::vf7C(int arg) {
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x1DD, 0, 0, 1, 0.0f, 0.05f);
+}
+
+// NONMATCHING: 83.15% - order of the int-to-float conversions of `frames` and of the vector temporaries
+// (10 variants)
+// inferred: jumps to pos + offset (state 13) in the frames of the motion 0x68
+void Em202SpiderBase::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
+    ResetAttack_unk();
+    m58C = 13;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x68, 0, 0, 1, 0.0f, 0.1f);
+    atn::Vector3 dest = pos + offset;
+    int frames = (int)mMotion.fn_80097D7C(0);
+    m159C = frames;
+    float inv = 1.0f / frames;
+    m1548 = (dest - mPos) * inv;
+    m1590 = 0;
+    mColli.mFlags &= ~1;
+    int fps = lbl_8087F0A8->mFrameRate;
+    m1548.y -= 0.5f * (frames * (-98.1f / (float)(fps * fps)));
 }
