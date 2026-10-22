@@ -18,6 +18,24 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
+                           float arg6); // inferred: nearest route point (as in gmk/MeetingSpot.cpp)
+// inferred: collision world and its ray test (as in game/ChaserNpc.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10;
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -327,6 +345,76 @@ void Em101LittleZesya::fn_8025D90C() {
         fn_80232B7C(this, 101);
         PlayEffectA_unk(&m156C, &mMotion);
         m1548 = 1;
+    }
+}
+
+// NONMATCHING: 99.89% - r3/r4 of the copy of the route point (__VecCopy family; 6 variants)
+// inferred: starts the warp chosen by fn_8025D90C/fn_8025E008 (m1548: 1 next to the target, 3 to the
+// shoot point, otherwise to the wait point)
+void Em101LittleZesya::fn_8025E100() {
+    if (m14D0 <= 10) {
+        return;
+    }
+    if (m1548 == 1) {
+        m14D0 = 0;
+        m14F4 = 0;
+        m58C = 9;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 1.0f, 0.1f);
+        // inferred: m154C-m1554 hold the warp position (floats in the header)
+        atn::Vector3* dest = (atn::Vector3*)&m154C;
+        CharaTask* target = m14B8;
+        mMotion.mTracks[0].m08 = 0.0f;
+        if (target != 0) {
+            int point = fn_803C1560(lbl_8087F430->m10D8, &target->mPos, 0, 0, 0, 1, -1.0f);
+            *dest = lbl_8087F430->m10D8->mPoints[point - 1].mPos;
+            m1558 = (target->mPos - *dest).ToRotationZ_unk().y;
+            atn::Vector3 e = *dest - target->mPos;
+            e.y = 0.0f;
+            if (PSVECMag(&e) > 40.0f) {
+                *dest = target->mPos + e.GetNormalized_unk() * 40.0f;
+                CollResult_unk result;
+                atn::Vector3 to = atn::Vector3(0.0f, -500.0f, 0.0f) + *dest;
+                if (fn_8004ED34(lbl_8087EE98, &result, dest, &to, 0x80000000, &mColli, 0) != 0) {
+                    *dest = result.m10;
+                }
+            }
+        }
+        mPos = *(atn::Vector3*)&m154C;
+        mRot.y = m1558;
+        m1540 = 0.0f;
+    } else if (m1548 == 3) {
+        m14D0 = 0;
+        m14F4 = 0;
+        m58C = 14;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.1f);
+        mMotion.mTracks[0].m0C = 1.0f;
+        if (m14C0 != 0) {
+            mPos = m14C0->mPos;
+        }
+        fn_80232B7C(this, 102);
+        PlayEffect_unk(&m1584, &mMotion);
+    } else {
+        m14D0 = 0;
+        m14F4 = 0;
+        m58C = 12;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x1C4, 1, 0, 1, 0.0f, 0.1f);
+        if (m14BC != 0) {
+            mPos = m14BC->mPos;
+            mRot.y = m14BC->m14;
+        }
+        fn_80232B7C(this, 101);
+        PlayEffect_unk(&m156C, &mMotion);
     }
 }
 
