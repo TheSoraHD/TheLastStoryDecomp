@@ -6,6 +6,7 @@
 
 // inferred: attack entry of the dark servant (skill id, cool time); names invented
 struct ServantAttack_unk {
+    ServantAttack_unk() : mSkillId(0), m04(0), mCoolTime(0), m0C(0) {}
     int mSkillId;
     int m04;
     int mCoolTime;

@@ -45,6 +45,8 @@ game/Em315Coffin.
   original relee justo despues de escribirlos a traves de `*(volatile int*)&...` (m14E0/m157C en vf40, m54C en
   fn_8030E530 y en el estado 13 de vf100, que sube a 98.43%). Declarar los miembros `volatile` en la cabecera
   empeora vf40 (94.9%): el volatile va solo en esas lecturas.
+  - ctor al 100% (17/21): `ServantAttack_unk` con constructor inline que pone a cero (el original construye
+    m14EC y m152C con bucles de array de paso 16) y los cuatro enteros por defecto en la lista de inicializacion.
 - `game/Em309GhoulSimple` (9/22, sin nuevas al 100%): escritas vf10 (0x8030646C, 99.57%: registros volatiles del
   CanAct_unk inline), vf20 (0x80308D14, capsula, 99.76%: r4/r5 de la copia del cuello) y vf30 (0x80309E6C,
   99.92%: offsets del pool). Las grandes (vf100/104/108, fn_803067E0 vf40, fn_80308E6C) y fn_803097AC (slot 0xB0:
@@ -90,6 +92,8 @@ game/Em315Coffin.
   m16F8); solo la usa Em309Ghoul.cpp.
 - symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
   (scope:local).
+- include/game/Em312DarkServant.h: `ServantAttack_unk` recibe un constructor inline a cero (la usa tambien
+  Em006DarkMaster.cpp; regress/fuzzdrop 0).
 - include/game/Em314Ivy.h: m14D4/m14D8/m14DC pasan a un struct `Rot_unk` (nombre inventado); m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
   declaraciones de las cuatro funciones; solo la usan Em314Ivy.cpp y la factoria.
 - include/game/Em315Coffin.h (solo la usan Em315Coffin.cpp y la factoria de SpecialEnemyBase.cpp): campos 0x15C8-0x15F4

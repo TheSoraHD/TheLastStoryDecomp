@@ -32,20 +32,9 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 
-// NONMATCHING: ~40% - the original clears m14EC and m152C with constructed array loops (16-byte stride
-// with a loop count computed from the addresses) and stores the defaults in another order
 Em312DarkServant::Em312DarkServant(atn::Task* parent, EnemyInfo_unk* info)
-    : SpecialEnemyBase(parent, info), m14D4(0), m14D8(1), m14DC(0), m14E0(0), m14E4(50.0f), m14E8(40.0f) {
-    for (int i = 0; i < 4; i++) {
-        m14EC[i].mSkillId = 0;
-        m14EC[i].m04 = 0;
-        m14EC[i].mCoolTime = 0;
-        m14EC[i].m0C = 0;
-    }
-    m1570 = 900;
-    m1574 = 1200;
-    m1578 = 3;
-    m157C = 3;
+    : SpecialEnemyBase(parent, info), m14D4(0), m14D8(1), m14DC(0), m14E0(0), m14E4(50.0f), m14E8(40.0f), m1570(900),
+      m1574(1200), m1578(3), m157C(3) {
     char name[0x100];
     char path[0x100];
     if (fn_805A3D68(name, info->m2C)) {
