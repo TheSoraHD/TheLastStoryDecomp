@@ -17,6 +17,14 @@ Em101ElderZesya 10/20, Em101ElderZesyaSecond 11/15, Em101LittleZesya 18/25, Em10
   en ficheros sueltos: bool/int, inlines, ternarios, mascara por parametro, xor, resta...); ControlCall::vf0C
   99.44% (r7/r8 en el bucle de busqueda y r26/r27 de dos vectores de pila; 6 variantes).
 
+- `game/Em003LesserDaemon` (10/22 -> 14/22): escritas todas las funciones que faltaban: vf0C (lector del CSV,
+  100%), vf10 (99.74%), vf3C (100% al completar el pool), fn_8024BE94 (luces de material, 99.89%),
+  fn_8024D120 (eleccion de accion por fase, 100%), fn_8024F1DC (estado 8, abanico de laseres, 98.58%) y
+  fn_8024FFE8 (cambio de fase, 100%). Fuente reordenado al orden del .dol. NONMATCHING: vf10 99.74% (huecos de
+  pila de dos efectos y del dash, f9/f10; 8 variantes), fn_8024BE94 99.89% (f2/f3 del seno; 8 variantes),
+  fn_8024F1DC 98.58% (registros salvados del bucle del abanico y de la busqueda; 10 variantes). Siguen como
+  estaban: ctor 99.74%, vf24 99.90%, fn_8024E7E4 99.66%, fn_8024ED68 99.84%, fn_802506AC 99.53% (registros).
+
 ## Decisiones tomadas sin el usuario
 
 - **symbols.txt (renombrados)**: fn_80253F00 -> `vf0C__Q233@unnamed@em005_doppel_ganger_cpp@11ControlCallFv`
@@ -30,12 +38,29 @@ Em101ElderZesya 10/20, Em101ElderZesyaSecond 11/15, Em101LittleZesya 18/25, Em10
   AllyAi_unk de Em403WarLion), `Settings_unk` (solo m80 de lbl_8087F0A8), `ControlTime_unk` (m08 del control en
   curso), inline `IsShown_unk` / `IsControlTimeUp_unk`; `Color4f_unk` gana un ctor de 4 floats.
 
+- Em003LesserDaemon: `mPoints` (0x1590) y `mLinks` (0x16D8) pasan a `atn::FixedArray_unk<atn::Vector3, 8>` y
+  `atn::FixedArray_unk<Em003LesserDaemon*, 2>` (el original hace push_back con placement new y comprobacion de la
+  direccion); m14C8/m14D4 a `HitInfo_unk*`, m14DC a `CharaTask*`, m14E0/m14E4/m14E8 y m1600/m160C sacados del
+  relleno con nombres inventados; vistas locales `DaemonAi_unk`, `FrameTime_unk`, `MatColor_unk` (colores de
+  material devueltos por fn_80094B6C), `ColorF_unk`. symbols.txt: fn_8024AD30/B4F0/C46C -> vf0C/vf10/vf3C y
+  fn_8024BE94/D120/F1DC/FFE8 -> metodos de Em003LesserDaemon (ningun otro .cpp los llamaba).
+- Em003LesserDaemon::vf10: un `*(volatile int*)&m1624` (dentro de la inline `ShowHits_unk`) reproduce la
+  segunda lectura del original, variante ya usada en la cola q5.
+
 ## Hallazgos MWCC
 
 - `bool r = (x & 8) != 8` no se materializa con subfic/or/srwi. en ninguna forma de C++ probada (bool/int/inline/
   ternario/mascara variable); `(8 - x) | (x - 8)) >> 31` escrito a mano si lo da, pero seria codigo inventado.
 - En un argumento de llamada, calcular `m153C / 15.0f` en un `float` local antes del color temporal coloca el
   fdivs donde el original.
+
+- Dos busquedas del punto mas lejano iguales en una unidad pueden necesitar dos inlines distintos: con
+  `unsigned int i;` declarado antes del bucle sale el reparto de registros de una llamadora y con el `for`
+  normal el de la otra (Em003LesserDaemon fn_8024D120 / fn_8024E1C0).
+- `if (a == 0) return; if (b == 6) return;` (dos if) evita el `bne/b` invertido que da `if (a == 0 || b == 6)`.
+- `mLinks.size() == 0` (accesor) en vez de `mLinks.mSize == 0` cambia el registro que recibe el contador.
+- Colores de material leidos en una llamada: `ColorF_unk color(...)` con nombre y los otros dos como
+  temporales en los argumentos dan el orden de pila del original.
 
 ## Pendientes (esta cola)
 
