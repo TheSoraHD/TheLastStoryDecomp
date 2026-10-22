@@ -4,6 +4,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/LH_Binary.h"
 #include "game/EnemyTask.h"
+#include "game/CharaStatus.h"
 #include "game/ResHandle.h"
 
 // inferred: position and rotation saved by fn_8025D6D0 / sent by Em101ElderZesya (fn_8025FE30); names
@@ -25,6 +26,7 @@ public:
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
 
+    void fn_8025CFF4(); // inferred: reads the data file
     void fn_8025D7B0(); // inferred: runs the state machine
     void fn_8025DE54(); // inferred: state 0
     void fn_8025F35C(); // inferred: back to state 0 (half of m15C0 as frame counter)
@@ -41,8 +43,8 @@ public:
 
     atn::LH_Binary m14B0;   // inferred: data file
     CharaTask* m14B8;       // inferred: target
-    int m14BC;
-    int m14C0;
+    RoutePlace_unk* m14BC;  // inferred: "WaitPointID"
+    RoutePlace_unk* m14C0;  // inferred: "ShootPointID"
     atn::Vector_unk<atn::Vector3> m14C4; // inferred: points (as Em101ElderZesya::m14BC)
     int m14D0;              // inferred: frame counter
     unsigned char m14D4[0x14EC - 0x14D4];
@@ -53,11 +55,11 @@ public:
     atn::Vector3 m14FC;     // inferred: saved position
     atn::Vector3 m1508;     // inferred: saved rotation
     int m1514;
-    int m1518;
-    int m151C;
-    int m1520;
-    int m1524;
-    int m1528;              // inferred: attack skill
+    float m1518;            // inferred: copied from m568 on load
+    HitInfo_unk* m151C;     // inferred: "NormalAttackID"
+    HitInfo_unk* m1520;     // inferred: "HighJumpAttackID"
+    HitInfo_unk* m1524;     // inferred: "LightSwordID"
+    HitInfo_unk* m1528;     // inferred: "WarpSlashID" (attack skill)
     int m152C;
     int m1530;
     int m1534;
@@ -66,7 +68,13 @@ public:
     float m1540;            // inferred: last frame
     unsigned char m1544[0x1548 - 0x1544];
     int m1548;
-    unsigned char m154C[0x1568 - 0x154C];
+    float m154C;
+    float m1550;
+    float m1554;
+    float m1558;
+    float m155C;
+    float m1560;
+    float m1564;
     float m1568;            // inferred: added to the regeneration (CharaStatus +0x174)
     atn::EfpHandle_unk m156C;
     atn::EfpHandle_unk m1578;
