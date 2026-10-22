@@ -1,7 +1,8 @@
 // inferred: network statistics timer (counters per second) and the friend list of the Wi-Fi
 // Connection (DWC friend data, names and friend keys). Names invented. Not reconstructed:
-// 0x8050EBC8 (adding a friend by friend key); its two L"" literals come first in the wide string
-// pool, so every function that uses the pool is NONMATCHING by its offsets until it is written.
+// nothing (all the functions are written). The wide string pool of the original has three L""
+// (0x16, 0x18, 0x20) where ours has one: extra copies from code that is not in the DOL, so the
+// functions that use the pool are NONMATCHING only by their offsets.
 
 #include "std/string.h"
 
@@ -195,6 +196,105 @@ extern "C" void DWC_DeleteBuddyFriendData(void* friendData);
 extern "C" void DWC_ClearDirtyFlag(void* data);
 // inferred: writes `size` bytes at `offset` of a save file (atn/NandManager.cpp)
 extern "C" int fn_800A5218(const char* path, int offset, const void* data, int size);
+extern "C" int DWC_CheckFriendKey(void* userData, unsigned long long key);
+extern "C" void DWC_CreateFriendKeyToken(DWCFriendData_unk* token, unsigned long long key);
+extern "C" int DWC_IsEqualFriendData(const void* a, const void* b);
+extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long key);
+
+static unsigned int lbl_8087F880;
+
+// inferred: first valid friend slot from the iterator lbl_8087F880 (-1: none); names invented
+static inline int __NextFriend_unk(DWCFriendData_unk* friends) {
+    for (unsigned int i = lbl_8087F880; i < 32; i++) {
+        lbl_8087F880++;
+        if (DWC_IsValidFriendData(&friends[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static inline int __FirstFriend_unk(DWCFriendData_unk* friends) {
+    lbl_8087F880 = 0;
+    return __NextFriend_unk(friends);
+}
+
+// inferred: first free friend slot (-1: none)
+static inline int __FreeSlot_unk(DWCFriendData_unk* friends) {
+    for (int i = 0; i < 32; i++) {
+        if (!DWC_IsValidFriendData(&friends[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// inferred: the friend is already in the list
+static inline bool __HasFriend_unk(DWCFriendData_unk* friends, const DWCFriendData_unk* data) {
+    for (int i = 0; i < 32; i++) {
+        if (DWC_IsEqualFriendData(&friends[i], data)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// NONMATCHING: ~99% - pool offsets of L"%s"/L"" and one address computed into r3 instead of r27
+// inferred: adds a friend by friend key; mA04 gets the result (0 added, 1 own key, 2 already in the
+// list, 3 invalid key, 4 list full, 5 cannot change the list)
+extern "C" int fn_8050EBC8(MpFriendList_unk* list, unsigned long long key, int save) {
+    DWCFriendData_unk token;
+    char text[0x200];
+    {
+        std::basic_string<wchar_t> str = fn_8050F470(key);
+        fn_8006F420(lbl_8087EEC8, text, str.c_str(), 0x200);
+    }
+    if (key == list->mFriendKey && key != 0) {
+        list->mA04 = 1;
+        return 0;
+    }
+    if (key == 0 || !DWC_CheckFriendKey(list, key)) {
+        list->mA04 = 3;
+        return 0;
+    }
+    DWCFriendData_unk* friends = list->mFriends;
+    for (int id = __FirstFriend_unk(friends); id != -1; id = __NextFriend_unk(friends)) {
+        unsigned long long other = fn_806D0030(&list->mFriends[id]);
+        if (other == 0) {
+            memcpy(&other, list->mFriendKeys[id], 8);
+        }
+        if (key == other) {
+            list->mA04 = 2;
+            return 0;
+        }
+    }
+    int slot = __FreeSlot_unk(friends);
+    if (slot == -1) {
+        list->mA04 = 4;
+        return 0;
+    }
+    if (!DWC_CanChangeFriendList()) {
+        list->mA04 = 5;
+        return 0;
+    }
+    DWC_CreateFriendKeyToken(&token, key);
+    if (__HasFriend_unk(friends, &token)) {
+        return 0;
+    }
+    list->mFriends[slot] = token;
+    fn_800DD3FC(list->mFriendNames[slot], L"%s", L"");
+    memcpy(list->mFriendKeys[slot], &key, 8);
+    if (save) {
+        if (DWC_CheckDirtyFlag(list)) {
+            DWC_ClearDirtyFlag(list);
+            fn_800A5218("online/playerinfo7", 0, list, sizeof(list->mUserData));
+        }
+        fn_800A5218("online/playerinfo7", sizeof(list->mUserData), list->mFriends, 0x9B0);
+    }
+    list->mA04 = 0;
+    return 1;
+}
+
 
 // inferred: removes friend `id`; with `save`, writes the user data (if changed) and the friend list
 extern "C" int fn_8050EF14(MpFriendList_unk* list, int id, int save) {
@@ -310,8 +410,6 @@ extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long key) {
     }
     return std::basic_string<wchar_t>(buf);
 }
-
-static unsigned int lbl_8087F880;
 
 // inferred: registered friend (friend key exchanged)
 static inline bool __IsRegistered_unk(DWCFriendData_unk* data) {

@@ -117,3 +117,6 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
   - Segunda pasada NetFriend: escritas tambien `fn_8050E994` (~98.6%), `fn_8050EFCC` (99.5%), `fn_8050F198` (99.8%),
     `fn_8050F2F0` (99.4%): solo quedan los desplazamientos del pool de cadenas anchas (lo encabezan los L"" de
     `fn_8050EBC8`, 844 B, sin escribir) y algun registro. Queda 22/30; al escribir fn_8050EBC8 deberian subir varias.
+    Tercera pasada: escrita `fn_8050EBC8` (anadir amigo por clave, 99.24%; helpers inline de recorrido/hueco libre).
+    Todas las funciones de la unidad tienen ya fuente; las 8 restantes difieren por los desplazamientos del pool
+    de cadenas anchas (el original tiene tres L"" en 0x16/0x18/0x20, nosotros uno) y algun registro.
