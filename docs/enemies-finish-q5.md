@@ -4,6 +4,20 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q5 (sale de main 64df7a6; referencia s
 Cola: game/Em309Ghoul, game/Em309GhoulSimple, game/Em310Gargoyle, game/Em312DarkServant, game/Em314Ivy,
 game/Em315Coffin.
 
+## Resumen final (report.json contra start-q5)
+
+Total del report: 6806 -> 6843 funciones al 100% (+37). Ninguna unidad enlazada (todas tienen funciones grandes
+sin escribir o por debajo del 100%).
+
+| Unidad | Antes | Despues | Nota |
+|---|---|---|---|
+| Em309Ghoul | 8/33 | 14/33 | 2 de ellas (fn_8030073C, fn_80300AD8) son 100% en el report pero 99.57/99.75% en el diff directo: marcadas NONMATCHING (ver decisiones) |
+| Em309GhoulSimple | 9/22 | 12/22 | |
+| Em310Gargoyle | 2/21 | 5/21 | |
+| Em312DarkServant | 12/21 | 19/21 | quedan fn_8030E5C8 y vf100 (recursion inline) |
+| Em314Ivy | 4/18 | 11/18 | |
+| Em315Coffin | 7/21 | 18/21 | las 21 escritas; 3 NONMATCHING |
+
 ## Unidades
 
 - `game/Em315Coffin` (7/21 -> 11/21): vf10 (0x80313E44), vf10C (0x80313FC8), vf40 (0x80313FE8) y vf100
