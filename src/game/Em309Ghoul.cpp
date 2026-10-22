@@ -32,6 +32,14 @@ extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (dea
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: per-player weights of an effect (floats at +0x128); names invented
 struct GhoulWeights_unk {
@@ -276,6 +284,68 @@ void Em309Ghoul::fn_803009F4() {
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x145), *(const wchar_t**)((char*)m60 + 4));
     fn_80109828(lbl_8087F048, text);
+}
+
+// inferred: the rotation matrices of the three axes are function-scope locals (stack order of the original)
+void Em309Ghoul::fn_80300DF4() {
+    m14F0 = 0;
+    m14F4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80097CCC(&mMotion, 2, 0.0f);
+    m58C = 11;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+    m15D8.x = 0.0f;
+    m15D8.y = 0.0f;
+    m15D8.z = 0.0f;
+    atn::Matrix3x4 m;
+    Mtx rx;
+    Mtx tx;
+    Mtx ry;
+    Mtx ty;
+    Mtx rz;
+    Mtx tz;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    if (0.0f != mRot.z) {
+        PSMTXRotRad(rz, 'z', mRot.z);
+        PSMTXConcat(p->m, rz, tz);
+        __MtxCopy(p->m, tz);
+    }
+    if (0.0f != mRot.y) {
+        PSMTXRotRad(ry, 'y', mRot.y);
+        PSMTXConcat(p->m, ry, ty);
+        __MtxCopy(p->m, ty);
+    }
+    if (0.0f != mRot.x) {
+        PSMTXRotRad(rx, 'x', mRot.x);
+        PSMTXConcat(p->m, rx, tx);
+        __MtxCopy(p->m, tx);
+    }
+    PSMTXMultVec(m.m, &m15D8, &m15D8);
+    m15CC = mRot;
+    m15C8 = 0;
+    m15C4 = 0;
+    fn_80370AE4(lbl_8087F430, 0xA4, 1);
+    fn_80370AE4(lbl_8087F430, 0xA5, 1);
+    fn_80232B7C(this, 400);
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, &m15A0, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
 void Em309Ghoul::fn_803010BC() {

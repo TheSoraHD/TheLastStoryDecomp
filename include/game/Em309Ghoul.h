@@ -31,6 +31,7 @@ public:
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
     void fn_8030073C(); // inferred: starts state 6 (motion 0x145) facing the target
     void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
+    void fn_80300DF4(); // inferred: starts state 11 (motion 0x14A, effect m15A0)
     void fn_803010BC(); // inferred: starts state 12 (messages 0x149/0x14B)
     void fn_80301200(); // inferred: starts state 13
 
@@ -59,7 +60,10 @@ public:
     atn::EfpHandle_unk m15A0;
     atn::SoundRef m15AC;
     int m15B0;
-    unsigned char m15B4[0x15D8 - 0x15B4];
+    unsigned char m15B4[0x15C4 - 0x15B4];
+    unsigned char m15C4;
+    int m15C8;
+    atn::Vector3 m15CC;       // inferred: rotation when the state 11 started
     atn::Vector3 m15D8;       // inferred: debug line direction
     unsigned char m15E4[0x1608 - 0x15E4];
     atn::Vector3 m1608;       // inferred: debug sphere center

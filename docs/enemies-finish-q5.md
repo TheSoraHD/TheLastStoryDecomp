@@ -73,6 +73,9 @@ game/Em315Coffin.
   m14EC con `ToRotationZ_unk`) escrita: el diff directo de objdiff da 99.57% (las ranuras en pila de la diferencia
   y de la copia de la rotacion estan intercambiadas; ~15 variantes) pero `report.json` la cuenta al 100%. Se deja
   `// NONMATCHING: 99.57%` en la fuente (ver decisiones).
+  fn_80300DF4 (inicio del estado 11: motion 0x14A, direccion m15D8 rotada z/y/x, banderas 0xA4/0xA5 del campo,
+  efecto m15A0) al 100% con las matrices de los tres ejes como locales de la funcion en orden x, y, z (con un
+  helper inline quedan en orden inverso).
 - `game/Em310Gargoyle` (2/21 -> 3/21): vf40 (0x8030B5B0, derrota: banderas 0xCF/0x66 del campo y efecto
   ef_uc037) al 100%. vf3C (0x8030B41C, modos de dano "DamageCalcMode") 99.99%: solo el offset de "head" en el
   pool. vf0C (0x8030A6A0) 98.41%: r3/r4 de la palabra de banderas y del pool, r3/r4/r5 de los stores finales
