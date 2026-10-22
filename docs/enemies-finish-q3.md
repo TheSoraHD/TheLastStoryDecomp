@@ -25,6 +25,14 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 - La tabla de comandos de "act_command" (`sCommands_unk`, {nombre[0x40], id}) y su busqueda fn_802D73E4 son
   estaticas del fichero.
 
+### game/Em302KrakenMp (0/39 -> 7/39, primera pasada)
+- Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302KrakenMp.cpp` y cabecera nueva
+  `include/game/Em302KrakenMp.h` (subclase de SpecialEnemyBase, vtable 0x11C; layout 0x14D4-0x1660; nombres
+  inventados). Misma tabla de comandos que Em302Kraken pero con ids 8/9/10 ({"swing","pound","wait"}).
+- Al 100%: dtor, vf14, vf40, vf108, vfEC, vfFC, vf110.
+- NONMATCHING >= 97%: ctor (98.1%, std::string), vf20, vf54, vf100, vf114, fn_802E1A0C (pool/.sdata2),
+  vfAC (99.5%, slots de los dos temporales intercambiados; 7 variantes) y las copias debiles vf90/vf94/vfC8.
+
 ## Decisiones tomadas sin el usuario
 - **splits.txt**: `.rodata` de game/Em301LShade ampliada de 0x807470A4 a 0x807473F8: absorbe el tramo
   auto_06_807470A4 (pool de cadenas de la unidad, `lbl_807470A4`, que solo usa Em301LShade).
@@ -42,6 +50,9 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   vfD8, vf90, vf94, vfC8, vfD4, vfDC (por la vtable) y fn_802DA174/C618/DA90/DBB0/C5B4 como metodos;
   fn_802D73E4 scope:local; lbl_807473F8 -> `sCommands_unk` (local); lbl_80747654 -> `@stringBase0` (local).
 - game/SpecialEnemyBase.cpp: la factoria (case 30) crea `new (3, "", "", 0) Em302Kraken(parent, info)`.
+- **symbols.txt (Em302KrakenMp)**: ctor, dtor y las 21 virtuales de la vtable renombradas; fn_802E1290/1414/
+  1624/177C/1A0C como metodos; fn_802DDD1C scope:local; lbl_807479E8 -> `sCommands_unk` (local);
+  lbl_80747B10 -> `@stringBase0` (local). Factoria (case 32) con `new (3, "", "", 0) Em302KrakenMp(...)`.
 - HitMsg_unk+0x40 (indice de la esfera de dano) se lee con un cast (`*(int*)&msg->m3C[4]`), como en
   Em101ElderZesya, para no tocar CharaTask.h.
 
