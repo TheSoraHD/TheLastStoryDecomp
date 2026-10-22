@@ -3716,7 +3716,7 @@ RVL_SDK/src/revolution/mem/mem_frameHeap.c:
 
 RVL_SDK/src/revolution/mem/mem_allocator.c:
 	.text       start:0x8061A0D0 end:0x8061A12C
-	.sdata2     start:0x80888800 end:0x80888810
+	.sdata2     start:0x80888800 end:0x80888808
 
 RVL_SDK/src/revolution/euart/euart.c:
 	.text       start:0x8061A250 end:0x8061A5D0
