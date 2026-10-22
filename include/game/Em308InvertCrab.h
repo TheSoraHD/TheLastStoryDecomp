@@ -41,6 +41,7 @@ public:
     void fn_802F3BE8(); // inferred: state 8 (needle)
     void fn_802F42CC(); // inferred: state 9 (turn)
     void fn_802F469C(); // inferred: state 10 (tackle run)
+    void fn_802F4A98(); // inferred: state 11 (keeps the distance)
     void fn_802F5370(); // inferred: state 12 (escape)
     void fn_802F566C();
     inline void ResetAttack_unk();
