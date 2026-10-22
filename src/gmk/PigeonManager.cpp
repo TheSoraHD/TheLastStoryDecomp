@@ -55,6 +55,10 @@ inline void __SetTrans3_unk(atn::Matrix3x4& m, float x, float y, float z) {
     m.m[1][3] = y;
     m.m[2][3] = z;
 }
+// inferred: float wrapper of atan2 (name invented; it loads x before y)
+inline float Atan2_unk(float y, float x) {
+    return atan2(y, x);
+}
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 // inferred: rotation matrix z * y * x (as in gmk/Bat.cpp)
 inline void __MakeRotation_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
@@ -237,8 +241,7 @@ void Pigeon_unk::fn_804050C0() {
     m418--;
 }
 
-// NONMATCHING: 98.7% - the z of the direction is stored before the yaw is computed, and the
-// second atan2 loads its arguments in the other order; .sdata2 order.
+// NONMATCHING: 98.7% - only .sdata2/.rodata order (both atan2 go through Atan2_unk).
 void Pigeon_unk::fn_80405A14(CharaTask* player) {
     atn::Vector3 d = mPos - player->mPos;
     float distSq = fn_805F9920(&d);
@@ -248,7 +251,7 @@ void Pigeon_unk::fn_80405A14(CharaTask* player) {
         d.y = 15.0f;
         PSVECNormalize(&d, &d);
         m3EC = d;
-        m3E0.y = atan2(m3EC.x, m3EC.z);
+        m3E0.y = Atan2_unk(m3EC.x, m3EC.z);
         m418 = 300;
         mSound = fn_800C344C(sSe[0], &mPos, 0, -1, 1.0f);
     } else if (distSq < 400.0f) {
@@ -270,7 +273,7 @@ void Pigeon_unk::fn_80405A14(CharaTask* player) {
         Mtx r;
         PSMTXRotRad(r, 'y', a);
         PSMTXMultVec(r, &m3EC, &m3EC);
-        m3E0.y = atan2(m3EC.x, m3EC.z);
+        m3E0.y = Atan2_unk(m3EC.x, m3EC.z);
     }
 }
 

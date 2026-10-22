@@ -60,6 +60,7 @@ Una linea por unidad procesada (orden de cola_B.md).
 - gmk/Chain: las 4 funciones sin escribir usan push_back en bucle (bloqueo documentado); saltada. db/PaletteTable_unk fn_8020BB0C: 5 variantes de las locales sin usar, sin mejora.
 - gmk/RandomItem: escrita fn_80435CBC (funcion libre llamada desde GameScene: `m11C == 2 && m168 != 0`) -> 100%. 13/19. gmk/CharaPathMove fn_8043D6E4/fn_8043D930: copias debiles de std::vector dentro de vf20 (presupuesto de inline ya investigado); saltadas.
 - gmk/PigeonManager (2a pasada): escritas las 6 funciones de Pigeon_unk que faltaban: fn_804048CC (99.93%), fn_80404E70 (99.73%), fn_804050C0 (99.78%), fn_80405A14 (98.7%), fn_804052EC (97.3%), fn_804058A4 (91.5%); el codigo de fn_804048CC, fn_80404E70 y fn_804050C0 ya coincide (cmp OK), solo falta el orden de .sdata2. FindNear_unk reescrito (copia local `t = mTmp = ...` y bandera `same`): vf0C 88.71% -> 93.89%. vf10 99.93%. symbols.txt: fn_80405A14__Q23gmk10Pigeon_unkFv -> fn_80405A14__Q23gmk10Pigeon_unkFP9CharaTask (recibe el jugador en r4). Cabecera include/gmk/PigeonManager.h (solo la usa esta unidad).
+- gmk/ChickenManager (2a pasada): escritas las 6 funciones de Chicken_unk (gemelas de Pigeon_unk): fn_8040B668 99.91%, fn_8040BC38 99.73%, fn_8040BE88 99.83%, fn_8040CD2C 99.61% (codigo igual, solo orden de .sdata2), fn_8040C058 97.3%, fn_8040C610 97.7% (huecos de pila). El ctor pasa al 100% (orden de .sdata2 ya correcto). FindNear_unk como en Pigeon: vf0C 88.71% -> 93.89%. 7/15. symbols.txt: fn_8040CD2C__Q23gmk11Chicken_unkFv -> fn_8040CD2C__Q23gmk11Chicken_unkFP9CharaTask. Pigeon fn_80405A14: con Atan2_unk su codigo ya coincide (98.73%, solo .sdata2/.rodata).
 
 ## Hallazgos MWCC
 - Pasar `(int)x` (x unsigned) a un inline en una segunda llamada impide que MWCC comparta las subexpresiones del parametro entre las dos copias inlineadas (TreasureBoxTable).
@@ -78,6 +79,7 @@ Una linea por unidad procesada (orden de cola_B.md).
 - Reutilizar una variable ya viva (`active`) como contador de un bucle posterior en vez de declarar `int i` cambia la numeracion del registro del contador (PigeonManager::vf10).
 - `x += k * (float)(rand() % n)` sale como fmadds; con una local `float d = k * ...; x = x + d;` sale fmuls + fadds como en el original (Pigeon_unk).
 - Un `cos(double)` en tiempo de ejecucion con una constante double en .rodata (no plegado) sale de una `static const double` pasada a cos (Pigeon_unk::fn_804052EC).
+- `atan2(v.x, v.z)` directo carga z (f2) antes que x (f1); a traves de un inline `float Atan2_unk(float y, float x) { return atan2(y, x); }` carga x primero, como el original (Pigeon_unk/Chicken_unk).
 - En un helper inline, declarar como locales los vectores/color pasados por referencia (en lugar de temporales en la llamada) da el orden de pila del original (OpenBoard/WaitObject).
 
 ## Decisiones tomadas sin el usuario

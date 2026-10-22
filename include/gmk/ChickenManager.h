@@ -5,6 +5,8 @@
 #include "atn/SoundRef.h"
 #include "game/GimmickCommon.h"
 
+class CharaTask;
+
 namespace gmk {
 
 class ChickenManager;
@@ -13,12 +15,12 @@ class ChickenManager;
 struct Chicken_unk {
     Chicken_unk();  // 0x8040B560
     ~Chicken_unk(); // 0x8040B60C
-    void fn_8040B668(); // inferred: update; not decompiled yet
-    void fn_8040BC38(); // inferred: reset (placed at a random point); not decompiled yet
-    void fn_8040BE88(); // not decompiled yet
-    void fn_8040C058(); // not decompiled yet
-    void fn_8040C610(); // not decompiled yet
-    void fn_8040CD2C(); // not decompiled yet
+    void fn_8040B668(); // inferred: update
+    void fn_8040BC38(); // inferred: reset (placed at a random point)
+    void fn_8040BE88(); // inferred: pecking on the ground
+    void fn_8040C058(); // inferred: walks (as gmk::Pigeon_unk::fn_804052EC)
+    void fn_8040C610(); // inferred: runs away from the player
+    void fn_8040CD2C(CharaTask* player); // inferred: reacts to the player (runs away when near)
 
     ChickenManager* mOwner; // 0x00
     Model_unk mModel;      // 0x04
