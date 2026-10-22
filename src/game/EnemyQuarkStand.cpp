@@ -1081,6 +1081,76 @@ inline void EnemyQuarkStand::ReleaseCamera_unk() {
     }
 }
 
+// inferred: frame of track 0 at least `frame` (name invented)
+inline bool QuarkFrameAtLeast_unk(Model_unk* model, float frame) {
+    bool ok = false;
+    if (model->mTracks[0].m08 >= frame) {
+        ok = true;
+    }
+    return ok;
+}
+
+// inferred: the motion of track 0 is within `frames` of its end (name invented)
+inline bool QuarkNearEnd_unk(Model_unk* model, float frames) {
+    float end = model->fn_80097D7C(0);
+    bool ok = false;
+    if (model->mTracks[0].m08 >= end - frames) {
+        ok = true;
+    }
+    return ok;
+}
+
+// inferred: horizontal and full distance between two points (names invented)
+inline float QuarkDistXZ_unk(const atn::Vector3& to, const atn::Vector3& from) {
+    atn::Vector3 d(to.x - from.x, to.y - from.y, to.z - from.z);
+    return sqrt(d.x * d.x + d.z * d.z);
+}
+inline float QuarkDist_unk(const atn::Vector3& to, const atn::Vector3& from) {
+    atn::Vector3 d = to - from;
+    return PSVECMag(&d);
+}
+
+// inferred: flight toward the aim m15DC (motions 0x13F take off, 0x140 flight, 0x141 landing): the speed
+// m570 grows by 0.5 per frame up to the distance (3D when `full`), then follows the aim and turns toward the
+// target; the action ends when the landing motion ends
+void EnemyQuarkStand::fn_8034C060(int full) {
+    float len = full != 0 ? QuarkDistXZ_unk(m15DC.mTarget, mPos) : QuarkDist_unk(m15DC.mTarget, mPos);
+    float speed = QS_MIN_unk(10.0f, len);
+    int motion = mMotion.mTracks[0].m00;
+    if (motion == 0x13F) {
+        mMotion.mTracks[0].m0C = 2.0f;
+        if (QuarkNearEnd_unk(&mMotion, 5.0f)) {
+            mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 0.0f, 0.1f);
+        }
+        if (QuarkFrameAtLeast_unk(&mMotion, 15.0f)) {
+            m570 = QS_MIN_unk(speed, 0.5f + m570);
+        }
+    } else if (motion == 0x140) {
+        mMotion.mTracks[0].m0C = 1.0f;
+        if (len < 20.0f) {
+            mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
+        }
+        m570 = QS_MIN_unk(speed, 0.5f + m570);
+    } else if (motion == 0x141) {
+        mMotion.mTracks[0].m0C = 2.0f;
+        atn::Vector3 d = m15DC.mTarget - mPos;
+        d.y = 0.0f;
+        m570 = QS_MIN_unk(speed, 0.2f * len);
+        PSVECNormalize(&d, &d);
+        if (PSVECDotProduct(&d, &m15DC.mDir) < 0.0f) {
+            m570 = 0.0f;
+        }
+        if (QuarkNearEnd_unk(&mMotion, 8.0f)) {
+            fn_8034F41C();
+            return;
+        }
+    }
+    if (m570 > 0.5f) {
+        TurnTo_unk(1.0f);
+    }
+    mPos += m15DC.mDir * m570;
+}
+
 // inferred: state 17 (falls with gravity until the ground, then waits) (the state helpers are inlined)
 void EnemyQuarkStand::fn_8034E898() {
     m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
