@@ -162,7 +162,10 @@ struct HitParam_unk {
 extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
 // inferred: damage result of fn_8003EA3C (0x20 bytes); names invented
 struct KrakenMpDamage_unk {
-    KrakenMpDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(-1) { mFlags = 0; }
+    KrakenMpDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
+        mFlags = 0;
+        m18 = -1;
+    }
     int m00;
     int m04;
     int m08;
@@ -444,8 +447,38 @@ int Em302KrakenMp::vf0C() {
 template void std::vector<Em303KrakenFootMp*>::push_back(Em303KrakenFootMp* const& x);
 template void std::vector<KrakenMpCommand_unk>::push_back(const KrakenMpCommand_unk& x);
 
-// NONMATCHING: 98.8% - registers of the pillar loop (index/count/offset rotated) and of the inlined
-// "can act" checks, and the stack slot of the damage result (7 variants)
+// inferred: sends message 2 to every raised pillar except the one of the current point (as in
+// game/Em302Kraken.cpp; names invented)
+inline void BreakPillarsMp_unk(Em302KrakenMp* k) {
+    unsigned int i;
+    unsigned int skip = k->m15E4;
+    for (i = 0; i < k->m15F4.size(); i++) {
+        KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m15F4[i]);
+        if (g != 0) {
+            int state = g->m54;
+            if (i != skip && state == 1) {
+                SendGimmick_unk(g, 2);
+            }
+        }
+    }
+}
+
+// inferred: sends message 1 to the pillar of the current point and returns it (names invented)
+inline KrakenMpGimmick_unk* RaisePillar_unk(Em302KrakenMp* k) {
+    int index = k->m15E4;
+    if (k->m15F4.size() == 0) {
+        return 0;
+    }
+    KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m15F4[index]);
+    if (g != 0) {
+        SendGimmick_unk(g, 1);
+        return g;
+    }
+    return 0;
+}
+
+// NONMATCHING: 99.8% - registers of the inlined CanAct_unk (r4/r0/r3 in the original, the order of
+// Em303KrakenFoot::vf40; 5 variants of the call site)
 void Em302KrakenMp::vf10() {
     if (m1540 != m1544) {
         if (m1540 == 1) {
@@ -466,33 +499,26 @@ void Em302KrakenMp::vf10() {
     if (m154C != m1550) {
         for (KrakenMpGimmick_unk* g = FirstGimmick_unk(); g != 0; g = g->mNext) {
             if (g->m48 == 0x444) {
-                SendGimmick_unk(g, 0);
+                KrakenMpGimmickMsg_unk msg;
+                msg.m00 = 0;
+                msg.m04 = 0;
+                msg.m08 = 0;
+                msg.m0C = 0;
+                msg.m10 = 0;
+                msg.m14 = 0.0f;
+                msg.m18 = 0.0f;
+                msg.m1C = 0.0f;
+                g->vf40(&msg);
             }
         }
         m1550 = m154C;
     }
     if (m1554 != m1558) {
         if (m1554 == 1) {
-            int index = m15E4;
-            if (m15F4.size() != 0) {
-                KrakenMpGimmick_unk* g =
-                    (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, m15F4[index]);
-                if (g != 0) {
-                    SendGimmick_unk(g, 1);
-                }
-            }
+            RaisePillar_unk(this);
         } else if (m1554 == 2) {
-            unsigned int skip = m15E4;
-            for (unsigned int i = 0; i < m15F4.size(); i++) {
-                KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, m15F4[i]);
-                if (g == 0) {
-                    continue;
-                }
-                int state = g->m54;
-                if (i != skip && state == 1) {
-                    SendGimmick_unk(g, 2);
-                }
-            }
+            BreakPillarsMp_unk(this);
+
         }
         m1558 = m1554;
     }
