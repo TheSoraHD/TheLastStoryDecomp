@@ -49,7 +49,7 @@ public:
     static GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);   // inferred: factory
     virtual ~WaitObject();
     virtual int vf0C();
-    virtual void vf10(); // not decompiled yet
+    virtual void vf10();
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20(); // not decompiled yet

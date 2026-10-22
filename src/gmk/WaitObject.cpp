@@ -20,6 +20,19 @@ extern "C" int sprintf(char* dst, const char* fmt, ...);
 extern "C" double cos(double x);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int rand();
+// inferred: camera (lbl_8087EFB4) and field (lbl_8087F430); classes unknown
+struct WaitCamera_unk {
+    unsigned char m00[0x10C];
+    atn::Vector3 mPos; // 0x10C
+};
+extern "C" WaitCamera_unk* lbl_8087EFB4;
+struct WaitField_unk;
+extern "C" WaitField_unk* lbl_8087F430;
+struct WaitMapGroup_unk {
+    unsigned char m00[0x48];
+    int m48; // inferred: kind (1: the object is only updated near the camera)
+};
+extern "C" WaitMapGroup_unk* fn_80373148(WaitField_unk* field);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -50,6 +63,9 @@ struct WaitHitBullet_unk {
     unsigned char m08[0x3C - 0x08];
     int mPower; // 0x3C
 };
+// inferred: clamps (MAX/MIN macros: the value is computed again; names invented)
+#define Max_unk(a, b) ((a) > (b) ? (a) : (b))
+#define Min_unk(a, b) ((a) < (b) ? (a) : (b))
 // inferred: area of a trigger (WaitTrigger_unk::m08; names invented)
 struct WaitArea_unk {
     float mRadius;    // 0x08
@@ -157,6 +173,54 @@ void WaitObject::vf14() {
     }
     if (lbl_8087F0A8->m18 != 0 && (mStates[m54].mFlags & 2) != 2 && vf38() != 0) {
         fn_803ED774(vf38());
+    }
+}
+
+// inferred: per frame update: position (TRANS/TRANSINV move m24 over m24 frames from the initial
+// position), rotation (TRANSINV turns by pi/2), model and collision, then the triggers
+// NONMATCHING: 99.97% - only the name of the safe-bool member pointer of boost::scoped_ptr
+// (lbl_8078DC58 in the original; see vf1C)
+void WaitObject::vf10() {
+    if (mDesc != 0 && mDesc->m7C == 0) {
+        return;
+    }
+    atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
+    float dist = fn_805F9920(&d);
+    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m48 == 1 &&
+        dist > 360000.0f) {
+        return;
+    }
+    if (m54 == 0) {
+        return;
+    }
+    if ((mStates[m54].mFlags & 8) == 8) {
+        float rate = Min_unk(Max_unk((float)m7F8 / mStates[m54].m24, 0.0f), 1.0f);
+        m6C = m7FC + *(atn::Vector3*)&mStates[m54].m18 * rate;
+    } else if ((mStates[m54].mFlags & 0x10) == 0x10) {
+        float rate = Min_unk(Max_unk(1.0f - (float)m7F8 / mStates[m54].m24, 0.0f), 1.0f);
+        m6C = m7FC + *(atn::Vector3*)&mStates[m54].m18 * rate;
+    } else {
+        m6C = m7FC;
+    }
+    if ((mStates[m54].mFlags & 0x10) == 0x10) {
+        m78 = m808 + atn::Vector3(0.0f, 3.1415927f, 0.0f);
+    } else {
+        m78 = m808;
+    }
+    if (vf38() != 0) {
+        fn_803ED5D0(vf38());
+    }
+    if (vf38() != 0) {
+        fn_803ED0D4(vf38(), 1);
+    }
+    if (mColli) {
+        mColli->SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    }
+    m7F8++;
+    int trigger = fn_8041AAC0();
+    if (trigger >= 0) {
+        GimmickMsg_unk msg(mTriggers[trigger].mNext);
+        vf40(&msg);
     }
 }
 
