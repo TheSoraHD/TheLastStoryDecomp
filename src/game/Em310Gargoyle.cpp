@@ -136,6 +136,46 @@ void Em310Gargoyle::vf54() {
     }
 }
 
+// inferred: the capsule goes from the "hips" node one unit along the facing direction
+// NONMATCHING: 99.71% - stack order of the three rotation blocks (the original puts the y block lowest and the
+// matrix highest); ~12 variants (inline helper with Mtx r/t in both orders, by-value matrix helpers, function
+// scope matrices in four orders, pointer to the matrix)
+void Em310Gargoyle::vf20() {
+    m620 = m5B0;
+    m614 = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
+    atn::Vector3 from = m614;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    Mtx rz;
+    Mtx tz;
+    Mtx rx;
+    Mtx tx;
+    Mtx ry;
+    Mtx ty;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    if (0.0f != mRot.y) {
+        PSMTXRotRad(ry, 'y', mRot.y);
+        PSMTXConcat(p->m, ry, ty);
+        __MtxCopy(p->m, ty);
+    }
+    if (0.0f != mRot.x) {
+        PSMTXRotRad(rx, 'x', mRot.x);
+        PSMTXConcat(p->m, rx, tx);
+        __MtxCopy(p->m, tx);
+    }
+    if (0.0f != mRot.z) {
+        PSMTXRotRad(rz, 'z', mRot.z);
+        PSMTXConcat(p->m, rz, tz);
+        __MtxCopy(p->m, tz);
+    }
+    PSMTXMultVec(m.m, &dir, &dir);
+    dir += from;
+    mColli.m3C = from;
+    mColli.m48 = dir;
+    mColli.m54 = m620;
+}
+
 // inferred: route point by 1-based index (weak copy fn_8030C190; name invented)
 inline RoutePoint_unk* GetRoutePoint_unk(RouteTable_unk* table, int index) {
     return &table->mPoints[index - 1];

@@ -80,6 +80,8 @@ game/Em315Coffin.
   - fn_8030CF84 (vuelta al estado 7 "volando" con salto al inicio de la ruta y contador m1518 del campo segun
     los jinetes 2 y 3) al 100% (5/21) con la condicion escrita en linea (con un helper inline salia 89%).
     Campos 0x14EC, 0x150C-0x1528, 0x1588-0x1590, 0x15D0 sacados del relleno (nombres desconocidos).
+  - vf20 (0x8030D348, capsula desde el nodo "hips" una unidad hacia delante con rotacion y, x, z) escrita:
+    NONMATCHING 99.71% (orden en pila de los tres bloques de rotacion; ~12 variantes).
   - Cabecera: campos sacados del relleno (m14F1, m14F4[3] ids de jinete, m1500[3], m15E0, m1604, m1608, m160C).
 - `game/Em309Ghoul` (8/33 -> 10/33): vf0C (0x802FD134, espera de 10 efectos y 2 xsca, busca el gimmick 0x80A)
   y fn_802FF6C4 (eleccion del objetivo: el lider del grupo cuando m1524 llega a m16F8; pesos por jugador del
