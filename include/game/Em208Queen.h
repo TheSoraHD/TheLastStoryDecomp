@@ -26,6 +26,9 @@ public:
     inline void SetState_unk(int state);
     inline void CastSkill_unk();
     inline int CollectPoints_unk(int* ids);
+    inline void FaceTarget_unk();
+    inline atn::Vector3 GetFrontPoint_unk();
+    inline atn::Vector3 GetShotPoint_unk();
     inline void PlayMotion_unk(int motion);
     void fn_802C9880();
     void fn_802C9BF8(); // inferred: chooses the next action
@@ -40,7 +43,7 @@ public:
     void fn_802CC39C(); // inferred: starts state 14 (releases the eaten character m14D0)
     void fn_802CC4C8(int arg, CharaTask* target); // inferred: starts state 15 (moves to a route point)
     void fn_802CC708(); // inferred: death
-    void fn_802CC834(const atn::Vector3& pos, float radius, float angle, int arg); // inferred: pos is not read
+    void fn_802CC834(atn::Vector3 pos, float radius, float angle, int arg); // inferred: pos (by value) is not read
 
     CharaTask* m14B0; // inferred: target (mC58.mC4 of this frame)
     CharaTask* m14B4; // inferred: target of the previous frame

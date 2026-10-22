@@ -3,6 +3,7 @@
 #include "game/PlayerTask.h"
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
+#include "game/EnemyManager.h"
 #include "math/Vec.h"
 #include "atn/ColliBase.h"
 #include "macros.h"
@@ -25,6 +26,13 @@ extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void fn_80105BD8(Effect_unk* mgr, Model_unk* model);
+extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in game/Em305Vampire.cpp)
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+struct Field_unk;
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 // inferred: damage description shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
 // (fields as DamageResult_unk of game/Em002Skelton.cpp)
 struct QueenDamage_unk {
@@ -60,6 +68,17 @@ struct CollResult_unk {
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+// inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
+struct System_unk {
+    unsigned char m00[0x30];
+    int mFrameRate; // 0x30
+};
+extern "C" System_unk* lbl_8087F0A8;
+// inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
+extern "C" void* lbl_8087EEB0;
+extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
@@ -116,6 +135,9 @@ extern "C" Field_unk* lbl_8087F430;
 // parameters; called by its symbol as in MP/D2AMpMenuCockpit.cpp)
 extern "C" void fn_80148B38__9CharaTaskFv(CharaTask* chara, float dist);
 
+// inferred: offset of the point hit by the cannon shots (same values as chr/ControlCannonLift.cpp)
+static atn::Vector3 sShotOffset_unk(3.882f, 98.679f, 10.846f);
+
 // inferred: object returned by GimmickCommon::vf50 (declared as int there); only the size is known
 struct GimmickShape_unk {
     unsigned char m00[0x48];
@@ -136,6 +158,29 @@ inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
     }
     return 0;
 }
+// inferred: shows the battle message `id` with the name of the queen (as in game/Em309Ghoul.cpp)
+inline void ShowMessage_unk(Em208Queen* queen, wchar_t* text, int id) {
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)queen->m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+}
+// inferred: as AngleDiffDeg_unk of game/Em201ZanGurg.cpp
+inline float AngleDiffDeg_unk(float a, float b) {
+    float d = fmod(57.295776f * (a - b), 360.0);
+    if (d > 180.0f) {
+        d -= 360.0f;
+    }
+    if (d < -180.0f) {
+        d += 360.0f;
+    }
+    return d;
+}
+
+// inferred: turns to the target on the ground plane (name invented)
+inline void Em208Queen::FaceTarget_unk() {
+    atn::Vector3 d(m14B0->mPos.x - mPos.x, 0.0f, m14B0->mPos.z - mPos.z);
+    mRot = d.ToRotationZ_unk();
+}
+
 // inferred: names invented
 inline int TenthHp_unk(CharaStatus* status) {
     return (int)(0.1f * status->mParamB.m84);
@@ -223,12 +268,38 @@ inline void Em208Queen::PlayMotion_unk(int motion) {
     mMotion.fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
 }
 
+// inferred: identity rotated by z, y and x (as ChaserRotZYX_unk of game/ChaserNpc.cpp; name invented)
+inline void QueenRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    if (rot.z != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.y != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.x != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
 // inferred: identity rotated around y (name invented)
 inline void SetRotY_unk(atn::Matrix3x4* m, float rad) {
     m->SetIdentity();
+    Mtx t;
     Mtx r;
     PSMTXRotRad(r, 'y', rad);
-    Mtx t;
     PSMTXConcat(m->m, r, t);
     __MtxCopy(m->m, t);
 }
@@ -241,10 +312,12 @@ inline void Em208Queen::CastSkill_unk() {
     if (place != 0) {
         pos = place->mPos;
     }
-    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-    fn_8059B66C(lbl_8087F9E8, skill, this, this, &pos, &rot, boost::function<void(Bullet_unk*)>(), 1.0f);
+    fn_8059B66C(lbl_8087F9E8, skill, this, this, &pos, &atn::Vector3(0.0f, 0.0f, 0.0f),
+                boost::function<void(Bullet_unk*)>(), 1.0f);
 }
 
+// NONMATCHING: 99.86% - f7/f8 of pi and 0.0f in the "eat_point" rotation (state 13); tried the rotation
+// as an inline, the angle in a local, operand order, SetIdentity by hand
 void Em208Queen::vf10() {
     if (m58C == 15) {
         m56C = 0.16666667f;
@@ -345,6 +418,8 @@ void Em208Queen::vf10() {
     m14BC++;
 }
 
+// NONMATCHING: 99.58% - r28/r29 of the text and the layout address in the three pane texts; tried an
+// inline with the layout inside, text in an assignment, direct calls, a reference parameter
 void Em208Queen::vf14() {
     fn_80149A30();
     if (mC58.mC0 != 0) {
@@ -430,12 +505,45 @@ void Em208Queen::vf40(HitInfo_unk* hit) {
     }
 }
 
+void Em208Queen::vf50() {
+    Item14_unk item;
+    item.m04.mRadius = m5B0;
+    item.m04.mCenter = mPos + m5A4;
+    item.m04.mCenter.y += item.m04.mRadius;
+    m624.push_back(item);
+    item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    item.m04.mRadius = 15.0f;
+    m624.push_back(item);
+    mFlagB29 = 0;
+}
+
 void Em208Queen::vf54() {
     if (m624.mSize != 0) {
         m624.mData[0].m04.mCenter = mColli.m3C;
         m624.mData[0].m04.mRadius = mColli.m54;
         m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     }
+}
+
+// NONMATCHING: 99.81% - r3/r4 of the copies of the midpoint and the neck position (__VecCopy family)
+void Em208Queen::vf20() {
+    m620 = m5B0;
+    atn::Vector3 down(0.0f, 0.0f, -10.0f);
+    atn::Matrix3x4 m;
+    QueenRotZYX_unk(m, mRot);
+    PSMTXMultVec(m.m, &down, &down);
+    m614 = mPos + m5A4 + down;
+    m614.y += m620;
+    MtxPtr left = mMotion.GetNodeMtx_unk("leftleg");
+    MtxPtr right = mMotion.GetNodeMtx_unk("rightleg");
+    atn::Vector3 mid;
+    mid = (GetNodePos_unk(left) + GetNodePos_unk(right)) * 0.5f;
+    atn::Vector3 head;
+    head = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    mColli.m3C = mid;
+    mColli.m48 = head;
+    mColli.m54 = 2.0f * m620;
+    mColli.mFlags &= ~0x80000000;
 }
 
 void Em208Queen::vf24() {
@@ -462,6 +570,269 @@ void Em208Queen::vf24() {
     }
 }
 
+void Em208Queen::fn_802C9880() {
+    float speed = 0.0f;
+    float scale = 1.0f;
+    atn::Vector3 rot = mRot;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 dir(mRoute.m58);
+        if (m58C == 15) {
+            scale *= 3.5f;
+            speed = dir.Length_unk();
+        } else {
+            scale *= 1.5f;
+            atn::Vector3 d = m14B0->mPos - mPos;
+            if (d.Length_unk() < 35.0f) {
+                speed = 0.0f;
+            } else {
+                speed = dir.Length_unk();
+            }
+        }
+        if (speed > 0.0001f) {
+            rot = dir.GetNormalized_unk().ToRotation_unk();
+        } else {
+            rot = mRot;
+        }
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_8013CB68(&rot, 0, speed, m568 * scale);
+}
+
+void Em208Queen::fn_802C9BF8() {
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 d = target - mPos;
+    float dist = d.Length_unk();
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    if (m14C8 != 0) {
+        ShowMessage_unk(this, text, 0xF1);
+        if (m14C4 == 1) {
+            ShowMessage_unk(this, text, 0xF3);
+        } else {
+            ShowMessage_unk(this, text, 0xF5);
+        }
+        SetState_unk(8);
+        PlayMotion_unk(0x142);
+        m14C8 = 0;
+        return;
+    }
+    if (m14B0 == 0) {
+        return;
+    }
+    float ry = d.GetNormalized_unk().ToRotation_unk().y;
+    AngleDiffDeg_unk(ry, mRot.y);
+    if (m14C0 == 0) {
+        bool jump = true;
+        if (m1528 >= m152C) {
+            jump = false;
+            m1528 = 0;
+        }
+        if (dist < 35.0f || 100.0f < dist) {
+            jump = false;
+        }
+        if (jump) {
+            ShowMessage_unk(this, text, 0xF7);
+            fn_802CC19C(0, &atn::Vector3(0.0f, 0.0f, 0.0f));
+            m14CC -= m1550;
+            m1528++;
+        } else {
+            float rate = mStatus.m04 / (float)mStatus.mParamB.m84;
+            if (rate < 0.4f) {
+                m150C = 2;
+            } else if (rate < 0.7f) {
+                m150C = 2;
+            } else {
+                m150C = 1;
+            }
+            ShowMessage_unk(this, text, 0xF9);
+            fn_802CC4C8(6, 0);
+            m14CC -= m1554;
+        }
+    } else if (m14C0 == 1) {
+        if (m14CC >= 1.0f) {
+            m14C0 = 0;
+            ShowMessage_unk(this, text, 0xFB);
+        }
+        if (m14BC > 45 && dist < 35.0f) {
+            ShowMessage_unk(this, text, 0xFD);
+            SetState_unk(9);
+            PlayMotion_unk(0x145);
+            FaceTarget_unk();
+            fn_80370AE4(lbl_8087F430, 0x5D, 2);
+        }
+    }
+}
+
+void Em208Queen::fn_802CA490() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        if (m14CC <= 0.0f) {
+            m14C0 = 1;
+            wchar_t text[256];
+            memset(text, 0, sizeof(text));
+            ShowMessage_unk(this, text, 0xFF);
+        }
+        SetState_unk(6);
+        return;
+    }
+    if (mMotion.mTracks[0].m08 > 36.0f && mMotion.mTracks[0].m08 <= 56.0f) {
+        if (m153C != 0) {
+            atn::Vector3 move = m1530;
+            int fps = lbl_8087F0A8->mFrameRate;
+            move.y += -98.1f / (float)(fps * fps);
+            CollResult_unk result;
+            CharaTask::Sphere_unk sphere = fn_80176548(mPos);
+            fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x20000000, &mColli, 0, sphere.mRadius);
+            mPos = result.m10;
+            mPos -= m5A4;
+            mPos.y -= sphere.mRadius;
+        } else {
+            mPos += m1530;
+        }
+    }
+    if (mMotion.mTracks[0].m08 >= 56.0f && mMotion.mTracks[0].m08 <= 59.0f) {
+        HitInfo_unk* bullet = fn_80219E6C(0x67C);
+        atn::Vector3 pos = mPos;
+        Effect_unk* mgr = lbl_8087F048;
+        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    }
+    if (mMotion.mTracks[0].m08 >= 59.0f && mMotion.mTracks[0].m08 <= 65.0f) {
+        HitInfo_unk* bullet = fn_80219E6C(0x67C);
+        atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+        Effect_unk* mgr = lbl_8087F048;
+        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    }
+    if (mMotion.mTracks[0].m08 >= 36.0f && mMotion.mTracks[0].m08 <= 56.0f) {
+        atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("center_chara"));
+        fn_802CC834(pos, 50.0f, 6.2831855f, 100);
+    }
+    if (m154C != 0) {
+        fn_80063D3C(lbl_8087EEB0, &mPos, 0xFFFF0000, fn_80219E6C(0x67C)->m58, 0.0f);
+    }
+}
+
+// inferred: names invented
+inline atn::Vector3 Em208Queen::GetFrontPoint_unk() {
+    Mtx m;
+    PSMTXRotRad(m, 'y', mRot.y);
+    atn::Vector3 front = atn::Vector3(0.0f, 15.0f, 40.0f);
+    PSMTXMultVec(m, &front, &front);
+    return mPos + front;
+}
+inline atn::Vector3 Em208Queen::GetShotPoint_unk() {
+    Mtx m;
+    PSMTXRotRad(m, 'y', mRot.y);
+    atn::Vector3 offset = sShotOffset_unk;
+    PSMTXMultVec(m, &offset, &offset);
+    return mPos + offset;
+}
+
+// NONMATCHING: 97.24% - stack slots of the front point and order of the stores of m14D0/m14D4; operands
+// of the 1.25f product (6 variants: front point inline, center declared first, assignment)
+void Em208Queen::fn_802CA8C0() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        if (m14D0 == 0 && m14D8 == 0) {
+            SetState_unk(6);
+        } else {
+            m14CC += 0.3f;
+            SetState_unk(10);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
+        }
+        return;
+    }
+    if (m14BC == 47) {
+        fn_80144710();
+        m14D0 = 0;
+        m14D4 = 0;
+        m14D8 = 0;
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        atn::Vector3 front;
+        front = atn::Vector3(0.0f, 15.0f, 40.0f);
+        PSMTXMultVec(m, &front, &front);
+        atn::Vector3 center = mPos + front;
+        bool held = false;
+        float best = 1e16f;
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
+            if (p->CanAct_unk()) {
+                if (p->fn_80155D70()) {
+                    held = true;
+                } else {
+                    atn::Vector3 d = p->mPos - center;
+                    float dist = fn_805F9920(&d);
+                    if (dist < 1225.0f && dist * 1.25f < best) {
+                        m14D0 = p;
+                        best = dist * 1.25f;
+                    }
+                }
+            }
+        }
+        for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+            if (e->CanAct_unk()) {
+                atn::Vector3 d = e->mPos - center;
+                float dist = fn_805F9920(&d);
+                if (dist < 1225.0f && dist < best) {
+                    m14D0 = e;
+                    best = dist;
+                }
+            }
+        }
+        float best2 = 1e16f;
+        for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+            if (g->m50 == 7 && g->m54 == 1) {
+                atn::Vector3 d = g->m6C - center;
+                float dist = d.x * d.x + d.z * d.z;
+                if (dist < 1225.0f && dist < best2) {
+                    m14D8 = (int)g;
+                    best2 = dist;
+                }
+            }
+        }
+        if (m14D8 != 0 && (best2 < best || held)) {
+            m14D0 = 0;
+            Mtx r;
+            PSMTXRotRad(r, 'y', mRot.y);
+            atn::Vector3 offset = sShotOffset_unk;
+            PSMTXMultVec(r, &offset, &offset);
+            atn::Vector3 pos = mPos + offset;
+            pos.y -= 10.0f;
+            GimmickMsg_unk msg(6);
+            msg.mVec = pos;
+            msg.m10 = (int)lbl_8087F8A0->mHead;
+            msg.m04 = 0x76;
+            ((GimmickCommon*)m14D8)->vf40(&msg);
+        } else if (m14D0 != 0) {
+            Mtx r;
+            PSMTXRotRad(r, 'y', mRot.y);
+            atn::Vector3 offset = sShotOffset_unk;
+            PSMTXMultVec(r, &offset, &offset);
+            atn::Vector3 pos = mPos + offset;
+            m14D0->m58C = 0;
+            if (m14D0->mType == 0) {
+                m14D0->fn_8015B808(pos, 0x94);
+            } else {
+                m14D0->fn_8015B808(pos, 0xDE);
+            }
+            if (m14D0->m1208 != 0) {
+                m14D4 = 1;
+            }
+        }
+        fn_802CC834(center, 30.0f, 6.2831855f, 100);
+    }
+    if (m154C != 0) {
+        atn::Vector3 center = GetFrontPoint_unk();
+        fn_80063D3C(lbl_8087EEB0, &center, 0xFFFF0000, 35.0f, 0.0f);
+    }
+}
+
+// NONMATCHING: 95.51% - order of the stores of the damage record (constructor inlined before m00)
 void Em208Queen::fn_802CAFB8() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -522,6 +893,7 @@ void Em208Queen::fn_802CB1CC() {
     }
 }
 
+// NONMATCHING: 97.60% - registers r0/r4 of the int conversions of MIN/MAX and the stack of the offset
 void Em208Queen::fn_802CB43C() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -580,6 +952,71 @@ void Em208Queen::fn_802CB74C() {
     }
 }
 
+void Em208Queen::fn_802CB8A0() {
+    atn::Vector3 rot = mRot;
+    atn::Vector3 d = m151C - mPos;
+    float speed = d.Length_unk();
+    float scale = 3.5f;
+    if (speed > 0.0001f) {
+        rot = d.GetNormalized_unk().ToRotation_unk();
+    } else {
+        rot = mRot;
+    }
+    fn_8013CB68(&rot, 0, speed, m568 * scale);
+    if (m570 > 0.05f) {
+        HitInfo_unk* bullet = fn_80219E6C(0x67E);
+        Effect_unk* mgr = lbl_8087F048;
+        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 60, -1, -1, 0.0f, 1.0f);
+    }
+    fn_802CC834(mPos, 35.0f, 6.2831855f, 100);
+    atn::Vector3 left = mPos - m151C;
+    if (fn_805F9920(&left) < 1225.0f) {
+        if (--m150C <= 0) {
+            if (m14CC <= 0.0f) {
+                m14C0 = 1;
+                wchar_t text[256];
+                memset(text, 0, sizeof(text));
+                ShowMessage_unk(this, text, 0xFF);
+                for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
+                    fn_801031D0(lbl_8087F048, this, p, 1);
+                }
+            }
+            switch (m1518) {
+            case 6:
+                SetState_unk(6);
+                return;
+            case 7:
+                fn_802CC19C(0, &atn::Vector3(0.0f, 0.0f, 0.0f));
+                return;
+            case 9:
+                SetState_unk(9);
+                PlayMotion_unk(0x145);
+                FaceTarget_unk();
+                fn_80370AE4(lbl_8087F430, 0x5D, 2);
+                return;
+            case 8:
+                SetState_unk(8);
+                PlayMotion_unk(0x142);
+                return;
+            }
+        } else {
+            fn_802CC4C8(6, 0);
+        }
+        m1514 = 0;
+    } else {
+        atn::Vector3 from = mPos;
+        from.y += 10.0f;
+        atn::Vector3 to = m151C;
+        to.y += 10.0f;
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x20000000, 0, 0) != 0) {
+            m14C0 = 1;
+            fn_802CC19C(1, &atn::Vector3(m151C));
+            m14CC -= m1550;
+        }
+    }
+}
+
 void Em208Queen::vfEC() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -597,6 +1034,7 @@ void Em208Queen::vfEC() {
     }
 }
 
+// NONMATCHING: 97.29% - r3/r4 of the vector copies and the order of the 0.05f products (__VecCopy family)
 void Em208Queen::fn_802CC19C(int arg, const atn::Vector3* pos) {
     SetState_unk(7);
     PlayMotion_unk(0x13F);
@@ -657,6 +1095,7 @@ inline int Em208Queen::CollectPoints_unk(int* ids) {
     return count;
 }
 
+// NONMATCHING: 99.65% - r5/r6 of the second route search (the first one matches with FindRoutePlace2_unk)
 void Em208Queen::fn_802CC4C8(int arg, CharaTask* target) {
     SetState_unk(15);
     m1518 = arg;
@@ -698,7 +1137,7 @@ void Em208Queen::fn_802CC708() {
     fn_800EB7A0(this);
 }
 
-void Em208Queen::fn_802CC834(const atn::Vector3& pos, float radius, float angle, int arg) {
+void Em208Queen::fn_802CC834(atn::Vector3 pos, float radius, float angle, int arg) {
     for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
         if (g->m50 == 1) {
             atn::Vector3 target = g->vf54();
@@ -743,5 +1182,3 @@ atn::Vector3 Em208Queen::vf64(int center) {
     return result;
 }
 
-// inferred: offset of the point hit by the cannon shots (same values as chr/ControlCannonLift.cpp)
-static atn::Vector3 sShotOffset_unk(3.882f, 98.679f, 10.846f);
