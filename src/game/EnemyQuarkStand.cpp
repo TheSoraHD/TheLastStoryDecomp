@@ -75,6 +75,8 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int arg, float f); // inferred: fires a melee hit
 Effect_unk* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
 extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
 extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
@@ -1081,6 +1083,67 @@ void EnemyQuarkStand::fn_803494AC() {
         if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
             fn_8034F41C();
             mPos.y = 0.0f;
+        }
+    }
+}
+
+// inferred: state 9 (attack 1, motion 0x15C): turns toward the target until frame 15, hits with
+// the second "AttackSkill" at frame 21 and shakes the camera
+void EnemyQuarkStand::fn_8034A194() {
+    if (m14B4 == 0) {
+        if (mMotion.mTracks[0].m08 < 15.0f) {
+            TurnTo_unk(1.0f);
+        }
+        if (mMotion.mTracks[0].m08 >= 21.0f) {
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1548, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            Field_unk* field = lbl_8087F430;
+            field->m96C %= 2;
+            field->m970 = 10;
+            field->m974 = 1.0f;
+            field->m978 = 1.0f;
+            m14B4++;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
+        }
+    }
+}
+
+// inferred: state 10 (attack 2, motion 0x156): two hits, "AttackSkill" at frame 33 (turning before frame 25)
+// and the second one at frame 61 (turning between frames 40 and 50)
+void EnemyQuarkStand::fn_8034A644() {
+    if (m14B4 == 0) {
+        if (mMotion.mTracks[0].m08 < 25.0f) {
+            TurnTo_unk(1.0f);
+        }
+        if (mMotion.mTracks[0].m08 >= 33.0f) {
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1544, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            Field_unk* field = lbl_8087F430;
+            field->m96C %= 2;
+            field->m970 = 10;
+            field->m974 = 2.0f;
+            field->m978 = 3.0f;
+            m14B4++;
+        }
+    } else if (m14B4 == 1) {
+        if (mMotion.mTracks[0].m08 > 40.0f && mMotion.mTracks[0].m08 < 50.0f) {
+            TurnTo_unk(1.0f);
+        }
+        if (mMotion.mTracks[0].m08 >= 61.0f) {
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1548, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            Field_unk* field = lbl_8087F430;
+            field->m96C %= 2;
+            field->m970 = 10;
+            field->m974 = 2.0f;
+            field->m978 = 3.0f;
+            m14B4++;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
         }
     }
 }
