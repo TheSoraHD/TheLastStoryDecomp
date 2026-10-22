@@ -41,6 +41,14 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
+// inferred: field (lbl_8087F430); fn_80370AE4 sets a counter (as in gmk/Coffin.cpp)
+struct VampireField_unk;
+extern "C" VampireField_unk* lbl_8087F430;
+extern "C" void fn_80370AE4(VampireField_unk* field, int index, int value);
+
 // inferred: multiplayer session (lbl_8087F610), as in Em305VampireMp.cpp
 struct MpSession_unk;
 extern "C" MpSession_unk* lbl_8087F610;
@@ -80,6 +88,33 @@ void Em305Vampire::fn_802EABE4() {
         }
     }
     fn_802EA490();
+}
+
+void Em305Vampire::fn_802EB814() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        m1500 = 0;
+        m14F8 = 0;
+        m14FC = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 0;
+        fn_8016E970(3);
+    } else {
+        float f = mMotion.mTracks[0].m08;
+        if (45.0f <= f) {
+            fn_800FAB80(lbl_8087F048, this, m1514, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        }
+    }
+    if (m1528 != 0) {
+        float f = mMotion.mTracks[0].m08;
+        if (80.0f <= f && f <= 83.0f) {
+            Effect_unk* mgr = lbl_8087F048;
+            fn_800FAB80(mgr, this, m1514, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_80370AE4(lbl_8087F430, 5, 1);
+            m1528 = 0;
+            m1540 = 0;
+        }
+    }
 }
 
 void Em305Vampire::fn_802EB97C() {

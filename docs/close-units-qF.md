@@ -149,7 +149,7 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   pequenas (0x8030B408 ctor de un color de 4 floats, 0x8030C190 accesor de nodo, 0x8030DA1C vacia) son copias
   debiles cuyo tipo no esta identificado; no se escriben.
 
-- game/Em305Vampire (0/30 -> 14/30, NUEVA fuente; cabecera existente de Em305VampireMp): al 100% fn_802EABE4,
+- game/Em305Vampire (0/30 -> 15/30, NUEVA fuente; cabecera existente de Em305VampireMp): al 100% fn_802EABE4,
   fn_802EB97C, vfEC, fn_802EBABC, fn_802EBB14 y las cuatro vacias vf100/vf104/vf108/vfFC. vf14 ~95% (pool en el
   tramo auto). symbols.txt: fn_802E9D38 -> vf14, fn_802EA490 -> `fn_802EA490__12Em305VampireFv`,
   fn_802EC660/664/668/66C -> vf108/vf104/vf100/vfFC. CABECERA (solo Vampire/VampireMp): se declara fn_802EA490.
@@ -158,8 +158,12 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   Tercera pasada: fn_802EC280 (muerte) y el destructor al 100%. CABECERA (decision propia): m15BC pasa de int a
   ResHandle (el dtor lo libera) y m14E8 a `RoutePlaceList_unk` (vector envuelto en struct: el dtor original
   tiene un beq extra, mismo patron que ChaserRouteList_unk). Em305VampireMp sigue en 12/14.
+  Cuarta pasada: fn_802EB814 al 100% (fn_800FAB80/fn_80370AE4 con prototipos de gmk/Coffin.cpp).
 
 ## Hallazgos MWCC
+- Comparaciones `fcmpo K,f ; cror eq,lt,eq` (constante a la izquierda) tras recargar el campo: salen con un local
+  nuevo `float f = campo; if (K <= f)`. Escribir `campo >= K` invierte los operandos, `!(campo < K)` da `blt`, y
+  el operador coma da `mfcr`.
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
 - Un switch con casos {22, 23, 20} donde 23 cae en el bloque comun: el orden de comparaciones del original
