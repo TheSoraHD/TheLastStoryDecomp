@@ -77,6 +77,23 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
+// inferred: same with the locals in the order of game/Em305Vampire.cpp (name invented)
+inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
 // NONMATCHING: 99.74% - r26/r27 of the second std::string (address and literal swapped) and r25/r26 of the
@@ -247,6 +264,69 @@ void Em101LittleZesya::fn_8025DE7C() {
             fn_80144710();
             fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f);
         }
+    }
+}
+
+// inferred: Em101ElderZesya seen through m1530 (only the flag at 0x16AC is read; name invented)
+struct ElderView_unk {
+    unsigned char m0000[0x16AC];
+    int m16AC; // inferred: nonzero while the elder keeps the little Zesya waiting
+    bool IsFree_unk() const { return !m16AC; }
+};
+
+// NONMATCHING: 99.04% - stack slots: the original keeps the rows of the 4x4 matrix of ToRotation_unk in
+// descending order and the effect locals higher (8 variants: helper inlines, locals hoisted,
+// GetNormalized_unk form); r3/r4/r5 of the first block
+void Em101LittleZesya::fn_8025D90C() {
+    atn::Vector3 target = m14B8->mPos;
+    atn::Vector3 d = target - mPos;
+    float dist = PSVECMag(&d);
+    if (m151C == 0) {
+        return;
+    }
+    float range = m151C->m40 + mStatus.mParamB.m28;
+    m1538 = mStatus.IsState_unk(8) || mStatus.IsState_unk(0x200) ? 150 : 50;
+    m153C = mStatus.IsState_unk(8) || mStatus.IsState_unk(0x200) ? 240 : 80;
+    if (!((ElderView_unk*)m1530)->IsFree_unk()) {
+        if (m14D0 > m153C) {
+            m14D0 = 0;
+            m14F4 = 0;
+            m58C = 14;
+            fn_8016E970(3);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = 1.0f;
+            if (m14C0 != 0) {
+                mPos = m14C0->mPos;
+            }
+            fn_80232B7C(this, 102);
+            PlayEffect_unk(&m1584, &mMotion);
+        }
+    } else if (dist <= range) {
+        if (m14D0 > m1538) {
+            m14D0 = 0;
+            m14F4 = 0;
+            m58C = 1;
+            fn_801561E4(fn_80219E6C(200));
+            m598 = 0;
+            atn::Vector3 dir = m14B8->mPos - mPos;
+            PSVECNormalize(&dir, &dir);
+            atn::Vector3 rot = dir.ToRotation_unk();
+            mRot.y = rot.y;
+        }
+    } else if (m14D0 > m1534) {
+        m14D0 = 0;
+        m14F4 = 0;
+        m58C = 11;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x1C4, 1, 0, 1, 0.0f, 0.1f);
+        fn_80232B7C(this, 101);
+        PlayEffectA_unk(&m156C, &mMotion);
+        m1548 = 1;
     }
 }
 
