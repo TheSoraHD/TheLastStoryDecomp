@@ -46,7 +46,7 @@ Em101LittleZesya::~Em101LittleZesya() {}
 
 // inferred: name invented
 inline float Em101LittleZesya::HpRate_unk() {
-    return mStatus.m04 / (float)mStatus.mParamB.m84;
+    return (float)mStatus.m04 / (float)mStatus.mParamB.m84;
 }
 
 void Em101LittleZesya::vf10() {
