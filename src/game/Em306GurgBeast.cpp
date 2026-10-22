@@ -3,6 +3,8 @@
 #include "atn/Memory.h"
 #include "game/CharaStatus.h"
 #include "game/EnemyManager.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "math/Vec.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -16,6 +18,14 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
+extern "C" void fn_80102824(Effect_unk* mgr, CharaTask* chara, PlayerTask* leader);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: the rider's hit handler is called with a second argument (CharaTask::vf3C takes one)
 struct Rider_unk {
@@ -174,6 +184,70 @@ void Em306GurgBeast::vf30(void* menu) {
     fn_805A5220(group);
 }
 
+// inferred: names invented
+inline float Max_unk(float a, float b) {
+    return a > b ? a : b;
+}
+
+// inferred: walk motion of the beast: turning (0x144) when the movement is more than 45 degrees off the facing,
+// running (0x140, speed from m1560) or walking (0x142)
+void Em306GurgBeast::fn_802F0F60() {
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    if (m1560 > 0.3f) {
+        atn::Vector3 move(m574.x, 0.0f, m574.z);
+        PSVECNormalize(&move, &move);
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &front, &front);
+        float dot = PSVECDotProduct(&move, &front);
+        if (dot < (float)cos(0.7853981852531433)) {
+            mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
+        } else {
+            mMotion.fn_80097C08(0, 0x140, 1, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C =
+                1.3f < Max_unk(0.5f, 0.5f * m1560) ? 1.3f : Max_unk(0.5f, 0.5f * m1560);
+        }
+    } else {
+        mMotion.fn_80097C08(0, 0x142, 1, 0, 1, 0.0f, 0.1f);
+    }
+    if (--m1544 < 0) {
+        m1544 = 30;
+        m1540 = fn_800F8548(lbl_8087F048);
+    }
+}
+
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 GetSeatPos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// NONMATCHING: 96.18% - block order of the state 17 test and r3/r4/r5 of the seat copy (~6 forms)
+// inferred: keeps the rider m152C on the seat m1530 with the beast's motion frame (motion 0x1F0, 0x1F1 when
+// m1560 >= 4)
+void Em306GurgBeast::fn_802F1120() {
+    if (m152C == 0 || m1530 == 0) {
+        return;
+    }
+    if (m58C != 17) {
+    int motion = 0x1F0;
+    if (m154C != 0 && m1560 >= 4.0f) {
+        motion = 0x1F1;
+    }
+    m152C->mMotion.m34C = 1;
+    m152C->mMotion.mTracks[0].m20 = 1.0f;
+    m152C->mMotion.mTracks[0].m0C = 0.0f;
+    m152C->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
+    m152C->mMotion.fn_80097C08(0, motion, 1, 0, 1, 0.0f, 0.1f);
+    m152C->mF1C = m1530;
+    m152C->mPos = GetSeatPos_unk((MtxPtr)m1530);
+    m152C->mRot = mRot;
+    m152C->fn_80145334();
+    }
+}
+
 void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
     rider->fn_8017AC3C((int)this);
     vf100(15);
@@ -194,4 +268,36 @@ void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
         rider->fn_801750FC();
     }
     rider->fn_80164DCC(0);
+}
+
+// NONMATCHING: 97.72% - only the place of the load of the rider's rotation before PSMTXRotRad (~8 forms)
+// inferred: throws the rider m152C off to the side; with `restart` the beast goes to state 14
+void Em306GurgBeast::fn_802F1320(int restart) {
+    if (m152C == 0) {
+        return;
+    }
+    PlayerTask* head;
+    if (lbl_8087F048 != 0 && lbl_8087F8A0 != 0 && (head = lbl_8087F8A0->mHead) != 0) {
+        fn_80102824(lbl_8087F048, this, head);
+    }
+    if ((m152C->mStatus.m0C & 0x20) != 0x20) {
+        m152C->fn_8016E970(1);
+    }
+    m152C->fn_801446F0();
+    m152C->mF1C = 0;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx r;
+    Mtx m;
+    PSMTXRotRad(m, 'y', m152C->mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    PSMTXRotRad(r, 'y', -1.5707964f);
+    PSMTXMultVec(r, &dir, &dir);
+    dir *= 5.0f;
+    m152C->m574 = dir;
+    m152C->fn_8017AC3C(0);
+    m152C = 0;
+    if (restart != 0) {
+        vf100(14);
+        m1550 = 300;
+    }
 }

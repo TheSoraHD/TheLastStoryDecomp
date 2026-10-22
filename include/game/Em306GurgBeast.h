@@ -25,7 +25,10 @@ public:
     virtual int vf10C(HitMsg_unk* msg);
 
     void fn_802EE9A8(const char* text, int length); // inferred: reads the data file
+    void fn_802F0F60(); // inferred: walk motion
+    void fn_802F1120(); // inferred: keeps the rider on the seat
     void fn_802F1240(CharaTask* rider); // inferred: drops the rider
+    void fn_802F1320(int restart); // inferred: throws the rider off
 
     int m14D4;
     atn::Vector3 m14D8;
@@ -39,8 +42,8 @@ public:
     int m1520;
     int m1524;                 // inferred: "rideplayer"
     int m1528;                 // inferred: "reride"
-    EnemyTask* m152C;
-    int m1530;
+    EnemyTask* m152C;          // inferred: rider from the player side ("rideplayer")
+    int m1530;                 // inferred: seat node matrix (MtxPtr stored as int, as CharaTask::mF1C)
     int m1534;
     int m1538;
     int m153C;
