@@ -58,6 +58,10 @@ public:
     void fn_802EC160();
     void fn_802EC280(); // inferred: starts state 2 (dead)
     void fn_802EC38C();
+    inline void StartWeaken_unk(); // inferred: names invented (bodies of fn_802EBF40/fn_802EC160)
+    inline void StartStun_unk();
+    inline void StartTackle_unk();
+    inline void StartFlee_unk();
 
     atn::LH_Binary m14D4;                         // inferred: data file
     std::vector<VampireDoor_unk> m14DC;           // inferred: "door_route"

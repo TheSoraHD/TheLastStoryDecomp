@@ -1,5 +1,14 @@
 #include "game/Em305Vampire.h"
+#include "atn/Csv.h"
 #include "math/Vec.h"
+#include "std/string.h"
+#include "std/string_members.h"
+
+extern "C" unsigned long strlen(const char* s);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+// inferred: std::string concatenation (weak copy 0x8006AFF8)
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -19,6 +28,15 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+// inferred: debug menu entries (as in game/CharaTask.cpp and game/NewCampPartsHint.cpp)
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
+                            int arg7);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
+extern "C" void fn_80088FAC(void* group, const char* name, Model_unk::Float4_unk* value, int arg3, int arg4,
+                            float min, float max, float step);
 
 // inferred: plays an effect on the model (same as in Em305VampireMp.cpp)
 inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
@@ -55,6 +73,50 @@ extern "C" MpSession_unk* lbl_8087F610;
 extern "C" void fn_804DA48C(MpSession_unk* session, int arg);
 extern "C" void fn_804DA4A0(MpSession_unk* session, int arg);
 
+// NONMATCHING: 93.81% - saved registers (this/info/zero are r29/r30/r28 in the original and
+// r28/r29/r31 here) and the schedule of the flag stores before the strings (as Em305VampireMp ctor; 6 forms)
+Em305Vampire::Em305Vampire(atn::Task* parent, EnemyInfo_unk* info)
+    : SpecialEnemyBase(parent, info), m14F8(0), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m1510(0),
+      m1514(0), m1524(0), m1528(0), m152C(0.0f), m1530(0), m1534(0), m1538(1.0f), m153C(0), m1540(0),
+      m1544(0.0f), m1548(0.0f), m154C(0.0f), m1550(0.0f), m1554(0.0f), m1558(0.0f), m155C(0), m1560(0),
+      m15B8(450), m15C0(0), m15D4(1.0f), m15F0(0.0f), m15F4(0.0f), m15F8(0.0f), m15FC(0), m1600(0), m1604(1) {
+    m15C4.m00 = 0.1f;
+    m15C4.m04 = 0.1f;
+    m15C4.m08 = 0.1f;
+    m15C4.m0C = 1.0f;
+    m15D8[0] = 0.0f;
+    m15D8[1] = 0.0f;
+    m15D8[2] = 0.0f;
+    m15E4[0] = 0;
+    m15E4[1] = 0;
+    m15E4[2] = 0;
+    mFlag22 = 1;
+    mFlag21 = 1;
+    mStatus.mParamB.m9C |= 0x10;
+    m14DC.clear();
+    m14E8.clear();
+    std::string dir("database/chara/special/");
+    std::string name("db_em305_00_00.csv");
+    atn::Csv csv(info->m2C, strlen(info->m2C));
+    do {
+        const char* s = csv.fn_8005B9CC();
+        if (s == 0 || strcmp(s, "") == 0) {
+            break;
+        }
+        if (strncmp(s, "db_name=", 8) == 0) {
+            name = s + 8;
+        }
+    } while (csv.fn_8005BBF8());
+    std::string path = fn_8006AFF8(dir, name);
+    m14D4.vf0C(path.c_str());
+    m1564.fn_8023780C("/effect/ef_uc031.efp");
+    m1570.fn_8023780C("/effect/ef_uc007.efp");
+    m157C.fn_8023780C("/effect/ef_sk021a.efp");
+    m1588.fn_8023780C("/effect/ef_sk025.efp");
+    m1594.fn_8023780C("/effect/ef_sc003_01c.efp");
+    SpecialEnemyBase::mFlag30 = 1;
+}
+
 Em305Vampire::~Em305Vampire() {
     fn_800CB5C8(&m15A0, 5, 0);
     fn_800CB5C8(&m15A4, 5, 0);
@@ -76,6 +138,203 @@ void Em305Vampire::vf14() {
         mMotion.fn_8009373C("op_02_cloud", 1);
     }
     fn_80149A30();
+}
+
+inline void SetSeg_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
+// inferred: capsule along the y axis of the node "center_chara" (from -5 to 5)
+// NONMATCHING: 99.99% (report) - only the offset of "center_chara" in the pool (strings of vf0C/vf10, not
+// written yet)
+void Em305Vampire::vf20() {
+    m5A4.y = 3.0f;
+    m5B0 = 10.0f;
+    m620 = 0.5f * m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Matrix3x4 m(mMotion.GetNodeMtx_unk("center_chara"));
+    atn::Matrix3x4* p = &m;
+    if (p != 0) {
+        m5B0 = 10.0f;
+        float z = m.m[2][3];
+        float y = m.m[1][3];
+        float x = m.m[0][3];
+        atn::Vector3 a(0.0f, -5.0f, 0.0f);
+        atn::Vector3 to(x, y, z);
+        atn::Vector3 b(0.0f, 5.0f, 0.0f);
+        atn::Vector3 from(x, y, z);
+        m.m[0][3] = 0.0f;
+        m.m[1][3] = 0.0f;
+        m.m[2][3] = 0.0f;
+        PSMTXMultVec(m.m, &a, &a);
+        PSMTXMultVec(m.m, &b, &b);
+        to += a;
+        from += b;
+        SetSeg_unk(mColli, to, from, m5B0);
+    }
+    mColli.m20 = 0x80;
+}
+
+// inferred: reaction to the hit (0x134: silver arrow, 0x1791: stun)
+void Em305Vampire::vf3C(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (msg->mData->m04 == 10000) {
+        fn_80151448(msg);
+        vf40(hit);
+        return;
+    }
+    if (m1524 <= 0 && msg->mData->m04 != 0x134) {
+        msg->m68 = 0;
+        msg->m88 = msg->mData->mC4;
+        msg->m84 = 1;
+        msg->m90 = 1;
+        if (++m1504 == 3) {
+            fn_80370AE4(lbl_8087F430, 4, 1);
+        }
+        if (m1528 == 0 && m58C == 0) {
+            fn_802EBBA8();
+        }
+        return;
+    }
+    if (m58C - 6U <= 2 || m58C - 14U <= 1) {
+        msg->m10 *= 0.0f;
+    } else {
+        msg->m10 *= 0.1f;
+    }
+    if (m58C == 15) {
+        msg->m0C |= 0x80;
+    }
+    if (msg->mData->m04 == 0x134) {
+        if (m153C == 0) {
+            fn_80370AE4(lbl_8087F430, 4, 2);
+            m153C = 1;
+        } else {
+            fn_80370AE4(lbl_8087F430, 4, 4);
+        }
+        msg->m0C |= 0x800;
+    }
+    fn_80151448(msg);
+    vf40(hit);
+}
+
+inline void Em305Vampire::StartWeaken_unk() {
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 13;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 0.2f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+    vf9C(0);
+    fn_80232B7C(0, 0);
+    PlayEffect_unk(&m1588, &mMotion);
+    if (lbl_8087F610 != 0) {
+        fn_804DA48C(lbl_8087F610, 4);
+        fn_804DA4A0(lbl_8087F610, 0);
+    }
+}
+
+inline void Em305Vampire::StartStun_unk() {
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 15;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 0.0f;
+    mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
+    fn_80232B7C(this, 100);
+    PlayEffect_unk(&m1594, &mMotion);
+    Effect_unk* mgr = lbl_8087F048;
+    atn::Vector3 pos = fn_801781B0();
+    fn_80108F38(mgr, &pos, 0x80);
+}
+
+void Em305Vampire::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    int id = msg->mData->m04;
+    if (id == 0x134) {
+        if (++m1540 >= m1604) {
+            StartWeaken_unk();
+        }
+    } else if (id == 0x1791) {
+        StartStun_unk();
+    } else if (m1530 == 0) {
+        m1530 = 1;
+        m1534 = 0;
+    }
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        fn_802EC280();
+    }
+}
+
+inline void Em305Vampire::StartTackle_unk() {
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 6;
+    fn_8016E970(6);
+    m560 = 4;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 1, 1, 0.0f, 0.1f);
+}
+
+inline void Em305Vampire::StartFlee_unk() {
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 14;
+    m152C = 0.0f;
+    m1530 = 0;
+    m1534 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x66, 0, 0, 1, 0.0f, 0.1f);
+    vf98();
+    if (lbl_8087F610 != 0) {
+        fn_804DA48C(lbl_8087F610, 5);
+        fn_804DA4A0(lbl_8087F610, 1);
+    }
+}
+
+// inferred: picks the next action (as Em305VampireMp::vf11C without the ray test)
+void Em305Vampire::vf11C() {
+    if (m1500 == 0 && m14F4 != 0) {
+        if (m14FC < m15A8) {
+            return;
+        }
+        atn::Vector3 pos = m14F4->mPos;
+        atn::Vector3 d = pos - mPos;
+        d.y = 0.0f;
+        if (d.Length_unk() < 40.0f) {
+            StartTackle_unk();
+        }
+    }
+    if (m1500 == 1) {
+        if (m1524 <= 0) {
+            StartFlee_unk();
+        } else {
+            RoutePlace_unk* place = m14E8[m1560];
+            atn::Vector3 d(mPos.x - place->mPos.x, 0.0f, mPos.z - place->mPos.z);
+            if (fn_805F9920(&d) < 100.0f) {
+                m1560++;
+                if (m1560 >= (int)m14E8.size()) {
+                    m1560 = 0;
+                }
+                fn_8017039C(m14E8[m1560]->mId, 0);
+            }
+        }
+    }
 }
 
 void Em305Vampire::fn_802EABE4() {
@@ -151,16 +410,7 @@ void Em305Vampire::fn_802EBABC() {
 }
 
 void Em305Vampire::fn_802EBB14() {
-    m14F8 = 0;
-    m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
-    m58C = 6;
-    fn_8016E970(6);
-    m560 = 4;
-    mMotion.m34C = 1;
-    mMotion.mTracks[0].m20 = 1.0f;
-    mMotion.mTracks[0].m0C = 1.0f;
-    mMotion.fn_80097C08(0, 0x145, 0, 1, 1, 0.0f, 0.1f);
+    StartTackle_unk();
 }
 
 void Em305Vampire::fn_802EBF40() {
@@ -184,22 +434,7 @@ void Em305Vampire::fn_802EBF40() {
 }
 
 void Em305Vampire::fn_802EC098() {
-    m14F8 = 0;
-    m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
-    m58C = 14;
-    m152C = 0.0f;
-    m1530 = 0;
-    m1534 = 0;
-    mMotion.m34C = 1;
-    mMotion.mTracks[0].m20 = 1.0f;
-    mMotion.mTracks[0].m0C = 1.0f;
-    mMotion.fn_80097C08(0, 0x66, 0, 0, 1, 0.0f, 0.1f);
-    vf98();
-    if (lbl_8087F610 != 0) {
-        fn_804DA48C(lbl_8087F610, 5);
-        fn_804DA4A0(lbl_8087F610, 1);
-    }
+    StartFlee_unk();
 }
 
 void Em305Vampire::fn_802EC160() {
@@ -237,6 +472,29 @@ void Em305Vampire::fn_802EC280() {
     fn_800CB5C8(&m15A0, 5, 0);
     fn_800CB5C8(&m15A4, 5, 0);
     fn_800EB7A0(this);
+}
+
+// inferred: debug menu of the vampire
+// NONMATCHING: 99.90% (report) - only the offsets of the strings in the pool (see vf20)
+void Em305Vampire::fn_802EC38C() {
+    void* group = m15BC.Load("em305");
+    fn_80087994(group, "DebugDisp", &m15C0, 0, 0);
+    fn_80088FAC(group, "WeakenColor", &m15C4, 0, 0, 0.0f, 1.0f, 0.1f);
+    fn_8008771C(group, "Speed1st", &m15D8[0], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_800874C8(group, "Time1st", &m15E4[0], 0, 100, 1, 0, 0);
+    fn_8008771C(group, "Speed2nd", &m15D8[1], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_800874C8(group, "Time2nd", &m15E4[1], 0, 100, 1, 0, 0);
+    fn_8008771C(group, "Speed3rd", &m15D8[2], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_800874C8(group, "Time3rd", &m15E4[2], 0, 100, 1, 0, 0);
+    fn_8008771C(group, "1stTo2nd", &m15F0, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "2ndTo3rd", &m15F4, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_800874C8(group, "WeakenType", &m1528, 0, 10, 1, 0, 0);
+    fn_8008771C(group, "SpdUpRate", &m15F8, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_800874C8(group, "SpdUpTime", &m15FC, 0, 100, 1, 0, 0);
+    fn_800874C8(group, "SpdUpWait", &m1600, 0, 100, 1, 0, 0);
+    fn_800874C8(group, "xxxState", &m1530, 0, 100, 1, 0, 0);
+    fn_800874C8(group, "xxxTime", &m1534, 0, 100, 1, 0, 0);
+    fn_8008771C(group, "xxxSpeed", &m152C, 0, 0, 0.0f, 100.0f, 1.0f);
 }
 
 void Em305Vampire::vf108() {}
