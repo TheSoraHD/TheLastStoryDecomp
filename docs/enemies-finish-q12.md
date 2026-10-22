@@ -46,9 +46,9 @@ Em305Vampire 26/30, Em306GurgBeast 11/22, Em308InvertCrab 9/29, Em308ParmCrab 5/
 - `game/Em308ParmCrab` (segunda tanda): escritas fn_802F8EBC (movimiento, 100%: `rot` declarado sin
   inicializar y asignado en cada rama, como en el original), fn_802F93F0 (eleccion de accion, 100%),
   fn_802F97B8 (estado 8, aguja: la direccion es (0, 0, 3), 100%), fn_802F9F3C (estado 9, 100%), fn_802FA2F4
-  (estado 10, 99.19%: li r5 del radio de persecucion, como vf10) y fn_802FB0C4 (estado 12, 99.86%: solo pool,
-  faltan las constantes de fn_802FA764). Quedan fn_802FA764 (estado 11, 2.4 KB), fn_802FC2E0 (huida) y el
-  slot 0x60.
+  (estado 10, 99.30%: li r5 del radio de persecucion, como vf10), fn_802FA764 (estado 11, 97.19%, como el de
+  InvertCrab) y fn_802FB0C4 (estado 12, 100%: se autoinlineaba en vf10; 4 `((void)0)` la sacan). Quedan
+  fn_802FC2E0 (huida) y el slot 0x60.
 
 ## Resumen final
 
@@ -73,7 +73,8 @@ __VecCopy, push_back, std::string del ctor) o funciones sin escribir.
   Em306GurgBeast.h m14D4 -> CharaTask*, m1518 -> RoutePlace_unk*; Em308InvertCrab.h m1530 int (estado tras el
   giro), m1560/m1564 (lugar y punto de huida), m1588 CharaTask*, m15A4 int; Em308ParmCrab.h m1564
   RoutePlace_unk*, m159C/m15A0 (lugar y punto de huida). Nombres de helpers inventados (`_unk`).
-- Em308InvertCrab::fn_802F2C50: 4 `((void)0)` (asserts vacios aprobados) para que no se autoinlinee en vf10.
+- Em308InvertCrab::fn_802F2C50 y Em308ParmCrab::fn_802FB0C4: 4 `((void)0)` (asserts vacios aprobados) para que
+  no se autoinlineen en vf10.
 - Em308InvertCrab/ParmCrab: las funciones de estado 10/11/12 calculan `rot = d.ToRotation_unk()` y no lo usan:
   el original conserva el calculo (llamadas a atan2 visibles). Anotado como calculo sin uso del original, no
   inventado para mover constantes.
@@ -104,5 +105,4 @@ __VecCopy, push_back, std::string del ctor) o funciones sin escribir.
 - CharaTask::vf60 sigue declarada `void` (cabecera compartida): los slots 0x60 de los cangrejos
   (0x802F6E5C, 0x802FC848, devuelven 8.0f) no se pueden escribir sin cambiarla.
 - Em306GurgBeast: vf104 (fn_802EF5FC, 3.3 KB) y fn_802F09D4 (1.4 KB) sin escribir.
-- Em308InvertCrab fn_802F693C, Em308ParmCrab fn_802FA764 y fn_802FC2E0 sin escribir (la huida y el estado 11
-  de ParmCrab, copia de Em308InvertCrab::fn_802F4A98).
+- Em308InvertCrab fn_802F693C y Em308ParmCrab fn_802FC2E0 (la huida, ~1.3 KB cada una) sin escribir.
