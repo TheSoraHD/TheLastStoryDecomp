@@ -4,6 +4,7 @@
 #include "atn/ColliBase.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/Model_unk.h"
+#include "game/CharaManager.h"
 #include "game/GimmickCommon.h"
 #include <boost/scoped_ptr.hpp>
 
@@ -65,6 +66,12 @@ public:
     virtual int vf60();
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
+
+    int fn_8041AAC0(); // inferred: index of the trigger of the current state that fires (-1 if none)
+    // inferred: a character of the manager is in the area of the trigger (weak copies 0x8041B28C
+    // npc, 0x8041B4D8 enemy, 0x8041B724 player)
+    template <class T>
+    int InArea_unk(CharaManager<T>* manager, WaitTrigger_unk* trigger);
 
     // inferred: collision of a state (name invented)
     atn::ColliBase* GetColli_unk(int state) { return mStates[state].mColli; }

@@ -1,5 +1,11 @@
 #include "gmk/WaitObject.h"
 #include "atn/Memory.h"
+#include "game/CharaTask.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
+#include "game/NpcManager.h"
+#include "game/NpcTask.h"
+#include "game/PlayerTask.h"
 
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -11,6 +17,14 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" int sprintf(char* dst, const char* fmt, ...);
+extern "C" double cos(double x);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: area of a trigger (WaitTrigger_unk::m08; names invented)
+struct WaitArea_unk {
+    float mRadius;    // 0x08
+    float mValue;     // 0x0C: inferred: minimum of CharaTask::m570 for type 3, frames for type 1
+    float mAngle;     // 0x10: inferred: half angle of the view cone in degrees (0: all around)
+};
 // debug menu (see gmk/Cannon.cpp); lbl_8087EF10 is declared in the headers
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -232,6 +246,80 @@ void WaitObject::vf6C(void* menu) {
                         0.25f);
         }
     }
+}
+
+// inferred: index of the trigger of the current state that fires: 1 after mValue frames, 2/3 a
+// character in the area, 6 no character in the area
+int WaitObject::fn_8041AAC0() {
+    int found = -1;
+    for (unsigned int i = 0; i < mNumTriggers; i++) {
+        WaitTrigger_unk* t = &mTriggers[i];
+        if (t->mState != m54) {
+            continue;
+        }
+        switch (t->mType) {
+        case 1:
+            if ((float)m7F8 > ((WaitArea_unk*)t->m08)->mAngle) {
+                found = i;
+            }
+            break;
+        case 2:
+        case 3:
+        case 6: {
+            int hit = 0;
+            if (lbl_8087F8A0 != 0) {
+                hit = InArea_unk(lbl_8087F8A0, t);
+            }
+            if (hit == 0 && EnemyManager::sInstance != 0 && (mStates[m54].mFlags & 0x20) != 0x20) {
+                hit = InArea_unk(EnemyManager::sInstance, t);
+            }
+            if (hit == 0 && NpcManager::sInstance != 0 && (mStates[m54].mFlags & 0x20) != 0x20) {
+                hit = InArea_unk(NpcManager::sInstance, t);
+            }
+            if ((hit != 0 && t->mType != 6) || (hit == 0 && t->mType == 6)) {
+                found = i;
+            }
+            break;
+        }
+        }
+    }
+    return found;
+}
+
+// NONMATCHING: 98.5% (each instance) - stack slots of front/dir/d and the float registers of the
+// angle, radius, value and distance
+template <class T>
+int WaitObject::InArea_unk(CharaManager<T>* manager, WaitTrigger_unk* trigger) {
+    if (manager == 0) {
+        return 0;
+    }
+    atn::Matrix3x4 rot;
+    atn::Vector3 dir;
+    PSMTXRotRad(rot.m, 'y', m78.y);
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    dir = front;
+    PSMTXMultVec(rot.m, &dir, &dir);
+    WaitArea_unk* area = (WaitArea_unk*)trigger->m08;
+    float angle = area->mAngle * 0.017453292f;
+    float radius = area->mRadius;
+    float value = area->mValue;
+    if (angle <= 0.0f) {
+        angle = 3.1415927f;
+    }
+    for (T* chara = manager->mHead; chara != 0; chara = chara->mNext) {
+        if (chara->CanAct_unk()) {
+            atn::Vector3 d = m6C - chara->mPos;
+            float dist = fn_805F9920(&d);
+            if (dist > 0.0f) {
+                PSVECNormalize(&d, &d);
+            }
+            if (dist < radius * radius && PSVECDotProduct(&dir, &d) >= (float)cos(angle) &&
+                (trigger->mType != 3 || chara->m570 > value)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 } // namespace gmk
