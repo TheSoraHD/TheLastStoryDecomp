@@ -21,6 +21,15 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_80108F38(Effect_unk* effect, const atn::Vector3& pos, int status); // inferred: status effect
 
 // NONMATCHING: 99.83% - r26/r27 of the second std::string constructor (known blocker, as in Em308InvertCrab)
 // inferred: same pattern as Em308InvertCrab's constructor (data file "database/chara/special/" + db_name)
@@ -56,8 +65,89 @@ Em308ParmCrab::Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info)
 
 Em308ParmCrab::~Em308ParmCrab() {}
 
-float Em308ParmCrab::vf90() {
-    return 3.5f;
+// inferred: stops the attack sound and effect 200
+inline void Em308ParmCrab::StopAttack_unk() {
+    fn_800CB5C8(&m151C, 15, 0);
+    fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+}
+
+// inferred: cancels the current attack (wait frames from the skill 0x3F7, sound and effect 200 stopped)
+inline void Em308ParmCrab::ResetAttack_unk() {
+    m14B0 = 0;
+    m15CC = 0;
+    m15D4 = m14F4 != 0 ? m14F4->m68 : 90;
+    m590 = fn_800F8548(lbl_8087F048);
+    StopAttack_unk();
+}
+
+// inferred: capsule as in Em308InvertCrab::vf20 but upwards (0.7 * radius), from 2 units below the centre
+// NONMATCHING: 99.78% - r3/r4 of the __VecCopy of `off` (known blocker); the front vector as inline
+// helper with mRot.y in a local fixed the PSMTXRotRad scheduling (~15 forms)
+inline atn::Vector3 CrabFront_unk(const atn::Vector3& rot) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    float ry = rot.y;
+    PSMTXRotRad(m, 'y', ry);
+    PSMTXMultVec(m, &front, &front);
+    return front;
+}
+
+void Em308ParmCrab::vf20() {
+    atn::Vector3 pos = mPos;
+    pos.y -= 2.0f;
+    atn::Vector3 off(0.0f, 0.0f, 0.0f);
+    atn::Vector3 bottom;
+    if (m58C == 8) {
+        off = CrabFront_unk(mRot) * 10.0f;
+    }
+    pos += off;
+    m620 = 0.7f * m5B0;
+    m614 = pos;
+    bottom = pos;
+    m614.y += 0.7f * m5B0;
+    bottom.y = mPos.y + 0.7f * m5B0;
+    mColli.m3C = pos;
+    mColli.m48 = bottom;
+    mColli.m54 = m620;
+}
+
+// inferred: dies when the status 0x20 is set; the stun skill 0x1791 starts state 14 (motion 2)
+void Em308ParmCrab::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    m1590++;
+    if (m55C == 6 && m560 - 22U <= 1) {
+        m58C = 6;
+        ResetAttack_unk();
+        StopAttack_unk();
+    }
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        fn_802FC188();
+    } else if (msg->mData != 0 && msg->mData->m04 == 0x1791) {
+        ResetAttack_unk();
+        m58C = 14;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 0.0f;
+        mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
+        fn_80232B7C(this, 200);
+        atn::Vector3 pos;
+        atn::Vector3 rot;
+        Color4f_unk color;
+        rot.x = 0.0f;
+        rot.y = 0.0f;
+        rot.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m1600, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        Effect_unk* fx = lbl_8087F048;
+        fn_80108F38(fx, fn_801781B0(), 0x80);
+    }
 }
 
 void Em308ParmCrab::fn_802FC188() {
@@ -68,12 +158,7 @@ void Em308ParmCrab::fn_802FC188() {
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
     fn_8016DA4C();
-    m14B0 = 0;
-    m15CC = 0;
-    m15D4 = m14F4 != 0 ? m14F4->m68 : 90;
-    m590 = fn_800F8548(lbl_8087F048);
-    fn_800CB5C8(&m151C, 15, 0);
-    fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+    ResetAttack_unk();
     m58C = 2;
     fn_8016E970(9);
     fn_80097CCC(&mMotion, 0, 0.0f);
@@ -82,4 +167,8 @@ void Em308ParmCrab::fn_802FC188() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
     fn_800EB7A0(this);
+}
+
+float Em308ParmCrab::vf90() {
+    return 3.5f;
 }

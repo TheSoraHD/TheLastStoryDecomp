@@ -220,12 +220,13 @@ inline float Gravity_unk(CrabSettings_unk* s) {
 }
 
 // inferred: capsule from the centre down by 0.7 * radius; in state 8 it is moved 10 units forwards
-// NONMATCHING: 96.55% - scheduling of the PSMTXRotRad arguments (mRot.y read through r3 before the
-// call) and the r3/r4 of the off copy; ~10 forms (front as inline helper gave the best result)
+// NONMATCHING: 99.77% - r3/r4 of the __VecCopy of `off` (known blocker); the front vector as inline
+// helper with mRot.y in a local fixed the PSMTXRotRad scheduling (~15 forms)
 inline atn::Vector3 CrabFront_unk(const atn::Vector3& rot) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     Mtx m;
-    PSMTXRotRad(m, 'y', rot.y);
+    float ry = rot.y;
+    PSMTXRotRad(m, 'y', ry);
     PSMTXMultVec(m, &front, &front);
     return front;
 }
@@ -238,9 +239,9 @@ void Em308InvertCrab::vf20() {
         off = CrabFront_unk(mRot) * 10.0f;
     }
     pos += off;
-    bottom = pos;
     m620 = 0.7f * m5B0;
     m614 = pos;
+    bottom = pos;
     m614.y -= 0.7f * m5B0;
     bottom.y = mPos.y - 0.7f * m5B0;
     mColli.m3C = pos;

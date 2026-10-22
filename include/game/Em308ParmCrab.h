@@ -18,9 +18,13 @@ class Em308ParmCrab : public EnemyTask {
 public:
     Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em308ParmCrab();
+    virtual void vf20();
+    virtual void vf40(HitInfo_unk* hit);
     virtual float vf90();
 
     void fn_802FC188(); // inferred: death
+    inline void ResetAttack_unk();
+    inline void StopAttack_unk();
 
     int m14B0;
     int m14B4;
