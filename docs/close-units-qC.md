@@ -57,3 +57,6 @@ Hallazgos MWCC (3):
 - game/EnemySeaLizerd: sin cambios. vf10 99.87% (r28/r29 entre el gestor de balas y los datos); 10 variantes de orden de locales.
 - game/GameSaveLoadBackgroundCommon: sin cambios. fn_803B8B08 99.98%: probado anadir funciones con los literales perdidos del pool ("%s/save%02d.dat", "%s/save_sys.dat"); con static se eliminan, sin static salen pero los "" se fusionan (-str reuse) y el jumptable de fn_803B87A8 cambia de nombre (99.92%). Revertido.
 - game/MenuCommon_unk: sin cambios. fn_80116FC0 (y sus dos inlines) 99.7%: 8 formas nuevas de Get_unk / acceso a la tabla, ninguna cambia r0/r3.
+- game/EnemyFieldMagician, game/LogMessageTask, game/MapManager, game/Np131LivingArmor, game/PathData_unk, game/U16Table_unk, game/main: saltadas - push_back en bucle / pila / orden de z / presupuesto de inline segun sus comentarios.
+- game/NewCampPartsTop: saltada - vf2C necesita un tercer argumento en MenuLoadTask::fn_80117914 (firma compartida con CampSaveLoad/GameOverTask); vf14/ctor: SetPaneText_unk / std::string.
+- game/ShopBuySell: 14/16. fn_80586620 (0x80586620) SUBIDA: `int slot = 0; fn_805866F4(id, 0, slot++);` (el contador empieza en 0 y se incrementa en la primera llamada; asi el li 1 se planifica como en el original).
