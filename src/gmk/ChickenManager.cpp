@@ -139,8 +139,8 @@ void ChickenManager::vf10() {
     if (mState == 0) {
         int scared = 0;
         for (int i = 0; i < mCount; i++) {
-            mChickens[i].fn_8040B668();
-            if (mChickens[i].mState == 3 || mChickens[i].mState == 4) {
+            mChickens[(unsigned int)i].fn_8040B668();
+            if (mChickens[(unsigned int)i].mState == 3 || mChickens[(unsigned int)i].mState == 4) {
                 scared++;
             }
         }
@@ -170,7 +170,7 @@ void ChickenManager::vf10() {
         }
     } else if (mState == 2) {
         for (int i = 0; i < mCount; i++) {
-            mChickens[i].fn_8040BC38();
+            mChickens[(unsigned int)i].fn_8040BC38();
         }
         mState = 0;
     }
@@ -189,11 +189,11 @@ void ChickenManager::vf10() {
     }
 }
 
-// NONMATCHING: 99.41% - loop increment order (as gmk::PigeonManager::vf14).
+// The unsigned subscript gives the loop increment order of the original
 void ChickenManager::vf14() {
     if (mDesc->m7C != 0 && mState == 0) {
         for (int i = 0; i < mCount; i++) {
-            Chicken_unk& c = mChickens[i];
+            Chicken_unk& c = mChickens[(unsigned int)i];
             if (lbl_8087F0A8->m18 != 0) {
                 c.mModel.fn_8008CD60();
             }

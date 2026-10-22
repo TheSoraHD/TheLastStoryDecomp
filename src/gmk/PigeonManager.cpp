@@ -121,8 +121,8 @@ static inline float PlayerDist_unk(const atn::Vector3& pos) {
     return (((CharaTask*)lbl_8087F8A0->mHead)->mPos - pos).Length_unk();
 }
 
-// NONMATCHING: 99.52% - the loop counter is incremented before the element offset in the
-// original; .sdata2 order (the Pigeon_unk functions are not decompiled yet).
+// NONMATCHING: 99.74% - register of the counter of the second loop (the unsigned subscript fixed the
+// increment order); .sdata2 order (the Pigeon_unk functions are not decompiled yet).
 void PigeonManager::vf10() {
     if (mDesc->m7C == 0) {
         return;
@@ -130,9 +130,9 @@ void PigeonManager::vf10() {
     int active = 0;
     if (mState == 0) {
         for (int i = 0; i < mCount; i++) {
-            if (mPigeons[i].mState != 0) {
-                mPigeons[i].fn_804048CC();
-                if (mPigeons[i].mState != 3) {
+            if (mPigeons[(unsigned int)i].mState != 0) {
+                mPigeons[(unsigned int)i].fn_804048CC();
+                if (mPigeons[(unsigned int)i].mState != 3) {
                     active++;
                 }
             }
@@ -154,7 +154,7 @@ void PigeonManager::vf10() {
         }
     } else if (mState == 2) {
         for (int i = 0; i < mCount; i++) {
-            mPigeons[i].fn_80404E70();
+            mPigeons[(unsigned int)i].fn_80404E70();
         }
         mState = 0;
     }
@@ -173,12 +173,12 @@ void PigeonManager::vf10() {
     }
 }
 
-// NONMATCHING: 99.45% - same loop increment order as vf10.
+// The unsigned subscript gives the loop increment order of the original
 void PigeonManager::vf14() {
     if (mDesc->m7C != 0 && mState == 0) {
         for (int i = 0; i < mCount; i++) {
-            if (mPigeons[i].mState != 0 && lbl_8087F0A8->m18 != 0) {
-                mPigeons[i].mModel.fn_8008CD60();
+            if (mPigeons[(unsigned int)i].mState != 0 && lbl_8087F0A8->m18 != 0) {
+                mPigeons[(unsigned int)i].mModel.fn_8008CD60();
             }
         }
     }
