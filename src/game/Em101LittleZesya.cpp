@@ -160,6 +160,56 @@ void Em101LittleZesya::fn_8025E834() {
     }
 }
 
+// inferred: back to state 0 (name invented; the same block is inlined in fn_8025DE7C and fn_8025E9E4)
+inline void ResetState_unk(Em101LittleZesya* z) {
+    z->m14D0 = 0;
+    z->m14F4 = 0;
+    z->m58C = 0;
+    z->fn_8016E970(3);
+    fn_80239DAC(lbl_8087F3C0, z, 500, 1);
+    fn_80239DAC(lbl_8087F3C0, z, 102, 1);
+}
+
+// NONMATCHING: ~95% - load order of the node column (0x2C/0x1C/0x0C) and the offset of "hips" in the string
+// pool (the pool is in the auto split until all the strings of the unit exist); 4 variants
+void Em101LittleZesya::fn_8025E9E4() {
+    if (m14F4 == 0) {
+        if (mMotion.mTracks[0].m08 > 60.0f) {
+            m12CC = 1.0f;
+            MtxPtr mtx = mMotion.GetNodeMtx_unk("hips");
+            atn::Vector3 pos;
+            pos.x = mtx[0][3];
+            pos.y = mtx[1][3];
+            pos.z = mtx[2][3];
+            fn_8025EAE4();
+            m14F4 = 1;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= 100.0f) {
+            ResetState_unk(this);
+        }
+    }
+}
+
+void Em101LittleZesya::fn_8025F35C() {
+    switch (m55C) {
+    case 6:
+        if (m560 != 2) {
+            ResetState_unk(this);
+            m14D0 = m15C0 / 2;
+        }
+        break;
+    case 7:
+        break;
+    default:
+        ResetState_unk(this);
+        m14D0 = m15C0 / 2;
+        break;
+    }
+    fn_80139560();
+}
+
 void Em101LittleZesya::fn_8025E930() {
     mStatus.mParamB.m8C += m1568;
     if (HpRate_unk() >= 0.99f) {

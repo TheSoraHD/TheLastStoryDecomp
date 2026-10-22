@@ -127,6 +127,9 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   - Tercera pasada (12/25): fn_8025E008 (estado 11) y fn_8025E834 (estado 13) al 100%; el inline
     PlayEffect_unk necesita los locales en el orden color, rot, pos (pila 0x10/0x20/0x2C), como en
     Em003LesserDaemon; en Em305Vampire el orden es pos, rot, color. Renombrados en symbols.txt.
+  - Cuarta pasada (13/25): fn_8025F35C al 100% (switch 6/7/default con el inline local ResetState_unk).
+    fn_8025E9E4 NONMATCHING ~95% (orden de carga de la columna del nodo "hips" y offset del pool de cadenas).
+    symbols.txt: fn_8025F35C/E9E4/EAE4 -> `<fn>__16Em101LittleZesyaFv` (fn_8025EAE4 sin escribir).
 
 - game/Em401_01_WhiteLeoPard (0/25 -> 1/25, NUEVA fuente + cabecera minima): dtor al 100%; ctor 99.9% (la
   carga de info->m20 en el prologo solo sale con un puntero const, y el simbolo no es const). El resto de

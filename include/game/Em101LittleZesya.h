@@ -27,6 +27,9 @@ public:
 
     void fn_8025D7B0(); // inferred: runs the state machine
     void fn_8025DE54(); // inferred: state 0
+    void fn_8025F35C(); // inferred: back to state 0 (half of m15C0 as frame counter)
+    void fn_8025E9E4(); // inferred: state 12 (warp at frame 60, back to state 0 at frame 100)
+    void fn_8025EAE4(); // inferred: warp
     void fn_8025E008(); // inferred: starts state 11 (effect m156C)
     void fn_8025E834(); // inferred: starts state 13 after 10 frames (effect m1578)
     void fn_8025DE7C(); // inferred: state 0 of the spell (casts m638 while the control allows it)
