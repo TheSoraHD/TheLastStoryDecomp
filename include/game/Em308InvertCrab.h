@@ -22,6 +22,7 @@ public:
     Em308InvertCrab(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em308InvertCrab();
     virtual int vf0C();
+    virtual void vf10();
     virtual void vf14();
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
@@ -35,7 +36,9 @@ public:
     virtual float vf90() { return 3.5f; }
 
     int fn_802F2C50(); // inferred: ground below is water/lava (ray test attributes 0x14, 0x15, 0x1A-0x1D)
+    void fn_802F3BE8(); // inferred: state 8 (needle)
     void fn_802F566C();
+    inline void ResetAttack_unk();
     void fn_802F58A0();
     void fn_802F66CC(); // inferred: death
 
@@ -75,7 +78,7 @@ public:
     int m1598;
     int m159C;
     int m15A0;
-    unsigned char m15A4[0x15A8 - 0x15A4];
+    int m15A4;                // inferred: charge counter of the needle (fn_802F3BE8)
     int m15A8;
     atn::EfpHandle_unk m15AC;
     ResLoader_unk m15B8;

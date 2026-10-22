@@ -3,6 +3,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include <boost/function.hpp>
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -72,6 +73,63 @@ struct CollResult_unk {
     int m40;
     unsigned char m44[0x50 - 0x44];
 };
+// inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); fn_8059C6DC tests whether the
+// skill is already running for the user; the callback is empty here
+struct CrabSkill_unk;
+extern "C" void* lbl_8087F9E8;
+extern "C" int fn_8059C6DC(void* mgr, HitInfo_unk* skill, CharaTask* user);
+extern "C" CrabSkill_unk* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
+                                      const atn::Vector3* pos, const atn::Vector3* rot,
+                                      boost::function<void(CrabSkill_unk*)> callback, float rate);
+// inferred: parameters of fn_8003EA3C (defined in CharaTask.cpp); result as DamageResult_unk of
+// game/Em002Skelton.cpp
+struct HitParam_unk;
+extern "C" HitParam_unk lbl_807C6B90;
+struct CrabDamage_unk {
+    CrabDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
+        mFlags31_28 = 0;
+        m18 = -1;
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int mFlags31_28 : 4;
+    unsigned int mFlags27_0 : 28;
+};
+extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStatus* status, CharaStatus* owner,
+                            unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred
+// inferred: tutorial message request (as DropTutorial_unk of gmk/DropItem.cpp)
+struct CrabTutorial_unk {
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+};
+struct CrabMessage_unk {
+    unsigned char m000[0x764];
+    CrabTutorial_unk m764;
+};
+extern "C" CrabMessage_unk* lbl_8087F490;
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f); // inferred: attack hit
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
+extern "C" void fn_802F33A0(Em308InvertCrab* crab);
+extern "C" void fn_802F389C(Em308InvertCrab* crab);
+extern "C" void fn_802F42CC(Em308InvertCrab* crab);
+extern "C" void fn_802F469C(Em308InvertCrab* crab);
+extern "C" void fn_802F4A98(Em308InvertCrab* crab);
+extern "C" void fn_802F5370(Em308InvertCrab* crab);
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
@@ -109,10 +167,6 @@ Em308InvertCrab::Em308InvertCrab(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 Em308InvertCrab::~Em308InvertCrab() {}
-
-void Em308InvertCrab::vf14() {
-    fn_80149A30();
-}
 
 // inferred: once loaded reads the data file: the attack flags, the route of the "BasePoints", the
 // parameters of the needle and the escape, the sounds; then the status flags and the debug menu "em308_ParmCrab"
@@ -196,6 +250,265 @@ int Em308InvertCrab::vf0C() {
     return 0;
 }
 
+// inferred: plays an effect on the model (as in game/Em305Vampire.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: gravity per frame (as fn_802F0998 of gmk/Cannonball.cpp)
+inline float Gravity_unk(CrabSettings_unk* s) {
+    return -98.1f / (float)(s->mFps * s->mFps);
+}
+
+// inferred: resets the attack sub-state (name invented)
+inline void Em308InvertCrab::ResetAttack_unk() {
+    m1590 = 0;
+    m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+    m590 = fn_800F8548(lbl_8087F048);
+}
+
+// inferred: state machine of the crab
+// NONMATCHING: 98.97% - stack slots of the vectors of states 13/17 and of the tutorial request, registers of the
+// route table search and of the damage result (~8 forms)
+void Em308InvertCrab::vf10() {
+    m1580 = (int)mC58.mC4;
+    if (m1580 == 0) {
+        m1580 = (int)lbl_8087F8A0->mHead;
+    }
+    if (m1584 == 0) {
+        m1584 = m1580;
+    }
+    if (mC58.mC0 == 0 || m1580 == 0) {
+        fn_8016E970(3);
+        if (m58C == 2) {
+            vfEC();
+        } else {
+            fn_802F33A0(this);
+        }
+    } else {
+        switch (m58C) {
+        case 7:
+            if (fn_80158BB4()) {
+                ResetAttack_unk();
+                m58C = 6;
+                fn_8016E970(3);
+            }
+            if (mMotion.mTracks[0].m08 >= 12.0f && mMotion.mTracks[0].m08 <= 17.0f) {
+                fn_80144710();
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, m1528, m590, 30, -1, 0.0f);
+            }
+            break;
+        case 8:
+            fn_802F3BE8();
+            break;
+        case 2:
+            vfEC();
+            break;
+        case 9:
+            fn_802F42CC(this);
+            break;
+        case 10:
+            fn_802F469C(this);
+            break;
+        case 11:
+            fn_802F4A98(this);
+            break;
+        case 12:
+            fn_802F5370(this);
+            break;
+        case 13:
+            if (m1590 == 0) {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    mColli.mFlags |= 1;
+                    m1590 = 0;
+                    m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+                    m590 = fn_800F8548(lbl_8087F048);
+                    m58C = 6;
+                    fn_8016E970(3);
+                } else {
+                    atn::Vector3 prev = mPos;
+                    mPos += m1540;
+                    m1540.y += Gravity_unk(lbl_8087F0A8);
+                }
+            }
+            break;
+        case 14:
+            if (fn_802F2C50()) {
+                if (lbl_8087F430->m10D8->FindPlace_unk(601) != 0) {
+                    if (m55C != 7) {
+                        m55C = 3;
+                        fn_8017039C(601, m15A8);
+                    }
+                    fn_802F33A0(this);
+                } else {
+                    ResetAttack_unk();
+                    m58C = 6;
+                    fn_8016E970(3);
+                }
+            } else {
+                ResetAttack_unk();
+                m58C = 15;
+                m574 = lbl_807C7030;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14A, 1, 0, 1, 0.0f, 0.1f);
+            }
+            break;
+        case 15:
+            fn_802F566C();
+            break;
+        case 16: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                ResetAttack_unk();
+                m58C = 17;
+                m54C &= ~0x2000;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14C, 1, 0, 1, 0.0f, 0.1f);
+                m1594 = 1;
+                m1598 = 0;
+            }
+            break;
+        }
+        case 17:
+            if (++m1598 > 600) {
+                fn_802F66CC();
+            }
+            break;
+        case 18:
+            fn_802F58A0();
+            break;
+        default:
+            if (m55C - 6U > 1) {
+                m55C = 3;
+                int id = m15A8;
+                fn_80170A20((CharaTask*)m1580, id, -1.0f);
+            }
+            fn_802F33A0(this);
+            fn_802F389C(this);
+            break;
+        }
+    }
+    if ((m157C & 8) == 8 && !mStatus.IsState_unk(0x20) && fn_802F2C50() &&
+        fn_8059C6DC(lbl_8087F9E8, m1550, this) == 0) {
+        if ((unsigned char)(m1550->m01 - 4) <= 2) {
+            fn_8059B66C(lbl_8087F9E8, m1550, this, this, &mPos, &mRot, boost::function<void(CrabSkill_unk*)>(),
+                        1.0f);
+        } else {
+            CrabDamage_unk result;
+            fn_80040B40(&result, m1550, &mStatus, &mStatus, 0, &lbl_807C6B90, -1, 0);
+        }
+    }
+    fn_8014C540();
+    fn_80145334();
+    if (m58C == 17) {
+        CharaTask* player = lbl_8087F8A0->mHead;
+        if ((mPos - player->mPos).Length_unk() < 40.0f && !player->mFlag6 && !player->mFlag31 &&
+            !(player->m55C == 6 && player->m560 != 4)) {
+            if (lbl_8087F490 != 0) {
+                CrabTutorial_unk tutorial;
+                tutorial.m00 = 6;
+                tutorial.m04 = 17;
+                tutorial.m08 = -1;
+                tutorial.m0C = 0;
+                tutorial.m10 = 0;
+                tutorial.m14 = 0;
+                tutorial.m18 = 1;
+                lbl_8087F490->m764 = tutorial;
+            }
+            if (fn_800A555C(lbl_8087EF70, 0, 4) != 0) {
+                player->fn_8016C1E0(this);
+                ResetAttack_unk();
+                m58C = 18;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 0.5f;
+                mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
+            }
+        }
+    }
+}
+
+void Em308InvertCrab::vf14() {
+    fn_80149A30();
+}
+
+// inferred: capsule from the centre down by 0.7 * radius; in state 8 it is moved 10 units forwards
+// NONMATCHING: 99.77% - r3/r4 of the __VecCopy of `off` (known blocker); the front vector as inline
+// helper with mRot.y in a local fixed the PSMTXRotRad scheduling (~15 forms)
+inline atn::Vector3 CrabFront_unk(const atn::Vector3& rot) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    float ry = rot.y;
+    PSMTXRotRad(m, 'y', ry);
+    PSMTXMultVec(m, &front, &front);
+    return front;
+}
+
+void Em308InvertCrab::vf20() {
+    atn::Vector3 pos = mPos;
+    atn::Vector3 off(0.0f, 0.0f, 0.0f);
+    atn::Vector3 bottom;
+    if (m58C == 8) {
+        off = CrabFront_unk(mRot) * 10.0f;
+    }
+    pos += off;
+    m620 = 0.7f * m5B0;
+    m614 = pos;
+    bottom = pos;
+    m614.y -= 0.7f * m5B0;
+    bottom.y = mPos.y - 0.7f * m5B0;
+    mColli.m3C = pos;
+    mColli.m48 = bottom;
+    mColli.m54 = m620;
+}
+
+// inferred: the ground under the crab (ray from 5 above to 100 below) has an attribute 0x14, 0x15 or
+// 0x1A-0x1D (sand/water?)
+// inferred: the original calls it out of line from vf10: empty release asserts keep it over the auto-inline
+// threshold
+int Em308InvertCrab::fn_802F2C50() {
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    int ret = 0;
+    atn::Vector3 to;
+    atn::Vector3 from = mPos;
+    from.y += 5.0f;
+    to = mPos;
+    to.y -= 100.0f;
+    CollResult_unk result;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x20000000, 0, 0) != 0 && result.m34 != 0) {
+        unsigned int attr = *result.m34;
+        if (attr == 0x14 || attr == 0x15 || attr - 0x1A <= 3) {
+            ret = 1;
+        }
+    }
+    return ret;
+}
+
 // NONMATCHING: 98.80% - r5/r6 of the down test and of the direction temporaries, stack slots of the two
 // vectors (~10 forms)
 // inferred: the crab only takes knockback while it is down or from behind (guard angle m152C)
@@ -238,25 +551,6 @@ void Em308InvertCrab::vf3C(HitInfo_unk* hit) {
     }
     fn_80151448(msg);
     vf40(hit);
-}
-
-// inferred: the ground under the crab (ray from 5 above to 100 below) has an attribute 0x14, 0x15 or
-// 0x1A-0x1D (sand/water?)
-int Em308InvertCrab::fn_802F2C50() {
-    int ret = 0;
-    atn::Vector3 to;
-    atn::Vector3 from = mPos;
-    from.y += 5.0f;
-    to = mPos;
-    to.y -= 100.0f;
-    CollResult_unk result;
-    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x20000000, 0, 0) != 0 && result.m34 != 0) {
-        unsigned int attr = *result.m34;
-        if (attr == 0x14 || attr == 0x15 || attr - 0x1A <= 3) {
-            ret = 1;
-        }
-    }
-    return ret;
 }
 
 // inferred: dead with the skill 0xD1 (needle): state 17 (motion 0x14C) if m15D0, else fn_802F66CC; with
@@ -306,59 +600,6 @@ void Em308InvertCrab::vf40(HitInfo_unk* hit) {
     }
 }
 
-// inferred: plays an effect on the model (as in game/Em305Vampire.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
-    atn::Vector3 pos;
-    atn::Vector3 rot;
-    Color4f_unk color;
-    rot.x = 0.0f;
-    rot.y = 0.0f;
-    rot.z = 0.0f;
-    pos.x = 0.0f;
-    pos.y = 0.0f;
-    pos.z = 0.0f;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
-}
-
-// inferred: gravity per frame (as fn_802F0998 of gmk/Cannonball.cpp)
-inline float Gravity_unk(CrabSettings_unk* s) {
-    return -98.1f / (float)(s->mFps * s->mFps);
-}
-
-// inferred: capsule from the centre down by 0.7 * radius; in state 8 it is moved 10 units forwards
-// NONMATCHING: 99.77% - r3/r4 of the __VecCopy of `off` (known blocker); the front vector as inline
-// helper with mRot.y in a local fixed the PSMTXRotRad scheduling (~15 forms)
-inline atn::Vector3 CrabFront_unk(const atn::Vector3& rot) {
-    atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    float ry = rot.y;
-    PSMTXRotRad(m, 'y', ry);
-    PSMTXMultVec(m, &front, &front);
-    return front;
-}
-
-void Em308InvertCrab::vf20() {
-    atn::Vector3 pos = mPos;
-    atn::Vector3 off(0.0f, 0.0f, 0.0f);
-    atn::Vector3 bottom;
-    if (m58C == 8) {
-        off = CrabFront_unk(mRot) * 10.0f;
-    }
-    pos += off;
-    m620 = 0.7f * m5B0;
-    m614 = pos;
-    bottom = pos;
-    m614.y -= 0.7f * m5B0;
-    bottom.y = mPos.y - 0.7f * m5B0;
-    mColli.m3C = pos;
-    mColli.m48 = bottom;
-    mColli.m54 = m620;
-}
-
 // inferred: jump to pos + offset (state 13): flight time from the motion length, gravity from the frame rate
 // NONMATCHING: 94.64% - stack slots of the destination temporary (0x8 vs 0x20) and f-register
 // allocation of the jump velocity; ~13 forms tried.
@@ -380,11 +621,97 @@ void Em308InvertCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
     mColli.mFlags &= ~1;
 }
 
-// inferred: end of the death motion; while not down it gets up again (state 14)
+// inferred: rotation z, y, x of the identity (as ChaserRotZYX_unk of game/ChaserNpc.cpp; name invented)
+inline void CrabRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    if (rot.z != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.y != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.x != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
+// inferred: state 8 (needle): charge effect and sound, wait m14E4 frames, then shoot the needle from the
+// node "hips" towards the target (the yaw limited to +-m14F0 / 2)
+// NONMATCHING: 99.93% - only the .sdata2 offsets: the constants of the state functions not written yet
+// (fn_802F42CC-fn_802F5370) come before them in the pool
+void Em308InvertCrab::fn_802F3BE8() {
+    switch (m1590) {
+    case 0: {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m1590 = 1;
+            fn_80232B7C(this, 0);
+            PlayEffect_unk(&m1518, &mMotion);
+            m1514 = fn_800C344C(m14F4, &mPos, 0, -1, 1.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x143, 1, 0, 1, 0.0f, 0.1f);
+        }
+        break;
+    }
+    case 1:
+        if (++m15A4 >= m14E4) {
+            m1590 = 2;
+            m15A4 = 0;
+            fn_8016E970(6);
+            m560 = 4;
+            fn_80239DAC(lbl_8087F3C0, this, 0, 1);
+            fn_800CB5C8(&m1514, 15, 0);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
+        }
+        break;
+    case 2:
+        if (fn_80158BB4()) {
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+        } else if (mMotion.mTracks[0].m08 >= 7.0f && mMotion.mTracks[0].m08 < 8.0f) {
+            Model_unk* model = &mMotion;
+            atn::Vector3 pos = ((atn::Matrix3x4*)model->GetNodeMtx_unk("hips"))->GetTrans_unk();
+            atn::Vector3 rot = (((CharaTask*)m1580)->fn_80148B0C(0)->m04.mCenter - pos).ToRotationZ_unk();
+            float d = rot.y - mRot.y;
+            if (d >= m14F0 / 2.0f) {
+                rot.y = m14F0 / 2.0f;
+            } else if (d <= -m14F0 / 2.0f) {
+                rot.y = -m14F0 / 2.0f;
+            }
+
+            atn::Matrix3x4 m;
+            CrabRotZYX_unk(m, rot);
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            PSMTXMultVec(m.m, &dir, &dir);
+            if (m14EC != 0) {
+                fn_800F8574(lbl_8087F048, this, m14EC, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+            }
+        }
+        break;
+    }
+}
+
+
 // inferred: flight of the jump (state 13): gravity into m574, landing on the ground below (state 16, motion
 // 0x14B and the sound SE_EM308_005)
-// NONMATCHING: 99.99% - only the offset of "SE_EM308_005" in @stringBase0: "SE_UICOM_011" and "hips" before it
-// are used by vf10 and fn_802F3BE8, not written yet; the code itself matches
 void Em308InvertCrab::fn_802F566C() {
     int landed = 0;
     atn::Vector3 vel = m574;
