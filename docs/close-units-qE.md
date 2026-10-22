@@ -86,3 +86,11 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - `chr/ControlDive` (19/25, sin cambios): `ControlCoverSlip::vf0C` 98.9% (5 intentos: `ret` tardio, `ret = 0` en la
   rama, copia de m08, rot local): `ret` sigue en r31. Resto: registros/planificacion ya investigados (vf0C 85%,
   SwatTurn r4/r5 + frsp, SwapPos __VecCopy, BackStep r30/r31). Saltada tras eso.
+- `chr/ControlJumpAt` (21/28): `ControlGrappleThrown::vf0C` escrita (era un borrador de 3 lineas): 9.04% -> 99.77%.
+  Gira 0.02805 rad por frame y cae con gravedad -98.1/fps^2 durante 112 frames (barrido `fn_8004D388` como
+  ControlTurnQuadruped). Queda el r3/r4 de `__VecCopy` al copiar la posicion (bloqueo documentado).
+  - Claves: rotacion z/y/x en un inline con `SetIdentity` dentro y temporales `Mtx t; Mtx r;` (t primero);
+    vector de movimiento construido con `Vector3(0, g, 0.125)` y `g` en local antes (fija el orden 0.125/-98.1/0.0
+    del pool); `chara = mChara` local antes de la matriz.
+  - Struct local `GrappleCollResult_unk` (copia de la de ControlTurnQuadruped) y `mFrameRate` (0x30) anadido al
+    struct local `Unk_8087F0A8` del .cpp. Resto de funciones de la unidad: planificacion/registros documentados.
