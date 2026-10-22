@@ -27,6 +27,7 @@ public:
 
     void fn_8025D7B0(); // inferred: runs the state machine
     void fn_8025DE54(); // inferred: state 0
+    void fn_8025DE7C(); // inferred: state 0 of the spell (casts m638 while the control allows it)
     void fn_8025E748(); // inferred: state of the attack
     void fn_8025E930();
     void fn_8025F754();

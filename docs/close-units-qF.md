@@ -121,6 +121,9 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   fn_8025D704 / fn_8025FE30 (`extern "C"`, los llama Em101ElderZesya), fn_8025DE54, fn_8025E748, fn_8025F754.
   fn_8025E930 ~95% (f1/f2). Pendientes: ctor (std::string), vf0C, vf40, fn_8025D7B0 y estados grandes.
   - symbols.txt: fn_8025CDE0/D648/D7B0/DE54/E748/E930/F754/F7D0 -> nombres de Em101LittleZesya.
+  - Segunda pasada (10/25): fn_8025DE7C al 100% (copia del bloque de EnemyTrista::fn_8035CF78: `mControl &&`
+    es el safe-bool por puntero a miembro + __ptmf_test; objdiff no compara la etiqueta del ptmf local).
+    Se incluye chr/ControlBase.h en la fuente.
 
 - game/Em401_01_WhiteLeoPard (0/25 -> 1/25, NUEVA fuente + cabecera minima): dtor al 100%; ctor 99.9% (la
   carga de info->m20 en el prologo solo sale con un puntero const, y el simbolo no es const). El resto de

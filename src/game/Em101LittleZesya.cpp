@@ -1,4 +1,5 @@
 #include "game/Em101LittleZesya.h"
+#include "chr/ControlBase.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
@@ -7,6 +8,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, int data, int id, int time, int c,
                             float f);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -65,6 +67,28 @@ void Em101LittleZesya::fn_8025DE54() {
         mFC0 = m14B8;
     }
     fn_80139560();
+}
+
+void Em101LittleZesya::fn_8025DE7C() {
+    if (fn_80158BB4()) {
+        m14D0 = 0;
+        m14F4 = 0;
+        m58C = 0;
+        fn_8016E970(3);
+        fn_80239DAC(lbl_8087F3C0, this, 500, 1);
+        fn_80239DAC(lbl_8087F3C0, this, 102, 1);
+    } else {
+        fn_80139560();
+        if (lbl_8087F048 != 0 && fn_80158CA4() != 0) {
+            if (mControl && mControl->vf30() > m598) {
+                m598 = mControl->vf30();
+                m594 = 1;
+                m590 = fn_800F8548(lbl_8087F048);
+            }
+            fn_80144710();
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, (int)m638, m590, 30, -1, 0.0f);
+        }
+    }
 }
 
 void Em101LittleZesya::fn_8025E748() {
