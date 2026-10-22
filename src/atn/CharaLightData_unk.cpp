@@ -460,7 +460,6 @@ extern "C" void fn_800C2C20(NewCampScene2_unk* scene, const ScenePlane_unk* plan
     scene->mReflect = Reflect_unk(*plane);
 }
 
-// NONMATCHING: 99.76% - operand order of the light count add
 extern "C" void fn_800C2D88(NewCampScene2_unk* scene) {
     for (int i = 0; i < NumLights_unk(scene); i++) {
         GetLight_unk(scene, i)->fn_800795DC();

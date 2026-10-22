@@ -137,7 +137,7 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
 - `atn/Bezier_unk` (3/7): reconstruido `polyZeroes` (`fn_80507BBC`, 0% -> 84.2%) siguiendo animEngine.c del devkit de
   Maya (normalizacion, caso lineal con limites, recursion sobre la derivada, zeroin, fusion de raices cercanas).
   `fn_80508458` sube un poco (98.32 -> 98.33) por el orden de constantes.
-- `atn/CharaLightData_unk` (17/23): `fn_800C23E8`/`fn_800C2418` al 100% guardando la llamada en un local
+- `atn/CharaLightData_unk` (17/23): `fn_800C23E8`/`fn_800C2418`/`fn_800C2D88` al 100% guardando la llamada en un local
   (`int m = fn_...(); return m + n;`: con `fn_...() + n` el add sale con los operandos al reves). `fn_800C258C`
   sigue 99.4% (7 intentos sobre el 0.5f). `atn/FileUtil_unk` fn_8006969C/96B4: probado `sEndian` de 8 bytes:
   va a .rodata en vez de .sdata2 (peor), revertido.
