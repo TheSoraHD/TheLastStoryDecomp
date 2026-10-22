@@ -23,6 +23,7 @@ public:
     void fn_8024FE18(int arg); // inferred: death of a boss / of a linked daemon
     void fn_8024E1C0(); // inferred: starts the queued action m1654 (m1658 is the next one)
     void fn_8024E7E4(); // inferred: state 6 (warp to mWarpDest)
+    void fn_8024ED68(); // inferred: state 7 (homing laser magic)
     int fn_8024F9B8();  // inferred: finds a free warp position behind the target (mWarpDest)
     void fn_802506AC(); // inferred: warps to the point farthest from the target
     int fn_80250884(float radius);

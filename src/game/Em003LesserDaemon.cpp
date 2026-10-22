@@ -3,6 +3,7 @@
 #include "game/CharaManager.h"
 #include "game/EnemyManager.h"
 #include "game/PlayerTask.h"
+#include "game/HomingBullet.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -29,6 +30,21 @@ struct CollResult_unk {
 };
 extern "C" void* lbl_8087EE98;
 struct Effect_unk;
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em101LittleZesyaSecond.cpp)
+extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" int rand();
+// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
+extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
+// inferred: fields of the running magic control (class unknown; names invented)
+struct ControlMagic_unk {
+    unsigned char m00[0x14];
+    CharaTask* m14; // inferred: target
+    unsigned char m18[0x1D - 0x18];
+    unsigned char m1D; // inferred: nonzero once the bullets are fired
+};
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: moves a bullet with the character
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -469,6 +485,96 @@ void Em003LesserDaemon::fn_8024E7E4() {
         }
         break;
     }
+    }
+}
+
+// NONMATCHING: 99.61% - r27/r28 of the forward and the bullet direction swapped and f20/f21 for the
+// frame (about 10 variants of declaration order); the @stringBase0 offset of "SE_EM003_003" waits
+// for the unwritten functions
+void Em003LesserDaemon::fn_8024ED68() {
+    int done = 1;
+    if (m14B8 == 0 && m55C == 6) {
+        switch (m560) {
+        case 0x1D:
+            done = 0;
+            mFlag4 = 1;
+            fn_80139560();
+            break;
+        case 0x1E: {
+            ControlMagic_unk* control = (ControlMagic_unk*)mControl.get();
+            HitInfo_unk* hit = m638;
+            bool fire = false;
+            if (control->m1D == 0 && mMotion.mTracks[0].m08 >= 24.0f) {
+                fire = true;
+            }
+            if (fire) {
+                HomingParam_unk param;
+                Mtx rot;
+                Mtx m;
+                Mtx m2;
+                fn_8016DA4C();
+                control->m1D = 1;
+                atn::Vector3 pos = mPos;
+                pos.y += 30.0f;
+                atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+                PSMTXRotRad(m, 'y', mRot.y);
+                PSMTXMultVec(m, &fwd, &fwd);
+                fwd.y += 1.0f;
+                PSVECNormalize(&fwd, &fwd);
+                int count = 3;
+                int n = count - 1;
+                for (int i = 0; i < count; i++) {
+                    atn::Vector3 dir = fwd;
+                    float t = ((float)i - 0.5f * (float)n) / (0.5f * (float)n);
+                    atn::Vector3 axis(0.0f, 0.0f, 1.0f);
+                    PSMTXRotRad(m2, 'y', mRot.y);
+                    PSMTXMultVec(m2, &axis, &axis);
+                    PSMTXRotAxisRad(rot, &axis, 0.7853982f * t);
+                    PSMTXMultVec(rot, &dir, &dir);
+                    param.mTarget = 0;
+                    param.mAccel = 0.0f;
+                    param.m08 = -1.0f;
+                    param.mMaxSpeed = 10.0f;
+                    param.mTurn = 0.09424778f;
+                    param.mTime = 300.0f;
+                    param.mDelay = 5.0f;
+                    param.mNode = 0;
+                    param.mCount = -1;
+                    param.mTarget = control->m14;
+                    param.mDelay = rand() % 3 + 2;
+                    param.mTurn = 0.18849556f;
+                    fn_800F8574(lbl_8087F048, this, hit, &pos, &dir, &param, 0, 0, 0.0f, 1.0f);
+                }
+                fn_800C344C("SE_EM003_003", &pos, 0, -1, 1.0f);
+            } else {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    void* p = ::operator new(0x34, 1, "", "", 0);
+                    chr::ControlBase* c = (chr::ControlBase*)p;
+                    if (p != 0) {
+                        c = fn_801C02F4(p, this);
+                    }
+                    fn_80178208(c);
+                }
+            }
+            done = 0;
+            break;
+        }
+        case 0x1F:
+            done = 0;
+            mFlag4 = 1;
+            fn_80139560();
+            break;
+        }
+    }
+    if (done) {
+        mFlag4 = 1;
+        fn_80139560();
+        m58C = 0;
+        fn_8016E970(3);
+        m14B8 = 0;
+        m14BC = 0;
+        m14DC = 0;
     }
 }
 
