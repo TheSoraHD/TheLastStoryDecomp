@@ -59,7 +59,11 @@ public:
     // inferred: inline (weak copy 0x802DDC3C): position of the "head" node
     virtual atn::Vector3 vfC8() {
         MtxPtr m = mMotion.GetNodeMtx_unk("head");
-        return atn::Vector3(m[0][3], m[1][3], m[2][3]) + m5A4;
+        // inferred: the original loads the translation from the last row up (z, y, x)
+        float z = m[2][3];
+        float y = m[1][3];
+        float x = m[0][3];
+        return atn::Vector3(x, y, z) + m5A4;
     }
     virtual atn::Vector3 vfD0(float angle);
     virtual float vfD4() { return 1.0f; } // inferred: weak copy 0x802DDC34

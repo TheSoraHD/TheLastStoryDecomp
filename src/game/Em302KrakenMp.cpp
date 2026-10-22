@@ -440,6 +440,10 @@ int Em302KrakenMp::vf0C() {
     return 0;
 }
 
+// inferred: the original emits these copies right after vf0C (0x802DE80C/0x802DEB00), before vf10
+template void std::vector<Em303KrakenFootMp*>::push_back(Em303KrakenFootMp* const& x);
+template void std::vector<KrakenMpCommand_unk>::push_back(const KrakenMpCommand_unk& x);
+
 // NONMATCHING: 98.8% - registers of the pillar loop (index/count/offset rotated) and of the inlined
 // "can act" checks, and the stack slot of the damage result (7 variants)
 void Em302KrakenMp::vf10() {
@@ -635,7 +639,9 @@ void Em302KrakenMp::vf104() {
                 mMotion.mTracks[0].m0C = 1.0f;
                 mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
             } else if (m14E8 < 20) {
-                (float)m14E8;
+                // inferred: an unused value (the original converts m14E8 to float here and pools 15.0f
+                // between the constants of vf104 and vf50)
+                float rate = m14E8 / 15.0f;
             } else if (m14E8 >= 45) {
                 fn_802E1624();
             }
@@ -702,7 +708,7 @@ void Em302KrakenMp::vf40(HitInfo_unk* hit) {
 // NONMATCHING: 99.9% - the "" of Vector_unk::reserve (lbl_8087D9E4/lbl_8087D9E0 in the original, as in
 // CharaTask::vf50)
 void Em302KrakenMp::vf50() {
-    float d = 3.0f;
+    float d = 5.0f;
     Item14_unk item;
     item.m04.mRadius = m5B0 - d;
     MtxPtr head = mMotion.GetNodeMtx_unk("head");
@@ -1211,8 +1217,8 @@ void Em302KrakenMp::vf114(const SpecialState_unk* state) {
     m15E4 = *(const short*)&state->m0A;
 }
 
-// NONMATCHING: ~99.5% - stack slots of the two temporaries are swapped (7 variants: early return,
-// if/else, named offsets, result local, helper inline)
+// NONMATCHING: 99.8% - stack slots of the two temporaries are swapped (13 variants: early return,
+// if/else, ternary, named offsets, result local, helper inline)
 atn::Vector3 Em302KrakenMp::vfAC() {
     if (m624.mSize == 0) {
         return mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
