@@ -10,7 +10,12 @@
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as ChaserRouteList_unk in
 // game/ChaserGuard.h); name invented
-struct SpiderBaseList_unk : public std::vector<int> {};
+// inferred: base point of the spider (place id and position; read from "BasePoints"); name invented
+struct SpiderBasePoint_unk {
+    int mPlace;
+    atn::Vector3 mPos;
+};
+struct SpiderBaseList_unk : public std::vector<SpiderBasePoint_unk*> {};
 
 // inferred: color of the materials "em202_body"/"em202_tail" (r, g, b, a; starts white); name invented
 struct SpiderBaseColor_unk {
@@ -63,6 +68,8 @@ public:
     inline void ResetAttack_unk();
     void fn_802847CC(); // inferred: movement of the frame (route in state 7, facing m1580)
     void fn_802868A0(); // inferred: walks to the base point m1564, then attacks m1580
+    void fn_80284CC8(); // inferred: chooses the attack on m1580 by the distance
+    void fn_802878EC(CharaTask* target); // inferred: escape
     void fn_80286CB0(CharaTask* target); // inferred: starts state 7 (move), or the attack on m1580
     void fn_8028702C(CharaTask* target); // inferred: starts the attack (state 6, or state 8 in needle mode)
     int fn_80287400(CharaTask* target, int arg); // inferred: starts state 9 (turn) when the target is not in front
@@ -89,14 +96,14 @@ public:
     float m1544;              // inferred: target angle of the turn (state 9)
     atn::Vector3 m1548;       // inferred: jump velocity (state 13, vf80)
     int m1554;
-    unsigned char m1558[0x155C - 0x1558];
+    int m1558;                // inferred: hits before the escape (fn_80284CC8)
     float m155C;              // inferred: speed rate of state 12 (fn_802847CC)
-    int* m1560;               // inferred: current base point (place id at 0, fn_802868A0)
+    SpiderBasePoint_unk* m1560; // inferred: current base point (fn_802868A0)
     atn::Vector3 m1564;       // inferred: position of the base point
     SpiderBaseList_unk m1570;
     int m157C;                // inferred: flags (4: needle mode, fn_8028702C)
     CharaTask* m1580;         // inferred: target of the attack (fn_80286CB0)
-    int m1584;
+    CharaTask* m1584;         // inferred: target of the last attack
     CharaTask* m1588;         // inferred: target of the turn (state 9)
     int m158C;
     int m1590;                // inferred: 90

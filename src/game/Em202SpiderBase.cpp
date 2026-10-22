@@ -25,6 +25,9 @@ extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (dea
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" double cos(double x);
 extern "C" double sqrt(double x);
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+                           int arg5, int arg6, float radius); // inferred: sphere test
 // inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
 struct System_unk {
     unsigned char m00[0x30];
@@ -143,7 +146,7 @@ void Em202SpiderBase::fn_802868A0() {
     }
     if (m55C - 6U > 1) {
         m55C = 3;
-        fn_8017039C(*m1560, 0);
+        fn_8017039C(m1560->mPlace, 0);
     }
     fn_802847CC();
 }
@@ -170,6 +173,111 @@ void Em202SpiderBase::fn_80286CB0(CharaTask* target) {
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.1f);
+    }
+}
+
+// NONMATCHING: 99.78% - stack slots of the two differences inside the loop (d at 0x68 instead of 0x50); 8
+// variants
+// inferred: runs to the farthest base point (the points behind the spider count double)
+void Em202SpiderBase::fn_802878EC(CharaTask* target) {
+    if (fn_80287400(target, 12) != 0) {
+        return;
+    }
+    ResetAttack_unk();
+    m58C = 12;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+    m1584 = m1580;
+    m1560 = 0;
+    float best = 0.0f;
+    int place = -1;
+    for (unsigned int i = 0; i < m1570.size(); i++) {
+        atn::Vector3 d = m1570[i]->mPos - mPos;
+        float dist = sqrt(d.x * d.x + d.z * d.z);
+        atn::Vector3 dir = (m1570[i]->mPos - mPos).GetNormalized_unk();
+        atn::Vector3 rot = dir.ToRotation_unk();
+        float diff = atn::WrapAngle_unk(rot.y - mRot.y);
+        if (diff > 1.5707964f || diff < -1.5707964f) {
+            dist *= 2.0f;
+        }
+        if (dist > best) {
+            best = dist;
+            place = m1570[i]->mPlace;
+            m1564 = m1570[i]->mPos;
+            m1560 = m1570[i];
+        }
+    }
+    if (m1560 != 0) {
+        fn_8017039C(place, 8);
+    } else {
+        ResetAttack_unk();
+        m58C = 6;
+        fn_8016E970(3);
+    }
+}
+
+// NONMATCHING: 99.91% - only the .sdata2 offsets (constants of the unwritten functions)
+void Em202SpiderBase::fn_80284CC8() {
+    m1594--;
+    if (m1554 >= m1558 && !m1570.empty()) {
+        fn_802878EC(m1580);
+    }
+    if (m1580 != m1584) {
+        fn_8016E970(3);
+        m1594 = m14F4 != 0 ? m14F4->m68 : 90;
+        if (fn_80287400(m1580, 6) != 0) {
+            return;
+        }
+    }
+    atn::Vector3 d = m1580->mPos - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    if (m1594 < 0) {
+        fn_8016E970(3);
+        if (dist <= m14F0) {
+            if (fn_80287400(m1580, 8) == 0) {
+                fn_8028702C(m1580);
+            }
+        } else {
+            m1594 = m14F4 != 0 ? m14F4->m68 : 90;
+        }
+        return;
+    }
+    atn::Vector3 down(0.0f, -3.0f, 0.0f);
+    if (fn_8004D314(lbl_8087EE98, 0, &mPos, &down, 0x80000000, 0, 0, 3.0f) == 0) {
+        return;
+    }
+    float reach = 30.0f;
+    if (m1530 != 0) {
+        reach = m1530->m40;
+    }
+    if (dist < reach) {
+        fn_8016E970(3);
+        if (fn_80287400(m1580, 11) == 0) {
+            ResetAttack_unk();
+            m58C = 11;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+            m1590 = m1530 != 0 ? m1530->m68 : 60;
+            m1584 = m1580;
+        }
+    } else if (dist < m152C) {
+        fn_8016E970(3);
+        if (fn_80287400(m1580, 10) == 0) {
+            ResetAttack_unk();
+            m58C = 10;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+            m1584 = m1580;
+        }
     }
 }
 
