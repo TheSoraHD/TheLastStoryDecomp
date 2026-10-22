@@ -23,6 +23,10 @@ public:
     virtual atn::Vector3 vf64(int center);     // 0x802CCAAC
     virtual void vfEC();                       // 0x802CC0F4
 
+    inline void SetState_unk(int state);
+    inline void CastSkill_unk();
+    inline int CollectPoints_unk(int* ids);
+    inline void PlayMotion_unk(int motion);
     void fn_802C9880();
     void fn_802C9BF8(); // inferred: chooses the next action
     void fn_802CA490();
@@ -36,7 +40,7 @@ public:
     void fn_802CC39C(); // inferred: starts state 14 (releases the eaten character m14D0)
     void fn_802CC4C8(int arg, CharaTask* target); // inferred: starts state 15 (moves to a route point)
     void fn_802CC708(); // inferred: death
-    void fn_802CC834(float radius, float angle, int arg);
+    void fn_802CC834(const atn::Vector3& pos, float radius, float angle, int arg); // inferred: pos is not read
 
     CharaTask* m14B0; // inferred: target (mC58.mC4 of this frame)
     CharaTask* m14B4; // inferred: target of the previous frame
@@ -49,7 +53,7 @@ public:
     CharaTask* m14D0; // inferred: eaten character
     int m14D4;
     int m14D8;
-    Mtx m14DC;        // inferred: matrix of the node "eat_point"
+    atn::Matrix3x4 m14DC; // inferred: matrix of the node "eat_point"
     int m150C;
     int m1510;        // inferred: id of the route point of state 15
     int m1514;
