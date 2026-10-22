@@ -129,7 +129,8 @@ void Augur::fn_8041EE28() {
 
 // NONMATCHING: 99.2% - state 5: the original keeps the modulo in r5 and sets up `this` before the
 // compare (as if `this` were evaluated before a branchy argument). Tried: compare order, rate local,
-// ternaries (become subfc/subfe), if/else, inline PickState(r, rate), state declared first.
+// ternaries (become subfc/subfe), if/else, inline PickState(r, rate), state declared first, rand()
+// in the condition, rate/desc locals, a this copy, negated compare, bool temporary.
 void Augur::vf10() {
     if (mAugur != 0 && mAugur->IsFlag_unk(0xDEAD0000)) {
         CharaTask* target = mTarget;
