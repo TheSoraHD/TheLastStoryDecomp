@@ -105,6 +105,8 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   - symbols.txt: fn_802CE42C/E430/E504/ED80/EF0C -> vf14/vf3C/vf40/vf54/vf84; fn_802CFFC8 ->
     `__sinit_\Em209SmallGolem_cpp`; lbl_807C83C8 (0x30) partido en sColor0_unk/sColor1_unk/sColor2_unk
     (0x807C83C8/D8/E8, scope:local).
+  - vf80 (fn_802CEDFC, renombrado a `vf80__15Em209SmallGolemFRCQ23atn7Vector3RCQ23atn7Vector3`): NONMATCHING
+    ~97%, solo r3/r5 intercambiados en las direcciones de los psq (8 variantes).
 
 - game/Em303KrakenFoot (0/26 -> 10/26, NUEVA fuente + cabecera): al 100% ctor, dtor, fn_802E2328 /
   fn_802E2360 / fn_802E2468 (`extern "C"`, los llama Em302Kraken, que aun no tiene fuente), vf14, vf3C,
