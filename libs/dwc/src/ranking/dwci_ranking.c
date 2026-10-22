@@ -91,8 +91,6 @@ DWCiEncResult DWCi_RankingGetScoreAsync(DWCRnkGetMode mode, u32 category, int pi
     return ret;
 }
 
-// NONMATCHING: ~98% - operands of the add in the idx update are swapped; tried several
-// forms of the update and of the index types
 // inferred: converts the response to big-endian in place:
 // u32 mode, u32 count, u32 total, then count rows of 6 words (order, pid, score, region,
 // lastupdate, size) each followed by size bytes of user data
@@ -128,8 +126,7 @@ static BOOL DWCi_RankingGetCallback(const char* data, int size) {
             p[idx + 2] = DWCi_RNK_SWAP32(p[idx + 2]);
             p[idx + 3] = DWCi_RNK_SWAP32(p[idx + 3]);
             p[idx + 4] = DWCi_RNK_SWAP32(p[idx + 4]);
-            p[idx + 5] = DWCi_RNK_SWAP32(p[idx + 5]);
-            idx = p[idx + 5] / 4 + idx + 6;
+            idx += 6 + (p[idx + 5] = DWCi_RNK_SWAP32(p[idx + 5])) / 4;
         }
         break;
     default:
