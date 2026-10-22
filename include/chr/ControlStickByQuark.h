@@ -132,6 +132,15 @@ public:
     unsigned char m08[0x10 - 0x08];
 };
 
+// inferred: control 0x6E of a character held by Em403WarLion (game/Em403WarLion.cpp); class name from
+// the vtable stored by the constructor
+class ControlMatHoldPre : public ControlBase {
+public:
+    ControlMatHoldPre(Chara_unk* chara, Chara_unk* holder); // 0x80197528
+    virtual int vf0C();
+    Chara_unk* m08; // inferred: holder
+};
+
 class ControlMatHoldRelease : public ControlBase {
 public:
     ControlMatHoldRelease(Chara_unk* chara); // 0x801980B4
