@@ -332,13 +332,12 @@ void CharaFaceControl::fn_8011EDE0(int fade) {
     }
 }
 
-// NONMATCHING: 87.67% - the original converts the absolute value into f1 (ours keeps it in f6)
 void CharaFaceControl::fn_8011EE58(float weight, float m74_, float total, float fadeOut, float fadeIn) {
     m70 = weight;
     m74 = m74_;
     m64 = fadeIn;
     m68 = fadeOut;
-    if (atn::Abs_unk(total) < 1.1920929e-7f) {
+    if ((float)__fabs(total) < 1.1920929e-7f) {
         m6C = m64 + m68;
     } else {
         m6C = total;

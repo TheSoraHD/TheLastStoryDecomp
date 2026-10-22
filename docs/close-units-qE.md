@@ -59,3 +59,9 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   rama vacia MWCC elimina la comparacion (96.98%) y con cualquier cuerpo deja un `li r4, -1` o reordena.
   `fn_801AB6B8` (r3/r4 de copia de Vector3) y `vf10` (prologo) son bloqueos documentados; `vf0C` y `fn_801AB9E4`
   (slots de pila repartidos por toda la funcion) no se tocan.
+- `game/CharaFaceControl` (12/17 -> 13/17): `fn_8011EE58` 87.67% -> 100% con `(float)__fabs(total)` en lugar de
+  `atn::Abs_unk(total)` (el original hace el `frsp` a f1, un temporal nuevo). `fn_8011EB18` 99.21% sin cambios
+  (3 intentos; registros del operator= inline de Buffer_unk). `fn_8011D844`/`fn_8011E200` (registros/pila, ya
+  investigadas) y `fn_8011EF14` (push_back de vector<int>) saltadas.
+  - Hallazgo MWCC: `atn::Abs_unk(x) < k` reutiliza el registro del fabs para el redondeo; `(float)__fabs(x) < k`
+    redondea a un registro nuevo.
