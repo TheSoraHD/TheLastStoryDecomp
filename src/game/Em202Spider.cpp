@@ -26,6 +26,7 @@ extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: color as four floats (as in game/CharaTask.cpp)
 struct Color4f_unk {
     Color4f_unk() {}
@@ -245,6 +246,47 @@ void Em202Spider::vf7C(int arg) {
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x1DD, 0, 0, 1, 0.0f, 0.05f);
+}
+
+// NONMATCHING: 99.89% - only the .sdata2 offsets of 0.0f/1.0f (constants of the unwritten functions)
+// inferred: death sequence (after the death motion: effect m1568 at frame 29 of the countdown m1434)
+void Em202Spider::vfEC() {
+    if (mMotion.mTracks[0].m00 != 0x2E) {
+        fn_802829DC();
+    }
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mFlag25 = 1;
+        mColli.mFlags &= ~1;
+        if (m1434 > 0) {
+            m1434--;
+            if (m1434 == 29) {
+                fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+                fn_80232B7C(0, 0);
+                Color4f_unk color;
+                atn::Vector3 rot;
+                atn::Vector3 pos;
+                rot.x = 0.0f;
+                rot.y = 0.0f;
+                rot.z = 0.0f;
+                pos.x = 0.0f;
+                pos.y = 0.0f;
+                pos.z = 0.0f;
+                color.r = 1.0f;
+                color.g = 1.0f;
+                color.b = 1.0f;
+                color.a = 1.0f;
+                fn_8023A8B4(lbl_8087F3C0, &m1568, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+                vf9C(1);
+            }
+        } else {
+            mFlag15 = 1;
+            fn_801765D8();
+            fn_800EE360(this);
+        }
+    } else {
+        m1434 = 30;
+    }
 }
 
 void Em202Spider::fn_80281ED8() {
