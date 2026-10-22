@@ -424,9 +424,12 @@ void MotionObject::vf20() {
     }
 }
 
-// NONMATCHING: 99.88% - the CSV size/data temporaries get other registers
+// NONMATCHING: 99.94% - the CSV size temporary gets r22 instead of r25 (data/size read into
+// locals first fixes the rest)
 void MotionObject::vf24() {
-    atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
+    unsigned long size = mBinary.fn_8047059C();
+    const char* data = (const char*)mBinary.fn_80470580();
+    atn::CsvTab csv(data, size);
     csv.fn_8005BCE8(lbl_8087D710);
     int model = 0;
     int fade = 0;

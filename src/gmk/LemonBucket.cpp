@@ -247,7 +247,9 @@ int LemonBucket::vf1C() {
 // NONMATCHING: 99.13% - register allocation (the field pointer and the string pool base swap
 // registers); tried several declaration orders of the counters
 void LemonBucket::vf20() {
-    atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
+    unsigned long size = mBinary.fn_8047059C();
+    const char* data = (const char*)mBinary.fn_80470580();
+    atn::CsvTab csv(data, size);
     char path[0x100];
     csv.fn_8005BCE8(lbl_8087D710);
     unsigned int fades = 0;
