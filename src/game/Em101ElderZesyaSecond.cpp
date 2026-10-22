@@ -1,5 +1,6 @@
 #include "game/Em101ElderZesyaSecond.h"
 #include "game/HitInfo_unk.h"
+#include "game/CharaStatus.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "std/string.h"
@@ -38,6 +39,24 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
+extern "C" int rand();
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+// inferred: collision world and its ray test (see game/ChaserNpc.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10; // inferred: position after the sweep (as in gmk/Lemon.h)
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the barrier
@@ -218,6 +237,59 @@ void Em101ElderZesyaSecond::fn_8025C624() {
     } else {
         m15D4 = (m15D4 + 1) % 2;
     }
+}
+
+void Em101ElderZesyaSecond::fn_8025C460() {
+    m14D4 = 0;
+    m14D8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+    m58C = 11;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
+    fn_8025C7A8(&m1508, &m1514);
+    CollResult_unk result;
+    mPos = m1508;
+    atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + m1508;
+    if (fn_8004ED34(lbl_8087EE98, &result, &m1508, &to, 0x80000000, &mColli, 0) != 0) {
+        mPos = result.m10;
+    }
+    mRot.y = m1514;
+    fn_80232B7C(this, 101);
+    PlayEffect_unk(&m1530, &mMotion);
+}
+
+// inferred: std::swap of two pointers (name invented)
+template <class T>
+inline void Swap_unk(T& a, T& b) {
+    T t = a;
+    a = b;
+    b = t;
+}
+
+int Em101ElderZesyaSecond::fn_8025C7A8(atn::Vector3* pos, float* rot) {
+    if (m14C0.size() == 0) {
+        return 0;
+    }
+    for (unsigned int i = 0; i < m14C0.size() - 1; i++) {
+        for (unsigned int j = m14C0.size() - 1; j > i; j--) {
+            atn::Vector3 a = m14C0[j]->mPos - mPos;
+            float da = fn_805F9920(&a);
+            unsigned int k = j - 1;
+            atn::Vector3 b = m14C0[k]->mPos - mPos;
+            if (da > fn_805F9920(&b)) {
+                Swap_unk(m14C0[j], m14C0[k]);
+            }
+        }
+    }
+    unsigned int n = m14C0.size() > 3 ? 3 : m14C0.size();
+    int index = rand() % (int)n;
+    *pos = m14C0[index]->mPos;
+    *rot = m14C0[index]->m14;
+    return 1;
 }
 
 int Em101ElderZesyaSecond::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir) {

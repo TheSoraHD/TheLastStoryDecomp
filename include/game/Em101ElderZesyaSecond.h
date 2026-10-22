@@ -8,9 +8,10 @@
 #include "game/ResHandle.h"
 #include "std/vector.h"
 
-// inferred: list member of the enemy (a class derived from std::vector: its destructor tests
-// `this` four times); element type and name invented
-struct ElderList_unk : public std::vector<void*> {};
+// inferred: warp points of the enemy ("warp_point"; a class derived from std::vector: its destructor
+// tests `this` four times); name invented
+struct RoutePlace_unk;
+struct ElderList_unk : public std::vector<RoutePlace_unk*> {};
 
 // inferred from __vt__21Em101ElderZesyaSecond (0x807847E0): second fight of the elder Zesya.
 // Only the small functions are written (game/Em101ElderZesyaSecond.cpp); the factory allocates
@@ -26,6 +27,9 @@ public:
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir); // 0x8025C92C
 
     void fn_8025C624(); // inferred: the barrier breaks
+    void fn_8025C460(); // inferred: warps (state 11)
+    // inferred: one of the three warp points nearest to the enemy (position and rotation)
+    int fn_8025C7A8(atn::Vector3* pos, float* rot);
 
     atn::LH_Binary m14B0;
     CharaTask* m14B8;   // inferred: target
@@ -41,7 +45,8 @@ public:
     int m14FC; // inferred: bullet/skill id (0x5E6)
     int m1500; // inferred: bullet/skill id (0x5EA)
     CharaTask* m1504;
-    unsigned char m1508[0x1518 - 0x1508];
+    atn::Vector3 m1508; // inferred: warp destination
+    float m1514;        // inferred: warp rotation
     atn::EfpHandle_unk m1518;
     atn::EfpHandle_unk m1524;
     atn::EfpHandle_unk m1530;
