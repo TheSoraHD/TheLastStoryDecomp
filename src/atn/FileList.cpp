@@ -115,6 +115,16 @@ struct StringView_unk {
     const char* mData;
 };
 
+// inferred: extension of a path (after the last '.', "" without one)
+// NONMATCHING: 99.4% - volatile registers of the inlined rfind (r6/r7 swapped)
+extern "C" std::string fn_8006AC08(const std::string& path) {
+    unsigned long pos = path.rfind('.');
+    if (pos != std::string::npos) {
+        return std::string(path, pos + 1);
+    }
+    return std::string("");
+}
+
 // inferred: a + b (C string first; std::string operator+(const char*, const std::string&))
 extern "C" std::string fn_8006AF38(const char* a, const std::string& b) {
     std::string tmp;
@@ -160,6 +170,42 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b) {
     tmp.reserve(na + nb);
     tmp.replace(0, 0, pa, pa + na).replace(na, 0, pb, pb + nb);
     return tmp;
+}
+
+// inferred: position of the last directory separator (npos: none); name invented
+inline unsigned long __LastSeparator_unk(const std::string& path) {
+    for (unsigned long i = 0; i < path.size(); i++) {
+        unsigned long pos = path.size() - 1 - i;
+        char c = path[pos];
+        if (c == '\\' || c == '/') {
+            return pos;
+        }
+    }
+    return std::string::npos;
+}
+
+// inferred: directory of a path (before the last separator; npos keeps the whole path)
+std::string fn_8006B0C8(const std::string& path) {
+    return std::string(path, 0, __LastSeparator_unk(path));
+}
+
+// inferred: file name of a path (after the last separator)
+extern "C" std::string fn_8006B174(const std::string& path) {
+    unsigned long pos = __LastSeparator_unk(path);
+    if (pos == std::string::npos) {
+        return path;
+    }
+    return std::string(path, pos + 1);
+}
+
+// inferred: path without its extension
+// NONMATCHING: 99.5% - volatile registers of the inlined rfind (as fn_8006AC08)
+extern "C" std::string fn_8006B2D8(const std::string& path) {
+    unsigned long pos = path.rfind('.');
+    if (pos != std::string::npos) {
+        return std::string(path, 0, pos);
+    }
+    return path;
 }
 
 // inferred: copy of a path with "_xx" replaced by the suffix of the file language
