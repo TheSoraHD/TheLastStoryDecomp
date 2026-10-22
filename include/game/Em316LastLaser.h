@@ -16,6 +16,7 @@ struct LaserPoint_unk;
 struct LaserList_unk : public std::vector<LaserPoint_unk*> {
     LaserPoint_unk** Back_unk(); // 0x8031E060
     void Erase_unk(LaserPoint_unk** it); // inferred: erase of one element (memmove of the rest)
+    inline void Clear_unk(); // inferred: deletes every point (name invented)
 };
 
 class LaserTrace {
@@ -25,8 +26,8 @@ public:
     inline void Reset_unk();
 
     int m04;
-    int m08;
-    int m0C;
+    void* m08; // inferred: effect of the start of the laser (Em316LastLaser::m1574)
+    void* m0C; // inferred: effect of the end of the laser (Em316LastLaser::m1580)
     float m10;
     float m14;
     float m18;
@@ -53,6 +54,9 @@ public:
     virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset); // 0x8031C754
     virtual void vfEC();                                     // 0x8031C894
 
+    inline void SetState_unk(int state); // inferred: inlined everywhere (name invented)
+    inline void Appear_unk(const atn::Vector3& pos, const atn::Vector3& offset);
+    inline void SetAppear_unk(const atn::Vector3& pos, const atn::Vector3& offset); // inferred: name invented
     void fn_8031D27C(); // inferred: resets the step and takes a new bullet id
     void fn_8031D2BC(); // inferred: back to state 0, stops the effects 1000, 0x65 and 0x66
 
@@ -65,14 +69,14 @@ public:
     atn::Vector3 m14D4;
     atn::Vector3 m14E0;
     float m14EC; // inferred: "AppearMoveRate"
-    atn::Vector3 m14F0;
-    float m14FC;
+    atn::Vector3 m14F0; // inferred: velocity of the fall
+    float m14FC;        // inferred: gravity
     atn::Vector3 m1500;
     atn::Vector3 m150C;
     atn::Vector3 m1518;
     atn::Vector3 m1524;
     int m1530;
-    int m1534;
+    HitInfo_unk* m1534; // inferred: "LaserID"
     LaserTrace m1538;
     ResLoader_unk m1574; // inferred: "ef_sk043f_01.eff"
     ResLoader_unk m1580; // inferred: "ef_sk043c_01.eff"

@@ -20,8 +20,18 @@ Cola: game/Em316LaserSphere, game/Em316LastLaser, game/Em401_01_WhiteLeoPard.
   Sin escribir: fn_803176D0 (2 KB, push_back de vector), fn_80317EF8, fn_80318AA4, fn_8031958C,
   fn_80319C90, fn_8031A670, fn_8031ACC0 (insert de vector) y las copias debiles de vf10.
 
+- `game/Em316LastLaser` (empezada en close-units): 6/19 -> 8/19. Al 100% el ctor (0x8031B0A8, tokenizer como
+  en LaserSphere; el bit 0x10 de CharaParam_unk::m9C por la copia debil `fn_802660FC` como `extern "C" inline`),
+  vf80 (0x8031C754) y el ctor de LaserTrace (99.85% -> 100% al renombrar el pool). NONMATCHING: vf0C 97.91%
+  (planificacion de las palabras de banderas del final), vf40 99.66% (r4/r5 de los globales de la gravedad),
+  vfEC 62.6% (el original inlinea vf80 y guarda las direcciones de sus argumentos en registros salvados antes
+  del cambio de estado), dtor 97.2% y ~LaserTrace 91.7% (sin cambios: registros del iterador del Reset_unk
+  inline; 3 variantes mas: for, Clear_unk en la lista, funcion libre). Sin escribir: vf10 (2.9 KB),
+  fn_8031CA30, fn_8031D350, fn_8031D6DC, fn_8031E078, fn_8031E8BC.
+
 ## Decisiones tomadas sin el usuario
 
+- **symbols.txt (Em316LastLaser)**: `lbl_8074973C` -> `@stringBase0` (scope:local).
 - **symbols.txt (Em316LaserSphere)**: renombrados ctor, dtor, vf0C/vf10/vf14/vf3C/vf40/vf80/vfE4/vfEC y los
   metodos no virtuales `fn_XXXXXXXX__16Em316LaserSphereF...`; `lbl_8074959C` -> `@stringBase0` (scope:local);
   `fn_803165E0` -> `__ct__Q23atn9Matrix3x4Fv`, `fn_803165E4` -> `__defctor__15EffectModel_unkFv`,
@@ -34,6 +44,11 @@ Cola: game/Em316LaserSphere, game/Em316LastLaser, game/Em401_01_WhiteLeoPard.
   No cambia el codigo de nadie (regress/fuzzdrop 0).
 
 ## Hallazgos MWCC
+- Los locales del efecto (pos, rot, color) declarados en el cuerpo de la funcion, antes de un helper inline
+  que guarda en miembros, dan el orden de pila del original (Em316LastLaser::vf80 al 100%); dentro del inline
+  del efecto quedan por encima.
+- Gravedad `1.5f * (g * dt)` con `float dt = lbl_8087EFA8->m3A4;` leido antes que los fps: acerca el reparto de
+  FPR del original (f3 = -98.1, f6 = dt).
 
 - El `__defctor__` de un array de objetos con constructor de argumento por defecto se emite como copia debil
   justo despues del ctor que construye el array.
