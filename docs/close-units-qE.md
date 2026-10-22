@@ -176,3 +176,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   - Hallazgo MWCC: `x < 0 || N < x` conserva las dos comparaciones con signo; `x < 0 || x > N` se convierte en una
     comparacion sin signo (mismo patron que en Arms).
 - `game/MenuCommonTask` (28/41, sin cambios): `fn_804A5D34` 93.2% (5 intentos: desc3 al principio, helper, literal directo, hash en local, texto en local): r30/r31 de layout/texto en la ultima llamada. Resto: planificacion (fn_8006EF48) y registros documentados.
+- `game/CampSaveLoad` (14/31 -> 15/31): `MP::SaveElemB_unk::~SaveElemB_unk()` (0x80119ECC, copia debil) definido
+  vacio aqui (incluye MP/SaveLoad.h): 100%. Las 9 funciones grandes sin escribir (0.9-2.1 KB) y el resto (bool de
+  pad materializado 88.8%, pool ancho) quedan fuera del lote.
