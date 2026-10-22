@@ -319,6 +319,39 @@ void Em308ParmCrab::vfEC() {
     }
 }
 
+// inferred: without the flag 4 of m15B8 starts state 6, with it charges towards target (state 8, motion 0x142);
+// both turn first when needed
+// NONMATCHING: 99.96% (report) - stack slots of dir (0x5c) and of the ToRotation_unk temporary (0x68)
+// swapped; ~10 forms
+void Em308ParmCrab::fn_802FBA30(CharaTask* target) {
+    if ((m15B8 & 4) != 4) {
+        if (fn_802FBE00(target, 6) == 0) {
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+        }
+    } else {
+        if (fn_802FBE00(target, 8) == 0) {
+            m58C = 8;
+            fn_8016E970(3);
+            ResetAttack_unk();
+            atn::Vector3 tpos = target->mPos;
+            atn::Vector3 dir = atn::Vector3(tpos - mPos);
+            PSVECNormalize(&dir, &dir);
+            atn::Vector3 rot = dir.ToRotation_unk();
+            mRot = rot;
+            mRot.x = 0.0f;
+            mRot.z = 0.0f;
+            m15D8 = 0;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
+        }
+    }
+}
+
 // inferred: starts a turn (state 9, motion 0x14D) towards target, unless it is within 22.5 degrees; the
 // state `next` follows the turn
 int Em308ParmCrab::fn_802FBE00(CharaTask* target, int next) {
