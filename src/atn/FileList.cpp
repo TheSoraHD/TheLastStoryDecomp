@@ -125,6 +125,21 @@ extern "C" std::string fn_8006AC08(const std::string& path) {
     return std::string("");
 }
 
+extern "C" std::string fn_8006AF38(const char* a, const std::string& b);
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
+
+// NONMATCHING: 98.2% - registers of the inlined rfind (as fn_8006AC08) and the pool offset of "."
+// inferred: sets the extension of `path` to `ext` (replaces the current one or adds ".ext")
+extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext) {
+    unsigned long pos = path.rfind('.');
+    if (pos != std::string::npos) {
+        path = fn_8006AFF8(std::string(path, 0, pos + 1), ext);
+    } else {
+        path += fn_8006AF38(".", ext);
+    }
+    return path;
+}
+
 // inferred: a + b (C string first; std::string operator+(const char*, const std::string&))
 extern "C" std::string fn_8006AF38(const char* a, const std::string& b) {
     std::string tmp;
@@ -301,6 +316,9 @@ extern "C" void fn_8006BB6C(void* data, int own) {
     }
 }
 
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" char* fn_800DC978(char* s); // inferred: to lower case (atn/Util_unk)
+
 namespace atn {
 
 FileList::FileList() {
@@ -311,6 +329,36 @@ FileList::FileList() {
 FileList::~FileList() {
     m04 = 0;
     mEntries.clear();
+}
+
+// inferred: index of the first entry whose name contains `name` (case insensitive when `nocase`)
+int FileList::fn_8006C300(const char* name, int nocase) {
+    char buf[0x100];
+    char key[0x100];
+    const char* k;
+    int found = -1;
+    if (nocase) {
+        strcpy(key, name);
+        fn_800DC978(key);
+        k = key;
+    } else {
+        k = name;
+    }
+    for (int i = 0; i < m04; i++) {
+        const char* entry;
+        if (nocase) {
+            strcpy(buf, mEntries[i].mName.c_str());
+            fn_800DC978(buf);
+            entry = buf;
+        } else {
+            entry = mEntries[i].mName.c_str();
+        }
+        if (strstr(entry, k) != 0) {
+            found = i;
+            break;
+        }
+    }
+    return found;
 }
 
 } // namespace atn
