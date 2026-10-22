@@ -100,3 +100,6 @@ Hallazgos MWCC (8):
 - game/GimmickStateCommand: saltada - las funciones pequenas al 0% son copias debiles de inlines que el original llama fuera de linea (presupuesto de inline, documentado en la unidad).
 - game/NewStaffRoll fn_80531394: 3 variantes de orden texto/longitud sin mejora.
 - game/CampSaveLoad: MenuLoadTask::fn_80117914 llama ahora a `GameSaveLoadCommon::fn_803B8758(int)` (vista local de la clase, como GameOverTask) en vez del `extern "C"` con dos argumentos: el simbolo del original es el metodo. Queda el intercambio r29/r31 del CopyString_unk (literal/destino); un local para el destino da el orden pero baja la puntuacion (98.44%), no aplicado.
+- game/ChaserNpc: fn_80181D94 99.57 -> 99.68%: el indice actual en un local (`int idx = m14C0;`) antes de FindPlace_unk. Queda el reparto de registros del bucle de FindPlace_unk (cabecera compartida CharaStatus.h, no tocada).
+- game/EnemyTrista: ctor 98.6% (carga de info->m20 en el prologo): el truco de `const EnemyInfo_unk*` no se puede aplicar (el simbolo es `P13EnemyInfo_unk`, no const); cast/inline const no cambian nada.
+- game/CrowdManager fn_801EB7C4, game/SongManager fn_805A2FD4, chr/ControlTurnQuadruped ctor: intentos adicionales sin mejora (cero compartido, volumen 1.0f antes de GetFade_unk, stfs del double).

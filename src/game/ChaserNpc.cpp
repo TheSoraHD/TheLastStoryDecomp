@@ -379,7 +379,8 @@ void ChaserNpc::fn_80181A64() {
     mC58.m0C.fn_801255C8();
 }
 
-// NONMATCHING: 99.6% - register allocation of the inlined RouteTable_unk::FindPlace_unk.
+// NONMATCHING: 99.7% - register allocation of the inlined RouteTable_unk::FindPlace_unk (index/offset and
+// the place pointer swapped). The current index in a local (`idx`) fixes the load order of m14C0.
 void ChaserNpc::fn_80181D94() {
     RouteWalker_unk& route = mC58.m0C;
     if (route.fn_80125474() == 0) {
@@ -388,7 +389,8 @@ void ChaserNpc::fn_80181D94() {
         if (point != 0) {
             mPos = table->mPoints[point - 1].mPos;
         } else {
-            mPos = table->FindPlace_unk(m14B4[m14C0])->mPos;
+            int idx = m14C0;
+            mPos = table->FindPlace_unk(m14B4[idx])->mPos;
         }
         mC58.m0C.fn_80128818(m14B4[m14C0], &mPos, 8);
         mC58.m0C.fn_801255C8();
