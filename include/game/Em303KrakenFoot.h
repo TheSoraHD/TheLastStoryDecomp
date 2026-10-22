@@ -25,6 +25,8 @@ public:
     virtual void vfEC();
 
     void fn_802E2640(const char* text, int length); // inferred: reads the data file
+    void fn_802E3D60(); // inferred: starts state 7 (called by the kraken)
+    void fn_802E3E38(int arg); // inferred: starts state 8 (m14CC)
     void fn_802E554C(int arg);
 
     atn::LH_Binary m14B0;     // inferred: data file

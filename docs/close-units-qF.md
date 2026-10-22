@@ -112,6 +112,8 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   del CSV (0x802E2640), vf10/vf40/vf54 y las funciones de estado grandes.
   - symbols.txt: fn_802E211C/2270/2470/2640/2E84/2E88/554C/58C8/5970 -> nombres de Em303KrakenFoot.
   - SpecialEnemyBase.cpp: factoria con `new (3, "", "", 0) Em303KrakenFoot(...)`.
+  - Tercera pasada (13/26): fn_802E3D60 (estado 7; lo llama Em302Kraken) y fn_802E3E38 (estado 8) al 100%.
+    symbols.txt: fn_802E3D60 -> `fn_802E3D60__15Em303KrakenFootFv`, fn_802E3E38 -> `fn_802E3E38__15Em303KrakenFootFi`.
 
 - game/Em101LittleZesya (0/25 -> 9/25, NUEVA fuente + cabecera): al 100% dtor, vf10, vf3C, fn_8025D6D0 /
   fn_8025D704 / fn_8025FE30 (`extern "C"`, los llama Em101ElderZesya), fn_8025DE54, fn_8025E748, fn_8025F754.

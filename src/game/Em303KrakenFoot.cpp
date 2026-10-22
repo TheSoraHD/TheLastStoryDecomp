@@ -139,6 +139,42 @@ void Em303KrakenFoot::vf3C(HitInfo_unk* hit) {
     vf40(hit);
 }
 
+void Em303KrakenFoot::fn_802E3D60() {
+    m14B8 = 0;
+    m14BC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 7;
+    fn_8016E970(3);
+    fn_8016E4C4(1);
+    mColli.mFlags |= 1;
+    vf98();
+    RoutePlace_unk* base = m14E8;
+    if (base != 0) {
+        mPos = base->mPos;
+        mRot.y = base->m14;
+    }
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x2D, 0, 1, 1, 1.0f, 0.1f);
+}
+
+void Em303KrakenFoot::fn_802E3E38(int arg) {
+    if (arg != 0) {
+        m14B8 = 0;
+        m14BC = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 8;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x13F, 0, 1, 1, 0.0f, 0.1f);
+        m14CC = arg;
+        m14D0 = 0;
+    }
+}
+
 void Em303KrakenFoot::fn_802E554C(int arg) {
     m14B8 = 0;
     m14BC = 0;
