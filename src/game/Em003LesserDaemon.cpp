@@ -10,6 +10,8 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
@@ -63,4 +65,55 @@ void Em003LesserDaemon::vfEC() {
     } else {
         m1434 = 30;
     }
+}
+
+void Em003LesserDaemon::vf40(HitInfo_unk* hit) {
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        fn_8024FCDC();
+        return;
+    }
+    if (m55C == 6) {
+        switch (m560) {
+        case 22:
+            goto reset;
+        case 23:
+            fn_8015E4B0(m6B8, -1);
+        case 54:
+        reset:
+            m58C = 0;
+            m14BC += 30;
+            fn_8016E970(3);
+            m14B8 = 0;
+            m14BC = 0;
+            m14DC = 0;
+            break;
+        }
+    }
+}
+
+void Em003LesserDaemon::fn_8024FCDC() {
+    if (m16E4 != 0) {
+        fn_8024FE18(1);
+        return;
+    }
+    m58C = 2;
+    fn_8016E970(3);
+    m14B8 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    fn_80239DAC(lbl_8087F3C0, &m1504, 0, 0);
+    fn_800EB7A0(this);
+    for (unsigned int i = 0; i < mLinkCount; i++) {
+        if (mLinks[i]->m58C != 2) {
+            mLinks[i]->fn_8024FE18(0);
+        }
+    }
+    m14DC = 0;
+    m14E4 = 0;
 }

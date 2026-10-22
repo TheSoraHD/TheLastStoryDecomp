@@ -162,6 +162,9 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
 
 - game/Em003LesserDaemon (0/22 -> 4/22, NUEVA fuente + cabecera con relleno): dtor, vf88 (salta a
   fn_8024FCDC), vf14, vfEC al 100%. symbols.txt: fn_8024AB20/BE90/C468/E690/FCDC -> nombres de la clase.
+  Segunda pasada (6/22): vf40 (fn_8024CC78, switch 22/23/54 con goto como ElderZesya) y fn_8024FCDC (muerte,
+  recorre el array fijo de 2 demonios enlazados en 0x16D8) al 100%. symbols.txt: fn_8024CC78 -> vf40,
+  fn_8024FE18 -> `fn_8024FE18__17Em003LesserDaemonFi` (sin escribir aun).
 
 - game/Em310Gargoyle (0/21 -> 2/21, NUEVA fuente + cabecera con relleno): dtor y vf54 al 100%. Las otras
   pequenas (0x8030B408 ctor de un color de 4 floats, 0x8030C190 accesor de nodo, 0x8030DA1C vacia) son copias

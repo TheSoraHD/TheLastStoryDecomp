@@ -14,12 +14,21 @@ public:
     Em003LesserDaemon(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em003LesserDaemon();
     virtual void vf14();
+    virtual void vf40(HitInfo_unk* hit);
     virtual void vf88();
     virtual void vfEC();
 
     void fn_8024FCDC(); // inferred: starts the death sequence
+    void fn_8024FE18(int arg); // inferred: death of a boss / of a linked daemon
 
-    unsigned char m14B0[0x14EC - 0x14B0];
+    unsigned char m14B0[0x14B8 - 0x14B0];
+    int m14B8;
+    int m14BC;
+    unsigned char m14C0[0x14DC - 0x14C0];
+    int m14DC;
+    unsigned char m14E0[0x14E4 - 0x14E0];
+    int m14E4;
+    unsigned char m14E8[0x14EC - 0x14E8];
     atn::EfpHandle_unk m14EC; // inferred: "/effect/ef_cm007.efp"
     atn::EfpHandle_unk m14F8;
     atn::EfpHandle_unk m1504;
@@ -34,7 +43,9 @@ public:
     atn::EfpHandle_unk m1570;
     atn::EfpHandle_unk m157C;
     atn::LH_Binary m1588;     // inferred: data file
-    unsigned char m1590[0x16E4 - 0x1590];
+    unsigned char m1590[0x16D8 - 0x1590];
+    unsigned int mLinkCount;          // inferred: linked daemons (0x16D8)
+    Em003LesserDaemon* mLinks[2];     // 0x16DC
     int m16E4;                // inferred: "Boss"? (nonzero: the death is handled by fn_8024FE18)
     ResHandle m16E8;          // inferred: debug menu group
 };
