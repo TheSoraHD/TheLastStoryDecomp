@@ -23,6 +23,7 @@ public:
     void fn_80260324(); // inferred: reads the data file
     void fn_802620A8(); // inferred: death
     void fn_80261948(); // inferred: state 0 (control updates)
+    void fn_80261A50(); // inferred: fires a homing bullet at every player from the hips (frame 60)
 
     atn::LH_Binary m14B0;
     CharaTask* m14B8;   // inferred: target

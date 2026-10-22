@@ -1,4 +1,7 @@
 #include "game/Em101LittleZesyaSecond.h"
+#include "game/CharaManager.h"
+#include "game/HomingBullet.h"
+#include "game/PlayerTask.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -32,6 +35,9 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a, float b);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 // NONMATCHING: 99.81% - r26/r27 of the second std::string and r25/r26 of the strlen of the parameters
@@ -176,6 +182,52 @@ void Em101LittleZesyaSecond::fn_80261948() {
         break;
     }
     fn_80139560();
+}
+
+inline atn::Vector3 GetTrans_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// NONMATCHING: 97.9% - stores of the homing parameters scheduled with the bullet data load (r24/r3) and r3/r4
+// of the node pointer (6 variants: store orders, aggregate init, locals)
+void Em101LittleZesyaSecond::fn_80261A50() {
+    if (m14C4 == 0) {
+        if (mMotion.mTracks[0].m08 > 60.0f) {
+            m12CC = 1.0f;
+            atn::Vector3 hips = GetTrans_unk(mMotion.GetNodeMtx_unk("hips"));
+            for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                if (p->CanAct_unk()) {
+                    Model_unk* model = &p->mMotion;
+                    atn::Vector3 target = GetTrans_unk(model->GetNodeMtx_unk("hips"));
+                    atn::Vector3 dir = (target - hips).GetNormalized_unk();
+                    atn::Vector3 pos = hips + dir * 15.0f;
+                    HomingParam_unk param;
+                    param.mAccel = 0.0f;
+                    param.m08 = -1.0f;
+                    param.mMaxSpeed = 10.0f;
+                    param.mTime = 300.0f;
+                    param.mNode = 0;
+                    param.mCount = -1;
+                    param.mDelay = 3.0f;
+                    param.mTarget = p;
+                    param.mTurn = 1.2566371f;
+                    fn_800F8574(lbl_8087F048, this, fn_80219E6C(0x5E7), &pos, &dir, &param, 0x24, 0, 0.0f, 1.0f);
+                }
+            }
+            m14C4 = 1;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= 100.0f) {
+            m14BC = 0;
+            m590 = fn_800F8548(lbl_8087F048);
+            m14C4 = 0;
+            mFlag5 = 0;
+            fn_80239DAC(lbl_8087F3C0, this, 102, 1);
+            m58C = 0;
+            fn_8016E970(3);
+        }
+    }
 }
 
 void Em101LittleZesyaSecond::fn_802620A8() {
