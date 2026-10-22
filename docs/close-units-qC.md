@@ -50,3 +50,10 @@ Hallazgos MWCC (3):
 - chr/ControlRide: saltada - ctor: r3/r6 de la copia `mStartPos = mBeast->mPos` (familia `__VecCopy`); vf0C/vf10 slots de pila / planificacion ya documentados.
 - chr/ControlStagger: sin cambios. vf0C 99.26%: `mTime--` antes de copiar la rotacion da mChara en r6 pero mueve el decremento (92.8%); revertido y anotado. ControlSlip ctor = familia `__VecCopy`; ControlSlip::vf0C no intentada.
 - game/ArenaTask: 10/12. fn_80043D58 (0x80043D58) SUBIDA: comprobar `voices.mCount == 0` y despues leer `unsigned int n = voices.mCount` (el registro del contador se reutiliza para el elemento, como en el original). fn_80043A24 98.82% (2 variantes nuevas sin mejora) y vf10 99.43% sin cambios.
+- game/ChaseManager: sin cambios. fn_80183948 99.22% (0/1 en r0/r4 del inline fn_80182874; 5 variantes nuevas: cuerpo directo, retorno temprano, locales cero/uno). fn_80183618 y vf10 no intentadas (ya muy investigadas).
+- game/ColliAttrManager: fn_80183D00 99.72 -> 99.81%: el nombre del efp se guarda en el propio `attr` (el original reutiliza su registro). Queda el indice del primer bucle (r29 vs r30); 10 variantes. fn_80183FFC/fn_80184864 no intentadas (registros / `__VecCopy`).
+- game/CrowdManager: no intentada (comentarios con muchas variantes ya probadas: cero compartido, sInstance recargado).
+- game/Em002_02SkeltonKing: saltada - vf20 en la familia `__VecCopy` (mwcc-blockers-q3); el resto con notas de prologo/planificacion.
+- game/EnemySeaLizerd: sin cambios. vf10 99.87% (r28/r29 entre el gestor de balas y los datos); 10 variantes de orden de locales.
+- game/GameSaveLoadBackgroundCommon: sin cambios. fn_803B8B08 99.98%: probado anadir funciones con los literales perdidos del pool ("%s/save%02d.dat", "%s/save_sys.dat"); con static se eliminan, sin static salen pero los "" se fusionan (-str reuse) y el jumptable de fn_803B87A8 cambia de nombre (99.92%). Revertido.
+- game/MenuCommon_unk: sin cambios. fn_80116FC0 (y sus dos inlines) 99.7%: 8 formas nuevas de Get_unk / acceso a la tabla, ninguna cambia r0/r3.
