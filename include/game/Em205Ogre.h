@@ -26,6 +26,8 @@ public:
     virtual void vf100(int state);
     virtual void vf104();
     virtual void vf108();
+    virtual int vfB0(atn::Vector3* out);
+    virtual boost::function<void()> vfB4(CharaTask* chara);
     virtual int vf10C(HitMsg_unk* msg);
 
     void fn_802B7AF8(const char* text, int length); // inferred: reads the data file

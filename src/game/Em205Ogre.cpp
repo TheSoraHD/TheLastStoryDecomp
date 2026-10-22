@@ -3,6 +3,8 @@
 #include "atn/Memory.h"
 #include "game/SkillEffectManager.h"
 #include "math/Vec.h"
+#include "chr/ControlWallUp.h"
+#include <boost/bind.hpp>
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -145,6 +147,17 @@ void Em205Ogre::vf30(void* menu) {
     fn_805A5220(group);
 }
 
+void Em205Ogre::vf50() {
+    Item14_unk item;
+    m624.clear();
+    item.m04.mRadius = m5B0;
+    item.m04.mCenter = mPos + m5A4;
+    item.m04.mCenter.y += item.m04.mRadius;
+    m624.push_back(item);
+    m624.push_back(item);
+    mFlagB29 = 0;
+}
+
 void Em205Ogre::vf54() {
     if (m624.mSize < 2) {
         return;
@@ -154,6 +167,23 @@ void Em205Ogre::vf54() {
     m624.mData[1].m04.mRadius = 0.5f * mColli.m54;
     m624.mData[1].m04.mCenter = mColli.m48;
     m624.mData[1].m04.mCenter.y += 0.5f * mColli.m54;
+}
+
+int Em205Ogre::vfB0(atn::Vector3* out) {
+    if (m58C == 2) {
+        return 0;
+    }
+    *out = m624.mData[1].m04.mCenter;
+    return 1;
+}
+
+// inferred: the character that climbed the wall jumps onto the ogre (chr::ControlWallUp::vf10 asks for it)
+boost::function<void()> Em205Ogre::vfB4(CharaTask* chara) {
+    atn::Vector3 target;
+    vfB0(&target);
+    atn::Vector3 land = ((chr::ControlMoveCursor*)chara->mControl.get())->m14;
+    chr::ControlWallSlash* next = new (0, "", "", 0) chr::ControlWallSlash(chara, target, &land);
+    return boost::bind(&CharaTask::fn_80178208, chara, next);
 }
 
 void Em205Ogre::vf10() {
