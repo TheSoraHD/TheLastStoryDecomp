@@ -90,6 +90,8 @@ struct QuarkGame_unk {
     float m3A4;
 };
 extern "C" QuarkGame_unk* lbl_8087EFA8;
+extern "C" void* lbl_8087EEB0; // inferred: debug drawing
+extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
@@ -1093,6 +1095,35 @@ void EnemyQuarkStand::fn_8034E898() {
     }
 }
 
+// inferred: state 15 (stunned): falls, then waits "DownCount" frames or "StundUpDamageCount" hits
+void EnemyQuarkStand::fn_8034EA50() {
+    m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
+    mPos.y += m574.y;
+    if (mPos.y < 0.0f) {
+        mPos.y = 0.0f;
+        m574.y = 0.0f;
+    }
+    if (m14B4 == 0) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            QuarkPlayMotion_unk(&mMotion, 0x3E, 1, 0, 1.0f);
+            m14B4++;
+            m14B8 = 0;
+            m1804 = 0;
+        }
+    } else if (m14B4 == 1) {
+        if (m14B8 >= m17FC || m1804 > m1800) {
+            QuarkPlayMotion_unk(&mMotion, 0x3F, 0, 0, 1.0f);
+            m14B4++;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
+        }
+    }
+}
+
 // inferred: leaves the current action: clears the counters, takes a new bullet id and stops the effects
 // of the attacks (names invented)
 void EnemyQuarkStand::fn_8034F384() {
@@ -1196,6 +1227,31 @@ void EnemyQuarkStand::fn_803520D8() {
 // inferred: plays motion `motion` at `speed` (out of line in vf10)
 void EnemyQuarkStand::fn_803524AC(int motion, int arg3, float speed) {
     QuarkPlayMotion_unk(&mMotion, motion, arg3, 0, speed);
+}
+
+// inferred: sonic wave ring: 180 bullets of SonicSkillID on a circle of radius m16DC around m16E0 (with the
+// debug spheres when "DebugDisp"); the ring grows by "ShockExpandSnicWave" until m1CCC
+void EnemyQuarkStand::fn_8035223C() {
+    atn::Vector3 off(0.0f, 0.0f, m16DC);
+    float rot = mRot.y;
+    for (int i = 0; i < 180; i++) {
+        float step = 0.017453292f * (2.0f * (float)i);
+        rot += step;
+        rot = atn::WrapAngle_unk(rot);
+        Mtx m;
+        PSMTXRotRad(m, 'y', rot);
+        PSMTXMultVec(m, &off, &off);
+        fn_800FAB80(lbl_8087F048, this, m153C, m16EC, &(m16E0 + off), &atn::Vector3(0.0f, rot, 0.0f), 0, 30, -1,
+                    -1, 3.0f, 1.0f);
+        if (m1CC4 != 0) {
+            fn_80063D3C(lbl_8087EEB0, &(m16E0 + off), 0xFF000000, m153C->m58, 1000.0f);
+        }
+    }
+    if (m16DC >= m1CCC) {
+        fn_80239DAC(lbl_8087F3C0, this, 0x3E9, 0);
+        m16D8 = 0;
+    }
+    m16DC += m1CC8;
 }
 
 // inferred: counts down the delayed explosions: each one fires LaserExplodeSkillID at its position, every
