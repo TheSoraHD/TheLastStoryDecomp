@@ -20,8 +20,13 @@ public:
 
     void fn_8024FCDC(); // inferred: starts the death sequence
     void fn_8024FE18(int arg); // inferred: death of a boss / of a linked daemon
+    void fn_802506AC(); // inferred: warps to the point farthest from the target
+    int fn_80250884(float radius);
+    inline int FarthestPoint_unk();
+    const atn::Vector3& GetPoint_unk(unsigned int i) const { return mPoints[i]; }
 
-    unsigned char m14B0[0x14B8 - 0x14B0];
+    CharaTask* m14B0;         // inferred: target (its position is read by fn_802506AC)
+    int m14B4;
     int m14B8;
     int m14BC;
     unsigned char m14C0[0x14D8 - 0x14C0];
@@ -44,7 +49,10 @@ public:
     atn::EfpHandle_unk m1570;
     atn::EfpHandle_unk m157C;
     atn::LH_Binary m1588;     // inferred: data file
-    unsigned char m1590[0x16D8 - 0x1590];
+    unsigned int mPointCount;     // 0x1590: inferred: warp points
+    atn::Vector3 mPoints[8];      // 0x1594
+    atn::Vector3 mWarpDest;       // 0x15F4: inferred: chosen warp point
+    unsigned char m1600[0x16D8 - 0x1600];
     unsigned int mLinkCount;          // inferred: linked daemons (0x16D8)
     Em003LesserDaemon* mLinks[2];     // 0x16DC
     int m16E4;                // inferred: "Boss"? (nonzero: the death is handled by fn_8024FE18)

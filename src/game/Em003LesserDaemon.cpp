@@ -1,5 +1,11 @@
 #include "game/Em003LesserDaemon.h"
 #include "math/Vec.h"
+#include "game/CharaManager.h"
+#include "game/EnemyManager.h"
+#include "game/PlayerTask.h"
+
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -163,4 +169,77 @@ void Em003LesserDaemon::fn_8024FE18(int arg) {
     }
     m14DC = 0;
     m14E4 = 0;
+}
+
+// inferred: index of the warp point farthest from the target (name invented)
+inline int Em003LesserDaemon::FarthestPoint_unk() {
+    float bestDist = 0.0f;
+    int best = 0;
+    if (m14B0 != 0) {
+        for (unsigned int i = 0; i < mPointCount; i++) {
+            atn::Vector3 d = GetPoint_unk(i) - m14B0->mPos;
+            float dist = d.Length_unk();
+            if (dist > bestDist) {
+                best = i;
+                bestDist = dist;
+            }
+        }
+        return best;
+    }
+    return 0;
+}
+
+// NONMATCHING: 99.49% - the point pointer and the index of the loop get r28/r30 swapped (12 variants:
+// pointer walk, index, while, helper inline, declaration orders)
+void Em003LesserDaemon::fn_802506AC() {
+    if (mPointCount == 0) {
+        m58C = 0;
+        fn_8016E970(3);
+        m14B8 = 0;
+        m14BC = 0;
+        m14DC = 0;
+        return;
+    }
+    fn_8016E970(3);
+    m58C = 10;
+    m14B8 = 0;
+    m14BC = 0;
+    int best = FarthestPoint_unk();
+    for (unsigned int i = 0; i < mLinkCount; i++) {
+        if (mLinks[i]->m58C != 2) {
+            mLinks[i]->fn_8024FE18(0);
+        }
+    }
+    mWarpDest = mPoints[best];
+    m58C = 6;
+    fn_8016E970(3);
+    m14B8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+}
+
+// inferred: counts the players and the enemies of the other side inside `radius` (name invented)
+int Em003LesserDaemon::fn_80250884(float radius) {
+    int count = 0;
+    atn::Vector3 pos = mPos;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        if (!p->mStatus.IsState_unk(0x20)) {
+            atn::Vector3 d = p->mPos - pos;
+            if (fn_805F9920(&d) < radius * radius) {
+                count++;
+            }
+        }
+    }
+    for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+        if (!e->mStatus.IsState_unk(0x20) && !e->fn_8016F3D0(this, 1)) {
+            atn::Vector3 d = e->mPos - pos;
+            if (fn_805F9920(&d) < radius * radius) {
+                count++;
+            }
+        }
+    }
+    return count;
 }
