@@ -122,7 +122,6 @@ extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const 
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_802FA764(Em308ParmCrab* crab);
 extern "C" void fn_80108F38(Effect_unk* effect, const atn::Vector3& pos, int status); // inferred: status effect
 
 // NONMATCHING: 99.83% - r26/r27 of the second std::string constructor (known blocker, as in Em308InvertCrab)
@@ -337,7 +336,7 @@ void Em308ParmCrab::vf10() {
             fn_802FA2F4();
             break;
         case 11:
-            fn_802FA764(this);
+            fn_802FA764();
             break;
         case 12:
             fn_802FB0C4();
@@ -846,7 +845,7 @@ void Em308ParmCrab::fn_802F9F3C() {
 
 // inferred: state 10 (tackle run, as Em308InvertCrab::fn_802F469C): escape under "EscapeHpRate", tackle within
 // the reach of m1530, needle beyond m152C, else chase the target. inferred: the rotation is computed and not used
-// NONMATCHING: 99.19% - only the li r5, 0 of fn_80170A20 is scheduled before the min(30, 0.8 * m152C) (as vf10;
+// NONMATCHING: 99.30% - only the li r5, 0 of fn_80170A20 is scheduled before the min(30, 0.8 * m152C) (as vf10;
 // 4 forms)
 void Em308ParmCrab::fn_802FA2F4() {
     atn::Vector3 rot;
@@ -889,10 +888,80 @@ void Em308ParmCrab::fn_802FA2F4() {
     }
 }
 
+// inferred: state 11 (keeps the distance, as Em308InvertCrab::fn_802F4A98); slower while 0x2000000 or 0x8000
+// is set in the status, scaled by the speed rate of the status
+// NONMATCHING: 97.19% - stack layout and order of the escape rotation, as Em308InvertCrab::fn_802F4A98
+void Em308ParmCrab::fn_802FA764() {
+    float rate = 1.0f;
+    CharaTask* target = m15BC;
+    atn::Vector3 d = target->mPos - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    atn::Vector3 rot = d.ToRotation_unk();
+    if (m15AC.size() != 0 && mStatus.m04 / (float)mStatus.mParamB.m84 < m1594 && m15BC != 0 &&
+        !m15BC->mFlag28) {
+        fn_802FC2E0(this, m15BC);
+    }
+    if (dist > m152C) {
+        fn_8016E970(3);
+        if (fn_802FBE00(m15BC, 8) == 0) {
+            fn_802FBA30(m15BC);
+        }
+    } else if (dist > 0.8f * m152C) {
+        fn_8016E970(3);
+        if (fn_802FBE00(m15BC, 10) == 0 && fn_802FBE00(m15BC, 10) == 0) {
+            ResetAttack_unk();
+            m58C = 10;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+        }
+    } else if (m15D0 < 0) {
+        fn_8016E970(3);
+        if (fn_802FBE00(m15BC, 7) == 0) {
+            fn_802FB6AC(m15BC);
+        }
+    } else {
+        float reach = 30.0f;
+        if (m1530 != 0) {
+            reach = m1530->m40;
+        }
+        if (dist >= 0.8f * reach && dist <= 1.2f * reach) {
+            m15CC = 1;
+        } else if (dist < 0.8f * reach) {
+            m15CC = 0;
+        } else if (dist > 1.2f * reach) {
+            m15CC = 2;
+        }
+        if (m15CC == 0) {
+            dist = reach * (1.0f - dist / reach);
+            const atn::Vector3& src = dist <= 0.0f ? mRot : d.GetNormalized_unk().ToRotation_unk();
+            rot = src;
+            rot.y -= 3.1415927f;
+        } else if (m15CC == 1) {
+            dist = 0.0f;
+        } else if (m15CC == 2) {
+            dist *= dist / reach;
+        }
+        mRot.y = (m15BC->mPos - mPos).ToRotation_unk().y;
+        if (mStatus.IsState_unk(0x2000000) || mStatus.IsState_unk(0x8000)) {
+            rate *= 0.5f;
+        }
+        rate *= mStatus.fn_8012DB04();
+        fn_801426A4(&rot, dist, m568 * rate);
+        m15D0--;
+    }
+}
+
 // inferred: state 12 (escape, as Em308InvertCrab::fn_802F5370): runs to the escape point m15A0 (route place m159C)
 // and attacks the target when it arrives (within 20). inferred: the rotation is computed and not used
-// NONMATCHING: 99.86% - only .sdata2 offsets (constants of fn_802FA2F4/fn_802FA764, not written yet)
+// inferred: the empty release asserts keep it out of line (the original calls it from vf10)
 void Em308ParmCrab::fn_802FB0C4() {
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
     atn::Vector3 rot;
     atn::Vector3 d = m15A0 - mPos;
     float dist = sqrt(d.x * d.x + d.z * d.z);
