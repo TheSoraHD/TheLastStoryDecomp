@@ -1,0 +1,59 @@
+#ifndef GAME_EM101ELDERZESYASECOND_H
+#define GAME_EM101ELDERZESYASECOND_H
+
+#include "atn/ColliBase.h"
+#include "atn/EfpHandle_unk.h"
+#include "atn/LH_Binary.h"
+#include "game/EnemyTask.h"
+#include "game/ResHandle.h"
+#include "std/vector.h"
+
+// inferred: list member of the enemy (a class derived from std::vector: its destructor tests
+// `this` four times); element type and name invented
+struct ElderList_unk : public std::vector<void*> {};
+
+// inferred from __vt__21Em101ElderZesyaSecond (0x807847E0): second fight of the elder Zesya.
+// Only the small functions are written (game/Em101ElderZesyaSecond.cpp); the factory allocates
+// 0x15E8 bytes. Names invented.
+class Em101ElderZesyaSecond : public EnemyTask {
+public:
+    Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* info); // 0x8025A060
+    virtual ~Em101ElderZesyaSecond();                               // 0x8025A4A4
+    virtual void vf14();                                            // 0x8025B5D4
+    // inferred: returns 4 (hit refused) unless the hit has the range of the current mode
+    virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir); // 0x8025C92C
+
+    atn::LH_Binary m14B0;
+    int m14B8;
+    float m14BC;
+    ElderList_unk m14C0;
+    int m14CC;
+    int m14D0;
+    int m14D4;
+    int m14D8;
+    int m14DC;
+    int m14E0;
+    unsigned char m14E4[0x1504 - 0x14E4];
+    int m1504;
+    unsigned char m1508[0x1518 - 0x1508];
+    atn::EfpHandle_unk m1518;
+    atn::EfpHandle_unk m1524;
+    atn::EfpHandle_unk m1530;
+    atn::EfpHandle_unk m153C;
+    atn::EfpHandle_unk m1548;
+    int m1554; // inferred: nonzero while hits are filtered by vf4C
+    unsigned char m1558[0x155C - 0x1558];
+    atn::EfpHandle_unk m155C;
+    atn::EfpHandle_unk m1568;
+    atn::EfpHandle_unk m1574;
+    atn::ColliSphere m1580;
+    int m15CC;
+    int m15D0;
+    int m15D4; // inferred: mode (0 and 1 accept different hit ranges)
+    int m15D8;
+    int m15DC;
+    ResHandle m15E0; // inferred: debug menu group
+    int m15E4;
+};
+
+#endif

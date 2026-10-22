@@ -241,9 +241,16 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     (locales, vectores estaticos construidos por el sinit). Build limpio OK.
 - `game/Em202MothersSpider`: no procesada por tiempo. Hereda de una base de arana sin fuente (vtable con
   fn_80273FE8, fn_80274508/18, fn_80274E7C...: la base esta en otra unidad sin escribir); hay que escribir antes esa
-  base. Tampoco procesadas por tiempo: Em202_01_BSpider (misma base), Em101ElderZesyaSecond,
-  Em101LittleZesyaSecond, EnemyQuarkFirst.
+  base. Tampoco procesadas por tiempo: Em202_01_BSpider (misma base), Em101LittleZesyaSecond, EnemyQuarkFirst.
 
 ## Fin de la sesion de la cola E
-- Ultima unidad procesada: game/Em005DoppelGanger. report.json: 6581 / 18215 funciones matched (code 21.611%),
+- Ultima unidad procesada: game/Em101ElderZesyaSecond (ver abajo). report.json final: 6584 / 18215 funciones matched (code 21.619%),
   regress lost 0 y fuzzdrop 0 contra report_main.json y report_close_A.json.
+- `game/Em101ElderZesyaSecond` (procesada tras las notas de fin, quedaba tiempo; unidad SIN FUENTE hasta ahora):
+  **fuente nueva `src/game/Em101ElderZesyaSecond.cpp` y cabecera nueva `include/game/Em101ElderZesyaSecond.h`**
+  (subclase de EnemyTask, layout 0x14B0-0x15E8, miembro `ElderList_unk` derivado de std::vector y una
+  atn::ColliSphere en 0x1580; nombres inventados). Al 100%: dtor (implicito) y vf14. vf4C 99.63% (solo el float 0.0f
+  del pool; devuelve 4 si el golpe no tiene el rango del modo m15D4). Ctor, vf0C, vf10 y helpers en asm.
+  - game/SpecialEnemyBase.cpp crea el enemigo de tipo 8 con `new (3, "", "", 0) Em101ElderZesyaSecond(parent, info)`.
+  - **symbols.txt (decision sin el usuario)**: fn_8025A060/A4A4/B5D4/C92C -> ctor, dtor, vf14, vf4C de
+    Em101ElderZesyaSecond. Build limpio OK.
