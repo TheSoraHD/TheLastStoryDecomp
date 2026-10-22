@@ -150,3 +150,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   WallSlash::vf0C (99.7-99.8%, registros) y vf14/vf18 (copia "z primero", 60%) sin tocar.
   - Hallazgo MWCC (repetido en ControlCannonTarget, ControlWallUp): leer `mChara` a un local justo antes de
     escribir un campo del personaje cambia que registro volatil recibe el puntero (r3/r5 intercambiados).
+- Revisitas con los trucos nuevos: ControlCannonTarget ctor llega a 99.93% con `front` y `c2 = mChara` locales,
+  pero baja ControlCannonLift::vf10 (98.92 -> 98.54, que lo lleva inline): descartado. ControlBackStep ctor con
+  ToRotationZ/RotZ/fn_80139F60 empeora (86-90%): descartado.
