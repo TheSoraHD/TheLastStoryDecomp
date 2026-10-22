@@ -675,7 +675,7 @@ void EnemyQuarkStand::vf40(HitInfo_unk* hit) {
             }
             fn_80370320(lbl_8087F430, 0x389, 1, 0);
             m14A8 &= ~0x04000000;
-            fn_800C31F4("SE_EM211_028", 0, -1, 1.0f);
+            fn_800C31F4("SE_DG040_109", 0, -1, 1.0f);
         } else if (msg->mData->m04 == 0x1791) {
             fn_8034F384();
             fn_8016E970(3);
