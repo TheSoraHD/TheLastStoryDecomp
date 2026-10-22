@@ -292,7 +292,8 @@ void EnemyQuarkFirst::vfFC() {
     vf100(0);
 }
 
-// NONMATCHING: vf100 and vf108 (state machine, 2960/5976 bytes) not written yet
+
+// NONMATCHING: vf108 (state machine, 5976 bytes) not written yet
 
 extern "C" int rand();
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
@@ -306,6 +307,210 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
+
+// inferred: hit parameters (lbl_807C6B90, as in game/Em302KrakenMp.cpp); only the default is used
+struct HitParam_unk {
+    int m00[6];
+};
+extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
+// inferred: damage result of fn_8003EA3C (0x20 bytes, as in game/Em302KrakenMp.cpp); names invented
+struct QuarkDamage_unk {
+    QuarkDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(-1) { mFlags = 0; }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int mFlags : 4;
+    unsigned int m1C_0 : 28;
+};
+extern "C" void fn_8003EA3C(QuarkDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+                            unsigned int flags, const HitParam_unk* param, int arg, int arg2);
+extern "C" void* lbl_8087F498; // inferred: camera shake manager
+extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+
+// inferred: turns towards m14E4 by `rate` of the difference (inlined in the states); name invented
+inline void EnemyQuarkFirst::TurnTo_unk(float rate) {
+    atn::Vector3 dir = m14E4->mPos - mPos;
+    if (!((float)__fabs(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+        PSVECNormalize(&dir, &dir);
+    }
+    atn::Vector3 rot = dir.ToRotation_unk();
+    rot.z = 0.0f;
+    float d = rot.y - mRot.y;
+    float y;
+    if (d > 3.1415927f) {
+        y = rate * (d - 6.2831855f) + mRot.y;
+    } else if (d < -3.1415927f) {
+        y = rate * (6.2831855f + d) + mRot.y;
+    } else {
+        y = rate * d + mRot.y;
+    }
+    atn::WrapAngle_unk(y - mRot.y);
+    mRot.y = y;
+    atn::WrapAngle_unk(y);
+}
+
+// inferred: plays motion `motion` on track 0 (inlined in the states); name invented
+inline void EnemyQuarkFirst::PlayMotion_unk(int motion, int loop) {
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, motion, loop, 0, 1, 0.0f, 0.1f);
+}
+
+// NONMATCHING: 95.34% - draft: the stack slots of the rotation temporaries and the inlined turn
+// (TurnTo_unk) differ, and the .sdata2 pool is not in the original order (pi comes after 0.1 here)
+void EnemyQuarkFirst::vf100(int state) {
+    m14BC = 0;
+    m14C0 = 0;
+    m14C4 = 0;
+    m14C8 = 0;
+    mFlag31 = 0;
+    mFlag30 = 0;
+    mFlag29 = 0;
+    mFlag28 = 0;
+    mFlag27 = 1;
+    m14D0 = 0;
+    m58C = state;
+    m14E4 = 0;
+    switch (state) {
+    case 0:
+        mFlag30 = 1;
+        break;
+    case 6:
+        mFlag5 = m14D8 == 1;
+        PlayMotion_unk(0x146, 1);
+        break;
+    case 7:
+        mFlag5 = 0;
+        m14E4 = mC58.mC4;
+        mC58.m0C.fn_80128930(m14E4, &mPos, 0);
+        mC58.m0C.mRadius = 30.0f;
+        mC58.m0C.fn_801255C8();
+        mFlag30 = 1;
+        break;
+    case 1:
+        mFlag5 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m594 = 8;
+        m598 = 0;
+        m59C = 0;
+        m59D = 0;
+        m59F = 0;
+        m5A0 = 1.0f;
+        m59E = 0;
+        m14E4 = mC58.mC4;
+        if (!m14E4->mFlag5 && m14E4->vfC4()) {
+            atn::Vector3 dir(m14E4->mPos.x - mPos.x, 0.0f, m14E4->mPos.z - mPos.z);
+            dir.Normalize_unk();
+            void* p = ::operator new(0x38, 3, "", "", 0);
+            if (p != 0) {
+                p = fn_8018E438(p, this, &dir, m14E4, 9, m1514);
+            }
+            fn_80178208((chr::ControlBase*)p);
+        } else {
+            fn_8015783C(m1510, m14E4->mPos, 0.0f);
+        }
+        m598 = 0;
+        break;
+    case 8:
+        m14E4 = mC58.mC4;
+        mFlag5 = 0;
+        if (m14E4 != 0) {
+            TurnTo_unk(1.0f);
+        }
+        fn_8016D74C(m151C, 0, (int)&m14E4->mPos);
+        break;
+    case 9: {
+        int mode = m14DC;
+        m14D8 = mode;
+        m14E0 = 600.0f;
+        m14DC = (mode + 1) % 2;
+        if (mode == 1) {
+            m14E0 = 300.0f;
+        }
+        fn_8059C2A8(lbl_8087F9E8, this, m1520);
+        fn_8059C2A8(lbl_8087F9E8, this, m1524);
+        QuarkDamage_unk result;
+        fn_8003EA3C(&result, (&m1520)[m14D8], this, this, 0, &lbl_807C6B90, 0, 0);
+        if (m14D8 == 0) {
+            if (fn_805A49E4((SpecialFlag_unk*)&m155C) == 0) {
+                fn_805A4A1C((SpecialFlag_unk*)&m155C, 1);
+            }
+        } else if (m14D8 == 1) {
+            mStatus.fn_8013322C(0x80000);
+            fn_80168F3C();
+            if (fn_805A49E4((SpecialFlag_unk*)&m1544) == 0) {
+                fn_805A4A1C((SpecialFlag_unk*)&m1544, 1);
+            }
+        }
+        mFlag5 = 0;
+        PlayMotion_unk(0x173, 0);
+        break;
+    }
+    case 10:
+        m14E4 = mC58.mC4;
+        mC58.m0C.fn_80128930(m14E4, &mPos, 0);
+        mC58.m0C.mRadius = 30.0f;
+        mC58.m0C.fn_801255C8();
+        mFlag30 = 1;
+        if (m58C == 10) {
+            fn_80232B7C(this, 0);
+            Color4f_unk color;
+            atn::Vector3 rot;
+            atn::Vector3 pos;
+            rot.x = 0.0f;
+            rot.y = 0.0f;
+            rot.z = 0.0f;
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 0.0f;
+            color.r = 1.0f;
+            color.g = 1.0f;
+            color.b = 1.0f;
+            color.a = 1.0f;
+            fn_8023A8B4(lbl_8087F3C0, &m1528, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        }
+        break;
+    case 11:
+        m590 = fn_800F8548(lbl_8087F048);
+        m594 = 8;
+        m598 = 0;
+        m59C = 0;
+        m59D = 0;
+        m59F = 0;
+        m59E = 0;
+        m5A0 = 1.0f;
+        mFlag5 = 0;
+        m14E4 = mC58.mC4;
+        if (m14E4 != 0) {
+            TurnTo_unk(1.0f);
+        }
+        PlayMotion_unk(0x14A, 0);
+        mMotion.mTracks[0].m08 = 0.0f;
+        break;
+    case 2:
+        vf44();
+        fn_8016E970(2);
+        PlayMotion_unk(0x36, 1);
+        mMotion.mTracks[0].m0C = 1.0f;
+        if (lbl_8087F498 != 0) {
+            fn_803EA77C(lbl_8087F498, this, 2, 0, 1.0f, 600.0f);
+        }
+        break;
+    }
+}
 
 // inferred: a free place around the target to jump to (inlined in vf104): one of eight directions at
 // 12 units, tested with a ray; name invented
