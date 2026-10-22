@@ -91,6 +91,11 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
     (CharaTask::vf3C de la cabecera compartida tiene uno; no se toca).
   - symbols.txt: fn_802EE604/E7B8/E838/E9A8/EFE0/F01C/F0FC/F124/802F1490 -> nombres de Em306GurgBeast.
 
+- game/Em309GhoulSimple (0/22 -> 8/22, NUEVA fuente + cabecera): al 100% dtor, vf0C (carga en dos pasos con
+  m164C), vf14, vf10C, vfFC, vf54, vf64, vf90. ctor ~85% (bucle de ctores de GhoulPair_unk[7] y cero en r30).
+  Pendientes: lector del CSV (0x80306078), vf10, vf40, vf100/vf104/vf108, vf20/vf30/vf50, vfB0/vfB4.
+  - symbols.txt: fn_80305C74/5EDC/6078/66F0/66F4/6AF8/9698/9704/8030A074/8030A07C -> nombres de Em309GhoulSimple.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
