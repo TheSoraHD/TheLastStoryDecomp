@@ -53,10 +53,13 @@ public:
     Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info); // 0x80282AE8
     virtual ~Em202SpiderBase();
     virtual void vf14();                                       // 0x80283D60
+    virtual void vf3C(HitInfo_unk* hit);                       // 0x80283FD4
+    virtual void vf40(HitInfo_unk* hit);                       // 0x8028429C
     virtual void vf7C(int arg);
     virtual void vfEC();                                       // 0x80286B78
 
     void fn_80287788(); // inferred: death
+    inline void ResetAttack_unk();
 
     int m14B0;
     int m14B4;

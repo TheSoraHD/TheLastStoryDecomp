@@ -1,5 +1,6 @@
 #include "game/Em202SpiderBase.h"
 #include "game/HitInfo_unk.h"
+#include "math/Vec.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -22,6 +23,10 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" double cos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: color as four floats (as in game/CharaTask.cpp)
@@ -141,6 +146,115 @@ void Em202SpiderBase::vfEC() {
         }
     } else {
         m1434 = 30;
+    }
+}
+
+// inferred: stops the needle attack (as at the start of vf7C and fn_80287788; name invented)
+inline void Em202SpiderBase::ResetAttack_unk() {
+    m14B0 = 0;
+    m158C = 0;
+    m1594 = m14F4 != 0 ? m14F4->m68 : 90;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_800CB5C8(&m151C, 15, 0);
+    fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+}
+
+// inferred: dot of the front of the character with the direction to pos (name invented)
+inline float FrontDot_unk(CharaTask* self, const atn::Vector3& pos) {
+    atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    float ry = self->mRot.y;
+    PSMTXRotRad(m, 'y', ry);
+    PSMTXMultVec(m, &fwd, &fwd);
+    atn::Vector3 d(pos - self->mPos);
+    return PSVECDotProduct(&d, &fwd);
+}
+
+// NONMATCHING: 99.89% - only the .sdata2 offsets (constants of the unwritten functions)
+// inferred: the spider guards the hits inside the angle m1534 from the front (from the back in state 8)
+void Em202SpiderBase::vf3C(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    bool down = true;
+    unsigned int flags = mStatus.m0C;
+    if ((flags & 0x80000) != 0x80000 && (flags & 0x1000000) != 0x1000000) {
+        down = false;
+    }
+    if (!down && m58C != 14) {
+        if (m58C == 8) {
+            msg->m10 = lbl_807C7030;
+        }
+        if (msg->mData->m01 != 1 && !((float)__fabs(m1534) < 1.1920929e-7f)) {
+            int guard = 0;
+            float dot = FrontDot_unk(this, msg->m1C);
+            if (m58C == 8) {
+                if (dot < -(float)cos(m1534 / 2.0f)) {
+                    guard = 1;
+                }
+            } else if (dot > (float)cos(m1534 / 2.0f)) {
+                guard = 1;
+            }
+            if (guard) {
+                msg->m10 = lbl_807C7030;
+                msg->m48 = 1;
+            }
+        }
+        if (msg->m48 == 0 && m58C == 8 && m158C == 1) {
+            fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+            fn_800CB5C8(&m151C, 0, 0);
+        }
+    }
+    if (m58C == 15) {
+        msg->m10 *= 0.0f;
+    }
+    float len = fn_805F9920(&msg->m10);
+    if (!((float)__fabs(len) < 1.1920929e-7f) && len >= 25.0f) {
+        PSVECNormalize(&msg->m10, &msg->m10);
+        msg->m10 *= 4.9f;
+    }
+    fn_80151448(msg);
+    vf40(hit);
+}
+
+// NONMATCHING: 99.97% - only the .sdata2 offset of 0.1f (constant of the unwritten functions)
+void Em202SpiderBase::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    m1554++;
+    if (m55C == 6 && m560 - 22U <= 1) {
+        m58C = 6;
+        ResetAttack_unk();
+        fn_800CB5C8(&m151C, 15, 0);
+        fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+    }
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        fn_80287788();
+        return;
+    }
+    if (msg->mData != 0 && msg->mData->m04 == 0x1791) {
+        ResetAttack_unk();
+        m58C = 15;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 0.0f;
+        mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
+        fn_80232B7C(this, 200);
+        atn::Vector3 pos;
+        atn::Vector3 rot;
+        Color4f_unk color;
+        rot.x = 0.0f;
+        rot.y = 0.0f;
+        rot.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m15B0, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        Effect_unk* mgr = lbl_8087F048;
+        atn::Vector3 p = fn_801781B0();
+        fn_80108F38(mgr, &p, 0x80);
     }
 }
 
