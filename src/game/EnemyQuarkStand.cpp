@@ -1,5 +1,6 @@
 #include "game/EnemyQuarkStand.h"
 #include "atn/Csv.h"
+#include "atn/Camera_unk.h"
 #include "chr/ControlStickByQuark.h"
 #include <boost/bind.hpp>
 #include "atn/D2A_Task.h"
@@ -100,7 +101,9 @@ struct QuarkFieldLook_unk {
 };
 struct Field_unk {
     RouteTable_unk* fn_8013C504(); // inferred: route tables (as in game/Em302Kraken.cpp)
-    unsigned char m0000[0x4D8];
+    unsigned char m0000[0x6C];
+    Camera_unk m06C;        // inferred: camera of the field (copied by EnemyQuarkStand::fn_8034DE90)
+    unsigned char m260[0x4D8 - 0x260];
     QuarkFieldCamera_unk m4D8;
     unsigned char m520[0x588 - 0x520];
     QuarkCamParam_unk m588; // inferred: default camera parameters
@@ -194,6 +197,25 @@ extern "C" int fn_80108378(QuarkWeights_unk* w, CharaTask* chara); // inferred: 
 struct QuarkStickControl_unk {
     unsigned char m00[0x24];
     boost::function<void()> m24;
+};
+// inferred: engine camera (lbl_8087EFB4) with the Camera_unk at +0x104 (as in gmk/AutomaticDoor.cpp)
+struct QuarkEngineCamera_unk {
+    unsigned char m000[0x104];
+    Camera_unk m104;
+};
+extern "C" QuarkEngineCamera_unk* lbl_8087EFB4;
+extern "C" void fn_80392D2C(Camera_unk* camera, const Camera_unk* from, float rate); // inferred: blends back
+extern "C" double tan(double x);
+extern "C" double atan(double x);
+// inferred: xsca camera curves (atn/Xsca_unk.cpp, atn/XsfParser_unk.cpp); only the members called here
+struct XsfCurveSet_unk {
+    float fn_805BF204(float time, int channel);
+    void fn_805BF410(float time, float* out, int x, int y, int z);
+    unsigned char m00[0x14];
+    float m14; // inferred: end time
+};
+struct Xsca_unk {
+    XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
 };
 // inferred: item manager (lbl_8087F4F0, as in gmk/RandomMerchant.cpp) and the equipment slots of a player
 extern "C" void* lbl_8087F4F0;
@@ -1051,6 +1073,38 @@ inline atn::Matrix3x4& QuarkRotationYXZ_unk(atn::Matrix3x4& m, const atn::Vector
     }
     return m;
 }
+// inferred: rotation matrix y * x * z of a vector (names invented)
+inline atn::Matrix3x4& QuarkRotationYXZv_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.y != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.z != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+inline void QuarkRotateYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    Mtx t;
+    atn::Matrix3x4 rot;
+    PSMTXConcat(m.m, QuarkRotationYXZv_unk(rot, r).m, t);
+    __MtxCopy(m.m, t);
+}
 inline void QuarkRotateZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
     Mtx t;
     atn::Matrix3x4 rot;
@@ -1741,6 +1795,71 @@ void EnemyQuarkStand::fn_8034DA0C() {
         if (frame >= mMotion.fn_80097D7C(0)) {
             fn_8034F41C();
         }
+    }
+}
+
+// inferred: state 13 (Quark loses the sword): the camera follows the xsca curves ("cm000_em211_00" around
+// Quark, "cm000_em211_01" around the character when it thrusts) until they end; then the field camera
+// blends back. Quark faces m16F8 and follows the speed of the thrust
+// NONMATCHING: 95.27% - register numbering of the implicit copies of Camera_unk (in and out) and of the
+// last compare, the slots of the rotation temporaries; ~5 forms (rotation helpers, test of the end)
+void EnemyQuarkStand::fn_8034DE90() {
+    int done = 0;
+    if (m14B4 == 0) {
+        CharaTask* chara = (CharaTask*)m16F0;
+        if (chara->m55C == 6 && chara->m560 == 0x89) {
+            chr::ControlBase* control = chara->mControl.get();
+            if (control != 0 && control->vf54() != 0) {
+                m14B4 = 1;
+            }
+        } else {
+            done = 1;
+        }
+    }
+    if (m1714 != 0) {
+        XsfCurveSet_unk* curve;
+        if (m16F4 != 2) {
+            curve = ((Xsca_unk*)m1704.fn_804786F8())->fn_805BDCBC(0);
+        } else {
+            curve = ((Xsca_unk*)m170C.fn_804786F8())->fn_805BDCBC(0);
+        }
+        atn::Vector3 eye;
+        atn::Vector3 target;
+        curve->fn_805BF410(mMotion.mTracks[0].m08, &eye.x, 1, 2, 3);
+        curve->fn_805BF410(mMotion.mTracks[0].m08, &target.x, 7, 8, 9);
+        atn::Vector3* base;
+        if (m16F4 != 2) {
+            base = &mPos;
+        } else {
+            base = &((CharaTask*)m16F0)->mPos;
+        }
+        atn::Matrix3x4 m;
+        PSMTXTrans(m.m, base->x, base->y, base->z);
+        QuarkRotateYXZ_unk(m, atn::Vector3(0.0f, mRot.y, 0.0f));
+        PSMTXMultVec(m.m, &eye, &eye);
+        PSMTXMultVec(m.m, &target, &target);
+        Camera_unk camera = lbl_8087F430->m06C;
+        camera.mPos = eye;
+        camera.mTarget = target;
+        float fov = curve->fn_805BF204(mMotion.mTracks[0].m08, 0);
+        camera.mFovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * fov)) / camera.mAspect);
+        camera.fn_8004B378();
+        lbl_8087EFB4->m104 = camera;
+        if (done != 0 || mMotion.mTracks[0].m08 >= curve->m14) {
+            fn_80392D2C(&lbl_8087F430->m06C, &camera, 0.05f);
+            m1714 = 0;
+        }
+    }
+    mRot = m16F8;
+    if (m16F4 == 2) {
+        mMotion.mTracks[0].m0C = ((CharaTask*)m16F0)->mMotion.mTracks[0].m0C;
+        if (mMotion.mTracks[0].m08 >= 87.0f && fn_80370A78(lbl_8087F430, 0x88) == 0) {
+            fn_80370AE4(lbl_8087F430, 0x88, 1);
+        }
+    }
+    float frame;
+    if (done != 0 || (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
+        fn_8034F41C();
     }
 }
 
