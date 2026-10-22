@@ -30,6 +30,9 @@ struct JillVec4_unk {
         __Vec4Copy(&x, &v.x);
         return *this;
     }
+    JillVec4_unk operator*(float f) const { return JillVec4_unk(x * f, y * f, z * f, w * f); }
+    JillVec4_unk operator+(const JillVec4_unk& v) const { return JillVec4_unk(x + v.x, y + v.y, z + v.z, w + v.w); }
+    JillVec4_unk operator-(const JillVec4_unk& v) const { return JillVec4_unk(x - v.x, y - v.y, z - v.z, w - v.w); }
     float x, y, z, w;
 };
 struct JillColMat_unk {
@@ -116,6 +119,9 @@ public:
     // inferred: starts the state `state` (inlined everywhere; name invented)
     inline void SetState_unk(int state);
     inline void ResetState_unk();
+    inline void StartAbsorb_unk();
+    inline void AttackTarget_unk(float t);
+    inline void TurnTo_unk(float t);
     inline void SetStep_unk();
 
     atn::LH_Binary m14B0;   // inferred: "database/chara/special/db_enemy_jill.csv"

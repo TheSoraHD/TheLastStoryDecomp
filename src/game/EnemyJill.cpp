@@ -755,6 +755,249 @@ void EnemyJill::fn_8032FFF8() {
     }
 }
 
+extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                           int c, float f);
+extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
+
+// inferred: turns toward the target by `t` of the angle and starts the normal attack (inlined twice in
+// fn_80330218; names invented)
+// inferred: angle from `from` toward `to` by `t` along the shortest way (name invented)
+inline float LerpAngle_unk(float from, float to, float t) {
+    float d = to - from;
+    if (d > 3.1415927f) {
+        return t * (d - 6.2831855f) + from;
+    } else if (d < -3.1415927f) {
+        return t * (6.2831855f + d) + from;
+    }
+    return t * d + from;
+}
+
+inline void EnemyJill::TurnTo_unk(float t) {
+    if (mC58.mC4 != 0) {
+        atn::Vector3 dir = mC58.mC4->mPos - mPos;
+        if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+            PSVECNormalize(&dir, &dir);
+        }
+        atn::Vector3 rot = dir.ToRotation_unk();
+        float y = LerpAngle_unk(mRot.y, rot.y, t);
+        atn::WrapAngle_unk(y - mRot.y);
+        mRot.y = y;
+        atn::WrapAngle_unk(mRot.y);
+    }
+}
+
+inline void EnemyJill::AttackTarget_unk(float t) {
+    TurnTo_unk(t);
+    int kind = fn_80041A28(0, this, mC58.mC4);
+    if (m17C0 != 0 && mC58.mC4->fn_8016ADF4(this)) {
+        kind = 5;
+    }
+    m17C0 = 0;
+    if (kind == 2) {
+        fn_8015783C(m14D0, mC58.mC4->mPos, 3.0f);
+    } else if (kind == 5) {
+        fn_8015802C(m14D0, mC58.mC4);
+    } else {
+        fn_801562A0(m14D0, mC58.mC4->mPos, 0, 0, 0, 0, 3.0f);
+    }
+}
+
+void EnemyJill::fn_80330218() {
+    switch (m55C) {
+    case 6:
+        if (!fn_80158BB4()) {
+            if (m560 == 4 || m560 == 9) {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0) - 6.0001f) {
+                    mMotion.mTracks[0].m0C = 6.0f / (6.0f + m1580);
+                }
+            }
+            if (lbl_8087F048 != 0 && fn_80158CA4()) {
+                if (mControl && mControl->vf30() > m598) {
+                    m598 = mControl->vf30();
+                    m594 = 1;
+                    m590 = fn_800F8548(lbl_8087F048);
+                }
+                if (m594 != 0) {
+                    fn_80144710();
+                    int n = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, m594, 0.0f);
+                    if (n != 0) {
+                        CharaTask* player = lbl_8087F8A0->mHead;
+                        if (player != 0 && player->mFlag5) {
+                            m1590 = 1;
+                            m1594 = 30;
+                        } else {
+                            m1590 = 0;
+                        }
+                    }
+                    if (m594 > 0) {
+                        m594 -= n;
+                    }
+                }
+            }
+        } else {
+            if (m560 == 4 || m560 - 9U <= 1) {
+                fn_8016E970(3);
+            }
+            ResetState_unk();
+            m58C = 6;
+        }
+        break;
+    case 7:
+        if ((mC58.mC4->mStatus.m0C & 0x20) == 0x20) {
+            ResetState_unk();
+            m58C = 6;
+        }
+        if (mRoute.m2C != 0) {
+            AttackTarget_unk(1.0f);
+        } else {
+            atn::Vector3 d = mC58.mC4->mPos - mPos;
+            if (PSVECMag(&d) < 25.0f) {
+                AttackTarget_unk(1.0f);
+            } else if (m14BC > 120) {
+                ResetState_unk();
+                m58C = 6;
+            }
+        }
+        break;
+    default:
+        ResetState_unk();
+        m58C = 6;
+        break;
+    }
+}
+
+// inferred: camera of the field (lbl_8087F430): mode at 0x4D8, default parameters at 0x588, character followed
+// at 0x8A0 and look point at 0x97C (as in game/EnemyTrista.cpp); names invented
+struct JillCamParam_unk {
+    JillCamParam_unk(const JillCamParam_unk& o)
+        : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
+          m20(o.m20), m24(o.m24), m28(o.m28), m2C(o.m2C), m30(o.m30), m34(o.m34), m38(o.m38) {}
+    JillCamParam_unk& operator=(const JillCamParam_unk& o) {
+        m00 = o.m00;
+        m04 = o.m04;
+        m08 = o.m08;
+        m0C = o.m0C;
+        m10 = o.m10;
+        m14 = o.m14;
+        m18 = o.m18;
+        m1C = o.m1C;
+        m20 = o.m20;
+        m24 = o.m24;
+        m28 = o.m28;
+        m2C = o.m2C;
+        m30 = o.m30;
+        m34 = o.m34;
+        m38 = o.m38;
+        return *this;
+    }
+    float m00;
+    float m04;
+    float m08;
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
+    float m24;
+    float m28;
+    float m2C;
+    float m30;
+    float m34;
+    int m38;
+};
+struct JillCamera_unk {
+    void Set_unk(int mode, const JillCamParam_unk& param) {
+        if (mMode != mode) {
+            mMode = mode;
+            mParam = param;
+            m08 = 0.05f;
+            m04 = 1.0f;
+        }
+    }
+    int mMode;
+    float m04;
+    float m08;
+    JillCamParam_unk mParam;
+};
+struct JillLook_unk {
+    unsigned char m00;
+    unsigned char m01;
+    unsigned char m02[2];
+    int m04;
+    unsigned char m08[4];
+    atn::Vector3 mPos;
+    unsigned char m18[0x24 - 0x18];
+    float m24;
+    void Set_unk(const atn::Vector3& pos, bool flag) {
+        m01 = m00;
+        m00 = 1;
+        mPos = pos;
+        m24 = 0.0f;
+        m04 = flag ? 1 : 0;
+    }
+};
+struct JillCamField_unk {
+    unsigned char m0000[0x4D8];
+    JillCamera_unk m4D8;
+    unsigned char m520[0x588 - 0x520];
+    JillCamParam_unk m588;
+    unsigned char m5C4[0x8A0 - 0x5C4];
+    CharaTask* m8A0;
+    unsigned char m8A4[0x97C - 0x8A4];
+    JillLook_unk m97C;
+};
+
+// NONMATCHING: 90.8% - the original addresses the camera mode (0x4D8) and the look point (0x97C) through base
+// registers (addi/lbzu) and loads the default parameters before storing the followed character (6 variants:
+// local pointers, helper, order of the parameter stores)
+void EnemyJill::fn_80330D74() {
+    JillCamField_unk* field = (JillCamField_unk*)lbl_8087F430;
+    switch (m55C) {
+    case 6:
+        if (m560 == 13) {
+            break;
+        }
+        if (m560 == 14) {
+            atn::Vector3 pos(mPos);
+            pos.y += 15.0f;
+            if (m14CC == 0) {
+                field->m8A0 = this;
+                JillCamParam_unk param = field->m588;
+                param.m08 = -0.43633232f;
+                param.m04 = 0.7853982f;
+                param.m00 = 15.0f;
+                param.m10 = 8.0f;
+                field->m4D8.Set_unk(4, param);
+                atn::Vector3 look(mPos);
+                look.y += 25.0f;
+                field->m97C.Set_unk(look, false);
+                m14CC = 1;
+            } else {
+                field->m8A0 = this;
+                field->m97C.mPos = pos;
+            }
+            break;
+        }
+        if (m14CC != 0) {
+            field->m8A0 = 0;
+            field->m4D8.mMode = 0;
+            field->m97C.m00 = 0;
+            m14CC = 0;
+        }
+        ResetState_unk();
+        m58C = 6;
+        break;
+    case 7:
+        break;
+    default:
+        ResetState_unk();
+        m58C = 6;
+        break;
+    }
+}
+
 void EnemyJill::fn_80331094() {
     switch (m55C) {
     case 6:
@@ -783,6 +1026,72 @@ void EnemyJill::fn_803317F4() {
     if (m55C != 6) {
         ResetState_unk();
         m58C = 6;
+    }
+}
+
+// NONMATCHING: 53.9% - interpolation of the color matrix toward m1660[m1574]: the original keeps the four rows
+// of the current matrix and of the step in FPRs (f15-f31, r27-r31 saved) with a different schedule (2 variants:
+// loop, unrolled rows)
+void EnemyJill::fn_80331898() {
+    if (m55C == 6) {
+        if (mMotion.mTracks[0].m08 >= 10.0f) {
+            JillParams_unk* params = lbl_8087EFA8;
+            JillColMat_unk cur(params->m324);
+            JillColMat_unk& dst = m1660[m1574];
+            cur.mRows[0] = cur.mRows[0] + (dst.mRows[0] - cur.mRows[0]) * 0.1f;
+            cur.mRows[1] = cur.mRows[1] + (dst.mRows[1] - cur.mRows[1]) * 0.1f;
+            cur.mRows[2] = cur.mRows[2] + (dst.mRows[2] - cur.mRows[2]) * 0.1f;
+            cur.mRows[3] = cur.mRows[3] + (dst.mRows[3] - cur.mRows[3]) * 0.1f;
+            params->m324 = cur;
+        }
+    } else {
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+        ResetState_unk();
+        m58C = 6;
+    }
+}
+
+extern "C" double fmod(double x, double y);
+
+// inferred: starts the absorb (state 16) unless the target is already held (names invented)
+inline void EnemyJill::StartAbsorb_unk() {
+    SetState_unk(16);
+    fn_80161570(0x143, 1, 0, -1.0f, -1.0f);
+    fn_80232B7C(this, 1000);
+    PlayEffect_unk(&m17A4, &mMotion);
+}
+
+// NONMATCHING: 99.69% - r5/r6 of the target and of the difference vector (6 variants: named locals for the
+// direction/rotation, separate target local, Length_unk)
+void EnemyJill::fn_80331DAC() {
+    if (m55C == 6) {
+        if (m560 != 0x27) {
+            if (mC58.mC4->m55C != 6 || mC58.mC4->m560 != 0x82) {
+                ResetState_unk();
+                m58C = 6;
+            } else {
+                StartAbsorb_unk();
+            }
+        } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 20.0f) < 1.1920929e-7f) {
+            atn::Vector3 d = mC58.mC4->mPos - mPos;
+            atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+            float a = fmod(57.295776f * (rot.y - mRot.y), 360.0);
+            if (a > 180.0f) {
+                a -= 360.0f;
+            }
+            if (a < -180.0f) {
+                a += 360.0f;
+            }
+            float dist = PSVECMag(&d);
+            if (-25.0f < a && a < 25.0f && dist < 40.0f) {
+                mC58.mC4->fn_8015C988((int)this, (int)m14E4);
+            }
+        }
+    } else if (mC58.mC4->m55C != 6 || mC58.mC4->m560 != 0x82) {
+        ResetState_unk();
+        m58C = 6;
+    } else {
+        StartAbsorb_unk();
     }
 }
 
@@ -821,6 +1130,12 @@ void EnemyJill::fn_80332628() {
 void EnemyJill::fn_80332B44() {
     SetState_unk(9);
     fn_8016D74C(m14D8, 0, 0);
+}
+
+void EnemyJill::fn_80332BE0() {
+    TurnTo_unk(1.0f);
+    SetState_unk(12);
+    fn_80161570(0x145, 0, 0, -1.0f, -1.0f);
 }
 
 void EnemyJill::fn_80332F78() {
