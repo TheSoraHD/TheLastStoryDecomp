@@ -4,6 +4,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/LH_Binary.h"
 #include "game/EnemyTask.h"
+#include "game/CopyRobotTask.h"
 #include "game/CharaStatus.h"
 #include "game/ResHandle.h"
 
@@ -30,6 +31,7 @@ public:
     void fn_80253884(); // inferred: state 1 (spell / move along the route)
     inline void Move_unk();
     inline int IsHiddenPhase_unk();
+    inline float HpRate_unk();
     void fn_802531F4(); // inferred: state of the appearance (copies the character and shows itself)
 
     int m14B0;
@@ -43,7 +45,7 @@ public:
     atn::EfpHandle_unk m14E0;
     atn::EfpHandle_unk m14EC;
     int m14F8;        // inferred: "DstCopyRobotId"
-    CharaTask* m14FC; // inferred: the copy robot (its model plays the effect m14E0)
+    CopyRobotTask* m14FC; // inferred: the copy robot (its model plays the effect m14E0)
     int m1500;        // inferred: "SrcCopyCharaId" (negative: the first player)
     CharaTask* m1504; // inferred: copied character (the only attacker that can hurt it while hidden)
     atn::LH_Binary m1508;
@@ -55,7 +57,8 @@ public:
     int m1524; // inferred: hits before the stagger (4)
     RoutePlace_unk* m1528; // inferred: "JumpPoint"
     RoutePlace_unk* m152C; // inferred: "WarpPoint"
-    unsigned char m1530[0x1540 - 0x1530];
+    atn::Vector3 m1530; // inferred: position of the trap effect (owner of the effects started by vf10)
+    float m153C;        // inferred: radius of the trap
     int m1540; // inferred: hit counter (capped at 60)
     int m1544; // inferred: frame counter
     int m1548;
