@@ -6,6 +6,8 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 
+struct RoutePlace_unk;
+
 // inferred from __vt__15Em303KrakenFoot (0x80787120): leg of the kraken (Em302Kraken calls
 // fn_802E2328/fn_802E2360/fn_802E2468). Data file "/database/chara/special/" + db_name (default
 // "db_em303_00_00.csv").
@@ -34,13 +36,13 @@ public:
     int m14CC;
     int m14D0;
     void* m14D4;              // inferred: node "catch_point"
-    int m14D8;
-    int m14DC;
-    int m14E0;
-    float m14E4;
-    int m14E8;
+    HitInfo_unk* m14D8;       // inferred: "SwingSkillId"
+    HitInfo_unk* m14DC;       // inferred: "PoundSkillId"
+    int m14E0;                // inferred: "HoldDamageInterval"
+    float m14E4;              // inferred: "CatchDistance"
+    RoutePlace_unk* m14E8;    // inferred: "BasePoint"
     int m14EC;
-    int m14F0;
+    int m14F0;                // inferred: "CatchNotifyFlag" (SpecialFlag_unk: global flag, index)
     int m14F4;
     atn::EfpHandle_unk m14F8; // inferred: "/effect/ef_bd006.efp"
     int m1504;                // inferred: set by the kraken (fn_802E2468)

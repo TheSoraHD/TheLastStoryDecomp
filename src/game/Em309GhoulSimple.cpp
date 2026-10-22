@@ -1,11 +1,15 @@
 #include "game/Em309GhoulSimple.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "std/new.h"
 #include "math/Vec.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int atoi(const char* s);
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 inline GhoulStr_unk& GhoulStr_unk::operator=(const char* str) {
     if (str != mStr) {
@@ -29,7 +33,7 @@ Em309GhoulSimple::Em309GhoulSimple(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D8(0.0f, 0.0f, 0.0f), m14E4(40.0f), m14E8(0), m14EC(0), m14F0(0),
       m14F4(0), m14F8(0), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m1510(0), m1514(0), m1518(0),
       m151C(0), m1520(0), m1524(0), m1528(90), m1538(10), m153C(3.0f), m1540(0.0f), m1544(0.0f), m1548(0.0f),
-      m154C(0.0f), m1550(0.0f), m1554(0.0f), m1570(0), m1574(0), m1578(0), m157C(0), m15B8(-1.0f), m1648(0),
+      m154C(0.0f), m1550(0.0f), m1554(0.0f), m1570(0), m1574(0), m15B8(-1.0f), m1648(0),
       m164C(0), m1654(0) {
     m15BC.mStr[0] = '\0';
     char name[0x100];
@@ -151,4 +155,56 @@ atn::Vector3 Em309GhoulSimple::vf64(int center) {
 
 float Em309GhoulSimple::vf90() {
     return 3.0f;
+}
+
+void Em309GhoulSimple::fn_80306078(const char* text, int length) {
+    atn::Csv csv(text, length);
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "AttackNormalSkillId") == 0) {
+            m14E8 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackNormalCoolTime") == 0) {
+            m14F0 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackLongSkillId") == 0) {
+            m1508 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackLongChargeTime") == 0) {
+            m150C = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackLonglCoolTime") == 0) {
+            m1510 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackRollingSkillId") == 0) {
+            m1518 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "AttackDistance") == 0) {
+            m14E4 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "WaitFrame") == 0) {
+            m1528 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "SometimeAttackLong") == 0) {
+            m1538 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "HeadAttackStartFlag") == 0) {
+            fn_805A4980((SpecialFlag_unk*)&m1558, &csv);
+        } else if (strcmp(key, "HeadAttackNotifyFlag") == 0) {
+            fn_805A4980((SpecialFlag_unk*)&m1560, &csv);
+        } else if (strcmp(key, "SummonHp") == 0) {
+            m15B8 = fn_800DC288(csv.fn_8005B9CC()) / 100.0f;
+        } else if (strcmp(key, "SummonEnemy") == 0) {
+            while (true) {
+                int id = atoi(csv.fn_8005B9CC());
+                if (id == 0) {
+                    break;
+                }
+                new (&m1578[m1574]) GhoulPair_unk(id, 0);
+                m1574++;
+            }
+        } else if (strcmp(key, "SummonWarpPoint") == 0) {
+            GhoulPair_unk* p = m1578;
+            for (unsigned int i = 0; i < m1574; p++, i++) {
+                p->m04 = atoi(csv.fn_8005B9CC());
+            }
+        } else if (strcmp(key, "SummonNotifyFlag") == 0) {
+            fn_805A4980((SpecialFlag_unk*)&m1568, &csv);
+        } else if (strcmp(key, "SummonEfp") == 0) {
+            m15BC = csv.fn_8005B9CC();
+        } else if (strcmp(key, "Speed") == 0) {
+            m153C = fn_800DC288(csv.fn_8005B9CC());
+        }
+    } while (csv.fn_8005BBF8());
 }

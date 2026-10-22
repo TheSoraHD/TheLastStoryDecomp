@@ -1,11 +1,24 @@
 #include "game/Em303KrakenFoot.h"
+#include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "game/CharaStatus.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" char* strstr(const char* s, const char* sub);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int atoi(const char* s);
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
+// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
+struct Field_unk {
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8;
+};
+extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -160,4 +173,27 @@ void Em303KrakenFoot::vf24() {
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
     mMotion.mTracks[0].m0C = 1.0f;
+}
+
+void Em303KrakenFoot::fn_802E2640(const char* text, int length) {
+    atn::Csv csv(text, length);
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "SwingSkillId") == 0) {
+            m14D8 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "PoundSkillId") == 0) {
+            m14DC = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "HoldDamageInterval") == 0) {
+            m14E0 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "CatchDistance") == 0) {
+            m14E4 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "YOffset") == 0) {
+            m14C8 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "BasePoint") == 0) {
+            m14E8 = lbl_8087F430->m10D8->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "CatchNotifyFlag") == 0) {
+            m14F0 = *csv.fn_8005B9CC() == 'G';
+            m14F4 = atoi(csv.fn_8005B9CC());
+        }
+    } while (csv.fn_8005BBF8());
 }

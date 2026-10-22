@@ -123,6 +123,10 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   funciones son grandes (vf10 ~1.8 KB, etc.) o binds de boost::function (invoke/manage 0x8031F48C-0x8031F59C).
   - symbols.txt: fn_8031EB3C/EC5C -> ctor/dtor. SpecialEnemyBase.cpp: factoria case 47 con `new`.
 
+- Segunda pasada: lectores de CSV al 100% en game/Em303KrakenFoot (fn_802E2640, 11/26) y game/Em309GhoulSimple
+  (fn_80306078, 9/22; "SummonEnemy" llena un array {id, punto} de 8 con placement new, "SummonWarpPoint" lo
+  recorre con puntero).
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
@@ -144,3 +148,6 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   constante frente al miembro (lfs constante antes del lfs del frame).
 - `if (s - 11U > 2) { if (s == 10) {...; return;} } else {...}` coloca el bloque del rango despues, como el
   original; con `if (rango) {...} else if (s == 10)` el orden de bloques se invierte.
+- `for (...; p++, i++)` frente a `i++, p++`: el orden de los incrementos del for decide el orden de los addi.
+- `while (true) { int id = f(); if (id == 0) break; ... }` reproduce la prueba al principio del bucle; con
+  `while ((id = f()) != 0)` MWCC rota el bucle y la prueba va al final.

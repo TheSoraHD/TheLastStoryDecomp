@@ -21,6 +21,7 @@ struct GhoulFlag_unk {
 // inferred: pair cleared by the constructor (7 of them at 0x1580); names invented
 struct GhoulPair_unk {
     GhoulPair_unk() : m00(0), m04(0) {}
+    GhoulPair_unk(int a, int b) : m00(a), m04(b) {}
     int m00;
     int m04;
 };
@@ -80,10 +81,8 @@ public:
     GhoulFlag_unk m1560;       // inferred: "HeadAttackNotifyFlag"
     GhoulFlag_unk m1568;       // inferred: "SummonNotifyFlag"
     int m1570;
-    int m1574;                 // inferred: "SummonEnemy"
-    int m1578;
-    int m157C;
-    GhoulPair_unk m1580[7];
+    unsigned int m1574;        // inferred: count of m1578
+    GhoulPair_unk m1578[8];    // inferred: "SummonEnemy" (id) and "SummonWarpPoint" per enemy
     float m15B8;               // inferred: "SummonHp"
     GhoulStr_unk m15BC;        // inferred: "SummonEfp"
     atn::EfpHandle_unk m163C;  // inferred: effect of the summon
