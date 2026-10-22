@@ -180,6 +180,7 @@ public:
     void fn_8034F788();
     void fn_80350F64();
     void fn_80350BF0(); // inferred: state 12
+    void fn_8034D450(); // inferred: queues the thunder waves
     void fn_803520D8();
     void fn_8035223C();
     void fn_803524E4();

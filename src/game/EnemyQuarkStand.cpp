@@ -1212,10 +1212,16 @@ void EnemyQuarkStand::fn_8034A644() {
     }
 }
 
+// inferred: linear interpolation with the difference first (atn::Lerp_unk adds the start first; name
+// invented)
+inline atn::Vector3 QuarkLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
 // inferred: state 11 (attack 3, motion 0x142): turns, then at frame 24 aims 50 units short of the target and
 // dashes there (frames 24-30, "TackleSkillID" at 30), then 10 more units in front (frames 30-39, the second
 // tackle at 39)
-// NONMATCHING: 97.93% - the frame of the original is 24 bytes larger above the locals of AimAt_unk (same
+// NONMATCHING: 98.01% - the frame of the original is 24 bytes larger above the locals of AimAt_unk (same
 // family as fn_80350070); all the slots are shifted by 0x18; ~3 forms
 void EnemyQuarkStand::fn_8034AE48() {
     if (m14B4 == 0) {
@@ -1231,7 +1237,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         }
     } else if (m14B4 == 1) {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 24.0f) / 6.0f));
-        mPos = atn::Lerp_unk(m15DC.mStart, m15DC.mTarget, t);
+        mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 30.0f) {
             fn_800F8C6C(lbl_8087F048, 0, 0, this, m1534, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
             Field_unk* field = lbl_8087F430;
@@ -1245,7 +1251,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         }
     } else if (m14B4 == 2) {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 30.0f) / 9.0f));
-        mPos = atn::Lerp_unk(m15DC.mStart, m15DC.mTarget, t);
+        mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 39.0f) {
             fn_800F8C6C(lbl_8087F048, 0, 0, this, m1538, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
             Field_unk* field = lbl_8087F430;
@@ -1427,6 +1433,90 @@ void EnemyQuarkStand::fn_8034C060(int full) {
         TurnTo_unk(1.0f);
     }
     mPos += m15DC.mDir * m570;
+}
+
+// inferred: state 19 (warp, motion 0x143): turns toward the target and moves from the start to the aim
+// between frames 15 and 40; 10 frames before the end it grabs (state 12) or waits ("AttackWaitTime")
+void EnemyQuarkStand::fn_8034CF48() {
+    TurnTo_unk(1.0f);
+    float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 15.0f) / 25.0f));
+    mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0) - 10.0f) {
+        if (m17E4 != 0) {
+            fn_80350BF0();
+        } else {
+            fn_8034F41C();
+        }
+        m14C0 = m1CD0;
+    }
+}
+
+// inferred: random float in [min, min + range] and random wave delay in [20, 50] (names invented)
+inline float QuarkRand_unk(float min, float range) {
+    return range * ((float)rand() / 32767.0f) + min;
+}
+inline float QuarkRandDelay_unk() {
+    return 30.0f * ((float)(rand() % 1001) / 1000.0f) + 20.0f;
+}
+
+// inferred: queues the thunder waves: four around Quark (50-100 units away), one in front of each player
+// that is the leader or the target and two more around each player
+// NONMATCHING: 95.81% - the original keeps the wave in one stack temporary per loop (0x50/0x08/0x2C) and
+// reloads &m1A28 each time; ours shares one local and the slots move; ~3 forms (inline push, locals)
+void EnemyQuarkStand::fn_8034D450() {
+    QuarkWave_unk w;
+    for (int i = 0; i < 4; i++) {
+        atn::Vector3 v(0.0f, 0.0f, QuarkRand_unk(50.0f, 50.0f));
+        Mtx m;
+        PSMTXRotRad(m, 'y', QuarkRand_unk(-3.1415927f, 6.2831855f));
+        PSMTXMultVec(m, &v, &v);
+        w.m00 = mPos + v;
+        w.m0C = QuarkRandDelay_unk();
+        w.m10 = 0;
+        w.m11 = m1CBC++;
+        m1A28.push_back(w);
+    }
+    for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
+        atn::Vector3 base = p->mPos + QuarkFront_unk(p->mRot.y) * 0.1f;
+        if (p->mType == 0 || p == (CharaTask*)m14B0) {
+            w.m00 = base + QuarkFront_unk(p->mRot.y) * 0.1f;
+            w.m0C = QuarkRandDelay_unk();
+            w.m10 = 0;
+            w.m11 = m1CBC++;
+            m1A28.push_back(w);
+        }
+        for (int j = 0; j < 2; j++) {
+            w.m00 = base + atn::Vector3(QuarkRand_unk(-90.0f, 180.0f), 0.0f, QuarkRand_unk(-90.0f, 180.0f));
+            w.m0C = QuarkRandDelay_unk();
+            w.m10 = 0;
+            w.m11 = m1CBC++;
+            m1A28.push_back(w);
+        }
+    }
+}
+
+// inferred: state 20 (thunder, motion 0x144): turns until frame 25, queues the waves at frames 60 and 90
+void EnemyQuarkStand::fn_8034DA0C() {
+    if (m14B4 == 0) {
+        if (mMotion.mTracks[0].m08 < 25.0f) {
+            TurnTo_unk(0.3f);
+        }
+        if (mMotion.mTracks[0].m08 >= 60.0f) {
+            m14B4++;
+            fn_8034D450();
+        }
+    } else if (m14B4 == 1) {
+        if (mMotion.mTracks[0].m08 >= 90.0f) {
+            m14B4++;
+            fn_8034D450();
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
+        }
+    }
 }
 
 // inferred: state 17 (falls with gravity until the ground, then waits) (the state helpers are inlined)
