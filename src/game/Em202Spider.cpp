@@ -304,6 +304,64 @@ void Em202Spider::vfEC() {
     }
 }
 
+// inferred: result of a ray test (0x50 bytes, as in game/Em208Queen.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x10];
+    atn::Vector3 m10; // inferred: hit position
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+// inferred: nonzero when the sound group is loaded (game/Se_unk.cpp declares it with an int; same C symbol)
+extern "C" int fn_800C3118(const char* group);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+
+// inferred: sounds of the spider
+static const char* const sSe_unk[3] = {"SE_EM202_008", "SE_EM202_002", "SE_DG001_014"};
+// inferred: nodes of the tips of the arms
+static const char* sArmNodes_unk[6] = {"leftbackarm2",  "leftmiddlearm2",  "leftfrontarm2",
+                                       "rightbackarm2", "rightmiddlearm2", "rightfrontarm2"};
+static const char* const sSeGroup_unk = "GROUP_DG001";
+
+// NONMATCHING: 98.77% - the original keeps &mPos in a register for the whole loop (r22) and splits the
+// scaling of the arm offset per component; 8 variants
+void Em202Spider::fn_8027F69C() {
+    int played = 0;
+    const atn::Vector3& origin = mPos;
+    for (int i = 0; i < 6; i++) {
+        MtxPtr m = mMotion.GetNodeMtx_unk(sArmNodes_unk[i]);
+        atn::Vector3 to;
+        atn::Vector3 pos(m[0][3], m[1][3], m[2][3]);
+        to = pos;
+        to -= mPos;
+        to.x *= 1.3f;
+        to.z *= 1.3f;
+        to += mPos;
+        to.y = mPos.y;
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &origin, &to, 0x80000000, 0, 0) != 0) {
+            if (!played && fn_800C3118(sSeGroup_unk) != 0) {
+                fn_800C344C(sSe_unk[2], &result.m10, 0, -1, 1.0f);
+                played = 1;
+            }
+            fn_80232B7C(0, 0);
+            Color4f_unk color;
+            color.r = 1.0f;
+            color.g = 1.0f;
+            color.b = 1.0f;
+            color.a = 1.0f;
+            fn_8023A8B4(lbl_8087F3C0, &m1580, 0, 0, result.m10, lbl_807C7030, color, -1, -1, 1, 1.0f);
+        }
+    }
+}
+
 // NONMATCHING: 99.70% - only the .sdata2 offsets (constants of the unwritten functions)
 void Em202Spider::fn_8027F8A8() {
     if (m1520 < 0) {

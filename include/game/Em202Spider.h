@@ -46,6 +46,7 @@ public:
     virtual void vfEC();                                 // 0x80280EF8
 
     void fn_802829DC(); // inferred: death
+    void fn_8027F69C(); // inferred: effect and sound where the arms touch the ground
     void fn_8027F8A8(); // inferred: wait of m1520 frames, then the action m1528
     void fn_80281924(CharaTask* target);
     void fn_80281054(CharaTask* target); // inferred: starts state 1 (faces the target)
