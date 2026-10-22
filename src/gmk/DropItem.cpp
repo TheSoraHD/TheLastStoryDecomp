@@ -624,7 +624,7 @@ void DropItem::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 99.92% - the temporaries of the ground ray test are above the position of the item
+// NONMATCHING: 99.93% - the temporaries of the ground ray test are above the position of the item
 // animation in the original (here the position is a named local, above them)
 int DropItem::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
@@ -688,8 +688,9 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
         }
         if (m180 != 0) {
             atn::Vector3 hit;
-            if (fn_8004ECC0(lbl_8087EE98, &hit, m6C + atn::Vector3(0.0f, 10.0f, 0.0f),
-                            m6C + atn::Vector3(0.0f, -200.0f, 0.0f), 0x80000000, 0, 0) != 0) {
+            atn::Vector3 to = m6C + atn::Vector3(0.0f, -200.0f, 0.0f);
+            atn::Vector3 from = m6C + atn::Vector3(0.0f, 10.0f, 0.0f);
+            if (fn_8004ECC0(lbl_8087EE98, &hit, from, to, 0x80000000, 0, 0) != 0) {
                 m6C = hit;
                 m6C.y += 0.5f;
             }
