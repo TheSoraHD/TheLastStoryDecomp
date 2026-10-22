@@ -13,6 +13,7 @@
 #include "game/Em002_01BlackSkelton.h"
 #include "game/Em002_02SkeltonKing.h"
 #include "game/Em006DarkMaster.h"
+#include "game/Em101ElderZesya.h"
 #include "game/Em201ZanGurg.h"
 #include "game/Em209BigGolem.h"
 #include "game/Em209SmallGolem.h"
@@ -561,7 +562,6 @@ extern "C" int fn_805A52F4(const char* s) {
 extern "C" void* fn_80244228(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8024A650(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80250A24(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802558B0(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8025A060(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8025C998(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8025FE60(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -913,11 +913,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 7:
-            p = ::operator new(0x1710, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802558B0(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em101ElderZesya(parent, info);
             break;
         case 9:
             p = ::operator new(0x15d0, 3, "", "", 0);
