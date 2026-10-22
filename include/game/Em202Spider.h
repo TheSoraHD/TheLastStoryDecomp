@@ -15,6 +15,18 @@ struct SpiderList_unk : public std::vector<int> {};
 // inferred: color of the materials of the spider (r, g, b, a; starts white); name invented
 struct SpiderColor_unk {
     SpiderColor_unk() : r(1.0f), g(1.0f), b(1.0f), a(1.0f) {}
+    SpiderColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    SpiderColor_unk operator-(const SpiderColor_unk& o) const { return SpiderColor_unk(r - o.r, g - o.g, b - o.b, a - o.a); }
+    SpiderColor_unk operator+(const SpiderColor_unk& o) const { SpiderColor_unk c; c.r = r + o.r; c.g = g + o.g; c.b = b + o.b; c.a = a + o.a; return c; }
+    SpiderColor_unk operator*(float f) const { SpiderColor_unk c; c.r = r * f; c.g = g * f; c.b = b * f; c.a = a * f; return c; }
+    GXColor ToGX() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
     float r, g, b, a;
 };
 
