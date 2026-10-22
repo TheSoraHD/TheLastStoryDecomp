@@ -35,3 +35,11 @@ Hallazgos MWCC:
 Hallazgos MWCC (2):
 - `w /= sy * (k * sx); h *= sy;` (division antes de la multiplicacion, sin local para k*sx) reproduce los fmr y el orden del original en HomeButtonMenu::fn_80440994.
 - Byte swap in situ: `*p = swap(*p)` con la funcion rlwimi da `lwz/addi/stwbrx`; el intrinseco `__stwbrx(*p, p, 0)` da `lwzu`.
+- game/CharaC58_unk: sin cambios. fn_8011CAE4 99.46%: 9 variantes del bucle de busqueda (comparacion invertida, puntero+i, int, break con indice, puntero a la tabla, locales id/sid/cid); la mejor deja 10 lineas (base 12) sin llegar. fn_8011CD84 no intentada (97.97%, varias causas).
+- game/CrowdSimulation: sin cambios. vf10 98.89% (f5/f6 entre la resta z y el radio); 11 variantes (orden radio/diferencia, local del radio, fn_805F9920 directo, diff con nombre/copia). Ctor no intentado (offset doble del grupo + destruccion de boost::function).
+- game/Em002_01BlackSkelton: sin cambios. vf0C 94.38% (r5/r8 de la palabra de flags 0x12A4; 10 variantes de orden de flags, shrink/clear, or directo). vf10 96.1%: llamar a Erase_unk a traves de `CharaList_unk* l = &m14BC` dentro del if da el recalculo del final, pero cambia this/busy (r30/r31); revertido y anotado.
+- game/PlayerManager: fn_80549F14 99.49 -> 99.66%: local propio en la rama else (`PlayerTask* p`). Queda el id en r29 (r30 en el original, compartido con head).
+- game/SelectMember: 11/12. fn_80572450 (0x80572450) SUBIDA: el conteo de seleccionados escrito a mano en vez de `CountSelected_unk()` (con el inline el contador sale en r25 en vez de r22) y la llamada es `PlayerManager::fn_8054A33C(const char*)` (vista local de la clase; el id del miembro se pasa como nombre). Ctor 99.64% sin cambios (lista r30/r31; 4 variantes nuevas: lista reasignada, slot puntero, do-while, local).
+
+Hallazgos MWCC (3):
+- Un inline que cuenta (bucle con contador local) asigna el contador antes que los demas registros salvados; escrito a mano en el cuerpo, el contador toma el registro mas bajo (r22), como en el original de SelectMember::fn_80572450.

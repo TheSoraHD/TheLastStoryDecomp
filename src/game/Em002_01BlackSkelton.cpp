@@ -101,7 +101,8 @@ int Em002_01BlackSkelton::vf0C() {
 }
 
 // NONMATCHING: 96.1% - the erase in the final loop reuses the end pointer computed by the loop test;
-// the original recomputes it (4 instructions more)
+// the original recomputes it (4 instructions more). Calling Erase_unk through a local
+// `CharaList_unk* l = &m14BC` inside the if gives the recomputation but swaps this/busy (r30/r31).
 void Em002_01BlackSkelton::vf10() {
     fn_8014C540();
     int busy = 0;
