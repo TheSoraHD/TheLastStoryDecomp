@@ -1802,6 +1802,22 @@ int Em403WarLion::fn_8032A9F4(WarLionPath_unk* path, int id, int* next) {
     return 1;
 }
 
+// inferred: index of `id` in the circuit, then advances `index` to the next running point
+int Em403WarLion::fn_8032C3CC(int* index, int id) {
+    int i;
+    for (i = 0; i < 10; i++) {
+        if (id == lbl_80749B00[i].mPlace) {
+            break;
+        }
+    }
+    int j = (i + *index * 2) % 10;
+    while (lbl_80749B00[j].m04 == 0) {
+        (*index)++;
+        j = (i + *index * 2) % 10;
+    }
+    return 1;
+}
+
 // NONMATCHING: 99.55% - solo la posicion de su constante en .sdata2 (falta el codigo de ruta del final)
 int Em403WarLion::vfE4() {
     if (m58C == 16 && mMotion.mTracks[0].m08 < 42.0f) {
