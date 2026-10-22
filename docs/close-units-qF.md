@@ -220,3 +220,17 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
 - El orden de las definiciones en la TU decide el orden de las cadenas en el pool (@stringBase0): una funcion
   escrita al final del fichero pone sus literales despues; hay que colocarla en su sitio (por direccion) para
   que los desplazamientos coincidan.
+
+## Cierre (08:21 CEST)
+- Ninguna unidad pasa a `matching: true`; ninguna llega al 100% sin enlazar.
+- Funciones al 100% (antes -> ahora, sobre el total de la unidad): Em003LesserDaemon 0->7/22,
+  Em101ElderZesya 0->8/20, Em101LittleZesya 0->13/25, Em202Spider 0->4/25, Em202SpiderBase 0->3/23,
+  Em205Ogre 0->14/21, Em209SmallGolem 0->7/22 (+2 que ya estaban en otras TU), Em303KrakenFoot 0->13/26,
+  Em303KrakenFootMp 0->15/21, Em305Vampire 0->15/30, Em306GurgBeast 0->9/22, Em308ParmCrab 0->3/24,
+  Em309Ghoul 0->8/33, Em309GhoulSimple 0->9/22, Em310Gargoyle 0->2/21, Em312DarkServant 0->12/21,
+  Em315Coffin 0->7/21, Em401_01_WhiteLeoPard 0->1/25.
+- Saltadas o sin cambio: chr/ControlChant (copias de boost::bind), game/AreaEffConfig, game/SkillEffectManager,
+  game/GimmickStateCommand (sin mejoras), game/GameUI (no intentada); el resto de la cola desde Em208Queen sin
+  tocar. Ultima unidad procesada: game/Em306GurgBeast.
+- report.json: 6705 funciones al 100% (ref main 6476, ref close_AC 6555); regress lost 0 y fuzzdrop 0 contra
+  ambas; main.dol OK.
