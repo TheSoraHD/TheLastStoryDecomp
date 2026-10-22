@@ -187,7 +187,10 @@ struct Model_unk {
     Track_unk mTracks[6]; // 0x22C (track 0: frame at 0x234, speed at 0x238)
     int m34C;
     float m350; // inferred: time scale of the character (multiplied with the frame time, CharaTask::fn_8013CB68)
-    unsigned char m354[0x370 - 0x354];
+    unsigned char m354[0x35C - 0x354];
+    // inferred: second node pose callback (set by fn_8031F2A4 of game/Em401_01_WhiteLeoPard.cpp, used by the
+    // white leopard and the war lion)
+    boost::function<void(atn::MotionBuffer*, int)> m35C;
     // inferred: callback run on the node poses (set by CharaFaceControl::fn_8011D424)
     boost::function<void(atn::MotionBuffer*, int)> m370;
     unsigned char m384[0x3D0 - 0x384];

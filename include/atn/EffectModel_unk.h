@@ -8,7 +8,9 @@
 // at 0x8008xxxx (fn_8008AD4C, fn_8008B140, fn_8008CD60...), so it is probably the base of the model
 // class; members embed it directly (gmk::SavePoint, gmk::SwingObject, gmk::Chain).
 struct EffectModel_unk {
-    EffectModel_unk(unsigned int flags); // 0x8008A4E0
+    // inferred: arrays of models use the default flags 9 (default constructor 0x803165E4 in
+    // game/Em316LaserSphere.cpp)
+    EffectModel_unk(unsigned int flags = 9); // 0x8008A4E0
     virtual ~EffectModel_unk();          // 0x8008A76C
     // inferred: the same object seen through the Model_unk declarations (name invented)
     Model_unk* GetModel_unk() { return (Model_unk*)this; }
