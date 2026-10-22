@@ -50,6 +50,29 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
     firma real devuelve int y recibe un Vector3*; no se cambia la cabecera compartida), vfB4 (0x802BA67C, bind
     de ControlWallSlash).
 
+- game/Em303KrakenFootMp (0/21 -> 15/21, NUEVA fuente + cabecera): al 100% ctor (0x802E59E0), dtor
+  (0x802E84C8), fn_802E5B30 (setter), lector del CSV (0x802E5CD0), vf14, vfFC, vf108 (vacia), vf3C, vf24, vf40,
+  vf80, vfEC, vf110/vf114 (estado multijugador) y fn_802E8084 (reaccion al dano). vf0C 99.6% (orden de los
+  flags 0x2A del estado / 0x200 de m54C, 8 variantes); vf10 ~75% (CanAct_unk en linea dos veces + copias de
+  vector). Pendientes: vf100 (0x802E6228, 1556 B), vf104 (0x802E683C, 2272 B), vf54 (0x802E7298),
+  fn_802E7740 (2372 B).
+  - splits.txt (decision sin el usuario): `.rodata` de game/Em303KrakenFootMp ampliada de 0x80747E9C a
+    0x80747F58: absorbe el tramo auto_06_80747E9C (relleno + pool de cadenas lbl_80747EA0, que solo usa esta
+    unidad). Build limpio de comprobacion OK.
+  - symbols.txt: fn_802E59E0/5B30/5B38/5CD0/5E94/61BC/61D0/711C/7120/71B0/8084/8250/82F0/8354/8438/8454/84C8 ->
+    nombres de Em303KrakenFootMp.
+  - SpecialEnemyBase.cpp: factoria con `new (3, "", "", 0) Em303KrakenFootMp(...)`.
+
+- game/Em315Coffin (0/21 -> 7/21, NUEVA fuente + cabecera): al 100% dtor (0x80313848), vf0C (0x8031393C),
+  vf28 (vacia), vf14, vfFC, fn_80315FE0 (para el efecto), vfA0 (3.6651914f). vf30 ~99% (solo desplazamientos
+  del pool: faltan cadenas de funciones sin escribir); lector del CSV ~85% (las palabras 0x43300000 de las
+  conversiones del color del material salen del bucle en el original); ctor ~35% (copia del CharaRes_unk de
+  0x90 bytes por pares de palabras y orden de lectura de los estaticos de .sdata).
+  - symbols.txt: fn_80313544/3848/393C/3AAC/3FC0/3FC4/40C0/5FE0/61F0/6034 -> nombres de Em315Coffin;
+    lbl_8087DC40/44 -> sZero_unk/sOne_unk (scope:local, estaticos .sdata del fichero).
+  - SpecialEnemyBase.cpp: factoria con `new (3, "", "", 0) Em315Coffin(...)`.
+  - Clean build tras el cambio de splits de Em303KrakenFootMp: main.dol OK.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
@@ -61,3 +84,5 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   de bloques del original (rama de exito primero).
 - `m620 = r; m614 = base + off; m614.y += m620;` (miembro asignado antes de la suma de vectores) fija el orden
   de cargas de FPR del original en el calculo de la capsula.
+- `fn_80097C08(..., 1.0f, 0.1f)`: cuando el original reutiliza el registro del 1.0f de la velocidad para el
+  sexto argumento, el blend es 1.0f (no 0.0f); comprobar el valor de f1 en la llamada.

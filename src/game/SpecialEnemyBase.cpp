@@ -16,6 +16,8 @@
 #include "game/Em101ElderZesya.h"
 #include "game/Em201ZanGurg.h"
 #include "game/Em205Ogre.h"
+#include "game/Em303KrakenFootMp.h"
+#include "game/Em315Coffin.h"
 #include "game/Em209BigGolem.h"
 #include "game/Em209SmallGolem.h"
 #include "game/Em305VampireMp.h"
@@ -585,7 +587,6 @@ extern "C" void* fn_802D0038(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_802D7480(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802DDDB8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802E211C(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802E59E0(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802EE604(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802F1524(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802F6E64(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -594,7 +595,6 @@ extern "C" void* fn_80305C74(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_8030A144(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8030DA20(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80310330(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_80313544(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_803161F8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8031B0A8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8031EB3C(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -842,21 +842,13 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 33:
-            p = ::operator new(0x1528, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802E59E0(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em303KrakenFootMp(parent, info);
             break;
         case 51:
             enemy = new (3, "", "", 0) CopyRobotTask(parent, info);
             break;
         case 44:
-            p = ::operator new(0x1660, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80313544(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em315Coffin(parent, info);
             break;
         case 6:
             enemy = new (3, "", "", 0) Em006DarkMaster(parent, info);
