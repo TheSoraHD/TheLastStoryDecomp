@@ -278,7 +278,7 @@
   "classes": [
    "atn::ParseTree"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/PBoneBasic.cpp",

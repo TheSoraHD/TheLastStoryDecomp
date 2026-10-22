@@ -1,6 +1,7 @@
 #include "atn/ParseTree.h"
 #include "atn/Memory.h"
 #include "std/new.h"
+#include "std/msl_common.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
@@ -547,6 +548,15 @@ int ParseCode_unk::fn_800A6FF0(ParseTree* tree) {
         pos++;
     }
     return 1;
+}
+
+// inferred: an std::map insertion of this file was stripped by the linker; only its literal is left at
+// the end of @stringBase0 ("tree::insert length error"). Reconstructed minimally so that the pool keeps
+// its layout.
+void fn_Stripped_unk(unsigned long size) {
+    if (size == 0xFFFFFFFF) {
+        __msl_error("tree::insert length error");
+    }
 }
 
 } // namespace atn

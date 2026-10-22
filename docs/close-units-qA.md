@@ -38,3 +38,8 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
   `*(float**)((unsigned char*)vars->mVars + (idx - 1) * sizeof(float*))`.
   - Hallazgo MWCC: `p[i - 1]` pliega el -1 en el desplazamiento (`slwi; add; lwz -4`); con el desplazamiento en
     bytes escrito a mano sale `subi; slwi; lwzx`.
+  - ENLAZADA (`matching: true`). Para enlazar: el pool `@stringBase0` del original acaba con "tree::insert length
+    error" de una insercion de `std::map` que el enlazador elimino; se reconstruye minima como
+    `atn::fn_Stripped_unk(unsigned long)` (patron de Event/Label) para que la .rodata mida 0x98. Nuestro .o
+    emite ademas `__vt__Q23atn8BaseNode`/`__dt__Q23atn8BaseNodeFv` debiles que el original no tiene: el
+    enlazador los descarta (sin referencias) y el DOL sale OK.
