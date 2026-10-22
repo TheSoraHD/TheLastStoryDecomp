@@ -47,6 +47,11 @@ struct Field_unk {
     float m974; // inferred: shake strength
     float m978;
 };
+struct Effect_unk;
+extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
+extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
+extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 // inferred: copy of the event camera (as CameraMgr_unk::SetParam_unk of chr/ControlBreakOpen.cpp: the two
 // vectors through a Vector3 pointer); name invented
@@ -180,6 +185,25 @@ inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: same as PlayEffect_unk with the manager read last (as in game/Em302KrakenMp.cpp); name invented
+inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    EffectMgr_unk* mgr = lbl_8087F3C0;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
 // inferred: node position (name invented, as in game/Em209BigGolem.cpp)
@@ -934,6 +958,71 @@ inline bool ShadeFree_unk(CharaTask* c) {
         r = true;
     }
     return r;
+}
+
+// inferred: starts state 2 (dead): the death effect (big shade or not), the event camera on the head,
+// half speed and the body turned to the camera
+// NONMATCHING: 99.2% - stack slots of the effect temporaries and of the blur copy (registers r3/r9),
+// string pool offsets; 4 variants
+void Em301LShade::fn_802D57B8() {
+    m14E8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = 2;
+    fn_8016E970(3);
+    fn_80097CCC((Model_unk*)&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+    fn_80232B7C(this, 1000);
+    if (m14D4 != 0) {
+        PlayEffect2_unk(&m1614, (Model_unk*)&mMotion);
+    } else {
+        Color4f_unk color;
+        atn::Vector3 pos(0.0f, 13.0f * m540.x, 0.0f);
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        EffectMgr_unk* mgr = lbl_8087F3C0;
+        fn_8023A8B4(mgr, &m1608, (Model_unk*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
+    }
+    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+    }
+    fn_800EB7A0(this);
+    m15E8 = 0;
+    m15EC = 0;
+    ShadeCamera_unk c;
+    atn::Vector3 dir;
+    c.mPos = *(atn::Vector3*)&m15BC;
+    atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    c.mTarget = head;
+    c.mFov = 0.9599311f;
+    c.mFlag = 0;
+    SetCamera_unk(lbl_8087F430, c);
+    lbl_8087F430->m06C.fn_80389838(0x13);
+    ShadeGame_unk* game = lbl_8087EFA8;
+    ShadeBlur_unk blur;
+    blur.m04 = game->m240.m04;
+    blur.m08 = game->m240.m08;
+    blur.m0C = game->m240.m0C;
+    blur.m10 = game->m240.m10;
+    blur.m14 = game->m240.m14;
+    blur.m18 = game->m240.m18;
+    blur.m1C = game->m240.m1C;
+    blur.m20 = game->m240.m20;
+    blur.m00 = 1;
+    game->m240 = blur;
+    lbl_8087EFA8->m3A4 = 0.5f;
+    fn_80370320(lbl_8087F430, 0xD0, 1, 0);
+    dir.Set_unk(c.mPos.x - mPos.x, 0.0f, c.mPos.z - mPos.z);
+    atn::Vector3 rot = dir.ToRotationZ_unk();
+    mRot.y = rot.y;
 }
 
 // NONMATCHING: 92.9% - the original rereads the status word for the 0x20 test inside the "free" check
