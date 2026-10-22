@@ -35,6 +35,8 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
+    virtual void vf20();
+    virtual void vf30(void* menu);
     virtual void vf54();
     virtual atn::Vector3 vf64(int center);
     virtual float vf90();

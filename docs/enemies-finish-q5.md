@@ -31,6 +31,14 @@ game/Em315Coffin.
   tres niveles, bloqueo documentado, y recarga de m54C antes del store de m14A8) y fn_8030F380 (escudo, 99.92%:
   solo el offset de 36.0f segun fnstat; 100% en el report completo). vf104/vf108 (2.4 KB cada una) sin escribir.
 
+- `game/Em312DarkServant` (segunda vuelta, 14/21): vf30 al 100% con un bloque `{ void* sub = ...; }` por
+  sub-grupo (el original da un registro nuevo a cada `sub`) y el `\0` final de "Em312 DarkServant[%d]\0" (el
+  pool guarda un terminador extra detras). Mismo arreglo aplicado a Em315Coffin::vf30 y Em309GhoulSimple::vf30.
+- `game/Em309GhoulSimple` (9/22, sin nuevas al 100%): escritas vf10 (0x8030646C, 99.57%: registros volatiles del
+  CanAct_unk inline), vf20 (0x80308D14, capsula, 99.76%: r4/r5 de la copia del cuello) y vf30 (0x80309E6C,
+  99.92%: offsets del pool). Las grandes (vf100/104/108, fn_803067E0 vf40, fn_80308E6C) y fn_803097AC (slot 0xB0:
+  CharaTask::vfB0 esta declarada `void vfB0()` en la cabecera compartida, devuelve int y recibe un Vector3*) sin
+  escribir; fn_80309D20/fn_80309D50 son invoker/manager de boost::function (bind de ControlThrustForGhoul).
 - Pools de cadenas renombrados a `@stringBase0` en Em309Ghoul (0x80748A14), Em309GhoulSimple (0x80748DC0),
   Em310Gargoyle (0x80748FE8) y Em315Coffin (0x80749390): sin cambio en el recuento, pero las llamadas con
   cadenas ya comparan el nombre real.
@@ -47,6 +55,8 @@ game/Em315Coffin.
   `fn_803132D0__8Em314IvyFv`. Ningun otro .cpp los usaba.
 - symbols.txt: `lbl_807490AC` -> `@stringBase0` (scope:local, pool de cadenas de Em312DarkServant);
   fn_8030E710 -> `vf100__16Em312DarkServantFi`, fn_8030F380 -> `fn_8030F380__16Em312DarkServantFv`.
+- symbols.txt: fn_8030646C -> `vf10__16Em309GhoulSimpleFv`, fn_80308D14 -> `vf20__16Em309GhoulSimpleFv`,
+  fn_80309E6C -> `vf30__16Em309GhoulSimpleFPv`; include/game/Em309GhoulSimple.h declara vf20 y vf30.
 - symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
   (scope:local).
 - include/game/Em314Ivy.h: m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
@@ -61,4 +71,11 @@ game/Em315Coffin.
 - Un argumento elegido con `?:` entre dos constantes se evalua en otro orden que `int x; if (...) x = A; else
   x = B; f(x);` (este ultimo da el orden del original en Em314Ivy::vf40).
 
+- En los menus de depuracion (vf30) de los enemigos especiales, cada sub-grupo en su propio bloque
+  `{ void* sub = fn_8008937C(...); ... }` reproduce el reparto de registros salvados; reutilizar una variable
+  `sub` lo cambia.
+
 ## Pendientes para otras colas
+- `CharaTask::vfB0` (cabecera compartida include/game/CharaTask.h) esta declarada `void vfB0()`; en los enemigos
+  (Em309GhoulSimple 0x803097AC, Em205Ogre 0x802BA64C) devuelve int y recibe un `Vector3*`. Cambiarla afecta a
+  todas las unidades: no tocado.

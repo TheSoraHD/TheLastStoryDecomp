@@ -1,6 +1,8 @@
 #include "game/Em309GhoulSimple.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "std/new.h"
 #include "math/Vec.h"
 
@@ -10,6 +12,21 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
+                            int arg7);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+// inferred: per-player weights of an effect (floats at +0x128); names invented
+struct GhoulWeights_unk {
+    unsigned char m00[0x128];
+    float mWeight[4];
+};
+extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
+extern "C" int fn_80108378(GhoulWeights_unk* w, CharaTask* chara); // inferred: index of `chara`
 
 inline GhoulStr_unk& GhoulStr_unk::operator=(const char* str) {
     if (str != mStr) {
@@ -102,61 +119,6 @@ int Em309GhoulSimple::vf0C() {
     return 0;
 }
 
-void Em309GhoulSimple::vf14() {
-    fn_80149A30();
-}
-
-int Em309GhoulSimple::vf10C(HitMsg_unk* msg) {
-    if (mFlag29) {
-        return 0;
-    }
-    if (m58C == 13) {
-        if (msg->mData != 0 && msg->mData->m04 == 0x658) {
-            msg->m10 *= 0.0f;
-            msg->m0C |= 0x80;
-            return 1;
-        }
-        return 0;
-    }
-    msg->m10 *= 0.0f;
-    if (!IsDownState_unk()) {
-        msg->m0C |= 8;
-    }
-    return 1;
-}
-
-void Em309GhoulSimple::vfFC() {
-    fn_8016E970(2);
-    vf100(6);
-}
-
-void Em309GhoulSimple::vf54() {
-    if (m624.mSize < 2) {
-        return;
-    }
-    m624.mData[0].m04.mRadius = mColli.m54;
-    m624.mData[0].m04.mCenter = mColli.m3C;
-    m624.mData[1].m04.mRadius = 0.5f * mColli.m54;
-    m624.mData[1].m04.mCenter = mColli.m48;
-    m624.mData[1].m04.mCenter.y += 0.5f * mColli.m54;
-}
-
-atn::Vector3 Em309GhoulSimple::vf64(int center) {
-    atn::Vector3 result = mPos;
-    if (center == 0) {
-        result = mPos;
-    } else if (fn_805A49E4((SpecialFlag_unk*)&m1558) > 0 && m624.mSize >= 2) {
-        result = m624.mData[1].m04.mCenter;
-    } else {
-        result = mPos;
-    }
-    return result;
-}
-
-float Em309GhoulSimple::vf90() {
-    return 3.0f;
-}
-
 void Em309GhoulSimple::fn_80306078(const char* text, int length) {
     atn::Csv csv(text, length);
     do {
@@ -208,3 +170,163 @@ void Em309GhoulSimple::fn_80306078(const char* text, int length) {
         }
     } while (csv.fn_8005BBF8());
 }
+
+// NONMATCHING: 99.57% - volatile registers of the inlined CanAct_unk (r5/r0/r4 in the original, r5/r4/r6 here;
+// the same inline matches in Em205Ogre/Em315Coffin); 9 variants
+void Em309GhoulSimple::vf10() {
+    if (!CharaTask::mFlag2 || !CanAct_unk()) {
+        vf104();
+    }
+    if (m14F4 > 0) {
+        m14F4--;
+    }
+    if (m1504 > 0) {
+        m1504--;
+    }
+    if (m1514 > 0) {
+        m1514--;
+    }
+    if (m1524 > 0) {
+        m1524--;
+    }
+    fn_8014C540();
+    atn::Vector3 pos = mPos;
+    atn::Vector3 rot = mRot;
+    if (m58C == 12) {
+        if (m14BC == 0) {
+            float frame = mMotion.mTracks[0].m08;
+            mPos.y += m5B0 * (frame / mMotion.fn_80097D7C(0));
+        } else {
+            mPos.y += m5B0;
+            m154C += -0.5235988f;
+            mRot.x = m154C;
+        }
+    }
+    if ((mFlags & 1) != 1 && !CharaTask::mFlag25) {
+        fn_80145334();
+    }
+    if (m58C == 12) {
+        mPos = pos;
+        mRot = rot;
+    }
+    if (m1570 != 0) {
+        GhoulWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            int i = fn_80108378(w, p);
+            w->mWeight[i] = p->mType == 0 ? 1.0f : 0.3f;
+        }
+    }
+}
+
+void Em309GhoulSimple::vf14() {
+    fn_80149A30();
+}
+
+int Em309GhoulSimple::vf10C(HitMsg_unk* msg) {
+    if (mFlag29) {
+        return 0;
+    }
+    if (m58C == 13) {
+        if (msg->mData != 0 && msg->mData->m04 == 0x658) {
+            msg->m10 *= 0.0f;
+            msg->m0C |= 0x80;
+            return 1;
+        }
+        return 0;
+    }
+    msg->m10 *= 0.0f;
+    if (!IsDownState_unk()) {
+        msg->m0C |= 8;
+    }
+    return 1;
+}
+
+void Em309GhoulSimple::vfFC() {
+    fn_8016E970(2);
+    vf100(6);
+}
+
+// inferred: node position (name invented, as in game/Em205Ogre.cpp)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// NONMATCHING: 99.64% - r4/r5 of the copy of the neck position (__VecCopy family, documented blocker)
+void Em309GhoulSimple::vf20() {
+    m620 = m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Vector3 top = m614;
+    atn::Vector3 head;
+    int neck = mMotion.fn_80092814("neck", 0);
+    if (neck > -1) {
+        head = GetNodePos_unk(mMotion.mNodeMtx[neck]);
+    } else {
+        head = top;
+        head.y += m5B4 - 2.0f * m620;
+    }
+    float r = m620;
+    mColli.m3C = top;
+    mColli.m48 = head;
+    mColli.m54 = r;
+
+}
+
+void Em309GhoulSimple::vf54() {
+    if (m624.mSize < 2) {
+        return;
+    }
+    m624.mData[0].m04.mRadius = mColli.m54;
+    m624.mData[0].m04.mCenter = mColli.m3C;
+    m624.mData[1].m04.mRadius = 0.5f * mColli.m54;
+    m624.mData[1].m04.mCenter = mColli.m48;
+    m624.mData[1].m04.mCenter.y += 0.5f * mColli.m54;
+}
+
+atn::Vector3 Em309GhoulSimple::vf64(int center) {
+    atn::Vector3 result = mPos;
+    if (center == 0) {
+        result = mPos;
+    } else if (fn_805A49E4((SpecialFlag_unk*)&m1558) > 0 && m624.mSize >= 2) {
+        result = m624.mData[1].m04.mCenter;
+    } else {
+        result = mPos;
+    }
+    return result;
+}
+
+// NONMATCHING: 99.92% - only the offsets in the string pool (strings of functions not written yet)
+void Em309GhoulSimple::vf30(void* menu) {
+    char name[0x100];
+    sprintf(name, "Em309 GhoulLight[%d]\0", m58);
+    void* group;
+    if (m1650.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        group = m1650.mRes = fn_8008937C(menu, name);
+    } else {
+        group = 0;
+    }
+    fn_805A5220(group);
+    {
+        void* sub = fn_8008937C(group, "AttackNormal");
+        fn_800874C8(sub, "SkillID", &m14E8, 0, 999999, 1, 0, 0);
+        fn_800874C8(sub, "CoolTime", &m14F0, 0, 999999, 1, 0, 0);
+    }
+    {
+        void* sub = fn_8008937C(group, "AttackLong");
+        fn_800874C8(sub, "SkillID", &m14E8, 0, 999999, 1, 0, 0);
+        fn_800874C8(sub, "ChargeTime", &m14EC, 0, 999999, 1, 0, 0);
+        fn_800874C8(sub, "CoolTime", &m14F0, 0, 999999, 1, 0, 0);
+    }
+    {
+        void* sub = fn_8008937C(group, "AttackRolling");
+        fn_800874C8(sub, "SkillID", &m14E8, 0, 999999, 1, 0, 0);
+    }
+    fn_8008771C(group, "AttackDistance", &m14E4, 0, 0, 0.0f, 9999.0f, 1.0f);
+    fn_800874C8(group, "WaitFrame", &m1528, 0, 999, 1, 0, 0);
+    fn_800874C8(group, "SometimeAttackLong", &m1538, 0, 999, 1, 0, 0);
+}
+
+float Em309GhoulSimple::vf90() {
+    return 3.0f;
+}
+

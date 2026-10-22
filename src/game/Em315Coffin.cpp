@@ -461,7 +461,7 @@ void Em315Coffin::fn_80315FE0() {
 
 void Em315Coffin::vf30(void* menu) {
     char name[0x100];
-    sprintf(name, "Em315 Coffin[%d]", m58);
+    sprintf(name, "Em315 Coffin[%d]\0", m58);
     void* group;
     if (m165C.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
         group = m165C.mRes = fn_8008937C(menu, name);

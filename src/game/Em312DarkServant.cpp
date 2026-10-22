@@ -427,10 +427,9 @@ void Em312DarkServant::fn_80310084() {
     fn_80239DAC(lbl_8087F3C0, this, 1, 1);
 }
 
-// NONMATCHING: ~60% - the original keeps 99999 in r31 (lis/subi) and the sub-group in r28; pool offsets
 void Em312DarkServant::vf30(void* menu) {
     char name[0x100];
-    sprintf(name, "Em312 DarkServant[%d]", m58);
+    sprintf(name, "Em312 DarkServant[%d]\0", m58);
     void* group;
     if (m54.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
         group = m54.mRes = fn_8008937C(menu, name);
@@ -444,15 +443,23 @@ void Em312DarkServant::vf30(void* menu) {
     fn_800874C8(group, "BreathInterval", &m1574, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "AttackCountMax", &m1578, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "DamageCountMax", &m157C, 0, 9999, 1, 0, 0);
-    void* sub = fn_8008937C(group, "VertAttack");
-    fn_800874C8(sub, "SkillId", &m14EC[0].mSkillId, 0, 99999, 1, 0, 0);
-    fn_800874C8(sub, "CoolTime", &m14EC[0].mCoolTime, 0, 99999, 1, 0, 0);
-    sub = fn_8008937C(group, "HorzAttack");
-    fn_800874C8(sub, "SkillId", &m14EC[1].mSkillId, 0, 99999, 1, 0, 0);
-    fn_800874C8(sub, "CoolTime", &m14EC[1].mCoolTime, 0, 99999, 1, 0, 0);
-    sub = fn_8008937C(group, "AllAttack");
-    fn_800874C8(sub, "SkillId", &m14EC[2].mSkillId, 0, 99999, 1, 0, 0);
-    sub = fn_8008937C(group, "BreathAttack");
-    fn_800874C8(sub, "SkillId", &m14EC[3].mSkillId, 0, 99999, 1, 0, 0);
+    {
+        void* sub = fn_8008937C(group, "VertAttack");
+        fn_800874C8(sub, "SkillId", &m14EC[0].mSkillId, 0, 99999, 1, 0, 0);
+        fn_800874C8(sub, "CoolTime", &m14EC[0].mCoolTime, 0, 99999, 1, 0, 0);
+    }
+    {
+        void* sub = fn_8008937C(group, "HorzAttack");
+        fn_800874C8(sub, "SkillId", &m14EC[1].mSkillId, 0, 99999, 1, 0, 0);
+        fn_800874C8(sub, "CoolTime", &m14EC[1].mCoolTime, 0, 99999, 1, 0, 0);
+    }
+    {
+        void* sub = fn_8008937C(group, "AllAttack");
+        fn_800874C8(sub, "SkillId", &m14EC[2].mSkillId, 0, 99999, 1, 0, 0);
+    }
+    {
+        void* sub = fn_8008937C(group, "BreathAttack");
+        fn_800874C8(sub, "SkillId", &m14EC[3].mSkillId, 0, 99999, 1, 0, 0);
+    }
 }
 
