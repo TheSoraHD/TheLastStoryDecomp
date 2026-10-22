@@ -139,6 +139,9 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   __destroy_arr) y vf64 al 100%. symbols.txt: fn_802FCF50/F4B4 -> dtor/vf64; fn_802FCF14 ->
   `__ct__Q23atn7LH_XscaFv` (copia debil del ctor, lo usa el ctor de la unidad, sin escribir).
 
+- game/Em202Spider (0/25 -> 1/25) y game/Em202SpiderBase (0/23 -> 1/23): NUEVAS fuentes con cabeceras de
+  relleno; los dtors (0x8027CD9C, 0x80282EA4) al 100% (vectores envueltos como ChaserGuard).
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
