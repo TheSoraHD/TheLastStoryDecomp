@@ -22,6 +22,13 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+// inferred: next action of a leg chosen by the kraken {kind, argument} (Em302Kraken, without source)
+struct FootAction_unk {
+    int mKind;
+    int mArg;
+};
+extern "C" FootAction_unk* fn_802DC8B0(void* kraken);
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -151,6 +158,29 @@ int Em303KrakenFoot::vf0C() {
     return 1;
 }
 
+void Em303KrakenFoot::fn_802E2640(const char* text, int length) {
+    atn::Csv csv(text, length);
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "SwingSkillId") == 0) {
+            m14D8 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "PoundSkillId") == 0) {
+            m14DC = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "HoldDamageInterval") == 0) {
+            m14E0 = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(key, "CatchDistance") == 0) {
+            m14E4 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "YOffset") == 0) {
+            m14C8 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "BasePoint") == 0) {
+            m14E8 = lbl_8087F430->m10D8->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+        } else if (strcmp(key, "CatchNotifyFlag") == 0) {
+            m14F0 = *csv.fn_8005B9CC() == 'G';
+            m14F4 = atoi(csv.fn_8005B9CC());
+        }
+    } while (csv.fn_8005BBF8());
+}
+
 void Em303KrakenFoot::vf14() {
     fn_80149A30();
 }
@@ -167,22 +197,22 @@ void Em303KrakenFoot::vf3C(HitInfo_unk* hit) {
     vf40(hit);
 }
 
-void Em303KrakenFoot::vf54() {
-    m624.clear();
-    Item14_unk item;
-    item.m04.mRadius = m5B0;
-    item.m04.mCenter = mPos + m5A4;
-    bool up = (mStatus.mParamB.m9C & 0x40U) == 0x40U;
-    if (up) {
-
-        item.m04.mCenter.y -= item.m04.mRadius;
-    } else {
-        item.m04.mCenter.y += item.m04.mRadius;
-    }
-    m624.push_back(item);
+// inferred: CharaTask::CanAct_unk written out (names invented)
+// inferred: helpers of the state functions (names invented)
+inline void Em303KrakenFoot::SetState_unk(int state) {
+    m14B8 = 0;
+    m14BC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = state;
+    fn_8016E970(3);
+}
+inline void Em303KrakenFoot::PlayMotion_unk(int motion) {
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.1f);
 }
 
-// inferred: CharaTask::CanAct_unk written out (names invented)
 inline bool FootActive_unk(CharaTask* c) {
     bool r = false;
     if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
@@ -273,6 +303,164 @@ void Em303KrakenFoot::vf40(HitInfo_unk* hit) {
     }
 }
 
+void Em303KrakenFoot::vf54() {
+    m624.clear();
+    Item14_unk item;
+    item.m04.mRadius = m5B0;
+    item.m04.mCenter = mPos + m5A4;
+    bool up = (mStatus.mParamB.m9C & 0x40U) == 0x40U;
+    if (up) {
+
+        item.m04.mCenter.y -= item.m04.mRadius;
+    } else {
+        item.m04.mCenter.y += item.m04.mRadius;
+    }
+    m624.push_back(item);
+}
+
+// inferred: chooses the target (m14CC): the leader while he is free, else the nearest player (only when
+// m14C0 is 0)
+void Em303KrakenFoot::fn_802E3604() {
+    mC58.mC8 = (int)mC58.mC4;
+    if (m58C - 8U <= 3) {
+        m1454 = 0;
+    } else {
+        PlayerTask* leader = lbl_8087F8A0->mHead;
+        if (leader->mFlag28 && !(leader->m55C == 6 && leader->m560 == 17)) {
+            m1454 = 0;
+            m14CC = (int)leader;
+        } else if (m14C0 == 0) {
+            m1454 = 0;
+            float best = 1e16f;
+            PlayerTask* p;
+            PlayerTask* found = 0;
+            for (p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                if (p->CanAct_unk() && (p->m54C & 0x2000) != 0x2000) {
+                    atn::Vector3 d = p->mPos - mPos;
+                    float dist = fn_805F9920(&d);
+                    if (dist < best) {
+                        found = p;
+                        best = dist;
+                    }
+                }
+            }
+            m14CC = (int)found;
+        } else {
+            m1454 = 1;
+            m14CC = (int)mC58.mC4;
+        }
+    }
+    mC58.mC4 = (CharaTask*)m14CC;
+}
+
+// inferred: movement along the route; in state 11 it stops near the kraken (m1504)
+void Em303KrakenFoot::fn_802E37DC() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot = mRot;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 v = mRoute.m58;
+        speed = v.Length_unk();
+        if (speed > 0.0001f) {
+            rot = v.GetNormalized_unk().ToRotation_unk();
+        }
+        if (m58C == 11) {
+            CharaTask* kraken = (CharaTask*)m1504;
+            atn::Vector3 d = kraken->mPos - mPos;
+            d.y = 0.0f;
+            if (d.Length_unk() < 70.0f) {
+                speed = 0.0f;
+                rate = speed;
+                rot = mRot;
+            }
+        }
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_8013CB68(&rot, 0, speed, rate * m568);
+}
+
+// inferred: action state machine (m14C0): asks the kraken for the next action and starts it near the target
+void Em303KrakenFoot::fn_802E3B24() {
+    switch (m14C0) {
+    case 0: {
+        int idle = 1;
+        if (m1504 != 0) {
+            FootAction_unk* action = fn_802DC8B0((void*)m1504);
+            if (action != 0) {
+                if (action->mKind == 15) {
+                    fn_802E554C(action->mArg);
+                    m14C0 = 0;
+                } else {
+                    m14C4 = action->mKind;
+                    idle = 0;
+                    m14C0 = 1;
+                }
+            }
+        }
+        if (idle && m14BC > 30) {
+            atn::Vector3 d = *((CharaTask*)m14CC)->fn_8013C38C() - mPos;
+            d.y = 0.0f;
+            if (d.Length_unk() < 30.0f) {
+                fn_802E4D6C();
+            }
+        }
+        break;
+    }
+    case 1: {
+        CharaTask* target = (CharaTask*)m14CC;
+        if (target != 0) {
+            float dist = (*target->fn_8013C38C() - mPos).Length_unk();
+            switch (m14C4) {
+            case 12:
+                if (dist < 60.0f) {
+                    fn_802E4D6C();
+                    m14C0 = 2;
+                }
+                break;
+            case 13:
+                if (dist < 60.0f) {
+                    fn_802E500C();
+                    m14C0 = 2;
+                }
+                break;
+            case 14:
+                if (dist < 60.0f) {
+                    fn_802E52AC();
+                    m14C0 = 2;
+                }
+                break;
+            case 8:
+                if (dist < m14E4) {
+                    fn_802E3E38(m14CC);
+                    m14C0 = 2;
+                }
+                break;
+            }
+        }
+        break;
+    }
+    case 2:
+        m14C0 = 3;
+        break;
+    case 3:
+        if (m14E8 != 0) {
+            atn::Vector3 d = m14E8->mPos - mPos;
+            d.y = 0.0f;
+            if (d.Length_unk() < 5.0f) {
+                fn_802E554C(5);
+                m14C0 = 0;
+            }
+        } else {
+            fn_802E554C(5);
+            m14C0 = 0;
+        }
+        break;
+    }
+}
+
 void Em303KrakenFoot::fn_802E3D60() {
     m14B8 = 0;
     m14BC = 0;
@@ -306,6 +494,51 @@ void Em303KrakenFoot::fn_802E3E38(int arg) {
         mMotion.fn_80097C08(0, 0x13F, 0, 1, 1, 0.0f, 0.1f);
         m14CC = arg;
         m14D0 = 0;
+    }
+}
+
+void Em303KrakenFoot::fn_802E4D6C() {
+    SetState_unk(12);
+    PlayMotion_unk(0x142);
+    CharaTask* target = (CharaTask*)m14CC;
+    atn::Vector3 d;
+    float z = target->mPos.z - mPos.z;
+    d.x = target->mPos.x - mPos.x;
+    d.z = z;
+    d.y = 0.0f;
+    float y = d.ToRotationZ_unk().y;
+    if (!(mMotion.mTracks[0].m08 < 10.0f)) {
+        mRot.y = y;
+    }
+}
+
+void Em303KrakenFoot::fn_802E500C() {
+    SetState_unk(13);
+    PlayMotion_unk(0x14D);
+    CharaTask* target = (CharaTask*)m14CC;
+    atn::Vector3 d;
+    float z = target->mPos.z - mPos.z;
+    d.x = target->mPos.x - mPos.x;
+    d.z = z;
+    d.y = 0.0f;
+    float y = d.ToRotationZ_unk().y;
+    if (!(mMotion.mTracks[0].m08 < 10.0f)) {
+        mRot.y = y;
+    }
+}
+
+void Em303KrakenFoot::fn_802E52AC() {
+    SetState_unk(14);
+    PlayMotion_unk(0x145);
+    CharaTask* target = (CharaTask*)m14CC;
+    atn::Vector3 d;
+    float z = target->mPos.z - mPos.z;
+    d.x = target->mPos.x - mPos.x;
+    d.z = z;
+    d.y = 0.0f;
+    float y = d.ToRotationZ_unk().y;
+    if (!(mMotion.mTracks[0].m08 < 10.0f)) {
+        mRot.y = y;
     }
 }
 
@@ -391,25 +624,3 @@ void Em303KrakenFoot::vf24() {
     mMotion.mTracks[0].m0C = 1.0f;
 }
 
-void Em303KrakenFoot::fn_802E2640(const char* text, int length) {
-    atn::Csv csv(text, length);
-    do {
-        const char* key = csv.fn_8005B9CC();
-        if (strcmp(key, "SwingSkillId") == 0) {
-            m14D8 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
-        } else if (strcmp(key, "PoundSkillId") == 0) {
-            m14DC = fn_80219E6C(atoi(csv.fn_8005B9CC()));
-        } else if (strcmp(key, "HoldDamageInterval") == 0) {
-            m14E0 = atoi(csv.fn_8005B9CC());
-        } else if (strcmp(key, "CatchDistance") == 0) {
-            m14E4 = fn_800DC288(csv.fn_8005B9CC());
-        } else if (strcmp(key, "YOffset") == 0) {
-            m14C8 = fn_800DC288(csv.fn_8005B9CC());
-        } else if (strcmp(key, "BasePoint") == 0) {
-            m14E8 = lbl_8087F430->m10D8->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
-        } else if (strcmp(key, "CatchNotifyFlag") == 0) {
-            m14F0 = *csv.fn_8005B9CC() == 'G';
-            m14F4 = atoi(csv.fn_8005B9CC());
-        }
-    } while (csv.fn_8005BBF8());
-}

@@ -25,11 +25,20 @@ public:
     virtual void vfEC();
 
     void fn_802E2640(const char* text, int length); // inferred: reads the data file
+    void fn_802E3604(); // inferred: chooses the target
+    void fn_802E37DC(); // inferred: movement
+    void fn_802E3B24(); // inferred: action state machine (m14C0)
     void fn_802E3D60(); // inferred: starts state 7 (called by the kraken)
     void fn_802E3E38(int arg); // inferred: starts state 8 (m14CC)
+    void fn_802E4D6C(); // inferred: starts the attack of state 12 (motion 0x142)
+    void fn_802E500C(); // inferred: starts the attack of state 13 (motion 0x14D)
+    void fn_802E52AC(); // inferred: starts the attack of state 14 (motion 0x145)
     void fn_802E554C(int arg);
     void fn_802E55B0(int kind); // inferred: damage reaction (called by the kraken)
-    inline void Release_unk(); // inferred: releases the caught character (name invented)
+    inline void Release_unk();
+    inline void SetState_unk(int state);   // inferred: names invented
+    inline void PlayMotion_unk(int motion);
+    inline void FaceTarget_unk(); // inferred: releases the caught character (name invented)
 
     atn::LH_Binary m14B0;     // inferred: data file
     int m14B8;
@@ -37,7 +46,7 @@ public:
     int m14C0;
     int m14C4;
     float m14C8;
-    int m14CC;
+    int m14CC;                // inferred: target character (stored as an int by fn_802E3E38)
     CharaTask* m14D0;         // inferred: caught character (released by vf40/fn_802E55B0)
     void* m14D4;              // inferred: node "catch_point"
     HitInfo_unk* m14D8;       // inferred: "SwingSkillId"
@@ -49,7 +58,7 @@ public:
     int m14F0;                // inferred: "CatchNotifyFlag" (SpecialFlag_unk: global flag, index)
     int m14F4;
     atn::EfpHandle_unk m14F8; // inferred: "/effect/ef_bd006.efp"
-    int m1504;                // inferred: set by the kraken (fn_802E2468)
+    int m1504;                // inferred: the kraken (CharaTask*, set by fn_802E2468)
     ResHandle m1508;          // inferred: debug menu group
     int m150C;                // inferred: "DebugDisp"
 };
