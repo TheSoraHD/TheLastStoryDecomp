@@ -1834,6 +1834,13 @@
   "matching": false
  },
  {
+  "name": "game/EnemyTasha.cpp",
+  "classes": [
+   "EnemyTasha"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/EnemyTrista.cpp",
   "classes": [
    "EnemyTrista"

@@ -42,6 +42,7 @@
 #include "game/EnemyLizerdBlade.h"
 #include "game/EnemyQuarkFirst.h"
 #include "game/EnemySeaLizerd.h"
+#include "game/EnemyTasha.h"
 #include "game/EnemyTrista.h"
 #include "game/LastCocoonChrysalis.h"
 #include "game/Np131LivingArmor.h"
@@ -603,7 +604,6 @@ extern "C" void* fn_8030A144(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_803161F8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_803388A4(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80345384(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_803559F8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80452F14(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80458270(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8045FAB0(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -895,11 +895,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 64:
-            p = ::operator new(0x16c8, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_803559F8(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) EnemyTasha(parent, info);
             break;
         case 8:
             enemy = new (3, "", "", 0) Em101ElderZesyaSecond(parent, info);
