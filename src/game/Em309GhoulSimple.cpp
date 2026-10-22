@@ -44,15 +44,12 @@ inline bool Em309GhoulSimple::IsDownState_unk() {
     return ok;
 }
 
-// NONMATCHING: ~85% - the loop of the GhoulPair_unk constructors starts at the first element in the
-// original (ours peels it) and the zero of m15BC/m1648-m1654 is kept in r30
 Em309GhoulSimple::Em309GhoulSimple(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D8(0.0f, 0.0f, 0.0f), m14E4(40.0f), m14E8(0), m14EC(0), m14F0(0),
       m14F4(0), m14F8(0), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m1510(0), m1514(0), m1518(0),
       m151C(0), m1520(0), m1524(0), m1528(90), m1538(10), m153C(3.0f), m1540(0.0f), m1544(0.0f), m1548(0.0f),
-      m154C(0.0f), m1550(0.0f), m1554(0.0f), m1570(0), m1574(0), m15B8(-1.0f), m1648(0),
+      m154C(0.0f), m1550(0.0f), m1554(0.0f), m1570(0), m15B8(-1.0f), m1648(0),
       m164C(0), m1654(0) {
-    m15BC.mStr[0] = '\0';
     char name[0x100];
     char path[0x100];
     if (fn_805A3D68(name, info->m2C)) {
@@ -84,7 +81,7 @@ int Em309GhoulSimple::vf0C() {
             return 0;
         }
         fn_80306078((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
-        if (m15B8 > 0.0f && m1574 != 0) {
+        if (m15B8 > 0.0f && m1574.mCount != 0) {
             m163C.fn_8023780C(m15BC.mStr);
         }
         m164C++;
@@ -105,7 +102,7 @@ int Em309GhoulSimple::vf0C() {
             m1438->fn_800D246C(0);
             m1438->mFlags |= 4;
         }
-        if (m15B8 > 0.0f && m1574 != 0) {
+        if (m15B8 > 0.0f && m1574.mCount != 0) {
             m1648 = 1;
         }
         mStatus.m18 |= 0x1C0;
@@ -153,12 +150,11 @@ void Em309GhoulSimple::fn_80306078(const char* text, int length) {
                 if (id == 0) {
                     break;
                 }
-                new (&m1578[m1574]) GhoulPair_unk(id, 0);
-                m1574++;
+                m1574.PushBack_unk(GhoulPair_unk(id, 0));
             }
         } else if (strcmp(key, "SummonWarpPoint") == 0) {
-            GhoulPair_unk* p = m1578;
-            for (unsigned int i = 0; i < m1574; p++, i++) {
+            GhoulPair_unk* p = m1574.mData;
+            for (unsigned int i = 0; i < m1574.mCount; p++, i++) {
                 p->m04 = atoi(csv.fn_8005B9CC());
             }
         } else if (strcmp(key, "SummonNotifyFlag") == 0) {

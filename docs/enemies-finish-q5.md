@@ -64,6 +64,9 @@ game/Em315Coffin.
   Las 20 restantes son grandes (0.5-4.6 KB).
   - Segunda vuelta (11/33): vf40 (0x802FE3E4, dano acumulado y muerte con dos motions, inline `Die_unk`) al 100%;
     vf54 (0x802FF2E4, tres esferas de dano en "spine1") 93.27% (r6/r7 de los temporales de suma).
+- `game/Em309GhoulSimple` (segunda vuelta, 10/22): ctor al 100% con `GhoulStr_unk()` que pone `mStr[0] = 0`
+  y la lista de invocacion 0x1574/0x1578 como `FixedArray_unk<GhoulPair_unk, 8>` (CharaStatus.h); el lector
+  del CSV usa `PushBack_unk` y sigue al 100%.
 - Pools de cadenas renombrados a `@stringBase0` en Em309Ghoul (0x80748A14), Em309GhoulSimple (0x80748DC0),
   Em310Gargoyle (0x80748FE8) y Em315Coffin (0x80749390): sin cambio en el recuento, pero las llamadas con
   cadenas ya comparan el nombre real.
@@ -92,6 +95,8 @@ game/Em315Coffin.
   m16F8); solo la usa Em309Ghoul.cpp.
 - symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
   (scope:local).
+- include/game/Em309GhoulSimple.h: m1574/m1578 pasan a `FixedArray_unk<GhoulPair_unk, 8> m1574` y GhoulStr_unk
+  recibe un constructor (solo la usan Em309GhoulSimple.cpp y la factoria).
 - include/game/Em312DarkServant.h: `ServantAttack_unk` recibe un constructor inline a cero (la usa tambien
   Em006DarkMaster.cpp; regress/fuzzdrop 0).
 - include/game/Em314Ivy.h: m14D4/m14D8/m14DC pasan a un struct `Rot_unk` (nombre inventado); m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las

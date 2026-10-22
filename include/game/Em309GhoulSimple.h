@@ -7,6 +7,7 @@
 
 // inferred: fixed string of 0x80 bytes, assigned inline (strlen + memcpy); name invented
 struct GhoulStr_unk {
+    GhoulStr_unk() { mStr[0] = '\0'; }
     GhoulStr_unk& operator=(const char* str);
     char mStr[0x80];
 };
@@ -83,8 +84,8 @@ public:
     GhoulFlag_unk m1560;       // inferred: "HeadAttackNotifyFlag"
     GhoulFlag_unk m1568;       // inferred: "SummonNotifyFlag"
     int m1570;
-    unsigned int m1574;        // inferred: count of m1578
-    GhoulPair_unk m1578[8];    // inferred: "SummonEnemy" (id) and "SummonWarpPoint" per enemy
+    // inferred: "SummonEnemy" (id) and "SummonWarpPoint" per enemy
+    FixedArray_unk<GhoulPair_unk, 8> m1574;
     float m15B8;               // inferred: "SummonHp"
     GhoulStr_unk m15BC;        // inferred: "SummonEfp"
     atn::EfpHandle_unk m163C;  // inferred: effect of the summon
