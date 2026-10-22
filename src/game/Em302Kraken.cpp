@@ -796,8 +796,8 @@ inline atn::Vector3 TransformVec_unk(const Mtx m, const atn::Vector3& v) {
 }
 
 // inferred: four points around the head (the places the party can climb to), rotated with the kraken
-// NONMATCHING: 96.4% - the original stores z of the sum temporary after the paired copy to out[i] and
-// reloads mRot.y for the last rotation only; 6 variants
+// inferred: the rotation is read into a local before each block (the original loads it before the store
+// of the previous sum)
 void Em302Kraken::vfCC(atn::Vector3* out, const atn::Vector3& dir) {
     Mtx m0;
     Mtx m1;
@@ -807,11 +807,14 @@ void Em302Kraken::vfCC(atn::Vector3* out, const atn::Vector3& dir) {
     float ry = mRot.y;
     PSMTXRotRad(m0, 'y', ry);
     out[0] = base + TransformVec_unk(m0, atn::Vector3(16.0f, 15.0f, 16.0f));
-    PSMTXRotRad(m1, 'y', mRot.y);
+    float ry1 = mRot.y;
+    PSMTXRotRad(m1, 'y', ry1);
     out[1] = base + TransformVec_unk(m1, atn::Vector3(-12.0f, 15.0f, 12.0f));
-    PSMTXRotRad(m2, 'y', mRot.y);
+    float ry2 = mRot.y;
+    PSMTXRotRad(m2, 'y', ry2);
     out[2] = base + TransformVec_unk(m2, atn::Vector3(20.0f, 15.0f, 12.0f));
-    PSMTXRotRad(m3, 'y', mRot.y);
+    float ry3 = mRot.y;
+    PSMTXRotRad(m3, 'y', ry3);
     out[3] = base + TransformVec_unk(m3, atn::Vector3(-16.0f, 15.0f, 16.0f));
 }
 
