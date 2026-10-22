@@ -495,5 +495,5 @@ void Em201ZanGurg::fn_DebugMenu_unk() {
     void* group = m1704.Load("em305");
     fn_80087994(group, "DebugDisp", &m1708, 0, 0);
     fn_80087994(group, "WaitTime", &m16E0, 0, 0);
-    fn_80087994(group, "AttackFrequcy", &m16E4, 0, 0);
+    fn_80087994(group, "AttackFrequicy", &m16E4, 0, 0);
 }
