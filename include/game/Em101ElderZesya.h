@@ -66,6 +66,7 @@ public:
     void fn_802598DC(); // inferred: picks the chant point // inferred: changes the state of a barrier
     void fn_8025941C(); // inferred: warps next to the current barrier (state 13)
     inline void GetWarp_unk(atn::Vector3* pos, float* rot);
+    void fn_80258F1C(); // inferred: state 12 (casts the magic at frame 62)
 
     int m14B0;                          // inferred: loading state (0, 1 collision objects, 2 ready)
     atn::LH_Binary m14B4;               // inferred: data file
@@ -82,7 +83,8 @@ public:
     int m1500;
     unsigned char m1504[0x1510 - 0x1504];
     int m1510;
-    unsigned char m1514[0x151C - 0x1514];
+    HitInfo_unk* m1514;
+    HitInfo_unk* m1518; // inferred: magic cast by state 12
     Barrier_unk m151C[4];               // 0x151C
     int m15EC;
     int m15F0;
@@ -100,7 +102,7 @@ public:
     int m1660;
     int m1664;
     atn::Vector3 m1668;
-    atn::Vector3 m1674;
+    atn::Vector3 m1674;       // inferred: position of the magic
     int m1680;                // inferred: current barrier (index into m151C)
     atn::Vector3 m1684;
     float m1690;

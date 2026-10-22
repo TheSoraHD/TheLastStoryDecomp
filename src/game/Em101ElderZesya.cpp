@@ -4,6 +4,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
+#include "chr/ControlBase.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
@@ -67,8 +68,10 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 struct Color4f_unk {
     Color4f_unk() {}
+    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
@@ -92,6 +95,13 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
+
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
+// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
+extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
@@ -276,6 +286,43 @@ inline void Em101ElderZesya::GetWarp_unk(atn::Vector3* pos, float* rot) {
     if (desc != 0) {
         *pos = desc->mPos;
         *rot = desc->mRotY_unk;
+    }
+}
+
+// NONMATCHING: 99.99% - only the offset of "SE_SP016_001_2" in @stringBase0 (strings of the unwritten
+// functions before it are missing)
+void Em101ElderZesya::fn_80258F1C() {
+    m638 = m1518;
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+        mFB8 = 0.0f;
+        m58C = 6;
+        m14C8 = 0;
+        void* p = ::operator new(0x34, 0, "", "", 0);
+        chr::ControlBase* c = (chr::ControlBase*)p;
+        if (p != 0) {
+            c = fn_801C02F4(p, this);
+        }
+        fn_80178208(c);
+        return;
+    }
+    if ((float)__fabs(mMotion.mTracks[0].m08 - 12.0f) < 1.1920929e-7f) {
+        m1674 = mC58.mC4->mPos;
+        atn::Vector3 from = m1674 + atn::Vector3(0.0f, 1.0f, 0.0f);
+        atn::Vector3 to = m1674 + atn::Vector3(0.0f, -100.0f, 0.0f);
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
+            m1674 = result.m10;
+        }
+        m1674 += atn::Vector3(0.0f, 0.0f, 1.0f);
+        fn_80232B7C(this, 1000);
+        fn_8023A8B4(lbl_8087F3C0, &m1604, 0, 0, m1674, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+        fn_800C31F4("SE_SP016_001_2", 0, -1, 1.0f);
+    } else if ((float)__fabs(mMotion.mTracks[0].m08 - 62.0f) < 1.1920929e-7f) {
+        fn_80232B7C(this, 1000);
+        fn_8023A8B4(lbl_8087F3C0, &m1610, 0, 0, m1674, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+        fn_800FAB80(lbl_8087F048, this, m638, m590, &m1674, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 
