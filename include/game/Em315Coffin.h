@@ -117,6 +117,7 @@ public:
 
     void fn_80313AAC(const char* text, int length); // inferred: reads the data file
     void fn_80315654(); // inferred: updates the collision capsule
+    void fn_80315964(); // inferred: starts the ray attack
     void fn_80315FE0(); // inferred: stops the effect of the coffin
 
     CharaRes_unk m14D4;       // inferred: own copy of the character resource (m64 points to it)
@@ -131,7 +132,7 @@ public:
     CoffinSkill_unk m15E8;    // inferred: "ShadeRaySkillId" / "ShadeRayIntervalFrame"
     atn::Vector3 m15F8;       // inferred: position of the target when the drain starts
     atn::Vector3 m1604;
-    unsigned char m1610[0x161C - 0x1610];
+    atn::Vector3 m1610;       // inferred: position when the drain starts
     CharaTask* m161C;         // inferred: target of the drain
     atn::EfpHandle_unk m1620; // inferred: "/effect/ef_cm007.efp"
     int m162C;

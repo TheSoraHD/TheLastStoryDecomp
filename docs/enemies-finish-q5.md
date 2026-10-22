@@ -18,6 +18,11 @@ game/Em315Coffin.
   - ctor al 100% (13/21): tipos de los huecos de `CharaRes_unk` segun la copia (pares de palabras = struct
     `CharaResPair_unk` de dos int, floats donde hay lfs/stfs), sin `m64 = &m14D4` en el ctor (lo hace vf10) y
     el bit es mFlagB12 (0x1000 de 0x12A8), no mFlagB19.
+  - vf108 (0x80314BD8, 2.6 KB: movimiento por estados, drenaje con rayo de colision, ataque y muerte) al 100%
+    (18/21) siguiendo el modo 4 de CharaTask (rodear al objetivo con fn_80109950); con ella pasan al 100% las
+    copias debiles que llama: `CoffinSkill_unk::Reset_unk` (0x803140B4), fn_80315644 (puntero a la capsula,
+    como en gmk/Cannonball.cpp) y fn_8031564C (`mgr->mC4 = on`), y vfA0. Claves: `CollResult_unk` de 0x50
+    bytes, `(frame - 35.0f) / 4.0f` (no `* 0.25f`), `!(fabs(...) < eps)`, `k = fn_802F0988(); step = k * rate`.
   - vf104 (0x80314384, maquina de estados) escrita: 99.81%. Queda la numeracion de FPR del inicio/actualizacion
     inline del fundido `CoffinFade_unk` (0x1638: tiempo, duracion, velocidad, activo, desde, hasta, valor, delta);
     ~16 variantes. Claves que si ayudaron: `ColorF_unk(GXColor)` como en GimmickCommon, `FadeTo_unk` que lee
@@ -82,7 +87,9 @@ game/Em315Coffin.
 
 - symbols.txt (renombrados): fn_80313E44 -> `vf10__11Em315CoffinFv`, fn_80313FC8 ->
   `vf10C__11Em315CoffinFP10HitMsg_unk`, fn_80313FE8 -> `vf40__11Em315CoffinFP11HitInfo_unk`, fn_80314130 ->
-  `vf100__11Em315CoffinFi`, fn_80314384 -> `vf104__11Em315CoffinFv`, fn_80315654 -> `fn_80315654__11Em315CoffinFv`. Ningun otro .cpp los usaba.
+  `vf100__11Em315CoffinFi`, fn_80314BD8 -> `vf108__11Em315CoffinFv`, fn_803140B4 ->
+  `Reset_unk__15CoffinSkill_unkFv`, fn_80315964 -> `fn_80315964__11Em315CoffinFv` (declarada, sin escribir),
+  fn_80314384 -> `vf104__11Em315CoffinFv`, fn_80315654 -> `fn_80315654__11Em315CoffinFv`. Ningun otro .cpp los usaba.
 - symbols.txt (renombrados): fn_80310C64 -> `fn_80310C64__8Em314IvyFPCci`, fn_80312EF8 ->
   `fn_80312EF8__8Em314IvyFv`, fn_8031319C -> `fn_8031319C__8Em314IvyFP9CharaTask`, fn_803132D0 ->
   `fn_803132D0__8Em314IvyFv`. Ningun otro .cpp los usaba.

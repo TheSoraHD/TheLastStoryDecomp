@@ -21,6 +21,44 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+// inferred: game settings (as in game/CharaTask.cpp); names invented
+struct CoffinBlock454_unk {
+    int m00; // inferred: enabled
+    unsigned char m04[0x18 - 0x04];
+    float m18;
+};
+struct Settings_unk {
+    CoffinBlock454_unk* fn_8013C434();
+};
+extern "C" Settings_unk* fn_800F52F8();
+// inferred: effect manager methods (as in game/CharaTask.cpp)
+struct Effect_unk {
+    atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
+};
+Effect_unk* fn_8013A194();
+extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
+extern "C" int fn_80267B20(CharaTask* chara); // inferred: returns m55C
+extern "C" int fn_80267B28(CharaTask* chara); // inferred: returns m560
+extern "C" void* fn_802F0990(); // inferred: returns lbl_8087EFA8
+extern "C" float fn_802F0988(void* p); // inferred: returns +0x3A4
+extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
+extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int arg, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int a, int b, int c, float scale);
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11);
+void* fn_801404F8();
+// inferred: result of the collision ray test (as in game/CharaTask.cpp)
+struct CollResult_unk {
+    CollResult_unk(); // 0x80140500
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    unsigned char m10[0x40];
+};
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 // inferred: color as four floats (as ColorF_unk in game/Em305VampireMp.cpp)
@@ -409,6 +447,238 @@ inline void CoffinRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
         PSMTXRotRad(r, 'x', rot.x);
         PSMTXConcat(m.m, r, t);
         __MtxCopy(m.m, t);
+    }
+}
+
+// inferred: segment and radius of a capsule (as in gmk/Cannonball.cpp)
+struct CoffinCapsule_unk {
+    atn::Vector3 m00;
+    atn::Vector3 m0C;
+    float m18; // inferred: radius
+};
+extern "C" inline CoffinCapsule_unk* fn_80315644(atn::ColliCapsule* colli) {
+    return (CoffinCapsule_unk*)&colli->m3C;
+}
+// inferred: sets the owner of the next effects (weak copy; name keeps the address)
+extern "C" inline void fn_8031564C(EffectMgr_unk* mgr, int on) {
+    *(int*)((char*)mgr + 0xC4) = on;
+}
+
+void Em315Coffin::vf108() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot = mRot;
+    int follow = 0;
+    if (m55C == 2) {
+        switch (m58C) {
+        case 6:
+            mFlag31 = 1;
+            break;
+        case 7: {
+            mC58.m0C.fn_80126214();
+            atn::Vector3 dir(*mC58.m0C.fn_80139F58());
+            speed = dir.Length_unk();
+            if (speed > 0.0001f) {
+                rot = dir.GetNormalized_unk().ToRotation_unk();
+            }
+            if (mC58.m0C.fn_8013C3F4()) {
+                mFlag31 = 1;
+            }
+            break;
+        }
+        case 8:
+            if (mC58.mC4 != 0) {
+                follow = 1;
+                atn::Vector3 dir = *mC58.mC4->fn_8013C38C() - mPos;
+                speed = dir.Length_unk();
+                if (speed < 0.0001f) {
+                    speed = 0.0f;
+                    rot = mRot;
+                    break;
+                }
+                dir.Normalize_unk();
+                if (speed < 0.8f * m64->m30) {
+                    if (speed < 20.0f) {
+                        speed = 1.0f;
+                    } else {
+                        speed = 0.5f;
+                    }
+                    rot = (-dir).ToRotation_unk();
+                    break;
+                }
+                if (speed > 1.2f * m64->m30) {
+                    speed = 1.0f;
+                    rot = dir.ToRotation_unk();
+                    break;
+                }
+                if (fn_800F52F8()->fn_8013C434()->m00 != 0) {
+                    atn::Vector3 pos = fn_8013A194()->fn_80109950(this);
+                    atn::Vector3 dir2 = pos - mPos;
+                    speed = dir2.Length_unk();
+                    if (speed > 0.0f) {
+                        dir2.Normalize_unk();
+                    }
+                    if (speed < 3.0f) {
+                        if (speed > 0.0f) {
+                            rot = dir2.ToRotation_unk();
+                        } else {
+                            rot = mRot;
+                        }
+                        speed = 0.0f;
+                    } else if (speed > 10.0f) {
+                        if (atn::Vector3::fn_8013C394(dir, dir2).y >= 0.0f) {
+                            rot = atn::Vector3::fn_8013C394(atn::Vector3(0.0f, 1.0f, 0.0f), dir).ToRotation_unk();
+                        } else {
+                            rot = atn::Vector3::fn_8013C394(dir, atn::Vector3(0.0f, 1.0f, 0.0f)).ToRotation_unk();
+                        }
+                    } else {
+                        rot = dir2.ToRotation_unk();
+                    }
+                    rate = fn_800F52F8()->fn_8013C434()->m18;
+                } else {
+                    speed = 0.0f;
+                    rot = dir.ToRotation_unk();
+                }
+            }
+            break;
+        case 9: {
+            mMotion.fn_80139F3C(0, GetStatus_unk()->fn_8012DB04());
+            float frame = mMotion.fn_80139550(0);
+            if (m14BC == 0) {
+                atn::Vector3 hips = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+                m15F8 = *m161C->fn_8013C38C() - fn_8014052C() * 10.0f;
+                CollResult_unk result;
+                atn::Vector3 from = m15F8;
+                from.y += 1.0f;
+                atn::Vector3 to = from;
+                to.y -= 20.0f;
+                if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0)) {
+                    m15F8.y = result.m04.y;
+                }
+                if (m15F8.y - mPos.y >= 35.0f) {
+                    mFlag31 = 1;
+                    return;
+                }
+                atn::Vector3 d = m15F8 - hips;
+                m1604 = d.ToRotation_unk();
+                m1604.x -= 1.5707964f;
+                float rate2 = GetStatus_unk()->fn_8012DB04();
+                float k = fn_802F0988(fn_802F0990());
+                float step = k * rate2;
+                mPos.y += step;
+                mRot.y = m1604.y;
+                mRot.x += step * (atn::WrapAngle_unk(m1604.x - mRot.x) * 0.15f);
+                if (frame >= 25.0f) {
+                    m1610 = mPos;
+                    m14BC++;
+                }
+                return;
+            } else if (m14BC == 1) {
+                if (frame >= 36.0f) {
+                    float t = (frame - 35.0f) / 4.0f;
+                    mPos = atn::Lerp_unk(m1610, m15F8, 1.0f < t ? 1.0f : t);
+                }
+                if (frame >= 39.0f) {
+                    HitInfo_unk* bullet;
+                    CoffinCapsule_unk* capsule = fn_80315644(&mColli);
+                    bullet = fn_80219E6C(m15D8.mId);
+                    fn_800FAB80(fn_8013A194(), this, bullet, m14C8, (atn::Vector3*)capsule, &lbl_807C7030, 0,
+                                30, -1, -1, 0.0f, 1.0f);
+                    m14BC++;
+                }
+                if (mMotion.fn_80139F2C(0) != 0x142) {
+                    mFlag31 = 1;
+                }
+                return;
+            } else {
+                if (frame >= 43.0f) {
+                    mMotion.fn_80139F3C(0, 1.0f);
+                } else if (frame >= 39.999f) {
+                    mMotion.fn_80139F3C(0, 0.1f);
+                }
+                if (frame >= mMotion.fn_80097D7C(0) || mMotion.fn_80139F2C(0) != 0x142) {
+                    mFlag31 = 1;
+                }
+                return;
+            }
+        }
+        case 10: {
+            if (mC58.mC4 == 0) {
+                break;
+            }
+            atn::Vector3 dir = *mC58.mC4->fn_8013C38C() - mPos;
+            if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
+                dir.Normalize_unk();
+            }
+            rot = dir.ToRotation_unk();
+            float frame = mMotion.fn_80139550(0);
+            if (m14BC == 0) {
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    m14C0 = 0;
+                    m14BC++;
+                    mMotion.fn_80097C08(0, 0x146, 1, 1, 1, 0.0f, 3.6651914f);
+                    fn_80315964();
+                }
+            } else if (m14BC == 1) {
+                int state = fn_80267B20(mC58.mC4);
+                int sub = fn_80267B28(mC58.mC4);
+                if (m14C0 >= m15B8 || state != 6 || sub != 0x7A) {
+                    m14C0 = 0;
+                    m14BC++;
+                    mMotion.fn_80097C08(0, 0x147, 0, 1, 1, 0.0f, 3.6651914f);
+                    m15E8.Reset_unk();
+                    m15C8.Reset_unk();
+                    fn_80315FE0();
+                    fn_80239DAC(fn_800F7FA0(), this, 0, 1);
+                }
+            } else if (frame >= mMotion.fn_80097D7C(0)) {
+                mFlag31 = 1;
+                mC58.mC4->fn_8016F5EC(this);
+            }
+            break;
+        }
+        case 11: {
+            mC58.m0C.fn_80126214();
+            atn::Vector3 dir(*mC58.m0C.fn_80139F58());
+            speed = dir.Length_unk();
+            if (speed > 0.0001f) {
+                rot = dir.GetNormalized_unk().ToRotation_unk();
+            }
+            if (mC58.m0C.fn_8013C3F4()) {
+                mFlag31 = 1;
+            }
+            break;
+        }
+        case 12:
+            return;
+        case 13: {
+            float frame = mMotion.fn_80139550(0);
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                mFlag31 = 1;
+            }
+            break;
+        }
+        case 2: {
+            float frame = mMotion.fn_80139550(0);
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                fn_8031564C(fn_800F7FA0(), 1);
+                fn_800F7FA8(fn_800F7FA0(), 0, 0);
+                fn_80276AE4(fn_800F7FA0(), &m1620, 0, &mPos, &mRot, -1, -1, 1, 3.0f);
+                fn_8031564C(fn_800F7FA0(), 0);
+                fn_800C344C("SE_BTCOM_023", &mPos, 0, -1, 1.0f);
+                mFlag31 = 1;
+            }
+            break;
+        }
+        }
+    } else {
+        fn_805A4254();
+        return;
+    }
+    if (follow && fn_8013C478()) {
+        fn_80140588(&rot, speed, m568 * rate);
+    } else {
+        fn_8013CB68(&rot, 0, speed, m568 * rate);
     }
 }
 
