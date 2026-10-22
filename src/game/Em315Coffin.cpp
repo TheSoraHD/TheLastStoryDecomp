@@ -42,8 +42,6 @@ struct ColorF_unk {
 static float sZero_unk = 0.0f;
 static float sOne_unk = 1.0f;
 
-// NONMATCHING: ~81% - the struct copy of the character resource is done in pairs of words in the original
-// (lwz/lwz/stw/stw) and the statics of .sdata are read in another order
 Em315Coffin::Em315Coffin(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m15B8(90), m162C(-1), m1630(0), m1634(0), m1638(sZero_unk, sZero_unk) {
     char name[0x100];
@@ -57,7 +55,6 @@ Em315Coffin::Em315Coffin(atn::Task* parent, EnemyInfo_unk* info)
     m14B4.vf0C(path);
     mStatus.mParamB.m9C |= 0x10;
     m14D4 = *fn_80204E04(mType, 1);
-    m64 = &m14D4;
     m1564.fn_8023780C("/effect/ef_bs023a.efp");
     m1570.fn_80237654("/effect/ef_bs023b.eff");
     m157C.fn_8023780C("/effect/ef_bs023d.efp");
@@ -68,7 +65,7 @@ Em315Coffin::Em315Coffin(atn::Task* parent, EnemyInfo_unk* info)
     m15D8.mInterval = 180;
     m15E8.mId = 0x548;
     m15E8.mInterval = 90;
-    mFlagB19 = 1;
+    mFlagB12 = 1;
 }
 
 Em315Coffin::~Em315Coffin() {}

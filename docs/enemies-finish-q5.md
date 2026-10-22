@@ -15,6 +15,9 @@ game/Em315Coffin.
     desde GXColor): las palabras 0x43300000 salen fuera del bucle como en el original. El ctor sube a 81.6% con un
     constructor de `CoffinFade_unk`; queda la copia del CharaRes_unk por pares de palabras (depende del layout de
     `CharaRes_unk` en la cabecera compartida CharaTask.h, no tocada).
+  - ctor al 100% (13/21): tipos de los huecos de `CharaRes_unk` segun la copia (pares de palabras = struct
+    `CharaResPair_unk` de dos int, floats donde hay lfs/stfs), sin `m64 = &m14D4` en el ctor (lo hace vf10) y
+    el bit es mFlagB12 (0x1000 de 0x12A8), no mFlagB19.
   - vf104 (0x80314384, maquina de estados) escrita: 99.81%. Queda la numeracion de FPR del inicio/actualizacion
     inline del fundido `CoffinFade_unk` (0x1638: tiempo, duracion, velocidad, activo, desde, hasta, valor, delta);
     ~16 variantes. Claves que si ayudaron: `ColorF_unk(GXColor)` como en GimmickCommon, `FadeTo_unk` que lee
@@ -97,6 +100,10 @@ game/Em315Coffin.
   (scope:local).
 - include/game/Em309GhoulSimple.h: m1574/m1578 pasan a `FixedArray_unk<GhoulPair_unk, 8> m1574` y GhoulStr_unk
   recibe un constructor (solo la usan Em309GhoulSimple.cpp y la factoria).
+- **CABECERA COMPARTIDA include/game/CharaTask.h**: `CharaRes_unk` (0x90 bytes) cambia sus rellenos
+  `m08[0x28]` y `m58[0x30]` por miembros tipados (`CharaResPair_unk m08_unk[4]`, floats m28/m2C, ints m3C-m48,
+  floats m4C-m60, `CharaResPair_unk m64_unk[4]`, int m84) y se anade `CharaResPair_unk`; mismos offsets y
+  tamano. Build completo (137 objetos) con regress/fuzzdrop 0.
 - include/game/Em312DarkServant.h: `ServantAttack_unk` recibe un constructor inline a cero (la usa tambien
   Em006DarkMaster.cpp; regress/fuzzdrop 0).
 - include/game/Em314Ivy.h: m14D4/m14D8/m14DC pasan a un struct `Rot_unk` (nombre inventado); m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
