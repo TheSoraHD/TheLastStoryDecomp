@@ -83,6 +83,14 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
     Em312DarkServant (fn_8030E490/4AC/530 siguen `extern "C"`).
   - SpecialEnemyBase.cpp: factoria con `new (3, "", "", 0) Em312DarkServant(...)`.
 
+- game/Em306GurgBeast (0/22 -> 8/22, NUEVA fuente + cabecera): al 100% ctor, dtor, vf0C, lector del CSV
+  (0x802EE9A8, lista "HomePoint" como FixedArray_unk<RoutePlace_unk*, 8>), vf14, vf10C (reenvia el golpe al
+  jinete con `vf3C(hit, 1)`), vf40, vfFC. vf30 ~99.9% (pool: faltan cadenas). Pendientes: vf10/vf100/vf104/vf108
+  y las copias debiles fn_802F0964/0988/0990/0998 (las usan FlamingArrow, Cannonball, NewCampTask).
+  - Decision sin el usuario: la llamada al jinete usa una vista local `Rider_unk` con vf3C de dos argumentos
+    (CharaTask::vf3C de la cabecera compartida tiene uno; no se toca).
+  - symbols.txt: fn_802EE604/E7B8/E838/E9A8/EFE0/F01C/F0FC/F124/802F1490 -> nombres de Em306GurgBeast.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
