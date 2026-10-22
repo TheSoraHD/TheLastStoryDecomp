@@ -235,6 +235,8 @@ extern "C" inline FriendManager* fn_80323C2C() {
 // copy of another unit (0x801125F8), so its constant is not in this pool. Declared with its mangled name
 extern "C" float DegToRad_unk__3atnFf(float deg);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+// inferred: Matrix3x4 assignment out of line (weak copy of atn/Model.cpp, 0x8008CD1C)
+extern "C" void fn_8008CD1C(atn::Matrix3x4* dst, const atn::Matrix3x4* src);
 extern "C" int rand();
 // inferred: translation matrix by value (name invented)
 inline atn::Matrix3x4 TransMtx_unk(float x, float y, float z) {
@@ -245,14 +247,18 @@ inline atn::Matrix3x4 TransMtx_unk(float x, float y, float z) {
     return m;
 }
 
-// NONMATCHING: draft
+// inferred: over the inline budget: the helpers are called out of line (weak copies emitted after it)
 void Em403WarLion::vf10() {
     m14C8++;
     m14BC = mC58.mC4;
     atn::Vector3 pos(mPos);
     atn::Vector3 rot(mRot);
     int raging = IsRaging_unk();
-    if (!HasTarget_unk()) {
+    bool target = true;
+    if (mC58.mC0 == 0 || mC58.mC4 == 0) {
+        target = false;
+    }
+    if (!target) {
         fn_8016E970(3);
         fn_802657FC(this, 6);
     } else {
@@ -263,7 +269,8 @@ void Em403WarLion::vf10() {
             if (fn_80329ED8(&count, &v, &angle)) {
                 if (++m14D0 >= 8) {
                     m14DC = fn_8032A650(&m14FC, 0, 1);
-                    m14E8 = (fn_8032A894(m14FC, 0) - m14DC).ToRotation_unk();
+                    atn::Vector3 next = fn_8032A894(m14FC, 0);
+                    m14E8 = (next - m14DC).ToRotation_unk();
                     m14CC = 1;
                     m14F8 = rand() % 3 + 4;
                     fn_8032C3CC(&m14F8, m14FC);
@@ -382,7 +389,7 @@ void Em403WarLion::vf10() {
     if (raging != 0 && !IsRaging_unk()) {
         m15D4 = 1;
     }
-    m159C = TransMtx_unk(0.0f, 0.0f, 10.0f);
+    fn_8008CD1C(&m159C, &TransMtx_unk(0.0f, 0.0f, 10.0f));
     m159C.fn_80149624(3.1415927f);
     m159C.fn_801495E8(*fn_80266154(&mMotion));
 }

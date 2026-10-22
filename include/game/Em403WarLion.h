@@ -123,8 +123,6 @@ public:
 
     // inferred: nonzero while the counter m15EC runs (weak copy 0x80323C18)
     int IsRaging_unk() { return m15EC > 0; }
-    // inferred: name invented
-    bool HasTarget_unk() { return mC58.mC0 != 0 && mC58.mC4 != 0; }
 
     inline void SetState_unk(int state);
     void fn_803241E8();

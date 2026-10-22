@@ -6987,7 +6987,7 @@ manage__Q45boost6detail8function248functor_manager<Q35boost3_bi173bind_t<v,Q35bo
 vf10__12Em403WarLionFv = .text:0x80323690; // type:function size:0x588
 IsRaging_unk__12Em403WarLionFv = .text:0x80323C18; // type:function size:0x14
 fn_80323C2C = .text:0x80323C2C; // type:function size:0x8
-fn_80323C34 = .text:0x80323C34; // type:function size:0x38
+TransMtx_unk__Ffff = .text:0x80323C34; // type:function size:0x38
 vf14__12Em403WarLionFv = .text:0x80323C6C; // type:function size:0x70
 vf3C__12Em403WarLionFP11HitInfo_unk = .text:0x80323CDC; // type:function size:0x174
 vf40__12Em403WarLionFP11HitInfo_unk = .text:0x80323E50; // type:function size:0x33C
