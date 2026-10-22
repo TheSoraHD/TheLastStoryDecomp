@@ -258,9 +258,9 @@ extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-// inferred: plays `efp` on `model` (weak copy 0x8026607C of game/Em201ZanGurgFinal.cpp; its body is
-// defined after fn_8023A8B4 below)
-extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg);
+// inferred: plays `efp` on `model` (weak copy 0x8026607C of game/Em201ZanGurgFinal.cpp; declared without
+// a body: its constants are in the pool of that unit, not in this one)
+extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg);
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int id, int arg);
 extern "C" void fn_8023A254(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int arg, float rate);
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, const atn::Vector3& pos,
@@ -272,16 +272,6 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg) {
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-    Color4f_unk color;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, arg, -1, 1.0f);
-}
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
@@ -343,10 +333,9 @@ extern "C" inline int fn_802A4968(QuarkKeyboard_unk* kb, int pad, int key) {
     }
     return result;
 }
-// inferred: hit points ratio (weak copy 0x8029F3AC of game/Em203GreaterDaemonRedMp.cpp)
-extern "C" inline float fn_8029F3AC(CharaStatus* status) {
-    return status->mParamB.m84 > 0 ? status->m04 / (float)status->mParamB.m84 : 0.0f;
-}
+// inferred: hit points ratio (weak copy 0x8029F3AC of game/Em203GreaterDaemonRedMp.cpp; declared without
+// a body: its constants are in the pool of that unit)
+extern "C" float fn_8029F3AC(CharaStatus* status);
 extern "C" inline void fn_80265804(CharaStatus* status, float rate) {
     status->m2FC = rate;
 }
@@ -936,6 +925,34 @@ atn::Vector3 EnemyQuarkSecond::vf64(int center) {
     return m624.mData->m04.mCenter;
 }
 
+// NONMATCHING: ~93% - the original keeps the distance in f31 from the start and the rotation
+// temporaries in other slots; 6 variants
+void EnemyQuarkSecond::fn_8033C000() {
+    float dist = 0.0f;
+    float speed = 1.0f;
+    atn::Vector3 rot = mRot;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 move = mRoute.m58;
+        speed *= 0.2f;
+        atn::Vector3 d = m14B0->mPos - mPos;
+        dist = PSVECMag(&d) < 0.7f * m177C ? 0.0f : PSVECMag(&move);
+        if (dist > 0.0001f) {
+            atn::Vector3 dir = move;
+            PSVECNormalize(&dir, &dir);
+            rot = dir.ToRotation_unk();
+            rot.x = 0.0f;
+        } else {
+            rot = mRot;
+        }
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    mPos.y = 0.0f;
+    fn_8013CB68(&rot, 0, dist, m568 * speed);
+}
+
 void EnemyQuarkSecond::vf24() {
     if (m55C == 6) {
         return;
@@ -1400,4 +1417,33 @@ void EnemyQuarkSecond::fn_8034228C() {
     PSVECNormalize((atn::Vector3*)&m1568.m[1][1], (atn::Vector3*)&m1568.m[1][1]);
     *(atn::Vector3*)&m1568.m[2][0] = mPos;
     m570 = 0.0f;
+}
+
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* owner, HitInfo_unk* data, int id, int time,
+                            int c, float f); // inferred: fires the attack data
+
+// NONMATCHING: 99.6% - f30/f31 of the turn target (the matrix of ToRotationZ_unk takes the other one);
+// 10 variants
+void EnemyQuarkSecond::fn_8033D750() {
+    float frame = mMotion.mTracks[0].m08;
+    float target;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_80341EE4();
+        return;
+    }
+    if (mMotion.mTracks[0].m08 < 38.0f) {
+        CharaTask* t = m14B0;
+        target = (t->mPos - mPos).ToRotationZ_unk().y;
+        float d = atn::WrapAngle_unk(target - mRot.y);
+        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
+            mRot.y = target;
+        } else if (d <= 0.0f) {
+            mRot.y -= 0.20943952f;
+        } else {
+            mRot.y += 0.20943952f;
+        }
+    }
+    if (mMotion.mTracks[0].m08 >= 47.0f && mMotion.mTracks[0].m08 < 49.0f) {
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
+    }
 }
