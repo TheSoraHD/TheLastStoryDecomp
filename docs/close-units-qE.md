@@ -239,3 +239,11 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     dtor, vf0C, vf10, vf54, vf14, vf3C, vf40, vf44, vfF0 de Em005DoppelGanger; fn_80254530 ->
     `__sinit_\Em005DoppelGanger_cpp` (local); lbl_807C8300/830C/8318 -> sSphereOffset_unk/sOffsetB_unk/sOffsetC_unk
     (locales, vectores estaticos construidos por el sinit). Build limpio OK.
+- `game/Em202MothersSpider`: no procesada por tiempo. Hereda de una base de arana sin fuente (vtable con
+  fn_80273FE8, fn_80274508/18, fn_80274E7C...: la base esta en otra unidad sin escribir); hay que escribir antes esa
+  base. Tampoco procesadas por tiempo: Em202_01_BSpider (misma base), Em101ElderZesyaSecond,
+  Em101LittleZesyaSecond, EnemyQuarkFirst.
+
+## Fin de la sesion de la cola E
+- Ultima unidad procesada: game/Em005DoppelGanger. report.json: 6581 / 18215 funciones matched (code 21.611%),
+  regress lost 0 y fuzzdrop 0 contra report_main.json y report_close_A.json.
