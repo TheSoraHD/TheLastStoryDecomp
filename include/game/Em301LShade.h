@@ -69,7 +69,7 @@ public:
     inline bool IsMotionEnd_unk();
     inline void StartAbsorb_unk(int kind);
     void fn_802D3370();
-    void fn_802D3C74();
+    int fn_802D3C74();
     int fn_802D404C();
     void fn_802D4238();
     void fn_802D4378();
