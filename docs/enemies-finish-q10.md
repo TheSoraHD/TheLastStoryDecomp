@@ -25,6 +25,18 @@ Em101ElderZesya 10/20, Em101ElderZesyaSecond 11/15, Em101LittleZesya 18/25, Em10
   fn_8024F1DC 98.58% (registros salvados del bucle del abanico y de la busqueda; 10 variantes). Siguen como
   estaban: ctor 99.74%, vf24 99.90%, fn_8024E7E4 99.66%, fn_8024ED68 99.84%, fn_802506AC 99.53% (registros).
 
+- `game/Em101ElderZesya` (10/20 -> 12/20; ganada de verdad solo vf50): escritas vf10 (3.6 KB), vf50,
+  fn_8025922C y fn_80259AB4. Al 100%: vf50. fn_80258F1C sale al 100% en report.json pero 99.95% en el objdiff
+  directo (etiquetas del pool): no se cuenta. NONMATCHING: vf10 97.39% (registros salvados del bucle de las
+  barreras y de la lista de jugadores; 12 variantes), fn_8025922C 94.9% (parametros de camara direccionados con
+  otro registro base, mismo bloqueo que EnemyJill), fn_80259AB4 97.67% (rama muerta `b` de ElderLook_unk::Set_unk
+  que no se reproduce; ~12 formas).
+
+- `game/Em101ElderZesyaSecond` (11/15 -> 12/15): escrita vf10 (2.3 KB, 99.84%); ya no queda ninguna funcion sin
+  escribir. NONMATCHING: vf10 99.84% (solo desplazamientos de pila de los temporales: vectores del bucle,
+  colores, esfera y copia del ptmf; registros e instrucciones iguales; 12 variantes). Siguen: ctor 99.74%,
+  vf0C 92.78% (push_back de std::vector inline, caso abierto conocido).
+
 ## Decisiones tomadas sin el usuario
 
 - **symbols.txt (renombrados)**: fn_80253F00 -> `vf0C__Q233@unnamed@em005_doppel_ganger_cpp@11ControlCallFv`
@@ -47,6 +59,17 @@ Em101ElderZesya 10/20, Em101ElderZesyaSecond 11/15, Em101LittleZesya 18/25, Em10
 - Em003LesserDaemon::vf10: un `*(volatile int*)&m1624` (dentro de la inline `ShowHits_unk`) reproduce la
   segunda lectura del original, variante ya usada en la cola q5.
 
+- Em101ElderZesya: `Barrier_unk::Colli_unk` contiene ahora mDesc (antes en Barrier_unk); `Field_unk` local
+  ampliado (m4D8 camara, m588 parametros, m8A0, m96C..m978, m97C ElderLook_unk, m10D8); m14D8/m14E4 a
+  `atn::Vector3`; externs con nombres inventados (ElderRedirect_unk, ElderDamage_unk, fn_8025D6D0/D704...);
+  incluye `game/Em101LittleZesya.h` para el companero. symbols.txt: fn_80256C04 -> vf10, fn_80257B50 -> vf50,
+  fn_8025922C / fn_80259AB4 -> metodos de Em101ElderZesya (sin otros llamadores en .cpp).
+- Em101ElderZesyaSecond: symbols.txt fn_8025ACA0 -> `vf10__21Em101ElderZesyaSecondFv`; cabecera: m1558 pasa de
+  relleno a int, `vf10` declarada, inline `CountNear_unk` (cuenta de jugadores cerca, nombre inventado; como
+  inline salen los f28-f31 del original). Locales: `EffectMgr_unk::mB8` (capa del efecto, como game/Arms.cpp),
+  `ElderWeights_unk` (pesos por jugador, como GhoulWeights_unk), `ControlMagic_unk::m1D`, inlines
+  `PlayEffectM_unk` / `PlayColorEffect_unk` / `GetTrans_unk`.
+
 ## Hallazgos MWCC
 
 - `bool r = (x & 8) != 8` no se materializa con subfic/or/srwi. en ninguna forma de C++ probada (bool/int/inline/
@@ -61,6 +84,10 @@ Em101ElderZesya 10/20, Em101ElderZesyaSecond 11/15, Em101LittleZesya 18/25, Em10
 - `mLinks.size() == 0` (accesor) en vez de `mLinks.mSize == 0` cambia el registro que recibe el contador.
 - Colores de material leidos en una llamada: `ColorF_unk color(...)` con nombre y los otros dos como
   temporales en los argumentos dan el orden de pila del original.
+- Un bucle con FPRs salvados escrito como inline miembro (`CountNear_unk(m14BC)`) da f28-f31 en el orden
+  del original; escrito en linea dentro de vf10 los rota (Em101ElderZesyaSecond::vf10).
+- Color elegido con ternario: guardarlo en un `Color4f_unk color = c ? A : B;` y pasarlo por `const&` a la
+  inline da la copia por floats del original; pasar el ternario directo copia por words.
 
 ## Pendientes (esta cola)
 
