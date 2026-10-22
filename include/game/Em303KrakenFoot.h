@@ -28,7 +28,9 @@ public:
     void fn_802E3604(); // inferred: chooses the target
     void fn_802E37DC(); // inferred: movement
     void fn_802E3B24(); // inferred: action state machine (m14C0)
-    void fn_802E3D60(); // inferred: starts state 7 (called by the kraken)
+    void fn_802E3D60();
+    void fn_802E3EE8(); // inferred: state 8 (catch)
+    void fn_802E470C(); // inferred: state 11 // inferred: starts state 7 (called by the kraken)
     void fn_802E3E38(int arg); // inferred: starts state 8 (m14CC)
     void fn_802E4D6C(); // inferred: starts the attack of state 12 (motion 0x142)
     void fn_802E500C(); // inferred: starts the attack of state 13 (motion 0x14D)
@@ -38,6 +40,7 @@ public:
     inline void Release_unk();
     inline void SetState_unk(int state);   // inferred: names invented
     inline void PlayMotion_unk(int motion);
+    void UpdateColli_unk(); // inferred: inline (name invented)
     inline void FaceTarget_unk(); // inferred: releases the caught character (name invented)
 
     atn::LH_Binary m14B0;     // inferred: data file
