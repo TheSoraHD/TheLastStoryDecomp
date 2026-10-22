@@ -111,7 +111,7 @@ extern "C" bool fn_80216AFC(const char* id, int* type, int* map, int* point) {
 static inline MapId_unk* Find_unk(const char* id) {
     unsigned int count = sCount;
     MapId_unk* entry = sEntries;
-    for (unsigned int i = 0; i < count; i++, entry++) {
+    for (unsigned int i = 0; i < count; entry++, i++) {
         if (strcmp(entry->mId, id) == 0) {
             return entry;
         }
@@ -124,9 +124,10 @@ extern "C" MapId_unk* fn_8021771C(int type, int map, int point);
 
 // inferred: loads the map tables (/boot/map_id_table_xx.u16, map_sub_id_table.csv,
 // map_motion_table.csv and map_chara_list.csv)
-// NONMATCHING: 99.80% - registers only: the original reuses the register of the CSV length for the
+// NONMATCHING: 99.85% - registers only: the original reuses the register of the CSV length for the
 // font of the first loop (r27) and the one of the CSV address for the index (r28); here both get
-// new registers. Tried declaring font/i/pos earlier and passing the font global directly.
+// new registers. Tried declaring font/i/pos earlier and passing the font global directly, an
+// unsigned index, declaration orders in Find_unk (entry++, i++ there fixed the subtable loop).
 extern "C" void fn_80216CD0() {
     void* data;
     unsigned long size = 0;
