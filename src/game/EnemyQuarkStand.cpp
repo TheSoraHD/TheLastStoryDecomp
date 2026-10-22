@@ -36,7 +36,11 @@ struct Field_unk {
     int m4D8;
     unsigned char m4DC[0x8A0 - 0x4DC];
     CharaTask* m8A0;
-    unsigned char m8A4[0x97C - 0x8A4];
+    unsigned char m8A4[0x96C - 0x8A4];
+    int m96C;   // inferred: camera shake (as in game/Em101ElderZesyaSecond.cpp)
+    int m970;   // inferred: shake frames
+    float m974;
+    float m978;
     unsigned char m97C;
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -847,6 +851,11 @@ static float sLaserNear_unk = 100.0f;
 static float sLaserFar_unk = 500.0f;
 static float sBurstNear_unk = 100.0f;
 static float sBurstFar_unk = 500.0f;
+// inferred: height of the sonic wave while it charges (lbl_8087DC90/94) and while it ends (lbl_8087DC98/9C)
+static float sSonicFrom_unk = 90.0f;
+static float sSonicTo_unk = 0.0f;
+static float sSonicEndFrom_unk = 90.0f;
+static float sSonicEndTo_unk = 0.0f;
 
 #define QS_MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 #define QS_MIN_unk(a, b) ((a) < (b) ? (a) : (b))
@@ -979,6 +988,68 @@ void EnemyQuarkStand::fn_80348FF4() {
         float end = mMotion.fn_80097D7C(0);
         if (mMotion.fn_80139550(0) >= end) {
             fn_8034F41C();
+        }
+    }
+}
+
+// inferred: sonic wave attack (motions 0x16B-0x16D): rises while charging for SonicSkillID->mC0 frames,
+// then shakes the camera and fires the wave 65 units in front
+// NONMATCHING: 97.78% - el original tiene 32 bytes mas de pila (stores muertos de 0, 90 y 0 a 0x18/0x28/0x98
+// junto al vector de 65) y numera distinto los FPR del lerp; ~6 variantes (inline del ratio, orden del
+// producto, helpers de rotacion)
+void EnemyQuarkStand::fn_803494AC() {
+    if (m14B4 == 0) {
+        fn_8034C060(1);
+        mPos.y = QS_MIN_unk(90.0f, 5.0f + mPos.y);
+        if (mMotion.mTracks[0].m00 == 0x141) {
+            m14B4++;
+            QuarkPlayMotion_unk(&mMotion, 0x16B, 0, 0, 1.0f);
+            fn_80232B7C(this, 0x3EA);
+            QuarkPlayEffect_unk(&m16C0, &mMotion);
+            m14B8 = 0;
+        }
+    } else if (m14B4 == 1) {
+        if (m14B8 >= m153C->mC0) {
+            m14B4++;
+            mMotion.fn_80097C08(0, 0x16D, 0, 0, 1, 0.0f, 0.1f);
+            fn_80239DAC(lbl_8087F3C0, this, 0x3EA, 0);
+            fn_80232B7C(this, 0x3E9);
+            QuarkPlayEffect_unk(&m16CC, &mMotion);
+        }
+        mPos.y = QS_MIN_unk(90.0f, 5.0f + mPos.y);
+        if (mMotion.mTracks[0].m00 == 0x16B) {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                mMotion.fn_80097C08(0, 0x16C, 1, 0, 1, 1.0f, 0.1f);
+            }
+        }
+    } else if (m14B4 == 2) {
+        float t = QS_MIN_unk(1.0f, QS_MAX_unk(0.0f, (mMotion.mTracks[0].m08 - 45.0f) / 4.0f));
+        mPos.y = (sSonicTo_unk - sSonicFrom_unk) * t + sSonicFrom_unk;
+        Field_unk* field = lbl_8087F430;
+        if (mMotion.mTracks[0].m08 >= 49.0f) {
+            m14B4++;
+            field->m96C %= 2;
+            field->m970 = 10;
+            field->m974 = 7.0f;
+            field->m978 = 8.0f;
+            atn::Vector3 off(0.0f, 0.0f, 65.0f);
+            atn::Matrix3x4 m;
+            QuarkRotationZYX_unk(m, mRot);
+            PSMTXMultVec(m.m, &off, &off);
+            m16D8 = 1;
+            m16EC = fn_800F8548(lbl_8087F048);
+            m16E0 = mPos + off;
+            m16E0.y = 0.0f;
+            mStatus.m228 = 0.0f;
+            fn_800C31F4("SE_EM211_010", 0, -1, 1.0f);
+        }
+    } else {
+        float t = QS_MIN_unk(1.0f, QS_MAX_unk(0.0f, (mMotion.mTracks[0].m08 - 45.0f) / 4.0f));
+        mPos.y = (sSonicEndTo_unk - sSonicEndFrom_unk) * t + sSonicEndFrom_unk;
+        if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
+            mPos.y = 0.0f;
         }
     }
 }

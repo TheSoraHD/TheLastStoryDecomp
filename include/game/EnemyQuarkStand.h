@@ -158,6 +158,7 @@ public:
     void fn_80351480(int arg);
     void fn_80351AB8(CharaTask* chara, int kind);
     void fn_803470F0();
+    void fn_8034C060(int arg); // inferred: rises toward the aim (motions 0x13F-0x141)
     void fn_80352938(float rate); // inferred: turns toward the target
     void fn_803489F4(const atn::Vector3& target); // inferred: matrix of the laser
     void fn_80348568();
