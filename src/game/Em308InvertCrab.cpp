@@ -135,7 +135,6 @@ struct CrabWeights_unk {
 extern "C" CrabWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 extern "C" int fn_80108378(CrabWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 extern "C" void fn_802F693C(Em308InvertCrab* crab, CharaTask* target);
-extern "C" void fn_802F469C(Em308InvertCrab* crab);
 extern "C" void fn_802F4A98(Em308InvertCrab* crab);
 extern "C" void fn_802F5370(Em308InvertCrab* crab);
 extern "C" void* lbl_8087EE98;
@@ -329,7 +328,7 @@ void Em308InvertCrab::vf10() {
             fn_802F42CC();
             break;
         case 10:
-            fn_802F469C(this);
+            fn_802F469C();
             break;
         case 11:
             fn_802F4A98(this);
@@ -863,6 +862,50 @@ void Em308InvertCrab::fn_802F42CC() {
             float d = atn::WrapAngle_unk(m153C - m1538);
             mRot.y = atn::WrapAngle_unk(m1538 + (float)m1534 * d / 12.0f);
         }
+    }
+}
+
+// inferred: state 10 (tackle run): tackles when the target is within the reach of the skill m1528, shoots the
+// needle when it gets too far, else keeps chasing it. inferred: the rotation towards the target is computed and
+// not used (the original keeps the call, ToRotation_unk has atan2 calls)
+// NONMATCHING: 99.22% - only the load of m15A8 for fn_80170A20 is scheduled before the -1.0f (6 forms)
+void Em308InvertCrab::fn_802F469C() {
+    atn::Vector3 rot;
+    CharaTask* target = (CharaTask*)m1580;
+    atn::Vector3 d = target->mPos - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    rot = d.ToRotation_unk();
+    float reach = 30.0f;
+    if (m1528 != 0) {
+        reach = m1528->m40;
+    }
+    if (m1554 >= m1558 && m1570.size() != 0) {
+        fn_802F693C(this, (CharaTask*)m1580);
+    }
+    if (dist < reach) {
+        fn_8016E970(3);
+        if (fn_802F62A0((CharaTask*)m1580, 11) == 0 && fn_802F62A0((CharaTask*)m1580, 11) == 0) {
+            ResetAttack_unk();
+            m58C = 11;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+            m159C = m1528 != 0 ? m1528->m68 : 60;
+            m1584 = m1580;
+        }
+    } else if (dist > m1524) {
+        fn_8016E970(3);
+        if (fn_802F62A0((CharaTask*)m1580, 8) == 0) {
+            fn_802F5F20((CharaTask*)m1580);
+        }
+    } else {
+        if (m55C - 6U > 1) {
+            m55C = 3;
+            fn_80170A20((CharaTask*)m1580, m15A8, -1.0f);
+        }
+        fn_802F33A0();
     }
 }
 
