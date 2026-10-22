@@ -88,6 +88,12 @@ inline unsigned int ToArgb_unk(const Color4f_unk& c) {
     return (a << 24) | (r << 16) | (g << 8) | b;
 }
 // inferred: front direction for a rotation around y (as in CharaTask.cpp)
+inline atn::Vector3 GetFrontOf_unk(Mtx m, CharaTask* chara) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &v, &v);
+    return v;
+}
 inline atn::Vector3 GetFront_unk(Mtx m, float ry) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     PSMTXRotRad(m, 'y', ry);
@@ -271,7 +277,32 @@ void ChaserNpc::fn_801814F0() {
     fn_80181D94();
 }
 
-// NONMATCHING: 97.6% - the stack slots of the three inlined __MtxRotate are in the opposite order.
+// inferred: identity rotated by z, y and x (name invented)
+inline void ChaserRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    if (rot.z != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.y != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.x != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
 void ChaserNpc::fn_8018161C(int state) {
     switch (m14B0) {
     case 1:
@@ -306,15 +337,12 @@ void ChaserNpc::fn_8018161C(int state) {
         fn_8014C228();
         CharaTask* player = lbl_8087F8A0->mHead;
         Mtx m;
-        atn::Vector3 front = GetFront_unk(m, player->mRot.y);
+        atn::Vector3 front = GetFrontOf_unk(m, player);
         Mtx scale;
         PSMTXScale(scale, m540.x, m540.y, m540.z);
         m14D4 = *(atn::Matrix3x4*)scale;
         atn::Matrix3x4 rot;
-        rot.SetIdentity();
-        __MtxRotate(rot.m, 'z', player->mRot.z);
-        __MtxRotate(rot.m, 'y', player->mRot.y);
-        __MtxRotate(rot.m, 'x', player->mRot.x);
+        ChaserRotZYX_unk(rot, player->mRot);
         PSMTXConcat(rot.m, m14D4.m, m14D4.m);
         atn::Vector3 pos = player->mPos - front * 5.0f + atn::Vector3(0.0f, 0.5f, 0.0f);
         m14D4.m[0][3] = pos.x;

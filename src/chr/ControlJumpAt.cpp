@@ -17,9 +17,28 @@ struct Input_unk {
 };
 
 struct Unk_8087F0A8 {
-    unsigned char m000[0x48C];
+    unsigned char m000[0x30];
+    int mFrameRate; // 0x30
+    unsigned char m034[0x48C - 0x34];
     Input_unk mInput; // 0x48C
 };
+
+// inferred: collision query result (as in chr/ControlTurnQuadruped.cpp)
+struct GrappleCollResult_unk {
+    GrappleCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x10];
+    atn::Vector3 mPos; // 0x10
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    atn::Vector3 m44;
+};
+extern "C" void* lbl_8087EE98;
+extern "C" void fn_8004D388(void* mgr, GrappleCollResult_unk* result, chr::Chara_unk::Sphere_unk* sphere,
+                            atn::Vector3* move, unsigned int mask, void* ignore, int arg,
+                            float radius); // inferred: sweep test
 
 extern "C" Unk_8087F490* lbl_8087F490;
 extern "C" Unk_8087F0A8* lbl_8087F0A8;
@@ -184,11 +203,61 @@ boost::function<void()> ControlGrappled::vf10() {
     return boost::bind(&CharaTask::fn_80178208, mChara, next);
 }
 
-// NONMATCHING: draft (0x801B6E70 throws the target along a parabola: gravity -98.1, 112 frames)
+// inferred: identity rotated by z, y and x (name invented)
+inline void RotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    if (rot.z != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.y != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.x != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
+// NONMATCHING: 99.77% - r3/r4 swapped in the __VecCopy of the swept position (documented blocker)
+// inferred: the character spins and falls (gravity -98.1) during the first 112 frames
 int ControlGrappleThrown::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
+    if (mChara->mMotion.mTracks[0].m08 < 112.0f) {
+        atn::Vector3 rot = mChara->mRot;
+        rot.y += 0.028049935f;
+        mChara->mRot = rot;
+        int fps = lbl_8087F0A8->mFrameRate;
+        float g = -98.1f / (float)(fps * fps);
+        atn::Vector3 move(0.0f, g, 0.125f);
+        Chara_unk* chara = mChara;
+        atn::Matrix3x4 m;
+        RotZYX_unk(m, chara->mRot);
+        PSMTXMultVec(m.m, &move, &move);
+        GrappleCollResult_unk result;
+        Chara_unk::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
+        fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, &mChara->mColli, 0, sphere.mRadius);
+        atn::Vector3 pos = result.mPos;
+        Chara_unk* c = mChara;
+        pos -= c->m5A4;
+        pos.y -= sphere.mRadius;
+        c->mPos = pos;
+    }
     float frame = motion->mTracks[0].m08;
-    return frame >= motion->fn_80097D7C(0);
+    if (frame >= motion->fn_80097D7C(0)) {
+        return 1;
+    }
+    return 0;
 }
 
 ControlGrappledThrow::ControlGrappledThrow(Chara_unk* chara, Chara_unk* holder)

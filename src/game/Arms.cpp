@@ -315,8 +315,6 @@ int Arms::fn_80044F54(int i, CharaTask* chara) {
     return fn_80045510(&m274->mC4[i], chara) != 0;
 }
 
-// NONMATCHING: 99.93% - register of `last` in case 8 (r24 instead of r22); tried declaring it at
-// several places of the function.
 int Arms::fn_80044FBC(ArmsCond_unk* cond, int a, int b, unsigned int flags, CharaTask* user,
                       CharaTask* chara, HitInfo_unk* hit) {
     if (user == 0 || chara == 0) {
@@ -410,8 +408,8 @@ int Arms::fn_80044FBC(ArmsCond_unk* cond, int a, int b, unsigned int flags, Char
         break;
     case 8:
         if (chara->mFE4 > 0) {
-            CharaTask* last = chara->mFDC;
-            if (last != user) {
+            CharaTask* last;
+            if ((last = chara->mFDC) != user) {
                 if (cond->m0C == 0) {
                     return 1;
                 }

@@ -74,7 +74,7 @@ struct CampSaveArg_unk {
     int mFlag; // 0x40
 };
 inline void CopyString_unk(char* dst, const char* src) {
-    if (src != dst) {
+    if (dst != src) {
         memcpy(dst, src, strlen(src) + 1);
     }
 }
@@ -260,7 +260,7 @@ extern "C" GameOverTask* fn_80376B68(atn::Task* parent, int mode) {
     return lbl_8087F440;
 }
 
-// NONMATCHING: 99.59% - registers of the name copy (source and destination swapped)
+// NONMATCHING: 99.71% - registers of the name copy (source and destination swapped)
 GameOverTask::GameOverTask(atn::Task* parent, int mode)
     : atn::Task(parent), mDemoEnd(0), mSave(0), mLoading(0), mMode(mode), mState(0), mSelect(0), mCamera(0, 0),
       mTimer(0), mFade(0) {
@@ -363,8 +363,6 @@ inline bool IsFlagSet_unk(GameOverField_unk* field, int id) {
     return fn_80370174(field, id) == 1;
 }
 
-// NONMATCHING: 99.55% - the option tables are referenced by offset from one rodata symbol in the original
-// (lbl_8074DDF8 + n, merged pool); `opts = sOptRetryTitle; push_back(opts[0])` fixed r3/r4 of the single choice
 void GameOverTask::fn_80377298() {
     const int* opts;
     mChoices.mSize = 0;

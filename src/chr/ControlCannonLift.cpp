@@ -3,6 +3,7 @@
 #include "game/GimmickCommon.h"
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
+#include "gmk/Cannonball.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
 
@@ -73,7 +74,6 @@ struct Queen_unk : public EnemyTask {
 };
 extern "C" int fn_802CCA0C(EnemyTask* enemy); // inferred: nonzero while the queen can be hit
 
-extern "C" float fn_803FB830(void* cannon); // inferred: shot speed of the cannon (gmk/Cannonball.cpp)
 
 // inferred: offset of the point of the queen hit by the shots
 static atn::Vector3 sQueenOffset_unk(3.882f, 98.679f, 10.846f);
@@ -114,9 +114,10 @@ inline atn::Vector3 GetQueenPoint_unk(Queen_unk* queen) {
 
 // inferred: point `dist` in front of the character (name invented)
 inline atn::Vector3 GetFrontDir_unk(const chr::ControlBase* control) {
+    chr::Chara_unk* chara = control->mChara;
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
     Mtx mtx;
-    PSMTXRotRad(mtx, 'y', control->mChara->mRot.y);
+    PSMTXRotRad(mtx, 'y', chara->mRot.y);
     PSMTXMultVec(mtx, &dir, &dir);
     return dir;
 }
@@ -228,12 +229,12 @@ int ControlCannonLift::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 97.8% - register allocation of the inlined ControlCannonTarget constructor (the
-// new object is in r28, ours r31) and the stack slots of its vectors.
+// NONMATCHING: 98.9% - register allocation of the inlined ControlCannonTarget constructor (the
+// new object is in r28, ours r31) and the r3/r4 swap of the __VecCopy of m08.
 boost::function<void()> ControlCannonLift::vf10() {
     if (m0C) {
-        ControlCannonTarget* next = new (1, "", "", 0) ControlCannonTarget(mChara);
-        return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+        return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara,
+                           new (1, "", "", 0) ControlCannonTarget(mChara));
     }
     return ControlBase::vf10();
 }
@@ -268,8 +269,8 @@ ControlCannonThrow::ControlCannonThrow(Chara_unk* chara, const atn::Vector3& dir
     mChara->fn_801446F0();
 }
 
-// NONMATCHING: 95.8% - stack slots of the hit point/offset/difference vectors (the original puts the
-// difference lowest) and the register of the queen pointer.
+// NONMATCHING: 99.9% - stack slots of the offset/point/difference vectors (the original puts the
+// rotated offset above the point and the difference lowest).
 int ControlCannonThrow::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (motion->mTracks[0].m08 >= 10.0f && mChara->m1208 != 0) {
@@ -277,7 +278,11 @@ int ControlCannonThrow::vf0C() {
         if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m4C == 11 &&
             fn_80373148(lbl_8087F430)->m50 == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
             fn_802CCA0C(queen)) {
-            atn::Vector3 point = GetQueenPoint_unk(queen);
+            Mtx mtx;
+            PSMTXRotRad(mtx, 'y', queen->mRot.y);
+            atn::Vector3 offset(sQueenOffset_unk);
+            PSMTXMultVec(mtx, &offset, &offset);
+            atn::Vector3 point = queen->mPos + offset;
             atn::Vector3 diff = point - m08;
             if (PSVECMag(&diff) < m14) {
                 GimmickMsg_unk msg;
@@ -303,35 +308,39 @@ int ControlCannonThrow::vf0C() {
             return 1;
         }
     }
-    Queen_unk* queen;
+    Queen_unk* queen2;
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m4C == 11 &&
-            fn_80373148(lbl_8087F430)->m50 == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
-        fn_802CCA0C(queen)) {
-        atn::Vector3 diff = GetQueenPoint_unk(queen) - m08;
+            fn_80373148(lbl_8087F430)->m50 == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+        fn_802CCA0C(queen2)) {
+        Mtx mtx;
+        PSMTXRotRad(mtx, 'y', queen2->mRot.y);
+        atn::Vector3 offset(sQueenOffset_unk);
+        PSMTXMultVec(mtx, &offset, &offset);
+        atn::Vector3 point = queen2->mPos + offset;
+        atn::Vector3 diff = point - m08;
         if (PSVECMag(&diff) < m14) {
-            queen->m1544 = 1;
+            queen2->m1544 = 1;
         }
     }
     return 0;
 }
 
-// NONMATCHING: 97.1% - the direction vector is in the highest stack slot (the original has it below
-// the temporaries) and mChara is loaded again for m1208.
+// NONMATCHING: 99.6% - r3/r4 swapped in the __VecCopy of the front point (documented __VecCopy
+// blocker).
 ControlCannonTarget::ControlCannonTarget(Chara_unk* chara) : ControlMoveCursor(chara), m2C(0) {
-    mChara->m560 = 0x21;
+    Chara_unk* c = mChara;
+    c->m560 = 0x21;
     PlayMotion_unk(&mChara->mMotion, 0x6F, 1.0f);
-    atn::Vector3 dir = GetFrontDir_unk(this);
-    m08 = mChara->mPos + dir * 30.0f;
-    m28 = fn_803FB830(mChara->m1208);
+    m08 = mChara->mPos + GetFrontDir_unk(this) * 30.0f;
+    m28 = ((gmk::Cannonball*)mChara->m1208)->fn_803FB830();
     SetAim_unk();
 }
 
-// NONMATCHING: 98.4% - stack slots of the hit point vectors and the order of the saved registers
-// (ret/found/queen).
+// NONMATCHING: 99.9% - stack slots of the offset/point/difference vectors of the second queen test.
 int ControlCannonTarget::vf0C() {
     int ret = 0;
     if (mChara->mType == 0) {
-        bool found = false;
+        int found = 0;
         CursorTarget_unk target;
         Queen_unk* queen;
         if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m4C == 11 &&
@@ -347,17 +356,18 @@ int ControlCannonTarget::vf0C() {
         } else {
             fn_801C3458(0, 30.0f, 450.0f, 6.2831855f);
         }
+        Queen_unk* queen2;
         if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m4C == 11 &&
-            fn_80373148(lbl_8087F430)->m50 == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
-            fn_802CCA0C(queen)) {
+            fn_80373148(lbl_8087F430)->m50 == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+            fn_802CCA0C(queen2)) {
             Mtx mtx;
-            PSMTXRotRad(mtx, 'y', queen->mRot.y);
+            PSMTXRotRad(mtx, 'y', queen2->mRot.y);
             atn::Vector3 offset(sQueenOffset_unk);
             PSMTXMultVec(mtx, &offset, &offset);
-            atn::Vector3 point = queen->mPos + offset;
+            atn::Vector3 point = queen2->mPos + offset;
             atn::Vector3 diff = point - m08;
             if (PSVECMag(&diff) < m28) {
-                queen->m1544 = 1;
+                queen2->m1544 = 1;
             }
         }
         if (fn_801231D0(lbl_8087F0A8->mInput, 0x21)) {

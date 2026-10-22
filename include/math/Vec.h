@@ -257,6 +257,10 @@ public:
     Vector3 GetNormalized_unk() const;
     Vector3 ToRotation_unk() const; // inferred: x = pitch, y = yaw of the direction
     void fn_80139F60(); // inferred: in-place ToRotation_unk (weak copy 0x80139F60)
+    // inferred: other form of fn_80139F60/ToRotation_unk where z is read into a local once (rounded
+    // once and reused by atan2; chr::ControlInteractionBase); names invented
+    void RotZ_unk();
+    Vector3 ToRotationZ_unk() const;
 
     // Out-of-line members (called with bl from many files):
     void fn_80011410(const Matrix3x4& m);              // inferred: *this = m * *this (PSMTXMultVec)
@@ -445,6 +449,32 @@ inline void Vector3::fn_80139F60() {
     }
     r.z = 0.0f;
     *this = r;
+}
+
+inline void Vector3::RotZ_unk() {
+    Vector3 r;
+    float fz = z;
+    if (Abs_unk(fz) < 1.1920929e-7f) {
+        r.y = x > 0.0f ? 1.5707964f : -1.5707964f;
+    } else {
+        r.y = atan2(x, fz);
+    }
+    Matrix44_unk m44(Matrix3x4::RotY_unk(-r.y));
+    Vector3 v(*this);
+    PSMTX44MultVec(m44.m, &v, &v);
+    if (Abs_unk(v.z) < 1.1920929e-7f) {
+        r.x = -(v.y > 0.0f ? 1.5707964f : -1.5707964f);
+    } else {
+        r.x = -(float)atan2(v.y, v.z);
+    }
+    r.z = 0.0f;
+    *this = r;
+}
+
+inline Vector3 Vector3::ToRotationZ_unk() const {
+    Vector3 r(*this);
+    r.RotZ_unk();
+    return r;
 }
 
 inline Vector3 Vector3::ToRotation_unk() const {

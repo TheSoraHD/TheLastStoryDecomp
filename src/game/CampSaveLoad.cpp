@@ -3,6 +3,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
+#include "MP/SaveLoad.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -319,6 +320,9 @@ void CampSaveLoad::fn_8011979C() {
         m148 = m154;
     }
 }
+
+// inferred: out-of-line destructor of the save elements (weak copy, emitted here)
+MP::SaveElemB_unk::~SaveElemB_unk() {}
 
 // NONMATCHING: 88.8% - the original converts each pad result to a bool value (neg/or/srwi)
 // before testing it

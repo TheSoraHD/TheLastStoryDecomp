@@ -91,24 +91,26 @@ inline float MotionRatio_unk(chr::Motion_unk* m) {
 
 namespace chr {
 
-// NONMATCHING: 97.8% - registers r3-r6 and the load order of the constants of the front vector.
 ControlWallUp::ControlWallUp(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& dir)
     : ControlMoveCursor(chara), m40(15.0f), m44(300.0f), m4C(false), m4D(false), m4E(false), m50(0) {
-    mChara->m560 = 0xF;
+    Chara_unk* chara0 = mChara;
+    chara0->m560 = 0xF;
     m34 = dir;
     m34.y = 0.0f;
     Motion_unk* m = &mChara->mMotion;
     if (fn_805F9920(&m34) < 0.00001f) {
+        Chara_unk* c = mChara;
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         Mtx mtx;
-        PSMTXRotRad(mtx, 'y', mChara->mRot.y);
+        PSMTXRotRad(mtx, 'y', c->mRot.y);
         PSMTXMultVec(mtx, &front, &front);
         m34 = front;
     } else {
         PSVECNormalize(&m34, &m34);
     }
     m28 = pos - m34 * 5.0f;
-    m08 = mChara->mPos - m34 * 30.0f;
+    Chara_unk* c2 = mChara;
+    m08 = c2->mPos - m34 * 30.0f;
     if (fn_80370174(lbl_8087F430, 0x65) && m08.y > 55.0f) {
         m08.y = 55.0f;
     }
@@ -233,8 +235,8 @@ boost::function<void()> ControlWallUp::vf10() {
 
 void ControlWallUp::vf40() {
     float t = m40 / 15.0f;
-    Motion_unk::Entry_unk* e = &mChara->mMotion.m220[mChara->m524];
     float s = 1.0f - t;
+    Motion_unk::Entry_unk* e = &mChara->mMotion.m220[mChara->m524];
     e->m04 += atn::Vector3(0.0f, 0.0f, 5.0f * s);
 }
 
@@ -261,8 +263,6 @@ void ControlWallDown::vf1C() {
     mChara->mPos = m14;
 }
 
-// NONMATCHING: 99.6% - the original converts d.z with frsp before the fabs of the inlined
-// ToRotation_unk.
 ControlWallSlash::ControlWallSlash(Chara_unk* chara, const atn::Vector3& target, const atn::Vector3* land)
     : ControlBase(chara), m2C(26.0f), m30(0), m34(land != 0) {
     chara->m560 = 0xB;
@@ -277,7 +277,7 @@ ControlWallSlash::ControlWallSlash(Chara_unk* chara, const atn::Vector3& target,
     m->fn_80097C08(0, 0x16C, 0, 0, 1, 1.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
     atn::Vector3 d(m14.x - m20.x, 0.0f, m14.z - m20.z);
-    mChara->mRot = d.ToRotation_unk();
+    mChara->mRot = d.ToRotationZ_unk();
     m08 = m20;
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
         fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);

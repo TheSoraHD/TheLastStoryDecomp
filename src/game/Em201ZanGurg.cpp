@@ -258,7 +258,7 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     m58C = 12;
     fn_8016E970(6);
     m560 = 10;
-    atn::Vector3 rot = (attacker->mPos - mPos).ToRotation_unk();
+    atn::Vector3 rot = (attacker->mPos - mPos).ToRotationZ_unk();
     mRot.y = rot.y;
     PlayMotion_unk(&mMotion, 0x1D2, 0, 0);
     if (lbl_8087F498 != 0) {
@@ -266,8 +266,6 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     }
 }
 
-// NONMATCHING: 99.7% - in the inlined ToRotation_unk the original keeps the rounded z in f3 for atan2
-// (fabs into f4); ours rounds it again
 void Em201ZanGurg::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 *= 0.0f;
@@ -377,14 +375,20 @@ void Em201ZanGurg::fn_80264024() {
     fn_80263CF0();
 }
 
+// the angle difference is written out here (with AngleDiffDeg_unk f0/f3 are swapped)
 void Em201ZanGurg::fn_802640FC() {
     if (m16DC < 0) {
         atn::Vector3 pos = m14B8->mPos;
     atn::Vector3 d = pos - mPos;
         float dist = d.Length_unk();
         atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
-        float ry = rot.y;
-        AngleDiffDeg_unk(ry, mRot.y);
+        float d2 = fmod(57.295776f * (rot.y - mRot.y), 360.0);
+        if (d2 > 180.0f) {
+            d2 -= 360.0f;
+        }
+        if (d2 < -180.0f) {
+            d2 += 360.0f;
+        }
         if (rand() % (100 / m16E4) == 0 || dist > 30.0f) {
             m58C = 0;
             fn_8016E970(3);
