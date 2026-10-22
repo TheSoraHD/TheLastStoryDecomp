@@ -1,6 +1,8 @@
 #include "gmk/WindyItem.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "game/CharaManager.h"
+#include "game/CharaTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -136,3 +138,46 @@ void WindyItem::vf70(int state) {
 }
 
 } // namespace gmk
+
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" void* lbl_8087EE98;                     // inferred: collision world
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: ray test
+
+// inferred: number of blown items the player can see during a gust (called by GameScene; name
+// unknown)
+// NONMATCHING: 86.1% - stack layout of the ray temporaries (the original copies the eye into the
+// start of the segment inside the loop, probably through an inline helper).
+extern "C" int fn_8043A530(gmk::WindyItem* item) {
+    if (item->mActive <= 0 || item->mGust <= 0) {
+        return 0;
+    }
+    CharaTask* player = lbl_8087F8A0 != 0 ? (CharaTask*)lbl_8087F8A0->mHead : 0;
+    if (player == 0) {
+        return 0;
+    }
+    atn::Vector3 eye = player->fn_801781B0();
+    int count = 0;
+    for (int i = 0; i < 8; i++) {
+        gmk::WindySlot_unk& slot = item->mSlots[i];
+        if ((slot.mState == 1 && slot.mPath.m58 < 90) || slot.mState == 2) {
+            atn::Vector3 pos(slot.mMtx.m[0][3], slot.mMtx.m[1][3], slot.mMtx.m[2][3]);
+            atn::Vector3 from = eye;
+            atn::Vector3 to = pos;
+            float r = item->mEF4;
+            float len = (to - from).Length_unk();
+            if (!(atn::Abs_unk(len) < 1.1920929e-7f)) {
+                to -= from;
+                to.Normalize_unk();
+                float k = len - r;
+                to.x = to.x * k + from.x;
+                to.y = to.y * k + from.y;
+                to.z = to.z * k + from.z;
+            }
+            if (fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000010, 0, 0) == 0) {
+                count++;
+            }
+        }
+    }
+    return count;
+}

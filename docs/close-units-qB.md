@@ -64,6 +64,9 @@ Una linea por unidad procesada (orden de cola_B.md).
 - gmk/RandomItem (2a pasada): escritas fn_8043465C (100%; `(m11C == 2 && m168 != 0) || m11C == 3` en una sola condicion da la forma de saltos), fn_80435684 (100%) y fn_80435908 (93.7%, marco y registros). 15/19; queda fn_804348C4 (3520 B) sin escribir.
 - gmk/MotionObject vf24 99.88% -> 99.94% y gmk/LemonBucket vf20 99.11% -> 99.15%: leer tamano y datos del binario en locales antes de construir el CsvTab (probado en otras vf20 sin mejora).
 - gmk/SwingObject: escritas fn_804006E0 (funcion libre de dibujo de la pieza de mapa que oscila, llamada desde MapPartsGimmickLoc) -> 100% y fn_804003E0 (su actualizacion, 96.9%; tipo local SwingPart_unk). 10/20.
+- gmk/WindyItem: escrita fn_8043A530 (funcion libre llamada desde GameScene: objetos arrastrados visibles por el jugador; 86.1%, huecos de pila). Quedan vf10/vf14/fn_804392C0/fn_80439574/fn_8043A08C (sin escribir, grandes).
+- gmk/DropItem vf40 99.92% -> 99.93% (temporales del rayo como locales con `hit` primero).
+- gmk/SwingObject fn_803FFD10 (constructor de la pieza de mapa que oscila): probado como funcion libre con placement new (89%), no se puede expresar asi el constructor de una clase sin nombre conocido; revertido.
 
 ## Hallazgos MWCC
 - Pasar `(int)x` (x unsigned) a un inline en una segunda llamada impide que MWCC comparta las subexpresiones del parametro entre las dos copias inlineadas (TreasureBoxTable).
