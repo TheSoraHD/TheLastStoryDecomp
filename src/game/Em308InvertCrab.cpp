@@ -30,6 +30,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Model_unk* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale); // inferred: plays an effect (as in gmk/PlayEffect.cpp)
@@ -50,7 +51,9 @@ extern "C" CrabSettings_unk* lbl_8087F0A8;
 // inferred: ray test result (as in game/Em303KrakenFoot.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x34];
+    unsigned char m00[0x10];
+    atn::Vector3 m10; // inferred: hit position
+    unsigned char m1C[0x34 - 0x1C];
     int* m34; // inferred: attribute of the hit
     int m38;
     int m3C;
@@ -284,6 +287,41 @@ void Em308InvertCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
 }
 
 // inferred: end of the death motion; while not down it gets up again (state 14)
+// inferred: flight of the jump (state 13): gravity into m574, landing on the ground below (state 16, motion
+// 0x14B and the sound SE_EM308_005)
+// NONMATCHING: 99.99% - only the offset of "SE_EM308_005" in @stringBase0 (0x8D here, 0x197 in the original):
+// the strings before it are used by functions not written yet; the code itself matches
+void Em308InvertCrab::fn_802F566C() {
+    int landed = 0;
+    atn::Vector3 vel = m574;
+    vel.y += Gravity_unk(lbl_8087F0A8);
+    CollResult_unk result;
+    Sphere_unk sphere = fn_80176548(mPos);
+    atn::Vector3 next = mPos + vel;
+    if (next.y <= sphere.mRadius) {
+        landed = 1;
+        result.m10 = atn::Vector3(next.x, next.y, next.z);
+        result.m10.y = sphere.mRadius;
+    }
+    if (landed) {
+        mPos = result.m10;
+        mPos.y += sphere.mRadius;
+        m1590 = 0;
+        m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 16;
+        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x14B, 0, 0, 1, 0.0f, 0.1f);
+        fn_800C344C("SE_EM308_005", &mPos, 0, -1, 1.0f);
+    } else {
+        mPos += vel;
+        m574 = vel;
+    }
+}
+
 // inferred: end of the death motion (state 17): counts m1434 down, the effect at 29
 void Em308InvertCrab::fn_802F58A0() {
     float frame = mMotion.mTracks[0].m08;

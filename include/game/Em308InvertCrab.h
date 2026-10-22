@@ -33,6 +33,7 @@ public:
     virtual float vf90() { return 3.5f; }
 
     int fn_802F2C50(); // inferred: ground below is water/lava (ray test attributes 0x14, 0x15, 0x1A-0x1D)
+    void fn_802F566C();
     void fn_802F58A0();
     void fn_802F66CC(); // inferred: death
 
