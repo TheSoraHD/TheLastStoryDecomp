@@ -50,8 +50,8 @@ public:
     void fn_80306078(const char* text, int length); // inferred: reads the data file
     inline bool IsDownState_unk();
 
-    int m14D4;
-    atn::Vector3 m14D8;
+    CharaTask* m14D4;          // inferred: target when the state starts
+    atn::Vector3 m14D8;        // inferred: direction of the attack
     float m14E4;               // inferred: "AttackDistance"
     int m14E8;                 // inferred: "AttackNormalSkillId"
     int m14EC;
@@ -73,9 +73,7 @@ public:
     atn::EfpHandle_unk m152C;  // inferred: "/effect/ef_sk030b.efp"
     int m1538;
     float m153C;               // inferred: "Speed"
-    float m1540;
-    float m1544;
-    float m1548;
+    atn::Vector3 m1540;        // inferred: backwards direction (state 12)
     float m154C;
     float m1550;
     float m1554;

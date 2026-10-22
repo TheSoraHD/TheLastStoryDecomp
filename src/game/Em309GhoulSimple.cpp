@@ -16,10 +16,12 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 // inferred: per-player weights of an effect (floats at +0x128); names invented
 struct GhoulWeights_unk {
     unsigned char m00[0x128];
@@ -47,7 +49,7 @@ inline bool Em309GhoulSimple::IsDownState_unk() {
 Em309GhoulSimple::Em309GhoulSimple(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D8(0.0f, 0.0f, 0.0f), m14E4(40.0f), m14E8(0), m14EC(0), m14F0(0),
       m14F4(0), m14F8(0), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m1510(0), m1514(0), m1518(0),
-      m151C(0), m1520(0), m1524(0), m1528(90), m1538(10), m153C(3.0f), m1540(0.0f), m1544(0.0f), m1548(0.0f),
+      m151C(0), m1520(0), m1524(0), m1528(90), m1538(10), m153C(3.0f), m1540(0.0f, 0.0f, 0.0f),
       m154C(0.0f), m1550(0.0f), m1554(0.0f), m1570(0), m15B8(-1.0f), m1648(0),
       m164C(0), m1654(0) {
     char name[0x100];
@@ -240,6 +242,111 @@ int Em309GhoulSimple::vf10C(HitMsg_unk* msg) {
 void Em309GhoulSimple::vfFC() {
     fn_8016E970(2);
     vf100(6);
+}
+
+// inferred: names invented (as in game/Em205Ogre.cpp)
+inline void SafeNormalize_unk(atn::Vector3* v) {
+    if ((float)__fabs(fn_805F9920(v)) < 1.1920929e-7f) {
+        return;
+    }
+    PSVECNormalize(v, v);
+}
+
+// inferred: negated vector (name invented)
+inline atn::Vector3 GhoulNeg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
+// NONMATCHING: 99.96% - stack slots of the direction temporaries of states 9-11 and 12 (~15 variants)
+void Em309GhoulSimple::vf100(int state) {
+    if (CharaTask::mFlag2) {
+        return;
+    }
+    int prev = m58C;
+    m14BC = 0;
+    m14C0 = 0;
+    m14C4 = 0;
+    m14C8 = 0;
+    mFlag31 = 0;
+    mFlag30 = 0;
+    mFlag29 = 0;
+    mFlag28 = 0;
+    mFlag27 = 1;
+    m14D0 = 0;
+    m58C = state;
+    switch (state) {
+    case 6:
+        mFlag30 = 1;
+        break;
+    case 7:
+        mFlag30 = 1;
+        break;
+    case 8:
+        m14D4 = mC58.mC4;
+        mC58.m0C.fn_80128930(m14D4, &mPos, 0);
+        mC58.m0C.mRadius = 0.9f * m14E4;
+        mC58.m0C.fn_801255C8();
+        mFlag30 = 1;
+        break;
+    case 9:
+    case 10:
+    case 11:
+        m14D4 = mC58.mC4;
+        if (m14D4 != 0) {
+            atn::Vector3 d = m14D4->mPos - mPos;
+            m14D8 = d;
+            m14D8.y = 0.0f;
+            SafeNormalize_unk(&m14D8);
+        } else {
+            m14D8.x = 0.0f;
+            m14D8.y = 0.0f;
+            m14D8.z = 1.0f;
+            Mtx m;
+            float ry = mRot.y;
+            PSMTXRotRad(m, 'y', ry);
+            PSMTXMultVec(m, &m14D8, &m14D8);
+        }
+        if (m58C == 9) {
+            fn_805A4F1C(0x140, 0, 1, 1.0f, 0.0f);
+        } else if (m58C == 10) {
+            fn_805A4F1C(0x143, 0, 1, 1.0f, 0.0f);
+        } else {
+            fn_805A4F1C(0x145, 0, 1, 1.0f, 0.0f);
+        }
+        m14C8 = fn_800F8548(lbl_8087F048);
+        mFlag28 = 1;
+        break;
+    case 12: {
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        float ry = mRot.y;
+        PSMTXRotRad(m, 'y', ry);
+        PSMTXMultVec(m, &front, &front);
+        m1540 = GhoulNeg_unk(front);
+
+        m154C = 0.0f;
+        m1550 = 0.0f;
+        m1554 = 0.0f;
+        fn_805A4F1C(0x14A, 0, 1, 1.0f, 0.0f);
+        m14C8 = fn_800F8548(lbl_8087F048);
+        mFlag28 = 1;
+        break;
+    }
+    case 13:
+        fn_805A4F1C(0x3D, 0, 1, 1.0f, 0.0f);
+        mFlag28 = 1;
+        break;
+    case 14:
+        fn_805A4F1C(0x150, 0, 1, 1.0f, 0.0f);
+        mFlag28 = 1;
+        break;
+    case 2:
+        if ((mStatus.m0C & 0x20) == 0x20 && prev != 2) {
+            vf44();
+        }
+        fn_805A4F1C(0x2E, 0, 1, 1.0f, 0.0f);
+        break;
+    }
 }
 
 // inferred: node position (name invented, as in game/Em205Ogre.cpp)

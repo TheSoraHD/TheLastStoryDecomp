@@ -70,6 +70,8 @@ game/Em315Coffin.
 - `game/Em309GhoulSimple` (segunda vuelta, 10/22): ctor al 100% con `GhoulStr_unk()` que pone `mStr[0] = 0`
   y la lista de invocacion 0x1574/0x1578 como `FixedArray_unk<GhoulPair_unk, 8>` (CharaStatus.h); el lector
   del CSV usa `PushBack_unk` y sigue al 100%.
+  - vf100 (0x80306B40) escrita: 99.96% (pila de los temporales de direccion; ~15 variantes). Bits: los estados de
+    ataque ponen mFlag28 (0x1000 de 0x14CC). m1540-m1548 pasa a Vector3 (direccion hacia atras del estado 12).
 - Pools de cadenas renombrados a `@stringBase0` en Em309Ghoul (0x80748A14), Em309GhoulSimple (0x80748DC0),
   Em310Gargoyle (0x80748FE8) y Em315Coffin (0x80749390): sin cambio en el recuento, pero las llamadas con
   cadenas ya comparan el nombre real.
@@ -98,7 +100,8 @@ game/Em315Coffin.
   m16F8); solo la usa Em309Ghoul.cpp.
 - symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
   (scope:local).
-- include/game/Em309GhoulSimple.h: m1574/m1578 pasan a `FixedArray_unk<GhoulPair_unk, 8> m1574` y GhoulStr_unk
+- symbols.txt: fn_80306B40 -> `vf100__16Em309GhoulSimpleFi`.
+- include/game/Em309GhoulSimple.h: m14D4 pasa a `CharaTask*`, m1540-m1548 a `atn::Vector3`; m1574/m1578 pasan a `FixedArray_unk<GhoulPair_unk, 8> m1574` y GhoulStr_unk
   recibe un constructor (solo la usan Em309GhoulSimple.cpp y la factoria).
 - **CABECERA COMPARTIDA include/game/CharaTask.h**: `CharaRes_unk` (0x90 bytes) cambia sus rellenos
   `m08[0x28]` y `m58[0x30]` por miembros tipados (`CharaResPair_unk m08_unk[4]`, floats m28/m2C, ints m3C-m48,
