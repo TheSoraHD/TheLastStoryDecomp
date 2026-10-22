@@ -87,6 +87,54 @@ void Chain::vf10() {
     fn_8043C508();
 }
 
+// NONMATCHING: 98.8% - saved registers rotated by one (tmp/pass counters); a frsp of the copy of
+// the last delta is missing here.
+void Chain::fn_8043CA58() {
+    ChainJoint_unk* tmp = new (3, "", "", 0) ChainJoint_unk[mNumJoints];
+    for (int i = 0; i < mNumJoints; i++) {
+        tmp[i] = mJoints.mData[i];
+    }
+    for (int i = 0; i < mNumJoints; i++) {
+        mJoints.mData[i].m4C.y -= m340 * m33C;
+        tmp[i].m04 += mJoints.mData[i].m4C;
+    }
+    int passes = 20;
+    for (int it = 0; it < passes; it++) {
+        tmp[0].m04 = m314;
+        tmp[mNumJoints - 1].m04 = m320;
+        for (int i = 0; i < mNumJoints - 1; i++) {
+            ChainJoint_unk& a = tmp[i];
+            ChainJoint_unk& b = tmp[i + 1];
+            atn::Vector3 n;
+            atn::Vector3 d = b.m04 - a.m04;
+            n = d;
+            float len = PSVECMag(&n);
+            float k = 0.9f * (a.m58 * m33C - len);
+            PSVECNormalize(&n, &n);
+            n *= k;
+            a.m04 -= n;
+            b.m04 += n;
+            a.m04.y = a.m04.y > mTarget->mPos.y ? a.m04.y : mTarget->mPos.y;
+            b.m04.y = b.m04.y > mTarget->mPos.y ? b.m04.y : mTarget->mPos.y;
+        }
+    }
+    tmp[0].m04 = m314;
+    tmp[mNumJoints - 1].m04 = m320;
+    for (int i = 0; i < mNumJoints; i++) {
+        atn::Vector3 d = tmp[i].m04 - mJoints.mData[i].m04;
+        tmp[i].m4C = d;
+        mJoints.mData[i].m4C = d;
+        mJoints.mData[i].m04 += tmp[i].m4C;
+    }
+    fn_8043CF58();
+    for (int i = 0; i < mNumJoints; i++) {
+        mJoints.mData[i].m4C = mJoints.mData[i].m04 - mJoints.mData[i].m10;
+        mJoints.mData[i].m4C *= 0.9f;
+        mJoints.mData[i].m10 = mJoints.mData[i].m04;
+    }
+    delete[] tmp;
+}
+
 void Chain::vf14() {
     if (mTarget != 0 && lbl_8087F0A8->m18 != 0) {
         fn_803ED610(mModel.GetModel_unk());
