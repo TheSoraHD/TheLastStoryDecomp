@@ -29,6 +29,11 @@ public:
     void fn_8024F1DC(); // inferred: state 8
     inline void ResetAction_unk();
     inline void ShowHits_unk();
+    inline void StartAttack_unk();
+    inline void StartLaser_unk();
+    inline void StartMagic_unk();
+    inline void WarpFar_unk();
+    void fn_8024FFE8(); // inferred: event of the phase change (barrier)
     inline void TurnTo_unk(const atn::Vector3& pos);
     void fn_8024FE18(int arg); // inferred: death of a boss / of a linked daemon
     void fn_8024E1C0(); // inferred: starts the queued action m1654 (m1658 is the next one)
@@ -40,6 +45,7 @@ public:
     inline int FarthestPoint_unk();
     inline void StartWarp_unk();
     inline int FarthestFromSelf_unk();
+    inline int FarthestFromSelfB_unk();
     const atn::Vector3& GetPoint_unk(unsigned int i) const { return mPoints.mData[i]; }
 
     CharaTask* m14B0;         // inferred: target (its position is read by fn_802506AC)
@@ -54,7 +60,7 @@ public:
     HitInfo_unk* m14D4;       // inferred: "PenetrateLaserID"
     HitInfo_unk* m14D8;       // inferred: explosion skill
     CharaTask* m14DC;         // inferred: forced target (it overrides the one of the battle AI)
-    unsigned char m14E0[0x14E4 - 0x14E0];
+    int m14E0;        // inferred: copy of m14E8 taken with the forced target
     CharaTask* m14E4; // inferred: last attacker (vf3C)
     int m14E8;        // inferred: 1 when the last attacker was in attack range, else 6 (vf3C)
     atn::EfpHandle_unk m14EC; // inferred: "/effect/ef_cm007.efp"

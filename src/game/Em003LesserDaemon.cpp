@@ -100,6 +100,27 @@ struct MpArena_unk;
 extern "C" MpArena_unk* lbl_8087F490;
 extern "C" void fn_803E6850(MpArena_unk* arena, CharaTask* chara, int count, int max, int arg);
 extern "C" double fmod(double x, double y);
+extern "C" double sin(double x);
+// inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
+struct FrameTime_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: time of a frame
+    float GetTime_unk() const { return m3A4; } // inferred: accessor (name invented)
+};
+extern "C" FrameTime_unk* lbl_8087EFA8;
+// inferred: material colors of a model (returned by fn_80094B6C; class unknown, names invented)
+struct MatColor_unk {
+    unsigned char m00[0x1C];
+    GXColor m1C;
+    GXColor m20;
+};
+extern "C" MatColor_unk* fn_80094B6C(chr::Motion_unk* model, const char* name); // inferred: material by name
+// inferred: color as four floats (as ColorF_unk in game/Em315Coffin.cpp)
+struct ColorF_unk {
+    ColorF_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    ColorF_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
+    float r, g, b, a;
+};
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
@@ -377,6 +398,72 @@ inline int Em003LesserDaemon::FarthestFromSelf_unk() {
     return best;
 }
 
+// inferred: same search with the index declared first (the register order of fn_8024D120)
+inline int Em003LesserDaemon::FarthestFromSelfB_unk() {
+    unsigned int i;
+    float bestDist = 0.0f;
+    int best = -1;
+    for (i = 0; i < mPoints.mSize; i++) {
+        atn::Vector3 d = mPos - GetPoint_unk(i);
+        float dist = fn_805F9920(&d);
+        if (dist > bestDist) {
+            best = i;
+            bestDist = dist;
+        }
+    }
+    return best;
+}
+
+// inferred: starts the normal attack (state 1; as case 1 of fn_8024E1C0, name invented)
+inline void Em003LesserDaemon::StartAttack_unk() {
+    m58C = 1;
+    fn_8016E970(3);
+    m14B8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x156, 0, 0, 1, 0.0f, 0.1f);
+    fn_80232B7C(0, 0);
+    PlayEffectA_unk(&m1564, &mMotion);
+    m14C4++;
+}
+
+// inferred: starts state 8 (as case 8 of fn_8024E1C0, name invented)
+inline void Em003LesserDaemon::StartLaser_unk() {
+    m58C = 8;
+    fn_8016E970(3);
+    m14B8 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    fn_80232B7C(0, 0);
+    PlayEffectA_unk(&m154C, &mMotion);
+    m164C = m1624 == 0 ? 3 : 1;
+    m1650 = -1;
+}
+
+// inferred: starts the homing magic (state 7; as case 7 of fn_8024E1C0, name invented)
+inline void Em003LesserDaemon::StartMagic_unk() {
+    m58C = 7;
+    fn_8016E970(3);
+    m14B8 = 0;
+    fn_8015F568(mC58.mC4->mPos, mC58.mC4, m14D0);
+    fn_80232B7C(this, 0);
+    PlayEffectA_unk(&m1558, &mMotion);
+}
+
+// inferred: warps to the point farthest from itself (as case 13 of fn_8024E1C0, name invented)
+inline void Em003LesserDaemon::WarpFar_unk() {
+    int best = FarthestFromSelfB_unk();
+    if (best >= 0 && best < (int)mPoints.mSize) {
+        mWarpDest = mPoints.mData[best];
+        StartWarp_unk();
+    }
+    m14C4 = 0;
+}
+
 // inferred: index of the warp point farthest from the target (name invented)
 inline int Em003LesserDaemon::FarthestPoint_unk() {
     float bestDist = 0.0f;
@@ -562,6 +649,62 @@ update:
     fn_8024BE94();
 }
 
+// NONMATCHING: 99.89% - f2/f3 of the sine and the frame in the death light (8 variants of the expression)
+void Em003LesserDaemon::fn_8024BE94() {
+    static const char* const sMaterials[6] = {"em003_eye",   "em003_skin01", "em003_skin02",
+                                              "em003_skin03", "em003_wep01",  "em003_wep02"};
+    static const char* const sLight = "em003_light";
+    static const char* const sWepLight = "em003_wep_light";
+    if (mC58.mC0 == 0) {
+        return;
+    }
+    if (m1624 == 0 && m58C != 12) {
+        m1648 = MAX(0.1f, m1648 - 0.05f * lbl_8087EFA8->GetTime_unk());
+    } else {
+        m1648 = MIN(1.0f, m1648 + 0.05f * lbl_8087EFA8->GetTime_unk());
+    }
+    for (unsigned int i = 0; i < 6; i++) {
+        MatColor_unk* mat = fn_80094B6C(&mMotion, sMaterials[i]);
+        ColorF_unk color(m1648, m1648, m1648, 1.0f);
+        mMotion.fn_80094958(sMaterials[i], &color, &ColorF_unk(mat->m20), &ColorF_unk(mat->m1C));
+    }
+    float light;
+    if (m58C == 2) {
+        light = 0.5f * (float)sin(atn::DegToRad_unk(m1644)) + 0.5f;
+        light *= 1.0f - MIN(1.0f, mMotion.mTracks[0].m08 / 20.0f);
+    } else if (m58C == 12) {
+        m1644 += 20.0f * lbl_8087EFA8->GetTime_unk();
+        if (m1644 >= 360.0f) {
+            m1644 -= 360.0f;
+        }
+        light = 0.5f * (float)sin(atn::DegToRad_unk(m1644)) + 0.5f;
+    } else {
+        m1644 += 4.0f * lbl_8087EFA8->GetTime_unk();
+        if (m1644 >= 360.0f) {
+            m1644 -= 360.0f;
+        }
+        light = 0.5f * (float)sin(atn::DegToRad_unk(m1644)) + 0.5f;
+    }
+    {
+        const char* name = sLight;
+        MatColor_unk* mat = fn_80094B6C(&mMotion, name);
+        ColorF_unk color(light, light, light, 1.0f);
+        mMotion.fn_80094958(name, &color, &ColorF_unk(mat->m20), &ColorF_unk(mat->m1C));
+    }
+    if (m58C == 1 || m58C == 12) {
+        m16C8 += 0.02f;
+    } else {
+        m16C8 -= 0.02f;
+    }
+    m16C8 = MAX(0.0f, MIN(1.0f, m16C8));
+    {
+        const char* name = sWepLight;
+        MatColor_unk* mat = fn_80094B6C(&mMotion, name);
+        ColorF_unk color(m16C8, m16C8, m16C8, 1.0f);
+        mMotion.fn_80094958(name, &color, &ColorF_unk(mat->m20), &ColorF_unk(mat->m1C));
+    }
+}
+
 void Em003LesserDaemon::vf88() {
     fn_8024FCDC();
 }
@@ -570,8 +713,6 @@ void Em003LesserDaemon::vf14() {
     fn_80149A30();
 }
 
-// NONMATCHING: 99.98% - only the offsets of "SE_SP007_003"/"SE_UI001_008" in @stringBase0 (the strings of the
-// unwritten functions come before)
 void Em003LesserDaemon::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 12) {
@@ -737,6 +878,175 @@ void Em003LesserDaemon::vf24() {
         mMotion.fn_80097C08(0, 0x1C7, 1, 0, 1, 0.0f, 0.1f);
     }
     mMotion.mTracks[0].m0C = 1.0f;
+}
+
+// inferred: chooses the next action by phase (m14C0: even phases change the barrier, odd ones fight)
+void Em003LesserDaemon::fn_8024D120() {
+    if (m14B0 == 0) {
+        return;
+    }
+    if (m55C == 6) {
+        return;
+    }
+    if (m14E4 != 0) {
+        m14B0 = m14E4;
+    }
+    atn::Vector3 pos = m14B0->mPos;
+    atn::Vector3 d = pos - mPos;
+    float dist = PSVECMag(&d);
+    if (m1654 != 11 && m14E4 != 0) {
+        m14DC = m14E4;
+        m14E0 = m14E8;
+        if (dist < m1660) {
+            m1654 = 1;
+        } else {
+            m1654 = 6;
+        }
+        m14E4 = 0;
+    } else if (fn_80250884(45.0f) >= 3) {
+        m1654 = 13;
+    }
+    int wait;
+    bool broken = m1624 == 0;
+    if (broken) {
+        wait = m16A4[m14C0];
+    } else {
+        wait = m168C[m14C0];
+    }
+    switch (m14C0) {
+    case 0:
+    case 2:
+    case 4:
+        m14C0++;
+        if (m1620 != 0) {
+            if (m14C0 == 2) {
+                m1654 = 7;
+            } else if (m14C0 == 4) {
+                m1654 = 6;
+            }
+            fn_8024FFE8();
+            m14C4 = 0;
+        }
+        break;
+    case 1:
+        if (m1654 >= 0) {
+            fn_8024E1C0();
+            break;
+        }
+        if (m1670 > m1674[m14C0]) {
+            fn_802506AC();
+            m14C0++;
+            break;
+        }
+        m14DC = 0;
+        m14E4 = 0;
+        if (m14BC <= wait) {
+            break;
+        }
+        if (m14C4 >= m161C) {
+            WarpFar_unk();
+        } else if (dist < m1660) {
+            StartAttack_unk();
+        } else if (dist < m1664) {
+            if (m55C != 7 || m14B4 != 0) {
+                fn_80170A20(m14B0, 0, -1.0f);
+            }
+        } else {
+            int n = 1;
+            if (m1624 == 0) {
+                n = 2;
+            }
+            if (rand() % n == 0) {
+                StartLaser_unk();
+            } else {
+                StartWarp_unk();
+            }
+        }
+        break;
+    case 3:
+        if (m1654 >= 0) {
+            fn_8024E1C0();
+            break;
+        }
+        if (m1670 > m1674[m14C0]) {
+            fn_802506AC();
+            m14C0++;
+            break;
+        }
+        if (m14BC <= wait) {
+            break;
+        }
+        if (m14C4 >= m161C) {
+            WarpFar_unk();
+        } else if (dist < m1660) {
+            StartAttack_unk();
+        } else if (dist < m1664) {
+            if (m55C != 7 || m14B4 != 0) {
+                fn_80170A20(m14B0, 0, -1.0f);
+            }
+        } else if (dist < m1668) {
+            int n = 2;
+            if (broken) {
+                n = 4;
+            }
+            if (rand() % n == 0) {
+                StartLaser_unk();
+            } else {
+                StartWarp_unk();
+            }
+            StartLaser_unk();
+        } else {
+            int n = 1;
+            if (broken) {
+                n = 2;
+            }
+            if (rand() % n == 0) {
+                StartMagic_unk();
+            } else {
+                StartWarp_unk();
+            }
+        }
+        break;
+    case 5:
+        if (m1654 >= 0) {
+            fn_8024E1C0();
+            break;
+        }
+        if (m1670 > m1674[m14C0]) {
+            fn_802506AC();
+            m14C0 = 4;
+            break;
+        }
+        if (m14BC <= wait) {
+            break;
+        }
+        if (m14C4 >= m161C) {
+            WarpFar_unk();
+        } else if (dist < m1660) {
+            StartAttack_unk();
+        } else if (dist < m1664) {
+            if (m55C != 7 || m14B4 != 0) {
+                fn_80170A20(m14B0, 0, -1.0f);
+            }
+        } else {
+            int n = 2;
+            if (broken && fn_8024F9B8() != 0) {
+                n = 5;
+            }
+            switch (rand() % n) {
+            case 0:
+                StartLaser_unk();
+                break;
+            case 1:
+                StartMagic_unk();
+                break;
+            default:
+                StartWarp_unk();
+                break;
+            }
+        }
+        break;
+    }
 }
 
 void Em003LesserDaemon::fn_8024E1C0() {
@@ -985,6 +1295,110 @@ void Em003LesserDaemon::fn_8024ED68() {
         m14B8 = 0;
         m14BC = 0;
         m14DC = 0;
+    }
+}
+
+// NONMATCHING: 98.46% - saved registers of the fan loop (count/index/vectors) and of the farthest point
+// search, f29/f30 of the frame (10 variants: declaration orders, pointer loop, locals)
+// inferred: state 8 (aims at the target from the left hand, fires a fan of penetrating lasers and warps
+// between the points while m164C lasts)
+void Em003LesserDaemon::fn_8024F1DC() {
+    switch (m14B8) {
+    case 0: {
+        if (m14B0 == 0) {
+            break;
+        }
+        MtxPtr m = mMotion.GetNodeMtx_unk("lefthand");
+        atn::Vector3 hand(m[0][3], m[1][3], m[2][3]);
+        CharaTask* target = m14B0;
+        atn::Vector3 center = (target->mColli.m3C + target->mColli.m48) * 0.5f;
+        atn::Vector3 rot = (center - hand).ToRotationZ_unk();
+        rot.x = MAX(-0.31415927f, MIN(0.31415927f, rot.x));
+        float end = mMotion.fn_80097D7C(0) - 32.0f;
+        float frame = mMotion.mTracks[0].m08;
+        if (!(frame >= mMotion.fn_80097D7C(0) - 18.0f)) {
+            if (mMotion.mTracks[0].m08 >= end) {
+                rot.x *= MIN(1.0f, (mMotion.mTracks[0].m08 - end) / 14.0f);
+            } else {
+                rot.x = 0.0f;
+            }
+        }
+        float f;
+        if (m1650 >= 0 && (f = mMotion.mTracks[0].m08, 5.0f <= f) && mMotion.mTracks[0].m08 <= 8.0f) {
+            atn::Vector3 pos = mPoints.mData[m1650];
+            mPos = pos;
+        }
+        mRot = rot;
+        float frame2 = mMotion.mTracks[0].m08;
+        if (frame2 >= mMotion.fn_80097D7C(0) - 8.0f) {
+            int count = 5;
+            if (m16E4 != 0) {
+                count = 3;
+            }
+            atn::Vector3 dir = center - hand;
+            PSVECNormalize(&dir, &dir);
+            int n = count - 1;
+            atn::Vector3 d;
+            for (int i = 0; i < count; i++) {
+                d = dir;
+                Mtx rm;
+                PSMTXRotRad(rm, 'y', 0.7853982f * (((float)i - 0.5f * (float)n) / (0.5f * (float)n)));
+                PSMTXMultVec(rm, &d, &d);
+                fn_800F8574(lbl_8087F048, this, m14D4, &hand, &d, 0, 0, 0, 0.0f, 1.0f);
+            }
+            m14B8 = 1;
+        }
+        break;
+    }
+    case 1: {
+        float frame = mMotion.mTracks[0].m08;
+        if (!(frame >= mMotion.fn_80097D7C(0))) {
+            break;
+        }
+        if (--m164C > 0) {
+            if (mPoints.mSize != 0) {
+                if (m1650 < 0) {
+                    float bestDist = 0.0f;
+                    const atn::Vector3* point = mPoints.mData;
+                    int best = -1;
+                    for (unsigned int i = 0; i < mPoints.mSize; point++, i++) {
+                        atn::Vector3 d = mPos - *point;
+                        float dist = fn_805F9920(&d);
+                        if (dist > bestDist) {
+                            best = i;
+                            bestDist = dist;
+                        }
+                    }
+                    m1650 = best;
+                } else {
+                    m1650 = (m1650 + 1) % mPoints.mSize;
+                }
+                PlayEffectA_unk(&m157C, &mMotion);
+            }
+            mMotion.fn_80097C08(0, 0x146, 0, 1, 1, 1.0f, 0.1f);
+            m14B8 = 0;
+        } else {
+            mMotion.fn_80097C08(0, 0x147, 0, 0, 1, 1.0f, 0.1f);
+            m14B8 = 3;
+        }
+        break;
+    }
+    case 3: {
+        atn::Vector3 rot = mRot;
+        if (rot.x > 0.0f) {
+            rot.x -= MIN(rot.x, 0.05f);
+        } else if (rot.x < 0.0f) {
+            rot.x -= MIN(rot.x, -0.05f);
+        }
+        mRot = rot;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            rot.x = 0.0f;
+            mRot = rot;
+            ResetAction_unk();
+        }
+        break;
+    }
     }
 }
 
