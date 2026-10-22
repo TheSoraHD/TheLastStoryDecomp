@@ -179,3 +179,16 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - `game/CampSaveLoad` (14/31 -> 15/31): `MP::SaveElemB_unk::~SaveElemB_unk()` (0x80119ECC, copia debil) definido
   vacio aqui (incluye MP/SaveLoad.h): 100%. Las 9 funciones grandes sin escribir (0.9-2.1 KB) y el resto (bool de
   pad materializado 88.8%, pool ancho) quedan fuera del lote.
+- `chr/ControlLadder` (0/14 -> 2/14, unidad SIN FUENTE hasta ahora): **fuente nueva `src/chr/ControlLadder.cpp`**
+  con `ControlClimbDeck::vf0C` (100%) y su dtor implicito (100%; los de Ladder/AlleyWay/Crawling saldran al
+  escribir sus vtables), `ControlLadder::vf40` (97.2%, solo el offset de
+  "hips": "spine" va antes en el pool) y un borrador del ctor de ControlClimbDeck (~82%).
+  - **CABECERA COMPARTIDA `include/chr/ControlLadder.h`** (la usa game/CharaTask.cpp): anadidos los metodos
+    virtuales reales (Ladder vf0C/vf14/vf40, AlleyWay/Crawling/ClimbDeck vf0C) y los campos conocidos
+    (Ladder m2C/m4C, ClimbDeck m08/m18) sin cambiar tamanos. regress: 0.
+  - **symbols.txt (decision sin el usuario)**: fn_801B9DE4 -> vf0C__Q23chr13ControlLadderFv, fn_801BAC74 ->
+    vf14__Q23chr13ControlLadderFv, fn_801BB138 -> vf40__Q23chr13ControlLadderFv, fn_801BB514 ->
+    vf0C__Q23chr15ControlAlleyWayFv, fn_801BBBDC -> vf0C__Q23chr16ControlClimbDeckFv, fn_801BBF84 ->
+    vf0C__Q23chr15ControlCrawlingFv, fn_801BC188/1C8/208/248 -> __dt__ de Ladder/AlleyWay/ClimbDeck/Crawling
+    (orden de las vtables), lbl_8073B36C -> @stringBase0 (scope:local, "spine\0hips"). Ningun .cpp los usaba.
+    Build limpio OK.
