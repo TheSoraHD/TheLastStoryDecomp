@@ -123,7 +123,9 @@ void Em314Ivy::vf10() {
 }
 
 // NONMATCHING: 83.25% - the original loads the point and the arguments before the branch that picks the color
-// (li -0x100 / bne / li -0x5600 just before the call); ~12 variants (ternary, if/else, declaration order)
+// (li -0x100 / bne / li -0x5600 just before the call); ~20 variants (ternary, if/else, declaration order,
+// inline helpers, coordinates in locals)
+
 void Em314Ivy::vf14() {
     fn_80149A30();
     if (m15B8 != 0) {
