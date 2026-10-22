@@ -129,3 +129,11 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
   Loader), `fn_8006BB6C` (liberar). Tabla `sLangSuffix` (.rodata 0x80731460 + .sdata2). `fn_8006B53C` 75.9%.
   - Hallazgo MWCC: `if (x < 0 || x >= 6) return;` se fusiona en `cmplwi 5`; con dos `if` y `return` separados se
     conservan las dos comparaciones (cmpwi/blt + cmpwi/bge), pero no cuando la funcion se inlinea.
+- `atn/FileList` (20/27): ademas `fn_8006AB54`, `fn_8006AF38`/`fn_8006AFF8` (string + string con una vista local de
+  las palabras del std::string; el orden de declaraciones fija los registros), `fn_8006A9A4`, `fn_8006AA20`
+  (existe el fichero), `fn_8006B0C8`/`fn_8006B174` (directorio / nombre), `FileList::fn_8006C300` al 100%;
+  `fn_8006AC08`/`fn_8006B2D8` (rfind en linea, r6/r7) 99.4-99.5%, `fn_8006AD24` 98.2%. Sin escribir: `fn_8006B594`,
+  `fn_8006BD78` (push_back de Entry, bloqueo documentado) y `fn_8006C3F0` (depende de BD78).
+- `atn/Bezier_unk` (3/7): reconstruido `polyZeroes` (`fn_80507BBC`, 0% -> 84.2%) siguiendo animEngine.c del devkit de
+  Maya (normalizacion, caso lineal con limites, recursion sobre la derivada, zeroin, fusion de raices cercanas).
+  `fn_80508458` sube un poco (98.32 -> 98.33) por el orden de constantes.
