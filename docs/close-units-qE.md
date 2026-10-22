@@ -117,3 +117,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   dentro del inline, puntero a counts[8]); el resto ya investigado (pool 1.0f/0.0f, planificacion del 1.0f).
   Nota: `fnstat.py` muestra fn_805A358C/3660/3734 al 99.81% compilando la unidad suelta, pero el report completo
   las da al 100% (igual que las referencias): no hay perdida.
+- `game/SpecialEnemyBase` (14/22, sin cambios): `fn_805A3D68` 99.88% (3 intentos: literal en local antes/despues,
+  `find(..., 0)`): el original reutiliza r29 (el `lis` del pool) para ".csv". Resto: pool de cadenas, datos de la
+  tabla de nombres, aproximaciones grandes (66%/73%) y registros ya investigados.
