@@ -12,6 +12,17 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+// inferred: circuit of the war lion around the arena: place id and two flags (names invented)
+struct WarLionPlace_unk {
+    int mPlace;
+    int m04; // inferred: running point (skipped by fn_8032C3CC when 0)
+    int m08;
+};
+extern "C" const WarLionPlace_unk lbl_80749B00[10] = {
+    {0x258, 0, 0}, {0x25D, 0, 0}, {0x259, 1, 0}, {0x261, 0, 1}, {0x25A, 1, 0},
+    {0x260, 0, 1}, {0x25B, 1, 0}, {0x25F, 0, 1}, {0x25C, 1, 0}, {0x25E, 0, 1},
+};
+
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: effect/bullet manager of the characters (class unknown)
 struct Effect_unk;
@@ -39,8 +50,14 @@ struct Field_unk {
     float m978;
     unsigned char m97C[0x10D8 - 0x97C];
     RouteTable_unk* m10D8;
+    // inferred: route tables (accessor 0x8013C504 of game/CharaTask.cpp)
+    RouteTable_unk* fn_8013C504() { return m10D8; }
 };
 extern "C" Field_unk* lbl_8087F430;
+// inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
+extern "C" inline Field_unk* fn_80121F00() {
+    return lbl_8087F430;
+}
 // inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp); names invented
 struct GameState_unk {
     unsigned char m000[0x3A4];
@@ -214,6 +231,9 @@ extern "C" inline FriendManager* fn_80323C2C() {
     return FriendManager::sInstance;
 }
 
+// inferred: atn::DegToRad_unk called out of line by vf10 (over the inline budget); the original links the
+// copy of another unit (0x801125F8), so its constant is not in this pool. Declared with its mangled name
+extern "C" float DegToRad_unk__3atnFf(float deg);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" int rand();
 // inferred: translation matrix by value (name invented)
@@ -351,7 +371,7 @@ void Em403WarLion::vf10() {
     }
     m14B4 *= 0.8f;
     float turn = (rot.y + m14B4) - mRot.y;
-    float max = atn::DegToRad_unk(50.0f);
+    float max = DegToRad_unk__3atnFf(50.0f);
     if (fn_80011220(turn) > max) {
         turn = max * (turn / fn_80011220(turn));
     }
@@ -487,7 +507,6 @@ void Em403WarLion::vf54() {
     }
 }
 
-// NONMATCHING: 99.70% - solo la constante 2*pi del pool de .rodata (funciones sin escribir)
 // inferred: movement of the current mode (own version of CharaTask::fn_80139560)
 void Em403WarLion::fn_803241E8() {
     atn::Vector3 rot(mRot);
@@ -547,7 +566,7 @@ void Em403WarLion::fn_803241E8() {
 }
 
 // inferred: moves the war lion towards the rotation `target` (own version of CharaTask::fn_8013CB68)
-// NONMATCHING: 97.78% - registros FPR del giro y del clamp de m584 (frsp), orden de m574 al final
+// NONMATCHING: 98.22% - registros FPR del giro y del clamp de m584 (frsp), orden de m574 al final
 void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed, float rate) {
     atn::Vector3 pos(mPos);
     atn::Vector3 rot(mRot);
@@ -664,7 +683,7 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
     m574.x /= dt;
 }
 
-// NONMATCHING: 99.52% - dt en f28 en vez de f29 y registros de la comparacion con m500/m508
+// NONMATCHING: 99.75% - dt en f28 en vez de f29 y registros de la comparacion con m500/m508
 // inferred: chooses the movement motions (own version of CharaTask::vf24: walk and dash blended by speed)
 void Em403WarLion::vf24() {
     if (mFlag6) {
@@ -750,7 +769,7 @@ inline atn::Quaternion_unk QuatAxis_unk(const atn::Vector3& axis, float rad) {
     return q;
 }
 
-// NONMATCHING: 97.74% - el original guarda un GPR mas (r22) y los temporales del quaternion en otro orden
+// NONMATCHING: 97.82% - el original guarda un GPR mas (r22) y los temporales del quaternion en otro orden
 // inferred: turns the neck and the spine with the lean (node pose callback)
 void Em403WarLion::fn_803256F8(atn::MotionBuffer* nodes, int count) {
     for (int i = 0; i < count; i++) {
@@ -801,7 +820,7 @@ inline atn::Matrix3x4& MakeRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3
 }
 
 // inferred: turns the neck with the lean and the waist with m14B4 (node matrix callback)
-// NONMATCHING: 98.73% - r30/r31 del nodo y huecos de pila de las matrices de MakeRotationZYX_unk
+// NONMATCHING: 98.79% - r30/r31 del nodo y huecos de pila de las matrices de MakeRotationZYX_unk
 void Em403WarLion::fn_803258D4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk) {
     ModelNodeDesc_unk* node = (ModelNodeDesc_unk*)&chunk;
     if (mLook.fn_8012A288(mtx, node) != 0) {
@@ -843,7 +862,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: 97.67% - r3/r4 de las copias de Vector3 (__VecCopy) y offset de "tale" en el pool de cadenas
+// NONMATCHING: 97.76% - r3/r4 de las copias de Vector3 (__VecCopy) y offset de "tale" en el pool de cadenas
 // inferred: places the collision capsule along the body (own version of CharaTask::vf20)
 void Em403WarLion::vf20() {
     m620 = 2.0f * m5B0;
@@ -871,15 +890,29 @@ void Em403WarLion::vf20() {
     m1498 = 5.0f;
 }
 
-// inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
-extern "C" inline Field_unk* fn_80121F00() {
-    return lbl_8087F430;
+// inferred: helpers of game/Em204Mulue.cpp (not decompiled): angle wrap to [-180, 180] and radians to
+// degrees. Weak copies: fn_803267E8 (over the inline budget) calls them out of line, so their constants
+// are pooled right after its own.
+extern "C" inline float fn_802A7910(float deg) {
+    float d = fmod(deg, 360.0);
+    if (d > 180.0f) {
+        d -= 360.0f;
+    }
+    if (d < -180.0f) {
+        d += 360.0f;
+    }
+    return d;
 }
-// inferred: helpers of game/Em204Mulue.cpp (not decompiled): radians to degrees and angle wrap to
-// [-180, 180]
-extern "C" float fn_802A7964(float rad);
-extern "C" float fn_802A7910(float deg);
+extern "C" inline float fn_802A7964(float rad) {
+    return 57.295776f * rad;
+}
+// inferred: stripped helper (only its constant -100 remains in .sdata2 right after 57.295776f); body and
+// name invented: what matters is the order of its literal
+extern "C" inline float WarLionStripped1_unk(float y) {
+    return -100.0f * y;
+}
 
+// NONMATCHING: 99.87% - orden de cuatro stfs del item en la pila
 // inferred: two collision spheres, the body and the tail (own version of CharaTask::vf50)
 void Em403WarLion::vf50() {
     Item14_unk item;
@@ -894,7 +927,7 @@ void Em403WarLion::vf50() {
 }
 
 // inferred: chooses the next action of the walk mode (m14CC)
-// NONMATCHING: 99.73% - f30/f31 de la distancia y del angulo, huecos de pila de los CollResult_unk
+// NONMATCHING: 99.93% - f30/f31 de la distancia y del angulo, huecos de pila de los CollResult_unk
 // (el original llama fuera de linea a los helpers de Vector3: supera el presupuesto de inline)
 void Em403WarLion::fn_803267E8() {
     if (m15D4 != 0) {
@@ -990,6 +1023,7 @@ void Em403WarLion::fn_803267E8() {
         } else if (m14CC == 3) {
             float y = GetRot_unk()->y;
             float diff = fn_802A7910(fn_802A7964(d.GetNormalized_unk().ToRotation_unk().y - y));
+            (void)WarLionStripped1_unk;
             if (fn_80011220(diff) <= 60.0f && dist < 200.0f) {
                 atn::Vector3 from(mPos);
                 from.y += 10.0f;
@@ -1064,6 +1098,7 @@ void Em403WarLion::fn_803272A8() {
     mRot = (m1524.GetPos_unk(1.0f / 27.0f) - m1524.GetPos_unk(0.0f)).ToRotationZ_unk();
 }
 
+// NONMATCHING: 99.72% - r5/r6 de la copia del temporal a m150C (__VecCopy)
 void Em403WarLion::fn_803278B4() {
     SetState_unk(14);
     mMotion.m34C = 1;
@@ -1083,6 +1118,7 @@ void Em403WarLion::fn_803279D4() {
     mMotion.mTracks[0].m0C = 1.5f;
 }
 
+// NONMATCHING: 99.95% - offset de "" en @stringBase0 (cadenas de funciones sin escribir)
 // inferred: jumps on the target and holds it (state 16)
 void Em403WarLion::fn_80327A64() {
     SetState_unk(16);
@@ -1132,7 +1168,7 @@ inline float AngleDiffDeg_unk(float a, float b) {
 }
 
 // inferred: roar (state 8): turns towards the target, then attacks with bullet 0x672
-// NONMATCHING: 99.58% - operandos de un fmuls (0.034906585f * (a / abs))
+// NONMATCHING: 99.96% - operandos de un fmuls (0.034906585f * (a / abs))
 void Em403WarLion::fn_80327EF0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1163,7 +1199,6 @@ void Em403WarLion::fn_80327EF0() {
     }
 }
 
-// NONMATCHING: 99.58% - r5/r6 del indice y la tabla en el bucle de FindPlace_unk
 // inferred: comes down at place 0x262 (state 9) and then roars (bullet 0x673)
 void Em403WarLion::fn_80328270() {
     if (m14C4 == 0) {
@@ -1175,8 +1210,7 @@ void Em403WarLion::fn_80328270() {
             mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
             CollResult_unk result;
             atn::Vector3 pos(-18.0f, 30.0f, 600.0f);
-            RouteTable_unk* table = lbl_8087F430->m10D8;
-            RoutePlace_unk* place = table->FindPlace_unk(0x262);
+            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(0x262);
             if (place != 0) {
                 pos = place->mPos;
             }
@@ -1212,7 +1246,6 @@ extern "C" void* lbl_8087F9E8;
 extern "C" void fn_8059C32C(void* mgr, int arg);
 
 // inferred: comes down at place 0x262 (state 10), roars and sends message 2 to the gimmick 40 of kind 1
-// NONMATCHING: 99.62% - mismo intercambio r5/r6 que fn_80328270 en el bucle de FindPlace_unk
 void Em403WarLion::fn_8032853C() {
     if (m14C4 == 0) {
         if (mMotion.mTracks[0].m08 >= 6.0f) {
@@ -1223,8 +1256,7 @@ void Em403WarLion::fn_8032853C() {
             mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
             CollResult_unk result;
             atn::Vector3 pos(-18.0f, 30.0f, 600.0f);
-            RouteTable_unk* table = lbl_8087F430->m10D8;
-            RoutePlace_unk* place = table->FindPlace_unk(0x262);
+            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(0x262);
             if (place != 0) {
                 pos = place->mPos;
             }
@@ -1320,6 +1352,23 @@ void Em403WarLion::fn_80328B74() {
     }
 }
 
+// inferred: runs along the path m1524 (state 13), bullet 0x674 at frames 5-25 of the motion
+void Em403WarLion::fn_80328C6C() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        SetState_unk(6);
+        return;
+    }
+    mPos = m1524.GetPos_unk((1.0f / 27.0f) * (float)m14C8);
+    atn::Vector3 prev = m1524.GetPos_unk((1.0f / 27.0f) * (float)(m14C8 - 1));
+    mRot = (mPos - prev).ToRotationZ_unk();
+    frame = mMotion.mTracks[0].m08;
+    if (frame >= 5.0f && frame <= 25.0f) {
+        fn_80144710();
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m15F8, 30, -1, 0.0f);
+    }
+}
+
 void Em403WarLion::fn_8032932C() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1334,7 +1383,50 @@ void Em403WarLion::fn_8032932C() {
     }
 }
 
-// NONMATCHING: 99.07% - orden de los temporales de Lerp en la pila y stfs 0x2e8 del estado 18
+// inferred: hit of fn_8004ECC0 with a second vector after it (stack layout of fn_8032943C; name invented)
+struct CollHit_unk {
+    atn::Vector3 mPos;
+    atn::Vector3 m0C;
+};
+
+// NONMATCHING: 99.22% - orden de carga de m590/lbl_8087F048 en la llamada a fn_800F8C6C y de dos stfs del rayo
+// inferred: turns towards m1518, then jumps to m1500 (state 15)
+void Em403WarLion::fn_8032943C() {
+    if (m14C4 == 0) {
+        if (mMotion.mTracks[0].m08 >= 20.0f) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.5f;
+            mMotion.fn_80097C08(0, 0x20, 1, 1, 1, 0.0f, 0.1f);
+            mRot = m1518;
+            m150C = (m1500 - mPos).GetNormalized_unk() * 100.0f;
+            m150C *= 1.0f / mMotion.fn_80097D7C(0);
+            m14C4 = 1;
+        } else {
+            float d = atn::WrapAngle_unk(m1518.y - mRot.y);
+            d *= 0.1f;
+            mRot.y += d;
+        }
+    } else {
+        if ((mPos - m1500).Length_unk() < 10.0f) {
+            SetState_unk(6);
+        } else {
+            mPos += m150C;
+            fn_80144710();
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m590, 30, -1, 0.0f);
+            CollHit_unk hit;
+            atn::Vector3 from(mPos);
+            atn::Vector3 to(mPos);
+            from.y += 15.0f;
+            to.y -= 15.0f;
+            if (fn_8004ECC0(lbl_8087EE98, &hit.mPos, &from, &to, 0x80000000, 0, 0) != 0) {
+                mPos.y = hit.mPos.y;
+            }
+        }
+    }
+}
+
+// NONMATCHING: 99.29% - orden de los temporales de Lerp en la pila y stfs 0x2e8 del estado 18
 void Em403WarLion::fn_80329744() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1384,7 +1476,7 @@ void Em403WarLion::fn_80329744() {
     }
 }
 
-// NONMATCHING: 99.24% - el original guarda m0C una sola vez tras el ternario
+// NONMATCHING: 99.34% - el original guarda m0C una sola vez tras el ternario
 void Em403WarLion::fn_80329A20() {
     CharaTask* held = m1598;
     if (held == 0 || held->m55C != 6 || held->m560 != 0x6E) {
@@ -1457,6 +1549,253 @@ void Em403WarLion::vfEC() {
     }
 }
 
+// inferred: player manager (as in game/CharaTask.cpp)
+struct PlayerManager_unk {
+    unsigned char m00[0x48];
+    CharaTask* mHead;
+};
+extern "C" PlayerManager_unk* lbl_8087F8A0;
+// inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/CharaTask.cpp)
+struct CharaListNode_unk {
+    unsigned char m0000[0x14AC];
+    CharaTask* mNext;
+};
+inline CharaTask* NextChara_unk(CharaTask* chara) {
+    return ((CharaListNode_unk*)chara)->mNext;
+}
+// inferred: object hit by a ray (the character is at 0x0C, as in game/CharaTask.cpp)
+struct CollObj_unk {
+    unsigned char m00[0x08];
+    unsigned int m08;
+    CharaTask* m0C;
+};
+// inferred: the magic `data` of `chara` targets `target` (bullet manager); returns < 0 when not
+extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           float f);
+extern "C" int fn_800FBE70(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           atn::Vector3* pos, int a, int b);
+
+// NONMATCHING: 98.28% - asignacion de GPR (this en r27 en el original) y el id del control releido
+// inferred: looks for a player that attacks the war lion (magic, arrows or the gun) and gives the
+// place where to avoid it; counts the calls in `count` (true after 5)
+int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
+    if (++*count > 5) {
+        return 1;
+    }
+    int found = 0;
+    float rot = 0.0f;
+    atn::Vector3 target(0.0f, 0.0f, 0.0f);
+    float dist = 40.0f;
+    for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
+        if (!c->IsActive_unk() || c->vf78() == 0) {
+            continue;
+        }
+        if (c->m560 == 4 || c->m560 == 5) {
+            if (fn_800FBA9C(lbl_8087F048, c, this, c->m638, -1, 0.0f) < 0) {
+                continue;
+            }
+            found = 1;
+            dist = 100.0f;
+            target = c->mPos;
+            rot = c->mRot.y;
+            break;
+        } else if (c->m560 == 30) {
+            if (c->m638 == 0 || c->m638->m01 != 1) {
+                continue;
+            }
+            atn::Vector3 dir = c->fn_80158E1C().GetNormalized_unk();
+            atn::Vector3 from(c->mPos);
+            from.y += 20.0f;
+            atn::Vector3 to = from + dir * 1000.0f;
+            CollResult_unk result;
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &c->mColli, 0) == 0) {
+                continue;
+            }
+            CollObj_unk* obj = (CollObj_unk*)result.m38;
+            if ((obj->m08 & 2) != 2 || obj->m0C != this) {
+                continue;
+            }
+            target = mPos;
+            rot = dir.ToRotation_unk().y;
+            found = 1;
+            dist = 40.0f;
+            break;
+        } else if (c->m560 == 14) {
+            atn::Vector3 dir = c->fn_80158E1C();
+            if (fn_800FBE70(lbl_8087F048, c, this, c->m638, -1, &dir, 1, -1) < 0) {
+                continue;
+            }
+            found = 1;
+            target = dir;
+            rot = c->mRot.y;
+            break;
+        } else {
+            found = 1;
+            target = c->mPos;
+            rot = c->mRot.y;
+            break;
+        }
+    }
+    if (found) {
+        fn_8032A3D4(pos, angle, &target, rot, dist);
+        return 1;
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.99% - registros r28/r29 de move/ofs y posicion de un stfs del prologo
+// inferred: best place at distance `dist` on the left or the right of `target` (rotation `rot`):
+// the farthest one the war lion can reach; `angle` faces back towards the target
+void Em403WarLion::fn_8032A3D4(atn::Vector3* pos, float* angle, const atn::Vector3* target, float rot, float dist) {
+    atn::Vector3 ofs(0.0f, 0.0f, dist);
+    atn::Vector3 from(*target);
+    float best = 0.0f;
+    CollResult_unk result;
+    atn::Vector3 found;
+    from.y += m620;
+    float a = mRot.y;
+    for (int i = 0; i < 2; i++) {
+        float r = 3.1415927f * (float)i + rot - 1.5707964f;
+        Mtx m;
+        PSMTXRotRad(m, 'y', r);
+        atn::Vector3 move(ofs);
+        PSMTXMultVec(m, &move, &move);
+        fn_8004D388(lbl_8087EE98, &result, (CharaTask::Sphere_unk*)&from, &move, 0x80000000, &mColli, 0, m620);
+        move = result.m10;
+        atn::Vector3 d = move - from;
+        float len = fn_805F9920(&d);
+        if (len > best) {
+            a = atn::WrapAngle_unk(3.1415927f + r);
+            best = len;
+            found = move;
+        }
+    }
+    *pos = found;
+    *angle = a;
+}
+
+
+// inferred: the point of the circuit with flags (a, b) farthest from the mean position of the players
+atn::Vector3 Em403WarLion::fn_8032A650(int* id, int a, int b) {
+    atn::Vector3 result(lbl_807C7030);
+    atn::Vector3 mean(lbl_807C7030);
+    int n = 1;
+    for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
+        if (c->IsActive_unk()) {
+            n++;
+            mean += c->mPos;
+        }
+    }
+    float inv = 1.0f / (float)n;
+    mean.x *= inv;
+    mean.y *= inv;
+    mean.z *= inv;
+    int found = 0;
+    float best = 0.0f;
+    for (int i = 0; i < 10; i++) {
+        const WarLionPlace_unk* e = &lbl_80749B00[i];
+        if (e->m08 == a && e->m04 == b) {
+            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(e->mPlace);
+            if (place != 0) {
+                atn::Vector3 d = place->mPos - mean;
+                float len = fn_805F9920(&d);
+                if (len > best) {
+                    best = len;
+                    result = place->mPos;
+                    found = place->mId;
+                }
+            }
+        }
+    }
+    if (id != 0) {
+        *id = found;
+    }
+    return result;
+}
+
+// inferred: position of the point after `id` in the circuit (place 600 after the last one)
+atn::Vector3 Em403WarLion::fn_8032A894(int id, int* next) {
+    atn::Vector3 result(lbl_807C7030);
+    int place = 0;
+    for (int i = 0; i < 10; i++) {
+        if (id == lbl_80749B00[i].mPlace) {
+            if (i == 9) {
+                place = 600;
+            } else {
+                place = lbl_80749B00[i + 1].mPlace;
+            }
+        }
+    }
+    RoutePlace_unk* p = fn_80121F00()->fn_8013C504()->FindPlace_unk(place);
+    if (p != 0) {
+        result = p->mPos;
+    }
+    if (next != 0) {
+        *next = place;
+    }
+    return result;
+}
+
+// inferred: helpers of the path (vector of points and spline; weak copies at the end of this unit, also
+// called by gmk/CharaPathMove.cpp, Event/Manager.cpp and game/LastCocoonQuadruped.cpp; C names)
+struct WarLionPoints_unk {
+    atn::Vector3* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+};
+extern "C" void fn_8032AB90(WarLionPoints_unk* v);                          // inferred: constructor
+extern "C" void fn_8032ABA4(WarLionPoints_unk* v, int flag);                // inferred: destructor
+extern "C" void fn_8032AC1C(WarLionPoints_unk* v, const atn::Vector3* p);   // inferred: push_back
+extern "C" void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* pts); // inferred: builds the path
+
+// inferred: builds the path m1524 through the place `id` and the two next places of the circuit
+int Em403WarLion::fn_8032A9F4(WarLionPath_unk* path, int id, int* next) {
+    int second = 0;
+    int first = 0;
+    atn::Vector3 b(lbl_807C7030);
+    atn::Vector3 c(lbl_807C7030);
+    atn::Vector3 a(lbl_807C7030);
+    for (int i = 0; i < 10; i++) {
+        if (id == lbl_80749B00[i].mPlace) {
+            int j = i + 1;
+            if (j == 10) {
+                j = 0;
+            }
+            first = lbl_80749B00[j].mPlace;
+            j++;
+            if (j == 10) {
+                j = 0;
+            }
+            second = lbl_80749B00[j].mPlace;
+            break;
+        }
+    }
+    RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+    if (place != 0) {
+        a = place->mPos;
+    }
+    place = fn_80121F00()->fn_8013C504()->FindPlace_unk(first);
+    if (place != 0) {
+        b = place->mPos;
+    }
+    place = fn_80121F00()->fn_8013C504()->FindPlace_unk(second);
+    if (place != 0) {
+        c = place->mPos;
+    }
+    WarLionPoints_unk pts;
+    fn_8032AB90(&pts);
+    fn_8032AC1C(&pts, &a);
+    fn_8032AC1C(&pts, &b);
+    fn_8032AC1C(&pts, &c);
+    fn_8032AF90(path, &pts);
+    if (next != 0) {
+        *next = second;
+    }
+    fn_8032ABA4(&pts, -1);
+    return 1;
+}
+
+// NONMATCHING: 99.55% - solo la posicion de su constante en .sdata2 (falta el codigo de ruta del final)
 int Em403WarLion::vfE4() {
     if (m58C == 16 && mMotion.mTracks[0].m08 < 42.0f) {
         return 1;
@@ -1464,6 +1803,7 @@ int Em403WarLion::vfE4() {
     return 0;
 }
 
+// NONMATCHING: 97.50% - solo la posicion de su constante en .sdata2 (falta el codigo de ruta del final)
 float Em403WarLion::vf90() {
     return 3.6f;
 }

@@ -159,7 +159,7 @@ public:
     void fn_80329D7C();
     int fn_80329ED8(int* count, atn::Vector3* pos, float* angle);
     void fn_8032A3D4(atn::Vector3* pos, float* angle, const atn::Vector3* target, float rot, float dist);
-    void fn_8032A9F4(WarLionPath_unk* path, int id, int* next);
+    int fn_8032A9F4(WarLionPath_unk* path, int id, int* next);
     atn::Vector3 fn_8032A650(int* id, int a, int b);
     atn::Vector3 fn_8032A894(int id, int* next);
     // inferred: next point of the circuit (weak copy at the end of the file)
