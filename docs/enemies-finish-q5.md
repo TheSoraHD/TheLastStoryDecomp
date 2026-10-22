@@ -23,6 +23,8 @@ game/Em315Coffin.
   variantes). vf0C, vf100/104/108 grandes sin escribir.
   - En el report completo fn_80312EF8 y fn_8031319C estan al 100% (fnstat.py suelto las daba al 99.9% por el
     desplazamiento del pool de .sdata2): 9/18.
+  - ctor al 100% (11/18): 0x14D4-0x14DC es un struct de tres floats {1, rotacion, 1} con constructor propio
+    (`Rot_unk(info->m14)`, nombre inventado); con tres miembros sueltos el 1.0f se cargaba en otro registro.
   - vf30 al 100% con el `\0` final del formato "Em314 Ivy[%d]\0" (10/18).
   - vf40: `int state; if (...) state = 8; else state = 13; vf100(state);` da el 100% (el ternario y el if/else con
     dos llamadas no).
@@ -80,7 +82,7 @@ game/Em315Coffin.
   m16F8); solo la usa Em309Ghoul.cpp.
 - symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
   (scope:local).
-- include/game/Em314Ivy.h: m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
+- include/game/Em314Ivy.h: m14D4/m14D8/m14DC pasan a un struct `Rot_unk` (nombre inventado); m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
   declaraciones de las cuatro funciones; solo la usan Em314Ivy.cpp y la factoria.
 - include/game/Em315Coffin.h (solo la usan Em315Coffin.cpp y la factoria de SpecialEnemyBase.cpp): campos 0x15C8-0x15F4
   agrupados en `CoffinSkill_unk` (nombre inventado), 0x15F8/0x1604 Vector3 y 0x161C `CharaTask*` (destino del drenaje);

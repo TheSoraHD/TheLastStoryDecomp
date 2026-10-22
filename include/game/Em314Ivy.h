@@ -28,9 +28,13 @@ public:
     void fn_8031319C(CharaTask* target); // inferred: catches `target`
     void fn_803132D0(); // inferred: releases the caught character
 
-    float m14D4;
-    float m14D8; // inferred: rotation from the spawn description
-    float m14DC;
+    // inferred: scale/rotation triple (rotation from the spawn description); names invented
+    struct Rot_unk {
+        Rot_unk(float rot) : m00(1.0f), m04(rot), m08(1.0f) {}
+        float m00;
+        float m04;
+        float m08;
+    } m14D4;
     float m14E0;
     CharaTask* m14E4; // inferred: caught character
     void* m14E8;      // inferred: matrix of the "catch_point" node
