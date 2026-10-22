@@ -99,13 +99,12 @@ EventIdEntry_unk* EventIdTable_unk::fn_8020F71C(int id) {
 }
 
 // inferred: id of the first entry whose name appears in `name`, -1 if none
-// NONMATCHING: 99.24% - the original increments i before the byte offset (tried for/while forms,
-// declaration order, pointer arithmetic)
+// The unsigned index makes MWCC increment i before the byte offset, as in the original
 int EventIdTable_unk::fn_8020F75C(const char* name) {
     int count = mEntries.mSize;
     EventIdEntry_unk* entry;
     for (int i = 0; i < count; i++) {
-        entry = &mEntries.mData[i];
+        entry = &mEntries.mData[(unsigned int)i];
         if (strstr(name, entry->mName.c_str()) != 0) {
             return entry->mId;
         }
