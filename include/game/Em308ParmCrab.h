@@ -36,6 +36,7 @@ public:
     void fn_802F93F0(); // inferred: chooses the next action
     void fn_802F97B8(); // inferred: state 8 (needle)
     void fn_802F9F3C(); // inferred: state 9 (turn)
+    void fn_802FA2F4(); // inferred: state 10 (tackle run)
     void fn_802FB0C4(); // inferred: state 12 (escape)
     inline int OnWater_unk();
     inline void ResetAttack_unk();

@@ -122,7 +122,6 @@ extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const 
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_802FA2F4(Em308ParmCrab* crab);
 extern "C" void fn_802FA764(Em308ParmCrab* crab);
 extern "C" void fn_80108F38(Effect_unk* effect, const atn::Vector3& pos, int status); // inferred: status effect
 
@@ -335,7 +334,7 @@ void Em308ParmCrab::vf10() {
             fn_802F9F3C();
             break;
         case 10:
-            fn_802FA2F4(this);
+            fn_802FA2F4();
             break;
         case 11:
             fn_802FA764(this);
@@ -842,6 +841,51 @@ void Em308ParmCrab::fn_802F9F3C() {
             float d = atn::WrapAngle_unk(m1548 - m1544);
             mRot.y = atn::WrapAngle_unk(m1544 + (float)m1540 * d / 12.0f);
         }
+    }
+}
+
+// inferred: state 10 (tackle run, as Em308InvertCrab::fn_802F469C): escape under "EscapeHpRate", tackle within
+// the reach of m1530, needle beyond m152C, else chase the target. inferred: the rotation is computed and not used
+// NONMATCHING: 99.19% - only the li r5, 0 of fn_80170A20 is scheduled before the min(30, 0.8 * m152C) (as vf10;
+// 4 forms)
+void Em308ParmCrab::fn_802FA2F4() {
+    atn::Vector3 rot;
+    CharaTask* target = m15BC;
+    atn::Vector3 d = target->mPos - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    rot = d.ToRotation_unk();
+    float reach = 30.0f;
+    if (m1530 != 0) {
+        reach = m1530->m40;
+    }
+    if (m15AC.size() != 0 && mStatus.m04 / (float)mStatus.mParamB.m84 < m1594 && m15BC != 0 &&
+        !m15BC->mFlag28) {
+        fn_802FC2E0(this, m15BC);
+    }
+    if (dist < reach) {
+        fn_8016E970(3);
+        if (fn_802FBE00(m15BC, 11) == 0 && fn_802FBE00(m15BC, 11) == 0) {
+            ResetAttack_unk();
+            m58C = 11;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+            m15D0 = m1530 != 0 ? m1530->m68 : 60;
+        }
+    } else if (dist > m152C) {
+        fn_8016E970(3);
+        if (fn_802FBE00(m15BC, 8) == 0) {
+            fn_802FBA30(m15BC);
+        }
+    } else {
+        if (m55C - 6U > 1) {
+            float r = 0.8f * m152C;
+            m55C = 3;
+            fn_80170A20(m15BC, 0, 30.0f < r ? 30.0f : r);
+        }
+        fn_802F8EBC();
     }
 }
 
