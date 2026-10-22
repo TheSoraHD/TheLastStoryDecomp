@@ -53,7 +53,7 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20(); // not decompiled yet
-    virtual void vf28(); // not decompiled yet
+    virtual void vf28();
     virtual Model_unk* vf38();
     virtual int vf40(GimmickMsg_unk* msg);    // not decompiled yet
     virtual int vf44(GimmickHitMsg_unk* msg);

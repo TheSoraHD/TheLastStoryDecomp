@@ -130,6 +130,24 @@ void WaitObject::vf14() {
     }
 }
 
+// inferred: places the collision object with the model and enables it, then enters the start state
+// NONMATCHING: 99.9% - only the names of the safe-bool member pointers of boost::scoped_ptr
+// (lbl_8078DC40/lbl_8078DC4C in the original, local objects here; see vf1C)
+void WaitObject::vf28() {
+    vf2C();
+    if (vf38() != 0) {
+        fn_803ED0D4(vf38(), 1);
+    }
+    if (mColli) {
+        mColli->SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    }
+    if (mColli) {
+        mColli->mFlags |= 1;
+    }
+    GimmickMsg_unk msg(m58 + 1);
+    vf40(&msg);
+}
+
 // NONMATCHING: 99.85% - the safe-bool member pointer of boost::scoped_ptr is lbl_8078DC64 in the
 // original (a local object here, @NNNN).
 int WaitObject::vf1C() {
