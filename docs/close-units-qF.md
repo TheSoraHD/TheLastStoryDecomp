@@ -148,6 +148,9 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   Segunda pasada (6/33): fn_803010BC (estado 12, dos mensajes; m1670 sacado del relleno), fn_80300654 / fn_803009F4 (estados 1 y 9: mensaje de batalla 0x141/0x145 con el nombre
   de m60, sprintf ancho fn_800DD3FC + fn_80109828) y fn_80301200 (estado 13) al 100%; renombrados a
   `<fn>__10Em309GhoulFv` en symbols.txt. La tabla de mensajes lbl_8087F1E4 se declara local (GhoulMsgTable_unk).
+  Tercera pasada (8/33): vf44 (fn_802FF550, ranura 0x44) y vf14 (fn_80305BB8, dibujo de depuracion) al 100%.
+  En vf14 la linea sale con `m15D8 * 100.0f + mPos` (operadores de Vec.h); con constructores a mano cambian
+  los registros y el orden de la pila.
 
 - game/Em202Spider (0/25 -> 1/25) y game/Em202SpiderBase (0/23 -> 1/23): NUEVAS fuentes con cabeceras de
   relleno; los dtors (0x8027CD9C, 0x80282EA4) al 100% (vectores envueltos como ChaserGuard).

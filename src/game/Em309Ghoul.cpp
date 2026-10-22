@@ -7,6 +7,7 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
+extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -16,12 +17,18 @@ struct GhoulMsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" GhoulMsgTable_unk* lbl_8087F1E4;
+// inferred: debug drawing (lbl_8087EEB0, see game/CharaTask.cpp)
+extern "C" void* lbl_8087EEB0;
+extern "C" void fn_800638B0(void* draw, float a, float b, const atn::Vector3* from, const atn::Vector3* to,
+                            unsigned int color);
+extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, float radius, int color, float arg);
 
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
+extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 
 Em309Ghoul::~Em309Ghoul() {}
 
@@ -35,6 +42,19 @@ atn::Vector3 Em309Ghoul::vf64(int center) {
         result = m624.mData[1].m04.mCenter;
     }
     return result;
+}
+
+void Em309Ghoul::vf44() {
+    vf48();
+    mStatus.fn_8012DD70();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    mFC0 = 0;
+    m1434 = 80;
+    m15B0 = 30;
+    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+    }
 }
 
 void Em309Ghoul::fn_80300654() {
@@ -106,4 +126,12 @@ void Em309Ghoul::fn_80301200() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.1f);
     fn_80370AE4(lbl_8087F430, 0xA3, 1);
+}
+
+void Em309Ghoul::vf14() {
+    BattleCharaTask::vf14();
+    if (m1690 != 0) {
+        fn_800638B0(lbl_8087EEB0, 1000.0f, -1.0f, &mPos, &(m15D8 * 100.0f + mPos), 0xFF0000FF);
+        fn_80063D3C(lbl_8087EEB0, &m1608, m16E0, -1, 1000.0f);
+    }
 }

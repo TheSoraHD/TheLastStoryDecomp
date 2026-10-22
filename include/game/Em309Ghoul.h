@@ -14,6 +14,8 @@ class Em309Ghoul : public EnemyTask {
 public:
     Em309Ghoul(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em309Ghoul();
+    virtual void vf14();
+    virtual void vf44();
     virtual atn::Vector3 vf64(int center);
 
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
@@ -37,12 +39,20 @@ public:
     atn::EfpHandle_unk m1594;
     atn::EfpHandle_unk m15A0;
     atn::SoundRef m15AC;
-    unsigned char m15B0[0x1670 - 0x15B0];
+    int m15B0;
+    unsigned char m15B4[0x15D8 - 0x15B4];
+    atn::Vector3 m15D8;       // inferred: debug line direction
+    unsigned char m15E4[0x1608 - 0x15E4];
+    atn::Vector3 m1608;       // inferred: debug sphere center
+    unsigned char m1614[0x1670 - 0x1614];
     chr::CharaData_unk* m1670; // inferred: passed to fn_8017A300
     atn::LH_Xsca m1674[2];
     unsigned char m1684[0x168C - 0x1684];
     ResHandle m168C;          // inferred: debug menu group
-    unsigned char m1690[0x1700 - 0x1690];
+    int m1690;                // inferred: "DebugDisp"
+    unsigned char m1694[0x16E0 - 0x1694];
+    float m16E0;              // inferred: debug sphere radius
+    unsigned char m16E4[0x1700 - 0x16E4];
 };
 
 #endif
