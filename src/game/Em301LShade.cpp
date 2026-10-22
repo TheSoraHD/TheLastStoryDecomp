@@ -663,6 +663,19 @@ void Em301LShade::vf20() {
     mColli.m54 = m620;
 }
 
+void Em301LShade::vf50() {
+    Item14_unk item;
+    item.m04.mRadius = m5B0;
+    item.m04.mCenter = mPos + m5A4;
+    item.m04.mCenter.y += 13.0f * m540.x + item.m04.mRadius;
+    m624.push_back(item);
+    MtxPtr head = mMotion.GetNodeMtx_unk("head");
+    item.m04.mCenter = GetNodePos_unk(head) + m5A4;
+    item.m04.mCenter.y += 3.0f;
+    m624.push_back(item);
+    mFlagB29 = 0;
+}
+
 void Em301LShade::vf54() {
     if (m624.mSize != 0) {
         Item14_unk* item = m624.mData;
