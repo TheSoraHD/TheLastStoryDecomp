@@ -28,6 +28,8 @@
 #include "game/Em312DarkServant.h"
 #include "game/Em315Coffin.h"
 #include "game/Em401_01_WhiteLeoPard.h"
+#include "game/Em202Spider.h"
+#include "game/Em202SpiderBase.h"
 #include "game/Em208Queen.h"
 #include "game/Em209BigGolem.h"
 #include "game/Em209SmallGolem.h"
@@ -581,8 +583,6 @@ extern "C" void* fn_80264DB4(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_8026FC0C(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_8027278C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80279860(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_8027C990(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_80282AE8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80287E7C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80293738(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8029CB00(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -638,18 +638,10 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) Em306GurgBeast(parent, info);
             break;
         case 12:
-            p = ::operator new(0x15b0, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_8027C990(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em202Spider(parent, info);
             break;
         case 14:
-            p = ::operator new(0x15e0, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80282AE8(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em202SpiderBase(parent, info);
             break;
         case 29:
             p = ::operator new(0x16b0, 3, "", "", 0);
