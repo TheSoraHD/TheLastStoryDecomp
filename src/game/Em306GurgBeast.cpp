@@ -24,6 +24,7 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
+extern "C" void fn_801028E4(Effect_unk* mgr, int arg, CharaTask* chara, int arg2);
 extern "C" void fn_80102824(Effect_unk* mgr, CharaTask* chara, PlayerTask* leader);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
@@ -134,6 +135,100 @@ void Em306GurgBeast::fn_802EE9A8(const char* text, int length) {
         }
     } while (csv.fn_8005BBF8());
 }
+
+// inferred: CharaTask::CanAct_unk written out (as in game/Em303KrakenFoot.cpp)
+inline bool BeastCanAct_unk(CharaTask* c) {
+    bool r = false;
+    bool free = false;
+    bool active = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        active = true;
+    }
+    if (active && (c->mStatus.m0C & 0x20) != 0x20) {
+        free = true;
+    }
+    if (free && !c->IsGrappled_unk()) {
+        r = true;
+    }
+    return r;
+}
+
+inline void Em306GurgBeast::CopyTrack_unk(Model_unk* dst, int i) {
+    dst->mTracks[i].m20 = mMotion.mTracks[i].m20;
+    dst->mTracks[i].m0C = mMotion.mTracks[i].m0C;
+    dst->mTracks[i].m08 = mMotion.mTracks[i].m08;
+    dst->fn_80097C08(i, mMotion.mTracks[i].m00, mMotion.mTracks[i].m18, 0, 1, 0.0f, 0.1f);
+}
+
+// NONMATCHING: 97.62% - registers of the inlined CanAct_unk, r28-r30 of the track copy loop and the stack
+// slots of the capsule points (~14 forms: helpers, local orders, constructors)
+void Em306GurgBeast::vf10() {
+    if (!CharaTask::mFlag2 || !BeastCanAct_unk(this)) {
+        vf104();
+    }
+    if (m14E8 != 0) {
+        m14E8->fn_801765D8();
+        int count = mMotion.m34C;
+        m14E8->mMotion.m34C = count;
+        for (int i = 0; i < count; i++) {
+            m14E8->GetModel_unk()->mTracks[i].m20 = mMotion.mTracks[i].m20;
+            m14E8->GetModel_unk()->mTracks[i].m0C = mMotion.mTracks[i].m0C;
+            m14E8->GetModel_unk()->mTracks[i].m08 = mMotion.mTracks[i].m08;
+            m14E8->GetModel_unk()->fn_80097C08(i, mMotion.mTracks[i].m00, mMotion.mTracks[i].m18, 0, 1, 0.0f, 0.1f);
+        }
+    }
+    fn_8014C540();
+    if ((mFlags & 1) != 1 && !CharaTask::mFlag25) {
+        fn_80145334();
+    }
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m620;
+    atn::Vector3 top;
+    atn::Vector3 base(mPos.x, mPos.y + m620, mPos.z);
+    int index = mMotion.fn_80092814("tail", 0);
+    if (index > -1) {
+        MtxPtr tail = mMotion.mNodeMtx[index];
+        top = atn::Vector3(tail[0][3], tail[1][3], tail[2][3]);
+        top.y -= 1.0f;
+    } else {
+        top = base;
+        top.y += m5B4 - 2.0f * m620;
+    }
+    mColli.m3C = base;
+    mColli.m48 = top;
+    mColli.m54 = m620;
+    if (m14E8 != 0) {
+        m14E8->fn_80145334();
+        m14E8->mLook.fn_80129A6C();
+        if (m1524 != 0) {
+            if (m14E8 != 0 && m1558 == 0) {
+                vf100(17);
+                m1558--;
+            } else if ((m14E8->mStatus.m0C & 0x20) == 0x20) {
+                m14E8->fn_80176ACC();
+                m14E8->mF1C = 0;
+                m14E8->mLook.fn_80129A48(0.3f);
+                m14E8->mMotion.m34C = 1;
+                m14E8->mMotion.mTracks[0].m20 = 1.0f;
+                m14E8->mMotion.mTracks[0].m0C = 1.0f;
+                m14E8->mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+                m14E8 = 0;
+                fn_801028E4(lbl_8087F048, 0, this, 0);
+                fn_8015495C(0, 1, 1, 1);
+                mC58.mC4 = 0;
+                mF18 = mF14;
+                mF14 = 0;
+                vf100(14);
+                m1550 = 300;
+            }
+        }
+    }
+    if (m1524 != 0) {
+        fn_802F1120();
+    }
+}
+
 
 void Em306GurgBeast::vf14() {
     fn_80149A30();

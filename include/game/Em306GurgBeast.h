@@ -26,6 +26,7 @@ public:
 
     void fn_802EE9A8(const char* text, int length); // inferred: reads the data file
     void fn_802F0F60(); // inferred: walk motion
+    inline void CopyTrack_unk(Model_unk* dst, int i);
     void fn_802F1120(); // inferred: keeps the rider on the seat
     void fn_802F1240(CharaTask* rider); // inferred: drops the rider
     void fn_802F1320(int restart); // inferred: throws the rider off
