@@ -29,6 +29,7 @@ public:
     void fn_802FC188(); // inferred: death
     inline void ResetAttack_unk();
     inline void StopAttack_unk();
+    void fn_802FB6AC(CharaTask* target); // inferred: with the flag 2 of m15B8 moves towards target (state 7)
     void fn_802FBA30(CharaTask* target); // inferred: attacks target (state 6, or 8 with the flag 4 of m15B8)
     int fn_802FBE00(CharaTask* target, int next); // inferred: starts a turn towards target (0 if it already faces it)
 
