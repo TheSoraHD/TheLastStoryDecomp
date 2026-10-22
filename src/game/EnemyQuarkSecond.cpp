@@ -470,7 +470,9 @@ void EnemyQuarkSecond::vf10() {
     m14B0 = mC58.mC4;
     fn_803449AC();
     if (m14B0 == 0) {
-        m14B0 = mC58.mC4 = fn_8000DCF4(fn_8000D9E8());
+        CharaTask* leader = fn_8000DCF4(fn_8000D9E8());
+        m14B0 = leader;
+        mC58.mC4 = leader;
     }
     if (fn_80370A78(fn_80121F00(), 0x8C) != 0) {
         if (m58C == 13) {
@@ -530,6 +532,7 @@ void EnemyQuarkSecond::vf10() {
         }
     }
     fn_8000DCF4(fn_8000D9E8());
+    int kind;
     int busy = 0;
     if (mC58.mC0 == 0 || m14B0 == 0) {
         fn_8016E970(3);
@@ -596,7 +599,6 @@ void EnemyQuarkSecond::vf10() {
         }
         fn_80339F74(this, free);
         MapInfo_unk* map = fn_80373148(fn_80121F00());
-        int kind;
         if (mPos.y - fn_8000DCF4(fn_8000D9E8())->fn_8013C38C()->y > 20.0f) {
             kind = 3;
         } else {
@@ -779,7 +781,7 @@ inline int EnemyQuarkSecond::NextInTable_unk(int range, int& index) {
 
 // NONMATCHING: the original is over the inline budget (fn_8000D9E8, fn_8000DCF4, the Vector3 copy and
 // operator-, fn_801C3910, fn_800E0AA8 and fn_8028B74C are called out of line); this compile inlines them
-void EnemyQuarkSecond::fn_8033A7A0() {
+inline void EnemyQuarkSecond::fn_8033A7A0() {
     if (m14B0 == 0) {
         return;
     }

@@ -69,7 +69,7 @@ public:
     inline void ResetState_unk();
     inline void PlayMotion_unk(int motion, int loop, float speed);
     inline int NextInTable_unk(int range, int& index);
-    void fn_8033A7A0(); // inferred: picks the next action
+    inline void fn_8033A7A0(); // inferred: picks the next action
     void fn_8033C490(); // inferred: state 6
     void fn_8033D040(); // inferred: state 7
     void fn_8033D750(); // inferred: state 9
