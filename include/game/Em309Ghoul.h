@@ -16,7 +16,14 @@ public:
     virtual ~Em309Ghoul();
     virtual atn::Vector3 vf64(int center);
 
-    unsigned char m14B0[0x1528 - 0x14B0];
+    void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
+    void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
+    void fn_80301200(); // inferred: starts state 13
+
+    unsigned char m14B0[0x14F0 - 0x14B0];
+    int m14F0;
+    int m14F4;
+    unsigned char m14F8[0x1528 - 0x14F8];
     atn::EfpHandle_unk m1528;
     atn::EfpHandle_unk m1534;
     atn::EfpHandle_unk m1540;
