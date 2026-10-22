@@ -203,8 +203,6 @@ int Em312DarkServant::vf10C(HitMsg_unk* msg) {
     return m14D8;
 }
 
-// NONMATCHING: ~95% - the inlined KnockDown_unk: the original loads DamageCountMax first and reloads it
-// after the state test (5 variants)
 void Em312DarkServant::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if ((mStatus.m0C & 0x20) == 0x20) {
@@ -217,8 +215,10 @@ void Em312DarkServant::vf40(HitInfo_unk* hit) {
     if ((mStatus.m0C & 0x4000) == 0x4000) {
         m14E0 = m157C;
     }
-    if (IsDown_unk()) {
+    // inferred: the original reloads both counters here (volatile reads)
+    if (*(volatile int*)&m14E0 >= *(volatile int*)&m157C) {
         KnockDown_unk();
+
     } else if (m58C == 12 && m14C0 < 25) {
         vf100(6);
     }
@@ -237,17 +237,18 @@ extern "C" void fn_8030E4AC(EnemyTask* servant) {
     ((Em312DarkServant*)servant)->KnockDown_unk();
 }
 
-// NONMATCHING: ~90% - the original reloads m54C for the clear and stores m54C before m14A8 (4 variants)
 extern "C" void fn_8030E530(EnemyTask* servant) {
     Em312DarkServant* s = (Em312DarkServant*)servant;
     s->m14E0 = 0;
     if ((s->mStatus.m0C & 0x4000) == 0x4000) {
         s->mStatus.fn_8012F440(0x4000, 0, 1, 0, 0, 0, 1);
     }
-    if (s->m14D8 != 0 && (s->m54C & 0x2000) == 0x2000) {
+    // inferred: the original reloads m54C after the test (volatile read through a cast)
+    if (s->m14D8 != 0 && (*(volatile unsigned int*)&s->m54C & 0x2000) == 0x2000) {
         s->m14A8 |= 0x04000000;
         s->m54C &= ~0x2000;
     }
+
 }
 
 // NONMATCHING: ~85% - register numbering of the recursion inlined three levels deep (zero and counters;
@@ -271,8 +272,8 @@ void Em312DarkServant::vfFC() {
     m156C = m1570;
 }
 
-// NONMATCHING: 95.88% - saved registers of the recursion of fn_8030E5C8 inlined three levels deep (documented
-// blocker) and the reload of m54C before the m14A8 store in state 13 (same case as fn_8030E530)
+// NONMATCHING: 98.43% - saved registers of the recursion of fn_8030E5C8 inlined three levels deep (documented
+// blocker)
 void Em312DarkServant::vf100(int state) {
     if (CharaTask::mFlag2) {
         return;
@@ -322,7 +323,7 @@ void Em312DarkServant::vf100(int state) {
     case 13:
         fn_805A4F1C(0x1E1, 0, 1, 1.0f, 0.0f);
         mFlag30 = 0;
-        if (m14D8 != 0 && (m54C & 0x2000) != 0x2000) {
+        if (m14D8 != 0 && (*(volatile unsigned int*)&m54C & 0x2000) != 0x2000) {
             m14A8 &= ~0x04000000;
             m54C |= 0x2000;
         }

@@ -41,6 +41,10 @@ game/Em315Coffin.
 - `game/Em312DarkServant` (segunda vuelta, 14/21): vf30 al 100% con un bloque `{ void* sub = ...; }` por
   sub-grupo (el original da un registro nuevo a cada `sub`) y el `\0` final de "Em312 DarkServant[%d]\0" (el
   pool guarda un terminador extra detras). Mismo arreglo aplicado a Em315Coffin::vf30 y Em309GhoulSimple::vf30.
+- `game/Em312DarkServant` (tercera vuelta, 16/21): vf40 y fn_8030E530 al 100% leyendo los miembros que el
+  original relee justo despues de escribirlos a traves de `*(volatile int*)&...` (m14E0/m157C en vf40, m54C en
+  fn_8030E530 y en el estado 13 de vf100, que sube a 98.43%). Declarar los miembros `volatile` en la cabecera
+  empeora vf40 (94.9%): el volatile va solo en esas lecturas.
 - `game/Em309GhoulSimple` (9/22, sin nuevas al 100%): escritas vf10 (0x8030646C, 99.57%: registros volatiles del
   CanAct_unk inline), vf20 (0x80308D14, capsula, 99.76%: r4/r5 de la copia del cuello) y vf30 (0x80309E6C,
   99.92%: offsets del pool). Las grandes (vf100/104/108, fn_803067E0 vf40, fn_80308E6C) y fn_803097AC (slot 0xB0:
@@ -104,6 +108,10 @@ game/Em315Coffin.
 
 - Un color `GXColor -> float/255` construido con un constructor inline `ColorF_unk(GXColor)` saca las palabras
   0x43300000 de las conversiones fuera de los bucles; rellenado campo a campo no (Em315Coffin::fn_80313AAC).
+
+- La lectura `*(volatile T*)&miembro` en una sola expresion reproduce la recarga del original sin afectar al
+  resto de accesos (declarar el miembro volatile cambia todas las lecturas). Decision: se usa como variante del
+  truco ya documentado ("miembro releido justo tras escribirlo = volatile"); no es asm ni pragma.
 
 ## Pendientes para otras colas
 - `CharaTask::vfB0` (cabecera compartida include/game/CharaTask.h) esta declarada `void vfB0()`; en los enemigos
