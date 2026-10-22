@@ -93,3 +93,28 @@ contra main y contra la integracion, sin bajadas de fuzzy.
   - `MapModel_unk` (0x22C) inventado: LH_Binary como miembro (el original destruye sin llamada virtual).
   - `((void)0)` x10 en `fn_800A05AC`: el original la llama fuera de linea desde fn_800A09D0.
 - Pendientes: las 11 funciones sin escribir y los NONMATCHING.
+
+## qA11: atn/ModelDraw_unk fn_8009BF3C (paired-single cuantizado)
+- Resultado: `fn_8009BF3C` 35.93% -> 100% (objdiff). La unidad sigue `matching: false` (2/14 al 100%).
+  `main.dol: OK`, regress lost: 0 (main b015150 e integracion), fuzzdrop sin bajadas.
+- Excepcion aprobada por el usuario (2026-10-22) solo para esta funcion: asm paired-single cuantizado (GQR6).
+  - `SetGQR6_unk(register unsigned int)`: `mtspr GQR6` en un helper con parametro (con una variable
+    `register` local el compilador no materializa 0x40004 en r3 -> r4 como el original).
+  - El bloque psq_l/ps_mul/ps_muls0/psq_st va dentro de `SetMatColor_unk` (static inline, resto en C++) con
+    registros fijos f2-f9; los punteros (`register`) se declaran al principio en el orden amb, mc, ac para que
+    salgan r7/r6/r5 y se preparen antes de las conversiones u8->float. En un helper aparte con parametros
+    (`ScaleColorQ_unk`) se preparan despues y baja a ~88%: descartado.
+  - `inv` (1/255) es una variable `register` declarada despues de `SetGQR6_unk` (el `lfs f0` va tras el mtspr);
+    `scale` (255) se declara tras las conversiones y reutiliza f12.
+- Otros cambios de forma (C++ normal) para el 100%:
+  - El color de material/ambiente es una inline (`SetMatColor_unk`, locales en orden ascendente), incluida la
+    llamada final de luz `fn_8007642C`; el color K2 sale de una inline `ToGXColor_unk` (temporal, no local).
+    Las dos copias de la constante blanca salen solas (dos instancias de la inline).
+  - La rama lenta (`SetMatTev_unk`) tambien es inline: lee `mat->m20` antes de `sLastMat_unk = mat`, y
+    `m3C`/`m40` en locales `int` antes de recargar `mat->m08->mDesc->m054`.
+  - `(int)mat->m14_19 == 1` para `cmpwi` (bitfield unsigned daba `cmplwi`).
+- Hallazgos MWCC
+  - Un valor para `mtspr` pasado como parametro `register` de una inline asm se materializa en otro registro y
+    se copia (`lis r3; addi r4, r3`); como local `register` va directo al registro final.
+  - Variables `register` de un bloque asm declaradas antes de un calculo C se preparan antes de el; los
+    parametros de una inline asm se preparan justo antes del asm.
