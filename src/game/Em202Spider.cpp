@@ -264,7 +264,7 @@ inline void Em202Spider::ResetState_unk() {
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
 }
 
-// NONMATCHING: 99.21% - stack slots (the original keeps the effect locals and the distance of the target loop
+// NONMATCHING: 99.23% - stack slots (the original keeps the effect locals and the distance of the target loop
 // below the capsule temporaries), order of the stores of m61C/m620, r4/r5 of id/index in the place lookups
 // and of the skill/id loads; about 20 variants (named locals, components, inline helpers, references)
 void Em202Spider::vf10() {
@@ -443,8 +443,8 @@ void Em202Spider::vf10() {
     if (m58C == 5) {
         atn::Vector3 off = FrontDir_unk(this) * 20.0f;
         pos += off;
-        m614 = pos;
         m620 = m5B0;
+        m614 = pos;
         m614.y += m620;
     }
     top = pos;
