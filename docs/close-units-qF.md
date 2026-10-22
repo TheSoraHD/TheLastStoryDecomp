@@ -106,6 +106,13 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
     `__sinit_\Em209SmallGolem_cpp`; lbl_807C83C8 (0x30) partido en sColor0_unk/sColor1_unk/sColor2_unk
     (0x807C83C8/D8/E8, scope:local).
 
+- game/Em303KrakenFoot (0/26 -> 10/26, NUEVA fuente + cabecera): al 100% ctor, dtor, fn_802E2328 /
+  fn_802E2360 / fn_802E2468 (`extern "C"`, los llama Em302Kraken, que aun no tiene fuente), vf14, vf3C,
+  fn_802E554C, vfEC, vf24. vf0C 99.7% (orden de los flags 0x2A/0x200, como en KrakenFootMp). Pendientes: lector
+  del CSV (0x802E2640), vf10/vf40/vf54 y las funciones de estado grandes.
+  - symbols.txt: fn_802E211C/2270/2470/2640/2E84/2E88/554C/58C8/5970 -> nombres de Em303KrakenFoot.
+  - SpecialEnemyBase.cpp: factoria con `new (3, "", "", 0) Em303KrakenFoot(...)`.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
@@ -121,3 +128,7 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   sexto argumento, el blend es 1.0f (no 0.0f); comprobar el valor de f1 en la llamada.
 - Tres estaticos con constructor seguidos (`static C a(...), b(...), c(...)`) dan el `__sinit` con una base y
   desplazamientos 0/0x10/0x20; un array `static C x[3] = {...}` da otro orden de cargas.
+- `bool r = false; if (a != 1 && a != 2) r = true; return r;` da la secuencia cmpwi/beqlr del original; con
+  `if (a == 1 || a == 2) return 0; return 1;` MWCC lo convierte en aritmetica sin saltos (cntlzw).
+- Un inline `InRange_unk`/accesor del frame que relee el miembro en cada comparacion fija el orden de carga de la
+  constante frente al miembro (lfs constante antes del lfs del frame).
