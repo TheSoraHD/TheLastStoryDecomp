@@ -43,7 +43,7 @@ public:
     int m1520;
     int m1524;                 // inferred: "rideplayer"
     int m1528;                 // inferred: "reride"
-    EnemyTask* m152C;          // inferred: rider from the player side ("rideplayer")
+    BattleCharaTask* m152C;    // inferred: rider from the player side (the leader) ("rideplayer")
     int m1530;                 // inferred: seat node matrix (MtxPtr stored as int, as CharaTask::mF1C)
     int m1534;
     int m1538;

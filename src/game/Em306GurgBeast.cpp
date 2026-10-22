@@ -267,6 +267,91 @@ void Em306GurgBeast::vfFC() {
     vf100(6);
 }
 
+// inferred: starts a state (8-13: attacks, 14: walk, 15/16: the leader gets on, 17: stop, 2: down)
+void Em306GurgBeast::vf100(int state) {
+    if (CharaTask::mFlag2) {
+        return;
+    }
+    int prev = m58C;
+    m14BC = 0;
+    m14C0 = 0;
+    m14C4 = 0;
+    m14C8 = 0;
+    mFlag31 = 0;
+    mFlag30 = 0;
+    mFlag29 = 0;
+    mFlag28 = 0;
+    mFlag27 = 1;
+    m14D0 = 0;
+    m58C = state;
+    switch (state) {
+    case 6:
+        mFlag30 = 1;
+        break;
+    case 7:
+        mFlag30 = 1;
+        break;
+    case 8:
+    case 9:
+        fn_805A4F1C(0x143, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 10:
+    case 11:
+        fn_805A4F1C(0x13F, 0, 1, 1.0f, 0.0f);
+        m14C8 = fn_800F8548(lbl_8087F048);
+        mRot.y = m14D8.ToRotation_unk().y;
+        mFlag30 = 0;
+        break;
+    case 12:
+        fn_805A4F1C(0x141, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 13:
+        fn_805A4F1C(0x144, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 2:
+        if (mF14 == 1) {
+            if ((mStatus.m0C & 0x20) == 0x20 && prev != 2) {
+                vf44();
+            }
+            if (m55C != 2) {
+                fn_8016E970(2);
+            }
+            fn_805A4F1C(0x2E, 0, 1, 1.0f, 0.0f);
+            mFlag30 = 0;
+            if (m14E8 != 0) {
+                m14E8->fn_80176ACC();
+                m14E8->mF1C = 0;
+                m14E8->mLook.fn_80129A48(0.3f);
+                m14E8 = 0;
+            }
+        }
+        break;
+    case 14:
+        mFlag30 = 1;
+        mMotion.fn_80097C08(0, 0x142, 1, 0, 1, 0.0f, 0.1f);
+        break;
+    case 15:
+        lbl_8087F8A0->mHead->fn_80163E70(this);
+        break;
+    case 16:
+        m152C = lbl_8087F8A0->mHead;
+        if (m152C != 0) {
+            m1530 = (int)mMotion.GetNodeMtx_unk("seatpoint");
+            if (m1530 != 0) {
+                m152C->mF1C = m1530;
+            }
+        }
+        break;
+    case 17:
+        fn_805A4F1C(0x143, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    }
+}
+
 void Em306GurgBeast::vf30(void* menu) {
     char name[0x100];
     sprintf(name, "Em306 GurgBeast[%d]", m58);
