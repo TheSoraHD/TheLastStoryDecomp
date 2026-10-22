@@ -345,3 +345,7 @@ void LayerOcclusionCPU::fn_800B4694(OccModel_unk* model, OccMeshList_unk* list) 
 }
 
 } // namespace atn
+
+// inferred: scratch vertices (16 Vector3; built by the __sinit at 0x800B6684, used by the clipping
+// code at 0x800B47AC-0x800B6218 that is not reconstructed)
+atn::Vector3 lbl_807C74A0[16];

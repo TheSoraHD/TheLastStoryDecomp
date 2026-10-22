@@ -1,7 +1,8 @@
-// Weak copy of std::basic_ios<char>::~basic_ios with its vtable and RTTI (no MSL C++ iostream
-// source is available; inferred from 0x800E0AC0 and the data at 0x807799E0). These are the tail
-// of the game unit before it (the atn::Video code at 0x800DD1EC-0x800E0AC0 writes to a
-// std::basic_ostream), so this file only reproduces the function and is not linked.
+// std::basic_ios<char>::~basic_ios with its vtable and RTTI (no MSL C++ iostream source is
+// available; inferred from 0x800E0AC0 and the data at 0x807799E0). This is the tail of the game
+// unit before it (the atn::Video code at 0x800DD1EC-0x800E0AC0 writes to a std::basic_ostream).
+// The specialization with an out-of-line destructor (key function) emits exactly the weak
+// function, the vtable and both RTTI records, so the unit links on its own.
 
 namespace std {
 
@@ -18,14 +19,14 @@ public:
 };
 
 template <class T, class Traits>
-class basic_ios : public ios_base {
+class basic_ios;
+
+template <>
+class basic_ios<char, char_traits<char> > : public ios_base {
 public:
-    virtual ~basic_ios() {}
+    virtual ~basic_ios();
 };
 
-} // namespace std
+basic_ios<char, char_traits<char> >::~basic_ios() {}
 
-// inferred: any construction of a stream emits the vtable and the destructor
-void* fn_char_traits_char_unk() {
-    return new std::basic_ios<char, std::char_traits<char> >;
-}
+} // namespace std

@@ -2,11 +2,18 @@
 #define ATN_LAYERPOSTFX_H
 
 #include "atn/Layer3D.h"
+#include "math/Vec.h"
 
 namespace atn {
 
 // inferred: 8-byte float pair, copied with psq_l/psq_st
 struct Vec2f {
+    Vec2f() {}
+    Vec2f(const Vec2f& o) { __Vec2Copy(&x, &o.x); }
+    Vec2f& operator=(const Vec2f& o) {
+        __Vec2Copy(&x, &o.x);
+        return *this;
+    }
     float x, y;
 };
 

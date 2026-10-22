@@ -49,7 +49,7 @@ struct CurveSegment_unk {
 static float sMachineTolerance;
 static int sToleranceInit;
 
-// inferred: polyZeroes (real roots of a polynomial in [a, b]); not reconstructed
+// inferred: polyZeroes (real roots of a polynomial in [a, b]); defined after zeroin
 extern "C" int fn_80507BBC(float* poly, int deg, float a, int aClosed, float b, int bClosed, float* roots);
 extern "C" int fn_80508458(EngineBezier_unk* bezier, float* x, float* y);
 extern "C" float fn_80508818(EngineBezier_unk* bezier, float time);
@@ -183,6 +183,104 @@ extern "C" float fn_805078A4(Polynomial_unk* poly, float a, float b, float fa, f
     }
 done:
     return b;
+}
+
+// NONMATCHING: 84.2% - same structure as the original (devkit polyZeroes); register allocation, the
+// stack slots of the int->float temporaries and the operand order of `tol` differ
+// inferred: polyZeroes of the Maya devkit sample (animEngine.c): real roots of the polynomial
+// `Poly` of degree `deg` in [a, b] (ends included when a_closed/b_closed), sorted; -1 when the
+// polynomial is zero
+extern "C" int fn_80507BBC(float* Poly, int deg, float a, int a_closed, float b, int b_closed, float* roots) {
+    int i, left_ok, right_ok, nr, ndr, skip;
+    float e, f, s, pe, ps, tol, p[22], d[22], dr[22];
+    Polynomial_unk ply;
+
+    e = pe = 0.0f;
+    f = 0.0f;
+    for (i = 0; i < deg + 1; ++i) {
+        f += fabs(Poly[i]);
+    }
+    tol = (fabs(a) + fabs(b)) * (deg + 1) * sMachineTolerance;
+
+    if (f <= tol) {
+        return -1;
+    }
+
+    // normalise the polynomial
+    for (i = 0; i < deg + 1; ++i) {
+        p[i] = (1.0f / f) * Poly[i];
+    }
+
+    // find the real degree
+    while (deg > 0 && fabs(p[deg]) < tol) {
+        deg--;
+    }
+
+    nr = 0;
+    if (deg == 0) {
+        return 0;
+    }
+    if (deg == 1) {
+        roots[0] = -p[0] / p[1];
+        left_ok = a_closed ? (a < roots[0] + tol) : (a < roots[0] - tol);
+        right_ok = b_closed ? (b > roots[0] - tol) : (b > roots[0] + tol);
+        nr = (left_ok && right_ok) ? 1 : 0;
+        if (nr) {
+            if (a_closed && roots[0] < a) {
+                roots[0] = a;
+            } else if (b_closed && roots[0] > b) {
+                roots[0] = b;
+            }
+        }
+        return nr;
+    }
+
+    // derivative
+    ply.mCoeff = p;
+    ply.mDeg = deg;
+    for (i = 1; i <= deg; ++i) {
+        d[i - 1] = (float)i * p[i];
+    }
+    ndr = fn_80507BBC(d, deg - 1, a, 0, b, 0, dr);
+    if (ndr == -1) {
+        return 0;
+    }
+
+    skip = 0;
+    for (i = 0; i <= ndr; ++i) {
+        if (nr > deg) {
+            return nr;
+        }
+        if (i == 0) {
+            s = a;
+            ps = evalPoly(&ply, s);
+            if (fabs(ps) <= tol && a_closed) {
+                roots[nr++] = a;
+            }
+        } else {
+            s = e;
+            ps = pe;
+        }
+        e = (i == ndr) ? b : dr[i];
+        pe = evalPoly(&ply, e);
+        if (skip) {
+            skip = 0;
+        } else {
+            if (fabs(pe) < tol) {
+                if (i != ndr || b_closed) {
+                    roots[nr++] = e;
+                    skip = 1;
+                }
+            } else if ((ps < 0.0f && pe > 0.0f) || (ps > 0.0f && pe < 0.0f)) {
+                roots[nr++] = fn_805078A4(&ply, s, e, ps, pe, 0.0f);
+                if (nr > 1 && roots[nr - 2] >= roots[nr - 1] - tol) {
+                    roots[nr - 2] = (roots[nr - 2] + roots[nr - 1]) * 0.5f;
+                    nr--;
+                }
+            }
+        }
+    }
+    return nr;
 }
 
 // inferred: comparison through an inline returning bool (mfcr in the original)

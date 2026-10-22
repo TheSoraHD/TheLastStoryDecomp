@@ -61,4 +61,15 @@ void LH_Material::vf0C(const char* path) {
     mCore = lbl_8087F518->Get_unk<LoadMaterial>(path, 1);
 }
 
+void* LH_Material::fn_80474860() {
+    return &((LoadMaterial*)mCore)->mMaterials;
+}
+
+unsigned int LH_Material::fn_8047486C() {
+    if (mCore != 0) {
+        return ((LoadMaterial*)mCore)->mMaterials.size();
+    }
+    return 0;
+}
+
 } // namespace atn
