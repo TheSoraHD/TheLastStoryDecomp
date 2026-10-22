@@ -576,6 +576,94 @@ void Em302KrakenMp::vf100(int state) {
     }
 }
 
+// inferred: update of the remote copy (multiplayer): only the states started by vf100 run here
+// NONMATCHING: draft
+void Em302KrakenMp::vf104() {
+    if (mC58.mC0 == 0 || mC58.mC4 == 0) {
+        fn_8016E970(3);
+        if ((mStatus.m0C & 0x20) != 0x20 && m14DC != 1) {
+            fn_802E03F0();
+        }
+        if (m58C == 7) {
+            if (mMotion.mTracks[0].m08 <= 0.0f) {
+                vf9C(1);
+                m151C = 1;
+                Reset_unk();
+                fn_800CB5C8(&m1560, 0, 0);
+                fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+                fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+            }
+        } else if (m58C == 2) {
+            vfEC();
+        }
+    } else {
+        if (m15B0 > 0 && --m15B0 == 0) {
+            m154C = m154C == 0;
+        }
+        m14E8++;
+        switch (m58C) {
+        case 6: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                Reset_unk();
+                fn_800CB5C8(&m1560, 0, 0);
+                fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+                fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+            }
+            break;
+        }
+        case 7:
+            if (mMotion.mTracks[0].m08 <= 0.0f) {
+                vf9C(1);
+                m151C = 1;
+                Reset_unk();
+                fn_800CB5C8(&m1560, 0, 0);
+                fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+                fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+            }
+            break;
+        case 8:
+            fn_802E094C();
+            break;
+        case 9:
+            if (mMotion.mTracks[0].m00 == 0x145) {
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
+            } else if (m14E8 < 20) {
+                (float)m14E8;
+            } else if (m14E8 >= 45) {
+                fn_802E1624();
+            }
+            break;
+        case 10:
+            fn_802E0C60();
+            break;
+        case 11:
+            fn_802E0EC8();
+            break;
+        case 2:
+            vfEC();
+            break;
+        default: {
+            fn_8016E970(3);
+            atn::Vector3 rot = mRot;
+            float zero = 0.0f;
+            float one = 1.0f;
+            if (m55C == 6) {
+                fn_8013A258();
+            } else {
+                fn_8013CB68(&rot, 0, zero, m568 * one);
+            }
+            fn_802E03F0();
+            break;
+        }
+        }
+    }
+    m14F8++;
+}
+
 void Em302KrakenMp::vf108() {}
 
 void Em302KrakenMp::vf3C(HitInfo_unk* hit) {
@@ -637,6 +725,152 @@ int Em302KrakenMp::vfB0(atn::Vector3* out) {
     Item14_unk* it = m624.mData;
     *out = it->m04.mCenter + atn::Vector3(0.0f, 1.0f, 0.0f) * mColli.m54 * 0.6f;
     return 1;
+}
+
+// inferred: changes the behaviour step m14DC (0: appears at the next point, 1: attacks, 2: sinks,
+// 3: waits for the reinforcements, 4: anger); m14E4 counts the frames of the step
+// NONMATCHING: 99.5% - registers of the hit point rate blocks (r4/r6 against r0) and of the leg loop
+// (count/offset swapped); 6 variants
+void Em302KrakenMp::fn_802E03F0() {
+    switch (m14DC) {
+    case 0:
+        if (m14E4 == 0) {
+            if (m15E8.size() != 0) {
+                if ((int)m15E8.size() <= (int)++m15E4) {
+                    m15E4 = 0;
+                }
+                m15E0 = m15E8[m15E4];
+                RoutePlace_unk* place = m15E0;
+                if (place != 0) {
+                    mPos = place->mPos;
+                    mRot.y = 3.1415927f + place->m14;
+                } else {
+                    mPos = atn::Vector3(0.0f, -1000.0f, 0.0f);
+                }
+                mPos += m15A0;
+                mPos.y += m14F0;
+                if (m14DC == 3 && m58C != 7) {
+                    mPos.y -= 1000.0f;
+                }
+            }
+            fn_802E10D8(0);
+        }
+        if (m14E4 == 1) {
+            m14E0 = m14DC;
+            m14DC = 4;
+            m14E4 = 0;
+            m14F8 = 0;
+            return;
+        }
+        break;
+    case 1:
+        if (m153C != 0 || m14F4 >= 5) {
+            float rate = mStatus.m04 / mStatus.mParamB.m84;
+            m14E0 = m14DC;
+            m14DC = 3;
+            m14E4 = 0;
+            m1540 = m1548;
+            if (rate < 0.4f) {
+                m1548 = 4;
+            } else {
+                int next = 1;
+                if (m1540 == 1) {
+                    next = 2;
+                }
+                m1548 = next;
+            }
+            return;
+        } else {
+            int next;
+            if (m14E4 > 300) {
+                m14E0 = m14DC;
+                m14DC = 3;
+                m14E4 = 0;
+                next = 0;
+            } else {
+                if (m14F8 > 0) {
+                    m14EC = 0;
+                    m14E8 = 0;
+                    m590 = fn_800F8548(lbl_8087F048);
+                    m58C = 8;
+                    fn_8016E970(3);
+                    fn_800C344C("SE_EM302_013", &m614, 0, -1, 1.0f);
+                    m14F8 = 0;
+                    m14F4++;
+                }
+                next = 1;
+            }
+            if (next == 0) {
+                return;
+            }
+        }
+        break;
+    case 2:
+        if (m14E4 == 0) {
+            fn_802E1290();
+        }
+        if (m14E4 == 1) {
+            float rate = mStatus.m04 / mStatus.mParamB.m84;
+            m1540 = m1548;
+            if (rate < 0.4f) {
+                m1548 = 4;
+            } else {
+                int next = 1;
+                if (m1540 == 1) {
+                    next = 2;
+                }
+                m1548 = next;
+            }
+            m14E0 = m14DC;
+            m14DC = 3;
+            m14E4 = 0;
+            return;
+        }
+        break;
+    case 3: {
+        int count = 0;
+        for (unsigned int i = 0; i < m1624.size(); i++) {
+            if (m1624[i]->m58C != 12) {
+                count++;
+            }
+        }
+        if (count <= 0) {
+            m15E0 = 0;
+            m14E0 = m14DC;
+            m14DC = 0;
+            m14E4 = 0;
+            return;
+        }
+        if (fn_802E0890() == 0) {
+            return;
+        }
+        break;
+    }
+    case 4:
+        if (m14E4 == 0 && m14E0 == 3) {
+            fn_802E10D8(1);
+        }
+        if (m14E4 == 1) {
+            fn_80370AE4(lbl_8087F430, 0xCC, 1);
+            fn_802E1414();
+        }
+        if (m14E4 == 2) {
+            float rate = mStatus.m04 / mStatus.mParamB.m84;
+            if (rate < 0.4f) {
+                m1540 = m1548;
+                m1548 = 3;
+            }
+            m14E0 = m14DC;
+            m14DC = 1;
+            m14E4 = 0;
+            m14F8 = 0;
+            m14F4 = 0;
+            m153C = 0;
+            return;
+        }
+        break;
+    }
+    m14E4++;
 }
 
 // inferred: waits for the reinforcements (returns 0 when the wait ends)
