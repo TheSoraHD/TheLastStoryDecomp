@@ -71,3 +71,8 @@ Hallazgos MWCC (4):
 - game/LibraryTask: sin cambios. Ctor 99.69% (lista/offset r30/r31; 9 variantes, como el ctor de SelectMember pero al reves).
 - game/NewCampPartsHint, chr/ControlDive: saltadas (push_back en bucle / registros ya investigados / `__VecCopy`).
 - game/ChaserNpc: 9/14. fn_8018128C (0x8018128C) SUBIDA: `m14C4 = (float)MAX(...); m14C4 *= 1.32f;` (asignacion compuesta en vez de `x * 1.32f` en la misma expresion; cambia el orden de operandos de fmuls). fn_80181D94 99.57% (bucle de FindPlace_unk, como CharaC58_unk) no intentada.
+- chr/ControlAttractHateCharge: ENLAZADA (8/8). ControlOverdrive::vf0C (0x801B79D8) subida en una segunda pasada: la comparacion muerta es `float lim = 0.2f; float d = m3A4; lim = MIN(lim, d - 0.1f);` (macro MIN con el limite primero). No se uso pairnames --apply (empareja vf60 con vf40 de GimmickCommon, inlines de 8 bytes).
+
+Hallazgos MWCC (5):
+- Clamp muerto `x = MIN(lim, d - c)` con el limite en un local declarado antes: carga las constantes y compara como el original (fcmpo lim, d); las formas `if (d > lim) d = lim` invierten f0/f1.
+- `a = expr; a *= k;` en vez de `a = expr * k;` invierte el orden de operandos de fmuls (ChaserNpc::fn_8018128C).

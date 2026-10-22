@@ -858,7 +858,7 @@
    "chr::ControlOverdrive",
    "chr::ControlAttractHateCharge"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlInteractionBase.cpp",

@@ -189,17 +189,15 @@ ControlOverdrive::ControlOverdrive(Chara_unk* chara, int skill)
     mChara->SetHit_unk(fn_80219E6C(mSkill));
 }
 
-// NONMATCHING: 99.87% - the dead comparison (0.2 against the frame time) uses f0/f1 the other way round
-// (tried: operand order, >=/!<=, ternary, min helpers, locals for 0.1/0.2, split subtraction)
 int ControlOverdrive::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     int result = 0;
     if (mChara->mType == 0 && lbl_8087F610 == 0 && motion->mTracks[0].m08 >= 14.0f &&
         motion->mTracks[0].m08 <= 20.0f) {
-        float d = lbl_8087EFA8->m3A4 - 0.1f;
-        if (d > 0.2f) {
-            d = 0.2f;
-        }
+        // inferred: dead clamp of the frame time (the result is unused)
+        float lim = 0.2f;
+        float d = lbl_8087EFA8->m3A4;
+        lim = MIN(lim, d - 0.1f);
     }
     if (motion->mTracks[0].m08 >= 50.0f && mFired == 0) {
         mFired = 1;
