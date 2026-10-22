@@ -407,7 +407,9 @@ public:
     virtual int vfA4();
     virtual int vfA8(int kind); // inferred: returns -1 (0x80041A20); EnemyTrista::vfA8 returns 0, 2 or 3
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
-    virtual void vfB0();
+    // inferred: point to aim at, nonzero if there is one (0x800EF31C returns 0; GameUI passes a
+    // vector at 0x803D3C80; Em302Kraken/Em302KrakenMp fill it); the target symbol said Fv
+    virtual int vfB0(atn::Vector3* out);
     // inferred: action to run for `chara` (empty in CharaTask: weak copy 0x800EF310; called by
     // chr::ControlWallUp::vf10)
     virtual boost::function<void()> vfB4(CharaTask* chara);

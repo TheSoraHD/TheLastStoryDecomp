@@ -145,6 +145,9 @@ struct KrakenMpCommandName_unk {
     char mName[0x40];
     int mId;
 };
+// inferred: static vector of the file built by the __sinit (offset of the thunder)
+static atn::Vector3 sOffset_unk(0.0f, 6.0f, 0.0f);
+
 static const KrakenMpCommandName_unk sCommands_unk[] = {
     {"swing", 8}, {"pound", 9}, {"wait", 10}, {"", -1},
 };
@@ -627,6 +630,17 @@ void Em302KrakenMp::vf3C(HitInfo_unk* hit) {
     } else {
         vf118(hit);
     }
+}
+
+// inferred: point to aim at while the head is up (state kind 1): the first collision sphere raised
+// by 0.6 of the radius
+int Em302KrakenMp::vfB0(atn::Vector3* out) {
+    if (m14DC != 1) {
+        return 0;
+    }
+    Item14_unk* it = m624.mData;
+    *out = it->m04.mCenter + atn::Vector3(0.0f, 1.0f, 0.0f) * mColli.m54 * 0.6f;
+    return 1;
 }
 
 // inferred: waits for the reinforcements (returns 0 when the wait ends)

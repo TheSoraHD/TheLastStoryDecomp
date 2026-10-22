@@ -169,6 +169,9 @@ struct KrakenCommandName_unk {
     char mName[0x40];
     int mId;
 };
+// inferred: static vector of the file built by the __sinit (offset of the thunder)
+static atn::Vector3 sOffset_unk(0.0f, 6.0f, 0.0f);
+
 static const KrakenCommandName_unk sCommands_unk[] = {
     {"swing", 12}, {"pound", 13}, {"stick", 14}, {"wait", 15}, {"", -1},
 };
@@ -622,6 +625,17 @@ void Em302Kraken::vf20() {
     mColli.m3C = a;
     mColli.m48 = b;
     mColli.m54 = r;
+}
+
+// inferred: point to aim at while the head is up (state kind 1): the first collision sphere raised
+// by 0.6 of the radius
+int Em302Kraken::vfB0(atn::Vector3* out) {
+    if (m14B8 != 1) {
+        return 0;
+    }
+    Item14_unk* it = m624.mData;
+    *out = it->m04.mCenter + atn::Vector3(0.0f, 1.0f, 0.0f) * mColli.m54 * 0.6f;
+    return 1;
 }
 
 atn::Vector3 Em302Kraken::vfD0(float angle) {
