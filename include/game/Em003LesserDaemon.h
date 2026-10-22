@@ -20,6 +20,7 @@ public:
 
     void fn_8024FCDC(); // inferred: starts the death sequence
     void fn_8024FE18(int arg); // inferred: death of a boss / of a linked daemon
+    int fn_8024F9B8();  // inferred: finds a free warp position behind the target (mWarpDest)
     void fn_802506AC(); // inferred: warps to the point farthest from the target
     int fn_80250884(float radius);
     inline int FarthestPoint_unk();
