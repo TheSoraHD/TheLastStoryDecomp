@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "atn/LH_Binary.h"
 #include "atn/Memory.h"
+#include "gmk/Lemon.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -449,3 +450,11 @@ void SwingObject::vf3C(void* lens) {
 }
 
 } // namespace gmk
+
+// inferred: draw of a swinging map part (its model instance comes first); called by
+// MapPartsGimmickLoc (name unknown)
+extern "C" void fn_804006E0(atn::ModelInstance* inst) {
+    if (lbl_8087F0A8->m18 != 0) {
+        inst->fn_8009E6EC(0);
+    }
+}

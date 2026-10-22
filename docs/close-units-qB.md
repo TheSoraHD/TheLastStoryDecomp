@@ -63,6 +63,7 @@ Una linea por unidad procesada (orden de cola_B.md).
 - gmk/ChickenManager (2a pasada): escritas las 6 funciones de Chicken_unk (gemelas de Pigeon_unk): fn_8040B668 99.91%, fn_8040BC38 99.73%, fn_8040BE88 99.83%, fn_8040CD2C 99.61% (codigo igual, solo orden de .sdata2), fn_8040C058 97.3%, fn_8040C610 97.7% (huecos de pila). El ctor pasa al 100% (orden de .sdata2 ya correcto). FindNear_unk como en Pigeon: vf0C 88.71% -> 93.89%. 7/15. symbols.txt: fn_8040CD2C__Q23gmk11Chicken_unkFv -> fn_8040CD2C__Q23gmk11Chicken_unkFP9CharaTask. Pigeon fn_80405A14: con Atan2_unk su codigo ya coincide (98.73%, solo .sdata2/.rodata).
 - gmk/RandomItem (2a pasada): escritas fn_8043465C (100%; `(m11C == 2 && m168 != 0) || m11C == 3` en una sola condicion da la forma de saltos), fn_80435684 (100%) y fn_80435908 (93.7%, marco y registros). 15/19; queda fn_804348C4 (3520 B) sin escribir.
 - gmk/MotionObject vf24 99.88% -> 99.94% y gmk/LemonBucket vf20 99.11% -> 99.15%: leer tamano y datos del binario en locales antes de construir el CsvTab (probado en otras vf20 sin mejora).
+- gmk/SwingObject: escrita fn_804006E0 (funcion libre de dibujo de la pieza de mapa que oscila, llamada desde MapPartsGimmickLoc) -> 100%. 10/20.
 
 ## Hallazgos MWCC
 - Pasar `(int)x` (x unsigned) a un inline en una segunda llamada impide que MWCC comparta las subexpresiones del parametro entre las dos copias inlineadas (TreasureBoxTable).
