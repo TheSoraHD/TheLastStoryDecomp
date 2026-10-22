@@ -384,7 +384,9 @@ public:
     CharaTask(atn::Task* parent, int type, void* data); // 0x801354B4
     virtual ~CharaTask();                               // 0x80136138
     virtual int vf0C();                                 // 0x8017CB74
-    virtual int vf1C(); // inferred: nonzero skips the node hooks (fn_80148CC4)
+    // inferred: node matrix hook of the subclass (fn_80148CC4 passes its matrix and node); nonzero skips
+    // the other hooks. The arguments are only read by Em209SmallGolem::vf1C (0x802CFE78).
+    virtual int vf1C(atn::Matrix3x4* mtx, struct ModelNodeDesc_unk* node);
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
@@ -427,7 +429,8 @@ public:
     virtual int vfA8(int kind); // inferred: returns -1 (0x80041A20); EnemyTrista::vfA8 returns 0, 2 or 3
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
     // inferred: point to aim at, nonzero if there is one (0x800EF31C returns 0; GameUI passes a
-    // vector at 0x803D3C80; Em302Kraken/Em302KrakenMp fill it); the target symbol said Fv
+    // vector at 0x803D3C80; Em302Kraken/Em302KrakenMp fill it; the target symbol said Fv;
+    // Em205Ogre 0x802BA64C writes the center of its second sphere)
     virtual int vfB0(atn::Vector3* out);
     // inferred: action to run for `chara` (empty in CharaTask: weak copy 0x800EF310; called by
     // chr::ControlWallUp::vf10)
