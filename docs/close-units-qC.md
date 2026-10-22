@@ -104,3 +104,6 @@ Hallazgos MWCC (8):
 - game/EnemyTrista: ctor 98.6% (carga de info->m20 en el prologo): el truco de `const EnemyInfo_unk*` no se puede aplicar (el simbolo es `P13EnemyInfo_unk`, no const); cast/inline const no cambian nada.
 - game/CrowdManager fn_801EB7C4, game/SongManager fn_805A2FD4, chr/ControlTurnQuadruped ctor: intentos adicionales sin mejora (cero compartido, volumen 1.0f antes de GetFade_unk, stfs del double).
 - game/SkillEffectManager: fn_8059AB94 (vacia) anadida al 100%. Probado tambien anadir fn_80599C6C, fn_80599FB4 y Bullet_unk::fn_8059A264 (las tres igualan o casi): al estar definidas en la TU, MWCC las inlinea en vf10/fn_8059B8A8/vf14 (el original las llama: estan antes de la clase en el fichero y son mas grandes que el presupuesto en ese punto) y bajan vf10 98.61->86.02 y fn_8059B8A8 99.43->95.0. Revertido; pendiente para cuando se escriba el resto de Bullet_unk (orden de definicion).
+- chr/ControlCliffhang: 4/8. fn_801AC14C (0x801AC14C) SUBIDA: la rama vacia de `right` en la direccion 3 lleva tambien la condicion `m74 > 0.0f` (como las direcciones 2 y 4): `else if (right != 0 && m74 > 0.0f) {}`.
+- game/GameUI: no intentada (170 funciones pendientes, la mayoria copias debiles de inlines/accessors; requiere decidir el orden de la TU).
+- game/Em305VampireMp: no intentada (ctor con std::string, registros).
