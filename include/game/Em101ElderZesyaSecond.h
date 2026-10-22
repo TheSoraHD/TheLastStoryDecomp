@@ -30,20 +30,24 @@ public:
     void fn_8025C460(); // inferred: warps (state 11)
     // inferred: one of the three warp points nearest to the enemy (position and rotation)
     int fn_8025C7A8(atn::Vector3* pos, float* rot);
+    void fn_8025C29C(int kind); // inferred: casts magic `kind` (state 7)
+    void fn_8025BD1C();         // inferred: state 7 (chant, rising)
+    void fn_8025B9EC();         // inferred: walks to the target (route or straight)
+    void fn_8025BF58();         // inferred: state 8 (casts the magic at frame 62)
 
     atn::LH_Binary m14B0;
     CharaTask* m14B8;   // inferred: target
     float m14BC;
     ElderList_unk m14C0;
-    int m14CC;
-    int m14D0;
+    RoutePlace_unk* m14CC; // inferred: "center_warp_point"
+    CharaTask* m14D0;      // inferred: target
     int m14D4;
     int m14D8;
     int m14DC;
     int m14E0;
-    unsigned char m14E4[0x14FC - 0x14E4];
-    int m14FC; // inferred: bullet/skill id (0x5E6)
-    int m1500; // inferred: bullet/skill id (0x5EA)
+    atn::Vector3 m14E4; // inferred: position of the magic
+    atn::Vector3 m14F0; // inferred: position where the magic started
+    int m14FC[2];       // inferred: magic ids (0x5E6, 0x5EA), indexed by m14E0
     CharaTask* m1504;
     atn::Vector3 m1508; // inferred: warp destination
     float m1514;        // inferred: warp rotation

@@ -1,6 +1,7 @@
 #include "game/Em101ElderZesyaSecond.h"
 #include "game/HitInfo_unk.h"
 #include "game/CharaStatus.h"
+#include "chr/ControlBase.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "std/string.h"
@@ -34,6 +35,7 @@ extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (dea
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 struct Color4f_unk {
     Color4f_unk() {}
+    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
@@ -57,6 +59,22 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
+// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
+extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
+extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
+struct ElderMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" ElderMsgTable_unk* lbl_8087F1E4;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the barrier
@@ -112,9 +130,9 @@ Em101ElderZesyaSecond::Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* i
     m1574.fn_8023780C("ef_ui002b.efp");
     m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
     m121C->fn_8023780C("ef_bu013.efp");
-    m14FC = 0x5E6;
+    m14FC[0] = 0x5E6;
     mFlagB5 = 1;
-    m1500 = 0x5EA;
+    m14FC[1] = 0x5EA;
     mFlagB11 = 1;
 }
 
@@ -236,6 +254,141 @@ void Em101ElderZesyaSecond::fn_8025C624() {
         m15D4 = 1;
     } else {
         m15D4 = (m15D4 + 1) % 2;
+    }
+}
+
+void Em101ElderZesyaSecond::fn_8025B9EC() {
+    float dist = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot = mRot;
+    atn::Vector3 target = m14D0->mPos;
+    atn::Vector3 d = target - mPos;
+    PSVECMag(&d);
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 move = mRoute.m58;
+        dist = PSVECMag(&move);
+        if (dist > 0.0001f) {
+            rot = move.GetNormalized_unk().ToRotation_unk();
+        }
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_8013CB68(&rot, 1, dist, m568 * rate);
+}
+
+void Em101ElderZesyaSecond::fn_8025BD1C() {
+    int done = 0;
+    HitInfo_unk* hit = m638 = fn_80219E6C(m14FC[m14E0]);
+    mFBC = (float)hit->mC0;
+    if (mFB8 < (float)hit->mC0) {
+        mFB8 += 1.0f;
+        if (mFB8 == (float)hit->mC0) {
+            done = 1;
+        }
+    } else {
+        done = 1;
+    }
+    float limit = 12.0f;
+    if (mPos.y - m14F0.y < limit) {
+        mPos.y += 0.08f;
+    }
+    if (done != 0) {
+        mFB8 = 0.0f;
+        mF7C = m14D0;
+        mF6C = m14D0->mPos;
+        if (m14E0 == 0) {
+            m14D4 = 0;
+            m14D8 = 0;
+            m590 = fn_800F8548(lbl_8087F048);
+            fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+            m58C = 8;
+            fn_8016E970(3);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x6B, 0, 0, 1, 0.0f, 0.1f);
+        } else {
+            m14D4 = 0;
+            m14D8 = 0;
+            m590 = fn_800F8548(lbl_8087F048);
+            fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+            m58C = 0;
+            fn_8016E970(3);
+            if (m14CC != 0) {
+                mF6C = m14CC->mPos;
+                fn_801603CC(1.0f, true);
+            } else {
+                fn_801603CC(1.0f, false);
+            }
+        }
+        fn_80239DAC(lbl_8087F3C0, this, 0, 1);
+    }
+}
+
+void Em101ElderZesyaSecond::fn_8025BF58() {
+    m638 = fn_80219E6C(m14FC[m14E0]);
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+        mFB8 = 0.0f;
+        m14D4 = 0;
+        m14D8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+        m58C = 0;
+        fn_8016E970(3);
+        void* p = ::operator new(0x34, 0, "", "", 0);
+        chr::ControlBase* c = (chr::ControlBase*)p;
+        if (p != 0) {
+            c = fn_801C02F4(p, this);
+        }
+        fn_80178208(c);
+        return;
+    }
+    if ((float)__fabs(mMotion.mTracks[0].m08 - 12.0f) < 1.1920929e-7f) {
+        m14E4 = m14D0->mPos;
+        atn::Vector3 from = m14E4 + atn::Vector3(0.0f, 1.0f, 0.0f);
+        atn::Vector3 to = m14E4 + atn::Vector3(0.0f, -100.0f, 0.0f);
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
+            m14E4 = result.m10;
+        }
+        m14E4 += atn::Vector3(0.0f, 0.0f, 1.0f);
+        fn_80232B7C(this, 1000);
+        fn_8023A8B4(lbl_8087F3C0, &m153C, 0, 0, m14E4, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+        fn_800C31F4("SE_SP016_001_2", 0, -1, 1.0f);
+    } else if ((float)__fabs(mMotion.mTracks[0].m08 - 62.0f) < 1.1920929e-7f) {
+        wchar_t text[256];
+        memset(text, 0, sizeof(text));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA3), *(const wchar_t**)((char*)m60 + 4));
+        fn_80109828(lbl_8087F048, text);
+        fn_800FAB80(lbl_8087F048, this, m638, m590, &m14E4, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    }
+}
+
+void Em101ElderZesyaSecond::fn_8025C29C(int kind) {
+    m14D4 = 0;
+    m14D8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+    m58C = 7;
+    fn_8016E970(6);
+    m560 = 29;
+    m14E0 = kind;
+    m638 = fn_80219E6C(m14FC[kind]);
+    m14F0 = mPos;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x66, 1, 0, 1, 0.0f, 0.1f);
+    mFB8 = 0.0f;
+    fn_80232B7C(this, 0);
+    if (m14E0 == 0) {
+        PlayEffect_unk(&m1524, &mMotion);
+    } else {
+        PlayEffect_unk(&m1518, &mMotion);
     }
 }
 
