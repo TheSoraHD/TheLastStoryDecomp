@@ -39,7 +39,7 @@ public:
     virtual int vf40(GimmickMsg_unk* msg);
 
     void fn_8043B9E0(); // inferred: builds the joints; not decompiled yet
-    void fn_8043C508(); // inferred: update; not decompiled yet
+    void fn_8043C508(); // inferred: update
     void fn_8043CA58(); // inferred: relaxes the joints (20 passes of length constraints)
     void fn_8043CF58(); // not decompiled yet
 

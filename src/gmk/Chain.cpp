@@ -6,6 +6,7 @@
 
 extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // inferred: camera (only the position)
 struct CameraPos_unk {
     unsigned char m00[0x10C];
@@ -26,6 +27,33 @@ static const char* sNodes[] = {"const_foot_l", "const_foot_r", "left_chainpoint"
 
 static inline float SqLength_unk(const atn::Vector3& v) {
     return fn_805F9920(&v);
+}
+
+#define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
+inline atn::Vector3 GetCol_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
+}
+// inferred: largest scale axis of a matrix (as in gmk/Bat.cpp)
+inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
+    atn::Vector3 s;
+    atn::Vector3 az = GetCol_unk(mtx, 2);
+    float sz = PSVECMag(&az);
+    atn::Vector3 ay = GetCol_unk(mtx, 1);
+    float sy = PSVECMag(&ay);
+    atn::Vector3 ax = GetCol_unk(mtx, 0);
+    float sx = PSVECMag(&ax);
+    s.x = sx;
+    s.y = sy;
+    s.z = sz;
+    return __MAX_unk(s.x, __MAX_unk(s.y, s.z));
+}
+// inferred: m = m * translation(v) (name invented)
+inline void Translate_unk(atn::Matrix3x4& m, const atn::Vector3& v) {
+    Mtx t;
+    Mtx r;
+    PSMTXTrans(t, v.x, v.y, v.z);
+    PSMTXConcat(m.m, t, r);
+    __MtxCopy(m.m, r);
 }
 
 namespace gmk {
@@ -85,6 +113,42 @@ void Chain::vf10() {
         return;
     }
     fn_8043C508();
+}
+
+// NONMATCHING: 90.6% - stack layout of the temporaries (16 bytes smaller frame) and the order of
+// the node copies of the joints.
+void Chain::fn_8043C508() {
+    m314 = m6C;
+    atn::Matrix3x4 mtx = *(atn::Matrix3x4*)mTarget->mMotion.GetNodeMtx_unk(mNode);
+    Translate_unk(mtx, atn::Vector3(0.75f, 0.0f, -0.85f));
+    m320 = mtx.GetTrans_unk();
+    atn::Vector3 from = m6C;
+    m33C = 1.0f;
+    Translate_unk(mtx, atn::Vector3(0.0f, 0.0f, 10.0f));
+    atn::Vector3 to = mtx.GetTrans_unk();
+    atn::Vector3 d = to - from;
+    atn::Vector3 dir = d;
+    if (PSVECMag(&dir) > 0.00001f) {
+        float a = 1.5707964f + -(float)atan2(dir.x, dir.z);
+        atn::Matrix3x4 m;
+        m.SetIdentity();
+        Translate_unk(m, atn::Vector3(m6C.x, m6C.y - 1.4f, m6C.z));
+        Mtx r;
+        Mtx t;
+        PSMTXRotRad(r, 'y', a);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+        __MtxCopy(mModel.GetModel_unk()->mMtx, m.m);
+        mModel.GetModel_unk()->m54 = MaxScale_unk(m);
+        fn_800902C0(mModel.GetModel_unk(), 0, boost::function<void()>());
+        for (int i = 0; i < mNumJoints; i++) {
+            ChainJoint_unk& j = mJoints2.mData[i];
+            j.m1C = *(atn::Matrix3x4*)mModel.GetModel_unk()->GetNodeMtx_unk(j.mNode);
+            mJoints2.mData[i].m04 = atn::Vector3(mJoints2.mData[i].m1C.m[0][3], mJoints2.mData[i].m1C.m[1][3],
+                                                 mJoints2.mData[i].m1C.m[2][3]);
+        }
+    }
+    fn_8043CA58();
 }
 
 // NONMATCHING: 98.8% - saved registers rotated by one (tmp/pass counters); a frsp of the copy of
