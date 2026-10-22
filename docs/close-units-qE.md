@@ -241,10 +241,10 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     (locales, vectores estaticos construidos por el sinit). Build limpio OK.
 - `game/Em202MothersSpider`: no procesada por tiempo. Hereda de una base de arana sin fuente (vtable con
   fn_80273FE8, fn_80274508/18, fn_80274E7C...: la base esta en otra unidad sin escribir); hay que escribir antes esa
-  base. Tampoco procesadas por tiempo: Em202_01_BSpider (misma base) y EnemyQuarkFirst.
+  base. Tampoco procesada por tiempo: Em202_01_BSpider (misma base).
 
 ## Fin de la sesion de la cola E
-- Ultima unidad procesada: game/Em101LittleZesyaSecond (ver abajo). report.json final: 6587 / 18215 funciones matched (code 21.627%),
+- Ultima unidad procesada: game/EnemyQuarkFirst (ver abajo). report.json final: 6591 / 18215 funciones matched (code 21.633%),
   regress lost 0 y fuzzdrop 0 contra report_main.json y report_close_A.json.
 - `game/Em101ElderZesyaSecond` (procesada tras las notas de fin, quedaba tiempo; unidad SIN FUENTE hasta ahora):
   **fuente nueva `src/game/Em101ElderZesyaSecond.cpp` y cabecera nueva `include/game/Em101ElderZesyaSecond.h`**
@@ -262,3 +262,11 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   - game/SpecialEnemyBase.cpp crea el enemigo de tipo 10 con `new (3, "", "", 0) Em101LittleZesyaSecond(parent, info)`.
   - **symbols.txt (decision sin el usuario)**: fn_8025FE60/80262840/80260218/802627E8/80260324 -> ctor, dtor, vf0C,
     vfA8 y fn_80260324 de Em101LittleZesyaSecond. Build limpio OK.
+- `game/EnemyQuarkFirst` (unidad SIN FUENTE hasta ahora): **fuente nueva `src/game/EnemyQuarkFirst.cpp` y cabecera
+  nueva `include/game/EnemyQuarkFirst.h`** (subclase de SpecialEnemyBase, layout 0x14D4-0x1588, nombres inventados).
+  Al 100%: dtor (implicito), vfFC (estado 2 + vf100(0)), vf4C (con m14D8 == 1 y sin estar caido devuelve 2, 3 o 1
+  segun m55C/m560) y vfA8 (usa CharaTask::IsDown_unk). Ctor, vf0C, vf10, vf30, vf40, vf100/104/108, vf10C y
+  helpers en asm.
+  - game/SpecialEnemyBase.cpp crea el enemigo de tipo 70 con `new (3, "", "", 0) EnemyQuarkFirst(parent, info)`.
+  - **symbols.txt (decision sin el usuario)**: los 13 metodos de la vtable (fn_80334CD8 ... fn_803387DC) renombrados a
+    ctor, dtor, vf0C, vf10, vf30, vf40, vf4C, vfA8, vfFC, vf100, vf104, vf108, vf10C de EnemyQuarkFirst. Build limpio OK.
