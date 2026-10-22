@@ -46,6 +46,8 @@ struct Field_unk {
     float m974;
     float m978;
     unsigned char m97C;
+    unsigned char m97D[0x10D8 - 0x97D];
+    RouteTable_unk* m10D8; // inferred: route tables (as in game/ArenaTask.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00(); // inferred: field accessor
@@ -92,6 +94,10 @@ struct QuarkGame_unk {
 extern "C" QuarkGame_unk* lbl_8087EFA8;
 extern "C" void* lbl_8087EEB0; // inferred: debug drawing
 extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: segment test
+extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
@@ -115,7 +121,8 @@ extern "C" QuarkSettings_unk* lbl_8087F0A8;
 extern "C" void fn_803396EC(CharaTask* chara, unsigned int flags);   // inferred: m54C |= flags
 extern "C" void fn_80288E30(CharaTask* chara, float value);          // inferred: m56C = value
 extern "C" void fn_80244CAC(atn::Task* task);                        // inferred: mFlags |= 4
-extern "C" CharaManager<PlayerTask>* fn_8000D9E8();                  // inferred: player manager
+extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager                  // inferred: player manager
 // inferred: more weak copies of small inline helpers called out of line by vf10 (names kept)
 extern "C" void fn_80339F34(CharaTask* chara, int on);           // inferred: bit 0x2000 of m54C
 extern "C" void fn_80339F5C(Model_unk* model, int track, float speed); // inferred: speed of a track
@@ -1282,6 +1289,36 @@ void EnemyQuarkStand::fn_8034F788() {
     m570 = 0.0f;
 }
 
+// inferred: starts attack 6 (state 8, motion 0x14D): flies to the route place 3 or 4, the one farther from
+// the leader
+// NONMATCHING: 96.11% - the original keeps the two places in r5/r4 and the copies higher in the frame
+// (0x74/0x80, ours 0xBC/0xB0) and the usual AimAt_unk slots; ~6 forms (inline, FindPlace_unk, ternary)
+void EnemyQuarkStand::fn_8034FB50() {
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 8;
+    m590 = fn_800F8548(lbl_8087F048);
+    QuarkPlayMotion_unk(&mMotion, 0x14D, 0, 0, 0.7f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* place3 = table->FindPlace_unk(3);
+    RoutePlace_unk* place4 = table->FindPlace_unk(4);
+    atn::Vector3 a = place3->mPos;
+    atn::Vector3 b = place4->mPos;
+    atn::Vector3 leader = lbl_8087F8A0->mHead->mPos;
+    atn::Vector3 da(a.x - leader.x, a.y - leader.y, a.z - leader.z);
+    float la = sqrt(da.x * da.x + da.z * da.z);
+    atn::Vector3 db(b.x - leader.x, b.y - leader.y, b.z - leader.z);
+    atn::Vector3* far = la < (float)sqrt(db.x * db.x + db.z * db.z) ? &b : &a;
+    atn::Vector3 pos = *far;
+    m15DC.SetTarget_unk(pos);
+    m15DC.mRot = (pos - mPos).ToRotationZ_unk();
+    m15DC.mDir = pos - mPos;
+    m15DC.mDir.y = 0.0f;
+    PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
+    m15DC.mStart = mPos;
+    m570 = 0.0f;
+}
+
 // inferred: starts attack 1 (state 9, motion 0x15C)
 // NONMATCHING: 98.62% - stack slots of the target copy and of the temporaries of AimAt_unk; ~8 forms
 void EnemyQuarkStand::fn_80350070() {
@@ -1319,6 +1356,47 @@ void EnemyQuarkStand::fn_8035083C() {
     m590 = fn_800F8548(lbl_8087F048);
     QuarkPlayMotion_unk(&mMotion, 0x142, 0, 0, 1.0f);
     AimAt_unk();
+}
+
+// inferred: state 12 (motion 0x14A): Quark grabs the character stuck by the sword; the side of the jump
+// (m17F0) is random, reversed when the wall blocks it
+// NONMATCHING: 99.66% - stack slots of the cross product and of the sum in the first branch (the
+// original puts them above the other branch, 0x8C/0xA4); ~3 forms (inline, shared temporaries)
+void EnemyQuarkStand::fn_80350BF0() {
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 12;
+    m590 = fn_800F8548(lbl_8087F048);
+    QuarkPlayMotion_unk(&mMotion, 0x14A, 0, 0, 1.0f);
+    mMotion.mTracks[0].m08 = 5.0f;
+    m14B0 = (int)m17E4;
+    mC58.mC4 = m17E4;
+    m17EC = 0;
+    m17F0 = rand() % 2;
+    atn::Vector3 from = m17E4->mPos;
+    from.y += 5.0f;
+    atn::Vector3 to = from;
+    if (m17F0 == 0) {
+        atn::Vector3 dir = m15DC.mDir;
+        PSVECNormalize(&dir, &dir);
+        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+        atn::Vector3 side;
+        PSVECCrossProduct(&dir, &up, &side);
+        to = from + side * 20.0f;
+    } else {
+        atn::Vector3 dir = m15DC.mDir;
+        PSVECNormalize(&dir, &dir);
+        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+        atn::Vector3 side;
+        PSVECCrossProduct(&dir, &up, &side);
+        to = from - side * 20.0f;
+    }
+    if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0) != 0) {
+        m17F0 = m17F0 == 0;
+    }
+    fn_80232B7C(&m16A8, 0);
+    QuarkPlayEffect_unk(&m16A8, &mMotion);
+    fn_8023A108(lbl_8087F3C0, &m16A8, 0, 5);
 }
 
 // inferred: state 20 (motion 0x144)
