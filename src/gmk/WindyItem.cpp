@@ -160,6 +160,11 @@ extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Mo
                             int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
+extern "C" int fn_80239D58(WindyEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Model_unk* model,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
+                            int arg10, float scale);
+extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
 extern "C" const char* lbl_80754260[4]; // inferred: sound effects of the wind
@@ -228,6 +233,101 @@ void gmk::WindyItem::fn_804392C0() {
                 break;
             }
         }
+    }
+}
+
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+
+// inferred: point of a path at the parameter `t` (0..1); names invented
+inline atn::Vector3 Eval_unk(const gmk::WindyPath_unk& path, float t) {
+    if (t <= 0.0f) {
+        return path.mStart;
+    }
+    if (t >= 1.0f) {
+        return path.mEnd;
+    }
+    float d = path.mScale * t;
+    for (int i = 0; i < path.mCount - 1; i++) {
+        float len = path.mLength.mData[i].v;
+        if (d <= len) {
+            float u = 0.0f;
+            if (0.0f != d) {
+                u = d / len;
+            }
+            if (i < 0) {
+                return path.mStart;
+            }
+            if (i >= path.mCount - 1) {
+                return path.mEnd;
+            }
+            if (path.mCount < 2) {
+                return lbl_807C7030;
+            }
+            const gmk::WindyCoef_unk& x = path.mX.mData[i];
+            const gmk::WindyCoef_unk& y = path.mY.mData[i];
+            const gmk::WindyCoef_unk& z = path.mZ.mData[i];
+            atn::Vector3 r(x.a + u * (x.b + u * (x.c + x.d * u)), y.a + u * (y.b + u * (y.c + y.d * u)),
+                           z.a + u * (z.b + u * (z.c + z.d * u)));
+            return r;
+        }
+        d -= len;
+    }
+    return path.mStart;
+}
+
+// inferred: update of a blown item (name unknown)
+// NONMATCHING: 93.7% - registers of the inlined path evaluation (Eval_unk) and the shape of the
+// zero test of the segment parameter.
+void gmk::WindyItem::fn_8043A08C(WindySlot_unk* slot) {
+    switch (slot->mState) {
+    case 1:
+        if (slot->mPath.m58 > 0) {
+            slot->mPath.m58--;
+        }
+        if (slot->mPath.m58 <= 0) {
+            slot->mState = 2;
+            slot->mPath.m58 = 0;
+            if (lbl_8087F3C0 != 0) {
+                fn_80232B7C(slot, 0);
+                fn_8023A680(lbl_8087F3C0, &mEff, -1, 5, (Model_unk*)&slot->mMtx, 0, 0, 0, 0, -1, 1, 1.0f);
+            }
+        }
+        break;
+    case 2:
+        if (slot->m184 != 0 && slot->mPath.mT < 1.0f) {
+            slot->mPath.mT += slot->mPath.m54;
+            slot->mMtx.SetIdentity();
+            atn::Vector3 pos = Eval_unk(slot->mPath, slot->mPath.mT);
+            slot->mMtx.m[0][3] = pos.x;
+            slot->mMtx.m[1][3] = pos.y;
+            slot->mMtx.m[2][3] = pos.z;
+        } else {
+            slot->mState = 4;
+        }
+        break;
+    case 3:
+        slot->mAnime.fn_8044F434();
+        if (!slot->mAnime.IsBusy_unk()) {
+            atn::SoundRef sound = fn_800C31F4(lbl_80754260[1], 0, -1, 1.0f);
+            float pitch = 1.0f;
+            for (int i = mEE4 - 1; i > 0; i--) {
+                pitch *= 1.122462f;
+            }
+            fn_800CB688(&sound, 0, pitch < 2.0f ? pitch : 2.0f);
+            slot->mAnime.fn_80450778();
+            slot->mState = 4;
+        }
+        break;
+    case 4:
+        slot->mAnime.fn_8044F434();
+        if (slot->mAnime.fn_8044EEC0() != 0 && slot->mState != 0) {
+            slot->mState = 0;
+            if (lbl_8087F3C0 != 0 && fn_80239D58(lbl_8087F3C0, slot, 0) != 0) {
+                fn_80239DAC(lbl_8087F3C0, slot, 0, 0);
+            }
+            mActive--;
+        }
+        break;
     }
 }
 

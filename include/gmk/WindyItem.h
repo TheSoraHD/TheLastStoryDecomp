@@ -84,7 +84,7 @@ public:
     virtual void vf28();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
-    // inferred: defined after vf70 (0x804392C0-0x8043A530; fn_80439574 and fn_8043A08C not decompiled)
+    // inferred: defined after vf70 (0x804392C0-0x8043A530; fn_80439574 not decompiled)
     void fn_804392C0();
     void fn_80439574(WindySlot_unk* slot);
     void fn_8043A08C(WindySlot_unk* slot);
