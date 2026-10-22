@@ -75,3 +75,18 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
 - `atn/TextureCacheManager8x32` (6/7): `ITextureCacheManager::fn_800D6898` 0% -> 100% (nueva: region de cache de una
   textura; `int mipmap`, con `unsigned char` sale el clrlwi en cada prueba). Ctores 99.07% sin cambios (4 intentos
   nuevos). Nombres de SDK declarados localmente: `GXGetTexObjFmt`, `GXGetTexObjMipMap`, `fn_806163B0` (GXGetTexObjData).
+- `atn/D2A_Data` (10/13): `D2A_Track_unk` ctor sigue 87.22% (9 intentos: inline con rango, limites por &mValue,
+  while, copia de struct): el original no pliega begin/end del buffer vacio.
+- `atn/Geometry_unk`, `atn/LensFlare`, `atn/SequenceHolder` (fn_800C3D74/E84 son find_if con boost::lambda),
+  `atn/D2Anime_unk`, `atn/D2A_Message`, `atn/Light_unk`, `atn/PostFxGamma`, `atn/Rain`, `atn/Shader_unk`,
+  `atn/ptr_string_base_char_0`, `atn/ColliCalc_unk`: saltadas por tiempo/bloqueos documentados (contract de fmadds,
+  inline no deseado, pools, solo registros ya investigados).
+- `atn/D2A_TaskInstanceBase_64_8` (47/51): las 4 `vf10`/`Update` siguen 97% (10 intentos: el original relee mTask
+  tras `mFrame += mSpeed`).
+- `atn/CsvBase_char_124_13_34` (4/5, era 1/5): reconstruida la tabla /boot/battle_eff_se_table.csv
+  (`fn_802078C4` cargador 99.48%, `fn_80207C00` cuenta, `fn_80207C08` fila, `fn_80207C34` prueba de nivel: las
+  tres al 100%). NONMATCHING del cargador: r24/r26 (fila / cadena de niveles) intercambiados.
+  - CABECERA COMPARTIDA `include/atn/Csv.h`: `atn::CsvPipe` recibe el ctor `(text, length)` que pone los
+    separadores `lbl_8087DB20` (" \t", .sdata de la unidad) como `atn::Csv`; regress lost 0, fuzzdrop 0.
+  - Hallazgo MWCC: con declaraciones C al principio, el orden decide la numeracion de los GPR salvados
+    (la primera declarada recibe el registro mas alto entre las que viven en todo el bucle).
