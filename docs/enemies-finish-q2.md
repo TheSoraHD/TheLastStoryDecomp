@@ -12,7 +12,8 @@ que dependen de esas funciones sin escribir.
 
 ## Unidades
 
-- `game/Em202Spider` (4/25 -> 11/25): cabecera completa (campos del ctor; color `SpiderColor_unk` en m1598).
+- `game/Em202Spider` (4/25 -> 11/25, fn_8027F69C escrita al 98.77%: &mPos en registro y escala por
+  componente, 8 variantes): cabecera completa (campos del ctor; color `SpiderColor_unk` en m1598).
   Al 100% en report: dtor, vf3C, vf40, vf7C, vfEC, fn_80281ED8, fn_802829DC, fn_8027F8A8, fn_80281054,
   fn_80281344, fn_80281634. Las que estan al 99.x% en objdiff solo difieren en los offsets de .sdata2/.rodata
   (constantes de vf0C/vf10/fn_8027EB14... sin escribir); el report las cuenta como 100% salvo:
@@ -24,13 +25,16 @@ que dependen de esas funciones sin escribir.
   Sin escribir: vf0C (2.3KB, lector CSV con reserve/push_back), vf10 (2.4KB), fn_8027EB14, fn_8027F504
   (llama a los operadores de Vector3 fuera de linea: presupuesto de inline), fn_8027F69C, fn_8027FA7C,
   fn_80280184, fn_802805C8, fn_80281F88.
-- `game/Em202SpiderBase` (3/23 -> 11/23): cabecera completa (campos del ctor). Al 100% en report: dtor, vfEC,
-  vf7C, fn_80287788, vf3C, vf40, fn_80287400, fn_8028702C, fn_80286CB0, fn_802847CC, __sinit.
+- `game/Em202SpiderBase` (3/23 -> 14/23): cabecera completa (campos del ctor; puntos base
+  `SpiderBasePoint_unk`). Al 100% en report: dtor, vfEC, vf7C, fn_80287788, vf3C, vf40, fn_80287400,
+  fn_8028702C, fn_80286CB0, fn_802847CC, fn_802868A0, fn_80284CC8, fn_802857B4, fn_80285B7C, __sinit
+  (algunas al 99.x% en objdiff solo por pool).
+  - fn_802878EC 99.78%: huecos de pila de las dos restas del bucle (8 variantes).
   - ctor 99.81%: r26/r27 del segundo ctor de std::string (como Em201ZanGurg).
   - vf14 92.87%: mismo codigo que Em202Spider::vf14.
   - vf80 83.15%: orden de las conversiones int->float de `frames` y de los temporales (10 variantes).
-  Sin escribir: vf0C (fn_80283004), vf10 (fn_802837F4), fn_80284CC8, fn_80285064, fn_802857B4,
-  fn_80285B7C, fn_80285FA0, fn_802868A0, fn_802878EC.
+  Sin escribir: vf0C (fn_80283004), vf10 (fn_802837F4), fn_80285064 (1.9KB, aguja con matrices),
+  fn_80285FA0 (2.3KB).
 - `game/Em205Ogre` (14/21 -> 17/21): vf50, vfB0, vfB4 al 100%; vf104 99.99% (solo pool).
   NONMATCHING: fn_802B98B0 98.59%, vf30 99.97%. Sin escribir: vf108 (fn_802B8AA4, 3.5KB).
 - `game/Em208Queen` (0/29 -> 21/29, NUEVA fuente `src/game/Em208Queen.cpp` + cabecera
@@ -41,10 +45,10 @@ que dependen de esas funciones sin escribir.
   NONMATCHING: vf10 99.86% (f7/f8 de pi), vf14 99.58% (r28/r29), vf20 99.81% (__VecCopy), fn_802CA8C0
   97.24%, fn_802CAFB8 95.51%, fn_802CB43C 97.60%, fn_802CC19C 97.29% (r3/r4 de copias y orden de los
   productos por 0.05f), fn_802CC4C8 99.65%.
-- `game/Em209SmallGolem` (7/22 -> 13/22): vf0C, vf9C, vf50, fn_802CF054, fn_802CF3AC, fn_802CF728,
-  fn_802CFB24 al 100%; ctor escrito por el orden de cadenas (85.96%, presupuesto de inline).
+- `game/Em209SmallGolem` (7/22 -> 14/22): vf0C, vf9C, vf50, vfEC, fn_802CF054, fn_802CF3AC, fn_802CF728,
+  fn_802CFB24 al 100% (vfEC: el flag de PlayDeathEffect_unk es el argumento arg9 de fn_8023A8B4, no arg8); ctor escrito por el orden de cadenas (85.96%, presupuesto de inline).
   NONMATCHING: vf98 92.9% (huecos de pila, caso abierto de CharaTask::vf98), vf54 98.87% (__VecCopy),
-  vf20 98.49%, vfEC 96.54%, vf1C 99.99% (pool), vf80 99.71%, __sinit (pool). Sin escribir: vf10
+  vf20 98.49%, vf1C 99.99% (pool), vf80 99.71%, __sinit (pool). Sin escribir: vf10
   (fn_802CD73C, 3.3KB).
 
 ## Decisiones tomadas sin el usuario
@@ -101,13 +105,15 @@ que dependen de esas funciones sin escribir.
 - `(pos - mPos).GetNormalized_unk().ToRotation_unk()` (encadenado) da los huecos del original para "mirar a";
   la variante con ToRotationZ_unk deja el f0/f3 cambiado.
 - El campo de flags que se compara con `cmpwi` tras `rlwinm` es `int`, no `unsigned int`.
+- `float x = k; if (p) x = p->m;` (no el ternario) da el `lfs` del valor por defecto antes del `cmpwi`.
+- Un `atn::Vector3 rot;` declarado antes que la diferencia y asignado despues (`rot = d.ToRotation_unk()`) da
+  el marco 0x10 mayor del original cuando la rotacion no se usa.
 
 ## Pendientes (esta cola)
 
 - Em202Spider: vf0C, vf10, fn_8027EB14, fn_8027F504, fn_8027F69C, fn_8027FA7C, fn_80280184, fn_802805C8,
   fn_80281F88 (al escribirlas se arreglan los pools de casi todas las demas).
-- Em202SpiderBase: vf0C, vf10, fn_80284CC8, fn_80285064, fn_802857B4, fn_80285B7C, fn_80285FA0, fn_802868A0,
-  fn_802878EC.
+- Em202SpiderBase: vf0C, vf10, fn_80285064, fn_80285FA0.
 - Em205Ogre vf108; Em209SmallGolem vf10; segunda pasada a los NONMATCHING de Em208Queen.
 
 ## Pendientes para otras colas
