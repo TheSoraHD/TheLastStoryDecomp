@@ -42,6 +42,7 @@ extern "C" MpSession_unk* lbl_8087F610;
 extern "C" void fn_804DA48C(MpSession_unk* session, int arg);
 // inferred: field object (lbl_8087F430): camera shake at 0x96C (names invented, as in game/Em301LShade.cpp)
 struct Field_unk {
+    RouteTable_unk* fn_8013C504(); // inferred: route tables (as in gmk/FlamingArrow.cpp)
     unsigned char m000[0x96C];
     int m96C;
     int m970;
@@ -49,6 +50,23 @@ struct Field_unk {
     float m978;
 };
 extern "C" Field_unk* lbl_8087F430;
+extern "C" Field_unk* fn_80121F00();
+
+// inferred: route tables of the field (as in gmk/FlamingArrow.cpp)
+extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
+// inferred: size and empty of a vector, out of line (weak copies kept in atn/WordWrap_unk.cpp)
+struct Count4_unk;
+extern "C" int fn_800E0AA8(const Count4_unk* c);
+extern "C" bool fn_800E0AB0(const Count4_unk* c);
+// inferred: element `i` of a vector (weak copies 0x802D8550/0x802DEE18); names invented
+template <class T>
+T* At_unk(std::vector<T>* v, unsigned int i) {
+    return &v->mData[i];
+}
+// inferred: clears flags of the model (weak copy 0x802D8540 of game/Em302Kraken.cpp); name invented
+inline void ClearModelFlag_unk(Model_unk* model, unsigned int flag) {
+    model->mFlags &= ~flag;
+}
 
 // inferred: commands of "act_command" ({name, id}, terminated by a negative id; names invented)
 struct KrakenMpCommandName_unk {
@@ -132,6 +150,123 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 Em302KrakenMp::~Em302KrakenMp() {}
+
+// NONMATCHING: draft (same reader as Em302Kraken::vf0C)
+int Em302KrakenMp::vf0C() {
+    if (m14D4 == 0) {
+        if (fn_8013655C() == 0 && m1510.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
+            m152C.fn_80237874() == 0 && m1564.fn_80237874() == 0 && m1570.fn_80237874() == 0 &&
+            m157C.fn_80237874() == 0 && m15CC.fn_80237874() == 0 && m1630.fn_80473F50() == 0) {
+            if (m1630.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
+                atn::Csv csv((const char*)m1630.fn_80470580(), m1630.fn_8047059C());
+                int zero = 0;
+                do {
+                    const char* key = csv.fn_8005B9CC();
+                    if (strcmp(key, "appear_point") == 0) {
+                        int id;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            if (place != 0) {
+                                m15E8.push_back(place);
+                            }
+                        } while (id != 0);
+                        if (!fn_800E0AB0((const Count4_unk*)&m15E8)) {
+                            m15DC = *At_unk(&m15E8, m15E4);
+                        }
+                    } else if (strcmp(key, "pillar_id") == 0) {
+                        int id = zero;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            if (id != 0) {
+                                m15F4.push_back(id);
+                            }
+                        } while (id != 0);
+                    } else if (strcmp(key, "foot_chara") == 0) {
+                        int id;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            Em303KrakenFootMp* foot = (Em303KrakenFootMp*)fn_801A03E0()->Find_unk(id);
+                            if (id != 0 && foot != 0) {
+                                m1624.push_back(foot);
+                            }
+                        } while (id != 0);
+                    } else if (strcmp(key, "reinforce_chara") == 0) {
+                        int id;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            EnemyTask* enemy = fn_801A03E0()->Find_unk(id);
+                            if (id != 0 && enemy != 0) {
+                                m1618.push_back(enemy);
+                            }
+                        } while (id != 0);
+                    } else if (strcmp(key, "reinforce_point") == 0) {
+                        int id;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            if (id != 0 && place != 0) {
+                                m160C.push_back(place);
+                            }
+                        } while (id != 0);
+                    } else if (strcmp(key, "act_command") == 0) {
+                        while (csv.fn_8005BBF8()) {
+                            const char* name = csv.fn_8005B9CC();
+                            if (*name == ';' || *name == '#') {
+                                continue;
+                            }
+                            if (strcmp(name, "/act_command") == 0) {
+                                break;
+                            }
+                            KrakenMpCommand_unk cmd;
+                            cmd.mId = fn_802DDD1C(name);
+                            if (cmd.mId > 0) {
+                                cmd.mValue = fn_800DC12C(csv.fn_8005B9CC());
+                                m1638.push_back(cmd);
+                            }
+                        }
+                    } else if (strcmp(key, "charge_point") == 0) {
+                        RoutePlace_unk* place =
+                            fn_80121F00()->fn_8013C504()->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                        if (place != 0) {
+                            m15AC = place;
+                        }
+                    } else if (strcmp(key, "shades_skill_id") == 0) {
+                        m1500 = fn_800DC12C(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "laser_skill_id") == 0) {
+                        m155C = fn_800DC12C(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "pos_y_offset") == 0) {
+                        m14F0 = fn_800DC288(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "explode_center") == 0) {
+                        m15B4 = fn_800DC288(csv.fn_8005B9CC());
+                        m15B8 = fn_800DC288(csv.fn_8005B9CC());
+                        m15BC = fn_800DC288(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "anger_efp") == 0) {
+                        m1588.fn_8023780C(csv.fn_8005B9CC());
+                    }
+                } while (csv.fn_8005BBF8());
+            }
+            mStatus.m18 |= 0x1C0;
+            mStatus.m18 |= 0x10000;
+            mStatus.m18 |= 0xC21D;
+            mStatus.m18 |= 0x3800000;
+            for (unsigned int i = 0; i < fn_800E0AA8((const Count4_unk*)&m1624); i++) {
+                (*At_unk(&m1624, i))->fn_802E5B30((int)this);
+            }
+            fn_802E1A0C();
+            m14D4 = 1;
+            ClearModelFlag_unk((Model_unk*)&mMotion, 4);
+        }
+    } else if (m14D4 == 1) {
+        if (m1588.fn_80237874() == 0) {
+            m14D4 = 2;
+            return 1;
+        }
+    } else if (m14D4 == 2) {
+        return 1;
+    }
+    return 0;
+}
 
 void Em302KrakenMp::vf14() {
     if (m151C != 0) {

@@ -40,13 +40,17 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 - La tabla de comandos de "act_command" (`sCommands_unk`, {nombre[0x40], id}) y su busqueda fn_802D73E4 son
   estaticas del fichero.
 
-### game/Em302KrakenMp (0/39 -> 7/39, primera pasada)
+### game/Em302KrakenMp (0/39 -> 9/39)
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302KrakenMp.cpp` y cabecera nueva
   `include/game/Em302KrakenMp.h` (subclase de SpecialEnemyBase, vtable 0x11C; layout 0x14D4-0x1660; nombres
   inventados). Misma tabla de comandos que Em302Kraken pero con ids 8/9/10 ({"swing","pound","wait"}).
 - Al 100%: dtor, vf14, vf40, vf108, vfEC, vfFC, vf110.
 - NONMATCHING >= 97%: ctor (98.1%, std::string), vf20, vf54, vf100, vf114, fn_802E1A0C (pool/.sdata2),
   vfAC (99.5%, slots de los dos temporales intercambiados; 7 variantes) y las copias debiles vf90/vf94/vfC8.
+- vf0C escrita (99.3%, mismo lector que Em302Kraken). Al 100% fn_802DDD1C (busqueda de comando) y
+  fn_802DEE18 (`At_unk<Em303KrakenFootMp*>`). symbols.txt: fn_802DE80C/fn_802DEB00 -> push_back de
+  vector<Em303KrakenFootMp*> (99.85%) y vector<KrakenMpCommand_unk> (85%, push_back de elementos de 8 bytes:
+  familia conocida del push_back de MSL).
 
 ## Decisiones tomadas sin el usuario
 - **splits.txt**: `.rodata` de game/Em301LShade ampliada de 0x807470A4 a 0x807473F8: absorbe el tramo
