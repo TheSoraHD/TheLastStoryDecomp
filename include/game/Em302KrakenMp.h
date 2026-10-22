@@ -68,6 +68,8 @@ public:
     virtual void vf114(const SpecialState_unk* state);
 
     int fn_802E0890();
+    void fn_802E094C();
+    void fn_802E0C60();
     void fn_802E0EC8();
     void fn_802E10D8(int kind);
     void fn_802E1290();
@@ -89,9 +91,7 @@ public:
     int m14F8;
     int m14FC;
     int m1500;                  // inferred: "shades_skill_id"
-    int m1504;
-    int m1508;
-    int m150C;
+    atn::Vector3 m1504;         // inferred: position of the shades attack (fn_802E094C)
     atn::EfpHandle_unk m1510; // inferred: "/effect/ef_bs030c.efp"
     int m151C;                  // inferred: nonzero hides the debug display (vf14)
     atn::EfpHandle_unk m1520; // inferred: "/effect/ef_bu022.efp"
