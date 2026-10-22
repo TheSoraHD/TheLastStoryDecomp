@@ -23,23 +23,54 @@ public:
     void fn_802FC188(); // inferred: death
 
     int m14B0;
-    unsigned char m14B4[0x14D8 - 0x14B4];
+    int m14B4;
+    unsigned char m14B8[0x14D8 - 0x14B8];
     atn::SoundRef m14D8;
     atn::EfpHandle_unk m14DC;
-    unsigned char m14E8[0x14F4 - 0x14E8];
-    HitInfo_unk* m14F4;       // inferred: skill (its m68 gives the wait frames)
-    unsigned char m14F8[0x151C - 0x14F8];
+    int m14E8;
+    int m14EC;
+    float m14F0;
+    HitInfo_unk* m14F4;       // inferred: skill 0x3F7 (its m68 gives the wait frames)
+    float m14F8;
+    unsigned char m14FC[0x151C - 0x14FC];
     atn::SoundRef m151C;
     atn::EfpHandle_unk m1520;
-    unsigned char m152C[0x1558 - 0x152C];
+    float m152C;
+    HitInfo_unk* m1530;       // inferred: skill 0x3F8
+    float m1534;
+    int m1538;
+    unsigned char m153C[0x1540 - 0x153C];
+    int m1540;
+    float m1544;
+    float m1548;
+    unsigned char m154C[0x1558 - 0x154C];
     CrabList_unk m1558;
-    unsigned char m1564[0x15AC - 0x1564];
+    unsigned char m1564[0x1574 - 0x1564];
+    int m1574;
+    HitInfo_unk* m1578;       // inferred: skill 0x400
+    int m157C;
+    int m1580;
+    float m1584;
+    float m1588;
+    float m158C;
+    int m1590;
+    float m1594;
+    unsigned char m1598[0x15AC - 0x1598];
     CrabList_unk m15AC;
-    unsigned char m15B8[0x15CC - 0x15B8];
+    int m15B8;
+    int m15BC;
+    unsigned char m15C0[0x15C8 - 0x15C0];
+    int m15C8;
     int m15CC;
     int m15D0;
     int m15D4;
-    unsigned char m15D8[0x15F4 - 0x15D8];
+    unsigned char m15D8[0x15DC - 0x15D8];
+    int m15DC;
+    float m15E0;
+    float m15E4;
+    float m15E8;
+    float m15EC;
+    float m15F0;
     atn::EfpHandle_unk m15F4;
     atn::EfpHandle_unk m1600;
     atn::LH_Binary m160C;     // inferred: data file
