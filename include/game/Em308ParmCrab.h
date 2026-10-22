@@ -33,6 +33,7 @@ public:
 
     void fn_802FC188(); // inferred: death
     void fn_802F8EBC(); // inferred: movement
+    void fn_802F93F0(); // inferred: chooses the next action
     inline int OnWater_unk();
     inline void ResetAttack_unk();
     inline void StopAttack_unk();

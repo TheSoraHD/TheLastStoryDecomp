@@ -115,7 +115,10 @@ extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStat
                             unsigned int flags, const HitParam_unk* param); // inferred: applies the skill
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: attack hit
-extern "C" void fn_802F93F0(Em308ParmCrab* crab);
+extern "C" void fn_802FC2E0(Em308ParmCrab* crab, CharaTask* target);
+extern "C" double sqrt(double x);
+extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+                           void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
 extern "C" void fn_802F97B8(Em308ParmCrab* crab);
 extern "C" void fn_802F9F3C(Em308ParmCrab* crab);
 extern "C" void fn_802FA2F4(Em308ParmCrab* crab);
@@ -372,7 +375,7 @@ void Em308ParmCrab::vf10() {
                 }
             }
             fn_802F8EBC();
-            fn_802F93F0(this);
+            fn_802F93F0();
             break;
         }
     }
@@ -605,6 +608,68 @@ void Em308ParmCrab::fn_802F8EBC() {
     } else {
         rot = mRot;
         fn_8013CB68(&rot, 0, speed, m568 * rate);
+    }
+}
+
+// inferred: chooses the next action against the target m15BC (as Em308InvertCrab::fn_802F389C): escape under
+// "EscapeHpRate", turn, needle, tackle or charge
+void Em308ParmCrab::fn_802F93F0() {
+    m15D4--;
+    if (m15AC.size() != 0 && mStatus.m04 / (float)mStatus.mParamB.m84 < m1594 && m15BC != 0 &&
+        !m15BC->mFlag28) {
+        fn_802FC2E0(this, m15BC);
+    }
+    if ((unsigned int)m15BC != (unsigned int)mC58.mC8) {
+        fn_8016E970(3);
+        m15D4 = m14F4 != 0 ? m14F4->m68 : 90;
+        if (fn_802FBE00(m15BC, 6) != 0) {
+            return;
+        }
+    }
+    CharaTask* target = m15BC;
+    atn::Vector3 d = target->mPos - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    if (m15D4 < 0) {
+        fn_8016E970(3);
+        if (dist <= m14F0) {
+            if (fn_802FBE00(m15BC, 8) == 0) {
+                fn_802FBA30(m15BC);
+            }
+        } else {
+            m15D4 = m14F4 != 0 ? m14F4->m68 : 90;
+        }
+    } else {
+        atn::Vector3 down(0.0f, -3.0f, 0.0f);
+        if (fn_8004D314(lbl_8087EE98, 0, &mPos, &down, 0x80000000, 0, 0, 3.0f) != 0) {
+            float reach = 30.0f;
+            if (m1530 != 0) {
+                reach = m1530->m40;
+            }
+            if (dist < reach) {
+                fn_8016E970(3);
+                if (fn_802FBE00(m15BC, 11) == 0) {
+                    ResetAttack_unk();
+                    m58C = 11;
+                    fn_80097CCC(&mMotion, 0, 0.0f);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                    m15D0 = m1530 != 0 ? m1530->m68 : 60;
+                }
+            } else if (dist < m152C) {
+                fn_8016E970(3);
+                if (fn_802FBE00(m15BC, 10) == 0) {
+                    ResetAttack_unk();
+                    m58C = 10;
+                    fn_80097CCC(&mMotion, 0, 0.0f);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                }
+            }
+        }
     }
 }
 
