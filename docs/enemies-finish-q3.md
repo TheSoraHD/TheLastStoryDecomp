@@ -14,6 +14,17 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   fija vf10 (5.9 KB, sin escribir) y vf0C): ctor, vf54, vf64, fn_802D404C, fn_802D4378, fn_802D4E9C,
   fn_802D5020, fn_802D5674.
 
+### game/Em302Kraken (0/49 -> 6/49, primera pasada)
+- Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302Kraken.cpp` y cabecera nueva
+  `include/game/Em302Kraken.h` (subclase directa de EnemyTask: el ctor llama a `__ct__9EnemyTask` y la vtable
+  tiene 0xF8 bytes; layout 0x14B0-0x16B8 del ctor/dtor; nombres inventados).
+- Al 100%: dtor, vf14, vf3C, vf40, vfEC, fn_802DC5B4.
+- NONMATCHING >= 97% (pool de cadenas y .sdata2, que ordenan vf0C/vf10 sin escribir): ctor (98.3%: registros del
+  segundo std::string, como Em201ZanGurg), vf20, vf54, vfD0, vfD8, fn_802DDA90 (el original relee el flag de
+  0x12A4 del pie; 6 variantes), fn_802DDBB0 y las virtuales inline vf90/vf94/vfC8/vfD4/vfDC (copias debiles).
+- La tabla de comandos de "act_command" (`sCommands_unk`, {nombre[0x40], id}) y su busqueda fn_802D73E4 son
+  estaticas del fichero.
+
 ## Decisiones tomadas sin el usuario
 - **splits.txt**: `.rodata` de game/Em301LShade ampliada de 0x807470A4 a 0x807473F8: absorbe el tramo
   auto_06_807470A4 (pool de cadenas de la unidad, `lbl_807470A4`, que solo usa Em301LShade).
@@ -23,6 +34,14 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   `mGlobal != -1`); lbl_807470A4 -> `@stringBase0` (scope:local).
 - game/SpecialEnemyBase.cpp: la factoria (case 29) crea `new (3, "", "", 0) Em301LShade(parent, info)` en lugar
   del `extern "C"` fn_802D0038 (mismo tamano 0x16B0; la factoria sigue en 73.27%).
+- **CABECERA COMPARTIDA `include/game/CharaTask.h`**: `vfC8` pasa de `void` a `atn::Vector3` y `vfD4`/`vfDC`
+  de `void` a `float` (la base 0x800EF2F0 copia mPos al resultado; 0x800EF2B4/0x800EF270 devuelven f1; las
+  copias debiles de Em302Kraken tambien). El tipo de retorno no entra en el nombre y ninguna otra fuente
+  las usaba: regress/fuzzdrop 0.
+- **symbols.txt (Em302Kraken)**: ctor, dtor, vf0C, vf10, vf14, vf20, vf3C, vf40, vf50, vf54, vfEC, vfCC, vfD0,
+  vfD8, vf90, vf94, vfC8, vfD4, vfDC (por la vtable) y fn_802DA174/C618/DA90/DBB0/C5B4 como metodos;
+  fn_802D73E4 scope:local; lbl_807473F8 -> `sCommands_unk` (local); lbl_80747654 -> `@stringBase0` (local).
+- game/SpecialEnemyBase.cpp: la factoria (case 30) crea `new (3, "", "", 0) Em302Kraken(parent, info)`.
 - HitMsg_unk+0x40 (indice de la esfera de dano) se lee con un cast (`*(int*)&msg->m3C[4]`), como en
   Em101ElderZesya, para no tocar CharaTask.h.
 
