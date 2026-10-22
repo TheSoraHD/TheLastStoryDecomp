@@ -242,6 +242,25 @@ void Em309Ghoul::fn_80300654() {
     fn_80109828(lbl_8087F048, text);
 }
 
+// NONMATCHING: 99.57% - the slots of the difference and of the rotation copy are swapped on the stack
+// (~15 variants: ToRotation_unk/ToRotationZ_unk, named difference, helpers by value/reference, RotZ_unk in
+// place)
+void Em309Ghoul::fn_8030073C() {
+    m14F0 = 0;
+    m14F4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80097CCC(&mMotion, 2, 0.0f);
+    m58C = 6;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    if (m14EC != 0) {
+        mRot = (m14EC->mPos - mPos).ToRotationZ_unk();
+    }
+}
+
 void Em309Ghoul::fn_803009F4() {
     m14F0 = 0;
     m14F4 = 0;

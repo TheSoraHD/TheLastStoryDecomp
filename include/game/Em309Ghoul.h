@@ -29,6 +29,7 @@ public:
     int fn_80304B40();  // inferred: nonzero while the players stay grouped
     inline void Die_unk(int motion, int flag);
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
+    void fn_8030073C(); // inferred: starts state 6 (motion 0x145) facing the target
     void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
     void fn_803010BC(); // inferred: starts state 12 (messages 0x149/0x14B)
     void fn_80301200(); // inferred: starts state 13

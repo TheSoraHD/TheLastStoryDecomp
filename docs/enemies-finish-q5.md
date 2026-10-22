@@ -69,6 +69,10 @@ game/Em315Coffin.
   99.92%: offsets del pool). Las grandes (vf100/104/108, fn_803067E0 vf40, fn_80308E6C) y fn_803097AC (slot 0xB0:
   CharaTask::vfB0 esta declarada `void vfB0()` en la cabecera compartida, devuelve int y recibe un Vector3*) sin
   escribir; fn_80309D20/fn_80309D50 son invoker/manager de boost::function (bind de ControlThrustForGhoul).
+- `game/Em309Ghoul` (segunda vuelta): fn_8030073C (inicio del estado 6, motion 0x145, se gira hacia el objetivo
+  m14EC con `ToRotationZ_unk`) escrita: el diff directo de objdiff da 99.57% (las ranuras en pila de la diferencia
+  y de la copia de la rotacion estan intercambiadas; ~15 variantes) pero `report.json` la cuenta al 100%. Se deja
+  `// NONMATCHING: 99.57%` en la fuente (ver decisiones).
 - `game/Em310Gargoyle` (2/21 -> 3/21): vf40 (0x8030B5B0, derrota: banderas 0xCF/0x66 del campo y efecto
   ef_uc037) al 100%. vf3C (0x8030B41C, modos de dano "DamageCalcMode") 99.99%: solo el offset de "head" en el
   pool. vf0C (0x8030A6A0) 98.41%: r3/r4 de la palabra de banderas y del pool, r3/r4/r5 de los stores finales
@@ -105,6 +109,9 @@ game/Em315Coffin.
   constante de .sdata2; el report completo las da al 100%. Fiarse del report.
 
 ## Decisiones tomadas sin el usuario
+- Em309Ghoul::fn_8030073C: `report.json` la da al 100% aunque `objdiff-cli diff` muestra dos offsets de pila
+  intercambiados (diferencia real de instrucciones). Se marca NONMATCHING en la fuente y no se cuenta como ganada
+  en estas notas, aunque el contador del report suba en 1. Revisar si el report ignora ese tipo de diferencia.
 - Em310Gargoyle: objeto estatico `sUnused_unk` (Color4f_unk) inventado solo para reproducir el `__sinit` vacio
   (fn_8030DA1C); el tipo real del objeto es desconocido.
 
