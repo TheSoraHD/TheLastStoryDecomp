@@ -12,6 +12,13 @@ struct Color4f_unk {
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+// inferred: effect/bullet manager (lbl_8087F048); class unknown
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
@@ -113,6 +120,46 @@ void Em003LesserDaemon::fn_8024FCDC() {
         if (mLinks[i]->m58C != 2) {
             mLinks[i]->fn_8024FE18(0);
         }
+    }
+    m14DC = 0;
+    m14E4 = 0;
+}
+
+void Em003LesserDaemon::fn_8024FE18(int arg) {
+    mStatus.fn_8012DD70();
+    m58C = 2;
+    fn_8016E970(3);
+    m14B8 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x33, 0, 0, 1, 0.0f, 0.1f);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    fn_80239DAC(lbl_8087F3C0, &m1504, 0, 0);
+    if (arg != 0) {
+        m590 = fn_800F8548(lbl_8087F048);
+        atn::Vector3 pos = mPos;
+        pos.y += 10.0f;
+        fn_800FAB80(lbl_8087F048, this, m14D8, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    } else {
+        fn_80232B7C(0, 0);
+        Color4f_unk color;
+        atn::Vector3 rot;
+        atn::Vector3 pos;
+        rot.x = 0.0f;
+        rot.y = 0.0f;
+        rot.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m14EC, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
     }
     m14DC = 0;
     m14E4 = 0;

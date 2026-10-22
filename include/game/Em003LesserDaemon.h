@@ -24,7 +24,8 @@ public:
     unsigned char m14B0[0x14B8 - 0x14B0];
     int m14B8;
     int m14BC;
-    unsigned char m14C0[0x14DC - 0x14C0];
+    unsigned char m14C0[0x14D8 - 0x14C0];
+    HitInfo_unk* m14D8;       // inferred: explosion skill
     int m14DC;
     unsigned char m14E0[0x14E4 - 0x14E0];
     int m14E4;
