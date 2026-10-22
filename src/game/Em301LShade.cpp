@@ -22,14 +22,62 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: field object (as in gmk/FlamingArrow.cpp)
 // inferred: field object (lbl_8087F430): route tables (fn_8013C504, as in gmk/FlamingArrow.cpp) and a
 // camera shake at 0x96C (names invented)
+// inferred: camera settings block of the field (as CameraParam_unk of chr/ControlBreakOpen.cpp)
+struct ShadeCamera_unk {
+    atn::Vector3 mPos;
+    atn::Vector3 mTarget;
+    float mFov;
+    int mFlag;
+};
+// inferred: camera mode switch of the field (same name as in chr/ControlBreakOpen.cpp)
+struct CameraSub_unk {
+    void fn_80389838(int mode);
+};
 struct Field_unk {
     RouteTable_unk* fn_8013C504();
-    unsigned char m000[0x96C];
+    unsigned char m000[0x6C];
+    CameraSub_unk m06C;   // inferred: camera mode (fn_80389838)
+    unsigned char m06D[0x568 - 0x6D];
+    ShadeCamera_unk m568;      // inferred: camera of the events
+    unsigned char m588[0x870 - 0x588];
+    int m870;                  // inferred: previous camera mode (read at m06C + 0x804)
+    unsigned char m874[0x96C - 0x874];
     int m96C;
     int m970;   // inferred: shake frames
     float m974; // inferred: shake strength
     float m978;
 };
+extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
+// inferred: copy of the event camera (as CameraMgr_unk::SetParam_unk of chr/ControlBreakOpen.cpp: the two
+// vectors through a Vector3 pointer); name invented
+inline void SetCamera_unk(Field_unk* field, const ShadeCamera_unk& c) {
+    const atn::Vector3* src = &c.mPos;
+    atn::Vector3* dst = &field->m568.mPos;
+    dst[0] = src[0];
+    dst[1] = src[1];
+    field->m568.mFov = c.mFov;
+    field->m568.mFlag = c.mFlag;
+}
+extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
+// inferred: game state (lbl_8087EFA8): a block of the camera blur at 0x240 and the time scale at 0x3A4
+struct ShadeBlur_unk {
+    int m00;
+    int m04;
+    int m08;
+    float m0C;
+    float m10;
+    int m14;
+    int m18;
+    float m1C;
+    float m20;
+};
+struct ShadeGame_unk {
+    unsigned char m000[0x240];
+    ShadeBlur_unk m240;
+    unsigned char m264[0x3A4 - 0x264];
+    float m3A4;
+};
+extern "C" ShadeGame_unk* lbl_8087EFA8;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
@@ -803,6 +851,48 @@ void Em301LShade::fn_802D5020() {
         fn_802D5D18(m1510);
         m152C = 0;
         SetState_unk(0);
+    }
+}
+
+// inferred: the event camera looks at the head from "dead_camera"; when the death motion ends the
+// enemy is removed and the camera and the time scale go back to normal
+// NONMATCHING: 99.1% - registers r5/r6 of the copy of "dead_camera" (the __VecCopy family) and the
+// string pool offsets
+void Em301LShade::vfEC() {
+    ShadeCamera_unk c;
+    atn::Vector3 dir;
+    c.mPos = *(atn::Vector3*)&m15BC;
+    atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    c.mTarget = head;
+    c.mFov = 0.7853982f;
+    c.mFlag = 0;
+    SetCamera_unk(lbl_8087F430, c);
+    dir.Set_unk(m15BC - mPos.x, 0.0f, m15C4 - mPos.z);
+    atn::Vector3 rot = dir.ToRotationZ_unk();
+    mRot.y = rot.y;
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mFlag25 = 1;
+        mColli.mFlags &= ~1;
+        fn_80370320(lbl_8087F430, 0xD0, 0, 0);
+        fn_800EE360(this);
+        mFlag15 = 1;
+        fn_801765D8();
+        CameraSub_unk* sub = &lbl_8087F430->m06C;
+        sub->fn_80389838(*(int*)((char*)sub + 0x804));
+        ShadeGame_unk* game = lbl_8087EFA8;
+        ShadeBlur_unk blur;
+        blur.m04 = game->m240.m04;
+        blur.m08 = game->m240.m08;
+        blur.m0C = game->m240.m0C;
+        blur.m10 = game->m240.m10;
+        blur.m14 = game->m240.m14;
+        blur.m18 = game->m240.m18;
+        blur.m1C = game->m240.m1C;
+        blur.m20 = game->m240.m20;
+        blur.m00 = 0;
+        game->m240 = blur;
+        lbl_8087EFA8->m3A4 = 1.0f;
     }
 }
 
