@@ -4,6 +4,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/LH_Binary.h"
 #include "game/EnemyTask.h"
+#include "game/CharaStatus.h"
 #include "game/ResHandle.h"
 
 // inferred from __vt__17Em005DoppelGanger (0x80784210): doppelganger enemy (copies a character,
@@ -28,6 +29,8 @@ public:
     inline void ResetStep_unk();
     void fn_80253884(); // inferred: state 1 (spell / move along the route)
     inline void Move_unk();
+    inline int IsHiddenPhase_unk();
+    void fn_802531F4(); // inferred: state of the appearance (copies the character and shows itself)
 
     int m14B0;
     int m14B4; // inferred: step of the state
@@ -51,7 +54,7 @@ public:
     int m1520; // inferred: hit counter of phase 2
     int m1524; // inferred: hits before the stagger (4)
     int m1528;
-    int m152C;
+    RoutePlace_unk* m152C; // inferred: "WarpPoint"
     unsigned char m1530[0x1540 - 0x1530];
     int m1540; // inferred: hit counter (capped at 60)
     int m1544; // inferred: frame counter

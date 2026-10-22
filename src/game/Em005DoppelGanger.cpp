@@ -12,6 +12,8 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" double acos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int rand();
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
@@ -75,6 +77,23 @@ inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
 // inferred: word at 0x1C of the running control (class unknown)
@@ -452,6 +471,52 @@ void Em005DoppelGanger::fn_80253884() {
             }
             fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
         }
+    }
+}
+
+inline int Em005DoppelGanger::IsHiddenPhase_unk() {
+    int r = 1;
+    if (m14BC == 2) {
+        r = 0;
+    }
+    return r;
+}
+
+// NONMATCHING: 99.08% - stack slots of the rotation matrix of the route branch against the front of the
+// source, and the offset of "SE_EM005_010_1" in the pool (10 variants)
+void Em005DoppelGanger::fn_802531F4() {
+    if (m55C == 6) {
+        Move_unk();
+        if (m560 == 126) {
+            if ((float)__fabs(mMotion.mTracks[0].m08 - 43.0f) < 1.1920929e-7f) {
+                EffectMgr_unk* mgr = lbl_8087F3C0;
+                PlayEffectM_unk(mgr, &m14C8, &mMotion);
+                fn_800C344C("SE_EM005_010_1", &mPos, 0, -1, 1.0f);
+            }
+            if ((float)__fabs(mMotion.mTracks[0].m08 - 55.0f) < 1.1920929e-7f) {
+                if (m152C != 0) {
+                    mPos = m152C->mPos;
+                }
+                m14BC = 2;
+                fn_8016E4C4(IsHiddenPhase_unk());
+            }
+        }
+        return;
+    }
+    fn_8016E970(3);
+    CharaTask* src = m1504;
+    if (src != 0) {
+        mPos = src->mPos;
+        mPos.z = 2.0f * sOffsetB_unk.z - mPos.z;
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', src->mRot.y);
+        PSMTXMultVec(m, &front, &front);
+        float angle = acos(-1.0f * PSVECDotProduct(&front, &sSphereOffset_unk));
+        if (front.x < 0.0f) {
+            angle *= -1.0f;
+        }
+        mRot.y = angle;
     }
 }
 
