@@ -451,6 +451,58 @@ void SwingObject::vf3C(void* lens) {
 
 } // namespace gmk
 
+// inferred: swinging map part (a model instance with the swing state; built by fn_803FFD10)
+struct SwingPartData_unk {
+    unsigned char m00[0x44];
+    int mNumNodes; // 0x44
+};
+struct SwingPartInst_unk {
+    unsigned char m00[0x4C];
+    Mtx* mNodes; // 0x4C: inferred: local node matrices
+    unsigned char m50[0x17C - 0x50];
+    SwingPartData_unk* m17C;
+};
+struct SwingPartPos_unk {
+    int m00;
+    atn::Vector3 mPos; // 0x04
+};
+struct SwingPart_unk : public atn::ModelInstance {
+    unsigned char m88[0x94 - 0x88];
+    SwingPartPos_unk* m94;
+    Mtx* m98; // inferred: world node matrices
+    int m9C;
+    int mA0;
+    int mA4;
+    gmk::SwingCore_unk mCore; // 0xA8
+};
+
+// inferred: update of a swinging map part (called by MapPartsGimmickLoc; name unknown)
+// NONMATCHING: 96.9% - float registers of the inlined UpdateSwing_unk (as in SwingObject::vf10) and
+// the registers of the node pointer and the loop counter swapped.
+extern "C" void fn_804003E0(SwingPart_unk* part) {
+    if (CameraDistSq_unk(part->m94->mPos) > 90000.0f) {
+        return;
+    }
+    UpdateSwing_unk(&part->mCore);
+    if (part->m9C == 0 || part->mA0 == 0 || part->mA4 == 0) {
+        return;
+    }
+    part->fn_8009EB20();
+    Mtx* nodes = part->m98;
+    if (nodes == 0) {
+        return;
+    }
+    SwingPartInst_unk* data = (SwingPartInst_unk*)part->mData;
+    int count = data->m17C->mNumNodes;
+    Mtx* local = data->mNodes;
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 mtx = part->mMtx;
+    for (int i = 0; i < count; i++) {
+        PSMTXConcat(mtx.m, local[i], t.m);
+        *(atn::Matrix3x4*)nodes[i] = t;
+    }
+}
+
 // inferred: draw of a swinging map part (its model instance comes first); called by
 // MapPartsGimmickLoc (name unknown)
 extern "C" void fn_804006E0(atn::ModelInstance* inst) {
