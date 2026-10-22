@@ -1,3 +1,4 @@
+#include "atn/SequenceBoot_unk.h"
 struct ElemA { char data[0x2D4]; ~ElemA(); };
 struct ElemB { char data[0x240]; ~ElemB(); };
 struct InnerA { char pad_0x00[0x11C4]; ElemA arr[0x1C]; ~InnerA() {} };
@@ -57,7 +58,6 @@ extern char lbl_807C85C0[];
 extern void* lbl_8087EF70;
 extern void* lbl_8087EEB0;
 extern Heap* lbl_8087F460;
-extern void* lbl_8087F9AC;
 extern int lbl_8087DD60;
 extern int lbl_8087DD64;
 extern int lbl_8087F630;
@@ -94,7 +94,6 @@ void* fn_8006BA8C(char* buf, int* out, int flag);
 void fn_8006BB6C(void* p, int flag);
 void fn_803BE850(Heap* h);
 void fn_803B3530(void* a, char* b, char* c, int d, int e);
-void fn_80572B6C(void* a, const char* s);
 void fn_800D2338(void* self);
 Heap* fn_803BDB60(Heap* self);
 void fn_803B8B08(void* self, UnkElem* elem);
@@ -162,12 +161,20 @@ Unk* fn_803B2870(Unk* self, void* arg1, const UnkArg* arg2) {
 }
 #pragma pop
 
-Unk* fn_803B29A8(Unk* self, int flag) {
-    if (self != 0 && flag > 0) {
-        dtor_80084684(self);
-    }
-    return self;
-}
+} // extern "C"
+
+// inferred: destructor of the temporary that builds a GameLoadTask::Option (called by
+// atn/SequenceUnitParam1_const_int.cpp after registering the GameLoad sequences)
+struct GameLoadTask {
+    struct OptionTmp_unk {
+        ~OptionTmp_unk();
+    };
+};
+
+GameLoadTask::OptionTmp_unk::~OptionTmp_unk() {}
+
+extern "C" {
+
 
 Unk* fn_803B29E8(Unk* self, int flag) {
     if (self != 0) {
@@ -274,7 +281,7 @@ void fn_803B2A68(Unk* self) {
             }
         }
         if (fn_800A555C(lbl_8087EF70, 0, 5) != 0) {
-            fn_80572B6C(lbl_8087F9AC, lbl_8074FBA4 + 0x29);
+            sSequenceBoot_unk->SetNext_unk(lbl_8074FBA4 + 0x29);
             fn_800D2338(self);
         }
         break;
@@ -298,7 +305,7 @@ void fn_803B2A68(Unk* self) {
             }
             fn_803BE850(lbl_8087F460);
         }
-        fn_80572B6C(lbl_8087F9AC, self->field_0xD6C.field_0x00.chars);
+        sSequenceBoot_unk->SetNext_unk(self->field_0xD6C.field_0x00.chars);
         fn_800D2338(self);
         break;
     default:

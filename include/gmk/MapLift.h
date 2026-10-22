@@ -12,7 +12,7 @@ struct MotionPose_unk {
     MotionPose_unk(); // 0x800A08E0
     int m00;
     atn::Vector3 mPos; // 0x04
-    float m10[4];      // inferred: rotation
+    atn::Quaternion_unk m10; // inferred: rotation
     atn::Vector3 mScale; // 0x20
 };
 

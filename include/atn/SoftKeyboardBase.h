@@ -14,7 +14,9 @@ struct SoftKey_unk {
     bool Contains_unk(const Vector2_unk& p) const;
     int m00; // inferred: key enabled
     wchar_t m04; // inferred: character
-    float m08, m0C, m10, m14;
+    // inferred: corners of the key (atn::SoftKeyboardU::fn_80503AB8 copies them as two Vector2_unk)
+    Vector2_unk mMin; // 0x08
+    Vector2_unk mMax; // 0x10
     int m18;
 };
 

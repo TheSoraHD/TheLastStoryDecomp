@@ -103,6 +103,7 @@ atn/AudioDevice.cpp:
 	.rodata     start:0x80730F38 end:0x80731028
 	.data       start:0x80777520 end:0x80777570
 	.sdata      start:0x8087D718 end:0x8087D720
+	.sbss       start:0x8087EE80 end:0x8087EE98
 	.sdata2     start:0x80880870 end:0x80880890
 
 atn/Bgm.cpp:
@@ -118,6 +119,7 @@ atn/Camera_unk.cpp:
 atn/ColliBaseFunc_unk.cpp:
 	.text       start:0x8004C9B4 end:0x8004F45C
 	.rodata     start:0x80731038 end:0x80731048
+	.sbss       start:0x8087EE98 end:0x8087EEA0
 	.sdata2     start:0x808808D0 end:0x80880930
 
 atn/Frustum_unk.cpp:
@@ -130,16 +132,19 @@ atn/ColliTest_unk.cpp:
 	.sdata2     start:0x80880940 end:0x80880960
 
 atn/atn_colli.cpp:
-	.text       start:0x80056DB8 end:0x80059784
+	.text       start:0x80056DB8 end:0x80059660
 	.rodata     start:0x80731058 end:0x807310C8
 	.data       start:0x80777588 end:0x807776C8
 	.sdata2     start:0x80880960 end:0x80880980
 
 atn/ColliCalc_unk.cpp:
-	.text       start:0x80059784 end:0x8005C248
+	.text       start:0x80059660 end:0x8005B3CC
 	.bss        start:0x807C6BC8 end:0x807C6C08
 	.sbss       start:0x8087EEA0 end:0x8087EEA8
 	.sdata2     start:0x80880980 end:0x80880998
+
+atn/Csv_unk.cpp:
+	.text       start:0x8005B3CC end:0x8005C248
 
 atn/SinusCurve.cpp:
 	.text       start:0x8005C248 end:0x8005DD60
@@ -251,6 +256,7 @@ atn/MindowsCommon.cpp:
 	.text       start:0x80084FD8 end:0x800899DC
 	.rodata     start:0x80732140 end:0x80732248
 	.data       start:0x80778610 end:0x80778840
+	.sbss       start:0x8087EF10 end:0x8087EF18
 	.sdata2     start:0x80880BD0 end:0x80880BF8
 
 atn/Model.cpp:
@@ -295,6 +301,7 @@ atn/NandManager.cpp:
 	.text       start:0x800A2978 end:0x800A5508
 	.rodata     start:0x807327A0 end:0x80732898
 	.data       start:0x807789D8 end:0x80778AD8
+	.sbss       start:0x8087EF68 end:0x8087EF70
 	.sdata2     start:0x80880CA0 end:0x80880CB0
 
 atn/Pad_unk.cpp:
@@ -487,14 +494,9 @@ atn/SoftKeyboardBase_wchar_t_0.cpp:
 	.sdata2     start:0x80881158 end:0x80881160
 
 atn/Sound3dListener.cpp:
-	.text       start:0x800C7DC4 end:0x800C8278
-	.rodata     start:0x80734130 end:0x8073416C
-	.data       start:0x807794F8 end:0x80779570
-
-atn/Sound3dListener_cont.cpp:
-	.text       start:0x800C8278 end:0x800CAD9C
-	.rodata     start:0x8073416C end:0x80734188
-	.data       start:0x80779570 end:0x807795C0
+	.text       start:0x800C7DC4 end:0x800CAD9C
+	.rodata     start:0x8073401C end:0x80734180
+	.data       start:0x807794F8 end:0x807795C0
 	.sdata2     start:0x80881160 end:0x80881180
 
 atn/Sound3dEngine.cpp:
@@ -512,12 +514,16 @@ atn/SoundManager.cpp:
 	.sdata2     start:0x80881188 end:0x808811D8
 
 atn/Task.cpp:
-	.text       start:0x800D1C60 end:0x800D5738
+	.text       start:0x800D1C60 end:0x800D5618
+	.data       start:0x807796B0 end:0x807796F0
+	.sbss       start:0x8087EFF0 end:0x8087EFF8
+
+atn/TaskBase.cpp:
+	.text       start:0x800D5618 end:0x800D5738
 	.ctors      start:0x8072D2C4 end:0x8072D2C8
 	.rodata     start:0x80734628 end:0x80734638
-	.data       start:0x807796B0 end:0x80779700
+	.data       start:0x807796F0 end:0x80779700
 	.bss        start:0x807C75D0 end:0x807C75E8
-	.sbss       start:0x8087EFF0 end:0x8087EFF8
 
 atn/Texture_unk.cpp:
 	.text       start:0x800D5738 end:0x800D5C84
@@ -1081,8 +1087,9 @@ game/CrowdSimulation.cpp:
 
 atn/D2A_Common.cpp:
 	.text       start:0x801EC158 end:0x801EEE54
-	.rodata     start:0x8073CD58 end:0x8073CD68
+	.rodata     start:0x8073CD58 end:0x8073CDA8
 	.data       start:0x80782A50 end:0x80782A80
+	.sdata      start:0x8087DAB0 end:0x8087DAD0
 	.sdata2     start:0x80882BE0 end:0x80882C00
 
 atn/D2A_Data.cpp:
@@ -2636,6 +2643,7 @@ atn/Loader.cpp:
 	.rodata     start:0x80755610 end:0x80755B88
 	.data       start:0x8078FB70 end:0x8078FBA8
 	.sdata      start:0x8087E050 end:0x8087E058
+	.sbss       start:0x8087F518 end:0x8087F520
 	.sdata2     start:0x80886EC0 end:0x80886EE0
 
 atn/FileSystem_unk.cpp:

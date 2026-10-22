@@ -8,6 +8,14 @@
   "matching": false
  },
  {
+  "name": "atn/Font_unk.cpp",
+  "classes": [
+   "atn::Font_unk",
+   "atn::FontInfo_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/LH_Binary.cpp",
   "classes": [
    "atn::LH_Binary"
@@ -229,13 +237,21 @@
  {
   "name": "atn/MindowsCommon.cpp",
   "classes": [
-   "atn::MindowsFlag",
-   "atn::MindowsBool",
-   "atn::MindowsFloat",
-   "atn::MindowsUInt",
+   "atn::MindowsCommon",
    "atn::MindowsInt",
-   "atn::MindowsCommon"
+   "atn::MindowsUInt",
+   "atn::MindowsFloat",
+   "atn::MindowsBool",
+   "atn::MindowsFlag",
+   "atn::MindowsRadian",
+   "atn::MindowsFolder",
+   "atn::Mindows_unk"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/ModelDraw_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {
@@ -243,6 +259,11 @@
   "classes": [
    "atn::ModelInstance"
   ],
+  "matching": false
+ },
+ {
+  "name": "atn/Motion_unk.cpp",
+  "classes": [],
   "matching": false
  },
  {
@@ -336,6 +357,19 @@
   "matching": false
  },
  {
+  "name": "atn/RenderSetting_unk.cpp",
+  "classes": [
+   "RenderSetting_unk",
+   "GodRayParam_unk",
+   "RainParam_unk",
+   "HazeParam_unk",
+   "ShadowParam_unk",
+   "ColorMatrixParam_unk",
+   "GammaParams_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/SequenceControl.cpp",
   "classes": [
    "atn::SequenceControl"
@@ -391,6 +425,20 @@
    "atn::Sound3dEngine"
   ],
   "matching": true
+ },
+ {
+  "name": "atn/Task.cpp",
+  "classes": [
+   "atn::Task"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/TaskBase.cpp",
+  "classes": [
+   "atn::TaskBase"
+  ],
+  "matching": false
  },
  {
   "name": "atn/TextureCacheManager8x32.cpp",
@@ -978,7 +1026,7 @@
   "classes": [
    "atn::D2A_Common"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D2A_Data.cpp",
@@ -1358,6 +1406,13 @@
  {
   "name": "atn/LoadManager_unk.cpp",
   "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Loader.cpp",
+  "classes": [
+   "atn::Loader"
+  ],
   "matching": false
  },
  {
@@ -3152,6 +3207,13 @@
   "matching": false
  },
  {
+  "name": "atn/NetManager.cpp",
+  "classes": [
+   "atn::net::Manager"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/DwcAllocator_unk.cpp",
   "classes": [],
   "matching": true
@@ -3538,6 +3600,37 @@
   "classes": [
    "CharaLightData_unk",
    "NewCampScene2_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/atn_colli.cpp",
+  "classes": [
+   "atn::ColliBase",
+   "atn::ColliSphere",
+   "atn::ColliCapsule",
+   "atn::ColliBox",
+   "atn::ColliObject",
+   "atn::ColliTree"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ColliCalc_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/Csv_unk.cpp",
+  "classes": [
+   "atn::CsvBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/ColliBaseFunc_unk.cpp",
+  "classes": [
+   "atn::ColliBase"
   ],
   "matching": false
  }

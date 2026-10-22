@@ -15,9 +15,6 @@ extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
-// inferred: sets the box (center, rotation, half size)
-extern "C" void fn_800575BC(atn::ColliBox* colli, const atn::Vector3* pos, const atn::Vector3* rot,
-                            const atn::Vector3* size);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -75,7 +72,7 @@ inline void UpdateBox_unk(WaterLevel* self) {
     pos.x += self->mBoxOffset.x;
     pos.y += self->mBoxOffset.y;
     pos.z += self->mBoxOffset.z;
-    fn_800575BC(&self->mColli, &pos, &self->m78, &self->mBoxSize);
+    self->mColli.fn_800575BC(&pos, &self->m78, &self->mBoxSize);
 }
 
 GimmickCommon* WaterLevel::fn_8042E36C(atn::Task* parent, int id, int arg) {

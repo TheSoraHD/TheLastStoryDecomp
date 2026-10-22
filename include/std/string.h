@@ -73,6 +73,8 @@ public:
     size_type size() const { return !is_long() ? (mShort.mSize & 0x7F) : mLong.mSize; }
     const T* data() const { return !is_long() ? (const T*)this + 1 : mLong.mData; }
     T& operator[](size_type i) { return (!is_long() ? (T*)this + 1 : mLong.mData)[i]; }
+    // inferred: weak copy 0x8046D1CC (char, atn/Loader.cpp)
+    const T& operator[](size_type i) const { return (!is_long() ? (const T*)this + 1 : mLong.mData)[i]; }
     void clear() {
         if (!is_long()) {
             mShort.mData[0] = 0;
@@ -208,6 +210,24 @@ public:
         return __replace_unk(sz, 0, p, p + n, random_access_iterator_tag());
     }
     basic_string& operator+=(const basic_string& str) { return append(str); }
+    // inferred: friend defined in the class (the weak copy 0x8006D008, char, has no template
+    // arguments in its name): zeroes the result, strlen, reserve, then two range replaces
+    friend basic_string operator+(const basic_string& lhs, const T* rhs) {
+        basic_string tmp;
+        size_type n = strlen(rhs);
+        size_type sz;
+        const T* p;
+        if (!lhs.is_long()) {
+            p = (const T*)&lhs + 1;
+            sz = lhs.mShort.mSize & 0x7F;
+        } else {
+            p = lhs.mLong.mData;
+            sz = lhs.mLong.mSize;
+        }
+        tmp.reserve(sz + n);
+        tmp.replace(0, 0, p, p + sz).replace(sz, 0, rhs, rhs + n);
+        return tmp;
+    }
     // inferred: one character (atn/WordWrap_unk 0x800DFB40: size() then the range replace of &c)
     basic_string& operator+=(T c) { return __replace_unk(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
     // inferred: inlined in operator==(const basic_string&, const T*) (0x8000EB8C, char)

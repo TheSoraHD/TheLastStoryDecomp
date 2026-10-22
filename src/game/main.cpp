@@ -4,6 +4,7 @@
 #include "atn/Array_unk.h"
 #include "atn/Memory.h"
 #include "atn/Task.h"
+#include "atn/SequenceBoot_unk.h"
 #include "game/HeapInfo_unk.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -151,7 +152,6 @@ extern "C" void fn_800B95C4();
 extern "C" void fn_80185AD4();
 extern "C" void fn_80187C44(MainConfig_unk* config, const char* path);
 extern "C" void fn_80186520(MainConfig_unk* config);
-extern "C" void fn_805728BC(atn::Task* root);
 extern "C" void fn_800696C8();
 extern "C" void fn_8046D7D8(atn::Task* root);
 extern "C" void fn_800BC798();
@@ -315,7 +315,7 @@ void fn_8047A4C8() {
     fn_80186520(lbl_8087F0A8);
     OSReport("0.2\n");
     SetConfig::sInstance->fn_8057EAF0();
-    fn_805728BC(lbl_8087F530);
+    SequenceBoot_unk::Create_unk(lbl_8087F530);
     lbl_8087F534 = new (1, "", "", 0) HeapInfo_unk;
     fn_800696C8();
     fn_8046D7D8(lbl_8087F530);

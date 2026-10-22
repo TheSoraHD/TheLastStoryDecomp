@@ -120,8 +120,7 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087F434;
-extern "C" void* lbl_8087F9AC;
-extern "C" void fn_80572B6C(void* p, const char* name);
+#include "atn/SequenceBoot_unk.h"
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 // inferred: field (lbl_8087F430); only the members used here
@@ -430,7 +429,7 @@ void GameOverTask::vf10() {
             break;
         case 2:
             fn_800D2338((atn::Task*)lbl_8087F430);
-            fn_80572B6C(lbl_8087F9AC, "Title");
+            sSequenceBoot_unk->SetNext_unk("Title");
             break;
         case 3:
             if (lbl_8087F430 != 0) {

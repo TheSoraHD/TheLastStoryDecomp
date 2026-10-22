@@ -4,6 +4,9 @@
 #include "atn/LoadCore.h"
 #include "atn/Memory.h"
 #include "std/list.h"
+#include "std/string.h"
+#include "atn/Task.h"
+#include "game/ResHandle.h"
 
 extern "C" void fn_8046D1EC(char* out, const char* path); // inferred: builds the full path
 extern "C" void fn_8006A950(char* path);                  // inferred: path normalisation
@@ -53,11 +56,41 @@ struct PendingLoad_unk {
     int mIndex;
 };
 
+// inferred: fixed-size path of the loader (copied in its constructor, no clearing)
+struct Path256_unk {
+    Path256_unk(const char* src) {
+        if (src != m) {
+            memcpy(m, src, strlen(src) + 1);
+        }
+    }
+    void operator=(const char* src) {
+        if (src != m) {
+            memcpy(m, src, strlen(src) + 1);
+        }
+    }
+    operator char*() { return m; }
+    char m[0x100];
+};
+
 // inferred: loaded resources sorted by path hash (count, then the array). Name invented.
 struct LoadCache_unk {
+    LoadCache_unk() : mCount(0) {} // inferred: atn::Loader constructor (0x8046D84C)
     unsigned int size() const { return mCount; }
     LoadCore*& operator[](int i) { return mItems[i]; }
     LoadCore** begin() { return mItems; }
+    LoadCore** end() { return mItems + mCount; }
+    // inferred: removes [first, end) (atn::Loader::fn_8046E410; moves the elements by one only)
+    void erase(LoadCore** first) {
+        int i = first - begin();
+        int n = (&mItems[mCount] - begin()) - i;
+        for (; i < mCount - 1; i++) {
+            if (i + n > mCount) {
+                break;
+            }
+            mItems[i] = mItems[i + 1];
+        }
+        mCount -= n;
+    }
     void push_back(LoadCore* core) {
         new (&mItems[mCount]) LoadCore*(core);
         mCount++;
@@ -75,14 +108,34 @@ struct LoadCache_unk {
     LoadCore* mItems[(0x3ECC - 0x4C) / 4];
 };
 
-// inferred: manager of the resources being loaded (global at 0x8087F518). Name invented.
-class LoadManager_unk {
+// inferred: d2anime task of the loading screen (data/d2anime/ui_loading.d2a); only what the
+// loader uses
+struct LoaderD2A_unk : public Task {
+    unsigned char m48[0x58 - 0x48];
+    unsigned char mLayout[0x100 - 0x58]; // 0x58: inferred: layout of the panes
+    float m100;
+    float m104; // inferred: animation speed
+    int m108;
+};
+
+// atn::Loader (RTTI name and vtable 0x8078FB70): manager of the resources being loaded (global
+// at 0x8087F518, created by fn_8046D7D8). Its methods are spread over atn/LoadManager_unk.cpp,
+// atn/Loader.cpp and atn/FileSystem_unk.cpp.
+class Loader : public Task {
 public:
-    // inferred: it has a vtable (0x80473FCC calls the slot 0x10); the other slots are unknown
-    virtual void vf08();
-    virtual void vf0C();
+    Loader(Task* parent);
+    virtual ~Loader();
+    virtual int vf0C();
     virtual void vf10(); // inferred: advances the pending loads
+    virtual void vf14(); // inferred: releases unused archives and runs the loading screen
+
+    void fn_8046CBB0(); // inferred: called at the end of the constructor
+    void fn_8046CBBC(); // inferred: called at the start of the destructor
     int fn_8046C3FC(LoadCore* core);  // inferred: queues the resource, 0 on failure
+    void fn_8046DBF8(char* out, const char* path); // inferred: copy with the language suffix
+    void fn_8046E410();           // inferred: deletes the cached resources without references
+    void fn_8046EC7C();           // inferred: creates the loading screen
+    int fn_8046ECC8();            // inferred: the loading screen is not running
     PfsArchive_unk* fn_8046F460(const char* path); // inferred: archive by name
     int fn_8046F4D4(const char* path);             // inferred: some mounted archive has `path`
     int fn_8046F544(void* out, const char* dir, const char* ext, int flags);
@@ -90,6 +143,12 @@ public:
     LoadCore* fn_8046F834(void* list, unsigned int hash); // inferred: lookup in another container
     void fn_8046F8B8(unsigned int* hashes, unsigned int count); // inferred: references cached resources
     void fn_8046F96C(unsigned int* hashes, unsigned int count); // inferred: releases them
+
+    // inferred: getters (weak copies 0x8046D184..0x8046D1C4, out of line in fn_8046CC90)
+    int fn_8046D184() { return m400C; }
+    int fn_8046D18C() { return m4008; }
+    char* fn_8046D194() { return m3F08; }
+    std::string& fn_8046D1C4() { return m4010; }
 
     // inferred: lookup of a resource by path hash. The early return gives the bne+b of 0x80472E5C.
     LoadCore* Find_unk(unsigned int hash) {
@@ -109,15 +168,27 @@ public:
     template <class T>
     T* Get_unk(const char* path, int cached);
 
-    unsigned char m04[0x48 - 0x04];
     LoadCache_unk m48;                // inferred: another container, see fn_8046F834
-    std::list<LoadCore*> mList;       // 0x3ECC
+    std::__list_owned_unk<LoadCore*> mList; // 0x3ECC
     int m3ED8; // inferred: nonzero when the files on disc take priority over the archives
     int m3EDC; // inferred: set when a resource loses its last reference (0x804730E4)
-    unsigned char m3EE0[0x4020 - 0x3EE0];
-    std::list<PfsArchive_unk*> mArchives; // 0x4020: inferred: every opened archive
-    std::list<PfsArchive_unk*> mMounted;  // 0x402C: inferred: archives searched by path
-    std::list<PendingLoad_unk> mPending;  // 0x4038: inferred: loads waiting for an archive index
+    LoaderD2A_unk* m3EE0; // inferred: loading screen
+    int m3EE4;
+    int m3EE8;
+    int m3EEC;
+    int m3EF0;
+    int m3EF4;
+    int m3EF8;
+    std::string m3EFC;
+    Path256_unk m3F08; // inferred: directory searched first (fn_8046D1EC)
+    int m4008;
+    int m400C; // inferred: zero when the paths are used as they are
+    std::string m4010; // inferred: directory of the files that override the disc
+    ResHandle m401C;
+    std::__list_owned_unk<PfsArchive_unk*> mArchives; // 0x4020: inferred: every opened archive
+    std::__list_owned_unk<PfsArchive_unk*> mMounted;  // 0x402C: inferred: archives searched by path
+    std::__list_owned_unk<PendingLoad_unk> mPending;  // 0x4038: inferred: loads waiting for an archive index
+    int m4044;
 };
 
 // Defined out of the class: its literals are in the file string pool (0x80755C90).
@@ -133,7 +204,7 @@ public:
 // two branches, other insert/push_back nestings in std::list, an out parameter, Wii/1.0-1.3 and
 // -inline deferred instead of -ipa file (all compile to the same code).
 template <class T>
-T* LoadManager_unk::Get_unk(const char* path, int cached) {
+T* Loader::Get_unk(const char* path, int cached) {
     char fullPath[0x100];
     fn_8046D1EC(fullPath, path);
     fn_8006A950(fullPath);
@@ -159,6 +230,14 @@ T* LoadManager_unk::Get_unk(const char* path, int cached) {
 
 } // namespace atn
 
-extern "C" atn::LoadManager_unk* lbl_8087F518;
+extern "C" atn::Loader* lbl_8087F518;
+extern "C" atn::Loader* fn_8046D7D8(atn::Task* parent); // inferred: creates the loader
+// inferred: loads a whole file into a new buffer (align is not used)
+extern "C" void* fn_8046DC5C(atn::Loader* loader, const char* path, unsigned long* size, int align);
+extern "C" void fn_8046DD20(atn::Loader* loader, void* data); // inferred: frees a buffer of fn_8046DC5C
+extern "C" void fn_8046ECDC(atn::Loader* loader, int show); // inferred: shows the loading screen
+extern "C" void fn_8046EED8(atn::Loader* loader);           // inferred: hides the loading screen
+extern "C" void fn_8046F014(atn::Loader* loader);           // inferred: mounts the main archives
+extern "C" void fn_8046F2C4(atn::Loader* loader);           // inferred: opens the preload archives
 
 #endif

@@ -220,8 +220,6 @@ protected:
 } // namespace snd
 } // namespace nw4r
 
-// inferred: SoundCore::GetVolume (Sound3dListener.cpp area), the product of its volume and fades
-extern "C" float fn_800CA844(const void* core);
 
 namespace atn {
 
@@ -244,6 +242,8 @@ public:
     unsigned char m88[0x98 - 0x88];
     unsigned long mSoundId; // 0x98
     unsigned long mFlags;   // 0x9C
+
+    float fn_800CA844() const; // inferred: total volume (defined in Sound3dListener.cpp)
 };
 
 // inferred: user parameter of Sound3DParam (soundUserParam): an attenuation shape
@@ -391,7 +391,7 @@ float Sound3dEngine::fn_800CB1F4(AudioDevice* engine, const SoundCore* core) {
             nw4r::snd::Sound3DCalculator::CalcVolumeAndPriority(manager, *listener, param, &volume, &priority);
         }
     }
-    return volume * fn_800CA844(core);
+    return volume * core->fn_800CA844();
 }
 
 } // namespace atn

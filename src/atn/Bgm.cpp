@@ -1,4 +1,5 @@
 #include "atn/Bgm.h"
+#include "atn/SoundCore.h"
 
 extern "C" void fn_80709AD0(void* sound, int frames);
 extern "C" unsigned long strlen(const char* s);
@@ -19,9 +20,6 @@ extern "C" BgmSoundCfg_unk* lbl_8087EFE8;
 extern "C" atn::SoundObject* fn_800D0AB0(BgmSoundCfg_unk* cfg, unsigned int id); // inferred: creates the sound
 extern "C" int fn_800CFDA0(BgmSoundCfg_unk* cfg, int arg);
 extern "C" void fn_800D19FC(BgmSoundCfg_unk* cfg, atn::SoundObject* sound, float volume);
-extern "C" void fn_800CA7D4(atn::SoundObject* sound, int start);
-extern "C" void fn_800C93D4(atn::SoundObject* sound, const char* name);
-extern "C" void fn_800C97F8(atn::SoundObject* sound, const char* name, int arg);
 extern "C" int fn_800CB4EC(atn::SoundRef* sound);
 extern "C" void fn_800CB504(atn::SoundRef* sound);
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume);
@@ -66,8 +64,8 @@ int Bgm::fn_8004AE84(const char* name, int start) {
         return 0;
     }
     sound->mA8 = fn_800CFDA0(lbl_8087EFE8, m0C);
-    fn_800CA7D4(sound, start);
-    fn_800C93D4(sound, name);
+    ((SoundCore*)sound)->fn_800CA7D4(start);
+    ((SoundCore*)sound)->fn_800C93D4(name);
     m04 = 0;
     if (sound->m90 == 0) {
         m04 = 1;
@@ -86,11 +84,11 @@ int Bgm::fn_8004AFAC(const char* name, int arg, int start) {
         return 0;
     }
     sound->mA8 = fn_800CFDA0(lbl_8087EFE8, m0C);
-    fn_800CA7D4(sound, start);
+    ((SoundCore*)sound)->fn_800CA7D4(start);
     if (lbl_8087EFE8->m34A0 != 0) {
-        fn_800C97F8(sound, name, arg);
+        ((SoundCore*)sound)->fn_800C97F8(name, (const Vector3*)arg);
     } else {
-        fn_800C93D4(sound, name);
+        ((SoundCore*)sound)->fn_800C93D4(name);
     }
     m04 = 0;
     if (sound->m90 == 0) {
