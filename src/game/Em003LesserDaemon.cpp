@@ -28,6 +28,9 @@ struct CollResult_unk {
     unsigned char m44[0x50 - 0x44];
 };
 extern "C" void* lbl_8087EE98;
+struct Effect_unk;
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f); // inferred: moves a bullet with the character
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004D388(void* world, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
@@ -306,6 +309,24 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
+// inferred: same with the locals in the order of game/Em305Vampire.cpp (name invented)
+inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: starts the warp motion (name invented)
 inline void Em003LesserDaemon::StartWarp_unk() {
     m58C = 6;
@@ -390,6 +411,65 @@ void Em003LesserDaemon::fn_8024E1C0() {
     }
     m1654 = m1658;
     m1658 = -1;
+}
+
+// NONMATCHING: 99.39% - r4/r5 swapped in the copies of mWarpDest (the __VecCopy family) and f3/f4 for
+// the 0.0f of ToRotationZ_unk (as vf24)
+void Em003LesserDaemon::fn_8024E7E4() {
+    switch (m14B8) {
+    case 0: {
+        if (m14B0 != 0) {
+            atn::Vector3 dest;
+            dest = mWarpDest;
+            atn::Vector3 d = dest - mPos;
+            float t = 0.3f * atn::WrapAngle_unk(d.ToRotationZ_unk().y - mRot.y);
+            mRot.y += t;
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.fn_80097C08(0, 0x14B, 1, 0, 1, 1.0f, 0.1f);
+            m14B8 = 1;
+            fn_80232B7C(0, 0);
+            PlayEffectA_unk(&m1570, &mMotion);
+        }
+        break;
+    }
+    case 1: {
+        atn::Vector3 dest;
+            dest = mWarpDest;
+        atn::Vector3 d = dest - mPos;
+        float dist = PSVECMag(&d);
+        if (dist < 3.0f || m14BC >= 90) {
+            mMotion.fn_80097C08(0, 0x14C, 0, 0, 1, 1.0f, 0.1f);
+            m14B8 = 2;
+            break;
+        }
+        PSVECNormalize(&d, &d);
+        d.x *= MIN(dist, 5.0f);
+        d.y *= MIN(dist, 5.0f);
+        d.z *= MIN(dist, 5.0f);
+        CollResult_unk result;
+        Sphere_unk sphere = fn_80176548(mPos);
+        fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &d, 0x80000000, &mColli, 0, sphere.mRadius);
+        atn::Vector3 pos = result.m10;
+        pos -= m5A4;
+        pos.y -= sphere.mRadius;
+        mPos = pos;
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14CC, m590, 30, -1, 0.0f);
+        break;
+    }
+    case 2: {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m58C = 0;
+            fn_8016E970(3);
+            m14B8 = 0;
+            m14BC = 0;
+            m14DC = 0;
+        }
+        break;
+    }
+    }
 }
 
 int Em003LesserDaemon::fn_8024F9B8() {

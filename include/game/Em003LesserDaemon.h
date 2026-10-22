@@ -22,6 +22,7 @@ public:
     void fn_8024FCDC(); // inferred: starts the death sequence
     void fn_8024FE18(int arg); // inferred: death of a boss / of a linked daemon
     void fn_8024E1C0(); // inferred: starts the queued action m1654 (m1658 is the next one)
+    void fn_8024E7E4(); // inferred: state 6 (warp to mWarpDest)
     int fn_8024F9B8();  // inferred: finds a free warp position behind the target (mWarpDest)
     void fn_802506AC(); // inferred: warps to the point farthest from the target
     int fn_80250884(float radius);
@@ -37,7 +38,7 @@ public:
     int m14C0;
     int m14C4;
     int m14C8;
-    int m14CC;
+    HitInfo_unk* m14CC;       // inferred: bullet data moved with the warp (fn_8024E7E4)
     HitInfo_unk* m14D0;       // inferred: magic cast by fn_8024E1C0 (CharaTask::fn_8015F568)
     int m14D4;
     HitInfo_unk* m14D8;       // inferred: explosion skill
