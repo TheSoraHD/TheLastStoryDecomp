@@ -67,6 +67,7 @@ Una linea por unidad procesada (orden de cola_B.md).
 - gmk/WindyItem: escrita fn_804392C0 (inicio de rafaga, 96.7%; symbols.txt: fn_804392C0/fn_80439574/fn_8043A08C -> nombres decorados de metodos de gmk::WindyItem) y fn_8043A530 (funcion libre llamada desde GameScene: objetos arrastrados visibles por el jugador; 86.1%, huecos de pila). Escrita tambien fn_8043A08C (actualizacion de un objeto arrastrado; 93.7%, con la evaluacion del spline del camino en un inline Eval_unk). Quedan vf10/vf14/fn_80439574 (sin escribir, grandes).
 - gmk/DropItem vf40 99.92% -> 99.93% (temporales del rayo como locales con `hit` primero).
 - gmk/SwingObject fn_803FFD10 (constructor de la pieza de mapa que oscila): probado como funcion libre con placement new (89%), no se puede expresar asi el constructor de una clase sin nombre conocido; revertido.
+- gmk/WindyItem vf28 92.84% -> 98.94% (en el inline Setup_unk: tamano medio con `mHalf.Set_unk(...)` y la matriz de la caja a traves de una referencia `atn::Matrix3x4& m = mMtx`).
 
 ## Hallazgos MWCC
 - Pasar `(int)x` (x unsigned) a un inline en una segunda llamada impide que MWCC comparta las subexpresiones del parametro entre las dos copias inlineadas (TreasureBoxTable).
@@ -86,6 +87,7 @@ Una linea por unidad procesada (orden de cola_B.md).
 - `x += k * (float)(rand() % n)` sale como fmadds; con una local `float d = k * ...; x = x + d;` sale fmuls + fadds como en el original (Pigeon_unk).
 - Un `cos(double)` en tiempo de ejecucion con una constante double en .rodata (no plegado) sale de una `static const double` pasada a cos (Pigeon_unk::fn_804052EC).
 - `atan2(v.x, v.z)` directo carga z (f2) antes que x (f1); a traves de un inline `float Atan2_unk(float y, float x) { return atan2(y, x); }` carga x primero, como el original (Pigeon_unk/Chicken_unk).
+- Usar una referencia local a un miembro matriz (`Matrix3x4& m = mMtx;`) dentro de un inline hace que MWCC guarde su direccion en un registro salvado como el original (WindyItem::vf28).
 - En un helper inline, declarar como locales los vectores/color pasados por referencia (en lugar de temporales en la llamada) da el orden de pila del original (OpenBoard/WaitObject).
 
 ## Decisiones tomadas sin el usuario

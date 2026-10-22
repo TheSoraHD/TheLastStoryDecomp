@@ -19,21 +19,20 @@ inline void gmk::WindyArea_unk::Setup_unk() {
     Mtx rot;
     PSMTXRotRad(rot, 'y', mRotY);
     PSMTXMultVec(rot, &mDir, &mDir);
-    mHalf.x = mSizeX * 0.5f;
-    mHalf.y = mSizeY * 0.5f;
-    mHalf.z = mSizeZ * 0.5f;
-    mMtx.SetIdentity();
+    mHalf.Set_unk(mSizeX * 0.5f, mSizeY * 0.5f, mSizeZ * 0.5f);
+    atn::Matrix3x4& m = mMtx;
+    m.SetIdentity();
     {
         Mtx r;
         PSMTXRotRad(r, 'y', mRotY);
         Mtx t;
-        PSMTXConcat(mMtx.m, r, t);
-        __MtxCopy(mMtx.m, t);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
     }
     atn::Vector3 center = mPos + mDir * mSizeZ * 0.5f + atn::Vector3(0.0f, mSizeY * 0.5f, 0.0f);
-    mMtx.m[0][3] = center.x;
-    mMtx.m[1][3] = center.y;
-    mMtx.m[2][3] = center.z;
+    m.m[0][3] = center.x;
+    m.m[1][3] = center.y;
+    m.m[2][3] = center.z;
 }
 
 namespace gmk {
@@ -61,8 +60,8 @@ int WindyItem::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-// NONMATCHING: 92.84% - registers of the hoisted constants (the original creates 1.0f first) and
-// operand order of the half size products
+// NONMATCHING: 98.94% - registers of the hoisted constants 0.0f/1.0f/0.5f (rotated by one). The
+// half size through Set_unk and the matrix through a reference fixed the rest.
 void WindyItem::vf28() {
     m54 = 1;
     ResetWait_unk();
