@@ -145,8 +145,7 @@ SparkCube::SparkCube(atn::Task* parent, int id, int arg)
 
 SparkCube::~SparkCube() {}
 
-// NONMATCHING: 99.52% - loop registers: the original creates the induction variables in another order
-// (name offset, index, fade offset). Tried: name/fade locals, mData vs operator[], pointer forms.
+// The int index compared as unsigned increments the counter before the element offset
 int SparkCube::vf0C() {
     if (fn_803EC91C() == 0) {
         fn_803EDB18(&mModel);
@@ -158,7 +157,7 @@ int SparkCube::vf0C() {
         } else {
             mFades.Resize_unk(((SparkRes_unk*)mSpark.m16C)->mCount, 0);
             for (int i = 0; i < ((SparkRes_unk*)mSpark.m16C)->mCount; i++) {
-                mFades.mData[i].fn_803EBD6C(&mSpark, ((SparkRes_unk*)mSpark.m16C)->mNames[i], 30, 30, 0.0f);
+                mFades.mData[(unsigned int)i].fn_803EBD6C(&mSpark, ((SparkRes_unk*)mSpark.m16C)->mNames[i], 30, 30, 0.0f);
             }
         }
         return 1;
@@ -177,8 +176,7 @@ void SparkCube::vf28() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.87% - the fade loop increments the offset before the index (same issue as vf0C);
-// tried index/pointer forms and inline helpers.
+// The int index compared as unsigned increments the counter before the element offset
 void SparkCube::vf10() {
     if (m54 == 0) {
         vf28();
@@ -213,7 +211,7 @@ void SparkCube::vf10() {
     }
     mColli.SetMtx_unk(*(atn::Matrix3x4*)GetMtx_unk(&mModel, "model01"));
     if (m54 >= 3) {
-        for (unsigned int i = 0; i < mFades.mSize; i++) {
+        for (int i = 0; i < (unsigned int)mFades.mSize; i++) {
             mFades[i].fn_803EBE74(&mSpark);
         }
         if (m54 == 3) {
@@ -297,8 +295,7 @@ void SparkCube::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 99.22% - the mReverse loops of cases 3 and 4: the original keeps the stored value in its
-// own register created after the loop variables. Tried: inline setters, int/unsigned index, mData.
+// The int index compared as unsigned increments the counter before the element offset
 int SparkCube::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
@@ -341,7 +338,7 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
         if (model != 0 && model->fn_80097D40(1) != 0) {
             model->fn_80097C08(0, 1, 0, 1, 1, 1.0f, 0.1f);
             m9C = 1;
-            for (unsigned int i = 0; i < mFades.mSize; i++) {
+            for (int i = 0; i < (unsigned int)mFades.mSize; i++) {
                 mFades[i].mReverse = 0;
             }
         }
@@ -373,7 +370,7 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
         if (model != 0 && model->fn_80097D40(0) != 0) {
             model->fn_80097C08(0, 0, 0, 1, 1, 1.0f, 0.1f);
             model->mTracks[0].m08 = 1.0f;
-            for (unsigned int i = 0; i < mFades.mSize; i++) {
+            for (int i = 0; i < (unsigned int)mFades.mSize; i++) {
                 mFades[i].mReverse = 1;
             }
         }
