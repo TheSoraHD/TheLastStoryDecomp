@@ -1,7 +1,7 @@
 // inferred: network statistics timer (counters per second) and the friend list of the Wi-Fi
 // Connection (DWC friend data, names and friend keys). Names invented. Not reconstructed:
-// 0x8050E994 (DWC user data report, std::wstring), 0x8050EBC8/0x8050EFCC/0x8050F198 (adding
-// friends), 0x8050F2F0 (friend name).
+// 0x8050EBC8 (adding a friend by friend key); its two L"" literals come first in the wide string
+// pool, so every function that uses the pool is NONMATCHING by its offsets until it is written.
 
 #include "std/string.h"
 
@@ -17,7 +17,7 @@ extern "C" int DWC_IsValidFriendData(void* friendData);
 extern "C" int DWC_GetGsProfileId(void* userData, void* friendData);
 extern "C" int fn_806CF0E0(void* friendData);
 extern "C" unsigned long long fn_806D0030(void* friendData); // inferred: friend key of the data
-extern "C" unsigned char fn_806ABCF0(void* friendData, int arg); // inferred: online state
+extern "C" unsigned char fn_806ABCF0(void* friendData, void* status); // inferred: online state
 extern "C" int fn_806CF160(void* friendData);
 
 #define OS_TIMER_CLOCK_UNK (*(unsigned long*)0x800000F8 / 4)
@@ -133,6 +133,39 @@ MpFriendList_unk::MpFriendList_unk() {
     }
 }
 
+extern "C" void DWC_CreateUserData(void* userData);
+extern "C" void DWC_ReportUserData(void* userData);
+extern "C" void DWC_ReportFriendData(void* userData, void* friendData);
+extern "C" wchar_t* wcsncpy(wchar_t* dst, const wchar_t* src, unsigned long n);
+extern "C" void* lbl_8087EEC8; // inferred: font
+// inferred: wide to multibyte text with the font
+extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size);
+extern "C" const wchar_t* fn_8050F2F0(MpFriendList_unk* list, DWCFriendData_unk* data, unsigned char* status,
+                                      int* state);
+
+// inferred: creates new DWC user data and clears the friend list (debug report of every friend)
+// NONMATCHING: ~98.6% - saved register numbering of the loop and the pool offset of L"" (0x18 in the
+// original: the empty strings of fn_8050EBC8, not reconstructed, come first)
+extern "C" int fn_8050E994(MpFriendList_unk* list) {
+    DWC_CreateUserData(list);
+    DWC_ReportUserData(list);
+    memset(list->mFriends, 0, sizeof(list->mFriends));
+    unsigned char status[0x110];
+    char buf[0x200];
+    DWCFriendData_unk* data = list->mFriends;
+    for (int i = 0; i < 32; i++, data++) {
+        if (DWC_IsValidFriendData(data)) {
+            status[0] = 0;
+            std::basic_string<wchar_t> text(fn_8050F2F0(list, data, status, 0));
+            fn_8006F420(lbl_8087EEC8, buf, text.c_str(), 0x200);
+            DWC_ReportFriendData(list, data);
+        }
+    }
+    wcsncpy(list->mName, L"", 16);
+    memset(list->m7F0, 0, sizeof(list->m7F0));
+    return 1;
+}
+
 extern "C" int fn_8050EAE4(MpFriendList_unk* list) {
     return DWC_CheckDirtyFlag(list);
 }
@@ -187,6 +220,74 @@ extern "C" int fn_8050F404(MpFriendList_unk* list) {
         }
     }
     return -1;
+}
+
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+extern "C" void fn_806AC0A0(const char* keyValues, int arg); // inferred: DWC buddy status data
+
+// NONMATCHING: 99.5% - pool offset of L"\\name\\" and the stack slots of the two string temporaries
+// inferred: sets the own name (reported to the friends as "\name\<name>"); with `save`, writes the list
+extern "C" void fn_8050EFCC(MpFriendList_unk* list, const wchar_t* name, int save) {
+    if (wcscmp(list->mName, name) == 0) {
+        return;
+    }
+    wcscpy(list->mName, name);
+    if (save) {
+        if (DWC_CheckDirtyFlag(list)) {
+            DWC_ClearDirtyFlag(list);
+            fn_800A5218("online/playerinfo7", 0, list, sizeof(list->mUserData));
+        }
+        fn_800A5218("online/playerinfo7", sizeof(list->mUserData), list->mFriends, 0x9B0);
+    }
+    std::basic_string<wchar_t> status(L"\\name\\");
+    status += list->mName;
+    char buf[0x100];
+    fn_8006F420(lbl_8087EEC8, buf, status.c_str(), status.size() * 2);
+    fn_806AC0A0(buf, 0);
+}
+
+// NONMATCHING: 99.8% - pool offset of L"\\name\\" (see fn_8050E994)
+// inferred: reports the own name again
+extern "C" void fn_8050F198(MpFriendList_unk* list) {
+    std::basic_string<wchar_t> status(L"\\name\\");
+    status += list->mName;
+    char buf[0x100];
+    fn_8006F420(lbl_8087EEC8, buf, status.c_str(), status.size() * 2);
+    fn_806AC0A0(buf, 0);
+}
+
+// NONMATCHING: 99.4% - pool offsets of the texts (see fn_8050E994)
+// inferred: state of a friend as text (and the raw state in `state`)
+extern "C" const wchar_t* fn_8050F2F0(MpFriendList_unk* list, DWCFriendData_unk* data, unsigned char* status,
+                                      int* state) {
+    if (status != 0) {
+        *status = 0;
+    }
+    if (data == 0) {
+        return 0;
+    }
+    unsigned char s = fn_806ABCF0(data, status);
+    if (state != 0) {
+        *state = s;
+    }
+    switch (s) {
+    case 0:
+        return L"OFFLINE";
+    case 1:
+        return L"ONLINE";
+    case 2:
+        return L"PLAYING";
+    case 3:
+        return L"MATCH ANYBODY";
+    case 4:
+        return L"MATCH FRIEND";
+    case 6:
+        return L"MATCH SERVER";
+    case 5:
+        return L"MATCH CLIENT";
+    }
+    return 0;
 }
 
 extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long key);
@@ -293,9 +394,8 @@ extern "C" int fn_8050F7D8(MpFriendList_unk* list, int id) {
     }
 }
 
-extern "C" const wchar_t* fn_8050F2F0(MpFriendList_unk* list, DWCFriendData_unk* data, void* out, int arg);
 
-extern "C" const wchar_t* fn_8050F858(MpFriendList_unk* list, int id, void* out, int arg) {
+extern "C" const wchar_t* fn_8050F858(MpFriendList_unk* list, int id, unsigned char* out, int* arg) {
     return fn_8050F2F0(list, &list->mFriends[id], out, arg);
 }
 

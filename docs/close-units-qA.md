@@ -114,3 +114,6 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
 - Saltadas por bloqueo documentado: `atn/D2A_Manager` (presupuesto de inline), `atn/CompositeIntensityTintMulti`
   (presupuesto de inline de vf14), `atn/SmallAllocator_8` (ciclo de inline del gestor), `atn/Geometry_unk`
   fn_80070D04 (`__VecCopy` r3/r4), `atn/FileList` y `atn/TextureDraw_unk` (sin escribir, grandes).
+  - Segunda pasada NetFriend: escritas tambien `fn_8050E994` (~98.6%), `fn_8050EFCC` (99.5%), `fn_8050F198` (99.8%),
+    `fn_8050F2F0` (99.4%): solo quedan los desplazamientos del pool de cadenas anchas (lo encabezan los L"" de
+    `fn_8050EBC8`, 844 B, sin escribir) y algun registro. Queda 22/30; al escribir fn_8050EBC8 deberian subir varias.
