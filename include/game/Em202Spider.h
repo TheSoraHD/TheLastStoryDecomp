@@ -10,7 +10,9 @@
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as ChaserRouteList_unk in
 // game/ChaserGuard.h); name invented
-struct SpiderList_unk : public std::vector<int> {};
+struct RoutePlace_unk;
+// inferred: route places read from "needle_point"/"outer_point" (vf0C)
+struct SpiderList_unk : public std::vector<RoutePlace_unk*> {};
 
 // inferred: color of the materials of the spider (r, g, b, a; starts white); name invented
 struct SpiderColor_unk {
@@ -46,6 +48,15 @@ public:
     virtual void vfEC();                                 // 0x80280EF8
 
     void fn_802829DC(); // inferred: death
+    inline void ResetState_unk();
+    inline void Dash_unk(const atn::Vector3& rot);
+    inline void Attack_unk(HitInfo_unk* const& skill);
+    void fn_8027EB14(); // inferred: chooses the next action
+    void fn_8027F504();
+    void fn_8027FA7C(); // inferred: state 5
+    void fn_80280184(); // inferred: state 6
+    void fn_802805C8(); // inferred: state 9 (turn)
+    void fn_80281F88();
     void fn_8027F69C(); // inferred: effect and sound where the arms touch the ground
     void fn_8027F8A8(); // inferred: wait of m1520 frames, then the action m1528
     void fn_80281924(CharaTask* target);
@@ -62,28 +73,27 @@ public:
     SpiderList_unk m14CC;
     int m14D8;
     float m14DC;              // inferred: 55.0f
-    unsigned char m14E0[0x14E4 - 0x14E0];
-    int m14E4;
+    float m14E0;              // inferred: collision radius of the data (m5B0 before vf0C sets it to 25)
+    int m14E4;                // inferred: phase ("start_state": "1st" 0, "2nd" 1)
     int m14E8;
     CharaTask* m14EC;         // inferred: target (passed to fn_80281924/fn_80281054)
     int m14F0;
-    int m14F4;
-    int m14F8;
+    int m14F4[2];             // inferred: places of state 8 (index m14F0)
     int m14FC;                // inferred: damage taken (vf40)
     int m1500;
     int m1504;
-    int m1508;
-    int m150C;
-    int m1510;
-    int m1514;
-    int m1518;
+    HitInfo_unk* m1508;       // inferred: skill "CrowSkillID"
+    HitInfo_unk* m150C;       // inferred: skill "JumpAttackSkillID"
+    HitInfo_unk* m1510;       // inferred: skill "TackleSkillID"
+    HitInfo_unk* m1514;       // inferred: skill "DashSkillID"
+    HitInfo_unk* m1518;       // inferred: skill "NeedleSkillID"
     int m151C;
     int m1520;
     int m1524;
     int m1528;
     int m152C;
     int m1530;
-    int m1534;                // inferred: 60
+    int m1534;                // inferred: 60 ("NeedleChargeTime")
     int m1538;                // inferred: argument of the turn (state 9, fn_802826A0)
     float m153C;              // inferred: angle left to turn (state 9)
     CharaTask* m1540;         // inferred: target of the turn (state 9)
