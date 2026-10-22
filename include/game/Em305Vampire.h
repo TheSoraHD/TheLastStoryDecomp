@@ -63,6 +63,9 @@ public:
     inline void StartTackle_unk();
     inline void StartFlee_unk();
     inline int NearestWeakenPoint_unk();
+    inline void Tackle_unk();  // inferred: bodies of fn_802EAC70/fn_802EB814/fn_802EB97C (names invented)
+    inline void Rolling_unk();
+    inline void Stun_unk();
     inline VampireDoor_unk* FindDoor_unk(int a, int b);
 
     atn::LH_Binary m14D4;                         // inferred: data file

@@ -82,6 +82,9 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" int fn_800CB58C(atn::SoundRef* sound);                           // inferred: nonzero while playing
+extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -224,8 +227,140 @@ int Em305Vampire::vf0C() {
     return 0;
 }
 
-// NONMATCHING: ~95% - only the offset of "op_02_cloud" in the string pool (the pool is in the auto split
-// after the unit and starts with the strings of functions not written yet)
+inline void Em305Vampire::Tackle_unk() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_802EBABC();
+        return;
+    }
+    float f = mMotion.mTracks[0].m08;
+    if (31.0f <= f && f <= 33.0f) {
+        int id = m590;
+        HitInfo_unk* data = m1510;
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 60, 5, 0.0f);
+    }
+    if (m14F4 != 0) {
+        atn::Vector3 d = m14F4->mPos - mPos;
+        atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+        mRot.y = rot.y;
+    }
+}
+
+inline void Em305Vampire::Rolling_unk() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        m1500 = 0;
+        m14F8 = 0;
+        m14FC = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 0;
+        fn_8016E970(3);
+    } else {
+        float f = mMotion.mTracks[0].m08;
+        if (45.0f <= f) {
+            fn_800FAB80(lbl_8087F048, this, m1514, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        }
+    }
+    if (m1528 != 0) {
+        float f = mMotion.mTracks[0].m08;
+        if (80.0f <= f && f <= 83.0f) {
+            Effect_unk* mgr = lbl_8087F048;
+            fn_800FAB80(mgr, this, m1514, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_80370AE4(lbl_8087F430, 5, 1);
+            m1528 = 0;
+            m1540 = 0;
+        }
+    }
+}
+
+inline void Em305Vampire::Stun_unk() {
+    if (m14FC >= m15B8) {
+        fn_80239DAC(lbl_8087F3C0, this, 100, 0);
+        fn_802EBABC();
+    }
+}
+
+void Em305Vampire::vf10() {
+    m14F4 = mC58.mC4;
+    if (m1524 > 0 && m58C != 15) {
+        m1524--;
+    }
+    if (m1528 != 0) {
+        if (m1530 == 1) {
+            m152C = 0.0f;
+            if (++m1534 >= m1600 * 30) {
+                m1530 = 2;
+                m1534 = 0;
+            }
+        } else if (m1530 == 2) {
+            m152C = m15F8;
+            if (++m1534 >= m15FC * 30) {
+                m1530 = 0;
+                m1534 = 0;
+            }
+        } else {
+            m152C = 0.0f;
+        }
+    }
+    bool target = true;
+    if (mC58.mC0 == 0 || mC58.mC4 == 0) {
+        target = false;
+    }
+    if (!target) {
+        fn_8016E970(3);
+        fn_800CB5C8(&m15A0, 5, 0);
+        fn_800CB5C8(&m15A4, 5, 0);
+    } else {
+        if ((mStatus.m0C & 0x20) != 0x20) {
+            if (m58C == 7 && m14F8 == 1) {
+                fn_800CB5C8(&m15A0, 5, 0);
+                if (fn_800CB58C(&m15A4) == 0) {
+                    m15A4 = fn_800C344C("SE_EM305_002", &mPos, 0, -1, 1.0f);
+                }
+            } else {
+                fn_800CB5C8(&m15A4, 5, 0);
+                if (fn_800CB58C(&m15A0) == 0) {
+                    m15A0 = fn_800C344C("SE_EM305_001", &mPos, 0, -1, 1.0f);
+                }
+            }
+            fn_800CB6E4(&m15A0, &mPos);
+            fn_800CB6E4(&m15A4, &mPos);
+        }
+        if (m14F4 != 0) {
+            switch (m58C) {
+            case 6:
+                Tackle_unk();
+                break;
+            case 7:
+                fn_802EAF68();
+                break;
+            case 8:
+                fn_802EB1F4();
+                break;
+            case 13:
+                fn_802EB61C();
+                break;
+            case 14:
+                Rolling_unk();
+                break;
+            case 15:
+                Stun_unk();
+                break;
+            case 2:
+                vfEC();
+                break;
+            default:
+                fn_802EABE4();
+                vf11C();
+                break;
+            }
+        }
+    }
+    m14FC++;
+    fn_8014C540();
+    fn_80145334();
+}
+
 void Em305Vampire::vf14() {
     if (m1528 != 0) {
         mMotion.m40 = m15C4;
@@ -249,8 +384,6 @@ inline void SetSeg_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::V
 }
 
 // inferred: capsule along the y axis of the node "center_chara" (from -5 to 5)
-// NONMATCHING: 99.99% (report) - only the offset of "center_chara" in the pool (strings of vf0C/vf10, not
-// written yet)
 void Em305Vampire::vf20() {
     m5A4.y = 3.0f;
     m5B0 = 10.0f;
@@ -670,37 +803,11 @@ void Em305Vampire::fn_802EB61C() {
 }
 
 void Em305Vampire::fn_802EB814() {
-    float frame = mMotion.mTracks[0].m08;
-    if (frame >= mMotion.fn_80097D7C(0)) {
-        m1500 = 0;
-        m14F8 = 0;
-        m14FC = 0;
-        m590 = fn_800F8548(lbl_8087F048);
-        m58C = 0;
-        fn_8016E970(3);
-    } else {
-        float f = mMotion.mTracks[0].m08;
-        if (45.0f <= f) {
-            fn_800FAB80(lbl_8087F048, this, m1514, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-        }
-    }
-    if (m1528 != 0) {
-        float f = mMotion.mTracks[0].m08;
-        if (80.0f <= f && f <= 83.0f) {
-            Effect_unk* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, m1514, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-            fn_80370AE4(lbl_8087F430, 5, 1);
-            m1528 = 0;
-            m1540 = 0;
-        }
-    }
+    Rolling_unk();
 }
 
 void Em305Vampire::fn_802EB97C() {
-    if (m14FC >= m15B8) {
-        fn_80239DAC(lbl_8087F3C0, this, 100, 0);
-        fn_802EBABC();
-    }
+    Stun_unk();
 }
 
 void Em305Vampire::vfEC() {
@@ -827,7 +934,6 @@ void Em305Vampire::fn_802EC280() {
 }
 
 // inferred: debug menu of the vampire
-// NONMATCHING: 99.90% (report) - only the offsets of the strings in the pool (see vf20)
 void Em305Vampire::fn_802EC38C() {
     void* group = m15BC.Load("em305");
     fn_80087994(group, "DebugDisp", &m15C0, 0, 0);
