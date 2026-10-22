@@ -363,7 +363,8 @@ inline bool IsFlagSet_unk(GameOverField_unk* field, int id) {
     return fn_80370174(field, id) == 1;
 }
 
-// NONMATCHING: 99.45% - register of the address of the single choice in .sdata2 (r3/r4)
+// NONMATCHING: 99.55% - the option tables are referenced by offset from one rodata symbol in the original
+// (lbl_8074DDF8 + n, merged pool); `opts = sOptRetryTitle; push_back(opts[0])` fixed r3/r4 of the single choice
 void GameOverTask::fn_80377298() {
     const int* opts;
     mChoices.mSize = 0;
@@ -398,7 +399,8 @@ void GameOverTask::fn_80377298() {
         mChoices.push_back(opts[1]);
     } else {
         mMode = 4;
-        mChoices.push_back((opts = sOptRetryTitle)[0]);
+        opts = sOptRetryTitle;
+        mChoices.push_back(opts[0]);
     }
 }
 

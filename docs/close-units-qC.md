@@ -65,3 +65,7 @@ Hallazgos MWCC (3):
 Hallazgos MWCC (4):
 - Pasar un argumento float de un miembro a un inline a traves de un local con nombre cambia el orden de carga f0/f3 (Em201ZanGurg::fn_802640FC).
 - `&Color4_unk(...)` (direccion de temporal) frente a un inline con `const Color4_unk&`: cambia la asignacion de r3/r4 de las instrucciones previas.
+- game/Arms: sin cambios. fn_80044FBC 99.93% (`last` r24/r22; 4 variantes nuevas: arms local, mFDC releido, break temprano, reutilizar `sub`). Las otras dos (ROTATION f0/f2, slot de pila) no intentadas.
+- chr/ControlPushedDown, game/MapPartsLocatorSet, game/MotionCommand_unk, game/ShopIdentify, chr/ControlAppear, chr/ControlCliffhang, game/CharaFaceControl, game/CostumeEditChara: saltadas - slots de pila / push_back / orden de z / `__VecCopy` / SetPaneText segun sus comentarios.
+- game/GameOverTask: fn_80377298 99.45 -> 99.55%: `opts = sOptRetryTitle; mChoices.push_back(opts[0]);` arregla r3/r4 de la opcion unica. Lo que queda es de reubicaciones: el original referencia las tablas como lbl_8074DDF8 + n (pool unico); objdiff lo ve como diferencia de argumento.
+- game/LibraryTask: sin cambios. Ctor 99.69% (lista/offset r30/r31; 9 variantes, como el ctor de SelectMember pero al reves).
