@@ -26,6 +26,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
@@ -268,6 +269,120 @@ void Em312DarkServant::vfFC() {
     fn_8016E970(2);
     vf100(6);
     m156C = m1570;
+}
+
+// NONMATCHING: 95.88% - saved registers of the recursion of fn_8030E5C8 inlined three levels deep (documented
+// blocker) and the reload of m54C before the m14A8 store in state 13 (same case as fn_8030E530)
+void Em312DarkServant::vf100(int state) {
+    if (CharaTask::mFlag2) {
+        return;
+    }
+    int prev = m58C;
+    m14BC = 0;
+    m14C0 = 0;
+    m14C4 = 0;
+    m14C8 = 0;
+    mFlag31 = 0;
+    mFlag30 = 0;
+    mFlag29 = 0;
+    mFlag28 = 0;
+    mFlag27 = 1;
+    m14D0 = 0;
+    m58C = state;
+    switch (state) {
+    case 6:
+        mFlag30 = 1;
+        break;
+    case 7:
+        mFlag30 = 1;
+        break;
+    case 8:
+        mC58.m0C.fn_80128930(mC58.mC4, &mPos, 0);
+        mC58.m0C.fn_801255C8();
+        mFlag30 = 1;
+        break;
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+        fn_805A4F1C(m152C[state - 9].m00, 0, 1, 1.0f, 0.0f);
+        m14EC[m58C - 9].m0C = m14EC[m58C - 9].mCoolTime;
+        if (m58C == 11) {
+            fn_8030E5C8();
+        } else {
+            if (m58C == 12) {
+                m156C = m1574;
+            }
+            if (m14D8 != 0) {
+                m14DC++;
+            }
+        }
+        mFlag30 = 0;
+        break;
+    case 13:
+        fn_805A4F1C(0x1E1, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        if (m14D8 != 0 && (m54C & 0x2000) != 0x2000) {
+            m14A8 &= ~0x04000000;
+            m54C |= 0x2000;
+        }
+        break;
+    case 2:
+        if ((mStatus.m0C & 0x20) == 0x20 && prev != 2) {
+            vf44();
+        }
+        mFlag30 = 0;
+        fn_80239DAC(lbl_8087F3C0, this, 1, 1);
+        break;
+    }
+    if (prev != 7 && m58C == 7) {
+        mFC0 = mC58.mC4;
+    } else if (prev == 7 && m58C != 7) {
+        mFC0 = 0;
+    }
+}
+
+// NONMATCHING: 99.92% - only the offset of 36.0f in .sdata2 (pool of functions not written yet)
+void Em312DarkServant::fn_8030F380() {
+    int on = 0;
+    PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (player != 0) {
+        on = player->mFlag28;
+    }
+    if (on == 0 && m152C[2].m00 == mMotion.mTracks[0].m00 && mMotion.mTracks[0].m08 >= 36.0f) {
+        on = 1;
+    }
+    if (on != 0 && m14D8 == 0) {
+        m14D8 = 1;
+        if (m58C != 13) {
+            m14A8 |= 0x04000000;
+            m54C &= ~0x2000;
+        }
+        fn_80232B7C(this, 0);
+        Color4f_unk color;
+        atn::Vector3 rot;
+        atn::Vector3 pos;
+        rot.x = 0.0f;
+        rot.y = 0.0f;
+        rot.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m1580, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        fn_800C344C("SE_DG020_008", &mPos, 0, -1, 1.0f);
+    } else if (on == 0 && m14D8 != 0) {
+        m14D8 = 0;
+        m14A8 &= ~0x04000000;
+        m54C |= 0x2000;
+        if (m58C == 11 && mMotion.mTracks[0].m08 < 36.0f) {
+            vf100(6);
+        }
+        fn_80239DAC(lbl_8087F3C0, this, 1, 1);
+    }
 }
 
 int Em312DarkServant::fn_8030FEAC(float radius) {

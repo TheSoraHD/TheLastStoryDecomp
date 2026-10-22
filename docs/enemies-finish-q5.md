@@ -24,6 +24,11 @@ game/Em315Coffin.
   - vf40: `int state; if (...) state = 8; else state = 13; vf100(state);` da el 100% (el ternario y el if/else con
     dos llamadas no).
 
+- `game/Em312DarkServant` (12/21 -> 14/21): vf0C y el lector del CSV fn_8030DEB0 pasan al 100% al renombrar el
+  pool `lbl_807490AC` a `@stringBase0`. Escritas vf100 (0x8030E710, 95.88%: recursion de fn_8030E5C8 inlineada
+  tres niveles, bloqueo documentado, y recarga de m54C antes del store de m14A8) y fn_8030F380 (escudo, 99.92%:
+  solo el offset de 36.0f). vf104/vf108 (2.4 KB cada una) sin escribir.
+
 ## Decisiones tomadas sin el usuario
 
 - symbols.txt (renombrados): fn_80313E44 -> `vf10__11Em315CoffinFv`, fn_80313FC8 ->
@@ -32,6 +37,8 @@ game/Em315Coffin.
 - symbols.txt (renombrados): fn_80310C64 -> `fn_80310C64__8Em314IvyFPCci`, fn_80312EF8 ->
   `fn_80312EF8__8Em314IvyFv`, fn_8031319C -> `fn_8031319C__8Em314IvyFP9CharaTask`, fn_803132D0 ->
   `fn_803132D0__8Em314IvyFv`. Ningun otro .cpp los usaba.
+- symbols.txt: `lbl_807490AC` -> `@stringBase0` (scope:local, pool de cadenas de Em312DarkServant);
+  fn_8030E710 -> `vf100__16Em312DarkServantFi`, fn_8030F380 -> `fn_8030F380__16Em312DarkServantFv`.
 - include/game/Em314Ivy.h: m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
   declaraciones de las cuatro funciones; solo la usan Em314Ivy.cpp y la factoria.
 - include/game/Em315Coffin.h (solo la usan Em315Coffin.cpp y la factoria de SpecialEnemyBase.cpp): campos 0x15C8-0x15F4

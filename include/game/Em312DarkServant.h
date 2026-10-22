@@ -40,6 +40,7 @@ public:
 
     void fn_8030DEB0(const char* text, int length); // inferred: reads the data file
     void fn_8030E5C8(); // inferred: clears the flags of the servant tree
+    void fn_8030F380(); // inferred: shield of the servant (on while the player has mFlag28 or during the all attack)
     int fn_8030FEAC(float radius); // inferred: characters (other side) within `radius`
     void fn_8030FFF0(); // inferred: plays the effect m158C
     void fn_80310084(); // inferred: stops the effect 1
