@@ -1140,7 +1140,30 @@ void Em302Kraken::fn_802DB2D0() {
     }
 }
 
+// inferred: sends message 2 to every raised pillar except the one of the current point (names invented)
+inline void BreakPillars_unk(Em302Kraken* k) {
+    unsigned int i;
+    unsigned int skip = k->m1638;
+    for (i = 0; i < k->m1648.size(); i++) {
+        GimmickCommon* g = lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m1648[i]);
+        if (g != 0 && i != skip && g->m54 == 1) {
+            KrakenGimmickMsg_unk msg;
+            msg.m00 = 2;
+            msg.m04 = 0;
+            msg.m08 = 0;
+            msg.m0C = 0;
+            msg.m10 = 0;
+            msg.m14 = 0.0f;
+            msg.m18 = 0.0f;
+            msg.m1C = 0.0f;
+            ((KrakenGimmick_unk*)g)->vf40(&msg);
+        }
+    }
+}
+
 // inferred: state 12 (big laser)
+// NONMATCHING: 98.8% - the original schedules the load of g->m54 between the compare with `skip` and its
+// branch; 6 variants of the pillar loop
 void Em302Kraken::fn_802DB534() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0) && m14C4 > 180) {
@@ -1176,22 +1199,7 @@ void Em302Kraken::fn_802DB534() {
     if (m14C4 - 100U <= 14) {
         HitInfo_unk* skill = fn_80219E6C(m1584);
         fn_800FAB80(lbl_8087F048, this, skill, m590, (atn::Vector3*)&m15DC, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-        unsigned int skip = m1638;
-        for (unsigned int i = 0; i < m1648.size(); i++) {
-            GimmickCommon* g = lbl_8087F4A0->fn_803EEE10(0x6DD6, m1648[i]);
-            if (g != 0 && i != skip && g->m54 == 1) {
-                KrakenGimmickMsg_unk msg;
-                msg.m00 = 2;
-                msg.m04 = 0;
-                msg.m08 = 0;
-                msg.m0C = 0;
-                msg.m10 = 0;
-                msg.m14 = 0.0f;
-                msg.m18 = 0.0f;
-                msg.m1C = 0.0f;
-                ((KrakenGimmick_unk*)g)->vf40(&msg);
-            }
-        }
+        BreakPillars_unk(this);
     }
 }
 
