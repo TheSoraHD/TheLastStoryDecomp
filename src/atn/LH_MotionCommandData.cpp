@@ -72,4 +72,11 @@ void LH_MotionCommandData::vf0C(const char* path) {
     core->mParser = (MotionCmdParser_unk)mCallback;
 }
 
+void* LH_MotionCommandData::fn_80476CE4() {
+    if (mCore != 0) {
+        return &((LoadMotionCommandData*)mCore)->mData;
+    }
+    return 0;
+}
+
 } // namespace atn

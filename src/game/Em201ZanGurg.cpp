@@ -59,10 +59,6 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 // inferred: names invented
-inline void MaterialEdit_unk(Model_unk* model, const char* name, const Color4_unk& a, const Color4_unk& b,
-                             const Color4_unk& c) {
-    model->fn_80094958(name, &a, &b, &c);
-}
 inline float AngleDiffDeg_unk(float a, float b) {
     float d = fmod(57.295776f * (a - b), 360.0);
     if (d > 180.0f) {
@@ -124,7 +120,6 @@ Em201ZanGurg::Em201ZanGurg(atn::Task* parent, EnemyInfo_unk* info)
 
 Em201ZanGurg::~Em201ZanGurg() {}
 
-// NONMATCHING: 98.0% - r3/r4 swapped between the flag word mStatus.m18 and the string pool address
 int Em201ZanGurg::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m16F8.fn_80237874() == 0 &&
         m14B0.fn_80473F50() == 0) {
@@ -135,8 +130,10 @@ int Em201ZanGurg::vf0C() {
         mStatus.m18 |= 0x3800000;
         m56C = 0.1f;
         mFlag24 = 0;
-        MaterialEdit_unk(&mMotion, "em201_arm_l", Color4_unk(0.49803925f, 0.49803925f, 0.49803925f, 0.0f),
-                         Color4_unk(1.0f, 1.0f, 1.0f, 0.0f), Color4_unk(1.0f, 1.0f, 1.0f, 0.0f));
+        // inferred: the colours are temporaries passed by address (named locals or a reference helper give
+        // other registers for the flag word and the literal)
+        mMotion.fn_80094958("em201_arm_l", &Color4_unk(0.49803925f, 0.49803925f, 0.49803925f, 0.0f),
+                            &Color4_unk(1.0f, 1.0f, 1.0f, 0.0f), &Color4_unk(1.0f, 1.0f, 1.0f, 0.0f));
         if (m16CC == 1) {
             m16E0 = 60;
         } else {
@@ -261,7 +258,7 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     m58C = 12;
     fn_8016E970(6);
     m560 = 10;
-    atn::Vector3 rot = (attacker->mPos - mPos).ToRotation_unk();
+    atn::Vector3 rot = (attacker->mPos - mPos).ToRotationZ_unk();
     mRot.y = rot.y;
     PlayMotion_unk(&mMotion, 0x1D2, 0, 0);
     if (lbl_8087F498 != 0) {
@@ -269,8 +266,6 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     }
 }
 
-// NONMATCHING: 99.7% - in the inlined ToRotation_unk the original keeps the rounded z in f3 for atan2
-// (fabs into f4); ours rounds it again
 void Em201ZanGurg::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 *= 0.0f;
@@ -380,15 +375,20 @@ void Em201ZanGurg::fn_80264024() {
     fn_80263CF0();
 }
 
-// NONMATCHING: 99.9% - f0/f3 swapped for mRot.y and rot.y in AngleDiffDeg_unk (the same inline matches
-// in vf10)
+// the angle difference is written out here (with AngleDiffDeg_unk f0/f3 are swapped)
 void Em201ZanGurg::fn_802640FC() {
     if (m16DC < 0) {
         atn::Vector3 pos = m14B8->mPos;
     atn::Vector3 d = pos - mPos;
         float dist = d.Length_unk();
         atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
-        AngleDiffDeg_unk(rot.y, mRot.y);
+        float d2 = fmod(57.295776f * (rot.y - mRot.y), 360.0);
+        if (d2 > 180.0f) {
+            d2 -= 360.0f;
+        }
+        if (d2 < -180.0f) {
+            d2 += 360.0f;
+        }
         if (rand() % (100 / m16E4) == 0 || dist > 30.0f) {
             m58C = 0;
             fn_8016E970(3);

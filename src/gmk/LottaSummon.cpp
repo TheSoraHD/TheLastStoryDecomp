@@ -151,7 +151,9 @@ void LottaSummon::vf28() {
 }
 
 // NONMATCHING: 99.9% - r29/r30 swapped for the hoisted addresses of the pushed direction and its
-// temporary in the player loop
+// temporary in the player loop. Tried: back/d declaration orders, a named copy of Back_unk(),
+// other return forms of Back_unk (named, operator-, * -1), inverted condition, Normalize_unk,
+// Assign_unk.
 void LottaSummon::vf10() {
     if (mDesc != 0) {
         int enabled = mDesc->m7C;

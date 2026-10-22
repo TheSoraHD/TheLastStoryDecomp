@@ -10,6 +10,9 @@ namespace atn {
 class LH_Material : public LoadHandle {
 public:
     virtual void vf0C(const char* path); // 0x8047462C
+
+    void* fn_80474860();        // inferred: returns the list of loaded materials (no null check)
+    unsigned int fn_8047486C(); // inferred: number of loaded materials (0 if nothing is loaded)
 };
 
 } // namespace atn

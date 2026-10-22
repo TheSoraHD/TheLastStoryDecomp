@@ -60,14 +60,16 @@ static inline ChaseConfig_unk* Config_unk() { return lbl_8087F0A8; }
 #define DEG_TO_RAD 0.017453292f
 
 // inferred: loads /boot/chase_param.csv (one "key,value" row per parameter)
-// NONMATCHING: 97.94% - register allocation only (data/zero and name/config pointer swapped; the
-// original keeps the high half of the string pool in r29 from the first call); tried the order of
-// the declarations of path, size, data and name
+// NONMATCHING: 99.05% - register allocation only: the original gives r31 to the zero constant (later
+// the string pool) and r30 to data (here swapped). The int copy of the size fixed the name/config
+// registers. Tried: declaration orders of path/size/data/len, literal path, casts, for(;;) loop,
+// releasing csv.m04, explicit zero local, int size.
 extern "C" void fn_8020A90C() {
     const char* path = "/boot/chase_param.csv";
     unsigned long size = 0;
     void* data = fn_8046DC5C(lbl_8087F518, path, &size, 0x20);
-    atn::Csv csv((const char*)data, size);
+    int len = size;
+    atn::Csv csv((const char*)data, len);
     while (csv.fn_8005BBF8() != 0) {
         const char* name = csv.fn_8005B9CC();
         if (strcmp(name, "visSearchDistance") == 0) {

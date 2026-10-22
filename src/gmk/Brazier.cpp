@@ -88,9 +88,10 @@ struct BrazierArena_unk {
     BrazierArenaEntry_unk* mEntries; // 0x5E4
     int mCount;                      // 0x5E8
     // inferred: name invented
+    int GetCount_unk() const { return mCount; }
     BrazierArenaEntry_unk* Get_unk(int i) {
         if (i >= 0 && i < mCount) {
-            return &mEntries[i];
+            return &mEntries[(unsigned int)i];
         }
         return 0;
     }
@@ -105,7 +106,7 @@ struct BrazierCharaNode_unk {
 inline BrazierArenaEntry_unk* GetArenaEntry_unk(int i) {
     BrazierArena_unk* arena = lbl_8087F610;
     if (i >= 0 && i < arena->mCount) {
-        return &arena->mEntries[i];
+        return &arena->mEntries[(unsigned int)i];
     }
     return 0;
 }
@@ -469,8 +470,8 @@ void Brazier::fn_80407D24() {
     }
 }
 
-// NONMATCHING: 99.36% - the arena loop reloads lbl_8087F610 in the original and keeps the entry
-// offset in r31 (chara in r30)
+// The count read through GetCount_unk() reloads lbl_8087F610 for the loop test, and the unsigned
+// subscript of GetArenaEntry_unk gives the entry offset/chara registers of the original
 int Brazier::fn_80407E8C() {
     BrazierField_unk* field = lbl_8087F430;
     if (field == 0) {
@@ -528,8 +529,9 @@ int Brazier::fn_80407E8C() {
         }
     }
     if (lbl_8087F610 != 0) {
-        for (int i = 0; i < lbl_8087F610->mCount; i++) {
+        for (int i = 0; i < lbl_8087F610->GetCount_unk(); i++) {
             BrazierArenaEntry_unk* entry = GetArenaEntry_unk(i);
+
             if (entry != 0) {
                 CharaTask* chara = entry->mChara;
                 if (chara != 0 && entry->mD0_31) {

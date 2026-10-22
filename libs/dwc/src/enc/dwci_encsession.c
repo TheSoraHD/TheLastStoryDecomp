@@ -43,8 +43,8 @@ typedef struct DWCiEncSession {
 } DWCiEncSession;
 
 static DWCiEncSession sEncSession = {DWCi_ENC_STATE_NOT_INITIALIZED};
-static u32 sEncSeed;
 static const char* sEncServerUrl;
+static u32 sEncSeed;
 
 static BOOL DWCi_EncSessionSetParam(const char* gameName, const char* secretKey, u32 randMul,
                                     u32 randAdd, u32 randMod, u32 checkXor) {

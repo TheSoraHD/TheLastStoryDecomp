@@ -39,15 +39,16 @@ public:
     virtual int vf40(GimmickMsg_unk* msg);
 
     void fn_8043B9E0(); // inferred: builds the joints; not decompiled yet
-    void fn_8043C508(); // inferred: update; not decompiled yet
-    void fn_8043CA58(); // not decompiled yet
-    void fn_8043CF58(); // not decompiled yet
+    void fn_8043C508(); // inferred: update
+    void fn_8043CA58(); // inferred: relaxes the joints (20 passes of length constraints)
+    void fn_8043CF58(); // inferred: orients the joints along the chain
 
     GimmickDesc_unk* mDesc; // 0xF4
     EffectModel_unk mModel; // 0xF8
     CharaTask* mTarget;     // 0x30C
     int mNode;              // 0x310: inferred: node of the target
-    unsigned char m314[0x32C - 0x314];
+    atn::Vector3 m314;      // inferred: position of the first joint (the node of the target)
+    atn::Vector3 m320;      // inferred: position of the last joint
     ChainJointArray_unk mJoints;  // 0x32C
     ChainJointArray_unk mJoints2; // 0x330
     int mNumJoints;         // 0x334

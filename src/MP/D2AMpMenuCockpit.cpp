@@ -212,8 +212,9 @@ int D2AMpMenuCockpit::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.04% - the loop pointer and the task of Play_unk swap r27/r28 in the mark loop
-// (tried an inline helper for the loop or its body and an outer counter)
+// NONMATCHING: 99.60% - the loop pointer and the task of Play_unk swap r27/r28 in the mark loop
+// (tried an inline helper for the loop or its body and an outer counter; close-units qD: 10 more
+// forms, a single reused task local is the closest)
 void D2AMpMenuCockpit::fn_804B50C0(int state) {
     if (m9C != state && state >= 0) {
         int prev = m9C;
@@ -233,8 +234,10 @@ void D2AMpMenuCockpit::fn_804B50C0(int state) {
             fn_800DD3FC(text1, L"%d", 0);
             SetPaneText_unk(m4C->mLayout, "string0037(1)", text1);
             for (int i = 0; i < 8; i++) {
-                Play_unk(m50[i], 1, 1.0f);
-                Play_unk(m70[i], 0, 1.0f);
+                MpD2A_unk* task = m50[i];
+                Play_unk(task, 1, 1.0f);
+                task = m70[i];
+                Play_unk(task, 0, 1.0f);
             }
             m10C = 0;
             break;
@@ -296,11 +299,13 @@ void D2AMpMenuCockpit::UpdatePointPos_unk() {
         SetPaneValue_unk(m4C->mLayout, "pos0036", 0, 261.5f);
         SetPaneValue_unk(m4C->mLayout, "pos0037", 0, 378.5f);
         SetPaneValue_unk(m4C->mLayout, "pos0038", 0, 210.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0039", 0, 430.0f);
+        // inferred: the layout of the last pane is a separate local (register order of the copies
+        // inlined in vf14)
+        void* layout = m4C->mLayout;
+        SetPaneValue_unk(layout, "pos0039", 0, 430.0f);
     }
 }
 
-// NONMATCHING: 99.98% - the last pane of the second UpdatePointPos_unk copy gets r30 instead of r29
 void D2AMpMenuCockpit::vf14() {
     m48->mFlags |= 4;
     m4C->mFlags |= 4;

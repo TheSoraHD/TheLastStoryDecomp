@@ -127,7 +127,6 @@ int FallingTower::vf1C() {
     return ret;
 }
 
-// NONMATCHING: 99.9% - register order of the wave address (as gmk::Ocean::vf20).
 void FallingTower::vf20() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     char path[0x100];
@@ -157,10 +156,9 @@ void FallingTower::vf20() {
             int state = fn_800DC12C(csv.fn_8005B9CC());
             unsigned int index = fn_800DC12C(csv.fn_8005B9CC());
             if (index <= 1) {
-                Wave_unk& wave = mWaves[state][index];
-                wave.mAmp = fn_800DC288(csv.fn_8005B9CC());
-                wave.mSpeed = fn_800DC288(csv.fn_8005B9CC());
-                wave.mPhase = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+                mWaves[state][index].mAmp = fn_800DC288(csv.fn_8005B9CC());
+                mWaves[state][index].mSpeed = fn_800DC288(csv.fn_8005B9CC());
+                mWaves[state][index].mPhase = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
             }
         } else if (strcmp(field, "WAVEBLEND") == 0) {
             int index = fn_800DC12C(csv.fn_8005B9CC());

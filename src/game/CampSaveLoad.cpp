@@ -3,6 +3,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
+#include "MP/SaveLoad.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -13,7 +14,11 @@ extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int arg);
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path);
 // inferred: makes the save data of the save menu
 extern "C" CampSaveData_unk* fn_803B7944(atn::Task* parent, void* arg);
-extern "C" void fn_803B8758(CampSaveData_unk* data, int arg);
+// inferred: view of GameSaveLoadCommon (game/GameSaveLoadBackgroundCommon.cpp), the class of the save data
+class GameSaveLoadCommon {
+public:
+    void fn_803B8758(int slot); // inferred: starts reading `slot` (-1: all)
+};
 
 // inferred: copies a string unless it is the destination itself (name invented)
 inline void CopyString_unk(char* dst, const char* src) {
@@ -168,7 +173,7 @@ MenuLoadTask::MenuLoadTask(atn::Task* parent, CampSaveData_unk* data) : CampSave
         arg.mFlag = 1;
         m50 = fn_803B27F8(this, &arg);
     } else if (data->mD60 == 0) {
-        fn_803B8758(data, -1);
+        ((GameSaveLoadCommon*)data)->fn_803B8758(-1);
     }
     m50->mD64 = 0;
 }
@@ -315,6 +320,9 @@ void CampSaveLoad::fn_8011979C() {
         m148 = m154;
     }
 }
+
+// inferred: out-of-line destructor of the save elements (weak copy, emitted here)
+MP::SaveElemB_unk::~SaveElemB_unk() {}
 
 // NONMATCHING: 88.8% - the original converts each pad result to a bool value (neg/or/srwi)
 // before testing it

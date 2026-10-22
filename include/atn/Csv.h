@@ -83,7 +83,14 @@ public:
         fn_8005BCE8(lbl_8087D710);
     }
 };
-class CsvPipe : public CsvBase<char, '|', '\r', '"'> {};
+extern "C" char lbl_8087DB20[3]; // inferred: " \t" (field separators of the pipe CSV)
+// inferred: the constructor also sets the field separators (inlined at 0x802078C4)
+class CsvPipe : public CsvBase<char, '|', '\r', '"'> {
+public:
+    CsvPipe(const char* text, int length) : CsvBase<char, '|', '\r', '"'>(text, length) {
+        fn_8005BCE8(lbl_8087DB20);
+    }
+};
 extern "C" wchar_t lbl_8077A0A8[3]; // inferred: L" \t"
 extern "C" wchar_t lbl_807830B8[3]; // inferred: L" \t"
 // inferred: the text starts with a byte order mark, which is skipped (constructor inlined at

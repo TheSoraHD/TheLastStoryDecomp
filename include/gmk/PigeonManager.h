@@ -5,6 +5,8 @@
 #include "atn/SoundRef.h"
 #include "game/GimmickCommon.h"
 
+class CharaTask;
+
 namespace gmk {
 
 class PigeonManager;
@@ -13,12 +15,12 @@ class PigeonManager;
 struct Pigeon_unk {
     Pigeon_unk();  // 0x804047A4
     ~Pigeon_unk(); // 0x80404864
-    void fn_804048CC(); // inferred: update; not decompiled yet
-    void fn_80404E70(); // inferred: reset (lands at a random place); not decompiled yet
-    void fn_804050C0(); // not decompiled yet
-    void fn_804052EC(); // not decompiled yet
-    void fn_804058A4(); // not decompiled yet
-    void fn_80405A14(); // not decompiled yet
+    void fn_804048CC(); // inferred: update
+    void fn_80404E70(); // inferred: reset (lands at a random place)
+    void fn_804050C0(); // inferred: walking/pecking on the ground
+    void fn_804052EC(); // inferred: walks; turns away from the edge and from the other pigeons
+    void fn_804058A4(); // inferred: flies away until the timer runs out
+    void fn_80405A14(CharaTask* player); // inferred: reacts to the player (flies away or walks off)
 
     PigeonManager* mOwner; // 0x00
     Model_unk mModel;      // 0x04

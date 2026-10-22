@@ -95,7 +95,8 @@ static int sTextCount;
 static wchar_t* sTextTexts;
 
 // inferred: loads /boot/sp_types_text_xx.u16
-// NONMATCHING: 95.04% - register numbering (the original keeps one more saved register)
+// NONMATCHING: 96.78% - register numbering (the original keeps one more saved register); the unsigned
+// subscript of sTypes fixed part of it
 extern "C" void fn_8021B060() {
     atn::CsvU csv;
     sTypes = new (3, "", "", 0) SpString_unk[0x49];
@@ -124,7 +125,7 @@ extern "C" void fn_8021B060() {
             const wchar_t* text = csv.fn_8005B9CC();
             fn_800DD3FC(sTypeTexts + pos, L"%s", text);
             if (i < 0x49) {
-                sTypes[i].mPtr = sTypeTexts + pos;
+                sTypes[(unsigned int)i].mPtr = sTypeTexts + pos;
             }
             pos += wcslen(text) + 1;
             i++;
@@ -381,7 +382,8 @@ extern "C" bool fn_8021BFA0(wchar_t* buf, int cond, int value) {
 }
 
 // inferred: loads /boot/sp_text_xx.u16 (texts of whole effects)
-// NONMATCHING: 98.43% - register numbering of the row offset and the text position
+// NONMATCHING: 99.62% - register numbering (data/position r30/r31 and the length counter); the unsigned
+// subscript of sTexts fixed the row offset. Tried: declaration orders of length/size, a length local
 extern "C" void fn_8021C3F4() {
     atn::CsvU csv;
     unsigned long size;
@@ -413,12 +415,12 @@ extern "C" void fn_8021C3F4() {
         int condValue = fn_800DC1DC(csv.fn_8005B9CC());
         const wchar_t* text = csv.fn_8005B9CC();
         fn_800DD3FC(sTextTexts + pos, L"%s", text);
-        sTexts[i].mType = type;
-        sTexts[i].mCond = cond;
-        sTexts[i].mCondValue = condValue;
-        sTexts[i].mText = sTextTexts + pos;
+        sTexts[(unsigned int)i].mType = type;
+        sTexts[(unsigned int)i].mCond = cond;
+        sTexts[(unsigned int)i].mCondValue = condValue;
+        sTexts[(unsigned int)i].mText = sTextTexts + pos;
         pos += wcslen(text) + 1;
-        sTexts[i].mPercent = fn_800DC1DC(csv.fn_8005B9CC());
+        sTexts[(unsigned int)i].mPercent = fn_800DC1DC(csv.fn_8005B9CC());
         i++;
     }
     fn_8046DD20(lbl_8087F518, data);

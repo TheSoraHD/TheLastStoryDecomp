@@ -287,7 +287,7 @@ void MotionObject::fn_804137F4() {
     }
 }
 
-// NONMATCHING: 99.17% - loop registers (index and offset swapped, as in gmk::LemonBucket). The three
+// The int index compared as unsigned gives the loop registers of the original. The three
 // release asserts keep it out of line (the original calls it from vf10 while PlayEfp_unk is inlined).
 void MotionObject::fn_804139D8() {
     Model_unk* model = vf38();
@@ -295,10 +295,10 @@ void MotionObject::fn_804139D8() {
     ((void)0);
     ((void)0);
     if (model != 0) {
-        for (unsigned int i = 0; i < mFades[m54].mSize; i++) {
+        for (int i = 0; i < (unsigned int)mFades[m54].mSize; i++) {
             mFades[m54][i].fn_803EBE74(model);
         }
-        for (unsigned int i = 0; i < mSwitches[m54].mSize; i++) {
+        for (int i = 0; i < (unsigned int)mSwitches[m54].mSize; i++) {
             mSwitches[m54][i].fn_803EC0F8(model);
         }
     }
@@ -424,9 +424,12 @@ void MotionObject::vf20() {
     }
 }
 
-// NONMATCHING: 99.88% - the CSV size/data temporaries get other registers
+// NONMATCHING: 99.94% - the CSV size temporary gets r22 instead of r25 (data/size read into
+// locals first fixes the rest)
 void MotionObject::vf24() {
-    atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
+    unsigned long size = mBinary.fn_8047059C();
+    const char* data = (const char*)mBinary.fn_80470580();
+    atn::CsvTab csv(data, size);
     csv.fn_8005BCE8(lbl_8087D710);
     int model = 0;
     int fade = 0;

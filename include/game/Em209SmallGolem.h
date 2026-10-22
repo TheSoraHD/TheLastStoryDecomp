@@ -1,7 +1,9 @@
 #ifndef GAME_EM209SMALLGOLEM_H
 #define GAME_EM209SMALLGOLEM_H
 
+#include "atn/LH_Binary.h"
 #include "game/EnemyTask.h"
+#include "game/ResHandle.h"
 
 // inferred from __vt__15Em209SmallGolem (0x80786B18); layout from the constructor (0x802CCFD8)
 class Em209SmallGolem : public EnemyTask {
@@ -23,7 +25,7 @@ public:
     virtual void vf9C(int arg);
     virtual void vfEC();
 
-    unsigned char m14B0[0x14B8 - 0x14B0]; // inferred: load handle (destroyed with atn::LoadHandle)
+    atn::LH_Binary m14B0; // inferred: data file
     int m14B8;
     int m14BC;
     int m14C0;
@@ -48,7 +50,7 @@ public:
     unsigned char m1548;
     unsigned char m1549;
     int m154C;
-    unsigned char m1550[0x1554 - 0x1550];
+    ResHandle m1550; // inferred: debug menu group
     int m1554;
 };
 

@@ -278,7 +278,7 @@
   "classes": [
    "atn::ParseTree"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/PBoneBasic.cpp",
@@ -340,7 +340,7 @@
   "classes": [
    "atn::LayerPostFx"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/LayerReflect.cpp",
@@ -743,7 +743,7 @@
    "chr::ControlRelease",
    "chr::ControlCaught"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlCharge.cpp",
@@ -858,7 +858,7 @@
    "chr::ControlOverdrive",
    "chr::ControlAttractHateCharge"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlInteractionBase.cpp",
@@ -3408,7 +3408,7 @@
   "classes": [
    "HomeButtonMenu"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Texture_unk.cpp",

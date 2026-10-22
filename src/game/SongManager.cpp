@@ -426,8 +426,6 @@ void SongManager::fn_805A3808(int lower) {
     UpdateEnvSe_unk();
 }
 
-// NONMATCHING: 99.77% - in the two `type == 8` cases the limit and counts[8] swap r3/r4. Tried the
-// limit through an inline, a local, the comparison reversed.
 // inferred: the stream `name` can be played (kind `type`): checks the number of sounds of each kind
 // that are playing
 extern "C" int fn_805A38F0(const char* name, int type, int arg) {
@@ -497,11 +495,13 @@ extern "C" int fn_805A38F0(const char* name, int type, int arg) {
                 }
             }
             break;
-        case 8:
-            if (counts[8] >= __Limit_unk()) {
+        case 8: {
+            int n = counts[8];
+            if (n >= __Limit_unk()) {
                 return 0;
             }
             break;
+        }
         }
     } else {
         switch (type) {
@@ -521,11 +521,13 @@ extern "C" int fn_805A38F0(const char* name, int type, int arg) {
                 return 0;
             }
             break;
-        case 8:
-            if (counts[8] > __Limit_unk()) {
+        case 8: {
+            int n = counts[8];
+            if (n > __Limit_unk()) {
                 return 0;
             }
             break;
+        }
         }
     }
     return 1;

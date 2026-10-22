@@ -31,7 +31,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/Runtime/__mem.c",
@@ -100,7 +100,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_arcResourceAccessor.cpp",
@@ -139,7 +139,7 @@
    "-DHBM_VERSION=20090303"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/hbm/nw4hbm/math/math_triangular.cpp",
@@ -373,7 +373,7 @@
    "-DHBM_VERSION=20090303"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_TagProcessorBase.cpp",
@@ -412,7 +412,7 @@
    "-DHBM_VERSION=20090303"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/exi/EXIUart.c",
@@ -514,7 +514,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/os/OSFont.c",
@@ -684,7 +684,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/os/OSTime.c",
@@ -1160,7 +1160,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/ax/AXVPB.c",
@@ -1194,7 +1194,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/ax/AXProf.c",
@@ -1364,7 +1364,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/gx/GXGeometry.c",
@@ -1500,7 +1500,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/mem/mem_frameHeap.c",
@@ -1568,7 +1568,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "RVL_SDK/src/revolution/euart/euart.c",
@@ -2791,7 +2791,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/MSL_C/MSL_Common/strtoul.c",
@@ -4010,12 +4010,12 @@
    "-inline auto",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 4",
+   "-func_align 16",
    "-i libs/nw4r/include/",
    "-i libs/RVL_SDK/include/"
   ],
   "category": "nw4r",
-  "matching": false
+  "matching": true
  },
  {
   "name": "nw4r/src/snd/snd_SoundHandle.cpp",
@@ -4044,12 +4044,12 @@
    "-inline auto",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 4",
+   "-func_align 16",
    "-i libs/nw4r/include/",
    "-i libs/RVL_SDK/include/"
   ],
   "category": "nw4r",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/gx/GXFifo.c",
@@ -4086,7 +4086,7 @@
    "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/gx/GXTev.c",
@@ -4304,10 +4304,11 @@
    "-i libs/smg2/src/RVL_SDK/bte",
    "-DVERSION=0",
    "-ir libs/smg2/libs/RVL_SDK/revolution/bte",
-   "-DREVOLUTION"
+   "-DREVOLUTION",
+   "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/bte/bte_logmsg.c",
@@ -4344,7 +4345,7 @@
    "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/bte/bta_sys_conn.c",
@@ -5852,7 +5853,7 @@
    "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/gx/GXPixel.c",
@@ -5889,7 +5890,7 @@
    "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/bte/hcisu_h2.c",
@@ -5926,7 +5927,7 @@
    "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/bte/btu_init.c",
@@ -7007,7 +7008,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "dwc/src/base/dwc_friend.c",
@@ -7451,7 +7452,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "gamespy/darray.c",

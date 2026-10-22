@@ -132,6 +132,7 @@ ControlStagger::ControlStagger(Chara_unk* chara, int time, int kind)
 }
 
 // NONMATCHING: 99.3% - mChara, the track flag and the motion id get r5/r4/r6 instead of r6/r5/r4
+// (mTime-- before the copy of the rotation gives mChara in r6 but moves the decrement: 92.8%)
 int ControlStagger::vf0C() {
     float frame;
     float speed = 0.0f;

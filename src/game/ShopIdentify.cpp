@@ -488,7 +488,7 @@ void ShopIdentify::fn_805895B4() {
     }
 }
 
-// NONMATCHING: 98.66% - register allocation only (volatile registers of the index loop)
+// NONMATCHING: 98.97% - register allocation only (volatile registers of the index loop)
 void ShopIdentify::fn_805897D4() {
     if (mResult->IsEnd_unk()) {
         void* pad = lbl_8087EF70;
@@ -499,7 +499,7 @@ void ShopIdentify::fn_805897D4() {
             int cursor = mCursor;
             for (unsigned int i = 0; i < mItems.size(); i++) {
                 if (mItems[i].mIndex > items[cursor].mIndex) {
-                    mItems[i].mIndex = mItems[i].mIndex - 1;
+                    mItems[i].mIndex--;
                 }
             }
             fn_8044D56C(lbl_8087F4F0, items[cursor].mIndex);

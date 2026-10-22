@@ -1780,7 +1780,7 @@ game/Em303KrakenFoot.cpp:
 
 game/Em303KrakenFootMp.cpp:
 	.text       start:0x802E59E0 end:0x802E8580
-	.rodata     start:0x80747E88 end:0x80747E9C
+	.rodata     start:0x80747E88 end:0x80747F58
 	.data       start:0x80787290 end:0x807873E8
 	.sdata2     start:0x80884758 end:0x808847A8
 
@@ -3590,7 +3590,7 @@ RVL_SDK/src/revolution/os/OSStateFlags.c:
 
 smg2/src/RVL_SDK/os/OSNet.c:
 	.text       start:0x805F7980 end:0x805F7A34
-	.data       start:0x807A9A38 end:0x807A9BA0
+	.data       start:0x807A9A38 end:0x807A9AE0
 
 RVL_SDK/src/revolution/os/OSNandbootInfo.c:
 	.text       start:0x805F7A40 end:0x805F7C48
@@ -3672,14 +3672,14 @@ RVL_SDK/src/revolution/dsp/dsp_task.c:
 	.sbss       start:0x80880040 end:0x80880058
 
 smg2/src/RVL_SDK/gx/GXFifo.c:
-	.text       start:0x806121F0 end:0x80612E70
+	.text       start:0x806121F0 end:0x80612E80
 	.data       start:0x807B0720 end:0x807B0750
 	.bss        start:0x807E75C0 end:0x807E7608
 	.sbss       start:0x80880080 end:0x808800A0
 
 RVL_SDK/src/revolution/gx/GXAttr.c:
 	.text       start:0x80612E80 end:0x80613BD4
-	.data       start:0x807B0750 end:0x807B09B4
+	.data       start:0x807B0750 end:0x807B0900
 	.sdata      start:0x8087E870 end:0x8087E880
 
 RVL_SDK/src/revolution/gx/GXGeometry.c:
@@ -3698,7 +3698,7 @@ smg2/src/RVL_SDK/gx/GXTev.c:
 	.data       start:0x807B0DC0 end:0x807B0E38
 
 smg2/src/RVL_SDK/gx/GXPixel.c:
-	.text       start:0x80617C40 end:0x80618030
+	.text       start:0x80617A10 end:0x80618030
 	.data       start:0x807B0E38 end:0x807B0E58
 	.sdata2     start:0x808887B8 end:0x808887F0
 
@@ -3716,7 +3716,7 @@ RVL_SDK/src/revolution/mem/mem_frameHeap.c:
 
 RVL_SDK/src/revolution/mem/mem_allocator.c:
 	.text       start:0x8061A0D0 end:0x8061A12C
-	.sdata2     start:0x80888800 end:0x80888810
+	.sdata2     start:0x80888800 end:0x80888808
 
 RVL_SDK/src/revolution/euart/euart.c:
 	.text       start:0x8061A250 end:0x8061A5D0

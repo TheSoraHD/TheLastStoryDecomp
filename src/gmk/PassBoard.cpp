@@ -1,6 +1,7 @@
 #include "gmk/PassBoard.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "atn/SoundRef.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -36,6 +37,50 @@ struct PassGroup_unk {
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" PassGroup_unk* fn_80373148(Field_unk* field);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+// inferred: sound of the board (the name is its own object, pointed to from .sdata2)
+static const char sSeName_unk[] = "SE_DG040_008";
+static const char* const sSe_unk = sSeName_unk;
+
+// inferred: rotation matrix z * y * x (same as GimmickCommon.cpp)
+inline void __MakeRotation_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.z != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.y != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
+// inferred: colour with float components converted to a GXColor (names invented)
+struct PassColor_unk {
+    PassColor_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
+    GXColor ToGX_unk() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
+    float r, g, b, a;
+};
 
 namespace gmk {
 
@@ -96,6 +141,76 @@ void PassBoard::vf28() {
     vf2C();
     GimmickMsg_unk msg(1);
     vf40(&msg);
+}
+
+// inferred: fades the materials and enables the collision box by the distance of the nearest pair
+// NONMATCHING: 99.5% - stack layout: the matrices of the two inlined __MakeRotation_unk are placed in
+// mirror order in the original (first block high, second block low), plus float registers of the
+// nearest-pair loop and of the rate. Tried: declaration orders of pos/mtx, order of the temporaries
+// in __MakeRotation_unk, a Front_unk helper (worse), pair pointer vs indexed pairs.
+void PassBoard::vf10() {
+    if (m54 == 0) {
+        vf28();
+    }
+    float dist = -60.0f;
+    for (int i = 0; i < 5; i++) {
+        if (mPairs[i].mB != 0 && mPairs[i].mA != 0) {
+            float* a = (float*)mPairs[i].mA;
+            atn::Vector3 pos(a[0x3C / 4], a[0x4C / 4], a[0x5C / 4]);
+            PSMTXMultVec((MtxPtr)((char*)mPairs[i].mB + 0x30), &pos, &pos);
+            if ((float)__fabs(pos.y) < (float)__fabs(dist)) {
+                dist = pos.y;
+            }
+        }
+    }
+    int old = m860;
+    m860 = 4;
+    for (int i = 0; i < 4; i++) {
+        if (dist < mDistance[i]) {
+            m860 = i;
+            if (old != i && i == 2) {
+                atn::Vector3 pos(1.0e16f, 0.0f, 0.0f);
+                atn::Matrix3x4 mtx;
+                __MakeRotation_unk(mtx, m78);
+                PSMTXMultVec(mtx.m, &pos, &pos);
+                fn_800C344C(sSe_unk, &pos, 0, -1, 1.0f);
+            }
+            break;
+        }
+    }
+    float rate = 0.0f;
+    if (m860 == 1) {
+        rate = (dist - mDistance[0]) / (mDistance[1] - mDistance[0]);
+    } else if (m860 == 2) {
+        rate = 1.0f;
+    } else if (m860 == 3) {
+        rate = (mDistance[3] - dist) / (mDistance[3] - mDistance[2]);
+    }
+    rate = (rate > 0.0f ? rate : 0.0f) < 1.0f ? (rate > 0.0f ? rate : 0.0f) : 1.0f;
+    for (int i = 0; i < 2; i++) {
+        Material_unk* material = mModel.fn_80092954(mMaterials[i]);
+        if (material != 0) {
+            PassColor_unk color(material->mColor);
+            color.a = rate;
+            material->mColor = color.ToGX_unk();
+            fn_8007FAF0(material, 3);
+        }
+    }
+    mModel.mFlags |= 0x10;
+    if (m860 == 2) {
+        atn::Vector3 pos(1.0e16f, 0.0f, 0.0f);
+        atn::Matrix3x4 mtx;
+        __MakeRotation_unk(mtx, m78);
+        PSMTXMultVec(mtx.m, &pos, &pos);
+        mColli.fn_800575BC(&pos, &m78, (atn::Vector3*)&mBox[6]);
+        mColli.m20 = 0x4000;
+        mColli.mFlags |= 1;
+    } else {
+        mColli.mFlags &= ~1;
+    }
+    if (vf38() != 0) {
+        fn_803ED0D4(vf38(), 1);
+    }
 }
 
 void PassBoard::vf14() {

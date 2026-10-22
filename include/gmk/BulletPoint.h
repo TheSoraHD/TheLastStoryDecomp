@@ -17,7 +17,7 @@ public:
     static GimmickCommon* fn_8041B970(atn::Task* parent, GimmickDesc_unk* desc); // inferred: factory
     virtual ~BulletPoint() {}
     virtual int vf0C();
-    virtual void vf10(); // 0x8041BAC0: not decompiled yet
+    virtual void vf10();
     virtual void vf14();
     virtual void vf28();
     virtual int vf40(GimmickMsg_unk* msg);

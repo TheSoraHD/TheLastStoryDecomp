@@ -11,7 +11,9 @@ inline float LengthSq_unk(const atn::Vector3& v) {
 namespace Event {
 
 // NONMATCHING: 97.7% - in case 6 the offset and the pointer of the inlined actor search swap
-// registers (r4/r5)
+// registers (r4/r5). Tried (close-units qD, 10 variants): call chained into FindActor_unk, param
+// pointer local, id read before the manager, single expression, explicit loop with break, goto
+// loop with pointer arithmetic / index, unsigned and const id, null check on the actor.
 int BehaviorFollow::vf0C(ActionArg_unk* arg, int phase) {
     switch (phase) {
     case 0: {

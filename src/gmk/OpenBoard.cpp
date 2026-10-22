@@ -2,6 +2,9 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "chr/ControlBase.h"
+#include "game/CharaManager.h"
+#include "game/CharaTask.h"
+#include "game/PlayerTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -20,6 +23,48 @@ struct Settings_unk {
     int m18;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: camera (lbl_8087EFB4)
+struct BoardCamera_unk {
+    unsigned char m00[0x10C];
+    atn::Vector3 mPos; // 0x10C
+};
+extern "C" BoardCamera_unk* lbl_8087EFB4;
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk;
+struct Color4f_unk {
+    Color4f_unk(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
+    float r, g, b, a;
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_80232B7C(void* owner, int arg);
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+// inferred: plays an effect on a model (names invented)
+// inferred: plays an effect on a model (the vectors and the color are locals; names invented)
+inline void PlayEfp3_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+    Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+// inferred: next character of the player list (0x14AC, as in gmk/FlamingArrow)
+struct BoardListNode_unk {
+    unsigned char m0000[0x14AC];
+    CharaTask* mNext;
+};
+inline float BoardAbs_unk(float x) {
+    return x < 0.0f ? -x : x;
+}
+// inferred: bounding box (names invented)
+struct BoardBox_unk {
+    BoardBox_unk(atn::Vector3 min, atn::Vector3 max) : mMin(min), mMax(max) {}
+    atn::Vector3 mMin;
+    atn::Vector3 mMax;
+};
 
 namespace gmk {
 
@@ -57,7 +102,7 @@ void OpenBoard::vf28() {
     m.m[2][3] = m6C.z;
     mColli.SetMtx_unk(m);
     mColli.mFlags |= 1;
-    ((chr::Motion_unk*)&mModel)->fn_80097C08(0, 0, 0, 1, 1, 0.0f, 1.0f);
+    ((chr::Motion_unk*)&mModel)->fn_80097C08(0, 0, 0, 1, 1, 0.0f, 0.1f);
     mModel.mTracks[0].m0C = 0.0f;
     mModel.mTracks[0].m08 = 0.0f;
     m55C = 0.0f;
@@ -67,6 +112,72 @@ void OpenBoard::vf28() {
     m56C.Set_unk(lbl_8087DFBC);
     GimmickMsg_unk msg(m58 + 1);
     vf40(&msg);
+}
+
+// inferred: opens the board (motion frame) by the distance of the nearest player in front of it
+// NONMATCHING: 94.7% - (1) the bounding box: the original copies res->mMin/mMax straight into the
+// box and into the by-value arguments (here three more instructions through the stack); (2) float
+// registers of the interpolation (m56C) and the order of the zero stores of the effect vectors.
+// Tried: box by reference/by value/assignments/Assign_unk/component constructors, min/max locals,
+// a GetBox helper, operand orders of the half width, frame/length/rate locals, the effect call
+// with temporaries/locals/helpers, Start_unk by value/by reference, Interp_unk forms.
+void OpenBoard::vf10() {
+    if (m54 == 0) {
+        vf28();
+    }
+    if (m54 == 2) {
+        return;
+    }
+    Model_unk::Res_unk* res = mModel.m16C;
+    BoardBox_unk box(res->mMin, res->mMax);
+    float half = BoardAbs_unk(box.mMax.x - box.mMin.x) * 0.5f;
+    atn::Matrix3x4 inv(*(atn::Matrix3x4*)mModel.mMtx);
+    PSMTXInverse(inv.m, inv.m);
+    float dist = mOpenDistance;
+    if (lbl_8087F8A0 != 0) {
+        half = half * 1.5f;
+        float width = half;
+        for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0;
+             player = (PlayerTask*)((BoardListNode_unk*)player)->mNext) {
+            atn::Vector3 pos = player->mPos;
+            PSMTXMultVec(inv.m, &pos, &pos);
+            if (pos.x < width) {
+                float z = BoardAbs_unk(pos.z);
+                if (z < dist) {
+                    dist = z;
+                }
+            }
+        }
+    } else {
+        atn::Vector3 pos = lbl_8087EFB4->mPos;
+        PSMTXMultVec(inv.m, &pos, &pos);
+        float z = (float)__fabs(pos.z);
+        if (z < dist) {
+            dist = z;
+        }
+    }
+    float frame = (1.0f - dist / mOpenDistance) * mModel.fn_80097D7C(0);
+    float cur = mModel.mTracks[0].m08;
+    if ((float)__fabs(frame - cur) > 0.01f && lbl_8087F3C0 != 0 &&
+        fn_80239D58(lbl_8087F3C0, this, 0) == 0 && mEfp.mResource != 0) {
+        fn_80232B7C(this, 0);
+        PlayEfp3_unk(lbl_8087F3C0, &mEfp, &mModel);
+    }
+    Start_unk(m56C.mCur, frame);
+    Update_unk();
+    mModel.mTracks[0].m08 = m56C.mCur;
+    if (vf38() != 0) {
+        fn_803ED5D0(vf38());
+    }
+    if (vf38() != 0) {
+        fn_803ED0D4(vf38(), 1);
+    }
+    atn::Matrix3x4 m;
+    PSMTXRotRad(m.m, 'y', m78.y);
+    m.m[0][3] = m6C.x;
+    m.m[1][3] = m6C.y;
+    m.m[2][3] = m6C.z;
+    mColli.SetMtx_unk(m);
 }
 
 void OpenBoard::vf14() {

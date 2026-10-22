@@ -181,8 +181,9 @@ inline void DrawScreen_unk(atn::Texture_unk* tex, unsigned int color, float texW
     fn_8005DFC8(lbl_8087EEB0, color, tex, 1, x, 0.0f, 0.0f, w, h);
 }
 
-// NONMATCHING: 83.5% - the line address is reloaded after the width call in the original (kept in a register
-// here), and the scheduling/registers of the screen ratio computations differ.
+// NONMATCHING: 85.9% - FPR allocation (alpha in f31 vs f29, constants of the line loop) and the
+// scheduling of the screen ratio computations. The colour of a line as a named local fixes the reload of
+// the line address after the width call.
 // inferred: draws the strap texture (two pages alternating every 150 frames) or the message of states 3-4
 void StrapTask::vf14() {
     float alpha = 1.0f;
@@ -203,8 +204,9 @@ void StrapTask::vf14() {
             float w = fn_8006EF48(lbl_8087EEC8, lines[i].c_str(), 20.0f, 0.0f, 1, 1);
             float x = 0.5f * (640.0f - w);
             float y = 30.0f * i + 50.0f;
+            unsigned int color = ((unsigned int)(255.0f * alpha) << 24) | 0xFFFFFF;
             fn_80061824(lbl_8087EEB0, x, y, 0.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f,
-                        lines[i].c_str(), ((unsigned int)(255.0f * alpha) << 24) | 0xFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                        lines[i].c_str(), color, 1, 1, 0, 0, 0xFF000000);
         }
         return;
     }

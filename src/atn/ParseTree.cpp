@@ -1,6 +1,7 @@
 #include "atn/ParseTree.h"
 #include "atn/Memory.h"
 #include "std/new.h"
+#include "std/msl_common.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
@@ -472,8 +473,6 @@ struct ParseVars_unk {
     float** mVars;
 };
 
-// NONMATCHING: 92.8% - the original computes idx - 1 before scaling (subi; slwi; lwzx) instead
-// of folding the -1 into the load offset
 // inferred: resolves the variable references of byte code (1-based indices into vars)
 extern "C" void fn_800A6E8C(ParseCodeRef_unk* ref, ParseVars_unk* vars) {
     if (ref->mSize == 0) {
@@ -494,7 +493,8 @@ extern "C" void fn_800A6E8C(ParseCodeRef_unk* ref, ParseVars_unk* vars) {
                     if (idx == 0xFFFFFFFF) {
                         *(float**)q = &sArgument;
                     } else {
-                        *(float**)q = vars->mVars[idx - 1];
+                        // byte offset: the original computes idx - 1 before scaling (subi; slwi; lwzx)
+                        *(float**)q = *(float**)((unsigned char*)vars->mVars + (idx - 1) * sizeof(float*));
                     }
                 }
                 p += 5;
@@ -548,6 +548,15 @@ int ParseCode_unk::fn_800A6FF0(ParseTree* tree) {
         pos++;
     }
     return 1;
+}
+
+// inferred: an std::map insertion of this file was stripped by the linker; only its literal is left at
+// the end of @stringBase0 ("tree::insert length error"). Reconstructed minimally so that the pool keeps
+// its layout.
+void fn_Stripped_unk(unsigned long size) {
+    if (size == 0xFFFFFFFF) {
+        __msl_error("tree::insert length error");
+    }
 }
 
 } // namespace atn

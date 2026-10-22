@@ -1,6 +1,8 @@
 #include "game/GameSoundControl.h"
 #include "game/GameBgm.h"
 #include "atn/Memory.h"
+#include "atn/FixedArray.h"
+#include "game/GameSaveBackground.h"
 
 // inferred: stream of the field (two at Field_unk::m5620/m5624); names invented
 struct FieldStream_unk {
@@ -224,4 +226,217 @@ void GameSoundControl::fn_803CDF84() {
             }
         }
     }
+}
+
+// ---------------------------------------------------------------------------------------------
+// inferred: helpers placed after GameSoundControl in the link order (names invented)
+
+extern "C" void fn_803CE070() {}
+
+// inferred: {id, position} pairs kept in GameSoundControl::m64/m68 (at most 4)
+struct SoundPos_unk {
+    unsigned int mId;
+    int mPos;
+};
+struct SoundPosTable_unk {
+    unsigned char m00[0x64];
+    atn::FixedArray_unk<SoundPos_unk, 4> mArray;
+};
+
+// inferred: saved position of the stream `id` (-1 when missing)
+extern "C" int fn_803CE074(SoundPosTable_unk* t, unsigned int id) {
+    for (SoundPos_unk* p = t->mArray.mData; p != t->mArray.mData + t->mArray.mSize; p++) {
+        if (p->mId == id) {
+            return p->mPos;
+        }
+    }
+    return -1;
+}
+
+// inferred: stores the position of the stream `id`
+extern "C" int fn_803CE0B4(SoundPosTable_unk* t, unsigned int id, int pos) {
+    if (t->mArray.size() >= 4) {
+        return 0;
+    }
+    if (pos >= 0) {
+        for (SoundPos_unk* p = t->mArray.mData; p != t->mArray.mData + t->mArray.mSize; p++) {
+            if (p->mId == id) {
+                p->mPos = pos;
+                return 1;
+            }
+        }
+        SoundPos_unk e;
+        e.mId = id;
+        e.mPos = pos;
+        t->mArray.push_back(e);
+        return 1;
+    }
+    return 0;
+}
+
+extern "C" int fn_803CE148() {
+    return 0x2D5000;
+}
+
+extern "C" int fn_803CE154() {
+    return 0x2D5000;
+}
+
+// inferred: area of the multiplayer room (lbl_8087F540->m70->m58, packed bytes)
+struct MpRoomId_unk {
+    unsigned short mRoom; // inferred
+    unsigned char mArea;
+    unsigned char mSub;
+};
+struct MpRoom_unk {
+    unsigned char m00[0x58];
+    MpRoomId_unk m58;
+};
+struct MpManager_unk {
+    unsigned char m00[0x70];
+    MpRoom_unk* m70;
+};
+
+// inferred: the map is a battle map (area 1, or area 2 rooms 0x10 / 0x44-1)
+extern "C" int fn_803CE160(int area, int room, int sub) {
+    int ret = 0;
+    if (area <= 0 || room <= 0) {
+        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+            area = fn_80373148(lbl_8087F430)->m48;
+            room = fn_80373148(lbl_8087F430)->m4C;
+            sub = fn_80373148(lbl_8087F430)->m50;
+        } else if (lbl_8087F540 != 0) {
+            MpRoom_unk* r = ((MpManager_unk*)lbl_8087F540)->m70;
+            if (r != 0) {
+                MpRoomId_unk id1 = r->m58;
+                MpRoomId_unk id2 = r->m58;
+                MpRoomId_unk id3 = r->m58;
+                area = id1.mArea;
+                room = id2.mRoom;
+                sub = id3.mSub;
+            } else {
+                return 0;
+            }
+        }
+    }
+    if (area == 1) {
+        ret = 1;
+    }
+    if (area == 2) {
+        if (room == 0x10) {
+            ret = 1;
+        } else if (room == 0x44 && sub == 1) {
+            ret = 1;
+        }
+    }
+    return ret;
+}
+
+// inferred: the map allows the field BGM
+extern "C" int fn_803CE278(int area, int room, int sub) {
+    int ret = 1;
+    if (area <= 0 || room <= 0) {
+        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+            area = fn_80373148(lbl_8087F430)->m48;
+            room = fn_80373148(lbl_8087F430)->m4C;
+            sub = fn_80373148(lbl_8087F430)->m50;
+        } else if (lbl_8087F540 != 0) {
+            MpRoom_unk* r = ((MpManager_unk*)lbl_8087F540)->m70;
+            if (r != 0) {
+                MpRoomId_unk id1 = r->m58;
+                MpRoomId_unk id2 = r->m58;
+                MpRoomId_unk id3 = r->m58;
+                area = id1.mArea;
+                room = id2.mRoom;
+                sub = id3.mSub;
+            } else {
+                return 1;
+            }
+        }
+    }
+    if (area == 1) {
+        ret = 0;
+    }
+    if (area == 2) {
+        switch (room) {
+        case 5:
+        case 6:
+        case 7:
+        case 13:
+        case 24:
+        case 35:
+            break;
+        case 40:
+            if ((unsigned int)(sub - 9) > 3) {
+                ret = 0;
+            }
+            break;
+        case 14:
+        case 29:
+        case 30:
+        case 31:
+        case 33:
+        case 34:
+        case 51:
+        case 60:
+        case 61:
+        case 66:
+            if (sub != 9) {
+                ret = 0;
+            }
+            break;
+        default:
+            ret = 0;
+            break;
+        }
+    }
+    return ret;
+}
+
+// inferred: save header (game/GameSaveBackground.h)
+extern "C" void* memset(void* dst, int c, unsigned long n);
+struct SaveField_unk {
+    unsigned char m0000[0x10D0];
+    int m10D0;
+};
+struct SaveSystem_unk {
+    unsigned char m0000[0x113C];
+    int m113C;
+    unsigned char m1140;
+};
+
+Unk_803CE3B8::Unk_803CE3B8() {
+    m00 = 0;
+    m04 = 0;
+    m08 = 0;
+    m0A = 0;
+    memset(m0C, 0, sizeof(m0C));
+}
+
+void Unk_803CE3B8::fn_803CE408() {
+    m00 = ((SaveField_unk*)lbl_8087F430)->m10D0;
+    SaveSystem_unk* sys = (SaveSystem_unk*)lbl_8087F0A8;
+    if (sys == 0) {
+        return;
+    }
+    m08 = ((SaveSystem_unk*)lbl_8087F0A8)->m113C;
+    if (((SaveSystem_unk*)lbl_8087F0A8)->m1140 != 0) {
+        m0A |= 1;
+    }
+}
+
+void Unk_803CE3B8::fn_803CE448() {}
+
+// inferred: the header is out of range (name invented)
+extern "C" int fn_803CE44C(const Unk_803CE3B8* h) {
+    if (h->m00 < 0 || 999999 < h->m00) {
+        return 1;
+    }
+    if (h->m04 < 0 || 999 < h->m04) {
+        return 1;
+    }
+    if (h->m08 < 0 || 17 <= h->m08) {
+        return 1;
+    }
+    return 0;
 }

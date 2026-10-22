@@ -114,8 +114,8 @@ int CharaLight::vf1C() {
     return mLight.fn_800C1990();
 }
 
-// NONMATCHING: the target tests index >= 0 and index < 5 with two signed compares; this merges
-// them into one unsigned compare. Tried: nested ifs, negated tests, if/else, inline helper.
+// `5 > index` (constant first) keeps the two signed compares of the original instead of one
+// unsigned compare
 void CharaLight::vf20() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
@@ -128,7 +128,7 @@ void CharaLight::vf20() {
             mLight.fn_800C1814(csv.fn_8005B9CC());
         } else if (strcmp(field, "PARAM") == 0) {
             int index = fn_800DC12C(csv.fn_8005B9CC()) - 2;
-            if (index >= 0 && index < 5) {
+            if (index >= 0 && 5 > index) {
                 mParams[index].m00 = fn_800DC288(csv.fn_8005B9CC());
                 mParams[index].mSize.x = fn_800DC288(csv.fn_8005B9CC());
                 mParams[index].mSize.y = fn_800DC288(csv.fn_8005B9CC());

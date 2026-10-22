@@ -14,11 +14,12 @@ extern "C" void fn_805F9750(float (*m)[4], atn::Vector3* src, atn::Vector3* dst)
 
 namespace chr {
 
-// NONMATCHING: 99.5% - three scratch registers (r9-r11) are assigned in another order.
+// NONMATCHING: 99.6% - the id 0x5B and the reloaded mChara swap r9/r11 (a local for the id fixes r10).
 ControlGmkCoffinOpening::ControlGmkCoffinOpening(Chara_unk* chara, const atn::Vector3& pos, float rotY)
     : ControlBase(chara), mState(0) {
     chara->m58C = 0;
-    mChara->m560 = 0x5B;
+    int id = 0x5B;
+    mChara->m560 = id;
     mChara->mPos = pos;
     mChara->mRot = atn::Vector3(0.0f, rotY, 0.0f);
     Motion_unk* motion = &mChara->mMotion;

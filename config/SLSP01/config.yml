@@ -27,6 +27,9 @@ block_relocations:
   # qr2_init_socketA: lis/addi of the 0x80808081 constant of rand() % 0xFF (not a symbol)
   - source: .text:0x806EF168
   - source: .text:0x806EF174
+  # OSFatal ScreenReport: lis/addi of the 0x80808081 constant (division by 255, not a symbol)
+  - source: .text:0x805EFFA8
+  - source: .text:0x805F01D8
   # NETAES: T tables (values that look like addresses)
   - source: .rodata:0x80766840
     end: .rodata:0x80767260

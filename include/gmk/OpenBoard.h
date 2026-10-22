@@ -32,7 +32,7 @@ public:
     static GimmickCommon* fn_8042B56C(atn::Task* parent, int id, int arg); // inferred: factory
     virtual ~OpenBoard() {}
     virtual int vf0C();
-    virtual void vf10(); // 0x8042B90C: not decompiled yet
+    virtual void vf10();
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
@@ -42,6 +42,65 @@ public:
     virtual int vf60();
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
+
+    // inferred: interpolation of m56C over m560 frames at m564 per frame (names invented)
+    void Finish_unk() {
+        if (m564 >= 0.0f) {
+            m56C.mCur = m56C.mTo;
+            m55C = m560;
+        } else {
+            m56C.mCur = m56C.mFrom;
+            m55C = 0.0f;
+        }
+        m568 = false;
+    }
+    void Start_unk(const float& from, const float& to) {
+        m55C = 0.0f;
+        m560 = 45.0f;
+        m564 = 2.0f;
+        m568 = true;
+        m56C.mFrom = from;
+        m56C.mTo = to;
+        m56C.mDelta = from - from;
+        if (m560 <= 0.0f) {
+            Finish_unk();
+        }
+    }
+    static float Scale_unk(float t, float d) {
+        float r = t * d;
+        return r;
+    }
+    void Interp_unk() {
+        float old = m56C.mCur;
+        float t = m55C / m560;
+        m56C.mCur = m56C.mFrom + Scale_unk(t, m56C.mTo - m56C.mFrom);
+        m56C.mDelta = m56C.mCur - old;
+    }
+    void Update_unk() {
+        if (!m568) {
+            return;
+        }
+        m55C += m564;
+        if (m564 >= 0.0f) {
+            if (m55C < 0.0f) {
+                m56C.mCur = m56C.mFrom;
+                m55C = 0.0f;
+            } else if (m55C < m560) {
+                Interp_unk();
+            } else {
+                Finish_unk();
+            }
+        } else {
+            if (m55C < 0.0f) {
+                Finish_unk();
+            } else if (m55C < m560) {
+                Interp_unk();
+            } else {
+                m56C.mCur = m56C.mTo;
+                m55C = m560;
+            }
+        }
+    }
 
     Model_unk mModel;         // 0xF4
     atn::ColliObject mColli;  // 0x4C4
