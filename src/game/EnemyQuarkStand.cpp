@@ -177,6 +177,19 @@ extern "C" GameUI* lbl_8087F490; // inferred: game UI
 extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
 extern "C" int fn_801231D0(void* pad, int button); // inferred: button pressed
 extern "C" void fn_803EAF60(void* mgr, int arg); // inferred: voice
+// inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
+struct QuarkWeights_unk {
+    unsigned char m00[0x128];
+    float mWeight[4];
+};
+extern "C" QuarkWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
+extern "C" int fn_80108378(QuarkWeights_unk* w, CharaTask* chara); // inferred: index of `chara`
+// inferred: the stuck control keeps the action to run at its end (boost::function at +0x24; name
+// invented)
+struct QuarkStickControl_unk {
+    unsigned char m00[0x24];
+    boost::function<void()> m24;
+};
 // inferred: item manager (lbl_8087F4F0, as in gmk/RandomMerchant.cpp) and the equipment slots of a player
 extern "C" void* lbl_8087F4F0;
 extern "C" void fn_804439FC(void* mgr, void* item, int num, int arg3, int arg4, int arg5, int arg6, int arg7);
@@ -1296,7 +1309,7 @@ void EnemyQuarkStand::fn_8034B8CC() {
             fn_8034F41C();
         } else if (mMotion.mTracks[0].m08 >= 27.0f) {
             if (m17E4->m55C != 6 || m17E4->m560 != 0x53) {
-                m17E4->fn_8016C7D8((int)this);
+                m17E4->fn_8016C7D8(this);
             }
             fn_80192FB4(m17E4->mControl.get());
             m14B4++;
@@ -2218,6 +2231,63 @@ boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
         return boost::bind(&CharaTask::fn_80178208, chara, next);
     }
     return boost::function<void()>();
+}
+
+// inferred: picks the character stuck by the sword: the target when it can be stuck (control 0x17), else the
+// nearest stuck player within 380 of the arena centre and 30 in height; the stuck control gets
+// fn_8016C7D8 bound to this as its end action; the effect weights favour that character
+// NONMATCHING: 98.21% - stack slots of the two distance vectors swapped (0x28/0x34) and of the bind
+// temporaries (0x90/0xA4); ~6 forms (vector forms, temporaries, order of the bind)
+void EnemyQuarkStand::fn_8035359C() {
+    if (m17E4 == 0) {
+        if (m14BC == 0 && m14B0 != 0 && !((CharaTask*)m14B0)->mFlag28) {
+            float best = 1e16f;
+            for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
+                if (p->m560 == 0x17 && p->CanAct_unk()) {
+                    atn::Vector3 d(p->mPos.x - m160C.x, p->mPos.y - m160C.y, p->mPos.z - m160C.z);
+                    if (!((float)sqrt(d.x * d.x + d.z * d.z) >= 380.0f)) {
+                        if ((CharaTask*)m14B0 == p) {
+                            m17E4 = p;
+                            break;
+                        }
+                        if (atn::Abs_unk(p->mPos.y - mPos.y) < 30.0f) {
+                            atn::Vector3 e(p->mPos.x - mPos.x, p->mPos.y - mPos.y, p->mPos.z - mPos.z);
+                            float dist = sqrt(e.x * e.x + e.z * e.z);
+                            if (dist < best) {
+                                best = dist;
+                                m17E4 = p;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (m17E4 != 0 && m17E4->mControl.get() != 0) {
+            boost::function<void()> f = boost::bind(&CharaTask::fn_8016C7D8, m17E4, this);
+            ((QuarkStickControl_unk*)m17E4->mControl.get())->m24 = f;
+        }
+    } else {
+        CharaTask* stuck = m17E4;
+        if (!stuck->CanAct_unk() || stuck->m55C != 6 || (stuck->m560 != 0x53 && stuck->m560 != 0x17)) {
+            m17E4 = 0;
+        }
+    }
+    QuarkWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+    if (m17E4 != 0) {
+        for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
+            int i = fn_80108378(w, p);
+            if (p == m17E4) {
+                w->mWeight[i] = 100.0f;
+            } else {
+                w->mWeight[i] = 0.0f;
+            }
+        }
+    } else {
+        for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
+            int i = fn_80108378(w, p);
+            w->mWeight[i] = 1.0f;
+        }
+    }
 }
 
 // inferred: debug menu "Quark"

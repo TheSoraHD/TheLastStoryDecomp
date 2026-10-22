@@ -9761,8 +9761,8 @@ void CharaTask::fn_8016C4D8(int a, const atn::Vector3& v) {
     fn_80178208(new (0, "", "", 0) chr::ControlThrustForKraken(this, a, v));
 }
 
-void CharaTask::fn_8016C7D8(int a) {
-    fn_80178208(new (0, "", "", 0) chr::ControlStickByQuark(this, a));
+void CharaTask::fn_8016C7D8(CharaTask* holder) {
+    fn_80178208(new (0, "", "", 0) chr::ControlStickByQuark(this, (int)holder));
 }
 
 void CharaTask::fn_8016CAD0() {
