@@ -342,7 +342,6 @@ void Em312DarkServant::vf100(int state) {
     }
 }
 
-// NONMATCHING: 99.92% - only the offset of 36.0f in .sdata2 (pool of functions not written yet)
 void Em312DarkServant::fn_8030F380() {
     int on = 0;
     PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;

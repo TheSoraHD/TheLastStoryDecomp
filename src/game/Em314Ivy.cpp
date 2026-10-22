@@ -174,7 +174,6 @@ void Em314Ivy::vfFC() {
     vf100(10);
 }
 
-// NONMATCHING: 99.96% - only the offset of 1e16f in .sdata2 (pool of functions not written yet)
 void Em314Ivy::fn_80312EF8() {
     if (!(m58C != 9 && m58C != 10)) {
         mC58.mC4 = 0;
@@ -214,7 +213,6 @@ int Em314Ivy::vfF8() {
     return mC58.mC0 != 0 && CanAct_unk() && (m54C & 0x2000) != 0x2000;
 }
 
-// NONMATCHING: 99.94% - only the offset of 10.0f in .sdata2 (pool of functions not written yet)
 void Em314Ivy::fn_8031319C(CharaTask* target) {
     m14E4 = target;
     if (target != 0) {

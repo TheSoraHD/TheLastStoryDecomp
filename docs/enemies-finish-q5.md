@@ -21,13 +21,21 @@ game/Em315Coffin.
   99.94%, offset de 10.0f), fn_803132D0 (soltar, 99.50%: registros salvados y pila del bucle de efectos) y vf10
   (99.34%: pila y copias de Vector3). vf14 sigue 83.25% (el original carga el punto antes de elegir el color; ~12
   variantes). vf0C, vf100/104/108 grandes sin escribir.
+  - En el report completo fn_80312EF8 y fn_8031319C estan al 100% (fnstat.py suelto las daba al 99.9% por el
+    desplazamiento del pool de .sdata2): 9/18.
   - vf40: `int state; if (...) state = 8; else state = 13; vf100(state);` da el 100% (el ternario y el if/else con
     dos llamadas no).
 
 - `game/Em312DarkServant` (12/21 -> 14/21): vf0C y el lector del CSV fn_8030DEB0 pasan al 100% al renombrar el
   pool `lbl_807490AC` a `@stringBase0`. Escritas vf100 (0x8030E710, 95.88%: recursion de fn_8030E5C8 inlineada
   tres niveles, bloqueo documentado, y recarga de m54C antes del store de m14A8) y fn_8030F380 (escudo, 99.92%:
-  solo el offset de 36.0f). vf104/vf108 (2.4 KB cada una) sin escribir.
+  solo el offset de 36.0f segun fnstat; 100% en el report completo). vf104/vf108 (2.4 KB cada una) sin escribir.
+
+- Pools de cadenas renombrados a `@stringBase0` en Em309Ghoul (0x80748A14), Em309GhoulSimple (0x80748DC0),
+  Em310Gargoyle (0x80748FE8) y Em315Coffin (0x80749390): sin cambio en el recuento, pero las llamadas con
+  cadenas ya comparan el nombre real.
+- Nota: `fnstat.py` compila la unidad suelta y muestra al 99.9% funciones que solo difieren en el offset de una
+  constante de .sdata2; el report completo las da al 100%. Fiarse del report.
 
 ## Decisiones tomadas sin el usuario
 
@@ -39,6 +47,8 @@ game/Em315Coffin.
   `fn_803132D0__8Em314IvyFv`. Ningun otro .cpp los usaba.
 - symbols.txt: `lbl_807490AC` -> `@stringBase0` (scope:local, pool de cadenas de Em312DarkServant);
   fn_8030E710 -> `vf100__16Em312DarkServantFi`, fn_8030F380 -> `fn_8030F380__16Em312DarkServantFv`.
+- symbols.txt: pools `lbl_80748A14`, `lbl_80748DC0`, `lbl_80748FE8`, `lbl_80749390` -> `@stringBase0`
+  (scope:local).
 - include/game/Em314Ivy.h: m14E8 pasa de int a `void*` (matriz del nodo "catch_point") y se anaden las
   declaraciones de las cuatro funciones; solo la usan Em314Ivy.cpp y la factoria.
 - include/game/Em315Coffin.h (solo la usan Em315Coffin.cpp y la factoria de SpecialEnemyBase.cpp): campos 0x15C8-0x15F4
