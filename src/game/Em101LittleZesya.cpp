@@ -1,5 +1,6 @@
 #include "game/Em101LittleZesya.h"
 #include "chr/ControlBase.h"
+#include "chr/ControlDive.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
@@ -29,12 +30,24 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
+extern "C" double sqrt(double x);
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f);
+extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
+struct ZesyaMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" ZesyaMsgTable_unk* lbl_8087F1E4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -311,6 +324,68 @@ void Em101LittleZesya::fn_8025E9E4() {
             ResetState_unk(this);
         }
     }
+}
+
+void Em101LittleZesya::fn_8025F07C() {
+    m58C = 8;
+    m14D0 = 0;
+    m14F4 = 0;
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA9), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+    atn::Vector3 dir;
+    atn::Vector3 rot = (mPos - m1590).ToRotationZ_unk();
+    dir.x = 0.0f;
+    dir.y = rot.y;
+    dir.z = 0.0f;
+    fn_80178208(new (1, "", "", 0) chr::ControlWarp(this, m1590, dir));
+}
+
+// inferred: center of the party (as in game/Em101ElderZesya.cpp; name invented)
+inline atn::Vector3 PartyCenter_unk() {
+    atn::Vector3 center = lbl_807C7030;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        center += p->mPos;
+    }
+    center *= 1.0f / (float)lbl_8087F8A0->mCount;
+    return center;
+}
+
+// inferred: index of the point of m14C4 nearest to `pos` on the ground plane (name invented)
+inline int Em101LittleZesya::Nearest_unk(const atn::Vector3& pos) {
+    float dist = 1e16f;
+    unsigned int i;
+    int best = -1;
+    for (i = 0; i < m14C4.mSize; i++) {
+        atn::Vector3 d = pos - m14C4.mData[i];
+        float len = sqrt(d.x * d.x + d.z * d.z);
+        if (dist > len) {
+            dist = len;
+            best = i;
+        }
+    }
+    return best;
+}
+
+// NONMATCHING: 98.2% - registers of the loop (index/offset/best swapped and the order of the two
+// increments, as in Em101ElderZesya::fn_802598DC) and the stack slot of the party center (10 variants:
+// written out, helper, pointer walk, signed index, while, declaration orders, comparison order)
+void Em101LittleZesya::fn_8025F45C() {
+    m58C = 10;
+    m14D0 = 0;
+    m14F4 = 0;
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xAB), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+    if (m15BC != 0) {
+        m1590 = m14C4.mData[Nearest_unk(m15A8.m08)];
+    } else {
+        m1590 = m14C4.mData[Nearest_unk(PartyCenter_unk())];
+    }
+    // inferred: the third argument is the address of the destination (CharaTask declares it int)
+    fn_8016D74C(m1520, 0, (int)&m1590);
 }
 
 void Em101LittleZesya::fn_8025F35C() {
