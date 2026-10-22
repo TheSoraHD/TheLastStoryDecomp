@@ -83,3 +83,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   son bloqueos documentados.
 - `game/NewCampPartsHint` (14/19, sin cambios): `vf3C` 96.90% (5 intentos mas: `!show`, helper, `hidden` local,
   `++i`): r6/r7 de entrada/desplazamiento. vf14/vf30 (registros) y vf20/vf30/fn_80516004 (push_back) saltadas.
+- `chr/ControlDive` (19/25, sin cambios): `ControlCoverSlip::vf0C` 98.9% (5 intentos: `ret` tardio, `ret = 0` en la
+  rama, copia de m08, rot local): `ret` sigue en r31. Resto: registros/planificacion ya investigados (vf0C 85%,
+  SwatTurn r4/r5 + frsp, SwapPos __VecCopy, BackStep r30/r31). Saltada tras eso.
