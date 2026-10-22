@@ -5,6 +5,8 @@
 #include "atn/D2A_Task.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "std/string.h"
@@ -16,6 +18,8 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" double sqrt(double x);
+extern "C" double acos(double x);
+extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
@@ -76,6 +80,16 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, in
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet at a point
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume); // 3D sound
+// inferred: game state (lbl_8087EFA8): the frame time at 0x3A4 (as in game/Em301LShade.cpp)
+struct QuarkGame_unk {
+    unsigned char m000[0x3A4];
+    float m3A4;
+};
+extern "C" QuarkGame_unk* lbl_8087EFA8;
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
@@ -1065,6 +1079,20 @@ inline void EnemyQuarkStand::ReleaseCamera_unk() {
     }
 }
 
+// inferred: state 17 (falls with gravity until the ground, then waits) (the state helpers are inlined)
+void EnemyQuarkStand::fn_8034E898() {
+    m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
+    mPos.y += m574.y;
+    if (mPos.y < 0.0f) {
+        mPos.y = 0.0f;
+        m574.y = 0.0f;
+    }
+    float frame;
+    if (m14B8 >= 150 || (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
+        fn_8034F41C();
+    }
+}
+
 // inferred: leaves the current action: clears the counters, takes a new bullet id and stops the effects
 // of the attacks (names invented)
 void EnemyQuarkStand::fn_8034F384() {
@@ -1150,9 +1178,131 @@ void EnemyQuarkStand::fn_803519C4() {
     m1CBC = 0;
 }
 
+// inferred: state 16 (down): the sword can be grabbed (m14BC = 1), sets the field flags 0xC9 and 0x389
+void EnemyQuarkStand::fn_803520D8() {
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 16;
+    QuarkPlayMotion_unk(&mMotion, 0x38, 0, 0, 0.25f);
+    m14BC = 1;
+    if (fn_80370A78(lbl_8087F430, 0xC9) == 0) {
+        fn_80370AE4(lbl_8087F430, 0xC9, 1);
+    }
+    fn_80370320(lbl_8087F430, 0x389, 1, 0);
+    m14A8 &= ~0x4000000;
+    fn_800C31F4("SE_DG040_109", 0, -1, 1.0f);
+}
+
 // inferred: plays motion `motion` at `speed` (out of line in vf10)
 void EnemyQuarkStand::fn_803524AC(int motion, int arg3, float speed) {
     QuarkPlayMotion_unk(&mMotion, motion, arg3, 0, speed);
+}
+
+// inferred: counts down the delayed explosions: each one fires LaserExplodeSkillID at its position, every
+// fourth plays "SE_MB003_003" and shakes the camera
+void EnemyQuarkStand::fn_803524E4() {
+    QuarkShot_unk* it = m181C.begin();
+    while (it != m181C.end()) {
+        if (it->m00 > 0.0f) {
+            float dt = lbl_8087EFA8->m3A4;
+            it->m00 -= dt;
+            if (it->m00 <= 0.0f) {
+                fn_800FAB80(lbl_8087F048, this, m1530, m1A20, &it->m04, &lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
+                m1A24++;
+                if (m1A24 % 4 == 0) {
+                    fn_800C344C("SE_MB003_003", &it->m04, 0, -1, 1.0f);
+                    Field_unk* field = lbl_8087F430;
+                    field->m96C %= 2;
+                    field->m970 = 3;
+                    field->m974 = 0.0f;
+                    field->m978 = 1.0f;
+                }
+            }
+            it++;
+        } else {
+            m181C.erase(it);
+        }
+    }
+}
+
+// inferred: counts down the delayed waves: under 20 the effect of the wave starts; at zero it stops, fires
+// ThunderSkill at its position and every third plays "SE_EM203_004" and shakes the camera
+void EnemyQuarkStand::fn_803526A8() {
+    QuarkWave_unk* it = m1A28.begin();
+    while (it != m1A28.end()) {
+        if (it->m0C > 0.0f) {
+            float dt = lbl_8087EFA8->m3A4;
+            it->m0C -= dt;
+            if (it->m0C <= 20.0f && it->m10 == 0) {
+                it->m10 = 1;
+                fn_80232B7C(&m1CAC, it->m11);
+                QColor_unk color;
+                color.r = 1.0f;
+                color.g = 1.0f;
+                color.b = 1.0f;
+                color.a = 1.0f;
+                fn_8023A8B4(lbl_8087F3C0, &m1CAC, 0, 0, it->m00, lbl_807C7030, color, -1, -1, 1, 1.0f);
+            }
+            if (it->m0C <= 0.0f) {
+                fn_80239DAC(lbl_8087F3C0, &m1CAC, it->m11, 1);
+                Effect_unk* mgr = lbl_8087F048;
+                fn_800FAB80(mgr, this, m155C, fn_800F8548(mgr), &it->m00, &lbl_807C7030, 0, 30, -1, -1, 0.0f,
+                            1.0f);
+                m1CB8++;
+                if (m1CB8 % 3 == 0) {
+                    fn_800C344C("SE_EM203_004", &it->m00, 0, -1, 1.0f);
+                    Field_unk* field = lbl_8087F430;
+                    field->m96C %= 2;
+                    field->m970 = 3;
+                    field->m974 = 0.0f;
+                    field->m978 = 1.0f;
+                }
+            }
+            it++;
+        } else {
+            m1A28.erase(it);
+        }
+    }
+}
+
+// inferred: a gimmick that can be pushed by the shock (value at 0x920 cleared in state 3; as gmk::PassBoard)
+struct QuarkGimmick_unk : public GimmickCommon {
+    unsigned char m0F4[0x920 - 0xF4];
+    float m920;
+};
+
+// inferred: shock of the body against the gimmicks 48001 and 48004 around the "spine" node: a gimmick
+// within `range` and inside the cone `angle` in front gets a hit message of kind `kind` (when `hit`); one
+// within 2 * range in state 3 clears its value at 0x920
+void EnemyQuarkStand::fn_80352C3C(int kind, int hit, float range, float angle) {
+    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+        int id = g->mId;
+        if (id == 48004 || id == 48001) {
+            atn::Vector3 pos = g->vf54();
+            atn::Vector3 d = pos - GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
+            d.y = 0.0f;
+            float dist = sqrt(d.x * d.x + d.z * d.z);
+            int colli = g->vf50();
+            if (colli != 0) {
+                dist -= *(float*)(colli + 0x48);
+            }
+            if (dist <= range) {
+                PSVECNormalize(&d, &d);
+                atn::Vector3 front = QuarkFrontY_unk(this);
+                front.y = 0.0f;
+                if ((float)acos(PSVECDotProduct(&d, &front)) <= 0.5f * angle && hit != 0) {
+                    GimmickHitMsg_unk msg;
+                    memset(&msg, 0, sizeof(msg));
+                    msg.mType = kind;
+                    *(EnemyQuarkStand**)&msg.m28[0] = this;
+                    g->vf44(&msg);
+                }
+            }
+            if (dist <= 2.0f * range && g->m54 == 3) {
+                ((QuarkGimmick_unk*)g)->m920 = 0.0f;
+            }
+        }
+    }
 }
 
 // inferred: out-of-line turn toward the target (the same body as TurnTo_unk)
