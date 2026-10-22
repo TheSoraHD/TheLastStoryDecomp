@@ -9,8 +9,12 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
-struct Field_unk;
+struct Field_unk {
+    unsigned char m00[0x10D8];
+    RouteTable_unk* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
+};
 extern "C" Field_unk* lbl_8087F430;
+extern "C" int fn_803C17FC(RouteTable_unk* table, int point); // inferred: route point -> index
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -130,6 +134,37 @@ void Em310Gargoyle::vf54() {
         item->m04.mCenter = m614;
         item->m04.mRadius = m620;
     }
+}
+
+// inferred: route point by 1-based index (weak copy fn_8030C190; name invented)
+inline RoutePoint_unk* GetRoutePoint_unk(RouteTable_unk* table, int index) {
+    return &table->mPoints[index - 1];
+}
+
+void Em310Gargoyle::fn_8030CF84(int warp) {
+    m58C = 7;
+    if (warp != 0) {
+        int start = fn_803C17FC(lbl_8087F430->m10D8, m1524);
+        m158C = fn_803C17FC(lbl_8087F430->m10D8, m1528);
+        m1588 = start;
+        m1590 = 0.0f;
+        mPos = GetRoutePoint_unk(lbl_8087F430->m10D8, start)->mPos;
+        m15D0 = 0.0f;
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.mTracks[0].m10 = 1.0f;
+        mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+    }
+    int down = 1;
+    if (m1500[1] != 0 && m1500[2] != 0 &&
+        (((m1500[1]->mFlags & 4) != 4 && (m1500[1]->mStatus.m0C & 0x20) != 0x20) ||
+         ((m1500[2]->mFlags & 4) != 4 && (m1500[2]->mStatus.m0C & 0x20) != 0x20))) {
+        down = 0;
+    }
+    fn_80370AE4(lbl_8087F430, m1518, down);
+    m150D = 0;
+    m14EC = 0;
+    m150C = 0;
 }
 
 // inferred: unused file-scope object with an empty constructor: only its (empty) static
