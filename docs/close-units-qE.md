@@ -104,3 +104,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - `game/EnemyTrista` (12/18): saltada; sus pendientes son prologo (ctor), registros del bucle de eventos, pila de
   Side_unk (82%), copia de parametros de camara por FPR (61%, estructura sin reconstruir) y el r5 extra de vf3C:
   todos documentados en batch-auto-10kb-qG2.md.
+- `game/EnvSeBase` (35/41, sin cambios): `EnvSeLine::vf14` 99.93% (6 intentos: punto medio en local, color en local,
+  factor en local, operandos cambiados, Lerp): pa/pb siguen 4 bytes mas abajo. Resto ya investigado (vf1C 14.7%
+  presupuesto de inline; las demas pila/registros).
