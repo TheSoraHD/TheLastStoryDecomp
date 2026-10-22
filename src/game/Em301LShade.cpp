@@ -53,6 +53,29 @@ extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferr
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+// inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
+struct ShadeDamage_unk {
+    ShadeDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
+        m1C = 0;
+        m18 = -1;
+        m00 = 1;
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int m1C : 4;
+    unsigned int m1C_rest : 28;
+};
+extern "C" void fn_80108C10(Effect_unk* effect, ShadeDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
+                            int b, int c);
+extern "C" void fn_80107850(Effect_unk* effect, Model_unk* model);
+struct EffectMgr_unk;
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
+                            float scale, int e, int f, int g);
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 // inferred: copy of the event camera (as CameraMgr_unk::SetParam_unk of chr/ControlBreakOpen.cpp: the two
 // vectors through a Vector3 pointer); name invented
@@ -341,8 +364,8 @@ inline void Em301LShade::StartAbsorb_unk(int kind) {
 Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14D8(0), m14DC(0), m14E0(1), m14E4(0), m14E8(0), m14EC(0),
       m14F0(10), m14F4(0), m14F8(900), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m152C(1), m1530(0x451),
-      m1534(0x450), m1538(0), m1560(0), m1564(0.5f), m1568(0.1f), m156C(0.05f), m1570(0.0f), m1574(0.0f),
-      m1578(0.0f), m15B8(0), m15BC(2.0f), m15C0(45.0f), m15C4(33.0f), m15C8(0), m15E8(0), m15EC(0), m1620(0),
+      m1534(0x450), m1538(0), m1560(0), m1564(0.5f), m1568(0.1f), m156C(0.05f), m1570(0.0f, 0.0f, 0.0f),
+      m15B8(0), m15BC(2.0f), m15C0(45.0f), m15C4(33.0f), m15C8(0), m15E8(0), m15EC(0), m1620(0),
       m1624(1), m1628(0), m16AC(0) {
     mFlag22 = 1;
     mStatus.mParamB.m9C |= 0x10;
@@ -1248,6 +1271,81 @@ void Em301LShade::fn_802D4378() {
     }
 }
 
+// inferred: state 9 (absorbs the party): binds the targets of m15AC at frame 10, pulls them to the head
+// (frames 21-90) and deals the damage (the rate goes down with each absorption, "absorb_subtract_rate",
+// down to "absorb_min_rate"), pushes them away and back to state 0
+// NONMATCHING: 85.3% - draft (same open case as Em302Kraken::fn_802DAA38: order of the loads in the pull
+// loop, stack slots of the damage record and the rotation of the knockback)
+void Em301LShade::fn_802D4628() {
+    if (m14E8 == 10) {
+        m1570 = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+        fn_80232B7C(this, 12);
+        for (unsigned int i = 0; i < m15AC.size(); i++) {
+            m15AC[i].m10 = GetNodePos_unk(m15AC[i].mChara->mMotion.GetNodeMtx_unk("hips"));
+            m15AC[i].m04 = m15AC[i].m10;
+            fn_8023A680(lbl_8087F3C0, &m157C, -1, 6, &m15AC[i].m04, 0, 0, 0, 1.0f, 0, -1, 1);
+            PlayEffect_unk(&m15A0, (Model_unk*)&m15AC[i].mChara->mMotion);
+        }
+    }
+    if (m14E8 == 25) {
+        fn_80232B7C(this, 15);
+        PlayEffect_unk(&m1594, (Model_unk*)&mMotion);
+    }
+    if (m14E8 > 20 && m14E8 <= 90) {
+        float t = (m14E8 - 20) / 70.0f;
+        float a = 1.0f - t * t;
+        float b = t * t;
+        float c = 1.0f - t;
+        for (unsigned int i = 0; i < m15AC.size(); i++) {
+            ShadeTarget_unk* e = &m15AC[i];
+            atn::Vector3 from = e->m10 * a;
+            atn::Vector3 to = m1570 * b;
+            e->m04 = to + from;
+            m15AC[i].m04.y = m1570.y * t + c * m15AC[i].m10.y;
+        }
+    }
+    if (m14E8 > 100) {
+        fn_80239DAC(lbl_8087F3C0, this, 12, 0);
+        ShadeDamage_unk damage;
+        int total = 0;
+        for (unsigned int i = 0; i < m15AC.size(); i++) {
+            CharaTask* chara = m15AC[i].mChara;
+            float rate = m1564 - m1568 * m1560;
+            if (m156C > rate) {
+                rate = m156C;
+            }
+            int hp = (int)chara->mStatus.m04;
+            damage.m04 = hp + 1;
+            total -= (int)(chara->mStatus.m04 * rate) + 1;
+            chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
+            fn_80108C10(lbl_8087F048, &damage, chara->vfAC(), (int)this, chara, 0, 0);
+            fn_80107850(lbl_8087F048, (Model_unk*)&chara->mMotion);
+            atn::Vector3 rot = chara->mRot.ToRotation_unk();
+            atn::Vector3 dir = rot * -1.0f;
+            dir.Normalize_unk();
+            dir *= 0.01f;
+            chara->fn_8015E7A0(dir, -1, 0);
+            chara->m13B0 = (int)this;
+        }
+        if (total < 0) {
+            damage.m04 = total;
+            atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
+            mStatus.fn_8012DF7C(total, 0, 0);
+            fn_80108C10(lbl_8087F048, &damage, pos, 0, this, 0, 0);
+            m1560++;
+        }
+        SetState_unk(0);
+        if (m1698.mGlobal >= 0) {
+            fn_805A4A1C((SpecialFlag_unk*)&m1698, 1);
+        }
+        if (m1538 != 0) {
+            fn_80370AE4(lbl_8087F430, 0x32, 2);
+        } else {
+            fn_80370AE4(lbl_8087F430, 0x32, 1);
+        }
+    }
+}
+
 void Em301LShade::fn_802D4E9C() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1484,6 +1582,38 @@ int Em301LShade::fn_802D5D18(int kind) {
         fn_805A4A1C((SpecialFlag_unk*)&m1690, 1);
     }
     return done;
+}
+
+// inferred: holds the party members that can be absorbed (flag 0x100) and the bound reinforcements:
+// fills m15AC with each character and the position of its "hips"; returns the number held
+// NONMATCHING: 85% - push_back of std/vector.h inlined in the two loops (known family: size/capacity
+// checks and the register allocation of the inlined split buffer)
+int Em301LShade::fn_802D6004() {
+    m15AC.clear();
+    for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
+        if ((c->mStatus.m0C & 0x100) == 0x100) {
+            ShadeTarget_unk t;
+            t.mChara = c;
+            atn::Vector3 hips = GetNodePos_unk(c->mMotion.GetNodeMtx_unk("hips"));
+            t.m10 = hips;
+            t.m04 = hips;
+            m15AC.push_back(t);
+            c->fn_8016CAD0();
+        }
+    }
+    for (unsigned int i = 0; i < m1644.size(); i++) {
+        EnemyTask* e = m1644[i];
+        if ((e->mStatus.m0C & 0x20) != 0x20 && e->mC58.mC0 != 0) {
+            ShadeTarget_unk t;
+            t.mChara = e;
+            atn::Vector3 hips = GetNodePos_unk(e->mMotion.GetNodeMtx_unk("hips"));
+            t.m10 = hips;
+            t.m04 = hips;
+            m15AC.push_back(t);
+            e->fn_8016CAD0();
+        }
+    }
+    return m15AC.size();
 }
 
 int Em301LShade::fn_802D7058() {
