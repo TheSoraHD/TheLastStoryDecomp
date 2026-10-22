@@ -135,14 +135,13 @@ inline bool Bat::IsLoading_unk() {
         return true;
     }
     for (int i = 0; i < mNum; i++) {
-        if (mBats.mData[i].mModel.fn_8008B140() != 0) {
+        if (mBats.mData[(unsigned int)i].mModel.fn_8008B140() != 0) {
             return true;
         }
     }
     return false;
 }
 
-// NONMATCHING: 99.49% - the loop index and the loop offset swap r30/r31
 int Bat::vf0C() {
     if (!IsLoading_unk()) {
         fn_80403308();
@@ -172,11 +171,11 @@ inline void Bat::Update_unk(int i) {
     }
 }
 
-// NONMATCHING: 99.69% - the two position locals of the nearest search sit below their copies (above
-// in the original); register of the constant 2
+// NONMATCHING: 99.77% - the two position locals of the nearest search sit below their copies (above
+// in the original). The unsigned subscripts of the loops over mBats give the index/offset order
 void Bat::vf10() {
     for (int i = 0; i < mNum; i++) {
-        (this->*mBats.mData[i].mState)(i);
+        (this->*mBats.mData[(unsigned int)i].mState)(i);
     }
     if (mStarted == 1) {
         if (mTimer > 0 && --mTimer > 0) {
@@ -214,11 +213,11 @@ void Bat::vf10() {
     }
 }
 
-// NONMATCHING: 99.35% - the loop index and the loop offset swap r30/r31
 void Bat::vf14() {
     for (int i = 0; i < mNum; i++) {
-        BatUnit_unk* bat = &mBats.mData[i];
+        BatUnit_unk* bat = &mBats.mData[(unsigned int)i];
         if (bat->mStateNo != 4 && lbl_8087F0A8->m18 != 0) {
+
             fn_803ED774(&bat->mModel);
         }
     }
@@ -243,7 +242,6 @@ void Bat::fn_80403308() {
     }
 }
 
-// NONMATCHING: 99.80% - the loop index and the loop offset swap r29/r30
 void Bat::vf20() {
     int i;
     char model[0x100];
@@ -270,9 +268,9 @@ void Bat::vf20() {
     } while (csv.fn_8005BBF8() != 0);
     mBats.Resize_unk(mNum, 0);
     for (i = 0; i < mNum; i++) {
-        fn_8008AD4C(&mBats.mData[i].mModel, model, 0);
-        fn_80097A88(&mBats.mData[i].mModel, 0, path);
-        fn_80097A88(&mBats.mData[i].mModel, 1, name);
+        fn_8008AD4C(&mBats.mData[(unsigned int)i].mModel, model, 0);
+        fn_80097A88(&mBats.mData[(unsigned int)i].mModel, 0, path);
+        fn_80097A88(&mBats.mData[(unsigned int)i].mModel, 1, name);
     }
 }
 
