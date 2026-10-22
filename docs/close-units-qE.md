@@ -163,3 +163,15 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   leido antes, GetId_unk, indice sin signo, comparaciones invertidas, inline propio desde el mensaje): el original
   carga id (r6) antes que el indice/type; ninguna forma da los tres registros a la vez (OnMsg21/24/OnChara suben
   a ~99.2-99.5% pero OnMsg20 baja a 89.8%). vf14 (3 KB) y Rebuild_unk no tocados.
+- `game/GameSoundControl` (6/19 -> 17/19): escritas las 11 funciones del tramo 0x803CE070-0x803CE4B0 (al 0%):
+  `fn_803CE070` (vacia), `fn_803CE074`/`fn_803CE0B4` (tabla {id, posicion} de 4 entradas en
+  GameSoundControl+0x64 como `atn::FixedArray_unk<SoundPos_unk, 4>`; el push_back con placement new da el frame
+  del original), `fn_803CE148`/`fn_803CE154` (devuelven 0x2D5000), `fn_803CE160`/`fn_803CE278` (mapa de batalla /
+  mapa con BGM de campo: area/sala/sub del campo o, en multijugador, de `lbl_8087F540->m70->m58` leido como tres
+  copias de un struct {u16 sala, u8 area, u8 sub}; switch con la tabla de saltos 0x8078BCD8), y la cabecera de
+  guardado `Unk_803CE3B8` (ctor, fn_803CE408, fn_803CE448) + `fn_803CE44C` (validacion de rangos). Todas al 100%.
+  vf10 (93%) y fn_803CDF84 (99.2%) sin cambios (registros documentados).
+  - Las funciones se declaran `extern "C"` con un `SoundPosTable_unk*` en lugar de `GameSoundControl*` (game/GameBgm.cpp
+    las declara con `GameSoundControl*`; con enlace C el simbolo es el mismo). Incluye game/GameSaveBackground.h.
+  - Hallazgo MWCC: `x < 0 || N < x` conserva las dos comparaciones con signo; `x < 0 || x > N` se convierte en una
+    comparacion sin signo (mismo patron que en Arms).
