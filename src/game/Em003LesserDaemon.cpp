@@ -3,6 +3,15 @@
 #include "game/CharaManager.h"
 #include "game/EnemyManager.h"
 #include "game/PlayerTask.h"
+#include "atn/Csv.h"
+#include "std/string.h"
+#include "std/string_members.h"
+
+extern "C" unsigned long strlen(const char* s);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+// inferred: std::string concatenation (weak copy 0x8006AFF8)
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
@@ -28,6 +37,59 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
+
+// NONMATCHING: 99.74% - li order of the per-phase defaults (r0/r4/r5/r6; 5 orders of the loop body) and the
+// second std::string registers (same as Em101ElderZesya / Em201ZanGurg)
+Em003LesserDaemon::Em003LesserDaemon(atn::Task* parent, EnemyInfo_unk* info)
+    : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m14D0(0),
+      m14D4(0), m14D8(0), m161C(10000), m1620(1), m1644(0.0f), m1648(1.0f), m1654(-1), m1658(-1), m1660(35.0f),
+      m1664(50.0f), m1668(80.0f), m166C(60.0f), m16C0(1.0f), m16C8(0.0f), m16CC(-1), m16D0(-1), m16D4(-1) {
+    for (int i = 0; i < 6; i++) {
+        m168C[i] = 60;
+        m16A4[i] = 30;
+        m1674[i] = 600;
+        m1628[i] = 10;
+    }
+    mPointCount = 0;
+    m1624 = 0;
+    m1640 = 0;
+    m164C = 0;
+    m1670 = 0;
+    m16BC = 0;
+    m16C4 = 0;
+    mLinkCount = 0;
+    m16E4 = 0;
+    m16EC = 0;
+    m14DC = 0;
+    m14E4 = 0;
+    std::string dir("database/chara/special/");
+    std::string name("db_em003_00_00.csv");
+    atn::Csv csv(info->m2C, strlen(info->m2C));
+    do {
+        const char* s = csv.fn_8005B9CC();
+        if (s == 0 || strcmp(s, "") == 0) {
+            break;
+        }
+        if (strncmp(s, "db_name=", 8) == 0) {
+            name = s + 8;
+        }
+    } while (csv.fn_8005BBF8());
+    std::string path = fn_8006AFF8(dir, name);
+    m1588.vf0C(path.c_str());
+    m14EC.fn_8023780C("/effect/ef_cm007.efp");
+    m14F8.fn_8023780C("/data/effect/ef_sk047a.efp");
+    m1504.fn_8023780C("/data/effect/ef_sk047b.efp");
+    m1510.fn_8023780C("/data/effect/ef_sk047d.efp");
+    m151C.fn_8023780C("/data/effect/ef_sk047e.efp");
+    m1540.fn_8023780C("/data/effect/ef_sk047f.efp");
+    m154C.fn_8023780C("/data/effect/ef_sk045a.efp");
+    m1558.fn_8023780C("/data/effect/ef_sk046a.efp");
+    m1564.fn_8023780C("/data/effect/ef_sk040.efp");
+    m1570.fn_8023780C("/data/effect/ef_sk021a.efp");
+    m1534.fn_80237654("/effect/ef_bu040g_01.eff");
+    m1528.fn_80237654("/effect/ef_bu040h_01.eff");
+    m157C.fn_8023780C("/effect/ef_bs007a.efp");
+}
 
 Em003LesserDaemon::~Em003LesserDaemon() {}
 

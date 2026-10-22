@@ -29,7 +29,12 @@ public:
     int m14B4;
     int m14B8;
     int m14BC;
-    unsigned char m14C0[0x14D8 - 0x14C0];
+    int m14C0;
+    int m14C4;
+    int m14C8;
+    int m14CC;
+    int m14D0;
+    int m14D4;
     HitInfo_unk* m14D8;       // inferred: explosion skill
     int m14DC;
     unsigned char m14E0[0x14E4 - 0x14E0];
@@ -52,11 +57,39 @@ public:
     unsigned int mPointCount;     // 0x1590: inferred: warp points
     atn::Vector3 mPoints[8];      // 0x1594
     atn::Vector3 mWarpDest;       // 0x15F4: inferred: chosen warp point
-    unsigned char m1600[0x16D8 - 0x1600];
+    unsigned char m1600[0x161C - 0x1600];
+    int m161C;
+    int m1620;
+    int m1624;
+    int m1628[6];             // inferred: "AngryCount1".. per phase (names from the pool)
+    int m1640;
+    float m1644;
+    float m1648;
+    int m164C;
+    int m1650;
+    int m1654;
+    int m1658;
+    int m165C;
+    float m1660;              // inferred: ranges (35, 50, 80, 60)
+    float m1664;
+    float m1668;
+    float m166C;
+    int m1670;
+    int m1674[6];
+    int m168C[6];
+    int m16A4[6];
+    int m16BC;
+    float m16C0;
+    int m16C4;
+    float m16C8;
+    int m16CC;
+    int m16D0;
+    int m16D4;
     unsigned int mLinkCount;          // inferred: linked daemons (0x16D8)
     Em003LesserDaemon* mLinks[2];     // 0x16DC
     int m16E4;                // inferred: "Boss"? (nonzero: the death is handled by fn_8024FE18)
     ResHandle m16E8;          // inferred: debug menu group
+    int m16EC;
 };
 
 #endif
