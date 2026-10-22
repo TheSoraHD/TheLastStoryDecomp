@@ -778,7 +778,6 @@ int Em101ElderZesya::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::
 }
 
 
-// NONMATCHING: 99.99% in the direct objdiff (100% in report.json): only the label of the 1.5f in .sdata2
 void Em101ElderZesya::vf50() {
     Item14_unk item;
     item.m04.mRadius = m5B0;
