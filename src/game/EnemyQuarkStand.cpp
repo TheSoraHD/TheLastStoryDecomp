@@ -1148,6 +1148,57 @@ void EnemyQuarkStand::fn_8034A644() {
     }
 }
 
+// inferred: state 11 (attack 3, motion 0x142): turns, then at frame 24 aims 50 units short of the target and
+// dashes there (frames 24-30, "TackleSkillID" at 30), then 10 more units in front (frames 30-39, the second
+// tackle at 39)
+// NONMATCHING: 97.93% - the frame of the original is 24 bytes larger above the locals of AimAt_unk (same
+// family as fn_80350070); all the slots are shifted by 0x18; ~3 forms
+void EnemyQuarkStand::fn_8034AE48() {
+    if (m14B4 == 0) {
+        TurnTo_unk(1.0f);
+        if (mMotion.mTracks[0].m08 >= 24.0f) {
+            AimAt_unk();
+            atn::Vector3 off(0.0f, 0.0f, 50.0f);
+            Mtx m;
+            PSMTXRotRad(m, 'y', m15DC.mRot.y);
+            PSMTXMultVec(m, &off, &off);
+            m15DC.mTarget -= off;
+            m14B4++;
+        }
+    } else if (m14B4 == 1) {
+        float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 24.0f) / 6.0f));
+        mPos = atn::Lerp_unk(m15DC.mStart, m15DC.mTarget, t);
+        if (mMotion.mTracks[0].m08 >= 30.0f) {
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1534, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            Field_unk* field = lbl_8087F430;
+            field->m96C %= 2;
+            field->m970 = 10;
+            field->m974 = 1.0f;
+            field->m978 = 1.0f;
+            m15DC.mStart = mPos;
+            m15DC.mTarget += QuarkFront_unk(mRot.y) * 10.0f;
+            m14B4++;
+        }
+    } else if (m14B4 == 2) {
+        float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 30.0f) / 9.0f));
+        mPos = atn::Lerp_unk(m15DC.mStart, m15DC.mTarget, t);
+        if (mMotion.mTracks[0].m08 >= 39.0f) {
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1538, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            Field_unk* field = lbl_8087F430;
+            field->m96C %= 2;
+            field->m970 = 10;
+            field->m974 = 1.0f;
+            field->m978 = 1.0f;
+            m14B4++;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
+        }
+    }
+}
+
 // inferred: lets the camera go back to the field (name invented)
 inline void EnemyQuarkStand::ReleaseCamera_unk() {
     if (m180B != 0) {
@@ -1332,7 +1383,7 @@ inline void EnemyQuarkStand::AimAt_unk() {
     m15DC.mDir.y = 0.0f;
     PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
     m15DC.mStart = mPos;
-    m574.x = 0.0f;
+    m570 = 0.0f;
 }
 
 // inferred: starts attack 10 (state 7, motion 0x13F): flies to the centre of the arena; frees the character
