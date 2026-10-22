@@ -1035,7 +1035,8 @@ void Em302Kraken::fn_802DA718() {
     }
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 86.5% - draft: order of the loads in the pull loop, the stack slots of the damage record
+// and the rotation of the knockback (inlined ToRotation_unk)
 // inferred: state 10 (absorbs the party): binds the targets of m1554 at frame 10 and pulls them to the
 // head (frames 21-90), then deals the damage, pushes them away and back to state 0
 void Em302Kraken::fn_802DAA38() {
