@@ -49,8 +49,10 @@ Casi enlazables (solo registros): `NetManager` 71/73, `NandManager` 32/34, `Rend
 
 ## Decisiones a revisar
 
+**Revision del usuario (2026-10-22): todas las decisiones de esta seccion aprobadas**, incluida la excepcion nueva a la regla 2 del punto 1 (solo para `fn_8009BF3C`; `LH_Binary` sigue sin aprobar). Comprobado tambien que los 132 simbolos `scope:local` nuevos de `symbols.txt` caen dentro de unidades con fuente (0 fuera).
+
 **Reglas y patrones fuera de la guia:**
-1. **Pendiente de aprobacion:** `atn/ModelDraw_unk fn_8009BF3C` (35,9%) escala colores con paired-single a mano (GQR6, `psq_l`/`psq_st` cuantizados), como `LH_Binary`: no se puede igualar sin asm (qA4).
+1. **Aprobado (2026-10-22), excepcion a la regla 2:** `atn/ModelDraw_unk fn_8009BF3C` (35,9%) escala colores con paired-single a mano (GQR6, `psq_l`/`psq_st` cuantizados), como `LH_Binary`: no se puede igualar sin asm (qA4).
 2. Codigo que no esta en el DOL (solo para el orden de pools; lo elimina el enlazador): `NandManager::Stripped1_unk` (cadenas "atn_nand.cpp" / "[NAND] Couldn't open a file.", qA4), `atn::net::Manager::Stripped1_unk` (byte `""` del pool, qA10), instanciacion de `SetFloat_unk` para su `L"%f"` (qA7), ctor de `Mindows_unk` fuera de la clase (copia sin llamadores, qA8).
 3. `((void)0)` (asserts de release, excepcion aceptada) en cantidades grandes: **16 en cada una de** `NetManager fn_8050AA6C`/`fn_8050AA98` (qA10, pide confirmacion), 10 en `Motion_unk fn_800A05AC` (qA4), 6 en el ctor de `Font_unk` (qA8), 4 en `AudioDevice fn_80047B54` (qA5).
 4. Macros para el orden de literales/constantes: `TmpPath_unk`, `SET_MAT_COLOR_UNK` (qA4); `TASK_U64` en `Task.h` (los 64 bits de `TaskBase` se guardan como dos `unsigned long`: un `long long` alineaba la clase a 8 y movia miembros de `CharaTask`/`ControlCannonLift`) (qA6).
