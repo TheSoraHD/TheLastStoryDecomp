@@ -41,7 +41,7 @@ Em305Vampire 15/30, Em306GurgBeast 9/22, Em308InvertCrab 0/29 (sin fuente), Em30
   (planificacion/registros, ver los comentarios en la fuente). include/game/Em306GurgBeast.h: m152C pasa a
   `BattleCharaTask*`. Quedan vf104 (fn_802EF5FC, 3.3 KB), vf108 (fn_802F0328, 1.6 KB: llama fuera de linea a
   las copias debiles fn_802F0964/0988/0990/0998, que solo aparecen al escribirla) y fn_802F09D4 (1.4 KB).
-- `game/Em308InvertCrab` (0/29 -> 9/29, fuente nueva): cabecera include/game/Em308InvertCrab.h (deriva de
+- `game/Em308InvertCrab` (0/29 -> 9/29, fuente nueva; segunda pasada: vf0C 99.94% y fn_802F566C 99.99%): cabecera include/game/Em308InvertCrab.h (deriva de
   EnemyTask, 0x15D8 bytes; vf68/vf6C/vf90 inline, sus copias debiles salen al final del fichero) y
   src/game/Em308InvertCrab.cpp. La factoria (SpecialEnemyBase.cpp, caso 38) pasa a `new (3, "", "", 0)
   Em308InvertCrab(parent, info)`. Al 100%: dtor, vf14, vf40, vf68, vf6C, vf90, vfEC (0x802F59D8, muerte con
@@ -49,16 +49,18 @@ Em305Vampire 15/30, Em306GurgBeast 9/22, Em308InvertCrab 0/29 (sin fuente), Em30
   NONMATCHING: ctor 99.81% (r26/r27 del segundo constructor de std::string, bloqueo conocido), vf20 99.77%
   (r3/r4 del __VecCopy), vf3C 98.80% (r5/r6), vf80 94.64% (pila del destino del salto) y fn_802F66CC 99.86%
   (r3/r4 del __VecCopy de la traslacion del nodo "hit_top" del jugador). Quedan fn_802F1A2C/fn_802F2294 (vf0C y
-  vf10, 2 KB cada una) y los estados fn_802F33A0-fn_802F693C. fn_802F6E5C (slot vf60, devuelve 8.0f) no se
+  vf10, 2 KB cada una; vf0C ya escrita: lector del CSV, 99.94% por el push_back) y los estados
+  fn_802F33A0-fn_802F693C. fn_802F566C (vuelo del salto) solo difiere en el offset de "SE_EM308_005" en el pool:
+  subira al 100% cuando se escriban vf10 ("SE_UICOM_011") y fn_802F3BE8 ("hips"). fn_802F6E5C (slot vf60, devuelve 8.0f) no se
   escribe: CharaTask::vf60 esta declarada void en la cabecera compartida.
-- `game/Em308ParmCrab` (3/24 -> 5/24): ctor escrito (99.83%, mismo bloqueo de std::string que InvertCrab) y la
+- `game/Em308ParmCrab` (3/24 -> 5/24; segunda pasada: vf0C 99.95%): ctor escrito (99.83%, mismo bloqueo de std::string que InvertCrab) y la
   factoria (caso 37) pasa a `new`; cabecera completada con los campos que tocan las funciones escritas. Al 100%:
   vf40 (0x802F8A60; el efecto se escribe en linea con sus locales en el orden del original y lbl_8087F048 en un
   local), fn_802FBE00 (giro hacia el objetivo: `ToRotationZ_unk` y la comparacion `-0.3927f < d && d < 0.3927f`
   dan el 100%), ademas del dtor, vf90 y fn_802FC188 ya existentes. NONMATCHING: vf14 94.14% (temporales del
   color), vf20 99.78% (r3/r4 del __VecCopy), vf3C 98.84%, vf80 82.04%, vfEC 98.67% (el original pasa &rot desde
   r31), fn_802FB6AC y fn_802FBA30 99.96% (slots de pila de dir y del temporal de ToRotation_unk intercambiados).
-  Quedan vf0C/vf10 y los estados (fn_802F8EBC-fn_802FB0C4, fn_802FC2E0).
+  Quedan vf10 y los estados (fn_802F8EBC-fn_802FB0C4, fn_802FC2E0); vf0C (lector del CSV) escrita al 99.95%.
 
 ## Decisiones tomadas sin el usuario
 
@@ -109,4 +111,18 @@ Em305Vampire 15/30, Em306GurgBeast 9/22, Em308InvertCrab 0/29 (sin fuente), Em30
 - En Em308ParmCrab::fn_802FBE00, `ToRotationZ_unk` (z leida una vez) da el 100% donde `ToRotation_unk` deja un
   frsp de mas; en fn_802FBA30/fn_802FB6AC es al reves.
 
+## Estado final
+
+Funciones al 100% en report.json (inicio -> final): Em303KrakenFoot 13 -> 20 / 26, Em303KrakenFootMp 15 -> 17 / 21,
+Em305Vampire 15 -> 26 / 30, Em306GurgBeast 9 -> 11 / 22, Em308InvertCrab 0 -> 9 / 29, Em308ParmCrab 3 -> 5 / 24.
+Total del proyecto: 6869 -> 6902. Ninguna unidad enlazada (matching: true): todas tienen funciones sin escribir o
+NONMATCHING. regress lost 0 y fuzzdrop sin bajadas contra start-q4 en todos los commits.
+
 ## Pendientes para otras colas
+
+- Em302Kraken (cola q3) llama a fn_802DC8B0 y a Em303KrakenFoot::fn_802E55B0 (renombrada con firma en symbols.txt);
+  si q3 escribe Em302Kraken, debe usar `fn_802E55B0__15Em303KrakenFootFi`.
+- CharaTask::vf60 esta declarada `void` en la cabecera compartida, pero en Em308InvertCrab/ParmCrab (0x802F6E5C,
+  0x802FC848) devuelve un float (8.0f): cambiar la firma compartida permitiria escribir esas dos funciones.
+- El mensaje de `vector::__allocate` (lbl_80775A88) es un pool de otro fichero; los vf0C de los cangrejos y
+  ChaserNpc quedan al 99.9x% por eso hasta que se resuelva quien lo define.
