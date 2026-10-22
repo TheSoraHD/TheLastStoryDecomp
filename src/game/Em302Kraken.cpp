@@ -77,8 +77,6 @@ extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int v
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
-// inferred: Em303KrakenFoot method of another queue (starts a state of the leg); kept extern "C"
-extern "C" void fn_802E55B0(Em303KrakenFoot* foot, int kind);
 // inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
 struct KrakenColl_unk {
     KrakenColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -1446,7 +1444,7 @@ void Em302Kraken::fn_802DC618() {
     for (unsigned int i = 0; i < m1678.size(); i++) {
         Em303KrakenFoot* foot = m1678[i];
         foot->vf44();
-        fn_802E55B0(foot, 3);
+        foot->fn_802E55B0(3);
     }
     fn_80232B7C(0, 0);
     PlayEffect_unk(&m15E8, (Model_unk*)&mMotion);

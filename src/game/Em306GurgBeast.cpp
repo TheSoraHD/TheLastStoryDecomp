@@ -3,6 +3,8 @@
 #include "atn/Memory.h"
 #include "game/CharaStatus.h"
 #include "game/EnemyManager.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "math/Vec.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -16,6 +18,15 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
+extern "C" void fn_801028E4(Effect_unk* mgr, int arg, CharaTask* chara, int arg2);
+extern "C" void fn_80102824(Effect_unk* mgr, CharaTask* chara, PlayerTask* leader);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: the rider's hit handler is called with a second argument (CharaTask::vf3C takes one)
 struct Rider_unk {
@@ -125,6 +136,100 @@ void Em306GurgBeast::fn_802EE9A8(const char* text, int length) {
     } while (csv.fn_8005BBF8());
 }
 
+// inferred: CharaTask::CanAct_unk written out (as in game/Em303KrakenFoot.cpp)
+inline bool BeastCanAct_unk(CharaTask* c) {
+    bool r = false;
+    bool free = false;
+    bool active = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        active = true;
+    }
+    if (active && (c->mStatus.m0C & 0x20) != 0x20) {
+        free = true;
+    }
+    if (free && !c->IsGrappled_unk()) {
+        r = true;
+    }
+    return r;
+}
+
+inline void Em306GurgBeast::CopyTrack_unk(Model_unk* dst, int i) {
+    dst->mTracks[i].m20 = mMotion.mTracks[i].m20;
+    dst->mTracks[i].m0C = mMotion.mTracks[i].m0C;
+    dst->mTracks[i].m08 = mMotion.mTracks[i].m08;
+    dst->fn_80097C08(i, mMotion.mTracks[i].m00, mMotion.mTracks[i].m18, 0, 1, 0.0f, 0.1f);
+}
+
+// NONMATCHING: 97.62% - registers of the inlined CanAct_unk, r28-r30 of the track copy loop and the stack
+// slots of the capsule points (~14 forms: helpers, local orders, constructors)
+void Em306GurgBeast::vf10() {
+    if (!CharaTask::mFlag2 || !BeastCanAct_unk(this)) {
+        vf104();
+    }
+    if (m14E8 != 0) {
+        m14E8->fn_801765D8();
+        int count = mMotion.m34C;
+        m14E8->mMotion.m34C = count;
+        for (int i = 0; i < count; i++) {
+            m14E8->GetModel_unk()->mTracks[i].m20 = mMotion.mTracks[i].m20;
+            m14E8->GetModel_unk()->mTracks[i].m0C = mMotion.mTracks[i].m0C;
+            m14E8->GetModel_unk()->mTracks[i].m08 = mMotion.mTracks[i].m08;
+            m14E8->GetModel_unk()->fn_80097C08(i, mMotion.mTracks[i].m00, mMotion.mTracks[i].m18, 0, 1, 0.0f, 0.1f);
+        }
+    }
+    fn_8014C540();
+    if ((mFlags & 1) != 1 && !CharaTask::mFlag25) {
+        fn_80145334();
+    }
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m620;
+    atn::Vector3 top;
+    atn::Vector3 base(mPos.x, mPos.y + m620, mPos.z);
+    int index = mMotion.fn_80092814("tail", 0);
+    if (index > -1) {
+        MtxPtr tail = mMotion.mNodeMtx[index];
+        top = atn::Vector3(tail[0][3], tail[1][3], tail[2][3]);
+        top.y -= 1.0f;
+    } else {
+        top = base;
+        top.y += m5B4 - 2.0f * m620;
+    }
+    mColli.m3C = base;
+    mColli.m48 = top;
+    mColli.m54 = m620;
+    if (m14E8 != 0) {
+        m14E8->fn_80145334();
+        m14E8->mLook.fn_80129A6C();
+        if (m1524 != 0) {
+            if (m14E8 != 0 && m1558 == 0) {
+                vf100(17);
+                m1558--;
+            } else if ((m14E8->mStatus.m0C & 0x20) == 0x20) {
+                m14E8->fn_80176ACC();
+                m14E8->mF1C = 0;
+                m14E8->mLook.fn_80129A48(0.3f);
+                m14E8->mMotion.m34C = 1;
+                m14E8->mMotion.mTracks[0].m20 = 1.0f;
+                m14E8->mMotion.mTracks[0].m0C = 1.0f;
+                m14E8->mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+                m14E8 = 0;
+                fn_801028E4(lbl_8087F048, 0, this, 0);
+                fn_8015495C(0, 1, 1, 1);
+                mC58.mC4 = 0;
+                mF18 = mF14;
+                mF14 = 0;
+                vf100(14);
+                m1550 = 300;
+            }
+        }
+    }
+    if (m1524 != 0) {
+        fn_802F1120();
+    }
+}
+
+
 void Em306GurgBeast::vf14() {
     fn_80149A30();
     if (m14E8 != 0) {
@@ -162,6 +267,91 @@ void Em306GurgBeast::vfFC() {
     vf100(6);
 }
 
+// inferred: starts a state (8-13: attacks, 14: walk, 15/16: the leader gets on, 17: stop, 2: down)
+void Em306GurgBeast::vf100(int state) {
+    if (CharaTask::mFlag2) {
+        return;
+    }
+    int prev = m58C;
+    m14BC = 0;
+    m14C0 = 0;
+    m14C4 = 0;
+    m14C8 = 0;
+    mFlag31 = 0;
+    mFlag30 = 0;
+    mFlag29 = 0;
+    mFlag28 = 0;
+    mFlag27 = 1;
+    m14D0 = 0;
+    m58C = state;
+    switch (state) {
+    case 6:
+        mFlag30 = 1;
+        break;
+    case 7:
+        mFlag30 = 1;
+        break;
+    case 8:
+    case 9:
+        fn_805A4F1C(0x143, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 10:
+    case 11:
+        fn_805A4F1C(0x13F, 0, 1, 1.0f, 0.0f);
+        m14C8 = fn_800F8548(lbl_8087F048);
+        mRot.y = m14D8.ToRotation_unk().y;
+        mFlag30 = 0;
+        break;
+    case 12:
+        fn_805A4F1C(0x141, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 13:
+        fn_805A4F1C(0x144, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 2:
+        if (mF14 == 1) {
+            if ((mStatus.m0C & 0x20) == 0x20 && prev != 2) {
+                vf44();
+            }
+            if (m55C != 2) {
+                fn_8016E970(2);
+            }
+            fn_805A4F1C(0x2E, 0, 1, 1.0f, 0.0f);
+            mFlag30 = 0;
+            if (m14E8 != 0) {
+                m14E8->fn_80176ACC();
+                m14E8->mF1C = 0;
+                m14E8->mLook.fn_80129A48(0.3f);
+                m14E8 = 0;
+            }
+        }
+        break;
+    case 14:
+        mFlag30 = 1;
+        mMotion.fn_80097C08(0, 0x142, 1, 0, 1, 0.0f, 0.1f);
+        break;
+    case 15:
+        lbl_8087F8A0->mHead->fn_80163E70(this);
+        break;
+    case 16:
+        m152C = lbl_8087F8A0->mHead;
+        if (m152C != 0) {
+            m1530 = (int)mMotion.GetNodeMtx_unk("seatpoint");
+            if (m1530 != 0) {
+                m152C->mF1C = m1530;
+            }
+        }
+        break;
+    case 17:
+        fn_805A4F1C(0x143, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    }
+}
+
 void Em306GurgBeast::vf30(void* menu) {
     char name[0x100];
     sprintf(name, "Em306 GurgBeast[%d]", m58);
@@ -172,6 +362,70 @@ void Em306GurgBeast::vf30(void* menu) {
         group = 0;
     }
     fn_805A5220(group);
+}
+
+// inferred: names invented
+inline float Max_unk(float a, float b) {
+    return a > b ? a : b;
+}
+
+// inferred: walk motion of the beast: turning (0x144) when the movement is more than 45 degrees off the facing,
+// running (0x140, speed from m1560) or walking (0x142)
+void Em306GurgBeast::fn_802F0F60() {
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    if (m1560 > 0.3f) {
+        atn::Vector3 move(m574.x, 0.0f, m574.z);
+        PSVECNormalize(&move, &move);
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &front, &front);
+        float dot = PSVECDotProduct(&move, &front);
+        if (dot < (float)cos(0.7853981852531433)) {
+            mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
+        } else {
+            mMotion.fn_80097C08(0, 0x140, 1, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C =
+                1.3f < Max_unk(0.5f, 0.5f * m1560) ? 1.3f : Max_unk(0.5f, 0.5f * m1560);
+        }
+    } else {
+        mMotion.fn_80097C08(0, 0x142, 1, 0, 1, 0.0f, 0.1f);
+    }
+    if (--m1544 < 0) {
+        m1544 = 30;
+        m1540 = fn_800F8548(lbl_8087F048);
+    }
+}
+
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 GetSeatPos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// NONMATCHING: 96.18% - block order of the state 17 test and r3/r4/r5 of the seat copy (~6 forms)
+// inferred: keeps the rider m152C on the seat m1530 with the beast's motion frame (motion 0x1F0, 0x1F1 when
+// m1560 >= 4)
+void Em306GurgBeast::fn_802F1120() {
+    if (m152C == 0 || m1530 == 0) {
+        return;
+    }
+    if (m58C != 17) {
+    int motion = 0x1F0;
+    if (m154C != 0 && m1560 >= 4.0f) {
+        motion = 0x1F1;
+    }
+    m152C->mMotion.m34C = 1;
+    m152C->mMotion.mTracks[0].m20 = 1.0f;
+    m152C->mMotion.mTracks[0].m0C = 0.0f;
+    m152C->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
+    m152C->mMotion.fn_80097C08(0, motion, 1, 0, 1, 0.0f, 0.1f);
+    m152C->mF1C = m1530;
+    m152C->mPos = GetSeatPos_unk((MtxPtr)m1530);
+    m152C->mRot = mRot;
+    m152C->fn_80145334();
+    }
 }
 
 void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
@@ -194,4 +448,36 @@ void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
         rider->fn_801750FC();
     }
     rider->fn_80164DCC(0);
+}
+
+// NONMATCHING: 97.72% - only the place of the load of the rider's rotation before PSMTXRotRad (~8 forms)
+// inferred: throws the rider m152C off to the side; with `restart` the beast goes to state 14
+void Em306GurgBeast::fn_802F1320(int restart) {
+    if (m152C == 0) {
+        return;
+    }
+    PlayerTask* head;
+    if (lbl_8087F048 != 0 && lbl_8087F8A0 != 0 && (head = lbl_8087F8A0->mHead) != 0) {
+        fn_80102824(lbl_8087F048, this, head);
+    }
+    if ((m152C->mStatus.m0C & 0x20) != 0x20) {
+        m152C->fn_8016E970(1);
+    }
+    m152C->fn_801446F0();
+    m152C->mF1C = 0;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx r;
+    Mtx m;
+    PSMTXRotRad(m, 'y', m152C->mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    PSMTXRotRad(r, 'y', -1.5707964f);
+    PSMTXMultVec(r, &dir, &dir);
+    dir *= 5.0f;
+    m152C->m574 = dir;
+    m152C->fn_8017AC3C(0);
+    m152C = 0;
+    if (restart != 0) {
+        vf100(14);
+        m1550 = 300;
+    }
 }

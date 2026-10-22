@@ -1786,7 +1786,7 @@ game/Em303KrakenFootMp.cpp:
 
 game/Em305Vampire.cpp:
 	.text       start:0x802E8580 end:0x802EC670
-	.rodata     start:0x80747F60 end:0x80747F70
+	.rodata     start:0x80747F58 end:0x80748238
 	.data       start:0x807873E8 end:0x80787548
 	.sdata2     start:0x808847A8 end:0x80884810
 
