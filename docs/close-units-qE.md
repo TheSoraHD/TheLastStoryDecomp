@@ -175,3 +175,4 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     las declara con `GameSoundControl*`; con enlace C el simbolo es el mismo). Incluye game/GameSaveBackground.h.
   - Hallazgo MWCC: `x < 0 || N < x` conserva las dos comparaciones con signo; `x < 0 || x > N` se convierte en una
     comparacion sin signo (mismo patron que en Arms).
+- `game/MenuCommonTask` (28/41, sin cambios): `fn_804A5D34` 93.2% (5 intentos: desc3 al principio, helper, literal directo, hash en local, texto en local): r30/r31 de layout/texto en la ultima llamada. Resto: planificacion (fn_8006EF48) y registros documentados.
