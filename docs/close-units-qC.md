@@ -43,3 +43,9 @@ Hallazgos MWCC (2):
 
 Hallazgos MWCC (3):
 - Un inline que cuenta (bucle con contador local) asigna el contador antes que los demas registros salvados; escrito a mano en el cuerpo, el contador toma el registro mas bajo (r22), como en el original de SelectMember::fn_80572450.
+- game/GameSystem_unk: sin cambios. fn_80570CF8 99.93% (mFade/sInstance r3/r4 en el bloque del fade; 10 variantes: locales fade/menu, ifs anidados, or partido). fn_80570A74 no intentada (89%, registros de contadores ya investigados).
+- game/HomeButton_unk: sin cambios. fn_804411DC 99.76% (f0/f1 del stick; 3 variantes nuevas ademas de las del comentario). fn_804413D4 (84.5%) no intentada.
+- game/SystemErrorMessage_unk: fn_80363DBC 99.47 -> 99.77%: `input = lbl_8087F018;` de nuevo antes de leer m40C0 (el original recarga). Queda: GetExt_unk usa la primera carga (r4) en el original; mError recargado; registros de 3/0.
+- chr/ControlGmkCoffinOpening: ctor ControlGmkCoffinOpening 99.46 -> 99.64%: el id 0x5B en un local (`int id = 0x5B; mChara->m560 = id;`) arregla r10; quedan r9/r11 cruzados. Los otros dos ctors no intentados (93.6% y borrador 58%).
+- chr/ControlRide: saltada - ctor: r3/r6 de la copia `mStartPos = mBeast->mPos` (familia `__VecCopy`); vf0C/vf10 slots de pila / planificacion ya documentados.
+- chr/ControlStagger: sin cambios. vf0C 99.26%: `mTime--` antes de copiar la rotacion da mChara en r6 pero mueve el decremento (92.8%); revertido y anotado. ControlSlip ctor = familia `__VecCopy`; ControlSlip::vf0C no intentada.

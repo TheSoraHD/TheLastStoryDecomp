@@ -431,8 +431,9 @@ ErrorManager::ErrorManager()
 }
 
 
-// NONMATCHING: 99.47% - the original reloads lbl_8087F018 for m40C0 (here the copy in a register is
-// used) and mError when it is kept; register order of the constants 3/0 and of the fade counters
+// NONMATCHING: 99.77% - `input = lbl_8087F018` again before m40C0 gives the reload, but the original
+// keeps the first load (r4) for GetExt_unk; mError is reloaded when it is kept; register order of the
+// constants 3/0 and of the fade counters
 void ErrorManager::fn_80363DBC() {
     if (m20 != 0) {
         return;
@@ -478,7 +479,8 @@ void ErrorManager::fn_80363DBC() {
         SysInput_unk* input;
         if (m0C != 0 && (input = lbl_8087F018) != 0 &&
             (HomeButtonMenu::sInstance == 0 || HomeButtonMenu::sInstance->m84 != 1)) {
-            if (lbl_8087F018->m40C0 == 0) {
+            input = lbl_8087F018;
+            if (input->m40C0 == 0) {
                 error = 5;
             }
             int ext = input->GetExt_unk();
