@@ -1,6 +1,7 @@
 #include "game/Em305Vampire.h"
 #include "atn/Csv.h"
 #include "math/Vec.h"
+#include "game/CharaStatus.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
@@ -9,6 +10,10 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
+extern "C" int atoi(const char* s);
+extern "C" double strtod(const char* str);
+extern "C" int fn_800DC12C(const char* s); // inferred: string to int
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -62,8 +67,11 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
-// inferred: field (lbl_8087F430); fn_80370AE4 sets a counter (as in gmk/Coffin.cpp)
-struct VampireField_unk;
+// inferred: field (lbl_8087F430); m10D8: route tables; fn_80370AE4 sets a counter (as in gmk/Coffin.cpp)
+struct VampireField_unk {
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8;
+};
 extern "C" VampireField_unk* lbl_8087F430;
 extern "C" void fn_80370AE4(VampireField_unk* field, int index, int value);
 
@@ -120,6 +128,81 @@ Em305Vampire::Em305Vampire(atn::Task* parent, EnemyInfo_unk* info)
 Em305Vampire::~Em305Vampire() {
     fn_800CB5C8(&m15A0, 5, 0);
     fn_800CB5C8(&m15A4, 5, 0);
+}
+
+// NONMATCHING: 93.89% - same as Em305VampireMp::vf0C: the inlined std::vector push_back of the two routes
+// (known open case) and registers
+int Em305Vampire::vf0C() {
+    if (m1564.fn_80237874() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.fn_80237874() == 0 &&
+        m157C.fn_80237874() == 0 && m1588.fn_80237874() == 0 &&
+        m1594.fn_80237874() == 0 && m14D4.fn_80473F50() == 0 &&
+        fn_8013655C() == 0) {
+        fn_802EC38C();
+        if (m14D4.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
+            atn::Csv csv((const char*)m14D4.fn_80470580(), m14D4.fn_8047059C());
+            do {
+                const char* key = csv.fn_8005B9CC();
+                if (strcmp(key, "weaken_route") == 0) {
+                    int id;
+                    do {
+                        id = fn_800DC12C(csv.fn_8005B9CC());
+                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        if (place != 0) {
+                            m14E8.push_back(place);
+                        }
+                    } while (id != 0);
+                } else if (strcmp(key, "door_route") == 0) {
+                    int a = fn_800DC12C(csv.fn_8005B9CC());
+                    int b = fn_800DC12C(csv.fn_8005B9CC());
+                    int c = fn_800DC12C(csv.fn_8005B9CC());
+                    int d = fn_800DC12C(csv.fn_8005B9CC());
+                    m14DC.push_back(VampireDoor_unk(a, b, c, d));
+                }
+                if (strcmp(key, "weaken_time") == 0) {
+                    m15E4[0] = atoi(csv.fn_8005B9CC());
+                    m15E4[1] = atoi(csv.fn_8005B9CC());
+                    m15E4[2] = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "weaken_speed") == 0) {
+                    m15D8[0] = strtod(csv.fn_8005B9CC());
+                    m15D8[1] = strtod(csv.fn_8005B9CC());
+                    m15D8[2] = strtod(csv.fn_8005B9CC());
+                } else if (strcmp(key, "speed_up_value") == 0) {
+                    m15F8 = strtod(csv.fn_8005B9CC());
+                } else if (strcmp(key, "speed_up_time") == 0) {
+                    m15FC = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "speed_up_wait") == 0) {
+                    m1600 = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "weaken_1to2") == 0) {
+                    m15F0 = strtod(csv.fn_8005B9CC());
+                } else if (strcmp(key, "weaken_2to3") == 0) {
+                    m15F4 = strtod(csv.fn_8005B9CC());
+                } else if (strcmp(key, "normal_wait_time") == 0) {
+                    m15A8 = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "through_wait_time") == 0) {
+                    m15AC = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "silver_arrow_count") == 0) {
+                    m1604 = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "stun_time") == 0) {
+                    m15B8 = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "tackle_skill") == 0) {
+                    m150C = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "rolling_skill") == 0) {
+                    m1514 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "shine_skill") == 0) {
+                    m1510 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                }
+            } while (csv.fn_8005BBF8());
+        }
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x1C015;
+        mStatus.m18 |= 0x3000000;
+        if (m1438 != 0) {
+            m1438->fn_800D246C(0);
+            m1438->mFlags |= 4;
+        }
+        return 1;
+    }
+    return 0;
 }
 
 // NONMATCHING: ~95% - only the offset of "op_02_cloud" in the string pool (the pool is in the auto split
