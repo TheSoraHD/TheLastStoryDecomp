@@ -13,7 +13,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual int vf1C();
+    virtual int vf1C(atn::Matrix3x4* mtx, struct ModelNodeDesc_unk* node);
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
@@ -35,7 +35,7 @@ public:
     atn::Vector3 m14D8;
     atn::Vector3 m14E4;
     atn::Vector3 m14F0;
-    unsigned char m14FC[0x150C - 0x14FC];
+    float m14FC[4]; // inferred: "StoneColor" (r, g, b, a; starts as sColor0_unk)
     int m150C;
     int m1510; // inferred: motion id (0x407, Em209BigGolem 0x409)
     int m1514; // inferred: motion id (0x406, Em209BigGolem 0x408)
@@ -45,9 +45,9 @@ public:
     int m1524;
     atn::EfpHandle_unk m1528;
     atn::EfpHandle_unk m1534;
-    int m1540;
-    int m1544;
-    unsigned char m1548;
+    chr::CharaData_unk* m1540; // inferred: own character data (m5C)
+    chr::CharaData_unk* m1544; // inferred: "FriendsParam"
+    unsigned char m1548; // inferred: "NoneRevive" is 0
     unsigned char m1549;
     int m154C;
     ResHandle m1550; // inferred: debug menu group

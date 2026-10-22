@@ -4938,7 +4938,7 @@ void CharaTask::fn_80148B38() {
 void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
                             const atn::ModelNodeCallbackContext& context) {
     ModelNodeDesc_unk* node = (ModelNodeDesc_unk*)&chunk;
-    if (vf1C() != 0) {
+    if (vf1C(mtx, node) != 0) {
         return;
     }
     if (mLook.fn_8012A288(mtx, node) != 0) {
