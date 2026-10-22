@@ -92,6 +92,8 @@ public:
     void fn_80343B0C();
     inline void fn_80344BB4(); // inferred: releases the field camera
     inline void StartDown_unk();
+    inline void Fall_unk();
+    inline bool IsMotionEnd_unk();
     void fn_8033AB88(); // inferred: moves the collision sphere in front
     void fn_8033C000(); // inferred: moves towards the target
     void fn_8033C3D8(); // inferred: state 0 (wait)
