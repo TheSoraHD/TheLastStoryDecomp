@@ -338,10 +338,12 @@ int TeamAIManager::IsTop_unk(TeamNode_unk* node) {
     return node->mParent == &mRoot;
 }
 
-// NONMATCHING: 91.24% - register allocation of the inlined Find_unk (index, type and id take
+// NONMATCHING: 91.42% - register allocation of the inlined Find_unk (index, type and id take
 // other registers) and of the target lookups
 void TeamAIManager::OnTarget_unk(const TeamMsgIn_unk* in) {
-    TeamAI_unk* team = Find_unk(in->mType, in->mId);
+    int id = in->mId;
+    int type = in->mType;
+    TeamAI_unk* team = Find_unk(type, id);
     if (team != 0) {
         TeamMsgTarget_unk msg;
         msg.mType = 0x1C;
@@ -364,10 +366,12 @@ void TeamAIManager::OnTarget_unk(const TeamMsgIn_unk* in) {
     }
 }
 
-// NONMATCHING: 91.24% - register allocation of the inlined Find_unk (index, type and id take
+// NONMATCHING: 91.42% - register allocation of the inlined Find_unk (index, type and id take
 // other registers) and of the target lookups
 void TeamAIManager::OnTarget2_unk(const TeamMsgIn_unk* in) {
-    TeamAI_unk* team = Find_unk(in->mType, in->mId);
+    int id = in->mId;
+    int type = in->mType;
+    TeamAI_unk* team = Find_unk(type, id);
     if (team != 0) {
         TeamMsgTarget_unk msg;
         msg.mType = 0x1D;
@@ -426,10 +430,12 @@ void TeamAIManager::OnParent_unk(const TeamMsgIn_unk* in) {
     }
 }
 
-// NONMATCHING: 99.04% - register allocation of the inlined Find_unk (index, type and id take
+// NONMATCHING: 99.47% - register allocation of the inlined Find_unk (index, type and id take
 // other registers)
 void TeamAIManager::OnMembers_unk(const TeamMsgIn_unk* in) {
-    TeamAI_unk* team = Find_unk(in->mType, in->mId);
+    int id = in->mId;
+    int type = in->mType;
+    TeamAI_unk* team = Find_unk(type, id);
     if (team != 0) {
         fn_805AEAC0(team);
         for (int i = 0; i < team->mNumMembers; i++) {
@@ -438,10 +444,12 @@ void TeamAIManager::OnMembers_unk(const TeamMsgIn_unk* in) {
     }
 }
 
-// NONMATCHING: 98.75% - register allocation of the inlined Find_unk (index, type and id take
+// NONMATCHING: 98.98% - register allocation of the inlined Find_unk (index, type and id take
 // other registers)
 void TeamAIManager::OnMsg21_unk(const TeamMsgIn_unk* in) {
-    TeamAI_unk* team = Find_unk(in->mType, in->mId);
+    int id = in->mId;
+    int type = in->mType;
+    TeamAI_unk* team = Find_unk(type, id);
     if (team != 0) {
         TeamMsg3_unk msg;
         msg.mType = 0x21;
@@ -452,10 +460,12 @@ void TeamAIManager::OnMsg21_unk(const TeamMsgIn_unk* in) {
     }
 }
 
-// NONMATCHING: 99.25% - register allocation of the inlined Find_unk (index, type and id take
+// NONMATCHING: 99.38% - register allocation of the inlined Find_unk (index, type and id take
 // other registers)
 void TeamAIManager::OnChara_unk(const TeamMsgIn_unk* in) {
-    TeamAI_unk* team = Find_unk(in->mType, in->mId);
+    int id = in->mId;
+    int type = in->mType;
+    TeamAI_unk* team = Find_unk(type, id);
     if (team != 0) {
         TeamMsgChara_unk msg;
         msg.mType = 0x22;
@@ -478,10 +488,12 @@ void TeamAIManager::OnChara_unk(const TeamMsgIn_unk* in) {
     }
 }
 
-// NONMATCHING: 98.75% - register allocation of the inlined Find_unk (index, type and id take
+// NONMATCHING: 98.98% - register allocation of the inlined Find_unk (index, type and id take
 // other registers)
 void TeamAIManager::OnMsg24_unk(const TeamMsgIn_unk* in) {
-    TeamAI_unk* team = Find_unk(in->mType, in->mId);
+    int id = in->mId;
+    int type = in->mType;
+    TeamAI_unk* team = Find_unk(type, id);
     if (team != 0) {
         TeamMsg24_unk msg;
         msg.mType = 0x24;

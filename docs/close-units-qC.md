@@ -87,3 +87,6 @@ Hallazgos MWCC (6):
 
 Hallazgos MWCC (7):
 - Comparar `array[k]` contra un inline que carga un global: con el elemento en un local con nombre, el global se carga primero (r3) y el elemento despues (r4), como en el original.
+- game/RouteWalker_unk: sin cambios. fn_80128930 99.53%: `float r = mChara->m5B0; r = 5 + (target->m5B0 + r);` da el orden de carga pero cruza f1/f2/f3 (99.3%); revertido y anotado.
+- game/SkillEffectManager: sin cambios (fn_8059B8A8: 3 variantes de m58 mas, ya habia 8).
+- game/TeamAIManager: sin funciones nuevas al 100%, pero `int id = in->mId; int type = in->mType; Find_unk(type, id)` (id leido antes que type) mejora OnMembers_unk 99.04->99.47, OnChara_unk 99.25->99.38, OnMsg21_unk/OnMsg24_unk 98.75->98.98, OnTarget_unk/OnTarget2_unk 91.24->91.42. En OnMsg20_unk y OnParent_unk empeora (no aplicado).

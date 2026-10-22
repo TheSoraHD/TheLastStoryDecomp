@@ -153,7 +153,8 @@ void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) 
 }
 
 // NONMATCHING: only the order of the two radius loads (target loads mChara's first into f1).
-// Tried: both operand orders, locals, an inline adder, adding 5 first or last.
+// Tried: both operand orders, locals, an inline adder, adding 5 first or last. `float r = mChara->m5B0;
+// r = 5.0f + (target->m5B0 + r);` gives the load order but swaps f1/f2/f3 (99.3%).
 void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg) {
     RouteTable_unk* table = GetRouteTable_unk();
     if (table == 0 || target == 0) {
