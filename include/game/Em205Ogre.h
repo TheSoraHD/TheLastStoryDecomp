@@ -33,6 +33,9 @@ public:
     void fn_802B7AF8(const char* text, int length); // inferred: reads the data file
     void fn_802B98B0(); // inferred: updates the collision capsule from the nodes
     void fn_802B9C5C(); // inferred: finds the nearest heal circle (m14F8)
+    inline int HpPercent_unk();
+    bool IsHealing_unk() const { return m14FC != 0; } // inferred: name invented
+    inline bool WantsHeal_unk();
 
     CharaTask* m14D4;      // inferred: target (mC58.mC4 when the state starts)
     atn::Vector3 m14D8;    // inferred: direction of the attack

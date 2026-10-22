@@ -14,6 +14,9 @@ extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: length
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_80599C90(Bullet_unk* bullet, CharaTask* chara); // inferred: the effect can reach `chara`
 extern "C" SkillEffectManager* lbl_8087F9E8;
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" int fn_80093C8C(Model_unk* model, const char* name); // inferred: nonzero while the named motion part plays
+extern "C" int rand();
 // inferred: field (lbl_8087F430) and its map information (as in gmk/Cannonball.cpp)
 struct MapInfo_unk {
     unsigned char m00[0x48];
@@ -328,6 +331,116 @@ void Em205Ogre::vf100(int state) {
         break;
     }
 }
+
+// inferred: hit point rate in percent, at least 1 while alive (name invented)
+inline int Em205Ogre::HpPercent_unk() {
+    float rate = mStatus.mParamB.m84 > 0 ? mStatus.m04 / (float)mStatus.mParamB.m84 : 0.0f;
+    int hp = (int)(100.0f * rate);
+    if (hp <= 0 && mStatus.m04 > 0.0f) {
+        hp = 1;
+    }
+    return hp;
+}
+// inferred: a heal circle is near and the hit points are low (name invented)
+inline bool Em205Ogre::WantsHeal_unk() {
+    int hp = HpPercent_unk();
+    if (m14FC) {
+        if (hp >= m1504) {
+            return false;
+        }
+    } else if ((m1374 & 1) == 1) {
+        return false;
+    } else if (hp >= m1500) {
+        return false;
+    }
+    return m14F8 != 0;
+}
+
+// NONMATCHING: 99.99% - only the offsets of the pool (strings of vf108, not written yet)
+void Em205Ogre::vf104() {
+    m14C0++;
+    if (CanAct_unk() && m58C != 6 && !vfF8()) {
+        vf100(6);
+        if (!mControl && m55C == 6) {
+            fn_8016E970(2);
+        }
+    }
+    if (CanAct_unk() && mC58.mC0 != 0) {
+        if (!IsHealing_unk()) {
+            if (WantsHeal_unk()) {
+                vf100(11);
+            }
+        } else if (!WantsHeal_unk()) {
+            vf100(6);
+            m14FC = 0;
+        }
+    }
+    switch (m58C) {
+    case 6:
+        if (m55C == 2 && vfF8()) {
+            vf100(8);
+        }
+        if (!mControl && m55C == 6) {
+            fn_8016E970(2);
+        }
+        vf108();
+        break;
+    case 7: {
+        atn::Vector3 d = mC58.mC4->mPos - mPos;
+        if (fn_805F9920(&d) < m14E4 * m14E4) {
+            vf100(9);
+        } else if (m14FC == 0 && mFlag31) {
+            vf100(8);
+        }
+        vf108();
+        break;
+    }
+    case 8:
+        if (mC58.mC4 != m14D4) {
+            vf100(8);
+        } else {
+            atn::Vector3 d = m14D4->mPos - mPos;
+            float r = 3.0f * m5B0;
+            r = r > m14E4 ? r : m14E4;
+            if (fn_805F9920(&d) < r * r) {
+                vf100(9);
+            } else {
+                if (fn_80093C8C(&mMotion, "op_02_mask") == 0 && m14C0 % 30 == 0 && rand() % 4 == 0) {
+                    vf100(10);
+                }
+                if (mFlag31) {
+                    vf100(8);
+                }
+            }
+        }
+        vf108();
+        break;
+    case 9:
+    case 10:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 11:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 2:
+        fn_805A40B8();
+        break;
+    case 3:
+    case 4:
+        vf108();
+        break;
+    default:
+        vf100(6);
+        break;
+    }
+}
+
 
 // NONMATCHING: ~60% - r3/r4 of the copy of the reference node position (__VecCopy family,
 // docs/mwcc-blockers-q3.md), FPR scheduling of the midpoint of the feet, and the offsets of the node names
