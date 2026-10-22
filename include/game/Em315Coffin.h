@@ -7,6 +7,23 @@
 #include "atn/Model_unk.h"
 #include "game/SpecialEnemyBase.h"
 
+// inferred: skill with a cool time (id, interval and counter; 0x803140B4 is the weak copy of Reset_unk);
+// names invented
+struct CoffinSkill_unk {
+    CoffinSkill_unk() : mId(0), m04(0), mInterval(0), mCount(0) {}
+    void Reset_unk() { mCount = mInterval; }
+    void Tick_unk() {
+        if (mCount > 0) {
+            mCount--;
+        }
+    }
+
+    int mId;       // inferred: skill id
+    int m04;
+    int mInterval; // inferred: cool time in frames
+    int mCount;    // inferred: frames left
+};
+
 // inferred from __vt__11Em315Coffin (0x807885D0): coffin enemy. Data file "/database/chara/special/" +
 // db_name (default "db_em315_00_00.csv").
 class Em315Coffin : public SpecialEnemyBase {
@@ -37,19 +54,13 @@ public:
     unsigned char m1588[0x15B8 - 0x1588];
     int m15B8;                // inferred: "Frame" of the ray attack
     unsigned char m15BC[0x15C8 - 0x15BC];
-    int m15C8;                // inferred: "DrainSkillId"
-    int m15CC;
-    int m15D0;                // inferred: "DrainIntervalFrame"
-    int m15D4;
-    int m15D8;                // inferred: "WideSkillId"
-    int m15DC;
-    int m15E0;                // inferred: "WideIntervalFrame"
-    int m15E4;
-    int m15E8;                // inferred: "ShadeRaySkillId"
-    int m15EC;
-    int m15F0;                // inferred: "ShadeRayIntervalFrame"
-    int m15F4;
-    unsigned char m15F8[0x1620 - 0x15F8];
+    CoffinSkill_unk m15C8;    // inferred: "DrainSkillId" / "DrainIntervalFrame"
+    CoffinSkill_unk m15D8;    // inferred: "WideSkillId" / "WideIntervalFrame"
+    CoffinSkill_unk m15E8;    // inferred: "ShadeRaySkillId" / "ShadeRayIntervalFrame"
+    atn::Vector3 m15F8;       // inferred: position of the target when the drain starts
+    atn::Vector3 m1604;
+    unsigned char m1610[0x161C - 0x1610];
+    CharaTask* m161C;         // inferred: target of the drain
     atn::EfpHandle_unk m1620; // inferred: "/effect/ef_cm007.efp"
     int m162C;
     int m1630;
