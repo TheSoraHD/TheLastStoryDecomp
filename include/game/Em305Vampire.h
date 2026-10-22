@@ -58,6 +58,15 @@ public:
     void fn_802EC160();
     void fn_802EC280(); // inferred: starts state 2 (dead)
     void fn_802EC38C();
+    inline void StartWeaken_unk(); // inferred: names invented (bodies of fn_802EBF40/fn_802EC160)
+    inline void StartStun_unk();
+    inline void StartTackle_unk();
+    inline void StartFlee_unk();
+    inline int NearestWeakenPoint_unk();
+    inline void Tackle_unk();  // inferred: bodies of fn_802EAC70/fn_802EB814/fn_802EB97C (names invented)
+    inline void Rolling_unk();
+    inline void Stun_unk();
+    inline VampireDoor_unk* FindDoor_unk(int a, int b);
 
     atn::LH_Binary m14D4;                         // inferred: data file
     std::vector<VampireDoor_unk> m14DC;           // inferred: "door_route"
@@ -71,9 +80,7 @@ public:
     HitInfo_unk* m150C;                           // inferred: tackle skill
     HitInfo_unk* m1510;                           // inferred: shine skill
     HitInfo_unk* m1514;                           // inferred: rolling skill
-    int m1518;
-    int m151C;
-    int m1520;
+    atn::Vector3 m1518;                           // inferred: tackle movement per frame (state 7)
     int m1524;                                    // inferred: weaken timer
     int m1528;
     float m152C;
@@ -82,13 +89,9 @@ public:
     float m1538;                                  // inferred: speed factor
     int m153C;
     int m1540;                                    // inferred: silver arrows received
-    float m1544;
-    float m1548;
-    float m154C;
-    float m1550;
-    float m1554;
-    float m1558;
-    int m155C;
+    atn::Vector3 m1544;                           // inferred: start of the door crossing (state 8)
+    atn::Vector3 m1550;                           // inferred: end of the door crossing
+    VampireDoor_unk* m155C;                       // inferred: door being crossed (state 8)
     int m1560;                                    // inferred: index into m14E8
     atn::EfpHandle_unk m1564;
     atn::EfpHandle_unk m1570;

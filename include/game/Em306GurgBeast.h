@@ -25,22 +25,26 @@ public:
     virtual int vf10C(HitMsg_unk* msg);
 
     void fn_802EE9A8(const char* text, int length); // inferred: reads the data file
+    void fn_802F0F60(); // inferred: walk motion
+    inline void CopyTrack_unk(Model_unk* dst, int i);
+    void fn_802F1120(); // inferred: keeps the rider on the seat
     void fn_802F1240(CharaTask* rider); // inferred: drops the rider
+    void fn_802F1320(int restart); // inferred: throws the rider off
 
-    int m14D4;
+    CharaTask* m14D4;          // inferred: character the beast charges (vf108)
     atn::Vector3 m14D8;
     int m14E4;                 // inferred: id of the rider ("ride=")
     EnemyTask* m14E8;          // inferred: rider
     int m14EC;                 // inferred: "SkillId"
     int m14F0;                 // inferred: "WaitFrame"
     atn::FixedArray_unk<RoutePlace_unk*, 8> m14F4; // inferred: "HomePoint" list
-    int m1518;
+    RoutePlace_unk* m1518;     // inferred: route place the beast runs to (vf108)
     ResHandle m151C;           // inferred: debug menu group
     int m1520;
     int m1524;                 // inferred: "rideplayer"
     int m1528;                 // inferred: "reride"
-    EnemyTask* m152C;
-    int m1530;
+    BattleCharaTask* m152C;    // inferred: rider from the player side (the leader) ("rideplayer")
+    int m1530;                 // inferred: seat node matrix (MtxPtr stored as int, as CharaTask::mF1C)
     int m1534;
     int m1538;
     int m153C;

@@ -10,40 +10,120 @@
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as ChaserRouteList_unk in
 // game/ChaserGuard.h); name invented
-struct SpiderBaseList_unk : public std::vector<int> {};
+// inferred: base point of the spider (place id and position; read from "BasePoints"); name invented
+struct SpiderBasePoint_unk {
+    int mPlace;
+    atn::Vector3 mPos;
+};
+struct SpiderBaseList_unk : public std::vector<SpiderBasePoint_unk*> {};
+
+// inferred: color of the materials "em202_body"/"em202_tail" (r, g, b, a; starts white); name invented
+struct SpiderBaseColor_unk {
+    SpiderBaseColor_unk() : r(1.0f), g(1.0f), b(1.0f), a(1.0f) {}
+    SpiderBaseColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    SpiderBaseColor_unk operator-(const SpiderBaseColor_unk& o) const {
+        return SpiderBaseColor_unk(r - o.r, g - o.g, b - o.b, a - o.a);
+    }
+    SpiderBaseColor_unk operator+(const SpiderBaseColor_unk& o) const {
+        SpiderBaseColor_unk c;
+        c.r = r + o.r;
+        c.g = g + o.g;
+        c.b = b + o.b;
+        c.a = a + o.a;
+        return c;
+    }
+    SpiderBaseColor_unk operator*(float f) const {
+        SpiderBaseColor_unk c;
+        c.r = r * f;
+        c.g = g * f;
+        c.b = b * f;
+        c.a = a * f;
+        return c;
+    }
+    GXColor ToGX() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
+    float r, g, b, a;
+};
 
 // inferred from __vt__15Em202SpiderBase. The factory allocates 0x15E0 bytes (SpecialEnemyBase.cpp).
 // Members keep their offsets (names unknown).
 class Em202SpiderBase : public EnemyTask {
 public:
-    Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info);
+    Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info); // 0x80282AE8
     virtual ~Em202SpiderBase();
+    virtual int vf0C();                                        // 0x80283004
+    virtual void vf10();                                       // 0x802837F4
+    virtual void vf14();                                       // 0x80283D60
+    virtual void vf3C(HitInfo_unk* hit);                       // 0x80283FD4
+    virtual void vf40(HitInfo_unk* hit);                       // 0x8028429C
     virtual void vf7C(int arg);
+    virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset); // 0x802844E0
+    virtual void vfEC();                                       // 0x80286B78
 
     void fn_80287788(); // inferred: death
+    void fn_80285064(); // inferred: state 7 (needle attack)
+    void fn_80285FA0(); // inferred: state 10
+    inline void ResetAttack_unk();
+    void fn_802847CC(); // inferred: movement of the frame (route in state 7, facing m1580)
+    void fn_802868A0(); // inferred: walks to the base point m1564, then attacks m1580
+    void fn_80284CC8(); // inferred: chooses the attack on m1580 by the distance
+    void fn_802878EC(CharaTask* target); // inferred: escape
+    void fn_802857B4(); // inferred: state 9 (turn), then the action m1538
+    void fn_80285B7C(); // inferred: state 7 (follows m1580 until it is in reach)
+    void fn_80286CB0(CharaTask* target); // inferred: starts state 7 (move), or the attack on m1580
+    void fn_8028702C(CharaTask* target); // inferred: starts the attack (state 6, or state 8 in needle mode)
+    int fn_80287400(CharaTask* target, int arg); // inferred: starts state 9 (turn) when the target is not in front
 
     int m14B0;
-    unsigned char m14B4[0x14D8 - 0x14B4];
+    int m14B4;
+    char m14B8[0x20];         // inferred: sound name "MoveSE"
     atn::SoundRef m14D8;
-    atn::EfpHandle_unk m14DC;
-    unsigned char m14E8[0x14F4 - 0x14E8];
-    HitInfo_unk* m14F4;       // inferred: skill 0x3F7
-    unsigned char m14F8[0x151C - 0x14F8];
+    atn::EfpHandle_unk m14DC; // inferred: "/effect/ef_uc007.efp"
+    int m14E8;                // inferred: 60 ("NeedleChargeTime")
+    int m14EC;                // inferred: 15 ("NeedleChargeTime2")
+    float m14F0;              // inferred: 70.0f ("NeedleDist")
+    HitInfo_unk* m14F4;       // inferred: skill 0x3F7 ("NeedleID")
+    float m14F8;              // inferred: 180.0f ("NeedleTheta", radians)
+    char m14FC[0x20];         // inferred: sound name "NeedleChargeSE"
     atn::SoundRef m151C;
-    atn::EfpHandle_unk m1520;
-    unsigned char m152C[0x1570 - 0x152C];
+    atn::EfpHandle_unk m1520; // inferred: "/effect/ef_sk002d.efp"
+    float m152C;              // inferred: 30.0f ("AttackDist")
+    HitInfo_unk* m1530;       // inferred: skill 0x3F8 ("TackleID")
+    float m1534;              // inferred: pi ("GuardTheta", radians)
+    int m1538;                // inferred: argument of the turn (state 9, fn_80287400)
+    int m153C;                // inferred: frames of the turn
+    float m1540;              // inferred: start angle of the turn (state 9)
+    float m1544;              // inferred: target angle of the turn (state 9)
+    atn::Vector3 m1548;       // inferred: jump velocity (state 13, vf80)
+    int m1554;
+    int m1558;                // inferred: hits before the escape (fn_80284CC8)
+    float m155C;              // inferred: speed rate of state 12 (fn_802847CC)
+    SpiderBasePoint_unk* m1560; // inferred: current base point (fn_802868A0)
+    atn::Vector3 m1564;       // inferred: position of the base point
     SpiderBaseList_unk m1570;
-    unsigned char m157C[0x158C - 0x157C];
+    int m157C;                // inferred: flags (1 "Move", 2 "NormalAttack", 4 "Needle": needle mode)
+    CharaTask* m1580;         // inferred: target of the attack (fn_80286CB0)
+    CharaTask* m1584;         // inferred: target of the last attack
+    CharaTask* m1588;         // inferred: target of the turn (state 9)
     int m158C;
-    int m1590;
-    int m1594;
-    unsigned char m1598[0x15A4 - 0x1598];
-    atn::EfpHandle_unk m15A4;
-    atn::EfpHandle_unk m15B0;
+    int m1590;                // inferred: 90
+    int m1594;                // inferred: 90
+    int m1598;
+    int m159C;                // inferred: frames of the jump (vf80)
+    float m15A0;              // inferred: 1.0f
+    atn::EfpHandle_unk m15A4; // inferred: "/effect/ef_uc001.efp"
+    atn::EfpHandle_unk m15B0; // inferred: "/effect/ef_sc003_01b.efp"
     atn::LH_Binary m15BC;     // inferred: data file
-    unsigned char m15C4[0x15D4 - 0x15C4];
+    SpiderBaseColor_unk m15C4; // inferred: color of the materials (vf14)
     ResHandle m15D4;          // inferred: debug menu group
-    unsigned char m15D8[0x15E0 - 0x15D8];
+    int m15D8;
+    unsigned char m15DC[0x15E0 - 0x15DC];
 };
 
 #endif

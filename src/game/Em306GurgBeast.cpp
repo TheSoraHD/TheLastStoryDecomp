@@ -3,6 +3,8 @@
 #include "atn/Memory.h"
 #include "game/CharaStatus.h"
 #include "game/EnemyManager.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "math/Vec.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -16,6 +18,65 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
+extern "C" void fn_801028E4(Effect_unk* mgr, int arg, CharaTask* chara, int arg2);
+extern "C" void fn_80102824(Effect_unk* mgr, CharaTask* chara, PlayerTask* leader);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
+extern "C" float fn_80011220(float x);       // inferred: fabs (weak copy of another file)
+extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
+Effect_unk* fn_8013A194();                   // inferred: effect/bullet manager (weak copy of another file)
+void* fn_801404F8();                         // inferred: collision world (weak copy of another file)
+// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
+struct BeastSettings_unk {
+    unsigned char m00[0x30];
+    int mFps;
+};
+extern "C" BeastSettings_unk* fn_800F52F8();
+// inferred: frame parameters (lbl_8087EFA8, as in gmk/SparkCube.cpp)
+struct BeastParams_unk {
+    unsigned char m000[0x3A4];
+    float mTimeScale; // 0x3A4
+};
+extern "C" BeastParams_unk* lbl_8087EFA8;
+// inferred: sweep result (as in gmk/Cannonball.cpp); the constructor is called out of line
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x10];
+    atn::Vector3 m10; // inferred: position reached
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    unsigned int m3C; // inferred: flags (bit 0: on the ground)
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f); // inferred: attack hit
+// inferred: weak copies emitted after vf108 (fn_802F0964 is also called by game/Em312DarkServant.cpp,
+// fn_802F0998 by gmk/Cannonball.cpp and gmk/FlamingArrow.cpp)
+// NONMATCHING (fn_802F0998): 56% - the original loads settings->mFps before the lis of the int->float constant
+// (scheduling of the prologue; 6 forms)
+extern "C" inline void fn_802F0964(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int time, int c,
+                                   float f) {
+    fn_800F8C6C(mgr, 0, 0, owner, bullet, id, time, c, f);
+}
+extern "C" inline float fn_802F0988(BeastParams_unk* params) {
+    return params->mTimeScale;
+}
+extern "C" inline BeastParams_unk* fn_802F0990() {
+    return lbl_8087EFA8;
+}
+extern "C" inline float fn_802F0998(BeastSettings_unk* settings) {
+    return -98.1f / (float)(settings->mFps * settings->mFps);
+}
 
 // inferred: the rider's hit handler is called with a second argument (CharaTask::vf3C takes one)
 struct Rider_unk {
@@ -125,6 +186,100 @@ void Em306GurgBeast::fn_802EE9A8(const char* text, int length) {
     } while (csv.fn_8005BBF8());
 }
 
+// inferred: CharaTask::CanAct_unk written out (as in game/Em303KrakenFoot.cpp)
+inline bool BeastCanAct_unk(CharaTask* c) {
+    bool r = false;
+    bool free = false;
+    bool active = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        active = true;
+    }
+    if (active && (c->mStatus.m0C & 0x20) != 0x20) {
+        free = true;
+    }
+    if (free && !c->IsGrappled_unk()) {
+        r = true;
+    }
+    return r;
+}
+
+inline void Em306GurgBeast::CopyTrack_unk(Model_unk* dst, int i) {
+    dst->mTracks[i].m20 = mMotion.mTracks[i].m20;
+    dst->mTracks[i].m0C = mMotion.mTracks[i].m0C;
+    dst->mTracks[i].m08 = mMotion.mTracks[i].m08;
+    dst->fn_80097C08(i, mMotion.mTracks[i].m00, mMotion.mTracks[i].m18, 0, 1, 0.0f, 0.1f);
+}
+
+// NONMATCHING: 97.62% - registers of the inlined CanAct_unk, r28-r30 of the track copy loop and the stack
+// slots of the capsule points (~14 forms: helpers, local orders, constructors)
+void Em306GurgBeast::vf10() {
+    if (!CharaTask::mFlag2 || !BeastCanAct_unk(this)) {
+        vf104();
+    }
+    if (m14E8 != 0) {
+        m14E8->fn_801765D8();
+        int count = mMotion.m34C;
+        m14E8->mMotion.m34C = count;
+        for (int i = 0; i < count; i++) {
+            m14E8->GetModel_unk()->mTracks[i].m20 = mMotion.mTracks[i].m20;
+            m14E8->GetModel_unk()->mTracks[i].m0C = mMotion.mTracks[i].m0C;
+            m14E8->GetModel_unk()->mTracks[i].m08 = mMotion.mTracks[i].m08;
+            m14E8->GetModel_unk()->fn_80097C08(i, mMotion.mTracks[i].m00, mMotion.mTracks[i].m18, 0, 1, 0.0f, 0.1f);
+        }
+    }
+    fn_8014C540();
+    if ((mFlags & 1) != 1 && !CharaTask::mFlag25) {
+        fn_80145334();
+    }
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m620;
+    atn::Vector3 top;
+    atn::Vector3 base(mPos.x, mPos.y + m620, mPos.z);
+    int index = mMotion.fn_80092814("tail", 0);
+    if (index > -1) {
+        MtxPtr tail = mMotion.mNodeMtx[index];
+        top = atn::Vector3(tail[0][3], tail[1][3], tail[2][3]);
+        top.y -= 1.0f;
+    } else {
+        top = base;
+        top.y += m5B4 - 2.0f * m620;
+    }
+    mColli.m3C = base;
+    mColli.m48 = top;
+    mColli.m54 = m620;
+    if (m14E8 != 0) {
+        m14E8->fn_80145334();
+        m14E8->mLook.fn_80129A6C();
+        if (m1524 != 0) {
+            if (m14E8 != 0 && m1558 == 0) {
+                vf100(17);
+                m1558--;
+            } else if ((m14E8->mStatus.m0C & 0x20) == 0x20) {
+                m14E8->fn_80176ACC();
+                m14E8->mF1C = 0;
+                m14E8->mLook.fn_80129A48(0.3f);
+                m14E8->mMotion.m34C = 1;
+                m14E8->mMotion.mTracks[0].m20 = 1.0f;
+                m14E8->mMotion.mTracks[0].m0C = 1.0f;
+                m14E8->mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+                m14E8 = 0;
+                fn_801028E4(lbl_8087F048, 0, this, 0);
+                fn_8015495C(0, 1, 1, 1);
+                mC58.mC4 = 0;
+                mF18 = mF14;
+                mF14 = 0;
+                vf100(14);
+                m1550 = 300;
+            }
+        }
+    }
+    if (m1524 != 0) {
+        fn_802F1120();
+    }
+}
+
+
 void Em306GurgBeast::vf14() {
     fn_80149A30();
     if (m14E8 != 0) {
@@ -162,6 +317,91 @@ void Em306GurgBeast::vfFC() {
     vf100(6);
 }
 
+// inferred: starts a state (8-13: attacks, 14: walk, 15/16: the leader gets on, 17: stop, 2: down)
+void Em306GurgBeast::vf100(int state) {
+    if (CharaTask::mFlag2) {
+        return;
+    }
+    int prev = m58C;
+    m14BC = 0;
+    m14C0 = 0;
+    m14C4 = 0;
+    m14C8 = 0;
+    mFlag31 = 0;
+    mFlag30 = 0;
+    mFlag29 = 0;
+    mFlag28 = 0;
+    mFlag27 = 1;
+    m14D0 = 0;
+    m58C = state;
+    switch (state) {
+    case 6:
+        mFlag30 = 1;
+        break;
+    case 7:
+        mFlag30 = 1;
+        break;
+    case 8:
+    case 9:
+        fn_805A4F1C(0x143, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 10:
+    case 11:
+        fn_805A4F1C(0x13F, 0, 1, 1.0f, 0.0f);
+        m14C8 = fn_800F8548(lbl_8087F048);
+        mRot.y = m14D8.ToRotation_unk().y;
+        mFlag30 = 0;
+        break;
+    case 12:
+        fn_805A4F1C(0x141, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 13:
+        fn_805A4F1C(0x144, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 2:
+        if (mF14 == 1) {
+            if ((mStatus.m0C & 0x20) == 0x20 && prev != 2) {
+                vf44();
+            }
+            if (m55C != 2) {
+                fn_8016E970(2);
+            }
+            fn_805A4F1C(0x2E, 0, 1, 1.0f, 0.0f);
+            mFlag30 = 0;
+            if (m14E8 != 0) {
+                m14E8->fn_80176ACC();
+                m14E8->mF1C = 0;
+                m14E8->mLook.fn_80129A48(0.3f);
+                m14E8 = 0;
+            }
+        }
+        break;
+    case 14:
+        mFlag30 = 1;
+        mMotion.fn_80097C08(0, 0x142, 1, 0, 1, 0.0f, 0.1f);
+        break;
+    case 15:
+        lbl_8087F8A0->mHead->fn_80163E70(this);
+        break;
+    case 16:
+        m152C = lbl_8087F8A0->mHead;
+        if (m152C != 0) {
+            m1530 = (int)mMotion.GetNodeMtx_unk("seatpoint");
+            if (m1530 != 0) {
+                m152C->mF1C = m1530;
+            }
+        }
+        break;
+    case 17:
+        fn_805A4F1C(0x143, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    }
+}
+
 void Em306GurgBeast::vf30(void* menu) {
     char name[0x100];
     sprintf(name, "Em306 GurgBeast[%d]", m58);
@@ -172,6 +412,214 @@ void Em306GurgBeast::vf30(void* menu) {
         group = 0;
     }
     fn_805A5220(group);
+}
+
+// inferred: movement of the states (6/7 wait, 8/9 turn to the goal, 10/11 charge while firing the skill
+// m14EC, 12 jump, 13 skid, 14 end); every inline is called out of line here (inline budget)
+// NONMATCHING: 97.84% - r5/r7 order of the two fn_802F0964 calls (skill and its m5C); the jump table name
+// differs only in the symbol (~8 forms)
+void Em306GurgBeast::vf108() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot(mRot);
+    if (m55C == 2) {
+    switch (m58C) {
+    case 6:
+        mFlag31 = 1;
+        break;
+    case 7:
+        if (m14C0 > m14F0) {
+            mFlag31 = 1;
+        }
+        break;
+    case 8:
+    case 9: {
+        atn::Vector3 goal(m1518 == 0 ? *m14D4->fn_8013C38C() : m1518->mPos);
+        atn::Vector3 d = goal - mPos;
+        if (!(fn_80011220(d.LengthSq_unk()) < 1.1920929e-7f)) {
+            d.Normalize_unk();
+        }
+        m14D8 = d;
+        m14D8.y = 0.0f;
+        float frame = mMotion.fn_80139550(0);
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (frame >= 15.0f) {
+            rot = m14D8.ToRotation_unk();
+        }
+        break;
+    }
+    case 10:
+    case 11:
+        if (m14BC == 0) {
+            float len = mMotion.fn_80097D7C(0);
+            if (mMotion.fn_80139550(0) >= len) {
+                m14BC++;
+                mMotion.fn_80097C08(0, 0x140, 1, 0, 1, 0.0f, 0.1f);
+            }
+        } else if (m14BC == 1) {
+            atn::Vector3 goal(m1518 == 0 ? *m14D4->fn_8013C38C() : m1518->mPos);
+            atn::Vector3 d = goal - mPos;
+            d.y = 0.0f;
+            if (!(fn_80011220(d.LengthSq_unk()) < 1.1920929e-7f)) {
+                d.Normalize_unk();
+            }
+            float step = 0.009424779f;
+            atn::Vector3 diff = d.ToRotation_unk() - m14D8.ToRotation_unk();
+            diff.y = atn::WrapAngle_unk(diff.y);
+            Mtx m;
+            ((atn::Matrix3x4*)m)->fn_8013A13C(diff.y > 0.0f ? step : -step);
+            m14D8.fn_80011410(*(atn::Matrix3x4*)m);
+            speed = 1.0f;
+            rot = m14D8.ToRotation_unk();
+            rate = 2.0f;
+            if (m58C == 10) {
+                if (!m14D4->CanAct_unk() || m14D4->fn_801533C8(m14C8, 0)) {
+                    mFlag31 = 1;
+                    if (fn_801A03E8(m14D8, d) > 0.9659258f) {
+                        m14C4 = 13;
+                    } else {
+                        m14C4 = 12;
+                    }
+                } else if (fn_801A03E8(m14D8, d) < -0.25881904f) {
+                    mFlag31 = 1;
+                    m14C4 = 13;
+                } else if (m14C0 > 180) {
+                    mFlag31 = 1;
+                    m14C4 = 8;
+                } else {
+                    HitInfo_unk* skill = fn_80219E6C(m14EC);
+                    fn_802F0964(fn_8013A194(), this, skill, m14C8, skill->m5C, -1, 0.0f);
+                }
+            } else if (fn_801A03E8(m14D8, d) < -0.25881904f) {
+                mFlag31 = 1;
+                m14C4 = 12;
+            } else if (m14C0 > 180) {
+                mFlag31 = 1;
+                m14C4 = 12;
+            } else {
+                HitInfo_unk* skill = fn_80219E6C(m14EC);
+                fn_802F0964(fn_8013A194(), this, skill, m14C8, skill->m5C, -1, 0.0f);
+            }
+        }
+        break;
+    case 12: {
+        float frame = mMotion.fn_80139550(0);
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (frame <= 57.0f) {
+            float k = 2.0175438f;
+            float scale = fn_802F0988(fn_802F0990());
+            atn::Vector3 move = m14D8 * k;
+            move *= scale;
+            CollResult_unk result;
+            fn_8004D388(fn_801404F8(), &result, &m614, &move, 0x80, &mColli, 0, m620);
+            mPos = result.m10;
+            mPos -= m5A4;
+            mPos.y -= m620;
+            if ((result.m3C & 1) != 1) {
+                m14D8.y += fn_802F0998(fn_800F52F8());
+            } else {
+                m14D8.y = 0.0f;
+            }
+            mRot.y += 0.055115663f;
+            return;
+        }
+        break;
+    }
+    case 13: {
+        float frame = mMotion.fn_80139550(0);
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (frame <= 15.0f) {
+            atn::Vector3 vel(m574);
+            float v = m570;
+            fn_8013CB68(&rot, 1, speed, rate);
+            m574.x = vel.x;
+            m574.z = vel.z;
+            m570 = v;
+            return;
+        }
+        break;
+    }
+    case 14:
+        mFlag31 = 1;
+        break;
+    case 16:
+        return;
+    }
+    } else {
+        fn_805A4254();
+        return;
+    }
+    fn_8013CB68(&rot, 0, speed, m568 * rate);
+}
+
+// inferred: names invented
+inline float Max_unk(float a, float b) {
+    return a > b ? a : b;
+}
+
+// inferred: walk motion of the beast: turning (0x144) when the movement is more than 45 degrees off the facing,
+// running (0x140, speed from m1560) or walking (0x142)
+void Em306GurgBeast::fn_802F0F60() {
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    if (m1560 > 0.3f) {
+        atn::Vector3 move(m574.x, 0.0f, m574.z);
+        PSVECNormalize(&move, &move);
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &front, &front);
+        float dot = PSVECDotProduct(&move, &front);
+        if (dot < (float)cos(0.7853981852531433)) {
+            mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
+        } else {
+            mMotion.fn_80097C08(0, 0x140, 1, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C =
+                1.3f < Max_unk(0.5f, 0.5f * m1560) ? 1.3f : Max_unk(0.5f, 0.5f * m1560);
+        }
+    } else {
+        mMotion.fn_80097C08(0, 0x142, 1, 0, 1, 0.0f, 0.1f);
+    }
+    if (--m1544 < 0) {
+        m1544 = 30;
+        m1540 = fn_800F8548(lbl_8087F048);
+    }
+}
+
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 GetSeatPos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// NONMATCHING: 96.18% - block order of the state 17 test and r3/r4/r5 of the seat copy (~6 forms)
+// inferred: keeps the rider m152C on the seat m1530 with the beast's motion frame (motion 0x1F0, 0x1F1 when
+// m1560 >= 4)
+void Em306GurgBeast::fn_802F1120() {
+    if (m152C == 0 || m1530 == 0) {
+        return;
+    }
+    if (m58C != 17) {
+    int motion = 0x1F0;
+    if (m154C != 0 && m1560 >= 4.0f) {
+        motion = 0x1F1;
+    }
+    m152C->mMotion.m34C = 1;
+    m152C->mMotion.mTracks[0].m20 = 1.0f;
+    m152C->mMotion.mTracks[0].m0C = 0.0f;
+    m152C->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
+    m152C->mMotion.fn_80097C08(0, motion, 1, 0, 1, 0.0f, 0.1f);
+    m152C->mF1C = m1530;
+    m152C->mPos = GetSeatPos_unk((MtxPtr)m1530);
+    m152C->mRot = mRot;
+    m152C->fn_80145334();
+    }
 }
 
 void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
@@ -194,4 +642,36 @@ void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
         rider->fn_801750FC();
     }
     rider->fn_80164DCC(0);
+}
+
+// NONMATCHING: 97.72% - only the place of the load of the rider's rotation before PSMTXRotRad (~8 forms)
+// inferred: throws the rider m152C off to the side; with `restart` the beast goes to state 14
+void Em306GurgBeast::fn_802F1320(int restart) {
+    if (m152C == 0) {
+        return;
+    }
+    PlayerTask* head;
+    if (lbl_8087F048 != 0 && lbl_8087F8A0 != 0 && (head = lbl_8087F8A0->mHead) != 0) {
+        fn_80102824(lbl_8087F048, this, head);
+    }
+    if ((m152C->mStatus.m0C & 0x20) != 0x20) {
+        m152C->fn_8016E970(1);
+    }
+    m152C->fn_801446F0();
+    m152C->mF1C = 0;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx r;
+    Mtx m;
+    PSMTXRotRad(m, 'y', m152C->mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    PSMTXRotRad(r, 'y', -1.5707964f);
+    PSMTXMultVec(r, &dir, &dir);
+    dir *= 5.0f;
+    m152C->m574 = dir;
+    m152C->fn_8017AC3C(0);
+    m152C = 0;
+    if (restart != 0) {
+        vf100(14);
+        m1550 = 300;
+    }
 }

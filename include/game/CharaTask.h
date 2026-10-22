@@ -261,17 +261,36 @@ struct MotionCommand_unk {
     unsigned int m30;       // inferred: motion resource id of the last update
 };
 
+// inferred: pair of words copied together (lwz/lwz/stw/stw); name invented
+struct CharaResPair_unk {
+    int m00;
+    int m04;
+};
+
 // inferred: resource entry returned by fn_80204E04 (CharaTask::m68); name invented
 struct CharaRes_unk {
     int m00;
     int m04; // inferred: returned by fn_8017AC08
-    unsigned char m08[0x30 - 0x08];
+    // inferred: the member types below follow the copy in Em315Coffin's constructor (words copied in
+    // pairs = 8-byte members, lfs/stfs = floats); names unknown
+    CharaResPair_unk m08_unk[4];
+    float m28;
+    float m2C;
     float m30;
     float m34; // inferred: m30-m38 picked by the kind of the part in hand (AI/AiCommon_unk fn_8001BD14)
     float m38;
-    unsigned char m3C[0x54 - 0x3C];
+    int m3C;
+    int m40;
+    int m44;
+    int m48;
+    float m4C;
+    float m50;
     float m54;
-    unsigned char m58[0x88 - 0x58];
+    float m58;
+    float m5C;
+    float m60;
+    CharaResPair_unk m64_unk[4];
+    int m84;
     int m88;
     int m8C;
 };
@@ -365,7 +384,9 @@ public:
     CharaTask(atn::Task* parent, int type, void* data); // 0x801354B4
     virtual ~CharaTask();                               // 0x80136138
     virtual int vf0C();                                 // 0x8017CB74
-    virtual int vf1C(); // inferred: nonzero skips the node hooks (fn_80148CC4)
+    // inferred: node matrix hook of the subclass (fn_80148CC4 passes its matrix and node); nonzero skips
+    // the other hooks. The arguments are only read by Em209SmallGolem::vf1C (0x802CFE78).
+    virtual int vf1C(atn::Matrix3x4* mtx, struct ModelNodeDesc_unk* node);
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
@@ -407,7 +428,10 @@ public:
     virtual int vfA4();
     virtual int vfA8(int kind); // inferred: returns -1 (0x80041A20); EnemyTrista::vfA8 returns 0, 2 or 3
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
-    virtual void vfB0();
+    // inferred: point to aim at, nonzero if there is one (0x800EF31C returns 0; GameUI passes a
+    // vector at 0x803D3C80; Em302Kraken/Em302KrakenMp fill it; the target symbol said Fv;
+    // Em205Ogre 0x802BA64C writes the center of its second sphere)
+    virtual int vfB0(atn::Vector3* out);
     // inferred: action to run for `chara` (empty in CharaTask: weak copy 0x800EF310; called by
     // chr::ControlWallUp::vf10)
     virtual boost::function<void()> vfB4(CharaTask* chara);
@@ -415,14 +439,14 @@ public:
     virtual void vfBC();
     virtual void vfC0(void* draw); // inferred: Np131LivingArmor passes `draw` to fn_803E2A30
     virtual bool vfC4();
-    virtual void vfC8();
+    virtual atn::Vector3 vfC8(); // inferred: returns a position (0x800EF2F0 copies mPos; Em302Kraken)
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // inferred: four points (the target symbol says Fv)
     virtual atn::Vector3 vfD0(float angle); // inferred: position at mid height
-    virtual void vfD4();
+    virtual float vfD4(); // inferred: returns f1 (0x800EF2B4: scaled vf90)
     // inferred: a free position next to the character, away from `target` (8 directions tried)
     virtual atn::Vector3 vfD8(CharaTask* target);
-    virtual void vfDC();
-    virtual void vfE0();
+    virtual float vfDC(); // inferred: returns f1 (0x800EF270: scaled vf90)
+    virtual float vfE0(); // inferred: returns f1 (0x800EF080 returns the yaw of a vector passed in r4, the parameter is not declared; EnemyQuarkStand 0x80354378)
 
     int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading
     int fn_801370B8(int index);
@@ -541,7 +565,7 @@ public:
     void fn_8016BEDC(CharaTask* other, atn::Vector3 v);
     void fn_8016C1E0(CharaTask* other);
     void fn_8016C4D8(int a, const atn::Vector3& v);
-    void fn_8016C7D8(int a);
+    void fn_8016C7D8(CharaTask* holder); // inferred: stuck by the sword of `holder` (chr::ControlStickByQuark; the bind of EnemyQuarkStand::fn_8035359C names the type)
     void fn_8016CAD0();
     void fn_8016CDB8(int a, int b);
     bool fn_8016D3F8(); // inferred: control 0x63, or 0x27 with motion 0x8E

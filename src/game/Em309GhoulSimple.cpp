@@ -1,6 +1,8 @@
 #include "game/Em309GhoulSimple.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "std/new.h"
 #include "math/Vec.h"
 
@@ -10,6 +12,24 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
+                            int arg7);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
+extern "C" int rand();
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+// inferred: per-player weights of an effect (floats at +0x128); names invented
+struct GhoulWeights_unk {
+    unsigned char m00[0x128];
+    float mWeight[4];
+};
+extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
+extern "C" int fn_80108378(GhoulWeights_unk* w, CharaTask* chara); // inferred: index of `chara`
 
 inline GhoulStr_unk& GhoulStr_unk::operator=(const char* str) {
     if (str != mStr) {
@@ -27,15 +47,12 @@ inline bool Em309GhoulSimple::IsDownState_unk() {
     return ok;
 }
 
-// NONMATCHING: ~85% - the loop of the GhoulPair_unk constructors starts at the first element in the
-// original (ours peels it) and the zero of m15BC/m1648-m1654 is kept in r30
 Em309GhoulSimple::Em309GhoulSimple(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D8(0.0f, 0.0f, 0.0f), m14E4(40.0f), m14E8(0), m14EC(0), m14F0(0),
       m14F4(0), m14F8(0), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m1510(0), m1514(0), m1518(0),
-      m151C(0), m1520(0), m1524(0), m1528(90), m1538(10), m153C(3.0f), m1540(0.0f), m1544(0.0f), m1548(0.0f),
-      m154C(0.0f), m1550(0.0f), m1554(0.0f), m1570(0), m1574(0), m15B8(-1.0f), m1648(0),
+      m151C(0), m1520(0), m1524(0), m1528(90), m1538(10), m153C(3.0f), m1540(0.0f, 0.0f, 0.0f),
+      m154C(0.0f), m1550(0.0f), m1554(0.0f), m1570(0), m15B8(-1.0f), m1648(0),
       m164C(0), m1654(0) {
-    m15BC.mStr[0] = '\0';
     char name[0x100];
     char path[0x100];
     if (fn_805A3D68(name, info->m2C)) {
@@ -67,7 +84,7 @@ int Em309GhoulSimple::vf0C() {
             return 0;
         }
         fn_80306078((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
-        if (m15B8 > 0.0f && m1574 != 0) {
+        if (m15B8 > 0.0f && m1574.mCount != 0) {
             m163C.fn_8023780C(m15BC.mStr);
         }
         m164C++;
@@ -88,7 +105,7 @@ int Em309GhoulSimple::vf0C() {
             m1438->fn_800D246C(0);
             m1438->mFlags |= 4;
         }
-        if (m15B8 > 0.0f && m1574 != 0) {
+        if (m15B8 > 0.0f && m1574.mCount != 0) {
             m1648 = 1;
         }
         mStatus.m18 |= 0x1C0;
@@ -100,61 +117,6 @@ int Em309GhoulSimple::vf0C() {
         return 1;
     }
     return 0;
-}
-
-void Em309GhoulSimple::vf14() {
-    fn_80149A30();
-}
-
-int Em309GhoulSimple::vf10C(HitMsg_unk* msg) {
-    if (mFlag29) {
-        return 0;
-    }
-    if (m58C == 13) {
-        if (msg->mData != 0 && msg->mData->m04 == 0x658) {
-            msg->m10 *= 0.0f;
-            msg->m0C |= 0x80;
-            return 1;
-        }
-        return 0;
-    }
-    msg->m10 *= 0.0f;
-    if (!IsDownState_unk()) {
-        msg->m0C |= 8;
-    }
-    return 1;
-}
-
-void Em309GhoulSimple::vfFC() {
-    fn_8016E970(2);
-    vf100(6);
-}
-
-void Em309GhoulSimple::vf54() {
-    if (m624.mSize < 2) {
-        return;
-    }
-    m624.mData[0].m04.mRadius = mColli.m54;
-    m624.mData[0].m04.mCenter = mColli.m3C;
-    m624.mData[1].m04.mRadius = 0.5f * mColli.m54;
-    m624.mData[1].m04.mCenter = mColli.m48;
-    m624.mData[1].m04.mCenter.y += 0.5f * mColli.m54;
-}
-
-atn::Vector3 Em309GhoulSimple::vf64(int center) {
-    atn::Vector3 result = mPos;
-    if (center == 0) {
-        result = mPos;
-    } else if (fn_805A49E4((SpecialFlag_unk*)&m1558) > 0 && m624.mSize >= 2) {
-        result = m624.mData[1].m04.mCenter;
-    } else {
-        result = mPos;
-    }
-    return result;
-}
-
-float Em309GhoulSimple::vf90() {
-    return 3.0f;
 }
 
 void Em309GhoulSimple::fn_80306078(const char* text, int length) {
@@ -191,12 +153,11 @@ void Em309GhoulSimple::fn_80306078(const char* text, int length) {
                 if (id == 0) {
                     break;
                 }
-                new (&m1578[m1574]) GhoulPair_unk(id, 0);
-                m1574++;
+                m1574.PushBack_unk(GhoulPair_unk(id, 0));
             }
         } else if (strcmp(key, "SummonWarpPoint") == 0) {
-            GhoulPair_unk* p = m1578;
-            for (unsigned int i = 0; i < m1574; p++, i++) {
+            GhoulPair_unk* p = m1574.mData;
+            for (unsigned int i = 0; i < m1574.mCount; p++, i++) {
                 p->m04 = atoi(csv.fn_8005B9CC());
             }
         } else if (strcmp(key, "SummonNotifyFlag") == 0) {
@@ -208,3 +169,383 @@ void Em309GhoulSimple::fn_80306078(const char* text, int length) {
         }
     } while (csv.fn_8005BBF8());
 }
+
+// NONMATCHING: 99.57% - volatile registers of the inlined CanAct_unk (r5/r0/r4 in the original, r5/r4/r6 here;
+// the same inline matches in Em205Ogre/Em315Coffin); 9 variants
+void Em309GhoulSimple::vf10() {
+    if (!CharaTask::mFlag2 || !CanAct_unk()) {
+        vf104();
+    }
+    if (m14F4 > 0) {
+        m14F4--;
+    }
+    if (m1504 > 0) {
+        m1504--;
+    }
+    if (m1514 > 0) {
+        m1514--;
+    }
+    if (m1524 > 0) {
+        m1524--;
+    }
+    fn_8014C540();
+    atn::Vector3 pos = mPos;
+    atn::Vector3 rot = mRot;
+    if (m58C == 12) {
+        if (m14BC == 0) {
+            float frame = mMotion.mTracks[0].m08;
+            mPos.y += m5B0 * (frame / mMotion.fn_80097D7C(0));
+        } else {
+            mPos.y += m5B0;
+            m154C += -0.5235988f;
+            mRot.x = m154C;
+        }
+    }
+    if ((mFlags & 1) != 1 && !CharaTask::mFlag25) {
+        fn_80145334();
+    }
+    if (m58C == 12) {
+        mPos = pos;
+        mRot = rot;
+    }
+    if (m1570 != 0) {
+        GhoulWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            int i = fn_80108378(w, p);
+            w->mWeight[i] = p->mType == 0 ? 1.0f : 0.3f;
+        }
+    }
+}
+
+void Em309GhoulSimple::vf14() {
+    fn_80149A30();
+}
+
+int Em309GhoulSimple::vf10C(HitMsg_unk* msg) {
+    if (mFlag29) {
+        return 0;
+    }
+    if (m58C == 13) {
+        if (msg->mData != 0 && msg->mData->m04 == 0x658) {
+            msg->m10 *= 0.0f;
+            msg->m0C |= 0x80;
+            return 1;
+        }
+        return 0;
+    }
+    msg->m10 *= 0.0f;
+    if (!IsDownState_unk()) {
+        msg->m0C |= 8;
+    }
+    return 1;
+}
+
+void Em309GhoulSimple::vfFC() {
+    fn_8016E970(2);
+    vf100(6);
+}
+
+// inferred: names invented (as in game/Em205Ogre.cpp)
+inline void SafeNormalize_unk(atn::Vector3* v) {
+    if ((float)__fabs(fn_805F9920(v)) < 1.1920929e-7f) {
+        return;
+    }
+    PSVECNormalize(v, v);
+}
+
+// inferred: negated vector (name invented)
+inline atn::Vector3 GhoulNeg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
+// inferred: hit by skill 0xCB: the ghoul turns its back to the knockback direction and plays state 12;
+// a hit by skill 0x658 during the head attack (13) raises "HeadAttackNotifyFlag"
+void Em309GhoulSimple::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        vf100(2);
+        return;
+    }
+    if (msg->mData != 0 && msg->mData->m04 == 0xCB) {
+        atn::Vector3 dir = msg->m10;
+        dir.y = 0.0f;
+        if (!((float)__fabs(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+            PSVECNormalize(&dir, &dir);
+            mRot = dir.ToRotation_unk();
+            mRot.y += 3.1415927f;
+        }
+        vfFC();
+        vf100(12);
+    }
+    if (m58C == 13 && msg->mData != 0 && msg->mData->m04 == 0x658) {
+        fn_805A4A1C((SpecialFlag_unk*)&m1560, 1);
+        m1570 = 1;
+    }
+}
+
+// NONMATCHING: 99.96% - stack slots of the direction temporaries of states 9-11 and 12 (~15 variants)
+void Em309GhoulSimple::vf100(int state) {
+    if (CharaTask::mFlag2) {
+        return;
+    }
+    int prev = m58C;
+    m14BC = 0;
+    m14C0 = 0;
+    m14C4 = 0;
+    m14C8 = 0;
+    mFlag31 = 0;
+    mFlag30 = 0;
+    mFlag29 = 0;
+    mFlag28 = 0;
+    mFlag27 = 1;
+    m14D0 = 0;
+    m58C = state;
+    switch (state) {
+    case 6:
+        mFlag30 = 1;
+        break;
+    case 7:
+        mFlag30 = 1;
+        break;
+    case 8:
+        m14D4 = mC58.mC4;
+        mC58.m0C.fn_80128930(m14D4, &mPos, 0);
+        mC58.m0C.mRadius = 0.9f * m14E4;
+        mC58.m0C.fn_801255C8();
+        mFlag30 = 1;
+        break;
+    case 9:
+    case 10:
+    case 11:
+        m14D4 = mC58.mC4;
+        if (m14D4 != 0) {
+            atn::Vector3 d = m14D4->mPos - mPos;
+            m14D8 = d;
+            m14D8.y = 0.0f;
+            SafeNormalize_unk(&m14D8);
+        } else {
+            m14D8.x = 0.0f;
+            m14D8.y = 0.0f;
+            m14D8.z = 1.0f;
+            Mtx m;
+            float ry = mRot.y;
+            PSMTXRotRad(m, 'y', ry);
+            PSMTXMultVec(m, &m14D8, &m14D8);
+        }
+        if (m58C == 9) {
+            fn_805A4F1C(0x140, 0, 1, 1.0f, 0.0f);
+        } else if (m58C == 10) {
+            fn_805A4F1C(0x143, 0, 1, 1.0f, 0.0f);
+        } else {
+            fn_805A4F1C(0x145, 0, 1, 1.0f, 0.0f);
+        }
+        m14C8 = fn_800F8548(lbl_8087F048);
+        mFlag28 = 1;
+        break;
+    case 12: {
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        float ry = mRot.y;
+        PSMTXRotRad(m, 'y', ry);
+        PSMTXMultVec(m, &front, &front);
+        m1540 = GhoulNeg_unk(front);
+
+        m154C = 0.0f;
+        m1550 = 0.0f;
+        m1554 = 0.0f;
+        fn_805A4F1C(0x14A, 0, 1, 1.0f, 0.0f);
+        m14C8 = fn_800F8548(lbl_8087F048);
+        mFlag28 = 1;
+        break;
+    }
+    case 13:
+        fn_805A4F1C(0x3D, 0, 1, 1.0f, 0.0f);
+        mFlag28 = 1;
+        break;
+    case 14:
+        fn_805A4F1C(0x150, 0, 1, 1.0f, 0.0f);
+        mFlag28 = 1;
+        break;
+    case 2:
+        if ((mStatus.m0C & 0x20) == 0x20 && prev != 2) {
+            vf44();
+        }
+        fn_805A4F1C(0x2E, 0, 1, 1.0f, 0.0f);
+        break;
+    }
+}
+
+// inferred: hit point ratio (name invented)
+inline float GhoulHpRatio_unk(CharaTask* c) {
+    int max = c->mStatus.mParamB.m84;
+    return max > 0 ? c->mStatus.m04 / max : 0.0f;
+}
+
+void Em309GhoulSimple::vf104() {
+    m14C0++;
+    if (CanAct_unk() && (m58C == 7 || m58C == 8)) {
+        if (!vfF8()) {
+            vf100(6);
+        } else if (m1648 != 0 && GhoulHpRatio_unk(this) <= m15B8) {
+            vf100(14);
+        }
+    }
+    switch (m58C) {
+    case 6:
+        if (vfF8()) {
+            vf100(8);
+        }
+        vf108();
+        break;
+    case 7:
+        if (mFlag31) {
+            if (m1538 > rand() % 100 && m1514 <= 0) {
+                vf100(11);
+            } else {
+                vf100(8);
+            }
+        }
+        vf108();
+        break;
+    case 8: {
+        CharaTask* target = m14D4;
+        if (mC58.mC4 != target) {
+            if (m1538 > rand() % 100 && m1514 <= 0) {
+                vf100(11);
+            } else {
+                vf100(8);
+            }
+        } else {
+            int state = target->m55C;
+            int sub = target->m560;
+            fn_805A45F8(50.0f, 360.0f, 0.0f);
+            if (m14C0 % 10 == 0 && m1514 <= 0 && state == 6 && (sub == 0x1D || sub == 0xD)) {
+                vf100(11);
+            } else if (mFlag31) {
+                atn::Vector3 d = m14D4->mPos - mPos;
+                if (fn_805F9920(&d) < m14E4 * m14E4) {
+                    if (m14F4 <= 0) {
+                        vf100(9);
+                    }
+                } else {
+                    vf100(8);
+                }
+            }
+        }
+        vf108();
+        break;
+    }
+    case 9:
+    case 10:
+    case 11:
+    case 13:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 12:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 14:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 2:
+        fn_805A40B8();
+        break;
+    default:
+        vf100(6);
+        break;
+    }
+}
+
+// inferred: node position (name invented, as in game/Em205Ogre.cpp)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// NONMATCHING: 99.64% - r4/r5 of the copy of the neck position (__VecCopy family, documented blocker)
+void Em309GhoulSimple::vf20() {
+    m620 = m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Vector3 top = m614;
+    atn::Vector3 head;
+    int neck = mMotion.fn_80092814("neck", 0);
+    if (neck > -1) {
+        head = GetNodePos_unk(mMotion.mNodeMtx[neck]);
+    } else {
+        head = top;
+        head.y += m5B4 - 2.0f * m620;
+    }
+    float r = m620;
+    mColli.m3C = top;
+    mColli.m48 = head;
+    mColli.m54 = r;
+
+}
+
+void Em309GhoulSimple::vf54() {
+    if (m624.mSize < 2) {
+        return;
+    }
+    m624.mData[0].m04.mRadius = mColli.m54;
+    m624.mData[0].m04.mCenter = mColli.m3C;
+    m624.mData[1].m04.mRadius = 0.5f * mColli.m54;
+    m624.mData[1].m04.mCenter = mColli.m48;
+    m624.mData[1].m04.mCenter.y += 0.5f * mColli.m54;
+}
+
+atn::Vector3 Em309GhoulSimple::vf64(int center) {
+    atn::Vector3 result = mPos;
+    if (center == 0) {
+        result = mPos;
+    } else if (fn_805A49E4((SpecialFlag_unk*)&m1558) > 0 && m624.mSize >= 2) {
+        result = m624.mData[1].m04.mCenter;
+    } else {
+        result = mPos;
+    }
+    return result;
+}
+
+// NONMATCHING: 99.92% - only the offsets in the string pool (strings of functions not written yet)
+void Em309GhoulSimple::vf30(void* menu) {
+    char name[0x100];
+    sprintf(name, "Em309 GhoulLight[%d]\0", m58);
+    void* group;
+    if (m1650.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        group = m1650.mRes = fn_8008937C(menu, name);
+    } else {
+        group = 0;
+    }
+    fn_805A5220(group);
+    {
+        void* sub = fn_8008937C(group, "AttackNormal");
+        fn_800874C8(sub, "SkillID", &m14E8, 0, 999999, 1, 0, 0);
+        fn_800874C8(sub, "CoolTime", &m14F0, 0, 999999, 1, 0, 0);
+    }
+    {
+        void* sub = fn_8008937C(group, "AttackLong");
+        fn_800874C8(sub, "SkillID", &m14E8, 0, 999999, 1, 0, 0);
+        fn_800874C8(sub, "ChargeTime", &m14EC, 0, 999999, 1, 0, 0);
+        fn_800874C8(sub, "CoolTime", &m14F0, 0, 999999, 1, 0, 0);
+    }
+    {
+        void* sub = fn_8008937C(group, "AttackRolling");
+        fn_800874C8(sub, "SkillID", &m14E8, 0, 999999, 1, 0, 0);
+    }
+    fn_8008771C(group, "AttackDistance", &m14E4, 0, 0, 0.0f, 9999.0f, 1.0f);
+    fn_800874C8(group, "WaitFrame", &m1528, 0, 999, 1, 0, 0);
+    fn_800874C8(group, "SometimeAttackLong", &m1538, 0, 999, 1, 0, 0);
+}
+
+float Em309GhoulSimple::vf90() {
+    return 3.0f;
+}
+

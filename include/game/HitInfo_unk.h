@@ -24,7 +24,8 @@ struct HitInfo_unk {
     const char* m08;
     unsigned char m0C[0x10 - 0x0C];
     atn::Vector3 m10; // inferred: knockback direction
-    unsigned char m1C[0x40 - 0x1C];
+    unsigned char m1C[0x3C - 0x1C];
+    int m3C; // inferred: bullet kind passed to fn_8010B250 (EnemyQuarkStand::fn_80348FF4)
     float m40; // inferred: range added to the character reach when m01 is 0 (AI/AiCommon_unk fn_8001BB04;
                // EnemyTrista::fn_8035DA94 adds CharaParam_unk::m28)
     float m44; // inferred: range used otherwise

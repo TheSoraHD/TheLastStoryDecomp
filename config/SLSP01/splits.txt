@@ -1582,7 +1582,7 @@ game/Em003LesserDaemon.cpp:
 	.data       start:0x807841D8 end:0x80784340
 	.sdata2     start:0x80883268 end:0x80883338
 
-game/Em005DoppelGanger.cpp:
+game/em005_doppel_ganger.cpp:
 	.text       start:0x80250A24 end:0x8025457C
 	.ctors      start:0x8072D324 end:0x8072D328
 	.rodata     start:0x80743AA8 end:0x80743C70
@@ -1667,6 +1667,7 @@ game/Em202SpiderBase.cpp:
 	.ctors      start:0x8072D330 end:0x8072D334
 	.rodata     start:0x807450E0 end:0x807452F0
 	.data       start:0x80785630 end:0x807857A0
+	.bss        start:0x807C8398 end:0x807C83A8
 	.sdata2     start:0x808839E8 end:0x80883A98
 
 game/Em203GreaterDaemon.cpp:
@@ -1744,14 +1745,14 @@ game/Em209BigGolem.cpp:
 game/Em209SmallGolem.cpp:
 	.text       start:0x802CCFD8 end:0x802D0038
 	.ctors      start:0x8072D340 end:0x8072D344
-	.rodata     start:0x80746ED0 end:0x80747098
+	.rodata     start:0x80746ED0 end:0x80747080
 	.data       start:0x80786B00 end:0x80786C10
 	.bss        start:0x807C83C8 end:0x807C83F8
 	.sdata2     start:0x808844E0 end:0x80884558
 
 game/Em301LShade.cpp:
 	.text       start:0x802D0038 end:0x802D73E4
-	.rodata     start:0x80747098 end:0x807470A4
+	.rodata     start:0x80747080 end:0x807473F8
 	.data       start:0x80786C10 end:0x80786DC0
 	.sdata2     start:0x80884558 end:0x808845E8
 
@@ -1786,7 +1787,7 @@ game/Em303KrakenFootMp.cpp:
 
 game/Em305Vampire.cpp:
 	.text       start:0x802E8580 end:0x802EC670
-	.rodata     start:0x80747F60 end:0x80747F70
+	.rodata     start:0x80747F58 end:0x80748238
 	.data       start:0x807873E8 end:0x80787548
 	.sdata2     start:0x808847A8 end:0x80884810
 

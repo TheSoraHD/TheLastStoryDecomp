@@ -33,8 +33,13 @@ public:
 
     void fn_802E5B30(int value); // inferred: setter of m14F0 (called by the kraken)
     void fn_802E5CD0(const char* text, int length); // inferred: reads the data file
+    void fn_802E7740(); // inferred: action state machine (m14E4)
     void fn_802E8084(int kind);
     inline void Reset_unk(); // inferred: starts the damage reaction
+    inline void SetState_unk(int state);   // inferred: names invented
+    inline void PlayMotion_unk(int motion);
+    inline void FaceTarget_unk();
+    void UpdateColli_unk(); // inferred: inline (name invented)
 
     atn::LH_Binary m14D4;    // inferred: data file
     int m14DC;
@@ -43,7 +48,7 @@ public:
     int m14E8;
     float m14EC;             // inferred: "YOffset"
     int m14F0;
-    int m14F4;
+    int m14F4;               // inferred: target character (CharaTask*)
     HitInfo_unk* m14F8;      // inferred: "SwingSkillId"
     HitInfo_unk* m14FC;      // inferred: "PoundSkillId"
     int m1500;

@@ -132,6 +132,15 @@ public:
     unsigned char m08[0x10 - 0x08];
 };
 
+// inferred: control 0x6E of a character held by Em403WarLion (game/Em403WarLion.cpp); class name from
+// the vtable stored by the constructor
+class ControlMatHoldPre : public ControlBase {
+public:
+    ControlMatHoldPre(Chara_unk* chara, Chara_unk* holder); // 0x80197528
+    virtual int vf0C();
+    Chara_unk* m08; // inferred: holder
+};
+
 class ControlMatHoldRelease : public ControlBase {
 public:
     ControlMatHoldRelease(Chara_unk* chara); // 0x801980B4
@@ -179,6 +188,15 @@ public:
     ControlThrustForKraken(Chara_unk* chara, int a, atn::Vector3 v); // 0x80194550
     virtual int vf0C();
     unsigned char m08[0x44 - 0x08];
+};
+
+// inferred: constructor 0x80194E2C (0x38 bytes; the vtable 0x8077EB20 is stored first), called by
+// EnemyQuarkStand (game/EnemyQuarkStand.cpp); `other` is the enemy, `kind` 1 or 2
+class ControlThrustForQuarkStand : public ControlBase {
+public:
+    ControlThrustForQuarkStand(Chara_unk* chara, Chara_unk* other, int kind); // 0x80194E2C
+    virtual int vf0C();
+    unsigned char m08[0x38 - 0x08];
 };
 
 class ControlAbsorbed : public ControlBase {

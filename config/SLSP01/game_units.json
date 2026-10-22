@@ -1463,7 +1463,7 @@
   "matching": false
  },
  {
-  "name": "game/Em005DoppelGanger.cpp",
+  "name": "game/em005_doppel_ganger.cpp",
   "classes": [
    "Em005DoppelGanger"
   ],
@@ -1830,6 +1830,13 @@
   "name": "game/EnemySeaLizerd.cpp",
   "classes": [
    "EnemySeaLizerd"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/EnemyTasha.cpp",
+  "classes": [
+   "EnemyTasha"
   ],
   "matching": false
  },

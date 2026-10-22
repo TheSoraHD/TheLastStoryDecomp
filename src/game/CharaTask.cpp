@@ -4938,7 +4938,7 @@ void CharaTask::fn_80148B38() {
 void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
                             const atn::ModelNodeCallbackContext& context) {
     ModelNodeDesc_unk* node = (ModelNodeDesc_unk*)&chunk;
-    if (vf1C() != 0) {
+    if (vf1C(mtx, node) != 0) {
         return;
     }
     if (mLook.fn_8012A288(mtx, node) != 0) {
@@ -9761,8 +9761,8 @@ void CharaTask::fn_8016C4D8(int a, const atn::Vector3& v) {
     fn_80178208(new (0, "", "", 0) chr::ControlThrustForKraken(this, a, v));
 }
 
-void CharaTask::fn_8016C7D8(int a) {
-    fn_80178208(new (0, "", "", 0) chr::ControlStickByQuark(this, a));
+void CharaTask::fn_8016C7D8(CharaTask* holder) {
+    fn_80178208(new (0, "", "", 0) chr::ControlStickByQuark(this, (int)holder));
 }
 
 void CharaTask::fn_8016CAD0() {

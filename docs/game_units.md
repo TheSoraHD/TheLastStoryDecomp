@@ -136,7 +136,7 @@ Unidades de traducción del código del juego deducidas automáticamente. Todas 
 | `game/Em002_02SkeltonKing.cpp` | `0x80248E88–0x8024A004` | `Em002_02SkeltonKing` |
 | `game/Em002Skelton.cpp` | `0x8024A004–0x8024A650` | `Em002Skelton` |
 | `game/Em003LesserDaemon.cpp` | `0x8024A650–0x8024E7E4` | `Em003LesserDaemon` |
-| `game/Em005DoppelGanger.cpp` | `0x80250A24–0x80253C9C` | `Em005DoppelGanger` |
+| `game/em005_doppel_ganger.cpp` | `0x80250A24–0x80253C9C` | `Em005DoppelGanger` |
 | `game/Em006DarkMaster.cpp` | `0x8025457C–0x8025589C` | `Em006DarkMaster` |
 | `game/Em101ElderZesya.cpp` | `0x802558B0–0x802598DC` | `Em101ElderZesya` |
 | `game/Em101ElderZesyaSecond.cpp` | `0x8025A060–0x8025C998` | `Em101ElderZesyaSecond` |
