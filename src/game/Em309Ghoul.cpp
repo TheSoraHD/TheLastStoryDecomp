@@ -40,6 +40,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" chr::CharaData_unk* fn_8020A81C(const char* name); // inferred: character data by name
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: per-player weights of an effect (floats at +0x128); names invented
 struct GhoulWeights_unk {
@@ -49,7 +50,10 @@ struct GhoulWeights_unk {
 extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 extern "C" int fn_80108378(GhoulWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
-struct Field_unk;
+struct Field_unk {
+    unsigned char m00[0x10D8];
+    RouteTable_unk* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
+};
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
@@ -459,5 +463,88 @@ void Em309Ghoul::vf14() {
     if (m1690 != 0) {
         fn_800638B0(lbl_8087EEB0, 1000.0f, -1.0f, &mPos, &(m15D8 * 100.0f + mPos), 0xFF0000FF);
         fn_80063D3C(lbl_8087EEB0, &m1608, m16E0, -1, 1000.0f);
+    }
+}
+
+// inferred: plays effect `efp` on `model` with default placement (name invented)
+inline void GhoulEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// NONMATCHING: 99.38% - registers of the inlined FindPlace_unk loop (index/offset swapped) and the offset of
+// "em_dg010Boss" in the pool (strings of functions not written yet); ~10 variants (id/table locals, own loops)
+void Em309Ghoul::fn_80304718() {
+    if (m14F0 == 0) {
+        if (mMotion.mTracks[0].m00 == 0x14D) {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x14E, 1, 0, 1, 0.0f, 0.1f);
+                fn_80232B7C(this, 0x131);
+                GhoulEffect_unk(&m1570, m1614->vf38());
+                return;
+            }
+            if (mMotion.mTracks[0].m08 <= 10.0f) {
+                mPos.y -= 1.6363636f;
+            }
+        }
+        if (m14F4 > m16DC * 30) {
+            fn_8017A300(m166C);
+            fn_80300DF4();
+            fn_80239DAC(lbl_8087F3C0, this, 0x131, 1);
+            fn_80370AE4(lbl_8087F430, 0xA2, 1);
+            m14F4 = 0;
+        }
+    } else if (m14F0 == 1) {
+        float end = mMotion.mTracks[0].m08;
+        if (end > mMotion.fn_80097D7C(0)) {
+            mPos.y = 0.0f;
+            if (m15C8 == 1) {
+                fn_80300DF4();
+                m14F8 = 2;
+                m15EC = 0;
+            } else {
+                fn_80300DF4();
+            }
+            m15F0 = 1;
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= 19.0f && frame < 20.0f) {
+            fn_80239DAC(lbl_8087F3C0, this, 0x131, 1);
+            fn_80232B7C(this, 0x132);
+            GhoulEffect_unk(&m157C, m1614->vf38());
+            fn_8017A300(fn_8020A81C("em_dg010Boss"));
+            fn_8014C540();
+        }
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= 25.0f && frame < 26.0f) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+        }
+        mRot.y += 6.2831855f / (1.0f + mMotion.fn_80097D7C(0));
+        RouteTable_unk* table = lbl_8087F430->m10D8;
+        atn::Vector3 step(0.0f, 0.0f, 50.0f / mMotion.fn_80097D7C(0));
+        RoutePlace_unk* place = table->FindPlace_unk(0x385);
+        Mtx m;
+        PSMTXRotRad(m, 'y', place->m14);
+        PSMTXMultVec(m, &step, &step);
+        mPos -= step;
     }
 }

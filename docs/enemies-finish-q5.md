@@ -79,6 +79,11 @@ game/Em315Coffin.
   fn_80300AD8 (inicio del estado 10: como el 11 pero con la rotacion guardada m15CC, z = m16BC y mensaje 0x147)
   escrita: 99.75% en el diff directo (f7/f8 y orden de los stores y/z de m15D8; ~13 variantes), 100% en el
   report. Marcada NONMATCHING igual que fn_8030073C.
+  fn_80304718 (aparicion: m14F0 0 = sale del ataud con motion 0x14D/0x14E, efecto m1570 sobre el modelo del
+  gimmick m1614; 1 = salto con giro de 2*pi y avance por la orientacion del lugar 0x385 de las rutas) escrita:
+  NONMATCHING 99.38% (99.79% en el report): registros del bucle inline de FindPlace_unk y offset de
+  "em_dg010Boss" en el pool. El efecto va en un helper inline con locales pos/rot/color en ese orden y el modelo
+  se pide antes de los locales.
 - `game/Em310Gargoyle` (2/21 -> 3/21): vf40 (0x8030B5B0, derrota: banderas 0xCF/0x66 del campo y efecto
   ef_uc037) al 100%. vf3C (0x8030B41C, modos de dano "DamageCalcMode") 99.99%: solo el offset de "head" en el
   pool. vf0C (0x8030A6A0) 98.41%: r3/r4 de la palabra de banderas y del pool, r3/r4/r5 de los stores finales

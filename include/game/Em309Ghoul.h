@@ -31,6 +31,7 @@ public:
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
     void fn_8030073C(); // inferred: starts state 6 (motion 0x145) facing the target
     void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
+    void fn_80304718(); // inferred: update of the appearance (m14F0 0: rising from the coffin, 1: jump out)
     void fn_80300AD8(); // inferred: starts state 10 (motion 0x14A, message 0x147) keeping the state 11 rotation
     void fn_80300DF4(); // inferred: starts state 11 (motion 0x14A, effect m15A0)
     void fn_803010BC(); // inferred: starts state 12 (messages 0x149/0x14B)
@@ -40,7 +41,7 @@ public:
     CharaTask* m14EC;         // inferred: target
     int m14F0;
     int m14F4;
-    unsigned char m14F8[0x14FC - 0x14F8];
+    int m14F8;
     float m14FC;              // inferred: damage taken
     unsigned char m1500[0x150C - 0x1500];
     int m150C;
@@ -66,10 +67,14 @@ public:
     int m15C8;
     atn::Vector3 m15CC;       // inferred: rotation when the state 11 started
     atn::Vector3 m15D8;       // inferred: debug line direction
-    unsigned char m15E4[0x1608 - 0x15E4];
+    unsigned char m15E4[0x15EC - 0x15E4];
+    int m15EC;
+    int m15F0;
+    unsigned char m15F4[0x1608 - 0x15F4];
     atn::Vector3 m1608;       // inferred: debug sphere center
     GimmickCommon* m1614;     // inferred: gimmick with id 0x80A
-    unsigned char m1618[0x1670 - 0x1618];
+    unsigned char m1618[0x166C - 0x1618];
+    chr::CharaData_unk* m166C; // inferred: passed to fn_8017A300 when the waiting time runs out
     chr::CharaData_unk* m1670; // inferred: passed to fn_8017A300
     atn::LH_Xsca m1674[2];
     unsigned char m1684;      // inferred: set at death (1 if the ghoul dies in state 12)
@@ -78,7 +83,8 @@ public:
     int m1690;                // inferred: "DebugDisp"
     unsigned char m1694[0x16BC - 0x1694];
     float m16BC;              // inferred: z of the beam direction of state 10
-    unsigned char m16C0[0x16E0 - 0x16C0];
+    unsigned char m16C0[0x16DC - 0x16C0];
+    int m16DC;                // inferred: seconds of the wait (x30 frames)
     float m16E0;              // inferred: debug sphere radius
     unsigned char m16E4[0x16EC - 0x16E4];
     float m16EC;              // inferred: radius of the damage spheres
