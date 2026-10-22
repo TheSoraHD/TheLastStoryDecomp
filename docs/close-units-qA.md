@@ -31,3 +31,10 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
     0x8047392C Effect, 0x80473C88 Efp, 0x80474678 Material, 0x80475F20 Model, 0x80476AC8 MotionCommandData,
     0x8047749C MotionSet, 0x80477DB8 Scene, 0x80478204 Texture, 0x80478518 Xsca). Pasan de 0% a ~96.8% en el
     report (ahora emparejadas); `fn_804766B0` (LoadMotion) no se toca porque `LH_Motion.cpp` la llama `extern "C"`.
+- `atn/LH_Handle` (8/9): `fn_80473FCC` sigue 99.22% (7 intentos nuevos sobre los 8 del comentario).
+- `atn/NumberFormat_unk` (3/4): `fn_800DD3FC` sigue 99.39% (10 intentos: permutaciones de declaraciones,
+  `number` fuera, `num` partido, bucle de copia con puntero aparte).
+- `atn/ParseTree`: `fn_800A6E8C` 95.33% -> 100% (25/25). El indice 1-based se escribe como desplazamiento en bytes
+  `*(float**)((unsigned char*)vars->mVars + (idx - 1) * sizeof(float*))`.
+  - Hallazgo MWCC: `p[i - 1]` pliega el -1 en el desplazamiento (`slwi; add; lwz -4`); con el desplazamiento en
+    bytes escrito a mano sale `subi; slwi; lwzx`.

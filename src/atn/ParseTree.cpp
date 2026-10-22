@@ -472,8 +472,6 @@ struct ParseVars_unk {
     float** mVars;
 };
 
-// NONMATCHING: 92.8% - the original computes idx - 1 before scaling (subi; slwi; lwzx) instead
-// of folding the -1 into the load offset
 // inferred: resolves the variable references of byte code (1-based indices into vars)
 extern "C" void fn_800A6E8C(ParseCodeRef_unk* ref, ParseVars_unk* vars) {
     if (ref->mSize == 0) {
@@ -494,7 +492,8 @@ extern "C" void fn_800A6E8C(ParseCodeRef_unk* ref, ParseVars_unk* vars) {
                     if (idx == 0xFFFFFFFF) {
                         *(float**)q = &sArgument;
                     } else {
-                        *(float**)q = vars->mVars[idx - 1];
+                        // byte offset: the original computes idx - 1 before scaling (subi; slwi; lwzx)
+                        *(float**)q = *(float**)((unsigned char*)vars->mVars + (idx - 1) * sizeof(float*));
                     }
                 }
                 p += 5;
