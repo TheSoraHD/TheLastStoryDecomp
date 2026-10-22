@@ -24,3 +24,11 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   - `ControlPushedAvoid::vf0C` 99.26% -> 99.28% (`m30 = scale + m30`). Registros/fneg sin cambios (8 intentos).
   - Hallazgo MWCC: un `Vector3 v;` declarado antes que otro inicializado y rellenado despues por componentes recibe
     el slot que le corresponde por declaracion, pero sus stores se emiten despues de los del otro.
+- `game/Arms` (17/21 -> 19/21): `fn_8004439C` 99.84% -> 100% (grados a radianes con `atn::DegToRad_unk`, que
+  multiplica `deg * k`; escrito `k * deg` salian f0/f2 cambiados). `fn_80044FBC` 99.93% -> 100% (`last` asignado en
+  la condicion: `if ((last = chara->mFDC) != user)`). No enlaza:
+  - `vf10` sigue 99.90% (6 intentos: Set_unk, asignacion, floats sueltos, inline, orden t/m de las matrices).
+  - `fn_800457A4` (0%, factoria Sword/Gun) sin escribir: el borrador da 78.8%. El original toma los "" del objeto
+    `lbl_80730F08` (8 bytes, aparte de `@stringBase0`), lo que apunta a otra TU, y pasa un quinto argumento (r8) a
+    los ctores de 4 parametros. Pendiente (necesitaria partir el split de Arms en 0x800457A4).
+  - Hallazgo MWCC: `x = k * x` y `x = x * k` (float) reparten distinto los registros volatiles en una secuencia de tres.

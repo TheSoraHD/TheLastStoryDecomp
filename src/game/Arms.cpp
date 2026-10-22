@@ -98,8 +98,6 @@ int Arms::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.84% - float registers of the degree to radian conversion of "ROTATION" (z in f0
-// instead of f2); tried compound/explicit products, Set_unk, temporary vector, local z.
 void Arms::fn_8004439C() {
     atn::CsvTab csv((const char*)m27C.fn_80470580(), m27C.fn_8047059C());
     char path[0x100];
@@ -129,9 +127,9 @@ void Arms::fn_8004439C() {
             m258.x = fn_800DC288(csv.fn_8005B9CC());
             m258.y = fn_800DC288(csv.fn_8005B9CC());
             m258.z = fn_800DC288(csv.fn_8005B9CC());
-            m258.x = 0.017453292f * m258.x;
-            m258.y = 0.017453292f * m258.y;
-            m258.z = 0.017453292f * m258.z;
+            m258.x = atn::DegToRad_unk(m258.x);
+            m258.y = atn::DegToRad_unk(m258.y);
+            m258.z = atn::DegToRad_unk(m258.z);
         } else if (strcmp(field, "SCALE") == 0) {
             m264.x = fn_800DC288(csv.fn_8005B9CC());
             m264.y = fn_800DC288(csv.fn_8005B9CC());
@@ -317,8 +315,6 @@ int Arms::fn_80044F54(int i, CharaTask* chara) {
     return fn_80045510(&m274->mC4[i], chara) != 0;
 }
 
-// NONMATCHING: 99.93% - register of `last` in case 8 (r24 instead of r22); tried declaring it at
-// several places of the function.
 int Arms::fn_80044FBC(ArmsCond_unk* cond, int a, int b, unsigned int flags, CharaTask* user,
                       CharaTask* chara, HitInfo_unk* hit) {
     if (user == 0 || chara == 0) {
@@ -412,8 +408,8 @@ int Arms::fn_80044FBC(ArmsCond_unk* cond, int a, int b, unsigned int flags, Char
         break;
     case 8:
         if (chara->mFE4 > 0) {
-            CharaTask* last = chara->mFDC;
-            if (last != user) {
+            CharaTask* last;
+            if ((last = chara->mFDC) != user) {
                 if (cond->m0C == 0) {
                     return 1;
                 }
