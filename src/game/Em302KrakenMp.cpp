@@ -1,4 +1,7 @@
 #include "game/Em302KrakenMp.h"
+#include "atn/Memory.h"
+#include "chr/ControlWallUp.h"
+#include <boost/bind.hpp>
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -696,6 +699,18 @@ void Em302KrakenMp::vf40(HitInfo_unk* hit) {
     }
 }
 
+// NONMATCHING: 99.9% - the "" of Vector_unk::reserve (lbl_8087D9E4/lbl_8087D9E0 in the original, as in
+// CharaTask::vf50)
+void Em302KrakenMp::vf50() {
+    float d = 3.0f;
+    Item14_unk item;
+    item.m04.mRadius = m5B0 - d;
+    MtxPtr head = mMotion.GetNodeMtx_unk("head");
+    item.m04.mCenter = GetNodePos_unk(head) + m5A4;
+    m624.push_back(item);
+    mFlagB29 = 0;
+}
+
 void Em302KrakenMp::vf54() {
     if (m624.mSize != 0) {
         MtxPtr head = mMotion.GetNodeMtx_unk("head");
@@ -871,6 +886,15 @@ void Em302KrakenMp::fn_802E03F0() {
         break;
     }
     m14E4++;
+}
+
+// inferred: action of a character that climbed the wall next to the kraken: jumps onto the point
+// above the head (see vfB0)
+boost::function<void()> Em302KrakenMp::vfB4(CharaTask* chara) {
+    Item14_unk* it = m624.mData;
+    atn::Vector3 target = it->m04.mCenter + atn::Vector3(0.0f, 1.0f, 0.0f) * mColli.m54 * 0.6f;
+    chr::ControlWallSlash* next = new (0, "", "", 0) chr::ControlWallSlash(chara, target, 0);
+    return boost::bind(&CharaTask::fn_80178208, chara, next);
 }
 
 // inferred: waits for the reinforcements (returns 0 when the wait ends)

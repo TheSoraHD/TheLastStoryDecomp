@@ -46,6 +46,7 @@ public:
     virtual void vf14();
     virtual void vf20();
     virtual int vfB0(atn::Vector3* out);
+    virtual boost::function<void()> vfB4(CharaTask* chara);
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf50();

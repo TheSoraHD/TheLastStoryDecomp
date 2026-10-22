@@ -1,4 +1,6 @@
 #include "game/Em302Kraken.h"
+#include "chr/ControlStickByQuark.h"
+#include <boost/bind.hpp>
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -671,6 +673,20 @@ int Em302Kraken::vfB0(atn::Vector3* out) {
     Item14_unk* it = m624.mData;
     *out = it->m04.mCenter + atn::Vector3(0.0f, 1.0f, 0.0f) * mColli.m54 * 0.6f;
     return 1;
+}
+
+// inferred: action of a character that climbed onto the kraken: the kraken starts state 15 and the
+// character thrusts its weapon (chr::ControlThrustForKraken)
+boost::function<void()> Em302Kraken::vfB4(CharaTask* chara) {
+    m14C8 = 0;
+    m14C4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 15;
+    fn_8016E970(3);
+    m1600 = 0;
+    chr::ControlThrustForKraken* next =
+        new (0, "", "", 0) chr::ControlThrustForKraken(chara, (int)this, chara->mPos);
+    return boost::bind(&CharaTask::fn_80178208, chara, next);
 }
 
 atn::Vector3 Em302Kraken::vfD0(float angle) {
