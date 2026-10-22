@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "game/CharaStatus.h"
 #include "game/CharaManager.h"
+#include "game/Em302Kraken.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 
@@ -23,12 +24,13 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
-// inferred: next action of a leg chosen by the kraken {kind, argument} (Em302Kraken, without source)
-struct FootAction_unk {
-    int mKind;
-    int mArg;
-};
-extern "C" FootAction_unk* fn_802DC8B0(void* kraken);
+extern "C" double cos(double x);
+extern "C" double acos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value);       // inferred: sets a counter flag
+extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
+extern "C" void* lbl_8087F498; // inferred: voice manager
+extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -524,13 +526,13 @@ void Em303KrakenFoot::fn_802E3B24() {
     case 0: {
         int idle = 1;
         if (m1504 != 0) {
-            FootAction_unk* action = fn_802DC8B0((void*)m1504);
+            KrakenCommand_unk* action = ((Em302Kraken*)m1504)->fn_802DC8B0();
             if (action != 0) {
-                if (action->mKind == 15) {
-                    fn_802E554C(action->mArg);
+                if (action->mId == 15) {
+                    fn_802E554C(action->mValue);
                     m14C0 = 0;
                 } else {
-                    m14C4 = action->mKind;
+                    m14C4 = action->mId;
                     idle = 0;
                     m14C0 = 1;
                 }
@@ -630,6 +632,179 @@ void Em303KrakenFoot::fn_802E3E38(int arg) {
         mMotion.fn_80097C08(0, 0x13F, 0, 1, 1, 0.0f, 0.1f);
         m14CC = arg;
         m14D0 = 0;
+    }
+}
+
+// inferred: drops the caught character on the ground below it (name invented)
+inline void Em303KrakenFoot::Drop_unk() {
+    if (m14D0 != 0) {
+        m14D0->mF1C = 0;
+        atn::Vector3 from;
+        atn::Vector3 to = m14D0->mPos;
+        from = mPos;
+        from.y = to.y;
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
+            result.m10 += result.m28;
+            m14D0->mPos = result.m10;
+        }
+        m14D0 = 0;
+    }
+}
+
+// inferred: squared distance to a character (name invented)
+inline float Em303KrakenFoot::DistSq_unk(CharaTask* c) {
+    atn::Vector3 v = c->mPos - mPos;
+    return fn_805F9920(&v);
+}
+// inferred: flag reference {global, index} (as SpecialFlag_unk of game/SpecialEnemyBase.cpp)
+struct FootFlag_unk {
+    int mGlobal;
+    int mIndex;
+};
+// inferred: as SpecialEnemyBase::fn_805A4A1C (name invented)
+inline void SetFlag_unk(FootFlag_unk* flag, int value) {
+    if (flag->mGlobal == 0) {
+        fn_80370AE4(lbl_8087F430, flag->mIndex, value);
+    } else if (flag->mGlobal == 1) {
+        fn_80370320(lbl_8087F430, flag->mIndex, value, 0);
+    }
+}
+
+// inferred: back direction of the foot (name invented)
+inline atn::Vector3 Em303KrakenFoot::GetBack_unk() {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    return atn::Vector3(-dir.x, -dir.y, -dir.z);
+}
+
+// inferred: state 8: turns to the target and catches it at the end of the motion
+// NONMATCHING: 99.15% - registers of the inlined CanAct_unk (as vf40), the field pointer of the flag write kept
+// in r3 and stack slots of the two ray tests (~12 forms of the helpers tried)
+void Em303KrakenFoot::fn_802E3EE8() {
+    CharaTask* target = (CharaTask*)m14CC;
+    atn::Vector3 d;
+    float z = target->mPos.z - mPos.z;
+    d.x = target->mPos.x - mPos.x;
+    d.z = z;
+    d.y = 0.0f;
+    float y = d.ToRotationZ_unk().y;
+    if (m14D0 == 0 && mMotion.mTracks[0].m08 >= 22.0f) {
+        CharaTask* c = (CharaTask*)m14CC;
+        int ok = 1;
+        mRot.y = y;
+        float dist = 1e16f;
+        if (c != 0) {
+            dist = DistSq_unk(c);
+        }
+        if (dist < m14E4 * m14E4) {
+            if (c->mStatus.IsState_unk(0x20)) {
+                ok = 0;
+            }
+            if (c->m55C == 6 && (c->m560 == 17 || c->m560 == 48 || c->m560 == 77)) {
+                ok = 0;
+            }
+        } else {
+            ok = 0;
+        }
+        if (ok) {
+            m14D0 = (CharaTask*)m14CC;
+            if (m14D0 != 0) {
+                if (m14D4 != 0) {
+                    m14D0->fn_801595BC((int)m14D4, 30, 0x1D8, -1);
+                }
+                if (lbl_8087F430 != 0 && m14D0->mType != 2) {
+                    SetFlag_unk((FootFlag_unk*)&m14F0, m14D0->IsPlayer_unk() ? -1 : m14D0->m58);
+                }
+                if (lbl_8087F498 != 0) {
+                    fn_803EA77C(lbl_8087F498, m14D0, 0x2A, 0, 1.0f, 10.0f);
+                }
+            }
+        } else {
+            SetState_unk(9);
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            SetState_unk(11);
+            PlayMotion_unk(0x141);
+            if (m14D0 != 0) {
+                m14D0->mMotion.fn_80097C08(0, 0x1D8, 1, 0, 1, 0.0f, 0.1f);
+            }
+        }
+    }
+    if (m14D0 != 0 && !(m14D0->m55C == 6 && m14D0->m560 == 17)) {
+        if (!m14D0->mStatus.IsState_unk(0x20)) {
+            SetState_unk(16);
+            PlayMotion_unk(0x33);
+            Release_unk();
+        } else {
+            m14D0->fn_8015E7A0(GetBack_unk(), -1, 0);
+            SetState_unk(10);
+            PlayMotion_unk(0x14A);
+            Drop_unk();
+        }
+    }
+}
+
+// inferred: state 11: drags the caught character to the kraken
+// NONMATCHING: 99.58% - registers of the inlined CanAct_unk and stack slots of the normalized direction / rotated
+// vector (~12 forms tried)
+void Em303KrakenFoot::fn_802E470C() {
+    if (m14BC > m14E0) {
+        m14BC = 0;
+    }
+    if (!(m14D0 != 0 && FootCanAct_unk(m14D0) && m14D0->m55C == 6 && m14D0->m560 == 17)) {
+        if (m14D0->mType == 0 && !m14D0->mStatus.IsState_unk(0x20)) {
+            Em302Kraken* kraken = (Em302Kraken*)m1504;
+            atn::Vector3 d = kraken->mPos - mPos;
+            d.y = 0.0f;
+            if (kraken->m14B8 == 1) {
+                kraken->fn_802DC5B4((int)this);
+                m14D0->fn_8016C4D8(m1504, atn::Vector3(mPos));
+                SetState_unk(10);
+                PlayMotion_unk(0x14A);
+                Drop_unk();
+                return;
+            }
+        }
+        SetState_unk(16);
+        PlayMotion_unk(0x33);
+        Release_unk();
+    } else {
+        CharaTask* kraken = (CharaTask*)m1504;
+        atn::Vector3 d(kraken->mPos.x - mPos.x, 0.0f, kraken->mPos.z - mPos.z);
+        float dist = PSVECMag(&d) - 70.0f;
+        PSVECNormalize(&d, &d);
+        if (dist > 0.0001f) {
+            if (dist > 2.0f) {
+                dist = 2.0f;
+            }
+            mPos += d * dist;
+        }
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx r;
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &front, &front);
+        front.y = 0.0f;
+        PSVECNormalize(&front, &front);
+        atn::Vector3 dir = d;
+        PSVECNormalize(&dir, &dir);
+        PSMTXRotRad(r, 'y', 3.1415927f);
+        atn::Vector3 back = dir;
+        PSMTXMultVec(r, &back, &back);
+        float limit = cos(0.17453294f);
+        if (PSVECDotProduct(&front, &back) < limit) {
+            float a = atn::WrapAngle_unk(acos(PSVECDotProduct(&front, &back)));
+            if (a < 0.0f) {
+                mRot.y += 0.17453294f;
+            } else {
+                mRot.y -= 0.17453294f;
+            }
+        }
     }
 }
 
