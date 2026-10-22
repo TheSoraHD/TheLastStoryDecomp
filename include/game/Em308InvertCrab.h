@@ -36,6 +36,8 @@ public:
     virtual float vf90() { return 3.5f; }
 
     int fn_802F2C50(); // inferred: ground below is water/lava (ray test attributes 0x14, 0x15, 0x1A-0x1D)
+    void fn_802F33A0(); // inferred: movement
+    void fn_802F389C(); // inferred: chooses the next action
     void fn_802F3BE8(); // inferred: state 8 (needle)
     void fn_802F566C();
     inline void ResetAttack_unk();

@@ -124,8 +124,12 @@ extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, Hit
                             int c, float f); // inferred: attack hit
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
-extern "C" void fn_802F33A0(Em308InvertCrab* crab);
-extern "C" void fn_802F389C(Em308InvertCrab* crab);
+extern "C" double sqrt(double x);
+extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+                           void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
+extern "C" void fn_802F5F20(Em308InvertCrab* crab, CharaTask* target);
+extern "C" int fn_802F62A0(Em308InvertCrab* crab, CharaTask* target, int state);
+extern "C" void fn_802F693C(Em308InvertCrab* crab, CharaTask* target);
 extern "C" void fn_802F42CC(Em308InvertCrab* crab);
 extern "C" void fn_802F469C(Em308InvertCrab* crab);
 extern "C" void fn_802F4A98(Em308InvertCrab* crab);
@@ -296,7 +300,7 @@ void Em308InvertCrab::vf10() {
         if (m58C == 2) {
             vfEC();
         } else {
-            fn_802F33A0(this);
+            fn_802F33A0();
         }
     } else {
         switch (m58C) {
@@ -353,7 +357,7 @@ void Em308InvertCrab::vf10() {
                         m55C = 3;
                         fn_8017039C(601, m15A8);
                     }
-                    fn_802F33A0(this);
+                    fn_802F33A0();
                 } else {
                     ResetAttack_unk();
                     m58C = 6;
@@ -403,8 +407,8 @@ void Em308InvertCrab::vf10() {
                 int id = m15A8;
                 fn_80170A20((CharaTask*)m1580, id, -1.0f);
             }
-            fn_802F33A0(this);
-            fn_802F389C(this);
+            fn_802F33A0();
+            fn_802F389C();
             break;
         }
     }
@@ -621,6 +625,97 @@ void Em308InvertCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
     mColli.mFlags &= ~1;
 }
 
+// inferred: movement: along the route while walking (state 7 of m55C), turning to the target m1580
+void Em308InvertCrab::fn_802F33A0() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot = mRot;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 v = mRoute.m58;
+        speed = v.Length_unk();
+        if (speed > 0.0001f) {
+            rot = v.GetNormalized_unk().ToRotation_unk();
+        }
+        CharaTask* target = (CharaTask*)m1580;
+        v = target->mPos - mPos;
+        v.y = 0.0f;
+        v.Normalize_unk();
+        v.fn_80139F60();
+        mRot.y = v.y;
+        if (m58C == 12) {
+            rate *= m155C;
+        }
+        fn_801426A4(&rot, speed, m568 * rate);
+    } else if (m55C == 6) {
+        fn_8013A258();
+    } else {
+        fn_8013CB68(&rot, 0, speed, m568 * rate);
+    }
+}
+
+// inferred: chooses the next action against the target m1580 (escape, needle, tackle, turn)
+void Em308InvertCrab::fn_802F389C() {
+    m15A0--;
+    if (m1554 >= m1558 && m1570.size() != 0) {
+        fn_802F693C(this, (CharaTask*)m1580);
+    }
+    if ((unsigned int)m1580 != (unsigned int)m1584) {
+        fn_8016E970(3);
+        m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+        if (fn_802F62A0(this, (CharaTask*)m1580, 6) != 0) {
+            return;
+        }
+    }
+    CharaTask* target = (CharaTask*)m1580;
+    atn::Vector3 d = target->mPos - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    if (m15A0 < 0) {
+        fn_8016E970(3);
+        if (dist <= m14E8) {
+            if (fn_802F62A0(this, (CharaTask*)m1580, 8) == 0) {
+                fn_802F5F20(this, (CharaTask*)m1580);
+            }
+        } else {
+            m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+        }
+    } else {
+        atn::Vector3 down(0.0f, -3.0f, 0.0f);
+        if (fn_8004D314(lbl_8087EE98, 0, &mPos, &down, 0x80000000, 0, 0, 3.0f) != 0) {
+            float reach = 30.0f;
+            if (m1528 != 0) {
+                reach = m1528->m40;
+            }
+            if (dist < reach) {
+                fn_8016E970(3);
+                if (fn_802F62A0(this, (CharaTask*)m1580, 11) == 0) {
+                    ResetAttack_unk();
+                    m58C = 11;
+                    fn_80097CCC(&mMotion, 0, 0.0f);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                    m159C = m1528 != 0 ? m1528->m68 : 60;
+                    m1584 = m1580;
+                }
+            } else if (dist < m1524) {
+                fn_8016E970(3);
+                if (fn_802F62A0(this, (CharaTask*)m1580, 10) == 0) {
+                    ResetAttack_unk();
+                    m58C = 10;
+                    fn_80097CCC(&mMotion, 0, 0.0f);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+                    m1584 = m1580;
+                }
+            }
+        }
+    }
+}
+
 // inferred: rotation z, y, x of the identity (as ChaserRotZYX_unk of game/ChaserNpc.cpp; name invented)
 inline void CrabRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     m.SetIdentity();
@@ -649,8 +744,6 @@ inline void CrabRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 
 // inferred: state 8 (needle): charge effect and sound, wait m14E4 frames, then shoot the needle from the
 // node "hips" towards the target (the yaw limited to +-m14F0 / 2)
-// NONMATCHING: 99.93% - only the .sdata2 offsets: the constants of the state functions not written yet
-// (fn_802F42CC-fn_802F5370) come before them in the pool
 void Em308InvertCrab::fn_802F3BE8() {
     switch (m1590) {
     case 0: {
