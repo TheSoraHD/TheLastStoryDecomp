@@ -32,6 +32,8 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004D388(void* world, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+extern "C" double cos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
@@ -249,6 +251,41 @@ void Em003LesserDaemon::fn_8024FE18(int arg) {
     }
     m14DC = 0;
     m14E4 = 0;
+}
+
+// inferred: walk motions by the direction of the movement (as CharaTask::vf24)
+// NONMATCHING: 99.52% - f3/f4 swapped for the 0.0f of ToRotation_unk (CharaTask::vf24 has the same
+// form at 97%); the .rodata doubles (cos constants and 2*pi) are placed by the unwritten functions
+void Em003LesserDaemon::vf24() {
+    if (m55C == 6) {
+        return;
+    }
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    float speed = m574.Length_unk();
+    if (m570 <= 0.01f || speed <= 0.01f) {
+        mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.1f);
+        mMotion.mTracks[0].m0C = 1.0f;
+        return;
+    }
+    atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(mRot.y);
+    PSMTXMultVec(m.m, &fwd, &fwd);
+    atn::Vector3 dir = m574.GetNormalized_unk();
+    float dot = PSVECDotProduct(&fwd, &dir);
+    if (dot > (float)cos(0.7853982f)) {
+        mMotion.fn_80097C08(0, 0x1C6, 1, 0, 1, 0.0f, 0.1f);
+    } else if (dot > (float)cos(2.3561945f)) {
+        if (atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y) > 0.0f) {
+            mMotion.fn_80097C08(0, 0x1C8, 1, 0, 1, 0.0f, 0.1f);
+        } else {
+            mMotion.fn_80097C08(0, 0x1C9, 1, 0, 1, 0.0f, 0.1f);
+        }
+    } else {
+        mMotion.fn_80097C08(0, 0x1C7, 1, 0, 1, 0.0f, 0.1f);
+    }
+    mMotion.mTracks[0].m0C = 1.0f;
 }
 
 int Em003LesserDaemon::fn_8024F9B8() {

@@ -14,6 +14,7 @@ public:
     Em003LesserDaemon(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em003LesserDaemon();
     virtual void vf14();
+    virtual void vf24();
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf88();
     virtual void vfEC();
