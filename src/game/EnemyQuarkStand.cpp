@@ -2423,7 +2423,7 @@ boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
         if (lbl_8087F498 != 0) {
             fn_803EBAC8(lbl_8087F498, 15, 0);
         }
-        fn_800C31F4("SE_EM211_012", 0, -1, 1.0f);
+        fn_800C31F4("SE_DG040_107", 0, -1, 1.0f);
         mC58.mC0 = 0;
         chr::ControlThrustForQuarkStand* next = new (0, "", "", 0) chr::ControlThrustForQuarkStand(chara, this, 2);
         return boost::bind(&CharaTask::fn_80178208, chara, next);
