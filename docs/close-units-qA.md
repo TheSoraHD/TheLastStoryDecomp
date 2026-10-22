@@ -43,3 +43,6 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
     `atn::fn_Stripped_unk(unsigned long)` (patron de Event/Label) para que la .rodata mida 0x98. Nuestro .o
     emite ademas `__vt__Q23atn8BaseNode`/`__dt__Q23atn8BaseNodeFv` debiles que el original no tiene: el
     enlazador los descarta (sin referencias) y el DOL sale OK.
+- `atn/RenderSetting_unk` (14/15): ctor 96.81% -> 96.92% (9 intentos): los tres blancos del bloom con un helper
+  `sWhite_unk()` que devuelve el color por valor. Sigue el orden inverso de los temporales en pila y el
+  planificador.
