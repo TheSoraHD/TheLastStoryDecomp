@@ -21,6 +21,7 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
@@ -240,6 +241,50 @@ void Em308ParmCrab::vf40(HitInfo_unk* hit) {
         fn_8023A8B4(lbl_8087F3C0, &m1600, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         Effect_unk* fx = lbl_8087F048;
         fn_80108F38(fx, fn_801781B0(), 0x80);
+    }
+}
+
+// inferred: plays an effect on the model (as in game/Em308InvertCrab.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: death motion: at its end counts m1434 down (the effect at 29), else faces the direction m6B8
+// NONMATCHING: 98.67% - the original passes &rot to fn_8013CB68 from r31 (the base of the inlined
+// ToRotation_unk); ~10 forms (in-place fn_80139F60, RotZ_unk, helper, pointer local)
+void Em308ParmCrab::vfEC() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mFlag25 = 1;
+        mColli.mFlags &= ~1;
+        if (m1434 > 0) {
+            if (--m1434 == 29) {
+                fn_80232B7C(0, 0);
+                PlayEffect_unk(&m15F4, &mMotion);
+                vf9C(1);
+            }
+        } else {
+            mFlag15 = 1;
+            fn_801765D8();
+            fn_800EE360(this);
+        }
+    } else {
+        atn::Vector3 rot = m6B8.ToRotation_unk();
+        fn_8013CB68(&rot, 0, 0.0f, 1.0f);
+        m1434 = 30;
     }
 }
 
