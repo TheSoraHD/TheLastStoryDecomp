@@ -16,17 +16,65 @@ struct NodeChunk;
 // std::vector (its destructor tests `this` four times). Names invented.
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
-struct WarLionPathList_unk : public std::vector<atn::Vector3> {};
+// inferred: cubic polynomial of one axis of a segment (16 bytes, read by fn_803272A8); names invented
+struct WarLionCubic_unk {
+    float Eval_unk(float u) const { return m00 + u * (m04 + u * (m08 + m0C * u)); }
+    float m00;
+    float m04;
+    float m08;
+    float m0C;
+};
+// inferred: length of a segment (a float element would keep the destroy loop of the vector)
+struct WarLionLen_unk {
+    float m00;
+};
+// inferred: lengths of the segments
+struct WarLionPathList_unk : public std::vector<WarLionLen_unk> {};
 struct WarLionPath_unk {
     WarLionPath_unk() : m00(0), m04(0.0f) {}
     inline void Reset_unk();
-    int m00;
-    float m04;
-    atn::Vector3 m08;
-    atn::Vector3 m14;
-    std::vector<atn::Vector3> m20;
-    std::vector<atn::Vector3> m2C;
-    std::vector<atn::Vector3> m38;
+    // inferred: point of segment `i` at `u` in [0, 1] (names invented)
+    atn::Vector3 Segment_unk(int i, float u) {
+        if (i < 0) {
+            return m08;
+        }
+        if (i >= m00 - 1) {
+            return m14;
+        }
+        if (m00 < 2) {
+            return lbl_807C7030;
+        }
+        atn::Vector3 r;
+        r.x = m20[i].Eval_unk(u);
+        r.y = m2C[i].Eval_unk(u);
+        r.z = m38[i].Eval_unk(u);
+        return r;
+    }
+    // inferred: point at `t` in [0, 1] of the whole path
+    atn::Vector3 GetPos_unk(float t) {
+        if (t <= 0.0f) {
+            return m08;
+        }
+        if (t >= 1.0f) {
+            return m14;
+        }
+        t = m04 * t;
+        for (int i = 0; i < m00 - 1; i++) {
+            float len = m44[i].m00;
+            if (t <= len) {
+                return Segment_unk(i, t == 0.0f ? 0.0f : t / len);
+            }
+            t -= len;
+        }
+        return m08;
+    }
+    int m00;     // inferred: number of points
+    float m04;   // inferred: total length
+    atn::Vector3 m08; // inferred: first point
+    atn::Vector3 m14; // inferred: last point
+    std::vector<WarLionCubic_unk> m20; // inferred: x
+    std::vector<WarLionCubic_unk> m2C; // inferred: y
+    std::vector<WarLionCubic_unk> m38; // inferred: z
     WarLionPathList_unk m44;
 };
 
@@ -110,6 +158,8 @@ public:
     void fn_80329CFC();
     void fn_80329D7C();
     int fn_80329ED8(int* count, atn::Vector3* pos, float* angle);
+    void fn_8032A3D4(atn::Vector3* pos, float* angle, const atn::Vector3* target, float rot, float dist);
+    void fn_8032A9F4(WarLionPath_unk* path, int id, int* next);
     atn::Vector3 fn_8032A650(int* id, int a, int b);
     atn::Vector3 fn_8032A894(int id, int* next);
     // inferred: next point of the circuit (weak copy at the end of the file)

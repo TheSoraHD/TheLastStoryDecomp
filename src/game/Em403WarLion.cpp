@@ -1,8 +1,11 @@
 #include "game/Em403WarLion.h"
 #include "atn/LoadHandle.h"
 #include "chr/ControlBase.h"
+#include "chr/ControlStickByQuark.h"
 #include "atn/Memory.h"
 #include "game/FriendManager.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
 #include "gmk/Lemon.h"
 #include "math/Vec.h"
 #include "macros.h"
@@ -868,6 +871,142 @@ void Em403WarLion::vf20() {
     m1498 = 5.0f;
 }
 
+// inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
+extern "C" inline Field_unk* fn_80121F00() {
+    return lbl_8087F430;
+}
+// inferred: helpers of game/Em204Mulue.cpp (not decompiled): radians to degrees and angle wrap to
+// [-180, 180]
+extern "C" float fn_802A7964(float rad);
+extern "C" float fn_802A7910(float deg);
+
+// inferred: two collision spheres, the body and the tail (own version of CharaTask::vf50)
+void Em403WarLion::vf50() {
+    Item14_unk item;
+    item.m04.mCenter = mPos + m5A4;
+    item.m04.mCenter.y += 5.0f;
+    item.m04.mRadius = 5.0f;
+    m624.push_back(item);
+    item.m04.mRadius = 5.0f;
+    item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tale"));
+    m624.push_back(item);
+    mFlagB29 = 0;
+}
+
+// inferred: chooses the next action of the walk mode (m14CC)
+// NONMATCHING: 99.73% - f30/f31 de la distancia y del angulo, huecos de pila de los CollResult_unk
+// (el original llama fuera de linea a los helpers de Vector3: supera el presupuesto de inline)
+void Em403WarLion::fn_803267E8() {
+    if (m15D4 != 0) {
+        fn_80326F0C();
+        m15D4 = 0;
+    } else if (m15D8 != 0) {
+        fn_80327018();
+        m15D8 = 0;
+    } else if (m15DC != 0) {
+        fn_80327118();
+        m15DC = 0;
+    } else if (m14BC != 0) {
+        atn::Vector3 target(*m14BC->fn_8013C38C());
+        atn::Vector3 d = target - mPos;
+        float dist = d.Length_unk();
+        if (m14CC == 0) {
+            if (m14C8 <= (IsRaging_unk() ? 30 : 180)) {
+                return;
+            }
+            if (dist < 40.0f) {
+                if (IsRaging_unk() && rand() % 50 < 30) {
+                    m15DC = 1;
+                }
+                int done = 0;
+                if (rand() % 50 < 10) {
+                    CollResult_unk result;
+                    atn::Vector3 from(mPos);
+                    from.y += 10.0f;
+                    atn::Vector3 to = from + d.GetNormalized_unk() * 500.0f;
+                    if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
+                        result.m10 -= d.GetNormalized_unk() * m620;
+                        if ((result.m10 - from).Length_unk() > 80.0f) {
+                            m1500 = result.m10;
+                            m1500.y = mPos.y;
+                            m1518.Set_unk(0.0f, d.ToRotation_unk().y, 0.0f);
+                            fn_803279D4();
+                            done = 1;
+                        }
+                    }
+                }
+                if (done == 0) {
+                    fn_80326E60(0);
+                }
+            } else if (IsRaging_unk()) {
+                if (rand() % 3 != 0) {
+                    CollResult_unk result;
+                    atn::Vector3 from(mPos);
+                    from.y += 10.0f;
+                    atn::Vector3 to = from + d.GetNormalized_unk() * 500.0f;
+                    if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
+                        result.m10 -= d.GetNormalized_unk() * m620;
+                        if ((result.m10 - from).Length_unk() > 60.0f) {
+                            m1500 = result.m10;
+                            m1500.y = mPos.y;
+                            m1518.Set_unk(0.0f, d.ToRotation_unk().y, 0.0f);
+                            fn_803279D4();
+                        }
+                    }
+                } else {
+                    fn_80327118();
+                }
+            } else {
+                atn::Vector3 pos;
+                float angle;
+                fn_8032A3D4(&pos, &angle, &target, m14BC->GetRot_unk()->y, 20.0f);
+                m14DC = pos;
+                m14E8.Set_unk(0.0f, angle, 0.0f);
+                fn_803271A4();
+            }
+        } else if (m14CC == 1) {
+            if (m15E4 == 0) {
+                m15E4 = 1;
+                fn_80370AE4(fn_80121F00(), 0x5A, 3);
+            }
+            if (m14F8 <= 0) {
+                m14CC = 0;
+                m1500 = fn_8032A894(m14FC, &m14FC);
+                m1518 = (m1500 - mPos).ToRotation_unk();
+                fn_803278B4();
+            } else {
+                m14F8--;
+                fn_8032A9F4(&m1524, m14FC, &m14FC);
+                if (m14F8 % 3 == 0) {
+                    m15F8 = fn_800F8548(fn_8013A194());
+                }
+                fn_803272A8();
+            }
+        } else if (m14CC == 2) {
+            m14CC = 3;
+            m1500 = fn_8032A894(m14FC, &m14FC);
+            m1518 = (m1500 - mPos).ToRotation_unk();
+            fn_803278B4();
+        } else if (m14CC == 3) {
+            float y = GetRot_unk()->y;
+            float diff = fn_802A7910(fn_802A7964(d.GetNormalized_unk().ToRotation_unk().y - y));
+            if (fn_80011220(diff) <= 60.0f && dist < 200.0f) {
+                atn::Vector3 from(mPos);
+                from.y += 10.0f;
+                atn::Vector3 to(target);
+                to.y += 10.0f;
+                if (fn_8004ECC0(fn_801404F8(), 0, &from, &to, 0x80000000, &mColli, 0) == 0) {
+                    m14CC = 4;
+                    fn_80327A64();
+                }
+            }
+        } else if (m14CC == 4) {
+            m14CC = 0;
+            m1598 = 0;
+        }
+    }
+}
+
 void Em403WarLion::fn_80326E60(int fast) {
     SetState_unk(8);
     mMotion.m34C = 1;
@@ -915,6 +1054,16 @@ void Em403WarLion::fn_803271A4() {
     PlayEffect_unk(&m15FC, &mMotion);
 }
 
+// inferred: starts running along the path m1524 (state 13)
+void Em403WarLion::fn_803272A8() {
+    SetState_unk(13);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x142, 0, 1, 1, 0.0f, 0.1f);
+    mRot = (m1524.GetPos_unk(1.0f / 27.0f) - m1524.GetPos_unk(0.0f)).ToRotationZ_unk();
+}
+
 void Em403WarLion::fn_803278B4() {
     SetState_unk(14);
     mMotion.m34C = 1;
@@ -934,6 +1083,26 @@ void Em403WarLion::fn_803279D4() {
     mMotion.mTracks[0].m0C = 1.5f;
 }
 
+// inferred: jumps on the target and holds it (state 16)
+void Em403WarLion::fn_80327A64() {
+    SetState_unk(16);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    mMotion.mTracks[0].m0C = 1.5f;
+    m1574 = mPos;
+    m1580 = m14BC->mPos;
+    atn::Vector3 d = m1580 - mPos;
+    d.y = 0.0f;
+    m1580 -= d.GetNormalized_unk() * 10.0f;
+    mRot = d.GetNormalized_unk().ToRotation_unk();
+    fn_80370AE4(lbl_8087F430, 0x5D, 2);
+    m1598 = m14BC;
+    if (m1598 != 0) {
+        m1598->fn_80178208(new (3, "", "", 0) chr::ControlMatHoldPre(m1598, this));
+    }
+}
+
 void Em403WarLion::fn_80327E1C() {
     if (m14CC == 3 && !(m55C - 6U <= 1)) {
         fn_80170A20(m14BC, 0, -1.0f);
@@ -946,6 +1115,155 @@ void Em403WarLion::fn_80327E78() {
         SetState_unk(6);
     } else {
         fn_80324A38(mRot, 0, 0.0f, 0.0f);
+    }
+}
+
+// inferred: difference of angles in degrees in [-180, 180] (as in game/Em201ZanGurg.cpp; name invented)
+inline float AngleDiffDeg_unk(float a, float b) {
+    float d = a - b;
+    d = fmod(57.295776f * d, 360.0);
+    if (d > 180.0f) {
+        d -= 360.0f;
+    }
+    if (d < -180.0f) {
+        d += 360.0f;
+    }
+    return d;
+}
+
+// inferred: roar (state 8): turns towards the target, then attacks with bullet 0x672
+// NONMATCHING: 99.58% - operandos de un fmuls (0.034906585f * (a / abs))
+void Em403WarLion::fn_80327EF0() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        SetState_unk(6);
+        return;
+    }
+    if (mMotion.mTracks[0].m08 < 20.0f) {
+        CharaTask* target = m14BC;
+        atn::Vector3 d = target->mPos - mPos;
+        atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+        float a = fmod(57.295776f * (rot.y - mRot.y), 360.0);
+        if (a > 180.0f) {
+            a -= 360.0f;
+        }
+        if (a < -180.0f) {
+            a += 360.0f;
+        }
+        float abs = atn::Abs_unk(a);
+        if (abs > 0.034906585f) {
+            a = 0.034906585f * (a / abs);
+        }
+        mRot.y += a;
+    }
+    frame = mMotion.mTracks[0].m08;
+    if (frame >= 19.0f && frame <= 26.0f) {
+        fn_80144710();
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x672), m590, 30, -1, 0.0f);
+    }
+}
+
+// NONMATCHING: 99.58% - r5/r6 del indice y la tabla en el bucle de FindPlace_unk
+// inferred: comes down at place 0x262 (state 9) and then roars (bullet 0x673)
+void Em403WarLion::fn_80328270() {
+    if (m14C4 == 0) {
+        if (mMotion.mTracks[0].m08 >= 6.0f) {
+            m14C4 = 1;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
+            CollResult_unk result;
+            atn::Vector3 pos(-18.0f, 30.0f, 600.0f);
+            RouteTable_unk* table = lbl_8087F430->m10D8;
+            RoutePlace_unk* place = table->FindPlace_unk(0x262);
+            if (place != 0) {
+                pos = place->mPos;
+            }
+            mPos = pos;
+            atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + pos;
+            if (fn_8004ED34(lbl_8087EE98, &result, &pos, &to, 0x80000000, &mColli, 0) != 0) {
+                mPos = result.m10;
+            }
+        }
+    } else if (m14C4 == 1) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m14C4 = 2;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+        } else if (mMotion.mTracks[0].m08 <= 10.0f) {
+            fn_80144710();
+            fn_800FAB80(lbl_8087F048, this, fn_80219E6C(0x673), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_80370AE4(lbl_8087F430, 0xCD, 1);
+            SetState_unk(6);
+        }
+    }
+}
+
+// inferred: weapon manager (as in game/CharaTask.cpp, class unknown)
+extern "C" void* lbl_8087F9E8;
+extern "C" void fn_8059C32C(void* mgr, int arg);
+
+// inferred: comes down at place 0x262 (state 10), roars and sends message 2 to the gimmick 40 of kind 1
+// NONMATCHING: 99.62% - mismo intercambio r5/r6 que fn_80328270 en el bucle de FindPlace_unk
+void Em403WarLion::fn_8032853C() {
+    if (m14C4 == 0) {
+        if (mMotion.mTracks[0].m08 >= 6.0f) {
+            m14C4 = 1;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
+            CollResult_unk result;
+            atn::Vector3 pos(-18.0f, 30.0f, 600.0f);
+            RouteTable_unk* table = lbl_8087F430->m10D8;
+            RoutePlace_unk* place = table->FindPlace_unk(0x262);
+            if (place != 0) {
+                pos = place->mPos;
+            }
+            mPos = pos;
+            atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + pos;
+            if (fn_8004ED34(lbl_8087EE98, &result, &pos, &to, 0x80000000, &mColli, 0) != 0) {
+                mPos = result.m10;
+            }
+        }
+    } else if (m14C4 == 1) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m14C4 = 2;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+        } else if (mMotion.mTracks[0].m08 <= 10.0f) {
+            fn_80144710();
+            fn_800FAB80(lbl_8087F048, this, fn_80219E6C(0x673), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            SetState_unk(6);
+        } else {
+            frame = mMotion.mTracks[0].m08;
+            if (45.0f <= frame && frame <= 47.0f && fn_80370A78(lbl_8087F430, 0x5C) < 1) {
+                fn_80370AE4(lbl_8087F430, 0x5C, 1);
+                fn_8059C32C(lbl_8087F9E8, 0);
+                for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                    if (g->m50 == 40 && g->m4C == 1) {
+                        GimmickMsg_unk msg(2);
+                        g->vf40(&msg);
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
