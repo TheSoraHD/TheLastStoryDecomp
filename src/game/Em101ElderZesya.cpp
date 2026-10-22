@@ -7,6 +7,7 @@
 #include "chr/ControlBase.h"
 #include "game/CharaStatus.h"
 #include "game/EnemyManager.h"
+#include "game/HomingBullet.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
@@ -133,6 +134,42 @@ extern "C" void fn_8025FE30(int zesya, const ElderOrder_unk* order); // inferred
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em101LittleZesyaSecond.cpp)
+extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
+extern "C" int rand();
+// inferred: fields of the running magic control (class unknown; as in game/Em003LesserDaemon.cpp)
+struct ControlMagic_unk {
+    unsigned char m00[0x14];
+    CharaTask* m14; // inferred: target
+    unsigned char m18[0x1D - 0x18];
+    unsigned char m1D; // inferred: nonzero once the bullets are fired
+};
+// inferred: list of free players (up to 16; names invented)
+struct ElderTargets_unk {
+    ElderTargets_unk() : mCount(0) {}
+    unsigned int size() const { return mCount; }
+    void push_back(PlayerTask* const& x) {
+        new (&mData[mCount]) PlayerTask*(x);
+        mCount++;
+    }
+    PlayerTask*& operator[](unsigned int i) { return mData[i]; }
+    unsigned int mCount;
+    PlayerTask* mData[16];
+};
+// inferred: alive, not hidden and not grappled (written out as in the original; name invented)
+inline bool IsTarget_unk(CharaTask* p) {
+    bool ok = false;
+    bool dead = false;
+    if ((p->mFlags & 4) == 4 || (p->mFlags & 1) == 1) {
+        dead = true;
+    }
+    if (!dead && (p->mStatus.m0C & 0x20) != 0x20 && !p->IsGrappled_unk()) {
+        ok = true;
+    }
+    return ok;
+}
 extern "C" double sqrt(double x);
 
 // inferred: barrier sizes (radius, height); static vector of the file built by the __sinit (0x8025A03C)
@@ -502,6 +539,91 @@ void Em101ElderZesya::fn_80258574() {
         break;
     }
     *(int*)(m16A0 + 0x14EC) = m14CC;
+}
+
+// NONMATCHING: 99.19% - nonvolatile registers shifted by one (r24-r30: the original keeps the list base in
+// r24 and the control in r25) and f20/f21 of the frame; same layout as Em003LesserDaemon::fn_8024ED68
+// (8 variants: helper forms of the player test, list hoisted, control hoisted)
+void Em101ElderZesya::fn_80258A50() {
+    if (m55C == 6) {
+        if (m560 == 0x1E) {
+        HitInfo_unk* hit = m638;
+        if (hit == m150C) {
+            ControlMagic_unk* control = (ControlMagic_unk*)mControl.get();
+            bool fire = false;
+            if (control->m1D == 0 && mMotion.mTracks[0].m08 >= 24.0f) {
+                fire = true;
+            }
+            if (fire) {
+                HomingParam_unk param;
+                Mtx rot;
+                Mtx m;
+                Mtx m2;
+                fn_8016DA4C();
+                control->m1D = 1;
+                atn::Vector3 pos = mPos;
+                pos.y += 30.0f;
+                atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+                PSMTXRotRad(m, 'y', mRot.y);
+                PSMTXMultVec(m, &fwd, &fwd);
+                fwd.y += 1.0f;
+                PSVECNormalize(&fwd, &fwd);
+                int count = 10;
+                int n = count - 1;
+                for (int i = 0; i < count; i++) {
+                    atn::Vector3 dir = fwd;
+                    float t = ((float)i - 0.5f * (float)n) / (0.5f * (float)n);
+                    atn::Vector3 axis(0.0f, 0.0f, 1.0f);
+                    PSMTXRotRad(m2, 'y', mRot.y);
+                    PSMTXMultVec(m2, &axis, &axis);
+                    PSMTXRotAxisRad(rot, &axis, 0.7853982f * t);
+                    PSMTXMultVec(rot, &dir, &dir);
+                    param.mTarget = 0;
+                    param.mAccel = 0.0f;
+                    param.m08 = -1.0f;
+                    param.mMaxSpeed = 10.0f;
+                    param.mTurn = 0.09424778f;
+                    param.mTime = 300.0f;
+                    param.mDelay = 5.0f;
+                    param.mNode = 0;
+                    param.mCount = -1;
+                    param.mTarget = control->m14;
+                    if (i > 0) {
+                        ElderTargets_unk list;
+                        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                            if (IsTarget_unk(p)) {
+                                list.push_back(p);
+                                if (list.size() >= 16) {
+                                    break;
+                                }
+                            }
+                        }
+                        if (list.size() != 0) {
+                            param.mTarget = list[rand() % list.size()];
+                        }
+                    }
+                    param.mDelay = rand() % 3 + 5;
+                    param.mTurn = 0.18849556f;
+                    fn_800F8574(lbl_8087F048, this, hit, &pos, &dir, &param, 0x44, 0, 0.0f, 1.0f);
+                }
+            } else {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    void* p = ::operator new(0x34, 1, "", "", 0);
+                    chr::ControlBase* c = (chr::ControlBase*)p;
+                    if (p != 0) {
+                        c = fn_801C02F4(p, this);
+                    }
+                    fn_80178208(c);
+                }
+            }
+        }
+        }
+    } else {
+        m58C = 6;
+        m14C8 = 0;
+    }
+    fn_80139560();
 }
 
 void Em101ElderZesya::fn_80258F1C() {

@@ -67,6 +67,7 @@ public:
     void fn_8025941C(); // inferred: warps next to the current barrier (state 13)
     inline void GetWarp_unk(atn::Vector3* pos, float* rot);
     void fn_80258F1C(); // inferred: state 12 (casts the magic at frame 62)
+    void fn_80258A50(); // inferred: state of the light sword magic (10 homing bullets)
     void fn_80258574(); // inferred: starts the next action of the phase (m14CC)
     inline void StartMagic_unk();
 
