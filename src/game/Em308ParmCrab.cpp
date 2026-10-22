@@ -29,6 +29,21 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+// inferred: float color converted to GXColor (as in game/Em305VampireMp.cpp)
+struct ColorF_unk {
+    ColorF_unk() {}
+    ColorF_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    GXColor ToGX() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
+    float r, g, b, a;
+};
+extern "C" ColorF_unk lbl_807C8398; // inferred: color of the downed enemies (bss)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
@@ -67,6 +82,39 @@ Em308ParmCrab::Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 Em308ParmCrab::~Em308ParmCrab() {}
+
+// inferred: the colour of "em202_body"/"em202_tail" moves 15% per frame towards white (or the downed colour)
+// NONMATCHING: 94.14% - stack order and scheduling of the colour temporaries (target - cur, * 0.15f); ~12 forms
+// (field-by-field, operators by reference/value, Lerp helper)
+inline ColorF_unk operator-(const ColorF_unk& x, const ColorF_unk& y) {
+    return ColorF_unk(x.r - y.r, x.g - y.g, x.b - y.b, x.a - y.a);
+}
+inline ColorF_unk operator+(const ColorF_unk& x, const ColorF_unk& y) {
+    return ColorF_unk(x.r + y.r, x.g + y.g, x.b + y.b, x.a + y.a);
+}
+inline ColorF_unk operator*(const ColorF_unk& x, float f) {
+    return ColorF_unk(x.r * f, x.g * f, x.b * f, x.a * f);
+}
+
+void Em308ParmCrab::vf14() {
+    if (mMotion.fn_80092954("em202_body") != 0 && mMotion.fn_80092954("em202_tail") != 0) {
+        ColorF_unk target;
+        target.r = 1.0f;
+        target.g = 1.0f;
+        target.b = 1.0f;
+        target.a = 1.0f;
+        if (IsDown_unk()) {
+            target = lbl_807C8398;
+        }
+        ColorF_unk& cur = *(ColorF_unk*)&m15E4;
+        ColorF_unk d = target - cur;
+        ColorF_unk c = d * 0.15f + cur;
+        cur = c;
+        mMotion.fn_80092954("em202_body")->mColor = c.ToGX();
+        mMotion.fn_80092954("em202_tail")->mColor = cur.ToGX();
+    }
+    fn_80149A30();
+}
 
 // inferred: stops the attack sound and effect 200
 inline void Em308ParmCrab::StopAttack_unk() {
