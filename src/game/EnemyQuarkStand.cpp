@@ -6,6 +6,7 @@
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
 #include "game/GameUI.h"
+#include "game/HomingBullet.h"
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
 #include "game/PlayerTask.h"
@@ -141,6 +142,9 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int arg, float f); // inferred: fires a melee hit
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int flags, int arg, float f1,
+                            float f2); // inferred: fires a homing bullet
 Effect_unk* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
 extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
 extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
@@ -1011,6 +1015,32 @@ inline atn::Matrix3x4& QuarkRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector
     }
     return m;
 }
+// inferred: rotation matrix y * x * z (name invented)
+inline atn::Matrix3x4& QuarkRotationYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.y != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.z != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
 inline void QuarkRotateZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
     Mtx t;
     atn::Matrix3x4 rot;
@@ -1174,6 +1204,93 @@ void EnemyQuarkStand::fn_803494AC() {
         if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
             fn_8034F41C();
             mPos.y = 0.0f;
+        }
+    }
+}
+
+// inferred: the character can be targeted (CharaTask::CanAct_unk with the tests materialised as in the
+// original; name invented)
+inline bool QuarkCanTarget_unk(CharaTask* c) {
+    bool ok = false;
+    bool off = false;
+    if ((c->mFlags & 4) == 4 || (c->mFlags & 1) == 1) {
+        off = true;
+    }
+    if (!off && (c->mStatus.m0C & 0x20) != 0x20) {
+        bool grabbed = false;
+        if (c->m55C == 6 && c->m560 == 28) {
+            grabbed = true;
+        }
+        if (!grabbed) {
+            ok = true;
+        }
+    }
+    return ok;
+}
+
+// inferred: up to eight targets of the homing attack: the target when it is grabbed (flag 28), else the
+// players that can be hit (names invented)
+struct QuarkTargets_unk {
+    int mCount;
+    CharaTask* mTargets[8];
+};
+
+// inferred: state 8 (attack 6, homing, motion 0x14D): at frame 35 fires eight "HomingSkillID" bullets in a
+// fan from the "spine" node, shared between the targets
+// NONMATCHING: 95.28% - register numbering of the loop (r20-r31) and the stack layout of the rotation
+// matrices, of the homing parameters and of the target list (the original keeps the list at 0x1A4, ours
+// at 0x1A8); ~6 forms (rotation helpers, order of the locals)
+void EnemyQuarkStand::fn_80349BA0() {
+    if (m14B4 == 0) {
+        if (mMotion.mTracks[0].m08 >= 35.0f) {
+            QuarkTargets_unk targets;
+            targets.mCount = 0;
+            CharaTask* target = (CharaTask*)m14B0;
+            if (target->mFlag28) {
+                CharaTask** slot = &targets.mTargets[0];
+                if (slot != 0) {
+                    *slot = target;
+                }
+                targets.mCount++;
+            } else {
+                for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
+                    if (QuarkCanTarget_unk(p)) {
+                        CharaTask** slot = &targets.mTargets[targets.mCount];
+                        if (slot != 0) {
+                            *slot = p;
+                        }
+                        targets.mCount++;
+                    }
+                }
+            }
+            for (int i = 0; i < 8; i++) {
+                atn::Vector3 dir(0.0f, 1.0f, 0.0f);
+                atn::Vector3 rot(0.0f, mRot.y, 3.1415927f * (((float)i + 0.5f) * 0.125f) - 1.5707964f);
+                CharaTask* t = targets.mTargets[i % (unsigned int)targets.mCount];
+                atn::Matrix3x4 m;
+                QuarkRotationYXZ_unk(m, rot);
+                PSMTXMultVec(m.m, &dir, &dir);
+                atn::Vector3 pos = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
+                HomingParam_unk param;
+                param.mTarget = t;
+                param.mAccel = 12.0f;
+                param.m08 = -1.0f;
+                param.mMaxSpeed = 0.3f;
+                param.mTurn = 0.62831855f;
+                param.mTime = 300.0f;
+                param.mDelay = 8.0f;
+                param.mNode = 0;
+                param.mCount = -1;
+                param.mCount = fn_800F8548(lbl_8087F048);
+                fn_800F8574(lbl_8087F048, this, m1540, &pos, &dir, &param, 0x104, 0, 0.0f, 1.0f);
+            }
+            fn_800C31F4("SE_EM211_012", 0, -1, 1.0f);
+            m14B4++;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_8034F41C();
         }
     }
 }
