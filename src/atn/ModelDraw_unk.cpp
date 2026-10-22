@@ -656,41 +656,102 @@ void fn_8009BB9C(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
     }
 }
 
-// inferred: material and ambient colours of a material (written with paired singles in the
-// original; written out twice there: each copy has its own white constant in .sdata2)
-#define SET_MAT_COLOR_UNK(mat, lens, color)                    \
-    {                                                                      \
-    GXColor mc = mat->m18;                                                                          \
-    GXColor ac;                                                                                     \
-    GXColor src = mat->m1C;                                                                         \
-    float amb[4];                                                                                   \
-    amb[0] = (float)src.r / 255.0f;                                                                 \
-    amb[1] = (float)src.g / 255.0f;                                                                 \
-    amb[2] = (float)src.b / 255.0f;                                                                 \
-    amb[3] = (float)src.a / 255.0f;                                                                 \
-    mc.r = (unsigned char)(mc.r * (1.0f / 255.0f) * color->m[0] * 255.0f);                          \
-    mc.g = (unsigned char)(mc.g * (1.0f / 255.0f) * color->m[1] * 255.0f);                          \
-    mc.b = (unsigned char)(mc.b * (1.0f / 255.0f) * color->m[2] * 255.0f);                          \
-    mc.a = (unsigned char)(mc.a * (1.0f / 255.0f) * color->m[3] * 255.0f);                          \
-    ac.r = (unsigned char)(lens->m0C[0] * amb[0] * 255.0f);                                         \
-    ac.g = (unsigned char)(lens->m0C[1] * amb[1] * 255.0f);                                         \
-    ac.b = (unsigned char)(lens->m0C[2] * amb[2] * 255.0f);                                         \
-    ac.a = (unsigned char)(lens->m0C[3] * amb[3] * 255.0f);                                         \
-    GXSetChanMatColor(4, mc);                                                                       \
-    if (mat->m4E == 1) {                                                                            \
-        GXSetTevKColor(1, mc);                                                                      \
-    } else {                                                                                        \
-        GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};                                                   \
-        GXSetTevKColor(1, white);                                                                   \
-    }                                                                                               \
-    GXColor k = {(unsigned char)(255.0f * lens->m1C[0]), (unsigned char)(255.0f * lens->m1C[1]),    \
-                 (unsigned char)(255.0f * lens->m1C[2]), (unsigned char)(255.0f * lens->m1C[3])};   \
-    GXSetTevKColor(2, k);                                                                           \
-    GXSetChanAmbColor(4, ac);                                                                       \
+// inferred: paired-single cuantizado a mano (GQR6), ejemplo 0x8009C05C; excepcion aprobada 2026-10-22
+// (GQR6 = u8 load/store without scale; the value goes through a parameter, as in the original)
+static inline void SetGQR6_unk(register unsigned int gqr) {
+    asm {
+        mtspr 0x396, gqr
     }
+}
 
-// NONMATCHING: 35.93% - the colours are scaled with hand-written paired-single code (GQR6, psq_l/psq_st
-// quantized) that cannot be written without asm
+// inferred: float colour (0..1) to GXColor
+static inline GXColor ToGXColor_unk(const float* c) {
+    GXColor k = {(unsigned char)(255.0f * c[0]), (unsigned char)(255.0f * c[1]), (unsigned char)(255.0f * c[2]),
+                 (unsigned char)(255.0f * c[3])};
+    return k;
+}
+
+// inferred: material and ambient colours of a material: mc = mat->m18 / 255 * color * 255 and
+// ac = lens->m0C * (mat->m1C / 255) * 255. Its locals are laid out in ascending order (an inline in
+// the original). The register pointers are declared first so that the compiler sets them up before
+// the conversions (in a separate helper with parameters they are set up after them).
+static inline void SetMatColor_unk(ShaderMaterial_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
+    GXColor mc = mat->m18;
+    GXColor ac;
+    GXColor src = mat->m1C;
+    float amb[4];
+    register float* pamb = amb;
+    register GXColor* pmc = &mc;
+    register GXColor* pac = &ac;
+    register DrawColor_unk* pcolor = color;
+    register DrawLens_unk* plens = lens;
+    amb[0] = (float)src.r / 255.0f;
+    amb[1] = (float)src.g / 255.0f;
+    amb[2] = (float)src.b / 255.0f;
+    amb[3] = (float)src.a / 255.0f;
+    register float scale = 255.0f;
+    // inferred: paired-single cuantizado a mano (GQR6), ejemplo 0x8009C05C; excepcion aprobada 2026-10-22
+    // Fixed registers f2-f9 as in the original (the compiler keeps its temporaries out of them).
+    SetGQR6_unk(0x40004);
+    register float inv = 1.0f / 255.0f;
+    asm {
+        psq_l fp2, 0x0(pmc), 0, 6
+        psq_l fp3, 0x2(pmc), 0, 6
+        ps_muls0 fp2, fp2, inv
+        psq_l fp4, 0x0(pcolor), 0, 0
+        ps_muls0 fp3, fp3, inv
+        psq_l fp5, 0x8(pcolor), 0, 0
+        psq_l fp6, 0xc(plens), 0, 0
+        ps_mul fp2, fp2, fp4
+        psq_l fp8, 0x0(pamb), 0, 0
+        ps_mul fp3, fp3, fp5
+        psq_l fp7, 0x14(plens), 0, 0
+        psq_l fp9, 0x8(pamb), 0, 0
+        ps_mul fp6, fp6, fp8
+        ps_muls0 fp2, fp2, scale
+        ps_mul fp7, fp7, fp9
+        ps_muls0 fp3, fp3, scale
+        ps_muls0 fp6, fp6, scale
+        ps_muls0 fp7, fp7, scale
+        psq_st fp2, 0x0(pmc), 0, 6
+        psq_st fp3, 0x2(pmc), 0, 6
+        psq_st fp6, 0x0(pac), 0, 6
+        psq_st fp7, 0x2(pac), 0, 6
+    }
+    GXSetChanMatColor(4, mc);
+    if (mat->m4E == 1) {
+        GXSetTevKColor(1, mc);
+    } else {
+        GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
+        GXSetTevKColor(1, white);
+    }
+    GXSetTevKColor(2, ToGXColor_unk(lens->m1C));
+    GXSetChanAmbColor(4, ac);
+    if (mat->m4C) {
+        DrawRender_unk* rs = lbl_8087EEE0;
+        fn_8007642C(rs, 0, (void*)fn_800C24B4(lens, 0));
+    }
+}
+
+// inferred: fixed colours of a material (an inline in the original: its locals are laid out like those
+// of SetMatColor_unk; mat->m20, m3C and m40 are read before the stores, as in the original)
+static inline void SetMatTev_unk(ShaderMaterial_unk* mat) {
+    DrawDesc_unk* desc = mat->m08->mDesc;
+    GXColor matColor = mat->m20;
+    sLastMat_unk = mat;
+    GXSetChanMatColor(5, matColor);
+    GXSetChanAmbColor(5, desc->m020);
+    int r = mat->m3C;
+    int g = mat->m40;
+    GXColor k = mat->m08->mDesc->m054;
+    k.r = r;
+    k.g = g;
+    GXSetTevKColor(0, k);
+    GXSetTevColor(1, mat->m24);
+    GXSetTevColor(2, mat->m28);
+    GXSetTevColor(3, mat->m2C);
+}
+
 void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
     if (mat == 0) {
         sLastMat_unk = 0;
@@ -703,36 +764,18 @@ void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens
     }
     if (mat == sLastMat_unk && lbl_8087EFA8->m3A0 != 0) {
         fn_8009DCE0(mat);
-        SET_MAT_COLOR_UNK(mat, lens, color)
-        if (mat->m4C) {
-            DrawRender_unk* rs = lbl_8087EEE0;
-            fn_8007642C(rs, 0, (void*)fn_800C24B4(lens, 0));
-        }
+        SetMatColor_unk(mat, lens, color);
         return;
     }
-    DrawDesc_unk* desc = mat->m08->mDesc;
-    sLastMat_unk = mat;
-    GXSetChanMatColor(5, mat->m20);
-    GXSetChanAmbColor(5, desc->m020);
-    GXColor k = desc->m054;
-    k.r = mat->m3C;
-    k.g = mat->m40;
-    GXSetTevKColor(0, k);
-    GXSetTevColor(1, mat->m24);
-    GXSetTevColor(2, mat->m28);
-    GXSetTevColor(3, mat->m2C);
-    SET_MAT_COLOR_UNK(mat, lens, color)
-    if (mat->m4C) {
-        DrawRender_unk* rs = lbl_8087EEE0;
-        fn_8007642C(rs, 0, (void*)fn_800C24B4(lens, 0));
-    }
+    SetMatTev_unk(mat);
+    SetMatColor_unk(mat, lens, color);
     fn_8009C508(mat);
     fn_8009C688(mat);
     fn_8009C84C(mat);
     DrawRender_unk* rs = lbl_8087EEE0;
     fn_80076A28(rs, (unsigned char*)mat + 0x14);
     GXSetTevSwapModeTable(3, SwapR_unk(mat->m38), SwapG_unk(mat->m38), SwapB_unk(mat->m38), SwapA_unk(mat->m38));
-    if (lbl_8087EFB4->m2F8 == 4 && mat->m14_19 == 1) {
+    if (lbl_8087EFB4->m2F8 == 4 && (int)mat->m14_19 == 1) {
         fn_80076760(rs, 6, 2);
     }
     fn_800761A8(lbl_8087EEE0);
