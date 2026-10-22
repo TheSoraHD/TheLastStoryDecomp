@@ -141,3 +141,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     cerrarse con `ToRotationZ_unk()`; no tocado (no es de esta cola).
   - Hallazgo MWCC: leer `z` a un `float` local antes del `Abs_unk` hace que el `frsp` se emita una sola vez
     (antes del fabs) y que atan2 reciba el valor ya redondeado (`fmr f2, f3`).
+  - Barrido automatico (script en el scratch: cambia cada `ToRotation_unk()` por `ToRotationZ_unk()` y se queda
+    solo con los que suben sin bajar nada): ControlOttotto::vf0C 99.33% -> 99.56%, ChaserGuard::fn_8017FED0
+    99.32% -> 99.46%. Sin efecto/peor en ControlDive, ControlWallUp, ControlCliffhang, ChaserNpc, SpecialEnemyBase.

@@ -682,7 +682,7 @@ bool ChaserGuard::fn_8017FBEC() {
     return false;
 }
 
-// NONMATCHING: 99.3% - the target keeps &mPos in r30 for the direction to the player.
+// NONMATCHING: 99.46% - the target keeps &mPos in r30 for the direction to the player.
 void ChaserGuard::fn_8017FED0() {
     RouteWalker_unk& route = mC58.m0C;
     route.fn_80126214();
@@ -698,7 +698,7 @@ void ChaserGuard::fn_8017FED0() {
         look = 0.0f;
     }
     if (m14B0 - 4 <= 1u && IsPlayerNear_unk() && fn_80183860(lbl_8087F098, &mPos) != 0) {
-        rot = DirToPlayer_unk(mPos).ToRotation_unk();
+        rot = DirToPlayer_unk(mPos).ToRotationZ_unk();
     }
     float speed = lbl_8087F0A8->mChase.m500;
     if (m14B0 == 5) {

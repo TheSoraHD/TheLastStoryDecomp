@@ -374,7 +374,7 @@ ControlOttotto::ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int ti
     }
 }
 
-// NONMATCHING: 99.3% - the counter goes to r0 instead of r5 and the stack slots of the negated
+// NONMATCHING: 99.56% - the counter goes to r0 instead of r5 and the stack slots of the negated
 // direction, its rotation and the normalized direction differ.
 int ControlOttotto::vf0C() {
     int count = --m14;
@@ -383,7 +383,7 @@ int ControlOttotto::vf0C() {
         if (count <= 0) {
             atn::Vector3 target = mChara->fn_80178018();
             atn::Vector3 dir = motion->mTracks[0].m00 == 0x52 ? Neg_unk(m08) : m08;
-            atn::Vector3 rot = dir.ToRotation_unk();
+            atn::Vector3 rot = dir.ToRotationZ_unk();
             float a = atn::WrapAngle_unk(target.y - rot.y);
             if (mChara->fn_80178078() > 0.4f && a < 1.5707964f) {
                 return 1;
