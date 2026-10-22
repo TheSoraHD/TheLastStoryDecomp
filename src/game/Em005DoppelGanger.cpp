@@ -18,6 +18,40 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk {
+    unsigned char m00[0xEC];
+    unsigned int mEC; // inferred: flags (bit 3 set while a doppelganger exists)
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+
+// inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: word at 0x1C of the running control (class unknown)
 struct Control1C_unk {
     unsigned char m00[0x1C];
@@ -42,12 +76,6 @@ struct DoppelChara_unk : public CharaTask {
     DoppelState_unk m1470;
 };
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xEC];
-    unsigned int mEC; // inferred: flags (bit 3 set while a doppelganger exists)
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" int lbl_8087F3D8; // inferred: cleared by vf14 (file static)
 
 // inferred: offsets of the hit sphere (static constructors at 0x80254530)
@@ -183,6 +211,36 @@ void Em005DoppelGanger::vf40(HitInfo_unk* hit) {
                 fn_8015E4B0(m6B8, -1);
             }
         }
+    }
+}
+
+// NONMATCHING: 98.04% - li r4 / mr r3 of the last call swapped (4 variants) and the offset of
+// "SE_EM005_010_1" in the pool (strings of unwritten functions missing)
+void Em005DoppelGanger::vfF0() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mFlag25 = 1;
+        mColli.mFlags &= ~1;
+        if (m1434 > 0) {
+            m1434--;
+            if (m1434 == 29) {
+                fn_80232B7C(0, 0);
+                PlayEffect_unk(&m14D4, &mMotion);
+            }
+        } else {
+            mFlag15 = 1;
+            fn_801765D8();
+        }
+        return;
+    }
+    m1434 = 30;
+    if ((float)__fabs(mMotion.mTracks[0].m08 - 40.0f) < 1.1920929e-7f) {
+        PlayEffect_unk(&m14C8, &mMotion);
+        fn_800C344C("SE_EM005_010_1", &mPos, 0, -1, 1.0f);
+    }
+    if ((float)__fabs(mMotion.mTracks[0].m08 - 50.0f) < 1.1920929e-7f) {
+        m14BC = 3;
+        fn_8016E4C4(1);
     }
 }
 
