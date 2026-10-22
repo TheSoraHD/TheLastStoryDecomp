@@ -267,13 +267,21 @@ void Em209SmallGolem::vf9C(int arg) {
     mFlag18 = 0;
 }
 
-// NONMATCHING: 99.9% - the original reloads m624.mData before the copy of the center (same open case
-// as CharaTask::vf54)
+void Em209SmallGolem::vf50() {
+    m624.clear();
+    Item14_unk item;
+    item.m04.mRadius = m5B0;
+    item.m04.mCenter = mPos + m5A4;
+    item.m04.mCenter.y += item.m04.mRadius;
+    m624.push_back(item);
+    mFlagB29 = 1;
+}
+
+// NONMATCHING: 98.87% - r4/r5 of the copy of the center (temporary of mPos + m5A4, __VecCopy family)
 void Em209SmallGolem::vf54() {
     if (m624.mSize != 0) {
-        CharaTask::Item14_unk* item = m624.mData;
-        item->m04.mRadius = m5B0;
-        item->m04.mCenter = mPos + m5A4;
+        m624.mData[0].m04.mRadius = m5B0;
+        m624.mData[0].m04.mCenter = mPos + m5A4;
         m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
     }
 }
