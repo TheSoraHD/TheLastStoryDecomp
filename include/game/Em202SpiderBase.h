@@ -15,6 +15,34 @@ struct SpiderBaseList_unk : public std::vector<int> {};
 // inferred: color of the materials "em202_body"/"em202_tail" (r, g, b, a; starts white); name invented
 struct SpiderBaseColor_unk {
     SpiderBaseColor_unk() : r(1.0f), g(1.0f), b(1.0f), a(1.0f) {}
+    SpiderBaseColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    SpiderBaseColor_unk operator-(const SpiderBaseColor_unk& o) const {
+        return SpiderBaseColor_unk(r - o.r, g - o.g, b - o.b, a - o.a);
+    }
+    SpiderBaseColor_unk operator+(const SpiderBaseColor_unk& o) const {
+        SpiderBaseColor_unk c;
+        c.r = r + o.r;
+        c.g = g + o.g;
+        c.b = b + o.b;
+        c.a = a + o.a;
+        return c;
+    }
+    SpiderBaseColor_unk operator*(float f) const {
+        SpiderBaseColor_unk c;
+        c.r = r * f;
+        c.g = g * f;
+        c.b = b * f;
+        c.a = a * f;
+        return c;
+    }
+    GXColor ToGX() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
     float r, g, b, a;
 };
 
@@ -24,7 +52,9 @@ class Em202SpiderBase : public EnemyTask {
 public:
     Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info); // 0x80282AE8
     virtual ~Em202SpiderBase();
+    virtual void vf14();                                       // 0x80283D60
     virtual void vf7C(int arg);
+    virtual void vfEC();                                       // 0x80286B78
 
     void fn_80287788(); // inferred: death
 

@@ -22,6 +22,24 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
+// inferred: color as four floats (as in game/CharaTask.cpp)
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+
+// inferred: color of the spiders when they are down; defined here (its __sinit is the .ctors entry of this
+// file) and read by game/Em202Spider.cpp, Em202ForestSpider, Em202_01_BSpider and Em308ParmCrab
+// NONMATCHING (__sinit): 99.00% - only the .sdata2 offsets of 0.7f/0.2f/1.0f (constants of the unwritten
+// functions)
+extern "C" {
+SpiderBaseColor_unk lbl_807C8398(0.7f, 0.2f, 0.2f, 1.0f);
+}
 
 // NONMATCHING: 99.81% - r26/r27 of the second std::string constructor (as in Em201ZanGurg)
 Em202SpiderBase::Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info)
@@ -53,6 +71,19 @@ Em202SpiderBase::Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info)
 
 Em202SpiderBase::~Em202SpiderBase() {}
 
+// NONMATCHING: 92.87% - same code and same causes as Em202Spider::vf14 (strings of the unwritten functions,
+// stack slots of the color temporaries)
+void Em202SpiderBase::vf14() {
+    SpiderBaseColor_unk target;
+    if (IsDown_unk()) {
+        target = lbl_807C8398;
+    }
+    m15C4 = (target - m15C4) * 0.15f + m15C4;
+    mMotion.fn_80092954("em202_body")->mColor = m15C4.ToGX();
+    mMotion.fn_80092954("em202_tail")->mColor = m15C4.ToGX();
+    fn_80149A30();
+}
+
 void Em202SpiderBase::fn_80287788() {
     fn_80239DAC(lbl_8087F3C0, this, 0, 0);
     fn_800CB5C8(&m151C, 0, 0);
@@ -75,6 +106,42 @@ void Em202SpiderBase::fn_80287788() {
     mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
     m6B8 = lbl_807C7030;
     fn_800EB7A0(this);
+}
+
+// inferred: same as Em202Spider::vfEC without the fn_802829DC call and the stop of the effects 1000
+void Em202SpiderBase::vfEC() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mFlag25 = 1;
+        mColli.mFlags &= ~1;
+        if (m1434 > 0) {
+            m1434--;
+            if (m1434 == 29) {
+                fn_80232B7C(0, 0);
+                Color4f_unk color;
+                atn::Vector3 rot;
+                atn::Vector3 pos;
+                rot.x = 0.0f;
+                rot.y = 0.0f;
+                rot.z = 0.0f;
+                pos.x = 0.0f;
+                pos.y = 0.0f;
+                pos.z = 0.0f;
+                color.r = 1.0f;
+                color.g = 1.0f;
+                color.b = 1.0f;
+                color.a = 1.0f;
+                fn_8023A8B4(lbl_8087F3C0, &m15A4, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+                vf9C(1);
+            }
+        } else {
+            mFlag15 = 1;
+            fn_801765D8();
+            fn_800EE360(this);
+        }
+    } else {
+        m1434 = 30;
+    }
 }
 
 void Em202SpiderBase::vf7C(int arg) {

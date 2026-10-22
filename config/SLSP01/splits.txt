@@ -1667,6 +1667,7 @@ game/Em202SpiderBase.cpp:
 	.ctors      start:0x8072D330 end:0x8072D334
 	.rodata     start:0x807450E0 end:0x807452F0
 	.data       start:0x80785630 end:0x807857A0
+	.bss        start:0x807C8398 end:0x807C83A8
 	.sdata2     start:0x808839E8 end:0x80883A98
 
 game/Em203GreaterDaemon.cpp:
