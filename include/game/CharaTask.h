@@ -310,7 +310,7 @@ struct HitMsg_unk {
     unsigned char m3C[0x44 - 0x3C];
     int m44;
     int m48;
-    unsigned char m4C[0x50 - 0x4C];
+    int m4C; // inferred: cleared with m68 by Em203GreaterDaemon::vf3C
     unsigned int m50; // inferred: flags
     int m54; // inferred: passed to fn_8015E4B0
     int m58; // inferred: passed to fn_8015E7A0
@@ -402,7 +402,7 @@ public:
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir);
     virtual void vf50();
     virtual void vf54();
-    virtual void vf58();
+    virtual atn::Vector3 vf58(); // inferred: returns a position (0x800EF394 stores three floats to r3)
     virtual void vf5C(CharaTask* other); // inferred: other may be 0
     virtual void vf60();
     virtual atn::Vector3 vf64(int center); // inferred: position, or the center of the collision capsule
