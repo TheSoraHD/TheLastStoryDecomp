@@ -41,6 +41,7 @@ public:
     void fn_802F3BE8(); // inferred: state 8 (needle)
     void fn_802F42CC(); // inferred: state 9 (turn)
     void fn_802F469C(); // inferred: state 10 (tackle run)
+    void fn_802F5370(); // inferred: state 12 (escape)
     void fn_802F566C();
     inline void ResetAttack_unk();
     void fn_802F58A0();
@@ -73,7 +74,8 @@ public:
     int m1554;
     int m1558;                // inferred: "EscapeCount"
     float m155C;              // inferred: "EscapeSpeed"
-    unsigned char m1560[0x1570 - 0x1560];
+    RoutePlace_unk* m1560;    // inferred: escape place (fn_802F5370)
+    atn::Vector3 m1564;       // inferred: escape point (fn_802F5370)
     InvertList_unk m1570;     // inferred: "BasePoints" (route places)
     int m157C;                // inferred: flags 2 "NormalAttack", 4 "Needle", 8 "Recover"
     int m1580;

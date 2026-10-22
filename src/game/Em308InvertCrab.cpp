@@ -136,7 +136,9 @@ extern "C" CrabWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 extern "C" int fn_80108378(CrabWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 extern "C" void fn_802F693C(Em308InvertCrab* crab, CharaTask* target);
 extern "C" void fn_802F4A98(Em308InvertCrab* crab);
-extern "C" void fn_802F5370(Em308InvertCrab* crab);
+// inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
+extern "C" void* lbl_8087EEB0;
+extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
@@ -334,7 +336,7 @@ void Em308InvertCrab::vf10() {
             fn_802F4A98(this);
             break;
         case 12:
-            fn_802F5370(this);
+            fn_802F5370();
             break;
         case 13:
             if (m1590 == 0) {
@@ -906,6 +908,31 @@ void Em308InvertCrab::fn_802F469C() {
             fn_80170A20((CharaTask*)m1580, m15A8, -1.0f);
         }
         fn_802F33A0();
+    }
+}
+
+// inferred: state 12 (escape): runs to the escape point m1564 (route place m1560) and attacks the target when it
+// arrives (within 20); debug sphere with m15D0. inferred: the rotation is computed and not used (as fn_802F469C)
+void Em308InvertCrab::fn_802F5370() {
+    atn::Vector3 rot;
+    atn::Vector3 d = m1564 - mPos;
+    float dist = sqrt(d.x * d.x + d.z * d.z);
+    rot = d.ToRotation_unk();
+    if (dist < 20.0f) {
+        fn_8016E970(3);
+        m1554 = 0;
+        if (fn_802F62A0((CharaTask*)m1580, 8) == 0) {
+            fn_802F5F20((CharaTask*)m1580);
+        }
+    } else {
+        if (m55C - 6U > 1) {
+            m55C = 3;
+            fn_8017039C(m1560->mId, m15A8);
+        }
+        fn_802F33A0();
+        if (m15D0 != 0) {
+            fn_80063D3C(lbl_8087EEB0, &m1564, 0xFFFF0000, 20.0f, 100000.0f);
+        }
     }
 }
 
