@@ -95,6 +95,61 @@ void Em202SpiderBase::vf14() {
     fn_80149A30();
 }
 
+// NONMATCHING: 99.80% - only the .sdata2 offsets (constants of the unwritten functions)
+void Em202SpiderBase::fn_802847CC() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    atn::Vector3 rot;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 dir(mRoute.m58);
+        speed = dir.Length_unk();
+        if (speed > 0.0001f) {
+            rot = dir.GetNormalized_unk().ToRotation_unk();
+        }
+        CharaTask* t = m1580;
+        dir = t->mPos - mPos;
+        dir.y = 0.0f;
+        PSVECNormalize(&dir, &dir);
+        dir.fn_80139F60();
+        mRot.y = dir.y;
+        if (m58C == 12) {
+            rate *= m155C;
+        }
+        fn_801426A4(&rot, speed, m568 * rate);
+    } else if (m55C == 6) {
+        fn_8013A258();
+    } else {
+        rot = mRot;
+        fn_8013CB68(&rot, 0, speed, m568 * rate);
+    }
+}
+
+// NONMATCHING: 99.84% - only the .sdata2 offsets (constants of the unwritten functions)
+void Em202SpiderBase::fn_80286CB0(CharaTask* target) {
+    if ((m157C & 2) != 2) {
+        if (fn_80287400(target, 8) == 0) {
+            fn_8028702C(m1580);
+        }
+    } else if (fn_80287400(target, 7) == 0) {
+        ResetAttack_unk();
+        m58C = 7;
+        fn_8016E970(6);
+        m560 = 4;
+        m590 = fn_800F8548(lbl_8087F048);
+        atn::Vector3 pos(target->mPos);
+        atn::Vector3 rot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+        mRot = rot;
+        mRot.x = 0.0f;
+        mRot.z = 0.0f;
+        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.1f);
+    }
+}
+
 // NONMATCHING: 99.86% - only the .sdata2 offsets (constants of the unwritten functions)
 void Em202SpiderBase::fn_8028702C(CharaTask* target) {
     if ((m157C & 4) != 4) {
