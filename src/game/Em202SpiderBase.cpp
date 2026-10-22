@@ -95,6 +95,57 @@ void Em202SpiderBase::vf14() {
     fn_80149A30();
 }
 
+// NONMATCHING: 99.86% - only the .sdata2 offsets (constants of the unwritten functions)
+void Em202SpiderBase::fn_8028702C(CharaTask* target) {
+    if ((m157C & 4) != 4) {
+        if (fn_80287400(target, 6) == 0) {
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+        }
+    } else if (fn_80287400(target, 8) == 0) {
+        m58C = 8;
+        fn_8016E970(3);
+        ResetAttack_unk();
+        atn::Vector3 pos(target->mPos);
+        atn::Vector3 rot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+        mRot.x = 0.0f;
+        mRot.y = rot.y;
+        mRot.z = 0.0f;
+        m1598 = 0;
+        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
+    }
+}
+
+// NONMATCHING: 99.67% - only the .rodata/.sdata2 offsets (constants of the unwritten functions)
+int Em202SpiderBase::fn_80287400(CharaTask* target, int arg) {
+    if (m58C == 9) {
+        return 0;
+    }
+    m1540 = mRot.y;
+    atn::Vector3 rot = (target->mPos - mPos).ToRotationZ_unk();
+    m1544 = rot.y;
+    float d = atn::WrapAngle_unk(rot.y - m1540);
+    if (-0.3926991f < d && d < 0.3926991f) {
+        return 0;
+    }
+    m153C = 0;
+    m1538 = arg;
+    m1588 = target;
+    ResetAttack_unk();
+    m58C = 9;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 2.0f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    return 1;
+}
+
 void Em202SpiderBase::fn_80287788() {
     fn_80239DAC(lbl_8087F3C0, this, 0, 0);
     fn_800CB5C8(&m151C, 0, 0);
