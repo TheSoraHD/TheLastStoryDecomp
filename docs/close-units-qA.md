@@ -46,3 +46,15 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
 - `atn/RenderSetting_unk` (14/15): ctor 96.81% -> 96.92% (9 intentos): los tres blancos del bloom con un helper
   `sWhite_unk()` que devuelve el color por valor. Sigue el orden inverso de los temporales en pila y el
   planificador.
+- `atn/Layer2DBlur`: saltada (marcada en la cola: sin/cos).
+- `atn/PostFxColorMatrix`, `atn/PostFxDof`, `atn/PostFxMotionBlur`, `atn/PostFxRain`: saltadas (marcadas: emiten ~IPostFx).
+- `atn/TaskBase` (3/4): ctor sigue 61.09% tras 9 intentos (locales, palabras sueltas del id/etiqueta, struct de
+  dos palabras, puntero a la etiqueta): el planificador coloca las cargas de `sTaskTag` despues del incremento.
+- `atn/TextureDraw_unk` (3/4): saltada, `fn_800D5F68` (0x930) sin escribir; demasiado grande para este lote.
+- `atn/Texture_unk` (8/9): `fn_800D5A3C` sigue 99.69%. Pasando el tamano de `GXGetTexBufferSize` directamente
+  al reservar se arregla r28/r31 (queda solo el orden ancho/alto), pero `fn_800D5B58` baja de 100% a 99.87%:
+  descartado. 10 intentos.
+- `atn/VideoTHP` (12/13): `vf10` sigue 99.28% tras 9 intentos (registros volatiles). No se fusiona
+  `std/char_traits_char`.
+- `atn/AABBTree` (11/13): `vf18` sigue 97.37% (6 intentos: orden de `mr r3` del frustum en el inline de
+  `fn_80045C88`); `fn_80045D7C` 85% saltada (bucle de ctores de `AABB_unk[4]`, ya investigado).
