@@ -2,6 +2,7 @@
 #include "game/CharaManager.h"
 #include "game/HomingBullet.h"
 #include "game/PlayerTask.h"
+#include "chr/ControlBase.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -16,7 +17,13 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
-    unsigned char m0000[0x10D8];
+    unsigned char m0000[0x4D8];
+    int m4D8; // inferred: camera mode (as ElderCamera_unk::mMode in game/Em101ElderZesya.cpp)
+    unsigned char m4DC[0x8A0 - 0x4DC];
+    CharaTask* m8A0; // inferred: character the camera follows
+    unsigned char m8A4[0x97C - 0x8A4];
+    unsigned char m97C; // inferred: look point active (ElderLook_unk::m00)
+    unsigned char m97D[0x10D8 - 0x97D];
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -34,6 +41,20 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f);
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in game/Em101ElderZesyaSecond.cpp)
+extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
@@ -109,6 +130,231 @@ void Em101LittleZesyaSecond::fn_80260324() {
             }
         }
     } while (csv.fn_8005BBF8());
+}
+
+// inferred: back to the idle action (name invented; the same block is repeated in the states)
+inline void Em101LittleZesyaSecond::ResetAction_unk() {
+    m14BC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m14C4 = 0;
+    mFlag5 = 0;
+    fn_80239DAC(lbl_8087F3C0, this, 102, 1);
+}
+
+// inferred: gives the camera back (name invented)
+inline void Em101LittleZesyaSecond::ReleaseCamera_unk() {
+    if (m154C != 0) {
+        Field_unk* field = lbl_8087F430;
+        field->m8A0 = 0;
+        field->m4D8 = 0;
+        field->m97C = 0;
+        m154C = 0;
+    }
+}
+
+// inferred: plays an effect at a position (locals in the order of game/Em305Vampire.cpp; name invented)
+inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: state 1, casts m638 while the control allows it (as Em101LittleZesya::fn_8025DE7C; name invented)
+inline void Em101LittleZesyaSecond::Cast_unk() {
+    if (fn_80158BB4()) {
+        ResetAction_unk();
+        m58C = 0;
+        fn_8016E970(3);
+    } else {
+        fn_80139560();
+        if (lbl_8087F048 != 0 && fn_80158CA4() != 0) {
+            if (mControl && mControl->vf30() > m598) {
+                m598 = mControl->vf30();
+                m594 = 1;
+                m590 = fn_800F8548(lbl_8087F048);
+            }
+            fn_80144710();
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f);
+        }
+    }
+}
+
+// inferred: state 12, warp slash along the front between frames 17 and 25 (name invented)
+inline void Em101LittleZesyaSecond::Slash_unk() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= 17.0f && frame < 25.0f) {
+        HitInfo_unk* hit = fn_80219E6C(0x5E3);
+        float t = (mMotion.mTracks[0].m08 - 17.0f) * 0.125f;
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &dir, &dir);
+        atn::Vector3 d = dir * 120.0f;
+        atn::Vector3 pos = mPos + d * t;
+        fn_800FAB80(lbl_8087F048, this, hit, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        if (m14C4 == 0) {
+            fn_80232B7C(0, 0);
+            PlayEffectAt_unk(&m1538, pos, mRot);
+            m14C4 = 1;
+        }
+    } else {
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            ResetAction_unk();
+            m58C = 0;
+            fn_8016E970(3);
+        }
+    }
+}
+
+// NONMATCHING: 99.96% - only the stack slots of the warp slash locals (state 12: front vector, positions and
+// color; 12 variants: helper inlines, declaration orders, temporaries)
+void Em101LittleZesyaSecond::vf10() {
+    m14B8 = mC58.mC4;
+    m14BC++;
+    if (fn_80370A78(lbl_8087F430, 0xFA) == 1) {
+        ReleaseCamera_unk();
+        ResetAction_unk();
+        m58C = 0;
+        fn_8016E970(3);
+        fn_80370AE4(lbl_8087F430, 0xFA, 0);
+    }
+    if (mC58.mC0 == 0 || m14B8 == 0) {
+        if (m58C == 2) {
+            mPos = m1514;
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                mFlag25 = 1;
+                mMotion.mTracks[0].m0C = 0.0f;
+                fn_800D246C(1);
+                fn_800EE360(this);
+            }
+        } else {
+            fn_8016E970(3);
+            m58C = 0;
+        }
+    } else {
+        switch (m58C) {
+        case 1:
+            Cast_unk();
+            break;
+        case 6:
+            fn_80261A50();
+            break;
+        case 7: {
+            float frame = mMotion.mTracks[0].m08;
+            if ((float)__fabs(frame - 24.0f) < 1.1920929e-7f) {
+                fn_800FAB80(lbl_8087F048, this, fn_80219E6C(0x5E9), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f,
+                            1.0f);
+            } else if (frame >= mMotion.fn_80097D7C(0)) {
+                ResetAction_unk();
+                m58C = 0;
+                fn_8016E970(3);
+            }
+            break;
+        }
+        case 11:
+            fn_80261DC0();
+            break;
+        case 12:
+            Slash_unk();
+            break;
+        case 8:
+            if (m14BC > 10) {
+                if (m14E8 == 1) {
+                    ResetAction_unk();
+                    m58C = 10;
+                    fn_8016E970(3);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 1.0f, 0.1f);
+                    mMotion.mTracks[0].m08 = 0.0f;
+                    fn_802621D4((atn::Vector3*)&m14EC, &m14F8);
+                    mPos = *(atn::Vector3*)&m14EC;
+                    mRot.y = m14F8;
+                    m1544 = 0.0f;
+                } else {
+                    ResetAction_unk();
+                    m58C = 9;
+                    fn_8016E970(3);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x1C4, 1, 0, 1, 0.0f, 0.1f);
+                    fn_802621D4((atn::Vector3*)&m14EC, &m14F8);
+                    mPos = *(atn::Vector3*)&m14EC;
+                    mRot.y = m14F8;
+                }
+            }
+            break;
+        case 9:
+            if (m14BC > 10) {
+                ResetAction_unk();
+                m58C = 0;
+                fn_8016E970(3);
+                m14BC = m14D4;
+                Field_unk* field = lbl_8087F430;
+                fn_80370AE4(field, 0xF1, fn_80370A78(field, 0xF1) + 1);
+            }
+            break;
+        case 10: {
+            float frame = mMotion.mTracks[0].m08;
+            if (17.0f < frame && frame <= 19.0f) {
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5E8), m590, 30, -1, 0.0f);
+            } else {
+                frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    ResetAction_unk();
+                    m58C = 0;
+                    fn_8016E970(3);
+                    Field_unk* field = lbl_8087F430;
+                    fn_80370AE4(field, 0xF1, fn_80370A78(field, 0xF1) + 1);
+                }
+            }
+            m1544 = mMotion.mTracks[0].m08;
+            break;
+        }
+        case 2: {
+            mPos = m1514;
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                mFlag25 = 1;
+                mMotion.mTracks[0].m0C = 0.0f;
+                fn_800D246C(1);
+                fn_800EE360(this);
+            }
+            break;
+        }
+        default:
+            fn_80261948();
+            if (m55C != 6) {
+                fn_80261078();
+            }
+            break;
+        }
+        bool down = mStatus.IsState_unk(0x80000) || mStatus.IsState_unk(0x1000000);
+        if (down) {
+            fn_8014C0B4(25, m484[0]);
+        } else {
+            fn_8014C0B4(25, 0x1C4);
+        }
+        if (m58C != 11) {
+            int camera = m154C;
+            Field_unk* field = lbl_8087F430;
+            if (camera != 0) {
+                field->m8A0 = 0;
+                field->m4D8 = 0;
+                field->m97C = 0;
+                m154C = 0;
+            }
+        }
+    }
+    fn_8014C540();
+    fn_80145334();
 }
 
 void Em101LittleZesyaSecond::vf3C(HitInfo_unk* hit) {
