@@ -271,6 +271,7 @@ struct DaemonDamage_unk {
 extern "C" void fn_80108C10(Effect_unk* effect, DaemonDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
                             CharaTask* chara, int b, int c);
 
+// NONMATCHING: 99.86% - register swap on the second std::string temporary (known)
 Em203GreaterDaemon::Em203GreaterDaemon(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m14E4(0),
       m1500(0), m1510(0.0f), m1514(0.0f), m1518(1695.0f), m1544(0), m1548(0), m154C(0), m1558(0.0f), m15D4(0),
@@ -502,6 +503,7 @@ inline void Em203GreaterDaemon::StartFly_unk() {
     m153C = 0;
 }
 
+// NONMATCHING: 96.51% - stack slot order of the vector temporaries
 void Em203GreaterDaemon::vf10() {
     fn_8028ADF4();
     if (mC58.mC0 == 0) {
@@ -614,6 +616,7 @@ void Em203GreaterDaemon::vf14() {
 }
 
 // inferred: the daemon is not knocked back; the absorb skill and the hits after the 10% rage do no damage
+// NONMATCHING: 97.00% - stack slots / register allocation of the damage vectors
 void Em203GreaterDaemon::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 *= 0.0f;
@@ -679,6 +682,7 @@ inline int Em203GreaterDaemon::CanFall_unk() {
 static inline int SkillType_unk(HitInfo_unk* skill) {
     return skill->m02;
 }
+// NONMATCHING: 99.90% - r6/r7 crossing on the psq copy of a temporary vector (known blocker)
 void Em203GreaterDaemon::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (HpRate_unk() < 0.1f && m14C8 == 0) {
@@ -787,6 +791,7 @@ atn::Vector3 Em203GreaterDaemon::vf64(int center) {
 }
 
 // inferred: point of a Catmull-Rom spline through p1 and p2 (weak copy 0x8028AC70; name invented)
+// NONMATCHING: 80.46% - float register allocation of the spline terms (f28 spill)
 extern "C" inline atn::Vector3 fn_8028AC70(const atn::Vector3& p0, const atn::Vector3& p1, const atn::Vector3& p2,
                                           const atn::Vector3& p3, float t) {
     float t2 = t * t;
@@ -877,6 +882,7 @@ void Em203GreaterDaemon::fn_8028ADF4() {
 
 // inferred: flies along the route (moving: the spline is followed; otherwise only the passing of
 // the point is tested)
+// NONMATCHING: 74.69% - flight state machine; branch layout and register allocation differ
 void Em203GreaterDaemon::fn_8028AFD8(int moving) {
     int next = 0;
     float speed;
@@ -949,6 +955,7 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
 
 // inferred: chooses the next action (m14C0: 0 flight, 1 hovering, 2 skills of the step, 3 rest,
 // 4 grand attack)
+// NONMATCHING: 77.21% - same calls; shape of the inlined fn_800E0AA8 differs
 void Em203GreaterDaemon::fn_8028B47C() {
     if (m14B0 == 0) {
         return;
@@ -1064,6 +1071,7 @@ void Em203GreaterDaemon::fn_8028B75C(int wait) {
 }
 
 // inferred: state 7 (flies around the arena along the route; m14B4: 0 take off, 1 flight, 2 landing)
+// NONMATCHING: 99.20% - f0/f3 order after the motion length and stack slots
 void Em203GreaterDaemon::fn_8028BFE0() {
     if (m14B4 == 0) {
         float length = mMotion.fn_80097D7C(0) - 2.0f;
@@ -1158,6 +1166,7 @@ static float lbl_8087DC38 = -15.0f; // inferred: start and end angles of the bre
 static float lbl_8087DC3C = -70.0f;
 
 // inferred: state 10 (breath: sweeps the flames from the neck while the motion runs)
+// NONMATCHING: 0% - original is over the inline budget (calls fn_802913B0, fn_800109E0, rotX out of line); ours inlines them (0xE4C vs 0x478)
 void Em203GreaterDaemon::fn_8028CB38() {
     if (m14B4 == 0) {
         if (fn_802913B0() != 0 && mMotion.fn_80139550(0) >= 28.0f) {
@@ -1224,6 +1233,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
 }
 
 // inferred: state 11 (absorbs: m14B4 0 rises, then hovers and drains the target)
+// NONMATCHING: 94.44% - stack slots of the matrix temporaries
 void Em203GreaterDaemon::fn_8028CFE0() {
     if (m14B4 != 0) {
         return;
@@ -1286,6 +1296,7 @@ void Em203GreaterDaemon::fn_8028CFE0() {
 
 // inferred: state 12 (drains Arganan: every AbsorbTime seconds a damage is applied to him and a
 // homing magic is fired from his head; m162C counts the drains)
+// NONMATCHING: 76.81% - grand attack; register allocation and stack layout
 void Em203GreaterDaemon::fn_8028D5C8() {
     int done = 1;
     if (m162C < m19AC) {
@@ -1366,6 +1377,7 @@ inline void Em203GreaterDaemon::StartTackle_unk() {
 }
 
 // inferred: state 13 (dives to the ground, then tackles)
+// NONMATCHING: 91.91% - stack slots and camera look stores
 void Em203GreaterDaemon::fn_8028DF34() {
     if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
         StartTackle_unk();
@@ -1387,6 +1399,7 @@ void Em203GreaterDaemon::fn_8028DF34() {
 }
 
 // inferred: state 15 (turns to the target and strikes with the claws)
+// NONMATCHING: 84.13% - register allocation
 void Em203GreaterDaemon::fn_8028E1A0() {
     atn::Vector3 dir = m14B0->mPos - mPos;
     fn_801C3910(dir);
@@ -1414,6 +1427,7 @@ void Em203GreaterDaemon::fn_8028E1A0() {
 }
 
 // inferred: state 16 (walks to the target, then strikes)
+// NONMATCHING: 96.92% - stack slots
 void Em203GreaterDaemon::fn_8028E488() {
     ASSERT_UNK(m14B0 != 0);
     ASSERT_UNK(m14B0 != 0);
@@ -1438,6 +1452,7 @@ void Em203GreaterDaemon::fn_8028E488() {
 }
 
 // inferred: state 18 (knocked down: falls, then stays stunned for StunTime seconds)
+// NONMATCHING: 99.57% - camera look store order r4/r5 (known, as Em101LittleZesyaSecond)
 void Em203GreaterDaemon::fn_8028E800() {
     if (m14B4 == 0) {
         Field_unk* field = lbl_8087F430;
@@ -1474,6 +1489,7 @@ void Em203GreaterDaemon::fn_8028E800() {
 }
 
 // inferred: state 19 (stunned by the cannon: falls and stays down)
+// NONMATCHING: 98.24% - camera look store order r4/r5 (known)
 void Em203GreaterDaemon::fn_8028EDC4() {
     Field_unk* field = lbl_8087F430;
     if (mMotion.mTracks[0].m08 < 20.0f) {
@@ -1499,6 +1515,7 @@ void Em203GreaterDaemon::fn_8028EDC4() {
 }
 
 // inferred: state 20 (falls to the ground and goes back up)
+// NONMATCHING: 98.73% - camera look store order r4/r5 (known)
 void Em203GreaterDaemon::fn_8028EF20() {
     Field_unk* field = lbl_8087F430;
     if (mMotion.mTracks[0].m08 < 30.0f) {
@@ -1533,6 +1550,7 @@ void Em203GreaterDaemon::fn_8028EF20() {
 }
 
 // inferred: state 21 (grand attack: breathes on all the party, one after the other)
+// NONMATCHING: 94.77% - register allocation
 void Em203GreaterDaemon::fn_8028F1D0() {
     if (m14B4 == 0) {
         if (mMotion.mTracks[0].m08 > mMotion.fn_80097D7C(0)) {
@@ -1599,6 +1617,7 @@ void Em203GreaterDaemon::fn_8028F4AC() {
 }
 
 // inferred: starts state 7 (takes off for the flight around the arena)
+// NONMATCHING: 92.04% - register allocation of the route vectors
 void Em203GreaterDaemon::fn_8028F560() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -1728,6 +1747,7 @@ void Em203GreaterDaemon::fn_8028FB30() {
 }
 
 // inferred: starts state 13 (dives to the centre of the arena)
+// NONMATCHING: 99.80% - r6/r7 crossing on the psq copy into m151C (known blocker)
 void Em203GreaterDaemon::fn_8028FC28() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -1773,6 +1793,7 @@ void Em203GreaterDaemon::fn_8028FDB0() {
 }
 
 // inferred: starts state 16 (turns and walks to the target)
+// NONMATCHING: 94.23% - register allocation
 void Em203GreaterDaemon::fn_80290088() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -1826,6 +1847,7 @@ void Em203GreaterDaemon::fn_8029055C() {
 }
 
 // inferred: aims the breath: rotation from the head (10 units forward) to the target (m1534/m1538)
+// NONMATCHING: 97.33% - stack slots
 void Em203GreaterDaemon::fn_80290674() {
     atn::Vector3 from;
     atn::Vector3 front(0.0f, 0.0f, 10.0f);
@@ -1836,6 +1858,7 @@ void Em203GreaterDaemon::fn_80290674() {
 }
 
 // inferred: fires the homing lasers of the absorb at every free party member, from the neck
+// NONMATCHING: 89.74% - register allocation and stack slots
 void Em203GreaterDaemon::fn_80290AB4() {
     if (m14CC == 0) {
         return;
@@ -1890,6 +1913,7 @@ void Em203GreaterDaemon::fn_80290AB4() {
 }
 
 // inferred: fires the special breath at `target` (grand attack; angle: rotation of the shot)
+// NONMATCHING: 96.23% - register allocation
 void Em203GreaterDaemon::fn_8029101C(PlayerTask* target, float angle) {
     if (m14E4 == 0) {
         return;
@@ -1955,6 +1979,7 @@ void Em203GreaterDaemon::fn_802914F8() {
 
 // inferred: sets the hate line `index` from the spine of the daemon to the head of `chara` (kind:
 // nonzero for the red line) and starts its effects
+// NONMATCHING: 89.23% - hate line matrices; stack slots and register allocation
 void Em203GreaterDaemon::fn_802915F4(CharaTask* chara, int index, int kind) {
     atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     atn::Vector3 target = GetNodePos_unk(chara->mMotion.GetNodeMtx_unk("spine1"));
@@ -2024,6 +2049,7 @@ void Em203GreaterDaemon::fn_8029207C() {
 
 // inferred: updates the hate lines (matrices from the head to each character, effects shown while
 // vfE4 is set)
+// NONMATCHING: 86.05% - hate line matrices; stack slots and register allocation
 void Em203GreaterDaemon::fn_802921F8() {
     int arg[5];
     arg[0] = 0;
@@ -2108,6 +2134,7 @@ int Em203GreaterDaemon::fn_80292C9C() {
 }
 
 // inferred: chooses the HoverPoint farthest from the leader and moves towards it
+// NONMATCHING: 96.59% - stack slots
 void Em203GreaterDaemon::fn_80292DB4() {
     if (m14E8.size() == 0) {
         return;
