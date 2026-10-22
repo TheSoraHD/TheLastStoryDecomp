@@ -37,8 +37,9 @@ de objdiff.
   la emite; el borrador esta en scratch (no commiteado) y se describe abajo.
 - `game/Em101ElderZesya` (8/20 -> 10/20): `fn_8025941C` y `fn_80258574` al 100%. NONMATCHING: lector del CSV
   `fn_80256384` 99.85% (r24/r25 de la tabla de rutas y la barrera), `fn_80258F1C` (estado 12) 99.99% (solo el
-  offset de "SE_SP016_001_2" en @stringBase0, depende de las funciones sin escribir). Quedan fn_80256C04 (3.6 KB),
-  fn_80257B50, fn_80258A50, fn_8025922C (copia FPR de parametros de camara, bloqueo de EnemyTrista) y
+  offset de "SE_SP016_001_2" en @stringBase0, depende de las funciones sin escribir), `fn_80258A50` (magia de
+  10 balas teledirigidas a jugadores al azar) 99.19% (registros no volatiles desplazados uno y f20/f21, misma
+  forma que Em003LesserDaemon::fn_8024ED68). Quedan fn_80256C04 (3.6 KB), fn_80257B50, fn_8025922C (copia FPR de parametros de camara, bloqueo de EnemyTrista) y
   fn_80259AB4.
 - `game/Em101LittleZesya` (13/25 -> 18/25): ctor 99.74% (bloqueo del segundo std::string, como Em101ElderZesya y
   Em201ZanGurg), vf0C y lector del CSV `fn_8025CFF4` al 100%, `fn_8025E930` al 100% (`(float)mStatus.m04` en
@@ -46,8 +47,12 @@ de objdiff.
   pool) cuentan al 100% en el report. `fn_8025F45C` 98.26% (registros del bucle del punto mas cercano, como
   Em101ElderZesya::fn_802598DC; 10 variantes). `fn_8025D90C` (elige la siguiente accion) 99.04% (la matriz 4x4
   de ToRotation_unk queda con las filas en orden de pila descendente en el original; 8 variantes).
+  `fn_8025E100` (arranca el warp elegido: junto al objetivo con punto de ruta y rayo al suelo, al punto de
+  disparo o al de espera) 99.89% (r3/r4 de la copia del punto de ruta, familia __VecCopy). Quedan fn_8025EAE4
+  (balas teledirigidas, 1.4 KB) y fn_8025F8C8.
   `fn_8025D7B0` (dispatcher) no se deja escrito: con -ipa file inlinea los estados escritos y sale al 0% hasta
-  que existan fn_8025E100/fn_8025EAE4 (presupuesto de inline); borrador en scratch.
+  que exista fn_8025EAE4 (presupuesto de inline; probado de nuevo con fn_8025E100 escrita: sigue al 0%);
+  borrador en scratch.
 - `game/Em101LittleZesyaSecond` (3/15 -> 8/15): lector del CSV, vf3C, vf40, `fn_802620A8` (muerte) y
   `fn_80261948` al 100%; ctor 99.81% (segundo std::string); vf4C 99.83% (slots del vector negado; 9 variantes);
   `fn_80261A50` (balas teledirigidas, HomingParam_unk de game/HomingBullet.h) 97.9%. Quedan vf10 (fn_802604E0),
@@ -76,7 +81,7 @@ de objdiff.
   game/CharaStatus.h para RouteTable_unk/RoutePlace_unk.
 - `fn_801C02F4` (ctor de chr::ControlMagicEnd, unidad chr/ControlChant en asm) se declara `extern "C"` en
   Em101ElderZesyaSecond.cpp y Em003LesserDaemon.cpp.
-- **symbols.txt (renombrados, segunda pasada)**: Em003LesserDaemon fn_8024A650 (ctor), fn_8024CD24 ->
+- **symbols.txt (renombrados, segunda pasada)**: Em101ElderZesya fn_80258A50; Em003LesserDaemon fn_8024A650 (ctor), fn_8024CD24 ->
   `vf24__17Em003LesserDaemonFv` (es la entrada vf24 de la vtable), fn_8024E1C0, fn_8024E7E4, fn_8024ED68,
   fn_8024F9B8; Em005DoppelGanger ctor, vf0C, vf3C, vf40, vfF0, fn_80252E6C, fn_80253884, fn_80253C9C,
   fn_802531F4; Em101ElderZesya fn_80256384, fn_80258574, fn_80258F1C, fn_8025941C; Em101LittleZesyaSecond
@@ -112,6 +117,8 @@ de objdiff.
   `!(x->m16AC == 0)`).
 - Una clase en un namespace anonimo que solo se construye desde una funcion sin escribir no se emite (ni vtable
   ni metodos): hay que escribir el constructor llamante a la vez.
+- Para la direccion ya normalizada, `(a - b).ToRotationZ_unk().y` y `e.GetNormalized_unk() * k` en una sola
+  expresion (sin locales con nombre) dejan los temporales en los slots de pila del original.
 
 ## Pendientes (esta cola)
 
