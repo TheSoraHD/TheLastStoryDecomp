@@ -5,6 +5,7 @@
 #include "game/CharaStatus.h"
 #include "game/Em303KrakenFootMp.h"
 #include "game/GimmickManager.h"
+#include "game/EnemyManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "std/string.h"
@@ -24,6 +25,7 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -155,6 +157,15 @@ static int fn_802DDD1C(const char* name) {
         }
     }
     return -1;
+}
+
+// inferred: link of the character lists (CharaTask + 0x14AC, as in game/CharaTask.cpp)
+struct CharaListNode_unk {
+    unsigned char m0000[0x14AC];
+    CharaTask* mNext;
+};
+inline CharaTask* NextChara_unk(CharaTask* chara) {
+    return ((CharaListNode_unk*)chara)->mNext;
 }
 
 // inferred: node position (name invented, as in game/Em209BigGolem.cpp)
@@ -592,4 +603,102 @@ atn::Vector3 Em302KrakenMp::vfAC() {
         return mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
     }
     return m624.mData[0].m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
+}
+
+void Em302KrakenMp::vf3C(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (m14DC == 3) {
+        msg->m68 = 0;
+        msg->m88 = msg->mData->mC4;
+        msg->m84 = 1;
+        msg->m90 = 0;
+        if (!mFlag2) {
+            vf40(hit);
+        } else {
+            vf118(hit);
+        }
+        return;
+    }
+    msg->m50 |= 0x10;
+    msg->m10 *= 0.0f;
+    fn_80151448(msg);
+    if (!mFlag2) {
+        vf40(hit);
+    } else {
+        vf118(hit);
+    }
+}
+
+// inferred: waits for the reinforcements (returns 0 when the wait ends)
+int Em302KrakenMp::fn_802E0890() {
+    if (m14E4 == 0) {
+        fn_802E1290();
+        return 1;
+    }
+    int count = 0;
+    for (CharaTask* c = EnemyManager::sInstance->mHead; c != 0; c = NextChara_unk(c)) {
+        if (c->mType == 2 && c != this && (c->mFlags & 4) != 4) {
+            count++;
+        }
+    }
+    if (count <= 0) {
+        m14E4 += 4;
+    }
+    if (m14E4 > 900) {
+        m15E0 = 0;
+        m14E0 = m14DC;
+        m14DC = 0;
+        m14E4 = 0;
+        return 0;
+    }
+    return 1;
+}
+
+// inferred: plays an effect at a world position (same code in game/Em302Kraken.cpp); name invented
+inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+    fn_80232B7C(0, 0);
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
+}
+
+// inferred: starts state 7
+void Em302KrakenMp::fn_802E1290() {
+    m14EC = 0;
+    m14E8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 7;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = -2.0f;
+    mMotion.fn_80097C08(0, 0x2D, 0, 0, 1, 0.0f, 0.1f);
+    mMotion.mTracks[0].m08 = mMotion.fn_80097D7C(0);
+    fn_800C344C("SE_EM302_014", &m614, 0, -1, 1.0f);
+    PlayEffectAt_unk(&m152C, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
+    if (m14FC >= 150 && lbl_8087F610 != 0) {
+        fn_804DA48C(lbl_8087F610, 1);
+    }
+}
+
+// inferred: starts state 10
+void Em302KrakenMp::fn_802E1624() {
+    m14EC = 0;
+    m14E8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 10;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x147, 0, 0, 1, 0.0f, 0.1f);
+    fn_800C344C("SE_EM302_012", &m614, 0, -1, 1.0f);
+    fn_800CB5C8(&m1560, 0, 0);
+    fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+    fn_80232B7C(0, 0);
+    PlayEffect_unk(&m1570, (Model_unk*)&mMotion);
+    m1554 = 1;
 }

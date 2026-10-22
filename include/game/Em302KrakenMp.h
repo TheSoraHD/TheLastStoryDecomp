@@ -66,6 +66,7 @@ public:
     virtual void vf110(SpecialState_unk* state);
     virtual void vf114(const SpecialState_unk* state);
 
+    int fn_802E0890();
     void fn_802E1290();
     void fn_802E1414();
     void fn_802E1624();

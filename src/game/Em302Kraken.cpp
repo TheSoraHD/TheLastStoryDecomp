@@ -751,6 +751,17 @@ void Em302Kraken::fn_802DB7C8() {
     }
 }
 
+// inferred: plays an effect at a world position (same code in game/Em302KrakenMp.cpp); name invented
+inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+    fn_80232B7C(0, 0);
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
+}
+
 // inferred: state 14 (thunder)
 void Em302Kraken::fn_802DBA3C() {
     float frame = mMotion.mTracks[0].m08;
@@ -760,14 +771,8 @@ void Em302Kraken::fn_802DBA3C() {
     }
     if (m14C4 - 20U <= 159) {
         if (m14C4 == 23) {
-            atn::Vector3 pos = mPos + atn::Vector3(0.0f, 70.0f, 0.0f);
-            fn_80232B7C(0, 0);
-            Color4f_unk color;
-            color.r = 1.0f;
-            color.g = 1.0f;
-            color.b = 1.0f;
-            color.a = 1.0f;
-            fn_8023A8B4(lbl_8087F3C0, &m1624, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, 2.5f);
+            atn::Vector3 at = mPos + atn::Vector3(0.0f, 70.0f, 0.0f);
+            PlayEffectAt_unk(&m1624, at, 2.5f);
         }
         HitInfo_unk* skill = fn_80219E6C(m1608);
         MtxPtr head = mMotion.GetNodeMtx_unk("head");
