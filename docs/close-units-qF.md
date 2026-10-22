@@ -130,6 +130,11 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
 - game/Em312DarkServant: lector del CSV fn_8030DEB0 al 100% (12/21). symbols.txt: fn_8030DEB0 ->
   `fn_8030DEB0__16Em312DarkServantFPCci`.
 
+- game/Em308ParmCrab (0/24 -> 2/24, NUEVA fuente + cabecera con relleno): dtor (dos vectores envueltos
+  CrabList_unk, como ChaserGuard) y vf90 (3.5f) al 100%. El slot 0x60 (0x802FC848, devuelve 8.0f) no se escribe:
+  CharaTask::vf60 esta declarada void en la cabecera compartida. Ctor (std::string) sin escribir: la factoria
+  sigue llamando a fn_802F6E64.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
