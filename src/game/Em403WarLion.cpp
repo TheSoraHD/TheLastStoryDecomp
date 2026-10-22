@@ -3,6 +3,7 @@
 #include "game/FriendManager.h"
 #include "gmk/Lemon.h"
 #include "math/Vec.h"
+#include "macros.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -590,6 +591,90 @@ void Em403WarLion::fn_8032932C() {
     if (f >= 5.0f && f <= 25.0f) {
         fn_80144710();
         fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m590, 30, -1, 0.0f);
+    }
+}
+
+// NONMATCHING: 99.07% - orden de los temporales de Lerp en la pila y stfs 0x2e8 del estado 18
+void Em403WarLion::fn_80329744() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        if (m1598 != 0) {
+            m1598->fn_8015AF40((int)&m159C);
+            SetState_unk(17);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
+            m1598->fn_8015AF40((int)&m159C);
+            m15CC = 0;
+        } else {
+            SetState_unk(6);
+        }
+    } else {
+        float end = mMotion.fn_80097D7C(0) - 6.0f;
+        float f = mMotion.mTracks[0].m08;
+        if (f <= end) {
+            float t = MIN(1.0f, (mMotion.mTracks[0].m08 - 22.0f) / (end - 22.0f));
+            if (0.0f > t) {
+                t = 0.0f;
+            } else {
+                t = MIN(1.0f, (mMotion.mTracks[0].m08 - 22.0f) / (end - 22.0f));
+            }
+            mPos = atn::Lerp_unk(m1574, m1580, t);
+        } else if (m14C4 == 0) {
+            m14C4 = 1;
+        } else {
+            mMotion.mTracks[0].m0C = 1.0f;
+            if (m1598 != 0 && m1598->m55C == 6) {
+                if (m1598->m560 == 0x6D) {
+                    if (f < 50.0f) {
+                        mMotion.mTracks[0].m0C = 0.02f;
+                    }
+                } else if (m1598->m560 == 10) {
+                    SetState_unk(18);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
+                    mMotion.mTracks[0].m0C = 0.7f;
+                    m1598 = 0;
+                }
+            }
+        }
+    }
+}
+
+// NONMATCHING: 99.24% - el original guarda m0C una sola vez tras el ternario
+void Em403WarLion::fn_80329A20() {
+    CharaTask* held = m1598;
+    if (held == 0 || held->m55C != 6 || held->m560 != 0x6E) {
+        int down = 0;
+        if (held->m55C == 6 && held->m560 == 10) {
+            down = 1;
+        }
+        SetState_unk(18);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
+        mMotion.mTracks[0].m0C = down ? 0.7f : 1.0f;
+        if (m1598->CanAct_unk() && !down) {
+            m1598->fn_8015B238();
+        }
+        m1598 = 0;
+    } else if (held->mMotion.mTracks[0].m00 == 0x21D && m14C8 > 90) {
+        SetState_unk(19);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x147, 0, 0, 1, 0.0f, 0.1f);
+        m1598->fn_8015B520();
+        m1598 = 0;
+    } else if (m15E8 == 0 && m14C8 == 10) {
+        if (fn_80370A78(lbl_8087F430, 0x5B) < 1) {
+            fn_80370AE4(lbl_8087F430, 0x5B, 1);
+        }
+        m15E8 = 1;
     }
 }
 
