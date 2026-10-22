@@ -43,6 +43,18 @@ extern "C" void* fn_802F0990(); // inferred: returns lbl_8087EFA8
 extern "C" float fn_802F0988(void* p); // inferred: returns +0x3A4
 extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Mtx* mtx, int arg5,
+                            int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int arg, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
@@ -703,6 +715,72 @@ void Em315Coffin::fn_80315654() {
     mColli.m48 = head;
     mColli.m54 = m620;
     mColli.m20 = 0x80;
+}
+
+// inferred: plays `efp` on `model` with default placement (name invented)
+inline void CoffinEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: matrix helpers of the ray (names invented)
+inline atn::Matrix3x4 CoffinTrans_unk(const atn::Vector3& v) {
+    atn::Matrix3x4 m;
+    PSMTXTrans(m.m, v.x, v.y, v.z);
+    return m;
+}
+inline void CoffinMulRot_unk(atn::Matrix3x4* m, const atn::Vector3& rot) {
+    atn::Matrix3x4 r;
+    CoffinRotZYX_unk(r, rot);
+    atn::Matrix3x4 t;
+    PSMTXConcat(m->m, r.m, t.m);
+    *m = t;
+}
+inline void CoffinMulScale_unk(atn::Matrix3x4* m, const atn::Vector3& v) {
+    atn::Matrix3x4 s;
+    PSMTXScale(s.m, v.x, v.y, v.z);
+    atn::Matrix3x4 t;
+    PSMTXConcat(m->m, s.m, t.m);
+    *m = t;
+}
+
+// inferred: the ray goes from the coffin to its drain target; the effect m1570 is a unit beam scaled by the
+// distance / 20
+// NONMATCHING: 97.16% - stack layout: the original keeps a 4 byte gap below the vectors of the start, the
+// rotation temporaries 0x30 higher and the scale vector at 0x18 (~14 variants: helpers for the matrices by
+// value/in place, local order of the vectors, scale/rotation declared early)
+void Em315Coffin::fn_80315964() {
+    if (fn_80239D58(lbl_8087F3C0, this, 0)) {
+        fn_80239DAC(lbl_8087F3C0, this, 0, 1);
+    }
+    atn::Vector3 from = mColli.m48;
+    atn::Vector3 to = mC58.mC4->mColli.m48;
+    atn::Vector3 dir = to - from;
+    float len = PSVECMag(&dir);
+    if (!((float)__fabs(len) < 1.1920929e-7f)) {
+        PSVECNormalize(&dir, &dir);
+    }
+    fn_80232B7C(this, 0);
+    CoffinEffect_unk(&m1564, &mMotion);
+    CoffinEffect_unk(&m157C, &mC58.mC4->mMotion);
+    m1588 = CoffinTrans_unk(from);
+    atn::Vector3 rot = dir.ToRotation_unk();
+    CoffinMulRot_unk(&m1588, rot);
+    atn::Vector3 scale(1.0f, 1.0f, len / 20.0f);
+    CoffinMulScale_unk(&m1588, scale);
+    fn_8023A680(lbl_8087F3C0, &m1570, -1, 5, &m1588.m, 0, 0, 0, 0, -1, 1, 1.0f);
 }
 
 void Em315Coffin::fn_80315FE0() {

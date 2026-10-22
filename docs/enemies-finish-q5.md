@@ -69,6 +69,11 @@ game/Em315Coffin.
   99.92%: offsets del pool). Las grandes (vf100/104/108, fn_803067E0 vf40, fn_80308E6C) y fn_803097AC (slot 0xB0:
   CharaTask::vfB0 esta declarada `void vfB0()` en la cabecera compartida, devuelve int y recibe un Vector3*) sin
   escribir; fn_80309D20/fn_80309D50 son invoker/manager de boost::function (bind de ControlThrustForGhoul).
+- `game/Em315Coffin` (segunda vuelta): fn_80315964 (inicio del rayo: direccion de la capsula propia a la del
+  objetivo m14D4/mC58.mC4, efectos m1564/m157C sobre ambos modelos y matriz m1588 = traslacion * rotacion z/y/x
+  * escala (1, 1, distancia/20) para el efecto m1570) escrita: NONMATCHING 97.16% (disposicion de la pila; ~14
+  variantes). Ya estan escritas las 21 funciones de la unidad; quedan 3 por debajo del 100% (vf104 99.81%,
+  fn_80315654 99.57%, fn_80315964 97.16%).
 - `game/Em309Ghoul` (segunda vuelta): fn_8030073C (inicio del estado 6, motion 0x145, se gira hacia el objetivo
   m14EC con `ToRotationZ_unk`) escrita: el diff directo de objdiff da 99.57% (las ranuras en pila de la diferencia
   y de la copia de la rotacion estan intercambiadas; ~15 variantes) pero `report.json` la cuenta al 100%. Se deja

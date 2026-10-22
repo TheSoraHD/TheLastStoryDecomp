@@ -124,7 +124,7 @@ public:
     atn::EfpHandle_unk m1564; // inferred: "/effect/ef_bs023a.efp"
     ResLoader_unk m1570;      // inferred: "/effect/ef_bs023b.eff"
     atn::EfpHandle_unk m157C; // inferred: "/effect/ef_bs023d.efp"
-    unsigned char m1588[0x15B8 - 0x1588];
+    atn::Matrix3x4 m1588;     // inferred: placement of the ray effect (m1570)
     int m15B8;                // inferred: "Frame" of the ray attack
     unsigned char m15BC[0x15C8 - 0x15BC];
     CoffinSkill_unk m15C8;    // inferred: "DrainSkillId" / "DrainIntervalFrame"
