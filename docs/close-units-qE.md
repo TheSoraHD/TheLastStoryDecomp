@@ -77,3 +77,7 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   los usaba. (2) `opts = sOptRetryTitle; push_back(opts[0]);` en dos sentencias arregla el r3/r4. Build limpio OK.
   - ctor 99.59% -> 99.71% (`dst != src` en CopyString_unk; quedan r30/r31 de origen/destino, 6 intentos). vf0C
     (48.9%), vf10 (89.7%) y vf14 (84.7%) saltadas (estructuras de escena sin reconstruir, demasiado grandes).
+- `game/LibraryTask` (18/23, sin cambios): ctor 99.69% (6 intentos: literal en el bucle, `m58[i]` directo, puntero
+  que avanza, asignacion separada): r30/r31 de ruta/desplazamiento. `vf14` 99.51% (5 intentos: orden l/r, lectura
+  tardia, `book` local, hash en local, layouts en locales): r28/r29. El resto (push_back y pool de basic_string)
+  son bloqueos documentados.
