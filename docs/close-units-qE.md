@@ -159,3 +159,7 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   constantes de .sdata2 (-1.0f, 3.0f...): el pool del original lo ordenan las funciones grandes sin escribir
   (fn_801255C8 3 KB, fn_80126214 6 KB, fn_801279E8, fn_80128090, fn_80128CF8, fn_80129144, fn_80129670). Se
   arreglaran solas al escribir esas.
+- `game/TeamAIManager` (7/17, sin cambios): el `Find_unk(type, id)` inline de los 8 manejadores (6 intentos: id
+  leido antes, GetId_unk, indice sin signo, comparaciones invertidas, inline propio desde el mensaje): el original
+  carga id (r6) antes que el indice/type; ninguna forma da los tres registros a la vez (OnMsg21/24/OnChara suben
+  a ~99.2-99.5% pero OnMsg20 baja a 89.8%). vf14 (3 KB) y Rebuild_unk no tocados.
