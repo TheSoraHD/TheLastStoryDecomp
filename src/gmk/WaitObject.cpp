@@ -10,6 +10,18 @@ struct Settings_unk {
     int m18;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" int sprintf(char* dst, const char* fmt, ...);
+// debug menu (see gmk/Cannon.cpp); lbl_8087EF10 is declared in the headers
+extern "C" void* fn_8008937C(void* menu, const char* name);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
+                            int arg7);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
+                            float max, float step);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
+                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
 // inferred: collision target of a state (the collision of mStates[]: position at 0x3C, radius at
 // 0x48)
 struct WaitTarget_unk {
@@ -189,6 +201,37 @@ int WaitObject::vf5C() {
 
 Model_unk* WaitObject::vf38() {
     return &mModel;
+}
+
+// inferred: debug menu of the object and of the collision targets of the states
+// NONMATCHING: 96% - the string pool offsets depend on the strings of vf20 (not decompiled yet) and
+// the scheduling of the first item (as gmk::CharaLight::vf6C)
+void WaitObject::vf6C(void* menu) {
+    char name[0x20];
+    fn_803EC758(name);
+    void* group;
+    if (mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        group = mF0.mRes = fn_8008937C(menu, name);
+    } else {
+        group = 0;
+    }
+    fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
+    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
+    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087994(group, "isShow", &m9C, 0, 0);
+    fn_800874C8(group, "locData", &m58, 0, 99, 1, 0, 0);
+    mB0.fn_803F11F8(group);
+    for (int i = 0; i < 7; i++) {
+        if (mStates[i].mColli != 0) {
+            char sub[0x40];
+            sprintf(sub, "targetCollision%d", i);
+            void* target = fn_8008937C(group, sub);
+            fn_80087E9C(target, "pos", &((WaitTarget_unk*)mStates[i].mColli)->mPos, 0, 0, -9999.0f, 9999.0f, 0.25f);
+            fn_8008771C(target, "radius", &((WaitTarget_unk*)mStates[i].mColli)->mRadius, 0, 0, -9999.0f, 9999.0f,
+                        0.25f);
+        }
+    }
 }
 
 } // namespace gmk

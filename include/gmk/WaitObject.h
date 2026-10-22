@@ -63,7 +63,7 @@ public:
     virtual float vf58();
     virtual int vf5C();
     virtual int vf60();
-    virtual void vf6C(void* menu); // not decompiled yet
+    virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
     // inferred: collision of a state (name invented)
