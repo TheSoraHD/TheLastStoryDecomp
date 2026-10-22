@@ -38,6 +38,17 @@ Una linea por unidad procesada (orden de cola_B.md).
 - db/ParseUtil_unk: sin cambios (5 variantes mas; coincide con lo documentado).
 - db/SpText_unk: no tocada (fn_8021C6A4 depende del orden del pool de cadenas anchas de codigo no reconstruido).
 
+- gmk/Brazier: fn_80407E8C -> 100% (subindice unsigned en GetArenaEntry_unk + cuenta leida por GetCount_unk(), que recarga lbl_8087F610 en cada vuelta). 12/16. vf40 sin cambios (r27/r28).
+- gmk/Bat: vf0C, vf14 y vf20 -> 100% (subindice unsigned en los bucles sobre mBats); vf10 99.69% -> 99.77%. 10/15.
+- gmk/SparkCube: 19/19 al 100% (vf0C, vf10, vf40 con el indice int comparado como unsigned). NO enlazable: define el static local sListeners de fn_8014F8F4 (como gmk/Item); no se prueba matching true.
+- gmk/Leaf: vf0C y vf14 -> 100% (subindice unsigned). 9/15. fn_80400D08 empeora con el truco (revertido).
+- gmk/MotionObject: fn_804139D8 -> 100%. 26/29.
+- gmk/LemonBucket: vf0C (bucle escrito en la funcion) y vf40 (HideLemons_unk en include/gmk/LemonBucket.h con indice int comparado como unsigned) -> 100%. 16/18. Cabecera compartida tocada (la incluye game/GimmickCommon.cpp): build/regress/fuzzdrop sin bajadas.
+- gmk/Fireworks: vf10 97.9% -> 99.8% (subindice unsigned repetido en cada acceso).
+- gmk/CharaLight: vf20 -> 100% (`5 > index`, constante primero: MWCC mantiene las dos comparaciones con signo). 13/15.
+- gmk/Ocean y gmk/FallingTower: vf20 -> 100% (miembros de la ola escritos con mWaves[state][index] en cada linea, sin referencia).
+- gmk/InteractionSpot, gmk/RandomMerchant, gmk/OnOff, db/OptionParts_unk, db/MapLink_unk, db/PlayerParam_unk: probadas variantes sin mejora (o con bajada de fuzzy, revertidas).
+
 ## Hallazgos MWCC
 - Pasar `(int)x` (x unsigned) a un inline en una segunda llamada impide que MWCC comparta las subexpresiones del parametro entre las dos copias inlineadas (TreasureBoxTable).
 - Una funcion inline que solo devuelve una constante (p.ej. `return 0.1f;`) definida antes del codigo que la usa mete esa constante antes en .sdata2 (el pool sigue el orden de aparicion en el texto, incluidas las inline): sirve para reordenar constantes (BulletPoint, -98.1f/-0.5f).
@@ -46,6 +57,10 @@ Una linea por unidad procesada (orden de cola_B.md).
 - Un indice `int` usado como `mData[(unsigned int)i]` (o comparado como `(unsigned int)i < size`) hace que MWCC incremente el contador antes que el desplazamiento del elemento y cambia la numeracion de los registros del bucle: arreglo EventIdTable::fn_8020F75C, ItemRare fn_80213B78 y FlyObjManager::vf44.
 - Una local para un valor leido de memoria (`int id = desc[i]; if (id == chara->m50)`) invierte el orden de operandos de cmpw respecto a la expresion directa (MeetingSpot).
 - Dos copias inline de la misma busqueda con los parametros en distinto orden reproducen la numeracion de registros intercambiada entre dos llamadores (ItemRare).
+
+- `if (index >= 0 && 5 > index)` (constante a la izquierda) evita que MWCC funda el rango en una sola comparacion sin signo (cmplwi); con `index < 5` si la funde (CharaLight).
+- Escribir `a[i][j].campo = ...` en cada linea en vez de tomar `T& r = a[i][j]` cambia el orden de suma de las dos partes de la direccion (Ocean/FallingTower).
+- Una lectura del contador mediante una funcion miembro inline (`GetCount_unk()`) en la condicion del bucle hace que MWCC recargue el puntero global en cada vuelta (Brazier).
 
 ## Decisiones tomadas sin el usuario
 - Funciones a 0% (Banana::vf40, BulletPoint::vf10, OpenBoard::vf10, PassBoard::vf10) escritas desde cero aunque no lleguen al 100%: suben el fuzzy y dejan el codigo en el arbol.
