@@ -5890,7 +5890,7 @@
    "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/bte/hcisu_h2.c",

@@ -3698,7 +3698,7 @@ smg2/src/RVL_SDK/gx/GXTev.c:
 	.data       start:0x807B0DC0 end:0x807B0E38
 
 smg2/src/RVL_SDK/gx/GXPixel.c:
-	.text       start:0x80617C40 end:0x80618030
+	.text       start:0x80617A10 end:0x80618030
 	.data       start:0x807B0E38 end:0x807B0E58
 	.sdata2     start:0x808887B8 end:0x808887F0
 
