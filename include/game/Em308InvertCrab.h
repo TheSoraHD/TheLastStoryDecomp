@@ -42,6 +42,9 @@ public:
     void fn_802F566C();
     inline void ResetAttack_unk();
     void fn_802F58A0();
+    void fn_802F5BCC(CharaTask* target);
+    void fn_802F5F20(CharaTask* target);
+    int fn_802F62A0(CharaTask* target, int next); // inferred: starts a turn towards target
     void fn_802F66CC(); // inferred: death
 
     int m14B0;
@@ -58,7 +61,7 @@ public:
     float m1524;
     HitInfo_unk* m1528;       // inferred: skill 0x3F8
     float m152C;
-    unsigned char m1530[0x1534 - 0x1530];
+    int m1530;                // inferred: next state after the turn (fn_802F62A0)
     int m1534;
     float m1538;
     float m153C;
@@ -73,7 +76,7 @@ public:
     int m157C;                // inferred: flags 2 "NormalAttack", 4 "Needle", 8 "Recover"
     int m1580;
     int m1584;
-    unsigned char m1588[0x158C - 0x1588];
+    CharaTask* m1588;         // inferred: target of the turn (fn_802F62A0)
     int m158C;
     int m1590;
     int m1594;

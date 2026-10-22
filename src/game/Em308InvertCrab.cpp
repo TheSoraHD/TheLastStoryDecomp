@@ -127,8 +127,13 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
-extern "C" void fn_802F5F20(Em308InvertCrab* crab, CharaTask* target);
-extern "C" int fn_802F62A0(Em308InvertCrab* crab, CharaTask* target, int state);
+// inferred: per-player weights of an effect (floats at +0x128, as in game/Em309Ghoul.cpp); names invented
+struct CrabWeights_unk {
+    unsigned char m00[0x128];
+    float mWeight[72]; // inferred: cleared in a loop of 72 (unrolled 8 x 9)
+};
+extern "C" CrabWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
+extern "C" int fn_80108378(CrabWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 extern "C" void fn_802F693C(Em308InvertCrab* crab, CharaTask* target);
 extern "C" void fn_802F42CC(Em308InvertCrab* crab);
 extern "C" void fn_802F469C(Em308InvertCrab* crab);
@@ -663,7 +668,7 @@ void Em308InvertCrab::fn_802F389C() {
     if ((unsigned int)m1580 != (unsigned int)m1584) {
         fn_8016E970(3);
         m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-        if (fn_802F62A0(this, (CharaTask*)m1580, 6) != 0) {
+        if (fn_802F62A0((CharaTask*)m1580, 6) != 0) {
             return;
         }
     }
@@ -673,8 +678,8 @@ void Em308InvertCrab::fn_802F389C() {
     if (m15A0 < 0) {
         fn_8016E970(3);
         if (dist <= m14E8) {
-            if (fn_802F62A0(this, (CharaTask*)m1580, 8) == 0) {
-                fn_802F5F20(this, (CharaTask*)m1580);
+            if (fn_802F62A0((CharaTask*)m1580, 8) == 0) {
+                fn_802F5F20((CharaTask*)m1580);
             }
         } else {
             m15A0 = m14EC != 0 ? m14EC->m68 : 90;
@@ -688,7 +693,7 @@ void Em308InvertCrab::fn_802F389C() {
             }
             if (dist < reach) {
                 fn_8016E970(3);
-                if (fn_802F62A0(this, (CharaTask*)m1580, 11) == 0) {
+                if (fn_802F62A0((CharaTask*)m1580, 11) == 0) {
                     ResetAttack_unk();
                     m58C = 11;
                     fn_80097CCC(&mMotion, 0, 0.0f);
@@ -701,7 +706,7 @@ void Em308InvertCrab::fn_802F389C() {
                 }
             } else if (dist < m1524) {
                 fn_8016E970(3);
-                if (fn_802F62A0(this, (CharaTask*)m1580, 10) == 0) {
+                if (fn_802F62A0((CharaTask*)m1580, 10) == 0) {
                     ResetAttack_unk();
                     m58C = 10;
                     fn_80097CCC(&mMotion, 0, 0.0f);
@@ -891,6 +896,103 @@ void Em308InvertCrab::vfEC() {
     } else {
         m1434 = 30;
     }
+}
+
+// inferred: without the flag 2 of m157C attacks the target (fn_802F5F20), with it walks towards it (state 7,
+// motion 0x145); both turn first when needed (as Em308ParmCrab::fn_802FB6AC)
+// NONMATCHING: 99.96% - stack slots of dir and of the ToRotation_unk temporary swapped (as in ParmCrab)
+void Em308InvertCrab::fn_802F5BCC(CharaTask* target) {
+    if ((m157C & 2) != 2) {
+        if (fn_802F62A0(target, 8) == 0) {
+            fn_802F5F20((CharaTask*)m1580);
+        }
+    } else if (fn_802F62A0(target, 7) == 0) {
+        ResetAttack_unk();
+        m58C = 7;
+        fn_8016E970(6);
+        m560 = 4;
+        m590 = fn_800F8548(lbl_8087F048);
+        atn::Vector3 tpos = target->mPos;
+        atn::Vector3 dir = atn::Vector3(tpos - mPos);
+        PSVECNormalize(&dir, &dir);
+        atn::Vector3 rot = dir.ToRotation_unk();
+        mRot = rot;
+        mRot.x = 0.0f;
+        mRot.z = 0.0f;
+        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    }
+}
+
+// inferred: without the flag 4 of m157C starts state 6, with it shoots the needle (state 8, motion 0x142); both
+// turn first when needed (as Em308ParmCrab::fn_802FBA30)
+// NONMATCHING: 99.96% - stack slots of dir and of the ToRotation_unk temporary swapped (as in ParmCrab)
+void Em308InvertCrab::fn_802F5F20(CharaTask* target) {
+    if ((m157C & 4) != 4) {
+        if (fn_802F62A0(target, 6) == 0) {
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+        }
+    } else {
+        if (fn_802F62A0(target, 8) == 0) {
+            m58C = 8;
+            fn_8016E970(3);
+            ResetAttack_unk();
+            atn::Vector3 tpos = target->mPos;
+            atn::Vector3 dir = atn::Vector3(tpos - mPos);
+            PSVECNormalize(&dir, &dir);
+            atn::Vector3 rot = dir.ToRotation_unk();
+            mRot = rot;
+            mRot.x = 0.0f;
+            mRot.z = 0.0f;
+            m15A4 = 0;
+            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
+        }
+    }
+}
+
+// inferred: starts a turn (state 9, motion 0x14D) towards target unless it is within 22.5 degrees; the state
+// `next` follows the turn; the effect weights of the target are cleared (as Em308ParmCrab::fn_802FBE00)
+// NONMATCHING: 99.87% - only .sdata2 offsets (constants of fn_802F42CC-fn_802F5370, not written yet)
+int Em308InvertCrab::fn_802F62A0(CharaTask* target, int next) {
+    if (m58C == 9) {
+        return 0;
+    }
+    m1538 = mRot.y;
+    atn::Vector3 rot = (target->mPos - mPos).ToRotationZ_unk();
+    m153C = rot.y;
+    float d = atn::WrapAngle_unk(rot.y - m1538);
+    if (-0.3926991f < d && d < 0.3926991f) {
+        return 0;
+    }
+    m1534 = 0;
+    m1530 = next;
+    m1588 = target;
+    CrabWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+    if (w != 0) {
+        int i = fn_80108378(w, target);
+        for (int j = 0; j < 72; j++) {
+            if (j != i) {
+                w->mWeight[j] = 0.0f;
+            }
+        }
+    }
+    ResetAttack_unk();
+    m58C = 9;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 2.0f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    return 1;
 }
 
 // inferred: death: effect ef_sp008_01 at the node "hit_top" of the player (6 above), or 5 below the crab
