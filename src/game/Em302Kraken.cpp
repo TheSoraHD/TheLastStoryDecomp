@@ -207,3 +207,12 @@ void Em302Kraken::fn_802DDA90() {
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13F), *(const wchar_t**)((char*)m60 + 4));
     fn_80109828(lbl_8087F048, text);
 }
+
+void Em302Kraken::vf50() {
+    Item14_unk item;
+    item.m04.mRadius = m5B0;
+    MtxPtr head = mMotion.GetNodeMtx_unk("head");
+    item.m04.mCenter = GetNodePos_unk(head) + m5A4;
+    m624.push_back(item);
+    mFlagB29 = 0;
+}

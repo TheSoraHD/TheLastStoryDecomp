@@ -4,12 +4,18 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 
 ## Unidades
 
-### game/Em301LShade (0/31 -> en curso)
+### game/Em301LShade (0/31 -> 14/31)
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em301LShade.cpp` y cabecera nueva
   `include/game/Em301LShade.h` (subclase de SpecialEnemyBase; layout 0x14D4-0x16B0 deducido del ctor, del dtor
   implicito y de las claves del csv; nombres inventados).
-- Al 100%: vf14, vf20, vf40, fn_802D4238, fn_802D7058, vf100/vf104/vf108/vfFC (vacias) y el dtor (implicito,
-  ultima funcion del fichero).
+- Al 100%: vf14, vf20, vf40, vf64, fn_802D404C, fn_802D4238, fn_802D4E9C, fn_802D5674, fn_802D7058,
+  vf100/vf104/vf108/vfFC (vacias) y el dtor (implicito, ultima funcion del fichero).
+- vf10 (5.9 KB) escrita (NONMATCHING ~90%: pila de los temporales de color y registros); con ella el pool de
+  .sdata2 sale en el orden del original y suben vf64/fn_802D404C/fn_802D4E9C/fn_802D5674 al 100%.
+- vf0C 0%: el original llama fuera de linea a todas las inline (presupuesto de inline superado); con una
+  candidata extra de ~50 sentencias el cuerpo da 99.16%, asi que al original le sobra codigo inline que no
+  sabemos reconstruir (caso abierto, como LoadSeTableTask::vf0C). vf50 99.90% (solo los "" de
+  Vector_unk::reserve, que en el original son lbl_8087D9E4/lbl_8087D9E0, como CharaTask::vf50).
 - NONMATCHING >= 99% (casi todo es la posicion de las constantes de .sdata2 y de las cadenas del pool, que
   fija vf10 (5.9 KB, sin escribir) y vf0C): ctor, vf54, vf64, fn_802D404C, fn_802D4378, fn_802D4E9C,
   fn_802D5020, fn_802D5674.
@@ -57,5 +63,9 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   Em101ElderZesya, para no tocar CharaTask.h.
 
 ## Hallazgos MWCC
+- Un `CharaTask* target = m1620;` local antes de construir el vector de offset (no despues) evita la segunda
+  carga de m1620 en la rotacion (fn_802D4378).
+- `float r = m620;` antes de las tres copias a mColli fija el reparto de FPR del original en vf20 de los
+  krakens (Em302Kraken/Em302KrakenMp).
 
 ## Pendientes para otras colas

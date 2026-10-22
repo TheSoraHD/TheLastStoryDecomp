@@ -70,7 +70,9 @@ struct MapInfo_unk {
     unsigned char m00[0x4C];
     int m4C; // inferred: area
     unsigned char m50[0xE0 - 0x50];
-    int mE0;
+    int mE0; // inferred: BGM kind
+    unsigned char mE4[0xE8 - 0xE4];
+    int mE8;
 };
 extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 extern "C" int fn_80370A78(Field_unk* field, int index);
@@ -136,6 +138,38 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
+extern "C" void fn_804A04AC(MapInfo_unk* map, int kind, int arg2, int arg3, int arg4); // inferred: map BGM
+// inferred: battle state (fn_80103F60 returns a record per party member; m128: weights)
+struct BattleSlots_unk {
+    unsigned char m000[0x128];
+    float m128[1];
+};
+extern "C" BattleSlots_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
+extern "C" int fn_80108378(BattleSlots_unk* slots, CharaTask* chara);
+
+// inferred: float color converted from/to GXColor (as in game/GimmickCommon.cpp); names invented
+struct ShadeColor_unk {
+    float r, g, b, a;
+};
+inline void ToColorF_unk(ShadeColor_unk* c, GXColor gx) {
+    c->r = gx.r / 255.0f;
+    c->g = gx.g / 255.0f;
+    c->b = gx.b / 255.0f;
+    c->a = gx.a / 255.0f;
+}
+// inferred: second color of the material (0x1C), read with a cast to keep include/atn/Model_unk.h unchanged
+inline GXColor& MaterialColor2_unk(Material_unk* m) {
+    return *(GXColor*)&m->m1C[0];
+}
+inline GXColor ToGX_unk(const ShadeColor_unk& c) {
+    GXColor gx;
+    gx.r = (unsigned char)(255.0f * c.r);
+    gx.g = (unsigned char)(255.0f * c.g);
+    gx.b = (unsigned char)(255.0f * c.b);
+    gx.a = (unsigned char)(255.0f * c.a);
+    return gx;
+}
+
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/CharaTask.cpp)
 struct CharaListNode_unk {
     unsigned char m0000[0x14AC];
@@ -188,7 +222,11 @@ Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
     m1644.clear();
 }
 
-// NONMATCHING: draft - push_back of the three lists (weak copies 0x80244CCC/0x80244FC0)
+// NONMATCHING: 0% - inline budget: the original calls every inline candidate out of line (Csv ctor,
+// FindPlace_unk, the three push_back, GetNodeMtx_unk, IsSet_unk), ours inlines them all. With an extra
+// candidate of about 50 statements the body comes out at 99.16% (only the names of the push_back weak
+// copies, fn_80244CCC/fn_80244FC0, differ), so the original has more inline code somewhere (open case,
+// as LoadSeTableTask::vf0C in docs/inlining.md). Tried: the reading in an inline helper.
 int Em301LShade::vf0C() {
     if (fn_8013655C() == 0 && m1514.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
         m1548.fn_80237874() == 0 && m1554.fn_80237874() == 0 && m157C.fn_802376D0() == 0 &&
@@ -283,26 +321,13 @@ int Em301LShade::vf0C() {
     return 0;
 }
 
-void Em301LShade::vf14() {
-    if (m15C8 != 0) {
-        return;
-    }
-    fn_80149A30();
-}
-
-void Em301LShade::vf40(HitInfo_unk* hit) {
-    m14EC++;
-    if ((mStatus.m0C & 0x20) == 0x20) {
-        fn_802D57B8();
-    }
-}
-
-void Em301LShade::vf108() {}
-void Em301LShade::vf104() {}
-void Em301LShade::vf100(int state) {}
-void Em301LShade::vfFC() {}
-
 // inferred: names invented
+inline float MIN_unk(float a, float b) {
+    return a < b ? a : b;
+}
+inline float MAX_unk(float a, float b) {
+    return a > b ? a : b;
+}
 inline void Em301LShade::SetState_unk(int state) {
     m14E8 = 0;
     m590 = fn_800F8548(lbl_8087F048);
@@ -321,6 +346,308 @@ inline bool Em301LShade::IsMotionEnd_unk() {
     float frame = mMotion.mTracks[0].m08;
     return frame >= mMotion.fn_80097D7C(0);
 }
+
+// NONMATCHING: draft
+void Em301LShade::vf10() {
+    if (m58C != 8) {
+        m1620 = mC58.mC4;
+    }
+    if (mC58.mC0 == 0 || mC58.mC4 == 0) {
+        fn_8016E970(3);
+        m14E8++;
+        if (m58C == 7) {
+            fn_802D4238();
+        }
+        if (m58C == 0 && m14E0 == 3) {
+            fn_802D3370();
+        }
+    } else {
+        int frame = ++m14E8;
+        switch (m58C) {
+        case 6:
+            if (frame == 60) {
+                vf98();
+                m15E8 = 0;
+                m15EC = 0;
+                m15C8 = 0;
+            }
+            if (m14E8 > 90) {
+                m14E8 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 0;
+                fn_8016E970(3);
+            }
+            break;
+        case 7:
+            fn_802D4238();
+            break;
+        case 8:
+            fn_802D4378();
+            break;
+        case 9:
+            fn_802D4628();
+            break;
+        case 10: {
+            HitInfo_unk* skill = fn_80219E6C(m1530);
+            float end = mMotion.mTracks[0].m08;
+            if (end >= mMotion.fn_80097D7C(0)) {
+                m14E8 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 0;
+                fn_8016E970(3);
+            }
+            if ((65.0f <= mMotion.mTracks[0].m08 && mMotion.mTracks[0].m08 <= 80.0f) ||
+                (115.0f <= mMotion.mTracks[0].m08 && mMotion.mTracks[0].m08 <= 130.0f)) {
+                fn_80144710();
+                atn::Vector3 pos = mPos;
+                pos.y += 13.0f * m540.x;
+                fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            }
+            break;
+        }
+        case 11:
+            fn_802D4E9C();
+            break;
+        case 12:
+            fn_802D5020();
+            break;
+        case 2:
+            vfEC();
+            break;
+        default: {
+            fn_8016E970(3);
+            atn::Vector3 rot = mRot;
+            float zero = 0.0f;
+            float one = 1.0f;
+            if (m55C == 6) {
+                fn_8013A258();
+            } else {
+                fn_8013CB68(&rot, 0, zero, m568 * one);
+            }
+            fn_802D3370();
+            break;
+        }
+        }
+    }
+    if (m14D4 != 0 && m1620 != 0) {
+        MapInfo_unk* map = fn_80373148(lbl_8087F430);
+        if (map != 0) {
+            int kind = m14E0 != 3;
+            if (kind != map->mE0) {
+                fn_804A04AC(map, kind, 20, -1, 0);
+                map->mE8 = kind;
+            }
+        }
+    }
+    m1500++;
+    if (m15E8 > 0) {
+        m15E8--;
+        m15EC--;
+        m15EC = m15EC < m15E8 ? m15EC : m15E8;
+        if (m15E8 <= 0) {
+            fn_80239DAC(lbl_8087F3C0, &m15F0[m15E4], 0, 1);
+            vf98();
+        }
+        if (m15EC <= 0) {
+            m1508 = 1;
+        }
+    {
+        ShadeColor_unk c;
+        ToColorF_unk(&c, mMotion.fn_80092954("em301_inner")->mColor);
+        if (m15E4 == 0) {
+            c.r = MIN_unk(1.0f, 0.02f + c.r);
+        } else {
+            c.r = MIN_unk(0.05f, 0.005f + c.r);
+        }
+        if (m15E4 == 0) {
+            c.g = MIN_unk(0.5f, 0.01f + c.g);
+        } else {
+            c.g = MIN_unk(0.2f, 0.01f + c.g);
+        }
+        mMotion.fn_80092954("em301_inner")->mColor = ToGX_unk(c);
+        ShadeColor_unk half;
+        half.r = c.r * 0.5f;
+        half.g = c.g * 0.5f;
+        half.b = c.b * 0.5f;
+        half.a = c.a * 0.5f;
+        MaterialColor2_unk(mMotion.fn_80092954("em301_inner")) = ToGX_unk(half);
+    }
+    {
+        ShadeColor_unk c;
+        ToColorF_unk(&c, mMotion.fn_80092954("em301_outer")->mColor);
+        if (m15E4 == 0) {
+            c.r = MIN_unk(1.0f, 0.02f + c.r);
+        } else {
+            c.r = MIN_unk(0.05f, 0.005f + c.r);
+        }
+        if (m15E4 == 0) {
+            c.g = MIN_unk(0.5f, 0.01f + c.g);
+        } else {
+            c.g = MIN_unk(0.2f, 0.01f + c.g);
+        }
+        mMotion.fn_80092954("em301_outer")->mColor = ToGX_unk(c);
+        ShadeColor_unk half;
+        half.r = c.r * 0.5f;
+        half.g = c.g * 0.5f;
+        half.b = c.b * 0.5f;
+        half.a = c.a * 0.5f;
+        MaterialColor2_unk(mMotion.fn_80092954("em301_outer")) = ToGX_unk(half);
+    }
+    } else if (m58C == 2) {
+    {
+        ShadeColor_unk c;
+        ToColorF_unk(&c, mMotion.fn_80092954("em301_inner")->mColor);
+        if (m15B8 == 0) {
+            c.r = MIN_unk(1.0f, 0.02f + c.r);
+        } else {
+            c.r = MIN_unk(0.05f, 0.005f + c.r);
+        }
+        if (m15B8 == 0) {
+            c.g = MIN_unk(0.5f, 0.01f + c.g);
+        } else {
+            c.g = MIN_unk(0.2f, 0.01f + c.g);
+        }
+        mMotion.fn_80092954("em301_inner")->mColor = ToGX_unk(c);
+        ShadeColor_unk half;
+        half.r = c.r * 0.5f;
+        half.g = c.g * 0.5f;
+        half.b = c.b * 0.5f;
+        half.a = c.a * 0.5f;
+        MaterialColor2_unk(mMotion.fn_80092954("em301_inner")) = ToGX_unk(half);
+    }
+    {
+        ShadeColor_unk c;
+        ToColorF_unk(&c, mMotion.fn_80092954("em301_outer")->mColor);
+        if (m15B8 == 0) {
+            c.r = MIN_unk(1.0f, 0.02f + c.r);
+        } else {
+            c.r = MIN_unk(0.05f, 0.005f + c.r);
+        }
+        if (m15B8 == 0) {
+            c.g = MIN_unk(0.5f, 0.01f + c.g);
+        } else {
+            c.g = MIN_unk(0.2f, 0.01f + c.g);
+        }
+        mMotion.fn_80092954("em301_outer")->mColor = ToGX_unk(c);
+        ShadeColor_unk half;
+        half.r = c.r * 0.5f;
+        half.g = c.g * 0.5f;
+        half.b = c.b * 0.5f;
+        half.a = c.a * 0.5f;
+        MaterialColor2_unk(mMotion.fn_80092954("em301_outer")) = ToGX_unk(half);
+    }
+    } else {
+    {
+        ShadeColor_unk c;
+        ToColorF_unk(&c, mMotion.fn_80092954("em301_inner")->mColor);
+        if (m15E4 == 0) {
+            c.r = MAX_unk(0.0f, c.r - 0.02f);
+        } else {
+            c.r = MAX_unk(0.0f, c.r - 0.005f);
+        }
+        if (m15E4 == 0) {
+            c.g = MAX_unk(0.0f, c.g - 0.01f);
+        } else {
+            c.g = MAX_unk(0.0f, c.g - 0.01f);
+        }
+        mMotion.fn_80092954("em301_inner")->mColor = ToGX_unk(c);
+        ShadeColor_unk half;
+        half.r = c.r * 0.5f;
+        half.g = c.g * 0.5f;
+        half.b = c.b * 0.5f;
+        half.a = c.a * 0.5f;
+        MaterialColor2_unk(mMotion.fn_80092954("em301_inner")) = ToGX_unk(half);
+    }
+    {
+        ShadeColor_unk c;
+        ToColorF_unk(&c, mMotion.fn_80092954("em301_outer")->mColor);
+        if (m15E4 == 0) {
+            c.r = MAX_unk(0.0f, c.r - 0.02f);
+        } else {
+            c.r = MAX_unk(0.0f, c.r - 0.005f);
+        }
+        if (m15E4 == 0) {
+            c.g = MAX_unk(0.0f, c.g - 0.01f);
+        } else {
+            c.g = MAX_unk(0.0f, c.g - 0.01f);
+        }
+        mMotion.fn_80092954("em301_outer")->mColor = ToGX_unk(c);
+        ShadeColor_unk half;
+        half.r = c.r * 0.5f;
+        half.g = c.g * 0.5f;
+        half.b = c.b * 0.5f;
+        half.a = c.a * 0.5f;
+        MaterialColor2_unk(mMotion.fn_80092954("em301_outer")) = ToGX_unk(half);
+    }
+        if (m58C != 6 && m58C != 7 && m58C != 9) {
+            if (++m14F4 >= m14F8) {
+                m1508 = 1;
+            }
+        }
+    }
+    if (m14D8 == -1) {
+        mPos = lbl_807C7030;
+        mPos.y -= 10000.0f;
+    } else {
+        mPos = m162C[m14D8]->mPos;
+    }
+    mPos.y -= 13.0f * m540.y;
+    CharaTask* target = m1620;
+    if (target != 0) {
+        atn::Vector3 dir;
+        dir.x = target->mPos.x - mPos.x;
+        dir.z = target->mPos.z - mPos.z;
+        dir.y = 0.0f;
+        PSVECNormalize(&dir, &dir);
+        atn::Vector3 rot = dir.ToRotation_unk();
+        float d = atn::WrapAngle_unk(rot.y - mRot.y);
+        float step = 0.08726647f;
+        if ((float)__fabs(d) > step) {
+            if (d < 0.0f) {
+                mRot.y -= step;
+            } else {
+                mRot.y += step;
+            }
+        } else {
+            mRot.y = rot.y;
+        }
+    }
+    fn_8014C540();
+    fn_80145334();
+    BattleSlots_unk* slots = fn_80103F60(lbl_8087F048, this);
+    for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
+        int i = fn_80108378(slots, c);
+        if (c->fn_8016E484() == 0) {
+            slots->m128[i] = 0.0f;
+        } else {
+            slots->m128[i] = 1.0f;
+        }
+    }
+    if (fn_805A4A54((SpecialAim_unk*)&m1658)) {
+        fn_805A4A1C((SpecialFlag_unk*)&m1658.mFlag, 1);
+        m1658.mEnabled = 0;
+    }
+    m150C--;
+}
+
+void Em301LShade::vf14() {
+    if (m15C8 != 0) {
+        return;
+    }
+    fn_80149A30();
+}
+
+void Em301LShade::vf40(HitInfo_unk* hit) {
+    m14EC++;
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        fn_802D57B8();
+    }
+}
+
+void Em301LShade::vf108() {}
+void Em301LShade::vf104() {}
+void Em301LShade::vf100(int state) {}
+void Em301LShade::vfFC() {}
 
 void Em301LShade::vf20() {
     m620 = m5B0;
