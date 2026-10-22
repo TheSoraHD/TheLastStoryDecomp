@@ -61,6 +61,14 @@ struct EffectMgr_unk {
     int mB8;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+// inferred: effect manager (atn/EffectManager.cpp); only the member called here is declared
+class EffectManager {
+public:
+    void fn_8023A254(unsigned int owner, int group, float rate); // inferred: speed of the effects
+};
+} // namespace atn
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: effect/bullet manager (lbl_8087F048)
@@ -1397,6 +1405,74 @@ void EnemyQuarkStand::fn_80350BF0() {
     fn_80232B7C(&m16A8, 0);
     QuarkPlayEffect_unk(&m16A8, &mMotion);
     fn_8023A108(lbl_8087F3C0, &m16A8, 0, 5);
+}
+
+// inferred: starts attack 4 (state 18, motion 0x13F): flies to the route place 3 or 4, the one farther from
+// the leader (as fn_8034FB50)
+// NONMATCHING: same stack slots as fn_8034FB50
+void EnemyQuarkStand::fn_80350F64() {
+    fn_8034F384();
+    fn_8016E970(3);
+    fn_8016E970(3);
+    m58C = 18;
+    QuarkPlayMotion_unk(&mMotion, 0x13F, 0, 0, 1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* place3 = table->FindPlace_unk(3);
+    RoutePlace_unk* place4 = table->FindPlace_unk(4);
+    atn::Vector3 a = place3->mPos;
+    atn::Vector3 b = place4->mPos;
+    atn::Vector3 leader = lbl_8087F8A0->mHead->mPos;
+    atn::Vector3 da(a.x - leader.x, a.y - leader.y, a.z - leader.z);
+    float la = sqrt(da.x * da.x + da.z * da.z);
+    atn::Vector3 db(b.x - leader.x, b.y - leader.y, b.z - leader.z);
+    atn::Vector3* far = la < (float)sqrt(db.x * db.x + db.z * db.z) ? &b : &a;
+    atn::Vector3 pos = *far;
+    m15DC.SetTarget_unk(pos);
+    m15DC.mRot = (pos - mPos).ToRotationZ_unk();
+    m15DC.mDir = pos - mPos;
+    m15DC.mDir.y = 0.0f;
+    PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
+    m15DC.mStart = mPos;
+    m570 = 0.0f;
+}
+
+// inferred: starts attack 12 / 7 (state 19, motion 0x143): warps in front of the target (at "ShortRange" - 10
+// when `near`, else "LongRange" - 10) and plays "ef_bs080a.efp" at the speed of the motion
+// NONMATCHING: 88.77% - order of the products of dir * dist and the stack slots of the aim (as
+// fn_80350070); ~5 forms
+void EnemyQuarkStand::fn_80351480(int near) {
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 19;
+    QuarkPlayMotion_unk(&mMotion, 0x143, 0, 0, 1.5f);
+    if (m17E4 != 0) {
+        m14B0 = (int)m17E4;
+    }
+    float dist;
+    if (near != 0) {
+        dist = m1CE0 - 10.0f;
+    } else {
+        dist = m1CE8 - 10.0f;
+    }
+    CharaTask* target = (CharaTask*)m14B0;
+    atn::Vector3 dir = m160C - target->mPos;
+    dir.y = 0.0f;
+    if (fn_805F9920(&dir) < 0.0001f) {
+        dir = QuarkFrontOf_unk((CharaTask*)m14B0);
+    } else {
+        PSVECNormalize(&dir, &dir);
+    }
+    atn::Vector3 pos = ((CharaTask*)m14B0)->mPos + dir * dist;
+    m15DC.SetTarget_unk(pos);
+    m15DC.mRot = (pos - mPos).ToRotationZ_unk();
+    m15DC.mDir = pos - mPos;
+    m15DC.mDir.y = 0.0f;
+    PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
+    m15DC.mStart = mPos;
+    m570 = 0.0f;
+    fn_80232B7C(&m16B4, 0);
+    QuarkPlayEffect_unk(&m16B4, &mMotion);
+    ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m16B4, 0, mMotion.mTracks[0].m0C);
 }
 
 // inferred: state 20 (motion 0x144)
