@@ -19,6 +19,8 @@ public:
     void fn_8031FAA4(); // inferred: picks the target (the leader or a held player)
     void fn_8031FD34(HitMsg_unk* msg); // inferred: reaction to a hit
     void fn_8031FE4C();
+    void fn_803227A0(); // inferred: starts the jump (state 7)
+    void fn_80322AD4(); // inferred: state 7: jump
     void fn_80321724(atn::MotionBuffer* nodes, int count); // inferred: node pose callback
     void fn_80321900(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk); // inferred: node matrix callback
 
@@ -46,7 +48,11 @@ public:
     int m1564;
     int m1568;
     int m156C; // inferred: the leader had mFlag28 (field flag 0x3C)
-    unsigned char m1570[0x158C - 0x1570];
+    int m1570;          // inferred: frames left of the jump
+    CharaTask* m1574;   // inferred: target of the jump
+    float m1578;        // inferred: distance of the jump
+    atn::Vector3 m157C; // inferred: direction of the jump (y is the vertical speed)
+    float m1588;        // inferred: vertical speed
     ResHandle m158C; // inferred: debug menu group
     int m1590;       // inferred: "DebugDisp"
     int m1594;

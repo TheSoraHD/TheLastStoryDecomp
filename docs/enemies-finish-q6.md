@@ -38,7 +38,11 @@ Cola: game/Em316LaserSphere, game/Em316LastLaser, game/Em401_01_WhiteLeoPard.
   double de .rodata; el report lo da al 100%: no se cuenta). NONMATCHING: fn_80321724 97.83% y fn_80321900
   98.79% (copias de las callbacks de WarLion, mismo bloqueo), vf54 99.64% (__VecCopy). Sin escribir:
   fn_8031FE4C (maquina de estados), fn_803202E0, fn_803209E0 (con vf34 de 16 bytes que salta a ella), vf24,
-  vf20, vf50, fn_803227A0, fn_80322AD4.
+  vf20, vf50.
+  - Segunda pasada: fn_803227A0 (inicio del salto) NONMATCHING 97.9% (planificacion del store de m1588 frente
+    al fabs del ToRotation inline) y fn_80322AD4 (salto) 99.95% en el diff directo (solo la posicion de 6.0f
+    en .sdata2; el report la da al 100%, no se cuenta como ganada). El maximo `m1588 > 6 ? m1588 : 6` va en
+    un inline `float LeoMax_unk(float, float)` (con el ternario en linea MWCC no hace el frsp del original).
 
 ## Decisiones tomadas sin el usuario
 

@@ -385,3 +385,85 @@ void Em401_01_WhiteLeoPard::vf54() {
         m624.mData[1].m04.mCenter.y -= 5.0f;
     }
 }
+
+// inferred: collision result and sweep test (as in game/Em003LesserDaemon.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10; // inferred: position after the sweep
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+// inferred: effect/bullet manager (lbl_8087F048); class unknown
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f);
+
+inline float LeoMax_unk(float a, float b) {
+    return a > b ? a : b;
+}
+
+// NONMATCHING: 97.9% - the original stores m1588 = 1.5f after the fabs of z in the inlined ToRotation_unk
+// (scheduling window) and the offsets of .sdata2; ~11 variants
+// inferred: starts the jump towards m1574 (or straight ahead), 20 frames
+void Em401_01_WhiteLeoPard::fn_803227A0() {
+    m58C = 7;
+    fn_8016E970(6);
+    m560 = 4;
+    m590 = fn_800F8548(lbl_8087F048);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 2.0f;
+    mMotion.fn_80097C08(0, 0x21, 1, 0, 1, 0.0f, 0.1f);
+    if (m1574 != 0) {
+        atn::Vector3 d = m1574->mPos - mPos;
+        m157C = d;
+    } else {
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        Mtx r;
+        PSMTXRotRad(r, 'y', mRot.y);
+        PSMTXMultVec(r, &dir, &dir);
+        m157C = dir;
+    }
+    m157C.y = 0.0f;
+    m1578 = PSVECMag(&m157C);
+    PSVECNormalize(&m157C, &m157C);
+    m1588 = 1.5f;
+    mRot.y = m157C.ToRotation_unk().y;
+    m1570 = 20;
+}
+
+// NONMATCHING: 99.95% - only the position of 6.0f in .sdata2 (functions not written yet)
+// inferred: jump: moves along m157C and falls; deals the hit 0x686 while above 3
+void Em401_01_WhiteLeoPard::fn_80322AD4() {
+    if (--m1570 < 0) {
+        m58C = 0;
+        if (m55C == 6 && m560 == 4) {
+            fn_8016E970(4);
+        }
+        m1560 = 0;
+        return;
+    }
+    m1588 += 0.3f;
+    m1588 = LeoMax_unk(m1588, 6.0f);
+    atn::Vector3 move(m157C * (float)m1588);
+    CollResult_unk result;
+    Sphere_unk sphere = fn_80176548(mPos);
+    fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000080, &mColli, 0, sphere.mRadius);
+    mPos = result.m10;
+    mPos -= m5A4;
+    mPos.y -= sphere.mRadius;
+    if (m1588 >= 3.0f) {
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x686), m590, 30, -1, 0.0f);
+    }
+}
