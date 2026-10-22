@@ -133,11 +133,11 @@ Leaf::~Leaf() {
     }
 }
 
-// NONMATCHING: 99.42% - the index and the offset of the loop are incremented in the other order
+// The unsigned subscript increments the index before the offset, as in the original
 int Leaf::vf0C() {
     if (fn_803EC91C() == 0) {
         for (int i = 0; i < mNumLeaf; i++) {
-            if (fn_8009FFCC(mLeaves.mData[i].mInst->mData) != 0) {
+            if (fn_8009FFCC(mLeaves.mData[(unsigned int)i].mInst->mData) != 0) {
                 return 0;
             }
         }
@@ -182,12 +182,11 @@ void Leaf::vf10() {
     }
 }
 
-// NONMATCHING: 93.73% - the original keeps the 0 stored in m64 in a register copied from the loop
-// index (r30) and the offset in r31
+// The unsigned subscript gives the index/offset registers of the original
 void Leaf::vf14() {
     for (int i = 0; i < mNumLeaf; i++) {
         if (lbl_8087F0A8->m18 != 0) {
-            atn::ModelInstance* inst = mLeaves.mData[i].mInst;
+            atn::ModelInstance* inst = mLeaves.mData[(unsigned int)i].mInst;
             if (m9C != 0) {
                 inst->m64 = 0;
                 inst->fn_8009E6EC(1);
