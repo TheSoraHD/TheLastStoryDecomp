@@ -113,6 +113,11 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   - symbols.txt: fn_802E211C/2270/2470/2640/2E84/2E88/554C/58C8/5970 -> nombres de Em303KrakenFoot.
   - SpecialEnemyBase.cpp: factoria con `new (3, "", "", 0) Em303KrakenFoot(...)`.
 
+- game/Em101LittleZesya (0/25 -> 9/25, NUEVA fuente + cabecera): al 100% dtor, vf10, vf3C, fn_8025D6D0 /
+  fn_8025D704 / fn_8025FE30 (`extern "C"`, los llama Em101ElderZesya), fn_8025DE54, fn_8025E748, fn_8025F754.
+  fn_8025E930 ~95% (f1/f2). Pendientes: ctor (std::string), vf0C, vf40, fn_8025D7B0 y estados grandes.
+  - symbols.txt: fn_8025CDE0/D648/D7B0/DE54/E748/E930/F754/F7D0 -> nombres de Em101LittleZesya.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
@@ -132,3 +137,5 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   `if (a == 1 || a == 2) return 0; return 1;` MWCC lo convierte en aritmetica sin saltos (cntlzw).
 - Un inline `InRange_unk`/accesor del frame que relee el miembro en cada comparacion fija el orden de carga de la
   constante frente al miembro (lfs constante antes del lfs del frame).
+- `if (s - 11U > 2) { if (s == 10) {...; return;} } else {...}` coloca el bloque del rango despues, como el
+  original; con `if (rango) {...} else if (s == 10)` el orden de bloques se invierte.
