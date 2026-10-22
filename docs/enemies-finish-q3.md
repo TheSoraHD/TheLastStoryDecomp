@@ -22,12 +22,17 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   fija vf10 (5.9 KB, sin escribir) y vf0C): ctor, vf54, vf64, fn_802D404C, fn_802D4378, fn_802D4E9C,
   fn_802D5020, fn_802D5674.
 
-### game/Em302Kraken (0/49 -> 7/49)
+### game/Em302Kraken (0/49 -> 11/49)
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302Kraken.cpp` y cabecera nueva
   `include/game/Em302Kraken.h` (subclase directa de EnemyTask: el ctor llama a `__ct__9EnemyTask` y la vtable
   tiene 0xF8 bytes; layout 0x14B0-0x16B8 del ctor/dtor; nombres inventados).
 - Al 100%: dtor, vf14, vf3C, vf40, vfEC, fn_802DC5B4, vfD4 (copia debil).
 - vf10 escrita (97.5%: registros del bloque de la camara y pila); fija el orden del pool de .sdata2.
+- vf0C escrita (99.4%: rotacion de registros salvados del bucle de lectura; 8 variantes). Al 100% las copias
+  debiles que usa: fn_802D73E4 (busqueda de comando), fn_802D8540 (limpia un flag del modelo) y
+  fn_802D8550/fn_802D8B6C (elemento i de un vector, plantilla `At_unk<T>`).
+- Estados 12-15 (fn_802DB534/B7C8/BA3C/BC68) escritos: 98.2-99.9% (solo pool de cadenas/pila).
+- Las funciones del .cpp se ordenan por direccion (el pool de cadenas sigue el orden de definicion).
   symbols.txt: fn_802DA718/AA38/B2D0/B534/B7C8/BA3C/BC68/C3D0 -> metodos `__11Em302KrakenFv` (estados).
 - NONMATCHING >= 97% (pool de cadenas y .sdata2, que ordenan vf0C/vf10 sin escribir): ctor (98.3%: registros del
   segundo std::string, como Em201ZanGurg), vf20, vf54, vfD0, vfD8, fn_802DDA90 (el original relee el flag de
@@ -59,6 +64,13 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 - **symbols.txt (Em302Kraken)**: ctor, dtor, vf0C, vf10, vf14, vf20, vf3C, vf40, vf50, vf54, vfEC, vfCC, vfD0,
   vfD8, vf90, vf94, vfC8, vfD4, vfDC (por la vtable) y fn_802DA174/C618/DA90/DBB0/C5B4 como metodos;
   fn_802D73E4 scope:local; lbl_807473F8 -> `sCommands_unk` (local); lbl_80747654 -> `@stringBase0` (local).
+- **symbols.txt (copias debiles de push_back)**: fn_80244CCC -> `push_back__Q23std25vector<P14RoutePlace_unk>...`,
+  fn_80244FC0 -> `push_back__Q23std19vector<P9EnemyTask>...`, fn_8000E18C -> `push_back__Q23std9vector<i>FRCi`,
+  fn_802D8560/8854 -> push_back de vector<Em303KrakenFoot*>/vector<KrakenCommand_unk>. Son copias debiles
+  sin fuente (las otras referencias estan en unidades en asm: Em001Necromancer, Em203GreaterDaemon*,
+  GameTask, Em206CocoonMp); con el nombre real objdiff empareja las llamadas. regress/fuzzdrop 0.
+- fn_800E0AA8/fn_800E0AB0 (size/empty de un vector, definidas en atn/WordWrap_unk.cpp como Count4_unk) se
+  llaman `extern "C"` desde Em302Kraken::vf0C (no se renombran: las usa una unidad enlazada).
 - game/SpecialEnemyBase.cpp: la factoria (case 30) crea `new (3, "", "", 0) Em302Kraken(parent, info)`.
 - **symbols.txt (Em302KrakenMp)**: ctor, dtor y las 21 virtuales de la vtable renombradas; fn_802E1290/1414/
   1624/177C/1A0C como metodos; fn_802DDD1C scope:local; lbl_807479E8 -> `sCommands_unk` (local);

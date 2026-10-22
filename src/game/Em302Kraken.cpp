@@ -5,6 +5,8 @@
 #include "game/CharaStatus.h"
 #include "game/Em303KrakenFoot.h"
 #include "game/PlayerTask.h"
+#include "game/GimmickManager.h"
+#include "game/GimmickCommon.h"
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -60,6 +62,7 @@ struct KrakenLook_unk {
 };
 // inferred: field (lbl_8087F430); names invented
 struct Field_unk {
+    RouteTable_unk* fn_8013C504(); // inferred: route tables (as in gmk/FlamingArrow.cpp)
     unsigned char m0000[0x8A0];
     CharaTask* m8A0; // inferred: character the camera follows
     unsigned char m8A4[0x97C - 0x8A4];
@@ -68,6 +71,49 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
+extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+// inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+// inferred: field camera shake (lbl_8087F430 + 0x96C); names invented
+struct KrakenShake_unk {
+    int m00;
+    int m04;
+    float m08;
+    float m0C;
+};
+inline KrakenShake_unk* Shake_unk() {
+    return (KrakenShake_unk*)((char*)lbl_8087F430 + 0x96C);
+}
 // inferred: gimmicks (lbl_8087F4A0, as in game/SpecialEnemyBase.cpp); names invented
 struct KrakenGimmick_unk {
     virtual void vf08();
@@ -90,11 +136,10 @@ struct KrakenGimmick_unk {
     unsigned char m4C[0x5C - 0x4C];
     KrakenGimmick_unk* mNext;
 };
-struct KrakenGimmickList_unk {
-    unsigned char m00[0x48];
-    KrakenGimmick_unk* mHead;
-};
-extern "C" KrakenGimmickList_unk* lbl_8087F4A0;
+extern "C" GimmickManager* lbl_8087F4A0;
+inline KrakenGimmick_unk* FirstGimmick_unk() {
+    return (KrakenGimmick_unk*)lbl_8087F4A0->mHead;
+}
 // inferred: message sent to the gimmicks (0x20 bytes); names invented
 struct KrakenGimmickMsg_unk {
     int m00;
@@ -136,6 +181,23 @@ static int fn_802D73E4(const char* name) {
         }
     }
     return -1;
+}
+
+extern "C" Field_unk* fn_80121F00();
+extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
+extern "C" void* fn_8020A81C(const char* name); // inferred: character data by name
+// inferred: element `i` of a vector (weak copies 0x802D8550/0x802D8B6C); names invented
+template <class T>
+T* At_unk(std::vector<T>* v, unsigned int i) {
+    return &v->mData[i];
+}
+// inferred: size and empty of a vector, out of line (weak copies kept in atn/WordWrap_unk.cpp)
+struct Count4_unk;
+extern "C" int fn_800E0AA8(const Count4_unk* c);
+extern "C" bool fn_800E0AB0(const Count4_unk* c);
+// inferred: clears flags of the model (weak copy 0x802D8540); name invented
+inline void ClearModelFlag_unk(Model_unk* model, unsigned int flag) {
+    model->mFlags &= ~flag;
 }
 
 // inferred: node position (name invented, as in game/Em209BigGolem.cpp)
@@ -197,6 +259,139 @@ Em302Kraken::Em302Kraken(atn::Task* parent, EnemyInfo_unk* info)
 
 Em302Kraken::~Em302Kraken() {}
 
+// NONMATCHING: 99.4% - saved registers of the reading loop rotated (key/pool/zero: r28/r29/r30 in the
+// original, r30/r28/r29 here; 8 variants of the declarations and of the pillar_id loop)
+int Em302Kraken::vf0C() {
+    if (m14B0 == 0) {
+        if (fn_8013655C() == 0 && m14E0.fn_80237874() == 0 && m14EC.fn_80237874() == 0 &&
+            m1508.fn_80237874() == 0 && m15F4.fn_80237874() == 0 && m1524.fn_802376D0() == 0 &&
+            m1530.fn_80237874() == 0 && m153C.fn_80237874() == 0 && m1548.fn_80237874() == 0 &&
+            m1564.fn_80237874() == 0 && m1570.fn_80237874() == 0 && m15E8.fn_80237874() == 0 &&
+            m158C.fn_80237874() == 0 && m1598.fn_80237874() == 0 && m15A4.fn_80237874() == 0 &&
+            m160C.fn_80237874() == 0 && m1618.fn_80237874() == 0 && m1624.fn_80237874() == 0 &&
+            m1684.fn_80473F50() == 0) {
+            if (m1684.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
+                atn::Csv csv((const char*)m1684.fn_80470580(), m1684.fn_8047059C());
+                int zero = 0;
+                do {
+                    const char* key = csv.fn_8005B9CC();
+                    if (strcmp(key, "appear_point") == 0) {
+                        int id;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            if (place != 0) {
+                                m163C.push_back(place);
+                            }
+                        } while (id != 0);
+                        if (!fn_800E0AB0((const Count4_unk*)&m163C)) {
+                            m1634 = *At_unk(&m163C, m1638);
+                        }
+                    } else if (strcmp(key, "reinforce_point") == 0) {
+                        int id;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            if (place != 0) {
+                                m1660.push_back(place);
+                            }
+                        } while (id != 0);
+                    } else if (strcmp(key, "pillar_id") == 0) {
+                        int id = zero;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            if (id != 0) {
+                                m1648.push_back(id);
+                            }
+                        } while (id != 0);
+                    } else if (strcmp(key, "reinforce_chara") == 0) {
+                        int id;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            EnemyTask* enemy = fn_801A03E0()->Find_unk(id);
+                            if (enemy != 0) {
+                                m166C.push_back(enemy);
+                            }
+                        } while (id != 0);
+                    } else if (strcmp(key, "absorb_rate") == 0) {
+                        m1514 = fn_800DC288(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "foot_chara") == 0) {
+                        int id;
+                        do {
+                            id = fn_800DC12C(csv.fn_8005B9CC());
+                            Em303KrakenFoot* foot = (Em303KrakenFoot*)fn_801A03E0()->Find_unk(id);
+                            if (foot != 0) {
+                                m1678.push_back(foot);
+                            }
+                        } while (id != 0);
+                    } else if (strcmp(key, "act_command") == 0) {
+                        while (csv.fn_8005BBF8()) {
+                            const char* name = csv.fn_8005B9CC();
+                            if (*name == ';' || *name == '#') {
+                                continue;
+                            }
+                            if (strcmp(name, "/act_command") == 0) {
+                                break;
+                            }
+                            KrakenCommand_unk cmd;
+                            cmd.mId = fn_802D73E4(name);
+                            if (cmd.mId > 0) {
+                                cmd.mValue = fn_800DC12C(csv.fn_8005B9CC());
+                                m168C.push_back(cmd);
+                            }
+                        }
+                    } else if (strcmp(key, "charge_point") == 0) {
+                        RoutePlace_unk* place =
+                            fn_80121F00()->fn_8013C504()->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                        if (place != 0) {
+                            m15D4 = place;
+                        }
+                    } else if (strcmp(key, "shades_skill_id") == 0) {
+                        m14F8 = fn_800DC12C(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "laser_skill_id") == 0) {
+                        m1584 = fn_800DC12C(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "thunder_skill_id") == 0) {
+                        m1608 = fn_800DC12C(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "shoot_thunder") == 0) {
+                        m1604 = fn_800DC12C(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "pos_y_offset") == 0) {
+                        m14CC = fn_800DC288(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "explode_center") == 0) {
+                        m15DC = fn_800DC288(csv.fn_8005B9CC());
+                        m15E0 = fn_800DC288(csv.fn_8005B9CC());
+                        m15E4 = fn_800DC288(csv.fn_8005B9CC());
+                    } else if (strcmp(key, "week_param") == 0) {
+                        void* data = fn_8020A81C(csv.fn_8005B9CC());
+                        if (data != 0) {
+                            m16B0 = data;
+                        }
+                    } else if (strcmp(key, "anger_efp") == 0) {
+                        m15B0.fn_8023780C(csv.fn_8005B9CC());
+                    }
+                } while (csv.fn_8005BBF8());
+            }
+            mStatus.m18 |= 0x1C0;
+            mStatus.m18 |= 0x10000;
+            mStatus.m18 |= 0xC21D;
+            mStatus.m18 |= 0x3800000;
+            for (unsigned int i = 0; i < fn_800E0AA8((const Count4_unk*)&m1678); i++) {
+                fn_802E2468(*At_unk(&m1678, i), (int)this);
+            }
+            fn_802DDBB0();
+            m14B0 = 1;
+            ClearModelFlag_unk((Model_unk*)&mMotion, 4);
+        }
+    } else if (m14B0 == 1) {
+        if (m15B0.fn_80237874() == 0) {
+            m14B0 = 2;
+            return 1;
+        }
+    } else if (m14B0 == 2) {
+        return 1;
+    }
+    return 0;
+}
+
 // inferred: back to state 0 (names invented)
 inline void Em302Kraken::Reset_unk() {
     m14C8 = 0;
@@ -253,7 +448,7 @@ void Em302Kraken::vf10() {
         }
     } else {
         if (m15D8 > 0 && --m15D8 == 0) {
-            for (KrakenGimmick_unk* g = lbl_8087F4A0->mHead; g != 0; g = g->mNext) {
+            for (KrakenGimmick_unk* g = FirstGimmick_unk(); g != 0; g = g->mNext) {
                 if (g->m48 == 0x444) {
                     KrakenGimmickMsg_unk msg;
                     msg.m00 = 0;
@@ -400,6 +595,212 @@ void Em302Kraken::vf40(HitInfo_unk* hit) {
     }
 }
 
+void Em302Kraken::vf50() {
+    Item14_unk item;
+    item.m04.mRadius = m5B0;
+    MtxPtr head = mMotion.GetNodeMtx_unk("head");
+    item.m04.mCenter = GetNodePos_unk(head) + m5A4;
+    m624.push_back(item);
+    mFlagB29 = 0;
+}
+
+void Em302Kraken::vf54() {
+    if (m624.mSize != 0) {
+        MtxPtr head = mMotion.GetNodeMtx_unk("head");
+        m624.mData[0].m04.mCenter = GetNodePos_unk(head) + m5A4;
+    }
+}
+
+void Em302Kraken::vf20() {
+    m620 = m5B0;
+    MtxPtr head = mMotion.GetNodeMtx_unk("head");
+    m614 = GetNodePos_unk(head) + m5A4;
+    atn::Vector3 a = m614;
+    atn::Vector3 b = a;
+    b.y += m5B4;
+    float r = m620;
+    mColli.m3C = a;
+    mColli.m48 = b;
+    mColli.m54 = r;
+}
+
+atn::Vector3 Em302Kraken::vfD0(float angle) {
+    atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
+    pos.y += 25.0f;
+    return pos;
+}
+
+atn::Vector3 Em302Kraken::vfD8(CharaTask* target) {
+    atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
+    pos.y += 18.0f;
+    return pos;
+}
+
+// inferred: plays a motion on track 0 (names invented, as in game/EnemyTrista.cpp)
+inline void PlayMotion_unk(Model_unk* model, int motion, int loop) {
+    model->m34C = 1;
+    model->mTracks[0].m20 = 1.0f;
+    model->mTracks[0].m0C = 1.0f;
+    model->fn_80097C08(0, motion, loop, 0, 1, 0.0f, 0.1f);
+}
+
+// inferred: state 12 (big laser)
+void Em302Kraken::fn_802DB534() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0) && m14C4 > 180) {
+        Reset_unk();
+        m1658 = 45;
+        fn_80370AE4(lbl_8087F430, 0xC9, 1);
+    }
+    if (m14C4 == 20) {
+        KrakenShake_unk* shake = Shake_unk();
+        shake->m00 = shake->m00 % 2;
+        shake->m04 = 120;
+        shake->m08 = 1.0f;
+        shake->m0C = 1.0f;
+        for (KrakenGimmick_unk* g = FirstGimmick_unk(); g != 0; g = g->mNext) {
+            if (g->m48 == 0x444) {
+                KrakenGimmickMsg_unk msg;
+                msg.m00 = 2;
+                msg.m04 = 0;
+                msg.m08 = 0;
+                msg.m0C = 0;
+                msg.m10 = 0;
+                msg.m14 = 0.0f;
+                msg.m18 = 0.0f;
+                msg.m1C = 0.0f;
+                g->vf40(&msg);
+                m15D8 = 300;
+            }
+        }
+        if (fn_80370A78(lbl_8087F430, 0xCC) == 0) {
+            fn_80370AE4(lbl_8087F430, 0xCC, 1);
+        }
+    }
+    if (m14C4 - 100U <= 14) {
+        HitInfo_unk* skill = fn_80219E6C(m1584);
+        fn_800FAB80(lbl_8087F048, this, skill, m590, (atn::Vector3*)&m15DC, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        unsigned int skip = m1638;
+        for (unsigned int i = 0; i < m1648.size(); i++) {
+            GimmickCommon* g = lbl_8087F4A0->fn_803EEE10(0x6DD6, m1648[i]);
+            if (g != 0 && i != skip && g->m54 == 1) {
+                KrakenGimmickMsg_unk msg;
+                msg.m00 = 2;
+                msg.m04 = 0;
+                msg.m08 = 0;
+                msg.m0C = 0;
+                msg.m10 = 0;
+                msg.m14 = 0.0f;
+                msg.m18 = 0.0f;
+                msg.m1C = 0.0f;
+                ((KrakenGimmick_unk*)g)->vf40(&msg);
+            }
+        }
+    }
+}
+
+// inferred: state 13 (charges the thunder)
+void Em302Kraken::fn_802DB7C8() {
+    if (mMotion.mTracks[0].m00 == 0x145) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
+        }
+    }
+    if (m14C4 == 45) {
+        fn_80239DAC(lbl_8087F3C0, this, 100, 0);
+        fn_80232B7C(this, 100);
+        Color4f_unk color;
+        atn::Vector3 rot;
+        atn::Vector3 pos;
+        rot.x = 0.0f;
+        rot.y = 0.0f;
+        rot.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m160C, (Model_unk*)&mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        fn_800C31F4("SE_SP016_001", 0, -1, 1.0f);
+    } else if (m14C4 >= 90) {
+        m14C8 = 0;
+        m14C4 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 14;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x147, 0, 0, 1, 0.0f, 0.1f);
+        Color4f_unk color;
+        atn::Vector3 pos(0.0f, 1.0f, 0.0f);
+        fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+        fn_80232B7C(this, 101);
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m1618, (Model_unk*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
+        fn_800C31F4("SE_SP016_002", 0, -1, 1.0f);
+    }
+}
+
+// inferred: state 14 (thunder)
+void Em302Kraken::fn_802DBA3C() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0) && m14C4 > 200) {
+        Reset_unk();
+        m1658 = 45;
+    }
+    if (m14C4 - 20U <= 159) {
+        if (m14C4 == 23) {
+            atn::Vector3 pos = mPos + atn::Vector3(0.0f, 70.0f, 0.0f);
+            fn_80232B7C(0, 0);
+            Color4f_unk color;
+            color.r = 1.0f;
+            color.g = 1.0f;
+            color.b = 1.0f;
+            color.a = 1.0f;
+            fn_8023A8B4(lbl_8087F3C0, &m1624, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, 2.5f);
+        }
+        HitInfo_unk* skill = fn_80219E6C(m1608);
+        MtxPtr head = mMotion.GetNodeMtx_unk("head");
+        atn::Vector3 pos = GetNodePos_unk(head);
+        fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    } else if (m14C4 >= 180) {
+        fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+    }
+}
+
+// inferred: state 15 (anger)
+void Em302Kraken::fn_802DBC68() {
+    if (m14C4 == 50) {
+        fn_80370AE4(lbl_8087F430, 0x5C, 1);
+        fn_800C344C("SE_EM302_019", &m614, 0, -1, 1.0f);
+    }
+    if (mMotion.mTracks[0].m00 == 0x14D) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m1580 = 1;
+            Reset_unk();
+        }
+    } else if (m14C4 > 45) {
+        fn_800CB5C8(&m1588, 0, 0);
+        fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+        fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    }
+}
+
 void Em302Kraken::vfEC() {
     if (mMotion.mTracks[0].m08 <= 0.0f) {
         mFlag25 = 1;
@@ -417,42 +818,6 @@ void Em302Kraken::fn_802DC5B4(int arg) {
     m58C = 15;
     fn_8016E970(3);
     m1600 = arg;
-}
-
-void Em302Kraken::fn_802DDBB0() {
-    fn_80087994(m16A4.Load("Em302Kraken"), "DebugDisp", &m16A8, 0, 0);
-}
-
-void Em302Kraken::vf20() {
-    m620 = m5B0;
-    MtxPtr head = mMotion.GetNodeMtx_unk("head");
-    m614 = GetNodePos_unk(head) + m5A4;
-    atn::Vector3 a = m614;
-    atn::Vector3 b = a;
-    b.y += m5B4;
-    float r = m620;
-    mColli.m3C = a;
-    mColli.m48 = b;
-    mColli.m54 = r;
-}
-
-void Em302Kraken::vf54() {
-    if (m624.mSize != 0) {
-        MtxPtr head = mMotion.GetNodeMtx_unk("head");
-        m624.mData[0].m04.mCenter = GetNodePos_unk(head) + m5A4;
-    }
-}
-
-atn::Vector3 Em302Kraken::vfD0(float angle) {
-    atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
-    pos.y += 25.0f;
-    return pos;
-}
-
-atn::Vector3 Em302Kraken::vfD8(CharaTask* target) {
-    atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
-    pos.y += 18.0f;
-    return pos;
 }
 
 void Em302Kraken::fn_802DDA90() {
@@ -477,11 +842,7 @@ void Em302Kraken::fn_802DDA90() {
     fn_80109828(lbl_8087F048, text);
 }
 
-void Em302Kraken::vf50() {
-    Item14_unk item;
-    item.m04.mRadius = m5B0;
-    MtxPtr head = mMotion.GetNodeMtx_unk("head");
-    item.m04.mCenter = GetNodePos_unk(head) + m5A4;
-    m624.push_back(item);
-    mFlagB29 = 0;
+void Em302Kraken::fn_802DDBB0() {
+    fn_80087994(m16A4.Load("Em302Kraken"), "DebugDisp", &m16A8, 0, 0);
 }
+
