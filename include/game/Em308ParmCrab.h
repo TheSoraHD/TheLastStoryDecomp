@@ -7,10 +7,13 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+#include "game/CharaStatus.h"
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as ChaserRouteList_unk in
 // game/ChaserGuard.h); name invented
 struct CrabList_unk : public std::vector<int> {};
+// inferred: "BasePoints" (route places); same wrapper as CrabList_unk; name invented
+struct CrabPlaceList_unk : public std::vector<RoutePlace_unk*> {};
 
 // inferred from __vt__13Em308ParmCrab (0x80787A00). The factory allocates 0x1620 bytes
 // (SpecialEnemyBase.cpp). Members keep their offsets (names unknown).
@@ -18,6 +21,7 @@ class Em308ParmCrab : public EnemyTask {
 public:
     Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em308ParmCrab();
+    virtual int vf0C();
     virtual void vf14();
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
@@ -35,15 +39,15 @@ public:
 
     int m14B0;
     int m14B4;
-    unsigned char m14B8[0x14D8 - 0x14B8];
+    char m14B8[0x14D8 - 0x14B8]; // inferred: "MoveSE" (sound name)
     atn::SoundRef m14D8;
     atn::EfpHandle_unk m14DC;
-    int m14E8;
-    int m14EC;
+    int m14E8;                // inferred: "NeedleChargeTime"
+    int m14EC;                // inferred: "NeedleChargeTime2"
     float m14F0;
     HitInfo_unk* m14F4;       // inferred: skill 0x3F7 (its m68 gives the wait frames)
     float m14F8;
-    unsigned char m14FC[0x151C - 0x14FC];
+    char m14FC[0x151C - 0x14FC]; // inferred: "NeedleChargeSE" (sound name)
     atn::SoundRef m151C;
     atn::EfpHandle_unk m1520;
     float m152C;
@@ -65,10 +69,11 @@ public:
     float m1588;
     float m158C;
     int m1590;
-    float m1594;
-    unsigned char m1598[0x15AC - 0x1598];
-    CrabList_unk m15AC;
-    int m15B8;
+    float m1594;              // inferred: "EscapeHpRate"
+    float m1598;              // inferred: "EscapeSpeed"
+    unsigned char m159C[0x15AC - 0x159C];
+    CrabPlaceList_unk m15AC;  // inferred: "BasePoints"
+    int m15B8;                // inferred: flags 1 Move, 2 NormalAttack, 4 Needle, 8 Recover, 0x10 RecoverMove
     CharaTask* m15BC;         // inferred: target
     unsigned char m15C0[0x15C4 - 0x15C0];
     CharaTask* m15C4;         // inferred: target of the turn (fn_802FBE00)

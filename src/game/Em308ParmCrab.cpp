@@ -7,6 +7,18 @@
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" int atoi(const char* s);
+extern "C" int rand();
+extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // inferred: debug flag
+// inferred: field (lbl_8087F430); m10D8: route tables (as in game/Em305VampireMp.cpp)
+struct Field_unk {
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8;
+};
+extern "C" Field_unk* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
@@ -90,8 +102,114 @@ Em308ParmCrab::Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info)
 
 Em308ParmCrab::~Em308ParmCrab() {}
 
+// inferred: as Em308InvertCrab::vf0C, with the flags Move/RecoverMove/AutoLockon and the recover parameters
+// NONMATCHING: 99.95% - r3/r4 of the inlined std::vector::push_back (known blocker) and the message of
+// vector::__allocate (lbl_80775A88, a pool of another file)
+int Em308ParmCrab::vf0C() {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15F4.fn_80237874() == 0 &&
+        m1520.fn_80237874() == 0 && m14DC.fn_80237874() == 0 && m1600.fn_80237874() == 0 &&
+        m160C.fn_80473F50() == 0) {
+        if (m160C.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
+            atn::Csv csv((const char*)m160C.fn_80470580(), m160C.fn_8047059C());
+            do {
+                const char* key = csv.fn_8005B9CC();
+                if (strcmp(key, "NormalAttack") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "on") == 0) {
+                        m15B8 |= 2;
+                    }
+                } else if (strcmp(key, "Needle") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "on") == 0) {
+                        m15B8 |= 4;
+                    }
+                } else if (strcmp(key, "Move") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "on") == 0) {
+                        m15B8 |= 1;
+                    }
+                } else if (strcmp(key, "Recover") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "on") == 0) {
+                        m15B8 |= 8;
+                    }
+                } else if (strcmp(key, "RecoverMove") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "on") == 0) {
+                        m15B8 |= 0x10;
+                    }
+                } else if (strcmp(key, "AutoLockon") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "off") == 0) {
+                        mFlagB6 = 1;
+                    }
+                } else if (strcmp(key, "BasePoints") == 0) {
+                    int id;
+                    do {
+                        id = fn_800DC12C(csv.fn_8005B9CC());
+                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        if (place != 0) {
+                            m15AC.push_back(place);
+                        }
+                    } while (id != 0);
+                } else if (strcmp(key, "NeedleChargeTime") == 0) {
+                    m14E8 = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "NeedleChargeTime2") == 0) {
+                    m14EC = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "AttackDist") == 0) {
+                    m152C = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "NeedleDist") == 0) {
+                    m14F0 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "EscapeHpRate") == 0) {
+                    m1594 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "EscapeSpeed") == 0) {
+                    m1598 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "GuardTheta") == 0) {
+                    m1534 = fn_800DC288(csv.fn_8005B9CC());
+                    if (atn::Abs_unk(m1534 - 180.0f) < 1.1920929e-7f) {
+                        m1534 = 179.0f;
+                    }
+                } else if (strcmp(key, "NeedleTheta") == 0) {
+                    m14F8 = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "BuildUpTime") == 0) {
+                    m1574 = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "RecoverInterval") == 0) {
+                    m157C = atoi(csv.fn_8005B9CC());
+                    m1580 = m157C;
+                } else if (strcmp(key, "RecoverRate") == 0) {
+                    m1584 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "RecoverStartRate") == 0) {
+                    m1588 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "RecoverEndRate") == 0) {
+                    m158C = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "TackleID") == 0) {
+                    m1530 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "NeedleID") == 0) {
+                    m14F4 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "BuildUpSkillId") == 0) {
+                    m1578 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "NeedleChargeSE") == 0) {
+                    sprintf(m14FC, "%s", csv.fn_8005B9CC());
+                } else if (strcmp(key, "MoveSE") == 0) {
+                    sprintf(m14B8, "%s", csv.fn_8005B9CC());
+                } else if (strcmp(key, "EffectCharaScale") == 0) {
+                    m15E0 = fn_800DC288(csv.fn_8005B9CC());
+                }
+            } while (csv.fn_8005BBF8());
+        }
+        mStatus.m18 |= 0x1C1;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0x4010;
+        mStatus.m18 |= 0x3000000;
+        m15D0 += rand() % 60;
+        m1258 = m15E0;
+        void* group = m1614.Load("em308_ParmCrab");
+        fn_80087994(group, "DebugDisp", &m1618, 0, 0);
+        if (m1438 != 0) {
+            m1438->fn_800D246C(0);
+            m1438->mFlags |= 4;
+        }
+        return 1;
+    }
+    return 0;
+}
+
 // inferred: the colour of "em202_body"/"em202_tail" moves 15% per frame towards white (or the downed colour)
-// NONMATCHING: 94.14% - stack order and scheduling of the colour temporaries (target - cur, * 0.15f); ~12 forms
+// NONMATCHING: 94.16% - stack order and scheduling of the colour temporaries (target - cur, * 0.15f); ~12 forms
 // (field-by-field, operators by reference/value, Lerp helper)
 inline ColorF_unk operator-(const ColorF_unk& x, const ColorF_unk& y) {
     return ColorF_unk(x.r - y.r, x.g - y.g, x.b - y.b, x.a - y.a);
