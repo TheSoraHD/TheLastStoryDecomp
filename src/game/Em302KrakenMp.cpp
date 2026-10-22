@@ -15,6 +15,14 @@ extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: camp message table (lbl_8087F1E4, as in game/Em302Kraken.cpp)
+struct KrakenMpMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" KrakenMpMsgTable_unk* lbl_8087F1E4;
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -23,6 +31,7 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -542,6 +551,31 @@ void Em302KrakenMp::vf20() {
     mColli.m54 = r;
 }
 
+// inferred: state 10 (anger, as Em302Kraken::fn_802DBC68)
+void Em302KrakenMp::fn_802E0EC8() {
+    if (m14E8 == 50) {
+        fn_800C344C("SE_EM302_019", &m614, 0, -1, 1.0f);
+    }
+    if (mMotion.mTracks[0].m00 == 0x14D) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m153C = 1;
+            Reset_unk();
+            fn_800CB5C8(&m1560, 0, 0);
+            fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+            fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+        }
+    } else if (m14E8 > 45) {
+        fn_800CB5C8(&m1560, 0, 0);
+        fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+        fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    }
+}
+
 void Em302KrakenMp::vfEC() {
     m1654--;
     if (mMotion.mTracks[0].m08 <= 0.0f || m1654 < 0) {
@@ -679,6 +713,34 @@ inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, f
     fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
+// inferred: starts state 6 (rises from the water; kind 0 or 1 picks the motion)
+void Em302KrakenMp::fn_802E10D8(int kind) {
+    m14EC = 0;
+    m14E8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 6;
+    fn_8016E970(3);
+    m1538 = kind;
+    vf98();
+    m151C = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    switch (m1538) {
+    case 0:
+        mMotion.fn_80097C08(0, 0x2B, 0, 0, 1, 0.0f, 0.1f);
+        break;
+    case 1:
+        mMotion.fn_80097C08(0, 0x2D, 0, 0, 1, 0.0f, 0.1f);
+        break;
+    }
+    m15A0 = lbl_807C7030;
+    PlayEffectAt_unk(&m1520, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
+    if (lbl_8087F610 != 0) {
+        fn_804DA48C(lbl_8087F610, 0);
+    }
+}
+
 // inferred: starts state 7
 void Em302KrakenMp::fn_802E1290() {
     m14EC = 0;
@@ -696,6 +758,48 @@ void Em302KrakenMp::fn_802E1290() {
     if (m14FC >= 150 && lbl_8087F610 != 0) {
         fn_804DA48C(lbl_8087F610, 1);
     }
+}
+
+// inferred: same as PlayEffect_unk with the manager read first; name invented
+inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    EffectMgr_unk* mgr = lbl_8087F3C0;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: starts state 9 (anger): effects, sound and the camp message
+void Em302KrakenMp::fn_802E1414() {
+    m14EC = 0;
+    m14E8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 9;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    m1560 = fn_800C344C("SE_EM302_011", &m614, 0, -1, 1.0f);
+    fn_80232B7C(this, 100);
+    PlayEffect2_unk(&m1564, (Model_unk*)&mMotion);
+    fn_80232B7C(this, 101);
+    PlayEffect2_unk(&m1588, (Model_unk*)&mMotion);
+    m15A0 = lbl_807C7030;
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
 }
 
 // inferred: starts state 10
