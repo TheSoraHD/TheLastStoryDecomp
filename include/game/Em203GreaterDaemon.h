@@ -50,6 +50,7 @@ struct DaemonZeroMtx_unk : public atn::Matrix3x4 {
     DaemonZeroMtx_unk() { memset(m, 0, sizeof(m)); }
 };
 struct DaemonLine_unk {
+    DaemonLine_unk() : m6C(0), m70(0) {}
     // inferred: clears the line (name invented)
     void Clear_unk() {
         m0C = DaemonZeroMtx_unk();

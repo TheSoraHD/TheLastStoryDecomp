@@ -33,8 +33,13 @@ struct DaemonLook_unk {
         m00 = 1;
         mPos = pos;
         m24 = 0.0f;
-        m04 = flag ? 1 : 0;
+        if (flag) {
+            m04 = 1;
+        } else {
+            m04 = 0;
+        }
     }
+    void SetPos_unk(const atn::Vector3& pos) { mPos = pos; }
     unsigned char m00;
     unsigned char m01;
     unsigned char m02[2];
@@ -1116,12 +1121,15 @@ void Em203GreaterDaemon::fn_8028C834() {
             fn_800F8574(lbl_8087F048, this, m15D0, &pos, &dir, 0, 0x100, 0, 0.0f, 1.0f);
             m14B4 = 2;
         }
-    } else if (IsMotionNearEnd_unk(2.0f)) {
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0) - 2.0f) {
         ResetState_unk();
         m58C = 6;
         fn_8016E970(3);
         PlayMotion_unk(2, 1, 0, 1.0f);
         fn_80239DAC(lbl_8087F3C0, this, -2, 1);
+        }
     }
 }
 
@@ -1438,7 +1446,8 @@ void Em203GreaterDaemon::fn_8028E800() {
             ShakeCamera_unk(10, 1.0f, 2.0f);
         }
         mPos += m151C * (1.0f / mMotion.fn_80097D7C(0));
-        if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+        float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
             PlayMotion_unk(0x1E2, 1, 0, 1.0f);
             m14B8 = 0;
             m14B4 = 1;
@@ -1468,7 +1477,8 @@ void Em203GreaterDaemon::fn_8028EDC4() {
         field->m97C.m00 = 0;
         m1540 = 0;
     }
-    if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
         m1974 = 0;
         fn_8028FC28();
     }
@@ -1492,14 +1502,15 @@ void Em203GreaterDaemon::fn_8028EF20() {
         field->m97C.m00 = 0;
         m1540 = 0;
     }
-    if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
         ResetState_unk();
         m58C = 6;
         fn_8016E970(3);
         PlayMotion_unk(2, 1, 0, 1.0f);
         fn_80239DAC(lbl_8087F3C0, this, -2, 1);
     }
-    float frame = mMotion.mTracks[0].m08;
+    frame = mMotion.mTracks[0].m08;
     if (frame <= 20.0f) {
         mPos += m151C * (1.0f / (20.0f / mMotion.mTracks[0].m0C));
     } else if (20.0f < frame && frame <= 40.0f) {
