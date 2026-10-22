@@ -54,3 +54,8 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   puntero a miembro en local). Las copias debiles invoke/manage del bind con el enum local no se pueden emparejar:
   nuestro .o las nombra `@enum$5814ControlAppear_cpp` y el original `@enum$3246...` (el numero depende del recuento
   de tipos de toda la TU). Saltada.
+- `chr/ControlCliffhang` (3/8, sin cambios): `fn_801AC14C` 99.1% (10 intentos: rama vacia, `ret = ret`, constante,
+  return, inline vacio, escrituras muertas...): el original evalua `right != 0` y salta sin escribir nada; con la
+  rama vacia MWCC elimina la comparacion (96.98%) y con cualquier cuerpo deja un `li r4, -1` o reordena.
+  `fn_801AB6B8` (r3/r4 de copia de Vector3) y `vf10` (prologo) son bloqueos documentados; `vf0C` y `fn_801AB9E4`
+  (slots de pila repartidos por toda la funcion) no se tocan.
