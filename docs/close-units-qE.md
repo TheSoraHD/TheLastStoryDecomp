@@ -228,3 +228,14 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   - **symbols.txt (decision sin el usuario)**: fn_8031B0A8/B3CC/B6E0/B9B4/C530/C534/C584/C754/C894 -> ctor, dtor,
     vf0C, vf10, vf14, vf3C, vf40, vf80, vfEC de Em316LastLaser; fn_8031D27C/D2BC -> metodos de Em316LastLaser;
     fn_8031D4F4/D57C -> ctor/dtor de LaserTrace; fn_8031E060 -> Back_unk__13LaserList_unkFv. Build limpio OK.
+- `game/Em005DoppelGanger` (unidad SIN FUENTE hasta ahora): **fuente nueva `src/game/Em005DoppelGanger.cpp` y
+  cabecera nueva `include/game/Em005DoppelGanger.h`** (subclase de EnemyTask, layout 0x14B0-0x1558, nombres
+  inventados). Al 100%: dtor (limpia el bit 3 de lbl_8087F3C0->mEC; **hallazgo MWCC**: con el `if` escrito en el
+  cuerpo del destructor se pierde el store de la vtable del original; a traves de un inline que recibe `this` sale
+  igual) y vf14. vf54 99.67% y vf44 99.44% (solo floats del pool, el resto de los literales de la unidad sigue en asm).
+  Ctor, vf0C, vf10, vf3C, vf40, vfF0, helpers y el ControlCall anonimo (0x802544F0/0x80253F00) en asm.
+  - game/SpecialEnemyBase.cpp crea el enemigo de tipo 5 con `new (3, "", "", 0) Em005DoppelGanger(parent, info)`.
+  - **symbols.txt (decision sin el usuario)**: fn_80250A24/0D90/0ECC/1344/29CC/2A84/2A90/2C40/2E48/3684 -> ctor,
+    dtor, vf0C, vf10, vf54, vf14, vf3C, vf40, vf44, vfF0 de Em005DoppelGanger; fn_80254530 ->
+    `__sinit_\Em005DoppelGanger_cpp` (local); lbl_807C8300/830C/8318 -> sSphereOffset_unk/sOffsetB_unk/sOffsetC_unk
+    (locales, vectores estaticos construidos por el sinit). Build limpio OK.

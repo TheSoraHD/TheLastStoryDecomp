@@ -12,6 +12,7 @@
 #include "game/ChaserNpc.h"
 #include "game/CopyRobotTask.h"
 #include "game/Em002Skelton.h"
+#include "game/Em005DoppelGanger.h"
 #include "game/Em002_01BlackSkelton.h"
 #include "game/Em002_02SkeltonKing.h"
 #include "game/Em006DarkMaster.h"
@@ -562,7 +563,6 @@ extern "C" int fn_805A52F4(const char* s) {
 // inferred: constructors of the enemies that are not decompiled yet (called through new)
 extern "C" void* fn_80244228(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8024A650(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_80250A24(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802558B0(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8025A060(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8025C998(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -814,11 +814,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = (EnemyTask*)p;
             break;
         case 5:
-            p = ::operator new(0x1558, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80250A24(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em005DoppelGanger(parent, info);
             break;
         case 30:
             p = ::operator new(0x16b8, 3, "", "", 0);
