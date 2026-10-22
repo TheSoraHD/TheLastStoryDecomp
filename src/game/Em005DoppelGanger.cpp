@@ -36,6 +36,7 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
+extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
@@ -43,6 +44,24 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: same as PlayEffect_unk with the locals in the order of game/Em003LesserDaemon.cpp
+inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -299,6 +318,84 @@ void Em005DoppelGanger::fn_80253C9C() {
         m14B4 = 0;
         m14B8 = 0;
         m590 = fn_800F8548(lbl_8087F048);
+        m58C = 0;
+        fn_8016E970(3);
+    }
+}
+
+// inferred: resets the step and the bullet id (name invented)
+inline void Em005DoppelGanger::ResetStep_unk() {
+    m14B4 = 0;
+    m14B8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+}
+
+void Em005DoppelGanger::fn_80252E6C() {
+    if (m14C4 == 0) {
+        int wait = m1548;
+        m14C0--;
+        if (wait == 0 && m14C0 < 0) {
+            m14C0 = 240;
+            m14C4 = 1;
+            if (m1518 != 0) {
+                m1514 = 0;
+                m1518 = 0;
+                ResetStep_unk();
+                m58C = 6;
+                fn_8016E970(3);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.fn_80097C08(0, 0x140, 0, 1, 1, 0.0f, 0.1f);
+                mMotion.mTracks[0].m0C = 1.3f;
+                return;
+            }
+            float dist = 1e16f;
+            if (mC58.mC4 != 0) {
+                atn::Vector3 d = mC58.mC4->mPos - mPos;
+                d.y = 0.0f;
+                dist = PSVECMag(&d);
+            }
+            if (dist < 40.0f) {
+                ResetStep_unk();
+                m58C = 5;
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+                return;
+            }
+            ResetStep_unk();
+            m58C = 9;
+            fn_8016E970(3);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x142, 0, 1, 1, 0.0f, 0.1f);
+            if (m14FC != 0) {
+                fn_80232B7C(this, 100);
+                PlayEffectB_unk(&m14E0, &m14FC->mMotion);
+                fn_8023A02C(lbl_8087F3C0, this, 100, 16);
+                fn_8023A02C(lbl_8087F3C0, this, 100, 8);
+            }
+            return;
+        }
+        if (m1540 > 0 && m1544 > 30) {
+            ResetStep_unk();
+            m58C = 11;
+            fn_8016E970(3);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14B, 0, 1, 1, 0.0f, 0.1f);
+            m1544 = 0;
+            m1540 = m1540 < 60 ? m1540 : 60;
+            if (fn_80370A78(lbl_8087F430, 0xE7) == 0) {
+                fn_80370AE4(lbl_8087F430, 0xE7, 1);
+            }
+        }
+    } else {
+        m14C4 = 0;
+        ResetStep_unk();
         m58C = 0;
         fn_8016E970(3);
     }

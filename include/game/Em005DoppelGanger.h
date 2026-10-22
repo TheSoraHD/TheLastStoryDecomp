@@ -24,19 +24,21 @@ public:
     virtual void vfF0();                                        // 0x80253684
 
     void fn_80253C9C(); // inferred: swaps places with a random party member (end of state)
+    void fn_80252E6C(); // inferred: state 0 (chooses the next action)
+    inline void ResetStep_unk();
 
     int m14B0;
     int m14B4; // inferred: step of the state
     int m14B8;
     int m14BC; // inferred: phase (0 while hidden, 2 copying a character)
-    int m14C0;
+    int m14C0; // inferred: wait counter (240)
     int m14C4;
     atn::EfpHandle_unk m14C8;
     atn::EfpHandle_unk m14D4;
     atn::EfpHandle_unk m14E0;
     atn::EfpHandle_unk m14EC;
     int m14F8;
-    int m14FC;
+    CharaTask* m14FC; // inferred: copied character (its model plays the effect m14E0)
     int m1500;
     CharaTask* m1504; // inferred: the only attacker that can hurt it while hidden
     atn::LH_Binary m1508;
@@ -49,8 +51,8 @@ public:
     int m1528;
     int m152C;
     unsigned char m1530[0x1540 - 0x1530];
-    int m1540;
-    int m1544;
+    int m1540; // inferred: hit counter (capped at 60)
+    int m1544; // inferred: frame counter
     int m1548;
     int m154C;
     ResHandle m1550; // inferred: debug menu group
