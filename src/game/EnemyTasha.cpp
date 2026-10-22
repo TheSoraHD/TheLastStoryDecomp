@@ -615,6 +615,173 @@ void EnemyTasha::fn_8035ACB8(int motion, int arg, float speed) {
     mMotion.fn_80097C08(0, motion, arg, 0, 1, 0.0f, 0.1f);
 }
 
+// inferred: game state (lbl_8087EFA8): m3A4 is the time scale (as in game/EnemyTrista.cpp)
+struct TashaGame_unk {
+    unsigned char m000[0x3A4];
+    float m3A4;
+};
+extern "C" TashaGame_unk* lbl_8087EFA8;
+
+// inferred: nonzero when a wall stands between Tasha and the target
+inline int TashaHitWall_unk(EnemyTasha* e) {
+    void* colli = lbl_8087EE98;
+    const atn::Vector3* to = &e->mC58.mC4->mPos;
+    return fn_8004ED34(colli, 0, &e->mPos, to, e->fn_80179D44() | 0x80000000, 0, 0);
+}
+
+// NONMATCHING: 99.88% - r29/r30 swapped for the attack count and the turn temporary, r3/r4 of the
+// target difference copy; ~12 variants
+void EnemyTasha::vf104() {
+    m14C0++;
+    if (mC58.mC4 != 0 && (mC58.mC4->mStatus.m0C & 0x20) == 0x20 && (unsigned int)(m58C - 6) <= 2 &&
+        m55C != 6) {
+        vf100(6);
+        fn_80161880(0x141, (int)&mC58.mC4->mMotion.mMtx, 0);
+        mMotion.mTracks[0].m0C = 1.2f;
+    }
+    if (mC58.mC0 != 0) {
+        float s = lbl_8087EFA8->m3A4;
+        m14E8 -= s;
+        if (m14E8 <= 0.0f && m55C == 2 && (unsigned int)(m58C - 6) <= 2) {
+            vf100(14);
+        }
+    }
+    atn::Vector3 diff;
+    if (mC58.mC4 != 0) {
+        diff = mC58.mC4->mPos - mPos;
+    }
+    switch (m58C) {
+    case 6:
+        if (vfF8() && m55C == 2) {
+            vf100(8);
+        }
+        vf108();
+        break;
+    case 7:
+        if (mFlag31) {
+            vf100(8);
+        }
+        vf108();
+        break;
+    case 8:
+        if (mC58.mC4 != m14EC) {
+            vf100(8);
+        } else if (!mControl) {
+            if (mFlag31) {
+                if (fn_805F9920(&diff) < m14FC * m14FC) {
+                    int n = 2;
+                    int attack = m16C4;
+                    if (m14D4 >= 1) {
+                        n = 4;
+                    }
+                    if (attack == -1) {
+                        attack = rand() % n;
+                    }
+                    switch (attack) {
+                    case 0:
+                        vf100(9);
+                        break;
+                    case 1:
+                        vf100(10);
+                        break;
+                    default:
+                        vf100(12);
+                        break;
+                    }
+                } else {
+                    vf100(8);
+                }
+            } else if (rand() % 10 == 0 || m16C4 == 2) {
+                if (fn_805F9920(&diff) < m1524 * m1524 &&
+                    fn_805F9920(&diff) > (m1524 - 10.0f) * (m1524 - 10.0f)) {
+                    if (TashaHitWall_unk(this) == 0) {
+                        mC58.m0C.fn_80127D8C(0, 0, 0);
+                        vf100(11);
+                    }
+                }
+            } else if (m14C0 > m1520) {
+                mC58.m0C.fn_80127D8C(0, 0, 0);
+                vf100(7);
+            }
+        }
+        vf108();
+        break;
+    case 9:
+    case 10:
+    case 11:
+    case 13:
+        if (mFlag31) {
+            StopEffect_unk();
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 12:
+        if (mFlag31) {
+            if (m598 != 0) {
+                vf100(13);
+            } else {
+                vf100(7);
+            }
+        }
+        vf108();
+        break;
+    case 14:
+        fn_8035738C(0.2f, 0.0f);
+        if (mFlag31) {
+            if (rand() % 3 == 0) {
+                vf100(8);
+            } else {
+                vf100(7);
+            }
+        }
+        vf108();
+        break;
+    case 15:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 16:
+        if (mFlag31) {
+            if (fn_805F9920(&diff) < m1524 * m1524 && TashaHitWall_unk(this) == 0) {
+                vf100(11);
+            } else {
+                vf100(6);
+            }
+        }
+        vf108();
+        break;
+    case 17:
+        if (mFlag31) {
+            StopEffect_unk();
+            if (m14E0 == 2 && fn_8035A9F4()) {
+                vf100(18);
+            } else {
+                vf100(6);
+            }
+        }
+        vf108();
+        break;
+    case 18:
+        if (mFlag31) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 2:
+        if (mFlag31) {
+            vf100(6);
+        }
+        vf108();
+        break;
+    default:
+        vf100(6);
+        break;
+    }
+}
+
 int EnemyTasha::fn_8035A9F4() {
     CharaTask* target = mC58.mC4;
     atn::Vector3 dir(target->mPos.x - mPos.x, target->mPos.y, target->mPos.z - mPos.z);
