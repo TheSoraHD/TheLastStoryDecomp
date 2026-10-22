@@ -38,6 +38,7 @@ public:
     virtual void vf11C();                                  // 0x802EA994: inferred: picks the next action
 
     // inferred: states and actions (out of line in game/Em305Vampire.cpp)
+    void fn_802EA490(); // inferred: moves (0x802EA490)
     void fn_802EABE4();
     void fn_802EAC70(); // state 6
     void fn_802EAF68(); // state 7
