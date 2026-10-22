@@ -21,10 +21,13 @@ public:
 
     void fn_8024FCDC(); // inferred: starts the death sequence
     void fn_8024FE18(int arg); // inferred: death of a boss / of a linked daemon
+    void fn_8024E1C0(); // inferred: starts the queued action m1654 (m1658 is the next one)
     int fn_8024F9B8();  // inferred: finds a free warp position behind the target (mWarpDest)
     void fn_802506AC(); // inferred: warps to the point farthest from the target
     int fn_80250884(float radius);
     inline int FarthestPoint_unk();
+    inline void StartWarp_unk();
+    inline int FarthestFromSelf_unk();
     const atn::Vector3& GetPoint_unk(unsigned int i) const { return mPoints[i]; }
 
     CharaTask* m14B0;         // inferred: target (its position is read by fn_802506AC)
@@ -35,7 +38,7 @@ public:
     int m14C4;
     int m14C8;
     int m14CC;
-    int m14D0;
+    HitInfo_unk* m14D0;       // inferred: magic cast by fn_8024E1C0 (CharaTask::fn_8015F568)
     int m14D4;
     HitInfo_unk* m14D8;       // inferred: explosion skill
     int m14DC;
@@ -59,7 +62,8 @@ public:
     unsigned int mPointCount;     // 0x1590: inferred: warp points
     atn::Vector3 mPoints[8];      // 0x1594
     atn::Vector3 mWarpDest;       // 0x15F4: inferred: chosen warp point
-    unsigned char m1600[0x161C - 0x1600];
+    unsigned char m1600[0x1610 - 0x1600];
+    atn::Vector3 m1610;           // inferred: another warp destination (action 11 of fn_8024E1C0)
     int m161C;
     int m1620;
     int m1624;

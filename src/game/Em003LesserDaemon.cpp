@@ -288,6 +288,110 @@ void Em003LesserDaemon::vf24() {
     mMotion.mTracks[0].m0C = 1.0f;
 }
 
+// inferred: plays an effect on the model (locals in the order of vf88; name invented)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: starts the warp motion (name invented)
+inline void Em003LesserDaemon::StartWarp_unk() {
+    m58C = 6;
+    fn_8016E970(3);
+    m14B8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+}
+
+// inferred: index of the warp point farthest from this daemon (name invented)
+inline int Em003LesserDaemon::FarthestFromSelf_unk() {
+    float bestDist = 0.0f;
+    int best = -1;
+    for (unsigned int i = 0; i < mPointCount; i++) {
+        atn::Vector3 d = mPos - GetPoint_unk(i);
+        float dist = fn_805F9920(&d);
+        if (dist > bestDist) {
+            best = i;
+            bestDist = dist;
+        }
+    }
+    return best;
+}
+
+void Em003LesserDaemon::fn_8024E1C0() {
+    switch (m1654) {
+    case 7:
+        m58C = 7;
+        fn_8016E970(3);
+        m14B8 = 0;
+        fn_8015F568(mC58.mC4->mPos, mC58.mC4, m14D0);
+        fn_80232B7C(this, 0);
+        PlayEffect_unk(&m1558, &mMotion);
+        break;
+    case 8: {
+        m58C = 8;
+        fn_8016E970(3);
+        m14B8 = 0;
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+        fn_80232B7C(0, 0);
+        PlayEffect_unk(&m154C, &mMotion);
+        m164C = m1624 == 0 ? 3 : 1;
+        m1650 = -1;
+        break;
+    }
+    case 6:
+        if (fn_8024F9B8() != 0) {
+            StartWarp_unk();
+        }
+        break;
+    case 11:
+        mWarpDest = m1610;
+        StartWarp_unk();
+        break;
+    case 13: {
+        int best = FarthestFromSelf_unk();
+        if (best >= 0 && best < (int)mPointCount) {
+            mWarpDest = mPoints[best];
+            StartWarp_unk();
+        }
+        break;
+    }
+    case 1:
+        m58C = 1;
+        fn_8016E970(3);
+        m14B8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x156, 0, 0, 1, 0.0f, 0.1f);
+        fn_80232B7C(0, 0);
+        PlayEffect_unk(&m1564, &mMotion);
+        m14C4++;
+        break;
+    }
+    m1654 = m1658;
+    m1658 = -1;
+}
+
 int Em003LesserDaemon::fn_8024F9B8() {
     atn::Vector3 from = mPos;
     atn::Vector3 to = m14B0->mPos;
