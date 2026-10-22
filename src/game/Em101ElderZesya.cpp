@@ -841,8 +841,7 @@ inline void Em101ElderZesya::GetWarp_unk(atn::Vector3* pos, float* rot) {
     }
 }
 
-// NONMATCHING: 99.99% - only the offset of "SE_SP016_001_2" in @stringBase0 (strings of the unwritten
-// functions before it are missing)
+// NONMATCHING: 99.95% in the direct objdiff (100% in report.json) - only the labels of two .sdata2 floats
 // inferred: same as PlayEffect_unk with the locals in the order of game/Em003LesserDaemon.cpp
 inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     Color4f_unk color;
