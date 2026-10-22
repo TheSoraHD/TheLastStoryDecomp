@@ -56,7 +56,7 @@ public:
     virtual void vf28(); // not decompiled yet
     virtual Model_unk* vf38();
     virtual int vf40(GimmickMsg_unk* msg);    // not decompiled yet
-    virtual int vf44(GimmickHitMsg_unk* msg); // not decompiled yet
+    virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual void vf4C(CharaTask* chara);
     virtual int vf50();

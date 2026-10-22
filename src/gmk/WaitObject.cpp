@@ -19,6 +19,21 @@ extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" int sprintf(char* dst, const char* fmt, ...);
 extern "C" double cos(double x);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: bullet manager (lbl_8087F048, see gmk/Brazier.cpp)
+struct WaitBullets_unk;
+extern "C" WaitBullets_unk* lbl_8087F048;
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
+extern "C" int fn_800F8548(WaitBullets_unk* mgr);
+extern "C" void fn_800FAB80(WaitBullets_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9,
+                            float arg10, float arg11);
+// inferred: bullet that hit the object (GimmickHitMsg_unk + 0x2C; names invented)
+struct WaitHitBullet_unk {
+    unsigned char m00[0x04];
+    int mId;  // 0x04: inferred: bullet id
+    unsigned char m08[0x3C - 0x08];
+    int mPower; // 0x3C
+};
 // inferred: area of a trigger (WaitTrigger_unk::m08; names invented)
 struct WaitArea_unk {
     float mRadius;    // 0x08
@@ -320,6 +335,40 @@ int WaitObject::InArea_unk(CharaManager<T>* manager, WaitTrigger_unk* trigger) {
         }
     }
     return 0;
+}
+
+// inferred: a bullet with enough power switches the state (type 5 trigger) and, when the trigger has a
+// bullet id, fires that bullet from the collision target
+// NONMATCHING: 91.8% - the original reloads the collision pointer of the state for the position copy
+// (one more lwz) and schedules the copy differently
+int WaitObject::vf44(GimmickHitMsg_unk* msg) {
+    if (msg == 0) {
+        return 0;
+    }
+    if (vf5C() == 0) {
+        return 0;
+    }
+    for (unsigned int i = 0; i < mNumTriggers; i++) {
+        WaitTrigger_unk* t = &mTriggers[i];
+        if (t->mState != m54 || t->mType != 5 || GetColli_unk(m54) == 0) {
+            continue;
+        }
+        WaitHitBullet_unk* hit = *(WaitHitBullet_unk**)&msg->m28[4];
+        if (hit == 0 || (float)hit->mPower < ((WaitArea_unk*)t->m08)->mRadius) {
+            continue;
+        }
+        WaitBullets_unk* mgr = lbl_8087F048;
+        int bullet = (int)((WaitArea_unk*)t->m08)->mValue;
+        if (mgr != 0 && bullet > 0 && hit->mId != bullet) {
+            atn::Vector3 pos = ((WaitTarget_unk*)GetColli_unk(m54))->mPos;
+            atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+            fn_800FAB80(mgr, 0, fn_80219E6C(bullet), fn_800F8548(mgr), &pos, &rot, 0, 30, -1, -1, 0.0f, 1.0f);
+        }
+        GimmickMsg_unk next(t->mNext);
+        vf40(&next);
+        break;
+    }
+    return m54;
 }
 
 } // namespace gmk
