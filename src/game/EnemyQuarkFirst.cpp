@@ -292,7 +292,160 @@ void EnemyQuarkFirst::vfFC() {
     vf100(0);
 }
 
-// NONMATCHING: vf100, vf104 and vf108 (state machine, 2960/1908/5976 bytes) not written yet
+// NONMATCHING: vf100 and vf108 (state machine, 2960/5976 bytes) not written yet
+
+extern "C" int rand();
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+// inferred: game state (lbl_8087EFA8): time scale at 0x3A4 (as in game/Em301LShade.cpp)
+struct QuarkGame_unk {
+    unsigned char m000[0x3A4];
+    float m3A4;
+};
+extern "C" QuarkGame_unk* lbl_8087EFA8;
+struct EffectMgr_unk;
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
+
+// inferred: a free place around the target to jump to (inlined in vf104): one of eight directions at
+// 12 units, tested with a ray; name invented
+inline int EnemyQuarkFirst::FindJumpPlace_unk() {
+    atn::Vector3 target = mC58.mC4->mPos;
+    for (int i = 0; i < 8; i++) {
+        atn::Vector3 d(0.0f, 0.0f, 12.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', 3.1415927f * (float)((i + 2) % 8) / 4.0f);
+        PSMTXMultVec(m, &d, &d);
+        m14EC = atn::Vector3(target.x + d.x, target.y + d.y, target.z + d.z);
+        atn::Vector3 from = target;
+        from.y += 3.0f;
+        atn::Vector3 to = m14EC;
+        to.y += 3.0f;
+        if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: ~99% - r23/r24 and r26/r27 swapped in the search of a place around the target (the
+// collision world against the loop counter) and r3/r4 of the target distance; 12 variants
+void EnemyQuarkFirst::vf104() {
+    m14C0++;
+    float dt = lbl_8087EFA8->m3A4;
+    m14E0 -= dt;
+    if (m14E0 <= 0.0f && m55C == 2 && ((unsigned int)(m58C - 6) <= 1 || m58C == 0)) {
+        vf100(9);
+    }
+    atn::Vector3 dir;
+    if (mC58.mC4 != 0) {
+        dir = mC58.mC4->mPos - mPos;
+    }
+    switch (m58C) {
+    case 0:
+        if (vfF8() != 0 && m55C == 2) {
+            if (m14D8 == 1) {
+                vf100(6);
+            } else if (mStatus.m228 >= 1.0f) {
+                m14EC.x = 0.0f;
+                m14EC.y = 0.0f;
+                m14EC.z = 0.0f;
+                m1578 = 8;
+                vf100(10);
+            } else {
+                vf100(7);
+            }
+        }
+        vf108();
+        break;
+    case 6:
+        if (mFlag31) {
+            if (m14D8 == 1) {
+                vf100(6);
+            } else {
+                vf100(7);
+            }
+        }
+        vf108();
+        break;
+    case 7:
+        if (mC58.mC4 != m14E4) {
+            vf100(7);
+        } else if (mControl.get() == 0) {
+            if (mFlag31) {
+                if (fn_805F9920(&dir) < m14E8 * m14E8) {
+                    vf100(1);
+                } else {
+                    vf100(7);
+                }
+            } else if (m14C0 > m1508) {
+                mC58.m0C.fn_80127D8C(0, 0, 0);
+                int r = rand() % 100;
+                if (fn_803383E4() != 0) {
+                    if (r < 60) {
+                        vf100(11);
+                    } else {
+                        m1578 = 7;
+                        vf100(10);
+                    }
+                } else if (FindJumpPlace_unk()) {
+                    m1578 = 7;
+                    vf100(10);
+                } else {
+                    vf100(6);
+                }
+            }
+        }
+        vf108();
+        break;
+    case 1:
+    case 8:
+        if (mFlag31) {
+            if (m58C == 10) {
+                fn_80239DAC(lbl_8087F3C0, this, 0, 1);
+            }
+            vf100(6);
+            fn_8016E970(2);
+        }
+        vf108();
+        break;
+    case 9:
+        if (mFlag31) {
+            if (m14D8 == 1) {
+                vf100(6);
+            } else {
+                vf100(7);
+            }
+        }
+        vf108();
+        break;
+    case 10:
+        if (mFlag31) {
+            if (m58C == 10) {
+                fn_80239DAC(lbl_8087F3C0, this, 0, 1);
+            }
+            vf100(m1578);
+        }
+        vf108();
+        break;
+    case 11:
+        if (mFlag31) {
+            vf100(6);
+        }
+        vf108();
+        break;
+    case 2:
+        if (mFlag31) {
+            fn_80370AE4(lbl_8087F430, 0xCF, 1);
+            fn_801765D8();
+        }
+        vf108();
+        break;
+    default:
+        vf100(0);
+        break;
+    }
+}
 
 int EnemyQuarkFirst::fn_803383E4() {
     CharaTask* target = mC58.mC4;

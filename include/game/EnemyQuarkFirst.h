@@ -36,6 +36,7 @@ public:
 
     void fn_80334FDC(const char* text, int length); // inferred: reads the data file
     int fn_803383E4(); // inferred: nonzero when the way to the target (mC58.mC4) is free
+    inline int FindJumpPlace_unk();
 
     int m14D4; // inferred: "Phase" (0-2, from the hit points)
     int m14D8; // inferred: mode (1 = guards, 2 after the guard is broken)
