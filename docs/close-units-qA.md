@@ -20,3 +20,14 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
   versiones antiguas se reservan como `new EffectCurveData_unk[n][22]` (un solo `mulli 0xB0`, como el
   original). Queda reparto de registros (cabecera r26/recurso r27 en el original).
   - Hallazgo MWCC: `(T(*)[N]) new T[n * N]` sale con `mulli N` + `slwi`; `new T[n][N]` con un solo `mulli N*sizeof(T)`.
+- `atn/EffectSequencer_unk` (13/14): `fn_802440F0` sigue 95.55% tras 10 intentos (referencia, `continue`,
+  helper `fn_802438C4`, indices directos, max con `if`...): solo r30/r31 intercambiados.
+- `atn/EfpHandle_unk` (14/15): `fn_802371BC` sigue 74.74% (6 intentos mas sobre los ~20 previos). Con
+  `__sthbrx` en el bucle de 16 bits salen menos lineas distintas pero no se desenrolla (67%): descartado.
+- `atn/LH_ColliTree`, `atn/LH_Efp`, `atn/LH_Motion_cont`, `atn/LH_Texture` (y las demas `LH_*` de la cola):
+  saltadas, bloqueo documentado de la plantilla `Loader::Get_unk<T>` (registros, ver `include/atn/LoadManager.h`).
+  - symbols.txt (decision sin el usuario): las 11 copias debiles `fn_` de `Get_unk<T>` renombradas a su nombre
+    decorado `Get_unk<Q23atnN<T>>__Q23atn6LoaderFPCci_PQ23atnN<T>` (0x80472A9C ColliObject, 0x80472DCC ColliTree,
+    0x8047392C Effect, 0x80473C88 Efp, 0x80474678 Material, 0x80475F20 Model, 0x80476AC8 MotionCommandData,
+    0x8047749C MotionSet, 0x80477DB8 Scene, 0x80478204 Texture, 0x80478518 Xsca). Pasan de 0% a ~96.8% en el
+    report (ahora emparejadas); `fn_804766B0` (LoadMotion) no se toca porque `LH_Motion.cpp` la llama `extern "C"`.
