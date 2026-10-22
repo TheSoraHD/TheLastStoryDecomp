@@ -7,6 +7,18 @@
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" int atoi(const char* s);
+extern "C" int rand();
+extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // inferred: debug flag
+// inferred: field (lbl_8087F430); m10D8: route tables (as in game/Em305VampireMp.cpp)
+struct Field_unk {
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8;
+};
+extern "C" Field_unk* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -100,6 +112,88 @@ Em308InvertCrab::~Em308InvertCrab() {}
 
 void Em308InvertCrab::vf14() {
     fn_80149A30();
+}
+
+// inferred: once loaded reads the data file: the attack flags, the route of the "BasePoints", the
+// parameters of the needle and the escape, the sounds; then the status flags and the debug menu "em308_ParmCrab"
+// NONMATCHING: 99.94% - r3/r4 of the inlined std::vector::push_back (known blocker) and the message of
+// vector::__allocate (lbl_80775A88, a pool of another file, as in ChaserNpc)
+int Em308InvertCrab::vf0C() {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15AC.fn_80237874() == 0 &&
+        m1518.fn_80237874() == 0 && m14D8.fn_80237874() == 0 && m15B8.fn_802376D0() == 0 &&
+        m15C4.fn_80473F50() == 0) {
+        if (m15C4.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
+            atn::Csv csv((const char*)m15C4.fn_80470580(), m15C4.fn_8047059C());
+            do {
+                const char* key = csv.fn_8005B9CC();
+                if (strcmp(key, "NormalAttack") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "on") == 0) {
+                        m157C |= 2;
+                    }
+                } else if (strcmp(key, "Needle") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "on") == 0) {
+                        m157C |= 4;
+                    }
+                } else if (strcmp(key, "Recover") == 0) {
+                    if (strcmp(csv.fn_8005B9CC(), "on") == 0) {
+                        m157C |= 8;
+                    }
+                } else if (strcmp(key, "BasePoints") == 0) {
+                    int id;
+                    do {
+                        id = fn_800DC12C(csv.fn_8005B9CC());
+                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        if (place != 0) {
+                            m1570.push_back(place);
+                        }
+                    } while (id != 0);
+                } else if (strcmp(key, "NeedleChargeTime") == 0) {
+                    m14E4 = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "AttackDist") == 0) {
+                    m1524 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "NeedleDist") == 0) {
+                    m14E8 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "EscapeCount") == 0) {
+                    m1558 = atoi(csv.fn_8005B9CC());
+                } else if (strcmp(key, "EscapeSpeed") == 0) {
+                    m155C = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "GuardTheta") == 0) {
+                    m152C = fn_800DC288(csv.fn_8005B9CC());
+                    if (atn::Abs_unk(m152C - 180.0f) < 1.1920929e-7f) {
+                        m152C = 179.0f;
+                    }
+                } else if (strcmp(key, "NeedleTheta") == 0) {
+                    m14F0 = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "TackleID") == 0) {
+                    m1528 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "NeedleID") == 0) {
+                    m14EC = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "BuildUpSkillId") == 0) {
+                    m1550 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "NeedleChargeSE") == 0) {
+                    sprintf(m14F4, "%s", csv.fn_8005B9CC());
+                } else if (strcmp(key, "MoveSE") == 0) {
+                    sprintf(m14B4, "%s", csv.fn_8005B9CC());
+                } else if (strcmp(key, "EffectCharaScale") == 0) {
+                    m1258 = fn_800DC288(csv.fn_8005B9CC());
+                }
+            } while (csv.fn_8005BBF8());
+        }
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0x4218;
+        mStatus.m18 |= 0x3800000;
+        m159C += rand() % 60;
+        mRoute.mA0 = 2;
+        void* group = m15CC.Load("em308_ParmCrab");
+        fn_80087994(group, "DebugDisp", &m15D0, 0, 0);
+        if (m1438 != 0) {
+            m1438->fn_800D246C(0);
+            m1438->mFlags |= 4;
+        }
+        return 1;
+    }
+    return 0;
 }
 
 // NONMATCHING: 98.80% - r5/r6 of the down test and of the direction temporaries, stack slots of the two
@@ -289,8 +383,8 @@ void Em308InvertCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
 // inferred: end of the death motion; while not down it gets up again (state 14)
 // inferred: flight of the jump (state 13): gravity into m574, landing on the ground below (state 16, motion
 // 0x14B and the sound SE_EM308_005)
-// NONMATCHING: 99.99% - only the offset of "SE_EM308_005" in @stringBase0 (0x8D here, 0x197 in the original):
-// the strings before it are used by functions not written yet; the code itself matches
+// NONMATCHING: 99.99% - only the offset of "SE_EM308_005" in @stringBase0: "SE_UICOM_011" and "hips" before it
+// are used by vf10 and fn_802F3BE8, not written yet; the code itself matches
 void Em308InvertCrab::fn_802F566C() {
     int landed = 0;
     atn::Vector3 vel = m574;

@@ -8,10 +8,11 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+#include "game/CharaStatus.h"
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as CrabList_unk in
 // game/Em308ParmCrab.h); name invented
-struct InvertList_unk : public std::vector<int> {};
+struct InvertList_unk : public std::vector<RoutePlace_unk*> {};
 
 // inferred from __vt__15Em308InvertCrab (0x80787938): crab (sister of Em308ParmCrab). The factory allocates
 // 0x15D8 bytes (SpecialEnemyBase.cpp). Data file "database/chara/special/" + db_name (default
@@ -20,6 +21,7 @@ class Em308InvertCrab : public EnemyTask {
 public:
     Em308InvertCrab(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em308InvertCrab();
+    virtual int vf0C();
     virtual void vf14();
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
@@ -38,14 +40,14 @@ public:
     void fn_802F66CC(); // inferred: death
 
     int m14B0;
-    unsigned char m14B4[0x14D4 - 0x14B4];
+    char m14B4[0x14D4 - 0x14B4]; // inferred: "MoveSE" (sound name)
     atn::SoundRef m14D4;
     atn::EfpHandle_unk m14D8;
     int m14E4;
     float m14E8;
     HitInfo_unk* m14EC;       // inferred: skill 0x3F7
     float m14F0;
-    unsigned char m14F4[0x1514 - 0x14F4];
+    char m14F4[0x1514 - 0x14F4]; // inferred: "NeedleChargeSE" (sound name)
     atn::SoundRef m1514;
     atn::EfpHandle_unk m1518;
     float m1524;
@@ -59,9 +61,11 @@ public:
     unsigned char m154C[0x1550 - 0x154C];
     HitInfo_unk* m1550;       // inferred: skill 0x400
     int m1554;
-    unsigned char m1558[0x1570 - 0x1558];
-    InvertList_unk m1570;
-    int m157C;
+    int m1558;                // inferred: "EscapeCount"
+    float m155C;              // inferred: "EscapeSpeed"
+    unsigned char m1560[0x1570 - 0x1560];
+    InvertList_unk m1570;     // inferred: "BasePoints" (route places)
+    int m157C;                // inferred: flags 2 "NormalAttack", 4 "Needle", 8 "Recover"
     int m1580;
     int m1584;
     unsigned char m1588[0x158C - 0x1588];
