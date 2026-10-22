@@ -1147,6 +1147,33 @@ void EnemyQuarkStand::fn_8034F41C() {
     QuarkPlayMotion_unk(&mMotion, 2, 1, 0, 1.0f);
 }
 
+// inferred: plays an effect on the model at the origin (the zero vector of lbl_807C7030; name invented)
+inline void QuarkPlayEffectAt_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    QColor_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    EffectMgr_unk* mgr = lbl_8087F3C0;
+    fn_8023A8B4(mgr, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: starts attack 5 (state 6, motion 0x147): laser from the "spine" of the target toward the
+// "head" of Quark
+void EnemyQuarkStand::fn_8034F53C() {
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 6;
+    fn_80232B7C(this, 0x3E8);
+    QuarkPlayMotion_unk(&mMotion, 0x147, 0, 0, 1.0f);
+    QuarkPlayEffectAt_unk(&m1630, &mMotion);
+    atn::Vector3 spine = GetTransOf_unk(((CharaTask*)m14B0)->mMotion.GetNodeMtx_unk("spine"));
+    atn::Vector3 head = GetTransOf_unk(mMotion.GetNodeMtx_unk("head"));
+    m1654 = spine - head;
+    PSVECNormalize(&m1654, &m1654);
+    fn_800C31F4("SE_EM211_009_1", 0, -1, 1.0f);
+}
+
 // inferred: aims the attack at the target (names invented)
 inline void EnemyQuarkStand::AimAt_unk() {
     CharaTask* target = (CharaTask*)m14B0;
@@ -1158,6 +1185,31 @@ inline void EnemyQuarkStand::AimAt_unk() {
     PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
     m15DC.mStart = mPos;
     m574.x = 0.0f;
+}
+
+// inferred: starts attack 10 (state 7, motion 0x13F): flies to the centre of the arena; frees the character
+// stuck by the sword
+// NONMATCHING: 98.28% - same stack slots as AimAt_unk (fn_80350070): the copy of the target and the
+// temporaries of ToRotationZ_unk sit in other slots; ~3 forms
+void EnemyQuarkStand::fn_8034F788() {
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 7;
+    m16DC = 0.0f;
+    m16D8 = 0;
+    if (m17E4 != 0) {
+        m17E4->fn_8015ECC4();
+        m17E4 = 0;
+    }
+    QuarkPlayMotion_unk(&mMotion, 0x13F, 0, 0, 1.0f);
+    atn::Vector3 pos = m160C;
+    m15DC.SetTarget_unk(pos);
+    m15DC.mRot = (pos - mPos).ToRotationZ_unk();
+    m15DC.mDir = pos - mPos;
+    m15DC.mDir.y = 0.0f;
+    PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
+    m15DC.mStart = mPos;
+    m570 = 0.0f;
 }
 
 // inferred: starts attack 1 (state 9, motion 0x15C)
