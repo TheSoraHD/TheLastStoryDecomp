@@ -6,7 +6,7 @@ namespace chr {
 
 // inferred: wraps an angle into [-pi, pi] (name invented)
 inline float __WrapAngle_unk(float angle) {
-    float a = fmod(angle, 6.283185307179586);
+    float a = fmod(angle, 6.2831855f);
     if (a > 3.1415927f) {
         a -= 6.2831855f;
     }
@@ -40,13 +40,14 @@ ControlSitting::ControlSitting(Chara_unk* chara, const atn::Vector3& start, cons
 }
 
 // NONMATCHING: 95.6% - the original keeps this in r31 (motion in r30) and places the operator
-// temporaries in other stack slots (as in ControlTurnQuadruped::vf0C).
+// temporaries in other stack slots (as in ControlTurnQuadruped::vf0C). Tried: motion taken after the
+// lerp, named locals for the difference/position/rotation, inline argument, swapped addition.
 int ControlSitting::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (mCount > 0) {
         mCount--;
         float t = mCount / 8.0f;
-        mChara->mPos = mSeat + (mStart - mSeat) * t;
+        mChara->mPos = (mStart - mSeat) * t + mSeat;
         atn::Vector3 rot = mChara->mRot;
         rot.y += __WrapAngle_unk(mRot.y - mStartRot.y) / 8.0f;
         mChara->mRot = rot;

@@ -381,3 +381,6 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
         }
     }
 }
+
+// inferred: empty
+extern "C" void fn_8059AB94() {}

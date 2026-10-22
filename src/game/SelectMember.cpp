@@ -83,7 +83,12 @@ struct SelectMemberChara_unk {
     unsigned char m000[0x7D4];
     CharaStatus mStatus; // 0x7D4
 };
-extern "C" SelectMemberChara_unk* fn_8054A33C(void* manager, int id); // inferred: character of a member
+// inferred: view of PlayerManager (game/PlayerManager.cpp): fn_8054A33C finds a player by character name;
+// here the member id is passed as the name
+class PlayerManager {
+public:
+    SelectMemberChara_unk* fn_8054A33C(const char* name);
+};
 extern "C" int fn_80219544(int name); // inferred: character id of a name id
 struct SelectMemberInfo_unk {
     unsigned char m00[8];
@@ -383,13 +388,16 @@ void SelectMember::fn_80572290() {
     }
 }
 
-// NONMATCHING: 99.9% - only the register of the selected count (r22 in the original, shared with the exp;
-// here r25). Fixed: (unsigned int) index of the members (offset counter), ternary for status, 0x64EC + id * 0x43C.
-// Old note: the original indexes the members with this + 8 * i (no strength reduction to
-// a pointer), so one more saved register is used and the others shift.
+// The count of the selected members is written out here (with CountSelected_unk the count gets r25 instead
+// of r22).
 void SelectMember::fn_80572450() {
     mAnims[0]->mFlags &= ~4;
-    int n = CountSelected_unk();
+    int n = 0;
+    for (unsigned int k = 0; k < mMembers.mCount; k++) {
+        if (mMembers.mData[k].mSelected != 0) {
+            n++;
+        }
+    }
     ((atn::D2A_Task*)mAnims[0])->SetNumber_unk("memberNum(1)", n, 0);
     ((atn::D2A_Task*)mAnims[0])->SetNumber_unk("memberMax(1)", mMax, 0);
     if (n >= mMax) {
@@ -417,7 +425,7 @@ void SelectMember::fn_80572450() {
         SelectMemberInfo_unk* info = fn_8020924C(fn_80219544(member->mId));
         mAnims[1 + i]->mFlags &= ~4;
         fn_801F837C(mAnims[1 + i], "name(1)", info->m08);
-        SelectMemberChara_unk* chara = fn_8054A33C(lbl_8087F8A0, member->mId);
+        SelectMemberChara_unk* chara = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C((const char*)member->mId);
         CharaStatus* status = chara != 0 ? &chara->mStatus : (CharaStatus*)((char*)lbl_8087F4F0 + 0x64EC + member->mId * 0x43C);
         CharaParam_unk param = fn_80134800(status, member->mId, 0, 0, 0, 0, 0, 0);
         fn_801F8598(mAnims[1 + i], "nowLv", param.m78, 0);

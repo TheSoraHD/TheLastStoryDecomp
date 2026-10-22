@@ -587,6 +587,8 @@ extern "C" void fn_804A4738(MenuD2A_unk* anime, int pos, int count, int page) {
     fn_804A473C(anime, pos, count, page);
 }
 
+// NONMATCHING: 99.0% - the layout address and the "s_hightMax" literal of the track lookup are computed in the
+// other order
 // inferred: scroll bar of a d2anime list: hidden when everything fits, else sized to the visible part
 extern "C" void fn_804A473C(MenuD2A_unk* anime, int pos, int count, int page) {
     if (anime != 0) {
@@ -602,7 +604,8 @@ extern "C" void fn_804A473C(MenuD2A_unk* anime, int pos, int count, int page) {
                 float height = bar;
                 if (bar < 12.0f) {
                     height = 12.0f;
-                    unit = (max - (12.0f - bar)) / count;
+                    max -= height - bar;
+                    unit = max / count;
                 }
                 SetPaneValue2_unk(anime->m58, "hight", height);
                 SetPaneValue2_unk(anime->m58, "hightUnit", unit);
@@ -633,7 +636,8 @@ extern "C" void fn_804A4934(MenuLayout_unk* layout, int pos, int count, int page
                 float height = bar;
                 if (bar < 12.0f) {
                     height = 12.0f;
-                    unit = (max - (12.0f - bar)) / count;
+                    max -= height - bar;
+                    unit = max / count;
                 }
                 fn_801F6C80(layout, "hight", height);
                 fn_801F6C80(layout, "hightUnit", unit);

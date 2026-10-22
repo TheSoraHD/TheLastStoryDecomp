@@ -231,11 +231,11 @@ boost::function<void()> ControlWallUp::vf10() {
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
 
-// NONMATCHING: 98.8% - f2/f3 swapped (0.0f and 1 - t).
 void ControlWallUp::vf40() {
     float t = m40 / 15.0f;
     Motion_unk::Entry_unk* e = &mChara->mMotion.m220[mChara->m524];
-    e->m04 += atn::Vector3(0.0f, 0.0f, 5.0f * (1.0f - t));
+    float s = 1.0f - t;
+    e->m04 += atn::Vector3(0.0f, 0.0f, 5.0f * s);
 }
 
 void ControlWallUp::vf1C() {

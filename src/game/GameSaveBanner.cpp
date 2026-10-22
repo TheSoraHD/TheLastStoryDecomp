@@ -125,7 +125,7 @@ void GameSaveBanner::fn_803B9324() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 80.8% - the icon loop of the original uses offsets added to this (i * 8, i * 4,
+// NONMATCHING: 88.2% - the icon loop of the original uses offsets added to this (i * 8, i * 4,
 // i * 0x1200) instead of pointers; the argument order of NANDInitBanner is scheduled differently
 void GameSaveBanner::fn_803B9638() {
     if (m4C >= 3) {
@@ -137,10 +137,10 @@ void GameSaveBanner::fn_803B9638() {
             m160.mIconSpeed = (m160.mIconSpeed & ~(3 << (i * 2))) | (mA0[i] << (i * 2));
         }
         if (mC0 < 8) {
-            m160.mIconSpeed &= ~(3 << (mC0 * 2));
+            m160.mIconSpeed = m160.mIconSpeed & ~(3 << (mC0 * 2));
         }
         int size = mC0 * 0x1200 + 0x60A0;
-        m160.mFlags |= m144 | 1;
+        m160.mFlags = m160.mFlags | m144 | 1;
         int changed = 1;
         if (m148 != 0 && memcmp(&mF200, &m160, size) == 0) {
             changed = 0;

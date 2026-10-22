@@ -62,8 +62,9 @@ int PlayerManager::vf0C() {
     return fn_800D3FA4() != 0;
 }
 
-// NONMATCHING: 99.5% - saved registers: the original reuses r30 for the id and the head and keeps the
-// player in r29 in both branches (tried locals per branch, id in the head variable).
+// NONMATCHING: 99.7% - saved registers: the original reuses r30 for the id and the head (here the id
+// gets r29). A separate local in the else branch fixes the player register there. Tried: id declared
+// after the call, id in the head variable (the constant is folded), loop forms.
 void PlayerManager::fn_80549F14(int mode) {
     PlayerTask* head;
     PlayerTask* player;
@@ -82,9 +83,9 @@ void PlayerManager::fn_80549F14(int mode) {
             Add_unk(head);
         }
     } else {
-        player = PlayerTask::fn_8054A3DC(this, 0, (void*)1);
-        player->fn_800D246C(1);
-        player->m58 = -1;
+        PlayerTask* p = PlayerTask::fn_8054A3DC(this, 0, (void*)1);
+        p->fn_800D246C(1);
+        p->m58 = -1;
     }
     m54 = mHead;
 }

@@ -598,13 +598,12 @@ void ShopBuySell::fn_8058621C() {
     }
 }
 
-// NONMATCHING: 99.68% - scheduling only (li of the slot counter after the flag load in the original)
 void ShopBuySell::fn_80586620(int id) {
     ShopItem_unk* item = fn_80211480(id);
     if (item != 0 && (item->mKind == 2 || item->mKind == 3 || item->mKind == 6)) {
         mStatusBase->mFlags &= ~4;
-        int slot = 1;
-        fn_805866F4(id, 0, 0);
+        int slot = 0;
+        fn_805866F4(id, 0, slot++);
         ShopMembers_unk* members = fn_80217D9C(lbl_8087F430->m10D0);
         if (members != 0) {
             for (unsigned int i = 1; i < 7; i++) {

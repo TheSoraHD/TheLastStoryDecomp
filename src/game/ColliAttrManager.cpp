@@ -144,9 +144,9 @@ void ColliAttrManager::vf10() {
 
 void ColliAttrManager::vf14() {}
 
-// NONMATCHING: 99.7% - saved register choice of the loop index of the first branch (r30 in the
-// original, r29 here) and of efp (the original reuses the register of attr). Tried: shared index
-// declared at the top, int indices, index declared before Release_unk, no efp local.
+// NONMATCHING: 99.8% - saved register choice of the loop index of the first branch (r30 in the
+// original, r29 here). efp reuses the register of attr (assigned to attr itself). Tried: shared index
+// declared at the top, int indices, index declared before Release_unk, attr at the top, while loop.
 void ColliAttrManager::fn_80183D00(int id, int arg1, int arg2) {
     if (id == -1) {
         Release_unk();
@@ -164,9 +164,9 @@ void ColliAttrManager::fn_80183D00(int id, int arg1, int arg2) {
             for (unsigned int i = 0; i < mEntries.mSize; i++) {
                 fn_80183FFC(i, attr->mAttr[i]);
             }
-            const char* efp = attr->mEfp;
-            if (strcmp("", efp) != 0) {
-                mEfp.fn_8023780C(efp);
+            attr = (MapColliAttr_unk*)attr->mEfp;
+            if (strcmp("", (const char*)attr) != 0) {
+                mEfp.fn_8023780C((const char*)attr);
             }
         } else {
             fn_80183FFC(0, 0x12);

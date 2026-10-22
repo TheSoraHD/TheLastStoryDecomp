@@ -98,6 +98,8 @@ extern "C" void fn_8005DFC8(HbmDraw_unk* renderer, unsigned int color, atn::Text
                             float y, float z, float w, float h); // inferred: draw texture
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 
+HomeButtonMenu* HomeButtonMenu::sInstance;
+
 void HomeButtonMenu::fn_804405F8(void* arg) {
     if (sInstance == 0) {
         sInstance = new (1, "", "", 0) HomeButtonMenu(arg);
@@ -181,9 +183,6 @@ inline float Ratio_unk(int a, int b) {
     return (float)a / (float)b;
 }
 
-// NONMATCHING: 83.4% - scheduling of the screen ratio computations: the original keeps the icon size in
-// two registers (fmr) and computes the vertical ratio after k * sx (same problem as StrapTask::vf14; an
-// inline helper with the size as parameter makes this function inline into fn_8044073C)
 void HomeButtonMenu::fn_80440994() {
     float alpha = 1.0f;
     if (mD0 < 8) {
@@ -199,9 +198,8 @@ void HomeButtonMenu::fn_80440994() {
     float w = 64.0f;
     float h = w;
     lbl_8087EEB0->mA0 = 0x13;
-    float fx = k * sx;
+    w /= sy * (k * sx);
     h *= sy;
-    w /= sy * fx;
     fn_8005DFC8(lbl_8087EEB0, color, &mA0, 1, 60.0f, 60.0f, -10000.0f, w, h);
     lbl_8087EEB0->mA0 = 0x12;
     if (++mD0 > 46) {

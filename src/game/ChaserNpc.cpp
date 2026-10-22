@@ -211,7 +211,6 @@ void ChaserNpc::fn_80181284() {
     fn_8018161C(3);
 }
 
-// NONMATCHING: 99.9% - operand order of the last multiplication by 1.32.
 void ChaserNpc::fn_8018128C() {
     mC58.m11C.m01 = 1;
     atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
@@ -240,7 +239,8 @@ void ChaserNpc::fn_8018128C() {
     float slow = settings->m574 * (float)(m14C8 / settings->m578);
     float limit = settings->m548 - slow;
     m14C4 = MIN(m14C4, limit);
-    m14C4 = (float)MAX((double)m14C4, settings->m544) * 1.32f;
+    m14C4 = (float)MAX((double)m14C4, settings->m544);
+    m14C4 *= 1.32f;
     if (mC58.m0C.m2C != 0) {
         if (dist > settings->m560) {
             fn_8018161C(1);
@@ -379,7 +379,8 @@ void ChaserNpc::fn_80181A64() {
     mC58.m0C.fn_801255C8();
 }
 
-// NONMATCHING: 99.6% - register allocation of the inlined RouteTable_unk::FindPlace_unk.
+// NONMATCHING: 99.7% - register allocation of the inlined RouteTable_unk::FindPlace_unk (index/offset and
+// the place pointer swapped). The current index in a local (`idx`) fixes the load order of m14C0.
 void ChaserNpc::fn_80181D94() {
     RouteWalker_unk& route = mC58.m0C;
     if (route.fn_80125474() == 0) {
@@ -388,7 +389,8 @@ void ChaserNpc::fn_80181D94() {
         if (point != 0) {
             mPos = table->mPoints[point - 1].mPos;
         } else {
-            mPos = table->FindPlace_unk(m14B4[m14C0])->mPos;
+            int idx = m14C0;
+            mPos = table->FindPlace_unk(m14B4[idx])->mPos;
         }
         mC58.m0C.fn_80128818(m14B4[m14C0], &mPos, 8);
         mC58.m0C.fn_801255C8();

@@ -383,7 +383,6 @@ int ControlCliffhang::fn_801AB9E4(int route) {
     return 1;
 }
 
-// NONMATCHING: 99.1% - the empty `right` branch of direction 3 keeps a `li r4, -1` here.
 int ControlCliffhang::fn_801AC14C() {
     int up = fn_800A55D4(lbl_8087EF70, 0, 0x1A);
     int down = fn_800A55D4(lbl_8087EF70, 0, 0x19);
@@ -407,8 +406,7 @@ int ControlCliffhang::fn_801AC14C() {
         if (left != 0 && m74 < 1.0f) {
             m70 = 1;
             ret = 3;
-        } else if (right != 0) {
-            ret = -1;
+        } else if (right != 0 && m74 > 0.0f) {
         }
     } else if (m10 == 4) {
         if (left != 0 && m74 > 0.0f) {
