@@ -3,6 +3,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "game/HomingBullet.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
@@ -121,17 +122,43 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
 extern "C" void* lbl_8087EEB0;
 extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 // inferred: accessors of IntVector_unk (weak copies 0x800E0AA8/0x800E0AB0 of atn/WordWrap_unk.cpp)
-extern "C" unsigned int fn_800E0AA8(const IntVector_unk* v);
-extern "C" bool fn_800E0AB0(const IntVector_unk* v);
-extern "C" int* fn_8028B74C(IntVector_unk* v, int i);
+extern "C" inline unsigned int fn_800E0AA8(const IntVector_unk* v) {
+    return v->mSize;
+}
+extern "C" inline bool fn_800E0AB0(const IntVector_unk* v) {
+    return v->mSize == 0;
+}
+// inferred: element i of a list of ids (weak copy 0x8028B74C, also called by Em203GreaterDaemonRed,
+// EnemyQuarkSecond and GameScene)
+extern "C" inline int* fn_8028B74C(IntVector_unk* v, int i) {
+    return &v->mData[i];
+}
 // inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0 of
 // Event/Puppeteer_CharaTask.cpp)
 extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     atn::Matrix3x4 m;
     m.SetIdentity();
-    __MtxRotate(m.m, 'z', rot.z);
-    __MtxRotate(m.m, 'y', rot.y);
-    __MtxRotate(m.m, 'x', rot.x);
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
     return m;
 }
 // inferred: Matrix3x4 assignment out of line (weak copy 0x8008CD1C of atn/Model.cpp)
@@ -197,13 +224,27 @@ struct DaemonMsgTable_unk {
 };
 extern "C" DaemonMsgTable_unk* lbl_8087F1E4;
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+// inferred: homing parameters with their defaults (the constants are pooled before the values set by
+// the callers); name invented
+struct DaemonHoming_unk : public HomingParam_unk {
+    DaemonHoming_unk() {
+        mTarget = 0;
+        mAccel = 0.0f;
+        m08 = -1.0f;
+        mMaxSpeed = 10.0f;
+        mTurn = 0.09424778f;
+        mTime = 300.0f;
+        mDelay = 5.0f;
+        mNode = 0;
+        mCount = -1;
+    }
+};
 extern "C" void PSMTXIdentity(Mtx m);
 // inferred: flag of the effect manager set while the hate lines start (name invented)
 struct EffectMgrD0_unk {
     unsigned char m00[0xD0];
     int mD0;
 };
-#include "game/HomingBullet.h"
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: moves a bullet with the character
 // inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
@@ -397,6 +438,16 @@ int Em203GreaterDaemon::vf0C() {
 // inferred: the "vector length error" of push_back is in the string pool right after the keys of vf0C
 template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
 
+// inferred: translation of a node matrix (as in game/Em208Queen.cpp; name invented)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: hit point ratio (name invented)
+inline float Em203GreaterDaemon::HpRate_unk() {
+    return mStatus.m04 / (float)mStatus.mParamB.m84;
+}
+
 // inferred: nonzero when the motion of track 0 has reached its end minus `margin` (name invented)
 inline bool Em203GreaterDaemon::IsMotionNearEnd_unk(float margin) {
     return mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0) - margin;
@@ -432,13 +483,16 @@ inline void Em203GreaterDaemon::StartFly_unk() {
     m58C = 17;
     m1510 = 0.0f;
     m15D4 = 0;
-    PlayMotion_unk(10, 0, 0, 1.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 10, 0, 0, 1, 0.0f, 0.1f);
     fn_8016E970(6);
     m560 = 4;
     RouteTable_unk* table = lbl_8087F430->m10D8;
-    RoutePoint_unk& point = table->mPoints[fn_803C1560(table, &mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1];
-    m151C = point.mPos - mPos;
-    m1528 = atn::WrapAngle_unk((m1978 - point.mPos).ToRotationZ_unk().y - mRot.y);
+    atn::Vector3& point = table->mPoints[fn_803C1560(table, &mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1].mPos;
+    m151C = point - mPos;
+    m1528 = atn::WrapAngle_unk((m1978 - point).ToRotationZ_unk().y - mRot.y);
     m153C = 0;
 }
 
@@ -489,7 +543,7 @@ void Em203GreaterDaemon::vf10() {
                 atn::Vector3 pos = target->mPos;
                 fn_801C3910(pos - mPos);
                 if ((mStatus.m0C & 4) != 4) {
-                    if (mStatus.m04 / (float)mStatus.mParamB.m84 < 0.4f) {
+                    if (HpRate_unk() < 0.4f) {
                         m14C0 = 4;
                     } else {
                         m14C0 = 0;
@@ -617,7 +671,7 @@ inline int Em203GreaterDaemon::CanFall_unk() {
 
 void Em203GreaterDaemon::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
-    if (mStatus.m04 / (float)mStatus.mParamB.m84 < 0.1f && m14C8 == 0) {
+    if (HpRate_unk() < 0.1f && m14C8 == 0) {
         m14C8 = 1;
         if ((mStatus.m0C & 4) == 4) {
             mStatus.fn_8013322C(4);
@@ -912,7 +966,7 @@ void Em203GreaterDaemon::fn_8028B47C() {
         if (!fn_800E0AB0(list)) {
             switch (*fn_8028B74C(list, m1628)) {
             case 1:
-                if (mStatus.m04 / (float)mStatus.mParamB.m84 < 0.4f) {
+                if (HpRate_unk() < 0.4f) {
                     fn_8029055C();
                 } else if (fn_80291390(m14D4)) {
                     fn_8028F8E4();
@@ -925,7 +979,7 @@ void Em203GreaterDaemon::fn_8028B47C() {
                 fn_8028FA60();
                 break;
             case 3:
-                if (mStatus.m04 / (float)mStatus.mParamB.m84 < 0.5f) {
+                if (HpRate_unk() < 0.5f) {
                     fn_8028F998();
                 } else if (fn_80291390(m14D4)) {
                     fn_8028F8E4();
@@ -945,12 +999,6 @@ void Em203GreaterDaemon::fn_8028B47C() {
         }
         m14C0 = state;
     }
-}
-
-// inferred: element i of a list of ids (weak copy 0x8028B74C, also called by Em203GreaterDaemonRed,
-// EnemyQuarkSecond and GameScene)
-extern "C" inline int* fn_8028B74C(IntVector_unk* v, int i) {
-    return &v->mData[i];
 }
 
 // inferred: attacks the target with the claws when it is in front and near, else takes off
@@ -983,7 +1031,7 @@ void Em203GreaterDaemon::fn_8028B75C(int wait) {
                 fn_8028FDB0();
             }
         } else if ((mStatus.m0C & 4) != 4) {
-            if (mStatus.m04 / (float)mStatus.mParamB.m84 < 0.4f) {
+            if (HpRate_unk() < 0.4f) {
                 m14C0 = 4;
             } else {
                 m14C0 = 0;
@@ -1062,7 +1110,7 @@ void Em203GreaterDaemon::fn_8028C834() {
             wchar_t text[256];
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xBD), *(const wchar_t**)((char*)m60 + 4));
             fn_80109828(lbl_8087F048, text);
-            atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
+            atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
             atn::Vector3 dir = m14B0->mPos - pos;
             dir.GetNormalized_unk(); // inferred: the result is not used (the original fires along dir)
             fn_800F8574(lbl_8087F048, this, m15D0, &pos, &dir, 0, 0x100, 0, 0.0f, 1.0f);
@@ -1134,7 +1182,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
             dir.fn_80011410(fn_800109E0(mRot));
             atn::Matrix3x4 m = fn_800109E0(dir.ToRotation_unk());
             fn_8008CD1C(&m1580, &m);
-            MtxPtr neck = mMotion.GetNodeMtx_unk("neck");
+            MtxPtr neck = mMotion.GetNodeMtx_unk("chin");
             atn::Vector3 pos(neck != 0 ? ((atn::Matrix3x4*)neck)->GetTrans_unk() : mPos);
             m1580.fn_801479E4(pos);
             if (++m1548 % 3 == 0) {
@@ -1234,16 +1282,9 @@ void Em203GreaterDaemon::fn_8028D5C8() {
             Mtx m;
             PSMTXRotRad(m, 'z', 0.7853982f);
             PSMTXMultVec(m, &dir, &dir);
-            HomingParam_unk param;
+            DaemonHoming_unk param;
             param.mTarget = this;
             param.mAccel = 0.3f;
-            param.m08 = -1.0f;
-            param.mMaxSpeed = 10.0f;
-            param.mTurn = 0.09424778f;
-            param.mTime = 300.0f;
-            param.mDelay = 5.0f;
-            param.mNode = 0;
-            param.mCount = -1;
             param.mMaxSpeed = m199C;
             param.mTime = (float)m14CC->m5C;
             param.mTurn = 0.017453292f * m19A0;
@@ -1318,7 +1359,7 @@ void Em203GreaterDaemon::fn_8028DF34() {
         }
     }
     if (m14DC != 0 && mMotion.mTracks[0].m08 < 44.0f) {
-        atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
+        atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
         fn_800FAB80(lbl_8087F048, this, m14DC, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
@@ -1379,7 +1420,7 @@ void Em203GreaterDaemon::fn_8028E800() {
     if (m14B4 == 0) {
         Field_unk* field = lbl_8087F430;
         if (mMotion.mTracks[0].m08 < 24.0f) {
-            atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
+            atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
             if (m1540 == 0) {
                 field->m8A0 = this;
                 field->m97C.Set_unk(pos, false);
@@ -1413,7 +1454,7 @@ void Em203GreaterDaemon::fn_8028E800() {
 void Em203GreaterDaemon::fn_8028EDC4() {
     Field_unk* field = lbl_8087F430;
     if (mMotion.mTracks[0].m08 < 20.0f) {
-        atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
+        atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
         if (m1540 == 0) {
             field->m8A0 = this;
             field->m97C.Set_unk(pos, false);
@@ -1437,7 +1478,7 @@ void Em203GreaterDaemon::fn_8028EDC4() {
 void Em203GreaterDaemon::fn_8028EF20() {
     Field_unk* field = lbl_8087F430;
     if (mMotion.mTracks[0].m08 < 30.0f) {
-        atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
+        atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
         if (m1540 == 0) {
             field->m8A0 = this;
             field->m97C.Set_unk(pos, false);
@@ -1761,13 +1802,12 @@ void Em203GreaterDaemon::fn_8029055C() {
 
 // inferred: aims the breath: rotation from the head (10 units forward) to the target (m1534/m1538)
 void Em203GreaterDaemon::fn_80290674() {
+    atn::Vector3 from;
     atn::Vector3 front(0.0f, 0.0f, 10.0f);
     PSMTXMultVec(fn_800109E0(mRot).m, &front, &front);
-    atn::Vector3 pos = mPos + front;
-    atn::Vector3 from = pos;
-    atn::Vector3 rot = (m14B0->mPos - from).ToRotation_unk();
-    atn::Vector3 tmp = rot;
-    (void)tmp;
+    atn::Vector3 rot;
+    from = mPos + front;
+    rot = (m14B0->mPos - from).ToRotation_unk();
 }
 
 // inferred: fires the homing lasers of the absorb at every free party member, from the neck
@@ -1790,16 +1830,9 @@ void Em203GreaterDaemon::fn_80290AB4() {
         PSMTXRotRad(rz, 'z', 0.017453292f * (360.0f / (float)lbl_8087F8A0->mCount * (float)i));
         PSMTXMultVec(rz, &dir, &dir);
         PSMTXMultVec(fn_800109E0(mRot).m, &dir, &dir);
-        HomingParam_unk param;
+        DaemonHoming_unk param;
         param.mTarget = 0;
         param.mAccel = 0.0f;
-        param.m08 = -1.0f;
-        param.mMaxSpeed = 10.0f;
-        param.mTurn = 0.09424778f;
-        param.mTime = 300.0f;
-        param.mDelay = 5.0f;
-        param.mNode = 0;
-        param.mCount = -1;
         PlayerTask* leader = lbl_8087F8A0->mHead;
         if (leader->mFlag28) {
             if (p != leader) {
@@ -1846,16 +1879,10 @@ void Em203GreaterDaemon::fn_8029101C(PlayerTask* target, float angle) {
     PSMTXRotRad(rz, 'z', angle);
     PSMTXMultVec(rz, &dir, &dir);
     PSMTXMultVec(fn_800109E0(mRot).m, &dir, &dir);
-    HomingParam_unk param;
+    DaemonHoming_unk param;
     param.mTarget = target;
     param.mAccel = 0.6f;
-    param.m08 = -1.0f;
-    param.mMaxSpeed = 10.0f;
-    param.mTurn = 0.09424778f;
-    param.mTime = 300.0f;
     param.mDelay = 10.0f;
-    param.mNode = 0;
-    param.mCount = -1;
     param.mMaxSpeed = m199C;
     param.mTime = (float)m14CC->m5C;
     param.mTurn = 0.017453292f * m19A0;
@@ -1864,12 +1891,6 @@ void Em203GreaterDaemon::fn_8029101C(PlayerTask* target, float angle) {
 
 // inferred: sets the magic in use (m15D0, and the one of CharaTask when it is not null)
 int Em203GreaterDaemon::fn_80291390(HitInfo_unk* skill) {
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
     m15D0 = skill;
     if (skill != 0) {
         m638 = skill;
@@ -1880,12 +1901,6 @@ int Em203GreaterDaemon::fn_80291390(HitInfo_unk* skill) {
 
 // inferred: counts the chant of the magic m15D0; nonzero when it is over
 int Em203GreaterDaemon::fn_802913B0() {
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
     mFB8 = 0.0f;
     mFBC = 0.0f;
     if (m15D0 == 0) {
@@ -1903,59 +1918,58 @@ int Em203GreaterDaemon::fn_802913B0() {
 // inferred: position above the spine (head of the hate lines)
 atn::Vector3 Em203GreaterDaemon::vf58() {
     atn::Vector3 offset(0.0f, 5.0f, 0.0f);
-    return ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk() + offset;
+    return ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk() + offset;
 }
 
 // inferred: clears the hate lines
 void Em203GreaterDaemon::fn_802914F8() {
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
-    ASSERT_UNK(this != 0);
     for (int i = 0; i < 6; i++) {
-        m1674[i].m0C = DaemonZeroMtx_unk();
-        m1674[i].m3C = DaemonZeroMtx_unk();
-        m1674[i].m70 = 0;
-        m1674[i].m00.Assign_unk(lbl_807C7030);
-        m1674[i].m6C = 0;
+        m1674[i].Clear_unk();
+
     }
 }
 
 // inferred: sets the hate line `index` from the spine of the daemon to the head of `chara` (kind:
 // nonzero for the red line) and starts its effects
 void Em203GreaterDaemon::fn_802915F4(CharaTask* chara, int index, int kind) {
-    atn::Vector3 from = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
-    atn::Vector3 to = ((atn::Matrix3x4*)chara->mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
-    DaemonLine_unk& line = m1674[index];
-    line.m70 = chara;
-    line.m00 = to - from;
-    PSVECNormalize(&line.m00, &line.m00);
-    line.m00 *= 30.0f;
-    atn::Vector3 rot = line.m00.ToRotation_unk();
-    rot.z = 0.0f;
-    float len = (to - from).Length_unk();
-    PSMTXIdentity(line.m0C.m);
-    line.m0C.m[0][3] = from.x;
-    line.m0C.m[1][3] = from.y;
-    line.m0C.m[2][3] = from.z;
+    atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    atn::Vector3 target = GetNodePos_unk(chara->mMotion.GetNodeMtx_unk("spine1"));
+    m1674[index].m70 = chara;
+    m1674[index].m00 = target - head;
+    PSVECNormalize(&m1674[index].m00, &m1674[index].m00);
+    m1674[index].m00 *= 30.0f;
+    m1674[index].m0C.SetIdentity();
+    atn::Vector3 rot = m1674[index].m00.ToRotation_unk();
     atn::Matrix3x4 r = fn_800109E0(rot);
-    PSMTXConcat(line.m0C.m, r.m, line.m0C.m);
-    PSMTXIdentity(line.m3C.m);
-    line.m3C.m[0][3] = from.x;
-    line.m3C.m[1][3] = from.y;
-    line.m3C.m[2][3] = from.z;
+    Mtx t;
+    PSMTXConcat(m1674[index].m0C.m, r.m, t);
+    __MtxCopy(m1674[index].m0C.m, t);
+    m1674[index].m0C.m[0][3] = target.x;
+    m1674[index].m0C.m[1][3] = target.y;
+    m1674[index].m0C.m[2][3] = target.z;
+    atn::Vector3 dir = target - head;
+    atn::Vector3 rot2 = dir.ToRotation_unk();
+    float len = dir.Length_unk();
+    m1674[index].m3C.SetIdentity();
+    m1674[index].m3C.m[0][3] = head.x;
+    m1674[index].m3C.m[1][3] = head.y;
+    m1674[index].m3C.m[2][3] = head.z;
+    atn::Matrix3x4 r2 = fn_800109E0(rot2);
+    Mtx t2;
+    PSMTXConcat(m1674[index].m3C.m, r2.m, t2);
+    __MtxCopy(m1674[index].m3C.m, t2);
     Mtx s;
     PSMTXScale(s, 1.0f, 1.0f, len);
-    PSMTXConcat(line.m3C.m, s, line.m3C.m);
+    Mtx t3;
+    PSMTXConcat(m1674[index].m3C.m, s, t3);
+    __MtxCopy(m1674[index].m3C.m, t3);
     fn_80232B7C(m1674, 0);
     if (kind != 0) {
-        fn_8023A680(lbl_8087F3C0, &m1944.m0C, -1, 5, &line.m0C, 0, 0, 0, 1.0f, 0, -1, 1);
+        fn_8023A680(lbl_8087F3C0, &m1944.m0C, -1, 5, &m1674[index].m0C, 0, 0, 0, 1.0f, 0, -1, 1);
     } else {
-        fn_8023A680(lbl_8087F3C0, &m192C.m0C, -1, 5, &line.m0C, 0, 0, 0, 1.0f, 0, -1, 1);
+        fn_8023A680(lbl_8087F3C0, &m192C.m0C, -1, 5, &m1674[index].m0C, 0, 0, 0, 1.0f, 0, -1, 1);
     }
-    fn_8023A680(lbl_8087F3C0, &m192C.m00, -1, 5, &line.m3C, 0, 0, 0, 1.0f, 0, -1, 1);
+    fn_8023A680(lbl_8087F3C0, &m192C.m00, -1, 5, &m1674[index].m3C, 0, 0, 0, 1.0f, 0, -1, 1);
 }
 
 // inferred: draws the hate lines of the current target mode (m1640: 0 none, 1 Arganan, 2 every free
@@ -1994,42 +2008,48 @@ void Em203GreaterDaemon::fn_802921F8() {
     arg[3] = 0;
     arg[4] = 0;
     for (unsigned int i = 0; i < 6; i++) {
-        DaemonLine_unk& line = m1674[i];
-        if (line.m70 == 0) {
+        if (m1674[i].m70 == 0) {
             continue;
         }
-        atn::Vector3 from = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
-        atn::Vector3 to = ((atn::Matrix3x4*)line.m70->mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
-        line.m00 = to - from;
-        atn::Vector3 rot = line.m00.ToRotation_unk();
-        float len = (to - from).Length_unk() / 50.0f;
-        PSMTXIdentity(line.m0C.m);
-        line.m0C.m[0][3] = from.x;
-        line.m0C.m[1][3] = from.y;
-        line.m0C.m[2][3] = from.z;
-        atn::Matrix3x4 r = fn_800109E0(rot);
-        PSMTXConcat(line.m0C.m, r.m, line.m0C.m);
-        PSMTXIdentity(line.m3C.m);
-        line.m3C.m[0][3] = from.x;
-        line.m3C.m[1][3] = from.y;
-        line.m3C.m[2][3] = from.z;
+        atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+        atn::Vector3 target = GetNodePos_unk(m1674[i].m70->mMotion.GetNodeMtx_unk("spine1"));
+        atn::Vector3 dir = target - head;
+        m1674[i].m00 = dir;
+        atn::Vector3 rot = dir.ToRotation_unk();
+        float len = dir.Length_unk() / 50.0f;
+        m1674[i].m0C.SetIdentity();
+        atn::Matrix3x4 r = fn_800109E0(m1674[i].m00.ToRotation_unk());
+        Mtx t;
+        PSMTXConcat(m1674[i].m0C.m, r.m, t);
+        __MtxCopy(m1674[i].m0C.m, t);
+        m1674[i].m0C.m[0][3] = target.x;
+        m1674[i].m0C.m[1][3] = target.y;
+        m1674[i].m0C.m[2][3] = target.z;
+        m1674[i].m3C.SetIdentity();
+        m1674[i].m3C.m[0][3] = head.x;
+        m1674[i].m3C.m[1][3] = head.y;
+        m1674[i].m3C.m[2][3] = head.z;
         atn::Matrix3x4 r2 = fn_800109E0(rot);
-        PSMTXConcat(line.m3C.m, r2.m, line.m3C.m);
+        Mtx t2;
+        PSMTXConcat(m1674[i].m3C.m, r2.m, t2);
+        __MtxCopy(m1674[i].m3C.m, t2);
         Mtx s;
         PSMTXScale(s, 3.0f, 3.0f, len);
-        PSMTXConcat(line.m3C.m, s, line.m3C.m);
+        Mtx t3;
+        PSMTXConcat(m1674[i].m3C.m, s, t3);
+        __MtxCopy(m1674[i].m3C.m, t3);
         if (vfE4()) {
-            if (line.m6C == 0) {
+            if (m1674[i].m6C == 0) {
                 ((EffectMgrD0_unk*)lbl_8087F3C0)->mD0 = 1;
-                fn_80232B7C(&line, 0);
-                fn_8023A680(lbl_8087F3C0, &m195C.m00, -1, 5, &line.m3C, 0, 0, 0, 1.0f, arg[0], -1, 1);
-                fn_8023A680(lbl_8087F3C0, &m195C.m0C, -1, 5, &line.m0C, 0, 0, 0, 2.0f, arg[1], -1, 1);
-                fn_8023A680(lbl_8087F3C0, &m195C.m00, -1, 5, &line.m3C, 0, 0, 0, 1.0f, arg[2], -1, 1);
+                fn_80232B7C(&m1674[i], 0);
+                fn_8023A680(lbl_8087F3C0, &m195C.m00, -1, 5, &m1674[i].m3C, 0, 0, 0, 1.0f, arg[0], -1, 1);
+                fn_8023A680(lbl_8087F3C0, &m195C.m0C, -1, 5, &m1674[i].m0C, 0, 0, 0, 2.0f, arg[1], -1, 1);
+                fn_8023A680(lbl_8087F3C0, &m195C.m00, -1, 5, &m1674[i].m3C, 0, 0, 0, 1.0f, arg[2], -1, 1);
                 ((EffectMgrD0_unk*)lbl_8087F3C0)->mD0 = arg[3];
             }
-            line.m6C = 1;
+            m1674[i].m6C = 1;
         } else {
-            line.m6C = arg[4];
+            m1674[i].m6C = arg[4];
         }
     }
 }
@@ -2091,14 +2111,14 @@ void Em203GreaterDaemon::fn_80292DB4() {
 // inferred: the four points of the claws (left and right shoulder, head, chin)
 void Em203GreaterDaemon::vfCC(atn::Vector3* out, const atn::Vector3& dir) {
     out[0] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightshoulder"))->GetTrans_unk();
-    out[1] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftshoulder"))->GetTrans_unk();
-    out[2] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
+    out[1] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
+    out[2] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftshoulder"))->GetTrans_unk();
     out[3] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
     (void)dir;
 }
 
 atn::Vector3 Em203GreaterDaemon::vfD0(float angle) {
-    return ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
+    return ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
 }
 
 atn::Vector3 Em203GreaterDaemon::vfD8(CharaTask* target) {

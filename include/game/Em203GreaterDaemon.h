@@ -12,6 +12,7 @@
 #include "std/vector.h"
 
 struct RoutePlace_unk;
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 class PlayerTask;
 
 // inferred: helpers shared by the three greater daemons (game/Em203GreaterDaemon.cpp,
@@ -44,24 +45,22 @@ extern "C" inline void fn_80288E30(CharaTask* chara, float value) {
 
 // inferred: 0x74-byte entry of the hate lines (Em203GreaterDaemon::m1674): a direction, two matrices,
 // a counter and a character. Names invented.
-// inferred: matrix cleared by its constructor (memset) and copied with the paired-single copy; name
-// invented
-struct DaemonMtx_unk {
-    DaemonMtx_unk() {}
-    DaemonMtx_unk& operator=(const DaemonMtx_unk& o) {
-        __MtxCopy(m, o.m);
-        return *this;
-    }
-    Mtx m;
-};
 // inferred: zeroed matrix used to clear the hate lines (name invented)
-struct DaemonZeroMtx_unk : public DaemonMtx_unk {
+struct DaemonZeroMtx_unk : public atn::Matrix3x4 {
     DaemonZeroMtx_unk() { memset(m, 0, sizeof(m)); }
 };
 struct DaemonLine_unk {
+    // inferred: clears the line (name invented)
+    void Clear_unk() {
+        m0C = DaemonZeroMtx_unk();
+        m3C = DaemonZeroMtx_unk();
+        m70 = 0;
+        m00.Assign_unk(lbl_807C7030);
+        m6C = 0;
+    }
     atn::Vector3 m00;
-    DaemonMtx_unk m0C;
-    DaemonMtx_unk m3C;
+    atn::Matrix3x4 m0C; // inferred: matrix of the head of the line (at the character)
+    atn::Matrix3x4 m3C; // inferred: matrix of the line (from the daemon, scaled by the length)
     int m6C;
     CharaTask* m70;
 };
@@ -90,7 +89,11 @@ public:
     // inline member)
     virtual atn::Vector3 vfC8() {
         MtxPtr m = mMotion.GetNodeMtx_unk("neck");
-        return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+        // inferred: the original loads the translation from the last row up (z, y, x)
+        float z = m[2][3];
+        float y = m[1][3];
+        float x = m[0][3];
+        return atn::Vector3(x, y, z);
     }
     virtual float vfD4() { return -6.0f; } // 0x802936AC
     virtual float vfDC() { return 0.4f; }  // 0x802936A4
@@ -99,6 +102,7 @@ public:
     virtual atn::Vector3 vfD0(float angle);              // 0x8029350C
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // 0x80293368
 
+    inline float HpRate_unk();
     inline bool IsMotionNearEnd_unk(float margin);
     inline void ResetState_unk();
     inline void PlayMotion_unk(int motion, int loop, int arg, float speed);
