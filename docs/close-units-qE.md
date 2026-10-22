@@ -110,3 +110,6 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - `game/GameBgm` (8/14): saltada (caso de inlining abierto del creador al 0% y registros/prologo documentados).
 - `game/NewCampPartsGmk` (14/21): saltada; las 6 al 0% son las copias debiles de la copia del estado de escena
   (0x805134F4-0x805143C8), caso de inlining abierto documentado en el propio .cpp.
+- `game/NewCampPartsStatus` (23/29, sin cambios): `fn_80528310/454/574` (base + 0x58 recalculado en cada llamada en
+  el original) 2 intentos mas (`(char*)task + 0x58`, `&t->mLayout[0]`): MWCC sigue reutilizando la direccion.
+  vf14/fn_80527938/vf3C son solo registros (ya investigados). Saltada.
