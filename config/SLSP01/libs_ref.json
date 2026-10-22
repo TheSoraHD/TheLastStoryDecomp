@@ -4049,7 +4049,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "nw4r",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/gx/GXFifo.c",
