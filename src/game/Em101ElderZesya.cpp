@@ -53,7 +53,11 @@ struct ElderLook_unk {
         m00 = 1;
         mPos = pos;
         m24 = 0.0f;
-        m04 = flag ? 1 : 0;
+        if (flag) {
+            m04 = 1;
+        } else {
+            m04 = 0;
+        }
     }
     unsigned char m00;
     unsigned char m01;
@@ -473,7 +477,7 @@ inline void ElderRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     __MtxRotate(m.m, 'x', rot.x);
 }
 
-// NONMATCHING: 97.39% - stack slots of the barrier vectors/matrices and of the player block, a frsp of the z
+// NONMATCHING: 97.84% - stack slots of the barrier vectors/matrices and of the player block, a frsp of the z
 // rotation and r0/r3 of two stores (8 variants: temporaries, case order, rotation inline, array init)
 void Em101ElderZesya::vf10() {
     m16A4++;
@@ -1251,9 +1255,8 @@ inline void Em101ElderZesya::PlayBarrierM_unk(EffectMgr_unk* mgr, atn::EfpHandle
     fn_8023A8B4(mgr, efp, 0, 0, pos, rot, *(const Color4f_unk*)&(&m16C0)[kind], -1, -1, 1, 1.5f);
 }
 
-// NONMATCHING: 97.67% - the look point flag `flag ? 1 : 0` keeps a dead `b` and a `li r0, 0` in the original
-// (same in the unwritten Em203GreaterDaemon/Em101LittleZesyaSecond callers; ~12 forms tried), and the argument
-// scheduling of the second and third barrier effects
+// NONMATCHING: 98.70% - the argument scheduling of the second and third barrier effects (r4/r5/r7/r8; 4
+// variants); the dead `b` of the look point flag comes from an if/else in ElderLook_unk::Set_unk
 // inferred: changes the state of a barrier (0 up, 1 hit, 2 broken) and plays its three effects
 void Em101ElderZesya::fn_80259AB4(int index, int state) {
     Barrier_unk::Colli_unk* c = &m151C[index].m04;
@@ -1289,7 +1292,8 @@ void Em101ElderZesya::fn_80259AB4(int index, int state) {
             PlayBarrierM_unk(mgr2, &m161C, pos1, rot1, c->mKind);
             EffectMgr_unk* mgr3 = lbl_8087F3C0;
             PlayBarrierM_unk(mgr3, &m161C, pos2, rot2, c->mKind);
-            lbl_8087F430->m97C.Set_unk(pos, false);
+            Field_unk* field = lbl_8087F430;
+            field->m97C.Set_unk(pos, false);
         }
         fn_80370AE4(lbl_8087F430, 0xCA, 1);
         if (c->mKind == 3) {
