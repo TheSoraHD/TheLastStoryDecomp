@@ -485,9 +485,9 @@ inline void Em203GreaterDaemon::StartFly_unk() {
     m14B4 = 0;
     m14B8 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    m58C = 17;
     m1510 = 0.0f;
     m15D4 = 0;
+    m58C = 17;
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -495,7 +495,8 @@ inline void Em203GreaterDaemon::StartFly_unk() {
     fn_8016E970(6);
     m560 = 4;
     RouteTable_unk* table = lbl_8087F430->m10D8;
-    atn::Vector3& point = table->mPoints[fn_803C1560(table, &mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1].mPos;
+    int index = fn_803C1560(table, &mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+    atn::Vector3& point = table->mPoints[index].mPos;
     m151C = point - mPos;
     m1528 = atn::WrapAngle_unk((m1978 - point).ToRotationZ_unk().y - mRot.y);
     m153C = 0;
@@ -674,18 +675,22 @@ inline int Em203GreaterDaemon::CanFall_unk() {
     return 1;
 }
 
+// inferred: kind of the skill, read through an int accessor (name invented)
+static inline int SkillType_unk(HitInfo_unk* skill) {
+    return skill->m02;
+}
 void Em203GreaterDaemon::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (HpRate_unk() < 0.1f && m14C8 == 0) {
         m14C8 = 1;
-        if ((mStatus.m0C & 4) == 4) {
+        if (mStatus.IsState_unk(4)) {
             mStatus.fn_8013322C(4);
             fn_80168E60();
         }
     }
     if (m58C >= 6 && m58C <= 12 && msg->mData != 0 && msg->m44 == 2) {
         HitInfo_unk* skill = fn_80219E6C(msg->mData->m6C);
-        if (msg->mAttacker != 0 && skill != 0 && skill->m04 != 0 && skill->m02 != 7) {
+        if (msg->mAttacker != 0 && skill != 0 && skill->m04 != 0 && SkillType_unk(skill) != 7) {
             msg->m94 |= 0x20000000;
             atn::Vector3 pos = mPos + (msg->mAttacker->mPos - mPos) * 0.5f;
             if (m1500 != 0) {
@@ -787,8 +792,16 @@ extern "C" inline atn::Vector3 fn_8028AC70(const atn::Vector3& p0, const atn::Ve
     float t2 = t * t;
     float t3 = t2 * t;
     return (p0 * (-t3 + 2.0f * t2 - t) + p1 * (3.0f * t3 - 5.0f * t2 + 2.0f) + p2 * (-3.0f * t3 + 4.0f * t2 + t) +
-            p3 * (t3 - t2)) *
-           0.5f;
+            p3 * (t3 - t2)) * 0.5f;
+}
+
+// inferred: unit vector rotated around y (name invented)
+static inline atn::Vector3 Front_unk(const float& angle) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', angle);
+    PSMTXMultVec(m, &front, &front);
+    return front;
 }
 
 // inferred: moves along the spline of the four route points `points` (t: progress 0..1)
@@ -813,6 +826,8 @@ void Em203GreaterDaemon::fn_8028AA38(const atn::Vector3* points, float t) {
     a.Normalize_unk();
     b.Normalize_unk();
     c.Normalize_unk();
+    // inferred: dead value (likely a removed debug term); it places 0.8f in .sdata2 after 0.0001f
+    float unused_unk = t * 0.8f;
     float ra = a.ToRotation_unk().y;
     float rb = b.ToRotation_unk().y;
     float rc = c.ToRotation_unk().y;
@@ -1026,11 +1041,9 @@ void Em203GreaterDaemon::fn_8028B75C(int wait) {
     } else {
         dir.Normalize_unk();
     }
-    atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    atn::Matrix3x4 m;
-    m.fn_8013A13C(mRot.y);
-    PSMTXMultVec(m.m, &front, &front);
-    if (PSVECDotProduct(&dir, &front) > -0.5f) {
+    float limit = -0.5f;
+    atn::Vector3 front = Front_unk(mRot.y);
+    if (PSVECDotProduct(&dir, &front) > limit) {
         if (dist <= 45.0f + m14E0->m40) {
             if (wait == 0 || m14B8 > m19C4) {
                 fn_8028FDB0();
@@ -1075,8 +1088,8 @@ void Em203GreaterDaemon::fn_8028BFE0() {
                 m14B4 = 2;
                 m1514 = 0.0f;
                 RouteTable_unk* table2 = lbl_8087F430->m10D8;
-                RoutePoint_unk& point =
-                    table2->mPoints[fn_803C1560(table2, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1];
+                int index = fn_803C1560(table2, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+                RoutePoint_unk& point = table2->mPoints[index];
                 m151C = point.mPos - mPos;
                 m1528 = atn::WrapAngle_unk((m1978 - m1530->mPos).ToRotationZ_unk().y - mRot.y);
                 return;
@@ -1093,7 +1106,8 @@ void Em203GreaterDaemon::fn_8028BFE0() {
             fn_80239DAC(lbl_8087F3C0, this, -2, 1);
             FaceCenter_unk();
             RouteTable_unk* table = lbl_8087F430->m10D8;
-            mPos = table->mPoints[fn_803C1560(table, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1].mPos;
+            int index = fn_803C1560(table, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+            mPos = table->mPoints[index].mPos;
         } else {
             mPos += m151C * (1.0f / length);
             mRot.y += m1528 / length;
@@ -1247,8 +1261,8 @@ void Em203GreaterDaemon::fn_8028CFE0() {
     }
     if (mMotion.mTracks[0].m08 <= 50.0f) {
         float rate = 400.0f / mMotion.fn_80097D7C(0);
-        atn::Vector3 move = m151C * 0.02f;
         mRot.y += 0.06283186f;
+        atn::Vector3 move = m151C * 0.02f;
         mPos += move;
         (void)rate;
     } else if (mMotion.mTracks[0].m08 >= 50.0f) {
@@ -1928,8 +1942,7 @@ int Em203GreaterDaemon::fn_802913B0() {
 
 // inferred: position above the spine (head of the hate lines)
 atn::Vector3 Em203GreaterDaemon::vf58() {
-    atn::Vector3 offset(0.0f, 5.0f, 0.0f);
-    return ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk() + offset;
+    return ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk() + atn::Vector3(0.0f, 5.0f, 0.0f);
 }
 
 // inferred: clears the hate lines
@@ -2135,11 +2148,7 @@ atn::Vector3 Em203GreaterDaemon::vfD0(float angle) {
 atn::Vector3 Em203GreaterDaemon::vfD8(CharaTask* target) {
     atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
     pos.y += 5.0f;
-    atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', mRot.y);
-    PSMTXMultVec(m, &front, &front);
-    pos += front * 7.0f;
+    pos += Front_unk(mRot.y) * 7.0f;
     return pos;
 }
 
