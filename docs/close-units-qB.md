@@ -26,7 +26,7 @@ Una linea por unidad procesada (orden de cola_B.md).
 - gmk/ShakeCamera, gmk/TodomeCountUp: saltadas - bloqueo documentado (marco de pila + bctrl / caso 1 con codigo eliminado).
 - db/CharaIdTable_unk: saltada - presupuesto de inline ya investigado (fn_802088A4... fuera de linea).
 - db/CharaParam_unk: sin cambios; fn_80209960 (99.41%): variantes del par/contador bajan el fuzzy aunque bajen las lineas distintas (revertido); la copia debil de tokenizer::assign depende de std/string.h (bloqueo documentado).
-- db/EventIdTable_unk: fn_8020F75C -> 100% (indice con signo convertido a unsigned en el subindice). fn_8020F248 sin tocar.
+- db/EventIdTable_unk: 7/7 al 100% (fn_8020F75C y fn_8020F248: subindice unsigned; en fn_8020F248 ademas `int i` declarado tras la entrada). NO enlaza: probado `matching: true` -> main.dol FAILED. Nuestro .o emite copias debiles que el original no tiene en esta unidad (`__dt__Q23atn30Buffer_unk<16EventIdEntry_unk>Fv`, `__dt__/vf08__Q23atn19CsvBase<c,44,13,34>`), los vtables/RTTI de atn::Csv y CsvBase en .data (0x38 bytes; el original no tiene .data), y la guarda/sInstance como comunes en vez de .bss; .text 0x768 vs 0x6A0. Requiere tocar include/atn/Csv.h / Buffer (otras unidades): se deja matching false y anotado como pendiente.
 - db/ItemRare_unk: fn_80213B78 -> 100% (indice int comparado como unsigned en HasItem_unk); fn_80213E60 98.90% -> 99.87% (copia HasItem2_unk con valor antes que subtipo; queda el orden de las dos cargas).
 - db/MapIdTable_unk: fn_80216CD0 99.80% -> 99.85% (orden entry++, i++ en Find_unk). fn_802174F4 sin tocar.
 - db/PaletteTable_unk: no tocada (locales sin tipo conocido / pool).
