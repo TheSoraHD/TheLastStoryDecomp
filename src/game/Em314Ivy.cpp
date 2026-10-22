@@ -35,6 +35,7 @@ extern "C" void* lbl_8087F498; // inferred: voice manager
 extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
+extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the ivy
@@ -176,6 +177,103 @@ void Em314Ivy::vf40(HitInfo_unk* hit) {
 void Em314Ivy::vfFC() {
     fn_8016E970(2);
     vf100(10);
+}
+
+// NONMATCHING: 98.90% - registers of the inlined CanAct_unk test (r5/r6, as in vf10) and of the copy loop of
+// the inlined push_back (r29/r30, r6/r7); ~8 variants (target local, inverted test, element pointer)
+void Em314Ivy::vf104() {
+    m14C0++;
+    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) == 0 && (m58C == 8 || m58C == 10) &&
+        (m137C & 0x400) == 0x400) {
+        m15A8 = 1;
+    }
+    if ((m1374 & 2) == 2 && (m54C & 0x2000) != 0x2000) {
+        *(volatile unsigned int*)&m54C |= 0x2000;
+        if (m58C == 11 || m58C == 13) {
+            m15A4 = 1;
+        } else {
+            int state;
+            if (m14E4 == 0 || (m14E4->CanAct_unk() && m15A0 != 0)) {
+                state = 8;
+            } else {
+                state = 13;
+            }
+            vf100(state);
+            m15A4 = 1;
+        }
+    }
+    switch (m58C) {
+    case 6:
+        vf108();
+        break;
+    case 7:
+        if (mFlag31) {
+            vf100(9);
+            if (m1510.mSize != 0) {
+                m624.clear();
+                for (unsigned int i = 0; i < m1510.mSize; i++) {
+                    m624.push_back(m1510.mData[i]);
+                }
+                m1510.clear();
+            }
+        }
+        vf108();
+        break;
+    case 8:
+        if (mFlag31) {
+            vf100(10);
+            m150C = m14F0;
+        }
+        vf108();
+        break;
+    case 9:
+        if (mFlag31) {
+            vf100(m14C4);
+        }
+        vf108();
+        break;
+    case 10:
+        if (mFlag31) {
+            vf100(7);
+            m150C = 0;
+        }
+        vf108();
+        break;
+    case 11:
+        if (mFlag31) {
+            vf100(m14C4);
+            if (m14C4 == 9) {
+                m150C = 0;
+            }
+        }
+        vf108();
+        break;
+    case 12:
+        if (mFlag31) {
+            vf100(m14C4);
+            m15A4 = 0;
+        }
+        vf108();
+        break;
+    case 13:
+        if (mFlag31) {
+            if (m15AC == 0) {
+                vf100(9);
+                m150C = m14F4;
+            } else {
+                mStatus.fn_8012DD70();
+                vf100(8);
+            }
+        }
+        vf108();
+        break;
+    case 2:
+        fn_805A40B8();
+        break;
+    default:
+        vf100(6);
+        break;
+    }
 }
 
 void Em314Ivy::fn_80312EF8() {

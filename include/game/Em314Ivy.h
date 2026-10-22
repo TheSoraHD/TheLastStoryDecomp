@@ -2,11 +2,12 @@
 #define GAME_EM314IVY_H
 
 #include "atn/Array_unk.h"
+#include "game/CharaTask.h"
 #include "game/SpecialEnemyBase.h"
 
 // inferred from __vt__8Em314Ivy (0x807883D0): ivy enemy that hides, appears near the player and
 // catches it ("catch_point" node). Data file "db_em314_00_00.csv" (SkillId, HideWaitFrame, ...).
-// Only the small functions are written (game/Em314Ivy.cpp). Names invented.
+// Names invented.
 class Em314Ivy : public SpecialEnemyBase {
 public:
     Em314Ivy(atn::Task* parent, EnemyInfo_unk* info);
@@ -47,18 +48,8 @@ public:
     float m1504;      // inferred: "HideDistance"
     float m1508;      // inferred: "CatchDistance"
     int m150C;
-    // inferred: random appear positions {count, new[] data} (the dtor frees m1518)
-    struct Positions_unk {
-        Positions_unk() : m00(0), m04(0), mData(0) {}
-        ~Positions_unk() {
-            if (mData != 0) {
-                delete[] mData;
-            }
-        }
-        int m00;
-        int m04;
-        atn::Vector3* mData;
-    } m1510;
+    // inferred: damage spheres kept while hidden; vf104 moves them back into m624 when the ivy appears
+    atn::Vector_unk<CharaTask::Item14_unk> m1510;
     unsigned int m151C; // inferred: number of points drawn by vf14
     struct Point_unk {
         unsigned char m00[0x04];

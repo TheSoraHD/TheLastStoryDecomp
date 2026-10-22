@@ -69,6 +69,10 @@ game/Em315Coffin.
   99.92%: offsets del pool). Las grandes (vf100/104/108, fn_803067E0 vf40, fn_80308E6C) y fn_803097AC (slot 0xB0:
   CharaTask::vfB0 esta declarada `void vfB0()` en la cabecera compartida, devuelve int y recibe un Vector3*) sin
   escribir; fn_80309D20/fn_80309D50 son invoker/manager de boost::function (bind de ControlThrustForGhoul).
+- `game/Em314Ivy` (segunda vuelta): vf104 (0x80311BB8, maquina de estados 6-13; al aparecer (7 -> 9) devuelve
+  las esferas de dano guardadas en m1510 a m624 con clear + push_back) escrita: NONMATCHING 98.90% (registros
+  del CanAct_unk inline y del bucle de copia del push_back; ~8 variantes). 0x1510 pasa de struct propio
+  `Positions_unk` a `atn::Vector_unk<CharaTask::Item14_unk>` (mismo layout; el dtor sigue al 100%).
 - `game/Em315Coffin` (segunda vuelta): fn_80315964 (inicio del rayo: direccion de la capsula propia a la del
   objetivo m14D4/mC58.mC4, efectos m1564/m157C sobre ambos modelos y matriz m1588 = traslacion * rotacion z/y/x
   * escala (1, 1, distancia/20) para el efecto m1570) escrita: NONMATCHING 97.16% (disposicion de la pila; ~14
