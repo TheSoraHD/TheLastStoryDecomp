@@ -42,10 +42,10 @@ public:
     atn::EfpHandle_unk m14D4;
     atn::EfpHandle_unk m14E0;
     atn::EfpHandle_unk m14EC;
-    int m14F8;
-    CharaTask* m14FC; // inferred: copied character (its model plays the effect m14E0)
-    int m1500;
-    CharaTask* m1504; // inferred: the only attacker that can hurt it while hidden
+    int m14F8;        // inferred: "DstCopyRobotId"
+    CharaTask* m14FC; // inferred: the copy robot (its model plays the effect m14E0)
+    int m1500;        // inferred: "SrcCopyCharaId" (negative: the first player)
+    CharaTask* m1504; // inferred: copied character (the only attacker that can hurt it while hidden)
     atn::LH_Binary m1508;
     int m1510;
     int m1514;
@@ -53,7 +53,7 @@ public:
     int m151C;
     int m1520; // inferred: hit counter of phase 2
     int m1524; // inferred: hits before the stagger (4)
-    int m1528;
+    RoutePlace_unk* m1528; // inferred: "JumpPoint"
     RoutePlace_unk* m152C; // inferred: "WarpPoint"
     unsigned char m1530[0x1540 - 0x1530];
     int m1540; // inferred: hit counter (capped at 60)

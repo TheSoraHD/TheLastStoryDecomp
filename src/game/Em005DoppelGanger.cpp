@@ -1,11 +1,21 @@
 #include "game/Em005DoppelGanger.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/EnemyManager.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
 extern "C" unsigned long strlen(const char* s);
+extern "C" int atoi(const char* s);
+extern "C" int fn_800DC12C(const char* s); // inferred: string to int
+// inferred: character data by name (game/CharaTask.cpp declares it with an int id; same C symbol)
+extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
+// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
+struct Field_unk {
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8;
+};
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -15,7 +25,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int rand();
-struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
@@ -163,6 +172,78 @@ Em005DoppelGanger::Em005DoppelGanger(atn::Task* parent, EnemyInfo_unk* info)
     m14D4.fn_8023780C("/effect/ef_cm007.efp");
 }
 
+int Em005DoppelGanger::vf0C() {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1508.fn_80473F50() == 0 &&
+        m14C8.fn_80237874() == 0 && m14E0.fn_80237874() == 0 && m14EC.fn_80237874() == 0 &&
+        m14D4.fn_80237874() == 0) {
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0x4011;
+        mC10 |= 2;
+        RouteTable_unk* table = lbl_8087F430->m10D8;
+        if (m1508.fn_80470580() != 0 && table != 0) {
+            atn::Csv csv((const char*)m1508.fn_80470580(), m1508.fn_8047059C());
+            do {
+                const char* key = csv.fn_8005B9CC();
+                if (strcmp(key, "JumpPoint") == 0) {
+                    RoutePlace_unk* place = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                    if (place != 0) {
+                        m1528 = place;
+                    }
+                } else if (strcmp(key, "WarpPoint") == 0) {
+                    RoutePlace_unk* place = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                    if (place != 0) {
+                        m152C = place;
+                    }
+                } else if (strcmp(key, "SrcCopyCharaId") == 0) {
+                    m1500 = atoi(csv.fn_8005B9CC());
+                    if (m1500 < 0) {
+                        m1504 = lbl_8087F8A0->mHead;
+                    } else {
+                        m1504 = lbl_8087F8A0->Find_unk(m1500);
+                    }
+                } else if (strcmp(key, "DstCopyRobotId") == 0) {
+                    m14F8 = atoi(csv.fn_8005B9CC());
+                    m14FC = EnemyManager::sInstance->Find_unk(m14F8);
+                }
+            } while (csv.fn_8005BBF8());
+        }
+        *(CharaTask**)((char*)m14FC + 0x14B4) = m1504;
+        if (m1438 != 0) {
+            m1438->fn_800D246C(0);
+            m1438->mFlags |= 4;
+        }
+        switch (fn_80219558(m1504->m50)) {
+        case 1:
+            m5C = fn_8020A81C("ch2017_51");
+            break;
+        case 2:
+            m5C = fn_8020A81C("ch2017_52");
+            break;
+        case 3:
+            m5C = fn_8020A81C("ch2017_53");
+            break;
+        case 4:
+            m5C = fn_8020A81C("ch2017_54");
+            break;
+        case 5:
+            m5C = fn_8020A81C("ch2017_55");
+            break;
+        case 6:
+            m5C = fn_8020A81C("ch2017_56");
+            break;
+        }
+        mStatus.fn_8012B3E8();
+        mStatus.fn_8012B988();
+        for (int i = 0; i < 4; i++) {
+            mStatus.m2D0[i] = m5C->mE8[i];
+        }
+        fn_8016E4C4(0);
+        return 1;
+    }
+    return 0;
+}
+
 Em005DoppelGanger::~Em005DoppelGanger() {
     ClearDoppel_unk(this);
 }
@@ -258,8 +339,7 @@ void Em005DoppelGanger::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 98.04% - li r4 / mr r3 of the last call swapped (4 variants) and the offset of
-// "SE_EM005_010_1" in the pool (strings of unwritten functions missing)
+// NONMATCHING: 98% - li r4 / mr r3 of the last call swapped (4 variants)
 void Em005DoppelGanger::vfF0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -482,8 +562,8 @@ inline int Em005DoppelGanger::IsHiddenPhase_unk() {
     return r;
 }
 
-// NONMATCHING: 99.08% - stack slots of the rotation matrix of the route branch against the front of the
-// source, and the offset of "SE_EM005_010_1" in the pool (10 variants)
+// NONMATCHING: 99.1% - stack slots of the rotation matrix of the route branch against the front of the
+// source, and the li r4 of the hide call (10 variants)
 void Em005DoppelGanger::fn_802531F4() {
     if (m55C == 6) {
         Move_unk();
