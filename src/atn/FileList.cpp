@@ -60,6 +60,70 @@ extern "C" char* fn_8006B404(char* path) {
     return path;
 }
 
+namespace atn {
+std::string fn_8046CC90(const std::string& in); // inferred: path resolved by the loader (atn/Loader.cpp)
+}
+
+// inferred: path resolved by the loader, from a C string
+extern "C" std::string fn_8006AB54(const char* path) {
+    return atn::fn_8046CC90(std::string(path));
+}
+
+// inferred: view of the std::string words (the operator+ bodies below read the private layout
+// as the friend operator+ of std/string.h does)
+struct StringView_unk {
+    unsigned long mWord0; // bit 31: long string; short: size in the low 7 bits of the first byte
+    unsigned long mSize;
+    const char* mData;
+};
+
+// inferred: a + b (C string first; std::string operator+(const char*, const std::string&))
+extern "C" std::string fn_8006AF38(const char* a, const std::string& b) {
+    std::string tmp;
+    unsigned long n = strlen(a);
+    const StringView_unk& v = (const StringView_unk&)b;
+    unsigned long sz;
+    const char* p;
+    if (!(v.mWord0 >> 31)) {
+        p = (const char*)&b + 1;
+        sz = *(const unsigned char*)&b & 0x7F;
+    } else {
+        p = v.mData;
+        sz = v.mSize;
+    }
+    tmp.reserve(n + sz);
+    tmp.replace(0, 0, a, a + n).replace(n, 0, p, p + sz);
+    return tmp;
+}
+
+// inferred: a + b (std::string operator+(const std::string&, const std::string&))
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b) {
+    std::string tmp;
+    unsigned long na;
+    unsigned long nb;
+    const char* pa;
+    const char* pb;
+    const StringView_unk& va = (const StringView_unk&)a;
+    if (!(va.mWord0 >> 31)) {
+        pa = (const char*)&a + 1;
+        na = *(const unsigned char*)&a & 0x7F;
+    } else {
+        pa = va.mData;
+        na = va.mSize;
+    }
+    const StringView_unk& vb = (const StringView_unk&)b;
+    if (!(vb.mWord0 >> 31)) {
+        pb = (const char*)&b + 1;
+        nb = *(const unsigned char*)&b & 0x7F;
+    } else {
+        pb = vb.mData;
+        nb = vb.mSize;
+    }
+    tmp.reserve(na + nb);
+    tmp.replace(0, 0, pa, pa + na).replace(na, 0, pb, pb + nb);
+    return tmp;
+}
+
 // inferred: copy of a path with "_xx" replaced by the suffix of the file language
 extern "C" std::string fn_8006B46C(const std::string& path) {
     char buf[0x100];
