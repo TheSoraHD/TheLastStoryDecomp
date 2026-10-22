@@ -94,6 +94,7 @@ public:
     int fn_8032F204();
     int fn_8032F314();
     int fn_8032F608();
+    float Stripped1_unk(); // inferred: stripped by the linker
     void fn_8032F6A8(); // inferred: voices
     void fn_8032F828();
     int fn_8032FBF4();
@@ -119,6 +120,7 @@ public:
     // inferred: starts the state `state` (inlined everywhere; name invented)
     inline void SetState_unk(int state);
     inline void ResetState_unk();
+    inline void FireHit_unk(HitInfo_unk* data);
     inline void StartAbsorb_unk();
     inline void AttackTarget_unk(float t);
     inline void TurnTo_unk(float t);

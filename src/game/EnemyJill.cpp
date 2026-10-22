@@ -78,6 +78,8 @@ inline void EnemyJill::SetState_unk(int state) {
     mFlag5 = 0;
 }
 
+// NONMATCHING: 98.26% - r4/r5 of the destination and of lbl_8087EFA8 in the copy of the color matrix (8 variants:
+// pointer/reference locals, member-wise operator=, helper)
 int EnemyJill::vf0C() {
     if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m17A4.fn_80237874() == 0 &&
         m17B0.fn_802376D0() == 0) {
@@ -278,7 +280,8 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 
-// NONMATCHING: draft
+// NONMATCHING: 99.79% - r29/r30 of the current event and of the rotation pointer in the event damage (the
+// rest matches)
 void EnemyJill::vf10() {
     if (m1578 != 0) {
         return;
@@ -552,6 +555,15 @@ int EnemyJill::fn_8032F608() {
     return 0;
 }
 
+// inferred: function stripped by the linker (no caller left); only its constants remain in .sdata2 between
+// those of fn_8032F314 and fn_8032F828 (3.1415927f, the ToRotation_unk constants and 57.295776f). Body and name
+// invented: what matters is the order of its literals (as CharaTask::Stripped1_unk)
+float EnemyJill::Stripped1_unk() {
+    float y = atn::WrapAngle_unk(mRot.y);
+    atn::Vector3 rot = (mC58.mC4->mPos - mPos).ToRotation_unk();
+    return 57.295776f * (rot.y - y);
+}
+
 // inferred: arena (lbl_8087F490): two players at 0x263C/0x2640 (nonzero m50 = talking); names invented
 struct JillArenaPlayer_unk {
     unsigned char m00[0x50];
@@ -650,6 +662,9 @@ void EnemyJill::fn_8032F828() {
     }
 }
 
+// NONMATCHING: 86.3% - the original keeps `this`, the index and the byte offset of the event in three saved
+// registers and rebuilds the element address each iteration (here the offset is folded into `this`); 9 variants
+// (element pointer/reference, while loop, operator[], helper, reversed comparison)
 int EnemyJill::fn_8032FBF4() {
     if (m1570 >= 0) {
         return 0;
@@ -691,6 +706,8 @@ void EnemyJill::fn_8032FD30() {
     }
 }
 
+// NONMATCHING: 98.2% - registers of the guard counter start (r0/r3/r4 for the attack data, the state 8 and the
+// flag; 5 variants: control local, accessor, SetHit_unk written by hand)
 void EnemyJill::fn_8032FDE8() {
     switch (m55C) {
     case 6:
@@ -755,14 +772,16 @@ void EnemyJill::fn_8032FFF8() {
     }
 }
 
+// inferred: the float argument is declared before the last int: the order of the arguments (evaluated right to
+// left) puts the load of the last int after the float; the ABI is the same with any position of the float
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f);
+                           float f, int c);
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
 
 // inferred: turns toward the target by `t` of the angle and starts the normal attack (inlined twice in
 // fn_80330218; names invented)
 // inferred: angle from `from` toward `to` by `t` along the shortest way (name invented)
-inline float LerpAngle_unk(float from, float to, float t) {
+inline float LerpAngle_unk(float to, float from, float t) {
     float d = to - from;
     if (d > 3.1415927f) {
         return t * (d - 6.2831855f) + from;
@@ -779,7 +798,7 @@ inline void EnemyJill::TurnTo_unk(float t) {
             PSVECNormalize(&dir, &dir);
         }
         atn::Vector3 rot = dir.ToRotation_unk();
-        float y = LerpAngle_unk(mRot.y, rot.y, t);
+        float y = LerpAngle_unk(rot.y, mRot.y, t);
         atn::WrapAngle_unk(y - mRot.y);
         mRot.y = y;
         atn::WrapAngle_unk(mRot.y);
@@ -820,7 +839,7 @@ void EnemyJill::fn_80330218() {
                 }
                 if (m594 != 0) {
                     fn_80144710();
-                    int n = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, m594, 0.0f);
+                    int n = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, 0.0f, m594);
                     if (n != 0) {
                         CharaTask* player = lbl_8087F8A0->mHead;
                         if (player != 0 && player->mFlag5) {
@@ -1022,6 +1041,75 @@ void EnemyJill::fn_80331094() {
     }
 }
 
+// inferred: identity rotated by z, y and x (name invented, as in game/ChaserNpc.cpp)
+inline void JillRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    if (rot.z != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.y != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.x != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
+// inferred: fires the hit `data` (names invented)
+inline void EnemyJill::FireHit_unk(HitInfo_unk* data) {
+    fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 10, 0.0f, m594);
+}
+
+void EnemyJill::fn_8033135C() {
+    atn::Vector3 move(0.0f, 0.0f, 5.0f / mMotion.fn_80097D7C(0));
+    atn::Matrix3x4 m;
+    JillRotZYX_unk(m, mRot);
+    PSMTXMultVec(m.m, &move, &move);
+    mPos += move;
+    if (m55C == 6) {
+        if (m560 == 0x16) {
+            ResetState_unk();
+            m58C = 6;
+            return;
+        }
+        if (mMotion.mTracks[0].m08 >= 15.0f && mMotion.mTracks[0].m08 <= 20.0f) {
+            FireHit_unk(m14E0);
+        } else if (mMotion.mTracks[0].m08 >= 27.0f && mMotion.mTracks[0].m08 <= 32.0f) {
+            FireHit_unk(m14E0);
+        } else if (mMotion.mTracks[0].m08 >= 46.0f && mMotion.mTracks[0].m08 <= 51.0f) {
+            if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m14D0, m590, 10, 0.0f, m594) != 0) {
+                CharaTask* player = lbl_8087F8A0->mHead;
+                if (player != 0 && player->mFlag5) {
+                    m1590 = 1;
+                    m1594 = 30;
+                } else {
+                    m1590 = 0;
+                }
+            }
+        }
+        float end = mMotion.mTracks[0].m08;
+        if (end >= mMotion.fn_80097D7C(0)) {
+            ResetState_unk();
+            m58C = 6;
+        }
+    } else {
+        ResetState_unk();
+        m58C = 6;
+    }
+}
+
 void EnemyJill::fn_803317F4() {
     if (m55C != 6) {
         ResetState_unk();
@@ -1127,6 +1215,18 @@ void EnemyJill::fn_80332628() {
     m58C = 6;
 }
 
+void EnemyJill::fn_803326C0() {
+    SetStep_unk();
+    m58C = 8;
+    atn::Vector3 d = mC58.mC4->mPos - mPos;
+    if (PSVECMag(&d) < 25.0f) {
+        mFlag5 = 0;
+        AttackTarget_unk(1.0f);
+    } else {
+        fn_80170A20(mC58.mC4, 0, 30.0f);
+    }
+}
+
 void EnemyJill::fn_80332B44() {
     SetState_unk(9);
     fn_8016D74C(m14D8, 0, 0);
@@ -1142,6 +1242,12 @@ void EnemyJill::fn_80332F78() {
     SetState_unk(14);
     fn_80161570(0x140, 0, 0, -1.0f, -1.0f);
     mMotion.mTracks[0].m0C = 0.9f;
+}
+
+void EnemyJill::fn_80333024() {
+    TurnTo_unk(1.0f);
+    SetState_unk(15);
+    fn_80161570(0x142, 0, 0, -1.0f, -1.0f);
 }
 
 void EnemyJill::fn_803333BC() {
