@@ -12,13 +12,16 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: field (lbl_8087F430): camera shake at 0x96C (as in game/GimmickStateCommand.cpp)
+// inferred: field (lbl_8087F430): camera shake at 0x96C (as in game/GimmickStateCommand.cpp) and route
+// tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
     unsigned char m000[0x96C];
     int m96C; // inferred: camera shake
     int m970;
     float m974;
     float m978;
+    unsigned char m97C[0x10D8 - 0x97C];
+    RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
@@ -59,6 +62,9 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
+extern "C" int atoi(const char* s);
+extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -137,6 +143,51 @@ Em101ElderZesyaSecond::Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* i
 }
 
 Em101ElderZesyaSecond::~Em101ElderZesyaSecond() {}
+
+// NONMATCHING: 92.8% - the inlined std::vector push_back of the warp points (known open case: registers
+// of the growth path and an extra saved register)
+int Em101ElderZesyaSecond::vf0C() {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14B0.fn_80473F50() == 0 &&
+        m1518.fn_80237874() == 0 && m153C.fn_80237874() == 0 && m155C.fn_80237874() == 0 &&
+        m1568.fn_80237874() == 0 && m1574.fn_80237874() == 0 && m1530.fn_80237874() == 0) {
+        if (m14B0.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
+            atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
+            do {
+                const char* key = csv.fn_8005B9CC();
+                if (strcmp(key, "warp_count") == 0) {
+                    m14B8 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "warp_count_dist") == 0) {
+                    m14BC = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "warp_point") == 0) {
+                    int id;
+                    do {
+                        id = fn_800DC12C(csv.fn_8005B9CC());
+                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        if (place != 0) {
+                            m14C0.push_back(place);
+                        }
+                    } while (id != 0);
+                } else if (strcmp(key, "center_warp_point") == 0) {
+                    m14CC = lbl_8087F430->m10D8->FindPlace_unk(atoi(csv.fn_8005B9CC()));
+                }
+            } while (csv.fn_8005BBF8());
+        }
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0xC21D;
+        mStatus.m18 |= 0x3800000;
+        m1580.mSphere = atn::ColliSphere::Sphere_unk(atn::Vector3(0.0f, -10000.0f, 0.0f), 20.0f);
+        m1580.mFlags |= 3;
+        m1580.m0C = (int)this;
+        m1580.m20 = 0x80;
+        if (m1438 != 0) {
+            m1438->fn_800D246C(0);
+            m1438->mFlags |= 4;
+        }
+        return 1;
+    }
+    return 0;
+}
 
 void Em101ElderZesyaSecond::vf14() {
     fn_80149A30();

@@ -20,6 +20,7 @@ class Em101ElderZesyaSecond : public EnemyTask {
 public:
     Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* info); // 0x8025A060
     virtual ~Em101ElderZesyaSecond();                               // 0x8025A4A4
+    virtual int vf0C();
     virtual void vf14();                                            // 0x8025B5D4
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
@@ -36,8 +37,8 @@ public:
     void fn_8025BF58();         // inferred: state 8 (casts the magic at frame 62)
 
     atn::LH_Binary m14B0;
-    CharaTask* m14B8;   // inferred: target
-    float m14BC;
+    int m14B8;          // inferred: "warp_count"
+    float m14BC;        // inferred: "warp_count_dist"
     ElderList_unk m14C0;
     RoutePlace_unk* m14CC; // inferred: "center_warp_point"
     CharaTask* m14D0;      // inferred: target
@@ -48,7 +49,7 @@ public:
     atn::Vector3 m14E4; // inferred: position of the magic
     atn::Vector3 m14F0; // inferred: position where the magic started
     int m14FC[2];       // inferred: magic ids (0x5E6, 0x5EA), indexed by m14E0
-    CharaTask* m1504;
+    int m1504;
     atn::Vector3 m1508; // inferred: warp destination
     float m1514;        // inferred: warp rotation
     atn::EfpHandle_unk m1518;
@@ -61,7 +62,7 @@ public:
     atn::EfpHandle_unk m155C;
     atn::EfpHandle_unk m1568;
     atn::EfpHandle_unk m1574;
-    atn::ColliSphere m1580;
+    atn::ColliSphere m1580; // inferred: barrier sphere (owner m158C, radius m15C8)
     int m15CC;
     int m15D0;
     int m15D4; // inferred: mode (0 and 1 accept different hit ranges)
