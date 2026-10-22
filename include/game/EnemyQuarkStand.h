@@ -151,6 +151,7 @@ public:
     void fn_80351480(int arg);
     void fn_80351AB8(CharaTask* chara, int kind);
     void fn_803470F0();
+    void fn_803489F4(const atn::Vector3& target); // inferred: matrix of the laser
     void fn_80348568();
     void fn_80348FF4();
     void fn_803494AC();

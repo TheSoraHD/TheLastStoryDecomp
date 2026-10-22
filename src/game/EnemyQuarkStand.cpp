@@ -16,6 +16,7 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" double sqrt(double x);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -763,6 +764,37 @@ void EnemyQuarkStand::vf50() {
     mFlagB29 = 1;
 }
 
+// inferred: as QuarkFrontOf_unk, copying the rotation first (name invented)
+inline atn::Vector3 QuarkFrontY_unk(CharaTask* c) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    float rotY = c->mRot.y;
+    PSMTXRotRad(m, 'y', rotY);
+    PSMTXMultVec(m, &dir, &dir);
+    return dir;
+}
+// inferred: capsule of the body collision (names invented)
+inline atn::ColliCapsuleShape_unk QuarkGetCapsule_unk(atn::ColliCapsule& c) {
+    atn::ColliCapsuleShape_unk cap;
+    cap.mStart = c.m3C;
+    cap.mEnd = c.m48;
+    cap.mRadius = c.m54;
+    return cap;
+}
+inline void QuarkSetCapsule_unk(atn::ColliCapsule& c, const atn::ColliCapsuleShape_unk& cap) {
+    c.m3C = cap.mStart;
+    c.m48 = cap.mEnd;
+    c.m54 = cap.mRadius;
+}
+
+// inferred: moves the collision capsule start in front of the body
+void EnemyQuarkStand::fn_803470F0() {
+    atn::ColliCapsuleShape_unk cap = QuarkGetCapsule_unk(mColli);
+    cap.mStart = m614 + QuarkFrontY_unk(this) * 10.0f;
+    cap.mStart.y -= 10.0f;
+    QuarkSetCapsule_unk(mColli, cap);
+}
+
 // inferred: updates the damage spheres of vf50
 // NONMATCHING: 93.56% - el original guarda el radio del primer item antes de preparar PSMTXRotRad (lee
 // mRot.y con r3) y numera distinto los registros de la copia de los nodos; ~8 variantes (indices, temporales,
@@ -785,6 +817,88 @@ void EnemyQuarkStand::vf54() {
 
 atn::Vector3 EnemyQuarkStand::vf64(int center) {
     return m624.mData->m04.mCenter;
+}
+
+// inferred: range of the laser (lbl_8087DC80/84) and lerp ends passed by address to fn_800F8524
+// (lbl_8087DC88/8C); names invented
+static float sLaserNear_unk = 100.0f;
+static float sLaserFar_unk = 500.0f;
+static float sBurstNear_unk = 100.0f;
+static float sBurstFar_unk = 500.0f;
+
+#define QS_MAX_unk(a, b) ((a) > (b) ? (a) : (b))
+#define QS_MIN_unk(a, b) ((a) < (b) ? (a) : (b))
+
+// inferred: rotation matrix z * y * x from euler angles (as __MakeRotationZYX_unk of
+// game/MapPartsModel.cpp; name invented)
+inline atn::Matrix3x4& QuarkRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.z != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.y != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+inline void QuarkRotateZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    Mtx t;
+    atn::Matrix3x4 rot;
+    PSMTXConcat(m.m, QuarkRotationZYX_unk(rot, r).m, t);
+    __MtxCopy(m.m, t);
+}
+inline atn::Matrix3x4 QuarkScaleMtx_unk(const atn::Vector3& s) {
+    atn::Matrix3x4 r;
+    PSMTXScale(r.m, s.x, s.y, s.z);
+    return r;
+}
+inline atn::Matrix3x4 QuarkMtxMul_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    atn::Matrix3x4 r;
+    PSMTXConcat(a.m, b.m, r.m);
+    return r;
+}
+
+inline void QuarkScale_unk(atn::Matrix3x4& m, const atn::Vector3& s) {
+    m = QuarkMtxMul_unk(m, QuarkScaleMtx_unk(s));
+}
+inline void QuarkScaleF_unk(atn::Matrix3x4& m, float s) {
+    QuarkScale_unk(m, atn::Vector3(s, s, s));
+}
+// inferred: m1660 seen as a matrix (name invented)
+inline atn::Matrix3x4& QuarkLaserMtx_unk(EnemyQuarkStand* e) {
+    return *(atn::Matrix3x4*)&e->m1660;
+}
+
+// inferred: matrix of the laser beam: from `target` toward the point in front of the body, scaled
+// by its length
+void EnemyQuarkStand::fn_803489F4(const atn::Vector3& target) {
+    float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 60.0f) / 20.0f));
+    float dist = (sLaserFar_unk - sLaserNear_unk) * t + sLaserNear_unk;
+    atn::Vector3 pos = mPos + QuarkFrontY_unk(this) * dist;
+    m1654 = pos - target;
+    float scale = QS_MAX_unk(1.0f, m1654.Length_unk() / 250.0f);
+    m1654.Normalize_unk();
+    QuarkLaserMtx_unk(this).SetIdentity();
+    QuarkRotateZYX_unk(QuarkLaserMtx_unk(this), m1654.ToRotation_unk());
+    QuarkScaleF_unk(QuarkLaserMtx_unk(this), scale);
+    QuarkLaserMtx_unk(this).m[0][3] = target.x;
+    QuarkLaserMtx_unk(this).m[1][3] = target.y;
+    QuarkLaserMtx_unk(this).m[2][3] = target.z;
 }
 
 // inferred: lets the camera go back to the field (name invented)
