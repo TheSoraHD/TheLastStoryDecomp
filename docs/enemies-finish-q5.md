@@ -11,6 +11,10 @@ game/Em315Coffin.
   temporales (familia `__VecCopy`, bloqueo documentado; 4 variantes).
   - Los seis contadores 0x15C8-0x15F4 son tres `CoffinSkill_unk` {id, ?, intervalo, cuenta}; 0x803140B4 es la copia
     debil de su `Reset_unk` (`mCount = mInterval`), sin escribir aun (la emite el primer llamador sin inlinear).
+  - Lector del CSV fn_80313AAC al 100% (12/21) con `ColorF_unk c(m1658->mColor); c.a = 0.0f;` (constructor
+    desde GXColor): las palabras 0x43300000 salen fuera del bucle como en el original. El ctor sube a 81.6% con un
+    constructor de `CoffinFade_unk`; queda la copia del CharaRes_unk por pares de palabras (depende del layout de
+    `CharaRes_unk` en la cabecera compartida CharaTask.h, no tocada).
   - vf104 (0x80314384, maquina de estados) escrita: 99.81%. Queda la numeracion de FPR del inicio/actualizacion
     inline del fundido `CoffinFade_unk` (0x1638: tiempo, duracion, velocidad, activo, desde, hasta, valor, delta);
     ~16 variantes. Claves que si ayudaron: `ColorF_unk(GXColor)` como en GimmickCommon, `FadeTo_unk` que lee
@@ -97,6 +101,9 @@ game/Em315Coffin.
 - En los menus de depuracion (vf30) de los enemigos especiales, cada sub-grupo en su propio bloque
   `{ void* sub = fn_8008937C(...); ... }` reproduce el reparto de registros salvados; reutilizar una variable
   `sub` lo cambia.
+
+- Un color `GXColor -> float/255` construido con un constructor inline `ColorF_unk(GXColor)` saca las palabras
+  0x43300000 de las conversiones fuera de los bucles; rellenado campo a campo no (Em315Coffin::fn_80313AAC).
 
 ## Pendientes para otras colas
 - `CharaTask::vfB0` (cabecera compartida include/game/CharaTask.h) esta declarada `void vfB0()`; en los enemigos

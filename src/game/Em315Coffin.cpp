@@ -42,19 +42,10 @@ struct ColorF_unk {
 static float sZero_unk = 0.0f;
 static float sOne_unk = 1.0f;
 
-// NONMATCHING: ~35% - the struct copy of the character resource is done in pairs of words in the original
+// NONMATCHING: ~81% - the struct copy of the character resource is done in pairs of words in the original
 // (lwz/lwz/stw/stw) and the statics of .sdata are read in another order
 Em315Coffin::Em315Coffin(atn::Task* parent, EnemyInfo_unk* info)
-    : SpecialEnemyBase(parent, info), m15B8(90), m162C(-1), m1630(0), m1634(0) {
-    m1638.mTime = 0.0f;
-    m1638.mDuration = 0.0f;
-    m1638.mSpeed = 1.0f;
-    m1638.mActive = 0;
-    m1638.mFrom = sZero_unk;
-    float z = sZero_unk;
-    m1638.mTo = z;
-    m1638.mValue = sZero_unk;
-    m1638.mDelta = z - m1638.mFrom;
+    : SpecialEnemyBase(parent, info), m15B8(90), m162C(-1), m1630(0), m1634(0), m1638(sZero_unk, sZero_unk) {
     char name[0x100];
     char path[0x100];
     if (fn_805A3D68(name, info->m2C)) {
@@ -112,8 +103,6 @@ int Em315Coffin::vf0C() {
     return 1;
 }
 
-// NONMATCHING: ~85% - the original hoists the 0x43300000 words of the int->float conversions of the
-// material color out of the loop (one saved register less, other stack slots)
 void Em315Coffin::fn_80313AAC(const char* text, int length) {
     atn::Csv csv(text, length);
     do {
@@ -141,11 +130,7 @@ void Em315Coffin::fn_80313AAC(const char* text, int length) {
             if (m1634 != 0) {
                 m1658 = mMotion.fn_80092954("em315_02");
                 if (m1658 != 0) {
-                    GXColor g = m1658->mColor;
-                    ColorF_unk c;
-                    c.r = g.r / 255.0f;
-                    c.g = g.g / 255.0f;
-                    c.b = g.b / 255.0f;
+                    ColorF_unk c(m1658->mColor);
                     c.a = 0.0f;
                     m1658->mColor = c.ToGX();
                 }

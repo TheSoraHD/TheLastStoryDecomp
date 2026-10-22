@@ -26,6 +26,9 @@ struct CoffinSkill_unk {
 
 // inferred: value interpolated over a number of frames (fade of the material "em315_02"); names invented
 struct CoffinFade_unk {
+    CoffinFade_unk(const float& from, const float& to)
+        : mTime(0.0f), mDuration(0.0f), mSpeed(1.0f), mActive(0), mFrom(from), mTo(to), mValue(from),
+          mDelta(mTo - mFrom) {}
     void End_unk() {
         if (mSpeed >= 0.0f) {
             mValue = mTo;
