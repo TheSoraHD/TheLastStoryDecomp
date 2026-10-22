@@ -1,4 +1,6 @@
 #include "gmk/RandomItem.h"
+#include "game/CharaManager.h"
+#include "game/CharaTask.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaStatus.h"
@@ -16,6 +18,24 @@ struct RandomItemField_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" RandomItemField_unk* lbl_8087F430;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" int rand();
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct RandomItemEffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8;
+};
+struct RandomItemColor_unk {
+    RandomItemColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r, g, b, a;
+};
+extern "C" RandomItemEffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(RandomItemEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const RandomItemColor_unk& color,
+                            int arg7, int arg8, int arg9, float scale);
+extern "C" void fn_80239DAC(RandomItemEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80232B7C(void* owner, int arg);
+extern "C" int fn_80435908(gmk::RandomItem* item); // inferred: places the item at a random point
 // inferred: sphere and oriented box of the collision tests
 struct RandomItemSphere_unk {
     atn::Vector3 mCenter;
@@ -218,6 +238,112 @@ int RandomItem::vf40(GimmickMsg_unk* msg) {
 void RandomItem::vf70(int state) {
     GimmickMsg_unk msg(state);
     vf40(&msg);
+}
+
+// inferred: picks the entry whose places contain the player and switches the item on or off
+void RandomItem::fn_8043465C() {
+    if (lbl_8087F8A0 == 0 || lbl_8087F8A0->mHead == 0) {
+        return;
+    }
+    CharaTask* player = (CharaTask*)lbl_8087F8A0->mHead;
+    if (m54 == 0) {
+        return;
+    }
+    if ((m11C == 2 && m168 != 0) || m11C == 3) {
+        return;
+    }
+    RandomItemSphere_unk sphere;
+    sphere.mCenter = player->m614;
+    sphere.mRadius = player->m620;
+    RandomItemDrop_unk* prev = m144;
+    m144 = 0;
+    for (unsigned int i = 0; i < mDrops.mSize; i++) {
+        RandomItemDrop_unk& drop = mDrops[i];
+        for (unsigned int k = 0; k < drop.mLocs.mSize; k++) {
+            RandomItemLoc_unk& loc = drop.mLocs[k];
+            RandomItemBox_unk box;
+            MakeLocMtx_unk(box.mMtx, loc);
+            box.mSize = loc.mSize;
+            if (fn_80051CD8(&sphere, &box) != 0) {
+                m144 = &drop;
+                break;
+            }
+        }
+        if (m144 != 0) {
+            break;
+        }
+    }
+    if (prev != m144) {
+        if (m144 != 0) {
+            if (m11C != 4) {
+                fn_80435684(1);
+            }
+        } else if (m11C != 0) {
+            fn_80435684(0);
+        }
+    }
+}
+
+// inferred: state change of the item (0 off, 1 waiting, 2 shown, 3 taken, 4 done)
+void RandomItem::fn_80435684(int state) {
+    switch (state) {
+    case 0:
+        m11C = state;
+        m168 = 0;
+        if (lbl_8087F3C0 != 0) {
+            fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+        }
+        break;
+    case 1:
+        m11C = state;
+        m148 = m144->m81C;
+        if (m144->m820 > 0) {
+            m148 += rand() % m144->m820;
+        }
+        m160 = 0;
+        m168 = 0;
+        if (lbl_8087F3C0 != 0) {
+            fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+        }
+        break;
+    case 2:
+        m11C = state;
+        if (lbl_8087F3C0 != 0) {
+            fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+        }
+        if (fn_80435908(this) != 0) {
+            m168 = 1;
+            m14C = m144->m824;
+            if (lbl_8087F3C0 != 0) {
+                lbl_8087F3C0->mB8 = 1;
+                fn_80232B7C(this, 0);
+                fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, 0, m154, lbl_807C7030,
+                            RandomItemColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+                lbl_8087F3C0->mB8 = 0;
+            }
+        }
+        break;
+    case 3:
+        m11C = state;
+        m150 = m144->m828 - m144->m82C * m160;
+        m168 = 1;
+        if (lbl_8087F3C0 != 0) {
+            fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+            lbl_8087F3C0->mB8 = 1;
+            fn_80232B7C(this, 0);
+            fn_8023A8B4(lbl_8087F3C0, &mEfpItem, 0, 0, m154, lbl_807C7030,
+                        RandomItemColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+            lbl_8087F3C0->mB8 = 0;
+        }
+        break;
+    case 4:
+        m11C = state;
+        m168 = 0;
+        if (lbl_8087F3C0 != 0) {
+            fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+        }
+        break;
+    }
 }
 
 } // namespace gmk
