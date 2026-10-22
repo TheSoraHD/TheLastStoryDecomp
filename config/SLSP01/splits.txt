@@ -3679,7 +3679,7 @@ smg2/src/RVL_SDK/gx/GXFifo.c:
 
 RVL_SDK/src/revolution/gx/GXAttr.c:
 	.text       start:0x80612E80 end:0x80613BD4
-	.data       start:0x807B0750 end:0x807B09B4
+	.data       start:0x807B0750 end:0x807B0900
 	.sdata      start:0x8087E870 end:0x8087E880
 
 RVL_SDK/src/revolution/gx/GXGeometry.c:
