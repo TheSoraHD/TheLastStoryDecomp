@@ -8,16 +8,13 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+#include "game/IntVector_unk.h"
 
 class PlayerTask;
 namespace atn {
 class Csv;
 }
 
-// inferred: list of ids, a class derived from std::vector<int> (its destructor, weak copy 0x8000D760 of
-// Event/Puppeteer_CharaTask.cpp, tests the address four times). Built with __construct_array (constructor:
-// weak copy 0x80288390 of game/Em203GreaterDaemon.cpp, which has an array of five). Name invented.
-struct IntVector_unk : public std::vector<int> {};
 typedef IntVector_unk QuarkTable_unk; // inferred: a range table ("ShortRangeTableMode1"...)
 
 // inferred: 0x30-byte member at 0x15E0 with an empty constructor (weak copy 0x803165E0 of

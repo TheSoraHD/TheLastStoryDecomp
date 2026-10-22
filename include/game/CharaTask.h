@@ -446,7 +446,7 @@ public:
     // inferred: a free position next to the character, away from `target` (8 directions tried)
     virtual atn::Vector3 vfD8(CharaTask* target);
     virtual float vfDC(); // inferred: returns f1 (0x800EF270: scaled vf90)
-    virtual void vfE0();
+    virtual float vfE0(); // inferred: returns f1 (0x800EF080 returns the yaw of a vector passed in r4, the parameter is not declared; EnemyQuarkStand 0x80354378)
 
     int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading
     int fn_801370B8(int index);
@@ -565,7 +565,7 @@ public:
     void fn_8016BEDC(CharaTask* other, atn::Vector3 v);
     void fn_8016C1E0(CharaTask* other);
     void fn_8016C4D8(int a, const atn::Vector3& v);
-    void fn_8016C7D8(int a);
+    void fn_8016C7D8(CharaTask* holder); // inferred: stuck by the sword of `holder` (chr::ControlStickByQuark; the bind of EnemyQuarkStand::fn_8035359C names the type)
     void fn_8016CAD0();
     void fn_8016CDB8(int a, int b);
     bool fn_8016D3F8(); // inferred: control 0x63, or 0x27 with motion 0x8E
