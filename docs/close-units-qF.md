@@ -118,6 +118,11 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   fn_8025E930 ~95% (f1/f2). Pendientes: ctor (std::string), vf0C, vf40, fn_8025D7B0 y estados grandes.
   - symbols.txt: fn_8025CDE0/D648/D7B0/DE54/E748/E930/F754/F7D0 -> nombres de Em101LittleZesya.
 
+- game/Em401_01_WhiteLeoPard (0/25 -> 1/25, NUEVA fuente + cabecera minima): dtor al 100%; ctor 99.9% (la
+  carga de info->m20 en el prologo solo sale con un puntero const, y el simbolo no es const). El resto de
+  funciones son grandes (vf10 ~1.8 KB, etc.) o binds de boost::function (invoke/manage 0x8031F48C-0x8031F59C).
+  - symbols.txt: fn_8031EB3C/EC5C -> ctor/dtor. SpecialEnemyBase.cpp: factoria case 47 con `new`.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
