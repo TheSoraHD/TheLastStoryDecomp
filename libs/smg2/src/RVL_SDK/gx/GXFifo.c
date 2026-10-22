@@ -464,3 +464,9 @@ static void __GXWriteFifoIntReset(GXBool hi, GXBool lo) {
     SC_CP_REG_CLR_SET_UNFLINT(gx->cpClr, lo);
     GX_CP_REG_WRITE_U16(CP_CLR, (u16)gx->cpClr);
 }
+
+u32 GXResetOverflowCount(void) {
+    u32 count = __GXOverflowCount;
+    __GXOverflowCount = 0;
+    return count;
+}

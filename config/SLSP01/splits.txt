@@ -3672,7 +3672,7 @@ RVL_SDK/src/revolution/dsp/dsp_task.c:
 	.sbss       start:0x80880040 end:0x80880058
 
 smg2/src/RVL_SDK/gx/GXFifo.c:
-	.text       start:0x806121F0 end:0x80612E70
+	.text       start:0x806121F0 end:0x80612E80
 	.data       start:0x807B0720 end:0x807B0750
 	.bss        start:0x807E75C0 end:0x807E7608
 	.sbss       start:0x80880080 end:0x808800A0
