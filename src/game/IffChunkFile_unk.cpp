@@ -15,7 +15,7 @@ static inline unsigned int Swap32_unk(unsigned int x) {
 }
 
 static inline void SwapInPlace_unk(unsigned int* p) {
-    __stwbrx(*p, p, 0);
+    *p = Swap32_unk(*p);
 }
 
 // inferred: file header (8 words; m14 is the self-relative offset of the chunk table)
@@ -30,8 +30,9 @@ struct ChunkFileHeader_unk {
     unsigned int m1C;
 };
 
-// NONMATCHING: 86.6% - register allocation of the swapped branch; the original computes the header
-// addresses with addi where this gives lwzu
+// NONMATCHING: 99.0% - register allocation of the swapped branch only (m18 and the in-place swaps take
+// r3/r6 and r4/r5 the other way round). The swaps are written as `*p = swap(*p)` (the stwbrx intrinsic
+// gave lwzu); tried named offsets, a reference helper, direct m18.
 ChunkFile_unk::ChunkFile_unk(void* data, unsigned int magic)
     : mValid(0), mSwapped(0), mMagic(magic), mData(data), m10(0), m14(0), m18(0), m1C(0) {
     int order;
@@ -77,9 +78,11 @@ ChunkFile_unk::ChunkFile_unk(void* data, unsigned int magic)
         for (unsigned int i = 0; i < n; i++, e++) {
             unsigned int v = *e;
             __stwbrx(v, e, 0);
-            unsigned int* q = (unsigned int*)((char*)e + Swap32_unk(v));
-            if (*q != 0) {
-                *q = (unsigned int)q + Swap32_unk(*q);
+            unsigned int off = Swap32_unk(v);
+            unsigned int w = *(unsigned int*)((char*)e + off);
+            unsigned int* q = (unsigned int*)((char*)e + off);
+            if (w != 0) {
+                *q = (unsigned int)q + Swap32_unk(w);
             }
         }
         SwapInPlace_unk(&((ChunkFileHeader_unk*)mData)->m00);

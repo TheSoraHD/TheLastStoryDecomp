@@ -22,3 +22,16 @@ Hallazgos MWCC:
 - game/GameSaveBanner: 8/9. fn_803B9638 80.77 -> 88.2%: `mIconSpeed = mIconSpeed & ~...` (no `&=`, evita el not/clrlwi) y `mFlags = mFlags | m144 | 1` (orden del or). Pendiente: el bucle de iconos usa desplazamientos sobre this (i*8, i*4, i*0x1200) en el original y orden de args de NANDInitBanner.
 - game/Gun: saltada - sub-bloqueo B de `__VecCopy` (orden de z; ya probadas muchas formas segun su comentario).
 - game/HomeButtonMenu: ENLAZADA (5/5). fn_80440994 (0x80440994) subida: `w /= sy * (k * sx); h *= sy;` (la division antes de la multiplicacion de h y sin local para k*sx). Faltaba la definicion de `HomeButtonMenu::sInstance` (la usa GameSystem_unk); anadida en el .cpp. Sin cambios en splits/symbols.
+- game/IffChunkFile_unk: 4/5. ChunkFile_unk ctor 86.62 -> 98.97%: los intercambios in situ como `*p = Swap32_unk(*p)` (con el intrinseco `__stwbrx` salian lwzu en vez de addi) y en el bucle del rama swapped el desplazamiento y el valor apuntado en locales con nombre (`off`, `w`). Queda: r3/r6 y r4/r5 cruzados en m18 y en algunos swaps.
+- game/LastCocoonChrysalis: saltada - presupuesto de inline (std::string/tokenizer fuera de linea; mismo caso que CharaTask::vf2C).
+- game/MapPartsEfp: 5/6, sin cambios. vf10 98.65%: un helper inline con los tres temporales en la llamada arregla los FPR pero guarda el color despues de rot/pos (mismo %); revertido, anotado en el comentario.
+- game/MapPartsRain: saltada (marcada SALTAR en la cola).
+- game/PickTask: saltada - vf10 (3868 B) 96.5% de asignacion de registros/spills de bucles ya investigada; no compensa con 10 intentos.
+- game/StrapTask: 5/6. vf14 83.5 -> 85.9%: el color de cada linea en un local con nombre arregla la recarga de la direccion de la linea tras la llamada de ancho. Queda: FPR de alpha (f31 vs f29) y planificacion de los ratios de pantalla (los cambios de orden de HomeButtonMenu no ayudan aqui).
+- game/TownTpcLoader: 3/4, sin cambios. vf0C 99.59% (puntero/contador del ultimo bucle r29/r30); 10 variantes (unsigned, local para el elemento, mData directo, puntero que avanza, contador compartido, ready==1...).
+- chr/ControlDropDown: saltada - ctor: z guardada del temporal + mChara en r6 (familia `__VecCopy`); vf0C: slots de pila de las sondas.
+- chr/ControlTurnQuadruped: ctor 99.92% sin cambios (el original guarda el double directamente con stfs f1 y convierte en otro registro para comparar); 8 variantes (local float antes/despues, comparar el double, mAngle, ternario, casts). vf0C 85% (slots de pila de matrices) no intentada.
+
+Hallazgos MWCC (2):
+- `w /= sy * (k * sx); h *= sy;` (division antes de la multiplicacion, sin local para k*sx) reproduce los fmr y el orden del original en HomeButtonMenu::fn_80440994.
+- Byte swap in situ: `*p = swap(*p)` con la funcion rlwimi da `lwz/addi/stwbrx`; el intrinseco `__stwbrx(*p, p, 0)` da `lwzu`.

@@ -49,7 +49,9 @@ int MapPartsEfp::vf0C() {
 
 // NONMATCHING: 98.6% - stores and stack layout match, but the 0.0f/1.0f constants land in
 // swapped FPRs (target: 1.0f in f1). Tried: argument temporaries, default arguments, named locals
-// in every order, one parameter struct, chained and per-field assignments, colour first.
+// in every order, one parameter struct, chained and per-field assignments, colour first. An inline
+// helper with the three temporaries in the call gets the FPRs right but stores the colour after rot/pos
+// (same score); named locals or a colour parameter in the helper go back to the swapped FPRs.
 void MapPartsEfp::vf10() {
     switch (mMode) {
     case 0:
