@@ -10,6 +10,39 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
+
+// inferred: plays an effect on the model (same as in Em305VampireMp.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: multiplayer session (lbl_8087F610), as in Em305VampireMp.cpp
+struct MpSession_unk;
+extern "C" MpSession_unk* lbl_8087F610;
+extern "C" void fn_804DA48C(MpSession_unk* session, int arg);
+extern "C" void fn_804DA4A0(MpSession_unk* session, int arg);
 
 // NONMATCHING: ~95% - only the offset of "op_02_cloud" in the string pool (the pool is in the auto split
 // after the unit and starts with the strings of functions not written yet)
@@ -85,6 +118,62 @@ void Em305Vampire::fn_802EBB14() {
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x145, 0, 1, 1, 0.0f, 0.1f);
+}
+
+void Em305Vampire::fn_802EBF40() {
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 13;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 0.2f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+    vf9C(0);
+    fn_80232B7C(0, 0);
+    PlayEffect_unk(&m1588, &mMotion);
+    if (lbl_8087F610 != 0) {
+        fn_804DA48C(lbl_8087F610, 4);
+        fn_804DA4A0(lbl_8087F610, 0);
+    }
+}
+
+void Em305Vampire::fn_802EC098() {
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 14;
+    m152C = 0.0f;
+    m1530 = 0;
+    m1534 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x66, 0, 0, 1, 0.0f, 0.1f);
+    vf98();
+    if (lbl_8087F610 != 0) {
+        fn_804DA48C(lbl_8087F610, 5);
+        fn_804DA4A0(lbl_8087F610, 1);
+    }
+}
+
+void Em305Vampire::fn_802EC160() {
+    m14F8 = 0;
+    m14FC = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 15;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 0.0f;
+    mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
+    fn_80232B7C(this, 100);
+    PlayEffect_unk(&m1594, &mMotion);
+    Effect_unk* mgr = lbl_8087F048;
+    atn::Vector3 pos = fn_801781B0();
+    fn_80108F38(mgr, &pos, 0x80);
 }
 
 void Em305Vampire::vf108() {}

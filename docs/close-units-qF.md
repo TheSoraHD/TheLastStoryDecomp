@@ -149,10 +149,12 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   pequenas (0x8030B408 ctor de un color de 4 floats, 0x8030C190 accesor de nodo, 0x8030DA1C vacia) son copias
   debiles cuyo tipo no esta identificado; no se escriben.
 
-- game/Em305Vampire (0/30 -> 9/30, NUEVA fuente; cabecera existente de Em305VampireMp): al 100% fn_802EABE4,
+- game/Em305Vampire (0/30 -> 12/30, NUEVA fuente; cabecera existente de Em305VampireMp): al 100% fn_802EABE4,
   fn_802EB97C, vfEC, fn_802EBABC, fn_802EBB14 y las cuatro vacias vf100/vf104/vf108/vfFC. vf14 ~95% (pool en el
   tramo auto). symbols.txt: fn_802E9D38 -> vf14, fn_802EA490 -> `fn_802EA490__12Em305VampireFv`,
   fn_802EC660/664/668/66C -> vf108/vf104/vf100/vfFC. CABECERA (solo Vampire/VampireMp): se declara fn_802EA490.
+  Segunda pasada: fn_802EBF40 (estado 13), fn_802EC098 (estado 14) y fn_802EC160 (estado 15) al 100%, con el
+  inline PlayEffect_unk copiado de Em305VampireMp.cpp (sus vf114 hacen lo mismo al recibir el estado).
 
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
