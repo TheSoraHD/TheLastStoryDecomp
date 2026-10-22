@@ -2,6 +2,8 @@
 #include "atn/Csv.h"
 #include "math/Vec.h"
 #include "game/CharaStatus.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
@@ -34,6 +36,23 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                           int c, float f); // inferred: attack hit, nonzero if it hit (as in game/Em201ZanGurg.cpp)
+// inferred: collision world and its tests (as in game/Em003LesserDaemon.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    unsigned char m10[0x34 - 0x10];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: debug menu entries (as in game/CharaTask.cpp and game/NewCampPartsHint.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -430,6 +449,147 @@ void Em305Vampire::fn_802EABE4() {
         }
     }
     fn_802EA490();
+}
+
+// inferred: state 6 (tackle): hit between the frames 31 and 33 and turn to the target
+void Em305Vampire::fn_802EAC70() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_802EBABC();
+        return;
+    }
+    float f = mMotion.mTracks[0].m08;
+    if (31.0f <= f && f <= 33.0f) {
+        int id = m590;
+        HitInfo_unk* data = m1510;
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 60, 5, 0.0f);
+    }
+    if (m14F4 != 0) {
+        atn::Vector3 d = m14F4->mPos - mPos;
+        atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+        mRot.y = rot.y;
+    }
+}
+
+// inferred: state 7 (tackle): wind up, then sweep along m1518 until something is hit, then recover
+void Em305Vampire::fn_802EAF68() {
+    if (m14F8 == 0) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x140, 1, 0, 1, 0.0f, 0.1f);
+            m14F8 = 1;
+            m14FC = 0;
+            fn_80232B7C(this, 101);
+            PlayEffect_unk(&m157C, &mMotion);
+        }
+    } else if (m14F8 == 1) {
+        int hit = 0;
+        CollResult_unk result;
+        if (fn_8004D388(lbl_8087EE98, &result, &m614, &m1518, 0x80000000, &mColli, 0, m620) != 0) {
+            hit = 1;
+        }
+        fn_80144710();
+        if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m150C, m590, 10, 5, 0.0f) != 0) {
+            hit = 1;
+        }
+        if (hit) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
+            m14F8 = 2;
+            m14FC = 0;
+            fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+        } else {
+            mPos += m1518;
+        }
+    } else if (m14F8 == 2) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_802EBABC();
+        }
+    }
+}
+
+// inferred: state 8 (through a door): opens the door gimmick, turns to the exit and moves through
+void Em305Vampire::fn_802EB1F4() {
+    atn::Vector3 d(m1550 - m1544, m1554 - m1548, m1558 - m154C);
+    if (m14F8 == 0) {
+        if (m14FC > m15AC) {
+            m14FC = 0;
+            m14F8 = 1;
+            for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                if (m155C->m08 == g->mId && m155C->m0C == g->m4C) {
+                    GimmickMsg_unk msg(4);
+                    g->vf40(&msg);
+                    break;
+                }
+            }
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
+        } else {
+            atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+            mRot.y += 0.2f * (rot.y - mRot.y);
+        }
+    } else if (m14F8 == 1) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_802EBABC();
+        }
+        float step = d.Length_unk() / mMotion.fn_80097D7C(0);
+        mPos += d.GetNormalized_unk() * step;
+    }
+}
+
+// inferred: index of the point of the weaken route nearest to the vampire (names invented)
+inline int Em305Vampire::NearestWeakenPoint_unk() {
+    int found = 0;
+    float best = 1e16f;
+    for (unsigned int i = 0; i < m14E8.size(); i++) {
+        atn::Vector3 d;
+        d = mPos - m14E8[i]->mPos;
+        if (fn_805F9920(&d) < best) {
+            best = fn_805F9920(&d);
+            found = i;
+        }
+    }
+    return found;
+}
+
+// NONMATCHING: 99.33% - f3/f4/f5 of the hit point rate and r28/r29 of the two vectors of the route loop
+// (~20 forms: locals, helpers, declaration orders)
+// inferred: state 13 (weakened): weaken level from the hit points and nearest point of the weaken route
+void Em305Vampire::fn_802EB61C() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_802EBABC();
+        return;
+    }
+    float f = mMotion.mTracks[0].m08;
+    if (2.0f <= f && f <= 2.5f) {
+        float rate = mStatus.m04 / (float)mStatus.mParamB.m84;
+        if (rate < m15F4) {
+            m1528 = 3;
+        } else if (rate < m15F0) {
+            m1528 = 2;
+        } else {
+            m1528 = 1;
+        }
+        if (m1528 == 1) {
+            m1524 = m15E4[0] * 30;
+        } else if (m1528 == 2) {
+            m1524 = m15E4[1] * 30;
+        } else if (m1528 == 3) {
+            m1524 = m15E4[2] * 30;
+        }
+        m1560 = NearestWeakenPoint_unk();
+        m1500 = 1;
+    }
 }
 
 void Em305Vampire::fn_802EB814() {

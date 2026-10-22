@@ -62,6 +62,7 @@ public:
     inline void StartStun_unk();
     inline void StartTackle_unk();
     inline void StartFlee_unk();
+    inline int NearestWeakenPoint_unk();
 
     atn::LH_Binary m14D4;                         // inferred: data file
     std::vector<VampireDoor_unk> m14DC;           // inferred: "door_route"
@@ -75,9 +76,7 @@ public:
     HitInfo_unk* m150C;                           // inferred: tackle skill
     HitInfo_unk* m1510;                           // inferred: shine skill
     HitInfo_unk* m1514;                           // inferred: rolling skill
-    int m1518;
-    int m151C;
-    int m1520;
+    atn::Vector3 m1518;                           // inferred: tackle movement per frame (state 7)
     int m1524;                                    // inferred: weaken timer
     int m1528;
     float m152C;
@@ -92,7 +91,7 @@ public:
     float m1550;
     float m1554;
     float m1558;
-    int m155C;
+    VampireDoor_unk* m155C;                       // inferred: door being crossed (state 8)
     int m1560;                                    // inferred: index into m14E8
     atn::EfpHandle_unk m1564;
     atn::EfpHandle_unk m1570;
