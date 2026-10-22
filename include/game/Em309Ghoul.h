@@ -31,6 +31,7 @@ public:
     void fn_80300654(); // inferred: starts state 1 (shows message 0x141)
     void fn_8030073C(); // inferred: starts state 6 (motion 0x145) facing the target
     void fn_803009F4(); // inferred: starts state 9 (shows message 0x145)
+    void fn_80300AD8(); // inferred: starts state 10 (motion 0x14A, message 0x147) keeping the state 11 rotation
     void fn_80300DF4(); // inferred: starts state 11 (motion 0x14A, effect m15A0)
     void fn_803010BC(); // inferred: starts state 12 (messages 0x149/0x14B)
     void fn_80301200(); // inferred: starts state 13
@@ -75,7 +76,9 @@ public:
     float m1688;
     ResHandle m168C;          // inferred: debug menu group
     int m1690;                // inferred: "DebugDisp"
-    unsigned char m1694[0x16E0 - 0x1694];
+    unsigned char m1694[0x16BC - 0x1694];
+    float m16BC;              // inferred: z of the beam direction of state 10
+    unsigned char m16C0[0x16E0 - 0x16C0];
     float m16E0;              // inferred: debug sphere radius
     unsigned char m16E4[0x16EC - 0x16E4];
     float m16EC;              // inferred: radius of the damage spheres

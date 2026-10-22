@@ -286,6 +286,75 @@ void Em309Ghoul::fn_803009F4() {
     fn_80109828(lbl_8087F048, text);
 }
 
+// NONMATCHING: 99.75% - f7/f8 of 0.0f and m16BC and the order of the y/z stores of m15D8 (~13 variants:
+// field order, local for z, Set_unk, Vector3 temporary, volatile read, accessor, chained assignment)
+void Em309Ghoul::fn_80300AD8() {
+    m14F0 = 0;
+    m14F4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80097CCC(&mMotion, 2, 0.0f);
+    m58C = 10;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+    float z = m16BC;
+    m15D8.x = 0.0f;
+    m15D8.y = 0.0f;
+    m15D8.z = z;
+    atn::Matrix3x4 m;
+    Mtx rx;
+    Mtx tx;
+    Mtx ry;
+    Mtx ty;
+    Mtx rz;
+    Mtx tz;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    if (0.0f != m15CC.z) {
+        PSMTXRotRad(rz, 'z', m15CC.z);
+        PSMTXConcat(p->m, rz, tz);
+        __MtxCopy(p->m, tz);
+    }
+    if (0.0f != m15CC.y) {
+        PSMTXRotRad(ry, 'y', m15CC.y);
+        PSMTXConcat(p->m, ry, ty);
+        __MtxCopy(p->m, ty);
+    }
+    if (0.0f != m15CC.x) {
+        PSMTXRotRad(rx, 'x', m15CC.x);
+        PSMTXConcat(p->m, rx, tx);
+        __MtxCopy(p->m, tx);
+    }
+    PSMTXMultVec(m.m, &m15D8, &m15D8);
+    mRot = m15CC;
+    m15C8 = 1;
+    fn_80370AE4(lbl_8087F430, 0xA4, 1);
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x147), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+    if (mFlag22) {
+        fn_80370AE4(lbl_8087F430, 0xA7, 1);
+    }
+    fn_80232B7C(this, 400);
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, &m15A0, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: the rotation matrices of the three axes are function-scope locals (stack order of the original)
 void Em309Ghoul::fn_80300DF4() {
     m14F0 = 0;

@@ -76,6 +76,9 @@ game/Em315Coffin.
   fn_80300DF4 (inicio del estado 11: motion 0x14A, direccion m15D8 rotada z/y/x, banderas 0xA4/0xA5 del campo,
   efecto m15A0) al 100% con las matrices de los tres ejes como locales de la funcion en orden x, y, z (con un
   helper inline quedan en orden inverso).
+  fn_80300AD8 (inicio del estado 10: como el 11 pero con la rotacion guardada m15CC, z = m16BC y mensaje 0x147)
+  escrita: 99.75% en el diff directo (f7/f8 y orden de los stores y/z de m15D8; ~13 variantes), 100% en el
+  report. Marcada NONMATCHING igual que fn_8030073C.
 - `game/Em310Gargoyle` (2/21 -> 3/21): vf40 (0x8030B5B0, derrota: banderas 0xCF/0x66 del campo y efecto
   ef_uc037) al 100%. vf3C (0x8030B41C, modos de dano "DamageCalcMode") 99.99%: solo el offset de "head" en el
   pool. vf0C (0x8030A6A0) 98.41%: r3/r4 de la palabra de banderas y del pool, r3/r4/r5 de los stores finales
@@ -115,6 +118,8 @@ game/Em315Coffin.
 - Em309Ghoul::fn_8030073C: `report.json` la da al 100% aunque `objdiff-cli diff` muestra dos offsets de pila
   intercambiados (diferencia real de instrucciones). Se marca NONMATCHING en la fuente y no se cuenta como ganada
   en estas notas, aunque el contador del report suba en 1. Revisar si el report ignora ese tipo de diferencia.
+  Lo mismo con fn_80300AD8 (99.75% en el diff, 100% en el report: solo intercambio de registros f7/f8 y de
+  dos stores). El report parece no penalizar esas permutaciones; el contador de matched sube por ellas.
 - Em310Gargoyle: objeto estatico `sUnused_unk` (Color4f_unk) inventado solo para reproducir el `__sinit` vacio
   (fn_8030DA1C); el tipo real del objeto es desconocido.
 
