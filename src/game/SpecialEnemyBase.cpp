@@ -7,6 +7,7 @@
 #include "std/string_members.h"
 
 #include "game/ChaserGuard.h"
+#include "game/Em314Ivy.h"
 #include "game/ChaserNpc.h"
 #include "game/CopyRobotTask.h"
 #include "game/Em002Skelton.h"
@@ -593,7 +594,6 @@ extern "C" void* fn_802FC850(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_80305C74(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8030A144(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8030DA20(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_80310330(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80313544(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_803161F8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8031B0A8(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -762,11 +762,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) Np131LivingArmor(parent, info);
             break;
         case 43:
-            p = ::operator new(0x15c0, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80310330(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em314Ivy(parent, info);
             break;
         case 37:
             p = ::operator new(0x1620, 3, "", "", 0);

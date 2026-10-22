@@ -205,3 +205,13 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     fn_8054D794 `extern "C"` (no renombrada).
   - Hallazgo MWCC: comparar `(void*)a == (void*)b` en vez de `unsigned == unsigned` cambia el orden de los operandos
     del `cmplw` (mismo orden que una comparacion de punteros).
+- `game/Em314Ivy` (0/18 -> 3/18, unidad SIN FUENTE hasta ahora): **fuente nueva `src/game/Em314Ivy.cpp` y cabecera
+  nueva `include/game/Em314Ivy.h`** (subclase de SpecialEnemyBase, layout 0x14D4-0x15BC, nombres inventados):
+  `fn_80310314` (sonido por indice), dtor (miembro `Positions_unk` con `delete[]` condicional) y `vfFC` al 100%;
+  vf10C 99.84% y vf30 99.74% (solo offsets del pool, faltan las cadenas de fn_80310C64/vf0C), vf14 83%, ctor 93.4%
+  (orden de carga de 1.0f / info->m14). vf0C, vf10, vf40, vf100/104/108, fn_80310C64 (lector de csv) y helpers en asm.
+  - game/SpecialEnemyBase.cpp (factoria `fn_805A5374`, sigue 73.27%) crea el enemigo de tipo 43 con
+    `new (3, "", "", 0) Em314Ivy(parent, info)` en lugar de `fn_80310330` extern "C" (incluye game/Em314Ivy.h).
+  - **symbols.txt (decision sin el usuario)**: los 13 metodos de la vtable renombrados (ctor, dtor, vf0C, vf10, vf14,
+    vf30, vf40, vfF8, vfFC, vf100, vf104, vf108, vf10C de Em314Ivy), lbl_80749264 -> @stringBase0 (local),
+    lbl_80884CA0 -> sSounds_unk (local). Build limpio OK.
