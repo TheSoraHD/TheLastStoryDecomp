@@ -26,6 +26,23 @@ Em205Ogre 17/21, Em208Queen 21/29, Em209SmallGolem 14/22.
   93.04%, vf80 83.22%, fn_80285064 99.88% (f8/f9 del limite de giro, 8 variantes), fn_80285FA0 99.65% (solo
   pool), fn_802878EC 99.97%.
 
+- `game/Em205Ogre` (17/21 -> 19/21): escrita vf108 (99.69%: f3/f4 del vector de paso del golpe, r3/r4 de la
+  copia de la cabeza). Con el fuente en el orden del .dol (dtor justo tras el ctor y vfB4 al final, como en el
+  .dol) el pool de cadenas y .sdata2 coincide y suben vf30 y vf104 al 100%. NONMATCHING: vf108 99.69%,
+  fn_802B98B0 98.61% (__VecCopy y FPR del punto medio de los pies).
+- `game/Em208Queen` (21/29 -> 22/29): fn_802CC4C8 al 100% leyendo la tabla del campo dentro del helper
+  (`FindRoutePlace3_unk`); fn_802CAFB8 95.51% -> 99.92% asignando tipo y valor del registro de dano con
+  un setter (`Set_unk`). El resto (vf10 99.86, vf14 99.58, vf20 99.81, fn_802CA8C0 97.24, fn_802CB43C 97.60,
+  fn_802CC19C 97.29) son registros/__VecCopy ya documentados por q2; 3-5 variantes mas sin cambio.
+- `game/Em209SmallGolem` (14/22 -> 16/22): escrita vf10 (99.53%; resucitar al golem con el boton, ataque de
+  agujas, salto del estado 9, color de los materiales "em209_core"/"em209_core_light" y caida bajo el
+  jugador). Suben fn_802CF728 y vfEC al 100%. Quedan al 99.8-99.9% fn_802CF054, fn_802CF3AC, fn_802CFB24,
+  vf1C y el __sinit solo por el pool .sdata2: nuestro .o tiene un 5.0f de mas, el de la copia debil de
+  `CharaTask::Item14_unk::Item14_unk()` (que vf50 emite al tomar su direccion para __construct_new_array).
+  El original de esta unidad no la emite (Em205Ogre si: su 5.0f es la ultima constante). Comprobado
+  cambiando a mano el 5.0f de la cabecera: las 5 funciones suben al 100%. No se toca la cabecera compartida
+  (CharaTask.h): pendiente.
+
 ## Decisiones tomadas sin el usuario
 
 - **symbols.txt (Em202Spider)**: fn_8027CF28/D838 -> vf0C/vf10__11Em202SpiderFv (ranuras 0x0C/0x10 de la
@@ -56,5 +73,12 @@ Em205Ogre 17/21, Em208Queen 21/29, Em209SmallGolem 14/22.
   del miembro) da el orden de cargas del original (constante antes que el frame).
 - Un `atn::Vector3 top = pos;` declarado despues del if del ataque (no al principio) coloca el temporal
   donde el original en las vf10 de las aranas base.
+
+## Pendientes
+
+- Em209SmallGolem: el ctor inline de `CharaTask::Item14_unk` emite en esta unidad una copia debil con su
+  5.0f en .sdata2 que el original no tiene; resolverlo exige que esa unidad vea el ctor solo declarado
+  (cambio en include/game/CharaTask.h, compartida). Ganaria 5 funciones (fn_802CF054, fn_802CF3AC,
+  fn_802CFB24, vf1C, __sinit).
 
 ## Pendientes para otras colas
