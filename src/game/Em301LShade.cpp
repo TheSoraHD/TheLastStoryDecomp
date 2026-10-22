@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
 #include "game/CharaStatus.h"
+#include "std/new.h"
 #include "game/FriendManager.h"
 #include "game/PlayerTask.h"
 #include "game/SkillEffectManager.h"
@@ -138,6 +139,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
+extern "C" int rand();
 extern "C" void fn_804A04AC(MapInfo_unk* map, int kind, int arg2, int arg3, int arg4); // inferred: map BGM
 // inferred: battle state (fn_80103F60 returns a record per party member; m128: weights)
 struct BattleSlots_unk {
@@ -806,6 +808,83 @@ void Em301LShade::fn_802D5674(int count) {
     m15E8 = 0;
     m15EC = 0;
     m14F4 = 0;
+}
+
+// inferred: names invented
+inline bool ShadeInactive_unk(CharaTask* c) {
+    bool r = false;
+    if ((c->mFlags & 4) == 4 || (c->mFlags & 1) == 1) {
+        r = true;
+    }
+    return r;
+}
+inline bool ShadeGrabbed_unk(CharaTask* c) {
+    bool r = false;
+    if (c->m55C == 6 && c->m560 == 0x1C) {
+        r = true;
+    }
+    return r;
+}
+inline bool ShadeFree_unk(CharaTask* c) {
+    bool r = false;
+    if (!ShadeInactive_unk(c) && (c->mStatus.m0C & 0x20) != 0x20 && !ShadeGrabbed_unk(c)) {
+        r = true;
+    }
+    return r;
+}
+
+// NONMATCHING: 92.9% - the original rereads the status word for the 0x20 test inside the "free" check
+// and keeps the character in r29; the random pick keeps the count in r26 (8 variants: helpers, single
+// condition, nested ifs, CanAct_unk, list capacity)
+// inferred: reinforcement kind 0 seals the first party member of kind 2, kind 1 seals one to three
+// random members (sets the status flag 0x100)
+int Em301LShade::fn_802D5D18(int kind) {
+    int done = 0;
+    switch (m1510) {
+    case 0:
+        for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = NextChara_unk(c)) {
+            if (fn_80219558(c->m50) == 2) {
+                if ((c->mStatus.m0C & 0x40) != 0x40 && (c->mStatus.m0C & 0x100) != 0x100) {
+                    c->mStatus.fn_8013310C(0x100, 0);
+                    c->fn_80166D3C(1);
+                    done = 1;
+                }
+                break;
+            }
+        }
+        break;
+    case 1: {
+        FixedArray_unk<CharaTask*, 16> list;
+        for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = NextChara_unk(c)) {
+            if ((c->mStatus.m0C & 0x100) == 0x100 || (c->mStatus.m0C & 0x40) == 0x40) {
+                continue;
+            }
+            if (ShadeFree_unk(c) && c->fn_8016E484()) {
+                if (m14D4 == 0 || fn_80219558(c->m50) == 2 || c->mStatus.m224 > 1) {
+                    list.PushBack_unk(c);
+                }
+            }
+        }
+        int count = rand() % 3 + 1;
+        if (m14D4 != 0) {
+            count = rand() % 100 < 60;
+        }
+        for (int i = 0; i < count; i++) {
+            if (list.mCount != 0) {
+                unsigned int index = rand() % list.mCount;
+                list.mData[index]->mStatus.fn_8013310C(0x100, 0);
+                list.mData[index]->fn_80166D3C(1);
+                list.erase(&list.mData[index]);
+                done = 1;
+            }
+        }
+        break;
+    }
+    }
+    if (done && m1690.mGlobal >= 0) {
+        fn_805A4A1C((SpecialFlag_unk*)&m1690, 1);
+    }
+    return done;
 }
 
 int Em301LShade::fn_802D7058() {

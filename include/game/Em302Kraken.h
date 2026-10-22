@@ -64,7 +64,16 @@ public:
     virtual atn::Vector3 vfD8(CharaTask* target);
     virtual float vfDC() { return 0.7f; } // inferred: weak copy 0x802DDC2C
 
+    inline void Reset_unk();
     void fn_802DA174();
+    void fn_802DA718();
+    void fn_802DAA38();
+    void fn_802DB2D0();
+    void fn_802DB534();
+    void fn_802DB7C8();
+    void fn_802DBA3C();
+    void fn_802DBC68();
+    void fn_802DC3D0();
     void fn_802DC618(); // inferred: starts state 2 (dead)
     void fn_802DDA90(); // inferred: releases the feet
     void fn_802DDBB0(); // inferred: debug menu entries

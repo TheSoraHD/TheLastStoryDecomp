@@ -5,6 +5,8 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
 ## Unidades
 
 ### game/Em301LShade (0/31 -> 14/31)
+- fn_802D5D18 (refuerzos, sellado de miembros del grupo) escrita: NONMATCHING 92.9% (relectura del estado
+  dentro del inline "libre" y r26/r29; 8 variantes).
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em301LShade.cpp` y cabecera nueva
   `include/game/Em301LShade.h` (subclase de SpecialEnemyBase; layout 0x14D4-0x16B0 deducido del ctor, del dtor
   implicito y de las claves del csv; nombres inventados).
@@ -20,11 +22,13 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   fija vf10 (5.9 KB, sin escribir) y vf0C): ctor, vf54, vf64, fn_802D404C, fn_802D4378, fn_802D4E9C,
   fn_802D5020, fn_802D5674.
 
-### game/Em302Kraken (0/49 -> 6/49, primera pasada)
+### game/Em302Kraken (0/49 -> 7/49)
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302Kraken.cpp` y cabecera nueva
   `include/game/Em302Kraken.h` (subclase directa de EnemyTask: el ctor llama a `__ct__9EnemyTask` y la vtable
   tiene 0xF8 bytes; layout 0x14B0-0x16B8 del ctor/dtor; nombres inventados).
-- Al 100%: dtor, vf14, vf3C, vf40, vfEC, fn_802DC5B4.
+- Al 100%: dtor, vf14, vf3C, vf40, vfEC, fn_802DC5B4, vfD4 (copia debil).
+- vf10 escrita (97.5%: registros del bloque de la camara y pila); fija el orden del pool de .sdata2.
+  symbols.txt: fn_802DA718/AA38/B2D0/B534/B7C8/BA3C/BC68/C3D0 -> metodos `__11Em302KrakenFv` (estados).
 - NONMATCHING >= 97% (pool de cadenas y .sdata2, que ordenan vf0C/vf10 sin escribir): ctor (98.3%: registros del
   segundo std::string, como Em201ZanGurg), vf20, vf54, vfD0, vfD8, fn_802DDA90 (el original relee el flag de
   0x12A4 del pie; 6 variantes), fn_802DDBB0 y las virtuales inline vf90/vf94/vfC8/vfD4/vfDC (copias debiles).

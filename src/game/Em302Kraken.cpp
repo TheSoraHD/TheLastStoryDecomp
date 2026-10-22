@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaStatus.h"
 #include "game/Em303KrakenFoot.h"
+#include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -31,6 +32,92 @@ struct KrakenMsgTable_unk {
 extern "C" KrakenMsgTable_unk* lbl_8087F1E4;
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
+
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk;
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+extern "C" float fn_802E2360(Em303KrakenFoot* foot);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/EnemyTrista.cpp); names invented
+struct KrakenLook_unk {
+    void Set_unk(const atn::Vector3& pos, bool flag) {
+        m01 = m00;
+        m00 = 1;
+        mPos = pos;
+        m24 = 0.0f;
+        m04 = flag ? 1 : 0;
+    }
+    unsigned char m00;
+    unsigned char m01;
+    unsigned char m02[2];
+    int m04;
+    unsigned char m08[4];
+    atn::Vector3 mPos;
+    unsigned char m18[0x24 - 0x18];
+    float m24;
+};
+// inferred: field (lbl_8087F430); names invented
+struct Field_unk {
+    unsigned char m0000[0x8A0];
+    CharaTask* m8A0; // inferred: character the camera follows
+    unsigned char m8A4[0x97C - 0x8A4];
+    KrakenLook_unk m97C;
+    atn::Vector3 m988;
+};
+extern "C" Field_unk* lbl_8087F430;
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
+// inferred: gimmicks (lbl_8087F4A0, as in game/SpecialEnemyBase.cpp); names invented
+struct KrakenGimmick_unk {
+    virtual void vf08();
+    virtual void vf0C();
+    virtual void vf10();
+    virtual void vf14();
+    virtual void vf18();
+    virtual void vf1C();
+    virtual void vf20();
+    virtual void vf24();
+    virtual void vf28();
+    virtual void vf2C();
+    virtual void vf30();
+    virtual void vf34();
+    virtual void vf38();
+    virtual void vf3C();
+    virtual void vf40(void* msg);
+    unsigned char m04[0x48 - 0x04];
+    int m48;
+    unsigned char m4C[0x5C - 0x4C];
+    KrakenGimmick_unk* mNext;
+};
+struct KrakenGimmickList_unk {
+    unsigned char m00[0x48];
+    KrakenGimmick_unk* mHead;
+};
+extern "C" KrakenGimmickList_unk* lbl_8087F4A0;
+// inferred: message sent to the gimmicks (0x20 bytes); names invented
+struct KrakenGimmickMsg_unk {
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    float m14;
+    float m18;
+    float m1C;
+};
+// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp): screen blur parameters at 0x2AC
+struct KrakenBlur_unk {
+    int m00;
+    int m04;
+    float m08;
+    float m0C;
+};
+struct KrakenGame_unk {
+    unsigned char m000[0x2AC];
+    KrakenBlur_unk m2AC;
+};
+extern "C" KrakenGame_unk* lbl_8087EFA8;
 
 // inferred: commands of "act_command" ({name, id}, terminated by a negative id; names invented)
 struct KrakenCommandName_unk {
@@ -109,6 +196,188 @@ Em302Kraken::Em302Kraken(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 Em302Kraken::~Em302Kraken() {}
+
+// inferred: back to state 0 (names invented)
+inline void Em302Kraken::Reset_unk() {
+    m14C8 = 0;
+    m14C4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 0;
+    fn_8016E970(3);
+    fn_800CB5C8(&m1588, 0, 0);
+    fn_80239DAC(lbl_8087F3C0, this, 100, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 101, 1);
+}
+
+// NONMATCHING: draft
+void Em302Kraken::vf10() {
+    if (m58C != 8) {
+        mC58.mC8 = (int)mC58.mC4;
+        CharaTask* leader = lbl_8087F8A0->mHead;
+        if (leader->mFlag28 && !(leader->m55C == 6 && leader->m560 == 0x11)) {
+            m1454 = 0;
+            m1630 = leader;
+        } else {
+            m1454 = 1;
+            m1630 = mC58.mC4;
+        }
+        mC58.mC4 = m1630;
+    }
+    if (m1658 > 0) {
+        m1658--;
+        CharaTask* target = (CharaTask*)m1654;
+        if (target != 0) {
+            Field_unk* field = lbl_8087F430;
+            if (m1658 > 0) {
+                atn::Vector3 pos = *(atn::Vector3*)((char*)target + 0x6C);
+                pos.y += 20.0f;
+                if (m165C == 0) {
+                    field->m8A0 = this;
+                    field->m97C.Set_unk(pos, false);
+                    m165C = 1;
+                } else {
+                    field->m8A0 = this;
+                    field->m988 = pos;
+                }
+            } else if (m165C != 0) {
+                field->m8A0 = 0;
+                field->m97C.m00 = 0;
+                m165C = 0;
+            }
+        }
+    }
+    if (mC58.mC0 == 0 || mC58.mC4 == 0) {
+        fn_8016E970(3);
+        if (m58C == 7 && m14B8 == 3) {
+            fn_802DA174();
+        }
+    } else {
+        if (m15D8 > 0 && --m15D8 == 0) {
+            for (KrakenGimmick_unk* g = lbl_8087F4A0->mHead; g != 0; g = g->mNext) {
+                if (g->m48 == 0x444) {
+                    KrakenGimmickMsg_unk msg;
+                    msg.m00 = 0;
+                    msg.m04 = 0;
+                    msg.m08 = 0;
+                    msg.m0C = 0;
+                    msg.m10 = 0;
+                    msg.m14 = 0.0f;
+                    msg.m18 = 0.0f;
+                    msg.m1C = 0.0f;
+                    g->vf40(&msg);
+                }
+            }
+        }
+        if (m169C > 0) {
+            m169C--;
+        }
+        int frame = ++m14C4;
+        switch (m58C) {
+        case 6: {
+            float f = mMotion.mTracks[0].m08;
+            if (f >= mMotion.fn_80097D7C(0)) {
+                Reset_unk();
+            }
+            break;
+        }
+        case 7:
+            if (mMotion.mTracks[0].m08 <= 0.0f) {
+                vf9C(1);
+                m1560 = 1;
+                Reset_unk();
+            }
+            break;
+        case 8:
+            fn_802DA718();
+            break;
+        case 9:
+            fn_802DAA38();
+            break;
+        case 10:
+            fn_802DB2D0();
+            break;
+        case 11:
+            if (mMotion.mTracks[0].m00 == 0x145) {
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
+                fn_80370AE4(lbl_8087F430, 0x5B, 1);
+            } else if (frame < 20) {
+                (void)(float)frame;
+            } else if (frame >= 45) {
+                fn_802DC3D0();
+            }
+            break;
+        case 12:
+            fn_802DB534();
+            break;
+        case 13:
+            fn_802DB7C8();
+            break;
+        case 14:
+            fn_802DBA3C();
+            break;
+        case 15:
+            fn_802DBC68();
+            break;
+        case 2:
+            vfEC();
+            break;
+        default: {
+            fn_8016E970(3);
+            atn::Vector3 rot = mRot;
+            float zero = 0.0f;
+            float one = 1.0f;
+            if (m55C == 6) {
+                fn_8013A258();
+            } else {
+                fn_8013CB68(&rot, 0, zero, m568 * one);
+            }
+            fn_802DA174();
+            break;
+        }
+        }
+    }
+    m14D4++;
+    RoutePlace_unk* place = m1634;
+    if (place != 0) {
+        mPos = place->mPos;
+        mRot.y = 3.1415927f + place->m14;
+    }
+    mPos.x += m15C8.x;
+    mPos.y = mPos.y + m15C8.y + m14CC;
+    mPos.z += m15C8.z;
+    if (m14B8 == 3) {
+        mPos.y -= 1000.0f;
+    }
+    fn_8014C540();
+    fn_80145334();
+    m16A0 -= 0.1f;
+    if (m16A0 < 0.0f) {
+        m16A0 = 0.0f;
+    }
+    if ((mStatus.m0C & 0x20) != 0x20) {
+        CharaTask* leader = lbl_8087F8A0->mHead;
+        if (m58C == 12 && m14C4 > 45) {
+            m16A0 += 0.5f;
+        }
+        for (unsigned int i = 0; i < m1678.size(); i++) {
+            m16A0 += fn_802E2360(m1678[i]);
+        }
+        m16A0 = m16A0 < 1.0f ? m16A0 : 1.0f;
+        KrakenBlur_unk blur;
+        KrakenGame_unk* game = lbl_8087EFA8;
+        blur.m04 = game->m2AC.m04;
+        blur.m00 = 1;
+        blur.m0C = m16A0;
+        blur.m08 = 5.0f;
+        if (leader->m570 > 1.0f) {
+            blur.m0C = m16A0 + 0.1f;
+        }
+        game->m2AC = blur;
+    }
+}
 
 void Em302Kraken::vf14() {
     if (m1560 != 0) {
