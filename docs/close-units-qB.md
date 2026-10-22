@@ -58,6 +58,7 @@ Una linea por unidad procesada (orden de cola_B.md).
 - gmk/RotaryRoom: escrita vf0C (0% -> 96.1%); con ella pasan al 100% las copias debiles MapPartsBase::vf24 (0x8042488C) y RotaryEntry_unk::RotaryEntry_unk (0x804248E0), y vf40/vf6C/__sinit suben a 99.93-99.95% (orden de .sdata2 pendiente de fn_80424AD4/fn_80424FB4/fn_80425498). 9/18. Tipos locales nuevos (RotaryLocator_unk, RotaryBox_unk, AABB_unk local como en otras TUs).
 - gmk/DropItem::vf60 (copia debil en Cannonball): 10 variantes del inline (bool/int, return directo, IsOut_unk reescrito) sin acertar el orden r4/r5; se deja.
 - gmk/Chain: las 4 funciones sin escribir usan push_back en bucle (bloqueo documentado); saltada. db/PaletteTable_unk fn_8020BB0C: 5 variantes de las locales sin usar, sin mejora.
+- gmk/RandomItem: escrita fn_80435CBC (funcion libre llamada desde GameScene: `m11C == 2 && m168 != 0`) -> 100%. 13/19. gmk/CharaPathMove fn_8043D6E4/fn_8043D930: copias debiles de std::vector dentro de vf20 (presupuesto de inline ya investigado); saltadas.
 
 ## Hallazgos MWCC
 - Pasar `(int)x` (x unsigned) a un inline en una segunda llamada impide que MWCC comparta las subexpresiones del parametro entre las dos copias inlineadas (TreasureBoxTable).

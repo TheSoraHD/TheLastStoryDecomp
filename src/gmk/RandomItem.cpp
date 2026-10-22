@@ -221,3 +221,12 @@ void RandomItem::vf70(int state) {
 }
 
 } // namespace gmk
+
+// inferred: the item is waiting to be taken (called by GameScene with the gimmick found by
+// GimmickManager::fn_803EEE10; name unknown)
+extern "C" int fn_80435CBC(gmk::RandomItem* item) {
+    if (item->m11C == 2 && item->m168 != 0) {
+        return 1;
+    }
+    return 0;
+}
