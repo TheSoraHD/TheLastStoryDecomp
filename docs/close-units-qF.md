@@ -145,6 +145,10 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
 - game/Em003LesserDaemon (0/22 -> 4/22, NUEVA fuente + cabecera con relleno): dtor, vf88 (salta a
   fn_8024FCDC), vf14, vfEC al 100%. symbols.txt: fn_8024AB20/BE90/C468/E690/FCDC -> nombres de la clase.
 
+- game/Em310Gargoyle (0/21 -> 2/21, NUEVA fuente + cabecera con relleno): dtor y vf54 al 100%. Las otras
+  pequenas (0x8030B408 ctor de un color de 4 floats, 0x8030C190 accesor de nodo, 0x8030DA1C vacia) son copias
+  debiles cuyo tipo no esta identificado; no se escriben.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
