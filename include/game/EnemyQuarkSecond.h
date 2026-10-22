@@ -68,6 +68,7 @@ public:
 
     inline void ResetState_unk();
     inline void PlayMotion_unk(int motion, int loop, float speed);
+    inline int NextInTable_unk(int range, int& index);
     void fn_8033A7A0(); // inferred: picks the next action
     void fn_8033C490(); // inferred: state 6
     void fn_8033D040(); // inferred: state 7
@@ -89,7 +90,8 @@ public:
     void fn_8034315C();
     void fn_803435B8();
     void fn_80343B0C();
-    void fn_80344BB4(); // inferred: releases the field camera
+    inline void fn_80344BB4(); // inferred: releases the field camera
+    inline void StartDown_unk();
     void fn_8033AB88(); // inferred: moves the collision sphere in front
     void fn_8033C000(); // inferred: moves towards the target
     void fn_8033C3D8(); // inferred: state 0 (wait)
