@@ -66,3 +66,12 @@ las reglas se tomaron del prompt del lote y de las notas de docs/.
   `mSaved` con `__Vec2Copy` explicito (con el operator= salian r4/r5 intercambiados). Las copias debiles de
   IRenderLayer que emite el .o las descarta el enlazador (como en Layer3D/LayerReflect).
   - CABECERA (solo de esta unidad): `include/atn/LayerPostFx.h` incluye math/Vec.h y da a Vec2f ctor de copia y operator=.
+- `atn/D3Anime`, `atn/D3AnimeInstance`, `atn/LipSync_unk`: saltadas (solo registros, ya investigadas; D3Anime vf14 es el
+  mismo intercambio r4/r5 del inline de carga).
+- `atn/Pad_unk` (15/17): `fn_800A58D0`/`fn_800A58F8` siguen 97% (10 intentos: el original deja el gestor en r3 y la tabla en r5).
+- `atn/LightUtil_unk` (4/7): sin cambios. `fn_8007A154` 98.73%: con el borrado en un inline `Erase_unk` definido despues se
+  relee mCount como en el original pero se intercambian dst/src (r6/r7) - descartado; `fn_8007A36C`/`A41C` 99.5%
+  (10 intentos cada una).
+- `atn/TextureCacheManager8x32` (6/7): `ITextureCacheManager::fn_800D6898` 0% -> 100% (nueva: region de cache de una
+  textura; `int mipmap`, con `unsigned char` sale el clrlwi en cada prueba). Ctores 99.07% sin cambios (4 intentos
+  nuevos). Nombres de SDK declarados localmente: `GXGetTexObjFmt`, `GXGetTexObjMipMap`, `fn_806163B0` (GXGetTexObjData).
