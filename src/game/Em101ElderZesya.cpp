@@ -47,6 +47,52 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_80102EAC(Effect_unk* mgr, int id, CharaTask* attacker, int arg, int arg2);
 
+// inferred: collision world and its ray test (see game/ChaserNpc.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10; // inferred: position after the sweep (as in gmk/Lemon.h)
+    unsigned char m1C[0x34 - 0x1C];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk;
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+
+// inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" double sqrt(double x);
@@ -219,6 +265,41 @@ void Em101ElderZesya::vf54() {
             }
         }
     }
+}
+
+// inferred: warp point of the current barrier (name invented)
+inline void Em101ElderZesya::GetWarp_unk(atn::Vector3* pos, float* rot) {
+    Gimmick_unk* desc = 0;
+    if (m1680 < 4) {
+        desc = m151C[m1680].m00;
+    }
+    if (desc != 0) {
+        *pos = desc->mPos;
+        *rot = desc->mRotY_unk;
+    }
+}
+
+void Em101ElderZesya::fn_8025941C() {
+    m14C8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m14D0 = 0;
+    m1660 = 0;
+    m58C = 13;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
+    GetWarp_unk(&m1684, &m1690);
+    CollResult_unk result;
+    mPos = m1684;
+    atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + m1684;
+    if (fn_8004ED34(lbl_8087EE98, &result, &m1684, &to, 0x80000000, &mColli, 0) != 0) {
+        mPos = result.m10;
+    }
+    mRot.y = m1690;
+    fn_80232B7C(this, 101);
+    PlayEffect_unk(&m15F8, &mMotion);
 }
 
 // inferred: hit handling: in states 9, 12 and 13 the hits are ignored; while a barrier is up a hit on the

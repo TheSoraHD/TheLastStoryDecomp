@@ -30,7 +30,7 @@ public:
         // inferred: names invented
         bool IsUp_unk() const { return m04.mState != 2 && mDesc != 0; }
         inline const atn::Vector3& GetPos_unk() const;
-        int m00;
+        Gimmick_unk* m00; // inferred: warp point next to the barrier (position at 0x04, rotation at 0x14)
         // inferred: collision objects of the barrier (destroyed with the barrier)
         struct Colli_unk {
             ~Colli_unk() {
@@ -64,6 +64,8 @@ public:
     void fn_80256384(); // inferred: reads the data file
     void fn_80259AB4(int index, int state);
     void fn_802598DC(); // inferred: picks the chant point // inferred: changes the state of a barrier
+    void fn_8025941C(); // inferred: warps next to the current barrier (state 13)
+    inline void GetWarp_unk(atn::Vector3* pos, float* rot);
 
     int m14B0;                          // inferred: loading state (0, 1 collision objects, 2 ready)
     atn::LH_Binary m14B4;               // inferred: data file
