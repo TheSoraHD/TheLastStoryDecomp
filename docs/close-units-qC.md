@@ -118,3 +118,11 @@ Hallazgos MWCC (10):
 - `max -= height - bar; unit = max / count;` (resta en sitio en el parametro/local) reproduce el uso de FPR del original donde `(max - (12 - bar)) / count` crea un fmr de mas (MenuCommonTask::fn_804A4934).
 - chr/ControlAppear: invoke/manage del bind con MOTION_ID salen al 0% solo por el numero del enum anonimo en el nombre decorado (`@enum$3246ControlAppear_cpp` en el original, `$5814` aqui: depende de los tipos anonimos declarados antes en la TU); el codigo es identico (cmp.py OK).
 - game/SpecialEnemyBase fn_805A5078 (copia z-primero de `dir`, sub-bloqueo B), chr/ControlStagger ControlSlip::vf0C (direccion de la rotacion en r31 reutilizado; 3 variantes), game/ChaserNpc ctor (push_back), game/EnemySeaLizerd fn_80355390 (6 variantes de GetFrontPos_unk): sin cambios.
+
+## Cambio de reparto (05:35)
+- Por mensaje del coordinador, la cola C se queda solo con las unidades de <= 3 funciones pendientes; las de 4-19 pasan a la cola E (no tocadas desde entonces; game/NewCampPartsStatus vf14 se dejo sin cambios tras 3 variantes del flag `show`).
+- Ultimas unidades <= 3 pendientes procesadas:
+  - game/GimmickManager: saltada - LoadSeTableTask::vf0C y fn_803EF3B0 dependen del presupuesto de inline (documentado en la unidad).
+  - game/ShopColor: vf38 saltada (push_back); fn_805880F0 97.90% sin cambios (9 variantes: party local quitado/movido, pos/name en el bucle, indice local, referencia a la entrada).
+  - chr/ControlMoveCursor: sin cambios. fn_801C3D1C 89.32% (6 variantes: chara local, constantes en locales, orden de las sumas, mascara local, `!`); fn_801C3944 96.58% (4 variantes del punto final; `step` local da 96.59%, ganancia despreciable, no aplicado); fn_801C346C (constructor trivial de Matrix3x4, documentado).
+  - game/MapInstance_unk: sin cambios. ctor 94.05% (orden id/rotacion, id en local, incremento separado: todos peores).
