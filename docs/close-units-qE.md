@@ -43,3 +43,9 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   (r27/r28, r29/r30: misma familia que el ctor de Em201ZanGurg); `fn_8049B1F0` 97.3% (6 intentos: `mData[i]`,
   local `inst`, offset en bytes, indice sin signo, helper): MWCC reduce `i * 4` a una variable de induccion que el
   original no tiene. `vf24` 87.9% saltada (ya investigada, lectura doble de la caja).
+- `game/MotionCommand_unk` (24/28): saltada, bloqueos documentados (parser sobre el presupuesto de inline solo con
+  registros; `push_back` de `vector<string>` y pool de cadenas que empieza por "vector length error").
+- `game/ShopIdentify` (16/20, sin nuevas): `fn_805897D4` 98.66% -> 98.97% (`mIndex--`; quedan registros volatiles del
+  bucle, 7 intentos). `fn_80589DE0` 97.60% sin cambios (4 intentos): es la planificacion del argumento de tamano de
+  `fn_8006EF48` (mismo bloqueo que MenuCommonTask y MP/D2AMpMenuSetRule). `fn_8058A0F0` (doble lectura del texto,
+  SetPaneText) y `fn_8058A3AC` (insert de vector MSL sin escribir) saltadas: bloqueos documentados.
