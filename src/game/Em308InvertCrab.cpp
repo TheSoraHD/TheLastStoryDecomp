@@ -30,6 +30,15 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Model_unk* model,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
+                            int arg10, float scale); // inferred: plays an effect (as in gmk/PlayEffect.cpp)
+// inferred: player manager (lbl_8087F8A0, as in game/CharaTask.cpp)
+struct PlayerManager_unk {
+    unsigned char m00[0x48];
+    CharaTask* mHead;
+};
+extern "C" PlayerManager_unk* lbl_8087F8A0;
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
@@ -85,6 +94,10 @@ Em308InvertCrab::Em308InvertCrab(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 Em308InvertCrab::~Em308InvertCrab() {}
+
+void Em308InvertCrab::vf14() {
+    fn_80149A30();
+}
 
 // NONMATCHING: 98.80% - r5/r6 of the down test and of the direction temporaries, stack slots of the two
 // vectors (~10 forms)
@@ -271,6 +284,28 @@ void Em308InvertCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
 }
 
 // inferred: end of the death motion; while not down it gets up again (state 14)
+// inferred: end of the death motion (state 17): counts m1434 down, the effect at 29
+void Em308InvertCrab::fn_802F58A0() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mFlag25 = 1;
+        mColli.mFlags &= ~1;
+        if (m1434 > 0) {
+            if (--m1434 == 29) {
+                fn_80232B7C(0, 0);
+                PlayEffect_unk(&m15AC, &mMotion);
+                vf9C(1);
+                fn_800EB7A0(this);
+            }
+        } else {
+            mFlag15 = 1;
+            fn_801765D8();
+        }
+    } else {
+        m1434 = 30;
+    }
+}
+
 void Em308InvertCrab::vfEC() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -304,4 +339,39 @@ void Em308InvertCrab::vfEC() {
     } else {
         m1434 = 30;
     }
+}
+
+// inferred: death: effect ef_sp008_01 at the node "hit_top" of the player (6 above), or 5 below the crab
+// NONMATCHING: 99.86% - r3/r4 of the __VecCopy of the node translation (known blocker); ~8 forms
+void Em308InvertCrab::fn_802F66CC() {
+    fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+    fn_800CB5C8(&m1514, 0, 0);
+    m1590 = 0;
+    m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = 2;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+    CharaTask* player = lbl_8087F8A0->mHead;
+    Model_unk* model = (Model_unk*)player->m648->m010;
+    MtxPtr node = model->GetNodeMtx_unk("hit_top");
+    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+    if (node != 0) {
+        pos = ((atn::Matrix3x4*)model->GetNodeMtx_unk("hit_top"))->GetTrans_unk();
+        pos.y += 6.0f;
+    } else {
+        pos = mPos;
+        pos.y -= 5.0f;
+    }
+    fn_80232B7C(this, 0);
+    EffectMgr_unk* mgr = lbl_8087F3C0;
+    fn_8023A680(mgr, &m15B8, -1, 0, 0, &pos, &player->mRot, 0, 0, -1, 1, 1.0f);
+    m6B8 = lbl_807C7030;
 }
