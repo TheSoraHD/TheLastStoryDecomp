@@ -53,6 +53,10 @@ game/Em315Coffin.
   original relee justo despues de escribirlos a traves de `*(volatile int*)&...` (m14E0/m157C en vf40, m54C en
   fn_8030E530 y en el estado 13 de vf100, que sube a 98.43%). Declarar los miembros `volatile` en la cabecera
   empeora vf40 (94.9%): el volatile va solo en esas lecturas.
+  - vf104 (0x8030EA28, 2.4 KB, maquina de estados) al 100% (18/21): contadores de los cuatro ataques, efecto
+    aleatorio de m1580 en un inline `ServantEffect_unk` (el color dentro del inline da el orden de pila del
+    original), proporcion de vida del amo (`mStatus.m04 / mParamB.m84`) y el bloque de los estados 9-12 escrito
+    justo antes del 13 en el switch. El bit del estado 2 es mFlag25 (0x02000000 de 0x12A4).
   - ctor al 100% (17/21): `ServantAttack_unk` con constructor inline que pone a cero (el original construye
     m14EC y m152C con bucles de array de paso 16) y los cuatro enteros por defecto en la lista de inicializacion.
 - `game/Em309GhoulSimple` (9/22, sin nuevas al 100%): escritas vf10 (0x8030646C, 99.57%: registros volatiles del
@@ -93,6 +97,7 @@ game/Em315Coffin.
 - symbols.txt (renombrados): fn_80310C64 -> `fn_80310C64__8Em314IvyFPCci`, fn_80312EF8 ->
   `fn_80312EF8__8Em314IvyFv`, fn_8031319C -> `fn_8031319C__8Em314IvyFP9CharaTask`, fn_803132D0 ->
   `fn_803132D0__8Em314IvyFv`. Ningun otro .cpp los usaba.
+- symbols.txt: fn_8030EA28 -> `vf104__16Em312DarkServantFv`.
 - symbols.txt: `lbl_807490AC` -> `@stringBase0` (scope:local, pool de cadenas de Em312DarkServant);
   fn_8030E710 -> `vf100__16Em312DarkServantFi`, fn_8030F380 -> `fn_8030F380__16Em312DarkServantFv`.
 - symbols.txt: fn_8030646C -> `vf10__16Em309GhoulSimpleFv`, fn_80308D14 -> `vf20__16Em309GhoulSimpleFv`,

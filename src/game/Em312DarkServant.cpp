@@ -26,6 +26,10 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask
+extern "C" int rand();
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -329,6 +333,138 @@ void Em312DarkServant::vf100(int state) {
         mFC0 = mC58.mC4;
     } else if (prev == 7 && m58C != 7) {
         mFC0 = 0;
+    }
+}
+
+// inferred: hit point ratio of a character, 1 without maximum (name invented)
+inline float ServantHpRatio_unk(CharaTask* c) {
+    int max = c->mStatus.mParamB.m84;
+    return max > 0 ? c->mStatus.m04 / max : 1.0f;
+}
+
+// inferred: plays the effect m1580 at `pos` (name invented)
+inline void ServantEffect_unk(Em312DarkServant* s, const atn::Vector3& pos, float scale) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, &s->m1580, &s->mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
+}
+
+void Em312DarkServant::vf104() {
+    m14C0++;
+    if (CanAct_unk()) {
+        for (int i = 0; i < 4; i++) {
+            if (m14EC[i].m0C > 0) {
+                m14EC[i].m0C--;
+            }
+        }
+        if (m14D8 != 0 && m156C > 0) {
+            m156C--;
+        }
+        fn_8030F380();
+        if (m14D8 == 0 && !fn_80239D58(lbl_8087F3C0, this, 0)) {
+            fn_80232B7C(this, 0);
+            float scale = 0.75f + (rand() % 1001) / 1000.0f;
+            ServantEffect_unk(this, atn::Vector3(0.0f, -(0.5f * m5B4 * ((rand() % 1001) / 1000.0f)), 0.0f), scale);
+        }
+        if (m58C != 9 && m14D8 == 0 && m14D4 != 0) {
+            mC58.mC4 = m14D4->mC58.mC4;
+            mC58.mC8 = (int)mC58.mC4;
+        }
+        if (m14D4 != 0 && (m14D4->mStatus.m0C & 0x20) == 0x20) {
+            vf100(2);
+        }
+    }
+    if (CanAct_unk() && m58C != 6 && m58C != 11) {
+        if (!vfF8()) {
+            vf100(6);
+        } else if (mC58.mC4 != (CharaTask*)mC58.mC8) {
+            vf100(6);
+        }
+    }
+    switch (m58C) {
+    case 6:
+        if (m55C == 2 && vfF8()) {
+            if (*(volatile int*)&m14E0 >= *(volatile int*)&m157C) {
+                vf100(13);
+            } else if (m14D4 != 0 && ServantHpRatio_unk(m14D4) < 0.5f) {
+                vf100(7);
+            } else {
+                vf100(8);
+            }
+        }
+        vf108();
+        break;
+    case 7: {
+        if (*(volatile int*)&m14E0 >= *(volatile int*)&m157C) {
+            vf100(13);
+            break;
+        }
+        atn::Vector3 d = mC58.mC4->mPos - mPos;
+        if (mFlag31 || m14BC == 0 || fn_805F9920(&d) < m14E8 * m14E8) {
+            if (m156C <= 0 && (mStatus.m0C & 4) != 4) {
+                vf100(12);
+            } else if (m14DC >= m1578 && m14D8 != 0) {
+                vf100(11);
+            } else if (fn_8030FEAC(m14E8) >= 2 && m14EC[1].m0C <= 0) {
+                vf100(10);
+            } else if (m14EC[0].m0C <= 0) {
+                vf100(9);
+            }
+        }
+        vf108();
+        break;
+    }
+    case 8: {
+        if (*(volatile int*)&m14E0 >= *(volatile int*)&m157C) {
+            vf100(13);
+            break;
+        }
+        atn::Vector3 d = mC58.mC4->mPos - mPos;
+        if (mFlag31 || fn_805F9920(&d) < m14E8 * m14E8) {
+            if (m156C <= 0 && (mStatus.m0C & 4) != 4) {
+                vf100(12);
+            } else if (m14DC >= m1578 && m14D8 != 0) {
+                vf100(11);
+            } else if (fn_8030FEAC(m14E8) >= 2 && m14EC[1].m0C <= 0) {
+                vf100(10);
+            } else if (m14EC[0].m0C <= 0) {
+                vf100(9);
+            }
+        } else if (m14D4 != 0 && ServantHpRatio_unk(m14D4) < 0.5f) {
+            atn::Vector3 d2 = m14D4->mPos - mPos;
+            if (fn_805F9920(&d2) > m14E4 * m14E4) {
+                vf100(7);
+            }
+        }
+        vf108();
+        break;
+    }
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+        if (mFlag31) {
+            vf100(6);
+        }
+        vf108();
+        break;
+    case 13:
+        if (mFlag31) {
+            vf100(6);
+        }
+        vf108();
+        break;
+    case 2:
+        mColli.mFlags &= ~1;
+        CharaTask::mFlag25 = 1;
+        fn_800EAECC(this);
+        break;
+    default:
+        vf100(6);
+        break;
     }
 }
 
