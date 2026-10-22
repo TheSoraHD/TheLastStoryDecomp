@@ -69,3 +69,5 @@ Hallazgos MWCC (4):
 - chr/ControlPushedDown, game/MapPartsLocatorSet, game/MotionCommand_unk, game/ShopIdentify, chr/ControlAppear, chr/ControlCliffhang, game/CharaFaceControl, game/CostumeEditChara: saltadas - slots de pila / push_back / orden de z / `__VecCopy` / SetPaneText segun sus comentarios.
 - game/GameOverTask: fn_80377298 99.45 -> 99.55%: `opts = sOptRetryTitle; mChoices.push_back(opts[0]);` arregla r3/r4 de la opcion unica. Lo que queda es de reubicaciones: el original referencia las tablas como lbl_8074DDF8 + n (pool unico); objdiff lo ve como diferencia de argumento.
 - game/LibraryTask: sin cambios. Ctor 99.69% (lista/offset r30/r31; 9 variantes, como el ctor de SelectMember pero al reves).
+- game/NewCampPartsHint, chr/ControlDive: saltadas (push_back en bucle / registros ya investigados / `__VecCopy`).
+- game/ChaserNpc: 9/14. fn_8018128C (0x8018128C) SUBIDA: `m14C4 = (float)MAX(...); m14C4 *= 1.32f;` (asignacion compuesta en vez de `x * 1.32f` en la misma expresion; cambia el orden de operandos de fmuls). fn_80181D94 99.57% (bucle de FindPlace_unk, como CharaC58_unk) no intentada.

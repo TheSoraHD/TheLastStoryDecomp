@@ -211,7 +211,6 @@ void ChaserNpc::fn_80181284() {
     fn_8018161C(3);
 }
 
-// NONMATCHING: 99.9% - operand order of the last multiplication by 1.32.
 void ChaserNpc::fn_8018128C() {
     mC58.m11C.m01 = 1;
     atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
@@ -240,7 +239,8 @@ void ChaserNpc::fn_8018128C() {
     float slow = settings->m574 * (float)(m14C8 / settings->m578);
     float limit = settings->m548 - slow;
     m14C4 = MIN(m14C4, limit);
-    m14C4 = (float)MAX((double)m14C4, settings->m544) * 1.32f;
+    m14C4 = (float)MAX((double)m14C4, settings->m544);
+    m14C4 *= 1.32f;
     if (mC58.m0C.m2C != 0) {
         if (dist > settings->m560) {
             fn_8018161C(1);
