@@ -332,18 +332,18 @@ extern "C" void fn_800C2274(NewCampScene2_unk* scene) {
 // inferred: number of lights (name invented)
 inline int NumLights_unk(NewCampScene2_unk* scene) {
     int n = scene->mLights.mSize;
-    return fn_80477FDC(&scene->mFile) + n;
+    int m = fn_80477FDC(&scene->mFile);
+    return m + n;
 }
 
-// NONMATCHING: 99.17% - operand order of the final add
 extern "C" int fn_800C23E8(NewCampScene2_unk* scene) {
     return NumLights_unk(scene);
 }
 
-// NONMATCHING: 99.17% - operand order of the final add
 extern "C" int fn_800C2418(NewCampScene2_unk* scene) {
     int n = scene->mCameras.mSize;
-    return fn_80477FF8(&scene->mFile) + n;
+    int m = fn_80477FF8(&scene->mFile);
+    return m + n;
 }
 
 // inferred: light i (the lights of the file first)
