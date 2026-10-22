@@ -19,6 +19,7 @@ public:
     Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em308ParmCrab();
     virtual void vf20();
+    virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
     virtual float vf90();
 

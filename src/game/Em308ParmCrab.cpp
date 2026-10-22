@@ -29,6 +29,9 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
 extern "C" void fn_80108F38(Effect_unk* effect, const atn::Vector3& pos, int status); // inferred: status effect
 
 // NONMATCHING: 99.83% - r26/r27 of the second std::string constructor (known blocker, as in Em308InvertCrab)
@@ -109,6 +112,48 @@ void Em308ParmCrab::vf20() {
     mColli.m3C = pos;
     mColli.m48 = bottom;
     mColli.m54 = m620;
+}
+
+// inferred: as Em308InvertCrab::vf3C: knockback only while down or from behind (guard angle m1534); in
+// state 14 (stunned) the knockback is cancelled
+// NONMATCHING: 98.84% - r5/r6 of the down test and of the direction temporaries (as Em308InvertCrab::vf3C)
+// and the load order of m1534 / 0.5f before cos (~12 forms)
+void Em308ParmCrab::vf3C(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (!IsDown_unk()) {
+        if (m58C == 8) {
+            msg->m10 = lbl_807C7030;
+        }
+        if (!(atn::Abs_unk(m1534) < 1.1920929e-7f) && msg->mData->m04 != 0xD1) {
+            atn::Vector3 dir;
+            atn::Vector3 d = msg->m1C - mPos;
+            dir = d;
+            PSVECNormalize(&dir, &dir);
+            if (m1538 != 0) {
+                dir *= -1.0f;
+            }
+            if (msg->mData->m01 != 1) {
+                atn::Vector3 front(0.0f, 0.0f, 1.0f);
+                Mtx m;
+                PSMTXRotRad(m, 'y', mRot.y);
+                PSMTXMultVec(m, &front, &front);
+                float dot = PSVECDotProduct(&dir, &front);
+                if (dot > (float)cos(atn::DegToRad_unk(m1534 * 0.5f))) {
+                    msg->m48 = 1;
+                    msg->m10 = lbl_807C7030;
+                }
+            }
+        }
+    }
+    if (msg->m48 == 0 && m58C == 8 && m15CC == 1) {
+        fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+        fn_800CB5C8(&m151C, 0, 0);
+    }
+    if (m58C == 14) {
+        msg->m10 *= 0.0f;
+    }
+    fn_80151448(msg);
+    vf40(hit);
 }
 
 // inferred: dies when the status 0x20 is set; the stun skill 0x1791 starts state 14 (motion 2)
