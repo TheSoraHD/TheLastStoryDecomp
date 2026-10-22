@@ -25,6 +25,7 @@ public:
     virtual int vf10C(HitMsg_unk* msg);
 
     void fn_802EE9A8(const char* text, int length); // inferred: reads the data file
+    void fn_802F1240(CharaTask* rider); // inferred: drops the rider
 
     int m14D4;
     atn::Vector3 m14D8;

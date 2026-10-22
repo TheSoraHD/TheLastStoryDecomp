@@ -90,6 +90,8 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   - Decision sin el usuario: la llamada al jinete usa una vista local `Rider_unk` con vf3C de dos argumentos
     (CharaTask::vf3C de la cabecera compartida tiene uno; no se toca).
   - symbols.txt: fn_802EE604/E7B8/E838/E9A8/EFE0/F01C/F0FC/F124/802F1490 -> nombres de Em306GurgBeast.
+  - Segunda pasada (9/22): fn_802F1240 (suelta al jinete; mFlag31/mFlag6 de 0x12A4) al 100%; symbols.txt
+    fn_802F1240 -> `fn_802F1240__14Em306GurgBeastFP9CharaTask`.
 
 - game/Em309GhoulSimple (0/22 -> 8/22, NUEVA fuente + cabecera): al 100% dtor, vf0C (carga en dos pasos con
   m164C), vf14, vf10C, vfFC, vf54, vf64, vf90. ctor ~85% (bucle de ctores de GhoulPair_unk[7] y cero en r30).

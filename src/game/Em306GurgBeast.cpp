@@ -173,3 +173,25 @@ void Em306GurgBeast::vf30(void* menu) {
     }
     fn_805A5220(group);
 }
+
+void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
+    rider->fn_8017AC3C((int)this);
+    vf100(15);
+    m1550 = -1;
+    m1554 = 3;
+    m14C0 = 0;
+    m155C = 300;
+    if (rider->mFlag31) {
+        rider->fn_801539E0();
+    }
+    if (rider->mFlag6) {
+        rider->fn_80155DAC(0);
+    }
+    if (rider->m139C != 0) {
+        rider->fn_8017A33C(0, 1);
+    }
+    if (rider->m1208 != 0) {
+        rider->fn_801750FC();
+    }
+    rider->fn_80164DCC(0);
+}
