@@ -20,6 +20,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 - `docs/mwcc-blockers.md`: bloqueos recurrentes investigados (qué **no** repetir).
 - `docs/inlining.md` (reglas R1–R5, `tools/inline_bench.py`), `docs/msl_cpp.md` (`basic_string`/`vector`/`list`), `libs/boost/README.md`, `docs/game_units.md`, `docs/classes.md`, `docs/splits-plan.md`, `tools/decomp/README.md`.
 - `docs/archivo/CLAUDE_completo_2026-10-22.md`: el CLAUDE.md largo anterior (estado por unidad, hallazgos con ejemplos, notas de red/DWC). Solo para `grep`.
+- **Ficheros grandes: nunca enteros, solo `grep` o rangos.** `config/SLSP01/symbols.txt` (3 MB), `splits.txt` (160 KB), `game_units.json` (60 KB), `docs/classes.md` (85 KB), `docs/game_units.md` (36 KB), las notas de lotes `docs/*-q*.md` (20–120 KB cada una), `build/SLSP01/report.json` y los `.s` de `build/SLSP01/asm` (usar `fasm.py`). Filtrar también las salidas largas de `ninja`, `regress.py` o `targets.py` (`| tail`, `grep`).
 
 ## Reglas innegociables
 
@@ -73,7 +74,7 @@ tools/decomp/try.sh test.cpp                                   # compila un fich
 ## Flujo por unidad/función
 
 1. `targets.py` → objetivo. **Antes de escribir, comprobar que el split cubre el fichero real** (pool `@stringBase0`, `.sdata2`, `.sbss`, funciones vecinas): si no, casi nada llega al 100%.
-2. `fasm.py` para el asm; `symbols.txt`, `include/` y `docs/classes.md` para tipos y vtables; funciones vecinas ya hechas.
+2. `fasm.py` para el asm; `grep` en `symbols.txt` y `docs/classes.md` por la clase o la dirección; cabeceras de `include/` y funciones vecinas ya hechas.
 3. Escribir el C++ en el orden del `.dol`; compilar la unidad; `cmp.py`/`odiff2.py`; iterar.
 4. Si se atasca: `grep -i <palabra> docs/trucos-mwcc.md docs/mwcc-blockers.md`.
 5. Al 100%: `pairnames.py --apply` (revisar), `matching: true` si toda la unidad lo está, `configure` + `ninja`, `main.dol: OK`, `regress.py` lost: 0. Commit.
