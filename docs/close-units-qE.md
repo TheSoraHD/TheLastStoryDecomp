@@ -81,3 +81,5 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   que avanza, asignacion separada): r30/r31 de ruta/desplazamiento. `vf14` 99.51% (5 intentos: orden l/r, lectura
   tardia, `book` local, hash en local, layouts en locales): r28/r29. El resto (push_back y pool de basic_string)
   son bloqueos documentados.
+- `game/NewCampPartsHint` (14/19, sin cambios): `vf3C` 96.90% (5 intentos mas: `!show`, helper, `hidden` local,
+  `++i`): r6/r7 de entrada/desplazamiento. vf14/vf30 (registros) y vf20/vf30/fn_80516004 (push_back) saltadas.
