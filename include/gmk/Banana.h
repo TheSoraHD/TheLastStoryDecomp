@@ -24,7 +24,7 @@ public:
     virtual void vf24();
     virtual void vf28();
     virtual Model_unk* vf38();
-    virtual int vf40(GimmickMsg_unk* msg); // 0x80416CB8: not decompiled yet (message hooks)
+    virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
 
     Model_unk mModel;       // 0xF4

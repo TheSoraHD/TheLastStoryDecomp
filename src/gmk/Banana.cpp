@@ -1,6 +1,7 @@
 #include "gmk/Banana.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "game/CharaTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -22,6 +23,14 @@ struct Settings_unk {
     int mFps; // 0x30: inferred: frames per second
 };
 extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" int rand();
+
+// inferred: listeners (see gmk/Item.cpp; this object defines the local static, so the unit cannot
+// be linked as it is)
+inline CharaListeners_unk* fn_8014F8F4() {
+    static CharaListeners_unk sListeners;
+    return &sListeners;
+}
 
 namespace gmk {
 
@@ -123,6 +132,32 @@ int Banana::vf60() {
 
 Model_unk* Banana::vf38() {
     return &mModel;
+}
+
+// inferred: message 3 throws the model with a random velocity and spin
+int Banana::vf40(GimmickMsg_unk* msg) {
+    if (msg == 0) {
+        return 0;
+    }
+    m54 = msg->mType;
+    if (m54 == 3) {
+        mVel.x = 2.0f * (rand() % 1001 / 1000.0f) - 1.0f;
+        mVel.z = 2.0f * (rand() % 1001 / 1000.0f) - 1.0f;
+        mVel.y = 1.0f;
+        mRotVel.x = 0.62831855f * (rand() % 1001 / 1000.0f);
+        mRotVel.y = 0.62831855f * (rand() % 1001 / 1000.0f);
+        mRotVel.z = 0.62831855f * (rand() % 1001 / 1000.0f);
+    }
+    CharaListeners_unk* listeners = fn_8014F8F4();
+    if (listeners->mEnabled != 0) {
+        for (int i = 0; i < (int)listeners->mList.size(); i++) {
+            CharaListener_unk& listener = listeners->mList[i];
+            if (listener.mId == -1 || listener.mId == 11) {
+                listener.mFunc(11, (CharaTask*)this, msg);
+            }
+        }
+    }
+    return m54;
 }
 
 } // namespace gmk

@@ -39,9 +39,7 @@ static inline int ParseMode_unk(const char* mode) {
 }
 
 // inferred: loads /boot/event_id_table.csv
-// NONMATCHING: 97.86% - register allocation only: the original keeps `this` in r24 and the zero of
-// size/i in r23 (the zero stored to mFlags is a copy of it), here the zero of the entry constructor
-// and mFlags share a register (tried moving the declarations of count, i and entry)
+// The unsigned index of the store and i declared after the entry give the registers of the original
 void EventIdTable_unk::fn_8020F248() {
     unsigned long size = 0;
     void* data = fn_8006BA8C(sFileName, &size, 0);
@@ -59,8 +57,8 @@ void EventIdTable_unk::fn_8020F248() {
         count++;
     }
     mEntries.Resize_unk(count, 4);
-    EventIdEntry_unk entry;
     int i = 0;
+    EventIdEntry_unk entry;
     csv.vf08((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         const char* field = csv.fn_8005B9CC();
@@ -82,7 +80,7 @@ void EventIdTable_unk::fn_8020F248() {
         entry.m58 = strcmp(csv.fn_8005B9CC(), "") == 0 ? 1.0f : fn_800DC288(csv.mField);
         entry.m5C = strcmp(csv.fn_8005B9CC(), "") == 0 ? 1.0f : fn_800DC288(csv.mField);
         entry.mFlags |= atoi(csv.fn_8005B9CC()) != 0 ? 0x10 : 0;
-        mEntries.mData[i] = entry;
+        mEntries.mData[(unsigned int)i] = entry;
         i++;
     }
     fn_8006BB6C(data, 0);
@@ -99,13 +97,12 @@ EventIdEntry_unk* EventIdTable_unk::fn_8020F71C(int id) {
 }
 
 // inferred: id of the first entry whose name appears in `name`, -1 if none
-// NONMATCHING: 99.24% - the original increments i before the byte offset (tried for/while forms,
-// declaration order, pointer arithmetic)
+// The unsigned index makes MWCC increment i before the byte offset, as in the original
 int EventIdTable_unk::fn_8020F75C(const char* name) {
     int count = mEntries.mSize;
     EventIdEntry_unk* entry;
     for (int i = 0; i < count; i++) {
-        entry = &mEntries.mData[i];
+        entry = &mEntries.mData[(unsigned int)i];
         if (strstr(name, entry->mName.c_str()) != 0) {
             return entry->mId;
         }

@@ -25,7 +25,7 @@ public:
     static GimmickCommon* fn_8042D628(atn::Task* parent, int id, int arg); // inferred: factory
     virtual ~PassBoard() {}
     virtual int vf0C();
-    virtual void vf10(); // 0x8042D93C: not decompiled yet
+    virtual void vf10();
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();

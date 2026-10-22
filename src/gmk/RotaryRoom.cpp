@@ -1,6 +1,10 @@
 #include "gmk/RotaryRoom.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "atn/Model_unk.h"
+#include "game/GimmickManager.h"
+#include "game/MapPartsBase.h"
+#include "gmk/Lemon.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -16,11 +20,38 @@ extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, 
                             float max, float step);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 
-// inferred: part of a map group (as ArenaPart_unk in gmk/ArenaFloor.cpp)
+namespace atn {
+// inferred: axis aligned box (see atn/Geometry_unk.cpp)
+struct AABB_unk {
+    AABB_unk() {}
+    AABB_unk Merge_unk(const AABB_unk& o) const; // 0x80070C98: union of both boxes
+    Vector3 mMin;
+    Vector3 mMax;
+};
+} // namespace atn
+
+// inferred: box pair of a locator (0x18 bytes); name invented
+struct RotaryBox_unk {
+    atn::Vector3 mMin;
+    atn::Vector3 mMax;
+};
+// inferred: locator of a part of type 6; name invented
+struct RotaryLocator_unk {
+    unsigned char m00[0x24];
+    unsigned int mHash;     // 0x24
+    RotaryBox_unk* mBoxes;  // 0x28
+    unsigned int mNumBoxes; // 0x2C
+};
+// inferred: part of a map group (as ArenaPart_unk in gmk/ArenaFloor.cpp); a MapPartsBase
 struct RotaryPart_unk {
     unsigned char m00[0x48];
     int mType;
     RotaryPart_unk* mNext;
+    unsigned char m50[0x58 - 0x50];
+    RotaryLocator_unk** mLocators; // 0x58: inferred: type 6
+    unsigned int mNumLocators;     // 0x5C
+    unsigned char m60[0x344 - 0x60];
+    int mObjCount; // 0x344: inferred: objects of a part of type 4
 };
 // inferred: map group (as ArenaGroup_unk in gmk/ArenaFloor.cpp)
 struct RotaryGroup_unk {
@@ -28,7 +59,10 @@ struct RotaryGroup_unk {
     unsigned int mFlags; // 0x38: inferred: bit 1 set while loading
     unsigned char m3C[0x70 - 0x3C];
     RotaryPart_unk* mParts; // 0x70
-    unsigned char m74[0xF4 - 0x74];
+    unsigned char m74[0x88 - 0x74];
+    atn::Vector3 mMin; // 0x88: inferred: bounding box of the group
+    atn::Vector3 mMax; // 0x94
+    unsigned char mA0[0xF4 - 0xA0];
     int mF4;
 };
 extern "C" RotaryGroup_unk* fn_8049D68C(void* owner, const char* name);
@@ -36,7 +70,7 @@ extern "C" void fn_8049994C(RotaryPart_unk* part, const atn::Vector3* pos, const
 extern "C" void fn_80499B9C(RotaryPart_unk* part);
 extern "C" void fn_80499C48(RotaryPart_unk* part);
 
-// NONMATCHING (__sinit): 99.71% - only .sdata2 order.
+// NONMATCHING (__sinit): 99.94% - only .sdata2 order (fn_80424AD4/fn_80424FB4/fn_80425498 not decompiled).
 // inferred: far away position and the 24 orientations of the room (x, y, z rotations)
 static atn::Vector3 sFar(5000.0f, 5000.0f, 5000.0f);
 static atn::Vector3 sRots[24] = {
@@ -99,6 +133,14 @@ static inline bool IsOn_unk(atn::ColliTree* tree) {
     return (tree->mFlags & 1) == 1;
 }
 
+// inferred: sets the translation column (as in gmk/OnOff.cpp)
+inline void __SetTrans_unk(atn::Matrix3x4& m, const atn::Vector3& v) {
+    m.m[0][3] = v.x;
+    m.m[1][3] = v.y;
+    m.m[2][3] = v.z;
+}
+#define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
+
 namespace gmk {
 
 GimmickCommon* RotaryRoom::fn_80423F64(atn::Task* parent, int id, int arg) {
@@ -116,13 +158,124 @@ RotaryRoom::~RotaryRoom() {
     }
 }
 
+// NONMATCHING: 96.1% - saved registers of the counters and the stack slots of the temporaries
+// differ; the locator loop recomputes the box address; the collision flags are reloaded before each
+// write in the original (as in vf10). Emits the weak MapPartsBase::vf24 and RotaryEntry_unk ctor.
+int RotaryRoom::vf0C() {
+    if (fn_803EC91C() == 0) {
+        m54 = 1;
+        if (mGroup != 0) {
+            int count = 0;
+            for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+                switch (part->mType) {
+                case 0:
+                    count++;
+                    break;
+                case 4:
+                    count += part->mObjCount;
+                    break;
+                case 5:
+                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                        if (g->m20 == part) {
+                            count++;
+                        }
+                    }
+                    break;
+                }
+            }
+            mEntries.Resize_unk(count, 0);
+            fn_80424AD4();
+            for (unsigned int i = 0; i < mEntries.mSize; i++) {
+                RotaryEntry_unk& e = mEntries.mData[i];
+                __SetTrans_unk(e.mMtx, e.mMtx.GetTrans_unk() + m6C);
+                switch (e.mType) {
+                case 0: {
+                    Model_unk* model = (Model_unk*)e.mObject;
+                    *(atn::Matrix3x4*)model->mMtx = e.mMtx;
+                    atn::Vector3 az(e.mMtx.m[0][2], e.mMtx.m[1][2], e.mMtx.m[2][2]);
+                    float sz = PSVECMag(&az);
+                    atn::Vector3 ay(e.mMtx.m[0][1], e.mMtx.m[1][1], e.mMtx.m[2][1]);
+                    float sy = PSVECMag(&ay);
+                    atn::Vector3 ax(e.mMtx.m[0][0], e.mMtx.m[1][0], e.mMtx.m[2][0]);
+                    float sx = PSVECMag(&ax);
+                    atn::Vector3 sc(sx, sy, sz);
+                    model->m54 = __MAX_unk(sc.x, __MAX_unk(sc.y, sc.z));
+                    break;
+                }
+                case 4:
+                    ((atn::ModelInstance*)e.mObject)->fn_8009EE30(e.mMtx);
+                    break;
+                case 5: {
+                    GimmickCommon* g = (GimmickCommon*)e.mObject;
+                    g->m6C = g->m6C + m6C;
+                    g->m78 = g->m78 + m78;
+                    break;
+                }
+                }
+            }
+            for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+                if (part->mType == 6) {
+                    for (unsigned int j = 0; j < part->mNumLocators; j++) {
+                        RotaryLocator_unk* loc = part->mLocators[j];
+                        for (unsigned int k = 0; k < loc->mNumBoxes; k++) {
+                            loc->mBoxes[k].mMin += m6C;
+                            loc->mBoxes[k].mMax += m6C;
+                        }
+                    }
+                }
+            }
+            for (unsigned int i = 0; i < 25; i++) {
+                if (mColli[i].mHash != 0) {
+                    for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+                        if (part->mType == 6) {
+                            for (unsigned int j = 0; j < part->mNumLocators; j++) {
+                                if (part->mLocators[j]->mHash == mColli[i].mHash) {
+                                    mColli[i].m08 = (int)part;
+                                    break;
+                                }
+                            }
+                            if (mColli[i].m08 != 0) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            MapPartsBox_unk box;
+            box.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
+            box.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);
+            for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+                MapPartsBox_unk pbox = ((MapPartsBase*)part)->vf24(0);
+                *(atn::AABB_unk*)&box = ((atn::AABB_unk*)&box)->Merge_unk(*(atn::AABB_unk*)&pbox);
+            }
+            mGroup->mMin = box.mMin;
+            mGroup->mMax = box.mMax;
+            RotaryColli_unk* colli = mColli;
+            for (int i = 0; i < 25; i++, colli++) {
+                if (colli->mTree != 0) {
+                    if (i == m54) {
+                        if (!IsOn_unk(colli->mTree)) {
+                            colli->mTree->mFlags |= 1;
+                        }
+                    } else if (IsOn_unk(colli->mTree)) {
+                        colli->mTree->mFlags &= ~1;
+                    }
+                }
+            }
+            fn_80425498();
+        }
+        return 1;
+    }
+    return 0;
+}
+
 void RotaryRoom::vf28() {
     GimmickMsg_unk msg(m58 + 1);
     vf40(&msg);
 }
 
 // NONMATCHING: 95.59% - the original reloads the collision flags before each write and uses other
-// registers for the loop and the frame counters; .sdata2 order (vf0C is not decompiled yet).
+// registers for the loop and the frame counters; .sdata2 order.
 void RotaryRoom::vf10() {
     fn_80424FB4(0.5f * (1.0f - (float)cos(3.1415927f * ((float)mFrame / (float)mFrames))));
     RotaryColli_unk* colli = mColli;
@@ -207,7 +360,7 @@ void RotaryRoom::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 99.83% - only .sdata2 order (vf0C is not decompiled yet).
+// NONMATCHING: 99.93% - only .sdata2 order (fn_80424AD4/fn_80424FB4/fn_80425498 not decompiled).
 int RotaryRoom::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
@@ -255,7 +408,7 @@ void RotaryRoom::vf70(int state) {
     }
 }
 
-// NONMATCHING: 99.54% - only .sdata2 order.
+// NONMATCHING: 99.95% - only .sdata2 order.
 void RotaryRoom::vf6C(void* menu) {
     char name[0x20];
     fn_803EC758(name);

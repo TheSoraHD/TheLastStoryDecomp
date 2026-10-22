@@ -245,11 +245,12 @@ bool MeetingSpot::MatchId_unk(CharaTask* chara) {
     unsigned int i;
     bool found = false;
     for (i = 4; i < 8; i++) {
-        if ((&mDesc->m20)[i] == chara->m50) {
+        int id = (&mDesc->m20)[i];
+        if (id == chara->m50) {
             found = true;
             break;
         }
-        if ((&mDesc->m20)[i] == 0 && i == 4) {
+        if (id == 0 && i == 4) {
             found = true;
             break;
         }
@@ -257,9 +258,9 @@ bool MeetingSpot::MatchId_unk(CharaTask* chara) {
     return found;
 }
 
-// NONMATCHING: 99.72% - the four id comparisons have their operands swapped (cmpw r0, r3) and
-// the 6400.0f constant is emitted before the 1.0f/0.1f of fn_803FD328 (in the original it is
-// the last of the pool).
+// NONMATCHING: 99.97% - only the 6400.0f constant: it is emitted before the 1.0f/0.1f of
+// fn_803FD328 (in the original it is the last of the pool). The id local in MatchId_unk fixed the
+// operand order of the four comparisons.
 CharaTask* MeetingSpot::fn_803FD0A0(CharaTask* other) {
     CharaTask* best = 0;
     float maxDist = 6400.0f;

@@ -230,9 +230,10 @@ static inline float GetRate_unk(TreasureItem_unk* item, unsigned int flags) {
 }
 
 // inferred: picks a random item of a box by its chances (-1 if none)
-// NONMATCHING: 96.86% - the original computes the flag masks of the inlined GetRate_unk again
-// before the second loop (here they are shared with the first loop), so the saved registers
-// differ; tried the first loop in its own inline function.
+// NONMATCHING: 98.91% - saved register allocation only (index/element registers and the order of
+// the flag masks). Passing (int)flags to the second GetRate_unk makes MWCC compute the masks again
+// before the second loop, as in the original. Tried: loops in inline functions, int indexes,
+// reusing total for r, return inside the loop, declaration order of total/result.
 extern "C" int fn_8021E5A4(TreasureBox_unk* box, unsigned int flags) {
     float total = 0.0f;
     int result = -1;
@@ -247,7 +248,7 @@ extern "C" int fn_8021E5A4(TreasureBox_unk* box, unsigned int flags) {
         float r = (float)(int)(100.0f * (total * ((float)(rand() % 1001) / 1000.0f))) / 100.0f;
         for (unsigned int i = 0; i < box->mCount; i++) {
             TreasureItem_unk* item = &box->mItems[i];
-            r -= item->mRate * GetRate_unk(item, flags);
+            r -= item->mRate * GetRate_unk(item, (int)flags);
             if (r < 0.01f) {
                 result = i;
                 break;

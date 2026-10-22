@@ -4,6 +4,7 @@
 #include "atn/ColliBase.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/Model_unk.h"
+#include "game/CharaManager.h"
 #include "game/GimmickCommon.h"
 #include <boost/scoped_ptr.hpp>
 
@@ -14,8 +15,7 @@ namespace gmk {
 // inferred: data of one state ("STATE"/"COLLI"; 0x28 bytes, seven of them). Names invented.
 struct WaitState_unk {
     WaitState_unk()
-        : m00(0), m04(0.0f), m08(1), m09(1), m0C(0.0f), mFlags(0), mColli(0), m18(0.0f), m1C(0.0f), m20(0.0f),
-          m24(0.0f) {}
+        : m00(0), m04(0.0f), m08(1), m09(1), m0C(0.0f), mFlags(0), mColli(0), mMove(0.0f, 0.0f, 0.0f), m24(0.0f) {}
     int m00;
     float m04;
     unsigned char m08;
@@ -23,10 +23,8 @@ struct WaitState_unk {
     float m0C;
     unsigned int mFlags; // 0x10: inferred: bit 1 = no debug draw
     atn::ColliBase* mColli; // 0x14
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
+    atn::Vector3 mMove; // 0x18: inferred: offset of TRANS/TRANSINV
+    float m24;          // inferred: frames of the move
 };
 
 // inferred: trigger of a state ("TRIGGER"; 0x1C bytes, up to 16). Names invented.
@@ -48,14 +46,14 @@ public:
     static GimmickCommon* fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc);   // inferred: factory
     virtual ~WaitObject();
     virtual int vf0C();
-    virtual void vf10(); // not decompiled yet
+    virtual void vf10();
     virtual void vf14();
     virtual int vf1C();
-    virtual void vf20(); // not decompiled yet
-    virtual void vf28(); // not decompiled yet
+    virtual void vf20();
+    virtual void vf28();
     virtual Model_unk* vf38();
-    virtual int vf40(GimmickMsg_unk* msg);    // not decompiled yet
-    virtual int vf44(GimmickHitMsg_unk* msg); // not decompiled yet
+    virtual int vf40(GimmickMsg_unk* msg);
+    virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual void vf4C(CharaTask* chara);
     virtual int vf50();
@@ -63,8 +61,15 @@ public:
     virtual float vf58();
     virtual int vf5C();
     virtual int vf60();
-    virtual void vf6C(void* menu); // not decompiled yet
+    virtual void vf6C(void* menu);
     virtual void vf70(int state);
+
+    inline void PlayEfp_unk(); // inferred: name invented
+    int fn_8041AAC0(); // inferred: index of the trigger of the current state that fires (-1 if none)
+    // inferred: a character of the manager is in the area of the trigger (weak copies 0x8041B28C
+    // npc, 0x8041B4D8 enemy, 0x8041B724 player)
+    template <class T>
+    int InArea_unk(CharaManager<T>* manager, WaitTrigger_unk* trigger);
 
     // inferred: collision of a state (name invented)
     atn::ColliBase* GetColli_unk(int state) { return mStates[state].mColli; }

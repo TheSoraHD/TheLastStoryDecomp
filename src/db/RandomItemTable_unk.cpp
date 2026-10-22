@@ -34,7 +34,10 @@ RandomItem_unk::~RandomItem_unk() {}
 
 // NONMATCHING (weak destructor of atn::FixedArray_unk<RandomItem_unk, 8>, 0x8021D58C): 96.30% - the
 // original tests the address of the element array again before __destroy_arr (one more beq);
-// a user-declared empty destructor in include/atn/FixedArray.h does not change it
+// a user-declared empty destructor in include/atn/FixedArray.h does not change it. A derived
+// struct (or a member/base with its own inline destructor) gives the two beq, but MWCC then also
+// emits an unreferenced weak copy of the inner destructor (0x68 bytes) that the original lacks
+// (same as game/GimmickStateCommand and game/LogMessageTask)
 typedef atn::FixedArray_unk<RandomItem_unk, 8> RandomSlot_unk;
 
 // inferred: a "begin,Random" block of /boot/random_item_table.csv (0x3E0 bytes): id, level range

@@ -113,8 +113,9 @@ void Fireworks::vf28() {
     vf40(&msg);
 }
 
-// NONMATCHING: 97.9% - flash loop: the original recomputes the element address from an offset
-// induction variable each iteration (ours keeps a decremented pointer)
+// NONMATCHING: 99.8% - flash loop: the element address and the address of its first member swap
+// r6/r7. The unsigned subscript repeated in every access gives the per-iteration offset of the
+// original. Tried: reference/pointer to the element, delay local, mixed forms.
 void Fireworks::vf10() {
     if (m54 == 0) {
         vf28();
@@ -122,14 +123,14 @@ void Fireworks::vf10() {
     MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
     float size = 0.0f;
     for (int i = mFlashes.mCount - 1; i >= 0; i--) {
-        Flash_unk& flash = mFlashes.mData[i];
-        if (flash.mDelay > 0) {
-            flash.mDelay--;
-        } else if (--flash.mFrames > 0) {
-            size += flash.mSize;
+        if (mFlashes.mData[(unsigned int)i].mDelay > 0) {
+            mFlashes.mData[(unsigned int)i].mDelay--;
+        } else if (--mFlashes.mData[(unsigned int)i].mFrames > 0) {
+            size += mFlashes.mData[(unsigned int)i].mSize;
         } else {
-            mFlashes.Erase_unk(&flash);
+            mFlashes.Erase_unk(&mFlashes.mData[(unsigned int)i]);
         }
+
     }
     float cur = mLight.mSize.x;
     float diff = size - cur;

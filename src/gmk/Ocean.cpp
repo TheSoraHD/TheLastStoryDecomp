@@ -91,8 +91,8 @@ int Ocean::vf1C() {
     return ret;
 }
 
-// NONMATCHING: 99.8% - register order of the wave address (state * 0x18 and index * 0xC are added the
-// other way round).
+// The wave members are written through mWaves[state][index] each time (no reference): that gives the
+// order of the address computation of the original (same in gmk::FallingTower::vf20)
 void Ocean::vf20() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
@@ -108,10 +108,9 @@ void Ocean::vf20() {
             int state = fn_800DC12C(csv.fn_8005B9CC());
             unsigned int index = fn_800DC12C(csv.fn_8005B9CC());
             if (index <= 1) {
-                Wave_unk& wave = mWaves[state][index];
-                wave.mAmp = fn_800DC288(csv.fn_8005B9CC());
-                wave.mSpeed = fn_800DC288(csv.fn_8005B9CC());
-                wave.mPhase = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+                mWaves[state][index].mAmp = fn_800DC288(csv.fn_8005B9CC());
+                mWaves[state][index].mSpeed = fn_800DC288(csv.fn_8005B9CC());
+                mWaves[state][index].mPhase = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
             }
         }
     } while (csv.fn_8005BBF8() != 0);

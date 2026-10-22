@@ -116,7 +116,7 @@ inline int FlyObjManager::FindNearest_unk(const atn::Vector3& pos) {
     float best = 1e16f;
     int index = -1;
     for (int i = 0; i < (int)mCount; i++) {
-        atn::Vector3 d = pos - mObjs.mData[i].mPos;
+        atn::Vector3 d = pos - mObjs.mData[(unsigned int)i].mPos;
         if (fn_805F9920(&d) < best) {
             best = fn_805F9920(&d);
             index = i;
@@ -299,7 +299,8 @@ int FlyObjManager::vf40(GimmickMsg_unk* msg) {
     return mPhase = msg->mType;
 }
 
-// NONMATCHING: 99.4% - the index and the loop offset swap r29/r31, and the speed 1.0f goes through f1
+// NONMATCHING: 99.9% - the speed 1.0f goes through f1 (and 0.1f is before 1000.0f in .sdata2 in the
+// original); the unsigned index of FindNearest_unk fixed the index/offset registers
 int FlyObjManager::vf44(GimmickHitMsg_unk* msg) {
     if (msg == 0) {
         return 0;
