@@ -49,6 +49,9 @@ Una linea por unidad procesada (orden de cola_B.md).
 - gmk/Ocean y gmk/FallingTower: vf20 -> 100% (miembros de la ola escritos con mWaves[state][index] en cada linea, sin referencia).
 - gmk/InteractionSpot, gmk/RandomMerchant, gmk/OnOff, db/OptionParts_unk, db/MapLink_unk, db/PlayerParam_unk: probadas variantes sin mejora (o con bajada de fuzzy, revertidas).
 
+- gmk/WaitObject: escritas todas las funciones que faltaban: vf6C (96.5%), fn_8041AAC0 (100%), InArea_unk<T> (plantilla nueva: 3 instancias Npc/Enemy/Player, 98.5%), vf44 (91.8%), vf28 (99.8%), vf40 (99.2%), vf10 (99.97%), vf20 (99.95%). 15/27 al 100%, fuzzy de la unidad 99.0%. symbols.txt: fn_8041AAC0 -> fn_8041AAC0__Q23gmk10WaitObjectFv, fn_8041B28C/fn_8041B4D8/fn_8041B724 -> InArea_unk<7NpcTask>/<9EnemyTask>/<10PlayerTask> (nombres decorados). include/gmk/WaitObject.h: WaitState_unk::m18-m20 pasa a atn::Vector3 mMove (lo incluye game/GimmickCommon.cpp; sin bajadas). Lo que queda son sobre todo los nombres de los miembros safe-bool de boost::scoped_ptr (lbl_8078DC40...: objetos locales @NNNN en nuestro .o).
+- db/SpText_unk: fn_8021C3F4 98.43% -> 99.62% y fn_8021B060 95.07% -> 96.78% (subindice unsigned).
+
 ## Hallazgos MWCC
 - Pasar `(int)x` (x unsigned) a un inline en una segunda llamada impide que MWCC comparta las subexpresiones del parametro entre las dos copias inlineadas (TreasureBoxTable).
 - Una funcion inline que solo devuelve una constante (p.ej. `return 0.1f;`) definida antes del codigo que la usa mete esa constante antes en .sdata2 (el pool sigue el orden de aparicion en el texto, incluidas las inline): sirve para reordenar constantes (BulletPoint, -98.1f/-0.5f).
@@ -61,6 +64,9 @@ Una linea por unidad procesada (orden de cola_B.md).
 - `if (index >= 0 && 5 > index)` (constante a la izquierda) evita que MWCC funda el rango en una sola comparacion sin signo (cmplwi); con `index < 5` si la funde (CharaLight).
 - Escribir `a[i][j].campo = ...` en cada linea en vez de tomar `T& r = a[i][j]` cambia el orden de suma de las dos partes de la direccion (Ocean/FallingTower).
 - Una lectura del contador mediante una funcion miembro inline (`GetCount_unk()`) en la condicion del bucle hace que MWCC recargue el puntero global en cada vuelta (Brazier).
+
+- `MIN(MAX(x, 0), 1)` con macros (valor recalculado) reproduce la doble division/comparacion del original; el orden de los argumentos del MAX importa (WaitObject::vf10).
+- En un helper inline, declarar como locales los vectores/color pasados por referencia (en lugar de temporales en la llamada) da el orden de pila del original (OpenBoard/WaitObject).
 
 ## Decisiones tomadas sin el usuario
 - Funciones a 0% (Banana::vf40, BulletPoint::vf10, OpenBoard::vf10, PassBoard::vf10) escritas desde cero aunque no lleguen al 100%: suben el fuzzy y dejan el codigo en el arbol.
