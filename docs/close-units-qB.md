@@ -51,6 +51,10 @@ Una linea por unidad procesada (orden de cola_B.md).
 
 - gmk/WaitObject: escritas todas las funciones que faltaban: vf6C (96.5%), fn_8041AAC0 (100%), InArea_unk<T> (plantilla nueva: 3 instancias Npc/Enemy/Player, 98.5%), vf44 (91.8%), vf28 (99.8%), vf40 (99.2%), vf10 (99.97%), vf20 (99.95%). 15/27 al 100%, fuzzy de la unidad 99.0%. symbols.txt: fn_8041AAC0 -> fn_8041AAC0__Q23gmk10WaitObjectFv, fn_8041B28C/fn_8041B4D8/fn_8041B724 -> InArea_unk<7NpcTask>/<9EnemyTask>/<10PlayerTask> (nombres decorados). include/gmk/WaitObject.h: WaitState_unk::m18-m20 pasa a atn::Vector3 mMove (lo incluye game/GimmickCommon.cpp; sin bajadas). Lo que queda son sobre todo los nombres de los miembros safe-bool de boost::scoped_ptr (lbl_8078DC40...: objetos locales @NNNN en nuestro .o).
 - db/SpText_unk: fn_8021C3F4 98.43% -> 99.62% y fn_8021B060 95.07% -> 96.78% (subindice unsigned).
+- gmk/Leaf (2a pasada): fn_8040161C, fn_80401E50 y fn_804023E0 -> 100%; vf20 99.89%. 12/15.
+- gmk/PigeonManager y gmk/ChickenManager: vf14 -> 100% en ambas. PigeonManager::vf10 99.74% -> 99.87% (el segundo bucle reutiliza `active` como contador; queda solo el orden de .sdata2, pendiente de las funciones de Pigeon_unk). ChickenManager::vf10: mismo truco + comparaciones sin signo probados, bajan el fuzzy (revertido; sigue el plegado `3||4` en cmplwi).
+- gmk/LemonBucket vf10/vf20, gmk/FallingTower fn_8041044C, gmk/Brazier fn_80407D24: probadas variantes; solo quedan registros/orden de .sdata2, sin mejora.
+- gmk/MapLift ctor/dtor: bloqueo documentado (destructor fn_800970CC en vez de ~LH_Motion); gmk/RotaryRoom vf40/vf6C/__sinit: solo orden de .sdata2 (vf0C sin escribir). No tocadas.
 
 ## Hallazgos MWCC
 - Pasar `(int)x` (x unsigned) a un inline en una segunda llamada impide que MWCC comparta las subexpresiones del parametro entre las dos copias inlineadas (TreasureBoxTable).
@@ -66,6 +70,7 @@ Una linea por unidad procesada (orden de cola_B.md).
 - Una lectura del contador mediante una funcion miembro inline (`GetCount_unk()`) en la condicion del bucle hace que MWCC recargue el puntero global en cada vuelta (Brazier).
 
 - `MIN(MAX(x, 0), 1)` con macros (valor recalculado) reproduce la doble division/comparacion del original; el orden de los argumentos del MAX importa (WaitObject::vf10).
+- Reutilizar una variable ya viva (`active`) como contador de un bucle posterior en vez de declarar `int i` cambia la numeracion del registro del contador (PigeonManager::vf10).
 - En un helper inline, declarar como locales los vectores/color pasados por referencia (en lugar de temporales en la llamada) da el orden de pila del original (OpenBoard/WaitObject).
 
 ## Decisiones tomadas sin el usuario

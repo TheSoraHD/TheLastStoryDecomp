@@ -121,8 +121,8 @@ static inline float PlayerDist_unk(const atn::Vector3& pos) {
     return (((CharaTask*)lbl_8087F8A0->mHead)->mPos - pos).Length_unk();
 }
 
-// NONMATCHING: 99.74% - register of the counter of the second loop (the unsigned subscript fixed the
-// increment order); .sdata2 order (the Pigeon_unk functions are not decompiled yet).
+// NONMATCHING: 99.87% - only the .sdata2 order (the Pigeon_unk functions are not decompiled yet).
+// The second loop reuses `active` as its counter: that gives the register of the original.
 void PigeonManager::vf10() {
     if (mDesc->m7C == 0) {
         return;
@@ -153,8 +153,8 @@ void PigeonManager::vf10() {
             }
         }
     } else if (mState == 2) {
-        for (int i = 0; i < mCount; i++) {
-            mPigeons[(unsigned int)i].fn_80404E70();
+        for (active = 0; active < mCount; active++) {
+            mPigeons[(unsigned int)active].fn_80404E70();
         }
         mState = 0;
     }
