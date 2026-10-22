@@ -112,3 +112,7 @@ Hallazgos MWCC (8):
 
 Hallazgos MWCC (9):
 - Usar el inline `atn::DegToRad_unk(x)` en vez de `0.017453292f * x` cambia el reparto de FPR (Arms::fn_8004439C).
+- game/MenuCommonTask: fn_804A4934 (0x804A4934) SUBIDA y fn_804A473C 98.54 -> 99.04%: en la barra de desplazamiento la altura minima se resta del maximo en sitio (`max -= height - bar; unit = max / count;`) en vez de `unit = (max - (12 - bar)) / count`. fn_804A473C anotada como NONMATCHING (orden de la direccion del layout y el literal "s_hightMax").
+
+Hallazgos MWCC (10):
+- `max -= height - bar; unit = max / count;` (resta en sitio en el parametro/local) reproduce el uso de FPR del original donde `(max - (12 - bar)) / count` crea un fmr de mas (MenuCommonTask::fn_804A4934).
