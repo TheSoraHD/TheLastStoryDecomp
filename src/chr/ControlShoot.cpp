@@ -28,7 +28,8 @@ extern "C" float lbl_8087DA54;
 namespace chr {
 
 // NONMATCHING: 98.8% - the case 0x25/0x26 schedules the motion selection before the call arguments, and
-// the zero stored to mFB0/mFB4 gets r6 instead of r4
+// the zero stored to mFB0/mFB4 gets r6 instead of r4. Tried: ternary/if-else/decrement for the motion
+// id, a local for the motion, case order, a zero local and swapped addition for mFB4.
 ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, const atn::Vector3& to)
     : ControlBase(chara), mData(fn_80219E6C(id)), mFrom(from), mTo(to), m28(1) {
     mChara->m560 = 0x62;

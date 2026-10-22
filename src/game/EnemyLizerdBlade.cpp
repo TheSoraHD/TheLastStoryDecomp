@@ -250,7 +250,7 @@ inline atn::Vector3 LerpBA_unk(const atn::Vector3& a, const atn::Vector3& b, flo
     return (b - a) * t + a;
 }
 
-// NONMATCHING: 91.4% - order of the stores of `dir`, scheduling of the copies of m14E8 and of the
+// NONMATCHING: 93.4% - order of the stores of `dir`, scheduling of the copies of m14E8 and of the
 // clear of `result` (after fn_80179D44 in the original), float registers of the interpolation
 void EnemyLizerdBlade::fn_80334460() {
     if (m55C != 2) {
@@ -260,9 +260,11 @@ void EnemyLizerdBlade::fn_80334460() {
     mFlag5 = 0;
     if (m14B8 == 0) {
         if (mMotion.mTracks[0].m08 < 25.0f) {
+            float dz = m14D8->mPos.z - mPos.z;
+            float dx = m14D8->mPos.x - mPos.x;
             atn::Vector3 dir;
-            dir.z = m14D8->mPos.z - mPos.z;
-            dir.x = m14D8->mPos.x - mPos.x;
+            dir.z = dz;
+            dir.x = dx;
             dir.y = 0.0f;
             if (LengthSq_unk(dir) > 0.0001f) {
                 dir.Normalize_unk();
@@ -282,9 +284,7 @@ void EnemyLizerdBlade::fn_80334460() {
             }
         } else {
             float t = (mMotion.mTracks[0].m08 - 25.0f) / 25.0f;
-            if (t > 1.0f) {
-                t = 1.0f;
-            }
+            t = t > 1.0f ? 1.0f : t;
             mPos = LerpBA_unk(m14DC, m14E8, t);
             if (mMotion.mTracks[0].m08 >= 51.0f) {
                 m14B8++;

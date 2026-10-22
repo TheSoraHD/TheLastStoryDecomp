@@ -147,7 +147,8 @@ inline void SetModelMtx_unk(Model_unk* model, const Mtx mtx) {
 }
 
 // NONMATCHING: 99.8% - the inlined ToRotation_unk converts z again (frsp f2) instead of reusing the converted
-// value (fmr f2, f7); tried named result, Assign_unk, inline fn_80139F60, chained assignment.
+// value (fmr f2, f7); tried named result, Assign_unk, inline fn_80139F60, chained assignment, a new
+// local for the direction, explicit copy, PSMTXMultVec in place, const ref, ToRotation of the temporary.
 // inferred: copies the pose and the motion tracks of another character (mode 0: whole pose of m14B4,
 // mode 1: mirrored motion of m14B8, modes 2-3: motion and position of m14B8)
 void CopyRobotTask::vf10() {
