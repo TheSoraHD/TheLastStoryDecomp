@@ -69,3 +69,11 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   puntero al array, local, inline, doble lectura): MWCC siempre pliega 0x680 en el `lwz` (add + lwz 0x680) y el
   original hace addi + lwzx. `vf10` 99.99% y las tres copias "z primero" (fn_801E9168/917C/91A0, sin helper en Vec.h
   y sin asm permitido) saltadas: ya investigadas.
+- `game/GameOverTask` (2/7 -> 3/7): `fn_80377298` 99.45% -> 100%. Dos cambios: (1) **symbols.txt (decision sin el
+  usuario)**: el objeto `lbl_8074DDF8` (.rodata, 0x9C) se parte en las 11 tablas locales de la fuente (`sMsgTitle`
+  0x8074DDF8, `sOptTitle` 0x8074DE08, `sMsg` 0x8074DE10, `sOpt` 0x8074DE20, `sMsgEvent` 0x8074DE30, `sOptEvent`
+  0x8074DE40, `sMsgRetry` 0x8074DE50, `sOptRetry` 0x8074DE60, `sMsgRetryTitle` 0x8074DE68, `sMsgArena` 0x8074DE78,
+  `sOptArena` 0x8074DE88, todas scope:local) y `lbl_808857F8` (.sdata2) pasa a `sOptRetryTitle` (local); ningun .cpp
+  los usaba. (2) `opts = sOptRetryTitle; push_back(opts[0]);` en dos sentencias arregla el r3/r4. Build limpio OK.
+  - ctor 99.59% -> 99.71% (`dst != src` en CopyString_unk; quedan r30/r31 de origen/destino, 6 intentos). vf0C
+    (48.9%), vf10 (89.7%) y vf14 (84.7%) saltadas (estructuras de escena sin reconstruir, demasiado grandes).
