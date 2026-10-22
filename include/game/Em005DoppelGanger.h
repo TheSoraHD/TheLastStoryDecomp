@@ -23,6 +23,8 @@ public:
     virtual void vf54();                                        // 0x802529CC
     virtual void vfF0();                                        // 0x80253684
 
+    void fn_80253C9C(); // inferred: swaps places with a random party member (end of state)
+
     int m14B0;
     int m14B4; // inferred: step of the state
     int m14B8;

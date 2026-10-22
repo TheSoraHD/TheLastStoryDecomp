@@ -1,4 +1,6 @@
 #include "game/Em005DoppelGanger.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -9,6 +11,8 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" int rand();
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
@@ -241,6 +245,62 @@ void Em005DoppelGanger::vfF0() {
     if ((float)__fabs(mMotion.mTracks[0].m08 - 50.0f) < 1.1920929e-7f) {
         m14BC = 3;
         fn_8016E4C4(1);
+    }
+}
+
+// inferred: list of party members (names invented)
+struct DoppelList_unk {
+    DoppelList_unk() : mCount(0) {}
+    unsigned int size() const { return mCount; }
+    void push_back(PlayerTask* const& x) {
+        if (mCount < 8) {
+            new (&mData[mCount]) PlayerTask*(x);
+            mCount++;
+        }
+    }
+    unsigned int mCount;
+    PlayerTask* mData[8];
+};
+
+// NONMATCHING: 99.54% - r0/r3/r5 of the three bools of the inlined CanAct_unk (6 variants of the bool
+// helpers)
+void Em005DoppelGanger::fn_80253C9C() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        DoppelList_unk list;
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            if (p->mType != 0 && p->CanAct_unk()) {
+                if (p->m55C == 6) {
+                    int c = p->m560;
+                    bool busy = false;
+                    if (c == 4 || c == 29 || c == 2 || c == 20 || c == 22) {
+                        busy = true;
+                    }
+                    if (busy) {
+                        continue;
+                    }
+                } else if (p->m55C != 2) {
+                    continue;
+                }
+                list.push_back(p);
+            }
+        }
+        if (list.size() != 0) {
+            PlayerTask* p = list.mData[rand() % list.size()];
+            atn::Vector3 pos = p->mPos;
+            atn::Vector3 rot = p->mRot;
+            p->mPos = mPos;
+            p->mRot = mRot;
+            p->fn_801656A4(90);
+            mPos = pos;
+            mRot = rot;
+        }
+        m1520 = 0;
+        m14B4 = 0;
+        m14B8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 0;
+        fn_8016E970(3);
     }
 }
 
