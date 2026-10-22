@@ -34,6 +34,22 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
     incluir game/GimmickCommon.h choca con declaraciones locales de SpecialEnemyBase.cpp.
   - HitMsg_unk+0x40 se lee con un cast (`*(int*)&msg->m3C[4]`) para no tocar la cabecera compartida CharaTask.h.
 
+- game/Em101ElderZesya (segunda pasada, 8/20): `fn_802598DC__15Em101ElderZesyaFv` (punto de canto mas cercano
+  al centro del grupo) 99.22%: copias de vector r3/r4 (familia `__VecCopy`) + orden de incrementos del bucle.
+  Con un inline `PartyCount_unk()` (carga de lbl_8087F8A0 repetida) el resto coincide.
+- game/Em205Ogre (0/21 -> 14/21, NUEVA fuente `src/game/Em205Ogre.cpp` + `include/game/Em205Ogre.h`):
+  al 100% ctor (0x802B77AC), dtor (0x802BA898), vf0C, vf10, vf14, vf40, vf54, vf7C, vfFC, vf100 (0x802B7F94),
+  vf10C (0x802B7DEC), lector del CSV (0x802B7AF8), busqueda del circulo de curacion (0x802B9C5C) y el `get`
+  debil del scoped_ptr (0x802B98A8). vf30 99.97% (desplazamiento de "Em205 Ogre[%d]" en el pool, cadenas de
+  funciones aun sin escribir). fn_802B98B0 (capsula) 98.59%: familia `__VecCopy` + planificacion de FPR.
+  - symbols.txt: fn_802B77AC/BA898/7970/7CE0/7DE8/9BC8/7E60/BA5E0/7F04/7F4C/7DEC/7F94/7AF8/9C5C/98B0 ->
+    nombres de Em205Ogre; fn_802B98A8 -> `get__Q25boost27scoped_ptr<13ResLoader_unk>CFv`.
+  - SpecialEnemyBase.cpp: factoria case 23 con `new (3, "", "", 0) Em205Ogre(...)`.
+  - Pendientes: vf50 (0x802B9DB4, recrea m624 con push_back en linea: bloqueo documentado), vf104/vf108
+    (0x802B8398/0x802B8AA4, grandes), slot 0xB0 (0x802BA64C: CharaTask::vfB0 esta declarada `void vfB0()`; su
+    firma real devuelve int y recibe un Vector3*; no se cambia la cabecera compartida), vfB4 (0x802BA67C, bind
+    de ControlWallSlash).
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
@@ -41,3 +57,7 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   (22, 23, 20) sale con `case 22: goto reset; case 23: ...; case 20: reset:`.
 - Un accesor inline que devuelve `const Vector3&` (`GetPos_unk`) en vez de `p->mDesc->mPos` cambia el orden de
   carga (lwz del puntero antes del lis de la constante).
+- `if (p != 0) {...} else { vf100(6); break; }` en vez de `if (p == 0) { vf100(6); break; }` reproduce el orden
+  de bloques del original (rama de exito primero).
+- `m620 = r; m614 = base + off; m614.y += m620;` (miembro asignado antes de la suma de vectores) fija el orden
+  de cargas de FPR del original en el calculo de la capsula.

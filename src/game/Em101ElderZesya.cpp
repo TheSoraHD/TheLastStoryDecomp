@@ -1,4 +1,6 @@
 #include "game/Em101ElderZesya.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
@@ -45,6 +47,10 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_80102EAC(Effect_unk* mgr, int id, CharaTask* attacker, int arg, int arg2);
 
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
+extern "C" double sqrt(double x);
+
 // inferred: barrier sizes (radius, height); static vector of the file built by the __sinit (0x8025A03C)
 static atn::Vector3 sChantOffset_unk(35.0f, 80.0f, 1.0f);
 
@@ -54,7 +60,7 @@ Em101ElderZesya::Em101ElderZesya(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14C8(0), m14CC(0), m14D0(0), m14D4(0), m14F0(0), m14F4(0),
       m14F8(0), m14FC(1), m1500(0), m1510(0), m15EC(0), m15F0(0), m15F4(0), m164C(0), m1650(0),
       m1654(0.0f, 0.0f, 0.0f), m1660(0), m1668(0.0f, 0.0f, 0.0f), m1674(0.0f, 0.0f, 0.0f), m1680(0),
-      m1684(0.0f, 0.0f, 0.0f), m1690(0.0f, 0.0f, 0.0f), m169C(0.0f), m16A4(0), m16A8(0), m16AC(1), m16B0(120),
+      m1684(0.0f, 0.0f, 0.0f), m1690(0.0f), m1694(0.0f, 0.0f, 0.0f), m16A4(0), m16A8(0), m16AC(1), m16B0(120),
       m16B4(9.0f), m16BC(0), m16C0(ZesyaColor_unk(0.98039216f, 0.3137255f, 0.23529412f, 1.0f)),
       m16D0(ZesyaColor_unk(0.078431375f, 0.11764706f, 0.9411765f, 1.0f)),
       m16E0(ZesyaColor_unk(1.0f, 1.0f, 1.0f, 1.0f)),
@@ -284,4 +290,39 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
             break;
         }
     }
+}
+
+// inferred: names invented
+inline int PartyCount_unk() {
+    return lbl_8087F8A0->mCount;
+}
+inline atn::Vector3 PartyCenter_unk() {
+    atn::Vector3 center = lbl_807C7030;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        center += p->mPos;
+    }
+    center *= 1.0f / (float)PartyCount_unk();
+    return center;
+}
+
+// NONMATCHING: 98.8% - r3/r4 of the vector copies (the zero vector and the chosen point; __VecCopy family,
+// docs/mwcc-blockers-q3.md) and the order of the two increments of the loop
+// inferred: picks the chant point nearest to the center of the party (m1694)
+void Em101ElderZesya::fn_802598DC() {
+    atn::Vector3 center = lbl_807C7030;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        center += p->mPos;
+    }
+    center *= 1.0f / (float)PartyCount_unk();
+    int best = -1;
+    float dist = 1e16f;
+    for (unsigned int i = 0; i < m14BC.mSize; i++) {
+        atn::Vector3 d = center - m14BC.mData[i];
+        float len = sqrt(d.x * d.x + d.z * d.z);
+        if (dist > len) {
+            dist = len;
+            best = i;
+        }
+    }
+    m1694 = m14BC.mData[best];
 }

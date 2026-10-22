@@ -62,7 +62,8 @@ public:
     virtual atn::Vector3 vf64(int center);
 
     void fn_80256384(); // inferred: reads the data file
-    void fn_80259AB4(int index, int state); // inferred: changes the state of a barrier
+    void fn_80259AB4(int index, int state);
+    void fn_802598DC(); // inferred: picks the chant point // inferred: changes the state of a barrier
 
     int m14B0;                          // inferred: loading state (0, 1 collision objects, 2 ready)
     atn::LH_Binary m14B4;               // inferred: data file
@@ -100,8 +101,8 @@ public:
     atn::Vector3 m1674;
     int m1680;                // inferred: current barrier (index into m151C)
     atn::Vector3 m1684;
-    atn::Vector3 m1690;
-    float m169C;
+    float m1690;
+    atn::Vector3 m1694;       // inferred: chosen chant point
     int m16A0;
     int m16A4;
     int m16A8;
