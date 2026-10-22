@@ -76,3 +76,9 @@ Hallazgos MWCC (4):
 Hallazgos MWCC (5):
 - Clamp muerto `x = MIN(lim, d - c)` con el limite en un local declarado antes: carga las constantes y compara como el original (fcmpo lim, d); las formas `if (d > lim) d = lim` invierten f0/f1.
 - `a = expr; a *= k;` en vez de `a = expr * k;` invierte el orden de operandos de fmuls (ChaserNpc::fn_8018128C).
+- game/GameBgm: sin cambios. fn_8037D4C0 99.6% (engine/name r28/r29; 4 variantes con reutilizacion de variables, ninguna mejora). Resto no intentado.
+- chr/ControlTurnQuadruped: segunda pasada sin exito (4 variantes mas: initializer, bool previo, MIN, encadenado).
+- chr/ControlWallUp: 17/24. vf40 (0x801CB24C) SUBIDA: `float s = 1.0f - t;` en un local con nombre antes de construir el vector (los FPR de 0.0f y 1-t quedaban cruzados). vf0C/vf10 tienen copias `__VecCopy` r4/r5 (familia sin solucion); vf18/vf14 orden de z.
+
+Hallazgos MWCC (6):
+- Una subexpresion float (`1 - t`) usada dentro de un temporal Vector3 en un local con nombre cambia la asignacion de FPR respecto a escribirla en linea (ControlWallUp::vf40).
