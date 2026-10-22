@@ -281,8 +281,6 @@ void ArenaTask::fn_80043BF4(int type, CharaTask* victim, CharaTask* attacker) {
     }
 }
 
-// NONMATCHING: 99.7% - the count of the voice group and its address swap r28/r31. Tried: reference,
-// pointer, operator[], count read through the group, separate index local.
 void ArenaTask::fn_80043D58(int side) {
     if (mVoice == 0) {
         return;
@@ -301,11 +299,12 @@ void ArenaTask::fn_80043D58(int side) {
         return;
     }
     FixedArray_unk<Voice_unk, 8>& voices = mVoices[side];
-    unsigned int n = voices.mCount;
-    if (n == 0) {
+    if (voices.mCount == 0) {
         return;
     }
+    unsigned int n = voices.mCount;
     Voice_unk& v = voices.mData[rand() % n];
+
     void* msg = fn_803CC6B4(table, v.mFirst);
     if (msg != 0) {
         fn_803B6970(win, msg, 0, 6.0f);

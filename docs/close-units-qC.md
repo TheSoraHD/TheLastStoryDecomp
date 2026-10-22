@@ -49,3 +49,4 @@ Hallazgos MWCC (3):
 - chr/ControlGmkCoffinOpening: ctor ControlGmkCoffinOpening 99.46 -> 99.64%: el id 0x5B en un local (`int id = 0x5B; mChara->m560 = id;`) arregla r10; quedan r9/r11 cruzados. Los otros dos ctors no intentados (93.6% y borrador 58%).
 - chr/ControlRide: saltada - ctor: r3/r6 de la copia `mStartPos = mBeast->mPos` (familia `__VecCopy`); vf0C/vf10 slots de pila / planificacion ya documentados.
 - chr/ControlStagger: sin cambios. vf0C 99.26%: `mTime--` antes de copiar la rotacion da mChara en r6 pero mueve el decremento (92.8%); revertido y anotado. ControlSlip ctor = familia `__VecCopy`; ControlSlip::vf0C no intentada.
+- game/ArenaTask: 10/12. fn_80043D58 (0x80043D58) SUBIDA: comprobar `voices.mCount == 0` y despues leer `unsigned int n = voices.mCount` (el registro del contador se reutiliza para el elemento, como en el original). fn_80043A24 98.82% (2 variantes nuevas sin mejora) y vf10 99.43% sin cambios.
