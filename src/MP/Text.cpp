@@ -322,11 +322,14 @@ extern "C" void fn_80507310(MpLevelTable_unk* table, const char* data, int size)
 }
 
 // inferred: level reached with `exp` (the first one above it, else the last)
-// NONMATCHING: 98.2% - r5/r7 of the count
+// NONMATCHING: 98.2% - r5/r7 of the count (close-units qD: size local, separate assignment, pointer
+// arithmetic, unsigned/int index forms: no change)
 extern "C" MpLevel_unk* fn_805075C4(MpLevelTable_unk* table, int exp) {
     unsigned int n = table->mLevels.mSize - 1;
     for (unsigned int i = 0; i < n; i++) {
-        MpLevel_unk* e = &table->mLevels.mData[i];
+        // inferred: the data pointer is reloaded every iteration (volatile read; visible where the
+        // function is inlined twice in fn_80507654)
+        MpLevel_unk* e = &(*(MpLevel_unk* volatile*)&table->mLevels.mData)[i];
         if (exp < e->mExp) {
             return e;
         }
@@ -349,7 +352,6 @@ extern "C" MpLevel_unk* fn_80507610(MpLevelTable_unk* table, int exp) {
 }
 
 // inferred: the two experiences are in different levels
-// NONMATCHING: 93.8% - the original reloads the table data in both inlined searches
 extern "C" int fn_80507654(MpLevelTable_unk* table, int a, int b) {
     MpLevel_unk* la = fn_805075C4(table, a);
     MpLevel_unk* lb = fn_805075C4(table, b);
