@@ -15,3 +15,12 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
     `GetQueenPoint_unk`), `found` como `int`. Quedan solo slots de pila de offset/punto/diferencia (~10 intentos cada una).
   - Hallazgo MWCC: reutilizar la misma variable local en dos `if (... (p = Find()) != 0 ...)` seguidos la mantiene
     viva entre ambos y cambia el reparto de registros salvados; con dos variables distintas sale como el original.
+- `chr/ControlPushedDown` (10/14 -> 11/14): `ControlPushedAvoid` ctor 99.94% -> 100%. El vector frente del otro
+  personaje va escrito a mano (sin `GetFrontDir_unk`), declarado entre `side` y `up` sin inicializar y rellenado
+  componente a componente despues de `up` (el original guarda `up` antes que `front`).
+  - `ControlPushedDown::vf0C` 98.71% -> 99.29% (`one` antes que `zero`, `motion` antes que `ret`, `mChara` directo
+    en las llamadas de voz). Quedan f29/f30 y r4/r5 (10 intentos).
+  - `ControlOttotto::vf0C` 99.06% -> 99.33% (`c = mChara` para m580/m584). Queda el contador en r5 y slots (8 intentos).
+  - `ControlPushedAvoid::vf0C` 99.26% -> 99.28% (`m30 = scale + m30`). Registros/fneg sin cambios (8 intentos).
+  - Hallazgo MWCC: un `Vector3 v;` declarado antes que otro inicializado y rellenado despues por componentes recibe
+    el slot que le corresponde por declaracion, pero sus stores se emiten despues de los del otro.

@@ -194,14 +194,13 @@ ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, 
     }
 }
 
-// NONMATCHING: 98.7% - register allocation: the original keeps the motion pointer and the voice
-// mode in r31 and the result in r30 (0.0, frame, 1.0 in f31/f30/f29); stack slot of the case 0
-// distance vector.
+// NONMATCHING: 99.3% - register allocation: the original keeps 1.0 in f29 and the frame in f30 (ours
+// swapped), r4/r5 swapped in the mode/player loads and the volatile float registers of the clamped angles.
 int ControlPushedDown::vf0C() {
-    float zero = 0.0f;
     float one = 1.0f;
-    int ret = 0;
+    float zero = 0.0f;
     Motion_unk* motion = &mChara->mMotion;
+    int ret = 0;
     atn::Vector3 rot = m08;
     switch (m38) {
     case 0: {
@@ -217,14 +216,13 @@ int ControlPushedDown::vf0C() {
                 }
             }
             if (m34 != 0 && lbl_8087F498 != 0) {
-                Chara_unk* chara = mChara;
-                if (fn_803EAC20(lbl_8087F498) == chara) {
+                if (fn_803EAC20(lbl_8087F498) == mChara) {
                     if (mode == 1) {
-                        fn_803EAA7C(lbl_8087F498, chara, 2, 10.0f);
+                        fn_803EAA7C(lbl_8087F498, mChara, 2, 10.0f);
                     } else if (mode == 2) {
-                        fn_803EAA7C(lbl_8087F498, chara, 4, 10.0f);
+                        fn_803EAA7C(lbl_8087F498, mChara, 4, 10.0f);
                     } else if (mode >= 3) {
-                        fn_803EAA7C(lbl_8087F498, chara, 6, 10.0f);
+                        fn_803EAA7C(lbl_8087F498, mChara, 6, 10.0f);
                     }
                 }
             }
@@ -376,8 +374,8 @@ ControlOttotto::ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int ti
     }
 }
 
-// NONMATCHING: 99.1% - the counter goes to r0 instead of r5 and the stack slots of the negated
-// direction and its rotation differ.
+// NONMATCHING: 99.3% - the counter goes to r0 instead of r5 and the stack slots of the negated
+// direction, its rotation and the normalized direction differ.
 int ControlOttotto::vf0C() {
     int count = --m14;
     Motion_unk* motion = &mChara->mMotion;
@@ -405,12 +403,12 @@ int ControlOttotto::vf0C() {
     }
     atn::Vector3 rot = m08.ToRotation_unk();
     mChara->vf34(&rot, 0, 0.0f, 1.0f);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     return 0;
 }
 
-// NONMATCHING: 99.9% - the stack slots of the up and front vectors are swapped.
 ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir, Chara_unk* other)
     : ControlBase(chara), m30(0.0f), m34(other), m38(chara->m560 == 0x68) {
     chara->m560 = 0x45;
@@ -428,8 +426,14 @@ ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir
     m->mTracks[0].m0C = -2.0f;
     m->mTracks[0].m08 = m->fn_80097D7C(0);
     atn::Vector3 side;
+    atn::Vector3 front;
     atn::Vector3 up(0.0f, 1.0f, 0.0f);
-    atn::Vector3 front = GetFrontDir_unk(other);
+    front.x = 0.0f;
+    front.y = 0.0f;
+    front.z = 1.0f;
+    Mtx mtx;
+    PSMTXRotRad(mtx, 'y', other->mRot.y);
+    PSMTXMultVec(mtx, &front, &front);
     PSVECCrossProduct(&front, &up, &side);
     if (PSVECDotProduct(&side, &dir) > 0.0f) {
         m08 = (dir + side).GetNormalized_unk();
@@ -446,7 +450,7 @@ ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir
 // components and the address of the segment end.
 int ControlPushedAvoid::vf0C() {
     int ret = 0;
-    m30 = m30 + lbl_8087EFA8->mTimeScale;
+    m30 = lbl_8087EFA8->mTimeScale + m30;
     Motion_unk* motion = &mChara->mMotion;
     switch (m2C) {
     case 0: {
