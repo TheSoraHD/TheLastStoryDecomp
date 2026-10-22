@@ -58,7 +58,8 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   vfB0, vfB4 (+ sus copias boost invoke/manage), vfC8, vfD0, vfD8, fn_802DA174, fn_802DB2D0, los estados
   6/7/11/12/13/14/15, la muerte fn_802DC618, fn_802DC8B0, __sinit. Escritas: vfCC (96.6%, programacion
   del z del temporal; 6 variantes), fn_802DAA38 (86.5%, absorcion: borrador). Sin escribir: fn_802DCA34 y
-  fn_802DD1B4 (refuerzos, push_back inlineado).
+  fn_802DD1B4 (refuerzos, push_back inlineado). fn_802DB534 98.8% (bucle de pilares en inline; queda la
+  programacion de la carga de g->m54).
 
 ### game/Em302KrakenMp (0/39 -> 31/39)
 - Unidad SIN FUENTE hasta ahora: fuente nueva `src/game/Em302KrakenMp.cpp` y cabecera nueva
@@ -81,6 +82,13 @@ Inicio: 2026-10-22 09:05 CEST. Rama agent-q3 (sale de main 64df7a6). Referencia:
   estados al 100%. Quedan: ctor (98.1%, std::string), vf0C (99.3%), vf10 (98.8%), vf50 (99.9%, "" de
   reserve), vfAC (99.8%, 13 variantes), fn_802E094C (81.9%, mismo frsp que Kraken::fn_802DA718) y los
   push_back (99.95% nombre de @STRING@ de otra unidad; 85.5% familia conocida).
+
+## Estado final (2026-10-22 13:46 CEST)
+- Em301LShade 16/31, Em302Kraken 36/49, Em302KrakenMp 31/39 funciones al 100% (antes 0/0/0).
+- Ninguna unidad enlazada: a todas les quedan NONMATCHING (ctor con std::string, vf0C/vf10 grandes,
+  push_back inlineados en bucles y los borradores de absorcion/sombras).
+- Sin escribir: Em301LShade fn_802D67F8, Em302Kraken fn_802DCA34/fn_802DD1B4 (refuerzos; los tres son
+  push_back de std/vector.h inlineados en bucles, familia que no sale).
 
 ## Decisiones tomadas sin el usuario
 - **splits.txt**: `.rodata` de game/Em301LShade ampliada de 0x807470A4 a 0x807473F8: absorbe el tramo
