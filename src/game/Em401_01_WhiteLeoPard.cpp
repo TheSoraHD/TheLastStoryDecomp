@@ -373,6 +373,41 @@ void Em401_01_WhiteLeoPard::fn_80321900(atn::Matrix3x4* mtx, const atn::NodeChun
     }
 }
 
+// NONMATCHING: 91.4% - the original reloads the flag word 0x12A4 for mFlag31, schedules the sums of m614
+// differently and swaps r3/r4 in the Vector3 copies; ~14 variants
+// inferred: places the collision capsule along the body (own version of CharaTask::vf20; as Em403WarLion)
+void Em401_01_WhiteLeoPard::vf20() {
+    m620 = m5B0;
+    if (mFlag13) {
+        if (m648 != 0) {
+            if (!mFlag31) {
+                m620 += 2.0f;
+            }
+        } else if (m570 > 2.0f * m500 && m508 > 2.005f * m500) {
+            m620 = 2.0f * ((m570 - 2.0f * m500) / (m508 - 2.0f * m500)) + m5B0;
+        }
+    }
+    float r = m620 * 1.5f;
+    m614 = mPos + m5A4;
+    m620 = r;
+    m614.y += r;
+    atn::Vector3 a(mPos.x, mPos.y + r, mPos.z);
+    atn::Vector3 b;
+    int tail = mMotion.fn_80092814("tale", 0);
+    if (tail > -1) {
+        b = GetNodePos_unk(mMotion.mNodeMtx[tail]);
+        b.y -= 1.0f;
+    } else {
+        b = a;
+        b.y += m5B4 - 2.0f * m620;
+    }
+    mColli.m3C = a;
+    mColli.m48 = b;
+    mColli.m54 = m620;
+    m148C = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    m1498 = 3.0f;
+}
+
 // NONMATCHING: 99.64% - r6/r7 of the copy of the first center (__VecCopy family); ~3 variants
 // inferred: places the two damage spheres on the body and on the "tale" node (update of m624)
 void Em401_01_WhiteLeoPard::vf54() {
