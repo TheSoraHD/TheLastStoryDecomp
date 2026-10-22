@@ -14,7 +14,9 @@ extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: field (lbl_8087F430) with its route tables
 struct RandomItemField_unk {
-    unsigned char m00[0x10D8];
+    unsigned char m00[0x10D0];
+    int m10D0; // inferred: level of the random tables
+    unsigned char m10D4[0x10D8 - 0x10D4];
     RouteTable_unk* m10D8;
 };
 extern "C" RandomItemField_unk* lbl_8087F430;
@@ -36,6 +38,13 @@ extern "C" void fn_8023A8B4(RandomItemEffectMgr_unk* mgr, atn::EfpHandle_unk* ef
 extern "C" void fn_80239DAC(RandomItemEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" int fn_80435908(gmk::RandomItem* item); // inferred: places the item at a random point
+struct RandomTable_unk;
+extern "C" RandomTable_unk* fn_8021D720(int level, int id); // inferred: random table of a level and id
+extern "C" bool fn_8021D770(RandomTable_unk* table, int* item, char* name, int index); // inferred: random item
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: ray test
 // inferred: sphere and oriented box of the collision tests
 struct RandomItemSphere_unk {
     atn::Vector3 mCenter;
@@ -347,6 +356,62 @@ void RandomItem::fn_80435684(int state) {
 }
 
 } // namespace gmk
+
+// NONMATCHING: 93.7% - 0x10 bytes smaller frame and other saved registers (the temporaries of the
+// ray test are laid out differently).
+// inferred: places the item at a random route point of the current entry that is between half the
+// range and the range from the player and can be seen from it (nonzero when one was found)
+extern "C" int fn_80435908(gmk::RandomItem* item) {
+    item->m154.x = 0.0f;
+    item->m154.y = 0.0f;
+    item->m154.z = 0.0f;
+    if (item->m144 == 0 || lbl_8087F8A0 == 0 || lbl_8087F430 == 0) {
+        return 0;
+    }
+    RandomTable_unk* table = fn_8021D720(lbl_8087F430->m10D0, item->m144->m04);
+    if (table == 0) {
+        return 0;
+    }
+    int id;
+    if (!fn_8021D770(table, &id, 0, 0)) {
+        return 0;
+    }
+    if (id <= 0) {
+        return 0;
+    }
+    CharaTask* player = (CharaTask*)lbl_8087F8A0->mHead;
+    atn::FixedArray_unk<RoutePoint_unk*, 0x200> points;
+    for (unsigned int i = 0; i < item->m144->mPoints.mSize; i++) {
+        RoutePoint_unk* point = item->m144->mPoints[i];
+        atn::Vector3 d = point->mPos - player->mPos;
+        float distSq = fn_805F9920(&d);
+        float range = item->m144->m818;
+        if (!((0.5f * range) * (0.5f * range) < distSq) || !(distSq < range * range)) {
+            continue;
+        }
+        atn::Vector3 from = player->mPos + atn::Vector3(0.0f, 3.0f, 0.0f);
+        float r = 0.5f * point->mRadius;
+        atn::Vector3 start = from;
+        atn::Vector3 to = point->mPos;
+        float len = (to - start).Length_unk();
+        if (!(atn::Abs_unk(len) < 1.1920929e-7f)) {
+            to -= start;
+            to.Normalize_unk();
+            float k = len - r;
+            to.x = to.x * k + start.x;
+            to.y = to.y * k + start.y;
+            to.z = to.z * k + start.z;
+        }
+        if (fn_8004ECC0(lbl_8087EE98, 0, &start, &to, 0x80000010, 0, 0) == 0) {
+            points.push_back(point);
+        }
+    }
+    if (points.mSize != 0) {
+        item->m154 = points[rand() % points.mSize]->mPos;
+        return 1;
+    }
+    return 0;
+}
 
 // inferred: the item is waiting to be taken (called by GameScene with the gimmick found by
 // GimmickManager::fn_803EEE10; name unknown)
