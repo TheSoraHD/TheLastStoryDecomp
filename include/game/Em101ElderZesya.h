@@ -67,12 +67,14 @@ public:
     void fn_8025941C(); // inferred: warps next to the current barrier (state 13)
     inline void GetWarp_unk(atn::Vector3* pos, float* rot);
     void fn_80258F1C(); // inferred: state 12 (casts the magic at frame 62)
+    void fn_80258574(); // inferred: starts the next action of the phase (m14CC)
+    inline void StartMagic_unk();
 
     int m14B0;                          // inferred: loading state (0, 1 collision objects, 2 ready)
     atn::LH_Binary m14B4;               // inferred: data file
     atn::Vector_unk<atn::Vector3> m14BC; // inferred: "HighJumpAttackPointID" positions
     int m14C8;
-    int m14CC;                          // inferred: "bossActPhase_" (3-5)
+    int m14CC;                          // inferred: "bossActPhase_" (3-5): next action (0-5)
     int m14D0;
     int m14D4;
     unsigned char m14D8[0x14F0 - 0x14D8];
@@ -109,7 +111,7 @@ public:
     atn::Vector3 m1684;
     float m1690;
     atn::Vector3 m1694;       // inferred: chosen chant point
-    int m16A0;
+    int m16A0;                // inferred: the little Zesya (Em101LittleZesya*, "LittleID")
     int m16A4;
     int m16A8;
     int m16AC;

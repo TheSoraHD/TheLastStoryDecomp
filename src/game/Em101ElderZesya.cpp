@@ -113,6 +113,24 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
 // inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
 extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
 
+extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
+struct ElderMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" ElderMsgTable_unk* lbl_8087F1E4;
+// inferred: order sent to the little Zesya (game/Em101LittleZesya.h ZesyaWarp_unk)
+struct ElderOrder_unk {
+    int m00;
+    int m04;
+    atn::Vector3 m08;
+};
+extern "C" void fn_8025FE30(int zesya, const ElderOrder_unk* order); // inferred: Em101LittleZesya order
+
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" double sqrt(double x);
@@ -375,6 +393,117 @@ inline void Em101ElderZesya::GetWarp_unk(atn::Vector3* pos, float* rot) {
 
 // NONMATCHING: 99.99% - only the offset of "SE_SP016_001_2" in @stringBase0 (strings of the unwritten
 // functions before it are missing)
+// inferred: same as PlayEffect_unk with the locals in the order of game/Em003LesserDaemon.cpp
+inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: starts the magic of state 10 (name invented)
+inline void Em101ElderZesya::StartMagic_unk() {
+    m14C8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m14D0 = 0;
+    m1660 = 0;
+    m58C = 10;
+    fn_8016E970(6);
+    m560 = 29;
+    m638 = m1518;
+    m1668 = mPos;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x66, 1, 0, 1, 0.0f, 0.1f);
+    mFB8 = 0.0f;
+}
+
+void Em101ElderZesya::fn_80258574() {
+    if (m14F4 != 0) {
+        if (++m1680 >= 4) {
+            m1680 = 0;
+        }
+        m14CC = 0;
+        m14F4 = 0;
+        m16AC = 0;
+    }
+    atn::Vector3 target = mC58.mC4->mPos;
+    atn::Vector3 d = target - mPos;
+    PSVECMag(&d);
+    switch (m14CC) {
+    case 0:
+        m14C8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m14D0 = 0;
+        m1660 = 0;
+        m58C = 12;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
+        fn_80232B7C(this, 101);
+        PlayEffectB_unk(&m15F8, &mMotion);
+        m14CC = 1;
+        break;
+    case 1:
+        m14C8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m14D0 = 0;
+        m1660 = 0;
+        m58C = 14;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x67, 0, 0, 1, 0.0f, 0.1f);
+        m14CC = 3;
+        break;
+    case 2: {
+        m58C = 9;
+        m14C8 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m14D0 = 0;
+        m1660 = 0;
+        wchar_t text[256];
+        memset(text, 0, sizeof(text));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x9F), *(const wchar_t**)((char*)m60 + 4));
+        fn_80109828(lbl_8087F048, text);
+        fn_802598DC();
+        fn_8016D74C(m1510, 0, (int)&m1694);
+        ElderOrder_unk order;
+        order.m00 = 1;
+        order.m08 = m1694;
+        order.m04 = 2;
+        fn_8025FE30(m16A0, &order);
+        break;
+    }
+    case 3:
+        StartMagic_unk();
+        break;
+    case 4:
+        StartMagic_unk();
+        m14CC = 5;
+        break;
+    case 5:
+        StartMagic_unk();
+        m14CC = 3;
+        break;
+    }
+    *(int*)(m16A0 + 0x14EC) = m14CC;
+}
+
 void Em101ElderZesya::fn_80258F1C() {
     m638 = m1518;
     float frame = mMotion.mTracks[0].m08;
