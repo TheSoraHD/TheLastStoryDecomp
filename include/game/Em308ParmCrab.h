@@ -22,6 +22,7 @@ public:
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
+    virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset);
     virtual void vfEC();
     virtual float vf90();
 
@@ -50,7 +51,7 @@ public:
     int m1540;
     float m1544;
     float m1548;
-    unsigned char m154C[0x1558 - 0x154C];
+    atn::Vector3 m154C;       // inferred: jump velocity (vf80)
     CrabList_unk m1558;
     unsigned char m1564[0x1574 - 0x1564];
     int m1574;

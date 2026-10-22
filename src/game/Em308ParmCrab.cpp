@@ -45,6 +45,12 @@ struct ColorF_unk {
     float r, g, b, a;
 };
 extern "C" ColorF_unk lbl_807C8398; // inferred: color of the downed enemies (bss)
+// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in game/Em308InvertCrab.cpp)
+struct CrabSettings_unk {
+    unsigned char m00[0x30];
+    int mFps;
+};
+extern "C" CrabSettings_unk* lbl_8087F0A8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
@@ -242,6 +248,31 @@ void Em308ParmCrab::vf40(HitInfo_unk* hit) {
         Effect_unk* fx = lbl_8087F048;
         fn_80108F38(fx, fn_801781B0(), 0x80);
     }
+}
+
+// inferred: gravity per frame (as in game/Em308InvertCrab.cpp)
+inline float Gravity_unk(CrabSettings_unk* s) {
+    return -98.1f / (float)(s->mFps * s->mFps);
+}
+
+// inferred: jump to pos + offset (state 13), as Em308InvertCrab::vf80; also keeps the flight time in m15DC
+// NONMATCHING: 82.04% - stack order of the temporaries (dest at 0x8 in the original) and scheduling of the
+// two int->float conversions of the frame count; ~8 forms (inline helper included)
+void Em308ParmCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
+    ResetAttack_unk();
+    m58C = 13;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x68, 0, 0, 1, 0.0f, 0.1f);
+    atn::Vector3 dest = pos + offset;
+    int frames = (int)mMotion.fn_80097D7C(0);
+    m15DC = frames;
+    m154C = (dest - mPos) * (1.0f / (float)m15DC);
+    m15D0 = 0;
+    mColli.mFlags &= ~1;
+    m154C.y -= 0.5f * ((float)m15DC * Gravity_unk(lbl_8087F0A8));
 }
 
 // inferred: plays an effect on the model (as in game/Em308InvertCrab.cpp)
