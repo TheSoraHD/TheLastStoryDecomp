@@ -49,3 +49,8 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
   bucle, 7 intentos). `fn_80589DE0` 97.60% sin cambios (4 intentos): es la planificacion del argumento de tamano de
   `fn_8006EF48` (mismo bloqueo que MenuCommonTask y MP/D2AMpMenuSetRule). `fn_8058A0F0` (doble lectura del texto,
   SetPaneText) y `fn_8058A3AC` (insert de vector MSL sin escribir) saltadas: bloqueos documentados.
+- `chr/ControlAppear` (17/24, sin cambios): `vf40` es el r3/r4 de `__VecCopy` (Assign_unk probado); `ControlAppearEnd/
+  Skelton::vf10` son la planificacion del ptmf de bind (como ControlRideBeast::vf10; 3 intentos: local, inline,
+  puntero a miembro en local). Las copias debiles invoke/manage del bind con el enum local no se pueden emparejar:
+  nuestro .o las nombra `@enum$5814ControlAppear_cpp` y el original `@enum$3246...` (el numero depende del recuento
+  de tipos de toda la TU). Saltada.
