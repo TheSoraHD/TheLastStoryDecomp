@@ -29,6 +29,7 @@ public:
     void fn_802FC188(); // inferred: death
     inline void ResetAttack_unk();
     inline void StopAttack_unk();
+    int fn_802FBE00(CharaTask* target, int next); // inferred: starts a turn towards target (0 if it already faces it)
 
     int m14B0;
     int m14B4;
@@ -47,7 +48,7 @@ public:
     HitInfo_unk* m1530;       // inferred: skill 0x3F8
     float m1534;
     int m1538;
-    unsigned char m153C[0x1540 - 0x153C];
+    int m153C;                // inferred: next state after the turn (fn_802FBE00)
     int m1540;
     float m1544;
     float m1548;
@@ -66,8 +67,9 @@ public:
     unsigned char m1598[0x15AC - 0x1598];
     CrabList_unk m15AC;
     int m15B8;
-    int m15BC;
-    unsigned char m15C0[0x15C8 - 0x15C0];
+    CharaTask* m15BC;         // inferred: target
+    unsigned char m15C0[0x15C4 - 0x15C0];
+    CharaTask* m15C4;         // inferred: target of the turn (fn_802FBE00)
     int m15C8;
     int m15CC;
     int m15D0;

@@ -319,6 +319,32 @@ void Em308ParmCrab::vfEC() {
     }
 }
 
+// inferred: starts a turn (state 9, motion 0x14D) towards target, unless it is within 22.5 degrees; the
+// state `next` follows the turn
+int Em308ParmCrab::fn_802FBE00(CharaTask* target, int next) {
+    if (m58C == 9) {
+        return 0;
+    }
+    m1544 = mRot.y;
+    atn::Vector3 rot = (target->mPos - mPos).ToRotationZ_unk();
+    m1548 = rot.y;
+    float d = atn::WrapAngle_unk(rot.y - m1544);
+    if (-0.3926991f < d && d < 0.3926991f) {
+        return 0;
+    }
+    m1540 = 0;
+    m153C = next;
+    m15C4 = target;
+    ResetAttack_unk();
+    m58C = 9;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 2.0f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    return 1;
+}
+
 void Em308ParmCrab::fn_802FC188() {
     fn_80239DAC(lbl_8087F3C0, this, 0, 0);
     fn_800CB5C8(&m151C, 0, 0);
