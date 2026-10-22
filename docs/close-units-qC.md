@@ -19,3 +19,6 @@ Una linea por unidad procesada.
 Hallazgos MWCC:
 - Constantes dobles de fmod: comprobar el valor exacto en el pool; ControlSitting usa `(double)6.2831855f`, no 2*pi en doble.
 - Un `@STRING@allocate...` debil de boost::function (o RTTI debil del bind) que el original deduplica en otra TU debe llevar su nombre real en symbols.txt; si no, nuestro .o lo emite al final de su .data y el .dol se desplaza.
+- game/GameSaveBanner: 8/9. fn_803B9638 80.77 -> 88.2%: `mIconSpeed = mIconSpeed & ~...` (no `&=`, evita el not/clrlwi) y `mFlags = mFlags | m144 | 1` (orden del or). Pendiente: el bucle de iconos usa desplazamientos sobre this (i*8, i*4, i*0x1200) en el original y orden de args de NANDInitBanner.
+- game/Gun: saltada - sub-bloqueo B de `__VecCopy` (orden de z; ya probadas muchas formas segun su comentario).
+- game/HomeButtonMenu: ENLAZADA (5/5). fn_80440994 (0x80440994) subida: `w /= sy * (k * sx); h *= sy;` (la division antes de la multiplicacion de h y sin local para k*sx). Faltaba la definicion de `HomeButtonMenu::sInstance` (la usa GameSystem_unk); anadida en el .cpp. Sin cambios en splits/symbols.
