@@ -73,6 +73,16 @@ cerrarse en el tiempo del lote; se prioriza (1) las funciones NONMATCHING >= 95%
   - SpecialEnemyBase.cpp: factoria con `new (3, "", "", 0) Em315Coffin(...)`.
   - Clean build tras el cambio de splits de Em303KrakenFootMp: main.dol OK.
 
+- game/Em312DarkServant (0/21 -> 11/21, NUEVA fuente + cabecera): al 100% dtor, vf0C (busca su amo con
+  "master=", tipo 6), vf10, vf14, vf10C (switch 9-11 / 12), fn_8030E490/fn_8030E4AC (`extern "C"`, los llama
+  Em006DarkMaster; cuerpos de los inline IsDown_unk/KnockDown_unk), vfFC, fn_8030FEAC (enemigos cercanos),
+  fn_8030FFF0/fn_80310084 (efecto). Con NONMATCHING: ctor ~40% (bucles de arrays), vf40 ~95%, fn_8030E530 ~90%,
+  fn_8030E5C8 ~85% (recursion en linea, bloqueo documentado), vf30 ~60%. Pendientes: lector del CSV
+  (0x8030DEB0), vf100/vf104/vf108 (grandes).
+  - symbols.txt: fn_8030DA20/DC9C/DD40/E160/E258/E26C/E36C/E5C8/E6C0/FEAC/FFF0/80310084/80310098 -> nombres de
+    Em312DarkServant (fn_8030E490/4AC/530 siguen `extern "C"`).
+  - SpecialEnemyBase.cpp: factoria con `new (3, "", "", 0) Em312DarkServant(...)`.
+
 ## Hallazgos MWCC
 - vf0C de los enemigos especiales: la cadena de cargas en un unico `if (a == 0 && b == 0 && ...)` reproduce el
   `beq` comun al `return 0` final; con retornos tempranos sale un `li r3,0; b` por condicion.
