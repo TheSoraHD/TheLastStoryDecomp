@@ -1,6 +1,8 @@
 #include "game/GameSoundControl.h"
 #include "game/GameBgm.h"
 #include "atn/Memory.h"
+#include "std/new.h"
+#include "game/GameSaveBackground.h"
 
 // inferred: stream of the field (two at Field_unk::m5620/m5624); names invented
 struct FieldStream_unk {
@@ -63,10 +65,18 @@ extern "C" void* lbl_8087EFE8; // inferred: sound configuration
 extern "C" void fn_800D03AC(void* cfg, int group, int arg, float volume);
 extern "C" void* lbl_8087F418;
 extern "C" void* lbl_8087F540;
+// inferred: map id packed in a word (map, area, sub; names invented)
+struct MapId_unk {
+    unsigned short mMap; // 0x0
+    unsigned char mArea; // 0x2
+    unsigned char mSub;  // 0x3
+};
 struct Unk8087F540_unk {
     unsigned char m00[0x70];
     struct {
-        unsigned char m000[0x194];
+        unsigned char m000[0x58];
+        MapId_unk m58;
+        unsigned char m05C[0x194 - 0x5C];
         int m194;
     }* m70;
 };
@@ -224,4 +234,213 @@ void GameSoundControl::fn_803CDF84() {
             }
         }
     }
+}
+
+// inferred: empty (called by GameTask)
+extern "C" void fn_803CE070() {}
+
+// inferred: saved start positions of the BGMs (pairs id/position at m68, count m64); names invented
+struct BgmPos_unk {
+    unsigned int mId;
+    int mPos;
+};
+inline BgmPos_unk* BgmPosBegin_unk(GameSoundControl* c) {
+    return (BgmPos_unk*)c->m68;
+}
+inline bool BgmPosFull_unk(GameSoundControl* c) {
+    return (unsigned int)c->m64 >= 4;
+}
+inline BgmPos_unk* BgmPosEnd_unk(GameSoundControl* c) {
+    return (BgmPos_unk*)c->m68 + c->m64;
+}
+
+// inferred: saved position of the BGM `id` (-1 if none)
+extern "C" int fn_803CE074(GameSoundControl* control, unsigned int id) {
+    for (BgmPos_unk* p = BgmPosBegin_unk(control); p != BgmPosEnd_unk(control); p++) {
+        if (p->mId == id) {
+            return p->mPos;
+        }
+    }
+    return -1;
+}
+
+// inferred: saves the position of the BGM `id`
+struct BgmPosPair_unk {
+    BgmPosPair_unk(unsigned int id, int pos) : mId(id), mPos(pos) {}
+    unsigned int mId;
+    int mPos;
+};
+// inferred: element as stored by the inlined push_back (copied through a local, placement new)
+struct BgmPosPair2_unk {
+    unsigned int mId;
+    int mPos;
+};
+inline void BgmPosPush_unk(GameSoundControl* c, const BgmPosPair_unk& e) {
+    BgmPosPair2_unk t;
+    t.mId = e.mId;
+    t.mPos = e.mPos;
+    new (BgmPosEnd_unk(c)) BgmPosPair2_unk(t);
+    c->m64++;
+}
+// NONMATCHING: the original reloads the count for the end of the list after the `>= 4` test (here the
+// first load is reused); a volatile read of m64 matches, not used.
+extern "C" int fn_803CE0B4(GameSoundControl* control, unsigned int id, int pos) {
+    if (BgmPosFull_unk(control)) {
+        return 0;
+    }
+    if (pos >= 0) {
+        BgmPos_unk* p;
+        for (p = BgmPosBegin_unk(control); p != BgmPosEnd_unk(control); p++) {
+            if (p->mId == id) {
+                p->mPos = pos;
+                return 1;
+            }
+        }
+        BgmPosPush_unk(control, BgmPosPair_unk(id, pos));
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: two constants (sizes of the sound heaps?)
+extern "C" int fn_803CE148() {
+    return 0x2D5000;
+}
+extern "C" int fn_803CE154() {
+    return 0x2D5000;
+}
+
+// inferred: save header (see include/game/GameSaveBackground.h); defined in this file
+Unk_803CE3B8::Unk_803CE3B8() : m00(0), m04(0), m08(0), m0A(0) {
+    memset(m0C, 0, sizeof(m0C));
+}
+
+// inferred: fills the header from the field and the game settings
+void Unk_803CE3B8::fn_803CE408() {
+    m00 = *(int*)((char*)lbl_8087F430 + 0x10D0);
+    if (lbl_8087F0A8 == 0) {
+        return;
+    }
+    m08 = *(int*)(lbl_8087F0A8 + 0x113C);
+    if (lbl_8087F0A8[0x1140] != 0) {
+        m0A |= 1;
+    }
+}
+
+void Unk_803CE3B8::fn_803CE448() {}
+
+// inferred: the header is not valid (field id, value of m04 or m08 out of range)
+extern "C" int fn_803CE44C(const Unk_803CE3B8* h) {
+    if (h->m00 < 0 || 999999 < h->m00) {
+        return 1;
+    }
+    if (h->m04 < 0 || 999 < h->m04) {
+        return 1;
+    }
+    if (h->m08 < 0 || 17 <= h->m08) {
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: accessors of the packed map id (taken by value)
+static inline int MapArea_unk(MapId_unk id) {
+    return id.mArea;
+}
+static inline int MapMap_unk(MapId_unk id) {
+    return id.mMap;
+}
+static inline int MapSub_unk(MapId_unk id) {
+    return id.mSub;
+}
+
+// inferred: the map is a battle arena (area 1, or area 2 map 16 / map 68 sub 1)
+extern "C" int fn_803CE160(int area, int map, int sub) {
+    int result = 0;
+    if (area <= 0 || map <= 0) {
+        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+            area = fn_80373148(lbl_8087F430)->m48;
+            map = fn_80373148(lbl_8087F430)->m4C;
+            sub = fn_80373148(lbl_8087F430)->m50;
+        } else if (lbl_8087F540 != 0) {
+            if (((Unk8087F540_unk*)lbl_8087F540)->m70 != 0) {
+                MapId_unk id = ((Unk8087F540_unk*)lbl_8087F540)->m70->m58;
+                area = MapArea_unk(id);
+                map = MapMap_unk(id);
+                sub = MapSub_unk(id);
+            } else {
+                return 0;
+            }
+        }
+
+    }
+    if (area == 1) {
+        result = 1;
+    }
+    if (area == 2) {
+        if (map == 16) {
+            result = 1;
+        } else if (map == 68 && sub == 1) {
+            result = 1;
+        }
+    }
+    return result;
+}
+
+// inferred: the BGM of the map can be changed by the battle (0 on the maps of area 2 that keep their BGM)
+extern "C" int fn_803CE278(int area, int map, int sub) {
+    int result = 1;
+    if (area <= 0 || map <= 0) {
+        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+            area = fn_80373148(lbl_8087F430)->m48;
+            map = fn_80373148(lbl_8087F430)->m4C;
+            sub = fn_80373148(lbl_8087F430)->m50;
+        } else if (lbl_8087F540 != 0) {
+            if (((Unk8087F540_unk*)lbl_8087F540)->m70 != 0) {
+                MapId_unk id = ((Unk8087F540_unk*)lbl_8087F540)->m70->m58;
+                area = MapArea_unk(id);
+                map = MapMap_unk(id);
+                sub = MapSub_unk(id);
+            } else {
+                return 1;
+            }
+        }
+    }
+    if (area == 1) {
+        result = 0;
+    }
+    if (area == 2) {
+        switch (map) {
+        case 5:
+        case 6:
+        case 7:
+        case 13:
+        case 24:
+        case 35:
+            break;
+        case 40:
+            if ((unsigned int)(sub - 9) > 3) {
+                result = 0;
+            }
+            break;
+        case 14:
+        case 29:
+        case 30:
+        case 31:
+        case 33:
+        case 34:
+        case 51:
+        case 60:
+        case 61:
+        case 66:
+            if (sub != 9) {
+                result = 0;
+            }
+            break;
+        default:
+            result = 0;
+            break;
+        }
+    }
+    return result;
 }

@@ -90,3 +90,8 @@ Hallazgos MWCC (7):
 - game/RouteWalker_unk: sin cambios. fn_80128930 99.53%: `float r = mChara->m5B0; r = 5 + (target->m5B0 + r);` da el orden de carga pero cruza f1/f2/f3 (99.3%); revertido y anotado.
 - game/SkillEffectManager: sin cambios (fn_8059B8A8: 3 variantes de m58 mas, ya habia 8).
 - game/TeamAIManager: sin funciones nuevas al 100%, pero `int id = in->mId; int type = in->mType; Find_unk(type, id)` (id leido antes que type) mejora OnMembers_unk 99.04->99.47, OnChara_unk 99.25->99.38, OnMsg21_unk/OnMsg24_unk 98.75->98.98, OnTarget_unk/OnTarget2_unk 91.24->91.42. En OnMsg20_unk y OnParent_unk empeora (no aplicado).
+- game/GameSoundControl: 9 funciones nuevas al 100% (de 6/19 a 16/19), escritas desde cero: fn_803CE070 (vacia), fn_803CE074 (posicion guardada de una BGM: pares id/posicion en m68, cuenta m64), fn_803CE148/fn_803CE154 (constante 0x2D5000), fn_803CE160 (el mapa es arena: area 1, o area 2 mapa 16 / mapa 68 sub 1), fn_803CE278 (la BGM del mapa puede cambiar: switch con jumptable), Unk_803CE3B8::Unk_803CE3B8 / fn_803CE408 / fn_803CE448 (cabecera de guardado; clase de include/game/GameSaveBackground.h, definida en este fichero) y fn_803CE44C (validacion de la cabecera). fn_803CE0B4 91.89% (el original recarga m64 tras el test `>= 4`; con lectura volatile iguala, no usada). Struct nuevo MapId_unk en Unk8087F540_unk::m70 (+0x58). fn_803CDF84 sin cambios (11 variantes).
+
+Hallazgos MWCC (8):
+- Rango con la constante a la izquierda (`v < 0 || 999 < v`) mantiene las dos comparaciones con signo; `v > 999` se pliega en una comparacion sin signo (fn_803CE44C).
+- Campos de un struct empaquetado leidos via inline que toma el struct por valor reproducen la copia a pila (stw x3 + lbz/lhz) del original.
