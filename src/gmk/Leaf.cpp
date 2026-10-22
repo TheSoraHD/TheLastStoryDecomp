@@ -225,7 +225,7 @@ void Leaf::fn_80400D08() {
     mState = 1;
 }
 
-// NONMATCHING: 99.35% - registers of the size/data of the binary (r29/r30) and of the last loop
+// NONMATCHING: 99.89% - register of the path string (r27/r28); the unsigned subscript fixed the loop
 void Leaf::vf20() {
     char name[256];
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
@@ -253,34 +253,34 @@ void Leaf::vf20() {
     } while (csv.fn_8005BBF8() != 0);
     mLeaves.Resize_unk(mNumLeaf, 0);
     for (int i = 0; i < mNumLeaf; i++) {
-        mLeaves[i].mInst = new (12, "", "", 0) atn::ModelInstance(fn_8009F788(name));
+        mLeaves[(unsigned int)i].mInst = new (12, "", "", 0) atn::ModelInstance(fn_8009F788(name));
     }
 }
 
-// NONMATCHING: 99.24% - the original gives the index and this higher registers than the offset
+// The unsigned subscripts give the index/offset registers of the original
 void Leaf::fn_8040161C() {
     if (sBlow != 1) {
         return;
     }
     for (int i = 0; i < mNumLeaf; i++) {
         float speed = 10.0f * (mWindCur / 30.0f) * (0.8f * Rand01_unk()) + m120;
-        mLeaves[i].mPos += mWindDir * speed;
-        atn::Vector3 d = m6C - (m6C + mLeaves[i].mPos);
+        mLeaves[(unsigned int)i].mPos += mWindDir * speed;
+        atn::Vector3 d = m6C - (m6C + mLeaves[(unsigned int)i].mPos);
         if (fn_805F9920(&d) > mFlowLength * mFlowLength) {
             float angle = 0.017453292f * (float)(rand() % 361);
-            mLeaves[i].mPos.x = Cos_unk(angle) * (mSize * Rand01_unk());
-            mLeaves[i].mPos.y = mSize * Rand01_unk();
-            mLeaves[i].mPos.z = Sin_unk(angle) * (mSize * Rand01_unk());
+            mLeaves[(unsigned int)i].mPos.x = Cos_unk(angle) * (mSize * Rand01_unk());
+            mLeaves[(unsigned int)i].mPos.y = mSize * Rand01_unk();
+            mLeaves[(unsigned int)i].mPos.z = Sin_unk(angle) * (mSize * Rand01_unk());
         }
-        if (mType == 1 || mLeaves[i].mPos.y > 0.0f) {
-            mLeaves[i].mPos.y += -0.1f * (float)(rand() % 10);
+        if (mType == 1 || mLeaves[(unsigned int)i].mPos.y > 0.0f) {
+            mLeaves[(unsigned int)i].mPos.y += -0.1f * (float)(rand() % 10);
         }
         if (mType != 1) {
-            mLeaves[i].mPos.y += speed * (0.5f * Rand01_unk());
+            mLeaves[(unsigned int)i].mPos.y += speed * (0.5f * Rand01_unk());
         }
-        mLeaves[i].mRot.x += 0.1f * (float)(rand() % 20) + mWindCur;
-        mLeaves[i].mRot.y += 0.1f * (float)(rand() % 20) + mWindCur;
-        mLeaves[i].mRot.z += 0.1f * (float)(rand() % 20) + mWindCur;
+        mLeaves[(unsigned int)i].mRot.x += 0.1f * (float)(rand() % 20) + mWindCur;
+        mLeaves[(unsigned int)i].mRot.y += 0.1f * (float)(rand() % 20) + mWindCur;
+        mLeaves[(unsigned int)i].mRot.z += 0.1f * (float)(rand() % 20) + mWindCur;
     }
     if (rand() % 100 == 0) {
         mWindCur += 0.1f;
@@ -327,7 +327,7 @@ void Leaf::fn_80401BF0() {
     fn_804023E0();
 }
 
-// NONMATCHING: 99.22% - same register order of index/offset/this as fn_8040161C
+// The unsigned subscripts give the index/offset registers of the original
 void Leaf::fn_80401E50(CharaTask* chara) {
     bool walking = false;
     if (chara->m55C == 6 && 4 <= chara->m560 && chara->m560 < 12) {
@@ -336,53 +336,53 @@ void Leaf::fn_80401E50(CharaTask* chara) {
     bool run = walking & (chara->m58C == 1);
     run = run & chara->fn_80158CA4();
     for (int i = 0; i < mNumLeaf; i++) {
-        atn::Vector2_unk d((m6C.x + mLeaves[i].mPos.x) - chara->mPos.x, (m6C.z + mLeaves[i].mPos.z) - chara->mPos.z);
+        atn::Vector2_unk d((m6C.x + mLeaves[(unsigned int)i].mPos.x) - chara->mPos.x, (m6C.z + mLeaves[(unsigned int)i].mPos.z) - chara->mPos.z);
         if (d.x * d.x + d.y * d.y < 9.0f) {
             float dist = sqrt(d.x * d.x + d.y * d.y);
-            mLeaves[i].mDirX = (m6C.x + mLeaves[i].mPos.x) - chara->mPos.x;
-            mLeaves[i].mDirZ = (m6C.z + mLeaves[i].mPos.z) - chara->mPos.z;
-            LeafEntry_unk& leaf = mLeaves[i];
+            mLeaves[(unsigned int)i].mDirX = (m6C.x + mLeaves[(unsigned int)i].mPos.x) - chara->mPos.x;
+            mLeaves[(unsigned int)i].mDirZ = (m6C.z + mLeaves[(unsigned int)i].mPos.z) - chara->mPos.z;
+            LeafEntry_unk& leaf = mLeaves[(unsigned int)i];
             float inv = 1.0f / (float)sqrt(leaf.mDirX * leaf.mDirX + leaf.mDirZ * leaf.mDirZ);
             leaf.mDirX *= inv;
             leaf.mDirZ *= inv;
-            mLeaves[i].mSpeed = (1.0f - dist / 3.0f) * (1.9f * Rand01_unk());
+            mLeaves[(unsigned int)i].mSpeed = (1.0f - dist / 3.0f) * (1.9f * Rand01_unk());
         } else if (run) {
-            d.x = (m6C.x + mLeaves[i].mPos.x) - (chara->mPos.x + GetFront_unk(chara).x * (5.0f * Rand01_unk() + 10.0f - 2.5f));
-            d.y = (m6C.z + mLeaves[i].mPos.z) - (chara->mPos.z + GetFront_unk(chara).z * (5.0f * Rand01_unk() + 10.0f - 2.5f));
+            d.x = (m6C.x + mLeaves[(unsigned int)i].mPos.x) - (chara->mPos.x + GetFront_unk(chara).x * (5.0f * Rand01_unk() + 10.0f - 2.5f));
+            d.y = (m6C.z + mLeaves[(unsigned int)i].mPos.z) - (chara->mPos.z + GetFront_unk(chara).z * (5.0f * Rand01_unk() + 10.0f - 2.5f));
             if (d.x * d.x + d.y * d.y < 225.0f) {
                 float dist = sqrt(d.x * d.x + d.y * d.y);
-                mLeaves[i].mDirX = (m6C.x + mLeaves[i].mPos.x) - chara->mPos.x;
-                mLeaves[i].mDirZ = (m6C.z + mLeaves[i].mPos.z) - chara->mPos.z;
-                float inv = 1.0f / (float)sqrt(mLeaves[i].mDirX * mLeaves[i].mDirX + mLeaves[i].mDirZ * mLeaves[i].mDirZ);
-                mLeaves[i].mDirX = inv * mLeaves[i].mDirX * (2.5f * Rand01_unk() - 1.0f);
-                mLeaves[i].mDirZ = inv * mLeaves[i].mDirZ * (2.5f * Rand01_unk() - 1.0f);
-                mLeaves[i].mSpeed = (1.0f - dist / 15.0f) * (2.5f * Rand01_unk());
+                mLeaves[(unsigned int)i].mDirX = (m6C.x + mLeaves[(unsigned int)i].mPos.x) - chara->mPos.x;
+                mLeaves[(unsigned int)i].mDirZ = (m6C.z + mLeaves[(unsigned int)i].mPos.z) - chara->mPos.z;
+                float inv = 1.0f / (float)sqrt(mLeaves[(unsigned int)i].mDirX * mLeaves[(unsigned int)i].mDirX + mLeaves[(unsigned int)i].mDirZ * mLeaves[(unsigned int)i].mDirZ);
+                mLeaves[(unsigned int)i].mDirX = inv * mLeaves[(unsigned int)i].mDirX * (2.5f * Rand01_unk() - 1.0f);
+                mLeaves[(unsigned int)i].mDirZ = inv * mLeaves[(unsigned int)i].mDirZ * (2.5f * Rand01_unk() - 1.0f);
+                mLeaves[(unsigned int)i].mSpeed = (1.0f - dist / 15.0f) * (2.5f * Rand01_unk());
             }
         }
     }
 }
 
-// NONMATCHING: 98.79% - same register order of index/offset/this as fn_8040161C
+// The unsigned subscripts give the index/offset registers of the original
 void Leaf::fn_804023E0() {
     for (int i = 0; i < mNumLeaf; i++) {
-        if (mLeaves[i].mSpeed > 0.1f || mLeaves[i].mPos.y > 0.01f) {
-            mLeaves[i].mPos.x += (4.0f * Rand01_unk() - 1.5f) * (mLeaves[i].mDirX * mLeaves[i].mSpeed);
-            mLeaves[i].mPos.z += (4.0f * Rand01_unk() - 1.5f) * (mLeaves[i].mDirZ * mLeaves[i].mSpeed);
-            mLeaves[i].mPos.y += mLeaves[i].mSpeed;
-            float speed = mLeaves[i].mSpeed - 0.1f;
-            mLeaves[i].mSpeed = speed < 0.0f ? 0.01f : speed;
-            mLeaves[i].mRot.x += mLeaves[i].mPos.y;
-            mLeaves[i].mRot.y += mLeaves[i].mPos.y;
-            mLeaves[i].mRot.z += mLeaves[i].mPos.y;
+        if (mLeaves[(unsigned int)i].mSpeed > 0.1f || mLeaves[(unsigned int)i].mPos.y > 0.01f) {
+            mLeaves[(unsigned int)i].mPos.x += (4.0f * Rand01_unk() - 1.5f) * (mLeaves[(unsigned int)i].mDirX * mLeaves[(unsigned int)i].mSpeed);
+            mLeaves[(unsigned int)i].mPos.z += (4.0f * Rand01_unk() - 1.5f) * (mLeaves[(unsigned int)i].mDirZ * mLeaves[(unsigned int)i].mSpeed);
+            mLeaves[(unsigned int)i].mPos.y += mLeaves[(unsigned int)i].mSpeed;
+            float speed = mLeaves[(unsigned int)i].mSpeed - 0.1f;
+            mLeaves[(unsigned int)i].mSpeed = speed < 0.0f ? 0.01f : speed;
+            mLeaves[(unsigned int)i].mRot.x += mLeaves[(unsigned int)i].mPos.y;
+            mLeaves[(unsigned int)i].mRot.y += mLeaves[(unsigned int)i].mPos.y;
+            mLeaves[(unsigned int)i].mRot.z += mLeaves[(unsigned int)i].mPos.y;
         }
         if (mType == 2) {
-            mLeaves[i].mPos.y += -0.1f * (float)(rand() % 10);
+            mLeaves[(unsigned int)i].mPos.y += -0.1f * (float)(rand() % 10);
         }
-        if (mType != 1 && mLeaves[i].mPos.y <= 0.0f) {
-            mLeaves[i].mPos.y = 0.0f;
+        if (mType != 1 && mLeaves[(unsigned int)i].mPos.y <= 0.0f) {
+            mLeaves[(unsigned int)i].mPos.y = 0.0f;
         } else {
-            mLeaves[i].mPos.x += mLeaves[i].mDirX * (0.5f * Rand01_unk());
-            mLeaves[i].mPos.z += mLeaves[i].mDirZ * (0.5f * Rand01_unk());
+            mLeaves[(unsigned int)i].mPos.x += mLeaves[(unsigned int)i].mDirX * (0.5f * Rand01_unk());
+            mLeaves[(unsigned int)i].mPos.z += mLeaves[(unsigned int)i].mDirZ * (0.5f * Rand01_unk());
         }
     }
 }
