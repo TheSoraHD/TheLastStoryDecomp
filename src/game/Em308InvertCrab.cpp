@@ -22,6 +22,35 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
+extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
+// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
+struct CrabSettings_unk {
+    unsigned char m00[0x30];
+    int mFps;
+};
+extern "C" CrabSettings_unk* lbl_8087F0A8;
+// inferred: ray test result (as in game/Em303KrakenFoot.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x34];
+    int* m34; // inferred: attribute of the hit
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // NONMATCHING: 99.81% - r26/r27 of the second std::string constructor (known blocker of the string
 // constructors, as in Em101LittleZesya/Em305Vampire)
@@ -148,3 +177,82 @@ void Em308InvertCrab::vf40(HitInfo_unk* hit) {
     }
 }
 
+// inferred: plays an effect on the model (as in game/Em305Vampire.cpp)
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: gravity per frame (as fn_802F0998 of gmk/Cannonball.cpp)
+inline float Gravity_unk(CrabSettings_unk* s) {
+    return -98.1f / (float)(s->mFps * s->mFps);
+}
+
+// inferred: jump to pos + offset (state 13): flight time from the motion length, gravity from the frame rate
+// NONMATCHING: 94.64% - stack slots of the destination temporary (0x8 vs 0x20) and f-register
+// allocation of the jump velocity; ~13 forms tried.
+void Em308InvertCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
+    m1590 = 0;
+    m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 13;
+    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x68, 0, 0, 1, 0.0f, 0.1f);
+    atn::Vector3 dest = pos + offset;
+    float frames = mMotion.fn_80097D7C(0);
+    m1540 = (dest - mPos) * (1.0f / frames);
+    m1540.y -= 0.5f * (frames * Gravity_unk(lbl_8087F0A8));
+    m159C = 0;
+    mColli.mFlags &= ~1;
+}
+
+// inferred: end of the death motion; while not down it gets up again (state 14)
+void Em308InvertCrab::vfEC() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mFlag25 = 1;
+        mColli.mFlags &= ~1;
+        if (m1434 > 0) {
+            if (--m1434 == 29) {
+                fn_80232B7C(0, 0);
+                PlayEffect_unk(&m15AC, &mMotion);
+                vf9C(1);
+                fn_800EB7A0(this);
+            }
+        } else {
+            mFlag15 = 1;
+            fn_801765D8();
+            fn_800EE360(this);
+        }
+    } else if (m1594 == 0) {
+        mStatus.fn_8013322C(0x20);
+        mStatus.m04 = 1.0f;
+        m1590 = 0;
+        m15A0 = m14EC != 0 ? m14EC->m68 : 90;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 14;
+        m54C |= 0x2000;
+        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 0.5f;
+        mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+    } else {
+        m1434 = 30;
+    }
+}

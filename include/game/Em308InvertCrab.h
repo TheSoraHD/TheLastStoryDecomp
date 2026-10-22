@@ -24,6 +24,8 @@ public:
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
+    virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset);
+    virtual void vfEC();
     virtual int vf68(CharaTask* attacker) { return 0; }
     virtual void vf6C(int kind, CharaTask* other) {}
     // inferred: inline (weak copy 0x802F6E54 emitted at the end of the file); the slot 0x60
@@ -51,7 +53,8 @@ public:
     int m1534;
     float m1538;
     float m153C;
-    unsigned char m1540[0x1550 - 0x1540];
+    atn::Vector3 m1540;       // inferred: jump velocity (vf80)
+    unsigned char m154C[0x1550 - 0x154C];
     HitInfo_unk* m1550;       // inferred: skill 0x400
     int m1554;
     unsigned char m1558[0x1570 - 0x1558];
