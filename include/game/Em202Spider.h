@@ -49,6 +49,8 @@ public:
     void fn_8027F8A8(); // inferred: wait of m1520 frames, then the action m1528
     void fn_80281924(CharaTask* target);
     void fn_80281054(CharaTask* target); // inferred: starts state 1 (faces the target)
+    void fn_80281344(CharaTask* target); // inferred: starts state 3 (faces the target)
+    void fn_80281634(CharaTask* target, int next); // inferred: starts state 4 (then the action `next`)
     int fn_802826A0(CharaTask* target, int arg); // inferred: starts state 9 (turn) when the target is not in front
     void fn_80281ED8(); // inferred: starts state 7 (moves to the place m14B8)
 

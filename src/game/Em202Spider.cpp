@@ -1,5 +1,6 @@
 #include "game/Em202Spider.h"
 #include "math/Vec.h"
+#include "game/FriendManager.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -22,6 +23,20 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+// inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
+struct PlayerManager_unk {
+    unsigned char m00[0x48];
+    CharaTask* mHead;
+};
+extern "C" PlayerManager_unk* lbl_8087F8A0;
+// inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/CharaTask.cpp)
+struct CharaListNode_unk {
+    unsigned char m0000[0x14AC];
+    CharaTask* mNext;
+};
+inline CharaTask* NextChara_unk(CharaTask* chara) {
+    return ((CharaListNode_unk*)chara)->mNext;
+}
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
@@ -357,6 +372,80 @@ void Em202Spider::fn_80281054(CharaTask* target) {
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.1f);
+}
+
+// NONMATCHING: 99.65% - only the .sdata2 offsets (constants of the unwritten functions)
+void Em202Spider::fn_80281344(CharaTask* target) {
+    if (fn_802826A0(target, 3) != 0) {
+        return;
+    }
+    m14D8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 3;
+    fn_8016E970(6);
+    m560 = 4;
+    atn::Vector3 pos(target->mPos);
+    mRot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+}
+
+// NONMATCHING: 99.65% - only the .sdata2 offsets (constants of the unwritten functions)
+void Em202Spider::fn_80281634(CharaTask* target, int next) {
+    m14D8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 4;
+    fn_8016E970(3);
+    m1528 = next;
+    m1520 = -1;
+    atn::Vector3 pos(target->mPos);
+    mRot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14B, 0, 0, 1, 0.0f, 0.1f);
+}
+
+// NONMATCHING: 99.44% - r4/r5 of the zero vector copy and r29/r30 of the counter; 8 variants
+// inferred: starts state 5 (attack): faces backwards in the phase 0, else the center of the party
+void Em202Spider::fn_80281924(CharaTask* target) {
+    if (fn_802826A0(target, 5) != 0) {
+        return;
+    }
+    m14D8 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 5;
+    fn_8016E970(3);
+    atn::Vector3 center;
+    if (m14E4 == 0) {
+        mRot = atn::Vector3(0.0f, 0.0f, -1.0f).ToRotationZ_unk();
+    } else {
+        CharaTask* player = lbl_8087F8A0->mHead;
+        if (player->mFlag28) {
+            center = player->mPos;
+        } else {
+            center = lbl_807C7030;
+            int count = 1;
+            center = player->mPos;
+            for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = NextChara_unk(c)) {
+                if ((c->mStatus.m0C & 0x20) != 0x20) {
+                    count++;
+                    center += c->mPos;
+                }
+            }
+            float inv = 1.0f / count;
+            center *= inv;
+        }
+        mRot = (center - mPos).GetNormalized_unk().ToRotation_unk();
+    }
+    m1520 = 0;
+    m1530 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
 }
 
 void Em202Spider::fn_80281ED8() {
