@@ -21,6 +21,7 @@ public:
     Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* info); // 0x8025A060
     virtual ~Em101ElderZesyaSecond();                               // 0x8025A4A4
     virtual int vf0C();
+    virtual void vf10(); // 0x8025ACA0
     virtual void vf14();                                            // 0x8025B5D4
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
@@ -35,6 +36,7 @@ public:
     void fn_8025BD1C();         // inferred: state 7 (chant, rising)
     void fn_8025B9EC();         // inferred: walks to the target (route or straight)
     void fn_8025BF58();         // inferred: state 8 (casts the magic at frame 62)
+    inline int CountNear_unk(float dist);
 
     atn::LH_Binary m14B0;
     int m14B8;          // inferred: "warp_count"
@@ -58,7 +60,7 @@ public:
     atn::EfpHandle_unk m153C;
     atn::EfpHandle_unk m1548;
     int m1554; // inferred: nonzero while hits are filtered by vf4C
-    unsigned char m1558[0x155C - 0x1558];
+    int m1558;
     atn::EfpHandle_unk m155C;
     atn::EfpHandle_unk m1568;
     atn::EfpHandle_unk m1574;

@@ -45,6 +45,7 @@ public:
     inline void Idle_unk();
     inline int Nearest_unk(const atn::Vector3& pos);
     inline float HpRate_unk();
+    inline void WarpNear_unk(CharaTask* target, atn::Vector3* dest, float* rot);
 
     atn::LH_Binary m14B0;   // inferred: data file
     CharaTask* m14B8;       // inferred: target

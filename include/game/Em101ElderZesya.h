@@ -28,10 +28,11 @@ public:
         Barrier_unk();
         ~Barrier_unk();
         // inferred: names invented
-        bool IsUp_unk() const { return m04.mState != 2 && mDesc != 0; }
+        bool IsUp_unk() const { return m04.mState != 2 && m04.mDesc != 0; }
         inline const atn::Vector3& GetPos_unk() const;
         Gimmick_unk* m00; // inferred: warp point next to the barrier (position at 0x04, rotation at 0x14)
-        // inferred: collision objects of the barrier (destroyed with the barrier)
+        // inferred: state, collision objects (destroyed with the barrier) and gimmick of the barrier; fn_80259AB4
+        // reaches the gimmick through a pointer to this part
         struct Colli_unk {
             ~Colli_unk() {
                 for (int i = 0; i < 3; i++) {
@@ -46,9 +47,9 @@ public:
             int mState; // 0x04 in the barrier: inferred: 2 = broken
             int mKind;  // 0x08: inferred: index into the HitRange_unk values of a hit
             atn::ColliObject* mObjects[3][3]; // 0x0C
+            Gimmick_unk* mDesc; // 0x30 in the barrier: inferred: gimmick of the barrier (position at 0x04)
         };
         Colli_unk m04;
-        Gimmick_unk* mDesc; // 0x30: inferred: gimmick of the barrier (position at 0x04)
     };
 
     Em101ElderZesya(atn::Task* parent, EnemyInfo_unk* info);
@@ -62,6 +63,7 @@ public:
     virtual atn::Vector3 vf64(int center);
 
     void fn_80256384(); // inferred: reads the data file (called by vf0C)
+    void fn_8025922C(); // inferred: state 9 (camera on the jump)
     void fn_80259AB4(int index, int state);
     void fn_802598DC(); // inferred: picks the chant point // inferred: changes the state of a barrier
     void fn_8025941C(); // inferred: warps next to the current barrier (state 13)
@@ -70,6 +72,10 @@ public:
     void fn_80258A50(); // inferred: state of the light sword magic (10 homing bullets)
     void fn_80258574(); // inferred: starts the next action of the phase (m14CC)
     inline void StartMagic_unk();
+    inline void PlayBarrierM_unk(struct EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, const atn::Vector3& pos,
+                                 const atn::Vector3& rot, int kind);
+    inline void PlayBarrierK_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
+    inline void PlayBarrier_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
 
     int m14B0;                          // inferred: loading state (0, 1 collision objects, 2 ready)
     atn::LH_Binary m14B4;               // inferred: data file
@@ -78,7 +84,8 @@ public:
     int m14CC;                          // inferred: "bossActPhase_" (3-5): next action (0-5)
     int m14D0;
     int m14D4;
-    unsigned char m14D8[0x14F0 - 0x14D8];
+    atn::Vector3 m14D8;       // inferred: position saved when the little Zesya is summoned
+    atn::Vector3 m14E4;       // inferred: rotation saved with it
     int m14F0;
     int m14F4;
     int m14F8;

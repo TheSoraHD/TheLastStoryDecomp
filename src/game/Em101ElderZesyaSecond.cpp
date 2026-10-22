@@ -1,6 +1,8 @@
 #include "game/Em101ElderZesyaSecond.h"
 #include "game/HitInfo_unk.h"
 #include "game/CharaStatus.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "chr/ControlBase.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -31,7 +33,10 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+struct EffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8; // inferred: effect layer (set to 2 around some effects, as in game/Arms.cpp)
+};
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
@@ -82,6 +87,24 @@ struct ElderMsgTable_unk {
 };
 extern "C" ElderMsgTable_unk* lbl_8087F1E4;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" void fn_800EE360(CharaTask* chara);     // inferred: BattleCharaTask (enemies only)
+extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
+// inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); nonzero while the magic is active
+extern "C" void* lbl_8087F9E8;
+extern "C" int fn_8059C6DC(void* mgr, HitInfo_unk* skill, CharaTask* owner);
+// inferred: per-player weights of an effect (floats at +0x128, as in game/Em309Ghoul.cpp); names invented
+struct ElderWeights_unk {
+    unsigned char m00[0x128];
+    float mWeight[4];
+};
+extern "C" ElderWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
+extern "C" int fn_80108378(ElderWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
+// inferred: current control while casting (as in game/Em101ElderZesya.cpp)
+struct ControlMagic_unk {
+    unsigned char m00[0x1D];
+    unsigned char m1D; // inferred: nonzero once the magic is fired
+};
 
 // inferred: sound effects of the barrier
 static const char* const sSounds_unk[] = {"SE_SP007_001", "SE_SP007_003"};
@@ -187,6 +210,212 @@ int Em101ElderZesyaSecond::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// inferred: same as PlayEffect_unk with the manager as a parameter (name invented)
+inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: plays a colored effect on the model (name invented)
+inline void PlayColorEffect_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, const Color4f_unk& color) {
+    fn_8023A8B4(mgr, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 GetTrans_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: number of players within `dist` (name invented; as an inline the FPRs f28-f31 match)
+inline int Em101ElderZesyaSecond::CountNear_unk(float dist) {
+    int count = 0;
+    atn::Vector3 pos = mPos;
+    PlayerTask* p = lbl_8087F8A0->mHead;
+    for (; p != 0; p = p->mNext) {
+        if (!p->mStatus.IsState_unk(0x20)) {
+            atn::Vector3 d = p->mPos - pos;
+            if (fn_805F9920(&d) < dist * dist) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+// NONMATCHING: 99.84% - only the stack offsets of the temporaries (loop vectors, colors, sphere and ptmf
+// copy); registers and instructions match
+void Em101ElderZesyaSecond::vf10() {
+    atn::ColliSphere::Sphere_unk sphere;
+    m14D0 = mC58.mC4;
+    if (m14D0 == 0) {
+        m14D0 = lbl_8087F8A0->mHead;
+        mC58.mC4 = m14D0;
+    }
+    m14D8++;
+    if (m58C != 10 && m58C != 11) {
+        m1504 += CountNear_unk(m14BC);
+    }
+    if (m15D8 > 2 || fn_80370A78(lbl_8087F430, 0xE8) == 1) {
+        m14DC = 1;
+    }
+    if (mC58.mC0 == 0 || m14D0 == 0) {
+        fn_8016E970(3);
+    } else {
+        switch (m58C) {
+        case 2: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                mFlag25 = 1;
+                mColli.mFlags &= ~1;
+                mFlag15 = 1;
+                fn_801765D8();
+                fn_800EE360(this);
+            }
+            break;
+        }
+        case 7:
+            fn_8025BD1C();
+            break;
+        case 8:
+            fn_8025BF58();
+            break;
+        case 10: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                fn_8025C460();
+            }
+            break;
+        }
+        case 11: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                if (m14DC == 1 && m1554 == 0) {
+                    m14D4 = 0;
+                    m14D8 = 0;
+                    m590 = fn_800F8548(lbl_8087F048);
+                    fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+                    m58C = 9;
+                    fn_8016E970(3);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x6A, 0, 0, 1, 0.0f, 0.1f);
+                } else {
+                    m14D4 = 0;
+                    m14D8 = 0;
+                    m590 = fn_800F8548(lbl_8087F048);
+                    fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+                    m58C = 0;
+                    fn_8016E970(3);
+                }
+            }
+            break;
+        }
+        case 9: {
+            float frame = mMotion.mTracks[0].m08;
+            if ((float)__fabs(frame - 24.0f) < 1.1920929e-7f) {
+                m1554 = 1;
+                m1558 = 0;
+                lbl_8087F3C0->mB8 = 2;
+                fn_80232B7C(this, 1001);
+                Color4f_unk color = m15D4 == 0 ? Color4f_unk(0.0f, 1.0f, 0.35f, 1.0f)
+                                               : Color4f_unk(1.0f, 0.3f, 0.0f, 1.0f);
+                PlayColorEffect_unk(lbl_8087F3C0, &m155C, &mMotion, color);
+                lbl_8087F3C0->mB8 = 0;
+                fn_800C344C(sSounds_unk[0], &mPos, 0, -1, 1.0f);
+                int flag = m15D4 == 0 ? 0xE9 : 0xEA;
+                if (fn_80370A78(lbl_8087F430, flag) == 0) {
+                    fn_80370AE4(lbl_8087F430, flag, 1);
+                }
+                wchar_t text[256];
+                memset(text, 0, sizeof(text));
+                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA5), *(const wchar_t**)((char*)m60 + 4));
+                fn_80109828(lbl_8087F048, text);
+            } else if (frame >= mMotion.fn_80097D7C(0)) {
+                mFB8 = 0.0f;
+                m14D4 = 0;
+                m14D8 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+                m58C = 0;
+                fn_8016E970(3);
+            }
+            break;
+        }
+        default:
+            if (m55C == 6) {
+                if (m560 == 30 && mControl && ((ControlMagic_unk*)mControl.get())->m1D != 0) {
+                    if (fn_80370A78(lbl_8087F430, 0xEC) == 0) {
+                        fn_80370AE4(lbl_8087F430, 0xEC, 1);
+                    }
+                }
+            } else {
+                fn_8016E970(3);
+            }
+            fn_8025B9EC();
+            if (m55C != 6) {
+                if (m1504 >= m14B8) {
+                    m1504 = 0;
+                    m14D4 = 0;
+                    m14D8 = 0;
+                    m590 = fn_800F8548(lbl_8087F048);
+                    fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
+                    m58C = 10;
+                    fn_8016E970(3);
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
+                    fn_80232B7C(this, 101);
+                    PlayEffectM_unk(lbl_8087F3C0, &m1530, &mMotion);
+                } else if (m14D0 != 0) {
+                    int kind = 1;
+                    void* mgr = lbl_8087F9E8;
+                    if (fn_8059C6DC(mgr, fn_80219E6C(m14FC[1]), this) != 0) {
+                        kind = 0;
+                    }
+                    fn_8025C29C(kind);
+                }
+            }
+            break;
+        }
+    }
+    fn_8014C540();
+    fn_80145334();
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        if (p->mType != 0 && p->CanAct_unk()) {
+            ElderWeights_unk* w = fn_80103F60(lbl_8087F048, p);
+            if (w != 0) {
+                int i = fn_80108378(w, this);
+                if (i >= 0) {
+                    w->mWeight[i] = 100.0f;
+                }
+            }
+        }
+    }
+    sphere.mRadius = 20.0f;
+    if (m1554 != 0) {
+        atn::Vector3 c = GetTrans_unk(mMotion.GetNodeMtx_unk("spine"));
+        sphere.mCenter = c;
+    } else {
+        atn::Vector3 c(0.0f, -10000.0f, 0.0f);
+        sphere.mCenter = c;
+    }
+    m1580.mSphere = sphere;
 }
 
 void Em101ElderZesyaSecond::vf14() {
