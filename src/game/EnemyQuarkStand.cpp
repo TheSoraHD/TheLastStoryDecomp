@@ -458,9 +458,9 @@ int EnemyQuarkStand::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 41.9% - the original is over the inline budget and calls the state helpers
-// (fn_8034F41C, fn_8034F384, ...) and the accessors out of line; ours stays under it while most of the
-// states are still in asm
+// NONMATCHING: 98.59% - the `camera` flag lives in r29 in the original (ours r30, the map group and the
+// light mode swap with it) and the original repeats the branch on m14B0 before the switch; ~6 forms
+// (bool for the idle test, init of the mode, order of the locals)
 void EnemyQuarkStand::vf10() {
     if (m1809 != 0) {
         if (mMotion.fn_80139550(0) >= 110.0f) {
@@ -596,9 +596,13 @@ void EnemyQuarkStand::vf10() {
             camera = 1;
             break;
         }
-        fn_80339F74(this, m58C - 6U > 7);
-        QuarkMapGroup_unk* group = fn_80373148(fn_80121F00());
+        int roam = 1;
+        if (m58C - 6U <= 7) {
+            roam = 0;
+        }
+        fn_80339F74(this, roam);
         int mode;
+        QuarkMapGroup_unk* group = fn_80373148(fn_80121F00());
         if (mPos.y - fn_8000DCF4(fn_8000D9E8())->fn_8013C38C()->y > 20.0f) {
             mode = 3;
         } else {
