@@ -904,6 +904,304 @@ void EnemyTasha::fn_8035ACF0(int state) {
     }
 }
 
+extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                           int c, float f); // inferred: fires an attack (number of hits, as in game/Em201ZanGurg.cpp)
+
+// NONMATCHING: 99.52% - stack slots of the effect temporaries (state 14) and FPR numbering of the
+// warp lerp (state 18) and of the attack frame tests; ~15 variants. fn_8035738C, fn_8035ACB8 and
+// fn_8035ACF0 are expanded here as in the original (the motion setup stores m34C/m20 before the speed)
+void EnemyTasha::vf108() {
+    float zero = 0.0f;
+    float frame;
+    float one = 1.0f;
+    atn::Vector3 rot = mRot;
+    if (m55C == 2) {
+    switch (m58C) {
+    case 7:
+        if (m14C0 % 15 >= 10) {
+            if (fn_8035738C(0.4f, 3.0f)) {
+                mMotion.mTracks[0].m0C = 2.0f;
+            } else {
+                mMotion.mTracks[0].m0C = 0.0f;
+            }
+        }
+        if (m14C0 > m1518) {
+            mFlag31 = 1;
+        }
+        break;
+    case 8: {
+        if (m14E0 == 2) {
+            one = 1.5f;
+        }
+        mC58.m0C.fn_80126214();
+        if (mC58.m0C.m2C != 0) {
+            mFlag31 = 1;
+        }
+        atn::Vector3 move = mC58.m0C.m58;
+        zero = fn_805F9920(&move);
+        if (zero > 0.0001f) {
+            atn::Vector3 dir = move;
+            PSVECNormalize(&dir, &dir);
+            rot = dir.ToRotation_unk();
+        } else {
+            rot = mRot;
+        }
+        break;
+    }
+    case 9: {
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (mMotion.mTracks[0].m08 >= 9.0f && mMotion.mTracks[0].m08 <= 10.0f) {
+            fn_80144710();
+            if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m155C, m590, 30, -1, 0.0f) > 0 && m14E0 == 0 &&
+                fn_805A49E4((SpecialFlag_unk*)&m16AC) == 0) {
+                fn_805A4A1C((SpecialFlag_unk*)&m16AC, 1);
+            }
+        }
+        break;
+    }
+    case 10: {
+        int hits = 0;
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (mMotion.mTracks[0].m08 >= 9.0f && mMotion.mTracks[0].m08 <= 10.0f) {
+            hits = fn_800F8C6C(lbl_8087F048, 0, 0, this, m1560, m590, 3, -1, 0.0f);
+        }
+        if (mMotion.mTracks[0].m08 >= 14.0f && mMotion.mTracks[0].m08 <= 15.0f) {
+            hits += fn_800F8C6C(lbl_8087F048, 0, 0, this, m155C, m590, 30, -1, 0.0f);
+        }
+        if (hits > 0 && m14E0 == 0 && fn_805A49E4((SpecialFlag_unk*)&m16AC) == 0) {
+            fn_805A4A1C((SpecialFlag_unk*)&m16AC, 1);
+        }
+        break;
+    }
+    case 11:
+        if (mMotion.mTracks[0].m08 < 30.0f) {
+            atn::Vector3 ofs(zero, zero, one);
+            atn::Matrix3x4 m;
+            TashaRotZYX_unk(m, mRot);
+            PSMTXMultVec(m.m, &ofs, &ofs);
+            mPos += ofs;
+        }
+        if (mMotion.mTracks[0].m08 >= 26.0f && mMotion.mTracks[0].m08 <= 27.0f) {
+            switch (m58C) {
+            case 11: {
+                atn::Vector3 ofs(0.0f, 0.0f, 10.0f);
+                atn::Matrix3x4 m;
+                TashaRotZYX_unk(m, mRot);
+                PSMTXMultVec(m.m, &ofs, &ofs);
+                fn_80232B7C(this, 1000);
+                atn::Vector3 pos = mPos + ofs;
+                Color4f_unk color;
+                color.r = 1.0f;
+                color.g = 1.0f;
+                color.b = 1.0f;
+                color.a = 1.0f;
+                fn_8023A8B4(lbl_8087F3C0, &m164C, 0, 0, pos, mRot, color, -1, -1, 1, 1.5f);
+                break;
+            }
+            case 14:
+                fn_80232B7C(this, 5);
+                lbl_8087F3C0->mB8 = 2;
+                TashaPlayEffect_unk(&m1640, &mMotion);
+                lbl_8087F3C0->mB8 = 0;
+                break;
+            case 17:
+                fn_80232B7C(this, 0);
+                TashaPlayEffect_unk(&m1634, &mMotion);
+                break;
+            }
+        }
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (m14BC == 0 && mMotion.mTracks[0].m08 >= 22.0f) {
+            m14BC++;
+            fn_800FAB80(lbl_8087F048, this, m1564, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        }
+        break;
+    case 12:
+        switch (m14BC) {
+        case 0:
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0) - 10.0f) {
+                m14BC++;
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x156, 0, 0, 1, 0.0f, 0.1f);
+            } else if (m14BC == 0 && mMotion.mTracks[0].m08 >= 9.0f && mMotion.mTracks[0].m08 <= 10.0f) {
+                m598 += fn_800F8C6C(lbl_8087F048, 0, 0, this, m156C, m590, 5, -1, 0.0f);
+            }
+            break;
+        case 1:
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0) - 5.0f) {
+                m14BC++;
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x15A, 0, 0, 1, 0.0f, 0.1f);
+            } else if (m14BC == 1 && mMotion.mTracks[0].m08 >= 9.0f && mMotion.mTracks[0].m08 <= 10.0f) {
+                m598 += fn_800F8C6C(lbl_8087F048, 0, 0, this, m156C, m590, 5, -1, 0.0f);
+            }
+            break;
+        case 2:
+            if ((m598 != 0 && (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0) - 5.0f)) ||
+                (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
+                mFlag31 = 1;
+            } else if (m14BC == 2 && mMotion.mTracks[0].m08 >= 15.0f && mMotion.mTracks[0].m08 <= 16.0f) {
+                m598 += fn_800F8C6C(lbl_8087F048, 0, 0, this, m1570, m590, 5, -1, 0.0f);
+            }
+            break;
+        }
+        break;
+    case 13:
+        if (m14BC == 0) {
+            if (m598 == 0 && (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0) - 6.0f)) {
+                m154C = m151C / 2;
+                float frame = mMotion.mTracks[0].m08;
+                mMotion.mTracks[0].m0C = 6.0f / (6.0f + m154C);
+                if ((frame - (mMotion.fn_80097D7C(0) - 6.0f)) * (6.0f + m154C) / 6.0f >= 6.0f) {
+                    m14BC = 1;
+                }
+            }
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                m14BC = 1;
+                if (m598 != 0) {
+                    fn_805A4A1C((SpecialFlag_unk*)&m1664, 1);
+                    m154C = m151C;
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 1.0f;
+                    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+                }
+            } else {
+                atn::Vector3 ofs(0.0f, 0.0f, 40.0f / mMotion.fn_80097D7C(0));
+                atn::Matrix3x4 m;
+                TashaRotZYX_unk(m, mRot);
+                PSMTXMultVec(m.m, &ofs, &ofs);
+                mPos += ofs;
+            }
+            if (mMotion.mTracks[0].m08 >= 24.0f && mMotion.mTracks[0].m08 <= 25.0f) {
+                m598 += fn_800F8C6C(lbl_8087F048, 0, 0, this, m1574, m590, 30, -1, 0.0f);
+            }
+        }
+        if (m14BC == 1) {
+            if (--m154C <= 0) {
+                m154C = 0;
+                mFlag31 = 1;
+            }
+            if (mMotion.mTracks[0].m00 == 0x145 && mMotion.mTracks[0].m08 >= 24.0f && mMotion.mTracks[0].m08 <= 25.0f) {
+                mMotion.mTracks[0].m0C = 0.6f;
+            }
+        }
+        break;
+    case 14:
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x174, 1, 0, 1, 0.0f, 0.1f);
+        }
+        if (m14C0 > m1540) {
+            mFlag31 = 1;
+        }
+        if (m14C0 == m1540 - 20) {
+            StopEffect_unk();
+        }
+        break;
+    case 15:
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (mMotion.mTracks[0].m08 >= 25.0f && mMotion.mTracks[0].m08 <= 27.0f) {
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1568, m590, 30, -1, 0.0f);
+        }
+        if (mMotion.mTracks[0].m08 >= 10.0f && mMotion.mTracks[0].m08 < 24.0f) {
+            zero = 1.0f;
+        }
+        break;
+    case 16:
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        } else if (frame = mMotion.mTracks[0].m08, frame < mMotion.fn_80097D7C(0) - 5.0f) {
+            atn::Vector3 ofs(0.0f, 0.0f, -m1558 / mMotion.fn_80097D7C(0));
+            atn::Matrix3x4 m;
+            TashaRotZYX_unk(m, mRot);
+            PSMTXMultVec(m.m, &ofs, &ofs);
+            mPos += ofs;
+        }
+        break;
+    case 17: {
+        frame = mMotion.mTracks[0].m08;
+        fn_8035738C(one, zero);
+        if (m14BC == 0) {
+            if (frame > mMotion.fn_80097D7C(0)) {
+                mPos = m1534;
+                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 2.0f;
+                mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
+                m14BC++;
+            } else {
+                atn::Vector3 ofs(0.0f, 0.0f, -30.0f / mMotion.fn_80097D7C(0));
+                atn::Matrix3x4 m;
+                TashaRotZYX_unk(m, mRot);
+                PSMTXMultVec(m.m, &ofs, &ofs);
+                mPos += ofs;
+            }
+        } else if (frame > mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        break;
+    }
+    case 18:
+        if (m14BC == 0) {
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                m14BC++;
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 2.0f;
+                mMotion.fn_80097C08(0, 0x14B, 0, 0, 1, 0.0f, 0.1f);
+            } else {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= 22.0f) {
+                    mPos = m1500;
+                } else if (frame >= 20.0f) {
+                    float t = (frame - 20.0f) * 0.5f;
+                    mPos = atn::Lerp_unk(m150C, m1500, t);
+                } else {
+                    mPos = m150C;
+                }
+            }
+            if (mMotion.mTracks[0].m08 >= 21.0f && mMotion.mTracks[0].m08 <= 25.0f) {
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, m155C, m590, 30, -1, 0.0f);
+            }
+        } else if (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        break;
+    }
+    } else {
+        fn_805A4254();
+        return;
+    }
+    fn_8013CB68(&rot, 0, zero, m568 * one);
+}
+
 void EnemyTasha::vf30(void* menu) {
     void* group = m16B4.Load("EnemyTasha");
     fn_805A5220(group);
@@ -925,7 +1223,6 @@ extern "C" void fn_802657FC(CharaTask* chara, int state);
 // inferred: parameters and result of fn_8003EA3C (as in game/Em002Skelton.cpp)
 extern "C" void fn_8003EA3C(TashaDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
 
 void EnemyTasha::vf100(int state) {
     // inferred: m14BC-m14D0 of SpecialEnemyBase reset as one block (weak copy 0x80357ED8)
