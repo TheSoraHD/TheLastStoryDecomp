@@ -4010,12 +4010,12 @@
    "-inline auto",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 4",
+   "-func_align 16",
    "-i libs/nw4r/include/",
    "-i libs/RVL_SDK/include/"
   ],
   "category": "nw4r",
-  "matching": false
+  "matching": true
  },
  {
   "name": "nw4r/src/snd/snd_SoundHandle.cpp",
@@ -4044,7 +4044,7 @@
    "-inline auto",
    "-ipa file",
    "-fp_contract off",
-   "-func_align 4",
+   "-func_align 16",
    "-i libs/nw4r/include/",
    "-i libs/RVL_SDK/include/"
   ],
