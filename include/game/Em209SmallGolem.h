@@ -27,6 +27,8 @@ public:
 
     void fn_802CF054(); // inferred: moves toward the target
     inline void FaceTarget_unk();
+    inline void SetState_unk(int state);
+    inline void StartRevive_unk(CharaTask* by);
     void fn_802CF3AC();
     void fn_802CFB24();
     void fn_802CF728(); // inferred: state of the revival

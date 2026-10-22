@@ -1,5 +1,6 @@
 #include "game/Em209SmallGolem.h"
 #include "math/Vec.h"
+#include "game/GameUI.h"
 #include "chr/Motion_unk.h"
 #include "atn/Csv.h"
 #include "std/string.h"
@@ -44,6 +45,56 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
+
+// inferred: field (lbl_8087F430) and its event counters (as in gmk/Coffin.cpp)
+struct Field_unk;
+extern "C" Field_unk* lbl_8087F430;
+extern "C" int fn_80370A78(Field_unk* field, int index); // inferred: reads a counter
+// inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
+struct PlayerManager_unk {
+    unsigned char m00[0x48];
+    CharaTask* mHead;
+};
+extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" GameUI* lbl_8087F490;
+extern "C" void fn_803E3384(GameUI* ui);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
+extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
+extern "C" int fn_801231D0(void* pad, int arg); // inferred: button pressed
+extern "C" void* lbl_8087EEB0; // inferred: debug drawing
+extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, int color, float radius, float arg); // inferred: sphere
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int c, float f);
+struct HomingParam_unk;
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
+// inferred: hint of the HUD (GameUI::m764) built as a temporary (name invented)
+struct GolemUIHint_unk : public GameUIElem1C_unk {
+    GolemUIHint_unk(int a, int b, int c) {
+        m00 = a;
+        m04 = b;
+        m08 = c;
+        m0C = 0;
+        m10 = 0;
+        m14 = 0;
+        m18 = 0;
+    }
+};
+
+// inferred: view of Material_unk with the colors at 0x1C/0x20 (as LeoMaterial_unk of
+// game/Em401_01_WhiteLeoPard.cpp; the shared header only names the one at 0x18)
+struct GolemMaterial_unk {
+    unsigned char m00[0x18];
+    GXColor m18;
+    GXColor m1C;
+    GXColor m20;
+};
+// inferred: material color as four floats (as in game/Em401_01_WhiteLeoPard.cpp)
+struct GolemMatColor_unk {
+    GolemMatColor_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
+    float r, g, b, a;
+};
 
 // inferred: colors of the golem (static array of the file, built by the __sinit 0x802CFFC8)
 struct GolemColor_unk {
@@ -152,6 +203,191 @@ int Em209SmallGolem::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// inferred: node position (name invented, as in game/Em209BigGolem.cpp)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: starts state `state` (names invented)
+inline void Em209SmallGolem::SetState_unk(int state) {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = state;
+    fn_8016E970(3);
+}
+
+// inferred: revival (state 7): the motion 0x14D and the hit counters reset (name invented)
+inline void Em209SmallGolem::StartRevive_unk(CharaTask* by) {
+    SetState_unk(7);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+    vf98();
+    mColli.mFlags |= 1;
+    vf38(1);
+    m154C = (int)by;
+}
+
+// NONMATCHING: 99.53% - stack slots of the HUD hint temporary and of the needle and state-9 temporaries (the
+// original keeps them below the colors of the materials), r0/r3 of the counter of m14C0 and of the two
+// loads of the skill call; 12 variants (helpers, temporaries, named colors, reversed arguments)
+void Em209SmallGolem::vf10() {
+    m14B8 = mC58.mC4;
+    if ((mStatus.m0C & 0x20) == 0x20 && m1548 != 0 && m58C == 2 && fn_80370A78(lbl_8087F430, 0xC9) == 1) {
+        CharaTask* player = lbl_8087F8A0->mHead;
+        atn::Vector3 d = mPos - player->mPos;
+        float dist = PSVECMag(&d);
+        if (m1549 != 0 && fn_80370A78(lbl_8087F430, 0xC8) == 1) {
+            StartRevive_unk(0);
+        } else if (dist < 50.0f && player->fn_8016DDB0(0) && player->m55C != 6) {
+            GameUI* ui = lbl_8087F490;
+            if (ui != 0) {
+                ui->m764 = GolemUIHint_unk(6, 0x14, -1);
+            }
+            if (fn_801231D0((char*)lbl_8087F0A8 + 0x48C, 2) != 0) {
+                StartRevive_unk(player);
+                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
+                if (lbl_8087F490 != 0) {
+                    fn_803E3384(lbl_8087F490);
+                }
+            }
+        }
+    }
+    m14C0++;
+    if (mC58.mC0 == 0 || m14B8 == 0) {
+        fn_8016E970(3);
+        if (m58C == 7) {
+            fn_802CF728();
+        } else if (m58C == 6) {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                SetState_unk(0);
+            }
+            if ((float)__fabs(mMotion.mTracks[0].m08 - 28.0f) < 1.1920929e-7f) {
+                atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
+                m14CC = (m14D8 - pos).GetNormalized_unk();
+                Effect_unk* mgr = lbl_8087F048;
+                fn_800F8574(mgr, this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
+            }
+        } else if (m58C == 2) {
+            vfEC();
+        } else if (m58C == 8) {
+            m58C = 0;
+        } else {
+            fn_802CF054();
+        }
+    } else if (m14B8 != 0) {
+        switch (m58C) {
+        case 6: {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    SetState_unk(0);
+                }
+                if ((float)__fabs(mMotion.mTracks[0].m08 - 28.0f) < 1.1920929e-7f) {
+                    atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
+                    m14CC = (m14D8 - pos).GetNormalized_unk();
+                    Effect_unk* mgr = lbl_8087F048;
+                    fn_800F8574(mgr, this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
+                }
+            }
+            break;
+        case 7:
+            fn_802CF728();
+            break;
+        case 8: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                SetState_unk(0);
+            }
+            float f = mMotion.mTracks[0].m08;
+            if (f >= 17.0f && f <= 19.0f) {
+                fn_80144710();
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(m1510), m590, 30, -1, 0.0f);
+            }
+            if (m1554 != 0) {
+                HitInfo_unk* skill = fn_80219E6C(m1510);
+                fn_80063D3C(lbl_8087EEB0, &mPos, 0xFFFF0000, mStatus.mParamB.m28 + skill->m40, 0.0f);
+            }
+            break;
+        }
+        case 9:
+            if (m14C0 >= 60) {
+                mPos = m14F0;
+                SetState_unk(0);
+            } else {
+                float t = (float)m14C0 / 60.0f;
+                mPos = (m14F0 - m14E4) * t + m14E4;
+            }
+            break;
+        case 10:
+            if (m14C0 > 1) {
+                SetState_unk(0);
+            }
+            break;
+        case 2:
+            vfEC();
+            break;
+        default:
+            if (m55C != 6) {
+                if (m150C == 0) {
+                    fn_8016E970(3);
+                    fn_80170A20(m14B8, 0, -1.0f);
+                } else if (m150C == 1) {
+                    fn_8016E970(9);
+                }
+            }
+            fn_802CF054();
+            if (m55C != 6) {
+                fn_802CF3AC();
+            }
+            break;
+        }
+    }
+    fn_8014C540();
+    fn_80145334();
+    {
+        GolemMaterial_unk* material = (GolemMaterial_unk*)mMotion.fn_80092954("em209_core");
+        if (material != 0) {
+            mMotion.fn_80094958("em209_core", m14FC, &GolemMatColor_unk(material->m20),
+                                &GolemMatColor_unk(material->m1C));
+        }
+    }
+    {
+        GolemMaterial_unk* material = (GolemMaterial_unk*)mMotion.fn_80092954("em209_core_light");
+        if (material != 0) {
+            mMotion.fn_80094958("em209_core_light", m14FC, &GolemMatColor_unk(material->m20),
+                                &GolemMatColor_unk(material->m1C));
+        }
+    }
+    if (CanAct_unk() && (m54C & 0x2000) != 0x2000 && mC58.mC0 != 0) {
+        CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (player != 0) {
+            atn::Vector3 d = mPos - player->mPos;
+            if (d.y < -400.0f) {
+                vf44();
+                m14BC = 0;
+                m14C0 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                vf48();
+                fn_80178A6C();
+                fn_8015495C(0, 1, 1, 1);
+                fn_8016DA4C();
+                m58C = 2;
+                fn_8016E970(3);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+                m574 = lbl_807C7030;
+                m1434 = 30;
+                vf9C(1);
+            }
+        }
+    }
 }
 
 void Em209SmallGolem::vf14() {
@@ -364,10 +600,6 @@ inline void Em209SmallGolem::FaceTarget_unk() {
 }
 
 
-// inferred: node position (name invented, as in game/Em209BigGolem.cpp)
-inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
-    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
-}
 
 // inferred: chooses the next attack (state 8 close to the target, else the needles)
 void Em209SmallGolem::fn_802CF3AC() {
@@ -439,34 +671,6 @@ void Em209SmallGolem::fn_802CF728() {
     }
 }
 
-// inferred: starts the needle attack (state 6) aimed at the hips of the target
-void Em209SmallGolem::fn_802CFB24() {
-    m14BC = 0;
-    m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
-    m58C = 6;
-    fn_8016E970(3);
-    mMotion.m34C = 1;
-    mMotion.mTracks[0].m20 = 1.0f;
-    mMotion.mTracks[0].m0C = 1.0f;
-    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
-    atn::Vector3 d = m14B8->mPos - mPos;
-    d.y = 0.0f;
-    if (!d.IsZero_unk()) {
-        d.Normalize_unk();
-    }
-    mRot = d.ToRotation_unk();
-    MtxPtr hips = m14B8->mMotion.GetNodeMtx_unk("hips");
-    ((void)0);
-    ((void)0);
-    ((void)0);
-    ((void)0);
-    m14D8 = m14B8->mPos;
-    if (hips != 0) {
-        m14D8 = GetNodePos_unk(hips);
-    }
-}
-
 // inferred: plays the effect of the death sequence (locals in ascending order as in an inline; name invented)
 inline void PlayDeathEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model, int flag) {
     lbl_8087F3C0->mC4 = flag;
@@ -512,10 +716,36 @@ extern "C" void fn_802CFAE4(Em209SmallGolem* golem) {
     golem->m590 = fn_800F8548(lbl_8087F048);
 }
 
+// inferred: starts the needle attack (state 6) aimed at the hips of the target
+void Em209SmallGolem::fn_802CFB24() {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 6;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    atn::Vector3 d = m14B8->mPos - mPos;
+    d.y = 0.0f;
+    if (!d.IsZero_unk()) {
+        d.Normalize_unk();
+    }
+    mRot = d.ToRotation_unk();
+    MtxPtr hips = m14B8->mMotion.GetNodeMtx_unk("hips");
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    m14D8 = m14B8->mPos;
+    if (hips != 0) {
+        m14D8 = GetNodePos_unk(hips);
+    }
+}
+
 // inferred: turns the node "head" (rotation around y by -50 degrees and around z by 180 degrees, keeping its
 // translation) while m14C8 is 1
-// NONMATCHING: 99.99% - only the offset of "head" in @stringBase0 (strings of vf10/vf50 not
-// written yet)
 int Em209SmallGolem::vf1C(atn::Matrix3x4* mtx, ModelNodeDesc_unk* node) {
     if (m14C8 == 1 && strcmp(node->mName, "head") == 0) {
         atn::Matrix3x4 m;

@@ -36,6 +36,7 @@ public:
     inline int HpPercent_unk();
     bool IsHealing_unk() const { return m14FC != 0; } // inferred: name invented
     inline bool WantsHeal_unk();
+    inline void Aim_unk();
 
     CharaTask* m14D4;      // inferred: target (mC58.mC4 when the state starts)
     atn::Vector3 m14D8;    // inferred: direction of the attack

@@ -57,6 +57,8 @@ class Em202SpiderBase : public EnemyTask {
 public:
     Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info); // 0x80282AE8
     virtual ~Em202SpiderBase();
+    virtual int vf0C();                                        // 0x80283004
+    virtual void vf10();                                       // 0x802837F4
     virtual void vf14();                                       // 0x80283D60
     virtual void vf3C(HitInfo_unk* hit);                       // 0x80283FD4
     virtual void vf40(HitInfo_unk* hit);                       // 0x8028429C
@@ -65,6 +67,8 @@ public:
     virtual void vfEC();                                       // 0x80286B78
 
     void fn_80287788(); // inferred: death
+    void fn_80285064(); // inferred: state 7 (needle attack)
+    void fn_80285FA0(); // inferred: state 10
     inline void ResetAttack_unk();
     void fn_802847CC(); // inferred: movement of the frame (route in state 7, facing m1580)
     void fn_802868A0(); // inferred: walks to the base point m1564, then attacks m1580
@@ -78,20 +82,20 @@ public:
 
     int m14B0;
     int m14B4;
-    unsigned char m14B8[0x14D8 - 0x14B8];
+    char m14B8[0x20];         // inferred: sound name "MoveSE"
     atn::SoundRef m14D8;
     atn::EfpHandle_unk m14DC; // inferred: "/effect/ef_uc007.efp"
-    int m14E8;                // inferred: 60
-    int m14EC;                // inferred: 15
-    float m14F0;              // inferred: 70.0f
+    int m14E8;                // inferred: 60 ("NeedleChargeTime")
+    int m14EC;                // inferred: 15 ("NeedleChargeTime2")
+    float m14F0;              // inferred: 70.0f ("NeedleDist")
     HitInfo_unk* m14F4;       // inferred: skill 0x3F7 ("NeedleID")
-    float m14F8;              // inferred: 180.0f
-    unsigned char m14FC[0x151C - 0x14FC];
+    float m14F8;              // inferred: 180.0f ("NeedleTheta", radians)
+    char m14FC[0x20];         // inferred: sound name "NeedleChargeSE"
     atn::SoundRef m151C;
     atn::EfpHandle_unk m1520; // inferred: "/effect/ef_sk002d.efp"
-    float m152C;              // inferred: 30.0f
+    float m152C;              // inferred: 30.0f ("AttackDist")
     HitInfo_unk* m1530;       // inferred: skill 0x3F8 ("TackleID")
-    float m1534;              // inferred: pi
+    float m1534;              // inferred: pi ("GuardTheta", radians)
     int m1538;                // inferred: argument of the turn (state 9, fn_80287400)
     int m153C;                // inferred: frames of the turn
     float m1540;              // inferred: start angle of the turn (state 9)
@@ -103,7 +107,7 @@ public:
     SpiderBasePoint_unk* m1560; // inferred: current base point (fn_802868A0)
     atn::Vector3 m1564;       // inferred: position of the base point
     SpiderBaseList_unk m1570;
-    int m157C;                // inferred: flags (4: needle mode, fn_8028702C)
+    int m157C;                // inferred: flags (1 "Move", 2 "NormalAttack", 4 "Needle": needle mode)
     CharaTask* m1580;         // inferred: target of the attack (fn_80286CB0)
     CharaTask* m1584;         // inferred: target of the last attack
     CharaTask* m1588;         // inferred: target of the turn (state 9)
