@@ -123,3 +123,8 @@ La herramienta Projects no estaba disponible: reglas tomadas del prompt del lote
 - `game/ChaserGuard` (6/13, sin nuevas): `fn_8017F4A0` 99.39% -> 99.86% (frente leido dentro de `GetFrontOf_unk`
   como en ChaserNpc, `base = (2pi * n) / 8.0f`); quedan los slots del frente (8 intentos). `fn_8017FBEC` es el
   r4/r5 de __VecCopy; ctor (push_back), resto registros/pila ya investigados.
+- `chr/ControlInteractionBase` (13/21, sin nuevas): los 4 ctores Constrict/BumpHead/StepOn/ThroughRope suben de
+  ~93-95% a ~99.6% calculando la rotacion desde el miembro ya guardado (`mChara->mRot = m24.ToRotation_unk();` en
+  Setup_unk). Queda solo la forma del ToRotation inline (frsp de z antes del fabs, reutilizado en atan2), que
+  necesitaria otra variante en `include/math/Vec.h` (compartida; no tocada). Una copia local del inline cambia
+  demasiado (88%).

@@ -79,7 +79,7 @@ void ControlInteractionBase::Setup_unk(const atn::Vector3& a, const atn::Vector3
     m24 = dir;
     m3C = speed;
     m08 = 3;
-    mChara->mRot = dir.ToRotation_unk();
+    mChara->mRot = m24.ToRotation_unk();
 }
 
 ControlDuckUnderA::ControlDuckUnderA(Chara_unk* chara) : ControlInteractionBase(chara, 0x18, 0x49) {}
@@ -124,8 +124,8 @@ ControlDuckJoist::ControlDuckJoist(Chara_unk* chara, const atn::Vector3& rot) : 
     mChara->fn_801446F0();
 }
 
-// NONMATCHING: ~94% - the original converts dir.z with frsp before the fabs of the inlined
-// ToRotation_unk (another form of the inline) and schedules the member stores differently.
+// NONMATCHING: 99.6% - the original converts dir.z with frsp before the fabs of the inlined
+// ToRotation_unk (another form of the inline: it keeps the rounded z for atan2).
 ControlConstrict::ControlConstrict(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b, float f)
     : ControlInteractionBase(chara, 0x29, 0x4E) {
     Setup_unk(a, b, f);
@@ -135,7 +135,7 @@ ControlConstrict::ControlConstrict(Chara_unk* chara, const atn::Vector3& a, cons
     }
 }
 
-// NONMATCHING: ~95% - same frsp/scheduling difference as ControlConstrict.
+// NONMATCHING: 99.6% - same frsp difference as ControlConstrict.
 ControlBumpHead::ControlBumpHead(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b)
     : ControlInteractionBase(chara, 0x2A, 0x4F) {
     Setup_unk(a, b, 0.52f);
@@ -153,14 +153,14 @@ ControlBumpHead::ControlBumpHead(Chara_unk* chara, const atn::Vector3& a, const 
     }
 }
 
-// NONMATCHING: ~93% - same frsp/scheduling difference as ControlConstrict.
+// NONMATCHING: 99.6% - same frsp difference as ControlConstrict.
 ControlStepOn::ControlStepOn(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b)
     : ControlInteractionBase(chara, 0x2B, 0x50) {
     Setup_unk(a, b, 0.52f);
     mChara->fn_801446F0();
 }
 
-// NONMATCHING: ~93% - same frsp/scheduling difference as ControlConstrict.
+// NONMATCHING: 99.6% - same frsp difference as ControlConstrict.
 ControlThroughRope::ControlThroughRope(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b)
     : ControlInteractionBase(chara, 0x2C, 0x201) {
     Setup_unk(a, b, 0.467f);
