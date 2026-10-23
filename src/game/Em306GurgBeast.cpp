@@ -14,7 +14,8 @@ extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
 struct Field_unk {
-    unsigned char m0000[0x10D8];
+    unsigned char m0000[0x6C];
+    unsigned char m006C[0x10D8 - 0x6C]; // inferred: object of fn_8037EF30
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -44,13 +45,16 @@ struct BeastParams_unk {
     float mTimeScale; // 0x3A4
 };
 extern "C" BeastParams_unk* lbl_8087EFA8;
+extern "C" BeastSettings_unk* lbl_8087F0A8;
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" double sqrt(double x);
 // inferred: sweep result (as in gmk/Cannonball.cpp); the constructor is called out of line
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
     unsigned char m00[0x10];
     atn::Vector3 m10; // inferred: position reached
     unsigned char m1C[0x34 - 0x1C];
-    int m34;
+    int* m34; // inferred: attribute of the hit (copied to CharaTask::m634)
     int m38;
     unsigned int m3C; // inferred: flags (bit 0: on the ground)
     int m40;
@@ -76,6 +80,53 @@ extern "C" inline BeastParams_unk* fn_802F0990() {
 }
 extern "C" inline float fn_802F0998(BeastSettings_unk* settings) {
     return -98.1f / (float)(settings->mFps * settings->mFps);
+}
+
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" int fn_800A555C(void* pad, int port, int button);           // inferred: button triggered
+extern "C" int fn_800A55D4(void* pad, int port, int button);           // inferred: button held
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg);  // inferred: stick axis
+extern "C" void fn_8037EF30(void* obj, int a, int b, float f);
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" atn::Vector3 lbl_807C7030;                // inferred: zero vector
+// inferred: name invented (as in game/CharaTask.cpp)
+inline float LengthSq_unk(const atn::Vector3& v) {
+    return fn_805F9920(&v);
+}
+// inferred: camera (lbl_8087EFB4); m134 is its rotation around y
+struct BeastCamera_unk {
+    unsigned char m000[0x134];
+    float m134;
+};
+extern "C" BeastCamera_unk* lbl_8087EFB4;
+// inferred: tutorial message request (as DropTutorial_unk of gmk/DropItem.cpp); only set while none is shown
+struct BeastTutorial_unk {
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+};
+struct BeastMessage_unk {
+    unsigned char m000[0x764];
+    BeastTutorial_unk m764;
+};
+extern "C" BeastMessage_unk* lbl_8087F490;
+// inferred: requests a tutorial message unless one is shown (name invented)
+inline void ShowTutorial_unk(int a, int b) {
+    BeastTutorial_unk tutorial;
+    tutorial.m08 = -1;
+    tutorial.m0C = 0;
+    tutorial.m10 = 0;
+    tutorial.m18 = 0;
+    tutorial.m14 = 1;
+    tutorial.m00 = a;
+    tutorial.m04 = b;
+    if (lbl_8087F490->m764.m14 == 0) {
+        lbl_8087F490->m764 = tutorial;
+    }
 }
 
 // inferred: the rider's hit handler is called with a second argument (CharaTask::vf3C takes one)
@@ -402,16 +453,246 @@ void Em306GurgBeast::vf100(int state) {
     }
 }
 
-void Em306GurgBeast::vf30(void* menu) {
-    char name[0x100];
-    sprintf(name, "Em306 GurgBeast[%d]", m58);
-    void* group;
-    if (m151C.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
-        group = m151C.mRes = fn_8008937C(menu, name);
+// inferred: moves the beast with the stick, relative to the camera (name invented)
+inline void Em306GurgBeast::RideMove_unk() {
+    atn::Vector3 dir;
+    dir.x = -fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+    dir.y = 0.0f;
+    dir.z = -fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    float rate = dir.Length_unk();
+    if (rate < 0.4f) {
+        dir = mRot;
     } else {
-        group = 0;
+        float cam = lbl_8087EFB4->m134;
+        dir.fn_80139F60();
+        dir.y = cam - dir.y;
     }
-    fn_805A5220(group);
+    fn_802F09D4(&dir, rate);
+}
+
+// inferred: front vector for the rotation ry around y (name invented)
+inline atn::Vector3 BeastFront_unk(const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot.y);
+    PSMTXMultVec(m, &v, &v);
+    return v;
+}
+
+// inferred: state machine: 6 wait, 7 choose a goal, 8/9 turn, 10/11 charge, 12/13 back to a home point, 14 the
+// leader may get on (button 4), 15/16 ridden by the leader (stick moves it, button 5 throws him off), 17 the
+// rider is dropped; 2 down
+// NONMATCHING: 99.60% - register coloring only: the inlined CanAct_unk (r0/r4, known blocker), r29/r30 of the
+// node lookups of state 7 and of the stick direction, r28/r30 of the home point loop (~25 forms)
+void Em306GurgBeast::vf104() {
+    m14C0++;
+    if (CanAct_unk() && m58C != 6 && mF14 != 0 && vfF8() == 0 && m152C == 0) {
+        vf100(6);
+    }
+    switch (m58C) {
+    case 6:
+        if (vfF8() != 0) {
+            vf100(7);
+        }
+        vf108();
+        break;
+    case 7:
+        if (mFlag31) {
+            if (m1518 == 0) {
+                m14D4 = mC58.mC4;
+                if (m14E8 != 0 && m14D4 != 0) {
+                    if (m14D4->mMotion.GetNodeMtx_unk("neck") != 0) {
+                        m14E8->mLook.fn_80129978(&m14D4->mMotion, "neck", lbl_807C7030, 0.3f);
+                    } else if (m14D4->mMotion.GetNodeMtx_unk("head") != 0) {
+                        m14E8->mLook.fn_80129978(&m14D4->mMotion, "head", lbl_807C7030, 0.3f);
+                    } else {
+                        m14E8->mLook.fn_80129978(&m14D4->mMotion, 0, lbl_807C7030, 0.3f);
+                    }
+                }
+                vf100(8);
+            } else {
+                vf100(9);
+            }
+        }
+        vf108();
+        break;
+    case 8:
+    case 9:
+        if (mFlag31) {
+            int next = 11;
+            if (m58C == 8) {
+                next = 10;
+            }
+            vf100(next);
+        }
+        vf108();
+        break;
+    case 10:
+    case 11:
+        if (mFlag31) {
+            vf100(m14C4);
+        }
+        vf108();
+        break;
+    case 12:
+    case 13:
+        if (mFlag31) {
+            vf100(7);
+            if (m1518 != 0) {
+                m14C0 = m14F0;
+            }
+            if (m1518 == 0) {
+                float best = 1e16f;
+                for (unsigned int i = 0; i < m14F4.size(); i++) {
+                    RoutePlace_unk* place = m14F4.mData[i];
+                    float dist = LengthSq_unk(place->mPos - mPos);
+                    if (dist < best) {
+                        m1518 = place;
+                        best = dist;
+                    }
+                }
+            } else {
+                m1518 = 0;
+            }
+        }
+        vf108();
+        break;
+    case 2:
+        if (mF14 == 1) {
+            fn_805A40B8();
+        }
+        fn_802F1320(0);
+        break;
+    case 14:
+        if (mFlag31) {
+            PlayerTask* player = lbl_8087F8A0->mHead;
+            atn::Vector3 d = mPos - player->mPos;
+            if (d.Length_unk() < 20.0f && player->fn_8016DDB0(0)) {
+                if (fn_800A555C(lbl_8087EF70, 0, 4) != 0) {
+                    fn_802F1240(player);
+                }
+                ShowTutorial_unk(6, 17);
+            }
+            if (m1528 == 0) {
+                if (m1550 >= 0) {
+                    m1550--;
+                }
+                if (m1550 == 0) {
+                    mF18 = mF14;
+                    mF14 = 1;
+                    vf100(6);
+                    m1548 = 0;
+                }
+            }
+        }
+        vf108();
+        break;
+    case 15:
+        if (lbl_8087F8A0->mHead->mMotion.mTracks[0].m08 > 31.0f) {
+            vf100(16);
+        }
+        break;
+    case 16:
+        if (m152C != 0) {
+            if (m55C == 7) {
+                vf108();
+                break;
+            }
+            if ((m152C->mStatus.m0C & 0x20) == 0x20) {
+                fn_802F1320(1);
+            }
+            if (m1528 == 0) {
+                CharaTask* c = mC58.mC4;
+                if (c == 0 || (c != 0 && (c->mStatus.m0C & 0x20) == 0x20)) {
+                    if (m155C > 0) {
+                        m155C--;
+                    }
+                    if (m155C == 0) {
+                        vf100(17);
+                        break;
+                    }
+                }
+            } else {
+                m155C = 300;
+            }
+            RideMove_unk();
+        } else {
+            fn_802F09D4(&mRot, 0.0f);
+        }
+        fn_802F0F60();
+        if (fn_800A555C(lbl_8087EF70, 0, 5) != 0) {
+            fn_802F1320(1);
+        } else if (fn_800A555C(lbl_8087EF70, 0, 9) != 0) {
+            if (lbl_8087F430 != 0) {
+                fn_8037EF30(lbl_8087F430->m006C, 0, 0, -1.0f);
+            }
+        } else if (fn_800A55D4(lbl_8087EF70, 0, 4) != 0) {
+            m154C = 1;
+        } else {
+            m154C = 0;
+        }
+        if (mF14 == 1) {
+            fn_802F1320(0);
+        }
+        if (m1554 <= 0) {
+            vf100(17);
+        }
+        break;
+    case 17:
+        if (m14BC == 0 && mMotion.mTracks[0].m08 >= 30.0f) {
+            if (m152C != 0) {
+                PlayerTask* head;
+                if (lbl_8087F048 != 0 && lbl_8087F8A0 != 0 && (head = lbl_8087F8A0->mHead) != 0) {
+                    fn_80102824(lbl_8087F048, this, head);
+                }
+                m152C->fn_8016E970(1);
+                m152C->fn_801446F0();
+                m152C->mF1C = 0;
+                atn::Vector3 dir = BeastFront_unk(m152C->mRot);
+                Mtx r;
+                PSMTXRotRad(r, 'y', 3.1415927f);
+                PSMTXMultVec(r, &dir, &dir);
+                dir *= 2.0f;
+                m152C->m574 = dir;
+                m152C->fn_8015E7A0(dir, -1, 0);
+                m152C = 0;
+                if (m155C == 0) {
+                    mF18 = mF14;
+                    mF14 = 1;
+                    vf100(6);
+                    m1548 = 0;
+                } else {
+                    vf100(14);
+                    m1550 = 300;
+                }
+            } else if (m14E8 != 0) {
+                m14E8->fn_80176ACC();
+                m14E8->mF1C = 0;
+                m14E8->mLook.fn_80129A48(0.3f);
+                atn::Vector3 dir = BeastFront_unk(m14E8->mRot);
+                Mtx r;
+                PSMTXRotRad(r, 'y', 3.1415927f);
+                PSMTXMultVec(r, &dir, &dir);
+                dir *= 2.0f;
+                m14E8->m574 = dir;
+                m14E8->fn_8015E7A0(dir, -1, 0);
+                m14E8 = 0;
+                fn_801028E4(lbl_8087F048, 0, this, 0);
+                fn_8015495C(0, 1, 1, 1);
+                mC58.mC4 = 0;
+                mF18 = mF14;
+                mF14 = 0;
+                vf100(14);
+                m1550 = 300;
+            }
+            m14BC++;
+        }
+        mFlag30 = 0;
+        break;
+    default:
+        vf100(6);
+        break;
+    }
 }
 
 // inferred: movement of the states (6/7 wait, 8/9 turn to the goal, 10/11 charge while firing the skill
@@ -558,6 +839,92 @@ void Em306GurgBeast::vf108() {
     fn_8013CB68(&rot, 0, speed, m568 * rate);
 }
 
+// inferred: moves the beast towards the rotation `target` (turn limited to 90 degrees, speed from `rate` above
+// 0.4), with gravity and the sweep test; the rider m152C is left out of the test. Hits around it while
+// m1560 >= 2 (skill m14EC). As CharaTask::fn_801426A4.
+// NONMATCHING: 99.72% - f3/f4 swapped between m574.z and rot.y in the damping/turn step (~20 forms)
+void Em306GurgBeast::fn_802F09D4(const atn::Vector3* target, float rate) {
+    atn::Vector3 pos(mPos);
+    atn::Vector3 rot(mRot);
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx r;
+    Mtx m;
+    float ry = mRot.y;
+    PSMTXRotRad(m, 'y', ry);
+    PSMTXMultVec(m, &front, &front);
+    float d = atn::WrapAngle_unk(target->y - rot.y);
+    float dt = lbl_8087EFA8->mTimeScale;
+    float turn = MIN(1.5707964f, MAX(-1.5707964f, d));
+    float k = 0.1f * MAX(1.0f, 2.0f - m570);
+    float t = 0.3f / MAX(1.0f, 0.6f * m570);
+    m574.x -= m574.x * MIN(1.0f, k * dt);
+    m574.z -= m574.z * MIN(1.0f, k * dt);
+    turn *= t;
+    rot.y += turn;
+    atn::Vector3 vel;
+    if (rate > 0.4f) {
+        rate = (rate - 0.4f) / 0.6f;
+        rate *= m154C != 0 ? 1.0f : 0.3f;
+        float a = rot.y;
+        vel.x = 0.0f;
+        vel.y = 0.0f;
+        vel.z = 0.4f * rate;
+        PSMTXRotRad(r, 'y', a);
+        PSMTXMultVec(r, &vel, &vel);
+    } else {
+        vel.x = 0.0f;
+        vel.y = 0.0f;
+        vel.z = 0.0f;
+    }
+    vel.x *= MIN(1.0f, dt);
+    vel.y *= MIN(1.0f, dt);
+    vel.z *= MIN(1.0f, dt);
+    if ((mStatus.mParamB.m9C & 1U) != 1U) {
+        m574.y += dt * (-98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps));
+    }
+    vel += m574;
+    if (vel.y < -6.0f) {
+        vel.y = -6.0f;
+    }
+    bool turned = true;
+    if (m152C != 0) {
+        m152C->mColli.mFlags &= ~1;
+    }
+    atn::Vector3 start(pos);
+    CollResult_unk result;
+    Sphere_unk sphere = fn_80176548(pos);
+    int hit = fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &vel, fn_80179D44(), &mColli, 0, sphere.mRadius);
+    pos = result.m10;
+    pos -= m5A4;
+    pos.y -= sphere.mRadius;
+    if (hit && (result.m3C & 1) == 1) {
+        vel.y = 0.0f;
+    }
+    m634 = result.m34 != 0 ? *result.m34 : -1;
+    if (m152C != 0) {
+        m152C->mColli.mFlags |= 1;
+    }
+    m610 = 0;
+    if ((m54C & 2) == 2 && pos.y < 0.0f) {
+        pos.y = 0.0f;
+        vel.y = 0.0f;
+    }
+    m1560 = sqrt(vel.x * vel.x + vel.z * vel.z);
+    if (m1560 >= 2.0f) {
+        HitInfo_unk* skill = fn_80219E6C(m14EC);
+        fn_802F0964(lbl_8087F048, this, skill, m1540, skill->m5C, -1, 0.0f);
+    }
+    mPos = pos;
+    if (turned) {
+        mRot = rot;
+    }
+    m574 = vel;
+    m570 = sqrt(vel.x * vel.x + vel.z * vel.z);
+    if (m153C != 0 && m570 < 0.4f) {
+        m153C = 0;
+    }
+}
+
 // inferred: names invented
 inline float Max_unk(float a, float b) {
     return a > b ? a : b;
@@ -674,4 +1041,16 @@ void Em306GurgBeast::fn_802F1320(int restart) {
         vf100(14);
         m1550 = 300;
     }
+}
+
+void Em306GurgBeast::vf30(void* menu) {
+    char name[0x100];
+    sprintf(name, "Em306 GurgBeast[%d]", m58);
+    void* group;
+    if (m151C.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        group = m151C.mRes = fn_8008937C(menu, name);
+    } else {
+        group = 0;
+    }
+    fn_805A5220(group);
 }

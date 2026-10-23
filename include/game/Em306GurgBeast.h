@@ -25,6 +25,8 @@ public:
     virtual int vf10C(HitMsg_unk* msg);
 
     void fn_802EE9A8(const char* text, int length); // inferred: reads the data file
+    void fn_802F09D4(const atn::Vector3* target, float rate); // inferred: movement towards a rotation
+    inline void RideMove_unk();
     void fn_802F0F60(); // inferred: walk motion
     inline void CopyTrack_unk(Model_unk* dst, int i);
     void fn_802F1120(); // inferred: keeps the rider on the seat
