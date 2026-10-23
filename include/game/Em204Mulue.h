@@ -106,6 +106,7 @@ public:
     inline void StartThrust_unk();
     inline void ShowMessage_unk(int id);
     inline void SetTurn_unk(atn::Vector3 target);
+    inline void MoveBack_unk();
 
     CharaTask* m14B0; // inferred: target (mC58.mC4)
     CharaTask* m14B4; // inferred: character that thrusts (state 24)

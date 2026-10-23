@@ -92,7 +92,11 @@ struct MulueLook_unk {
         m00 = 1;
         mPos = pos;
         m24 = 0.0f;
-        m04 = flag ? 1 : 0;
+        if (flag) {
+            m04 = 1;
+        } else {
+            m04 = 0;
+        }
     }
     unsigned char m00;
     unsigned char m01;
@@ -306,7 +310,7 @@ inline void Em204Mulue::SetTurn_unk(atn::Vector3 target) {
     }
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.80% - registers of the second std::string constructor (as in game/Em201ZanGurg.cpp)
 Em204Mulue::Em204Mulue(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(600), m14C0(0), m14C4(1), m14C8(0), m14CC(0), m14D0(0),
       m14D4(-1), m14D8(-1), m14DC(0.5f), m14E0(0), m14E4(0), m14E8(0), m14EC(0), m14F0(0), m14F4(0),
@@ -339,7 +343,6 @@ Em204Mulue::Em204Mulue(atn::Task* parent, EnemyInfo_unk* info)
 
 Em204Mulue::~Em204Mulue() {}
 
-// NONMATCHING: draft
 int Em204Mulue::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14FC.fn_80237874() == 0 &&
         m1508.fn_802376D0() == 0 && m1514.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
@@ -427,7 +430,7 @@ int Em204Mulue::vf0C() {
         mStatus.m18 |= 0xC219;
         mStatus.m18 |= 0x3800000;
         m54C |= 0x200;
-        if (m1580.mSize != 0) {
+        if (m1580.size() != 0) {
             m15C4 = m1580.mData[0]->mPos;
         }
         GXColor c = mMotion.fn_80092954("em204_koura")->mColor;
@@ -445,7 +448,7 @@ int Em204Mulue::vf0C() {
     return 0;
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.81% - order of two loads of case 9 and stack slots of the catchpoint matrix
 void Em204Mulue::vf10() {
     fn_8014C0B4(0x1B, 0x14);
     fn_8014C0B4(0x1C, 0x1C7);
@@ -461,7 +464,7 @@ void Em204Mulue::vf10() {
         fn_80097CCC(&mMotion, 0, 0.0f);
         PlayMotion_unk(2, 1, 1.0f);
         Rest_unk();
-    } else {
+    } else if (m14B0 != 0) {
         switch (m58C) {
         case 7:
             fn_802A820C();
@@ -482,13 +485,22 @@ void Em204Mulue::vf10() {
         case 10:
             fn_802A8BBC();
             break;
-        case 11:
-            if (IsMotionEnd_unk()) {
+        case 20: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                Rest_unk();
+            }
+            break;
+        }
+        case 11: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
                 SetState_unk(12);
                 PlayMotion_unk(0x14C, 0, 0.5f);
             }
             Release_unk();
             break;
+        }
         case 12:
             fn_802A91D0();
             break;
@@ -498,8 +510,9 @@ void Em204Mulue::vf10() {
         case 14:
             fn_802A97C8();
             break;
-        case 15:
-            if (IsMotionEnd_unk()) {
+        case 15: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
                 switch (m14F8) {
                 case 0:
                     fn_802AB794(2);
@@ -522,9 +535,7 @@ void Em204Mulue::vf10() {
                 }
             }
             break;
-        case 16:
-            fn_802AA534();
-            break;
+        }
         case 17:
             if ((float)m14C0 > 35.0f) {
                 fn_80239DAC(lbl_8087F3C0, this, 0x66, 0);
@@ -547,14 +558,10 @@ void Em204Mulue::vf10() {
                 fn_802AB97C();
             }
             break;
-        case 20:
-            if (IsMotionEnd_unk()) {
-                Rest_unk();
-            }
-            break;
         case 21:
             if (m14B8 == 0) {
-                if (IsMotionEnd_unk()) {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
                     PlayMotion_unk(0x37, 0, 0.5f);
                     m14B8 = 1;
                     m14C0 = 0;
@@ -564,13 +571,15 @@ void Em204Mulue::vf10() {
                 m15E4 = 0;
             }
             break;
-        case 22:
-            if (IsMotionEnd_unk()) {
+        case 22: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
                 SetState_unk(23);
                 PlayMotion_unk(0x3B, 1, 1.0f);
                 ShowMessage_unk(0xEF);
             }
             break;
+        }
         case 23:
             if (m14C0 > m1660) {
                 SetState_unk(25);
@@ -586,12 +595,14 @@ void Em204Mulue::vf10() {
             }
             break;
         }
-        case 25:
-            if (IsMotionEnd_unk()) {
+        case 25: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
                 Rest_unk();
                 m15E4 = 0;
             }
             break;
+        }
         case 26:
             if (m15E8 < 0.0f) {
                 Rest_unk();
@@ -599,11 +610,14 @@ void Em204Mulue::vf10() {
                 Turn_unk();
             }
             break;
+        case 16:
+            fn_802AA534();
+            break;
         case 27:
             vfEC();
             break;
         default: {
-            if (m55C != 6 && m55C != 7) {
+            if (m55C < 6 || m55C > 7) {
                 fn_8016E970(3);
                 fn_80170A20(m14B0, 0, -1.0f);
             }
@@ -633,9 +647,9 @@ void Em204Mulue::vf10() {
         atn::Vector3 s(1.0f / m540.x, 1.0f / m540.y, 1.0f / m540.z);
         Mtx sm;
         PSMTXScale(sm, s.x, s.y, s.z);
-        Mtx r;
-        PSMTXConcat(m.m, sm, r);
-        m = atn::Matrix3x4(r);
+        atn::Matrix3x4 r;
+        PSMTXConcat(m.m, sm, r.m);
+        m = r;
         m1614 = m;
         m1614.m[0][3] = t.x;
         m1614.m[1][3] = t.y;
@@ -663,20 +677,23 @@ void Em204Mulue::vf10() {
     }
 }
 
-// NONMATCHING: draft
+// inferred: name invented
+inline MulueColor_unk Lerp_unk(const MulueColor_unk& a, const MulueColor_unk& b, float t) {
+    return (b - a) * t + a;
+}
+
 void Em204Mulue::vf14() {
     if (mMotion.fn_80092954("em204_koura") != 0) {
         MulueColor_unk target = m15F4;
         if (m58C == 18) {
             target = MulueColor_unk(0.95f, 0.1f, 0.1f, 1.0f);
         }
-        m1604 = (target - m1604) * 0.1f + m1604;
+        m1604 = Lerp_unk(m1604, target, 0.1f);
         mMotion.fn_80092954("em204_koura")->mColor = m1604.ToGX();
     }
     fn_80149A30();
 }
 
-// NONMATCHING: draft
 void Em204Mulue::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 22) {
@@ -700,7 +717,6 @@ void Em204Mulue::vf3C(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: draft
 void Em204Mulue::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->m68 != 0) {
@@ -743,7 +759,6 @@ void Em204Mulue::vf40(HitInfo_unk* hit) {
 
 void Em204Mulue::vf7C(int arg) {}
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802A711C() {
     float dist = 0.0f;
     float scale = 1.0f;
@@ -768,7 +783,6 @@ void Em204Mulue::fn_802A711C() {
     fn_8004D124(lbl_8087EE98);
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802A74A4() {
     if (m14B0 == 0) {
         return;
@@ -817,47 +831,63 @@ void Em204Mulue::fn_802A74A4() {
     fn_802AC0E0();
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 98.41% - float registers of the first capsule and r6/r7 of the node copies (__VecCopy family)
 void Em204Mulue::fn_802A7970() {
     atn::Vector3 a;
     atn::Vector3 b;
+    float r0 = m5B0;
     m614 = mPos + m5A4;
-    m620 = m5B0;
-    m614.y += m620;
+    m620 = r0;
+    m614.y += r0;
     a = m614;
     b = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     b.y -= 1.0f;
     mColli.m3C = a;
     mColli.m48 = b;
     mColli.m54 = m620;
-    a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm"));
-    b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
-    m168C.m3C = a;
-    m168C.m48 = b;
-    m168C.m54 = 7.0f;
-    a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm"));
-    b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
-    m16E4.m3C = a;
-    m16E4.m48 = b;
-    m16E4.m54 = 7.0f;
-    a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg"));
-    b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
-    m173C.m3C = a;
-    m173C.m48 = b;
-    m173C.m54 = 5.0f;
-    a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg"));
-    b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
-    m1794.m3C = a;
-    m1794.m48 = b;
-    m1794.m54 = 5.0f;
-    a = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2"));
-    b = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4"));
-    m17EC.m3C = a;
-    m17EC.m48 = b;
-    m17EC.m54 = 9.0f;
+    {
+        float r = 7.0f;
+        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm"));
+        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
+        m168C.m3C = a;
+        m168C.m48 = b;
+        m168C.m54 = r;
+    }
+    {
+        float r = 7.0f;
+        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm"));
+        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
+        m16E4.m3C = a;
+        m16E4.m48 = b;
+        m16E4.m54 = r;
+    }
+    {
+        float r = 5.0f;
+        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg"));
+        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
+        m173C.m3C = a;
+        m173C.m48 = b;
+        m173C.m54 = r;
+    }
+    {
+        float r = 5.0f;
+        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg"));
+        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+        m1794.m3C = a;
+        m1794.m48 = b;
+        m1794.m54 = r;
+    }
+    {
+        float r = 9.0f;
+        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2"));
+        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4"));
+        m17EC.m3C = a;
+        m17EC.m48 = b;
+        m17EC.m54 = r;
+    }
 }
 
-// NONMATCHING: r3/r4 of the copy of the center (__VecCopy of a temporary, docs/mwcc-blockers.md)
+// NONMATCHING: 98.93% - r3/r4 of the copy of the center (__VecCopy of a temporary, docs/mwcc-blockers.md)
 void Em204Mulue::vf54() {
     if (m624.mSize != 0) {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
@@ -867,7 +897,6 @@ void Em204Mulue::vf54() {
     }
 }
 
-// NONMATCHING: draft
 atn::Vector3 Em204Mulue::vf64(int center) {
     atn::Vector3 r(mPos);
     if (center == 0) {
@@ -883,14 +912,12 @@ int Em204Mulue::vf68(CharaTask* attacker) {
     return 0;
 }
 
-// NONMATCHING: draft
 void Em204Mulue::vf6C(int kind, CharaTask* other) {
     if (kind == 2 && m58C != 24) {
         StartThrust_unk();
     }
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802A820C() {
     if (m14B8 == 0) {
         if (m15E8 < 0.0f) {
@@ -924,7 +951,6 @@ void Em204Mulue::fn_802A820C() {
     }
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802A8718() {
     if (m14B8 == 0) {
         if (m15E8 < 0.0f) {
@@ -956,7 +982,7 @@ void Em204Mulue::fn_802A8718() {
     }
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.58% - allocation of the loop constants in f20-f31 (one register off)
 void Em204Mulue::fn_802A8BBC() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1010,7 +1036,7 @@ void Em204Mulue::fn_802A8BBC() {
     }
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 98.82% - order of the status address and the bitfield load of the damage record
 void Em204Mulue::fn_802A91D0() {
     if (m14C0 > 160) {
         SetState_unk(13);
@@ -1022,7 +1048,8 @@ void Em204Mulue::fn_802A91D0() {
         int power = mStatus.mParamB.m78 * 20;
         int dmg = MIN(power, hp - 1) < 0 ? 0 : MIN(power, hp - 1);
         m1644->mStatus.fn_8012DF7C(dmg, 0, 0);
-        atn::Vector3 pos = m1644->fn_80148B0C(0)->m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
+        atn::Vector3 pos(m1644->fn_80148B0C(0)->m04.mCenter);
+        pos += atn::Vector3(0.0f, 15.0f, 0.0f);
         MulueDamage_unk damage;
         damage.m04 = dmg;
         fn_80108C10(lbl_8087F048, &damage, pos, this, m1644, 0, 0);
@@ -1030,7 +1057,7 @@ void Em204Mulue::fn_802A91D0() {
     Release_unk();
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.95% - r3/r4 of the bitfield of the damage record
 void Em204Mulue::fn_802A94C8() {
     if (fn_80158BB4()) {
         Rest_unk();
@@ -1040,7 +1067,8 @@ void Em204Mulue::fn_802A94C8() {
         HitInfo_unk* skill = fn_80219E6C(0x4B4);
         fn_80144710();
         fn_8003EA3C(&damage, skill, this, m14B0, 0, &lbl_807C6B90, 0, 0);
-        atn::Vector3 pos = m14B0->fn_80148B0C(0)->m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
+        atn::Vector3 pos(m14B0->fn_80148B0C(0)->m04.mCenter);
+        pos += atn::Vector3(0.0f, 15.0f, 0.0f);
         fn_80108C10(lbl_8087F048, &damage, pos, this, m1644, 0, 0);
         atn::Vector3 dir(0.0f, 0.0f, 10.0f);
         Mtx m;
@@ -1061,18 +1089,24 @@ void Em204Mulue::fn_802A94C8() {
     }
 }
 
-// NONMATCHING: draft
+// inferred: moves back along the yaw (name invented; its locals come first as those of an inline)
+inline void Em204Mulue::MoveBack_unk() {
+    Mtx m;
+    float y = mRot.y;
+    PSMTXRotRad(m, 'y', y);
+    atn::Vector3 back(0.0f, 0.0f, -0.25f);
+    atn::Vector3 v(back);
+    PSMTXMultVec(m, &v, &v);
+    mPos += v;
+}
+
 void Em204Mulue::fn_802A97C8() {
     if (m14B8 == 0) {
         if (m14C0 > 60) {
             PlayMotion_unk(3, 1, 1.0f);
             m14B8 = 1;
         } else {
-            Mtx m;
-            PSMTXRotRad(m, 'y', mRot.y);
-            atn::Vector3 v(atn::Vector3(0.0f, 0.0f, -0.25f));
-            PSMTXMultVec(m, &v, &v);
-            mPos += v;
+            MoveBack_unk();
         }
     } else if (m14B8 == 1) {
         if (m14C0 > 10) {
@@ -1119,14 +1153,15 @@ inline void MulueRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     }
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.59% - store order of the shot fields and r26/r27 of the shadowing local
 void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     if (m1678 == 0) {
         return;
     }
     atn::Matrix3x4 m;
     MulueRotZYX_unk(m, mRot);
-    atn::Vector3 hips = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
+    Model_unk* model = &mMotion;
+    atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
     PlayerTask* player = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C((const char*)1);
     atn::Vector3 dir;
     if (player != 0) {
@@ -1139,13 +1174,15 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
         fn_800C344C("SE_EM204_014", &mPos, 0, -1, 1.0f);
         for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
             if (c->CanAct_unk() && !(skipKind3 != 0 && c->mType == 3)) {
-                atn::Vector3 pos = GetNodePos_unk(c->mMotion.GetNodeMtx_unk("hips"));
+                Model_unk* cm = &c->mMotion;
+                atn::Vector3 pos = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
                 atn::Vector3 to = (pos - hips).GetNormalized_unk();
                 Bullet* bullet = fn_801010A0(lbl_8087F048);
                 if (bullet == 0) {
                     return;
                 }
                 MulueShot_unk shot;
+                shot.m00 = 2.0f;
                 shot.m04 = (int)&m1508;
                 shot.m08 = 0;
                 shot.m0C = m1678;
@@ -1179,7 +1216,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
                 }
             }
             MulueShot_unk shot;
-            shot.m04 = i % 3 == 1 ? (int)&m1508 : 0;
+            shot.m04 = i % 3 != 1 ? 0 : (int)&m1508;
             shot.m08 = 0;
             shot.m0C = m1678;
             fn_8010EE78(bullet, &shot, &hips, &v, this, -1, 0, -1.0f);
@@ -1187,7 +1224,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     }
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.91% - r3/r4 of the copy of the home (__VecCopy family)
 void Em204Mulue::fn_802AA1B8() {
     atn::Vector3 d = m15D4 - mPos;
     d.Length_unk();
@@ -1198,13 +1235,13 @@ void Em204Mulue::fn_802AA1B8() {
                 int n = m153C.mSize;
                 m14C0 = 0;
                 m14B8 = 1;
-                if (n < 1) {
-                    done = 1;
-                } else {
-                    int i = rand() % m153C.size();
+                if (n >= 1) {
+                    int i = rand() % (unsigned int)n;
                     m14D4 = i;
                     m14D8 = i;
                     m15D4 = m153C.mData[i]->mPos;
+                } else {
+                    done = 1;
                 }
             }
         } else if (m14D8 == -1) {
@@ -1218,7 +1255,7 @@ void Em204Mulue::fn_802AA1B8() {
             }
         } else {
             m14D8++;
-            if (m153C.mSize <= m14D8) {
+            if ((int)m153C.size() <= m14D8) {
                 m14D8 = 0;
             }
             if (m14D8 == m14D4) {
@@ -1241,12 +1278,12 @@ void Em204Mulue::fn_802AA1B8() {
         n.y = 0.0f;
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-        fn_800FAB80(lbl_8087F048, this, m167C, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        Effect_unk* mgr = lbl_8087F048;
+        fn_800FAB80(mgr, this, m167C, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     fn_800CB6E4(&m1538, &mPos);
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AA534() {
     atn::Vector3 d = m15C4 - mPos;
     d.Length_unk();
@@ -1271,7 +1308,8 @@ void Em204Mulue::fn_802AA534() {
         n.y = 0.0f;
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-        fn_800FAB80(lbl_8087F048, this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        Effect_unk* mgr = lbl_8087F048;
+        fn_800FAB80(mgr, this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (m1648 > 0 && (float)m14C0 <= 35.0f) {
         fn_802A9ADC(m14C0 % 10 == 5, m1648 >= 1);
@@ -1279,12 +1317,13 @@ void Em204Mulue::fn_802AA534() {
     fn_800CB6E4(&m1538, &mPos);
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.26% - r4/r5 of the copies of the camera point (__VecCopy family)
 void Em204Mulue::vfEC() {
-    if (IsMotionEnd_unk()) {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mFlag25 = 1;
         mColli.mFlags &= ~1;
         ClearPartsFlag_unk();
-        mFlag25 = 1;
         if (m1434 > 0) {
             if (--m1434 == 30) {
                 fn_80232B7C(0, 0);
@@ -1299,8 +1338,9 @@ void Em204Mulue::vfEC() {
             fn_800EE360(this);
         }
     } else {
+        int motion = mMotion.mTracks[0].m00;
         m1434 = 55;
-        if (mMotion.mTracks[0].m00 == 46) {
+        if (motion == 46) {
             if (mMotion.mTracks[0].m08 < 70.0f) {
                 atn::Vector3 v(0.0f, 0.0f, -35.0f / mMotion.fn_80097D7C(0));
                 Mtx m;
@@ -1328,7 +1368,6 @@ void Em204Mulue::vfEC() {
     }
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AABD8() {
     m14C0 = 0;
     m58C = 7;
@@ -1339,7 +1378,6 @@ void Em204Mulue::fn_802AABD8() {
     SetTurn_unk(m15D4);
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AAF2C() {
     m14C0 = 0;
     m58C = 8;
@@ -1350,7 +1388,6 @@ void Em204Mulue::fn_802AAF2C() {
     SetTurn_unk(m15D4);
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AB280() {
     SetState_unk(9);
     PlayMotion_unk(0x156, 0, 0.75f);
@@ -1358,14 +1395,12 @@ void Em204Mulue::fn_802AB280() {
     fn_8004D124(lbl_8087EE98);
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AB354() {
     SetState_unk(10);
     PlayMotion_unk(0x14A, 0, 0.5f);
     ShowMessage_unk(0xE3);
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AB42C() {
     SetState_unk(14);
     PlayMotion_unk(0x1C7, 1, 0.5f);
@@ -1373,7 +1408,6 @@ void Em204Mulue::fn_802AB42C() {
     ShowMessage_unk(0xE9);
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AB510(int kind) {
     SetState_unk(15);
     PlayMotion_unk(0x13F, 0, 1.0f);
@@ -1381,7 +1415,6 @@ void Em204Mulue::fn_802AB510(int kind) {
     m14F8 = kind;
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AB5E8() {
     m14C0 = 0;
     m58C = 17;
@@ -1392,7 +1425,23 @@ void Em204Mulue::fn_802AB5E8() {
         lbl_8087F3C0->mC4 = 1;
         lbl_8087F3C0->mC8 = 1;
         fn_80232B7C(this, 0x66);
-        PlayEffect_unk(&m1514, &mMotion);
+        {
+            Color4f_unk color;
+            atn::Vector3 rot;
+            atn::Vector3 pos;
+            rot.x = 0.0f;
+            rot.y = 0.0f;
+            rot.z = 0.0f;
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 0.0f;
+            color.r = 1.0f;
+            color.g = 1.0f;
+            color.b = 1.0f;
+            color.a = 1.0f;
+            EffectMgr_unk* mgr = lbl_8087F3C0;
+            fn_8023A8B4(mgr, &m1514, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        }
         lbl_8087F3C0->mC4 = 0;
         lbl_8087F3C0->mC8 = 0;
         ClearPartsFlag_unk();
@@ -1400,7 +1449,6 @@ void Em204Mulue::fn_802AB5E8() {
     }
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AB794(int arg) {
     m14C0 = 0;
     m58C = 16;
@@ -1411,7 +1459,23 @@ void Em204Mulue::fn_802AB794(int arg) {
         lbl_8087F3C0->mC4 = 1;
         lbl_8087F3C0->mC8 = 1;
         fn_80232B7C(this, 0x66);
-        PlayEffect_unk(&m1514, &mMotion);
+        {
+            Color4f_unk color;
+            atn::Vector3 rot;
+            atn::Vector3 pos;
+            rot.x = 0.0f;
+            rot.y = 0.0f;
+            rot.z = 0.0f;
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 0.0f;
+            color.r = 1.0f;
+            color.g = 1.0f;
+            color.b = 1.0f;
+            color.a = 1.0f;
+            EffectMgr_unk* mgr = lbl_8087F3C0;
+            fn_8023A8B4(mgr, &m1514, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        }
         lbl_8087F3C0->mC4 = 0;
         lbl_8087F3C0->mC8 = 0;
         ClearPartsFlag_unk();
@@ -1421,15 +1485,14 @@ void Em204Mulue::fn_802AB794(int arg) {
     m15E0 = 0;
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802AB97C() {
     SetState_unk(21);
     fn_80239DAC(lbl_8087F3C0, this, 0x65, 0);
     fn_80239DAC(lbl_8087F3C0, this, 0x66, 0);
     fn_80232B7C(this, 0x67);
     {
-        Color4f_unk color;
         atn::Vector3 pos;
+        Color4f_unk color;
         pos.x = 0.0f;
         pos.y = -8.0f;
         pos.z = 0.0f;
@@ -1439,7 +1502,10 @@ void Em204Mulue::fn_802AB97C() {
         color.a = 1.0f;
         fn_8023A8B4(lbl_8087F3C0, &m1654, &mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 10.0f);
     }
-    PlayMotion_unk(0x35, 0, 0.03f);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x35, 0, 0, 1, 0.0f, 0.03f);
     m14B8 = 0;
     fn_80370AE4(lbl_8087F430, 0x50, 2);
     fn_80232B7C(0, 0);
@@ -1461,13 +1527,11 @@ void Em204Mulue::fn_802AB97C() {
     SetPartsFlag_unk();
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802ABC50(int arg) {
     SetState_unk(26);
     SetTurn_unk(m14B0->mPos);
 }
 
-// NONMATCHING: draft
 void Em204Mulue::fn_802ABF6C() {
     int motion = 0x2E;
     m14C0 = 0;
