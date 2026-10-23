@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `codex/std-bad-cast` (2026-10-23): **7301 / 18215 funciones al 100%** (código 26,0%, fuzzy 42,6%, datos 17,5%), 370 ficheros enlazados, `main.dol: OK`; `std::bad_cast` son 2/2 al 100%, separado del código de GameEventScript (`matching: false`).
-- Último lote: split de `GameEventScript`/`std::bad_cast` (`docs/std-bad-cast.md`). Siguiente: elegir otra unidad de `targets.py`.
+- `codex/std-allocator-char` (2026-10-23): **7308 / 18215 funciones al 100%** (código 26,0%, fuzzy 42,6%, datos 17,5%), 370 ficheros enlazados, `main.dol: OK`; 7 funciones nuevas al 100% en `std/allocator_char`, 2 del parser quedan NONMATCHING; `regress.py` lost: 0, `fuzzdrop.py` sin bajadas, `poolcheck.py` sin hallazgos.
+- Último lote: `std/allocator_char` (`docs/std-allocator-char.md`); el resto del código MSL iostream/stringbuf queda pendiente.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)

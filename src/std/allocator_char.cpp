@@ -120,7 +120,7 @@ void fn_800E0D70(TextParser_unk* parser) {
     parser->mType = 0;
 }
 
-// NONMATCHING: ~98% - registers of the buffer pointer and the size in the inlined std::string assign.
+// NONMATCHING: 99.69% - buffer pointer and size use different saved registers in the inlined string assignment.
 // inferred: name of the current block
 std::string* fn_800E0F84(TextParser_unk* parser) {
     if (parser->mClosed != 0) {
@@ -142,8 +142,7 @@ std::string* fn_800E0F84(TextParser_unk* parser) {
     return &parser->mName;
 }
 
-// NONMATCHING: ~90% - the original keeps the constant 1 of the space test in r31 (all the other
-// saved registers shift by one); same instructions otherwise.
+// NONMATCHING: 93.10% - locals use different saved registers from the original throughout the scan.
 // inferred: argument `index` of the current block (quoted strings)
 std::string* fn_800E114C(TextParser_unk* parser, int index) {
     parser->mBuf[0] = 0;
@@ -224,5 +223,15 @@ void fn_800E1374(TextParser_unk* parser) {
         }
     }
 }
+
+// inferred: simple MSL iostream vtable slots; the observed return-register values determine the
+// C++ return values. Keep the automatic symbols until their class declarations are recovered.
+void fn_800E24CC(void*) {}
+void fn_800E24D0(void*) {}
+int fn_800E1D4C(void*) { return 0; }
+int fn_800E1D54(void*) { return -1; }
+int fn_800E2504(void*) { return 0; }
+int fn_800E2608(void*) { return -1; }
+int fn_800E2668(void*) { return -1; }
 
 } // extern "C"
