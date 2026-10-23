@@ -18,18 +18,16 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: cubic polynomial of one axis of a segment (16 bytes, read by fn_803272A8); names invented
 struct WarLionCubic_unk {
+    // inferred: empty constructor (resize copies an uninitialised default element, 0x8032B314)
+    WarLionCubic_unk() {}
     float Eval_unk(float u) const { return m00 + u * (m04 + u * (m08 + m0C * u)); }
     float m00;
     float m04;
     float m08;
     float m0C;
 };
-// inferred: length of a segment (a float element would keep the destroy loop of the vector)
-struct WarLionLen_unk {
-    float m00;
-};
-// inferred: lengths of the segments
-struct WarLionPathList_unk : public std::vector<WarLionLen_unk> {};
+// inferred: lengths of the segments (std::vector<float>, resized by fn_8032BE88)
+struct WarLionPathList_unk : public std::vector<float> {};
 struct WarLionPath_unk {
     WarLionPath_unk() : m00(0), m04(0.0f) {}
     inline void Reset_unk();
@@ -50,6 +48,14 @@ struct WarLionPath_unk {
         r.z = m38[i].Eval_unk(u);
         return r;
     }
+    // inferred: point of segment `i` at `u` without range checks (fn_8032C1EC)
+    atn::Vector3 Eval_unk(int i, float u) {
+        atn::Vector3 r;
+        r.x = m20[i].Eval_unk(u);
+        r.y = m2C[i].Eval_unk(u);
+        r.z = m38[i].Eval_unk(u);
+        return r;
+    }
     // inferred: point at `t` in [0, 1] of the whole path
     atn::Vector3 GetPos_unk(float t) {
         if (t <= 0.0f) {
@@ -60,7 +66,7 @@ struct WarLionPath_unk {
         }
         t = m04 * t;
         for (int i = 0; i < m00 - 1; i++) {
-            float len = m44[i].m00;
+            float len = m44[i];
             if (t <= len) {
                 return Segment_unk(i, t == 0.0f ? 0.0f : t / len);
             }
@@ -92,6 +98,13 @@ inline void WarLionPath_unk::Reset_unk() {
 
 // inferred: same as ResHandle, but cleared in the body of the constructor (name invented)
 struct WarLionRes_unk {
+    void* Load(const char* name) {
+        if (mRes == 0 && lbl_8087EF10 != 0) {
+            mRes = fn_8008937C(lbl_8087EF10->m10, name);
+            return mRes;
+        }
+        return 0;
+    }
     ~WarLionRes_unk() {
         if (mRes != 0 && lbl_8087EF10 != 0) {
             fn_800897D8(lbl_8087EF10, mRes);
@@ -125,6 +138,7 @@ public:
     int IsRaging_unk() { return m15EC > 0; }
 
     inline void SetState_unk(int state);
+    void fn_DebugMenu_unk(); // inferred: removed by the linker (only its strings are left)
     void fn_803241E8();
     void fn_80324A38(const atn::Vector3& rot, int arg, float a, float b);
     void fn_803256F8(atn::MotionBuffer* nodes, int count); // inferred: node pose callback

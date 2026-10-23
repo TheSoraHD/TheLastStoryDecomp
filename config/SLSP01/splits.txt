@@ -1881,7 +1881,7 @@ game/Em401_01_WhiteLeoPard.cpp:
 game/Em403WarLion.cpp:
 	.text       start:0x80322C68 end:0x8032C52C
 	.rodata     start:0x80749B00 end:0x80749D70
-	.data       start:0x80788B40 end:0x80788D00
+	.data       start:0x80788B40 end:0x80788D20
 	.bss        start:0x807C8438 end:0x807C8448
 	.sbss       start:0x8087F400 end:0x8087F408
 	.sdata2     start:0x80884F10 end:0x80885040
