@@ -2030,14 +2030,26 @@ game/GameCamera_unk.cpp:
 	.sdata      start:0x8087DCF0 end:0x8087DD38
 	.sdata2     start:0x808858E8 end:0x80885AD0
 
-std/bad_cast.cpp:
-	.text       start:0x803935AC end:0x803B27AC
-	.ctors      start:0x8072D358 end:0x8072D35C
+game/GameEventScript.cpp:
+	.text       start:0x803935AC end:0x80394068
 	.rodata     start:0x8074E440 end:0x8074FB78
 	.data       start:0x8078A780 end:0x8078B3A0
 	.sdata      start:0x8087DD38 end:0x8087DD60
 	.sbss       start:0x8087F450 end:0x8087F458
 	.sdata2     start:0x80885AD0 end:0x80885C00
+
+std/bad_cast.cpp:
+	.text       start:0x80394068 end:0x803940A8
+
+game/GameEventScript_cont.cpp:
+	.text       start:0x803940A8 end:0x803AD13C
+
+std/bad_cast_what.cpp:
+	.text       start:0x803AD13C end:0x803AD148
+
+game/GameEventScript_cont2.cpp:
+	.text       start:0x803AD148 end:0x803B27AC
+	.ctors      start:0x8072D358 end:0x8072D35C
 
 auto_03_803B27AC_text.cpp:
 	.text       start:0x803B27AC end:0x803B33F8

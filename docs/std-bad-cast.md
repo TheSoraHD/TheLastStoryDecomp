@@ -1,6 +1,6 @@
-# std/bad_cast
+# std::bad_cast y GameEventScript
 
-- Resultado: 2/219 funciones al 100% (`std::bad_cast::~bad_cast` en `0x80394068`; `std::bad_cast::what() const` en `0x803AD13C`). Unidad sin enlazar (`matching: false`).
-- El split actual cubre `.text` `0x803935AC–0x803B27AC` y bloques grandes de datos que incluyen `GameEventScript`, `boost::bad_lexical_cast` y datos MSL. No se recortó porque los rangos de vtable, RTTI y cadenas están intercalados con otros datos.
-- Decisión a revisar: separar `GameEventScript` y los datos ajenos para poder reducir `std/bad_cast`, o mantener la unidad combinada y decompilar el resto.
-- Validación limpia: `main.dol: OK`; `regress.py` lost: 0; `fuzzdrop.py` drops: 0; `poolcheck.py std/bad_cast` sin avisos.
+- Resultado: `std::bad_cast::~bad_cast` (`0x80394068`) y `std::bad_cast::what() const` (`0x803AD13C`) siguen al 100%, cada una en su split de una función. Ambos están sin enlazar (`matching: false`).
+- El `.text` restante está repartido en `game/GameEventScript.cpp` y dos continuaciones, con cortes exactos a los límites de las funciones MSL. `.ctors`, pools y datos intercalados se mantienen en las unidades GameEventScript que los contienen; no se inventaron cortes de datos.
+- Decisión pendiente: revisar si conviene separar más tarde los datos MSL (`__vt__Q23std8bad_cast`/RTTI en `.data`) del bloque compartido de GameEventScript.
+- Validación limpia: `main.dol: OK`; `regress.py` lost: 0 (7301 vs. 7300); `fuzzdrop.py` drops: 0; `poolcheck.py std/bad_cast std/bad_cast_what` sin hallazgos.

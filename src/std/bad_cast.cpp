@@ -16,6 +16,5 @@ public:
 };
 
 bad_cast::~bad_cast() {}
-const char* bad_cast::what() const { return lbl_8078B394; }
 
 } // namespace std
