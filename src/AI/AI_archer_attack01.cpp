@@ -12,6 +12,7 @@ extern unsigned char lbl_807C6A40[];
 extern unsigned char lbl_807C6B30[];
 extern unsigned char lbl_807307A0[];
 extern float lbl_80880798;
+extern float lbl_808807B8;
 int fn_80018078(void* routes, CharaTask* chara);
 int fn_80018BAC(void* routes, CharaTask* chara);
 int fn_8021A984(HitInfo_unk* hit);
@@ -65,6 +66,78 @@ extern "C" int fn_8001C01C(CharaTask* chara) {
         ret = chara->mC58.mE0_12;
     }
     return ret;
+}
+
+// NONMATCHING: 89.40% - conversion to float and generated constant do not match MWCC's sequence.
+extern "C" int fn_8003CBE0() {
+    int count = *(int*)(lbl_807C68C0 + 0x30);
+    *(int*)lbl_807C6A40 = 1;
+    *(int*)(lbl_807C6A40 + 0x1C) = (int)(lbl_808807B8 * (float)count);
+    return 1;
+}
+
+extern "C" int fn_8003068C() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
+    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_80033588() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+// NONMATCHING: 88.31% - local output aggregate and register allocation differ.
+// inferred: the helper receives four consecutive output words; only the first is initialized from m80.
+extern "C" int fn_8002B818() {
+    int results[4] = {0, 0, 0, 0};
+    int value = *(int*)(lbl_807C68C0 + 0x7C);
+    results[0] = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x18) = value;
+    *(int*)(lbl_807C6A40 + 0x1C) = 1;
+    *(int*)lbl_807C6A40 = 1;
+    fn_8001AEDC(0, &results[0], &results[1], &results[2], &results[3]);
+    return 3;
+}
+
+// NONMATCHING: 88.31% - local output aggregate and register allocation differ.
+// inferred: duplicate script stub of fn_8002B818 at a second address.
+extern "C" int fn_80035C20() {
+    int results[4] = {0, 0, 0, 0};
+    int value = *(int*)(lbl_807C68C0 + 0x7C);
+    results[0] = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x18) = value;
+    *(int*)(lbl_807C6A40 + 0x1C) = 1;
+    *(int*)lbl_807C6A40 = 1;
+    fn_8001AEDC(0, &results[0], &results[1], &results[2], &results[3]);
+    return 3;
+}
+
+extern "C" int fn_80035274() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0x4B;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0x4B;
+    *(int*)(lbl_807C6A40 + 0x20) = 0x64;
+    *(int*)(lbl_807C6A40 + 0x24) = 0xA;
+    *(int*)(lbl_807C6A40 + 0x28) = 0;
+    *(int*)(lbl_807C6A40 + 0x2C) = fn_8001B4A4();
+    *(int*)(lbl_807C6A40 + 0x30) = 0x12C;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
 }
 
 // inferred: three-word MSL string header; the high bit selects the heap-buffer representation.
