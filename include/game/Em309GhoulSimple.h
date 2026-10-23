@@ -39,9 +39,12 @@ public:
     virtual void vf20();
     virtual void vf30(void* menu);
     virtual void vf40(HitInfo_unk* hit);
+    virtual void vf50();
     virtual void vf54();
     virtual atn::Vector3 vf64(int center);
     virtual float vf90();
+    virtual int vfB0(atn::Vector3* out);
+    virtual boost::function<void()> vfB4(CharaTask* chara);
     virtual void vfFC();
     virtual void vf100(int state);
     virtual void vf104();
@@ -75,9 +78,7 @@ public:
     int m1538;
     float m153C;               // inferred: "Speed"
     atn::Vector3 m1540;        // inferred: backwards direction (state 12)
-    float m154C;
-    float m1550;
-    float m1554;
+    atn::Vector3 m154C;        // inferred: rotation of the thrust (vfB4); x is the spin of state 12
     // inferred: SpecialFlag_unk (global flag, index), defined in SpecialEnemyBase.cpp
     GhoulFlag_unk m1558;       // inferred: "HeadAttackStartFlag"
     GhoulFlag_unk m1560;       // inferred: "HeadAttackNotifyFlag"
