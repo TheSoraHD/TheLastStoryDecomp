@@ -2,10 +2,20 @@
 // the weak MSL iostream code around it (std::basic_stringbuf<char>, std::basic_ostream<char>
 // sentries, the iostream __sinit). The unit name comes from the old automatic split; the real file
 // is a game file (probably the same as atn/WordWrap_unk and std/char_traits_char, see
-// docs/batch-auto-10kb-qA2.md). Only the parser is decompiled: there is no MSL C++ iostream source.
+// docs/batch-auto-10kb-qA2.md). Parser and MSL stream internals are partially reconstructed.
 #include "std/string.h"
 #include "std/string_members.h"
 #include "std/ios_init.h"
+
+namespace std {
+namespace tr1 {
+namespace detail {
+struct shared_ptr_deleter_common {
+    void release();
+};
+} // namespace detail
+} // namespace tr1
+} // namespace std
 
 // inferred: reader of the tagged text files ("<Name args...>", "</Name>", "<!-- -->"); token type 1
 // opens a block, 2 closes it, 3 is the text after a block, 4 a comment (names invented)
@@ -44,6 +54,204 @@ TextParser_unk::TextParser_unk(void* data, void* size)
 }
 
 extern "C" {
+
+struct StreamSentry_unk {
+    unsigned char mReady;
+    unsigned char mNested;
+    char mPad[2];
+    void* mStream;
+};
+
+extern void fn_800E0A64(void*, int);
+extern void fn_8068B39C(const char*);
+void* fn_800E14A4(StreamSentry_unk*, void*);
+void* fn_800E1630(StreamSentry_unk*, int);
+void* fn_800E1A48(void*);
+
+static int SyncStream_unk(void* stream) {
+    void** vtable = *(void***)stream;
+    return ((int (*)(void*))vtable[7])(stream);
+}
+
+// inferred: deleting destructor for the char ostream subobject at offset 8.
+// NONMATCHING: 99.97% - MWCC passes delete flag -1 instead of 0 to ios_base::~ios_base.
+void* fn_800E0B18(void* self, int doDelete) {
+    if (self != 0) {
+        void** vtable = *(void***)self;
+        *(int*)((char*)vtable + 0x3C) = (int)((char*)self + 8 - (char*)vtable);
+        if (doDelete != 0) {
+            char* base = (char*)self + 8;
+            if (base != 0) {
+                ((std::ios_base*)base)->std::ios_base::~ios_base();
+            }
+        }
+        if (doDelete > 0) {
+            ::operator delete(self);
+        }
+    }
+    return self;
+}
+
+// inferred: deleting destructor for basic_stringbuf<char>; string is at +0x2C.
+// NONMATCHING: 99.69% - one embedded string pointer uses a different register.
+void* fn_800E0B90(void* self, int doDelete) {
+    if (self != 0) {
+        if ((char*)self + 0x2C != 0) {
+            unsigned int flags = *(unsigned int*)((char*)self + 0x2C);
+            if ((flags >> 31) != 0) {
+                ::operator delete(*(void**)((char*)self + 0x34));
+            }
+        }
+        if (self != 0) {
+            void* owner = (char*)self + 0x1C;
+            if (owner != 0) {
+                if (owner != 0) {
+                    std::tr1::detail::shared_ptr_deleter_common* control =
+                        *(std::tr1::detail::shared_ptr_deleter_common**)((char*)owner + 4);
+                    if (control != 0) {
+                        control->release();
+                    }
+                }
+            }
+        }
+        if (doDelete > 0) {
+            ::operator delete(self);
+        }
+    }
+    return self;
+}
+
+// inferred: base streambuf destructor releases its shared locale owner at +0x1C.
+void* dtor_800E0C20(void* self, int doDelete) {
+    if (self != 0) {
+        void* owner = (char*)self + 0x1C;
+        if (owner != 0) {
+            if (owner != 0) {
+                std::tr1::detail::shared_ptr_deleter_common* control =
+                    *(std::tr1::detail::shared_ptr_deleter_common**)((char*)owner + 4);
+                if (control != 0) {
+                    control->release();
+                }
+            }
+        }
+        if (doDelete > 0) {
+            ::operator delete(self);
+        }
+    }
+    return self;
+}
+
+// inferred: deleting destructor for the shared owner subobject.
+void* dtor_800E0C8C(void* self, int doDelete) {
+    if (self != 0) {
+        if (self != 0) {
+            std::tr1::detail::shared_ptr_deleter_common* control =
+                *(std::tr1::detail::shared_ptr_deleter_common**)((char*)self + 4);
+            if (control != 0) {
+                control->release();
+            }
+        }
+        if (doDelete > 0) {
+            ::operator delete(self);
+        }
+    }
+    return self;
+}
+
+// inferred: vtable thunk adjusting the virtual base before deleting the ostream.
+// NONMATCHING: 0% - MWCC inlines the deleting destructor instead of emitting a tail thunk.
+void* fn_800E2A10(void* self, int doDelete) {
+    int offset = *(int*)((char*)self + 0x3C);
+    return fn_800E0B18((char*)self + offset - 8, doDelete);
+}
+
+// inferred: basic_ostream<char>::sentry constructor; stream state is at +0x32.
+// NONMATCHING: 57.25% - guessed sentry state flow; the original uses nested stream wrappers.
+void* fn_800E14A4(StreamSentry_unk* self, void* stream) {
+    self->mReady = 0;
+    self->mNested = 0;
+    self->mStream = stream;
+    if (*(unsigned char*)((char*)*(void**)stream + 0x32) == 0) {
+        void* tied = *(void**)((char*)*(void**)stream + 0x34);
+        if (tied != 0) {
+            StreamSentry_unk nested;
+            fn_800E14A4(&nested, tied);
+            nested.mNested = 1;
+            void* tiedIos = *(void**)tied;
+            void* buffer = *(void**)((char*)tiedIos + 0x24);
+            if (buffer != 0 && SyncStream_unk(buffer) == -1) {
+                fn_800E0A64(tied, 1);
+            }
+            unsigned char state = *(unsigned char*)((char*)tiedIos + 0x32);
+            if ((state & 5) == 0 &&
+                (*(unsigned short*)((char*)tiedIos + 0x30) & 0x2000) != 0 && nested.mNested == 0) {
+                fn_800E1A48(tied);
+            }
+        }
+        if (*(unsigned char*)((char*)*(void**)stream + 0x32) == 0) {
+            self->mReady = 1;
+            return self;
+        }
+    }
+    {
+        unsigned char* state = (unsigned char*)((char*)*(void**)stream + 0x32);
+        *state |= 4;
+        if (*(void**)((char*)*(void**)stream + 0x24) == 0) {
+            *state |= 1;
+        }
+        if ((*state & *(unsigned char*)((char*)*(void**)stream + 0x33)) != 0) {
+            extern const char lbl_80779AB8[];
+            fn_8068B39C(lbl_80779AB8);
+        }
+    }
+    return self;
+}
+
+// inferred: sentry cleanup checks tied streams and propagates synchronization failure.
+// NONMATCHING: 29.76% - cleanup state flow is only partially reconstructed.
+void* fn_800E1630(StreamSentry_unk* self, int doDelete) {
+    if (self != 0) {
+        void* stream = self->mStream;
+        void* ios = *(void**)stream;
+        unsigned char state = *(unsigned char*)((char*)ios + 0x32);
+        if ((state & 5) == 0 &&
+            (*(unsigned short*)((char*)ios + 0x30) & 0x2000) != 0 && self->mNested == 0) {
+            void* tied = *(void**)((char*)ios + 0x34);
+            if (tied != 0) {
+                StreamSentry_unk nested;
+                fn_800E14A4(&nested, tied);
+                nested.mNested = 1;
+                void* tiedIos = *(void**)tied;
+                void* buffer = *(void**)((char*)tiedIos + 0x24);
+                if (buffer != 0 && SyncStream_unk(buffer) == -1) {
+                    fn_800E0A64(tied, 1);
+                }
+                if ((*(unsigned char*)((char*)tiedIos + 0x32) & 5) == 0 &&
+                    (*(unsigned short*)((char*)tiedIos + 0x30) & 0x2000) != 0 && nested.mNested == 0) {
+                    fn_800E1A48(tied);
+                }
+            }
+        }
+        if (doDelete > 0) {
+            ::operator delete(self);
+        }
+    }
+    return self;
+}
+
+// inferred: basic_ostream<char>::flush; returns the stream reference.
+// NONMATCHING: 16.52% - flush/sentry exception handling is only partially reconstructed.
+void* fn_800E1A48(void* stream) {
+    void* ios = *(void**)stream;
+    StreamSentry_unk sentry;
+    fn_800E14A4(&sentry, stream);
+    void* buffer = *(void**)((char*)ios + 0x24);
+    if (sentry.mReady != 0 && buffer != 0 && SyncStream_unk(buffer) == -1) {
+        fn_800E0A64(stream, 1);
+    }
+    fn_800E1630(&sentry, -1);
+    return stream;
+}
 
 // inferred: true while there is text left
 bool fn_800E0D54(TextParser_unk* parser) {
@@ -613,3 +821,16 @@ void fn_800E1D5C(SharedPair_unk* out, SharedOwner_unk* owner) {
 }
 
 } // extern "C"
+
+template <>
+std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(
+    const std::basic_string<char, std::char_traits<char>, std::allocator<char> >& str) {
+    if (!str.is_long()) {
+        mRaw = str.mRaw;
+    } else {
+        __zero();
+        reserve(str.mLong.mSize);
+        __replace_unk(0, 0, str.mLong.mData, str.mLong.mData + str.mLong.mSize,
+                      std::random_access_iterator_tag());
+    }
+}

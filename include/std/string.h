@@ -128,7 +128,6 @@ public:
     // word, a long one through reserve and the range replace
     basic_string(const basic_string& str) {
         if (!str.is_long()) {
-            // inferred: copied as a block (0x800EC7F0 stores word 1 before word 0)
             mRaw = str.mRaw;
         } else {
             __zero();

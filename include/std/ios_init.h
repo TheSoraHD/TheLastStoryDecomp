@@ -8,6 +8,7 @@ namespace std {
 
 class ios_base {
 public:
+    virtual ~ios_base();
     // inferred: 0x8068B770 builds cin/cout/cerr/clog on __files (once, with guards)
     class Init {
     public:
