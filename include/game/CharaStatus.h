@@ -18,7 +18,7 @@ class CharaTask;
 struct RoutePoint_unk {
     int m00;
     atn::Vector3 mPos; // 0x04
-    unsigned char m10[0x14 - 0x10];
+    int m10;           // inferred: id compared by Em203GreaterDaemonRed (0x80296DB8)
     float mRadius;     // 0x14
     unsigned char m18[0x2C - 0x18];
     int m2C; // inferred: enabled

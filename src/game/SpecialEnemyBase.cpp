@@ -38,6 +38,7 @@
 #include "game/Em202Spider.h"
 #include "game/Em202SpiderBase.h"
 #include "game/Em203GreaterDaemon.h"
+#include "game/Em203GreaterDaemonRed.h"
 #include "game/Em208Queen.h"
 #include "game/Em209BigGolem.h"
 #include "game/Em209SmallGolem.h"
@@ -595,7 +596,6 @@ extern "C" void* fn_80264DB4(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_8026FC0C(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_8027278C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80279860(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_80293738(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8029CB00(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802A4BBC(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802AC364(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -752,11 +752,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) Em203GreaterDaemon(parent, info);
             break;
         case 18:
-            p = ::operator new(0x16d0, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80293738(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em203GreaterDaemonRed(parent, info);
             break;
         case 19:
             p = ::operator new(0x16d0, 3, "", "", 0);

@@ -63,6 +63,15 @@ struct __vec_storage_unk {
     unsigned int mCap;
 };
 
+// inferred: float elements are dropped without a loop (destructors of the float lists of
+// game/Em203GreaterDaemonRed.cpp, 0x80293BC8)
+template <>
+inline void __vec_storage_unk<float>::__shrink_unk(unsigned int newSize) {
+    unsigned int n = mSize - newSize;
+    unsigned int& size = mSize;
+    size -= n;
+}
+
 template <class T>
 struct __vec_imp_unk : public __vec_storage_unk<T> {
     ~__vec_imp_unk() {}
