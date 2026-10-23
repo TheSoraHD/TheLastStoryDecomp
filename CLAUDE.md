@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `codex/std-allocator-char` (2026-10-23): **7308 / 18215 funciones al 100%** (código 26,0%, fuzzy 42,6%, datos 17,5%), 370 ficheros enlazados, build limpio `main.dol: OK`; 7 funciones nuevas al 100% en `std/allocator_char`; el intento de completar la unidad llevó `fn_800E1D88` a 99,35% y `fn_800E1D5C` a 90%, sin marcarla enlazable. `regress.py` lost: 0, `fuzzdrop.py` sin bajadas, `poolcheck.py` sin hallazgos.
-- Último lote: `std/allocator_char` (`docs/std-allocator-char.md`); 11/35 funciones al 100%, 22 aún sin implementar. MSL iostream/stringbuf sigue pendiente.
+- `codex/std-allocator-char` (2026-10-23): **7313 / 18215 funciones al 100%** (código 26,02%, fuzzy 42,60%, datos 17,46%), 370 ficheros enlazados, build limpio `main.dol: OK`; `std/allocator_char` queda en 16/35, sin marcar enlazable. `regress.py` lost: 0, `fuzzdrop.py` sin bajadas, `poolcheck.py` sin hallazgos.
+- Último lote: `std/allocator_char` (`docs/std-allocator-char.md`); MSL iostream/stringbuf parcialmente reconstruido; 19 funciones siguen pendientes de match o implementación.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)
