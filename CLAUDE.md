@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `main` en c7606b1 (2026-10-22): **7299 / 18215 funciones al 100%** (código 26,0%, fuzzy 42,6%, datos 17,5%), 370 ficheros enlazados, `main.dol: OK`.
-- Último lote: `enemies-finish` (`docs/enemies-finish.md`). Siguiente: propuestas de `SIGUIENTE_sesion.md` (documento del proyecto).
+- `codex/std-bad-cast` desde c7606b1 (2026-10-23): **7301 / 18215 funciones al 100%** (código 26,0%, fuzzy 42,6%, datos 17,5%), 370 ficheros enlazados, `main.dol: OK`; `std/bad_cast` sigue `matching: false` (2/219 funciones).
+- Último lote: `std-bad-cast` parcial (`docs/std-bad-cast.md`). Siguiente: resolver el split amplio de `GameEventScript` y datos MSL.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)

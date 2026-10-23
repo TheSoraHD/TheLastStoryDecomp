@@ -4,6 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-10-23 | `codex/std-bad-cast` (parcial, local) | — | 7299 → 7301 | 26,0 → 26,0% / 42,6 → 42,6% | 370 | `docs/std-bad-cast.md` |
 | 2026-10-22 | `enemies-finish` (propuesta G) | c7606b1 | 6806 → 7299 | 22,6 → 26,0% / 35,5 → 42,6% | 370 | `docs/enemies-finish.md`, `-q{1..12}.md` |
 | 2026-10-22 | `close-units` (D) | 64df7a6 | 6476 → 6806 | 21,3 → 22,6% / 34,0 → 35,5% | 342 → 370 | `docs/close-units.md`, `-q{A..F}.md` |
 | 2026-10-21/22 | `batch-auto-20kb-atn` (B) | 6111ca3 | 5961 → 6476 | 19,5 → 21,3% / 30,9 → 34,0% | 341 → 342 | `docs/batch-auto-20kb-atn.md`, `-qA{1..10}.md` |
