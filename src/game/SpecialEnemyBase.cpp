@@ -30,6 +30,7 @@
 #include "game/Em306GurgBeast.h"
 #include "game/Em308InvertCrab.h"
 #include "game/Em308ParmCrab.h"
+#include "game/Em309Ghoul.h"
 #include "game/Em309GhoulSimple.h"
 #include "game/Em312DarkServant.h"
 #include "game/Em315Coffin.h"
@@ -602,7 +603,6 @@ extern "C" void* fn_802AC364(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_802B23E8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802BA92C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802C0C38(void* self, atn::Task* parent, void* data);
-extern "C" void* fn_802FC850(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8030A144(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80452F14(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80458270(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -694,11 +694,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) Em002_01BlackSkelton(parent, data);
             break;
         case 39:
-            p = ::operator new(0x1700, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802FC850(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em309Ghoul(parent, info);
             break;
         case 40:
             enemy = new (3, "", "", 0) Em309GhoulSimple(parent, info);

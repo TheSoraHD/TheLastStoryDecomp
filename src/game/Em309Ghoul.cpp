@@ -1,4 +1,5 @@
 #include "game/Em309Ghoul.h"
+#include "atn/Csv.h"
 #include "game/CharaManager.h"
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
@@ -55,7 +56,9 @@ extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 extern "C" int fn_80108378(GhoulWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk {
-    unsigned char m00[0x10D8];
+    unsigned char m00[0x8A0];
+    CharaTask* m8A0_unk; // inferred: character the camera follows (as Field_unk::m8A0 in game/Em203GreaterDaemon.cpp)
+    unsigned char m8A4[0x10D8 - 0x8A4];
     RouteTable_unk* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -63,6 +66,125 @@ extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
+// inferred: keyboard of the debug build (lbl_8087EEF0, as in game/EnemyQuarkSecond.cpp)
+struct GhoulKeyboard_unk {
+    unsigned char m000[0x34];
+    unsigned char m034[0xD90 - 0x34];
+    int mD90;
+};
+extern "C" GhoulKeyboard_unk* lbl_8087EEF0;
+extern "C" int fn_8007708C(GhoulKeyboard_unk* kb, void* state, int key); // inferred: key pressed
+extern "C" inline GhoulKeyboard_unk* fn_802A49BC() {
+    return lbl_8087EEF0;
+}
+extern "C" inline int fn_802A4968(GhoulKeyboard_unk* kb, int pad, int key) {
+    int result = 0;
+    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
+        result = 1;
+    }
+    return result;
+}
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
+extern "C" int fn_800DC12C(const char* s); // inferred: string to int
+extern "C" void fn_80376254(Field_unk* field, int a, int b); // inferred: counts a field event
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double fmod(double x, double y);
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                            int arg, float angle); // inferred: fires a bullet (as in game/Em205Ogre.cpp)
+extern "C" int sprintf(char* buf, const char* fmt, ...);
+extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, float f6, const char* text,
+                            unsigned int color, int a, int b, int c); // inferred: text (as in game/ChaserNpc.cpp)
+extern "C" void fn_80063200(void* draw, int arg, unsigned int color, float x, float y, float z, float a,
+                            float b); // inferred: debug cross (as in gmk/CharaPathMove.cpp)
+
+// NONMATCHING: 96.97% - registers of the inlined FindPlace_unk loops (the original keeps the table in r11 for
+// all of them) and scheduling of the stores of the ids 0x44D-0x452; ~4 variants
+Em309Ghoul::Em309Ghoul(atn::Task* parent, EnemyInfo_unk* info)
+    : EnemyTask(parent, info->m20), m14EC(0), m14F0(0), m14F4(0), m14F8(0), m14FC(0.0f), m151C(0), m1520(0),
+      m15B0(0), m15B4(1000), m15B8(0), m15BC(0), m15C4(0), m15E4(0), m15EC(0), m15F0(1), m1624(0), m1628(1),
+      m1668(0), m1669(0), m166A(0), m1690(0), m1694(80.0f), m1698(15), m169C(30), m16A0(60), m16A4(30.0f),
+      m16AC(300.0f), m16B0(3), m16B4(30.0f), m16B8(40.0f), m16BC(10.0f), m16C0(20.0f), m16C4(7.0f), m16C8(18.0f),
+      m16CC(0), m16D0(1800), m16D4(3), m16D8(50), m16DC(10), m16E0(18.0f), m16E4(30), m16E8(10), m16EC(25.0f),
+      m16F0(15.0f), m16F4(12.0f), m16F8(15) {
+    m1528.fn_8023780C("/effect/ef_uc027a.efp");
+    m1534.fn_8023780C("/effect/ef_uc027c.efp");
+    m1588.fn_80237654("/effect/ef_mb001c.eff");
+    m1540.fn_8023780C("/effect/ef_sk030a.efp");
+    m154C.fn_80237654("/effect/ef_sk030b.eff");
+    m1558.fn_8023780C("/effect/ef_sk030b.efp");
+    m1564.fn_8023780C("/effect/ef_bu002.efp");
+    m1570.fn_8023780C("/effect/ef_bu004.efp");
+    m157C.fn_8023780C("/effect/ef_bu003.efp");
+    m1594.fn_8023780C("/effect/ef_bd001.efp");
+    m15A0.fn_8023780C("ef_bs068.efp");
+    m1674[0].vf0C("camera/battle/cm000_em309_00.xsca");
+    m1674[1].vf0C("camera/battle/cm000_em309_01.xsca");
+    if ((int)info->m20 == 0x497C9) {
+        mFlag22 = 1;
+        mStatus.mParamB.m9C |= 0x10;
+    }
+    atn::Csv csv(info->m2C, strlen(info->m2C));
+    for (;;) {
+        const char* tok = csv.fn_8005B9CC();
+        if (tok == 0 || strcmp(tok, "") == 0) {
+            break;
+        }
+        if (strncmp(tok, "base1=", 5) == 0) {
+            m1500[0] = fn_800DC12C(tok + 6);
+        } else if (strncmp(tok, "base2=", 5) == 0) {
+            m1500[1] = fn_800DC12C(tok + 6);
+        } else if (strncmp(tok, "base3=", 5) == 0) {
+            m1500[2] = fn_800DC12C(tok + 6);
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(m1500[i]);
+        if (place != 0) {
+            m150C[i] = place;
+        } else {
+            m150C[i] = 0;
+            m1668 = 1;
+        }
+    }
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* center = table->FindPlace_unk(0x385);
+    if (center != 0) {
+        m1600 = center;
+        m1608 = table->FindPlace_unk(0x385)->mPos;
+    } else {
+        m166A = 1;
+    }
+    int id = 0x321;
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            m14C4[i][j] = id;
+            RoutePlace_unk* place = table->FindPlace_unk(id++);
+            if (place != 0) {
+                atn::Vector3 pos = place->mPos;
+                m1638[i][j][0] = pos.x;
+                m1638[i][j][1] = pos.z;
+            } else {
+                m1669 = 1;
+            }
+        }
+    }
+    m14D4[0] = 0x44D;
+    m14D4[1] = 0x44E;
+    m14D4[2] = 0x44F;
+    m14D4[3] = 0x450;
+    m14D4[4] = 0x451;
+    m14D4[5] = 0x452;
+    m1604 = table->FindPlace_unk(0x450);
+    mFlag21 = 1;
+    m166C = fn_8020A81C("em_dg010Boss");
+    m1670 = fn_8020A81C("em_dg010Boss_B");
+    m1618.x = 0.0f;
+    m1618.y = 0.0f;
+    m1618.z = 0.0f;
+    m15F4.x = 0.0f;
+    m15F4.y = 0.0f;
+    m15F4.z = 0.0f;
+}
 
 Em309Ghoul::~Em309Ghoul() {}
 
@@ -94,7 +216,7 @@ int Em309Ghoul::vf0C() {
             m1438->mFlags |= 4;
         }
         if (lbl_8087F430 != 0 && *(int*)((char*)lbl_8087F430 + 0x10D8) != 0) {
-            m1518 = m150C;
+            m1518 = m150C[0];
         }
         mRoute.mA0 = 1;
         m58C = 0;
@@ -114,6 +236,158 @@ int Em309Ghoul::vf0C() {
     return ret;
 }
 
+// inferred: starts state 7 (motion 0x147, message 0x143); inlined in the debug keys of vf10 (name invented)
+inline void Em309Ghoul::StartAttack_unk() {
+    m14F0 = 0;
+    m14F4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80097CCC(&mMotion, 2, 0.0f);
+    m58C = 7;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x147, 0, 0, 1, 0.0f, 0.1f);
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x143), *(const wchar_t**)((char*)m60 + 4));
+    fn_80109828(lbl_8087F048, text);
+}
+
+// inferred: back to the idle state 0 (name invented)
+inline void Em309Ghoul::ResetState_unk() {
+    m14F0 = 0;
+    m14F4 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    fn_80097CCC(&mMotion, 2, 0.0f);
+    m58C = 0;
+    fn_8016E970(3);
+    m15F0++;
+}
+
+void Em309Ghoul::vf10() {
+    fn_802FF6C4();
+    m14F4++;
+    m15EC++;
+    if (mC58.mC0 != 0) {
+        m1520++;
+    }
+    lbl_8087F430->m8A0_unk = 0;
+    if (mC58.mC0 != 0 && mC58.mC4 != 0) {
+        switch (m58C) {
+        case 1: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                ResetState_unk();
+            }
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= 35.0f && frame <= 38.0f) {
+                fn_80144710();
+                HitInfo_unk* skill = fn_80219E6C(0x64A);
+                int id = m590;
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+            }
+            if (m1690 != 0) {
+                fn_80063D3C(lbl_8087EEB0, &mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64A)->m40, 0xFFFF0000, 0.0f);
+            }
+            break;
+        }
+        case 7: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                ResetState_unk();
+            }
+            frame = mMotion.mTracks[0].m08;
+            if (frame >= 35.0f && frame <= 38.0f) {
+                fn_80144710();
+                HitInfo_unk* skill = fn_80219E6C(0x64B);
+                int id = m590;
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+            }
+            if (m1690 != 0) {
+                fn_80063D3C(lbl_8087EEB0, &mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64B)->m40, 0xFFFF0000, 0.0f);
+            }
+            break;
+        }
+        case 2:
+            vfEC();
+            break;
+        case 6:
+            fn_80301DDC();
+            break;
+        case 8:
+            fn_803026F0();
+            break;
+        case 9:
+            fn_80302B84();
+            break;
+        case 10:
+            fn_80302F94();
+            break;
+        case 11:
+            fn_803041C8();
+            break;
+        case 12:
+            fn_80304718();
+            break;
+        case 13:
+            if (m14F4 > m16D8) {
+                m15EC = 0;
+                ResetState_unk();
+            }
+            break;
+        default:
+            fn_802FF800();
+            fn_802FFFF8();
+            break;
+        }
+    }
+    fn_8014C540();
+    fn_80145334();
+    if (m15B8 != 0) {
+        fn_80304FC0();
+    }
+    if (m1690 == 0) {
+        return;
+    }
+    fn_80063D3C(lbl_8087EEB0, &mPos, m1694, 0xFFFFFF00, 0.0f);
+    if (fn_802A4968(fn_802A49BC(), 0, 0x50)) {
+        fn_803010BC();
+    }
+    if (fn_802A4968(fn_802A49BC(), 0, 0x4D)) {
+        fn_8030073C();
+    }
+    if (fn_802A4968(fn_802A49BC(), 0, 0x4C)) {
+        StartAttack_unk();
+    }
+    if (fn_802A4968(fn_802A49BC(), 0, 0x4A)) {
+        fn_803009F4();
+    }
+    if (fn_802A4968(fn_802A49BC(), 0, 0x48)) {
+        mPos = m150C[0]->mPos;
+        mRot.y = m150C[0]->m14;
+        mRot.z = 0.0f;
+        mRot.x = 0.0f;
+        ResetState_unk();
+    }
+    if (m166A == 0) {
+        fn_80063200(lbl_8087EEB0, 1, 0xFF0000FF, m1608.x, m1608.y, m1608.z, 1000.0f, 10.0f);
+    }
+    char buf[0x68];
+    sprintf(buf, "%3f %3f %3f", mRot.x, mRot.y, mRot.z);
+    fn_800616C0(lbl_8087EEB0, 100.0f, 100.0f, 1000.0f, 15.0f, 15.0f, 0.0f, buf, 0xFF0000FF, 1, 1, 0);
+    if (fn_80304B40()) {
+        char text[0x78];
+        sprintf(text, "!");
+        fn_800616C0(lbl_8087EEB0, 300.0f, 100.0f, 1000.0f, 10.0f, 10.0f, 0.0f, text, 0xFFFF0000, 1, 1, 0);
+    }
+    fn_80063D3C(lbl_8087EEB0, &m1618, 10.0f, -1, 1000.0f);
+    fn_800638B0(lbl_8087EEB0, 1000.0f, -1.0f, &m1618, &(m1618 + m15F4), -1);
+    if (m1668 != 0) {
+        fn_80063D3C(lbl_8087EEB0, &m1518->mPos, m1694, 0xFF000000, 10000.0f);
+    }
+}
+
 // inferred: start of the death state (names invented)
 inline void Em309Ghoul::Die_unk(int motion, int flag) {
     m14F0 = 0;
@@ -129,6 +403,90 @@ inline void Em309Ghoul::Die_unk(int motion, int flag) {
     m1684 = flag;
     m1688 = 0.0f;
     fn_80370320(lbl_8087F430, 0xD0, 1, 0);
+}
+
+
+// NONMATCHING: 99.59% - stack layout of the direction temporaries and of the rotation matrices (~6 variants)
+// inferred: hits: the head spear (0x134) or a hit while weak (m40 == 1 outside state 10) knock the ghoul back
+// and start the rolling state 10 away from the attacker (bent towards the home place); other hits only do
+// damage while the ghoul is under the coffin (state 12)
+void Em309Ghoul::vf3C(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    int weak = *(int*)&msg->m3C[4]; // inferred: HitMsg_unk+0x40 (as in game/Em205Ogre.cpp)
+    if ((weak == 1 && m58C != 10) || msg->mData->m04 == 0x134) {
+        if (weak == 1) {
+            fn_80376254(lbl_8087F430, 3, 5);
+        }
+        msg->m0C |= 0x800;
+        if (msg->mData->m04 == 0x134) {
+            fn_80370AE4(lbl_8087F430, 6, 1);
+        }
+        int state = m58C;
+        if (state == 1 || (state == 6 && m14F0 == 1) || state == 7 || state == 8 || state == 10 || state == 12) {
+            msg->m10 *= 0.0f;
+        }
+        fn_80151448(msg);
+        vf40(hit);
+        if (mStatus.IsState_unk(0x20)) {
+            return;
+        }
+        if (!(m58C - 10U <= 2)) {
+            atn::Vector3 dir = mPos - msg->mAttacker->mPos;
+            dir.y = 0.0f;
+            PSVECNormalize(&dir, &dir);
+            if (m1518 != 0) {
+                atn::Vector3 home = m1608 - m1518->mPos;
+                home.y = 0.0f;
+                PSVECNormalize(&home, &home);
+                float dot = PSVECDotProduct(&home, &dir);
+                if ((float)__fabs(dot) < 0.70710677f) {
+                    dir = dir * 1.2f + home * (dot >= 0.0f ? 1.0f : -1.0f);
+                    PSVECNormalize(&dir, &dir);
+                }
+            }
+            m15CC = dir.ToRotation_unk();
+            m15CC.x = 0.0f;
+            m15CC.z = 0.0f;
+            float y = m15CC.y;
+            float a = fmod(y, 6.2831854820251465);
+            if (a > 3.1415927f) {
+                a -= 6.2831855f;
+            }
+            if (a < -3.1415927f) {
+                a += 6.2831855f;
+            }
+            m15CC.y = a;
+            fn_80300AD8();
+        }
+        Color4f_unk color;
+        atn::Vector3 rot;
+        atn::Vector3 pos;
+        rot.x = 0.0f;
+        rot.y = 0.0f;
+        rot.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m1594, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        m14F8 = 1;
+        return;
+    }
+    if (m58C == 12 && (m14F0 == 0 || (m14F0 == 1 && mMotion.mTracks[0].m08 < 40.0f))) {
+        msg->m0C |= 0x80;
+        msg->m10 *= 0.0f;
+        mMotion.m34C = 2;
+        mMotion.mTracks[1].m20 = 1.0f;
+        mMotion.mTracks[1].m0C = 1.0f;
+        mMotion.fn_80097C08(1, 0x38, 0, 1, 1, 0.0f, 0.1f);
+    } else {
+        msg->m10 *= 0.0f;
+    }
+    fn_80151448(msg);
+    vf40(hit);
 }
 
 void Em309Ghoul::vf40(HitInfo_unk* hit) {
@@ -177,6 +535,28 @@ void Em309Ghoul::vf44() {
     if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
+}
+
+// NONMATCHING: 99.99% - only the .sdata2 slot of 0.7f (pool order)
+// inferred: three damage spheres: the feet and two on the "spine1" node (moved every frame by vf54)
+void Em309Ghoul::vf50() {
+    Item14_unk item;
+    item.m04.mRadius = 10.0f;
+    item.m04.mCenter = mPos + m5A4;
+    item.m04.mCenter.y += item.m04.mRadius;
+    item.m00 = 4;
+    m624.push_back(item);
+    item.m04.mRadius = m16EC;
+    item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+    item.m04.mCenter.y += m16F0;
+    item.m00 = 2; item.m00 |= 9;
+    m624.push_back(item);
+    item.m04.mRadius = 0.7f * m16EC;
+    item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+    item.m04.mCenter.y += 0.7f * m16F0;
+    item.m00 = 1; item.m00 |= 0xC;
+    m624.push_back(item);
+    mFlagB29 = 0;
 }
 
 // NONMATCHING: 93.27% - r6/r7 of the sum temporaries and the place of the "spine1" address load (scheduled
