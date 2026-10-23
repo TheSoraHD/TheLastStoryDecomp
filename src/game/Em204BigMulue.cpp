@@ -88,6 +88,25 @@ extern "C" int fn_8004ED34(void* world, BigMulueColl_unk* result, const atn::Vec
 extern "C" int fn_8004D314(void* world, atn::Vector3* hit, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sphere sweep
 
+// inferred: 0x1C-byte record at 0x1470 of the battle characters (as PlayerState_unk in
+// game/CharaTask.cpp; names invented)
+struct BigMulueState_unk {
+    BigMulueState_unk(short id) : m00(id), m02(0), m04(0), m08(150), m0C(0.0f, 0.0f, 0.0f), m18(0) {}
+    short m00;
+    short m02;
+    int m04;
+    int m08;
+    atn::Vector3 m0C;
+    int m18;
+};
+// inferred: a battle character with that record (names invented)
+struct BigMulueChara_unk : public CharaTask {
+    void SetState_unk(const BigMulueState_unk& state) { m1470 = state; }
+
+    unsigned char m1424[0x1470 - 0x1424];
+    BigMulueState_unk m1470;
+};
+
 // inferred: node position (weak copies of Model_unk::GetNodeMtx_unk and Matrix3x4::GetTrans_unk)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
@@ -224,10 +243,6 @@ int Em204BigMulue::vf0C() {
     return 1;
 }
 
-// inferred: the original calls these out of line from fn_802AC8E8 (weak copies right after it)
-template void std::vector<BigMulueCapsule_unk>::push_back(const BigMulueCapsule_unk& x);
-template void std::vector<BigMulueSphere_unk>::push_back(const BigMulueSphere_unk& x);
-
 // NONMATCHING: draft
 void Em204BigMulue::fn_802AC8E8(const char* text, int length) {
     atn::Csv csv(text, length);
@@ -279,6 +294,11 @@ void Em204BigMulue::fn_802AC8E8(const char* text, int length) {
     } while (csv.fn_8005BBF8());
 }
 
+// inferred: the original emits these copies right after fn_802AC8E8 (0x802ACD3C/0x802AD3D4)
+template void std::vector<BigMulueCapsule_unk>::push_back(const BigMulueCapsule_unk& x);
+template void std::vector<BigMulueSphere_unk>::push_back(const BigMulueSphere_unk& x);
+
+
 // NONMATCHING: draft
 void Em204BigMulue::vf10() {
     if (m14E8 == 0) {
@@ -288,7 +308,7 @@ void Em204BigMulue::vf10() {
         }
         fn_80370320(lbl_8087F430, 0x68, 1, 0);
     }
-    if (!CharaTask::mFlag2 || !CanAct_unk()) {
+    if (!mFlag2 || !CanAct_unk()) {
         if (CanAct_unk() && m58C != 6 && !vfF8()) {
             vf100(6);
         }
@@ -331,11 +351,11 @@ void Em204BigMulue::vf10() {
                 atn::Vector3 pos = m624.mData[0].m04.mCenter;
                 pos.y += 18.0f;
                 m1A48 = player->mPos;
-                player->m1470 = 1;
-                player->m1472 = 0;
-                player->m1474 = 5;
-                player->m1478 = 90;
-                player->m147C = player->mPos.x;
+                BigMulueState_unk state(1);
+                state.m0C = m1A48;
+                state.m04 = 5;
+                state.m08 = 90;
+                ((BigMulueChara_unk*)player)->SetState_unk(state);
                 player->fn_801588A0(m1544, pos);
                 fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
                 if (lbl_8087F490 != 0) {
@@ -366,7 +386,8 @@ int Em204BigMulue::vf10C(HitMsg_unk* msg) {
     } else {
         msg->m48 = 1;
     }
-    if (mStatus.IsState_unk(0x80000) || mStatus.IsState_unk(0x1000000)) {
+    bool down = mStatus.IsState_unk(0x80000) || mStatus.IsState_unk(0x1000000);
+    if (down) {
         msg->m48 = 0;
     }
     return 1;
@@ -384,11 +405,12 @@ void Em204BigMulue::vf40(HitInfo_unk* hit) {
                 vf100(14);
             }
         } else if (m14BC == 2 || m14BC == 0) {
-            m1550 += mStatus.m04 / (float)mStatus.mParamB.m84;
+            float ratio = mStatus.m04 / (float)mStatus.mParamB.m84;
+            m1550 += ratio * ratio;
             if (m1550 > 5.0f) {
                 m14DC = 3;
                 vf100(14);
-            } else if (msg->mData != 0 && (msg->mData->m90 & 0x2000000) == 0) {
+            } else if (msg->mData != 0 && (msg->mData->m90 & 0x2000000) == 0x2000000) {
                 m14DC = 3;
                 vf100(14);
             }
@@ -433,8 +455,10 @@ void Em204BigMulue::vf20() {
     m620 = m5B0;
     m614.y += m620;
     float radius = 0.1f * m5B0;
-    atn::Vector3 a = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
-    atn::Vector3 b = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    atn::Vector3 a;
+    atn::Vector3 b;
+    a = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+    b = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
     b.y -= 1.0f;
     mColli.m3C = a;
     mColli.m48 = b;
@@ -460,14 +484,17 @@ void Em204BigMulue::fn_802AE954() {
                 s.mRadius = colli->mSphere.mRadius;
                 int hit = 0;
                 for (unsigned int i = 0; i < m1A34.size(); i++) {
-                    atn::Vector3 c = m624.mData[i].m04.mCenter;
-                    if (fn_80051A88(&s, &c)) {
+                    CharaTask::Sphere_unk c;
+                    c.mCenter = m624.mData[i].m04.mCenter;
+                    c.mRadius = m624.mData[i].m04.mRadius;
+                    if (fn_80051A88(&s, &c.mCenter)) {
                         hit = 1;
                         break;
                     }
                 }
                 if (hit) {
-                    GimmickMsg_unk msg(4);
+                    GimmickMsg_unk msg;
+                    msg.mType = 4;
                     g->vf40(&msg);
                 }
             }
@@ -926,14 +953,18 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
     int result = 0;
     int far;
     int near;
-    if (state == 11) {
+    switch (state) {
+    case 11:
         far = 0x57E4;
         near = 0x57E4;
-    } else if (state == 12) {
+        break;
+    case 12: {
         far = 0xBD10;
         float d = 220.0f - m1A94;
         near = (int)(d * d);
-    } else {
+        break;
+    }
+    default:
         return 0;
     }
     atn::Vector3 d = mC58.mC4->mPos - mPos;
@@ -944,6 +975,7 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
             *over = dist - (float)far;
         }
     }
+    BigMulueColl_unk res;
     atn::Vector3 from(mPos);
     atn::Vector3 dir(0.0f, 0.0f, 300.0f);
     atn::Matrix3x4 m;
@@ -952,8 +984,7 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
     dir += mPos;
     from.y += 25.0f;
     dir.y += 25.0f;
-    BigMulueColl_unk res;
-    if (fn_8004ED34(lbl_8087EE98, &res, &from, &dir, fn_80179D44() | 0x80000000, 0, 0) != 0) {
+    if (fn_8004ED34(fn_801404F8(), &res, &from, &dir, fn_80179D44() | 0x80000000, 0, 0) != 0) {
         atn::Vector3 w = res.m10 - mPos;
         dist = fn_805F9920(&w);
         if (dist < (float)near) {
@@ -1023,9 +1054,9 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         if (a < -3.1415927f) {
             a += 6.2831855f;
         }
-        atn::Vector3 dir(0.0f, 0.0f, 5000.0f);
+        atn::Vector3 dir(0.0f, 0.0f, 300.0f);
         atn::Vector3 from(mPos);
-        from.y += 5.0f;
+        from.y += 20.0f;
         Mtx m;
         PSMTXRotRad(m, 'y', a);
         PSMTXMultVec(m, &dir, &dir);
@@ -1035,8 +1066,8 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         }
         hits[i] = hit;
         if (m1AA0 != 0) {
-            fn_80063D3C(lbl_8087EEB0, &hits[i], 0xFF00FFFF, 5.0f, 0.0f);
-            fn_800638B0(lbl_8087EEB0, 10.0f, 0.9f, &from, &(from + dir), 0xFF00FFFF);
+            fn_80063D3C(lbl_8087EEB0, &hits[i], 0xFF00FFFF, 20.0f, 0.0f);
+            fn_800638B0(lbl_8087EEB0, 10.0f, 7.0f, &from, &(from + dir), 0xFF00FFFF);
         }
     }
     if (i == 4) {
@@ -1050,8 +1081,8 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         if (m1AA0 != 0) {
             fn_80063D3C(lbl_8087EEB0, &a, 0xFFFFFF00, 10.0f, 0.0f);
             fn_80063D3C(lbl_8087EEB0, &b, 0xFFFFAA00, 10.0f, 0.0f);
-            fn_800638B0(lbl_8087EEB0, 10.0f, 0.9f, &a, &m1AC4, 0xFF00FFFF);
-            fn_800638B0(lbl_8087EEB0, 10.0f, 0.9f, &b, &m1AC4, 0xFF00AAFF);
+            fn_800638B0(lbl_8087EEB0, 10.0f, 7.0f, &a, &m1AC4, 0xFF00FFFF);
+            fn_800638B0(lbl_8087EEB0, 10.0f, 7.0f, &b, &m1AC4, 0xFF00AAFF);
         }
         result = 1;
     }
@@ -1062,9 +1093,9 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         c.y = 0.0f;
         atn::Vector3 d = p - c;
         if (fn_805F9920(&d) < 2500.0f) {
-            fn_80063D3C(lbl_8087EEB0, &m1AC4, 0xFF0044AA, 5.0f, 0.0f);
+            fn_80063D3C(lbl_8087EEB0, &m1AC4, 0xFF0044AA, 20.0f, 0.0f);
         } else {
-            fn_80063D3C(lbl_8087EEB0, &m1AC4, 0xFFAA0000, 5.0f, 0.0f);
+            fn_80063D3C(lbl_8087EEB0, &m1AC4, 0xFFAA0000, 20.0f, 0.0f);
         }
     }
     return result;
@@ -1188,6 +1219,15 @@ void Em204BigMulue::fn_802B1B08(int on) {
     }
 }
 
+// inferred: shot of a sting (BulletShot_unk with defaults, as MulueShot_unk of game/Em204Mulue.cpp)
+struct BigMulueShot_unk : public BulletShot_unk {
+    BigMulueShot_unk() {
+        m10 = 0;
+        m14 = 0.0f;
+        m18 = 1.0f;
+    }
+};
+
 // NONMATCHING: draft
 void Em204BigMulue::fn_802B1B50(int fire) {
     if (m1540 == 0) {
@@ -1201,20 +1241,18 @@ void Em204BigMulue::fn_802B1B50(int fire) {
     fn_800C344C("SE_EM204_014", &mPos, 0, -1, 1.0f);
     for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
         if (c->CanAct_unk()) {
-            atn::Vector3 to = GetNodePos_unk(c->mMotion.GetNodeMtx_unk("hips"));
+            Model_unk* cm = &c->mMotion;
+            atn::Vector3 to = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
             Bullet* bullet = fn_801010A0(lbl_8087F048);
             if (bullet != 0) {
-                atn::Vector3 hips = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-                atn::Vector3 dir = to - hips;
-                dir.Normalize_unk();
-                BulletShot_unk shot;
+                Model_unk* model = &mMotion;
+                atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
+                atn::Vector3 dir = (to - hips).GetNormalized_unk();
+                BigMulueShot_unk shot;
                 shot.m00 = 2.0f;
                 shot.m04 = (int)&m1A6C;
                 shot.m08 = 0;
                 shot.m0C = m1540;
-                shot.m10 = 0;
-                shot.m14 = 0.0f;
-                shot.m18 = 1.0f;
                 fn_8010EE78(bullet, &shot, &hips, &dir, this, -1, 0, -1.0f);
             }
         }
