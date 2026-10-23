@@ -23,6 +23,7 @@
 #include "game/Em001Necromancer.h"
 #include "game/Em201ZanGurg.h"
 #include "game/Em201ZanGurgFinal.h"
+#include "game/Em204Mulue.h"
 #include "game/Em205Ogre.h"
 #include "game/Em301LShade.h"
 #include "game/Em302Kraken.h"
@@ -597,9 +598,6 @@ extern "C" void* fn_8027278C(void* self, atn::Task* parent, EnemyInfo_unk* info)
 extern "C" void* fn_80279860(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80293738(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8029CB00(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802A4BBC(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802AC364(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_802B23E8(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802BA92C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_802C0C38(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_802FC850(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -643,25 +641,13 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) Em301LShade(parent, info);
             break;
         case 20:
-            p = ::operator new(0x1860, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802A4BBC(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em204Mulue(parent, info);
             break;
         case 21:
-            p = ::operator new(0x1ad0, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802AC364(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em204BigMulue(parent, info);
             break;
         case 22:
-            p = ::operator new(0x1860, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_802B23E8(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em204MulueMp(parent, info);
             break;
         case 34:
             enemy = new (3, "", "", 0) Em305Vampire(parent, info);
