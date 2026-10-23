@@ -965,14 +965,12 @@ inline atn::Vector3 GetSeatPos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: 96.18% - block order of the state 17 test and r3/r4/r5 of the seat copy (~6 forms)
 // inferred: keeps the rider m152C on the seat m1530 with the beast's motion frame (motion 0x1F0, 0x1F1 when
 // m1560 >= 4)
 void Em306GurgBeast::fn_802F1120() {
-    if (m152C == 0 || m1530 == 0) {
+    if (m152C == 0 || m1530 == 0 || m58C == 17) {
         return;
     }
-    if (m58C != 17) {
     int motion = 0x1F0;
     if (m154C != 0 && m1560 >= 4.0f) {
         motion = 0x1F1;
@@ -983,10 +981,10 @@ void Em306GurgBeast::fn_802F1120() {
     m152C->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
     m152C->mMotion.fn_80097C08(0, motion, 1, 0, 1, 0.0f, 0.1f);
     m152C->mF1C = m1530;
-    m152C->mPos = GetSeatPos_unk((MtxPtr)m1530);
+    CharaTask* rider = m152C;
+    rider->mPos = GetSeatPos_unk((MtxPtr)m1530);
     m152C->mRot = mRot;
     m152C->fn_80145334();
-    }
 }
 
 void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
@@ -1011,7 +1009,6 @@ void Em306GurgBeast::fn_802F1240(CharaTask* rider) {
     rider->fn_80164DCC(0);
 }
 
-// NONMATCHING: 97.72% - only the place of the load of the rider's rotation before PSMTXRotRad (~8 forms)
 // inferred: throws the rider m152C off to the side; with `restart` the beast goes to state 14
 void Em306GurgBeast::fn_802F1320(int restart) {
     if (m152C == 0) {
@@ -1026,11 +1023,8 @@ void Em306GurgBeast::fn_802F1320(int restart) {
     }
     m152C->fn_801446F0();
     m152C->mF1C = 0;
-    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    atn::Vector3 dir = BeastFront_unk(m152C->mRot);
     Mtx r;
-    Mtx m;
-    PSMTXRotRad(m, 'y', m152C->mRot.y);
-    PSMTXMultVec(m, &dir, &dir);
     PSMTXRotRad(r, 'y', -1.5707964f);
     PSMTXMultVec(r, &dir, &dir);
     dir *= 5.0f;
