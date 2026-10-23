@@ -2,6 +2,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "game/SkillEffectManager.h"
+#include "std/string.h"
 
 extern "C" {
 extern void* lbl_8087EE68;
@@ -87,6 +88,32 @@ extern "C" void* fn_8001E168(AIString_unk* str, int freeObject) {
         }
     }
     return str;
+}
+
+// inferred: 0x8001E0B8 copies the 12-byte string followed by the allocator word.
+struct AIStringWithAllocator_unk {
+    AIString_unk mString;
+    void* mAllocator;
+};
+
+extern "C" AIStringWithAllocator_unk* fn_8001E0B8(AIStringWithAllocator_unk* dst,
+                                                   const AIStringWithAllocator_unk* src,
+                                                   const unsigned int* allocator) {
+    if ((src->mString.mFlags >> 31) == 0) {
+        dst->mString = src->mString;
+    } else {
+        dst->mString.mFlags = 0;
+        dst->mString.mSize = 0;
+        dst->mString.mData = 0;
+        std::string* str = (std::string*)&dst->mString;
+        str->reserve(src->mString.mSize);
+        std::random_access_iterator_tag tag;
+        str->__replace_unk(0, 0, src->mString.mData,
+                           src->mString.mData + src->mString.mSize,
+                           tag);
+    }
+    dst->mAllocator = (void*)*allocator;
+    return dst;
 }
 
 extern "C" int fn_80021038() {
