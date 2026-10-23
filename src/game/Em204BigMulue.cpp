@@ -164,12 +164,10 @@ inline float OrDefault_unk(float v, float def) {
     return v;
 }
 
-// NONMATCHING: draft
 Em204BigMulue::Em204BigMulue(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14E8(0), m14FC(40.0f), m150C(0),
       m1510(30), m1514(80), m1518(180), m151C(80), m1520(60), m1524(0.4f), m1528(0.01f), m1548(0), m154C(0.1f),
       m1550(0.0f), m1554(0), m1A40(1), m1A44(1), m1A94(45.0f), m1A9C(0), m1AA0(0), m1AA4(0) {
-    m1AC0 = 0;
     mFlag22 = 1;
     char name[0x100];
     char path[0x100];
@@ -185,7 +183,7 @@ Em204BigMulue::Em204BigMulue(atn::Task* parent, EnemyInfo_unk* info)
     m1A78.fn_8023780C("/effect/ef_uc011.efp");
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.37% - registers of the name loops (r27/r28) and of the status flags
 int Em204BigMulue::vf0C() {
     if (fn_8013655C() != 0) {
         return 0;
@@ -203,13 +201,13 @@ int Em204BigMulue::vf0C() {
     if (m1A9C != 0) {
         void* group = fn_8008937C(m1A9C, "PartsColli");
         for (unsigned int i = 0; i < m1558.size(); i++) {
-            char name[0x10];
+            char name[0x100];
             sprintf(name, "%s-%s\0", m1558[i].mFrom.data(), m1558[i].mTo.data());
             fn_8008771C(group, name, &m1558[i].mRadius, 0, 0, 0.0f, 9999.0f, 1.0f);
         }
         group = fn_8008937C(m1A9C, "DamageColli");
         for (unsigned int i = 0; i < m1A34.size(); i++) {
-            char name[0x10];
+            char name[0x100];
             sprintf(name, "%s\0", m1A34[i].mNode.data());
             fn_8008771C(group, name, &m1A34[i].mScale, 0, 0, 0.0f, 9999.0f, 1.0f);
         }
@@ -223,8 +221,9 @@ int Em204BigMulue::vf0C() {
     mStatus.m18 &= ~0x2000000;
     vf20();
     for (unsigned int i = 0; i < m1558.size(); i++) {
+        m1564[i].mFlags &= ~1;
+        m1564[i].mFlags |= 2;
         m1564[i].m0C = (int)this;
-        m1564[i].mFlags = (m1564[i].mFlags & ~1) | 2;
         m1564[i].mFlags &= ~0x80000000;
     }
     m54C |= 0x200;
@@ -243,7 +242,9 @@ int Em204BigMulue::vf0C() {
     return 1;
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 0% - the original calls the atn::Csv constructor, the element constructors (0x802ACC94,
+// 0x802AD358), the push_backs and the element destructors out of line (caller over the inline budget);
+// ours inlines all of them. Tried: explicit instantiations, explicit element constructors/destructors
 void Em204BigMulue::fn_802AC8E8(const char* text, int length) {
     atn::Csv csv(text, length);
     do {
@@ -299,7 +300,7 @@ template void std::vector<BigMulueCapsule_unk>::push_back(const BigMulueCapsule_
 template void std::vector<BigMulueSphere_unk>::push_back(const BigMulueSphere_unk& x);
 
 
-// NONMATCHING: draft
+// NONMATCHING: 99.16% - registers of the capsule loop and of two bool locals, stack slots of the hint
 void Em204BigMulue::vf10() {
     if (m14E8 == 0) {
         m14E8 = 1;
@@ -370,7 +371,6 @@ void Em204BigMulue::vf14() {
     fn_80149A30();
 }
 
-// NONMATCHING: draft
 int Em204BigMulue::vf10C(HitMsg_unk* msg) {
     msg->m10 = lbl_807C7030;
     msg->m50 |= 0x10;
@@ -393,7 +393,6 @@ int Em204BigMulue::vf10C(HitMsg_unk* msg) {
     return 1;
 }
 
-// NONMATCHING: draft
 void Em204BigMulue::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if ((mStatus.m0C & 0x20) == 0x20) {
@@ -423,7 +422,7 @@ void Em204BigMulue::vfFC() {
     vf100(6);
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 96.82% - order of the item copies into the sphere vector (stack layout of the item)
 void Em204BigMulue::vf50() {
     Item14_unk item;
     item.m00 = 0;
@@ -436,7 +435,6 @@ void Em204BigMulue::vf50() {
     }
 }
 
-// NONMATCHING: draft
 void Em204BigMulue::vf54() {
     if (m624.mSize != 0) {
         for (unsigned int i = 0; i < m1A34.size(); i++) {
@@ -449,7 +447,7 @@ void Em204BigMulue::vf54() {
     }
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.52% - store order of m620/m61C and r6/r7 of the node copies (__VecCopy family)
 void Em204BigMulue::vf20() {
     m614 = mPos + m5A4;
     m620 = m5B0;
@@ -473,7 +471,6 @@ void Em204BigMulue::vf20() {
     }
 }
 
-// NONMATCHING: draft
 void Em204BigMulue::fn_802AE954() {
     for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
         if (g->m50 == 1 && g->vf5C() != 0) {
@@ -502,7 +499,6 @@ void Em204BigMulue::fn_802AE954() {
     }
 }
 
-// NONMATCHING: draft
 atn::Vector3 Em204BigMulue::vf64(int center) {
     atn::Vector3 r(mPos);
     if (center == 0) {
@@ -513,14 +509,13 @@ atn::Vector3 Em204BigMulue::vf64(int center) {
     return r;
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 97.60% - load order of the flags word and the next step, registers of the inlined motion helper
 void Em204BigMulue::vf100(int state) {
     if (CharaTask::mFlag2) {
         return;
     }
     int step = m14DC;
     int frame = m14C0;
-    int prev = m58C;
     m14BC = 0;
     m14C0 = 0;
     m14C4 = 0;
@@ -535,6 +530,7 @@ void Em204BigMulue::vf100(int state) {
         m14BC = step;
         m14C0 = frame;
     }
+    int prev = m58C;
     m14D8 = state;
     m58C = state;
     if (mC58.mC4 != 0) {
@@ -620,7 +616,7 @@ void Em204BigMulue::vf100(int state) {
     m14DC = 0;
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.79% - stack slots of the two distance vectors and r3/r4 of the capsule loop
 void Em204BigMulue::vf104() {
     m14C0++;
     atn::Vector3 d(0.0f, 0.0f, 0.0f);
@@ -741,15 +737,11 @@ void Em204BigMulue::vf104() {
     }
 }
 
-// NONMATCHING: draft
 void Em204BigMulue::vf108() {
     float dist = 0.0f;
     float speed = 1.0f;
     atn::Vector3 rot(mRot);
-    if (m55C != 2) {
-        fn_805A4254();
-        return;
-    }
+    if (m55C == 2) {
     switch (m58C) {
     case 6:
         if (m14C0 > m1510 + m14E4) {
@@ -902,10 +894,10 @@ void Em204BigMulue::vf108() {
                 fn_802B1744(0x3B, 1, m1524, 0.0f);
                 fn_805A4A1C((SpecialFlag_unk*)&m1A8C, 1);
             }
-            if (mMotion.fn_80139550(0) < 24.0f) {
-                fn_802B17AC(40.0f, 24.0f, 0.0f);
+            if (mMotion.fn_80139550(0) < 20.0f) {
+                fn_802B17AC(40.0f, 20.0f, 0.0f);
             } else if (mMotion.fn_80139550(0) <= mMotion.fn_80097D7C(0)) {
-                fn_802B17AC(-20.0f, mMotion.fn_80097D7C(0) - 24.0f, 0.0f);
+                fn_802B17AC(-20.0f, mMotion.fn_80097D7C(0) - 20.0f, 0.0f);
             }
             break;
         case 4:
@@ -939,6 +931,10 @@ void Em204BigMulue::vf108() {
         }
         break;
     }
+    } else {
+        fn_805A4254();
+        return;
+    }
     fn_802B1B08(0);
     fn_8004D124(fn_801404F8());
     fn_8013CB68(&rot, 1, dist, m568 * speed);
@@ -948,7 +944,7 @@ void Em204BigMulue::vf108() {
     }
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.89% - stack slots of the distance vector and of the ray ends
 int Em204BigMulue::fn_802B0430(int state, float* over) {
     int result = 0;
     int far;
@@ -998,7 +994,7 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
     return result;
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 98.98% - stack slots and r3/r4 of the vector copies (__VecCopy family)
 int Em204BigMulue::fn_802B07F0(int range) {
     int prev = m150C;
     atn::Vector3 target;
@@ -1038,7 +1034,7 @@ int Em204BigMulue::fn_802B07F0(int range) {
     return fn_805F9920(&d) < (float)(range * range);
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.48% - stack slots of the sphere and of the ray vectors
 int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
     int result = 0;
     atn::Vector3 hits[4];
@@ -1071,11 +1067,11 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         }
     }
     if (i == 4) {
-        atn::Vector3 a = (hits[0] + hits[2]) * 0.5f;
-        atn::Vector3 b = (hits[1] + hits[3]) * 0.5f;
-        atn::Vector3 c = (a + b) * 0.5f;
-        atn::Vector3 d = c - mPos;
-        *out = d;
+        atn::Vector3 a;
+        atn::Vector3 b;
+        a = (hits[0] + hits[2]) * 0.5f;
+        b = (hits[1] + hits[3]) * 0.5f;
+        *out = a + b - mPos;
         out->y = 0.0f;
         m1AC4 = *out;
         if (m1AA0 != 0) {
@@ -1109,7 +1105,8 @@ boost::function<void()> Em204BigMulue::vfB4(CharaTask* chara) {
     return boost::function<void()>();
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 98.29% - the result of the last comparison is built with mfcr (original: branch) and frsp/fmr
+// of the new yaw; 6 variants tried
 int Em204BigMulue::fn_802B12D8(const atn::Vector3* target, float rate, float limit, float step) {
     if (target == 0 && mC58.mC4 == 0) {
         return 0;
@@ -1120,7 +1117,7 @@ int Em204BigMulue::fn_802B12D8(const atn::Vector3* target, float rate, float lim
     } else {
         d = mC58.mC4->mPos - mPos;
     }
-    if ((float)__fabs(fn_805F9920(&d)) >= 1.1920929e-7f) {
+    if (!((float)__fabs(fn_805F9920(&d)) < 1.1920929e-7f)) {
         PSVECNormalize(&d, &d);
     }
     atn::Vector3 rot = d.ToRotation_unk();
@@ -1141,10 +1138,13 @@ int Em204BigMulue::fn_802B12D8(const atn::Vector3* target, float rate, float lim
     if (a < -3.1415927f) {
         a += 6.2831855f;
     }
-    if ((float)__fabs(step) >= 1.1920929e-7f) {
+    if (!((float)__fabs(step) < 1.1920929e-7f)) {
         float deg = 57.295776f * a;
         if ((float)__fabs(deg) >= step) {
-            int sign = deg < 0.0f ? -1 : 1;
+            int sign = 1;
+            if (deg < 0.0f) {
+                sign = -1;
+            }
             y = (float)sign * (0.017453292f * step) + mRot.y;
         }
         mRot.y = y;
@@ -1162,7 +1162,6 @@ int Em204BigMulue::fn_802B12D8(const atn::Vector3* target, float rate, float lim
     return 0;
 }
 
-// NONMATCHING: draft
 void Em204BigMulue::fn_802B1744(int motion, int loop, float speed, float blend) {
     if ((float)__fabs(speed) < 1.1920929e-7f) {
         speed = m1524;
@@ -1177,7 +1176,7 @@ void Em204BigMulue::fn_802B1744(int motion, int loop, float speed, float blend) 
 }
 
 
-// NONMATCHING: draft
+// NONMATCHING: 99.41% - f7/f8 of the zero constant and of the speed
 void Em204BigMulue::fn_802B17AC(float dist, float frames, float speed) {
     if ((float)__fabs(frames) < 1.1920929e-7f) {
         frames = mMotion.fn_80097D7C(0);
@@ -1194,7 +1193,6 @@ void Em204BigMulue::fn_802B17AC(float dist, float frames, float speed) {
     mPos.z += v.z;
 }
 
-// NONMATCHING: draft
 void Em204BigMulue::fn_802B19EC(int kind) {
     switch (kind) {
     case 12:
@@ -1208,7 +1206,6 @@ void Em204BigMulue::fn_802B19EC(int kind) {
     }
 }
 
-// NONMATCHING: draft
 void Em204BigMulue::fn_802B1B08(int on) {
     for (unsigned int i = 0; i < m1558.size(); i++) {
         if (on) {
@@ -1228,7 +1225,7 @@ struct BigMulueShot_unk : public BulletShot_unk {
     }
 };
 
-// NONMATCHING: draft
+// NONMATCHING: 98.77% - allocation of the saved registers (r24-r31), as Em204MulueMp::fn_802B55B0
 void Em204BigMulue::fn_802B1B50(int fire) {
     if (m1540 == 0) {
         return;
@@ -1259,7 +1256,6 @@ void Em204BigMulue::fn_802B1B50(int fire) {
     }
 }
 
-// NONMATCHING: draft
 void Em204BigMulue::vf30(void* menu) {
     char name[0x100];
     sprintf(name, "Em204 BigMulue\0");
@@ -1293,4 +1289,5 @@ float Em204BigMulue::vf90() {
     return 0.9f;
 }
 
+// NONMATCHING: 99.15% - r27/r28/r29 of the inlined vector destructors
 Em204BigMulue::~Em204BigMulue() {}
