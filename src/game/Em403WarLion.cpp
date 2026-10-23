@@ -1183,7 +1183,8 @@ inline float AngleDiffDeg_unk(float a, float b) {
 }
 
 // inferred: roar (state 8): turns towards the target, then attacks with bullet 0x672
-// NONMATCHING: 99.96% - operandos de un fmuls (0.034906585f * (a / abs))
+// NONMATCHING: 99.96% - operandos de un fmuls del giro maximo (probados constante local, a /= abs, orden de
+// los factores y temporales con nombre: ninguno da f0*f3)
 void Em403WarLion::fn_80327EF0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1203,7 +1204,7 @@ void Em403WarLion::fn_80327EF0() {
         }
         float abs = atn::Abs_unk(a);
         if (abs > 0.034906585f) {
-            a = 0.034906585f * (a / abs);
+            a = (a / abs) * 0.034906585f;
         }
         mRot.y += a;
     }
