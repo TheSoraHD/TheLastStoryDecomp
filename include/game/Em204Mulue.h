@@ -91,6 +91,7 @@ public:
     void fn_802ABF6C(); // inferred: death
     void fn_802AC0E0(); // inferred: starts the action m14F4
 
+    inline bool IsMotionEnd_unk();
     inline void SetState_unk(int state);
     inline void PlayMotion_unk(int motion, int loop, float speed);
     inline void SetPartsFlag_unk();
@@ -101,7 +102,7 @@ public:
     inline void Turn_unk();
     inline void StartThrust_unk();
     inline void ShowMessage_unk(int id);
-    inline void SetTurn_unk(const atn::Vector3& target);
+    inline void SetTurn_unk(atn::Vector3 target);
 
     CharaTask* m14B0; // inferred: target (mC58.mC4)
     CharaTask* m14B4; // inferred: character that thrusts (state 24)

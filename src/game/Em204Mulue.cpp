@@ -216,6 +216,11 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
+// inferred: the motion of track 0 reached its end (frame read before the length; name invented)
+inline bool Em204Mulue::IsMotionEnd_unk() {
+    float frame = mMotion.mTracks[0].m08;
+    return frame >= mMotion.fn_80097D7C(0);
+}
 // inferred: starts state `state` (names invented)
 inline void Em204Mulue::SetState_unk(int state) {
     m14C0 = 0;
@@ -288,16 +293,16 @@ inline void Em204Mulue::ShowMessage_unk(int id) {
     fn_80109828(lbl_8087F048, text);
 }
 // inferred: turn toward `target` (frames and direction)
-inline void Em204Mulue::SetTurn_unk(const atn::Vector3& target) {
-    atn::Vector3 dest(target);
-    atn::Vector3 rot = (dest - mPos).GetNormalized_unk().ToRotation_unk();
+inline void Em204Mulue::SetTurn_unk(atn::Vector3 target) {
+    atn::Vector3 d = target - mPos;
+    atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
     float a = fn_802A7910(fn_802A7964(rot.y - mRot.y));
     if (a < 0.0f) {
         m15EC = 0;
-        m15E8 = -a * 0.5f;
+        m15E8 = -a / 2.0f;
     } else {
         m15EC = 1;
-        m15E8 = a * 0.5f;
+        m15E8 = a / 2.0f;
     }
 }
 
@@ -478,7 +483,7 @@ void Em204Mulue::vf10() {
             fn_802A8BBC();
             break;
         case 11:
-            if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+            if (IsMotionEnd_unk()) {
                 SetState_unk(12);
                 PlayMotion_unk(0x14C, 0, 0.5f);
             }
@@ -494,7 +499,7 @@ void Em204Mulue::vf10() {
             fn_802A97C8();
             break;
         case 15:
-            if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+            if (IsMotionEnd_unk()) {
                 switch (m14F8) {
                 case 0:
                     fn_802AB794(2);
@@ -543,13 +548,13 @@ void Em204Mulue::vf10() {
             }
             break;
         case 20:
-            if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+            if (IsMotionEnd_unk()) {
                 Rest_unk();
             }
             break;
         case 21:
             if (m14B8 == 0) {
-                if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+                if (IsMotionEnd_unk()) {
                     PlayMotion_unk(0x37, 0, 0.5f);
                     m14B8 = 1;
                     m14C0 = 0;
@@ -560,7 +565,7 @@ void Em204Mulue::vf10() {
             }
             break;
         case 22:
-            if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+            if (IsMotionEnd_unk()) {
                 SetState_unk(23);
                 PlayMotion_unk(0x3B, 1, 1.0f);
                 ShowMessage_unk(0xEF);
@@ -582,7 +587,7 @@ void Em204Mulue::vf10() {
             break;
         }
         case 25:
-            if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+            if (IsMotionEnd_unk()) {
                 Rest_unk();
                 m15E4 = 0;
             }
@@ -852,12 +857,12 @@ void Em204Mulue::fn_802A7970() {
     m17EC.m54 = 9.0f;
 }
 
-// NONMATCHING: draft
+// NONMATCHING: r3/r4 of the copy of the center (__VecCopy of a temporary, docs/mwcc-blockers.md)
 void Em204Mulue::vf54() {
     if (m624.mSize != 0) {
-        MtxPtr spine = mMotion.GetNodeMtx_unk("spine1");
+        atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
         m624.mData[0].m04.mRadius = 1.5f * m5B0;
-        m624.mData[0].m04.mCenter = GetNodePos_unk(spine) + m5A4;
+        m624.mData[0].m04.mCenter = pos + m5A4;
         m624.mData[0].m04.mCenter.y = mPos.y + m624.mData[0].m04.mRadius;
     }
 }
@@ -898,7 +903,8 @@ void Em204Mulue::fn_802A820C() {
         }
     } else if (m14B8 == 1) {
         float speed = 0.8f;
-        atn::Vector3 d(m15D4.x - mPos.x, 0.0f, m15D4.z - mPos.z);
+        atn::Vector3 d = m15D4 - mPos;
+        d.y = 0.0f;
         float dist = d.Length_unk();
         d.Normalize_unk();
         d.fn_80139F60();
@@ -929,7 +935,8 @@ void Em204Mulue::fn_802A8718() {
         }
     } else if (m14B8 == 1) {
         float speed = 0.8f;
-        atn::Vector3 d(m15D4.x - mPos.x, 0.0f, m15D4.z - mPos.z);
+        atn::Vector3 d = m15D4 - mPos;
+        d.y = 0.0f;
         float dist = d.Length_unk();
         d.Normalize_unk();
         d.fn_80139F60();
@@ -951,7 +958,8 @@ void Em204Mulue::fn_802A8718() {
 
 // NONMATCHING: draft
 void Em204Mulue::fn_802A8BBC() {
-    if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
         CharaTask* found = 0;
         float best = 1e16f;
         for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
@@ -1273,7 +1281,7 @@ void Em204Mulue::fn_802AA534() {
 
 // NONMATCHING: draft
 void Em204Mulue::vfEC() {
-    if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+    if (IsMotionEnd_unk()) {
         mColli.mFlags &= ~1;
         ClearPartsFlag_unk();
         mFlag25 = 1;
@@ -1482,12 +1490,14 @@ void Em204Mulue::fn_802ABF6C() {
     fn_800EB7A0(this);
 }
 
-// NONMATCHING: draft
+// NONMATCHING: 99.81% - f30/f31 swapped for the distance and the yaw (9 variants of declaration
+// order and helpers)
 void Em204Mulue::fn_802AC0E0() {
     atn::Vector3 target(*m14B0->fn_8013C38C());
     atn::Vector3 d = target - mPos;
+    float ry;
     float dist = d.Length_unk();
-    float ry = GetRot_unk()->y;
+    ry = GetRot_unk()->y;
     atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
     float angle = fn_802A7910(fn_802A7964(rot.y - ry));
     int front = 0;
