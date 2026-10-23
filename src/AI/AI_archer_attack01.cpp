@@ -1,6 +1,7 @@
 #include "game/CharaTask.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/SkillEffectManager.h"
 
 extern "C" {
 extern void* lbl_8087EE68;
@@ -10,6 +11,8 @@ extern unsigned char lbl_807C6A40[];
 extern unsigned char lbl_807C6B30[];
 int fn_80018078(void* routes, CharaTask* chara);
 int fn_80018BAC(void* routes, CharaTask* chara);
+int fn_8021A984(HitInfo_unk* hit);
+int fn_80599C90(Bullet_unk* bullet, CharaTask* chara);
 void fn_8001C284();
 void fn_8001E730();
 }
@@ -24,6 +27,21 @@ extern "C" int fn_8001BF4C(CharaTask* chara) {
 
 extern "C" int fn_8001BF58(CharaTask* chara) {
     return fn_80018BAC(lbl_8087EE68, chara);
+}
+
+extern "C" SkillEffectManager* lbl_8087F9E8;
+
+// NONMATCHING: 97.61% - the skill-effect loop's pointer and offset registers differ.
+extern "C" int fn_8001BF64(CharaTask* chara) {
+    int count = 0;
+    for (int i = 0; i < 32; i++) {
+        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+        if (bullet != 0 && bullet->IsActive_unk() && fn_8021A984(bullet->m04) &&
+            fn_80599C90(bullet, chara)) {
+            count++;
+        }
+    }
+    return count;
 }
 
 extern "C" int fn_8001C01C(CharaTask* chara) {

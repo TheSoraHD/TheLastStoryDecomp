@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `codex/std-allocator-char` (2026-10-23): **7406 / 18215 funciones al 100%** (código 26,04%, fuzzy 42,63%, datos 17,46%), 370 ficheros enlazados, build limpio `main.dol: OK`; `AI/AI_archer_attack01` queda en 91/517, sin marcar enlazable. `regress.py` lost: 0, `fuzzdrop.py` sin bajadas, `poolcheck.py` sin hallazgos.
+- `codex/std-allocator-char` (2026-10-23): **7406 / 18215 funciones al 100%** (código 26,04%, fuzzy 42,64%, datos 17,46%), 370 ficheros enlazados; `AI/AI_archer_attack01` queda en 91/517, sin marcar enlazable. Último cambio parcial: `fn_8001BF64` al 97,61%; build y regresiones limpias.
 - Revisión `game/main` (2026-10-23): 11/14 al 100%; `main` 98,61%, arranque 39,58%. Sin match nuevo; build limpio y verificaciones sin pérdidas ni avisos de pool. Detalle: `docs/game-main.md`.
-- Último trabajo: `AI/AI_archer_attack01` (`docs/AI-archer-attack01.md`); 91 funciones al 100%, unidad incompleta.
+- Último trabajo: `AI/AI_archer_attack01` (`docs/AI-archer-attack01.md`); 91 funciones al 100%, más `fn_8001BF64` al 97,61%; unidad incompleta.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)
