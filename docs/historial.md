@@ -4,6 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-10-23 | `codex/std-allocator-char` (AI/AI_archer_attack01) | — | 7315 → 7332 | 26,02 → 26,03% / 42,62% | 370 | `docs/AI-archer-attack01.md` (17/517; unidad incompleta; build y regresiones limpias) |
 | 2026-10-23 | `codex/std-allocator-char` (revisión `game/main`) | — | 7315 → 7315 | 26,02% / 42,62% | 370 | `docs/game-main.md` (11/14; sin match nuevo; validación limpia) |
 | 2026-10-23 | `codex/std-allocator-char` (local) | — | 7301 → 7315 | 26,0 → 26,02% / 42,6 → 42,62% | 370 | `docs/std-allocator-char.md` (iostream/stringbuf parcial; build limpio; regress/fuzzdrop/poolcheck sin pérdidas; unidad no enlazable) |
 | 2026-10-23 | `codex/std-bad-cast` (local) | — | 7299 → 7301 | 26,0 → 26,0% / 42,6 → 42,6% | 370 | `docs/std-bad-cast.md` (split refinado: 2 funciones MSL aisladas) |
