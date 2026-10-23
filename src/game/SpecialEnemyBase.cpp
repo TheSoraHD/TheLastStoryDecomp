@@ -20,7 +20,9 @@
 #include "game/Em002_02SkeltonKing.h"
 #include "game/Em006DarkMaster.h"
 #include "game/Em101ElderZesya.h"
+#include "game/Em001Necromancer.h"
 #include "game/Em201ZanGurg.h"
+#include "game/Em201ZanGurgFinal.h"
 #include "game/Em205Ogre.h"
 #include "game/Em301LShade.h"
 #include "game/Em302Kraken.h"
@@ -588,10 +590,8 @@ extern "C" int fn_805A52F4(const char* s) {
 }
 
 // inferred: constructors of the enemies that are not decompiled yet (called through new)
-extern "C" void* fn_80244228(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8024A650(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8025C998(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_80264DB4(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8026FC0C(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_8027278C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80279860(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -621,11 +621,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
         void* p;
         switch (kind) {
         case 1:
-            p = ::operator new(0x15c8, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80244228(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em001Necromancer(parent, info);
             break;
         case 50:
             p = ::operator new(0x1568, 3, "", "", 0);
@@ -872,11 +868,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) Em101LittleZesyaSecond(parent, info);
             break;
         case 65:
-            p = ::operator new(0x1698, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_80264DB4(p, parent, info);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em201ZanGurgFinal(parent, info);
             break;
         case 25:
             p = ::operator new(0x1938, 3, "", "", 0);
