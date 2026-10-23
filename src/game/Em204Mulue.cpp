@@ -1490,16 +1490,11 @@ void Em204Mulue::fn_802ABF6C() {
     fn_800EB7A0(this);
 }
 
-// NONMATCHING: 99.81% - f30/f31 swapped for the distance and the yaw (9 variants of declaration
-// order and helpers)
 void Em204Mulue::fn_802AC0E0() {
     atn::Vector3 target(*m14B0->fn_8013C38C());
     atn::Vector3 d = target - mPos;
-    float ry;
     float dist = d.Length_unk();
-    ry = GetRot_unk()->y;
-    atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
-    float angle = fn_802A7910(fn_802A7964(rot.y - ry));
+    float angle = fn_802A7910(fn_802A7964(d.GetNormalized_unk().ToRotation_unk().y - GetRot_unk()->y));
     int front = 0;
     if (angle <= 22.5f && angle >= -22.5f) {
         front = 1;

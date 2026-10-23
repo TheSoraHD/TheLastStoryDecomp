@@ -292,4 +292,152 @@ public:
     atn::Vector3 m1AC4; // inferred: "CenterPos"
 };
 
+// inferred: color of a material of Em204MulueMp (MulueColor_unk without the white default: the
+// constructor of Em204MulueMp does not initialize its colors); names invented
+struct MulueMpColor_unk {
+    MulueMpColor_unk() {}
+    MulueMpColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    MulueMpColor_unk operator-(const MulueMpColor_unk& o) const {
+        return MulueMpColor_unk(r - o.r, g - o.g, b - o.b, a - o.a);
+    }
+    MulueMpColor_unk operator+(const MulueMpColor_unk& o) const {
+        return MulueMpColor_unk(r + o.r, g + o.g, b + o.b, a + o.a);
+    }
+    MulueMpColor_unk operator*(float f) const { return MulueMpColor_unk(r * f, g * f, b * f, a * f); }
+    GXColor ToGX() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
+    float r, g, b, a;
+};
+
+// inferred: colors of a material of Em204MulueMp per mode (normal, fire, ice; table lbl_807860A0 filled by
+// the static initializer 0x802B753C); names invented
+struct MulueMpMaterial_unk {
+    const char* mName;
+    MulueMpColor_unk mColor[3];
+};
+
+// inferred: state saved by Em204MulueMp::vf110 (its own layout over SpecialState_unk); names invented
+struct MulueMpState_unk {
+    int m00;   // inferred: state (m58C)
+    int m04;   // inferred: step (m14BC)
+    short m08; // inferred: mode (m1518)
+    short m0A; // inferred: part capsules enabled (m151C)
+    short m0C; // inferred: battle music started (m1608)
+};
+
+// inferred from __vt__12Em204MulueMp (0x80786204): the mulue of the multiplayer mode, driven by the
+// SpecialEnemyBase state machine. Data file "database/chara/special/" + db_name (default
+// "db_em204_02_00.csv"). The factory allocates 0x1860 bytes (SpecialEnemyBase.cpp, case 22). Members keep
+// their offsets (names invented).
+class Em204MulueMp : public SpecialEnemyBase {
+public:
+    Em204MulueMp(atn::Task* parent, EnemyInfo_unk* info); // 0x802B23E8
+    virtual ~Em204MulueMp();                              // 0x802B73FC
+    virtual int vf0C();                                   // 0x802B28BC
+    virtual void vf10();                                  // 0x802B2F64
+    virtual void vf14();                                  // 0x802B3248
+    virtual void vf3C(HitInfo_unk* hit);                  // 0x802B3498
+    virtual void vf40(HitInfo_unk* hit);                  // 0x802B3534
+    virtual void vfFC();                                  // 0x802B3684
+    virtual void vf104();                                 // 0x802B3764
+    virtual void vf100(int state);                        // 0x802B43C0
+    virtual void vf108();                                 // 0x802B43C4
+    virtual void vf54();                                  // 0x802B5134
+    virtual atn::Vector3 vf64(int center);                // 0x802B5214
+    virtual void vfEC();                                  // 0x802B6758
+    virtual void vf110(SpecialState_unk* state);          // 0x802B7230
+    virtual void vf114(const SpecialState_unk* state);    // 0x802B725C
+
+    void fn_802B43C8(); // inferred: moves toward the target
+    void fn_802B475C(); // inferred: chooses the next action (m1510)
+    void fn_802B4B08(); // inferred: updates the collision capsules from the nodes
+    void fn_802B52D8(); // inferred: state 8 (wave)
+    void fn_802B55B0(int aimed, int arg); // inferred: fires a sting at every player of the session
+    void fn_802B596C(); // inferred: state 12 (ice from above the home)
+    void fn_802B5DA4(); // inferred: state 13 (spin tackle along the tackle points)
+    void fn_802B6104(); // inferred: state 14 (spin tackle, then fire or ice from above the home)
+    void fn_802B6928(); // inferred: starts state 7 (bite)
+    void fn_802B69C0(); // inferred: starts state 8
+    void fn_802B6A5C(int kind); // inferred: starts state 9
+    void fn_802B6AF8(int arg);  // inferred: starts state 10 (spin tackle along the spin points)
+    void fn_802B6C64(); // inferred: starts state 16 (turn to the target)
+    void fn_802B6F80(); // inferred: starts the action m1510
+
+    inline bool IsMotionEnd_unk();
+    inline void SetState_unk(int state);
+    inline void PlayMotion_unk(int motion, int loop, float speed);
+    inline void SetPartsFlag_unk();
+    inline void ClearPartsFlag_unk();
+    inline void StopEffects_unk();
+    inline void Rest_unk();
+    inline void Die_unk();
+    inline void SetMode_unk(int mode);
+    inline void StartSpin_unk(int state);
+    inline void MoveBack_unk();
+    inline void SetTurn_unk(atn::Vector3 target);
+
+    CharaTask* m14D4; // inferred: target (mC58.mC4)
+    int m14D8;
+    int m14DC;        // inferred: step of the state
+    int m14E0;        // inferred: frame counter of the state
+    int m14E4;        // inferred: 1, then 3 once half of the hit points are lost
+    int m14E8;        // inferred: count of actions
+    int m14EC;        // inferred: damage taken
+    int m14F0;        // inferred: first tackle point
+    int m14F4;        // inferred: current tackle point (-1: back to m15D4)
+    float m14F8;      // inferred: "SpinTackleHpRate"
+    int m14FC;        // inferred: spin tackles since the last change of mode
+    int m1500;        // inferred: "SpinTackleMax"
+    int m1504;        // inferred: actions of kind 3
+    int m1508;        // inferred: "SpinTackleInterval"
+    int m150C;        // inferred: laps of the spin tackle
+    int m1510;        // inferred: next action (fn_802B6F80)
+    int m1514;        // inferred: kind of state 9
+    int m1518;        // inferred: mode (0 normal, 1 fire, 2 ice): material colors and spin attacks
+    int m151C;        // inferred: the part capsules are enabled
+    int m1520;        // inferred: "MoveTime"
+    ResLoader_unk m1524;      // inferred: "ef_sk002b.eff" (stings)
+    atn::EfpHandle_unk m1530; // inferred: "ef_sk008d.efp"
+    atn::EfpHandle_unk m153C; // inferred: "ef_uc011.efp"
+    atn::SoundRef m1548;      // inferred: "SE_EM204_003" while spinning
+    MulueRoute_unk m154C;     // inferred: "TacklePoint"
+    MulueRoute_unk m1590;     // inferred: "SpinPoint"
+    atn::Vector3 m15D4;       // inferred: home (first spin point)
+    float m15E0;              // inferred: "MoveDistMax"
+    atn::Vector3 m15E4;       // inferred: destination
+    int m15F0;
+    int m15F4;
+    int m15F8;                // inferred: frame counter of the actions
+    float m15FC;              // inferred: frames of turn left
+    int m1600;                // inferred: turn direction (1: left)
+    int m1604;                // inferred: 0x4650
+    int m1608;                // inferred: the battle music was started
+    MulueMpColor_unk m160C[6]; // inferred: current colors of the materials
+    HitInfo_unk* m166C;       // inferred: "TackleID"
+    HitInfo_unk* m1670;       // inferred: "BackID"
+    HitInfo_unk* m1674;       // inferred: "BiteID"
+    HitInfo_unk* m1678;       // inferred: "PressID"
+    HitInfo_unk* m167C;       // inferred: "WaveID"
+    HitInfo_unk* m1680;       // inferred: "StingID"
+    HitInfo_unk* m1684;       // inferred: "SpinTackleID"
+    HitInfo_unk* m1688;       // inferred: "SpinIceID"
+    HitInfo_unk* m168C;       // inferred: "SpinIceWeakID"
+    HitInfo_unk* m1690;       // inferred: "SpinFrareID"
+    HitInfo_unk* m1694;       // inferred: "SpinFrareWeakID"
+    atn::ColliCapsule m1698;  // inferred: left arm
+    atn::ColliCapsule m16F0;  // inferred: right arm
+    atn::ColliCapsule m1748;  // inferred: left leg
+    atn::ColliCapsule m17A0;  // inferred: right leg
+    atn::ColliCapsule m17F8;  // inferred: tail
+    atn::LH_Binary m1850;     // inferred: data file
+    ResHandle m1858;          // inferred: debug menu group
+    int m185C;                // inferred: "DebugDisp"
+};
+
 #endif
