@@ -32,6 +32,7 @@ public:
     virtual float vf90();
 
     void fn_802FC188(); // inferred: death
+    void fn_802FC2E0(CharaTask* target); // inferred: starts the escape (state 12)
     void fn_802F8EBC(); // inferred: movement
     void fn_802F93F0(); // inferred: chooses the next action
     void fn_802F97B8(); // inferred: state 8 (needle)
