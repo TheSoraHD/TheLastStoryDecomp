@@ -46,11 +46,11 @@ extern "C" int fn_8001BF58(CharaTask* chara) {
 
 extern "C" SkillEffectManager* lbl_8087F9E8;
 
-// NONMATCHING: 97.61% - the skill-effect loop's pointer and offset registers differ.
 extern "C" int fn_8001BF64(CharaTask* chara) {
     int count = 0;
-    for (int i = 0; i < 32; i++) {
-        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+    Bullet_unk* bullet = 0;
+    for (unsigned int i = 0; i < 32; i++) {
+        bullet = lbl_8087F9E8->GetBullet_unk(i);
         if (bullet != 0 && bullet->IsActive_unk() && fn_8021A984(bullet->m04) &&
             fn_80599C90(bullet, chara)) {
             count++;
@@ -1194,15 +1194,17 @@ extern "C" int fn_80026E94() {
     return 1;
 }
 
-// NONMATCHING: 99.89% - one local-zero store uses the wrong stack slot.
 extern "C" int fn_8002B434() {
     int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        int a = 0;
-        int b = 0;
-        int c = 0;
-        int d = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        // inferred: these four zeroed outputs occupy one consecutive stack aggregate.
+        struct Results_unk {
+            int d;
+            int c;
+            int b;
+            int a;
+        } results = {0, 0, 0, 0};
+        fn_8001AEDC(0, &results.a, &results.b, &results.c, &results.d);
         *(int*)lbl_807C6A40 = 1;
         result = 1;
     } else {

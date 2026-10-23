@@ -67,6 +67,7 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `int state = mState; switch (mState) {...} if (state == 3)` reutiliza los `cr` del switch. `default: return;` escrito primero quita dos `b` sobrantes.
 - `x *= f()` calcula la dirección de `x` después de la llamada; para calcularla antes, pasar `x` por referencia a un inline.
 - Bucles: `new (--p) T(*--last)` conserva el bucle del original; un contador `int` reduce a puntero y uno `unsigned` recalcula base+offset; `buf.mData[i]` en lugar de un `operator[]` inline cambia el orden de los incrementos (`LoadModel`).
+- En el contador de efectos, un índice `unsigned` y el puntero del elemento reutilizado fuera del `for` conservan `cmplwi` y el orden r30/r31 (`AI/AI_archer_attack01::fn_8001BF64`).
 - `x - x` tras propagar: restar a través de una referencia (`unsigned int& size = mSize; size -= n;`).
 - Un local agregado desplazado 4 bytes: probar un tamaño que no sea múltiplo de 8 (`LoadColliObject::vf0C`).
 - Registros float de varias sumas: el orden de declaración de los locales fija `f31`, `f30`...
