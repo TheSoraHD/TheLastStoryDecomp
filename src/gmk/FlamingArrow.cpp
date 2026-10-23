@@ -72,7 +72,14 @@ struct ArrowColor_unk {
     float r, g, b, a;
 };
 extern "C" void fn_800D8BB4(ArrowColor_unk* color, const ArrowColor_unk* src);
-extern "C" ArrowColor_unk* fn_800D8814(ArrowColor_unk* color, float r, float g, float b, float a);
+namespace atn {
+// inferred: RGBA color of the engine (constructor: weak copy 0x800D8814 of atn/CompositeIntensityTintMulti.cpp)
+struct Color4f_unk {
+    Color4f_unk(float r_, float g_, float b_, float a_);
+    float r, g, b, a;
+};
+} // namespace atn
+
 // inferred: Model_unk accessors of the color at 0x40 (weak copies; names keep the addresses)
 inline ArrowColor_unk* fn_80417F14(Model_unk* model) {
     return (ArrowColor_unk*)&model->m40;
@@ -388,8 +395,7 @@ void FlamingArrow::vf10() {
     fn_800F80B8(&mtx, &angle);
     fn_80316E38(&arrow->mModel, &mtx);
     fn_8000D430(&arrow->mModel, boost::function<void()>(0));
-    ArrowColor_unk white;
-    fn_80417F1C(&arrow->mModel, fn_800D8814(&white, 1.0f, 1.0f, 1.0f, 1.0f));
+    fn_80417F1C(&arrow->mModel, (const ArrowColor_unk*)&atn::Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f));
     fn_800F7FA8(fn_800F7FA0(), arrow, 0);
     fn_8026607C(fn_800F7FA0(), &mEfpArrow, arrow, 1);
 }
