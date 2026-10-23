@@ -199,6 +199,15 @@ public:
     unsigned char m08[0x38 - 0x08];
 };
 
+// inferred: thrust on a ghoul (vtable 0x8077EAA8), started by Em309GhoulSimple::vfB4; `name` is the node
+// ("neck") the character aims at
+class ControlThrustForGhoul : public ControlBase {
+public:
+    ControlThrustForGhoul(Chara_unk* chara, Chara_unk* other, const char* name); // 0x801957F0
+    virtual int vf0C();
+    unsigned char m08[0x3C - 0x08];
+};
+
 class ControlAbsorbed : public ControlBase {
 public:
     ControlAbsorbed(Chara_unk* chara); // 0x80196974 (8 bytes)
