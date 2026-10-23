@@ -558,6 +558,7 @@ void Em310Gargoyle::vf40(HitInfo_unk* hit) {
     }
 }
 
+// NONMATCHING: 99.88% - only .sdata2 offsets (the pool keeps the constants of the weak copies, see vf3C)
 // inferred: moves along the spline of the four route points `points` (t: progress 0..1) and banks with the
 // change of direction (as Em203GreaterDaemon::fn_8028AA38)
 void Em310Gargoyle::fn_8030B74C(const atn::Vector3* points, float t) {

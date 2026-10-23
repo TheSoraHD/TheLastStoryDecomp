@@ -4,9 +4,10 @@ Rama agent-s3a (sale de main 8d7faf7). Referencia: /home/claude/ref/s3a_start.js
 
 ## Unidades
 
-- `game/Em310Gargoyle`: **5/21 -> 14/21**. Escritas las 21 (no queda ninguna sin fuente). Nuevas al 100%: vf14
-  (0x8030AF10, pantalla de depuracion), fn_8030B74C (spline + alabeo), vf50, Set_unk (0x8030B408), fn_8030C190 y
-  fn_8030CA38 (copias debiles inline), fn_8030CF84 ya estaba. NONMATCHING:
+- `game/Em310Gargoyle`: **5/21 -> 9/21**. Escritas las 21 (no queda ninguna sin fuente). Nuevas al 100%: vf14
+  (0x8030AF10, pantalla de depuracion), vf50, Set_unk (0x8030B408), fn_8030C190 y fn_8030CA38 (copias debiles
+  inline). NONMATCHING:
+  - fn_8030B74C (spline + alabeo) 99.88%: report.json la da al 100%, objdiff-cli no (desplazamientos de `.sdata2`).
   - vf10 99.79% y fn_8030D0D8 99.71%: registros del inline de fn_8030D0D8 (el original lo expande en la rama de
     depuracion de vf10; solo se autoinlinea si fn_8030D0D8 queda bajo el umbral: con dos sentencias `id` sale).
   - fn_8030B92C 93.89%: copias de los cuatro puntos de ruta (el original relee la pila para la longitud).
