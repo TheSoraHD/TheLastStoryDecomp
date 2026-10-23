@@ -774,6 +774,10 @@ void EnemyJill::fn_8032FFF8() {
 
 // inferred: the float argument is declared before the last int: the order of the arguments (evaluated right to
 // left) puts the load of the last int after the float; the ABI is the same with any position of the float
+// inferred: the real prototype ends with (int c, float f) as in the other units; here the float is declared
+// first because only this order gives the load order of the original at the three call sites (fn_80330218,
+// fn_8033135C: with (int, float) they drop to 99.45% / 96.87%, the same residue as EnemyTrista::fn_8035CF78).
+// The registers are the same (r10 and f1), so the call is equivalent.
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            float f, int c);
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack

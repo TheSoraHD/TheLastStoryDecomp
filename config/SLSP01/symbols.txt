@@ -25451,7 +25451,7 @@ __RTTI__Q35boost3_bi173bind_t<v,Q35boost4_mfi58mf2<v,12Em403WarLion,PQ23atn9Matr
 __vt__12Em403WarLion = .data:0x80788BD0; // type:object size:0xF8
 lbl_80788CC8 = .data:0x80788CC8; // type:object size:0x30
 __RTTI__12Em403WarLion = .data:0x80788CF8; // type:object size:0x8
-lbl_80788D00 = .data:0x80788D00; // type:object size:0x1A data:string
+@STRING@__allocate__Q23std22vector<Q23atn7Vector3>FUi = .data:0x80788D00; // type:object size:0x1A data:string
 __vt__18EnemyFieldMagician = .data:0x80788D20; // type:object size:0xF8
 lbl_80788E18 = .data:0x80788E18; // type:object size:0x30
 __RTTI__18EnemyFieldMagician = .data:0x80788E48; // type:object size:0x8

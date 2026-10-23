@@ -63,6 +63,14 @@ struct __vec_storage_unk {
     unsigned int mCap;
 };
 
+// inferred: no destroy loop for float elements (weak copy 0x8000D844, resize 0x8032BE88)
+template <>
+inline void __vec_storage_unk<float>::__shrink_unk(unsigned int newSize) {
+    unsigned int n = mSize - newSize;
+    unsigned int& size = mSize;
+    size -= n;
+}
+
 template <class T>
 struct __vec_imp_unk : public __vec_storage_unk<T> {
     ~__vec_imp_unk() {}
@@ -70,6 +78,15 @@ struct __vec_imp_unk : public __vec_storage_unk<T> {
     void __push_fast_unk(unsigned int n, const T& x) {
         new (this->mData + n) T(x);
         this->mSize++;
+    }
+    // inferred: appends n value-initialised elements in place (resize, weak copy 0x8032B314)
+    void __append_n_unk(unsigned int n) {
+        T x = T();
+        T* p = this->mData + this->mSize;
+        for (; n != 0; n--, p++) {
+            new (p) T(x);
+            this->mSize++;
+        }
     }
 };
 
@@ -80,6 +97,10 @@ struct __vec_imp_unk<T*> : public __vec_storage_unk<T*> {
     void __push_fast_unk(unsigned int n, T* const& x) {
         this->mSize = n + 1;
         ((void**)this->mData)[this->mSize - 1] = x;
+    }
+    void __append_n_unk(unsigned int n) {
+        memset(this->mData + this->mSize, 0, n * sizeof(T*));
+        this->mSize += n;
     }
 };
 
@@ -120,11 +141,30 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
         new (begin() + this->mSize) T(x);
         this->mSize++;
     }
+    // inferred: appends n copies of x (resize, weak copy 0x8032B314)
+    void __append_n_unk(unsigned int n, const T& x) {
+        T* p = begin() + this->mSize;
+        for (; n != 0; n--, p++) {
+            new (p) T(x);
+            this->mSize++;
+        }
+    }
     // inferred: moves [first, last) in front of the stored elements, last one first
     void __push_front_unk(T* first, T* last) {
         T* p = begin();
         while (last > first) {
             new (--p) T(*--last);
+            mStart--;
+            this->mSize++;
+        }
+    }
+    // inferred: same loop for the reallocation of resize (0x8032B314 keeps the two decrements apart)
+    void __push_front_resize_unk(T* first, T* last) {
+        T* p = begin();
+        while (last > first) {
+            --p;
+            --last;
+            new (p) T(*last);
             mStart--;
             this->mSize++;
         }
@@ -138,7 +178,7 @@ struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<T*>(alloc), mStart(0) {}
     T** begin() { return this->mData + mStart; }
     // inferred: appends n null pointers (resize, 0x801FFA04)
-    void __append_zero_unk(unsigned int n) {
+    void __append_n_unk(unsigned int n, T* const&) {
         memset(begin() + this->mSize, 0, n * sizeof(T*));
         this->mSize += n;
     }
@@ -147,6 +187,7 @@ struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
         this->mSize++;
     }
     // inferred: moves [first, last) in front of the stored elements
+    void __push_front_resize_unk(T** first, T** last) { __push_front_unk(first, last); }
     void __push_front_unk(T** first, T** last) {
         // inferred: a byte difference; `last - first` would fold to the size (0x800DB3EC computes
         // (data + size) - data)
@@ -177,11 +218,49 @@ struct __vec_split_unk<int> : public __vec_split_base_unk<int> {
         begin()[this->mSize] = x;
         this->mSize++;
     }
+    void __push_front_resize_unk(int* first, int* last) { __push_front_unk(first, last); }
     void __push_front_unk(int* first, int* last) {
         unsigned int n = ((char*)last - (char*)first) / (int)sizeof(int);
         mStart -= n;
         memcpy(this->mData + mStart, first, n * sizeof(int));
         memset(first, 0, n * sizeof(int));
+        this->mSize += n;
+    }
+    unsigned int mStart;
+};
+
+// inferred: float elements are moved as raw words like int (resize 0x8032BE88, constructor 0x8032B6F8)
+template <>
+struct __vec_imp_unk<float> : public __vec_storage_unk<float> {
+    ~__vec_imp_unk() {}
+    void __push_fast_unk(unsigned int n, const float& x) {
+        this->mSize = n + 1;
+        this->mData[this->mSize - 1] = x;
+    }
+    void __append_n_unk(unsigned int n) {
+        memset(this->mData + this->mSize, 0, n * sizeof(float));
+        this->mSize += n;
+    }
+};
+
+template <>
+struct __vec_split_unk<float> : public __vec_split_base_unk<float> {
+    __vec_split_unk(void* alloc) : __vec_split_base_unk<float>(alloc), mStart(0) {}
+    float* begin() { return this->mData + mStart; }
+    void push_back(const float& x) {
+        begin()[this->mSize] = x;
+        this->mSize++;
+    }
+    void __append_n_unk(unsigned int n, const float&) {
+        memset(begin() + this->mSize, 0, n * sizeof(float));
+        this->mSize += n;
+    }
+    void __push_front_resize_unk(float* first, float* last) { __push_front_unk(first, last); }
+    void __push_front_unk(float* first, float* last) {
+        unsigned int n = ((char*)last - (char*)first) / (int)sizeof(float);
+        mStart -= n;
+        memcpy(this->mData + mStart, first, n * sizeof(float));
+        memset(first, 0, n * sizeof(float));
         this->mSize += n;
     }
     unsigned int mStart;
@@ -228,6 +307,9 @@ public:
     vector() {}
     // declared only (boost::offset_separator, never used by the game)
     vector(size_type n, const T& value);
+    // inferred: weak copy 0x8032B6F8 (float elements)
+    explicit vector(size_type n);
+    void __init_n_unk(size_type n);
     template <class Iterator> vector(Iterator first, Iterator last);
     // inferred: weak copies 0x80513D34 and 0x80513EC4 (game/NewCampPartsGmk.cpp)
     vector(const vector& x) { __init_unk(x.mData, x.mData + x.mSize); }
@@ -236,6 +318,7 @@ public:
     T* begin() { return this->mData; }
     T* end() { return this->mData + this->mSize; }
     size_type size() const { return this->mSize; }
+    size_type capacity() const { return this->mCap; }
     // inferred: weak copy 0x80120C20 (game/MotionCommand_unk.cpp)
     bool empty() const { return this->mSize == 0; }
     T& operator[](size_type i) { return this->mData[i]; }
@@ -317,21 +400,35 @@ private:
     // inferred: growth of resize (0x801FFA04, pointer elements); the length check is defined out
     // of the class (its "vector length error" goes to the file pool) and auto-inlined
     void __append_unk(size_type n) {
-        if (this->mCap - this->mSize >= n) {
-            memset(this->mData + this->mSize, 0, n * sizeof(T));
-            this->mSize += n;
+        if (n > this->mCap || this->mSize > this->mCap - n) {
+            // inferred: the sum goes through a helper (0x8032B314 adds size + n in that order)
+            __check_grow_unk(__vec_sum_unk(this, n) - this->mCap);
+            __recommend_cap_unk(size() + n);
         } else {
-            __check_append_unk(n);
-            __recommend_unk(this->mSize + n);
-            __vec_split_unk<T> buf(&this->mCap);
-            size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
-            buf.mData = __allocate(cap);
-            buf.mCap = cap;
-            buf.mStart = this->mSize;
-            buf.__append_zero_unk(n);
-            __swap_out_unk(buf);
+            this->__append_n_unk(n);
+            return;
         }
+        __vec_split_unk<T> buf(&this->mCap);
+        size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
+        buf.mData = __allocate(cap);
+        buf.mCap = cap;
+        buf.mStart = this->mSize;
+        buf.__append_n_unk(n, T());
+        __swap_out_resize_unk(buf);
     }
+    // inferred: reallocation of resize; float elements reach it through a separate inline level
+    // (0x8032BE88 keeps the capacity of the dead __recommend_cap_unk in another register)
+    void __append_realloc_unk(size_type n) {
+        __vec_split_unk<T> buf(&this->mCap);
+        size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
+        buf.mData = __allocate(cap);
+        buf.mCap = cap;
+        buf.mStart = this->mSize;
+        buf.__append_n_unk(n, T());
+        __swap_out_unk(buf);
+    }
+    friend size_type __vec_sum_unk(const vector* v, size_type n) { return v->mSize + n; }
+    void __check_grow_unk(size_type n);
     void __check_append_unk(size_type n);
     void __init_unk(const T* first, const T* last);
     size_type __grow_cap_unk(size_type n);
@@ -348,12 +445,32 @@ private:
         }
         return cap;
     }
+    // inferred: same as __recommend_unk, reading the capacity through capacity() (dead code of resize,
+    // 0x8032B314)
+    size_type __recommend_cap_unk(size_type n) {
+        size_type cap = capacity();
+        if (cap < max_size() / 3) {
+            cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
+        } else if (cap < max_size() / 3 * 2) {
+            cap += __vec_max_unk(size_type((cap + 1) / 2), n);
+        } else {
+            cap = max_size();
+        }
+        return cap;
+    }
     // inferred: allocation of the temporary buffer (split off so that push_back stays within the
     // auto-inline limit)
     void __vec_set_buf_unk(__vec_split_unk<T>& buf, size_type cap) {
         buf.mData = __allocate(cap);
         buf.mCap = cap;
         buf.mStart = this->mSize;
+    }
+    void __swap_out_resize_unk(__vec_split_unk<T>& buf) {
+        buf.__push_front_resize_unk(this->mData, this->mData + this->mSize);
+        this->mSize = 0;
+        __vec_swap_unk(this->mCap, buf.mCap);
+        __vec_swap_unk(this->mData, buf.mData);
+        __vec_swap_unk(this->mSize, buf.mSize);
     }
     void __swap_out_unk(__vec_split_unk<T>& buf) {
         buf.__push_front_unk(this->mData, this->mData + this->mSize);
@@ -362,6 +479,8 @@ private:
         __vec_swap_unk(this->mData, buf.mData);
         __vec_swap_unk(this->mSize, buf.mSize);
     }
+public:
+    // inferred: also used directly by the weak copy 0x8032B6F8 (game/Em403WarLion.cpp)
     static T* __allocate(size_type n) {
         T* p = (T*)::operator new(n * sizeof(T));
         if (p == 0) {
@@ -441,9 +560,35 @@ void vector<T>::__check_length_unk(size_type n) {
 }
 
 template <class T>
+void vector<T>::__check_grow_unk(size_type n) {
+    if (n > max_size() - capacity()) {
+        __msl_error("vector length error");
+    }
+}
+
+template <class T>
 void vector<T>::__check_append_unk(size_type n) {
     if (max_size() - this->mCap < this->mSize + n) {
         __msl_error("vector length error");
+    }
+}
+
+// inferred: vector of n value-initialised elements (weak copy 0x8032B6F8, float elements)
+template <class T>
+vector<T>::vector(size_type n) {
+    __init_n_unk(n);
+}
+
+// inferred: body of vector(n); out of the class so that its message goes to the file pool
+template <class T>
+void vector<T>::__init_n_unk(size_type n) {
+    if (n != 0) {
+        if (n > max_size()) {
+            __msl_error("vector length error");
+        }
+        this->mData = __allocate(n);
+        this->mCap = n;
+        this->__append_n_unk(n);
     }
 }
 
@@ -482,6 +627,19 @@ typename vector<T>::size_type vector<T>::__grow_cap_unk(size_type n) {
         __msl_error("vector length error");
     }
     return cap;
+}
+
+// inferred: resize of float elements (weak copy 0x8032BE88)
+template <>
+inline void vector<float>::__append_unk(size_type n) {
+    if (n > this->mCap || this->mSize > this->mCap - n) {
+        __check_grow_unk(__vec_sum_unk(this, n) - this->mCap);
+        __recommend_cap_unk(size() + n);
+    } else {
+        this->__append_n_unk(n);
+        return;
+    }
+    __append_realloc_unk(n);
 }
 
 } // namespace std
