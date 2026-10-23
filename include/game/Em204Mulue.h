@@ -7,6 +7,9 @@
 #include "atn/SoundRef.h"
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
+#include "game/SpecialEnemyBase.h"
+#include "std/string.h"
+#include "std/vector.h"
 
 struct RoutePlace_unk;
 
@@ -169,6 +172,124 @@ public:
     int m1854;                // inferred: "Commentary"
     int m1858;                // inferred: "ToStaggTime"
     int m185C;
+};
+
+// inferred: "Collision" line of the data file of Em204BigMulue: a capsule between two nodes and its
+// radius (scaled by the collision radius m5B0); names invented
+struct BigMulueCapsule_unk {
+    BigMulueCapsule_unk() {}
+    std::string mFrom;
+    std::string mTo;
+    float mRadius;
+};
+
+// inferred: "DamageSphere" line: a damage sphere on a node (m14 is the node position of the frame);
+// names invented
+struct BigMulueSphere_unk {
+    BigMulueSphere_unk() {}
+    std::string mNode;
+    float mScale;
+    float m10;
+    atn::Vector3 m14;
+};
+
+// inferred: notify flag of the data file (global flag, index; same layout as SpecialFlag_unk of
+// game/SpecialEnemyBase.cpp); names invented
+struct BigMulueFlag_unk {
+    BigMulueFlag_unk() : mGlobal(-1), mIndex(0) {}
+    int mGlobal;
+    int mIndex;
+};
+
+// inferred from __vt__13Em204BigMulue (0x80785F0C): the big mulue, driven by the SpecialEnemyBase state
+// machine. Data file "/database/chara/special/" + db_name (default "db_em204_01_00.csv"). The factory
+// allocates 0x1AD0 bytes (SpecialEnemyBase.cpp, case 21). Members keep their offsets (names invented).
+class Em204BigMulue : public SpecialEnemyBase {
+public:
+    Em204BigMulue(atn::Task* parent, EnemyInfo_unk* info); // 0x802AC364
+    virtual ~Em204BigMulue();                              // 0x802B21FC
+    virtual int vf0C();                                    // 0x802AC590
+    virtual void vf10();                                   // 0x802AD930
+    virtual void vf14();                                   // 0x802ADE54
+    virtual int vf10C(HitMsg_unk* msg);                    // 0x802ADE58
+    virtual void vf40(HitInfo_unk* hit);                   // 0x802ADF34
+    virtual void vfFC();                                   // 0x802AE070
+    virtual void vf50();                                   // 0x802AE0B8
+    virtual void vf54();                                   // 0x802AE558
+    virtual void vf20();                                   // 0x802AE674
+    virtual atn::Vector3 vf64(int center);                 // 0x802AEAC4
+    virtual void vf100(int state);                         // 0x802AEB08
+    virtual void vf104();                                  // 0x802AF264
+    virtual void vf108();                                  // 0x802AF7D8
+    virtual int vfB0(atn::Vector3* out);                   // 0x802B12C4
+    virtual boost::function<void()> vfB4(CharaTask* chara); // 0x802B12CC
+    virtual void vf30(void* menu);                         // 0x802B1F2C
+    virtual float vf90();                                  // 0x802B21F4
+
+    void fn_802AC8E8(const char* text, int length); // inferred: reads the data file
+    void fn_802AE954(); // inferred: breaks the gimmicks touched by the damage spheres
+    int fn_802B0430(int state, float* over); // inferred: 1 too far from the target, -1 a wall in front
+    int fn_802B07F0(int range); // inferred: moves around the target point m1500
+    int fn_802B0D90(atn::Vector3* out); // inferred: finds the center of the room (four rays)
+    int fn_802B12D8(const atn::Vector3* target, float rate, float limit, float step); // inferred: turns
+    void fn_802B1744(int motion, int loop, float speed, float blend); // inferred: plays a motion
+    void fn_802B17AC(float dist, float frames, float speed); // inferred: moves forward
+    void fn_802B19EC(int kind); // inferred: plays an effect
+    void fn_802B1B08(int on);   // inferred: enables the part capsules
+    void fn_802B1B50(int fire); // inferred: fires the stings
+
+    int m14D4;        // inferred: angry (hit points <= 40%)
+    int m14D8;        // inferred: copy of the state
+    int m14DC;        // inferred: step of the next state
+    int m14E0;        // inferred: state after the turn (9)
+    int m14E4;
+    unsigned char m14E8; // inferred: the battle event was started
+    CharaTask* m14EC; // inferred: target when state 8 starts
+    int m14F0;
+    int m14F4;
+    int m14F8;
+    float m14FC;      // inferred: "AttackDistance"
+    atn::Vector3 m1500; // inferred: position of the target
+    int m150C;        // inferred: direction of the move (-1, 0, 1)
+    int m1510;        // inferred: "WaitFrame"
+    int m1514;        // inferred: "AttackChanceFrame"
+    int m1518;        // inferred: "TumbleFrame"
+    int m151C;        // inferred: "StaggerFrame"
+    int m1520;
+    float m1524;      // inferred: "BaseMotionSpeed"
+    float m1528;      // inferred: "BaseMotionBlendSpeed"
+    HitInfo_unk* m152C; // inferred: "BiteID"
+    HitInfo_unk* m1530; // inferred: "PressID"
+    HitInfo_unk* m1534; // inferred: "WaveID"
+    HitInfo_unk* m1538; // inferred: "TackleID"
+    HitInfo_unk* m153C; // inferred: "CollisionID"
+    HitInfo_unk* m1540; // inferred: "StingID"
+    HitInfo_unk* m1544; // inferred: "WallSlashID"
+    int m1548;        // inferred: attacks done
+    float m154C;      // inferred: "TumbleDamageRate"
+    float m1550;      // inferred: damage counted for the tumble
+    int m1554;
+    std::vector<BigMulueCapsule_unk> m1558; // inferred: "Collision"
+    atn::ColliCapsule m1564[14];            // inferred: one capsule per "Collision" line
+    std::vector<BigMulueSphere_unk> m1A34;  // inferred: "DamageSphere"
+    unsigned char m1A40;
+    int m1A44;        // inferred: "CollisionOnOff"
+    atn::Vector3 m1A48; // inferred: position of the player when it thrusts
+    atn::EfpHandle_unk m1A54;
+    atn::EfpHandle_unk m1A60; // inferred: "/effect/ef_sk008d.efp"
+    ResLoader_unk m1A6C;      // inferred: "/effect/ef_sk002b.eff" (stings)
+    atn::EfpHandle_unk m1A78; // inferred: "/effect/ef_uc011.efp"
+    BigMulueFlag_unk m1A84;   // inferred: "StaggerNotifyFlag"
+    BigMulueFlag_unk m1A8C;   // inferred: "TumbleNotifyFlag"
+    float m1A94;      // inferred: "BodyPressOffset"
+    ResHandle m1A98;  // inferred: debug menu group
+    void* m1A9C;      // inferred: debug menu group (copy)
+    int m1AA0;        // inferred: "DebugDisp"
+    int m1AA4;        // inferred: "DebugLog"
+    atn::Vector3 m1AA8; // inferred: last wall hit
+    atn::Vector3 m1AB4; // inferred: "WallSlashPos"
+    int m1AC0;
+    atn::Vector3 m1AC4; // inferred: "CenterPos"
 };
 
 #endif
