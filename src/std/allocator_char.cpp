@@ -234,4 +234,52 @@ int fn_800E2504(void*) { return 0; }
 int fn_800E2608(void*) { return -1; }
 int fn_800E2668(void*) { return -1; }
 
+// inferred: get area and high-water pointers in the MSL string buffer.
+struct StringBuf_unk {
+    void* mVtable;
+    void* m04;
+    char* mGptr;
+    char* mEgptr;
+    void* m10;
+    char* mHighWater;
+    char m18[0x10];
+    char* mBufferEnd;
+};
+int fn_800E1D88(StringBuf_unk* stream) {
+    if (stream->mGptr == 0) {
+        return -1;
+    }
+    if (stream->mBufferEnd < stream->mHighWater) {
+        stream->mBufferEnd = stream->mHighWater;
+    }
+    if (stream->mEgptr < stream->mBufferEnd) {
+        stream->mEgptr = stream->mBufferEnd;
+    }
+    if (stream->mGptr < stream->mEgptr) {
+        return (unsigned char)*stream->mGptr;
+    }
+    return -1;
+}
+
+// inferred: the pair at +0x20 owns a reference-counted deleter/control block.
+struct SharedPair_unk {
+    unsigned int mObject;
+    unsigned int mControl;
+};
+struct SharedOwner_unk {
+    char mPad[0x20];
+    SharedPair_unk* mPair;
+};
+struct SharedControl_unk {
+    unsigned int mUnknown;
+    unsigned int mReferences;
+};
+void fn_800E1D5C(SharedPair_unk* out, SharedOwner_unk* owner) {
+    SharedPair_unk* source = owner->mPair;
+    *out = *source;
+    if (source->mControl != 0) {
+        ((SharedControl_unk*)source->mControl)->mReferences++;
+    }
+}
+
 } // extern "C"
