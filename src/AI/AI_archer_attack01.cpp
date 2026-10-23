@@ -9,10 +9,24 @@ extern CharaManager<PlayerTask>* lbl_8087F8A0;
 extern unsigned char lbl_807C68C0[];
 extern unsigned char lbl_807C6A40[];
 extern unsigned char lbl_807C6B30[];
+extern unsigned char lbl_807307A0[];
+extern float lbl_80880798;
 int fn_80018078(void* routes, CharaTask* chara);
 int fn_80018BAC(void* routes, CharaTask* chara);
 int fn_8021A984(HitInfo_unk* hit);
 int fn_80599C90(Bullet_unk* bullet, CharaTask* chara);
+int fn_8001AEDC(int mode, int* a, int* b, int* c, int* d);
+int fn_8001BEB0(CharaTask* chara);
+int fn_8001B4A4();
+int rand();
+int fn_80023C84();
+int fn_8003DBA4();
+int fn_800281A0();
+int fn_80028D00();
+int fn_80029500();
+int fn_8002AD40();
+int fn_8001FB08();
+int fn_800209F0();
 void fn_8001C284();
 void fn_8001E730();
 }
@@ -73,6 +87,1377 @@ extern "C" void* fn_8001E168(AIString_unk* str, int freeObject) {
         }
     }
     return str;
+}
+
+extern "C" int fn_80021038() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8002113C() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80021404() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80021C3C() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80021D40() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+// NONMATCHING: 93.89% - MWCC assigns the return discriminator to r3 instead of r0.
+extern "C" int fn_80022598() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+extern "C" int fn_80022524() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80022628() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8002FFE0() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8001EE58() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
+    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_8001FC40() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
+    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_80020B28() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x50;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_800211B0() {
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x50;
+    *(int*)lbl_807C6A40 = 1;
+    int d = 0;
+    int c = 0;
+    int b = 0;
+    int a = 0;
+    fn_8001AEDC(0, &a, &b, &c, &d);
+    return 1;
+}
+
+extern "C" int fn_80021508() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x50;
+    *(int*)lbl_807C6A40 = 1;
+    int d = 0;
+    int c = 0;
+    int b = 0;
+    int a = 0;
+    fn_8001AEDC(0, &a, &b, &c, &d);
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_80021DB4() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x50;
+    *(int*)lbl_807C6A40 = 1;
+    int d = 0;
+    int c = 0;
+    int b = 0;
+    int a = 0;
+    fn_8001AEDC(0, &a, &b, &c, &d);
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+// NONMATCHING: 93.89% - MWCC assigns the return discriminator to r3 instead of r0.
+extern "C" int fn_80021478() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+// NONMATCHING: 93.89% - control flow and return discriminator differ from the script stub.
+extern "C" int fn_800210AC() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+// NONMATCHING: 93.89% - control flow and return discriminator differ from the script stub.
+extern "C" int fn_80021CB0() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+extern "C" int fn_80022BD4() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80022F44() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80023C54() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+extern "C" int fn_800240C0() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_800240F0() {
+    *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80027444() {
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_800276D4() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80022F74() {
+    *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
+    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80023DBC() {
+    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_8002269C() {
+    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x50) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80024718() {
+    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x24) = 0;
+    *(int*)(lbl_807C6A40 + 0x28) = 0;
+    *(int*)(lbl_807C6A40 + 0x2C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80028178() {
+    *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
+    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80028CD8() {
+    *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
+    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80028E34() {
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
+    *(int*)(lbl_807C6A40 + 0x20) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_8002973C() {
+    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x24) = 0;
+    *(int*)(lbl_807C6A40 + 0x28) = 0;
+    *(int*)(lbl_807C6A40 + 0x2C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_8002AE78() {
+    *(int*)(lbl_807C6A40 + 0xE0) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_8002D36C() {
+    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x24) = 0;
+    *(int*)(lbl_807C6A40 + 0x28) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80024D6C() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_8002552C() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_8002D704() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_8002DF20() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_8002B9D0() {
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        *(int*)lbl_807C6A40 = 1;
+        return 7;
+    }
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_8002C2F0() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x18) = 0;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0x46;
+    *(int*)(lbl_807C6A40 + 0xE0) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_8002EF74() {
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x8C) = *(int*)(lbl_807C68C0 + 0x8C);
+    *(int*)(lbl_807C6A40 + 0x3C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80025DE0() {
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x8C) = *(int*)(lbl_807C68C0 + 0x8C);
+    *(int*)(lbl_807C6A40 + 0x3C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+// NONMATCHING: 89.70% - the local-slot allocation and scratch-store scheduling differ.
+extern "C" int fn_80026A40() {
+    int d = 0;
+    int c = 0xA;
+    int b = 0;
+    int a = 0;
+    *(int*)(lbl_807C6A40 + 0x18) = 0x28;
+    d = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x1C) = d;
+    *(int*)lbl_807C6A40 = 1;
+    fn_8001AEDC(8, &d, &c, &b, &a);
+    return 1;
+}
+
+extern "C" int fn_8002765C() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0xD2;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 9;
+    }
+    return -1;
+}
+
+extern "C" int fn_80027B2C() {
+    if (fn_800281A0() == 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 0;
+    }
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8002868C() {
+    if (fn_80028D00() == 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 0;
+    }
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8002922C() {
+    if (fn_80029500() == 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 0;
+    }
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8002A6F0() {
+    if (fn_8002AD40() == 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 0;
+    }
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+// NONMATCHING: 78.32% - MWCC places the parameter pointer in the wrong stack slot.
+extern "C" int fn_80029A14() {
+    int d = 0;
+    int c = 0;
+    int b = 0;
+    int a = (int)(lbl_807307A0 + 0x40A);
+    fn_8001AEDC(0x14, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 5;
+    return 1;
+}
+
+extern "C" int fn_80029A84() {
+    int d = 0;
+    int c = 0;
+    int b = 5;
+    int a = *(int*)(lbl_807C6A40 + 0x18);
+    fn_8001AEDC(0xC, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    *(int*)(lbl_807C6A40 + 0x28) = 1;
+    return 1;
+}
+
+extern "C" int fn_80029AFC() {
+    int d = 0;
+    int c = 0;
+    int b = *(int*)lbl_807C68C0;
+    int a = 0;
+    fn_8001AEDC(7, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 6;
+    return 1;
+}
+
+extern "C" int fn_80029D18() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
+    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+// NONMATCHING: 78.32% - MWCC places the parameter pointer in the wrong stack slot.
+extern "C" int fn_800249EC() {
+    int d = 0;
+    int c = 0;
+    int b = 0;
+    int a = (int)(lbl_807307A0 + 0x40A);
+    fn_8001AEDC(0x14, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 5;
+    return 1;
+}
+
+extern "C" int fn_80024B50() {
+    int d = 0;
+    int c = 0;
+    int b = *(int*)(lbl_807C68C0 + 0x20);
+    int a = 0;
+    fn_8001AEDC(7, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 6;
+    return 1;
+}
+
+extern "C" int fn_8002B88C() {
+    int d = 0;
+    int c = 0;
+    int b = *(int*)(lbl_807C6A40 + 0x18);
+    int a = *(int*)lbl_807C6B30;
+    fn_8001AEDC(0xD, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    return 6;
+}
+
+extern "C" int fn_80035C94() {
+    int d = 0;
+    int c = 0;
+    int b = *(int*)(lbl_807C6A40 + 0x18);
+    int a = *(int*)lbl_807C6B30;
+    fn_8001AEDC(0xD, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    return 6;
+}
+
+extern "C" int fn_80033F38() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_80034760() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_8003574C() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0x4B;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0;
+    *(int*)(lbl_807C6A40 + 0x20) = 0x4B;
+    *(int*)(lbl_807C6A40 + 0x24) = 0xA;
+    *(int*)(lbl_807C6A40 + 0x28) = 0;
+    *(int*)(lbl_807C6A40 + 0x2C) = fn_8001B4A4();
+    *(int*)(lbl_807C6A40 + 0x30) = 0x12C;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80038674() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0;
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x3C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_800388C4() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_80038D90() {
+    int result;
+    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
+    result = 1;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_80039908() {
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x3C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_8003A580() {
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x3C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_8003B2A4() {
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x30) = *(int*)(lbl_807C68C0 + 0x90);
+    *(int*)(lbl_807C6A40 + 0x3C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_8003C074() {
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x2C) = *(int*)(lbl_807C68C0 + 0x8C);
+    *(int*)(lbl_807C6A40 + 0x3C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
+extern "C" int fn_800386C0() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
+extern "C" int fn_80038C18() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
+extern "C" int fn_80039594() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
+extern "C" int fn_8003A044() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+// NONMATCHING: 91.85% - random-range arithmetic and return discrimination still differ.
+extern "C" int fn_80020914() {
+    int result = -1;
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int amount = *(int*)(lbl_807C68C0 + 0x4C);
+        int base = *(int*)(lbl_807C68C0 + 0x48);
+        int half = (amount + ((unsigned int)amount >> 31)) >> 1;
+        int start = base - half;
+        int range = base + half - start;
+        if (range > 0) {
+            start += rand() % range;
+        }
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = start;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 7;
+    }
+    if (result == 7) {
+        *(int*)lbl_807C6A40 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+// NONMATCHING: 91.85% - random-range arithmetic and return discrimination still differ.
+extern "C" int fn_80022308() {
+    int result = -1;
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int amount = *(int*)(lbl_807C68C0 + 0x4C);
+        int base = *(int*)(lbl_807C68C0 + 0x48);
+        int half = (amount + ((unsigned int)amount >> 31)) >> 1;
+        int start = base - half;
+        int range = base + half - start;
+        if (range > 0) {
+            start += rand() % range;
+        }
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = start;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 7;
+    }
+    if (result == 7) {
+        *(int*)lbl_807C6A40 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+// NONMATCHING: 91.85% - random-range arithmetic and return discrimination still differ.
+extern "C" int fn_80023B78() {
+    int result = -1;
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int amount = *(int*)(lbl_807C68C0 + 0x4C);
+        int base = *(int*)(lbl_807C68C0 + 0x48);
+        int half = (amount + ((unsigned int)amount >> 31)) >> 1;
+        int start = base - half;
+        int range = base + half - start;
+        if (range > 0) {
+            start += rand() % range;
+        }
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = start;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 7;
+    }
+    if (result == 7) {
+        *(int*)lbl_807C6A40 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+extern "C" int fn_80030220() {
+    int d = 0;
+    int c = 0;
+    int b = 0xA;
+    int a = *(int*)(lbl_807C6A40 + 0x3C);
+    fn_8001AEDC(0xC, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    ++*(int*)(lbl_807C6A40 + 0x40);
+    return 6;
+}
+
+extern "C" int fn_80023764() {
+    if (fn_80023C84() == 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 0;
+    }
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8002403C() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = *(int*)(lbl_807C6A40 + 0x1C);
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 9;
+    }
+    return -1;
+}
+
+// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
+extern "C" int fn_80023FAC() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
+extern "C" int fn_800244B0() {
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    return result;
+}
+
+// NONMATCHING: 91.68% - return paths through the second script helper differ.
+extern "C" int fn_80024DCC() {
+    int result = -1;
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        *(int*)lbl_807C6A40 = 1;
+        result = 6;
+    }
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 6) {
+            *(int*)lbl_807C6A40 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            *(int*)lbl_807C6A40 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    return -1;
+}
+
+// NONMATCHING: 76.72% - MWCC's parameter stack slots and scratch-store order differ.
+extern "C" int fn_80026E94() {
+    int a = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x18) = 0x28;
+    *(int*)(lbl_807C6A40 + 0x1C) = a;
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = 0;
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)lbl_807C6A40 = 1;
+    int b = 0xA;
+    int c = 0;
+    int d = 0;
+    fn_8001AEDC(8, &a, &b, &c, &d);
+    return 1;
+}
+
+// NONMATCHING: 99.89% - one local-zero store uses the wrong stack slot.
+extern "C" int fn_8002B434() {
+    int result;
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int a = 0;
+        int b = 0;
+        int c = 0;
+        int d = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    } else {
+        result = -1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8002B4C8() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+// NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
+extern "C" int fn_80027458() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0xA;
+        fn_8001AEDC(6, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 4;
+    }
+    return -1;
+}
+
+// NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
+extern "C" int fn_80027704() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 3;
+        fn_8001AEDC(6, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 4;
+    }
+    return -1;
+}
+
+// NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
+extern "C" int fn_800282D4() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 3;
+        fn_8001AEDC(6, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 4;
+    }
+    return -1;
+}
+
+// NONMATCHING: 91.85% - random-range arithmetic and return discrimination still differ.
+extern "C" int fn_80021A20() {
+    int result = -1;
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int amount = *(int*)(lbl_807C68C0 + 0x4C);
+        int base = *(int*)(lbl_807C68C0 + 0x48);
+        int half = (amount + ((unsigned int)amount >> 31)) >> 1;
+        int start = base - half;
+        int range = base + half - start;
+        if (range > 0) {
+            start += rand() % range;
+        }
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = start;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        result = 7;
+    }
+    if (result == 7) {
+        *(int*)lbl_807C6A40 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+// NONMATCHING: 88.52% - argument-register allocation differs around the AI call.
+extern "C" int fn_8002FBD4() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0x2711;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0x32;
+    *(int*)lbl_807C6A40 = 1;
+    int d = 0;
+    int c = 0;
+    int b = 0x32;
+    int a = 0x2711;
+    fn_8001AEDC(8, &a, &b, &c, &d);
+    return 1;
+}
+
+extern "C" int fn_800302A0() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        if (*(int*)(lbl_807C6A40 + 0x50) >= 0xC8) {
+            *(int*)lbl_807C6A40 = 1;
+            return 7;
+        } else {
+            *(int*)lbl_807C6A40 = 1;
+            return 1;
+        }
+    }
+    return -1;
+}
+
+extern "C" int fn_80035D04() {
+    *(int*)lbl_807C6A40 = 1;
+    return 3;
+}
+
+extern "C" int fn_80036A88() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 3;
+}
+
+extern "C" int fn_80035D18() {
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80036B20() {
+    *(int*)lbl_807C6A40 = 1;
+    return 3;
+}
+
+extern "C" int fn_80036C94() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0x1E;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0x64;
+    *(int*)(lbl_807C6A40 + 0x20) = 0x190;
+    *(int*)lbl_807C6A40 = 1;
+    return 3;
+}
+
+extern "C" int fn_80035EB4() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80036CC4() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0;
+    *(int*)(lbl_807C6A40 + 0x20) = 0x64;
+    *(int*)(lbl_807C6A40 + 0x24) = 0;
+    *(int*)(lbl_807C6A40 + 0x28) = 1;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80036F8C() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0;
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = 0;
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_800371E0() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0;
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = 0;
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_800374E0() {
+    *(int*)(lbl_807C6A40 + 0x18) = 0;
+    *(int*)(lbl_807C6A40 + 0x1C) = 0;
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x24) = 0;
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80031758() {
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        *(int*)lbl_807C6A40 = 1;
+        return 7;
+    }
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80031DE4() {
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        *(int*)lbl_807C6A40 = 1;
+        return 7;
+    }
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80032424() {
+    int result = 1;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_80032F04() {
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_80033020() {
+    *(int*)(lbl_807C6A40 + 0xE0) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+extern "C" int fn_800337F4() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+extern "C" int fn_8001F674() {
+    if (fn_8001FB08() == 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 0;
+    }
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_800204D8() {
+    if (fn_800209F0() == 0) {
+        *(int*)lbl_807C6A40 = 1;
+        return 0;
+    }
+    int result;
+    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+        result = -1;
+    } else {
+        *(int*)lbl_807C6A40 = 1;
+        result = 1;
+    }
+    if (result == 1) {
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 extern "C" void fn_8001C068(CharaTask* chara, const char* name) {
