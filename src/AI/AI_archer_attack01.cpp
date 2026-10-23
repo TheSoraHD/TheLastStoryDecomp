@@ -40,11 +40,13 @@ extern "C" void fn_8001C068(CharaTask* chara, const char* name) {
     }
 }
 
-// NONMATCHING: 78.33% - control flow around the null player manager differs.
 extern "C" int fn_8001C038(CharaTask*) {
     int ret = 0;
-    if (lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
-        ret = lbl_8087F8A0->mHead->mFlag28;
+    CharaManager<PlayerTask>* manager = lbl_8087F8A0;
+    // Select the head explicitly so both null paths share the same check.
+    manager = manager != 0 ? (CharaManager<PlayerTask>*)manager->mHead : 0;
+    if (manager != 0) {
+        ret = ((PlayerTask*)manager)->mFlag28;
     }
     return ret;
 }
