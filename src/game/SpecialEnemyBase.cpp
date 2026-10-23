@@ -40,6 +40,7 @@
 #include "game/Em401_01_WhiteLeoPard.h"
 #include "game/Em403WarLion.h"
 #include "game/Em202Spider.h"
+#include "game/Em202_01_BSpider.h"
 #include "game/Em202SpiderBase.h"
 #include "game/Em203GreaterDaemon.h"
 #include "game/Em208Queen.h"
@@ -594,7 +595,6 @@ extern "C" int fn_805A52F4(const char* s) {
 // inferred: constructors of the enemies that are not decompiled yet (called through new)
 extern "C" void* fn_8024A650(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_8025C998(void* self, atn::Task* parent, EnemyInfo_unk* info);
-extern "C" void* fn_8026FC0C(void* self, atn::Task* parent, void* data);
 extern "C" void* fn_8027278C(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80279860(void* self, atn::Task* parent, EnemyInfo_unk* info);
 extern "C" void* fn_80293738(void* self, atn::Task* parent, EnemyInfo_unk* info);
@@ -653,11 +653,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
             enemy = new (3, "", "", 0) Em305Vampire(parent, info);
             break;
         case 13:
-            p = ::operator new(0x1540, 3, "", "", 0);
-            if (p != 0) {
-                p = fn_8026FC0C(p, parent, data);
-            }
-            enemy = (EnemyTask*)p;
+            enemy = new (3, "", "", 0) Em202_01_BSpider(parent, data);
             break;
         case 11:
             enemy = new (3, "", "", 0) Em201ZanGurg(parent, info);
