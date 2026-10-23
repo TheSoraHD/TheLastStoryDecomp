@@ -52,6 +52,29 @@ extern "C" int fn_8001C01C(CharaTask* chara) {
     return ret;
 }
 
+// inferred: three-word MSL string header; the high bit selects the heap-buffer representation.
+struct AIString_unk {
+    unsigned int mFlags;
+    unsigned int mSize;
+    char* mData;
+};
+
+void operator delete(void* ptr);
+
+extern "C" void* fn_8001E168(AIString_unk* str, int freeObject) {
+    if (str != 0) {
+        if (str != 0) {
+            if ((str->mFlags >> 31) != 0) {
+                operator delete(str->mData);
+            }
+        }
+        if (freeObject > 0) {
+            operator delete(str);
+        }
+    }
+    return str;
+}
+
 extern "C" void fn_8001C068(CharaTask* chara, const char* name) {
     if (chara != 0 && name != 0) {
         strncpy((char*)chara->mC58.m1B0, name, 0x100);
