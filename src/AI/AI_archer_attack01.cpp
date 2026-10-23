@@ -13,6 +13,9 @@ extern unsigned char lbl_807C6B30[];
 extern unsigned char lbl_807307A0[];
 extern float lbl_80880798;
 extern float lbl_808807B8;
+extern unsigned char lbl_807C6B78[];
+extern unsigned char lbl_807C6B84[];
+void __register_global_object(void* object, void (*destructor)(void*, int), void* dso);
 int fn_80018078(void* routes, CharaTask* chara);
 int fn_80018BAC(void* routes, CharaTask* chara);
 int fn_8021A984(HitInfo_unk* hit);
@@ -20,6 +23,7 @@ int fn_80599C90(Bullet_unk* bullet, CharaTask* chara);
 int fn_8001AEDC(int mode, int* a, int* b, int* c, int* d);
 int fn_8001BEB0(CharaTask* chara);
 int fn_8001B4A4();
+int fn_8001AEBC(int size);
 int rand();
 int fn_80023C84();
 int fn_8003DBA4();
@@ -68,6 +72,21 @@ extern "C" int fn_8001C01C(CharaTask* chara) {
     return ret;
 }
 
+// inferred: this global sentinel is registered with the destructor for its three linked buckets.
+extern "C" void fn_8003E6B8(void* object, int freeObject);
+extern "C" void fn_8003E688() {
+    struct ListHead_unk {
+        void* first;
+        void* last;
+        void* end;
+    };
+    ListHead_unk* head = (ListHead_unk*)lbl_807C6B84;
+    head->first = 0;
+    head->last = 0;
+    head->end = &head->last;
+    __register_global_object(head, fn_8003E6B8, lbl_807C6B78);
+}
+
 // NONMATCHING: 89.40% - conversion to float and generated constant do not match MWCC's sequence.
 extern "C" int fn_8003CBE0() {
     int count = *(int*)(lbl_807C68C0 + 0x30);
@@ -100,6 +119,57 @@ extern "C" int fn_80033588() {
         return 1;
     }
     return -1;
+}
+
+extern "C" int fn_80035FD0() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0x5A;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_80032FA8() {
+    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+        int d = 0;
+        int c = 0;
+        int b = 0;
+        int a = 0xF;
+        fn_8001AEDC(0, &a, &b, &c, &d);
+        *(int*)lbl_807C6A40 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+// NONMATCHING: 89.57% - stack output order and register allocation differ.
+extern "C" int fn_8002EB20() {
+    int d = *(int*)(lbl_807C68C0 + 0x7C);
+    int c = 0x1E;
+    int b = 0;
+    int a = 0;
+    *(int*)(lbl_807C6A40 + 0x18) = 0x3C;
+    *(int*)(lbl_807C6A40 + 0x1C) = d;
+    *(int*)lbl_807C6A40 = 1;
+    fn_8001AEDC(8, &d, &c, &b, &a);
+    return 1;
+}
+
+// NONMATCHING: 70.77% - argument setup and local register allocation differ.
+// inferred: a 0x12-byte helper allocation is passed as the first output word.
+extern "C" int fn_80036AA8() {
+    int a = fn_8001AEBC(0x12);
+    int b = *(int*)(lbl_807C6A40 + 0x18);
+    int c = 0;
+    int d = 0;
+    fn_8001AEDC(0xD, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    return 6;
 }
 
 // NONMATCHING: 88.31% - local output aggregate and register allocation differ.
