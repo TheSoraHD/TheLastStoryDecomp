@@ -26,6 +26,7 @@ public:
     virtual void vf50();
     virtual void vf54();
     virtual atn::Vector3 vf64(int center);
+    virtual void vfEC();
 
     void fn_803057A8(); // inferred: debug menu entries
     void fn_802FF6C4(); // inferred: picks the target (the party leader when m1524 reaches m16F8)
@@ -98,8 +99,9 @@ public:
     int m1624;
     int m1628;
     unsigned char m162C[0x1638 - 0x162C];
-    float m1638[2][2][2];     // inferred: x/z of the corners m14C4
-    unsigned char m1658[0x1668 - 0x1658];
+    atn::Vector2_unk m1638[2][2]; // inferred: x/z of the corners m14C4
+    CharaTask* m1658;         // inferred: leader seen across the segments m1638 (fn_80304B40)
+    unsigned char m165C[0x1668 - 0x165C];
     unsigned char m1668;      // inferred: draws the home place sphere
     unsigned char m1669;
     unsigned char m166A;      // inferred: hides the debug sphere of m1608
