@@ -183,3 +183,48 @@ extern "C" void* fn_800CDD4C(void* ptr, int shouldDelete) {
     }
     return ptr;
 }
+
+// inferred: each pool entry contains two SoundCore records, each 0x14C bytes.
+// NONMATCHING: 85.17% - la validacion del indice y el registro del recorrido difieren.
+extern "C" int fn_800D089C(void* manager, int category, int onlyIdle) {
+    char* categoryParam;
+    if (category < 0) goto invalidCategory;
+    if (category >= 0x20) goto invalidCategory;
+    categoryParam = static_cast<char*>(manager) + 0x2B98 + category * 0x18;
+    goto categoryReady;
+invalidCategory:
+    categoryParam = 0;
+categoryReady:
+
+    int count = 0;
+    char* core = static_cast<char*>(manager) + 4;
+    for (int i = 0; i < 0x10; ++i, core += 0x298) {
+        if (*(void**)(core + 4) != 0 &&
+            (*(unsigned int*)(core + 0x9C) & 8) == 8 &&
+            (categoryParam == 0 || *(void**)(core + 0xAC) == categoryParam) &&
+            (onlyIdle == 0 || *(int*)(core + 0xA0) == 0)) {
+            ++count;
+        }
+
+        char* secondCore = core + 0x14C;
+        if (*(void**)(secondCore + 4) != 0 &&
+            (*(unsigned int*)(secondCore + 0x9C) & 8) == 8 &&
+            (categoryParam == 0 || *(void**)(secondCore + 0xAC) == categoryParam) &&
+            (onlyIdle == 0 || *(int*)(secondCore + 0xA0) == 0)) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+extern "C" void fn_800D0180(void* closure, void* arg) {
+    typedef void (*Callback)(void*, void*);
+    Callback callback = reinterpret_cast<Callback>(*(void**)closure);
+    callback(arg, *(void**)((char*)closure + 4));
+}
+
+extern "C" void fn_800D07E8(void* closure, void* arg) {
+    typedef void (*Callback)(void*);
+    Callback callback = reinterpret_cast<Callback>(*(void**)closure);
+    callback(arg);
+}
