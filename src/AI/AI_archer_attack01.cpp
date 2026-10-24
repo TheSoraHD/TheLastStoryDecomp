@@ -17,6 +17,8 @@ extern unsigned char lbl_807C6B30[];
 extern unsigned char lbl_807307A0[];
 extern float lbl_80880798;
 extern float lbl_808807B8;
+extern float lbl_808807AC;
+extern double lbl_8072FF68;
 extern unsigned char lbl_807C6B78[];
 extern unsigned char lbl_807C6B84[];
 extern unsigned char lbl_8087D6F0;
@@ -27,6 +29,11 @@ int fn_80018BAC(void* routes, CharaTask* chara);
 int fn_8021A984(HitInfo_unk* hit);
 int fn_80599C90(Bullet_unk* bullet, CharaTask* chara);
 int fn_8001AEDC(int mode, int* a, int* b, int* c, int* d);
+void fn_8001A464(CharaTask** list);
+void fn_8001A65C(CharaTask** list);
+void fn_8001A788(CharaTask** list);
+int fn_8001BE00(CharaTask* chara);
+float fn_8001AD80(CharaTask* a, CharaTask* b);
 int fn_8001BEB0(CharaTask* chara);
 int fn_8001B4A4();
 int fn_8001AEBC(int size);
@@ -1086,13 +1093,14 @@ extern "C" int fn_8002A6F0() {
     return -1;
 }
 
-// NONMATCHING: 78.32% - MWCC places the parameter pointer in the wrong stack slot.
+// NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
 extern "C" int fn_80029A14() {
-    int d = 0;
-    int c = 0;
-    int b = 0;
-    int a = (int)(lbl_807307A0 + 0x40A);
-    fn_8001AEDC(0x14, &a, &b, &c, &d);
+    int args[4];
+    args[0] = (int)(lbl_807307A0 + 0x40A);
+    args[1] = 0;
+    args[2] = 0;
+    args[3] = 0;
+    fn_8001AEDC(0x14, &args[0], &args[1], &args[2], &args[3]);
     *(int*)lbl_807C6A40 = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 5;
     return 1;
@@ -1131,13 +1139,14 @@ extern "C" int fn_80029D18() {
     return result;
 }
 
-// NONMATCHING: 78.32% - MWCC places the parameter pointer in the wrong stack slot.
+// NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
 extern "C" int fn_800249EC() {
-    int d = 0;
-    int c = 0;
-    int b = 0;
-    int a = (int)(lbl_807307A0 + 0x40A);
-    fn_8001AEDC(0x14, &a, &b, &c, &d);
+    int args[4];
+    args[0] = (int)(lbl_807307A0 + 0x40A);
+    args[1] = 0;
+    args[2] = 0;
+    args[3] = 0;
+    fn_8001AEDC(0x14, &args[0], &args[1], &args[2], &args[3]);
     *(int*)lbl_807C6A40 = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 5;
     return 1;
@@ -1261,6 +1270,154 @@ extern "C" int fn_8003A580() {
     *(int*)(lbl_807C6A40 + 0x3C) = 0;
     *(int*)lbl_807C6A40 = 1;
     return 1;
+}
+
+// NONMATCHING: 66.46% - state-machine branches and temporary scheduling still differ from MWCC.
+// inferred: advances an archer attack action using the current AI script parameters.
+extern "C" int fn_8003AD38() {
+    int* script = (int*)lbl_807C68C0;
+    int* action = (int*)(lbl_807C68C0 + 0x180);
+    int result;
+    if (action[4] >= 1) {
+        result = -1;
+    }
+    else {
+        action[0] = 1;
+        result = 1;
+    }
+    if (result != 1) {
+        return -1;
+    }
+    if (action[0x64 / 4] == 0) {
+        action[0x64 / 4] = script[0x58 / 4];
+    } else if (script[0x58 / 4] > action[0x64 / 4]) {
+        action[0x64 / 4] = script[0x58 / 4];
+        action[0x18 / 4] = 3;
+    }
+
+    int state = action[0x18 / 4];
+    if (state == 0) {
+        CharaTask** candidates = (CharaTask**)(lbl_807C6B30 + 8);
+        fn_8001A464(candidates);
+        fn_8001A65C(candidates);
+        fn_8001A788(candidates);
+        CharaTask* target = candidates[0];
+        *(CharaTask**)(lbl_807C6B30 + 4) = target;
+        if (target != 0) {
+            action[0xE0 / 4] = (int)target;
+            action[0x18 / 4] = 1;
+        } else {
+            action[0x18 / 4] = 4;
+        }
+        action[0] = 1;
+        return -1;
+    }
+    if (state == 1) {
+        CharaTask* target = (CharaTask*)action[0xE0 / 4];
+        if (fn_8001BE00(target)) {
+            int a = (int)target;
+            int b = action[0x1C / 4];
+            int c = 0;
+            int d = 0;
+            fn_8001AEDC(9, &a, &b, &c, &d);
+            script[0x28 / 4] = (int)target;
+            action[0] = 1;
+            action[0x18 / 4] = 2;
+        } else {
+            action[0x18 / 4] = 4;
+            action[0] = 1;
+        }
+        return -1;
+    }
+    if (state == 2) {
+        CharaTask* target = (CharaTask*)script[0x20 / 4];
+        CharaTask* current = (CharaTask*)action[0xE0 / 4];
+        if (!fn_8001BE00(current)) {
+            action[0] = 1;
+            action[0x18 / 4] = 0;
+            return -1;
+        }
+        if (fn_8001BE00(target)) {
+            int distance = 0;
+            if (target != 0 && current != 0) {
+                distance = (int)fn_8001AD80(target, current);
+            }
+            if (distance < action[0x20 / 4]) {
+                int a = script[0x20 / 4];
+                int b = 0;
+                int c = 0;
+                int d = 0;
+                action[0x18 / 4] = 3;
+                action[0] = 1;
+                fn_8001AEDC(4, &a, &b, &c, &d);
+                return 5;
+            }
+            int originDistance = 0;
+            if (script[0x20 / 4] != 0 && script[0] != 0) {
+                originDistance = (int)fn_8001AD80((CharaTask*)script[0], target);
+            }
+            if ((double)originDistance < lbl_8072FF68 * (double)script[0x30 / 4]) {
+                int a = 1;
+                int b = 0;
+                int c = 0;
+                int d = 0;
+                fn_8001AEDC(5, &a, &b, &c, &d);
+                action[0] = 1;
+                action[0x18 / 4] = 3;
+                action[0x3C / 4] = action[0x28 / 4];
+                return 8;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    if (state == 3) {
+        CharaTask* target = (CharaTask*)script[0x20 / 4];
+        if (fn_8001BE00(target)) {
+            int delay = (int)(lbl_808807AC * (float)script[0x30 / 4]);
+            int a = (int)target;
+            if (target != 0) {
+                if (delay != 0) {
+                    int b = delay;
+                    int c = 0;
+                    int d = 0;
+                    fn_8001AEDC(3, &a, &b, &c, &d);
+                } else {
+                    int b = 0x1E;
+                    int c = 0;
+                    int d = 0;
+                    fn_8001AEDC(3, &a, &b, &c, &d);
+                }
+            }
+            action[0] = 1;
+            action[0x18 / 4] = 1;
+            return 6;
+        }
+        action[0x18 / 4] = 0;
+        action[0] = 1;
+        return -1;
+    }
+    CharaTask* target = (CharaTask*)script[0x20 / 4];
+    if (fn_8001BE00(target) && script[2] != 0) {
+        int delay = (int)(lbl_808807AC * (float)script[0x30 / 4]);
+        int a = (int)target;
+        if (target != 0) {
+            if (delay != 0) {
+                int b = delay;
+                int c = 0;
+                int d = 0;
+                fn_8001AEDC(3, &a, &b, &c, &d);
+            } else {
+                int b = 0x1E;
+                int c = 0;
+                int d = 0;
+                fn_8001AEDC(3, &a, &b, &c, &d);
+            }
+        }
+        action[0] = 1;
+        return 6;
+    }
+    return -1;
 }
 
 extern "C" int fn_8003B2A4() {
