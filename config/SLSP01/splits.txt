@@ -693,7 +693,7 @@ game/MenuCommon_unk.cpp:
 
 game/CampSaveLoad.cpp:
 	.text       start:0x8011770C end:0x8011BD14
-	.rodata     start:0x80736AB0 end:0x80736EF0
+	.rodata     start:0x80736AA8 end:0x80736EF0
 	.data       start:0x80779FA0 end:0x8077A150
 	.sdata      start:0x8087D990 end:0x8087D9A0
 	.sbss       start:0x8087F068 end:0x8087F070
@@ -901,14 +901,14 @@ chr/ControlDropDown.cpp:
 
 chr/ControlGmkCoffinOpening.cpp:
 	.text       start:0x801B409C end:0x801B529C
-	.rodata     start:0x8073AE54 end:0x8073AEE0
+	.rodata     start:0x8073AD70 end:0x8073AEE0
 	.data       start:0x80780910 end:0x80780B80
 	.sdata      start:0x8087DA08 end:0x8087DA10
 	.sdata2     start:0x80882480 end:0x808824C0
 
 chr/ControlJumpAt.cpp:
 	.text       start:0x801B529C end:0x801B73F0
-	.rodata     start:0x8073B110 end:0x8073B190
+	.rodata     start:0x8073AEE0 end:0x8073B190
 	.data       start:0x80780B80 end:0x80780ED0
 	.sdata2     start:0x808824C0 end:0x808824F0
 
@@ -972,7 +972,7 @@ chr/ControlPushedDown.cpp:
 
 chr/ControlRide.cpp:
 	.text       start:0x801C6F90 end:0x801C7918
-	.rodata     start:0x8073B8BC end:0x8073B8E8
+	.rodata     start:0x8073B810 end:0x8073B8E8
 	.data       start:0x80781ED0 end:0x80782000
 	.bss        start:0x807C7C80 end:0x807C7C88
 	.sdata2     start:0x80882838 end:0x80882848
