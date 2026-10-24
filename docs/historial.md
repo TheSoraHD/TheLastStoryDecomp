@@ -4,7 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
-| 2026-10-24 | `codex/ai-archer-attack01-q2` (AI/AI_archer_attack01) | — | 7500 → 7501 | 26,15 → 26,16% / 42,80 → 42,90% | 370 | `docs/AI-archer-attack01.md` (186/517; `fn_8001C284` 92,27%, `fn_8001E1D0` 47,60%, `fn_80020914` 98,78%, `fn_8003E530` 88,17%; `ninja`, regress/fuzzdrop/poolcheck sin pérdidas) |
+| 2026-10-24 | `codex/ai-archer-attack01-q2` (AI/AI_archer_attack01) | — | 7500 → 7501 | 26,15 → 26,16% / 42,80 → 42,90% | 370 | `docs/AI-archer-attack01.md` (186/517; `fn_8001C284` 92,27%, `fn_8001E1D0` 47,60%, cuatro stubs de rango al 98,78%, `fn_8003E530` 88,17%; `ninja`, regress/fuzzdrop/poolcheck sin pérdidas) |
 | 2026-10-23/24 | `codex/ai-archer-attack01-next` (AI/AI_archer_attack01) | — | 7491 → 7500 | 26,14 → 26,15% / 42,78 → 42,80% | 370 | `docs/AI-archer-attack01.md` (185/517; build limpio; regress lost: 0, fuzzdrop 0 bajadas, poolcheck 0 hallazgos) |
 | 2026-10-23 | `codex/std-allocator-char` (AI/AI_archer_attack01) | — | 7315 → 7491 | 26,02 → 26,14% / 42,62 → 42,78% | 370 | `docs/AI-archer-attack01.md` (176/517; build limpio; regress/fuzzdrop/poolcheck sin pérdidas, bajadas ni hallazgos) |
 | 2026-10-23 | `codex/std-allocator-char` (revisión `game/main`) | — | 7315 → 7315 | 26,02% / 42,62% | 370 | `docs/game-main.md` (11/14; sin match nuevo; validación limpia) |

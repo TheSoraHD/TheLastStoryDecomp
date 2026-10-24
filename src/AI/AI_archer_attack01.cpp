@@ -1399,25 +1399,28 @@ extern "C" int fn_80020914() {
     return -1;
 }
 
-// NONMATCHING: 91.85% - random-range arithmetic and return discrimination still differ.
+// NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 extern "C" int fn_80022308() {
-    int result = -1;
+    int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int amount = *(int*)(lbl_807C68C0 + 0x4C);
         int base = *(int*)(lbl_807C68C0 + 0x48);
-        int half = (amount + ((unsigned int)amount >> 31)) >> 1;
+        int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
         int start = base - half;
         int range = base + half - start;
         if (range > 0) {
             start += rand() % range;
         }
-        int d = 0;
-        int c = 0;
+        int a = 0;
         int b = 0;
-        int a = start;
+        int c = 0;
+        int d = 0;
+        a = start;
         fn_8001AEDC(0, &a, &b, &c, &d);
         *(int*)lbl_807C6A40 = 1;
         result = 7;
+    } else {
+        result = -1;
     }
     if (result == 7) {
         *(int*)lbl_807C6A40 = 1;
@@ -1426,25 +1429,28 @@ extern "C" int fn_80022308() {
     return -1;
 }
 
-// NONMATCHING: 91.85% - random-range arithmetic and return discrimination still differ.
+// NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 extern "C" int fn_80023B78() {
-    int result = -1;
+    int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int amount = *(int*)(lbl_807C68C0 + 0x4C);
         int base = *(int*)(lbl_807C68C0 + 0x48);
-        int half = (amount + ((unsigned int)amount >> 31)) >> 1;
+        int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
         int start = base - half;
         int range = base + half - start;
         if (range > 0) {
             start += rand() % range;
         }
-        int d = 0;
-        int c = 0;
+        int a = 0;
         int b = 0;
-        int a = start;
+        int c = 0;
+        int d = 0;
+        a = start;
         fn_8001AEDC(0, &a, &b, &c, &d);
         *(int*)lbl_807C6A40 = 1;
         result = 7;
+    } else {
+        result = -1;
     }
     if (result == 7) {
         *(int*)lbl_807C6A40 = 1;
@@ -1654,25 +1660,28 @@ extern "C" int fn_800282D4() {
     return -1;
 }
 
-// NONMATCHING: 91.85% - random-range arithmetic and return discrimination still differ.
+// NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 extern "C" int fn_80021A20() {
-    int result = -1;
+    int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int amount = *(int*)(lbl_807C68C0 + 0x4C);
         int base = *(int*)(lbl_807C68C0 + 0x48);
-        int half = (amount + ((unsigned int)amount >> 31)) >> 1;
+        int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
         int start = base - half;
         int range = base + half - start;
         if (range > 0) {
             start += rand() % range;
         }
-        int d = 0;
-        int c = 0;
+        int a = 0;
         int b = 0;
-        int a = start;
+        int c = 0;
+        int d = 0;
+        a = start;
         fn_8001AEDC(0, &a, &b, &c, &d);
         *(int*)lbl_807C6A40 = 1;
         result = 7;
+    } else {
+        result = -1;
     }
     if (result == 7) {
         *(int*)lbl_807C6A40 = 1;
