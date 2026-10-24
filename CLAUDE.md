@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `codex/ai-archer-attack01-q2` (2026-10-24): **7501 / 18215 funciones al 100%** (código 26,16%, fuzzy 42,91%, datos 17,46%), 370 ficheros enlazados; `AI/AI_archer_attack01` en 186/517, `matching: false`. `fn_8003AD38` reconstruida al 66,46%; dos stubs al 99,32%, todos `NONMATCHING`. Mapa de offsets y decisiones en `docs/AI-archer-attack01.md`. Sin excepción nueva de regla 2. Build limpio y regresiones documentados allí. Sin push.
+- `codex/ai-archer-attack01-q2` (2026-10-24): **7501 / 18215 funciones al 100%** (código 26,16%, fuzzy 42,91%, datos 17,46%), 370 ficheros enlazados; `AI/AI_archer_attack01` en 186/517, `matching: false`. `fn_8003AD38` reconstruida al 70,00%; dos stubs al 99,32%, todos `NONMATCHING`. Mapa de offsets y decisiones en `docs/AI-archer-attack01.md`. Sin excepción nueva de regla 2. Validación final documentada allí. Sin push.
 - Revisión `game/main` (2026-10-23): 11/14 al 100%; `main` 98,61%, arranque 39,58%. Sin match nuevo; build limpio y verificaciones sin pérdidas ni avisos de pool. Detalle: `docs/game-main.md`.
 - Último trabajo: segunda ronda en `AI/AI_archer_attack01` (`docs/AI-archer-attack01.md`); 185 funciones al 100%; unidad incompleta.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
