@@ -45,6 +45,9 @@ std/runtime_error.cpp:
 	.rodata     start:0x8072FCAC end:0x8072FD8C
 	.data       start:0x80775B30 end:0x80775BE8
 
+game/AiTarget_rodata.cpp:
+	.rodata     start:0x8072FD8C end:0x8072FF50 align:4
+
 AI/AiCommon_unk.cpp:
 	.text       start:0x8001A444 end:0x8001BF44
 	.rodata     start:0x8072FF50 end:0x8072FF60
@@ -151,6 +154,9 @@ atn/SinusCurve.cpp:
 	.rodata     start:0x807310C8 end:0x80731140
 	.data       start:0x807776C8 end:0x807777C0
 	.sdata2     start:0x80880998 end:0x808809A0
+
+atn/ComDrawTexture_rodata.cpp:
+	.rodata     start:0x80731140 end:0x80731160
 
 atn/DrawHelper.cpp:
 	.text       start:0x8005DD60 end:0x8005DED8
@@ -3400,9 +3406,11 @@ nw4r/DvdSoundArchive.cpp:
 	.rodata     start:0x807622E0 end:0x80762328
 	.data       start:0x80796B60 end:0x80796C70
 
+nw4r/SoundArchiveFamily_rodata.cpp:
+	.rodata     start:0x80762328 end:0x807626F8
+
 nw4r/SoundArchive.cpp:
 	.text       start:0x8059E21C end:0x8059E7EC
-	.rodata     start:0x80762360 end:0x80762378
 	.data       start:0x80796C70 end:0x80796D38
 
 nw4r/SeqNoteOnCallback.cpp:
