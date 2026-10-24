@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `codex/rendersystem-decomp` (2026-10-24, avance local): RenderSystem, 8/37 funciones al 100%; 6 implementaciones parciales y 23 pendientes. Build limpio `main.dol: OK`, regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Decisiones: `docs/RenderSystem-q1.md`. Sin push.
+- `codex/rendersystem-decomp` (2026-10-25, avance local): RenderSystem, 13/37 funciones al 100%; 24 implementaciones parciales. Build limpio `main.dol: OK`; regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Layout e inferencias pendientes en `docs/RenderSystem-q1.md`. Sin push.
 - `codex/graphicsdevice-decomp` (2026-10-24): `atn/GraphicsDevice.cpp`, 9 funciones al 100%; `fn_80071088` al 65,57% y `fn_800763C0` al 72,00%, ambas `NONMATCHING`; resto pendiente. Build limpio `main.dol: OK`, regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Decisiones: `docs/GraphicsDevice-q1.md`. Sin push.
 - `codex/rodata-unassigned-2026-10-24` (2026-10-24): cuatro tramos contiguos y tres unidades de datos `.rodata`; 7501/18215 funciones al 100%, 370 ficheros enlazados, sin excepción nueva de regla 2. Build limpio (`main.dol: OK`), regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Detalle y decisión sobre el pool familiar nw4r: `docs/rodata-sin-asignar-q1.md`. Sin push.
 - Estado de `AI/AI_archer_attack01`: 186/517; `matching: false`; `fn_8003AD38` al 70,00% y dos stubs al 99,32%, todos `NONMATCHING`. Decisiones: `docs/AI-archer-attack01.md`.
