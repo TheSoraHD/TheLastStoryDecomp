@@ -4,7 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
-| 2026-10-24 | `codex/soundmanager-decomp` (avance local) | — | 7501 → 7524 | 26,16% / 42,93% | 370 | `docs/SoundManager-q1.md` (23/76 en SoundManager; build limpio `main.dol: OK`, regress/fuzzdrop/poolcheck sin pérdidas, bajadas ni hallazgos; sin push) |
+| 2026-10-24 | `codex/soundmanager-decomp` (avance local) | — | 7501 → 7526 | 26,17% / 42,93% | 370 | `docs/SoundManager-q1.md` (25/76 en SoundManager; build limpio `main.dol: OK`, regress lost: 0, fuzzdrop 0 bajadas, poolcheck 0 hallazgos; sin push) |
 | 2026-10-24 | `codex/rodata-unassigned-2026-10-24` | — | 7501 → 7501 | 26,16% / 42,92% | 370 | `docs/rodata-sin-asignar-q1.md` (cuatro tramos y tres unidades de datos `.rodata`; build limpio `main.dol: OK`, regress/fuzzdrop/poolcheck sin hallazgos; sin push) |
 | 2026-10-24 | `codex/ai-archer-attack01-q2` (continuación local) | — | 7501 → 7501 | 26,16% / 42,91% | 370 | `docs/AI-archer-attack01.md` (`fn_8003AD38` al 70,00% y dos stubs al 99,32%, NONMATCHING; build/checks sin pérdidas, bajadas ni hallazgos; sin push) |
 | 2026-10-24 | `codex/ai-archer-attack01-q2` (AI/AI_archer_attack01) | — | 7500 → 7501 | 26,15 → 26,16% / 42,80 → 42,90% | 370 | `docs/AI-archer-attack01.md` (186/517; `fn_8001C284` 92,27%, `fn_8001E1D0` 47,60%, cuatro stubs de rango al 98,78%, `fn_8003E530` 88,17%; `ninja`, regress/fuzzdrop/poolcheck sin pérdidas) |

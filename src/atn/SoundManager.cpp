@@ -170,3 +170,16 @@ extern "C" void fn_800CB788(atn::SoundObject* self, int frames) {
         reinterpret_cast<atn::SoundCore*>(self)->fn_800C82A0(frames == 0);
     }
 }
+
+void operator delete(void*);
+
+extern "C" void fn_800CDD40(char* state) {
+    *state = 0;
+}
+
+extern "C" void* fn_800CDD4C(void* ptr, int shouldDelete) {
+    if (ptr != 0 && shouldDelete > 0) {
+        ::operator delete(ptr);
+    }
+    return ptr;
+}
