@@ -10,7 +10,10 @@ struct SoundObject {
     void* mSound; // 0x04
     char pad[0x90 - 0x08];
     int m90;       // inferred: zero when the sound must still be prepared (atn::Bgm::fn_8004AE84)
-    char pad94[0xA4 - 0x94];
+    int m94;
+    int m98;       // inferred: sound id, read by fn_800CB6F8
+    unsigned int m9C; // inferred: sound state flags, tested by fn_800CB4A4
+    int mA0;       // inferred: nonzero while playing, tested by fn_800CB4C4
     int mRefCount; // 0xA4
     int mA8;       // inferred: set from fn_800CFDA0 (atn::Bgm)
 };

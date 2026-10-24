@@ -427,6 +427,14 @@
   "matching": true
  },
  {
+  "name": "atn/SoundManager.cpp",
+  "classes": [
+   "atn::SoundRef",
+   "atn::SoundManager"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/Task.cpp",
   "classes": [
    "atn::Task"
