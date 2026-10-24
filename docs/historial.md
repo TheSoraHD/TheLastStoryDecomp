@@ -4,6 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-10-24 | `codex/graphicsdevice-decomp` (avance local) | — | 7528 → 7528 | 26,17% / 42,94% | 370 | `docs/GraphicsDevice-q1.md` (primera función al 65,57%, permanece NONMATCHING; build limpio y checks sin pérdidas, bajadas ni hallazgos; sin push) |
 | 2026-10-24 | `codex/soundmanager-decomp` (avance local) | — | 7501 → 7528 | 26,17% / 42,93% | 370 | `docs/SoundManager-q1.md` (27/76 en SoundManager; build limpio `main.dol: OK`, regress lost: 0, fuzzdrop 0 bajadas, poolcheck 0 hallazgos; sin push) |
 | 2026-10-24 | `codex/rodata-unassigned-2026-10-24` | — | 7501 → 7501 | 26,16% / 42,92% | 370 | `docs/rodata-sin-asignar-q1.md` (cuatro tramos y tres unidades de datos `.rodata`; build limpio `main.dol: OK`, regress/fuzzdrop/poolcheck sin hallazgos; sin push) |
 | 2026-10-24 | `codex/ai-archer-attack01-q2` (continuación local) | — | 7501 → 7501 | 26,16% / 42,91% | 370 | `docs/AI-archer-attack01.md` (`fn_8003AD38` al 70,00% y dos stubs al 99,32%, NONMATCHING; build/checks sin pérdidas, bajadas ni hallazgos; sin push) |

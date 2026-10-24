@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `codex/soundmanager-decomp` (2026-10-24): `atn/SoundManager.cpp`, 27/76 funciones al 100%, unidad `matching: false`; build limpio `main.dol: OK`, regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Decisiones: `docs/SoundManager-q1.md`. Sin push.
+- `codex/graphicsdevice-decomp` (2026-10-24): `atn/GraphicsDevice.cpp`, primera función en 65,57% (`NONMATCHING`), resto pendiente; build limpio `main.dol: OK`, regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Decisiones: `docs/GraphicsDevice-q1.md`. Sin push.
 - `codex/rodata-unassigned-2026-10-24` (2026-10-24): cuatro tramos contiguos y tres unidades de datos `.rodata`; 7501/18215 funciones al 100%, 370 ficheros enlazados, sin excepción nueva de regla 2. Build limpio (`main.dol: OK`), regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Detalle y decisión sobre el pool familiar nw4r: `docs/rodata-sin-asignar-q1.md`. Sin push.
 - Estado de `AI/AI_archer_attack01`: 186/517; `matching: false`; `fn_8003AD38` al 70,00% y dos stubs al 99,32%, todos `NONMATCHING`. Decisiones: `docs/AI-archer-attack01.md`.
 - Revisión `game/main` (2026-10-23): 11/14 al 100%; `main` 98,61%, arranque 39,58%. Detalle: `docs/game-main.md`.

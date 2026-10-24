@@ -213,6 +213,11 @@
   "matching": false
  },
  {
+  "name": "atn/GraphicsDevice.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/LensFlare.cpp",
   "classes": [
    "atn::LensFlare"
