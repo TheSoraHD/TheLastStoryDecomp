@@ -35,6 +35,11 @@ int fn_8001FB08();
 int fn_800209F0();
 void fn_8001C284();
 void fn_8001E730();
+void* fn_8001EA18(void*);
+unsigned char* fn_8001C260();
+unsigned char* fn_8001C26C();
+unsigned char* fn_8001C278();
+int fn_8001ECD0(void*, int);
 }
 
 extern "C" int fn_8001BF44() {
@@ -70,6 +75,64 @@ extern "C" int fn_8001C01C(CharaTask* chara) {
         ret = chara->mC58.mE0_12;
     }
     return ret;
+}
+
+// NONMATCHING: 0.00% - the inferred copy loops compile to a different routine shape.
+// inferred: copies the script's fixed parameter blocks into the global AI state.
+extern "C" unsigned char* fn_8001C088() {
+    unsigned char* src = fn_8001C260();
+    unsigned char* dst = fn_8001C26C();
+
+    *(int*)(dst + 4) = *(int*)(src + 4);
+    *(int*)(dst + 8) = *(int*)(src + 0x64);
+    *(int*)(dst + 0xC) = *(int*)(src + 0x68);
+    *(int*)(dst + 0x10) = *(int*)(src + 0x6C);
+    for (int i = 0; i < 5; i++) {
+        *(int*)(dst + 0x14 + i * 0x14) = *(int*)(src + 0xA4 + i * 0x14);
+        *(int*)(dst + 0x18 + i * 0x14) = *(int*)(src + 0xA8 + i * 0x14);
+        *(int*)(dst + 0x1C + i * 0x14) = *(int*)(src + 0xAC + i * 0x14);
+        *(int*)(dst + 0x20 + i * 0x14) = *(int*)(src + 0xB0 + i * 0x14);
+        *(int*)(dst + 0x24 + i * 0x14) = *(int*)(src + 0xB4 + i * 0x14);
+    }
+    for (int i = 0; i < 5; i++) {
+        *(int*)(dst + 0x78 + i * 0x14) = *(int*)(src + 0x108 + i * 0x14);
+        *(int*)(dst + 0x7C + i * 0x14) = *(int*)(src + 0x10C + i * 0x14);
+        *(int*)(dst + 0x80 + i * 0x14) = *(int*)(src + 0x110 + i * 0x14);
+        *(int*)(dst + 0x84 + i * 0x14) = *(int*)(src + 0x114 + i * 0x14);
+        *(int*)(dst + 0x88 + i * 0x14) = *(int*)(src + 0x118 + i * 0x14);
+    }
+    for (int i = 0; i < 5; i++) {
+        *(int*)(dst + 0xDC + i * 4) = *(int*)(src + 0x16C + i * 4);
+    }
+
+    unsigned char* tail = fn_8001C278();
+    CharaManager<PlayerTask>* manager = lbl_8087F8A0;
+    *(int*)tail = manager != 0 ? *(int*)((unsigned char*)manager + 0x48) : 0;
+    *(int*)(tail + 4) = 0;
+    return tail;
+}
+
+// NONMATCHING: 80.53% - MWCC lowers the global state pointers through different code than the target.
+// inferred: applies the selected script's two indexed parameter values to global state.
+extern "C" unsigned char* fn_8001C1C0(unsigned char* script) {
+    fn_8001C088();
+    unsigned char* result = (unsigned char*)fn_8001EA18(script);
+    if (result != 0) {
+        unsigned char* src = lbl_807C68C0;
+        unsigned char* dst = lbl_807C6A40;
+        if (*(int*)(src + 4) != 0) {
+            int value = fn_8001ECD0(result, 0xE);
+            if (value >= 0) {
+                *(int*)(src + 4) = value;
+                *(int*)(dst + 4) = value;
+            }
+        }
+        int value = fn_8001ECD0(result, *(int*)(src + 4));
+        if (value >= 0) {
+            *(int*)(dst + 4) = value;
+        }
+    }
+    return result;
 }
 
 // inferred: this global sentinel is registered with the destructor for its three linked buckets.
