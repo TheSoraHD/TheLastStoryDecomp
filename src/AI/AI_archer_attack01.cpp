@@ -19,6 +19,8 @@ extern float lbl_80880798;
 extern float lbl_808807B8;
 extern unsigned char lbl_807C6B78[];
 extern unsigned char lbl_807C6B84[];
+extern unsigned char lbl_8087D6F0;
+extern unsigned char lbl_8087D6F1;
 void __register_global_object(void* object, void (*destructor)(void*, int), void* dso);
 int fn_80018078(void* routes, CharaTask* chara);
 int fn_80018BAC(void* routes, CharaTask* chara);
@@ -108,7 +110,7 @@ void __ct__Q32AI6Script22AI_sword_leaderguard02Fv(void*);
 void __ct__Q32AI6Script22AI_sword_leaderguard03Fv(void*);
 void __ct__Q32AI6Script21AI_sword_pointguard01Fv(void*);
 void __ct__Q32AI6Script17AI_return_guard01Fv(void*);
-void fn_8001E1D0(void*, void*, AIStringWithAllocator_unk*);
+void fn_8001E1D0(void*, void*, const AIStringWithAllocator_unk*);
 }
 
 extern "C" int fn_8001BF44() {
@@ -152,6 +154,7 @@ extern "C" unsigned char* fn_8001C088() {
     unsigned char* src = fn_8001C260();
     unsigned char* dst = fn_8001C26C();
 
+    *(int*)dst = 0;
     *(int*)(dst + 4) = *(int*)(src + 4);
     *(int*)(dst + 8) = *(int*)(src + 0x64);
     *(int*)(dst + 0xC) = *(int*)(src + 0x68);
@@ -437,6 +440,59 @@ extern "C" AIStringWithAllocator_unk* fn_8001E0B8(AIStringWithAllocator_unk* dst
     }
     dst->mAllocator = (void*)*allocator;
     return dst;
+}
+
+extern "C" AIScriptMapNode_unk* fn_8003DD50(void* tree,
+                                             AIScriptMapNode_unk* candidate,
+                                             unsigned char insertLeft,
+                                             unsigned char insertFirst,
+                                             const AIStringWithAllocator_unk* key);
+
+// NONMATCHING: 47.60% - the tree insertion helper still has a different stack and register layout.
+// inferred: returns the inserted/existing node and a flag in the caller-provided 8-byte pair.
+extern "C" void fn_8001E1D0(void* result, void* tree,
+                             const AIStringWithAllocator_unk* value) {
+    AIScriptMapNode_unk* parent = 0;
+    unsigned char insertLeft = 1;
+    unsigned char insertFirst = 1;
+    AIScriptMapNode_unk* candidate = fn_8003E530(
+        tree, &value->mString, &parent, &insertLeft, &insertFirst);
+
+    bool insert = parent == 0;
+    if (parent != 0) {
+        const AIString_unk* key = &value->mString;
+        const AIString_unk* existing = &parent->mKey;
+        unsigned int keySize = (key->mFlags >> 31) != 0
+                                   ? key->mSize
+                                   : (*(const unsigned char*)key & 0x7F);
+        const char* keyData = (key->mFlags >> 31) != 0
+                                  ? key->mData
+                                  : (const char*)key + 1;
+        unsigned int existingSize = (existing->mFlags >> 31) != 0
+                                        ? existing->mSize
+                                        : (*(const unsigned char*)existing & 0x7F);
+        const char* existingData = (existing->mFlags >> 31) != 0
+                                       ? existing->mData
+                                       : (const char*)existing + 1;
+        unsigned int commonSize = keySize < existingSize ? keySize : existingSize;
+        int cmp = memcmp(keyData, existingData, commonSize);
+        if (cmp == 0) {
+            cmp = keySize < existingSize ? -1 : (keySize == existingSize ? 0 : 1);
+        }
+        insert = cmp < 0;
+    }
+
+    AIScriptMapNode_unk* node;
+    unsigned char flag;
+    if (insert) {
+        node = fn_8003DD50(tree, candidate, insertLeft, insertFirst, value);
+        flag = lbl_8087D6F0;
+    } else {
+        node = parent;
+        flag = lbl_8087D6F1;
+    }
+    *(AIScriptMapNode_unk**)result = node;
+    *((unsigned char*)result + 4) = flag;
 }
 
 extern "C" int fn_80021038() {
@@ -1313,25 +1369,28 @@ extern "C" int fn_8003A044() {
     return result;
 }
 
-// NONMATCHING: 91.85% - random-range arithmetic and return discrimination still differ.
+// NONMATCHING: 98.78% - global-base register selection differs from MWCC's original allocation.
 extern "C" int fn_80020914() {
-    int result = -1;
+    int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int amount = *(int*)(lbl_807C68C0 + 0x4C);
         int base = *(int*)(lbl_807C68C0 + 0x48);
-        int half = (amount + ((unsigned int)amount >> 31)) >> 1;
+        int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
         int start = base - half;
         int range = base + half - start;
         if (range > 0) {
             start += rand() % range;
         }
-        int d = 0;
-        int c = 0;
+        int a = 0;
         int b = 0;
-        int a = start;
+        int c = 0;
+        int d = 0;
+        a = start;
         fn_8001AEDC(0, &a, &b, &c, &d);
         *(int*)lbl_807C6A40 = 1;
         result = 7;
+    } else {
+        result = -1;
     }
     if (result == 7) {
         *(int*)lbl_807C6A40 = 1;
