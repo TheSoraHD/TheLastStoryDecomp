@@ -3,6 +3,10 @@
 #include "game/PlayerTask.h"
 #include "game/SkillEffectManager.h"
 #include "std/string.h"
+#include "std/new.h"
+#include "atn/Memory.h"
+
+struct AIStringWithAllocator_unk;
 
 extern "C" {
 extern void* lbl_8087EE68;
@@ -40,6 +44,71 @@ unsigned char* fn_8001C260();
 unsigned char* fn_8001C26C();
 unsigned char* fn_8001C278();
 int fn_8001ECD0(void*, int);
+void __ct__Q32AI6Script18AI_archer_attack01Fv(void*);
+void __ct__Q32AI6Script17AI_archer_guard01Fv(void*);
+void __ct__Q32AI6Script12AI_arganan01Fv(void*);
+void __ct__Q32AI6Script24AI_buffer_attackstable01Fv(void*);
+void __ct__Q32AI6Script17AI_buffer_guard01Fv(void*);
+void __ct__Q32AI6Script17AI_buffer_guard02Fv(void*);
+void __ct__Q32AI6Script22AI_buffer_pointguard01Fv(void*);
+void __ct__Q32AI6Script21AI_em_archer_attack02Fv(void*);
+void __ct__Q32AI6Script19AI_em_bridge_archerFv(void*);
+void __ct__Q32AI6Script22AI_em_monster_attack01Fv(void*);
+void __ct__Q32AI6Script11AI_em_scoutFv(void*);
+void __ct__Q32AI6Script20AI_em_sword_attack01Fv(void*);
+void __ct__Q32AI6Script20AI_em_sword_attack02Fv(void*);
+void __ct__Q32AI6Script24AI_em_sword_pointguard01Fv(void*);
+void __ct__Q32AI6Script13AI_em_type003Fv(void*);
+void __ct__Q32AI6Script13AI_em_type010Fv(void*);
+void __ct__Q32AI6Script13AI_em_type102Fv(void*);
+void __ct__Q32AI6Script13AI_em_type103Fv(void*);
+void __ct__Q32AI6Script13AI_em_type104Fv(void*);
+void __ct__Q32AI6Script13AI_em_type105Fv(void*);
+void __ct__Q32AI6Script13AI_em_type106Fv(void*);
+void __ct__Q32AI6Script19AI_fr_archer_pick01Fv(void*);
+void __ct__Q32AI6Script19AI_fr_buffer_pick01Fv(void*);
+void __ct__Q32AI6Script19AI_fr_follow_playerFv(void*);
+void __ct__Q32AI6Script18AI_fr_magic_pick01Fv(void*);
+void __ct__Q32AI6Script18AI_fr_magic_pick02Fv(void*);
+void __ct__Q32AI6Script13AI_fr_runawayFv(void*);
+void __ct__Q32AI6Script20AI_fr_sword_attack01Fv(void*);
+void __ct__Q32AI6Script18AI_fr_sword_pick01Fv(void*);
+void __ct__Q32AI6Script22AI_fr_sword_pointguardFv(void*);
+void __ct__Q32AI6Script24AI_fr_sword_pointguard01Fv(void*);
+void __ct__Q32AI6Script13AI_fr_type005Fv(void*);
+void __ct__Q32AI6Script21AI_fr_warppointescapeFv(void*);
+void __ct__Q32AI6Script11AI_jackal01Fv(void*);
+void __ct__Q32AI6Script17AI_magic_attack01Fv(void*);
+void __ct__Q32AI6Script19AI_magic_attack01_2Fv(void*);
+void __ct__Q32AI6Script17AI_magic_attack02Fv(void*);
+void __ct__Q32AI6Script23AI_magic_attackstable01Fv(void*);
+void __ct__Q32AI6Script15AI_magic_cure01Fv(void*);
+void __ct__Q32AI6Script16AI_magic_guard01Fv(void*);
+void __ct__Q32AI6Script18AI_magic_guard01_2Fv(void*);
+void __ct__Q32AI6Script16AI_magic_guard02Fv(void*);
+void __ct__Q32AI6Script14AI_np_approachFv(void*);
+void __ct__Q32AI6Script19AI_np_approach_plusFv(void*);
+void __ct__Q32AI6Script19AI_np_follow_playerFv(void*);
+void __ct__Q32AI6Script19AI_np_tagger_randomFv(void*);
+void __ct__Q32AI6Script13AI_np_type001Fv(void*);
+void __ct__Q32AI6Script13AI_np_type002Fv(void*);
+void __ct__Q32AI6Script13AI_np_type003Fv(void*);
+void __ct__Q32AI6Script13AI_np_type004Fv(void*);
+void __ct__Q32AI6Script13AI_np_type005Fv(void*);
+void __ct__Q32AI6Script19AI_np_wait_reactionFv(void*);
+void __ct__Q32AI6Script25AI_np_wait_reaction_minusFv(void*);
+void __ct__Q32AI6Script26AI_np_wait_reaction_minus2Fv(void*);
+void __ct__Q32AI6Script24AI_np_wait_reaction_plusFv(void*);
+void __ct__Q32AI6Script10AI_quark01Fv(void*);
+void __ct__Q32AI6Script10AI_quark02Fv(void*);
+void __ct__Q32AI6Script18AI_silence_guard01Fv(void*);
+void __ct__Q32AI6Script16AI_sword_guard01Fv(void*);
+void __ct__Q32AI6Script22AI_sword_leaderguard01Fv(void*);
+void __ct__Q32AI6Script22AI_sword_leaderguard02Fv(void*);
+void __ct__Q32AI6Script22AI_sword_leaderguard03Fv(void*);
+void __ct__Q32AI6Script21AI_sword_pointguard01Fv(void*);
+void __ct__Q32AI6Script17AI_return_guard01Fv(void*);
+void fn_8001E1D0(void*, void*, AIStringWithAllocator_unk*);
 }
 
 extern "C" int fn_8001BF44() {
@@ -1769,6 +1838,88 @@ extern "C" void fn_8001C1B8() {
 }
 
 extern "C" void fn_8001C1BC() {}
+
+// NONMATCHING: 92.27% - registry population is reconstructed; local layout and call scheduling differ.
+// inferred: registers each script name with a heap-3 instance in the global AI script tree.
+extern "C" void fn_8001C284() {
+    unsigned char pairs[64][8];
+    AIStringWithAllocator_unk values[64];
+    void* objects[64];
+#define REGISTER_AI_SCRIPT(I, NAME, CTOR) do { \
+        std::string key(NAME); \
+        objects[I] = ::operator new(4, 3, "", "", 0); \
+        if (objects[I] != 0) { CTOR(objects[I]); } \
+        fn_8001E0B8(&values[I], (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&objects[I]); \
+        fn_8001E1D0(pairs[I], lbl_807C6B84, &values[I]); \
+        fn_8001E168(&values[I].mString, -1); \
+    } while (0)
+    REGISTER_AI_SCRIPT(0, "archer_attack01", __ct__Q32AI6Script18AI_archer_attack01Fv);
+    REGISTER_AI_SCRIPT(1, "archer_guard01", __ct__Q32AI6Script17AI_archer_guard01Fv);
+    REGISTER_AI_SCRIPT(2, "arganan01", __ct__Q32AI6Script12AI_arganan01Fv);
+    REGISTER_AI_SCRIPT(3, "buffer_attackstable01", __ct__Q32AI6Script24AI_buffer_attackstable01Fv);
+    REGISTER_AI_SCRIPT(4, "buffer_guard01", __ct__Q32AI6Script17AI_buffer_guard01Fv);
+    REGISTER_AI_SCRIPT(5, "buffer_guard02", __ct__Q32AI6Script17AI_buffer_guard02Fv);
+    REGISTER_AI_SCRIPT(6, "buffer_pointguard01", __ct__Q32AI6Script22AI_buffer_pointguard01Fv);
+    REGISTER_AI_SCRIPT(7, "em_archer_attack02", __ct__Q32AI6Script21AI_em_archer_attack02Fv);
+    REGISTER_AI_SCRIPT(8, "em_bridge_archer", __ct__Q32AI6Script19AI_em_bridge_archerFv);
+    REGISTER_AI_SCRIPT(9, "em_monster_attack01", __ct__Q32AI6Script22AI_em_monster_attack01Fv);
+    REGISTER_AI_SCRIPT(10, "em_scout", __ct__Q32AI6Script11AI_em_scoutFv);
+    REGISTER_AI_SCRIPT(11, "em_sword_attack01", __ct__Q32AI6Script20AI_em_sword_attack01Fv);
+    REGISTER_AI_SCRIPT(12, "em_sword_attack02", __ct__Q32AI6Script20AI_em_sword_attack02Fv);
+    REGISTER_AI_SCRIPT(13, "em_sword_pointguard01", __ct__Q32AI6Script24AI_em_sword_pointguard01Fv);
+    REGISTER_AI_SCRIPT(14, "em_type003", __ct__Q32AI6Script13AI_em_type003Fv);
+    REGISTER_AI_SCRIPT(15, "em_type010", __ct__Q32AI6Script13AI_em_type010Fv);
+    REGISTER_AI_SCRIPT(16, "em_type102", __ct__Q32AI6Script13AI_em_type102Fv);
+    REGISTER_AI_SCRIPT(17, "em_type103", __ct__Q32AI6Script13AI_em_type103Fv);
+    REGISTER_AI_SCRIPT(18, "em_type104", __ct__Q32AI6Script13AI_em_type104Fv);
+    REGISTER_AI_SCRIPT(19, "em_type105", __ct__Q32AI6Script13AI_em_type105Fv);
+    REGISTER_AI_SCRIPT(20, "em_type106", __ct__Q32AI6Script13AI_em_type106Fv);
+    REGISTER_AI_SCRIPT(21, "fr_archer_pick01", __ct__Q32AI6Script19AI_fr_archer_pick01Fv);
+    REGISTER_AI_SCRIPT(22, "fr_buffer_pick01", __ct__Q32AI6Script19AI_fr_buffer_pick01Fv);
+    REGISTER_AI_SCRIPT(23, "fr_follow_player", __ct__Q32AI6Script19AI_fr_follow_playerFv);
+    REGISTER_AI_SCRIPT(24, "fr_magic_pick01", __ct__Q32AI6Script18AI_fr_magic_pick01Fv);
+    REGISTER_AI_SCRIPT(25, "fr_magic_pick02", __ct__Q32AI6Script18AI_fr_magic_pick02Fv);
+    REGISTER_AI_SCRIPT(26, "fr_runaway", __ct__Q32AI6Script13AI_fr_runawayFv);
+    REGISTER_AI_SCRIPT(27, "fr_sword_attack01", __ct__Q32AI6Script20AI_fr_sword_attack01Fv);
+    REGISTER_AI_SCRIPT(28, "fr_sword_pick01", __ct__Q32AI6Script18AI_fr_sword_pick01Fv);
+    REGISTER_AI_SCRIPT(29, "fr_sword_pointguard", __ct__Q32AI6Script22AI_fr_sword_pointguardFv);
+    REGISTER_AI_SCRIPT(30, "fr_sword_pointguard01", __ct__Q32AI6Script24AI_fr_sword_pointguard01Fv);
+    REGISTER_AI_SCRIPT(31, "fr_type005", __ct__Q32AI6Script13AI_fr_type005Fv);
+    REGISTER_AI_SCRIPT(32, "fr_warppointescape", __ct__Q32AI6Script21AI_fr_warppointescapeFv);
+    REGISTER_AI_SCRIPT(33, "jackal01", __ct__Q32AI6Script11AI_jackal01Fv);
+    REGISTER_AI_SCRIPT(34, "magic_attack01", __ct__Q32AI6Script17AI_magic_attack01Fv);
+    REGISTER_AI_SCRIPT(35, "magic_attack01_2", __ct__Q32AI6Script19AI_magic_attack01_2Fv);
+    REGISTER_AI_SCRIPT(36, "magic_attack02", __ct__Q32AI6Script17AI_magic_attack02Fv);
+    REGISTER_AI_SCRIPT(37, "magic_attackstable01", __ct__Q32AI6Script23AI_magic_attackstable01Fv);
+    REGISTER_AI_SCRIPT(38, "magic_cure01", __ct__Q32AI6Script15AI_magic_cure01Fv);
+    REGISTER_AI_SCRIPT(39, "magic_guard01", __ct__Q32AI6Script16AI_magic_guard01Fv);
+    REGISTER_AI_SCRIPT(40, "magic_guard01_2", __ct__Q32AI6Script18AI_magic_guard01_2Fv);
+    REGISTER_AI_SCRIPT(41, "magic_guard02", __ct__Q32AI6Script16AI_magic_guard02Fv);
+    REGISTER_AI_SCRIPT(42, "np_approach", __ct__Q32AI6Script14AI_np_approachFv);
+    REGISTER_AI_SCRIPT(43, "np_approach_plus", __ct__Q32AI6Script19AI_np_approach_plusFv);
+    REGISTER_AI_SCRIPT(44, "np_follow_player", __ct__Q32AI6Script19AI_np_follow_playerFv);
+    REGISTER_AI_SCRIPT(45, "np_tagger_random", __ct__Q32AI6Script19AI_np_tagger_randomFv);
+    REGISTER_AI_SCRIPT(46, "np_type001", __ct__Q32AI6Script13AI_np_type001Fv);
+    REGISTER_AI_SCRIPT(47, "np_type002", __ct__Q32AI6Script13AI_np_type002Fv);
+    REGISTER_AI_SCRIPT(48, "np_type003", __ct__Q32AI6Script13AI_np_type003Fv);
+    REGISTER_AI_SCRIPT(49, "np_type004", __ct__Q32AI6Script13AI_np_type004Fv);
+    REGISTER_AI_SCRIPT(50, "np_type005", __ct__Q32AI6Script13AI_np_type005Fv);
+    REGISTER_AI_SCRIPT(51, "np_wait_reaction", __ct__Q32AI6Script19AI_np_wait_reactionFv);
+    REGISTER_AI_SCRIPT(52, "np_wait_reaction_minus", __ct__Q32AI6Script25AI_np_wait_reaction_minusFv);
+    REGISTER_AI_SCRIPT(53, "np_wait_reaction_minus2", __ct__Q32AI6Script26AI_np_wait_reaction_minus2Fv);
+    REGISTER_AI_SCRIPT(54, "np_wait_reaction_plus", __ct__Q32AI6Script24AI_np_wait_reaction_plusFv);
+    REGISTER_AI_SCRIPT(55, "quark01", __ct__Q32AI6Script10AI_quark01Fv);
+    REGISTER_AI_SCRIPT(56, "quark02", __ct__Q32AI6Script10AI_quark02Fv);
+    REGISTER_AI_SCRIPT(57, "silence_guard01", __ct__Q32AI6Script18AI_silence_guard01Fv);
+    REGISTER_AI_SCRIPT(58, "sword_guard01", __ct__Q32AI6Script16AI_sword_guard01Fv);
+    REGISTER_AI_SCRIPT(59, "sword_leaderguard01", __ct__Q32AI6Script22AI_sword_leaderguard01Fv);
+    REGISTER_AI_SCRIPT(60, "sword_leaderguard02", __ct__Q32AI6Script22AI_sword_leaderguard02Fv);
+    REGISTER_AI_SCRIPT(61, "sword_leaderguard03", __ct__Q32AI6Script22AI_sword_leaderguard03Fv);
+    REGISTER_AI_SCRIPT(62, "sword_pointguard01", __ct__Q32AI6Script21AI_sword_pointguard01Fv);
+    REGISTER_AI_SCRIPT(63, "return_guard01", __ct__Q32AI6Script17AI_return_guard01Fv);
+#undef REGISTER_AI_SCRIPT
+}
+
 
 extern "C" unsigned char* fn_8001C260() {
     return lbl_807C68C0;
