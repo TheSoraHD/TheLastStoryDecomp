@@ -280,6 +280,54 @@ struct AIString_unk {
     char* mData;
 };
 
+// inferred: the registry uses an rb-tree node header followed by a string key at +0xC.
+struct AIScriptMapNode_unk {
+    AIScriptMapNode_unk* mLeft;
+    AIScriptMapNode_unk* mRight;
+    AIScriptMapNode_unk* mParent;
+    AIString_unk mKey;
+};
+
+extern "C" int memcmp(const void*, const void*, unsigned long);
+
+// NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
+// inferred: finds the insertion position for a string key and returns the last visited node.
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
+                                            AIScriptMapNode_unk** parent,
+                                            unsigned char* insertLeft,
+                                            unsigned char* insertFirst) {
+    AIScriptMapNode_unk* node = *(AIScriptMapNode_unk**)((unsigned char*)tree + 4);
+    AIScriptMapNode_unk* candidate = (AIScriptMapNode_unk*)((unsigned char*)tree + 4);
+    *parent = 0;
+    *insertLeft = 1;
+    *insertFirst = 1;
+    while (node != 0) {
+        candidate = node;
+        AIString_unk* nodeKey = &node->mKey;
+        unsigned int nodeSize;
+        const char* nodeData;
+        if ((nodeKey->mFlags >> 31) == 0) {
+            nodeSize = *(unsigned char*)nodeKey & 0x7F;
+            nodeData = (const char*)nodeKey + 1;
+        } else {
+            nodeSize = nodeKey->mSize;
+            nodeData = nodeKey->mData;
+        }
+        std::string* keyString = (std::string*)key;
+        int cmp = keyString->compare(0, keyString->size(), nodeData, nodeSize);
+        if (cmp < 0) {
+            node = node->mLeft;
+            *insertLeft = 1;
+        } else {
+            *parent = node;
+            node = node->mRight;
+            *insertLeft = 0;
+            *insertFirst = 0;
+        }
+    }
+    return candidate;
+}
+
 void operator delete(void* ptr);
 
 extern "C" void* fn_8001E168(AIString_unk* str, int freeObject) {
