@@ -15,6 +15,15 @@ extern "C" unsigned int fn_800DC6B4(const char* text);
 extern "C" int fn_801F03AC(void* table, int key);
 extern "C" std::basic_string<wchar_t> fn_801F0758(void* table, int key);
 extern "C" void fn_801F0364(void* table, int key, int value, int arg);
+struct Renderer2D_unk { unsigned char m00[0x10]; };
+extern "C" Renderer2D_unk* lbl_8087EEB0;
+extern "C" void fn_8005E3E4(Renderer2D_unk* renderer, unsigned int color, void* texture,
+                            float x, float y, float z, float w, float h,
+                            float u0, float v0, float u1, float v1, int arg, int flags);
+extern "C" void fn_8005E838(Renderer2D_unk* renderer, unsigned int color, void* texture0, void* texture1,
+                            int mode, float x, float y, float z, float w, float h,
+                            float u0, float v0, float u1, float v1,
+                            float s0, float s1, float s2, float s3);
 
 struct GimmickUvOwner_unk {
     int fn_800D59B8();
@@ -124,7 +133,7 @@ extern "C" void fn_801F9E70(atn::D2A_Texture* texture, float* rect, float* scale
         scale[3] = fn_800A6BD4(texture->mScaleCode[3].mCode, scale[3]);
 }
 
-// NONMATCHING: 1.54% - texture layer rendering and UV tile scheduling remain incomplete.
+// NONMATCHING: texture UV tiling and the specialized texture-combine render paths remain.
 void D2A_Texture::vf18() {
     if (!fn_801EDC78()) {
         return;
@@ -140,15 +149,76 @@ void D2A_Texture::vf18() {
     D2A_DrawRect rect;
     D2A_DrawColor color;
     D2A_DrawExtra extra;
-    int work[6];
+    float work[6];
     fn_801ED928(&rect, &color, &extra, work);
     float uv[4];
     float scale[4];
     fn_801F9E70(this, uv, scale);
+
     D2A_Data* owner = (D2A_Data*)mFC;
     if (owner != 0 && owner->mA4 != 0) {
         typedef void (*DrawCallback_unk)(D2A_Texture*, D2A_DrawColor*, void*);
-        ((DrawCallback_unk)owner->mA4)(this, &color, 0);
+        ((DrawCallback_unk)owner->mA4)(this, &color, m0E == 0 ? 0 : uv);
+    }
+
+    if (color.a <= 0.0f)
+        return;
+
+    // The engine packs color in A-R-G-B byte order and rounds intermediate values.
+    unsigned int r = color.r >= 1.0f ? 255 : color.r <= 0.0f ? 0 : (unsigned int)(color.r * 255.0f + 0.5f);
+    unsigned int g = color.g >= 1.0f ? 255 : color.g <= 0.0f ? 0 : (unsigned int)(color.g * 255.0f + 0.5f);
+    unsigned int b = color.b >= 1.0f ? 255 : color.b <= 0.0f ? 0 : (unsigned int)(color.b * 255.0f + 0.5f);
+    unsigned int a = color.a >= 1.0f ? 255 : (unsigned int)(color.a * 255.0f + 0.5f);
+    unsigned int packedColor = (a << 24) | (r << 16) | (g << 8) | b;
+    uv[3] *= color.a;
+    r = uv[0] >= 1.0f ? 255 : uv[0] <= 0.0f ? 0 : (unsigned int)(uv[0] * 255.0f + 0.5f);
+    g = uv[1] >= 1.0f ? 255 : uv[1] <= 0.0f ? 0 : (unsigned int)(uv[1] * 255.0f + 0.5f);
+    b = uv[2] >= 1.0f ? 255 : uv[2] <= 0.0f ? 0 : (unsigned int)(uv[2] * 255.0f + 0.5f);
+    a = uv[3] >= 1.0f ? 255 : uv[3] <= 0.0f ? 0 : (unsigned int)(uv[3] * 255.0f + 0.5f);
+    unsigned int outlineColor = (a << 24) | (r << 16) | (g << 8) | b;
+
+    // Plain, single-layer textures use the regular textured-quad path. The flag
+    // paths below this one in the original also schedule UV tiles and combine layers.
+    if ((m10 & 1) == 0 && (m10 & 8) == 0 && extra.m04 >= 0) {
+        fn_8005E3E4(lbl_8087EEB0, packedColor, &mTexture0, rect.x, rect.y, rect.z,
+                    rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+
+        if (m0E == 1) {
+            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                        rect.x + work[0], rect.y + work[1], 0.001f + rect.z,
+                        rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        } else if (m0E == 2 || m0E == 3) {
+            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                        rect.x + work[0], rect.y, 0.001f + rect.z, rect.w, rect.h,
+                        0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                        rect.x, rect.y + work[1], 0.001f + rect.z, rect.w, rect.h,
+                        0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                        rect.x - work[0], rect.y, 0.001f + rect.z, rect.w, rect.h,
+                        0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                        rect.x, rect.y - work[1], 0.001f + rect.z, rect.w, rect.h,
+                        0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+            if (m0E == 3) {
+                fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                            rect.x + work[0], rect.y + work[1], 0.001f + rect.z,
+                            rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+                fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                            rect.x + work[0], rect.y - work[1], 0.001f + rect.z,
+                            rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+                fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                            rect.x - work[0], rect.y - work[1], 0.001f + rect.z,
+                            rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+                fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
+                            rect.x - work[0], rect.y + work[1], 0.001f + rect.z,
+                            rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+            }
+        }
+    } else if ((m10 & 1) == 0 && (m10 & 8) != 0 && extra.m04 >= 0) {
+        fn_8005E838(lbl_8087EEB0, packedColor, &mTexture0, &mTexture1, extra.m04,
+                    rect.x, rect.y, rect.z, rect.w, rect.h,
+                    uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]);
     }
 }
 

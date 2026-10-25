@@ -1,11 +1,11 @@
 # D2A_Texture — q1
 
-Rama local `codex/d2atexture-decomp` (2026-10-25). Se revisaron las 30 funciones de `atn/D2A_Texture.cpp`; 14/30 están al 100%. El informe global pasó de 7550 a 7564 funciones al 100% (26,18 → 26,21% de código; 43,17 → 43,28% fuzzy). `game_units.json` conserva `matching: false`.
+Rama local `codex/d2atexture-decomp` (2026-10-25). Se revisaron las 30 funciones de `atn/D2A_Texture.cpp`; 14/30 están al 100%. El informe global pasó de 7550 a 7564 funciones al 100% (26,18 → 26,21% de código; 43,17 → 43,29% fuzzy). `game_units.json` conserva `matching: false`.
 
 ## Resultado
 
 - Constructor `D2A_Texture` (`0x801F94F4`): 99,83%; dos movimientos de registros guardados mantienen orden distinto. Destructor al 100%; `vf0C` 97,96%; `vf10`, `vf14`, `vf1C` y `vf20` al 100%.
-- Helper UV/escala (`0x801F9E70`): 100%. `vf18` (`0x801F9FB0`): 1,54%; renderizado y teselado siguen incompletos.
+- Helper UV/escala (`0x801F9E70`): 100%. `vf18` (`0x801F9FB0`): 11,70%; ahora reconstruye callback, conversión de color y contornos base para capas simples y dobles. Las rutas de teselado UV, modos de mezcla y la expansión de mosaicos siguen incompletas.
 - Carga (`0x801FD5A0`, `0x801FDA20`): siguen como placeholders `NONMATCHING` que devuelven 0; deben reemplazarse por la carga real.
 - Layout: constructor y destructor al 100%; seis funciones de eliminación de punteros al 100%. Búsquedas por hash 97,96%; setters float 97,94–98,16%; setter int 96,76%; actualización de texto 95,57%; actualización animada 95,37%; reserva 99,59%.
 - `fn_801FD530`, `fn_801FD534` y `fn_801FDE90` se renombran `vf10`, `vf1C` y `vf20` en `D2A_Texture`.
