@@ -207,7 +207,7 @@ extern "C" int fn_80440DC0(unsigned long hold, float* pos) {
 }
 
 // inferred: creates the menu (HBMCreate, HBMCreateSound)
-extern "C" void fn_80440F64(HBMDataInfo_unk* info, void** soundData, void** soundBuf) {
+extern "C" void HBMRsoCreate__FR11HBMDataInfoRPUcRPUc(HBMDataInfo_unk* info, void** soundData, void** soundBuf) {
     int pal60 = VIGetTvFormat() == 1;
     int wide = lbl_8087EEE0->mWide;
     fn_80440B2C(info);
@@ -237,7 +237,7 @@ extern "C" void fn_80440F64(HBMDataInfo_unk* info, void** soundData, void** soun
 }
 
 // inferred: destroys the menu and frees its buffers
-extern "C" void fn_804410C0(HBMDataInfo_unk* info, void** soundData, void** soundBuf) {
+extern "C" void HBMRsoDelete__FR11HBMDataInfoRPUcRPUc(HBMDataInfo_unk* info, void** soundData, void** soundBuf) {
     fn_805C3D90();
     fn_805C3FA0();
     void* mem = info->mem;
@@ -253,7 +253,7 @@ extern "C" void fn_804410C0(HBMDataInfo_unk* info, void** soundData, void** soun
 }
 
 // inferred: opens the menu
-extern "C" void fn_80441170(HBMControllerData_unk* con) {
+extern "C" void HBMRsoInit__FR17HBMControllerData(HBMControllerData_unk* con) {
     fn_805C3E00();
     fn_805C3ED0(1);
     for (int i = 0; i < 4; i++) {
@@ -271,7 +271,7 @@ inline float Clamp1_unk(float x) {
 // inferred: updates the menu; returns the selected button or -1
 // NONMATCHING: 99.8% - the original loads the stick x/y into f0/f1 (here f1/f0) and swaps the loop
 // counter/offset registers (r28/r29); tried declaration orders and a single expression.
-extern "C" int fn_804411DC(HBMControllerData_unk* con) {
+extern "C" int HBMRsoCalc__FR17HBMControllerData(HBMControllerData_unk* con) {
     fn_805C3FB0();
     HBMKPadData_unk* pad = con->wiiCon;
     int offset = 0;
@@ -316,7 +316,7 @@ extern "C" int fn_804411DC(HBMControllerData_unk* con) {
 // NONMATCHING: 84.5% - the original stores the high words (0x4330) of the two int->float conversions
 // at the start of the function; here they are stored next to the conversion (tried named locals,
 // function-scope matrix, an inline returning the matrix).
-extern "C" void fn_804413D4() {
+extern "C" void HBMRsoDraw__Fv() {
     HbmRender_unk* rs = lbl_8087EEE0;
     atn::Matrix44_unk proj;
     GXSetColorUpdate(1);
