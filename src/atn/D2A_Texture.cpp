@@ -1,13 +1,18 @@
 #include "atn/D2A_Texture.h"
 #include "atn/D2A_Data.h"
 #include "atn/D2A_Message.h"
+#include "math/Vec.h"
 #include "std/string.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" std::string fn_8006B174(const std::string& path);
+extern "C" std::string fn_8006B2D8(const std::string& path);
 extern "C" unsigned int fn_800DC6B4(const char* s);
 extern "C" float fn_801F0544(atn::D2A_ParamTable* table, int key);
 extern "C" const char lbl_8073E57C[];
 extern "C" void fn_800D58A4(atn::Texture_unk* texture);
+extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path);
 extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* anim);
 extern "C" float fn_800A6BD4(const unsigned char* code, float value);
 extern "C" void fn_801EDCB8(atn::D2A_Common* element);
@@ -15,7 +20,8 @@ extern "C" unsigned int fn_800DC6B4(const char* text);
 extern "C" int fn_801F03AC(void* table, int key);
 extern "C" std::basic_string<wchar_t> fn_801F0758(void* table, int key);
 extern "C" void fn_801F0364(void* table, int key, int value, int arg);
-struct Renderer2D_unk { unsigned char m00[0x10]; };
+extern "C" const float lbl_80882CB4;
+struct Renderer2D_unk { unsigned char m00[0x10]; unsigned char m10[1]; };
 extern "C" Renderer2D_unk* lbl_8087EEB0;
 extern "C" void fn_8005E3E4(Renderer2D_unk* renderer, unsigned int color, void* texture,
                             float x, float y, float z, float w, float h,
@@ -24,11 +30,133 @@ extern "C" void fn_8005E838(Renderer2D_unk* renderer, unsigned int color, void* 
                             int mode, float x, float y, float z, float w, float h,
                             float u0, float v0, float u1, float v1,
                             float s0, float s1, float s2, float s3);
+extern "C" void fn_8005F90C(Renderer2D_unk* renderer, unsigned int color, void* texture,
+                            float x, float y, float z, float w, float h,
+                            float u0, float v0, float u1, float v1);
+extern "C" void fn_8005FD80(Renderer2D_unk* renderer, unsigned int color, void* texture0, void* texture1,
+                            int blend, float x, float y, float z, float w, float h,
+                            float u0, float v0, float u1, float v1,
+                            float s0, float s1, float s2, float s3);
+extern "C" void fn_8005EEA0(Renderer2D_unk* renderer, unsigned int color, void* texture,
+                            int blend, unsigned int flags, float x, float y, float z, float w, float h,
+                            float scaleX, float scaleY, float rotation,
+                            float u0, float v0, float u1, float v1);
+extern "C" void fn_800602E8(Renderer2D_unk* renderer, unsigned int color, void* texture,
+                            int blend, unsigned int flags, float x, float y, float z, float w, float h,
+                            float scaleX, float scaleY, float rotation,
+                            float u0, float v0, float u1, float v1);
+extern "C" void fn_8005F36C(Renderer2D_unk* renderer, unsigned int color, void* texture0, void* texture1,
+                            int blend, float x, float y, float z, float w, float h,
+                            float scaleX, float scaleY, float rotation,
+                            float u0, float v0, float u1, float v1,
+                            float s0, float s1, float s2, float s3);
+extern "C" void fn_800607C0(Renderer2D_unk* renderer, unsigned int color, void* texture0, void* texture1,
+                            int blend, float x, float y, float z, float w, float h,
+                            float scaleX, float scaleY, float rotation,
+                            float u0, float v0, float u1, float v1,
+                            float s0, float s1, float s2, float s3);
 
 struct GimmickUvOwner_unk {
     int fn_800D59B8();
 };
 
+inline float D2A_DegToRad_unk(float deg) {
+    return lbl_80882CB4 * deg;
+}
+
+inline unsigned int fn_ToU8(const float& f) {
+    return (f >= 1.0f) ? 255 : (f <= 0.0f) ? 0 : (unsigned int)(f * 255.0f + 0.5f);
+}
+
+#define D2A_OUTLINE_SINGLE(FN)                                             \
+    if (m0E == 1) {                                                                                \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h,                    \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+    } else if (m0E == 2) {                                                                         \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h,                              \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h,                              \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h,                              \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h,                              \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+    } else if (m0E == 3) {                                                                         \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h,                              \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h,                              \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h,                              \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h,                              \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h,                    \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x + outline.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h,                    \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x - outline.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h,                    \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture,                                 \
+           rect.x - outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h,                    \
+           uv[0], uv[1], uv[2], uv[3]);                                                  \
+    }
+
+#define D2A_DRAW_DUAL(FN, COLOR, TEX0, TEX1, BLEND) \
+    if (m0E == 1) { \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+    } else if (m0E == 2) { \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+    } else if (m0E == 3) { \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x + outline.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x - outline.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+        FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, BLEND, rect.x - outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]); \
+    }
+#define D2A_XFORM_SINGLE_AT(FN, X, Y) \
+    FN(lbl_8087EEB0, outlineColor, whiteTexture, extra.m04, 1, (X), (Y), 0.001f + rect.z, rect.w, rect.h, mB0, mB4, D2A_DegToRad_unk(extra.m00), uv[0], uv[1], uv[2], uv[3]);
+#define D2A_XFORM_SINGLE_OUTLINES(FN) \
+    if (m0E == 1) { D2A_XFORM_SINGLE_AT(FN, rect.x + outline.x, rect.y + outline.y); } \
+    else if (m0E == 2) { \
+        D2A_XFORM_SINGLE_AT(FN, rect.x + outline.x, rect.y); D2A_XFORM_SINGLE_AT(FN, rect.x, rect.y + outline.y); \
+        D2A_XFORM_SINGLE_AT(FN, rect.x - outline.x, rect.y); D2A_XFORM_SINGLE_AT(FN, rect.x, rect.y - outline.y); \
+    } else if (m0E == 3) { \
+        D2A_XFORM_SINGLE_AT(FN, rect.x + outline.x, rect.y); D2A_XFORM_SINGLE_AT(FN, rect.x, rect.y + outline.y); \
+        D2A_XFORM_SINGLE_AT(FN, rect.x - outline.x, rect.y); D2A_XFORM_SINGLE_AT(FN, rect.x, rect.y - outline.y); \
+        D2A_XFORM_SINGLE_AT(FN, rect.x + outline.x, rect.y + outline.y); D2A_XFORM_SINGLE_AT(FN, rect.x + outline.x, rect.y - outline.y); \
+        D2A_XFORM_SINGLE_AT(FN, rect.x - outline.x, rect.y - outline.y); D2A_XFORM_SINGLE_AT(FN, rect.x - outline.x, rect.y + outline.y); \
+    }
+#define D2A_XFORM_DUAL_AT(FN, X, Y) \
+    FN(lbl_8087EEB0, outlineColor, whiteTexture, &mTexture1, extra.m04, (X), (Y), 0.001f + rect.z, rect.w, rect.h, mB0, mB4, D2A_DegToRad_unk(extra.m00), uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]);
+#define D2A_XFORM_DUAL_OUTLINES(FN) \
+    if (m0E == 1) { D2A_XFORM_DUAL_AT(FN, rect.x + outline.x, rect.y + outline.y); } \
+    else if (m0E == 2) { \
+        D2A_XFORM_DUAL_AT(FN, rect.x + outline.x, rect.y); D2A_XFORM_DUAL_AT(FN, rect.x, rect.y + outline.y); \
+        D2A_XFORM_DUAL_AT(FN, rect.x - outline.x, rect.y); D2A_XFORM_DUAL_AT(FN, rect.x, rect.y - outline.y); \
+    } else if (m0E == 3) { \
+        D2A_XFORM_DUAL_AT(FN, rect.x + outline.x, rect.y); D2A_XFORM_DUAL_AT(FN, rect.x, rect.y + outline.y); \
+        D2A_XFORM_DUAL_AT(FN, rect.x - outline.x, rect.y); D2A_XFORM_DUAL_AT(FN, rect.x, rect.y - outline.y); \
+        D2A_XFORM_DUAL_AT(FN, rect.x + outline.x, rect.y + outline.y); D2A_XFORM_DUAL_AT(FN, rect.x + outline.x, rect.y - outline.y); \
+        D2A_XFORM_DUAL_AT(FN, rect.x - outline.x, rect.y - outline.y); D2A_XFORM_DUAL_AT(FN, rect.x - outline.x, rect.y + outline.y); \
+    }
 namespace atn {
 
 // NONMATCHING: 99.83% - two saved-register moves are emitted in the opposite order.
@@ -105,6 +233,24 @@ int D2A_Texture::vf1C() {
 }
 void D2A_Texture::vf20() { fn_801EDCB8(this); }
 
+struct Color4f_unk {
+    Color4f_unk() {}
+    Color4f_unk(const Color4f_unk& c) : r(c.r), g(c.g), b(c.b), a(c.a) {}
+    unsigned int ToU32() const {
+        unsigned int ur = fn_ToU8(r);
+        unsigned int ug = fn_ToU8(g);
+        unsigned int ub = fn_ToU8(b);
+        unsigned int ua = fn_ToU8(a);
+        return (ua << 24) | (ur << 16) | (ug << 8) | ub;
+    }
+    float r, g, b, a;
+};
+struct D2A_Outline_unk {
+    float x;
+    float y;
+    Color4f_unk mColor;
+};
+
 // inferred: copies the animated UV rectangle and scale, applying the element expressions.
 extern "C" void fn_801F9E70(atn::D2A_Texture* texture, float* rect, float* scale) {
     rect[0] = texture->mTexRect.mValues[0];
@@ -133,7 +279,7 @@ extern "C" void fn_801F9E70(atn::D2A_Texture* texture, float* rect, float* scale
         scale[3] = fn_800A6BD4(texture->mScaleCode[3].mCode, scale[3]);
 }
 
-// NONMATCHING: texture UV tiling and the specialized texture-combine render paths remain.
+// NONMATCHING: 95.72% - register allocation and call scheduling remain.
 void D2A_Texture::vf18() {
     if (!fn_801EDC78()) {
         return;
@@ -149,78 +295,106 @@ void D2A_Texture::vf18() {
     D2A_DrawRect rect;
     D2A_DrawColor color;
     D2A_DrawExtra extra;
-    float work[6];
-    fn_801ED928(&rect, &color, &extra, work);
+    D2A_Outline_unk outline;
+    fn_801ED928(&rect, &color, &extra, &outline);
     float uv[4];
     float scale[4];
     fn_801F9E70(this, uv, scale);
-
+    Color4f_unk callbackColor(outline.mColor);
     D2A_Data* owner = (D2A_Data*)mFC;
-    if (owner != 0 && owner->mA4 != 0) {
-        typedef void (*DrawCallback_unk)(D2A_Texture*, D2A_DrawColor*, void*);
-        ((DrawCallback_unk)owner->mA4)(this, &color, m0E == 0 ? 0 : uv);
+    if (owner->mA4 != 0) {
+        typedef void (*DrawCallback_unk)(D2A_Texture*, D2A_DrawColor*, Color4f_unk*);
+        if (m0E == 0) {
+            ((DrawCallback_unk)owner->mA4)(this, &color, 0);
+        } else {
+            ((DrawCallback_unk)owner->mA4)(this, &color, &callbackColor);
+        }
     }
 
-    if (color.a <= 0.0f)
+    float alpha = color.a;
+    if (alpha <= 0.0f)
         return;
 
     // The engine packs color in A-R-G-B byte order and rounds intermediate values.
-    unsigned int r = color.r >= 1.0f ? 255 : color.r <= 0.0f ? 0 : (unsigned int)(color.r * 255.0f + 0.5f);
-    unsigned int g = color.g >= 1.0f ? 255 : color.g <= 0.0f ? 0 : (unsigned int)(color.g * 255.0f + 0.5f);
-    unsigned int b = color.b >= 1.0f ? 255 : color.b <= 0.0f ? 0 : (unsigned int)(color.b * 255.0f + 0.5f);
-    unsigned int a = color.a >= 1.0f ? 255 : (unsigned int)(color.a * 255.0f + 0.5f);
+    callbackColor.a *= alpha;
+    unsigned int r = fn_ToU8(color.r);
+    unsigned int g = fn_ToU8(color.g);
+    unsigned int b = fn_ToU8(color.b);
+    unsigned int a = fn_ToU8(color.a);
     unsigned int packedColor = (a << 24) | (r << 16) | (g << 8) | b;
-    uv[3] *= color.a;
-    r = uv[0] >= 1.0f ? 255 : uv[0] <= 0.0f ? 0 : (unsigned int)(uv[0] * 255.0f + 0.5f);
-    g = uv[1] >= 1.0f ? 255 : uv[1] <= 0.0f ? 0 : (unsigned int)(uv[1] * 255.0f + 0.5f);
-    b = uv[2] >= 1.0f ? 255 : uv[2] <= 0.0f ? 0 : (unsigned int)(uv[2] * 255.0f + 0.5f);
-    a = uv[3] >= 1.0f ? 255 : uv[3] <= 0.0f ? 0 : (unsigned int)(uv[3] * 255.0f + 0.5f);
-    unsigned int outlineColor = (a << 24) | (r << 16) | (g << 8) | b;
-
-    // Plain, single-layer textures use the regular textured-quad path. The flag
-    // paths below this one in the original also schedule UV tiles and combine layers.
-    if ((m10 & 1) == 0 && (m10 & 8) == 0 && extra.m04 >= 0) {
-        fn_8005E3E4(lbl_8087EEB0, packedColor, &mTexture0, rect.x, rect.y, rect.z,
-                    rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
-
-        if (m0E == 1) {
-            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                        rect.x + work[0], rect.y + work[1], 0.001f + rect.z,
-                        rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        } else if (m0E == 2 || m0E == 3) {
-            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                        rect.x + work[0], rect.y, 0.001f + rect.z, rect.w, rect.h,
-                        0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                        rect.x, rect.y + work[1], 0.001f + rect.z, rect.w, rect.h,
-                        0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                        rect.x - work[0], rect.y, 0.001f + rect.z, rect.w, rect.h,
-                        0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-            fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                        rect.x, rect.y - work[1], 0.001f + rect.z, rect.w, rect.h,
-                        0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-            if (m0E == 3) {
-                fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                            rect.x + work[0], rect.y + work[1], 0.001f + rect.z,
-                            rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-                fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                            rect.x + work[0], rect.y - work[1], 0.001f + rect.z,
-                            rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-                fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                            rect.x - work[0], rect.y - work[1], 0.001f + rect.z,
-                            rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-                fn_8005E3E4(lbl_8087EEB0, outlineColor, (char*)lbl_8087EEB0 + 0x10,
-                            rect.x - work[0], rect.y + work[1], 0.001f + rect.z,
-                            rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+    unsigned int outlineColor = callbackColor.ToU32();
+    void* whiteTexture = lbl_8087EEB0->m10;
+    // Dispatch between the eight combinations of UV mapping, texture layers,
+    // and the renderer's standard or custom blend modes.
+    if ((m10 & 1) != 1) {
+        if ((m10 & 8) != 8) {
+            if (extra.m04 >= 0) {
+                fn_8005E3E4(lbl_8087EEB0, packedColor, &mTexture0, rect.x, rect.y, rect.z,
+                            rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                if (m0E == 1) {
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z,
+                                rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                } else if (m0E == 2) {
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                } else if (m0E == 3) {
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z,
+                                rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x + outline.x, rect.y - outline.y, 0.001f + rect.z,
+                                rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x - outline.x, rect.y - outline.y, 0.001f + rect.z,
+                                rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                    fn_8005E3E4(lbl_8087EEB0, outlineColor, whiteTexture, rect.x - outline.x, rect.y + outline.y, 0.001f + rect.z,
+                                rect.w, rect.h, uv[0], uv[1], uv[2], uv[3], extra.m04, 1);
+                }
+            } else {
+                fn_8005F90C(lbl_8087EEB0, packedColor, &mTexture0,
+                            rect.x, rect.y, rect.z, rect.w, rect.h, uv[0], uv[1], uv[2], uv[3]);
+                D2A_OUTLINE_SINGLE(fn_8005F90C);
             }
+        } else if (extra.m04 >= 0) {
+            fn_8005E838(lbl_8087EEB0, packedColor, &mTexture0, &mTexture1, extra.m04,
+                        rect.x, rect.y, rect.z, rect.w, rect.h,
+                        uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]);
+            D2A_DRAW_DUAL(fn_8005E838, packedColor, &mTexture0, &mTexture1, extra.m04);
+        } else {
+            fn_8005FD80(lbl_8087EEB0, packedColor, &mTexture0, &mTexture1, extra.m04,
+                        rect.x, rect.y, rect.z, rect.w, rect.h,
+                        uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]);
+            D2A_DRAW_DUAL(fn_8005FD80, packedColor, &mTexture0, &mTexture1, extra.m04);
         }
-    } else if ((m10 & 1) == 0 && (m10 & 8) != 0 && extra.m04 >= 0) {
-        fn_8005E838(lbl_8087EEB0, packedColor, &mTexture0, &mTexture1, extra.m04,
-                    rect.x, rect.y, rect.z, rect.w, rect.h,
+    } else if ((m10 & 8) != 8) {
+        if (extra.m04 >= 0) {
+            fn_8005EEA0(lbl_8087EEB0, packedColor, &mTexture0, extra.m04, 1,
+                        rect.x, rect.y, rect.z, rect.w, rect.h, mB0, mB4, D2A_DegToRad_unk(extra.m00),
+                        uv[0], uv[1], uv[2], uv[3]);
+            D2A_XFORM_SINGLE_OUTLINES(fn_8005EEA0);
+        } else {
+            fn_800602E8(lbl_8087EEB0, packedColor, &mTexture0, extra.m04, 1,
+                        rect.x, rect.y, rect.z, rect.w, rect.h, mB0, mB4, D2A_DegToRad_unk(extra.m00),
+                        uv[0], uv[1], uv[2], uv[3]);
+            D2A_XFORM_SINGLE_OUTLINES(fn_800602E8);
+        }
+    } else if (extra.m04 >= 0) {
+        fn_8005F36C(lbl_8087EEB0, packedColor, &mTexture0, &mTexture1, extra.m04,
+                    rect.x, rect.y, rect.z, rect.w, rect.h, mB0, mB4, D2A_DegToRad_unk(extra.m00),
                     uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]);
+            D2A_XFORM_DUAL_OUTLINES(fn_8005F36C);
+    } else {
+        fn_800607C0(lbl_8087EEB0, packedColor, &mTexture0, &mTexture1, extra.m04,
+                    rect.x, rect.y, rect.z, rect.w, rect.h, mB0, mB4, D2A_DegToRad_unk(extra.m00),
+                    uv[0], uv[1], uv[2], uv[3], scale[0], scale[1], scale[2], scale[3]);
+            D2A_XFORM_DUAL_OUTLINES(fn_800607C0);
     }
 }
+
+
 
 // inferred: packed pointer-array view used by the D2A_Layout_unk helpers.
 struct D2A_PointerArray_unk {
@@ -559,20 +733,53 @@ extern "C" void fn_801FE090(D2A_Layout_unk* layout, const unsigned int* counts) 
     layout->mIntAnims.Reserve(counts[5], 8);
 }
 
-// NONMATCHING: resource path scanning and texture creation remain to be reconstructed.
+// NONMATCHING: the path normalization and string temporaries still differ from MWCC.
 extern "C" int fn_801FD5A0(atn::D2A_Texture* texture, const char* path, int arg) {
-    ((void)texture);
-    ((void)path);
-    ((void)arg);
-    return 0;
+    char fullPath[0x100];
+    strcpy(fullPath, path);
+    std::string name = fn_8006B174(std::string(fullPath));
+    std::string base = fn_8006B2D8(name);
+    if (base.size() >= 3 && base.substr(base.size() - 3) == "_jp") {
+        base.replace(base.size() - 3, 3, "_xx");
+    }
+    base += ".texture";
+    strcpy(fullPath, base.c_str());
+    if (arg == 0) {
+        return 1;
+    }
+    fn_800D58A4(&texture->mTexture0);
+    if (fullPath[0] == 0) {
+        fn_800D5908(&texture->mTexture0, lbl_8073E57C + 0x26);
+    } else {
+        fn_800D5908(&texture->mTexture0, fullPath);
+    }
+    texture->mTexture0.m2D = 1;
+    texture->mTexture0.m2E = 1;
+    return 1;
 }
 
-// NONMATCHING: resource path scanning and texture creation remain to be reconstructed.
+// NONMATCHING: mirrors fn_801FD5A0; this overload rejects an empty source path.
 extern "C" int fn_801FDA20(atn::D2A_Texture* texture, const char* path, int arg) {
-    ((void)texture);
-    ((void)path);
-    ((void)arg);
-    return 0;
+    if (*path == 0) {
+        return 0;
+    }
+    char fullPath[0x100];
+    strcpy(fullPath, path);
+    std::string name = fn_8006B174(std::string(fullPath));
+    std::string base = fn_8006B2D8(name);
+    if (base.size() >= 3 && base.substr(base.size() - 3) == "_jp") {
+        base.replace(base.size() - 3, 3, "_xx");
+    }
+    base += ".texture";
+    strcpy(fullPath, base.c_str());
+    if (arg == 0) {
+        return 1;
+    }
+    fn_800D58A4(&texture->mTexture1);
+    fn_800D5908(&texture->mTexture1, fullPath);
+    texture->mTexture1.m2D = 1;
+    texture->mTexture1.m2E = 1;
+    return 1;
 }
 
 } // namespace atn
