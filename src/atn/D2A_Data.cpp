@@ -1,4 +1,5 @@
 #include "atn/D2A_Data.h"
+#include "atn/D2A_Texture.h"
 #include "atn/D2A_Frame.h"
 #include "atn/D2A_Line.h"
 #include "atn/D2A_Reference.h"
@@ -11,13 +12,6 @@ extern "C" float fn_801F0544(void* table, int key); // inferred: value at key
 extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, atn::D2A_Track_unk* track);
 
 namespace atn {
-
-// inferred: element classes not reconstructed yet (only their size and constructor)
-class D2A_Texture : public D2A_Common {
-public:
-    D2A_Texture(D2A_Data* owner, unsigned short id); // 0x801F94F4
-    unsigned char m12C[0x214 - 0x12C];
-};
 
 class D2A_Message : public D2A_Common {
 public:
