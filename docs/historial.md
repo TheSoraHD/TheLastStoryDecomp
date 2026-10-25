@@ -4,7 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
-| 2026-10-25 | `codex/d2atexture-decomp` (avance local) | — | 7550 → 7556 | 26,18 → 26,19% / 43,17 → 43,26% fuzzy | 370 | `docs/D2A-Texture-q1.md` (30 funciones recorridas, 6/30 al 100%; build limpio, regress/fuzzdrop/poolcheck sin hallazgos; sin push) |
+| 2026-10-25 | `codex/d2atexture-decomp` (avance local) | — | 7550 → 7564 | 26,18 → 26,21% / 43,17 → 43,28% fuzzy | 370 | `docs/D2A-Texture-q1.md` (14/30 al 100%; layout y slots virtuales revisados; build limpio, regress/fuzzdrop/poolcheck sin hallazgos; sin push) |
 | 2026-10-25 | `codex/rendersystem-decomp` (avance local) | — | 7537 → 7550 | 26,17 → 26,18% / 42,94 → 43,17% fuzzy | 370 | `docs/RenderSystem-q1.md` (13/37 al 100%, 24 parciales; build limpio `main.dol: OK`, regress/fuzzdrop/poolcheck sin hallazgos; sin push) |
 | 2026-10-24 | `codex/graphicsdevice-decomp` (avance local) | — | 7528 → 7537 | 26,16 → 26,17% / 42,94 → 42,94% | 370 | `docs/GraphicsDevice-q1.md` (9 funciones al 100%; dos NONMATCHING; build limpio y checks sin pérdidas, bajadas ni hallazgos; sin push) |
 | 2026-10-24 | `codex/soundmanager-decomp` (avance local) | — | 7501 → 7528 | 26,17% / 42,93% | 370 | `docs/SoundManager-q1.md` (27/76 en SoundManager; build limpio `main.dol: OK`, regress lost: 0, fuzzdrop 0 bajadas, poolcheck 0 hallazgos; sin push) |
