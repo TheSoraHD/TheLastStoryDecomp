@@ -1421,12 +1421,18 @@ struct AIString_unk {
     char* mData;
 };
 
+// inferred: map value (script name, factory) stored in the node at +0xC; node size 0x1C (fn_8003DD50)
+struct AIScriptMapValue_unk {
+    std::string first;
+    void* second;
+};
+
 // inferred: the registry uses an rb-tree node header followed by a string key at +0xC.
 struct AIScriptMapNode_unk {
     AIScriptMapNode_unk* mLeft;
     AIScriptMapNode_unk* mRight;
     unsigned long mParentColor; // inferred: parent pointer, bit 0 = red (fn_8003E120)
-    AIString_unk mKey;
+    AIScriptMapValue_unk mValue;
 
     AIScriptMapNode_unk* Parent() const { return (AIScriptMapNode_unk*)(mParentColor & ~1); }
     bool IsRed() const { return (mParentColor & 1) == 1; }
@@ -1673,7 +1679,7 @@ extern "C" void fn_8001E1D0(void* result, void* tree,
     bool insert = parent == 0;
     if (parent != 0) {
         const AIString_unk* key = &value->mString;
-        const AIString_unk* existing = &parent->mKey;
+        const AIString_unk* existing = (const AIString_unk*)&parent->mValue.first;
         unsigned int keySize = (key->mFlags >> 31) != 0
                                    ? key->mSize
                                    : (*(const unsigned char*)key & 0x7F);
@@ -10300,6 +10306,7 @@ static inline void RotateRight_unk(AIScriptMapNode_unk* x, AIScriptMapNode_unk*&
     y->mRight = x;
     x->SetParent(y);
 }
+extern "C" void fn_8003E120(AIScriptMapNode_unk* x, AIScriptMapNode_unk* root);
 
 // inferred: red-black tree rebalance after an insert (script name map)
 extern "C" void fn_8003E120(AIScriptMapNode_unk* x, AIScriptMapNode_unk* root) {
@@ -10354,7 +10361,7 @@ extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
     *insertFirst = 1;
     while (node != 0) {
         candidate = node;
-        AIString_unk* nodeKey = &node->mKey;
+        AIString_unk* nodeKey = (AIString_unk*)&node->mValue.first;
         unsigned int nodeSize;
         const char* nodeData;
         if ((nodeKey->mFlags >> 31) == 0) {
