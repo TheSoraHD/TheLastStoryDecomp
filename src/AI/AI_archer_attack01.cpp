@@ -215,6 +215,8 @@ float fn_8001AD80(CharaTask* a, CharaTask* b);
 int fn_8001BEB0(CharaTask* chara);
 void fn_8001C068(CharaTask* chara, const char* name); // inferred: sets the debug state text
 int fn_8001C01C(CharaTask* chara);
+int fn_8001A444(int index);
+void fn_8001B4CC(int value);
 int fn_8001C038(CharaTask* chara);
 int fn_8001BF4C(CharaTask* chara);
 void fn_8001BADC(CharaTask* chara, int arg);
@@ -2121,6 +2123,18 @@ static inline int ComboStep1_unk() {
         return -1;
     }
     return -1;
+}
+static inline void FollowTo_unk(CharaTask* target, int range) {
+    Command_unk(18, (int)target, range, 0, 0);
+}
+static inline void Follow_unk(CharaTask* target, int range) {
+    if (target != 0) {
+        if (range != 0) {
+            FollowTo_unk(target, range);
+        } else {
+            FollowTo_unk(target, 30);
+        }
+    }
 }
 static inline int Combo_unk() {
     if (IsBusy_unk(lbl_807C68C0.m00, lbl_807C6A40.m18 + 1)) {
@@ -8177,6 +8191,36 @@ int AI::Script::AI_np_approach::vf08() {
     lbl_807C6A40.m30 = 0x12C;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_np_approach::vf0C() {
+    int result = -1;
+    if (lbl_807C6A40.m18 < lbl_807C6A40.m1C) {
+        lbl_807C6A40.m18++;
+        lbl_807C6A40.m00 = 1;
+    } else if (fn_8001A444(2) >= lbl_807C6A40.m28) {
+        if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20) {
+            Follow_unk(lbl_807C6B30.m00, lbl_807C6A40.m24);
+            lbl_807C6A40.m00 = 1;
+            result = 6;
+            fn_8001B4CC(80);
+            lbl_807C6A40.m18 = 0;
+        }
+    }
+    return result;
+}
+
+int AI::Script::AI_np_approach::vf14() {
+    int result = -1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        result = 1;
+        Command_unk(0, 1, 0, 0, 0);
+    }
+    return result;
 }
 
 int AI::Script::AI_np_approach_plus::vf08() {
