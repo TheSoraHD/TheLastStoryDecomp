@@ -1131,6 +1131,20 @@ static inline int SkillDist_unk(int id, CharaTask* chara) {
     return fn_8001ADE8(id, chara);
 }
 
+// inferred: approaches the target (command 3) to range, 30 when range is 0
+static inline void ApproachTo_unk(int range) {
+    Command_unk(3, (int)lbl_807C68C0.m20, range, 0, 0);
+}
+static inline void ApproachRange_unk(int range) {
+    if (lbl_807C68C0.m20 != 0) {
+        if (range != 0) {
+            ApproachTo_unk(range);
+        } else {
+            ApproachTo_unk(30);
+        }
+    }
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -3681,18 +3695,6 @@ int AI::Script::AI_em_sword_pointguard01::vf08() {
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
 extern "C" void fn_8003E688();
 
-static inline void ApproachTo_unk(int range) {
-    Command_unk(3, (int)lbl_807C68C0.m20, range, 0, 0);
-}
-static inline void ApproachRange_unk(int range) {
-    if (lbl_807C68C0.m20 != 0) {
-        if (range != 0) {
-            ApproachTo_unk(range);
-        } else {
-            ApproachTo_unk(30);
-        }
-    }
-}
 int AI::Script::AI_em_sword_pointguard01::vf1C() {
     if (fn_8001BE00(lbl_807C68C0.m20)) {
         if (lbl_807C6A40.m18 == 4) {
@@ -3775,6 +3777,79 @@ int AI::Script::AI_em_sword_pointguard01::vf40() {
         Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_sword_pointguard01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (lbl_807C6A40.m64 == 0) {
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m64 = lbl_807C68C0.m58;
+        if (lbl_807C6A40.m64 - lbl_807C68C0.m58 > 0) {
+            lbl_807C6A40.m64 = lbl_807C68C0.m58;
+            lbl_807C6A40.m18 = 3;
+        }
+    } else if (lbl_807C6A40.m64 - lbl_807C68C0.m58 > 0) {
+        lbl_807C6A40.m64 = lbl_807C68C0.m58;
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m18 = 3;
+    }
+    int state = lbl_807C6A40.m18;
+    if (state == 0) {
+        lbl_807C6A40.m18 = 1;
+        lbl_807C6A40.m00 = 1;
+        return -1;
+    }
+    if (state == 1) {
+        Command_unk(8, lbl_807C6A40.m8C, lbl_807C6A40.m1C, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m18 = 2;
+        return -1;
+    }
+    if (state == 2) {
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            if (SkillDist_unk(lbl_807C6A40.m8C, lbl_807C68C0.m20) < lbl_807C6A40.m20) {
+                lbl_807C6A40.m18 = 3;
+                lbl_807C6A40.m00 = 1;
+                Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
+                return 5;
+            }
+            if (Distance_unk(lbl_807C68C0.m20, lbl_807C68C0.m00) < 0.75 * lbl_807C68C0.m30) {
+                Command_unk(5, 1, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                lbl_807C6A40.m18 = 3;
+                lbl_807C6A40.m3C = lbl_807C6A40.m28;
+                return 8;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    if (state == 3) {
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            int range = 0.8f * lbl_807C68C0.m30;
+            ApproachRange_unk(range);
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        return -1;
+    }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C68C0.m08 != 0) {
+            int range = 0.8f * lbl_807C68C0.m30;
+            ApproachRange_unk(range);
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
     }
     return -1;
 }
@@ -4575,6 +4650,77 @@ int AI::Script::AI_fr_sword_pointguard01::vf40() {
         Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_fr_sword_pointguard01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (lbl_807C6A40.m64 == 0) {
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m64 = lbl_807C68C0.m58;
+        if (lbl_807C6A40.m64 - lbl_807C68C0.m58 > 0) {
+            lbl_807C6A40.m64 = lbl_807C68C0.m58;
+            lbl_807C6A40.m18 = 3;
+        }
+    } else if (lbl_807C6A40.m64 - lbl_807C68C0.m58 > 0) {
+        lbl_807C6A40.m64 = lbl_807C68C0.m58;
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m18 = 3;
+    }
+    int state = lbl_807C6A40.m18;
+    if (state == 0) {
+        lbl_807C6A40.m18 = 1;
+        lbl_807C6A40.m00 = 1;
+        return -1;
+    }
+    if (state == 1) {
+        Command_unk(8, lbl_807C6A40.m8C, lbl_807C6A40.m1C, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m18 = 2;
+        return -1;
+    }
+    if (state == 2) {
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            if (SkillDist_unk(lbl_807C6A40.m8C, lbl_807C68C0.m20) < lbl_807C6A40.m20) {
+                lbl_807C6A40.m18 = 3;
+                lbl_807C6A40.m00 = 1;
+                Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
+                return 5;
+            }
+            if (Distance_unk(lbl_807C68C0.m20, lbl_807C68C0.m00) < 0.75 * lbl_807C68C0.m30) {
+                Command_unk(5, 1, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                lbl_807C6A40.m18 = 3;
+                lbl_807C6A40.m3C = lbl_807C6A40.m28;
+                return 8;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    if (state == 3) {
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            int range = 0.8f * lbl_807C68C0.m30;
+            ApproachRange_unk(range);
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        return -1;
+    }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C68C0.m08 != 0) {
+            int range = 0.8f * lbl_807C68C0.m30;
+            ApproachRange_unk(range);
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
     }
     return -1;
 }
