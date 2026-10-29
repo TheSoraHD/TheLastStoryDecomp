@@ -496,6 +496,7 @@ public:
 class AI_em_type106 : public CharaAi {
 public:
     AI_em_type106();
+    static int fn_80029B68(); // 0x80029B68
     virtual int vf08(); // 0x8002973C
     virtual int vf0C(); // 0x8002962C
     virtual int vf14(); // 0x80029A84
@@ -4770,6 +4771,40 @@ __declspec(noinline) int AI::Script::AI_em_type105::fn_80029500() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_type106::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        int next = fn_80029B68();
+        if (next == 3) {
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (next == 7) {
+            lbl_807C6A40.m00 = 1;
+            return 7;
+        }
+        if (next == 5) {
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        if (next == 8) {
+            lbl_807C6A40.m00 = 1;
+            return 8;
+        }
+        if (next == 1) {
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_type106::vf08() {
     lbl_807C6A40.m18 = lbl_807C68C0.m7C;
@@ -4791,6 +4826,32 @@ int AI::Script::AI_em_type106::vf40() {
         return 1;
     }
     return -1;
+}
+
+int AI::Script::AI_em_type106::vf2C() {
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(6, 2, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m24 = 2;
+        return 1;
+    }
+    fn_8001C068(lbl_807C68C0.m00, (const char*)(lbl_807307A0 + 0x3F5)); // "まだ隠れられていない"
+    lbl_807C6A40.m00 = 1;
+    return -1;
+}
+
+int AI::Script::AI_em_type106::vf24() {
+    if (CanUseItem2_unk()) {
+        Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m24 = 1;
+        return 9;
+    }
+    fn_8001C068(lbl_807C68C0.m00, (const char*)(lbl_807307A0 + 0x3E0)); // "隠れるポイント未発見"
+    lbl_807C6A40.m00 = 1;
+    Command_unk(6, 2, 0, 0, 0);
+    lbl_807C6A40.m24 = 3;
+    return 1;
 }
 
 // NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
@@ -4826,6 +4887,48 @@ int AI::Script::AI_em_type106::vf1C() {
     lbl_807C6A40.m00 = 1;
     lbl_807C6A40.m24 = 6;
     return 1;
+}
+
+// inferred: never inlined into vf0C, its only caller (noinline as in MP/CryptMP)
+__declspec(noinline) int AI::Script::AI_em_type106::fn_80029B68() {
+    if (lbl_807C6A40.m28 >= 1) {
+        lbl_807C6A40.m28 += 1;
+        lbl_807C6A40.m00 = 1;
+        if (lbl_807C6A40.m28 >= 80) {
+            lbl_807C6A40.m28 = 0;
+            return 1;
+        }
+        return 1;
+    }
+    if (lbl_807C6A40.m24 >= 1) {
+        if (lbl_807C68C0.m08 != 0) {
+            if (lbl_807C6A40.m24 < 5) {
+                lbl_807C6A40.m24 = 0;
+                lbl_807C6A40.m00 = 1;
+                int roll = rand() % 8 + 1;
+                lbl_807C6A40.m2C = roll;
+                int result = 8;
+                if (roll <= 6) {
+                    result = 3;
+                }
+                return result;
+            }
+            lbl_807C6A40.m24 = 0;
+            lbl_807C6A40.m00 = 1;
+            if (Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20) <= lbl_807C6A40.m1C) {
+                return 7;
+            }
+            return 3;
+        }
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20) <= lbl_807C6A40.m1C) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    lbl_807C6A40.m00 = 1;
+    return 3;
 }
 
 int AI::Script::AI_fr_archer_pick01::vf08() {
