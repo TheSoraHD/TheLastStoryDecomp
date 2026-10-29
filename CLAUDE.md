@@ -9,12 +9,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 ## Estado
 
 - `main` (2026-10-29, tras mergear `enemies-third` sobre 5125aea): **7825 / 18215 funciones al 100%** (código 27,9%, fuzzy 47,5%, datos 17,7%), 370 ficheros enlazados, `main.dol: OK`. Segundas pasadas de enemies-finish y enemigos sin fuente anteriores a Em208Queen; cerrado antes de tiempo, pendientes y decisiones en `docs/enemies-third.md`.
-- `codex/d2atexture-decomp` (2026-10-25): `atn/D2A_Texture`, 14/30 al 100%; las 30 funciones superan 50% (`vf18` 95,72%; cargas 56,67% y 55,69%). Layout y slots revisados. Build limpio `main.dol: OK`; regress/fuzzdrop comparados con el informe limpio disponible: 0 pérdidas/bajadas; poolcheck: 0 hallazgos. Detalles y decisiones: `docs/D2A-Texture-q1.md`.
-- `codex/rendersystem-decomp` (2026-10-25, avance local): RenderSystem, 13/37 funciones al 100%; 24 implementaciones parciales. Build limpio `main.dol: OK`; regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Layout e inferencias pendientes en `docs/RenderSystem-q1.md`. Sin push.
-- `codex/graphicsdevice-decomp` (2026-10-24): `atn/GraphicsDevice.cpp`, 9 funciones al 100%; `fn_80071088` al 65,57% y `fn_800763C0` al 72,00%, ambas `NONMATCHING`; resto pendiente. Build limpio `main.dol: OK`, regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Decisiones: `docs/GraphicsDevice-q1.md`. Sin push.
-- `codex/rodata-unassigned-2026-10-24` (2026-10-24): cuatro tramos contiguos y tres unidades de datos `.rodata`; 7501/18215 funciones al 100%, 370 ficheros enlazados, sin excepción nueva de regla 2. Build limpio (`main.dol: OK`), regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Detalle y decisión sobre el pool familiar nw4r: `docs/rodata-sin-asignar-q1.md`. Sin push.
-- Estado de `AI/AI_archer_attack01`: 186/517; `matching: false`; `fn_8003AD38` al 70,00% y dos stubs al 99,32%, todos `NONMATCHING`. Decisiones: `docs/AI-archer-attack01.md`.
-- Revisión `game/main` (2026-10-23): 11/14 al 100%; `main` 98,61%, arranque 39,58%. Detalle: `docs/game-main.md`.
+- `fix-svenchu-linkage` (2026-10-29): revisión de los commits de Svenchu/Codex del 23–25 oct. (subidos a `main` sin rama): HBMRso, GraphicsDevice, SoundManager, D2A_Texture, RenderSystem y AI con clases reales, en orden del `.dol` y sin `extern "C"` mangled; 64/64 vtables de AI idénticas. **7830 / 18215**, `main.dol: OK`, lost 0, fuzzdrop 0. Decisiones y pendientes: `docs/revision-2026-10-29.md`.
+- Unidades de esos commits (todas `matching: false`): AI_archer_attack01 189/517, RenderSystem_unk 14/37, D2A_Texture 14/30, SoundManager 27/76, GraphicsDevice 9/41, allocator_char 18/35, game/main 11/14; notas en `docs/<unidad>*.md`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)
@@ -23,6 +19,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 - `docs/entorno-nube.md`: montaje del entorno en la nube y receta de lotes en paralelo con agentes.
 - `docs/historial.md`: lotes hechos, cifras y dónde están sus decisiones.
 - `docs/mwcc-blockers.md`: bloqueos recurrentes investigados (qué **no** repetir).
+- `docs/fuente-enlazable.md`: por qué un fuente con muchos 100% puede no enlazar nunca y cómo evitarlo (regla 10).
 - `docs/inlining.md` (reglas R1–R5, `tools/inline_bench.py`), `docs/msl_cpp.md` (`basic_string`/`vector`/`list`), `libs/boost/README.md`, `docs/game_units.md`, `docs/classes.md`, `docs/splits-plan.md`, `tools/decomp/README.md`.
 - `docs/archivo/CLAUDE_completo_2026-10-22.md`: el CLAUDE.md largo anterior (estado por unidad, hallazgos con ejemplos, notas de red/DWC). Solo para `grep`.
 - **Ficheros grandes: nunca enteros, solo `grep` o rangos.** `config/SLSP01/symbols.txt` (3 MB), `splits.txt` (160 KB), `game_units.json` (60 KB), `docs/classes.md` (85 KB), `docs/game_units.md` (36 KB), las notas de lotes `docs/*-q*.md` (20–120 KB cada una), `build/SLSP01/report.json` y los `.s` de `build/SLSP01/asm` (usar `fasm.py`). Filtrar también las salidas largas de `ninja`, `regress.py` o `targets.py` (`| tail`, `grep`).

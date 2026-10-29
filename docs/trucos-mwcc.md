@@ -109,6 +109,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Un array local constante sin uso (`float c[4] = {...}`) deja su inicializador en `.rodata`: buscarlo si `.rodata` sale más grande que el original (Em302Kraken).
 - Doubles de `.rodata` sin nombre: objdiff solo los empareja si el símbolo objetivo se renombra al `@NNNN` local de nuestro .o (Em202_01_BSpider).
 - Con `-ipa file` una virtual inline definida fuera de la clase no mueve sus constantes de `.sdata2`; para ordenar el pool, stubs que el enlazador quita (Em203GreaterDaemonRed).
+- Un agregado local con literales (`float p[7] = {0.0f, ...}`) se rellena entero con ceros o se copia de una tabla estática; si el original carga cada valor, asignar elemento a elemento (`atn/RenderSystem_unk fn_800BFAC8`, de 95% a 100%).
+- MWCC pliega productos de literales float (`640.0f * 0.078f`): si el original multiplica en tiempo de ejecución, sus operandos no eran literales; ni `static const float` ni un inline lo evitan (`atn/RenderSystem_unk fn_800BDBC8`, sin resolver).
+- Cadenas de `.data` junto a `"Memory allocation failure"` (no en `@stringBase0`): literales de ctores inline de cabecera, p. ej. `LayerZPrePass() : Layer3D("ZPrePass")` en `atn/Layer3D.h` (RenderSystem).
 
 ## Enlazado y símbolos
 
@@ -160,6 +163,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Orden de los `case` en el fuente = orden de direcciones de los destinos de la tabla de saltos (Em204).
 - `new (p) std::vector<T>()` en una función suelta añade `cmpwi r3,0; beqlr`: escribir los tres campos a mano (Em403WarLion).
 - `if (!(fabs(x) < eps))` da el `blt` del original donde `>=` da `cror` (Em204).
+- Base abstracta sin estado (`AI::Script::CharaAi`): el ctor derivado fuera de línea solo escribe su vtable (MWCC elimina la escritura de la base); la vtable de la base sale en el `.o` y el enlazador la quita al no tener referencias.
+- `ordercheck.py` marca a veces inline definidas en el cuerpo de la clase o funciones implícitas que coloca el compilador; `reorder.py` no las mueve: definirlas fuera de la clase en su sitio (ver "Inlining").
 
 ## Librerías de red y DWC
 
