@@ -728,7 +728,9 @@ public:
     int fn_801479D8();
     void fn_80147A18(int value);
     int fn_80148334();
-    void fn_80148B38(); // inferred: updates the parts and the equipment
+    // inferred: updates the parts and the equipment; every caller passes a float in f1 (squared distance
+    // to the camera, or a constant) that this function never reads
+    void fn_80148B38(float distSq);
     // inferred: entry of the array at m62C (0x14 bytes)
     // inferred: has a constructor but no destructor (delete[] frees p - 0x10 without a destroy loop)
     struct Item14_unk {
@@ -1017,6 +1019,9 @@ public:
     void SetControlId_unk(int id) { m560 = id; }
     void SetRot_unk(const atn::Vector3& rot) { mRot = rot; }
     void SetFlag4_unk(bool on) { mFlag4 = on; }
+    // inferred: third constructor argument (Event::DialogHead passes the one of the character it copies;
+    // the original loads it before the type); name invented
+    void* GetData_unk() { return (void*)m50; }
 
 
     int mType;  // 0x48: also compared with 0 and 2 by the chr::Control* classes

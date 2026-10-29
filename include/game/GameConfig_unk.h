@@ -146,7 +146,7 @@ struct DialogConfig_unk {
     DialogSide_unk mLeft;          // 0x000
     DialogSide_unk mRight;         // 0x038
     DialogSide_unk m070;
-    NewCampScene2_unk mScenes[4];  // 0x0A8: inferred: (light, dark) of each side
+    NewCampScene2_unk mScenes[2][2]; // 0x0A8: inferred: [dark][right] (Event::DialogHead::fn_80226B28)
     int mUseWaitMotion;            // 0xB78
     int mUseLipSync;               // 0xB7C
 };

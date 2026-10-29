@@ -154,8 +154,7 @@ void MotionObject::Start() {
 }
 
 // NONMATCHING: 97.5% - register allocation (this in r24 instead of r25), the stack of the ray test of
-// the character loop, and the original loads 0.0f in f1 before CharaTask::fn_80148B38 (it may take a
-// float; the symbol is named without arguments).
+// the character loop.
 void MotionObject::vf10() {
     if (mStateDone != 0) {
         mStateDone = 0;
@@ -250,7 +249,7 @@ void MotionObject::vf10() {
                     chara->mPos = result.m04;
                     chara->fn_80144710();
                     chara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-                    chara->fn_80148B38();
+                    chara->fn_80148B38(0.0f);
                 }
             }
         }

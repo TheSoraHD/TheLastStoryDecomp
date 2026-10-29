@@ -172,8 +172,7 @@ void CopyRobotTask::vf10() {
         memcpy(mMotion.m220, m14B4->mMotion.m220,
                (*(CopyModelRes_unk**)((char*)&mMotion + 0x16C))->mNumNodes * sizeof(atn::Model::Node_unk));
         mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        LengthSq_unk(lbl_8087EFB4->mEye - mPos);
-        fn_80148B38();
+        fn_80148B38(LengthSq_unk(lbl_8087EFB4->mEye - mPos));
         vf20();
         mColli.mFlags &= ~1;
         vf54();

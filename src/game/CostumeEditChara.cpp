@@ -138,8 +138,7 @@ int CostumeEditChara::vf0C() {
             __MtxCopy(motion->mMtx, mMtx.m);
             motion->m54 = __MaxScaleT_unk(mMtx);
             mChara->mMotion.fn_80097E80(1);
-            PSVECSquareMag(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk()));
-            mChara->fn_80148B38();
+            mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk())));
             mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             mChara->fn_80147A18(0);
             CharaTask* chara = mChara;
@@ -181,8 +180,7 @@ void CostumeEditChara::vf10() {
         motion->m50 = 0;
         mChara->mMotion.fn_80097E80(1);
         mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        PSVECSquareMag(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk()));
-        mChara->fn_80148B38();
+        mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk())));
         if (mShadow.fn_8008B140() == 0) {
             __MtxCopy(mShadow.mMtx, mMtx.m);
             mShadow.m54 = __MaxScaleT_unk(mMtx);

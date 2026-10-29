@@ -3837,7 +3837,8 @@ void CharaTask::fn_801446F0() {
     m584 = 0.0f;
 }
 
-// inferred: camera parameter passed to fn_80095F10 (same block at DialogHead+0x1620); name invented
+// inferred: camera parameter passed to fn_80095F10 (same block at DialogHead+0x1620; this file keeps its
+// own Camera_unk, so the type of atn/Camera_unk.h is not used here); name invented
 struct ModelCameraParam_unk {
     ModelCameraParam_unk() : m00(0) {}
     int m00;
@@ -4092,7 +4093,7 @@ inline void __MakeRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
 // NONMATCHING: ~87% (ignoring stack offsets: 336/2500 lines differ; 2471 vs 2473 instructions) -
 // stack layout, float/GPR register assignment (scale/extra/maxDist, node/reset), the inlined
 // ToRotation_unk (see fn_80144710), `mType != 3` folded away, the sphere radius (target converts the
-// constant with frsp), mF50 read once instead of twice, f1 = distSq passed to fn_80148B38 (declared Fv);
+// constant with frsp), mF50 read once instead of twice, 
 // .data/.rodata pool references (ptmf constants, strings, the 2*pi double) shift until the earlier
 // functions exist. Tried: decl orders of the floats, Float4 assignment forms (kept the local block),
 // helper inlines for the distance checks, WrapAngle with a float period (kept), several `mType` forms.
@@ -4505,7 +4506,7 @@ void CharaTask::fn_80145334() {
     if (mFlagB25 && map != 0) {
         fn_80147A18(map->m104);
     }
-    fn_80148B38();
+    fn_80148B38(distSq);
     vf20();
     vf54();
     if (IsPartyMember_unk() || lbl_8087FA20 != 0) {
@@ -4878,7 +4879,7 @@ extern "C" void fn_80565B98(chr::CharaEquip_unk* equip); // inferred: updates th
 
 // NONMATCHING: 96% - the instructions are the same; only the offsets in @stringBase0 differ
 // (the strings of the functions before this one are not all defined yet).
-void CharaTask::fn_80148B38() {
+void CharaTask::fn_80148B38(float distSq) {
     if (m648 != 0) {
         if (m648->m04 == 1) {
             const char* name = "rightwepoint";

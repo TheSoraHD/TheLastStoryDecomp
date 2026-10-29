@@ -635,7 +635,7 @@ void EnemyQuarkStand::vf10() {
     if (m58C == 12 && m14B4 == 1 && m17E4 != 0 && m17EC == 0) {
         fn_80144710();
         m17E4->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk());
-        m17E4->fn_80148B38();
+        m17E4->fn_80148B38(10.0f);
     }
     if (m1CC4 != 0) {
         if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C)) {

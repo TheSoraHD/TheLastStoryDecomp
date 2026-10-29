@@ -136,9 +136,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: CharaTask::fn_80148B38 receives a distance in f1 (the shared header declares it without
-// parameters; called by its symbol as in MP/D2AMpMenuCockpit.cpp)
-extern "C" void fn_80148B38__9CharaTaskFv(CharaTask* chara, float dist);
 
 // inferred: offset of the point hit by the cannon shots (same values as chr/ControlCannonLift.cpp)
 static atn::Vector3 sShotOffset_unk(3.882f, 98.679f, 10.846f);
@@ -429,7 +426,7 @@ void Em208Queen::vf10() {
     if (m58C - 12U <= 1 && m14BC >= 5 && m14D0 != 0) {
         m14D0->fn_80144710();
         m14D0->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        fn_80148B38__9CharaTaskFv(m14D0, 40.0f);
+        m14D0->fn_80148B38(40.0f);
     }
     m14BC++;
 }

@@ -17,8 +17,25 @@ struct LipSyncKey_unk {
     float mTime; // inferred: target weight of the mouth motion
 };
 
-// inferred: lip sync data (fn_8007A530 called by GameVoice::fn_803E8A50)
-struct LipSyncData_unk {
+// inferred: array of keys {count, keys}; the destructor of LipSyncData_unk calls this one (one more
+// inline level, seen in Event::DialogHead and Event::Dialog). Name invented.
+struct LipSyncKeys_unk {
+    LipSyncKeys_unk() : mCount(0), mKeys(0) {}
+    ~LipSyncKeys_unk() {
+        if (mKeys != 0) {
+            delete[] mKeys;
+        }
+        mKeys = 0;
+        mCount = 0;
+    }
+    unsigned int mCount;
+    LipSyncKey_unk* mKeys;
+};
+
+// inferred: lip sync data (fn_8007A530 called by GameVoice::fn_803E8A50; members of Event::Dialog at 0x184
+// and Event::DialogHead at 0x1A00, which construct it with m08 = 30)
+struct LipSyncData_unk : public LipSyncKeys_unk {
+    LipSyncData_unk() : m08(30) {}
     void fn_8007A530(const char* text, int size); // inferred: parses the CSV
     // inferred: inline resize of the key array (name invented). Its "" literals are the weak @STRING@ pool
     // of .sdata 0x8087D760/0x8087D764; Event::Dialog uses the same pool with heaps 4 and 0, so the heap is
@@ -35,8 +52,6 @@ struct LipSyncData_unk {
         }
     }
 
-    unsigned int mCount;
-    LipSyncKey_unk* mKeys;
     int m08; // inferred: second field of the CSV
 };
 

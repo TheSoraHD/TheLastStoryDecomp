@@ -72,4 +72,16 @@ struct Camera_unk {
     Frustum_unk mFrustum;   // 0x100
 };
 
+// inferred: camera parameter applied to a model by fn_80095F10 (game/CharaTask.cpp, Event/DialogHead.cpp);
+// names invented
+struct ModelCameraParam_unk {
+    ModelCameraParam_unk() : m00(0) {}
+    void SetCamera_unk(const Camera_unk& camera) { mCamera = camera; } // inferred: name invented
+    int m00;
+    void* m04;
+    Camera_unk mCamera; // 0x08
+};
+// inferred: applies a camera to a model
+extern "C" void fn_80095F10(void* model, ModelCameraParam_unk* param);
+
 #endif

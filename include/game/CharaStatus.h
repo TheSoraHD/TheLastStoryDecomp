@@ -290,6 +290,8 @@ struct CharaEquip_unk {
     void fn_805663F8();
     void fn_80566408(); // inferred: undoes fn_805663F8 (CharaTask::fn_80145334)
     void fn_805657CC(int color, unsigned int* bits); // inferred: applies the option bits
+    // inferred: the object at 0x24 is the model of the item (Event::DialogHead calls its virtuals)
+    atn::Model* GetModel_unk() { return (atn::Model*)m024; }
     int m000; // inferred: kind (4 is handled apart by CharaTask::fn_80149A30)
     int m004; // inferred: item id ((id % 1000) / 10 == 46: coat with "leftcoat"/"rightcoat" nodes)
     int m008; // inferred: color (game/CosEditBase.cpp)

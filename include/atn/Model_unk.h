@@ -39,6 +39,13 @@ typedef boost::function<void(Matrix3x4*, const NodeChunk&, const ModelNodeCallba
 // atn::ModelBase (vtable __vt__Q23atn9ModelBase); only the RSO methods used so far are declared
 struct ModelBase {
     virtual ~ModelBase();
+    // inferred: ModelBase derives from atn::IRender (RTTI 0x807788F8); its renderer virtuals are
+    // declared here instead (several files keep local copies of IRender). Called by Event::DialogHead.
+    virtual int GetRenderType_unk();                 // 0x80099F68
+    virtual void vf10(struct RenderView_unk* view);  // 0x8008E304: inferred: draw
+    virtual int vf14(void* arg1, void* arg2, void* frustum); // 0x8008FA24
+    virtual void vf18(struct RenderView_unk* view);  // 0x8008D6C0
+    virtual void vf1C();                             // 0x800902BC
     void CalcMatrixStack(const MotionBuffer* motion, ModelNodeCallback_unk callback); // 0x800902C0
     // RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci (0x80092814): node index by name, < 0 if missing
     int GetNodeNoByName(const char* name, int arg) const;
