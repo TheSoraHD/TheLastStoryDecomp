@@ -638,7 +638,7 @@ void EnemyQuarkStand::vf10() {
     fn_80352C3C(100, camera, 45.0f, 6.2831855f);
     if (m58C == 12 && m14B4 == 1 && m17E4 != 0 && m17EC == 0) {
         fn_80144710();
-        fn_8000D430(m17E4->GetModel_unk(), boost::function<void()>());
+        m17E4->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk());
         m17E4->fn_80148B38();
     }
     if (m1CC4 != 0) {

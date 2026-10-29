@@ -160,7 +160,7 @@ inline void Bat::UpdateModel_unk(int i) {
     __MtxCopy(b.mModel.mMtx, mtx.m);
     b.mModel.m54 = MaxScale_unk(mtx);
     mBats.mData[i].mModel.fn_80097E80(1);
-    fn_8000D430(&mBats.mData[i].mModel, boost::function<void()>());
+    mBats.mData[i].mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
 }
 
 // inferred: per frame update of the model of a bat (name invented)

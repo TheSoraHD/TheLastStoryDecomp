@@ -343,7 +343,7 @@ void SwingObject::vf10() {
     }
     fn_803ECBD4(mModel.GetModel_unk(), 0);
     if (mModel.GetModel_unk()->mFlag6_unk) {
-        fn_800902C0(mModel.GetModel_unk(), 0, boost::function<void()>());
+        mModel.GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
         mHidden = true;
     }
 }

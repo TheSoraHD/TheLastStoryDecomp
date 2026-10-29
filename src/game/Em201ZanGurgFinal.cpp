@@ -2366,7 +2366,7 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
         break;
     }
     }
-    fn_800902C0((atn::Model*)m1624->m010, 0, boost::function<void()>());
+    ((atn::Model*)m1624->m010)->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
 }
 
 // NONMATCHING: r3/r4 of the target and of the temporary in every case (6 variants)

@@ -309,7 +309,7 @@ void Em316LaserSphere::vf10() {
             m = fn_80266154(m1648[i - 1].GetModel_unk());
         }
         fn_80316E38(models[i].GetModel_unk(), m);
-        fn_800902C0(models[i].GetModel_unk(), 0, boost::function<void()>(0));
+        models[i].GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk(0));
     }
     fn_80317EA0();
     m14C0++;

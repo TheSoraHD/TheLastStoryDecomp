@@ -160,7 +160,7 @@ void EquipItemData::vf08() {
         atn::Model::Node_unk* nodes = mModel.m220;
         nodes[mModel.fn_80092814("head", 0)].m00 = 0;
     }
-    fn_8000D430(&mModel, boost::function<void()>());
+    mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
 }
 
 void EquipItemData::vf0C() {

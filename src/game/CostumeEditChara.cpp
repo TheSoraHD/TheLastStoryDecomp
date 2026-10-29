@@ -140,7 +140,7 @@ int CostumeEditChara::vf0C() {
             mChara->mMotion.fn_80097E80(1);
             fn_805F9920(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk()));
             mChara->fn_80148B38();
-            fn_8000D430(&mChara->mMotion, boost::function<void()>());
+            mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             mChara->fn_80147A18(0);
             CharaTask* chara = mChara;
             fn_80097CCC(&chara->mMotion, 3, 0.0f);
@@ -180,13 +180,13 @@ void CostumeEditChara::vf10() {
         motion->m20C_15_8 = motion->m50;
         motion->m50 = 0;
         mChara->mMotion.fn_80097E80(1);
-        fn_8000D430(&mChara->mMotion, boost::function<void()>());
+        mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
         fn_805F9920(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk()));
         mChara->fn_80148B38();
         if (mShadow.fn_8008B140() == 0) {
             __MtxCopy(mShadow.mMtx, mMtx.m);
             mShadow.m54 = __MaxScaleT_unk(mMtx);
-            fn_8000D430(&mShadow, boost::function<void()>());
+            mShadow.CalcMatrixStack(atn::ModelNodeCallback_unk());
         }
         if (!fn_801E91B4() || mVisible == 0) {
             mChara->fn_8016E800(0);
@@ -216,7 +216,7 @@ void CostumeEditChara::vf10() {
             mtx.m[2][3] = mTarget.z;
             __MtxCopy(mShadow.mMtx, mtx.m);
             mShadow.m54 = __MaxScaleT_unk(mtx);
-            fn_8000D430(&mShadow, boost::function<void()>());
+            mShadow.CalcMatrixStack(atn::ModelNodeCallback_unk());
         }
     }
 }

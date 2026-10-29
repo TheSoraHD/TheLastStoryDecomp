@@ -358,7 +358,7 @@ void fn_8012AC64(CharaLook_unk* look) {
     look->mSpeed = 1.0f;
     look->mEyeSpeed = 1.0f;
     look->fn_80129A6C();
-    fn_8000D430((atn::Model*)&look->mChara->mMotion, boost::function<void()>());
+    ((atn::Model*)&look->mChara->mMotion)->CalcMatrixStack(atn::ModelNodeCallback_unk());
     look->mSpeed = speed;
     look->mEyeSpeed = eyeSpeed;
 }

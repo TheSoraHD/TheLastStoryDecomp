@@ -61,7 +61,7 @@ struct ArrowMtx_unk {
 extern "C" void fn_800F80A8(ArrowMtx_unk* mtx, const atn::Vector3* pos);
 extern "C" void fn_800F80B8(ArrowMtx_unk* mtx, const atn::Vector3* rot);
 extern "C" void fn_80316E38(atn::Model* model, ArrowMtx_unk* mtx);
-// inferred: callback object passed to fn_8000D430 (0x14 bytes, constructor and destructor out of line)
+// inferred: callback object passed to atn::Model::CalcMatrixStack (0x14 bytes, constructor and destructor out of line)
 struct ArrowCallback_unk {
     unsigned char m00[0x14];
 };
@@ -314,10 +314,10 @@ void FlamingArrow::vf10() {
             fn_800F80A8(&mtx, &mArrows[i].mPos);
             fn_800F80B8(&mtx, &dir);
             fn_80316E38(&mArrows[i].mModel, &mtx);
-            fn_8000D430(&mArrows[i].mModel, boost::function<void()>(0));
+            mArrows[i].mModel.CalcMatrixStack(atn::ModelNodeCallback_unk(0));
         } else if (mArrows[i].mState == 2) {
             mArrows[i].mModel.fn_80097E80(1);
-            fn_8000D430(&mArrows[i].mModel, boost::function<void()>(0));
+            mArrows[i].mModel.CalcMatrixStack(atn::ModelNodeCallback_unk(0));
             float length = mArrows[i].mModel.fn_80097D7C(0);
             if (mArrows[i].mModel.GetMotionFrame(0) >= length) {
                 fn_80239DAC(fn_800F7FA0(), &mArrows[i].mModel, 1, 1);
@@ -394,7 +394,7 @@ void FlamingArrow::vf10() {
     fn_800F80A8(&mtx, &arrow->mPos);
     fn_800F80B8(&mtx, &angle);
     fn_80316E38(&arrow->mModel, &mtx);
-    fn_8000D430(&arrow->mModel, boost::function<void()>(0));
+    arrow->mModel.CalcMatrixStack(atn::ModelNodeCallback_unk(0));
     fn_80417F1C(&arrow->mModel, (const ArrowColor_unk*)&atn::Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f));
     fn_800F7FA8(fn_800F7FA0(), arrow, 0);
     fn_8026607C(fn_800F7FA0(), &mEfpArrow, arrow, 1);

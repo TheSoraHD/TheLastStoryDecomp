@@ -495,7 +495,7 @@ void Cannonball::vf10() {
         fn_800F80B8(mtx, &m78);
         fn_80316E38(&mModel, mtx);
     }
-    fn_8000D430(&mModel, boost::function<void()>(0));
+    mModel.CalcMatrixStack(atn::ModelNodeCallback_unk(0));
 }
 
 void Cannonball::vf14() {

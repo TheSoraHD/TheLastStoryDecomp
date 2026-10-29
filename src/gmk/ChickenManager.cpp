@@ -152,7 +152,7 @@ void Chicken_unk::fn_8040B668() {
         __MtxCopy(mModel.mMtx, mtx.m);
         mModel.m54 = MaxScale_unk(mtx);
         mModel.fn_80097E80(1);
-        fn_8000D430(&mModel, boost::function<void()>());
+        mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
     } else {
         atn::Matrix3x4 inv;
         __MtxCopy(inv.m, mModel.mMtx);

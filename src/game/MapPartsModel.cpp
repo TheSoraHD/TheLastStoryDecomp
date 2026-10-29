@@ -206,7 +206,7 @@ void MapPartsModel::vf28(atn::CsvTab* csv) {
         float sx = PSVECMag(&ax);
         atn::Vector3 s(sx, sy, sz);
         mModel.m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
-        fn_8000D430(&mModel, boost::function<void()>());
+        mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
 }
 }
 
@@ -214,7 +214,7 @@ MapPartsModel::~MapPartsModel() {}
 
 int MapPartsModel::vf0C() {
     if (mModel.fn_8008B140() == 0) {
-        fn_8000D430(&mModel, boost::function<void()>());
+        mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
         return 1;
     }
     return 0;
@@ -250,7 +250,7 @@ void MapPartsModel::vf14() {
             float sx = PSVECMag(&ax);
             atn::Vector3 s(sx, sy, sz);
             mModel.m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
-            fn_8000D430(&mModel, boost::function<void()>());
+            mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
 }
     }
     if (lbl_8087F0A8->mDrawMap != 0 && mDraw != 0) {

@@ -123,7 +123,7 @@ void Augur::fn_8041EE28() {
         mAugur->mMotion.mFlags &= ~0x40;
         mAugur->mMotion.mTracks[0].m10 = 1.0f;
         mAugur->mMotion.fn_80097E80(1);
-        fn_8000D430(&mAugur->mMotion, boost::function<void()>());
+        mAugur->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
     }
 }
 

@@ -249,7 +249,7 @@ void MotionObject::vf10() {
                     result.m38 == colli->mObject) {
                     chara->mPos = result.m04;
                     chara->fn_80144710();
-                    fn_8000D430(&chara->mMotion, boost::function<void()>());
+                    chara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
                     chara->fn_80148B38();
                 }
             }

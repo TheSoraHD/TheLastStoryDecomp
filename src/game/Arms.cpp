@@ -210,7 +210,7 @@ void Arms::vf10() {
                    atn::Vector3(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]).Length_unk());
     GetModel_unk()->m54 = Max3_unk(s);
     if (GetModel_unk()->m16C != 0) {
-        fn_800902C0(GetModel_unk(), 0, boost::function<void()>());
+        GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
     }
 }
 

@@ -161,7 +161,7 @@ void Pigeon_unk::fn_804048CC() {
         __MtxCopy(mModel.mMtx, mtx.m);
         mModel.m54 = MaxScale_unk(mtx);
         mModel.fn_80097E80(1);
-        fn_8000D430(&mModel, boost::function<void()>());
+        mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
         m438 = false;
     } else {
         atn::Matrix3x4 inv;

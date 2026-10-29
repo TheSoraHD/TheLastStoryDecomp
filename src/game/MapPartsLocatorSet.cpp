@@ -237,7 +237,7 @@ void MapPartsLocatorSet::vf10() {
     if (mDraw) {
         if (mHasMerged) {
             mMerged->GetModel_unk()->fn_80092A4C();
-            fn_800902C0(mMerged->GetModel_unk(), 0, boost::function<void()>());
+            mMerged->GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
         } else {
             for (unsigned int i = 0; i < (unsigned int)mInstances.mSize; i++) {
                 mInstances.mData[i]->fn_80490E38();

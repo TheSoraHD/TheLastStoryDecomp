@@ -798,7 +798,7 @@ int CharaTask::fn_8013655C() {
             mMotion.mTracks[0].m08 = (float)m12C0 * ((float)(rand() % 1001) / 1000.0f);
         }
         mMotion.fn_80097E80(1);
-        fn_8000D430(&mMotion, boost::function<void()>());
+        mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
         mMotion.fn_80097510();
         if (mMotion.IsFlag5_unk()) {
             mMotion.mFlag4_unk = 1;
@@ -4482,7 +4482,7 @@ void CharaTask::fn_80145334() {
             if (m588 > 0.01f) {
                 mMotion.m220[m524].m04.y -= m588;
             }
-            fn_8000D430(&mMotion, boost::function<void()>());
+            mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             if (m588 > 0.01f) {
                 mMotion.m220[m524].m04.y += m588;
             }

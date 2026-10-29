@@ -144,7 +144,7 @@ void Chain::fn_8043C508() {
         __MtxCopy(m.m, t);
         __MtxCopy(mModel.GetModel_unk()->mMtx, m.m);
         mModel.GetModel_unk()->m54 = MaxScale_unk(m);
-        fn_800902C0(mModel.GetModel_unk(), 0, boost::function<void()>());
+        mModel.GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
         for (int i = 0; i < mNumJoints; i++) {
             ChainJoint_unk& j = mJoints2.mData[i];
             j.m1C = *(atn::Matrix3x4*)mModel.GetModel_unk()->GetNodeMtx_unk(j.mNode);

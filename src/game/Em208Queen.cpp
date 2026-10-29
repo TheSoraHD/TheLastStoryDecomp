@@ -428,7 +428,7 @@ void Em208Queen::vf10() {
     }
     if (m58C - 12U <= 1 && m14BC >= 5 && m14D0 != 0) {
         m14D0->fn_80144710();
-        fn_8000D430(&m14D0->mMotion, boost::function<void()>());
+        m14D0->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
         fn_80148B38__9CharaTaskFv(m14D0, 40.0f);
     }
     m14BC++;

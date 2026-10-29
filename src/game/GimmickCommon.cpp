@@ -486,7 +486,7 @@ void GimmickCommon::fn_803ECBD4(atn::Model* model, int callback) {
     atn::Vector3 s(sx, sy, sz);
     model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
     if (callback != 0) {
-        fn_800902C0(model, 0, boost::function<void()>());
+        model->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
     }
 }
 
@@ -516,7 +516,7 @@ void GimmickCommon::fn_803ED0D4(atn::Model* model, int callback) {
     atn::Vector3 s(sx, sy, sz);
     model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
     if (callback != 0) {
-        fn_8000D430(model, boost::function<void()>());
+        model->CalcMatrixStack(atn::ModelNodeCallback_unk());
     }
 }
 

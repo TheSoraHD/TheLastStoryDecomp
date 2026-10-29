@@ -222,7 +222,7 @@ int OnOff::vf0C() {
                 float sx = PSVECMag(&ax);
                 atn::Vector3 s(sx, sy, sz);
                 model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
-                fn_8000D430(model, boost::function<void()>());
+                model->CalcMatrixStack(atn::ModelNodeCallback_unk());
                 break;
             }
             case 4:

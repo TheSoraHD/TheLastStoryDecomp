@@ -119,7 +119,7 @@ void Gun::vf14() {
         PSMTXConcat(mtx.m, t.m, r.m);
         mtx = r;
         SetMtx_unk(m2A8->GetModel_unk(), mtx);
-        fn_800902C0(m2A8->GetModel_unk(), 0, boost::function<void()>());
+        m2A8->GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
         m2A8->GetModel_unk()->fn_8008CD60();
     }
     Arms::vf14();

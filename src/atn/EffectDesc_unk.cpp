@@ -333,7 +333,7 @@ extern "C" void fn_80234CD8() {
                                    Mag_unk(atn::Vector3(item->mMtx.m[0][1], item->mMtx.m[1][1], item->mMtx.m[2][1])),
                                    Mag_unk(atn::Vector3(item->mMtx.m[0][2], item->mMtx.m[1][2], item->mMtx.m[2][2])));
                 model->m54 = EFFECT_MAX(scale.x, EFFECT_MAX(scale.y, scale.z));
-                fn_800902C0(model, 0, boost::function<void()>());
+                model->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
                 model->m40.m00 = item->mColor.r;
                 model->m40.m04 = item->mColor.g;
                 model->m40.m08 = item->mColor.b;

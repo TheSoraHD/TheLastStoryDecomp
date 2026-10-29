@@ -166,7 +166,7 @@ void FlyObj::fn_80427870() {
     __SetTrans_unk(mtx, mPos.x, mPos.y, mPos.z);
     __MtxCopy(mModel.mMtx, mtx.m);
     mModel.m54 = MaxScale_unk(mtx);
-    fn_8000D430(&mModel, boost::function<void()>());
+    mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
     mModel.fn_80097E80(1);
     mColli.mSphere = atn::ColliSphere::Sphere_unk(atn::Vector3(mPos), mRadius);
 }
