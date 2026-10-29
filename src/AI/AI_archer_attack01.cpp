@@ -4043,6 +4043,32 @@ int AI::Script::AI_em_type010::vf08() {
     fn_8001AEDC(8, &a, &b, &c, &d);
     return 1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_type010::vf0C() {
+    if (lbl_807C6A40.m24 == 1) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(8, lbl_807C6A40.m20, 5, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return -1;
+        }
+        return -1;
+    }
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        if (SkillDist_unk(lbl_807C6A40.m1C, lbl_807C68C0.m20) < lbl_807C6A40.m18) {
+            Attack_unk();
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_type010::vf1C() {
     if (SkillDist_unk(lbl_807C6A40.m1C, lbl_807C68C0.m20) > lbl_807C6A40.m18) {
@@ -4066,6 +4092,33 @@ int AI::Script::AI_em_type010::vf28() {
     if (result == 5) {
         lbl_807C6A40.m00 = 1;
         return 5;
+    }
+    return -1;
+}
+
+// NONMATCHING: 93.63% - out base register (r10/r7 instead of r7/r4).
+int AI::Script::AI_em_type010::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (lbl_807C6A40.m24 == 1) {
+        if (lbl_807C68C0.m58 == 100) {
+            lbl_807C6A40.m00 = 1;
+            lbl_807C6A40.m24 = 0;
+            UseSkill_unk();
+            return 1;
+        }
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (lbl_807C68C0.m58 < lbl_807C6A40.m28) {
+        lbl_807C6A40.m24 = 1;
+        lbl_807C6A40.m00 = 1;
+        Command_unk(12, lbl_807C6A40.m20, 5, 0, 0);
+        return 1;
     }
     return -1;
 }
