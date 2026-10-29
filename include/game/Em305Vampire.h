@@ -107,7 +107,7 @@ public:
     int m15B8;                                    // inferred: "stun_time"
     ResHandle m15BC;                              // inferred: released in the destructor
     int m15C0;
-    Model_unk::Float4_unk m15C4;                  // inferred: model color while m1528 is set
+    atn::Model::Float4_unk m15C4;                  // inferred: model color while m1528 is set
     float m15D4;
     float m15D8[3];                               // inferred: "weaken_speed"
     int m15E4[3];                                 // inferred: "weaken_time"

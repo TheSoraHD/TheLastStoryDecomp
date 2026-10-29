@@ -30,9 +30,9 @@ std::basic_string<char> fn_8006B0C8(const std::basic_string<char>& path);
 
 extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
 
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node);
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, const char* node, float distance);
-extern "C" void fn_80095CD0(Model_unk* model); // inferred: update
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node);
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, const char* node, float distance);
+extern "C" void fn_80095CD0(atn::Model* model); // inferred: update
 
 // inferred: map model loaded from a csv list (0x22C bytes; created by fn_8009F788). Names invented.
 struct MapModel_unk {
@@ -343,7 +343,7 @@ struct MotionModelRes_unk {
 };
 
 // inferred: index of each node of a model in a motion (-1: not animated)
-extern "C" void fn_800A09D0(short* out, Model_unk* model, atn::LH_Motion* motion) {
+extern "C" void fn_800A09D0(short* out, atn::Model* model, atn::LH_Motion* motion) {
     MotionModelRes_unk* res = (MotionModelRes_unk*)model->m16C;
     MotionModelRes_unk::Node_unk* node;
     int n = res->m44;

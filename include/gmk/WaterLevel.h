@@ -33,12 +33,12 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
-    Model_unk mModel;          // 0xF4
+    atn::Model mModel;          // 0xF4
     atn::Vector3 mBoxPos;      // 0x4C4
     atn::ColliBox mColli;      // 0x4D0
     atn::Vector3 mBoxOffset;   // 0x848: "COLLI_BOX"

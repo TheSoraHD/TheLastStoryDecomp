@@ -42,7 +42,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -107,13 +107,13 @@ struct BigMulueChara_unk : public CharaTask {
     BigMulueState_unk m1470;
 };
 
-// inferred: node position (weak copies of Model_unk::GetNodeMtx_unk and Matrix3x4::GetTrans_unk)
+// inferred: node position (weak copies of atn::Model::GetNodeMtx_unk and Matrix3x4::GetTrans_unk)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
 // inferred: plays an effect on the model (as in game/Em302Kraken.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -1238,11 +1238,11 @@ void Em204BigMulue::fn_802B1B50(int fire) {
     fn_800C344C("SE_EM204_014", &mPos, 0, -1, 1.0f);
     for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
         if (c->CanAct_unk()) {
-            Model_unk* cm = &c->mMotion;
+            atn::Model* cm = &c->mMotion;
             atn::Vector3 to = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
             Bullet* bullet = fn_801010A0(lbl_8087F048);
             if (bullet != 0) {
-                Model_unk* model = &mMotion;
+                atn::Model* model = &mMotion;
                 atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
                 atn::Vector3 dir = (to - hips).GetNormalize();
                 BigMulueShot_unk shot;

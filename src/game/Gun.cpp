@@ -3,7 +3,7 @@
 #include "game/CrossbowMenuTask.h"
 #include "game/HitInfo_unk.h"
 
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void* lbl_8087F4F0;                         // inferred: item manager
@@ -44,7 +44,7 @@ inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
 }
 
 // inferred: sets the world matrix of a model and its largest scale axis (name invented)
-inline void SetMtx_unk(Model_unk* model, const atn::Matrix3x4& mtx) {
+inline void SetMtx_unk(atn::Model* model, const atn::Matrix3x4& mtx) {
     __MtxCopy(model->mMtx, mtx.m);
     float sz = ColumnLength_unk(mtx, 2);
     float sy = ColumnLength_unk(mtx, 1);

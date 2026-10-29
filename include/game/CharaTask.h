@@ -28,7 +28,9 @@ template <class T, int Sep, int Eol, int Quote> class CsvBase;
 class CsvTab;
 }
 
-struct Model_unk;
+namespace atn {
+struct Model;
+}
 
 namespace chr {
 class ControlBase;
@@ -452,7 +454,7 @@ public:
     int fn_801370B8(int index);
     void fn_801371AC(); // inferred: reads the character file (m84)
     void fn_80137B78(); // inferred: reloads the model LODs from the character file
-    void fn_80137E68(Model_unk* model, atn::CsvTab* csv); // inferred: model draw flags
+    void fn_80137E68(atn::Model* model, atn::CsvTab* csv); // inferred: model draw flags
     void fn_80137FC0(); // inferred: reads the model options from the character file
     void fn_80138528(); // inferred: reads the motion parameters (mA4)
     int fn_80138E1C(int arg); // inferred: plays a random motion
@@ -996,7 +998,7 @@ public:
     bool HasPart674_unk() { return m674 >= 0 ? true : false; } // inferred: name invented (0x80149A30)
     inline bool IsShadowField_unk();
     // inferred: names invented (weak copies 0x8000DD0C and 0x8012A1B8)
-    Model_unk* GetModel_unk() { return (Model_unk*)&mMotion; }
+    atn::Model* GetModel_unk() { return (atn::Model*)&mMotion; }
     atn::Vector3* GetRot_unk() { return &mRot; }
 
 

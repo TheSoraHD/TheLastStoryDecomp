@@ -12,10 +12,10 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -27,7 +27,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -77,7 +77,7 @@ struct MotionHitMsg_unk {
     MotionHitSkill_unk* mSkill; // 0x2C
 };
 
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -162,7 +162,7 @@ void MotionObject::vf10() {
         GimmickMsg_unk msg(mStates[m54].mNext);
         vf40(&msg);
     }
-    Model_unk* model = vf38();
+    atn::Model* model = vf38();
     MotionPlay_unk* play = &mPlay[m54];
     MotionEfp_unk* efp = &mEfp[m54];
     MotionColli_unk* colli = &mColli[m54];
@@ -258,7 +258,7 @@ void MotionObject::vf10() {
     mFrame++;
 }
 
-Model_unk* MotionObject::vf38() {
+atn::Model* MotionObject::vf38() {
     if (mHasModel[m54] != 0) {
         return &mModels[m54];
     }
@@ -267,7 +267,7 @@ Model_unk* MotionObject::vf38() {
 
 // NONMATCHING: 97.0% - stack layout of the target sphere temporaries (tried RotY_unk/by-value helpers)
 void MotionObject::fn_804137F4() {
-    Model_unk* model = vf38();
+    atn::Model* model = vf38();
     MotionColli_unk* colli = &mColli[m54];
     if (model != 0 && colli->mObject != 0) {
         if (colli->mNode != 0) {
@@ -290,7 +290,7 @@ void MotionObject::fn_804137F4() {
 // The int index compared as unsigned gives the loop registers of the original. The three
 // release asserts keep it out of line (the original calls it from vf10 while PlayEfp_unk is inlined).
 void MotionObject::fn_804139D8() {
-    Model_unk* model = vf38();
+    atn::Model* model = vf38();
     ((void)0);
     ((void)0);
     ((void)0);
@@ -505,7 +505,7 @@ int MotionObject::vf44(GimmickHitMsg_unk* msg) {
 void MotionObject::vf70(int state) {
     GimmickMsg_unk msg(state);
     vf40(&msg);
-    Model_unk* model = vf38();
+    atn::Model* model = vf38();
     if (model != 0 && model->mTracks[0].m18 == 0 && model->mTracks[0].m04 != 0) {
         model->mTracks[0].m08 = model->fn_80097D7C(0);
         if (vf38() != 0) {

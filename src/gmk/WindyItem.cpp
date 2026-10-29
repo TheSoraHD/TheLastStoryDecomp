@@ -154,13 +154,13 @@ struct WindyColor_unk {
     float r, g, b, a;
 };
 extern "C" WindyEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const WindyColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" int fn_80239D58(WindyEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Model_unk* model,
+extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
@@ -288,7 +288,7 @@ void gmk::WindyItem::fn_8043A08C(WindySlot_unk* slot) {
             slot->mPath.m58 = 0;
             if (lbl_8087F3C0 != 0) {
                 fn_80232B7C(slot, 0);
-                fn_8023A680(lbl_8087F3C0, &mEff, -1, 5, (Model_unk*)&slot->mMtx, 0, 0, 0, 0, -1, 1, 1.0f);
+                fn_8023A680(lbl_8087F3C0, &mEff, -1, 5, (atn::Model*)&slot->mMtx, 0, 0, 0, 0, -1, 1, 1.0f);
             }
         }
         break;

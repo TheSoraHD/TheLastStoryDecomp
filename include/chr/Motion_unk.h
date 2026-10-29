@@ -24,7 +24,7 @@ struct CharaPart_unk {
     unsigned char m010[0x014 - 0x010]; // inferred: model-like object (passed to fn_80094E2C)
     unsigned int m014; // inferred: flags of that model (0x80149A30 sets 0x4 and 0x400)
     unsigned char m018[0x050 - 0x018];
-    Model_unk::Float4_unk m050; // inferred: copied from the character model (CharaTask::fn_80148B38)
+    atn::Model::Float4_unk m050; // inferred: copied from the character model (CharaTask::fn_80148B38)
     unsigned char m060[0x224 - 0x060];
     MtxPtr m224; // inferred: node matrix followed by the weapon
     atn::Matrix3x4 m228; // inferred: offset matrix applied on top of m224 (fn_8014EF48)
@@ -39,8 +39,8 @@ struct CharaPart_unk {
 struct CharaData_unk;
 
 // The motion controller embedded in characters at +0xB0 is the engine model class (CharaTask
-// constructs it with Model_unk::Model_unk, 0x80135588); the old name is kept as an alias.
-typedef ::Model_unk Motion_unk;
+// constructs it with atn::Model::Model, 0x80135588); the old name is kept as an alias.
+typedef ::atn::Model Motion_unk;
 
 } // namespace chr
 

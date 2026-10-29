@@ -13,8 +13,8 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::Matrix3x4 lbl_807C7060;
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, const char* node, float distance); // inferred: LOD    // inferred: identity matrix
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, const char* node, float distance); // inferred: LOD    // inferred: identity matrix
 
 extern "C" ArmsData_unk* fn_80206B14(void* arg, int item);     // inferred: equipment data
 extern "C" ArmsEffect_unk* fn_802072AC(void* arg, int item);   // inferred: effect data of the equipment
@@ -31,7 +31,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -250,7 +250,7 @@ int Arms::fn_80044C50(CharaTask* chara) {
 }
 
 // inferred: plays the effect of the weapon on its model (name invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

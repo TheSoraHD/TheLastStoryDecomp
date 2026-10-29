@@ -15,8 +15,8 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -29,7 +29,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" CannonEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(CannonEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(CannonEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(CannonEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -107,8 +107,8 @@ extern "C" inline CharaTask* fn_801A0408(EnemyManager* mgr) {
 extern "C" inline CharaTask* fn_801A03EC(CharaTask* chara) {
     return ((CannonCharaNode_unk*)chara)->mNext;
 }
-extern "C" inline Model_unk* fn_800F84C8(CharaTask* chara) {
-    return (Model_unk*)&chara->mMotion;
+extern "C" inline atn::Model* fn_800F84C8(CharaTask* chara) {
+    return (atn::Model*)&chara->mMotion;
 }
 extern "C" inline atn::ColliCapsule* fn_80198C00(CharaTask* chara) {
     return &chara->mColli;
@@ -149,7 +149,7 @@ extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b
     return PSVECDotProduct(&a, &b);
 }
 // inferred: model matrix helpers
-extern "C" inline atn::Matrix3x4* fn_80266154(Model_unk* model) {
+extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
     return (atn::Matrix3x4*)model->mMtx;
 }
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -157,7 +157,7 @@ extern "C" inline void fn_800F80A8(MtxPtr mtx, const atn::Vector3* pos) {
     PSMTXTrans(mtx, pos->x, pos->y, pos->z);
 }
 extern "C" void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot);
-extern "C" void fn_80316E38(Model_unk* model, MtxPtr mtx);
+extern "C" void fn_80316E38(atn::Model* model, MtxPtr mtx);
 // inferred: bullets
 struct CannonBullets_unk {
     unsigned char m00000[0x3E39C];
@@ -202,7 +202,7 @@ inline CharaListeners_unk* fn_8014F8F4() {
 static const char* const sSe[4] = {"SE_BTCOM_036", "SE_BTCOM_037", "SE_BTCOM_038"};
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -237,7 +237,7 @@ inline atn::SoundRef& SetSound_unk(atn::SoundRef& dst, const atn::SoundRef& src)
     return dst;
 }
 // inferred: matrix of a node of the model (weak copy 0x803FAE38); name invented
-inline MtxPtr GetNode_unk(Model_unk* model, const char* name) {
+inline MtxPtr GetNode_unk(atn::Model* model, const char* name) {
     MtxPtr mtx;
     int index = model->fn_80092814(name, 0);
     if (index < 0) {

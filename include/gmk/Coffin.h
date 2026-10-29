@@ -27,14 +27,14 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
     void fn_80412968(); // inferred: finds the character inside
     // inferred: makes the character inside get up (name invented)
     void GetUp_unk();
 
-    Model_unk mModel;                // 0xF4
+    atn::Model mModel;                // 0xF4
     atn::ColliObject mColli;         // 0x4C4: "COLLI_BEFORE"
     atn::ColliObject mColliAfter[2]; // 0x54C: "COLLI_AFTER_LEFT", "COLLI_AFTER_RIGHT"
     GimmickDesc_unk* mDesc;          // 0x65C

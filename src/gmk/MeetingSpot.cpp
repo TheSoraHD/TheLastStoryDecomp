@@ -36,7 +36,7 @@ static inline float SqLength_unk(const atn::Vector3& v) {
 }
 
 // inferred: frame of motion track 0 (name invented)
-static inline float Frame_unk(Model_unk* motion) {
+static inline float Frame_unk(atn::Model* motion) {
     return motion->mTracks[0].m08;
 }
 // inferred: squared length on the xz plane (name invented)
@@ -150,7 +150,7 @@ void MeetingSpot::vf10() {
         }
         break;
     case 3: {
-        Model_unk* motion = &mChara[0]->mMotion;
+        atn::Model* motion = &mChara[0]->mMotion;
         float frame = Frame_unk(motion);
         if (frame >= motion->fn_80097D7C(0)) {
             fn_803FD328(4);
@@ -205,7 +205,7 @@ void MeetingSpot::vf10() {
         }
         break;
     case 6: {
-        Model_unk* motion = &mChara[1]->mMotion;
+        atn::Model* motion = &mChara[1]->mMotion;
         float frame = Frame_unk(motion);
         if (frame >= motion->fn_80097D7C(0)) {
             fn_803FD328(7);
@@ -221,7 +221,7 @@ void MeetingSpot::vf10() {
         }
         break;
     case 8: {
-        Model_unk* motion = &mChara[1]->mMotion;
+        atn::Model* motion = &mChara[1]->mMotion;
         float frame = Frame_unk(motion);
         if (frame >= motion->fn_80097D7C(0)) {
             fn_803FD328(9);
@@ -229,7 +229,7 @@ void MeetingSpot::vf10() {
         break;
     }
     case 9: {
-        Model_unk* motion = &mChara[0]->mMotion;
+        atn::Model* motion = &mChara[0]->mMotion;
         float frame = Frame_unk(motion);
         if (frame >= motion->fn_80097D7C(0)) {
             fn_803FD328(10);

@@ -34,17 +34,17 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Model_unk* model,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale); // inferred: plays an effect (as in gmk/PlayEffect.cpp)
 // inferred: player manager (lbl_8087F8A0, as in game/CharaTask.cpp)
@@ -258,7 +258,7 @@ int Em308InvertCrab::vf0C() {
 }
 
 // inferred: plays an effect on the model (as in game/Em305Vampire.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -783,7 +783,7 @@ void Em308InvertCrab::fn_802F3BE8() {
             m58C = 6;
             fn_8016E970(3);
         } else if (mMotion.mTracks[0].m08 >= 7.0f && mMotion.mTracks[0].m08 < 8.0f) {
-            Model_unk* model = &mMotion;
+            atn::Model* model = &mMotion;
             atn::Vector3 pos = ((atn::Matrix3x4*)model->GetNodeMtx_unk("hips"))->GetTrans_unk();
             atn::Vector3 rot = (((CharaTask*)m1580)->fn_80148B0C(0)->m04.mCenter - pos).ToRotationZ_unk();
             float d = rot.y - mRot.y;
@@ -1205,7 +1205,7 @@ void Em308InvertCrab::fn_802F66CC() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
     CharaTask* player = lbl_8087F8A0->mHead;
-    Model_unk* model = (Model_unk*)player->m648->m010;
+    atn::Model* model = (atn::Model*)player->m648->m010;
     MtxPtr node = model->GetNodeMtx_unk("hit_top");
     atn::Vector3 pos(0.0f, 0.0f, 0.0f);
     if (node != 0) {

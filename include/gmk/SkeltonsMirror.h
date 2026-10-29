@@ -26,11 +26,11 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
 
-    Model_unk mModel;         // 0xF4
+    atn::Model mModel;         // 0xF4
     atn::ColliObject mColli;  // 0x4C4
     atn::EfpHandle_unk mEfp;  // 0x54C
     GimmickDesc_unk* mDesc;   // 0x558

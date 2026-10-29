@@ -202,14 +202,14 @@ extern "C" inline EffectMgr_unk* fn_800F7FA0() {
 extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
-extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg);
+extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,

@@ -20,7 +20,7 @@ struct ModelCamera_unk;
 // inferred: camera lens (defined in game/CharaTask.cpp)
 struct Lens_unk;
 
-// inferred: material of a model node (returned by Model_unk::fn_80092954)
+// inferred: material of a model node (returned by atn::Model::fn_80092954)
 struct Material_unk {
     unsigned char m00[0x18];
     GXColor mColor; // 0x18
@@ -31,11 +31,14 @@ extern "C" void fn_8007FAF0(Material_unk* material, int mode); // inferred: sets
 
 // inferred: model instance embedded at MapPartsModel+0x50 (probably the same class as
 // chr::Motion_unk, which characters embed at +0xB0). Names invented.
-struct Model_unk {
+namespace atn {
+
+// atn::Model (vtable __vt__Q23atn5Model; the file keeps its old name)
+struct Model {
     // inferred: default arguments: arrays of models construct them with (8, 32) through a helper
     // (0x80412E94 in gmk::MotionObject)
-    Model_unk(int flags = 8, int arg = 32); // 0x80096E94
-    virtual ~Model_unk();          // 0x800971D4 (the real class is atn::Model, __vt__Q23atn5Model)
+    Model(int flags = 8, int arg = 32); // 0x80096E94
+    virtual ~Model(); // 0x800971D4
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
@@ -196,8 +199,10 @@ struct Model_unk {
     unsigned char m384[0x3D0 - 0x384];
 };
 
+} // namespace atn
+
 // inferred: take an empty boost::function by value (signature unknown, void() assumed)
-extern "C" void fn_800902C0(Model_unk* model, int arg, boost::function<void()> callback);
-extern "C" void fn_8000D430(Model_unk* model, boost::function<void()> callback);
+extern "C" void fn_800902C0(atn::Model* model, int arg, boost::function<void()> callback);
+extern "C" void fn_8000D430(atn::Model* model, boost::function<void()> callback);
 
 #endif

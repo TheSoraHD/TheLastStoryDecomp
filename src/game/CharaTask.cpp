@@ -171,7 +171,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 
-// inferred: camera (the global one is lbl_8087EFB4; a model owns one through Model_unk::m208);
+// inferred: camera (the global one is lbl_8087EFB4; a model owns one through atn::Model::m208);
 // 0x1F4 bytes, the eye (0x10C) is the camera position
 struct Camera_unk {
     Camera_unk(int a = 0, int b = 0);
@@ -206,7 +206,7 @@ struct EffectCharaSlot_unk {
 // inferred: effect manager (lbl_8087F048, as in CharaStatus.cpp)
 struct Effect_unk {
     void fn_8013A19C(int value);
-    void fn_801065F4(CharaTask* chara, Model_unk* model, const struct ColorF_unk* color); // inferred: tints the model
+    void fn_801065F4(CharaTask* chara, atn::Model* model, const struct ColorF_unk* color); // inferred: tints the model
     void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
     void fn_80105B3C(CharaTask* chara);
     atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
@@ -214,12 +214,12 @@ struct Effect_unk {
     // inferred: chant effect (fn_80145334): shown at pos, hidden by fn_80107574
     void fn_8010743C(const atn::Vector3* pos, int changed, float f);
     void fn_80107574();
-    void fn_80106728(int arg, Model_unk* model); // inferred: called when a part is destroyed
+    void fn_80106728(int arg, atn::Model* model); // inferred: called when a part is destroyed
 
     unsigned char m00[0xCBF0];
     EffectCharaSlot_unk mCBF0[0x48]; // inferred: characters known to the effect manager (fn_80176E30)
     unsigned char m36290[0x3E304 - 0x36290];
-    Model_unk::Float4_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
+    atn::Model::Float4_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
     unsigned char m3E314[0x3E39C - 0x3E314];
     int m3E39C;
 };
@@ -603,7 +603,7 @@ struct ModelCamera_unk {
     Camera_unk mCamera; // 0x08
 };
 // inferred: inlined in fn_8013655C (its literals are @STRING@ objects in .sdata); name invented
-inline void CreateCamera_unk(Model_unk* model) {
+inline void CreateCamera_unk(atn::Model* model) {
     model->m208.reset(new (6, "", "", 0) ModelCamera_unk());
 }
 
@@ -630,13 +630,13 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_802180A8(const char* name); // inferred: motion name to id
 extern "C" int fn_8020EE8C(const char* name); // inferred: equipment slot by name
 extern "C" int fn_8044D208(Party_unk* party, int slot, int id);
-extern "C" void fn_804776F4(atn::LH_MotionSet* set, Model_unk* model); // inferred: applies the motions
+extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
 // inferred: node callback of a model (the functor manager of the original uses the default allocator of
 // boost::function3, std::allocator<function_base>)
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
                         std::allocator<boost::function_base> >
     NodeCallback_unk;
-extern "C" void fn_800F29D0(Model_unk* model, NodeCallback_unk callback);
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 namespace std {
 string operator+(const string& lhs, const char* rhs); // 0x8006D008
@@ -661,7 +661,7 @@ struct Color4_unk {
 
 // inferred: adds a model LOD read from the CSV; not an inline function (its "" is the file pool
 // one), inlined in fn_801371AC and fn_80137B78 by -ipa file; name invented
-static void AddModelLod_unk(Model_unk* model, atn::CsvTab& csv, const char* node) {
+static void AddModelLod_unk(atn::Model* model, atn::CsvTab& csv, const char* node) {
     char path[0x100];
     strcpy(path, csv.fn_8005B9CC());
     if (strcmp(node, "") == 0) {
@@ -985,7 +985,7 @@ void CharaTask::fn_80137B78() {
     } while (csv.fn_8005BBF8());
 }
 
-void CharaTask::fn_80137E68(Model_unk* model, atn::CsvTab* csv) {
+void CharaTask::fn_80137E68(atn::Model* model, atn::CsvTab* csv) {
     for (const char* key = csv->fn_8005B9CC(); key != 0 && strcmp("", key) != 0; key = csv->fn_8005B9CC()) {
         if (strcmp(key, "REFLECT") == 0) {
             model->mFlags |= 0x400;
@@ -1005,7 +1005,7 @@ void CharaTask::fn_80137E68(Model_unk* model, atn::CsvTab* csv) {
 
 // inferred: node index by name, -1 for an empty name (not inline: its "" is the file pool one); name
 // invented
-static int GetNodeIndex_unk(Model_unk* model, const char* name) {
+static int GetNodeIndex_unk(atn::Model* model, const char* name) {
     if (strcmp(name, "") == 0) {
         return -1;
     }
@@ -1182,7 +1182,7 @@ int CharaTask::fn_80138E1C(int arg) {
     return result;
 }
 
-float Model_unk::fn_80139550(int track) {
+float atn::Model::fn_80139550(int track) {
     return mTracks[track].m08;
 }
 
@@ -1411,15 +1411,15 @@ int CharaTask::fn_80139F04() {
     return m1400.mSize >= 2;
 }
 
-void Model_unk::fn_80139F24(int value) {
+void atn::Model::fn_80139F24(int value) {
     m34C = value;
 }
 
-int Model_unk::fn_80139F2C(int track) {
+int atn::Model::fn_80139F2C(int track) {
     return mTracks[track].m00;
 }
 
-void Model_unk::fn_80139F3C(int track, float speed) {
+void atn::Model::fn_80139F3C(int track, float speed) {
     mTracks[track].m0C = speed;
 }
 
@@ -2165,11 +2165,11 @@ atn::Vector3 atn::Vector3::operator-() const {
     return Vector3(-x, -y, -z);
 }
 
-int Model_unk::fn_8013C3DC() {
+int atn::Model::fn_8013C3DC() {
     return m34C;
 }
 
-float Model_unk::fn_8013C3E4(int track) {
+float atn::Model::fn_8013C3E4(int track) {
     return mTracks[track].m20;
 }
 
@@ -2249,7 +2249,7 @@ float CharaD68_unk::fn_8013C544() {
     return m5C * m28;
 }
 
-void Model_unk::fn_8013C554(int track, float weight) {
+void atn::Model::fn_8013C554(int track, float weight) {
     mTracks[track].m20 = weight;
 }
 
@@ -3557,7 +3557,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
 extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data returned by fn_80097D40
 
 // inferred: length of a motion of the character, 30 frames when it is missing (name invented)
-inline float GetMotionLength_unk(Model_unk* model, int id) {
+inline float GetMotionLength_unk(atn::Model* model, int id) {
     atn::LoadHandle* motion = model->fn_80097D40(id);
     float length = motion != 0 ? fn_800A08D4(motion) : 30.0f;
     if (length == 0.0f) {
@@ -4014,13 +4014,13 @@ extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 // inferred: sphere cast against the collision (hit in `result`, nonzero on a hit)
 extern "C" int fn_80418318(); // inferred: id of the water (ground follow) used by fn_804188A0
 extern "C" atn::Vector3 fn_804188A0(int id, const Segment_unk* seg);
-extern "C" void fn_8009076C(Model_unk* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
-extern "C" void fn_8009757C(Model_unk* model);
-extern "C" void fn_80097CCC(Model_unk* model, int track, float weight);
-extern "C" void fn_80098698(Model_unk* model);
-extern "C" void fn_80093F1C(Model_unk* model, const char* node, const atn::Vector3* a, const atn::Vector3* b,
+extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
+extern "C" void fn_8009757C(atn::Model* model);
+extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
+extern "C" void fn_80098698(atn::Model* model);
+extern "C" void fn_80093F1C(atn::Model* model, const char* node, const atn::Vector3* a, const atn::Vector3* b,
                             const atn::Vector3* scale, int arg); // inferred: node edit
-extern "C" void fn_80094778(Model_unk* model, const char* node); // inferred: clears a node edit
+extern "C" void fn_80094778(atn::Model* model, const char* node); // inferred: clears a node edit
 extern "C" int fn_802185FC(const char* name);
 extern "C" int fn_80376150(Field_unk* field);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -4058,7 +4058,7 @@ inline float __LengthSq_unk(const atn::Vector3& v) {
 }
 
 // inferred: member-wise float copy (name invented)
-inline void __SetFloat4_unk(Model_unk::Float4_unk& d, const Model_unk::Float4_unk& v) {
+inline void __SetFloat4_unk(atn::Model::Float4_unk& d, const atn::Model::Float4_unk& v) {
     d.m00 = v.m00;
     d.m04 = v.m04;
     d.m08 = v.m08;
@@ -4066,8 +4066,8 @@ inline void __SetFloat4_unk(Model_unk::Float4_unk& d, const Model_unk::Float4_un
 }
 
 // inferred: sets four floats through a local block (name invented)
-inline void __SetFloat4_unk(Model_unk::Float4_unk& d, float a, float b, float c, float e) {
-    Model_unk::Float4_unk v;
+inline void __SetFloat4_unk(atn::Model::Float4_unk& d, float a, float b, float c, float e) {
+    atn::Model::Float4_unk v;
     v.m00 = a;
     v.m04 = b;
     v.m08 = c;
@@ -4346,7 +4346,7 @@ void CharaTask::fn_80145334() {
         atn::Matrix3x4* mtx = (atn::Matrix3x4*)mMotion.mMtx;
         mtx->fn_801479E4(mtx->GetTrans_unk() + offset);
     }
-    Model_unk::Node_unk* node = &mMotion.m220[m524];
+    atn::Model::Node_unk* node = &mMotion.m220[m524];
     bool reset = false;
     atn::Vector3 nodePos;
     atn::Vector3 nodeRot;
@@ -4653,7 +4653,7 @@ void atn::Matrix3x4::fn_801479E4(const Vector3& v) {
     m[2][3] = v.z;
 }
 
-Model_unk::Node_unk* Model_unk::fn_80147A00() {
+atn::Model::Node_unk* atn::Model::fn_80147A00() {
     return m220;
 }
 
@@ -5831,7 +5831,7 @@ struct MotionInfo_unk {
 extern "C" MotionInfo_unk* fn_802096A8(const char* name);
 
 // inferred: name invented
-inline MotionInfo_unk* FindMotionInfo_unk(Model_unk& model, int motion) {
+inline MotionInfo_unk* FindMotionInfo_unk(atn::Model& model, int motion) {
     atn::LoadHandle* handle = model.fn_80097D40(motion);
     return handle != 0 ? fn_802096A8(((atn::LoadHandle*)(handle))->fn_80473F18()) : 0;
 }
@@ -5939,7 +5939,7 @@ extern "C" void fn_80107CA8(Effect_unk* effect, CharaTask* chara, int arg);
 extern "C" void fn_80107BE8(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 extern "C" void fn_800FC410(Effect_unk* effect, CharaTask* chara, CharaTask* target, int arg, HitInfo_unk* hit, int id,
                             int frames);
-extern "C" bool fn_80051A88(const Model_unk::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
+extern "C" bool fn_80051A88(const atn::Model::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: stops the effects of `owner`
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpHandle_unk)
 extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
@@ -5949,7 +5949,7 @@ struct Input_unk {
     float fn_801248DC(atn::Vector3* dir); // inferred: stick tilt, direction in `dir` (may be 0)
 };
 
-// inferred: lens of a camera (Model_unk::m1DC, or the one of the global camera); names invented
+// inferred: lens of a camera (atn::Model::m1DC, or the one of the global camera); names invented
 struct Lens_unk {
     unsigned char m000[0x158];
     float m158;
@@ -5966,7 +5966,7 @@ struct ScreenInfo_unk {
     unsigned char m00[0x2C];
     float mColor[4];
 };
-extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const Model_unk::Sphere_unk* sphere);
+extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC)
 struct CharaListNode_unk {
@@ -6155,7 +6155,7 @@ void CharaTask::fn_8014C540() {
     } else if (emote) {
         SetEmoteMtx_unk();
         Camera_unk* camera = lbl_8087EFB4;
-        Model_unk::Sphere_unk sphere = mMotion.fn_80094F98();
+        atn::Model::Sphere_unk sphere = mMotion.fn_80094F98();
         ScreenInfo_unk* info = fn_800C122C(camera, &sphere);
         float color[4];
         color[0] = info->mColor[0];
@@ -6207,7 +6207,7 @@ void CharaTask::fn_8014C540() {
     if (mType == 0 && FindHitBullet_unk() != 0) {
         HitInfo_unk* bullet = FindHitBullet_unk();
         if (bullet != 0 && lbl_8087F048 != 0) {
-            Model_unk::Sphere_unk sphere;
+            atn::Model::Sphere_unk sphere;
             sphere.mCenter = mPos;
             sphere.mRadius = bullet->m58;
             HitInfo_unk* data;
@@ -9387,7 +9387,7 @@ void CharaTask::fn_80167C34() {
     fn_80178208(control);
 }
 
-extern "C" void fn_80107908(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+extern "C" void fn_80107908(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 
 // inferred: saves the camera mode (mFlag19) and switches the camera to mode 1
 void CharaTask::fn_80167F1C() {
@@ -9420,7 +9420,7 @@ void CharaTask::fn_80168048() {
     }
 }
 
-extern "C" void fn_80107E68(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+extern "C" void fn_80107E68(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 
 void CharaTask::fn_80168170() {
     if (lbl_8087F048 != 0) {
@@ -9444,7 +9444,7 @@ void CharaTask::fn_801684A0() {
     fn_80178208(control);
 }
 
-extern "C" void fn_80107B30(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+extern "C" void fn_80107B30(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 extern "C" void fn_80107274(Effect_unk* effect, CharaTask* chara);
 
 void CharaTask::fn_80168788() {
@@ -9471,7 +9471,7 @@ void CharaTask::fn_80168B1C() {
     fn_80178208(control);
 }
 
-extern "C" void fn_80107CEC(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion, float f);
+extern "C" void fn_80107CEC(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion, float f);
 
 void CharaTask::fn_80168E04() {
     Effect_unk* effect = lbl_8087F048;
@@ -9486,7 +9486,7 @@ void CharaTask::fn_80168E60() {
     }
 }
 
-extern "C" void fn_801079C0(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 
 void CharaTask::fn_80168E80() {
     if (lbl_8087F048 != 0) {
@@ -9500,7 +9500,7 @@ void CharaTask::fn_80168EA0() {
     }
 }
 
-extern "C" void fn_80107DA4(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion, float f,
+extern "C" void fn_80107DA4(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion, float f,
                             const atn::Vector3& v);
 
 void CharaTask::fn_80168EC0() {
@@ -10798,7 +10798,7 @@ inline RouteLook_unk* FindLook_unk(RouteTable_unk* table, int id) {
 }
 
 // inferred: position of node `index` of a model (translation of its matrix); name invented
-inline atn::Vector3 GetNodePos_unk(Model_unk* model, int index) {
+inline atn::Vector3 GetNodePos_unk(atn::Model* model, int index) {
     MtxPtr m = model->GetNodeMtx_unk(index);
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
@@ -11082,7 +11082,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -12240,7 +12240,7 @@ float CharaTask::fn_8017AC24() {
     return 1.0f;
 }
 
-extern "C" void fn_80106680(Effect_unk* effect, CharaTask* chara, Model_unk* model);
+extern "C" void fn_80106680(Effect_unk* effect, CharaTask* chara, atn::Model* model);
 
 void CharaTask::fn_8017AC2C() {
     fn_80106680(lbl_8087F048, this, &mMotion);
@@ -12274,7 +12274,7 @@ struct NameEntry_unk {
 extern "C" NameEntry_unk* fn_803B3B38(void* table, int id);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
-extern "C" void fn_80096218(Model_unk* model, atn::Vector_unk<int>* list, void* arg); // inferred: collects resources
+extern "C" void fn_80096218(atn::Model* model, atn::Vector_unk<int>* list, void* arg); // inferred: collects resources
 extern "C" void fn_80563A60(chr::CharaEquip_unk* equip, atn::Vector_unk<int>* list, void* arg);
 extern "C" int fn_80473F34(atn::LH_MotionSet* set);
 
@@ -12282,7 +12282,7 @@ extern "C" int fn_80473F34(atn::LH_MotionSet* set);
 void CharaTask::fn_8017AD44(atn::Vector_unk<int>* list, void* arg) {
     fn_80096218(&mMotion, list, arg);
     for (unsigned int i = 0; i < mParts.mCount; i++) {
-        fn_80096218((Model_unk*)mParts.mData[i]->m010, list, arg);
+        fn_80096218((atn::Model*)mParts.mData[i]->m010, list, arg);
     }
     chr::CharaEquip_unk** equips = m680;
     for (unsigned int i = 0; i < 8; i++) {

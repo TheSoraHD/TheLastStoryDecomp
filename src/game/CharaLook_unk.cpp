@@ -33,7 +33,7 @@ CharaLook_unk::~CharaLook_unk() {}
 
 void CharaLook_unk::fn_801298EC(chr::Chara_unk* chara) {
     mChara = chara;
-    mNeck = ((Model_unk*)&chara->mMotion)->fn_80092814("neck", 0);
+    mNeck = ((atn::Model*)&chara->mMotion)->fn_80092814("neck", 0);
 }
 
 void CharaLook_unk::fn_80129930(const atn::Vector3& pos, float speed) {
@@ -48,9 +48,9 @@ void CharaLook_unk::fn_80129954(const atn::Vector3& pos, float speed) {
     mSpeed = speed;
 }
 
-void CharaLook_unk::fn_80129978(Model_unk* model, const char* node, const atn::Vector3& offset, float speed) {
+void CharaLook_unk::fn_80129978(atn::Model* model, const char* node, const atn::Vector3& offset, float speed) {
     if (node != 0) {
-        // inferred: written without Model_unk::GetNodeMtx_unk, whose weak copy is emitted after
+        // inferred: written without atn::Model::GetNodeMtx_unk, whose weak copy is emitted after
         // fn_80129A6C (the first function that refers to it)
         int index = model->fn_80092814(node, 0);
         mTarget = (index < 0) ? 0 : (float*)model->mNodeMtx[index];
@@ -358,7 +358,7 @@ void fn_8012AC64(CharaLook_unk* look) {
     look->mSpeed = 1.0f;
     look->mEyeSpeed = 1.0f;
     look->fn_80129A6C();
-    fn_8000D430((Model_unk*)&look->mChara->mMotion, boost::function<void()>());
+    fn_8000D430((atn::Model*)&look->mChara->mMotion, boost::function<void()>());
     look->mSpeed = speed;
     look->mEyeSpeed = eyeSpeed;
 }

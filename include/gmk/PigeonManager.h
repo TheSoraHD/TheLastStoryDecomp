@@ -23,7 +23,7 @@ struct Pigeon_unk {
     void fn_80405A14(CharaTask* player); // inferred: reacts to the player (flies away or walks off)
 
     PigeonManager* mOwner; // 0x00
-    Model_unk mModel;      // 0x04
+    atn::Model mModel;      // 0x04
     atn::Vector3 mPos;     // 0x3D4
     atn::Vector3 m3E0;
     atn::Vector3 m3EC;

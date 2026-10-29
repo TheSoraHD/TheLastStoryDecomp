@@ -42,7 +42,7 @@ inline void SetSpeed_unk(CharaTask* chara) {
     chara->m580 = 0.0f;
     chara->m584 = 0.0f;
 }
-inline void PlayMotion_unk(Model_unk* model, int motion, int arg3, int arg4) {
+inline void PlayMotion_unk(atn::Model* model, int motion, int arg3, int arg4) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
@@ -173,7 +173,7 @@ void Augur::vf10() {
         CharaTask* target = mTarget;
         target->mPos = target->mPos + mMove;
         mTarget->mRot = mTarget->mRot + mTurn;
-        Model_unk* model = &mTarget->mMotion;
+        atn::Model* model = &mTarget->mMotion;
         float frame = model->mTracks[0].m08;
         if (frame >= model->fn_80097D7C(0)) {
             fn_8041F6A4(5);
@@ -182,7 +182,7 @@ void Augur::vf10() {
     }
     case 5:
         if (mTarget->IsPartyMember_unk()) {
-            Model_unk* model = &mAugur->mMotion;
+            atn::Model* model = &mAugur->mMotion;
             float frame = model->mTracks[0].m08;
             if (frame >= model->fn_80097D7C(0)) {
                 int r = rand() % 100;
@@ -199,7 +199,7 @@ void Augur::vf10() {
         CharaTask* target = mTarget;
         target->mPos = target->mPos + mMove;
         mTarget->mRot = mTarget->mRot + mTurn;
-        Model_unk* model = &mTarget->mMotion;
+        atn::Model* model = &mTarget->mMotion;
         float frame = model->mTracks[0].m08;
         if (frame >= model->fn_80097D7C(0)) {
             fn_8041F6A4(8);

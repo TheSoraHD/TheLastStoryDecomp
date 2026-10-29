@@ -18,14 +18,14 @@ extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_801079C0(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" int rand();
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
-extern "C" void fn_80105BD8(Effect_unk* mgr, Model_unk* model);
+extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model);
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,

@@ -85,7 +85,7 @@ GimmickCommon* MapLift::fn_80429668(atn::Task* parent, GimmickDesc_unk* desc) {
 }
 
 // NONMATCHING: 99.90% - the original destroys the motion array with fn_800970CC (a destructor
-// with two null checks, also used by Model_unk::Model_unk) instead of atn::LH_Motion::~LH_Motion.
+// with two null checks, also used by atn::Model::Model) instead of atn::LH_Motion::~LH_Motion.
 MapLift::MapLift(atn::Task* parent, GimmickDesc_unk* desc)
     : GimmickCommon(parent, desc->mId, desc->mArg), mDesc(desc), mF8(0), mFC(-1), mPos(0.0f, 0.0f, 0.0f),
       mPrevPos(0.0f, 0.0f, 0.0f) {
@@ -133,7 +133,7 @@ int MapLift::vf0C() {
         for (MapPart_unk* part = group->mParts; part != 0; part = part->mNext) {
             switch (part->mType) {
             case 0:
-                if (HasLocator_unk(((Model_unk*)part->m50)->fn_8008B130())) {
+                if (HasLocator_unk(((atn::Model*)part->m50)->fn_8008B130())) {
                     count++;
                 }
                 break;
@@ -159,11 +159,11 @@ int MapLift::vf0C() {
         for (MapPart_unk* part = group->mParts; part != 0; part = part->mNext) {
             switch (part->mType) {
             case 0:
-                if (HasLocator_unk(((Model_unk*)part->m50)->fn_8008B130())) {
+                if (HasLocator_unk(((atn::Model*)part->m50)->fn_8008B130())) {
                     Entry_unk& e = mEntries.mData[n++];
                     e.mType = 0;
                     e.mObject = part->m50;
-                    e.mPos = ((atn::Matrix3x4*)((Model_unk*)part->m50)->mMtx)->GetTrans_unk();
+                    e.mPos = ((atn::Matrix3x4*)((atn::Model*)part->m50)->mMtx)->GetTrans_unk();
                 }
                 break;
             case 4:
@@ -353,7 +353,7 @@ void MapLift::fn_8042AB58(const atn::Vector3* pos, const atn::Vector3* prev) {
     for (unsigned int i = 0; i < mEntries.mSize; i++) {
         Entry_unk& e = mEntries.mData[i];
         if (e.mType == 0) {
-            Model_unk* model = (Model_unk*)e.mObject;
+            atn::Model* model = (atn::Model*)e.mObject;
             atn::Matrix3x4& mtx = *(atn::Matrix3x4*)model->mMtx;
             atn::Matrix3x4 m(mtx);
             SetTrans_unk(m, e.mPos + *pos);

@@ -35,7 +35,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -604,9 +604,9 @@ struct TashaStep_unk {
     int m14;
 };
 
-// inferred: sets the frame of motion track `track` (weak copy of a Model_unk inline, also called by
+// inferred: sets the frame of motion track `track` (weak copy of a atn::Model inline, also called by
 // game/GameTask and game/TutorialTask; defined after vf100 to keep its position)
-extern "C" void fn_80357F38(Model_unk* model, int track, float frame);
+extern "C" void fn_80357F38(atn::Model* model, int track, float frame);
 
 void EnemyTasha::fn_8035ACB8(int motion, int arg, float speed) {
     mMotion.mTracks[0].m0C = speed;
@@ -857,7 +857,7 @@ inline void TashaRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 }
 
 // inferred: plays an effect on the model (as PlayEffect_unk of game/EnemyTrista.cpp)
-inline void TashaPlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void TashaPlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -904,7 +904,7 @@ void EnemyTasha::fn_8035ACF0(int state) {
     }
 }
 
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: fires an attack (number of hits, as in game/Em201ZanGurg.cpp)
 
@@ -1337,7 +1337,7 @@ void EnemyTasha::vf100(int state) {
     }
 }
 
-extern "C" void fn_80357F38(Model_unk* model, int track, float frame) {
+extern "C" void fn_80357F38(atn::Model* model, int track, float frame) {
     model->mTracks[track].m08 = frame;
 }
 

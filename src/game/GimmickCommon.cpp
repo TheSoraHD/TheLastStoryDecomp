@@ -164,7 +164,7 @@ struct ColorF_unk {
     float r, g, b, a;
 };
 
-void GimmickMaterialFade_unk::fn_803EBC44(atn::CsvTab* csv, Model_unk* model) {
+void GimmickMaterialFade_unk::fn_803EBC44(atn::CsvTab* csv, atn::Model* model) {
     mMaterial = model->fn_80092954(csv->fn_8005B9CC());
     if (mMaterial != 0) {
         mStart = atoi(csv->fn_8005B9CC());
@@ -175,7 +175,7 @@ void GimmickMaterialFade_unk::fn_803EBC44(atn::CsvTab* csv, Model_unk* model) {
     }
 }
 
-void GimmickMaterialFade_unk::fn_803EBD6C(Model_unk* model, const char* name, int start, int length, float to) {
+void GimmickMaterialFade_unk::fn_803EBD6C(atn::Model* model, const char* name, int start, int length, float to) {
     mMaterial = model->fn_80092954(name);
     if (mMaterial != 0) {
         mStart = start;
@@ -186,7 +186,7 @@ void GimmickMaterialFade_unk::fn_803EBD6C(Model_unk* model, const char* name, in
     }
 }
 
-void GimmickMaterialFade_unk::fn_803EBE74(Model_unk* model) {
+void GimmickMaterialFade_unk::fn_803EBE74(atn::Model* model) {
     if (mMaterial != 0) {
         float t;
         float frame = model->mTracks[0].m08;
@@ -213,12 +213,12 @@ void GimmickMaterialFade_unk::fn_803EBE74(Model_unk* model) {
     }
 }
 
-void GimmickMotionSwitch_unk::fn_803EC0A4(atn::CsvTab* csv, Model_unk* model) {
+void GimmickMotionSwitch_unk::fn_803EC0A4(atn::CsvTab* csv, atn::Model* model) {
     mHash = fn_800DC6B4(csv->fn_8005B9CC());
     mFrame = atoi(csv->fn_8005B9CC());
 }
 
-void GimmickMotionSwitch_unk::fn_803EC0F8(Model_unk* model) {
+void GimmickMotionSwitch_unk::fn_803EC0F8(atn::Model* model) {
     if (mHash != 0) {
         float cur = model->mTracks[0].m08;
         model->fn_8009385C(mHash, cur <= mFrame, 1, 0);
@@ -346,7 +346,7 @@ void GimmickCommon::fn_803EC758(char* name) {
     sprintf(name, "gm%03d_%03d_%04d\0", mId / 1000, mId % 1000, m4C);
 }
 
-void GimmickCommon::fn_803EC7A0(Model_unk* model, atn::CsvTab* csv) {
+void GimmickCommon::fn_803EC7A0(atn::Model* model, atn::CsvTab* csv) {
     const char* field = csv->fn_8005B9CC();
     while (field != 0 && strcmp("", field) != 0) {
         if (strcmp(field, "REFLECT") == 0) {
@@ -460,7 +460,7 @@ void GimmickCommon::vf20() {}
 
 void GimmickCommon::vf24() {}
 
-void GimmickCommon::fn_803ECBD4(Model_unk* model, int callback) {
+void GimmickCommon::fn_803ECBD4(atn::Model* model, int callback) {
     model->fn_80092A4C();
     atn::Matrix3x4 mtx = lbl_807C7060;
     atn::Matrix3x4 rot;
@@ -490,7 +490,7 @@ void GimmickCommon::fn_803ECBD4(Model_unk* model, int callback) {
     }
 }
 
-void GimmickCommon::fn_803ED0D4(Model_unk* model, int callback) {
+void GimmickCommon::fn_803ED0D4(atn::Model* model, int callback) {
     model->fn_80092A4C();
     atn::Matrix3x4 mtx = lbl_807C7060;
     atn::Matrix3x4 rot;
@@ -520,12 +520,12 @@ void GimmickCommon::fn_803ED0D4(Model_unk* model, int callback) {
     }
 }
 
-void GimmickCommon::fn_803ED5D0(Model_unk* model) {
+void GimmickCommon::fn_803ED5D0(atn::Model* model) {
     mB0.fn_803F0764(this);
     model->fn_80097E80(1);
 }
 
-void GimmickCommon::fn_803ED610(Model_unk* model) {
+void GimmickCommon::fn_803ED610(atn::Model* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
@@ -546,7 +546,7 @@ void GimmickCommon::fn_803ED610(Model_unk* model) {
     }
 }
 
-void GimmickCommon::fn_803ED774(Model_unk* model) {
+void GimmickCommon::fn_803ED774(atn::Model* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
@@ -625,7 +625,7 @@ static inline int __IsReady_unk(GimmickUvOwner_unk* owner) {
     return ready;
 }
 
-void GimmickCommon::fn_803EDB18(Model_unk* model) {
+void GimmickCommon::fn_803EDB18(atn::Model* model) {
     if (mA8 != 0) {
         if (__IsReady_unk(mA8) == 0 || mAC == 0 || model->fn_8008B130() == 0) {
             return;

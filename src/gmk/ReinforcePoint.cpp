@@ -55,7 +55,7 @@ inline bool HasCharaFlag_unk(const CharaTask* chara, unsigned int flag) {
 }
 
 // inferred: the four values are built in a temporary (constructor); name invented
-struct Float4Init_unk : public Model_unk::Float4_unk {
+struct Float4Init_unk : public atn::Model::Float4_unk {
     Float4Init_unk(float v) {
         m00 = v;
         m04 = v;

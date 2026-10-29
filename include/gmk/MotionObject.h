@@ -100,7 +100,7 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
@@ -115,7 +115,7 @@ public:
 
     int mPrevState;                   // 0xF4
     int mFrame;                       // 0xF8
-    Model_unk mModels[8];             // 0xFC
+    atn::Model mModels[8];             // 0xFC
     int mHasModel[8];                 // 0x1F7C
     MotionPlay_unk mPlay[8];          // 0x1F9C
     MotionColli_unk mColli[8];        // 0x203C

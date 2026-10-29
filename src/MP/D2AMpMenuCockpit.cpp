@@ -1,5 +1,6 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "math/Vec.h"
+#include "atn/Model_unk.h"
 
 // inferred: character of a multiplayer player (only the virtual used here)
 struct MpChara_unk {
@@ -26,10 +27,8 @@ struct MpChara_unk {
     virtual atn::Vector3 vf58(); // inferred: position
 
     unsigned char m04[0xB0 - 0x04];
-    unsigned char mModel[0x3C]; // 0xB0: inferred: model (Model_unk)
-    float (*mNodeMtx)[3][4];    // 0xEC: inferred: node matrices of the model
+    atn::Model mModel; // 0xB0: inferred: model (its node matrices at 0xEC)
 };
-extern "C" int fn_80092814__9Model_unkFPCci(void* model, const char* name, int arg);
 
 // inferred: player of the multiplayer session (0xD5C bytes)
 struct MpPlayer_unk {
@@ -336,8 +335,8 @@ void D2AMpMenuCockpit::vf14() {
 // inferred: position of the mark over a character (3 units above its neck); not inline (its
 // literal is in @stringBase0)
 static atn::Vector3 GetMarkPos_unk(MpChara_unk* chara) {
-    int node = fn_80092814__9Model_unkFPCci(chara->mModel, "neck", 0);
-    float (*mtx)[4] = node < 0 ? 0 : chara->mNodeMtx[node];
+    int node = chara->mModel.fn_80092814("neck", 0);
+    float (*mtx)[4] = node < 0 ? 0 : chara->mModel.mNodeMtx[node];
     return mtx != 0 ? atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]) + atn::Vector3(0.0f, 3.0f, 0.0f) : chara->vf58();
 }
 

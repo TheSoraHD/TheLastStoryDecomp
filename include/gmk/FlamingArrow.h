@@ -12,7 +12,7 @@ struct FlamingArrowShot_unk {
     FlamingArrowShot_unk(); // 0x80417098
     ~FlamingArrowShot_unk(); // 0x804170D8
 
-    Model_unk mModel;   // 0x00: "MODEL_ARROW"
+    atn::Model mModel;   // 0x00: "MODEL_ARROW"
     int mState;         // 0x3D0: inferred: 0 free, 1 flying, 2 stuck, 3 fading
     atn::Vector3 mPos;  // 0x3D4
     atn::Vector3 mVel;  // 0x3E0
@@ -41,7 +41,7 @@ public:
 
     GimmickDesc_unk* mDesc;                // 0xF4
     int mTimer;                            // 0xF8
-    Model_unk mModel;                      // 0xFC: "MODEL_BASE"
+    atn::Model mModel;                      // 0xFC: "MODEL_BASE"
     FlamingArrowShot_unk mArrows[8];       // 0x4CC
     atn::EfpHandle_unk mEfpShoot;          // 0x242C: "EFP_SHOOT"
     atn::EfpHandle_unk mEfpArrow;          // 0x2438: "EFP_ARROW"

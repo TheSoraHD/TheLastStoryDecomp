@@ -254,7 +254,7 @@ inline bool BeastCanAct_unk(CharaTask* c) {
     return r;
 }
 
-inline void Em306GurgBeast::CopyTrack_unk(Model_unk* dst, int i) {
+inline void Em306GurgBeast::CopyTrack_unk(atn::Model* dst, int i) {
     dst->mTracks[i].m20 = mMotion.mTracks[i].m20;
     dst->mTracks[i].m0C = mMotion.mTracks[i].m0C;
     dst->mTracks[i].m08 = mMotion.mTracks[i].m08;

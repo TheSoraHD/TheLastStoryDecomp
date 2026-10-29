@@ -11,8 +11,8 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 
 // inferred: frame time (class unknown)
@@ -60,7 +60,7 @@ struct ArrowMtx_unk {
 };
 extern "C" void fn_800F80A8(ArrowMtx_unk* mtx, const atn::Vector3* pos);
 extern "C" void fn_800F80B8(ArrowMtx_unk* mtx, const atn::Vector3* rot);
-extern "C" void fn_80316E38(Model_unk* model, ArrowMtx_unk* mtx);
+extern "C" void fn_80316E38(atn::Model* model, ArrowMtx_unk* mtx);
 // inferred: callback object passed to fn_8000D430 (0x14 bytes, constructor and destructor out of line)
 struct ArrowCallback_unk {
     unsigned char m00[0x14];
@@ -80,11 +80,11 @@ struct Color4f_unk {
 };
 } // namespace atn
 
-// inferred: Model_unk accessors of the color at 0x40 (weak copies; names keep the addresses)
-inline ArrowColor_unk* fn_80417F14(Model_unk* model) {
+// inferred: atn::Model accessors of the color at 0x40 (weak copies; names keep the addresses)
+inline ArrowColor_unk* fn_80417F14(atn::Model* model) {
     return (ArrowColor_unk*)&model->m40;
 }
-inline void fn_80417F1C(Model_unk* model, const ArrowColor_unk* color) {
+inline void fn_80417F1C(atn::Model* model, const ArrowColor_unk* color) {
     *(ArrowColor_unk*)&model->m40 = *color;
 }
 // inferred: next character of the player/enemy lists (0x14AC)

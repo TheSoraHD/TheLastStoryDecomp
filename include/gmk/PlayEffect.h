@@ -45,7 +45,7 @@ public:
     atn::SoundRef mSound;    // 0x168
     unsigned int mFlags;     // 0x16C: bit 0 "EFF_REFLECT"
     int mInitState;          // 0x170: 3 with "INIT ON", 1 otherwise
-    Model_unk* mModel;       // 0x174
+    atn::Model* mModel;       // 0x174
 };
 
 } // namespace gmk

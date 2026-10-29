@@ -81,7 +81,7 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void vf28();
-    virtual Model_unk* vf38() { return &mModel; }
+    virtual atn::Model* vf38() { return &mModel; }
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual void vf4C(CharaTask* chara);
@@ -91,9 +91,9 @@ public:
 
     void PlayMotion_unk(int motion);
     void PlayMotion2_unk(RandomMerchantChara* chara, int index);
-    void PlayMotion3_unk(Model_unk* motion, int index);
+    void PlayMotion3_unk(atn::Model* motion, int index);
 
-    Model_unk mModel;                    // 0xF4
+    atn::Model mModel;                    // 0xF4
     atn::EfpHandle_unk mEfp;             // 0x4C4
     int m4D0[3];
     int mState;                          // 0x4DC: 1 loaded, 2 shown, 3 bought, 4 refused

@@ -28,10 +28,10 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
 
-    Model_unk mModel;       // 0xF4
+    atn::Model mModel;       // 0xF4
     GimmickDesc_unk* mDesc; // 0x4C4
     int mCount;             // 0x4C8: inferred: presses left to escape
     float mDamage;          // 0x4CC: inferred: passed to CharaTask::fn_8016A814 (desc->m40 / 100)

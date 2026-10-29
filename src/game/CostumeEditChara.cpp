@@ -6,11 +6,11 @@
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" void fn_80097CCC(Model_unk* model, int arg, float value);
+extern "C" void fn_80097CCC(atn::Model* model, int arg, float value);
 extern "C" unsigned int fn_800119B8(); // inferred: number of equipment slots
 extern "C" void fn_80565F34(chr::CharaEquip_unk* equip); // inferred: draws the equipment
 extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
@@ -134,7 +134,7 @@ int CostumeEditChara::vf0C() {
             mChara->mMotion.mTracks[0].m20 = 1.0f;
             mChara->mMotion.mTracks[0].m0C = 1.0f;
             mChara->mMotion.fn_80097C08(0, 2, 1, 0, 1, 1.0f, 0.1f);
-            Model_unk* motion = &mChara->mMotion;
+            atn::Model* motion = &mChara->mMotion;
             __MtxCopy(motion->mMtx, mMtx.m);
             motion->m54 = __MaxScaleT_unk(mMtx);
             mChara->mMotion.fn_80097E80(1);
@@ -176,7 +176,7 @@ void CostumeEditChara::vf10() {
         CharaTask* chara = mChara;
         __MtxCopy(chara->mMotion.mMtx, mMtx.m);
         chara->mMotion.m54 = __MaxScaleT_unk(mMtx);
-        Model_unk* motion = &mChara->mMotion;
+        atn::Model* motion = &mChara->mMotion;
         motion->m20C_15_8 = motion->m50;
         motion->m50 = 0;
         mChara->mMotion.fn_80097E80(1);
@@ -233,7 +233,7 @@ void CostumeEditChara::vf14() {
                     *(unsigned int*)((char*)equip + 0x28) &= ~0x80000;
                 }
             }
-            Model_unk::Float4_unk color;
+            atn::Model::Float4_unk color;
             color.m00 = 1.0f;
             color.m04 = 1.0f;
             color.m08 = 1.0f;

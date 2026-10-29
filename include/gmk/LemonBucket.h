@@ -22,7 +22,7 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual void vf4C(CharaTask* chara);
@@ -40,8 +40,8 @@ public:
 
     GimmickDesc_unk* mDesc;   // 0xF4
     atn::Vector3 mDir;        // 0xF8: inferred: throw direction (0, 0, 1) turned by the rotation
-    Model_unk mModel;         // 0x104: "MODEL_BEFORE"
-    Model_unk mModel2;        // 0x4D4: "MODEL_AFTER"
+    atn::Model mModel;         // 0x104: "MODEL_BEFORE"
+    atn::Model mModel2;        // 0x4D4: "MODEL_AFTER"
     atn::Buffer_unk<GimmickMaterialFade_unk> mFades;    // 0x8A4: "MATALPHA"
     atn::Buffer_unk<GimmickMotionSwitch_unk> mSwitches; // 0x8AC: "NODEVIS"
     atn::Buffer_unk<GimmickCommon*> mLemons;            // 0x8B4

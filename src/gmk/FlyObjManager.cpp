@@ -15,9 +15,9 @@ extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 // inferred: debug settings
 struct FlyDebug_unk {
     unsigned char m00[0x18];
@@ -76,10 +76,10 @@ inline float Rand_unk() {
 inline float RandRange_unk(float a, float b) {
     return a + (b - a) * Rand_unk();
 }
-inline bool IsLoading_unk(Model_unk* model) {
+inline bool IsLoading_unk(atn::Model* model) {
     return model->fn_8008B140() != 0;
 }
-inline void PlayMotion_unk(Model_unk* model, int motion, float blend) {
+inline void PlayMotion_unk(atn::Model* model, int motion, float blend) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->fn_80097C08(0, motion, 1, 1, 1, blend, 0.1f);

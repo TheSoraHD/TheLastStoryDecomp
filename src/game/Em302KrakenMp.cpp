@@ -47,7 +47,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -80,12 +80,12 @@ T* At_unk(std::vector<T>* v, unsigned int i) {
     return &v->mData[i];
 }
 // inferred: clears flags of the model (weak copy 0x802D8540 of game/Em302Kraken.cpp); name invented
-inline void ClearModelFlag_unk(Model_unk* model, unsigned int flag) {
+inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
     model->mFlags &= ~flag;
 }
 
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -216,7 +216,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 // inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -269,7 +269,7 @@ inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const
 
 
 // inferred: same as PlayEffect_unk with the manager read first; name invented
-inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -430,7 +430,7 @@ int Em302KrakenMp::vf0C() {
             }
             fn_802E1A0C();
             m14D4 = 1;
-            ClearModelFlag_unk((Model_unk*)&mMotion, 4);
+            ClearModelFlag_unk((atn::Model*)&mMotion, 4);
         }
     } else if (m14D4 == 1) {
         if (m1588.fn_80237874() == 0) {
@@ -1131,9 +1131,9 @@ void Em302KrakenMp::fn_802E1414() {
     mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
     m1560 = fn_800C344C("SE_EM302_011", &m614, 0, -1, 1.0f);
     fn_80232B7C(this, 100);
-    PlayEffect2_unk(&m1564, (Model_unk*)&mMotion);
+    PlayEffect2_unk(&m1564, (atn::Model*)&mMotion);
     fn_80232B7C(this, 101);
-    PlayEffect2_unk(&m1588, (Model_unk*)&mMotion);
+    PlayEffect2_unk(&m1588, (atn::Model*)&mMotion);
     m15A0 = lbl_807C7030;
     wchar_t text[256];
     memset(text, 0, sizeof(text));
@@ -1156,7 +1156,7 @@ void Em302KrakenMp::fn_802E1624() {
     fn_800CB5C8(&m1560, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80232B7C(0, 0);
-    PlayEffect_unk(&m1570, (Model_unk*)&mMotion);
+    PlayEffect_unk(&m1570, (atn::Model*)&mMotion);
     m1554 = 1;
 }
 
@@ -1186,7 +1186,7 @@ void Em302KrakenMp::fn_802E177C() {
         foot->fn_802E8084(3);
     }
     fn_80232B7C(0, 0);
-    PlayEffect_unk(&m15CC, (Model_unk*)&mMotion);
+    PlayEffect_unk(&m15CC, (atn::Model*)&mMotion);
     fn_800CB5C8(&m1560, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
@@ -1215,7 +1215,7 @@ void Em302KrakenMp::vf110(SpecialState_unk* state) {
 void Em302KrakenMp::vf114(const SpecialState_unk* state) {
     if (state->m00 == 10 && m58C != 10) {
         fn_80232B7C(0, 0);
-        PlayEffect_unk(&m1570, (Model_unk*)&mMotion);
+        PlayEffect_unk(&m1570, (atn::Model*)&mMotion);
         Field_unk* field = lbl_8087F430;
         field->m96C = field->m96C % 2;
         field->m970 = 140;

@@ -15,7 +15,7 @@ extern "C" int fn_8006AA20(const char* path);        // inferred: the file exist
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
 std::string fn_8006B0C8(const std::string& path);            // inferred: directory of a path
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 extern "C" void* fn_804962B0(void* tree, const atn::Sphere* sphere); // inferred: light of a place
 extern "C" int fn_800502A8(void* frustum, const MapPartsBox_unk* box); // inferred: box visible
@@ -44,7 +44,7 @@ struct LocatorInstData_unk {
     unsigned char m000[0x17C];
     LocatorInstRes_unk* m17C;
 };
-extern "C" atn::AABB_unk fn_80095300(Model_unk* model); // inferred: bounding box of a model
+extern "C" atn::AABB_unk fn_80095300(atn::Model* model); // inferred: bounding box of a model
 
 // inferred: box of the 8 corners of `box` transformed by `m` (same shape as ProjectBox_unk of
 // atn/Geometry_unk.cpp, with a 3x4 matrix)

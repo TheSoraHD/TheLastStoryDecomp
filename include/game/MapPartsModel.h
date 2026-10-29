@@ -21,7 +21,7 @@ public:
 
     static MapPartsModel* fn_8049B9B8(atn::Task* parent, void* arg, atn::CsvTab* csv);
 
-    Model_unk mModel; // 0x50
+    atn::Model mModel; // 0x50
     int mHide;        // 0x420: inferred: hidden in the bird view ("HIDE_BIRDVIEW")
     float mHideY;     // 0x424: inferred: height above which it is hidden ("HIDE_BIRDVIEW_Y")
     int mCenterCamera; // 0x428: inferred: follows the camera ("CENTER_CAMERA")

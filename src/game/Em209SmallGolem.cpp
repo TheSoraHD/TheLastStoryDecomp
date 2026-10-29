@@ -42,7 +42,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -485,7 +485,7 @@ void Em209SmallGolem::vf98() {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m1534, (Model_unk*)m648->m010, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        fn_8023A8B4(lbl_8087F3C0, &m1534, (atn::Model*)m648->m010, 0, pos, rot, color, -1, -1, 1, 1.0f);
         lbl_8087F3C0->mB8 = 0;
     }
     mFlag18 = 1;
@@ -672,7 +672,7 @@ void Em209SmallGolem::fn_802CF728() {
 }
 
 // inferred: plays the effect of the death sequence (locals in ascending order as in an inline; name invented)
-inline void PlayDeathEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model, int flag) {
+inline void PlayDeathEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model, int flag) {
     lbl_8087F3C0->mC4 = flag;
     atn::Vector3 pos;
     atn::Vector3 rot;

@@ -8,7 +8,7 @@ namespace chr {
 // inferred: controls of chr/ControlOneMotion.cpp created by CharaTask (0x80161570-0x80161B70)
 // (control id 0x27). Implicit destructors at the end of the unit in class order.
 
-// inferred: plays one motion (the second argument is passed to Model_unk::fn_80097C08)
+// inferred: plays one motion (the second argument is passed to atn::Model::fn_80097C08)
 class ControlOneMotion : public ControlBase {
 public:
     // inferred: `start` >= 0 sets the first frame, `end` >= 0 the last one (motion length otherwise)

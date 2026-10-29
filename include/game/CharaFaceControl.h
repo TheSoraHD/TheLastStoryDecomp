@@ -5,7 +5,9 @@
 #include "atn/LH_Binary.h"
 #include "Event/PoseKey_unk.h"
 
-struct Model_unk;
+namespace atn {
+struct Model;
+}
 namespace atn {
 struct MotionBuffer;
 }
@@ -50,7 +52,7 @@ struct Chara1188Entry_unk {
 class CharaFaceControl {
 public:
     CharaFaceControl(); // 0x8011D24C
-    void fn_8011D424(Model_unk* model); // inferred: installs the node callback of the model
+    void fn_8011D424(atn::Model* model); // inferred: installs the node callback of the model
     void fn_8011D844(atn::MotionBuffer* nodes, int arg); // inferred: node callback
     void fn_8011E200(Chara1188Entry_unk* entry, atn::Vector_unk<Event::PoseKey_unk>* edits, float weight);
     // inferred: plays the face motion `motion` (CharaObj, CharaTask)
@@ -62,7 +64,7 @@ public:
     void fn_8011EDE0(int fade); // inferred: stops the face motion (fading it out when `fade` is set)
     void fn_8011EE58(float weight, float m74, float total, float fadeOut, float fadeIn); // inferred: blink timer
 
-    Model_unk* m00;
+    atn::Model* m00;
     Chara1188Entry_unk m04[2];
     atn::Vector_unk<Event::PoseKey_unk> m44[2];
     int m5C;   // inferred: current entry (0 or 1)

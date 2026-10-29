@@ -6,7 +6,9 @@
 
 #include "atn/Memory.h"
 
-struct Model_unk;
+namespace atn {
+struct Model;
+}
 
 // inferred: one key of the lip sync (constructor 0x8007A748, also used by Event::Dialog)
 struct LipSyncKey_unk {
@@ -41,7 +43,7 @@ struct LipSyncData_unk {
 // inferred: object at CharaTask+0x1154 (constructor 0x8007A75C called out of line; class unknown)
 struct Chara1154_unk {
     Chara1154_unk();
-    void fn_8007A7BC(Model_unk* model); // inferred: per-frame update (CharaTask::fn_80145334)
+    void fn_8007A7BC(atn::Model* model); // inferred: per-frame update (CharaTask::fn_80145334)
 
     LipSyncData_unk* m00; // inferred: data being played (0 = none)
     float m04;            // inferred: current key (fractional)

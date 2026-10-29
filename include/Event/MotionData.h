@@ -12,7 +12,9 @@
 #include "std/string.h"
 #include "Event/PoseKey_unk.h"
 
-struct Model_unk;
+namespace atn {
+struct Model;
+}
 struct ResLoader_unk;
 
 namespace atn {
@@ -74,7 +76,7 @@ public:
     int m18;
     int m1C;
     int m20;
-    Model_unk* m24;
+    atn::Model* m24;
 };
 
 class EffectData : public CommonData {

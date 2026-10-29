@@ -28,7 +28,7 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -229,7 +229,7 @@ extern "C" void* fn_8020EF80(void* item);
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const struct QColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
 // inferred: color as four floats (as Color4f_unk of game/EnemyTrista.cpp)
@@ -255,7 +255,7 @@ extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager                  // inferred: player manager
 // inferred: more weak copies of small inline helpers called out of line by vf10 (names kept)
 extern "C" void fn_80339F34(CharaTask* chara, int on);           // inferred: bit 0x2000 of m54C
-extern "C" void fn_80339F5C(Model_unk* model, int track, float speed); // inferred: speed of a track
+extern "C" void fn_80339F5C(atn::Model* model, int track, float speed); // inferred: speed of a track
 extern "C" void fn_80339F74(CharaTask* chara, int value);        // inferred: m1454 = value
 struct QuarkMapGroup_unk;
 extern "C" QuarkMapGroup_unk* fn_80373148(Field_unk* field);     // inferred: map group of the field
@@ -664,7 +664,7 @@ inline atn::Vector3 GetTransOf_unk(MtxPtr m) {
 }
 
 // inferred: plays an effect on the model (as PlayEffect_unk of game/EnemyTrista.cpp)
-inline void QuarkPlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void QuarkPlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     QColor_unk color;
@@ -696,7 +696,7 @@ void EnemyQuarkStand::vf3C(HitInfo_unk* hit) {
 }
 
 // inferred: plays motion `motion` from the start (name invented)
-inline void QuarkPlayMotion_unk(Model_unk* model, int motion, int arg3, int arg4, float speed) {
+inline void QuarkPlayMotion_unk(atn::Model* model, int motion, int arg3, int arg4, float speed) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = speed;
@@ -1571,7 +1571,7 @@ inline void EnemyQuarkStand::ReleaseCamera_unk() {
 }
 
 // inferred: frame of track 0 at least `frame` (name invented)
-inline bool QuarkFrameAtLeast_unk(Model_unk* model, float frame) {
+inline bool QuarkFrameAtLeast_unk(atn::Model* model, float frame) {
     bool ok = false;
     if (model->mTracks[0].m08 >= frame) {
         ok = true;
@@ -1580,7 +1580,7 @@ inline bool QuarkFrameAtLeast_unk(Model_unk* model, float frame) {
 }
 
 // inferred: the motion of track 0 is within `frames` of its end (name invented)
-inline bool QuarkNearEnd_unk(Model_unk* model, float frames) {
+inline bool QuarkNearEnd_unk(atn::Model* model, float frames) {
     float end = model->fn_80097D7C(0);
     bool ok = false;
     if (model->mTracks[0].m08 >= end - frames) {
@@ -2027,7 +2027,7 @@ void EnemyQuarkStand::fn_8034F41C() {
 }
 
 // inferred: plays an effect on the model at the origin (the zero vector of lbl_807C7030; name invented)
-inline void QuarkPlayEffectAt_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void QuarkPlayEffectAt_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     QColor_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -2297,7 +2297,7 @@ void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
         m16F8.RotZ_unk();
         fn_80239DAC(lbl_8087F3C0, this, 0x3EE, 1);
     } else {
-        Model_unk* model = &mMotion;
+        atn::Model* model = &mMotion;
         model->m34C = 1;
         model->mTracks[0].m20 = 1.0f;
         model->mTracks[0].m0C = 1.0f;

@@ -7,9 +7,9 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -22,7 +22,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -54,7 +54,7 @@ extern "C" gmk::TreasureBox::Data_unk* fn_8021ECD0(int id);
 static const char* const sOpenSound = "SE_DGCOM_006";
 
 // inferred: plays the effect of the model (name invented)
-inline void PlayEfp_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -338,7 +338,7 @@ void TreasureBox::vf68(int arg1, int arg2) {
     }
 }
 
-Model_unk* TreasureBox::vf38() {
+atn::Model* TreasureBox::vf38() {
     return &mModel;
 }
 

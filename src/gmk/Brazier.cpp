@@ -15,9 +15,9 @@ extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -30,7 +30,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" BrazierEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(BrazierEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(BrazierEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(BrazierEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -119,7 +119,7 @@ inline CharaListeners_unk* fn_8014F8F4() {
 static const char* const sSe[] = {"SE_DGCOM_004", "SE_DGCOM_005"};
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(BrazierEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(BrazierEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -563,7 +563,7 @@ int Brazier::vf60() {
     return ret;
 }
 
-Model_unk* Brazier::vf38() {
+atn::Model* Brazier::vf38() {
     return m54 != 5 ? &mModel : &mModelCrush;
 }
 

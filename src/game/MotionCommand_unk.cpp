@@ -200,16 +200,16 @@ void MotionCommand_unk::fn_80121114(CharaTask* chara) {
 }
 
 // inferred: accessors of the motion tracks (weak copies called out of line from CharaTask)
-inline float Model_unk::fn_80139550(int track) {
+inline float atn::Model::fn_80139550(int track) {
     return mTracks[track].m08;
 }
-inline int Model_unk::fn_80139F2C(int track) {
+inline int atn::Model::fn_80139F2C(int track) {
     return mTracks[track].m00;
 }
-inline int Model_unk::fn_8013C3DC() {
+inline int atn::Model::fn_8013C3DC() {
     return m34C;
 }
-inline float Model_unk::fn_8013C3E4(int track) {
+inline float atn::Model::fn_8013C3E4(int track) {
     return mTracks[track].m20;
 }
 
@@ -232,7 +232,7 @@ void MotionCommand_unk::fn_8012111C() {
     if (m10 == 0) {
         return;
     }
-    Model_unk* model = mChara->GetModel_unk();
+    atn::Model* model = mChara->GetModel_unk();
     int count = model->fn_8013C3DC();
     m08 = 0;
     if (count > 1) {
@@ -297,7 +297,7 @@ int MotionCommand_unk::fn_8012133C(MotionCmdData_unk* data, int* found) {
     if (data == 0 || data->mEntries.mSize == 0) {
         return 0;
     }
-    Model_unk* model = mChara->GetModel_unk();
+    atn::Model* model = mChara->GetModel_unk();
     if (model->mTracks[m08].m04 == 0) {
         return 0;
     }

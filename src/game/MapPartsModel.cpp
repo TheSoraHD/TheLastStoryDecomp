@@ -19,10 +19,10 @@ struct AABB_unk;
 // inferred: only the member used here (full class in src/atn/AABBTree.cpp)
 class AABBTree {
 public:
-    Model_unk::TreeEntry_unk fn_80045A24(const AABB_unk* box);
+    atn::Model::TreeEntry_unk fn_80045A24(const AABB_unk* box);
 };
 } // namespace atn
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 
 // inferred: camera (lbl_8087EFB4)
 struct Camera_unk {
@@ -260,13 +260,13 @@ void MapPartsModel::vf14() {
 
 MapPartsBox_unk MapPartsModel::vf24(MapPartsTree_unk* tree) {
     MapPartsBox_unk box;
-    Model_unk::Res_unk* res = mModel.m16C;
+    atn::Model::Res_unk* res = mModel.m16C;
     if (res != 0) {
         box.mMin = atn::Vector3(res->mMin);
         box.mMax = atn::Vector3(res->mMax);
         if (tree != 0) {
-            Model_unk::TreeEntry_unk e = Model_unk::TreeEntry_unk(((atn::AABBTree*)tree)->fn_80045A24((const atn::AABB_unk*)&box));
-            mModel.m200 = Model_unk::TreeEntry_unk(e);
+            atn::Model::TreeEntry_unk e = atn::Model::TreeEntry_unk(((atn::AABBTree*)tree)->fn_80045A24((const atn::AABB_unk*)&box));
+            mModel.m200 = atn::Model::TreeEntry_unk(e);
         }
     } else {
         return MapPartsBase::vf24(tree);

@@ -233,8 +233,8 @@ extern "C" void fn_800C06B0(EffectCamera_unk* camera, void* arg);
 extern "C" void fn_800C08B0(EffectCamera_unk* camera);
 extern "C" Light_unk* fn_800C2448(void* lights, int index);
 // inferred: functions of the models (automatic names)
-extern "C" void fn_80094F14(Model_unk* model, float a, float b);
-extern "C" void fn_80094D88(Model_unk* model, int blend, int a, int b, int c, int d);
+extern "C" void fn_80094F14(atn::Model* model, float a, float b);
+extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
 
 // inferred: blend state of the renderer (bit fields set by fn_80234CD8, names invented)
 struct EffectBlend_unk {
@@ -323,7 +323,7 @@ extern "C" void fn_80234CD8() {
         lbl_8087EFB4->m954 = 0;
         for (int i = 0x3FF; i >= 0; i--) {
             for (EffectModelItem_unk* item = (EffectModelItem_unk*)sBuckets[i]; item != 0; item = item->mNext) {
-                Model_unk* model = (Model_unk*)item->mModel;
+                atn::Model* model = (atn::Model*)item->mModel;
                 if (model == 0) {
                     continue;
                 }

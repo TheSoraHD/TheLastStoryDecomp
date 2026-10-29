@@ -74,10 +74,10 @@ extern "C" void fn_805F9AB0(atn::Quaternion_unk* q, const atn::Vector3* axis, fl
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
                         std::allocator<boost::function_base> >
     NodeCallback_unk;
-extern "C" void fn_800F29D0(Model_unk* model, NodeCallback_unk callback);
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 
 // inferred: sets the second node pose callback of a model (also called by game/Em403WarLion.cpp)
-extern "C" void fn_8031F2A4(Model_unk* model, boost::function<void(atn::MotionBuffer*, int)> callback) {
+extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback) {
     model->m35C = callback;
 }
 
@@ -168,7 +168,7 @@ struct LeoMaterial_unk {
     GXColor m1C;
     GXColor m20;
 };
-extern "C" LeoMaterial_unk* fn_80094B6C(Model_unk* model, const char* name); // inferred: material by name
+extern "C" LeoMaterial_unk* fn_80094B6C(atn::Model* model, const char* name); // inferred: material by name
 // inferred: color as four floats (as in game/Em315Coffin.cpp)
 struct LeoColor_unk {
     LeoColor_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
@@ -654,7 +654,7 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
 
 extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
 // inferred: length of a motion, 30 frames when it is missing (as in game/Em403WarLion.cpp); name invented
-inline float GetMotionLength_unk(Model_unk* model, int id) {
+inline float GetMotionLength_unk(atn::Model* model, int id) {
     atn::LoadHandle* motion = model->fn_80097D40(id);
     float length = motion != 0 ? fn_800A08D4(motion) : 30.0f;
     if (length == 0.0f) {

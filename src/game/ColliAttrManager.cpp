@@ -40,7 +40,7 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" int fn_800928B0(Model_unk* model, int hash, int arg);   // inferred: node index by hash
+extern "C" int fn_800928B0(atn::Model* model, int hash, int arg);   // inferred: node index by hash
 
 // inferred: lens of a camera (as in game/CharaTask.cpp)
 struct Lens_unk {
@@ -59,7 +59,7 @@ struct ScreenInfo_unk {
     unsigned char m00[0x2C];
     float mColor[4];
 };
-extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const Model_unk::Sphere_unk* sphere);
+extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 
 // inferred: translation of a node matrix (name invented)
 inline atn::Vector3 NodePos_unk(MtxPtr mtx) {
@@ -87,7 +87,7 @@ struct ColorF_unk {
 };
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int a, int b, void* mtx, const atn::Vector3* pos,
@@ -233,7 +233,7 @@ void ColliAttrManager::fn_80184188(int index, CharaTask* chara, int useNode, int
     atn::Vector3 pos;
     atn::Vector3 rot = chara->mRot;
     Camera_unk* camera = lbl_8087EFB4;
-    Model_unk::Sphere_unk sphere = chara->mMotion.fn_80094F98();
+    atn::Model::Sphere_unk sphere = chara->mMotion.fn_80094F98();
     ScreenInfo_unk* info = fn_800C122C(camera, &sphere);
     unsigned int r = ToU8_unk(info->mColor[0]);
     unsigned int g = ToU8_unk(info->mColor[1]);
@@ -321,7 +321,7 @@ int ColliAttrManager::fn_80184864(CollResult_unk* result, CharaTask* chara, int 
     atn::Vector3 from;
     atn::Vector3 to;
     if (useNode) {
-        Model_unk* model = &chara->mMotion;
+        atn::Model* model = &chara->mMotion;
         from = NodePos_unk(model->GetNodeMtx_unk(fn_800928B0(model, node, 0))) + atn::Vector3(0.0f, 5.0f, 0.0f);
     } else {
         from = chara->mPos + atn::Vector3(0.0f, 5.0f, 0.0f);

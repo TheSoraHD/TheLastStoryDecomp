@@ -33,13 +33,13 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf64(int arg);
     virtual void vf68(int arg1, int arg2);
     virtual void vf70(int state);
 
-    Model_unk mModel;         // 0xF4
+    atn::Model mModel;         // 0xF4
     atn::ColliObject mColli;  // 0x4C4
     atn::EfpHandle_unk mEfp;  // 0x54C: "EFP"
     Data_unk* mData;          // 0x558

@@ -15,12 +15,12 @@ public:
     int fn_8036354C();                // inferred: loads the data, nonzero until done
     void fn_803635E8();               // inferred: reads the "chr" file (model and motions)
     void fn_803637D4();               // inferred: reads the second part (scale, node, node edits)
-    void fn_80363960(Model_unk* target); // inferred: attaches the item to `target`
+    void fn_80363960(atn::Model* target); // inferred: attaches the item to `target`
     virtual void vf08();               // inferred: places the model at the node of the target
     virtual void vf0C();               // inferred: draws the model
 
-    Model_unk mModel;      // 0x04
-    Model_unk* mTarget;    // 0x3D4
+    atn::Model mModel;      // 0x04
+    atn::Model* mTarget;    // 0x3D4
     int mNode;             // 0x3D8: hash of the node name, then the node index
     // inferred: flags in a member with its own constructor (they are set between mNode and mScale)
     struct Flags_unk {

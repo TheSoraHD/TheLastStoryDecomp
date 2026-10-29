@@ -65,7 +65,7 @@ public:
     static int fn_80045510(ArmsCond_unk* cond, CharaTask* chara);
     ArmsCond_unk* fn_80045694(int kind, int value, int kind2, int value2); // inferred: finds a condition
 
-    Model_unk* GetModel_unk() { return mModel.GetModel_unk(); }
+    atn::Model* GetModel_unk() { return mModel.GetModel_unk(); }
 
     void* m04;
     int m08;
