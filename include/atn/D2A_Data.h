@@ -86,6 +86,36 @@ public:
         mSize++;
     }
 
+    // inferred: removes the first entry equal to value (D2A_Layout_unk, 0x801FE89C-0x801FEB1C);
+    // a find followed by an erase that reloads mData on every move
+    void Remove(const T& value) {
+        T* it;
+        T* end;
+        T* data = mData;
+        end = data + mSize;
+        it = data;
+        while (it != end) {
+            if (*it == value) {
+                if (it == end) {
+                    return;
+                }
+                unsigned int offset;
+                unsigned int index = it - data;
+                offset = index * sizeof(T);
+                while (index < mSize - 1) {
+                    data = mData;
+                    T* entry = (T*)((char*)data + offset);
+                    index++;
+                    offset += sizeof(T);
+                    entry[0] = entry[1];
+                }
+                mSize = mSize - 1;
+                return;
+            }
+            it++;
+        }
+    }
+
     unsigned int Size() const { return mSize; }
     T& operator[](unsigned int i) { return mData[i]; }
 

@@ -13,7 +13,7 @@ extern "C" float fn_801F0544(atn::D2A_ParamTable* table, int key);
 extern "C" const char lbl_8073E57C[];
 extern "C" void fn_800D58A4(atn::Texture_unk* texture);
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path);
-extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* anim);
+extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* value);
 extern "C" float fn_800A6BD4(const unsigned char* code, float value);
 extern "C" void fn_801EDCB8(atn::D2A_Common* element);
 extern "C" unsigned int fn_800DC6B4(const char* text);
@@ -402,12 +402,11 @@ struct D2A_PointerArray_unk {
     unsigned int mCapacity;
     void** mData;
 };
-extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, const void* value);
-extern "C" void fn_801FE91C(atn::D2A_Layout_unk* layout, const void* value);
-extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, const void* value);
-extern "C" void fn_801FEA1C(atn::D2A_Layout_unk* layout, const void* value);
-extern "C" void fn_801FEA9C(atn::D2A_Layout_unk* layout, const void* value);
-extern "C" void fn_801FEB1C(atn::D2A_Layout_unk* layout, const void* value);
+extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<1>* value);
+extern "C" void fn_801FE91C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<5>* value);
+extern "C" void fn_801FEA1C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* value);
+extern "C" void fn_801FEA9C(atn::D2A_Layout_unk* layout, atn::D2A_TextParam_unk* value);
+extern "C" void fn_801FEB1C(atn::D2A_Layout_unk* layout, atn::D2A_IntAnim_unk* value);
 extern "C" void* fn_801FEB9C(atn::D2A_Layout_unk* layout, const char* name);
 extern "C" void* fn_801FEC08(atn::D2A_Layout_unk* layout, const char* name);
 extern "C" void* fn_801FEC74(atn::D2A_Layout_unk* layout, const char* name);
@@ -529,151 +528,23 @@ extern "C" void fn_801FE090(D2A_Layout_unk* layout, const unsigned int* counts) 
     layout->mIntAnims.Reserve(counts[5], 8);
 }
 
-extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x00);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) {
-                return;
-            }
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
-}
+// inferred: unregisters an element value from the layout
+extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<1>* value) { layout->mAnims1.Remove(value); }
 
-extern "C" void fn_801FE91C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x0C);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
-}
+// inferred: unregisters an element value from the layout
+extern "C" void fn_801FE91C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<5>* value) { layout->mAnims5.Remove(value); }
 
-extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x18);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
-}
+// inferred: unregisters an element value from the layout
+extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* value) { layout->mTextureAnims.Remove(value); }
 
-extern "C" void fn_801FEA1C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x24);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
-}
+// inferred: unregisters an element value from the layout
+extern "C" void fn_801FEA1C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* value) { layout->mAnims4.Remove(value); }
 
-extern "C" void fn_801FEA9C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x30);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
-}
+// inferred: unregisters an element value from the layout
+extern "C" void fn_801FEA9C(atn::D2A_Layout_unk* layout, atn::D2A_TextParam_unk* value) { layout->mTexts.Remove(value); }
 
-extern "C" void fn_801FEB1C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x3C);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
-}
+// inferred: unregisters an element value from the layout
+extern "C" void fn_801FEB1C(atn::D2A_Layout_unk* layout, atn::D2A_IntAnim_unk* value) { layout->mIntAnims.Remove(value); }
 
 // NONMATCHING: 97.96% - hash lookup differs only in pointer-register assignment.
 extern "C" void* fn_801FEB9C(atn::D2A_Layout_unk* layout, const char* name) {
