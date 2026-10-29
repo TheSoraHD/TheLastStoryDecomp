@@ -2657,6 +2657,7 @@ static inline int SkillDist_unk(int id, CharaTask* chara) {
     }
     return fn_8001ADE8(id, chara);
 }
+
 int AI::Script::AI_buffer_pointguard01::vf0C() {
     int result = CheckCount_unk();
     if (result == 1) {
@@ -2727,6 +2728,75 @@ int AI::Script::AI_buffer_pointguard01::vf0C() {
 
 int AI::Script::AI_buffer_pointguard01::vf2C() {
     if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_buffer_pointguard01::vf1C() {
+    int dist = SkillDist_unk(lbl_807C6A40.m18, lbl_807C68C0.m20);
+    if (dist < lbl_807C6A40.m1C) {
+        if (fn_8001BC80(lbl_807C68C0.m00, 0)) {
+            if (lbl_807C68C0.m08 != 0 && lbl_807C6A40.m24 == 1) {
+                if (fn_8001BE00(lbl_807C68C0.m20)) {
+                    Command_unk(5, 1, 0, 0, 0);
+                    lbl_807C6A40.m00 = 1;
+                    return 8;
+                }
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            return -1;
+        }
+        if (lbl_807C6A40.m3C <= 0) {
+            lbl_807C6A40.m0C = 0;
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        if (lbl_807C68C0.m08 != 0 && lbl_807C6A40.m24 == 1) {
+            if (fn_8001BE00(lbl_807C68C0.m20)) {
+                Command_unk(5, 1, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                return 8;
+            }
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        return -1;
+    }
+    lbl_807C6A40.m0C = 0;
+    lbl_807C6A40.m00 = 1;
+    if (lbl_807C6A40.m50 == 0) {
+        lbl_807C6A40.m50 = 1;
+        Command_unk(8, lbl_807C6A40.m18, lbl_807C6A40.m1C, 0, 0);
+        return 1;
+    }
+    return 1;
+}
+
+int AI::Script::AI_buffer_pointguard01::vf40() {
+    if (lbl_807C6A40.m3C > 0) {
+        if (fn_8001BC80(lbl_807C68C0.m00, 0)) {
+            int result = CheckCount_unk();
+            if (result == 1) {
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            return -1;
+        }
+        lbl_807C6A40.m3C -= 1;
+        lbl_807C6A40.m00 = 1;
+        int result = CheckCount_unk();
+        if (result == 1) {
+            return 1;
+        }
+        return -1;
+    }
+    int result = CheckCount_unk();
+    if (result == 1) {
         lbl_807C6A40.m00 = 1;
         return 1;
     }
