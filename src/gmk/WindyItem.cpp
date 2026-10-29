@@ -210,7 +210,7 @@ void gmk::WindyItem::fn_804392C0() {
                     1.0f);
     }
     for (int i = 1; i <= 16; i++) {
-        WindyTarget_unk* g = lbl_8087F4A0 != 0 ? (WindyTarget_unk*)lbl_8087F4A0->fn_803EEE10(11001, i) : 0;
+        WindyTarget_unk* g = GimmickManager::instance_ != 0 ? (WindyTarget_unk*)GimmickManager::instance_->fn_803EEE10(11001, i) : 0;
         if (g != 0) {
             int len = (int)(0.8f * (float)mED8);
             g->m124 = 7.0f;

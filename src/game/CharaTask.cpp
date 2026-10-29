@@ -10888,7 +10888,7 @@ void CharaTask::fn_80175B18(float distSq) {
         }
     }
     if (mType == 0) {
-        GimmickCommon* gimmick = lbl_8087F4A0 != 0 ? lbl_8087F4A0->mHead : 0;
+        GimmickCommon* gimmick = GimmickManager::instance_ != 0 ? GimmickManager::instance_->mHead : 0;
         for (; gimmick != 0; gimmick = gimmick->m5C) {
             if (gimmick->IsFlag_unk(4)) {
                 continue;

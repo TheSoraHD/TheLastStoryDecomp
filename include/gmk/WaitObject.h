@@ -56,7 +56,7 @@ public:
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual void vf4C(CharaTask* chara);
-    virtual int vf50();
+    virtual atn::ColliBase* vf50();
     virtual atn::Vector3 vf54();
     virtual float vf58();
     virtual int vf5C();

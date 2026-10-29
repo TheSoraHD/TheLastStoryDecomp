@@ -156,7 +156,7 @@ void FloatingBox::vf10() {
         fn_803ED0D4(vf38(), 1);
     }
     if (m878 != 0.0f) {
-        for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         }
     }
 }

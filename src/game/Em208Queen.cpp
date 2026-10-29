@@ -801,7 +801,7 @@ void Em208Queen::fn_802CA8C0() {
             }
         }
         float best2 = 1e16f;
-        for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
             if (g->m50 == 7 && g->m54 == 1) {
                 atn::Vector3 d = g->m6C - center;
                 float dist = d.x * d.x + d.z * d.z;
@@ -1152,7 +1152,7 @@ void Em208Queen::fn_802CC708() {
 }
 
 void Em208Queen::fn_802CC834(atn::Vector3 pos, float radius, float angle, int arg) {
-    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         if (g->m50 == 1) {
             atn::Vector3 target = g->vf54();
             atn::Vector3 d = target - mPos;

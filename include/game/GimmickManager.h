@@ -13,7 +13,7 @@ class LoadSeTableTask;
 class CharaTask;
 
 // inferred from __vt__14GimmickManager (0x8078CAB0): the gimmick manager singleton
-// (lbl_8087F4A0); gimmicks register themselves in its list
+// (GimmickManager::instance_); gimmicks register themselves in its list
 class GimmickManager : public atn::Task {
 public:
     GimmickManager(atn::Task* parent); // 0x803EE024
@@ -22,7 +22,8 @@ public:
     virtual void vf10();               // 0x803EE318
     virtual void vf14();               // 0x803EE370
 
-    static GimmickManager* fn_803EDFBC(atn::Task* parent); // inferred: creates the singleton
+    static GimmickManager* SetTask(atn::Task* parent); // RSO: SetTask__14GimmickManagerFPQ23atn4Task; creates the singleton
+    static GimmickManager* instance_; // RSO: instance___14GimmickManager (0x8087F4A0)
 
     void fn_803EE374(void* arg);              // inferred: calls Start of the gimmicks
     void fn_803EE3F0(GimmickCommon* gimmick); // inferred: registers a gimmick
@@ -53,6 +54,5 @@ public:
     int m88;
     int m8C;
 };
-extern "C" GimmickManager* lbl_8087F4A0;
 
 #endif

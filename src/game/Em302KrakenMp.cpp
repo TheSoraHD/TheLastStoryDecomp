@@ -111,7 +111,7 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: gimmicks (lbl_8087F4A0, as in game/Em302Kraken.cpp); names invented
+// inferred: gimmicks (GimmickManager::instance_, as in game/Em302Kraken.cpp); names invented
 struct KrakenMpGimmick_unk {
     virtual void vf08();
     virtual void vf0C();
@@ -135,9 +135,8 @@ struct KrakenMpGimmick_unk {
     unsigned char m58[0x5C - 0x58];
     KrakenMpGimmick_unk* mNext;
 };
-extern "C" GimmickManager* lbl_8087F4A0;
 inline KrakenMpGimmick_unk* FirstGimmick_unk() {
-    return (KrakenMpGimmick_unk*)lbl_8087F4A0->mHead;
+    return (KrakenMpGimmick_unk*)GimmickManager::instance_->mHead;
 }
 // inferred: message sent to the gimmicks (0x20 bytes); names invented
 struct KrakenMpGimmickMsg_unk {
@@ -453,7 +452,7 @@ inline void BreakPillarsMp_unk(Em302KrakenMp* k) {
     unsigned int i;
     unsigned int skip = k->m15E4;
     for (i = 0; i < k->m15F4.size(); i++) {
-        KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m15F4[i]);
+        KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)GimmickManager::instance_->fn_803EEE10(0x6DD6, k->m15F4[i]);
         if (g != 0) {
             int state = g->m54;
             if (i != skip && state == 1) {
@@ -469,7 +468,7 @@ inline KrakenMpGimmick_unk* RaisePillar_unk(Em302KrakenMp* k) {
     if (k->m15F4.size() == 0) {
         return 0;
     }
-    KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m15F4[index]);
+    KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)GimmickManager::instance_->fn_803EEE10(0x6DD6, k->m15F4[index]);
     if (g != 0) {
         SendGimmick_unk(g, 1);
         return g;

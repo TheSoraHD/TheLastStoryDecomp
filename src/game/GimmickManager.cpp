@@ -108,11 +108,11 @@ public:
     int mDone;                     // 0x64
 };
 
-GimmickManager* GimmickManager::fn_803EDFBC(atn::Task* parent) {
-    if (lbl_8087F4A0 == 0) {
-        lbl_8087F4A0 = new (12, "", "", 0) GimmickManager(parent);
+GimmickManager* GimmickManager::SetTask(atn::Task* parent) {
+    if (GimmickManager::instance_ == 0) {
+        GimmickManager::instance_ = new (12, "", "", 0) GimmickManager(parent);
     }
-    return lbl_8087F4A0;
+    return GimmickManager::instance_;
 }
 
 GimmickManager::GimmickManager(atn::Task* parent)
@@ -122,7 +122,7 @@ GimmickManager::GimmickManager(atn::Task* parent)
 }
 
 GimmickManager::~GimmickManager() {
-    lbl_8087F4A0 = 0;
+    GimmickManager::instance_ = 0;
 }
 
 int GimmickManager::vf0C() {

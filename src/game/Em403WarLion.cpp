@@ -1303,7 +1303,7 @@ void Em403WarLion::fn_8032853C() {
             if (45.0f <= frame && frame <= 47.0f && fn_80370A78(lbl_8087F430, 0x5C) < 1) {
                 fn_80370AE4(lbl_8087F430, 0x5C, 1);
                 fn_8059C32C(lbl_8087F9E8, 0);
-                for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                     if (g->m50 == 40 && g->m4C == 1) {
                         GimmickMsg_unk msg(2);
                         g->vf40(&msg);

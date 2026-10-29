@@ -1,4 +1,7 @@
 #include "game/EnemyQuarkSecond.h"
+#include "atn/ColliBase.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
 #include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -1018,59 +1021,12 @@ void EnemyQuarkSecond::fn_8034441C(int motion, int loop, float speed) {
 
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-// inferred: gimmicks of the field (lbl_8087F4A0, as in game/SpecialEnemyBase.cpp); names invented
-struct QuarkGimmickSize_unk {
-    unsigned char m00[0x48];
-    float m48; // inferred: radius
-};
-// inferred: message sent to a gimmick (0x30 bytes, kind then the sender at 0x28)
-struct QuarkGimmickMsg_unk {
-    int mKind;
-    unsigned char m04[0x28 - 0x04];
-    CharaTask* mSender;
-    unsigned char m2C[0x30 - 0x2C];
-};
-struct QuarkGimmick_unk {
-    virtual void vf08();
-    virtual void vf0C();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf18();
-    virtual void vf1C();
-    virtual void vf20();
-    virtual void vf24();
-    virtual void vf28();
-    virtual void vf2C();
-    virtual void vf30();
-    virtual void vf34();
-    virtual void vf38();
-    virtual void vf3C();
-    virtual void vf40();
-    virtual void vf44(QuarkGimmickMsg_unk* msg);
-    virtual void vf48();
-    virtual void vf4C();
-    virtual QuarkGimmickSize_unk* vf50();
-    virtual atn::Vector3 vf54();
-    unsigned char m04[0x48 - 0x04];
-    unsigned int m48; // inferred: kind (0xBB81, 0xBB84 here)
-    unsigned char m4C[0x54 - 0x4C];
-    int m54;
-    unsigned char m58[0x5C - 0x58];
-    QuarkGimmick_unk* mNext;
-    unsigned char m60[0x920 - 0x60];
-    float m920;
-};
-struct QuarkGimmickList_unk {
-    unsigned char m00[0x48];
-    QuarkGimmick_unk* mHead;
-};
-extern "C" QuarkGimmickList_unk* lbl_8087F4A0;
 
 void EnemyQuarkSecond::fn_80344454(int msg, int notify, float radius, float angle) {
-    for (QuarkGimmick_unk* g = lbl_8087F4A0->mHead; g != 0; g = g->mNext) {
-        int kind = g->m48;
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+        int kind = g->mId;
         if (kind == 0xBB84 || kind == 0xBB81) {
-            QuarkGimmickMsg_unk m;
+            GimmickHitMsg_unk m;
             Mtx rot;
             atn::Vector3 pos = g->vf54();
             atn::Vector3 dir;
@@ -1082,9 +1038,9 @@ void EnemyQuarkSecond::fn_80344454(int msg, int notify, float radius, float angl
             dir.z = dz;
             dir.y = 0.0f;
             float dist = fn_801C3910(dir);
-            QuarkGimmickSize_unk* size = g->vf50();
+            atn::ColliSphere* size = (atn::ColliSphere*)g->vf50();
             if (size != 0) {
-                dist -= size->m48;
+                dist -= size->mSphere.mRadius;
             }
             if (dist <= radius) {
                 PSVECNormalize(&dir, &dir);
@@ -1095,13 +1051,13 @@ void EnemyQuarkSecond::fn_80344454(int msg, int notify, float radius, float angl
                 float a = acos(PSVECDotProduct(&dir, &front));
                 if (a <= 0.5f * angle && notify != 0) {
                     memset(&m, 0, sizeof(m));
-                    m.mKind = msg;
+                    m.mType = msg;
                     m.mSender = this;
                     g->vf44(&m);
                 }
             }
             if (dist <= 2.0f * radius && g->m54 == 3) {
-                g->m920 = 0.0f;
+                *(float*)((char*)g + 0x920) = 0.0f; // inferred: field of the gimmicks 48001/48004 (class unknown)
             }
         }
     }

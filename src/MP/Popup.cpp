@@ -154,7 +154,7 @@ void Popup::vf10() {
     {
     CharaTask* chara = fn_804EB870(lbl_8087F610)->m00;
     atn::Vector3 screen;
-    for (GimmickCommon* g = lbl_8087F4A0 != 0 ? lbl_8087F4A0->mHead : 0; g != 0; g = g->m5C) {
+    for (GimmickCommon* g = GimmickManager::instance_ != 0 ? GimmickManager::instance_->mHead : 0; g != 0; g = g->m5C) {
         if (g->m50 != 0x12 || g->vf60() == 0) {
             continue;
         }

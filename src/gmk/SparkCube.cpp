@@ -431,8 +431,8 @@ int SparkCube::vf60() {
     return m54 != 3;
 }
 
-int SparkCube::vf50() {
-    return (int)&mColli;
+atn::ColliBase* SparkCube::vf50() {
+    return &mColli;
 }
 
 atn::Vector3 SparkCube::vf54() {

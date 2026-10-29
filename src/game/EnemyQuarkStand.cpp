@@ -2457,16 +2457,16 @@ struct QuarkGimmick_unk : public GimmickCommon {
 // within `range` and inside the cone `angle` in front gets a hit message of kind `kind` (when `hit`); one
 // within 2 * range in state 3 clears its value at 0x920
 void EnemyQuarkStand::fn_80352C3C(int kind, int hit, float range, float angle) {
-    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         int id = g->mId;
         if (id == 48004 || id == 48001) {
             atn::Vector3 pos = g->vf54();
             atn::Vector3 d = pos - GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
             d.y = 0.0f;
             float dist = sqrt(d.x * d.x + d.z * d.z);
-            int colli = g->vf50();
+            atn::ColliSphere* colli = (atn::ColliSphere*)g->vf50();
             if (colli != 0) {
-                dist -= *(float*)(colli + 0x48);
+                dist -= colli->mSphere.mRadius;
             }
             if (dist <= range) {
                 PSVECNormalize(&d, &d);
@@ -2476,7 +2476,7 @@ void EnemyQuarkStand::fn_80352C3C(int kind, int hit, float range, float angle) {
                     GimmickHitMsg_unk msg;
                     memset(&msg, 0, sizeof(msg));
                     msg.mType = kind;
-                    *(EnemyQuarkStand**)&msg.m28[0] = this;
+                    msg.mSender = this;
                     g->vf44(&msg);
                 }
             }

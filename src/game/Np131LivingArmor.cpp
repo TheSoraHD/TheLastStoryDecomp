@@ -101,7 +101,7 @@ int Np131LivingArmor::vf0C() {
 // inferred: a random armor stand that is free (names invented)
 inline GimmickCommon* PickArmorStand_unk() {
     std::vector<GimmickCommon*> list;
-    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         if (g->mId == 0x1391 && g->m54 == 2) {
             list.push_back(g);
         }
@@ -325,7 +325,7 @@ void Np131LivingArmor::fn_80547468() {
     float best = 1e16f;
     CharaTask* player = lbl_8087F8A0->mHead;
     GimmickCommon* found = 0;
-    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         if (g->mId == 0x1391 && g->m54 == 2) {
             atn::Vector3 d = player->mPos - g->m6C;
             if (d.Length_unk() < best) {

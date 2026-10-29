@@ -37,6 +37,7 @@ namespace atn {
 struct EffFile;
 }
 namespace atn {
+class ColliBase;
 class EfpFile;
 class SoundRef;
 }
@@ -155,7 +156,8 @@ struct GimmickHitMsg_unk {
     int m0C;
     atn::Vector3 mPos; // 0x10: inferred: hit position (gmk::FlyObjManager)
     atn::Vector3 mDir; // 0x1C: inferred: push direction (gmk::Brazier)
-    unsigned char m28[0x30 - 0x28];
+    CharaTask* mSender; // 0x28: inferred: sender (game/EnemyQuarkSecond)
+    unsigned char m2C[0x30 - 0x2C];
 };
 
 // Base of the gimmicks (gmk::*). The name is in the DOL (vtable 0x8078C9D0, RTTI bases
@@ -189,7 +191,9 @@ public:
     virtual int vf44(GimmickHitMsg_unk* msg) { return 0; } // 0x800FA4F4
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag); // 0x803EDE34
     virtual void vf4C(CharaTask* chara) {} // inferred: one argument (Cannonball and MotionObject use it as a CharaTask*)
-    virtual int vf50() { return 0; }       // 0x802AEABC
+    // inferred: collision of the gimmick (an atn::ColliSphere for most: callers read the radius at
+    // 0x48, Em204BigMulue casts it to ColliSphere)
+    virtual atn::ColliBase* vf50() { return 0; } // 0x802AEABC
     // NONMATCHING (standalone): psq_st and stfs of the copy are in the other order
     virtual atn::Vector3 vf54() { return m6C; } // 0x800EB488: inferred: position
     virtual float vf58() { return 0.0f; }  // 0x800FA4EC

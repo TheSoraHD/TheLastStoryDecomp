@@ -7,7 +7,6 @@
 extern "C" int rand();
 
 extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info); // inferred: multiplayer enemy
-extern "C" GimmickManager* lbl_8087F4A0;
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int item, int index); // inferred: creates a gimmick
 extern "C" void* lbl_8087F610; // inferred: multiplayer session
 
@@ -49,7 +48,7 @@ EnemyTask::EnemyTask(atn::Task* parent, void* data) : BattleCharaTask(parent, 2,
     mF18 = mF14;
     mF14 = 1;
     if (m5C->mD0 > 0) {
-        m1438 = fn_803EC16C(lbl_8087F4A0, 0x4650, mId);
+        m1438 = fn_803EC16C(GimmickManager::instance_, 0x4650, mId);
         ((GimmickCommon*)m1438)->vf68(m5C->mD0, 1);
         m1438->fn_800D246C(1);
     }

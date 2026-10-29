@@ -145,7 +145,7 @@ int MapLift::vf0C() {
             case 5:
                 if (HasLocator_unk(((atn::LoadHandle*)(part->m50 + 8))->fn_80473F18())) {
                     count++;
-                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                         if (g->m20 == part) {
                             count++;
                         }
@@ -183,7 +183,7 @@ int MapLift::vf0C() {
                     e.mType = 3;
                     e.mObject = part;
                     e.mPos = lbl_807C7030;
-                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                         if (g->m20 == part) {
                             Entry_unk& e2 = mEntries.mData[n++];
                             e2.mType = 2;

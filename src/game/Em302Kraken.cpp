@@ -170,43 +170,6 @@ struct KrakenShake_unk {
 inline KrakenShake_unk* Shake_unk() {
     return (KrakenShake_unk*)((char*)lbl_8087F430 + 0x96C);
 }
-// inferred: gimmicks (lbl_8087F4A0, as in game/SpecialEnemyBase.cpp); names invented
-struct KrakenGimmick_unk {
-    virtual void vf08();
-    virtual void vf0C();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf18();
-    virtual void vf1C();
-    virtual void vf20();
-    virtual void vf24();
-    virtual void vf28();
-    virtual void vf2C();
-    virtual void vf30();
-    virtual void vf34();
-    virtual void vf38();
-    virtual void vf3C();
-    virtual void vf40(void* msg);
-    unsigned char m04[0x48 - 0x04];
-    int m48;
-    unsigned char m4C[0x5C - 0x4C];
-    KrakenGimmick_unk* mNext;
-};
-extern "C" GimmickManager* lbl_8087F4A0;
-inline KrakenGimmick_unk* FirstGimmick_unk() {
-    return (KrakenGimmick_unk*)lbl_8087F4A0->mHead;
-}
-// inferred: message sent to the gimmicks (0x20 bytes); names invented
-struct KrakenGimmickMsg_unk {
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    float m14;
-    float m18;
-    float m1C;
-};
 // inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp): screen blur parameters at 0x2AC
 struct KrakenBlur_unk {
     int m00;
@@ -586,17 +549,9 @@ void Em302Kraken::vf10() {
         }
     } else {
         if (m15D8 > 0 && --m15D8 == 0) {
-            for (KrakenGimmick_unk* g = FirstGimmick_unk(); g != 0; g = g->mNext) {
-                if (g->m48 == 0x444) {
-                    KrakenGimmickMsg_unk msg;
-                    msg.m00 = 0;
-                    msg.m04 = 0;
-                    msg.m08 = 0;
-                    msg.m0C = 0;
-                    msg.m10 = 0;
-                    msg.m14 = 0.0f;
-                    msg.m18 = 0.0f;
-                    msg.m1C = 0.0f;
+            for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+                if (g->mId == 0x444) {
+                    GimmickMsg_unk msg(0);
                     g->vf40(&msg);
                 }
             }
@@ -1147,20 +1102,12 @@ inline void BreakPillars_unk(Em302Kraken* k) {
     unsigned int i;
     unsigned int skip = k->m1638;
     for (i = 0; i < k->m1648.size(); i++) {
-        GimmickCommon* g = lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m1648[i]);
+        GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(0x6DD6, k->m1648[i]);
         if (g != 0) {
             int state = g->m54;
             if (i != skip && state == 1) {
-                KrakenGimmickMsg_unk msg;
-                msg.m00 = 2;
-                msg.m04 = 0;
-                msg.m08 = 0;
-                msg.m0C = 0;
-                msg.m10 = 0;
-                msg.m14 = 0.0f;
-                msg.m18 = 0.0f;
-                msg.m1C = 0.0f;
-                ((KrakenGimmick_unk*)g)->vf40(&msg);
+                GimmickMsg_unk msg(2);
+                g->vf40(&msg);
             }
         }
     }
@@ -1180,17 +1127,9 @@ void Em302Kraken::fn_802DB534() {
         shake->m04 = 120;
         shake->m08 = 1.0f;
         shake->m0C = 1.0f;
-        for (KrakenGimmick_unk* g = FirstGimmick_unk(); g != 0; g = g->mNext) {
-            if (g->m48 == 0x444) {
-                KrakenGimmickMsg_unk msg;
-                msg.m00 = 2;
-                msg.m04 = 0;
-                msg.m08 = 0;
-                msg.m0C = 0;
-                msg.m10 = 0;
-                msg.m14 = 0.0f;
-                msg.m18 = 0.0f;
-                msg.m1C = 0.0f;
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+            if (g->mId == 0x444) {
+                GimmickMsg_unk msg(2);
                 g->vf40(&msg);
                 m15D8 = 300;
             }
@@ -1401,18 +1340,10 @@ void Em302Kraken::fn_802DC3D0() {
     if (m1648.empty()) {
         g = 0;
     } else {
-        g = lbl_8087F4A0->fn_803EEE10(0x6DD6, m1648[index]);
+        g = GimmickManager::instance_->fn_803EEE10(0x6DD6, m1648[index]);
         if (g != 0) {
-            KrakenGimmickMsg_unk msg;
-            msg.m00 = 1;
-            msg.m04 = 0;
-            msg.m08 = 0;
-            msg.m0C = 0;
-            msg.m10 = 0;
-            msg.m14 = 0.0f;
-            msg.m18 = 0.0f;
-            msg.m1C = 0.0f;
-            ((KrakenGimmick_unk*)g)->vf40(&msg);
+            GimmickMsg_unk msg(1);
+            g->vf40(&msg);
         } else {
             g = 0;
         }

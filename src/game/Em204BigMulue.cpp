@@ -61,7 +61,6 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" GameUI* lbl_8087F490;
 extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
-extern "C" GimmickManager* lbl_8087F4A0; // inferred: gimmicks
 extern "C" bool fn_80051A88(const CharaTask::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
@@ -472,7 +471,7 @@ void Em204BigMulue::vf20() {
 }
 
 void Em204BigMulue::fn_802AE954() {
-    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         if (g->m50 == 1 && g->vf5C() != 0) {
             atn::ColliSphere* colli = (atn::ColliSphere*)g->vf50();
             if (colli != 0) {

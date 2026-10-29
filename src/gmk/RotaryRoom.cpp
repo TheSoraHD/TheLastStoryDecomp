@@ -175,7 +175,7 @@ int RotaryRoom::vf0C() {
                     count += part->mObjCount;
                     break;
                 case 5:
-                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                         if (g->m20 == part) {
                             count++;
                         }

@@ -731,7 +731,7 @@ void Em305Vampire::fn_802EB1F4() {
         if (m14FC > m15AC) {
             m14FC = 0;
             m14F8 = 1;
-            for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+            for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                 if (m155C->m08 == g->mId && m155C->m0C == g->m4C) {
                     GimmickMsg_unk msg(4);
                     g->vf40(&msg);

@@ -487,7 +487,7 @@ void Em205Ogre::vf108() {
                     HitInfo_unk* skill = fn_80219E6C(m14E8);
                     fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
                     if (m1514) {
-                        GimmickCommon* g = lbl_8087F4A0 != 0 ? lbl_8087F4A0->fn_803EEE10(0x41B, 1) : 0;
+                        GimmickCommon* g = GimmickManager::instance_ != 0 ? GimmickManager::instance_->fn_803EEE10(0x41B, 1) : 0;
                         if (g != 0) {
                             atn::Vector3 pos = g->vf54();
                             pos.y = g->m6C.y;

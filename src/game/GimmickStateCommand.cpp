@@ -482,7 +482,7 @@ void GimmickStateCommand::vf10() {
         int state = mGimmick->m54;
         if (prev != state) {
             fn_803F1A38(0);
-            GimmickManager* mgr = lbl_8087F4A0;
+            GimmickManager* mgr = GimmickManager::instance_;
             for (int i = 0; i < mgr->mSeTables.mSize; i++) {
                 const gmk::SeTable* table = &mgr->mSeTables.mData[i];
                 if (table->mId == mGimmick->mId && table->m08 == state && (table->m04 == 0 || table->m04 == prev)) {

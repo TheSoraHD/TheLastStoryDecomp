@@ -329,14 +329,14 @@ GimmickCommon::GimmickCommon(atn::Task* parent, int id, int arg)
         m50 = mId;
         mId *= 1000;
     }
-    if (lbl_8087F4A0 != 0) {
-        lbl_8087F4A0->fn_803EE3F0(this);
+    if (GimmickManager::instance_ != 0) {
+        GimmickManager::instance_->fn_803EE3F0(this);
     }
 }
 
 GimmickCommon::~GimmickCommon() {
-    if (lbl_8087F4A0 != 0) {
-        lbl_8087F4A0->fn_803EE41C(this);
+    if (GimmickManager::instance_ != 0) {
+        GimmickManager::instance_->fn_803EE41C(this);
     }
 }
 
@@ -433,8 +433,8 @@ int GimmickCommon::fn_803EC91C() {
         if (busy == 0) {
             vf24();
             m68 = 3;
-            if (lbl_8087F4A0 != 0 && lbl_8087F0A8->m7C != 0 && lbl_8087FA20 == 0) {
-                vf6C(lbl_8087F4A0->fn_803EEE44(m50));
+            if (GimmickManager::instance_ != 0 && lbl_8087F0A8->m7C != 0 && lbl_8087FA20 == 0) {
+                vf6C(GimmickManager::instance_->fn_803EEE44(m50));
             }
             if (mE4 != 0) {
                 mE4->fn_800D246C(0);

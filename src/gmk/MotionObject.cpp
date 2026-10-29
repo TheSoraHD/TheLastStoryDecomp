@@ -551,9 +551,9 @@ atn::Vector3 MotionObject::vf54() {
     return vf5C() != 0 ? mColli[m54].mTarget->mSphere.mSphere.mCenter : m6C;
 }
 
-int MotionObject::vf50() {
+atn::ColliBase* MotionObject::vf50() {
     if (vf5C() != 0) {
-        return (int)mColli[m54].mTarget;
+        return &mColli[m54].mTarget->mSphere;
     }
     return 0;
 }

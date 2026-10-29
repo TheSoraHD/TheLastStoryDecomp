@@ -238,7 +238,7 @@ int OnOff::vf0C() {
                 break;
             case 5:
                 fn_8049994C(part, &m6C, &m78);
-                for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                     if (g->m20 == part) {
                         g->m6C = g->m6C + m6C;
                         g->m78 = g->m78 + m78;

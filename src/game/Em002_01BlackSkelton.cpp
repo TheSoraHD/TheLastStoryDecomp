@@ -272,7 +272,7 @@ void Em002_01BlackSkelton::fn_80247DA4() {
     if (target != 0) {
         GimmickCommon* best = 0;
         float bestDist = 1e16f;
-        for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
             if (g->vf60() && g->m50 == 29) {
                 float dist = fn_805F9920(&(g->m6C - target->mPos));
                 if (dist < bestDist) {

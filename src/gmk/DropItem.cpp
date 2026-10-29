@@ -493,7 +493,7 @@ void DropItem::vf14() {
     if (lbl_8087F430 == 0) {
         return;
     }
-    if (lbl_8087F4A0 != 0 && lbl_8087F4A0->IsFlag_unk(1) && mSlot.mFlag26) {
+    if (GimmickManager::instance_ != 0 && GimmickManager::instance_->IsFlag_unk(1) && mSlot.mFlag26) {
         mSlot.mFlag26 = 0;
         mSlot.fn_8044F96C();
     }

@@ -443,11 +443,11 @@ void WaitObject::vf4C(CharaTask* chara) {
 }
 
 // NONMATCHING: 97.50% - the original reloads the collision pointer for the return.
-int WaitObject::vf50() {
+atn::ColliBase* WaitObject::vf50() {
     for (unsigned int i = 0; i < mNumTriggers; i++) {
         WaitTrigger_unk& t = mTriggers[i];
         if (t.mState == m54 && t.mType == 5 && GetColli_unk(m54) != 0) {
-            return (int)GetColli_unk(m54);
+            return GetColli_unk(m54);
         }
     }
     return 0;
@@ -595,7 +595,7 @@ int WaitObject::vf44(GimmickHitMsg_unk* msg) {
         if (t->mState != m54 || t->mType != 5 || GetColli_unk(m54) == 0) {
             continue;
         }
-        WaitHitBullet_unk* hit = *(WaitHitBullet_unk**)&msg->m28[4];
+        WaitHitBullet_unk* hit = *(WaitHitBullet_unk**)&msg->m2C[0];
         if (hit == 0 || (float)hit->mPower < ((WaitArea_unk*)t->m08)->mRadius) {
             continue;
         }

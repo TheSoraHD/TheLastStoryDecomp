@@ -256,7 +256,7 @@ int Em309Ghoul::vf0C() {
         mRoute.mA0 = 1;
         m58C = 0;
         fn_8016E970(3);
-        for (m1614 = lbl_8087F4A0->mHead; m1614 != 0; m1614 = m1614->m5C) {
+        for (m1614 = GimmickManager::instance_->mHead; m1614 != 0; m1614 = m1614->m5C) {
             if (m1614->mId == 0x80A) {
                 break;
             }

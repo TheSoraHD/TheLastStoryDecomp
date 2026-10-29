@@ -29,7 +29,7 @@ public:
     virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
-    virtual int vf50();
+    virtual atn::ColliBase* vf50();
     virtual atn::Vector3 vf54();
     virtual float vf58();
     virtual int vf5C();
