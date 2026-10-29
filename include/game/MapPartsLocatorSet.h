@@ -44,7 +44,7 @@ public:
     int mDraw : 1;                        // inferred: set by vf2C
     int mHasModel : 1;                    // inferred: mModel was loaded
     int mHasMerged : 1;                   // inferred: mMerged was loaded
-    atn::Buffer_unk<MapInstance_unk*> mInstances; // 0x344
+    atn::SimpleArray<MapInstance_unk*> mInstances; // 0x344
 // inferred: allocated with 0x350 bytes: 8-byte aligned (as MapPartsModel)
 } __attribute__((aligned(8)));
 

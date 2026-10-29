@@ -106,19 +106,21 @@ public:
     T* mData;
 };
 
-// inferred: array allocated once with new[] {size, data} (names invented)
+// atn::SimpleArray (name from the RSO: SimpleArray<T>, SetMotionParts takes a
+// SimpleArray<CharaFaceControl::MotionPart>); array allocated once with new[] {size, data};
+// member names invented
 template <class T>
-class Buffer_unk {
+class SimpleArray {
 public:
-    Buffer_unk() : mSize(0), mData(0) {}
+    SimpleArray() : mSize(0), mData(0) {}
     // inferred: weak copy 0x80514218 (inlined in the copy of a record of game/NewCampPartsGmk.cpp)
-    Buffer_unk(const Buffer_unk& o) : mSize(0), mData(0) {
+    SimpleArray(const SimpleArray& o) : mSize(0), mData(0) {
         Resize_unk(o.mSize, 0);
         for (unsigned int i = 0; i < mSize; i++) {
             mData[i] = o.mData[i];
         }
     }
-    ~Buffer_unk() {
+    ~SimpleArray() {
         if (mData != 0) {
             delete[] mData;
         }
@@ -165,7 +167,7 @@ public:
     // game/AreaEffConfig.cpp; name invented)
     void Alloc0_unk(int n) { Resize_unk(n, 0); }
     // inferred: weak copy inside AreaEffConfig's row assignment (0x80042EEC)
-    Buffer_unk& operator=(const Buffer_unk& o) {
+    SimpleArray& operator=(const SimpleArray& o) {
         Resize_unk(o.mSize, 0);
         for (unsigned int i = 0; i < mSize; i++) {
             mData[i] = o.mData[i];

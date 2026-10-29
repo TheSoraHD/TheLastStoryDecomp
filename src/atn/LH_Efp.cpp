@@ -17,7 +17,7 @@ struct EfpData_unk {
     void fn_802437C0();                     // inferred: releases the elements
     int fn_80243814(void* data, void* size); // inferred: 0 when the data is ready
 
-    atn::Buffer_unk<EfpElem_unk> mElems; // 0x00
+    atn::SimpleArray<EfpElem_unk> mElems; // 0x00
     int m08;                             // inferred: state
     int m0C;
     int m10;

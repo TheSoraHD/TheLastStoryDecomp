@@ -199,7 +199,7 @@ struct SceneRec50_unk {
     float m20;
     atn::Vector3 m24;
     atn::Vector3 m30;
-    atn::Buffer_unk<atn::Texture_unk> m3C;
+    atn::SimpleArray<atn::Texture_unk> m3C;
     int m44;
     int m48;
     int m4C;

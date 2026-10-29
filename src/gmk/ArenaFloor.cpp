@@ -57,7 +57,7 @@ GimmickCommon* ArenaFloor::fn_8041DDE4(atn::Task* parent, int id, int arg) {
 
 // NONMATCHING: 97.6% - in the case 0 entry the original computes the index before loading the
 // array (stwux base, index), and in the case 4 loop the counter and the entry pointer swap r6/r7.
-// The array is an atn::Buffer_unk (its inline Resize_unk has the new[] literals in .sdata).
+// The array is an atn::SimpleArray (its inline Resize_unk has the new[] literals in .sdata).
 int ArenaFloor::vf0C() {
     if (fn_803EC91C() == 0) {
         m54 = 5;

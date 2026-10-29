@@ -298,9 +298,9 @@ void CharaFaceControl::fn_8011E81C(int motion, unsigned char eyes, unsigned char
     m44[m5C].clear();
 }
 
-// NONMATCHING: 99.21% - registers of the inlined Buffer_unk copy (the new size and the element
+// NONMATCHING: 99.21% - registers of the inlined SimpleArray copy (the new size and the element
 // pointer swap r21/r23)
-void CharaFaceControl::fn_8011EB18(atn::Buffer_unk<MotionPart>* keys, unsigned char eyes, unsigned char head,
+void CharaFaceControl::fn_8011EB18(atn::SimpleArray<MotionPart>* keys, unsigned char eyes, unsigned char head,
                                    float speed, float weight) {
     if (m04[m5C].IsActive_unk()) {
         if (keys->mData[0].m00 == m04[m5C].mKeys.mData[0].m00) {

@@ -102,7 +102,7 @@ public:
 
     static EnvSeLine* fn_80361414(atn::Task* parent, int id);
 
-    atn::Buffer_unk<int> m64; // inferred: segments (indices into the pairs of the manager)
+    atn::SimpleArray<int> m64; // inferred: segments (indices into the pairs of the manager)
 };
 
 class EnvSeSphere : public EnvSeBase {

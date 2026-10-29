@@ -41,7 +41,7 @@ public:
     atn::Vector3 mOffset;   // 0xF8
     float mTime;            // 0x104
     float mValue;           // 0x108
-    atn::Buffer_unk<Entry_unk> mEntries; // 0x10C
+    atn::SimpleArray<Entry_unk> mEntries; // 0x10C
     int m114;               // inferred: unused (the object is 0x118 bytes)
 };
 

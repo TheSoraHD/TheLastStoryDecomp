@@ -61,7 +61,7 @@ public:
     int mDelay;                          // 0xFC
     int mTimer;                          // 0x100
     GimmickDesc_unk* mDesc;              // 0x104
-    atn::Buffer_unk<BatUnit_unk> mBats;  // 0x108
+    atn::SimpleArray<BatUnit_unk> mBats;  // 0x108
 };
 
 } // namespace gmk

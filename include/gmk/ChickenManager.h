@@ -61,7 +61,7 @@ public:
     char mModelName[0x100];  // 0xF5: "MODEL"
     char mMotionName[4][0x100]; // 0x1F5: "MOTION"
     int mMotionId[4];        // 0x5F8
-    atn::Buffer_unk<Chicken_unk> mChickens; // 0x608
+    atn::SimpleArray<Chicken_unk> mChickens; // 0x608
     int mCount;              // 0x610: inferred: mDesc->m20
     atn::Vector3 mTmp;       // 0x614: inferred: position compared in FindNear_unk
     atn::Vector3 mCenter;    // 0x620

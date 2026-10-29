@@ -50,7 +50,7 @@ public:
     // NONMATCHING: 95.6% - see the definition
     void fn_80476ED4();
 
-    Buffer_unk<MotionSetEntry_unk> mEntries; // 0x5C
+    SimpleArray<MotionSetEntry_unk> mEntries; // 0x5C
     MotionSetCallback_unk mCallback;         // 0x64
     int mParsed;                             // 0x68
     ResRef_unk m6C;

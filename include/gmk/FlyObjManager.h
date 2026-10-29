@@ -49,7 +49,7 @@ public:
     char mModelName[0x100];        // 0xF4: "MODEL"
     char mMotionPath[2][0x100];    // 0x1F4: "MOTION"
     char mMotionName[2][0x100];    // 0x3F4: "MOTION"
-    atn::Buffer_unk<FlyObj> mObjs; // 0x5F4
+    atn::SimpleArray<FlyObj> mObjs; // 0x5F4
     unsigned int mCount;           // 0x5FC
     float mRadius;                 // 0x600: "COLLI_RADIUS"
     float mRange;                  // 0x604: inferred: radius of the flock (desc->m40)

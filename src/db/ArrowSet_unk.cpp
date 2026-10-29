@@ -16,7 +16,7 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 // follow it (constructor fn_802077F8 and destructor fn_80207808 are the implicit ones)
 struct ArrowSetEntry_unk {
     int mId;
-    atn::Buffer_unk<int> mValues;
+    atn::SimpleArray<int> mValues;
 };
 
 // inferred: the destructor of the local list tests `this` three times (one level more than a

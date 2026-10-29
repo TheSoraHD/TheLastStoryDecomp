@@ -50,11 +50,11 @@ struct GimmickCommonB0_unk {
     void fn_803F10AC(int arg);
     void fn_803F11F8(void* menu);           // inferred: debug menu
 
-    atn::Buffer_unk<GimmickMotionCmd_unk> mCmds;  // 0x00
-    atn::Buffer_unk<ResLoader_unk> mEff;          // 0x08: "EFF_PLAY"
-    atn::Buffer_unk<atn::EfpFile> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
-    atn::Buffer_unk<atn::SoundRef> mSounds;       // 0x18: "SE_LOOP"
-    atn::Buffer_unk<atn::static_string<32> > mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"
+    atn::SimpleArray<GimmickMotionCmd_unk> mCmds;  // 0x00
+    atn::SimpleArray<ResLoader_unk> mEff;          // 0x08: "EFF_PLAY"
+    atn::SimpleArray<atn::EfpFile> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
+    atn::SimpleArray<atn::SoundRef> mSounds;       // 0x18: "SE_LOOP"
+    atn::SimpleArray<atn::static_string<32> > mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"
     int mMotion;   // 0x28: inferred: motion of the last update
     int mEnabled;  // 0x2C
     int mSoundOn;  // 0x30

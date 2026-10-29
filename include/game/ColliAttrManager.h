@@ -53,7 +53,7 @@ public:
 
     int mEnabled;                        // 0x48
     int mLoading;                        // 0x4C
-    atn::Buffer_unk<Entry_unk> mEntries; // 0x50
+    atn::SimpleArray<Entry_unk> mEntries; // 0x50
     int mForceAttr;                      // 0x58: inferred: attribute used instead of the ground one
     atn::EfpFile mEfp;             // 0x5C
 

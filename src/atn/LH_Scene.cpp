@@ -104,8 +104,8 @@ public:
     void fn_804778DC(SceneHeader_unk* header); // inferred: builds the cameras and lights
 
     int m5C;
-    Buffer_unk<Light_unk> mLights;   // 0x60
-    Buffer_unk<Camera_unk> mCameras; // 0x68
+    SimpleArray<Light_unk> mLights;   // 0x60
+    SimpleArray<Camera_unk> mCameras; // 0x68
 };
 
 LoadScene::~LoadScene() {}

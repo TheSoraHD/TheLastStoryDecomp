@@ -50,7 +50,7 @@ public:
     float mStopTime; // 0x5C
     float mEndTime;  // 0x60
     atn::LH_Binary mLoader;          // 0x64
-    atn::Buffer_unk<Line_unk> mLines; // 0x6C
+    atn::SimpleArray<Line_unk> mLines; // 0x6C
     int mDrawOff;    // 0x74: inferred: debug switch "DrawOff"
     ResHandle mMenu; // 0x78: inferred: debug menu "StaffRoll"
     atn::Texture_unk mLogo; // 0x7C: inferred: "ui_logo_nm.texture"

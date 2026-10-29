@@ -42,9 +42,9 @@ public:
     atn::Vector3 mDir;        // 0xF8: inferred: throw direction (0, 0, 1) turned by the rotation
     atn::Model mModel;         // 0x104: "MODEL_BEFORE"
     atn::Model mModel2;        // 0x4D4: "MODEL_AFTER"
-    atn::Buffer_unk<GimmickMaterialFade_unk> mFades;    // 0x8A4: "MATALPHA"
-    atn::Buffer_unk<GimmickMotionSwitch_unk> mSwitches; // 0x8AC: "NODEVIS"
-    atn::Buffer_unk<GimmickCommon*> mLemons;            // 0x8B4
+    atn::SimpleArray<GimmickMaterialFade_unk> mFades;    // 0x8A4: "MATALPHA"
+    atn::SimpleArray<GimmickMotionSwitch_unk> mSwitches; // 0x8AC: "NODEVIS"
+    atn::SimpleArray<GimmickCommon*> mLemons;            // 0x8B4
     float mPosRand;           // 0x8BC: "positionRand"
     float mRotRand;           // 0x8C0: "rotationRand"
     float mSpeedRand;         // 0x8C4: "speedRand"

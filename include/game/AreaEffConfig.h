@@ -14,7 +14,7 @@ struct AreaEffEntry_unk {
     unsigned int mHash;
     int mType;
     atn::D2A_DrawColor mColor;                     // 0x08
-    atn::Buffer_unk<atn::static_string<32> > mNames;    // 0x18
+    atn::SimpleArray<atn::static_string<32> > mNames;    // 0x18
 };
 
 // inferred: name from the RTTI (vtable 0x807772E8; vf10/vf14 are atn::Task's own empty functions,
@@ -40,7 +40,7 @@ public:
     const atn::D2A_DrawColor* fn_80043014(int type, const char* name);
 
     atn::LH_Binary mBinary;                   // 0x48
-    atn::Buffer_unk<AreaEffEntry_unk> mEntries; // 0x50
+    atn::SimpleArray<AreaEffEntry_unk> mEntries; // 0x50
     atn::D2A_DrawColor mDefault[4];           // 0x58
 };
 

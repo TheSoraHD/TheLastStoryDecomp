@@ -33,7 +33,7 @@ struct EfpElem_unk {
 };
 
 // inferred: effect data built from the loaded file (0x14 bytes, functions at 0x8024373C-0x802441CC).
-// NOTE: atn/LH_Efp.cpp keeps its own definition with an atn::Buffer_unk at 0x00: the destructor of
+// NOTE: atn/LH_Efp.cpp keeps its own definition with an atn::SimpleArray at 0x00: the destructor of
 // LoadEfp destroys that member inline after fn_802437C0, but here a member with a destructor makes
 // MWCC emit its weak copy after the constructor, which the original file does not have; so this
 // file sees the count and the array as plain fields (same layout).

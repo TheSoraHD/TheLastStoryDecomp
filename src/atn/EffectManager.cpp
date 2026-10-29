@@ -136,7 +136,7 @@ struct EffectSystemPool_unk {
     EffectSystemPool_unk() : m00(0), m04(0) {}
     int m00;
     int m04;
-    atn::Buffer_unk<EffectSystemElem_unk> m08;
+    atn::SimpleArray<EffectSystemElem_unk> m08;
     EffectPtrVector_unk m10;
 };
 

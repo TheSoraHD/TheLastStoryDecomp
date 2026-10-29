@@ -63,7 +63,7 @@ public:
     float mMin[5];            // 0x964: "STATE_CHANGE_FRAME" <state> <min> <range>
     float mRange[5];          // 0x978
     int mSkill;               // 0x98C: "SKILL"
-    atn::Buffer_unk<GimmickMaterialFade_unk> mFades; // 0x990
+    atn::SimpleArray<GimmickMaterialFade_unk> mFades; // 0x990
     int mHideDebug;           // 0x998: inferred: set while the spark motion is in its active part
     int m99C;                 // inferred: unused (the object is 0x9A0 bytes)
 };

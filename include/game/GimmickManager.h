@@ -47,7 +47,7 @@ public:
     int mLoading;                            // 0x6C
     ResHandle mRes;                          // 0x70
     void* m74;
-    atn::Buffer_unk<void*> mTypes;           // 0x78: inferred: per gimmick type, see fn_803EEE44
+    atn::SimpleArray<void*> mTypes;           // 0x78: inferred: per gimmick type, see fn_803EEE44
     GimmickCommon* m80;
     GimmickCommon* m84;
     int m88;

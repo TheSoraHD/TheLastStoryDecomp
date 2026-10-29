@@ -61,7 +61,7 @@ public:
     char mNode[0x40];         // 0x200: "MOTION_NODE"
     MotionPose_unk mPose;     // 0x240
     char m26C[0x12];
-    atn::Buffer_unk<Entry_unk> mEntries; // 0x280
+    atn::SimpleArray<Entry_unk> mEntries; // 0x280
     std::vector<std::string> mLocators;  // 0x288
     atn::Vector3 mPos;        // 0x294
     atn::Vector3 mPrevPos;    // 0x2A0

@@ -263,7 +263,7 @@ public:
     void OnMsg24_unk(const TeamMsgIn_unk* msg);
     TeamAI_unk* Find_unk(int type, int id);
 
-    atn::Buffer_unk<TeamAI_unk> mTeams; // 0x48
+    atn::SimpleArray<TeamAI_unk> mTeams; // 0x48
     TeamNode_unk mRoot;                 // 0x50
     int m60;
     ResHandle mMenu;      // 0x64

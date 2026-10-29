@@ -305,7 +305,7 @@ struct MpLevel_unk {
 };
 
 struct MpLevelTable_unk {
-    atn::Buffer_unk<MpLevel_unk> mLevels; // 0x00
+    atn::SimpleArray<MpLevel_unk> mLevels; // 0x00
     int mPoints[1][3];                    // 0x08
 };
 

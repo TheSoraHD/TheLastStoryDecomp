@@ -137,7 +137,7 @@ public:
     ResRef_unk m4AC;
     int m4B4;
     atn::LH_Binary m4B8;
-    atn::Buffer_unk<CampSaveLoadEntry_unk> mEntries; // 0x4C0
+    atn::SimpleArray<CampSaveLoadEntry_unk> mEntries; // 0x4C0
     float m4C8;
     unsigned char m4CC[0x4D0 - 0x4CC];
 };

@@ -52,7 +52,7 @@ public:
 
     int m48;
     unsigned char m4C[0x162C - 0x4C];
-    atn::Buffer_unk<CrowdWalker_unk> mWalkers; // 0x162C
+    atn::SimpleArray<CrowdWalker_unk> mWalkers; // 0x162C
     CrowdDesc_unk* mDesc;       // 0x1634
     ResHandle m1638;
     int m163C;

@@ -126,8 +126,8 @@ public:
     int mInitState;                   // 0x2280: "INIT_STATE"
     String32_unk mBoundNode;          // 0x2284: "BOUND_CENTER_NODE"
     int mActionEnabled[8];            // 0x22A4
-    atn::Buffer_unk<GimmickMaterialFade_unk> mFades[8];    // 0x22C4: "MATALPHA"
-    atn::Buffer_unk<GimmickMotionSwitch_unk> mSwitches[8]; // 0x2304: "NODEVIS"
+    atn::SimpleArray<GimmickMaterialFade_unk> mFades[8];    // 0x22C4: "MATALPHA"
+    atn::SimpleArray<GimmickMotionSwitch_unk> mSwitches[8]; // 0x2304: "NODEVIS"
     int m2344; // inferred: unused (the object is 0x2348 bytes)
 };
 
