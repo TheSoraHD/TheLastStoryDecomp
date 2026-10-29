@@ -34,8 +34,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
 extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
-extern "C" void fn_8010EE78(Bullet* bullet, BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir,
-                            CharaTask* owner, int id, int arg, float speed); // inferred: fires the bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
 struct EffectMgr_unk {
@@ -63,7 +61,7 @@ extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (ene
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: field (lbl_8087F430); m10D8: route tables
 struct Field_unk {
@@ -649,7 +647,7 @@ void Em204MulueMp::vf104() {
         case 10: {
             atn::Vector3 d = m15D4 - mPos;
             d.Length_unk();
-            if (fn_805F9920(&d) < 100.0f) {
+            if (PSVECSquareMag(&d) < 100.0f) {
                 if ((float)m14E0 > 35.0f) {
                     fn_80239DAC(lbl_8087F3C0, this, 0x66, 0);
                     SetState_unk(15);
@@ -717,7 +715,7 @@ void Em204MulueMp::fn_802B43C8() {
     ClearPartsFlag_unk();
     fn_8004D124(lbl_8087EE98);
     mFlag30 = 1;
-    fn_8013CB68(&rot, 1, dist, m568 * scale);
+    fn_8013CB68(rot, 1, dist, m568 * scale);
     SetPartsFlag_unk();
     fn_8004D124(lbl_8087EE98);
 }
@@ -925,7 +923,7 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
                 shot.m04 = (int)&m1524;
                 shot.m08 = 0;
                 shot.m0C = m1680;
-                fn_8010EE78(bullet, &shot, &hips, &to, this, -1, 0, -1.0f);
+                bullet->fn_8010EE78(&shot, &hips, &to, this, -1, 0, -1.0f);
             }
         }
     }
@@ -937,7 +935,7 @@ void Em204MulueMp::fn_802B596C() {
     home.y += 40.0f;
     atn::Vector3 d = home - mPos;
     d.Length_unk();
-    if (m14DC != 0 || fn_805F9920(&d) < 100.0f) {
+    if (m14DC != 0 || PSVECSquareMag(&d) < 100.0f) {
         if (m14DC == 0) {
             if (m14E0 > 60) {
                 m14E0 = 0;
@@ -983,7 +981,7 @@ void Em204MulueMp::fn_802B596C() {
 void Em204MulueMp::fn_802B5DA4() {
     atn::Vector3 d = m15E4 - mPos;
     d.Length_unk();
-    if (fn_805F9920(&d) < 25.0f) {
+    if (PSVECSquareMag(&d) < 25.0f) {
         int done = 0;
         if (m14DC == 0) {
             if (m14E0 > 60) {
@@ -1047,7 +1045,7 @@ void Em204MulueMp::fn_802B6104() {
         d = home - mPos;
     }
     d.Length_unk();
-    if (m14DC == 3 || fn_805F9920(&d) < 25.0f) {
+    if (m14DC == 3 || PSVECSquareMag(&d) < 25.0f) {
         int done = 0;
         if (m14DC == 0) {
             if (m14E0 > 60) {

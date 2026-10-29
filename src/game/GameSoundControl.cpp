@@ -4,6 +4,7 @@
 #include "atn/FixedArray.h"
 #include "atn/SoundManager.h"
 #include "game/GameSaveBackground.h"
+#include "game/Input_unk.h"
 
 // inferred: stream of the field (two at Field_unk::m5620/m5624); names invented
 struct FieldStream_unk {
@@ -72,7 +73,6 @@ struct Unk8087F540_unk {
     }* m70;
 };
 extern "C" unsigned char* lbl_8087F0A8;
-extern "C" int fn_80124B60(void* arg);
 
 // inferred: global checks (names invented)
 inline bool HasSoundCfg_unk() {
@@ -164,7 +164,7 @@ void GameSoundControl::vf10() {
         if ((field->mFlags & 2) != 2 || field->m5538 != 0) {
             quiet = 1;
         }
-        if (fn_80124B60(lbl_8087F0A8 + 0x48C)) {
+        if (((Input_unk*)(lbl_8087F0A8 + 0x48C))->fn_80124B60()) {
             FieldStream_unk* s = lbl_8087F430->m5620;
             if (s->m48 != 0 && (s->m74 < -1.0f || boss) && STREAM_ENDING(s)) {
                 quiet = 1;

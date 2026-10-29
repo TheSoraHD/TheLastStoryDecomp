@@ -15,7 +15,7 @@ public:
         m54 = 0;
     }
     static GimmickCommon* fn_804166B0(atn::Task* parent, GimmickDesc_unk* desc); // inferred: factory
-    virtual ~Banana() {}
+    virtual ~Banana();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();

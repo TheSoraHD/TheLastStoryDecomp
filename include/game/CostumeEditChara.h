@@ -29,10 +29,15 @@ public:
 
     static CostumeEditChara* fn_801E7FF8(atn::Task* parent, CharaTask* chara, int face); // inferred: creates it
     void fn_801E9164();                            // inferred: empty
-    void fn_801E9168(const atn::Vector3& pos);     // inferred: sets the target position
-    void fn_801E917C(const atn::Vector3& pos);     // inferred: sets the position at once
-    void fn_801E91A0(const atn::Vector3& rot);     // inferred: sets the rotation
+    // inferred: the vectors are passed by value (game/CosEditBase.cpp copies them before the call)
+    void fn_801E9168(atn::Vector3 pos);            // inferred: sets the target position
+    void fn_801E917C(atn::Vector3 pos);            // inferred: sets the position at once
+    // inferred: inline by-value setter (game/CosEditBase.cpp fn_801CE148 copies the argument to the stack)
+    void SetCur_unk(atn::Vector3 pos) { mCur = pos; }
+    void fn_801E91A0(atn::Vector3 rot);            // inferred: sets the rotation
     bool fn_801E91B4();                            // inferred: the character is close to its target
+    void fn_801E9218(atn::Vector3 rot, atn::Vector3 scale); // inferred: shows it (0x801E9218, auto split)
+    void fn_801E92D4(atn::Vector3 from, atn::Vector3 to);   // inferred: moves it (0x801E92D4, auto split)
 
     CharaTask* mChara;      // 0x48
     int mFace;              // 0x4C: inferred: passed to fn_804A4CE4

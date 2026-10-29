@@ -35,7 +35,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: attack hit, nonzero if it hit (as in game/Em201ZanGurg.cpp)
 // inferred: collision world and its tests (as in game/Em003LesserDaemon.cpp)
@@ -616,7 +616,7 @@ void Em305Vampire::fn_802EA490() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 1, speed, rate * m568);
+    fn_8013CB68(rot, 1, speed, rate * m568);
 }
 
 // inferred: picks the next action (as Em305VampireMp::vf11C without the ray test)
@@ -638,7 +638,7 @@ void Em305Vampire::vf11C() {
         } else {
             RoutePlace_unk* place = m14E8[m1560];
             atn::Vector3 d(mPos.x - place->mPos.x, 0.0f, mPos.z - place->mPos.z);
-            if (fn_805F9920(&d) < 100.0f) {
+            if (PSVECSquareMag(&d) < 100.0f) {
                 m1560++;
                 if (m1560 >= (int)m14E8.size()) {
                     m1560 = 0;
@@ -763,8 +763,8 @@ inline int Em305Vampire::NearestWeakenPoint_unk() {
     for (unsigned int i = 0; i < m14E8.size(); i++) {
         atn::Vector3 d;
         d = mPos - m14E8[i]->mPos;
-        if (fn_805F9920(&d) < best) {
-            best = fn_805F9920(&d);
+        if (PSVECSquareMag(&d) < best) {
+            best = PSVECSquareMag(&d);
             found = i;
         }
     }

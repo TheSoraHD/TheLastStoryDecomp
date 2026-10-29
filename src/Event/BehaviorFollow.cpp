@@ -1,11 +1,11 @@
 #include "Event/Behavior.h"
 #include "game/CharaTask.h"
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
 
 // inferred: same helper as in game/CharaTask.cpp
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 namespace Event {
@@ -91,7 +91,7 @@ int BehaviorFollow::vf08(ActionArg_unk* arg) {
         }
     }
     speed *= arg->GetParam_unk(6)->m04.i == 0 ? 0.5f : 1.0f;
-    chara->fn_8013CB68(&rot, 0, speed, 1.0f);
+    chara->fn_8013CB68(rot, 0, speed, 1.0f);
     return 0;
 }
 

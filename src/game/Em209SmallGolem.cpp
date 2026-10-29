@@ -6,6 +6,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
+#include "game/Input_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -60,7 +61,6 @@ extern "C" GameUI* lbl_8087F490;
 extern "C" void fn_803E3384(GameUI* ui);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
-extern "C" int fn_801231D0(void* pad, int arg); // inferred: button pressed
 extern "C" void* lbl_8087EEB0; // inferred: debug drawing
 extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, int color, float radius, float arg); // inferred: sphere
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
@@ -248,7 +248,7 @@ void Em209SmallGolem::vf10() {
             if (ui != 0) {
                 ui->m764 = GolemUIHint_unk(6, 0x14, -1);
             }
-            if (fn_801231D0((char*)lbl_8087F0A8 + 0x48C, 2) != 0) {
+            if (((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_801231D0(2) != 0) {
                 StartRevive_unk(player);
                 fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
                 if (lbl_8087F490 != 0) {
@@ -586,7 +586,7 @@ void Em209SmallGolem::fn_802CF054() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, m568 * scale);
+    fn_8013CB68(rot, 0, speed, m568 * scale);
 }
 
 // inferred: turns to the target on the ground plane (name invented)

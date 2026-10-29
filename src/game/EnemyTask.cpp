@@ -3,6 +3,7 @@
 #include "game/EnemyManager.h"
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
+#include "chr/ControlDamage.h"
 
 extern "C" int rand();
 
@@ -22,11 +23,6 @@ extern "C" char lbl_807C6B90[0x18];          // inferred: work area of the damag
 // inferred: damage of `hit` from `attacker` to `target` (game/DamageCalc_unk.cpp)
 extern "C" int fn_8003F538(HitInfo_unk* hit, CharaStatus* attacker, CharaStatus* target, int flags, void* work);
 
-// inferred: reaction control created by vf6C (class unknown, 0x24 bytes)
-struct EnemyReaction_unk {
-    EnemyReaction_unk(CharaTask* chara, const atn::Vector3* dir, int kind); // 0x801AFAC0
-    unsigned char m00[0x24];
-};
 
 EnemyTask* EnemyTask::fn_8035B534(atn::Task* parent, EnemyInfo_unk* info, int noCheck) {
     if (parent == 0) {
@@ -164,6 +160,6 @@ void EnemyTask::vf6C(int kind, CharaTask* other) {
     dir.y = 0.0f;
     PSVECNormalize(&dir, &dir);
     if (kind >= 9 && kind <= 12) {
-        fn_80178208((chr::ControlBase*)new ((MemoryTag)3, "", "", 0) EnemyReaction_unk(this, &dir, kind));
+        fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlDamageLastOne(this, &dir, kind));
     }
 }

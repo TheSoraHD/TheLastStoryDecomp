@@ -264,6 +264,7 @@ public:
 
     // Out-of-line members (called with bl from many files):
     void fn_80011410(const Matrix3x4& m);              // inferred: *this = m * *this (PSMTXMultVec)
+    Vector3 Transform_unk(const Matrix3x4& m) const;   // inferred: m * *this (weak copy 0x8010F6FC, game/Bullet.cpp)
     static Vector3 fn_8013C394(const Vector3& a, const Vector3& b); // inferred: a x b (PSVECCrossProduct)
     Vector3 operator-() const;                          // 0x8013C3B4
 
@@ -310,6 +311,7 @@ public:
     // inferred: rotation around y (weak copy 0x8013A13C)
     void fn_8013A13C(float rad) { PSMTXRotRad(m, 'y', rad); }
     void fn_8010F668(); // inferred: clears the translation (weak copy 0x8010F668, game/Bullet.cpp)
+    void Translate_unk(const Vector3& v); // inferred: *this = *this * trans(v) (weak copy 0x8010F67C, game/Bullet.cpp)
     void fn_80144ED4(float rad); // inferred: *this = *this * rot_z(rad)
     void fn_801479E4(const Vector3& v); // inferred: sets the translation
     static Matrix3x4 fn_80147A08(const struct Quaternion_unk& q); // inferred: rotation from a quaternion (PSMTXQuat)

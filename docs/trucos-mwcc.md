@@ -186,3 +186,17 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Incluir la definición completa de una plantilla con inlines (`static_string`) puede cambiar la asignación de registros de una función no relacionada (`GimmickCommon::fn_803EDB18`); una declaración adelantada lo evita.
 - Con `main.dol: FAILED` no se regenera `report.json`: `regress.py`/`fuzzdrop.py` comparan el viejo y dan 0. Mirar la línea de `main.dol` antes de fiarse.
 - Renombrar una clase que es argumento de plantilla obliga a recalcular el prefijo de longitud de la plantilla en `symbols.txt` (`33scoped_ptr<Q23atn13EfpHandle_unk>` → `26scoped_ptr<Q23atn7EfpFile>`).
+- Bucle `int i` que indexa un miembro array (`m48[i]`) y MWCC funde `this + i*4` en una sola inducción: `m48.mData[(unsigned int)i]` mantiene `this` y el desplazamiento por separado (`MP/Popup::vf10`).
+- Floats locales: los FPR salen en orden de declaración (f30, f29...) y el pool en orden de inicialización; para cambiar uno sin el otro, declarar sin inicializar (`float a, b, c;`) y asignar después (`MP/Popup::vf10`).
+- Los locales de un inline van por debajo de los del llamador en la pila: si un vector del original está más abajo de lo esperado, el bloque que lo usa era un inline (`MP/Popup::vf10`, `SetSlot_unk`).
+- Un destructor `virtual ~X() {}` inline en la cabecera sale al final del `.o`; si en el `.dol` va tras la factoría, definirlo en el `.cpp` en su sitio (`gmk/Banana`).
+- Una unidad al 100% con la estática local de un inline ajeno (`sListeners` de `fn_8014F8F4`) puede enlazar: probar `matching: true` antes de descartarla (`gmk/SparkCube`).
+- objdiff da 100% con un `beq` donde el original tiene `bne` (condición invertida): pasar `tools/decomp/mnemcheck.py` a las funciones al 100% (`game/DamageCalc_unk fn_800407F4`).
+- `x == 1 || x == 4 || x == 5` sale como prueba de bits (`subi`/`cmplwi 4`/`slw`/`andi. 0x19`); el `switch` equivalente da comparaciones (`game/DamageCalc_unk`).
+- `mode == 1 || mode == 0` con `mode` en un local se junta en `cmplwi 1`; leyendo el miembro dos veces (`p->m540 == 1 || p->m540 == 0`) salen las dos comparaciones del original (`game/DamageCalc_unk`).
+- `mullw r, rX, 0` (multiplicar por cero sin plegar) sale de `x -= x + 1 - y;` (= `y - 1`) (`game/DamageCalc_unk fn_8003F538`).
+- Un `new (..., "", "", 0)` dentro de una inline pone los `""` en `@STRING@` de `.sdata`; en una función `static` (que se inlinea igual) van a `@stringBase0` de `.rodata` (`game/DamageCalc_unk`).
+- Una constante float repetida en varios `if` de una inline (`MAX(e[i], 1.0f)`) se carga una sola vez si va en un local de la inline (`float neutral = 1.0f;`) (`game/DamageCalc_unk`).
+- Los floats de configuración de un bucle (`rate *= step` con tope) en una inline que devuelve el resultado dan los registros float del original; escritos en la función, no (`ComboRate_unk`).
+- Un `std::vector` miembro con un nivel de destructor de más: envolverlo en una clase derivada vacía (`CharaListenerList_unk`, destructor 0x8003EFB0).
+- Bucle que recoge bits (`if (bit == (bit & mask)) *out++ = bit;`): el orden de declaración `bits[32]`, `out`, `count`, `mask` decide qué registro lleva `i` y cuál `bit` (`fn_80040B44`).

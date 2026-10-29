@@ -9,7 +9,7 @@ extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 
@@ -24,7 +24,7 @@ using namespace atn;
 
 // inferred: same helper as in game/CharaTask.cpp
 inline float LengthSq_unk(const Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: view matrix (names invented)
@@ -270,7 +270,7 @@ bool Camera_unk::fn_8004BF64(float speed, float rotSpeed) {
     Vector3 fwd = Direction_unk(mPos, mTarget);
     Vector3 side;
     PSVECCrossProduct(&fwd, up, &side);
-    if (fn_805F9920(&side) < 0.01f) {
+    if (PSVECSquareMag(&side) < 0.01f) {
         side.Set_unk(0.0f, 0.0f, 1.0f);
     }
 
@@ -333,7 +333,7 @@ bool Camera_unk::fn_8004BF64(float speed, float rotSpeed) {
     flat.z = target.z - pos.z;
     flat.x = target.x - pos.x;
     flat.y = 0.0f;
-    if (fn_805F9920(&flat) < 0.01f) {
+    if (PSVECSquareMag(&flat) < 0.01f) {
         flat.Set_unk(0.0f, 0.0f, 1.0f);
     } else {
         flat.Normalize_unk();

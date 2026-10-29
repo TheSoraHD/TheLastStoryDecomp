@@ -2202,7 +2202,7 @@
   "classes": [
    "gmk::Banana"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/FlamingArrow.cpp",
@@ -2314,7 +2314,7 @@
   "classes": [
    "gmk::SparkCube"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/FlyObjManager.cpp",
@@ -3675,6 +3675,80 @@
   "classes": [
    "atn::ColliBase"
   ],
+  "matching": false
+ },
+ {
+  "name": "Event/EventCommandDef_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlCdnStone.cpp",
+  "classes": [
+   "chr::ControlCdnStone",
+   "chr::ControlCdnRestoreStone",
+   "chr::ControlCdnParalyzed",
+   "chr::ControlCdnRestoreParalyzed",
+   "chr::ControlCdnBetray",
+   "chr::ControlCdnSleep",
+   "chr::ControlCdnRestoreSleep",
+   "chr::ControlCdnPiyo",
+   "chr::ControlCdnRestorePiyo",
+   "chr::ControlCdnPsycho",
+   "chr::ControlCdnRestorePsycho"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlBase.cpp",
+  "classes": [
+   "chr::ControlBase"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlMountle.cpp",
+  "classes": [
+   "chr::ControlJump",
+   "chr::ControlWallMountle",
+   "chr::ControlGuardMountle",
+   "chr::ControlMountleQuadruped",
+   "chr::ControlMountle"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/PlayerInput_unk.cpp",
+  "classes": [
+   "Input_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameConfig_unk.cpp",
+  "classes": [
+   "GameConfig_unk",
+   "DialogConfig_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/CosEditPalette_unk.cpp",
+  "classes": [
+   "CosEditProtector"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/FinishCamera_unk.cpp",
+  "classes": [
+   "FinishCamera_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/DamageCalc_unk.cpp",
+  "classes": [],
   "matching": false
  }
 ]

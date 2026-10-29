@@ -14,7 +14,7 @@ extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" double sqrt(double x);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
@@ -92,7 +92,7 @@ inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
 // inferred: squared distance (name invented)
 inline float DistSq_unk(const atn::Vector3& p, atn::Vector3 q) {
     atn::Vector3 d = p - q;
-    return fn_805F9920(&d);
+    return PSVECSquareMag(&d);
 }
 inline void RandScale_unk(float& v) {
     v *= 0.6f + 0.8f * Rand_unk();

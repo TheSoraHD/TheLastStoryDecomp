@@ -7,7 +7,7 @@
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
@@ -92,7 +92,7 @@ inline void PlayEfp_unk(GimmickCommon* owner, atn::EfpFile* efp, atn::Model* mod
 }
 // inferred: name invented
 inline float LenSq_unk(atn::Vector3 v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 namespace gmk {

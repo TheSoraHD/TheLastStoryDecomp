@@ -6,11 +6,13 @@ FriendArganan::FriendArganan(atn::Task* parent, int type, void* data) : PlayerTa
 
 FriendArganan::~FriendArganan() {}
 
-// inferred: Arganan takes no damage nor knockback
+// inferred: Arganan takes no damage nor knockback (the parameter is the hit message, as in
+// CharaTask::vf3C)
 void FriendArganan::vf3C(HitInfo_unk* hit) {
-    hit->m10.x *= 0.0f;
-    hit->m10.y *= 0.0f;
-    hit->m10.z *= 0.0f;
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    msg->m10.x *= 0.0f;
+    msg->m10.y *= 0.0f;
+    msg->m10.z *= 0.0f;
     hit->m90.mFlags = 0;
     hit->m68 = 0;
 }

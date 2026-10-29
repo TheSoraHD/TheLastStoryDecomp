@@ -1,4 +1,5 @@
 #include "game/Em101ElderZesyaSecond.h"
+#include "chr/ControlChant.h"
 #include "game/HitInfo_unk.h"
 #include "game/CharaStatus.h"
 #include "game/CharaManager.h"
@@ -50,7 +51,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -74,8 +75,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
-// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
-extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
@@ -248,7 +247,7 @@ inline int Em101ElderZesyaSecond::CountNear_unk(float dist) {
     for (; p != 0; p = p->mNext) {
         if (!p->mStatus.IsState_unk(0x20)) {
             atn::Vector3 d = p->mPos - pos;
-            if (fn_805F9920(&d) < dist * dist) {
+            if (PSVECSquareMag(&d) < dist * dist) {
                 count++;
             }
         }
@@ -555,7 +554,7 @@ void Em101ElderZesyaSecond::fn_8025B9EC() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 1, dist, m568 * rate);
+    fn_8013CB68(rot, 1, dist, m568 * rate);
 }
 
 void Em101ElderZesyaSecond::fn_8025BD1C() {
@@ -598,9 +597,9 @@ void Em101ElderZesyaSecond::fn_8025BD1C() {
             fn_8016E970(3);
             if (m14CC != 0) {
                 mF6C = m14CC->mPos;
-                fn_801603CC(1.0f, true);
+                fn_801603CC(true, 1.0f);
             } else {
-                fn_801603CC(1.0f, false);
+                fn_801603CC(false, 1.0f);
             }
         }
         fn_80239DAC(lbl_8087F3C0, this, 0, 1);
@@ -619,12 +618,7 @@ void Em101ElderZesyaSecond::fn_8025BF58() {
         fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
         m58C = 0;
         fn_8016E970(3);
-        void* p = ::operator new(0x34, (MemoryTag)0, "", "", 0);
-        chr::ControlBase* c = (chr::ControlBase*)p;
-        if (p != 0) {
-            c = fn_801C02F4(p, this);
-        }
-        fn_80178208(c);
+        fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMagicEnd(this));
         return;
     }
     if ((float)__fabs(mMotion.mTracks[0].m08 - 12.0f) < 1.1920929e-7f) {
@@ -710,10 +704,10 @@ int Em101ElderZesyaSecond::fn_8025C7A8(atn::Vector3* pos, float* rot) {
     for (unsigned int i = 0; i < m14C0.size() - 1; i++) {
         for (unsigned int j = m14C0.size() - 1; j > i; j--) {
             atn::Vector3 a = m14C0[j]->mPos - mPos;
-            float da = fn_805F9920(&a);
+            float da = PSVECSquareMag(&a);
             unsigned int k = j - 1;
             atn::Vector3 b = m14C0[k]->mPos - mPos;
-            if (da > fn_805F9920(&b)) {
+            if (da > PSVECSquareMag(&b)) {
                 Swap_unk(m14C0[j], m14C0[k]);
             }
         }

@@ -2,6 +2,7 @@
 #define ATN_LIGHT_UNK_H
 
 #include "math/Vec.h"
+#include "atn/Color4f_unk.h"
 
 struct GXLightObj;
 
@@ -26,12 +27,9 @@ struct LightData_unk {
     SceneTrack_unk mRefBright; // 0xE8
 };
 
-// inferred: RGBA color of a light (0.0-1.0). Names invented.
-struct LightColor_unk {
-    LightColor_unk() {}
-    LightColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
+// inferred: RGBA color of a light (0.0-1.0): atn::Color4f_unk (game/GameConfig_unk.cpp passes one to
+// fn_800790D0)
+typedef atn::Color4f_unk LightColor_unk;
 
 // inferred: engine light (0x44 bytes, atn/Light_unk.cpp). Names invented.
 struct Light_unk {

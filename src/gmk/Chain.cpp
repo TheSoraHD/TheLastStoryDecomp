@@ -5,7 +5,7 @@
 #include "game/NpcManager.h"
 
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void C_QUATMtx(atn::Quaternion_unk* q, const Mtx m);
@@ -30,7 +30,7 @@ static const char* sNodes[] = {"const_foot_l", "const_foot_r", "left_chainpoint"
                                "leftfoot",     "rightfoot",    "leftshoulder",    "rightshoulder"};
 
 static inline float SqLength_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))

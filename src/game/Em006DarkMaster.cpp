@@ -8,7 +8,7 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087F048; // inferred: effect manager of the characters
 extern "C" void fn_8010653C(void* mgr, CharaTask* chara, void* motion);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 // inferred: field (lbl_8087F430); m10D8: route tables
 struct Field_unk {
     unsigned char m0000[0x10D8];
@@ -35,7 +35,7 @@ extern "C" void fn_8030E530(EnemyTask* servant);
 
 // inferred: normalizes unless the vector is (almost) zero; name invented (as in gmk/WaterLevel.cpp)
 inline void SafeNormalize_unk(atn::Vector3* v) {
-    if ((float)__fabs(fn_805F9920(v)) < 1.1920929e-7f) {
+    if ((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f) {
         return;
     }
     PSVECNormalize(v, v);
@@ -324,5 +324,5 @@ void Em006DarkMaster::vf108() {
         fn_805A4254();
         return;
     }
-    fn_8013CB68(&rot, 0, zero, m568 * one);
+    fn_8013CB68(rot, 0, zero, m568 * one);
 }

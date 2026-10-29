@@ -10,7 +10,7 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk {
     RouteTable_unk* fn_8013C504(); // inferred: returns m10D8
@@ -495,7 +495,7 @@ void Em310Gargoyle::vf3C(HitInfo_unk* hit) {
         }
         MtxPtr head = mMotion.GetNodeMtx_unk("head");
         atn::Vector3 d = msg->m1C - GetNodePos_unk(head);
-        if (fn_805F9920(&d) < 900.0f) {
+        if (PSVECSquareMag(&d) < 900.0f) {
             msg->m0C |= 0x80000000;
         }
         fn_80151448(msg);
@@ -614,7 +614,7 @@ void Em310Gargoyle::fn_8030B92C() {
         if (mMotion.mTracks[0].m00 == 0x14) {
             atn::Vector3 a = points[2] - points[1];
             atn::Vector3 b = points[3] - points[2];
-            if (fn_805F9920(&a) > 0.001f && fn_805F9920(&b) > 0.001f) {
+            if (PSVECSquareMag(&a) > 0.001f && PSVECSquareMag(&b) > 0.001f) {
                 PSVECNormalize(&a, &a);
                 PSVECNormalize(&b, &b);
                 if (b.ToRotation_unk().x - a.ToRotation_unk().x < -0.2617994f &&

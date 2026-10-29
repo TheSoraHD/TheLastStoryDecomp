@@ -36,7 +36,7 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 // inferred: camera (see game/CharaTask.cpp)
 struct CopyCamera_unk {
@@ -114,7 +114,7 @@ int CopyRobotTask::vf0C() {
 }
 
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: length of a matrix column (name invented)
@@ -172,8 +172,7 @@ void CopyRobotTask::vf10() {
         memcpy(mMotion.m220, m14B4->mMotion.m220,
                (*(CopyModelRes_unk**)((char*)&mMotion + 0x16C))->mNumNodes * sizeof(atn::Model::Node_unk));
         mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        LengthSq_unk(lbl_8087EFB4->mEye - mPos);
-        fn_80148B38();
+        fn_80148B38(LengthSq_unk(lbl_8087EFB4->mEye - mPos));
         vf20();
         mColli.mFlags &= ~1;
         vf54();

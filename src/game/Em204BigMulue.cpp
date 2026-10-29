@@ -33,8 +33,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
 extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
-extern "C" void fn_8010EE78(Bullet* bullet, BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir,
-                            CharaTask* owner, int id, int arg, float speed); // inferred: fires the bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -55,7 +53,7 @@ extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shape
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
@@ -638,7 +636,7 @@ void Em204BigMulue::vf104() {
             atn::Vector3 center;
             if (fn_802B0D90(&center)) {
                 atn::Vector3 to = mPos - center;
-                if (fn_805F9920(&to) > 2500.0f) {
+                if (PSVECSquareMag(&to) > 2500.0f) {
                     vf100(10);
                     m1500 = center;
                 } else if (m14E0 == 0) {
@@ -660,7 +658,7 @@ void Em204BigMulue::vf104() {
                 vf100(13);
                 m1548 = 0;
             } else {
-                if (fn_805F9920(&d) < m14FC * m14FC) {
+                if (PSVECSquareMag(&d) < m14FC * m14FC) {
                     switch (m14D4) {
                     case 0:
                         if (rand() % 10 < 7) {
@@ -936,7 +934,7 @@ void Em204BigMulue::vf108() {
     }
     fn_802B1B08(0);
     fn_8004D124(fn_801404F8());
-    fn_8013CB68(&rot, 1, dist, m568 * speed);
+    fn_8013CB68(rot, 1, dist, m568 * speed);
     if (m1A44 != 0) {
         fn_802B1B08(1);
         fn_8004D124(fn_801404F8());
@@ -963,7 +961,7 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
         return 0;
     }
     atn::Vector3 d = mC58.mC4->mPos - mPos;
-    float dist = fn_805F9920(&d);
+    float dist = PSVECSquareMag(&d);
     if (dist > (float)far) {
         result = 1;
         if (over != 0) {
@@ -981,7 +979,7 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
     dir.y += 25.0f;
     if (fn_8004ED34(fn_801404F8(), &res, &from, &dir, fn_80179D44() | 0x80000000, 0, 0) != 0) {
         atn::Vector3 w = res.m10 - mPos;
-        dist = fn_805F9920(&w);
+        dist = PSVECSquareMag(&w);
         if (dist < (float)near) {
             result = -1;
             if (over != 0) {
@@ -1030,7 +1028,7 @@ int Em204BigMulue::fn_802B07F0(int range) {
         fn_802B17AC((float)m150C, 1.0f, 0.0f);
     }
     atn::Vector3 d = target - mPos;
-    return fn_805F9920(&d) < (float)(range * range);
+    return PSVECSquareMag(&d) < (float)(range * range);
 }
 
 // NONMATCHING: 99.48% - stack slots of the sphere and of the ray vectors
@@ -1087,7 +1085,7 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         atn::Vector3 c(m1AC4);
         c.y = 0.0f;
         atn::Vector3 d = p - c;
-        if (fn_805F9920(&d) < 2500.0f) {
+        if (PSVECSquareMag(&d) < 2500.0f) {
             fn_80063D3C(lbl_8087EEB0, &m1AC4, 0xFF0044AA, 20.0f, 0.0f);
         } else {
             fn_80063D3C(lbl_8087EEB0, &m1AC4, 0xFFAA0000, 20.0f, 0.0f);
@@ -1116,7 +1114,7 @@ int Em204BigMulue::fn_802B12D8(const atn::Vector3* target, float rate, float lim
     } else {
         d = mC58.mC4->mPos - mPos;
     }
-    if (!((float)__fabs(fn_805F9920(&d)) < 1.1920929e-7f)) {
+    if (!((float)__fabs(PSVECSquareMag(&d)) < 1.1920929e-7f)) {
         PSVECNormalize(&d, &d);
     }
     atn::Vector3 rot = d.ToRotation_unk();
@@ -1249,7 +1247,7 @@ void Em204BigMulue::fn_802B1B50(int fire) {
                 shot.m04 = (int)&m1A6C;
                 shot.m08 = 0;
                 shot.m0C = m1540;
-                fn_8010EE78(bullet, &shot, &hips, &dir, this, -1, 0, -1.0f);
+                bullet->fn_8010EE78(&shot, &hips, &dir, this, -1, 0, -1.0f);
             }
         }
     }

@@ -25,8 +25,8 @@ public:
     virtual void vf10();               // 0x80441918
     virtual void vf14(const Mtx m);    // 0x80441E54
     virtual void vf18();               // 0x80441E88
-    virtual void vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg); // 0x80441F24 (not decompiled)
-    virtual void vf20(CharaTask* chara, const atn::Vector3* pos, const atn::Vector3* dir); // 0x80442A9C
+    virtual int vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg); // 0x80441F24 (not decompiled)
+    virtual void vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3* dir); // 0x80442A9C
     virtual CharaTask* vf24();         // 0x80442B48
     virtual void vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* owner,
                       HomingParam_unk* param, int arg); // 0x80441610

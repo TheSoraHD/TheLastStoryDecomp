@@ -9,7 +9,7 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -131,7 +131,7 @@ void LandMine::vf10() {
                     continue;
                 }
                 atn::Vector3 d(player->mPos.x - m6C.x, player->mPos.y - m6C.y, player->mPos.z - m6C.z);
-                if (fn_805F9920(&d) < mRadius * mRadius) {
+                if (PSVECSquareMag(&d) < mRadius * mRadius) {
                     GimmickHitMsg_unk msg;
                     memset(&msg, 0, sizeof(msg));
                     msg.mType = 3;

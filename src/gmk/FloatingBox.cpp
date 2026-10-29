@@ -15,7 +15,7 @@ extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* tex
 extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80051CD8(const CharaTask::Sphere_unk* sphere, const void* box); // inferred: sphere in box
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -116,7 +116,7 @@ void FloatingBox::vf10() {
     for (CharaTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = ((CharaListNode_unk*)chara)->mNext) {
         int inside = 0;
         atn::Vector3 d = m6C - chara->mPos;
-        if (fn_805F9920(&d) < 1.5f * (size.z * size.z)) {
+        if (PSVECSquareMag(&d) < 1.5f * (size.z * size.z)) {
             CharaTask::Sphere_unk sphere = chara->fn_80176548(chara->mPos);
             sphere.mCenter.y -= 5.0f;
             if (fn_80051CD8(&sphere, &mColli.m3C) != 0) {

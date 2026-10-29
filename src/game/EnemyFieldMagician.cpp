@@ -9,7 +9,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // inferred: field (lbl_8087F430); m10D8 holds the route tables, the event flags are read with
@@ -74,7 +74,7 @@ static const char* const sFieldSounds[] = {"SE_SP007_001", "SE_SP007_002", "SE_S
 
 // inferred: name invented (as in CharaTask.cpp)
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: negated vector (name invented)

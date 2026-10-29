@@ -19,6 +19,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
+#include "game/Input_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -141,7 +142,7 @@ public:
     void fn_8023A254(unsigned int owner, int group, float rate); // inferred: speed of the effects
 };
 } // namespace atn
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: effect/bullet manager (lbl_8087F048)
@@ -158,8 +159,6 @@ extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
 extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
 extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
-extern "C" void fn_8010EE78(Bullet* bullet, BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir,
-                            CharaTask* owner, int id, int arg, float speed); // inferred: fires the bullet
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
@@ -187,7 +186,6 @@ extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80192FB4(chr::ControlBase* control); // inferred: chr::ControlStickByQuark, stuck pose
 extern "C" GameUI* lbl_8087F490; // inferred: game UI
 extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
-extern "C" int fn_801231D0(void* pad, int button); // inferred: button pressed
 extern "C" void fn_803EAF60(void* mgr, int arg); // inferred: voice
 // inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
 struct QuarkWeights_unk {
@@ -637,7 +635,7 @@ void EnemyQuarkStand::vf10() {
     if (m58C == 12 && m14B4 == 1 && m17E4 != 0 && m17EC == 0) {
         fn_80144710();
         m17E4->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk());
-        m17E4->fn_80148B38();
+        m17E4->fn_80148B38(10.0f);
     }
     if (m1CC4 != 0) {
         if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C)) {
@@ -1182,7 +1180,7 @@ void EnemyQuarkStand::fn_80348FF4() {
                 shot.m0C = m152C;
                 shot.m10 = 0;
                 shot.m14 = 0.0f;
-                fn_8010EE78(bullet, &shot, &pos, &m1654, this, m590, 0, -1.0f);
+                bullet->fn_8010EE78(&shot, &pos, &m1654, this, m590, 0, -1.0f);
             }
             float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.GetMotionFrame(0) - 60.0f) / 20.0f));
             float dist = fn_800F8524(&sBurstNear_unk, &sBurstFar_unk, t);
@@ -1978,7 +1976,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
                     prompt.m18 = 1;
                     ui->m764 = prompt;
                 }
-                if (fn_801231D0(lbl_8087F0A8->mPad, 0) != 0) {
+                if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0) != 0) {
                     leader->SetHit_unk(m1550);
                     leader->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
                     fn_80370AE4(lbl_8087F430, 0x6F, 1);
@@ -2249,7 +2247,7 @@ void EnemyQuarkStand::fn_80351480(int near) {
     CharaTask* target = (CharaTask*)m14B0;
     atn::Vector3 dir = m160C - target->mPos;
     dir.y = 0.0f;
-    if (fn_805F9920(&dir) < 0.0001f) {
+    if (PSVECSquareMag(&dir) < 0.0001f) {
         dir = QuarkFrontOf_unk((CharaTask*)m14B0);
     } else {
         PSVECNormalize(&dir, &dir);
@@ -2708,7 +2706,7 @@ atn::Vector3 EnemyQuarkStand::vfD8(CharaTask* target) {
     return pos;
 }
 
-float EnemyQuarkStand::vfE0() {
+float EnemyQuarkStand::vfE0(const atn::Vector3& dir) {
     return 1.5707964f + mRot.y;
 }
 

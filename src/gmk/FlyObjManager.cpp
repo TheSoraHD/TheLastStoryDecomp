@@ -9,7 +9,7 @@ extern "C" int rand();
 extern "C" int swprintf(wchar_t* buf, unsigned long size, const wchar_t* format, ...);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
@@ -117,8 +117,8 @@ inline int FlyObjManager::FindNearest_unk(const atn::Vector3& pos) {
     int index = -1;
     for (int i = 0; i < (int)mCount; i++) {
         atn::Vector3 d = pos - mObjs.mData[(unsigned int)i].mPos;
-        if (fn_805F9920(&d) < best) {
-            best = fn_805F9920(&d);
+        if (PSVECSquareMag(&d) < best) {
+            best = PSVECSquareMag(&d);
             index = i;
         }
     }

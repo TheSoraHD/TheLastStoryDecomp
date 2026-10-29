@@ -675,7 +675,7 @@ game/Bullet.cpp:
 Event/Path.cpp:
 	.text       start:0x80112220 end:0x80116EB8
 	.rodata     start:0x807366B0 end:0x80736748
-	.data       start:0x80779F40 end:0x80779F68
+	.data       start:0x80779F40 end:0x80779FA0
 	.sdata      start:0x8087D980 end:0x8087D988
 	.sdata2     start:0x808816A8 end:0x80881718
 
@@ -810,12 +810,17 @@ chr/ControlAttackBase.cpp:
 	.sdata2     start:0x80881E90 end:0x80881F68
 
 chr/ControlCdnStone.cpp:
-	.text       start:0x8018EEC4 end:0x80192908
+	.text       start:0x8018EEC4 end:0x80192578
 	.rodata     start:0x80739130 end:0x80739700
-	.data       start:0x8077D5F0 end:0x8077DCF0
-	.bss        start:0x807C7B60 end:0x807C7B90
+	.data       start:0x8077D5F0 end:0x8077DC80
+	.bss        start:0x807C7B60 end:0x807C7B98
 	.sbss       start:0x8087F0B8 end:0x8087F0C0
-	.sdata2     start:0x80881F68 end:0x80881FB8
+	.sdata2     start:0x80881F68 end:0x80881FB0
+
+chr/ControlBase.cpp:
+	.text       start:0x80192578 end:0x80192908
+	.data       start:0x8077DC80 end:0x8077DCF0
+	.sdata2     start:0x80881FB0 end:0x80881FB8
 
 chr/ControlStickByQuark.cpp:
 	.text       start:0x80192908 end:0x801A0BA8
@@ -934,7 +939,7 @@ chr/ControlLookAround.cpp:
 
 chr/ControlChant.cpp:
 	.text       start:0x801BC5B8 end:0x801C041C
-	.rodata     start:0x8073B590 end:0x8073B5D0
+	.rodata     start:0x8073B3B4 end:0x8073B5D8
 	.data       start:0x80781708 end:0x807818F0
 	.sbss       start:0x8087F100 end:0x8087F108
 	.sdata2     start:0x808825E0 end:0x80882698

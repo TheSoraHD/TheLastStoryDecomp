@@ -132,7 +132,7 @@ public:
     virtual float vfD4();                                    // 0x80354390
     virtual atn::Vector3 vfD8(CharaTask* target);            // 0x80354270
     virtual float vfDC();                                    // 0x80354388
-    virtual float vfE0();                                    // 0x80354378
+    virtual float vfE0(const atn::Vector3& dir);                                  // 0x80354378
     inline void ReleaseCamera_unk();
     void fn_8034F384(); // inferred: leaves the current action
     void fn_8034F41C(); // inferred: state 0

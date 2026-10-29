@@ -20,12 +20,22 @@ struct HitInfo_unk {
     unsigned char m00;
     signed char m01; // inferred: kind (2 is tested by CharaStatus::fn_8012DF7C)
     unsigned char m02; // inferred: 4 = the effect is centred on the target (CharaTask::fn_8015F568)
-    unsigned char m03;
+    signed char m03; // inferred: chance (percent) of applying the status flags m90 (fn_80040B44)
     int m04; // inferred: id (0x1789 tested by CharaTask::vf4C; shown by fn_80149A30 "CIRCLE [%d:%s]")
     const char* m08;
     unsigned char m0C[0x10 - 0x0C];
-    atn::Vector3 m10; // inferred: knockback direction
-    unsigned char m1C[0x3C - 0x1C];
+    // inferred: damage parameters (game/DamageCalc_unk.cpp; same fields as BulletParam_unk)
+    int m10;
+    int m14;   // inferred: base physical power
+    int m18;   // inferred: random part of the physical power
+    int m1C;   // inferred: base magic power (or healing)
+    int m20;   // inferred: random part of the magic power
+    int m24;   // inferred: levels removed (types 0/1) or gauge added (type 2)
+    float m28; // inferred: rate of the attacker's strength
+    float m2C; // inferred: rate of the attacker's magic
+    float m30; // inferred: rate of the target's defence
+    float m34; // inferred: rate of the target's magic defence
+    float m38; // inferred: final damage rate
     int m3C; // inferred: bullet kind passed to fn_8010B250 (EnemyQuarkStand::fn_80348FF4)
     float m40; // inferred: range added to the character reach when m01 is 0 (AI/AiCommon_unk fn_8001BB04;
                // EnemyTrista::fn_8035DA94 adds CharaParam_unk::m28)
@@ -49,9 +59,11 @@ struct HitInfo_unk {
     unsigned char mA8[0xAC - 0xA8];
     int mAC; // inferred: flags
     int mB0; // inferred: effect id (chr::ControlOverdrive passes it to fn_801070C8)
-    unsigned char mB4[0xC0 - 0xB4];
+    unsigned char mB4[0xBC - 0xB4];
+    int mBC; // inferred: cost of the skill (fn_8003F440)
     int mC0; // inferred: chant time (CharaTask::fn_8015F568)
     int mC4; // inferred: copied to the hit message (CharaTask::fn_80151448)
+    int mC8; // inferred: id of the bullet the player charges instead (chr::ControlCharge)
 
     // inferred: the percentages m98-mA4 as an array (CharaTask::fn_80179730 loops over them); name
     // invented

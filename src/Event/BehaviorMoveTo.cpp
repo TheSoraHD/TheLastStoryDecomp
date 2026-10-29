@@ -65,7 +65,7 @@ int BehaviorMoveTo::vf08(ActionArg_unk* arg) {
         }
     }
     speed *= arg->GetParam_unk(6)->m04.i == 0 ? 0.5f : 1.0f;
-    chara->fn_8013CB68(&rot, 0, speed, 1.0f);
+    chara->fn_8013CB68(rot, 0, speed, 1.0f);
     return 0;
 }
 

@@ -23,7 +23,7 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double cos(double x);
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -475,7 +475,7 @@ void Em303KrakenFoot::fn_802E3604() {
             for (p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
                 if (p->CanAct_unk() && (p->m54C & 0x2000) != 0x2000) {
                     atn::Vector3 d = p->mPos - mPos;
-                    float dist = fn_805F9920(&d);
+                    float dist = PSVECSquareMag(&d);
                     if (dist < best) {
                         found = p;
                         best = dist;
@@ -517,7 +517,7 @@ void Em303KrakenFoot::fn_802E37DC() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, rate * m568);
+    fn_8013CB68(rot, 0, speed, rate * m568);
 }
 
 // inferred: action state machine (m14C0): asks the kraken for the next action and starts it near the target
@@ -655,7 +655,7 @@ inline void Em303KrakenFoot::Drop_unk() {
 // inferred: squared distance to a character (name invented)
 inline float Em303KrakenFoot::DistSq_unk(CharaTask* c) {
     atn::Vector3 v = c->mPos - mPos;
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 // inferred: flag reference {global, index} (as SpecialFlag_unk of game/SpecialEnemyBase.cpp)
 struct FootFlag_unk {

@@ -4,14 +4,14 @@
 
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double tan(double x);
 
 using namespace atn;
 
 // inferred: same helper as in game/CharaTask.cpp
 inline float LengthSq_unk(const Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: cross product by value (name invented)

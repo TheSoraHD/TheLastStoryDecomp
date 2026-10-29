@@ -14,7 +14,7 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
@@ -138,7 +138,7 @@ inline void PlayEfp_unk(BrazierEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model
 // inferred: the position is too near the character (name invented)
 inline bool IsNear_unk(const atn::Vector3& pos, const CharaTask* chara, float r) {
     atn::Vector3 d = pos - chara->mPos;
-    return fn_805F9920(&d) < r * r;
+    return PSVECSquareMag(&d) < r * r;
 }
 
 namespace gmk {
@@ -370,7 +370,7 @@ int Brazier::vf40(GimmickMsg_unk* msg) {
     case 3:
     case 4:
         mDir = msg->mVec;
-        if (!(atn::Abs_unk(fn_805F9920(&mDir)) < 1.1920929e-7f)) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&mDir)) < 1.1920929e-7f)) {
             PSVECNormalize(&mDir, &mDir);
         } else {
             mDir.x = 0.0f;
@@ -438,7 +438,7 @@ int Brazier::vf44(GimmickHitMsg_unk* msg) {
     }
     atn::Vector3 dir(msg->mDir);
     dir.y = 0.0f;
-    if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f) && m54 < 5) {
+    if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f) && m54 < 5) {
         GimmickMsg_unk push(3);
         push.mVec = dir;
         vf40(&push);
@@ -503,11 +503,11 @@ int Brazier::fn_80407E8C() {
         for (CharaTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = ((BrazierCharaNode_unk*)chara)->mNext) {
             if (!chara->IsFlag_unk(4)) {
                 atn::Vector3 d1 = pos - chara->mPos;
-                if (fn_805F9920(&d1) < r * r) {
+                if (PSVECSquareMag(&d1) < r * r) {
                     return 0;
                 }
                 atn::Vector3 d2 = home - chara->mPos;
-                if (fn_805F9920(&d2) < r * r) {
+                if (PSVECSquareMag(&d2) < r * r) {
                     return 0;
                 }
             }
@@ -518,11 +518,11 @@ int Brazier::fn_80407E8C() {
              chara = ((BrazierCharaNode_unk*)chara)->mNext) {
             if (chara->CanAct_unk()) {
                 atn::Vector3 d1 = pos - chara->mPos;
-                if (fn_805F9920(&d1) < r * r) {
+                if (PSVECSquareMag(&d1) < r * r) {
                     return 0;
                 }
                 atn::Vector3 d2 = home - chara->mPos;
-                if (fn_805F9920(&d2) < r * r) {
+                if (PSVECSquareMag(&d2) < r * r) {
                     return 0;
                 }
             }
@@ -536,11 +536,11 @@ int Brazier::fn_80407E8C() {
                 CharaTask* chara = entry->mChara;
                 if (chara != 0 && entry->mD0_31) {
                     atn::Vector3 d1 = pos - chara->mPos;
-                    if (fn_805F9920(&d1) < r * r) {
+                    if (PSVECSquareMag(&d1) < r * r) {
                         return 0;
                     }
                     atn::Vector3 d2 = home - chara->mPos;
-                    if (fn_805F9920(&d2) < r * r) {
+                    if (PSVECSquareMag(&d2) < r * r) {
                         return 0;
                     }
                 }

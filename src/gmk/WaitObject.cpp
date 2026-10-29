@@ -8,7 +8,7 @@
 #include "game/NpcTask.h"
 #include "game/PlayerTask.h"
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: game settings
@@ -195,7 +195,7 @@ void WaitObject::vf10() {
         return;
     }
     atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
-    float dist = fn_805F9920(&d);
+    float dist = PSVECSquareMag(&d);
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m48 == 1 &&
         dist > 360000.0f) {
         return;
@@ -415,7 +415,7 @@ int WaitObject::vf60() {
 int WaitObject::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
     if (vf60() != 0 && flag == 0) {
         atn::Vector3 d = m6C - *pos;
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         if (dist > 0.0f) {
             PSVECNormalize(&d, &d);
         }
@@ -566,7 +566,7 @@ int WaitObject::InArea_unk(CharaManager<T>* manager, WaitTrigger_unk* trigger) {
     for (T* chara = manager->mHead; chara != 0; chara = chara->mNext) {
         if (chara->CanAct_unk()) {
             atn::Vector3 d = m6C - chara->mPos;
-            float dist = fn_805F9920(&d);
+            float dist = PSVECSquareMag(&d);
             if (dist > 0.0f) {
                 PSVECNormalize(&d, &d);
             }

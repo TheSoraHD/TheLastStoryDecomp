@@ -1,8 +1,9 @@
 #include "chr/ControlDive.h"
 #include "game/CharaTask.h"
+#include "game/Input_unk.h"
 
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double fmod(double x, double y);
 
 // inferred: field object (lbl_8087F430): route tables at 0x10D8 (class unknown)
@@ -39,7 +40,6 @@ struct DiveInput_unk {
     unsigned char mInput[1];
 };
 extern "C" DiveInput_unk* lbl_8087F0A8;
-extern "C" int fn_801240B4(void* pad, int button); // inferred: button held
 
 // inferred: moves the back step destination out of the walls (chr/ControlCharge.cpp)
 extern "C" void fn_801A4E08(CharaTask* chara, atn::Vector3* pos, atn::Vector3* dest);
@@ -110,7 +110,7 @@ int ControlDive::vf0C() {
         ret = 1;
     }
     atn::Vector3 rot = m08.ToRotation_unk();
-    mChara->fn_8013CB68(&rot, 0, 1.0f, speed);
+    mChara->fn_8013CB68(rot, 0, 1.0f, speed);
     return ret;
 }
 
@@ -145,7 +145,7 @@ int ControlSwatTurn::vf0C() {
     } else if (++m18 > 60) {
         ret = 1;
     }
-    mChara->fn_8013CB68(&rot, 0, 1.0f, speed);
+    mChara->fn_8013CB68(rot, 0, 1.0f, speed);
     return ret;
 }
 
@@ -171,7 +171,7 @@ int ControlCoverSlip::vf0C() {
     if (++m14 < 7) {
         atn::Vector3 saved = mChara->mRot;
         mChara->mRot = m08.ToRotation_unk();
-        mChara->fn_8013CB68(&mChara->mRot, 0, 1.0f, 1.5f);
+        mChara->fn_8013CB68(mChara->mRot, 0, 1.0f, 1.5f);
         mChara->mRot = saved;
         return 0;
     }
@@ -183,7 +183,7 @@ int ControlCoverSlip::vf0C() {
         }
         ret = 1;
     }
-    mChara->fn_8013CB68(&mChara->mRot, 0, 1.0f, 1.5f);
+    mChara->fn_8013CB68(mChara->mRot, 0, 1.0f, 1.5f);
     return ret;
 }
 
@@ -230,7 +230,7 @@ int ControlSwapPos::vf0C() {
             pos.y += 0.47368422f;
             vel.y = 0.0f;
         } else if (m14 == 0) {
-            if (chara->mType != 0 || fn_801240B4(lbl_8087F0A8->mInput, 7)) {
+            if (chara->mType != 0 || ((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(7)) {
                 m14 = 1;
             } else {
                 m14 = 2;
@@ -241,7 +241,7 @@ int ControlSwapPos::vf0C() {
         mChara->mPos = pos;
         mChara->mRot = crot;
         mChara->m574 = vel;
-        mChara->fn_8013CB68(&rot, 1, scale, scale * mChara->m568);
+        mChara->fn_8013CB68(rot, 1, scale, scale * mChara->m568);
         if (m14 == 1) {
             crot = start;
             crot.y = atn::WrapAngle_unk(crot.y + 3.1415927f / (motion->fn_80097D7C(0) - 19.0f));
@@ -269,7 +269,7 @@ ControlBackStep::ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int 
     }
     atn::Vector3 dir2 = NegDive_unk(m08 - m14);
     dir2.y = 0.0f;
-    if (fn_805F9920(&dir2) > 0.00001f) {
+    if (PSVECSquareMag(&dir2) > 0.00001f) {
         mChara->mRot = dir2.ToRotation_unk();
     }
     if (lbl_8087F498 != 0) {

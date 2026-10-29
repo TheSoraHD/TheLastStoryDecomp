@@ -7,7 +7,7 @@
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void fn_80097CCC(atn::Model* model, int arg, float value);
@@ -138,8 +138,7 @@ int CostumeEditChara::vf0C() {
             __MtxCopy(motion->mMtx, mMtx.m);
             motion->m54 = __MaxScaleT_unk(mMtx);
             mChara->mMotion.fn_80097E80(1);
-            fn_805F9920(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk()));
-            mChara->fn_80148B38();
+            mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk())));
             mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             mChara->fn_80147A18(0);
             CharaTask* chara = mChara;
@@ -181,8 +180,7 @@ void CostumeEditChara::vf10() {
         motion->m50 = 0;
         mChara->mMotion.fn_80097E80(1);
         mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        fn_805F9920(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk()));
-        mChara->fn_80148B38();
+        mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk())));
         if (mShadow.fn_8008B140() == 0) {
             __MtxCopy(mShadow.mMtx, mMtx.m);
             mShadow.m54 = __MaxScaleT_unk(mMtx);
@@ -270,23 +268,23 @@ void CostumeEditChara::fn_801E9164() {}
 
 // NONMATCHING: ~60% - the original stores z before x/y (psq_l, lfs, stfs z, psq_st); Vec.h has no
 // copy helper with that order (__VecCopy stores x/y first, Assign_unk loads z first).
-void CostumeEditChara::fn_801E9168(const atn::Vector3& pos) {
+void CostumeEditChara::fn_801E9168(atn::Vector3 pos) {
     mTarget = pos;
 }
 
 // NONMATCHING: ~60% - the original stores z before x/y (psq_l, lfs, stfs z, psq_st); Vec.h has no
 // copy helper with that order (__VecCopy stores x/y first, Assign_unk loads z first).
-void CostumeEditChara::fn_801E917C(const atn::Vector3& pos) {
+void CostumeEditChara::fn_801E917C(atn::Vector3 pos) {
     mCur = pos;
     mTarget = pos;
 }
 
 // NONMATCHING: ~60% - the original stores z before x/y (psq_l, lfs, stfs z, psq_st); Vec.h has no
 // copy helper with that order (__VecCopy stores x/y first, Assign_unk loads z first).
-void CostumeEditChara::fn_801E91A0(const atn::Vector3& rot) {
+void CostumeEditChara::fn_801E91A0(atn::Vector3 rot) {
     mRot = rot;
 }
 
 bool CostumeEditChara::fn_801E91B4() {
-    return fn_805F9920(&(mCur - mTarget)) < 900.0f;
+    return PSVECSquareMag(&(mCur - mTarget)) < 900.0f;
 }

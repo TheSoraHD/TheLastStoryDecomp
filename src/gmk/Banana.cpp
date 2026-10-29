@@ -9,7 +9,7 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: camera (lbl_8087EFB4)
 struct Camera_unk {
@@ -40,6 +40,8 @@ GimmickCommon* Banana::fn_804166B0(atn::Task* parent, GimmickDesc_unk* desc) {
     }
     return 0;
 }
+
+Banana::~Banana() {}
 
 int Banana::vf1C() {
     return mModel.fn_8008B140() != 0;
@@ -91,7 +93,7 @@ void Banana::vf10() {
         return;
     }
     atn::Vector3 d(lbl_8087EFB4->mPos.x - m6C.x, lbl_8087EFB4->mPos.y - m6C.y, lbl_8087EFB4->mPos.z - m6C.z);
-    if (fn_805F9920(&d) > 250000.0f && m54 == 2) {
+    if (PSVECSquareMag(&d) > 250000.0f && m54 == 2) {
         return;
     }
     switch (m54) {
@@ -122,18 +124,6 @@ void Banana::vf14() {
     mModel.fn_8008CD60();
 }
 
-int Banana::vf60() {
-    int ret = 0;
-    if (m54 == 2 && mDesc->m7C != 0) {
-        ret = 1;
-    }
-    return ret;
-}
-
-atn::Model* Banana::vf38() {
-    return &mModel;
-}
-
 // inferred: message 3 throws the model with a random velocity and spin
 int Banana::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
@@ -160,4 +150,15 @@ int Banana::vf40(GimmickMsg_unk* msg) {
     return m54;
 }
 
+int Banana::vf60() {
+    int ret = 0;
+    if (m54 == 2 && mDesc->m7C != 0) {
+        ret = 1;
+    }
+    return ret;
+}
+
+atn::Model* Banana::vf38() {
+    return &mModel;
+}
 } // namespace gmk

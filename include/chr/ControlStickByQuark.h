@@ -2,19 +2,13 @@
 #define CHR_CONTROLSTICKBYQUARK_H
 
 #include "chr/ControlBase.h"
+#include "chr/ControlCdn.h"
 
 namespace chr {
 
 // inferred: controls of chr/ControlStickByQuark.cpp created by CharaTask (0x8015BAF0-0x8015D5B0).
 // Only the constructors are declared; sizes from the operator new calls, argument types from the
 // constructors (ints stored as words, vectors read through pointers).
-
-class ControlCdnStone : public ControlBase {
-public:
-    ControlCdnStone(Chara_unk* chara, int a); // 0x8018EEC4 (first function of this unit)
-    virtual int vf0C();
-    unsigned char m08[0x28 - 0x08];
-};
 
 class ControlThrownAway : public ControlBase {
 public:

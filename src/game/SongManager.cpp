@@ -1,3 +1,4 @@
+#include "game/EnvSeManager.h"
 #include "atn/Task.h"
 #include "atn/SoundCore.h"
 #include "atn/SoundManager.h"
@@ -15,27 +16,6 @@ extern "C" int fn_800CB58C(atn::SoundRef* sound);    // inferred: playing
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 extern "C" atn::Vector3* fn_800CB6C4(atn::SoundRef* sound); // inferred: position of the sound
 
-struct SongEnv_unk;
-extern "C" void fn_803605EC(SongEnv_unk* env, int fade, float volume);
-
-// inferred: environment sound manager (lbl_8087F418), only the members used here
-struct SongEnv_unk {
-    unsigned char m000[0x188];
-    // inferred: lowers/restores the environment sounds (names invented)
-    void Lower_unk(int fade) {
-        m18C = 1;
-        fn_803605EC(this, fade, m190);
-    }
-    void Restore_unk(int fade) {
-        m18C = 0;
-        fn_803605EC(this, fade, m188);
-    }
-
-    float m188;
-    int m18C; // inferred: the environment sounds are lowered
-    float m190;
-};
-extern "C" SongEnv_unk* lbl_8087F418;
 
 
 // inferred: party manager (lbl_8087F8A0) and its leader, only the members used here
@@ -206,7 +186,7 @@ public:
         if (m48 != 1) {
             return;
         }
-        SongEnv_unk* env = lbl_8087F418;
+        EnvSeManager* env = lbl_8087F418;
         if (env == 0) {
             return;
         }

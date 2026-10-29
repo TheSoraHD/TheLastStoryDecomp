@@ -41,7 +41,7 @@ extern "C" int fn_8021A918(HitInfo_unk* hit);
 extern "C" int fn_8021A960(HitInfo_unk* hit);
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_8021A9CC(HitInfo_unk* hit);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: methods of Bullet_unk in the auto split before this file
 extern "C" void fn_805989A4(Bullet_unk* bullet, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
@@ -302,7 +302,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
         if (bullet != 0 && bullet->IsActive_unk() && (hit->mAC & 0x40) != 0x40) {
             atn::Vector3 d = bullet->m10 - *pos;
             float r = skill->m58 * 0.3f + bullet->m5C * bullet->m28;
-            if (fn_805F9920(&d) < r * r) {
+            if (PSVECSquareMag(&d) < r * r) {
 
                 int hitOwner = 1;
                 if (bullet->m08->fn_8016F3D0(user, 1)) {

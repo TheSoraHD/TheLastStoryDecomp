@@ -48,7 +48,7 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
 }
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: color as four floats (as in game/CharaTask.cpp)
@@ -221,7 +221,7 @@ inline void SetFlat_unk(atn::Vector3& v, float x, float z) {
 inline float FlatDistSq_unk(const atn::Vector3& a, const atn::Vector3& b) {
     atn::Vector3 d;
     SetFlat_unk(d, a.x - b.x, a.z - b.z);
-    return fn_805F9920(&d);
+    return PSVECSquareMag(&d);
 }
 
 // inferred: translation of a node matrix (name invented, as in game/Em205Ogre.cpp)
@@ -280,7 +280,7 @@ void Em202Spider::vf10() {
         for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
             if (c->CanAct_unk()) {
                 atn::Vector3 d = c->mPos - mPos;
-                float dist = fn_805F9920(&d);
+                float dist = PSVECSquareMag(&d);
                 if (dist < best) {
                     best = dist;
                     target = c;
@@ -521,7 +521,7 @@ void Em202Spider::vf3C(HitInfo_unk* hit) {
     if (m58C == 12) {
         msg->m10 *= 0.0f;
     }
-    float len = fn_805F9920(&msg->m10);
+    float len = PSVECSquareMag(&msg->m10);
     if (!((float)__fabs(len) < 1.1920929e-7f) && len >= 25.0f) {
         PSVECNormalize(&msg->m10, &msg->m10);
         msg->m10 *= 4.9f;
@@ -753,7 +753,7 @@ void Em202Spider::fn_8027EB14() {
     if (route) {
         fn_801426A4(&rot, speed, m568 * rate);
     } else {
-        fn_8013CB68(&rot, 0, speed, m568 * rate);
+        fn_8013CB68(rot, 0, speed, m568 * rate);
     }
 }
 
@@ -982,7 +982,7 @@ void Em202Spider::fn_80280184() {
     m1520++;
     if (m1504 <= 0) {
         atn::Vector3 d = m14EC->mPos - mPos;
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         if (dist < 2500.0f) {
             fn_80281344(m14EC);
             m151C = 0;
@@ -991,7 +991,7 @@ void Em202Spider::fn_80280184() {
     } else {
         RoutePlace_unk* place = FindRoutePlace3_unk(m1504);
         SetFlat_unk(flat, mPos.x - place->mPos.x, mPos.z - place->mPos.z);
-        if (fn_805F9920(&flat) < 100.0f) {
+        if (PSVECSquareMag(&flat) < 100.0f) {
             ResetState_unk();
             m151C = 0;
             return;
@@ -1137,7 +1137,7 @@ void Em202Spider::fn_80281ED8() {
 
 // inferred: squared length of a temporary vector (name invented)
 inline float DistSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: index wrapped into [0, n) (name invented)

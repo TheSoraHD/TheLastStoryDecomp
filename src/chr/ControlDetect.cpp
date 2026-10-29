@@ -1,6 +1,6 @@
 #include "chr/ControlDetect.h"
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 namespace chr {
 
@@ -50,7 +50,7 @@ int ControlDetectHateAtt::vf0C() {
     if (mChara->mC58.mC4 != 0) {
         atn::Vector3 dir = mChara->mC58.mC4->mPos - mChara->mPos;
         dir.y = 0.0f;
-        if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
             dir.Normalize_unk();
         }
         if (motion->fn_80097D7C(0) > 0.0f) {

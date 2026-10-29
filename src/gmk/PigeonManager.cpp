@@ -21,7 +21,7 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
 // inferred: camera (only the position)
@@ -148,7 +148,7 @@ void Pigeon_unk::fn_804048CC() {
     m42C++;
     int update = 1;
     atn::Vector3 d = lbl_8087EFB4->mPos - mPos;
-    float distSq = fn_805F9920(&d);
+    float distSq = PSVECSquareMag(&d);
     mModel.mFlags |= 0x40;
     if (distSq > lbl_8087EFA8->m21C * lbl_8087EFA8->m21C) {
         if (distSq > lbl_8087EFA8->m218) {
@@ -244,7 +244,7 @@ void Pigeon_unk::fn_804050C0() {
 // NONMATCHING: 98.7% - only .sdata2/.rodata order (both atan2 go through Atan2_unk).
 void Pigeon_unk::fn_80405A14(CharaTask* player) {
     atn::Vector3 d = mPos - player->mPos;
-    float distSq = fn_805F9920(&d);
+    float distSq = PSVECSquareMag(&d);
     if (distSq < 225.0f) {
         m414 = 2.0f;
         mState = 3;

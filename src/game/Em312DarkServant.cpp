@@ -12,7 +12,7 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;  // inferred: player manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -194,7 +194,7 @@ int Em312DarkServant::vf10C(HitMsg_unk* msg) {
             break;
         }
     default:
-        if (fn_805F9920(&msg->m10) > 0.2f) {
+        if (PSVECSquareMag(&msg->m10) > 0.2f) {
             PSVECNormalize(&msg->m10, &msg->m10);
             msg->m10 *= 0.2f;
         }
@@ -410,7 +410,7 @@ void Em312DarkServant::vf104() {
             break;
         }
         atn::Vector3 d = mC58.mC4->mPos - mPos;
-        if (mFlag31 || m14BC == 0 || fn_805F9920(&d) < m14E8 * m14E8) {
+        if (mFlag31 || m14BC == 0 || PSVECSquareMag(&d) < m14E8 * m14E8) {
             if (m156C <= 0 && (mStatus.m0C & 4) != 4) {
                 vf100(12);
             } else if (m14DC >= m1578 && m14D8 != 0) {
@@ -430,7 +430,7 @@ void Em312DarkServant::vf104() {
             break;
         }
         atn::Vector3 d = mC58.mC4->mPos - mPos;
-        if (mFlag31 || fn_805F9920(&d) < m14E8 * m14E8) {
+        if (mFlag31 || PSVECSquareMag(&d) < m14E8 * m14E8) {
             if (m156C <= 0 && (mStatus.m0C & 4) != 4) {
                 vf100(12);
             } else if (m14DC >= m1578 && m14D8 != 0) {
@@ -442,7 +442,7 @@ void Em312DarkServant::vf104() {
             }
         } else if (m14D4 != 0 && ServantHpRatio_unk(m14D4) < 0.5f) {
             atn::Vector3 d2 = m14D4->mPos - mPos;
-            if (fn_805F9920(&d2) > m14E4 * m14E4) {
+            if (PSVECSquareMag(&d2) > m14E4 * m14E4) {
                 vf100(7);
             }
         }
@@ -673,7 +673,7 @@ void Em312DarkServant::vf108() {
     if (follow && fn_8013C478()) {
         fn_80140588(&rot, speed, m568 * rate);
     } else {
-        fn_8013CB68(&rot, 0, speed, m568 * rate);
+        fn_8013CB68(rot, 0, speed, m568 * rate);
     }
 }
 
@@ -724,7 +724,7 @@ int Em312DarkServant::fn_8030FEAC(float radius) {
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = ((PlayerTask*)c)->mNext) {
         if (!fn_8016F3D0(c, 1)) {
             atn::Vector3 d = c->mPos - mPos;
-            if (fn_805F9920(&d) < radius * radius) {
+            if (PSVECSquareMag(&d) < radius * radius) {
                 count++;
             }
         }
@@ -732,7 +732,7 @@ int Em312DarkServant::fn_8030FEAC(float radius) {
     for (CharaTask* c = EnemyManager::sInstance->mHead; c != 0; c = ((EnemyTask*)c)->mNext) {
         if (!fn_8016F3D0(c, 1)) {
             atn::Vector3 d = c->mPos - mPos;
-            if (fn_805F9920(&d) < radius * radius) {
+            if (PSVECSquareMag(&d) < radius * radius) {
                 count++;
             }
         }

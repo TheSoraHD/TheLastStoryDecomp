@@ -144,7 +144,7 @@ int ControlRelease::vf0C() {
             ret = 1;
         }
     }
-    mChara->fn_8013CB68(&mChara->mRot, 0, 0.0f, 1.0f);
+    mChara->fn_8013CB68(mChara->mRot, 0, 0.0f, 1.0f);
     return ret;
 }
 

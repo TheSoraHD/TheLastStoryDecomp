@@ -347,18 +347,18 @@ void CharaFaceControl::StartBlink(float weight, float m74_, float total, float f
 
 void FaceData_unk::fn_8011EEA0(const char* path) {
     mKeys.Free_unk();
-    vf0C(path);
+    GetHandle_unk()->vf0C(path);
 }
 
 // NONMATCHING: 99.30% - the inlined std::vector<int>::push_back loads the size before the capacity
 // (known difference of include/std/vector.h) and some registers differ
 int FaceData_unk::fn_8011EF14() {
     if (mKeys.mSize == 0) {
-        if (fn_80473F50() != 0) {
+        if (mLoader.fn_80473F50() != 0) {
             return 1;
         }
-        int size = fn_8047059C();
-        atn::CsvTab csv((const char*)fn_80470580(), size);
+        int size = mLoader.fn_8047059C();
+        atn::CsvTab csv((const char*)mLoader.fn_80470580(), size);
         csv.fn_8005BCE8(lbl_8087D710);
         int motions = 0;
         int edits = 0;
@@ -410,7 +410,7 @@ int FaceData_unk::fn_8011EF14() {
                 fn_80089EE4(&mEdits.mData[edit++], &csv);
             }
         } while (csv.fn_8005BBF8() != 0);
-        fn_80473F88();
+        mLoader.fn_80473F88();
     }
     return 0;
 }

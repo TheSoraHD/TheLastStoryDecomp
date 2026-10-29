@@ -495,7 +495,7 @@ extern "C" atn::Vector3 fn_805B81F0(TownTask* town, int x, int z) {
 }
 
 extern "C" int fn_80370174(TownField_unk* field, int id); // inferred: event flag
-extern "C" float fn_805F9920(const atn::Vector3* v);      // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v);      // inferred: squared length
 
 // inferred: tree::find of the block trees (names invented)
 inline TownNode_unk* TownTreeFind_unk(TownTree_unk* tree, int key) {
@@ -539,31 +539,31 @@ extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int speci
     if (special != 0 && lbl_8087F430 != 0 && (lbl_8087F430->m38 & 2) == 2 && lbl_8087F430->m553C == 0) {
         atn::Vector3 v = town->m168 - atn::Vector3(104.0f, 0.0f, 235.0f);
         v.y = 0.0f;
-        if (fn_805F9920(&v) < 900.0f && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x713)) {
+        if (PSVECSquareMag(&v) < 900.0f && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x713)) {
             TOWN_SET(list, TOWN_ID(3, 2), TOWN_ID(2, 2), TOWN_ID(4, 2), TOWN_ID(2, 3), TOWN_ID(3, 3), -1, -1, -1, -1);
             return list;
         }
         v = town->m168 - atn::Vector3(186.0f, 0.0f, -893.0f);
         v.y = 0.0f;
-        if (fn_805F9920(&v) < 2500.0f) {
+        if (PSVECSquareMag(&v) < 2500.0f) {
             TOWN_SET(list, TOWN_ID(3, 0), TOWN_ID(2, 1), TOWN_ID(3, 1), TOWN_ID(4, 1), TOWN_ID(3, 2), -1, -1, -1, -1);
             return list;
         }
         v = town->m168 - atn::Vector3(-751.0f, 0.0f, -213.0f);
         v.y = 0.0f;
-        if (fn_805F9920(&v) < 3600.0f) {
+        if (PSVECSquareMag(&v) < 3600.0f) {
             TOWN_SET(list, TOWN_ID(1, 2), TOWN_ID(0, 1), TOWN_ID(1, 1), TOWN_ID(0, 2), TOWN_ID(1, 2), TOWN_ID(2, 2), -1, -1, -1);
             return list;
         }
         v = town->m168 - atn::Vector3(964.0f, 0.0f, 189.0f);
         v.y = 0.0f;
-        if (fn_805F9920(&v) < 900.0f) {
+        if (PSVECSquareMag(&v) < 900.0f) {
             TOWN_SET(list, TOWN_ID(4, 2), TOWN_ID(4, 1), TOWN_ID(4, 3), TOWN_ID(5, 1), TOWN_ID(5, 2), TOWN_ID(5, 3), -1, -1, -1);
             return list;
         }
         v = town->m168 - atn::Vector3(698.0f, 0.0f, -409.0f);
         v.y = 0.0f;
-        if (fn_805F9920(&v) < 900.0f) {
+        if (PSVECSquareMag(&v) < 900.0f) {
             TOWN_SET(list, TOWN_ID(4, 1), TOWN_ID(3, 1), TOWN_ID(3, 2), TOWN_ID(4, 2), TOWN_ID(5, 1), TOWN_ID(5, 2), -1, -1, -1);
             return list;
         }
@@ -594,7 +594,7 @@ extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int speci
             d.y -= town->m168.y;
             d.z -= town->m168.z;
             d.y = 0.0f;
-            if (fn_805F9920(&d) < 22500.0f) {
+            if (PSVECSquareMag(&d) < 22500.0f) {
                 TOWN_SET(list, TOWN_ID(3, 1), TOWN_ID(5, 2), TOWN_ID(2, 1), TOWN_ID(2, 2), TOWN_ID(3, 0), TOWN_ID(3, 2), TOWN_ID(4, 1), TOWN_ID(4, 2), TOWN_ID(5, 1));
                 return list;
             }
@@ -605,7 +605,7 @@ extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int speci
             d.y -= town->m168.y;
             d.z -= town->m168.z;
             d.y = 0.0f;
-            if (fn_805F9920(&d) < 4900.0f) {
+            if (PSVECSquareMag(&d) < 4900.0f) {
                 TOWN_SET(list, TOWN_ID(4, 3), TOWN_ID(2, 2), TOWN_ID(3, 2), TOWN_ID(3, 3), TOWN_ID(4, 1), TOWN_ID(4, 2), TOWN_ID(2, 3), TOWN_ID(5, 2), TOWN_ID(5, 3));
                 return list;
             }
@@ -770,7 +770,7 @@ void TownTask::fn_805B8DB4(int reload) {
         v.y -= m168.y;
         v.z -= m168.z;
         v.y = 0.0f;
-        if (fn_805F9920(&v) < 4900.0f) {
+        if (PSVECSquareMag(&v) < 4900.0f) {
             node = (TownNode_unk*)&m240.mRoot;
         }
     }

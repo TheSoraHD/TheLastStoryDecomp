@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "chr/ControlDamage.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -11,7 +12,7 @@ extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: debug menu entries (as in game/EnemyTrista.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -72,11 +73,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
-// inferred: reaction control created by vf6C (class unknown, 0x24 bytes; as in game/EnemyTask.cpp)
-struct EnemyReaction_unk {
-    EnemyReaction_unk(CharaTask* chara, const atn::Vector3* dir, int kind); // 0x801AFAC0
-    unsigned char m00[0x24];
-};
 
 // NONMATCHING: draft
 EnemyTasha::EnemyTasha(atn::Task* parent, EnemyInfo_unk* info)
@@ -508,7 +504,7 @@ inline float LerpAngle_unk(float to, float from, float t) {
 int EnemyTasha::fn_8035738C(float rate, float limit) {
     if (mC58.mC4 != 0) {
         atn::Vector3 dir = mC58.mC4->mPos - mPos;
-        if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
             PSVECNormalize(&dir, &dir);
         }
         atn::Vector3 rot = dir.ToRotation_unk();
@@ -545,7 +541,7 @@ void EnemyTasha::fn_803576F8(float radius) {
         }
         float sign = rand() % 2 == 0 ? 1.0f : -1.0f;
         float angle = sign * atn::DegToRad_unk(m152C + (m1530 - m152C) * ((float)(rand() % 1001) / 1000.0f));
-        if (!(atn::Abs_unk(fn_805F9920(&diff)) < 1.1920929e-7f)) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&diff)) < 1.1920929e-7f)) {
             front = diff.GetNormalize();
         }
         Mtx m;
@@ -667,7 +663,7 @@ void EnemyTasha::vf104() {
             vf100(8);
         } else if (!mControl) {
             if (mFlag31) {
-                if (fn_805F9920(&diff) < m14FC * m14FC) {
+                if (PSVECSquareMag(&diff) < m14FC * m14FC) {
                     int n = 2;
                     int attack = m16C4;
                     if (m14D4 >= 1) {
@@ -691,8 +687,8 @@ void EnemyTasha::vf104() {
                     vf100(8);
                 }
             } else if (rand() % 10 == 0 || m16C4 == 2) {
-                if (fn_805F9920(&diff) < m1524 * m1524 &&
-                    fn_805F9920(&diff) > (m1524 - 10.0f) * (m1524 - 10.0f)) {
+                if (PSVECSquareMag(&diff) < m1524 * m1524 &&
+                    PSVECSquareMag(&diff) > (m1524 - 10.0f) * (m1524 - 10.0f)) {
                     if (TashaHitWall_unk(this) == 0) {
                         mC58.m0C.fn_80127D8C(0, 0, 0);
                         vf100(11);
@@ -744,7 +740,7 @@ void EnemyTasha::vf104() {
         break;
     case 16:
         if (mFlag31) {
-            if (fn_805F9920(&diff) < m1524 * m1524 && TashaHitWall_unk(this) == 0) {
+            if (PSVECSquareMag(&diff) < m1524 * m1524 && TashaHitWall_unk(this) == 0) {
                 vf100(11);
             } else {
                 vf100(6);
@@ -938,7 +934,7 @@ void EnemyTasha::vf108() {
             mFlag31 = 1;
         }
         atn::Vector3 move = mC58.m0C.m58;
-        zero = fn_805F9920(&move);
+        zero = PSVECSquareMag(&move);
         if (zero > 0.0001f) {
             atn::Vector3 dir = move;
             PSVECNormalize(&dir, &dir);
@@ -1198,7 +1194,7 @@ void EnemyTasha::vf108() {
         fn_805A4254();
         return;
     }
-    fn_8013CB68(&rot, 0, zero, m568 * one);
+    fn_8013CB68(rot, 0, zero, m568 * one);
 }
 
 void EnemyTasha::vf30(void* menu) {
@@ -1379,7 +1375,7 @@ void EnemyTasha::vf6C(int kind, CharaTask* other) {
     dir.y = 0.0f;
     PSVECNormalize(&dir, &dir);
     if (kind >= 9 && kind <= 12) {
-        fn_80178208((chr::ControlBase*)new ((MemoryTag)3, "", "", 0) EnemyReaction_unk(this, &dir, kind));
+        fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlDamageLastOne(this, &dir, kind));
         m58C = 6;
     }
 }

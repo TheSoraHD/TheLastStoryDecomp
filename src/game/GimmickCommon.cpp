@@ -71,7 +71,7 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060;              // inferred: identity matrix
 
 // inferred: camera (lbl_8087EFB4) and its projection to the screen
@@ -530,7 +530,7 @@ void GimmickCommon::fn_803ED610(atn::Model* model) {
         model->fn_8008CD60();
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
             atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
-            if (fn_805F9920(&d) < 90000.0f) {
+            if (PSVECSquareMag(&d) < 90000.0f) {
                 atn::Vector3 screen;
                 fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {
@@ -552,7 +552,7 @@ void GimmickCommon::fn_803ED774(atn::Model* model) {
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
             atn::Vector3 screen;
             atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
-            if (fn_805F9920(&d) < 90000.0f) {
+            if (PSVECSquareMag(&d) < 90000.0f) {
                 fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {
                     char text[0x20];
@@ -649,7 +649,7 @@ void GimmickCommon::fn_803EDB18(atn::Model* model) {
 void GimmickCommon::fn_803EDCF4() {
     atn::Vector3 screen;
     atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
-    if (fn_805F9920(&d) < 90000.0f) {
+    if (PSVECSquareMag(&d) < 90000.0f) {
         fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
         if (0.0f < screen.z && screen.z < 1.0f) {
             char text[0x20];
@@ -664,7 +664,7 @@ void GimmickCommon::fn_803EDCF4() {
 int GimmickCommon::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
     if (vf60() != 0 && flag == 0) {
         atn::Vector3 d = m6C - *pos;
-        if (fn_805F9920(&d) > 400.0f) {
+        if (PSVECSquareMag(&d) > 400.0f) {
             return 0;
         }
         PSVECNormalize(&d, &d);

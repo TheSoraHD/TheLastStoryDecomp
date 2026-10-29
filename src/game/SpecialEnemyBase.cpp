@@ -71,7 +71,7 @@ extern "C" int atoi(const char* s);
 extern "C" double cos(double x);
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;  // inferred: player manager
 extern "C" void fn_800EAECC(CharaTask* chara);       // inferred: BattleCharaTask
 extern "C" void fn_8011CD84(CharaD74_unk* label, CharaTask* chara, int kind); // inferred: shows a label
@@ -272,7 +272,7 @@ void SpecialEnemyBase::fn_805A4254() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, m568 * scale);
+    fn_8013CB68(rot, 0, speed, m568 * scale);
 }
 
 // NONMATCHING: 98.2% - registers and load order of the two character loops
@@ -290,7 +290,7 @@ int SpecialEnemyBase::fn_805A45F8(float radius, float angle, float rotOffset) {
         for (CharaTask* c = (CharaTask*)lbl_8087F8A0->mHead; c != 0; c = ((EnemyTask*)c)->mNext) {
             if (c->CanAct_unk() && (c->m54C & 0x2000) != 0x2000 && !c->fn_8016F3D0(this, 1)) {
                 atn::Vector3 d = c->mPos - mPos;
-                float len = fn_805F9920(&d);
+                float len = PSVECSquareMag(&d);
                 if (len > 0.0f) {
                     PSVECNormalize(&d, &d);
                 }
@@ -304,7 +304,7 @@ int SpecialEnemyBase::fn_805A45F8(float radius, float angle, float rotOffset) {
         for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
             if (c->CanAct_unk() && (c->m54C & 0x2000) != 0x2000 && !c->fn_8016F3D0(this, 1)) {
                 atn::Vector3 d = c->mPos - mPos;
-                float len = fn_805F9920(&d);
+                float len = PSVECSquareMag(&d);
                 if (len > 0.0f) {
                     PSVECNormalize(&d, &d);
                 }

@@ -1,4 +1,5 @@
 #include "chr/ControlMoveCursor.h"
+#include "atn/Camera_unk.h"
 
 extern "C" double sqrt(double x);
 extern "C" double cos(double x);
@@ -11,7 +12,7 @@ extern "C" void* lbl_8087EFB4;                                        // inferre
 // inferred: weak copies of small inlines (getters of the pad, the camera and its rotation, cosine,
 // dot product, horizontal length, rotation setter); the original calls them out of line in
 // fn_801C346C (inline budget exceeded)
-extern "C" inline void* fn_801156BC() {
+inline void* GetPad_unk() {
     return lbl_8087EF70;
 }
 extern "C" inline void* fn_8008B964() {
@@ -19,9 +20,6 @@ extern "C" inline void* fn_8008B964() {
 }
 extern "C" inline void* fn_800F7258(void* camera) {
     return (char*)camera + 0x104;
-}
-extern "C" inline atn::Vector3* fn_80116E6C(void* obj) {
-    return (atn::Vector3*)((char*)obj + 0x2C);
 }
 extern "C" inline float fn_801C1060(float x) {
     return cos(x);
@@ -90,13 +88,13 @@ void ControlMoveCursor::fn_801C3458(const CursorTarget_unk* target, float a, flo
 // calls the empty inline one (this function is over the inline budget: every inline is called)
 void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDist, float maxRadius, float turn) {
     atn::Vector3 stick;
-    stick.x = -fn_800A56A8(fn_801156BC(), 0, 0, 0);
+    stick.x = -fn_800A56A8(GetPad_unk(), 0, 0, 0);
     stick.y = 0.0f;
-    stick.z = -fn_800A56A8(fn_801156BC(), 0, 1, 0);
+    stick.z = -fn_800A56A8(GetPad_unk(), 0, 1, 0);
     float len = stick.Length_unk();
     atn::Vector3 rot(*mChara->GetRot_unk());
     if (len >= 0.4f) {
-        float yaw = fn_80116E6C(fn_800F7258(fn_8008B964()))->y;
+        float yaw = ((Camera_unk*)fn_800F7258(fn_8008B964()))->GetRot_unk()->y;
         rot = stick.ToRotation_unk();
         rot.y = yaw - rot.y;
         float t = (len - 0.4f) / 0.6f;

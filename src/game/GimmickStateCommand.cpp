@@ -70,7 +70,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops the effects
-extern "C" int fn_800928B0(atn::Model* model, int hash, int arg); // inferred: node index by hash
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -305,7 +304,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
         }
         switch (cmd->mType) {
         case 0: {
-            MtxPtr node = model->GetNodeMtx_unk(fn_800928B0(model, cmd->mNode, 0));
+            MtxPtr node = model->GetNodeMtx_unk(model->fn_800928B0(cmd->mNode, 0));
             if (node != 0) {
                 fn_80232B7C(this, motion);
                 EffectMgr_unk* mgr = lbl_8087F3C0;
@@ -343,7 +342,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
                 Mtx mtx;
                 PSMTXRotRad(mtx, 'y', gimmick->m78.y);
                 PSMTXMultVec(mtx, &pos, &pos);
-                MtxPtr node = model->GetNodeMtx_unk(fn_800928B0(model, cmd->mNode, 0));
+                MtxPtr node = model->GetNodeMtx_unk(model->fn_800928B0(cmd->mNode, 0));
                 if (node != 0) {
                     pos += atn::Vector3(node[0][3], node[1][3], node[2][3]);
                 } else {
@@ -366,7 +365,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
                 Mtx mtx;
                 PSMTXRotRad(mtx, 'y', gimmick->m78.y);
                 PSMTXMultVec(mtx, &pos, &pos);
-                MtxPtr node = model->GetNodeMtx_unk(fn_800928B0(model, cmd->mNode, 0));
+                MtxPtr node = model->GetNodeMtx_unk(model->fn_800928B0(cmd->mNode, 0));
                 if (node != 0) {
                     pos += atn::Vector3(node[0][3], node[1][3], node[2][3]);
                 } else {
@@ -397,7 +396,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
             Mtx mtx;
             PSMTXRotRad(mtx, 'y', gimmick->m78.y);
             PSMTXMultVec(mtx, &pos, &pos);
-            MtxPtr node = model->GetNodeMtx_unk(fn_800928B0(model, cmd->mNode, 0));
+            MtxPtr node = model->GetNodeMtx_unk(model->fn_800928B0(cmd->mNode, 0));
             if (node != 0) {
                 pos += atn::Vector3(node[0][3], node[1][3], node[2][3]);
             } else {
@@ -533,7 +532,7 @@ void GimmickStateCommand::vf10() {
                         PSMTXMultVec(mtx, &pos, &pos);
                         MtxPtr node = 0;
                         if (mGimmick->vf38() != 0) {
-                            node = mGimmick->vf38()->GetNodeMtx_unk(fn_800928B0(mGimmick->vf38(), table->mHash, 0));
+                            node = mGimmick->vf38()->GetNodeMtx_unk(mGimmick->vf38()->fn_800928B0(table->mHash, 0));
                         }
                         if (node != 0) {
                             pos += atn::Vector3(node[0][3], node[1][3], node[2][3]);

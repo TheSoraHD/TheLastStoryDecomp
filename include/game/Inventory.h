@@ -51,6 +51,8 @@ public:
 
     // RSO: AddMoney__9InventoryFi (0x8044D678); inferred: money += n, clamped to 0..999999
     void AddMoney(int n);
+    // inferred: sets the money (0x8044D6E0, right after AddMoney; game/DamageCalc_unk.cpp)
+    void fn_8044D6E0(int money);
 
     // RSO: GetPlayerStatusInfo__9InventoryFi (weak copy 0x805282A8); inferred: the block is a
     // CharaStatus (game/NewCampPartsStatus.cpp passes it as one)
@@ -65,6 +67,10 @@ public:
     unsigned char m64C8[0x64EC - 0x64C8];
     PlayerStatus_unk mPlayers[7];                   // 0x64EC
     Equip_unk mEquip[7];                            // 0x8290: inferred: one per player
+    unsigned char m8450[0xD380 - 0x8450];
+    Equip_unk mEquipShown[7];                       // 0xD380: inferred: equipment shown by the costume menu
+    Equip_unk mEquipSetA[16];                       // 0xD540: inferred: costume sets (game/CosEditBase.cpp)
+    Equip_unk mEquipSetB[16];                       // 0xD940
 
     static Inventory* instance_;
 };

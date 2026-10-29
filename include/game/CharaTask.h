@@ -126,11 +126,13 @@ struct CharaListener_unk {
     int mId; // inferred: -1 for every event
     void (*mFunc)(int id, CharaTask* chara, void* arg);
 };
+// inferred: the vector is wrapped in a class (the destructor 0x8003EFB0 has one more inlined level)
+struct CharaListenerList_unk : public std::vector<CharaListener_unk> {};
 struct CharaListeners_unk {
     CharaListeners_unk() : mEnabled(1) {}
     void fn_8014F860(int id, CharaTask* chara, void* arg); // inferred: notifies the listeners of `id` (arg: event data)
 
-    std::vector<CharaListener_unk> mList;
+    CharaListenerList_unk mList;
     int mEnabled;
 };
 CharaListeners_unk* fn_8014F8F4();
@@ -138,7 +140,8 @@ CharaListeners_unk* fn_8014F8F4();
 // inferred: type data returned by fn_80204E04 (CharaTask::m68)
 // inferred: entry of the character table returned by fn_8020924C (names invented)
 struct CharaInfo_unk {
-    unsigned char m00[0x08];
+    unsigned char m00[0x04];
+    const wchar_t* m04; // inferred: name shown in the betrayal message (chr::ControlCdnBetray)
     const char* m08; // inferred: name (shown by game/BattleResult)
     const char* m0C; // inferred: name (shown by fn_80149A30)
     const char* m10; // inferred: name (passed to fn_802092C0; digits read by fn_801546F4)
@@ -384,6 +387,9 @@ struct CharaPair_unk {
 // parameters are unknown.
 class CharaTask : public atn::Task {
 public:
+    // RTTI (boost::_bi::value<CharaTask::CONTROL_MODE>, chr/ControlCdnStone.cpp): type of m564;
+    // enumerator names unknown (1 and 2 are set by gmk::InteractionSpot and gmk::MeetingSpot)
+    enum CONTROL_MODE {};
     CharaTask(atn::Task* parent, int type, void* data); // 0x801354B4
     virtual ~CharaTask();                               // 0x80136138
     virtual int vf0C();                                 // 0x8017CB74
@@ -414,7 +420,7 @@ public:
     // inferred: starts the reaction control `kind` facing away from `other` (EnemyTask 0x8035BBCC)
     virtual void vf6C(int kind, CharaTask* other);
     virtual float vf70(); // inferred: returns f1 (0x800E8FA4; Em203GreaterDaemonRed returns 100.0f)
-    virtual void vf74(int arg); // inferred: starts a control (the symbol is still named vf74__9CharaTaskFv)
+    virtual void vf74(const atn::Vector3& dir); // inferred: starts chr::ControlMountle (climbs onto a ledge)
     virtual int vf78(); // inferred: nonzero while a held character keeps hold (fn_8013A4E8)
     virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)
     // inferred: appearance (chr::ControlAppearSkelton, ControlAppearCoffin or ControlAppear); the
@@ -449,7 +455,7 @@ public:
     // inferred: a free position next to the character, away from `target` (8 directions tried)
     virtual atn::Vector3 vfD8(CharaTask* target);
     virtual float vfDC(); // inferred: returns f1 (0x800EF270: scaled vf90)
-    virtual float vfE0(); // inferred: returns f1 (0x800EF080 returns the yaw of a vector passed in r4, the parameter is not declared; EnemyQuarkStand 0x80354378)
+    virtual float vfE0(const atn::Vector3& dir); // inferred: yaw of `dir` (0x800EF080; chr::ControlQuarkSeirenAttack passes it in r4)
 
     int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading
     int fn_801370B8(int index);
@@ -598,7 +604,7 @@ public:
     bool fn_80160324();
     void fn_80160170(HitInfo_unk* hit, CharaTask* target); // inferred: changes the magic being chanted
     void fn_8016034C(); // inferred: ends the magic
-    void fn_801603CC(float f, bool b); // inferred: casts the prepared magic (chr::ControlMagic)
+    void fn_801603CC(int b, float f); // inferred: casts the prepared magic (chr::ControlMagic; types from the RTTI of its bind in chr/ControlChant.cpp)
     // inferred: uses the skill whose id is skill->mId (chr::ControlUseSkill)
     void fn_8016125C(const SkillRef_unk* skill, CharaTask* target, int motion, const char* name, float f);
     void fn_80139560(); // inferred: per-frame movement update
@@ -620,7 +626,7 @@ public:
     void fn_80170F20(const atn::Vector3* pos, int arg, float a, float radius);
     void fn_80171420(CharaTask* target, int arg, float radius);
     void fn_80171DB0(); // inferred: stops the route (fn_80127EF4) and releases the character
-    void fn_8016D74C(HitInfo_unk* data, int a, int b);
+    void fn_8016D74C(HitInfo_unk* data, int a, const atn::Vector3* target); // inferred: target position (null: in front)
     // inferred: weak copy 0x800F52F0 (name invented)
     CharaStatus* GetStatus_unk() { return &mStatus; }
     void fn_801698E4(const atn::Vector3& rot);
@@ -682,7 +688,7 @@ public:
     int fn_80176428(int index);
     void fn_80154344();
     void fn_8015495C(int a, int b, int c, int d);
-    void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
+    void fn_8013CB68(const atn::Vector3& rot, int arg, float a, float b); // inferred: turns to rot and moves (vf34)
     // inferred: collision responses called by fn_8013CB68 with the new position and the movement
     int fn_80172EFC(atn::Vector3* pos, atn::Vector3* move);
     int fn_80174104(atn::Vector3* pos, atn::Vector3* move);
@@ -724,7 +730,9 @@ public:
     int fn_801479D8();
     void fn_80147A18(int value);
     int fn_80148334();
-    void fn_80148B38(); // inferred: updates the parts and the equipment
+    // inferred: updates the parts and the equipment; every caller passes a float in f1 (squared distance
+    // to the camera, or a constant) that this function never reads
+    void fn_80148B38(float distSq);
     // inferred: entry of the array at m62C (0x14 bytes)
     // inferred: has a constructor but no destructor (delete[] frees p - 0x10 without a destroy loop)
     struct Item14_unk {
@@ -826,8 +834,8 @@ public:
     void fn_80158EF0(int a);
     void fn_801591E8(const atn::Vector3& dir);
     void fn_801595BC(int a, int count, int motion, int releaseMotion);
-    void fn_801598B4(int a, int b, int c);
-    void fn_80159BA4(int a);
+    void fn_801598B4(CharaTask* catcher, int presses, int time); // inferred: caught (chr::ControlChaseCaught)
+    void fn_80159BA4(CharaTask* target);                        // inferred: catches (chr::ControlChaseCatch)
     void fn_80159E9C();
     void fn_8015A184();
     void fn_8015A46C(const atn::Vector3& dir);
@@ -923,6 +931,11 @@ public:
     // inferred: names invented (fn_80151448)
     inline int ControlVf30_unk();
     bool IsStill_unk() { return atn::Abs_unk(mStatus.mParamB.m1C) < 1.1920929e-7f; }
+    // inferred: changes the side, keeping the previous one (chr::ControlCdnBetray); name invented
+    void SetSide_unk(int side) {
+        mF18 = mF14;
+        mF14 = side;
+    }
     bool HasC48_unk() {
         bool result = false;
         if (mFlag31 && mC48 != 0) {
@@ -1003,6 +1016,14 @@ public:
     // inferred: names invented (weak copies 0x8000DD0C and 0x8012A1B8)
     atn::Model* GetModel_unk() { return (atn::Model*)&mMotion; }
     atn::Vector3* GetRot_unk() { return &mRot; }
+    // inferred: setters called out of line from chr::ControlGuardMountle (weak copies 0x801C0730,
+    // 0x801C0738, 0x801C1050); names invented
+    void SetControlId_unk(int id) { m560 = id; }
+    void SetRot_unk(const atn::Vector3& rot) { mRot = rot; }
+    void SetFlag4_unk(bool on) { mFlag4 = on; }
+    // inferred: third constructor argument (Event::DialogHead passes the one of the character it copies;
+    // the original loads it before the type); name invented
+    void* GetData_unk() { return (void*)m50; }
 
 
     int mType;  // 0x48: also compared with 0 and 2 by the chr::Control* classes
@@ -1041,7 +1062,7 @@ public:
     atn::Vector3 m550;
     int m55C; // inferred: state compared with 6 by the grapple controls
     int m560;
-    int m564; // inferred: set to 1 or 2 by gmk::InteractionSpot
+    CONTROL_MODE m564; // inferred: set to 1 or 2 by gmk::InteractionSpot; passed to fn_8016E970
     float m568;
     float m56C;
     float m570;

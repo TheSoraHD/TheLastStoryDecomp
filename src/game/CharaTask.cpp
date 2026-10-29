@@ -26,7 +26,7 @@
 #include "chr/ControlChaseCaught.h"
 #include "chr/ControlCharge.h"
 #include "chr/ControlWallUp.h"
-#include "chr/ControlGuardMountle.h"
+#include "chr/ControlMountle.h"
 #include "chr/ControlStool.h"
 #include "chr/ControlPushedDown.h"
 #include "chr/ControlStagger.h"
@@ -54,6 +54,7 @@
 #include <boost/function.hpp>
 #include <boost/tokenizer.hpp>
 #include "macros.h"
+#include "game/Input_unk.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -64,7 +65,7 @@ struct Block454_unk {
 
 // inferred: game settings (lbl_8087F0A8, as in CharaStatus.cpp); names invented
 struct Settings_unk {
-    void* fn_80116BAC(); // inferred: pad (this + 0x48C)
+    Input_unk* fn_80116BAC(); // inferred: pad (this + 0x48C)
     int fn_8013C41C();
     struct Block454_unk* fn_8013C434();
     float fn_8013C50C();
@@ -353,10 +354,10 @@ inline int GetModelHeap_unk(atn::Task* parent, int id) {
 
 // inferred: projection of a point to the screen (as in GimmickCommon.cpp)
 extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: name invented
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: segment with a radius (name invented)
@@ -463,7 +464,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
     : atn::Task(parent), mType(type), m4C(type), m50((int)data), m58(0), m5C(0), m60(0), m64(0),
       m7C(0), mId(0), mAC(0), mMotion(0x800504, GetModelHeap_unk(parent, (int)data)), m480(0), m510(2),
       m514(1.0f), m518(0), m51C(-1.0f), m520(-1), mPos(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f),
-      m540(1.0f, 1.0f, 1.0f), m54C(0), m550(0.0f, 0.0f, 0.0f), m55C(0), m560(0), m564(0), m568(1.0f),
+      m540(1.0f, 1.0f, 1.0f), m54C(0), m550(0.0f, 0.0f, 0.0f), m55C(0), m560(0), m564((CONTROL_MODE)0), m568(1.0f),
       m56C(1.0f / 6.0f), m570(0.0f), m574(0.0f, 0.0f, 0.0f), m580(0.0f), m584(0.0f), m588(0.0f), m58C(0),
       m590(0), m594(0), m598(0), m59C(0), m59D(0), m59E(0), m59F(0), m5A0(1.0f), m610(0), m630(0),
       m634(-1), m638(0), m63C(0), m640(0), m644(1), m648(0), m64C(0), m674(-1), m678(0), m67C(0),
@@ -1179,7 +1180,6 @@ Effect_unk* fn_8013A194();
 extern "C" Field_unk* fn_80121F00();
 extern "C" Settings_unk* fn_800F52F8();
 extern "C" void* fn_800F7F90();
-extern "C" int fn_801231D0(void* pad, int arg); // inferred: button pressed
 extern "C" void fn_80017064(void* routes, CharaTask* chara);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -1219,9 +1219,9 @@ void CharaTask::fn_80139560() {
             }
             if (fn_80139E9C()) {
                 b = 1.0f;
-                if (fn_801231D0(fn_800F52F8()->fn_80116BAC(), 0x1F)) {
+                if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x1F)) {
                     fn_801750FC();
-                } else if (fn_801231D0(fn_800F52F8()->fn_80116BAC(), 0x20)) {
+                } else if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x20)) {
                     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCannonTarget(this));
                     return;
                 }
@@ -1330,7 +1330,7 @@ void CharaTask::fn_80139560() {
     if (!mFlag2) {
         vf34(&rot, 0, a, b);
     } else {
-        fn_8013CB68(&rot, 0, a, b);
+        fn_8013CB68(rot, 0, a, b);
     }
     if ((m54C & 0x100) == 0x100) {
         if (m55C == 1) {
@@ -2390,21 +2390,21 @@ void CharaTask::vf34(void* target, int arg, float a, float b) {
                 }
             }
         } else if (m55C == 6) {
-            fn_8013CB68(target, 0, a, b);
+            fn_8013CB68(*(const atn::Vector3*)target, 0, a, b);
         } else {
             fn_80141674(target, a, b);
         }
     } else if (fn_80139EB0() || fn_80139E9C()) {
         m13AC = 0;
         float rate = m568 * MIN(0.52f, b);
-        fn_8013CB68(target, 0, a, MAX(0.52f, rate));
+        fn_8013CB68(*(const atn::Vector3*)target, 0, a, MAX(0.52f, rate));
     } else if (fn_80139EBC()) {
         float rate = 0.6f;
-        fn_8013CB68(target, 0, a, MAX(rate, m568 * rate));
+        fn_8013CB68(*(const atn::Vector3*)target, 0, a, MAX(rate, m568 * rate));
     } else if (fn_80139ED0() || fn_80139EDC()) {
         m13AC = 0;
         if (m55C == 6) {
-            fn_8013CB68(target, arg, a, b);
+            fn_8013CB68(*(const atn::Vector3*)target, arg, a, b);
         } else {
             b *= 0.675f;
             if (mFC0 != 0) {
@@ -2414,7 +2414,7 @@ void CharaTask::vf34(void* target, int arg, float a, float b) {
             }
         }
     } else {
-        fn_8013CB68(target, arg, a, b);
+        fn_8013CB68(*(const atn::Vector3*)target, arg, a, b);
     }
     if (m55C != 6) {
         fn_80171F3C(&mPos, &m574);
@@ -2531,7 +2531,7 @@ static void StartPushedAvoid_unk(CharaTask* chara, const atn::Vector3& dir, Char
 // the chains now match through fn_8016B8D4/fn_8016D0A0/StartPushedAvoid_unk).
 // inferred: moves the character towards the rotation `target` (speed `a` in 0..1, rate `b`), with
 // gravity, collisions and the push between characters
-void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
+void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, float rate) {
     int keepRot;
     int flag;
     CharaTask* other;
@@ -2547,7 +2547,7 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
     if (mF54 != 0) {
         rot.y += 3.1415927f;
     }
-    float diff = atn::WrapAngle_unk(((atn::Vector3*)target)->y - rot.y);
+    float diff = atn::WrapAngle_unk(target.y - rot.y);
     float dt = lbl_8087EFA8->m3A4 * mMotion.m350;
     float cur = rot.y;
     float turn = m56C;
@@ -3076,7 +3076,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
             if ((flags & 1) == 1) {
                 vel.y = 0.0f;
             }
-            if ((flags & 4) == 4 && (flags & 8) == 8 && (flags & 1) == 1 && fn_805F9920(&vel) > 0.1f &&
+            if ((flags & 4) == 4 && (flags & 8) == 8 && (flags & 1) == 1 && PSVECSquareMag(&vel) > 0.1f &&
                 !mStatus.mParamB.fn_801404E0(8)) {
                 m54C |= 0x100;
             }
@@ -3131,7 +3131,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
         if (fn_801720AC(&pos, &vel)) {
             updateRot = false;
         } else if (mStatus.IsState_unk(0x2000000) && (m55C == 1 || m55C == 2) && !fn_8013C404(0x1000000) && !mFlag3 &&
-                   (fn_805F9920(&m574) > 1.0f || m570 > 0.5f)) {
+                   (PSVECSquareMag(&m574) > 1.0f || m570 > 0.5f)) {
             fn_8016D0A0(0);
             return;
         }
@@ -3152,7 +3152,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
         vel.y = 0.0f;
     }
     atn::Vector3 dir(mFC0->mPos.x - pos.x, 0.0f, mFC0->mPos.z - pos.z);
-    if (atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f) {
+    if (atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f) {
         dir.x = 0.0f;
         dir.y = 0.0f;
         dir.z = 0.1f;
@@ -3375,7 +3375,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
         }
     } else {
         a = 0.0f;
-        if (!(atn::Abs_unk(fn_805F9920(&m574)) < 1.1920929e-7f)) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&m574)) < 1.1920929e-7f)) {
             rot.y = m574.GetNormalize().ToRotation_unk().y;
         }
     }
@@ -3464,7 +3464,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
             if (mStatus.mParamB.fn_801404E0(0x40) && (flags & 0x100) == 0x100) {
                 vel.y = 0.0f;
             }
-            if ((flags & 4) == 4 && (flags & 8) == 8 && (flags & 1) == 1 && fn_805F9920(&vel) > 0.1f &&
+            if ((flags & 4) == 4 && (flags & 8) == 8 && (flags & 1) == 1 && PSVECSquareMag(&vel) > 0.1f &&
                 !mStatus.mParamB.fn_801404E0(8)) {
                 m54C |= 0x100;
             }
@@ -3518,7 +3518,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
         }
         m610 = 0;
         if (!fn_801720AC(&pos, &vel) && mStatus.IsState_unk(0x2000000) && (m55C == 1 || m55C == 2) &&
-            !fn_8013C404(0x1000000) && !mFlag3 && (fn_805F9920(&m574) > 1.0f || m570 > 0.5f)) {
+            !fn_8013C404(0x1000000) && !mFlag3 && (PSVECSquareMag(&m574) > 1.0f || m570 > 0.5f)) {
             fn_8016D0A0(0);
             return;
         }
@@ -3837,7 +3837,8 @@ void CharaTask::fn_801446F0() {
     m584 = 0.0f;
 }
 
-// inferred: camera parameter passed to fn_80095F10 (same block at DialogHead+0x1620); name invented
+// inferred: camera parameter passed to fn_80095F10 (same block at DialogHead+0x1620; this file keeps its
+// own Camera_unk, so the type of atn/Camera_unk.h is not used here); name invented
 struct ModelCameraParam_unk {
     ModelCameraParam_unk() : m00(0) {}
     int m00;
@@ -4042,7 +4043,7 @@ inline bool __IsEventView_unk() {
 
 // inferred: squared length of a vector (name invented)
 inline float __LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: member-wise float copy (name invented)
@@ -4092,7 +4093,7 @@ inline void __MakeRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
 // NONMATCHING: ~87% (ignoring stack offsets: 336/2500 lines differ; 2471 vs 2473 instructions) -
 // stack layout, float/GPR register assignment (scale/extra/maxDist, node/reset), the inlined
 // ToRotation_unk (see fn_80144710), `mType != 3` folded away, the sphere radius (target converts the
-// constant with frsp), mF50 read once instead of twice, f1 = distSq passed to fn_80148B38 (declared Fv);
+// constant with frsp), mF50 read once instead of twice, 
 // .data/.rodata pool references (ptmf constants, strings, the 2*pi double) shift until the earlier
 // functions exist. Tried: decl orders of the floats, Float4 assignment forms (kept the local block),
 // helper inlines for the distance checks, WrapAngle with a float period (kept), several `mType` forms.
@@ -4151,7 +4152,7 @@ void CharaTask::fn_80145334() {
             dir = to - from;
         }
         dir.y = 0.0f;
-        if (fn_805F9920(&dir) > 0.01f) {
+        if (PSVECSquareMag(&dir) > 0.01f) {
             atn::Vector3 n = dir.GetNormalize();
             atn::Vector3 front = fn_8014052C();
             if (PSVECDotProduct(&n, &front) > 0.5f) {
@@ -4170,7 +4171,7 @@ void CharaTask::fn_80145334() {
                 if (fn_8004D388(lbl_8087EE98, &result, &sphere, &dir, mask, &mColli, 0, sphere.mRadius)) {
                     atn::Vector3 end = sphere.mCenter + dir;
                     atn::Vector3 back(result.m10.x - end.x, 0.0f, result.m10.z - end.z);
-                    if (fn_805F9920(&back) > 0.01f) {
+                    if (PSVECSquareMag(&back) > 0.01f) {
                         atn::Vector3 n1 = dir.GetNormalize();
                         atn::Vector3 n2 = back.GetNormalize();
                         if (PSVECDotProduct(&n1, &n2) < -0.5f && ((unsigned int)result.m3C & 4) != 4) {
@@ -4505,7 +4506,7 @@ void CharaTask::fn_80145334() {
     if (mFlagB25 && map != 0) {
         fn_80147A18(map->m104);
     }
-    fn_80148B38();
+    fn_80148B38(distSq);
     vf20();
     vf54();
     if (IsPartyMember_unk() || lbl_8087FA20 != 0) {
@@ -4878,7 +4879,7 @@ extern "C" void fn_80565B98(chr::CharaEquip_unk* equip); // inferred: updates th
 
 // NONMATCHING: 96% - the instructions are the same; only the offsets in @stringBase0 differ
 // (the strings of the functions before this one are not all defined yet).
-void CharaTask::fn_80148B38() {
+void CharaTask::fn_80148B38(float distSq) {
     if (m648 != 0) {
         if (m648->m04 == 1) {
             const char* name = "rightwepoint";
@@ -5932,10 +5933,6 @@ extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: 
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpFile)
 extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
                             float scale, int e, int f, int g);
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
-    float fn_801248DC(atn::Vector3* dir); // inferred: stick tilt, direction in `dir` (may be 0)
-};
 
 // inferred: lens of a camera (atn::Model::m1DC, or the one of the global camera); names invented
 struct Lens_unk {
@@ -6017,7 +6014,7 @@ static inline void Recover_unk(CharaTask* chara) {
     chara->mC58.mC4 = 0;
     if (chara->mType == 0) {
         chara->m55C = 1;
-        chara->m564 = 1;
+        chara->m564 = (CharaTask::CONTROL_MODE)1;
     }
     fn_800C344C("SE_BTCOM_076", &chara->mPos, 0, -1, 1.0f);
 }
@@ -7889,13 +7886,13 @@ int CharaTask::fn_80153B44() {
     int result = 0;
     if ((mC44 & 1) == 1) {
         atn::Vector3 d(mPos - mC20);
-        if (fn_805F9920(&d) < 2.0f) {
+        if (PSVECSquareMag(&d) < 2.0f) {
             result = 1;
         }
     }
     if ((mC44 & 2) == 2) {
         atn::Vector3 d(mPos - mC2C);
-        if (fn_805F9920(&d) < 2.0f) {
+        if (PSVECSquareMag(&d) < 2.0f) {
             result = 2;
         }
     }
@@ -8180,16 +8177,6 @@ bool CharaTask::fn_80154E38(CharaTask* target) {
     return result;
 }
 
-namespace chr {
-// inferred: control created by CharaTask; class name unknown (constructor 0x801C041C in the unit
-// after chr/ControlDive.cpp). The controls of chr/ControlDive.cpp are in chr/ControlDive.h.
-class Control801C041C_unk : public ControlBase {
-public:
-    Control801C041C_unk(Chara_unk* chara, int a, float b);
-    virtual int vf0C();
-    unsigned char m08[0x30 - 0x08];
-};
-} // namespace chr
 
 void CharaTask::fn_80154EC4(const atn::Vector3& pos, int link) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlSwatTurn(this, pos, link));
@@ -8199,10 +8186,8 @@ void CharaTask::fn_801551AC() {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCoverSlip(this));
 }
 
-// inferred: the parameter is read by the body, so the symbol vf74__9CharaTaskFv (in symbols.txt)
-// has the wrong signature.
-void CharaTask::vf74(int arg) {
-    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::Control801C041C_unk(this, arg, 1.0f));
+void CharaTask::vf74(const atn::Vector3& dir) {
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMountle(this, dir, 1.0f));
 }
 
 // inferred: control launcher with no caller left in the game (stripped by the linker); only the
@@ -8332,7 +8317,7 @@ void CharaTask::fn_801562A0(HitInfo_unk* hit, const atn::Vector3& pos, int type,
     dir = pos - mPos;
     dir.y = 0.0f;
     dist = PSVECMag(&dir) - 0.9f * dist;
-    if (fn_805F9920(&dir) > 0.0001f) {
+    if (PSVECSquareMag(&dir) > 0.0001f) {
         PSVECNormalize(&dir, &dir);
     } else {
         dir.Assign_unk(GetFront2_unk(m, *GetRot_unk()));
@@ -8399,7 +8384,7 @@ void CharaTask::fn_80157444(HitInfo_unk* hit, const atn::Vector3& pos) {
     }
     atn::Vector3 dir = pos - mPos;
     dir.y = 0.0f;
-    if (fn_805F9920(&dir) > 0.0001f) {
+    if (PSVECSquareMag(&dir) > 0.0001f) {
         PSVECNormalize(&dir, &dir);
     } else {
         Mtx m;
@@ -8427,7 +8412,7 @@ void CharaTask::fn_8015783C(HitInfo_unk* hit, const atn::Vector3& pos, float dis
     }
     atn::Vector3 dir = pos - mPos;
     dir.y = 0.0f;
-    if (fn_805F9920(&dir) > 0.0001f) {
+    if (PSVECSquareMag(&dir) > 0.0001f) {
         PSVECNormalize(&dir, &dir);
     } else {
         Mtx m;
@@ -8455,7 +8440,7 @@ void CharaTask::fn_80157C34(HitInfo_unk* hit, const atn::Vector3& pos) {
     }
     atn::Vector3 dir = pos - mPos;
     dir.y = 0.0f;
-    if (fn_805F9920(&dir) > 0.0001f) {
+    if (PSVECSquareMag(&dir) > 0.0001f) {
         PSVECNormalize(&dir, &dir);
     } else {
         Mtx m;
@@ -8585,11 +8570,11 @@ void CharaTask::fn_801595BC(int a, int count, int motion, int releaseMotion) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCaught(this, a, count, motion, releaseMotion));
 }
 
-void CharaTask::fn_801598B4(int a, int b, int c) {
+void CharaTask::fn_801598B4(CharaTask* a, int b, int c) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChaseCaught(this, a, b, c));
 }
 
-void CharaTask::fn_80159BA4(int a) {
+void CharaTask::fn_80159BA4(CharaTask* a) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChaseCatch(this, a));
 }
 
@@ -8912,7 +8897,7 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
     }
     if (mFBC <= 0.0f) {
         m63C = m638;
-        fn_801603CC(1.0f, false);
+        fn_801603CC(false, 1.0f);
     } else {
         chr::ControlChant* control = new ((MemoryTag)0, "", "", 0) chr::ControlChant(this, mF7C, mF6C, (int)mFBC, mF78);
         fn_80178208(control);
@@ -8973,7 +8958,7 @@ void CharaTask::fn_8016034C() {
     vf8C(chr::lbl_807C7030);
 }
 
-void CharaTask::fn_801603CC(float f, bool b) {
+void CharaTask::fn_801603CC(int b, float f) {
     chr::ControlMagic* control = new ((MemoryTag)0, "", "", 0) chr::ControlMagic(this, mF7C, f, mF6C, b);
     fn_80178208(control);
 }
@@ -9755,7 +9740,7 @@ void CharaTask::fn_8016D454(float angle) {
 }
 
 // inferred: charges the attack `hit`
-void CharaTask::fn_8016D74C(HitInfo_unk* hit, int a, int b) {
+void CharaTask::fn_8016D74C(HitInfo_unk* hit, int a, const atn::Vector3* b) {
     if (hit != 0) {
         SetHit_unk(hit);
         fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCharge(this, a, b, 0));
@@ -9843,7 +9828,7 @@ void CharaTask::fn_8016DF3C(int type) {
                 m55C = 2;
             }
             if (m564 == 1) {
-                m564 = 2;
+                m564 = (CONTROL_MODE)2;
             }
             Reset_unk(0, 1, 1, 1);
         } else if (type == 0) {
@@ -9851,7 +9836,7 @@ void CharaTask::fn_8016DF3C(int type) {
                 m55C = 1;
             }
             if (m564 == 2) {
-                m564 = 1;
+                m564 = (CONTROL_MODE)1;
             }
             Reset_unk(0, 1, 1, 1);
         }
@@ -9961,7 +9946,7 @@ float CharaTask::fn_8016E864() {
 void CharaTask::fn_8016E970(int state) {
     if (m55C != state) {
         if (m55C != 6 && m55C != 8) {
-            m564 = m55C;
+            m564 = (CONTROL_MODE)m55C;
         }
         if (m55C == 6) {
             fn_80178208(0);
@@ -10232,14 +10217,14 @@ int CharaTask::fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest) {
         }
     }
     if (mType == 0) {
-        if (fn_805F9920(dest) < 0.002f) {
+        if (PSVECSquareMag(dest) < 0.002f) {
             return 0;
         }
     } else if (mType == 2) {
-        if (fn_805F9920(dest) < 0.02f) {
+        if (PSVECSquareMag(dest) < 0.02f) {
             return 0;
         }
-    } else if (fn_805F9920(dest) < 0.1f) {
+    } else if (PSVECSquareMag(dest) < 0.1f) {
         return 0;
     }
     return fn_8036DBC0(lbl_8087F430, pos, dest, this);
@@ -10275,7 +10260,7 @@ int CharaTask::fn_801720AC(atn::Vector3* pos, atn::Vector3* vel) {
         return 0;
     }
     atn::Vector3 dir(vel->x, 0.0f, vel->z);
-    if (fn_805F9920(&dir) < 0.1f) {
+    if (PSVECSquareMag(&dir) < 0.1f) {
         return 0;
     }
     PSVECNormalize(&dir, &dir);
@@ -10371,24 +10356,6 @@ int CharaTask::fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out
     return 0;
 }
 
-namespace chr {
-// inferred: names from the vtables stored by the constructors (0x801C0D80 is in the unit after
-// chr/ControlStickByQuark.cpp, 0x801B192C in chr/ControlDive.cpp)
-// inferred: chr::ControlWallMountle and chr::ControlJump are in the unit after
-// chr/ControlStickByQuark.cpp
-class ControlWallMountle : public ControlBase {
-public:
-    ControlWallMountle(Chara_unk* chara, const atn::Vector3& normal, const atn::Vector3& pos, int arg); // 0x801C1578
-    virtual int vf0C();
-    unsigned char m08[0x3C - 0x08];
-};
-class ControlJump : public ControlBase {
-public:
-    ControlJump(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& dir); // 0x801C1DCC
-    virtual int vf0C();
-    unsigned char m08[0x3C - 0x08];
-};
-} // namespace chr
 
 // inferred: the other side of the pair check of fn_801725EC (name invented)
 inline bool IsSideTypeB_unk(int a, int b) {
@@ -10566,7 +10533,7 @@ int CharaTask::fn_8017380C(atn::Vector3* pos, atn::Vector3* move) {
     }
     atn::Vector3 dir(move->x, 0.0f, move->z);
     float dt = lbl_8087EFA8->m3A4;
-    if (fn_805F9920(&dir) < 0.9f * dt) {
+    if (PSVECSquareMag(&dir) < 0.9f * dt) {
         return 0;
     }
     PSVECNormalize(&dir, &dir);
@@ -10612,7 +10579,7 @@ int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
         return 0;
     }
     atn::Vector3 dir(move->x, 0.0f, move->z);
-    if (fn_805F9920(&dir) < 0.01f) {
+    if (PSVECSquareMag(&dir) < 0.01f) {
         dir.Assign_unk(fn_8014052C());
         return 0;
     }
@@ -10850,9 +10817,9 @@ void CharaTask::fn_80175B18(float distSq) {
     }
     if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0 && IsPartyMember_unk()) {
         target = lbl_8087F8A0->mHead;
-        float best = fn_805F9920(&(target->mPos - mPos));
+        float best = PSVECSquareMag(&(target->mPos - mPos));
         for (CharaTask* enemy = (CharaTask*)EnemyManager::sInstance->mHead; enemy != 0; enemy = NextChara_unk(enemy)) {
-            float d = fn_805F9920(&(enemy->mPos - mPos));
+            float d = PSVECSquareMag(&(enemy->mPos - mPos));
             if (best > d) {
                 best = d;
                 target = enemy;
@@ -10903,7 +10870,7 @@ void CharaTask::fn_80175B18(float distSq) {
             if (!(IsPartyIndex_unk(index) ? ((GimmickLook_unk*)gimmick)->mEntries[index].mLook : 0)) {
                 continue;
             }
-            if (fn_805F9920(&(mPos - gimmick->m6C)) > 10000.0f) {
+            if (PSVECSquareMag(&(mPos - gimmick->m6C)) > 10000.0f) {
                 continue;
             }
             mLook.fn_80129930(gimmick->m6C, 0.3f);
@@ -10913,7 +10880,7 @@ void CharaTask::fn_80175B18(float distSq) {
     if (found == 0 && IsPartyMember_unk()) {
         CharaTask* player = lbl_8087F8A0->mHead;
         atn::Vector3 dir = player->mPos - mPos;
-        float d = fn_805F9920(&dir);
+        float d = PSVECSquareMag(&dir);
         if (d < 4900.0f && d > 0.1f) {
             PSVECNormalize(&dir, &dir);
             if (PSVECDotProduct(&dir, &fn_8014052C()) > -0.5f) {
@@ -12496,7 +12463,7 @@ extern "C" void fn_80094BD8(void* model, int mode);
 atn::Vector3 CharaTask::vfD8(CharaTask* target) {
     atn::Vector3 base = vf64(1);
     atn::Vector3 dir = mPos - target->mPos;
-    if (fn_805F9920(&dir) > 0.001f) {
+    if (PSVECSquareMag(&dir) > 0.001f) {
         PSVECNormalize(&dir, &dir);
     } else {
         dir.x = 0.0f;

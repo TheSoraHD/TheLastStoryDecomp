@@ -50,7 +50,7 @@ public:
     virtual int vf44() { return 0; }
     virtual int vf48() { return 0; }
     virtual atn::Vector3 vf4C() { return lbl_807C7030; }
-    virtual void vf50();
+    virtual int vf50(); // inferred: returns an int (0 in ControlBase, 0x800EE5A4; ControlMagic)
     virtual int vf54() { return 0; } // inferred: weak copy 0x80151180 (tested by CharaTask::fn_8015076C)
     virtual int vf58() { return 0; }
     virtual void vf5C() {}

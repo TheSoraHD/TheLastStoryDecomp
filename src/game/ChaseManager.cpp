@@ -1,3 +1,4 @@
+#include "game/EnvSeManager.h"
 #include "game/ChaseManager.h"
 #include "game/CharaTask.h"
 #include "game/CharaManager.h"
@@ -8,8 +9,6 @@
 #include "game/ChaserGuard.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087F418;
-extern "C" void fn_80360780(void* obj, int a, int b, int c); // inferred: changes the BGM
 struct ChaseEffectMgr_unk;
 extern "C" ChaseEffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(ChaseEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -56,7 +55,7 @@ struct ChaseColor_unk {
 };
 extern "C" int fn_804AABA8(void* minimap, const atn::Vector3* pos, const ChaseColor_unk* color, float scale);
 extern "C" void fn_804AAD54(void* minimap, int marker);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 ChaseManager* lbl_8087F098;
 
@@ -119,7 +118,7 @@ ChaseManager::~ChaseManager() {
         ((CharaTask*)lbl_8087F8A0->mHead)->fn_8014C228();
     }
     if (lbl_8087F418 != 0) {
-        fn_80360780(lbl_8087F418, 1, 8, 0x3C);
+        lbl_8087F418->fn_80360780(1, 8, 0x3C);
     }
 }
 
@@ -132,7 +131,7 @@ void ChaseManager::fn_801826E0() {
         }
     }
     if (lbl_8087F418 != 0) {
-        fn_80360780(lbl_8087F418, 0, 8, 0x3C);
+        lbl_8087F418->fn_80360780(0, 8, 0x3C);
     }
 }
 
@@ -142,7 +141,7 @@ extern "C" void fn_80182788(ChaseManager* mgr, ChaserGuard* guard, CharaTask* ta
         mgr->m6C = 0;
         mgr->mState = 2;
         mgr->mCaught = target;
-        target->fn_801598B4((int)guard, lbl_8087F0A8->m524, lbl_8087F0A8->m528);
+        target->fn_801598B4(guard, lbl_8087F0A8->m524, lbl_8087F0A8->m528);
         lbl_8087F430->m5660 = 1;
         for (unsigned int i = 0; i < mgr->mCharas.mSize; i++) {
             if (mgr->mCharas.mData[i] != mgr->mCaught) {
@@ -177,7 +176,7 @@ void ChaseManager::fn_80182890() {
         ((CharaTask*)lbl_8087F8A0->mHead)->fn_8014C228();
     }
     if (lbl_8087F418 != 0) {
-        fn_80360780(lbl_8087F418, 1, 8, 0x3C);
+        lbl_8087F418->fn_80360780(1, 8, 0x3C);
     }
 }
 
@@ -410,7 +409,7 @@ extern "C" CharaTask* fn_80183860(ChaseManager* mgr, const atn::Vector3* pos) {
     for (unsigned int i = 0; i < mgr->mCharas.mSize; i++) {
         CharaTask* chara = mgr->mCharas.mData[i];
         atn::Vector3 d(pos->x - chara->mPos.x, pos->y - chara->mPos.y, pos->z - chara->mPos.z);
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         if (dist < best) {
             ret = chara;
             best = dist;

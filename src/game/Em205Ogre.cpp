@@ -13,11 +13,11 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_80599C90(Bullet_unk* bullet, CharaTask* chara); // inferred: the effect can reach `chara`
 extern "C" SkillEffectManager* lbl_8087F9E8;
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80093C8C(atn::Model* model, const char* name); // inferred: nonzero while the named motion part plays
 extern "C" int rand();
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -65,7 +65,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 
 // inferred: names invented
 inline void SafeNormalize_unk(atn::Vector3* v) {
-    if ((float)__fabs(fn_805F9920(v)) < 1.1920929e-7f) {
+    if ((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f) {
         return;
     }
     PSVECNormalize(v, v);
@@ -372,7 +372,7 @@ void Em205Ogre::vf104() {
         break;
     case 7: {
         atn::Vector3 d = mC58.mC4->mPos - mPos;
-        if (fn_805F9920(&d) < m14E4 * m14E4) {
+        if (PSVECSquareMag(&d) < m14E4 * m14E4) {
             vf100(9);
         } else if (m14FC == 0 && mFlag31) {
             vf100(8);
@@ -387,7 +387,7 @@ void Em205Ogre::vf104() {
             atn::Vector3 d = m14D4->mPos - mPos;
             float r = 3.0f * m5B0;
             r = r > m14E4 ? r : m14E4;
-            if (fn_805F9920(&d) < r * r) {
+            if (PSVECSquareMag(&d) < r * r) {
                 vf100(9);
             } else {
                 if (fn_80093C8C(&mMotion, "op_02_mask") == 0 && m14C0 % 30 == 0 && rand() % 4 == 0) {
@@ -455,7 +455,7 @@ void Em205Ogre::vf108() {
                 mFlag31 = 1;
             }
             atn::Vector3 dir(mC58.m0C.m58);
-            speed = fn_805F9920(&dir);
+            speed = PSVECSquareMag(&dir);
             if (speed > 0.0001f) {
                 rot = dir.GetNormalize().ToRotation_unk();
             } else {
@@ -568,7 +568,7 @@ void Em205Ogre::vf108() {
         fn_805A4254();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, m568 * rate);
+    fn_8013CB68(rot, 0, speed, m568 * rate);
 }
 
 // NONMATCHING: 98.61% - r3/r4 of the copy of the reference node position (__VecCopy family,

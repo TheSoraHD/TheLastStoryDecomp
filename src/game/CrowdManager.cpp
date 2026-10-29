@@ -10,10 +10,10 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_800D2338(atn::Task* task);         // inferred: deletes a task
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: field data (only the members used here)
@@ -125,7 +125,7 @@ void CrowdManager::vf10() {
         for (NpcTask* npc = NpcManager::sInstance->mHead; npc != 0; npc = npc->mNext) {
             if (mCount != 0 && !npc->mC58.mHeld_unk) {
                 atn::Vector3 d(npc->mPos.x - mCenter.x, npc->mPos.y - mCenter.y, npc->mPos.z - mCenter.z);
-                if (fn_805F9920(&d) > kill) {
+                if (PSVECSquareMag(&d) > kill) {
                     CrowdSimulation* sim = CrowdSimulation::sInstance;
                     for (unsigned int i = 0; (int)i < sim->mWalkers.mSize; i++) {
                         if (npc == sim->mWalkers[i].mChara) {

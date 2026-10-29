@@ -11,7 +11,7 @@
 #include "macros.h"
 
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -63,9 +63,9 @@ inline atn::Vector3 Neg_unk(const atn::Vector3& v) {
     return atn::Vector3(-v.x, -v.y, -v.z);
 }
 
-// inferred: squared length through fn_805F9920 (name invented)
+// inferred: squared length through PSVECSquareMag (name invented)
 inline float SqLen_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: front direction of the character (name invented)
@@ -248,7 +248,7 @@ int ControlPushedDown::vf0C() {
         CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
         if (player != 0) {
             atn::Vector3 d = player->mPos - mChara->mPos;
-            if (!((float)__fabs(fn_805F9920(&d)) < 1.1920929e-7f)) {
+            if (!((float)__fabs(PSVECSquareMag(&d)) < 1.1920929e-7f)) {
                 PSVECNormalize(&d, &d);
             }
             d.fn_80139F60();

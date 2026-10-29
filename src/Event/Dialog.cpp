@@ -5,6 +5,8 @@
 #include "atn/Texture_unk.h"
 #include "Event/Behavior.h"
 #include "game/CharaTask.h"
+#include "Event/DialogHead.h"
+#include "atn/LipSync_unk.h"
 #include "game/GimmickCommon.h"
 #include "std/string.h"
 
@@ -12,19 +14,9 @@
 
 typedef MP::MpD2A_unk DialogD2A_unk;
 
-// inferred: speech balloon of a character (Event::DialogHead, 0x8022526C..0x8022808C)
-struct DialogHead_unk : public atn::Task {
-    unsigned char m48[0x1428 - 0x48];
-    CharaTask* m1428; // inferred: character
-};
 namespace Event {
 class Dialog;
 }
-extern "C" DialogHead_unk* fn_802251F8(Event::Dialog* dialog, CharaTask* chara); // inferred: creates it
-extern "C" void fn_80227434(DialogHead_unk* head, int kind, int arg, int right);
-extern "C" void fn_80226B28(DialogHead_unk* head, int flag, int right);
-extern "C" void fn_80227D2C(DialogHead_unk* head, int kind, int arg);
-extern "C" void fn_80227F78(DialogHead_unk* head, void* params);
 
 extern "C" CharaTask* fn_80012934(Event::Actor_unk* actor); // inferred: character of an actor
 extern "C" void fn_80012054(Event::Actor_unk* actor, int a, int b, int c, float f1, float f2);
@@ -201,8 +193,11 @@ struct DialogSettings_unk {
     unsigned char mPad[1];
 };
 extern "C" DialogSettings_unk* lbl_8087F0A8;
-extern "C" DialogUv_unk fn_80124C6C(void* pad, int arg);
-extern "C" void fn_80122330(void* pad, int arg);
+// inferred: pad input of the settings (game/Input_unk.h; declared here with the uv type of this file)
+struct Input_unk {
+    DialogUv_unk fn_80124C6C(int action);
+    void fn_80122330(int reset);
+};
 
 extern "C" void* lbl_8087EEB0; // inferred: 2D drawer
 extern "C" void fn_8005E7F4(void* draw, unsigned int color, int a, atn::Texture_unk* texture, float x, float y,
@@ -226,28 +221,7 @@ union DialogKey_unk {
     unsigned int w;
 };
 
-// inferred: element of the parameter arrays (constructor 0x8007A748: {5, 1.0f})
-struct DialogParam_unk {
-    DialogParam_unk();
-    int m00;
-    float m04;
-};
-
-// inferred: dynamic array {count, data}
-struct DialogParams_unk {
-    DialogParams_unk() : mCount(0), mData(0) {}
-    ~DialogParams_unk() {
-        if (mData != 0) {
-            delete[] mData;
-        }
-        mData = 0;
-        mCount = 0;
-    }
-    unsigned int mCount;
-    DialogParam_unk* mData;
-};
-// inferred: the destructor of m184 has one more inline level (one more test of `this`)
-struct DialogParams2_unk : public DialogParams_unk {};
+// inferred: m184 and m190 are lip sync data (atn/LipSync_unk.h); m184 is passed to DialogHead::fn_80227F78
 
 // inferred: event data (the actors and the command lists)
 struct DialogCmd_unk;
@@ -307,12 +281,12 @@ public:
     struct Head_unk {
         Head_unk() : mKey(0) {}
         unsigned int mKey;
-        DialogHead_unk* mHead;
+        DialogHead* mHead;
     };
     struct Slot_unk {
         const DialogPos_unk* mPos;
         DialogVec2_unk mXY;
-        DialogHead_unk* mHead;
+        DialogHead* mHead;
     };
 
     Dialog(atn::Task* parent);
@@ -331,7 +305,7 @@ public:
     void fn_80229240(); // inferred: ends the conversation
     void fn_802292AC(int hide);
     void fn_80229414(); // inferred: input
-    DialogHead_unk* fn_8022960C(Actor_unk* actor);
+    DialogHead* fn_8022960C(Actor_unk* actor);
     void fn_802297AC(); // inferred: update
 
     void ResetPos_unk() {
@@ -366,9 +340,8 @@ public:
     atn::Texture_unk m120;
     int m150; // inferred: fade counter
     DialogFog_unk mFog;
-    DialogParams2_unk m184;
-    int m18C;
-    DialogParams_unk m190;
+    LipSyncData_unk m184;
+    LipSyncKeys_unk m190; // inferred: default keys
     unsigned char m198;
     unsigned char m199;
     int m19C;
@@ -392,7 +365,7 @@ inline Dialog::Head_unk* Dialog::FindHead_unk(Actor_unk* actor, int kind) {
 // NONMATCHING: 95.03% - register allocation of the event loops (this in r21 in the original), the
 // element constructor passed to __construct_new_array (0x8007A748 in the original) and the .sdata2 order
 Dialog::Dialog(atn::Task* parent)
-    : atn::Task(parent), m110(0), m114(-1), m118(0), m11C(-1), m150(-1), m18C(30), m198(0), m199(0) {
+    : atn::Task(parent), m110(0), m114(-1), m118(0), m11C(-1), m150(-1), m198(0), m199(0) {
     for (int i = 0; i < 4; i++) {
         mSlots[i].mPos = &sPos[i];
         mSlots[i].mHead = 0;
@@ -432,13 +405,13 @@ Dialog::Dialog(atn::Task* parent)
                         mHeads[m48].mKey = MakeKey_unk(actor, kind);
                         std::basic_string<char> path = GetPath_unk(actor, kind);
                         if (fn_8006AA20(path.c_str()) != 0) {
-                            mHeads[m48].mHead = fn_802251F8(this, fn_80012934(actor));
+                            mHeads[m48].mHead = DialogHead::fn_802251F8(this, fn_80012934(actor));
                             mHeads[m48].mHead->fn_800D246C(1);
                         }
                         head = &mHeads[m48++];
                     }
                     if (head->mHead != 0) {
-                        fn_80227D2C(head->mHead, kind, arg);
+                        head->mHead->fn_80227D2C(kind, arg);
                     }
                 }
             }
@@ -449,23 +422,23 @@ Dialog::Dialog(atn::Task* parent)
     fn_800D5908(&m120, "/data/texture/ui_c_event_under_filter.texture");
     m120.m2D = 0;
     m120.m2E = 0;
-    delete[] m190.mData;
+    delete[] m190.mKeys;
     m190.mCount = 8;
-    m190.mData = new ((MemoryTag)4, lbl_8087D764, lbl_8087D760, 0) DialogParam_unk[8];
+    m190.mKeys = new ((MemoryTag)4, lbl_8087D764, lbl_8087D760, 0) LipSyncKey_unk[8];
     for (unsigned int i = 0; i < m190.mCount; i++) {
-        m190.mData[i].m00 = 5;
-        m190.mData[i].m04 = 1.0f;
+        m190.mKeys[i].mVowel = 5;
+        m190.mKeys[i].mTime = 1.0f;
     }
     unsigned int n = m190.mCount;
-    delete[] m184.mData;
+    delete[] m184.mKeys;
     m184.mCount = n;
     if (n != 0) {
-        m184.mData = new ((MemoryTag)0, lbl_8087D764, lbl_8087D760, 0) DialogParam_unk[n];
+        m184.mKeys = new ((MemoryTag)0, lbl_8087D764, lbl_8087D760, 0) LipSyncKey_unk[n];
     } else {
-        m184.mData = 0;
+        m184.mKeys = 0;
     }
     for (unsigned int i = 0; i < m184.mCount; i++) {
-        m184.mData[i] = m190.mData[i];
+        m184.mKeys[i] = m190.mKeys[i];
     }
 }
 
@@ -496,10 +469,10 @@ void Dialog::fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg) {
         if (mSlots[slot].mHead != 0) {
             mSlots[slot].mHead->mFlags |= 4;
         }
-        DialogHead_unk* h = head->mHead;
+        DialogHead* h = head->mHead;
         if (h != 0) {
             mSlots[slot].mHead = h;
-            fn_80227434(h, kind, arg, slot == 1);
+            h->fn_80227434(kind, arg, slot == 1);
             int flag = 0;
             DialogField_unk* field = lbl_8087F430;
             if (field != 0) {
@@ -508,7 +481,7 @@ void Dialog::fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg) {
                     flag = 1;
                 }
             }
-            fn_80226B28(h, flag, slot == 1);
+            h->fn_80226B28(flag, slot == 1);
             h->mFlags &= ~4;
             h->fn_800D246C(0);
         }
@@ -641,7 +614,7 @@ void Dialog::fn_80229240() {
 void Dialog::fn_802292AC(int hide) {
     if (hide != 0) {
         for (int i = 0; i < 4; i++) {
-            DialogHead_unk* head = mSlots[i].mHead;
+            DialogHead* head = mSlots[i].mHead;
             if (head != 0) {
                 head->mFlags |= 4;
                 head->fn_800D246C(1);
@@ -678,7 +651,7 @@ void Dialog::fn_80229414() {
             fn_802292AC(0);
             for (int i = 0; i < 4; i++) {
                 if (mSlots[i].mHead != 0) {
-                    fn_80227F78(mSlots[i].mHead, &m184);
+                    mSlots[i].mHead->fn_80227F78(&m184);
                 }
             }
             if (lbl_8087F498 != 0) {
@@ -708,13 +681,13 @@ void Dialog::fn_80229414() {
 
 // NONMATCHING: 99.32% - the original keeps the strength-reduced pointer in r30 and the character in
 // r31 (tried the declaration orders and a pointer loop)
-DialogHead_unk* Dialog::fn_8022960C(Actor_unk* actor) {
+DialogHead* Dialog::fn_8022960C(Actor_unk* actor) {
     CharaTask* chara;
     if (actor == 0 || fn_80012934(actor) == 0) {
         return 0;
     }
     for (int i = 0; i < m48; i++) {
-        DialogHead_unk* head = mHeads[i].mHead;
+        DialogHead* head = mHeads[i].mHead;
         if (head != 0 && !head->IsFlag_unk(4)) {
             chara = head->m1428;
             if (chara == fn_80012934(actor)) {
@@ -727,7 +700,7 @@ DialogHead_unk* Dialog::fn_8022960C(Actor_unk* actor) {
 
 int Dialog::vf0C() {
     for (int i = 0; i < m48; i++) {
-        DialogHead_unk* head = mHeads[i].mHead;
+        DialogHead* head = mHeads[i].mHead;
         if (head != 0) {
             if (head->IsFlag_unk(2)) {
                 head->fn_800D246C(0);
@@ -756,7 +729,7 @@ void Dialog::fn_802297AC() {
         m10C->mFlags |= 4;
     }
     if (lbl_8087F0A8 != 0) {
-        DialogUv_unk uv = fn_80124C6C(lbl_8087F0A8->mPad, 0);
+        DialogUv_unk uv = ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124C6C(0);
         DialogUv_unk uv0 = uv;
         m10C->SetParam2_unk("btnUv", &uv0.u0);
         DialogUv_unk uv1 = uv;
@@ -765,7 +738,7 @@ void Dialog::fn_802297AC() {
     fn_80229414();
     fn_800D9560(lbl_8087F008);
     if (lbl_8087F0A8 != 0) {
-        fn_80122330(lbl_8087F0A8->mPad, 0);
+        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80122330(0);
     }
     if (m150 >= 0 && ++m150 <= 30) {
         float t = DIALOG_MIN_UNK(1.0f, m150 / 30.0f);

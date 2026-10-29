@@ -345,7 +345,7 @@ void Em201ZanGurg::fn_80263CF0() {
             return;
         }
     }
-    fn_8013CB68(&rot, 1, speed, m568);
+    fn_8013CB68(rot, 1, speed, m568);
 }
 
 void Em201ZanGurg::fn_80264024() {

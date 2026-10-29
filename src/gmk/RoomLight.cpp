@@ -7,7 +7,7 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_800C18BC(CharaLightData_unk* light); // inferred: updates the light
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -170,7 +170,7 @@ void RoomLight::vf20() {
             float y = fn_800DC288(csv.fn_8005B9CC());
             float z = fn_800DC288(csv.fn_8005B9CC());
             atn::Vector3 dir(x, y, z);
-            if (fn_805F9920(&dir) > 0.0001f) {
+            if (PSVECSquareMag(&dir) > 0.0001f) {
                 mLight.mDir = atn::Vector3(x, y, z).GetNormalize();
             } else {
                 mLight.mDir = lbl_807C7030;

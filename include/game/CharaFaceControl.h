@@ -83,10 +83,15 @@ public:
 typedef CharaFaceControl Chara1188_unk;
 
 // inferred: face file loaded by Event::DialogHead ("MOTION" and "NODE_EDIT" lines); name invented
-struct FaceData_unk : public atn::LH_Binary {
+// The loader is a member, not a base: Event::DialogHead destroys the object without a virtual call
+// (inlined destructor ending with the destructor of atn::LoadHandle).
+struct FaceData_unk {
     void fn_8011EEA0(const char* path); // inferred: loads `path`
     int fn_8011EF14();                  // inferred: parses the file, nonzero while loading
+    // inferred: the loader seen as a handle (fn_8011EEA0 starts the load through the vtable)
+    atn::LoadHandle* GetHandle_unk() { return &mLoader; }
 
+    atn::LH_Binary mLoader;                                 // 0x00
     atn::SimpleArray<CharaFaceControl::MotionPart> mKeys; // 0x08
     atn::SimpleVector<Event::PoseKey_unk> mEdits;          // 0x10
 };

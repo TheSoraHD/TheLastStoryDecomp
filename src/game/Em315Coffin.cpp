@@ -20,7 +20,7 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: game settings (as in game/CharaTask.cpp); names invented
 struct CoffinBlock454_unk {
     int m00; // inferred: enabled
@@ -360,7 +360,7 @@ void Em315Coffin::vf104() {
     case 7:
         if (mFlag31) {
             atn::Vector3 d = mC58.mC4->mPos - mPos;
-            float dist = fn_805F9920(&d);
+            float dist = PSVECSquareMag(&d);
             float r = m64->m30;
             if (dist < 1.2f * (1.2f * (r * r))) {
                 vf100(8);
@@ -372,7 +372,7 @@ void Em315Coffin::vf104() {
         break;
     case 8: {
         atn::Vector3 d = mC58.mC4->mPos - mPos;
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         float r = m64->m30;
         if (dist > 2.0f * (2.0f * (r * r))) {
             vf100(7);
@@ -690,7 +690,7 @@ void Em315Coffin::vf108() {
     if (follow && fn_8013C478()) {
         fn_80140588(&rot, speed, m568 * rate);
     } else {
-        fn_8013CB68(&rot, 0, speed, m568 * rate);
+        fn_8013CB68(rot, 0, speed, m568 * rate);
     }
 }
 

@@ -2,7 +2,7 @@
 #include "game/EnemyManager.h"
 #include "chr/ControlStickByQuark.h"
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_800E2FE0(CharaTask* chara);       // inferred: BattleCharaTask update
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp)
@@ -62,13 +62,13 @@ void Em002_02SkeltonKing::vf10() {
     int update = 1;
     if (mC58.mC0 == 1 && m55C == 2 && mC58.mC4 != 0) {
         atn::Vector3 toEnemy = mC58.mC4->mPos - mPos;
-        if (fn_805F9920(&toEnemy) > 400.0f) {
+        if (PSVECSquareMag(&toEnemy) > 400.0f) {
             CharaTask* target = fn_80249224();
             mTarget = target;
             if (target != 0) {
                 atn::Vector3 toTarget = target->mPos - mPos;
-                float dt = fn_805F9920(&toTarget);
-                if (dt < fn_805F9920(&toEnemy)) {
+                float dt = PSVECSquareMag(&toTarget);
+                if (dt < PSVECSquareMag(&toEnemy)) {
 
                     m58C = 6;
                     fn_80170A20(mTarget, 0, -1.0f);
@@ -94,7 +94,7 @@ CharaTask* Em002_02SkeltonKing::fn_80249224() {
         if (enemy->CanAct_unk() && enemy != this && !enemy->mStatus.IsState_unk(0x40) && mLastTarget != enemy &&
             enemy->m55C == 2) {
             atn::Vector3 d = enemy->mPos - mPos;
-            float dist = fn_805F9920(&d);
+            float dist = PSVECSquareMag(&d);
             if (best == 0 || dist < bestDist) {
                 best = enemy;
                 bestDist = dist;
@@ -107,7 +107,7 @@ CharaTask* Em002_02SkeltonKing::fn_80249224() {
 void Em002_02SkeltonKing::fn_80249394() {
     if (m55C == 7 && mTarget != 0 && mTarget->CanAct_unk() && mWalkTime < 300) {
         atn::Vector3 d = mTarget->mPos - mPos;
-        if (fn_805F9920(&d) < 1225.0f) {
+        if (PSVECSquareMag(&d) < 1225.0f) {
             m58C = 7;
             mMotion.fn_80097C08(0, 0x6C, 0, 0, 1, 0.0f, 0.1f);
             mMotion.m34C = 1;

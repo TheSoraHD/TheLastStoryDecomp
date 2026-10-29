@@ -11,7 +11,7 @@ extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* tex
 extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
@@ -54,7 +54,7 @@ extern "C" void fn_800C2C20(ScreenInfo_unk* info, const Plane_unk* plane); // in
 
 // inferred: normalizes unless the vector is (almost) zero; name invented
 inline void SafeNormalize_unk(atn::Vector3* v) {
-    if ((float)__fabs(fn_805F9920(v)) < 1.1920929e-7f) {
+    if ((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f) {
         return;
     }
     PSVECNormalize(v, v);

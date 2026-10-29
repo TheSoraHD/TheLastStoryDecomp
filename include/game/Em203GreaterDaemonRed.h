@@ -72,7 +72,7 @@ public:
     virtual float vf90() { return 4.0f; }   // 0x8029CA74
     virtual float vfD4() { return -7.0f; }             // 0x8029CA6C
     virtual float vfDC() { return 0.7f; }              // 0x8029CA64
-    virtual float vfE0() { return 0.9424779f + mRot.y; } // 0x8029CA54
+    virtual float vfE0(const atn::Vector3& dir) { return 0.9424779f + mRot.y; } // 0x8029CA54
     // inferred: new virtual (slot 0xF8): updates the collision capsule and the damage spheres
     virtual void vfF8(); // 0x802959EC
 
