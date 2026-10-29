@@ -42,6 +42,17 @@ void MapPartsGimmickLoc::fn_80498F0C(int value) {
     *reinterpret_cast<int*>(reinterpret_cast<unsigned char*>(this) + 0x7C) = value;
 }
 
+// inferred: normalizes the two horizontal limits around the supplied value.
+const float lbl_808870E8 = 1.0f;
+const float lbl_808870F0 = -1.0f;
+
+// NONMATCHING: 0% - generated body is 52 bytes; target is 56 bytes.
+void MapPartsGimmickLoc::fn_80498F14(float value, const atn::Vector3& range) {
+    m6C.y = value;
+    m6C.z = lbl_808870F0 * range.x / value;
+    m78.x = lbl_808870E8 - (range.y + value) / value;
+}
+
 void MapPartsGimmickLoc::fn_80498F4C() {}
 
 void MapPartsGimmickLoc::fn_80499388(int value) {

@@ -36,6 +36,7 @@ public:
     void fn_80498EF8(const atn::Vector3& scale);
     void fn_80498F08();
     void fn_80498F0C(int value);
+    void fn_80498F14(float value, const atn::Vector3& range);
     void fn_80498F4C();
     void fn_80499388(int value);
 
