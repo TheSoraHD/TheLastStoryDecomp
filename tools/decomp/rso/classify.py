@@ -24,7 +24,7 @@ def main():
     for s in syms:
         at.setdefault(s["addr"], []).append(s)
     eu_names = {s["name"] for s in syms}
-    src = subprocess.run(["grep", "-rhoE", r"(fn|lbl)_8[0-9A-Fa-f]{7}", str(ROOT / "src"), str(ROOT / "include"), str(ROOT / "libs")],
+    src = subprocess.run(["grep", "-rhoE", r"(fn|lbl|dtor|func|gap|jumptable)_8[0-9A-Fa-f]{7}", str(ROOT / "src"), str(ROOT / "include"), str(ROOT / "libs")],
                          capture_output=True, text=True).stdout.split()
     used = {x.upper()[-8:] for x in src}
     res = {"same": [], "apply": [], "in_source": [], "differs": [], "tools_class": [], "taken": [], "nosym": []}
