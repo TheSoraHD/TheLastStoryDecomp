@@ -586,7 +586,7 @@ void Em209SmallGolem::fn_802CF054() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, m568 * scale);
+    fn_8013CB68(rot, 0, speed, m568 * scale);
 }
 
 // inferred: turns to the target on the ground plane (name invented)

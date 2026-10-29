@@ -702,7 +702,7 @@ void Em309Ghoul::fn_802FF800() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 1, speed, rate);
+    fn_8013CB68(rot, 1, speed, rate);
     if (keep) {
         mPos = pos;
     }

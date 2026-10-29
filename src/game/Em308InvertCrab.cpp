@@ -653,7 +653,7 @@ void Em308InvertCrab::fn_802F33A0() {
     } else if (m55C == 6) {
         fn_8013A258();
     } else {
-        fn_8013CB68(&rot, 0, speed, m568 * rate);
+        fn_8013CB68(rot, 0, speed, m568 * rate);
     }
 }
 

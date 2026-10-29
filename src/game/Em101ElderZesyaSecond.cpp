@@ -554,7 +554,7 @@ void Em101ElderZesyaSecond::fn_8025B9EC() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 1, dist, m568 * rate);
+    fn_8013CB68(rot, 1, dist, m568 * rate);
 }
 
 void Em101ElderZesyaSecond::fn_8025BD1C() {

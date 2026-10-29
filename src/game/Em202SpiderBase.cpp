@@ -548,7 +548,7 @@ void Em202SpiderBase::fn_802847CC() {
         fn_8013A258();
     } else {
         rot = mRot;
-        fn_8013CB68(&rot, 0, speed, m568 * rate);
+        fn_8013CB68(rot, 0, speed, m568 * rate);
     }
 }
 

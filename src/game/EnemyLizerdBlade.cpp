@@ -191,7 +191,7 @@ void EnemyLizerdBlade::fn_80333D68() {
     } else if (m14B8 == 1) {
         m14D4 += GetFrameTime_unk();
         atn::Vector3 move(mPos);
-        fn_8013CB68(&mRot, 1, 1.0f, 1.8f);
+        fn_8013CB68(mRot, 1, 1.0f, 1.8f);
         atn::Vector3 pos = mPos + GetFront_unk(this) * 14.0f;
         BulletMgr_unk* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, fn_80219E6C(m14D0), m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
@@ -209,7 +209,7 @@ void EnemyLizerdBlade::fn_80333D68() {
             m14B8++;
         }
     } else {
-        fn_8013CB68(&mRot, 1, 0.0f, 1.0f);
+        fn_8013CB68(mRot, 1, 0.0f, 1.0f);
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
             m58C = 0;

@@ -753,7 +753,7 @@ void Em202Spider::fn_8027EB14() {
     if (route) {
         fn_801426A4(&rot, speed, m568 * rate);
     } else {
-        fn_8013CB68(&rot, 0, speed, m568 * rate);
+        fn_8013CB68(rot, 0, speed, m568 * rate);
     }
 }
 

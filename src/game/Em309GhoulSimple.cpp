@@ -792,7 +792,7 @@ void Em309GhoulSimple::vf108() {
     if (turn) {
         fn_801426A4(&rot, dist, speed);
     } else {
-        fn_8013CB68(&rot, 0, dist, m568 * speed);
+        fn_8013CB68(rot, 0, dist, m568 * speed);
     }
 }
 

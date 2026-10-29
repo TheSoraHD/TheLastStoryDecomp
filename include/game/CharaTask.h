@@ -418,7 +418,7 @@ public:
     // inferred: starts the reaction control `kind` facing away from `other` (EnemyTask 0x8035BBCC)
     virtual void vf6C(int kind, CharaTask* other);
     virtual float vf70(); // inferred: returns f1 (0x800E8FA4; Em203GreaterDaemonRed returns 100.0f)
-    virtual void vf74(int arg); // inferred: starts a control (the symbol is still named vf74__9CharaTaskFv)
+    virtual void vf74(const atn::Vector3& dir); // inferred: starts chr::ControlMountle (climbs onto a ledge)
     virtual int vf78(); // inferred: nonzero while a held character keeps hold (fn_8013A4E8)
     virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)
     // inferred: appearance (chr::ControlAppearSkelton, ControlAppearCoffin or ControlAppear); the
@@ -686,7 +686,7 @@ public:
     int fn_80176428(int index);
     void fn_80154344();
     void fn_8015495C(int a, int b, int c, int d);
-    void fn_8013CB68(void* target, int arg, float a, float b); // inferred: same arguments as vf34
+    void fn_8013CB68(const atn::Vector3& rot, int arg, float a, float b); // inferred: turns to rot and moves (vf34)
     // inferred: collision responses called by fn_8013CB68 with the new position and the movement
     int fn_80172EFC(atn::Vector3* pos, atn::Vector3* move);
     int fn_80174104(atn::Vector3* pos, atn::Vector3* move);
@@ -1012,6 +1012,11 @@ public:
     // inferred: names invented (weak copies 0x8000DD0C and 0x8012A1B8)
     atn::Model* GetModel_unk() { return (atn::Model*)&mMotion; }
     atn::Vector3* GetRot_unk() { return &mRot; }
+    // inferred: setters called out of line from chr::ControlGuardMountle (weak copies 0x801C0730,
+    // 0x801C0738, 0x801C1050); names invented
+    void SetControlId_unk(int id) { m560 = id; }
+    void SetRot_unk(const atn::Vector3& rot) { mRot = rot; }
+    void SetFlag4_unk(bool on) { mFlag4 = on; }
 
 
     int mType;  // 0x48: also compared with 0 and 2 by the chr::Control* classes

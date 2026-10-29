@@ -329,7 +329,7 @@ void Em303KrakenFootMp::vf104() {
                     fn_8013A258();
                     goto moved1;
                 }
-                fn_8013CB68(&rot, 0, speed, rate * m568);
+                fn_8013CB68(rot, 0, speed, rate * m568);
             }
             moved1:
             if (m14E0 >= m1500) {
@@ -376,7 +376,7 @@ void Em303KrakenFootMp::vf104() {
                     fn_8013A258();
                     goto moved2;
                 }
-                fn_8013CB68(&rot, 0, speed, rate * m568);
+                fn_8013CB68(rot, 0, speed, rate * m568);
             }
             moved2:
             fn_802E7740();

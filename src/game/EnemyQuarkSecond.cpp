@@ -936,7 +936,7 @@ void EnemyQuarkSecond::fn_8033C000() {
         return;
     }
     mPos.y = 0.0f;
-    fn_8013CB68(&rot, 0, dist, m568 * speed);
+    fn_8013CB68(rot, 0, dist, m568 * speed);
 }
 
 void EnemyQuarkSecond::vf24() {

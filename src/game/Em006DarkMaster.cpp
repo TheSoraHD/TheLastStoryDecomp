@@ -324,5 +324,5 @@ void Em006DarkMaster::vf108() {
         fn_805A4254();
         return;
     }
-    fn_8013CB68(&rot, 0, zero, m568 * one);
+    fn_8013CB68(rot, 0, zero, m568 * one);
 }

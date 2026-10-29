@@ -597,7 +597,7 @@ void Em001Necromancer::fn_80245F14() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 1, dist, m568 * rate);
+    fn_8013CB68(rot, 1, dist, m568 * rate);
 }
 
 // inferred: nonzero when at most one "reinforce_chara" enemy is up (name invented)

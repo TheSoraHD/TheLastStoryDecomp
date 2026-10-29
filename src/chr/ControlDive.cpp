@@ -110,7 +110,7 @@ int ControlDive::vf0C() {
         ret = 1;
     }
     atn::Vector3 rot = m08.ToRotation_unk();
-    mChara->fn_8013CB68(&rot, 0, 1.0f, speed);
+    mChara->fn_8013CB68(rot, 0, 1.0f, speed);
     return ret;
 }
 
@@ -145,7 +145,7 @@ int ControlSwatTurn::vf0C() {
     } else if (++m18 > 60) {
         ret = 1;
     }
-    mChara->fn_8013CB68(&rot, 0, 1.0f, speed);
+    mChara->fn_8013CB68(rot, 0, 1.0f, speed);
     return ret;
 }
 
@@ -171,7 +171,7 @@ int ControlCoverSlip::vf0C() {
     if (++m14 < 7) {
         atn::Vector3 saved = mChara->mRot;
         mChara->mRot = m08.ToRotation_unk();
-        mChara->fn_8013CB68(&mChara->mRot, 0, 1.0f, 1.5f);
+        mChara->fn_8013CB68(mChara->mRot, 0, 1.0f, 1.5f);
         mChara->mRot = saved;
         return 0;
     }
@@ -183,7 +183,7 @@ int ControlCoverSlip::vf0C() {
         }
         ret = 1;
     }
-    mChara->fn_8013CB68(&mChara->mRot, 0, 1.0f, 1.5f);
+    mChara->fn_8013CB68(mChara->mRot, 0, 1.0f, 1.5f);
     return ret;
 }
 
@@ -241,7 +241,7 @@ int ControlSwapPos::vf0C() {
         mChara->mPos = pos;
         mChara->mRot = crot;
         mChara->m574 = vel;
-        mChara->fn_8013CB68(&rot, 1, scale, scale * mChara->m568);
+        mChara->fn_8013CB68(rot, 1, scale, scale * mChara->m568);
         if (m14 == 1) {
             crot = start;
             crot.y = atn::WrapAngle_unk(crot.y + 3.1415927f / (motion->fn_80097D7C(0) - 19.0f));

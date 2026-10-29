@@ -133,7 +133,7 @@ int ControlCdnStone::vf0C() {
         mChara->mF88 = m08;
     }
     if (mChara->mType != 2 || (mChara->m54C & 0x2000) != 0x2000) {
-        mChara->fn_8013CB68(&mChara->mRot, 0, 0.0f, 1.0f);
+        mChara->fn_8013CB68(mChara->mRot, 0, 0.0f, 1.0f);
         if ((mChara->mStatus.m0C & 0x20) == 0x20) {
             return 1;
         }

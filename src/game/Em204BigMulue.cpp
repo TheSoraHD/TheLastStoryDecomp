@@ -934,7 +934,7 @@ void Em204BigMulue::vf108() {
     }
     fn_802B1B08(0);
     fn_8004D124(fn_801404F8());
-    fn_8013CB68(&rot, 1, dist, m568 * speed);
+    fn_8013CB68(rot, 1, dist, m568 * speed);
     if (m1A44 != 0) {
         fn_802B1B08(1);
         fn_8004D124(fn_801404F8());

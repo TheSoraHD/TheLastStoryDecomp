@@ -604,7 +604,7 @@ void Em308ParmCrab::fn_802F8EBC() {
         fn_8013A258();
     } else {
         rot = mRot;
-        fn_8013CB68(&rot, 0, speed, m568 * rate);
+        fn_8013CB68(rot, 0, speed, m568 * rate);
     }
 }
 
@@ -982,8 +982,6 @@ void Em308ParmCrab::fn_802FB0C4() {
 
 
 // inferred: death motion: at its end counts m1434 down (the effect at 29), else faces the direction m6B8
-// NONMATCHING: 98.67% - the original passes &rot to fn_8013CB68 from r31 (the base of the inlined
-// ToRotation_unk); ~10 forms (in-place fn_80139F60, RotZ_unk, helper, pointer local)
 void Em308ParmCrab::vfEC() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1001,8 +999,7 @@ void Em308ParmCrab::vfEC() {
             fn_800EE360(this);
         }
     } else {
-        atn::Vector3 rot = m6B8.ToRotation_unk();
-        fn_8013CB68(&rot, 0, 0.0f, 1.0f);
+        fn_8013CB68(m6B8.ToRotation_unk(), 0, 0.0f, 1.0f);
         m1434 = 30;
     }
 }

@@ -614,7 +614,7 @@ void Em208Queen::fn_802C9880() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, m568 * scale);
+    fn_8013CB68(rot, 0, speed, m568 * scale);
 }
 
 void Em208Queen::fn_802C9BF8() {
@@ -976,7 +976,7 @@ void Em208Queen::fn_802CB8A0() {
     } else {
         rot = mRot;
     }
-    fn_8013CB68(&rot, 0, speed, m568 * scale);
+    fn_8013CB68(rot, 0, speed, m568 * scale);
     if (m570 > 0.05f) {
         HitInfo_unk* bullet = fn_80219E6C(0x67E);
         Effect_unk* mgr = lbl_8087F048;

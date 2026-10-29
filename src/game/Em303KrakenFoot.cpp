@@ -517,7 +517,7 @@ void Em303KrakenFoot::fn_802E37DC() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, rate * m568);
+    fn_8013CB68(rot, 0, speed, rate * m568);
 }
 
 // inferred: action state machine (m14C0): asks the kraken for the next action and starts it near the target

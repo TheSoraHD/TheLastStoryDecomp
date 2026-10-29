@@ -26,7 +26,7 @@
 #include "chr/ControlChaseCaught.h"
 #include "chr/ControlCharge.h"
 #include "chr/ControlWallUp.h"
-#include "chr/ControlGuardMountle.h"
+#include "chr/ControlMountle.h"
 #include "chr/ControlStool.h"
 #include "chr/ControlPushedDown.h"
 #include "chr/ControlStagger.h"
@@ -1330,7 +1330,7 @@ void CharaTask::fn_80139560() {
     if (!mFlag2) {
         vf34(&rot, 0, a, b);
     } else {
-        fn_8013CB68(&rot, 0, a, b);
+        fn_8013CB68(rot, 0, a, b);
     }
     if ((m54C & 0x100) == 0x100) {
         if (m55C == 1) {
@@ -2390,21 +2390,21 @@ void CharaTask::vf34(void* target, int arg, float a, float b) {
                 }
             }
         } else if (m55C == 6) {
-            fn_8013CB68(target, 0, a, b);
+            fn_8013CB68(*(const atn::Vector3*)target, 0, a, b);
         } else {
             fn_80141674(target, a, b);
         }
     } else if (fn_80139EB0() || fn_80139E9C()) {
         m13AC = 0;
         float rate = m568 * MIN(0.52f, b);
-        fn_8013CB68(target, 0, a, MAX(0.52f, rate));
+        fn_8013CB68(*(const atn::Vector3*)target, 0, a, MAX(0.52f, rate));
     } else if (fn_80139EBC()) {
         float rate = 0.6f;
-        fn_8013CB68(target, 0, a, MAX(rate, m568 * rate));
+        fn_8013CB68(*(const atn::Vector3*)target, 0, a, MAX(rate, m568 * rate));
     } else if (fn_80139ED0() || fn_80139EDC()) {
         m13AC = 0;
         if (m55C == 6) {
-            fn_8013CB68(target, arg, a, b);
+            fn_8013CB68(*(const atn::Vector3*)target, arg, a, b);
         } else {
             b *= 0.675f;
             if (mFC0 != 0) {
@@ -2414,7 +2414,7 @@ void CharaTask::vf34(void* target, int arg, float a, float b) {
             }
         }
     } else {
-        fn_8013CB68(target, arg, a, b);
+        fn_8013CB68(*(const atn::Vector3*)target, arg, a, b);
     }
     if (m55C != 6) {
         fn_80171F3C(&mPos, &m574);
@@ -2531,7 +2531,7 @@ static void StartPushedAvoid_unk(CharaTask* chara, const atn::Vector3& dir, Char
 // the chains now match through fn_8016B8D4/fn_8016D0A0/StartPushedAvoid_unk).
 // inferred: moves the character towards the rotation `target` (speed `a` in 0..1, rate `b`), with
 // gravity, collisions and the push between characters
-void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
+void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, float rate) {
     int keepRot;
     int flag;
     CharaTask* other;
@@ -2547,7 +2547,7 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
     if (mF54 != 0) {
         rot.y += 3.1415927f;
     }
-    float diff = atn::WrapAngle_unk(((atn::Vector3*)target)->y - rot.y);
+    float diff = atn::WrapAngle_unk(target.y - rot.y);
     float dt = lbl_8087EFA8->m3A4 * mMotion.m350;
     float cur = rot.y;
     float turn = m56C;
@@ -8180,16 +8180,6 @@ bool CharaTask::fn_80154E38(CharaTask* target) {
     return result;
 }
 
-namespace chr {
-// inferred: control created by CharaTask; class name unknown (constructor 0x801C041C in the unit
-// after chr/ControlDive.cpp). The controls of chr/ControlDive.cpp are in chr/ControlDive.h.
-class Control801C041C_unk : public ControlBase {
-public:
-    Control801C041C_unk(Chara_unk* chara, int a, float b);
-    virtual int vf0C();
-    unsigned char m08[0x30 - 0x08];
-};
-} // namespace chr
 
 void CharaTask::fn_80154EC4(const atn::Vector3& pos, int link) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlSwatTurn(this, pos, link));
@@ -8199,10 +8189,8 @@ void CharaTask::fn_801551AC() {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCoverSlip(this));
 }
 
-// inferred: the parameter is read by the body, so the symbol vf74__9CharaTaskFv (in symbols.txt)
-// has the wrong signature.
-void CharaTask::vf74(int arg) {
-    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::Control801C041C_unk(this, arg, 1.0f));
+void CharaTask::vf74(const atn::Vector3& dir) {
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMountle(this, dir, 1.0f));
 }
 
 // inferred: control launcher with no caller left in the game (stripped by the linker); only the
@@ -10371,24 +10359,6 @@ int CharaTask::fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out
     return 0;
 }
 
-namespace chr {
-// inferred: names from the vtables stored by the constructors (0x801C0D80 is in the unit after
-// chr/ControlStickByQuark.cpp, 0x801B192C in chr/ControlDive.cpp)
-// inferred: chr::ControlWallMountle and chr::ControlJump are in the unit after
-// chr/ControlStickByQuark.cpp
-class ControlWallMountle : public ControlBase {
-public:
-    ControlWallMountle(Chara_unk* chara, const atn::Vector3& normal, const atn::Vector3& pos, int arg); // 0x801C1578
-    virtual int vf0C();
-    unsigned char m08[0x3C - 0x08];
-};
-class ControlJump : public ControlBase {
-public:
-    ControlJump(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& dir); // 0x801C1DCC
-    virtual int vf0C();
-    unsigned char m08[0x3C - 0x08];
-};
-} // namespace chr
 
 // inferred: the other side of the pair check of fn_801725EC (name invented)
 inline bool IsSideTypeB_unk(int a, int b) {

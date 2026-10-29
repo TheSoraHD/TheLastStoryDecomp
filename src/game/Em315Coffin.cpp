@@ -690,7 +690,7 @@ void Em315Coffin::vf108() {
     if (follow && fn_8013C478()) {
         fn_80140588(&rot, speed, m568 * rate);
     } else {
-        fn_8013CB68(&rot, 0, speed, m568 * rate);
+        fn_8013CB68(rot, 0, speed, m568 * rate);
     }
 }
 

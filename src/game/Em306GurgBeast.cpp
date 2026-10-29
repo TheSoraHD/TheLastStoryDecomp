@@ -818,7 +818,7 @@ void Em306GurgBeast::vf108() {
         if (frame <= 15.0f) {
             atn::Vector3 vel(m574);
             float v = m570;
-            fn_8013CB68(&rot, 1, speed, rate);
+            fn_8013CB68(rot, 1, speed, rate);
             m574.x = vel.x;
             m574.z = vel.z;
             m570 = v;
@@ -836,7 +836,7 @@ void Em306GurgBeast::vf108() {
         fn_805A4254();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, m568 * rate);
+    fn_8013CB68(rot, 0, speed, m568 * rate);
 }
 
 // inferred: moves the beast towards the rotation `target` (turn limited to 90 degrees, speed from `rate` above

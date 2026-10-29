@@ -93,7 +93,7 @@ int ControlDuckUnderA::vf0C() {
     if (HasCharaFlag_unk(mChara, 0x08000000)) {
         mChara->m54C |= 0x200;
     }
-    mChara->fn_8013CB68(&mChara->mRot, 1, 1.0f, 1.0f);
+    mChara->fn_8013CB68(mChara->mRot, 1, 1.0f, 1.0f);
     if (HasCharaFlag_unk(mChara, 0x08000000)) {
         mChara->m54C &= ~0x200;
     }

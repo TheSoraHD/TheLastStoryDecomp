@@ -171,7 +171,7 @@ int ControlDamage::vf0C() {
     if ((frame >= model->fn_80097D7C(0) && mChara->m574.y > -0.01f) || m14 <= 0.0f) {
         done = 1;
     }
-    mChara->fn_8013CB68(&m08, 0, 0.0f, mChara->m568);
+    mChara->fn_8013CB68(m08, 0, 0.0f, mChara->m568);
     return done;
 }
 
@@ -204,7 +204,7 @@ int ControlGuard::vf0C() {
     if ((frame >= model->fn_80097D7C(0) && mChara->m574.y > -0.01f) || m18 <= 0.0f) {
         done = 1;
     }
-    mChara->fn_8013CB68(&m08, 0, 0.0f, mChara->m568);
+    mChara->fn_8013CB68(m08, 0, 0.0f, mChara->m568);
     return done;
 }
 
@@ -232,7 +232,7 @@ int ControlAvoid::vf0C() {
     if (frame >= mChara->mMotion.fn_80097D7C(0) && mChara->m574.y > -0.01f) {
         done = 1;
     }
-    mChara->fn_8013CB68(&m08, 0, 0.0f, mChara->m568);
+    mChara->fn_8013CB68(m08, 0, 0.0f, mChara->m568);
     return done;
 }
 
@@ -441,7 +441,7 @@ int ControlKnockdown::vf0C() {
             }
         }
     }
-    mChara->fn_8013CB68(&m08, 0, 0.0f, mChara->m568);
+    mChara->fn_8013CB68(m08, 0, 0.0f, mChara->m568);
     return result;
 }
 
@@ -505,7 +505,7 @@ int ControlGetUp::vf0C() {
             fn_804DA690(lbl_8087F610);
         }
     }
-    mChara->fn_8013CB68(&mChara->mRot, 0, 0.0f, mChara->m568);
+    mChara->fn_8013CB68(mChara->mRot, 0, 0.0f, mChara->m568);
     return done;
 }
 
@@ -712,7 +712,7 @@ int ControlGuarded::vf0C() {
     if (m08 == 0 && model->mTracks[0].m08 < 25.0f) {
         mChara->m6B8 = -FrontDir_unk(mChara->mRot) * 0.33f;
     }
-    mChara->fn_8013CB68(&mChara->mRot, 0, 0.0f, mChara->m568);
+    mChara->fn_8013CB68(mChara->mRot, 0, 0.0f, mChara->m568);
     return done;
 }
 
@@ -799,7 +799,7 @@ int ControlDamageLastOne::vf0C() {
         }
         break;
     }
-    mChara->fn_8013CB68(&m14, 0, 0.0f, mChara->m568);
+    mChara->fn_8013CB68(m14, 0, 0.0f, mChara->m568);
     return 0;
 }
 

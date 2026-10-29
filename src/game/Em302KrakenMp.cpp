@@ -688,7 +688,7 @@ void Em302KrakenMp::vf104() {
             if (m55C == 6) {
                 fn_8013A258();
             } else {
-                fn_8013CB68(&rot, 0, zero, m568 * one);
+                fn_8013CB68(rot, 0, zero, m568 * one);
             }
             fn_802E03F0();
             break;

@@ -776,7 +776,7 @@ void Em204Mulue::fn_802A711C() {
     }
     ClearPartsFlag_unk();
     fn_8004D124(lbl_8087EE98);
-    fn_8013CB68(&rot, 1, dist, m568 * scale);
+    fn_8013CB68(rot, 1, dist, m568 * scale);
     SetPartsFlag_unk();
     fn_8004D124(lbl_8087EE98);
 }

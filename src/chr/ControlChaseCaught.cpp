@@ -186,7 +186,7 @@ int ControlChaseRelease::vf0C() {
     if (frame >= mChara->mMotion.fn_80097D7C(0) - 8.0f) {
         done = 1;
     }
-    mChara->fn_8013CB68(&mChara->mRot, 0, 0.0f, 1.0f);
+    mChara->fn_8013CB68(mChara->mRot, 0, 0.0f, 1.0f);
     return done;
 }
 

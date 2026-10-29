@@ -568,7 +568,7 @@ void Em205Ogre::vf108() {
         fn_805A4254();
         return;
     }
-    fn_8013CB68(&rot, 0, speed, m568 * rate);
+    fn_8013CB68(rot, 0, speed, m568 * rate);
 }
 
 // NONMATCHING: 98.61% - r3/r4 of the copy of the reference node position (__VecCopy family,

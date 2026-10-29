@@ -616,7 +616,7 @@ void Em305Vampire::fn_802EA490() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 1, speed, rate * m568);
+    fn_8013CB68(rot, 1, speed, rate * m568);
 }
 
 // inferred: picks the next action (as Em305VampireMp::vf11C without the ray test)

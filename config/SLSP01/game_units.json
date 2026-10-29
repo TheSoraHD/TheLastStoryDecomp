@@ -3705,5 +3705,16 @@
    "chr::ControlBase"
   ],
   "matching": false
+ },
+ {
+  "name": "chr/ControlMountle.cpp",
+  "classes": [
+   "chr::ControlJump",
+   "chr::ControlWallMountle",
+   "chr::ControlGuardMountle",
+   "chr::ControlMountleQuadruped",
+   "chr::ControlMountle"
+  ],
+  "matching": false
  }
 ]

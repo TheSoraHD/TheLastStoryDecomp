@@ -319,7 +319,7 @@ inline void Em005DoppelGanger::Move_unk() {
         fn_8013A258();
         return;
     }
-    fn_8013CB68(&rot, 1, dist, m568);
+    fn_8013CB68(rot, 1, dist, m568);
 }
 
 inline int Em005DoppelGanger::IsHiddenPhase_unk() {
@@ -1148,7 +1148,7 @@ int ControlCall::vf0C() {
         }
         result = 1;
     }
-    mChara->fn_8013CB68(&mChara->mRot, 0, 0.0f, 1.0f);
+    mChara->fn_8013CB68(mChara->mRot, 0, 0.0f, 1.0f);
     return result;
 }
 
