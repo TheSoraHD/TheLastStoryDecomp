@@ -173,3 +173,22 @@ Unidades no `atn/` ni de enemigos, sin fuente, de 10–20 KB, en orden de direcc
   - Cabecera nueva `include/game/FinishCamera_unk.h`; las entradas (`FinishCameraEntry_unk`, 7) usan `FixedArray_unk` de `CharaStatus.h`.
   - `fn_80378D34` y `fn_80379104` son miembros estáticos (no usan `this`).
   - 11 símbolos renombrados con los nombres de nuestro `.o`; `pairdata` aplicado.
+
+### `game/DamageCalc_unk` (0x8003EA3C, 18 funciones)
+
+- Cálculo del daño (funciones libres, nombres inventados): `fn_80040B44` rellena el resultado (`DamageResult_unk`, 0x20 bytes, los mismos campos que `HitMsg_unk::m64-m80`) según el tipo de bala (curación, nada, golpe) y aplica el daño; `fn_8003F538` es la fórmula (fuerza/magia del atacante, defensas, combo, nivel, guardia, tiro a la cabeza, elementos, estados), `fn_80040434`-`fn_80040994` los elementos, `fn_8003EA3C`/`fn_8003F030`/`fn_8003F1E4` los puntos de entrada con efecto y aviso a los oyentes (`fn_8014F8F4`), `fn_8003F440` si se puede pagar una habilidad, `fn_800413EC`/`fn_800417E8`/`fn_80041A28` la reacción (contraataque, esquiva...). 14/18 al 100%; `NONMATCHING`: `fn_8003EA3C` 99,9% y `fn_8003F1E4` 99,9% (el original prepara r6 antes que r5 en la llamada a `fn_80040B44`), `fn_8003F538` 99,5% (asignación de registros) y `fn_800413EC` 99,5% (registros float del extremo de la sonda).
+- **Trucos:** el `CharaStatus` de reserva (`lbl_8087EE70`) se crea en una función `static` (no `inline`): así sus `""` van a `@stringBase0` y no a un `@STRING@`. `x == 1 || x == 4 || x == 5` da la prueba de bits (`slw`/`andi. 0x19`); el `switch` no. Los ajustes de ratio y combo van en una inline (`ComboRate_unk`): escritos en la función cambian los registros float. `damage -= damage + 1 - (int)hp;` da el `mullw r, 0` del original (`damage = hp - 1`). Leer dos veces `lbl_8087F610->m540` en `== 1 || == 0` evita que MWCC lo junte en `cmplwi 1`. El `1.0f` de `MAX(x, 1.0f)` repetido en cuatro `if` sale una sola vez si va en un local de la inline.
+- **objdiff no distingue `beq`/`bne`:** `fn_800407F4` daba 100% con la condición de `0x100000` invertida. Herramienta nueva `tools/decomp/mnemcheck.py <unidad>`: compara el mnemónico de cada instrucción y avisa de las funciones al 100% con alguno distinto. Pasada por las 403 unidades `matching: false`: ningún otro caso.
+- **Decisiones sin el usuario:**
+  - Cabecera nueva `include/game/DamageCalc_unk.h` (`DamageResult_unk`, `DamageParam_unk` = el `HitParam_unk` de `CharaTask.cpp`, `lbl_807C6B90` y las 17 funciones). Los llamadores (`CharaTask`, enemigos, `Cannonball`, `ControlChant`...) siguen con sus vistas locales.
+  - `HitInfo_unk` (`include/game/HitInfo_unk.h`): `m03` pasa a `signed char`; `m10` deja de ser un `atn::Vector3` y pasa a los enteros/floats `m10`-`m38` de `BulletParam_unk` (es el mismo objeto); `mBC` nuevo. `FriendArganan::vf3C` escribe el vector a través de `HitMsg_unk` (el parámetro es el mensaje, como en `CharaTask::vf3C`).
+  - `CharaListeners_unk::mList` pasa a `CharaListenerList_unk` (clase derivada de `std::vector`): el destructor 0x8003EFB0 tiene un nivel inline más.
+  - `CharaStatusRef_unk` tiene un constructor de cinco argumentos; `Inventory::fn_8044D6E0(int)` (fija el dinero; símbolo renombrado).
+  - `CharaTask::vfA8` (`return -1`) se define aquí (0x80041A20).
+  - `fn_80041A50` → `__sinit_\DamageCalc_unk_cpp` (`scope:local`); `pairdata` aplicado.
+  - Quedan las copias débiles de `~vector<CharaListener_unk>` y `~boost::function` que nuestro `.o` emite y el original no (igual que en `gmk/Item`, `ReinforcePoint`...).
+
+## Cierre del lote (2026-10-29)
+
+- 8180 → 8571 funciones al 100% (29,76 → 30,79% del código; fuzzy 49,68 → 52,67%), 372 unidades enlazadas, `main.dol: OK`, `regress` lost: 0, `fuzzdrop` 0 bajadas, `poolcheck` sin avisos en lo tocado. 17 unidades con fuente nueva, más `chr/ControlBase`.
+- Pendiente: `game/FinishCamera_unk::fn_803792F0` (0x33A0 bytes) sin escribir; la segunda mitad por dirección (unidades por encima de `FinishCamera_unk`) va en `batch-auto-20kb-game-b`.

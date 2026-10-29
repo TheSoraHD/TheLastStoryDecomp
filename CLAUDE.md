@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `close-near-units` (2026-10-29, propuesta K, sin mergear): **8180 / 18215 funciones al 100%** (código 29,8%), **372** ficheros enlazados (`gmk/SparkCube`, `gmk/Banana`), `main.dol: OK`. `MP/Popup::vf10` al 99,8%. Bloqueos de `db/EventIdTable_unk`, `std/bad_cast` y enemigos en `docs/close-near-units.md`.
-- `rso-names` + `-2` + `-3` (2026-10-29): nombres reales del `LastWorld_tools.rso` USA (772/784 aplicados, `MemoryTag` en `operator new`: clases `atn::Model`/`Keyboard`/`MemoryManager`/`EfpFile`/`SimpleVector`, `Inventory`, iostream de MSL...), herramientas `tools/decomp/rso/`. Detalle y candidatos: `docs/rso-names*.md`. Revisión de Svenchu/Codex: `docs/revision-2026-10-29.md`.
-- Unidades de los commits de Svenchu/Codex (todas `matching: false`): AI_archer_attack01 479/510 (falta el `std::map` de scripts, ver `docs/mwcc-blockers.md`), SoundManager 64/76, GraphicsDevice 25/41, allocator_char (ahora `atn/WordWrap_unk`, 25/44), RenderSystem_unk 14/37, D2A_Texture 14/30, game/main 11/14; notas en `docs/<unidad>*.md`.
+- `batch-auto-20kb-game` (2026-10-29, propuesta E, primera mitad, sin mergear; sale de `close-near-units`): **8571 / 18215 funciones al 100%** (código 30,8%, fuzzy 52,7%), **372** ficheros enlazados, `main.dol: OK`. 17 unidades de 10–20 KB con fuente nueva (más `chr/ControlBase`) (`chr/Control*`, `Event/Path`, `DialogHead`, `EnvSeManager`, `DamageCalc_unk`...); detalle y decisiones en `docs/batch-auto-20kb-game.md`. La segunda mitad va en `batch-auto-20kb-game-b`.
+- Anteriores sin mergear: `close-near-units` (K: SparkCube y Banana enlazadas, `docs/close-near-units.md`), `rso-names*` (nombres reales del RSO USA, `docs/rso-names*.md`); unidades de Svenchu/Codex y su revisión en `docs/revision-2026-10-29.md`.
+- objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)
@@ -70,6 +70,7 @@ build/tools/objdiff-cli diff -p . -u main/<unidad> <símbolo> -o - --format json
 python3 tools/decomp/targets.py [--max-unit N] [--funcs 256]   # objetivos
 python3 tools/decomp/fasm.py <unidad> <addr|nombre>            # asm objetivo compacto
 python3 tools/decomp/cmp.py <unidad> [filtro] [-v]             # OK/DIFF por función (no mira destinos de salto)
+python3 tools/decomp/mnemcheck.py <unidad> [-a]                # funciones al 100% con algún mnemónico distinto (beq/bne)
 python3 tools/decomp/odiff2.py <unidad> <símbolo>              # instrucciones distintas
 python3 tools/decomp/fnstat.py <unidad>                        # estado por función
 python3 tools/decomp/xref.py <nombre>                          # referencias en todo el DOL

@@ -191,3 +191,12 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Los locales de un inline van por debajo de los del llamador en la pila: si un vector del original está más abajo de lo esperado, el bloque que lo usa era un inline (`MP/Popup::vf10`, `SetSlot_unk`).
 - Un destructor `virtual ~X() {}` inline en la cabecera sale al final del `.o`; si en el `.dol` va tras la factoría, definirlo en el `.cpp` en su sitio (`gmk/Banana`).
 - Una unidad al 100% con la estática local de un inline ajeno (`sListeners` de `fn_8014F8F4`) puede enlazar: probar `matching: true` antes de descartarla (`gmk/SparkCube`).
+- objdiff da 100% con un `beq` donde el original tiene `bne` (condición invertida): pasar `tools/decomp/mnemcheck.py` a las funciones al 100% (`game/DamageCalc_unk fn_800407F4`).
+- `x == 1 || x == 4 || x == 5` sale como prueba de bits (`subi`/`cmplwi 4`/`slw`/`andi. 0x19`); el `switch` equivalente da comparaciones (`game/DamageCalc_unk`).
+- `mode == 1 || mode == 0` con `mode` en un local se junta en `cmplwi 1`; leyendo el miembro dos veces (`p->m540 == 1 || p->m540 == 0`) salen las dos comparaciones del original (`game/DamageCalc_unk`).
+- `mullw r, rX, 0` (multiplicar por cero sin plegar) sale de `x -= x + 1 - y;` (= `y - 1`) (`game/DamageCalc_unk fn_8003F538`).
+- Un `new (..., "", "", 0)` dentro de una inline pone los `""` en `@STRING@` de `.sdata`; en una función `static` (que se inlinea igual) van a `@stringBase0` de `.rodata` (`game/DamageCalc_unk`).
+- Una constante float repetida en varios `if` de una inline (`MAX(e[i], 1.0f)`) se carga una sola vez si va en un local de la inline (`float neutral = 1.0f;`) (`game/DamageCalc_unk`).
+- Los floats de configuración de un bucle (`rate *= step` con tope) en una inline que devuelve el resultado dan los registros float del original; escritos en la función, no (`ComboRate_unk`).
+- Un `std::vector` miembro con un nivel de destructor de más: envolverlo en una clase derivada vacía (`CharaListenerList_unk`, destructor 0x8003EFB0).
+- Bucle que recoge bits (`if (bit == (bit & mask)) *out++ = bit;`): el orden de declaración `bits[32]`, `out`, `count`, `mask` decide qué registro lleva `i` y cuál `bit` (`fn_80040B44`).
