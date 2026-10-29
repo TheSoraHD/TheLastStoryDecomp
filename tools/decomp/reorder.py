@@ -202,6 +202,12 @@ def is_function(t):
 
 chunks = [(k, t, s) for k, t, s in items]
 
+
+def idx_free(t):
+    """True for a chunk that is a plain declaration (no body)."""
+    c = code_of(t).strip()
+    return c.endswith(";") and "{" not in c
+
 # ---- pair emitted functions with our object ---------------------------------------------------
 build()
 ours = [nm for nm in funcs(f"build/SLSP01/src/{unit}.o") if not nm.startswith("__sinit_")]
@@ -266,6 +272,8 @@ order = sorted(pos, key=lambda x: (pos[x], x))
 # free functions whose rank changes get a prototype at their old place, so every use that saw
 # the definition before still sees a declaration (with -ipa file this does not change the code)
 orig_rank = {idx: r for r, idx in enumerate(sorted(pos))}
+# prototypes already in the file (from earlier runs or written by hand) are not added again
+existing = {re.sub(r"\s+", " ", code_of(t)).strip() for k, t, s in chunks if k == "chunk" and idx_free(t)}
 protos = {}
 for r, idx in enumerate(order):
     if orig_rank[idx] == r:
@@ -275,7 +283,11 @@ for r, idx in enumerate(order):
     name = re.search(r"([~\w:]+|operator\s*\S+)\s*\(", re.sub(r"__declspec\(\w+\)", "", head))
     if name is None or "::" in name.group(1):
         continue
-    protos[idx] = re.sub(r"\s+", " ", head) + ";\n"
+    proto = re.sub(r"\s+", " ", head) + ";"
+    if proto in existing:
+        continue
+    existing.add(proto)
+    protos[idx] = proto + "\n"
 
 # ---- write ----------------------------------------------------------------------------------
 out = []

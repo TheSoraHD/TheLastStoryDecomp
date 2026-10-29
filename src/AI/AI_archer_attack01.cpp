@@ -1425,8 +1425,14 @@ struct AIString_unk {
 struct AIScriptMapNode_unk {
     AIScriptMapNode_unk* mLeft;
     AIScriptMapNode_unk* mRight;
-    AIScriptMapNode_unk* mParent;
+    unsigned long mParentColor; // inferred: parent pointer, bit 0 = red (fn_8003E120)
     AIString_unk mKey;
+
+    AIScriptMapNode_unk* Parent() const { return (AIScriptMapNode_unk*)(mParentColor & ~1); }
+    bool IsRed() const { return (mParentColor & 1) == 1; }
+    void SetRed() { mParentColor |= 1; }
+    void SetBlack() { mParentColor &= ~1; }
+    void SetParent(AIScriptMapNode_unk* parent) { mParentColor = (unsigned long)parent | (mParentColor & 1); }
 };
 
 extern "C" int memcmp(const void*, const void*, unsigned long);
@@ -1871,26 +1877,6 @@ int AI::Script::AI_archer_attack01::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_archer_attack01::vf20() {
     if (lbl_807C6A40.m18 == 0) {
@@ -1965,8 +1951,6 @@ int AI::Script::AI_archer_attack01::vf18() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_archer_attack01::vf24() {
     if (lbl_807C6A40.m18 == 0) {
@@ -2063,8 +2047,6 @@ int AI::Script::AI_archer_attack01::vf0C() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_archer_attack01::vf1C() {
     int result = FarOrSpecial_unk();
@@ -2104,10 +2086,6 @@ int AI::Script::AI_archer_attack01::vf2C() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 static inline int IsBusy_unk(CharaTask* chara, int next) {
     if (next == 0) {
@@ -2205,46 +2183,6 @@ static inline int Combo_unk() {
     lbl_807C6A40.m18 = 0;
     return 9;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 // inferred: never inlined into vf40, its only caller (noinline as in MP/CryptMP)
 __declspec(noinline) int AI::Script::AI_archer_attack01::fn_8001FB08() {
@@ -4197,18 +4135,6 @@ int AI::Script::AI_em_type003::vf08() {
     fn_8001AEDC(8, &d, &c, &b, &a);
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_em_type003::vf1C() {
     if (SkillDist_unk(lbl_807C6A40.m1C, lbl_807C68C0.m20) > lbl_807C6A40.m18) {
@@ -4277,8 +4203,6 @@ int AI::Script::AI_em_type010::vf08() {
     fn_8001AEDC(8, &a, &b, &c, &d);
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_em_type010::vf0C() {
     if (lbl_807C6A40.m24 == 1) {
@@ -4365,8 +4289,6 @@ int AI::Script::AI_em_type102::vf08() {
 int AI::Script::AI_em_type102::vf2C() {
     return ShootN_unk(10);
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_em_type102::vf0C() {
     int result = CheckCount_unk();
@@ -4415,8 +4337,6 @@ int AI::Script::AI_em_type102::vf24() {
 int AI::Script::AI_em_type103::vf2C() {
     return ShootN_unk(3);
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_em_type103::vf0C() {
     int result = CheckCount_unk();
@@ -4450,8 +4370,6 @@ int AI::Script::AI_em_type103::vf0C() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_em_type103::vf18() {
     if (lbl_807C6A40.m18 == 0) {
@@ -4803,8 +4721,6 @@ int AI::Script::AI_em_type105::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_em_type105::vf20() {
     if (lbl_807C6A40.m18 == 0) {
@@ -4940,8 +4856,6 @@ __declspec(noinline) int AI::Script::AI_em_type105::fn_80029500() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_em_type106::vf0C() {
     int result = CheckCount_unk();
@@ -5110,8 +5024,6 @@ int AI::Script::AI_fr_archer_pick01::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_archer_pick01::vf20() {
     int pick = PickItem_unk();
@@ -5198,8 +5110,6 @@ int AI::Script::AI_fr_archer_pick01::vf18() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_archer_pick01::vf24() {
     int pick = PickItem_unk();
@@ -5385,10 +5295,6 @@ int AI::Script::AI_fr_buffer_pick01::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_buffer_pick01::vf0C() {
     int result = CheckCount_unk();
@@ -5593,8 +5499,6 @@ int AI::Script::AI_fr_magic_pick01::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_magic_pick01::vf0C() {
     int result = CheckCount_unk();
@@ -5743,8 +5647,6 @@ int AI::Script::AI_fr_magic_pick02::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_magic_pick02::vf0C() {
     int result = CheckCount_unk();
@@ -5819,10 +5721,6 @@ int AI::Script::AI_fr_magic_pick02::vf2C() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_magic_pick02::vf20() {
     if (lbl_807C6A40.m18 == 0) {
@@ -5980,8 +5878,6 @@ int AI::Script::AI_fr_magic_pick02::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_runaway::vf0C() {
     int result = CheckCount_unk();
@@ -6058,8 +5954,6 @@ int AI::Script::AI_fr_sword_attack01::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_sword_attack01::vf24() {
     int result = Ready_unk();
@@ -6190,8 +6084,6 @@ int AI::Script::AI_fr_sword_pick01::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_sword_pick01::vf24() {
     int result = Ready_unk();
@@ -6599,8 +6491,6 @@ int AI::Script::AI_fr_type005::vf08() {
     fn_8001AEDC(8, &a, &b, &c, &d);
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_type005::vf0C() {
     int result = CheckCount_unk();
@@ -6660,8 +6550,6 @@ int AI::Script::AI_fr_type005::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_warppointescape::vf0C() {
     int result = CheckCount_unk();
@@ -6818,12 +6706,6 @@ int AI::Script::AI_jackal01::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_jackal01::vf20() {
     int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
@@ -7095,8 +6977,6 @@ __declspec(noinline) int AI::Script::AI_jackal01::fn_800314B0() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_attack01::vf0C() {
     int result = CheckCount_unk();
@@ -7169,8 +7049,6 @@ int AI::Script::AI_magic_attack01::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_attack01::vf24() {
     int result = ApproachOrCast_unk();
@@ -7343,8 +7221,6 @@ int AI::Script::AI_magic_attack02::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_attack02::vf0C() {
     int result = CheckCount_unk();
@@ -7442,8 +7318,6 @@ int AI::Script::AI_magic_attack02::vf18() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_attack02::vf24() {
     int step = ComboStep1_unk();
@@ -7509,8 +7383,6 @@ int AI::Script::AI_magic_attack02::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_attackstable01::vf0C() {
     int result = CheckCount_unk();
@@ -7564,8 +7436,6 @@ int AI::Script::AI_magic_cure01::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_cure01::vf0C() {
     int result = CheckCount_unk();
@@ -7671,8 +7541,6 @@ int AI::Script::AI_magic_cure01::vf2C() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_cure01::vf20() {
     if (fn_8001BE00(lbl_807C6A40.mE0)) {
@@ -7764,8 +7632,6 @@ int AI::Script::AI_magic_guard01::vf18() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_guard01::vf24() {
     int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
@@ -7868,8 +7734,6 @@ int AI::Script::AI_magic_guard01_2::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_guard01_2::vf0C() {
     int result = CheckCount_unk();
@@ -7961,8 +7825,6 @@ int AI::Script::AI_magic_guard01_2::vf2C() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_guard01_2::vf20() {
     int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
@@ -8024,8 +7886,6 @@ int AI::Script::AI_magic_guard02::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_guard02::vf0C() {
     int result = CheckCount_unk();
@@ -8102,8 +7962,6 @@ int AI::Script::AI_magic_guard02::vf18() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_guard02::vf24() {
     int step = ComboStep1_unk();
@@ -8186,8 +8044,6 @@ int AI::Script::AI_magic_guard02::vf2C() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_magic_guard02::vf20() {
     int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
@@ -8248,8 +8104,6 @@ int AI::Script::AI_np_approach::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_approach::vf0C() {
     int result = -1;
@@ -8278,8 +8132,6 @@ int AI::Script::AI_np_approach::vf14() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_approach::vf20() {
     int result = -1;
@@ -8327,8 +8179,6 @@ int AI::Script::AI_np_approach_plus::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_approach_plus::vf0C() {
     int result = -1;
@@ -8425,8 +8275,6 @@ int AI::Script::AI_np_tagger_random::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_tagger_random::vf0C() {
     int r = rand() % 3 + 1;
@@ -8512,8 +8360,6 @@ int AI::Script::AI_np_type002::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_type002::vf0C() {
     if (lbl_807C68C0.m08 != 0) {
@@ -8574,8 +8420,6 @@ int AI::Script::AI_np_type003::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_type003::vf0C() {
     if (lbl_807C68C0.m08 != 0) {
@@ -8646,8 +8490,6 @@ int AI::Script::AI_np_type004::vf20() {
     lbl_807C6A40.m00 = 1;
     return 3;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_type005::vf14() {
     if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m1C) {
@@ -8684,8 +8526,6 @@ int AI::Script::AI_np_wait_reaction::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_wait_reaction::vf0C() {
     int result = -1;
@@ -8737,8 +8577,6 @@ int AI::Script::AI_np_wait_reaction_minus::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 // NONMATCHING: 99.47% - register choice for the motion name/zero args of command 20 (as AI_np_type002::vf20).
 int AI::Script::AI_np_wait_reaction_minus::vf0C() {
@@ -8778,8 +8616,6 @@ int AI::Script::AI_np_wait_reaction_minus2::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_wait_reaction_minus2::vf0C() {
     int result = -1;
@@ -8832,8 +8668,6 @@ int AI::Script::AI_np_wait_reaction_plus::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_np_wait_reaction_plus::vf0C() {
     int result = -1;
@@ -8889,8 +8723,6 @@ int AI::Script::AI_quark01::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_quark01::vf24() {
     int result = Ready_unk();
@@ -8935,8 +8767,6 @@ int AI::Script::AI_quark01::vf18() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_quark01::vf1C() {
     int state = fn_800384DC();
@@ -8980,8 +8810,6 @@ int AI::Script::AI_quark01::vf28() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_quark01::vf20() {
     int state = fn_800384DC();
@@ -9069,8 +8897,6 @@ int AI::Script::AI_quark01::vf0C() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_quark01::vf38() {
     if (lbl_807C68C0.m58 >= lbl_807C6A40.m28) {
@@ -9155,8 +8981,6 @@ int AI::Script::AI_quark02::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_quark02::vf0C() {
     int result = CheckCount_unk();
@@ -9245,8 +9069,6 @@ int AI::Script::AI_silence_guard01::vf18() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_silence_guard01::vf24() {
     int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
@@ -9322,8 +9144,6 @@ int AI::Script::AI_sword_guard01::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_sword_guard01::vf24() {
     int result = Ready_unk();
@@ -10238,8 +10058,6 @@ int AI::Script::AI_return_guard01::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_return_guard01::vf0C() {
     int result = CheckCount_unk();
@@ -10258,8 +10076,6 @@ int AI::Script::AI_return_guard01::vf0C() {
 }
 
 int AI::Script::AI_return_guard01::vf3C() { return -1; }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 extern "C" int fn_8003CDB0() {
     if (lbl_807C68C0.m1C < fn_8001BD14(lbl_807C68C0.m00)) {
@@ -10293,8 +10109,6 @@ extern "C" int fn_8003CDB0() {
     lbl_807C6A40.m00 = 1;
     return 6;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 extern "C" int fn_8003D084(CharaTask* target) {
     if (fn_8001BF44(lbl_807C68C0.m00, lbl_807C68C0.m00)) {
@@ -10348,8 +10162,6 @@ extern "C" int fn_8003D298(int a, int b) {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 extern "C" int fn_8003D3F8() {
     if (lbl_807C68C0.m1C < lbl_807C68C0.m44) {
@@ -10383,8 +10195,6 @@ extern "C" int fn_8003D3F8() {
     lbl_807C6A40.m00 = 1;
     return 6;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 extern "C" int fn_8003D6E8() {
     if (lbl_807C68C0.m1C < lbl_807C68C0.m44) {
@@ -10430,8 +10240,6 @@ extern "C" int fn_8003D6E8() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 extern "C" int fn_8003DBA4() {
     if (lbl_807C68C0.m1C < lbl_807C68C0.m34 || fn_8001BEB0(lbl_807C68C0.m00)) {
@@ -10455,6 +10263,86 @@ extern "C" int fn_8003DBA4() {
 
 // NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
 // inferred: finds the insertion position for a string key and returns the last visited node.
+static inline void RotateLeft_unk(AIScriptMapNode_unk* x, AIScriptMapNode_unk*& root) {
+    AIScriptMapNode_unk* y = x->mRight;
+    if (root == x) {
+        root = y;
+    }
+    x->mRight = y->mLeft;
+    if (y->mLeft != 0) {
+        y->mLeft->SetParent(x);
+    }
+    y->SetParent(x->Parent());
+    if (x == x->Parent()->mLeft) {
+        x->Parent()->mLeft = y;
+    } else {
+        x->Parent()->mRight = y;
+    }
+    y->mLeft = x;
+    x->SetParent(y);
+}
+
+static inline void RotateRight_unk(AIScriptMapNode_unk* x, AIScriptMapNode_unk*& root) {
+    AIScriptMapNode_unk* y = x->mLeft;
+    if (root == x) {
+        root = y;
+    }
+    x->mLeft = y->mRight;
+    if (y->mRight != 0) {
+        y->mRight->SetParent(x);
+    }
+    y->SetParent(x->Parent());
+    if (x == x->Parent()->mLeft) {
+        x->Parent()->mLeft = y;
+    } else {
+        x->Parent()->mRight = y;
+    }
+    y->mRight = x;
+    x->SetParent(y);
+}
+
+// inferred: red-black tree rebalance after an insert (script name map)
+extern "C" void fn_8003E120(AIScriptMapNode_unk* x, AIScriptMapNode_unk* root) {
+    x->SetRed();
+    while (x != root && x->Parent()->IsRed()) {
+        AIScriptMapNode_unk* xp = x->Parent();
+        if (xp == xp->Parent()->mLeft) {
+            AIScriptMapNode_unk* y = xp->Parent()->mRight;
+            if (y != 0 && y->IsRed()) {
+                xp->SetBlack();
+                y->SetBlack();
+                x = x->Parent()->Parent();
+                x->SetRed();
+            } else {
+                if (x == xp->mRight) {
+                    x = xp;
+                    RotateLeft_unk(x, root);
+                }
+                x->Parent()->SetBlack();
+                x->Parent()->Parent()->SetRed();
+                RotateRight_unk(x->Parent()->Parent(), root);
+            }
+        } else {
+            AIScriptMapNode_unk* y = xp->Parent()->mLeft;
+            if (y != 0 && y->IsRed()) {
+                xp->SetBlack();
+                y->SetBlack();
+                x = x->Parent()->Parent();
+                x->SetRed();
+            } else {
+                if (x == xp->mLeft) {
+                    x = xp;
+                    RotateRight_unk(x, root);
+                }
+                x->Parent()->SetBlack();
+                x->Parent()->Parent()->SetRed();
+                RotateLeft_unk(x->Parent()->Parent(), root);
+            }
+        }
+    }
+    root->SetBlack();
+}
+
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
                                             AIScriptMapNode_unk** parent,
                                             unsigned char* insertLeft,
