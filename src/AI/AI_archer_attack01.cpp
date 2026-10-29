@@ -1085,6 +1085,19 @@ static inline int Turn_unk() {
     return 3;
 }
 
+// inferred: command 6 on out.m18 when the target is in range (returns 4)
+static inline int ShootInRange_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        if (InRange_unk(9999.0f)) {
+            Command_unk(6, lbl_807C6A40.m18, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    return -1;
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -3076,6 +3089,27 @@ int AI::Script::AI_em_bridge_archer::vf08() {
     lbl_807C6A40.m1C = lbl_807C68C0.m80;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_bridge_archer::vf2C() {
+    return ShootInRange_unk();
+}
+
+int AI::Script::AI_em_bridge_archer::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (CanUseItem2_unk()) {
+        vf18();
+        lbl_807C6A40.m00 = 1;
+        return 9;
+    }
+    Command_unk(0, lbl_807C6A40.m1C, 0, 0, 0);
+    lbl_807C6A40.m00 = 1;
+    return 9;
 }
 
 int AI::Script::AI_em_bridge_archer::vf40() {
