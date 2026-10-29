@@ -37,3 +37,30 @@ extern "C" void* fn_805381DC(void* self) {
     context = reinterpret_cast<void**>(context)[2];
     return reinterpret_cast<void**>(context)[2];
 }
+
+// NONMATCHING: 90.49% - the second and third component checks allocate different registers.
+extern "C" void fn_805381F0(atn::Vector3* output, Event::ActionArg_unk* args, int index) {
+    Event::ActionParam_unk* param;
+    int valid = 0;
+    if (index >= 0 && index < args->m30) {
+        valid = 1;
+    }
+    param = valid != 0 ? args->m2C + index : 0;
+    output->x = param->m04.f;
+
+    int next = index + 1;
+    valid = 0;
+    if (next >= 0 && next < args->m30) {
+        valid = 1;
+    }
+    param = valid != 0 ? args->m2C + next : 0;
+    output->y = param->m04.f;
+
+    next = index + 2;
+    valid = 0;
+    if (next >= 0 && next < args->m30) {
+        valid = 1;
+    }
+    param = valid != 0 ? args->m2C + next : 0;
+    output->z = param->m04.f;
+}
