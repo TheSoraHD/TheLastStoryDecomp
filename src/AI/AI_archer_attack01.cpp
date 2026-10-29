@@ -242,6 +242,7 @@ int fn_8001B4A4();
 int fn_8001AEBC(int size);
 int rand();
 int fn_8003DBA4();
+int fn_8003D6E8();
 void fn_8001C284();
 void fn_8001E730();
 void* fn_8001EA18(void*);
@@ -9139,6 +9140,44 @@ int AI::Script::AI_quark02::vf40() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_quark02::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (lbl_807C6A40.m18 == 0) {
+        lbl_807C6A40.mE0 = lbl_807C68C0.m00;
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m18 = 1;
+        return -1;
+    }
+    if (lbl_807C6A40.m18 == 1) {
+        if (fn_8001BE00(lbl_807C6A40.mE0)) {
+            CharaTask* target = lbl_807C6A40.mE0;
+            Command_unk(9, (int)target, lbl_807C6A40.m1C, 0, 0);
+            lbl_807C68C0.m28 = (int)target;
+            lbl_807C6A40.m00 = 1;
+            lbl_807C6A40.m18 = 2;
+            return -1;
+        }
+        lbl_807C6A40.m18 = 4;
+        lbl_807C6A40.m00 = 1;
+        return -1;
+    }
+    if (lbl_807C6A40.m18 == 2) {
+        if (fn_8001BE00(lbl_807C6A40.mE0)) {
+            fn_8001BE00(lbl_807C68C0.m20);
+            return -1;
+        }
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_silence_guard01::vf08() {
     int result = 1;
@@ -9149,6 +9188,38 @@ int AI::Script::AI_silence_guard01::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_silence_guard01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+            if (state == 1) {
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            if (state == 10) {
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            int next = fn_8003D6E8();
+            if (next == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            if (next == 5) {
+                lbl_807C6A40.m00 = 1;
+                return 5;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    return -1;
 }
 
 int AI::Script::AI_silence_guard01::vf18() {
