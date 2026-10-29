@@ -4,6 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-10-29 | `rso-names-3` (`MemoryTag` en `operator new`, SparkCube 48xxx) | — | 8180 → 8180 | 29,75% | 370 | `docs/rso-names.md` (sección "Cuarta tanda") |
 | 2026-10-29 | `rso-names-2` (nombres reales del RSO en el fuente, 3 colas + tercera tanda secuencial) | — | 8180 → 8180 | 29,75% / — | 370 | `docs/rso-names.md` (sección "Segunda tanda"), `docs/rso-names-q{A,B,C}.md`; fusión `atn/WordWrap_unk`+`char_traits_char`+`allocator_char`; thunks de iostream a `GameEventScript_cont2` (lost 2 aceptado); tercera tanda: `balance_insert`, `Inventory`, `SimpleArray`, `CharaFaceControl`, `AllocFromMem2`, `EffFile`, `GimmickManager`, vistas parciales |
 | 2026-10-29 | `rso-names` (nombres del `LastWorld_tools.rso` USA) | — | 8180 → 8180 | 29,75% / 49,67% fuzzy | 370 | `docs/rso-names.md` (299 renombrados en `symbols.txt`, `GetNormalize`/`GetStrings`, `tools/decomp/rso/`; tabla de nombres reales pendientes por unidad) |
 | 2026-10-29 | `fix-svenchu-linkage` (funciones que faltan: GraphicsDevice, SoundManager, AI, allocator_char) | merge en `main` 2026-10-29 | 7830 → 8180 | 27,92 → 29,75% / 47,50 → 49,67% fuzzy | 370 | `docs/revision-2026-10-29.md` (sección "Continuación"; AI 479/510, SoundManager 64/76, GraphicsDevice 25/41; split AiCommon/AI a 0x8001C088; bloqueos en `docs/mwcc-blockers.md`) |
