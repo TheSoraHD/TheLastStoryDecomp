@@ -29,6 +29,10 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Un despachador de estados inlinea las funciones de estado de una sola llamada aunque estén definidas antes: sacarlas del autoinline (`((void)0)`, Em101LittleZesya).
 - Un miembro inline virtual usado solo por la vtable puede emitirse en mitad del fichero; si el original lo tiene al final, definirlo fuera de línea al final (`SkeltonsMirror::vf38`).
 - La vtable (y el destructor inline) solo se emite si se define la primera virtual no inline (normalmente `vf0C`).
+- Cada nivel de inline invierte la lista de locales del callee al fundirla: slots de pila de arriba abajo en el orden `propios + reversed(callee)` por llamada. Por eso el slot del primer argumento de un `Command_unk(a,b,c,d)` (locales `d_,c_,b_,a_`) queda alto en profundidad par y bajo en impar: si sale al revés, quitar o añadir un envoltorio inline (`MoveTo_unk`, `Return_unk`, `FollowTo_unk`) (AI_archer_attack01).
+- La asignación de registros de `rand()%range` (lo/range en r31/r30) también depende de la profundidad de inline: probar `AttackNear_unk` frente a `AttackNear3_unk` (mismo cuerpo, un nivel más) (AI_archer_attack01).
+- `int n = f(); if (n == K) {...; return K;} return n;` emite un salto de más; `return Done_unk(f());` con el `if` dentro de un inline salta directo al epílogo (AI_archer_attack01).
+- Con `-ipa file` MWCC también inlinea funciones definidas **después** del llamador: helpers compartidos que el original llama con `bl` (cola `fn_8003CDB0..fn_8003DBA4`, accesores `fn_8001C260/26C/278`) necesitan `__declspec(noinline)` en la definición (precedente MP/CryptMP). Al añadir un callee, mirar la cuenta de toda la unidad, no solo la función nueva.
 
 ## Registros y pila
 
@@ -78,6 +82,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Releer `mRot.y` en un local justo antes de cada `PSMTXRotRad` adelanta la carga como el original (Em302Kraken vfCC, Em204).
 - Bucle `for (j = i + 1 ...)` reutilizado cambia el registro del índice; con un segundo índice `k` sale el del original (Em403WarLion fn_8032A9F4).
 - Global cargado antes de los argumentos: `EffectMgr_unk* mgr = lbl_8087F3C0;` antes de la llamada (Em204, Em101ElderZesya).
+- Puntero empaquetado con bit de color (`(unsigned)p | (m & 1)`): el orden de operandos decide `or rX, rP, rM` y `rlwimi` frente a `clrrwi`: escribir el puntero primero (`fn_8003E120`, árbol rojo-negro).
+- Mismos stores con la constante en r0 y el valor en r8 (o al revés) en `Command_unk(20, "lit", 0, 0, 0)`: no lo arreglan locales en otro orden ni envoltorios; documentado en `mwcc-blockers.md` (AI np_type002/np_wait_reaction_minus).
 
 ## Datos y secciones
 
@@ -112,6 +118,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Un agregado local con literales (`float p[7] = {0.0f, ...}`) se rellena entero con ceros o se copia de una tabla estática; si el original carga cada valor, asignar elemento a elemento (`atn/RenderSystem_unk fn_800BFAC8`, de 95% a 100%).
 - MWCC pliega productos de literales float (`640.0f * 0.078f`): si el original multiplica en tiempo de ejecución, sus operandos no eran literales; ni `static const float` ni un inline lo evitan (`atn/RenderSystem_unk fn_800BDBC8`, sin resolver).
 - Cadenas de `.data` junto a `"Memory allocation failure"` (no en `@stringBase0`): literales de ctores inline de cabecera, p. ej. `LayerZPrePass() : Layer3D("ZPrePass")` en `atn/Layer3D.h` (RenderSystem).
+- Orden del pool de cadenas: un literal se crea cuando se procesa la función que lo usa, en orden de fuente, salvo que la función se llame antes de su definición (entonces se procesa en esa llamada y sus literales van antes; comprobado con un fichero de prueba). Literales de ramas plegadas por constante no se crean; los de una inline con enlace externo (miembro inline, `inline` no `static`) van a `.data`, no al pool de `.rodata`.
+- `strlen` de `<string.h>` es intrínseca: incluir `boost/function` (que la arrastra) cambió el código de `Bgm`; en `SoundManager.h` basta una declaración adelantada de `boost::function`.
 
 ## Enlazado y símbolos
 

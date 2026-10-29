@@ -1,5 +1,7 @@
 # AI/AI_archer_attack01
 
+- 2026-10-29 (`fix-svenchu-linkage`, continuación, `docs/revision-2026-10-29.md`): **479/510** (7 funciones pasaron a `AiCommon_unk` al mover el split a 0x8001C088). Estado global tipado (`AiInput_unk`/`AiOutput_unk`/`AiTargets_unk`) y definido aquí; ~60 helpers `static inline` compartidos por los scripts (`Command_unk`, `CheckCount_unk`, `PickItem_unk`, `ApproachOrCast_unk`…), con la profundidad de inline ajustada al orden de slots (`docs/trucos-mwcc.md`, Inlining). Helpers por clase como miembros estáticos `noinline`; cola compartida `fn_8003CDB0..fn_8003DBA4` `noinline`; `fn_8003E120` (rebalanceo del árbol) al 100%. Pendiente y bloqueos: `docs/mwcc-blockers.md` (sección AI_archer_attack01) y la lista de la revisión.
+
 - 2026-10-29 (`fix-svenchu-linkage`, `docs/revision-2026-10-29.md`): fuente en orden del `.dol`; clases reales `AI::Script::CharaAi` (15 virtuales `int vfXX()`, vf08 pura, por defecto `return -1` en 0x8001EDE8–0x8001EE50) y 64 scripts con sus slots; ctors `AI_x::AI_x() {}` y `new (3, "", "", 0) AI_x()` en la fábrica; las 64 vtables salen idénticas. 405 renombrados en `symbols.txt` (`vfXX__Q32AI6Script<clase>Fv`). Nuevas: `vf08` de np_type002/003 y fr_warppointescape (100%), np_type001 (95,15%) y quark01 (61,90%). 189/517. Pendiente: datos propios aún `extern` (`.bss` `lbl_807C68C0`/`lbl_807C6A40`/`lbl_807C6B30`…, `.sdata2`, cadenas de `lbl_807307A0`) y 294 funciones.
 
 - Unidad: 517 funciones; 185 al 100%. `matching: false`.
