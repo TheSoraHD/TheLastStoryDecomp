@@ -9230,6 +9230,34 @@ int AI::Script::AI_silence_guard01::vf18() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_silence_guard01::vf24() {
+    int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+    if (state == 10) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (state == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    int result = Stop_unk();
+    if (result == 1) {
+        int next = fn_8003D6E8();
+        if (next == 5) {
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_silence_guard01::vf40() {
     int result = CheckCount_unk();
@@ -9237,6 +9265,32 @@ int AI::Script::AI_silence_guard01::vf40() {
         Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_silence_guard01::vf1C() {
+    int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+    if (state == 1) {
+        Command_unk(15, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 12;
+    }
+    if (state == 10) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        int next = fn_8003D6E8();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 5) {
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        return -1;
     }
     return -1;
 }
@@ -9253,12 +9307,123 @@ int AI::Script::AI_sword_guard01::vf08() {
     }
     return result;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_sword_guard01::vf24() {
+    int result = Ready_unk();
+    if (result == 6) {
+        int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+        if (state == 10) {
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        if (state == 1) {
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        int next = fn_8003DBA4();
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_sword_guard01::vf18() {
+    int result = AttackNear3_unk();
+
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_sword_guard01::vf1C() {
+    int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+    if (state == 10) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (state == 1) {
+        Command_unk(15, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 12;
+    }
+    int result = FarOrSpecial_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    if (result == 8) {
+        lbl_807C6A40.m00 = 1;
+        return 8;
+    }
+    return -1;
+}
 
 int AI::Script::AI_sword_guard01::vf28() {
     int result = AttackRandom_unk();
     if (result == 5) {
         lbl_807C6A40.m00 = 1;
         return 5;
+    }
+    return -1;
+}
+
+int AI::Script::AI_sword_guard01::vf20() {
+    int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+    if (state == 1) {
+        Command_unk(15, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 12;
+    }
+    if (state == 10) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    int result = AttackValid_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (lbl_807C68C0.m0C < lbl_807C6A40.m18) {
+        if (lbl_807C68C0.m1C < lbl_807C68C0.m30) {
+            Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        return -1;
+    }
+    if (lbl_807C68C0.m1C > lbl_807C68C0.m34) {
+        if (CanUseItem_unk()) {
+            Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
     }
     return -1;
 }
@@ -9271,6 +9436,62 @@ int AI::Script::AI_sword_guard01::vf40() {
         return 1;
     }
     return -1;
+}
+
+int AI::Script::AI_sword_guard01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+            if (state == 1) {
+                Command_unk(15, 0, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                return 12;
+            }
+            if (state == 10) {
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            int next = fn_8003DBA4();
+            if (next == 6) {
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            if (next == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_sword_guard01::vf38() {
+    if (lbl_807C68C0.m58 >= lbl_807C6A40.m28) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    int result = Stamina_unk();
+    if (result == 1) {
+        if (lbl_807C68C0.m0C >= 30) {
+            if (lbl_807C68C0.m1C <= lbl_807C68C0.m30) {
+                Command_unk(5, 1, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                return 8;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    Command_unk(0, 0, 0, 0, 0);
+    lbl_807C6A40.m00 = 1;
+    return 1;
 }
 
 int AI::Script::AI_sword_leaderguard01::vf08() {
