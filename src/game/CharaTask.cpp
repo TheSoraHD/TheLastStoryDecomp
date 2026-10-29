@@ -8585,11 +8585,11 @@ void CharaTask::fn_801595BC(int a, int count, int motion, int releaseMotion) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCaught(this, a, count, motion, releaseMotion));
 }
 
-void CharaTask::fn_801598B4(int a, int b, int c) {
+void CharaTask::fn_801598B4(CharaTask* a, int b, int c) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChaseCaught(this, a, b, c));
 }
 
-void CharaTask::fn_80159BA4(int a) {
+void CharaTask::fn_80159BA4(CharaTask* a) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChaseCatch(this, a));
 }
 

@@ -348,8 +348,8 @@ void ChaserNpc::fn_8018161C(int state) {
         m14D4.m[0][3] = pos.x;
         m14D4.m[1][3] = pos.y;
         m14D4.m[2][3] = pos.z;
-        fn_801598B4((int)player, -1, 0x96);
-        player->fn_80159BA4((int)this);
+        fn_801598B4(player, -1, 0x96);
+        player->fn_80159BA4(this);
         break;
     }
     }

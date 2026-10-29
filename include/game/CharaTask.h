@@ -830,8 +830,8 @@ public:
     void fn_80158EF0(int a);
     void fn_801591E8(const atn::Vector3& dir);
     void fn_801595BC(int a, int count, int motion, int releaseMotion);
-    void fn_801598B4(int a, int b, int c);
-    void fn_80159BA4(int a);
+    void fn_801598B4(CharaTask* catcher, int presses, int time); // inferred: caught (chr::ControlChaseCaught)
+    void fn_80159BA4(CharaTask* target);                        // inferred: catches (chr::ControlChaseCatch)
     void fn_80159E9C();
     void fn_8015A184();
     void fn_8015A46C(const atn::Vector3& dir);

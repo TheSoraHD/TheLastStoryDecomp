@@ -142,7 +142,7 @@ extern "C" void fn_80182788(ChaseManager* mgr, ChaserGuard* guard, CharaTask* ta
         mgr->m6C = 0;
         mgr->mState = 2;
         mgr->mCaught = target;
-        target->fn_801598B4((int)guard, lbl_8087F0A8->m524, lbl_8087F0A8->m528);
+        target->fn_801598B4(guard, lbl_8087F0A8->m524, lbl_8087F0A8->m528);
         lbl_8087F430->m5660 = 1;
         for (unsigned int i = 0; i < mgr->mCharas.mSize; i++) {
             if (mgr->mCharas.mData[i] != mgr->mCaught) {

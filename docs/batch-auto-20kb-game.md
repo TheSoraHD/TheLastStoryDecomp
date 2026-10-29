@@ -46,3 +46,10 @@ Unidades no `atn/` ni de enemigos, sin fuente, de 10–20 KB, en orden de direcc
   - `CharaTask::vfE0` recibe la dirección (`const atn::Vector3&`, la pasa `ControlQuarkSeirenAttack`); overrides de `Em203GreaterDaemon`, `Em203GreaterDaemonRed` y `EnemyQuarkStand` y sus símbolos renombrados.
   - `HitInfo_unk::mC8` nuevo (último miembro).
   - `ControlCharge.h` reescrito con las seis clases; `ControlHighJumpAttack::m2C` es `float`.
+
+### `chr/ControlChaseCaught` (0x801A77BC, 39 funciones)
+
+- Ocho controles del modo persecución: `ControlChaseCaught`/`Held`/`Release` (atrapado por un guardia), `ControlChaseCatch`/`Hold`/`Released` (atrapa a otro), `ControlChaseAssist` y `ControlChaseFollow` (sigue al líder). 29/39 al 100%; el resto `NONMATCHING` (registros; la matriz de rotación de `Catch`/`Hold` tiene el mismo problema de huecos de pila que `ControlBase::vf18`).
+- **Decisiones sin el usuario:**
+  - `CharaTask::fn_801598B4` y `fn_80159BA4` y los constructores de `ControlChaseCaught`/`ControlChaseCatch` reciben `CharaTask*` en vez de `int` (los llamadores `ChaserNpc` y `ChaseManager` hacían `(int)ptr`); símbolos renombrados.
+  - El orden de las clases en `ControlChaseCaught.h` sigue el de las vtables (Caught, Held, Release, Catch, Hold, Released, Assist, Follow): decide el orden de los destructores implícitos.
