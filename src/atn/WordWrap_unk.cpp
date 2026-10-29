@@ -277,6 +277,12 @@ basic_streambuf<C, T>::~basic_streambuf() {}
 // NONMATCHING: 35.00% (ctor), 38.21% (dtor), 36.12% (flush) - the inlining depth differs: the
 // original keeps the flush call in the inlined ~sentry of the tied stream and inlines
 // setstate(failbit) here (setstate is called out of line elsewhere)
+// (2026-10-29) The target is the natural MSL shape: the ctor calls os.tie()->flush(), flush and
+// ~sentry are mutually recursive inlines expanded a fixed number of levels (ctor -> flush ->
+// ~sentry -> flush call; standalone flush -> ctor -> flush -> ~sentry -> flush -> ~sentry call),
+// and setstate is inlined at the first level only. Written that way MWCC expands further (ctor
+// 0x440 bytes instead of 0x18C) and inlines setstate everywhere; with setstate out of line the
+// ctor drops to 12%. 7 forms tried, see docs/mwcc-blockers.md.
 template <class C, class T>
 basic_ostream<C, T>::sentry::sentry(basic_ostream<C, T>& os) : mOk(false), mNested_unk(false), mOs(&os) {
     if (os.good()) {

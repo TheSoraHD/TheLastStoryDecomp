@@ -102,3 +102,11 @@ ArrowSet, Np131LivingArmor, D2AMpMenuFriendRoom, ShopColor), todas por el repart
 - **`np_type002::vf14` / `np_type003::vf14`** (99,32/99,25%): coloreo de la base de salida y del temporal de `m08` en `m18++`; probado estilo `result`, helper `MovePick_unk`, `Vector3` local, orden de stores.
 - **Árbol del mapa de scripts** (`fn_8001E730`, `fn_8001EA18`, `fn_8001ECD0`, `fn_8003DD50`, `fn_8003DEE0`, `fn_8003E6B8`): código de `std::map` de MSL con varios niveles de inline (destrucción recursiva inlineada dos niveles, comprobaciones `this` encadenadas); sin la cabecera `tree` de MSL no se reproduce. `fn_8003E120` (rebalanceo) sí sale al 100% a mano.
 
+## `basic_ostream<char>::sentry` / `flush` (atn/WordWrap_unk, 0x800E14A4, 0x800E1630, 0x800E1A48)
+
+Tres funciones de MSL mutuamente recursivas e inline (ctor → `tie()->flush()` → `~sentry` → `flush`). El original las expande un número fijo de niveles e inlinea `setstate` solo en el primero (en los niveles internos lo llama, 0x800E0A64). Escritas en la forma natural, MWCC (Wii/1.3, `-ipa file`) expande más (ctor 0x440 frente a 0x18C) e inlinea `setstate` en todos los niveles; con `setstate` fuera de línea el ctor baja al 12%. Probado (2026-10-29): forma natural con `setstate` inline o no, y cuatro cuerpos de `setstate` con más sentencias para cruzar el umbral de R5 (`docs/inlining.md`): sin cambios. Se queda la forma escrita a mano (35/38/36%). Falta saber cómo limita MWCC la recursión inline.
+
+## `Em303KrakenFoot::fn_802E3EE8` y `CharaTask::IsPlayer() const` (0x802E3EE8)
+
+Con `IsPlayer` const (nombre del RSO) MWCC vuelve a cargar `mType` para el `?:` en vez de reutilizar el valor del `!= 2` anterior (el original hace `cntlzw` sobre él, como da una inline no const: 99,15% frente a 98,96%). Probado (2026-10-29): variable local para el puntero, `int`/`bool` intermedios, cast a `const CharaTask*`, `mType == 0` directo y cinco cuerpos de `IsPlayer` (con `GetType_unk() const`, referencia, `!mType`...): ninguno lo arregla.
+
