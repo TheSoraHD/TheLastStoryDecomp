@@ -970,6 +970,11 @@ static inline int AttackDelay_unk() {
     return RandRange_unk(lbl_807C68C0.m50, lbl_807C68C0.m54);
 }
 
+// inferred: random wait time around in.m48 (in.m4C wide)
+static inline int WaitDelay_unk() {
+    return RandRange_unk(lbl_807C68C0.m48, lbl_807C68C0.m4C);
+}
+
 // inferred: attacks the target if it is still valid (fn_8001BE00), otherwise stops
 static inline int AttackValid_unk() {
     if (fn_8001BE00(lbl_807C68C0.m20)) {
@@ -3387,13 +3392,8 @@ int AI::Script::AI_em_sword_attack01::vf08() {
     return result;
 }
 
-// NONMATCHING: 91.68% - return paths through the second script helper differ.
 int AI::Script::AI_em_sword_attack01::vf24() {
-    int result = -1;
-    if (lbl_807C68C0.m08 != 0) {
-        lbl_807C6A40.m00 = 1;
-        result = 6;
-    }
+    int result = Ready_unk();
     if (result == 6) {
         int next = fn_8003DBA4();
         if (next == 6) {
@@ -3410,6 +3410,24 @@ int AI::Script::AI_em_sword_attack01::vf24() {
 }
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
 extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_sword_attack01::vf18() {
+    if (lbl_807C68C0.m1C < lbl_807C68C0.m30) {
+        Command_unk(4, (int)lbl_807C68C0.m20, lbl_807C6A40.m1C, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(0, WaitDelay_unk(), 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_sword_attack01::vf1C() {
     int result = FarOrSpecial_unk();
@@ -3451,6 +3469,26 @@ int AI::Script::AI_em_sword_attack01::vf40() {
     return -1;
 }
 
+int AI::Script::AI_em_sword_attack01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        int next = fn_8003DBA4();
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_em_sword_attack02::vf08() {
     int result = 1;
     lbl_807C6A40.m18 = 0x5A;
@@ -3460,6 +3498,37 @@ int AI::Script::AI_em_sword_attack02::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_em_sword_attack02::vf24() {
+    int result = Ready_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_sword_attack02::vf18() {
+    if (lbl_807C68C0.m1C < lbl_807C68C0.m30) {
+        Command_unk(4, (int)lbl_807C68C0.m20, lbl_807C6A40.m1C, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(0, WaitDelay_unk(), 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
 }
 
 int AI::Script::AI_em_sword_attack02::vf28() {
@@ -3477,6 +3546,26 @@ int AI::Script::AI_em_sword_attack02::vf40() {
         Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_sword_attack02::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        int next = fn_8003DBA4();
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
     }
     return -1;
 }
@@ -3813,6 +3902,17 @@ int AI::Script::AI_em_type106::vf08() {
     return 1;
 }
 
+int AI::Script::AI_em_type106::vf40() {
+    lbl_807C6A40.m3C = Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20);
+    lbl_807C6A40.m00 = 1;
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        return 1;
+    }
+    return -1;
+}
+
 // NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
 int AI::Script::AI_em_type106::vf28() {
     int args[4];
@@ -4137,6 +4237,26 @@ int AI::Script::AI_fr_sword_attack01::vf40() {
         Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_fr_sword_attack01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        int next = fn_8003DBA4();
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
     }
     return -1;
 }
@@ -4530,6 +4650,29 @@ int AI::Script::AI_magic_cure01::vf18() {
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_cure01::vf24() {
+    int result;
+    if (lbl_807C68C0.m08 != 0) {
+        // inferred: these four zeroed outputs occupy one consecutive stack aggregate.
+        struct Results_unk {
+            int d;
+            int c;
+            int b;
+            int a;
+        } results = {0, 0, 0, 0};
+        fn_8001AEDC(0, &results.a, &results.b, &results.c, &results.d);
+        lbl_807C6A40.m00 = 1;
+        result = 1;
+    } else {
+        result = -1;
+    }
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
     }
     return -1;
 }
