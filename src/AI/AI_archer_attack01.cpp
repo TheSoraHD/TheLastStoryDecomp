@@ -217,6 +217,7 @@ int fn_8001BF4C(CharaTask* chara);
 void fn_8001BADC(CharaTask* chara, int arg);
 int fn_8001B5DC(CharaTask* chara); // inferred: item to use (as fn_8001B634)
 int fn_8001BC80(CharaTask* chara, int index);
+int fn_8001BC38(CharaTask* chara, int slot);
 int fn_8001BCB4(CharaTask* chara, int slot); // inferred: slot holds a usable skill
 int fn_8001B4A4();
 int fn_8001AEBC(int size);
@@ -2132,6 +2133,22 @@ static inline int IsBusy_unk(CharaTask* chara, int next) {
 static inline void Combo7_unk(int step) {
     Command_unk(7, step, (int)lbl_807C68C0.m00, 0, 0);
 }
+// inferred: next step of the skill combo if slot out.m18 can be used, otherwise waits 30 frames
+static inline int ComboStep_unk() {
+    if (fn_8001BC38(lbl_807C68C0.m00, lbl_807C6A40.m18)) {
+        Combo7_unk(lbl_807C6A40.m18);
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m18 += 1;
+        if (fn_8001BCB4(lbl_807C68C0.m00, lbl_807C6A40.m18)) {
+            return 9;
+        }
+        lbl_807C6A40.m18 = 0;
+        return 9;
+    }
+    Wait_unk(30);
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
 static inline int Combo_unk() {
     if (IsBusy_unk(lbl_807C68C0.m00, lbl_807C6A40.m18 + 1)) {
         return -1;
@@ -2145,6 +2162,7 @@ static inline int Combo_unk() {
     lbl_807C6A40.m18 = 0;
     return 9;
 }
+
 int AI::Script::AI_arganan01::vf0C() {
     int result = CheckCount_unk();
     if (result == 1) {
@@ -2251,6 +2269,28 @@ int AI::Script::AI_buffer_attackstable01::vf08() {
     fn_8001AEDC(0, &a, &b, &c, &d);
     return 1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+// NONMATCHING: 99.87% - the stack slots of the combo and wait commands are swapped.
+int AI::Script::AI_buffer_attackstable01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C68C0.m08 != 0) {
+            if (IsBusy_unk(lbl_807C68C0.m00, lbl_807C6A40.m18 + 1)) {
+                Command_unk(0, 30, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            return ComboStep_unk();
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_buffer_attackstable01::vf2C() {
     if (lbl_807C68C0.m08 != 0) {
@@ -2296,6 +2336,30 @@ int AI::Script::AI_buffer_guard01::vf18() {
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_buffer_guard01::vf24() {
+    if (fn_8001BF4C(lbl_807C68C0.m00)) {
+        Command_unk(16, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        fn_8001BADC(lbl_807C68C0.m00, 1);
+        return 6;
+    }
+    int check = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+    if (check == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (check == 10) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    int result = Stop_unk();
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
     }
     return -1;
 }
