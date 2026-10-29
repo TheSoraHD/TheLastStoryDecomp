@@ -2,6 +2,7 @@
 // dibujo de depuracion, proyeccion a pantalla y escalado (nombre de fichero inventado).
 #include "math/Vec.h"
 #include "atn/Sphere.h"
+#include "atn/AABB_unk.h"
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_805F9640(const float a[4][4], const float b[4][4], float ab[4][4]); // inferred: PSMTX44Concat
@@ -10,19 +11,6 @@ extern "C" void fn_805F97D0(const float m[4][4], const atn::Vector3* src, atn::V
 extern "C" void* lbl_8087EEB0; // inferred: debug drawing
 extern "C" void fn_800629F0(void* draw, const atn::Vector3* center, const atn::Vector3* half, unsigned int color,
                             int arg, float f); // inferred: draws a box
-
-namespace atn {
-
-// inferred: axis aligned box (min, max)
-struct AABB_unk {
-    AABB_unk() {}
-    AABB_unk(const Vector3& min, const Vector3& max) : mMin(min), mMax(max) {}
-    AABB_unk Merge_unk(const AABB_unk& o) const; // 0x80070C98: union of both boxes
-    Vector3 mMin;
-    Vector3 mMax;
-};
-
-} // namespace atn
 
 // inferred: plane (normal, distance); names invented
 struct Plane_unk {
