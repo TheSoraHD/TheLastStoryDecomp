@@ -8,13 +8,180 @@
 
 struct AIStringWithAllocator_unk;
 
+// inferred: global AI state. The three objects are separate (the code addresses each one with its own
+// lis/addi except where MWCC derives lbl_807C6A40 from lbl_807C68C0 + 0x180), so they are defined
+// in this file in .bss order. Field names are offsets; types from the code using them.
+struct AiInput_unk { // lbl_807C68C0 (0x180): filled before the script runs
+    CharaTask* m00; // 0x00: character running the script
+    int m04;
+    int m08;
+    int m0C;
+    atn::Vector3 m10; // 0x10: position
+    float m1C;
+    CharaTask* m20; // 0x20: target
+    int m24;
+    int m28;
+    int m2C;
+    int m30;
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    int m44;
+    int m48;
+    int m4C;
+    int m50;
+    int m54;
+    int m58;
+    int m5C;
+    int m60;
+    int m64;
+    int m68;
+    int m6C;
+    int m70;
+    int m74;
+    int m78;
+    int m7C;
+    int m80;
+    int m84;
+    int m88;
+    int m8C;
+    int m90;
+    int m94;
+    int m98;
+    int m9C;
+    int mA0;
+    int mA4;
+    int mA8;
+    int mAC;
+    int mB0;
+    int mB4;
+    int mB8;
+    int mBC;
+    int mC0;
+    int mC4;
+    int mC8;
+    int mCC;
+    int mD0;
+    int mD4;
+    int mD8;
+    int mDC;
+    int mE0;
+    int mE4;
+    int mE8;
+    int mEC;
+    int mF0;
+    int mF4;
+    int mF8;
+    int mFC;
+    int m100;
+    int m104;
+    int m108;
+    int m10C;
+    int m110;
+    int m114;
+    int m118;
+    int m11C;
+    int m120;
+    int m124;
+    int m128;
+    int m12C;
+    int m130;
+    int m134;
+    int m138;
+    int m13C;
+    int m140;
+    int m144;
+    int m148;
+    int m14C;
+    int m150;
+    int m154;
+    int m158;
+    int m15C;
+    int m160;
+    int m164;
+    int m168;
+    int m16C;
+    int m170;
+    int m174;
+    int m178;
+    int m17C;
+};
+struct AiOutput_unk { // lbl_807C6A40 (0xF0): result of the script step
+    int m00; // 0x00: set to 1 by every script step
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    int m1C;
+    int m20;
+    int m24;
+    int m28;
+    int m2C;
+    int m30;
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    int m44;
+    int m48;
+    int m4C;
+    int m50;
+    int m54;
+    int m58;
+    int m5C;
+    int m60;
+    int m64;
+    int m68;
+    int m6C;
+    int m70;
+    int m74;
+    int m78;
+    int m7C;
+    int m80;
+    int m84;
+    int m88;
+    int m8C;
+    int m90;
+    int m94;
+    int m98;
+    int m9C;
+    int mA0;
+    int mA4;
+    int mA8;
+    int mAC;
+    int mB0;
+    int mB4;
+    int mB8;
+    int mBC;
+    int mC0;
+    int mC4;
+    int mC8;
+    int mCC;
+    int mD0;
+    int mD4;
+    int mD8;
+    int mDC;
+    CharaTask* mE0;
+    int mE4;
+    int mE8;
+    int mEC;
+};
+struct AiTargets_unk { // lbl_807C6B30 (0x48)
+    int m00;
+    CharaTask* m04; // 0x04: selected target
+    CharaTask* m08[16]; // 0x08: candidates (fn_8001A464)
+};
+
 extern "C" {
 
 extern void* lbl_8087EE68;
 extern CharaManager<PlayerTask>* lbl_8087F8A0;
-extern unsigned char lbl_807C68C0[];
-extern unsigned char lbl_807C6A40[];
-extern unsigned char lbl_807C6B30[];
+AiInput_unk lbl_807C68C0;
+AiOutput_unk lbl_807C6A40;
+AiTargets_unk lbl_807C6B30;
 extern unsigned char lbl_807307A0[];
 extern float lbl_80880798;
 extern float lbl_808807B8;
@@ -56,9 +223,9 @@ int fn_800209F0();
 void fn_8001C284();
 void fn_8001E730();
 void* fn_8001EA18(void*);
-unsigned char* fn_8001C260();
-unsigned char* fn_8001C26C();
-unsigned char* fn_8001C278();
+AiInput_unk* fn_8001C260();
+AiOutput_unk* fn_8001C26C();
+AiTargets_unk* fn_8001C278();
 int fn_8001ECD0(void*, int);
 void fn_8001E1D0(void*, void*, const AIStringWithAllocator_unk*);
 }
@@ -837,8 +1004,8 @@ extern "C" void fn_8001C068(CharaTask* chara, const char* name) {
 // NONMATCHING: 0.00% - the inferred copy loops compile to a different routine shape.
 // inferred: copies the script's fixed parameter blocks into the global AI state.
 extern "C" unsigned char* fn_8001C088() {
-    unsigned char* src = fn_8001C260();
-    unsigned char* dst = fn_8001C26C();
+    unsigned char* src = (unsigned char*)fn_8001C260();
+    unsigned char* dst = (unsigned char*)fn_8001C26C();
 
     *(int*)dst = 0;
     *(int*)(dst + 4) = *(int*)(src + 4);
@@ -863,7 +1030,7 @@ extern "C" unsigned char* fn_8001C088() {
         *(int*)(dst + 0xDC + i * 4) = *(int*)(src + 0x16C + i * 4);
     }
 
-    unsigned char* tail = fn_8001C278();
+    unsigned char* tail = (unsigned char*)fn_8001C278();
     CharaManager<PlayerTask>* manager = lbl_8087F8A0;
     *(int*)tail = manager != 0 ? *(int*)((unsigned char*)manager + 0x48) : 0;
     *(int*)(tail + 4) = 0;
@@ -886,34 +1053,34 @@ extern "C" unsigned char* fn_8001C1C0(unsigned char* script) {
     fn_8001C088();
     unsigned char* result = (unsigned char*)fn_8001EA18(script);
     if (result != 0) {
-        unsigned char* src = lbl_807C68C0;
-        unsigned char* dst = lbl_807C6A40;
-        if (*(int*)(src + 4) != 0) {
+        AiInput_unk* src = &lbl_807C68C0;
+        AiOutput_unk* dst = &lbl_807C6A40;
+        if (src->m04 != 0) {
             int value = fn_8001ECD0(result, 0xE);
             if (value >= 0) {
-                *(int*)(src + 4) = value;
-                *(int*)(dst + 4) = value;
+                src->m04 = value;
+                dst->m04 = value;
             }
         }
-        int value = fn_8001ECD0(result, *(int*)(src + 4));
+        int value = fn_8001ECD0(result, src->m04);
         if (value >= 0) {
-            *(int*)(dst + 4) = value;
+            dst->m04 = value;
         }
     }
     return result;
 }
 extern "C" void fn_8001C284();
 
-extern "C" unsigned char* fn_8001C260() {
-    return lbl_807C68C0;
+extern "C" AiInput_unk* fn_8001C260() {
+    return &lbl_807C68C0;
 }
 
-extern "C" unsigned char* fn_8001C26C() {
-    return lbl_807C6A40;
+extern "C" AiOutput_unk* fn_8001C26C() {
+    return &lbl_807C6A40;
 }
 
-extern "C" unsigned char* fn_8001C278() {
-    return lbl_807C6B30;
+extern "C" AiTargets_unk* fn_8001C278() {
+    return &lbl_807C6B30;
 }
 
 // NONMATCHING: 92.27% - registry population is reconstructed; local layout and call scheduling differ.
@@ -1247,10 +1414,10 @@ int AI::Script::CharaAi::vf40() { return -1; }
 
 int AI::Script::AI_archer_attack01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
-    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m1C = lbl_807C68C0.m30;
+    lbl_807C6A40.m20 = 0x5A;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -1258,18 +1425,18 @@ int AI::Script::AI_archer_attack01::vf08() {
 
 int AI::Script::AI_archer_attack01::vf40() {
     if (fn_8001FB08() == 0) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 0;
     }
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1277,12 +1444,12 @@ int AI::Script::AI_archer_attack01::vf40() {
 
 int AI::Script::AI_archer_guard01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
-    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m1C = lbl_807C68C0.m30;
+    lbl_807C6A40.m20 = 0x5A;
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x64;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -1290,18 +1457,18 @@ int AI::Script::AI_archer_guard01::vf08() {
 
 int AI::Script::AI_archer_guard01::vf40() {
     if (fn_800209F0() == 0) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 0;
     }
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1310,9 +1477,9 @@ int AI::Script::AI_archer_guard01::vf40() {
 // NONMATCHING: 98.78% - global-base register selection differs from MWCC's original allocation.
 int AI::Script::AI_archer_guard01::vf2C() {
     int result;
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        int amount = *(int*)(lbl_807C68C0 + 0x4C);
-        int base = *(int*)(lbl_807C68C0 + 0x48);
+    if (lbl_807C68C0.m08 != 0) {
+        int amount = lbl_807C68C0.m4C;
+        int base = lbl_807C68C0.m48;
         int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
         int start = base - half;
         int range = base + half - start;
@@ -1325,13 +1492,13 @@ int AI::Script::AI_archer_guard01::vf2C() {
         int d = 0;
         a = start;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 7;
     } else {
         result = -1;
     }
     if (result == 7) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 7;
     }
     return -1;
@@ -1339,22 +1506,22 @@ int AI::Script::AI_archer_guard01::vf2C() {
 
 int AI::Script::AI_arganan01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x50;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m24 = 0x50;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
 }
 
 int AI::Script::AI_arganan01::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1363,10 +1530,10 @@ int AI::Script::AI_arganan01::vf2C() {
 // NONMATCHING: 93.89% - control flow and return discriminator differ from the script stub.
 int AI::Script::AI_arganan01::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -1375,29 +1542,29 @@ int AI::Script::AI_arganan01::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
 }
 
 int AI::Script::AI_arganan01::vf20() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_buffer_attackstable01::vf08() {
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x50;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x50;
+    lbl_807C6A40.m00 = 1;
     int d = 0;
     int c = 0;
     int b = 0;
@@ -1407,13 +1574,13 @@ int AI::Script::AI_buffer_attackstable01::vf08() {
 }
 
 int AI::Script::AI_buffer_attackstable01::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1422,10 +1589,10 @@ int AI::Script::AI_buffer_attackstable01::vf2C() {
 // NONMATCHING: 93.89% - MWCC assigns the return discriminator to r3 instead of r0.
 int AI::Script::AI_buffer_attackstable01::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -1434,7 +1601,7 @@ int AI::Script::AI_buffer_attackstable01::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
@@ -1442,15 +1609,15 @@ int AI::Script::AI_buffer_attackstable01::vf40() {
 
 int AI::Script::AI_buffer_guard01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x50;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x50;
+    lbl_807C6A40.m00 = 1;
     int d = 0;
     int c = 0;
     int b = 0;
     int a = 0;
     fn_8001AEDC(0, &a, &b, &c, &d);
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -1459,9 +1626,9 @@ int AI::Script::AI_buffer_guard01::vf08() {
 // NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 int AI::Script::AI_buffer_guard01::vf18() {
     int result;
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        int amount = *(int*)(lbl_807C68C0 + 0x4C);
-        int base = *(int*)(lbl_807C68C0 + 0x48);
+    if (lbl_807C68C0.m08 != 0) {
+        int amount = lbl_807C68C0.m4C;
+        int base = lbl_807C68C0.m48;
         int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
         int start = base - half;
         int range = base + half - start;
@@ -1474,26 +1641,26 @@ int AI::Script::AI_buffer_guard01::vf18() {
         int d = 0;
         a = start;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 7;
     } else {
         result = -1;
     }
     if (result == 7) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 7;
     }
     return -1;
 }
 
 int AI::Script::AI_buffer_guard01::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1502,10 +1669,10 @@ int AI::Script::AI_buffer_guard01::vf2C() {
 // NONMATCHING: 93.89% - control flow and return discriminator differ from the script stub.
 int AI::Script::AI_buffer_guard01::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -1514,20 +1681,20 @@ int AI::Script::AI_buffer_guard01::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
 }
 
 int AI::Script::AI_buffer_guard01::vf20() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1535,15 +1702,15 @@ int AI::Script::AI_buffer_guard01::vf20() {
 
 int AI::Script::AI_buffer_guard02::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x50;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x50;
+    lbl_807C6A40.m00 = 1;
     int d = 0;
     int c = 0;
     int b = 0;
     int a = 0;
     fn_8001AEDC(0, &a, &b, &c, &d);
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -1552,9 +1719,9 @@ int AI::Script::AI_buffer_guard02::vf08() {
 // NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 int AI::Script::AI_buffer_guard02::vf18() {
     int result;
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        int amount = *(int*)(lbl_807C68C0 + 0x4C);
-        int base = *(int*)(lbl_807C68C0 + 0x48);
+    if (lbl_807C68C0.m08 != 0) {
+        int amount = lbl_807C68C0.m4C;
+        int base = lbl_807C68C0.m48;
         int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
         int start = base - half;
         int range = base + half - start;
@@ -1567,26 +1734,26 @@ int AI::Script::AI_buffer_guard02::vf18() {
         int d = 0;
         a = start;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 7;
     } else {
         result = -1;
     }
     if (result == 7) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 7;
     }
     return -1;
 }
 
 int AI::Script::AI_buffer_guard02::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1595,10 +1762,10 @@ int AI::Script::AI_buffer_guard02::vf2C() {
 // NONMATCHING: 93.89% - MWCC assigns the return discriminator to r3 instead of r0.
 int AI::Script::AI_buffer_guard02::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -1607,73 +1774,73 @@ int AI::Script::AI_buffer_guard02::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
 }
 
 int AI::Script::AI_buffer_guard02::vf20() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_buffer_pointguard01::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x50) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m1C = lbl_807C68C0.m80;
+    lbl_807C6A40.m20 = lbl_807C68C0.m84;
+    lbl_807C6A40.m24 = lbl_807C68C0.m88;
+    lbl_807C6A40.m50 = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_buffer_pointguard01::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        *(int*)lbl_807C6A40 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_buffer_pointguard01::vf28() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        *(int*)lbl_807C6A40 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_em_archer_attack02::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
-    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = 0x1E;
+    lbl_807C6A40.m20 = 0x5A;
+    lbl_807C6A40.m24 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_em_archer_attack02::vf40() {
     if (fn_80023C84() == 0) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 0;
     }
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1682,9 +1849,9 @@ int AI::Script::AI_em_archer_attack02::vf40() {
 // NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 int AI::Script::AI_em_archer_attack02::vf2C() {
     int result;
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        int amount = *(int*)(lbl_807C68C0 + 0x4C);
-        int base = *(int*)(lbl_807C68C0 + 0x48);
+    if (lbl_807C68C0.m08 != 0) {
+        int amount = lbl_807C68C0.m4C;
+        int base = lbl_807C68C0.m48;
         int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
         int start = base - half;
         int range = base + half - start;
@@ -1697,40 +1864,40 @@ int AI::Script::AI_em_archer_attack02::vf2C() {
         int d = 0;
         a = start;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 7;
     } else {
         result = -1;
     }
     if (result == 7) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 7;
     }
     return -1;
 }
 
 int AI::Script::AI_em_archer_attack02::vf14() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        *(int*)lbl_807C6A40 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
         return 7;
     }
     return -1;
 }
 
 int AI::Script::AI_em_bridge_archer::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m1C = lbl_807C68C0.m80;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_em_bridge_archer::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -1739,46 +1906,46 @@ int AI::Script::AI_em_bridge_archer::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
 }
 
 int AI::Script::AI_em_bridge_archer::vf18() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
-        int a = *(int*)(lbl_807C6A40 + 0x1C);
+        int a = lbl_807C6A40.m1C;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 9;
     }
     return -1;
 }
 
 int AI::Script::AI_em_bridge_archer::vf24() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        *(int*)lbl_807C6A40 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_em_monster_attack01::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = 0xF;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_em_monster_attack01::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -1787,20 +1954,20 @@ int AI::Script::AI_em_monster_attack01::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
 }
 
 int AI::Script::AI_em_scout::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x24) = 0;
-    *(int*)(lbl_807C6A40 + 0x28) = 0;
-    *(int*)(lbl_807C6A40 + 0x2C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m1C = lbl_807C68C0.m80;
+    lbl_807C6A40.m20 = lbl_807C68C0.m84;
+    lbl_807C6A40.m24 = 0;
+    lbl_807C6A40.m28 = 0;
+    lbl_807C6A40.m2C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
@@ -1812,28 +1979,28 @@ int AI::Script::AI_em_scout::vf28() {
     args[2] = 0;
     args[3] = 0;
     fn_8001AEDC(0x14, &args[0], &args[1], &args[2], &args[3]);
-    *(int*)lbl_807C6A40 = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 5;
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m24 = 5;
     return 1;
 }
 
 int AI::Script::AI_em_scout::vf1C() {
     int d = 0;
     int c = 0;
-    int b = *(int*)(lbl_807C68C0 + 0x20);
+    int b = (int)lbl_807C68C0.m20;
     int a = 0;
     fn_8001AEDC(7, &a, &b, &c, &d);
-    *(int*)lbl_807C6A40 = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 6;
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m24 = 6;
     return 1;
 }
 
 int AI::Script::AI_em_sword_attack01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m18 = 0x5A;
+    lbl_807C6A40.m1C = 0xF;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -1842,18 +2009,18 @@ int AI::Script::AI_em_sword_attack01::vf08() {
 // NONMATCHING: 91.68% - return paths through the second script helper differ.
 int AI::Script::AI_em_sword_attack01::vf24() {
     int result = -1;
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        *(int*)lbl_807C6A40 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
         result = 6;
     }
     if (result == 6) {
         int next = fn_8003DBA4();
         if (next == 6) {
-            *(int*)lbl_807C6A40 = 1;
+            lbl_807C6A40.m00 = 1;
             return 6;
         }
         if (next == 4) {
-            *(int*)lbl_807C6A40 = 1;
+            lbl_807C6A40.m00 = 1;
             return 4;
         }
         return -1;
@@ -1863,23 +2030,23 @@ int AI::Script::AI_em_sword_attack01::vf24() {
 
 int AI::Script::AI_em_sword_attack02::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m18 = 0x5A;
+    lbl_807C6A40.m1C = 0xF;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
 }
 
 int AI::Script::AI_em_sword_pointguard01::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x8C) = *(int*)(lbl_807C68C0 + 0x8C);
-    *(int*)(lbl_807C6A40 + 0x3C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = lbl_807C68C0.m7C;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = lbl_807C68C0.m84;
+    lbl_807C6A40.m28 = lbl_807C68C0.m88;
+    lbl_807C6A40.m8C = lbl_807C68C0.m8C;
+    lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
@@ -1889,23 +2056,23 @@ int AI::Script::AI_em_type003::vf08() {
     int c = 0xA;
     int b = 0;
     int a = 0;
-    *(int*)(lbl_807C6A40 + 0x18) = 0x28;
-    d = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x1C) = d;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0x28;
+    d = lbl_807C68C0.m7C;
+    lbl_807C6A40.m1C = d;
+    lbl_807C6A40.m00 = 1;
     fn_8001AEDC(8, &d, &c, &b, &a);
     return 1;
 }
 
 // NONMATCHING: 76.72% - MWCC's parameter stack slots and scratch-store order differ.
 int AI::Script::AI_em_type010::vf08() {
-    int a = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x18) = 0x28;
-    *(int*)(lbl_807C6A40 + 0x1C) = a;
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = 0;
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)lbl_807C6A40 = 1;
+    int a = lbl_807C68C0.m7C;
+    lbl_807C6A40.m18 = 0x28;
+    lbl_807C6A40.m1C = a;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = 0;
+    lbl_807C6A40.m28 = lbl_807C68C0.m84;
+    lbl_807C6A40.m00 = 1;
     int b = 0xA;
     int c = 0;
     int d = 0;
@@ -1914,40 +2081,40 @@ int AI::Script::AI_em_type010::vf08() {
 }
 
 int AI::Script::AI_em_type102::vf08() {
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
 int AI::Script::AI_em_type102::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
+    if (lbl_807C68C0.m08 != 0 && lbl_807C68C0.m1C < lbl_80880798) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0xA;
         fn_8001AEDC(6, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 4;
     }
     return -1;
 }
 
 int AI::Script::AI_em_type102::vf18() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0xD2;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 9;
     }
     return -1;
 }
 
 int AI::Script::AI_em_type102::vf24() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        *(int*)lbl_807C6A40 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -1955,13 +2122,13 @@ int AI::Script::AI_em_type102::vf24() {
 
 // NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
 int AI::Script::AI_em_type103::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
+    if (lbl_807C68C0.m08 != 0 && lbl_807C68C0.m1C < lbl_80880798) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 3;
         fn_8001AEDC(6, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 4;
     }
     return -1;
@@ -1969,39 +2136,39 @@ int AI::Script::AI_em_type103::vf2C() {
 
 int AI::Script::AI_em_type103::vf40() {
     if (fn_800281A0() == 0) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 0;
     }
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_em_type103::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
-    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = 0x1E;
+    lbl_807C6A40.m20 = 0x5A;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
 int AI::Script::AI_em_type104::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
+    if (lbl_807C68C0.m08 != 0 && lbl_807C68C0.m1C < lbl_80880798) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 3;
         fn_8001AEDC(6, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 4;
     }
     return -1;
@@ -2009,64 +2176,64 @@ int AI::Script::AI_em_type104::vf2C() {
 
 int AI::Script::AI_em_type104::vf40() {
     if (fn_80028D00() == 0) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 0;
     }
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_em_type104::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
-    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = 0x1E;
+    lbl_807C6A40.m20 = 0x5A;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_em_type105::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
-    *(int*)(lbl_807C6A40 + 0x20) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = lbl_807C68C0.m30;
+    lbl_807C6A40.m20 = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_em_type105::vf40() {
     if (fn_80029500() == 0) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 0;
     }
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_em_type106::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x24) = 0;
-    *(int*)(lbl_807C6A40 + 0x28) = 0;
-    *(int*)(lbl_807C6A40 + 0x2C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m1C = lbl_807C68C0.m80;
+    lbl_807C6A40.m20 = lbl_807C68C0.m84;
+    lbl_807C6A40.m24 = 0;
+    lbl_807C6A40.m28 = 0;
+    lbl_807C6A40.m2C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
@@ -2078,8 +2245,8 @@ int AI::Script::AI_em_type106::vf28() {
     args[2] = 0;
     args[3] = 0;
     fn_8001AEDC(0x14, &args[0], &args[1], &args[2], &args[3]);
-    *(int*)lbl_807C6A40 = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 5;
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m24 = 5;
     return 1;
 }
 
@@ -2087,30 +2254,30 @@ int AI::Script::AI_em_type106::vf14() {
     int d = 0;
     int c = 0;
     int b = 5;
-    int a = *(int*)(lbl_807C6A40 + 0x18);
+    int a = lbl_807C6A40.m18;
     fn_8001AEDC(0xC, &a, &b, &c, &d);
-    *(int*)lbl_807C6A40 = 1;
-    *(int*)(lbl_807C6A40 + 0x28) = 1;
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m28 = 1;
     return 1;
 }
 
 int AI::Script::AI_em_type106::vf1C() {
     int d = 0;
     int c = 0;
-    int b = *(int*)lbl_807C68C0;
+    int b = (*(int*)&lbl_807C68C0.m00);
     int a = 0;
     fn_8001AEDC(7, &a, &b, &c, &d);
-    *(int*)lbl_807C6A40 = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 6;
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m24 = 6;
     return 1;
 }
 
 int AI::Script::AI_fr_archer_pick01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
-    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m1C = lbl_807C68C0.m30;
+    lbl_807C6A40.m20 = 0x5A;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -2118,32 +2285,32 @@ int AI::Script::AI_fr_archer_pick01::vf08() {
 
 int AI::Script::AI_fr_archer_pick01::vf40() {
     if (fn_8002AD40() == 0) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 0;
     }
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_fr_buffer_pick01::vf08() {
-    *(int*)(lbl_807C6A40 + 0xE0) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.mE0 = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_fr_buffer_pick01::vf24() {
     int result;
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         // inferred: these four zeroed outputs occupy one consecutive stack aggregate.
         struct Results_unk {
             int d;
@@ -2152,26 +2319,26 @@ int AI::Script::AI_fr_buffer_pick01::vf24() {
             int a;
         } results = {0, 0, 0, 0};
         fn_8001AEDC(0, &results.a, &results.b, &results.c, &results.d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     } else {
         result = -1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_fr_buffer_pick01::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -2181,11 +2348,11 @@ int AI::Script::AI_fr_buffer_pick01::vf2C() {
 // inferred: the helper receives four consecutive output words; only the first is initialized from m80.
 int AI::Script::AI_fr_follow_player::vf08() {
     int results[4] = {0, 0, 0, 0};
-    int value = *(int*)(lbl_807C68C0 + 0x7C);
-    results[0] = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x18) = value;
-    *(int*)(lbl_807C6A40 + 0x1C) = 1;
-    *(int*)lbl_807C6A40 = 1;
+    int value = lbl_807C68C0.m7C;
+    results[0] = lbl_807C68C0.m80;
+    lbl_807C6A40.m18 = value;
+    lbl_807C6A40.m1C = 1;
+    lbl_807C6A40.m00 = 1;
     fn_8001AEDC(0, &results[0], &results[1], &results[2], &results[3]);
     return 3;
 }
@@ -2193,49 +2360,49 @@ int AI::Script::AI_fr_follow_player::vf08() {
 int AI::Script::AI_fr_follow_player::vf14() {
     int d = 0;
     int c = 0;
-    int b = *(int*)(lbl_807C6A40 + 0x18);
-    int a = *(int*)lbl_807C6B30;
+    int b = lbl_807C6A40.m18;
+    int a = lbl_807C6B30.m00;
     fn_8001AEDC(0xD, &a, &b, &c, &d);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 6;
 }
 
 int AI::Script::AI_fr_magic_pick01::vf08() {
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
-        *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
+        lbl_807C6A40.m00 = 1;
         return 7;
     }
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_fr_magic_pick02::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x18) = 0;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0x46;
-    *(int*)(lbl_807C6A40 + 0xE0) = 0;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m18 = 0;
+    lbl_807C6A40.m1C = 0x46;
+    lbl_807C6A40.mE0 = 0;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
 }
 
 int AI::Script::AI_fr_runaway::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x24) = 0;
-    *(int*)(lbl_807C6A40 + 0x28) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m1C = lbl_807C68C0.m80;
+    lbl_807C6A40.m20 = lbl_807C68C0.m84;
+    lbl_807C6A40.m24 = 0;
+    lbl_807C6A40.m28 = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_fr_sword_attack01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m18 = 0x5A;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -2243,9 +2410,9 @@ int AI::Script::AI_fr_sword_attack01::vf08() {
 
 int AI::Script::AI_fr_sword_pick01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m18 = 0x5A;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -2253,33 +2420,33 @@ int AI::Script::AI_fr_sword_pick01::vf08() {
 
 // NONMATCHING: 89.57% - stack output order and register allocation differ.
 int AI::Script::AI_fr_sword_pointguard::vf08() {
-    int d = *(int*)(lbl_807C68C0 + 0x7C);
+    int d = lbl_807C68C0.m7C;
     int c = 0x1E;
     int b = 0;
     int a = 0;
-    *(int*)(lbl_807C6A40 + 0x18) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x1C) = d;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0x3C;
+    lbl_807C6A40.m1C = d;
+    lbl_807C6A40.m00 = 1;
     fn_8001AEDC(8, &d, &c, &b, &a);
     return 1;
 }
 
 int AI::Script::AI_fr_sword_pointguard01::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x8C) = *(int*)(lbl_807C68C0 + 0x8C);
-    *(int*)(lbl_807C6A40 + 0x3C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = lbl_807C68C0.m7C;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = lbl_807C68C0.m84;
+    lbl_807C6A40.m28 = lbl_807C68C0.m88;
+    lbl_807C6A40.m8C = lbl_807C68C0.m8C;
+    lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 88.52% - argument-register allocation differs around the AI call.
 int AI::Script::AI_fr_type005::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0x2711;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0x32;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0x2711;
+    lbl_807C6A40.m1C = 0x32;
+    lbl_807C6A40.m00 = 1;
     int d = 0;
     int c = 0;
     int b = 0x32;
@@ -2290,14 +2457,14 @@ int AI::Script::AI_fr_type005::vf08() {
 
 int AI::Script::AI_fr_type005::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -2307,17 +2474,17 @@ extern "C" void fn_8003E688();
 
 
 int AI::Script::AI_fr_warppointescape::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x8C);
-    *(int*)(lbl_807C6A40 + 0x2C) = *(int*)(lbl_807C68C0 + 0x90);
-    *(int*)(lbl_807C6A40 + 0x30) = *(int*)(lbl_807C68C0 + 0x94);
-    *(int*)(lbl_807C6A40 + 0x34) = *(int*)(lbl_807C68C0 + 0x98);
-    *(int*)(lbl_807C6A40 + 0x38) = *(int*)(lbl_807C68C0 + 0x9C);
-    *(int*)(lbl_807C6A40 + 0x3C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m1C = lbl_807C68C0.m80;
+    lbl_807C6A40.m20 = lbl_807C68C0.m84;
+    lbl_807C6A40.m24 = lbl_807C68C0.m88;
+    lbl_807C6A40.m28 = lbl_807C68C0.m8C;
+    lbl_807C6A40.m2C = lbl_807C68C0.m90;
+    lbl_807C6A40.m30 = lbl_807C68C0.m94;
+    lbl_807C6A40.m34 = lbl_807C68C0.m98;
+    lbl_807C6A40.m38 = lbl_807C68C0.m9C;
+    lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
@@ -2325,20 +2492,20 @@ int AI::Script::AI_fr_warppointescape::vf14() {
     int d = 0;
     int c = 0;
     int b = 0xA;
-    int a = *(int*)(lbl_807C6A40 + 0x3C);
+    int a = lbl_807C6A40.m3C;
     fn_8001AEDC(0xC, &a, &b, &c, &d);
-    *(int*)lbl_807C6A40 = 1;
-    ++*(int*)(lbl_807C6A40 + 0x40);
+    lbl_807C6A40.m00 = 1;
+    ++lbl_807C6A40.m40;
     return 6;
 }
 
 int AI::Script::AI_fr_warppointescape::vf20() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        if (*(int*)(lbl_807C6A40 + 0x50) >= 0xC8) {
-            *(int*)lbl_807C6A40 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        if (lbl_807C6A40.m50 >= 0xC8) {
+            lbl_807C6A40.m00 = 1;
             return 7;
         } else {
-            *(int*)lbl_807C6A40 = 1;
+            lbl_807C6A40.m00 = 1;
             return 1;
         }
     }
@@ -2347,76 +2514,76 @@ int AI::Script::AI_fr_warppointescape::vf20() {
 
 int AI::Script::AI_jackal01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
-    *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m1C = lbl_807C68C0.m30;
+    lbl_807C6A40.m20 = 0x5A;
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x64;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
 }
 
 int AI::Script::AI_magic_attack01::vf08() {
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
-        *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
+        lbl_807C6A40.m00 = 1;
         return 7;
     }
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_magic_attack01_2::vf08() {
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
-        *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
+        lbl_807C6A40.m00 = 1;
         return 7;
     }
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_magic_attack02::vf08() {
     int result = 1;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
 }
 
 int AI::Script::AI_magic_attackstable01::vf08() {
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_magic_attackstable01::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0xF;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
 }
 
 int AI::Script::AI_magic_cure01::vf08() {
-    *(int*)(lbl_807C6A40 + 0xE0) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.mE0 = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_magic_cure01::vf2C() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -2424,10 +2591,10 @@ int AI::Script::AI_magic_cure01::vf2C() {
 
 int AI::Script::AI_magic_guard01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x64;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -2435,10 +2602,10 @@ int AI::Script::AI_magic_guard01::vf08() {
 
 int AI::Script::AI_magic_guard01_2::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x64;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -2446,36 +2613,36 @@ int AI::Script::AI_magic_guard01_2::vf08() {
 
 int AI::Script::AI_magic_guard02::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x64;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
 }
 
 int AI::Script::AI_np_approach::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0x4B;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0x4B;
-    *(int*)(lbl_807C6A40 + 0x20) = 0x64;
-    *(int*)(lbl_807C6A40 + 0x24) = 0xA;
-    *(int*)(lbl_807C6A40 + 0x28) = 0;
-    *(int*)(lbl_807C6A40 + 0x2C) = fn_8001B4A4();
-    *(int*)(lbl_807C6A40 + 0x30) = 0x12C;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0x4B;
+    lbl_807C6A40.m1C = 0x4B;
+    lbl_807C6A40.m20 = 0x64;
+    lbl_807C6A40.m24 = 0xA;
+    lbl_807C6A40.m28 = 0;
+    lbl_807C6A40.m2C = fn_8001B4A4();
+    lbl_807C6A40.m30 = 0x12C;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_np_approach_plus::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0x4B;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0;
-    *(int*)(lbl_807C6A40 + 0x20) = 0x4B;
-    *(int*)(lbl_807C6A40 + 0x24) = 0xA;
-    *(int*)(lbl_807C6A40 + 0x28) = 0;
-    *(int*)(lbl_807C6A40 + 0x2C) = fn_8001B4A4();
-    *(int*)(lbl_807C6A40 + 0x30) = 0x12C;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0x4B;
+    lbl_807C6A40.m1C = 0;
+    lbl_807C6A40.m20 = 0x4B;
+    lbl_807C6A40.m24 = 0xA;
+    lbl_807C6A40.m28 = 0;
+    lbl_807C6A40.m2C = fn_8001B4A4();
+    lbl_807C6A40.m30 = 0x12C;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
@@ -2483,11 +2650,11 @@ int AI::Script::AI_np_approach_plus::vf08() {
 // inferred: duplicate script stub of fn_8002B818 at a second address.
 int AI::Script::AI_np_follow_player::vf08() {
     int results[4] = {0, 0, 0, 0};
-    int value = *(int*)(lbl_807C68C0 + 0x7C);
-    results[0] = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x18) = value;
-    *(int*)(lbl_807C6A40 + 0x1C) = 1;
-    *(int*)lbl_807C6A40 = 1;
+    int value = lbl_807C68C0.m7C;
+    results[0] = lbl_807C68C0.m80;
+    lbl_807C6A40.m18 = value;
+    lbl_807C6A40.m1C = 1;
+    lbl_807C6A40.m00 = 1;
     fn_8001AEDC(0, &results[0], &results[1], &results[2], &results[3]);
     return 3;
 }
@@ -2495,26 +2662,26 @@ int AI::Script::AI_np_follow_player::vf08() {
 int AI::Script::AI_np_follow_player::vf14() {
     int d = 0;
     int c = 0;
-    int b = *(int*)(lbl_807C6A40 + 0x18);
-    int a = *(int*)lbl_807C6B30;
+    int b = lbl_807C6A40.m18;
+    int a = lbl_807C6B30.m00;
     fn_8001AEDC(0xD, &a, &b, &c, &d);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 6;
 }
 
 int AI::Script::AI_np_follow_player::vf20() {
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 3;
 }
 
 int AI::Script::AI_np_tagger_random::vf08() {
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_np_tagger_random::vf14() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
-        *(int*)lbl_807C6A40 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -2523,31 +2690,31 @@ int AI::Script::AI_np_tagger_random::vf14() {
 // inferred: picks a target near the current position (first within 120, then anywhere)
 // NONMATCHING: 95.15% - the order of the zero stores to the output arguments differs.
 int AI::Script::AI_np_type001::vf08() {
-    int base = fn_8001B5B4(*(atn::Vector3*)(lbl_807C68C0 + 0x10), 0);
+    int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
     int a;
     int b;
     int c;
     int d;
-    if ((a = fn_8001BA88(*(int*)lbl_807C68C0, base, 1, -1, lbl_8088079C, lbl_808807A0, lbl_80880798)) <= 0 &&
-        (a = fn_8001BA88(*(int*)lbl_807C68C0, base, 1, -1, lbl_808807A4, lbl_808807A8, lbl_80880798)) <= 0) {
+    if ((a = fn_8001BA88((*(int*)&lbl_807C68C0.m00), base, 1, -1, lbl_8088079C, lbl_808807A0, lbl_80880798)) <= 0 &&
+        (a = fn_8001BA88((*(int*)&lbl_807C68C0.m00), base, 1, -1, lbl_808807A4, lbl_808807A8, lbl_80880798)) <= 0) {
         a = base;
     }
     d = 0;
     c = 0;
     b = 0;
     fn_8001AEDC(1, &a, &b, &c, &d);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 3;
 }
 
 int AI::Script::AI_np_type001::vf14() {
-    if (*(int*)(lbl_807C68C0 + 8) != 0) {
+    if (lbl_807C68C0.m08 != 0) {
         int d = 0;
         int c = 0;
         int b = 0;
         int a = 0x5A;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         return 1;
     }
     return -1;
@@ -2555,29 +2722,29 @@ int AI::Script::AI_np_type001::vf14() {
 
 // inferred: waits 30-599 frames before the first action
 int AI::Script::AI_np_type002::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = rand() % 570 + 30;
-    *(int*)(lbl_807C6A40 + 0x1C) = 200;
-    *(int*)(lbl_807C6A40 + 0x20) = 100;
-    *(int*)(lbl_807C6A40 + 0x24) = 15;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = rand() % 570 + 30;
+    lbl_807C6A40.m1C = 200;
+    lbl_807C6A40.m20 = 100;
+    lbl_807C6A40.m24 = 15;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // inferred: same as AI_np_type002::vf08, with two more parameters
 int AI::Script::AI_np_type003::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = rand() % 570 + 30;
-    *(int*)(lbl_807C6A40 + 0x1C) = 200;
-    *(int*)(lbl_807C6A40 + 0x20) = 100;
-    *(int*)(lbl_807C6A40 + 0x24) = 15;
-    *(int*)(lbl_807C6A40 + 0x28) = 0;
-    *(int*)(lbl_807C6A40 + 0x2C) = 300;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = rand() % 570 + 30;
+    lbl_807C6A40.m1C = 200;
+    lbl_807C6A40.m20 = 100;
+    lbl_807C6A40.m24 = 15;
+    lbl_807C6A40.m28 = 0;
+    lbl_807C6A40.m2C = 300;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_np_type004::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0;
+    lbl_807C6A40.m00 = 1;
     return 3;
 }
 
@@ -2585,99 +2752,99 @@ int AI::Script::AI_np_type004::vf08() {
 // inferred: a 0x12-byte helper allocation is passed as the first output word.
 int AI::Script::AI_np_type004::vf14() {
     int a = fn_8001AEBC(0x12);
-    int b = *(int*)(lbl_807C6A40 + 0x18);
+    int b = lbl_807C6A40.m18;
     int c = 0;
     int d = 0;
     fn_8001AEDC(0xD, &a, &b, &c, &d);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 6;
 }
 
 int AI::Script::AI_np_type004::vf20() {
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m00 = 1;
     return 3;
 }
 
 int AI::Script::AI_np_type005::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0x1E;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0x64;
-    *(int*)(lbl_807C6A40 + 0x20) = 0x190;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0x1E;
+    lbl_807C6A40.m1C = 0x64;
+    lbl_807C6A40.m20 = 0x190;
+    lbl_807C6A40.m00 = 1;
     return 3;
 }
 
 int AI::Script::AI_np_wait_reaction::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0;
-    *(int*)(lbl_807C6A40 + 0x20) = 0x64;
-    *(int*)(lbl_807C6A40 + 0x24) = 0;
-    *(int*)(lbl_807C6A40 + 0x28) = 1;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0;
+    lbl_807C6A40.m1C = 0;
+    lbl_807C6A40.m20 = 0x64;
+    lbl_807C6A40.m24 = 0;
+    lbl_807C6A40.m28 = 1;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_np_wait_reaction_minus::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0;
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = 0;
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0;
+    lbl_807C6A40.m1C = 0;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = 0;
+    lbl_807C6A40.m28 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_np_wait_reaction_minus2::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0;
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = 0;
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0;
+    lbl_807C6A40.m1C = 0;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = 0;
+    lbl_807C6A40.m28 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_np_wait_reaction_plus::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0;
-    *(int*)(lbl_807C6A40 + 0x1C) = 0;
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = 0;
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0;
+    lbl_807C6A40.m1C = 0;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = 0;
+    lbl_807C6A40.m28 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 61.90% - the original loads the 1.5f factor before the input count.
 int AI::Script::AI_quark01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x18) = 240;
-    *(int*)(lbl_807C6A40 + 0x1C) = (int)(lbl_808807B8 * (float)*(int*)(lbl_807C68C0 + 0x30));
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x28) = 100;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m18 = 240;
+    lbl_807C6A40.m1C = (int)(lbl_808807B8 * (float)lbl_807C68C0.m30);
+    lbl_807C6A40.m24 = lbl_807C68C0.m7C;
+    lbl_807C6A40.m28 = 100;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
 }
 
 int AI::Script::AI_quark02::vf08() {
-    *(int*)(lbl_807C6A40 + 0x18) = 0;
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x3C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m18 = 0;
+    lbl_807C6A40.m1C = lbl_807C68C0.m7C;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = lbl_807C68C0.m84;
+    lbl_807C6A40.m28 = lbl_807C68C0.m88;
+    lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_quark02::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -2686,7 +2853,7 @@ int AI::Script::AI_quark02::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
@@ -2694,10 +2861,10 @@ int AI::Script::AI_quark02::vf40() {
 
 int AI::Script::AI_silence_guard01::vf08() {
     int result = 1;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x64;
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -2706,10 +2873,10 @@ int AI::Script::AI_silence_guard01::vf08() {
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_silence_guard01::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -2718,7 +2885,7 @@ int AI::Script::AI_silence_guard01::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
@@ -2726,12 +2893,12 @@ int AI::Script::AI_silence_guard01::vf40() {
 
 int AI::Script::AI_sword_guard01::vf08() {
     int result;
-    *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
-    *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
-    *(int*)(lbl_807C6A40 + 0x28) = 0x64;
+    lbl_807C6A40.m18 = 0x5A;
+    lbl_807C6A40.m24 = 0x3C;
+    lbl_807C6A40.m28 = 0x64;
     result = 1;
-    *(int*)lbl_807C6A40 = 1;
-    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+    lbl_807C6A40.m00 = 1;
+    if (fn_8001BEB0(lbl_807C68C0.m00)) {
         result = 7;
     }
     return result;
@@ -2740,10 +2907,10 @@ int AI::Script::AI_sword_guard01::vf08() {
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_sword_guard01::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -2752,29 +2919,29 @@ int AI::Script::AI_sword_guard01::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
 }
 
 int AI::Script::AI_sword_leaderguard01::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x3C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = lbl_807C68C0.m7C;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = lbl_807C68C0.m84;
+    lbl_807C6A40.m28 = lbl_807C68C0.m88;
+    lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_sword_leaderguard01::vf40() {
     int result;
-    if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
+    if (lbl_807C6A40.m10 >= 1) {
         result = -1;
     } else {
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     if (result == 1) {
@@ -2783,27 +2950,27 @@ int AI::Script::AI_sword_leaderguard01::vf40() {
         int b = 0;
         int a = 0;
         fn_8001AEDC(0, &a, &b, &c, &d);
-        *(int*)lbl_807C6A40 = 1;
+        lbl_807C6A40.m00 = 1;
         result = 1;
     }
     return result;
 }
 
 int AI::Script::AI_sword_leaderguard02::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x3C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = lbl_807C68C0.m7C;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = lbl_807C68C0.m84;
+    lbl_807C6A40.m28 = lbl_807C68C0.m88;
+    lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 70.00% - state-machine branches and temporary scheduling still differ from MWCC.
 // inferred: advances an archer attack action using the current AI script parameters.
 int AI::Script::AI_sword_leaderguard02::vf0C() {
-    int* script = (int*)lbl_807C68C0;
-    int* action = (int*)(lbl_807C68C0 + 0x180);
+    int* script = (int*)&lbl_807C68C0;
+    int* action = (int*)&lbl_807C6A40;
     int result;
     if (action[4] >= 1) {
         result = -1;
@@ -2824,12 +2991,12 @@ int AI::Script::AI_sword_leaderguard02::vf0C() {
 
     int state = action[0x18 / 4];
     if (state == 0) {
-        CharaTask** candidates = (CharaTask**)(lbl_807C6B30 + 8);
+        CharaTask** candidates = lbl_807C6B30.m08;
         fn_8001A464(candidates);
         fn_8001A65C(candidates);
         fn_8001A788(candidates);
         CharaTask* target = candidates[0];
-        *(CharaTask**)(lbl_807C6B30 + 4) = target;
+        lbl_807C6B30.m04 = target;
         if (target != 0) {
             action[0xE0 / 4] = (int)target;
             action[0x18 / 4] = 1;
@@ -2957,32 +3124,32 @@ int AI::Script::AI_sword_leaderguard02::vf0C() {
 }
 
 int AI::Script::AI_sword_leaderguard03::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x30) = *(int*)(lbl_807C68C0 + 0x90);
-    *(int*)(lbl_807C6A40 + 0x3C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = lbl_807C68C0.m7C;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = lbl_807C68C0.m84;
+    lbl_807C6A40.m28 = lbl_807C68C0.m88;
+    lbl_807C6A40.m30 = lbl_807C68C0.m90;
+    lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 int AI::Script::AI_sword_pointguard01::vf08() {
-    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
-    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
-    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
-    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x88);
-    *(int*)(lbl_807C6A40 + 0x2C) = *(int*)(lbl_807C68C0 + 0x8C);
-    *(int*)(lbl_807C6A40 + 0x3C) = 0;
-    *(int*)lbl_807C6A40 = 1;
+    lbl_807C6A40.m1C = lbl_807C68C0.m7C;
+    lbl_807C6A40.m20 = lbl_807C68C0.m80;
+    lbl_807C6A40.m24 = lbl_807C68C0.m84;
+    lbl_807C6A40.m28 = lbl_807C68C0.m88;
+    lbl_807C6A40.m2C = lbl_807C68C0.m8C;
+    lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
     return 1;
 }
 
 // NONMATCHING: 89.40% - conversion to float and generated constant do not match MWCC's sequence.
 int AI::Script::AI_return_guard01::vf08() {
-    int count = *(int*)(lbl_807C68C0 + 0x30);
-    *(int*)lbl_807C6A40 = 1;
-    *(int*)(lbl_807C6A40 + 0x1C) = (int)(lbl_808807B8 * (float)count);
+    int count = lbl_807C68C0.m30;
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m1C = (int)(lbl_808807B8 * (float)count);
     return 1;
 }
 
