@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "game/Inventory.h"
 #include "atn/FileList.h"
 #include "atn/Memory.h"
 #include "db/WeaponParam_unk.h"
@@ -22,15 +23,6 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 // inferred: loads a whole file / releases it
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
 
-// inferred: party data (lbl_8087F4F0); only the weapon ids of the members are read here
-struct WeaponParty_unk {
-    char m00[0x82B0];
-    struct {
-        int mWeaponId;
-        int m04;
-    } mMembers[1];
-};
-extern "C" WeaponParty_unk* lbl_8087F4F0;
 // inferred: field (lbl_8087F430) and its flags
 struct WeaponField_unk;
 extern "C" WeaponField_unk* lbl_8087F430;
@@ -317,7 +309,7 @@ extern "C" bool fn_80206D18(WeaponParamEntry_unk* entry, int member, int arg) {
                 if (entry->mKind != 1) {
                     result = true;
                 }
-                fn_80206B14(0, lbl_8087F4F0->mMembers[arg].mWeaponId);
+                fn_80206B14(0, Inventory::instance_->mEquip[0].mWeapons[arg].mId);
                 if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x395) && fn_80370174(lbl_8087F430, 0x396)) {
                     result = false;
                 }

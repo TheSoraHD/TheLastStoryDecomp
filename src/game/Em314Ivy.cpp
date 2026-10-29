@@ -1,4 +1,5 @@
 #include "game/Em314Ivy.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "chr/ControlBase.h"
@@ -29,7 +30,6 @@ struct IvyColor_unk {
     IvyColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void* lbl_8087F4F0; // inferred: item manager
 extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/RandomMerchant.cpp)
 extern "C" void* lbl_8087F498; // inferred: voice manager
 extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
@@ -346,9 +346,9 @@ void Em314Ivy::fn_803132D0() {
     if (m14E4 != 0) {
         Mtx m;
         atn::Vector3 dir;
-        if (m14E4->mType == 0 && m15AC != 0 && lbl_8087F048 != 0 && lbl_8087F4F0 != 0) {
-            int money = *(int*)((char*)lbl_8087F4F0 + 0x6000) / 3;
-            fn_8044D6AC(lbl_8087F4F0, money);
+        if (m14E4->mType == 0 && m15AC != 0 && lbl_8087F048 != 0 && Inventory::instance_ != 0) {
+            int money = Inventory::instance_->mMoney / 3;
+            fn_8044D6AC(Inventory::instance_, money);
             for (int i = 0; i < 5; i++) {
                 Effect_unk* effect = lbl_8087F048;
                 fn_80107168(effect, 0x232D, 0, 0, 0, &m14E4->fn_801781B0(), &chr::lbl_807C7030,

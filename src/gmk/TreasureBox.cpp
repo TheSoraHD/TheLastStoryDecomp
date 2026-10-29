@@ -1,4 +1,5 @@
 #include "gmk/TreasureBox.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -41,7 +42,6 @@ struct ItemTable_unk {
 };
 extern "C" ItemTable_unk* fn_8021E444(int table);
 extern "C" int fn_8021E5A4(ItemTable_unk* table, int flags); // inferred: draws an entry
-extern "C" void* lbl_8087F4F0; // inferred: item manager
 extern "C" int fn_8044909C(void* mgr);
 extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
 extern "C" int fn_80448F9C(void* mgr, int id);
@@ -254,14 +254,14 @@ int TreasureBox::vf40(GimmickMsg_unk* msg) {
             table = fn_8021E444(mData->mTable);
         }
         if (table != 0) {
-            mItem = fn_8021E5A4(table, (lbl_8087F4F0 != 0 ? fn_8044909C(lbl_8087F4F0) : 0) | 1);
+            mItem = fn_8021E5A4(table, (Inventory::instance_ != 0 ? fn_8044909C(Inventory::instance_) : 0) | 1);
             if (mItem >= 0) {
                 ItemEntry_unk* entry = &table->mEntries[mItem];
                 id = entry->mId;
                 count = entry->mCount;
                 mFirst = fn_80450B84(mData->mTable, 0, 1);
-                if (lbl_8087F4F0 != 0) {
-                    fn_80445130(lbl_8087F4F0, &id, &count, 1);
+                if (Inventory::instance_ != 0) {
+                    fn_80445130(Inventory::instance_, &id, &count, 1);
                 }
                 item = fn_80211480(id);
             }
@@ -270,7 +270,7 @@ int TreasureBox::vf40(GimmickMsg_unk* msg) {
             int rare = 1;
             if (fn_80206B9C(id) != 0) {
                 rare = 0;
-                int chance = fn_80448F9C(lbl_8087F4F0, id);
+                int chance = fn_80448F9C(Inventory::instance_, id);
                 if (chance > rand() % 100) {
                     rare = 1;
                 }

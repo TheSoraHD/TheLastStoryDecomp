@@ -1,4 +1,5 @@
 #include "game/NewCampPartsTop.h"
+#include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"
@@ -140,12 +141,6 @@ extern "C" void fn_803743AC(NewCampTopField_unk* field);
 extern "C" void fn_803CCC70(atn::Task* task, int arg);
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
-// inferred: party data (lbl_8087F4F0)
-struct NewCampTopParty_unk {
-    unsigned char m0000[0x6000];
-    int m6000; // inferred: money
-};
-extern "C" NewCampTopParty_unk* lbl_8087F4F0;
 // inferred: game UI (lbl_8087F490)
 struct NewCampTopUI_unk {
     unsigned char m0000[0x263C];
@@ -351,7 +346,7 @@ void NewCampPartsTop::vf14() {
         unsigned int hour = min / 60;
         fn_800DD3FC(time, L"%d:%02d:%02d", hour, min % 60, sec % 60);
         fn_801FEE08(task->mLayout, fn_800DC6B4("playTime(1)"), time);
-        task->SetNumber_unk("price(1)", lbl_8087F4F0->m6000, 0);
+        task->SetNumber_unk("price(1)", Inventory::instance_->mMoney, 0);
     }
     if (fn_803754F0(lbl_8087F430)) {
         SetPaneText_unk(mInfoAnime->mLayout, "select00_text", fn_80116FC0(0, 0x2767));

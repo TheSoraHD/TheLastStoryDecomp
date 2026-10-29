@@ -1,4 +1,5 @@
 #include "game/ShopBuySell.h"
+#include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "math/Vec.h"
@@ -109,29 +110,11 @@ struct ShopChara_unk {
 };
 extern "C" int fn_80219544(int member); // inferred: character id
 extern "C" ShopChara_unk* fn_8020924C(int id);
-// inferred: equipment of a member (0x40 bytes)
-struct ShopSlot_unk {
-    int mId;
-    int m04;
-};
-struct ShopEquip_unk {
-    ShopSlot_unk mArmor[4];  // 0x00
-    ShopSlot_unk mWeapon[2]; // 0x20
-    unsigned char m30[0x40 - 0x30];
-};
-// inferred: party data (lbl_8087F4F0)
-struct ShopParty_unk {
-    unsigned char m0000[0x6000];
-    int mMoney; // 0x6000
-    unsigned char m6004[0x8290 - 0x6004];
-    ShopEquip_unk mEquip[7]; // 0x8290
-};
-extern "C" ShopParty_unk* lbl_8087F4F0;
-extern "C" int fn_80444564(ShopParty_unk* party, int id);
-extern "C" int fn_804444E8(ShopParty_unk* party, int id); // inferred: number of items
-extern "C" int fn_80444BE8(ShopParty_unk* party, ShopItem_unk* item);
-extern "C" int fn_80444C48(ShopParty_unk* party);
-extern "C" ShopUV_unk fn_80444C50(ShopParty_unk* party, int icon);
+extern "C" int fn_80444564(Inventory* party, int id);
+extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
+extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
+extern "C" int fn_80444C48(Inventory* party);
+extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
 // inferred: field (lbl_8087F430)
 struct ShopField_unk {
     unsigned char m0000[0x10D0];
@@ -435,7 +418,7 @@ void ShopBuySell::vf1C(int state) {
         m25B40 = 0;
         m25B24 = 1;
         if (mEntries5C[mDC].m48 != 0) {
-            m25B28 = fn_804444E8(lbl_8087F4F0, mEntries5C[mDC].m00);
+            m25B28 = fn_804444E8(Inventory::instance_, mEntries5C[mDC].m00);
         } else {
             m25B28 = 1;
         }
@@ -546,10 +529,10 @@ void ShopBuySell::fn_805860F0() {
 // NONMATCHING: 98.82% - register allocation (the entry and icon locals one register higher in the
 // original) and the load order of the fn_80584750 arguments
 void ShopBuySell::fn_8058621C() {
-    ShopParty_unk* party = lbl_8087F4F0;
+    Inventory* party = Inventory::instance_;
     mA8->mFlags &= ~4;
     mD4->mFlags &= ~4;
-    ((atn::D2A_Task*)mD4)->SetNumber_unk("myMoney", lbl_8087F4F0->mMoney, 0);
+    ((atn::D2A_Task*)mD4)->SetNumber_unk("myMoney", Inventory::instance_->mMoney, 0);
     if (mCursor < mF8) {
         ((atn::D2A_Task*)mD4)->SetNumber_unk("itemNum", fn_80444564(party, mEntries64[mCursor].m00), 0);
     }
@@ -572,7 +555,7 @@ void ShopBuySell::fn_8058621C() {
                 }
                 fn_801F837C(mAC[i], "itemName", text.data());
                 fn_801F8598(mAC[i], "num", fn_80444564(party, entry->m00), 0);
-                icon = fn_80444BE8(lbl_8087F4F0, item);
+                icon = fn_80444BE8(Inventory::instance_, item);
             } else {
                 ShopWeapon_unk* weapon = fn_80206C50(entry->m00);
                 if (weapon != 0) {
@@ -581,7 +564,7 @@ void ShopBuySell::fn_8058621C() {
                     fn_801F837C(mAC[i], "itemName", L"WEAPON");
                 }
                 fn_801F837C(mAC[i], "num", L"--");
-                icon = fn_80444C48(lbl_8087F4F0);
+                icon = fn_80444C48(Inventory::instance_);
             }
             if (entry->m60 != 0) {
                 fn_801F7DF0(mAC[i], "itemCol", 255.0f, 255.0f, 255.0f);
@@ -591,7 +574,7 @@ void ShopBuySell::fn_8058621C() {
             fn_801F6C80(mAC[i], "nonePrice", 0.0f);
             fn_801F6C80(mAC[i], "showPrice", 1.0f);
             fn_801F8598(mAC[i], "price", entry->m04, 0);
-            ShopUV_unk uv = fn_80444C50(lbl_8087F4F0, icon);
+            ShopUV_unk uv = fn_80444C50(Inventory::instance_, icon);
             fn_801F7590(mAC[i], "iconUv", uv);
             mAC[i]->mFlags &= ~4;
         }
@@ -620,7 +603,7 @@ void ShopBuySell::fn_80586620(int id) {
 void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     ShopPoint_unk pos;
     ShopChara_unk* chara = fn_8020924C(fn_80219544(member));
-    ShopEquip_unk* equip = &lbl_8087F4F0->mEquip[member];
+    Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
     ShopD2A_unk* base = mStatusBase;
     ShopD2A_unk* anime = mStatus[slot];
     anime->mFlags &= ~4;
@@ -646,7 +629,7 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
         ShopWeapon_unk* weapon = fn_80206C50(id);
         if (weapon != 0 && fn_80206D18(weapon, member, weapon->mHand == 1)) {
             SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
-            now = fn_80206B14(equip->mWeapon[weapon->mHand == 1].mId);
+            now = fn_80206B14(equip->mWeapons[weapon->mHand == 1].mId);
             next = weapon;
             show = 1;
         } else {
@@ -670,7 +653,7 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
             int part = armor->mPart;
             next = armor;
             show = 1;
-            int cur = equip->mArmor[part].mId;
+            int cur = equip->mProtectors[part].mId;
             now = fn_8020ED84(part, cur);
             if (fn_8020EF4C((ShopArmor_unk*)now) && cur >= 1000) {
                 ShopArmor_unk* a = fn_8020ED84(0, cur);

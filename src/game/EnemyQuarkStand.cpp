@@ -1,4 +1,5 @@
 #include "game/EnemyQuarkStand.h"
+#include "game/Inventory.h"
 #include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "atn/Camera_unk.h"
@@ -219,13 +220,11 @@ struct XsfCurveSet_unk {
 struct Xsca_unk {
     XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
 };
-// inferred: item manager (lbl_8087F4F0, as in gmk/RandomMerchant.cpp) and the equipment slots of a player
-extern "C" void* lbl_8087F4F0;
-extern "C" void fn_804439FC(void* mgr, void* item, int num, int arg3, int arg4, int arg5, int arg6, int arg7);
+// inferred: item manager (Inventory::instance_, as in gmk/RandomMerchant.cpp) and the equipment slots of a player
 extern "C" void* fn_80206B14(int arg, int item); // inferred: weapon data
-extern "C" void* fn_80206BE4(void* item);
+extern "C" int fn_80206BE4(void* item); // inferred: item id
 extern "C" void* fn_8020ED84(int slot, int item); // inferred: armor data
-extern "C" void* fn_8020EF80(void* item);
+extern "C" int fn_8020EF80(void* item); // inferred: item id
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
@@ -2278,7 +2277,7 @@ inline QuarkItemSlot_unk* QuarkSlots_unk(void* mgr) {
 
 // inferred: Quark loses the sword to `chara` (state 13): faces it (motion 0x3C when `kind` is 2, else 0x36 or
 // 0x37) and gives back the two weapons and two armors kept in the item manager
-// NONMATCHING: 99.23% - the original builds the slot address (lbl_8087F4F0 + 0x8310) through r3 before r31
+// NONMATCHING: 99.23% - the original builds the slot address (Inventory::instance_ + 0x8310) through r3 before r31
 // and schedules `li r4,0` of the motion call earlier; ~6 forms (pointer forms, inline motion)
 void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
     m16F0 = (int)chara;
@@ -2310,18 +2309,18 @@ void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
         m16F8.RotZ_unk();
     }
     mPos.y = 0.0f;
-    QuarkItemSlot_unk* slots = QuarkSlots_unk(lbl_8087F4F0);
+    QuarkItemSlot_unk* slots = QuarkSlots_unk(Inventory::instance_);
     QuarkItemSlot_unk* weapon = slots;
     for (int i = 0; i < 2; i++, weapon++) {
         void* data = fn_80206B14(0, weapon[4].mItem);
         if (data != 0) {
-            fn_804439FC(lbl_8087F4F0, fn_80206BE4(data), 1, 1, 0, 0, 1, 0);
+            Inventory::instance_->AddItem(fn_80206BE4(data), 1, 1, 0, 0, 1, 0);
         }
     }
     for (int i = 0; i < 2; i++, slots++) {
         void* data = fn_8020ED84(i, slots->mItem);
         if (data != 0) {
-            fn_804439FC(lbl_8087F4F0, fn_8020EF80(data), 1, 1, 0, 0, 1, 0);
+            Inventory::instance_->AddItem(fn_8020EF80(data), 1, 1, 0, 0, 1, 0);
         }
     }
 }

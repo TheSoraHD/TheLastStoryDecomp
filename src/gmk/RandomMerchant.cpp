@@ -1,4 +1,5 @@
 #include "gmk/RandomMerchant.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -68,9 +69,7 @@ extern "C" void fn_800DD8A8(wchar_t* buf, const wchar_t* format, int count, ...)
 extern "C" void fn_803E3BE8(void* ui, int* message, float time);              // inferred: shows a message window
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: item manager and shop (classes unknown)
-extern "C" void* lbl_8087F4F0;
 extern "C" void fn_8044D6AC(void* mgr, int price);
-extern "C" void fn_804439FC(void* mgr, int item, int num, int arg3, int arg4, int arg5, int arg6, int arg7);
 extern "C" void* lbl_8087F048;
 extern "C" void fn_801092C8(void* mgr, int arg1, int arg2, int item, int num);
 extern "C" void* lbl_8087F490; // inferred: GameUI
@@ -438,8 +437,8 @@ int RandomMerchant::vf40(GimmickMsg_unk* msg) {
         break;
     case 2:
         if (m54 == 1 && mState == 3) {
-            fn_8044D6AC(lbl_8087F4F0, mPrice);
-            fn_804439FC(lbl_8087F4F0, mItemId, mItemNum, 0, 0, 0, 1, 1);
+            fn_8044D6AC(Inventory::instance_, mPrice);
+            Inventory::instance_->AddItem(mItemId, mItemNum, 0, 0, 0, 1, 1);
             if (lbl_8087F048 != 0) {
                 fn_801092C8(lbl_8087F048, 1, 0, mItemId, mItemNum);
             }

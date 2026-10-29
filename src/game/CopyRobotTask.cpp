@@ -1,4 +1,5 @@
 #include "game/CopyRobotTask.h"
+#include "game/Inventory.h"
 #include "std/string.h"
 #include "macros.h"
 
@@ -6,13 +7,7 @@ extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model);    // inferred: applies the motions
 
-// inferred: party data (lbl_8087F4F0); pointers to the member data at 0x64A0
-struct PartyData_unk {
-    unsigned char m0000[0x64A0];
-    void* mMembers[10];
-};
-extern "C" PartyData_unk* lbl_8087F4F0;
-extern "C" int fn_80219544(void* member); // inferred: character id of a party member
+extern "C" int fn_80219544(int member); // inferred: character id of a party member
 
 struct Settings_unk {
     unsigned char m00[0x34];
@@ -62,7 +57,7 @@ static atn::Vector3 sOffset_unk(0.0f, 0.0f, 26.81f);
 inline void* GetCharaId_unk(const EnemyInfo_unk* info) {
     int id = (int)info->m20;
     if ((unsigned int)(id - 0x31416) <= 9) {
-        id = fn_80219544(lbl_8087F4F0->mMembers[id % 10]);
+        id = fn_80219544(Inventory::instance_->mOrder[id % 10]);
     } else {
         switch (id) {
         case 0x313EC:

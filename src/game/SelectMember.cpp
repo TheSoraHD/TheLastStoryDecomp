@@ -1,4 +1,5 @@
 #include "game/SelectMember.h"
+#include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "macros.h"
@@ -71,12 +72,6 @@ struct SelectMemberRule_unk {
     int m54; // inferred: number of members
 };
 extern "C" SelectMemberRule_unk* fn_8021771C(int a, int b, int c);
-// inferred: party data (lbl_8087F4F0); one 0x43C-byte block per member
-struct SelectMemberParty_unk {
-    unsigned char m0000[0x64A0];
-    int mOrder[7]; // 0x64A0: inferred: order of the members
-};
-extern "C" SelectMemberParty_unk* lbl_8087F4F0;
 // inferred: character manager (lbl_8087F8A0)
 extern "C" void* lbl_8087F8A0;
 struct SelectMemberChara_unk {
@@ -320,10 +315,10 @@ void SelectMember::fn_80571FD8() {
                 }
             }
             if (selected) {
-                lbl_8087F4F0->mOrder[front] = i;
+                Inventory::instance_->mOrder[front] = i;
                 front++;
             } else {
-                lbl_8087F4F0->mOrder[back] = i;
+                Inventory::instance_->mOrder[back] = i;
                 back--;
             }
         }
@@ -426,7 +421,7 @@ void SelectMember::fn_80572450() {
         mAnims[1 + i]->mFlags &= ~4;
         fn_801F837C(mAnims[1 + i], "name(1)", info->m08);
         SelectMemberChara_unk* chara = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C((const char*)member->mId);
-        CharaStatus* status = chara != 0 ? &chara->mStatus : (CharaStatus*)((char*)lbl_8087F4F0 + 0x64EC + member->mId * 0x43C);
+        CharaStatus* status = chara != 0 ? &chara->mStatus : Inventory::instance_->GetPlayerStatusInfo(member->mId);
         CharaParam_unk param = fn_80134800(status, member->mId, 0, 0, 0, 0, 0, 0);
         fn_801F8598(mAnims[1 + i], "nowLv", param.m78, 0);
         float rate = (float)status->m1A8.mExp / MAX(1.0f, (float)(status->m1A8.mExp + status->fn_8012B028()));

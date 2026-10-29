@@ -2,6 +2,7 @@
 // its creator 0x804093B4 (see docs/splits-auto-C.md, group 5)
 
 #include "gmk/DropItem.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -171,7 +172,6 @@ struct DropWeapon_unk {
     unsigned char m7C[0x80 - 0x7C];
     int m80;
 };
-extern "C" void* lbl_8087F4F0; // inferred: item manager
 extern "C" int fn_8044909C(void* mgr);
 extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
 extern "C" int fn_80448F9C(void* mgr, int id);
@@ -640,7 +640,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
         mColor[3] = 1.0f;
         mData = 0;
         if (msg->m0C == 0) {
-            if (fn_8021E4E4(&mItem, &mCount, m154, lbl_8087F4F0 != 0 ? fn_8044909C(lbl_8087F4F0) : 0) == 0) {
+            if (fn_8021E4E4(&mItem, &mCount, m154, Inventory::instance_ != 0 ? fn_8044909C(Inventory::instance_) : 0) == 0) {
                 mItem = 0;
                 mCount = 0;
             }
@@ -650,8 +650,8 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             m154 = 0;
         }
         int item = mItem;
-        if (lbl_8087F4F0 != 0) {
-            fn_80445130(lbl_8087F4F0, &mItem, &mCount, 0);
+        if (Inventory::instance_ != 0) {
+            fn_80445130(Inventory::instance_, &mItem, &mCount, 0);
         }
         mData = fn_80211480(mItem);
         if (mData != 0) {
@@ -665,7 +665,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             m17C = 1;
             if (fn_80206B9C(mItem)) {
                 m17C = 0;
-                int chance = fn_80448F9C(lbl_8087F4F0, mItem);
+                int chance = fn_80448F9C(Inventory::instance_, mItem);
                 if (chance > rand() % 100) {
                     m17C = 1;
                 }

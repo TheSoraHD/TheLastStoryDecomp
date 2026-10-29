@@ -1,4 +1,5 @@
 #include "game/Em201ZanGurgFinal.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -153,11 +154,8 @@ extern "C" void fn_8003EA3C(ZanDamage_unk* result, HitInfo_unk* data, CharaTask*
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2);
 extern "C" void fn_80108C10(Effect_unk* effect, ZanDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
                             CharaTask* chara, int b, int c);
-// inferred: item manager (lbl_8087F4F0)
-extern "C" void* lbl_8087F4F0;
-extern "C" void fn_804439FC(void* mgr, void* item, int num, int arg3, int arg4, int arg5, int arg6, int arg7);
-extern "C" void* fn_80206BE4(void* item);
-extern "C" void* fn_801D80B4();
+// inferred: item manager (Inventory::instance_)
+extern "C" int fn_80206BE4(void* item); // inferred: item id
 extern "C" void fn_804438E0(void* mgr, int id);
 extern "C" void fn_8044D104(void* mgr, int kind, int id, int arg, int chara);
 extern "C" int fn_80219558(int id); // inferred: party member kind of a character id
@@ -850,7 +848,7 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
                 fn_80370AE4(fn_80121F00(), 0xEA, 1);
                 if (fn_8000DCF4(fn_8000D9E8()) != 0 && *fn_80266FB4(fn_80266FA4(this), 0) == m1628 &&
                     m1624 != 0) {
-                    fn_804439FC(fn_801D80B4(), fn_80206BE4(fn_80266FAC(m1624)), 1, 1, 0, 0, 1, 0);
+                    Inventory::Order()->AddItem(fn_80206BE4(fn_80266FAC(m1624)), 1, 1, 0, 0, 1, 0);
                 }
             }
         }
@@ -2185,7 +2183,7 @@ struct ZanUIHint_unk : public GameUIElem1C_unk {
 // inferred: the leader takes the shield (names invented)
 inline void TakeShield_unk(Em201ZanGurgFinal* z, CharaTask* leader) {
     ZanWeapon_unk* data = (ZanWeapon_unk*)z->m1624->m274;
-    fn_8044D104(lbl_8087F4F0, data->m78, data->m80, 0, leader->m50);
+    fn_8044D104(Inventory::instance_, data->m78, data->m80, 0, leader->m50);
     chr::CharaPart_unk* old = leader->mParts.mData[1];
     fn_80044E0C(old, 1);
     leader->mParts.mData[1] = z->m1624;
@@ -2195,7 +2193,7 @@ inline void TakeShield_unk(Em201ZanGurgFinal* z, CharaTask* leader) {
     }
     if (z->m1624 == z->m1628) {
         if (z->m162C == 0) {
-            fn_804438E0(lbl_8087F4F0, 0x18875);
+            fn_804438E0(Inventory::instance_, 0x18875);
         }
         z->m162C = 1;
     }

@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/Inventory.h"
 #include "atn/LoadHandle.h"
 #include "game/CrowdManager.h"
 #include "game/CharaTask.h"
@@ -607,16 +608,6 @@ inline void CreateCamera_unk(atn::Model* model) {
     model->m208.reset(new (6, "", "", 0) ModelCamera_unk());
 }
 
-// inferred: party data (lbl_8087F4F0); one 0x43C-byte block per member (names invented)
-struct PartyMember_unk {
-    unsigned char mEquipFlags; // inferred: one bit per equipment slot
-    unsigned char m001[0x43C - 0x001];
-};
-struct Party_unk {
-    unsigned char m0000[0x671C];
-    PartyMember_unk mMembers[7];
-};
-extern "C" Party_unk* lbl_8087F4F0;
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" char* strstr(const char* s, const char* find);
@@ -629,7 +620,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_802180A8(const char* name); // inferred: motion name to id
 extern "C" int fn_8020EE8C(const char* name); // inferred: equipment slot by name
-extern "C" int fn_8044D208(Party_unk* party, int slot, int id);
+extern "C" int fn_8044D208(Inventory* party, int slot, int id);
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
 // inferred: node callback of a model (the functor manager of the original uses the default allocator of
 // boost::function3, std::allocator<function_base>)
@@ -934,14 +925,14 @@ void CharaTask::fn_801371AC() {
                 memcpy(name, src, strlen(src) + 1);
             }
             int flag = atoi(csv.fn_8005B9CC());
-            if (lbl_8087F4F0 != 0 && flag == 0) {
+            if (Inventory::instance_ != 0 && flag == 0) {
                 int equipped = 0;
-                if (lbl_8087F4F0 != 0 && IsPartyIndex_unk(fn_80219558(m50))) {
+                if (Inventory::instance_ != 0 && IsPartyIndex_unk(fn_80219558(m50))) {
                     int index = fn_80219558(m50);
                     unsigned int mask = 1 << slot;
-                    equipped = (mask & lbl_8087F4F0->mMembers[index].mEquipFlags) == mask;
+                    equipped = (mask & Inventory::instance_->mPlayers[index].mEquipFlags) == mask;
                 }
-                fn_8014FF9C(slot, fn_8044D208(lbl_8087F4F0, slot, m50), equipped);
+                fn_8014FF9C(slot, fn_8044D208(Inventory::instance_, slot, m50), equipped);
             } else {
                 chr::CharaEquip_unk* equip = new (0, "", "", 0) chr::CharaEquip_unk(slot, -1, 0, this, 0, 0, 0, 1, 1);
                 std::string path(name);
@@ -6563,7 +6554,7 @@ extern "C" int fn_804EB750(Arena_unk* arena, CharaTask* chara, int index); // in
 extern "C" void* fn_80206BE4(void* item);
 extern "C" void* fn_80211480(void* data);
 extern "C" void fn_80211940(void* data, int arg);
-extern "C" int fn_8044D3A0(Party_unk* party, int index, int id); // inferred: part id of a party member
+extern "C" int fn_8044D3A0(Inventory* party, int index, int id); // inferred: part id of a party member
 extern "C" void* fn_80206B14(int arg, int item);
 // inferred: creates a part (returns 0 on failure)
 extern "C" chr::CharaPart_unk* fn_800457A4(int kind, int id, int arg, CharaTask* chara, int arg2);
@@ -6580,8 +6571,8 @@ void CharaTask::fn_8014F2B4(int a, int b, int index) {
                 b = id;
             }
         }
-    } else if (lbl_8087F4F0 != 0 && index >= 0) {
-        int id = fn_8044D3A0(lbl_8087F4F0, index, m50);
+    } else if (Inventory::instance_ != 0 && index >= 0) {
+        int id = fn_8044D3A0(Inventory::instance_, index, m50);
         if (id >= 0) {
             b = id;
         }
@@ -6785,8 +6776,8 @@ struct ArenaEquip_unk {
 extern "C" ArenaEquip_unk* fn_804EB650(Arena_unk* arena, CharaTask* chara, int slot);
 extern "C" void* fn_8020ED84(int slot, int item);
 extern "C" void* fn_8020EF80(void* item);
-extern "C" int fn_8044D1A4(Party_unk* party, int slot, int id); // inferred: equipment index of a party member
-extern "C" void* fn_8044D034(Party_unk* party, int index);      // inferred: equipment data
+extern "C" int fn_8044D1A4(Inventory* party, int slot, int id); // inferred: equipment index of a party member
+extern "C" void* fn_8044D034(Inventory* party, int index);      // inferred: equipment data
 
 // NONMATCHING: 99.2% - the original keeps the dead second null check of the delete (`beq` twice);
 // tried a local pointer, a reference, a pointer to the slot, an inline delete helper.
@@ -6812,10 +6803,10 @@ void CharaTask::fn_8014FF9C(int slot, int id, int arg) {
                     arg = equip->mFlag;
                 }
             }
-        } else if (lbl_8087F4F0 != 0) {
-            index = fn_8044D1A4(lbl_8087F4F0, slot, m50);
+        } else if (Inventory::instance_ != 0) {
+            index = fn_8044D1A4(Inventory::instance_, slot, m50);
             if (index >= 0) {
-                data = fn_8044D034(lbl_8087F4F0, index);
+                data = fn_8044D034(Inventory::instance_, index);
             }
         }
     }

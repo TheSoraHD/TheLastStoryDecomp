@@ -1,4 +1,5 @@
 #include "gmk/FlyObjManager.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 
@@ -25,7 +26,6 @@ struct FlyDebug_unk {
 };
 extern "C" FlyDebug_unk* lbl_8087F0A8;
 // inferred: item manager and popup text (classes unknown)
-extern "C" void* lbl_8087F4F0;
 extern "C" void fn_80449A18(void* mgr, int arg1, int arg2, int arg3, int arg4);
 extern "C" void fn_804491F4(int* a, int* b, int arg2, int arg3, int arg4, float rate);
 extern "C" void* lbl_8087F8A8;
@@ -311,7 +311,7 @@ int FlyObjManager::vf44(GimmickHitMsg_unk* msg) {
         obj->mState = 3;
         PlayMotion_unk(&obj->mModel, 1, 0.0f);
         obj->mTimer = 60;
-        fn_80449A18(lbl_8087F4F0, 0, 1, 0, 0);
+        fn_80449A18(Inventory::instance_, 0, 1, 0, 0);
         int money, count;
         money = count = 0;
         fn_804491F4(&count, &money, 1, 0, 0, 1.0f);

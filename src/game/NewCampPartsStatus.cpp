@@ -144,7 +144,6 @@ public:
 };
 extern "C" void* fn_8000D9E8();
 extern "C" CharaTask* fn_8054A33C(void* manager, int id); // inferred: character of a member
-extern "C" Inventory* fn_801D80B4();
 extern "C" void fn_801D80A0(Inventory* party, int chara);
 // inferred: character name data (fn_8020924C)
 struct NewCampStatusName_unk {
@@ -502,7 +501,7 @@ void NewCampPartsStatus::fn_80527938() {
     if (leaderTask != 0) {
         leader = leaderTask->GetStatus_unk();
     } else {
-        leader = fn_801D80B4()->GetPlayerStatusInfo(0);
+        leader = Inventory::Order()->GetPlayerStatusInfo(0);
     }
     for (unsigned int i = 0; i < fn_80372574((GameUICounter_unk*)&mSets); i++) {
         NewCampStatusSet_unk& set = mSets[i];
@@ -517,10 +516,10 @@ void NewCampPartsStatus::fn_80527938() {
         if (task != 0) {
             status = task->GetStatus_unk();
         } else {
-            status = fn_801D80B4()->GetPlayerStatusInfo(set.mChara);
+            status = Inventory::Order()->GetPlayerStatusInfo(set.mChara);
         }
         NewCampStatusName_unk* info = fn_8020924C(fn_80219544(set.mChara));
-        fn_801D80A0(fn_801D80B4(), set.mChara);
+        fn_801D80A0(Inventory::Order(), set.mChara);
         fn_803DD160(base, fn_8020A81C(info->m14));
         fn_803D70B4(base, "name", info->mName);
         fn_803D70B4(base, "nameSub", info->mName);

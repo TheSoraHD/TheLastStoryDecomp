@@ -1,4 +1,5 @@
 #include "game/Gun.h"
+#include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "game/CrossbowMenuTask.h"
 #include "game/HitInfo_unk.h"
@@ -6,7 +7,6 @@
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
-extern "C" void* lbl_8087F4F0;                         // inferred: item manager
 extern "C" int fn_804444E8(void* items, int id);       // inferred: number of items `id` owned
 
 // inferred: owner of the weapon (the character, Arms::m270); only the members read here
@@ -92,7 +92,7 @@ void Gun::vf14() {
         switch (menu->m4C[menu->m150]) {
         case 0x70:
             arrow = 0;
-            if (lbl_8087F4F0 != 0 && fn_804444E8(lbl_8087F4F0, 0x70) > 0) {
+            if (Inventory::instance_ != 0 && fn_804444E8(Inventory::instance_, 0x70) > 0) {
                 arrow = 1;
             }
             show = 0;

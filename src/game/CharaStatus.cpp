@@ -1,4 +1,5 @@
 #include "game/CharaStatus.h"
+#include "game/Inventory.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
 #include "game/CharaTask.h"
@@ -1914,22 +1915,6 @@ bool CharaStatus::fn_801347C8(int index) {
     return false;
 }
 
-// inferred: equipment of a party member (8-byte slots); names invented
-struct EquipSlot_unk {
-    int mItem;
-    int m04;
-};
-struct PartyEquip_unk {
-    EquipSlot_unk mAccessories[4];
-    EquipSlot_unk mWeapons[2];
-    unsigned char m30[0x40 - 0x30];
-};
-// inferred: object behind lbl_8087F4F0 (probably the inventory, see CharaSub_unk.cpp)
-struct Party_unk {
-    unsigned char m0000[0x8290];
-    PartyEquip_unk mEquip[1]; // inferred: one per character id (count unknown)
-};
-extern "C" Party_unk* lbl_8087F4F0;
 
 // inferred: item data returned by fn_80206B14 / fn_8020ED84; names invented
 struct WeaponData_unk {
@@ -1979,16 +1964,16 @@ CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, i
     param.m0C += status->m1A8.m1C;
     param.m94 += status->m1A8.m20;
     param.m78 = MAX(1, param.m78 + status->m1C - ((status->m0C & 0x400) == 0x400 ? 3 : 0));
-    PartyEquip_unk* equip = &lbl_8087F4F0->mEquip[id];
+    Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[id];
     if (id == 3) {
         WeaponData_unk* a = fn_80206B14(
-            0, PickItem_unk(equip->mWeapons[0].mItem, 1, 0, kindA, indexA, itemA, kindB, indexB, itemB));
+            0, PickItem_unk(equip->mWeapons[0].mId, 1, 0, kindA, indexA, itemA, kindB, indexB, itemB));
         WeaponData_unk* b = fn_80206B14(
-            0, PickItem_unk(equip->mWeapons[1].mItem, 1, 1, kindA, indexA, itemA, kindB, indexB, itemB));
+            0, PickItem_unk(equip->mWeapons[1].mId, 1, 1, kindA, indexA, itemA, kindB, indexB, itemB));
         status->fn_8012D714(&param, &a->mParam, &b->mParam);
     } else {
         WeaponData_unk* a = fn_80206B14(
-            0, PickItem_unk(equip->mWeapons[0].mItem, 1, 0, kindA, indexA, itemA, kindB, indexB, itemB));
+            0, PickItem_unk(equip->mWeapons[0].mId, 1, 0, kindA, indexA, itemA, kindB, indexB, itemB));
         status->fn_8012D628(&param, &a->mParam);
     }
     int skip = 0;
@@ -1998,7 +1983,7 @@ CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, i
     if (!skip) {
         for (int i = 0; i < 4; i++) {
             AccessoryData_unk* acc = fn_8020ED84(
-                i, PickItem_unk(equip->mAccessories[i].mItem, 2, i, kindA, indexA, itemA, kindB, indexB, itemB));
+                i, PickItem_unk(equip->mProtectors[i].mId, 2, i, kindA, indexA, itemA, kindB, indexB, itemB));
             status->fn_8012D628(&param, &acc->mParam);
         }
     }
@@ -2012,7 +1997,7 @@ CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, i
             break;
         }
         WeaponData_unk* weapon = fn_80206B14(
-            0, PickItem_unk(equip->mWeapons[i].mItem, 1, i, kindA, indexA, itemA, kindB, indexB, itemB));
+            0, PickItem_unk(equip->mWeapons[i].mId, 1, i, kindA, indexA, itemA, kindB, indexB, itemB));
         if (weapon != 0) {
             for (int j = 0; j < 2; j++) {
                 CharaStatusEntry_unk* entry = &weapon->mEntries[j];
@@ -2025,7 +2010,7 @@ CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, i
     }
     for (int i = 0; i < 4; i++) {
         AccessoryData_unk* acc = fn_8020ED84(
-            i, PickItem_unk(equip->mAccessories[i].mItem, 2, i, kindA, indexA, itemA, kindB, indexB, itemB));
+            i, PickItem_unk(equip->mProtectors[i].mId, 2, i, kindA, indexA, itemA, kindB, indexB, itemB));
         if (acc != 0) {
             for (int j = 0; j < 2; j++) {
                 CharaStatusEntry_unk* entry = &acc->mEntries[j];
