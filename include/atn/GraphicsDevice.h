@@ -1,53 +1,121 @@
 #ifndef ATN_GRAPHICSDEVICE_H
 #define ATN_GRAPHICSDEVICE_H
 
+// SDK structures used by the graphics device (the SDK headers are not on the game include path;
+// same layout and tags as revolution/gx and revolution/vi).
+struct GXRenderModeObj {
+    int viTVmode;                         // 0x00
+    unsigned short fbWidth;               // 0x04
+    unsigned short efbHeight;             // 0x06
+    unsigned short xfbHeight;             // 0x08
+    unsigned short viXOrigin;             // 0x0A
+    unsigned short viYOrigin;             // 0x0C
+    unsigned short viWidth;               // 0x0E
+    unsigned short viHeight;              // 0x10
+    int xFBmode;                          // 0x14
+    unsigned char field_rendering;        // 0x18
+    unsigned char aa;                     // 0x19
+    unsigned char sample_pattern[12][2];  // 0x1A
+    unsigned char vfilter[7];             // 0x32
+};
+struct GXVtxDescList {
+    int attr; // 0x00
+    int type; // 0x04
+};
+struct GXVtxAttrFmtList {
+    int attr;           // 0x00
+    int cnt;            // 0x04
+    int type;           // 0x08
+    unsigned char frac; // 0x0C
+};
+struct GXFifoObj;
+
 namespace atn {
 
 class Texture_unk;
 
-// inferred: graphics device / GX render state (lbl_8087EEE0). Name and fields from the functions of
-// atn/GraphicsDevice.cpp (0x80071D60-0x80076F88) and its users (game/HomeButton_unk.cpp,
-// atn/Layer3D.cpp). One type for every file: do not add another partial view of this object.
+// inferred: vertex format of a model (attribute formats, then descriptors; 26 entries + GX_VA_NULL),
+// built by LoadModel (atn/LH_Model) and compared before loading it (fn_80071088)
+struct VtxFormat_unk {
+    VtxFormat_unk(const GXVtxDescList* desc, const GXVtxAttrFmtList* fmt); // 0x80070E14
+
+    GXVtxAttrFmtList mAttrFmt[27]; // 0x000
+    GXVtxDescList mDesc[27];       // 0x1B0
+};
+
+// inferred: GX pixel state cached by the device and sent by fn_800761A8 (bits from the most
+// significant; values are indices into the translation tables of fn_800761A8)
+struct GXStateBits_unk {
+    unsigned int mAlphaTest : 1;  // dirty bits 0-2: GXSetAlphaCompare / GXSetZCompLoc
+    unsigned int mAlphaFunc : 3;
+    unsigned int mAlphaRef : 8;
+    unsigned int mBlend : 1;      // dirty bits 3-5: GXSetBlendMode
+    unsigned int mBlendSrc : 3;
+    unsigned int mBlendDst : 3;
+    unsigned int mCull : 1;       // dirty bit 6: GXSetCullMode
+    unsigned int m20 : 1;
+    unsigned int mZTest : 1;      // dirty bits 8-10: GXSetZMode
+    unsigned int mZFunc : 3;
+    unsigned int mZWrite : 1;
+    unsigned int mColorWrite : 1; // dirty bit 11: GXSetColorUpdate / GXSetAlphaUpdate
+    unsigned int mAlphaWrite : 1;
+    unsigned int m28 : 4;
+};
+
+// inferred: graphics device / GX render state (lbl_8087EEE0, 0x8E8 bytes; atn_graphics_device.cpp).
+// Name and fields from the functions of atn/GraphicsDevice.cpp (0x80070E14-0x8007708C) and its users
+// (game/main.cpp, game/HomeButton_unk.cpp, atn/Layer3D.cpp). One type for every file: do not add
+// another partial view of this object.
 struct GraphicsDevice_unk {
     // inferred: one display-list allocation shared by several users (fn_80076F88)
     struct DisplayListRef_unk {
+        DisplayListRef_unk() : mData(0), mRefs(0) {}
         void* mData; // 0x00
         int mRefs;   // 0x04
     };
 
-    unsigned char m00[0x19];
-    unsigned char mCopyAntialias;         // 0x19: GXSetCopyFilter arguments (fn_80076174)
-    unsigned char mCopySamples[12][2];    // 0x1A
-    unsigned char mCopyVertFilter[7];     // 0x32
-    unsigned char m39[0x3C - 0x39];
+    GraphicsDevice_unk(); // 0x80071274
+
+    GXRenderModeObj mRMode;               // 0x00: adjusted for overscan (fn_800713D4)
     int mWidth;                           // 0x3C: EFB size used by the texture copy (fn_80071D80)
     int mHeight;                          // 0x40
-    int mWide;                            // 0x44: inferred: 16:9 (game/HomeButton_unk.cpp)
-    unsigned char m48[0x60 - 0x48];
-    unsigned int mScissor[4];             // 0x60: left, top, width, height (fn_800760D0)
-    unsigned char m70[0x80 - 0x70];
-    const void* mTexObjs[8];              // 0x80: GXTexObj loaded in each map (fn_800763C0)
-    unsigned char mA0[0xCC - 0xA0];
+    int mWide;                            // 0x44: SCGetAspectRatio (16:9)
+    unsigned int mClearColor;             // 0x48: inferred: GXColor as a word
+    unsigned int mClearZ;                 // 0x4C
+    GXFifoObj* mFifo;                     // 0x50
+    void* mFifoBuffer;                    // 0x54
+    float mOffsetX;                       // 0x58: inferred: added to the viewport and scissor
+    float mOffsetY;                       // 0x5C
+    int mViewX;                           // 0x60: viewport/scissor rectangle (fn_800760D0)
+    int mViewY;                           // 0x64
+    int mViewW;                           // 0x68
+    int mViewH;                           // 0x6C
+    void* mXfb0;                          // 0x70
+    void* mXfb1;                          // 0x74
+    void* mCurrentXfb;                    // 0x78
+    void* mNextXfb;                       // 0x7C
+    const void* mTexObjs[16];             // 0x80: GXTexObj loaded in each map (fn_800763C0)
+    int mC0;
+    int mC4;
+    int mC8;
     int mCC;                              // 0xCC (fn_80071D60)
-    unsigned char mD0[0xE0 - 0xD0];
-    DisplayListRef_unk mDisplayLists[1];  // 0xE0: inferred: indexed by fn_80076F88, count unknown
-};
-
-// inferred: cached GX state record compared by fn_80071088 (0x30 bytes; 9 of them, then 9 records
-// of six words at 0x1B0)
-struct GraphicsDeviceState_unk {
-    int m00[3];
-    unsigned char m0C;
-    int m10[3];
-    unsigned char m1C;
-    int m20[3];
-    unsigned char m2C;
+    GXStateBits_unk mState;               // 0xD0: requested state
+    GXStateBits_unk mAppliedState;        // 0xD4: state last sent to GX (fn_800761A8)
+    unsigned int mDirty : 12;             // 0xD8: one bit per state group of mState (fn_800761A8)
+    unsigned int mD8_low : 20;
+    int mDC;
+    DisplayListRef_unk mDisplayLists[256]; // 0xE0: indexed by fn_80076F88
+    int m8E0;
+    int m8E4;
 };
 
 } // namespace atn
 
-// The class name is not known (no RTTI), so the functions keep their C names.
-extern "C" int fn_80071088(const atn::GraphicsDeviceState_unk* a, const atn::GraphicsDeviceState_unk* b);
+// The class name is not known (no RTTI), so the functions keep their C names (callers in other units
+// declare them so).
+extern "C" int fn_80071088(const atn::VtxFormat_unk* a, const atn::VtxFormat_unk* b);
+extern "C" void fn_80071220();
+extern "C" int fn_800713D4(atn::GraphicsDevice_unk* device, int width, int height);
 extern "C" void fn_80071D60(atn::GraphicsDevice_unk* device, int value);
 extern "C" void fn_80071D68(atn::GraphicsDevice_unk* device, const float projection[4][4]);
 extern "C" void fn_80071D74(atn::GraphicsDevice_unk* device, const float projection[4][4]);
