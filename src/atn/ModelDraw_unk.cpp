@@ -680,9 +680,9 @@ static inline void SetMatTev_unk(Material_unk* mat) {
     k.r = r;
     k.g = g;
     GXSetTevKColor(0, k);
-    GXSetTevColor(1, mat->m24);
-    GXSetTevColor(2, mat->m28);
-    GXSetTevColor(3, mat->m2C);
+    GXSetTevColor(1, mat->mTevColor[0]);
+    GXSetTevColor(2, mat->mTevColor[1]);
+    GXSetTevColor(3, mat->mTevColor[2]);
 }
 
 void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {

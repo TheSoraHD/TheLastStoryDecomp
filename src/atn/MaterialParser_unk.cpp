@@ -93,6 +93,33 @@ const float TexUv_unk::sRot = 0.0f;
 const float TexUv_unk::sTransU = 0.0f;
 const float TexUv_unk::sTransV = 0.0f;
 
+// inferred: deletes an object and clears the pointer (the destructor and the copies of the stages
+// are written with it: small enough for MWCC to inline them, as in the original)
+template <class T>
+inline void SafeDelete_unk(T*& p) {
+    if (p != 0) {
+        delete p;
+        p = 0;
+    }
+}
+
+// inferred: same lookup written as a macro in the material parser (its own code keeps the inlining
+// budget of the function, as in the original)
+#define FIND_NAME(result, table, s, len)                                                                      \
+    do {                                                                                                     \
+        const char* const* p_ = table;                                                                       \
+        const char* name_;                                                                                   \
+        for (result = 0; (name_ = *p_) != 0; p_++, result++) {                                               \
+            int n_ = strlen(name_);                                                                          \
+            if (n_ == (len) && strncmp(s, name_, len) == 0) {                                                \
+                break;                                                                                       \
+            }                                                                                                \
+        }                                                                                                    \
+        if (name_ == 0) {                                                                                    \
+            result = -1;                                                                                     \
+        }                                                                                                    \
+    } while (0)
+
 // inferred: index of the string `s` (`len` characters) in a null-terminated table, -1 if missing
 static inline int FindName_unk(const char* const* table, const char* s, int len) {
     const char* const* p = table;
@@ -130,14 +157,8 @@ TexStage_unk::TexStage_unk(int id)
       mMagFilter(1) {}
 
 TexStage_unk::~TexStage_unk() {
-    if (mUv != 0) {
-        delete mUv;
-        mUv = 0;
-    }
-    if (mIndUv != 0) {
-        delete mIndUv;
-        mIndUv = 0;
-    }
+    SafeDelete_unk(mUv);
+    SafeDelete_unk(mIndUv);
     if (mOwnsTexture && mTexture != 0) {
         delete mTexture;
         mOwnsTexture = 0;
@@ -155,14 +176,8 @@ TexStage_unk& TexStage_unk::operator=(const TexStage_unk& o) {
     mId = o.mId;
     mWrapS = o.mWrapS;
     mWrapT = o.mWrapT;
-    if (mUv != 0) {
-        delete mUv;
-        mUv = 0;
-    }
-    if (mIndUv != 0) {
-        delete mIndUv;
-        mIndUv = 0;
-    }
+    SafeDelete_unk(mUv);
+    SafeDelete_unk(mIndUv);
     if (o.mUv != 0) {
         mUv = new ((MemoryTag)6, "", "", 0) TexUv_unk(*o.mUv);
     }
@@ -450,18 +465,18 @@ Material_unk::Material_unk(ShaderTex_unk* shader)
     m38.g = 1;
     m38.b = 2;
     m38.a = 3;
-    m24.r = mColor.r;
-    m24.g = mColor.g;
-    m24.b = mColor.b;
-    m24.a = 0;
-    m28.r = mColor.r;
-    m28.g = mColor.g;
-    m28.b = mColor.b;
-    m28.a = 0;
-    m2C.r = mColor.r;
-    m2C.g = mColor.g;
-    m2C.b = mColor.b;
-    m2C.a = 0;
+    mTevColor[0].r = mColor.r;
+    mTevColor[0].g = mColor.g;
+    mTevColor[0].b = mColor.b;
+    mTevColor[0].a = 0;
+    mTevColor[1].r = mColor.r;
+    mTevColor[1].g = mColor.g;
+    mTevColor[1].b = mColor.b;
+    mTevColor[1].a = 0;
+    mTevColor[2].r = mColor.r;
+    mTevColor[2].g = mColor.g;
+    mTevColor[2].b = mColor.b;
+    mTevColor[2].a = 0;
     m14_0 = 0;
     m14_1 = 7;
     m14_4 = 0;
@@ -651,9 +666,12 @@ const char* Material_unk::fn_8007C46C(const char* path, const char* data, int si
             len = 0;
         } else {
             n = len;
-            int key = FindName_unk(sMaterialKeys, p + 1, n - 1);
+            int key;
+            FIND_NAME(key, sMaterialKeys, p + 1, n - 1);
             if (key == -1) {
-                TexStage_unk stage(FindName_unk(sTexNames, p + 1, n - 1));
+                int tex;
+                FIND_NAME(tex, sTexNames, p + 1, n - 1);
+                TexStage_unk stage(tex);
                 p = stage.fn_8007B260(path, this, p + len);
                 len = 0;
                 stages.push_back(stage);
@@ -681,7 +699,8 @@ const char* Material_unk::fn_8007C46C(const char* path, const char* data, int si
                     break;
                 case 4: {
                     p = fn_8007A994(p + n, sTokenDelims, &len);
-                    int src = FindName_unk(sColorSrcNames, p, len);
+                    int src;
+                    FIND_NAME(src, sColorSrcNames, p, len);
                     if (src == 0) {
                         m4E = 1;
                     } else if (src == 1) {
@@ -691,7 +710,8 @@ const char* Material_unk::fn_8007C46C(const char* path, const char* data, int si
                 }
                 case 5: {
                     p = fn_8007A994(p + n, sTokenDelims, &len);
-                    int src = FindName_unk(sColorSrcNames, p, len);
+                    int src;
+                    FIND_NAME(src, sColorSrcNames, p, len);
                     if (src == 0) {
                         m4F = 1;
                     } else if (src == 1) {
@@ -701,7 +721,8 @@ const char* Material_unk::fn_8007C46C(const char* path, const char* data, int si
                 }
                 case 6: {
                     p = fn_8007A994(p + n, sTokenDelims, &len);
-                    int src = FindName_unk(sColorSrcNames, p, len);
+                    int src;
+                    FIND_NAME(src, sColorSrcNames, p, len);
                     if (src == 0) {
                         m50 = 1;
                         m51 = 1;
@@ -737,16 +758,18 @@ const char* Material_unk::fn_8007C46C(const char* path, const char* data, int si
                 case 17:
                 case 18: {
                     const char* delims = sTokenDelims;
-                    GXColor* reg = &m24 + (key - 16);
-                    reg->r = 255.0f * fn_800DC288(p = fn_8007A994(p + n, delims, &len));
-                    reg->g = 255.0f * fn_800DC288(p = fn_8007A994(p + len, delims, &len));
-                    reg->b = 255.0f * fn_800DC288(p = fn_8007A994(p + len, delims, &len));
+                    int reg = key - 16;
+                    mTevColor[reg].r = 255.0f * fn_800DC288(p = fn_8007A994(p + n, delims, &len));
+                    mTevColor[reg].g = 255.0f * fn_800DC288(p = fn_8007A994(p + len, delims, &len));
+                    mTevColor[reg].b = 255.0f * fn_800DC288(p = fn_8007A994(p + len, delims, &len));
                     break;
                 }
                 case 19: {
                     const char* tex = fn_8007A994(p + n, sTokenDelims, &len);
                     TexAnim_unk anim;
-                    anim.mStageId = FindName_unk(sTexNames, tex, len);
+                    int stageId;
+                    FIND_NAME(stageId, sTexNames, tex, len);
+                    anim.mStageId = stageId;
                     const char* delims = sTokenDelims;
                     anim.m08 = fn_800DC288(p = fn_8007A994(tex + len, delims, &len));
                     anim.m0C = fn_800DC288(p = fn_8007A994(p + len, delims, &len));
@@ -807,7 +830,8 @@ const char* Material_unk::fn_8007C46C(const char* path, const char* data, int si
                     break;
                 case 13: {
                     p = fn_8007A994(p + n, sTokenDelims, &len);
-                    int mode = FindName_unk(sDrawModeNames, p, len);
+                    int mode;
+                    FIND_NAME(mode, sDrawModeNames, p, len);
                     if (mode == 4 || mode == 7) {
                         m48 |= 2;
                     }
@@ -1094,10 +1118,11 @@ void Material_unk::fn_80080048(float time) {
 
 int Material_unk::fn_800804D0(int id) {
     for (int i = 0; i < m4A; i++) {
-        if (m0C[i].mId == id) {
+        int stageId = m0C[i].mId;
+        if (stageId == id) {
             return i;
         }
-        if (m0C[i].mId > id) {
+        if (stageId > id) {
             return -1;
         }
     }
@@ -1106,10 +1131,11 @@ int Material_unk::fn_800804D0(int id) {
 
 TexStage_unk* Material_unk::fn_80080528(int id) {
     for (int i = 0; i < m4A; i++) {
-        if (m0C[i].mId == id) {
+        int stageId = m0C[i].mId;
+        if (stageId == id) {
             return &m0C[i];
         }
-        if (m0C[i].mId > id) {
+        if (stageId > id) {
             return 0;
         }
     }
@@ -1118,17 +1144,17 @@ TexStage_unk* Material_unk::fn_80080528(int id) {
 
 // inferred: copy of another material (the stages get their own UV transforms)
 void Material_unk::fn_80080584(const Material_unk& o) {
-    m24.r = o.m24.r;
-    m24.b = o.m24.b;
-    m24.a = o.m24.a;
-    m28.r = o.m28.r;
-    m28.g = o.m28.g;
-    m28.b = o.m28.b;
-    m28.a = o.m28.a;
-    m2C.r = o.m2C.r;
-    m2C.g = o.m2C.g;
-    m2C.b = o.m2C.b;
-    m2C.a = o.m2C.a;
+    mTevColor[0].r = o.mTevColor[0].r;
+    mTevColor[0].b = o.mTevColor[0].b;
+    mTevColor[0].a = o.mTevColor[0].a;
+    mTevColor[1].r = o.mTevColor[1].r;
+    mTevColor[1].g = o.mTevColor[1].g;
+    mTevColor[1].b = o.mTevColor[1].b;
+    mTevColor[1].a = o.mTevColor[1].a;
+    mTevColor[2].r = o.mTevColor[2].r;
+    mTevColor[2].g = o.mTevColor[2].g;
+    mTevColor[2].b = o.mTevColor[2].b;
+    mTevColor[2].a = o.mTevColor[2].a;
     m4D = o.m4D;
     m34 = o.m34;
     m00 = o.m00;
@@ -1148,7 +1174,7 @@ void Material_unk::fn_80080584(const Material_unk& o) {
     m20.g = o.m20.g;
     m20.b = o.m20.b;
     m20.a = o.m20.a;
-    m24.g = o.m24.g;
+    mTevColor[0].g = o.mTevColor[0].g;
     m30 = o.m30;
     m4C = o.m4C;
     m4A = o.m4A;
@@ -1158,14 +1184,8 @@ void Material_unk::fn_80080584(const Material_unk& o) {
         const TexStage_unk& src = o.m0C[i];
         dst.mName = src.mName;
         dst.mId = src.mId;
-        if (dst.mUv != 0) {
-            delete dst.mUv;
-            dst.mUv = 0;
-        }
-        if (dst.mIndUv != 0) {
-            delete dst.mIndUv;
-            dst.mIndUv = 0;
-        }
+        SafeDelete_unk(dst.mUv);
+        SafeDelete_unk(dst.mIndUv);
         if (src.mUv != 0) {
             dst.mUv = new ((MemoryTag)6, "", "", 0) TexUv_unk(*src.mUv);
         }
@@ -1301,9 +1321,9 @@ void Material_unk::fn_800816B4(void* parent, const char* name) {
     fn_800875F8(group, "Mat Color", &mColor, 0, -1, 1, fn_80081BCC, this);
     fn_800875F8(group, "Spec Color", &m20, 0, -1, 1, fn_80081BCC, this);
     fn_800875F8(group, "Amb Color", &m1C, 0, -1, 1, fn_80081BCC, this);
-    fn_800875F8(group, "Reg0 Color", &m24, 0, -1, 1, fn_80081BCC, this);
-    fn_800875F8(group, "Reg1 Color", &m28, 0, -1, 1, fn_80081BCC, this);
-    fn_800875F8(group, "Reg2 Color", &m2C, 0, -1, 1, fn_80081BCC, this);
+    fn_800875F8(group, "Reg0 Color", &mTevColor[0], 0, -1, 1, fn_80081BCC, this);
+    fn_800875F8(group, "Reg1 Color", &mTevColor[1], 0, -1, 1, fn_80081BCC, this);
+    fn_800875F8(group, "Reg2 Color", &mTevColor[2], 0, -1, 1, fn_80081BCC, this);
     fn_800874C8(group, "Brightness", &m34, 0, 3, 1, fn_80081BCC, this);
     fn_800874C8(group, "Reflectivity", &m3C, 0, 0xFF, 1, fn_80081BCC, this);
     for (int i = 0; i < m4A; i++) {

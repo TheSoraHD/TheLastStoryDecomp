@@ -258,7 +258,18 @@ public:
     }
     int compare(const T* s) const { return compare(0, size(), s, strlen(s)); }
     // inferred: inlined in operator== (atn/MaterialParser_unk 0x8007DAA4)
-    int compare(const basic_string& str) const { return compare(0, size(), str.data(), str.size()); }
+    int compare(const basic_string& str) const {
+        const T* p;
+        size_type n;
+        if (!str.is_long()) {
+            p = (const T*)&str + 1;
+            n = str.mShort.mSize & 0x7F;
+        } else {
+            p = str.mLong.mData;
+            n = str.mLong.mSize;
+        }
+        return compare(0, size(), p, n);
+    }
 
     // inferred: inlined in boost::char_separator (0x800EC7F0)
     size_type find(T c, size_type pos = 0) const {

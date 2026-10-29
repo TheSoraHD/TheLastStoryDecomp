@@ -207,9 +207,7 @@ struct Material_unk {
     GXColor mColor; // 0x18: inferred: material colour
     GXColor m1C;    // inferred: ambient colour
     GXColor m20;
-    GXColor m24; // inferred: TEV colours 1-3
-    GXColor m28;
-    GXColor m2C;
+    GXColor mTevColor[3]; // 0x24: inferred: TEV colours 1-3 (RegColor1-3)
     float m30;
     int m34;     // inferred: TEV scale of the last stage
     GXColor m38; // inferred: swap table
