@@ -1,5 +1,7 @@
 #include "game/BattleResult.h"
 #include "game/Inventory.h"
+#include "game/CharaStatus.h"
+#include "game/CharaTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "string.h"
@@ -20,27 +22,6 @@ inline void SetPaneValue_unk(void* layout, const char* name, int index, float va
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
 
-// inferred: CharaStatus (game/CharaStatus.h); only the members used here
-class CharaStatus {
-public:
-    int fn_801334CC(int level); // inferred: experience needed for `level`
-    unsigned char m00[0xA0];
-    int mLevel; // 0xA0 (CharaParam_unk::m78 of mParamA)
-    unsigned char mA4[0x1AC - 0xA4];
-    int mExp; // 0x1AC
-};
-// inferred: character table entry (CharaTask::m60)
-struct ResultCharaInfo_unk {
-    unsigned char m00[0x08];
-    const char* mName; // 0x08
-};
-// inferred: CharaTask; only the members used here
-struct ResultChara_unk {
-    unsigned char m00[0x60];
-    ResultCharaInfo_unk* mInfo; // 0x60
-    unsigned char m64[0x7D4 - 0x64];
-    CharaStatus mStatus; // 0x7D4
-};
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
                            int* outC); // inferred: adds an item
 extern "C" void fn_80444CF8(char* text, int a, int b, int c); // inferred: item name
@@ -293,14 +274,14 @@ void BattleResult::fn_800F0D14(int mode) {
             mLvUpLoop[i]->mFrame = 0.0f;
             mLvUp[i] = 1;
         }
-        ResultChara_unk* chara = (ResultChara_unk*)members->mData[i].mChara; // inferred: view of CharaTask
+        CharaTask* chara = members->mData[i].mChara;
         CharaStatus* status = &chara->mStatus;
         int won = members->mData[i].mExpA + members->mData[i].mExpB;
         ResultExp_unk exp;
         if (members->mData[i].mLevelUp > 0) {
-            int need = status->fn_801334CC(status->mLevel - 1);
+            int need = status->fn_801334CC(status->mParamA.m78 - 1);
             if (members->mData[i].mLevelUp == 1) {
-                int prev = status->mExp - won;
+                int prev = status->m1A8.mExp - won;
                 exp.mRateTo = 1.0f;
                 exp.mFrom = prev;
                 exp.mTo = 0;
@@ -311,14 +292,14 @@ void BattleResult::fn_800F0D14(int mode) {
                 exp.mRateFrom = 0.0f;
                 exp.mRateTo = 1.0f;
             }
-        } else if (status->mLevel >= 99) {
+        } else if (status->mParamA.m78 >= 99) {
             exp.mFrom = 0;
             exp.mTo = 0;
             exp.mRateFrom = 0.0f;
             exp.mRateTo = 0.0f;
         } else {
-            int need = status->fn_801334CC(status->mLevel);
-            int now = status->mExp;
+            int need = status->fn_801334CC(status->mParamA.m78);
+            int now = status->m1A8.mExp;
             int left = need - now;
             exp.mRateFrom = (float)(now - won) / (float)need;
             exp.mRateTo = (float)now / (float)need;
@@ -326,9 +307,9 @@ void BattleResult::fn_800F0D14(int mode) {
             exp.mTo = left;
         }
         mExp.push_back(exp);
-        fn_801F837C(mExpOp[i], "name", chara->mInfo->mName);
-        fn_801F837C(mExpLoop[i], "name", chara->mInfo->mName);
-        fn_801F837C(mExpLoop[i], "name_sdw", chara->mInfo->mName);
+        fn_801F837C(mExpOp[i], "name", chara->m60->m08);
+        fn_801F837C(mExpLoop[i], "name", chara->m60->m08);
+        fn_801F837C(mExpLoop[i], "name_sdw", chara->m60->m08);
     }
     float count = members->size();
     mHasItems = 0;

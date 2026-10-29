@@ -138,7 +138,8 @@ CharaListeners_unk* fn_8014F8F4();
 // inferred: type data returned by fn_80204E04 (CharaTask::m68)
 // inferred: entry of the character table returned by fn_8020924C (names invented)
 struct CharaInfo_unk {
-    unsigned char m00[0x0C];
+    unsigned char m00[0x08];
+    const char* m08; // inferred: name (shown by game/BattleResult)
     const char* m0C; // inferred: name (shown by fn_80149A30)
     const char* m10; // inferred: name (passed to fn_802092C0; digits read by fn_801546F4)
     int m14;         // inferred: passed to fn_8020A81C (character data)
