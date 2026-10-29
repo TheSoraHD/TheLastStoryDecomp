@@ -5,16 +5,37 @@
 
 namespace chr {
 
-// inferred: status-condition controls of the unit that starts at 0x8018EEC4 (ControlCdnStone is
-// declared in chr/ControlStickByQuark.h), created by CharaTask (0x8016676C-0x80168B1C).
-// Only the constructors are declared; sizes from the operator new calls, argument types from the
-// constructors (ints stored as words, vectors read through pointers).
+// Status-condition controls of chr/ControlCdnStone.cpp (0x8018EEC4-0x80192908), created by
+// CharaTask (0x8016676C-0x80168B1C). Each one switches to its "Restore" control when it ends
+// (vf10). Sizes from the operator new calls, argument types from the constructors.
+
+class ControlCdnStone : public ControlBase {
+public:
+    ControlCdnStone(Chara_unk* chara, int a); // 0x8018EEC4 (first function of this unit)
+    virtual int vf0C();
+    virtual boost::function<void()> vf10();
+
+    atn::Vector3 m08; // inferred: shake offset applied to the character (mF88)
+    atn::Vector3 m14; // inferred: shake direction; its y (always 0 in the direction) is the shake timer
+    int m20;          // inferred: frames left (450)
+    int m24;          // inferred: nonzero: the time does not run out
+};
+
+// inferred: from RTTI "chr::ControlCdnRestoreStone" (vtable 0x8077D... in this unit); created inline
+// by ControlCdnStone::vf10
+class ControlCdnRestoreStone : public ControlBase {
+public:
+    ControlCdnRestoreStone(Chara_unk* chara);
+    virtual int vf0C();
+};
 
 class ControlCdnParalyzed : public ControlBase {
 public:
     ControlCdnParalyzed(Chara_unk* chara); // 0x8018F970
     virtual int vf0C();
-    unsigned char m08[0xC - 0x08];
+    virtual boost::function<void()> vf10();
+    virtual void vf1C();
+    int m08;
 };
 
 class ControlCdnRestoreParalyzed : public ControlBase {
@@ -27,7 +48,9 @@ class ControlCdnBetray : public ControlBase {
 public:
     ControlCdnBetray(Chara_unk* chara, int a, int b); // 0x8018FF6C
     virtual int vf0C();
-    int m08;
+    virtual boost::function<void()> vf10();
+    virtual void vf1C();
+    int m08; // inferred: side the character switches to (CharaTask::mF14)
     int m0C; // inferred: nonzero selects control 0x35 instead of 0x34
 };
 

@@ -3681,5 +3681,13 @@
   "name": "Event/EventCommandDef_unk.cpp",
   "classes": [],
   "matching": false
+ },
+ {
+  "name": "chr/ControlCdnStone.cpp",
+  "classes": [
+   "chr::ControlCdnStone",
+   "chr::ControlCdnRestoreStone"
+  ],
+  "matching": false
  }
 ]

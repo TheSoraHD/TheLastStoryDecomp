@@ -98,9 +98,9 @@ void InteractionSpot::fn_8042952C(int state) {
                 ((chr::Chara_unk*)mChara[i])->fn_8015495C(0, 1, 1, 1);
                 if (((chr::Chara_unk*)mChara[i])->m55C == 6) {
                     if (mChara[i]->mType == 0) {
-                        ((chr::Chara_unk*)mChara[i])->m564 = 1;
+                        ((chr::Chara_unk*)mChara[i])->m564 = (CharaTask::CONTROL_MODE)1;
                     } else {
-                        ((chr::Chara_unk*)mChara[i])->m564 = 2;
+                        ((chr::Chara_unk*)mChara[i])->m564 = (CharaTask::CONTROL_MODE)2;
                     }
                 } else {
                     mChara[i]->fn_8016EB48(0, 0, 0);

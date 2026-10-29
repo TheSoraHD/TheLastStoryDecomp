@@ -465,9 +465,9 @@ void MeetingSpot::fn_803FD328(int state) {
                 mChara[i]->fn_8015495C(0, 1, 1, 1);
                 if ((mChara[i]->m55C == 6 && mChara[i]->m560 == 0x44) || mChara[i]->fn_8016D3F8()) {
                     if (mChara[i]->mType == 0) {
-                        mChara[i]->m564 = 1;
+                        mChara[i]->m564 = (CharaTask::CONTROL_MODE)1;
                     } else {
-                        mChara[i]->m564 = 2;
+                        mChara[i]->m564 = (CharaTask::CONTROL_MODE)2;
                     }
                 } else {
                     mChara[i]->fn_8016EB48(0, 0, 0);

@@ -138,7 +138,8 @@ CharaListeners_unk* fn_8014F8F4();
 // inferred: type data returned by fn_80204E04 (CharaTask::m68)
 // inferred: entry of the character table returned by fn_8020924C (names invented)
 struct CharaInfo_unk {
-    unsigned char m00[0x08];
+    unsigned char m00[0x04];
+    const wchar_t* m04; // inferred: name shown in the betrayal message (chr::ControlCdnBetray)
     const char* m08; // inferred: name (shown by game/BattleResult)
     const char* m0C; // inferred: name (shown by fn_80149A30)
     const char* m10; // inferred: name (passed to fn_802092C0; digits read by fn_801546F4)
@@ -384,6 +385,9 @@ struct CharaPair_unk {
 // parameters are unknown.
 class CharaTask : public atn::Task {
 public:
+    // RTTI (boost::_bi::value<CharaTask::CONTROL_MODE>, chr/ControlCdnStone.cpp): type of m564;
+    // enumerator names unknown (1 and 2 are set by gmk::InteractionSpot and gmk::MeetingSpot)
+    enum CONTROL_MODE {};
     CharaTask(atn::Task* parent, int type, void* data); // 0x801354B4
     virtual ~CharaTask();                               // 0x80136138
     virtual int vf0C();                                 // 0x8017CB74
@@ -1041,7 +1045,7 @@ public:
     atn::Vector3 m550;
     int m55C; // inferred: state compared with 6 by the grapple controls
     int m560;
-    int m564; // inferred: set to 1 or 2 by gmk::InteractionSpot
+    CONTROL_MODE m564; // inferred: set to 1 or 2 by gmk::InteractionSpot; passed to fn_8016E970
     float m568;
     float m56C;
     float m570;

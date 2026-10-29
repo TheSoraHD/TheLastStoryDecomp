@@ -463,7 +463,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
     : atn::Task(parent), mType(type), m4C(type), m50((int)data), m58(0), m5C(0), m60(0), m64(0),
       m7C(0), mId(0), mAC(0), mMotion(0x800504, GetModelHeap_unk(parent, (int)data)), m480(0), m510(2),
       m514(1.0f), m518(0), m51C(-1.0f), m520(-1), mPos(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f),
-      m540(1.0f, 1.0f, 1.0f), m54C(0), m550(0.0f, 0.0f, 0.0f), m55C(0), m560(0), m564(0), m568(1.0f),
+      m540(1.0f, 1.0f, 1.0f), m54C(0), m550(0.0f, 0.0f, 0.0f), m55C(0), m560(0), m564((CONTROL_MODE)0), m568(1.0f),
       m56C(1.0f / 6.0f), m570(0.0f), m574(0.0f, 0.0f, 0.0f), m580(0.0f), m584(0.0f), m588(0.0f), m58C(0),
       m590(0), m594(0), m598(0), m59C(0), m59D(0), m59E(0), m59F(0), m5A0(1.0f), m610(0), m630(0),
       m634(-1), m638(0), m63C(0), m640(0), m644(1), m648(0), m64C(0), m674(-1), m678(0), m67C(0),
@@ -6017,7 +6017,7 @@ static inline void Recover_unk(CharaTask* chara) {
     chara->mC58.mC4 = 0;
     if (chara->mType == 0) {
         chara->m55C = 1;
-        chara->m564 = 1;
+        chara->m564 = (CharaTask::CONTROL_MODE)1;
     }
     fn_800C344C("SE_BTCOM_076", &chara->mPos, 0, -1, 1.0f);
 }
@@ -9843,7 +9843,7 @@ void CharaTask::fn_8016DF3C(int type) {
                 m55C = 2;
             }
             if (m564 == 1) {
-                m564 = 2;
+                m564 = (CONTROL_MODE)2;
             }
             Reset_unk(0, 1, 1, 1);
         } else if (type == 0) {
@@ -9851,7 +9851,7 @@ void CharaTask::fn_8016DF3C(int type) {
                 m55C = 1;
             }
             if (m564 == 2) {
-                m564 = 1;
+                m564 = (CONTROL_MODE)1;
             }
             Reset_unk(0, 1, 1, 1);
         }
@@ -9961,7 +9961,7 @@ float CharaTask::fn_8016E864() {
 void CharaTask::fn_8016E970(int state) {
     if (m55C != state) {
         if (m55C != 6 && m55C != 8) {
-            m564 = m55C;
+            m564 = (CONTROL_MODE)m55C;
         }
         if (m55C == 6) {
             fn_80178208(0);
