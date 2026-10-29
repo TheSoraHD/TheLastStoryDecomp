@@ -933,6 +933,15 @@ static inline void Command_unk(int mode, int a, int b, int c, int d) {
     fn_8001AEDC(mode, &a_, &b_, &c_, &d_);
 }
 
+// inferred: 1 (and out.m00 set) while out.m10 is still 0
+static inline int CheckCount_unk() {
+    if (lbl_807C6A40.m10 >= 1) {
+        return -1;
+    }
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -1564,25 +1573,14 @@ int AI::Script::AI_arganan01::vf2C() {
     return -1;
 }
 
-// NONMATCHING: 93.89% - control flow and return discriminator differ from the script stub.
 int AI::Script::AI_arganan01::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_arganan01::vf20() {
@@ -1623,25 +1621,14 @@ int AI::Script::AI_buffer_attackstable01::vf2C() {
     return -1;
 }
 
-// NONMATCHING: 93.89% - MWCC assigns the return discriminator to r3 instead of r0.
 int AI::Script::AI_buffer_attackstable01::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_buffer_guard01::vf08() {
@@ -1682,25 +1669,14 @@ int AI::Script::AI_buffer_guard01::vf2C() {
     return -1;
 }
 
-// NONMATCHING: 93.89% - control flow and return discriminator differ from the script stub.
 int AI::Script::AI_buffer_guard01::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_buffer_guard01::vf20() {
@@ -1754,25 +1730,14 @@ int AI::Script::AI_buffer_guard02::vf2C() {
     return -1;
 }
 
-// NONMATCHING: 93.89% - MWCC assigns the return discriminator to r3 instead of r0.
 int AI::Script::AI_buffer_guard02::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_buffer_guard02::vf20() {
@@ -1865,25 +1830,14 @@ int AI::Script::AI_em_bridge_archer::vf08() {
     return 1;
 }
 
-// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_em_bridge_archer::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_em_bridge_archer::vf18() {
@@ -1913,25 +1867,14 @@ int AI::Script::AI_em_monster_attack01::vf08() {
     return 1;
 }
 
-// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_em_monster_attack01::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_em_scout::vf08() {
@@ -2001,6 +1944,18 @@ int AI::Script::AI_em_sword_attack01::vf24() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_sword_attack01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_sword_attack02::vf08() {
     int result = 1;
@@ -2013,6 +1968,16 @@ int AI::Script::AI_em_sword_attack02::vf08() {
     return result;
 }
 
+int AI::Script::AI_em_sword_attack02::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_em_sword_pointguard01::vf08() {
     lbl_807C6A40.m1C = lbl_807C68C0.m7C;
     lbl_807C6A40.m20 = lbl_807C68C0.m80;
@@ -2022,6 +1987,16 @@ int AI::Script::AI_em_sword_pointguard01::vf08() {
     lbl_807C6A40.m3C = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_em_sword_pointguard01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 // NONMATCHING: 89.70% - the local-slot allocation and scratch-store scheduling differ.
@@ -2069,6 +2044,16 @@ int AI::Script::AI_em_type102::vf2C() {
         fn_8001AEDC(6, &a, &b, &c, &d);
         lbl_807C6A40.m00 = 1;
         return 4;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_type102::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
     }
     return -1;
 }
@@ -2354,6 +2339,16 @@ int AI::Script::AI_fr_buffer_pick01::vf2C() {
     return -1;
 }
 
+int AI::Script::AI_fr_buffer_pick01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 // NONMATCHING: 88.31% - local output aggregate and register allocation differ.
 // inferred: the helper receives four consecutive output words; only the first is initialized from m80.
 int AI::Script::AI_fr_follow_player::vf08() {
@@ -2404,6 +2399,16 @@ int AI::Script::AI_fr_magic_pick01::vf2C() {
     return -1;
 }
 
+int AI::Script::AI_fr_magic_pick01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_fr_magic_pick02::vf08() {
     int result = 1;
     lbl_807C6A40.m18 = 0;
@@ -2445,6 +2450,16 @@ int AI::Script::AI_fr_sword_attack01::vf08() {
     return result;
 }
 
+int AI::Script::AI_fr_sword_attack01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_fr_sword_pick01::vf08() {
     int result = 1;
     lbl_807C6A40.m18 = 0x5A;
@@ -2453,6 +2468,16 @@ int AI::Script::AI_fr_sword_pick01::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_fr_sword_pick01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 // NONMATCHING: 89.57% - stack output order and register allocation differ.
@@ -2477,6 +2502,16 @@ int AI::Script::AI_fr_sword_pointguard01::vf08() {
     lbl_807C6A40.m3C = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_fr_sword_pointguard01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 // NONMATCHING: 88.52% - argument-register allocation differs around the AI call.
@@ -2577,6 +2612,16 @@ int AI::Script::AI_magic_attack01::vf08() {
     return 1;
 }
 
+int AI::Script::AI_magic_attack01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_attack01::vf2C() {
     int result = WaitRandom_unk();
     if (result == 7) {
@@ -2602,6 +2647,16 @@ int AI::Script::AI_magic_attack01_2::vf08() {
     }
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_magic_attack01_2::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 int AI::Script::AI_magic_attack01_2::vf2C() {
@@ -2649,9 +2704,29 @@ int AI::Script::AI_magic_attack02::vf18() {
     return -1;
 }
 
+int AI::Script::AI_magic_attack02::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_attackstable01::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_magic_attackstable01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 int AI::Script::AI_magic_attackstable01::vf2C() {
@@ -2695,6 +2770,16 @@ int AI::Script::AI_magic_cure01::vf2C() {
     return -1;
 }
 
+int AI::Script::AI_magic_cure01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_guard01::vf08() {
     int result = 1;
     lbl_807C6A40.m24 = 0x3C;
@@ -2720,6 +2805,16 @@ int AI::Script::AI_magic_guard01::vf2C() {
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_guard01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
     }
     return -1;
 }
@@ -2753,6 +2848,16 @@ int AI::Script::AI_magic_guard01_2::vf2C() {
     return -1;
 }
 
+int AI::Script::AI_magic_guard01_2::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_guard02::vf08() {
     int result = 1;
     lbl_807C6A40.m24 = 0x3C;
@@ -2778,6 +2883,16 @@ int AI::Script::AI_magic_guard02::vf2C() {
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_guard02::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
     }
     return -1;
 }
@@ -2987,6 +3102,16 @@ int AI::Script::AI_quark01::vf08() {
     return result;
 }
 
+int AI::Script::AI_quark01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_quark02::vf08() {
     lbl_807C6A40.m18 = 0;
     lbl_807C6A40.m1C = lbl_807C68C0.m7C;
@@ -2998,25 +3123,14 @@ int AI::Script::AI_quark02::vf08() {
     return 1;
 }
 
-// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_quark02::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_silence_guard01::vf08() {
@@ -3039,25 +3153,14 @@ int AI::Script::AI_silence_guard01::vf18() {
     return -1;
 }
 
-// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_silence_guard01::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_sword_guard01::vf08() {
@@ -3073,25 +3176,14 @@ int AI::Script::AI_sword_guard01::vf08() {
     return result;
 }
 
-// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_sword_guard01::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_sword_leaderguard01::vf08() {
@@ -3104,25 +3196,14 @@ int AI::Script::AI_sword_leaderguard01::vf08() {
     return 1;
 }
 
-// NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
 int AI::Script::AI_sword_leaderguard01::vf40() {
-    int result;
-    if (lbl_807C6A40.m10 >= 1) {
-        result = -1;
-    } else {
-        lbl_807C6A40.m00 = 1;
-        result = 1;
-    }
+    int result = CheckCount_unk();
     if (result == 1) {
-        int d = 0;
-        int c = 0;
-        int b = 0;
-        int a = 0;
-        fn_8001AEDC(0, &a, &b, &c, &d);
+        Command_unk(0, 0, 0, 0, 0);
         lbl_807C6A40.m00 = 1;
-        result = 1;
+        return 1;
     }
-    return result;
+    return -1;
 }
 
 int AI::Script::AI_sword_leaderguard02::vf08() {
@@ -3133,6 +3214,16 @@ int AI::Script::AI_sword_leaderguard02::vf08() {
     lbl_807C6A40.m3C = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_sword_leaderguard02::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 // NONMATCHING: 70.00% - state-machine branches and temporary scheduling still differ from MWCC.
@@ -3303,6 +3394,16 @@ int AI::Script::AI_sword_leaderguard03::vf08() {
     return 1;
 }
 
+int AI::Script::AI_sword_leaderguard03::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_sword_pointguard01::vf08() {
     lbl_807C6A40.m1C = lbl_807C68C0.m7C;
     lbl_807C6A40.m20 = lbl_807C68C0.m80;
@@ -3314,12 +3415,32 @@ int AI::Script::AI_sword_pointguard01::vf08() {
     return 1;
 }
 
+int AI::Script::AI_sword_pointguard01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
 // NONMATCHING: 89.40% - conversion to float and generated constant do not match MWCC's sequence.
 int AI::Script::AI_return_guard01::vf08() {
     int count = lbl_807C68C0.m30;
     lbl_807C6A40.m00 = 1;
     lbl_807C6A40.m1C = (int)(lbl_808807B8 * (float)count);
     return 1;
+}
+
+int AI::Script::AI_return_guard01::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 int AI::Script::AI_return_guard01::vf3C() { return -1; }
