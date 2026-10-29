@@ -110,7 +110,7 @@ extern "C" void fn_802130BC() {
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
     int count = 0;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() == '\0') {
             count++;
@@ -118,7 +118,7 @@ extern "C" void fn_802130BC() {
     }
     sEntries = new (1, "", "", 0) RareEntry_unk[count];
     sCount = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != '\0') {

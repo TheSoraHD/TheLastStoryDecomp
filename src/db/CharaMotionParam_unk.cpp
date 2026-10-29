@@ -71,7 +71,7 @@ extern "C" void fn_80209300() {
     sMoveParams = new (1, "", "", 0) CharaMoveParam_unk[sMoveCount];
     sAttackParams = new (1, "", "", 0) CharaAttackParam_unk[sAttackCount];
     section = 0;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int attack = 0;
     int move = 0;
     while (csv.fn_8005BBF8() != 0) {

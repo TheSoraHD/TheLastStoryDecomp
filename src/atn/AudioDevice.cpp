@@ -1435,7 +1435,7 @@ extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path) {
     unsigned long size = 0;
     void* data = fn_8046DC5C(lbl_8087F518, path, &size, 0x20);
     atn::Csv csv;
-    ((atn::CsvBase<char, ',', '\r', '"'>&)csv).vf08((const char*)data, size);
+    ((atn::CsvBase<char, ',', '\r', '"'>&)csv).SetData((const char*)data, size);
     do {
         char name[0x100];
         sprintf(name, "%s\0", csv.fn_8005B9CC());

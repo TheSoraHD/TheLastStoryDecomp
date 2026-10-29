@@ -69,8 +69,8 @@ TextTable_unk::TextTable_unk() {
     } while (csv1.fn_8005BBF8());
 
     lbl_8087F1E0 = new (1, "", "", 0) wchar_t[total];
-    csv0.vf08((const wchar_t*)data0, size0 / 2);
-    csv1.vf08((const wchar_t*)data1, size1 / 2);
+    csv0.SetData((const wchar_t*)data0, size0 / 2);
+    csv1.SetData((const wchar_t*)data1, size1 / 2);
 
     const wchar_t* text;
     int i = 0;

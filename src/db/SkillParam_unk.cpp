@@ -53,7 +53,7 @@ extern "C" void fn_8021996C() {
     }
     sEntries = new (1, "", "", 0) SkillParam_unk[sCount];
     sBuf = new (1, "", "", 0) char[a];
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     csv.fn_8005BBF8();
     a = 0;
     b = 0;
@@ -105,7 +105,7 @@ extern "C" void fn_80219C30() {
             }
         }
         sTexts = new (1, "", "", 0) wchar_t[b];
-        csv.vf08((const wchar_t*)data, size / 2);
+        csv.SetData((const wchar_t*)data, size / 2);
         csv.fn_8005BBF8();
         a = 0;
         int i = 0;

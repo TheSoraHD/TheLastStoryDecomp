@@ -55,3 +55,8 @@ Agente B, rama `agent-B`. Referencia: `/home/claude/ref/report2.json` (8180 func
 
 - `MotionCmdData_unk` = `atn::MotionCommandData` y `MotionCmdEntry_unk` = `atn::MotionCommandData::Command` (en `include/game/MotionCmdData_unk.h`, que conserva el nombre). Decision sin el usuario: la clase contenedora se deduce del RSO, cuyos `SimpleVector` de esa familia son exactamente `<MotionCommandData::Command>`, `<EffFile>`, `<EfpFile>` y `<static_string<32>>`, los cuatro miembros de la estructura. `atn/LH_MotionCommandData.cpp` tenia vistas locales de `MotionCmdData_unk`, `ResLoader_unk` (4 bytes en vez de 0xC) y del elemento (`MotionCmdElemA_unk`): ahora incluye la cabecera comun. `symbols.txt`: 7 nombres; `__vc__Q23atn47SimpleVector<Q33atn17MotionCommandData7Command>Fi` (0x801207BC) igual que en el RSO. Sin cambios en cifras.
 - Candidato (no aplicado): `ResLoader_unk` = `atn::EffFile` (mismo patron que `EfpFile`: recurso + `LH_Effect` en 0x04).
+
+## atn::CsvBase::SetData (hecho)
+
+- `CsvBase<...>::vf08(const T*, int)` -> `virtual void SetData(const T*, unsigned int)` (firma del RSO) en `include/atn/Csv.h`, y los overrides de `CsvU`/`CsvTabU`. 7 nombres en `symbols.txt` (0x800420F4, 0x8004476C del RSO y, por coherencia, los de `<w,44>`, `<c,124>`, `<w,9>`, `CsvU`, `CsvTabU`); llamadas `csv.vf08(...)` -> `csv.SetData(...)` en ~60 ficheros. Mismo codigo.
+- Sin aplicar: el RSO tambien da `GetNextCell` (= `fn_8005B9CC`), `GetCurrentCell` (= `GetField_unk`), `NextLine` (= `fn_8005BBF8`), `SetTrimStr(const char*)` (= `fn_8005BCE8`) y los constructores `Csv(const char*, unsigned int)`/`CsvTab(...)`: fuera de la cola.

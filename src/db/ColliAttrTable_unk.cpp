@@ -40,7 +40,7 @@ extern "C" void fn_8020AFF4() {
             memset(entry->mSe[0], 0, 0x20);
         }
         data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             int id = fn_800DC12C(csv.fn_8005B9CC());
             csv.fn_8005B9CC(); // inferred: a column that is not used

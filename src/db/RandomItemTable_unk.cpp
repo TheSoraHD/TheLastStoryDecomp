@@ -95,7 +95,7 @@ extern "C" void fn_8021CF8C() {
     if (sRandom == 0 && sWind == 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();
             if (*field == ';') {
@@ -113,7 +113,7 @@ extern "C" void fn_8021CF8C() {
         }
         sRandom = new (12, "", "", 0) RandomTable_unk[sRandomCount];
         sWind = new (12, "", "", 0) WindTable_unk[sWindCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int r = 0;
         int w = 0;
         while (csv.fn_8005BBF8() != 0) {
@@ -268,7 +268,7 @@ extern "C" void fn_8021DBEC() {
     if (sMerchant == 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sMerchantFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();
             if (*field == ';') {
@@ -279,7 +279,7 @@ extern "C" void fn_8021DBEC() {
             }
         }
         sMerchant = new (12, "", "", 0) MerchantTable_unk[sMerchantCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();

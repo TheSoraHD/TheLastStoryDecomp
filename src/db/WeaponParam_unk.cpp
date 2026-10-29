@@ -101,7 +101,7 @@ extern "C" void fn_80204E54() {
     count += 0x80;
     sEntries = new (3, "", "", 0) WeaponParamEntry_unk[count];
     sCount = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (strcmp(csv.fn_8005B9CC(), "") != 0) {
@@ -403,7 +403,7 @@ extern "C" void fn_80206F44() {
     }
     sEffects = new (3, "", "", 0) WeaponEffect_unk[count];
     sEffectCount = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != 0) {

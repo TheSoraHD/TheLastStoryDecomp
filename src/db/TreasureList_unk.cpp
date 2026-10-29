@@ -30,7 +30,7 @@ extern "C" void fn_8021EB04() {
         unsigned long size;
         int ofs;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() == '\0') {
                 sCount++;
@@ -38,7 +38,7 @@ extern "C" void fn_8021EB04() {
         }
         sEntries = new (12, "", "", 0) TreasureListEntry_unk[sCount];
         ofs = 0;
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() != '\0') {
                 continue;

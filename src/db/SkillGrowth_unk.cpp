@@ -60,7 +60,7 @@ extern "C" void fn_8021AAB8() {
     if (sEntries == 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();
             if (*field == ';' || *field == '#') {
@@ -71,7 +71,7 @@ extern "C" void fn_8021AAB8() {
             }
         }
         sEntries = new (12, "", "", 0) SkillGrowth_unk[sCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();
@@ -91,7 +91,7 @@ extern "C" void fn_8021AAB8() {
 
         data = fn_8046DC5C(lbl_8087F518, sTextFileName, &size, 0x20);
         int total = 0;
-        wcsv.vf08((const wchar_t*)data, (int)size / 2);
+        wcsv.SetData((const wchar_t*)data, (int)size / 2);
         while (wcsv.fn_8005BBF8() != 0) {
             if (*wcsv.fn_8005B9CC() != 0) {
                 continue;
@@ -104,7 +104,7 @@ extern "C" void fn_8021AAB8() {
         int pos;
         int ofs = 0; // inferred: byte offset of the row (not an index: its 0 is set before vf08)
         pos = 0;
-        wcsv.vf08((const wchar_t*)data, (int)size / 2);
+        wcsv.SetData((const wchar_t*)data, (int)size / 2);
         while (wcsv.fn_8005BBF8() != 0) {
             if (*wcsv.fn_8005B9CC() != 0) {
                 continue;

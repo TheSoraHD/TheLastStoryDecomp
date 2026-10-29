@@ -105,7 +105,7 @@ extern "C" void fn_8021B060() {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sTypesFileName, &size, 0x20);
         int length = 0;
-        csv.vf08((const wchar_t*)data, (int)size / 2);
+        csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() != 0) {
                 continue;
@@ -116,7 +116,7 @@ extern "C" void fn_8021B060() {
         sTypeTexts = new (12, "", "", 0) wchar_t[length];
         int pos = 0;
         int i = 0;
-        csv.vf08((const wchar_t*)data, (int)size / 2);
+        csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() != 0) {
                 continue;
@@ -176,7 +176,7 @@ extern "C" void fn_8021B2F8() {
         int length = 0;
         int section = 0;
         int count = 0;
-        csv.vf08((const wchar_t*)data, (int)size / 2);
+        csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (section == 0) {
                 if (*csv.fn_8005B9CC() != 0) {
@@ -212,7 +212,7 @@ extern "C" void fn_8021B2F8() {
         int pos = 0;
         int part = 0;
         int i = 0;
-        csv.vf08((const wchar_t*)data, (int)size / 2);
+        csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (part == 0) {
                 if (*csv.fn_8005B9CC() != 0) {
@@ -388,7 +388,7 @@ extern "C" void fn_8021C3F4() {
     atn::CsvU csv;
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, sTextFileName, &size, 0x20);
-    csv.vf08((const wchar_t*)data, (int)size / 2);
+    csv.SetData((const wchar_t*)data, (int)size / 2);
     int length = 0;
     sTextCount = 0;
     while (csv.fn_8005BBF8() != 0) {
@@ -405,7 +405,7 @@ extern "C" void fn_8021C3F4() {
     sTexts = new (3, "", "", 0) SpText_unk[sTextCount];
     int i = 0;
     int pos = 0;
-    csv.vf08((const wchar_t*)data, (int)size / 2);
+    csv.SetData((const wchar_t*)data, (int)size / 2);
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != 0) {
             continue;

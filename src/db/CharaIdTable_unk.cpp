@@ -158,7 +158,7 @@ extern "C" void fn_80208BE8(const char* path) {
     }
     sEntries = new (3, "", "", 0) CharaIdEntry_unk[count];
     sCount = count;
-    csv.vf08((const wchar_t*)data, size / 2);
+    csv.SetData((const wchar_t*)data, size / 2);
     sWideTexts = new (3, "", "", 0) wchar_t[wideSize];
     sTexts = new (3, "", "", 0) char[textSize];
     int widePos = 0;

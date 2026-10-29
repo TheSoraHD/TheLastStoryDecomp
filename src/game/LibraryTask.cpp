@@ -619,7 +619,7 @@ void BookTask::fn_8046B798(const void* data, unsigned int size) {
         }
     } while (csv.fn_8005BBF8());
     mPages.Resize_unk(count, 0);
-    csv.atn::CsvU::vf08((const wchar_t*)data, size / 2);
+    csv.atn::CsvU::SetData((const wchar_t*)data, size / 2);
     int i = 0;
     do {
         const wchar_t* field = csv.fn_8005B9CC();

@@ -48,7 +48,7 @@ void EventIdTable_unk::fn_8020F248() {
     }
     atn::Csv csv;
     int count = 0;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         const char* field = csv.fn_8005B9CC();
         if (*field == '\0' || *field == '#') {
@@ -59,7 +59,7 @@ void EventIdTable_unk::fn_8020F248() {
     mEntries.Resize_unk(count, 4);
     int i = 0;
     EventIdEntry_unk entry;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         const char* field = csv.fn_8005B9CC();
         if (*field == '\0' || *field == '#') {

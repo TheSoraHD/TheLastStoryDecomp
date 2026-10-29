@@ -2,7 +2,7 @@
 #include "atn/Memory.h"
 
 // Table of the battle effects (/boot/battle_eff_se_table.csv, used by game/BattleEfp_unk). The unit
-// keeps its automatic name: the file also emits the weak copies of atn::CsvPipe (vf08, vtable and
+// keeps its automatic name: the file also emits the weak copies of atn::CsvPipe (SetData, vtable and
 // RTTI of atn::CsvBase<char, '|', '\r', '"'>) used for the level column.
 
 extern "C" unsigned long strlen(const char* s);
@@ -53,7 +53,7 @@ extern "C" void fn_802078C4() {
     }
     lbl_8087F180 = new (1, "", "", 0) BattleEffSeEntry_unk[count];
     lbl_8087F184 = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     offset = 0;
     while (csv.fn_8005BBF8() != 0) {
         const char* field = csv.fn_8005B9CC();

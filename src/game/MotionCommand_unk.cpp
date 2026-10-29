@@ -107,7 +107,7 @@ extern "C" void fn_8011FFF8(atn::MotionCommandData* data, void* buffer, int size
     std::vector<std::string> effects;
     std::vector<std::string> efps;
     std::vector<std::string> names;
-    csv.vf08(text, size);
+    csv.SetData(text, size);
     unsigned int index = 0;
     while (csv.fn_8005BBF8() != 0) {
         const char* field = csv.fn_8005B9CC();

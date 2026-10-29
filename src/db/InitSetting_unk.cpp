@@ -63,7 +63,7 @@ extern "C" void fn_80210244() {
     if (sInstance == 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         sInstance = new (12, "", "", 0) InitSetting_unk;
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();

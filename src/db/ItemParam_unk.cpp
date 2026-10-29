@@ -128,7 +128,7 @@ extern "C" void fn_80210ACC() {
     sEntries = (ItemParamEntry_unk*)fn_800839EC(atn::MemoryManager::Instance(), sCount * sizeof(ItemParamEntry_unk), 0x20, 1, "", "",
                                                  0, 0);
     sBuf = new (1, "", "", 0) char[a];
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     csv.fn_8005BBF8();
     a = 0;
@@ -221,7 +221,7 @@ extern "C" void fn_80211244() {
             }
         }
         sTexts = new (1, "", "", 0) wchar_t[b];
-        csv.vf08((const wchar_t*)data, size / 2);
+        csv.SetData((const wchar_t*)data, size / 2);
         csv.fn_8005BBF8();
         a = 0;
         int i = 0;
