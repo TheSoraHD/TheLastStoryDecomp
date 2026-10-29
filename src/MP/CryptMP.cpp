@@ -1,4 +1,5 @@
 #include "MP/CryptMP.h"
+#include "atn/MemoryManager.h"
 
 // inferred: inline in the class (weak copy 0x804AE3C4); defined here so that atn/PPDATAU.cpp, which
 // calls it, does not emit a copy
@@ -11,9 +12,6 @@ extern "C" unsigned short OSCalcCRC16(const void* data, unsigned long len);
 extern "C" unsigned long fn_806B3C20();
 
 // inferred: engine memory manager (function-local static) and its free
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
 
 // inferred: global packet manager (lbl_8087F628) and packer (lbl_8087F62C)
 extern "C" void* lbl_8087F628;
@@ -257,12 +255,12 @@ int CryptMP::vf18(unsigned char* data, int maxLen) {
 CryptMP::~CryptMP() {
     char* p = m14;
     if (p != 0) {
-        fn_80083AD4(fn_800827E0(), p);
+        atn::MemoryManager::Instance()->Free(p);
         m14 = 0;
     }
     p = m18;
     if (p != 0) {
-        fn_80083AD4(fn_800827E0(), p);
+        atn::MemoryManager::Instance()->Free(p);
         m18 = 0;
     }
 }
@@ -272,12 +270,12 @@ CryptMP::~CryptMP() {
 inline atn::net::Crypt::~Crypt() {
     char* p = m08;
     if (p != 0) {
-        fn_80083AD4(fn_800827E0(), p);
+        atn::MemoryManager::Instance()->Free(p);
         m08 = 0;
     }
     p = m0C;
     if (p != 0) {
-        fn_80083AD4(fn_800827E0(), p);
+        atn::MemoryManager::Instance()->Free(p);
         m0C = 0;
     }
 }

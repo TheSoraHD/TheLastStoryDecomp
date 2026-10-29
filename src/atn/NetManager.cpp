@@ -1,6 +1,7 @@
 // inferred: network manager of the Wi-Fi Connection (atn::net::Manager), its worker thread and the
 // ranking client of the game (DWC_Rnk). File name inferred from the class (see docs/splits-auto-D.md).
 #include "atn/net/Manager.h"
+#include "atn/MemoryManager.h"
 #include "atn/net/PacketPack.h"
 #include "MP/CryptMP.h"
 #include "atn/FixedArray.h"
@@ -9,7 +10,7 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char* strcat(char* dst, const char* src);
 extern "C" int sprintf(char* s, const char* format, ...);
-extern "C" void* fn_800838B8(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
+extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
                              const char* file, const char* func, int line);
 
 // OS
@@ -1527,7 +1528,7 @@ int NetRanking_unk::fn_8050CDA8() {
 
 // 0x8050CDD0
 int NetThread_unk::fn_8050CDD0(void* (*func)(void*), int priority) {
-    mStack = fn_800838B8(fn_800827E0(), 0xFFFF, 4, 5, "", "", 0);
+    mStack = fn_800838B8(atn::MemoryManager::Instance(), 0xFFFF, 4, 5, "", "", 0);
     if (mStack == 0) {
         return 0;
     }

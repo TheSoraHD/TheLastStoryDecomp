@@ -1,4 +1,5 @@
 #include "atn/GXDecl.h"
+#include "atn/MemoryManager.h"
 #include "atn/Camera_unk.h"
 #include "atn/Light_unk.h"
 #include "atn/Layer3D.h"
@@ -22,7 +23,6 @@ struct RenderCallback_unk {
     int mArg;
 };
 
-struct MemoryManager_unk;
 struct MemoryMode_unk {
     MemoryMode_unk(int mode, unsigned long align);
     ~MemoryMode_unk();
@@ -30,8 +30,7 @@ struct MemoryMode_unk {
 
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                              unsigned char mipmap, unsigned char maxLod);
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
+extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                               const char* file, int line, int arg7);
 extern "C" void DCFlushRange(void* address, unsigned long size);
 extern "C" int lbl_8087D8F8;
@@ -254,7 +253,7 @@ extern "C" void fn_800BC468(void* render, GXTexObj* tex) {
     unsigned int size = GXGetTexBufferSize(256, 1, 1, 0, 0);
     unsigned char* image;
     if (*(void**)((unsigned char*)render + 0x550) == 0) {
-        image = (unsigned char*)fn_800839EC(fn_800827E0(), size, 0x20, 6, "",
+        image = (unsigned char*)fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "",
                                              "", 0, 0);
     } else {
         image = (unsigned char*)*(void**)((unsigned char*)render + 0x550);
@@ -286,7 +285,7 @@ extern "C" void fn_800BC618(void* render, GXTexObj* texture, int offset) {
     size = GXGetTexBufferSize(256, 256, 3, 0, 0);
     remap = (unsigned short*)*(void**)((unsigned char*)render + 0x52C);
     if (remap == 0) {
-        remap = (unsigned short*)fn_800839EC(fn_800827E0(), size, 0x20, 6,
+        remap = (unsigned short*)fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6,
                                                "",
                                                "", 0, 0);
     }
@@ -522,7 +521,7 @@ extern "C" void fn_800BD9C0(void* render, int queueCapacity) {
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
     unsigned int size = GXGetTexBufferSize((unsigned short)width, (unsigned short)height, 0x13, 0, 0);
-    void* depth = fn_800839EC(fn_800827E0(), size, 0x20, 6, "",
+    void* depth = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "",
                               "", 0, 0);
     *(void**)((unsigned char*)render + 0x79C) = depth;
     ((atn::Texture_unk*)((unsigned char*)render + 0x74C))

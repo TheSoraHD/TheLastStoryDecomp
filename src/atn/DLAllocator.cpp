@@ -26,7 +26,7 @@ void DLAllocator::fn_80084EE8(void* base, unsigned long size) {
     mSpace = create_mspace_with_base(base, size, 1);
 }
 
-void* DLAllocator::vf0C(unsigned long size, unsigned long align) {
+void* DLAllocator::vf0C(unsigned long size, unsigned long align, int heap, const char* name) {
     if (mBase != 0) {
         return mspace_memalign(mSpace, align, size);
     }

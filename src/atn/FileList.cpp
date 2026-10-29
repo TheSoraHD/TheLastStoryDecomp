@@ -1,4 +1,5 @@
 #include "atn/FileList.h"
+#include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "std/string.h"
 
@@ -21,10 +22,7 @@ public:
 typedef atn::Loader Unk_8087F518;
 extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();                  // inferred: memory manager
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p); // inferred: frees a block
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
+extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line, int arg);
 extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -300,7 +298,7 @@ extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int own) {
     void* data = 0;
     if (fn_805FA270(path, &info)) {
         *size = info.mLength;
-        data = fn_800839EC(fn_800827E0(), (*size + 0x1F) & ~0x1F, 0x20, 1, "", "", 0, 0);
+        data = fn_800839EC(atn::MemoryManager::Instance(), (*size + 0x1F) & ~0x1F, 0x20, 1, "", "", 0, 0);
         DVDReadPrio(&info, data, (*size + 0x1F) & ~0x1F, 0, 2);
         DVDClose(&info);
     }
@@ -312,7 +310,7 @@ extern "C" void fn_8006BB6C(void* data, int own) {
     if (lbl_8087F518 != 0 && own == 0) {
         fn_8046DD20(lbl_8087F518, data);
     } else if (data != 0) {
-        fn_80083AD4(fn_800827E0(), data);
+        atn::MemoryManager::Instance()->Free(data);
     }
 }
 

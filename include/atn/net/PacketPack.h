@@ -2,11 +2,9 @@
 #define ATN_NET_PACKETPACK_H
 
 #include "atn/net/PPDATA.h"
+#include "atn/MemoryManager.h"
 #include "std/list.h"
 
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
 
 namespace atn {
 namespace net {
@@ -20,11 +18,11 @@ struct PPUser_unk {
     PPUser_unk(unsigned int id) : mActive(1), mId(-1), m08(0), m0C(0), m10(0) { mId = id; }
     ~PPUser_unk() {
         if (m08 != 0) {
-            fn_80083AD4(fn_800827E0(), m08);
+            atn::MemoryManager::Instance()->Free(m08);
             m08 = 0;
         }
         if (m0C != 0) {
-            fn_80083AD4(fn_800827E0(), m0C);
+            atn::MemoryManager::Instance()->Free(m0C);
             m0C = 0;
         }
     }

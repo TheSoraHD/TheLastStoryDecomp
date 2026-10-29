@@ -1,4 +1,5 @@
 #include "atn/Task.h"
+#include "atn/MemoryManager.h"
 #include "atn/Texture_unk.h"
 #include "atn/Memory.h"
 
@@ -22,29 +23,15 @@ struct PostFxParams_unk {
     unsigned char m378[0x3E4 - 0x378];
     float mGammaAlpha; // 0x3E4
 };
-struct MemoryManager_unk;
 extern "C" PostFxParams_unk* lbl_8087EFA8;
 extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" MemoryManager_unk* fn_800827E0();
 // inferred: allocates from a memory manager
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
+extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line, int arg);
 extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float alpha, int arg); // inferred: queues a render
 extern "C" unsigned long GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                             unsigned char mipmap, unsigned char maxLod);
 extern "C" void DCInvalidateRange(void* addr, unsigned long size);
-
-// inferred: allocator interface. Declared here because the allocation of this file passes a heap
-// and a name (see include/IAllocator.h, which only names the first two parameters).
-class IAllocator {
-public:
-    virtual ~IAllocator() {}
-    virtual void* vf0C(unsigned long size, unsigned long align, int heap, const char* name) = 0;
-    virtual void vf10(void* p) = 0;
-    virtual void* vf14() = 0;
-    virtual void* vf18() = 0;
-    virtual void vf1C() = 0;
-};
 
 namespace atn {
 
@@ -237,7 +224,7 @@ void PostFxManager::vf14() {
 
 // note: not inline, its literals are in @stringBase0 (the out-of-line copy is removed by the linker)
 PostFxManager::PostFxManager(Task* parent)
-    : Task(parent), mAlloc(fn_800839EC(fn_800827E0(), 0x8CA00, 0x20, 6, "", "", 0, 0), 0x8CA00), m778(0xE) {}
+    : Task(parent), mAlloc(fn_800839EC(atn::MemoryManager::Instance(), 0x8CA00, 0x20, 6, "", "", 0, 0), 0x8CA00), m778(0xE) {}
 
 PostFxManager::~PostFxManager() {}
 

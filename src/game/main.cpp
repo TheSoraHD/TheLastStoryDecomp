@@ -2,6 +2,7 @@
 // and then the frame loop, which times each part of the frame into HeapInfo_unk and calls the
 // per-frame callbacks registered in lbl_8087EE94 (bound members of ResetShutdown/ErrorManager).
 #include "atn/Array_unk.h"
+#include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "atn/SoundManager.h"
 #include "atn/Task.h"
@@ -132,7 +133,6 @@ extern "C" void* lbl_8087EF70;
 extern "C" void* lbl_8087EE98;
 extern "C" void* lbl_8087EE90;
 extern "C" void* lbl_8087EEB0;
-extern "C" void* fn_800827E0();
 extern "C" void fn_8006BA54(unsigned char lang);
 extern "C" void fn_80071220();
 extern "C" void fn_800713D4(void* obj, int w, int h);
@@ -265,7 +265,7 @@ int main() {
 void fn_8047A4C8() {
     OSInit();
     OSInitFastCast();
-    OSInitMutex((char*)fn_800827E0() + 0x1B4);
+    OSInitMutex((char*)atn::MemoryManager::Instance() + 0x1B4);
     DVDInit();
     VIInit();
     NWC24SuspendScheduler();

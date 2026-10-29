@@ -1,11 +1,12 @@
 // inferred: peers and per-peer message queues of atn::net::PacketPack (PPDATA/PPDATAU/PPDATAR).
 #include "atn/net/PacketPack.h"
+#include "atn/MemoryManager.h"
 #include "MP/CryptMP.h"
 #include "MP/FuncMessage.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
-extern "C" void* fn_800838B8(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
+extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
                              const char* file, const char* func, int line);
 
 // inferred: global network state (class unknown, see gmk/Item.cpp)
@@ -44,7 +45,7 @@ extern "C" const char lbl_8087E1B0[1];
 extern "C" const char lbl_8087E1AC[1];
 inline void* __GetWorkBuffer_unk() {
     if (lbl_8087F600 == 0) {
-        lbl_8087F600 = fn_800838B8(fn_800827E0(), 0x1000, 4, 5, lbl_8087E1B0, lbl_8087E1AC, 0);
+        lbl_8087F600 = fn_800838B8(atn::MemoryManager::Instance(), 0x1000, 4, 5, lbl_8087E1B0, lbl_8087E1AC, 0);
     }
     return lbl_8087F600;
 }
@@ -55,10 +56,10 @@ inline void __TraceMessage_unk(int id, unsigned int size) {}
 // inferred: sequence number arrays of a new peer (two inline helpers: each call has its own
 // literal objects in .sdata)
 inline unsigned short* __AllocSeqSend_unk(unsigned int size) {
-    return (unsigned short*)fn_800838B8(fn_800827E0(), size, 1, 5, "", "", 0);
+    return (unsigned short*)fn_800838B8(atn::MemoryManager::Instance(), size, 1, 5, "", "", 0);
 }
 inline unsigned short* __AllocSeqRecv_unk(unsigned int size) {
-    return (unsigned short*)fn_800838B8(fn_800827E0(), size, 1, 5, "", "", 0);
+    return (unsigned short*)fn_800838B8(atn::MemoryManager::Instance(), size, 1, 5, "", "", 0);
 }
 
 // inferred: number of frames a queue waits before being sent (unreliable / reliable)

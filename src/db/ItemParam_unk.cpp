@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "db/EquipParam_unk.h"
 #include "db/ParseUtil_unk.h"
@@ -16,9 +17,7 @@ extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred:
 
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
 extern "C" void fn_8006BB6C(void* data, int flag);                            // inferred: frees it
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
+extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line, int arg); // inferred: allocation
 
 // inferred: field (lbl_8087F430) and its flags
@@ -126,7 +125,7 @@ extern "C" void fn_80210ACC() {
         }
     }
     sCount += 0x100;
-    sEntries = (ItemParamEntry_unk*)fn_800839EC(fn_800827E0(), sCount * sizeof(ItemParamEntry_unk), 0x20, 1, "", "",
+    sEntries = (ItemParamEntry_unk*)fn_800839EC(atn::MemoryManager::Instance(), sCount * sizeof(ItemParamEntry_unk), 0x20, 1, "", "",
                                                  0, 0);
     sBuf = new (1, "", "", 0) char[a];
     csv.vf08((const char*)data, size);
