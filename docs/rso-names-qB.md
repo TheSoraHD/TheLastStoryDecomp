@@ -60,3 +60,20 @@ Agente B, rama `agent-B`. Referencia: `/home/claude/ref/report2.json` (8180 func
 
 - `CsvBase<...>::vf08(const T*, int)` -> `virtual void SetData(const T*, unsigned int)` (firma del RSO) en `include/atn/Csv.h`, y los overrides de `CsvU`/`CsvTabU`. 7 nombres en `symbols.txt` (0x800420F4, 0x8004476C del RSO y, por coherencia, los de `<w,44>`, `<c,124>`, `<w,9>`, `CsvU`, `CsvTabU`); llamadas `csv.vf08(...)` -> `csv.SetData(...)` en ~60 ficheros. Mismo codigo.
 - Sin aplicar: el RSO tambien da `GetNextCell` (= `fn_8005B9CC`), `GetCurrentCell` (= `GetField_unk`), `NextLine` (= `fn_8005BBF8`), `SetTrimStr(const char*)` (= `fn_8005BCE8`) y los constructores `Csv(const char*, unsigned int)`/`CsvTab(...)`: fuera de la cola.
+
+## std::__red_black_tree::balance_insert (no hecho)
+
+- `fn_8003E120` (AI_archer_attack01, al 100%) es `std::__red_black_tree<std::__tree_node_base<std::allocator<void*>>*>::balance_insert(node*, node*)`, un miembro estatico de una plantilla de MSL `<tree>`. No es un renombrado: hace falta declarar `__tree_node_base`/`__red_black_tree` (la cabecera `tree` de MSL, ver `docs/mwcc-blockers.md`, "Arbol del mapa de scripts"), reescribir el cuerpo sobre `__tree_node_base` y, como en esta unidad nadie la llama (el `map::insert` `fn_8003DD50` no esta hecho), solo se emitiria con una instanciacion explicita, que el original no tenia. Ademas la llaman con sus propios tipos de nodo `game/TownTask.cpp`, `atn/ptr_string_base_char_0.cpp` y `atn/AudioDevice.cpp`. Se deja para cuando se haga el `std::map` de scripts.
+
+## Resumen
+
+- Hechos: atn::Keyboard (Press, CheckKeyState, y Order/instance_), atn::Model (clase; GetMotionFrame, SetMotionSpeed, SetMotionFrame, CalcMatrixStack; ademas GetMotionSpeed) y atn::ModelBase::CalcMatrixStack, atn::Task::FreezeTask, atn::MemoryManager (clase; Instance, Free), atn::FileFreeBuffer, atn::EfpFile (clase; Destroy, __dt__), atn::SimpleVector (clase; `__vc__` con `int`), atn::static_string<32>, atn::MotionCommandData::Command, atn::CsvBase::SetData.
+- No hecho: `balance_insert` (arriba).
+- Bajadas aceptadas: ninguna. En todos los grupos: 8180/18215, lost 0, fuzzdrop 0, `main.dol: OK`, ordercheck igual que antes en las unidades tocadas.
+- Cambios fuera de la cola exigidos por los renombrados: `IAllocator::vf0C` a 4 parametros (LinearAllocator), `fn_800C6128` con `wchar_t` (SoftKeyboardBase), vistas locales unificadas (OptionParts_unk, D2AMpMenuCockpit, HeapInfo_unk, HomeButton_unk, DwcAllocator_unk, AudioDevice, LH_MotionCommandData).
+
+## Hallazgos (para `docs/trucos-mwcc.md`)
+
+- Incluir antes en la unidad la definicion de una plantilla con inlines (`static_string` con `strlen`/`memcpy`) puede cambiar la asignacion de registros de una funcion no relacionada (`GimmickCommon::fn_803EDB18`); una declaracion adelantada lo evita.
+- Con `main.dol: FAILED` el `report.json` no se regenera: `regress.py`/`fuzzdrop.py` dan "0" comparando el viejo. Mirar siempre la linea de `main.dol` (o la hora de `report.json`) antes de fiarse.
+- Renombrar una clase que aparece como argumento de plantilla obliga a recalcular el prefijo de longitud de la plantilla en `symbols.txt` (`Q25boost33scoped_ptr<Q23atn13EfpHandle_unk>` -> `26scoped_ptr<Q23atn7EfpFile>`).
