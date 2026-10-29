@@ -562,7 +562,7 @@ void Em312DarkServant::vf108() {
         case 10:
         case 12:
             if (mC58.mC4 != 0) {
-                float frame = mMotion.fn_80139550(0);
+                float frame = mMotion.GetMotionFrame(0);
                 int idx = m58C - 9;
                 ServantAttack_unk* atk = &m14EC[idx];
                 ServantRange_unk* range = &m152C[idx];
@@ -585,7 +585,7 @@ void Em312DarkServant::vf108() {
                     }
                 } else {
                     float len = mMotion.fn_80097D7C(0);
-                    if (mMotion.fn_80139550(0) >= len) {
+                    if (mMotion.GetMotionFrame(0) >= len) {
                         mFlag31 = 1;
                     }
                 }
@@ -594,7 +594,7 @@ void Em312DarkServant::vf108() {
             }
             break;
         case 11: {
-            float frame = mMotion.fn_80139550(0);
+            float frame = mMotion.GetMotionFrame(0);
             int idx = m58C - 9;
             ServantAttack_unk* atk = &m14EC[idx];
             ServantRange_unk* range = &m152C[idx];
@@ -641,14 +641,14 @@ void Em312DarkServant::vf108() {
                 }
             } else {
                 float len = mMotion.fn_80097D7C(0);
-                if (mMotion.fn_80139550(0) >= len) {
+                if (mMotion.GetMotionFrame(0) >= len) {
                     mFlag31 = 1;
                 }
             }
             break;
         }
         case 13: {
-            float frame = mMotion.fn_80139550(0);
+            float frame = mMotion.GetMotionFrame(0);
             if (m14BC == 0) {
                 if (frame >= mMotion.fn_80097D7C(0)) {
                     m14BC++;

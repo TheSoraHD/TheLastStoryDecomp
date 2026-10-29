@@ -175,14 +175,15 @@ struct Model {
     Node_unk* fn_80147A00();
     typedef atn::Sphere Sphere_unk;
     Sphere_unk fn_80094F98(); // inferred: bounding sphere (passed to MapManager::fn_804918A4)
-    float fn_80139550(int track);
+    float GetMotionFrame(int track) const; // 0x80139550
     void fn_80139F24(int value);
     int fn_80139F2C(int track);
-    void fn_80139F3C(int track, float speed);
+    void SetMotionSpeed(int track, float speed); // 0x80139F3C
+    void SetMotionFrame(int track, float frame); // 0x80357F38 (defined in game/EnemyTasha.cpp)
     int fn_8013C3DC();
     float fn_8013C3E4(int track);
     void fn_8013C554(int track, float weight);
-    float GetSpeed_unk(int track) { return mTracks[track].m0C; } // inferred: name invented
+    float GetMotionSpeed(int track) const { return mTracks[track].m0C; } // weak copy 0x80224628
 
     Node_unk* m220;
     unsigned int mMotionCount; // 0x224: inferred: number of motion slots (NpcManager::fn_80547B54)

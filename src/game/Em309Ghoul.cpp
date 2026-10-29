@@ -1849,18 +1849,18 @@ void Em309Ghoul::fn_803041C8() {
     if (m14F0 == 0) {
         mRot.y = m1600->m14;
         float t;
-        if (mMotion.fn_80139550(0) >= 7.99999f) {
+        if (mMotion.GetMotionFrame(0) >= 7.99999f) {
             float len = mMotion.fn_80097D7C(0) - 8.0f;
-            t = (mMotion.fn_80139550(0) - 8.0f) / len;
+            t = (mMotion.GetMotionFrame(0) - 8.0f) / len;
         } else {
             t = 0.0f;
         }
         mPos.y += 16.0f * t;
         float end = mMotion.fn_80097D7C(0);
-        if (mMotion.fn_80139550(0) >= end) {
+        if (mMotion.GetMotionFrame(0) >= end) {
             mMotion.fn_80139F24(1);
             mMotion.fn_8013C554(0, 1.0f);
-            mMotion.fn_80139F3C(0, 1.0f);
+            mMotion.SetMotionSpeed(0, 1.0f);
             mMotion.fn_80097C08(0, 0x14B, 1, 0, 1, 0.0f, 0.1f);
             atn::Vector3 r1 = (target - mPos).GetNormalize().ToRotation_unk();
             atn::Vector3 r2 = (m1608 - mPos).GetNormalize().ToRotation_unk();

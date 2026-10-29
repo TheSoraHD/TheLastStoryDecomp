@@ -1182,7 +1182,7 @@ int CharaTask::fn_80138E1C(int arg) {
     return result;
 }
 
-float atn::Model::fn_80139550(int track) {
+float atn::Model::GetMotionFrame(int track) const {
     return mTracks[track].m08;
 }
 
@@ -1265,7 +1265,7 @@ void CharaTask::fn_80139560() {
             mMotion.fn_80139F24(1);
             if (mMotion.fn_80139F2C(0) != fn_801370B8(0)) {
                 mMotion.fn_80097C08(0, fn_801370B8(0), 1, 0, 1, 0.0f, 0.1f);
-                mMotion.fn_80139F3C(0, 1.0f);
+                mMotion.SetMotionSpeed(0, 1.0f);
             }
             fn_80138E1C(0);
             m570 = 0.0f;
@@ -1419,7 +1419,7 @@ int atn::Model::fn_80139F2C(int track) {
     return mTracks[track].m00;
 }
 
-void atn::Model::fn_80139F3C(int track, float speed) {
+void atn::Model::SetMotionSpeed(int track, float speed) {
     mTracks[track].m0C = speed;
 }
 
@@ -2117,7 +2117,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
             if (mC58.mMotions[0] != -1) {
                 mC58.mEC--;
                 mMotion.fn_80139F24(1);
-                mMotion.fn_80139F3C(0, 1.0f);
+                mMotion.SetMotionSpeed(0, 1.0f);
                 mMotion.fn_8013C554(0, 1.0f);
                 mMotion.fn_80097C08(0, mC58.mMotions[0], mC58.mLoop_unk && mC58.mEC <= 0, 0, 1, 0.0f, 0.1f);
                 mC58.mStep++;
@@ -2127,11 +2127,11 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
             }
         } else if (mC58.mStep > 0) {
             float length = mMotion.fn_80097D7C(0);
-            if (mMotion.fn_80139550(0) >= length) {
+            if (mMotion.GetMotionFrame(0) >= length) {
                 if (mC58.mMotions[mC58.mStep] != -1) {
                     mC58.mEC--;
                     mMotion.fn_80139F24(1);
-                    mMotion.fn_80139F3C(0, 1.0f);
+                    mMotion.SetMotionSpeed(0, 1.0f);
                     mMotion.fn_8013C554(0, 1.0f);
                     mMotion.fn_80097C08(0, mC58.mMotions[mC58.mStep], mC58.mLoop_unk && mC58.mEC <= 0, 0, 1, 0.0f,
                                         0.1f);
@@ -5550,8 +5550,8 @@ void CharaTask::fn_80149A30() {
                             0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"Motion(blend, speed) wt(%.2f, %.2f) wk(%.2f, %.2f) rn(%.2f, %.2f)",
-                         mMotion.fn_8013C3E4(0), mMotion.GetSpeed_unk(0), mMotion.fn_8013C3E4(1),
-                         mMotion.GetSpeed_unk(1), mMotion.fn_8013C3E4(2), mMotion.GetSpeed_unk(2));
+                         mMotion.fn_8013C3E4(0), mMotion.GetMotionSpeed(0), mMotion.fn_8013C3E4(1),
+                         mMotion.GetMotionSpeed(1), mMotion.fn_8013C3E4(2), mMotion.GetMotionSpeed(2));
                 w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
                 fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
                             0, 0, 0xFF000000);

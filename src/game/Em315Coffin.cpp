@@ -554,8 +554,8 @@ void Em315Coffin::vf108() {
             }
             break;
         case 9: {
-            mMotion.fn_80139F3C(0, GetStatus_unk()->fn_8012DB04());
-            float frame = mMotion.fn_80139550(0);
+            mMotion.SetMotionSpeed(0, GetStatus_unk()->fn_8012DB04());
+            float frame = mMotion.GetMotionFrame(0);
             if (m14BC == 0) {
                 atn::Vector3 hips = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
                 m15F8 = *m161C->fn_8013C38C() - fn_8014052C() * 10.0f;
@@ -604,9 +604,9 @@ void Em315Coffin::vf108() {
                 return;
             } else {
                 if (frame >= 43.0f) {
-                    mMotion.fn_80139F3C(0, 1.0f);
+                    mMotion.SetMotionSpeed(0, 1.0f);
                 } else if (frame >= 39.999f) {
-                    mMotion.fn_80139F3C(0, 0.1f);
+                    mMotion.SetMotionSpeed(0, 0.1f);
                 }
                 if (frame >= mMotion.fn_80097D7C(0) || mMotion.fn_80139F2C(0) != 0x142) {
                     mFlag31 = 1;
@@ -623,7 +623,7 @@ void Em315Coffin::vf108() {
                 dir.Normalize_unk();
             }
             rot = dir.ToRotation_unk();
-            float frame = mMotion.fn_80139550(0);
+            float frame = mMotion.GetMotionFrame(0);
             if (m14BC == 0) {
                 if (frame >= mMotion.fn_80097D7C(0)) {
                     m14C0 = 0;
@@ -664,14 +664,14 @@ void Em315Coffin::vf108() {
         case 12:
             return;
         case 13: {
-            float frame = mMotion.fn_80139550(0);
+            float frame = mMotion.GetMotionFrame(0);
             if (frame >= mMotion.fn_80097D7C(0)) {
                 mFlag31 = 1;
             }
             break;
         }
         case 2: {
-            float frame = mMotion.fn_80139550(0);
+            float frame = mMotion.GetMotionFrame(0);
             if (frame >= mMotion.fn_80097D7C(0)) {
                 fn_8031564C(fn_800F7FA0(), 1);
                 fn_800F7FA8(fn_800F7FA0(), 0, 0);

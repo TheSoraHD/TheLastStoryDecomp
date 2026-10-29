@@ -284,7 +284,7 @@ void FlamingArrow::vf10() {
                 mArrows[i].mPos = result.m04;
                 mArrows[i].mState = 2;
                 mArrows[i].mModel.fn_80097C08(0, 0, 0, 1, 1, 1.0f, 0.1f);
-                mArrows[i].mModel.fn_80139F3C(0, 1.0f);
+                mArrows[i].mModel.SetMotionSpeed(0, 1.0f);
                 atn::Vector3 pos(result.m04);
                 atn::Vector3 normal = result.m28.ToRotation_unk();
                 atn::Vector3 rot(0.0f, normal.y, 0.0f);
@@ -319,7 +319,7 @@ void FlamingArrow::vf10() {
             mArrows[i].mModel.fn_80097E80(1);
             fn_8000D430(&mArrows[i].mModel, boost::function<void()>(0));
             float length = mArrows[i].mModel.fn_80097D7C(0);
-            if (mArrows[i].mModel.fn_80139550(0) >= length) {
+            if (mArrows[i].mModel.GetMotionFrame(0) >= length) {
                 fn_80239DAC(fn_800F7FA0(), &mArrows[i].mModel, 1, 1);
                 mArrows[i].mState = 3;
             }
@@ -387,7 +387,7 @@ void FlamingArrow::vf10() {
     arrow->mPos = mDesc->mPos;
     arrow->mVel = dir * speed;
     arrow->mModel.fn_80097C08(0, 0, 0, 1, 1, 1.0f, 0.1f);
-    arrow->mModel.fn_80139F3C(0, 0.0f);
+    arrow->mModel.SetMotionSpeed(0, 0.0f);
     arrow->mModel.fn_80097E80(1);
     atn::Vector3 angle = arrow->mVel.ToRotation_unk();
     ArrowMtx_unk mtx;

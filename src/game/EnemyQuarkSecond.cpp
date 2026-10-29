@@ -417,7 +417,7 @@ inline void EnemyQuarkSecond::fn_8034472C(int index, int value) {
 // case as LoadSeTableTask::vf0C, docs/inlining.md); not added (no invented functions).
 void EnemyQuarkSecond::vf10() {
     if (m16B4 != 0) {
-        if (mMotion.fn_80139550(0) < 6.0f) {
+        if (mMotion.GetMotionFrame(0) < 6.0f) {
             fn_8016E4C4(0);
             m14B4 = 0;
         } else {
@@ -427,16 +427,16 @@ void EnemyQuarkSecond::vf10() {
                 fn_8023A108(fn_800F7FA0(), &m1680, 0, 6);
                 fn_8023A254(fn_800F7FA0(), &m1680, 0, 0.5f);
             }
-            mMotion.fn_80139F3C(0, 0.5f);
+            mMotion.SetMotionSpeed(0, 0.5f);
             fn_8016E4C4(1);
-            if (mMotion.fn_80139550(0) >= 54.0f && m14B4 == 0) {
+            if (mMotion.GetMotionFrame(0) >= 54.0f && m14B4 == 0) {
                 fn_8028CFB8(fn_80122550(fn_80121F00()), 0x14, 0.0f, 10.0f);
                 fn_80339F14(*fn_80339F24(&m6A4, 0), 1);
                 m14B4++;
             }
         }
         float end = mMotion.fn_80097D7C(0);
-        if (mMotion.fn_80139550(0) >= end) {
+        if (mMotion.GetMotionFrame(0) >= end) {
             m16B4 = 0;
             fn_80339F34(this, 0);
             fn_80341EE4();

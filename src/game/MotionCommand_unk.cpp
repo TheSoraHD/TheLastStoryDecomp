@@ -200,7 +200,7 @@ void MotionCommand_unk::fn_80121114(CharaTask* chara) {
 }
 
 // inferred: accessors of the motion tracks (weak copies called out of line from CharaTask)
-inline float atn::Model::fn_80139550(int track) {
+inline float atn::Model::GetMotionFrame(int track) const {
     return mTracks[track].m08;
 }
 inline int atn::Model::fn_80139F2C(int track) {
@@ -303,9 +303,9 @@ int MotionCommand_unk::fn_8012133C(MotionCmdData_unk* data, int* found) {
     }
     unsigned int res = ((atn::LH_Motion*)model->mTracks[m08].m04)->fn_804768B4();
     unsigned int hash = fn_800DC6B4(fn_80218218(m04));
-    float frame = model->fn_80139550(m08);
+    float frame = model->GetMotionFrame(m08);
     float length = model->fn_80097D7C(m08);
-    float step = model->GetSpeed_unk(m08) * lbl_8087EFA8->GetTime_unk();
+    float step = model->GetMotionSpeed(m08) * lbl_8087EFA8->GetTime_unk();
     unsigned char loop = model->mTracks[m08].m18;
     if (m04 == 0x58) {
         if (step < 0.0f) {

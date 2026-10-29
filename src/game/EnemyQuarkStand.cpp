@@ -482,10 +482,10 @@ int EnemyQuarkStand::vf0C() {
 // (bool for the idle test, init of the mode, order of the locals)
 void EnemyQuarkStand::vf10() {
     if (m1809 != 0) {
-        if (mMotion.fn_80139550(0) >= 110.0f) {
+        if (mMotion.GetMotionFrame(0) >= 110.0f) {
             fn_8016E4C4(1);
             float end = mMotion.fn_80097D7C(0);
-            if (mMotion.fn_80139550(0) >= end) {
+            if (mMotion.GetMotionFrame(0) >= end) {
                 m1809 = 0;
                 fn_80339F34(this, 0);
                 fn_8034F41C();
@@ -1152,14 +1152,14 @@ void EnemyQuarkStand::fn_803489F4(const atn::Vector3& target) {
 void EnemyQuarkStand::fn_80348FF4() {
     if (m14B4 == 0) {
         fn_80352938(0.7f);
-        if (mMotion.fn_80139550(0) >= 56.0f) {
+        if (mMotion.GetMotionFrame(0) >= 56.0f) {
             fn_80239DAC(fn_800F7FA0(), this, 0x3E8, 1);
             fn_800F7FA8(fn_800F7FA0(), this, 0x3E8);
             fn_80276AE4(fn_800F7FA0(), &m163C, &mMotion, &lbl_807C7030, &lbl_807C7030, -1, -1, 1, 1.0f);
             m14B4++;
         }
     } else if (m14B4 == 1) {
-        if (mMotion.fn_80139550(0) >= 58.9f) {
+        if (mMotion.GetMotionFrame(0) >= 58.9f) {
             atn::Vector3 pos(0.0f, 0.0f, 20.0f);
             pos.fn_80011410(*(atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"));
             fn_803489F4(pos);
@@ -1171,7 +1171,7 @@ void EnemyQuarkStand::fn_80348FF4() {
             m14B4++;
         }
     } else if (m14B4 == 2) {
-        if (mMotion.fn_80139550(0) <= 80.1f) {
+        if (mMotion.GetMotionFrame(0) <= 80.1f) {
             atn::Vector3 pos(0.0f, 0.0f, 20.0f);
             pos.fn_80011410(*(atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"));
             fn_803489F4(pos);
@@ -1186,7 +1186,7 @@ void EnemyQuarkStand::fn_80348FF4() {
                 shot.m14 = 0.0f;
                 fn_8010EE78(bullet, &shot, &pos, &m1654, this, m590, 0, -1.0f);
             }
-            float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.fn_80139550(0) - 60.0f) / 20.0f));
+            float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.GetMotionFrame(0) - 60.0f) / 20.0f));
             float dist = fn_800F8524(&sBurstNear_unk, &sBurstFar_unk, t);
             atn::Vector3 at = mPos + fn_8014052C() * dist;
             if (!m181C.full()) {
@@ -1201,7 +1201,7 @@ void EnemyQuarkStand::fn_80348FF4() {
         }
     } else {
         float end = mMotion.fn_80097D7C(0);
-        if (mMotion.fn_80139550(0) >= end) {
+        if (mMotion.GetMotionFrame(0) >= end) {
             fn_8034F41C();
         }
     }

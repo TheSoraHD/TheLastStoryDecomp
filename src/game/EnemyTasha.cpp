@@ -606,7 +606,6 @@ struct TashaStep_unk {
 
 // inferred: sets the frame of motion track `track` (weak copy of a atn::Model inline, also called by
 // game/GameTask and game/TutorialTask; defined after vf100 to keep its position)
-extern "C" void fn_80357F38(atn::Model* model, int track, float frame);
 
 void EnemyTasha::fn_8035ACB8(int motion, int arg, float speed) {
     mMotion.mTracks[0].m0C = speed;
@@ -1329,7 +1328,7 @@ void EnemyTasha::vf100(int state) {
         fn_8013C460(0);
         fn_8035738C(1.0f, 0.0f);
         fn_8035ACB8(0x14A, 0, 1.0f);
-        fn_80357F38(&mMotion, 0, 10.0f);
+        mMotion.SetMotionFrame(0, 10.0f);
         break;
     case 2:
         vf44();
@@ -1337,8 +1336,8 @@ void EnemyTasha::vf100(int state) {
     }
 }
 
-extern "C" void fn_80357F38(atn::Model* model, int track, float frame) {
-    model->mTracks[track].m08 = frame;
+void atn::Model::SetMotionFrame(int track, float frame) {
+    mTracks[track].m08 = frame;
 }
 
 int EnemyTasha::vf68(CharaTask* attacker) {

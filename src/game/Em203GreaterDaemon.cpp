@@ -1169,13 +1169,13 @@ static float lbl_8087DC3C = -70.0f;
 // NONMATCHING: 0% - original is over the inline budget (calls fn_802913B0, fn_800109E0, rotX out of line); ours inlines them (0xE4C vs 0x478)
 void Em203GreaterDaemon::fn_8028CB38() {
     if (m14B4 == 0) {
-        if (fn_802913B0() != 0 && mMotion.fn_80139550(0) >= 28.0f) {
+        if (fn_802913B0() != 0 && mMotion.GetMotionFrame(0) >= 28.0f) {
             fn_8016E970(6);
             fn_801C0730(this, 30);
             m14B4 = 1;
             mMotion.fn_80139F24(1);
             mMotion.fn_8013C554(0, 1.0f);
-            mMotion.fn_80139F3C(0, 1.0f);
+            mMotion.SetMotionSpeed(0, 1.0f);
             mMotion.fn_80097C08(0, 0x14F, 0, 0, 1, 0.0f, 0.1f);
             fn_80290674();
             m14B8 = 0;
@@ -1190,10 +1190,10 @@ void Em203GreaterDaemon::fn_8028CB38() {
         }
     } else if (m14B4 == 1) {
         float length = mMotion.fn_80097D7C(0);
-        if (mMotion.fn_80139550(0) > length) {
+        if (mMotion.GetMotionFrame(0) > length) {
             fn_8028F4AC();
         }
-        if (mMotion.fn_80139550(0) >= 75.0f && mMotion.fn_80139550(0) < 150.0f) {
+        if (mMotion.GetMotionFrame(0) >= 75.0f && mMotion.GetMotionFrame(0) < 150.0f) {
             if (m154C == 0) {
                 m154C = 1;
                 m1548 = 0;
@@ -1207,7 +1207,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
             fn_80239DAC(fn_800F7FA0(), this, 1000, 1);
         }
         if (m154C != 0) {
-            float t = (mMotion.fn_80139550(0) - 75.0f) / 75.0f;
+            float t = (mMotion.GetMotionFrame(0) - 75.0f) / 75.0f;
             atn::Vector3 dir(0.0f, -1.0f, 0.0f);
             dir.fn_80011410(fn_8028CFB0(atn::DegToRad_unk(fn_800F8524(&lbl_8087DC38, &lbl_8087DC3C, t))));
             dir.fn_80011410(fn_800109E0(mRot));
