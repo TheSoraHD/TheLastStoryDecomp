@@ -225,7 +225,6 @@ struct Effect_unk {
 };
 extern "C" Effect_unk* lbl_8087F048;
 
-
 extern "C" int fn_80375184(Field_unk* field);
 extern "C" int fn_80370174(Field_unk* field, int id);  // inferred: event flag
 extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
@@ -607,7 +606,6 @@ struct ModelCamera_unk {
 inline void CreateCamera_unk(Model_unk* model) {
     model->m208.reset(new (6, "", "", 0) ModelCamera_unk());
 }
-
 
 // inferred: party data (lbl_8087F4F0); one 0x43C-byte block per member (names invented)
 struct PartyMember_unk {
@@ -2988,9 +2986,6 @@ atn::Vector3 CharaTask::fn_8014052C() {
     return dir;
 }
 
-extern "C" double sin(double x);
-extern "C" double cos(double x);
-extern "C" double sqrt(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* ab);
 
@@ -3005,7 +3000,6 @@ inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
     PSVECCrossProduct(&a, &b, &r);
     return r;
 }
-
 
 // NONMATCHING: ~83% (181/1083 lines) - same instructions except: the ptmf temporaries of the inlined
 // fn_80178208 chain (known issue), the stack slots of the ToRotation temporaries, the m6B8 damping
@@ -3855,8 +3849,6 @@ void CharaTask::fn_801446F0() {
     m584 = 0.0f;
 }
 
-
-
 // inferred: camera parameter passed to fn_80095F10 (same block at DialogHead+0x1620); name invented
 struct ModelCameraParam_unk {
     ModelCameraParam_unk() : m00(0) {}
@@ -4018,7 +4010,6 @@ void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     }
 }
 
-extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 // inferred: sphere cast against the collision (hit in `result`, nonzero on a hit)
 extern "C" int fn_80418318(); // inferred: id of the water (ground follow) used by fn_804188A0
@@ -4652,7 +4643,6 @@ void CharaTask::fn_80145334() {
     }
 }
 
-
 int CharaTask::fn_801479D8() {
     return mFlag6;
 }
@@ -5271,7 +5261,6 @@ inline bool IsArenaActive_unk() {
     }
     return result;
 }
-
 
 // inferred: name invented
 inline bool IsArenaWaiting_unk(Arena_unk* arena) {
@@ -5936,8 +5925,6 @@ void CharaTask::fn_8014C228() {
     fn_8014FD30();
 }
 
-
-extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_80107850(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80107B20(Effect_unk* effect, chr::Motion_unk* motion);
@@ -5957,7 +5944,6 @@ extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: 
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpHandle_unk)
 extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
                             float scale, int e, int f, int g);
-extern "C" int rand();
 struct Input_unk {
     int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
     float fn_801248DC(atn::Vector3* dir); // inferred: stick tilt, direction in `dir` (may be 0)
@@ -7040,7 +7026,6 @@ struct Player_unk : public CharaTask {
     Player_unk* mNext; // 0x14AC: inferred: next player in the manager list
 };
 
-
 // inferred: data passed to the listeners of event 14 by fn_8015076C (names invented)
 struct HitEvent_unk {
     // inferred: implicit constructor (weak copy 0x80151218)
@@ -7064,8 +7049,6 @@ struct Unk8087F490_unk {
     static Unk8087F490_unk* Get_unk() { return lbl_8087F490; }
     void Remove_unk(CharaTask* chara) { fn_803E2110(this, 1, chara); }
 };
-
-
 
 // inferred: reaction to a hit (knock back, down, guard...) and record of the hit in m6D0
 void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3& v2, int arg, unsigned int flags,
@@ -7346,7 +7329,6 @@ void CharaTask::vf3C(HitInfo_unk* hit) {
     }
 }
 
-
 // inferred: parameters of fn_8003EA3C (names invented)
 struct HitParam_unk {
     HitParam_unk() : m00(1), m04(1.0f), m08(1.0f), m0C(0), m10(1.0f), m14(0) {}
@@ -7363,8 +7345,6 @@ extern "C" void fn_8003EA3C(int* result, HitInfo_unk* data, CharaTask* attacker,
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* attacker);
 extern "C" int fn_8010CD3C(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
 extern "C" void fn_8010CF28(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
-extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" double cos(double x);
 
 void CharaTask::fn_80151448(HitMsg_unk* msg) {
     unsigned int flags;
@@ -7642,8 +7622,6 @@ void CharaTask::fn_80151448(HitMsg_unk* msg) {
 
 void CharaTask::vf40(HitInfo_unk* hit) {}
 
-extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* ab);
-
 // inferred: hit reaction check (guard?); returns 0, 1 or 2. The parameters are read by the body,
 // so the symbol vf4C__9CharaTaskFv (in symbols.txt) has the wrong signature.
 int CharaTask::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir) {
@@ -7686,7 +7664,6 @@ int CharaTask::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector
     }
     return 0;
 }
-
 
 // inferred: names invented
 inline bool CharaTask::IsPartsMode_unk() {
@@ -7775,7 +7752,6 @@ extern "C" void fn_80107BD8(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80107380(Effect_unk* effect, CharaTask* chara);
 extern "C" void fn_80107D94(Effect_unk* effect, chr::Motion_unk* motion);
 
-
 // NONMATCHING: ~57% - the inlined fn_8016E970 is one inline level short (see fn_80178208), and in
 // the camera state copy the original computes the address of the last 16-byte block (addi r9)
 // and allocates the registers in the other order; tried member-wise init, a constructor taking
@@ -7796,7 +7772,6 @@ void CharaTask::vf48() {
     fn_801687D8();
     fn_80168E60();
 }
-
 
 extern "C" int fn_8021A8D0(HitInfo_unk* hit);
 extern "C" int fn_8021A918(HitInfo_unk* hit);
@@ -7873,8 +7848,6 @@ bool CharaTask::fn_801533C8(int id, HitInfo_unk* hit) {
     return false;
 }
 
-
-
 // NONMATCHING: instructions and stack identical; only the saved registers differ (the original
 // keeps the ledge in r30 and this in r29, ours the other way round). Tried a free function, other
 // statement orders, the direction computed in place or through helpers.
@@ -7927,7 +7900,6 @@ void CharaTask::fn_80153698(const Ledge_unk* ledge, int keep) {
 void CharaTask::fn_801539E0() {
     ReleaseLedge_unk();
 }
-
 
 // inferred: checks where the character can move along the ledge (0 none, 1 back, 2 forward, 3 up)
 int CharaTask::fn_80153B44() {
@@ -8053,9 +8025,6 @@ void CharaTask::fn_80154344() {
     fn_8023A098(lbl_8087F3C0, this, 4, 0x20);
 }
 
-extern "C" double cos(double x);
-
-
 // NONMATCHING: 91% - the two copies into `dir` take the source/destination registers in the other
 // order (r3/r4) and fabs uses f31 directly (original: fabs f0; frsp f31,f0); tried a ternary,
 // Assign_unk, Abs_unk, casts.
@@ -8111,7 +8080,6 @@ void CharaTask::fn_80154654(int type, int arg) {
 }
 
 extern "C" int fn_80208748(const char* name);
-extern "C" int atoi(const char* s);
 // inferred: table returned by fn_80375254 (one value per kind of fn_8015487C)
 struct FieldRes_unk {
     unsigned char m00[0x08];
@@ -8323,8 +8291,6 @@ void CharaTask::fn_80155DAC(int arg) {
         fn_8023A098(lbl_8087F3C0, this, 4, 0x20);
     }
 }
-
-extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 // inferred: nonzero if `target` is within 45 degrees in front of the character
 bool CharaTask::fn_80156120(CharaTask* target) {
@@ -8832,9 +8798,6 @@ void CharaTask::fn_8015EFAC(int arg) {
     }
 }
 
-extern "C" double cos(double x);
-extern "C" double sin(double x);
-
 // inferred: tactics manager (TacView); names invented
 struct TacView_unk {
     unsigned char m00[0xA70];
@@ -9049,7 +9012,6 @@ void CharaTask::vf84(int motion, float blend) {
     chr::ControlAppearEnd* control = new (0, "", "", 0) chr::ControlAppearEnd(this, motion, blend);
     fn_80178208(control);
 }
-
 
 void CharaTask::fn_8016125C(const SkillRef_unk* skill, CharaTask* target, int motion, const char* name, float f) {
     chr::ControlUseSkill* control =
@@ -10134,7 +10096,6 @@ bool CharaTask::fn_8016F67C() {
 
 extern "C" int fn_803C17FC(RouteTable_unk* table, int point); // inferred: route point -> start index
 
-
 void CharaTask::fn_8016F824(int point, int arg) {
     RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table == 0) {
@@ -11101,7 +11062,6 @@ void CharaTask::fn_801765D8() {
     }
 }
 
-
 // inferred: disables the collision and hides the effect of the character
 void CharaTask::fn_80176ACC() {
     mFlags &= ~4;
@@ -11173,7 +11133,6 @@ void CharaTask::fn_80176DFC(int a, int b, int c) {
 // recursive part); Median3_unk is 0x80177EB8. Names invented.
 typedef bool (*FloatLess_unk)(const float& a, const float& b);
 extern "C" void fn_801092C8(Effect_unk* effect, int id, CharaTask* chara, int a, int b);
-
 
 template <class T>
 inline void Swap_unk(T& a, T& b) {
@@ -12185,7 +12144,6 @@ void CharaTask::fn_8017A5D8(int on) {
     }
 }
 
-
 // inferred: puts the stored foot heights (m13B8) on the ground below the neck node
 // NONMATCHING: 58% - the segment and the hit point swap their stack slots and the x/z loads swap
 // registers; tried: named or temporary segment, constructors, member-wise stores, declaration
@@ -12210,7 +12168,6 @@ void CharaTask::fn_8017A504() {
         m13B8[1].y = hit.y;
     }
 }
-
 
 // inferred: whether the character shows its weapon-kind specific effect (kind from fn_8015487C)
 int CharaTask::fn_8017A9A8() {
