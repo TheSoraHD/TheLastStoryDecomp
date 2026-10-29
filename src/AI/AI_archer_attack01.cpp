@@ -10430,6 +10430,28 @@ extern "C" int fn_8003D6E8() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+extern "C" int fn_8003DBA4() {
+    if (lbl_807C68C0.m1C < lbl_807C68C0.m34 || fn_8001BEB0(lbl_807C68C0.m00)) {
+        if (lbl_807C68C0.m20 != 0) {
+            Command_unk(3, (int)lbl_807C68C0.m20, 30, 0, 0);
+        }
+        lbl_807C6A40.m00 = 1;
+        return 6;
+    }
+    if (CanUseItem_unk()) {
+        Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 4;
+    }
+    if (lbl_807C68C0.m20 != 0) {
+        Command_unk(3, (int)lbl_807C68C0.m20, 30, 0, 0);
+    }
+    lbl_807C6A40.m00 = 1;
+    return 6;
+}
 
 // NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
 // inferred: finds the insertion position for a string key and returns the last visited node.
