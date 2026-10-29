@@ -53,3 +53,12 @@ Unidades no `atn/` ni de enemigos, sin fuente, de 10–20 KB, en orden de direcc
 - **Decisiones sin el usuario:**
   - `CharaTask::fn_801598B4` y `fn_80159BA4` y los constructores de `ControlChaseCaught`/`ControlChaseCatch` reciben `CharaTask*` en vez de `int` (los llamadores `ChaserNpc` y `ChaseManager` hacían `(int)ptr`); símbolos renombrados.
   - El orden de las clases en `ControlChaseCaught.h` sigue el de las vtables (Caught, Held, Release, Catch, Hold, Released, Assist, Follow): decide el orden de los destructores implícitos.
+
+### `chr/ControlDamage` (0x801AC434, 41 funciones)
+
+- Reacciones a golpes: `ControlDamage`, `ControlGuard`, `ControlAvoid`, `ControlKnockdown`, `ControlGetUp`, `ControlRevival`, `ControlRevivalSkelton`, `ControlFallDead`, `ControlGuarded` y `ControlDamageLastOne`. 30/41 al 100%; los 11 restantes `NONMATCHING` (3 `vf10` con la carga temprana de `mChara`; 2 `fn_` "se puede cancelar" con cargas planificadas en el prólogo; en `Knockdown::vf0C` y `DamageLastOne::vf0C` el original no fusiona la segunda lectura de `mChara` de la inline expandida; registros y huecos de pila sueltos).
+- **Decisiones sin el usuario:**
+  - El constructor `__ct__17EnemyReaction_unk...` era `chr::ControlDamageLastOne(CharaTask*, const atn::Vector3*, int)`: renombrado y `game/EnemyTask.cpp`/`EnemyTasha.cpp` usan la clase real (incluyen `chr/ControlDamage.h`).
+  - `ControlDamage.h` reescrito con layouts y las clases en el orden de los destructores implícitos.
+  - `FuncPair_unk` (cabecera nueva `chr/FuncPair_unk.h`, nombre inventado): par de `boost::function` que `ControlRevival::vf10` convierte en una sola acción. Sus copias débiles 0x8019C8A8-0x8019D634 (dentro de `chr/ControlStickByQuark`) renombradas en `symbols.txt` con los nombres de nuestro `.o`. Recibe los argumentos por valor: con referencias MWCC inlinea el constructor y el original lo llama.
+  - `poolcheck` avisa de la cadena `FuncPair_unk` (nombre RTTI del gestor débil del functor; en el original vive en `ControlStickByQuark`). En `.data` el original deja 0x14 bytes de ceros tras los ptmf (dos RTTI débiles eliminados) y nosotros emitimos tres: no afecta a objdiff, sí al enlace cuando la unidad se active.
