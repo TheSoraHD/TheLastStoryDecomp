@@ -105,6 +105,8 @@ struct CosEditLemon_unk {
 };
 extern "C" CosEditLemon_unk* lbl_8087F098;
 
+// NONMATCHING: __sinit 98.1% - only relocation names: the target .bss is a single label
+// (lbl_807C7CB8, 0x60 bytes) where ours has the eight statics below
 static atn::Vector3 sScale(17.0f, 17.0f, 17.0f);
 static atn::Vector3 sCenter(1200.0f, -280.0f, -420.0f);
 static atn::Vector3 sUpperOfs(-110.0f, -60.0f, 150.0f);
