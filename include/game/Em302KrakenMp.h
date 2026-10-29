@@ -56,8 +56,9 @@ public:
     // inferred: position above the first damage sphere (0x802E1CA0)
     virtual atn::Vector3 vfAC();
     // inferred: inline (weak copy 0x802E1D50): position of the "head" node
-    virtual atn::Vector3 vfC8() {
-        MtxPtr m = mMotion.GetNodeMtx_unk("head");
+    virtual atn::Vector3 GetTacViewPosition() const {
+        // inferred: const_cast because the atn::Model node getter is not const yet
+        MtxPtr m = const_cast<Em302KrakenMp*>(this)->mMotion.GetNodeMtx_unk("head");
         // inferred: the original loads the translation from the last row up (z, y, x)
         float z = m[2][3];
         float y = m[1][3];

@@ -247,7 +247,6 @@ struct QuarkSettings_unk {
 extern "C" QuarkSettings_unk* lbl_8087F0A8;
 // inferred: weak copies of small inline helpers of other files, called out of line because vf0C is over
 // the inline budget (names kept)
-extern "C" void fn_803396EC(CharaTask* chara, unsigned int flags);   // inferred: m54C |= flags
 extern "C" void fn_80288E30(CharaTask* chara, float value);          // inferred: m56C = value
 extern "C" void fn_80244CAC(atn::Task* task);                        // inferred: mFlags |= 4
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
@@ -371,7 +370,7 @@ int EnemyQuarkStand::vf0C() {
         m1690.fn_80237874() == 0 && m169C.fn_80237874() == 0 && m16A8.fn_80237874() == 0 &&
         m16B4.fn_80237874() == 0 && m1CAC.fn_80237874() == 0 && fn_800D3FA4() != 0) {
         fn_80353370();
-        fn_803396EC(this, 0x200);
+        SetFlag(0x200);
         fn_80288E30(this, 0.03f);
         mMotion.fn_80099E9C("hips", "em211", 4.3f);
         m17F4->fn_800D246C(0);
