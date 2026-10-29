@@ -214,7 +214,7 @@ emitted = []
 oi = 0
 for idx in fidx:
     t = code_of(chunks[idx][1])
-    name = re.search(r"([~\w:]+|operator\s*\S+)\s*\(", t[:t.find("{")])
+    name = re.search(r"([~\w:]+|operator\s*\S+)\s*\(", re.sub(r"__declspec\(\w+\)", "", t[:t.find("{")]))
     name = name.group(1) if name else "?"
     last = name.split("::")[-1]
     if oi < len(ours):
@@ -272,7 +272,7 @@ for r, idx in enumerate(order):
         continue
     t = code_of(chunks[idx][1])
     head = t[:t.find("{")].strip()
-    name = re.search(r"([~\w:]+|operator\s*\S+)\s*\(", head)
+    name = re.search(r"([~\w:]+|operator\s*\S+)\s*\(", re.sub(r"__declspec\(\w+\)", "", head))
     if name is None or "::" in name.group(1):
         continue
     protos[idx] = re.sub(r"\s+", " ", head) + ";\n"
