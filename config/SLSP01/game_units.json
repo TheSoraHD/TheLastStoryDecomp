@@ -2314,7 +2314,7 @@
   "classes": [
    "gmk::SparkCube"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/FlyObjManager.cpp",
