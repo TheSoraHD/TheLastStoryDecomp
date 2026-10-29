@@ -7,7 +7,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 
 // inferred: names of the objects of each board, indexed by GimmickCommon::m4C - 1 (0x80753960)
@@ -137,7 +137,7 @@ int PassBoard::vf0C() {
     return 0;
 }
 
-void PassBoard::vf28() {
+void PassBoard::Start() {
     vf2C();
     GimmickMsg_unk msg(1);
     vf40(&msg);
@@ -150,7 +150,7 @@ void PassBoard::vf28() {
 // in __MakeRotation_unk, a Front_unk helper (worse), pair pointer vs indexed pairs.
 void PassBoard::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     float dist = -60.0f;
     for (int i = 0; i < 5; i++) {
@@ -278,7 +278,7 @@ int PassBoard::vf60() {
 
 void PassBoard::vf6C(void* menu) {}
 
-Model_unk* PassBoard::vf38() {
+atn::Model* PassBoard::vf38() {
     return &mModel;
 }
 

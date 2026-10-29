@@ -23,7 +23,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
@@ -105,7 +105,7 @@ int Fireworks::vf0C() {
     return 1;
 }
 
-void Fireworks::vf28() {
+void Fireworks::Start() {
     fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&mLight);
     fn_800C16B4(lbl_8087EFB4)->SetLayer_unk(-1);
     MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
@@ -118,7 +118,7 @@ void Fireworks::vf28() {
 // original. Tried: reference/pointer to the element, delay local, mixed forms.
 void Fireworks::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
     float size = 0.0f;
@@ -196,7 +196,7 @@ void Fireworks::vf14() {
 
 int Fireworks::vf1C() {
     for (int i = 0; i < 6; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -214,7 +214,7 @@ void Fireworks::vf20() {
         }
         if (strcmp(field, "EFP") == 0) {
             strcpy(name, csv.fn_8005B9CC());
-            mEfp[atoi(csv.fn_8005B9CC())].fn_8023780C(name);
+            mEfp[atoi(csv.fn_8005B9CC())].LoadRequest(name);
         } else if (strcmp(field, "EFPLIGHT") == 0) {
             int index = atoi(csv.fn_8005B9CC());
             int delay = atoi(csv.fn_8005B9CC());

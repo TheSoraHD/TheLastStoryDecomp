@@ -36,7 +36,7 @@ basic_string<T, Tr, A>::basic_string(const basic_string& str, size_type pos, siz
     }
     size_type rlen = __min(n, len - pos);
     p += pos;
-    __replace_unk(0, 0, p, p + rlen, random_access_iterator_tag());
+    do_replace(0, 0, p, p + rlen, random_access_iterator_tag());
 }
 
 template <class T, class Tr, class A>
@@ -95,7 +95,7 @@ void basic_string<T, Tr, A>::reserve(size_type res_arg) {
 }
 
 template <class T, class Tr, class A>
-basic_string<T, Tr, A>& basic_string<T, Tr, A>::__replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, random_access_iterator_tag tag) {
+basic_string<T, Tr, A>& basic_string<T, Tr, A>::do_replace(size_type pos, size_type n1, const T* j1, const T* j2, random_access_iterator_tag tag) {
     bool was_long = mFlags.mIsLong;
     size_type new_sz;
     T* p;
@@ -146,7 +146,7 @@ basic_string<T, Tr, A>& basic_string<T, Tr, A>::__replace_unk(size_type pos, siz
     } else {
         basic_string tmp;
         if (tail != 0 && p + pos + n2 < j2 && j2 <= p + sz) {
-            tmp.__replace_unk(0, tmp.size(), j1, j2, random_access_iterator_tag());
+            tmp.do_replace(0, tmp.size(), j1, j2, random_access_iterator_tag());
             j1 = tmp.data();
         }
         if (tail != 0) {

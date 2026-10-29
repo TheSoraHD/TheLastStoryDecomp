@@ -15,7 +15,7 @@ class Bat;
 struct BatUnit_unk {
     void (Bat::*mState)(int index); // 0x00: state function
     unsigned int mStateNo;          // 0x0C: 1 waiting, 2 first curve, 3 second curve, 4 gone
-    Model_unk mModel;               // 0x10
+    atn::Model mModel;               // 0x10
     atn::Vector3 mPos;              // 0x3E0: offset from the gimmick position
     atn::Vector3 mRot;              // 0x3EC
     atn::Vector3 mStart;            // 0x3F8: start of the curve
@@ -61,7 +61,7 @@ public:
     int mDelay;                          // 0xFC
     int mTimer;                          // 0x100
     GimmickDesc_unk* mDesc;              // 0x104
-    atn::Buffer_unk<BatUnit_unk> mBats;  // 0x108
+    atn::SimpleArray<BatUnit_unk> mBats;  // 0x108
 };
 
 } // namespace gmk

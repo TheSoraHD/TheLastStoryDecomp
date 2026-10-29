@@ -32,14 +32,14 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -149,10 +149,10 @@ Em308ParmCrab::Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info)
     m1530 = fn_80219E6C(0x3F8);
     m14F4 = fn_80219E6C(0x3F7);
     m1578 = fn_80219E6C(0x400);
-    m15F4.fn_8023780C("/effect/ef_uc001.efp");
-    m1520.fn_8023780C("/effect/ef_sk002d.efp");
-    m14DC.fn_8023780C("/effect/ef_uc007.efp");
-    m1600.fn_8023780C("/effect/ef_sc003_01b.efp");
+    m15F4.LoadRequest("/effect/ef_uc001.efp");
+    m1520.LoadRequest("/effect/ef_sk002d.efp");
+    m14DC.LoadRequest("/effect/ef_uc007.efp");
+    m1600.LoadRequest("/effect/ef_sc003_01b.efp");
 }
 
 Em308ParmCrab::~Em308ParmCrab() {}
@@ -161,8 +161,8 @@ Em308ParmCrab::~Em308ParmCrab() {}
 // NONMATCHING: 99.95% - r3/r4 of the inlined std::vector::push_back (known blocker) and the message of
 // vector::__allocate (lbl_80775A88, a pool of another file)
 int Em308ParmCrab::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15F4.fn_80237874() == 0 &&
-        m1520.fn_80237874() == 0 && m14DC.fn_80237874() == 0 && m1600.fn_80237874() == 0 &&
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15F4.IsLoading() == 0 &&
+        m1520.IsLoading() == 0 && m14DC.IsLoading() == 0 && m1600.IsLoading() == 0 &&
         m160C.fn_80473F50() == 0) {
         if (m160C.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m160C.fn_80470580(), m160C.fn_8047059C());
@@ -672,7 +672,7 @@ void Em308ParmCrab::fn_802F93F0() {
 
 
 // inferred: plays an effect on the model (as in game/Em308InvertCrab.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -772,7 +772,7 @@ void Em308ParmCrab::fn_802F97B8() {
                 }
                 atn::Matrix3x4 m;
                 CrabRotZYX_unk(m, rot);
-                Model_unk* model = &mMotion;
+                atn::Model* model = &mMotion;
                 atn::Vector3 pos = ((atn::Matrix3x4*)model->GetNodeMtx_unk("hips"))->GetTrans_unk();
                 atn::Vector3 dir(0.0f, 0.0f, 3.0f);
                 PSMTXMultVec(m.m, &dir, &dir);

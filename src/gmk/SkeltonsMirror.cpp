@@ -5,8 +5,8 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -19,7 +19,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -37,7 +37,7 @@ GimmickCommon* SkeltonsMirror::fn_80414AC4(atn::Task* parent, GimmickDesc_unk* d
 SkeltonsMirror::~SkeltonsMirror() {}
 
 int SkeltonsMirror::vf1C() {
-    if (mModel.fn_8008B140() != 0 || mColli.fn_800580BC() != 0 || mEfp.fn_80237874() != 0) {
+    if (mModel.fn_8008B140() != 0 || mColli.fn_800580BC() != 0 || mEfp.IsLoading() != 0) {
         return 1;
     }
     return 0;
@@ -60,7 +60,7 @@ void SkeltonsMirror::vf20() {
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }
@@ -77,7 +77,7 @@ int SkeltonsMirror::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-void SkeltonsMirror::vf28() {
+void SkeltonsMirror::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     m78.x = 0.0f;
@@ -92,7 +92,7 @@ void SkeltonsMirror::vf28() {
 
 void SkeltonsMirror::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if ((unsigned int)m54 > 2 && vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -153,7 +153,7 @@ int SkeltonsMirror::vf60() {
     return ret;
 }
 
-Model_unk* SkeltonsMirror::vf38() {
+atn::Model* SkeltonsMirror::vf38() {
     return &mModel;
 }
 

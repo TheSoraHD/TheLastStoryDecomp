@@ -11,11 +11,11 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
-extern "C" int fn_80097B34(Model_unk* model); // inferred: number of motions
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
+extern "C" int fn_80097B34(atn::Model* model); // inferred: number of motions
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 
@@ -30,10 +30,10 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" OnOffEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(OnOffEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(OnOffEffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Model_unk* model,
+extern "C" void fn_8023A680(OnOffEffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_8023A02C(OnOffEffectMgr_unk* mgr, void* owner, int arg2, int arg3);
@@ -136,7 +136,7 @@ inline void SetSphere_unk(atn::ColliSphere* colli, const atn::Vector3& center, f
     colli->mSphere.mRadius = radius;
 }
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(OnOffEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -154,7 +154,7 @@ inline void PlayEfp_unk(OnOffEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_
 }
 
 // inferred: plays an effect at a position (name invented)
-inline void PlayEfpAt_unk(OnOffEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, const atn::Vector3& pos,
+inline void PlayEfpAt_unk(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                           const atn::Vector3& rot, float scale) {
     Color4f_unk color;
     color.r = 1.0f;
@@ -207,7 +207,7 @@ int OnOff::vf0C() {
         for (OnOffPart_unk* part = mMap->mParts; part != 0; part = part->mNext) {
             switch (part->mType) {
             case 0: {
-                Model_unk* model = (Model_unk*)part->m50;
+                atn::Model* model = (atn::Model*)part->m50;
                 atn::Matrix3x4 mtx = *(atn::Matrix3x4*)model->mMtx;
                 atn::Matrix3x4 rot;
                 __MakeRotation_unk(rot, m78);
@@ -222,7 +222,7 @@ int OnOff::vf0C() {
                 float sx = PSVECMag(&ax);
                 atn::Vector3 s(sx, sy, sz);
                 model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
-                fn_8000D430(model, boost::function<void()>());
+                model->CalcMatrixStack(atn::ModelNodeCallback_unk());
                 break;
             }
             case 4:
@@ -238,7 +238,7 @@ int OnOff::vf0C() {
                 break;
             case 5:
                 fn_8049994C(part, &m6C, &m78);
-                for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                     if (g->m20 == part) {
                         g->m6C = g->m6C + m6C;
                         g->m78 = g->m78 + m78;
@@ -253,7 +253,7 @@ int OnOff::vf0C() {
     return 0;
 }
 
-void OnOff::vf28() {
+void OnOff::Start() {
     vf2C();
     if (mHasModel != 0) {
         fn_803ED0D4(&mModel, 1);
@@ -366,10 +366,10 @@ int OnOff::vf1C() {
     if (mColli.fn_800580BC() != 0) {
         return 1;
     }
-    if (mEff.fn_802376D0() != 0) {
+    if (mEff.IsLoading() != 0) {
         return 1;
     }
-    if (mEfp.fn_80237874() != 0) {
+    if (mEfp.IsLoading() != 0) {
         return 1;
     }
     if (mMap != 0 && (mMap->mFlags & 2) != 2) {
@@ -420,9 +420,9 @@ void OnOff::vf20() {
             mSphereRadius = fn_800DC288(csv.fn_8005B9CC());
             mHasSphere = 1;
         } else if (strcmp(field, "EFF") == 0) {
-            mEff.fn_80237654(csv.fn_8005B9CC());
+            mEff.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "MAP") == 0) {
             mMap = fn_8049D68C(this, csv.fn_8005B9CC());
             if (mMap != 0) {
@@ -556,7 +556,7 @@ void OnOff::fn_803F8F30(int on) {
             lbl_8087F3C0->mB8 = 7;
         }
         OnOffEffectMgr_unk* mgr = lbl_8087F3C0;
-        fn_8023A680(mgr, &mEff, -1, 5, (Model_unk*)&mMtx, 0, 0, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(mgr, &mEff, -1, 5, (atn::Model*)&mMtx, 0, 0, 0, 0, -1, 1, 1.0f);
         CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
         if ((mFlags & 0x10) == 0x10 && player != 0) {
             PlayEfp_unk(lbl_8087F3C0, &mEfp, player->GetModel_unk());
@@ -578,7 +578,7 @@ void OnOff::fn_803F8F30(int on) {
     }
 }
 
-Model_unk* OnOff::vf38() {
+atn::Model* OnOff::vf38() {
     if (mHasModel != 0) {
         return &mModel;
     }

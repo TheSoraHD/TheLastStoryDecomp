@@ -21,7 +21,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -55,8 +55,8 @@ Em312DarkServant::Em312DarkServant(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_em312_00_00.csv\0");
     }
     m14B4.vf0C(path);
-    m1580.fn_8023780C("/effect/ef_bs007a.efp");
-    m158C.fn_8023780C("/effect/ef_bs027a.efp");
+    m1580.LoadRequest("/effect/ef_bs007a.efp");
+    m158C.LoadRequest("/effect/ef_bs027a.efp");
     m14EC[0].mSkillId = 0x4E2;
     m14EC[0].mCoolTime = 240;
     m14EC[1].mSkillId = 0x4E3;
@@ -106,7 +106,7 @@ int Em312DarkServant::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1580.fn_80237874() || m158C.fn_80237874()) {
+    if (m1580.IsLoading() || m158C.IsLoading()) {
         return 0;
     }
     fn_8030DEB0((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
@@ -562,7 +562,7 @@ void Em312DarkServant::vf108() {
         case 10:
         case 12:
             if (mC58.mC4 != 0) {
-                float frame = mMotion.fn_80139550(0);
+                float frame = mMotion.GetMotionFrame(0);
                 int idx = m58C - 9;
                 ServantAttack_unk* atk = &m14EC[idx];
                 ServantRange_unk* range = &m152C[idx];
@@ -585,7 +585,7 @@ void Em312DarkServant::vf108() {
                     }
                 } else {
                     float len = mMotion.fn_80097D7C(0);
-                    if (mMotion.fn_80139550(0) >= len) {
+                    if (mMotion.GetMotionFrame(0) >= len) {
                         mFlag31 = 1;
                     }
                 }
@@ -594,7 +594,7 @@ void Em312DarkServant::vf108() {
             }
             break;
         case 11: {
-            float frame = mMotion.fn_80139550(0);
+            float frame = mMotion.GetMotionFrame(0);
             int idx = m58C - 9;
             ServantAttack_unk* atk = &m14EC[idx];
             ServantRange_unk* range = &m152C[idx];
@@ -641,14 +641,14 @@ void Em312DarkServant::vf108() {
                 }
             } else {
                 float len = mMotion.fn_80097D7C(0);
-                if (mMotion.fn_80139550(0) >= len) {
+                if (mMotion.GetMotionFrame(0) >= len) {
                     mFlag31 = 1;
                 }
             }
             break;
         }
         case 13: {
-            float frame = mMotion.fn_80139550(0);
+            float frame = mMotion.GetMotionFrame(0);
             if (m14BC == 0) {
                 if (frame >= mMotion.fn_80097D7C(0)) {
                     m14BC++;

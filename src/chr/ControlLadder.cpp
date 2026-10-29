@@ -29,9 +29,9 @@ namespace chr {
 // inferred: the hips node follows the climb offset (opposite sign for the enemies)
 void ControlLadder::vf40() {
     if (m2C == 1) {
-        Model_unk* model = &mChara->mMotion;
+        atn::Model* model = &mChara->mMotion;
         Motion_unk::Entry_unk* nodes = model->m220;
-        Motion_unk::Entry_unk* e = &nodes[model->fn_80092814("hips", 0)];
+        Motion_unk::Entry_unk* e = &nodes[model->GetNodeNoByName("hips", 0)];
         e->m04.x += mChara->mType == 0 ? m4C : -m4C;
     }
 }

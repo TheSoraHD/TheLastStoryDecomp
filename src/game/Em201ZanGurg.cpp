@@ -32,7 +32,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -69,13 +69,13 @@ inline float AngleDiffDeg_unk(float a, float b) {
     }
     return d;
 }
-inline void PlayMotion_unk(Model_unk* model, int motion, int arg3, int arg4) {
+inline void PlayMotion_unk(atn::Model* model, int motion, int arg3, int arg4) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
     model->fn_80097C08(0, motion, arg3, arg4, 1, 0.0f, 0.1f);
 }
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -115,13 +115,13 @@ Em201ZanGurg::Em201ZanGurg(atn::Task* parent, EnemyInfo_unk* info)
     mStatus.mParamB.m9C |= 0x10;
     m16DC = 0;
     m16E4 = 10;
-    m16F8.fn_8023780C("/effect/ef_sk026a.efp");
+    m16F8.LoadRequest("/effect/ef_sk026a.efp");
 }
 
 Em201ZanGurg::~Em201ZanGurg() {}
 
 int Em201ZanGurg::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m16F8.fn_80237874() == 0 &&
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m16F8.IsLoading() == 0 &&
         m14B0.fn_80473F50() == 0) {
         fn_80262E6C((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
         mStatus.m18 |= 0x1C0;

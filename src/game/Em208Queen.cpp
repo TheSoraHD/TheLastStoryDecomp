@@ -18,14 +18,14 @@ extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_801079C0(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" int rand();
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
-extern "C" void fn_80105BD8(Effect_unk* mgr, Model_unk* model);
+extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model);
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -428,7 +428,7 @@ void Em208Queen::vf10() {
     }
     if (m58C - 12U <= 1 && m14BC >= 5 && m14D0 != 0) {
         m14D0->fn_80144710();
-        fn_8000D430(&m14D0->mMotion, boost::function<void()>());
+        m14D0->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
         fn_80148B38__9CharaTaskFv(m14D0, 40.0f);
     }
     m14BC++;
@@ -801,7 +801,7 @@ void Em208Queen::fn_802CA8C0() {
             }
         }
         float best2 = 1e16f;
-        for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
             if (g->m50 == 7 && g->m54 == 1) {
                 atn::Vector3 d = g->m6C - center;
                 float dist = d.x * d.x + d.z * d.z;
@@ -1152,7 +1152,7 @@ void Em208Queen::fn_802CC708() {
 }
 
 void Em208Queen::fn_802CC834(atn::Vector3 pos, float radius, float angle, int arg) {
-    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         if (g->m50 == 1) {
             atn::Vector3 target = g->vf54();
             atn::Vector3 d = target - mPos;

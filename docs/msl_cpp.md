@@ -186,9 +186,17 @@ to `size()`, `~basic_string`, the `atn::Csv` constructor and the tokenizer membe
   lengths directly.
 - `is_long()` reads the first word through a `const unsigned long*`: after an inlined `compare`
   the long bit is reloaded, as in the original.
-- `__replace_unk` is an ordinary member taking a `random_access_iterator_tag` (not a member
+- `do_replace` (real name from the USA RSO; was `__replace_unk`) is an ordinary member taking a `random_access_iterator_tag` (not a member
   template): its weak copy is then emitted at the end of the object, after `reserve`, and the
   error messages land in the file pool in the original order ("reserve length_error",
   "out_of_range", "length_error"). Game files whose pool has these messages include
   `std/string_members.h` (EquipItemData, GimmickManager); the weak copies are dropped by the
   linker.
+- `operator+(const basic_string&, const T*)` and `operator+(const T*, const basic_string&)` are
+  namespace templates (RSO: `__pl<c,...>__3std...`), declared friends of the class; weak copies
+  0x8006D008 (atn/Font_unk) and 0x8006AF38 (atn/FileList).
+- Streams (2026-10-29, rso-names-qA): `include/std/ios_base.h` (`ios_base`, `basic_ios`, `fpos`),
+  `locale.h`, `streambuf.h`, `sstream.h` (`basic_stringbuf`), `ostream.h` (`basic_ostream` with
+  virtual base `basic_ios`, `sentry`). The weak copies of std/allocator_char are explicit
+  instantiations of members (`template int std::basic_streambuf<char>::sync();`): MWCC emits each
+  one weak at that point of the file, in source order.

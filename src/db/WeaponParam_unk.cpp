@@ -1,4 +1,6 @@
 #include "atn/Csv.h"
+#include "game/Inventory.h"
+#include "atn/FileList.h"
 #include "atn/Memory.h"
 #include "db/WeaponParam_unk.h"
 #include "gmk/SeTable.h"
@@ -20,17 +22,7 @@ extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long*
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 // inferred: loads a whole file / releases it
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
-extern "C" void fn_8006BB6C(void* data, int arg);
 
-// inferred: party data (lbl_8087F4F0); only the weapon ids of the members are read here
-struct WeaponParty_unk {
-    char m00[0x82B0];
-    struct {
-        int mWeaponId;
-        int m04;
-    } mMembers[1];
-};
-extern "C" WeaponParty_unk* lbl_8087F4F0;
 // inferred: field (lbl_8087F430) and its flags
 struct WeaponField_unk;
 extern "C" WeaponField_unk* lbl_8087F430;
@@ -101,7 +93,7 @@ extern "C" void fn_80204E54() {
     count += 0x80;
     sEntries = new (3, "", "", 0) WeaponParamEntry_unk[count];
     sCount = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (strcmp(csv.fn_8005B9CC(), "") != 0) {
@@ -256,7 +248,7 @@ extern "C" void fn_8020689C() {
         pos += wcslen(sTexts + pos) + 1;
         i++;
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
 }
 
 // inferred: entry of a kind and id
@@ -317,7 +309,7 @@ extern "C" bool fn_80206D18(WeaponParamEntry_unk* entry, int member, int arg) {
                 if (entry->mKind != 1) {
                     result = true;
                 }
-                fn_80206B14(0, lbl_8087F4F0->mMembers[arg].mWeaponId);
+                fn_80206B14(0, Inventory::instance_->mEquip[0].mWeapons[arg].mId);
                 if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x395) && fn_80370174(lbl_8087F430, 0x396)) {
                     result = false;
                 }
@@ -403,7 +395,7 @@ extern "C" void fn_80206F44() {
     }
     sEffects = new (3, "", "", 0) WeaponEffect_unk[count];
     sEffectCount = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != 0) {

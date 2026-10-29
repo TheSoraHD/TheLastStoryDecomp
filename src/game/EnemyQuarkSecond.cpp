@@ -1,4 +1,8 @@
 #include "game/EnemyQuarkSecond.h"
+#include "atn/ColliBase.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
+#include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -50,7 +54,7 @@ extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" inline PlayerManager* fn_8000D9E8() {
     return lbl_8087F8A0;
 }
-// inferred: Model_unk member of another unit (sets a value of the model, weak copy 0x80288E30 of
+// inferred: atn::Model member of another unit (sets a value of the model, weak copy 0x80288E30 of
 // game/Em203GreaterDaemon.cpp)
 extern "C" void fn_80288E30(CharaTask* chara, float value);
 
@@ -82,19 +86,19 @@ EnemyQuarkSecond::EnemyQuarkSecond(atn::Task* parent, EnemyInfo_unk* info)
     }
     std::string path = fn_8006AFF8(dir, name);
     m16B8.vf0C(path.c_str());
-    m15A4.fn_8023780C("ef_bs072f.efp");
-    m15B0.fn_8023780C("ef_bs054d.efp");
-    m15BC.fn_8023780C("ef_bs054a.efp");
-    m15C8.fn_80237654("ef_bs054e_01.eff");
-    m162C.fn_8023780C("ef_bs058a.efp");
-    m1638.fn_8023780C("ef_bs058c.efp");
-    m1668.fn_80237654("ef_bs051b.eff");
-    m1610.fn_8023780C("ef_bu040a.efp");
-    m161C.fn_8023780C("ef_bu040h.efp");
-    m1674.fn_8023780C("ef_bd008d.efp");
-    m1680.fn_8023780C("ef_bu047b.efp");
-    m168C.fn_8023780C("ef_bu047c.efp");
-    m1698.fn_8023780C("ef_bs079b.efp");
+    m15A4.LoadRequest("ef_bs072f.efp");
+    m15B0.LoadRequest("ef_bs054d.efp");
+    m15BC.LoadRequest("ef_bs054a.efp");
+    m15C8.LoadRequest("ef_bs054e_01.eff");
+    m162C.LoadRequest("ef_bs058a.efp");
+    m1638.LoadRequest("ef_bs058c.efp");
+    m1668.LoadRequest("ef_bs051b.eff");
+    m1610.LoadRequest("ef_bu040a.efp");
+    m161C.LoadRequest("ef_bu040h.efp");
+    m1674.LoadRequest("ef_bd008d.efp");
+    m1680.LoadRequest("ef_bu047b.efp");
+    m168C.LoadRequest("ef_bu047c.efp");
+    m1698.LoadRequest("ef_bs079b.efp");
     fn_80370320(fn_80121F00(), 0x65, 1, 0);
     fn_80370320(fn_80121F00(), 0x68, 1, 0);
     fn_80338CDC(&mColli, 0);
@@ -119,23 +123,20 @@ static void fn_80338D14(QuarkTable_unk* table, atn::Csv* csv) {
 // inferred: inline accessors (weak copies 0x803396EC, 0x803396FC, 0x80339718, called out of line by
 // vf0C, which is over the inline budget; game/EnemyQuarkStand.cpp calls the same copies). Names keep
 // the addresses: 0x80339718 is the CharaStatusPair_unk(int) constructor of CharaStatus.h (no null test).
-extern "C" inline void fn_803396EC(CharaTask* chara, unsigned int flags) {
-    chara->m54C |= flags;
-}
 extern "C" inline void fn_803396FC(CharaStatus* status, int index, const CharaStatusPair_unk& pair) {
     status->m2D0[index] = pair;
 }
 
 
 int EnemyQuarkSecond::vf0C() {
-    if (fn_8013655C() == 0 && m15A4.fn_80237874() == 0 && m15B0.fn_80237874() == 0 &&
-        m15BC.fn_80237874() == 0 && m15C8.fn_802376D0() == 0 && m1638.fn_80237874() == 0 &&
-        m162C.fn_80237874() == 0 && m1668.fn_802376D0() == 0 && m16B8.fn_80473F50() == 0 &&
-        m1610.fn_80237874() == 0 && m161C.fn_80237874() == 0 && m1674.fn_80237874() == 0 &&
-        m1680.fn_80237874() == 0 && m168C.fn_80237874() == 0 && m1698.fn_80237874() == 0 &&
+    if (fn_8013655C() == 0 && m15A4.IsLoading() == 0 && m15B0.IsLoading() == 0 &&
+        m15BC.IsLoading() == 0 && m15C8.IsLoading() == 0 && m1638.IsLoading() == 0 &&
+        m162C.IsLoading() == 0 && m1668.IsLoading() == 0 && m16B8.fn_80473F50() == 0 &&
+        m1610.IsLoading() == 0 && m161C.IsLoading() == 0 && m1674.IsLoading() == 0 &&
+        m1680.IsLoading() == 0 && m168C.IsLoading() == 0 && m1698.IsLoading() == 0 &&
         fn_800D3FA4() != 0) {
         fn_80344780();
-        fn_803396EC(this, 0x200);
+        SetFlag(0x200);
         fn_80288E30(this, 0.03f);
         mMotion.fn_80099E9C("hips", "em211", 4.3f);
         mStatus.m18 |= 0x1C0;
@@ -260,16 +261,16 @@ extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: plays `efp` on `model` (weak copy 0x8026607C of game/Em201ZanGurgFinal.cpp; declared without
 // a body: its constants are in the pool of that unit, not in this one)
-extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg);
-extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int id, int arg);
-extern "C" void fn_8023A254(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int arg, float rate);
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, const atn::Vector3& pos,
+extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
+extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg);
+extern "C" void fn_8023A254(EffectMgr_unk* mgr, atn::EfpFile* efp, int arg, float rate);
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
                             const atn::Vector3& rot, int a, int b, int c, float scale);
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -314,24 +315,6 @@ extern "C" inline void fn_8028CFB8(PlayerInput_unk* input, int frames, float a, 
     input->m908 = a;
     input->m900 = input->m900 % 2;
     input->m90C = b;
-}
-// inferred: keyboard of the debug build (lbl_8087EEF0, as in game/EnemyJill.cpp)
-struct QuarkKeyboard_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" QuarkKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(QuarkKeyboard_unk* kb, void* state, int key); // inferred: key pressed
-extern "C" inline QuarkKeyboard_unk* fn_802A49BC() {
-    return lbl_8087EEF0;
-}
-extern "C" inline int fn_802A4968(QuarkKeyboard_unk* kb, int pad, int key) {
-    int result = 0;
-    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
-        result = 1;
-    }
-    return result;
 }
 // inferred: hit points ratio (weak copy 0x8029F3AC of game/Em203GreaterDaemonRedMp.cpp; declared without
 // a body: its constants are in the pool of that unit)
@@ -400,7 +383,7 @@ extern "C" inline void fn_80339F34(CharaTask* chara, int on) {
         chara->m54C &= ~0x2000;
     }
 }
-extern "C" inline void fn_80339F5C(Model_unk* model, int track, float weight) {
+extern "C" inline void fn_80339F5C(atn::Model* model, int track, float weight) {
     model->mTracks[track].m10 = weight;
 }
 extern "C" inline HitInfo_unk* fn_80339F6C(CharaTask* chara) {
@@ -434,7 +417,7 @@ inline void EnemyQuarkSecond::fn_8034472C(int index, int value) {
 // case as LoadSeTableTask::vf0C, docs/inlining.md); not added (no invented functions).
 void EnemyQuarkSecond::vf10() {
     if (m16B4 != 0) {
-        if (mMotion.fn_80139550(0) < 6.0f) {
+        if (mMotion.GetMotionFrame(0) < 6.0f) {
             fn_8016E4C4(0);
             m14B4 = 0;
         } else {
@@ -444,16 +427,16 @@ void EnemyQuarkSecond::vf10() {
                 fn_8023A108(fn_800F7FA0(), &m1680, 0, 6);
                 fn_8023A254(fn_800F7FA0(), &m1680, 0, 0.5f);
             }
-            mMotion.fn_80139F3C(0, 0.5f);
+            mMotion.SetMotionSpeed(0, 0.5f);
             fn_8016E4C4(1);
-            if (mMotion.fn_80139550(0) >= 54.0f && m14B4 == 0) {
+            if (mMotion.GetMotionFrame(0) >= 54.0f && m14B4 == 0) {
                 fn_8028CFB8(fn_80122550(fn_80121F00()), 0x14, 0.0f, 10.0f);
                 fn_80339F14(*fn_80339F24(&m6A4, 0), 1);
                 m14B4++;
             }
         }
         float end = mMotion.fn_80097D7C(0);
-        if (mMotion.fn_80139550(0) >= end) {
+        if (mMotion.GetMotionFrame(0) >= end) {
             m16B4 = 0;
             fn_80339F34(this, 0);
             fn_80341EE4();
@@ -614,13 +597,13 @@ void EnemyQuarkSecond::vf10() {
     fn_8033AB88();
     fn_80344454(100, busy, 25.0f, 6.2831855f);
     if (m1760 != 0) {
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4C) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C) != 0) {
             fn_80342004();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x44) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x44) != 0) {
             fn_8034228C();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4D) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D) != 0) {
             fn_803435B8();
         }
     }
@@ -1038,59 +1021,12 @@ void EnemyQuarkSecond::fn_8034441C(int motion, int loop, float speed) {
 
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-// inferred: gimmicks of the field (lbl_8087F4A0, as in game/SpecialEnemyBase.cpp); names invented
-struct QuarkGimmickSize_unk {
-    unsigned char m00[0x48];
-    float m48; // inferred: radius
-};
-// inferred: message sent to a gimmick (0x30 bytes, kind then the sender at 0x28)
-struct QuarkGimmickMsg_unk {
-    int mKind;
-    unsigned char m04[0x28 - 0x04];
-    CharaTask* mSender;
-    unsigned char m2C[0x30 - 0x2C];
-};
-struct QuarkGimmick_unk {
-    virtual void vf08();
-    virtual void vf0C();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf18();
-    virtual void vf1C();
-    virtual void vf20();
-    virtual void vf24();
-    virtual void vf28();
-    virtual void vf2C();
-    virtual void vf30();
-    virtual void vf34();
-    virtual void vf38();
-    virtual void vf3C();
-    virtual void vf40();
-    virtual void vf44(QuarkGimmickMsg_unk* msg);
-    virtual void vf48();
-    virtual void vf4C();
-    virtual QuarkGimmickSize_unk* vf50();
-    virtual atn::Vector3 vf54();
-    unsigned char m04[0x48 - 0x04];
-    unsigned int m48; // inferred: kind (0xBB81, 0xBB84 here)
-    unsigned char m4C[0x54 - 0x4C];
-    int m54;
-    unsigned char m58[0x5C - 0x58];
-    QuarkGimmick_unk* mNext;
-    unsigned char m60[0x920 - 0x60];
-    float m920;
-};
-struct QuarkGimmickList_unk {
-    unsigned char m00[0x48];
-    QuarkGimmick_unk* mHead;
-};
-extern "C" QuarkGimmickList_unk* lbl_8087F4A0;
 
 void EnemyQuarkSecond::fn_80344454(int msg, int notify, float radius, float angle) {
-    for (QuarkGimmick_unk* g = lbl_8087F4A0->mHead; g != 0; g = g->mNext) {
-        int kind = g->m48;
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+        int kind = g->mId;
         if (kind == 0xBB84 || kind == 0xBB81) {
-            QuarkGimmickMsg_unk m;
+            GimmickHitMsg_unk m;
             Mtx rot;
             atn::Vector3 pos = g->vf54();
             atn::Vector3 dir;
@@ -1102,9 +1038,9 @@ void EnemyQuarkSecond::fn_80344454(int msg, int notify, float radius, float angl
             dir.z = dz;
             dir.y = 0.0f;
             float dist = fn_801C3910(dir);
-            QuarkGimmickSize_unk* size = g->vf50();
+            atn::ColliSphere* size = (atn::ColliSphere*)g->vf50();
             if (size != 0) {
-                dist -= size->m48;
+                dist -= size->mSphere.mRadius;
             }
             if (dist <= radius) {
                 PSVECNormalize(&dir, &dir);
@@ -1115,13 +1051,13 @@ void EnemyQuarkSecond::fn_80344454(int msg, int notify, float radius, float angl
                 float a = acos(PSVECDotProduct(&dir, &front));
                 if (a <= 0.5f * angle && notify != 0) {
                     memset(&m, 0, sizeof(m));
-                    m.mKind = msg;
+                    m.mType = msg;
                     m.mSender = this;
                     g->vf44(&m);
                 }
             }
             if (dist <= 2.0f * radius && g->m54 == 3) {
-                g->m920 = 0.0f;
+                *(float*)((char*)g + 0x920) = 0.0f; // inferred: field of the gimmicks 48001/48004 (class unknown)
             }
         }
     }
@@ -1339,7 +1275,7 @@ void EnemyQuarkSecond::fn_8034100C() {
 
 // inferred: plays `efp` on the model with the default color (inlined: its locals are laid out in
 // declaration order, as PlayEffectB_unk of game/Em301LShade.cpp); name invented
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model, float scale) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -1456,7 +1392,7 @@ void EnemyQuarkSecond::fn_8033D750() {
 
 // inferred: same as PlayEffect_unk with the locals declared pos, rot, color (as PlayEffect_unk of
 // game/Em301LShade.cpp); name invented
-inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model, float scale) {
+inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

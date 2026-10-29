@@ -1,4 +1,5 @@
 #include "game/EnemyJill.h"
+#include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "math/Vec.h"
 #include "gmk/Lemon.h"
@@ -51,8 +52,8 @@ EnemyJill::EnemyJill(atn::Task* parent, const EnemyInfo_unk* info)
     m15B4.mCount = 0;
     m15E4.mCount = 0;
     m1614.mCount = 0;
-    m17A4.fn_8023780C("ef_ev114.efp");
-    m17B0.fn_80237654("/effect/ef_ev107a_01.eff");
+    m17A4.LoadRequest("ef_ev114.efp");
+    m17B0.LoadRequest("/effect/ef_ev107a_01.eff");
 }
 
 // inferred: resets the step and remembers the state (inlined everywhere; names invented)
@@ -81,8 +82,8 @@ inline void EnemyJill::SetState_unk(int state) {
 // NONMATCHING: 98.26% - r4/r5 of the destination and of lbl_8087EFA8 in the copy of the color matrix (8 variants:
 // pointer/reference locals, member-wise operator=, helper)
 int EnemyJill::vf0C() {
-    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m17A4.fn_80237874() == 0 &&
-        m17B0.fn_802376D0() == 0) {
+    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m17A4.IsLoading() == 0 &&
+        m17B0.IsLoading() == 0) {
     m58C = 6;
     JillColMat_unk* mat = &m1660[0];
     *mat = lbl_8087EFA8->m324;
@@ -174,14 +175,14 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 
 // inferred: plays an effect on the model (name invented, as in game/Em002Skelton.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -244,24 +245,6 @@ extern "C" inline void fn_8032EC94(int* p) {
 }
 extern "C" inline JillEvent_unk* fn_8032ECA8(FixedArray_unk<JillEvent_unk, 8>* events, int i) {
     return &events->mData[i];
-}
-// inferred: keyboard of the debug build (lbl_8087EEF0, as in atn/MindowsCommon.cpp)
-struct JillKeyboard_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" JillKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(JillKeyboard_unk* kb, void* state, int key); // inferred: key pressed
-extern "C" inline JillKeyboard_unk* fn_802A49BC() {
-    return lbl_8087EEF0;
-}
-extern "C" inline int fn_802A4968(JillKeyboard_unk* kb, int pad, int key) {
-    int result = 0;
-    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
-        result = 1;
-    }
-    return result;
 }
 // inferred: player manager (as in gmk/Cannonball.cpp)
 struct PlayerMgr_unk {
@@ -378,7 +361,7 @@ void EnemyJill::vf10() {
     if (fn_8032FBF4()) {
         fn_8032FD30();
     }
-    if (m1658 != 0 && fn_802A4968(fn_802A49BC(), 0, 0x43)) {
+    if (m1658 != 0 && atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x43)) {
         fn_80332BE0();
     }
 }

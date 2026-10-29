@@ -29,7 +29,7 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
@@ -56,7 +56,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
@@ -99,12 +99,12 @@ Em202Spider::Em202Spider(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14B0.vf0C(path.c_str());
-    m1550.fn_8023780C("/effect/ef_uc019.efp");
-    m155C.fn_80237654("/effect/ef_sk002b.eff");
-    m1568.fn_8023780C("/effect/ef_uc001.efp");
-    m1574.fn_8023780C("/effect/ef_sk002d.efp");
-    m1580.fn_8023780C("/effect/ef_uc007.efp");
-    m158C.fn_8023780C("/effect/ef_sc003_01b.efp");
+    m1550.LoadRequest("/effect/ef_uc019.efp");
+    m155C.LoadRequest("/effect/ef_sk002b.eff");
+    m1568.LoadRequest("/effect/ef_uc001.efp");
+    m1574.LoadRequest("/effect/ef_sk002d.efp");
+    m1580.LoadRequest("/effect/ef_uc007.efp");
+    m158C.LoadRequest("/effect/ef_sc003_01b.efp");
 }
 
 Em202Spider::~Em202Spider() {}
@@ -134,9 +134,9 @@ inline RoutePlace_unk* FindRoutePlace3_unk(int id) {
 // NONMATCHING: 99.90% - size/capacity registers of the inlined push_back (known open case) and the name of
 // the pool of __allocate (lbl_80775A88, another unit)
 int Em202Spider::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1550.fn_80237874() == 0 &&
-        m155C.fn_802376D0() == 0 && m1568.fn_80237874() == 0 && m1574.fn_80237874() == 0 &&
-        m1580.fn_80237874() == 0 && m158C.fn_80237874() == 0 && m14B0.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1550.IsLoading() == 0 &&
+        m155C.IsLoading() == 0 && m1568.IsLoading() == 0 && m1574.IsLoading() == 0 &&
+        m1580.IsLoading() == 0 && m158C.IsLoading() == 0 && m14B0.fn_80473F50() == 0) {
         if (m14B0.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
             do {
@@ -230,7 +230,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 // inferred: effect `efp` on the model (names invented)
-inline void PlayModelEffect_unk(Em202Spider* self, int id, atn::EfpHandle_unk* efp) {
+inline void PlayModelEffect_unk(Em202Spider* self, int id, atn::EfpFile* efp) {
     fn_80232B7C(self, id);
     atn::Vector3 pos;
     atn::Vector3 rot;
@@ -927,7 +927,7 @@ void Em202Spider::fn_8027FA7C() {
     case 2: {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= 7.0f && frame <= 9.0f) {
-            Model_unk* model = &mMotion;
+            atn::Model* model = &mMotion;
             MtxPtr m = model->GetNodeMtx_unk("hips");
             atn::Vector3 pos = GetNodePos_unk(m);
             atn::Vector3 dir(0.0f, 0.0f, 1.0f);

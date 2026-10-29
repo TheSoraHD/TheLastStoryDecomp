@@ -126,7 +126,7 @@ int Em006DarkMaster::vf10C(HitMsg_unk* msg) {
         return 1;
     }
     if (msg->mData != 0 &&
-        (((unsigned int)msg->mData->m90 & 4) == 4 || (msg->mAttacker != 0 && msg->mAttacker->mStatus.fn_80133EE8(0x19) != 0))) {
+        (((unsigned int)msg->mData->m90.mFlags & 4) == 4 || (msg->mAttacker != 0 && msg->mAttacker->mStatus.fn_80133EE8(0x19) != 0))) {
         mStatus.fn_8012DF7C(0, 4, msg->mData);
     }
     msg->m10 = lbl_807C7030;

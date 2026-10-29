@@ -58,8 +58,8 @@ MapPartsOcean::~MapPartsOcean() {}
 
 int MapPartsOcean::vf0C() {
     if (mModel.fn_8008B140() == 0) {
-        mJoint[0] = mModel.fn_80092814("joint1", 0);
-        mJoint[1] = mModel.fn_80092814("joint2", 0);
+        mJoint[0] = mModel.GetNodeNoByName("joint1", 0);
+        mJoint[1] = mModel.GetNodeNoByName("joint2", 0);
         return 1;
     }
     return 0;

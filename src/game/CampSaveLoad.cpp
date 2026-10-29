@@ -405,7 +405,7 @@ void CampSaveLoad::fn_8011B8D4(const wchar_t* text, int length) {
     }
     mEntries.Resize_unk(count, 0);
     int i = 0;
-    csv.vf08(text, length);
+    csv.SetData(text, length);
     while (csv.fn_8005BBF8()) {
         if (wcscmp(csv.fn_8005B9CC(), L"") == 0) {
             int a = fn_800DC1DC(csv.fn_8005B9CC());

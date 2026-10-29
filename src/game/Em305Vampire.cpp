@@ -30,7 +30,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -59,11 +59,11 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
-extern "C" void fn_80088FAC(void* group, const char* name, Model_unk::Float4_unk* value, int arg3, int arg4,
+extern "C" void fn_80088FAC(void* group, const char* name, atn::Model::Float4_unk* value, int arg3, int arg4,
                             float min, float max, float step);
 
 // inferred: plays an effect on the model (same as in Em305VampireMp.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -139,11 +139,11 @@ Em305Vampire::Em305Vampire(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14D4.vf0C(path.c_str());
-    m1564.fn_8023780C("/effect/ef_uc031.efp");
-    m1570.fn_8023780C("/effect/ef_uc007.efp");
-    m157C.fn_8023780C("/effect/ef_sk021a.efp");
-    m1588.fn_8023780C("/effect/ef_sk025.efp");
-    m1594.fn_8023780C("/effect/ef_sc003_01c.efp");
+    m1564.LoadRequest("/effect/ef_uc031.efp");
+    m1570.LoadRequest("/effect/ef_uc007.efp");
+    m157C.LoadRequest("/effect/ef_sk021a.efp");
+    m1588.LoadRequest("/effect/ef_sk025.efp");
+    m1594.LoadRequest("/effect/ef_sc003_01c.efp");
     SpecialEnemyBase::mFlag30 = 1;
 }
 
@@ -155,9 +155,9 @@ Em305Vampire::~Em305Vampire() {
 // NONMATCHING: 93.89% - same as Em305VampireMp::vf0C: the inlined std::vector push_back of the two routes
 // (known open case) and registers
 int Em305Vampire::vf0C() {
-    if (m1564.fn_80237874() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.fn_80237874() == 0 &&
-        m157C.fn_80237874() == 0 && m1588.fn_80237874() == 0 &&
-        m1594.fn_80237874() == 0 && m14D4.fn_80473F50() == 0 &&
+    if (m1564.IsLoading() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.IsLoading() == 0 &&
+        m157C.IsLoading() == 0 && m1588.IsLoading() == 0 &&
+        m1594.IsLoading() == 0 && m14D4.fn_80473F50() == 0 &&
         fn_8013655C() == 0) {
         fn_802EC38C();
         if (m14D4.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
@@ -366,7 +366,7 @@ void Em305Vampire::vf14() {
         mMotion.m40 = m15C4;
         mMotion.fn_8009373C("op_02_cloud", 0);
     } else {
-        Model_unk::Float4_unk white;
+        atn::Model::Float4_unk white;
         white.m00 = 1.0f;
         white.m04 = 1.0f;
         white.m08 = 1.0f;
@@ -731,7 +731,7 @@ void Em305Vampire::fn_802EB1F4() {
         if (m14FC > m15AC) {
             m14FC = 0;
             m14F8 = 1;
-            for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+            for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                 if (m155C->m08 == g->mId && m155C->m0C == g->m4C) {
                     GimmickMsg_unk msg(4);
                     g->vf40(&msg);

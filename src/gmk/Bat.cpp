@@ -16,8 +16,8 @@ extern "C" double sqrt(double x);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: debug settings
 struct BatDebug_unk {
@@ -109,7 +109,7 @@ inline void SetRand_unk(float& v, float max) {
 inline void CopyStr_unk(char* dst, const char* src) {
     memcpy(dst, src, strlen(src) + 1);
 }
-inline void PlayMotion_unk(Model_unk* model, int motion) {
+inline void PlayMotion_unk(atn::Model* model, int motion) {
     model->fn_80097C08(0, motion, 1, 0, 1, 1.0f, 0.1f);
 }
 
@@ -160,7 +160,7 @@ inline void Bat::UpdateModel_unk(int i) {
     __MtxCopy(b.mModel.mMtx, mtx.m);
     b.mModel.m54 = MaxScale_unk(mtx);
     mBats.mData[i].mModel.fn_80097E80(1);
-    fn_8000D430(&mBats.mData[i].mModel, boost::function<void()>());
+    mBats.mData[i].mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
 }
 
 // inferred: per frame update of the model of a bat (name invented)

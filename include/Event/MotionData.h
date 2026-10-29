@@ -12,13 +12,17 @@
 #include "std/string.h"
 #include "Event/PoseKey_unk.h"
 
-struct Model_unk;
-struct ResLoader_unk;
+namespace atn {
+struct Model;
+}
+namespace atn {
+struct EffFile;
+}
 
 namespace atn {
 class LH_Xsca;
 class LH_Binary;
-class EfpHandle_unk;
+class EfpFile;
 class VideoTHP;
 } // namespace atn
 
@@ -74,7 +78,7 @@ public:
     int m18;
     int m1C;
     int m20;
-    Model_unk* m24;
+    atn::Model* m24;
 };
 
 class EffectData : public CommonData {
@@ -86,7 +90,7 @@ public:
     DataOwner_unk* m04;
     std::string m08;
     int m14;
-    void* m18; // inferred: atn::EfpHandle_unk (m1C == 1) or ResLoader_unk (m1C == 2)
+    void* m18; // inferred: atn::EfpFile (m1C == 1) or atn::EffFile (m1C == 2)
     int m1C;
 };
 
@@ -113,7 +117,7 @@ public:
     std::string m08;
     int m14;
     atn::LH_Binary* m18;
-    atn::Vector_unk<PoseKey_unk>* m1C;
+    atn::SimpleVector<PoseKey_unk>* m1C;
 };
 
 // inferred: task playing a movie (0x70 bytes)

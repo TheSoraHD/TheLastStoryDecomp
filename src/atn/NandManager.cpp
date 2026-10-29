@@ -2,6 +2,7 @@
 // pool). The manager runs one asynchronous NAND command per step: the SDK callbacks below store
 // the result (fn_800A500C) and the update (vf10) starts the next command.
 #include "atn/NandManager.h"
+#include "atn/MemoryManager.h"
 #include "atn/D2A_Message.h"
 #include "atn/D2A_Task.h"
 #include "atn/Memory.h"
@@ -57,13 +58,8 @@ int fn_8061EBE0(const char* path, unsigned char perm, unsigned char attr); // in
 int fn_8061E270(const char* path, unsigned char perm, unsigned char attr); // inferred: NANDCreate
 }
 
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800838B8(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
+extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line);
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg);
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
 
 // inferred: file name of a path in the temporary folder, and its final path
 extern "C" std::basic_string<char> fn_8006B174(const std::basic_string<char>& path);
@@ -334,13 +330,13 @@ void NandManager::vf10() {
         if (mError == 0) {
             switch (mOp) {
             case 0:
-                mData = fn_800838B8(fn_800827E0(), (mSize + 0x1F) & ~0x1F, 0x20, 1, "", "", 0);
+                mData = fn_800838B8(atn::MemoryManager::Instance(), (mSize + 0x1F) & ~0x1F, 0x20, 1, "", "", 0);
                 memset(mData, 0, (mSize + 0x1F) & ~0x1F);
                 mState = 0xE;
                 NANDSetUserData(&mBlock, this);
                 mError = fn_800A4494(NANDWriteAsync(&mFile, mData, mSize, WriteDone_unk, &mBlock));
                 if (mError != 0) {
-                    fn_80083AD4(fn_800827E0(), mData);
+                    atn::MemoryManager::Instance()->Free(mData);
                     SetError_unk(mError);
                     mState = 0x12;
                     NANDSetUserData(&mBlock, this);
@@ -490,7 +486,7 @@ void NandManager::vf10() {
         if (mError == 0) {
             switch (mOp) {
             case 0: {
-                fn_80083AD4(fn_800827E0(), mData);
+                atn::MemoryManager::Instance()->Free(mData);
                 mState = 0x12;
                 NANDSetUserData(&mBlock, this);
                 int err = fn_800A4494(NANDCloseAsync(&mFile, CloseDone_unk, &mBlock));
@@ -527,7 +523,7 @@ void NandManager::vf10() {
         } else {
             SetError_unk(mError);
             if (mOp == 0) {
-                fn_80083AD4(fn_800827E0(), mData);
+                atn::MemoryManager::Instance()->Free(mData);
             }
             mState = 0x14;
             NANDSetUserData(&mBlock, this);
@@ -1049,11 +1045,11 @@ extern "C" int fn_800A5218(const char* path, int offset, const void* data, int s
     }
     NANDSeek(&info, offset, 0);
     int alignedSize = (size + 0x1F) / 0x20 * 0x20;
-    void* buf = fn_800839EC(fn_800827E0(), alignedSize, 0x20, 0, "", "", 0, 0);
+    void* buf = atn::MemoryManager::Instance()->AllocFromMem2(alignedSize, 0x20, (MemoryTag)0, "", "", 0, 0);
     memset(buf, 0, alignedSize);
     memcpy(buf, data, size);
     NANDWrite(&info, buf, alignedSize);
-    fn_80083AD4(fn_800827E0(), buf);
+    atn::MemoryManager::Instance()->Free(buf);
     NANDClose(&info);
     return 1;
 }

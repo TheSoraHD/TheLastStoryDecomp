@@ -28,7 +28,7 @@ public:
     void fn_802F09D4(const atn::Vector3* target, float rate); // inferred: movement towards a rotation
     inline void RideMove_unk();
     void fn_802F0F60(); // inferred: walk motion
-    inline void CopyTrack_unk(Model_unk* dst, int i);
+    inline void CopyTrack_unk(atn::Model* dst, int i);
     void fn_802F1120(); // inferred: keeps the rider on the seat
     void fn_802F1240(CharaTask* rider); // inferred: drops the rider
     void fn_802F1320(int restart); // inferred: throws the rider off

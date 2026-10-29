@@ -26,10 +26,10 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 // inferred: camera (lbl_8087EFB4) and field (lbl_8087F430); classes unknown
 struct WaitCamera_unk {
     unsigned char m00[0x10C];
@@ -53,7 +53,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -108,8 +108,8 @@ namespace gmk {
 inline void WaitObject::PlayEfp_unk() {
     fn_80232B7C(this, m54);
     lbl_8087F3C0->mB8 = 1;
-    atn::EfpHandle_unk* efp = &mEfp[m54];
-    Model_unk* model = &mModel;
+    atn::EfpFile* efp = &mEfp[m54];
+    atn::Model* model = &mModel;
     atn::Vector3 pos(0.0f, 0.0f, 0.0f);
     atn::Vector3 rot(0.0f, 0.0f, 0.0f);
     Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -261,7 +261,7 @@ void WaitObject::vf20() {
             mColli->fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            mEfp[atoi(csv.fn_8005B9CC())].fn_8023780C(path);
+            mEfp[atoi(csv.fn_8005B9CC())].LoadRequest(path);
         } else if (strcmp(field, "STATE") == 0) {
             WaitState_unk state;
             int index = atoi(csv.fn_8005B9CC());
@@ -357,7 +357,7 @@ void WaitObject::vf20() {
 // NONMATCHING: 99.9% - stack slots of the two safe-bool temporaries swapped, and the names of the
 // safe-bool member pointers of boost::scoped_ptr
 // (lbl_8078DC40/lbl_8078DC4C in the original, local objects here; see vf1C)
-void WaitObject::vf28() {
+void WaitObject::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -382,7 +382,7 @@ int WaitObject::vf1C() {
         return 1;
     }
     for (int i = 0; i < 7; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -443,11 +443,11 @@ void WaitObject::vf4C(CharaTask* chara) {
 }
 
 // NONMATCHING: 97.50% - the original reloads the collision pointer for the return.
-int WaitObject::vf50() {
+atn::ColliBase* WaitObject::vf50() {
     for (unsigned int i = 0; i < mNumTriggers; i++) {
         WaitTrigger_unk& t = mTriggers[i];
         if (t.mState == m54 && t.mType == 5 && GetColli_unk(m54) != 0) {
-            return (int)GetColli_unk(m54);
+            return GetColli_unk(m54);
         }
     }
     return 0;
@@ -470,7 +470,7 @@ int WaitObject::vf5C() {
     return vf58() > 0.0f;
 }
 
-Model_unk* WaitObject::vf38() {
+atn::Model* WaitObject::vf38() {
     return &mModel;
 }
 
@@ -595,7 +595,7 @@ int WaitObject::vf44(GimmickHitMsg_unk* msg) {
         if (t->mState != m54 || t->mType != 5 || GetColli_unk(m54) == 0) {
             continue;
         }
-        WaitHitBullet_unk* hit = *(WaitHitBullet_unk**)&msg->m28[4];
+        WaitHitBullet_unk* hit = *(WaitHitBullet_unk**)&msg->m2C[0];
         if (hit == 0 || (float)hit->mPower < ((WaitArea_unk*)t->m08)->mRadius) {
             continue;
         }

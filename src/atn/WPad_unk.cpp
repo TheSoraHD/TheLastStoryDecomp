@@ -1,6 +1,7 @@
 // atn/WPad_unk.cpp: Wii Remote manager of the engine (lbl_8087F018; file name invented). Reads the
 // KPAD samples of the four remotes and turns them into per-button states for atn/Pad_unk.cpp.
 #include "atn/WPad_unk.h"
+#include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -23,10 +24,6 @@ extern "C" int fn_80661010(int chan, void* info);                             //
 extern "C" void WPADControlMotor(int chan, unsigned int command);
 
 // inferred: engine heap
-extern "C" void* fn_800827E0();
-extern "C" void* fn_800839EC(void* heap, unsigned int size, int align, int arg3, const char* file, const char* func,
-                             int line, int arg7);
-extern "C" void fn_80083AD4(void* heap, void* ptr);
 
 // inferred: render manager (include/atn/PostFx.h); m3C/m40 are the screen size
 struct ScreenSize_unk {
@@ -62,11 +59,11 @@ void fn_800DDA70() {
 
 // inferred: allocator of the WPAD library
 void* fn_800DDAC4(unsigned int size) {
-    return fn_800839EC(fn_800827E0(), size, 0x20, 1, "", "", 0, 0);
+    return atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)1, "", "", 0, 0);
 }
 
 int fn_800DDB14(void* ptr) {
-    fn_80083AD4(fn_800827E0(), ptr);
+    atn::MemoryManager::Instance()->Free(ptr);
     return 1;
 }
 

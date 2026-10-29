@@ -333,7 +333,7 @@ config.libs.append({
     "progress_category": "game",
     "objects": [
         Object(NonMatching, "Arms.cpp"),
-        Object(NonMatching, "auto_03_803B27AC_text.cpp"),
+        Object(NonMatching, "auto_03_803B27F8_text.cpp"),
         Object(NonMatching, "auto_fn_801F1EA0_text.cpp"),
         Object(NonMatching, "auto_fn_8030DA1C_text.cpp"),
     ],

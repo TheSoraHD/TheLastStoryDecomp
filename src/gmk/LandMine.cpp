@@ -8,7 +8,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -22,7 +22,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -66,7 +66,7 @@ int LandMine::vf1C() {
     if (mModel.fn_8008B140() != 0) {
         return 1;
     }
-    if (mEfp.fn_80237874() != 0 || mEfpWait.fn_80237874() != 0) {
+    if (mEfp.IsLoading() != 0 || mEfpWait.IsLoading() != 0) {
         return 1;
     }
     return 0;
@@ -81,9 +81,9 @@ void LandMine::vf20() {
             continue;
         }
         if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_WAIT") == 0) {
-            mEfpWait.fn_8023780C(csv.fn_8005B9CC());
+            mEfpWait.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "MODEL") == 0) {
             fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModel, &csv);
@@ -106,7 +106,7 @@ int LandMine::vf0C() {
 // (as if it went through a double). Tried: radius local, sphere local, Vector3 temporary, inline
 // setter, (float)(double) casts of z, a center copy, component helper, direct member stores, the
 // order/chaining of the m78 stores.
-void LandMine::vf28() {
+void LandMine::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     m78.x = 0.0f;
@@ -229,7 +229,7 @@ atn::Vector3 LandMine::vf54() {
     return mColli.mSphere.mCenter;
 }
 
-Model_unk* LandMine::vf38() {
+atn::Model* LandMine::vf38() {
     return &mModel;
 }
 

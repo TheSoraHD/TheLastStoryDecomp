@@ -32,7 +32,7 @@ struct RandomItemColor_unk {
     float r, g, b, a;
 };
 extern "C" RandomItemEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(RandomItemEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(RandomItemEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const RandomItemColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(RandomItemEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -107,7 +107,7 @@ int RandomItem::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-void RandomItem::vf28() {
+void RandomItem::Start() {
     m54 = 1;
     RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table == 0) {
@@ -179,13 +179,13 @@ void RandomItem::vf14() {
 }
 
 int RandomItem::vf1C() {
-    if (mEfp.fn_80237874() != 0 || mEfpItem.fn_80237874() != 0 || mEfpGet.fn_80237874() != 0) {
+    if (mEfp.IsLoading() != 0 || mEfpItem.IsLoading() != 0 || mEfpGet.IsLoading() != 0) {
         return 1;
     }
     return mAnime.fn_8044E1BC() != 0;
 }
 
-// NONMATCHING: 98.7% - register allocation of the inlined Vector_unk reserve/Assign_unk copies
+// NONMATCHING: 98.7% - register allocation of the inlined SimpleVector reserve/Assign_unk copies
 // (source and destination addresses of the copy loops are swapped, r17-r23 permuted); tried explicit
 // and implicit assignments of the elements and other orders of the "LOC" lookup
 void RandomItem::vf20() {
@@ -197,11 +197,11 @@ void RandomItem::vf20() {
             continue;
         }
         if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_ITEM") == 0) {
-            mEfpItem.fn_8023780C(csv.fn_8005B9CC());
+            mEfpItem.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_GET") == 0) {
-            mEfpGet.fn_8023780C(csv.fn_8005B9CC());
+            mEfpGet.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "DROP") == 0) {
             m120 = fn_800DC288(csv.fn_8005B9CC());
             m124 = atoi(csv.fn_8005B9CC());

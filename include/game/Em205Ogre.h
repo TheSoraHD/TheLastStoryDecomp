@@ -54,7 +54,7 @@ public:
     int m1510;             // inferred: set by vf10C when a hit is reduced (state 9)
     // inferred: "/data/eff/gm001_000a02.eff" (only in the map of area 2, 10, 2); the safe-bool member
     // pointer of the scoped_ptr is lbl_80786360 (get, 0x802B98A8)
-    boost::scoped_ptr<ResLoader_unk> m1514;
+    boost::scoped_ptr<atn::EffFile> m1514;
 };
 
 #endif

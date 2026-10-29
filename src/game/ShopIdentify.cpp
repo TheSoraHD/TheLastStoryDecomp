@@ -1,4 +1,5 @@
 #include "game/ShopIdentify.h"
+#include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "math/Vec.h"
@@ -87,23 +88,16 @@ struct ShopWeapon_unk {
     int mKind; // 0xB8
 };
 extern "C" ShopWeapon_unk* fn_80206C50(int id);
-// inferred: party data (lbl_8087F4F0)
-struct ShopParty_unk {
-    unsigned char m0000[0x6000];
-    int mMoney; // 0x6000
-};
-extern "C" ShopParty_unk* lbl_8087F4F0;
-extern "C" int fn_804444E8(ShopParty_unk* party, int id); // inferred: number of items
-extern "C" void fn_8044441C(ShopParty_unk* party, int id, int num); // inferred: removes items
-extern "C" int fn_80444564(ShopParty_unk* party, int id);
-extern "C" int fn_80444BE8(ShopParty_unk* party, ShopItem_unk* item);
-extern "C" int fn_80444C48(ShopParty_unk* party);
-extern "C" ShopUV_unk fn_80444C50(ShopParty_unk* party, int icon);
-extern "C" int fn_8044D560(ShopParty_unk* party);           // inferred: number of items to identify
-extern "C" int fn_8044D500(ShopParty_unk* party, int index); // inferred: item to identify
-extern "C" void fn_8044D56C(ShopParty_unk* party, int index);
-extern "C" void fn_8044D678(ShopParty_unk* party, int money);
-extern "C" void fn_8044D6AC(ShopParty_unk* party, int money);
+extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
+extern "C" void fn_8044441C(Inventory* party, int id, int num); // inferred: removes items
+extern "C" int fn_80444564(Inventory* party, int id);
+extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
+extern "C" int fn_80444C48(Inventory* party);
+extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
+extern "C" int fn_8044D560(Inventory* party);           // inferred: number of items to identify
+extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
+extern "C" void fn_8044D56C(Inventory* party, int index);
+extern "C" void fn_8044D6AC(Inventory* party, int money);
 // inferred: message table (lbl_8087F1E4)
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 struct ShopMsgPair_unk {
@@ -176,7 +170,7 @@ ShopIdentify::~ShopIdentify() {
 
 inline void ShopIdentify::ReadItems_unk() {
     mItems.clear();
-    ShopParty_unk* party = lbl_8087F4F0;
+    Inventory* party = Inventory::instance_;
     int num = fn_8044D560(party);
     for (int i = 0; i < num; i++) {
         ShopIdentifyEntry_unk entry;
@@ -350,7 +344,7 @@ void ShopIdentify::vf1C(int state) {
         m25B40 = 0;
         m25B24 = 1;
         if (mEntries5C[mDC].m48 != 0) {
-            m25B28 = fn_804444E8(lbl_8087F4F0, mEntries5C[mDC].m00);
+            m25B28 = fn_804444E8(Inventory::instance_, mEntries5C[mDC].m00);
         } else {
             m25B28 = 1;
         }
@@ -371,7 +365,7 @@ void ShopIdentify::vf20(int result) {
     if (result == 3) {
         fn_80117228(28);
         vf1C(8);
-        fn_8044D6AC(lbl_8087F4F0, entry->mPrice);
+        fn_8044D6AC(Inventory::instance_, entry->mPrice);
     } else if (result == 5) {
         fn_80584D78(this, &mEntries5C[mDC], m25B24);
         fn_80581FD8(this);
@@ -398,9 +392,9 @@ int ShopIdentify::fn_805892CC(int* cursor, int remove) {
     ShopIdentifyEntry_unk* entry = &mItems[*cursor];
     int money = fn_80584DD8(this, fn_80211480(entry->mItem), 1, 1.0f, 1.0f, 1.0f);
     if (remove) {
-        fn_8044441C(lbl_8087F4F0, entry->mItem, 1);
+        fn_8044441C(Inventory::instance_, entry->mItem, 1);
     }
-    fn_8044D678(lbl_8087F4F0, money);
+    Inventory::instance_->AddMoney(money);
     ShopIdentifyEntry_unk* pos = &mItems[*cursor];
     memmove(pos, pos + 1, (mItems.end() - pos - 1) * sizeof(ShopIdentifyEntry_unk));
     if (--mItems.mSize != 0) {
@@ -454,14 +448,14 @@ void ShopIdentify::fn_805895B4() {
     mScrollTop = mScroll.mTop;
     void* pad = lbl_8087EF70;
     if (fn_800A555C(pad, 0, 4)) {
-        ShopParty_unk* party = lbl_8087F4F0;
+        Inventory* party = Inventory::instance_;
         ShopIdentifyEntry_unk* entry = &mItems[mCursor];
         int error;
         if (entry->mDone != 0) {
             ShopItem_unk* item = fn_80211480(entry->mItem);
             if (item != 0 && fn_80211648(item) == 0) {
                 error = 3;
-            } else if (fn_804444E8(lbl_8087F4F0, entry->mItem) <= 0) {
+            } else if (fn_804444E8(Inventory::instance_, entry->mItem) <= 0) {
                 error = 16;
             } else {
                 error = 6;
@@ -494,7 +488,7 @@ void ShopIdentify::fn_805897D4() {
         void* pad = lbl_8087EF70;
         if (fn_800A555C(pad, 0, 4) || fn_800A555C(pad, 0, 5)) {
             mItems[mCursor].mDone = 1;
-            int num = fn_80444564(lbl_8087F4F0, mItems[mCursor].mItem);
+            int num = fn_80444564(Inventory::instance_, mItems[mCursor].mItem);
             ShopIdentifyEntry_unk* items = mItems.mData;
             int cursor = mCursor;
             for (unsigned int i = 0; i < mItems.size(); i++) {
@@ -502,7 +496,7 @@ void ShopIdentify::fn_805897D4() {
                     mItems[i].mIndex--;
                 }
             }
-            fn_8044D56C(lbl_8087F4F0, items[cursor].mIndex);
+            fn_8044D56C(Inventory::instance_, items[cursor].mIndex);
             fn_80117228(1);
             if (num >= 10) {
                 fn_8058181C(this, 1, 17, 0);
@@ -561,8 +555,8 @@ void ShopIdentify::fn_80589AF4() {
                 fn_801F6C80(mList[i], "nonePrice", 1.0f);
                 fn_801F837C(mList[i], "price", lbl_8087E690);
                 fn_801F837C(mList[i], "num", lbl_8087E690 + 1);
-                icon = fn_80444BE8(lbl_8087F4F0, item);
-                if (fn_80211648(item) == 0 || fn_804444E8(lbl_8087F4F0, entry->mItem) <= 0) {
+                icon = fn_80444BE8(Inventory::instance_, item);
+                if (fn_80211648(item) == 0 || fn_804444E8(Inventory::instance_, entry->mItem) <= 0) {
                     fn_801F7DF0(mList[i], "itemCol", 128.0f, 128.0f, 128.0f);
                 }
             } else {
@@ -576,9 +570,9 @@ void ShopIdentify::fn_80589AF4() {
                 fn_801F6C80(mList[i], "nonePrice", 0.0f);
                 fn_801F8598(mList[i], "price", entry->mPrice, 0);
                 fn_801F837C(mList[i], "num", lbl_8087E690 + 1);
-                icon = fn_80444C48(lbl_8087F4F0);
+                icon = fn_80444C48(Inventory::instance_);
             }
-            ShopUV_unk uv = fn_80444C50(lbl_8087F4F0, icon);
+            ShopUV_unk uv = fn_80444C50(Inventory::instance_, icon);
             fn_801F7590(mList[i], "iconUv", uv);
             mList[i]->mFlags &= ~4;
         }
@@ -589,7 +583,7 @@ void ShopIdentify::fn_80589AF4() {
 // the original; one register of the help branch differs
 void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
     mContent->mFlags &= ~4;
-    ((atn::D2A_Task*)mContent)->SetNumber_unk("myMoney", lbl_8087F4F0->mMoney, 0);
+    ((atn::D2A_Task*)mContent)->SetNumber_unk("myMoney", Inventory::instance_->mMoney, 0);
     ShopItem_unk* item = fn_80211480(entry->mItem);
     if (entry->mDone == 0 || (item != 0 && fn_80211648(item) == 0)) {
         SetPaneFloat_unk(mContent->mLayout, "showSell", 0.0f);
@@ -636,7 +630,7 @@ void ShopIdentify::fn_8058A0F0(ShopIdentifyEntry_unk* entry) {
     }
     SetPaneText_unk(mResult->mLayout, "before", fn_801170C8(0, 0x2760, name.data()));
     SetPaneText_unk(mResult->mLayout, "after", item->mName);
-    ShopUV_unk uv = fn_80444C50(lbl_8087F4F0, fn_80444BE8(lbl_8087F4F0, item));
+    ShopUV_unk uv = fn_80444C50(Inventory::instance_, fn_80444BE8(Inventory::instance_, item));
     SetUV_unk((atn::D2A_Task*)mResult, "iconUv01", uv);
     float width;
     {

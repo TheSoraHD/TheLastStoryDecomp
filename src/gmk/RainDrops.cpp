@@ -14,7 +14,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int id, int arg3, const atn::Vector3& pos,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -44,7 +44,7 @@ int RainDrops::vf0C() {
     return 0;
 }
 
-void RainDrops::vf28() {
+void RainDrops::Start() {
     int type = m58;
     if (type > 0) {
         GimmickMsg_unk msg(type);
@@ -58,7 +58,7 @@ void RainDrops::vf10() {
         if (mEfp[m54].mResource != 0) {
             lbl_8087F3C0->mB8 = 1;
             fn_80232B7C(this, m54);
-            atn::EfpHandle_unk* efp = &mEfp[m54];
+            atn::EfpFile* efp = &mEfp[m54];
             float scale = m90.x;
             fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, m6C, m78, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
             lbl_8087F3C0->mB8 = 0;
@@ -77,7 +77,7 @@ void RainDrops::vf14() {}
 
 int RainDrops::vf1C() {
     for (int i = 0; i < 9; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -97,7 +97,7 @@ void RainDrops::vf20() {
             if (++n >= 9) {
                 n = 8;
             }
-            mEfp[n].fn_8023780C(csv.fn_8005B9CC());
+            mEfp[n].LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "RAINDROPS") == 0) {
             mRain[n] = MapPartsRain::fn_8049CDBC(this, (void*)8, &csv);
             mRain[n]->fn_800D246C(1);

@@ -17,7 +17,7 @@ namespace gmk {
 // with the suffixes "_MOTION" and "_EFF"); 0x30 bytes, names invented
 struct DoorParam_unk {
     int mMotions[3];
-    atn::EfpHandle_unk mEfp[3];
+    atn::EfpFile mEfp[3];
 };
 
 // inferred: fixed string of 0x20 chars (as in gmk::MotionObject; names invented)
@@ -45,8 +45,8 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void vf24();
-    virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual void Start();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf64(int arg);
     virtual void vf70(int state);
@@ -54,7 +54,7 @@ public:
     void fn_803F6448(int from, int to, int loop, float speed, float frame); // inferred: plays a motion
     virtual void vf3C(void* lens); // 0x803F69C8
 
-    Model_unk mModel;             // 0xF4: "MODEL"
+    atn::Model mModel;             // 0xF4: "MODEL"
     atn::ColliObject mColliClose; // 0x4C4: "COLLISION_BEFORE"
     atn::ColliObject mColliOpen;  // 0x54C: "COLLISION_AFTER"
     float mCloseFrame;            // 0x5D4

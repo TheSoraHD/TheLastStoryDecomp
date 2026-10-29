@@ -80,7 +80,7 @@ public:
     MtxPtr mNodeMtx[3];         // 0x308
     SwingCore_unk mCore;        // 0x314
     bool mHidden;               // 0x394
-    atn::EfpHandle_unk mEfp;    // 0x398: "EFP"
+    atn::EfpFile mEfp;    // 0x398: "EFP"
     int m3A4; // inferred: unused (the object is 0x3A8 bytes)
 };
 

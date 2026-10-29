@@ -62,7 +62,7 @@ int WindyItem::vf0C() {
 
 // NONMATCHING: 98.94% - registers of the hoisted constants 0.0f/1.0f/0.5f (rotated by one). The
 // half size through Set_unk and the matrix through a reference fixed the rest.
-void WindyItem::vf28() {
+void WindyItem::Start() {
     m54 = 1;
     ResetWait_unk();
     int half = mWaitBase / 2;
@@ -76,7 +76,7 @@ void WindyItem::vf28() {
 // drawing).
 
 int WindyItem::vf1C() {
-    if (mEfp.fn_80237874() != 0 || mEff.fn_802376D0() != 0) {
+    if (mEfp.IsLoading() != 0 || mEff.IsLoading() != 0) {
         return 1;
     }
     WindySlot_unk* slot = mSlots;
@@ -118,9 +118,9 @@ void WindyItem::vf20() {
             mGustLength = atoi(csv.fn_8005B9CC());
             mEE8 = atoi(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFF") == 0) {
-            mEff.fn_80237654(csv.fn_8005B9CC());
+            mEff.LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }
@@ -154,13 +154,13 @@ struct WindyColor_unk {
     float r, g, b, a;
 };
 extern "C" WindyEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const WindyColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" int fn_80239D58(WindyEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Model_unk* model,
+extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
@@ -210,7 +210,7 @@ void gmk::WindyItem::fn_804392C0() {
                     1.0f);
     }
     for (int i = 1; i <= 16; i++) {
-        WindyTarget_unk* g = lbl_8087F4A0 != 0 ? (WindyTarget_unk*)lbl_8087F4A0->fn_803EEE10(11001, i) : 0;
+        WindyTarget_unk* g = GimmickManager::instance_ != 0 ? (WindyTarget_unk*)GimmickManager::instance_->fn_803EEE10(11001, i) : 0;
         if (g != 0) {
             int len = (int)(0.8f * (float)mED8);
             g->m124 = 7.0f;
@@ -288,7 +288,7 @@ void gmk::WindyItem::fn_8043A08C(WindySlot_unk* slot) {
             slot->mPath.m58 = 0;
             if (lbl_8087F3C0 != 0) {
                 fn_80232B7C(slot, 0);
-                fn_8023A680(lbl_8087F3C0, &mEff, -1, 5, (Model_unk*)&slot->mMtx, 0, 0, 0, 0, -1, 1, 1.0f);
+                fn_8023A680(lbl_8087F3C0, &mEff, -1, 5, (atn::Model*)&slot->mMtx, 0, 0, 0, 0, -1, 1, 1.0f);
             }
         }
         break;

@@ -5,7 +5,9 @@
 #include "game/CharaTask.h"
 #include <boost/function.hpp>
 
-struct Model_unk;
+namespace atn {
+struct Model;
+}
 
 namespace chr {
 

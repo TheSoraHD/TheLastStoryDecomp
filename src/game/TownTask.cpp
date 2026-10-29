@@ -1,3 +1,4 @@
+#include "std/tree.h"
 #include "game/TownTask.h"
 #include "atn/Memory.h"
 #include "atn/Csv.h"
@@ -43,7 +44,6 @@ extern "C" void fn_8049B780(MapObject_unk* obj, void* arg);
 
 TownTask* lbl_8087FA20;
 
-extern "C" void fn_8003E120(TownNode_unk* node, TownNode_unk* root); // inferred: rebalances after an insert
 // inferred: allocates a tree node
 inline TownNode_unk* TownAllocNode_unk() {
     TownNode_unk* node = (TownNode_unk*)::operator new(sizeof(TownNode_unk));
@@ -841,7 +841,7 @@ extern "C" TownNode_unk* fn_805B9838(TownTree_unk* tree, TownNode_unk* parent, b
         parent->mRight = node;
     }
     tree->mSize++;
-    fn_8003E120(node, tree->mRoot);
+    std::__red_black_tree_void::balance_insert((std::__tree_node_base_void*)node, (std::__tree_node_base_void*)tree->mRoot);
     if (first) {
         tree->mBegin = node;
     }

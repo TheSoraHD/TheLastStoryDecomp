@@ -148,8 +148,8 @@ struct ShaderTex_unk {
     ShaderTex_unk(void* model, atn::ShaderDesc_unk* desc);
     ~ShaderTex_unk();
 
-    atn::Buffer_unk<ShaderTexEntry_unk> mTextures; // inferred: sorted by id
-    atn::Buffer_unk<int> mOrder;                   // inferred: index of each texture in mTextures
+    atn::SimpleArray<ShaderTexEntry_unk> mTextures; // inferred: sorted by id
+    atn::SimpleArray<int> mOrder;                   // inferred: index of each texture in mTextures
     atn::ShaderDesc_unk* mDesc;
 };
 

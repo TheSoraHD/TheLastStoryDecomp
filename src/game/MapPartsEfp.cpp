@@ -17,7 +17,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int id, int arg3, const atn::Vector3& pos,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9);
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg);
@@ -31,7 +31,7 @@ MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, void* arg, atn::CsvTab*
 
 MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv)
     : MapPartsBase(parent, arg), m5C(0), mMode(0), mRate(0), mDone(0) {
-    mEfp.fn_8023780C(csv->fn_8005B9CC());
+    mEfp.LoadRequest(csv->fn_8005B9CC());
     const char* mode = csv->fn_8005B9CC();
     if (strcmp(mode, "ONCE") == 0) {
         mMode = 0;
@@ -44,7 +44,7 @@ MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv)
 }
 
 int MapPartsEfp::vf0C() {
-    return mEfp.fn_80237874() == 0;
+    return mEfp.IsLoading() == 0;
 }
 
 // NONMATCHING: 98.6% - stores and stack layout match, but the 0.0f/1.0f constants land in

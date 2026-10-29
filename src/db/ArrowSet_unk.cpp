@@ -16,7 +16,7 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 // follow it (constructor fn_802077F8 and destructor fn_80207808 are the implicit ones)
 struct ArrowSetEntry_unk {
     int mId;
-    atn::Buffer_unk<int> mValues;
+    atn::SimpleArray<int> mValues;
 };
 
 // inferred: the destructor of the local list tests `this` three times (one level more than a
@@ -45,7 +45,7 @@ extern "C" void fn_80207310() {
             sCount++;
         }
         sEntries = new (3, "", "", 0) ArrowSetEntry_unk[sCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();

@@ -35,7 +35,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -94,10 +94,10 @@ EnemyTasha::EnemyTasha(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_enemy_tasha.csv\0");
     }
     m14B4.vf0C(path);
-    m1634.fn_8023780C("/effect/ef_bs007a.efp");
-    m1640.fn_8023780C("/effect/ef_sp007d.efp");
-    m164C.fn_8023780C("/effect/ef_cm006.efp");
-    m1658.fn_8023780C("/effect/ef_ev027.efp");
+    m1634.LoadRequest("/effect/ef_bs007a.efp");
+    m1640.LoadRequest("/effect/ef_sp007d.efp");
+    m164C.LoadRequest("/effect/ef_cm006.efp");
+    m1658.LoadRequest("/effect/ef_ev027.efp");
 }
 
 int EnemyTasha::vf0C() {
@@ -110,7 +110,7 @@ int EnemyTasha::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1640.fn_80237874() || m1634.fn_80237874() || m164C.fn_80237874() || m1658.fn_80237874()) {
+    if (m1640.IsLoading() || m1634.IsLoading() || m164C.IsLoading() || m1658.IsLoading()) {
         return 0;
     }
     mStatus.m18 |= 0x100;
@@ -378,7 +378,7 @@ int EnemyTasha::vf10C(HitMsg_unk* msg) {
     }
     switch (m14E0) {
     case 1:
-        if ((msg->mData->m90 & 0x80000) == 0x80000) {
+        if ((msg->mData->m90.mFlags & 0x80000) == 0x80000) {
             m14E0 = 3;
             m14E8 = 300.0f;
             fn_8059C2A8(lbl_8087F9E8, this, m1578[1]);
@@ -397,7 +397,7 @@ int EnemyTasha::vf10C(HitMsg_unk* msg) {
         if (data != 0 && data->m04 - 0x1F7U <= 2) {
             return 0;
         }
-        unsigned int f = data->m90;
+        unsigned int f = data->m90.mFlags;
         if ((f & 8) == 8 || (f & 0x200) == 0x200 || (f & 0x800000) == 0x800000) {
             m14E0 = 3;
             m14E8 = 300.0f;
@@ -604,9 +604,8 @@ struct TashaStep_unk {
     int m14;
 };
 
-// inferred: sets the frame of motion track `track` (weak copy of a Model_unk inline, also called by
+// inferred: sets the frame of motion track `track` (weak copy of a atn::Model inline, also called by
 // game/GameTask and game/TutorialTask; defined after vf100 to keep its position)
-extern "C" void fn_80357F38(Model_unk* model, int track, float frame);
 
 void EnemyTasha::fn_8035ACB8(int motion, int arg, float speed) {
     mMotion.mTracks[0].m0C = speed;
@@ -857,7 +856,7 @@ inline void TashaRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 }
 
 // inferred: plays an effect on the model (as PlayEffect_unk of game/EnemyTrista.cpp)
-inline void TashaPlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void TashaPlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -904,7 +903,7 @@ void EnemyTasha::fn_8035ACF0(int state) {
     }
 }
 
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: fires an attack (number of hits, as in game/Em201ZanGurg.cpp)
 
@@ -1329,7 +1328,7 @@ void EnemyTasha::vf100(int state) {
         fn_8013C460(0);
         fn_8035738C(1.0f, 0.0f);
         fn_8035ACB8(0x14A, 0, 1.0f);
-        fn_80357F38(&mMotion, 0, 10.0f);
+        mMotion.SetMotionFrame(0, 10.0f);
         break;
     case 2:
         vf44();
@@ -1337,8 +1336,8 @@ void EnemyTasha::vf100(int state) {
     }
 }
 
-extern "C" void fn_80357F38(Model_unk* model, int track, float frame) {
-    model->mTracks[track].m08 = frame;
+void atn::Model::SetMotionFrame(int track, float frame) {
+    mTracks[track].m08 = frame;
 }
 
 int EnemyTasha::vf68(CharaTask* attacker) {

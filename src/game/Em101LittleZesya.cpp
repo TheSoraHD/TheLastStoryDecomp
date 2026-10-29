@@ -82,13 +82,13 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 
 // inferred: plays an effect on the model (locals in the order of game/Em003LesserDaemon.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -105,7 +105,7 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 // inferred: same with the locals in the order of game/Em305Vampire.cpp (name invented)
-inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -152,17 +152,17 @@ Em101LittleZesya::Em101LittleZesya(atn::Task* parent, EnemyInfo_unk* info)
     fn_80087994(group, "DebugDisp", &m15CC, 0, 0);
     fn_800874C8(group, "WaitFrame", &m15C0, 0, 1000000, 1, 0, 0);
     fn_8008771C(group, "AttackChanceFrame", &m15C4, 0, 0, 0.0f, 100000.0f, 1.0f);
-    m156C.fn_8023780C("/effect/ef_bs007a.efp");
-    m1578.fn_8023780C("cm002_00.efp");
-    m1584.fn_8023780C("/effect/ef_sc019a.efp");
+    m156C.LoadRequest("/effect/ef_bs007a.efp");
+    m1578.LoadRequest("cm002_00.efp");
+    m1584.LoadRequest("/effect/ef_sc019a.efp");
     mFlagB5 = 1;
 }
 
 Em101LittleZesya::~Em101LittleZesya() {}
 
 int Em101LittleZesya::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m156C.fn_80237874() == 0 &&
-        m1578.fn_80237874() == 0 && m1584.fn_80237874() == 0 && m14B0.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m156C.IsLoading() == 0 &&
+        m1578.IsLoading() == 0 && m1584.IsLoading() == 0 && m14B0.fn_80473F50() == 0) {
         mStatus.m18 |= 0x1C0;
         m58C = 0;
         mStatus.m18 |= 0x10000;
@@ -685,7 +685,7 @@ void Em101LittleZesya::fn_8025E9E4() {
 void Em101LittleZesya::fn_8025EAE4() {
     if (m1524 != 0) {
         int i = 0;
-        Model_unk* model = GetModel_unk();
+        atn::Model* model = GetModel_unk();
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
             atn::Vector3 pos = GetTrans_unk(model->GetNodeMtx_unk("spine"));
             atn::Vector3 ofs(0.0f, 0.0f, 30.0f);

@@ -29,14 +29,14 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual void Start();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
-    Model_unk mModel;       // 0xF4
+    atn::Model mModel;       // 0xF4
     atn::ColliBox mColli;   // 0x4C4
     float mBox[9];          // 0x83C: inferred: read from "COLLI_BOX" (9 values)
     int m860;

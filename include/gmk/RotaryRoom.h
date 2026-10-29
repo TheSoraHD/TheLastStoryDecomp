@@ -45,7 +45,7 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
@@ -60,7 +60,7 @@ public:
     atn::Vector3 mRotOffset;  // 0x104
     int mFrames;              // 0x110: "rotOffsetFrame_"
     int mFrame;               // 0x114
-    atn::Buffer_unk<RotaryEntry_unk> mEntries; // 0x118
+    atn::SimpleArray<RotaryEntry_unk> mEntries; // 0x118
     RotaryColli_unk mColli[25]; // 0x120
 };
 

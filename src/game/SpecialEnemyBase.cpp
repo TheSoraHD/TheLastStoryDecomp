@@ -1,5 +1,8 @@
 #include "game/SpecialEnemyBase.h"
 #include "atn/Csv.h"
+#include "atn/ColliBase.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
 #include "game/CharaManager.h"
 #include "game/EnemyManager.h"
 #include "math/Vec.h"
@@ -109,43 +112,6 @@ extern "C" void fn_803E6ADC(MpArena_unk* arena, const atn::Vector3* a, const atn
 extern "C" void fn_803E3050(MpArena_unk* arena, const atn::Vector3* pos, const void* rect, const void* size,
                             float dist, float arg);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, float volume, int arg2, int arg3);
-// inferred: gimmicks (lbl_8087F4A0): list of objects with a kind (m50), a position (vf54), a size
-// (vf50) and a message handler (vf44); names invented
-struct GimmickObj_unk {
-    virtual void vf08();
-    virtual void vf0C();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf18();
-    virtual void vf1C();
-    virtual void vf20();
-    virtual void vf24();
-    virtual void vf28();
-    virtual void vf2C();
-    virtual void vf30();
-    virtual void vf34();
-    virtual void vf38();
-    virtual void vf3C();
-    virtual void vf40();
-    virtual void vf44(void* msg);
-    virtual void vf48();
-    virtual void vf4C();
-    virtual struct GimmickSize_unk* vf50();
-    virtual atn::Vector3 vf54();
-    unsigned char m04[0x50 - 0x04];
-    int m50;
-    unsigned char m54[0x5C - 0x54];
-    GimmickObj_unk* mNext;
-};
-struct GimmickSize_unk {
-    unsigned char m00[0x48];
-    float m48;
-};
-struct GimmickList_unk {
-    unsigned char m00[0x48];
-    GimmickObj_unk* mHead;
-};
-extern "C" GimmickList_unk* lbl_8087F4A0;
 
 // inferred: reference to a flag of the data files ("G" = global flag, else event flag); names invented
 struct SpecialFlag_unk {
@@ -469,14 +435,14 @@ void SpecialEnemyBase::vf118(HitInfo_unk* hit) {
 // NONMATCHING: 98.1% - load order of the position and of the z-first copy of `dir`
 // inferred: sends `id` to the gimmicks of kind 1 in a cone (radius, angle in degrees x2)
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle) {
-    for (GimmickObj_unk* g = lbl_8087F4A0->mHead; g != 0; g = g->mNext) {
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         if (g->m50 == 1) {
             atn::Vector3 p = g->vf54();
             atn::Vector3 d(p.x - pos->x, 0.0f, p.z - pos->z);
             float dist = d.Length_unk();
-            GimmickSize_unk* size = g->vf50();
+            atn::ColliSphere* size = (atn::ColliSphere*)g->vf50();
             if (size != 0) {
-                dist -= size->m48;
+                dist -= size->mSphere.mRadius;
             }
             if (dist <= radius) {
                 PSVECNormalize(&d, &d);
@@ -484,10 +450,10 @@ extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, in
                 v.Assign_unk(*dir);
                 v.y = 0.0f;
                 if ((float)acos(PSVECDotProduct(&d, &v)) <= 0.5f * angle) {
-                    int msg[12];
-                    memset(msg, 0, sizeof(msg));
-                    msg[0] = id;
-                    g->vf44(msg);
+                    GimmickHitMsg_unk msg;
+                    memset(&msg, 0, sizeof(msg));
+                    msg.mType = id;
+                    g->vf44(&msg);
                 }
             }
         }

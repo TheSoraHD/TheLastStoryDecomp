@@ -27,7 +27,7 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void vf24();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual void vf4C(CharaTask* chara);
@@ -36,7 +36,7 @@ public:
     virtual void vf70(int state);
 
     EffectModel_unk mModel;     // 0xF4: "MODEL"
-    atn::EfpHandle_unk mEfp[3]; // 0x308: "EFP" (one per state)
+    atn::EfpFile mEfp[3]; // 0x308: "EFP" (one per state)
     int mShown;                 // 0x32C
     float mRadius;              // 0x330: inferred: range of state 2
     float mAlpha;               // 0x334: inferred: decreases while the player is out of range

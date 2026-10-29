@@ -1,8 +1,8 @@
 #include "atn/Csv.h"
+#include "atn/FileList.h"
 #include "atn/Memory.h"
 
 extern "C" void* fn_8006BA8C(const char* path, unsigned int* size, int flag); // inferred: loads a file
-extern "C" void fn_8006BB6C(void* data, int flag);                           // inferred: frees it
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);         // inferred: wide sprintf
 extern "C" unsigned long wcslen(const wchar_t* s);
 
@@ -69,8 +69,8 @@ TextTable_unk::TextTable_unk() {
     } while (csv1.fn_8005BBF8());
 
     lbl_8087F1E0 = new (1, "", "", 0) wchar_t[total];
-    csv0.vf08((const wchar_t*)data0, size0 / 2);
-    csv1.vf08((const wchar_t*)data1, size1 / 2);
+    csv0.SetData((const wchar_t*)data0, size0 / 2);
+    csv1.SetData((const wchar_t*)data1, size1 / 2);
 
     const wchar_t* text;
     int i = 0;
@@ -97,6 +97,6 @@ TextTable_unk::TextTable_unk() {
         }
     } while (csv1.fn_8005BBF8());
 
-    fn_8006BB6C(data0, 0);
-    fn_8006BB6C(data1, 0);
+    atn::FileFreeBuffer((char*)data0, false);
+    atn::FileFreeBuffer((char*)data1, false);
 }

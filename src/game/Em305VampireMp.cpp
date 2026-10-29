@@ -38,7 +38,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -89,7 +89,7 @@ inline bool HasTarget_unk(CharaTask* chara) {
     }
     return result;
 }
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -128,10 +128,10 @@ Em305VampireMp::Em305VampireMp(atn::Task* parent, EnemyInfo_unk* info) : Em305Va
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14D4.vf0C(path.c_str());
-    m1564.fn_8023780C("/effect/ef_uc031.efp");
-    m1570.fn_8023780C("/effect/ef_uc007.efp");
-    m157C.fn_8023780C("/effect/ef_sk021a.efp");
-    m1588.fn_8023780C("/effect/ef_sk025.efp");
+    m1564.LoadRequest("/effect/ef_uc031.efp");
+    m1570.LoadRequest("/effect/ef_uc007.efp");
+    m157C.LoadRequest("/effect/ef_sk021a.efp");
+    m1588.LoadRequest("/effect/ef_sk025.efp");
 }
 
 Em305VampireMp::~Em305VampireMp() {}
@@ -139,8 +139,8 @@ Em305VampireMp::~Em305VampireMp() {}
 // NONMATCHING: 94.0% - the inlined std::vector push_back of the two routes (known open case: the
 // original fast path of the 16-byte elements has no placement-new null check) and registers
 int Em305VampireMp::vf0C() {
-    if (m1564.fn_80237874() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.fn_80237874() == 0 &&
-        m157C.fn_80237874() == 0 && m1588.fn_80237874() == 0 && m14D4.fn_80473F50() == 0 &&
+    if (m1564.IsLoading() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.IsLoading() == 0 &&
+        m157C.IsLoading() == 0 && m1588.IsLoading() == 0 && m14D4.fn_80473F50() == 0 &&
         fn_8013655C() == 0) {
         fn_802EC38C();
         if (m14D4.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
@@ -371,7 +371,7 @@ void Em305VampireMp::vf14() {
         mMotion.fn_8009373C("op_02_cloud", 0);
     } else {
         ColorF_unk red;
-        Model_unk::Float4_unk white;
+        atn::Model::Float4_unk white;
         white.m00 = 1.0f;
         white.m04 = 1.0f;
         white.m08 = 1.0f;

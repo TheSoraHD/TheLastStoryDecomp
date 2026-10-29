@@ -353,12 +353,12 @@ public:
     int m114C;
     int m1150;
     int m1154;
-    ResLoader_unk m1158;                       // 0x1158
-    ResLoader_unk m1164;                       // 0x1164
+    atn::EffFile m1158;                       // 0x1158
+    atn::EffFile m1164;                       // 0x1164
     int m1170;
     GameUIElem7C_unk m1174[8];                 // 0x1174
-    ResLoader_unk m1554[4];                    // 0x1554
-    ResLoader_unk m1584[4];                    // 0x1584
+    atn::EffFile m1554[4];                    // 0x1554
+    atn::EffFile m1584[4];                    // 0x1584
     int m15B4;
     int m15B8;
     GameUIElem7C_unk m15BC[32];                // 0x15BC

@@ -202,14 +202,14 @@ extern "C" inline EffectMgr_unk* fn_800F7FA0() {
 extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
-extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg);
+extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
@@ -299,27 +299,27 @@ Em203GreaterDaemon::Em203GreaterDaemon(atn::Task* parent, EnemyInfo_unk* info)
     m151C.x = 0.0f;
     m151C.y = 0.0f;
     m151C.z = 0.0f;
-    m1944.m00.fn_80237654("/effect/hateline/hate_line_06a.eff");
-    m1944.m0C.fn_80237654("/effect/hateline/ef_ui003_01.eff");
-    m192C.m00.fn_80237654("/effect/hateline/hate_line_06a.eff");
-    m192C.m0C.fn_80237654("/effect/hateline/hate_line_06b.eff");
-    m195C.m00.fn_80237654("/effect/hateline/hate_line_03a.eff");
-    m195C.m0C.fn_80237654("/effect/hateline/hate_line_03b.eff");
-    m15B8.fn_8023780C("/effect/hateline/ef_bs014a.efp");
-    m155C.fn_8023780C("/effect/hateline/ef_bs012a.efp");
-    m1568.fn_80237654("/effect/hateline/ef_bs012b_01.eff");
-    m1574.fn_8023780C("ef_ev093.efp");
-    m15D8.fn_8023780C("/effect/ef_mb005c.efp");
-    m1634.fn_8023780C("/effect/ef_bs034c.efp");
+    m1944.m00.LoadRequest("/effect/hateline/hate_line_06a.eff");
+    m1944.m0C.LoadRequest("/effect/hateline/ef_ui003_01.eff");
+    m192C.m00.LoadRequest("/effect/hateline/hate_line_06a.eff");
+    m192C.m0C.LoadRequest("/effect/hateline/hate_line_06b.eff");
+    m195C.m00.LoadRequest("/effect/hateline/hate_line_03a.eff");
+    m195C.m0C.LoadRequest("/effect/hateline/hate_line_03b.eff");
+    m15B8.LoadRequest("/effect/hateline/ef_bs014a.efp");
+    m155C.LoadRequest("/effect/hateline/ef_bs012a.efp");
+    m1568.LoadRequest("/effect/hateline/ef_bs012b_01.eff");
+    m1574.LoadRequest("ef_ev093.efp");
+    m15D8.LoadRequest("/effect/ef_mb005c.efp");
+    m1634.LoadRequest("/effect/ef_bs034c.efp");
 }
 
 Em203GreaterDaemon::~Em203GreaterDaemon() {}
 
 int Em203GreaterDaemon::vf0C() {
-    if (fn_8013655C() == 0 && m1984.fn_80473F50() == 0 && m15B8.fn_80237874() == 0 && m155C.fn_80237874() == 0 &&
-        m1568.fn_802376D0() == 0 && m1574.fn_80237874() == 0 && fn_80288DD8(&m1944) == 0 &&
-        fn_80288DD8(&m192C) == 0 && fn_80288DD8(&m195C) == 0 && m15D8.fn_80237874() == 0 &&
-        m1634.fn_80237874() == 0) {
+    if (fn_8013655C() == 0 && m1984.fn_80473F50() == 0 && m15B8.IsLoading() == 0 && m155C.IsLoading() == 0 &&
+        m1568.IsLoading() == 0 && m1574.IsLoading() == 0 && fn_80288DD8(&m1944) == 0 &&
+        fn_80288DD8(&m192C) == 0 && fn_80288DD8(&m195C) == 0 && m15D8.IsLoading() == 0 &&
+        m1634.IsLoading() == 0) {
         fn_800EC24C(&mRoute, 2);
         fn_80288E30(this, 1.0f);
         mStatus.m18 |= 0x1C0;
@@ -1169,13 +1169,13 @@ static float lbl_8087DC3C = -70.0f;
 // NONMATCHING: 0% - original is over the inline budget (calls fn_802913B0, fn_800109E0, rotX out of line); ours inlines them (0xE4C vs 0x478)
 void Em203GreaterDaemon::fn_8028CB38() {
     if (m14B4 == 0) {
-        if (fn_802913B0() != 0 && mMotion.fn_80139550(0) >= 28.0f) {
+        if (fn_802913B0() != 0 && mMotion.GetMotionFrame(0) >= 28.0f) {
             fn_8016E970(6);
             fn_801C0730(this, 30);
             m14B4 = 1;
             mMotion.fn_80139F24(1);
             mMotion.fn_8013C554(0, 1.0f);
-            mMotion.fn_80139F3C(0, 1.0f);
+            mMotion.SetMotionSpeed(0, 1.0f);
             mMotion.fn_80097C08(0, 0x14F, 0, 0, 1, 0.0f, 0.1f);
             fn_80290674();
             m14B8 = 0;
@@ -1190,10 +1190,10 @@ void Em203GreaterDaemon::fn_8028CB38() {
         }
     } else if (m14B4 == 1) {
         float length = mMotion.fn_80097D7C(0);
-        if (mMotion.fn_80139550(0) > length) {
+        if (mMotion.GetMotionFrame(0) > length) {
             fn_8028F4AC();
         }
-        if (mMotion.fn_80139550(0) >= 75.0f && mMotion.fn_80139550(0) < 150.0f) {
+        if (mMotion.GetMotionFrame(0) >= 75.0f && mMotion.GetMotionFrame(0) < 150.0f) {
             if (m154C == 0) {
                 m154C = 1;
                 m1548 = 0;
@@ -1207,7 +1207,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
             fn_80239DAC(fn_800F7FA0(), this, 1000, 1);
         }
         if (m154C != 0) {
-            float t = (mMotion.fn_80139550(0) - 75.0f) / 75.0f;
+            float t = (mMotion.GetMotionFrame(0) - 75.0f) / 75.0f;
             atn::Vector3 dir(0.0f, -1.0f, 0.0f);
             dir.fn_80011410(fn_8028CFB0(atn::DegToRad_unk(fn_800F8524(&lbl_8087DC38, &lbl_8087DC3C, t))));
             dir.fn_80011410(fn_800109E0(mRot));

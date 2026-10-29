@@ -1,7 +1,7 @@
 #include "chr/ControlOneMotion.h"
 #include "macros.h"
 
-extern "C" void fn_80097CCC(Model_unk* model, int track, float weight);
+extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 
 namespace chr {
 

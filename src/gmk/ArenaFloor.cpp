@@ -57,7 +57,7 @@ GimmickCommon* ArenaFloor::fn_8041DDE4(atn::Task* parent, int id, int arg) {
 
 // NONMATCHING: 97.6% - in the case 0 entry the original computes the index before loading the
 // array (stwux base, index), and in the case 4 loop the counter and the entry pointer swap r6/r7.
-// The array is an atn::Buffer_unk (its inline Resize_unk has the new[] literals in .sdata).
+// The array is an atn::SimpleArray (its inline Resize_unk has the new[] literals in .sdata).
 int ArenaFloor::vf0C() {
     if (fn_803EC91C() == 0) {
         m54 = 5;
@@ -72,7 +72,7 @@ int ArenaFloor::vf0C() {
                     count += part->mObjCount;
                     break;
                 case 5:
-                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                         if (g->m20 == part) {
                             count++;
                         }
@@ -103,7 +103,7 @@ int ArenaFloor::vf0C() {
                     break;
                 case 5:
                     fn_8049994C(part, &m6C, &m78);
-                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                         if (g->m20 == part) {
                             Entry_unk& e = mEntries.mData[n++];
                             e.mType = part->mType;
@@ -120,7 +120,7 @@ int ArenaFloor::vf0C() {
     return 0;
 }
 
-void ArenaFloor::vf28() {
+void ArenaFloor::Start() {
     GimmickMsg_unk msg(1);
     if (m58 == 1) {
         msg.mType = 4;
@@ -132,7 +132,7 @@ void ArenaFloor::vf28() {
 // this file; with both defined the inlining budget (docs/inlining.md, R3) would keep both calls.
 void ArenaFloor::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (m54 == 2) {
         GimmickMsg_unk msg(3);

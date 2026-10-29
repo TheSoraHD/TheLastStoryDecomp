@@ -27,7 +27,7 @@ public:
     int m14D4;                            // inferred: servants that can act
     FixedArray_unk<EnemyTask*, 8> m14D8;  // inferred: servants (enemies of kind 42)
     atn::Vector3 m14FC;                   // inferred: position where the master reappears
-    atn::EfpHandle_unk m1508;
+    atn::EfpFile m1508;
 };
 
 #endif

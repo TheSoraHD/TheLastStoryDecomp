@@ -6,9 +6,7 @@
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
-// inferred: std::string operator+(const char*, const std::string&) (0x8006AF38)
-extern "C" std::string fn_8006AF38(const char* a, const std::string& b);
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 // inferred: bullets (as in gmk/LandMine.cpp)
@@ -58,7 +56,7 @@ EnemyLizerdBlade::EnemyLizerdBlade(atn::Task* parent, EnemyInfo_unk* info)
     const char* name = strstr(info->m2C, "db_name=");
     if (name != 0) {
         path = name + 8;
-        path = fn_8006AF38("/database/chara/special/", path);
+        path = "/database/chara/special/" + path;
     }
     m14B0.vf0C(path.c_str());
     fn_80097A88(&mMotion, 0x13F, "na000_skd02_00.motion");

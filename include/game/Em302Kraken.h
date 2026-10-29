@@ -57,7 +57,7 @@ public:
     virtual float vf90() { return 1.3f; } // inferred: inline (weak copy 0x802DDCF4)
     virtual atn::Vector3 vf94() { return atn::Vector3(0.0f, 50.0f, 0.0f); } // inferred: weak copy 0x802DDCDC
     // inferred: inline (weak copy 0x802DDC3C): position of the "head" node
-    virtual atn::Vector3 vfC8() {
+    virtual atn::Vector3 GetTacViewPosition() const {
         MtxPtr m = mMotion.GetNodeMtx_unk("head");
         // inferred: the original loads the translation from the last row up (z, y, x)
         float z = m[2][3];
@@ -104,29 +104,29 @@ public:
     int m14D4;
     int m14D8;
     int m14DC;
-    atn::EfpHandle_unk m14E0; // inferred: "/effect/ef_bs033a.efp"
-    atn::EfpHandle_unk m14EC; // inferred: "/effect/ef_bs033c.efp"
+    atn::EfpFile m14E0; // inferred: "/effect/ef_bs033a.efp"
+    atn::EfpFile m14EC; // inferred: "/effect/ef_bs033c.efp"
     int m14F8;                  // inferred: "shades_skill_id"
     atn::Vector3 m14FC;         // inferred: position of the shades attack (fn_802DA718)
-    atn::EfpHandle_unk m1508; // inferred: "/effect/ef_bs030c.efp"
+    atn::EfpFile m1508; // inferred: "/effect/ef_bs030c.efp"
     float m1514;                // inferred: "absorb_rate"
     atn::Vector3 m1518;         // inferred: centre of the absorption (head node, fn_802DAA38)
-    ResLoader_unk m1524;        // inferred: "/effect/ef_bs034b_01.eff"
-    atn::EfpHandle_unk m1530; // inferred: "/effect/ef_bs034c.efp"
-    atn::EfpHandle_unk m153C; // inferred: "/effect/ef_bs034a.efp"
-    atn::EfpHandle_unk m1548; // inferred: "/effect/ef_bs034e.efp"
+    atn::EffFile m1524;        // inferred: "/effect/ef_bs034b_01.eff"
+    atn::EfpFile m1530; // inferred: "/effect/ef_bs034c.efp"
+    atn::EfpFile m153C; // inferred: "/effect/ef_bs034a.efp"
+    atn::EfpFile m1548; // inferred: "/effect/ef_bs034e.efp"
     std::vector<KrakenTarget_unk> m1554;
     int m1560;                  // inferred: nonzero hides the debug display (vf14)
-    atn::EfpHandle_unk m1564; // inferred: "/effect/ef_bu022.efp"
-    atn::EfpHandle_unk m1570; // inferred: "/effect/ef_bu023.efp"
+    atn::EfpFile m1564; // inferred: "/effect/ef_bu022.efp"
+    atn::EfpFile m1570; // inferred: "/effect/ef_bu023.efp"
     int m157C;
     int m1580;
     int m1584;                  // inferred: "laser_skill_id"
     atn::SoundRef m1588;
-    atn::EfpHandle_unk m158C; // inferred: "/effect/ef_bs028.efp"
-    atn::EfpHandle_unk m1598; // inferred: "/effect/ef_bs029a.efp"
-    atn::EfpHandle_unk m15A4; // inferred: "/effect/ef_bs029c.efp"
-    atn::EfpHandle_unk m15B0; // inferred: "anger_efp"
+    atn::EfpFile m158C; // inferred: "/effect/ef_bs028.efp"
+    atn::EfpFile m1598; // inferred: "/effect/ef_bs029a.efp"
+    atn::EfpFile m15A4; // inferred: "/effect/ef_bs029c.efp"
+    atn::EfpFile m15B0; // inferred: "anger_efp"
     std::vector<atn::Vector3> m15BC;
     atn::Vector3 m15C8;
     RoutePlace_unk* m15D4;      // inferred: "charge_point"
@@ -134,14 +134,14 @@ public:
     float m15DC;                // inferred: "explode_center" (three values)
     float m15E0;
     float m15E4;
-    atn::EfpHandle_unk m15E8; // inferred: "/effect/ef_bd005.efp"
-    atn::EfpHandle_unk m15F4; // inferred: "/effect/ef_bd004.efp"
+    atn::EfpFile m15E8; // inferred: "/effect/ef_bd005.efp"
+    atn::EfpFile m15F4; // inferred: "/effect/ef_bd004.efp"
     int m1600;
     int m1604;                  // inferred: "shoot_thunder"
     int m1608;                  // inferred: "thunder_skill_id"
-    atn::EfpHandle_unk m160C; // inferred: "/effect/ef_bs081a.efp"
-    atn::EfpHandle_unk m1618; // inferred: "/effect/ef_bs081b.efp"
-    atn::EfpHandle_unk m1624; // inferred: "/effect/ef_bs049c.efp"
+    atn::EfpFile m160C; // inferred: "/effect/ef_bs081a.efp"
+    atn::EfpFile m1618; // inferred: "/effect/ef_bs081b.efp"
+    atn::EfpFile m1624; // inferred: "/effect/ef_bs049c.efp"
     CharaTask* m1630;           // inferred: target
     RoutePlace_unk* m1634;      // inferred: current appear point
     unsigned int m1638;         // inferred: index into m163C

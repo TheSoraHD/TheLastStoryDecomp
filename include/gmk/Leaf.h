@@ -58,7 +58,7 @@ public:
     float m120;                // inferred: gust speed
     float m124;                // inferred: gust target
     int m128;                  // inferred: gust frames
-    atn::Buffer_unk<LeafEntry_unk> mLeaves; // 0x12C
+    atn::SimpleArray<LeafEntry_unk> mLeaves; // 0x12C
     int m134;                  // inferred: unused (the object is 0x138 bytes)
 };
 

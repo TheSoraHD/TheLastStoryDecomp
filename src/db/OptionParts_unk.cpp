@@ -32,10 +32,12 @@ struct OptionPalette_unk {
 };
 extern "C" OptionPalette_unk* fn_8020BCEC(int index);
 
+namespace atn {
 // inferred: model (only the name is read here, see include/atn/Model_unk.h)
-struct Model_unk {
+struct Model {
     const char* fn_8008B130(); // inferred: model name
 };
+}
 
 namespace atn {
 // inferred: see src/atn/CompositeIntensityTintMulti.cpp (0x40 bytes)
@@ -52,15 +54,12 @@ public:
 } // namespace atn
 
 // inferred: sets a texture compositor on a model (name of the texture, compositor)
-extern "C" void fn_80095750(Model_unk* model, const char* name, atn::CompositeIntensityTintMulti* compositor);
+extern "C" void fn_80095750(atn::Model* model, const char* name, atn::CompositeIntensityTintMulti* compositor);
 
 // inferred: helpers of the path names (directory, name without extension, joined path)
 std::string fn_8006B0C8(const std::string& path);
 extern "C" std::string fn_8006B2D8(const std::string& path);
 extern "C" std::string fn_8006AFF8(const std::string& dir, const std::string& name);
-namespace std {
-string operator+(const string& lhs, const char* rhs); // 0x8006D008
-}
 
 // inferred: "option" row of database/cosedit/option/*.csv (0x44 bytes)
 struct OptionPart_unk {
@@ -298,7 +297,7 @@ struct OptionGroup_unk {
 
 // inferred: builds the tinted textures of the option colours and sets them on the model
 // NONMATCHING: 99.61% - register numbering of the group/layer searches
-extern "C" void fn_8020CC64(Model_unk* model, OptionParts_unk* parts, OptionColorOut_unk* out) {
+extern "C" void fn_8020CC64(atn::Model* model, OptionParts_unk* parts, OptionColorOut_unk* out) {
     OptionGroup_unk groups[0x20];
     unsigned int groupCount = 0;
     OptionLayer_unk* layer;

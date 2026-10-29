@@ -121,9 +121,9 @@ public:
     void fn_80315FE0(); // inferred: stops the effect of the coffin
 
     CharaRes_unk m14D4;       // inferred: own copy of the character resource (m64 points to it)
-    atn::EfpHandle_unk m1564; // inferred: "/effect/ef_bs023a.efp"
-    ResLoader_unk m1570;      // inferred: "/effect/ef_bs023b.eff"
-    atn::EfpHandle_unk m157C; // inferred: "/effect/ef_bs023d.efp"
+    atn::EfpFile m1564; // inferred: "/effect/ef_bs023a.efp"
+    atn::EffFile m1570;      // inferred: "/effect/ef_bs023b.eff"
+    atn::EfpFile m157C; // inferred: "/effect/ef_bs023d.efp"
     atn::Matrix3x4 m1588;     // inferred: placement of the ray effect (m1570)
     int m15B8;                // inferred: "Frame" of the ray attack
     unsigned char m15BC[0x15C8 - 0x15BC];
@@ -134,7 +134,7 @@ public:
     atn::Vector3 m1604;
     atn::Vector3 m1610;       // inferred: position when the drain starts
     CharaTask* m161C;         // inferred: target of the drain
-    atn::EfpHandle_unk m1620; // inferred: "/effect/ef_cm007.efp"
+    atn::EfpFile m1620; // inferred: "/effect/ef_cm007.efp"
     int m162C;
     int m1630;
     int m1634;                // inferred: "StableStart"

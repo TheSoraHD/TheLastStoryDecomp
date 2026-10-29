@@ -7,7 +7,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 // inferred: plays a face motion on CharaTask::m1188
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -50,7 +50,7 @@ int CharaObj::vf0C() {
     return 0;
 }
 
-void CharaObj::vf28() {
+void CharaObj::Start() {
     vf2C();
     GimmickMsg_unk msg(1);
     vf40(&msg);
@@ -62,16 +62,16 @@ void CharaObj::vf28() {
         mChara->mMotion.mTracks[0].m0C = 1.0f;
         mChara->mMotion.fn_80097C08(0, 0x13F, 1, 0, 1, 1.0f, 0.1f);
         if (mHasFace != 0) {
-            mChara->m1188.fn_8011E81C(0x142, 1, 1, 1, 1.0f, 0.0f);
+            mChara->m1188.SetMotion(0x142, 1, 1, 1, 1.0f, 0.0f);
         }
     }
 }
 
 // NONMATCHING: 52.5% - same as gmk::TodomeCountUp::vf10: the target keeps a stack frame and calls
-// vf28 with bctrl instead of a tail call. Tried: return, for/break, switch, else branches, locals.
+// Start with bctrl instead of a tail call. Tried: return, for/break, switch, else branches, locals.
 void CharaObj::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
 }
 

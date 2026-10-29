@@ -7,10 +7,10 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" double fabs(double x);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
@@ -33,7 +33,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 // inferred: game settings
@@ -49,7 +49,7 @@ struct ScreenInfo_unk {
 };
 struct Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const Model_unk::Sphere_unk* sphere);
+extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 extern "C" void fn_800C2C20(ScreenInfo_unk* info, const Plane_unk* plane); // inferred: sets the reflection plane
 
 // inferred: normalizes unless the vector is (almost) zero; name invented
@@ -94,7 +94,7 @@ int WaterLevel::vf0C() {
     return 0;
 }
 
-void WaterLevel::vf28() {
+void WaterLevel::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -106,7 +106,7 @@ void WaterLevel::vf28() {
 
 void WaterLevel::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (vf38() != 0) {
         fn_803ED5D0(vf38());
@@ -146,7 +146,7 @@ int WaterLevel::vf1C() {
     if (mModel.fn_8008B140() != 0) {
         return 1;
     }
-    return mEfp.fn_80237874() != 0;
+    return mEfp.IsLoading() != 0;
 }
 
 void WaterLevel::vf20() {
@@ -165,7 +165,7 @@ void WaterLevel::vf20() {
             strcpy(path, csv.fn_8005B9CC());
             fn_80092F1C(&mModel, path, 0, fn_800DC288(csv.fn_8005B9CC()));
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "MOTION") == 0) {
             strcpy(path, csv.fn_8005B9CC());
             fn_80097A88(&mModel, fn_802180A8(csv.fn_8005B9CC()), path);
@@ -197,7 +197,7 @@ void WaterLevel::vf24() {
             mPlane.mNormal.y = fn_800DC288(csv.fn_8005B9CC());
             mPlane.mNormal.z = fn_800DC288(csv.fn_8005B9CC());
             mPlane.mDist = fn_800DC288(csv.fn_8005B9CC());
-            mNode = mModel.fn_80092814(csv.fn_8005B9CC(), 0);
+            mNode = mModel.GetNodeNoByName(csv.fn_8005B9CC(), 0);
         }
     } while (csv.fn_8005BBF8() != 0);
 }
@@ -256,7 +256,7 @@ void WaterLevel::vf6C(void* menu) {
     mB0.fn_803F11F8(group);
 }
 
-Model_unk* WaterLevel::vf38() {
+atn::Model* WaterLevel::vf38() {
     return &mModel;
 }
 

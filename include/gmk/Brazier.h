@@ -24,8 +24,8 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual void Start();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf60();
@@ -33,12 +33,12 @@ public:
     int fn_80407E8C();  // inferred: nonzero when it can come back (nobody near its place)
     inline int IsBlocked_unk();
 
-    Model_unk mModel;            // 0xF4: "MODEL"
-    Model_unk mModelCrush;       // 0x4C4: "MODEL_CRUSH"
+    atn::Model mModel;            // 0xF4: "MODEL"
+    atn::Model mModelCrush;       // 0x4C4: "MODEL_CRUSH"
     atn::ColliObject mColli;     // 0x894: "COLLI_OBJECT"
-    atn::EfpHandle_unk mEfp;     // 0x91C: "EFP"
-    atn::EfpHandle_unk mEfpRoll; // 0x928: "EFP_ROLL"
-    atn::EfpHandle_unk mEfpCrush; // 0x934: "EFP_CRUSH"
+    atn::EfpFile mEfp;     // 0x91C: "EFP"
+    atn::EfpFile mEfpRoll; // 0x928: "EFP_ROLL"
+    atn::EfpFile mEfpCrush; // 0x934: "EFP_CRUSH"
     atn::SoundRef mSound;        // 0x940
     atn::Vector3 mDir;           // 0x944: inferred: rolling direction
     float mSpeed;                // 0x950: "PARAM" 1

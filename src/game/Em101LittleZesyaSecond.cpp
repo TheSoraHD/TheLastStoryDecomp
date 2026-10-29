@@ -132,7 +132,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -184,9 +184,9 @@ Em101LittleZesyaSecond::Em101LittleZesyaSecond(atn::Task* parent, EnemyInfo_unk*
     m14B0.vf0C(path.c_str());
     void* group = m1550.Load("LittleZesyaSecond");
     fn_80087994(group, "DebugDisp", &m1554, 0, 0);
-    m1520.fn_8023780C("ef_bs007a.efp");
-    m152C.fn_8023780C("ef_sc019a.efp");
-    m1538.fn_8023780C("ef_sk030b2.efp");
+    m1520.LoadRequest("ef_bs007a.efp");
+    m152C.LoadRequest("ef_sc019a.efp");
+    m1538.LoadRequest("ef_sk030b2.efp");
     mFlagB5 = 1;
     mFlagB11 = 1;
 }
@@ -194,8 +194,8 @@ Em101LittleZesyaSecond::Em101LittleZesyaSecond(atn::Task* parent, EnemyInfo_unk*
 Em101LittleZesyaSecond::~Em101LittleZesyaSecond() {}
 
 int Em101LittleZesyaSecond::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1520.fn_80237874() == 0 &&
-        m152C.fn_80237874() == 0 && m1538.fn_80237874() == 0 && m14B0.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1520.IsLoading() == 0 &&
+        m152C.IsLoading() == 0 && m1538.IsLoading() == 0 && m14B0.fn_80473F50() == 0) {
         m58C = 0;
         fn_8016E970(2);
         fn_80260324();
@@ -252,7 +252,7 @@ inline void Em101LittleZesyaSecond::ReleaseCamera_unk() {
 }
 
 // inferred: plays an effect at a position (locals in the order of game/Em305Vampire.cpp; name invented)
-inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
+inline void PlayEffectAt_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -500,7 +500,7 @@ void Em101LittleZesyaSecond::vf40(HitInfo_unk* hit) {
 
 // inferred: plays an effect on the model (locals in the order of Em003LesserDaemon's PlayEffectM_unk; name
 // invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -659,7 +659,7 @@ void Em101LittleZesyaSecond::fn_80261A50() {
             atn::Vector3 hips = GetTrans_unk(mMotion.GetNodeMtx_unk("hips"));
             for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
                 if (p->CanAct_unk()) {
-                    Model_unk* model = &p->mMotion;
+                    atn::Model* model = &p->mMotion;
                     atn::Vector3 target = GetTrans_unk(model->GetNodeMtx_unk("hips"));
                     atn::Vector3 dir = (target - hips).GetNormalize();
                     atn::Vector3 pos = hips + dir * 15.0f;

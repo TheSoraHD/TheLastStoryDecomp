@@ -36,8 +36,8 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual void Start();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
     virtual void vf6C(void* menu);
@@ -102,9 +102,9 @@ public:
         }
     }
 
-    Model_unk mModel;         // 0xF4
+    atn::Model mModel;         // 0xF4
     atn::ColliObject mColli;  // 0x4C4
-    atn::EfpHandle_unk mEfp;  // 0x54C
+    atn::EfpFile mEfp;  // 0x54C
     float mOpenDistance;      // 0x558: "OPEN_DISTANCE"
     float m55C;
     float m560;

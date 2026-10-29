@@ -173,7 +173,7 @@ extern "C" void fn_80216CD0() {
     sTexts = new (3, "", "", 0) char[textSize];
     int i = 0;
     int pos = 0;
-    wcsv.vf08((const wchar_t*)data, (int)size / 2);
+    wcsv.SetData((const wchar_t*)data, (int)size / 2);
     while (wcsv.fn_8005BBF8() != 0) {
         if (wcscmp(wcsv.fn_8005B9CC(), L"") != 0) {
             continue;
@@ -269,7 +269,7 @@ extern "C" void fn_802174F4() {
         total++;
     }
     sMembers = new (1, "", "", 0) int[total];
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int pos = 0;
     while (csv.fn_8005BBF8() != 0) {
         MapId_unk* entry = Find_unk(csv.fn_8005B9CC());

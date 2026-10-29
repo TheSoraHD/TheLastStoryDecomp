@@ -59,7 +59,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -82,7 +82,7 @@ Em303KrakenFoot::Em303KrakenFoot(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_em303_00_00.csv\0");
     }
     m14B0.vf0C(path);
-    m14F8.fn_8023780C("/effect/ef_bd006.efp");
+    m14F8.LoadRequest("/effect/ef_bd006.efp");
 }
 
 Em303KrakenFoot::~Em303KrakenFoot() {}
@@ -141,7 +141,7 @@ int Em303KrakenFoot::vf0C() {
     if (m14B0.fn_80473F50() != 0) {
         return 0;
     }
-    if (m14F8.fn_80237874() != 0) {
+    if (m14F8.IsLoading() != 0) {
         return 0;
     }
     fn_80087994(m1508.Load("Em303KrakenFoot"), "DebugDisp", &m150C, 0, 0);

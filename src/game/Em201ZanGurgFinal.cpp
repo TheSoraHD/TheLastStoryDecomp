@@ -1,4 +1,5 @@
 #include "game/Em201ZanGurgFinal.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -74,7 +75,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* efp, Model_unk* model, int arg3, const atn::Vector3& pos,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* efp, atn::Model* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -153,11 +154,8 @@ extern "C" void fn_8003EA3C(ZanDamage_unk* result, HitInfo_unk* data, CharaTask*
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2);
 extern "C" void fn_80108C10(Effect_unk* effect, ZanDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
                             CharaTask* chara, int b, int c);
-// inferred: item manager (lbl_8087F4F0)
-extern "C" void* lbl_8087F4F0;
-extern "C" void fn_804439FC(void* mgr, void* item, int num, int arg3, int arg4, int arg5, int arg6, int arg7);
-extern "C" void* fn_80206BE4(void* item);
-extern "C" void* fn_801D80B4();
+// inferred: item manager (Inventory::instance_)
+extern "C" int fn_80206BE4(void* item); // inferred: item id
 extern "C" void fn_804438E0(void* mgr, int id);
 extern "C" void fn_8044D104(void* mgr, int kind, int id, int arg, int chara);
 extern "C" int fn_80219558(int id); // inferred: party member kind of a character id
@@ -174,7 +172,7 @@ extern "C" inline void fn_80265804(CharaStatus* status, float value) {
     status->m2FC = value;
 }
 // inferred: plays an effect on the model (name invented)
-extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, void* efp, Model_unk* model, int arg) {
+extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, void* efp, atn::Model* model, int arg) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -217,11 +215,11 @@ extern "C" inline void fn_8026610C(PlayerInput_unk* input, const atn::Vector3& p
     input->m934 = f;
     input->m914 = keep != 0 ? input->m918 : 0;
 }
-extern "C" inline atn::Matrix3x4* fn_80266154(Model_unk* model) {
+extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
     return (atn::Matrix3x4*)model->mMtx;
 }
-extern "C" inline Model_unk* fn_8026615C(chr::CharaPart_unk* part) {
-    return (Model_unk*)part->m010;
+extern "C" inline atn::Model* fn_8026615C(chr::CharaPart_unk* part) {
+    return (atn::Model*)part->m010;
 }
 extern "C" inline atn::Vector3* fn_80266164(PlayerInput_unk* input) {
     return (atn::Vector3*)&input->m910;
@@ -262,7 +260,7 @@ static const char* const sDamageNodes_unk[] = {"op_05_shield_dam_b1", "op_05_shi
                                                "op_05_shield_dam_b4", "op_05_shield_dam_b5"};
 
 // inferred: names invented
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -278,13 +276,13 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
-inline void PlayMotion_unk(Model_unk* model, int motion, int loop, float speed) {
+inline void PlayMotion_unk(atn::Model* model, int motion, int loop, float speed) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
     model->fn_80097C08(0, motion, loop, 0, 1, 0.0f, speed);
 }
-inline void PlayMotionB_unk(Model_unk* model, int motion, float blend) {
+inline void PlayMotionB_unk(atn::Model* model, int motion, float blend) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
@@ -337,7 +335,7 @@ inline RoutePlace_unk* FindRoutePlace4_unk(int id) {
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
-inline bool IsMotionEnd_unk(Model_unk* model) {
+inline bool IsMotionEnd_unk(atn::Model* model) {
     float frame = model->mTracks[0].m08;
     return frame >= model->fn_80097D7C(0);
 }
@@ -367,22 +365,22 @@ Em201ZanGurgFinal::Em201ZanGurgFinal(atn::Task* parent, EnemyInfo_unk* info)
     m14B0.vf0C(path.c_str());
     void* group = m168C.Load("Em201ZanGurgFinal");
     fn_80087994(group, "DebugDisp", &m1690, 0, 0);
-    m1564.fn_8023780C("/effect/ef_bs007a.efp");
-    m1570.fn_8023780C("/effect/ef_bs065a.efp");
-    m157C.fn_8023780C("/effect/ef_bs065c.efp");
-    m1588.fn_8023780C("/effect/ef_bu031a.efp");
-    m1594.fn_8023780C("/effect/ef_bs064a.efp");
-    m15A0.fn_8023780C("/effect/ef_bu032a.efp");
-    m15AC.fn_8023780C("/effect/ef_bu033a.efp");
-    m15B8.fn_8023780C("/effect/ef_bs063a.efp");
-    m15C4.fn_8023780C("/effect/ef_bu040a.efp");
-    m15D0.fn_8023780C("/effect/ef_bu040d.efp");
-    m15DC.fn_8023780C("/effect/ef_bu040e.efp");
-    m15E8.fn_8023780C("/effect/ef_bu040f.efp");
-    m15F4.fn_8023780C("/effect/ef_bu040h.efp");
-    m1600.fn_80237654("/effect/ef_bu040g_01.eff");
-    m160C.fn_8023780C("ef_we006.efp");
-    m1618.fn_8023780C("ef_bs073f.efp");
+    m1564.LoadRequest("/effect/ef_bs007a.efp");
+    m1570.LoadRequest("/effect/ef_bs065a.efp");
+    m157C.LoadRequest("/effect/ef_bs065c.efp");
+    m1588.LoadRequest("/effect/ef_bu031a.efp");
+    m1594.LoadRequest("/effect/ef_bs064a.efp");
+    m15A0.LoadRequest("/effect/ef_bu032a.efp");
+    m15AC.LoadRequest("/effect/ef_bu033a.efp");
+    m15B8.LoadRequest("/effect/ef_bs063a.efp");
+    m15C4.LoadRequest("/effect/ef_bu040a.efp");
+    m15D0.LoadRequest("/effect/ef_bu040d.efp");
+    m15DC.LoadRequest("/effect/ef_bu040e.efp");
+    m15E8.LoadRequest("/effect/ef_bu040f.efp");
+    m15F4.LoadRequest("/effect/ef_bu040h.efp");
+    m1600.LoadRequest("/effect/ef_bu040g_01.eff");
+    m160C.LoadRequest("ef_we006.efp");
+    m1618.LoadRequest("ef_bs073f.efp");
     mFlagB11 = 1;
     ZanWeapon_unk* shield = fn_80206C50(0x18875);
     m1628 = m1624 = fn_800457A4(shield->m78, shield->m80, 0, this, 0);
@@ -394,12 +392,12 @@ Em201ZanGurgFinal::~Em201ZanGurgFinal() {
 
 int Em201ZanGurgFinal::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1624->vf0C() == 0 &&
-        m1564.fn_80237874() == 0 && m1570.fn_80237874() == 0 && m157C.fn_80237874() == 0 &&
-        m1588.fn_80237874() == 0 && m1594.fn_80237874() == 0 && m15A0.fn_80237874() == 0 &&
-        m15AC.fn_80237874() == 0 && m15B8.fn_80237874() == 0 && m15C4.fn_80237874() == 0 &&
-        m15D0.fn_80237874() == 0 && m15DC.fn_80237874() == 0 && m15E8.fn_80237874() == 0 &&
-        m15F4.fn_80237874() == 0 && m1600.fn_802376D0() == 0 && m160C.fn_80237874() == 0 &&
-        m1618.fn_80237874() == 0 && m14B0.fn_80473F50() == 0) {
+        m1564.IsLoading() == 0 && m1570.IsLoading() == 0 && m157C.IsLoading() == 0 &&
+        m1588.IsLoading() == 0 && m1594.IsLoading() == 0 && m15A0.IsLoading() == 0 &&
+        m15AC.IsLoading() == 0 && m15B8.IsLoading() == 0 && m15C4.IsLoading() == 0 &&
+        m15D0.IsLoading() == 0 && m15DC.IsLoading() == 0 && m15E8.IsLoading() == 0 &&
+        m15F4.IsLoading() == 0 && m1600.IsLoading() == 0 && m160C.IsLoading() == 0 &&
+        m1618.IsLoading() == 0 && m14B0.fn_80473F50() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC21D;
@@ -850,7 +848,7 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
                 fn_80370AE4(fn_80121F00(), 0xEA, 1);
                 if (fn_8000DCF4(fn_8000D9E8()) != 0 && *fn_80266FB4(fn_80266FA4(this), 0) == m1628 &&
                     m1624 != 0) {
-                    fn_804439FC(fn_801D80B4(), fn_80206BE4(fn_80266FAC(m1624)), 1, 1, 0, 0, 1, 0);
+                    Inventory::Order()->AddItem(fn_80206BE4(fn_80266FAC(m1624)), 1, 1, 0, 0, 1, 0);
                 }
             }
         }
@@ -1109,7 +1107,7 @@ void Em201ZanGurgFinal::vf98() {
     if (show) {
         fn_80232B7C(m121C.get(), 0);
         lbl_8087F3C0->mB8 = 2;
-        PlayEffect_unk((atn::EfpHandle_unk*)m121C.get(), &mMotion);
+        PlayEffect_unk((atn::EfpFile*)m121C.get(), &mMotion);
         lbl_8087F3C0->mB8 = 0;
         fn_80232B7C(&m15A0, 0);
         lbl_8087F3C0->mB8 = 2;
@@ -1499,7 +1497,7 @@ void Em201ZanGurgFinal::fn_802696F8() {
 }
 
 // inferred: plays `motion` from frame `frame` (name invented)
-inline void PlayMotionAt_unk(Model_unk* model, int motion, float frame) {
+inline void PlayMotionAt_unk(atn::Model* model, int motion, float frame) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->fn_80097C08(0, motion, 0, 0, 1, 1.0f, 0.1f);
@@ -2084,12 +2082,12 @@ inline float ZanMaxScale_unk(const atn::Matrix3x4& mtx) {
 }
 // inferred: puts the shield model on a node matrix (name invented)
 inline void SetShieldMtx_unk(chr::CharaPart_unk* part, const atn::Matrix3x4& m) {
-    Model_unk* model = (Model_unk*)part->m010;
+    atn::Model* model = (atn::Model*)part->m010;
     __MtxCopy(model->mMtx, m.m);
     model->m54 = ZanMaxScale_unk(m);
 }
 inline atn::Matrix3x4& ShieldMtx_unk(chr::CharaPart_unk* part) {
-    return *(atn::Matrix3x4*)((Model_unk*)part->m010)->mMtx;
+    return *(atn::Matrix3x4*)((atn::Model*)part->m010)->mMtx;
 }
 
 // NONMATCHING: stack layout of the temporaries and the scale helper (f0/f8 of the column loads); logic follows
@@ -2185,7 +2183,7 @@ struct ZanUIHint_unk : public GameUIElem1C_unk {
 // inferred: the leader takes the shield (names invented)
 inline void TakeShield_unk(Em201ZanGurgFinal* z, CharaTask* leader) {
     ZanWeapon_unk* data = (ZanWeapon_unk*)z->m1624->m274;
-    fn_8044D104(lbl_8087F4F0, data->m78, data->m80, 0, leader->m50);
+    fn_8044D104(Inventory::instance_, data->m78, data->m80, 0, leader->m50);
     chr::CharaPart_unk* old = leader->mParts.mData[1];
     fn_80044E0C(old, 1);
     leader->mParts.mData[1] = z->m1624;
@@ -2195,7 +2193,7 @@ inline void TakeShield_unk(Em201ZanGurgFinal* z, CharaTask* leader) {
     }
     if (z->m1624 == z->m1628) {
         if (z->m162C == 0) {
-            fn_804438E0(lbl_8087F4F0, 0x18875);
+            fn_804438E0(Inventory::instance_, 0x18875);
         }
         z->m162C = 1;
     }
@@ -2366,7 +2364,7 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
         break;
     }
     }
-    fn_800902C0((Model_unk*)m1624->m010, 0, boost::function<void()>());
+    ((atn::Model*)m1624->m010)->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
 }
 
 // NONMATCHING: r3/r4 of the target and of the temporary in every case (6 variants)

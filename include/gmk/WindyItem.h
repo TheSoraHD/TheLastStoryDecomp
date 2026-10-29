@@ -81,7 +81,7 @@ public:
     virtual void vf14(); // not decompiled (debug drawing)
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
     // inferred: defined after vf70 (0x804392C0-0x8043A530; fn_80439574 not decompiled)
@@ -116,8 +116,8 @@ public:
     int mWaitBase;             // 0xF00: "PARAM" 3
     int mWaitRand;             // 0xF04: "PARAM" 4
     int mF08;
-    atn::EfpHandle_unk mEfp;   // 0xF0C: "EFP"
-    ResLoader_unk mEff;        // 0xF18: "EFF"
+    atn::EfpFile mEfp;   // 0xF0C: "EFP"
+    atn::EffFile mEff;        // 0xF18: "EFF"
     int mF24;                  // inferred: unused (the object is 0xF28 bytes)
 };
 

@@ -19,7 +19,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
 

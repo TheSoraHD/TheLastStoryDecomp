@@ -7,8 +7,8 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 
 // inferred: camera (lbl_8087EFB4)
@@ -79,7 +79,7 @@ int Banana::vf0C() {
     return 0;
 }
 
-void Banana::vf28() {
+void Banana::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     m78.x = 0.0f;
@@ -108,7 +108,7 @@ void Banana::vf10() {
         if (++mTimer > mDesc->m20) {
             m54 = 2;
             mTimer = 0;
-            Banana::vf28();
+            Banana::Start();
         }
         break;
     }
@@ -130,7 +130,7 @@ int Banana::vf60() {
     return ret;
 }
 
-Model_unk* Banana::vf38() {
+atn::Model* Banana::vf38() {
     return &mModel;
 }
 

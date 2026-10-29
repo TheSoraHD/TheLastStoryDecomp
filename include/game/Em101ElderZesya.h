@@ -72,14 +72,14 @@ public:
     void fn_80258A50(); // inferred: state of the light sword magic (10 homing bullets)
     void fn_80258574(); // inferred: starts the next action of the phase (m14CC)
     inline void StartMagic_unk();
-    inline void PlayBarrierM_unk(struct EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, const atn::Vector3& pos,
+    inline void PlayBarrierM_unk(struct EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                                  const atn::Vector3& rot, int kind);
-    inline void PlayBarrierK_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
-    inline void PlayBarrier_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
+    inline void PlayBarrierK_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
+    inline void PlayBarrier_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
 
     int m14B0;                          // inferred: loading state (0, 1 collision objects, 2 ready)
     atn::LH_Binary m14B4;               // inferred: data file
-    atn::Vector_unk<atn::Vector3> m14BC; // inferred: "HighJumpAttackPointID" positions
+    atn::SimpleVector<atn::Vector3> m14BC; // inferred: "HighJumpAttackPointID" positions
     int m14C8;
     int m14CC;                          // inferred: "bossActPhase_" (3-5): next action (0-5)
     int m14D0;
@@ -101,13 +101,13 @@ public:
     int m15EC;
     int m15F0;
     int m15F4;
-    atn::EfpHandle_unk m15F8; // inferred: "ef_bs007a.efp"
-    atn::EfpHandle_unk m1604; // inferred: "ef_bs066e.efp"
-    atn::EfpHandle_unk m1610; // inferred: "ef_bs066c.efp"
-    atn::EfpHandle_unk m161C; // inferred: "ef_sk053a.efp"
-    atn::EfpHandle_unk m1628; // inferred: "ef_sk053b.efp"
-    atn::EfpHandle_unk m1634; // inferred: "ef_sk053c.efp"
-    atn::EfpHandle_unk m1640; // inferred: "ef_sk054d.efp"
+    atn::EfpFile m15F8; // inferred: "ef_bs007a.efp"
+    atn::EfpFile m1604; // inferred: "ef_bs066e.efp"
+    atn::EfpFile m1610; // inferred: "ef_bs066c.efp"
+    atn::EfpFile m161C; // inferred: "ef_sk053a.efp"
+    atn::EfpFile m1628; // inferred: "ef_sk053b.efp"
+    atn::EfpFile m1634; // inferred: "ef_sk053c.efp"
+    atn::EfpFile m1640; // inferred: "ef_sk054d.efp"
     int m164C;
     int m1650;
     atn::Vector3 m1654;

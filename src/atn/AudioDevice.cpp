@@ -3,7 +3,9 @@
 // effects of the AUX bus, the list of loaded banks (groups of the archive) and the sound id table
 // read from "rsid.csv". Only the members used here are declared; the NW4R classes are not
 // reconstructed (their functions keep the fn_ names).
+#include "std/tree.h"
 #include "atn/Array_unk.h"
+#include "atn/MemoryManager.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/msl_common.h"
@@ -17,22 +19,14 @@ extern "C" void OSSleepTicks(long long ticks);
 void* operator new(unsigned long size, int heap, const char* file, const char* name, int line);
 void* operator new[](unsigned long size, int heap, const char* file, const char* name, int line);
 
-// inferred: memory manager of the game (fn_800827E0 returns it)
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int flags);
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name
 extern "C" int fn_800DC12C(const char* s);          // inferred: atoi
 
 // inferred: per-frame callbacks (also run by atn::LoadHandle and main)
-typedef atn::Vector_unk<boost::function<void()> > FrameCallbacks_unk;
+typedef atn::SimpleVector<boost::function<void()> > FrameCallbacks_unk;
 extern "C" FrameCallbacks_unk* lbl_8087EE94;
 
-// inferred: balances the red-black tree after an insertion (MSL)
-extern "C" void fn_8003E120(void* node, void* root);
 
 // inferred: std::map of MSL C++ (nodes {left, right, parent, value}); only what this file uses,
 // names invented. Extra is the size of the word between the root and the leftmost node (the maps
@@ -180,7 +174,7 @@ typename AudioMap_unk<K, V, Extra>::Node* AudioMap_unk<K, V, Extra>::InsertNode(
         parent->mRight = node;
     }
     mSize++;
-    fn_8003E120(node, mRoot);
+    std::__red_black_tree_void::balance_insert((std::__tree_node_base_void*)node, (std::__tree_node_base_void*)mRoot);
     if (leftmost) {
         mLeftmost = node;
     }
@@ -291,9 +285,6 @@ struct DVDFileInfo_unk {
     unsigned int m30[3];
 };
 
-struct OSMutex_unk {
-    unsigned int m00[6];
-};
 extern "C" void OSLockMutex(OSMutex_unk* mutex);
 extern "C" void OSUnlockMutex(OSMutex_unk* mutex);
 
@@ -524,7 +515,7 @@ public:
     // inferred: frees a buffer of the memory manager (name invented)
     static void Free_unk(void*& p) {
         if (p != 0) {
-            fn_80083AD4(fn_800827E0(), p);
+            atn::MemoryManager::Instance()->Free(p);
             p = 0;
         }
     }
@@ -578,8 +569,8 @@ public:
     unsigned long m360;
     Sound3DManager_unk m364;
     void* m390;
-    Vector_unk<AudioBank_unk> mBanks;      // 0x394
-    Vector_unk<AudioBank_unk> mBankQueue;  // 0x3A0
+    SimpleVector<AudioBank_unk> mBanks;      // 0x394
+    SimpleVector<AudioBank_unk> mBankQueue;  // 0x3A0
     AudioBank_unk mExtraBank;              // 0x3AC
     int m400; // inferred: banks of the queue are being loaded
     int m404; // inferred: the extra bank is being loaded
@@ -661,7 +652,7 @@ extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path);
 
 // inferred: allocation of the device buffers (aligned to 32, heap 10)
 static inline void* AudioAlloc_unk(unsigned long size) {
-    return fn_800839EC(fn_800827E0(), size, 0x20, 10, "", "", 0, 0);
+    return atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)10, "", "", 0, 0);
 }
 
 AudioDevice::AudioDevice()
@@ -815,7 +806,7 @@ extern "C" void fn_80047B54(AudioDevice* audio, unsigned long size) {
         }
         fn_807177D0(&audio->m300);
         fn_80717750(&audio->m300);
-        fn_80083AD4(fn_800827E0(), audio->m32C);
+        atn::MemoryManager::Instance()->Free(audio->m32C);
         audio->m32C = 0;
         audio->mBanks.clear();
     }
@@ -1067,7 +1058,7 @@ extern "C" void fn_8004895C(AudioDevice* audio) {
     if (audio->m2CC.IsValid()) {
         fn_807177D0(&audio->m2CC);
         fn_80717750(&audio->m2CC);
-        fn_80083AD4(fn_800827E0(), audio->m2F8);
+        atn::MemoryManager::Instance()->Free(audio->m2F8);
         audio->m2F8 = 0;
     }
     audio->mBankQueue.clear();
@@ -1224,7 +1215,7 @@ extern "C" void fn_800498D4(AudioDevice* audio) {
     if (audio->m330.IsValid()) {
         fn_807177D0(&audio->m330);
         fn_80717750(&audio->m330);
-        fn_80083AD4(fn_800827E0(), audio->m35C);
+        atn::MemoryManager::Instance()->Free(audio->m35C);
         audio->m35C = 0;
     }
     audio->mExtraBank = AudioBank_unk();
@@ -1441,7 +1432,7 @@ extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path) {
     unsigned long size = 0;
     void* data = fn_8046DC5C(lbl_8087F518, path, &size, 0x20);
     atn::Csv csv;
-    ((atn::CsvBase<char, ',', '\r', '"'>&)csv).vf08((const char*)data, size);
+    ((atn::CsvBase<char, ',', '\r', '"'>&)csv).SetData((const char*)data, size);
     do {
         char name[0x100];
         sprintf(name, "%s\0", csv.fn_8005B9CC());

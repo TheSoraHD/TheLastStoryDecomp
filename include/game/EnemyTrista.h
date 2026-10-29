@@ -55,9 +55,9 @@ public:
     HitInfo_unk* m14EC;    // inferred: "GuardCounterID"
     HitInfo_unk* m14F0;    // inferred: "HighJumpAttackID"
     HitInfo_unk* m14F4;    // inferred: "EventDamageSkillID"
-    atn::EfpHandle_unk m14F8; // inferred: "/effect/ef_sp007a.efp"
-    atn::EfpHandle_unk m1504; // inferred: "/effect/ef_sp007d.efp"
-    atn::EfpHandle_unk m1510; // inferred: "/effect/ef_sp007e.efp"
+    atn::EfpFile m14F8; // inferred: "/effect/ef_sp007a.efp"
+    atn::EfpFile m1504; // inferred: "/effect/ef_sp007d.efp"
+    atn::EfpFile m1510; // inferred: "/effect/ef_sp007e.efp"
     FixedArray_unk<HitInfo_unk*, 8> m151C;     // inferred: skills that break the guard
     FixedArray_unk<TristaEvent_unk, 8> m1540;  // inferred: "Event"
     int m15A4;             // inferred: "WaitFrame"

@@ -64,19 +64,19 @@ public:
     int m14E0;        // inferred: copy of m14E8 taken with the forced target
     CharaTask* m14E4; // inferred: last attacker (vf3C)
     int m14E8;        // inferred: 1 when the last attacker was in attack range, else 6 (vf3C)
-    atn::EfpHandle_unk m14EC; // inferred: "/effect/ef_cm007.efp"
-    atn::EfpHandle_unk m14F8;
-    atn::EfpHandle_unk m1504;
-    atn::EfpHandle_unk m1510;
-    atn::EfpHandle_unk m151C;
-    ResLoader_unk m1528;
-    ResLoader_unk m1534;
-    atn::EfpHandle_unk m1540;
-    atn::EfpHandle_unk m154C;
-    atn::EfpHandle_unk m1558;
-    atn::EfpHandle_unk m1564;
-    atn::EfpHandle_unk m1570;
-    atn::EfpHandle_unk m157C;
+    atn::EfpFile m14EC; // inferred: "/effect/ef_cm007.efp"
+    atn::EfpFile m14F8;
+    atn::EfpFile m1504;
+    atn::EfpFile m1510;
+    atn::EfpFile m151C;
+    atn::EffFile m1528;
+    atn::EffFile m1534;
+    atn::EfpFile m1540;
+    atn::EfpFile m154C;
+    atn::EfpFile m1558;
+    atn::EfpFile m1564;
+    atn::EfpFile m1570;
+    atn::EfpFile m157C;
     atn::LH_Binary m1588;     // inferred: data file
     atn::FixedArray_unk<atn::Vector3, 8> mPoints; // 0x1590: inferred: warp points ("WarpPointID")
     atn::Vector3 mWarpDest;       // 0x15F4: inferred: chosen warp point

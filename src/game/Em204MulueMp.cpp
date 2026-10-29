@@ -48,7 +48,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -58,7 +58,7 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" int fn_800CB58C(atn::SoundRef* sound); // inferred: nonzero while playing
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
@@ -141,7 +141,7 @@ MulueMpMaterial_unk lbl_807860A0[6] = {
 };
 
 // inferred: plays an effect on the model (as in game/Em302Kraken.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -255,9 +255,9 @@ Em204MulueMp::Em204MulueMp(atn::Task* parent, EnemyInfo_unk* info)
       m15F8(0), m15FC(0.0f), m1600(1), m1604(0x4650), m1608(0), m1684(0), m185C(0) {
     mFlag22 = 1;
     mStatus.mParamB.m9C |= 0x10;
-    m1524.fn_80237654("ef_sk002b.eff");
-    m1530.fn_8023780C("ef_sk008d.efp");
-    m153C.fn_8023780C("ef_uc011.efp");
+    m1524.LoadRequest("ef_sk002b.eff");
+    m1530.LoadRequest("ef_sk008d.efp");
+    m153C.LoadRequest("ef_uc011.efp");
     for (int i = 0; i < 6; i++) {
         m160C[i] = lbl_807860A0[i].mColor[0];
     }
@@ -287,8 +287,8 @@ Em204MulueMp::Em204MulueMp(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 int Em204MulueMp::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1524.fn_802376D0() == 0 &&
-        m1530.fn_80237874() == 0 && m153C.fn_80237874() == 0 && m1850.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1524.IsLoading() == 0 &&
+        m1530.IsLoading() == 0 && m153C.IsLoading() == 0 && m1850.fn_80473F50() == 0) {
         mColli.mFlags &= ~0x80000000;
         m1698.mFlags |= 3;
         m1698.m0C = (int)this;
@@ -906,7 +906,7 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
     }
     atn::Matrix3x4 m;
     MulueMpRotZYX_unk(m, mRot);
-    Model_unk* model = &mMotion;
+    atn::Model* model = &mMotion;
     atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
     if (aimed && lbl_8087F610 != 0) {
         fn_800C344C("SE_EM204_014", &mPos, 0, -1, 1.0f);
@@ -953,7 +953,7 @@ void Em204MulueMp::fn_802B596C() {
                 mPos.y = 0.0f;
             }
         } else {
-            Model_unk* model = &mMotion;
+            atn::Model* model = &mMotion;
             atn::Vector3 pos = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
             if (m14E0 == 10) {
                 atn::Vector3 dir(0.0f, -1.0f, 0.000001f);
@@ -1105,7 +1105,7 @@ void Em204MulueMp::fn_802B6104() {
                     mPos.y = 0.0f;
                 }
             } else {
-                Model_unk* model = &mMotion;
+                atn::Model* model = &mMotion;
                 atn::Vector3 pos = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
                 if (m14E0 == 10) {
                     atn::Vector3 dir(0.0f, -1.0f, 0.000001f);

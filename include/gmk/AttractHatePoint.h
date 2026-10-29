@@ -23,17 +23,17 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
     GimmickDesc_unk* mDesc;       // 0xF4
-    atn::EfpHandle_unk mEfpOn;    // 0xF8: "EFP ON"
+    atn::EfpFile mEfpOn;    // 0xF8: "EFP ON"
     atn::SoundRef mSound;         // 0x104
-    atn::EfpHandle_unk mEfpAttract; // 0x108: "EFP ATTRACT"
-    atn::EfpHandle_unk mEfpWait;  // 0x114: "EFP WAIT"
+    atn::EfpFile mEfpAttract; // 0x108: "EFP ATTRACT"
+    atn::EfpFile mEfpWait;  // 0x114: "EFP WAIT"
     float mRadius;                // 0x120: "check_radius"
     int mInRange;                 // 0x124: inferred: the player is in range this frame
 };

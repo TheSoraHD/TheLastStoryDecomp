@@ -33,7 +33,7 @@ CharaLook_unk::~CharaLook_unk() {}
 
 void CharaLook_unk::fn_801298EC(chr::Chara_unk* chara) {
     mChara = chara;
-    mNeck = ((Model_unk*)&chara->mMotion)->fn_80092814("neck", 0);
+    mNeck = ((atn::Model*)&chara->mMotion)->GetNodeNoByName("neck", 0);
 }
 
 void CharaLook_unk::fn_80129930(const atn::Vector3& pos, float speed) {
@@ -48,11 +48,11 @@ void CharaLook_unk::fn_80129954(const atn::Vector3& pos, float speed) {
     mSpeed = speed;
 }
 
-void CharaLook_unk::fn_80129978(Model_unk* model, const char* node, const atn::Vector3& offset, float speed) {
+void CharaLook_unk::fn_80129978(atn::Model* model, const char* node, const atn::Vector3& offset, float speed) {
     if (node != 0) {
-        // inferred: written without Model_unk::GetNodeMtx_unk, whose weak copy is emitted after
+        // inferred: written without atn::Model::GetNodeMtx_unk, whose weak copy is emitted after
         // fn_80129A6C (the first function that refers to it)
-        int index = model->fn_80092814(node, 0);
+        int index = model->GetNodeNoByName(node, 0);
         mTarget = (index < 0) ? 0 : (float*)model->mNodeMtx[index];
         mOffset = offset;
         mType = 1;
@@ -161,8 +161,8 @@ void CharaLook_unk::fn_80129A6C() {
             target += ((atn::Matrix3x4*)mEyeTarget)->GetTrans_unk();
         }
         int nodes[2];
-        nodes[0] = mChara->GetModel_unk()->fn_80092814("eye_L", 0);
-        nodes[1] = mChara->GetModel_unk()->fn_80092814("eye_R", 0);
+        nodes[0] = mChara->GetModel_unk()->GetNodeNoByName("eye_L", 0);
+        nodes[1] = mChara->GetModel_unk()->GetNodeNoByName("eye_R", 0);
         int node;
         for (int i = 0; i < 2; i++) {
             atn::Vector3 dir;
@@ -358,7 +358,7 @@ void fn_8012AC64(CharaLook_unk* look) {
     look->mSpeed = 1.0f;
     look->mEyeSpeed = 1.0f;
     look->fn_80129A6C();
-    fn_8000D430((Model_unk*)&look->mChara->mMotion, boost::function<void()>());
+    ((atn::Model*)&look->mChara->mMotion)->CalcMatrixStack(atn::ModelNodeCallback_unk());
     look->mSpeed = speed;
     look->mEyeSpeed = eyeSpeed;
 }

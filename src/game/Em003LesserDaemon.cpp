@@ -121,7 +121,7 @@ struct ColorF_unk {
     ColorF_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -163,30 +163,30 @@ Em003LesserDaemon::Em003LesserDaemon(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m1588.vf0C(path.c_str());
-    m14EC.fn_8023780C("/effect/ef_cm007.efp");
-    m14F8.fn_8023780C("/data/effect/ef_sk047a.efp");
-    m1504.fn_8023780C("/data/effect/ef_sk047b.efp");
-    m1510.fn_8023780C("/data/effect/ef_sk047d.efp");
-    m151C.fn_8023780C("/data/effect/ef_sk047e.efp");
-    m1540.fn_8023780C("/data/effect/ef_sk047f.efp");
-    m154C.fn_8023780C("/data/effect/ef_sk045a.efp");
-    m1558.fn_8023780C("/data/effect/ef_sk046a.efp");
-    m1564.fn_8023780C("/data/effect/ef_sk040.efp");
-    m1570.fn_8023780C("/data/effect/ef_sk021a.efp");
-    m1534.fn_80237654("/effect/ef_bu040g_01.eff");
-    m1528.fn_80237654("/effect/ef_bu040h_01.eff");
-    m157C.fn_8023780C("/effect/ef_bs007a.efp");
+    m14EC.LoadRequest("/effect/ef_cm007.efp");
+    m14F8.LoadRequest("/data/effect/ef_sk047a.efp");
+    m1504.LoadRequest("/data/effect/ef_sk047b.efp");
+    m1510.LoadRequest("/data/effect/ef_sk047d.efp");
+    m151C.LoadRequest("/data/effect/ef_sk047e.efp");
+    m1540.LoadRequest("/data/effect/ef_sk047f.efp");
+    m154C.LoadRequest("/data/effect/ef_sk045a.efp");
+    m1558.LoadRequest("/data/effect/ef_sk046a.efp");
+    m1564.LoadRequest("/data/effect/ef_sk040.efp");
+    m1570.LoadRequest("/data/effect/ef_sk021a.efp");
+    m1534.LoadRequest("/effect/ef_bu040g_01.eff");
+    m1528.LoadRequest("/effect/ef_bu040h_01.eff");
+    m157C.LoadRequest("/effect/ef_bs007a.efp");
 }
 
 Em003LesserDaemon::~Em003LesserDaemon() {}
 
 int Em003LesserDaemon::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1588.fn_80473F50() == 0 &&
-        m14EC.fn_80237874() == 0 && m14F8.fn_80237874() == 0 && m1504.fn_80237874() == 0 &&
-        m1510.fn_80237874() == 0 && m151C.fn_80237874() == 0 && m1540.fn_80237874() == 0 &&
-        m154C.fn_80237874() == 0 && m1558.fn_80237874() == 0 && m1564.fn_80237874() == 0 &&
-        m1570.fn_80237874() == 0 && m1534.fn_802376D0() == 0 && m1528.fn_802376D0() == 0 &&
-        m157C.fn_80237874() == 0) {
+        m14EC.IsLoading() == 0 && m14F8.IsLoading() == 0 && m1504.IsLoading() == 0 &&
+        m1510.IsLoading() == 0 && m151C.IsLoading() == 0 && m1540.IsLoading() == 0 &&
+        m154C.IsLoading() == 0 && m1558.IsLoading() == 0 && m1564.IsLoading() == 0 &&
+        m1570.IsLoading() == 0 && m1534.IsLoading() == 0 && m1528.IsLoading() == 0 &&
+        m157C.IsLoading() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0x820D;
@@ -290,7 +290,7 @@ int Em003LesserDaemon::vf0C() {
 }
 
 // inferred: plays an effect on the model (locals in the order of vf88; name invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -308,7 +308,7 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 }
 
 // inferred: same with the locals in the order of game/Em305Vampire.cpp (name invented)
-inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -326,7 +326,7 @@ inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 }
 
 // inferred: same as PlayEffect_unk with the manager read first (name invented)
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -344,7 +344,7 @@ inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
 }
 
 // inferred: same as PlayEffectA_unk with the manager read first (name invented)
-inline void PlayEffectAM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectAM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -362,7 +362,7 @@ inline void PlayEffectAM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_
 }
 
 // inferred: plays an effect at a position (name invented)
-inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
+inline void PlayEffectAt_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -773,7 +773,7 @@ void Em003LesserDaemon::vf3C(HitInfo_unk* hit) {
                 }
             }
             fn_8023A680(lbl_8087F3C0, &m1528, -1, 0, 0, &pos, &rot, 0, 1.0f, 0, -1, 1);
-            if (m16BC == 0 || msg->mData == 0 || (msg->mData->m90 & 0x4000U) != 0x4000U) {
+            if (m16BC == 0 || msg->mData == 0 || (msg->mData->m90.mFlags & 0x4000U) != 0x4000U) {
                 return;
             }
         } else {

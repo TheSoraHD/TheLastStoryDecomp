@@ -8,7 +8,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/Memory.h"
 #include "atn/ResLoader_unk.h"
-#include "game/MotionCmdElemD_unk.h"
+#include "atn/static_string.h"
 #include "macros.h"
 #include "std/string_members.h"
 #include "std/vector_string.h"
@@ -63,14 +63,14 @@ struct Color4f_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int id); // inferred: sets the owner of the next effects
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, void* node,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, void* node,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops the effects
-extern "C" int fn_800928B0(Model_unk* model, int hash, int arg); // inferred: node index by hash
+extern "C" int fn_800928B0(atn::Model* model, int hash, int arg); // inferred: node index by hash
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -238,10 +238,10 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
     int se = 0;
     for (VecIter_unk<GimmickMotionCmd_unk> it(cmds.begin()); it != cmds.end(); it++) {
         if (it->mType == 0) {
-            mEff[eff].fn_80237654(names[it->mIndex].c_str());
+            mEff[eff].LoadRequest(names[it->mIndex].c_str());
             it->mIndex = eff++;
         } else if (it->mType == 1 || it->mType == 2) {
-            mEfp[efp].fn_8023780C(names[it->mIndex].c_str());
+            mEfp[efp].LoadRequest(names[it->mIndex].c_str());
             it->mIndex = efp++;
         } else if (it->mType == 3 || it->mType == 4 || it->mType == 6) {
             mNames[se] = names[it->mIndex].c_str();
@@ -253,12 +253,12 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
 
 int GimmickCommonB0_unk::fn_803F06B0() {
     for (int i = 0; i < (unsigned int)mEff.mSize; i++) {
-        if (mEff[i].fn_802376D0() != 0) {
+        if (mEff[i].IsLoading() != 0) {
             return 1;
         }
     }
     for (int i = 0; i < (unsigned int)mEfp.mSize; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -279,7 +279,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
         fn_803F10AC(1);
         return;
     }
-    Model_unk* model = gimmick->vf38();
+    atn::Model* model = gimmick->vf38();
     int motion = model->mTracks[0].m00;
     float frame = model->mTracks[0].m08;
     float length = model->fn_80097D7C(0);
@@ -482,7 +482,7 @@ void GimmickStateCommand::vf10() {
         int state = mGimmick->m54;
         if (prev != state) {
             fn_803F1A38(0);
-            GimmickManager* mgr = lbl_8087F4A0;
+            GimmickManager* mgr = GimmickManager::instance_;
             for (int i = 0; i < mgr->mSeTables.mSize; i++) {
                 const gmk::SeTable* table = &mgr->mSeTables.mData[i];
                 if (table->mId == mGimmick->mId && table->m08 == state && (table->m04 == 0 || table->m04 == prev)) {

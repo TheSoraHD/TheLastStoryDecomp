@@ -9,11 +9,11 @@ extern "C" float fn_800DC288(const char* s);         // inferred: string to floa
 extern "C" unsigned int fn_800DC6B4(const char* s);  // inferred: string hash
 extern "C" int fn_800DC12C(const char* s);           // inferred: string to int
 extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extension of a path
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* name);        // inferred: motion id
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: adds a motion
-extern "C" void fn_80097D9C(Model_unk* model, Model_unk* source);  // inferred: shares the motions
-extern "C" int fn_800928B0(Model_unk* model, int hash, int arg);   // inferred: node index by hash
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: adds a motion
+extern "C" void fn_80097D9C(atn::Model* model, atn::Model* source);  // inferred: shares the motions
+extern "C" int fn_800928B0(atn::Model* model, int hash, int arg);   // inferred: node index by hash
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECMag(const atn::Vector3* v);
@@ -23,7 +23,7 @@ struct NodeEdit_unk {
     unsigned char m00[0x2C];
 };
 extern "C" void fn_80089EE4(NodeEdit_unk* edit, atn::CsvTab* csv);
-extern "C" void fn_80093F58(Model_unk* model, NodeEdit_unk* edit);
+extern "C" void fn_80093F58(atn::Model* model, NodeEdit_unk* edit);
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 
@@ -127,7 +127,7 @@ void EquipItemData::fn_803637D4() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void EquipItemData::fn_80363960(Model_unk* target) {
+void EquipItemData::fn_80363960(atn::Model* target) {
     mTarget = target;
     mNode = fn_800928B0(target, mNode, 0);
 }
@@ -157,10 +157,10 @@ void EquipItemData::vf08() {
     mModel.m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
     if (mFlags.mCopyMotion) {
         fn_80097D9C(&mModel, mTarget);
-        Model_unk::Node_unk* nodes = mModel.m220;
-        nodes[mModel.fn_80092814("head", 0)].m00 = 0;
+        atn::Model::Node_unk* nodes = mModel.m220;
+        nodes[mModel.GetNodeNoByName("head", 0)].m00 = 0;
     }
-    fn_8000D430(&mModel, boost::function<void()>());
+    mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
 }
 
 void EquipItemData::vf0C() {

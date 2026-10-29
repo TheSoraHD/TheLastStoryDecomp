@@ -11,7 +11,7 @@ public:
     DLAllocator();
     virtual ~DLAllocator();
     void fn_80084EE8(void* base, unsigned long size); // inferred: init
-    virtual void* vf0C(unsigned long size, unsigned long align);
+    virtual void* vf0C(unsigned long size, unsigned long align, int heap, const char* name);
     virtual void vf10(void* p);
     virtual void* vf14();
     virtual void* vf18();

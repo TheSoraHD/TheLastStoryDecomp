@@ -5,7 +5,7 @@
 
 extern "C" void* lbl_8087F048; // inferred: effect/bullet manager of the characters
 extern "C" int fn_800F8548(void* mgr); // inferred: new bullet id
-extern "C" void fn_80105BD8(void* mgr, Model_unk* model);
+extern "C" void fn_80105BD8(void* mgr, atn::Model* model);
 extern "C" void fn_801092C8(void* mgr, int arg, CharaTask* chara, int a, int b);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
@@ -20,12 +20,12 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
 // inferred: plays an effect on the model (name invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -67,7 +67,7 @@ inline void CharaList_unk::Erase_unk(CharaTask** it) {
 Em002_01BlackSkelton::Em002_01BlackSkelton(atn::Task* parent, void* data)
     : EnemyTask(parent, data), m14B8(0), m14CC(0) {
     m14BC.__shrink_unk(0);
-    m14D0.fn_8023780C("/effect/ef_uc023.efp");
+    m14D0.LoadRequest("/effect/ef_uc023.efp");
 }
 
 Em002_01BlackSkelton::~Em002_01BlackSkelton() {}
@@ -75,7 +75,7 @@ Em002_01BlackSkelton::~Em002_01BlackSkelton() {}
 // NONMATCHING: 94.4% - same instructions; the flag word 0x12A4 and the size of m14BC get other
 // registers (the original ors the loaded word into a new register)
 int Em002_01BlackSkelton::vf0C() {
-    if (fn_8013655C() == 0 && m14D0.fn_80237874() == 0) {
+    if (fn_8013655C() == 0 && m14D0.IsLoading() == 0) {
         m14B0 = 0;
         m14B4 = 0;
         m590 = fn_800F8548(lbl_8087F048);
@@ -272,7 +272,7 @@ void Em002_01BlackSkelton::fn_80247DA4() {
     if (target != 0) {
         GimmickCommon* best = 0;
         float bestDist = 1e16f;
-        for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
             if (g->vf60() && g->m50 == 29) {
                 float dist = fn_805F9920(&(g->m6C - target->mPos));
                 if (dist < bestDist) {

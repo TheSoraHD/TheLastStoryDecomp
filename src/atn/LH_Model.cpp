@@ -71,11 +71,11 @@ public:
     void* m5C;                         // 'modl' chunk
     void* m60;                         // 'omdl' chunk
     void* m64;                         // 'occt' chunk
-    Buffer_unk<Matrix3x4> mMatrices;   // 0x68: inverse joint matrices
-    Buffer_unk<unsigned short> mJoints; // 0x70: joints that have m70 > 0
+    SimpleArray<Matrix3x4> mMatrices;   // 0x68: inverse joint matrices
+    SimpleArray<unsigned short> mJoints; // 0x70: joints that have m70 > 0
     int m78;
-    Buffer_unk<void*> mTextures;       // 0x7C
-    Buffer_unk<int> m84;
+    SimpleArray<void*> mTextures;       // 0x7C
+    SimpleArray<int> m84;
 };
 
 LoadModel::~LoadModel() {

@@ -180,3 +180,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `Gecko_ExceptionPPC.cp`: aparcada por decisión del usuario (tamaño de extab).
 - Umbral de autoinline con `((void)0)` también en DWC (`dwc_match`); `DWCi_SetMatchStatus` inlineada ~54 veces numera `oldState`/`prev` al revés.
 - Funciones eliminadas por el enlazador dejan cadenas en `.data`: en dwc_ghttp se reconstruyó `DWC_GetGHTTPData`.
+- Instanciación explícita de un miembro de plantilla (`template R C<char>::f(...);`): emite solo ese miembro, débil, en ese punto del fichero, sin vtable (copias débiles de MSL en `atn/WordWrap_unk`).
+- La vptr va donde se declara la primera función virtual entre los miembros (`struct B { int x; virtual ~B(); int y; }` → vptr en 0x04).
+- Destructor de clase con base virtual: guarda `this+off - vbase` en el hueco de la base virtual y llama al de la base no virtual con `r4 = 0`; el thunk `@<off>@<slot>@__dt__...` sale con la vtable (por eso los de `basic_stringstream` son de `GameEventScript`).
+- Incluir la definición completa de una plantilla con inlines (`static_string`) puede cambiar la asignación de registros de una función no relacionada (`GimmickCommon::fn_803EDB18`); una declaración adelantada lo evita.
+- Con `main.dol: FAILED` no se regenera `report.json`: `regress.py`/`fuzzdrop.py` comparan el viejo y dan 0. Mirar la línea de `main.dol` antes de fiarse.
+- Renombrar una clase que es argumento de plantilla obliga a recalcular el prefijo de longitud de la plantilla en `symbols.txt` (`33scoped_ptr<Q23atn13EfpHandle_unk>` → `26scoped_ptr<Q23atn7EfpFile>`).

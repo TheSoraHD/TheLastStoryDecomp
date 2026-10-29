@@ -111,7 +111,7 @@ void LoadEffect::vf0C() {
             EffectEntry_unk* entry = &mData.mEntries[i];
             if (mData.mObjects[i] != 0) {
                 if (entry->mType == 1) {
-                    if (((Model_unk*)mData.mObjects[i])->fn_8008B140() != 0) {
+                    if (((atn::Model*)mData.mObjects[i])->fn_8008B140() != 0) {
                         loading = true;
                     }
                 } else if (entry->mType == 2) {

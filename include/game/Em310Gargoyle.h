@@ -84,13 +84,13 @@ public:
     atn::Vector3 m15B8;       // inferred: seat positions
     atn::Vector3 m15C4;
     float m15D0;
-    atn::EfpHandle_unk m15D4; // inferred: "ef_uc037.efp"
+    atn::EfpFile m15D4; // inferred: "ef_uc037.efp"
     int m15E0;                // inferred: "DamageCalcMode" (0..2)
     atn::Vector3 m15E4;       // inferred: position of the "neck" node
     unsigned char m15F0;
     unsigned char m15F1;
     unsigned char m15F2[0x15F4 - 0x15F2];
-    atn::EfpHandle_unk m15F4; // inferred: "ef_cm008.efp"
+    atn::EfpFile m15F4; // inferred: "ef_cm008.efp"
     ResHandle m1600;          // inferred: debug menu group
     int m1604;                // inferred: "DebugDisp"
     float m1608;              // inferred: "BulletRotX"

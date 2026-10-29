@@ -26,7 +26,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
@@ -79,7 +79,7 @@ AttractHatePoint::~AttractHatePoint() {
 }
 
 int AttractHatePoint::vf1C() {
-    if (mEfpOn.fn_80237874() != 0 || mEfpAttract.fn_80237874() != 0 || mEfpWait.fn_80237874() != 0) {
+    if (mEfpOn.IsLoading() != 0 || mEfpAttract.IsLoading() != 0 || mEfpWait.IsLoading() != 0) {
         return 1;
     }
     return 0;
@@ -96,11 +96,11 @@ void AttractHatePoint::vf20() {
         if (strcmp(field, "EFP") == 0) {
             const char* kind = csv.fn_8005B9CC();
             if (strcmp(kind, "ON") == 0) {
-                mEfpOn.fn_8023780C(csv.fn_8005B9CC());
+                mEfpOn.LoadRequest(csv.fn_8005B9CC());
             } else if (strcmp(kind, "ATTRACT") == 0) {
-                mEfpAttract.fn_8023780C(csv.fn_8005B9CC());
+                mEfpAttract.LoadRequest(csv.fn_8005B9CC());
             } else if (strcmp(kind, "WAIT") == 0) {
-                mEfpWait.fn_8023780C(csv.fn_8005B9CC());
+                mEfpWait.LoadRequest(csv.fn_8005B9CC());
             }
         }
     } while (csv.fn_8005BBF8() != 0);
@@ -114,7 +114,7 @@ int AttractHatePoint::vf0C() {
     return 0;
 }
 
-void AttractHatePoint::vf28() {
+void AttractHatePoint::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     mRadius = mDesc->m40;
@@ -128,7 +128,7 @@ void AttractHatePoint::vf10() {
     }
     mInRange = 0;
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (m54 == 1) {
         return;

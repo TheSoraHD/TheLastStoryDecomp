@@ -51,7 +51,7 @@ public:
     CharaTask* m14B8;       // inferred: target
     RoutePlace_unk* m14BC;  // inferred: "WaitPointID"
     RoutePlace_unk* m14C0;  // inferred: "ShootPointID"
-    atn::Vector_unk<atn::Vector3> m14C4; // inferred: points (as Em101ElderZesya::m14BC)
+    atn::SimpleVector<atn::Vector3> m14C4; // inferred: points (as Em101ElderZesya::m14BC)
     int m14D0;              // inferred: frame counter
     unsigned char m14D4[0x14EC - 0x14D4];
     int m14EC;
@@ -82,9 +82,9 @@ public:
     float m1560;
     float m1564;
     float m1568;            // inferred: added to the regeneration (CharaStatus +0x174)
-    atn::EfpHandle_unk m156C;
-    atn::EfpHandle_unk m1578;
-    atn::EfpHandle_unk m1584;
+    atn::EfpFile m156C;
+    atn::EfpFile m1578;
+    atn::EfpFile m1584;
     atn::Vector3 m1590;     // inferred: warp destination
     unsigned char m159C[0x15A8 - 0x159C];
     ZesyaWarp_unk m15A8;

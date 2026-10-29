@@ -3,6 +3,8 @@
 // HBMRso* are C++ functions (mangled names in symbols.txt), declared in game/HBMRso.h.
 
 #include "math/Vec.h"
+#include "atn/FileList.h"
+#include "atn/MemoryManager.h"
 #include "game/HBMRso.h"
 #include "atn/GraphicsDevice.h"
 
@@ -14,17 +16,7 @@ extern "C" unsigned long VIGetTvFormat();
 extern "C" void GXSetColorUpdate(unsigned char enable);
 extern "C" void C_MTXOrtho(float m[4][4], float t, float b, float l, float r, float n, float f);
 
-// inferred: memory manager of atn (fn_800827E0); allocator at +8
-struct MemoryManager_unk {
-    unsigned char m00[0x08];
-    unsigned char mAllocator[1]; // 0x08: inferred: MEMAllocator handed to the HBM library
-};
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg); // inferred: allocation
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);     // inferred: free
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg); // inferred: loads a file
-extern "C" void fn_8006BB6C(void* data, int arg);                             // inferred: frees loaded data
 
 // inferred: HBM library (unnamed in symbols.txt)
 extern "C" void HBMCreate(HBMDataInfo* info);
@@ -91,9 +83,9 @@ extern "C" void fn_80440B2C(HBMDataInfo* info) {
     }
     unsigned long size = 0;
     void* data = fn_8006BA8C(path, &size, 0);
-    info->layoutBuf = fn_800839EC(fn_800827E0(), size, 0x20, 1, "", "", 0, 0);
+    info->layoutBuf = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)1, "", "", 0, 0);
     memcpy(info->layoutBuf, data, size);
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
     strcpy(path, sHbmDir_unk);
     strcat(path, "/SpeakerSe.arc");
     info->spkSeBuf = fn_8006BA8C(path, &size, 0);
@@ -112,7 +104,7 @@ extern "C" void fn_80440B2C(HBMDataInfo* info) {
     info->frameDelta = 1.0f;
     info->mem = 0;
     info->memSize = 0;
-    info->pAllocator = fn_800827E0()->mAllocator;
+    info->pAllocator = atn::MemoryManager::Instance()->mSdk;
     info->messageFlag = 0;
 }
 
@@ -178,10 +170,10 @@ void HBMRsoCreate(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
     strcpy(path, sHbmDir_unk);
     strcat(path, "/HomeButtonSe.arc");
     void* data = fn_8006BA8C(path, &size, 0);
-    soundData = (unsigned char*)fn_800839EC(fn_800827E0(), size, 0x20, 1, "", "", 0, 0);
+    soundData = (unsigned char*)atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)1, "", "", 0, 0);
     memcpy(soundData, data, size);
-    fn_8006BB6C(data, 0);
-    soundBuf = (unsigned char*)fn_800839EC(fn_800827E0(), 0x18700, 0x20, 1, "", "", 0, 0);
+    atn::FileFreeBuffer((char*)data, false);
+    soundBuf = (unsigned char*)atn::MemoryManager::Instance()->AllocFromMem2(0x18700, 0x20, (MemoryTag)1, "", "", 0, 0);
     HBMCreateSound(soundData, soundBuf, 0x18700);
 }
 
@@ -191,14 +183,14 @@ void HBMRsoDelete(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
     HBMDeleteSound();
     void* mem = info.mem;
     if (mem != 0) {
-        fn_80083AD4(fn_800827E0(), mem);
+        atn::MemoryManager::Instance()->Free(mem);
     }
-    fn_80083AD4(fn_800827E0(), info.layoutBuf);
-    fn_80083AD4(fn_800827E0(), info.spkSeBuf);
-    fn_8006BB6C(info.msgBuf, 0);
-    fn_8006BB6C(info.configBuf, 0);
-    fn_80083AD4(fn_800827E0(), soundData);
-    fn_80083AD4(fn_800827E0(), soundBuf);
+    atn::MemoryManager::Instance()->Free(info.layoutBuf);
+    atn::MemoryManager::Instance()->Free(info.spkSeBuf);
+    atn::FileFreeBuffer((char*)info.msgBuf, false);
+    atn::FileFreeBuffer((char*)info.configBuf, false);
+    atn::MemoryManager::Instance()->Free(soundData);
+    atn::MemoryManager::Instance()->Free(soundBuf);
 }
 
 // inferred: opens the menu

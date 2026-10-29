@@ -59,7 +59,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -70,7 +70,7 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void* lbl_8087EE98; // inferred: collision world
@@ -203,7 +203,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 // inferred: plays an effect on the model (as in game/Em302Kraken.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -319,12 +319,12 @@ Em204Mulue::Em204Mulue(atn::Task* parent, EnemyInfo_unk* info)
     mFlag22 = 1;
     mStatus.mParamB.m9C |= 0x10;
     m1614.SetIdentity();
-    m14FC.fn_8023780C("ef_sk015a.efp");
-    m1508.fn_80237654("ef_sk002b.eff");
-    m1514.fn_8023780C("ef_sk008d.efp");
-    m1520.fn_8023780C("ef_uc011.efp");
-    m152C.fn_8023780C("ef_cm009.efp");
-    m1654.fn_8023780C("ef_sc012.efp");
+    m14FC.LoadRequest("ef_sk015a.efp");
+    m1508.LoadRequest("ef_sk002b.eff");
+    m1514.LoadRequest("ef_sk008d.efp");
+    m1520.LoadRequest("ef_uc011.efp");
+    m152C.LoadRequest("ef_cm009.efp");
+    m1654.LoadRequest("ef_sc012.efp");
     std::string dir("database/chara/special/");
     std::string name("db_em204_00_00.csv");
     atn::Csv csv(info->m2C, strlen(info->m2C));
@@ -344,9 +344,9 @@ Em204Mulue::Em204Mulue(atn::Task* parent, EnemyInfo_unk* info)
 Em204Mulue::~Em204Mulue() {}
 
 int Em204Mulue::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14FC.fn_80237874() == 0 &&
-        m1508.fn_802376D0() == 0 && m1514.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
-        m152C.fn_80237874() == 0 && m1654.fn_80237874() == 0 && m1844.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14FC.IsLoading() == 0 &&
+        m1508.IsLoading() == 0 && m1514.IsLoading() == 0 && m1520.IsLoading() == 0 &&
+        m152C.IsLoading() == 0 && m1654.IsLoading() == 0 && m1844.fn_80473F50() == 0) {
         mColli.mFlags &= ~0x80000000;
         m168C.mFlags |= 3;
         m168C.m0C = (int)this;
@@ -1160,7 +1160,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     }
     atn::Matrix3x4 m;
     MulueRotZYX_unk(m, mRot);
-    Model_unk* model = &mMotion;
+    atn::Model* model = &mMotion;
     atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
     PlayerTask* player = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C((const char*)1);
     atn::Vector3 dir;
@@ -1174,7 +1174,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
         fn_800C344C("SE_EM204_014", &mPos, 0, -1, 1.0f);
         for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
             if (c->CanAct_unk() && !(skipKind3 != 0 && c->mType == 3)) {
-                Model_unk* cm = &c->mMotion;
+                atn::Model* cm = &c->mMotion;
                 atn::Vector3 pos = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
                 atn::Vector3 to = (pos - hips).GetNormalize();
                 Bullet* bullet = fn_801010A0(lbl_8087F048);

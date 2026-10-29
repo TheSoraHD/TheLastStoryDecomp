@@ -11,8 +11,8 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, const char* node, float distance); // inferred: adds a LOD
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, const char* node, float distance); // inferred: adds a LOD
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
@@ -34,7 +34,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -76,7 +76,7 @@ int HealPoint::vf0C() {
     return 0;
 }
 
-void HealPoint::vf28() {
+void HealPoint::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -93,7 +93,7 @@ void HealPoint::vf28() {
 
 void HealPoint::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (mWait > 0) {
         mWait--;
@@ -123,7 +123,7 @@ int HealPoint::vf1C() {
     if (mColli.fn_800580BC() != 0) {
         return 1;
     }
-    return mEfp.fn_80237874() != 0;
+    return mEfp.IsLoading() != 0;
 }
 
 void HealPoint::vf20() {
@@ -144,7 +144,7 @@ void HealPoint::vf20() {
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "SKILL") == 0) {
             mSkill = fn_80219E6C(atoi(csv.fn_8005B9CC()));
         }
@@ -211,7 +211,7 @@ void HealPoint::fn_8040FAA4(SkillEffect* effect) {
     mWait = 5;
 }
 
-Model_unk* HealPoint::vf38() {
+atn::Model* HealPoint::vf38() {
     return &mModel;
 }
 

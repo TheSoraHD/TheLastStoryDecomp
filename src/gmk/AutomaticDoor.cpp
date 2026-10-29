@@ -11,9 +11,9 @@ extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
@@ -30,7 +30,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -76,7 +76,7 @@ struct ModelCamera_unk {
     Camera_unk mCamera; // 0x08
 };
 // inferred: inlined (its literals are @STRING@ objects in .sdata, shared with game/CharaTask.cpp)
-inline void CreateCamera_unk(Model_unk* model) {
+inline void CreateCamera_unk(atn::Model* model) {
     model->m208.reset(new (6, "", "", 0) ModelCamera_unk());
 }
 // inferred: screen data of a sphere (result of fn_800C122C); names invented
@@ -84,7 +84,7 @@ struct ScreenInfo_unk {
     unsigned char m000[0x120];
     int m120;
 };
-extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const Model_unk::Sphere_unk* sphere);
+extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 extern "C" void fn_800C2C20(ScreenInfo_unk* info, const Plane_unk* plane); // inferred: sets the reflection plane
 extern "C" int lbl_8087DF50; // inferred: reflections enabled
 extern "C" atn::Vector3 fn_800BFAC8(Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
@@ -112,7 +112,7 @@ struct DoorProject_unk {
     atn::Texture_unk* mTexture;
     Camera_unk mCamera;
 };
-extern "C" void fn_80095F10(Model_unk* model, DoorProject_unk* project);
+extern "C" void fn_80095F10(atn::Model* model, DoorProject_unk* project);
 
 // inferred: normalizes unless the vector is (almost) zero (as in gmk::WaterLevel); name invented
 inline void SafeNormalize_unk(atn::Vector3* v) {
@@ -121,7 +121,7 @@ inline void SafeNormalize_unk(atn::Vector3* v) {
     }
     PSVECNormalize(v, v);
 }
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -177,14 +177,14 @@ int AutomaticDoor::vf0C() {
             CreateCamera_unk(&mModel);
         }
         if (strlen(mBoundNode.mStr) != 0 && mModel.mB0 < 0) {
-            mModel.fn_80095D44(mModel.fn_80092814(mBoundNode.mStr, 0), -1);
+            mModel.fn_80095D44(mModel.GetNodeNoByName(mBoundNode.mStr, 0), -1);
         }
         return 1;
     }
     return 0;
 }
 
-void AutomaticDoor::vf28() {
+void AutomaticDoor::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -214,7 +214,7 @@ void AutomaticDoor::vf28() {
 
 void AutomaticDoor::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     } else if (m54 == 2) {
         if (mParams[0].mMotions[1] >= 0) {
             GimmickMsg_unk msg(3);
@@ -422,7 +422,7 @@ int AutomaticDoor::vf1C() {
     }
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            if (mParams[i].mEfp[j].fn_80237874() != 0) {
+            if (mParams[i].mEfp[j].IsLoading() != 0) {
                 return 1;
             }
         }
@@ -462,7 +462,7 @@ void AutomaticDoor::vf20() {
             } else if (strcmp(field, "_EFF") == 0) {
                 for (int i = 0; i < 3; i++) {
                     if (strlen(csv.fn_8005B9CC()) != 0) {
-                        mParams[0].mEfp[i].fn_8023780C(csv.mField);
+                        mParams[0].mEfp[i].LoadRequest(csv.mField);
                     }
                 }
             }
@@ -475,7 +475,7 @@ void AutomaticDoor::vf20() {
             } else if (strcmp(field, "_EFF") == 0) {
                 for (int i = 0; i < 3; i++) {
                     if (strlen(csv.fn_8005B9CC()) != 0) {
-                        mParams[2].mEfp[i].fn_8023780C(csv.mField);
+                        mParams[2].mEfp[i].LoadRequest(csv.mField);
                     }
                 }
             }
@@ -488,7 +488,7 @@ void AutomaticDoor::vf20() {
             } else if (strcmp(field, "_EFF") == 0) {
                 for (int i = 0; i < 3; i++) {
                     if (strlen(csv.fn_8005B9CC()) != 0) {
-                        mParams[1].mEfp[i].fn_8023780C(csv.mField);
+                        mParams[1].mEfp[i].LoadRequest(csv.mField);
                     }
                 }
             }
@@ -517,7 +517,7 @@ void AutomaticDoor::vf24() {
             mPlane.mNormal.y = fn_800DC288(csv.fn_8005B9CC());
             mPlane.mNormal.z = fn_800DC288(csv.fn_8005B9CC());
             mPlane.mDist = fn_800DC288(csv.fn_8005B9CC());
-            mReflectNode = mModel.fn_80092814(csv.fn_8005B9CC(), 0);
+            mReflectNode = mModel.GetNodeNoByName(csv.fn_8005B9CC(), 0);
         } else if (strcmp(field, "KNOB_OFFSET") == 0) {
             mKnob = atoi(csv.fn_8005B9CC());
         }
@@ -693,7 +693,7 @@ void AutomaticDoor::vf3C(void* lens) {
     mModel.mFlags |= 0x10000;
 }
 
-Model_unk* AutomaticDoor::vf38() {
+atn::Model* AutomaticDoor::vf38() {
     return &mModel;
 }
 

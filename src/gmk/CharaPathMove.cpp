@@ -10,8 +10,8 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" float fn_800DC288(const char* s);  // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);    // inferred: string to int
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value);   // inferred: stops a track
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value);   // inferred: stops a track
 extern "C" void fn_8032AF90(gmk::PathData_unk* path, std::vector<atn::Vector3>* points); // inferred: builds the path
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
@@ -109,7 +109,7 @@ void CharaPathMove::UpdateAll_unk(int skip) {
     }
 }
 
-void CharaPathMove::vf28() {
+void CharaPathMove::Start() {
     vf2C();
     GimmickMsg_unk msg(1);
     vf40(&msg);
@@ -125,7 +125,7 @@ void CharaPathMove::vf28() {
 
 void CharaPathMove::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     Step_unk();
     UpdateAll_unk(0);
@@ -273,7 +273,7 @@ void PathChara_unk::fn_8043E6B0(const char* motion, float speed, std::vector<std
 // NONMATCHING: 89.59% - 16 bytes smaller frame and one saved register less; owner reloaded for
 // rand() % mUpperInterval; same .sdata2 order issue as vf6C.
 void PathChara_unk::fn_8043E770() {
-    ((void)0); // inferred: assertions compiled out (keep the function out of line in vf28/vf10)
+    ((void)0); // inferred: assertions compiled out (keep the function out of line in Start/vf10)
     ((void)0);
     if (mOwner != 0 && mChara != 0) {
         if (mOwner->mPoints.size() >= 2) {
@@ -333,7 +333,7 @@ void PathChara_unk::fn_8043EA64(int skip) {
         }
         if (skip == 0 && mOwner->mUpperMotions.size() != 0) {
             mTimer++;
-            Model_unk* motion = &mChara->mMotion;
+            atn::Model* motion = &mChara->mMotion;
             if (mTimer >= mOwner->mUpperInterval + rand() % 100) {
                 mTimer = 0;
                 motion->fn_80097C08(3, 0xEF + rand() % mOwner->mUpperMotions.size(), 0, 0, 1, 0.0f, 0.1f);

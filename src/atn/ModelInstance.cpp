@@ -57,15 +57,15 @@ struct InstLod_unk {
 // inferred: callbacks called by the model while it is drawn (0x1F0 in the model)
 struct InstCallback_unk {
     InstCallback_unk() : mFunc1(0), mFunc2(0), mInstance(0), mModel(0) {}
-    InstCallback_unk(void (*f1)(atn::ModelInstance*, Model_unk*), void (*f2)(atn::ModelInstance*, Model_unk*),
-                     atn::ModelInstance* instance, Model_unk* model)
+    InstCallback_unk(void (*f1)(atn::ModelInstance*, atn::Model*), void (*f2)(atn::ModelInstance*, atn::Model*),
+                     atn::ModelInstance* instance, atn::Model* model)
         : mFunc1(f1), mFunc2(f2), mInstance(instance), mModel(model) {}
-    void (*mFunc1)(atn::ModelInstance*, Model_unk*);
-    void (*mFunc2)(atn::ModelInstance*, Model_unk*);
+    void (*mFunc1)(atn::ModelInstance*, atn::Model*);
+    void (*mFunc2)(atn::ModelInstance*, atn::Model*);
     // inferred: name invented
     void Clear_unk() { *this = InstCallback_unk(); }
     atn::ModelInstance* mInstance;
-    Model_unk* mModel;
+    atn::Model* mModel;
 };
 
 // inferred: view of the model fields used here (offsets in atn::Model)
@@ -359,9 +359,9 @@ inline void ModelInstance::DrawModel_unk(InstModel_unk* model, InstCamera_unk* c
         int flags = mFlags;
         model->mFlags |= flags;
         *(Matrix3x4*)(model->m08) = mMtx;
-        model->mCallback = InstCallback_unk((void (*)(ModelInstance*, Model_unk*))fn_8009F444,
-                                            (void (*)(ModelInstance*, Model_unk*))fn_8009F448, this,
-                                            (Model_unk*)model);
+        model->mCallback = InstCallback_unk((void (*)(ModelInstance*, atn::Model*))fn_8009F444,
+                                            (void (*)(ModelInstance*, atn::Model*))fn_8009F448, this,
+                                            (atn::Model*)model);
         model->mLod = mLod;
         int count = model->mLodCount;
         if (model->mLod >= count) {
@@ -492,7 +492,7 @@ void ModelInstance::fn_8009F4AC(InstModel_unk* model) {
     }
     fn_80091684(model, lbl_8087EFB4->m15C, ((InstLod_unk*)((unsigned char*)model->mLods + model->mLod * 0x18))->mData);
     if (model == &mData->mModel && m7C != 0) {
-        ((Model_unk*)model)->fn_800954DC(m7C, m74, m70);
+        ((atn::Model*)model)->fn_800954DC(m7C, m74, m70);
     }
 }
 

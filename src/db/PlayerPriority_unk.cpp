@@ -70,7 +70,7 @@ extern "C" void fn_802189EC() {
 
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, sWeaponFileName, &size, 0x20);
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         csv.fn_8005B9CC(); // inferred: a column that is not used
@@ -80,7 +80,7 @@ extern "C" void fn_802189EC() {
     fn_8046DD20(lbl_8087F518, data);
 
     data = fn_8046DC5C(lbl_8087F518, sProtectorFileName, &size, 0x20);
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     i = 0;
     while (csv.fn_8005BBF8() != 0) {
         csv.fn_8005B9CC(); // inferred: a column that is not used

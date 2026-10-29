@@ -92,7 +92,7 @@ public:
     int mFlashR;                   // 0x84
     std::basic_string<wchar_t> mTitle; // 0x88
     int mPage;                     // 0x94
-    atn::Buffer_unk<LibraryPage_unk> mPages; // 0x98
+    atn::SimpleArray<LibraryPage_unk> mPages; // 0x98
 };
 
 // inferred from __vt__11LibraryTask (0x8078FAF0): book list of the library; singleton

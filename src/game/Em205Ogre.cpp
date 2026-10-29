@@ -18,7 +18,7 @@ extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_80599C90(Bullet_unk* bullet, CharaTask* chara); // inferred: the effect can reach `chara`
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_80093C8C(Model_unk* model, const char* name); // inferred: nonzero while the named motion part plays
+extern "C" int fn_80093C8C(atn::Model* model, const char* name); // inferred: nonzero while the named motion part plays
 extern "C" int rand();
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
@@ -36,7 +36,7 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: plays an effect resource (as in game/ColliAttrManager.cpp; the color is passed as null here)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const void* color, float scale, int e, int f, int g);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance
@@ -139,8 +139,8 @@ Em205Ogre::Em205Ogre(atn::Task* parent, EnemyInfo_unk* info)
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
         MapInfo_unk* map = fn_80373148(lbl_8087F430);
         if (map->m48 == 2 && map->m4C == 10 && map->m50 == 2) {
-            m1514.reset(new (3, "", "", 0) ResLoader_unk());
-            m1514->fn_80237654("/data/eff/gm001_000a02.eff");
+            m1514.reset(new (3, "", "", 0) atn::EffFile());
+            m1514->LoadRequest("/data/eff/gm001_000a02.eff");
         }
     }
     mFlagB4 = 1;
@@ -159,7 +159,7 @@ int Em205Ogre::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1514 && m1514->fn_802376D0()) {
+    if (m1514 && m1514->IsLoading()) {
         return 0;
     }
     fn_802B7AF8((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
@@ -487,7 +487,7 @@ void Em205Ogre::vf108() {
                     HitInfo_unk* skill = fn_80219E6C(m14E8);
                     fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
                     if (m1514) {
-                        GimmickCommon* g = lbl_8087F4A0 != 0 ? lbl_8087F4A0->fn_803EEE10(0x41B, 1) : 0;
+                        GimmickCommon* g = GimmickManager::instance_ != 0 ? GimmickManager::instance_->fn_803EEE10(0x41B, 1) : 0;
                         if (g != 0) {
                             atn::Vector3 pos = g->vf54();
                             pos.y = g->m6C.y;
@@ -592,7 +592,7 @@ void Em205Ogre::fn_802B98B0() {
         }
     }
     atn::Vector3 head;
-    int neck = mMotion.fn_80092814("neck", 0);
+    int neck = mMotion.GetNodeNoByName("neck", 0);
     if (neck > -1) {
         head = GetNodePos_unk(mMotion.mNodeMtx[neck]);
         head.y -= 1.0f;

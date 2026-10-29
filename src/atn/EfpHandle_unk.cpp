@@ -2,7 +2,7 @@
 #include "atn/ResLoader_unk.h"
 #include "atn/SwapDesc_unk.h"
 
-// Loaders of the effect resources (ResLoader_unk: LH_Effect, EfpHandle_unk: LH_Efp) and the byte
+// Loaders of the effect resources (atn::EffFile: LH_Effect, EfpFile: LH_Efp) and the byte
 // swapper of the effect files. Name of the file invented.
 
 struct EffectRes_unk;
@@ -85,18 +85,18 @@ extern "C" int fn_802371BC(unsigned char* data, const SwapDesc_unk* desc) {
     return size;
 }
 
-ResLoader_unk::ResLoader_unk() : mResource(0) {}
+atn::EffFile::EffFile() : mResource(0) {}
 
-ResLoader_unk::~ResLoader_unk() {
-    fn_8023772C();
+atn::EffFile::~EffFile() {
+    Destroy();
 }
 
-void ResLoader_unk::fn_80237654(const char* path) {
-    fn_8023772C();
+void atn::EffFile::LoadRequest(const char* path) {
+    Destroy();
     mLoader.vf0C(path);
 }
 
-int ResLoader_unk::fn_802376D0() {
+int atn::EffFile::IsLoading() {
     if (mLoader.fn_80473F50()) {
         return 1;
     }
@@ -106,7 +106,7 @@ int ResLoader_unk::fn_802376D0() {
     return 0;
 }
 
-void ResLoader_unk::fn_8023772C() {
+void atn::EffFile::Destroy() {
     if (mResource != 0) {
         if (lbl_8087F3C0 != 0) {
             lbl_8087F3C0->fn_8023A2A8(this);
@@ -116,16 +116,16 @@ void ResLoader_unk::fn_8023772C() {
     }
 }
 
-// inferred: (ResLoader_unk) length of the effect played for `frames` frames, 0 without resource
-extern "C" int fn_80237784(ResLoader_unk* loader, int frames) {
+// inferred: (atn::EffFile) length of the effect played for `frames` frames, 0 without resource
+extern "C" int fn_80237784(atn::EffFile* loader, int frames) {
     if (loader->mResource != 0) {
         return fn_802386FC(loader->mResource, frames);
     }
     return 0;
 }
 
-// inferred: (ResLoader_unk) field 0x38 of the effect resource
-extern "C" int fn_8023779C(ResLoader_unk* loader) {
+// inferred: (atn::EffFile) field 0x38 of the effect resource
+extern "C" int fn_8023779C(atn::EffFile* loader) {
     if (loader->mResource != 0) {
         return ((int*)loader->mResource)[0x38 / 4];
     }
@@ -134,13 +134,13 @@ extern "C" int fn_8023779C(ResLoader_unk* loader) {
 
 namespace atn {
 
-EfpHandle_unk::EfpHandle_unk() : mResource(0) {}
+EfpFile::EfpFile() : mResource(0) {}
 
-void EfpHandle_unk::fn_8023780C(const char* path) {
+void EfpFile::LoadRequest(const char* path) {
     mLoader.vf0C(path);
 }
 
-void EfpHandle_unk::fn_8023781C() {
+void EfpFile::Destroy() {
     if (mResource != 0) {
         if (lbl_8087F3C0 != 0) {
             lbl_8087F3C0->fn_8023A340((EffectRes_unk*)this);
@@ -150,7 +150,7 @@ void EfpHandle_unk::fn_8023781C() {
     }
 }
 
-int EfpHandle_unk::fn_80237874() {
+int EfpFile::IsLoading() {
     if (mLoader.fn_80473F50() == 0) {
         mResource = mLoader.fn_80473C20();
         return 0;
@@ -161,7 +161,7 @@ int EfpHandle_unk::fn_80237874() {
 } // namespace atn
 
 // inferred: number of loops of the effect (field 0x0C of the efp resource), 0 without resource
-extern "C" int fn_802378C4(atn::EfpHandle_unk* efp) {
+extern "C" int fn_802378C4(atn::EfpFile* efp) {
     if (efp->mResource != 0) {
         return ((int*)efp->mResource)[0x0C / 4];
     }

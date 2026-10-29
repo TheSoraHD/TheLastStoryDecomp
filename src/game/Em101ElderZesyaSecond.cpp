@@ -46,7 +46,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int rand();
@@ -110,7 +110,7 @@ struct ControlMagic_unk {
 static const char* const sSounds_unk[] = {"SE_SP007_001", "SE_SP007_003"};
 
 // inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -150,15 +150,15 @@ Em101ElderZesyaSecond::Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* i
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14B0.vf0C(path.c_str());
-    m1518.fn_8023780C("cm002_00.efp");
-    m1524.fn_8023780C("ef_sk026a.efp");
-    m1530.fn_8023780C("ef_bs007a.efp");
-    m153C.fn_8023780C("ef_bs066e.efp");
-    m155C.fn_8023780C("ef_bs067a.efp");
-    m1568.fn_8023780C("ef_bs067b.efp");
-    m1574.fn_8023780C("ef_ui002b.efp");
-    m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
-    m121C->fn_8023780C("ef_bu013.efp");
+    m1518.LoadRequest("cm002_00.efp");
+    m1524.LoadRequest("ef_sk026a.efp");
+    m1530.LoadRequest("ef_bs007a.efp");
+    m153C.LoadRequest("ef_bs066e.efp");
+    m155C.LoadRequest("ef_bs067a.efp");
+    m1568.LoadRequest("ef_bs067b.efp");
+    m1574.LoadRequest("ef_ui002b.efp");
+    m121C.reset(new (1, "", "", 0) atn::EfpFile());
+    m121C->LoadRequest("ef_bu013.efp");
     m14FC[0] = 0x5E6;
     mFlagB5 = 1;
     m14FC[1] = 0x5EA;
@@ -171,8 +171,8 @@ Em101ElderZesyaSecond::~Em101ElderZesyaSecond() {}
 // of the growth path and an extra saved register)
 int Em101ElderZesyaSecond::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14B0.fn_80473F50() == 0 &&
-        m1518.fn_80237874() == 0 && m153C.fn_80237874() == 0 && m155C.fn_80237874() == 0 &&
-        m1568.fn_80237874() == 0 && m1574.fn_80237874() == 0 && m1530.fn_80237874() == 0) {
+        m1518.IsLoading() == 0 && m153C.IsLoading() == 0 && m155C.IsLoading() == 0 &&
+        m1568.IsLoading() == 0 && m1574.IsLoading() == 0 && m1530.IsLoading() == 0) {
         if (m14B0.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
             do {
@@ -213,7 +213,7 @@ int Em101ElderZesyaSecond::vf0C() {
 }
 
 // inferred: same as PlayEffect_unk with the manager as a parameter (name invented)
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -231,7 +231,7 @@ inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
 }
 
 // inferred: plays a colored effect on the model (name invented)
-inline void PlayColorEffect_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, const Color4f_unk& color) {
+inline void PlayColorEffect_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const Color4f_unk& color) {
     fn_8023A8B4(mgr, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
 }
 

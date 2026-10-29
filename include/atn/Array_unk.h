@@ -7,14 +7,15 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 
 namespace atn {
 
-// inferred: growable array {size, capacity, data} allocated with new[] (names invented). Its
+// atn::SimpleVector (name and operator[](int) from the RSO; the other method names are invented):
+// growable array {size, capacity, data} allocated with new[]. Its
 // members are defined in the class body: their literals are @STRING@ objects in .sdata
 // (0x8087DF10/0x8087DF14 for the new[] of GimmickManager::fn_803EE7FC).
 template <class T>
-class Vector_unk {
+class SimpleVector {
 public:
-    Vector_unk() : mSize(0), mCapacity(0), mData(0) {}
-    ~Vector_unk() {
+    SimpleVector() : mSize(0), mCapacity(0), mData(0) {}
+    ~SimpleVector() {
         if (mData != 0) {
             delete[] mData;
         }
@@ -75,7 +76,7 @@ public:
         mCapacity = n;
     }
     // inferred: copy of another vector (name invented; CharaTask::fn_8017B1C4)
-    void Assign_unk(const Vector_unk& o) {
+    void Assign_unk(const SimpleVector& o) {
         clear();
         Resize_unk(o.mSize);
         for (unsigned int i = 0; i < mSize; i++) {
@@ -84,11 +85,11 @@ public:
     }
     // inferred: the copy of gmk::RandomItemDrop_unk (inlined in gmk::RandomItem::vf20) calls
     // Assign_unk through the assignment of this member
-    Vector_unk& operator=(const Vector_unk& o) {
+    SimpleVector& operator=(const SimpleVector& o) {
         Assign_unk(o);
         return *this;
     }
-    T& operator[](unsigned int i) { return mData[i]; }
+    T& operator[](int i) { return mData[i]; }
     const T& operator[](int i) const { return mData[i]; }
     void push_back(const T& value) {
         if (mData == 0 || mCapacity == 0) {
@@ -105,19 +106,21 @@ public:
     T* mData;
 };
 
-// inferred: array allocated once with new[] {size, data} (names invented)
+// atn::SimpleArray (name from the RSO: SimpleArray<T>, SetMotionParts takes a
+// SimpleArray<CharaFaceControl::MotionPart>); array allocated once with new[] {size, data};
+// member names invented
 template <class T>
-class Buffer_unk {
+class SimpleArray {
 public:
-    Buffer_unk() : mSize(0), mData(0) {}
+    SimpleArray() : mSize(0), mData(0) {}
     // inferred: weak copy 0x80514218 (inlined in the copy of a record of game/NewCampPartsGmk.cpp)
-    Buffer_unk(const Buffer_unk& o) : mSize(0), mData(0) {
+    SimpleArray(const SimpleArray& o) : mSize(0), mData(0) {
         Resize_unk(o.mSize, 0);
         for (unsigned int i = 0; i < mSize; i++) {
             mData[i] = o.mData[i];
         }
     }
-    ~Buffer_unk() {
+    ~SimpleArray() {
         if (mData != 0) {
             delete[] mData;
         }
@@ -164,7 +167,7 @@ public:
     // game/AreaEffConfig.cpp; name invented)
     void Alloc0_unk(int n) { Resize_unk(n, 0); }
     // inferred: weak copy inside AreaEffConfig's row assignment (0x80042EEC)
-    Buffer_unk& operator=(const Buffer_unk& o) {
+    SimpleArray& operator=(const SimpleArray& o) {
         Resize_unk(o.mSize, 0);
         for (unsigned int i = 0; i < mSize; i++) {
             mData[i] = o.mData[i];

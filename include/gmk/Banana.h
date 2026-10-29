@@ -22,12 +22,12 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void vf24();
-    virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual void Start();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
 
-    Model_unk mModel;       // 0xF4
+    atn::Model mModel;       // 0xF4
     GimmickDesc_unk* mDesc; // 0x4C4
     int mTimer;             // 0x4C8
     atn::Vector3 mVel;      // 0x4CC

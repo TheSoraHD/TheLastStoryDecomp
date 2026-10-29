@@ -125,7 +125,7 @@ int ControlAttractHateCharge::vf0C() {
                 mChara->fn_80164B00(shade);
             }
             fn_80102A40(lbl_8087F048, 0, mChara, rec->m28, rec->m2C);
-            for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+            for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                 switch (g->m50) {
                 case 0x2B: {
                     GimmickMsg_unk msg(3);

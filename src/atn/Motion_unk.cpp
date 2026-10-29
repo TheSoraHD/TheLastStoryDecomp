@@ -1,6 +1,6 @@
 // atn/Motion_unk.cpp (file name invented): cache of the map models loaded from a csv list
 // ("FOLDER", "MODEL", "MODEL_LOD"), the out-of-line members of atn::LH_Motion and the motion
-// helpers of the models (pose of a node, MotionPose_unk, MotionCmdData_unk), then the motion banks
+// helpers of the models (pose of a node, MotionPose_unk, atn::MotionCommandData), then the motion banks
 // kept in static maps (0x800A0A68-0x800A2664, not written yet) and the random generator of
 // MP::CryptMP (0x800A2664, not written yet). The __sinit is the one of <iostream>.
 #include "atn/Csv.h"
@@ -30,9 +30,9 @@ std::basic_string<char> fn_8006B0C8(const std::basic_string<char>& path);
 
 extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
 
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node);
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, const char* node, float distance);
-extern "C" void fn_80095CD0(Model_unk* model); // inferred: update
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node);
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, const char* node, float distance);
+extern "C" void fn_80095CD0(atn::Model* model); // inferred: update
 
 // inferred: map model loaded from a csv list (0x22C bytes; created by fn_8009F788). Names invented.
 struct MapModel_unk {
@@ -317,14 +317,14 @@ MotionPose_unk::MotionPose_unk() {
 
 // inferred: nonzero while one of the effects or efp files is loading
 // NONMATCHING: 99.02% - order of the two loop increments (as atn/LightUtil_unk)
-int MotionCmdData_unk::fn_800A091C() {
+int atn::MotionCommandData::fn_800A091C() {
     for (unsigned int i = 0; i < mEffects.mSize; i++) {
-        if (mEffects.mData[i].fn_802376D0()) {
+        if (mEffects.mData[i].IsLoading()) {
             return 1;
         }
     }
     for (unsigned int i = 0; i < mEfps.mSize; i++) {
-        if (mEfps.mData[i].fn_80237874()) {
+        if (mEfps.mData[i].IsLoading()) {
             return 1;
         }
     }
@@ -343,7 +343,7 @@ struct MotionModelRes_unk {
 };
 
 // inferred: index of each node of a model in a motion (-1: not animated)
-extern "C" void fn_800A09D0(short* out, Model_unk* model, atn::LH_Motion* motion) {
+extern "C" void fn_800A09D0(short* out, atn::Model* model, atn::LH_Motion* motion) {
     MotionModelRes_unk* res = (MotionModelRes_unk*)model->m16C;
     MotionModelRes_unk::Node_unk* node;
     int n = res->m44;

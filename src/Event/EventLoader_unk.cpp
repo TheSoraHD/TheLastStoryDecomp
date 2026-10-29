@@ -2,18 +2,15 @@
 // (".event" files under "event2/", their ".pk" package); used by Event::Manager and
 // Event::Sequence. The functions keep their C names; `seq` is the sequence (layout local).
 #include "atn/LH_Binary.h"
+#include "atn/FileList.h"
 #include "db/EventIdTable_unk.h"
 #include "std/string_members.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" char* strcpy(char* dst, const char* src);
 
-namespace std {
-string operator+(const string& lhs, const char* rhs); // 0x8006D008
-}
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
-extern "C" void fn_8006BB6C(void* data, int arg);             // inferred: frees loaded data
 
 // inferred: shared pointer element of the event vectors (8 bytes)
 template <class T>
@@ -113,7 +110,7 @@ extern "C" void* fn_80575F6C(EventSequence_unk* seq) {
 // inferred: releases the event data
 extern "C" void fn_80575FCC(EventSequence_unk* seq) {
     if (seq->mLoaded == 1) {
-        fn_8006BB6C(seq->mData, 0);
+        atn::FileFreeBuffer((char*)seq->mData, false);
         seq->mData = 0;
         seq->mSize = 0;
     } else {

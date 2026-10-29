@@ -144,7 +144,7 @@ extern "C" GameOverOptions_unk* lbl_8087F0A8;
 // inferred: effects
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, void* model, int arg3, const atn::Vector3& pos,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const float* color, int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: game state (lbl_8087EFA8): lighting and camera of the scene
@@ -236,7 +236,7 @@ public:
     GameOverD2A_unk* mMenu;     // 0x48: ui_gameover.d2a
     GameOverD2A_unk* mCursor;   // 0x4C: camp_cursor.d2a
     GameOverD2A_unk* mDemoEnd;  // 0x50: ui_demo_end.d2a
-    atn::EfpHandle_unk mEfp;    // 0x54
+    atn::EfpFile mEfp;    // 0x54
     unsigned char m60[4];
     CampSaveData_unk* mSave;    // 0x64
     int mLoading;               // 0x68
@@ -272,7 +272,7 @@ GameOverTask::GameOverTask(atn::Task* parent, int mode)
         mDemoEnd = fn_801F3FF8(this, "/data/d2anime/ui_demo_end.d2a", 0);
         mDemoEnd->fn_800D246C(1);
     }
-    mEfp.fn_8023780C("be010_008.efp");
+    mEfp.LoadRequest("be010_008.efp");
     CampSaveArg_unk arg;
     CopyString_unk(arg.mName, "\0");
     arg.mFlag = 0;
@@ -287,7 +287,7 @@ GameOverTask::~GameOverTask() {
 // NONMATCHING: 48.93% - the scene setup (lighting, environment and camera state of lbl_8087EFA8) is
 // copied through temporary structs whose layout is not reconstructed
 int GameOverTask::vf0C() {
-    if (fn_800D3FA4() == 0 || mEfp.fn_80237874() != 0) {
+    if (fn_800D3FA4() == 0 || mEfp.IsLoading() != 0) {
         return 0;
     }
     fn_80232B7C(this, 0);

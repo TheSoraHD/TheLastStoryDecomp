@@ -11,10 +11,10 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" double sin(double x);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80051CD8(const CharaTask::Sphere_unk* sphere, const void* box); // inferred: sphere in box
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -32,7 +32,7 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
-// inferred: bounding box of the model resource (Model_unk::m16C); names invented
+// inferred: bounding box of the model resource (atn::Model::m16C); names invented
 struct ModelBounds_unk {
     unsigned char m00[0x10];
     atn::Vector3 mMin; // 0x10
@@ -83,7 +83,7 @@ int FloatingBox::vf0C() {
     return 0;
 }
 
-void FloatingBox::vf28() {
+void FloatingBox::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -100,7 +100,7 @@ void FloatingBox::vf28() {
 // NONMATCHING: same bounds copies as vf0C, which also changes the register of this/chara.
 void FloatingBox::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (lbl_8087F8A0 == 0) {
         return;
@@ -156,7 +156,7 @@ void FloatingBox::vf10() {
         fn_803ED0D4(vf38(), 1);
     }
     if (m878 != 0.0f) {
-        for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         }
     }
 }
@@ -239,7 +239,7 @@ void FloatingBox::vf6C(void* menu) {
     sMenuDone_unk = 1;
 }
 
-Model_unk* FloatingBox::vf38() {
+atn::Model* FloatingBox::vf38() {
     return &mModel;
 }
 

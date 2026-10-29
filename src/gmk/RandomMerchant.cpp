@@ -1,4 +1,5 @@
 #include "gmk/RandomMerchant.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -14,7 +15,7 @@ extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: creates the gimmick of an item (kind 10) as a child of parent
@@ -68,9 +69,7 @@ extern "C" void fn_800DD8A8(wchar_t* buf, const wchar_t* format, int count, ...)
 extern "C" void fn_803E3BE8(void* ui, int* message, float time);              // inferred: shows a message window
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: item manager and shop (classes unknown)
-extern "C" void* lbl_8087F4F0;
 extern "C" void fn_8044D6AC(void* mgr, int price);
-extern "C" void fn_804439FC(void* mgr, int item, int num, int arg3, int arg4, int arg5, int arg6, int arg7);
 extern "C" void* lbl_8087F048;
 extern "C" void fn_801092C8(void* mgr, int arg1, int arg2, int item, int num);
 extern "C" void* lbl_8087F490; // inferred: GameUI
@@ -182,7 +181,7 @@ int RandomMerchant::vf0C() {
     return 0;
 }
 
-void RandomMerchant::vf28() {
+void RandomMerchant::Start() {
     m54 = 1;
     mTimer = mFirstTime;
 }
@@ -193,7 +192,7 @@ inline void RandomMerchant::PlayMotion2_unk(RandomMerchantChara* chara, int inde
     chara->mMotion.mTracks[0].m0C = 1.0f;
 }
 
-inline void RandomMerchant::PlayMotion3_unk(Model_unk* motion, int index) {
+inline void RandomMerchant::PlayMotion3_unk(atn::Model* motion, int index) {
     motion->m34C = 1;
     motion->fn_80097C08(0, mEntries[mCur].mMotionBase + index, 1, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
@@ -332,7 +331,7 @@ void RandomMerchant::vf10() {
     } else if (mState == 2) {
         RandomMerchantChara* chara = mEntries[mCur].mChara;
         PlayMotion2_unk(chara, 0);
-        Model_unk* motion = &chara->mMotion;
+        atn::Model* motion = &chara->mMotion;
         if (mLimit >= 0) {
             mLimit--;
             if (mTimeLimit - mLimit > mTimeLimit * 2 / 3 && mSound.mPtr != 0) {
@@ -438,8 +437,8 @@ int RandomMerchant::vf40(GimmickMsg_unk* msg) {
         break;
     case 2:
         if (m54 == 1 && mState == 3) {
-            fn_8044D6AC(lbl_8087F4F0, mPrice);
-            fn_804439FC(lbl_8087F4F0, mItemId, mItemNum, 0, 0, 0, 1, 1);
+            fn_8044D6AC(Inventory::instance_, mPrice);
+            Inventory::instance_->AddItem(mItemId, mItemNum, 0, 0, 0, 1, 1);
             if (lbl_8087F048 != 0) {
                 fn_801092C8(lbl_8087F048, 1, 0, mItemId, mItemNum);
             }

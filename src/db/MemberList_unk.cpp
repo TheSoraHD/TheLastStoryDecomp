@@ -40,14 +40,14 @@ extern "C" void fn_802179FC() {
     if (sEntries == 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() == '\0') {
                 sCount++;
             }
         }
         sEntries = new (12, "", "", 0) MemberList_unk[sCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() != '\0') {
@@ -71,7 +71,7 @@ extern "C" void fn_802179FC() {
         fn_8046DD20(lbl_8087F518, data);
 
         data = fn_8046DC5C(lbl_8087F518, sCampFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() != '\0') {
                 continue;

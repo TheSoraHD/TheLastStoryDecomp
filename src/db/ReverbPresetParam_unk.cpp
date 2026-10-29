@@ -96,7 +96,7 @@ extern "C" void fn_802196D0() {
     if (sEntries == 0 && lbl_8087EE90 != 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();
             if (*field == ';' || *field == '#') {
@@ -109,7 +109,7 @@ extern "C" void fn_802196D0() {
         }
         sEntries = new (12, "", "", 0) ReverbPreset_unk[sCount];
         fn_8004A03C(lbl_8087EE90);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();

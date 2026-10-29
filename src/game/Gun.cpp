@@ -1,12 +1,12 @@
 #include "game/Gun.h"
+#include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "game/CrossbowMenuTask.h"
 #include "game/HitInfo_unk.h"
 
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
-extern "C" void* lbl_8087F4F0;                         // inferred: item manager
 extern "C" int fn_804444E8(void* items, int id);       // inferred: number of items `id` owned
 
 // inferred: owner of the weapon (the character, Arms::m270); only the members read here
@@ -44,7 +44,7 @@ inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
 }
 
 // inferred: sets the world matrix of a model and its largest scale axis (name invented)
-inline void SetMtx_unk(Model_unk* model, const atn::Matrix3x4& mtx) {
+inline void SetMtx_unk(atn::Model* model, const atn::Matrix3x4& mtx) {
     __MtxCopy(model->mMtx, mtx.m);
     float sz = ColumnLength_unk(mtx, 2);
     float sy = ColumnLength_unk(mtx, 1);
@@ -92,7 +92,7 @@ void Gun::vf14() {
         switch (menu->m4C[menu->m150]) {
         case 0x70:
             arrow = 0;
-            if (lbl_8087F4F0 != 0 && fn_804444E8(lbl_8087F4F0, 0x70) > 0) {
+            if (Inventory::instance_ != 0 && fn_804444E8(Inventory::instance_, 0x70) > 0) {
                 arrow = 1;
             }
             show = 0;
@@ -119,7 +119,7 @@ void Gun::vf14() {
         PSMTXConcat(mtx.m, t.m, r.m);
         mtx = r;
         SetMtx_unk(m2A8->GetModel_unk(), mtx);
-        fn_800902C0(m2A8->GetModel_unk(), 0, boost::function<void()>());
+        m2A8->GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
         m2A8->GetModel_unk()->fn_8008CD60();
     }
     Arms::vf14();

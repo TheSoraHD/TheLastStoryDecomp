@@ -79,7 +79,7 @@ int RoomLight::vf0C() {
     return 1;
 }
 
-void RoomLight::vf28() {
+void RoomLight::Start() {
     fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&mLight);
     fn_800C16B4(lbl_8087EFB4)->mC8 = mLight.m50;
     MapManager::sInstance->fn_80491528(&fn_8041FED8, &mLight);
@@ -94,7 +94,7 @@ void RoomLight::vf28() {
 
 void RoomLight::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     float t = 0.0f;
     atn::Vector2_unk size(0.0f, 0.0f);

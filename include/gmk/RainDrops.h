@@ -22,11 +22,11 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
 
     int mCurrent;                 // 0xF4: inferred: state whose effect is playing
-    atn::EfpHandle_unk mEfp[9];   // 0xF8
+    atn::EfpFile mEfp[9];   // 0xF8
     MapPartsRain* mRain[9];       // 0x164
 };
 

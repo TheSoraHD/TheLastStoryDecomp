@@ -134,14 +134,14 @@ struct EfpOwners_unk {
     unsigned int mCount;
     EfpOwner_unk* mItems;
 };
-struct EfpHandle_unk {
+struct EfpFile {
     EfpOwners_unk* mOwners;
 };
 
 // inferred: removes from the list every entry that belongs to one of the owners of `efp`
 // NONMATCHING: 89.4% - register allocation: the original keeps the outer counter in r31 and the
 // erase index in a volatile register (tried counters declared outside, int/unsigned, an erase inline).
-extern "C" void fn_80570A74(EfpList_unk* list, EfpHandle_unk* efp) {
+extern "C" void fn_80570A74(EfpList_unk* list, EfpFile* efp) {
     EfpOwners_unk* owners = efp->mOwners;
     if (owners != 0) {
         for (unsigned int i = 0; i < owners->mCount; i++) {

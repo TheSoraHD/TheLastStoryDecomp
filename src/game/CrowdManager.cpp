@@ -110,7 +110,7 @@ inline void CrowdManager::UpdateLimit_unk() {
     }
 }
 
-// inferred: unsigned index through Buffer_unk::operator[](int) (the index is incremented before the offset)
+// inferred: unsigned index through SimpleArray::operator[](int) (the index is incremented before the offset)
 void CrowdManager::vf10() {
     mCenter = lbl_8087EFB4->mPos;
     UpdateLimit_unk();

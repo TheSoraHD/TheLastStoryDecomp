@@ -2,6 +2,7 @@
 // its creator 0x804093B4 (see docs/splits-auto-C.md, group 5)
 
 #include "gmk/DropItem.h"
+#include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -52,7 +53,7 @@ struct EffectMgr_unk {
     int mB8;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const float* color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -171,7 +172,6 @@ struct DropWeapon_unk {
     unsigned char m7C[0x80 - 0x7C];
     int m80;
 };
-extern "C" void* lbl_8087F4F0; // inferred: item manager
 extern "C" int fn_8044909C(void* mgr);
 extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
 extern "C" int fn_80448F9C(void* mgr, int id);
@@ -493,7 +493,7 @@ void DropItem::vf14() {
     if (lbl_8087F430 == 0) {
         return;
     }
-    if (lbl_8087F4A0 != 0 && lbl_8087F4A0->IsFlag_unk(1) && mSlot.mFlag26) {
+    if (GimmickManager::instance_ != 0 && GimmickManager::instance_->IsFlag_unk(1) && mSlot.mFlag26) {
         mSlot.mFlag26 = 0;
         mSlot.fn_8044F96C();
     }
@@ -599,27 +599,27 @@ void DropItem::vf14() {
 
 int DropItem::vf1C() {
     for (int i = 0; i < 7; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
-    return mEfpGet.fn_80237874() != 0;
+    return mEfpGet.IsLoading() != 0;
 }
 
 void DropItem::vf20() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
-    atn::EfpHandle_unk* efp = mEfp;
+    atn::EfpFile* efp = mEfp;
     do {
         const char* field = csv.fn_8005B9CC();
         if (*field == ';') {
             continue;
         }
         if (strcmp(field, "EFP") == 0) {
-            efp->fn_8023780C(csv.fn_8005B9CC());
+            efp->LoadRequest(csv.fn_8005B9CC());
             efp++;
         } else if (strcmp(field, "EFP_GET") == 0) {
-            mEfpGet.fn_8023780C(csv.fn_8005B9CC());
+            mEfpGet.LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }
@@ -640,7 +640,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
         mColor[3] = 1.0f;
         mData = 0;
         if (msg->m0C == 0) {
-            if (fn_8021E4E4(&mItem, &mCount, m154, lbl_8087F4F0 != 0 ? fn_8044909C(lbl_8087F4F0) : 0) == 0) {
+            if (fn_8021E4E4(&mItem, &mCount, m154, Inventory::instance_ != 0 ? fn_8044909C(Inventory::instance_) : 0) == 0) {
                 mItem = 0;
                 mCount = 0;
             }
@@ -650,8 +650,8 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             m154 = 0;
         }
         int item = mItem;
-        if (lbl_8087F4F0 != 0) {
-            fn_80445130(lbl_8087F4F0, &mItem, &mCount, 0);
+        if (Inventory::instance_ != 0) {
+            fn_80445130(Inventory::instance_, &mItem, &mCount, 0);
         }
         mData = fn_80211480(mItem);
         if (mData != 0) {
@@ -665,7 +665,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             m17C = 1;
             if (fn_80206B9C(mItem)) {
                 m17C = 0;
-                int chance = fn_80448F9C(lbl_8087F4F0, mItem);
+                int chance = fn_80448F9C(Inventory::instance_, mItem);
                 if (chance > rand() % 100) {
                     m17C = 1;
                 }
@@ -717,7 +717,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             if (fn_80239D58(lbl_8087F3C0, this, 0) == 0) {
                 lbl_8087F3C0->mB8 = 1;
                 fn_80232B7C(this, 0);
-                atn::EfpHandle_unk* efp = &mEfp[m168];
+                atn::EfpFile* efp = &mEfp[m168];
                 EffectMgr_unk* mgr = lbl_8087F3C0;
                 fn_8023A8B4(mgr, efp, 0, 0, m6C, lbl_807C7030, mColor, -1, -1, 1, 1.0f);
                 lbl_8087F3C0->mB8 = 0;

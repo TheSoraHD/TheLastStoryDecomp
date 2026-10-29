@@ -51,7 +51,7 @@ extern "C" void fn_805991E0(Bullet_unk* bullet);                     // inferred
 extern "C" void fn_80599454(Bullet_unk* bullet, int arg);            // inferred: update
 extern "C" void fn_80599C6C(Bullet_unk* bullet);                     // inferred: draw
 extern "C" void fn_80599FB4(Bullet_unk* bullet, int arg);
-extern "C" void fn_8059A0B4(Bullet_unk* bullet, ResLoader_unk* res);
+extern "C" void fn_8059A0B4(Bullet_unk* bullet, atn::EffFile* res);
 extern "C" void fn_8059A1FC(Bullet_unk* bullet, int arg);
 
 // inferred: object behind lbl_8087F490; Get_unk is only declared here: the call goes to the weak
@@ -143,46 +143,46 @@ int SkillEffectManager::vf0C() {
 void SkillEffectManager::fn_8059AFD8() {
     if (mLoaded == 0) {
         mLoaded = 1;
-        m284C.fn_8023780C(sEfpName0);
-        m2858.fn_8023780C(sEfpName1);
-        m2864.fn_8023780C(sEfpName2);
-        m2870.fn_8023780C(sEfpName3);
-        m287C.fn_8023780C(sEfpName4);
-        m2888.fn_8023780C(sEfpName5);
-        m2894.fn_8023780C(sEfpName6);
-        m28A0.fn_80237654(sEffName7);
-        m28AC.fn_8023780C(sEfpName8);
-        m28C4.fn_80237654("data/efp/ef_we017_01.eff");
-        m28D0.fn_80237654("data/efp/ef_we029_01.eff");
-        m28DC.fn_80237654("data/efp/ef_we027_01.eff");
-        m28E8.fn_80237654("data/efp/ef_we028_01.eff");
-        m28F4.fn_8023780C(sEfpName9);
-        m2900.fn_8023780C(sEfpName10);
-        m290C.fn_8023780C(sEfpName11);
-        m2918.fn_8023780C(sEfpName12);
+        m284C.LoadRequest(sEfpName0);
+        m2858.LoadRequest(sEfpName1);
+        m2864.LoadRequest(sEfpName2);
+        m2870.LoadRequest(sEfpName3);
+        m287C.LoadRequest(sEfpName4);
+        m2888.LoadRequest(sEfpName5);
+        m2894.LoadRequest(sEfpName6);
+        m28A0.LoadRequest(sEffName7);
+        m28AC.LoadRequest(sEfpName8);
+        m28C4.LoadRequest("data/efp/ef_we017_01.eff");
+        m28D0.LoadRequest("data/efp/ef_we029_01.eff");
+        m28DC.LoadRequest("data/efp/ef_we027_01.eff");
+        m28E8.LoadRequest("data/efp/ef_we028_01.eff");
+        m28F4.LoadRequest(sEfpName9);
+        m2900.LoadRequest(sEfpName10);
+        m290C.LoadRequest(sEfpName11);
+        m2918.LoadRequest(sEfpName12);
     }
 }
 
 void SkillEffectManager::fn_8059B0F0() {
     if (mLoaded != 0) {
         mLoaded = 0;
-        m284C.fn_8023781C();
-        m2858.fn_8023781C();
-        m2864.fn_8023781C();
-        m2870.fn_8023781C();
-        m287C.fn_8023781C();
-        m2888.fn_8023781C();
-        m2894.fn_8023781C();
-        m28A0.fn_8023772C();
-        m28AC.fn_8023781C();
-        m28B8.fn_8023781C();
-        m28C4.fn_8023772C();
-        m28D0.fn_8023772C();
-        m28DC.fn_8023772C();
-        m28E8.fn_8023772C();
-        m28F4.fn_8023781C();
-        m2900.fn_8023781C();
-        m290C.fn_8023781C();
+        m284C.Destroy();
+        m2858.Destroy();
+        m2864.Destroy();
+        m2870.Destroy();
+        m287C.Destroy();
+        m2888.Destroy();
+        m2894.Destroy();
+        m28A0.Destroy();
+        m28AC.Destroy();
+        m28B8.Destroy();
+        m28C4.Destroy();
+        m28D0.Destroy();
+        m28DC.Destroy();
+        m28E8.Destroy();
+        m28F4.Destroy();
+        m2900.Destroy();
+        m290C.Destroy();
     }
 }
 
@@ -191,13 +191,13 @@ int SkillEffectManager::fn_8059B1B4() {
         return 0;
     }
     int ret = 0;
-    if (m284C.fn_80237874() || m2858.fn_80237874() || m2864.fn_80237874() || m2870.fn_80237874() ||
-        m287C.fn_80237874() || m2888.fn_80237874() || m2894.fn_80237874() || m28C4.fn_802376D0() ||
-        m28D0.fn_802376D0() || m28DC.fn_802376D0() || m28E8.fn_802376D0() || m28F4.fn_80237874() ||
-        m2900.fn_80237874() || m290C.fn_80237874() || m2918.fn_80237874()) {
+    if (m284C.IsLoading() || m2858.IsLoading() || m2864.IsLoading() || m2870.IsLoading() ||
+        m287C.IsLoading() || m2888.IsLoading() || m2894.IsLoading() || m28C4.IsLoading() ||
+        m28D0.IsLoading() || m28DC.IsLoading() || m28E8.IsLoading() || m28F4.IsLoading() ||
+        m2900.IsLoading() || m290C.IsLoading() || m2918.IsLoading()) {
         ret = 1;
     }
-    if (m28A0.fn_802376D0() || m28AC.fn_80237874() || m28B8.fn_80237874()) {
+    if (m28A0.IsLoading() || m28AC.IsLoading() || m28B8.IsLoading()) {
         ret = 1;
     }
     return ret;

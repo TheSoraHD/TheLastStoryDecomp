@@ -19,7 +19,7 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
@@ -47,7 +47,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
@@ -95,20 +95,20 @@ Em202_01_BSpider::Em202_01_BSpider(atn::Task* parent, void* data)
     for (int i = 0; i < 6; i++) {
         sSpotUsed_unk[i] = 0;
     }
-    m1500.fn_80237654("/effect/ef_sk002b.eff");
-    m150C.fn_8023780C("/effect/ef_uc001.efp");
-    m1518.fn_8023780C("/effect/ef_sk002d.efp");
-    m1524.fn_8023780C("/effect/ef_uc007.efp");
-    m1530.fn_8023780C("/effect/ef_sc003_01b.efp");
+    m1500.LoadRequest("/effect/ef_sk002b.eff");
+    m150C.LoadRequest("/effect/ef_uc001.efp");
+    m1518.LoadRequest("/effect/ef_sk002d.efp");
+    m1524.LoadRequest("/effect/ef_uc007.efp");
+    m1530.LoadRequest("/effect/ef_sc003_01b.efp");
 }
 
 Em202_01_BSpider::~Em202_01_BSpider() {}
 
 // NONMATCHING: 89.34% - the original interleaves the flag ors with the loads of m500-m508 (10 variants)
 int Em202_01_BSpider::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1500.fn_802376D0() == 0 &&
-        m150C.fn_80237874() == 0 && m1518.fn_80237874() == 0 && m1524.fn_80237874() == 0 &&
-        m1530.fn_80237874() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1500.IsLoading() == 0 &&
+        m150C.IsLoading() == 0 && m1518.IsLoading() == 0 && m1524.IsLoading() == 0 &&
+        m1530.IsLoading() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC218;
@@ -409,7 +409,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 // inferred: effect `efp` on the model (names invented, as in game/Em202Spider.cpp)
-inline void PlayModelEffect_unk(CharaTask* self, int id, atn::EfpHandle_unk* efp) {
+inline void PlayModelEffect_unk(CharaTask* self, int id, atn::EfpFile* efp) {
     fn_80232B7C(self, id);
     atn::Vector3 pos;
     atn::Vector3 rot;
@@ -474,7 +474,7 @@ void Em202_01_BSpider::fn_80271104() {
         }
         float f2 = mMotion.mTracks[0].m08;
         if (f2 >= 7.0f && f2 <= 9.0f) {
-            Model_unk* model = &mMotion;
+            atn::Model* model = &mMotion;
             atn::Vector3 pos = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
             atn::Vector3 dir(0.0f, 0.0f, 1.0f);
             Mtx r;

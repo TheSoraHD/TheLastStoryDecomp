@@ -24,15 +24,15 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual void Start();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
 
-    Model_unk mBefore;        // 0xF4: "MODEL_BEFORE"
-    Model_unk mAfter;         // 0x4C4: "MODEL_AFTER"
+    atn::Model mBefore;        // 0xF4: "MODEL_BEFORE"
+    atn::Model mAfter;         // 0x4C4: "MODEL_AFTER"
     atn::ColliObject mColli;  // 0x894: "COLLI_OBJECT"
-    atn::EfpHandle_unk mEfp;  // 0x91C: "EFP"
+    atn::EfpFile mEfp;  // 0x91C: "EFP"
 };
 
 } // namespace gmk

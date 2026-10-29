@@ -47,7 +47,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -80,12 +80,12 @@ T* At_unk(std::vector<T>* v, unsigned int i) {
     return &v->mData[i];
 }
 // inferred: clears flags of the model (weak copy 0x802D8540 of game/Em302Kraken.cpp); name invented
-inline void ClearModelFlag_unk(Model_unk* model, unsigned int flag) {
+inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
     model->mFlags &= ~flag;
 }
 
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -111,7 +111,7 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: gimmicks (lbl_8087F4A0, as in game/Em302Kraken.cpp); names invented
+// inferred: gimmicks (GimmickManager::instance_, as in game/Em302Kraken.cpp); names invented
 struct KrakenMpGimmick_unk {
     virtual void vf08();
     virtual void vf0C();
@@ -135,9 +135,8 @@ struct KrakenMpGimmick_unk {
     unsigned char m58[0x5C - 0x58];
     KrakenMpGimmick_unk* mNext;
 };
-extern "C" GimmickManager* lbl_8087F4A0;
 inline KrakenMpGimmick_unk* FirstGimmick_unk() {
-    return (KrakenMpGimmick_unk*)lbl_8087F4A0->mHead;
+    return (KrakenMpGimmick_unk*)GimmickManager::instance_->mHead;
 }
 // inferred: message sent to the gimmicks (0x20 bytes); names invented
 struct KrakenMpGimmickMsg_unk {
@@ -216,7 +215,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 // inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -257,7 +256,7 @@ inline void Em302KrakenMp::Reset_unk() {
 }
 
 // inferred: plays an effect at a world position (same code in game/Em302Kraken.cpp); name invented
-inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+inline void PlayEffectAt_unk(void* owner, int id, atn::EfpFile* efp, const atn::Vector3& pos, float scale) {
     fn_80232B7C(owner, id);
     Color4f_unk color;
     color.r = 1.0f;
@@ -269,7 +268,7 @@ inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const
 
 
 // inferred: same as PlayEffect_unk with the manager read first; name invented
-inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -310,13 +309,13 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m1630.vf0C(path.c_str());
-    m1510.fn_8023780C("/effect/ef_bs030c.efp");
-    m1520.fn_8023780C("/effect/ef_bu022.efp");
-    m152C.fn_8023780C("/effect/ef_bu023.efp");
-    m1564.fn_8023780C("/effect/ef_bs028.efp");
-    m1570.fn_8023780C("/effect/ef_bs029a.efp");
-    m157C.fn_8023780C("/effect/ef_bs029c.efp");
-    m15CC.fn_8023780C("/effect/ef_bd005.efp");
+    m1510.LoadRequest("/effect/ef_bs030c.efp");
+    m1520.LoadRequest("/effect/ef_bu022.efp");
+    m152C.LoadRequest("/effect/ef_bu023.efp");
+    m1564.LoadRequest("/effect/ef_bs028.efp");
+    m1570.LoadRequest("/effect/ef_bs029a.efp");
+    m157C.LoadRequest("/effect/ef_bs029c.efp");
+    m15CC.LoadRequest("/effect/ef_bd005.efp");
     m15E8.clear();
     m15F4.clear();
     m1624.clear();
@@ -329,9 +328,9 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
 // NONMATCHING: draft (same reader as Em302Kraken::vf0C)
 int Em302KrakenMp::vf0C() {
     if (m14D4 == 0) {
-        if (fn_8013655C() == 0 && m1510.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
-            m152C.fn_80237874() == 0 && m1564.fn_80237874() == 0 && m1570.fn_80237874() == 0 &&
-            m157C.fn_80237874() == 0 && m15CC.fn_80237874() == 0 && m1630.fn_80473F50() == 0) {
+        if (fn_8013655C() == 0 && m1510.IsLoading() == 0 && m1520.IsLoading() == 0 &&
+            m152C.IsLoading() == 0 && m1564.IsLoading() == 0 && m1570.IsLoading() == 0 &&
+            m157C.IsLoading() == 0 && m15CC.IsLoading() == 0 && m1630.fn_80473F50() == 0) {
             if (m1630.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
                 atn::Csv csv((const char*)m1630.fn_80470580(), m1630.fn_8047059C());
                 int zero = 0;
@@ -417,7 +416,7 @@ int Em302KrakenMp::vf0C() {
                         m15B8 = fn_800DC288(csv.fn_8005B9CC());
                         m15BC = fn_800DC288(csv.fn_8005B9CC());
                     } else if (strcmp(key, "anger_efp") == 0) {
-                        m1588.fn_8023780C(csv.fn_8005B9CC());
+                        m1588.LoadRequest(csv.fn_8005B9CC());
                     }
                 } while (csv.fn_8005BBF8());
             }
@@ -430,10 +429,10 @@ int Em302KrakenMp::vf0C() {
             }
             fn_802E1A0C();
             m14D4 = 1;
-            ClearModelFlag_unk((Model_unk*)&mMotion, 4);
+            ClearModelFlag_unk((atn::Model*)&mMotion, 4);
         }
     } else if (m14D4 == 1) {
-        if (m1588.fn_80237874() == 0) {
+        if (m1588.IsLoading() == 0) {
             m14D4 = 2;
             return 1;
         }
@@ -453,7 +452,7 @@ inline void BreakPillarsMp_unk(Em302KrakenMp* k) {
     unsigned int i;
     unsigned int skip = k->m15E4;
     for (i = 0; i < k->m15F4.size(); i++) {
-        KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m15F4[i]);
+        KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)GimmickManager::instance_->fn_803EEE10(0x6DD6, k->m15F4[i]);
         if (g != 0) {
             int state = g->m54;
             if (i != skip && state == 1) {
@@ -469,7 +468,7 @@ inline KrakenMpGimmick_unk* RaisePillar_unk(Em302KrakenMp* k) {
     if (k->m15F4.size() == 0) {
         return 0;
     }
-    KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)lbl_8087F4A0->fn_803EEE10(0x6DD6, k->m15F4[index]);
+    KrakenMpGimmick_unk* g = (KrakenMpGimmick_unk*)GimmickManager::instance_->fn_803EEE10(0x6DD6, k->m15F4[index]);
     if (g != 0) {
         SendGimmick_unk(g, 1);
         return g;
@@ -731,7 +730,7 @@ void Em302KrakenMp::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.9% - the "" of Vector_unk::reserve (lbl_8087D9E4/lbl_8087D9E0 in the original, as in
+// NONMATCHING: 99.9% - the "" of SimpleVector::reserve (lbl_8087D9E4/lbl_8087D9E0 in the original, as in
 // CharaTask::vf50)
 void Em302KrakenMp::vf50() {
     float d = 5.0f;
@@ -1131,9 +1130,9 @@ void Em302KrakenMp::fn_802E1414() {
     mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
     m1560 = fn_800C344C("SE_EM302_011", &m614, 0, -1, 1.0f);
     fn_80232B7C(this, 100);
-    PlayEffect2_unk(&m1564, (Model_unk*)&mMotion);
+    PlayEffect2_unk(&m1564, (atn::Model*)&mMotion);
     fn_80232B7C(this, 101);
-    PlayEffect2_unk(&m1588, (Model_unk*)&mMotion);
+    PlayEffect2_unk(&m1588, (atn::Model*)&mMotion);
     m15A0 = lbl_807C7030;
     wchar_t text[256];
     memset(text, 0, sizeof(text));
@@ -1156,7 +1155,7 @@ void Em302KrakenMp::fn_802E1624() {
     fn_800CB5C8(&m1560, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80232B7C(0, 0);
-    PlayEffect_unk(&m1570, (Model_unk*)&mMotion);
+    PlayEffect_unk(&m1570, (atn::Model*)&mMotion);
     m1554 = 1;
 }
 
@@ -1186,7 +1185,7 @@ void Em302KrakenMp::fn_802E177C() {
         foot->fn_802E8084(3);
     }
     fn_80232B7C(0, 0);
-    PlayEffect_unk(&m15CC, (Model_unk*)&mMotion);
+    PlayEffect_unk(&m15CC, (atn::Model*)&mMotion);
     fn_800CB5C8(&m1560, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
@@ -1215,7 +1214,7 @@ void Em302KrakenMp::vf110(SpecialState_unk* state) {
 void Em302KrakenMp::vf114(const SpecialState_unk* state) {
     if (state->m00 == 10 && m58C != 10) {
         fn_80232B7C(0, 0);
-        PlayEffect_unk(&m1570, (Model_unk*)&mMotion);
+        PlayEffect_unk(&m1570, (atn::Model*)&mMotion);
         Field_unk* field = lbl_8087F430;
         field->m96C = field->m96C % 2;
         field->m970 = 140;

@@ -2,6 +2,7 @@
 // decompressed while they arrive, and the queue of the loads (atn::Loader::fn_8046C3FC).
 // Names invented (the pool only has ".pk").
 #include "atn/LoadManager.h"
+#include "atn/MemoryManager.h"
 #include "atn/LH_Binary.h"
 #include "atn/FixedArray.h"
 
@@ -27,10 +28,6 @@ extern "C" void DCFlushRangeNoSync(void* addr, unsigned long size);
 extern "C" void DCZeroRange(void* addr, unsigned long size);
 
 // inferred: engine memory manager (see atn/DwcAllocator_unk.cpp)
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* file, const char* func, int line, int arg);
 
 // inferred: decompression (whole buffer, and by parts with a state of 0x18 bytes)
 struct Decoder_unk {
@@ -352,7 +349,7 @@ extern "C" void fn_8046C2D4(Loader* mgr, PfsArchive_unk* archive, LoadCore* core
     unsigned int alloc = (size + 0x20) & ~0x1F;
     void* buf = 0;
     if (archive->m70 == 0) {
-        buf = fn_800839EC(fn_800827E0(), alloc, 0x20, 2, "", "", 0, 0);
+        buf = atn::MemoryManager::Instance()->AllocFromMem2(alloc, 0x20, (MemoryTag)2, "", "", 0, 0);
     }
     void* src = archive->fn_8046FD2C(index);
     if (packed != 0) {
@@ -468,7 +465,7 @@ int Loader::fn_8046C3FC(LoadCore* core) {
     req->mPackedSize = packed;
     unsigned int alloc = (size + 0x20) & ~0x1F;
     req->mUrgent = strstr(path, ".pk") != 0;
-    req->mBuffer = fn_800839EC(fn_800827E0(), alloc, 0x20, 2, "", "", 0, 1);
+    req->mBuffer = atn::MemoryManager::Instance()->AllocFromMem2(alloc, 0x20, (MemoryTag)2, "", "", 0, 1);
     if (req->mBuffer == 0) {
         delete req;
         return 0;

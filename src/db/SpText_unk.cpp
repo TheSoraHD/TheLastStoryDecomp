@@ -79,12 +79,12 @@ static const char* const sCondsFileName = sCondsFileNameStr;
 static const char* const sTextFileName = sTextFileNameStr;
 
 // inferred: texts of the condition values (sections 1 to 6 of sp_conds_text)
-static atn::Buffer_unk<SpTextEntry_unk> sCondValues1;
-static atn::Buffer_unk<SpTextEntry_unk> sCondValues2;
-static atn::Buffer_unk<SpTextEntry_unk> sCondValues3;
-static atn::Buffer_unk<SpTextEntry_unk> sCondValues4;
-static atn::Buffer_unk<SpTextEntry_unk> sCondValues5;
-static atn::Buffer_unk<SpTextEntry_unk> sCondValues6;
+static atn::SimpleArray<SpTextEntry_unk> sCondValues1;
+static atn::SimpleArray<SpTextEntry_unk> sCondValues2;
+static atn::SimpleArray<SpTextEntry_unk> sCondValues3;
+static atn::SimpleArray<SpTextEntry_unk> sCondValues4;
+static atn::SimpleArray<SpTextEntry_unk> sCondValues5;
+static atn::SimpleArray<SpTextEntry_unk> sCondValues6;
 
 static SpString_unk* sTypes;
 static wchar_t* sTypeTexts;
@@ -105,7 +105,7 @@ extern "C" void fn_8021B060() {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sTypesFileName, &size, 0x20);
         int length = 0;
-        csv.vf08((const wchar_t*)data, (int)size / 2);
+        csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() != 0) {
                 continue;
@@ -116,7 +116,7 @@ extern "C" void fn_8021B060() {
         sTypeTexts = new (12, "", "", 0) wchar_t[length];
         int pos = 0;
         int i = 0;
-        csv.vf08((const wchar_t*)data, (int)size / 2);
+        csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() != 0) {
                 continue;
@@ -176,7 +176,7 @@ extern "C" void fn_8021B2F8() {
         int length = 0;
         int section = 0;
         int count = 0;
-        csv.vf08((const wchar_t*)data, (int)size / 2);
+        csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (section == 0) {
                 if (*csv.fn_8005B9CC() != 0) {
@@ -212,7 +212,7 @@ extern "C" void fn_8021B2F8() {
         int pos = 0;
         int part = 0;
         int i = 0;
-        csv.vf08((const wchar_t*)data, (int)size / 2);
+        csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (part == 0) {
                 if (*csv.fn_8005B9CC() != 0) {
@@ -306,7 +306,7 @@ extern "C" bool fn_8021BE98(wchar_t* buf, SpEffect_unk* effect) {
 }
 
 // inferred: text of the value of a condition
-static inline const wchar_t* FindValue_unk(atn::Buffer_unk<SpTextEntry_unk>& values, int id) {
+static inline const wchar_t* FindValue_unk(atn::SimpleArray<SpTextEntry_unk>& values, int id) {
     for (unsigned int i = 0; i < (unsigned int)values.mSize; i++) {
         if (id == values.mData[i].mId) {
             return values[i].mText.c_str();
@@ -388,7 +388,7 @@ extern "C" void fn_8021C3F4() {
     atn::CsvU csv;
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, sTextFileName, &size, 0x20);
-    csv.vf08((const wchar_t*)data, (int)size / 2);
+    csv.SetData((const wchar_t*)data, (int)size / 2);
     int length = 0;
     sTextCount = 0;
     while (csv.fn_8005BBF8() != 0) {
@@ -405,7 +405,7 @@ extern "C" void fn_8021C3F4() {
     sTexts = new (3, "", "", 0) SpText_unk[sTextCount];
     int i = 0;
     int pos = 0;
-    csv.vf08((const wchar_t*)data, (int)size / 2);
+    csv.SetData((const wchar_t*)data, (int)size / 2);
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != 0) {
             continue;

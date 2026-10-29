@@ -15,9 +15,9 @@ extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -30,7 +30,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" BrazierEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(BrazierEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(BrazierEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(BrazierEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -119,7 +119,7 @@ inline CharaListeners_unk* fn_8014F8F4() {
 static const char* const sSe[] = {"SE_DGCOM_004", "SE_DGCOM_005"};
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(BrazierEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(BrazierEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -202,7 +202,7 @@ void Brazier::vf10() {
                 mColli.mFlags &= ~1;
                 fn_80239DAC(lbl_8087F3C0, this, 1, 0);
             } else {
-                vf28();
+                Start();
             }
             mEnabled = mDesc->m7C;
         }
@@ -211,7 +211,7 @@ void Brazier::vf10() {
         }
     }
     if (m54 == 0) {
-        vf28();
+        Start();
     } else if (m54 == 2) {
         GimmickHitMsg_unk msg;
         memset(&msg, 0, sizeof(msg));
@@ -250,7 +250,7 @@ void Brazier::vf10() {
             fn_803ED5D0(vf38());
         }
         if (fn_80407E8C() != 0) {
-            vf28();
+            Start();
         }
         break;
     }
@@ -284,7 +284,7 @@ int Brazier::vf1C() {
     if (mColli.fn_800580BC() != 0) {
         ret = 1;
     }
-    if (mEfp.fn_80237874() != 0 || mEfpRoll.fn_80237874() != 0 || mEfpCrush.fn_80237874() != 0) {
+    if (mEfp.IsLoading() != 0 || mEfpRoll.IsLoading() != 0 || mEfpCrush.IsLoading() != 0) {
         ret = 1;
     }
     return ret;
@@ -314,11 +314,11 @@ void Brazier::vf20() {
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_ROLL") == 0) {
-            mEfpRoll.fn_8023780C(csv.fn_8005B9CC());
+            mEfpRoll.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_CRUSH") == 0) {
-            mEfpCrush.fn_8023780C(csv.fn_8005B9CC());
+            mEfpCrush.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "PARAM") == 0) {
             mSpeed = fn_800DC288(csv.fn_8005B9CC());
             mRadius = fn_800DC288(csv.fn_8005B9CC());
@@ -328,7 +328,7 @@ void Brazier::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void Brazier::vf28() {
+void Brazier::Start() {
     vf2C();
     GimmickMsg_unk msg(1);
     if (mDesc != 0 && mDesc->m20 != 0) {
@@ -563,7 +563,7 @@ int Brazier::vf60() {
     return ret;
 }
 
-Model_unk* Brazier::vf38() {
+atn::Model* Brazier::vf38() {
     return m54 != 5 ? &mModel : &mModelCrush;
 }
 

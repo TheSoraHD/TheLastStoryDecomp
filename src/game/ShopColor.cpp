@@ -1,4 +1,5 @@
 #include "game/ShopColor.h"
+#include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "atn/Csv.h"
@@ -58,11 +59,9 @@ struct ShopItem_unk {
     const wchar_t* mText;  // 0x0C
 };
 extern "C" ShopItem_unk* fn_80211480(int id);
-// inferred: party data (lbl_8087F4F0)
-extern "C" void* lbl_8087F4F0;
+// inferred: party data (Inventory::instance_)
 extern "C" int fn_804444E8(void* party, int id); // inferred: number of items
 extern "C" void fn_8044441C(void* party, int id, int num); // inferred: removes items
-extern "C" void fn_804439FC(void* party, int a, int b, int c, int d, int e, int f, int g); // inferred: adds an item
 extern "C" int fn_80444BE8(void* party, ShopItem_unk* item);
 extern "C" ShopUV_unk fn_80444C50(void* party, int icon);
 // inferred: message table (lbl_8087F1E4)
@@ -240,7 +239,7 @@ void ShopColor::vf14() {
 void ShopColor::vf38(const char* data, int size) {
     mColors.clear();
     atn::Csv csv;
-    csv.vf08(data, size);
+    csv.SetData(data, size);
     do {
         const char* token = csv.fn_8005B9CC();
         if (strncmp(token, ";", 1) == 0) {
@@ -256,7 +255,7 @@ void ShopColor::vf38(const char* data, int size) {
                     entry.mMat[i] = fn_800DC12C(csv.fn_8005B9CC());
                     entry.mNum[i] = fn_800DC12C(csv.fn_8005B9CC());
                 }
-                if (fn_804444E8(lbl_8087F4F0, entry.mId) > 0) {
+                if (fn_804444E8(Inventory::instance_, entry.mId) > 0) {
                     entry.mOwned = 1;
                 } else {
                     entry.mOwned = 0;
@@ -266,7 +265,7 @@ void ShopColor::vf38(const char* data, int size) {
                     entry.mShow = 1;
                 }
                 for (int i = 0; i < 3; i++) {
-                    if (fn_804444E8(lbl_8087F4F0, entry.mMat[i]) > 0) {
+                    if (fn_804444E8(Inventory::instance_, entry.mMat[i]) > 0) {
                         entry.mShow = 1;
                         break;
                     }
@@ -369,14 +368,14 @@ int ShopColor::fn_80588004(ShopColorEntry_unk* entry) {
     }
     for (int i = 0; i < 3; i++) {
         ShopItem_unk* item = fn_80211480(entry->mMat[i]);
-        if (item != 0 && entry->mNum[i] > fn_804444E8(lbl_8087F4F0, item->mCountId)) {
+        if (item != 0 && entry->mNum[i] > fn_804444E8(Inventory::instance_, item->mCountId)) {
             return 14;
         }
     }
-    fn_804439FC(lbl_8087F4F0, entry->mId, 1, 0, 0, 0, 1, 1);
+    Inventory::instance_->AddItem(entry->mId, 1, 0, 0, 0, 1, 1);
     for (int i = 0; i < 3; i++) {
         if (entry->mMat[i] != 0) {
-            fn_8044441C(lbl_8087F4F0, entry->mMat[i], entry->mNum[i]);
+            fn_8044441C(Inventory::instance_, entry->mMat[i], entry->mNum[i]);
         }
     }
     return 0;
@@ -385,7 +384,7 @@ int ShopColor::fn_80588004(ShopColorEntry_unk* entry) {
 // NONMATCHING: 97.90% - register allocation only (the party, the pool and the address of uv are colored
 // in another order)
 void ShopColor::fn_805880F0() {
-    void* party = lbl_8087F4F0;
+    void* party = Inventory::instance_;
     mListBase->mFlags &= ~4;
     SetPaneFloat_unk(mListBase->mLayout, "ofsOn", 1.0f);
     fn_80584750(this, mListBase, mScroll.mTop, mColors.size(), 10);
@@ -406,7 +405,7 @@ void ShopColor::fn_805880F0() {
                 fn_801F6C80(mList[i], "showNum2", 0.0f);
                 fn_801F8598(mList[i], "needNum", num, 0);
                 fn_801F6C80(mList[i], "faceOn", 0.0f);
-                ShopUV_unk uv = fn_80444C50(lbl_8087F4F0, fn_80444BE8(lbl_8087F4F0, item));
+                ShopUV_unk uv = fn_80444C50(Inventory::instance_, fn_80444BE8(Inventory::instance_, item));
                 fn_801F7590(mList[i], "iconUv", uv);
                 if (num == 0) {
                     fn_801F6C80(mList[i], "colorOn", 0.0f);
@@ -428,7 +427,7 @@ void ShopColor::fn_805880F0() {
 }
 
 void ShopColor::fn_805883D8(ShopColorEntry_unk* entry) {
-    void* party = lbl_8087F4F0;
+    void* party = Inventory::instance_;
     ShopItem_unk* item = fn_80211480(entry->mId);
     if (item != 0) {
         fn_804A3C24(MenuCommonTask::sInstance, item->mText, 0);

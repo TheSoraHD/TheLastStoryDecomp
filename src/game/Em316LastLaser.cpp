@@ -65,7 +65,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 // inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4; settings (lbl_8087F0A8): frames per second
@@ -81,7 +81,7 @@ struct LaserSettings_unk {
 extern "C" LaserSettings_unk* lbl_8087F0A8;
 
 // inferred: plays `efp` on `model` with default placement (as CoffinEffect_unk of game/Em315Coffin.cpp)
-inline void LastLaserEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void LastLaserEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -150,12 +150,12 @@ Em316LastLaser::Em316LastLaser(atn::Task* parent, EnemyInfo_unk* info)
     }
     std::string path = fn_8006AFF8(dir, name);
     m14B0.vf0C(path.c_str());
-    m1574.fn_80237654("ef_sk043f_01.eff");
-    m1580.fn_80237654("ef_sk043c_01.eff");
-    m158C.fn_8023780C("ef_sk043a.efp");
-    m1598.fn_8023780C("ef_sk043d.efp");
-    m15A4.fn_8023780C("ef_sk043e.efp");
-    m15B0.fn_8023780C("ef_uc066.efp");
+    m1574.LoadRequest("ef_sk043f_01.eff");
+    m1580.LoadRequest("ef_sk043c_01.eff");
+    m158C.LoadRequest("ef_sk043a.efp");
+    m1598.LoadRequest("ef_sk043d.efp");
+    m15A4.LoadRequest("ef_sk043e.efp");
+    m15B0.LoadRequest("ef_uc066.efp");
     m14C8 = lbl_807C7030;
 }
 
@@ -167,9 +167,9 @@ Em316LastLaser::~Em316LastLaser() {
 // NONMATCHING: 97.91% - scheduling of the flag words at the end (the original loads 0x958 before m54C and
 // stores m54C, 0x958, m18 in that order); ~10 variants (statement order, locals, permutations)
 int Em316LastLaser::vf0C() {
-    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m1574.fn_802376D0() == 0 && m1580.fn_802376D0() == 0 &&
-        m158C.fn_80237874() == 0 && m1598.fn_80237874() == 0 && m15A4.fn_80237874() == 0 &&
-        m15B0.fn_80237874() == 0) {
+    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m1574.IsLoading() == 0 && m1580.IsLoading() == 0 &&
+        m158C.IsLoading() == 0 && m1598.IsLoading() == 0 && m15A4.IsLoading() == 0 &&
+        m15B0.IsLoading() == 0) {
         void* group = m15BC.Load("Bit");
         fn_80087994(group, "DebugDisp", &m15C0, 0, 0);
         fn_80087994(group, "DebugLog", &m15C4, 0, 0);

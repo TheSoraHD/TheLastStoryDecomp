@@ -11,7 +11,7 @@ extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
@@ -116,15 +116,15 @@ void Ocean::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void Ocean::vf28() {
+void Ocean::Start() {
     GimmickMsg_unk msg(1);
     vf40(&msg);
 }
 
 void Ocean::fn_804186D8() {
     int nodes[2];
-    nodes[0] = mModel.fn_80092814("joint1", 0);
-    nodes[1] = mModel.fn_80092814("joint2", 0);
+    nodes[0] = mModel.GetNodeNoByName("joint1", 0);
+    nodes[1] = mModel.GetNodeNoByName("joint2", 0);
     float heights[2];
     for (int i = 0; i < 2; i++) {
         Wave_unk& wave = mWaves[m54][i];
@@ -176,8 +176,8 @@ extern "C" atn::Vector3 fn_804188A0(gmk::Ocean* ocean, const atn::Vector3* pos) 
     t = 0.0f >= t ? 0.0f : t;
     float y[2];
     int nodes[2];
-    nodes[0] = ocean->mModel.fn_80092814("joint1", 0);
-    nodes[1] = ocean->mModel.fn_80092814("joint2", 0);
+    nodes[0] = ocean->mModel.GetNodeNoByName("joint1", 0);
+    nodes[1] = ocean->mModel.GetNodeNoByName("joint2", 0);
     for (int i = 0; i < 2; i++) {
         if (nodes[i] > -1) {
             y[i] = ((atn::Matrix3x4*)ocean->mModel.mNodeMtx[nodes[i]])->GetTrans_unk().y;
@@ -237,7 +237,7 @@ void Ocean::vf6C(void* menu) {
     }
 }
 
-Model_unk* Ocean::vf38() {
+atn::Model* Ocean::vf38() {
     return &mModel;
 }
 

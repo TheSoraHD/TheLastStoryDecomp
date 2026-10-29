@@ -99,38 +99,38 @@ public:
     int m1508;
     int m150C;
     int m1510;
-    atn::EfpHandle_unk m1514; // inferred: "/effect/ef_sk006a.efp"
-    atn::EfpHandle_unk m1520; // inferred: "/effect/ef_sk006c.efp"
+    atn::EfpFile m1514; // inferred: "/effect/ef_sk006a.efp"
+    atn::EfpFile m1520; // inferred: "/effect/ef_sk006c.efp"
     int m152C;
     int m1530;                  // inferred: "swing_skill_id"
     int m1534;                  // inferred: "shades_skill_id"
     int m1538;
     atn::Vector3 m153C;
-    atn::EfpHandle_unk m1548; // inferred: "/effect/ef_sk012a.efp"
-    atn::EfpHandle_unk m1554; // inferred: "/effect/ef_sk012c.efp"
+    atn::EfpFile m1548; // inferred: "/effect/ef_sk012a.efp"
+    atn::EfpFile m1554; // inferred: "/effect/ef_sk012c.efp"
     int m1560;
     float m1564;                // inferred: "absorb_rate"
     float m1568;                // inferred: "absorb_subtract_rate"
     float m156C;                // inferred: "absorb_min_rate"
     atn::Vector3 m1570;         // inferred: centre of the absorption (head node, fn_802D4628)
-    ResLoader_unk m157C;        // inferred: "/effect/ef_mb001b.eff"
-    atn::EfpHandle_unk m1588; // inferred: "/effect/ef_sk013a.efp"
-    atn::EfpHandle_unk m1594; // inferred: "/effect/ef_sk013d.efp"
-    atn::EfpHandle_unk m15A0; // inferred: "/effect/ef_sk013c.efp"
+    atn::EffFile m157C;        // inferred: "/effect/ef_mb001b.eff"
+    atn::EfpFile m1588; // inferred: "/effect/ef_sk013a.efp"
+    atn::EfpFile m1594; // inferred: "/effect/ef_sk013d.efp"
+    atn::EfpFile m15A0; // inferred: "/effect/ef_sk013c.efp"
     std::vector<ShadeTarget_unk> m15AC;
     int m15B8;                  // inferred: "dead_type"
     float m15BC;                // inferred: "dead_camera" (three values)
     float m15C0;
     float m15C4;
     int m15C8;                  // inferred: nonzero hides the debug display (vf14)
-    atn::EfpHandle_unk m15CC; // inferred: "/effect/ef_uc020d.efp"
-    atn::EfpHandle_unk m15D8; // inferred: "/effect/ef_uc020a.efp"
+    atn::EfpFile m15CC; // inferred: "/effect/ef_uc020d.efp"
+    atn::EfpFile m15D8; // inferred: "/effect/ef_uc020a.efp"
     int m15E4;                  // inferred: index into m15F0
     int m15E8;
     int m15EC;
-    atn::EfpHandle_unk m15F0[2]; // inferred: "ef_uc063.efp", "ef_uc064.efp"
-    atn::EfpHandle_unk m1608; // inferred: "/effect/ef_uc015.efp"
-    atn::EfpHandle_unk m1614; // inferred: "ef_bd013.efp"
+    atn::EfpFile m15F0[2]; // inferred: "ef_uc063.efp", "ef_uc064.efp"
+    atn::EfpFile m1608; // inferred: "/effect/ef_uc015.efp"
+    atn::EfpFile m1614; // inferred: "ef_bd013.efp"
     CharaTask* m1620;           // inferred: target (mC58.mC4)
     int m1624;
     unsigned int m1628;         // inferred: "first_appear_number"

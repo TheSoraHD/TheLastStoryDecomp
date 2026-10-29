@@ -11,10 +11,12 @@ extern "C" unsigned int fn_800DC6B4(const char* s);  // inferred: string hash
 
 // inferred: the constructor (0x80042740) and destructor (0x80041C0C) are emitted here as weak
 // copies (other files call these copies)
-inline MotionCmdElemD_unk::MotionCmdElemD_unk() {
+template <int N, class C, class Tr>
+inline atn::static_string<N, C, Tr>::static_string() {
     mStr[0] = '\0';
 }
-inline MotionCmdElemD_unk::~MotionCmdElemD_unk() {}
+template <int N, class C, class Tr>
+inline atn::static_string<N, C, Tr>::~static_string() {}
 
 AreaEffConfig* AreaEffConfig::fn_80041A80(atn::Task* parent, const char* path) {
     if (parent != 0) {
@@ -67,9 +69,9 @@ void AreaEffConfig::fn_80041D44() {
         if (kind == "DEFAULT") {
             mDefault[type] = color;
         } else {
-            std::vector<MotionCmdElemD_unk> names;
+            std::vector<atn::static_string<32> > names;
             while (*csv.fn_8005B9CC() != '\0') {
-                names.push_back(MotionCmdElemD_unk(csv.GetField_unk()));
+                names.push_back(atn::static_string<32>(csv.GetField_unk()));
             }
             AreaEffEntry_unk entry;
             entry.mHash = fn_800DC6B4(kind.c_str());

@@ -175,7 +175,7 @@ int RotaryRoom::vf0C() {
                     count += part->mObjCount;
                     break;
                 case 5:
-                    for (GimmickCommon* g = lbl_8087F4A0->mHead; g != 0; g = g->m5C) {
+                    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                         if (g->m20 == part) {
                             count++;
                         }
@@ -190,7 +190,7 @@ int RotaryRoom::vf0C() {
                 __SetTrans_unk(e.mMtx, e.mMtx.GetTrans_unk() + m6C);
                 switch (e.mType) {
                 case 0: {
-                    Model_unk* model = (Model_unk*)e.mObject;
+                    atn::Model* model = (atn::Model*)e.mObject;
                     *(atn::Matrix3x4*)model->mMtx = e.mMtx;
                     atn::Vector3 az(e.mMtx.m[0][2], e.mMtx.m[1][2], e.mMtx.m[2][2]);
                     float sz = PSVECMag(&az);
@@ -269,7 +269,7 @@ int RotaryRoom::vf0C() {
     return 0;
 }
 
-void RotaryRoom::vf28() {
+void RotaryRoom::Start() {
     GimmickMsg_unk msg(m58 + 1);
     vf40(&msg);
 }

@@ -40,7 +40,7 @@ public:
     int m78;
     CrowdDesc_unk* mDesc; // 0x7C
     int m80;
-    atn::Buffer_unk<int> mGroupCount; // 0x84: inferred: NPCs per group
+    atn::SimpleArray<int> mGroupCount; // 0x84: inferred: NPCs per group
     int mDebug;    // 0x8C
     ResHandle mMenu; // 0x90
     int m94;

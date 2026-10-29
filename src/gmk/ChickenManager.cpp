@@ -8,8 +8,8 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);          // inferred: fades the sound in
@@ -27,7 +27,7 @@ extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
-extern "C" void fn_8009076C(Model_unk* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
+extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
 // inferred: camera (only the position)
 struct ChickenCamera_unk {
     unsigned char m00[0x10C];
@@ -152,7 +152,7 @@ void Chicken_unk::fn_8040B668() {
         __MtxCopy(mModel.mMtx, mtx.m);
         mModel.m54 = MaxScale_unk(mtx);
         mModel.fn_80097E80(1);
-        fn_8000D430(&mModel, boost::function<void()>());
+        mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
     } else {
         atn::Matrix3x4 inv;
         __MtxCopy(inv.m, mModel.mMtx);

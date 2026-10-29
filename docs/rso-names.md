@@ -40,71 +40,30 @@ python3 tools/decomp/rso/apply.py [cat] [--dry]   # renombra en symbols.txt (por
 - Los nombres que sustituyen clases `_unk` (p. ej. `GhoulKeyboard_unk` = `atn::Keyboard`, `StringBuf_unk` = `std::basic_stringbuf`, `Vector_unk` = `atn::SimpleVector`, `EfpHandle_unk` = `atn::EfpFile`, `FaceKey_unk` = `CharaFaceControl::MotionPart`, `NewCampStatusParty_unk::GetStatus_unk` = `Inventory::GetPlayerStatusInfo`) o virtuales `vfXX` (`CharaTask::vfC8` = `GetTacViewPosition() const`, `GimmickCommon::vf28` = `Start`, `CsvBase::vf08` = `SetData(const char*, unsigned int)`) se dejan para cuando se trabaje cada unidad (regla 10: clase real en su cabecera, comprobar que nada baja).
 - No usar (código plegado de funciones distintas): `DWCi_IsError` ≠ `Tools_CharaSelectIsOpened`, `gpiProfilesTableCompare` ≠ `std::operator-`, `nw4r::ut::LinkListImpl` ≠ `nw4hbm::ut::LinkListImpl`, `EqualsResName` ≠ `EqualsPaneName`, `__dt__CharWriter::ColorMapping` ≠ `__dt__CharWriter`, `LoadHandle::operator=` ≠ `Copy`.
 
-## Pendientes: nombres reales de símbolos usados en el fuente
+## Segunda tanda (`rso-names-2`)
 
-Para usar al trabajar cada unidad (declarar el método en su clase real y renombrar en `symbols.txt`).
+Los ~60 nombres reales de símbolos usados en el fuente, en tres colas: `docs/rso-names-qA.md` (std/MSL), `docs/rso-names-qB.md` (motor `atn`) y `docs/rso-names-qC.md` (clases del juego); cada nota tiene el detalle por nombre, las decisiones y los candidatos que no estaban en la cola.
 
-| Unidad | Dirección | Nombre actual | Nombre del RSO |
-|---|---|---|---|
-| `?` | `0x8007708c` | `fn_8007708C` | `CheckKeyState__Q23atn8KeyboardCFRCQ33atn8Keyboard8KeyStateUs` |
-| `?` | `0x8068b39c` | `fn_8068B39C` | `throw_failure__Q23std8ios_baseFPCc` |
-| `AI/AI_archer_attack01.cpp` | `0x8003e120` | `fn_8003E120` | `balance_insert__Q23std66__red_black_tree<PQ23std39__tree_node_base<Q23std13allocator<Pv>>>FPQ23std39__tree_node_base<Q23std13allocator<Pv>>PQ23std39__tree_node_base<Q23std13allocator<Pv>>` |
-| `Event/Puppeteer_CharaTask.cpp` | `0x8000d430` | `fn_8000D430` | `CalcMatrixStack__Q23atn5ModelFQ25boost103function<FPQ23atn9Matrix3x4RCQ23atn9NodeChunkRCQ23atn24ModelNodeCallbackContext_v,Q23std12allocator<v>>` |
-| `Event/Puppeteer_CharaTask.cpp` | `0x80013f78` | `__replace_unk__Q23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>FUlUlPCcPCcQ23std26random_access_iterator_tag` | `do_replace__Q23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>FUlUlPCcPCcQ23std26random_access_iterator_tag` |
-| `atn/EfpHandle_unk.cpp` | `0x8023781c` | `fn_8023781C__Q23atn13EfpHandle_unkFv` | `Destroy__Q23atn7EfpFileFv` |
-| `atn/FileList.cpp` | `0x8006af38` | `fn_8006AF38` | `__pl<c,Q23std14char_traits<c>,Q23std12allocator<c>>__3stdFPCcRCQ23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>_Q23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>` |
-| `atn/FileList.cpp` | `0x8006bb6c` | `fn_8006BB6C` | `FileFreeBuffer__3atnFPcb` |
-| `atn/Font_unk.cpp` | `0x8006d008` | `__pl__3stdFRCQ23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>PCc` | `__pl<c,Q23std14char_traits<c>,Q23std12allocator<c>>__3stdFRCQ23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>PCc_Q23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>` |
-| `atn/Model.cpp` | `0x800902c0` | `fn_800902C0` | `CalcMatrixStack__Q23atn9ModelBaseFPCQ23atn12MotionBufferQ25boost103function<FPQ23atn9Matrix3x4RCQ23atn9NodeChunkRCQ23atn24ModelNodeCallbackContext_v,Q23std12allocator<v>>` |
-| `atn/SmallAllocator_8.cpp` | `0x800827e0` | `fn_800827E0` | `Instance__Q23atn13MemoryManagerFv` |
-| `atn/SmallAllocator_8.cpp` | `0x80083ad4` | `fn_80083AD4` | `Free__Q23atn13MemoryManagerFPv` |
-| `atn/WordWrap_unk.cpp` | `0x800e0a64` | `fn_800E0A64` | `setstate__Q23std8ios_baseFQ33std8ios_base7iostate` |
-| `auto_03_803B27AC_text.cpp` | `0x803b27dc` | `fn_803B27DC` | `@76@60@__dt__Q23std65basic_stringstream<c,Q23std14char_traits<c>,Q23std12allocator<c>>Fv` |
-| `auto_03_80690D60_text.cpp` | `0x80690d60` | `fn_80690D60` | `showmanyc__Q210Metrowerks37bufferedbuf<c,Q23std14char_traits<c>>Fv` |
-| `game/AreaEffConfig.cpp` | `0x800420f4` | `vf08__Q23atn19CsvBase<c,44,13,34>FPCci` | `SetData__Q23atn19CsvBase<c,44,13,34>FPCcUi` |
-| `game/Arms.cpp` | `0x8004476c` | `vf08__Q23atn18CsvBase<c,9,13,34>FPCci` | `SetData__Q23atn18CsvBase<c,9,13,34>FPCcUi` |
-| `game/BattleCharaTask.cpp` | `0x800ef2f0` | `vfC8__9CharaTaskFv` | `GetTacViewPosition__9CharaTaskCFv` |
-| `game/BattleEfp_unk.cpp` | `0x800ef73c` | `__dt__Q23atn13EfpHandle_unkFv` | `__dt__Q23atn7EfpFileFv` |
-| `game/CharaFaceControl.cpp` | `0x8011d320` | `__dt__11FaceKey_unkFv` | `__dt__Q216CharaFaceControl10MotionPartFv` |
-| `game/CharaTask.cpp` | `0x80139550` | `fn_80139550__9Model_unkFi` | `GetMotionFrame__Q23atn5ModelCFi` |
-| `game/CharaTask.cpp` | `0x80139f3c` | `fn_80139F3C__9Model_unkFif` | `SetMotionSpeed__Q23atn5ModelFif` |
-| `game/CharaTask.cpp` | `0x80151168` | `HasFlags_unk__FRCiUi` | `Check__Q32db9SkillBase9ConditionCFi` |
-| `game/Em001Necromancer.cpp` | `0x80244cac` | `fn_80244CAC` | `FreezeTask__Q23atn4TaskFv` |
-| `game/Em203GreaterDaemonRedMp.cpp` | `0x802a4968` | `fn_802A4968` | `Press__Q23atn8KeyboardCFQ33atn8Keyboard4PortUs` |
-| `game/EnemyQuarkSecond.cpp` | `0x803396ec` | `fn_803396EC` | `SetFlag__9CharaTaskFi` |
-| `game/EnemyTasha.cpp` | `0x80357f38` | `fn_80357F38` | `SetMotionFrame__Q23atn5ModelFif` |
-| `game/GameEventScript_cont.cpp` | `0x803940e8` | `fn_803940E8` | `__dt__Q23std40basic_iostream<c,Q23std14char_traits<c>>Fv` |
-| `game/GameEventScript_cont.cpp` | `0x80394190` | `fn_80394190` | `__dt__Q23std39basic_istream<c,Q23std14char_traits<c>>Fv` |
-| `game/GameEventScript_cont.cpp` | `0x80394208` | `fn_80394208` | `__dt__Q23std65basic_stringstream<c,Q23std14char_traits<c>,Q23std12allocator<c>>Fv` |
-| `game/GimmickCommon.cpp` | `0x803edf5c` | `vf28__13GimmickCommonFv` | `Start__13GimmickCommonFv` |
-| `game/MotionCommand_unk.cpp` | `0x801207bc` | `__vc__Q23atn32Vector_unk<18MotionCmdEntry_unk>FUi` | `__vc__Q23atn47SimpleVector<Q33atn17MotionCommandData7Command>Fi` |
-| `game/MotionCommand_unk.cpp` | `0x80120f4c` | `__vc__Q23atn32Vector_unk<18MotionCmdElemD_unk>FUi` | `__vc__Q23atn64SimpleVector<Q23atn42static_string<32,c,Q23std14char_traits<c>>>Fi` |
-| `game/NewCampPartsStatus.cpp` | `0x805282a8` | `GetStatus_unk__22NewCampStatusParty_unkFi` | `GetPlayerStatusInfo__9InventoryFi` |
-| `std/allocator_char.cpp` | `0x800e0b18` | `fn_800E0B18` | `__dt__Q23std39basic_ostream<c,Q23std14char_traits<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e0b90` | `fn_800E0B90` | `__dt__Q23std62basic_stringbuf<c,Q23std14char_traits<c>,Q23std12allocator<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e0c20` | `dtor_800E0C20` | `__dt__Q23std41basic_streambuf<c,Q23std14char_traits<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e14a4` | `fn_800E14A4` | `__ct__Q33std39basic_ostream<c,Q23std14char_traits<c>>6sentryFRQ23std39basic_ostream<c,Q23std14char_traits<c>>` |
-| `std/allocator_char.cpp` | `0x800e1630` | `fn_800E1630` | `__dt__Q33std39basic_ostream<c,Q23std14char_traits<c>>6sentryFv` |
-| `std/allocator_char.cpp` | `0x800e1a48` | `fn_800E1A48` | `flush__Q23std39basic_ostream<c,Q23std14char_traits<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e1d4c` | `fn_800E1D4C` | `sync__Q23std41basic_streambuf<c,Q23std14char_traits<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e1d54` | `fn_800E1D54` | `overflow__Q23std41basic_streambuf<c,Q23std14char_traits<c>>Fi` |
-| `std/allocator_char.cpp` | `0x800e1d5c` | `fn_800E1D5C` | `getloc__Q23std8ios_baseCFv` |
-| `std/allocator_char.cpp` | `0x800e1d88` | `underflow__13StringBuf_unkFv` | `underflow__Q23std62basic_stringbuf<c,Q23std14char_traits<c>,Q23std12allocator<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e1de4` | `pbackfail__13StringBuf_unkFi` | `pbackfail__Q23std62basic_stringbuf<c,Q23std14char_traits<c>,Q23std12allocator<c>>Fi` |
-| `std/allocator_char.cpp` | `0x800e1e64` | `overflow__13StringBuf_unkFi` | `overflow__Q23std62basic_stringbuf<c,Q23std14char_traits<c>,Q23std12allocator<c>>Fi` |
-| `std/allocator_char.cpp` | `0x800e2064` | `fn_800E2064` | `seekoff__Q23std62basic_stringbuf<c,Q23std14char_traits<c>,Q23std12allocator<c>>FxQ33std8ios_base7seekdirQ33std8ios_base8openmode` |
-| `std/allocator_char.cpp` | `0x800e22e8` | `fn_800E22E8` | `seekpos__Q23std62basic_stringbuf<c,Q23std14char_traits<c>,Q23std12allocator<c>>FQ23std7fpos<i>Q33std8ios_base8openmode` |
-| `std/allocator_char.cpp` | `0x800e24cc` | `fn_800E24CC` | `imbue__Q23std41basic_streambuf<c,Q23std14char_traits<c>>FRCQ23std6locale` |
-| `std/allocator_char.cpp` | `0x800e24d0` | `fn_800E24D0` | `setbuf__Q23std41basic_streambuf<c,Q23std14char_traits<c>>FPcl` |
-| `std/allocator_char.cpp` | `0x800e24d4` | `fn_800E24D4` | `seekoff__Q23std41basic_streambuf<c,Q23std14char_traits<c>>FxQ33std8ios_base7seekdirQ33std8ios_base8openmode` |
-| `std/allocator_char.cpp` | `0x800e24ec` | `fn_800E24EC` | `seekpos__Q23std41basic_streambuf<c,Q23std14char_traits<c>>FQ23std7fpos<i>Q33std8ios_base8openmode` |
-| `std/allocator_char.cpp` | `0x800e2504` | `fn_800E2504` | `showmanyc__Q23std41basic_streambuf<c,Q23std14char_traits<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e250c` | `fn_800E250C` | `xsgetn__Q23std41basic_streambuf<c,Q23std14char_traits<c>>FPcl` |
-| `std/allocator_char.cpp` | `0x800e2608` | `fn_800E2608` | `underflow__Q23std41basic_streambuf<c,Q23std14char_traits<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e2610` | `fn_800E2610` | `uflow__Q23std41basic_streambuf<c,Q23std14char_traits<c>>Fv` |
-| `std/allocator_char.cpp` | `0x800e2668` | `fn_800E2668` | `pbackfail__Q23std41basic_streambuf<c,Q23std14char_traits<c>>Fi` |
-| `std/allocator_char.cpp` | `0x800e2670` | `fn_800E2670` | `xsputn__Q23std41basic_streambuf<c,Q23std14char_traits<c>>FPCcl` |
-| `std/runtime_error.cpp` | `0x8001a34c` | `get_deleter__Q43std3tr16detail57shared_ptr_deleter<c,Q33std6detail20default_delete<A0_c>>FRCQ23std9type_info` | `get_deleter__Q43std3tr16detail57shared_ptr_deleter<c,Q33std6detail20default_delete<A0_c>>CFRCQ23std9type_info` |
+- Clases reales: `atn::Keyboard`, `atn::Model` (+ `ModelBase`), `atn::MemoryManager`, `atn::EfpFile`, `atn::SimpleVector`, `atn::static_string`, `atn::MotionCommandData(::Command)`, `Inventory`, `db::SkillBase::Condition`, `CharaFaceControl::MotionPart`/`MotionSet`, `std::basic_stringbuf`/`basic_ostream`/`basic_streambuf`/`ios_base`/`locale` (`include/std/`).
+- Métodos y virtuales: `GetTacViewPosition() const` (era `vfC8`), `GimmickCommon::Start` (`vf28`), `CsvBase::SetData` (`vf08`), `CharaTask::SetFlag`, `Task::FreezeTask`, `GetMotionFrame`/`SetMotionSpeed`/`SetMotionFrame`/`GetMotionSpeed`, `CalcMatrixStack`, `FileFreeBuffer`, `do_replace`, `operator+` de `basic_string`, `get_deleter`, `setstate`, `throw_failure`.
+- Unidades (decisión del usuario): `atn/WordWrap_unk` + `std/char_traits_char` + `std/allocator_char` = un solo fichero (`atn/WordWrap_unk.cpp`, 25/44); los destructores de `basic_istream`/`basic_iostream`/`basic_stringstream` y sus 5 thunks con nombre real; los thunks pasan a `game/GameEventScript_cont2` (con las vtables) y `auto_03_803B27AC_text` pasa a `auto_03_803B27F8_text` (lost 2 aceptado: `fn_803B27D4`/`fn_803B27F0`).
+- Bajada aceptada: `basic_ostream::sentry::sentry` (0x800E14A4, NONMATCHING) 57,35 → 35,05.
+- Tras la tanda, `classify.py`: 771 de 784 nombres coinciden. Queda `std::__red_black_tree::balance_insert` (0x8003E120, AI_archer_attack01: necesita la cabecera `tree` de MSL y el `std::map` de scripts) y los emparejamientos que no se deben usar (arriba).
+
+## Tercera tanda (`rso-names-2`, secuencial, 2026-10-29)
+
+Pendientes de la segunda tanda, hechos uno a uno sin agentes:
+
+- `std::__red_black_tree<__tree_node_base<allocator<void*>>*>::balance_insert` (0x8003E120): cabecera nueva `include/std/tree.h`; la copia débil sale de una instanciación explícita en AI_archer_attack01; TownTask, AudioDevice y ptr_string_base_char_0 la llaman por la clase. Hallazgo: en `ptr_string_base_char_0` el `#include "std/tree.h"` tiene que ir después de los demás (si va primero, cambia la asignación de registros de `fn_8021FD7C`).
+- `Inventory`: `instance_` (0x8087F4F0), `Order()` (0x801D80B4), `AddItem` (0x804439FC), `AddMoney` (0x8044D678: suma con tope 0..999999; 0x8044D6AC es la resta, sin nombre en el RSO). Las 12 vistas locales del objeto pasan a la clase de `include/game/Inventory.h` (dinero 0x6000, experiencia de la batalla 0x601C, orden 0x64A0, jugadores 0x64EC, equipo 0x8290). `game/ItemManager_unk.cpp` es `Inventory.cpp` (orden alfabético).
+- `atn::Buffer_unk` = `atn::SimpleArray` (50 nombres; `SetMotionParts` del RSO recibe un `SimpleArray<MotionPart>`). Sin aplicar: el `operator[]` del RSO es `CFUi` y el nuestro `Fi`; `allocate(Ui, MemoryTag[, const char*])` del RSO frente a nuestros `Resize_unk`.
+- `CharaFaceControl`: `Initialize`, `SetMotion(int, bool, bool, bool, float, float)`, `SetMotionParts(const SimpleArray<MotionPart>&, bool, bool, float, float)`, `ClearMotion(bool)`, `StartBlink`.
+- `atn::MemoryManager::AllocFromMem2` (0x800839EC) y `enum MemoryTag` (sin nombres de enumeradores: los 18 llamadores hacen `(MemoryTag)n`). Pendiente: `operator new(unsigned long, MemoryTag, ...)` del RSO (`__nw__FUl9MemoryTagPCcPCci`; el nuestro usa `int`, cientos de llamadas).
+- `ResLoader_unk` = `atn::EffFile` (`MotionCommandData` tiene `SimpleVector<EffFile>` y `<EfpFile>`): `LoadRequest`, `IsLoading`, `Destroy`; y `EfpFile::LoadRequest`/`IsLoading`.
+- `GimmickManager::instance_` (0x8087F4A0) y `GimmickManager::SetTask` (0x803EDFBC). Vistas parciales de `GimmickCommon` sustituidas por la clase real en EnemyQuarkSecond, Em302Kraken y SpecialEnemyBase (`GimmickMsg_unk`, `GimmickHitMsg_unk` con el remitente en 0x28). `GimmickCommon::vf50` devuelve `atn::ColliBase*`. El `.sbss` de `game/GimmickManager` empieza ahora en 0x8087F4A0 (antes 0x8087F4A4; decisión del usuario) y `instance_` se define en su fuente.
+- Vistas de `CharaTask`/`CharaStatus` sustituidas en NewCampPartsStatus y BattleResult (`CharaInfo_unk::m08` = nombre de la pantalla de resultados).
+- `atn::ModelBase::GetNodeNoByName(const char*, int) const` (0x80092814); `GetNodeMtx_unk` const (copias débiles `CFi`/`CFPCc`): fuera los `const_cast` de `GetTacViewPosition`.
+- Cifras: 8180 / 18215, `main.dol: OK`, lost 0, fuzzdrop 0 en toda la tanda.
 
 ## Diccionario
 

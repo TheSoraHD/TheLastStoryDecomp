@@ -1,4 +1,5 @@
 #include "db/EventIdTable_unk.h"
+#include "atn/FileList.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 
@@ -9,7 +10,6 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 // inferred: loads a whole file / releases it
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
-extern "C" void fn_8006BB6C(void* data, int arg);
 
 static const char sFileNameStr[] = "/boot/event_id_table.csv";
 static const char* const sFileName = sFileNameStr; // inferred: .rodata array + .sdata2 pointer
@@ -48,7 +48,7 @@ void EventIdTable_unk::fn_8020F248() {
     }
     atn::Csv csv;
     int count = 0;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         const char* field = csv.fn_8005B9CC();
         if (*field == '\0' || *field == '#') {
@@ -59,7 +59,7 @@ void EventIdTable_unk::fn_8020F248() {
     mEntries.Resize_unk(count, 4);
     int i = 0;
     EventIdEntry_unk entry;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         const char* field = csv.fn_8005B9CC();
         if (*field == '\0' || *field == '#') {
@@ -83,7 +83,7 @@ void EventIdTable_unk::fn_8020F248() {
         mEntries.mData[(unsigned int)i] = entry;
         i++;
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
 }
 
 EventIdEntry_unk* EventIdTable_unk::fn_8020F71C(int id) {

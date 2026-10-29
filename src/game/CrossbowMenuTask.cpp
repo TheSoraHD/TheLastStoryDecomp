@@ -1,4 +1,5 @@
 #include "game/CrossbowMenuTask.h"
+#include "game/Inventory.h"
 #include "atn/Memory.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -21,7 +22,7 @@ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text)
     fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
 
-// inferred: item lookups (lbl_8087F4F0 is probably the inventory); names unknown (as in CharaSub_unk.cpp)
+// inferred: item lookups (Inventory::instance_ is probably the inventory); names unknown (as in CharaSub_unk.cpp)
 struct ItemList_unk {
     int m00;
     unsigned int mCount;
@@ -32,16 +33,14 @@ struct ItemDef_unk {
     int m04;
     unsigned char m08[0xD0 - 0x08];
 };
-struct Inventory_unk;
 extern "C" void* lbl_8087F430;
-extern "C" Inventory_unk* lbl_8087F4F0;
 extern "C" int fn_80370174(void* field, int id);
 extern "C" ItemList_unk* fn_8020787C(int id);
 extern "C" ItemDef_unk* fn_80219EB4();
 extern "C" int fn_80219EBC();
-extern "C" int fn_804446BC(Inventory_unk* inventory, int type, int id);
-extern "C" int fn_804444E8(Inventory_unk* inventory, int id);
-extern "C" void fn_8044441C(Inventory_unk* inventory, int id, int count);
+extern "C" int fn_804446BC(Inventory* inventory, int type, int id);
+extern "C" int fn_804444E8(Inventory* inventory, int id);
+extern "C" void fn_8044441C(Inventory* inventory, int id, int count);
 extern "C" CrossbowItem_unk* fn_80211480(int id);
 extern "C" int fn_80211734(CrossbowItem_unk* item); // inferred: infinite arrows
 extern "C" int lbl_8087DAA0;                        // inferred: id of the last entry
@@ -148,9 +147,9 @@ void CrossbowMenuTask::fn_801E9544() {
     ItemList_unk* list = fn_8020787C(fn_80370174(lbl_8087F430, 100));
     if (list == 0 || list->mCount == 0) {
         m4C.push_back(m158);
-        Inventory_unk* inventory;
+        Inventory* inventory;
         for (int i = 0; i < fn_80219EBC(); i++) {
-            inventory = lbl_8087F4F0;
+            inventory = Inventory::instance_;
             int id = fn_804446BC(inventory, 5, fn_80219EB4()[i].m04);
             if (id != 0 && id != m158) {
                 m4C.push_back(id);
@@ -188,7 +187,7 @@ void CrossbowMenuTask::vf10() {
     for (unsigned int i = 1; i < m4C.mSize; i++) {
         CrossbowItem_unk* item = fn_80211480(m4C.mData[i]);
         if (item != 0) {
-            if (fn_80211734(item) != 0 || fn_804444E8(lbl_8087F4F0, m4C.mData[i]) > 0) {
+            if (fn_80211734(item) != 0 || fn_804444E8(Inventory::instance_, m4C.mData[i]) > 0) {
                 count++;
             }
         }
@@ -266,7 +265,7 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
     sprintf(color, "iconColor%02d", slot);
     CrossbowItem_unk* item = fn_80211480(m4C.mData[index]);
     if (item != 0) {
-        int count = fn_804444E8(lbl_8087F4F0, m4C.mData[index]);
+        int count = fn_804444E8(Inventory::instance_, m4C.mData[index]);
         CrossbowIcon_unk info = fn_801EA11C(item);
         float visible;
         if (info.mIndex < 0) {
@@ -348,7 +347,7 @@ void CrossbowMenuTask::fn_801E9ECC(int dir, int anim) {
             }
             CrossbowItem_unk* item = fn_80211480(m4C.mData[m150]);
             if (item != 0) {
-                if (fn_80211734(item) != 0 || fn_804444E8(lbl_8087F4F0, item->mId) > 0) {
+                if (fn_80211734(item) != 0 || fn_804444E8(Inventory::instance_, item->mId) > 0) {
                     return;
                 }
             }
@@ -360,7 +359,7 @@ void CrossbowMenuTask::fn_801E9ECC(int dir, int anim) {
 int CrossbowMenuTask::fn_801EA01C() const {
     int ret = -1;
     int id = m4C.mData[m150];
-    if (id != 0 && fn_804444E8(lbl_8087F4F0, id) > 0) {
+    if (id != 0 && fn_804444E8(Inventory::instance_, id) > 0) {
         ret = fn_80211480(id)->mC4;
         if (id == 0x71) {
             ret += rand() % 3;
@@ -374,7 +373,7 @@ void CrossbowMenuTask::fn_801EA0B4() {
     if (id != 0) {
         CrossbowItem_unk* item = fn_80211480(id);
         if (item != 0 && fn_80211734(item) == 0) {
-            fn_8044441C(lbl_8087F4F0, id, 1);
+            fn_8044441C(Inventory::instance_, id, 1);
         }
     }
 }

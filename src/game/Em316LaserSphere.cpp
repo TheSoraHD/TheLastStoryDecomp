@@ -35,8 +35,8 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node); // inferred: loads a model
-extern "C" void fn_80094D88(Model_unk* model, int blend, int a, int b, int c, int d);
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
+extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: control of a character caught by the tackle (only m4C, set to end it); name invented
 struct LaserCatch_unk {
@@ -96,13 +96,13 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
 // inferred: plays `efp` on `model` with default placement (as CoffinEffect_unk of game/Em315Coffin.cpp)
-inline void LaserEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void LaserEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -159,13 +159,13 @@ Em316LaserSphere::Em316LaserSphere(atn::Task* parent, EnemyInfo_unk* info)
     }
     std::string path = fn_8006AFF8(dir, name);
     m14B0.vf0C(path.c_str());
-    m1550.fn_8023780C("ef_uc066.efp");
-    m1584.fn_80237654("ef_sk043c_01.eff");
-    m1590.fn_8023780C("ef_sk043a.efp");
-    m159C.fn_80237654("ef_sk043g_01.eff");
-    m15A8.fn_80237654("ef_sk043g_02.eff");
+    m1550.LoadRequest("ef_uc066.efp");
+    m1584.LoadRequest("ef_sk043c_01.eff");
+    m1590.LoadRequest("ef_sk043a.efp");
+    m159C.LoadRequest("ef_sk043g_01.eff");
+    m15A8.LoadRequest("ef_sk043g_02.eff");
     for (int i = 0; i < 3; i++) {
-        fn_8008AD4C((Model_unk*)&m1648[i], "em316_00_bs00.model", 0);
+        fn_8008AD4C((atn::Model*)&m1648[i], "em316_00_bs00.model", 0);
     }
     mFlag21 = 1;
 }
@@ -179,9 +179,9 @@ int Em316LaserSphere::vf0C() {
             return 0;
         }
     }
-    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m1550.fn_80237874() == 0 &&
-        m1584.fn_802376D0() == 0 && m1590.fn_80237874() == 0 && m159C.fn_802376D0() == 0 &&
-        m15A8.fn_802376D0() == 0) {
+    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m1550.IsLoading() == 0 &&
+        m1584.IsLoading() == 0 && m1590.IsLoading() == 0 && m159C.IsLoading() == 0 &&
+        m15A8.IsLoading() == 0) {
         void* group = m1C8C.Load("Bit");
         fn_80087994(group, "DebugDisp", &m1C90, 0, 0);
         fn_800874C8(group, "LaserWait", &m1C84, 1, 10000, 1, 0, 0);
@@ -216,11 +216,11 @@ int Em316LaserSphere::vf0C() {
         }
         m54C |= 0x200;
         for (int i = 0; i < 3; i++) {
-            Model_unk* model = models[i].GetModel_unk();
+            atn::Model* model = models[i].GetModel_unk();
             fn_80094D88(model, 3, 0, 0, 0, 0);
             float t = (float)(i + 1) / 4.0f;
             float a = sOne_unk + t * (sZero_unk - sOne_unk);
-            Model_unk::Float4_unk color;
+            atn::Model::Float4_unk color;
             color.m00 = 1.0f;
             color.m04 = 1.0f;
             color.m08 = 1.0f;
@@ -235,7 +235,7 @@ int Em316LaserSphere::vf0C() {
 
 // inferred: matrix of a model (weak copy 0x80266154, first emitted by game/Em201ZanGurgFinal; as in
 // gmk/Cannonball.cpp)
-extern "C" inline atn::Matrix3x4* fn_80266154(Model_unk* model) {
+extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
     return (atn::Matrix3x4*)model->mMtx;
 }
 // inferred: largest of three values (as in game/Gun.cpp)
@@ -249,7 +249,7 @@ inline float LaserColumn_unk(const atn::Matrix3x4& m, int i) {
 }
 // inferred: sets the world matrix of a model and its largest scale axis (weak copy 0x80316E38, called by
 // gmk/Cannonball.cpp and gmk/FlamingArrow.cpp; as SetMtx_unk of game/Gun.cpp)
-extern "C" inline void fn_80316E38(Model_unk* model, const atn::Matrix3x4* mtx) {
+extern "C" inline void fn_80316E38(atn::Model* model, const atn::Matrix3x4* mtx) {
     __MtxCopy(model->mMtx, mtx->m);
     float sz = LaserColumn_unk(*mtx, 2);
     float sy = LaserColumn_unk(*mtx, 1);
@@ -309,7 +309,7 @@ void Em316LaserSphere::vf10() {
             m = fn_80266154(m1648[i - 1].GetModel_unk());
         }
         fn_80316E38(models[i].GetModel_unk(), m);
-        fn_800902C0(models[i].GetModel_unk(), 0, boost::function<void()>(0));
+        models[i].GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk(0));
     }
     fn_80317EA0();
     m14C0++;
@@ -414,7 +414,7 @@ void Em316LaserSphere::vf40(HitInfo_unk* hit) {
         return;
     }
     HitInfo_unk* data = ((HitMsg_unk*)hit)->mData;
-    if (data != 0 && (data->m90 & 0x800000) == 0x800000) {
+    if (data != 0 && (data->m90.mFlags & 0x800000) == 0x800000) {
         SetState_unk(12);
         atn::Vector3 pos = fn_80318648(m14B8);
         m1510 = m1504 = mPos;
@@ -474,7 +474,7 @@ void Em316LaserSphere::vf80(const atn::Vector3& pos, const atn::Vector3& offset)
 }
 
 atn::Vector3 Em316LaserSphere::fn_80318648(CharaTask* chara) {
-    Model_unk* model = &chara->mMotion;
+    atn::Model* model = &chara->mMotion;
     MtxPtr m = model->GetNodeMtx_unk("spine1");
     atn::Vector3 pos(0.0f, 0.0f, 0.0f);
     if (m != 0) {

@@ -1,14 +1,11 @@
 // inferred: engine memory manager (atn::SmallAllocator<N> pools, five atn::DLAllocator heaps and
 // the global operators new/delete). The file starts at 0x80081E54 (the MEMAllocator callbacks,
-// fn_800827E0 and the constructor are outside the split); class and member names are invented.
+// atn::MemoryManager::Instance and the constructor are outside the split); names invented except
+// atn::MemoryManager::Instance/Free (RSO).
 #include "IAllocator.h"
 #include "atn/DLAllocator.h"
+#include "atn/MemoryManager.h"
 
-extern "C" void* memset(void* dst, int c, unsigned long n);
-
-struct OSMutex_unk {
-    unsigned char m00[0x18];
-};
 extern "C" void OSLockMutex(OSMutex_unk* mutex);
 extern "C" void OSUnlockMutex(OSMutex_unk* mutex);
 extern "C" void* OSGetMEM1ArenaHi();
@@ -30,110 +27,10 @@ public:
 extern "C" void fn_80084EE8__Q23atn11DLAllocatorFPvUl(atn::DLAllocator* heap, void* base, unsigned long size,
                                                      const char* name);
 
-namespace atn {
-
-// inferred: {block size, number of 32-block groups} of each pool
-struct SmallPoolConfig_unk {
-    unsigned long mSize;
-    unsigned long mCount;
-};
-
-// inferred: one pool of a SmallAllocator (a bitmap of used blocks and its blocks)
-struct SmallPool_unk {
-    SmallPool_unk() {
-        mUsed = 0;
-        mPeak = 0;
-        mBitmap = 0;
-        mBase = 0;
-    }
-    unsigned long* mBitmap; // 0x00
-    unsigned char* mBase;   // 0x04
-    int mUsed;              // 0x08
-    int mPeak;              // 0x0C
-};
-
-// inferred: allocator of small blocks in N size classes
-template <int N>
-class SmallAllocator : public IAllocator {
-public:
-    SmallAllocator(const SmallPoolConfig_unk* config) : m04(0), mConfig(config), mCount(N) {}
-    // NONMATCHING: <8> matches; <6> 0% - its operator delete inlines the manager constructor,
-    // the original calls it (fn_80082970), same as __dl__FPv
-    virtual ~SmallAllocator() {}
-    virtual void* vf0C(unsigned long size, unsigned long align);
-    virtual void vf10(void* p);
-    // NONMATCHING: 97.9% - the original keeps mCount - 1 in its own register
-    virtual void* vf14() {
-        const SmallPoolConfig_unk& config = mConfig[mCount - 1];
-        return mPools[mCount - 1].mBase + config.mCount * (config.mSize << 5);
-    }
-    virtual void* vf18() { return mPools[0].mBase; }
-    virtual void vf1C() {}
-
-    // inferred: size of the bitmaps and blocks of all the pools
-    unsigned long GetSize_unk() const {
-        unsigned long total = 0;
-        for (int i = 0; i < mCount; i++) {
-            total += mConfig[i].mCount * (mConfig[i].mSize << 5) + mConfig[i].mCount * 4;
-        }
-        return total;
-    }
-    // inferred: places the bitmaps, then the blocks, in buf
-    void Setup_unk(void* buf) {
-        unsigned char* p = (unsigned char*)buf;
-        m04 = p;
-        for (int i = 0; i < mCount; i++) {
-            mPools[i].mBitmap = (unsigned long*)p;
-            memset(p, 0, mConfig[i].mCount * 4);
-            p += mConfig[i].mCount * 4;
-        }
-        for (int i = 0; i < mCount; i++) {
-            mPools[i].mBase = p;
-            p += mConfig[i].mCount * (mConfig[i].mSize << 5);
-        }
-    }
-
-    void* m04;                          // inferred: buffer of the bitmaps and the blocks
-    const SmallPoolConfig_unk* mConfig; // 0x08
-    int mCount;                         // 0x0C
-    SmallPool_unk mPools[N];            // 0x10
-};
-
-} // namespace atn
-
-// inferred: allocator callbacks of the SDK (MEMAllocator)
-struct MEMAllocatorFunc_unk {
-    void* (*mAlloc)(void* allocator, unsigned long size);
-    void (*mFree)(void* allocator, void* p);
-};
-struct MEMAllocator_unk {
-    const MEMAllocatorFunc_unk* mFunc;
-    void* mHeap;
-    unsigned long mParam1;
-    unsigned long mParam2;
-};
-
-class MemoryManager_unk {
-public:
-    MemoryManager_unk();
-
-    int mMode;                              // 0x000: inferred: 1 = small blocks only from SMA2
-    unsigned long mAlign;                   // 0x004
-    MEMAllocator_unk mSdk[3];               // 0x008
-    atn::SmallAllocator<8> mSmall8;         // 0x038
-    atn::SmallAllocator<6> mSmall6;         // 0x0C8
-    atn::DLAllocator mMem1;                 // 0x138
-    atn::DLAllocator mMem2;                 // 0x150
-    atn::DLAllocator mOverflow;             // 0x168
-    atn::DLAllocator mMindows;              // 0x180
-    atn::DLAllocator mMatrix;               // 0x198
-    int mUseMutex;                          // 0x1B0
-    OSMutex_unk mMutex;                     // 0x1B4
-};
 
 // inferred: locks the manager mutex while in scope
 struct MemoryLock_unk {
-    MemoryLock_unk(MemoryManager_unk* mgr) {
+    MemoryLock_unk(atn::MemoryManager* mgr) {
         mMutex = mgr->mUseMutex != 0 ? &mgr->mMutex : 0;
         if (mMutex != 0) {
             OSLockMutex(mMutex);
@@ -147,12 +44,11 @@ struct MemoryLock_unk {
     OSMutex_unk* mMutex;
 };
 
-extern "C" void fn_80082CAC(MemoryManager_unk* mgr);
+extern "C" void fn_80082CAC(atn::MemoryManager* mgr);
 extern "C" void* fn_80081E54(void* allocator, unsigned long size);
 extern "C" void fn_800820BC(void* allocator, void* p);
 extern "C" void* fn_80082260(void* allocator, unsigned long size);
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
-extern "C" void* fn_800832AC(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap);
+extern "C" void* fn_800832AC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap);
 
 static const atn::SmallPoolConfig_unk sSmall8Config[8] = {
     {4, 0x100}, {8, 0x80}, {0x10, 0x200}, {0x20, 0x400}, {0x30, 0x100}, {0x40, 0x80}, {0x50, 0x40}, {0x60, 0x80},
@@ -161,44 +57,40 @@ static const atn::SmallPoolConfig_unk sSmall6Config[6] = {
     {4, 1}, {8, 1}, {0x10, 1}, {0x20, 1}, {0x30, 1}, {0x40, 1},
 };
 
-MemoryManager_unk::MemoryManager_unk()
+atn::MemoryManager::MemoryManager()
     : mMode(0), mAlign(0x20), mSmall8(sSmall8Config), mSmall6(sSmall6Config), mUseMutex(0) {
     fn_80082CAC(this);
 }
 
-extern "C" MemoryManager_unk* fn_800827E0();
 
-extern "C" void* fn_800838B8(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
+extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
                              const char* name);
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* name, const char* file, int line, int mayFail);
 
 // inferred: MEMAllocator callbacks (MEM1, free, MEM2)
 extern "C" void* fn_80081E54(void* allocator, unsigned long size) {
-    return fn_800838B8(fn_800827E0(), size, 0x20, 0, "");
+    return fn_800838B8(atn::MemoryManager::Instance(), size, 0x20, 0, "");
 }
 
 extern "C" void fn_800820BC(void* allocator, void* p) {
-    fn_80083AD4(fn_800827E0(), p);
+    atn::MemoryManager::Instance()->Free(p);
 }
 
 extern "C" void* fn_80082260(void* allocator, unsigned long size) {
-    return fn_800839EC(fn_800827E0(), size, 0x20, 0, "", "", 0, 0);
+    return atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)0, "", "", 0, 0);
 }
 
 // inferred: allocation hooks of the C library
 extern "C" void* __sys_alloc(unsigned long size) {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, 0);
 }
 
 extern "C" void __sys_free(void* p) {
-    fn_80083AD4(fn_800827E0(), p);
+    atn::MemoryManager::Instance()->Free(p);
 }
 
-// inferred: the manager instance
-extern "C" MemoryManager_unk* fn_800827E0() {
-    static MemoryManager_unk sInstance;
+atn::MemoryManager* atn::MemoryManager::Instance() {
+    static atn::MemoryManager sInstance;
     return &sInstance;
 }
 
@@ -208,7 +100,7 @@ static MEMAllocatorFunc_unk sMem2Func = {fn_80082260, fn_800820BC};
 // NONMATCHING: 85.6% - register allocation (the original uses r25-r31 and shares r31 between the
 // arena end and the buffer pointer)
 // inferred: lays out the heaps in the arenas and the small allocators
-extern "C" void fn_80082CAC(MemoryManager_unk* mgr) {
+extern "C" void fn_80082CAC(atn::MemoryManager* mgr) {
     unsigned char* hi = (unsigned char*)OSGetMEM1ArenaHi();
     unsigned char* lo = (unsigned char*)OSGetMEM1ArenaLo();
     unsigned long size = hi - lo;
@@ -244,7 +136,7 @@ extern "C" void fn_80082CAC(MemoryManager_unk* mgr) {
 }
 
 // inferred: allocates size bytes; heap 0xD/0xE/9 select a heap, small blocks go to the pools
-extern "C" void* fn_800832AC(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap) {
+extern "C" void* fn_800832AC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap) {
     MemoryLock_unk lock(mgr);
     if (heap == 0xD) {
         return ((NamedAllocator_unk*)&mgr->mOverflow)->vf0C(size, align, heap, "");
@@ -294,7 +186,7 @@ namespace atn {
 
 // NONMATCHING: 87.0% - same code, volatile registers numbered differently
 template <int N>
-void* SmallAllocator<N>::vf0C(unsigned long size, unsigned long align) {
+void* SmallAllocator<N>::vf0C(unsigned long size, unsigned long align, int heap, const char* name) {
     const SmallPoolConfig_unk* config = mConfig;
     while (config->mSize < size) {
         config++;
@@ -330,12 +222,12 @@ void* SmallAllocator<N>::vf0C(unsigned long size, unsigned long align) {
 } // namespace atn
 
 // inferred: allocation with the default alignment
-extern "C" void* fn_800838AC(MemoryManager_unk* mgr, unsigned long size, int heap) {
+extern "C" void* fn_800838AC(atn::MemoryManager* mgr, unsigned long size, int heap) {
     return fn_800832AC(mgr, size, mgr->mAlign, heap);
 }
 
 // inferred: allocation from MEM1 (heap 9: matrix buffers), then Overflow or MEM2
-extern "C" void* fn_800838B8(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
+extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
                              const char* name) {
     MemoryLock_unk lock(mgr);
     void* p;
@@ -355,14 +247,14 @@ extern "C" void* fn_800838B8(MemoryManager_unk* mgr, unsigned long size, unsigne
 }
 
 // inferred: allocation from MEM2, then Overflow
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* name, const char* file, int line, int mayFail) {
+void* atn::MemoryManager::AllocFromMem2(unsigned long size, unsigned long align, MemoryTag heap, const char* name,
+                                        const char* file, int line, int mayFail) {
     void* p;
     {
-        MemoryLock_unk lock(mgr);
-        p = ((NamedAllocator_unk*)&mgr->mMem2)->vf0C(size, align, heap, name);
+        MemoryLock_unk lock(this);
+        p = ((NamedAllocator_unk*)&mMem2)->vf0C(size, align, heap, name);
         if (p == 0) {
-            p = ((NamedAllocator_unk*)&mgr->mOverflow)->vf0C(size, align, heap, name);
+            p = ((NamedAllocator_unk*)&mOverflow)->vf0C(size, align, heap, name);
         }
     }
     if (mayFail != 0 && p == 0) {
@@ -381,25 +273,25 @@ static inline bool MemoryContains_unk(IAllocator* allocator, void* p) {
 }
 
 // inferred: frees p in the allocator that owns it
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p) {
+void atn::MemoryManager::Free(void* p) {
     if (p == 0) {
         return;
     }
-    MemoryLock_unk lock(mgr);
-    if (MemoryContains_unk(&mgr->mSmall8, p)) {
-        mgr->mSmall8.vf10(p);
-    } else if (MemoryContains_unk(&mgr->mSmall6, p)) {
-        mgr->mSmall6.vf10(p);
-    } else if (MemoryContains_unk(&mgr->mMem1, p)) {
-        mgr->mMem1.vf10(p);
-    } else if (MemoryContains_unk(&mgr->mMatrix, p)) {
-        mgr->mMatrix.vf10(p);
-    } else if (MemoryContains_unk(&mgr->mMem2, p)) {
-        mgr->mMem2.vf10(p);
-    } else if (MemoryContains_unk(&mgr->mOverflow, p)) {
-        mgr->mOverflow.vf10(p);
-    } else if (MemoryContains_unk(&mgr->mMindows, p)) {
-        mgr->mMindows.vf10(p);
+    MemoryLock_unk lock(this);
+    if (MemoryContains_unk(&mSmall8, p)) {
+        mSmall8.vf10(p);
+    } else if (MemoryContains_unk(&mSmall6, p)) {
+        mSmall6.vf10(p);
+    } else if (MemoryContains_unk(&mMem1, p)) {
+        mMem1.vf10(p);
+    } else if (MemoryContains_unk(&mMatrix, p)) {
+        mMatrix.vf10(p);
+    } else if (MemoryContains_unk(&mMem2, p)) {
+        mMem2.vf10(p);
+    } else if (MemoryContains_unk(&mOverflow, p)) {
+        mOverflow.vf10(p);
+    } else if (MemoryContains_unk(&mMindows, p)) {
+        mMindows.vf10(p);
     }
 }
 
@@ -427,53 +319,53 @@ struct MemoryMode_unk {
 };
 
 MemoryMode_unk::MemoryMode_unk(int mode, unsigned long align) {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     mgr->mMode = mode;
     mgr->mAlign = align;
 }
 
 // NONMATCHING: 42.5% - the operator delete part inlines the manager constructor (see __dl__FPv)
 MemoryMode_unk::~MemoryMode_unk() {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     mgr->mMode = 0;
     mgr->mAlign = 0x20;
 }
 
 void* operator new(unsigned long size, int heap, const char* name, const char* file, int line) {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, heap);
 }
 
 void* operator new(unsigned long size) {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, 0);
 }
 
 // NONMATCHING: 0% (structure) - the original calls the manager constructor fn_80082970 out of
-// line inside the inlined fn_800827E0; ours inlines it like operator new does. The constructor,
-// fn_800827E0, the destructors and operator delete call each other (a cycle), and the order in
+// line inside the inlined MemoryManager::Instance; ours inlines it like operator new does. The constructor,
+// MemoryManager::Instance, the destructors and operator delete call each other (a cycle), and the order in
 // which MWCC resolves it decides which copies get the constructor inlined.
 void operator delete(void* p) {
-    fn_80083AD4(fn_800827E0(), p);
+    atn::MemoryManager::Instance()->Free(p);
 }
 
 void* operator new[](unsigned long size, int heap, const char* name, const char* file, int line) {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, heap);
 }
 
 // inferred: array allocation with an explicit alignment
 extern "C" void* fn_800848B4(unsigned long size, unsigned long align, int heap, const char* name, const char* file,
                              int line) {
-    return fn_800832AC(fn_800827E0(), size, align, heap);
+    return fn_800832AC(atn::MemoryManager::Instance(), size, align, heap);
 }
 
 void* operator new[](unsigned long size) {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, 0);
 }
 
 void operator delete[](void* p) {
-    fn_80083AD4(fn_800827E0(), p);
+    atn::MemoryManager::Instance()->Free(p);
 }
 

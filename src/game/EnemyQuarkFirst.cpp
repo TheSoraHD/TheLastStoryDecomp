@@ -71,8 +71,8 @@ EnemyQuarkFirst::EnemyQuarkFirst(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_enemy_quark_first.csv");
     }
     m14B4.vf0C(path);
-    m1528.fn_8023780C("ef_bs007a.efp");
-    m1534.fn_8023780C("ef_bu047a.efp");
+    m1528.LoadRequest("ef_bs007a.efp");
+    m1534.LoadRequest("ef_bu047a.efp");
     mFlagB11 = 1;
     mFlag24 = 0;
 }
@@ -87,7 +87,7 @@ int EnemyQuarkFirst::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1528.fn_80237874() != 0 || m1534.fn_80237874() != 0) {
+    if (m1528.IsLoading() != 0 || m1534.IsLoading() != 0) {
         return 0;
     }
     fn_80334FDC((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
@@ -222,7 +222,7 @@ int EnemyQuarkFirst::vf10C(HitMsg_unk* msg) {
     }
     int done = 0;
     if (m14D8 == 1) {
-        if ((msg->mData->m90 & 0x80000) == 0x80000) {
+        if ((msg->mData->m90.mFlags & 0x80000) == 0x80000) {
             m14D8 = 2;
             m14E0 = 300.0f;
             fn_8059C2A8(lbl_8087F9E8, this, m1524);
@@ -334,7 +334,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects

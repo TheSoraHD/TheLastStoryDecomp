@@ -1,4 +1,5 @@
 #include "MP/D2AMpMenu_unk.h"
+#include "game/Inventory.h"
 
 // inferred: character task of a multiplayer player; only the flags used here
 struct MpCharaTask_unk : public atn::Task {
@@ -108,7 +109,6 @@ struct MpUV_unk {
     float m[4];
 };
 extern "C" MpItem_unk* fn_80211480(int id);
-extern "C" void* lbl_8087F4F0;
 extern "C" int fn_80444BE8(void* mgr, MpItem_unk* item);
 extern "C" MpUV_unk fn_80444C50(void* mgr, int icon);
 
@@ -901,15 +901,15 @@ void D2AMpMenuResult::fn_804C822C() {
                 mA0[i]->SetText_unk("string0029(1)", (int)"");
                 if (fn_804EB480(lbl_8087F610, player) == 0 && item > 0) {
                     MpItem_unk* data = fn_80211480(item);
-                    int icon = fn_80444BE8(lbl_8087F4F0, data);
+                    int icon = fn_80444BE8(Inventory::instance_, data);
                     if (data != 0) {
                         fn_800DD3FC(text, L"%s", data->mName);
                         SetPaneText_unk(mA0[i]->mLayout, "string0029(1)", text);
                         if (player->mHost == 1) {
                             SetPaneText_unk(mC4->mLayout, "string0013(1)", text);
-                            MpUV_unk uv = fn_80444C50(lbl_8087F4F0, icon);
+                            MpUV_unk uv = fn_80444C50(Inventory::instance_, icon);
                             mC4->SetParam2_unk("uv0021(1)(1)(1)", uv.m);
-                            MpUV_unk uv2 = fn_80444C50(lbl_8087F4F0, icon);
+                            MpUV_unk uv2 = fn_80444C50(Inventory::instance_, icon);
                             mC4->SetParam2_unk("uv0001(1)(1)", uv2.m);
                         }
                     }

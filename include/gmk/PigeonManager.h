@@ -23,7 +23,7 @@ struct Pigeon_unk {
     void fn_80405A14(CharaTask* player); // inferred: reacts to the player (flies away or walks off)
 
     PigeonManager* mOwner; // 0x00
-    Model_unk mModel;      // 0x04
+    atn::Model mModel;      // 0x04
     atn::Vector3 mPos;     // 0x3D4
     atn::Vector3 m3E0;
     atn::Vector3 m3EC;
@@ -61,7 +61,7 @@ public:
     char mModelName[0x100];  // 0xF5: "MODEL"
     char mMotionName[4][0x100]; // 0x1F5: "MOTION"
     int mMotionId[4];        // 0x5F8
-    atn::Buffer_unk<Pigeon_unk> mPigeons; // 0x608
+    atn::SimpleArray<Pigeon_unk> mPigeons; // 0x608
     int mCount;              // 0x610: inferred: mDesc->m20
     atn::Vector3 mTmp;       // 0x614: inferred: position compared in FindNear_unk
     atn::Vector3 mCenter;    // 0x620

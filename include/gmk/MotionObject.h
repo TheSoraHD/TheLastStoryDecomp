@@ -73,7 +73,7 @@ struct MotionColli_unk {
 // inferred: "EFP" of a state with its flags (1 EFF_CLEAR_IMMEDIATE, 2 EFF_REFLECT; names invented)
 struct MotionEfp_unk {
     MotionEfp_unk() : mFlags(0) {}
-    atn::EfpHandle_unk mEfp;
+    atn::EfpFile mEfp;
     unsigned int mFlags;
 };
 
@@ -99,12 +99,12 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void vf24();
-    virtual void vf28();
-    virtual Model_unk* vf38();
+    virtual void Start();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
-    virtual int vf50();
+    virtual atn::ColliBase* vf50();
     virtual atn::Vector3 vf54();
     virtual float vf58();
     virtual int vf5C();
@@ -115,7 +115,7 @@ public:
 
     int mPrevState;                   // 0xF4
     int mFrame;                       // 0xF8
-    Model_unk mModels[8];             // 0xFC
+    atn::Model mModels[8];             // 0xFC
     int mHasModel[8];                 // 0x1F7C
     MotionPlay_unk mPlay[8];          // 0x1F9C
     MotionColli_unk mColli[8];        // 0x203C
@@ -126,8 +126,8 @@ public:
     int mInitState;                   // 0x2280: "INIT_STATE"
     String32_unk mBoundNode;          // 0x2284: "BOUND_CENTER_NODE"
     int mActionEnabled[8];            // 0x22A4
-    atn::Buffer_unk<GimmickMaterialFade_unk> mFades[8];    // 0x22C4: "MATALPHA"
-    atn::Buffer_unk<GimmickMotionSwitch_unk> mSwitches[8]; // 0x2304: "NODEVIS"
+    atn::SimpleArray<GimmickMaterialFade_unk> mFades[8];    // 0x22C4: "MATALPHA"
+    atn::SimpleArray<GimmickMotionSwitch_unk> mSwitches[8]; // 0x2304: "NODEVIS"
     int m2344; // inferred: unused (the object is 0x2348 bytes)
 };
 

@@ -30,7 +30,7 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
 
@@ -41,7 +41,7 @@ public:
     atn::Vector3 mOffset;   // 0xF8
     float mTime;            // 0x104
     float mValue;           // 0x108
-    atn::Buffer_unk<Entry_unk> mEntries; // 0x10C
+    atn::SimpleArray<Entry_unk> mEntries; // 0x10C
     int m114;               // inferred: unused (the object is 0x118 bytes)
 };
 

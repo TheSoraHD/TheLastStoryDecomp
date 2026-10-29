@@ -27,7 +27,7 @@ struct EventIdTable_unk {
     EventIdEntry_unk* fn_8020F71C(int id);
     int fn_8020F75C(const char* name);
 
-    atn::Buffer_unk<EventIdEntry_unk> mEntries;
+    atn::SimpleArray<EventIdEntry_unk> mEntries;
 };
 
 #endif

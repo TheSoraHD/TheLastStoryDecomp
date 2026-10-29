@@ -127,11 +127,11 @@ public:
     int m14F0;        // inferred: laps of the spin tackle
     int m14F4;        // inferred: next action (fn_802AC0E0)
     int m14F8;        // inferred: kind of state 15
-    atn::EfpHandle_unk m14FC; // inferred: "ef_sk015a.efp"
-    ResLoader_unk m1508;      // inferred: "ef_sk002b.eff" (stings)
-    atn::EfpHandle_unk m1514; // inferred: "ef_sk008d.efp"
-    atn::EfpHandle_unk m1520; // inferred: "ef_uc011.efp"
-    atn::EfpHandle_unk m152C; // inferred: "ef_cm009.efp"
+    atn::EfpFile m14FC; // inferred: "ef_sk015a.efp"
+    atn::EffFile m1508;      // inferred: "ef_sk002b.eff" (stings)
+    atn::EfpFile m1514; // inferred: "ef_sk008d.efp"
+    atn::EfpFile m1520; // inferred: "ef_uc011.efp"
+    atn::EfpFile m152C; // inferred: "ef_cm009.efp"
     atn::SoundRef m1538;
     MulueRoute_unk m153C;     // inferred: "TacklePoint"
     MulueRoute_unk m1580;     // inferred: "SpinPoint"
@@ -150,7 +150,7 @@ public:
     int m1648;
     int m164C;                // inferred: "StaggTime"
     int m1650;                // inferred: "ReleaseDamage"
-    atn::EfpHandle_unk m1654; // inferred: "ef_sc012.efp"
+    atn::EfpFile m1654; // inferred: "ef_sc012.efp"
     int m1660;                // inferred: "DownTime"
     HitInfo_unk* m1664;       // inferred: "TackleID"
     HitInfo_unk* m1668;       // inferred: "BackID"
@@ -276,10 +276,10 @@ public:
     unsigned char m1A40;
     int m1A44;        // inferred: "CollisionOnOff"
     atn::Vector3 m1A48; // inferred: position of the player when it thrusts
-    atn::EfpHandle_unk m1A54;
-    atn::EfpHandle_unk m1A60; // inferred: "/effect/ef_sk008d.efp"
-    ResLoader_unk m1A6C;      // inferred: "/effect/ef_sk002b.eff" (stings)
-    atn::EfpHandle_unk m1A78; // inferred: "/effect/ef_uc011.efp"
+    atn::EfpFile m1A54;
+    atn::EfpFile m1A60; // inferred: "/effect/ef_sk008d.efp"
+    atn::EffFile m1A6C;      // inferred: "/effect/ef_sk002b.eff" (stings)
+    atn::EfpFile m1A78; // inferred: "/effect/ef_uc011.efp"
     BigMulueFlag_unk m1A84;   // inferred: "StaggerNotifyFlag"
     BigMulueFlag_unk m1A8C;   // inferred: "TumbleNotifyFlag"
     float m1A94;      // inferred: "BodyPressOffset"
@@ -403,9 +403,9 @@ public:
     int m1518;        // inferred: mode (0 normal, 1 fire, 2 ice): material colors and spin attacks
     int m151C;        // inferred: the part capsules are enabled
     int m1520;        // inferred: "MoveTime"
-    ResLoader_unk m1524;      // inferred: "ef_sk002b.eff" (stings)
-    atn::EfpHandle_unk m1530; // inferred: "ef_sk008d.efp"
-    atn::EfpHandle_unk m153C; // inferred: "ef_uc011.efp"
+    atn::EffFile m1524;      // inferred: "ef_sk002b.eff" (stings)
+    atn::EfpFile m1530; // inferred: "ef_sk008d.efp"
+    atn::EfpFile m153C; // inferred: "ef_uc011.efp"
     atn::SoundRef m1548;      // inferred: "SE_EM204_003" while spinning
     MulueRoute_unk m154C;     // inferred: "TacklePoint"
     MulueRoute_unk m1590;     // inferred: "SpinPoint"

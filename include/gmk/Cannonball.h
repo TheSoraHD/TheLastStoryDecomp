@@ -32,8 +32,8 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void vf24();
-    virtual void vf28();
-    virtual Model_unk* vf38() { return &mModel; }
+    virtual void Start();
+    virtual atn::Model* vf38() { return &mModel; }
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual int vf60();
@@ -48,7 +48,7 @@ public:
     // CharaObj1208_unk::fn_8013A18C, which is probably the same accessor
     int IsShown_unk() const { return m9C; }
 
-    Model_unk mModel;              // 0xF4: "MODEL"
+    atn::Model mModel;              // 0xF4: "MODEL"
     GimmickDesc_unk* mDesc;        // 0x4C4
     CharaTask* mHolder;            // 0x4C8: inferred: character that carries it
     atn::ColliCapsule* mIgnore;    // 0x4CC: inferred: collision ignored while thrown
@@ -60,8 +60,8 @@ public:
     int mExplodeTime;              // 0x4F4: "EXPLODE_PARAM" 1
     int mBulletId;                 // 0x4F8: "EXPLODE_PARAM" 2
     int mResetTime;                // 0x4FC: "RESET_PARAM"
-    atn::EfpHandle_unk mEfp;       // 0x500: "EFP" 1: inferred: explosion
-    atn::EfpHandle_unk mEfpFuse;   // 0x50C: "EFP" 2
+    atn::EfpFile mEfp;       // 0x500: "EFP" 1: inferred: explosion
+    atn::EfpFile mEfpFuse;   // 0x50C: "EFP" 2
     atn::SoundRef mSound;          // 0x518
     DropItem* mDrop;               // 0x51C
     unsigned char m520;

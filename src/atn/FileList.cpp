@@ -1,4 +1,5 @@
 #include "atn/FileList.h"
+#include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "std/string.h"
 
@@ -21,11 +22,6 @@ public:
 typedef atn::Loader Unk_8087F518;
 extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();                  // inferred: memory manager
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p); // inferred: frees a block
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg);
 extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
 extern "C" char* strcpy(char* dst, const char* src);
 
@@ -125,7 +121,6 @@ extern "C" std::string fn_8006AC08(const std::string& path) {
     return std::string("");
 }
 
-extern "C" std::string fn_8006AF38(const char* a, const std::string& b);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 // NONMATCHING: 98.2% - registers of the inlined rfind (as fn_8006AC08) and the pool offset of "."
@@ -135,29 +130,12 @@ extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext) {
     if (pos != std::string::npos) {
         path = fn_8006AFF8(std::string(path, 0, pos + 1), ext);
     } else {
-        path += fn_8006AF38(".", ext);
+        path += "." + ext;
     }
     return path;
 }
 
-// inferred: a + b (C string first; std::string operator+(const char*, const std::string&))
-extern "C" std::string fn_8006AF38(const char* a, const std::string& b) {
-    std::string tmp;
-    unsigned long n = strlen(a);
-    const StringView_unk& v = (const StringView_unk&)b;
-    unsigned long sz;
-    const char* p;
-    if (!(v.mWord0 >> 31)) {
-        p = (const char*)&b + 1;
-        sz = *(const unsigned char*)&b & 0x7F;
-    } else {
-        p = v.mData;
-        sz = v.mSize;
-    }
-    tmp.reserve(n + sz);
-    tmp.replace(0, 0, a, a + n).replace(n, 0, p, p + sz);
-    return tmp;
-}
+// 0x8006AF38: std::operator+(const char*, const std::string&) (include/std/string.h)
 
 // inferred: a + b (std::string operator+(const std::string&, const std::string&))
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b) {
@@ -300,19 +278,19 @@ extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int own) {
     void* data = 0;
     if (fn_805FA270(path, &info)) {
         *size = info.mLength;
-        data = fn_800839EC(fn_800827E0(), (*size + 0x1F) & ~0x1F, 0x20, 1, "", "", 0, 0);
+        data = atn::MemoryManager::Instance()->AllocFromMem2((*size + 0x1F) & ~0x1F, 0x20, (MemoryTag)1, "", "", 0, 0);
         DVDReadPrio(&info, data, (*size + 0x1F) & ~0x1F, 0, 2);
         DVDClose(&info);
     }
     return data;
 }
 
-// inferred: releases a loaded file (through the loader unless `own` is set)
-extern "C" void fn_8006BB6C(void* data, int own) {
+// releases a loaded file (through the loader unless `own` is set); name from the RSO
+void atn::FileFreeBuffer(char* data, bool own) {
     if (lbl_8087F518 != 0 && own == 0) {
         fn_8046DD20(lbl_8087F518, data);
     } else if (data != 0) {
-        fn_80083AD4(fn_800827E0(), data);
+        atn::MemoryManager::Instance()->Free(data);
     }
 }
 

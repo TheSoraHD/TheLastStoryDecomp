@@ -10,7 +10,9 @@
 // thunks of EffectManager for its IRender base (0x8024372C/0x80243734, emitted by MWCC at the end).
 
 struct Camera_unk;
-struct Model_unk;
+namespace atn {
+struct Model;
+}
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float alpha, int layer); // inferred: queues a render
 extern "C" int fn_800928B0(void* nodes, int hash, int arg);                          // inferred: node index by hash
@@ -134,7 +136,7 @@ struct EffectSystemPool_unk {
     EffectSystemPool_unk() : m00(0), m04(0) {}
     int m00;
     int m04;
-    atn::Buffer_unk<EffectSystemElem_unk> m08;
+    atn::SimpleArray<EffectSystemElem_unk> m08;
     EffectPtrVector_unk m10;
 };
 
@@ -288,7 +290,7 @@ public:
 
     EffectSystem_unk mSystem;                // 0x4C
     unsigned int mMax;                       // 0xD4
-    Vector_unk<EffectEntry_unk> mEntries;    // 0xD8
+    SimpleVector<EffectEntry_unk> mEntries;    // 0xD8
     unsigned int mSerial;                    // 0xE4
     int mPaused;                             // 0xE8
     unsigned int mFlags;                     // 0xEC

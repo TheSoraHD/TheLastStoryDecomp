@@ -7,9 +7,7 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" double sqrt(double x);
-// inferred: std::string operator+(const char*, const std::string&) (0x8006AF38)
-extern "C" std::string fn_8006AF38(const char* a, const std::string& b);
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
 // inferred: bullets (as in gmk/LandMine.cpp)
 struct BulletMgr_unk;
@@ -52,7 +50,7 @@ EnemySeaLizerd::EnemySeaLizerd(atn::Task* parent, EnemyInfo_unk* info)
     const char* name = strstr(info->m2C, "db_name=");
     if (name != 0) {
         path = name + 8;
-        path = fn_8006AF38("/database/chara/special/", path);
+        path = "/database/chara/special/" + path;
     }
     m14B0.vf0C(path.c_str());
     fn_80097A88(&mMotion, 0x13F, "em000_apa00a_00.motion");
@@ -273,7 +271,7 @@ void EnemySeaLizerd::vf28() {
     if (m58C == 6) {
         float frame = mMotion.mTracks[0].m08;
         float t = frame / mMotion.fn_80097D7C(0);
-        Model_unk::Node_unk* node = &mMotion.m220[m524];
+        atn::Model::Node_unk* node = &mMotion.m220[m524];
         atn::Vector3* v = &node->m04;
         mPos = *v + LerpBA_unk(m14E4, m14D8, t);
         v->x = 0.0f;

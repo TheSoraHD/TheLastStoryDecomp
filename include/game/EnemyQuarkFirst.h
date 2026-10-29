@@ -57,8 +57,8 @@ public:
     HitInfo_unk* m151C; // inferred: "JumpAttack"
     HitInfo_unk* m1520; // inferred: "StanceSkill" (two ids)
     HitInfo_unk* m1524;
-    atn::EfpHandle_unk m1528; // inferred: "ef_bs007a.efp"
-    atn::EfpHandle_unk m1534; // inferred: "ef_bu047a.efp"
+    atn::EfpFile m1528; // inferred: "ef_bs007a.efp"
+    atn::EfpFile m1534; // inferred: "ef_bu047a.efp"
     EnemyTask* m1540; // inferred: "SecondScriptId"
     QuarkFlag_unk m1544; // inferred: "FullGuardActNotifyFlag"
     QuarkFlag_unk m154C; // inferred: "FullGuardHitNotifyFlag"

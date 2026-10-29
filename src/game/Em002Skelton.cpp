@@ -11,7 +11,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
@@ -38,8 +38,8 @@ extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTa
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred: computes the damage
 
 Em002Skelton::Em002Skelton(atn::Task* parent, void* data) : EnemyTask(parent, data), m14B0(0), m14B4(0), m14D0(0) {
-    m14B8.fn_8023780C("/effect/ef_uc001.efp");
-    m14C4.fn_8023780C("/effect/ef_cm009.efp");
+    m14B8.LoadRequest("/effect/ef_uc001.efp");
+    m14C4.LoadRequest("/effect/ef_cm009.efp");
 }
 
 Em002Skelton::~Em002Skelton() {}
@@ -64,7 +64,7 @@ int Em002Skelton::vf0C() {
 }
 
 // inferred: plays an effect on the model (name invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

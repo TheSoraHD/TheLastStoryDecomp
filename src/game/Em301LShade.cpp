@@ -49,7 +49,7 @@ struct Field_unk {
 };
 struct Effect_unk;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
@@ -72,8 +72,8 @@ struct ShadeDamage_unk {
 };
 extern "C" void fn_80108C10(Effect_unk* effect, ShadeDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
-extern "C" void fn_80107850(Effect_unk* effect, Model_unk* model);
-extern "C" void fn_801077A8(Effect_unk* effect, Model_unk* model, Model_unk* model2); // inferred: same model twice
+extern "C" void fn_80107850(Effect_unk* effect, atn::Model* model);
+extern "C" void fn_801077A8(Effect_unk* effect, atn::Model* model, atn::Model* model2); // inferred: same model twice
 struct EffectMgr_unk;
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
@@ -132,7 +132,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -177,7 +177,7 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -195,7 +195,7 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 }
 
 // inferred: same, with the locals declared in the other order (as in game/Em003LesserDaemon.cpp)
-inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectB_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -213,7 +213,7 @@ inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 }
 
 // inferred: same as PlayEffect_unk with the manager read last (as in game/Em302KrakenMp.cpp); name invented
-inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -305,7 +305,7 @@ inline bool Em301LShade::IsMotionEnd_unk() {
 }
 
 // inferred: same as PlayEffect_unk with the manager read first (name invented)
-inline void PlayEffectD_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectD_unk(atn::EfpFile* efp, atn::Model* model) {
     EffectMgr_unk* mgr = lbl_8087F3C0;
     Color4f_unk color;
     atn::Vector3 rot;
@@ -325,7 +325,7 @@ inline void PlayEffectD_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 
 // inferred: same as PlayEffect_unk with the locals in the order color, rot, pos and the manager read last
 // (name invented)
-inline void PlayEffectC_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectC_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 rot;
     atn::Vector3 pos;
     Color4f_unk color;
@@ -373,14 +373,14 @@ inline void Em301LShade::StartAbsorb_unk(int kind) {
     vf9C(1);
     fn_80239DAC(lbl_8087F3C0, m15F0, 0, 1);
     fn_80232B7C(m15F0, 0);
-    PlayEffectD_unk(&m15F0[m15E4], (Model_unk*)&mMotion);
+    PlayEffectD_unk(&m15F0[m15E4], (atn::Model*)&mMotion);
     m15EC = 300;
     if (m1680.mGlobal >= 0 && fn_805A49E4((SpecialFlag_unk*)&m1680) == 0) {
         fn_805A4A1C((SpecialFlag_unk*)&m1680, 1);
     }
 }
 
-// NONMATCHING: draft - std::string constructors and the inlined Vector_unk/vector code
+// NONMATCHING: draft - std::string constructors and the inlined SimpleVector/vector code
 Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14D8(0), m14DC(0), m14E0(1), m14E4(0), m14E8(0), m14EC(0),
       m14F0(10), m14F4(0), m14F8(900), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m152C(1), m1530(0x451),
@@ -403,20 +403,20 @@ Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m1650.vf0C(path.c_str());
-    m1514.fn_8023780C("/effect/ef_sk006a.efp");
-    m1520.fn_8023780C("/effect/ef_sk006c.efp");
-    m1548.fn_8023780C("/effect/ef_sk012a.efp");
-    m1554.fn_8023780C("/effect/ef_sk012c.efp");
-    m157C.fn_80237654("/effect/ef_mb001b.eff");
-    m1588.fn_8023780C("/effect/ef_sk013a.efp");
-    m1594.fn_8023780C("/effect/ef_sk013d.efp");
-    m15A0.fn_8023780C("/effect/ef_sk013c.efp");
-    m15CC.fn_8023780C("/effect/ef_uc020d.efp");
-    m15D8.fn_8023780C("/effect/ef_uc020a.efp");
-    m1608.fn_8023780C("/effect/ef_uc015.efp");
-    m1614.fn_8023780C("ef_bd013.efp");
-    m15F0[0].fn_8023780C("ef_uc063.efp");
-    m15F0[1].fn_8023780C("ef_uc064.efp");
+    m1514.LoadRequest("/effect/ef_sk006a.efp");
+    m1520.LoadRequest("/effect/ef_sk006c.efp");
+    m1548.LoadRequest("/effect/ef_sk012a.efp");
+    m1554.LoadRequest("/effect/ef_sk012c.efp");
+    m157C.LoadRequest("/effect/ef_mb001b.eff");
+    m1588.LoadRequest("/effect/ef_sk013a.efp");
+    m1594.LoadRequest("/effect/ef_sk013d.efp");
+    m15A0.LoadRequest("/effect/ef_sk013c.efp");
+    m15CC.LoadRequest("/effect/ef_uc020d.efp");
+    m15D8.LoadRequest("/effect/ef_uc020a.efp");
+    m1608.LoadRequest("/effect/ef_uc015.efp");
+    m1614.LoadRequest("ef_bd013.efp");
+    m15F0[0].LoadRequest("ef_uc063.efp");
+    m15F0[1].LoadRequest("ef_uc064.efp");
     m15AC.clear();
     m162C.clear();
     m1638.clear();
@@ -429,11 +429,11 @@ Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
 // copies, fn_80244CCC/fn_80244FC0, differ), so the original has more inline code somewhere (open case,
 // as LoadSeTableTask::vf0C in docs/inlining.md). Tried: the reading in an inline helper.
 int Em301LShade::vf0C() {
-    if (fn_8013655C() == 0 && m1514.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
-        m1548.fn_80237874() == 0 && m1554.fn_80237874() == 0 && m157C.fn_802376D0() == 0 &&
-        m1588.fn_80237874() == 0 && m1594.fn_80237874() == 0 && m15A0.fn_80237874() == 0 &&
-        m15CC.fn_80237874() == 0 && m15D8.fn_80237874() == 0 && m1608.fn_80237874() == 0 &&
-        m1614.fn_80237874() == 0 && m15F0[0].fn_80237874() == 0 && m15F0[1].fn_80237874() == 0 &&
+    if (fn_8013655C() == 0 && m1514.IsLoading() == 0 && m1520.IsLoading() == 0 &&
+        m1548.IsLoading() == 0 && m1554.IsLoading() == 0 && m157C.IsLoading() == 0 &&
+        m1588.IsLoading() == 0 && m1594.IsLoading() == 0 && m15A0.IsLoading() == 0 &&
+        m15CC.IsLoading() == 0 && m15D8.IsLoading() == 0 && m1608.IsLoading() == 0 &&
+        m1614.IsLoading() == 0 && m15F0[0].IsLoading() == 0 && m15F0[1].IsLoading() == 0 &&
         m1650.fn_80473F50() == 0) {
     if (m1650.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
         atn::Csv csv((const char*)m1650.fn_80470580(), m1650.fn_8047059C());
@@ -943,7 +943,7 @@ atn::Vector3 Em301LShade::vf64(int center) {
 
 // inferred: plays a motion on track 0 after stopping it (names invented)
 inline void RestartMotion_unk(Em301LShade* e, int motion) {
-    fn_80097CCC((Model_unk*)&e->mMotion, 0, 0.0f);
+    fn_80097CCC((atn::Model*)&e->mMotion, 0, 0.0f);
     e->mMotion.m34C = 1;
     e->mMotion.mTracks[0].m20 = 1.0f;
     e->mMotion.mTracks[0].m0C = 1.0f;
@@ -953,7 +953,7 @@ inline void RestartMotion_unk(Em301LShade* e, int motion) {
 // inferred: starts state 9 (absorbs, looped motion 0x33) with its effect (names invented)
 inline void StartAbsorbAttack_unk(Em301LShade* e) {
     fn_80232B7C(e, 13);
-    PlayEffect_unk(&e->m1588, (Model_unk*)&e->mMotion);
+    PlayEffect_unk(&e->m1588, (atn::Model*)&e->mMotion);
     e->SetState_unk(9);
     e->mMotion.m34C = 1;
     e->mMotion.mTracks[0].m20 = 1.0f;
@@ -1184,7 +1184,7 @@ int Em301LShade::fn_802D3C74() {
                 ShowMessage_unk(0x123);
             } else {
                 fn_80232B7C(this, 11);
-                PlayEffectB_unk(&m1548, (Model_unk*)&mMotion);
+                PlayEffectB_unk(&m1548, (atn::Model*)&mMotion);
                 SetState_unk(8);
                 mMotion.m34C = 1;
                 mMotion.mTracks[0].m20 = 1.0f;
@@ -1215,7 +1215,7 @@ int Em301LShade::fn_802D404C() {
     m54C |= 0x2000;
     if (m14E4 == 0) {
         fn_80232B7C(this, 0x15);
-        PlayEffectB_unk(&m15D8, (Model_unk*)&mMotion);
+        PlayEffectB_unk(&m15D8, (atn::Model*)&mMotion);
         SetState_unk(7);
         ShowMessage_unk(0x121);
     }
@@ -1305,12 +1305,12 @@ void Em301LShade::fn_802D4628() {
             m15AC[i].m10 = GetNodePos_unk(m15AC[i].mChara->mMotion.GetNodeMtx_unk("hips"));
             m15AC[i].m04 = m15AC[i].m10;
             fn_8023A680(lbl_8087F3C0, &m157C, -1, 6, &m15AC[i].m04, 0, 0, 0, 1.0f, 0, -1, 1);
-            PlayEffect_unk(&m15A0, (Model_unk*)&m15AC[i].mChara->mMotion);
+            PlayEffect_unk(&m15A0, (atn::Model*)&m15AC[i].mChara->mMotion);
         }
     }
     if (m14E8 == 25) {
         fn_80232B7C(this, 15);
-        PlayEffect_unk(&m1594, (Model_unk*)&mMotion);
+        PlayEffect_unk(&m1594, (atn::Model*)&mMotion);
     }
     if (m14E8 > 20 && m14E8 <= 90) {
         float t = (m14E8 - 20) / 70.0f;
@@ -1340,7 +1340,7 @@ void Em301LShade::fn_802D4628() {
             total -= (int)(chara->mStatus.m04 * rate) + 1;
             chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
             fn_80108C10(lbl_8087F048, &damage, chara->vfAC(), (int)this, chara, 0, 0);
-            fn_80107850(lbl_8087F048, (Model_unk*)&chara->mMotion);
+            fn_80107850(lbl_8087F048, (atn::Model*)&chara->mMotion);
             atn::Vector3 rot = chara->mRot.ToRotation_unk();
             atn::Vector3 dir = rot * -1.0f;
             dir.Normalize_unk();
@@ -1403,13 +1403,13 @@ void Em301LShade::fn_802D5020() {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m1514, (Model_unk*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
+        fn_8023A8B4(lbl_8087F3C0, &m1514, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
         ShowMessage_unk(0x11D);
     }
     if (m14E8 == 80) {
         for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
             fn_80232B7C(c, 1000);
-            PlayEffect_unk(&m1520, (Model_unk*)&c->mMotion);
+            PlayEffect_unk(&m1520, (atn::Model*)&c->mMotion);
         }
     }
     if (m14E8 > 120) {
@@ -1471,7 +1471,7 @@ void Em301LShade::fn_802D5674(int count) {
     ASSERT_UNK(count >= 0);
     ASSERT_UNK(this != 0);
 fn_80232B7C(this, 20);
-    PlayEffect_unk(&m15CC, (Model_unk*)&mMotion);
+    PlayEffect_unk(&m15CC, (atn::Model*)&mMotion);
     SetState_unk(6);
     if (count >= (int)m162C.size()) {
         m14D8 = m1628;
@@ -1499,14 +1499,14 @@ void Em301LShade::fn_802D57B8() {
     fn_8016DA4C();
     m58C = 2;
     fn_8016E970(3);
-    fn_80097CCC((Model_unk*)&mMotion, 0, 0.0f);
+    fn_80097CCC((atn::Model*)&mMotion, 0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
     fn_80232B7C(this, 1000);
     if (m14D4 != 0) {
-        PlayEffect2_unk(&m1614, (Model_unk*)&mMotion);
+        PlayEffect2_unk(&m1614, (atn::Model*)&mMotion);
     } else {
         Color4f_unk color;
         atn::Vector3 pos(0.0f, 13.0f * m540.x, 0.0f);
@@ -1515,7 +1515,7 @@ void Em301LShade::fn_802D57B8() {
         color.b = 1.0f;
         color.a = 1.0f;
         EffectMgr_unk* mgr = lbl_8087F3C0;
-        fn_8023A8B4(mgr, &m1608, (Model_unk*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
+        fn_8023A8B4(mgr, &m1608, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
     }
     if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
@@ -1674,10 +1674,10 @@ void Em301LShade::fn_802D67F8(int index) {
             }
             EnemyTask* e = enemies[i];
             RoutePlace_unk* place = places[i];
-            fn_80107850(lbl_8087F048, (Model_unk*)&e->mMotion);
-            fn_801077A8(lbl_8087F048, (Model_unk*)&e->mMotion, (Model_unk*)&e->mMotion);
+            fn_80107850(lbl_8087F048, (atn::Model*)&e->mMotion);
+            fn_801077A8(lbl_8087F048, (atn::Model*)&e->mMotion, (atn::Model*)&e->mMotion);
             fn_80232B7C(e, 1000);
-            PlayEffect_unk(&m1520, (Model_unk*)&e->mMotion);
+            PlayEffect_unk(&m1520, (atn::Model*)&e->mMotion);
             e->mFlag15 = 0;
             e->fn_80176ACC();
             e->fn_800D246C(0);

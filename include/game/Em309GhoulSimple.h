@@ -74,7 +74,7 @@ public:
     int m1520;
     int m1524;
     int m1528;                 // inferred: "WaitFrame"
-    atn::EfpHandle_unk m152C;  // inferred: "/effect/ef_sk030b.efp"
+    atn::EfpFile m152C;  // inferred: "/effect/ef_sk030b.efp"
     int m1538;
     float m153C;               // inferred: "Speed"
     atn::Vector3 m1540;        // inferred: backwards direction (state 12)
@@ -88,7 +88,7 @@ public:
     FixedArray_unk<GhoulPair_unk, 8> m1574;
     float m15B8;               // inferred: "SummonHp"
     GhoulStr_unk m15BC;        // inferred: "SummonEfp"
-    atn::EfpHandle_unk m163C;  // inferred: effect of the summon
+    atn::EfpFile m163C;  // inferred: effect of the summon
     int m1648;
     int m164C;                 // inferred: loading step
     ResHandle m1650;           // inferred: debug menu group
