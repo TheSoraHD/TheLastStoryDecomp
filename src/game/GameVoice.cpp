@@ -1,5 +1,6 @@
 #include "atn/Task.h"
 #include "atn/LoadHandle.h"
+#include "game/GameVoice_unk.h"
 
 void operator delete(void* ptr);
 
@@ -10,8 +11,8 @@ extern "C" void* fn_803E8908(void* object, int deleteFlag) {
     return object;
 }
 
-extern "C" int fn_803E8A24(atn::Task* self) {
-    return self->fn_800D3FA4() != 0;
+int GameVoice::vf0C() {
+    return fn_800D3FA4() != 0;
 }
 
 extern "C" void* lbl_8087F490;
