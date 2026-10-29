@@ -27,17 +27,17 @@ extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg); //
 extern "C" void fn_8006BB6C(void* data, int arg);                             // inferred: frees loaded data
 
 // inferred: HBM library (unnamed in symbols.txt)
-extern "C" void fn_805C3C70(HBMDataInfo* info);                          // HBMCreate
-extern "C" void fn_805C3F40(void* soundData, void* memBuf, unsigned long size); // HBMCreateSound
-extern "C" void fn_805C3D90();                                                // HBMDelete
-extern "C" void fn_805C3FA0();                                                // HBMDeleteSound
-extern "C" void fn_805C3E00();                                                // HBMInit
+extern "C" void HBMCreate(HBMDataInfo* info);
+extern "C" void HBMCreateSound(void* soundData, void* memBuf, unsigned long size);
+extern "C" void HBMDelete();
+extern "C" void HBMDeleteSound();
+extern "C" void HBMInit();
 extern "C" void fn_805C3ED0(int flag);                                        // HBMSetAdjustFlag
 extern "C" void fn_805C3FB0();                                                // HBMUpdateSound
-extern "C" int fn_805C3E30(HBMControllerData* con);                       // HBMCalc
+extern "C" int HBMCalc(HBMControllerData* con);
 extern "C" int fn_805C3EA0();                                                 // inferred: selected button
 extern "C" void fn_805C3E70();                                                // HBMDraw
-extern "C" int fn_80660CF0(int chan, unsigned long* type);                    // WPADProbe
+extern "C" int WPADProbe(int chan, unsigned long* type);
 
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" void fn_80071E04(atn::GraphicsDevice_unk* device);
@@ -172,7 +172,7 @@ void HBMRsoCreate(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
     } else {
         info.frameDelta = 2.0f;
     }
-    fn_805C3C70(&info);
+    HBMCreate(&info);
     unsigned long size = 0;
     char path[0x40];
     strcpy(path, sHbmDir_unk);
@@ -182,13 +182,13 @@ void HBMRsoCreate(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
     memcpy(soundData, data, size);
     fn_8006BB6C(data, 0);
     soundBuf = (unsigned char*)fn_800839EC(fn_800827E0(), 0x18700, 0x20, 1, "", "", 0, 0);
-    fn_805C3F40(soundData, soundBuf, 0x18700);
+    HBMCreateSound(soundData, soundBuf, 0x18700);
 }
 
 // inferred: destroys the menu and frees its buffers
 void HBMRsoDelete(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& soundBuf) {
-    fn_805C3D90();
-    fn_805C3FA0();
+    HBMDelete();
+    HBMDeleteSound();
     void* mem = info.mem;
     if (mem != 0) {
         fn_80083AD4(fn_800827E0(), mem);
@@ -203,7 +203,7 @@ void HBMRsoDelete(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
 
 // inferred: opens the menu
 void HBMRsoInit(HBMControllerData& con) {
-    fn_805C3E00();
+    HBMInit();
     fn_805C3ED0(1);
     for (int i = 0; i < 4; i++) {
         con.wiiCon[i].posX = 0.0f;
@@ -226,7 +226,7 @@ int HBMRsoCalc(HBMControllerData& con) {
     int offset = 0;
     for (int i = 0; i < 4; i++, pad++, offset += 0xF00) {
         unsigned long type;
-        int ret = fn_80660CF0(i, &type);
+        int ret = WPADProbe(i, &type);
         pad->use_devtype = type;
         if ((ret >= -4 && ret <= -2) || ret == -7 || ret == 0) {
             pad->kpad = (KPADStatus_unk*)(lbl_8087F018 + offset);
@@ -253,7 +253,7 @@ int HBMRsoCalc(HBMControllerData& con) {
         }
     }
     int result;
-    if (fn_805C3E30(&con) >= 0) {
+    if (HBMCalc(&con) >= 0) {
         result = fn_805C3EA0();
     } else {
         result = -1;
