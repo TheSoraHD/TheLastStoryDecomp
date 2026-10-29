@@ -5,7 +5,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/ResLoader_unk.h"
 #include "atn/Task.h"
-#include "game/MotionCmdElemD_unk.h"
+#include "atn/static_string.h"
 #include "math/Vec.h"
 
 class CharaTask;
@@ -20,7 +20,7 @@ public:
         Entry_unk() : mId(0) {}
         int mId;                    // 0x00: attribute id
         ResLoader_unk mRes[1];      // 0x04: effect
-        MotionCmdElemD_unk mSe[3];  // 0x10: sounds
+        atn::static_string<32> mSe[3];  // 0x10: sounds
     };
 
     ColliAttrManager(atn::Task* parent) : atn::Task(parent), mEnabled(1), mLoading(0), mForceAttr(-1) {}
@@ -33,7 +33,7 @@ public:
     void fn_80183D00(int id, int arg1, int arg2); // inferred: loads the attributes of a map (-1: all)
     void fn_80183FFC(int index, int id);
     ResLoader_unk* fn_801840D8(int id, int index);
-    MotionCmdElemD_unk* FindSe_unk(int id, int index);
+    atn::static_string<32>* FindSe_unk(int id, int index);
     void PlayEffect_unk(ResLoader_unk* res, const atn::Vector3* pos, const atn::Vector3* rot,
                         const struct ColorF_unk& color);
     void fn_8018412C(int kind, CharaTask* chara, int useNode, int node, const atn::Vector3* ofs);

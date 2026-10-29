@@ -2,6 +2,7 @@
 #include "atn/Array_unk.h"
 #include "atn/LoadManager.h"
 #include "atn/EfpHandle_unk.h"
+#include "atn/static_string.h"
 
 // inferred: element types of the motion command data arrays (names unknown). The first one has a
 // constructor and no destructor: delete[] removes the array cookie but destroys nothing.
@@ -15,10 +16,6 @@ struct ResLoader_unk {
     ~ResLoader_unk();
     int m00;
 };
-struct MotionCmdElemD_unk {
-    ~MotionCmdElemD_unk(); // 0x80041C0C
-    int m00;
-};
 
 // inferred: motion command data built from the loaded file (0x30 bytes)
 struct MotionCmdData_unk {
@@ -27,7 +24,7 @@ struct MotionCmdData_unk {
     atn::SimpleVector<MotionCmdElemA_unk> m00;
     atn::SimpleVector<ResLoader_unk> m0C;
     atn::SimpleVector<atn::EfpFile> m18; // destructor 0x800EF73C
-    atn::SimpleVector<MotionCmdElemD_unk> m24;
+    atn::SimpleVector<atn::static_string<32> > m24;
 };
 
 typedef void (*MotionCmdParser_unk)(MotionCmdData_unk* data, void* buffer, void* size);

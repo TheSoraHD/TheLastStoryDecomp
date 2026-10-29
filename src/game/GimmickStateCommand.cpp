@@ -8,7 +8,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/Memory.h"
 #include "atn/ResLoader_unk.h"
-#include "game/MotionCmdElemD_unk.h"
+#include "atn/static_string.h"
 #include "macros.h"
 #include "std/string_members.h"
 #include "std/vector_string.h"

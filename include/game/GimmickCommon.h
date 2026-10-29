@@ -2,6 +2,7 @@
 #define GAME_GIMMICKCOMMON_H
 
 #include "atn/Csv.h"
+#include "atn/static_string_fwd.h"
 #include "atn/FixedArray.h"
 #include "atn/SoundRef.h"
 #include "atn/GXDecl.h"
@@ -33,7 +34,6 @@ struct GimmickMotionCmd_unk {
 };
 
 struct ResLoader_unk;
-struct MotionCmdElemD_unk;
 namespace atn {
 class EfpFile;
 class SoundRef;
@@ -54,7 +54,7 @@ struct GimmickCommonB0_unk {
     atn::Buffer_unk<ResLoader_unk> mEff;          // 0x08: "EFF_PLAY"
     atn::Buffer_unk<atn::EfpFile> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
     atn::Buffer_unk<atn::SoundRef> mSounds;       // 0x18: "SE_LOOP"
-    atn::Buffer_unk<MotionCmdElemD_unk> mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"
+    atn::Buffer_unk<atn::static_string<32> > mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"
     int mMotion;   // 0x28: inferred: motion of the last update
     int mEnabled;  // 0x2C
     int mSoundOn;  // 0x30

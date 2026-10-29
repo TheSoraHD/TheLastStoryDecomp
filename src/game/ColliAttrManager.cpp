@@ -200,7 +200,7 @@ void ColliAttrManager::fn_80183FFC(int index, int id) {
 }
 
 // inferred: sound of an attribute (name invented)
-inline MotionCmdElemD_unk* ColliAttrManager::FindSe_unk(int id, int index) {
+inline atn::static_string<32>* ColliAttrManager::FindSe_unk(int id, int index) {
     for (unsigned int i = 0; i < mEntries.mSize; i++) {
         if (id == mEntries.mData[i].mId) {
             return &mEntries.mData[i].mSe[index];
@@ -276,7 +276,7 @@ void ColliAttrManager::fn_80184548(int kind, CharaTask* chara, int useNode, int 
     if (mLoading != 0) {
         return;
     }
-    MotionCmdElemD_unk* se = FindSe_unk(attr, index);
+    atn::static_string<32>* se = FindSe_unk(attr, index);
     if (se == 0) {
         se = FindSe_unk(0, index);
     }

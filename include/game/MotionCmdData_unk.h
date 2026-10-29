@@ -4,7 +4,7 @@
 #include "atn/Array_unk.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/ResLoader_unk.h"
-#include "game/MotionCmdElemD_unk.h"
+#include "atn/static_string.h"
 #include "math/Vec.h"
 
 // inferred: one line of a motion command file (0x34 bytes; parsed by fn_8011FFF8). Names invented.
@@ -29,7 +29,7 @@ struct MotionCmdData_unk {
     atn::SimpleVector<MotionCmdEntry_unk> mEntries;  // 0x00
     atn::SimpleVector<ResLoader_unk> mEffects;       // 0x0C: "EFF"
     atn::SimpleVector<atn::EfpFile> mEfps;     // 0x18: "EFP", "EFP_LOOP"
-    atn::SimpleVector<MotionCmdElemD_unk> mNames;    // 0x24: "EFF_ATR", "SE_ATR", "SE", "SE_LOOP"
+    atn::SimpleVector<atn::static_string<32> > mNames;    // 0x24: "EFF_ATR", "SE_ATR", "SE", "SE_LOOP"
 };
 
 #endif

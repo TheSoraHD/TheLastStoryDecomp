@@ -3,7 +3,7 @@
 
 #include "atn/EfpHandle_unk.h"
 #include "gmk/CharaLight.h"
-#include "game/MotionCmdElemD_unk.h"
+#include "atn/static_string.h"
 
 namespace gmk {
 
@@ -53,7 +53,7 @@ public:
     virtual int vf40(GimmickMsg_unk* msg);
 
     atn::EfpFile mEfp[6];   // 0xF4: "EFP"
-    MotionCmdElemD_unk mSe[6];    // 0x13C: "SE": inferred: sound names
+    atn::static_string<32> mSe[6];    // 0x13C: "SE": inferred: sound names
     atn::Vector3 mOffset;         // 0x1FC: "EXPLODE"
     atn::Vector3 mRange;          // 0x208: "EXPLODE"
     int mInterval;                // 0x214: "EXPLODE": inferred: frames before the explosion
