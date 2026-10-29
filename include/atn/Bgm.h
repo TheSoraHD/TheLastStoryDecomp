@@ -5,11 +5,12 @@
 
 namespace atn {
 
+// The vtable (0x80777570) has only the destructor; its fourth word is padding (game/EnvSeManager.cpp
+// constructs an array of Bgm, so the class is not abstract).
 class Bgm {
 public:
     Bgm();
     virtual ~Bgm();
-    virtual void vf0C() = 0;
 
     // inferred: names keep the address (called by GameBgm)
     int fn_8004AE84(const char* name, int start);           // inferred: starts the BGM `name`

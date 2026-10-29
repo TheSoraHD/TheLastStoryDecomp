@@ -188,6 +188,8 @@ public:
         }
     }
     T& operator[](int i) { return mData[i]; }
+    // inferred: called out of line by EnvSeManager::fn_8035F3D4 (fn_80089ACC, a copy of another file)
+    unsigned int size() const { return mSize; }
 
     int mSize;
     T* mData;

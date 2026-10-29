@@ -14,16 +14,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" atn::Matrix3x4 lbl_807C7030; // inferred: identity matrix (another copy)
 
-// inferred: reads the common fields of a record (name...) from the line
-extern "C" void fn_80360B40(EnvSeData_unk* data, atn::Csv* csv);
-// inferred: methods of the manager (game file before this one)
-extern "C" int fn_8035E730(EnvSeManager_unk* mgr);
-extern "C" void fn_80360230(EnvSeManager_unk* mgr, int id);        // inferred: starts the sound
-extern "C" void fn_80360504(EnvSeManager_unk* mgr, int id, int fade); // inferred: stops the sound
-extern "C" void fn_8036055C(EnvSeManager_unk* mgr, int id);        // inferred: moves the sound
-extern "C" void fn_80360574(EnvSeManager_unk* mgr, int id);        // inferred: parameters changed
-extern "C" EnvSeBase* fn_8035FF44(EnvSeManager_unk* mgr, int id);  // inferred: sound by id
-extern "C" void fn_8035FF94(EnvSeManager_unk* mgr, int area, int a, int b); // inferred: applies the area
 
 // inferred: event flags of the field
 struct EnvSeField_unk {
@@ -105,7 +95,7 @@ EnvSeBase::~EnvSeBase() {}
 void EnvSeBase::fn_80360CDC(atn::Csv* csv) {
     m4C = atoi(csv->fn_8005B9CC());
     csv->fn_8005B9CC();
-    fn_80360B40(mData, csv);
+    mData->fn_80360B40(csv);
     vf1C(csv);
     if (lbl_8087F418 != 0 && lbl_8087F0A8->m7C != 0) {
         void* root = lbl_8087F418->m1AC;
@@ -127,7 +117,7 @@ void EnvSeBase::fn_80360CDC(atn::Csv* csv) {
 void EnvSeBase::vf1C(atn::Csv* csv) {}
 
 void EnvSeBase::fn_80360EA4() {
-    if (lbl_8087F418 == 0 || fn_8035E730(lbl_8087F418) != 0 || lbl_8087F418->m78 != 0) {
+    if (lbl_8087F418 == 0 || lbl_8087F418->fn_8035E730() != 0 || lbl_8087F418->m78 != 0) {
         return;
     }
     {
@@ -136,7 +126,7 @@ void EnvSeBase::fn_80360EA4() {
             return;
         }
         mActive = 1;
-        if (lbl_8087F418->m50 != 5) {
+        if (lbl_8087F418->mState != 5) {
             mActive = 0;
         } else if (!vf20()) {
             mActive = 0;
@@ -157,10 +147,10 @@ void EnvSeBase::fn_80360EA4() {
         if (mTimer <= 0) {
             if (mActive != 0) {
                 if (m58 == 0) {
-                    fn_80360230(lbl_8087F418, m48);
+                    lbl_8087F418->fn_80360230(m48);
                 }
             } else if (m58 != 0) {
-                fn_80360504(lbl_8087F418, m48, 60);
+                lbl_8087F418->fn_80360504(m48, 60);
             }
         } else {
             mTimer--;
@@ -191,7 +181,7 @@ int EnvSeBase::vf20() {
 
 void EnvSeBase::fn_80361100(EnvSeBase* self) {
     if (lbl_8087F418 != 0) {
-        fn_80360574(lbl_8087F418, self->m48);
+        lbl_8087F418->fn_80360574(self->m48);
     }
 }
 
@@ -279,11 +269,11 @@ void EnvSeLine::vf10() {
     atn::Vector3 listener = lbl_8087EFE8->mListener.mPos;
     float best = 1e16f;
     atn::Vector3 bestPos(0.0f, 0.0f, 0.0f);
-    EnvSeManager_unk* mgr = lbl_8087F418;
+    EnvSeManager* mgr = lbl_8087F418;
     for (unsigned int i = 0; i < m64.mSize; i++) {
-        int* pair = mgr->m68[m64.mData[i]];
-        EnvSeBase* a = fn_8035FF44(lbl_8087F418, pair[0]);
-        EnvSeBase* b = fn_8035FF44(lbl_8087F418, pair[1]);
+        EnvSeLink_unk* pair = &mgr->mLinks.mData[m64.mData[i]];
+        EnvSeBase* a = lbl_8087F418->fn_8035FF44(pair->mA);
+        EnvSeBase* b = lbl_8087F418->fn_8035FF44(pair->mB);
         if (a != 0 && b != 0) {
             atn::Vector3 pa = a->mData->mPos;
             atn::Vector3 pb = b->mData->mPos;
@@ -307,21 +297,21 @@ void EnvSeLine::vf10() {
     }
     mData->mPos = bestPos;
     if (m58 != 0) {
-        fn_8036055C(lbl_8087F418, m48);
+        lbl_8087F418->fn_8036055C(m48);
     }
     fn_80360EA4();
 }
 
 // NONMATCHING: 99.93% - the segment ends are 4 bytes lower on the stack than in the original.
 void EnvSeLine::vf14() {
-    EnvSeManager_unk* mgr = lbl_8087F418;
+    EnvSeManager* mgr = lbl_8087F418;
     if (mgr->m1A4 < 1) {
         return;
     }
     for (unsigned int i = 0; i < m64.mSize; i++) {
-        int* pair = mgr->m68[m64.mData[i]];
-        EnvSeBase* a = fn_8035FF44(lbl_8087F418, pair[0]);
-        EnvSeBase* b = fn_8035FF44(lbl_8087F418, pair[1]);
+        EnvSeLink_unk* pair = &mgr->mLinks.mData[m64.mData[i]];
+        EnvSeBase* a = lbl_8087F418->fn_8035FF44(pair->mA);
+        EnvSeBase* b = lbl_8087F418->fn_8035FF44(pair->mB);
         if (a != 0 && b != 0) {
             atn::Vector3 pb;
             atn::Vector3 pa;
@@ -366,7 +356,7 @@ void EnvSeSphere::vf10() {
         mData->mPos = listener;
     }
     if (m58 != 0) {
-        fn_8036055C(lbl_8087F418, m48);
+        lbl_8087F418->fn_8036055C(m48);
     }
     fn_80360EA4();
 }
@@ -438,7 +428,7 @@ void EnvSeBox::vf10() {
         mData->mPos = mMtx.GetTrans_unk();
     }
     if (m58 != 0) {
-        fn_8036055C(lbl_8087F418, m48);
+        lbl_8087F418->fn_8036055C(m48);
     }
     fn_80360EA4();
 }
@@ -481,7 +471,7 @@ void EnvSeGlobal::vf14() {
 void EnvSeArea_unk::fn_80362FA4(atn::Csv* csv) {
     mId = atoi(csv->fn_8005B9CC());
     csv->fn_8005B9CC();
-    fn_80360B40(&mData, csv);
+    mData.fn_80360B40(csv);
     atn::Vector3 pos;
     pos.x = fn_800DC288(csv->fn_8005B9CC());
     pos.y = fn_800DC288(csv->fn_8005B9CC());
@@ -516,6 +506,6 @@ void EnvSeArea_unk::fn_80363108(void* root) {
 
 void EnvSeArea_unk::fn_8036324C(EnvSeArea_unk* self) {
     if (lbl_8087F418 != 0 && self->mId == lbl_8087F418->m84) {
-        fn_8035FF94(lbl_8087F418, self->mId, 0, 1);
+        lbl_8087F418->fn_8035FF94(self->mId, 0, 1);
     }
 }

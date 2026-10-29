@@ -1,3 +1,4 @@
+#include "game/EnvSeManager.h"
 #include "game/ChaseManager.h"
 #include "game/CharaTask.h"
 #include "game/CharaManager.h"
@@ -8,8 +9,6 @@
 #include "game/ChaserGuard.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087F418;
-extern "C" void fn_80360780(void* obj, int a, int b, int c); // inferred: changes the BGM
 struct ChaseEffectMgr_unk;
 extern "C" ChaseEffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(ChaseEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -119,7 +118,7 @@ ChaseManager::~ChaseManager() {
         ((CharaTask*)lbl_8087F8A0->mHead)->fn_8014C228();
     }
     if (lbl_8087F418 != 0) {
-        fn_80360780(lbl_8087F418, 1, 8, 0x3C);
+        lbl_8087F418->fn_80360780(1, 8, 0x3C);
     }
 }
 
@@ -132,7 +131,7 @@ void ChaseManager::fn_801826E0() {
         }
     }
     if (lbl_8087F418 != 0) {
-        fn_80360780(lbl_8087F418, 0, 8, 0x3C);
+        lbl_8087F418->fn_80360780(0, 8, 0x3C);
     }
 }
 
@@ -177,7 +176,7 @@ void ChaseManager::fn_80182890() {
         ((CharaTask*)lbl_8087F8A0->mHead)->fn_8014C228();
     }
     if (lbl_8087F418 != 0) {
-        fn_80360780(lbl_8087F418, 1, 8, 0x3C);
+        lbl_8087F418->fn_80360780(1, 8, 0x3C);
     }
 }
 

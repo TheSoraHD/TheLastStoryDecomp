@@ -1,3 +1,4 @@
+#include "game/EnvSeManager.h"
 #include "game/GameBgm.h"
 #include "atn/SoundManager.h"
 #include "atn/SoundCore.h"
@@ -44,29 +45,6 @@ extern "C" void fn_80370320(GameBgmField_unk* field, int id, int value, int arg)
 // inferred: sound engine (lbl_8087EE90) and sound configuration (lbl_8087EFE8)
 extern "C" void* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
-// inferred: environment sound manager (lbl_8087F418)
-struct GameBgmEnv_unk {
-    unsigned char m000[0x80];
-    int m80;
-    int m84;
-    unsigned char m088[0x180 - 0x88];
-    // inferred: name invented
-    bool IsBattle_unk() {
-        bool r = false;
-        if (m180 == 1 || m180 == 2) {
-            r = true;
-        }
-        return r;
-    }
-    int m180;
-    unsigned char m184[0x188 - 0x184];
-    float m188;
-    int m18C;
-    float m190;
-};
-extern "C" GameBgmEnv_unk* lbl_8087F418;
-extern "C" void fn_80360848(GameBgmEnv_unk* env, int on, int arg, int fade);
-extern "C" void fn_803605EC(GameBgmEnv_unk* env, int fade, float volume);
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
 extern "C" int fn_803CE160(int a, int b, int c);
 extern "C" int fn_803CE278(int a, int b, int c);
@@ -218,7 +196,7 @@ void GameBgm::vf10() {
             return;
         }
         if (mReq.mId <= 0 && lbl_8087F418 != 0 && lbl_8087F418->m80 != 0) {
-            fn_80360848(lbl_8087F418, 1, 2, mReq.mFade);
+            lbl_8087F418->fn_80360848(1, 2, mReq.mFade);
         }
         bool busy = false;
         if (lbl_8087F418 != 0 && lbl_8087F418->m84 > 0 && lbl_8087F418->IsBattle_unk()) {
@@ -248,10 +226,10 @@ void GameBgm::vf10() {
         if (lbl_8087F610 != 0) {
             return;
         }
-        GameBgmEnv_unk* env = lbl_8087F418;
+        EnvSeManager* env = lbl_8087F418;
         if (env != 0 && env->m18C != 0) {
             env->m18C = 0;
-            fn_803605EC(env, mReq.mFade, env->m188);
+            env->fn_803605EC(mReq.mFade, env->m188);
         }
     } else if (mState == 2) {
         if (mCur->fn_8004B0E4() != 0 || m80 == 0) {
@@ -276,13 +254,13 @@ void GameBgm::vf10() {
         }
         if (lbl_8087F418 != 0 && mReq.mId > 0) {
             if (!IS_FIELD_BGM_unk(mReq.mId)) {
-                fn_80360848(lbl_8087F418, 0, 2, mReq.mFade);
+                lbl_8087F418->fn_80360848(0, 2, mReq.mFade);
             } else {
-                fn_80360848(lbl_8087F418, 1, 2, mReq.mFade);
-                GameBgmEnv_unk* env = lbl_8087F418;
+                lbl_8087F418->fn_80360848(1, 2, mReq.mFade);
+                EnvSeManager* env = lbl_8087F418;
                 if (env->m18C == 0) {
                     env->m18C = 1;
-                    fn_803605EC(env, mReq.mFade, env->m190);
+                    env->fn_803605EC(mReq.mFade, env->m190);
                 }
             }
         }
@@ -320,14 +298,14 @@ void GameBgm::vf10() {
         }
         if (!IS_FIELD_BGM_unk(mReq.mId)) {
             if (lbl_8087F418->m80 == 0) {
-                fn_80360848(lbl_8087F418, 0, 2, mReq.mFade);
+                lbl_8087F418->fn_80360848(0, 2, mReq.mFade);
             }
         } else if (lbl_8087F418->m80 != 0) {
-            fn_80360848(lbl_8087F418, 1, 2, mReq.mFade);
-            GameBgmEnv_unk* env = lbl_8087F418;
+            lbl_8087F418->fn_80360848(1, 2, mReq.mFade);
+            EnvSeManager* env = lbl_8087F418;
             if (env->m18C == 0) {
                 env->m18C = 1;
-                fn_803605EC(env, mReq.mFade, env->m190);
+                env->fn_803605EC(mReq.mFade, env->m190);
             }
         }
     }
