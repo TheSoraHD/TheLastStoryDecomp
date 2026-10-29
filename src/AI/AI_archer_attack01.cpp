@@ -217,6 +217,7 @@ void fn_8001C068(CharaTask* chara, const char* name); // inferred: sets the debu
 int fn_8001C01C(CharaTask* chara);
 int fn_8001A444(int index);
 void fn_8001B4CC(int value);
+void fn_8001B508(const char* motion, CharaTask* target);
 int fn_8001C038(CharaTask* chara);
 int fn_8001BF4C(CharaTask* chara);
 void fn_8001BADC(CharaTask* chara, int arg);
@@ -8222,6 +8223,43 @@ int AI::Script::AI_np_approach::vf14() {
     }
     return result;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_np_approach::vf20() {
+    int result = -1;
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20 + 20) {
+        lbl_807C6A40.m18++;
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(0, 1, 0, 0, 0);
+            fn_8001B508((const char*)(lbl_807307A0 + 0x433), lbl_807C6B30.m00);
+            lbl_807C6A40.m00 = 1;
+            result = 11;
+        }
+    } else {
+        lbl_807C6A40.m00 = 1;
+        Command_unk(19, lbl_807C6A40.m24, 0, 0, 0);
+        result = 3;
+        fn_8001B4CC(lbl_807C6A40.m2C);
+    }
+    return result;
+}
+
+int AI::Script::AI_np_approach::vf34() {
+    int result;
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20) {
+        lbl_807C6A40.m18++;
+        Follow_unk(lbl_807C6B30.m00, lbl_807C6A40.m24);
+        lbl_807C6A40.m00 = 1;
+        result = 6;
+    } else {
+        lbl_807C6A40.m00 = 1;
+        Command_unk(19, lbl_807C6A40.m24, 0, 0, 0);
+        result = 3;
+        fn_8001B4CC(lbl_807C6A40.m2C);
+    }
+    return result;
+}
 
 int AI::Script::AI_np_approach_plus::vf08() {
     lbl_807C6A40.m18 = 0x4B;
@@ -8233,6 +8271,71 @@ int AI::Script::AI_np_approach_plus::vf08() {
     lbl_807C6A40.m30 = 0x12C;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_np_approach_plus::vf0C() {
+    int result = -1;
+    if (lbl_807C6A40.m18 < lbl_807C6A40.m1C) {
+        lbl_807C6A40.m18++;
+        lbl_807C6A40.m00 = 1;
+    } else if (fn_8001A444(2) >= lbl_807C6A40.m28) {
+        if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20) {
+            Follow_unk(lbl_807C6B30.m00, lbl_807C6A40.m24);
+            lbl_807C6A40.m00 = 1;
+            result = 6;
+            fn_8001B4CC(50);
+            lbl_807C6A40.m18 = 0;
+        }
+    }
+    return result;
+}
+
+int AI::Script::AI_np_approach_plus::vf14() {
+    int result = -1;
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        result = 1;
+        Command_unk(0, 1, 0, 0, 0);
+    }
+    return result;
+}
+
+int AI::Script::AI_np_approach_plus::vf20() {
+    int result = -1;
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20 + 20) {
+        lbl_807C6A40.m18++;
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(0, 1, 0, 0, 0);
+            fn_8001B508((const char*)(lbl_807307A0 + 0x433), lbl_807C6B30.m00);
+            lbl_807C6A40.m00 = 1;
+            result = 11;
+        }
+    } else {
+        lbl_807C6A40.m00 = 1;
+        Command_unk(19, lbl_807C6A40.m24, 0, 0, 0);
+        result = 3;
+        fn_8001B4CC(lbl_807C6A40.m2C);
+    }
+    return result;
+}
+
+int AI::Script::AI_np_approach_plus::vf34() {
+    int result;
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20) {
+        lbl_807C6A40.m18++;
+        Follow_unk(lbl_807C6B30.m00, lbl_807C6A40.m24);
+        lbl_807C6A40.m00 = 1;
+        result = 6;
+    } else {
+        lbl_807C6A40.m00 = 1;
+        Command_unk(19, lbl_807C6A40.m24, 0, 0, 0);
+        result = 3;
+        fn_8001B4CC(lbl_807C6A40.m2C);
+    }
+    return result;
 }
 
 // NONMATCHING: 88.31% - local output aggregate and register allocation differ.
