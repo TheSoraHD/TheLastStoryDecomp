@@ -51,7 +51,7 @@ namespace gmk {
 
 GimmickCommon* CharaLight::fn_80422610(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) CharaLight(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) CharaLight(parent, desc);
     }
     return 0;
 }

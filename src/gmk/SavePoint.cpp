@@ -99,14 +99,14 @@ namespace gmk {
 
 GimmickCommon* SavePoint::fn_80435CE4(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) SavePoint(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) SavePoint(parent, id, arg);
     }
     return 0;
 }
 
 GimmickCommon* SavePoint::fn_80435DEC(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        SavePoint* gimmick = new (12, "", "", 0) SavePoint(parent, desc->mId + desc->m20, desc->mArg);
+        SavePoint* gimmick = new ((MemoryTag)12, "", "", 0) SavePoint(parent, desc->mId + desc->m20, desc->mArg);
         if (gimmick != 0) {
             gimmick->m6C = desc->mPos;
             gimmick->m78 = atn::Vector3(0.0f, desc->mRotY, 0.0f);

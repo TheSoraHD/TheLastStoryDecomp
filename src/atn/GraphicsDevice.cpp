@@ -287,7 +287,7 @@ extern "C" int fn_80071088(const VtxFormat_unk* a, const VtxFormat_unk* b) {
 // inferred: creates the device (game/main)
 extern "C" void fn_80071220() {
     if (lbl_8087EEE0 == 0) {
-        lbl_8087EEE0 = new (6, "", "", 0) GraphicsDevice_unk();
+        lbl_8087EEE0 = new ((MemoryTag)6, "", "", 0) GraphicsDevice_unk();
     }
 }
 
@@ -1991,7 +1991,7 @@ extern "C" int fn_80076C44(GraphicsDevice_unk* device, const VtxFormat_unk* form
             return i;
         }
     }
-    device->mVtxFormats[freeSlot].mFormat = new (6, "", "", 0) VtxFormat_unk(*format);
+    device->mVtxFormats[freeSlot].mFormat = new ((MemoryTag)6, "", "", 0) VtxFormat_unk(*format);
     device->mVtxFormats[freeSlot].mRefs = 1;
     return freeSlot;
 }

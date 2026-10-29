@@ -132,7 +132,7 @@ static const char* fn_8037C71C(int id) {
 // the single candidate of this function and no inlining rule found so far excludes it).
 GameBgm* GameBgm::fn_8037C8C4(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (10, "", "", 0) GameBgm(parent);
+        sInstance = new ((MemoryTag)10, "", "", 0) GameBgm(parent);
     }
     return sInstance;
 }

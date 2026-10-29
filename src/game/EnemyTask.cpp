@@ -38,7 +38,7 @@ EnemyTask* EnemyTask::fn_8035B534(atn::Task* parent, EnemyInfo_unk* info, int no
             return enemy;
         }
     }
-    return new (3, "", "", 0) EnemyTask(parent, info->m20);
+    return new ((MemoryTag)3, "", "", 0) EnemyTask(parent, info->m20);
 }
 
 EnemyTask::EnemyTask(atn::Task* parent, void* data) : BattleCharaTask(parent, 2, data), mNext(0) {
@@ -164,6 +164,6 @@ void EnemyTask::vf6C(int kind, CharaTask* other) {
     dir.y = 0.0f;
     PSVECNormalize(&dir, &dir);
     if (kind >= 9 && kind <= 12) {
-        fn_80178208((chr::ControlBase*)new (3, "", "", 0) EnemyReaction_unk(this, &dir, kind));
+        fn_80178208((chr::ControlBase*)new ((MemoryTag)3, "", "", 0) EnemyReaction_unk(this, &dir, kind));
     }
 }

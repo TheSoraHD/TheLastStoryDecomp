@@ -25,7 +25,7 @@ public:
         }
         mSize = size;
         if (size != 0) {
-            mData = new (8, "", "", 0) unsigned char[size];
+            mData = new ((MemoryTag)8, "", "", 0) unsigned char[size];
         } else {
             mData = 0;
         }
@@ -52,7 +52,7 @@ public:
         if (mCapacity > n) {
             return;
         }
-        T* data = new (heap, "", "", 0) T[n];
+        T* data = new ((MemoryTag)heap, "", "", 0) T[n];
         if (mData != 0) {
             unsigned int count = (n > mSize) ? mSize : n;
             for (unsigned int i = 0; i < count; i++) {
@@ -145,7 +145,7 @@ public:
         }
         mCount = count;
         if (count != 0) {
-            mData = new (8, "", "", 0) T[count];
+            mData = new ((MemoryTag)8, "", "", 0) T[count];
         } else {
             mData = 0;
         }

@@ -532,7 +532,7 @@ void ControlPushedAvoid::vf1C() {
 
 boost::function<void()> ControlPushedAvoid::vf10() {
     if (m38) {
-        ControlChaseFollow* next = new (0, "", "", 0) ControlChaseFollow(mChara);
+        ControlChaseFollow* next = new ((MemoryTag)0, "", "", 0) ControlChaseFollow(mChara);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
     }
     return ControlBase::vf10();

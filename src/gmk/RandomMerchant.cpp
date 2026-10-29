@@ -110,7 +110,7 @@ GimmickCommon* RandomMerchant::fn_804310B0(atn::Task* parent, int id, int arg) {
         if (fn_8006AA20(path) == 0) {
             id = id / 1000 * 1000;
         }
-        return new (12, "", "", 0) RandomMerchant(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) RandomMerchant(parent, id, arg);
     }
     return 0;
 }
@@ -137,7 +137,7 @@ int RandomMerchant::vf0C() {
                 {
                     std::string name(entry->mName.mStr);
                     entry->mChara =
-                        this != 0 ? new (1, lbl_8087DFD4, lbl_8087DFD0, 0) RandomMerchantChara(this, name) : 0;
+                        this != 0 ? new ((MemoryTag)1, lbl_8087DFD4, lbl_8087DFD0, 0) RandomMerchantChara(this, name) : 0;
                 }
                 entry->mMotionBase = 0xEF;
                 for (int j = 0; j < 3; j++) {

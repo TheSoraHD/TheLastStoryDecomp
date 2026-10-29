@@ -250,7 +250,7 @@ extern "C" void fn_800CC518(SoundCategory_unk* param) {
 // inferred: creates the sound manager
 extern "C" void fn_800CCBA4() {
     if (lbl_8087EFE8 == 0) {
-        lbl_8087EFE8 = new (10, "", "", 0) SoundManager();
+        lbl_8087EFE8 = new ((MemoryTag)10, "", "", 0) SoundManager();
     }
 }
 

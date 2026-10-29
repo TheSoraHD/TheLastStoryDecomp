@@ -331,7 +331,7 @@ MemoryMode_unk::~MemoryMode_unk() {
     mgr->mAlign = 0x20;
 }
 
-void* operator new(unsigned long size, int heap, const char* name, const char* file, int line) {
+void* operator new(unsigned long size, MemoryTag heap, const char* name, const char* file, int line) {
     atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, heap);
 }
@@ -349,7 +349,7 @@ void operator delete(void* p) {
     atn::MemoryManager::Instance()->Free(p);
 }
 
-void* operator new[](unsigned long size, int heap, const char* name, const char* file, int line) {
+void* operator new[](unsigned long size, MemoryTag heap, const char* name, const char* file, int line) {
     atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, heap);
 }

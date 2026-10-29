@@ -24,7 +24,7 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 
 MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsEfp(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsEfp(parent, arg, csv);
     }
     return 0;
 }

@@ -50,7 +50,7 @@ namespace gmk {
 
 GimmickCommon* Item::fn_803FBFA8(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) Item(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) Item(parent, desc);
     }
     return 0;
 }

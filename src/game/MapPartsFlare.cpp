@@ -7,7 +7,7 @@ extern "C" double strtod(const char* str);
 
 MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsFlare(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsFlare(parent, arg, csv);
     }
     return 0;
 }
@@ -15,7 +15,7 @@ MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, atn::Csv
 MapPartsFlare::MapPartsFlare(atn::Task* parent, void* arg, atn::CsvTab* csv) : MapPartsBase(parent, arg) {
     atn::LensFlareElem* e;
     int count = atoi(csv->fn_8005B9CC());
-    mFlare = new (6, "", "", 0) atn::LensFlare(1, count, atn::Vector3(0.0f, 0.0f, 0.0f), 30.0f);
+    mFlare = new ((MemoryTag)6, "", "", 0) atn::LensFlare(1, count, atn::Vector3(0.0f, 0.0f, 0.0f), 30.0f);
     for (int i = 0; i < count; i++) {
         e = &mFlare->mElems[i];
         e->m00 = atoi(csv->fn_8005B9CC());

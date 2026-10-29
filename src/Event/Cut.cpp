@@ -25,7 +25,7 @@ Label* Cut::fn_8053B030(int index) {
     } else if (index > mSequence->mLabelCount) {
         mSequence->mLabelCount = index;
     }
-    boost::shared_ptr<Label> label(new (4, "", "", 0) Label(this, index));
+    boost::shared_ptr<Label> label(new ((MemoryTag)4, "", "", 0) Label(this, index));
     mLabels.push_back(label);
     return mLabels[mLabels.size() - 1].get();
 }
@@ -35,7 +35,7 @@ Label* Cut::fn_8053B030(int index) {
 // (the original keeps max_size() in a register and divides it at run time, and keeps an
 // unreachable copy of the fast path after the length check).
 Section* Cut::fn_8053B828(int index) {
-    boost::shared_ptr<Section> section(new (4, "", "", 0) Section(this, index));
+    boost::shared_ptr<Section> section(new ((MemoryTag)4, "", "", 0) Section(this, index));
     mSections.push_back(section);
     return mSections[mSections.size() - 1].get();
 }

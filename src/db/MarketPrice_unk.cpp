@@ -32,7 +32,7 @@ extern "C" void fn_80217778() {
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
     csv.SetData((const char*)data, size);
-    sEntries = new (1, "", "", 0) MarketPrice_unk[10];
+    sEntries = new ((MemoryTag)1, "", "", 0) MarketPrice_unk[10];
     int row = 0;
     do {
         if (row >= 58) {

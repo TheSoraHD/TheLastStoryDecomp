@@ -90,7 +90,7 @@ inline bool Has8087F418_unk() {
 
 GameSoundControl* GameSoundControl::fn_803CD9A8(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (10, "", "", 0) GameSoundControl(parent);
+        sInstance = new ((MemoryTag)10, "", "", 0) GameSoundControl(parent);
     }
     return sInstance;
 }

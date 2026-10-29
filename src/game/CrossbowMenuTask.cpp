@@ -104,7 +104,7 @@ inline void Insert_unk(atn::FixedArray_unk<int, 64>& array, unsigned int pos, co
 
 CrossbowMenuTask* CrossbowMenuTask::fn_801E9398(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) CrossbowMenuTask(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) CrossbowMenuTask(parent);
     }
     return sInstance;
 }

@@ -227,7 +227,7 @@ inline void SetTaskText_unk(atn::D2ATask_unk* task, const char* name, const wcha
 
 NewCampPartsStatus* NewCampPartsStatus::fn_805268C8(atn::Task* parent) {
     if (parent != 0) {
-        return new (1, "", "", 0) NewCampPartsStatus(parent);
+        return new ((MemoryTag)1, "", "", 0) NewCampPartsStatus(parent);
     }
     return 0;
 }
@@ -239,7 +239,7 @@ NewCampPartsStatus::NewCampPartsStatus(atn::Task* parent)
     m7C = 0;
     m4C = 8;
     if (m4C > 0) {
-        m50.Reset_unk(new (1, "", "", 0) NewCampPartsEntry_unk[m4C]);
+        m50.Reset_unk(new ((MemoryTag)1, "", "", 0) NewCampPartsEntry_unk[m4C]);
         fn_8050FB38(this, m4C, m50.mData, sFiles, 0, 0);
         fn_8050FC88(this, m4C, m50.mData, 1);
     }

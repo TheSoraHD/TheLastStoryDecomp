@@ -59,7 +59,7 @@ static PlayerParam_unk* sEntries;
 extern "C" void fn_80218BD4() {
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, lbl_8087F0A8->mDemo != 0 ? sDemoFileName : sFileName, &size, 0x20);
-    sEntries = new (3, "", "", 0) PlayerParam_unk[7 * 32];
+    sEntries = new ((MemoryTag)3, "", "", 0) PlayerParam_unk[7 * 32];
     atn::Csv csv((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         if (strcmp(csv.fn_8005B9CC(), "begin") != 0) {

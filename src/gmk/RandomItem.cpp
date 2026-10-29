@@ -89,7 +89,7 @@ namespace gmk {
 
 GimmickCommon* RandomItem::fn_80432CF0(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) RandomItem(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) RandomItem(parent, id, arg);
     }
     return 0;
 }

@@ -130,7 +130,7 @@ Reader_unk* lbl_8087F510;
 // ("" before ".pk", 0x80755608).
 Reader_unk* Reader_unk::Get_unk() {
     if (lbl_8087F510 == 0) {
-        Reader_unk* reader = (Reader_unk*)operator new(sizeof(Reader_unk), 1, "", "", 0);
+        Reader_unk* reader = (Reader_unk*)operator new(sizeof(Reader_unk), (MemoryTag)1, "", "", 0);
         if (reader != 0) {
             reader->mList.mSize = 0;
             std::__list_node_base_unk* tail = &reader->mList.mTail;
@@ -139,7 +139,7 @@ Reader_unk* Reader_unk::Get_unk() {
             reader->mActive = 0;
             reader->mChunkKB = 0x100;
             reader->m18 = 0x40;
-            reader->mSlots = new (2, "", "", 0) ReadSlot_unk[2];
+            reader->mSlots = new ((MemoryTag)2, "", "", 0) ReadSlot_unk[2];
         }
         lbl_8087F510 = reader;
     }
@@ -442,7 +442,7 @@ int Loader::fn_8046C3FC(LoadCore* core) {
             }
         }
     }
-    req = new (2, "", "", 0) ReadRequest_unk(core);
+    req = new ((MemoryTag)2, "", "", 0) ReadRequest_unk(core);
     if (m3ED8 == 0) {
         FindMounted_unk(this, path, req, index, offset, size, packed, pos);
     }

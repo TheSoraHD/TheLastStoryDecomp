@@ -740,7 +740,7 @@ void Em101LittleZesya::fn_8025F07C() {
     dir.x = 0.0f;
     dir.y = rot.y;
     dir.z = 0.0f;
-    fn_80178208(new (1, "", "", 0) chr::ControlWarp(this, m1590, dir));
+    fn_80178208(new ((MemoryTag)1, "", "", 0) chr::ControlWarp(this, m1590, dir));
 }
 
 void Em101LittleZesya::fn_8025F35C() {

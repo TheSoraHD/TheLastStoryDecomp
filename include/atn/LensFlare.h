@@ -48,7 +48,7 @@ struct LensFlareElems_unk {
         }
         mCount = count;
         if (count != 0) {
-            mData = new (6, "", "", 0) LensFlareElem[count];
+            mData = new ((MemoryTag)6, "", "", 0) LensFlareElem[count];
         } else {
             mData = 0;
         }

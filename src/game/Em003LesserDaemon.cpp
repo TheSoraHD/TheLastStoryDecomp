@@ -1269,7 +1269,7 @@ void Em003LesserDaemon::fn_8024ED68() {
             } else {
                 float frame = mMotion.mTracks[0].m08;
                 if (frame >= mMotion.fn_80097D7C(0)) {
-                    void* p = ::operator new(0x34, 1, "", "", 0);
+                    void* p = ::operator new(0x34, (MemoryTag)1, "", "", 0);
                     chr::ControlBase* c = (chr::ControlBase*)p;
                     if (p != 0) {
                         c = fn_801C02F4(p, this);

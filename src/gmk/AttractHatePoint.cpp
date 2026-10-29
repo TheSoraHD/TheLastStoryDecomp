@@ -69,7 +69,7 @@ static const char* const sSounds[] = {"SE_DGCOM_007", "SE_BTCOM_021"};
 
 GimmickCommon* AttractHatePoint::fn_80421AB8(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) AttractHatePoint(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) AttractHatePoint(parent, desc);
     }
     return 0;
 }

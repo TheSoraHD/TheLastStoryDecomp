@@ -6,7 +6,7 @@ extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 
 NpcManager* NpcManager::fn_805477C8(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (3, "", "", 0) NpcManager(parent);
+        sInstance = new ((MemoryTag)3, "", "", 0) NpcManager(parent);
     }
     return sInstance;
 }

@@ -29,7 +29,7 @@ struct LipSyncData_unk {
         }
         mCount = count;
         if (count != 0) {
-            mKeys = new (heap, "", "", 0) LipSyncKey_unk[count];
+            mKeys = new ((MemoryTag)heap, "", "", 0) LipSyncKey_unk[count];
         } else {
             mKeys = 0;
         }

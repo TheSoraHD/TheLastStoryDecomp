@@ -1557,7 +1557,7 @@ extern "C" void fn_8001C284() {
     void* objects[64];
 #define REGISTER_AI_SCRIPT(I, NAME, CLASS) do { \
         std::string key(NAME); \
-        objects[I] = new (3, "", "", 0) AI::Script::CLASS(); \
+        objects[I] = new ((MemoryTag)3, "", "", 0) AI::Script::CLASS(); \
         fn_8001E0B8(&values[I], (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&objects[I]); \
         fn_8001E1D0(pairs[I], lbl_807C6B84, &values[I]); \
         fn_8001E168(&values[I].mString, -1); \

@@ -201,7 +201,7 @@ extern "C" void fn_80570BD0() {
 // inferred: creates the singleton and installs the callbacks
 extern "C" void fn_80570C50() {
     if (lbl_8087F9A0 == 0) {
-        GameSystem_unk* sys = new (1, "", "", 0) GameSystem_unk;
+        GameSystem_unk* sys = new ((MemoryTag)1, "", "", 0) GameSystem_unk;
         if (sys != 0) {
             sys->mPower = 0;
             sys->mReset = 0;

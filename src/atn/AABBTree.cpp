@@ -215,7 +215,7 @@ AABBTreeNode_unk* AABBTreeNode_unk::fn_80045D7C(const AABB_unk* box, int depth) 
         AABB_unk& area = areas[index];
         Vector3 boxCenter = box->GetCenter_unk();
         Vector3 areaCenter = area.GetCenter_unk();
-        *child = new (6, "", "", 0) AABBTreeNode_unk(area);
+        *child = new ((MemoryTag)6, "", "", 0) AABBTreeNode_unk(area);
     }
     return (*child)->fn_80045D7C(box, depth + 1);
 }

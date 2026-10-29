@@ -56,7 +56,7 @@ inline void SetMtx_unk(atn::Model* model, const atn::Matrix3x4& mtx) {
 Gun::Gun(void* arg04, int arg08, int arg0C, int arg270) : Arms(arg04, arg08, arg0C, arg270) {
     GunOwner_unk* owner = (GunOwner_unk*)m270;
     if (owner->m48 == 0 || owner->m50 == 1) {
-        m2A8.reset(new (3, "", "", 0) EffectModel_unk(0x505));
+        m2A8.reset(new ((MemoryTag)3, "", "", 0) EffectModel_unk(0x505));
         fn_8008AD4C(m2A8->GetModel_unk(), "it090_00.model", 0);
     }
 }

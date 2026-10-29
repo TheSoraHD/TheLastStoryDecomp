@@ -37,7 +37,7 @@ LightList_unk* lbl_8087EEF8;
 
 // inferred: creates the light list
 extern "C" void fn_8007A100() {
-    lbl_8087EEF8 = new (6, "", "", 0) LightList_unk;
+    lbl_8087EEF8 = new ((MemoryTag)6, "", "", 0) LightList_unk;
 }
 
 // NONMATCHING: 98.73% - the original reads mCount again after the bounds check (here the value is reused)

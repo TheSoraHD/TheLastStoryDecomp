@@ -37,7 +37,7 @@ int Em002_02SkeltonKing::vf0C() {
 // inferred: releases the grabbed skeleton (inlined four times; static, its literals are in the pool)
 static void ReleaseTarget_unk(Em002_02SkeltonKing* king) {
     if (king->mTarget != 0) {
-        king->mTarget->fn_80178208(new (0, "", "", 0) chr::ControlThrownBreakSkelton(king->mTarget));
+        king->mTarget->fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlThrownBreakSkelton(king->mTarget));
         king->mTarget = 0;
     }
 }
@@ -148,7 +148,7 @@ void Em002_02SkeltonKing::fn_80249588() {
             ReleaseTarget_unk(this);
         } else if (!(mTarget->m55C == 6 && mTarget->m560 == 0x71) && mMotion.mTracks[0].m08 >= 15.0f) {
             if (mTarget->CanAct_unk()) {
-                mTarget->fn_80178208(new (3, "", "", 0) chr::ControlCaughtSkelton(mTarget, this));
+                mTarget->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlCaughtSkelton(mTarget, this));
             } else {
                 mTarget = 0;
                 m58C = 0;
@@ -174,7 +174,7 @@ void Em002_02SkeltonKing::fn_80249588() {
             atn::Vector3 to = mC58.mC4 != 0 ? mC58.mC4->mPos : GetFront_unk(10.0f);
             to.y += 4.0f;
             if (mTarget != 0) {
-                mTarget->fn_80178208(new (3, "", "", 0) chr::ControlThrownSkelton(mTarget, to, fn_80219E6C(0x69F)));
+                mTarget->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrownSkelton(mTarget, to, fn_80219E6C(0x69F)));
                 mTarget = 0;
                 if (fn_80370A78(lbl_8087F430, 0xE6) == 0) {
                     fn_80370AE4(lbl_8087F430, 0xE6, 1);

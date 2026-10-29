@@ -57,7 +57,7 @@ namespace gmk {
 
 GimmickCommon* LandMine::fn_80420ADC(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) LandMine(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) LandMine(parent, desc);
     }
     return 0;
 }

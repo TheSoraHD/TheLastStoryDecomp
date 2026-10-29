@@ -43,7 +43,7 @@ extern "C" Renderer2D_unk* lbl_8087EEB0;
 
 atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop) {
     if (parent != 0) {
-        return new (8, "", "", 0) atn::D2A_Task(parent, path, loop);
+        return new ((MemoryTag)8, "", "", 0) atn::D2A_Task(parent, path, loop);
     }
     return 0;
 }

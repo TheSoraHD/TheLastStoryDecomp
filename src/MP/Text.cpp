@@ -62,7 +62,7 @@ inline Text::Text(atn::Task* parent) : atn::Task(parent) {
 // the "" of @stringBase0
 Text* Text::fn_80505DD0(atn::Task* parent) {
     if (lbl_8087F86C == 0) {
-        lbl_8087F86C = new (1, "", "", 0) Text(parent);
+        lbl_8087F86C = new ((MemoryTag)1, "", "", 0) Text(parent);
     }
     return lbl_8087F86C;
 }
@@ -101,7 +101,7 @@ void Text::fn_80505FC4(const wchar_t* data, unsigned long size) {
         }
         total += wcslen(csv.fn_8005B9CC()) + 1;
     }
-    lbl_8087F868 = new (1, "", "", 0) wchar_t[total];
+    lbl_8087F868 = new ((MemoryTag)1, "", "", 0) wchar_t[total];
     unsigned long pos = 0;
     int i = 0;
     csv.SetData(data, size / 2);

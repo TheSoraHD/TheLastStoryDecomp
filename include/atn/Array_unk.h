@@ -33,7 +33,7 @@ public:
         if (mCapacity > n) {
             return;
         }
-        T* data = new (heap, "", "", 0) T[n];
+        T* data = new ((MemoryTag)heap, "", "", 0) T[n];
         if (mData != 0) {
             // inferred: the ternary gives the register order of the original (0x803EE7FC)
             unsigned int count = (n > mSize) ? mSize : n;
@@ -48,7 +48,7 @@ public:
     // inferred: sets size and capacity to n, keeping the first elements (names invented;
     // CharaTask::fn_8017B1C4)
     void Resize_unk(unsigned int n) {
-        T* data = (n != 0) ? new (0, "", "", 0) T[n] : 0;
+        T* data = (n != 0) ? new ((MemoryTag)0, "", "", 0) T[n] : 0;
         if (mData != 0) {
             unsigned int count = (n > mSize) ? mSize : n;
             for (unsigned int i = 0; i < count; i++) {
@@ -63,7 +63,7 @@ public:
     // inferred: same from the given heap; the weak copies of game/MotionCommand_unk.cpp
     // (0x801204A8, 0x80120C30, 0x80120D44, 0x80120E48) take a third argument they never read
     void Resize_unk(unsigned int n, int heap, int unused) {
-        T* data = (n != 0) ? new (heap, "", "", 0) T[n] : 0;
+        T* data = (n != 0) ? new ((MemoryTag)heap, "", "", 0) T[n] : 0;
         if (mData != 0) {
             unsigned int count = (n > mSize) ? mSize : n;
             for (unsigned int i = 0; i < count; i++) {
@@ -144,7 +144,7 @@ public:
         // inferred: "!= 0", not "> 0": the test is folded but the store of the dead branch stays
         // (GimmickManager ctor, 0x803EE024)
         if (mSize != 0) {
-            mData = new (1, "", "", 0) T[mSize];
+            mData = new ((MemoryTag)1, "", "", 0) T[mSize];
         } else {
             mData = 0;
         }
@@ -158,7 +158,7 @@ public:
         }
         mSize = n;
         if (mSize != 0) {
-            mData = new (heap, "", "", 0) T[mSize];
+            mData = new ((MemoryTag)heap, "", "", 0) T[mSize];
         } else {
             mData = 0;
         }
@@ -182,7 +182,7 @@ public:
         }
         mSize = n;
         if (mSize != 0) {
-            mData = new (heap, "", "", 0) T[mSize];
+            mData = new ((MemoryTag)heap, "", "", 0) T[mSize];
         } else {
             mData = 0;
         }

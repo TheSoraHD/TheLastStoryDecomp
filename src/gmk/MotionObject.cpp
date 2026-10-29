@@ -109,7 +109,7 @@ namespace gmk {
 
 GimmickCommon* MotionObject::fn_80412AFC(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) MotionObject(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) MotionObject(parent, id, arg);
     }
     return 0;
 }
@@ -363,11 +363,11 @@ void MotionObject::vf20() {
             play->mFrame = fn_800DC288(csv.fn_8005B9CC());
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             MotionColli_unk* colli = &mColli[model];
-            colli->mObject = new (12, "", "", 0) atn::ColliObject();
+            colli->mObject = new ((MemoryTag)12, "", "", 0) atn::ColliObject();
             colli->mObject->fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "TARGET_COLLI") == 0) {
             MotionColli_unk* colli = &mColli[model];
-            MotionTarget_unk* target = new (12, "", "", 0) MotionTarget_unk;
+            MotionTarget_unk* target = new ((MemoryTag)12, "", "", 0) MotionTarget_unk;
             colli->mTarget = target;
             target->mOffset.x = fn_800DC288(csv.fn_8005B9CC());
             target->mOffset.y = fn_800DC288(csv.fn_8005B9CC());
@@ -532,7 +532,7 @@ void MotionObject::vf4C(CharaTask* chara) {
         rot.y = atn::WrapAngle_unk(rot.y + mActions[m54].mRotY);
         chara->mPos = pos;
         chara->mRot = rot;
-        chara->fn_80178208(new (1, "", "", 0) chr::ControlBreakOpen((chr::Chara_unk*)chara, (chr::BreakTarget_unk*)this));
+        chara->fn_80178208(new ((MemoryTag)1, "", "", 0) chr::ControlBreakOpen((chr::Chara_unk*)chara, (chr::BreakTarget_unk*)this));
     }
 }
 

@@ -418,7 +418,7 @@ void Chicken_unk::fn_8040C610() {
 
 GimmickCommon* ChickenManager::fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) ChickenManager(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) ChickenManager(parent, desc);
     }
     return 0;
 }

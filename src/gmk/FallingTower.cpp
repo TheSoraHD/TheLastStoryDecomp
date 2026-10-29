@@ -56,7 +56,7 @@ inline float FallingTower::Wave_unk::Height_unk(float t) const {
 
 GimmickCommon* FallingTower::fn_8040FAC0(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) FallingTower(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) FallingTower(parent, id, arg);
     }
     return 0;
 }

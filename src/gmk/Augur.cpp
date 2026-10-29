@@ -63,7 +63,7 @@ inline void Augur::ReleaseTarget_unk() {
 
 GimmickCommon* Augur::fn_8041EB80(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) Augur(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) Augur(parent, desc);
     }
     return 0;
 }

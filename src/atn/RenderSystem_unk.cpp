@@ -325,7 +325,7 @@ extern "C" void fn_800BC798() {
     }
 
     if (lbl_8087EFB4 == 0) {
-        void* renderSystem = ::operator new(0x54968, 6, "",
+        void* renderSystem = ::operator new(0x54968, (MemoryTag)6, "",
                                                 "", 0);
         if (renderSystem != 0) {
             renderSystem = fn_800BC874(renderSystem);
@@ -420,7 +420,7 @@ extern "C" void* fn_800BC874(void* renderSystem) {
     memset(self + 0x50, 0, 0x50);
     memset(self + 0xA0, 0, 0x50);
     memset(self, 0, 0x50);
-    NewCampScene2_unk* scene = new (6, "", "", 0) NewCampScene2_unk();
+    NewCampScene2_unk* scene = new ((MemoryTag)6, "", "", 0) NewCampScene2_unk();
     lbl_8087EFB8 = (int)scene;
     *(void**)(self + 0x2FC) = scene;
     Light_unk light;
@@ -467,30 +467,30 @@ extern "C" void* fn_800BC874(void* renderSystem) {
 
     // The layer pointer table occupies the first 20 words of RenderSystem.
     atn::IRenderLayer** layers = (atn::IRenderLayer**)self;
-    layers[0] = new (6, "", "", 0) atn::LayerOcclusionCPU();
-    layers[1] = new (6, "", "", 0) atn::Layer2D("Composite");
-    layers[2] = new (6, "", "", 0) atn::LayerPrerender();
-    layers[3] = new (6, "", "", 0) atn::LayerShadow();
-    layers[4] = new (6, "", "", 0) atn::LayerReflect();
+    layers[0] = new ((MemoryTag)6, "", "", 0) atn::LayerOcclusionCPU();
+    layers[1] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("Composite");
+    layers[2] = new ((MemoryTag)6, "", "", 0) atn::LayerPrerender();
+    layers[3] = new ((MemoryTag)6, "", "", 0) atn::LayerShadow();
+    layers[4] = new ((MemoryTag)6, "", "", 0) atn::LayerReflect();
     layers[5] = 0;
-    layers[10] = new (6, "", "", 0) atn::Layer3D("3D Outline");
-    layers[6] = new (6, "", "", 0) atn::Layer3D("3D Object", 9, -1);
-    layers[7] = new (6, "", "", 0) atn::LayerZPrePass();
-    layers[8] = new (6, "", "", 0) atn::Layer3D("3D Alpha");
-    layers[9] = new (6, "", "", 0) atn::LayerPost3D();
-    layers[11] = new (6, "", "", 0) atn::Layer3D("Effect");
-    layers[12] = new (6, "", "", 0) atn::Layer2D("2D Effect");
-    layers[13] = new (6, "", "", 0) atn::Layer3D("3D Debug");
-    layers[14] = new (6, "", "", 0) atn::LayerPostFx();
-    layers[15] = new (6, "", "", 0) atn::Layer2DBlur();
-    layers[18] = new (6, "", "", 0) atn::Layer2D("2D Object");
-    atn::Layer2D3D* layer2D3D = new (6, "", "", 0) atn::Layer2D3D();
+    layers[10] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Outline");
+    layers[6] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Object", 9, -1);
+    layers[7] = new ((MemoryTag)6, "", "", 0) atn::LayerZPrePass();
+    layers[8] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Alpha");
+    layers[9] = new ((MemoryTag)6, "", "", 0) atn::LayerPost3D();
+    layers[11] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("Effect");
+    layers[12] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("2D Effect");
+    layers[13] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Debug");
+    layers[14] = new ((MemoryTag)6, "", "", 0) atn::LayerPostFx();
+    layers[15] = new ((MemoryTag)6, "", "", 0) atn::Layer2DBlur();
+    layers[18] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("2D Object");
+    atn::Layer2D3D* layer2D3D = new ((MemoryTag)6, "", "", 0) atn::Layer2D3D();
     if (layer2D3D != 0) {
         layer2D3D->m14 = 0;
     }
     layers[16] = layer2D3D;
-    layers[17] = new (6, "", "", 0) atn::LayerPostFx();
-    layers[19] = new (6, "", "", 0) atn::Layer2D("Debug");
+    layers[17] = new ((MemoryTag)6, "", "", 0) atn::LayerPostFx();
+    layers[19] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("Debug");
 
     void* layerMenu = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Layers");
     for (int i = 0; i < 20; ++i) {
@@ -510,7 +510,7 @@ extern "C" void fn_800BD9C0(void* render, int queueCapacity) {
         MemoryMode_unk mode(0, 0x20);
         *(int*)((unsigned char*)render + 0xF4) = queueCapacity;
         *(void**)((unsigned char*)render + 0xF0) =
-            ::operator new[](queueCapacity, 6, (const char*)&lbl_8087D72C,
+            ::operator new[](queueCapacity, (MemoryTag)6, (const char*)&lbl_8087D72C,
                                (const char*)&lbl_8087D728, 0);
     }
     fn_800C5644();
@@ -590,7 +590,7 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
         if (requested >= capacity) {
             unsigned int newCapacity = requested;
             void** replacement = (void**)::operator new[](
-                newCapacity * 4, 0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
+                newCapacity * 4, (MemoryTag)0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
             for (unsigned int i = 0; i < capacity; ++i) {
                 replacement[i] = entries[i];
             }
@@ -607,7 +607,7 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
             if (count == capacity) {
                 unsigned int newCapacity = capacity == 0 ? 8 : capacity * 2;
                 void** replacement = (void**)::operator new[](
-                    newCapacity * 4, 0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
+                    newCapacity * 4, (MemoryTag)0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
                 for (unsigned int i = 0; i < count; ++i) {
                     replacement[i] = entries[i];
                 }

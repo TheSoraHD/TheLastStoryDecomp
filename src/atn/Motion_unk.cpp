@@ -70,7 +70,7 @@ extern "C" MapModel_unk* fn_8009F788(const char* path) {
             return *it;
         }
     }
-    MapModel_unk* model = new (6, "", "", 0) MapModel_unk(path);
+    MapModel_unk* model = new ((MemoryTag)6, "", "", 0) MapModel_unk(path);
     int found = 0;
     for (it = GetMapModels_unk().begin(); it != GetMapModels_unk().end(); it++) {
         if (*it == 0) {

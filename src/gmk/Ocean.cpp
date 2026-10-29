@@ -40,7 +40,7 @@ namespace gmk {
 
 GimmickCommon* Ocean::fn_80418198(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) Ocean(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) Ocean(parent, id, arg);
     }
     return 0;
 }

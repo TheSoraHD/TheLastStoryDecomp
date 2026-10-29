@@ -80,7 +80,7 @@ namespace gmk {
 
 GimmickCommon* ReinforcePoint::fn_803F9420(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) ReinforcePoint(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) ReinforcePoint(parent, desc);
     }
     return 0;
 }

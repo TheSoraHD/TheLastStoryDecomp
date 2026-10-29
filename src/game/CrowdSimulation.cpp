@@ -31,7 +31,7 @@ CrowdSimulation* CrowdSimulation::sInstance;
 
 CrowdSimulation* CrowdSimulation::fn_801EB93C(atn::Task* parent, CrowdDesc_unk* desc) {
     if (parent != 0) {
-        sInstance = new (3, "", "", 0) CrowdSimulation(parent, desc);
+        sInstance = new ((MemoryTag)3, "", "", 0) CrowdSimulation(parent, desc);
     }
     return sInstance;
 }

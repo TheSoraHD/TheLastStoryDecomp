@@ -145,7 +145,7 @@ namespace gmk {
 
 GimmickCommon* RotaryRoom::fn_80423F64(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) RotaryRoom(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) RotaryRoom(parent, id, arg);
     }
     return 0;
 }
@@ -352,7 +352,7 @@ void RotaryRoom::vf20() {
         } else if (strcmp(field, "STATE") == 0) {
             if (m20 != 0) {
                 RotaryColli_unk& colli = mColli[atoi(csv.fn_8005B9CC())];
-                colli.mTree = new (12, "", "", 0) atn::ColliTree;
+                colli.mTree = new ((MemoryTag)12, "", "", 0) atn::ColliTree;
                 colli.mTree->fn_80058B78(csv.fn_8005B9CC());
                 colli.mHash = fn_800DC6B4(csv.fn_8005B9CC());
             }

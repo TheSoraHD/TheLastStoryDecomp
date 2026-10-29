@@ -506,7 +506,7 @@ void EnemyTrista::fn_8035C8CC() {
                 m14C0 = 0;
                 m58C = 10;
                 m14B8 = 0;
-                fn_80178208(new (0, "", "", 0) ControlShingan(this, 900000));
+                fn_80178208(new ((MemoryTag)0, "", "", 0) ControlShingan(this, 900000));
                 fn_80370AE4(lbl_8087F430, 0x67, 1);
             } else {
                 bool jump;

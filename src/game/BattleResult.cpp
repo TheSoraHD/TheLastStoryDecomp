@@ -68,7 +68,7 @@ BattleResult* BattleResult::sInstance;
 
 BattleResult* BattleResult::fn_800EFF68(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (1, "", "", 0) BattleResult(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) BattleResult(parent);
     }
     return sInstance;
 }

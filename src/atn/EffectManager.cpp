@@ -310,7 +310,7 @@ namespace atn {
 
 EffectManager* EffectManager::fn_80239798(Task* parent, int a, int b, int c, unsigned int max) {
     if (lbl_8087F3C0 == 0 && parent != 0) {
-        lbl_8087F3C0 = new (7, "", "", 0) EffectManager(parent, a, b, c, max);
+        lbl_8087F3C0 = new ((MemoryTag)7, "", "", 0) EffectManager(parent, a, b, c, max);
     }
     return lbl_8087F3C0;
 }

@@ -65,7 +65,7 @@ namespace gmk {
 
 GimmickCommon* Cannon::fn_80408324(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) Cannon(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) Cannon(parent, id, arg);
     }
     return 0;
 }

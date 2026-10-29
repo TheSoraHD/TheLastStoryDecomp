@@ -54,7 +54,7 @@ struct RareItem_unk {
 // inferred: atn::SimpleVector::reserve without the capacity check, that also empties the list (another
 // instance of the "" literals in .sdata: a separate function). Name invented.
 inline void InitItems_unk(atn::SimpleVector<RareItem_unk>& list, unsigned int n) {
-    RareItem_unk* data = new (0, "", "", 0) RareItem_unk[n];
+    RareItem_unk* data = new ((MemoryTag)0, "", "", 0) RareItem_unk[n];
     if (list.mData != 0) {
         unsigned int count = (n > list.mSize) ? list.mSize : n;
         for (unsigned int i = 0; i < count; i++) {
@@ -116,7 +116,7 @@ extern "C" void fn_802130BC() {
             count++;
         }
     }
-    sEntries = new (1, "", "", 0) RareEntry_unk[count];
+    sEntries = new ((MemoryTag)1, "", "", 0) RareEntry_unk[count];
     sCount = count;
     csv.SetData((const char*)data, size);
     int i = 0;

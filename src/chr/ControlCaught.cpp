@@ -86,7 +86,7 @@ void ControlCaught::vf1C() {}
 
 boost::function<void()> ControlCaught::vf10() {
     if (mCount <= 0) {
-        ControlRelease* next = new (0, "", "", 0) ControlRelease(mChara, mReleaseMotion);
+        ControlRelease* next = new ((MemoryTag)0, "", "", 0) ControlRelease(mChara, mReleaseMotion);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
     }
     if (mChara != 0 && (mChara->mStatus.m0C & 0x20) == 0x20) {
@@ -95,7 +95,7 @@ boost::function<void()> ControlCaught::vf10() {
         Mtx mtx;
         PSMTXRotRad(mtx, 'y', mChara->mRot.y);
         PSMTXMultVec(mtx, &dir, &dir);
-        ControlKnockdown* next = new (0, "", "", 0) ControlKnockdown(mChara, dir, -1, 0);
+        ControlKnockdown* next = new ((MemoryTag)0, "", "", 0) ControlKnockdown(mChara, dir, -1, 0);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
     }
     return ControlBase::vf10();

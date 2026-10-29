@@ -585,259 +585,259 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info) {
         void* p;
         switch (kind) {
         case 1:
-            enemy = new (3, "", "", 0) Em001Necromancer(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em001Necromancer(parent, info);
             break;
         case 50:
-            p = ::operator new(0x1568, 3, "", "", 0);
+            p = ::operator new(0x1568, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_80566420(p, parent, data);
             }
             enemy = (EnemyTask*)p;
             break;
         case 36:
-            enemy = new (3, "", "", 0) Em306GurgBeast(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em306GurgBeast(parent, info);
             break;
         case 12:
-            enemy = new (3, "", "", 0) Em202Spider(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em202Spider(parent, info);
             break;
         case 14:
-            enemy = new (3, "", "", 0) Em202SpiderBase(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em202SpiderBase(parent, info);
             break;
         case 29:
-            enemy = new (3, "", "", 0) Em301LShade(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em301LShade(parent, info);
             break;
         case 20:
-            enemy = new (3, "", "", 0) Em204Mulue(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em204Mulue(parent, info);
             break;
         case 21:
-            enemy = new (3, "", "", 0) Em204BigMulue(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em204BigMulue(parent, info);
             break;
         case 22:
-            enemy = new (3, "", "", 0) Em204MulueMp(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em204MulueMp(parent, info);
             break;
         case 34:
-            enemy = new (3, "", "", 0) Em305Vampire(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em305Vampire(parent, info);
             break;
         case 13:
-            enemy = new (3, "", "", 0) Em202_01_BSpider(parent, data);
+            enemy = new ((MemoryTag)3, "", "", 0) Em202_01_BSpider(parent, data);
             break;
         case 11:
-            enemy = new (3, "", "", 0) Em201ZanGurg(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em201ZanGurg(parent, info);
             break;
         case 24:
-            p = ::operator new(0x1718, 3, "", "", 0);
+            p = ::operator new(0x1718, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_802C0C38(p, parent, data);
             }
             enemy = (EnemyTask*)p;
             break;
         case 2:
-            enemy = new (3, "", "", 0) Em002Skelton(parent, data);
+            enemy = new ((MemoryTag)3, "", "", 0) Em002Skelton(parent, data);
             break;
         case 3:
-            enemy = new (3, "", "", 0) Em002_01BlackSkelton(parent, data);
+            enemy = new ((MemoryTag)3, "", "", 0) Em002_01BlackSkelton(parent, data);
             break;
         case 39:
-            enemy = new (3, "", "", 0) Em309Ghoul(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em309Ghoul(parent, info);
             break;
         case 40:
-            enemy = new (3, "", "", 0) Em309GhoulSimple(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em309GhoulSimple(parent, info);
             break;
         case 41:
-            p = ::operator new(0x1610, 3, "", "", 0);
+            p = ::operator new(0x1610, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_8030A144(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 47:
-            enemy = new (3, "", "", 0) Em401_01_WhiteLeoPard(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em401_01_WhiteLeoPard(parent, info);
             break;
         case 48:
-            enemy = new (3, "", "", 0) Em403WarLion(parent, data);
+            enemy = new ((MemoryTag)3, "", "", 0) Em403WarLion(parent, data);
             break;
         case 23:
-            enemy = new (3, "", "", 0) Em205Ogre(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em205Ogre(parent, info);
             break;
         case 26:
-            enemy = new (3, "", "", 0) Em208Queen(parent, data);
+            enemy = new ((MemoryTag)3, "", "", 0) Em208Queen(parent, data);
             break;
         case 52:
-            enemy = new (3, "", "", 0) Np131LivingArmor(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Np131LivingArmor(parent, info);
             break;
         case 43:
-            enemy = new (3, "", "", 0) Em314Ivy(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em314Ivy(parent, info);
             break;
         case 37:
-            enemy = new (3, "", "", 0) Em308ParmCrab(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em308ParmCrab(parent, info);
             break;
         case 38:
-            enemy = new (3, "", "", 0) Em308InvertCrab(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em308InvertCrab(parent, info);
             break;
         case 15:
-            p = ::operator new(0x1968, 3, "", "", 0);
+            p = ::operator new(0x1968, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_8027278C(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 4:
-            p = ::operator new(0x16f0, 3, "", "", 0);
+            p = ::operator new(0x16f0, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_8024A650(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 17:
-            enemy = new (3, "", "", 0) Em203GreaterDaemon(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em203GreaterDaemon(parent, info);
             break;
         case 18:
-            enemy = new (3, "", "", 0) Em203GreaterDaemonRed(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em203GreaterDaemonRed(parent, info);
             break;
         case 19:
-            p = ::operator new(0x16d0, 3, "", "", 0);
+            p = ::operator new(0x16d0, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_8029CB00(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 5:
-            enemy = new (3, "", "", 0) Em005DoppelGanger(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em005DoppelGanger(parent, info);
             break;
         case 30:
-            enemy = new (3, "", "", 0) Em302Kraken(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em302Kraken(parent, info);
             break;
         case 31:
-            enemy = new (3, "", "", 0) Em303KrakenFoot(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em303KrakenFoot(parent, info);
             break;
         case 32:
-            enemy = new (3, "", "", 0) Em302KrakenMp(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em302KrakenMp(parent, info);
             break;
         case 33:
-            enemy = new (3, "", "", 0) Em303KrakenFootMp(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em303KrakenFootMp(parent, info);
             break;
         case 51:
-            enemy = new (3, "", "", 0) CopyRobotTask(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) CopyRobotTask(parent, info);
             break;
         case 44:
-            enemy = new (3, "", "", 0) Em315Coffin(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em315Coffin(parent, info);
             break;
         case 6:
-            enemy = new (3, "", "", 0) Em006DarkMaster(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em006DarkMaster(parent, info);
             break;
         case 42:
-            enemy = new (3, "", "", 0) Em312DarkServant(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em312DarkServant(parent, info);
             break;
         case 53:
-            enemy = new (3, "", "", 0) ChaserGuard(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) ChaserGuard(parent, info);
             break;
         case 54:
-            enemy = new (3, "", "", 0) ChaserNpc(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) ChaserNpc(parent, info);
             break;
         case 55:
-            enemy = new (3, "", "", 0) EnemyTrista(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemyTrista(parent, info);
             break;
         case 49:
-            enemy = new (3, "", "", 0) Em316LaserSphere(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em316LaserSphere(parent, info);
             break;
         case 56:
-            p = ::operator new(0x2a50, 3, "", "", 0);
+            p = ::operator new(0x2a50, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_80452F14(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 57:
-            enemy = new (3, "", "", 0) LastCocoonChrysalis(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) LastCocoonChrysalis(parent, info);
             break;
         case 58:
-            p = ::operator new(0x18f8, 3, "", "", 0);
+            p = ::operator new(0x18f8, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_8045FAB0(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 59:
-            p = ::operator new(0x1990, 3, "", "", 0);
+            p = ::operator new(0x1990, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_80458270(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 7:
-            enemy = new (3, "", "", 0) Em101ElderZesya(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em101ElderZesya(parent, info);
             break;
         case 9:
-            p = ::operator new(0x15d0, 3, "", "", 0);
+            p = ::operator new(0x15d0, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_8025C998(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 63:
-            enemy = new (3, "", "", 0) EnemyJill(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemyJill(parent, info);
             break;
         case 45:
-            enemy = new (3, "", "", 0) Em316LaserSphere(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em316LaserSphere(parent, info);
             break;
         case 46:
-            enemy = new (3, "", "", 0) Em316LastLaser(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em316LastLaser(parent, info);
             break;
         case 27:
-            enemy = new (3, "", "", 0) Em209SmallGolem(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em209SmallGolem(parent, info);
             break;
         case 28:
-            enemy = new (3, "", "", 0) Em209BigGolem(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em209BigGolem(parent, info);
             break;
         case 62:
-            enemy = new (3, "", "", 0) EnemyQuarkStand(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemyQuarkStand(parent, info);
             break;
         case 70:
-            enemy = new (3, "", "", 0) EnemyQuarkFirst(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemyQuarkFirst(parent, info);
             break;
         case 71:
-            enemy = new (3, "", "", 0) EnemyQuarkSecond(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemyQuarkSecond(parent, info);
             break;
         case 64:
-            enemy = new (3, "", "", 0) EnemyTasha(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemyTasha(parent, info);
             break;
         case 8:
-            enemy = new (3, "", "", 0) Em101ElderZesyaSecond(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em101ElderZesyaSecond(parent, info);
             break;
         case 10:
-            enemy = new (3, "", "", 0) Em101LittleZesyaSecond(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em101LittleZesyaSecond(parent, info);
             break;
         case 65:
-            enemy = new (3, "", "", 0) Em201ZanGurgFinal(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em201ZanGurgFinal(parent, info);
             break;
         case 25:
-            p = ::operator new(0x1938, 3, "", "", 0);
+            p = ::operator new(0x1938, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_802BA92C(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 67:
-            enemy = new (3, "", "", 0) EnemyFieldMagician(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemyFieldMagician(parent, info);
             break;
         case 68:
-            enemy = new (3, "", "", 0) Em002_02SkeltonKing(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em002_02SkeltonKing(parent, info);
             break;
         case 69:
-            enemy = new (3, "", "", 0) EnemySeaLizerd(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemySeaLizerd(parent, info);
             break;
         case 16:
-            p = ::operator new(0x19c8, 3, "", "", 0);
+            p = ::operator new(0x19c8, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_80279860(p, parent, info);
             }
             enemy = (EnemyTask*)p;
             break;
         case 35:
-            enemy = new (3, "", "", 0) Em305VampireMp(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) Em305VampireMp(parent, info);
             break;
         case 72:
-            enemy = new (3, "", "", 0) EnemyLizerdBlade(parent, info);
+            enemy = new ((MemoryTag)3, "", "", 0) EnemyLizerdBlade(parent, info);
             break;
         }
     if (enemy != 0) {

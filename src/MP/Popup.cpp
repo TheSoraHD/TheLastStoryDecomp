@@ -41,7 +41,7 @@ inline Popup::Popup(atn::Task* parent) : atn::Task(parent) {
 
 Popup* Popup::fn_805012C4(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) Popup(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) Popup(parent);
     }
     return sInstance;
 }

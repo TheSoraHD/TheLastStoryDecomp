@@ -15,7 +15,7 @@ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
 MapPartsOcean* MapPartsOcean::fn_8049C8DC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsOcean(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsOcean(parent, arg, csv);
     }
     return 0;
 }

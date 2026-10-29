@@ -141,7 +141,7 @@ int D2AMpMenuMessageList::sPage;
 
 D2AMpMenuMessageList* D2AMpMenuMessageList::fn_804C2FF8(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) D2AMpMenuMessageList(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) D2AMpMenuMessageList(parent);
     }
     return sInstance;
 }

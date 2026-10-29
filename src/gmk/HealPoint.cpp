@@ -51,7 +51,7 @@ inline void HealPoint::StopEffect_unk() {
 
 GimmickCommon* HealPoint::fn_8040EC30(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) HealPoint(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) HealPoint(parent, id, arg);
     }
     return 0;
 }
@@ -61,7 +61,7 @@ GimmickCommon* HealPoint::fn_8040EC30(atn::Task* parent, int id, int arg) {
 // helpers, mWait/m54 stores before/after the copies, m78 before m6C.
 GimmickCommon* HealPoint::fn_8040ED00(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) HealPoint(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) HealPoint(parent, desc);
     }
     return 0;
 }

@@ -260,7 +260,7 @@ namespace gmk {
 
 GimmickCommon* Cannonball::fn_803F9F34(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) Cannonball(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) Cannonball(parent, desc);
     }
     return 0;
 }

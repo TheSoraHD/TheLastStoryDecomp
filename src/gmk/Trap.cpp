@@ -35,7 +35,7 @@ namespace gmk {
 
 GimmickCommon* Trap::fn_80410A68(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) Trap(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) Trap(parent, desc);
     }
     return 0;
 }

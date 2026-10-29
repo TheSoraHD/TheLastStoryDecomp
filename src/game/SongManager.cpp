@@ -241,7 +241,7 @@ SongManager* SongManager::sInstance;
 // using 1.0f first.
 SongManager* SongManager::fn_805A2240(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (12, "", "", 0) SongManager(parent);
+        sInstance = new ((MemoryTag)12, "", "", 0) SongManager(parent);
     }
     return sInstance;
 }

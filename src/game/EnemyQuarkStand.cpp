@@ -12,6 +12,7 @@
 #include "game/GameUI.h"
 #include "game/HomingBullet.h"
 #include "game/GimmickCommon.h"
+#include "gmk/SparkCube.h"
 #include "game/GimmickManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
@@ -1979,7 +1980,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
                 }
                 if (fn_801231D0(lbl_8087F0A8->mPad, 0) != 0) {
                     leader->SetHit_unk(m1550);
-                    leader->fn_80178208(new (3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
+                    leader->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
                     fn_80370AE4(lbl_8087F430, 0x6F, 1);
                     fn_80351AB8(leader, 2);
                     if (lbl_8087F490 != 0) {
@@ -2447,11 +2448,6 @@ void EnemyQuarkStand::fn_803526A8() {
     }
 }
 
-// inferred: a gimmick that can be pushed by the shock (value at 0x920 cleared in state 3; as gmk::PassBoard)
-struct QuarkGimmick_unk : public GimmickCommon {
-    unsigned char m0F4[0x920 - 0xF4];
-    float m920;
-};
 
 // inferred: shock of the body against the gimmicks 48001 and 48004 around the "spine" node: a gimmick
 // within `range` and inside the cone `angle` in front gets a hit message of kind `kind` (when `hit`); one
@@ -2481,7 +2477,7 @@ void EnemyQuarkStand::fn_80352C3C(int kind, int hit, float range, float angle) {
                 }
             }
             if (dist <= 2.0f * range && g->m54 == 3) {
-                ((QuarkGimmick_unk*)g)->m920 = 0.0f;
+                ((gmk::SparkCube*)g)->mTimer = 0.0f; // inferred: the gimmicks 48001/48004 are spark cubes (gm048)
             }
         }
     }
@@ -2538,7 +2534,7 @@ boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
         }
         fn_800C31F4("SE_DG040_107", 0, -1, 1.0f);
         mC58.mC0 = 0;
-        chr::ControlThrustForQuarkStand* next = new (0, "", "", 0) chr::ControlThrustForQuarkStand(chara, this, 2);
+        chr::ControlThrustForQuarkStand* next = new ((MemoryTag)0, "", "", 0) chr::ControlThrustForQuarkStand(chara, this, 2);
         return boost::bind(&CharaTask::fn_80178208, chara, next);
     }
     return boost::function<void()>();

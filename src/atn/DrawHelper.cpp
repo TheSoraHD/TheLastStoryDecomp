@@ -23,7 +23,7 @@ inline DrawHelper::DrawHelper() : mA0(0x12) {
 
 void DrawHelper::fn_8005DD60() {
     if (lbl_8087EEB0 == 0) {
-        lbl_8087EEB0 = new (6, lbl_80731340, lbl_80731340, 0) DrawHelper;
+        lbl_8087EEB0 = new ((MemoryTag)6, lbl_80731340, lbl_80731340, 0) DrawHelper;
     }
 }
 

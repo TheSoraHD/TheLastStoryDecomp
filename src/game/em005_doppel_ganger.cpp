@@ -555,7 +555,7 @@ void Em005DoppelGanger::vf10() {
             if (m55C == 2) {
                 switch (state) {
                 case 13: {
-                    ControlCall* control = new (3, "", "", 0) ControlCall(this);
+                    ControlCall* control = new ((MemoryTag)3, "", "", 0) ControlCall(this);
                     fn_80178208(control);
                     m1470 = 0;
                     break;

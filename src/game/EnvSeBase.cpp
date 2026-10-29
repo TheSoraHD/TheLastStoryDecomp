@@ -209,7 +209,7 @@ void EnvSeBase::DrawName_unk(const atn::Vector3& pos) {
 }
 
 EnvSePoint* EnvSePoint::fn_8036111C(atn::Task* parent, int id) {
-    return new (12, "", "", 0) EnvSePoint(parent, id);
+    return new ((MemoryTag)12, "", "", 0) EnvSePoint(parent, id);
 }
 
 EnvSePoint::~EnvSePoint() {}
@@ -238,7 +238,7 @@ void EnvSePoint::vf14() {
 }
 
 EnvSeLine* EnvSeLine::fn_80361414(atn::Task* parent, int id) {
-    return new (12, "", "", 0) EnvSeLine(parent, id);
+    return new ((MemoryTag)12, "", "", 0) EnvSeLine(parent, id);
 }
 
 // NONMATCHING: 14.7% - the original inlines the std::string and boost::char_separator constructors,
@@ -334,7 +334,7 @@ void EnvSeLine::vf14() {
 }
 
 EnvSeSphere* EnvSeSphere::fn_80362278(atn::Task* parent, int id) {
-    return new (12, "", "", 0) EnvSeSphere(parent, id);
+    return new ((MemoryTag)12, "", "", 0) EnvSeSphere(parent, id);
 }
 
 EnvSeSphere::~EnvSeSphere() {}
@@ -379,7 +379,7 @@ void EnvSeSphere::vf14() {
 }
 
 EnvSeBox* EnvSeBox::fn_803626A8(atn::Task* parent, int id) {
-    return new (12, "", "", 0) EnvSeBox(parent, id);
+    return new ((MemoryTag)12, "", "", 0) EnvSeBox(parent, id);
 }
 
 EnvSeBox::~EnvSeBox() {}
@@ -452,7 +452,7 @@ void EnvSeBox::vf14() {
 }
 
 EnvSeGlobal* EnvSeGlobal::fn_80362CC4(atn::Task* parent, int id) {
-    return new (12, "", "", 0) EnvSeGlobal(parent, id);
+    return new ((MemoryTag)12, "", "", 0) EnvSeGlobal(parent, id);
 }
 
 EnvSeGlobal::~EnvSeGlobal() {}

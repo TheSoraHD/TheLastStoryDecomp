@@ -91,7 +91,7 @@ extern "C" void fn_80204E54() {
         }
     }
     count += 0x80;
-    sEntries = new (3, "", "", 0) WeaponParamEntry_unk[count];
+    sEntries = new ((MemoryTag)3, "", "", 0) WeaponParamEntry_unk[count];
     sCount = count;
     csv.SetData((const char*)data, size);
     int i = 0;
@@ -229,7 +229,7 @@ extern "C" void fn_8020689C() {
         csv.fn_8005B9CC();
         length += wcslen(csv.fn_8005B9CC()) + 1;
     }
-    sTexts = new (3, "", "", 0) wchar_t[length];
+    sTexts = new ((MemoryTag)3, "", "", 0) wchar_t[length];
     int pos = 0;
     csv.Reset_unk();
     int i = 0;
@@ -393,7 +393,7 @@ extern "C" void fn_80206F44() {
         }
         count++;
     }
-    sEffects = new (3, "", "", 0) WeaponEffect_unk[count];
+    sEffects = new ((MemoryTag)3, "", "", 0) WeaponEffect_unk[count];
     sEffectCount = count;
     csv.SetData((const char*)data, size);
     int i = 0;

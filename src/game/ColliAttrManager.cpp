@@ -108,7 +108,7 @@ ColliAttrManager* ColliAttrManager::sInstance;
 
 ColliAttrManager* ColliAttrManager::fn_801839FC(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (12, "", "", 0) ColliAttrManager(parent);
+        sInstance = new ((MemoryTag)12, "", "", 0) ColliAttrManager(parent);
     }
     return sInstance;
 }

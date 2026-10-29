@@ -93,7 +93,7 @@ ShopColor* ShopColor::sInstance;
 
 ShopColor* ShopColor::fn_80586DB0(atn::Task* parent, int a, int b) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) ShopColor(parent, a, b);
+        sInstance = new ((MemoryTag)1, "", "", 0) ShopColor(parent, a, b);
     }
     return sInstance;
 }

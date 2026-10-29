@@ -46,7 +46,7 @@ extern "C" void fn_802179FC() {
                 sCount++;
             }
         }
-        sEntries = new (12, "", "", 0) MemberList_unk[sCount];
+        sEntries = new ((MemoryTag)12, "", "", 0) MemberList_unk[sCount];
         csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {

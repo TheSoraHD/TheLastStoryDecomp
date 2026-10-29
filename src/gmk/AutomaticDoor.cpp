@@ -77,7 +77,7 @@ struct ModelCamera_unk {
 };
 // inferred: inlined (its literals are @STRING@ objects in .sdata, shared with game/CharaTask.cpp)
 inline void CreateCamera_unk(atn::Model* model) {
-    model->m208.reset(new (6, "", "", 0) ModelCamera_unk());
+    model->m208.reset(new ((MemoryTag)6, "", "", 0) ModelCamera_unk());
 }
 // inferred: screen data of a sphere (result of fn_800C122C); names invented
 struct ScreenInfo_unk {
@@ -142,7 +142,7 @@ namespace gmk {
 
 GimmickCommon* AutomaticDoor::fn_803F471C(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) AutomaticDoor(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) AutomaticDoor(parent, id, arg);
     }
     return 0;
 }

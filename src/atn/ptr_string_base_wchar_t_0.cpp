@@ -35,7 +35,7 @@ extern "C" wchar_t* lbl_8087F1E0;       // inferred: buffer holding all the text
 
 void TextTable_unk::fn_8020C028() {
     if (lbl_8087F1E4 == 0) {
-        lbl_8087F1E4 = new (1, "", "", 0) TextTable_unk;
+        lbl_8087F1E4 = new ((MemoryTag)1, "", "", 0) TextTable_unk;
     }
 }
 
@@ -68,7 +68,7 @@ TextTable_unk::TextTable_unk() {
         }
     } while (csv1.fn_8005BBF8());
 
-    lbl_8087F1E0 = new (1, "", "", 0) wchar_t[total];
+    lbl_8087F1E0 = new ((MemoryTag)1, "", "", 0) wchar_t[total];
     csv0.SetData((const wchar_t*)data0, size0 / 2);
     csv1.SetData((const wchar_t*)data1, size1 / 2);
 

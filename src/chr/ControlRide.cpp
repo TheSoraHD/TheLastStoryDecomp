@@ -85,7 +85,7 @@ boost::function<void()> ControlRideBeast::vf10() {
     if (mRider != 0 && mRider->mC58.mC0 == 0) {
         return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
     }
-    ControlRide* next = new (0, "", "", 0) ControlRide(mChara, mRider);
+    ControlRide* next = new ((MemoryTag)0, "", "", 0) ControlRide(mChara, mRider);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
 

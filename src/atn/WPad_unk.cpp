@@ -53,7 +53,7 @@ void fn_800DDA34(int chan, int reason) {
 // inferred: creates the manager
 void fn_800DDA70() {
     if (lbl_8087F018 == 0) {
-        lbl_8087F018 = new (1, "", "", 0) WPad_unk;
+        lbl_8087F018 = new ((MemoryTag)1, "", "", 0) WPad_unk;
     }
 }
 

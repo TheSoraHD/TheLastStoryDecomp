@@ -59,7 +59,7 @@ namespace gmk {
 
 GimmickCommon* FloatingBox::fn_8042C21C(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) FloatingBox(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) FloatingBox(parent, id, arg);
     }
     return 0;
 }

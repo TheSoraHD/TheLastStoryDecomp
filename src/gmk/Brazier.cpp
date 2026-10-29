@@ -145,14 +145,14 @@ namespace gmk {
 
 GimmickCommon* Brazier::fn_80406754(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) Brazier(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) Brazier(parent, id, arg);
     }
     return 0;
 }
 
 GimmickCommon* Brazier::fn_804067D8(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        Brazier* brazier = new (12, "", "", 0) Brazier(parent, desc->mId, desc->mArg);
+        Brazier* brazier = new ((MemoryTag)12, "", "", 0) Brazier(parent, desc->mId, desc->mArg);
         if (brazier != 0) {
             brazier->m6C = desc->mPos;
             brazier->m78 = atn::Vector3(0.0f, desc->mRotY, 0.0f);

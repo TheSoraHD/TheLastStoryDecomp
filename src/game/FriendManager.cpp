@@ -7,7 +7,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 FriendManager* FriendManager::fn_80365464(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (3, "", "", 0) FriendManager(parent);
+        sInstance = new ((MemoryTag)3, "", "", 0) FriendManager(parent);
     }
     return sInstance;
 }

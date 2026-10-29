@@ -29,7 +29,7 @@ namespace gmk {
 
 GimmickCommon* CharaObj::fn_8042CE30(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) CharaObj(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) CharaObj(parent, id, arg);
     }
     return 0;
 }
@@ -99,7 +99,7 @@ void CharaObj::vf20() {
             if (fn_8006AA20(path) != 0) {
                 {
                     std::string name(path);
-                    mChara = this != 0 ? new (1, lbl_8087DFC4, lbl_8087DFC0, 0) GmkChara(this, name) : 0;
+                    mChara = this != 0 ? new ((MemoryTag)1, lbl_8087DFC4, lbl_8087DFC0, 0) GmkChara(this, name) : 0;
                 }
                 mChara->fn_800D246C(1);
             }

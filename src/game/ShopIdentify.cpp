@@ -146,7 +146,7 @@ ShopIdentify* ShopIdentify::sInstance;
 
 ShopIdentify* ShopIdentify::fn_80588684(atn::Task* parent, int a, int b) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) ShopIdentify(parent, a, b);
+        sInstance = new ((MemoryTag)1, "", "", 0) ShopIdentify(parent, a, b);
     }
     return sInstance;
 }

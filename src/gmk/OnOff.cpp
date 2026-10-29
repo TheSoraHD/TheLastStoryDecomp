@@ -168,14 +168,14 @@ namespace gmk {
 
 GimmickCommon* OnOff::fn_803F744C(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) OnOff(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) OnOff(parent, id, arg);
     }
     return 0;
 }
 
 GimmickCommon* OnOff::fn_803F74D0(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        OnOff* onoff = new (12, "", "", 0) OnOff(parent, desc->mId + desc->m20, desc->mArg);
+        OnOff* onoff = new ((MemoryTag)12, "", "", 0) OnOff(parent, desc->mId + desc->m20, desc->mArg);
         if (onoff != 0) {
             onoff->m6C = desc->mPos;
             onoff->m78 = atn::Vector3(0.0f, desc->mRotY, 0.0f);

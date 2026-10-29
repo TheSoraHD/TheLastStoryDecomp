@@ -6,7 +6,7 @@ extern "C" char* strcpy(char* dst, const char* src);
 
 GameLoadBackground* GameLoadBackground::fn_803B33F8(atn::Task* parent) {
     if (parent != 0) {
-        return new (1, "", "", 0) GameLoadBackground(parent);
+        return new ((MemoryTag)1, "", "", 0) GameLoadBackground(parent);
     }
     return 0;
 }

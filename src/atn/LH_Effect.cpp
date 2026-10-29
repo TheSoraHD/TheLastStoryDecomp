@@ -142,7 +142,7 @@ void LoadEffect::vf0C() {
         fn_8022D754(entry);
         std::string name = fn_8006D008(fn_8006D008(dir, "/"), entry->mName);
         if (entry->mType == 1) {
-            EffectModel_unk* model = new (7, "", "", 0) EffectModel_unk(0x2000001);
+            EffectModel_unk* model = new ((MemoryTag)7, "", "", 0) EffectModel_unk(0x2000001);
             if (strcmp(entry->mTexture, "") != 0) {
                 std::string texture = fn_8006D008(fn_8006D008(dir, "/"), entry->mTexture);
                 fn_8008AD4C(model, name.c_str(), texture.c_str());
@@ -151,7 +151,7 @@ void LoadEffect::vf0C() {
             }
             mData.mObjects[i] = model;
         } else if (entry->mType == 2) {
-            EffectTexturePair_unk* pair = new (7, "", "", 0) EffectTexturePair_unk;
+            EffectTexturePair_unk* pair = new ((MemoryTag)7, "", "", 0) EffectTexturePair_unk;
             if (strlen(entry->mName) != 0) {
                 fn_800D5908(&pair->m00, name.c_str());
             }
@@ -164,7 +164,7 @@ void LoadEffect::vf0C() {
             mData.mObjects[i] = pair;
         } else if (strlen(entry->mName) != 0) {
             fn_8006AD24(name, "texture");
-            Texture_unk* texture = new (7, "", "", 0) Texture_unk;
+            Texture_unk* texture = new ((MemoryTag)7, "", "", 0) Texture_unk;
             fn_800D5908(texture, name.c_str());
             texture->m2D = 1;
             texture->m2E = 1;

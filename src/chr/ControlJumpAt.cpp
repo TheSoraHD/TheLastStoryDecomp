@@ -69,7 +69,7 @@ int ControlJumpAt::vf0C() {
     mChara->mRot = rot;
     float cur = motion->mTracks[0].m08;
     if (cur >= motion->fn_80097D7C(0)) {
-        ControlGrappled* next = new (0, "", "", 0) ControlGrappled(mTarget, mChara);
+        ControlGrappled* next = new ((MemoryTag)0, "", "", 0) ControlGrappled(mTarget, mChara);
         ((CharaTask*)mTarget)->fn_80178208(next);
         return 1;
     }
@@ -79,7 +79,7 @@ int ControlJumpAt::vf0C() {
 // NONMATCHING: 95.0% (scheduling only) - in the inlined ControlGrapple constructor the original
 // reads mTarget after storing the ControlBase part, as in chr::ControlRideBeast::vf10.
 boost::function<void()> ControlJumpAt::vf10() {
-    ControlGrapple* next = new (0, "", "", 0) ControlGrapple(mChara, mTarget);
+    ControlGrapple* next = new ((MemoryTag)0, "", "", 0) ControlGrapple(mChara, mTarget);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
 
@@ -155,7 +155,7 @@ int ControlGrappled::vf0C() {
         mCount--;
     }
     if (mCount <= 0) {
-        ControlGrappleThrown* next = new (0, "", "", 0) ControlGrappleThrown(mHolder, mChara);
+        ControlGrappleThrown* next = new ((MemoryTag)0, "", "", 0) ControlGrappleThrown(mHolder, mChara);
         ((CharaTask*)mHolder)->fn_80178208(next);
         return 1;
     }
@@ -199,7 +199,7 @@ boost::function<void()> ControlGrappled::vf10() {
         dir.fn_80011410(*(atn::Matrix3x4*)mtx);
         return boost::bind(&CharaTask::fn_8015E4B0, mChara, dir, -1);
     }
-    ControlGrappledThrow* next = new (0, "", "", 0) ControlGrappledThrow(mChara, mHolder);
+    ControlGrappledThrow* next = new ((MemoryTag)0, "", "", 0) ControlGrappledThrow(mChara, mHolder);
     return boost::bind(&CharaTask::fn_80178208, mChara, next);
 }
 

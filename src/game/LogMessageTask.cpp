@@ -32,7 +32,7 @@ LogMessageTask* LogMessageTask::sInstance;
 
 LogMessageTask* LogMessageTask::fn_80478714(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (3, "", "", 0) LogMessageTask(parent);
+        sInstance = new ((MemoryTag)3, "", "", 0) LogMessageTask(parent);
     }
     return sInstance;
 }

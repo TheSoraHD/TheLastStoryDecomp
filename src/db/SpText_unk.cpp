@@ -99,8 +99,8 @@ static wchar_t* sTextTexts;
 // subscript of sTypes fixed part of it
 extern "C" void fn_8021B060() {
     atn::CsvU csv;
-    sTypes = new (3, "", "", 0) SpString_unk[0x49];
-    sConds = new (3, "", "", 0) SpString_unk[0x1B];
+    sTypes = new ((MemoryTag)3, "", "", 0) SpString_unk[0x49];
+    sConds = new ((MemoryTag)3, "", "", 0) SpString_unk[0x1B];
     if (sTypeTexts == 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sTypesFileName, &size, 0x20);
@@ -113,7 +113,7 @@ extern "C" void fn_8021B060() {
             csv.fn_8005B9CC();
             length += wcslen(csv.fn_8005B9CC()) + 1;
         }
-        sTypeTexts = new (12, "", "", 0) wchar_t[length];
+        sTypeTexts = new ((MemoryTag)12, "", "", 0) wchar_t[length];
         int pos = 0;
         int i = 0;
         csv.SetData((const wchar_t*)data, (int)size / 2);
@@ -208,7 +208,7 @@ extern "C" void fn_8021B2F8() {
         if (count > 0) {
             sCondValues6.Resize_unk(count, 0);
         }
-        sCondTexts = new (12, "", "", 0) wchar_t[length];
+        sCondTexts = new ((MemoryTag)12, "", "", 0) wchar_t[length];
         int pos = 0;
         int part = 0;
         int i = 0;
@@ -401,8 +401,8 @@ extern "C" void fn_8021C3F4() {
         length += wcslen(csv.fn_8005B9CC()) + 1;
         sTextCount++;
     }
-    sTextTexts = new (12, "", "", 0) wchar_t[length];
-    sTexts = new (3, "", "", 0) SpText_unk[sTextCount];
+    sTextTexts = new ((MemoryTag)12, "", "", 0) wchar_t[length];
+    sTexts = new ((MemoryTag)3, "", "", 0) SpText_unk[sTextCount];
     int i = 0;
     int pos = 0;
     csv.SetData((const wchar_t*)data, (int)size / 2);

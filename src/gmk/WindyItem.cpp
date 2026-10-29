@@ -39,7 +39,7 @@ namespace gmk {
 
 GimmickCommon* WindyItem::fn_80436E34(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) WindyItem(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) WindyItem(parent, id, arg);
     }
     return 0;
 }

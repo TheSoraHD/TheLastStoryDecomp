@@ -11,7 +11,7 @@ Section::Section(Cut* cut, int index) : mCut(cut), m0C(0), m10(0), m14(1) {}
 // (the original keeps max_size() in a register and divides it at run time, and keeps an
 // unreachable copy of the fast path after the length check).
 Channel* Section::fn_8053C788() {
-    boost::shared_ptr<Channel> channel(new (4, "", "", 0) Channel(this));
+    boost::shared_ptr<Channel> channel(new ((MemoryTag)4, "", "", 0) Channel(this));
     mChannels.push_back(channel);
     return mChannels[mChannels.size() - 1].get();
 }

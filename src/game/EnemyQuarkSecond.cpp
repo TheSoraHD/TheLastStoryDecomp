@@ -1,6 +1,7 @@
 #include "game/EnemyQuarkSecond.h"
 #include "atn/ColliBase.h"
 #include "game/GimmickCommon.h"
+#include "gmk/SparkCube.h"
 #include "game/GimmickManager.h"
 #include "atn/Keyboard.h"
 #include "atn/Csv.h"
@@ -1057,7 +1058,7 @@ void EnemyQuarkSecond::fn_80344454(int msg, int notify, float radius, float angl
                 }
             }
             if (dist <= 2.0f * radius && g->m54 == 3) {
-                *(float*)((char*)g + 0x920) = 0.0f; // inferred: field of the gimmicks 48001/48004 (class unknown)
+                ((gmk::SparkCube*)g)->mTimer = 0.0f; // inferred: the gimmicks 48001/48004 are spark cubes (gm048)
             }
         }
     }

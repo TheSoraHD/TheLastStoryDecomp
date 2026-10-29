@@ -63,7 +63,7 @@ extern "C" void fn_8020FDEC() {
                 sCount++;
             }
         }
-        sEntries = new (3, "", "", 0) HateParamEntry_unk[sCount];
+        sEntries = new ((MemoryTag)3, "", "", 0) HateParamEntry_unk[sCount];
         csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {

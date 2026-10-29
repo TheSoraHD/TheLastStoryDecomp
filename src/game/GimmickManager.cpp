@@ -100,7 +100,7 @@ public:
     }
 
     static LoadSeTableTask* Create(atn::Task* parent, const char* path, SeTableCallback_unk callback) {
-        return new (1, "", "", 0) LoadSeTableTask(parent, path, callback);
+        return new ((MemoryTag)1, "", "", 0) LoadSeTableTask(parent, path, callback);
     }
 
     atn::LH_Binary mLoader;        // 0x48
@@ -112,7 +112,7 @@ GimmickManager* GimmickManager::instance_; // 0x8087F4A0
 
 GimmickManager* GimmickManager::SetTask(atn::Task* parent) {
     if (GimmickManager::instance_ == 0) {
-        GimmickManager::instance_ = new (12, "", "", 0) GimmickManager(parent);
+        GimmickManager::instance_ = new ((MemoryTag)12, "", "", 0) GimmickManager(parent);
     }
     return GimmickManager::instance_;
 }

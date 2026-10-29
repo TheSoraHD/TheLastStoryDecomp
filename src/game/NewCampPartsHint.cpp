@@ -169,7 +169,7 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
 
 NewCampPartsHint* NewCampPartsHint::fn_80514720(atn::Task* parent) {
     if (parent != 0) {
-        return new (1, "", "", 0) NewCampPartsHint(parent);
+        return new ((MemoryTag)1, "", "", 0) NewCampPartsHint(parent);
     }
     return 0;
 }
@@ -180,7 +180,7 @@ NewCampPartsHint::NewCampPartsHint(atn::Task* parent)
     m98 = "hint_board";
     m4C = 12;
     if (m4C > 0) {
-        m50.Reset_unk(new (1, "", "", 0) NewCampPartsEntry_unk[m4C]);
+        m50.Reset_unk(new ((MemoryTag)1, "", "", 0) NewCampPartsEntry_unk[m4C]);
         fn_8050FB38(this, m4C, &m50[0], sFiles, 0, 0);
         fn_8050FC88(this, m4C, &m50[0], 1);
     }

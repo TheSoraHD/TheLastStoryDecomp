@@ -19,7 +19,7 @@ namespace gmk {
 
 GimmickCommon* TodomeCountUp::fn_8042F0B4(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) TodomeCountUp(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) TodomeCountUp(parent, desc);
     }
     return 0;
 }

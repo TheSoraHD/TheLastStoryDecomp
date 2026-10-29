@@ -73,7 +73,7 @@ static const char* const sSe[4] = {0, "SE_DG009_007", "SE_DG009_007", 0};
 
 ArenaTask* ArenaTask::fn_8004318C(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (12, "", "", 0) ArenaTask(parent);
+        sInstance = new ((MemoryTag)12, "", "", 0) ArenaTask(parent);
     }
     return sInstance;
 }

@@ -215,7 +215,7 @@ T* Loader::Get_unk(const char* path, int cached) {
         core = Find_unk(hash);
     }
     if (core == 0) {
-        core = new (2, "", "", 0) T(fullPath);
+        core = new ((MemoryTag)2, "", "", 0) T(fullPath);
         if (fn_8046C3FC(core) != 0) {
             mList.push_back(core);
         } else {

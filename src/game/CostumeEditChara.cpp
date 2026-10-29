@@ -104,7 +104,7 @@ inline void __MtxScale_unk(atn::Matrix3x4& m, const atn::Vector3& s) {
 
 CostumeEditChara* CostumeEditChara::fn_801E7FF8(atn::Task* parent, CharaTask* chara, int face) {
     if (parent != 0) {
-        return new (1, "", "", 0) CostumeEditChara(parent, chara, face);
+        return new ((MemoryTag)1, "", "", 0) CostumeEditChara(parent, chara, face);
     }
     return 0;
 }

@@ -356,7 +356,7 @@ extern "C" void fn_8020CC64(atn::Model* model, OptionParts_unk* parts, OptionCol
             memcpy(layers[k].mColor, group->mLayers[k].mColor, sizeof(layers[k].mColor));
         }
         atn::CompositeIntensityTintMulti* compositor =
-            new (6, "", "", 0) atn::CompositeIntensityTintMulti(base.c_str(), layers, group->mCount);
+            new ((MemoryTag)6, "", "", 0) atn::CompositeIntensityTintMulti(base.c_str(), layers, group->mCount);
         fn_80095750(model, name.c_str(), compositor);
     }
 }
@@ -442,7 +442,7 @@ static inline int FindSlotName_unk(const char* name) {
 // slot search differently
 extern "C" void fn_8020D688() {
     if (sLevels == 0) {
-        sLevels = new (1, "", "", 0) OptionLevelTable_unk;
+        sLevels = new ((MemoryTag)1, "", "", 0) OptionLevelTable_unk;
     }
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, "database/cosedit/option/option_parts.csv", &size, 0x20);
@@ -492,7 +492,7 @@ extern "C" OptionLevelList_unk* fn_8020DB18(int letter, int slot) {
 // inferred: loads database/cosedit/option/pc_set_<letter>_level.csv
 extern "C" void fn_8020DB58() {
     if (sSets == 0) {
-        sSets = new (1, "", "", 0) OptionSetTable_unk;
+        sSets = new ((MemoryTag)1, "", "", 0) OptionSetTable_unk;
     }
     int section = -1;
     int row = 0;

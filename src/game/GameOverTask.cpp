@@ -255,7 +255,7 @@ extern "C" GameOverTask* lbl_8087F440;
 // inferred: creates the instance
 extern "C" GameOverTask* fn_80376B68(atn::Task* parent, int mode) {
     if (parent != 0 && lbl_8087F440 == 0) {
-        lbl_8087F440 = new (1, "", "", 0) GameOverTask(parent, mode);
+        lbl_8087F440 = new ((MemoryTag)1, "", "", 0) GameOverTask(parent, mode);
     }
     return lbl_8087F440;
 }

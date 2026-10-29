@@ -33,7 +33,7 @@ struct D2A_TextEntries_unk {
         }
         mCount = count;
         if (count != 0) {
-            mEntries = new (8, "", "", 0) D2A_TextEntry_unk[count];
+            mEntries = new ((MemoryTag)8, "", "", 0) D2A_TextEntry_unk[count];
         } else {
             mEntries = 0;
         }
@@ -164,7 +164,7 @@ extern "C" void fn_801F36C8(D2A_MessageTable_unk* table, const wchar_t* text, in
         lines.push_back(line);
     } while (csv.fn_8005BBF8());
     table->mEntries.Alloc(lines.size());
-    table->mText = new (8, "", "", 0) wchar_t[total];
+    table->mText = new ((MemoryTag)8, "", "", 0) wchar_t[total];
     int pos = 0;
     for (unsigned int i = 0; i < table->mEntries.mCount; i++) {
         table->mEntries.mEntries[i].mId = lines[i].mId;

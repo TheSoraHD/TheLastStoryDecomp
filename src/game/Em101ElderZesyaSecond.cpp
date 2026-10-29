@@ -157,7 +157,7 @@ Em101ElderZesyaSecond::Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* i
     m155C.LoadRequest("ef_bs067a.efp");
     m1568.LoadRequest("ef_bs067b.efp");
     m1574.LoadRequest("ef_ui002b.efp");
-    m121C.reset(new (1, "", "", 0) atn::EfpFile());
+    m121C.reset(new ((MemoryTag)1, "", "", 0) atn::EfpFile());
     m121C->LoadRequest("ef_bu013.efp");
     m14FC[0] = 0x5E6;
     mFlagB5 = 1;
@@ -619,7 +619,7 @@ void Em101ElderZesyaSecond::fn_8025BF58() {
         fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
         m58C = 0;
         fn_8016E970(3);
-        void* p = ::operator new(0x34, 0, "", "", 0);
+        void* p = ::operator new(0x34, (MemoryTag)0, "", "", 0);
         chr::ControlBase* c = (chr::ControlBase*)p;
         if (p != 0) {
             c = fn_801C02F4(p, this);

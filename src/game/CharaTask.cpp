@@ -546,7 +546,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
     mFlag26 = 1;
     mStatus.mChara = this;
     mStatus.fn_8013459C();
-    m1394 = new (3, "", "", 0) CharaSub_unk(this);
+    m1394 = new ((MemoryTag)3, "", "", 0) CharaSub_unk(this);
     mRoute.mChara = this;
     mC58.m0C.mChara = this;
     memset(m13B8, 0, sizeof(m13B8));
@@ -605,7 +605,7 @@ struct ModelCamera_unk {
 };
 // inferred: inlined in fn_8013655C (its literals are @STRING@ objects in .sdata); name invented
 inline void CreateCamera_unk(atn::Model* model) {
-    model->m208.reset(new (6, "", "", 0) ModelCamera_unk());
+    model->m208.reset(new ((MemoryTag)6, "", "", 0) ModelCamera_unk());
 }
 
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
@@ -913,10 +913,10 @@ void CharaTask::fn_801371AC() {
                 m98.vf0C(csv.fn_8005B9CC());
             }
         } else if (strcmp(key, "EFP") == 0) {
-            m121C.reset(new (1, "", "", 0) atn::EfpFile());
+            m121C.reset(new ((MemoryTag)1, "", "", 0) atn::EfpFile());
             m121C->LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(key, "EQUIP") == 0) {
-            m6A4.PushBack_unk(new (1, "", "", 0) EquipItemData(&csv));
+            m6A4.PushBack_unk(new ((MemoryTag)1, "", "", 0) EquipItemData(&csv));
         } else if (strcmp(key, "PROTECTOR") == 0) {
             int slot = fn_8020EE8C(csv.fn_8005B9CC());
             char name[0x100];
@@ -934,7 +934,7 @@ void CharaTask::fn_801371AC() {
                 }
                 fn_8014FF9C(slot, fn_8044D208(Inventory::instance_, slot, m50), equipped);
             } else {
-                chr::CharaEquip_unk* equip = new (0, "", "", 0) chr::CharaEquip_unk(slot, -1, 0, this, 0, 0, 0, 1, 1);
+                chr::CharaEquip_unk* equip = new ((MemoryTag)0, "", "", 0) chr::CharaEquip_unk(slot, -1, 0, this, 0, 0, 0, 1, 1);
                 std::string path(name);
                 equip->fn_80563A1C(path.c_str());
                 if (m680[slot] != 0) {
@@ -1091,7 +1091,7 @@ void CharaTask::fn_80138528() {
             } else if (strcmp(key, "WAIT_OFFSET") == 0) {
                 m12C0 = atoi(csv.fn_8005B9CC());
             } else if (strcmp(key, "EFP") == 0) {
-                m121C.reset(new (1, "", "", 0) atn::EfpFile());
+                m121C.reset(new ((MemoryTag)1, "", "", 0) atn::EfpFile());
                 m121C->LoadRequest(csv.fn_8005B9CC());
             }
         } while (csv.fn_8005BBF8());
@@ -1222,7 +1222,7 @@ void CharaTask::fn_80139560() {
                 if (fn_801231D0(fn_800F52F8()->fn_80116BAC(), 0x1F)) {
                     fn_801750FC();
                 } else if (fn_801231D0(fn_800F52F8()->fn_80116BAC(), 0x20)) {
-                    fn_80178208(new (0, "", "", 0) chr::ControlCannonTarget(this));
+                    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCannonTarget(this));
                     return;
                 }
             } else if (fn_80139EB0()) {
@@ -2519,7 +2519,7 @@ static bool IsPushingChara_unk(CharaTask* chara) {
 // inferred: name invented; inlined into fn_8013CB68 (the extra inline level gives the ptmf
 // temporaries of this chain the stack slots of the target)
 static void StartPushedAvoid_unk(CharaTask* chara, const atn::Vector3& dir, CharaTask* other) {
-    chara->fn_80178208(new (0, "", "", 0) chr::ControlPushedAvoid(chara, dir, other));
+    chara->fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlPushedAvoid(chara, dir, other));
 }
 
 // NONMATCHING: ~86% exact-opcode (98.6% ignoring registers and stack offsets; same 3678 instructions and
@@ -6085,7 +6085,7 @@ void CharaTask::fn_8014C540() {
         mFB4 = 0;
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->m56D4 == 0 && mF94 > 0 && !mFlag23 && --mF94 == 0) {
-        chr::ControlCdnStone* control = new (0, "", "", 0) chr::ControlCdnStone(this, 0);
+        chr::ControlCdnStone* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnStone(this, 0);
         fn_80178208(control);
     }
     if (mFlag8 && mF9C > 0) {
@@ -6811,7 +6811,7 @@ void CharaTask::fn_8014FF9C(int slot, int id, int arg) {
         }
     }
     // inferred: the fifth argument of the constructor is a pointer (declared int)
-    m680[slot] = new (0, "", "", 0) chr::CharaEquip_unk(slot, id, index, this, (int)data, 0, arg, 1, 1);
+    m680[slot] = new ((MemoryTag)0, "", "", 0) chr::CharaEquip_unk(slot, id, index, this, (int)data, 0, arg, 1, 1);
     if (slot == 0) {
         fn_8014FD30();
     }
@@ -8192,17 +8192,17 @@ public:
 } // namespace chr
 
 void CharaTask::fn_80154EC4(const atn::Vector3& pos, int link) {
-    fn_80178208(new (0, "", "", 0) chr::ControlSwatTurn(this, pos, link));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlSwatTurn(this, pos, link));
 }
 
 void CharaTask::fn_801551AC() {
-    fn_80178208(new (0, "", "", 0) chr::ControlCoverSlip(this));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCoverSlip(this));
 }
 
 // inferred: the parameter is read by the body, so the symbol vf74__9CharaTaskFv (in symbols.txt)
 // has the wrong signature.
 void CharaTask::vf74(int arg) {
-    fn_80178208(new (0, "", "", 0) chr::Control801C041C_unk(this, arg, 1.0f));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::Control801C041C_unk(this, arg, 1.0f));
 }
 
 // inferred: control launcher with no caller left in the game (stripped by the linker); only the
@@ -8214,10 +8214,10 @@ void CharaTask::Stripped1_unk() {
 
 // inferred: the argument is a direction (fn_8013A4E8 passes a rotated vector)
 void CharaTask::fn_80155790(const atn::Vector3& dir) {
-    fn_80178208(new (0, "", "", 0) chr::ControlDive(this, dir));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDive(this, dir));
 }
 void CharaTask::fn_80155A88(const atn::Vector3& dir, int a) {
-    fn_80178208(new (0, "", "", 0) chr::ControlBackStep(this, dir, a));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlBackStep(this, dir, a));
 }
 
 // inferred: nonzero while control 2 is running and its motion is in the first 30 frames
@@ -8341,7 +8341,7 @@ void CharaTask::fn_801562A0(HitInfo_unk* hit, const atn::Vector3& pos, int type,
         m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
     }
     if (a == 0 && (mFlag31 || lbl_8087F0A8->m260 == 0 || dist < mStatus.mParamB.m28)) {
-        fn_80178208(new (0, "", "", 0) chr::ControlAttack(this, dir));
+        fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlAttack(this, dir));
     } else if (type > 0) {
         atn::Vector3 offset = mPos + atn::Vector3::fn_8013C394(mC14, atn::Vector3(0.0f, 1.0f, 0.0f)) * 5.0f;
         offset.y = mPos.y;
@@ -8352,10 +8352,10 @@ void CharaTask::fn_801562A0(HitInfo_unk* hit, const atn::Vector3& pos, int type,
                 offset = target->mPos - mPos;
                 offset.y = 0.0f;
             }
-            fn_80178208(new (0, "", "", 0) chr::ControlJumpAttack(this, pos, offset));
+            fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlJumpAttack(this, pos, offset));
             break;
         case 2:
-            fn_80178208(new (0, "", "", 0) chr::ControlJumpAttack2(this, pos, offset));
+            fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlJumpAttack2(this, pos, offset));
             break;
         }
     } else {
@@ -8377,9 +8377,9 @@ void CharaTask::fn_801562A0(HitInfo_unk* hit, const atn::Vector3& pos, int type,
             atn::Vector3 offset = hitPos;
             offset.y = mPos.y;
             offset = offset - mPos;
-            fn_80178208(new (0, "", "", 0) chr::ControlJumpAttack(this, pos, offset));
+            fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlJumpAttack(this, pos, offset));
         } else {
-            fn_80178208(new (0, "", "", 0) chr::ControlDashAttack(this, pos));
+            fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDashAttack(this, pos));
         }
     }
 }
@@ -8409,7 +8409,7 @@ void CharaTask::fn_80157444(HitInfo_unk* hit, const atn::Vector3& pos) {
         // inferred: z-first copy called directly (dir.Assign_unk(front) swaps the address registers)
         __VecCopyZFirst(&dir.x, &front.x);
     }
-    fn_80178208(new (0, "", "", 0) chr::ControlAttackNext(this, dir));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlAttackNext(this, dir));
 }
 
 // inferred: multi attack toward `pos`
@@ -8437,7 +8437,7 @@ void CharaTask::fn_8015783C(HitInfo_unk* hit, const atn::Vector3& pos, float dis
         // inferred: z-first copy called directly (dir.Assign_unk(front) swaps the address registers)
         __VecCopyZFirst(&dir.x, &front.x);
     }
-    fn_80178208(new (0, "", "", 0) chr::ControlMultiAttack(this, dir));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMultiAttack(this, dir));
 }
 
 // inferred: side wall attack toward `pos`
@@ -8465,7 +8465,7 @@ void CharaTask::fn_80157C34(HitInfo_unk* hit, const atn::Vector3& pos) {
         // inferred: z-first copy called directly (dir.Assign_unk(front) swaps the address registers)
         __VecCopyZFirst(&dir.x, &front.x);
     }
-    fn_80178208(new (0, "", "", 0) chr::ControlSideWallAttack(this, dir));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlSideWallAttack(this, dir));
 }
 
 // inferred: swaps places with `target` (target plays motion 0x46 and is reset)
@@ -8481,10 +8481,10 @@ void CharaTask::fn_8015802C(HitInfo_unk* hit, CharaTask* target) {
     if (m648 != 0) {
         m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
     }
-    target->fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(target, 0x46, 0, 0, -1.0f, -1.0f));
+    target->fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlOneMotion(target, 0x46, 0, 0, -1.0f, -1.0f));
     target->Reset_unk(0, 1, 1, 1);
     target->m58C = 0;
-    fn_80178208(new (0, "", "", 0) chr::ControlSwapAttack(this, target));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlSwapAttack(this, target));
 }
 
 // inferred: high jump attack toward `pos`
@@ -8493,7 +8493,7 @@ void CharaTask::fn_801588A0(HitInfo_unk* hit, const atn::Vector3& pos) {
         m63C = m638;
         m638 = hit;
     }
-    fn_80178208(new (0, "", "", 0) chr::ControlHighJumpAttack(this, pos, 100.0f, 0));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlHighJumpAttack(this, pos, 100.0f, 0));
 }
 
 // inferred: nonzero when the motion of the running control has reached its end
@@ -8555,13 +8555,13 @@ atn::Vector3 CharaTask::fn_80158E1C() {
 }
 
 void CharaTask::fn_80158EF0(int a) {
-    fn_80178208(new (0, "", "", 0) chr::ControlAttackSetup(this, a));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlAttackSetup(this, a));
 }
 
 // inferred: name invented (inlined; static because its "" goes to the file pool)
 static void StartWallUp_unk(CharaTask* chara, const atn::Vector3& pos, const atn::Vector3& normal) {
     chara->m13AC = 0;
-    chara->fn_80178208(new (0, "", "", 0) chr::ControlWallUp(chara, pos, normal));
+    chara->fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlWallUp(chara, pos, normal));
 }
 
 // inferred: climbs the wall found in direction `dir`
@@ -8582,23 +8582,23 @@ void CharaTask::Stripped2_unk() {
 }
 
 void CharaTask::fn_801595BC(int a, int count, int motion, int releaseMotion) {
-    fn_80178208(new (0, "", "", 0) chr::ControlCaught(this, a, count, motion, releaseMotion));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCaught(this, a, count, motion, releaseMotion));
 }
 
 void CharaTask::fn_801598B4(int a, int b, int c) {
-    fn_80178208(new (0, "", "", 0) chr::ControlChaseCaught(this, a, b, c));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChaseCaught(this, a, b, c));
 }
 
 void CharaTask::fn_80159BA4(int a) {
-    fn_80178208(new (0, "", "", 0) chr::ControlChaseCatch(this, a));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChaseCatch(this, a));
 }
 
 void CharaTask::fn_80159E9C() {
-    fn_80178208(new (0, "", "", 0) chr::ControlChaseAssist(this));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChaseAssist(this));
 }
 
 void CharaTask::fn_8015A184() {
-    fn_80178208(new (0, "", "", 0) chr::ControlChaseFollow(this));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChaseFollow(this));
 }
 
 // inferred: knocked down along `dir` after a reset (returns to the previous state first)
@@ -8613,72 +8613,72 @@ void CharaTask::fn_8015A46C(const atn::Vector3& dir) {
 }
 
 void CharaTask::fn_8015AC48(int motion) {
-    fn_80178208(new (0, "", "", 0) chr::ControlRelease(this, motion));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlRelease(this, motion));
 }
 
 void CharaTask::fn_8015AF40(int a) {
-    fn_80178208(new (0, "", "", 0) chr::ControlMatHold(this, a));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMatHold(this, a));
 }
 
 void CharaTask::fn_8015B238() {
-    fn_80178208(new (0, "", "", 0) chr::ControlMatHoldRelease(this));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMatHoldRelease(this));
 }
 
 void CharaTask::fn_8015B520() {
-    fn_80178208(new (0, "", "", 0) chr::ControlMatHoldDamage(this));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMatHoldDamage(this));
 }
 
 void CharaTask::fn_8015B808(const atn::Vector3& dir, int a) {
-    fn_80178208(new (0, "", "", 0) chr::ControlThrown(this, dir, a));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlThrown(this, dir, a));
 }
 
 void CharaTask::fn_8015BAF0(int a, int b) {
-    chr::ControlThrownAway* control = new (0, "", "", 0) chr::ControlThrownAway(this, a, b);
+    chr::ControlThrownAway* control = new ((MemoryTag)0, "", "", 0) chr::ControlThrownAway(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015BDD8(int a, const atn::Vector3& dir) {
-    chr::ControlThrownAvoid* control = new (0, "", "", 0) chr::ControlThrownAvoid(this, a, dir);
+    chr::ControlThrownAvoid* control = new ((MemoryTag)0, "", "", 0) chr::ControlThrownAvoid(this, a, dir);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015C0C0(int a, int b) {
-    chr::ControlThreadCatch* control = new (0, "", "", 0) chr::ControlThreadCatch(this, a, b);
+    chr::ControlThreadCatch* control = new ((MemoryTag)0, "", "", 0) chr::ControlThreadCatch(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015C3A8(int a) {
-    chr::ControlThreadDead* control = new (0, "", "", 0) chr::ControlThreadDead(this, a);
+    chr::ControlThreadDead* control = new ((MemoryTag)0, "", "", 0) chr::ControlThreadDead(this, a);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015C6A0() {
-    chr::ControlThreadRelease* control = new (0, "", "", 0) chr::ControlThreadRelease(this);
+    chr::ControlThreadRelease* control = new ((MemoryTag)0, "", "", 0) chr::ControlThreadRelease(this);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015C988(int a, int b) {
-    chr::ControlAbsorbedHP* control = new (0, "", "", 0) chr::ControlAbsorbedHP(this, a, b);
+    chr::ControlAbsorbedHP* control = new ((MemoryTag)0, "", "", 0) chr::ControlAbsorbedHP(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015CC70(const atn::Vector3& a, const atn::Vector3& b, const atn::Vector3& c) {
-    chr::ControlCliffhangZanGurg* control = new (0, "", "", 0) chr::ControlCliffhangZanGurg(this, a, b, c);
+    chr::ControlCliffhangZanGurg* control = new ((MemoryTag)0, "", "", 0) chr::ControlCliffhangZanGurg(this, a, b, c);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015CF98(const atn::Vector3& a) {
-    chr::ControlEndCliffhangZanGurg* control = new (0, "", "", 0) chr::ControlEndCliffhangZanGurg(this, a);
+    chr::ControlEndCliffhangZanGurg* control = new ((MemoryTag)0, "", "", 0) chr::ControlEndCliffhangZanGurg(this, a);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015D2A0(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlStickZanGurgStand* control = new (0, "", "", 0) chr::ControlStickZanGurgStand(this, a, b);
+    chr::ControlStickZanGurgStand* control = new ((MemoryTag)0, "", "", 0) chr::ControlStickZanGurgStand(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015D5B0(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlStickZanGurgCliff* control = new (0, "", "", 0) chr::ControlStickZanGurgCliff(this, a, b);
+    chr::ControlStickZanGurgCliff* control = new ((MemoryTag)0, "", "", 0) chr::ControlStickZanGurgCliff(this, a, b);
     fn_80178208(control);
 }
 
@@ -8686,33 +8686,33 @@ void CharaTask::fn_8015D8C0(float f, const atn::Vector3& dir, int a) {
     if (m50 == 0xAAE77) {
         return;
     }
-    chr::ControlGuard* control = new (0, "", "", 0) chr::ControlGuard(this, f, dir, a);
+    chr::ControlGuard* control = new ((MemoryTag)0, "", "", 0) chr::ControlGuard(this, f, dir, a);
     fn_80178208(control);
 }
 
 void CharaTask::vf7C(int arg) {
-    chr::ControlGuarded* control = new (0, "", "", 0) chr::ControlGuarded(this, arg);
+    chr::ControlGuarded* control = new ((MemoryTag)0, "", "", 0) chr::ControlGuarded(this, arg);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015DEC0(int a) {
-    chr::ControlGuardCounter* control = new (0, "", "", 0) chr::ControlGuardCounter(this, a);
+    chr::ControlGuardCounter* control = new ((MemoryTag)0, "", "", 0) chr::ControlGuardCounter(this, a);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015E1B8(const atn::Vector3& dir) {
-    chr::ControlAvoid* control = new (0, "", "", 0) chr::ControlAvoid(this, dir);
+    chr::ControlAvoid* control = new ((MemoryTag)0, "", "", 0) chr::ControlAvoid(this, dir);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015E4B0(const atn::Vector3& dir, int arg) {
-    chr::ControlDamage* control = new (0, "", "", 0) chr::ControlDamage(this, dir, arg);
+    chr::ControlDamage* control = new ((MemoryTag)0, "", "", 0) chr::ControlDamage(this, dir, arg);
     fn_80178208(control);
     m638 = 0;
 }
 
 void CharaTask::fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2) {
-    chr::ControlKnockdown* control = new (0, "", "", 0) chr::ControlKnockdown(this, dir, arg, arg2);
+    chr::ControlKnockdown* control = new ((MemoryTag)0, "", "", 0) chr::ControlKnockdown(this, dir, arg, arg2);
     fn_80178208(control);
     m638 = 0;
     if (mFlag28 && lbl_8087F430 != 0) {
@@ -8767,16 +8767,16 @@ int CharaTask::fn_8015EB2C() {
 }
 
 void CharaTask::fn_8015ECC4() {
-    chr::ControlGetUp* control = new (0, "", "", 0) chr::ControlGetUp(this);
+    chr::ControlGetUp* control = new ((MemoryTag)0, "", "", 0) chr::ControlGetUp(this);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8015EFAC(int arg) {
     if ((unsigned int)(m60->m24 - 2) <= 1) {
-        chr::ControlRevivalSkelton* control = new (0, "", "", 0) chr::ControlRevivalSkelton(this, 60);
+        chr::ControlRevivalSkelton* control = new ((MemoryTag)0, "", "", 0) chr::ControlRevivalSkelton(this, 60);
         fn_80178208(control);
     } else {
-        chr::ControlRevival* control = new (0, "", "", 0) chr::ControlRevival(this, arg);
+        chr::ControlRevival* control = new ((MemoryTag)0, "", "", 0) chr::ControlRevival(this, arg);
         fn_80178208(control);
     }
 }
@@ -8914,7 +8914,7 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
         m63C = m638;
         fn_801603CC(1.0f, false);
     } else {
-        chr::ControlChant* control = new (0, "", "", 0) chr::ControlChant(this, mF7C, mF6C, (int)mFBC, mF78);
+        chr::ControlChant* control = new ((MemoryTag)0, "", "", 0) chr::ControlChant(this, mF7C, mF6C, (int)mFBC, mF78);
         fn_80178208(control);
     }
 }
@@ -8974,111 +8974,111 @@ void CharaTask::fn_8016034C() {
 }
 
 void CharaTask::fn_801603CC(float f, bool b) {
-    chr::ControlMagic* control = new (0, "", "", 0) chr::ControlMagic(this, mF7C, f, mF6C, b);
+    chr::ControlMagic* control = new ((MemoryTag)0, "", "", 0) chr::ControlMagic(this, mF7C, f, mF6C, b);
     fn_80178208(control);
 }
 
 void CharaTask::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
     if ((unsigned int)(m60->m24 - 2) <= 1) {
-        chr::ControlAppearSkelton* control = new (0, "", "", 0) chr::ControlAppearSkelton(this, pos);
+        chr::ControlAppearSkelton* control = new ((MemoryTag)0, "", "", 0) chr::ControlAppearSkelton(this, pos);
         fn_80178208(control);
     } else if (m60->m24 == 0x2C) {
-        chr::ControlAppearCoffin* control = new (0, "", "", 0) chr::ControlAppearCoffin(this, pos);
+        chr::ControlAppearCoffin* control = new ((MemoryTag)0, "", "", 0) chr::ControlAppearCoffin(this, pos);
         fn_80178208(control);
     } else if (mMotion.fn_80097D40(0x2B)) {
-        chr::ControlAppear* control = new (0, "", "", 0) chr::ControlAppear(this, pos, offset);
+        chr::ControlAppear* control = new ((MemoryTag)0, "", "", 0) chr::ControlAppear(this, pos, offset);
         fn_80178208(control);
     }
 }
 
 void CharaTask::vf84(int motion, float blend) {
-    chr::ControlAppearEnd* control = new (0, "", "", 0) chr::ControlAppearEnd(this, motion, blend);
+    chr::ControlAppearEnd* control = new ((MemoryTag)0, "", "", 0) chr::ControlAppearEnd(this, motion, blend);
     fn_80178208(control);
 }
 
 void CharaTask::fn_8016125C(const SkillRef_unk* skill, CharaTask* target, int motion, const char* name, float f) {
     chr::ControlUseSkill* control =
-        new (0, "", "", 0) chr::ControlUseSkill(this, fn_80219E6C(skill->mId), target, motion, name, f);
+        new ((MemoryTag)0, "", "", 0) chr::ControlUseSkill(this, fn_80219E6C(skill->mId), target, motion, name, f);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80161570(int motion, int a, int b, float c, float d) {
-    chr::ControlOneMotion* control = new (0, "", "", 0) chr::ControlOneMotion(this, motion, a, b, c, d);
+    chr::ControlOneMotion* control = new ((MemoryTag)0, "", "", 0) chr::ControlOneMotion(this, motion, a, b, c, d);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80161880(int motion, int target, int a) {
-    chr::ControlOneMotionTarget* control = new (0, "", "", 0) chr::ControlOneMotionTarget(this, motion, target, a);
+    chr::ControlOneMotionTarget* control = new ((MemoryTag)0, "", "", 0) chr::ControlOneMotionTarget(this, motion, target, a);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80161B70(int motion, const atn::Vector3& pos) {
-    chr::ControlOneMotionTransition* control = new (0, "", "", 0) chr::ControlOneMotionTransition(this, motion, pos);
+    chr::ControlOneMotionTransition* control = new ((MemoryTag)0, "", "", 0) chr::ControlOneMotionTransition(this, motion, pos);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80161E58() {
-    chr::ControlDuckUnderA* control = new (0, "", "", 0) chr::ControlDuckUnderA(this);
+    chr::ControlDuckUnderA* control = new ((MemoryTag)0, "", "", 0) chr::ControlDuckUnderA(this);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80162140(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlDuckUnderB* control = new (0, "", "", 0) chr::ControlDuckUnderB(this, a, b);
+    chr::ControlDuckUnderB* control = new ((MemoryTag)0, "", "", 0) chr::ControlDuckUnderB(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80162428(const atn::Vector3& rot) {
-    chr::ControlDuckJoist* control = new (0, "", "", 0) chr::ControlDuckJoist(this, rot);
+    chr::ControlDuckJoist* control = new ((MemoryTag)0, "", "", 0) chr::ControlDuckJoist(this, rot);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80162720(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlAlleyWay* control = new (0, "", "", 0) chr::ControlAlleyWay(this, a, b);
+    chr::ControlAlleyWay* control = new ((MemoryTag)0, "", "", 0) chr::ControlAlleyWay(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80162A08(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlLadder* control = new (0, "", "", 0) chr::ControlLadder(this, a, b);
+    chr::ControlLadder* control = new ((MemoryTag)0, "", "", 0) chr::ControlLadder(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80162CF0(const atn::Vector3& a, const atn::Vector3& b, float f) {
-    chr::ControlConstrict* control = new (0, "", "", 0) chr::ControlConstrict(this, a, b, f);
+    chr::ControlConstrict* control = new ((MemoryTag)0, "", "", 0) chr::ControlConstrict(this, a, b, f);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80162FE8(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlBumpHead* control = new (0, "", "", 0) chr::ControlBumpHead(this, a, b);
+    chr::ControlBumpHead* control = new ((MemoryTag)0, "", "", 0) chr::ControlBumpHead(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_801632D0(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlStepOn* control = new (0, "", "", 0) chr::ControlStepOn(this, a, b);
+    chr::ControlStepOn* control = new ((MemoryTag)0, "", "", 0) chr::ControlStepOn(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_801635B8(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlThroughRope* control = new (0, "", "", 0) chr::ControlThroughRope(this, a, b);
+    chr::ControlThroughRope* control = new ((MemoryTag)0, "", "", 0) chr::ControlThroughRope(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_801638A0(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlCrawling* control = new (0, "", "", 0) chr::ControlCrawling(this, a, b);
+    chr::ControlCrawling* control = new ((MemoryTag)0, "", "", 0) chr::ControlCrawling(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80163B88(const atn::Vector3& a, const atn::Vector3& b) {
-    chr::ControlDiveIntoWater* control = new (0, "", "", 0) chr::ControlDiveIntoWater(this, a, b);
+    chr::ControlDiveIntoWater* control = new ((MemoryTag)0, "", "", 0) chr::ControlDiveIntoWater(this, a, b);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80163E70(CharaTask* rider) {
-    chr::ControlRideBeast* control = new (0, "", "", 0) chr::ControlRideBeast(this, rider);
+    chr::ControlRideBeast* control = new ((MemoryTag)0, "", "", 0) chr::ControlRideBeast(this, rider);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80164168(int a, int b) {
-    chr::ControlBoundShade* control = new (0, "", "", 0) chr::ControlBoundShade(this, a, b, 15);
+    chr::ControlBoundShade* control = new ((MemoryTag)0, "", "", 0) chr::ControlBoundShade(this, a, b, 15);
     fn_80178208(control);
 }
 
@@ -9100,12 +9100,12 @@ void CharaTask::fn_80164454(int id, int a, int b) {
 }
 
 void CharaTask::fn_801644D4(const atn::Vector3& start, CharaTask* target) {
-    chr::ControlJumpAt* control = new (0, "", "", 0) chr::ControlJumpAt(this, start, target);
+    chr::ControlJumpAt* control = new ((MemoryTag)0, "", "", 0) chr::ControlJumpAt(this, start, target);
     fn_80178208(control);
 }
 
 void CharaTask::fn_801647BC() {
-    chr::ControlAttractHateCharge* control = new (0, "", "", 0) chr::ControlAttractHateCharge(this);
+    chr::ControlAttractHateCharge* control = new ((MemoryTag)0, "", "", 0) chr::ControlAttractHateCharge(this);
     fn_80178208(control);
     if (lbl_8087F430 != 0) {
         if (fn_80370174(lbl_8087F430, 0x135) == 0) {
@@ -9232,7 +9232,7 @@ int CharaTask::fn_80164EF4() {
 // inferred: starts chr::ControlDetect while idle (m55C 2) or detecting (control 0x2F)
 void CharaTask::fn_80164F54(int arg) {
     if (!mFlagB4 && ((m55C == 6 && m560 == 0x2F) || m55C == 2) && mMotion.mTracks[0].m00 != 0x1ED) {
-        chr::ControlDetect* control = new (0, "", "", 0) chr::ControlDetect(this, arg);
+        chr::ControlDetect* control = new ((MemoryTag)0, "", "", 0) chr::ControlDetect(this, arg);
         fn_80178208(control);
     }
 }
@@ -9277,7 +9277,7 @@ void CharaTask::fn_80165284(CharaTask* target) {
         }
     }
     if (can && ok) {
-        chr::ControlDetectHateAtt* control = new (0, "", "", 0) chr::ControlDetectHateAtt(this);
+        chr::ControlDetectHateAtt* control = new ((MemoryTag)0, "", "", 0) chr::ControlDetectHateAtt(this);
         fn_80178208(control);
     }
 }
@@ -9285,10 +9285,10 @@ void CharaTask::fn_80165284(CharaTask* target) {
 // inferred: looks around for `time` frames (kind 0x18 uses chr::ControlLookAroundEgg for 90 frames)
 void CharaTask::fn_801656A4(int time) {
     if (m60->m24 == 0x18) {
-        chr::ControlLookAroundEgg* control = new (0, "", "", 0) chr::ControlLookAroundEgg(this, 90);
+        chr::ControlLookAroundEgg* control = new ((MemoryTag)0, "", "", 0) chr::ControlLookAroundEgg(this, 90);
         fn_80178208(control);
     } else {
-        chr::ControlLookAround* control = new (0, "", "", 0) chr::ControlLookAround(this, time);
+        chr::ControlLookAround* control = new ((MemoryTag)0, "", "", 0) chr::ControlLookAround(this, time);
         fn_80178208(control);
     }
 }
@@ -9296,19 +9296,19 @@ void CharaTask::fn_801656A4(int time) {
 // inferred: shoots the bullet `id` (called from BattleCharaTask)
 void CharaTask::fn_80165C5C(int id, const atn::Vector3& a, const atn::Vector3& b) {
     if (id >= 0) {
-        chr::ControlShoot* control = new (0, "", "", 0) chr::ControlShoot(this, id, a, b);
+        chr::ControlShoot* control = new ((MemoryTag)0, "", "", 0) chr::ControlShoot(this, id, a, b);
         fn_80178208(control);
     }
 }
 
 void CharaTask::fn_80165F54(const atn::Vector3& pos) {
-    chr::ControlClimbDeck* control = new (0, "", "", 0) chr::ControlClimbDeck(this, pos);
+    chr::ControlClimbDeck* control = new ((MemoryTag)0, "", "", 0) chr::ControlClimbDeck(this, pos);
     fn_80178208(control);
 }
 
 // inferred: turns to stone (status 0x40, see CharaStatus)
 void CharaTask::fn_8016624C(int a) {
-    chr::ControlCdnStone* control = new (0, "", "", 0) chr::ControlCdnStone(this, a);
+    chr::ControlCdnStone* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnStone(this, a);
     fn_80178208(control);
 }
 
@@ -9327,17 +9327,17 @@ void CharaTask::fn_80166760() {
 }
 
 void CharaTask::fn_8016676C() {
-    chr::ControlCdnParalyzed* control = new (0, "", "", 0) chr::ControlCdnParalyzed(this);
+    chr::ControlCdnParalyzed* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnParalyzed(this);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80166A54() {
-    chr::ControlCdnRestoreParalyzed* control = new (0, "", "", 0) chr::ControlCdnRestoreParalyzed(this);
+    chr::ControlCdnRestoreParalyzed* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnRestoreParalyzed(this);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80166D3C(int a) {
-    chr::ControlCdnBetray* control = new (0, "", "", 0) chr::ControlCdnBetray(this, a, 0);
+    chr::ControlCdnBetray* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnBetray(this, a, 0);
     fn_80178208(control);
 }
 
@@ -9349,7 +9349,7 @@ void CharaTask::fn_80167038() {
 }
 
 void CharaTask::fn_80167344(int a) {
-    chr::ControlCdnBetray* control = new (0, "", "", 0) chr::ControlCdnBetray(this, a, 1);
+    chr::ControlCdnBetray* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnBetray(this, a, 1);
     fn_80178208(control);
 }
 
@@ -9361,12 +9361,12 @@ void CharaTask::fn_80167640() {
 }
 
 void CharaTask::fn_8016794C() {
-    chr::ControlCdnSleep* control = new (0, "", "", 0) chr::ControlCdnSleep(this);
+    chr::ControlCdnSleep* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnSleep(this);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80167C34() {
-    chr::ControlCdnRestoreSleep* control = new (0, "", "", 0) chr::ControlCdnRestoreSleep(this);
+    chr::ControlCdnRestoreSleep* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnRestoreSleep(this);
     fn_80178208(control);
 }
 
@@ -9418,12 +9418,12 @@ void CharaTask::fn_80168190() {
 }
 
 void CharaTask::fn_801681B0(const atn::Vector3& dir, int time, int flag) {
-    chr::ControlCdnPiyo* control = new (0, "", "", 0) chr::ControlCdnPiyo(this, dir, time, flag);
+    chr::ControlCdnPiyo* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnPiyo(this, dir, time, flag);
     fn_80178208(control);
 }
 
 void CharaTask::fn_801684A0() {
-    chr::ControlCdnRestorePiyo* control = new (0, "", "", 0) chr::ControlCdnRestorePiyo(this);
+    chr::ControlCdnRestorePiyo* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnRestorePiyo(this);
     fn_80178208(control);
 }
 
@@ -9445,12 +9445,12 @@ void CharaTask::fn_801687D8() {
 }
 
 void CharaTask::fn_80168824(int flag) {
-    chr::ControlCdnPsycho* control = new (0, "", "", 0) chr::ControlCdnPsycho(this, flag);
+    chr::ControlCdnPsycho* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnPsycho(this, flag);
     fn_80178208(control);
 }
 
 void CharaTask::fn_80168B1C() {
-    chr::ControlCdnRestorePsycho* control = new (0, "", "", 0) chr::ControlCdnRestorePsycho(this);
+    chr::ControlCdnRestorePsycho* control = new ((MemoryTag)0, "", "", 0) chr::ControlCdnRestorePsycho(this);
     fn_80178208(control);
 }
 
@@ -9530,7 +9530,7 @@ extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (ene
 // inferred: hangs from a cliff
 void CharaTask::fn_8016939C(int a, int b, float f) {
     fn_8016DA4C();
-    fn_80178208(new (0, "", "", 0) chr::ControlCliffhang(this, a, b, f));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCliffhang(this, a, b, f));
 }
 
 // inferred: leaves the cliffhang control and restores the previous state
@@ -9542,7 +9542,7 @@ void CharaTask::fn_801696E0() {
 
 // inferred: falls dead (enemies also notify BattleCharaTask)
 void CharaTask::fn_801698E4(const atn::Vector3& rot) {
-    fn_80178208(new (0, "", "", 0) chr::ControlFallDead(this, rot));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlFallDead(this, rot));
     mFlag16 = 0;
     if (mType == 2 && (m54C & 0x400) != 0x400) {
         fn_800EE360(this);
@@ -9551,19 +9551,19 @@ void CharaTask::fn_801698E4(const atn::Vector3& rot) {
 
 // inferred: drops down
 void CharaTask::vf8C(const atn::Vector3& v) {
-    fn_80178208(new (0, "", "", 0) chr::ControlDropDown(this, v));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDropDown(this, v));
 }
 
 void CharaTask::fn_80169F04(const atn::Vector3& pos, float rotY) {
-    fn_80178208(new (0, "", "", 0) chr::ControlGmkCoffinOpening(this, pos, rotY));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlGmkCoffinOpening(this, pos, rotY));
 }
 
 void CharaTask::fn_8016A20C(const atn::Vector3& pos, int alt, float rotY) {
-    fn_80178208(new (0, "", "", 0) chr::ControlGmkCoffinOpen(this, pos, alt, rotY));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlGmkCoffinOpen(this, pos, alt, rotY));
 }
 
 void CharaTask::fn_8016A504(const atn::Vector3& pos, const atn::Vector3& rot) {
-    fn_80178208(new (0, "", "", 0) chr::ControlGmkCoffinGetUp(this, pos, rot));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlGmkCoffinGetUp(this, pos, rot));
 }
 
 bool CharaTask::fn_8016A7EC() {
@@ -9574,11 +9574,11 @@ bool CharaTask::fn_8016A7EC() {
 }
 
 void CharaTask::fn_8016A814(float damage) {
-    fn_80178208(new (0, "", "", 0) chr::ControlGmkTrapBat(this, damage));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlGmkTrapBat(this, damage));
 }
 
 void CharaTask::fn_8016AB0C(chr::GmkTarget_unk* target, void* arg) {
-    fn_80178208(new (0, "", "", 0) chr::ControlGmkBreakArmor(this, target, arg));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlGmkBreakArmor(this, target, arg));
 }
 
 // inferred: same side by type (players and type 3 together); name invented
@@ -9646,11 +9646,11 @@ bool CharaTask::fn_8016AFE8(const atn::Vector3& dir) {
     if (target == 0) {
         return false;
     }
-    target->fn_80178208(new (0, "", "", 0) chr::ControlOneMotion(target, 0x46, 0, 0, -1.0f, -1.0f));
+    target->fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlOneMotion(target, 0x46, 0, 0, -1.0f, -1.0f));
     target->Reset_unk(0, 1, 1, 1);
     target->m58C = 0;
     mFC0 = target;
-    fn_80178208(new (0, "", "", 0) chr::ControlSwapPos(this, dir));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlSwapPos(this, dir));
     return true;
 }
 
@@ -9663,7 +9663,7 @@ void CharaTask::Stripped3_unk() {
 
 // inferred: pushed down along `dir` (also inlined in fn_8013CB68)
 void CharaTask::fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c) {
-    fn_80178208(new (0, "", "", 0) chr::ControlPushedDown(this, dir, a, b, c));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlPushedDown(this, dir, a, b, c));
 }
 
 // inferred: control launcher with no caller left in the game (stripped by the linker); only the
@@ -9676,7 +9676,7 @@ void CharaTask::Stripped4_unk() {
 // inferred: staggers back (motion 0x52)
 void CharaTask::fn_8016BBCC(const atn::Vector3* dir, int a, int b) {
     if (mMotion.fn_80097D40(0x52) && m139C == 0) {
-        fn_80178208(new (0, "", "", 0) chr::ControlOttotto(this, dir, a, b));
+        fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlOttotto(this, dir, a, b));
     }
 }
 
@@ -9688,7 +9688,7 @@ void CharaTask::Stripped5_unk() {
 }
 
 void CharaTask::fn_8016BEDC(CharaTask* other, atn::Vector3 v) {
-    fn_80178208(new (0, "", "", 0) chr::ControlThrust(this, other, v, 1));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlThrust(this, other, v, 1));
 }
 
 // inferred: control launcher with no caller left in the game (stripped by the linker); only the
@@ -9699,29 +9699,29 @@ void CharaTask::Stripped6_unk() {
 }
 
 void CharaTask::fn_8016C1E0(CharaTask* other) {
-    fn_80178208(new (0, "", "", 0) chr::ControlThrustForCrab(this, other));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlThrustForCrab(this, other));
 }
 
 void CharaTask::fn_8016C4D8(int a, const atn::Vector3& v) {
-    fn_80178208(new (0, "", "", 0) chr::ControlThrustForKraken(this, a, v));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlThrustForKraken(this, a, v));
 }
 
 void CharaTask::fn_8016C7D8(CharaTask* holder) {
-    fn_80178208(new (0, "", "", 0) chr::ControlStickByQuark(this, (int)holder));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlStickByQuark(this, (int)holder));
 }
 
 void CharaTask::fn_8016CAD0() {
-    fn_80178208(new (0, "", "", 0) chr::ControlAbsorbed(this));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlAbsorbed(this));
 }
 
 void CharaTask::fn_8016CDB8(int a, int b) {
-    fn_80178208(new (0, "", "", 0) chr::ControlStagger(this, a, b));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlStagger(this, a, b));
 }
 
 // inferred: slips (also inlined in fn_8013CB68)
 void CharaTask::fn_8016D0A0(int a) {
     fn_801750FC();
-    fn_80178208(new (0, "", "", 0) chr::ControlSlip(this, a));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlSlip(this, a));
 }
 
 // inferred: names invented
@@ -9751,14 +9751,14 @@ bool CharaTask::fn_8016D3F8() {
 }
 
 void CharaTask::fn_8016D454(float angle) {
-    fn_80178208(new (0, "", "", 0) chr::ControlTurnQuadruped(this, angle));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlTurnQuadruped(this, angle));
 }
 
 // inferred: charges the attack `hit`
 void CharaTask::fn_8016D74C(HitInfo_unk* hit, int a, int b) {
     if (hit != 0) {
         SetHit_unk(hit);
-        fn_80178208(new (0, "", "", 0) chr::ControlCharge(this, a, b, 0));
+        fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCharge(this, a, b, 0));
     }
 }
 
@@ -10248,12 +10248,12 @@ int CharaTask::fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest) {
 // inferred: starts chr::ControlGuardMountle (shared by fn_801720AC and fn_801725EC; name invented;
 // static so that its "" goes to the file pool)
 static void StartMountle_unk(CharaTask* chara, const atn::Vector3& dir) {
-    chara->fn_80178208(new (0, "", "", 0) chr::ControlGuardMountle(chara, dir));
+    chara->fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlGuardMountle(chara, dir));
 }
 
 // inferred: starts chr::ControlStool on `chara` (name invented; see StartMountle_unk)
 static void StartStool_unk(CharaTask* chara) {
-    chara->fn_80178208(new (0, "", "", 0) chr::ControlStool(chara));
+    chara->fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlStool(chara));
 }
 
 // inferred: route test of the mantle (nonzero if the character may climb in `dir`)
@@ -10586,7 +10586,7 @@ int CharaTask::fn_8017380C(atn::Vector3* pos, atn::Vector3* move) {
             if (mPos.y >= 90.0f) {
                 fn_801591E8(dir);
             } else {
-                fn_80178208(new (1, "", "", 0) chr::ControlWallMountle(this, -result.m28, result.m04, 0));
+                fn_80178208(new ((MemoryTag)1, "", "", 0) chr::ControlWallMountle(this, -result.m28, result.m04, 0));
             }
         }
         return 1;
@@ -10639,7 +10639,7 @@ int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
                     (result2.m3C & 0x800) == 0x800) {
                     atn::Vector3 seat = result.m04 + result.m28 * 3.0f;
                     atn::Vector3 rot = result.m28.ToRotation_unk();
-                    fn_80178208(new (1, "", "", 0) chr::ControlSitting(this, *pos, seat, rot));
+                    fn_80178208(new ((MemoryTag)1, "", "", 0) chr::ControlSitting(this, *pos, seat, rot));
                     return 1;
                 }
             }
@@ -10668,7 +10668,7 @@ int CharaTask::fn_801749EC(atn::Vector3* pos, atn::Vector3* vel) {
     from.y += 3.0f;
     to.y -= 5.0f;
     if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0) == 0) {
-        fn_80178208(new (0, "", "", 0) chr::ControlJump(this, *pos, vel->GetNormalize()));
+        fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlJump(this, *pos, vel->GetNormalize()));
         return 1;
     }
     return 0;
@@ -10691,7 +10691,7 @@ public:
 } // namespace chr
 
 void CharaTask::fn_80174E04(GimmickCommon* cannon) {
-    fn_80178208(new (0, "", "", 0) chr::ControlCannonLift(this, cannon));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCannonLift(this, cannon));
 }
 
 // inferred: CharaTask::m1208 is a gimmick (GimmickCommon: m54 state, m9C shown, vf40 message); the
@@ -10715,18 +10715,18 @@ void CharaTask::fn_801750FC() {
 
 // inferred: mF6C and mF78 are the direction and speed of the shot
 void CharaTask::fn_8017518C() {
-    fn_80178208(new (0, "", "", 0) chr::ControlCannonThrow(this, mF6C, mF78));
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCannonThrow(this, mF6C, mF78));
 }
 
 // inferred: name invented; inlined into fn_8017547C (the extra inline level gives the ptmf
 // temporaries of the second chain the stack slots of the target)
 static void StartDragged_unk(CharaTask* chara, CharaTask* dragger) {
-    chara->fn_80178208(new (0, "", "", 0) chr::ControlDraggedStart(chara, (int)dragger));
+    chara->fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDraggedStart(chara, (int)dragger));
 }
 
 void CharaTask::fn_8017547C(CharaTask* other) {
     if (other != 0 && (other->mStatus.m0C & 0x20) == 0x20) {
-        fn_80178208(new (0, "", "", 0) chr::ControlDraggingStart(this, (int)other));
+        fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDraggingStart(this, (int)other));
         StartDragged_unk(other, this);
     }
 }

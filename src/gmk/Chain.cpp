@@ -64,7 +64,7 @@ namespace gmk {
 
 GimmickCommon* Chain::fn_8043B778(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        new (12, "", "", 0) Chain(parent, desc);
+        new ((MemoryTag)12, "", "", 0) Chain(parent, desc);
     }
     return 0;
 }
@@ -158,7 +158,7 @@ void Chain::fn_8043C508() {
 // NONMATCHING: 98.8% - saved registers rotated by one (tmp/pass counters); a frsp of the copy of
 // the last delta is missing here.
 void Chain::fn_8043CA58() {
-    ChainJoint_unk* tmp = new (3, "", "", 0) ChainJoint_unk[mNumJoints];
+    ChainJoint_unk* tmp = new ((MemoryTag)3, "", "", 0) ChainJoint_unk[mNumJoints];
     for (int i = 0; i < mNumJoints; i++) {
         tmp[i] = mJoints.mData[i];
     }

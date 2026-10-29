@@ -3,7 +3,7 @@
 
 NpcTask* NpcTask::fn_80547C28(atn::Task* parent, void* data) {
     if (parent != 0) {
-        return new (3, "", "", 0) NpcTask(parent, data);
+        return new ((MemoryTag)3, "", "", 0) NpcTask(parent, data);
     }
     return 0;
 }

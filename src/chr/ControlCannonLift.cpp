@@ -234,7 +234,7 @@ int ControlCannonLift::vf0C() {
 boost::function<void()> ControlCannonLift::vf10() {
     if (m0C) {
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara,
-                           new (1, "", "", 0) ControlCannonTarget(mChara));
+                           new ((MemoryTag)1, "", "", 0) ControlCannonTarget(mChara));
     }
     return ControlBase::vf10();
 }

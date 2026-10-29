@@ -881,7 +881,7 @@ boost::function<void()> Em309GhoulSimple::vfB4(CharaTask* chara) {
     atn::Vector3 target;
     vfB0(&target);
     chara->SetHit_unk(fn_80219E6C(0x658));
-    chr::ControlThrustForGhoul* next = new (0, "", "", 0) chr::ControlThrustForGhoul(chara, this, "neck");
+    chr::ControlThrustForGhoul* next = new ((MemoryTag)0, "", "", 0) chr::ControlThrustForGhoul(chara, this, "neck");
     return boost::bind(&CharaTask::fn_80178208, chara, next);
 }
 

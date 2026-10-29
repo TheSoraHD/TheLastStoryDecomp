@@ -1150,7 +1150,7 @@ void Em403WarLion::fn_80327A64() {
     fn_80370AE4(lbl_8087F430, 0x5D, 2);
     m1598 = m14BC;
     if (m1598 != 0) {
-        m1598->fn_80178208(new (3, "", "", 0) chr::ControlMatHoldPre(m1598, this));
+        m1598->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlMatHoldPre(m1598, this));
     }
 }
 

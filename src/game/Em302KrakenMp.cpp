@@ -923,7 +923,7 @@ void Em302KrakenMp::fn_802E03F0() {
 boost::function<void()> Em302KrakenMp::vfB4(CharaTask* chara) {
     Item14_unk* it = m624.mData;
     atn::Vector3 target = it->m04.mCenter + atn::Vector3(0.0f, 1.0f, 0.0f) * mColli.m54 * 0.6f;
-    chr::ControlWallSlash* next = new (0, "", "", 0) chr::ControlWallSlash(chara, target, 0);
+    chr::ControlWallSlash* next = new ((MemoryTag)0, "", "", 0) chr::ControlWallSlash(chara, target, 0);
     return boost::bind(&CharaTask::fn_80178208, chara, next);
 }
 

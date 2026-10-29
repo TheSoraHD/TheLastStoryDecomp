@@ -334,7 +334,7 @@ void MindowsFolder::vf18(const MindowsDrawCtx_unk* ctx, int depth, int* line) {
 
 extern "C" void fn_800874C8(MindowsFolder* self, const char* name, int* value, int min, int max, int step, MindowsFunc_unk func,
                            void* arg) {
-    MindowsInt* item = new (0xE, "", "", 0) MindowsInt(self, name, value, min, max, step);
+    MindowsInt* item = new ((MemoryTag)0xE, "", "", 0) MindowsInt(self, name, value, min, max, step);
     if (item != 0) {
         item->vf2C(func, arg);
         self->Append_unk(item);
@@ -343,7 +343,7 @@ extern "C" void fn_800874C8(MindowsFolder* self, const char* name, int* value, i
 
 extern "C" void fn_800875F8(MindowsFolder* self, const char* name, unsigned int* value, unsigned int min, unsigned int max,
                             unsigned int step, MindowsFunc_unk func, void* arg) {
-    MindowsUInt* item = new (0xE, "", "", 0) MindowsUInt(self, name, value, min, max, step);
+    MindowsUInt* item = new ((MemoryTag)0xE, "", "", 0) MindowsUInt(self, name, value, min, max, step);
     if (item != 0) {
         item->vf2C(func, arg);
         self->Append_unk(item);
@@ -352,7 +352,7 @@ extern "C" void fn_800875F8(MindowsFolder* self, const char* name, unsigned int*
 
 extern "C" void fn_8008771C(MindowsFolder* self, const char* name, float* value, float min, float max, float step, MindowsFunc_unk func,
                              void* arg) {
-    MindowsFloat* item = new (0xE, "", "", 0) MindowsFloat(self, name, value, min, max, step);
+    MindowsFloat* item = new ((MemoryTag)0xE, "", "", 0) MindowsFloat(self, name, value, min, max, step);
     if (item != 0) {
         item->vf2C(func, arg);
         self->Append_unk(item);
@@ -361,7 +361,7 @@ extern "C" void fn_8008771C(MindowsFolder* self, const char* name, float* value,
 
 extern "C" void fn_80087858(MindowsFolder* self, const char* name, float* value, float min, float max, float step,
                               MindowsFunc_unk func, void* arg) {
-    MindowsRadian* item = new (0xE, "", "", 0) MindowsRadian(self, name, value, min, max, step);
+    MindowsRadian* item = new ((MemoryTag)0xE, "", "", 0) MindowsRadian(self, name, value, min, max, step);
     if (item != 0) {
         item->vf2C(func, arg);
         self->Append_unk(item);
@@ -369,7 +369,7 @@ extern "C" void fn_80087858(MindowsFolder* self, const char* name, float* value,
 }
 
 extern "C" void fn_80087994(MindowsFolder* self, const char* name, int* value, MindowsFunc_unk func, void* arg) {
-    MindowsBool* item = new (0xE, "", "", 0) MindowsBool(self, name, value);
+    MindowsBool* item = new ((MemoryTag)0xE, "", "", 0) MindowsBool(self, name, value);
     if (item != 0) {
         item->vf2C(func, arg);
         self->Append_unk(item);
@@ -378,7 +378,7 @@ extern "C" void fn_80087994(MindowsFolder* self, const char* name, int* value, M
 
 extern "C" void fn_80087AA0(MindowsFolder* self, const char* name, unsigned int* value, unsigned int mask, MindowsFunc_unk func,
                             void* arg) {
-    MindowsFlag* item = new (0xE, "", "", 0) MindowsFlag(self, name, value, mask);
+    MindowsFlag* item = new ((MemoryTag)0xE, "", "", 0) MindowsFlag(self, name, value, mask);
     if (item != 0) {
         item->vf2C(func, arg);
         self->Append_unk(item);
@@ -387,7 +387,7 @@ extern "C" void fn_80087AA0(MindowsFolder* self, const char* name, unsigned int*
 
 extern "C" void fn_80087BB4(MindowsFolder* self, const char* name, float* value, float min, float max, float step, MindowsFunc_unk func,
                             void* arg) {
-    MindowsFolder* folder = new (0xE, "", "", 0) MindowsFolder(self, name);
+    MindowsFolder* folder = new ((MemoryTag)0xE, "", "", 0) MindowsFolder(self, name);
     if (folder != 0) {
         fn_8008771C(folder, "x", value, min, max, step, func, arg);
         fn_8008771C(folder, "y", value + 1, min, max, step, func, arg);
@@ -397,7 +397,7 @@ extern "C" void fn_80087BB4(MindowsFolder* self, const char* name, float* value,
 
 extern "C" void fn_80087E9C(MindowsFolder* self, const char* name, float* value, float min, float max, float step, MindowsFunc_unk func,
                             void* arg) {
-    MindowsFolder* folder = new (0xE, "", "", 0) MindowsFolder(self, name);
+    MindowsFolder* folder = new ((MemoryTag)0xE, "", "", 0) MindowsFolder(self, name);
     if (folder != 0) {
         fn_8008771C(folder, "x", value, min, max, step, func, arg);
         fn_8008771C(folder, "y", value + 1, min, max, step, func, arg);
@@ -408,7 +408,7 @@ extern "C" void fn_80087E9C(MindowsFolder* self, const char* name, float* value,
 
 extern "C" void fn_8008826C(MindowsFolder* self, const char* name, float* value, float min, float max, float step, MindowsFunc_unk func,
                             void* arg) {
-    MindowsFolder* folder = new (0xE, "", "", 0) MindowsFolder(self, name);
+    MindowsFolder* folder = new ((MemoryTag)0xE, "", "", 0) MindowsFolder(self, name);
     if (folder != 0) {
         fn_8008771C(folder, "x", value, min, max, step, func, arg);
         fn_8008771C(folder, "y", value + 1, min, max, step, func, arg);
@@ -420,7 +420,7 @@ extern "C" void fn_8008826C(MindowsFolder* self, const char* name, float* value,
 
 extern "C" void fn_80088724(MindowsFolder* self, const char* name, float* value, float min, float max, float step,
                                   MindowsFunc_unk func, void* arg) {
-    MindowsFolder* folder = new (0xE, "", "", 0) MindowsFolder(self, name);
+    MindowsFolder* folder = new ((MemoryTag)0xE, "", "", 0) MindowsFolder(self, name);
     if (folder != 0) {
         fn_80087858(folder, "x", value, min, max, step, func, arg);
         fn_80087858(folder, "y", value + 1, min, max, step, func, arg);
@@ -431,7 +431,7 @@ extern "C" void fn_80088724(MindowsFolder* self, const char* name, float* value,
 
 extern "C" void fn_80088AF4(MindowsFolder* self, const char* name, float* value, float min, float max, float step,
                               MindowsFunc_unk func, void* arg) {
-    MindowsFolder* folder = new (0xE, "", "", 0) MindowsFolder(self, name);
+    MindowsFolder* folder = new ((MemoryTag)0xE, "", "", 0) MindowsFolder(self, name);
     if (folder != 0) {
         fn_8008771C(folder, "R", value, min, max, step, func, arg);
         fn_8008771C(folder, "G", value + 1, min, max, step, func, arg);
@@ -443,7 +443,7 @@ extern "C" void fn_80088AF4(MindowsFolder* self, const char* name, float* value,
 
 extern "C" void fn_80088FAC(MindowsFolder* self, const char* name, float* value, float min, float max, float step,
                               MindowsFunc_unk func, void* arg) {
-    MindowsFolder* folder = new (0xE, "", "", 0) MindowsFolder(self, name);
+    MindowsFolder* folder = new ((MemoryTag)0xE, "", "", 0) MindowsFolder(self, name);
     if (folder != 0) {
         fn_8008771C(folder, "R", value, min, max, step, func, arg);
         fn_8008771C(folder, "G", value + 1, min, max, step, func, arg);
@@ -453,7 +453,7 @@ extern "C" void fn_80088FAC(MindowsFolder* self, const char* name, float* value,
 }
 
 extern "C" MindowsFolder* fn_8008937C(MindowsFolder* self, const char* name) {
-    MindowsFolder* folder = new (0xE, "", "", 0) MindowsFolder(self, name);
+    MindowsFolder* folder = new ((MemoryTag)0xE, "", "", 0) MindowsFolder(self, name);
     if (folder != 0) {
         self->Append_unk(folder);
         return folder;
@@ -529,7 +529,7 @@ Mindows_unk::Mindows_unk(void* owner)
 // inferred: creates the debug menu
 extern "C" void fn_80089620(void* owner) {
     if (lbl_8087EF10 == 0) {
-        lbl_8087EF10 = new (1, "", "", 0) Mindows_unk(owner);
+        lbl_8087EF10 = new ((MemoryTag)1, "", "", 0) Mindows_unk(owner);
     }
 }
 

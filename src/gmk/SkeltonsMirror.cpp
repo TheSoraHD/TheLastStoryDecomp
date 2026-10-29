@@ -29,7 +29,7 @@ namespace gmk {
 
 GimmickCommon* SkeltonsMirror::fn_80414AC4(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) SkeltonsMirror(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) SkeltonsMirror(parent, desc);
     }
     return 0;
 }

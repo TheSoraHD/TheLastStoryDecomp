@@ -5,7 +5,7 @@ namespace atn {
 
 SequenceControl* SequenceControl::fn_800C3610(Task* parent, void* table) {
     if (sInstance == 0) {
-        return new (1, "", "", 0) SequenceControl(parent, table);
+        return new ((MemoryTag)1, "", "", 0) SequenceControl(parent, table);
     }
     return sInstance;
 }

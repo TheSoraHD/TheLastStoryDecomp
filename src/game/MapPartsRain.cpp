@@ -15,7 +15,7 @@ inline T __Clamp_unk(T v, const T& lo, const T& hi) {
 
 MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsRain(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsRain(parent, arg, csv);
     }
     return 0;
 }

@@ -54,7 +54,7 @@ struct Frustum_unk {
 
 D3Anime* D3Anime::Create(Task* parent, const char* name, int load) {
     if (parent != 0) {
-        return new (8, "", "", 0) D3Anime(parent, name, load);
+        return new ((MemoryTag)8, "", "", 0) D3Anime(parent, name, load);
     }
     return 0;
 }

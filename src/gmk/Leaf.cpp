@@ -120,7 +120,7 @@ namespace gmk {
 
 GimmickCommon* Leaf::fn_80400728(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) Leaf(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) Leaf(parent, id, arg);
     }
     return 0;
 }
@@ -253,7 +253,7 @@ void Leaf::vf20() {
     } while (csv.fn_8005BBF8() != 0);
     mLeaves.Resize_unk(mNumLeaf, 0);
     for (int i = 0; i < mNumLeaf; i++) {
-        mLeaves[(unsigned int)i].mInst = new (12, "", "", 0) atn::ModelInstance(fn_8009F788(name));
+        mLeaves[(unsigned int)i].mInst = new ((MemoryTag)12, "", "", 0) atn::ModelInstance(fn_8009F788(name));
     }
 }
 

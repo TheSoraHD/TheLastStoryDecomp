@@ -104,7 +104,7 @@ inline void Coffin::GetUp_unk() {
 
 GimmickCommon* Coffin::fn_80411440(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) Coffin(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) Coffin(parent, desc);
     }
     return 0;
 }

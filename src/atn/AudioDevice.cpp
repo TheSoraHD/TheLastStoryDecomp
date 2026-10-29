@@ -4,6 +4,7 @@
 // read from "rsid.csv". Only the members used here are declared; the NW4R classes are not
 // reconstructed (their functions keep the fn_ names).
 #include "std/tree.h"
+#include "atn/Memory.h"
 #include "atn/Array_unk.h"
 #include "atn/MemoryManager.h"
 #include "atn/Csv.h"
@@ -16,8 +17,6 @@ extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned long strlen(const char* s);
 extern "C" void OSSleepTicks(long long ticks);
 
-void* operator new(unsigned long size, int heap, const char* file, const char* name, int line);
-void* operator new[](unsigned long size, int heap, const char* file, const char* name, int line);
 
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name
@@ -640,7 +639,7 @@ extern "C" void fn_80046398(int error) {
 // inferred: creates the device
 extern "C" void fn_800463A8() {
     if (lbl_8087EE90 == 0) {
-        lbl_8087EE90 = new (10, "", "", 0) AudioDevice;
+        lbl_8087EE90 = new ((MemoryTag)10, "", "", 0) AudioDevice;
     }
 }
 
@@ -658,9 +657,9 @@ static inline void* AudioAlloc_unk(unsigned long size) {
 AudioDevice::AudioDevice()
     : m04(0), m194(0), m198(0), m2C4(0), m2C8(0), m2F8(0), m2FC(0), m32C(0), m35C(0), m360(0x1E000), m390(0),
       m404(0), m408(0), m40C(0), m8BC(0), m8C0(0), m8C4(0), m8C8(0), m8CC(1), m8E0(0), m8E4(0) {
-    lbl_8087EE88 = new (10, "", "", 0) unsigned int[0x200];
+    lbl_8087EE88 = new ((MemoryTag)10, "", "", 0) unsigned int[0x200];
     memset(lbl_8087EE88, 0, 0x800);
-    lbl_8087EE8C = new (10, "", "", 0) char[0x100];
+    lbl_8087EE8C = new ((MemoryTag)10, "", "", 0) char[0x100];
     memset(lbl_8087EE8C, 0, 0x100);
     sprintf(lbl_8087EE8C, "stream");
 }

@@ -120,12 +120,12 @@ static ShaderMaterial_unk* sErrorMaterials[4]; // inferred: materials of the err
 void ShaderManager_unk::LoadShaders_unk() {
     for (unsigned int i = 0; i < sizeof(sShaderFiles) / sizeof(sShaderFiles[0]); i++) {
         const char* path = sShaderFiles[i];
-        atn::LH_Model* model = new (6, "", "", 0) atn::LH_Model;
+        atn::LH_Model* model = new ((MemoryTag)6, "", "", 0) atn::LH_Model;
         model->fn_80473FCC(path);
         mModels.push_back(model);
         ShaderFile_unk* file = (ShaderFile_unk*)model->fn_80475DF8();
         for (int j = 0; j < file->m30; j++) {
-            mShaders.push_back(new (6, "", "", 0) ShaderTex_unk(model, file->m34[j]));
+            mShaders.push_back(new ((MemoryTag)6, "", "", 0) ShaderTex_unk(model, file->m34[j]));
         }
     }
 }
@@ -134,7 +134,7 @@ void ShaderManager_unk::LoadShaders_unk() {
 void ShaderManager_unk::CreateLODs_unk() {
     void* group = fn_8008937C(lbl_8087EFA8->m4C, "ShaderLODs");
     for (ShaderTex_unk** it = mShaders.begin(); it != mShaders.end(); it++) {
-        ShaderLOD_unk* lod = new (6, "", "", 0) ShaderLOD_unk;
+        ShaderLOD_unk* lod = new ((MemoryTag)6, "", "", 0) ShaderLOD_unk;
         lod->fn_800C4ECC(*it, 0.0f);
         mLODs.push_back(lod);
         lod->fn_800C4F70(group);
@@ -149,7 +149,7 @@ ShaderManager_unk::ShaderManager_unk() {
 // NONMATCHING: 95.5% - the inlined std::vector<T*>::push_back loads the capacity before the size (known
 // mismatch of include/std/vector.h) and the shader description is loaded before the new.
 void fn_800C5644() {
-    lbl_8087EFE0 = new (6, "", "", 0) ShaderManager_unk;
+    lbl_8087EFE0 = new ((MemoryTag)6, "", "", 0) ShaderManager_unk;
 }
 
 ShaderLOD_unk* ShaderManager_unk::fn_800C5F5C(const char* name) {

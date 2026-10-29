@@ -130,10 +130,10 @@ static inline int FindEffColor_unk(const char* name) {
 // a saved register as in the original (empty ~CsvBase())
 extern "C" void fn_8020B2BC() {
     if (sPaletteIds == 0) {
-        sPaletteIds = new (1, "", "", 0) PaletteIds_unk;
+        sPaletteIds = new ((MemoryTag)1, "", "", 0) PaletteIds_unk;
     }
     if (sPalettes == 0) {
-        sPalettes = (new (1, "", "", 0) PaletteSet_unk)->mPalettes;
+        sPalettes = (new ((MemoryTag)1, "", "", 0) PaletteSet_unk)->mPalettes;
     }
     {
         char path[0x100];
@@ -191,10 +191,10 @@ extern "C" void fn_8020B2BC() {
         fn_8046DD20(lbl_8087F518, data);
     }
     if (sEffPaletteIds == 0) {
-        sEffPaletteIds = new (1, "", "", 0) EffPaletteIds_unk;
+        sEffPaletteIds = new ((MemoryTag)1, "", "", 0) EffPaletteIds_unk;
     }
     if (sEffPalettes == 0) {
-        sEffPalettes = (new (1, "", "", 0) EffPaletteSet_unk)->mPalettes;
+        sEffPalettes = (new ((MemoryTag)1, "", "", 0) EffPaletteSet_unk)->mPalettes;
     }
     {
         char path[0x100];
@@ -253,7 +253,7 @@ extern "C" void fn_8020B2BC() {
 // 0x14, 0x28, 0x3c and 0x40 of the frame, stack 0x7B0); their type is unknown
 extern "C" void fn_8020BB0C() {
     if (sPresets == 0) {
-        sPresets = new (1, "", "", 0) PaletteSlots_unk;
+        sPresets = new ((MemoryTag)1, "", "", 0) PaletteSlots_unk;
     }
     char path[0x100];
     sprintf(path, "database/cosedit/preset/edit_preset.csv");

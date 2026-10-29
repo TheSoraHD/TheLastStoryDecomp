@@ -117,7 +117,7 @@ static inline void __SetText_unk(SelectMemberAnim_unk* anim, const char* name, c
 
 SelectMember* SelectMember::fn_8057162C(atn::Task* parent, int type, unsigned char save) {
     if (parent != 0) {
-        return new (1, "", "", 0) SelectMember(parent, type, save);
+        return new ((MemoryTag)1, "", "", 0) SelectMember(parent, type, save);
     }
     return 0;
 }

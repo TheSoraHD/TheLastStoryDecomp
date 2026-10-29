@@ -248,7 +248,7 @@ Em001Necromancer::Em001Necromancer(atn::Task* parent, EnemyInfo_unk* info)
     m1578.LoadRequest("/effect/cm002/cm002_00.efp");
     m1584.LoadRequest("/effect/ef_sk026a.efp");
     m1590.LoadRequest("/effect/ef_bs007a.efp");
-    m121C.reset(new (1, "", "", 0) atn::EfpFile());
+    m121C.reset(new ((MemoryTag)1, "", "", 0) atn::EfpFile());
     m121C->LoadRequest("/effect/ef_bu013.efp");
     (m15BC = fn_801F3FF8(this, "ui_point_slash.d2a", 0))->fn_800D246C(1);
     m1520[0] = fn_80219E6C(0x65);
@@ -428,7 +428,7 @@ void Em001Necromancer::vf10() {
             } else if (frame >= mMotion.fn_80097D7C(0)) {
                 mFB8 = 0.0f;
                 SetState_unk(0);
-                void* p = ::operator new(0x34, 0, "", "", 0);
+                void* p = ::operator new(0x34, (MemoryTag)0, "", "", 0);
                 chr::ControlBase* c = (chr::ControlBase*)p;
                 if (p != 0) {
                     c = fn_801C02F4(p, this);

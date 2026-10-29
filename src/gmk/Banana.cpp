@@ -36,7 +36,7 @@ namespace gmk {
 
 GimmickCommon* Banana::fn_804166B0(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) Banana(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) Banana(parent, desc);
     }
     return 0;
 }

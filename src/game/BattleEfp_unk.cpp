@@ -133,7 +133,7 @@ extern "C" void fn_800EF588(int mode, int level) {
     lbl_8087D968 = mode;
     lbl_8087F038 = level;
     lbl_8087F034 = fn_80207C00();
-    lbl_8087F030 = new (1, "", "", 0) BattleEfpEntry_unk[lbl_8087F034];
+    lbl_8087F030 = new ((MemoryTag)1, "", "", 0) BattleEfpEntry_unk[lbl_8087F034];
     for (unsigned int i = 0; i < lbl_8087F034; i++) {
         BattleEfpEntry_unk* entry = &lbl_8087F030[i];
         entry->mData = fn_80207C08(i);

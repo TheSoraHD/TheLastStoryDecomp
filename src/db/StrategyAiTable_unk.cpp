@@ -54,7 +54,7 @@ extern "C" void fn_8021CCC4() {
             }
             sCount++;
         }
-        sEntries = new (1, "", "", 0) StrategyAiEntry_unk[sCount];
+        sEntries = new ((MemoryTag)1, "", "", 0) StrategyAiEntry_unk[sCount];
         csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {

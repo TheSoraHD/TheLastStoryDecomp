@@ -50,7 +50,7 @@ extern "C" void fn_8020F84C() {
                 count++;
             }
         }
-        sEntries = new (3, "", "", 0) db::GrowthEntry_unk[count];
+        sEntries = new ((MemoryTag)3, "", "", 0) db::GrowthEntry_unk[count];
         sCount = count;
         csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();

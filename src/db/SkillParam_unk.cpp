@@ -51,8 +51,8 @@ extern "C" void fn_8021996C() {
             sCount++;
         }
     }
-    sEntries = new (1, "", "", 0) SkillParam_unk[sCount];
-    sBuf = new (1, "", "", 0) char[a];
+    sEntries = new ((MemoryTag)1, "", "", 0) SkillParam_unk[sCount];
+    sBuf = new ((MemoryTag)1, "", "", 0) char[a];
     csv.SetData((const char*)data, size);
     csv.fn_8005BBF8();
     a = 0;
@@ -104,7 +104,7 @@ extern "C" void fn_80219C30() {
                 fn_80219F1C(&csv, &a, &b);
             }
         }
-        sTexts = new (1, "", "", 0) wchar_t[b];
+        sTexts = new ((MemoryTag)1, "", "", 0) wchar_t[b];
         csv.SetData((const wchar_t*)data, size / 2);
         csv.fn_8005BBF8();
         a = 0;

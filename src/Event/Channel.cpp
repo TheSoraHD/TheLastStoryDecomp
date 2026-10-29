@@ -12,7 +12,7 @@ Channel::Channel(Section* section) : mSection(section), m0C(0), m10(1) {}
 // (the original keeps max_size() in a register and divides it at run time, and keeps an
 // unreachable copy of the fast path after the length check).
 Action* Channel::fn_8053A510(int index) {
-    boost::shared_ptr<Action> action(new (4, "", "", 0) Action(this, index));
+    boost::shared_ptr<Action> action(new ((MemoryTag)4, "", "", 0) Action(this, index));
     mActions.push_back(action);
     return mActions[mActions.size() - 1].get();
 }

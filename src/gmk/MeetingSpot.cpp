@@ -61,7 +61,7 @@ void MeetingSpot::PlayMotion_unk(int i, int motion, int loop, float blend) {
 
 GimmickCommon* MeetingSpot::fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) MeetingSpot(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) MeetingSpot(parent, desc);
     }
     return 0;
 }

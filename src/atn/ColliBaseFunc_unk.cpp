@@ -4,6 +4,7 @@
 // of 0x100 results used by its queries: sphere (fn_8004CCA0), segment (fn_8004ED34) and moving
 // sphere (fn_8004D388).
 #include "atn/ColliBase.h"
+#include "atn/Memory.h"
 #include "atn/ColliData_unk.h"
 #include "math/Vec.h"
 #include "std/new.h"
@@ -11,7 +12,6 @@
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
-void* operator new(unsigned long size, int heap, const char* file, const char* name, int line);
 
 using atn::ColliBase;
 using atn::ColliCapsuleShape_unk;
@@ -101,7 +101,7 @@ extern "C" int fn_8004ED34(ColliManager_unk* mgr, ColliResult_unk* result, const
 // inferred: creates the manager
 extern "C" void fn_8004C9B4() {
     if (lbl_8087EE98 == 0) {
-        lbl_8087EE98 = new (3, "", "", 0) ColliManager_unk;
+        lbl_8087EE98 = new ((MemoryTag)3, "", "", 0) ColliManager_unk;
     }
 }
 

@@ -95,7 +95,7 @@ inline SetConfig::SetConfig()
 
 void SetConfig::fn_8057E8C4() {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) SetConfig();
+        sInstance = new ((MemoryTag)1, "", "", 0) SetConfig();
     }
 }
 

@@ -85,7 +85,7 @@ PickTask* PickTask::sInstance;
 
 PickTask* PickTask::fn_80548D54(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (3, "", "", 0) PickTask(parent);
+        sInstance = new ((MemoryTag)3, "", "", 0) PickTask(parent);
     }
     return sInstance;
 }

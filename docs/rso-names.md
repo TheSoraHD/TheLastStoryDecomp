@@ -65,6 +65,13 @@ Pendientes de la segunda tanda, hechos uno a uno sin agentes:
 - `atn::ModelBase::GetNodeNoByName(const char*, int) const` (0x80092814); `GetNodeMtx_unk` const (copias débiles `CFi`/`CFPCc`): fuera los `const_cast` de `GetTacViewPosition`.
 - Cifras: 8180 / 18215, `main.dol: OK`, lost 0, fuzzdrop 0 en toda la tanda.
 
+## Cuarta tanda (`rso-names-3`, 2026-10-29)
+
+- `operator new`/`new[]` reciben `MemoryTag` (`__nw__FUl9MemoryTagPCcPCci`, `__nwa__...`): `enum MemoryTag` en `include/atn/Memory.h`; unas 650 llamadas hacen `(MemoryTag)n` (no hay nombres de enumeradores). Sin cambios en cifras.
+- Los gimmicks 48001/48004 son `gmk::SparkCube` (la factoría de `GimmickCommon` crea los 48xxx como SparkCube); el campo de 0x920 es `SparkCube::mTimer`. Fuera la vista `QuarkGimmick_unk` de EnemyQuarkStand.
+- Probado y descartado: `SimpleArray::operator[](unsigned int) const` (firma del RSO, `CFUi`) baja 6 funciones de `gmk/LemonBucket` y `BookTask`: nuestros índices `int` no son los del original; se deja `operator[](int)`.
+- Siguen pendientes: `allocate(Ui[, MemoryTag, const char*])` del RSO frente a nuestros `Alloc`/`Resize_unk` (correspondencia no clara); 0x8044D6AC (resta de dinero, sin nombre en el RSO); las bajadas aceptadas de `Em303KrakenFoot::fn_802E3EE8` (desfase de 12 bytes en la pila) y del constructor de `basic_ostream::sentry`.
+
 ## Diccionario
 
 Las 948 importaciones y las ~4700 exportaciones de función del RSO (las ~760 importaciones sin dirección EU solo se usan desde código de herramientas) siguen valiendo como diccionario de nombres reales y firmas mangled: 198 clases que no teníamos con nombre (`Inventory`, `GameCamera`, `CharaSightControl`, `GameSaveData`, `atn::Pad`, `atn::Scene`, `atn::XmlElement`...). Lista completa: `docs/lastworld_tools_symbols.txt` del repo USA, o `strings` del RSO.

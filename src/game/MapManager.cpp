@@ -56,7 +56,7 @@ MapManager* MapManager::sInstance;
 
 MapManager* MapManager::fn_80490EB8(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (12, "", "", 0) MapManager(parent);
+        sInstance = new ((MemoryTag)12, "", "", 0) MapManager(parent);
     }
     return sInstance;
 }

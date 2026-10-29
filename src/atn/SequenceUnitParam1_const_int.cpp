@@ -87,7 +87,7 @@ public:
     // inferred: creates the instance once (inline, its "" literals are @STRING@ pools in .sdata)
     static Manager2* Create_unk(Task* parent) {
         if (lbl_8087F610 == 0) {
-            lbl_8087F610 = new (1, "", "", 0) Manager2(parent);
+            lbl_8087F610 = new ((MemoryTag)1, "", "", 0) Manager2(parent);
         }
         return lbl_8087F610;
     }
@@ -125,10 +125,10 @@ SequenceBoot_unk* sSequenceBoot_unk;
 
 // inferred: not inline (its literals are in @stringBase0); always inlined, the copy is stripped
 SequenceBoot_unk::SequenceBoot_unk(Task* parent) : mParent(parent) {
-    mHolders[0] = new (1, "", "", 0) SequenceHolder;
-    mHolders[1] = new (1, "", "", 0) SequenceHolder;
-    mHolders[2] = new (1, "", "", 0) SequenceHolder;
-    mHolders[3] = new (1, "", "", 0) SequenceHolder;
+    mHolders[0] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
+    mHolders[1] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
+    mHolders[2] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
+    mHolders[3] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
     SequenceControl::fn_800C3610(mParent, mHolders[0]);
     if (lbl_8087F0A8->mBootMode == 2) {
         mHolders[0]->Regist_unk(SequenceHolder::SequenceUnit("BootTask", fn_8010EB58));
@@ -141,7 +141,7 @@ SequenceBoot_unk::SequenceBoot_unk(Task* parent) : mParent(parent) {
 
 void SequenceBoot_unk::Create_unk(Task* parent) {
     if (sSequenceBoot_unk == 0) {
-        sSequenceBoot_unk = new (1, "", "", 0) SequenceBoot_unk(parent);
+        sSequenceBoot_unk = new ((MemoryTag)1, "", "", 0) SequenceBoot_unk(parent);
     }
 }
 
