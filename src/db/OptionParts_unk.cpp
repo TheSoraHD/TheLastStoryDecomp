@@ -58,9 +58,6 @@ extern "C" void fn_80095750(Model_unk* model, const char* name, atn::CompositeIn
 std::string fn_8006B0C8(const std::string& path);
 extern "C" std::string fn_8006B2D8(const std::string& path);
 extern "C" std::string fn_8006AFF8(const std::string& dir, const std::string& name);
-namespace std {
-string operator+(const string& lhs, const char* rhs); // 0x8006D008
-}
 
 // inferred: "option" row of database/cosedit/option/*.csv (0x44 bytes)
 struct OptionPart_unk {

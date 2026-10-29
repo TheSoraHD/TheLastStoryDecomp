@@ -576,7 +576,7 @@ int StringBuf_unk::overflow(int c) {
     unsigned int getOffset = (unsigned int)(mGptr - mEback);
     unsigned int newPutOffset = putOffset + 1;
     char ch = (char)c;
-    mString.__replace_unk(mString.size(), 0, &ch, &ch + 1, std::random_access_iterator_tag());
+    mString.do_replace(mString.size(), 0, &ch, &ch + 1, std::random_access_iterator_tag());
     unsigned int capacity = (unsigned int)mString.capacity();
     unsigned int size = (unsigned int)mString.size();
     if (capacity - 1 > size) {
@@ -857,7 +857,7 @@ std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_st
     } else {
         __zero();
         reserve(str.mLong.mSize);
-        __replace_unk(0, 0, str.mLong.mData, str.mLong.mData + str.mLong.mSize,
+        do_replace(0, 0, str.mLong.mData, str.mLong.mData + str.mLong.mSize,
                       std::random_access_iterator_tag());
     }
 }

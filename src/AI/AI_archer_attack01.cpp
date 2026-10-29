@@ -1648,7 +1648,7 @@ extern "C" AIStringWithAllocator_unk* fn_8001E0B8(AIStringWithAllocator_unk* dst
         std::string* str = (std::string*)&dst->mString;
         str->reserve(src->mString.mSize);
         std::random_access_iterator_tag tag;
-        str->__replace_unk(0, 0, src->mString.mData,
+        str->do_replace(0, 0, src->mString.mData,
                            src->mString.mData + src->mString.mSize,
                            tag);
     }

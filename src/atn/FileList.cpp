@@ -125,7 +125,6 @@ extern "C" std::string fn_8006AC08(const std::string& path) {
     return std::string("");
 }
 
-extern "C" std::string fn_8006AF38(const char* a, const std::string& b);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 // NONMATCHING: 98.2% - registers of the inlined rfind (as fn_8006AC08) and the pool offset of "."
@@ -135,29 +134,12 @@ extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext) {
     if (pos != std::string::npos) {
         path = fn_8006AFF8(std::string(path, 0, pos + 1), ext);
     } else {
-        path += fn_8006AF38(".", ext);
+        path += "." + ext;
     }
     return path;
 }
 
-// inferred: a + b (C string first; std::string operator+(const char*, const std::string&))
-extern "C" std::string fn_8006AF38(const char* a, const std::string& b) {
-    std::string tmp;
-    unsigned long n = strlen(a);
-    const StringView_unk& v = (const StringView_unk&)b;
-    unsigned long sz;
-    const char* p;
-    if (!(v.mWord0 >> 31)) {
-        p = (const char*)&b + 1;
-        sz = *(const unsigned char*)&b & 0x7F;
-    } else {
-        p = v.mData;
-        sz = v.mSize;
-    }
-    tmp.reserve(n + sz);
-    tmp.replace(0, 0, a, a + n).replace(n, 0, p, p + sz);
-    return tmp;
-}
+// 0x8006AF38: std::operator+(const char*, const std::string&) (include/std/string.h)
 
 // inferred: a + b (std::string operator+(const std::string&, const std::string&))
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b) {
