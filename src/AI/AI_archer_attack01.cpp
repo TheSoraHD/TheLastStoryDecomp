@@ -209,6 +209,7 @@ void fn_8001A788(CharaTask** list);
 int fn_8001BE00(CharaTask* chara);
 int fn_8001B634(CharaTask* chara); // inferred: item to use (0: none)
 int fn_8003CDB0();
+float fn_8001BD14(CharaTask* chara); // inferred: attack range of the character
 float fn_8001AD80(CharaTask* a, CharaTask* b);
 int fn_8001BEB0(CharaTask* chara);
 int fn_8001B4A4();
@@ -1005,6 +1006,33 @@ static inline bool CanUseItem_unk() {
     return false;
 }
 
+// inferred: when the target is out of range, approaches it (command 3, returns 6), otherwise
+// command 6 (returns 9)
+static inline int ApproachOrSpecial_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        if (lbl_807C68C0.m1C > fn_8001BD14(lbl_807C68C0.m00)) {
+            if (lbl_807C68C0.m20 != 0) {
+                Command_unk(3, (int)lbl_807C68C0.m20, 30, 0, 0);
+            }
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        Command_unk(6, 1, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 9;
+    }
+    return -1;
+}
+
+// inferred: 6 (and out.m00 set) when in.m08 is set
+static inline int Ready_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        lbl_807C6A40.m00 = 1;
+        return 6;
+    }
+    return -1;
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -1650,6 +1678,49 @@ int AI::Script::AI_archer_attack01::vf18() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_archer_attack01::vf24() {
+    if (lbl_807C6A40.m18 == 0) {
+        int result = ApproachOrSpecial_unk();
+        if (result == 9) {
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        if (result == 6) {
+            int next = fn_8003CDB0();
+            if (next == 6) {
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            if (next == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            if (next == 9) {
+                lbl_807C6A40.m00 = 1;
+                return 9;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    int result = Ready_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_archer_attack01::vf40() {
     if (fn_8001FB08() == 0) {
@@ -1666,6 +1737,42 @@ int AI::Script::AI_archer_attack01::vf40() {
     if (result == 1) {
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_archer_attack01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C6A40.m18 == 0) {
+            int next = fn_8003CDB0();
+            if (next == 6) {
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            if (next == 9) {
+                lbl_807C6A40.m00 = 1;
+                return 9;
+            }
+            if (next == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            return -1;
+        }
+        int next = fn_8003DBA4();
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
     }
     return -1;
 }
