@@ -12,8 +12,8 @@ namespace detail {
 
 // 0x8001A34C
 template <class T, class D>
-void* shared_ptr_deleter<T, D>::get_deleter(const type_info& ti) {
-    return ti == typeid(D) ? &mPair : 0;
+void* shared_ptr_deleter<T, D>::get_deleter(const type_info& ti) const {
+    return ti == typeid(D) ? (void*)&mPair : 0;
 }
 
 } // namespace detail
