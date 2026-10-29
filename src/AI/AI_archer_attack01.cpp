@@ -907,6 +907,42 @@ public:
 } // namespace Script
 } // namespace AI
 
+// Script primitives. The script steps are built from these inline helpers (inferred from the code:
+// every step repeats the same instruction sequences, so they were inlined from common functions).
+
+// inferred: random value in [center - width / 2, center + width / 2)
+static inline int RandRange_unk(int center, int width) {
+    int lo = center - width / 2;
+    int range = center + width / 2 - lo;
+    if (range > 0) {
+        lo += rand() % range;
+    }
+    return lo;
+}
+
+// inferred: issues a command to the character (fn_8001AEDC takes its four arguments by address)
+static inline void Command_unk(int mode, int a, int b, int c, int d) {
+    int a_;
+    int b_;
+    int c_;
+    int d_;
+    d_ = d;
+    c_ = c;
+    b_ = b;
+    a_ = a;
+    fn_8001AEDC(mode, &a_, &b_, &c_, &d_);
+}
+
+// inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
+static inline int WaitRandom_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(0, RandRange_unk(lbl_807C68C0.m48, lbl_807C68C0.m4C), 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 extern "C" int fn_8001BF44() {
     return 0;
 }
@@ -1441,6 +1477,19 @@ int AI::Script::AI_archer_attack01::vf40() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_archer_attack01::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
 
 int AI::Script::AI_archer_guard01::vf08() {
     int result = 1;
@@ -1474,29 +1523,8 @@ int AI::Script::AI_archer_guard01::vf40() {
     return -1;
 }
 
-// NONMATCHING: 98.78% - global-base register selection differs from MWCC's original allocation.
 int AI::Script::AI_archer_guard01::vf2C() {
-    int result;
-    if (lbl_807C68C0.m08 != 0) {
-        int amount = lbl_807C68C0.m4C;
-        int base = lbl_807C68C0.m48;
-        int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
-        int start = base - half;
-        int range = base + half - start;
-        if (range > 0) {
-            start += rand() % range;
-        }
-        int a = 0;
-        int b = 0;
-        int c = 0;
-        int d = 0;
-        a = start;
-        fn_8001AEDC(0, &a, &b, &c, &d);
-        lbl_807C6A40.m00 = 1;
-        result = 7;
-    } else {
-        result = -1;
-    }
+    int result = WaitRandom_unk();
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
@@ -1512,6 +1540,15 @@ int AI::Script::AI_arganan01::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_arganan01::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
 }
 
 int AI::Script::AI_arganan01::vf2C() {
@@ -1623,29 +1660,8 @@ int AI::Script::AI_buffer_guard01::vf08() {
     return result;
 }
 
-// NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 int AI::Script::AI_buffer_guard01::vf18() {
-    int result;
-    if (lbl_807C68C0.m08 != 0) {
-        int amount = lbl_807C68C0.m4C;
-        int base = lbl_807C68C0.m48;
-        int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
-        int start = base - half;
-        int range = base + half - start;
-        if (range > 0) {
-            start += rand() % range;
-        }
-        int a = 0;
-        int b = 0;
-        int c = 0;
-        int d = 0;
-        a = start;
-        fn_8001AEDC(0, &a, &b, &c, &d);
-        lbl_807C6A40.m00 = 1;
-        result = 7;
-    } else {
-        result = -1;
-    }
+    int result = WaitRandom_unk();
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
@@ -1716,29 +1732,8 @@ int AI::Script::AI_buffer_guard02::vf08() {
     return result;
 }
 
-// NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 int AI::Script::AI_buffer_guard02::vf18() {
-    int result;
-    if (lbl_807C68C0.m08 != 0) {
-        int amount = lbl_807C68C0.m4C;
-        int base = lbl_807C68C0.m48;
-        int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
-        int start = base - half;
-        int range = base + half - start;
-        if (range > 0) {
-            start += rand() % range;
-        }
-        int a = 0;
-        int b = 0;
-        int c = 0;
-        int d = 0;
-        a = start;
-        fn_8001AEDC(0, &a, &b, &c, &d);
-        lbl_807C6A40.m00 = 1;
-        result = 7;
-    } else {
-        result = -1;
-    }
+    int result = WaitRandom_unk();
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
@@ -1846,29 +1841,8 @@ int AI::Script::AI_em_archer_attack02::vf40() {
     return -1;
 }
 
-// NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
 int AI::Script::AI_em_archer_attack02::vf2C() {
-    int result;
-    if (lbl_807C68C0.m08 != 0) {
-        int amount = lbl_807C68C0.m4C;
-        int base = lbl_807C68C0.m48;
-        int half = (amount + (int)((unsigned int)amount >> 31)) >> 1;
-        int start = base - half;
-        int range = base + half - start;
-        if (range > 0) {
-            start += rand() % range;
-        }
-        int a = 0;
-        int b = 0;
-        int c = 0;
-        int d = 0;
-        a = start;
-        fn_8001AEDC(0, &a, &b, &c, &d);
-        lbl_807C6A40.m00 = 1;
-        result = 7;
-    } else {
-        result = -1;
-    }
+    int result = WaitRandom_unk();
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
@@ -2207,6 +2181,15 @@ int AI::Script::AI_em_type105::vf08() {
     return 1;
 }
 
+int AI::Script::AI_em_type105::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_em_type105::vf40() {
     if (fn_80029500() == 0) {
         lbl_807C6A40.m00 = 1;
@@ -2222,6 +2205,15 @@ int AI::Script::AI_em_type105::vf40() {
     if (result == 1) {
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_type105::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
     }
     return -1;
 }
@@ -2302,10 +2294,28 @@ int AI::Script::AI_fr_archer_pick01::vf40() {
     return -1;
 }
 
+int AI::Script::AI_fr_archer_pick01::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_fr_buffer_pick01::vf08() {
     lbl_807C6A40.mE0 = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_fr_buffer_pick01::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
 }
 
 int AI::Script::AI_fr_buffer_pick01::vf24() {
@@ -2376,6 +2386,24 @@ int AI::Script::AI_fr_magic_pick01::vf08() {
     return 1;
 }
 
+int AI::Script::AI_fr_magic_pick01::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_fr_magic_pick01::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_fr_magic_pick02::vf08() {
     int result = 1;
     lbl_807C6A40.m18 = 0;
@@ -2386,6 +2414,15 @@ int AI::Script::AI_fr_magic_pick02::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_fr_magic_pick02::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
 }
 
 int AI::Script::AI_fr_runaway::vf08() {
@@ -2469,9 +2506,6 @@ int AI::Script::AI_fr_type005::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-
 
 int AI::Script::AI_fr_warppointescape::vf08() {
     lbl_807C6A40.m18 = lbl_807C68C0.m7C;
@@ -2525,6 +2559,15 @@ int AI::Script::AI_jackal01::vf08() {
     return result;
 }
 
+int AI::Script::AI_jackal01::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_attack01::vf08() {
     if (fn_8001BEB0(lbl_807C68C0.m00)) {
         lbl_807C6A40.m00 = 1;
@@ -2532,6 +2575,24 @@ int AI::Script::AI_magic_attack01::vf08() {
     }
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_magic_attack01::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_attack01::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
 }
 
 int AI::Script::AI_magic_attack01_2::vf08() {
@@ -2543,6 +2604,24 @@ int AI::Script::AI_magic_attack01_2::vf08() {
     return 1;
 }
 
+int AI::Script::AI_magic_attack01_2::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_attack01_2::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_attack02::vf08() {
     int result = 1;
     lbl_807C6A40.m00 = 1;
@@ -2550,6 +2629,24 @@ int AI::Script::AI_magic_attack02::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_magic_attack02::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_attack02::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
 }
 
 int AI::Script::AI_magic_attackstable01::vf08() {
@@ -2576,6 +2673,15 @@ int AI::Script::AI_magic_cure01::vf08() {
     return 1;
 }
 
+int AI::Script::AI_magic_cure01::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_cure01::vf2C() {
     if (lbl_807C68C0.m08 != 0) {
         int d = 0;
@@ -2600,6 +2706,24 @@ int AI::Script::AI_magic_guard01::vf08() {
     return result;
 }
 
+int AI::Script::AI_magic_guard01::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_guard01::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_guard01_2::vf08() {
     int result = 1;
     lbl_807C6A40.m24 = 0x3C;
@@ -2611,6 +2735,24 @@ int AI::Script::AI_magic_guard01_2::vf08() {
     return result;
 }
 
+int AI::Script::AI_magic_guard01_2::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_guard01_2::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_magic_guard02::vf08() {
     int result = 1;
     lbl_807C6A40.m24 = 0x3C;
@@ -2620,6 +2762,24 @@ int AI::Script::AI_magic_guard02::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_magic_guard02::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_magic_guard02::vf2C() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
 }
 
 int AI::Script::AI_np_approach::vf08() {
@@ -2868,6 +3028,15 @@ int AI::Script::AI_silence_guard01::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_silence_guard01::vf18() {
+    int result = WaitRandom_unk();
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
