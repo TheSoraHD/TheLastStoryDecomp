@@ -219,6 +219,7 @@ void fn_8001BADC(CharaTask* chara, int arg);
 int fn_8001B5DC(CharaTask* chara); // inferred: item to use (as fn_8001B634)
 int fn_8001BC80(CharaTask* chara, int index);
 int fn_8001BC38(CharaTask* chara, int slot);
+int fn_8001BAA4(CharaTask* chara, int arg);
 float fn_8001ADE8(int id, CharaTask* chara); // inferred: distance for skill id
 int fn_8001BCB4(CharaTask* chara, int slot); // inferred: slot holds a usable skill
 int fn_8001B4A4();
@@ -1193,6 +1194,21 @@ static inline int Done8Count2_unk(int next) {
         return 8;
     }
     return next;
+}
+
+// inferred: skill out.m1C on the target (command 8, 10)
+static inline void UseSkill_unk() {
+    Command_unk(8, lbl_807C6A40.m1C, 10, 0, 0);
+}
+
+// inferred: command 5
+static inline void Special5_unk() {
+    Command_unk(5, 1, 0, 0, 0);
+}
+
+// inferred: attacks the target (command 4)
+static inline void Attack_unk() {
+    Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
 }
 
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
@@ -3947,12 +3963,67 @@ int AI::Script::AI_em_type003::vf08() {
     fn_8001AEDC(8, &d, &c, &b, &a);
     return 1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_type003::vf1C() {
+    if (SkillDist_unk(lbl_807C6A40.m1C, lbl_807C68C0.m20) > lbl_807C6A40.m18) {
+        UseSkill_unk();
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        if (fn_8001BAA4(lbl_807C68C0.m00, 2)) {
+            return -1;
+        }
+        Special5_unk();
+        lbl_807C6A40.m00 = 1;
+        return 8;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_type003::vf28() {
     int result = AttackRandom_unk();
     if (result == 5) {
         lbl_807C6A40.m00 = 1;
         return 5;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_type003::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        UseSkill_unk();
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_type003::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        if (SkillDist_unk(lbl_807C6A40.m1C, lbl_807C68C0.m20) < lbl_807C6A40.m18) {
+            Attack_unk();
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        return -1;
     }
     return -1;
 }
@@ -3971,6 +4042,23 @@ int AI::Script::AI_em_type010::vf08() {
     int d = 0;
     fn_8001AEDC(8, &a, &b, &c, &d);
     return 1;
+}
+
+int AI::Script::AI_em_type010::vf1C() {
+    if (SkillDist_unk(lbl_807C6A40.m1C, lbl_807C68C0.m20) > lbl_807C6A40.m18) {
+        UseSkill_unk();
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        if (fn_8001BAA4(lbl_807C68C0.m00, 2)) {
+            return -1;
+        }
+        Special5_unk();
+        lbl_807C6A40.m00 = 1;
+        return 8;
+    }
+    return -1;
 }
 
 int AI::Script::AI_em_type010::vf28() {
@@ -4628,11 +4716,54 @@ int AI::Script::AI_fr_sword_pointguard::vf08() {
     return 1;
 }
 
+int AI::Script::AI_fr_sword_pointguard::vf1C() {
+    if (SkillDist_unk(lbl_807C6A40.m1C, lbl_807C68C0.m20) > lbl_807C6A40.m18) {
+        UseSkill_unk();
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        if (fn_8001BAA4(lbl_807C68C0.m00, 2)) {
+            return -1;
+        }
+        Special5_unk();
+        lbl_807C6A40.m00 = 1;
+        return 8;
+    }
+    return -1;
+}
+
 int AI::Script::AI_fr_sword_pointguard::vf28() {
     int result = AttackRandom_unk();
     if (result == 5) {
         lbl_807C6A40.m00 = 1;
         return 5;
+    }
+    return -1;
+}
+
+int AI::Script::AI_fr_sword_pointguard::vf40() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        UseSkill_unk();
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_fr_sword_pointguard::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        if (SkillDist_unk(lbl_807C6A40.m1C, lbl_807C68C0.m20) < lbl_807C6A40.m18) {
+            Attack_unk();
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        return -1;
     }
     return -1;
 }
@@ -5634,8 +5765,6 @@ int AI::Script::AI_sword_leaderguard01::vf1C() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_sword_leaderguard01::vf28() {
     int dist = Distance_unk(lbl_807C68C0.m00, lbl_807C6A40.mE0);
@@ -5679,10 +5808,6 @@ int AI::Script::AI_sword_leaderguard01::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_sword_leaderguard01::vf0C() {
     int result = CheckCount_unk();
@@ -6042,8 +6167,6 @@ int AI::Script::AI_sword_leaderguard03::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_sword_leaderguard03::vf0C() {
     int result = CheckCount_unk();
@@ -6242,8 +6365,6 @@ int AI::Script::AI_sword_pointguard01::vf40() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_sword_pointguard01::vf0C() {
     int result = CheckCount_unk();
