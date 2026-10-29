@@ -1146,6 +1146,20 @@ static inline void ApproachRange_unk(int range) {
     }
 }
 
+// inferred: picks the target (out of the candidate list in lbl_807C6B30)
+static inline bool PickTarget_unk() {
+    fn_8001A464(lbl_807C6B30.m08);
+    CharaTask** list = lbl_807C6B30.m08;
+    fn_8001A65C(list);
+    fn_8001A788(list);
+    if (list[0] != 0) {
+        lbl_807C6B30.m04 = list[0];
+        return true;
+    }
+    lbl_807C6B30.m04 = 0;
+    return false;
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -5731,159 +5745,91 @@ int AI::Script::AI_sword_leaderguard02::vf40() {
     return -1;
 }
 
-// NONMATCHING: 70.00% - state-machine branches and temporary scheduling still differ from MWCC.
-// inferred: advances an archer attack action using the current AI script parameters.
 int AI::Script::AI_sword_leaderguard02::vf0C() {
-    int* script = (int*)&lbl_807C68C0;
-    int* action = (int*)&lbl_807C6A40;
-    int result;
-    if (action[4] >= 1) {
-        result = -1;
-    } else {
-        action[0] = 1;
-        result = 1;
-    }
-    if (result != 1) {
+    int result = CheckCount_unk();
+    if (result == 1) {
         return -1;
     }
-    if (action[0x64 / 4] == 0) {
-        action[0x64 / 4] = script[0x58 / 4];
-    } else if (action[0x64 / 4] - script[0x58 / 4] > 0) {
-        action[0x64 / 4] = script[0x58 / 4];
-        action[0] = 1;
-        action[0x18 / 4] = 3;
-    }
-
-    int state = action[0x18 / 4];
-    if (state == 0) {
-        CharaTask** candidates = lbl_807C6B30.m08;
-        fn_8001A464(candidates);
-        fn_8001A65C(candidates);
-        fn_8001A788(candidates);
-        CharaTask* target = candidates[0];
-        lbl_807C6B30.m04 = target;
-        if (target != 0) {
-            action[0xE0 / 4] = (int)target;
-            action[0x18 / 4] = 1;
-        } else {
-            action[0x18 / 4] = 4;
+    if (lbl_807C6A40.m64 == 0) {
+        lbl_807C6A40.m64 = lbl_807C68C0.m58;
+        lbl_807C6A40.m00 = 1;
+        if (lbl_807C6A40.m64 - lbl_807C68C0.m58 > 0) {
+            lbl_807C6A40.m64 = lbl_807C68C0.m58;
+            lbl_807C6A40.m18 = 3;
         }
-        action[0] = 1;
+    } else if (lbl_807C6A40.m64 - lbl_807C68C0.m58 > 0) {
+        lbl_807C6A40.m64 = lbl_807C68C0.m58;
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m18 = 3;
+    }
+    int state = lbl_807C6A40.m18;
+    if (state == 0) {
+        if (PickTarget_unk()) {
+            lbl_807C6A40.mE0 = lbl_807C6B30.m04;
+            lbl_807C6A40.m00 = 1;
+            lbl_807C6A40.m18 = 1;
+            return -1;
+        }
+        lbl_807C6A40.m18 = 4;
+        lbl_807C6A40.m00 = 1;
         return -1;
     }
     if (state == 1) {
-        CharaTask* target = (CharaTask*)action[0xE0 / 4];
-        if (fn_8001BE00(target)) {
-            int args[4];
-            args[3] = 0;
-            args[2] = 0;
-            args[1] = action[0x1C / 4];
-            args[0] = (int)target;
-            fn_8001AEDC(9, &args[0], &args[1], &args[2], &args[3]);
-            script[0x28 / 4] = (int)target;
-            action[0] = 1;
-            action[0x18 / 4] = 2;
-        } else {
-            action[0x18 / 4] = 4;
-            action[0] = 1;
+        if (fn_8001BE00(lbl_807C6A40.mE0)) {
+            CharaTask* target = lbl_807C6A40.mE0;
+            Command_unk(9, (int)target, lbl_807C6A40.m1C, 0, 0);
+            lbl_807C68C0.m28 = (int)target;
+            lbl_807C6A40.m00 = 1;
+            lbl_807C6A40.m18 = 2;
+            return -1;
         }
+        lbl_807C6A40.m18 = 4;
+        lbl_807C6A40.m00 = 1;
         return -1;
     }
     if (state == 2) {
-        CharaTask* target = (CharaTask*)script[0x20 / 4];
-        CharaTask* current = (CharaTask*)action[0xE0 / 4];
-        if (!fn_8001BE00(current)) {
-            action[0] = 1;
-            action[0x18 / 4] = 0;
-            return -1;
-        }
-        if (fn_8001BE00(target)) {
-            int distance = 0;
-            if (target != 0 && current != 0) {
-                distance = (int)fn_8001AD80(target, current);
-            }
-            if (distance < action[0x20 / 4]) {
-                int args[4];
-                args[3] = 0;
-                args[2] = 0;
-                args[1] = 0;
-                args[0] = script[0x20 / 4];
-                action[0x18 / 4] = 3;
-                action[0] = 1;
-                fn_8001AEDC(4, &args[0], &args[1], &args[2], &args[3]);
-                return 5;
-            }
-            int originDistance = 0;
-            if (script[0x20 / 4] != 0 && script[0] != 0) {
-                originDistance = (int)fn_8001AD80((CharaTask*)script[0], target);
-            }
-            if ((double)originDistance < lbl_8072FF68 * (double)script[0x30 / 4]) {
-                int args[4];
-                args[3] = 0;
-                args[2] = 0;
-                args[1] = 0;
-                args[0] = 1;
-                fn_8001AEDC(5, &args[0], &args[1], &args[2], &args[3]);
-                action[0] = 1;
-                action[0x18 / 4] = 3;
-                action[0x3C / 4] = action[0x28 / 4];
-                return 8;
+        if (fn_8001BE00(lbl_807C6A40.mE0)) {
+            if (fn_8001BE00(lbl_807C68C0.m20)) {
+                if (Distance_unk(lbl_807C68C0.m20, lbl_807C6A40.mE0) < lbl_807C6A40.m20) {
+                    lbl_807C6A40.m18 = 3;
+                    lbl_807C6A40.m00 = 1;
+                    Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
+                    return 5;
+                }
+                if (Distance_unk(lbl_807C68C0.m20, lbl_807C68C0.m00) < 0.75 * lbl_807C68C0.m30) {
+                    Command_unk(5, 1, 0, 0, 0);
+                    lbl_807C6A40.m00 = 1;
+                    lbl_807C6A40.m18 = 3;
+                    lbl_807C6A40.m3C = lbl_807C6A40.m28;
+                    return 8;
+                }
+                return -1;
             }
             return -1;
         }
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
         return -1;
     }
     if (state == 3) {
-        CharaTask* target = (CharaTask*)script[0x20 / 4];
-        if (fn_8001BE00(target)) {
-            int delay = (int)(lbl_808807AC * (float)script[0x30 / 4]);
-            if (target != 0) {
-                int fallbackArgs[4];
-                int delayArgs[4];
-                if (delay != 0) {
-                    delayArgs[3] = 0;
-                    delayArgs[2] = 0;
-                    delayArgs[1] = delay;
-                    delayArgs[0] = (int)target;
-                    fn_8001AEDC(3, &delayArgs[0], &delayArgs[1], &delayArgs[2], &delayArgs[3]);
-                } else {
-                    fallbackArgs[3] = 0;
-                    fallbackArgs[2] = 0;
-                    fallbackArgs[1] = 0x1E;
-                    fallbackArgs[0] = (int)target;
-                    fn_8001AEDC(3, &fallbackArgs[0], &fallbackArgs[1], &fallbackArgs[2], &fallbackArgs[3]);
-                }
-            }
-            action[0] = 1;
-            action[0x18 / 4] = 1;
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            int range = 0.8f * lbl_807C68C0.m30;
+            ApproachRange_unk(range);
+            lbl_807C6A40.m00 = 1;
             return 6;
         }
-        action[0x18 / 4] = 0;
-        action[0] = 1;
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
         return -1;
     }
-    CharaTask* target = (CharaTask*)script[0x20 / 4];
-    if (fn_8001BE00(target) && script[2] != 0) {
-        int delay = (int)(lbl_808807AC * (float)script[0x30 / 4]);
-        if (target != 0) {
-            int fallbackArgs[4];
-            int delayArgs[4];
-            if (delay != 0) {
-                delayArgs[3] = 0;
-                delayArgs[2] = 0;
-                delayArgs[1] = delay;
-                delayArgs[0] = (int)target;
-                fn_8001AEDC(3, &delayArgs[0], &delayArgs[1], &delayArgs[2], &delayArgs[3]);
-            } else {
-                fallbackArgs[3] = 0;
-                fallbackArgs[2] = 0;
-                fallbackArgs[1] = 0x1E;
-                fallbackArgs[0] = (int)target;
-                fn_8001AEDC(3, &fallbackArgs[0], &fallbackArgs[1], &fallbackArgs[2], &fallbackArgs[3]);
-            }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C68C0.m08 != 0) {
+            int range = 0.8f * lbl_807C68C0.m30;
+            ApproachRange_unk(range);
+            lbl_807C6A40.m00 = 1;
+            return 6;
         }
-        action[0] = 1;
-        return 6;
+        return -1;
     }
     return -1;
 }
