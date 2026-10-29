@@ -127,13 +127,23 @@ inline void SetPaneAlpha_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 
+// inferred: stores the item, its distance and how much it is in front of the player
+inline void SetSlot_unk(PopupSlot_unk* p, GimmickCommon* g, float dist, atn::Vector3& dir, CharaTask* chara) {
+    p->mTarget = g;
+    p->mDist = dist;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx mtx;
+    PSMTXRotRad(mtx, 'y', chara->mRot.y);
+    PSMTXMultVec(mtx, &front, &front);
+    p->mDot = PSVECDotProduct(&dir, &front);
+}
+
 // inferred: places the item popups over the nearest items in front of the player and shows the
 // attack/magic difference with the equipped weapon
-// NONMATCHING: 97.6% - registers (r18-r31 shifted by one: the original keeps three copies of the
-// wide string pool address and the slot offset), the flag test of the field task (beq/b in the
-// original), stack slots of the screen/front vectors and memset instead of the zero loop for the
-// type text. Tried (close-units qD, 10 attempts): separate guards, the body in an if/inline,
-// bool temporaries, task by index/pointer, screen declared first.
+// NONMATCHING: 99.8% - only the flag test of the field task (beq body / b epilogue in the original,
+// a single bne here). Tried (close-units qD + close-near-units, ~15 attempts): separate guards,
+// the body in an if, the guard as an inline bool, `a != 0 && flag` with the body inside, the flag
+// test and body as an inline member (stack grows).
 void Popup::vf10() {
     PopupSession_unk* session = lbl_8087F610;
     if (session == 0 || !session->IsPlaying_unk()) {
@@ -153,7 +163,6 @@ void Popup::vf10() {
     }
     {
     CharaTask* chara = fn_804EB870(lbl_8087F610)->m00;
-    atn::Vector3 screen;
     for (GimmickCommon* g = GimmickManager::instance_ != 0 ? GimmickManager::instance_->mHead : 0; g != 0; g = g->m5C) {
         if (g->m50 != 0x12 || g->vf60() == 0) {
             continue;
@@ -180,14 +189,7 @@ void Popup::vf10() {
             }
         }
         if (dist < far && slot >= 0) {
-            PopupSlot_unk* p = &m5C[slot];
-            p->mTarget = g;
-            p->mDist = dist;
-            atn::Vector3 front(0.0f, 0.0f, 1.0f);
-            Mtx mtx;
-            PSMTXRotRad(mtx, 'y', chara->mRot.y);
-            PSMTXMultVec(mtx, &front, &front);
-            p->mDot = PSVECDotProduct(&dir, &front);
+            SetSlot_unk(&m5C[slot], g, dist, dir, chara);
         }
     }
     for (PopupD2A_unk** it = &m48[0]; it != &m48[m48.size()]; it++) {
@@ -195,16 +197,18 @@ void Popup::vf10() {
             (*it)->mFlags |= 4;
         }
     }
-    float add = 30.0f;
-    float r = 20.0f;
-    float gr = 100.0f;
-    float b = 200.0f;
+    float add, b, gr, r;
+    add = 30.0f;
+    r = 20.0f;
+    gr = 100.0f;
+    b = 200.0f;
     for (int i = 0; i < 4; i++) {
         PopupSlot_unk* p = &m5C[i];
         if (p->mTarget == 0 || p->mTarget->vf60() == 0) {
             continue;
         }
-        PopupTask_unk* task = (PopupTask_unk*)m48[i];
+        PopupTask_unk* task = (PopupTask_unk*)m48.mData[(unsigned int)i];
+        atn::Vector3 screen;
         fn_800BFAC8(&screen, lbl_8087EFB4, &((PopupItem_unk*)p->mTarget)->mPos);
         if (0.0f <= screen.z && screen.z <= 1.0f && p->mDist < 3600.0f && p->mDot >= 0.5f) {
         SetPaneValue_unk(task->mLayout, "pos0001(1)", 0, screen.x);
