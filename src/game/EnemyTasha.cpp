@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "chr/ControlDamage.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -72,11 +73,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
-// inferred: reaction control created by vf6C (class unknown, 0x24 bytes; as in game/EnemyTask.cpp)
-struct EnemyReaction_unk {
-    EnemyReaction_unk(CharaTask* chara, const atn::Vector3* dir, int kind); // 0x801AFAC0
-    unsigned char m00[0x24];
-};
 
 // NONMATCHING: draft
 EnemyTasha::EnemyTasha(atn::Task* parent, EnemyInfo_unk* info)
@@ -1379,7 +1375,7 @@ void EnemyTasha::vf6C(int kind, CharaTask* other) {
     dir.y = 0.0f;
     PSVECNormalize(&dir, &dir);
     if (kind >= 9 && kind <= 12) {
-        fn_80178208((chr::ControlBase*)new ((MemoryTag)3, "", "", 0) EnemyReaction_unk(this, &dir, kind));
+        fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlDamageLastOne(this, &dir, kind));
         m58C = 6;
     }
 }
