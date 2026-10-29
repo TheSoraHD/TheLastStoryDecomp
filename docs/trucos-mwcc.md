@@ -200,3 +200,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Los floats de configuración de un bucle (`rate *= step` con tope) en una inline que devuelve el resultado dan los registros float del original; escritos en la función, no (`ComboRate_unk`).
 - Un `std::vector` miembro con un nivel de destructor de más: envolverlo en una clase derivada vacía (`CharaListenerList_unk`, destructor 0x8003EFB0).
 - Bucle que recoge bits (`if (bit == (bit & mask)) *out++ = bit;`): el orden de declaración `bits[32]`, `out`, `count`, `mask` decide qué registro lleva `i` y cuál `bit` (`fn_80040B44`).
+- Dentro de una inline, temporales y locales van en la pila al revés que en quien la llama (el primero, más abajo): el orden de pila delata qué cálculo estaba en una inline (`Advance_unk`, `ColliPlane_unk::Intersect_unk`, `docs/batch-auto-50kb-atn.md`).
+- Local llenado con copia `psq` desde un temporal = asignación tras declararlo (`Vector3 nd; nd = a - b;`) o `GetNormalize()`; llenado por dos caminos sin copia = `return` de una inline con dos salidas.
+- `stfs` temprano y `lfs` desde la pila de un campo: miembro de un local asignado antes de la copia/llamada (`local.mRadius = s->mRadius;` antes de `inv = box->mMtx;`).
+- `a || b || c` en una inline que devuelve `bool` da `cntlzw`/`srwi.` con banderas; en un `if` directo, `cmplwi`/`beq` (`IsInfNan_unk`).
+- `if (p) p->x = 1;` dentro de un bucle que ya sabe `p != 0`: inline que recibe el puntero (`Kill_unk`).

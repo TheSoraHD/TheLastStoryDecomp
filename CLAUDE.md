@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `batch-auto-20kb-game` (2026-10-29, propuesta E, primera mitad, mergeada en `main` con `close-near-units`): **8571 / 18215 funciones al 100%** (código 30,8%, fuzzy 52,7%), **372** ficheros enlazados, `main.dol: OK`. 17 unidades de 10–20 KB con fuente nueva (más `chr/ControlBase`) (`chr/Control*`, `Event/Path`, `DialogHead`, `EnvSeManager`, `DamageCalc_unk`...); detalle y decisiones en `docs/batch-auto-20kb-game.md`. La segunda mitad va en `batch-auto-20kb-game-b`.
-- Anteriores: `close-near-units` (K: SparkCube y Banana enlazadas, `docs/close-near-units.md`), `rso-names*` (nombres reales del RSO USA, `docs/rso-names*.md`); unidades de Svenchu/Codex y su revisión en `docs/revision-2026-10-29.md`.
-- objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%.
+- `batch-auto-50kb-atn` (2026-10-29, propuesta F, rama sin mergear): **8614 / 18215 funciones al 100%** (código 30,96%, fuzzy 52,99%), **372** ficheros enlazados, `main.dol: OK`. Fuente nueva de `atn/ColliTest_unk` (16/28) y `atn/EffectSystem_unk` (27/58); `atn/ComDrawTexture` y `atn/MaterialParser_unk` aplazadas (sus métodos se llaman como `extern "C"` con `self` desde otros ficheros: renombrar es decisión del usuario). Detalle en `docs/batch-auto-50kb-atn.md`.
+- Anteriores: `batch-auto-20kb-game` (E, primera mitad, `docs/batch-auto-20kb-game.md`; la segunda mitad va en `batch-auto-20kb-game-b`), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
+- objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%. Tras editar una unidad ya emparejada: `resetlocal.py`, `pairdata.py --apply`, `configure`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)
