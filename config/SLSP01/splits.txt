@@ -2044,11 +2044,11 @@ std/bad_cast_what.cpp:
 	.text       start:0x803AD13C end:0x803AD148
 
 game/GameEventScript_cont2.cpp:
-	.text       start:0x803AD148 end:0x803B27AC
+	.text       start:0x803AD148 end:0x803B27F8
 	.ctors      start:0x8072D358 end:0x8072D35C
 
-auto_03_803B27AC_text.cpp:
-	.text       start:0x803B27AC end:0x803B33F8
+auto_03_803B27F8_text.cpp:
+	.text       start:0x803B27F8 end:0x803B33F8
 	.ctors      start:0x8072D35C end:0x8072D360
 	.rodata     start:0x8074FB78 end:0x8074FC08
 	.data       start:0x8078B3A0 end:0x8078B400

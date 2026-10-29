@@ -1,3 +1,6 @@
+// auto_03_803B27F8_text.cpp: starts at 0x803B27F8. The virtual-base destructor thunks of
+// basic_istream/basic_iostream/basic_stringstream<char> (0x803B27AC-0x803B27F8) belong to
+// game/GameEventScript (its vtables are in that unit's .data); they are emitted by the compiler there.
 #include "atn/SequenceBoot_unk.h"
 struct ElemA { char data[0x2D4]; ~ElemA(); };
 struct ElemB { char data[0x240]; ~ElemB(); };
@@ -75,9 +78,6 @@ void* memset(void* dst, int c, unsigned long n);
 int sprintf(char* dst, const char* fmt, ...);
 
 void* fn_80084320(int size, int field_a, const char* name1, const char* name2, int field_b);
-void fn_80394190(void* self);
-void fn_803940E8(void* self);
-void fn_80394208(void* self);
 void fn_803B82C0(void* self, void* arg1);
 void fn_803BE8B4(void* elem);
 void* fn_803B33F8(void* self);
@@ -103,26 +103,6 @@ void fn_800616C0(void* a, const char* s, unsigned int color,
 void fn_803B8160(void* p);
 
 Unk* fn_803B2870(Unk* self, void* arg1, const UnkArg* arg2);
-
-void fn_803B27AC(char* self) {
-    fn_80394190(self + *(int*)(self + 0x3c) - 0xc);
-}
-
-void fn_803B27C0(char* self) {
-    fn_803940E8(self + *(int*)(self + 0x3c) - 0x14);
-}
-
-void fn_803B27D4(char* self) {
-    fn_803940E8(self - 0xC);
-}
-
-void fn_803B27DC(char* self) {
-    fn_80394208(self + *(int*)(self + 0x3c) - 0x4C);
-}
-
-void fn_803B27F0(char* self) {
-    fn_80394208(self - 0xC);
-}
 
 void* fn_803B27F8(void* a, void* b) {
     void* p;

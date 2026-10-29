@@ -14,7 +14,7 @@ Antes documento `SPLITS_plan.md` del proyecto de claude.ai. La rama `splits-auto
 3. Unidades grandes sin cortes internos (sin pruebas): `AI/AI_archer_attack01`, `game/BattleTask` (~120 KB), `atn/PacketPack` (tramo `MP::Manager*`), `game/CosEditItemList_unk`, `game/Gun`, `game/GameSoundControl`, `game/GameChoiceWindow`.
 4. `Event/Node` partida en Node/Channel/Cut/Label/Section.
 5. `atn/CsvBase_char_124_13_34`: son 6 cargadores; la unidad queda solo como el de `battle_eff_se_table`.
-6. Nombres heredados que no cuadran: `std/bad_cast` = `GameEventScript`; `auto_03_803B27AC_text` = `GameLoadTask`; `std/char_traits_char`/`allocator_char` son cola de otro fichero.
+6. Nombres heredados que no cuadran: `std/bad_cast` = `GameEventScript`; `auto_03_803B27F8_text` = `GameLoadTask` (sus thunks 0x803B27AC–0x803B27F8 son de `GameEventScript`); `std/char_traits_char`/`allocator_char` son cola de otro fichero.
 7. Cortes débiles y datos sin asignar por límites de dtk: lista en `docs/splits-auto.md`.
 
 ## Qué queda
