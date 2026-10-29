@@ -10,7 +10,14 @@
 
 // inferred from __vt__10LaserTrace (0x807889C0): trail of the laser, a list of effect owners
 // (allocated with new, released by the effect manager) and a looping sound. Names invented.
-struct LaserPoint_unk;
+// inferred: one segment of the trail (0x50 bytes, new in fn_8031E078; fields from fn_8031E8BC)
+struct LaserPoint_unk {
+    atn::Matrix3x4 m00; // inferred: placement of the segment effect
+    atn::Vector3 m30;   // inferred: start of the segment
+    atn::Vector3 m3C;   // inferred: direction
+    float m48;          // inferred: length
+    int m4C;            // inferred: frames left
+};
 // inferred: a class derived from std::vector (its destructor tests `this` four times, as
 // CharaList_unk of game/Em002_01BlackSkelton.h); name invented
 struct LaserList_unk : public std::vector<LaserPoint_unk*> {
@@ -24,6 +31,8 @@ public:
     LaserTrace();          // 0x8031D4F4
     virtual ~LaserTrace(); // 0x8031D57C
     inline void Reset_unk();
+    inline void Update_unk(); // inferred: stops the sound when off, ages the points (name invented)
+    void fn_8031E8BC(const atn::Vector3& pos, const atn::Vector3& normal); // inferred: extends the trail
 
     int m04;
     void* m08; // inferred: effect of the start of the laser (Em316LastLaser::m1574)
@@ -57,11 +66,15 @@ public:
     inline void SetState_unk(int state); // inferred: inlined everywhere (name invented)
     inline void Appear_unk(const atn::Vector3& pos, const atn::Vector3& offset);
     inline void SetAppear_unk(const atn::Vector3& pos, const atn::Vector3& offset); // inferred: name invented
+    float TargetDist_unk(CharaTask* target);
+    inline void UpdateColli_unk();
+    void fn_8031CA30(); // inferred: state 8
+    void fn_8031D350(); // inferred: aims the laser at the target (state 8)
     void fn_8031D27C(); // inferred: resets the step and takes a new bullet id
     void fn_8031D2BC(); // inferred: back to state 0, stops the effects 1000, 0x65 and 0x66
 
     atn::LH_Binary m14B0;
-    int m14B8;
+    CharaTask* m14B8; // inferred: target (nearest free player)
     int m14BC; // inferred: step of the state
     int m14C0; // inferred: frame counter
     int m14C4;
