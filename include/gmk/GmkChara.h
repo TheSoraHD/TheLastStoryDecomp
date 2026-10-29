@@ -14,7 +14,7 @@ public:
     // inferred: the path is read inside the constructor (after the CharaTask constructor)
     GmkChara(atn::Task* parent, const std::string& path) : CharaTask(parent, 5, 0) {
         fn_80136544(path.data());
-        m1188.fn_8011D424(&mMotion);
+        m1188.Initialize(&mMotion);
     }
     virtual ~GmkChara() {}
     virtual int vf0C() { return fn_8013655C() == 0; }

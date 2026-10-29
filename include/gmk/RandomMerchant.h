@@ -18,7 +18,7 @@ class RandomMerchantChara : public CharaTask {
 public:
     RandomMerchantChara(atn::Task* parent, const std::string& path) : CharaTask(parent, 1, 0) {
         fn_80136544(path.data());
-        m1188.fn_8011D424(&mMotion);
+        m1188.Initialize(&mMotion);
         m137C |= 1;
     }
     virtual ~RandomMerchantChara() {}

@@ -776,7 +776,7 @@ int CharaTask::fn_8013655C() {
             mMotion.fn_80099E9C("hips", "em003", 1.6f);
         }
         mLook.fn_801298EC(this);
-        m1188.fn_8011D424(&mMotion);
+        m1188.Initialize(&mMotion);
         m1220.fn_80121114(this);
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
             m6A4.mData[i]->fn_80363960(&mMotion);

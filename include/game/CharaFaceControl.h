@@ -23,7 +23,7 @@ public:
     struct MotionPart {
         // inferred: weak copy 0x8011EAF8
         MotionPart() : m00(-1), m04(0.0f) {}
-        // inferred: inlined in CharaFaceControl::fn_8011E81C (the buffer is cleared first)
+        // inferred: inlined in CharaFaceControl::SetMotion (the buffer is cleared first)
         MotionPart(int motion) {
             m00 = motion;
             m04 = 1.0f;
@@ -55,17 +55,17 @@ public:
     };
 
     CharaFaceControl(); // 0x8011D24C
-    void fn_8011D424(atn::Model* model); // inferred: installs the node callback of the model
+    void Initialize(atn::Model* model); // inferred: installs the node callback of the model
     void fn_8011D844(atn::MotionBuffer* nodes, int arg); // inferred: node callback
     void fn_8011E200(MotionSet* entry, atn::SimpleVector<Event::PoseKey_unk>* edits, float weight);
     // inferred: plays the face motion `motion` (CharaObj, CharaTask)
-    void fn_8011E81C(int motion, unsigned char eyes, unsigned char head, unsigned char hair, float speed,
+    void SetMotion(int motion, bool eyes, bool head, bool hair, float speed,
                      float weight);
     // inferred: plays the face motions of a loaded face file
-    void fn_8011EB18(atn::SimpleArray<MotionPart>* keys, unsigned char eyes, unsigned char head, float speed,
+    void SetMotionParts(const atn::SimpleArray<MotionPart>& keys, bool eyes, bool head, float speed,
                      float weight);
-    void fn_8011EDE0(int fade); // inferred: stops the face motion (fading it out when `fade` is set)
-    void fn_8011EE58(float weight, float m74, float total, float fadeOut, float fadeIn); // inferred: blink timer
+    void ClearMotion(bool fade); // inferred: stops the face motion (fading it out when `fade` is set)
+    void StartBlink(float weight, float m74, float total, float fadeOut, float fadeIn); // inferred: blink timer
 
     atn::Model* m00;
     MotionSet m04[2];

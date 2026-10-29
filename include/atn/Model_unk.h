@@ -206,7 +206,7 @@ struct Model : public ModelBase {
     // inferred: second node pose callback (set by fn_8031F2A4 of game/Em401_01_WhiteLeoPard.cpp, used by the
     // white leopard and the war lion)
     boost::function<void(atn::MotionBuffer*, int)> m35C;
-    // inferred: callback run on the node poses (set by CharaFaceControl::fn_8011D424)
+    // inferred: callback run on the node poses (set by CharaFaceControl::Initialize)
     boost::function<void(atn::MotionBuffer*, int)> m370;
     unsigned char m384[0x3D0 - 0x384];
 };

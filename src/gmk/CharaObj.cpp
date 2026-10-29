@@ -62,7 +62,7 @@ void CharaObj::Start() {
         mChara->mMotion.mTracks[0].m0C = 1.0f;
         mChara->mMotion.fn_80097C08(0, 0x13F, 1, 0, 1, 1.0f, 0.1f);
         if (mHasFace != 0) {
-            mChara->m1188.fn_8011E81C(0x142, 1, 1, 1, 1.0f, 0.0f);
+            mChara->m1188.SetMotion(0x142, 1, 1, 1, 1.0f, 0.0f);
         }
     }
 }

@@ -52,7 +52,7 @@ CharaFaceControl::CharaFaceControl() : m00(0), m5C(0), m60(-1.0f), m78(0), m7C(1
 // inferred: the original copies the callback and swaps it into the model (the frame and the swap
 // temporaries only match this way: perhaps an inline setter of atn::Model taking the function by
 // reference)
-void CharaFaceControl::fn_8011D424(atn::Model* model) {
+void CharaFaceControl::Initialize(atn::Model* model) {
     m00 = model;
     boost::function<void(atn::MotionBuffer*, int)> callback(boost::bind(&CharaFaceControl::fn_8011D844, this, _1, _2));
     atn::Model* target = m00;
@@ -274,7 +274,7 @@ void CharaFaceControl::fn_8011E200(MotionSet* entry, atn::SimpleVector<Event::Po
     }
 }
 
-void CharaFaceControl::fn_8011E81C(int motion, unsigned char eyes, unsigned char head, unsigned char hair,
+void CharaFaceControl::SetMotion(int motion, bool eyes, bool head, bool hair,
                                    float speed, float weight) {
     if (m04[m5C].IsActive_unk()) {
         if (motion == m04[m5C].mKeys.mData[0].m00) {
@@ -300,16 +300,16 @@ void CharaFaceControl::fn_8011E81C(int motion, unsigned char eyes, unsigned char
 
 // NONMATCHING: 99.21% - registers of the inlined SimpleArray copy (the new size and the element
 // pointer swap r21/r23)
-void CharaFaceControl::fn_8011EB18(atn::SimpleArray<MotionPart>* keys, unsigned char eyes, unsigned char head,
+void CharaFaceControl::SetMotionParts(const atn::SimpleArray<MotionPart>& keys, bool eyes, bool head,
                                    float speed, float weight) {
     if (m04[m5C].IsActive_unk()) {
-        if (keys->mData[0].m00 == m04[m5C].mKeys.mData[0].m00) {
+        if (keys.mData[0].m00 == m04[m5C].mKeys.mData[0].m00) {
             return;
         }
         m04[m5C].m0C = 0.0f;
         m5C = !m5C;
     }
-    m04[m5C].mKeys = *keys;
+    m04[m5C].mKeys = keys;
     m04[m5C].m00 = 0.0f;
     m04[m5C].m04 = 1.0f;
     m04[m5C].m08 = weight;
@@ -321,7 +321,7 @@ void CharaFaceControl::fn_8011EB18(atn::SimpleArray<MotionPart>* keys, unsigned 
     m44[m5C].clear();
 }
 
-void CharaFaceControl::fn_8011EDE0(int fade) {
+void CharaFaceControl::ClearMotion(bool fade) {
     if (fade != 0) {
         if (m04[m5C].IsActive_unk()) {
             m04[m5C].m0C = -0.1f;
@@ -332,7 +332,7 @@ void CharaFaceControl::fn_8011EDE0(int fade) {
     }
 }
 
-void CharaFaceControl::fn_8011EE58(float weight, float m74_, float total, float fadeOut, float fadeIn) {
+void CharaFaceControl::StartBlink(float weight, float m74_, float total, float fadeOut, float fadeIn) {
     m70 = weight;
     m74 = m74_;
     m64 = fadeIn;
