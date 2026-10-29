@@ -7036,11 +7036,6 @@ struct HitEvent_unk {
     unsigned int mFlags;
 };
 
-// inferred: (mask & flags) == mask on a flag word (weak copy 0x80151168); name invented
-inline bool HasFlags_unk(const int& flags, unsigned int mask) {
-    return (mask & flags) == mask;
-}
-
 // inferred: object behind lbl_8087F490 (weak copies 0x80151204 and 0x80151210); names invented
 struct Unk8087F490_unk;
 extern "C" Unk8087F490_unk* lbl_8087F490;
@@ -7127,7 +7122,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
             }
             fn_8016DA4C();
             fn_801698E4(rot);
-        } else if (msg != 0 && HasFlags_unk(msg->mData->m90, 0x4000) && mStatus.IsState_unk(0x4000)) {
+        } else if (msg != 0 && msg->mData->m90.Check(0x4000) && mStatus.IsState_unk(0x4000)) {
             fn_801681B0(dir, 0, (msg->mData->mAC >> 9) & 1);
         } else if (msg != 0 && msg->mAttacker != 0 && msg->mAttacker->GetStatus_unk()->fn_80133EE8(24) != 0 &&
                    mStatus.IsState_unk(0x4000)) {
@@ -7149,7 +7144,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
                     fn_8015D8C0(power, dir, msg != 0 ? (int)msg->mAttacker : 0);
                 }
             }
-        } else if (msg != 0 && HasFlags_unk(msg->mData->m90, 0x20000) && mStatus.IsState_unk(0x20000)) {
+        } else if (msg != 0 && msg->mData->m90.Check(0x20000) && mStatus.IsState_unk(0x20000)) {
             fn_80168824((msg->mData->mAC >> 9) & 1);
         } else if (lenSq > limit * limit || (flags & 0x10000) == 0x10000) {
             fn_8016DA4C();
@@ -11682,7 +11677,7 @@ void CharaTask::fn_80178BFC() {
             !((it->m0C & 0x100) == 0x100 && (it->m10 == 0 || (CharaTask*)it->m10 == this))) {
             mStatus.fn_8012E244(it->mHit);
             if (it->mHit->m01 != 1 && it->mHit->m01 != 4) {
-                effect |= it->mHit->m90;
+                effect |= it->mHit->m90.mFlags;
             }
         }
         if ((it->m0C & 0x100) == 0x100 && (CharaTask*)it->m10 == this) {

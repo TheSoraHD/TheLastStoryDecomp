@@ -409,7 +409,7 @@ void Em204BigMulue::vf40(HitInfo_unk* hit) {
             if (m1550 > 5.0f) {
                 m14DC = 3;
                 vf100(14);
-            } else if (msg->mData != 0 && (msg->mData->m90 & 0x2000000) == 0x2000000) {
+            } else if (msg->mData != 0 && (msg->mData->m90.mFlags & 0x2000000) == 0x2000000) {
                 m14DC = 3;
                 vf100(14);
             }

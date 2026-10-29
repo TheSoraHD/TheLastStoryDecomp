@@ -738,7 +738,7 @@ void CharaStatus::fn_8012E244(HitInfo_unk* hit) {
     if (fn_8021A8D0(hit)) {
         flag = 1;
     }
-    fn_8012F440(hit->m90, hit->m94, flag, 0, (hit->mAC >> 8) & 1, (hit->mAC >> 9) & 1, ((hit->mAC & 0x200000) != 0x200000));
+    fn_8012F440(hit->m90.mFlags, hit->m94, flag, 0, (hit->mAC >> 8) & 1, (hit->mAC >> 9) & 1, ((hit->mAC & 0x200000) != 0x200000));
 }
 
 int CharaStatus::fn_8012E534() {

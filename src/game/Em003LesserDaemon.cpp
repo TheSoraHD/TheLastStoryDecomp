@@ -773,7 +773,7 @@ void Em003LesserDaemon::vf3C(HitInfo_unk* hit) {
                 }
             }
             fn_8023A680(lbl_8087F3C0, &m1528, -1, 0, 0, &pos, &rot, 0, 1.0f, 0, -1, 1);
-            if (m16BC == 0 || msg->mData == 0 || (msg->mData->m90 & 0x4000U) != 0x4000U) {
+            if (m16BC == 0 || msg->mData == 0 || (msg->mData->m90.mFlags & 0x4000U) != 0x4000U) {
                 return;
             }
         } else {

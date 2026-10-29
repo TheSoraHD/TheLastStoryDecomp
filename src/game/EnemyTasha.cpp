@@ -378,7 +378,7 @@ int EnemyTasha::vf10C(HitMsg_unk* msg) {
     }
     switch (m14E0) {
     case 1:
-        if ((msg->mData->m90 & 0x80000) == 0x80000) {
+        if ((msg->mData->m90.mFlags & 0x80000) == 0x80000) {
             m14E0 = 3;
             m14E8 = 300.0f;
             fn_8059C2A8(lbl_8087F9E8, this, m1578[1]);
@@ -397,7 +397,7 @@ int EnemyTasha::vf10C(HitMsg_unk* msg) {
         if (data != 0 && data->m04 - 0x1F7U <= 2) {
             return 0;
         }
-        unsigned int f = data->m90;
+        unsigned int f = data->m90.mFlags;
         if ((f & 8) == 8 || (f & 0x200) == 0x200 || (f & 0x800000) == 0x800000) {
             m14E0 = 3;
             m14E8 = 300.0f;

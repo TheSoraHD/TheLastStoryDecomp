@@ -414,7 +414,7 @@ void Em316LaserSphere::vf40(HitInfo_unk* hit) {
         return;
     }
     HitInfo_unk* data = ((HitMsg_unk*)hit)->mData;
-    if (data != 0 && (data->m90 & 0x800000) == 0x800000) {
+    if (data != 0 && (data->m90.mFlags & 0x800000) == 0x800000) {
         SetState_unk(12);
         atn::Vector3 pos = fn_80318648(m14B8);
         m1510 = m1504 = mPos;

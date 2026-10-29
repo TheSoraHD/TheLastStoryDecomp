@@ -2,6 +2,7 @@
 #define GAME_HITINFO_UNK_H
 
 #include "math/Vec.h"
+#include "db/SkillBase.h"
 
 // inferred: values at HitInfo_unk::m74 (names invented)
 struct HitRange_unk {
@@ -39,7 +40,7 @@ struct HitInfo_unk {
     int m6C; // inferred: id of a second bullet (CharaTask::fn_801784BC); 2 and 5 are tested by fn_80178BFC
     int m70; // inferred: id of a sub bullet (CharaTask::fn_8014C540)
     HitRange_unk m74; // inferred: passed to fn_80040588
-    int m90;
+    db::SkillBase::Condition m90; // inferred: Check(0x4000), Check(0x20000) (CharaTask)
     int m94;
     int m98;  // inferred: percentages applied to mParamB (fn_8012E244)
     int m9C;
