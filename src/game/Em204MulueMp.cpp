@@ -34,8 +34,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
 extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
-extern "C" void fn_8010EE78(Bullet* bullet, BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir,
-                            CharaTask* owner, int id, int arg, float speed); // inferred: fires the bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
 struct EffectMgr_unk {
@@ -925,7 +923,7 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
                 shot.m04 = (int)&m1524;
                 shot.m08 = 0;
                 shot.m0C = m1680;
-                fn_8010EE78(bullet, &shot, &hips, &to, this, -1, 0, -1.0f);
+                bullet->fn_8010EE78(&shot, &hips, &to, this, -1, 0, -1.0f);
             }
         }
     }

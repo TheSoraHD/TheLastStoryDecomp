@@ -29,8 +29,6 @@ extern "C" Bullet* fn_801010A0(BulletPool_unk* pool); // inferred: a free bullet
 extern "C" HitInfo_unk* fn_80219E6C(int id);          // inferred: bullet data by id
 extern "C" int fn_800EFD04(int id);                   // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
-extern "C" void fn_8010EFF0(Bullet* bullet, BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir,
-                            int arg4, int arg5, int arg6, float speed); // inferred: fires the bullet
 // inferred: gravity per frame (names invented)
 inline float Gravity_unk() {
     return -98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps);
@@ -173,7 +171,7 @@ void BulletPoint::vf10() {
     shot.m04 = fn_800EFD04(skill->mB0);
     shot.m08 = fn_800EFDA0(skill->mB0);
     shot.m0C = skill;
-    fn_8010EFF0(bullet, &shot, &mDesc->mPos, &dir, mDesc->m2C, -1, 0, speed);
+    bullet->fn_8010EFF0(&shot, &mDesc->mPos, &dir, mDesc->m2C, -1, 0, speed);
 }
 
 void BulletPoint::Start() {}

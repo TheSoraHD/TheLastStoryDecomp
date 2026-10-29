@@ -158,8 +158,6 @@ extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
 extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
 extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
-extern "C" void fn_8010EE78(Bullet* bullet, BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir,
-                            CharaTask* owner, int id, int arg, float speed); // inferred: fires the bullet
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
@@ -1182,7 +1180,7 @@ void EnemyQuarkStand::fn_80348FF4() {
                 shot.m0C = m152C;
                 shot.m10 = 0;
                 shot.m14 = 0.0f;
-                fn_8010EE78(bullet, &shot, &pos, &m1654, this, m590, 0, -1.0f);
+                bullet->fn_8010EE78(&shot, &pos, &m1654, this, m590, 0, -1.0f);
             }
             float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.GetMotionFrame(0) - 60.0f) / 20.0f));
             float dist = fn_800F8524(&sBurstNear_unk, &sBurstFar_unk, t);

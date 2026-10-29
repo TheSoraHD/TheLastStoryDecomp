@@ -41,7 +41,7 @@ public:
 // inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes, see game/CharaTask.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
+    int m00; // inferred: 1 when filled by a bullet that reached its range (game/Bullet)
     atn::Vector3 m04; // inferred: hit position
     atn::Vector3 m10; // inferred: position after the sweep
     atn::Vector3 m1C; // inferred: normal

@@ -33,8 +33,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
 extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
-extern "C" void fn_8010EE78(Bullet* bullet, BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir,
-                            CharaTask* owner, int id, int arg, float speed); // inferred: fires the bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -1249,7 +1247,7 @@ void Em204BigMulue::fn_802B1B50(int fire) {
                 shot.m04 = (int)&m1A6C;
                 shot.m08 = 0;
                 shot.m0C = m1540;
-                fn_8010EE78(bullet, &shot, &hips, &dir, this, -1, 0, -1.0f);
+                bullet->fn_8010EE78(&shot, &hips, &dir, this, -1, 0, -1.0f);
             }
         }
     }

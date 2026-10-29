@@ -22,44 +22,7 @@ struct HomingParams_unk {
 };
 extern "C" HomingParams_unk* lbl_8087EFA8;
 
-// inferred: field object; m5590 is the replay recorder
-struct HomingField_unk {
-    unsigned char m0000[0x5590];
-    void* m5590;
-};
 extern "C" HomingField_unk* lbl_8087F430;
-
-// inferred: event recorded by the replay (0x44 bytes; kind 2: shot, kind 3: removed). Names invented.
-struct ReplayShot_unk {
-    ReplayShot_unk() : m00(0.1f), m04(0), m08(0), m10(0), m14(0.0f), m18(1.0f) {}
-    float m00;
-    int m04;
-    int m08;
-    HitInfo_unk* m0C;
-    int m10;
-    float m14;
-    float m18;
-};
-struct ReplayEvent_unk {
-    int mKind;
-    ReplayShot_unk mShot;
-    atn::Vector3 mPos;
-    atn::Vector3 mDir;
-    CharaTask* mOwner;
-    int m3C;
-    Bullet* mBullet;
-};
-extern "C" void fn_805706C0(void* recorder, ReplayEvent_unk* ev); // inferred: records an event
-
-// inferred: data of listener event 12 (a homing bullet was shot); names invented
-struct HomingShotEvent_unk {
-    CharaTask* mOwner;
-    int mId;
-    atn::Vector3 mPos;
-    atn::Vector3 mDir;
-    int mArg;
-    HomingParam_unk* mParam;
-};
 
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048;
@@ -104,7 +67,7 @@ void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn
     m8C = 0;
     m90 = owner->mType;
     mA0 = *param;
-    fn_8010F018(this, shot, pos, dir, param->mCount > 0 ? param->mCount : -1, arg, 0);
+    fn_8010F018(shot, pos, dir, mA0.mCount > 0 ? mA0.mCount : -1, arg, 0, mA0.m08);
     mC4 = 0.0f;
     if (lbl_8087F430->m5590 != 0) {
         ReplayEvent_unk ev;
@@ -117,7 +80,7 @@ void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn
         ev.mBullet = this;
         fn_805706C0(lbl_8087F430->m5590, &ev);
     }
-    HomingShotEvent_unk e;
+    ShotEvent_unk e;
     e.mOwner = owner;
     e.mId = shot->m0C->m04;
     e.mPos = *pos;
@@ -129,7 +92,7 @@ void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn
 
 void HomingBullet::vf0C(int a, int b) {
     int record = ((m04 >> 2) & 1) ^ 1;
-    fn_8010F30C(this, 0, b);
+    Bullet::vf0C(0, b);
     if (record && lbl_8087F430->m5590 != 0) {
         ReplayEvent_unk ev;
         ev.mKind = 3;
@@ -208,22 +171,22 @@ void HomingBullet::vf10() {
             m80 = max;
         }
     }
-    fn_8010F4BC(this);
+    fn_8010F4BC();
     if (!HasFlag_unk(0x200000)) {
         if (m84 == 0) {
             if ((int)m68->m02 == 6) {
-                fn_801120B0(this);
+                fn_801120B0();
             } else {
-                fn_801100A0(this);
+                fn_801100A0();
             }
         } else if (m84 == 1) {
-            fn_80112174(this);
+            fn_80112174();
         }
     }
 }
 
 void HomingBullet::vf14(const Mtx m) {
-    __MtxCopy(m2C, m);
+    __MtxCopy(m2C.m, m);
 }
 
 void HomingBullet::vf18() {}
@@ -239,10 +202,10 @@ void HomingBullet::fn_80441E8C(const atn::Vector3* dir, CharaTask* owner, CharaT
     mA0.mTime = 300.0f;
     mA0.mDelay = 5.0f;
     m04 &= ~0x200000;
-    fn_8010F4BC(this);
+    fn_8010F4BC();
 }
 
-void HomingBullet::vf20(CharaTask* chara, const atn::Vector3* pos, const atn::Vector3* dir) {
+void HomingBullet::vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3* dir) {
     m88->vf64(2);
     mA0.mTarget = m88;
     mA0.m08 = 0.5f * m80;
