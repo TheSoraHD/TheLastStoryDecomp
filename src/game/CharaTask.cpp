@@ -638,9 +638,6 @@ typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::
     NodeCallback_unk;
 extern "C" void fn_800F29D0(Model_unk* model, NodeCallback_unk callback);
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
-namespace std {
-string operator+(const string& lhs, const char* rhs); // 0x8006D008
-}
 
 // inferred: node edit read from a CSV line or built by hand (0x2C bytes); names invented
 struct NodeEdit_unk {

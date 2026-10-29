@@ -398,5 +398,5 @@ XsfCurveSet_unk* Xsca_unk::fn_805BE37C(XscaEntry_unk* entry, const std::string& 
 }
 
 // inferred: basic_string::reserve was instantiated by the original file (its message is in the
-// string pool between "" and the messages of __replace_unk); the weak copy is dropped by the linker
+// string pool between "" and the messages of do_replace); the weak copy is dropped by the linker
 template void std::string::reserve(unsigned long);

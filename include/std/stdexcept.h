@@ -42,7 +42,7 @@ class shared_ptr_deleter_common {
 public:
     shared_ptr_deleter_common() : mUseCount(1), mWeakCount(1) {}
     virtual ~shared_ptr_deleter_common() {}
-    virtual void* get_deleter(const type_info& ti) = 0;
+    virtual void* get_deleter(const type_info& ti) const = 0;
     virtual void dispose() = 0;
     void release();
 
@@ -61,7 +61,7 @@ template <class T, class D>
 class shared_ptr_deleter : public shared_ptr_deleter_common {
 public:
     shared_ptr_deleter(T* p, const D& d) : mPair(p, d) {}
-    virtual void* get_deleter(const type_info& ti);
+    virtual void* get_deleter(const type_info& ti) const;
     virtual void dispose() { ((D&)mPair)(mPair.mPtr); }
 
     __ptr_deleter_pair_unk<T, D> mPair;

@@ -18,10 +18,6 @@ extern "C" int fn_805F9EF0(const char* path);      // inferred: DVDConvertPathTo
 extern "C" void fn_8006A9A4(std::string& path);    // inferred: path normalisation
 extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extension of a path
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
-extern "C" std::string fn_8006AF38(const char* a, const std::string& b);
-namespace std {
-string operator+(const string& lhs, const char* rhs); // 0x8006D008
-}
 
 // inferred: engine memory manager (see atn/DwcAllocator_unk.cpp)
 struct MemoryManager_unk;
@@ -150,7 +146,7 @@ std::string fn_8046CC90(const std::string& in) {
         dir = "data/material/";
     }
     if (dir != 0) {
-        return fn_8006AF38(dir, fn_8006B174(path));
+        return dir + fn_8006B174(path);
     }
     return path;
 }

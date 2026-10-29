@@ -104,12 +104,12 @@ public:
     // does not reuse n2 for the memmove of the new characters (it recomputes j2 - j1), keeps
     // new_data + pos in a register of its own (one more saved register) and does not fold
     // tmp.size() for the empty temporary (it tests word 0 and reloads byte 0).
-    basic_string& __replace_unk(size_type pos, size_type n1, const T* j1, const T* j2, random_access_iterator_tag tag);
+    basic_string& do_replace(size_type pos, size_type n1, const T* j1, const T* j2, random_access_iterator_tag tag);
 
     // inferred: inlined at 0x80512944: size() is evaluated in assign, the iterator tag copy and
     // strlen in the inner replace
     basic_string& replace(size_type pos, size_type n1, const T* s) {
-        return __replace_unk(pos, n1, s, s + strlen(s), random_access_iterator_tag());
+        return do_replace(pos, n1, s, s + strlen(s), random_access_iterator_tag());
     }
     basic_string& assign(const T* s) { return replace(0, size(), s); }
 
@@ -121,7 +121,7 @@ public:
         __zero();
         size_type n = strlen(s);
         reserve(n);
-        __replace_unk(0, 0, s, s + n, random_access_iterator_tag());
+        do_replace(0, 0, s, s + n, random_access_iterator_tag());
     }
     basic_string(const basic_string& str, size_type pos, size_type n = npos); // 0x80069BF4 (char)
     // inferred: inlined in boost::tokenizer::begin (0x800EC654): a short string is copied word by
@@ -132,7 +132,7 @@ public:
         } else {
             __zero();
             reserve(str.mLong.mSize);
-            __replace_unk(0, 0, str.mLong.mData, str.mLong.mData + str.mLong.mSize, random_access_iterator_tag());
+            do_replace(0, 0, str.mLong.mData, str.mLong.mData + str.mLong.mSize, random_access_iterator_tag());
         }
     }
 
@@ -152,16 +152,16 @@ public:
                 n = str.mLong.mSize;
             }
             // inferred: returns the result of the replace (weak copy 0x801F1818, wchar_t)
-            return __replace_unk(0, sz, p, p + n, random_access_iterator_tag());
+            return do_replace(0, sz, p, p + n, random_access_iterator_tag());
         }
         return *this;
     }
     basic_string& assign(const T* first, const T* last) {
-        return __replace_unk(0, size(), first, last, random_access_iterator_tag());
+        return do_replace(0, size(), first, last, random_access_iterator_tag());
     }
     basic_string& erase(size_type pos = 0, size_type n = npos) { return replace(pos, n, (const T*)0, (const T*)0); }
     basic_string& replace(size_type pos, size_type n1, const T* j1, const T* j2) {
-        return __replace_unk(pos, n1, j1, j2, random_access_iterator_tag());
+        return do_replace(pos, n1, j1, j2, random_access_iterator_tag());
     }
     // inferred: fill replacement used by basic_stringbuf when growing its output string.
     basic_string& replace(size_type pos, size_type n1, size_type n2, T c);
@@ -190,7 +190,7 @@ public:
     template <class Iterator>
     basic_string& replace(size_type pos, size_type n1, Iterator j1, Iterator j2) {
         typename iterator_traits<Iterator>::iterator_category tag;
-        return __replace_unk(pos, n1, &*j1, &*j2, tag);
+        return do_replace(pos, n1, &*j1, &*j2, tag);
     }
     basic_string& operator=(const T* s) { return assign(s); }
     // inferred: inlined in CharaTask::CharaTask (0x80135CF0): size() first, then strlen in replace
@@ -209,29 +209,16 @@ public:
             p = str.mLong.mData;
             n = str.mLong.mSize;
         }
-        return __replace_unk(sz, 0, p, p + n, random_access_iterator_tag());
+        return do_replace(sz, 0, p, p + n, random_access_iterator_tag());
     }
     basic_string& operator+=(const basic_string& str) { return append(str); }
-    // inferred: friend defined in the class (the weak copy 0x8006D008, char, has no template
-    // arguments in its name): zeroes the result, strlen, reserve, then two range replaces
-    friend basic_string operator+(const basic_string& lhs, const T* rhs) {
-        basic_string tmp;
-        size_type n = strlen(rhs);
-        size_type sz;
-        const T* p;
-        if (!lhs.is_long()) {
-            p = (const T*)&lhs + 1;
-            sz = lhs.mShort.mSize & 0x7F;
-        } else {
-            p = lhs.mLong.mData;
-            sz = lhs.mLong.mSize;
-        }
-        tmp.reserve(sz + n);
-        tmp.replace(0, 0, p, p + sz).replace(sz, 0, rhs, rhs + n);
-        return tmp;
-    }
+    // RSO: the concatenations are namespace templates (__pl<c,...>__3std...), friends here
+    template <class T2, class Tr2, class A2>
+    friend basic_string<T2, Tr2, A2> operator+(const basic_string<T2, Tr2, A2>& lhs, const T2* rhs);
+    template <class T2, class Tr2, class A2>
+    friend basic_string<T2, Tr2, A2> operator+(const T2* lhs, const basic_string<T2, Tr2, A2>& rhs);
     // inferred: one character (atn/WordWrap_unk 0x800DFB40: size() then the range replace of &c)
-    basic_string& operator+=(T c) { return __replace_unk(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
+    basic_string& operator+=(T c) { return do_replace(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
     // inferred: inlined in operator==(const basic_string&, const T*) (0x8000EB8C, char)
     // inferred: matches the weak copy 0x8000EB8C: n2 copied to a local that stays in a register
     // (n2 itself is passed by address to __min), the first __min takes the size first, and the
@@ -375,6 +362,45 @@ private:
 template <class T, class Tr, class A>
 bool operator==(const basic_string<T, Tr, A>& lhs, const T* rhs) {
     return lhs.compare(rhs) == 0;
+}
+
+// weak copy 0x8006D008 (char, atn/Font_unk): zeroes the result, strlen, reserve, then two range
+// replaces
+template <class T, class Tr, class A>
+basic_string<T, Tr, A> operator+(const basic_string<T, Tr, A>& lhs, const T* rhs) {
+    basic_string<T, Tr, A> tmp;
+    typename basic_string<T, Tr, A>::size_type n = strlen(rhs);
+    typename basic_string<T, Tr, A>::size_type sz;
+    const T* p;
+    if (!lhs.is_long()) {
+        p = (const T*)&lhs + 1;
+        sz = lhs.mShort.mSize & 0x7F;
+    } else {
+        p = lhs.mLong.mData;
+        sz = lhs.mLong.mSize;
+    }
+    tmp.reserve(sz + n);
+    tmp.replace(0, 0, p, p + sz).replace(sz, 0, rhs, rhs + n);
+    return tmp;
+}
+
+// weak copy 0x8006AF38 (char, atn/FileList)
+template <class T, class Tr, class A>
+basic_string<T, Tr, A> operator+(const T* lhs, const basic_string<T, Tr, A>& rhs) {
+    basic_string<T, Tr, A> tmp;
+    typename basic_string<T, Tr, A>::size_type n = strlen(lhs);
+    typename basic_string<T, Tr, A>::size_type sz;
+    const T* p;
+    if (!rhs.is_long()) {
+        p = (const T*)&rhs + 1;
+        sz = rhs.mShort.mSize & 0x7F;
+    } else {
+        p = rhs.mLong.mData;
+        sz = rhs.mLong.mSize;
+    }
+    tmp.reserve(n + sz);
+    tmp.replace(0, 0, lhs, lhs + n).replace(n, 0, p, p + sz);
+    return tmp;
 }
 
 typedef basic_string<char> string;
