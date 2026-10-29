@@ -2140,6 +2140,26 @@ static inline void Follow_unk(CharaTask* target, int range) {
 static inline void MoveTo_unk(int point) {
     Command_unk(1, point, 0, 0, 0);
 }
+static inline void ApproachChara_unk(CharaTask* target, int range) {
+    Command_unk(3, (int)target, range, 0, 0);
+}
+static inline void ApproachCharaRange_unk(CharaTask* target, int range) {
+    if (target != 0) {
+        if (range != 0) {
+            ApproachChara_unk(target, range);
+        } else {
+            ApproachChara_unk(target, 30);
+        }
+    }
+}
+static inline int MovePick_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+        Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+        return 3;
+    }
+    return -1;
+}
 static inline int Combo_unk() {
     if (IsBusy_unk(lbl_807C68C0.m00, lbl_807C6A40.m18 + 1)) {
         return -1;
@@ -8460,6 +8480,56 @@ int AI::Script::AI_np_type002::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_np_type002::vf0C() {
+    if (lbl_807C68C0.m08 != 0) {
+        int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+        Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 3;
+    }
+    return -1;
+}
+
+// NONMATCHING: 99.32% - register coloring of the out base/m08 temps and stack slot order of the two MovePick groups.
+int AI::Script::AI_np_type002::vf14() {
+    if (lbl_807C6A40.m18 < lbl_807C6A40.m1C) {
+        lbl_807C6A40.m18++;
+        lbl_807C6A40.m00 = 1;
+        if (lbl_807C68C0.m08 != 0) {
+            int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+            Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+            return 3;
+        }
+        return -1;
+    }
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20) {
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        ApproachCharaRange_unk(lbl_807C6B30.m00, lbl_807C6A40.m24);
+        return 6;
+    }
+    lbl_807C6A40.m18 -= 90;
+    lbl_807C6A40.m00 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+        Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+        return 3;
+    }
+    return -1;
+}
+
+// NONMATCHING: 99.06% - pending the string pool (register choice for the literal address).
+int AI::Script::AI_np_type002::vf20() {
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(20, (int)(lbl_807307A0 + 0x43B), 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
 
 // inferred: same as AI_np_type002::vf08, with two more parameters
 int AI::Script::AI_np_type003::vf08() {
@@ -8470,6 +8540,55 @@ int AI::Script::AI_np_type003::vf08() {
     lbl_807C6A40.m28 = 0;
     lbl_807C6A40.m2C = 300;
     lbl_807C6A40.m00 = 1;
+    return 1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_np_type003::vf0C() {
+    if (lbl_807C68C0.m08 != 0) {
+        int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+        Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 3;
+    }
+    return -1;
+}
+
+// NONMATCHING: 99.25% - register coloring of the out base/m08 temps (as AI_np_type002::vf14).
+int AI::Script::AI_np_type003::vf14() {
+    if (lbl_807C6A40.m18 < lbl_807C6A40.m1C) {
+        lbl_807C6A40.m18++;
+        lbl_807C6A40.m00 = 1;
+        if (lbl_807C68C0.m08 != 0) {
+            int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+            Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+            return 3;
+        }
+        return -1;
+    }
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20) {
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        Command_unk(13, (int)lbl_807C6B30.m00, lbl_807C6A40.m24, 0, 0);
+        return 6;
+    }
+    lbl_807C6A40.m18 -= 90;
+    lbl_807C6A40.m00 = 1;
+    if (lbl_807C68C0.m08 != 0) {
+        int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+        Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+        return 3;
+    }
+    return -1;
+}
+
+int AI::Script::AI_np_type003::vf20() {
+    lbl_807C6A40.m00 = 1;
+    if (++lbl_807C6A40.m28 < lbl_807C6A40.m2C) {
+        return -1;
+    }
+    Command_unk(0, 5, 0, 0, 0);
     return 1;
 }
 
