@@ -1,4 +1,5 @@
 #include "game/Em310Gargoyle.h"
+#include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "game/EnemyManager.h"
 #include "math/Vec.h"
@@ -311,24 +312,6 @@ extern "C" inline atn::Matrix3x4 fn_8030CA38(const atn::Vector3& rot) {
     }
     return m;
 }
-// inferred: keyboard of the debug build (lbl_8087EEF0, as in game/EnemyQuarkSecond.cpp)
-struct GargoyleKeyboard_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" GargoyleKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(GargoyleKeyboard_unk* kb, void* state, int key); // inferred: key pressed
-extern "C" inline GargoyleKeyboard_unk* fn_802A49BC() {
-    return lbl_8087EEF0;
-}
-extern "C" inline int fn_802A4968(GargoyleKeyboard_unk* kb, int pad, int key) {
-    int result = 0;
-    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
-        result = 1;
-    }
-    return result;
-}
 
 // inferred: a rider sits on the seat node `name` and plays the riding motion
 inline int Em310Gargoyle::SeatMtx_unk(const char* name) {
@@ -420,13 +403,13 @@ void Em310Gargoyle::vf10() {
         }
     }
     if (m1604 != 0) {
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4B)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4B)) {
             fn_8030CF84(1);
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4C)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C)) {
             fn_8030D0D8();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4D)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D)) {
             fn_80370AE4(lbl_8087F430, 0x66, 4);
         }
     }

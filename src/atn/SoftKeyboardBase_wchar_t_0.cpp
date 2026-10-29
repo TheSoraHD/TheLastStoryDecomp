@@ -2,17 +2,10 @@
 // 8 x 32 keys with boost::function callbacks; its only subclass is atn::SoftKeyboardU, MP area).
 // File name invented (inferred: the vtable and RTTI of the template are emitted here).
 #include "atn/SoftKeyboardBase.h"
+#include "atn/Keyboard.h"
 
 extern "C" unsigned long wcslen(const wchar_t* s);
 
-// inferred: file watcher of game/LibraryTask (lbl_8087EEF0); here used as the keyboard state
-struct LibraryWatch_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" LibraryWatch_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(LibraryWatch_unk* watch, void* name, int key);
 
 typedef atn::Vector2_unk Pos2_unk;
 
@@ -31,14 +24,10 @@ extern "C" int fn_800A5584(Pad_unk* pad, int port, int button);
 extern "C" int fn_800A55AC(Pad_unk* pad, int port, int button); // inferred: repeated
 
 // inferred: true if the key `key` of the hardware keyboard is pressed
-int fn_800C6128(int key) {
-    LibraryWatch_unk* watch = lbl_8087EEF0;
-    if (watch != 0) {
-        int ret = 0;
-        if (watch->mD90 != 0 && fn_8007708C(watch, watch->m034, key) != 0) {
-            ret = 1;
-        }
-        return ret;
+int fn_800C6128(wchar_t key) {
+    atn::Keyboard* keyboard = atn::Keyboard::Order();
+    if (keyboard != 0) {
+        return keyboard->Press(atn::Keyboard::PORT0_unk, key);
     }
     return 0;
 }

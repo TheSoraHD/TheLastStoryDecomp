@@ -1,4 +1,5 @@
 #include "atn/MindowsCommon.h"
+#include "atn/Keyboard.h"
 #include "atn/Memory.h"
 #include <stdio.h>
 
@@ -6,14 +7,6 @@
 
 using namespace atn;
 
-// inferred: USB keyboard state (same object as in atn/SoftKeyboardBase_wchar_t_0.cpp)
-struct MindowsKeyboard_unk {
-    unsigned char m00[0x9C];
-    unsigned char m9C[0xCF4];
-    int mD90;
-};
-extern "C" MindowsKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(MindowsKeyboard_unk* kb, void* state, unsigned short key); // inferred: key pressed
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void* lbl_8087EEB0;               // inferred: debug drawing
@@ -27,11 +20,7 @@ extern "C" void fn_8008510C(char* buf);
 
 // inferred: a key of the keyboard is pressed
 static inline int IsKey_unk(unsigned short key) {
-    int r = 0;
-    if (lbl_8087EEF0->mD90 != 0 && fn_8007708C(lbl_8087EEF0, lbl_8087EEF0->m9C, key) != 0) {
-        r = 1;
-    }
-    return r;
+    return Keyboard::Order()->Press(Keyboard::PORT4_unk, key);
 }
 
 // inferred: appends `c` when its key or its keypad key is pressed

@@ -1,4 +1,5 @@
 #include "game/EnemyQuarkStand.h"
+#include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "atn/Camera_unk.h"
 #include "chr/ControlStickByQuark.h"
@@ -267,9 +268,6 @@ extern "C" CharaTask* fn_8000DCF4(CharaManager<PlayerTask>* mgr); // inferred: l
 extern "C" CharaTask* fn_802A36B0(CharaManager<PlayerTask>* mgr); // inferred: first player
 extern "C" CharaTask* fn_802A4094(CharaTask* chara);             // inferred: next player
 extern "C" int fn_80267B28(CharaTask* chara);                    // inferred: returns m560
-struct QuarkKeyboard_unk;
-extern "C" QuarkKeyboard_unk* fn_802A49BC();                     // inferred: debug keyboard
-extern "C" int fn_802A4968(QuarkKeyboard_unk* kb, int pad, int key); // inferred: key pressed
 class EnemyQuarkStand;
 extern "C" void fn_80353EE4(EnemyQuarkStand* self); // inferred: releases the camera
 extern "C" void fn_80353F0C(EnemyQuarkStand* self); // inferred: frees the character stuck by the sword
@@ -644,16 +642,16 @@ void EnemyQuarkStand::vf10() {
         m17E4->fn_80148B38();
     }
     if (m1CC4 != 0) {
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4C)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C)) {
             fn_8034F53C();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x44)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x44)) {
             fn_8034F788();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4D)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D)) {
             fn_80350F64();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x48)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x48)) {
             fn_803520D8();
             mStatus.m04 = 1.0f;
         }

@@ -1,4 +1,5 @@
 #include "game/EnemyQuarkSecond.h"
+#include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -315,24 +316,6 @@ extern "C" inline void fn_8028CFB8(PlayerInput_unk* input, int frames, float a, 
     input->m900 = input->m900 % 2;
     input->m90C = b;
 }
-// inferred: keyboard of the debug build (lbl_8087EEF0, as in game/EnemyJill.cpp)
-struct QuarkKeyboard_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" QuarkKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(QuarkKeyboard_unk* kb, void* state, int key); // inferred: key pressed
-extern "C" inline QuarkKeyboard_unk* fn_802A49BC() {
-    return lbl_8087EEF0;
-}
-extern "C" inline int fn_802A4968(QuarkKeyboard_unk* kb, int pad, int key) {
-    int result = 0;
-    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
-        result = 1;
-    }
-    return result;
-}
 // inferred: hit points ratio (weak copy 0x8029F3AC of game/Em203GreaterDaemonRedMp.cpp; declared without
 // a body: its constants are in the pool of that unit)
 extern "C" float fn_8029F3AC(CharaStatus* status);
@@ -614,13 +597,13 @@ void EnemyQuarkSecond::vf10() {
     fn_8033AB88();
     fn_80344454(100, busy, 25.0f, 6.2831855f);
     if (m1760 != 0) {
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4C) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C) != 0) {
             fn_80342004();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x44) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x44) != 0) {
             fn_8034228C();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4D) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D) != 0) {
             fn_803435B8();
         }
     }

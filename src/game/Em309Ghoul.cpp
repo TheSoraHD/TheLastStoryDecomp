@@ -1,4 +1,5 @@
 #include "game/Em309Ghoul.h"
+#include "atn/Keyboard.h"
 #include "atn/Camera_unk.h"
 #include "atn/Csv.h"
 #include "game/CharaManager.h"
@@ -118,24 +119,6 @@ extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
-// inferred: keyboard of the debug build (lbl_8087EEF0, as in game/EnemyQuarkSecond.cpp)
-struct GhoulKeyboard_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" GhoulKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(GhoulKeyboard_unk* kb, void* state, int key); // inferred: key pressed
-extern "C" inline GhoulKeyboard_unk* fn_802A49BC() {
-    return lbl_8087EEF0;
-}
-extern "C" inline int fn_802A4968(GhoulKeyboard_unk* kb, int pad, int key) {
-    int result = 0;
-    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
-        result = 1;
-    }
-    return result;
-}
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" void fn_80376254(Field_unk* field, int a, int b); // inferred: counts a field event
@@ -404,19 +387,19 @@ void Em309Ghoul::vf10() {
         return;
     }
     fn_80063D3C(lbl_8087EEB0, &mPos, m1694, 0xFFFFFF00, 0.0f);
-    if (fn_802A4968(fn_802A49BC(), 0, 0x50)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x50)) {
         fn_803010BC();
     }
-    if (fn_802A4968(fn_802A49BC(), 0, 0x4D)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D)) {
         fn_8030073C();
     }
-    if (fn_802A4968(fn_802A49BC(), 0, 0x4C)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C)) {
         StartAttack_unk();
     }
-    if (fn_802A4968(fn_802A49BC(), 0, 0x4A)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4A)) {
         fn_803009F4();
     }
-    if (fn_802A4968(fn_802A49BC(), 0, 0x48)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x48)) {
         mPos = m150C[0]->mPos;
         mRot.y = m150C[0]->m14;
         mRot.z = 0.0f;
