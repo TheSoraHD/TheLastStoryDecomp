@@ -1,86 +1,25 @@
 // Copyright (c) TheSoraHD. All rights reserved.
 
-namespace atn {
+#include "atn/GraphicsDevice.h"
+#include "atn/Texture_unk.h"
 
 extern "C" {
-
 void GXSetProjection(const float projection[4][4], int type);
 void GXSetScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height);
 void GXSetCopyFilter(unsigned char antialias, const unsigned char samples[12][2], unsigned char vertical,
                      const unsigned char filter[7]);
 void GXLoadTexObj(const void* obj, unsigned int map);
-int GXGetTexObjFmt(const void* obj);
+int GXGetTexObjFmt(const GXTexObj* obj);
 void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigned short width, unsigned short height);
 void GXSetTexCopyDst(unsigned short width, unsigned short height, int format, unsigned char mipmap);
 void GXCopyTex(void* destination, unsigned char clear);
 void GXPixModeSync();
-void __dl__FPv(void* ptr);
 }
 
-// inferred: GraphicsDevice field accessed by fn_80071D60.
-struct GraphicsDeviceField_unk {
-    unsigned char m00[0xCC];
-    int mCC;
-};
-extern "C" void fn_80071D60(GraphicsDeviceField_unk* self, int value);
-extern "C" void fn_80071D68(void* self, const float projection[4][4]);
-extern "C" void fn_80071D74(void* self, const float projection[4][4]);
-extern "C" void fn_800760BC(void* self, unsigned int left, unsigned int top, unsigned int width, unsigned int height);
+void operator delete(void* ptr);
 
-// inferred: arguments consumed by GXSetScissor at offsets 0x60-0x6C.
-struct GraphicsDeviceScissor_unk {
-    unsigned char m00[0x60];
-    unsigned int m60;
-    unsigned int m64;
-    unsigned int m68;
-    unsigned int m6C;
-};
-extern "C" void fn_800760D0(GraphicsDeviceScissor_unk* self);
-
-// inferred: copy-filter settings stored in GraphicsDevice.
-struct GraphicsDeviceCopyFilter_unk {
-    unsigned char m00[0x19];
-    unsigned char m19;
-    unsigned char m1A[24];
-    unsigned char m32[7];
-};
-extern "C" void fn_80076174(GraphicsDeviceCopyFilter_unk* self, int enabled);
-
-// inferred: copies a texture object into a GX texture using this object's dimensions.
-struct GraphicsDeviceTextureCopy_unk {
-    unsigned char m00[0x28];
-    void* m28;
-    unsigned char m2C[0x10];
-    unsigned int m3C;
-    unsigned int m40;
-};
-extern "C" void fn_80071D80(GraphicsDeviceTextureCopy_unk* self, const GraphicsDeviceTextureCopy_unk* texture);
-
-// inferred: texture binding cache, with entries beginning at offset 0x80.
-struct GraphicsDeviceTextureCache_unk {
-    unsigned char m00[0x80];
-    const void* m80[1];
-};
-extern "C" void fn_800763C0(GraphicsDeviceTextureCache_unk* self, unsigned int index, const void* texture);
-extern "C" void fn_800763FC(GraphicsDeviceTextureCache_unk* self, const void* texture, unsigned int index);
-
-// inferred: decrements a reference-counted display-list allocation.
-struct GraphicsDeviceDisplayList_unk {
-    unsigned char m00[0xE0];
-};
-extern "C" void fn_80076F88(GraphicsDeviceDisplayList_unk* self, unsigned int index);
-
-// NONMATCHING: 65.57% - loop/control-flow and register allocation differ from the original.
-// inferred: compares two cached GX state records (0x30 bytes each) followed by
-// the corresponding six-word records at offset 0x1B0.
-struct GraphicsDeviceState_unk {
-    int m00[3];
-    unsigned char m0C;
-    int m10[3];
-    unsigned char m1C;
-    int m20[3];
-    unsigned char m2C;
-};
+using atn::GraphicsDevice_unk;
+using atn::GraphicsDeviceState_unk;
 
 // NONMATCHING: 65.57% - loop/control-flow and register allocation differ from the original.
 extern "C" int fn_80071088(const GraphicsDeviceState_unk* a, const GraphicsDeviceState_unk* b) {
@@ -104,71 +43,70 @@ extern "C" int fn_80071088(const GraphicsDeviceState_unk* a, const GraphicsDevic
     return 1;
 }
 
-extern "C" void fn_80071D60(GraphicsDeviceField_unk* self, int value) {
-    self->mCC = value;
+extern "C" void fn_80071D60(GraphicsDevice_unk* device, int value) {
+    device->mCC = value;
 }
 
-extern "C" void fn_80071D68(void* self, const float projection[4][4]) {
+extern "C" void fn_80071D68(GraphicsDevice_unk* device, const float projection[4][4]) {
     GXSetProjection(projection, 0);
 }
 
-extern "C" void fn_80071D74(void* self, const float projection[4][4]) {
+extern "C" void fn_80071D74(GraphicsDevice_unk* device, const float projection[4][4]) {
     GXSetProjection(projection, 1);
 }
 
-extern "C" void fn_80071D80(GraphicsDeviceTextureCopy_unk* self, const GraphicsDeviceTextureCopy_unk* texture) {
-    GXSetTexCopySrc(0, 0, (unsigned short)self->m3C, (unsigned short)self->m40);
-    int format = GXGetTexObjFmt(texture);
-    GXSetTexCopyDst((unsigned short)self->m3C, (unsigned short)self->m40, format, 0);
-    GXCopyTex(texture->m28, 0);
+// inferred: copies the EFB into the texture
+extern "C" void fn_80071D80(GraphicsDevice_unk* device, atn::Texture_unk* texture) {
+    GXSetTexCopySrc(0, 0, (unsigned short)device->mWidth, (unsigned short)device->mHeight);
+    int format = GXGetTexObjFmt(&texture->mObj);
+    GXSetTexCopyDst((unsigned short)device->mWidth, (unsigned short)device->mHeight, format, 0);
+    GXCopyTex(texture->mImage, 0);
     GXPixModeSync();
 }
 
-extern "C" void fn_800760BC(void* self, unsigned int left, unsigned int top, unsigned int width,
+extern "C" void fn_800760BC(GraphicsDevice_unk* device, unsigned int left, unsigned int top, unsigned int width,
                             unsigned int height) {
     GXSetScissor(left, top, width, height);
 }
 
-extern "C" void fn_800760D0(GraphicsDeviceScissor_unk* self) {
-    GXSetScissor(self->m60, self->m64, self->m68, self->m6C);
+extern "C" void fn_800760D0(GraphicsDevice_unk* device) {
+    GXSetScissor(device->mScissor[0], device->mScissor[1], device->mScissor[2], device->mScissor[3]);
 }
 
-extern "C" void fn_80076174(GraphicsDeviceCopyFilter_unk* self, int enabled) {
+extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled) {
     if (enabled) {
-        GXSetCopyFilter(self->m19, reinterpret_cast<const unsigned char (*)[2]>(self->m1A), 1, self->m32);
+        GXSetCopyFilter(device->mCopyAntialias, device->mCopySamples, 1, device->mCopyVertFilter);
     } else {
         GXSetCopyFilter(0, 0, 0, 0);
     }
 }
 
 // NONMATCHING: 72.00% - MWCC keeps the nullable texture in r5 instead of normalizing it through r6.
-extern "C" void fn_800763C0(GraphicsDeviceTextureCache_unk* self, unsigned int index, const void* texture) {
-    const void** slot = self->m80 + index;
-    if (*slot != texture) {
-        *slot = texture;
-        if (texture != 0) {
-            GXLoadTexObj(texture, index);
+extern "C" void fn_800763C0(GraphicsDevice_unk* device, unsigned int map, const void* texObj) {
+    const void** slot = device->mTexObjs + map;
+    if (*slot != texObj) {
+        *slot = texObj;
+        if (texObj != 0) {
+            GXLoadTexObj(texObj, map);
         }
     }
 }
 
-extern "C" void fn_800763FC(GraphicsDeviceTextureCache_unk* self, const void* texture, unsigned int index) {
-    const void** slot = self->m80 + index;
-    if (*slot != texture) {
-        *slot = texture;
-        if (texture != 0) {
-            GXLoadTexObj(texture, index);
+extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsigned int map) {
+    const void** slot = device->mTexObjs + map;
+    if (*slot != texObj) {
+        *slot = texObj;
+        if (texObj != 0) {
+            GXLoadTexObj(texObj, map);
         }
     }
 }
 
-extern "C" void fn_80076F88(GraphicsDeviceDisplayList_unk* self, unsigned int index) {
-    char* item = reinterpret_cast<char*>(self) + index * 8;
-    int* refs = reinterpret_cast<int*>(item + 0xE4);
-    void** ptr = reinterpret_cast<void**>(item + 0xE0);
-    if (--*refs <= 0) {
-        __dl__FPv(*ptr);
-        *ptr = 0;
+// inferred: releases one reference to a display-list allocation
+extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index) {
+    GraphicsDevice_unk::DisplayListRef_unk* ref = &device->mDisplayLists[index];
+    if (--ref->mRefs <= 0) {
+        ::operator delete(ref->mData);
+        ref->mData = 0;
     }
 }
-} // namespace atn

@@ -4,6 +4,7 @@
 
 #include "math/Vec.h"
 #include "game/HBMRso.h"
+#include "atn/GraphicsDevice.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char* strcat(char* dst, const char* src);
@@ -38,17 +39,9 @@ extern "C" int fn_805C3EA0();                                                 //
 extern "C" void fn_805C3E70();                                                // HBMDraw
 extern "C" int fn_80660CF0(int chan, unsigned long* type);                    // WPADProbe
 
-// inferred: render state (lbl_8087EEE0, see atn/Layer3D.cpp)
-struct HbmRender_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    int mWide;   // 0x44: inferred: 16:9
-};
-extern "C" HbmRender_unk* lbl_8087EEE0;
-extern "C" void fn_80071D74(HbmRender_unk* rs, const atn::Matrix44_unk& proj);
-extern "C" void fn_80071E04(HbmRender_unk* rs);
-extern "C" void fn_80076760(HbmRender_unk* rs, int arg1, int arg2);
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_80071E04(atn::GraphicsDevice_unk* device);
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* device, int arg1, int arg2);
 
 extern "C" unsigned char* lbl_8087F018; // inferred: input manager; KPAD buffers of 0xF00 bytes first
 
@@ -273,7 +266,7 @@ int HBMRsoCalc(HBMControllerData& con) {
 // at the start of the function; here they are stored next to the conversion (tried named locals,
 // function-scope matrix, an inline returning the matrix).
 void HBMRsoDraw() {
-    HbmRender_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     atn::Matrix44_unk proj;
     GXSetColorUpdate(1);
     if (rs->mWide == 0) {
@@ -283,7 +276,7 @@ void HBMRsoDraw() {
         float scale = 1.0f;
         C_MTXOrtho(proj.m, 228.0f * scale, 228.0f * -scale, 416.0f * -scale, 416.0f * scale, 0.0f, 500.0f);
     }
-    fn_80071D74(rs, proj);
+    fn_80071D74(rs, proj.m);
     fn_805C3E70();
     fn_80071E04(rs);
     {
@@ -291,7 +284,7 @@ void HBMRsoDraw() {
         C_MTXOrtho(ortho.m, 0.0f, (float)rs->mHeight, 0.0f, (float)rs->mWidth, 0.0f, -100.0f);
         __Mtx44Copy(proj.m, ortho.m);
     }
-    fn_80071D74(rs, proj);
+    fn_80071D74(rs, proj.m);
     fn_80076760(rs, 6, 0);
     fn_80076760(rs, 8, 0);
     fn_80076760(rs, 9, 7);
