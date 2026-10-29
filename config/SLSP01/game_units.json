@@ -3686,7 +3686,23 @@
   "name": "chr/ControlCdnStone.cpp",
   "classes": [
    "chr::ControlCdnStone",
-   "chr::ControlCdnRestoreStone"
+   "chr::ControlCdnRestoreStone",
+   "chr::ControlCdnParalyzed",
+   "chr::ControlCdnRestoreParalyzed",
+   "chr::ControlCdnBetray",
+   "chr::ControlCdnSleep",
+   "chr::ControlCdnRestoreSleep",
+   "chr::ControlCdnPiyo",
+   "chr::ControlCdnRestorePiyo",
+   "chr::ControlCdnPsycho",
+   "chr::ControlCdnRestorePsycho"
+  ],
+  "matching": false
+ },
+ {
+  "name": "chr/ControlBase.cpp",
+  "classes": [
+   "chr::ControlBase"
   ],
   "matching": false
  }

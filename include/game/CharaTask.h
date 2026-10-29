@@ -927,6 +927,11 @@ public:
     // inferred: names invented (fn_80151448)
     inline int ControlVf30_unk();
     bool IsStill_unk() { return atn::Abs_unk(mStatus.mParamB.m1C) < 1.1920929e-7f; }
+    // inferred: changes the side, keeping the previous one (chr::ControlCdnBetray); name invented
+    void SetSide_unk(int side) {
+        mF18 = mF14;
+        mF14 = side;
+    }
     bool HasC48_unk() {
         bool result = false;
         if (mFlag31 && mC48 != 0) {

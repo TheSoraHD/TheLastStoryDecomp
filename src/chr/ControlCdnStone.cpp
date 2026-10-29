@@ -30,6 +30,11 @@ extern "C" void fn_80107A78(Effect_unk* mgr, atn::Model* model, atn::Model* mode
 extern "C" void fn_801077A8(Effect_unk* mgr, atn::Model* model, atn::Model* model2);
 extern "C" void fn_801028E4(Effect_unk* mgr, int a, CharaTask* chara, int b);
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a message
+extern "C" void fn_80107FD8(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: sleep effect
+extern "C" void fn_80108080(Effect_unk* mgr, atn::Model* model);                    // inferred: stops it
+extern "C" void fn_801079C0(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: dizzy effect
+extern "C" void fn_80107A68(Effect_unk* mgr, atn::Model* model);                    // inferred: stops it
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
 // inferred: message table (lbl_8087F1E4); mDC is the betrayal message
 struct CdnMessages_unk {
@@ -37,13 +42,34 @@ struct CdnMessages_unk {
     const wchar_t* mDC;
 };
 extern "C" CdnMessages_unk* lbl_8087F1E4;
-extern "C" void* lbl_8087FA20; // inferred: nonzero in the arena (the betrayal of an enemy has no time limit)
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text (shared by the text tables, as in MP/Text.cpp)
+extern "C" void* lbl_8087FA20;
+// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
+struct GameState_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: time of a frame
+};
+extern "C" GameState_unk* lbl_8087EFA8; // inferred: nonzero in the arena (the betrayal of an enemy has no time limit)
 
 // inferred: vector rotated by a matrix (by value; name invented, as in chr/ControlDropDown.cpp)
 inline atn::Vector3 RotY_unk(Mtx m, const atn::Vector3& v) {
     atn::Vector3 r(v);
     PSMTXMultVec(m, &r, &r);
     return r;
+}
+
+// inferred: inline in the original (weak copy 0x8013C3B4, defined out of line in game/CharaTask.cpp)
+inline atn::Vector3 atn::Vector3::operator-() const {
+    return atn::Vector3(-x, -y, -z);
+}
+
+// inferred: facing direction of the rotation `rot` (name invented)
+inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    Mtx mtx;
+    PSMTXRotRad(mtx, 'y', rot.y);
+    PSMTXMultVec(mtx, &v, &v);
+    return v;
 }
 
 namespace chr {
@@ -132,6 +158,8 @@ inline ControlCdnRestoreStone::ControlCdnRestoreStone(Chara_unk* chara) : Contro
     }
 }
 
+// NONMATCHING: 97.9% - the original loads mChara before saving r31 (prologue scheduling) and keeps
+// it in r8 for the sound position.
 boost::function<void()> ControlCdnStone::vf10() {
     if (mChara != 0 && (mChara->mStatus.m0C & 0x20) == 0x20) {
         mChara->vf44();
@@ -216,7 +244,8 @@ ControlCdnBetray::ControlCdnBetray(Chara_unk* chara, int a, int b) : ControlBase
     }
     mChara->fn_8016DA4C();
     wchar_t text[64];
-    fn_800DD3FC(text, lbl_8087F1E4->mDC != 0 ? lbl_8087F1E4->mDC : L"", mChara->m60->m04);
+    CharaInfo_unk* info = mChara->m60;
+    fn_800DD3FC(text, lbl_8087F1E4->mDC != 0 ? lbl_8087F1E4->mDC : lbl_808813D0, info->m04);
     fn_80109828(lbl_8087F048, text);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
@@ -242,7 +271,8 @@ int ControlCdnBetray::vf0C() {
         fn_80107850(lbl_8087F048, motion);
         return 1;
     }
-    if (motion->mTracks[0].m08 >= motion->fn_80097D7C(0)) {
+    float frame = motion->mTracks[0].m08;
+    if (frame >= motion->fn_80097D7C(0)) {
         if (mChara->m50 == 1) {
             mChara->fn_80154654(mChara->mC50, 0x238D);
         }
@@ -251,13 +281,13 @@ int ControlCdnBetray::vf0C() {
         if (mChara->mType == 0) {
             mChara->mF84 = lbl_8087F0A8->m68;
         }
-        mChara->mF18 = mChara->mF14;
-        mChara->mF14 = m08;
+        mChara->SetSide_unk(m08);
         return 1;
     }
     return 0;
 }
 
+// NONMATCHING: 99.0% - the original loads mChara before saving r31 (prologue scheduling).
 boost::function<void()> ControlCdnBetray::vf10() {
     if (mChara->mType == 0) {
         return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, 2);
@@ -265,18 +295,278 @@ boost::function<void()> ControlCdnBetray::vf10() {
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
 
+// NONMATCHING: 99.2% - r5/r6 swapped between the status flags and m0C.
 void ControlCdnBetray::vf1C() {
     if (mChara != 0) {
         mChara->fn_8015495C(0, 1, 1, 1);
-        if ((mChara->mStatus.m0C & 0x20) != 0x20) {
-            if ((m0C != 0 && (mChara->mStatus.m0C & 0x10000) == 0x10000) ||
-                (m0C == 0 && (mChara->mStatus.m0C & 0x100) == 0x100)) {
+        if (!mChara->mStatus.IsState_unk(0x20)) {
+            if ((m0C != 0 && mChara->mStatus.IsState_unk(0x10000)) || (m0C == 0 && mChara->mStatus.IsState_unk(0x100))) {
                 mChara->mC58.mC4 = 0;
-                mChara->mF18 = mChara->mF14;
-                mChara->mF14 = m08;
+                mChara->SetSide_unk(m08);
             }
         }
     }
+}
+
+ControlCdnSleep::ControlCdnSleep(Chara_unk* chara) : ControlBase(chara), m08(0), m0C(0) {
+    chara->m560 = 0x6A;
+    mChara->mStatus.fn_8013310C(0x10, 0);
+    mChara->mFlag5 = 0;
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->HasC48_unk()) {
+        mChara->fn_80154344();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
+    motion->mTracks[0].m20 = 1.0f;
+    motion->fn_80097C08(0, 7, 0, 0, 1, 0.0f, 0.1f);
+    motion->mTracks[0].m0C = 1.0f;
+    if (lbl_8087F048 != 0) {
+        fn_80107FD8(lbl_8087F048, motion, motion);
+    }
+}
+
+ControlCdnSleep::~ControlCdnSleep() {
+    mChara->mStatus.fn_8013322C(0x10);
+    if (lbl_8087F048 != 0) {
+        fn_80108080(lbl_8087F048, &mChara->mMotion);
+    }
+}
+
+int ControlCdnSleep::vf0C() {
+    return 0;
+}
+
+// NONMATCHING: 99.8% - r29/r30 swapped for the functor allocated by boost::function.
+boost::function<void()> ControlCdnSleep::vf10() {
+    ControlCdnRestoreSleep* next = new ((MemoryTag)0, "", "", 0) ControlCdnRestoreSleep(mChara);
+    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+}
+
+ControlCdnRestoreSleep::ControlCdnRestoreSleep(Chara_unk* chara) : ControlBase(chara) {
+    chara->m58C = 0;
+    mChara->m560 = 0x6B;
+    mChara->mStatus.fn_8013322C(0x10);
+    Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
+    motion->mTracks[0].m20 = 1.0f;
+    motion->fn_80097C08(0, 8, 0, 0, 1, 0.0f, 0.1f);
+    motion->mTracks[0].m0C = 1.0f;
+    if (lbl_8087F048 != 0) {
+        fn_80108080(lbl_8087F048, motion);
+    }
+}
+
+int ControlCdnRestoreSleep::vf0C() {
+    Motion_unk* motion = &mChara->mMotion;
+    float frame = motion->mTracks[0].m08;
+    return frame >= motion->fn_80097D7C(0);
+}
+
+boost::function<void()> ControlCdnRestoreSleep::vf10() {
+    if (mChara->m564 == 7) {
+        return ControlBase::vf10();
+    }
+    return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
+}
+
+ControlCdnPiyo::ControlCdnPiyo(Chara_unk* chara, const atn::Vector3& dir, int time, int flag)
+    : ControlBase(chara), m08(0), m0C(time), m10(flag) {
+    chara->m58C = 0;
+    mChara->m560 = 0x36;
+    mChara->mStatus.fn_8013310C(0x4000, 0);
+    mChara->mFlag5 = 0;
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
+    motion->mTracks[0].m20 = 1.0f;
+    motion->fn_80097C08(0, flag != 0 ? 0x1E1 : 0x35, 0, 0, 1, 0.0f, 0.1f);
+    motion->mTracks[0].m0C = 1.0f;
+    m14 = dir;
+    if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+        m20 = (-dir).ToRotation_unk();
+        m14.Normalize_unk();
+    } else {
+        m20 = mChara->mRot;
+        m14 = -FrontDir_unk(mChara->mRot);
+    }
+    if (m0C <= 0.0f) {
+        m0C = m10 != 0 ? 450.0f : 150.0f;
+    }
+    mChara->fn_801446F0();
+    if (lbl_8087F048 != 0) {
+        fn_801079C0(lbl_8087F048, motion, motion);
+    }
+}
+
+ControlCdnPiyo::~ControlCdnPiyo() {
+    mChara->mStatus.fn_8013322C(0x4000);
+    Motion_unk* motion = &mChara->mMotion;
+    if (lbl_8087F048 != 0) {
+        fn_80107A68(lbl_8087F048, motion);
+    }
+}
+
+// inferred: the player shakes the dizziness off faster with button 0x22
+int ControlCdnPiyo::vf0C() {
+    int done = 0;
+    float dt = lbl_8087EFA8->m3A4;
+    m0C -= dt;
+    Motion_unk* motion = &mChara->mMotion;
+    if (mChara->mType == 0 && lbl_8087F0A8->mInput.fn_8012476C(0x22)) {
+        float dt2 = lbl_8087EFA8->m3A4;
+        m0C -= 14.0f * dt2;
+    }
+    switch (m08) {
+    case 0: {
+        if (m10 != 0) {
+            mChara->m6B8 = m14 * 0.2888889f;
+        } else {
+            mChara->m6B8 = m14;
+        }
+        float frame = motion->mTracks[0].m08;
+        if (frame >= motion->fn_80097D7C(0)) {
+            m08 = 1;
+            motion->m34C = 1;
+            motion->mTracks[0].m20 = 1.0f;
+            motion->fn_80097C08(0, 0x1E2, 1, 0, 1, 0.0f, 0.1f);
+            motion->mTracks[0].m0C = 1.0f;
+        }
+        break;
+    }
+    case 1:
+        mChara->m6B8 = atn::Vector3(0.0f, 0.0f, 0.0f);
+        if (m0C < 0.0f || (mChara->mStatus.m0C & 0x4000) != 0x4000) {
+            done = 1;
+        }
+        break;
+    }
+    mChara->vf34(&m20, 0, 0.0f, 1.0f);
+    return done;
+}
+
+// NONMATCHING: 94.0% - the original loads mChara before saving r31 (prologue scheduling, as in
+// chr/ControlCliffhang.cpp vf10).
+boost::function<void()> ControlCdnPiyo::vf10() {
+    return boost::bind(&CharaTask::fn_801684A0, (CharaTask*)mChara);
+}
+
+ControlCdnRestorePiyo::ControlCdnRestorePiyo(Chara_unk* chara) : ControlBase(chara) {
+    chara->m58C = 0;
+    mChara->m560 = 0x37;
+    mChara->mStatus.fn_8013322C(0x4000);
+    Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
+    motion->mTracks[0].m20 = 1.0f;
+    motion->fn_80097C08(0, 0x1E3, 0, 0, 1, 0.0f, 0.1f);
+    motion->mTracks[0].m0C = 1.0f;
+}
+
+int ControlCdnRestorePiyo::vf0C() {
+    int done = 0;
+    Motion_unk* motion = &mChara->mMotion;
+    float frame = motion->mTracks[0].m08;
+    if (frame >= motion->fn_80097D7C(0)) {
+        done = 1;
+    }
+    return done;
+}
+
+boost::function<void()> ControlCdnRestorePiyo::vf10() {
+    if (mChara->m564 == 7) {
+        return ControlBase::vf10();
+    }
+    return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
+}
+
+ControlCdnPsycho::ControlCdnPsycho(Chara_unk* chara, int flag) : ControlBase(chara), m08(0), m0C(210.0f), m10(flag) {
+    chara->m560 = 0x38;
+    mChara->mStatus.fn_8013310C(0x20000, 0);
+    mChara->mFlag5 = 0;
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
+    motion->mTracks[0].m20 = 1.0f;
+    m08 = 1;
+    motion->fn_80097C08(0, 0x1E4, 1, 0, 1, 0.0f, 0.1f);
+    motion->mTracks[0].m0C = 1.0f;
+    mChara->fn_801446F0();
+}
+
+ControlCdnPsycho::~ControlCdnPsycho() {
+    mChara->mStatus.fn_8013322C(0x20000);
+}
+
+// inferred: the player recovers faster with button 0x22
+int ControlCdnPsycho::vf0C() {
+    float dt = lbl_8087EFA8->m3A4;
+    m0C -= dt;
+    Motion_unk* motion = &mChara->mMotion;
+    int done = 0;
+    if (mChara->mType == 0 && lbl_8087F0A8->mInput.fn_8012476C(0x22)) {
+        float dt2 = lbl_8087EFA8->m3A4;
+        m0C -= 9.0f * dt2;
+    }
+    switch (m08) {
+    case 0: {
+        float frame = motion->mTracks[0].m08;
+        if (frame >= motion->fn_80097D7C(0)) {
+            m08 = 1;
+            motion->m34C = 1;
+            motion->mTracks[0].m20 = 1.0f;
+            motion->fn_80097C08(0, 0x1E2, 1, 0, 1, 0.0f, 0.1f);
+            motion->mTracks[0].m0C = 1.0f;
+        }
+        break;
+    }
+    case 1:
+        mChara->m6B8 = atn::Vector3(0.0f, 0.0f, 0.0f);
+        if (m0C < 0.0f) {
+            done = 1;
+        }
+        break;
+    }
+    return done;
+}
+
+// NONMATCHING: 94.0% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10).
+boost::function<void()> ControlCdnPsycho::vf10() {
+    return boost::bind(&CharaTask::fn_80168B1C, (CharaTask*)mChara);
+}
+
+ControlCdnRestorePsycho::ControlCdnRestorePsycho(Chara_unk* chara) : ControlBase(chara) {
+    chara->m58C = 0;
+    mChara->m560 = 0x39;
+    mChara->mStatus.fn_8013322C(0x20000);
+}
+
+int ControlCdnRestorePsycho::vf0C() {
+    return 1;
+}
+
+boost::function<void()> ControlCdnRestorePsycho::vf10() {
+    if (mChara->m564 == 7) {
+        return ControlBase::vf10();
+    }
+    return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
 }
 
 } // namespace chr

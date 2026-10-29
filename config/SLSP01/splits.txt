@@ -810,12 +810,17 @@ chr/ControlAttackBase.cpp:
 	.sdata2     start:0x80881E90 end:0x80881F68
 
 chr/ControlCdnStone.cpp:
-	.text       start:0x8018EEC4 end:0x80192908
+	.text       start:0x8018EEC4 end:0x80192578
 	.rodata     start:0x80739130 end:0x80739700
-	.data       start:0x8077D5F0 end:0x8077DCF0
-	.bss        start:0x807C7B60 end:0x807C7B90
+	.data       start:0x8077D5F0 end:0x8077DC80
+	.bss        start:0x807C7B60 end:0x807C7B98
 	.sbss       start:0x8087F0B8 end:0x8087F0C0
-	.sdata2     start:0x80881F68 end:0x80881FB8
+	.sdata2     start:0x80881F68 end:0x80881FB0
+
+chr/ControlBase.cpp:
+	.text       start:0x80192578 end:0x80192908
+	.data       start:0x8077DC80 end:0x8077DCF0
+	.sdata2     start:0x80881FB0 end:0x80881FB8
 
 chr/ControlStickByQuark.cpp:
 	.text       start:0x80192908 end:0x801A0BA8

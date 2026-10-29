@@ -4,7 +4,7 @@
 objects), by comparing the relocations of the same instruction in every paired function (objdiff).
 
 Only labels referenced the same way everywhere are renamed; compiler-local names (@NNNN,
-@stringBase0) get scope:local. Run it when the source is stable: @NNNN numbers change when the
+@stringBase0) get scope:local (template weak objects @STRING@/@LOCAL@/@GUARD@ do not). Run it when the source is stable: @NNNN numbers change when the
 code before them changes."""
 import json, os, re, subprocess, sys
 
@@ -84,8 +84,9 @@ if "--apply" in sys.argv and ren:
         if m and m.group(1) in ren:
             new = ren[m.group(1)]
             l = new + l[len(m.group(1)):]
-            if new.startswith("@") and "scope:local" not in l:
-                l = l.replace("; // type:object", "; // type:object", 1)
+            # only compiler-local names: @NNNN pool constants and the string pools (the weak objects
+            # of templates, @STRING@/@LOCAL@/@GUARD@, keep the default scope)
+            if re.match(r"^@(\d+|stringBase\d+|wstringBase\d+)$", new) and "scope:local" not in l:
                 l = re.sub(r"(type:object size:0x[0-9A-F]+)", r"\1 scope:local", l, count=1)
             lines[i] = l
     open(SYM, "w").write("\n".join(lines))
