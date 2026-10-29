@@ -107,6 +107,14 @@ struct AiInput_unk { // lbl_807C68C0 (0x180): filled before the script runs
     int m178;
     int m17C;
 };
+// inferred: 0x14-byte parameter block copied five at a time by fn_8001C088
+struct AiParamBlock_unk {
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+};
 struct AiOutput_unk { // lbl_807C6A40 (0xF0): result of the script step
     int m00; // 0x00: set to 1 by every script step
     int m04;
@@ -1407,7 +1415,7 @@ static inline int ApproachOrCast_unk() {
     return -1;
 }
 
-extern "C" unsigned char* fn_8001C088();
+extern "C" void fn_8001C088();
 extern "C" unsigned char* fn_8001C1C0(unsigned char* script);
 
 // inferred: this global sentinel is registered with the destructor for its three linked buckets.
@@ -1462,40 +1470,37 @@ extern "C" AIScriptMapNode_unk* fn_8003DD50(void* tree,
 extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value);
 extern "C" void fn_8001C068(CharaTask* chara, const char* name);
 
-// NONMATCHING: 0.00% - the inferred copy loops compile to a different routine shape.
-// inferred: copies the script's fixed parameter blocks into the global AI state.
-extern "C" unsigned char* fn_8001C088() {
-    unsigned char* src = (unsigned char*)fn_8001C260();
-    unsigned char* dst = (unsigned char*)fn_8001C26C();
-
-    *(int*)dst = 0;
-    *(int*)(dst + 4) = *(int*)(src + 4);
-    *(int*)(dst + 8) = *(int*)(src + 0x64);
-    *(int*)(dst + 0xC) = *(int*)(src + 0x68);
-    *(int*)(dst + 0x10) = *(int*)(src + 0x6C);
+// NONMATCHING: MWCC unrolls both 5-block copy loops (the original keeps them as ctr loops over the
+// in/out bases); pointer/countdown/helper forms tried.
+// inferred: copies the script's parameter blocks from the input to the output state and resets the
+// target list (leader = head of the player manager)
+extern "C" void fn_8001C088() {
+    AiInput_unk* in = fn_8001C260();
+    AiOutput_unk* out = fn_8001C26C();
+    out->m00 = 0;
+    out->m04 = in->m04;
+    out->m08 = in->m64;
+    out->m0C = in->m68;
+    out->m10 = in->m6C;
+    AiParamBlock_unk* src = (AiParamBlock_unk*)&in->mA4;
+    AiParamBlock_unk* dst = (AiParamBlock_unk*)&out->m14;
     for (int i = 0; i < 5; i++) {
-        *(int*)(dst + 0x14 + i * 0x14) = *(int*)(src + 0xA4 + i * 0x14);
-        *(int*)(dst + 0x18 + i * 0x14) = *(int*)(src + 0xA8 + i * 0x14);
-        *(int*)(dst + 0x1C + i * 0x14) = *(int*)(src + 0xAC + i * 0x14);
-        *(int*)(dst + 0x20 + i * 0x14) = *(int*)(src + 0xB0 + i * 0x14);
-        *(int*)(dst + 0x24 + i * 0x14) = *(int*)(src + 0xB4 + i * 0x14);
+        dst[i] = src[i];
     }
+    src = (AiParamBlock_unk*)&in->m108;
+    dst = (AiParamBlock_unk*)&out->m78;
     for (int i = 0; i < 5; i++) {
-        *(int*)(dst + 0x78 + i * 0x14) = *(int*)(src + 0x108 + i * 0x14);
-        *(int*)(dst + 0x7C + i * 0x14) = *(int*)(src + 0x10C + i * 0x14);
-        *(int*)(dst + 0x80 + i * 0x14) = *(int*)(src + 0x110 + i * 0x14);
-        *(int*)(dst + 0x84 + i * 0x14) = *(int*)(src + 0x114 + i * 0x14);
-        *(int*)(dst + 0x88 + i * 0x14) = *(int*)(src + 0x118 + i * 0x14);
+        dst[i] = src[i];
     }
+    int* srcValues = &in->m16C;
+    int* dstValues = &out->mDC;
     for (int i = 0; i < 5; i++) {
-        *(int*)(dst + 0xDC + i * 4) = *(int*)(src + 0x16C + i * 4);
+        dstValues[i] = srcValues[i];
     }
-
-    unsigned char* tail = (unsigned char*)fn_8001C278();
+    AiTargets_unk* targets = fn_8001C278();
     CharaManager<PlayerTask>* manager = lbl_8087F8A0;
-    *(int*)tail = manager != 0 ? *(int*)((unsigned char*)manager + 0x48) : 0;
-    *(int*)(tail + 4) = 0;
-    return tail;
+    targets->m00 = manager != 0 ? manager->mHead : 0;
+    targets->m04 = 0;
 }
 
 extern "C" void fn_8001C1B4() {
@@ -1532,15 +1537,16 @@ extern "C" unsigned char* fn_8001C1C0(unsigned char* script) {
 }
 extern "C" void fn_8001C284();
 
-extern "C" AiInput_unk* fn_8001C260() {
+// inferred: accessors of the global AI state; fn_8001C088 calls them (noinline as in MP/CryptMP)
+extern "C" __declspec(noinline) AiInput_unk* fn_8001C260() {
     return &lbl_807C68C0;
 }
 
-extern "C" AiOutput_unk* fn_8001C26C() {
+extern "C" __declspec(noinline) AiOutput_unk* fn_8001C26C() {
     return &lbl_807C6A40;
 }
 
-extern "C" AiTargets_unk* fn_8001C278() {
+extern "C" __declspec(noinline) AiTargets_unk* fn_8001C278() {
     return &lbl_807C6B30;
 }
 
