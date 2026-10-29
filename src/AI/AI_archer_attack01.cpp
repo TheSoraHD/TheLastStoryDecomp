@@ -5740,6 +5740,59 @@ int AI::Script::AI_fr_magic_pick02::vf18() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_fr_magic_pick02::vf24() {
+    if (lbl_807C6A40.m18 == 0) {
+        int pick = PickItem_unk();
+        if (pick == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (pick == 1) {
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        int result = ApproachOrCast_unk();
+        if (result == 9) {
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        if (result == 6) {
+            int next = fn_8003D3F8();
+            if (next == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            if (next == 9) {
+                lbl_807C6A40.m00 = 1;
+                return 9;
+            }
+            if (next == 6) {
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    int pick = PickItemFor_unk();
+    if (pick == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (pick == 4) {
+        lbl_807C6A40.m00 = 1;
+        return 4;
+    }
+    int result = Stop_unk();
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_fr_magic_pick02::vf40() {
     int result = CheckCount_unk();
