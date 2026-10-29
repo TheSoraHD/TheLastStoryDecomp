@@ -164,3 +164,12 @@ Unidades no `atn/` ni de enemigos, sin fuente, de 10–20 KB, en orden de direcc
   - `atn::Bgm` deja de ser abstracta: el cuarto word de su vtable (0x80777570) es relleno, no un virtual puro (el gestor construye un array de `Bgm`). `atn/Bgm` no cambia.
   - `atn::SimpleArray::size()`: el original llama a `fn_80089ACC`, una copia débil de otra unidad usada también por `GameScene`, `MiniMapTask`, `atn/Model` y `PacketPack` con arrays de otros tipos, así que no puede ser `SimpleArray<T>::size`; no se renombra.
   - Inlines libres `IsDebugMenu_unk(GameConfig_unk*)` y `GetEngine_unk()` para las copias débiles 0x8035FBF8/0x8035FC00, y `extern "C" inline fn_800F52F8()` como en `gmk/Cannonball.cpp`.
+
+### `game/FinishCamera_unk` (0x80378474, 12 funciones)
+
+- Cámara del golpe final (`FinishCamera_unk`, nombre inventado; menú de depuración "FinishCamera"): según el modo (0/1 alrededor del personaje con un ángulo aleatorio, 2/3 desde las curvas `xsca`, 5/6 desde la cámara global) coloca ojo y objetivo, evita paredes con la colisión (`fn_80378D34`, `fn_80379104`) y guarda/restaura la cámara del campo. 7/12 al 100%; `NONMATCHING`: `fn_8037865C` 99,2% (r8/r9), `fn_803786FC` 99,5% (cruce r3/r4 de la copia de `Vector3`), `fn_80379104` 99,7% y `fn_80378D34` 79,9% (el original tiene 0x50 bytes más de temporales en la pila). **`fn_803792F0` (0x33A0 bytes, la máquina de estados de la actualización) sin escribir**; la unidad no enlaza.
+- **Trucos:** la suma de la curva rotada (`fn_805BF410` + `PSMTXMultVec` + `+=`) es una inline (`AddCurve_unk`): escrita en la función, el orden de la pila y de los registros cambia. `if (count < 7) PushBack_unk(entry)` con `FixedArray_unk` da la forma del original.
+- **Decisiones sin el usuario:**
+  - Cabecera nueva `include/game/FinishCamera_unk.h`; las entradas (`FinishCameraEntry_unk`, 7) usan `FixedArray_unk` de `CharaStatus.h`.
+  - `fn_80378D34` y `fn_80379104` son miembros estáticos (no usan `this`).
+  - 11 símbolos renombrados con los nombres de nuestro `.o`; `pairdata` aplicado.
