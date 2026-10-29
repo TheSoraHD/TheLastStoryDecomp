@@ -595,7 +595,8 @@ extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_80599C90(Bullet_unk* bullet, CharaTask* chara);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 
-extern "C" int fn_8001BF44() {
+// inferred: stub that ignores its two characters (callers in AI_archer_attack01 pass them)
+extern "C" int fn_8001BF44(CharaTask*, CharaTask*) {
     return 0;
 }
 

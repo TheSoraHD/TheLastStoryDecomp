@@ -216,6 +216,7 @@ int fn_8001BEB0(CharaTask* chara);
 void fn_8001C068(CharaTask* chara, const char* name); // inferred: sets the debug state text
 int fn_8001C01C(CharaTask* chara);
 int fn_8001A444(int index);
+int fn_8001BF44(CharaTask* a, CharaTask* b);
 int fn_8001BF58(CharaTask* chara);
 int fn_8001BF64(CharaTask* chara);
 int fn_8001BE90(CharaTask* chara);
@@ -10280,6 +10281,61 @@ extern "C" int fn_8003CDB0() {
     }
     lbl_807C6A40.m00 = 1;
     return 6;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+extern "C" int fn_8003D084(CharaTask* target) {
+    if (fn_8001BF44(lbl_807C68C0.m00, lbl_807C68C0.m00)) {
+        if (CanUseItem2_unk()) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (CanUseItem3_unk()) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (fn_8001BF44(lbl_807C68C0.m00, target)) {
+        if (fn_8001BEB0(lbl_807C68C0.m00)) {
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        if (CanUseItem2_unk()) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (CanUseItem3_unk()) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+extern "C" int fn_8003D298(int a, int b) {
+    int result = Stamina_unk();
+    if (result == 10) {
+        if (lbl_807C68C0.m58 < a) {
+            Command_unk(14, 0, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 10;
+        }
+        return -1;
+    }
+    if (result == 1) {
+        if (lbl_807C68C0.m58 < b) {
+            Command_unk(0, 15, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        return -1;
+    }
+    return -1;
 }
 
 // NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
