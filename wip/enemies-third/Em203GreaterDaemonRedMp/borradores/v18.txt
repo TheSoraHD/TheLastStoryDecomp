@@ -1,0 +1,32 @@
+        atn::Vector3 point = m1540->mPos;
+        atn::Vector3 d = point - mPos;
+        sqrt(d.x * d.x + d.z * d.z);
+        if (m1528 == m1540->m10) {
+            m1530 = point - mPos;
+            ToIdle_unk();
+        } else {
+            m152C += 1.0f / m1670;
+            float t = 0.5f * (1.0f + (float)sin(3.1415927f * m152C - 1.5707964f));
+            atn::Vector3 move = (m1540->mPos - m154C) * t;
+            mPos = move + m154C;
+====
+        atn::Vector3 point = m1540->mPos;
+        fn_801C3910(point - mPos);
+        if (m1528 == m1540->m10) {
+            m1530 = point - mPos;
+            ToIdle_unk();
+        } else {
+            m152C += 1.0f / m1670;
+            float t = 0.5f * (1.0f + (float)sin(3.1415927f * m152C - 1.5707964f));
+            mPos = (m1540->mPos - m154C) * t + m154C;
+====
+        atn::Vector3 point = m1540->mPos;
+        atn::Vector3 d = point - mPos;
+        fn_801C3910(d);
+        if (m1528 == m1540->m10) {
+            m1530 = point - mPos;
+            ToIdle_unk();
+        } else {
+            m152C += 1.0f / m1670;
+            float t = 0.5f * (1.0f + (float)sin(3.1415927f * m152C - 1.5707964f));
+            mPos = (m1540->mPos - m154C) * t + m154C;

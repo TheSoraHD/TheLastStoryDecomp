@@ -1,0 +1,11 @@
+    atn::Vector3 target = m14B0->mPos;
+    fn_801C3910(target - mPos);
+====
+    fn_801C3910(atn::Vector3(m14B0->mPos) - mPos);
+====
+    atn::Vector3 dir = atn::Vector3(m14B0->mPos) - mPos;
+    fn_801C3910(dir);
+====
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
+    fn_801C3910(dir);

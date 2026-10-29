@@ -45,7 +45,7 @@ Ninguna unidad llega a `"matching": true`.
 Notas por cola (resultado por función, NONMATCHING con motivo, hallazgos): `docs/enemies-third-{n1,n2,n3a,n3b,n4,s1,s2,s3a,s4,s5}.md`.
 
 ## No hecho (cierre anticipado)
-- Sin fuente: `Em202ForestSpider`, `Em202MothersSpider` (cabecera de ForestSpider en el scratch de la sesión), `Em203GreaterDaemonRedMp` (layout en scratch), `Em206CocoonMp` (asm decodificado en scratch), `Em206EggMonster`. El scratch (`/home/claude/scratch/{n2,n3b,n5}/`) no está en el repo: se pierde con el contenedor.
+- Sin fuente: `Em202ForestSpider`, `Em202MothersSpider` `Em203GreaterDaemonRedMp`, `Em206CocoonMp`, `Em206EggMonster`. Lo avanzado de ForestSpider (cabecera), RedMp (cabecera y fuente a medias) y CocoonMp (análisis del asm) está en `wip/enemies-third/` (no se compila; ver su README).
 - Segundas pasadas no lanzadas: Em312DarkServant/Em314Ivy/Em315Coffin, Em316LaserSphere (+ resto de Em316LastLaser), EnemyQuarkFirst/Second, EnemyQuarkStand/EnemyTasha y la struct de `lbl_8087EFA8`.
 
 ## Decisiones a revisar (tomadas sin el usuario)

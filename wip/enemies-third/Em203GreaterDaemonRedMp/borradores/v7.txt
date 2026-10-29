@@ -1,0 +1,12 @@
+    float best = 1.0e16f;
+    int nearest = -1;
+    for (unsigned int i = 0; i < m1564.size(); i++) {
+====
+    float best = 1.0e16f;
+    int nearest = -1;
+    unsigned int i;
+    for (i = 0; i < m1564.size(); i++) {
+====
+    int nearest = -1;
+    float best = 1.0e16f;
+    for (unsigned int i = 0; i < m1564.size(); i++) {

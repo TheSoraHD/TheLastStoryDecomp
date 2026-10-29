@@ -1,0 +1,28 @@
+    atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    pos.y += 10.0f;
+    pos += Front_unk(mRot.y) * 10.0f;
+    return pos;
+====
+    atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    pos.y = pos.y + 10.0f;
+    pos += Front_unk(mRot.y) * 10.0f;
+    return pos;
+====
+    atn::Vector3 pos;
+    pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    pos.y += 10.0f;
+    pos += Front_unk(mRot.y) * 10.0f;
+    return pos;
+====
+    MtxPtr m = mMotion.GetNodeMtx_unk("head");
+    atn::Vector3 pos;
+    pos.x = m[0][3];
+    pos.z = m[2][3];
+    pos.y = m[1][3] + 10.0f;
+    pos += Front_unk(mRot.y) * 10.0f;
+    return pos;
+====
+    atn::Vector3 pos(((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk());
+    pos.y += 10.0f;
+    pos += Front_unk(mRot.y) * 10.0f;
+    return pos;

@@ -11,7 +11,7 @@ Unidades: `game/Em203GreaterDaemonRed` (0x80293738, 53 funciones) y `game/Em203G
 
 Al cerrar: `main.dol: OK`, `regress.py` lost: 0, `fuzzdrop.py` 0 bajadas, `poolcheck.py game/Em203GreaterDaemonRed` sin avisos.
 
-RedMp: el lote se cerró antes de escribir el fuente. El análisis del asm y un primer borrador de la cabecera (layout completo de 0x14D4 a 0x16CC, obtenido del ctor, vf0C, el destructor y las funciones de estado) quedan en `/home/claude/scratch/n3b/redmp_wip/` (fuera del repo). Resumen para retomarla:
+RedMp: el lote se cerró antes de escribir el fuente. El análisis del asm y un primer borrador de la cabecera (layout completo de 0x14D4 a 0x16CC, obtenido del ctor, vf0C, el destructor y las funciones de estado) quedan en `wip/enemies-third/Em203GreaterDaemonRedMp/` (no se compila). Resumen para retomarla:
 - Deriva de `SpecialEnemyBase`; vtable 0x80785B38, virtual nueva en el slot 0x11C (cápsula, 0x8029E0B4); `vf108` y `fn_802A49C8` (¿está volando?) son inline al final del fichero; destructor inline (0x802A4A04).
 - Ayudantes repetidos: ResetState (`m14D8`, `m14DC`, `m590`, `m155C`, `m15FC`), PlayMotion (como en Red), ToIdle (estado 6 + `fn_80239DAC(-2)`), StartState13 (motion 0x153), muerte (mismo bloque en `vf40` y `vf114`).
 - `fn_802A4968`/`fn_802A49BC` son las `extern "C" inline` de `game/EnemyJill.cpp` (teclado de depuración); `fn_802A36B0`/`fn_802A4094` son las de `gmk/Cannonball.cpp`.

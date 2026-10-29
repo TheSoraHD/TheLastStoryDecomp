@@ -1,0 +1,16 @@
+        atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
+        pos += Front_unk(mRot.y) * 20.0f;
+====
+        atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
+        pos += Front_unk(mRot.y) * 20.0f;
+====
+        atn::Vector3 pos;
+        pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
+        pos += Front_unk(mRot.y) * 20.0f;
+====
+        atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
+        atn::Vector3 front = Front_unk(mRot.y);
+        pos += front * 20.0f;
+====
+        atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
+        pos = pos + Front_unk(mRot.y) * 20.0f;

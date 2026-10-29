@@ -1,0 +1,17 @@
+        atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
+        spine += Front_unk(mRot.y) * 20.0f;
+====
+        atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
+        spine += Front_unk(mRot.y) * 20.0f;
+====
+        atn::Vector3 spine(GetNodePos_unk(mMotion.GetNodeMtx_unk("spine")));
+        spine += Front_unk(mRot.y) * 20.0f;
+====
+        atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine")) + Front_unk(mRot.y) * 20.0f;
+====
+        atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
+        atn::Vector3 pos = spine + Front_unk(mRot.y) * 20.0f;
+====
+        MtxPtr m = mMotion.GetNodeMtx_unk("spine");
+        atn::Vector3 spine(m[0][3], m[1][3], m[2][3]);
+        spine += Front_unk(mRot.y) * 20.0f;

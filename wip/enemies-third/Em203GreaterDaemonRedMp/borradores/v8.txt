@@ -1,0 +1,27 @@
+    atn::Vector3 from = mPos;
+    atn::Vector3 to = mPos;
+    CollResult_unk result;
+    from.y += 5.0f;
+    to.y -= 10000.0f;
+====
+    CollResult_unk result;
+    atn::Vector3 from = mPos;
+    atn::Vector3 to = mPos;
+    from.y += 5.0f;
+    to.y -= 10000.0f;
+====
+    atn::Vector3 from = mPos;
+    atn::Vector3 to = mPos;
+    from.y += 5.0f;
+    CollResult_unk result;
+    to.y -= 10000.0f;
+====
+    atn::Vector3 from = mPos;
+    atn::Vector3 to = mPos;
+    from.y += 5.0f;
+    to.y -= 10000.0f;
+    CollResult_unk result;
+====
+    atn::Vector3 from(mPos.x, mPos.y + 5.0f, mPos.z);
+    atn::Vector3 to(mPos.x, mPos.y - 10000.0f, mPos.z);
+    CollResult_unk result;

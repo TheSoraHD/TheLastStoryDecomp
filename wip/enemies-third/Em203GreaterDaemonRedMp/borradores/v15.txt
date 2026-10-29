@@ -1,0 +1,39 @@
+    PlayMotion_unk(0x160, 0, 0, 1.0f);
+    m1544 = mRot.y;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    m1548 = dir.ToRotation_unk().y;
+====
+    PlayMotion_unk(0x160, 0, 0, 1.0f);
+    m1544 = mRot.y;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    atn::Vector3 rot = dir.ToRotation_unk();
+    m1548 = rot.y;
+====
+    PlayMotion_unk(0x160, 0, 0, 1.0f);
+    m1544 = mRot.y;
+    atn::Vector3 dir = m14B0->mPos - mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    m1548 = dir.ToRotationZ_unk().y;
+====
+    PlayMotion_unk(0x160, 0, 0, 1.0f);
+    m1544 = mRot.y;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    m1548 = dir.ToRotationZ_unk().y;
+====
+    PlayMotion_unk(0x160, 0, 0, 1.0f);
+    m1544 = mRot.y;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    PSVECNormalize(&dir, &dir);
+    m1548 = dir.ToRotation_unk().y;
