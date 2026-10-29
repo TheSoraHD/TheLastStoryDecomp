@@ -93,10 +93,10 @@ public:
     LaserTrace m1538;
     ResLoader_unk m1574; // inferred: "ef_sk043f_01.eff"
     ResLoader_unk m1580; // inferred: "ef_sk043c_01.eff"
-    atn::EfpHandle_unk m158C;
-    atn::EfpHandle_unk m1598;
-    atn::EfpHandle_unk m15A4;
-    atn::EfpHandle_unk m15B0;
+    atn::EfpFile m158C;
+    atn::EfpFile m1598;
+    atn::EfpFile m15A4;
+    atn::EfpFile m15B0;
     ResHandle m15BC; // inferred: debug menu group
     int m15C0;       // inferred: "Bit"
     int m15C4;       // inferred: "DebugDisp"

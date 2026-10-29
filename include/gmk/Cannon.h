@@ -30,8 +30,8 @@ public:
 
     atn::Model mModel;                     // 0xF4: "MODEL"
     atn::Model mModelCrush;                // 0x4C4: "MODEL_CRUSH"
-    atn::EfpHandle_unk mEfpShoot;         // 0x894
-    atn::EfpHandle_unk mEfpCrush;         // 0x8A0
+    atn::EfpFile mEfpShoot;         // 0x894
+    atn::EfpFile mEfpCrush;         // 0x8A0
     int mShootWait;                       // 0x8AC: "PARAM" 1
     int mShootWaitRand;                   // 0x8B0: "PARAM" 2
     int mTimer;                           // 0x8B4

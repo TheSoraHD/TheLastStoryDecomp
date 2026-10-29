@@ -1398,7 +1398,7 @@
  {
   "name": "atn/EfpHandle_unk.cpp",
   "classes": [
-   "atn::EfpHandle_unk",
+   "atn::EfpFile",
    "ResLoader_unk"
   ],
   "matching": false

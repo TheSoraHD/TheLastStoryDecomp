@@ -19,8 +19,8 @@ public:
     int m14B0; // inferred: copy mode
     CharaTask* m14B4; // inferred: copied character (mode 0)
     CharaTask* m14B8; // inferred: copied character (modes 1-3)
-    atn::EfpHandle_unk m14BC;
-    atn::EfpHandle_unk m14C8;
+    atn::EfpFile m14BC;
+    atn::EfpFile m14C8;
     atn::LH_MotionSet m14D4;
 };
 

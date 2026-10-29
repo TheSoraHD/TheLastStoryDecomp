@@ -98,10 +98,10 @@ public:
     int m14FC;
     int m1500;                  // inferred: "shades_skill_id"
     atn::Vector3 m1504;         // inferred: position of the shades attack (fn_802E094C)
-    atn::EfpHandle_unk m1510; // inferred: "/effect/ef_bs030c.efp"
+    atn::EfpFile m1510; // inferred: "/effect/ef_bs030c.efp"
     int m151C;                  // inferred: nonzero hides the debug display (vf14)
-    atn::EfpHandle_unk m1520; // inferred: "/effect/ef_bu022.efp"
-    atn::EfpHandle_unk m152C; // inferred: "/effect/ef_bu023.efp"
+    atn::EfpFile m1520; // inferred: "/effect/ef_bu022.efp"
+    atn::EfpFile m152C; // inferred: "/effect/ef_bu023.efp"
     int m1538;
     int m153C;
     int m1540;
@@ -113,10 +113,10 @@ public:
     int m1558;
     int m155C;                  // inferred: "laser_skill_id"
     atn::SoundRef m1560;
-    atn::EfpHandle_unk m1564; // inferred: "/effect/ef_bs028.efp"
-    atn::EfpHandle_unk m1570; // inferred: "/effect/ef_bs029a.efp"
-    atn::EfpHandle_unk m157C; // inferred: "/effect/ef_bs029c.efp"
-    atn::EfpHandle_unk m1588; // inferred: "anger_efp"
+    atn::EfpFile m1564; // inferred: "/effect/ef_bs028.efp"
+    atn::EfpFile m1570; // inferred: "/effect/ef_bs029a.efp"
+    atn::EfpFile m157C; // inferred: "/effect/ef_bs029c.efp"
+    atn::EfpFile m1588; // inferred: "anger_efp"
     std::vector<KrakenMpTarget_unk> m1594;
     atn::Vector3 m15A0;
     RoutePlace_unk* m15AC;      // inferred: "charge_point"
@@ -124,8 +124,8 @@ public:
     float m15B4;                // inferred: "explode_center" (three values)
     float m15B8;
     float m15BC;
-    atn::EfpHandle_unk m15C0;
-    atn::EfpHandle_unk m15CC; // inferred: "/effect/ef_bd005.efp"
+    atn::EfpFile m15C0;
+    atn::EfpFile m15CC; // inferred: "/effect/ef_bd005.efp"
     CharaTask* m15D8;           // inferred: target
     int m15DC;
     RoutePlace_unk* m15E0;      // inferred: current appear point

@@ -51,7 +51,7 @@ public:
     int m14B4;
     char m14B8[0x14D8 - 0x14B8]; // inferred: "MoveSE" (sound name)
     atn::SoundRef m14D8;
-    atn::EfpHandle_unk m14DC;
+    atn::EfpFile m14DC;
     int m14E8;                // inferred: "NeedleChargeTime"
     int m14EC;                // inferred: "NeedleChargeTime2"
     float m14F0;
@@ -59,7 +59,7 @@ public:
     float m14F8;
     char m14FC[0x151C - 0x14FC]; // inferred: "NeedleChargeSE" (sound name)
     atn::SoundRef m151C;
-    atn::EfpHandle_unk m1520;
+    atn::EfpFile m1520;
     float m152C;
     HitInfo_unk* m1530;       // inferred: skill 0x3F8
     float m1534;
@@ -100,8 +100,8 @@ public:
     float m15E8;
     float m15EC;
     float m15F0;
-    atn::EfpHandle_unk m15F4;
-    atn::EfpHandle_unk m1600;
+    atn::EfpFile m15F4;
+    atn::EfpFile m1600;
     atn::LH_Binary m160C;     // inferred: data file
     ResHandle m1614;          // inferred: debug menu group
     int m1618;

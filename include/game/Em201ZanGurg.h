@@ -49,7 +49,7 @@ public:
     int m16E4;            // inferred: attack frequency ("AttackFrequcy")
     int m16E8;            // inferred: nonzero when the next attack can start
     atn::Vector3 m16EC;   // inferred: target position of the magic
-    atn::EfpHandle_unk m16F8; // inferred: "/effect/ef_sk026a.efp"
+    atn::EfpFile m16F8; // inferred: "/effect/ef_sk026a.efp"
     ResHandle m1704;      // inferred: debug menu group
     int m1708;            // inferred: "DebugDisp"
     int m170C;            // inferred: the factory allocates 0x1710 bytes (fn_805A5374)

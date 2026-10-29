@@ -44,7 +44,7 @@ public:
     atn::Vector3 mBoxOffset;   // 0x848: "COLLI_BOX"
     atn::Vector3 mBoxRot;      // 0x854
     atn::Vector3 mBoxSize;     // 0x860
-    atn::EfpHandle_unk mEfp;   // 0x86C: "EFP"
+    atn::EfpFile mEfp;   // 0x86C: "EFP"
     int mReflect;              // 0x878
     int mNode;                 // 0x87C: inferred: node of the reflection plane
     Plane_unk mPlane;          // 0x880: "REFLECT_PLANE"

@@ -19,7 +19,7 @@ public:
             mSe[0] = 0;
         }
         ResLoader_unk mRes;      // 0x00: "EFF"
-        atn::EfpHandle_unk mEfp; // 0x0C: "EFP"
+        atn::EfpFile mEfp; // 0x0C: "EFP"
         char mSe[0x20];          // 0x18: "SE"
     };
 

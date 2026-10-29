@@ -52,20 +52,20 @@ struct BattleEfpEntry_unk {
     void Unload_unk() {
         if (mLoaded != 0) {
             mLoaded = 0;
-            m04.fn_8023781C();
-            m10.fn_8023781C();
+            m04.Destroy();
+            m10.Destroy();
             m1C.fn_8023772C();
-            m28.fn_8023781C();
+            m28.Destroy();
             m34.fn_80473F88();
             m3C.fn_80473F88();
         }
     }
 
     BattleEfpData_unk* mData;
-    atn::EfpHandle_unk m04;
-    atn::EfpHandle_unk m10;
+    atn::EfpFile m04;
+    atn::EfpFile m10;
     ResLoader_unk m1C;
-    atn::EfpHandle_unk m28;
+    atn::EfpFile m28;
     atn::LH_Xsca m34;
     atn::LH_Xsca m3C;
     int mLoaded; // 0x44
@@ -200,7 +200,7 @@ extern "C" BattleEfpEntry_unk* fn_800EFB78(int id) {
     return 0;
 }
 
-extern "C" atn::EfpHandle_unk* fn_800EFBC4(int id) {
+extern "C" atn::EfpFile* fn_800EFBC4(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
     if (entry != 0 && !entry->m04.fn_80237874() && entry->m04.mLoader.fn_80473F18() != 0) {
         return &entry->m04;
@@ -208,7 +208,7 @@ extern "C" atn::EfpHandle_unk* fn_800EFBC4(int id) {
     return 0;
 }
 
-extern "C" atn::EfpHandle_unk* fn_800EFC64(int id) {
+extern "C" atn::EfpFile* fn_800EFC64(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
     if (entry != 0 && !entry->m10.fn_80237874() && entry->m10.mLoader.fn_80473F18() != 0) {
         return &entry->m10;
@@ -224,7 +224,7 @@ extern "C" ResLoader_unk* fn_800EFD04(int id) {
     return 0;
 }
 
-extern "C" atn::EfpHandle_unk* fn_800EFDA0(int id) {
+extern "C" atn::EfpFile* fn_800EFDA0(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
     if (entry != 0 && !entry->m28.fn_80237874() && entry->m28.mResource != 0) {
         return &entry->m28;

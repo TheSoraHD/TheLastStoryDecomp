@@ -257,7 +257,7 @@ struct MotionCommand_unk {
     unsigned char m12;      // inferred: a command was found on the last update (run again)
     atn::LH_MotionCommandData mLoader; // 0x14
     MotionCmdData_unk* m20; // inferred: loaded data
-    atn::EfpHandle_unk* m24; // inferred: looping effect ("EFP_LOOP")
+    atn::EfpFile* m24; // inferred: looping effect ("EFP_LOOP")
     atn::SoundRef m28;      // inferred: looping sound ("SE_LOOP")
     MtxPtr m2C;             // inferred: node the looping sound follows
     unsigned int m30;       // inferred: motion resource id of the last update
@@ -1136,7 +1136,7 @@ public:
     CharaFaceControl m1188;
     CharaObj1208_unk* m1208;
     CharaAttach_unk* m120C[4]; // inferred: cleared with memset; filled by fn_8017639C
-    boost::scoped_ptr<atn::EfpHandle_unk> m121C;
+    boost::scoped_ptr<atn::EfpFile> m121C;
     MotionCommand_unk m1220;
     int m1254;
     float m1258;

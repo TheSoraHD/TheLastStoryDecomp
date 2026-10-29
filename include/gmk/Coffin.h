@@ -38,8 +38,8 @@ public:
     atn::ColliObject mColli;         // 0x4C4: "COLLI_BEFORE"
     atn::ColliObject mColliAfter[2]; // 0x54C: "COLLI_AFTER_LEFT", "COLLI_AFTER_RIGHT"
     GimmickDesc_unk* mDesc;          // 0x65C
-    atn::EfpHandle_unk mEfp;         // 0x660: "EFP"
-    atn::EfpHandle_unk mOpenEfp[2];  // 0x66C: "OPEN_EFP_LEFT", "OPEN_EFP_RIGHT"
+    atn::EfpFile mEfp;         // 0x660: "EFP"
+    atn::EfpFile mOpenEfp[2];  // 0x66C: "OPEN_EFP_LEFT", "OPEN_EFP_RIGHT"
     atn::SoundRef mSound;            // 0x684: inferred: unused
     int mTimer;                      // 0x688: inferred: frames before the effect
     int mSide;                       // 0x68C: inferred: 0 left, 1 right

@@ -36,9 +36,9 @@ public:
     atn::Model mModel;            // 0xF4: "MODEL"
     atn::Model mModelCrush;       // 0x4C4: "MODEL_CRUSH"
     atn::ColliObject mColli;     // 0x894: "COLLI_OBJECT"
-    atn::EfpHandle_unk mEfp;     // 0x91C: "EFP"
-    atn::EfpHandle_unk mEfpRoll; // 0x928: "EFP_ROLL"
-    atn::EfpHandle_unk mEfpCrush; // 0x934: "EFP_CRUSH"
+    atn::EfpFile mEfp;     // 0x91C: "EFP"
+    atn::EfpFile mEfpRoll; // 0x928: "EFP_ROLL"
+    atn::EfpFile mEfpCrush; // 0x934: "EFP_CRUSH"
     atn::SoundRef mSound;        // 0x940
     atn::Vector3 mDir;           // 0x944: inferred: rolling direction
     float mSpeed;                // 0x950: "PARAM" 1

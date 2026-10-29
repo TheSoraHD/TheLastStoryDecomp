@@ -41,7 +41,7 @@ public:
 
     atn::Model mModel;         // 0xF4
     atn::ColliObject mColli;  // 0x4C4
-    atn::EfpHandle_unk mEfp;  // 0x54C: "EFP"
+    atn::EfpFile mEfp;  // 0x54C: "EFP"
     Data_unk* mData;          // 0x558
     int mItem;                // 0x55C: inferred: index of the item drawn (vf64)
     ItemSlotAnime mAnime;     // 0x560

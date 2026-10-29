@@ -154,7 +154,7 @@ struct WindyColor_unk {
     float r, g, b, a;
 };
 extern "C" WindyEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const WindyColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect

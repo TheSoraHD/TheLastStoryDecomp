@@ -41,8 +41,8 @@ struct ArrowEffectMgr_unk;
 extern "C" ArrowEffectMgr_unk* fn_800F7FA0();
 extern "C" void fn_80239DAC(ArrowEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800F7FA8(ArrowEffectMgr_unk* mgr, void* owner, int id);
-extern "C" void fn_8026607C(ArrowEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, void* owner, int arg);
-extern "C" void fn_80276AE4(ArrowEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int arg2, const atn::Vector3* pos,
+extern "C" void fn_8026607C(ArrowEffectMgr_unk* mgr, atn::EfpFile* efp, void* owner, int arg);
+extern "C" void fn_80276AE4(ArrowEffectMgr_unk* mgr, atn::EfpFile* efp, int arg2, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg5, int arg6, int arg7, float scale);
 // inferred: sounds
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);

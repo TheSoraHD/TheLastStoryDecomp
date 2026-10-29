@@ -2,7 +2,7 @@
 #include "atn/ResLoader_unk.h"
 #include "atn/SwapDesc_unk.h"
 
-// Loaders of the effect resources (ResLoader_unk: LH_Effect, EfpHandle_unk: LH_Efp) and the byte
+// Loaders of the effect resources (ResLoader_unk: LH_Effect, EfpFile: LH_Efp) and the byte
 // swapper of the effect files. Name of the file invented.
 
 struct EffectRes_unk;
@@ -134,13 +134,13 @@ extern "C" int fn_8023779C(ResLoader_unk* loader) {
 
 namespace atn {
 
-EfpHandle_unk::EfpHandle_unk() : mResource(0) {}
+EfpFile::EfpFile() : mResource(0) {}
 
-void EfpHandle_unk::fn_8023780C(const char* path) {
+void EfpFile::fn_8023780C(const char* path) {
     mLoader.vf0C(path);
 }
 
-void EfpHandle_unk::fn_8023781C() {
+void EfpFile::Destroy() {
     if (mResource != 0) {
         if (lbl_8087F3C0 != 0) {
             lbl_8087F3C0->fn_8023A340((EffectRes_unk*)this);
@@ -150,7 +150,7 @@ void EfpHandle_unk::fn_8023781C() {
     }
 }
 
-int EfpHandle_unk::fn_80237874() {
+int EfpFile::fn_80237874() {
     if (mLoader.fn_80473F50() == 0) {
         mResource = mLoader.fn_80473C20();
         return 0;
@@ -161,7 +161,7 @@ int EfpHandle_unk::fn_80237874() {
 } // namespace atn
 
 // inferred: number of loops of the effect (field 0x0C of the efp resource), 0 without resource
-extern "C" int fn_802378C4(atn::EfpHandle_unk* efp) {
+extern "C" int fn_802378C4(atn::EfpFile* efp) {
     if (efp->mResource != 0) {
         return ((int*)efp->mResource)[0x0C / 4];
     }

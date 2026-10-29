@@ -83,7 +83,7 @@ public:
     int m288;
     int m28C;
     HitInfo_unk* m290[3];
-    boost::scoped_ptr<atn::EfpHandle_unk> m29C;
+    boost::scoped_ptr<atn::EfpFile> m29C;
     int m2A0;                 // inferred: the effect is playing
     ArmsEffect_unk* m2A4;
 };

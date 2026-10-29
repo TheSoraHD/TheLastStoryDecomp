@@ -30,7 +30,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" OnOffEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(OnOffEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_8023A680(OnOffEffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, atn::Model* model,
@@ -136,7 +136,7 @@ inline void SetSphere_unk(atn::ColliSphere* colli, const atn::Vector3& center, f
     colli->mSphere.mRadius = radius;
 }
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(OnOffEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEfp_unk(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -154,7 +154,7 @@ inline void PlayEfp_unk(OnOffEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::M
 }
 
 // inferred: plays an effect at a position (name invented)
-inline void PlayEfpAt_unk(OnOffEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, const atn::Vector3& pos,
+inline void PlayEfpAt_unk(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                           const atn::Vector3& rot, float scale) {
     Color4f_unk color;
     color.r = 1.0f;

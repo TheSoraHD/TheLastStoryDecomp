@@ -262,7 +262,7 @@ static const char* const sDamageNodes_unk[] = {"op_05_shield_dam_b1", "op_05_shi
                                                "op_05_shield_dam_b4", "op_05_shield_dam_b5"};
 
 // inferred: names invented
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -1109,7 +1109,7 @@ void Em201ZanGurgFinal::vf98() {
     if (show) {
         fn_80232B7C(m121C.get(), 0);
         lbl_8087F3C0->mB8 = 2;
-        PlayEffect_unk((atn::EfpHandle_unk*)m121C.get(), &mMotion);
+        PlayEffect_unk((atn::EfpFile*)m121C.get(), &mMotion);
         lbl_8087F3C0->mB8 = 0;
         fn_80232B7C(&m15A0, 0);
         lbl_8087F3C0->mB8 = 2;

@@ -55,7 +55,7 @@ public:
     int mLoading;                        // 0x4C
     atn::Buffer_unk<Entry_unk> mEntries; // 0x50
     int mForceAttr;                      // 0x58: inferred: attribute used instead of the ground one
-    atn::EfpHandle_unk mEfp;             // 0x5C
+    atn::EfpFile mEfp;             // 0x5C
 
     static ColliAttrManager* sInstance;
 };

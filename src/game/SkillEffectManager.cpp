@@ -166,23 +166,23 @@ void SkillEffectManager::fn_8059AFD8() {
 void SkillEffectManager::fn_8059B0F0() {
     if (mLoaded != 0) {
         mLoaded = 0;
-        m284C.fn_8023781C();
-        m2858.fn_8023781C();
-        m2864.fn_8023781C();
-        m2870.fn_8023781C();
-        m287C.fn_8023781C();
-        m2888.fn_8023781C();
-        m2894.fn_8023781C();
+        m284C.Destroy();
+        m2858.Destroy();
+        m2864.Destroy();
+        m2870.Destroy();
+        m287C.Destroy();
+        m2888.Destroy();
+        m2894.Destroy();
         m28A0.fn_8023772C();
-        m28AC.fn_8023781C();
-        m28B8.fn_8023781C();
+        m28AC.Destroy();
+        m28B8.Destroy();
         m28C4.fn_8023772C();
         m28D0.fn_8023772C();
         m28DC.fn_8023772C();
         m28E8.fn_8023772C();
-        m28F4.fn_8023781C();
-        m2900.fn_8023781C();
-        m290C.fn_8023781C();
+        m28F4.Destroy();
+        m2900.Destroy();
+        m290C.Destroy();
     }
 }
 

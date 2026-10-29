@@ -45,7 +45,7 @@ public:
     atn::ColliSphere mSphere;  // 0x8D0: "COLLI_SPHERE"
     int mHasSphere;            // 0x91C
     ResLoader_unk mEff;        // 0x920: "EFF"
-    atn::EfpHandle_unk mEfp;   // 0x92C: "EFP"
+    atn::EfpFile mEfp;   // 0x92C: "EFP"
     atn::Matrix3x4 mMtx;       // 0x938: inferred: world matrix while on
     OnOffMap_unk* mMap;        // 0x968: "MAP"
     int mOn;                   // 0x96C

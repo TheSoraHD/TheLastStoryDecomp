@@ -45,7 +45,7 @@ public:
 
     atn::Model mModel;          // 0xF4
     atn::ColliObject mColli;   // 0x4C4
-    atn::EfpHandle_unk mEfp;   // 0x54C: "EFP"
+    atn::EfpFile mEfp;   // 0x54C: "EFP"
     int mFrame3;               // 0x558
     int mFrame4;               // 0x55C
     int mSplash0;              // 0x560: "SPLASH"

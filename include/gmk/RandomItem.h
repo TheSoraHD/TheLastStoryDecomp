@@ -65,9 +65,9 @@ public:
     void fn_804348C4();
     void fn_80435684(int state);
 
-    atn::EfpHandle_unk mEfp;     // 0xF4: "EFP"
-    atn::EfpHandle_unk mEfpItem; // 0x100: "EFP_ITEM"
-    atn::EfpHandle_unk mEfpGet;  // 0x10C: "EFP_GET"
+    atn::EfpFile mEfp;     // 0xF4: "EFP"
+    atn::EfpFile mEfpItem; // 0x100: "EFP_ITEM"
+    atn::EfpFile mEfpGet;  // 0x10C: "EFP_GET"
     int m118;
     int m11C;                    // inferred: state
     float m120;                  // inferred: "DROP" 1

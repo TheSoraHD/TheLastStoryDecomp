@@ -15,8 +15,8 @@ public:
 
     int m14B0; // inferred: hits left before the skeleton falls apart (CharaData_unk::mParam.m98)
     int m14B4; // inferred: frame counter
-    atn::EfpHandle_unk m14B8; // inferred: "/effect/ef_uc001.efp"
-    atn::EfpHandle_unk m14C4; // inferred: "/effect/ef_cm009.efp"
+    atn::EfpFile m14B8; // inferred: "/effect/ef_uc001.efp"
+    atn::EfpFile m14C4; // inferred: "/effect/ef_cm009.efp"
     int m14D0;
 };
 

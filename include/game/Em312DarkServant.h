@@ -62,8 +62,8 @@ public:
     int m1574;                 // inferred: "BreathInterval"
     int m1578;                 // inferred: "AttackCountMax"
     int m157C;                 // inferred: "DamageCountMax"
-    atn::EfpHandle_unk m1580;  // inferred: "/effect/ef_bs007a.efp"
-    atn::EfpHandle_unk m158C;  // inferred: "/effect/ef_bs027a.efp"
+    atn::EfpFile m1580;  // inferred: "/effect/ef_bs007a.efp"
+    atn::EfpFile m158C;  // inferred: "/effect/ef_bs027a.efp"
 };
 
 extern "C" int fn_8030E490(EnemyTask* servant);  // inferred: nonzero once the servant is down

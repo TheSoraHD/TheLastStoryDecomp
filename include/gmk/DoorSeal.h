@@ -32,7 +32,7 @@ public:
     atn::Model mBefore;        // 0xF4: "MODEL_BEFORE"
     atn::Model mAfter;         // 0x4C4: "MODEL_AFTER"
     atn::ColliObject mColli;  // 0x894: "COLLI_OBJECT"
-    atn::EfpHandle_unk mEfp;  // 0x91C: "EFP"
+    atn::EfpFile mEfp;  // 0x91C: "EFP"
 };
 
 } // namespace gmk

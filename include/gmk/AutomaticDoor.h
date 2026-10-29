@@ -17,7 +17,7 @@ namespace gmk {
 // with the suffixes "_MOTION" and "_EFF"); 0x30 bytes, names invented
 struct DoorParam_unk {
     int mMotions[3];
-    atn::EfpHandle_unk mEfp[3];
+    atn::EfpFile mEfp[3];
 };
 
 // inferred: fixed string of 0x20 chars (as in gmk::MotionObject; names invented)

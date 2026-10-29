@@ -55,7 +55,7 @@ public:
     RoutePlace_unk* m1504;   // inferred: "BasePoint"
     unsigned char m1508;
     int m150C;
-    atn::EfpHandle_unk m1510; // inferred: "/effect/ef_bd006.efp"
+    atn::EfpFile m1510; // inferred: "/effect/ef_bd006.efp"
     ResHandle m151C;          // inferred: debug menu group
     int m1520;                // inferred: "DebugDisp"
     int m1524;

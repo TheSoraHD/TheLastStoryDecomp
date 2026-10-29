@@ -26,7 +26,7 @@ public:
     int m14B4;
     ResLoader_unk m14B8;      // inferred: "ef_uc069.eff"
     ResLoader_unk m14C4;      // inferred: "gm005_009a_01.eff"
-    atn::EfpHandle_unk m14D0; // inferred: "ef_uc068.efp"
+    atn::EfpFile m14D0; // inferred: "ef_uc068.efp"
     GimmickCommon* m14DC;     // inferred: armor stand the armor moves to
     int m14E0;                // inferred: state of the death sequence (1 fading, 2 done)
     int m14E4;                // inferred: number of armor stands reached

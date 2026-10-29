@@ -62,7 +62,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -142,7 +142,7 @@ struct NandEmpty_unk {
 } // namespace atn
 
 // inferred: plays an effect on the model (as in game/Em302KrakenMp.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -160,7 +160,7 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
 }
 
 // inferred: same with the manager read last (name invented)
-inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -248,7 +248,7 @@ Em001Necromancer::Em001Necromancer(atn::Task* parent, EnemyInfo_unk* info)
     m1578.fn_8023780C("/effect/cm002/cm002_00.efp");
     m1584.fn_8023780C("/effect/ef_sk026a.efp");
     m1590.fn_8023780C("/effect/ef_bs007a.efp");
-    m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
+    m121C.reset(new (1, "", "", 0) atn::EfpFile());
     m121C->fn_8023780C("/effect/ef_bu013.efp");
     (m15BC = fn_801F3FF8(this, "ui_point_slash.d2a", 0))->fn_800D246C(1);
     m1520[0] = fn_80219E6C(0x65);

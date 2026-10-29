@@ -94,7 +94,7 @@ public:
     void PlayMotion3_unk(atn::Model* motion, int index);
 
     atn::Model mModel;                    // 0xF4
-    atn::EfpHandle_unk mEfp;             // 0x4C4
+    atn::EfpFile mEfp;             // 0x4C4
     int m4D0[3];
     int mState;                          // 0x4DC: 1 loaded, 2 shown, 3 bought, 4 refused
     atn::Vector3 mDir;                   // 0x4E0

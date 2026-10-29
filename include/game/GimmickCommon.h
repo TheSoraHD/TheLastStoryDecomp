@@ -35,7 +35,7 @@ struct GimmickMotionCmd_unk {
 struct ResLoader_unk;
 struct MotionCmdElemD_unk;
 namespace atn {
-class EfpHandle_unk;
+class EfpFile;
 class SoundRef;
 }
 
@@ -52,7 +52,7 @@ struct GimmickCommonB0_unk {
 
     atn::Buffer_unk<GimmickMotionCmd_unk> mCmds;  // 0x00
     atn::Buffer_unk<ResLoader_unk> mEff;          // 0x08: "EFF_PLAY"
-    atn::Buffer_unk<atn::EfpHandle_unk> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
+    atn::Buffer_unk<atn::EfpFile> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
     atn::Buffer_unk<atn::SoundRef> mSounds;       // 0x18: "SE_LOOP"
     atn::Buffer_unk<MotionCmdElemD_unk> mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"
     int mMotion;   // 0x28: inferred: motion of the last update

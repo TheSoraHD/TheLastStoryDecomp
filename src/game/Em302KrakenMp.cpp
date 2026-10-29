@@ -47,7 +47,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -216,7 +216,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 // inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -257,7 +257,7 @@ inline void Em302KrakenMp::Reset_unk() {
 }
 
 // inferred: plays an effect at a world position (same code in game/Em302Kraken.cpp); name invented
-inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+inline void PlayEffectAt_unk(void* owner, int id, atn::EfpFile* efp, const atn::Vector3& pos, float scale) {
     fn_80232B7C(owner, id);
     Color4f_unk color;
     color.r = 1.0f;
@@ -269,7 +269,7 @@ inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const
 
 
 // inferred: same as PlayEffect_unk with the manager read first; name invented
-inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

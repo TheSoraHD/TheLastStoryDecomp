@@ -76,7 +76,7 @@ public:
 
     atn::Model mModel;                         // 0xF4
     boost::scoped_ptr<atn::ColliObject> mColli; // 0x4C4: "COLLI_OBJECT"
-    atn::EfpHandle_unk mEfp[7];               // 0x4C8: "EFP"
+    atn::EfpFile mEfp[7];               // 0x4C8: "EFP"
     WaitState_unk mStates[7];                 // 0x51C
     unsigned int mNumTriggers;                // 0x634
     WaitTrigger_unk mTriggers[16];            // 0x638

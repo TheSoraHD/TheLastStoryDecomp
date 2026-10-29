@@ -28,7 +28,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" atn::EffectManager* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -44,7 +44,7 @@ extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 
 // inferred: plays an effect at the model (as in gmk/Cannonball.cpp; name invented)
-inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

@@ -925,7 +925,7 @@ void CharaTask::fn_801371AC() {
                 m98.vf0C(csv.fn_8005B9CC());
             }
         } else if (strcmp(key, "EFP") == 0) {
-            m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
+            m121C.reset(new (1, "", "", 0) atn::EfpFile());
             m121C->fn_8023780C(csv.fn_8005B9CC());
         } else if (strcmp(key, "EQUIP") == 0) {
             m6A4.PushBack_unk(new (1, "", "", 0) EquipItemData(&csv));
@@ -1103,7 +1103,7 @@ void CharaTask::fn_80138528() {
             } else if (strcmp(key, "WAIT_OFFSET") == 0) {
                 m12C0 = atoi(csv.fn_8005B9CC());
             } else if (strcmp(key, "EFP") == 0) {
-                m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
+                m121C.reset(new (1, "", "", 0) atn::EfpFile());
                 m121C->fn_8023780C(csv.fn_8005B9CC());
             }
         } while (csv.fn_8005BBF8());
@@ -5941,7 +5941,7 @@ extern "C" void fn_800FC410(Effect_unk* effect, CharaTask* chara, CharaTask* tar
                             int frames);
 extern "C" bool fn_80051A88(const atn::Model::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: stops the effects of `owner`
-extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpHandle_unk)
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpFile)
 extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
                             float scale, int e, int f, int g);
 struct Input_unk {
@@ -11082,7 +11082,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 

@@ -43,10 +43,10 @@ public:
     int mTimer;                            // 0xF8
     atn::Model mModel;                      // 0xFC: "MODEL_BASE"
     FlamingArrowShot_unk mArrows[8];       // 0x4CC
-    atn::EfpHandle_unk mEfpShoot;          // 0x242C: "EFP_SHOOT"
-    atn::EfpHandle_unk mEfpArrow;          // 0x2438: "EFP_ARROW"
-    atn::EfpHandle_unk mEfpBurnout[3];     // 0x2444: "EFP_BURNOUT"
-    atn::EfpHandle_unk mEfpHit[3];         // 0x2468: "EFF_HIT"
+    atn::EfpFile mEfpShoot;          // 0x242C: "EFP_SHOOT"
+    atn::EfpFile mEfpArrow;          // 0x2438: "EFP_ARROW"
+    atn::EfpFile mEfpBurnout[3];     // 0x2444: "EFP_BURNOUT"
+    atn::EfpFile mEfpHit[3];         // 0x2468: "EFF_HIT"
     int m248C;
 };
 

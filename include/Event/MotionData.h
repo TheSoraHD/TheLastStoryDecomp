@@ -20,7 +20,7 @@ struct ResLoader_unk;
 namespace atn {
 class LH_Xsca;
 class LH_Binary;
-class EfpHandle_unk;
+class EfpFile;
 class VideoTHP;
 } // namespace atn
 
@@ -88,7 +88,7 @@ public:
     DataOwner_unk* m04;
     std::string m08;
     int m14;
-    void* m18; // inferred: atn::EfpHandle_unk (m1C == 1) or ResLoader_unk (m1C == 2)
+    void* m18; // inferred: atn::EfpFile (m1C == 1) or ResLoader_unk (m1C == 2)
     int m1C;
 };
 

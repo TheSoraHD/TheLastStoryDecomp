@@ -29,7 +29,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" CannonEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(CannonEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(CannonEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -202,7 +202,7 @@ inline CharaListeners_unk* fn_8014F8F4() {
 static const char* const sSe[4] = {"SE_BTCOM_036", "SE_BTCOM_037", "SE_BTCOM_038"};
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -219,7 +219,7 @@ inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 // inferred: plays an effect at a position (name invented)
-inline void PlayEfpAt_unk(CannonEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, const atn::Vector3& pos,
+inline void PlayEfpAt_unk(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                           const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;

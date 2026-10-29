@@ -32,7 +32,7 @@ public:
 
     atn::Model mModel;         // 0xF4
     atn::ColliObject mColli;  // 0x4C4
-    atn::EfpHandle_unk mEfp;  // 0x54C
+    atn::EfpFile mEfp;  // 0x54C
     GimmickDesc_unk* mDesc;   // 0x558
     int m55C;                 // inferred: unused (the object is 0x560 bytes)
 };

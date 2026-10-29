@@ -163,7 +163,7 @@ extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, void* mtx, int arg5,
                             int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, void* model, const atn::Vector3* pos,
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
@@ -229,7 +229,7 @@ extern "C" void* fn_8020EF80(void* item);
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const struct QColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
 // inferred: color as four floats (as Color4f_unk of game/EnemyTrista.cpp)
@@ -663,7 +663,7 @@ inline atn::Vector3 GetTransOf_unk(MtxPtr m) {
 }
 
 // inferred: plays an effect on the model (as PlayEffect_unk of game/EnemyTrista.cpp)
-inline void QuarkPlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void QuarkPlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     QColor_unk color;
@@ -2026,7 +2026,7 @@ void EnemyQuarkStand::fn_8034F41C() {
 }
 
 // inferred: plays an effect on the model at the origin (the zero vector of lbl_807C7030; name invented)
-inline void QuarkPlayEffectAt_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void QuarkPlayEffectAt_unk(atn::EfpFile* efp, atn::Model* model) {
     QColor_unk color;
     color.r = 1.0f;
     color.g = 1.0f;

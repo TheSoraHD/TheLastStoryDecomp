@@ -34,3 +34,8 @@ Agente B, rama `agent-B`. Referencia: `/home/claude/ref/report2.json` (8180 func
 ## atn::FileFreeBuffer (hecho)
 
 - `void atn::FileFreeBuffer(char* buf, bool own)` (0x8006BB6C) declarada en `include/atn/FileList.h` (su split) y definida en `atn/FileList.cpp` en el mismo sitio; sigue al 100% con `bool` (`cmpwi r4,0`). 13 ficheros: quitados los `extern "C" fn_8006BB6C` (y el `void fn_8006BB6C(void*, int)` C++ de `auto_03_803B27AC_text.cpp`, que daba otro nombre mangled); llamadas `atn::FileFreeBuffer((char*)p, false)`.
+
+## atn::EfpFile (hecho)
+
+- `atn::EfpHandle_unk` = `atn::EfpFile`: renombrada en `include/atn/EfpHandle_unk.h` (el fichero conserva el nombre) y en 172 ficheros; `fn_8023781C` -> `Destroy()` (0x8023781C). `symbols.txt`: 11 nombres, incluidos los de plantillas (`scoped_ptr<...>`, `Vector_unk<...>`) con el prefijo de longitud recalculado (herramienta propia `mrename.py` en el scratchpad del agente: sustituye un token mangled y corrige los prefijos de las plantillas que lo contienen). `game_units.json`: clase de `atn/EfpHandle_unk.cpp`.
+- Candidatos sin aplicar (no estaban en la cola): `fn_8023780C(const char*)` = `LoadRequest`, `fn_80237874()` = `IsLoading` (RSO), por el comportamiento ya anotado.

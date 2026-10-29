@@ -34,9 +34,9 @@ public:
 
     atn::Model mModel;         // 0xF4
     GimmickDesc_unk* mDesc;   // 0x4C4
-    atn::EfpHandle_unk mEfp;  // 0x4C8: "EFP"
+    atn::EfpFile mEfp;  // 0x4C8: "EFP"
     int mBulletId;            // 0x4D4
-    atn::EfpHandle_unk mEfpWait; // 0x4D8: "EFP_WAIT"
+    atn::EfpFile mEfpWait; // 0x4D8: "EFP_WAIT"
     float mRadius;            // 0x4E4: inferred: trigger distance
     int mTimer;               // 0x4E8
     int mHasModel;            // 0x4EC

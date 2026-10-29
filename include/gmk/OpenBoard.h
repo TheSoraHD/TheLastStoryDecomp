@@ -104,7 +104,7 @@ public:
 
     atn::Model mModel;         // 0xF4
     atn::ColliObject mColli;  // 0x4C4
-    atn::EfpHandle_unk mEfp;  // 0x54C
+    atn::EfpFile mEfp;  // 0x54C
     float mOpenDistance;      // 0x558: "OPEN_DISTANCE"
     float m55C;
     float m560;

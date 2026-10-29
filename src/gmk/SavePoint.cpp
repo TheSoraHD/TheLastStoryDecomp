@@ -22,7 +22,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -71,7 +71,7 @@ extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 
 // inferred: plays an effect on a model (name invented)
-inline void PlayEfp_unk(GimmickCommon* owner, atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEfp_unk(GimmickCommon* owner, atn::EfpFile* efp, atn::Model* model) {
     fn_80232B7C(owner, 0);
     lbl_8087F3C0->mB8 = 1;
     Color4f_unk color;
@@ -279,7 +279,7 @@ int SavePoint::vf40(GimmickMsg_unk* msg) {
         if (lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         }
-        atn::EfpHandle_unk* efp = &mEfp[msg->mType];
+        atn::EfpFile* efp = &mEfp[msg->mType];
         if (lbl_8087F3C0 != 0) {
             PlayEfp_unk(this, efp, mModel.GetModel_unk());
         }
@@ -294,7 +294,7 @@ int SavePoint::vf40(GimmickMsg_unk* msg) {
         } else if (lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         }
-        atn::EfpHandle_unk* efp = &mEfp[msg->mType];
+        atn::EfpFile* efp = &mEfp[msg->mType];
         if (lbl_8087F3C0 != 0) {
             PlayEfp_unk(this, efp, mModel.GetModel_unk());
         }
@@ -310,7 +310,7 @@ int SavePoint::vf40(GimmickMsg_unk* msg) {
         } else if (lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         }
-        atn::EfpHandle_unk* efp = &mEfp[msg->mType];
+        atn::EfpFile* efp = &mEfp[msg->mType];
         if (lbl_8087F3C0 != 0) {
             PlayEfp_unk(this, efp, mModel.GetModel_unk());
         }

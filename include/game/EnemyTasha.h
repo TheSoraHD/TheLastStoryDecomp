@@ -99,10 +99,10 @@ public:
     FixedArray_unk<TashaEvent_unk, 8> m1588; // inferred: "Event"
     int m162C;              // inferred: running event (-1: none)
     int m1630;              // inferred: last event
-    atn::EfpHandle_unk m1634; // inferred: "/effect/ef_bs007a.efp"
-    atn::EfpHandle_unk m1640; // inferred: "/effect/ef_sp007d.efp"
-    atn::EfpHandle_unk m164C; // inferred: "/effect/ef_cm006.efp"
-    atn::EfpHandle_unk m1658; // inferred: "/effect/ef_ev027.efp"
+    atn::EfpFile m1634; // inferred: "/effect/ef_bs007a.efp"
+    atn::EfpFile m1640; // inferred: "/effect/ef_sp007d.efp"
+    atn::EfpFile m164C; // inferred: "/effect/ef_cm006.efp"
+    atn::EfpFile m1658; // inferred: "/effect/ef_ev027.efp"
     TashaFlag_unk m1664;    // inferred: "ProvokeNotifyFlag"
     TashaFlag_unk m166C;    // inferred: "FullGuardActNotifyFlag"
     TashaFlag_unk m1674;    // inferred: "FullGuardHitNotifyFlag"

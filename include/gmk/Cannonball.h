@@ -60,8 +60,8 @@ public:
     int mExplodeTime;              // 0x4F4: "EXPLODE_PARAM" 1
     int mBulletId;                 // 0x4F8: "EXPLODE_PARAM" 2
     int mResetTime;                // 0x4FC: "RESET_PARAM"
-    atn::EfpHandle_unk mEfp;       // 0x500: "EFP" 1: inferred: explosion
-    atn::EfpHandle_unk mEfpFuse;   // 0x50C: "EFP" 2
+    atn::EfpFile mEfp;       // 0x500: "EFP" 1: inferred: explosion
+    atn::EfpFile mEfpFuse;   // 0x50C: "EFP" 2
     atn::SoundRef mSound;          // 0x518
     DropItem* mDrop;               // 0x51C
     unsigned char m520;

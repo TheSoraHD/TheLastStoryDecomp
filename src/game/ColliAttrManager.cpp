@@ -87,7 +87,7 @@ struct ColorF_unk {
 };
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int a, int b, void* mtx, const atn::Vector3* pos,
@@ -116,7 +116,7 @@ ColliAttrManager* ColliAttrManager::fn_801839FC(atn::Task* parent) {
 ColliAttrManager::~ColliAttrManager() {
     sInstance = 0;
     Release_unk();
-    mEfp.fn_8023781C();
+    mEfp.Destroy();
 }
 
 int ColliAttrManager::vf0C() {
@@ -153,7 +153,7 @@ void ColliAttrManager::fn_80183D00(int id, int arg1, int arg2) {
         mLoading = 1;
     } else {
         Release_unk();
-        mEfp.fn_8023781C();
+        mEfp.Destroy();
         mEntries.Resize_unk(0x10, 0);
         MapColliAttr_unk* attr = fn_8021771C(id, arg1, arg2);
         if (attr != 0) {

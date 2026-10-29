@@ -65,17 +65,17 @@ public:
     int m151C;
     int m1520;                // inferred: frames with a control running
     int m1524;                // inferred: frames the players stayed grouped
-    atn::EfpHandle_unk m1528;
-    atn::EfpHandle_unk m1534;
-    atn::EfpHandle_unk m1540;
+    atn::EfpFile m1528;
+    atn::EfpFile m1534;
+    atn::EfpFile m1540;
     ResLoader_unk m154C;
-    atn::EfpHandle_unk m1558;
-    atn::EfpHandle_unk m1564;
-    atn::EfpHandle_unk m1570;
-    atn::EfpHandle_unk m157C;
+    atn::EfpFile m1558;
+    atn::EfpFile m1564;
+    atn::EfpFile m1570;
+    atn::EfpFile m157C;
     ResLoader_unk m1588;
-    atn::EfpHandle_unk m1594;
-    atn::EfpHandle_unk m15A0;
+    atn::EfpFile m1594;
+    atn::EfpFile m15A0;
     atn::SoundRef m15AC;
     int m15B0;
     int m15B4;

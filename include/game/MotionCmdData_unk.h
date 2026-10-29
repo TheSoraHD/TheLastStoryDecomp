@@ -28,7 +28,7 @@ struct MotionCmdData_unk {
     int fn_800A091C(); // inferred: nonzero while a resource is loading
     atn::Vector_unk<MotionCmdEntry_unk> mEntries;  // 0x00
     atn::Vector_unk<ResLoader_unk> mEffects;       // 0x0C: "EFF"
-    atn::Vector_unk<atn::EfpHandle_unk> mEfps;     // 0x18: "EFP", "EFP_LOOP"
+    atn::Vector_unk<atn::EfpFile> mEfps;     // 0x18: "EFP", "EFP_LOOP"
     atn::Vector_unk<MotionCmdElemD_unk> mNames;    // 0x24: "EFF_ATR", "SE_ATR", "SE", "SE_LOOP"
 };
 

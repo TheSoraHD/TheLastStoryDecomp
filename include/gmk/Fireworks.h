@@ -52,7 +52,7 @@ public:
     virtual void vf28();
     virtual int vf40(GimmickMsg_unk* msg);
 
-    atn::EfpHandle_unk mEfp[6];   // 0xF4: "EFP"
+    atn::EfpFile mEfp[6];   // 0xF4: "EFP"
     MotionCmdElemD_unk mSe[6];    // 0x13C: "SE": inferred: sound names
     atn::Vector3 mOffset;         // 0x1FC: "EXPLODE"
     atn::Vector3 mRange;          // 0x208: "EXPLODE"

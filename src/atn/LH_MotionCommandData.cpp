@@ -26,7 +26,7 @@ struct MotionCmdData_unk {
 
     atn::Vector_unk<MotionCmdElemA_unk> m00;
     atn::Vector_unk<ResLoader_unk> m0C;
-    atn::Vector_unk<atn::EfpHandle_unk> m18; // destructor 0x800EF73C
+    atn::Vector_unk<atn::EfpFile> m18; // destructor 0x800EF73C
     atn::Vector_unk<MotionCmdElemD_unk> m24;
 };
 

@@ -40,7 +40,7 @@ public:
     CharaList_unk m14BC;
     GimmickCommon* m14C8;     // inferred: mirror
     int m14CC;                // inferred: frames before searching
-    atn::EfpHandle_unk m14D0; // inferred: "/effect/ef_uc023.efp"
+    atn::EfpFile m14D0; // inferred: "/effect/ef_uc023.efp"
 };
 
 #endif

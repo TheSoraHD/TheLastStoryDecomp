@@ -82,9 +82,9 @@ public:
     float m1560;
     float m1564;
     float m1568;            // inferred: added to the regeneration (CharaStatus +0x174)
-    atn::EfpHandle_unk m156C;
-    atn::EfpHandle_unk m1578;
-    atn::EfpHandle_unk m1584;
+    atn::EfpFile m156C;
+    atn::EfpFile m1578;
+    atn::EfpFile m1584;
     atn::Vector3 m1590;     // inferred: warp destination
     unsigned char m159C[0x15A8 - 0x159C];
     ZesyaWarp_unk m15A8;

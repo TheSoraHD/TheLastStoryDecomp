@@ -129,7 +129,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -144,7 +144,7 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
 }
 
 // inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -288,7 +288,7 @@ inline void PlayMotion_unk(atn::Model* model, int motion, int loop) {
 }
 
 // inferred: plays an effect at a world position (same code in game/Em302KrakenMp.cpp); name invented
-inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+inline void PlayEffectAt_unk(void* owner, int id, atn::EfpFile* efp, const atn::Vector3& pos, float scale) {
     fn_80232B7C(owner, id);
     Color4f_unk color;
     color.r = 1.0f;
@@ -300,7 +300,7 @@ inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const
 
 // inferred: same as PlayEffect_unk with the locals in the other order (color, rot, pos; as in
 // fn_802DB7C8); name invented
-inline void PlayEffectC_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEffectC_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -332,7 +332,7 @@ inline int CountFreeFeet_unk(Em302Kraken* k) {
 
 // inferred: same as PlayEffect_unk with the manager read first (as in game/Em302KrakenMp.cpp); name
 // invented
-inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, atn::Model* model) {
+inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

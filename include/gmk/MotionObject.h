@@ -73,7 +73,7 @@ struct MotionColli_unk {
 // inferred: "EFP" of a state with its flags (1 EFF_CLEAR_IMMEDIATE, 2 EFF_REFLECT; names invented)
 struct MotionEfp_unk {
     MotionEfp_unk() : mFlags(0) {}
-    atn::EfpHandle_unk mEfp;
+    atn::EfpFile mEfp;
     unsigned int mFlags;
 };
 

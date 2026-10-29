@@ -59,7 +59,7 @@ public:
     atn::ColliObject mColli;  // 0x898: "COLLI_OBJECT"
     float mTimer;             // 0x920
     float mWait;              // 0x924: inferred: frames until the next state
-    atn::EfpHandle_unk mEfp[5]; // 0x928: "EFP" <file> <state>
+    atn::EfpFile mEfp[5]; // 0x928: "EFP" <file> <state>
     float mMin[5];            // 0x964: "STATE_CHANGE_FRAME" <state> <min> <range>
     float mRange[5];          // 0x978
     int mSkill;               // 0x98C: "SKILL"

@@ -51,8 +51,8 @@ public:
     float m151C;
     int m1520;
     int m1524;
-    atn::EfpHandle_unk m1528;
-    atn::EfpHandle_unk m1534;
+    atn::EfpFile m1528;
+    atn::EfpFile m1534;
     chr::CharaData_unk* m1540; // inferred: own character data (m5C)
     chr::CharaData_unk* m1544; // inferred: "FriendsParam"
     unsigned char m1548; // inferred: "NoneRevive" is 0
