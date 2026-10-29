@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `batch-auto-20kb-game` (2026-10-29, propuesta E, primera mitad, sin mergear; sale de `close-near-units`): **8571 / 18215 funciones al 100%** (código 30,8%, fuzzy 52,7%), **372** ficheros enlazados, `main.dol: OK`. 17 unidades de 10–20 KB con fuente nueva (más `chr/ControlBase`) (`chr/Control*`, `Event/Path`, `DialogHead`, `EnvSeManager`, `DamageCalc_unk`...); detalle y decisiones en `docs/batch-auto-20kb-game.md`. La segunda mitad va en `batch-auto-20kb-game-b`.
-- Anteriores sin mergear: `close-near-units` (K: SparkCube y Banana enlazadas, `docs/close-near-units.md`), `rso-names*` (nombres reales del RSO USA, `docs/rso-names*.md`); unidades de Svenchu/Codex y su revisión en `docs/revision-2026-10-29.md`.
+- `batch-auto-20kb-game` (2026-10-29, propuesta E, primera mitad, mergeada en `main` con `close-near-units`): **8571 / 18215 funciones al 100%** (código 30,8%, fuzzy 52,7%), **372** ficheros enlazados, `main.dol: OK`. 17 unidades de 10–20 KB con fuente nueva (más `chr/ControlBase`) (`chr/Control*`, `Event/Path`, `DialogHead`, `EnvSeManager`, `DamageCalc_unk`...); detalle y decisiones en `docs/batch-auto-20kb-game.md`. La segunda mitad va en `batch-auto-20kb-game-b`.
+- Anteriores: `close-near-units` (K: SparkCube y Banana enlazadas, `docs/close-near-units.md`), `rso-names*` (nombres reales del RSO USA, `docs/rso-names*.md`); unidades de Svenchu/Codex y su revisión en `docs/revision-2026-10-29.md`.
 - objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
