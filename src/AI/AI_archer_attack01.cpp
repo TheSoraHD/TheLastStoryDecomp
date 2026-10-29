@@ -19,6 +19,12 @@ extern unsigned char lbl_807307A0[];
 extern float lbl_80880798;
 extern float lbl_808807B8;
 extern float lbl_808807AC;
+extern float lbl_8088079C;
+extern float lbl_808807A0;
+extern float lbl_808807A4;
+extern float lbl_808807A8;
+int fn_8001B5B4(atn::Vector3 pos, int arg);
+int fn_8001BA88(int self, int target, int a, int b, float c, float d, float e);
 extern double lbl_8072FF68;
 extern unsigned char lbl_807C6B78[];
 extern unsigned char lbl_807C6B84[];
@@ -54,72 +60,685 @@ unsigned char* fn_8001C260();
 unsigned char* fn_8001C26C();
 unsigned char* fn_8001C278();
 int fn_8001ECD0(void*, int);
-void __ct__Q32AI6Script18AI_archer_attack01Fv(void*);
-void __ct__Q32AI6Script17AI_archer_guard01Fv(void*);
-void __ct__Q32AI6Script12AI_arganan01Fv(void*);
-void __ct__Q32AI6Script24AI_buffer_attackstable01Fv(void*);
-void __ct__Q32AI6Script17AI_buffer_guard01Fv(void*);
-void __ct__Q32AI6Script17AI_buffer_guard02Fv(void*);
-void __ct__Q32AI6Script22AI_buffer_pointguard01Fv(void*);
-void __ct__Q32AI6Script21AI_em_archer_attack02Fv(void*);
-void __ct__Q32AI6Script19AI_em_bridge_archerFv(void*);
-void __ct__Q32AI6Script22AI_em_monster_attack01Fv(void*);
-void __ct__Q32AI6Script11AI_em_scoutFv(void*);
-void __ct__Q32AI6Script20AI_em_sword_attack01Fv(void*);
-void __ct__Q32AI6Script20AI_em_sword_attack02Fv(void*);
-void __ct__Q32AI6Script24AI_em_sword_pointguard01Fv(void*);
-void __ct__Q32AI6Script13AI_em_type003Fv(void*);
-void __ct__Q32AI6Script13AI_em_type010Fv(void*);
-void __ct__Q32AI6Script13AI_em_type102Fv(void*);
-void __ct__Q32AI6Script13AI_em_type103Fv(void*);
-void __ct__Q32AI6Script13AI_em_type104Fv(void*);
-void __ct__Q32AI6Script13AI_em_type105Fv(void*);
-void __ct__Q32AI6Script13AI_em_type106Fv(void*);
-void __ct__Q32AI6Script19AI_fr_archer_pick01Fv(void*);
-void __ct__Q32AI6Script19AI_fr_buffer_pick01Fv(void*);
-void __ct__Q32AI6Script19AI_fr_follow_playerFv(void*);
-void __ct__Q32AI6Script18AI_fr_magic_pick01Fv(void*);
-void __ct__Q32AI6Script18AI_fr_magic_pick02Fv(void*);
-void __ct__Q32AI6Script13AI_fr_runawayFv(void*);
-void __ct__Q32AI6Script20AI_fr_sword_attack01Fv(void*);
-void __ct__Q32AI6Script18AI_fr_sword_pick01Fv(void*);
-void __ct__Q32AI6Script22AI_fr_sword_pointguardFv(void*);
-void __ct__Q32AI6Script24AI_fr_sword_pointguard01Fv(void*);
-void __ct__Q32AI6Script13AI_fr_type005Fv(void*);
-void __ct__Q32AI6Script21AI_fr_warppointescapeFv(void*);
-void __ct__Q32AI6Script11AI_jackal01Fv(void*);
-void __ct__Q32AI6Script17AI_magic_attack01Fv(void*);
-void __ct__Q32AI6Script19AI_magic_attack01_2Fv(void*);
-void __ct__Q32AI6Script17AI_magic_attack02Fv(void*);
-void __ct__Q32AI6Script23AI_magic_attackstable01Fv(void*);
-void __ct__Q32AI6Script15AI_magic_cure01Fv(void*);
-void __ct__Q32AI6Script16AI_magic_guard01Fv(void*);
-void __ct__Q32AI6Script18AI_magic_guard01_2Fv(void*);
-void __ct__Q32AI6Script16AI_magic_guard02Fv(void*);
-void __ct__Q32AI6Script14AI_np_approachFv(void*);
-void __ct__Q32AI6Script19AI_np_approach_plusFv(void*);
-void __ct__Q32AI6Script19AI_np_follow_playerFv(void*);
-void __ct__Q32AI6Script19AI_np_tagger_randomFv(void*);
-void __ct__Q32AI6Script13AI_np_type001Fv(void*);
-void __ct__Q32AI6Script13AI_np_type002Fv(void*);
-void __ct__Q32AI6Script13AI_np_type003Fv(void*);
-void __ct__Q32AI6Script13AI_np_type004Fv(void*);
-void __ct__Q32AI6Script13AI_np_type005Fv(void*);
-void __ct__Q32AI6Script19AI_np_wait_reactionFv(void*);
-void __ct__Q32AI6Script25AI_np_wait_reaction_minusFv(void*);
-void __ct__Q32AI6Script26AI_np_wait_reaction_minus2Fv(void*);
-void __ct__Q32AI6Script24AI_np_wait_reaction_plusFv(void*);
-void __ct__Q32AI6Script10AI_quark01Fv(void*);
-void __ct__Q32AI6Script10AI_quark02Fv(void*);
-void __ct__Q32AI6Script18AI_silence_guard01Fv(void*);
-void __ct__Q32AI6Script16AI_sword_guard01Fv(void*);
-void __ct__Q32AI6Script22AI_sword_leaderguard01Fv(void*);
-void __ct__Q32AI6Script22AI_sword_leaderguard02Fv(void*);
-void __ct__Q32AI6Script22AI_sword_leaderguard03Fv(void*);
-void __ct__Q32AI6Script21AI_sword_pointguard01Fv(void*);
-void __ct__Q32AI6Script17AI_return_guard01Fv(void*);
 void fn_8001E1D0(void*, void*, const AIStringWithAllocator_unk*);
 }
+
+namespace AI {
+
+namespace Script {
+
+// inferred: base of the AI scripts (only its RTTI is left in .data). The virtuals take no
+// arguments and do not use the object: the scripts work on the global AI state
+// (lbl_807C68C0, lbl_807C6A40). vf08 is overridden by every script; the defaults return -1.
+class CharaAi {
+public:
+    virtual int vf08() = 0;
+    virtual int vf0C(); // 0x8001EDE8
+    virtual int vf10(); // 0x8001EDF0
+    virtual int vf14(); // 0x8001EDF8
+    virtual int vf18(); // 0x8001EE00
+    virtual int vf1C(); // 0x8001EE08
+    virtual int vf20(); // 0x8001EE10
+    virtual int vf24(); // 0x8001EE18
+    virtual int vf28(); // 0x8001EE20
+    virtual int vf2C(); // 0x8001EE28
+    virtual int vf30(); // 0x8001EE30
+    virtual int vf34(); // 0x8001EE38
+    virtual int vf38(); // 0x8001EE40
+    virtual int vf3C(); // 0x8001EE48
+    virtual int vf40(); // 0x8001EE50
+};
+
+// inferred: one class per script name registered by fn_8001C284 (vtable slots from .data)
+class AI_archer_attack01 : public CharaAi {
+public:
+    AI_archer_attack01();
+    virtual int vf08(); // 0x8001EE58
+    virtual int vf0C(); // 0x8001F6F8
+    virtual int vf18(); // 0x8001F248
+    virtual int vf1C(); // 0x8001F814
+    virtual int vf20(); // 0x8001EEBC
+    virtual int vf24(); // 0x8001F478
+    virtual int vf28(); // 0x8001F944
+    virtual int vf2C(); // 0x8001FA2C
+    virtual int vf40(); // 0x8001F674
+};
+class AI_archer_guard01 : public CharaAi {
+public:
+    AI_archer_guard01();
+    virtual int vf08(); // 0x8001FC40
+    virtual int vf0C(); // 0x8002055C
+    virtual int vf18(); // 0x8002008C
+    virtual int vf1C(); // 0x800206B8
+    virtual int vf20(); // 0x8001FCB4
+    virtual int vf24(); // 0x800202BC
+    virtual int vf28(); // 0x8002082C
+    virtual int vf2C(); // 0x80020914
+    virtual int vf40(); // 0x800204D8
+};
+class AI_arganan01 : public CharaAi {
+public:
+    AI_arganan01();
+    virtual int vf08(); // 0x80020B28
+    virtual int vf0C(); // 0x80020B80
+    virtual int vf18(); // 0x80020E64
+    virtual int vf20(); // 0x8002113C
+    virtual int vf24(); // 0x80020F40
+    virtual int vf2C(); // 0x80021038
+    virtual int vf40(); // 0x800210AC
+};
+class AI_buffer_attackstable01 : public CharaAi {
+public:
+    AI_buffer_attackstable01();
+    virtual int vf08(); // 0x800211B0
+    virtual int vf0C(); // 0x8002121C
+    virtual int vf2C(); // 0x80021404
+    virtual int vf40(); // 0x80021478
+};
+class AI_buffer_guard01 : public CharaAi {
+public:
+    AI_buffer_guard01();
+    virtual int vf08(); // 0x80021508
+    virtual int vf0C(); // 0x80021594
+    virtual int vf18(); // 0x80021A20
+    virtual int vf20(); // 0x80021D40
+    virtual int vf24(); // 0x80021AFC
+    virtual int vf2C(); // 0x80021C3C
+    virtual int vf40(); // 0x80021CB0
+};
+class AI_buffer_guard02 : public CharaAi {
+public:
+    AI_buffer_guard02();
+    virtual int vf08(); // 0x80021DB4
+    virtual int vf0C(); // 0x80021E40
+    virtual int vf18(); // 0x80022308
+    virtual int vf20(); // 0x80022628
+    virtual int vf24(); // 0x800223E4
+    virtual int vf2C(); // 0x80022524
+    virtual int vf40(); // 0x80022598
+};
+class AI_buffer_pointguard01 : public CharaAi {
+public:
+    AI_buffer_pointguard01();
+    virtual int vf08(); // 0x8002269C
+    virtual int vf0C(); // 0x800226E4
+    virtual int vf1C(); // 0x80022C04
+    virtual int vf28(); // 0x80022F44
+    virtual int vf2C(); // 0x80022BD4
+    virtual int vf40(); // 0x80022E20
+};
+class AI_em_archer_attack02 : public CharaAi {
+public:
+    AI_em_archer_attack02();
+    virtual int vf08(); // 0x80022F74
+    virtual int vf0C(); // 0x800237E8
+    virtual int vf14(); // 0x80023C54
+    virtual int vf18(); // 0x80023338
+    virtual int vf1C(); // 0x80023960
+    virtual int vf20(); // 0x80022FAC
+    virtual int vf24(); // 0x80023568
+    virtual int vf28(); // 0x80023A90
+    virtual int vf2C(); // 0x80023B78
+    virtual int vf40(); // 0x80023764
+};
+class AI_em_bridge_archer : public CharaAi {
+public:
+    AI_em_bridge_archer();
+    virtual int vf08(); // 0x80023DBC
+    virtual int vf0C(); // 0x80023E90
+    virtual int vf18(); // 0x8002403C
+    virtual int vf24(); // 0x800240C0
+    virtual int vf2C(); // 0x80023DEC
+    virtual int vf40(); // 0x80023FAC
+};
+class AI_em_monster_attack01 : public CharaAi {
+public:
+    AI_em_monster_attack01();
+    virtual int vf08(); // 0x800240F0
+    virtual int vf0C(); // 0x80024540
+    virtual int vf1C(); // 0x80024110
+    virtual int vf20(); // 0x8002433C
+    virtual int vf28(); // 0x80024254
+    virtual int vf40(); // 0x800244B0
+};
+class AI_em_scout : public CharaAi {
+public:
+    AI_em_scout();
+    virtual int vf08(); // 0x80024718
+    virtual int vf0C(); // 0x80024608
+    virtual int vf14(); // 0x80024A5C
+    virtual int vf1C(); // 0x80024B50
+    virtual int vf24(); // 0x800248CC
+    virtual int vf28(); // 0x800249EC
+    virtual int vf2C(); // 0x80024824
+    virtual int vf40(); // 0x80024760
+};
+class AI_em_sword_attack01 : public CharaAi {
+public:
+    AI_em_sword_attack01();
+    virtual int vf08(); // 0x80024D6C
+    virtual int vf0C(); // 0x80025478
+    virtual int vf18(); // 0x80024E64
+    virtual int vf1C(); // 0x80024F9C
+    virtual int vf20(); // 0x800251B4
+    virtual int vf24(); // 0x80024DCC
+    virtual int vf28(); // 0x800250CC
+    virtual int vf40(); // 0x800253E8
+};
+class AI_em_sword_attack02 : public CharaAi {
+public:
+    AI_em_sword_attack02();
+    virtual int vf08(); // 0x8002552C
+    virtual int vf0C(); // 0x80025D2C
+    virtual int vf18(); // 0x80025624
+    virtual int vf1C(); // 0x8002575C
+    virtual int vf20(); // 0x80025A68
+    virtual int vf24(); // 0x8002558C
+    virtual int vf28(); // 0x80025980
+    virtual int vf40(); // 0x80025C9C
+};
+class AI_em_sword_pointguard01 : public CharaAi {
+public:
+    AI_em_sword_pointguard01();
+    virtual int vf08(); // 0x80025DE0
+    virtual int vf0C(); // 0x80026570
+    virtual int vf1C(); // 0x80025E30
+    virtual int vf20(); // 0x80026310
+    virtual int vf28(); // 0x800261C0
+    virtual int vf40(); // 0x800264E0
+};
+class AI_em_type003 : public CharaAi {
+public:
+    AI_em_type003();
+    virtual int vf08(); // 0x80026A40
+    virtual int vf0C(); // 0x80026D78
+    virtual int vf1C(); // 0x80026AB8
+    virtual int vf28(); // 0x80026BEC
+    virtual int vf40(); // 0x80026CD4
+};
+class AI_em_type010 : public CharaAi {
+public:
+    AI_em_type010();
+    virtual int vf08(); // 0x80026E94
+    virtual int vf0C(); // 0x80026F30
+    virtual int vf1C(); // 0x800270B8
+    virtual int vf28(); // 0x800271EC
+    virtual int vf40(); // 0x800272D4
+};
+class AI_em_type102 : public CharaAi {
+public:
+    AI_em_type102();
+    virtual int vf08(); // 0x80027444
+    virtual int vf0C(); // 0x800274F0
+    virtual int vf18(); // 0x8002765C
+    virtual int vf24(); // 0x800276D4
+    virtual int vf2C(); // 0x80027458
+    virtual int vf40(); // 0x800275CC
+};
+class AI_em_type103 : public CharaAi {
+public:
+    AI_em_type103();
+    virtual int vf08(); // 0x80028178
+    virtual int vf0C(); // 0x8002779C
+    virtual int vf18(); // 0x80027954
+    virtual int vf1C(); // 0x80027E54
+    virtual int vf20(); // 0x80027BB0
+    virtual int vf24(); // 0x8002806C
+    virtual int vf28(); // 0x80027F84
+    virtual int vf2C(); // 0x80027704
+    virtual int vf40(); // 0x80027B2C
+};
+class AI_em_type104 : public CharaAi {
+public:
+    AI_em_type104();
+    virtual int vf08(); // 0x80028CD8
+    virtual int vf0C(); // 0x8002836C
+    virtual int vf18(); // 0x800284B4
+    virtual int vf1C(); // 0x800289B4
+    virtual int vf20(); // 0x80028710
+    virtual int vf24(); // 0x80028BCC
+    virtual int vf28(); // 0x80028AE4
+    virtual int vf2C(); // 0x800282D4
+    virtual int vf40(); // 0x8002868C
+};
+class AI_em_type105 : public CharaAi {
+public:
+    AI_em_type105();
+    virtual int vf08(); // 0x80028E34
+    virtual int vf0C(); // 0x800292B0
+    virtual int vf18(); // 0x80028F3C
+    virtual int vf20(); // 0x80028E64
+    virtual int vf24(); // 0x80029018
+    virtual int vf2C(); // 0x80029424
+    virtual int vf40(); // 0x8002922C
+};
+class AI_em_type106 : public CharaAi {
+public:
+    AI_em_type106();
+    virtual int vf08(); // 0x8002973C
+    virtual int vf0C(); // 0x8002962C
+    virtual int vf14(); // 0x80029A84
+    virtual int vf1C(); // 0x80029AFC
+    virtual int vf24(); // 0x800298F0
+    virtual int vf28(); // 0x80029A14
+    virtual int vf2C(); // 0x80029848
+    virtual int vf40(); // 0x80029784
+};
+class AI_fr_archer_pick01 : public CharaAi {
+public:
+    AI_fr_archer_pick01();
+    virtual int vf08(); // 0x80029D18
+    virtual int vf0C(); // 0x8002A774
+    virtual int vf18(); // 0x8002A1FC
+    virtual int vf1C(); // 0x8002A968
+    virtual int vf20(); // 0x80029D7C
+    virtual int vf24(); // 0x8002A42C
+    virtual int vf28(); // 0x8002AB7C
+    virtual int vf2C(); // 0x8002AC64
+    virtual int vf40(); // 0x8002A6F0
+};
+class AI_fr_buffer_pick01 : public CharaAi {
+public:
+    AI_fr_buffer_pick01();
+    virtual int vf08(); // 0x8002AE78
+    virtual int vf0C(); // 0x8002AE98
+    virtual int vf18(); // 0x8002B358
+    virtual int vf20(); // 0x8002B53C
+    virtual int vf24(); // 0x8002B434
+    virtual int vf2C(); // 0x8002B4C8
+    virtual int vf40(); // 0x8002B788
+};
+class AI_fr_follow_player : public CharaAi {
+public:
+    AI_fr_follow_player();
+    virtual int vf08(); // 0x8002B818
+    virtual int vf14(); // 0x8002B88C
+    virtual int vf20(); // 0x8002B8FC
+};
+class AI_fr_magic_pick01 : public CharaAi {
+public:
+    AI_fr_magic_pick01();
+    virtual int vf08(); // 0x8002B9D0
+    virtual int vf0C(); // 0x8002BA24
+    virtual int vf18(); // 0x8002BBEC
+    virtual int vf20(); // 0x8002C00C
+    virtual int vf24(); // 0x8002BCC8
+    virtual int vf2C(); // 0x8002BF30
+    virtual int vf40(); // 0x8002C260
+};
+class AI_fr_magic_pick02 : public CharaAi {
+public:
+    AI_fr_magic_pick02();
+    virtual int vf08(); // 0x8002C2F0
+    virtual int vf0C(); // 0x8002C354
+    virtual int vf18(); // 0x8002CC58
+    virtual int vf20(); // 0x8002C7D8
+    virtual int vf24(); // 0x8002CD34
+    virtual int vf2C(); // 0x8002C680
+    virtual int vf40(); // 0x8002D108
+};
+class AI_fr_runaway : public CharaAi {
+public:
+    AI_fr_runaway();
+    virtual int vf08(); // 0x8002D36C
+    virtual int vf0C(); // 0x8002D294
+    virtual int vf14(); // 0x8002D554
+    virtual int vf18(); // 0x8002D648
+    virtual int vf24(); // 0x8002D474
+    virtual int vf40(); // 0x8002D3B0
+};
+class AI_fr_sword_attack01 : public CharaAi {
+public:
+    AI_fr_sword_attack01();
+    virtual int vf08(); // 0x8002D704
+    virtual int vf0C(); // 0x8002DE6C
+    virtual int vf18(); // 0x8002D7F4
+    virtual int vf1C(); // 0x8002D960
+    virtual int vf20(); // 0x8002DB78
+    virtual int vf24(); // 0x8002D75C
+    virtual int vf28(); // 0x8002DA90
+    virtual int vf40(); // 0x8002DDDC
+};
+class AI_fr_sword_pick01 : public CharaAi {
+public:
+    AI_fr_sword_pick01();
+    virtual int vf08(); // 0x8002DF20
+    virtual int vf0C(); // 0x8002E93C
+    virtual int vf18(); // 0x8002E0FC
+    virtual int vf1C(); // 0x8002E268
+    virtual int vf20(); // 0x8002E564
+    virtual int vf24(); // 0x8002DF78
+    virtual int vf28(); // 0x8002E47C
+    virtual int vf40(); // 0x8002E8AC
+};
+class AI_fr_sword_pointguard : public CharaAi {
+public:
+    AI_fr_sword_pointguard();
+    virtual int vf08(); // 0x8002EB20
+    virtual int vf0C(); // 0x8002EE58
+    virtual int vf1C(); // 0x8002EB98
+    virtual int vf28(); // 0x8002ECCC
+    virtual int vf40(); // 0x8002EDB4
+};
+class AI_fr_sword_pointguard01 : public CharaAi {
+public:
+    AI_fr_sword_pointguard01();
+    virtual int vf08(); // 0x8002EF74
+    virtual int vf0C(); // 0x8002F704
+    virtual int vf1C(); // 0x8002EFC4
+    virtual int vf20(); // 0x8002F4A4
+    virtual int vf28(); // 0x8002F354
+    virtual int vf40(); // 0x8002F674
+};
+class AI_fr_type005 : public CharaAi {
+public:
+    AI_fr_type005();
+    virtual int vf08(); // 0x8002FBD4
+    virtual int vf0C(); // 0x8002FC40
+    virtual int vf1C(); // 0x8002FECC
+    virtual int vf28(); // 0x8002FD54
+    virtual int vf40(); // 0x8002FFE0
+};
+class AI_fr_warppointescape : public CharaAi {
+public:
+    AI_fr_warppointescape();
+    virtual int vf08(); // 0x800300CC
+    virtual int vf0C(); // 0x8003002C
+    virtual int vf14(); // 0x80030220
+    virtual int vf18(); // 0x800303C0
+    virtual int vf20(); // 0x800302A0
+    virtual int vf24(); // 0x800302F0
+    virtual int vf40(); // 0x8003015C
+};
+class AI_jackal01 : public CharaAi {
+public:
+    AI_jackal01();
+    virtual int vf08(); // 0x8003068C
+    virtual int vf0C(); // 0x80031004
+    virtual int vf18(); // 0x80030AFC
+    virtual int vf1C(); // 0x80031178
+    virtual int vf20(); // 0x80030700
+    virtual int vf24(); // 0x80030D2C
+    virtual int vf28(); // 0x800312EC
+    virtual int vf2C(); // 0x800313D4
+    virtual int vf40(); // 0x80030F80
+};
+class AI_magic_attack01 : public CharaAi {
+public:
+    AI_magic_attack01();
+    virtual int vf08(); // 0x80031758
+    virtual int vf0C(); // 0x80031688
+    virtual int vf18(); // 0x80031C04
+    virtual int vf20(); // 0x800317AC
+    virtual int vf24(); // 0x800319AC
+    virtual int vf2C(); // 0x80031B28
+    virtual int vf40(); // 0x8003191C
+};
+class AI_magic_attack01_2 : public CharaAi {
+public:
+    AI_magic_attack01_2();
+    virtual int vf08(); // 0x80031DE4
+    virtual int vf0C(); // 0x80031CE0
+    virtual int vf18(); // 0x80032348
+    virtual int vf20(); // 0x80031E38
+    virtual int vf24(); // 0x80032090
+    virtual int vf2C(); // 0x8003226C
+    virtual int vf40(); // 0x80032000
+};
+class AI_magic_attack02 : public CharaAi {
+public:
+    AI_magic_attack02();
+    virtual int vf08(); // 0x80032424
+    virtual int vf0C(); // 0x80032470
+    virtual int vf18(); // 0x800328D8
+    virtual int vf20(); // 0x80032768
+    virtual int vf24(); // 0x800329B4
+    virtual int vf2C(); // 0x8003268C
+    virtual int vf40(); // 0x80032D60
+};
+class AI_magic_attackstable01 : public CharaAi {
+public:
+    AI_magic_attackstable01();
+    virtual int vf08(); // 0x80032F04
+    virtual int vf0C(); // 0x80032DF0
+    virtual int vf2C(); // 0x80032FA8
+    virtual int vf40(); // 0x80032F18
+};
+class AI_magic_cure01 : public CharaAi {
+public:
+    AI_magic_cure01();
+    virtual int vf08(); // 0x80033020
+    virtual int vf0C(); // 0x80033040
+    virtual int vf18(); // 0x80033418
+    virtual int vf20(); // 0x800335FC
+    virtual int vf24(); // 0x800334F4
+    virtual int vf2C(); // 0x80033588
+    virtual int vf40(); // 0x80033764
+};
+class AI_magic_guard01 : public CharaAi {
+public:
+    AI_magic_guard01();
+    virtual int vf08(); // 0x800337F4
+    virtual int vf0C(); // 0x80033854
+    virtual int vf18(); // 0x80033978
+    virtual int vf20(); // 0x80033CF4
+    virtual int vf24(); // 0x80033A54
+    virtual int vf2C(); // 0x80033C18
+    virtual int vf40(); // 0x80033EA8
+};
+class AI_magic_guard01_2 : public CharaAi {
+public:
+    AI_magic_guard01_2();
+    virtual int vf08(); // 0x80033F38
+    virtual int vf0C(); // 0x80033F98
+    virtual int vf18(); // 0x800340F0
+    virtual int vf20(); // 0x800344C4
+    virtual int vf24(); // 0x800341CC
+    virtual int vf2C(); // 0x800343E8
+    virtual int vf40(); // 0x800346D0
+};
+class AI_magic_guard02 : public CharaAi {
+public:
+    AI_magic_guard02();
+    virtual int vf08(); // 0x80034760
+    virtual int vf0C(); // 0x800347C0
+    virtual int vf18(); // 0x80034A44
+    virtual int vf20(); // 0x80035030
+    virtual int vf24(); // 0x80034B20
+    virtual int vf2C(); // 0x80034F54
+    virtual int vf40(); // 0x800351E4
+};
+class AI_np_approach : public CharaAi {
+public:
+    AI_np_approach();
+    virtual int vf08(); // 0x80035274
+    virtual int vf0C(); // 0x800352E8
+    virtual int vf14(); // 0x80035440
+    virtual int vf20(); // 0x800354C4
+    virtual int vf34(); // 0x800355FC
+};
+class AI_np_approach_plus : public CharaAi {
+public:
+    AI_np_approach_plus();
+    virtual int vf08(); // 0x8003574C
+    virtual int vf0C(); // 0x800357BC
+    virtual int vf14(); // 0x80035914
+    virtual int vf20(); // 0x80035998
+    virtual int vf34(); // 0x80035AD0
+};
+class AI_np_follow_player : public CharaAi {
+public:
+    AI_np_follow_player();
+    virtual int vf08(); // 0x80035C20
+    virtual int vf14(); // 0x80035C94
+    virtual int vf20(); // 0x80035D04
+};
+class AI_np_tagger_random : public CharaAi {
+public:
+    AI_np_tagger_random();
+    virtual int vf08(); // 0x80035D18
+    virtual int vf0C(); // 0x80035D2C
+    virtual int vf14(); // 0x80035EB4
+};
+class AI_np_type001 : public CharaAi {
+public:
+    AI_np_type001();
+    virtual int vf08(); // 0x80035EE4
+    virtual int vf0C(); // 0x80036048
+    virtual int vf14(); // 0x80035FD0
+};
+class AI_np_type002 : public CharaAi {
+public:
+    AI_np_type002();
+    virtual int vf08(); // 0x80036148
+    virtual int vf0C(); // 0x800361C0
+    virtual int vf14(); // 0x800362C0
+    virtual int vf20(); // 0x80036580
+};
+class AI_np_type003 : public CharaAi {
+public:
+    AI_np_type003();
+    virtual int vf08(); // 0x80036600
+    virtual int vf0C(); // 0x80036688
+    virtual int vf14(); // 0x80036788
+    virtual int vf20(); // 0x80036A08
+};
+class AI_np_type004 : public CharaAi {
+public:
+    AI_np_type004();
+    virtual int vf08(); // 0x80036A88
+    virtual int vf14(); // 0x80036AA8
+    virtual int vf20(); // 0x80036B20
+};
+class AI_np_type005 : public CharaAi {
+public:
+    AI_np_type005();
+    virtual int vf08(); // 0x80036C94
+    virtual int vf14(); // 0x80036B34
+    virtual int vf20(); // 0x80036BE8
+};
+class AI_np_wait_reaction : public CharaAi {
+public:
+    AI_np_wait_reaction();
+    virtual int vf08(); // 0x80036CC4
+    virtual int vf0C(); // 0x80036CF8
+    virtual int vf34(); // 0x80036E3C
+};
+class AI_np_wait_reaction_minus : public CharaAi {
+public:
+    AI_np_wait_reaction_minus();
+    virtual int vf08(); // 0x80036F8C
+    virtual int vf0C(); // 0x80036FCC
+    virtual int vf34(); // 0x800370D4
+};
+class AI_np_wait_reaction_minus2 : public CharaAi {
+public:
+    AI_np_wait_reaction_minus2();
+    virtual int vf08(); // 0x800371E0
+    virtual int vf0C(); // 0x80037220
+    virtual int vf34(); // 0x80037364
+};
+class AI_np_wait_reaction_plus : public CharaAi {
+public:
+    AI_np_wait_reaction_plus();
+    virtual int vf08(); // 0x800374E0
+    virtual int vf0C(); // 0x80037520
+    virtual int vf34(); // 0x80037664
+};
+class AI_quark01 : public CharaAi {
+public:
+    AI_quark01();
+    virtual int vf08(); // 0x800377AC
+    virtual int vf0C(); // 0x8003806C
+    virtual int vf18(); // 0x80037944
+    virtual int vf1C(); // 0x80037AB0
+    virtual int vf20(); // 0x80037D20
+    virtual int vf24(); // 0x80037854
+    virtual int vf28(); // 0x80037C38
+    virtual int vf38(); // 0x8003818C
+    virtual int vf3C(); // 0x80038338
+    virtual int vf40(); // 0x80037FDC
+};
+class AI_quark02 : public CharaAi {
+public:
+    AI_quark02();
+    virtual int vf08(); // 0x80038674
+    virtual int vf0C(); // 0x80038750
+    virtual int vf40(); // 0x800386C0
+};
+class AI_silence_guard01 : public CharaAi {
+public:
+    AI_silence_guard01();
+    virtual int vf08(); // 0x800388C4
+    virtual int vf0C(); // 0x80038924
+    virtual int vf18(); // 0x80038A30
+    virtual int vf1C(); // 0x80038CA8
+    virtual int vf24(); // 0x80038B0C
+    virtual int vf40(); // 0x80038C18
+};
+class AI_sword_guard01 : public CharaAi {
+public:
+    AI_sword_guard01();
+    virtual int vf08(); // 0x80038D90
+    virtual int vf0C(); // 0x80039624
+    virtual int vf18(); // 0x80038ED4
+    virtual int vf1C(); // 0x80039040
+    virtual int vf20(); // 0x800392C8
+    virtual int vf24(); // 0x80038DF8
+    virtual int vf28(); // 0x800391E0
+    virtual int vf38(); // 0x8003975C
+    virtual int vf40(); // 0x80039594
+};
+class AI_sword_leaderguard01 : public CharaAi {
+public:
+    AI_sword_leaderguard01();
+    virtual int vf08(); // 0x80039908
+    virtual int vf0C(); // 0x8003A0D4
+    virtual int vf1C(); // 0x80039950
+    virtual int vf20(); // 0x80039E74
+    virtual int vf28(); // 0x80039D24
+    virtual int vf40(); // 0x8003A044
+};
+class AI_sword_leaderguard02 : public CharaAi {
+public:
+    AI_sword_leaderguard02();
+    virtual int vf08(); // 0x8003A580
+    virtual int vf0C(); // 0x8003AD38
+    virtual int vf1C(); // 0x8003A5C8
+    virtual int vf20(); // 0x8003AAD8
+    virtual int vf28(); // 0x8003A988
+    virtual int vf40(); // 0x8003ACA8
+};
+class AI_sword_leaderguard03 : public CharaAi {
+public:
+    AI_sword_leaderguard03();
+    virtual int vf08(); // 0x8003B2A4
+    virtual int vf0C(); // 0x8003BA30
+    virtual int vf1C(); // 0x8003B2F4
+    virtual int vf20(); // 0x8003B7D0
+    virtual int vf28(); // 0x8003B680
+    virtual int vf40(); // 0x8003B9A0
+};
+class AI_sword_pointguard01 : public CharaAi {
+public:
+    AI_sword_pointguard01();
+    virtual int vf08(); // 0x8003C074
+    virtual int vf0C(); // 0x8003C804
+    virtual int vf1C(); // 0x8003C0C4
+    virtual int vf20(); // 0x8003C5A4
+    virtual int vf28(); // 0x8003C454
+    virtual int vf40(); // 0x8003C774
+};
+class AI_return_guard01 : public CharaAi {
+public:
+    AI_return_guard01();
+    virtual int vf08(); // 0x8003CBE0
+    virtual int vf0C(); // 0x8003CCD4
+    virtual int vf3C(); // 0x8003CDA8
+    virtual int vf40(); // 0x8003CC44
+};
+} // namespace Script
+} // namespace AI
 
 extern "C" int fn_8001BF44() {
     return 0;
@@ -161,16 +780,6 @@ extern "C" unsigned char* fn_8001C1C0(unsigned char* script);
 // inferred: this global sentinel is registered with the destructor for its three linked buckets.
 extern "C" void fn_8003E6B8(void* object, int freeObject);
 extern "C" void fn_8003E688();
-extern "C" int fn_8003CBE0();
-extern "C" int fn_8003068C();
-extern "C" int fn_80033588();
-extern "C" int fn_80035FD0();
-extern "C" int fn_80032FA8();
-extern "C" int fn_8002EB20();
-extern "C" int fn_80036AA8();
-extern "C" int fn_8002B818();
-extern "C" int fn_80035C20();
-extern "C" int fn_80035274();
 
 // inferred: three-word MSL string header; the high bit selects the heap-buffer representation.
 struct AIString_unk {
@@ -206,114 +815,6 @@ extern "C" AIScriptMapNode_unk* fn_8003DD50(void* tree,
                                              unsigned char insertFirst,
                                              const AIStringWithAllocator_unk* key);
 extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value);
-extern "C" int fn_80021038();
-extern "C" int fn_8002113C();
-extern "C" int fn_80021404();
-extern "C" int fn_80021C3C();
-extern "C" int fn_80021D40();
-extern "C" int fn_80022598();
-extern "C" int fn_80022524();
-extern "C" int fn_80022628();
-extern "C" int fn_8002FFE0();
-extern "C" int fn_8001EE58();
-extern "C" int fn_8001FC40();
-extern "C" int fn_80020B28();
-extern "C" int fn_800211B0();
-extern "C" int fn_80021508();
-extern "C" int fn_80021DB4();
-extern "C" int fn_80021478();
-extern "C" int fn_800210AC();
-extern "C" int fn_80021CB0();
-extern "C" int fn_80022BD4();
-extern "C" int fn_80022F44();
-extern "C" int fn_80023C54();
-extern "C" int fn_800240C0();
-extern "C" int fn_800240F0();
-extern "C" int fn_80027444();
-extern "C" int fn_800276D4();
-extern "C" int fn_80022F74();
-extern "C" int fn_80023DBC();
-extern "C" int fn_8002269C();
-extern "C" int fn_80024718();
-extern "C" int fn_80028178();
-extern "C" int fn_80028CD8();
-extern "C" int fn_80028E34();
-extern "C" int fn_8002973C();
-extern "C" int fn_8002AE78();
-extern "C" int fn_8002D36C();
-extern "C" int fn_80024D6C();
-extern "C" int fn_8002552C();
-extern "C" int fn_8002D704();
-extern "C" int fn_8002DF20();
-extern "C" int fn_8002B9D0();
-extern "C" int fn_8002C2F0();
-extern "C" int fn_8002EF74();
-extern "C" int fn_80025DE0();
-extern "C" int fn_80026A40();
-extern "C" int fn_8002765C();
-extern "C" int fn_80027B2C();
-extern "C" int fn_8002868C();
-extern "C" int fn_8002922C();
-extern "C" int fn_8002A6F0();
-extern "C" int fn_80029A14();
-extern "C" int fn_80029A84();
-extern "C" int fn_80029AFC();
-extern "C" int fn_80029D18();
-extern "C" int fn_800249EC();
-extern "C" int fn_80024B50();
-extern "C" int fn_8002B88C();
-extern "C" int fn_80035C94();
-extern "C" int fn_80033F38();
-extern "C" int fn_80034760();
-extern "C" int fn_8003574C();
-extern "C" int fn_80038674();
-extern "C" int fn_800388C4();
-extern "C" int fn_80038D90();
-extern "C" int fn_80039908();
-extern "C" int fn_8003A580();
-extern "C" int fn_8003AD38();
-extern "C" int fn_8003B2A4();
-extern "C" int fn_8003C074();
-extern "C" int fn_800386C0();
-extern "C" int fn_80038C18();
-extern "C" int fn_80039594();
-extern "C" int fn_8003A044();
-extern "C" int fn_80020914();
-extern "C" int fn_80022308();
-extern "C" int fn_80023B78();
-extern "C" int fn_80030220();
-extern "C" int fn_80023764();
-extern "C" int fn_8002403C();
-extern "C" int fn_80023FAC();
-extern "C" int fn_800244B0();
-extern "C" int fn_80024DCC();
-extern "C" int fn_80026E94();
-extern "C" int fn_8002B434();
-extern "C" int fn_8002B4C8();
-extern "C" int fn_80027458();
-extern "C" int fn_80027704();
-extern "C" int fn_800282D4();
-extern "C" int fn_80021A20();
-extern "C" int fn_8002FBD4();
-extern "C" int fn_800302A0();
-extern "C" int fn_80035D04();
-extern "C" int fn_80036A88();
-extern "C" int fn_80035D18();
-extern "C" int fn_80036B20();
-extern "C" int fn_80036C94();
-extern "C" int fn_80035EB4();
-extern "C" int fn_80036CC4();
-extern "C" int fn_80036F8C();
-extern "C" int fn_800371E0();
-extern "C" int fn_800374E0();
-extern "C" int fn_80031758();
-extern "C" int fn_80031DE4();
-extern "C" int fn_80032424();
-extern "C" int fn_80032F04();
-extern "C" int fn_80033020();
-extern "C" int fn_800337F4();
-extern "C" int fn_8001F674();
-extern "C" int fn_800204D8();
 extern "C" void fn_8001C068(CharaTask* chara, const char* name);
 
 extern "C" int fn_8001C038(CharaTask*) {
@@ -421,244 +922,85 @@ extern "C" void fn_8001C284() {
     unsigned char pairs[64][8];
     AIStringWithAllocator_unk values[64];
     void* objects[64];
-#define REGISTER_AI_SCRIPT(I, NAME, CTOR) do { \
+#define REGISTER_AI_SCRIPT(I, NAME, CLASS) do { \
         std::string key(NAME); \
-        objects[I] = ::operator new(4, 3, "", "", 0); \
-        if (objects[I] != 0) { CTOR(objects[I]); } \
+        objects[I] = new (3, "", "", 0) AI::Script::CLASS(); \
         fn_8001E0B8(&values[I], (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&objects[I]); \
         fn_8001E1D0(pairs[I], lbl_807C6B84, &values[I]); \
         fn_8001E168(&values[I].mString, -1); \
     } while (0)
-    REGISTER_AI_SCRIPT(0, "archer_attack01", __ct__Q32AI6Script18AI_archer_attack01Fv);
-    REGISTER_AI_SCRIPT(1, "archer_guard01", __ct__Q32AI6Script17AI_archer_guard01Fv);
-    REGISTER_AI_SCRIPT(2, "arganan01", __ct__Q32AI6Script12AI_arganan01Fv);
-    REGISTER_AI_SCRIPT(3, "buffer_attackstable01", __ct__Q32AI6Script24AI_buffer_attackstable01Fv);
-    REGISTER_AI_SCRIPT(4, "buffer_guard01", __ct__Q32AI6Script17AI_buffer_guard01Fv);
-    REGISTER_AI_SCRIPT(5, "buffer_guard02", __ct__Q32AI6Script17AI_buffer_guard02Fv);
-    REGISTER_AI_SCRIPT(6, "buffer_pointguard01", __ct__Q32AI6Script22AI_buffer_pointguard01Fv);
-    REGISTER_AI_SCRIPT(7, "em_archer_attack02", __ct__Q32AI6Script21AI_em_archer_attack02Fv);
-    REGISTER_AI_SCRIPT(8, "em_bridge_archer", __ct__Q32AI6Script19AI_em_bridge_archerFv);
-    REGISTER_AI_SCRIPT(9, "em_monster_attack01", __ct__Q32AI6Script22AI_em_monster_attack01Fv);
-    REGISTER_AI_SCRIPT(10, "em_scout", __ct__Q32AI6Script11AI_em_scoutFv);
-    REGISTER_AI_SCRIPT(11, "em_sword_attack01", __ct__Q32AI6Script20AI_em_sword_attack01Fv);
-    REGISTER_AI_SCRIPT(12, "em_sword_attack02", __ct__Q32AI6Script20AI_em_sword_attack02Fv);
-    REGISTER_AI_SCRIPT(13, "em_sword_pointguard01", __ct__Q32AI6Script24AI_em_sword_pointguard01Fv);
-    REGISTER_AI_SCRIPT(14, "em_type003", __ct__Q32AI6Script13AI_em_type003Fv);
-    REGISTER_AI_SCRIPT(15, "em_type010", __ct__Q32AI6Script13AI_em_type010Fv);
-    REGISTER_AI_SCRIPT(16, "em_type102", __ct__Q32AI6Script13AI_em_type102Fv);
-    REGISTER_AI_SCRIPT(17, "em_type103", __ct__Q32AI6Script13AI_em_type103Fv);
-    REGISTER_AI_SCRIPT(18, "em_type104", __ct__Q32AI6Script13AI_em_type104Fv);
-    REGISTER_AI_SCRIPT(19, "em_type105", __ct__Q32AI6Script13AI_em_type105Fv);
-    REGISTER_AI_SCRIPT(20, "em_type106", __ct__Q32AI6Script13AI_em_type106Fv);
-    REGISTER_AI_SCRIPT(21, "fr_archer_pick01", __ct__Q32AI6Script19AI_fr_archer_pick01Fv);
-    REGISTER_AI_SCRIPT(22, "fr_buffer_pick01", __ct__Q32AI6Script19AI_fr_buffer_pick01Fv);
-    REGISTER_AI_SCRIPT(23, "fr_follow_player", __ct__Q32AI6Script19AI_fr_follow_playerFv);
-    REGISTER_AI_SCRIPT(24, "fr_magic_pick01", __ct__Q32AI6Script18AI_fr_magic_pick01Fv);
-    REGISTER_AI_SCRIPT(25, "fr_magic_pick02", __ct__Q32AI6Script18AI_fr_magic_pick02Fv);
-    REGISTER_AI_SCRIPT(26, "fr_runaway", __ct__Q32AI6Script13AI_fr_runawayFv);
-    REGISTER_AI_SCRIPT(27, "fr_sword_attack01", __ct__Q32AI6Script20AI_fr_sword_attack01Fv);
-    REGISTER_AI_SCRIPT(28, "fr_sword_pick01", __ct__Q32AI6Script18AI_fr_sword_pick01Fv);
-    REGISTER_AI_SCRIPT(29, "fr_sword_pointguard", __ct__Q32AI6Script22AI_fr_sword_pointguardFv);
-    REGISTER_AI_SCRIPT(30, "fr_sword_pointguard01", __ct__Q32AI6Script24AI_fr_sword_pointguard01Fv);
-    REGISTER_AI_SCRIPT(31, "fr_type005", __ct__Q32AI6Script13AI_fr_type005Fv);
-    REGISTER_AI_SCRIPT(32, "fr_warppointescape", __ct__Q32AI6Script21AI_fr_warppointescapeFv);
-    REGISTER_AI_SCRIPT(33, "jackal01", __ct__Q32AI6Script11AI_jackal01Fv);
-    REGISTER_AI_SCRIPT(34, "magic_attack01", __ct__Q32AI6Script17AI_magic_attack01Fv);
-    REGISTER_AI_SCRIPT(35, "magic_attack01_2", __ct__Q32AI6Script19AI_magic_attack01_2Fv);
-    REGISTER_AI_SCRIPT(36, "magic_attack02", __ct__Q32AI6Script17AI_magic_attack02Fv);
-    REGISTER_AI_SCRIPT(37, "magic_attackstable01", __ct__Q32AI6Script23AI_magic_attackstable01Fv);
-    REGISTER_AI_SCRIPT(38, "magic_cure01", __ct__Q32AI6Script15AI_magic_cure01Fv);
-    REGISTER_AI_SCRIPT(39, "magic_guard01", __ct__Q32AI6Script16AI_magic_guard01Fv);
-    REGISTER_AI_SCRIPT(40, "magic_guard01_2", __ct__Q32AI6Script18AI_magic_guard01_2Fv);
-    REGISTER_AI_SCRIPT(41, "magic_guard02", __ct__Q32AI6Script16AI_magic_guard02Fv);
-    REGISTER_AI_SCRIPT(42, "np_approach", __ct__Q32AI6Script14AI_np_approachFv);
-    REGISTER_AI_SCRIPT(43, "np_approach_plus", __ct__Q32AI6Script19AI_np_approach_plusFv);
-    REGISTER_AI_SCRIPT(44, "np_follow_player", __ct__Q32AI6Script19AI_np_follow_playerFv);
-    REGISTER_AI_SCRIPT(45, "np_tagger_random", __ct__Q32AI6Script19AI_np_tagger_randomFv);
-    REGISTER_AI_SCRIPT(46, "np_type001", __ct__Q32AI6Script13AI_np_type001Fv);
-    REGISTER_AI_SCRIPT(47, "np_type002", __ct__Q32AI6Script13AI_np_type002Fv);
-    REGISTER_AI_SCRIPT(48, "np_type003", __ct__Q32AI6Script13AI_np_type003Fv);
-    REGISTER_AI_SCRIPT(49, "np_type004", __ct__Q32AI6Script13AI_np_type004Fv);
-    REGISTER_AI_SCRIPT(50, "np_type005", __ct__Q32AI6Script13AI_np_type005Fv);
-    REGISTER_AI_SCRIPT(51, "np_wait_reaction", __ct__Q32AI6Script19AI_np_wait_reactionFv);
-    REGISTER_AI_SCRIPT(52, "np_wait_reaction_minus", __ct__Q32AI6Script25AI_np_wait_reaction_minusFv);
-    REGISTER_AI_SCRIPT(53, "np_wait_reaction_minus2", __ct__Q32AI6Script26AI_np_wait_reaction_minus2Fv);
-    REGISTER_AI_SCRIPT(54, "np_wait_reaction_plus", __ct__Q32AI6Script24AI_np_wait_reaction_plusFv);
-    REGISTER_AI_SCRIPT(55, "quark01", __ct__Q32AI6Script10AI_quark01Fv);
-    REGISTER_AI_SCRIPT(56, "quark02", __ct__Q32AI6Script10AI_quark02Fv);
-    REGISTER_AI_SCRIPT(57, "silence_guard01", __ct__Q32AI6Script18AI_silence_guard01Fv);
-    REGISTER_AI_SCRIPT(58, "sword_guard01", __ct__Q32AI6Script16AI_sword_guard01Fv);
-    REGISTER_AI_SCRIPT(59, "sword_leaderguard01", __ct__Q32AI6Script22AI_sword_leaderguard01Fv);
-    REGISTER_AI_SCRIPT(60, "sword_leaderguard02", __ct__Q32AI6Script22AI_sword_leaderguard02Fv);
-    REGISTER_AI_SCRIPT(61, "sword_leaderguard03", __ct__Q32AI6Script22AI_sword_leaderguard03Fv);
-    REGISTER_AI_SCRIPT(62, "sword_pointguard01", __ct__Q32AI6Script21AI_sword_pointguard01Fv);
-    REGISTER_AI_SCRIPT(63, "return_guard01", __ct__Q32AI6Script17AI_return_guard01Fv);
+    REGISTER_AI_SCRIPT(0, "archer_attack01", AI_archer_attack01);
+    REGISTER_AI_SCRIPT(1, "archer_guard01", AI_archer_guard01);
+    REGISTER_AI_SCRIPT(2, "arganan01", AI_arganan01);
+    REGISTER_AI_SCRIPT(3, "buffer_attackstable01", AI_buffer_attackstable01);
+    REGISTER_AI_SCRIPT(4, "buffer_guard01", AI_buffer_guard01);
+    REGISTER_AI_SCRIPT(5, "buffer_guard02", AI_buffer_guard02);
+    REGISTER_AI_SCRIPT(6, "buffer_pointguard01", AI_buffer_pointguard01);
+    REGISTER_AI_SCRIPT(7, "em_archer_attack02", AI_em_archer_attack02);
+    REGISTER_AI_SCRIPT(8, "em_bridge_archer", AI_em_bridge_archer);
+    REGISTER_AI_SCRIPT(9, "em_monster_attack01", AI_em_monster_attack01);
+    REGISTER_AI_SCRIPT(10, "em_scout", AI_em_scout);
+    REGISTER_AI_SCRIPT(11, "em_sword_attack01", AI_em_sword_attack01);
+    REGISTER_AI_SCRIPT(12, "em_sword_attack02", AI_em_sword_attack02);
+    REGISTER_AI_SCRIPT(13, "em_sword_pointguard01", AI_em_sword_pointguard01);
+    REGISTER_AI_SCRIPT(14, "em_type003", AI_em_type003);
+    REGISTER_AI_SCRIPT(15, "em_type010", AI_em_type010);
+    REGISTER_AI_SCRIPT(16, "em_type102", AI_em_type102);
+    REGISTER_AI_SCRIPT(17, "em_type103", AI_em_type103);
+    REGISTER_AI_SCRIPT(18, "em_type104", AI_em_type104);
+    REGISTER_AI_SCRIPT(19, "em_type105", AI_em_type105);
+    REGISTER_AI_SCRIPT(20, "em_type106", AI_em_type106);
+    REGISTER_AI_SCRIPT(21, "fr_archer_pick01", AI_fr_archer_pick01);
+    REGISTER_AI_SCRIPT(22, "fr_buffer_pick01", AI_fr_buffer_pick01);
+    REGISTER_AI_SCRIPT(23, "fr_follow_player", AI_fr_follow_player);
+    REGISTER_AI_SCRIPT(24, "fr_magic_pick01", AI_fr_magic_pick01);
+    REGISTER_AI_SCRIPT(25, "fr_magic_pick02", AI_fr_magic_pick02);
+    REGISTER_AI_SCRIPT(26, "fr_runaway", AI_fr_runaway);
+    REGISTER_AI_SCRIPT(27, "fr_sword_attack01", AI_fr_sword_attack01);
+    REGISTER_AI_SCRIPT(28, "fr_sword_pick01", AI_fr_sword_pick01);
+    REGISTER_AI_SCRIPT(29, "fr_sword_pointguard", AI_fr_sword_pointguard);
+    REGISTER_AI_SCRIPT(30, "fr_sword_pointguard01", AI_fr_sword_pointguard01);
+    REGISTER_AI_SCRIPT(31, "fr_type005", AI_fr_type005);
+    REGISTER_AI_SCRIPT(32, "fr_warppointescape", AI_fr_warppointescape);
+    REGISTER_AI_SCRIPT(33, "jackal01", AI_jackal01);
+    REGISTER_AI_SCRIPT(34, "magic_attack01", AI_magic_attack01);
+    REGISTER_AI_SCRIPT(35, "magic_attack01_2", AI_magic_attack01_2);
+    REGISTER_AI_SCRIPT(36, "magic_attack02", AI_magic_attack02);
+    REGISTER_AI_SCRIPT(37, "magic_attackstable01", AI_magic_attackstable01);
+    REGISTER_AI_SCRIPT(38, "magic_cure01", AI_magic_cure01);
+    REGISTER_AI_SCRIPT(39, "magic_guard01", AI_magic_guard01);
+    REGISTER_AI_SCRIPT(40, "magic_guard01_2", AI_magic_guard01_2);
+    REGISTER_AI_SCRIPT(41, "magic_guard02", AI_magic_guard02);
+    REGISTER_AI_SCRIPT(42, "np_approach", AI_np_approach);
+    REGISTER_AI_SCRIPT(43, "np_approach_plus", AI_np_approach_plus);
+    REGISTER_AI_SCRIPT(44, "np_follow_player", AI_np_follow_player);
+    REGISTER_AI_SCRIPT(45, "np_tagger_random", AI_np_tagger_random);
+    REGISTER_AI_SCRIPT(46, "np_type001", AI_np_type001);
+    REGISTER_AI_SCRIPT(47, "np_type002", AI_np_type002);
+    REGISTER_AI_SCRIPT(48, "np_type003", AI_np_type003);
+    REGISTER_AI_SCRIPT(49, "np_type004", AI_np_type004);
+    REGISTER_AI_SCRIPT(50, "np_type005", AI_np_type005);
+    REGISTER_AI_SCRIPT(51, "np_wait_reaction", AI_np_wait_reaction);
+    REGISTER_AI_SCRIPT(52, "np_wait_reaction_minus", AI_np_wait_reaction_minus);
+    REGISTER_AI_SCRIPT(53, "np_wait_reaction_minus2", AI_np_wait_reaction_minus2);
+    REGISTER_AI_SCRIPT(54, "np_wait_reaction_plus", AI_np_wait_reaction_plus);
+    REGISTER_AI_SCRIPT(55, "quark01", AI_quark01);
+    REGISTER_AI_SCRIPT(56, "quark02", AI_quark02);
+    REGISTER_AI_SCRIPT(57, "silence_guard01", AI_silence_guard01);
+    REGISTER_AI_SCRIPT(58, "sword_guard01", AI_sword_guard01);
+    REGISTER_AI_SCRIPT(59, "sword_leaderguard01", AI_sword_leaderguard01);
+    REGISTER_AI_SCRIPT(60, "sword_leaderguard02", AI_sword_leaderguard02);
+    REGISTER_AI_SCRIPT(61, "sword_leaderguard03", AI_sword_leaderguard03);
+    REGISTER_AI_SCRIPT(62, "sword_pointguard01", AI_sword_pointguard01);
+    REGISTER_AI_SCRIPT(63, "return_guard01", AI_return_guard01);
 #undef REGISTER_AI_SCRIPT
 }
-extern "C" int fn_8001EDF0();
-extern "C" int fn_8001EDF8();
-extern "C" int fn_8001EE30();
-extern "C" int fn_8001EE38();
-extern "C" int fn_8001EE40();
-extern "C" int fn_8001EE48();
-extern "C" int fn_8001EDE8();
-extern "C" int fn_8001EE00();
-extern "C" int fn_8001EE08();
-extern "C" int fn_8001EE10();
-extern "C" int fn_8001EE18();
-extern "C" int fn_8001EE20();
-extern "C" int fn_8001EE28();
-extern "C" int fn_8001EE50();
-extern "C" int fn_8003CDA8();
-
-// AI/AI_archer_attack01 vtable constructors.
-// inferred: factories in fn_8001C284 call these after allocation; each installs its own vtable.
-// The class declarations below only model these constructors; object layouts remain unknown.
 
 namespace AI {
 
 namespace Script {
 
-struct AI_archer_attack01 { AI_archer_attack01(); };
-struct AI_archer_guard01 { AI_archer_guard01(); };
-struct AI_arganan01 { AI_arganan01(); };
-struct AI_buffer_attackstable01 { AI_buffer_attackstable01(); };
-struct AI_buffer_guard01 { AI_buffer_guard01(); };
-struct AI_buffer_guard02 { AI_buffer_guard02(); };
-struct AI_buffer_pointguard01 { AI_buffer_pointguard01(); };
-struct AI_em_archer_attack02 { AI_em_archer_attack02(); };
-struct AI_em_bridge_archer { AI_em_bridge_archer(); };
-struct AI_em_monster_attack01 { AI_em_monster_attack01(); };
-struct AI_em_scout { AI_em_scout(); };
-struct AI_em_sword_attack01 { AI_em_sword_attack01(); };
-struct AI_em_sword_attack02 { AI_em_sword_attack02(); };
-struct AI_em_sword_pointguard01 { AI_em_sword_pointguard01(); };
-struct AI_em_type003 { AI_em_type003(); };
-struct AI_em_type010 { AI_em_type010(); };
-struct AI_em_type102 { AI_em_type102(); };
-struct AI_em_type103 { AI_em_type103(); };
-struct AI_em_type104 { AI_em_type104(); };
-struct AI_em_type105 { AI_em_type105(); };
-struct AI_em_type106 { AI_em_type106(); };
-struct AI_fr_archer_pick01 { AI_fr_archer_pick01(); };
-struct AI_fr_buffer_pick01 { AI_fr_buffer_pick01(); };
-struct AI_fr_follow_player { AI_fr_follow_player(); };
-struct AI_fr_magic_pick01 { AI_fr_magic_pick01(); };
-struct AI_fr_magic_pick02 { AI_fr_magic_pick02(); };
-struct AI_fr_runaway { AI_fr_runaway(); };
-struct AI_fr_sword_attack01 { AI_fr_sword_attack01(); };
-struct AI_fr_sword_pick01 { AI_fr_sword_pick01(); };
-struct AI_fr_sword_pointguard { AI_fr_sword_pointguard(); };
-struct AI_fr_sword_pointguard01 { AI_fr_sword_pointguard01(); };
-struct AI_fr_type005 { AI_fr_type005(); };
-struct AI_fr_warppointescape { AI_fr_warppointescape(); };
-struct AI_jackal01 { AI_jackal01(); };
-struct AI_magic_attack01 { AI_magic_attack01(); };
-struct AI_magic_attack01_2 { AI_magic_attack01_2(); };
-struct AI_magic_attack02 { AI_magic_attack02(); };
-struct AI_magic_attackstable01 { AI_magic_attackstable01(); };
-struct AI_magic_cure01 { AI_magic_cure01(); };
-struct AI_magic_guard01 { AI_magic_guard01(); };
-struct AI_magic_guard01_2 { AI_magic_guard01_2(); };
-struct AI_magic_guard02 { AI_magic_guard02(); };
-struct AI_np_approach { AI_np_approach(); };
-struct AI_np_approach_plus { AI_np_approach_plus(); };
-struct AI_np_follow_player { AI_np_follow_player(); };
-struct AI_np_tagger_random { AI_np_tagger_random(); };
-struct AI_np_type001 { AI_np_type001(); };
-struct AI_np_type002 { AI_np_type002(); };
-struct AI_np_type003 { AI_np_type003(); };
-struct AI_np_type004 { AI_np_type004(); };
-struct AI_np_type005 { AI_np_type005(); };
-struct AI_np_wait_reaction { AI_np_wait_reaction(); };
-struct AI_np_wait_reaction_minus { AI_np_wait_reaction_minus(); };
-struct AI_np_wait_reaction_minus2 { AI_np_wait_reaction_minus2(); };
-struct AI_np_wait_reaction_plus { AI_np_wait_reaction_plus(); };
-struct AI_quark01 { AI_quark01(); };
-struct AI_quark02 { AI_quark02(); };
-struct AI_silence_guard01 { AI_silence_guard01(); };
-struct AI_sword_guard01 { AI_sword_guard01(); };
-struct AI_sword_leaderguard01 { AI_sword_leaderguard01(); };
-struct AI_sword_leaderguard02 { AI_sword_leaderguard02(); };
-struct AI_sword_leaderguard03 { AI_sword_leaderguard03(); };
-struct AI_sword_pointguard01 { AI_sword_pointguard01(); };
-struct AI_return_guard01 { AI_return_guard01(); };
-} // namespace Script
-} // namespace AI
-
-extern "C" {
-
-extern char __vt__Q32AI6Script18AI_archer_attack01[];
-extern char __vt__Q32AI6Script17AI_archer_guard01[];
-extern char __vt__Q32AI6Script12AI_arganan01[];
-extern char __vt__Q32AI6Script24AI_buffer_attackstable01[];
-extern char __vt__Q32AI6Script17AI_buffer_guard01[];
-extern char __vt__Q32AI6Script17AI_buffer_guard02[];
-extern char __vt__Q32AI6Script22AI_buffer_pointguard01[];
-extern char __vt__Q32AI6Script21AI_em_archer_attack02[];
-extern char __vt__Q32AI6Script19AI_em_bridge_archer[];
-extern char __vt__Q32AI6Script22AI_em_monster_attack01[];
-extern char __vt__Q32AI6Script11AI_em_scout[];
-extern char __vt__Q32AI6Script20AI_em_sword_attack01[];
-extern char __vt__Q32AI6Script20AI_em_sword_attack02[];
-extern char __vt__Q32AI6Script24AI_em_sword_pointguard01[];
-extern char __vt__Q32AI6Script13AI_em_type003[];
-extern char __vt__Q32AI6Script13AI_em_type010[];
-extern char __vt__Q32AI6Script13AI_em_type102[];
-extern char __vt__Q32AI6Script13AI_em_type103[];
-extern char __vt__Q32AI6Script13AI_em_type104[];
-extern char __vt__Q32AI6Script13AI_em_type105[];
-extern char __vt__Q32AI6Script13AI_em_type106[];
-extern char __vt__Q32AI6Script19AI_fr_archer_pick01[];
-extern char __vt__Q32AI6Script19AI_fr_buffer_pick01[];
-extern char __vt__Q32AI6Script19AI_fr_follow_player[];
-extern char __vt__Q32AI6Script18AI_fr_magic_pick01[];
-extern char __vt__Q32AI6Script18AI_fr_magic_pick02[];
-extern char __vt__Q32AI6Script13AI_fr_runaway[];
-extern char __vt__Q32AI6Script20AI_fr_sword_attack01[];
-extern char __vt__Q32AI6Script18AI_fr_sword_pick01[];
-extern char __vt__Q32AI6Script22AI_fr_sword_pointguard[];
-extern char __vt__Q32AI6Script24AI_fr_sword_pointguard01[];
-extern char __vt__Q32AI6Script13AI_fr_type005[];
-extern char __vt__Q32AI6Script21AI_fr_warppointescape[];
-extern char __vt__Q32AI6Script11AI_jackal01[];
-extern char __vt__Q32AI6Script17AI_magic_attack01[];
-extern char __vt__Q32AI6Script19AI_magic_attack01_2[];
-extern char __vt__Q32AI6Script17AI_magic_attack02[];
-extern char __vt__Q32AI6Script23AI_magic_attackstable01[];
-extern char __vt__Q32AI6Script15AI_magic_cure01[];
-extern char __vt__Q32AI6Script16AI_magic_guard01[];
-extern char __vt__Q32AI6Script18AI_magic_guard01_2[];
-extern char __vt__Q32AI6Script16AI_magic_guard02[];
-extern char __vt__Q32AI6Script14AI_np_approach[];
-extern char __vt__Q32AI6Script19AI_np_approach_plus[];
-extern char __vt__Q32AI6Script19AI_np_follow_player[];
-extern char __vt__Q32AI6Script19AI_np_tagger_random[];
-extern char __vt__Q32AI6Script13AI_np_type001[];
-extern char __vt__Q32AI6Script13AI_np_type002[];
-extern char __vt__Q32AI6Script13AI_np_type003[];
-extern char __vt__Q32AI6Script13AI_np_type004[];
-extern char __vt__Q32AI6Script13AI_np_type005[];
-extern char __vt__Q32AI6Script19AI_np_wait_reaction[];
-extern char __vt__Q32AI6Script25AI_np_wait_reaction_minus[];
-extern char __vt__Q32AI6Script26AI_np_wait_reaction_minus2[];
-extern char __vt__Q32AI6Script24AI_np_wait_reaction_plus[];
-extern char __vt__Q32AI6Script10AI_quark01[];
-extern char __vt__Q32AI6Script10AI_quark02[];
-extern char __vt__Q32AI6Script18AI_silence_guard01[];
-extern char __vt__Q32AI6Script16AI_sword_guard01[];
-extern char __vt__Q32AI6Script22AI_sword_leaderguard01[];
-extern char __vt__Q32AI6Script22AI_sword_leaderguard02[];
-extern char __vt__Q32AI6Script22AI_sword_leaderguard03[];
-extern char __vt__Q32AI6Script21AI_sword_pointguard01[];
-extern char __vt__Q32AI6Script17AI_return_guard01[];
-}
-
-namespace AI {
-
-namespace Script {
-
-AI_archer_attack01::AI_archer_attack01() { *(void**)this = ::__vt__Q32AI6Script18AI_archer_attack01; } // 8001E0A8
+AI_archer_attack01::AI_archer_attack01() {} // 0x8001E0A8
 } // namespace Script
 } // namespace AI
 
@@ -747,163 +1089,163 @@ namespace AI {
 
 namespace Script {
 
-AI_archer_guard01::AI_archer_guard01() { *(void**)this = ::__vt__Q32AI6Script17AI_archer_guard01; } // 8001E340
+AI_archer_guard01::AI_archer_guard01() {} // 0x8001E340
 
-AI_arganan01::AI_arganan01() { *(void**)this = ::__vt__Q32AI6Script12AI_arganan01; } // 8001E350
+AI_arganan01::AI_arganan01() {} // 0x8001E350
 
-AI_buffer_attackstable01::AI_buffer_attackstable01() { *(void**)this = ::__vt__Q32AI6Script24AI_buffer_attackstable01; } // 8001E360
+AI_buffer_attackstable01::AI_buffer_attackstable01() {} // 0x8001E360
 
-AI_buffer_guard01::AI_buffer_guard01() { *(void**)this = ::__vt__Q32AI6Script17AI_buffer_guard01; } // 8001E370
+AI_buffer_guard01::AI_buffer_guard01() {} // 0x8001E370
 
-AI_buffer_guard02::AI_buffer_guard02() { *(void**)this = ::__vt__Q32AI6Script17AI_buffer_guard02; } // 8001E380
+AI_buffer_guard02::AI_buffer_guard02() {} // 0x8001E380
 
-AI_buffer_pointguard01::AI_buffer_pointguard01() { *(void**)this = ::__vt__Q32AI6Script22AI_buffer_pointguard01; } // 8001E390
+AI_buffer_pointguard01::AI_buffer_pointguard01() {} // 0x8001E390
 
-AI_em_archer_attack02::AI_em_archer_attack02() { *(void**)this = ::__vt__Q32AI6Script21AI_em_archer_attack02; } // 8001E3A0
+AI_em_archer_attack02::AI_em_archer_attack02() {} // 0x8001E3A0
 
-AI_em_bridge_archer::AI_em_bridge_archer() { *(void**)this = ::__vt__Q32AI6Script19AI_em_bridge_archer; } // 8001E3B0
+AI_em_bridge_archer::AI_em_bridge_archer() {} // 0x8001E3B0
 
-AI_em_monster_attack01::AI_em_monster_attack01() { *(void**)this = ::__vt__Q32AI6Script22AI_em_monster_attack01; } // 8001E3C0
+AI_em_monster_attack01::AI_em_monster_attack01() {} // 0x8001E3C0
 
-AI_em_scout::AI_em_scout() { *(void**)this = ::__vt__Q32AI6Script11AI_em_scout; } // 8001E3D0
+AI_em_scout::AI_em_scout() {} // 0x8001E3D0
 
-AI_em_sword_attack01::AI_em_sword_attack01() { *(void**)this = ::__vt__Q32AI6Script20AI_em_sword_attack01; } // 8001E3E0
+AI_em_sword_attack01::AI_em_sword_attack01() {} // 0x8001E3E0
 
-AI_em_sword_attack02::AI_em_sword_attack02() { *(void**)this = ::__vt__Q32AI6Script20AI_em_sword_attack02; } // 8001E3F0
+AI_em_sword_attack02::AI_em_sword_attack02() {} // 0x8001E3F0
 
-AI_em_sword_pointguard01::AI_em_sword_pointguard01() { *(void**)this = ::__vt__Q32AI6Script24AI_em_sword_pointguard01; } // 8001E400
+AI_em_sword_pointguard01::AI_em_sword_pointguard01() {} // 0x8001E400
 
-AI_em_type003::AI_em_type003() { *(void**)this = ::__vt__Q32AI6Script13AI_em_type003; } // 8001E410
+AI_em_type003::AI_em_type003() {} // 0x8001E410
 
-AI_em_type010::AI_em_type010() { *(void**)this = ::__vt__Q32AI6Script13AI_em_type010; } // 8001E420
+AI_em_type010::AI_em_type010() {} // 0x8001E420
 
-AI_em_type102::AI_em_type102() { *(void**)this = ::__vt__Q32AI6Script13AI_em_type102; } // 8001E430
+AI_em_type102::AI_em_type102() {} // 0x8001E430
 
-AI_em_type103::AI_em_type103() { *(void**)this = ::__vt__Q32AI6Script13AI_em_type103; } // 8001E440
+AI_em_type103::AI_em_type103() {} // 0x8001E440
 
-AI_em_type104::AI_em_type104() { *(void**)this = ::__vt__Q32AI6Script13AI_em_type104; } // 8001E450
+AI_em_type104::AI_em_type104() {} // 0x8001E450
 
-AI_em_type105::AI_em_type105() { *(void**)this = ::__vt__Q32AI6Script13AI_em_type105; } // 8001E460
+AI_em_type105::AI_em_type105() {} // 0x8001E460
 
-AI_em_type106::AI_em_type106() { *(void**)this = ::__vt__Q32AI6Script13AI_em_type106; } // 8001E470
+AI_em_type106::AI_em_type106() {} // 0x8001E470
 
-AI_fr_archer_pick01::AI_fr_archer_pick01() { *(void**)this = ::__vt__Q32AI6Script19AI_fr_archer_pick01; } // 8001E480
+AI_fr_archer_pick01::AI_fr_archer_pick01() {} // 0x8001E480
 
-AI_fr_buffer_pick01::AI_fr_buffer_pick01() { *(void**)this = ::__vt__Q32AI6Script19AI_fr_buffer_pick01; } // 8001E490
+AI_fr_buffer_pick01::AI_fr_buffer_pick01() {} // 0x8001E490
 
-AI_fr_follow_player::AI_fr_follow_player() { *(void**)this = ::__vt__Q32AI6Script19AI_fr_follow_player; } // 8001E4A0
+AI_fr_follow_player::AI_fr_follow_player() {} // 0x8001E4A0
 
-AI_fr_magic_pick01::AI_fr_magic_pick01() { *(void**)this = ::__vt__Q32AI6Script18AI_fr_magic_pick01; } // 8001E4B0
+AI_fr_magic_pick01::AI_fr_magic_pick01() {} // 0x8001E4B0
 
-AI_fr_magic_pick02::AI_fr_magic_pick02() { *(void**)this = ::__vt__Q32AI6Script18AI_fr_magic_pick02; } // 8001E4C0
+AI_fr_magic_pick02::AI_fr_magic_pick02() {} // 0x8001E4C0
 
-AI_fr_runaway::AI_fr_runaway() { *(void**)this = ::__vt__Q32AI6Script13AI_fr_runaway; } // 8001E4D0
+AI_fr_runaway::AI_fr_runaway() {} // 0x8001E4D0
 
-AI_fr_sword_attack01::AI_fr_sword_attack01() { *(void**)this = ::__vt__Q32AI6Script20AI_fr_sword_attack01; } // 8001E4E0
+AI_fr_sword_attack01::AI_fr_sword_attack01() {} // 0x8001E4E0
 
-AI_fr_sword_pick01::AI_fr_sword_pick01() { *(void**)this = ::__vt__Q32AI6Script18AI_fr_sword_pick01; } // 8001E4F0
+AI_fr_sword_pick01::AI_fr_sword_pick01() {} // 0x8001E4F0
 
-AI_fr_sword_pointguard::AI_fr_sword_pointguard() { *(void**)this = ::__vt__Q32AI6Script22AI_fr_sword_pointguard; } // 8001E500
+AI_fr_sword_pointguard::AI_fr_sword_pointguard() {} // 0x8001E500
 
-AI_fr_sword_pointguard01::AI_fr_sword_pointguard01() { *(void**)this = ::__vt__Q32AI6Script24AI_fr_sword_pointguard01; } // 8001E510
+AI_fr_sword_pointguard01::AI_fr_sword_pointguard01() {} // 0x8001E510
 
-AI_fr_type005::AI_fr_type005() { *(void**)this = ::__vt__Q32AI6Script13AI_fr_type005; } // 8001E520
+AI_fr_type005::AI_fr_type005() {} // 0x8001E520
 
-AI_fr_warppointescape::AI_fr_warppointescape() { *(void**)this = ::__vt__Q32AI6Script21AI_fr_warppointescape; } // 8001E530
+AI_fr_warppointescape::AI_fr_warppointescape() {} // 0x8001E530
 
-AI_jackal01::AI_jackal01() { *(void**)this = ::__vt__Q32AI6Script11AI_jackal01; } // 8001E540
+AI_jackal01::AI_jackal01() {} // 0x8001E540
 
-AI_magic_attack01::AI_magic_attack01() { *(void**)this = ::__vt__Q32AI6Script17AI_magic_attack01; } // 8001E550
+AI_magic_attack01::AI_magic_attack01() {} // 0x8001E550
 
-AI_magic_attack01_2::AI_magic_attack01_2() { *(void**)this = ::__vt__Q32AI6Script19AI_magic_attack01_2; } // 8001E560
+AI_magic_attack01_2::AI_magic_attack01_2() {} // 0x8001E560
 
-AI_magic_attack02::AI_magic_attack02() { *(void**)this = ::__vt__Q32AI6Script17AI_magic_attack02; } // 8001E570
+AI_magic_attack02::AI_magic_attack02() {} // 0x8001E570
 
-AI_magic_attackstable01::AI_magic_attackstable01() { *(void**)this = ::__vt__Q32AI6Script23AI_magic_attackstable01; } // 8001E580
+AI_magic_attackstable01::AI_magic_attackstable01() {} // 0x8001E580
 
-AI_magic_cure01::AI_magic_cure01() { *(void**)this = ::__vt__Q32AI6Script15AI_magic_cure01; } // 8001E590
+AI_magic_cure01::AI_magic_cure01() {} // 0x8001E590
 
-AI_magic_guard01::AI_magic_guard01() { *(void**)this = ::__vt__Q32AI6Script16AI_magic_guard01; } // 8001E5A0
+AI_magic_guard01::AI_magic_guard01() {} // 0x8001E5A0
 
-AI_magic_guard01_2::AI_magic_guard01_2() { *(void**)this = ::__vt__Q32AI6Script18AI_magic_guard01_2; } // 8001E5B0
+AI_magic_guard01_2::AI_magic_guard01_2() {} // 0x8001E5B0
 
-AI_magic_guard02::AI_magic_guard02() { *(void**)this = ::__vt__Q32AI6Script16AI_magic_guard02; } // 8001E5C0
+AI_magic_guard02::AI_magic_guard02() {} // 0x8001E5C0
 
-AI_np_approach::AI_np_approach() { *(void**)this = ::__vt__Q32AI6Script14AI_np_approach; } // 8001E5D0
+AI_np_approach::AI_np_approach() {} // 0x8001E5D0
 
-AI_np_approach_plus::AI_np_approach_plus() { *(void**)this = ::__vt__Q32AI6Script19AI_np_approach_plus; } // 8001E5E0
+AI_np_approach_plus::AI_np_approach_plus() {} // 0x8001E5E0
 
-AI_np_follow_player::AI_np_follow_player() { *(void**)this = ::__vt__Q32AI6Script19AI_np_follow_player; } // 8001E5F0
+AI_np_follow_player::AI_np_follow_player() {} // 0x8001E5F0
 
-AI_np_tagger_random::AI_np_tagger_random() { *(void**)this = ::__vt__Q32AI6Script19AI_np_tagger_random; } // 8001E600
+AI_np_tagger_random::AI_np_tagger_random() {} // 0x8001E600
 
-AI_np_type001::AI_np_type001() { *(void**)this = ::__vt__Q32AI6Script13AI_np_type001; } // 8001E610
+AI_np_type001::AI_np_type001() {} // 0x8001E610
 
-AI_np_type002::AI_np_type002() { *(void**)this = ::__vt__Q32AI6Script13AI_np_type002; } // 8001E620
+AI_np_type002::AI_np_type002() {} // 0x8001E620
 
-AI_np_type003::AI_np_type003() { *(void**)this = ::__vt__Q32AI6Script13AI_np_type003; } // 8001E630
+AI_np_type003::AI_np_type003() {} // 0x8001E630
 
-AI_np_type004::AI_np_type004() { *(void**)this = ::__vt__Q32AI6Script13AI_np_type004; } // 8001E640
+AI_np_type004::AI_np_type004() {} // 0x8001E640
 
-AI_np_type005::AI_np_type005() { *(void**)this = ::__vt__Q32AI6Script13AI_np_type005; } // 8001E650
+AI_np_type005::AI_np_type005() {} // 0x8001E650
 
-AI_np_wait_reaction::AI_np_wait_reaction() { *(void**)this = ::__vt__Q32AI6Script19AI_np_wait_reaction; } // 8001E660
+AI_np_wait_reaction::AI_np_wait_reaction() {} // 0x8001E660
 
-AI_np_wait_reaction_minus::AI_np_wait_reaction_minus() { *(void**)this = ::__vt__Q32AI6Script25AI_np_wait_reaction_minus; } // 8001E670
+AI_np_wait_reaction_minus::AI_np_wait_reaction_minus() {} // 0x8001E670
 
-AI_np_wait_reaction_minus2::AI_np_wait_reaction_minus2() { *(void**)this = ::__vt__Q32AI6Script26AI_np_wait_reaction_minus2; } // 8001E680
+AI_np_wait_reaction_minus2::AI_np_wait_reaction_minus2() {} // 0x8001E680
 
-AI_np_wait_reaction_plus::AI_np_wait_reaction_plus() { *(void**)this = ::__vt__Q32AI6Script24AI_np_wait_reaction_plus; } // 8001E690
+AI_np_wait_reaction_plus::AI_np_wait_reaction_plus() {} // 0x8001E690
 
-AI_quark01::AI_quark01() { *(void**)this = ::__vt__Q32AI6Script10AI_quark01; } // 8001E6A0
+AI_quark01::AI_quark01() {} // 0x8001E6A0
 
-AI_quark02::AI_quark02() { *(void**)this = ::__vt__Q32AI6Script10AI_quark02; } // 8001E6B0
+AI_quark02::AI_quark02() {} // 0x8001E6B0
 
-AI_silence_guard01::AI_silence_guard01() { *(void**)this = ::__vt__Q32AI6Script18AI_silence_guard01; } // 8001E6C0
+AI_silence_guard01::AI_silence_guard01() {} // 0x8001E6C0
 
-AI_sword_guard01::AI_sword_guard01() { *(void**)this = ::__vt__Q32AI6Script16AI_sword_guard01; } // 8001E6D0
+AI_sword_guard01::AI_sword_guard01() {} // 0x8001E6D0
 
-AI_sword_leaderguard01::AI_sword_leaderguard01() { *(void**)this = ::__vt__Q32AI6Script22AI_sword_leaderguard01; } // 8001E6E0
+AI_sword_leaderguard01::AI_sword_leaderguard01() {} // 0x8001E6E0
 
-AI_sword_leaderguard02::AI_sword_leaderguard02() { *(void**)this = ::__vt__Q32AI6Script22AI_sword_leaderguard02; } // 8001E6F0
+AI_sword_leaderguard02::AI_sword_leaderguard02() {} // 0x8001E6F0
 
-AI_sword_leaderguard03::AI_sword_leaderguard03() { *(void**)this = ::__vt__Q32AI6Script22AI_sword_leaderguard03; } // 8001E700
+AI_sword_leaderguard03::AI_sword_leaderguard03() {} // 0x8001E700
 
-AI_sword_pointguard01::AI_sword_pointguard01() { *(void**)this = ::__vt__Q32AI6Script21AI_sword_pointguard01; } // 8001E710
+AI_sword_pointguard01::AI_sword_pointguard01() {} // 0x8001E710
 
-AI_return_guard01::AI_return_guard01() { *(void**)this = ::__vt__Q32AI6Script17AI_return_guard01; } // 8001E720
+AI_return_guard01::AI_return_guard01() {} // 0x8001E720
 } // namespace Script
 } // namespace AI
 
-extern "C" int fn_8001EDE8() { return -1; }
+int AI::Script::CharaAi::vf0C() { return -1; }
 
-extern "C" int fn_8001EDF0() { return -1; }
+int AI::Script::CharaAi::vf10() { return -1; }
 
-extern "C" int fn_8001EDF8() { return -1; }
+int AI::Script::CharaAi::vf14() { return -1; }
 
-extern "C" int fn_8001EE00() { return -1; }
+int AI::Script::CharaAi::vf18() { return -1; }
 
-extern "C" int fn_8001EE08() { return -1; }
+int AI::Script::CharaAi::vf1C() { return -1; }
 
-extern "C" int fn_8001EE10() { return -1; }
+int AI::Script::CharaAi::vf20() { return -1; }
 
-extern "C" int fn_8001EE18() { return -1; }
+int AI::Script::CharaAi::vf24() { return -1; }
 
-extern "C" int fn_8001EE20() { return -1; }
+int AI::Script::CharaAi::vf28() { return -1; }
 
-extern "C" int fn_8001EE28() { return -1; }
+int AI::Script::CharaAi::vf2C() { return -1; }
 
-extern "C" int fn_8001EE30() { return -1; }
+int AI::Script::CharaAi::vf30() { return -1; }
 
-extern "C" int fn_8001EE38() { return -1; }
+int AI::Script::CharaAi::vf34() { return -1; }
 
-extern "C" int fn_8001EE40() { return -1; }
+int AI::Script::CharaAi::vf38() { return -1; }
 
-extern "C" int fn_8001EE48() { return -1; }
+int AI::Script::CharaAi::vf3C() { return -1; }
 
-extern "C" int fn_8001EE50() { return -1; }
+int AI::Script::CharaAi::vf40() { return -1; }
 
-extern "C" int fn_8001EE58() {
+int AI::Script::AI_archer_attack01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
     *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
@@ -914,7 +1256,7 @@ extern "C" int fn_8001EE58() {
     return result;
 }
 
-extern "C" int fn_8001F674() {
+int AI::Script::AI_archer_attack01::vf40() {
     if (fn_8001FB08() == 0) {
         *(int*)lbl_807C6A40 = 1;
         return 0;
@@ -933,7 +1275,7 @@ extern "C" int fn_8001F674() {
     return -1;
 }
 
-extern "C" int fn_8001FC40() {
+int AI::Script::AI_archer_guard01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
     *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
@@ -946,7 +1288,7 @@ extern "C" int fn_8001FC40() {
     return result;
 }
 
-extern "C" int fn_800204D8() {
+int AI::Script::AI_archer_guard01::vf40() {
     if (fn_800209F0() == 0) {
         *(int*)lbl_807C6A40 = 1;
         return 0;
@@ -966,7 +1308,7 @@ extern "C" int fn_800204D8() {
 }
 
 // NONMATCHING: 98.78% - global-base register selection differs from MWCC's original allocation.
-extern "C" int fn_80020914() {
+int AI::Script::AI_archer_guard01::vf2C() {
     int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int amount = *(int*)(lbl_807C68C0 + 0x4C);
@@ -995,7 +1337,7 @@ extern "C" int fn_80020914() {
     return -1;
 }
 
-extern "C" int fn_80020B28() {
+int AI::Script::AI_arganan01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 0x50;
     *(int*)lbl_807C6A40 = 1;
@@ -1005,7 +1347,7 @@ extern "C" int fn_80020B28() {
     return result;
 }
 
-extern "C" int fn_80021038() {
+int AI::Script::AI_arganan01::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1019,7 +1361,7 @@ extern "C" int fn_80021038() {
 }
 
 // NONMATCHING: 93.89% - control flow and return discriminator differ from the script stub.
-extern "C" int fn_800210AC() {
+int AI::Script::AI_arganan01::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -1039,7 +1381,7 @@ extern "C" int fn_800210AC() {
     return result;
 }
 
-extern "C" int fn_8002113C() {
+int AI::Script::AI_arganan01::vf20() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1052,7 +1394,7 @@ extern "C" int fn_8002113C() {
     return -1;
 }
 
-extern "C" int fn_800211B0() {
+int AI::Script::AI_buffer_attackstable01::vf08() {
     *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
     *(int*)(lbl_807C6A40 + 0x28) = 0x50;
     *(int*)lbl_807C6A40 = 1;
@@ -1064,7 +1406,7 @@ extern "C" int fn_800211B0() {
     return 1;
 }
 
-extern "C" int fn_80021404() {
+int AI::Script::AI_buffer_attackstable01::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1078,7 +1420,7 @@ extern "C" int fn_80021404() {
 }
 
 // NONMATCHING: 93.89% - MWCC assigns the return discriminator to r3 instead of r0.
-extern "C" int fn_80021478() {
+int AI::Script::AI_buffer_attackstable01::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -1098,7 +1440,7 @@ extern "C" int fn_80021478() {
     return result;
 }
 
-extern "C" int fn_80021508() {
+int AI::Script::AI_buffer_guard01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
     *(int*)(lbl_807C6A40 + 0x28) = 0x50;
@@ -1115,7 +1457,7 @@ extern "C" int fn_80021508() {
 }
 
 // NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
-extern "C" int fn_80021A20() {
+int AI::Script::AI_buffer_guard01::vf18() {
     int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int amount = *(int*)(lbl_807C68C0 + 0x4C);
@@ -1144,7 +1486,7 @@ extern "C" int fn_80021A20() {
     return -1;
 }
 
-extern "C" int fn_80021C3C() {
+int AI::Script::AI_buffer_guard01::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1158,7 +1500,7 @@ extern "C" int fn_80021C3C() {
 }
 
 // NONMATCHING: 93.89% - control flow and return discriminator differ from the script stub.
-extern "C" int fn_80021CB0() {
+int AI::Script::AI_buffer_guard01::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -1178,7 +1520,7 @@ extern "C" int fn_80021CB0() {
     return result;
 }
 
-extern "C" int fn_80021D40() {
+int AI::Script::AI_buffer_guard01::vf20() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1191,7 +1533,7 @@ extern "C" int fn_80021D40() {
     return -1;
 }
 
-extern "C" int fn_80021DB4() {
+int AI::Script::AI_buffer_guard02::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
     *(int*)(lbl_807C6A40 + 0x28) = 0x50;
@@ -1208,7 +1550,7 @@ extern "C" int fn_80021DB4() {
 }
 
 // NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
-extern "C" int fn_80022308() {
+int AI::Script::AI_buffer_guard02::vf18() {
     int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int amount = *(int*)(lbl_807C68C0 + 0x4C);
@@ -1237,7 +1579,7 @@ extern "C" int fn_80022308() {
     return -1;
 }
 
-extern "C" int fn_80022524() {
+int AI::Script::AI_buffer_guard02::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1251,7 +1593,7 @@ extern "C" int fn_80022524() {
 }
 
 // NONMATCHING: 93.89% - MWCC assigns the return discriminator to r3 instead of r0.
-extern "C" int fn_80022598() {
+int AI::Script::AI_buffer_guard02::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -1271,7 +1613,7 @@ extern "C" int fn_80022598() {
     return result;
 }
 
-extern "C" int fn_80022628() {
+int AI::Script::AI_buffer_guard02::vf20() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1284,7 +1626,7 @@ extern "C" int fn_80022628() {
     return -1;
 }
 
-extern "C" int fn_8002269C() {
+int AI::Script::AI_buffer_pointguard01::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
@@ -1294,7 +1636,7 @@ extern "C" int fn_8002269C() {
     return 1;
 }
 
-extern "C" int fn_80022BD4() {
+int AI::Script::AI_buffer_pointguard01::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         *(int*)lbl_807C6A40 = 1;
         return 1;
@@ -1302,7 +1644,7 @@ extern "C" int fn_80022BD4() {
     return -1;
 }
 
-extern "C" int fn_80022F44() {
+int AI::Script::AI_buffer_pointguard01::vf28() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         *(int*)lbl_807C6A40 = 1;
         return 1;
@@ -1310,7 +1652,7 @@ extern "C" int fn_80022F44() {
     return -1;
 }
 
-extern "C" int fn_80022F74() {
+int AI::Script::AI_em_archer_attack02::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
     *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
     *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x7C);
@@ -1318,7 +1660,7 @@ extern "C" int fn_80022F74() {
     return 1;
 }
 
-extern "C" int fn_80023764() {
+int AI::Script::AI_em_archer_attack02::vf40() {
     if (fn_80023C84() == 0) {
         *(int*)lbl_807C6A40 = 1;
         return 0;
@@ -1338,7 +1680,7 @@ extern "C" int fn_80023764() {
 }
 
 // NONMATCHING: 98.78% - signed range arithmetic matches; register allocation still differs.
-extern "C" int fn_80023B78() {
+int AI::Script::AI_em_archer_attack02::vf2C() {
     int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int amount = *(int*)(lbl_807C68C0 + 0x4C);
@@ -1367,7 +1709,7 @@ extern "C" int fn_80023B78() {
     return -1;
 }
 
-extern "C" int fn_80023C54() {
+int AI::Script::AI_em_archer_attack02::vf14() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         *(int*)lbl_807C6A40 = 1;
         return 7;
@@ -1375,7 +1717,7 @@ extern "C" int fn_80023C54() {
     return -1;
 }
 
-extern "C" int fn_80023DBC() {
+int AI::Script::AI_em_bridge_archer::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)lbl_807C6A40 = 1;
@@ -1383,7 +1725,7 @@ extern "C" int fn_80023DBC() {
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
-extern "C" int fn_80023FAC() {
+int AI::Script::AI_em_bridge_archer::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -1403,7 +1745,7 @@ extern "C" int fn_80023FAC() {
     return result;
 }
 
-extern "C" int fn_8002403C() {
+int AI::Script::AI_em_bridge_archer::vf18() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1416,7 +1758,7 @@ extern "C" int fn_8002403C() {
     return -1;
 }
 
-extern "C" int fn_800240C0() {
+int AI::Script::AI_em_bridge_archer::vf24() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         *(int*)lbl_807C6A40 = 1;
         return 1;
@@ -1424,14 +1766,14 @@ extern "C" int fn_800240C0() {
     return -1;
 }
 
-extern "C" int fn_800240F0() {
+int AI::Script::AI_em_monster_attack01::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
     *(int*)lbl_807C6A40 = 1;
     return 1;
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
-extern "C" int fn_800244B0() {
+int AI::Script::AI_em_monster_attack01::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -1451,7 +1793,7 @@ extern "C" int fn_800244B0() {
     return result;
 }
 
-extern "C" int fn_80024718() {
+int AI::Script::AI_em_scout::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
@@ -1463,7 +1805,7 @@ extern "C" int fn_80024718() {
 }
 
 // NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
-extern "C" int fn_800249EC() {
+int AI::Script::AI_em_scout::vf28() {
     int args[4];
     args[0] = (int)(lbl_807307A0 + 0x40A);
     args[1] = 0;
@@ -1475,7 +1817,7 @@ extern "C" int fn_800249EC() {
     return 1;
 }
 
-extern "C" int fn_80024B50() {
+int AI::Script::AI_em_scout::vf1C() {
     int d = 0;
     int c = 0;
     int b = *(int*)(lbl_807C68C0 + 0x20);
@@ -1486,7 +1828,7 @@ extern "C" int fn_80024B50() {
     return 1;
 }
 
-extern "C" int fn_80024D6C() {
+int AI::Script::AI_em_sword_attack01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
     *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
@@ -1498,7 +1840,7 @@ extern "C" int fn_80024D6C() {
 }
 
 // NONMATCHING: 91.68% - return paths through the second script helper differ.
-extern "C" int fn_80024DCC() {
+int AI::Script::AI_em_sword_attack01::vf24() {
     int result = -1;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         *(int*)lbl_807C6A40 = 1;
@@ -1519,7 +1861,7 @@ extern "C" int fn_80024DCC() {
     return -1;
 }
 
-extern "C" int fn_8002552C() {
+int AI::Script::AI_em_sword_attack02::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
     *(int*)(lbl_807C6A40 + 0x1C) = 0xF;
@@ -1530,7 +1872,7 @@ extern "C" int fn_8002552C() {
     return result;
 }
 
-extern "C" int fn_80025DE0() {
+int AI::Script::AI_em_sword_pointguard01::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
@@ -1542,7 +1884,7 @@ extern "C" int fn_80025DE0() {
 }
 
 // NONMATCHING: 89.70% - the local-slot allocation and scratch-store scheduling differ.
-extern "C" int fn_80026A40() {
+int AI::Script::AI_em_type003::vf08() {
     int d = 0;
     int c = 0xA;
     int b = 0;
@@ -1556,7 +1898,7 @@ extern "C" int fn_80026A40() {
 }
 
 // NONMATCHING: 76.72% - MWCC's parameter stack slots and scratch-store order differ.
-extern "C" int fn_80026E94() {
+int AI::Script::AI_em_type010::vf08() {
     int a = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x18) = 0x28;
     *(int*)(lbl_807C6A40 + 0x1C) = a;
@@ -1571,13 +1913,13 @@ extern "C" int fn_80026E94() {
     return 1;
 }
 
-extern "C" int fn_80027444() {
+int AI::Script::AI_em_type102::vf08() {
     *(int*)lbl_807C6A40 = 1;
     return 1;
 }
 
 // NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
-extern "C" int fn_80027458() {
+int AI::Script::AI_em_type102::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
         int d = 0;
         int c = 0;
@@ -1590,7 +1932,7 @@ extern "C" int fn_80027458() {
     return -1;
 }
 
-extern "C" int fn_8002765C() {
+int AI::Script::AI_em_type102::vf18() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1603,7 +1945,7 @@ extern "C" int fn_8002765C() {
     return -1;
 }
 
-extern "C" int fn_800276D4() {
+int AI::Script::AI_em_type102::vf24() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         *(int*)lbl_807C6A40 = 1;
         return 1;
@@ -1612,7 +1954,7 @@ extern "C" int fn_800276D4() {
 }
 
 // NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
-extern "C" int fn_80027704() {
+int AI::Script::AI_em_type103::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
         int d = 0;
         int c = 0;
@@ -1625,7 +1967,7 @@ extern "C" int fn_80027704() {
     return -1;
 }
 
-extern "C" int fn_80027B2C() {
+int AI::Script::AI_em_type103::vf40() {
     if (fn_800281A0() == 0) {
         *(int*)lbl_807C6A40 = 1;
         return 0;
@@ -1644,7 +1986,7 @@ extern "C" int fn_80027B2C() {
     return -1;
 }
 
-extern "C" int fn_80028178() {
+int AI::Script::AI_em_type103::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
     *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
     *(int*)lbl_807C6A40 = 1;
@@ -1652,7 +1994,7 @@ extern "C" int fn_80028178() {
 }
 
 // NONMATCHING: 88.97% - float comparison and parameter stack-slot allocation differ.
-extern "C" int fn_800282D4() {
+int AI::Script::AI_em_type104::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0 && *(float*)(lbl_807C68C0 + 0x1C) < lbl_80880798) {
         int d = 0;
         int c = 0;
@@ -1665,7 +2007,7 @@ extern "C" int fn_800282D4() {
     return -1;
 }
 
-extern "C" int fn_8002868C() {
+int AI::Script::AI_em_type104::vf40() {
     if (fn_80028D00() == 0) {
         *(int*)lbl_807C6A40 = 1;
         return 0;
@@ -1684,21 +2026,21 @@ extern "C" int fn_8002868C() {
     return -1;
 }
 
-extern "C" int fn_80028CD8() {
+int AI::Script::AI_em_type104::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = 0x1E;
     *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
     *(int*)lbl_807C6A40 = 1;
     return 1;
 }
 
-extern "C" int fn_80028E34() {
+int AI::Script::AI_em_type105::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
     *(int*)(lbl_807C6A40 + 0x20) = 0;
     *(int*)lbl_807C6A40 = 1;
     return 1;
 }
 
-extern "C" int fn_8002922C() {
+int AI::Script::AI_em_type105::vf40() {
     if (fn_80029500() == 0) {
         *(int*)lbl_807C6A40 = 1;
         return 0;
@@ -1717,7 +2059,7 @@ extern "C" int fn_8002922C() {
     return -1;
 }
 
-extern "C" int fn_8002973C() {
+int AI::Script::AI_em_type106::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
@@ -1729,7 +2071,7 @@ extern "C" int fn_8002973C() {
 }
 
 // NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
-extern "C" int fn_80029A14() {
+int AI::Script::AI_em_type106::vf28() {
     int args[4];
     args[0] = (int)(lbl_807307A0 + 0x40A);
     args[1] = 0;
@@ -1741,7 +2083,7 @@ extern "C" int fn_80029A14() {
     return 1;
 }
 
-extern "C" int fn_80029A84() {
+int AI::Script::AI_em_type106::vf14() {
     int d = 0;
     int c = 0;
     int b = 5;
@@ -1752,7 +2094,7 @@ extern "C" int fn_80029A84() {
     return 1;
 }
 
-extern "C" int fn_80029AFC() {
+int AI::Script::AI_em_type106::vf1C() {
     int d = 0;
     int c = 0;
     int b = *(int*)lbl_807C68C0;
@@ -1763,7 +2105,7 @@ extern "C" int fn_80029AFC() {
     return 1;
 }
 
-extern "C" int fn_80029D18() {
+int AI::Script::AI_fr_archer_pick01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
     *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
@@ -1774,7 +2116,7 @@ extern "C" int fn_80029D18() {
     return result;
 }
 
-extern "C" int fn_8002A6F0() {
+int AI::Script::AI_fr_archer_pick01::vf40() {
     if (fn_8002AD40() == 0) {
         *(int*)lbl_807C6A40 = 1;
         return 0;
@@ -1793,13 +2135,13 @@ extern "C" int fn_8002A6F0() {
     return -1;
 }
 
-extern "C" int fn_8002AE78() {
+int AI::Script::AI_fr_buffer_pick01::vf08() {
     *(int*)(lbl_807C6A40 + 0xE0) = 0;
     *(int*)lbl_807C6A40 = 1;
     return 1;
 }
 
-extern "C" int fn_8002B434() {
+int AI::Script::AI_fr_buffer_pick01::vf24() {
     int result;
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         // inferred: these four zeroed outputs occupy one consecutive stack aggregate.
@@ -1822,7 +2164,7 @@ extern "C" int fn_8002B434() {
     return -1;
 }
 
-extern "C" int fn_8002B4C8() {
+int AI::Script::AI_fr_buffer_pick01::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -1837,7 +2179,7 @@ extern "C" int fn_8002B4C8() {
 
 // NONMATCHING: 88.31% - local output aggregate and register allocation differ.
 // inferred: the helper receives four consecutive output words; only the first is initialized from m80.
-extern "C" int fn_8002B818() {
+int AI::Script::AI_fr_follow_player::vf08() {
     int results[4] = {0, 0, 0, 0};
     int value = *(int*)(lbl_807C68C0 + 0x7C);
     results[0] = *(int*)(lbl_807C68C0 + 0x80);
@@ -1848,7 +2190,7 @@ extern "C" int fn_8002B818() {
     return 3;
 }
 
-extern "C" int fn_8002B88C() {
+int AI::Script::AI_fr_follow_player::vf14() {
     int d = 0;
     int c = 0;
     int b = *(int*)(lbl_807C6A40 + 0x18);
@@ -1858,7 +2200,7 @@ extern "C" int fn_8002B88C() {
     return 6;
 }
 
-extern "C" int fn_8002B9D0() {
+int AI::Script::AI_fr_magic_pick01::vf08() {
     if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
         *(int*)lbl_807C6A40 = 1;
         return 7;
@@ -1867,7 +2209,7 @@ extern "C" int fn_8002B9D0() {
     return 1;
 }
 
-extern "C" int fn_8002C2F0() {
+int AI::Script::AI_fr_magic_pick02::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x18) = 0;
     *(int*)(lbl_807C6A40 + 0x1C) = 0x46;
@@ -1879,7 +2221,7 @@ extern "C" int fn_8002C2F0() {
     return result;
 }
 
-extern "C" int fn_8002D36C() {
+int AI::Script::AI_fr_runaway::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
@@ -1889,7 +2231,7 @@ extern "C" int fn_8002D36C() {
     return 1;
 }
 
-extern "C" int fn_8002D704() {
+int AI::Script::AI_fr_sword_attack01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
     *(int*)lbl_807C6A40 = 1;
@@ -1899,7 +2241,7 @@ extern "C" int fn_8002D704() {
     return result;
 }
 
-extern "C" int fn_8002DF20() {
+int AI::Script::AI_fr_sword_pick01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
     *(int*)lbl_807C6A40 = 1;
@@ -1910,7 +2252,7 @@ extern "C" int fn_8002DF20() {
 }
 
 // NONMATCHING: 89.57% - stack output order and register allocation differ.
-extern "C" int fn_8002EB20() {
+int AI::Script::AI_fr_sword_pointguard::vf08() {
     int d = *(int*)(lbl_807C68C0 + 0x7C);
     int c = 0x1E;
     int b = 0;
@@ -1922,7 +2264,7 @@ extern "C" int fn_8002EB20() {
     return 1;
 }
 
-extern "C" int fn_8002EF74() {
+int AI::Script::AI_fr_sword_pointguard01::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
@@ -1934,7 +2276,7 @@ extern "C" int fn_8002EF74() {
 }
 
 // NONMATCHING: 88.52% - argument-register allocation differs around the AI call.
-extern "C" int fn_8002FBD4() {
+int AI::Script::AI_fr_type005::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0x2711;
     *(int*)(lbl_807C6A40 + 0x1C) = 0x32;
     *(int*)lbl_807C6A40 = 1;
@@ -1946,7 +2288,7 @@ extern "C" int fn_8002FBD4() {
     return 1;
 }
 
-extern "C" int fn_8002FFE0() {
+int AI::Script::AI_fr_type005::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -1960,8 +2302,26 @@ extern "C" int fn_8002FFE0() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
 
-extern "C" int fn_80030220() {
+
+int AI::Script::AI_fr_warppointescape::vf08() {
+    *(int*)(lbl_807C6A40 + 0x18) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x80);
+    *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x84);
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x88);
+    *(int*)(lbl_807C6A40 + 0x28) = *(int*)(lbl_807C68C0 + 0x8C);
+    *(int*)(lbl_807C6A40 + 0x2C) = *(int*)(lbl_807C68C0 + 0x90);
+    *(int*)(lbl_807C6A40 + 0x30) = *(int*)(lbl_807C68C0 + 0x94);
+    *(int*)(lbl_807C6A40 + 0x34) = *(int*)(lbl_807C68C0 + 0x98);
+    *(int*)(lbl_807C6A40 + 0x38) = *(int*)(lbl_807C68C0 + 0x9C);
+    *(int*)(lbl_807C6A40 + 0x3C) = 0;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+int AI::Script::AI_fr_warppointescape::vf14() {
     int d = 0;
     int c = 0;
     int b = 0xA;
@@ -1972,7 +2332,7 @@ extern "C" int fn_80030220() {
     return 6;
 }
 
-extern "C" int fn_800302A0() {
+int AI::Script::AI_fr_warppointescape::vf20() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         if (*(int*)(lbl_807C6A40 + 0x50) >= 0xC8) {
             *(int*)lbl_807C6A40 = 1;
@@ -1985,7 +2345,7 @@ extern "C" int fn_800302A0() {
     return -1;
 }
 
-extern "C" int fn_8003068C() {
+int AI::Script::AI_jackal01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x30);
     *(int*)(lbl_807C6A40 + 0x20) = 0x5A;
@@ -1998,7 +2358,7 @@ extern "C" int fn_8003068C() {
     return result;
 }
 
-extern "C" int fn_80031758() {
+int AI::Script::AI_magic_attack01::vf08() {
     if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
         *(int*)lbl_807C6A40 = 1;
         return 7;
@@ -2007,7 +2367,7 @@ extern "C" int fn_80031758() {
     return 1;
 }
 
-extern "C" int fn_80031DE4() {
+int AI::Script::AI_magic_attack01_2::vf08() {
     if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
         *(int*)lbl_807C6A40 = 1;
         return 7;
@@ -2016,7 +2376,7 @@ extern "C" int fn_80031DE4() {
     return 1;
 }
 
-extern "C" int fn_80032424() {
+int AI::Script::AI_magic_attack02::vf08() {
     int result = 1;
     *(int*)lbl_807C6A40 = 1;
     if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
@@ -2025,12 +2385,12 @@ extern "C" int fn_80032424() {
     return result;
 }
 
-extern "C" int fn_80032F04() {
+int AI::Script::AI_magic_attackstable01::vf08() {
     *(int*)lbl_807C6A40 = 1;
     return 1;
 }
 
-extern "C" int fn_80032FA8() {
+int AI::Script::AI_magic_attackstable01::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -2043,13 +2403,13 @@ extern "C" int fn_80032FA8() {
     return -1;
 }
 
-extern "C" int fn_80033020() {
+int AI::Script::AI_magic_cure01::vf08() {
     *(int*)(lbl_807C6A40 + 0xE0) = 0;
     *(int*)lbl_807C6A40 = 1;
     return 1;
 }
 
-extern "C" int fn_80033588() {
+int AI::Script::AI_magic_cure01::vf2C() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -2062,7 +2422,7 @@ extern "C" int fn_80033588() {
     return -1;
 }
 
-extern "C" int fn_800337F4() {
+int AI::Script::AI_magic_guard01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
     *(int*)(lbl_807C6A40 + 0x28) = 0x64;
@@ -2073,7 +2433,7 @@ extern "C" int fn_800337F4() {
     return result;
 }
 
-extern "C" int fn_80033F38() {
+int AI::Script::AI_magic_guard01_2::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
     *(int*)(lbl_807C6A40 + 0x28) = 0x64;
@@ -2084,7 +2444,7 @@ extern "C" int fn_80033F38() {
     return result;
 }
 
-extern "C" int fn_80034760() {
+int AI::Script::AI_magic_guard02::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
     *(int*)(lbl_807C6A40 + 0x28) = 0x64;
@@ -2095,7 +2455,7 @@ extern "C" int fn_80034760() {
     return result;
 }
 
-extern "C" int fn_80035274() {
+int AI::Script::AI_np_approach::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0x4B;
     *(int*)(lbl_807C6A40 + 0x1C) = 0x4B;
     *(int*)(lbl_807C6A40 + 0x20) = 0x64;
@@ -2107,7 +2467,7 @@ extern "C" int fn_80035274() {
     return 1;
 }
 
-extern "C" int fn_8003574C() {
+int AI::Script::AI_np_approach_plus::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0x4B;
     *(int*)(lbl_807C6A40 + 0x1C) = 0;
     *(int*)(lbl_807C6A40 + 0x20) = 0x4B;
@@ -2121,7 +2481,7 @@ extern "C" int fn_8003574C() {
 
 // NONMATCHING: 88.31% - local output aggregate and register allocation differ.
 // inferred: duplicate script stub of fn_8002B818 at a second address.
-extern "C" int fn_80035C20() {
+int AI::Script::AI_np_follow_player::vf08() {
     int results[4] = {0, 0, 0, 0};
     int value = *(int*)(lbl_807C68C0 + 0x7C);
     results[0] = *(int*)(lbl_807C68C0 + 0x80);
@@ -2132,7 +2492,7 @@ extern "C" int fn_80035C20() {
     return 3;
 }
 
-extern "C" int fn_80035C94() {
+int AI::Script::AI_np_follow_player::vf14() {
     int d = 0;
     int c = 0;
     int b = *(int*)(lbl_807C6A40 + 0x18);
@@ -2142,17 +2502,17 @@ extern "C" int fn_80035C94() {
     return 6;
 }
 
-extern "C" int fn_80035D04() {
+int AI::Script::AI_np_follow_player::vf20() {
     *(int*)lbl_807C6A40 = 1;
     return 3;
 }
 
-extern "C" int fn_80035D18() {
+int AI::Script::AI_np_tagger_random::vf08() {
     *(int*)lbl_807C6A40 = 1;
     return 1;
 }
 
-extern "C" int fn_80035EB4() {
+int AI::Script::AI_np_tagger_random::vf14() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         *(int*)lbl_807C6A40 = 1;
         return 1;
@@ -2160,7 +2520,27 @@ extern "C" int fn_80035EB4() {
     return -1;
 }
 
-extern "C" int fn_80035FD0() {
+// inferred: picks a target near the current position (first within 120, then anywhere)
+// NONMATCHING: 95.15% - the order of the zero stores to the output arguments differs.
+int AI::Script::AI_np_type001::vf08() {
+    int base = fn_8001B5B4(*(atn::Vector3*)(lbl_807C68C0 + 0x10), 0);
+    int a;
+    int b;
+    int c;
+    int d;
+    if ((a = fn_8001BA88(*(int*)lbl_807C68C0, base, 1, -1, lbl_8088079C, lbl_808807A0, lbl_80880798)) <= 0 &&
+        (a = fn_8001BA88(*(int*)lbl_807C68C0, base, 1, -1, lbl_808807A4, lbl_808807A8, lbl_80880798)) <= 0) {
+        a = base;
+    }
+    d = 0;
+    c = 0;
+    b = 0;
+    fn_8001AEDC(1, &a, &b, &c, &d);
+    *(int*)lbl_807C6A40 = 1;
+    return 3;
+}
+
+int AI::Script::AI_np_type001::vf14() {
     if (*(int*)(lbl_807C68C0 + 8) != 0) {
         int d = 0;
         int c = 0;
@@ -2173,7 +2553,29 @@ extern "C" int fn_80035FD0() {
     return -1;
 }
 
-extern "C" int fn_80036A88() {
+// inferred: waits 30-599 frames before the first action
+int AI::Script::AI_np_type002::vf08() {
+    *(int*)(lbl_807C6A40 + 0x18) = rand() % 570 + 30;
+    *(int*)(lbl_807C6A40 + 0x1C) = 200;
+    *(int*)(lbl_807C6A40 + 0x20) = 100;
+    *(int*)(lbl_807C6A40 + 0x24) = 15;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+// inferred: same as AI_np_type002::vf08, with two more parameters
+int AI::Script::AI_np_type003::vf08() {
+    *(int*)(lbl_807C6A40 + 0x18) = rand() % 570 + 30;
+    *(int*)(lbl_807C6A40 + 0x1C) = 200;
+    *(int*)(lbl_807C6A40 + 0x20) = 100;
+    *(int*)(lbl_807C6A40 + 0x24) = 15;
+    *(int*)(lbl_807C6A40 + 0x28) = 0;
+    *(int*)(lbl_807C6A40 + 0x2C) = 300;
+    *(int*)lbl_807C6A40 = 1;
+    return 1;
+}
+
+int AI::Script::AI_np_type004::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0;
     *(int*)lbl_807C6A40 = 1;
     return 3;
@@ -2181,7 +2583,7 @@ extern "C" int fn_80036A88() {
 
 // NONMATCHING: 70.77% - argument setup and local register allocation differ.
 // inferred: a 0x12-byte helper allocation is passed as the first output word.
-extern "C" int fn_80036AA8() {
+int AI::Script::AI_np_type004::vf14() {
     int a = fn_8001AEBC(0x12);
     int b = *(int*)(lbl_807C6A40 + 0x18);
     int c = 0;
@@ -2191,12 +2593,12 @@ extern "C" int fn_80036AA8() {
     return 6;
 }
 
-extern "C" int fn_80036B20() {
+int AI::Script::AI_np_type004::vf20() {
     *(int*)lbl_807C6A40 = 1;
     return 3;
 }
 
-extern "C" int fn_80036C94() {
+int AI::Script::AI_np_type005::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0x1E;
     *(int*)(lbl_807C6A40 + 0x1C) = 0x64;
     *(int*)(lbl_807C6A40 + 0x20) = 0x190;
@@ -2204,7 +2606,7 @@ extern "C" int fn_80036C94() {
     return 3;
 }
 
-extern "C" int fn_80036CC4() {
+int AI::Script::AI_np_wait_reaction::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0;
     *(int*)(lbl_807C6A40 + 0x1C) = 0;
     *(int*)(lbl_807C6A40 + 0x20) = 0x64;
@@ -2214,7 +2616,7 @@ extern "C" int fn_80036CC4() {
     return 1;
 }
 
-extern "C" int fn_80036F8C() {
+int AI::Script::AI_np_wait_reaction_minus::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0;
     *(int*)(lbl_807C6A40 + 0x1C) = 0;
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
@@ -2224,7 +2626,7 @@ extern "C" int fn_80036F8C() {
     return 1;
 }
 
-extern "C" int fn_800371E0() {
+int AI::Script::AI_np_wait_reaction_minus2::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0;
     *(int*)(lbl_807C6A40 + 0x1C) = 0;
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
@@ -2234,7 +2636,7 @@ extern "C" int fn_800371E0() {
     return 1;
 }
 
-extern "C" int fn_800374E0() {
+int AI::Script::AI_np_wait_reaction_plus::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0;
     *(int*)(lbl_807C6A40 + 0x1C) = 0;
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
@@ -2244,7 +2646,21 @@ extern "C" int fn_800374E0() {
     return 1;
 }
 
-extern "C" int fn_80038674() {
+// NONMATCHING: 61.90% - the original loads the 1.5f factor before the input count.
+int AI::Script::AI_quark01::vf08() {
+    int result = 1;
+    *(int*)(lbl_807C6A40 + 0x18) = 240;
+    *(int*)(lbl_807C6A40 + 0x1C) = (int)(lbl_808807B8 * (float)*(int*)(lbl_807C68C0 + 0x30));
+    *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x7C);
+    *(int*)(lbl_807C6A40 + 0x28) = 100;
+    *(int*)lbl_807C6A40 = 1;
+    if (fn_8001BEB0(*(CharaTask**)lbl_807C68C0)) {
+        result = 7;
+    }
+    return result;
+}
+
+int AI::Script::AI_quark02::vf08() {
     *(int*)(lbl_807C6A40 + 0x18) = 0;
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
@@ -2256,7 +2672,7 @@ extern "C" int fn_80038674() {
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
-extern "C" int fn_800386C0() {
+int AI::Script::AI_quark02::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -2276,7 +2692,7 @@ extern "C" int fn_800386C0() {
     return result;
 }
 
-extern "C" int fn_800388C4() {
+int AI::Script::AI_silence_guard01::vf08() {
     int result = 1;
     *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
     *(int*)(lbl_807C6A40 + 0x28) = 0x64;
@@ -2288,7 +2704,7 @@ extern "C" int fn_800388C4() {
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
-extern "C" int fn_80038C18() {
+int AI::Script::AI_silence_guard01::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -2308,7 +2724,7 @@ extern "C" int fn_80038C18() {
     return result;
 }
 
-extern "C" int fn_80038D90() {
+int AI::Script::AI_sword_guard01::vf08() {
     int result;
     *(int*)(lbl_807C6A40 + 0x18) = 0x5A;
     *(int*)(lbl_807C6A40 + 0x24) = 0x3C;
@@ -2322,7 +2738,7 @@ extern "C" int fn_80038D90() {
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
-extern "C" int fn_80039594() {
+int AI::Script::AI_sword_guard01::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -2342,7 +2758,7 @@ extern "C" int fn_80039594() {
     return result;
 }
 
-extern "C" int fn_80039908() {
+int AI::Script::AI_sword_leaderguard01::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
@@ -2353,7 +2769,7 @@ extern "C" int fn_80039908() {
 }
 
 // NONMATCHING: 93.89% - MWCC does not preserve the target return-discriminator register.
-extern "C" int fn_8003A044() {
+int AI::Script::AI_sword_leaderguard01::vf40() {
     int result;
     if (*(int*)(lbl_807C6A40 + 0x10) >= 1) {
         result = -1;
@@ -2373,7 +2789,7 @@ extern "C" int fn_8003A044() {
     return result;
 }
 
-extern "C" int fn_8003A580() {
+int AI::Script::AI_sword_leaderguard02::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
@@ -2385,7 +2801,7 @@ extern "C" int fn_8003A580() {
 
 // NONMATCHING: 70.00% - state-machine branches and temporary scheduling still differ from MWCC.
 // inferred: advances an archer attack action using the current AI script parameters.
-extern "C" int fn_8003AD38() {
+int AI::Script::AI_sword_leaderguard02::vf0C() {
     int* script = (int*)lbl_807C68C0;
     int* action = (int*)(lbl_807C68C0 + 0x180);
     int result;
@@ -2540,7 +2956,7 @@ extern "C" int fn_8003AD38() {
     return -1;
 }
 
-extern "C" int fn_8003B2A4() {
+int AI::Script::AI_sword_leaderguard03::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
@@ -2551,7 +2967,7 @@ extern "C" int fn_8003B2A4() {
     return 1;
 }
 
-extern "C" int fn_8003C074() {
+int AI::Script::AI_sword_pointguard01::vf08() {
     *(int*)(lbl_807C6A40 + 0x1C) = *(int*)(lbl_807C68C0 + 0x7C);
     *(int*)(lbl_807C6A40 + 0x20) = *(int*)(lbl_807C68C0 + 0x80);
     *(int*)(lbl_807C6A40 + 0x24) = *(int*)(lbl_807C68C0 + 0x84);
@@ -2563,14 +2979,14 @@ extern "C" int fn_8003C074() {
 }
 
 // NONMATCHING: 89.40% - conversion to float and generated constant do not match MWCC's sequence.
-extern "C" int fn_8003CBE0() {
+int AI::Script::AI_return_guard01::vf08() {
     int count = *(int*)(lbl_807C68C0 + 0x30);
     *(int*)lbl_807C6A40 = 1;
     *(int*)(lbl_807C6A40 + 0x1C) = (int)(lbl_808807B8 * (float)count);
     return 1;
 }
 
-extern "C" int fn_8003CDA8() { return -1; }
+int AI::Script::AI_return_guard01::vf3C() { return -1; }
 
 // NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
 // inferred: finds the insertion position for a string key and returns the last visited node.
