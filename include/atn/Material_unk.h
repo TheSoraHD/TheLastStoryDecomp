@@ -8,11 +8,14 @@
 #include "atn/Memory.h"
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
+#include "std/string.h"
+#include <boost/function.hpp>
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
 struct ShaderTex_unk;
+struct Material_unk;
 namespace atn {
 struct ShaderDesc_unk;
 }
@@ -57,6 +60,7 @@ struct String_unk {
 // .sdata2 (0x80880B88-0x80880B98) that atn/ModelDraw_unk.cpp also reads
 struct TexUv_unk {
     TexUv_unk() : mScaleU(sScaleU), mScaleV(sScaleV), mRot(sRot), mTransU(sTransU), mTransV(sTransV) {}
+    ~TexUv_unk() {} // inferred: `delete` keeps its own null test
 
     float mScaleU;
     float mScaleV;
@@ -82,10 +86,42 @@ struct TexStage_unk {
     }
     ~TexStage_unk();
     TexStage_unk& operator=(const TexStage_unk& o);
+    float GetScaleU() const { return mUv != 0 ? mUv->mScaleU : TexUv_unk::sScaleU; }
+    float GetScaleV() const { return mUv != 0 ? mUv->mScaleV : TexUv_unk::sScaleV; }
+    float GetRot() const { return mUv != 0 ? mUv->mRot : TexUv_unk::sRot; }
+    float GetTransU() const { return mUv != 0 ? mUv->mTransU : TexUv_unk::sTransU; }
+    float GetTransV() const { return mUv != 0 ? mUv->mTransV : TexUv_unk::sTransV; }
+    float GetIndScaleU() const { return mIndUv != 0 ? mIndUv->mScaleU : TexUv_unk::sScaleU; }
+    float GetIndScaleV() const { return mIndUv != 0 ? mIndUv->mScaleV : TexUv_unk::sScaleV; }
+    float GetIndRot() const { return mIndUv != 0 ? mIndUv->mRot : TexUv_unk::sRot; }
+    float GetIndTransU() const { return mIndUv != 0 ? mIndUv->mTransU : TexUv_unk::sTransU; }
+    float GetIndTransV() const { return mIndUv != 0 ? mIndUv->mTransV : TexUv_unk::sTransV; }
+    TexUv_unk* Uv() {
+        if (mUv == 0) {
+            mUv = new ((MemoryTag)6, "", "", 0) TexUv_unk;
+        }
+        return mUv;
+    }
+    TexUv_unk* IndUv() {
+        if (mIndUv == 0) {
+            mIndUv = new ((MemoryTag)6, "", "", 0) TexUv_unk;
+        }
+        return mIndUv;
+    }
+    void SetScaleU(float v) { Uv()->mScaleU = v; }
+    void SetScaleV(float v) { Uv()->mScaleV = v; }
+    void SetRot(float v) { Uv()->mRot = v; }
+    void SetTransU(float v) { Uv()->mTransU = v; }
+    void SetTransV(float v) { Uv()->mTransV = v; }
+    void SetIndScaleU(float v) { IndUv()->mScaleU = v; }
+    void SetIndScaleV(float v) { IndUv()->mScaleV = v; }
+    void SetIndRot(float v) { IndUv()->mRot = v; }
+    void SetIndTransU(float v) { IndUv()->mTransU = v; }
+    void SetIndTransV(float v) { IndUv()->mTransV = v; }
     void fn_8007AB38(atn::ShaderDesc_unk* desc, int index); // inferred: setup from a shader description
     void fn_8007B100();                                   // inferred: applies wrap and filter modes
+    const char* fn_8007B260(const char* path, Material_unk* mat, const char* p); // inferred: reads a stage block
     void fn_8007C018(const char* path, int mode);           // inferred: loads the texture
-    void fn_8007C0D4();
 
     String_unk mName;            // 0x00
     atn::Texture_unk* mTexture;  // 0x04
@@ -103,17 +139,29 @@ struct TexStage_unk {
 struct TexAnim_unk {
     TexAnim_unk();
 
-    int mStageId;            // 0x00
-    TexStage_unk* mStage;    // 0x04
-    float m08[10];           // 0x08
-    atn::Vector3 m30;        // 0x30
-    atn::Vector3 m3C;        // 0x3C
-    float m48;
-    float m4C;
-    unsigned char m50_0 : 1;
-    unsigned char m50_1 : 1;
+    int mStageId;          // 0x00
+    TexStage_unk* mStage;  // 0x04
+    float m08;
+    float m0C;
+    float m10;
+    float mScrollU;        // 0x14: inferred: translation speed of the UV transform
+    float mScrollV;        // 0x18
+    float m1C;
+    float m20;
+    float m24;
+    float mIndScrollU;     // 0x28: inferred: same for the indirect UV transform
+    float mIndScrollV;     // 0x2C
+    atn::Vector3 mWaveU;   // 0x30: inferred: {amplitude, frequency, phase} of a sine added to the U offset
+    atn::Vector3 mWaveV;   // 0x3C
+    float mWaveTimeU;      // 0x48
+    float mWaveTimeV;      // 0x4C
+    unsigned char mInd : 1;  // 0x50 (0x80): inferred: also scrolls the indirect UV transform
+    unsigned char mWave : 1; // 0x50 (0x40)
     unsigned char m50_2 : 6;
 };
+
+// inferred: gives the texture of a stage name (fn_80080C20), 0 to load it from the files
+typedef boost::function<atn::Texture_unk*(const std::string&)> TexGetter_unk;
 
 // inferred: material (0x54 bytes; constructor 0x8007C144, destructor 0x8007C3F8)
 struct Material_unk {
@@ -126,7 +174,16 @@ struct Material_unk {
     TexStage_unk* fn_80080528(int id); // inferred: stage of id `id`
     int fn_800816A8();
     void fn_80081BD0();
+    void fn_8007FE5C(atn::ShaderDesc_unk* desc); // inferred: blend modes of a shader description
+    void fn_80080048(float time);                // inferred: texture animations
+    void fn_80080584(const Material_unk& o);     // inferred: copy
+    void fn_80080B34(atn::ShaderDesc_unk* desc); // inferred: stage names
+    void fn_80080C20(const std::string& dir, TexGetter_unk& getter); // inferred: stage textures
+    void fn_80081080(char* shader);              // inferred: shader name
+    void fn_80081514(float u, float v);          // inferred: UV translation of all the stages
+    void fn_800816B4(void* parent, const char* name); // inferred: debug menu
     void fn_80081D00(); // inferred: computes the pass mask m49
+    TexStage_unk* FindStage_unk(int id);
 
     unsigned int m00; // inferred: name hash
     unsigned int m04;
