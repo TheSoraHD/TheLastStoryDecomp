@@ -17,6 +17,7 @@ public:
     void fn_80498F08();
     void fn_80498F0C(int value);
     void fn_80498F4C();
+    void fn_80499388(int value);
 
     unsigned char m50[8];
     int m58;

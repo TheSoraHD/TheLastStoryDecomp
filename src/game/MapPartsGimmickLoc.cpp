@@ -43,3 +43,7 @@ void MapPartsGimmickLoc::fn_80498F0C(int value) {
 }
 
 void MapPartsGimmickLoc::fn_80498F4C() {}
+
+void MapPartsGimmickLoc::fn_80499388(int value) {
+    *reinterpret_cast<int*>(reinterpret_cast<unsigned char*>(this) + 0x630) = value;
+}
