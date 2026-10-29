@@ -410,7 +410,7 @@ public:
     virtual int vf68(CharaTask* attacker);
     // inferred: starts the reaction control `kind` facing away from `other` (EnemyTask 0x8035BBCC)
     virtual void vf6C(int kind, CharaTask* other);
-    virtual void vf70();
+    virtual float vf70(); // inferred: returns f1 (0x800E8FA4; Em203GreaterDaemonRed returns 100.0f)
     virtual void vf74(int arg); // inferred: starts a control (the symbol is still named vf74__9CharaTaskFv)
     virtual int vf78(); // inferred: nonzero while a held character keeps hold (fn_8013A4E8)
     virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)

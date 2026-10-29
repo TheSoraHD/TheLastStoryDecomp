@@ -63,7 +63,8 @@ struct __vec_storage_unk {
     unsigned int mCap;
 };
 
-// inferred: no destroy loop for float elements (weak copy 0x8000D844, resize 0x8032BE88)
+// inferred: no destroy loop for float elements (weak copy 0x8000D844, resize 0x8032BE88,
+// destructors of the float lists of game/Em203GreaterDaemonRed.cpp, 0x80293BC8)
 template <>
 inline void __vec_storage_unk<float>::__shrink_unk(unsigned int newSize) {
     unsigned int n = mSize - newSize;
