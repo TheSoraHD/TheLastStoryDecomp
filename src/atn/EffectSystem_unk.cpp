@@ -5,6 +5,8 @@
 // Only the small functions are written; the update, draw and creation code is not decompiled yet.
 #include "atn/EffectSystem_unk.h"
 
+using atn::Vector3;
+
 // inferred: current resource, owner, group and handle of the effects being created, and the frame
 // offset (names invented; the other variables of .sdata/.sbss are not used by the code written)
 static EffectRes_unk* sCurrentRes;   // 0x8087F360
@@ -23,7 +25,7 @@ inline void Kill_unk(EffectInst_unk* inst) {
 
 EffectInst_unk::EffectInst_unk()
     : m00(0), mNext(0), m08(0), m0C(0), m10(0), m14(-1), mFlags(0), m1A(0), mKill(0), m1C(0.0f), mOwnerPtr(0),
-      mOwner(0), mGroup(0), mEffect(0), mTag(0), mBC(0), mC0(0), mC4(0), mC8(0.0f), mCC(0.0f), mRate(1.0f) {}
+      mOwner(0), mGroup(0), mEffect(0), mTag(0), mData(0), mParam(0), mC4(0), mC8(0.0f), mCC(0.0f), mRate(1.0f) {}
 
 EffectSlot_unk::EffectSlot_unk()
     : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(0.0f), m18(0.0f), m1C(0), m20(0), m24(0), m28(0.0f), m2C(0.0f),
@@ -199,25 +201,6 @@ void EffectSystem_unk::fn_80233260(unsigned int owner, int group, float rate) {
     }
 }
 
-// inferred: key of an animation curve of the efp data (time, value)
-struct EffectKey_unk {
-    float mTime;
-    float mValue;
-};
-struct EffectCurve_unk {
-    unsigned int mCount;
-    EffectKey_unk* mKeys;
-};
-// inferred: the 22 curves of an emitter (0xB0 bytes)
-struct EffectCurves_unk {
-    EffectCurve_unk mCurves[22];
-};
-struct EffectAnimData_unk {
-    unsigned char m00[0x1C];
-    EffectCurves_unk* mEmitters; // 0x1C
-};
-
-// inferred: value of a curve at time t, multiplied by (mul) or added to base
 // NONMATCHING: 98.0% - FPR/GPR allocation of the loop
 extern "C" float fn_8023329C(int curve, int emitter, const EffectAnimData_unk* data, int mul, float t, float base) {
     const EffectCurve_unk& c = data->mEmitters[emitter].mCurves[curve];
@@ -238,6 +221,201 @@ extern "C" float fn_8023329C(int curve, int emitter, const EffectAnimData_unk* d
         v += base;
     }
     return v;
+}
+
+// inferred: vector parameter of an emitter (curves 12-14 when animated), with its ratios and
+// the per-slot offset or scale
+// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
+extern "C" void fn_80233348(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
+    EffectAnimData_unk* data = inst->mData;
+    EffectParam_unk* param = inst->mParam;
+    if ((data->mAnimFlags[emitter] & 1) == 1) {
+        out->x = fn_8023329C(12, emitter, data, 0, 0.0f, 0.0f);
+        out->y = fn_8023329C(13, emitter, data, 0, 0.0f, 0.0f);
+        out->z = fn_8023329C(14, emitter, data, 0, 0.0f, 0.0f);
+    } else {
+        out->x = param->mA4.x;
+        out->y = param->mA4.y;
+        out->z = param->mA4.z;
+    }
+    if (param->m70 == 2) {
+        float x = out->x;
+        if (x != 0.0f) {
+            slot->m13C = out->y / x;
+            slot->m140 = out->z / out->x;
+        } else {
+            slot->m13C = 0.0f;
+            slot->m140 = 0.0f;
+        }
+    } else {
+        slot->m13C = 1.0f;
+        slot->m140 = 1.0f;
+    }
+    if (param->m6C & 1) {
+        out->x *= slot->m114.x;
+        out->y *= slot->m114.y;
+        out->z *= slot->m114.z;
+    } else {
+        out->x += slot->m114.x;
+        out->y += slot->m114.y;
+        out->z += slot->m114.z;
+    }
+}
+
+// inferred: vector parameter of an emitter (curves 15-17 when animated), with its ratios and
+// the per-slot offset or scale
+// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
+extern "C" void fn_802334E0(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
+    EffectAnimData_unk* data = inst->mData;
+    EffectParam_unk* param = inst->mParam;
+    if ((data->mAnimFlags[emitter] & 0x2) == 0x2) {
+        out->x = fn_8023329C(15, emitter, data, 0, 0.0f, 0.0f);
+        out->y = fn_8023329C(16, emitter, data, 0, 0.0f, 0.0f);
+        out->z = fn_8023329C(17, emitter, data, 0, 0.0f, 0.0f);
+    } else {
+        out->x = param->mE0.x;
+        out->y = param->mE0.y;
+        out->z = param->mE0.z;
+    }
+    if (param->m78 == 2) {
+        float x = out->x;
+        if (x != 0.0f) {
+            slot->m144 = out->y / x;
+            slot->m148 = out->z / out->x;
+        } else {
+            slot->m144 = 0.0f;
+            slot->m148 = 0.0f;
+        }
+    } else {
+        slot->m144 = 1.0f;
+        slot->m148 = 1.0f;
+    }
+    if (param->m74 & 1) {
+        out->x *= slot->m120.x;
+        out->y *= slot->m120.y;
+        out->z *= slot->m120.z;
+    } else {
+        out->x += slot->m120.x;
+        out->y += slot->m120.y;
+        out->z += slot->m120.z;
+    }
+}
+
+// inferred: vector parameter of an emitter (curves 0-2 when animated), with its ratios and
+// the per-slot offset or scale
+// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
+extern "C" void fn_80233678(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
+    EffectAnimData_unk* data = inst->mData;
+    EffectParam_unk* param = inst->mParam;
+    if ((data->mAnimFlags[emitter] & 0x4) == 0x4) {
+        out->x = fn_8023329C(0, emitter, data, 0, 0.0f, 0.0f);
+        out->y = fn_8023329C(1, emitter, data, 0, 0.0f, 0.0f);
+        out->z = fn_8023329C(2, emitter, data, 0, 0.0f, 0.0f);
+    } else {
+        out->x = param->m11C.x;
+        out->y = param->m11C.y;
+        out->z = param->m11C.z;
+    }
+    if (param->m80 == 2) {
+        float x = out->x;
+        if (x != 0.0f) {
+            slot->m14C = out->y / x;
+            slot->m150 = out->z / out->x;
+        } else {
+            slot->m14C = 0.0f;
+            slot->m150 = 0.0f;
+        }
+    } else {
+        slot->m14C = 1.0f;
+        slot->m150 = 1.0f;
+    }
+    if (param->m7C & 1) {
+        out->x *= slot->mE4.x;
+        out->y *= slot->mE4.y;
+        out->z *= slot->mE4.z;
+    } else {
+        out->x += slot->mE4.x;
+        out->y += slot->mE4.y;
+        out->z += slot->mE4.z;
+    }
+}
+
+// inferred: vector parameter of an emitter (curves 19-21 when animated), with its ratios and
+// the per-slot offset or scale
+// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
+extern "C" void fn_80233810(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
+    EffectAnimData_unk* data = inst->mData;
+    EffectParam_unk* param = inst->mParam;
+    if ((data->mAnimFlags[emitter] & 0x80) == 0x80) {
+        out->x = fn_8023329C(19, emitter, data, 0, 0.0f, 0.0f);
+        out->y = fn_8023329C(20, emitter, data, 0, 0.0f, 0.0f);
+        out->z = fn_8023329C(21, emitter, data, 0, 0.0f, 0.0f);
+    } else {
+        out->x = param->m1F8.x;
+        out->y = param->m1F8.y;
+        out->z = param->m1F8.z;
+    }
+    if (param->mA0 == 2) {
+        float x = out->x;
+        if (x != 0.0f) {
+            slot->m16C = out->y / x;
+            slot->m170 = out->z / out->x;
+        } else {
+            slot->m16C = 0.0f;
+            slot->m170 = 0.0f;
+        }
+    } else {
+        slot->m16C = 1.0f;
+        slot->m170 = 1.0f;
+    }
+    if (param->m9C & 1) {
+        out->x *= slot->m130.x;
+        out->y *= slot->m130.y;
+        out->z *= slot->m130.z;
+    } else {
+        out->x += slot->m130.x;
+        out->y += slot->m130.y;
+        out->z += slot->m130.z;
+    }
+}
+
+// inferred: vector parameter of an emitter (curves 7-9 when animated), with its ratios and
+// the per-slot offset or scale
+// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
+extern "C" void fn_802339A8(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
+    EffectAnimData_unk* data = inst->mData;
+    EffectParam_unk* param = inst->mParam;
+    if ((data->mAnimFlags[emitter] & 0x8) == 0x8) {
+        out->x = fn_8023329C(7, emitter, data, 0, 0.0f, 0.0f);
+        out->y = fn_8023329C(8, emitter, data, 0, 0.0f, 0.0f);
+        out->z = fn_8023329C(9, emitter, data, 0, 0.0f, 0.0f);
+    } else {
+        out->x = param->m158.x;
+        out->y = param->m158.y;
+        out->z = param->m158.z;
+    }
+    if (param->m88 == 2) {
+        float x = out->x;
+        if (x != 0.0f) {
+            slot->m154 = out->y / x;
+            slot->m158 = out->z / out->x;
+        } else {
+            slot->m154 = 0.0f;
+            slot->m158 = 0.0f;
+        }
+    } else {
+        slot->m154 = 1.0f;
+        slot->m158 = 1.0f;
+    }
+    if (param->m84 & 1) {
+        out->x *= slot->m100.x;
+        out->y *= slot->m100.y;
+        out->z *= slot->m100.z;
+    } else {
+        out->x += slot->m100.x;
+        out->y += slot->m100.y;
+        out->z += slot->m100.z;
+    }
 }
 
 // inferred: handle of the effect being created

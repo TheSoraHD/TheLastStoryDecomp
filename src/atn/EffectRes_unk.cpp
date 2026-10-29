@@ -131,16 +131,6 @@ extern "C" EffectNode_unk* fn_80237C88(EffectNode_unk** from, EffectNode_unk** t
     return fn_80237B20(to, node, 0);
 }
 
-// inferred: key of a curve
-struct EffectKey_unk {
-    float mTime;
-    float mValue;
-};
-// inferred: curve of a particle channel
-struct EffectCurve_unk {
-    unsigned int mCount;
-    EffectKey_unk* mKeys;
-};
 // inferred: curves of a particle definition (0x68 bytes): position x/y/z, alpha, ?, color r/g/b/a...
 struct EffectCurves_unk {
     EffectCurve_unk mChannels[13];

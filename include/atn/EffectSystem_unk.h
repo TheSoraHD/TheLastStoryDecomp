@@ -58,6 +58,51 @@ struct EffectParticle_unk {
     int m90;
 };
 
+// inferred: key of an animation curve of the efp data (time, value)
+struct EffectKey_unk {
+    float mTime;
+    float mValue;
+};
+struct EffectCurve_unk {
+    unsigned int mCount;
+    EffectKey_unk* mKeys;
+};
+// inferred: the 22 curves of an emitter (0xB0 bytes; the particles have their own set,
+// EffectCurves_unk of atn/EffectRes_unk.cpp)
+struct EffectEmitterCurves_unk {
+    EffectCurve_unk mCurves[22];
+};
+// inferred: animation data of an effect (fields named by use)
+struct EffectAnimData_unk {
+    unsigned char m00[0x18];
+    unsigned int* mAnimFlags;    // 0x18: per emitter, bit 0: animated
+    EffectEmitterCurves_unk* mEmitters; // 0x1C
+};
+// inferred: parameters of an effect (fields named by offset)
+struct EffectParam_unk {
+    unsigned char m00[0x6C];
+    unsigned int m6C;
+    unsigned int m70;
+    unsigned int m74;
+    unsigned int m78;
+    unsigned int m7C;
+    unsigned int m80;
+    unsigned int m84;
+    unsigned int m88;
+    unsigned char m8C[0x9C - 0x8C];
+    unsigned int m9C;
+    unsigned int mA0;
+    atn::Vector3 mA4;
+    unsigned char mB0[0xE0 - 0xB0];
+    atn::Vector3 mE0;
+    unsigned char mEC[0x11C - 0xEC];
+    atn::Vector3 m11C;
+    unsigned char m128[0x158 - 0x128];
+    atn::Vector3 m158;
+    unsigned char m164[0x1F8 - 0x164];
+    atn::Vector3 m1F8;
+};
+
 // inferred: effect instance of the system (one per started effect; linked list from
 // EffectSystem_unk::mInsts; fields named by use, the size is not known yet)
 struct EffectInst_unk {
@@ -80,8 +125,8 @@ struct EffectInst_unk {
     int mTag;               // 0x34
     unsigned char m38[0xAC - 0x38];
     EffectColor_unk mColor; // 0xAC
-    int mBC;
-    int mC0;
+    EffectAnimData_unk* mData;  // 0xBC
+    EffectParam_unk* mParam;    // 0xC0
     int mC4;
     float mC8;
     float mCC;
@@ -106,7 +151,27 @@ struct EffectSlot_unk {
     float m2C;
     float m30;
     float m34;
-    unsigned char m38[0x190 - 0x38];
+    unsigned char m38[0xE4 - 0x38];
+    atn::Vector3 mE4;
+    unsigned char mF0[0x100 - 0xF0];
+    atn::Vector3 m100;
+    unsigned char m10C[0x114 - 0x10C];
+    atn::Vector3 m114;
+    atn::Vector3 m120;
+    unsigned char m12C[0x130 - 0x12C];
+    atn::Vector3 m130;
+    float m13C;
+    float m140;
+    float m144;
+    float m148;
+    float m14C;
+    float m150;
+    float m154;
+    float m158;
+    unsigned char m15C[0x16C - 0x15C];
+    float m16C;
+    float m170;
+    unsigned char m174[0x190 - 0x174];
     int m190;
     float m194;
     float m198;
