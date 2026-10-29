@@ -191,7 +191,7 @@ extern float lbl_808807A0;
 extern float lbl_808807A4;
 extern float lbl_808807A8;
 int fn_8001B5B4(atn::Vector3 pos, int arg);
-int fn_8001BA88(int self, int target, int a, int b, float c, float d, float e);
+int fn_8001BA88(CharaTask* chara, int point, int a, int b, float c, float d, float e); // inferred: route point search
 extern double lbl_8072FF68;
 extern unsigned char lbl_807C6B78[];
 extern unsigned char lbl_807C6B84[];
@@ -213,6 +213,7 @@ int fn_8003D298(int a, int b);
 float fn_8001BD14(CharaTask* chara); // inferred: attack range of the character
 float fn_8001AD80(CharaTask* a, CharaTask* b);
 int fn_8001BEB0(CharaTask* chara);
+void fn_8001C068(CharaTask* chara, const char* name); // inferred: sets the debug state text
 int fn_8001BF4C(CharaTask* chara);
 void fn_8001BADC(CharaTask* chara, int arg);
 int fn_8001B5DC(CharaTask* chara); // inferred: item to use (as fn_8001B634)
@@ -267,7 +268,7 @@ public:
 class AI_archer_attack01 : public CharaAi {
 public:
     AI_archer_attack01();
-    int fn_8001FB08(); // 0x8001FB08
+    static int fn_8001FB08(); // 0x8001FB08
     virtual int vf08(); // 0x8001EE58
     virtual int vf0C(); // 0x8001F6F8
     virtual int vf18(); // 0x8001F248
@@ -281,7 +282,7 @@ public:
 class AI_archer_guard01 : public CharaAi {
 public:
     AI_archer_guard01();
-    int fn_800209F0(); // 0x800209F0
+    static int fn_800209F0(); // 0x800209F0
     virtual int vf08(); // 0x8001FC40
     virtual int vf0C(); // 0x8002055C
     virtual int vf18(); // 0x8002008C
@@ -346,7 +347,7 @@ public:
 class AI_em_archer_attack02 : public CharaAi {
 public:
     AI_em_archer_attack02();
-    int fn_80023C84(); // 0x80023C84
+    static int fn_80023C84(); // 0x80023C84
     virtual int vf08(); // 0x80022F74
     virtual int vf0C(); // 0x800237E8
     virtual int vf14(); // 0x80023C54
@@ -381,6 +382,7 @@ public:
 class AI_em_scout : public CharaAi {
 public:
     AI_em_scout();
+    static int fn_80024BC0(); // 0x80024BC0
     virtual int vf08(); // 0x80024718
     virtual int vf0C(); // 0x80024608
     virtual int vf14(); // 0x80024A5C
@@ -504,7 +506,7 @@ public:
 class AI_fr_archer_pick01 : public CharaAi {
 public:
     AI_fr_archer_pick01();
-    int fn_8002AD40(); // 0x8002AD40
+    static int fn_8002AD40(); // 0x8002AD40
     virtual int vf08(); // 0x80029D18
     virtual int vf0C(); // 0x8002A774
     virtual int vf18(); // 0x8002A1FC
@@ -1096,6 +1098,24 @@ static inline int ShootInRange_unk() {
         return -1;
     }
     return -1;
+}
+
+// inferred: distance between two characters (0 when one is missing)
+static inline int Distance_unk(CharaTask* a, CharaTask* b) {
+    if (a == 0 || b == 0) {
+        return 0;
+    }
+    return fn_8001AD80(a, b);
+}
+
+// inferred: route point near base (within 120, then anywhere), base itself when none is found
+static inline int PickPoint_unk(int base) {
+    int point;
+    if ((point = fn_8001BA88(lbl_807C68C0.m00, base, 1, -1, 120.0f, 100.0f, 9999.0f)) <= 0 &&
+        (point = fn_8001BA88(lbl_807C68C0.m00, base, 1, -1, -1.0f, 0.0f, 9999.0f)) <= 0) {
+        point = base;
+    }
+    return point;
 }
 
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
@@ -1828,28 +1848,6 @@ int AI::Script::AI_archer_attack01::vf2C() {
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
-    }
-    return -1;
-}
-
-// inferred: never inlined into vf40, its only caller (noinline as in MP/CryptMP)
-__declspec(noinline) int AI::Script::AI_archer_attack01::fn_8001FB08() {
-    if (lbl_807C6A40.m18 == 0) {
-        if (lbl_807C68C0.m1C < lbl_807C6A40.m1C) {
-            lbl_807C6A40.m18 = 1;
-            lbl_807C6A40.m0C = 1;
-            lbl_807C6A40.m00 = 1;
-            Command_unk(0, 0, 0, 0, 0);
-            return 0;
-        }
-        return -1;
-    }
-    if (lbl_807C68C0.m1C >= lbl_807C6A40.m1C) {
-        lbl_807C6A40.m18 = 0;
-        lbl_807C6A40.m0C = 0;
-        lbl_807C6A40.m00 = 1;
-        Command_unk(0, 0, 0, 0, 0);
-        return 0;
     }
     return -1;
 }
@@ -3222,6 +3220,40 @@ int AI::Script::AI_em_monster_attack01::vf0C() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_scout::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        int next = fn_80024BC0();
+        if (next == 3) {
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (next == 7) {
+            lbl_807C6A40.m00 = 1;
+            return 7;
+        }
+        if (next == 5) {
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        if (next == 8) {
+            lbl_807C6A40.m00 = 1;
+            return 8;
+        }
+        if (next == 1) {
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_scout::vf08() {
     lbl_807C6A40.m18 = lbl_807C68C0.m7C;
@@ -3231,6 +3263,44 @@ int AI::Script::AI_em_scout::vf08() {
     lbl_807C6A40.m28 = 0;
     lbl_807C6A40.m2C = 0;
     lbl_807C6A40.m00 = 1;
+    return 1;
+}
+
+int AI::Script::AI_em_scout::vf40() {
+    lbl_807C6A40.m3C = Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20);
+    lbl_807C6A40.m00 = 1;
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_scout::vf2C() {
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(6, 1, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m24 = 2;
+        return 1;
+    }
+    fn_8001C068(lbl_807C68C0.m00, (const char*)(lbl_807307A0 + 0x3F5)); // "まだ隠れられていない"
+    lbl_807C6A40.m00 = 1;
+    return -1;
+}
+
+// NONMATCHING: 99.72% - pending the string pool (the literal is loaded before in.m00).
+int AI::Script::AI_em_scout::vf24() {
+    if (CanUseItem2_unk()) {
+        Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m24 = 1;
+        return 9;
+    }
+    fn_8001C068(lbl_807C68C0.m00, (const char*)(lbl_807307A0 + 0x3E0)); // "隠れるポイント未発見"
+    lbl_807C6A40.m00 = 1;
+    Command_unk(6, 1, 0, 0, 0);
+    lbl_807C6A40.m24 = 3;
     return 1;
 }
 
@@ -3247,6 +3317,14 @@ int AI::Script::AI_em_scout::vf28() {
     return 1;
 }
 
+int AI::Script::AI_em_scout::vf14() {
+    int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+    Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m28 = 1;
+    return 1;
+}
+
 int AI::Script::AI_em_scout::vf1C() {
     int d = 0;
     int c = 0;
@@ -3256,6 +3334,46 @@ int AI::Script::AI_em_scout::vf1C() {
     lbl_807C6A40.m00 = 1;
     lbl_807C6A40.m24 = 6;
     return 1;
+}
+
+// inferred: never inlined into vf0C, its only caller (noinline as in MP/CryptMP)
+__declspec(noinline) int AI::Script::AI_em_scout::fn_80024BC0() {
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m40 += 1;
+    if (lbl_807C6A40.m28 >= 1) {
+        lbl_807C6A40.m28 += 1;
+        if (lbl_807C6A40.m28 >= 90) {
+            lbl_807C6A40.m28 = 0;
+            return 1;
+        }
+        return 1;
+    }
+    lbl_807C6A40.m44 += 1;
+    if (lbl_807C6A40.m24 >= 1) {
+        if (lbl_807C68C0.m08 != 0) {
+            lbl_807C6A40.m48 += 1;
+            if (lbl_807C6A40.m24 < 5) {
+                lbl_807C6A40.m24 = 0;
+                int roll = rand() % 8 + 1;
+                lbl_807C6A40.m2C = roll;
+                int result = 5;
+                if (roll <= 4) {
+                    result = 3;
+                }
+                return result;
+            }
+            lbl_807C6A40.m24 = 0;
+            if (Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20) <= lbl_807C6A40.m1C) {
+                return 7;
+            }
+            return 3;
+        }
+        return 1;
+    }
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20) <= lbl_807C6A40.m1C) {
+        return 7;
+    }
+    return 3;
 }
 
 int AI::Script::AI_em_sword_attack01::vf08() {
@@ -4543,8 +4661,8 @@ int AI::Script::AI_np_type001::vf08() {
     int b;
     int c;
     int d;
-    if ((a = fn_8001BA88((*(int*)&lbl_807C68C0.m00), base, 1, -1, lbl_8088079C, lbl_808807A0, lbl_80880798)) <= 0 &&
-        (a = fn_8001BA88((*(int*)&lbl_807C68C0.m00), base, 1, -1, lbl_808807A4, lbl_808807A8, lbl_80880798)) <= 0) {
+    if ((a = fn_8001BA88(lbl_807C68C0.m00, base, 1, -1, lbl_8088079C, lbl_808807A0, lbl_80880798)) <= 0 &&
+        (a = fn_8001BA88(lbl_807C68C0.m00, base, 1, -1, lbl_808807A4, lbl_808807A8, lbl_80880798)) <= 0) {
         a = base;
     }
     d = 0;
