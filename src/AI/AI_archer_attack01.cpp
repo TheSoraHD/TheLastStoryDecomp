@@ -3408,6 +3408,29 @@ int AI::Script::AI_em_sword_attack01::vf24() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_sword_attack01::vf1C() {
+    int result = FarOrSpecial_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    if (result == 8) {
+        lbl_807C6A40.m00 = 1;
+        return 8;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_sword_attack01::vf28() {
     int result = AttackRandom_unk();
@@ -3628,6 +3651,27 @@ int AI::Script::AI_em_type103::vf40() {
     return -1;
 }
 
+int AI::Script::AI_em_type103::vf1C() {
+    int result = FarOrSpecial_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    if (result == 8) {
+        lbl_807C6A40.m00 = 1;
+        return 8;
+    }
+    return -1;
+}
+
 int AI::Script::AI_em_type103::vf28() {
     int result = AttackRandom_unk();
     if (result == 5) {
@@ -3673,6 +3717,27 @@ int AI::Script::AI_em_type104::vf40() {
     if (result == 1) {
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_type104::vf1C() {
+    int result = FarOrSpecial_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    if (result == 8) {
+        lbl_807C6A40.m00 = 1;
+        return 8;
     }
     return -1;
 }
@@ -4034,6 +4099,27 @@ int AI::Script::AI_fr_sword_attack01::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_fr_sword_attack01::vf1C() {
+    int result = FarOrSpecial_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    if (result == 8) {
+        lbl_807C6A40.m00 = 1;
+        return 8;
+    }
+    return -1;
 }
 
 int AI::Script::AI_fr_sword_attack01::vf28() {
