@@ -681,8 +681,11 @@ inline atn::Vector3 Em303KrakenFoot::GetBack_unk() {
 }
 
 // inferred: state 8: turns to the target and catches it at the end of the motion
-// NONMATCHING: 99.15% - registers of the inlined CanAct_unk (as vf40), the field pointer of the flag write kept
-// in r3 and stack slots of the two ray tests (~12 forms of the helpers tried)
+// NONMATCHING: 98.96% - registers of the inlined CanAct_unk (as vf40), the field pointer of the flag write kept
+// in r3 and stack slots of the two ray tests (~12 forms of the helpers tried). Since IsPlayer is const (its RSO
+// name, IsPlayer__9CharaTaskCFv) mType is loaded again for the ?: instead of reusing the value of the
+// `!= 2` test (the original does cntlzw on it, as a non-const inline gives: 99.15%); 12 forms of the
+// call and of the IsPlayer body tried (2026-10-29)
 void Em303KrakenFoot::fn_802E3EE8() {
     CharaTask* target = (CharaTask*)m14CC;
     atn::Vector3 d;
