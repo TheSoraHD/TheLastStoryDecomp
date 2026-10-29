@@ -219,6 +219,7 @@ void fn_8001BADC(CharaTask* chara, int arg);
 int fn_8001B5DC(CharaTask* chara); // inferred: item to use (as fn_8001B634)
 int fn_8001BC80(CharaTask* chara, int index);
 int fn_8001BC38(CharaTask* chara, int slot);
+int fn_8003D3F8();
 void fn_8001A510(CharaTask** list);
 void fn_8001A8A4(int kind, int mode, CharaTask** list);
 int fn_8001AC54(CharaTask** list);
@@ -1357,6 +1358,38 @@ static inline bool TakeFirst_unk(CharaTask** list) {
     }
     lbl_807C6B30.m04 = 0;
     return false;
+}
+
+// inferred: casts (command 7) on a valid target (returns 9), otherwise stops
+static inline int CastValid_unk() {
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(7, 0, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    Command_unk(0, 0, 0, 0, 0);
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
+
+// inferred: approaches the target when it is farther than in.m44, otherwise casts (command 7)
+static inline int ApproachOrCast_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        if (lbl_807C68C0.m1C > lbl_807C68C0.m44) {
+            if (lbl_807C68C0.m20 != 0) {
+                Command_unk(3, (int)lbl_807C68C0.m20, 30, 0, 0);
+            }
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        Command_unk(7, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 9;
+    }
+    return -1;
 }
 
 extern "C" unsigned char* fn_8001C088();
@@ -5471,6 +5504,44 @@ int AI::Script::AI_fr_magic_pick01::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_fr_magic_pick01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            int pick = PickItem_unk();
+            if (pick == 1) {
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            if (pick == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            int next = fn_8003D3F8();
+            if (next == 9) {
+                lbl_807C6A40.m00 = 1;
+                return 9;
+            }
+            if (next == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            if (next == 6) {
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_fr_magic_pick01::vf18() {
     int result = WaitRandom_unk();
@@ -5481,11 +5552,83 @@ int AI::Script::AI_fr_magic_pick01::vf18() {
     return -1;
 }
 
+int AI::Script::AI_fr_magic_pick01::vf24() {
+    int pick = PickItem_unk();
+    if (pick == 4) {
+        lbl_807C6A40.m00 = 1;
+        return 4;
+    }
+    if (pick == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    int result = ApproachOrCast_unk();
+    if (result == 9) {
+        lbl_807C6A40.m00 = 1;
+        return 9;
+    }
+    if (result == 6) {
+        int next = fn_8003D3F8();
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 9) {
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_fr_magic_pick01::vf2C() {
     int result = WaitRandom_unk();
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_fr_magic_pick01::vf20() {
+    int pick = PickItem_unk();
+    if (pick == 4) {
+        lbl_807C6A40.m00 = 1;
+        return 4;
+    }
+    if (pick == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    int result = CastValid_unk();
+    if (result == 6) {
+        int next = fn_8003D3F8();
+        if (next == 9) {
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    if (result == 9) {
+        lbl_807C6A40.m00 = 1;
+        return 9;
+    }
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
     }
     return -1;
 }
