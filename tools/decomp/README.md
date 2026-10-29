@@ -26,3 +26,4 @@ Helper scripts used while decompiling. All of them work on the repo that contain
 
 `maps/map_<unit>.txt`: optional address -> mangled-name map used by `cmp.py` for calls whose target
 symbol is still `fn_<ADDR>` but our code uses a real name.
+- `pct.sh <unidad> [símbolo...]`: porcentaje de objdiff por función (todas si no se dan símbolos); más fiable que el recuento de líneas de `cmp.py` cuando cambian nombres de datos.

@@ -15,6 +15,61 @@ class LH_Model;
 
 namespace atn {
 
+// inferred: texture coordinate generation of a material (0x1C bytes; GXSetTexCoordGen2 arguments)
+struct ShaderTexGen_unk {
+    int m00[4];
+    int mFunc; // 0x10
+    int mSrc;  // 0x14
+    int mMtx;  // 0x18
+};
+
+// inferred: texture matrix of a texture coordinate (0x30 bytes); mType: 0 plain, 1-4 matrix types
+struct ShaderTexMtx_unk {
+    int m00[4];
+    int mType; // 0x10
+    int m14[7];
+};
+
+// inferred: indirect stage (GXSetIndTexOrder / GXSetIndTexCoordScale)
+struct ShaderIndStage_unk {
+    int mTexMap;   // 0x00
+    int mTexCoord; // 0x04: index of the material texture coordinate
+    int mScaleS;   // 0x08
+    int mScaleT;   // 0x0C
+};
+
+// inferred: TEV stage of a material (0x88 bytes; arguments of the GXSetTev* calls)
+struct ShaderTevStage_unk {
+    int mChannel;      // 0x00: 0 none, 1-3 color channel
+    int mTexMap;       // 0x04
+    int mTexCoord;     // 0x08
+    int mRasSwap;      // 0x0C
+    int mTexSwap;      // 0x10
+    int mColorIn[4];   // 0x14
+    int mKColorSel;    // 0x24
+    int mColorOp;      // 0x28
+    int mColorBias;    // 0x2C
+    int mColorScale;   // 0x30
+    int mColorClamp;   // 0x34
+    int mColorReg;     // 0x38
+    int mAlphaIn[4];   // 0x3C
+    int mKAlphaSel;    // 0x4C
+    int mAlphaOp;      // 0x50
+    int mAlphaBias;    // 0x54
+    int mAlphaScale;   // 0x58
+    int mAlphaClamp;   // 0x5C
+    int mAlphaReg;     // 0x60
+    int mIndStage;     // 0x64
+    int mIndFormat;    // 0x68
+    int mIndBias;      // 0x6C
+    int mIndMtx;       // 0x70
+    int mIndWrapS;     // 0x74
+    int mIndWrapT;     // 0x78
+    int mIndAddPrev;   // 0x7C
+    int mIndUtcLod;    // 0x80
+    int mIndAlphaSel;  // 0x84
+};
+
 // inferred: material description of a model file (layout from the readers below, names invented)
 struct ShaderDesc_unk {
     unsigned char m000[0x10];
@@ -25,11 +80,13 @@ struct ShaderDesc_unk {
     unsigned char m020[4];
     int m024[12];
     unsigned char m054;
-    unsigned char m055[0x64 - 0x55];
+    unsigned char m055[0x60 - 0x55];
+    GXColor mKColor3; // 0x060: GXSetTevKColor(GX_KCOLOR3)
     int m064;
     unsigned char m068[0x7C - 0x68];
     int m07C;
-    unsigned char m080[0x8C - 0x80];
+    int mNumChans; // 0x080: GXSetNumChans(mNumChans / 2)
+    unsigned char m084[0x8C - 0x84];
     int m08C;
     int m090;
     unsigned char m094[0xA4 - 0x94];
@@ -37,9 +94,18 @@ struct ShaderDesc_unk {
     int m0A8;
     unsigned char m0AC[0xE4 - 0xAC];
     int m0E4; // inferred: number of texture stages
-    unsigned char m0E8[0x18C - 0xE8];
+    unsigned char m0E8[0xEC - 0xE8];
+    int mTexGenCount;                // 0x0EC
+    ShaderTexGen_unk** mTexGens;     // 0x0F0
+    unsigned char m0F4[0xF8 - 0xF4];
+    ShaderTexMtx_unk** mTexMtxs;     // 0x0F8
+    unsigned char m0FC[0x13C - 0xFC];
+    int mIndStageCount;              // 0x13C
+    ShaderIndStage_unk mIndStages[4]; // 0x140
+    unsigned char mSwapTables[3][4]; // 0x180: GXSetTevSwapModeTable 0-2
     unsigned char m18C[4];
-    unsigned char m190[0xA14 - 0x190];
+    int mTevStageCount;              // 0x190
+    ShaderTevStage_unk mTevStages[16]; // 0x194
     int mA14;
     int mA18;
     unsigned char mA1C[0xA28 - 0xA1C];

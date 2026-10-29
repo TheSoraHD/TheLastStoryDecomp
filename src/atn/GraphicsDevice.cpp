@@ -8,6 +8,8 @@
 #include "atn/TextureCacheManager.h"
 #include "atn/Light_unk.h"
 #include "atn/Camera_unk.h"
+#include "atn/Shader_unk.h"
+#include "atn/DrawHelper.h"
 
 extern "C" {
 
@@ -194,34 +196,67 @@ static unsigned int CountFrames_unk(FrameQueue_unk* queue) {
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-// inferred: render system (atn/RenderSystem_unk.cpp, lbl_8087EFB4); only its camera is used here
+// inferred: textures and matrices of the render system used by the effects of fn_80074EC8
+struct RenderTextures_unk {
+    unsigned char m000[0x460];
+    GXTexObj m460;           // 0x460: light map (fn_800748D8)
+    GXTexObj m480;           // 0x480: rim light (fn_80073A6C)
+    atn::Matrix3x4 m4A0;     // 0x4A0: texture matrices of the rim light
+    atn::Matrix3x4 m4D0;     // 0x4D0
+};
+// inferred: scene settings (NewCampScene2_unk of atn/CharaLightData_unk.cpp); only the shadow
+// override is used here
+struct RenderScene_unk {
+    unsigned char m000[0x234];
+    int m234;                // 0x234: overrides the shadow mode and color of RenderSetting_unk
+    int m238;
+    int m23C;                // 0x23C: shadow mode
+    float m240;
+    RsColor_unk m244;        // 0x244: shadow color
+};
+// inferred: render system (atn/RenderSystem_unk.cpp, lbl_8087EFB4); only the fields used here
 struct RenderSystemView_unk {
-    unsigned char m000[0x104];
-    Camera_unk mCamera; // 0x104
+    unsigned char m000[0xC];
+    RenderTextures_unk* m00C;   // 0x00C
+    unsigned char m010[0x104 - 0x10];
+    Camera_unk mCamera;         // 0x104
+    int m2F8;
+    RenderScene_unk* mScene;    // 0x2FC
+    unsigned char m300[0x318 - 0x300];
+    Camera_unk mShadowCamera;   // 0x318: light camera of the shadow and light map
+    GXTexObj m50C;              // 0x50C: shadow map (fn_80073A6C)
+    unsigned char m52C[4];
+    GXTexObj m530;              // 0x530: light of the normals (fn_800742C8)
 };
 extern "C" RenderSystemView_unk* lbl_8087EFB4;
 
-int lbl_8087D73C = 10; // inferred: gamma set on the VI (fn_8007192C)
-
-OSThreadQueue lbl_807C6F60;  // inferred: threads waiting for a free frame
-FrameQueue_unk lbl_807C6F68; // inferred: frames in flight
-unsigned short lbl_8087D738 = 1; // inferred: next draw sync token
-unsigned char lbl_8087EED8;      // inferred: break point enabled
-unsigned char lbl_8087EED9;      // inferred: the finished frame waits for its XFB to be displayed
-unsigned char lbl_8087EEDA;      // inferred: the XFB was swapped in the last retrace
-unsigned short lbl_8087EEDC;     // inferred: draw sync token of the displayed frame
-
-extern "C" void fn_80072BDC();
-extern "C" void fn_80074EC8(atn::GraphicsDevice_unk* device, void* desc, unsigned int flags, void* light, void* shadow,
-                            void* arg5);
-extern "C" void fn_800761A8(atn::GraphicsDevice_unk* device);
-extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id);
-extern "C" void fn_8009BF3C(void* mesh, void* material, void* lens, const float* color);
+// inferred: first object of .rodata; no reference left in the code
+extern const int lbl_807316B8[4] = {0xFF, 0, 0, 0};
 
 // inferred: texture caches selected by RenderSetting_unk::m3A8 (CacheMode); built by the static
 // initializer of the file (0x80077058)
 atn::TextureCacheManager8x32 lbl_807C6C08;
 atn::TextureCacheManager4x128 lbl_807C6DB4;
+OSThreadQueue lbl_807C6F60;  // inferred: threads waiting for a free frame
+FrameQueue_unk lbl_807C6F68; // inferred: frames in flight
+unsigned short lbl_8087D738 = 1; // inferred: next draw sync token
+int lbl_8087D73C = 10;           // inferred: gamma set on the VI (fn_8007192C)
+unsigned char lbl_8087EED8;      // inferred: break point enabled
+unsigned char lbl_8087EED9;      // inferred: the finished frame waits for its XFB to be displayed
+unsigned char lbl_8087EEDA;      // inferred: the XFB was swapped in the last retrace
+unsigned short lbl_8087EEDC;     // inferred: draw sync token of the displayed frame
+atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: the device (fn_80071220)
+
+extern "C" void fn_80072BDC();
+namespace atn {
+struct ShaderDesc_unk;
+}
+extern "C" void fn_80074EC8(atn::GraphicsDevice_unk* device, const atn::ShaderDesc_unk* desc, int flags,
+                            atn::TexProjector_unk* light, atn::TexProjector_unk* light2, atn::ShadowMap_unk* shadow);
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* device);
+extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id);
+extern "C" void fn_8009BF3C(void* mesh, void* material, void* lens, const float* color);
+
 extern "C" void fn_80072D74(unsigned int retraceCount);
 extern "C" void fn_80072E08(unsigned int retraceCount);
 
@@ -252,8 +287,6 @@ extern "C" int fn_80071088(const VtxFormat_unk* a, const VtxFormat_unk* b) {
     return 1;
 }
 
-extern "C" GraphicsDevice_unk* lbl_8087EEE0;
-
 // inferred: creates the device (game/main)
 extern "C" void fn_80071220() {
     if (lbl_8087EEE0 == 0) {
@@ -266,7 +299,7 @@ namespace atn {
 GraphicsDevice_unk::GraphicsDevice_unk()
     : mWidth(0), mHeight(0), mWide(0), mClearColor(0xFF000000), mClearZ(0x00FFFFFF), mFifo(0), mFifoBuffer(0),
       mOffsetX(0.0f), mOffsetY(0.0f), mViewX(0), mViewY(0), mViewW(0), mViewH(0), mXfb0(0), mXfb1(0),
-      mCurrentXfb(0), mNextXfb(0), mC0(0), mC4(0), mC8(0), mVtxFormat(0), mTexCache(0), mPrevRegionCallback(0) {}
+      mCurrentXfb(0), mNextXfb(0), mShaderDesc(0), mShaderFlags(0), mShadow(0), mVtxFormat(0), mTexCache(0), mPrevRegionCallback(0) {}
 } // namespace atn
 
 // inferred: stores the viewport/scissor rectangle
@@ -280,6 +313,7 @@ inline void SetViewRect_unk(GraphicsDevice_unk* device, int x, int y, int w, int
 extern "C" void fn_80075F58(GraphicsDevice_unk* device, int x, int y, int w, int h);
 
 // inferred: video and GX initialization
+// NONMATCHING: 98.41% - registers of the render mode copy and the overscan arithmetic
 extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     device->mWidth = width;
     device->mHeight = height;
@@ -400,6 +434,7 @@ inline GXColor ToGXColor_unk(unsigned int argb) {
 }
 
 // inferred: start of a frame: gamma, clear color, full viewport, cache invalidation
+// NONMATCHING: 95.56% - float registers of the viewport and scissor (fn_80075F58 inlined)
 extern "C" void fn_8007192C(GraphicsDevice_unk* device) {
     if (lbl_8087D73C != lbl_8087EFA8->m034) {
         lbl_8087D73C = lbl_8087EFA8->m034;
@@ -417,6 +452,7 @@ extern "C" void fn_8007192C(GraphicsDevice_unk* device) {
 }
 
 // inferred: end of the frame: queues the copy to the XFB and waits while two frames are in flight
+// NONMATCHING: 99.31% - one instruction of the vertical filter sum
 extern "C" void fn_80071AFC(GraphicsDevice_unk* device) {
     GXSetZMode(1, 3, 1);
     GXSetColorUpdate(1);
@@ -488,9 +524,6 @@ inline void SetBlendFactors_unk(GraphicsDevice_unk* device, int src, int dst) {
 }
 extern "C" void fn_80072914(GraphicsDevice_unk* device, int mode);
 static void NextFrame_unk();
-extern "C" void fn_80072BDC();
-extern "C" void fn_80072D74(unsigned int retraceCount);
-extern "C" void fn_80072E08(unsigned int retraceCount);
 
 extern "C" void fn_80071D60(GraphicsDevice_unk* device, int value) {
     device->mCC = value;
@@ -514,6 +547,7 @@ extern "C" void fn_80071D80(GraphicsDevice_unk* device, atn::Texture_unk* textur
 }
 
 // inferred: resets the GX state to the defaults of the game
+// NONMATCHING: 98.90% - registers of the initial GX state (viewport/scissor inlined)
 extern "C" void fn_80071E04(GraphicsDevice_unk* device) {
     fn_80074EC8(device, 0, 0, 0, 0, 0);
     device->mVtxFormat = 0;
@@ -728,6 +762,7 @@ static void NextFrame_unk() {
 }
 
 // inferred: GX break point callback (the GPU reached the end of a frame)
+// NONMATCHING: 90.20% - the second TopFrame_unk keeps a redundant empty-queue check in the original
 extern "C" void fn_80072BDC() {
     FrameEntry_unk frame = TopFrame_unk(&lbl_807C6F68);
     if (frame.mXfb == lbl_8087EEE0->mNextXfb) {
@@ -755,6 +790,7 @@ extern "C" void fn_80072D74(unsigned int retraceCount) {
 }
 
 // inferred: VI post-retrace callback: releases the frame that waited for the swap
+// NONMATCHING: 88.51% - same redundant empty-queue check as fn_80072BDC (NextFrame_unk inlined)
 extern "C" void fn_80072E08(unsigned int retraceCount) {
     if (lbl_8087EEE0->mCC != 0 && (retraceCount & 1)) {
         return;
@@ -765,28 +801,883 @@ extern "C" void fn_80072E08(unsigned int retraceCount) {
         NextFrame_unk();
     }
 }
+
+extern "C" {
+void GXSetIndTexOrder(int stage, int coord, int map);
+void GXSetIndTexCoordScale(int stage, int scaleS, int scaleT);
+void GXSetTevAlphaIn(int stage, int a, int b, int c, int d);
+void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned char clamp, int outReg);
+void GXSetTevKAlphaSel(int stage, int sel);
+void GXSetTevIndirect(int stage, int indStage, int format, int bias, int mtx, int wrapS, int wrapT,
+                      unsigned char addPrev, unsigned char utcLod, int alphaSel);
+}
+
+// inferred: GX resources used by the material set up by fn_80074EC8 (fn_80072F64); the effects added
+// after the material (fn_80073194 ...) take their stages and texture coordinates from here
+struct TevStats_unk {
+    int mDual;       // 0x00: texture coordinates split by type (flag bit 0 of fn_80074EC8)
+    int mTexMtxs;    // 0x04: texture matrices used (ShaderDesc_unk::m0E4)
+    int mCoords0;    // 0x08: texture coordinates of type 0
+    int mCoords13;   // 0x0C: texture coordinates of types 1-3
+    int mCoords4;    // 0x10: texture coordinates of type 4
+    int mTevStages;  // 0x14
+    int mIndStages;  // 0x18
+    int mSwapTables; // 0x1C: mask of the swap tables used
+    int mKColors;    // 0x20: mask of the konstant colors used
+};
+
+// inferred: GX resources needed by an effect (lbl_807316D0)
+struct TevCost_unk {
+    int Coords() const { return mCoords0 + mCoords13 + mCoords4; }
+
+    int mCoords0;
+    int mCoords13;
+    int mCoords4;
+    int mTevStages;
+    int mIndStages;
+    int mSwapTables;
+    int mKColors;
+};
+
+static const TevCost_unk sTevCosts[5] = {
+    {0, 0, 2, 4, 0, 2, 1}, // fn_80073A6C
+    {0, 1, 1, 3, 0, 0, 1}, // fn_800742C8
+    {0, 0, 1, 1, 0, 0, 0}, // fn_800748D8
+    {0, 0, 1, 1, 0, 0, 0}, // fn_80073194
+    {0, 0, 1, 2, 0, 0, 0}, // fn_80074B24
+};
+
+inline int CountBits4_unk(int mask) {
+    int n = 0;
+    for (int i = 0; i < 4; i++) {
+        if (mask & (1 << i)) {
+            n++;
+        }
+    }
+    return n;
+}
+
+// inferred: the effect still fits in the GX limits after the material
+inline bool FitsTev_unk(const TevStats_unk* stats, int effect) {
+    if (stats->mTevStages + sTevCosts[effect].mTevStages <= 16 && stats->mIndStages + sTevCosts[effect].mIndStages <= 4 &&
+        CountBits4_unk(stats->mSwapTables) + sTevCosts[effect].mSwapTables <= 4 &&
+        CountBits4_unk(stats->mKColors) + sTevCosts[effect].mKColors <= 4) {
+        if (stats->mDual) {
+            return stats->mCoords0 + sTevCosts[effect].mCoords0 <= 4 && stats->mCoords13 + sTevCosts[effect].mCoords13 <= 2 &&
+                   stats->mCoords4 + sTevCosts[effect].mCoords4 <= 2;
+        }
+        return sTevCosts[effect].mCoords13 + sTevCosts[effect].mCoords4 + stats->mTexMtxs + sTevCosts[effect].mCoords0 <= 8;
+    }
+    return false;
+}
+
+// inferred: counts the GX resources used by a material
+extern "C" void fn_80072F64(TevStats_unk* stats, const atn::ShaderDesc_unk* desc, int dual) {
+    stats->mDual = dual;
+    stats->mCoords0 = 0;
+    stats->mCoords13 = 0;
+    stats->mCoords4 = 0;
+    stats->mTevStages = 0;
+    stats->mIndStages = 0;
+    stats->mSwapTables = 0;
+    stats->mKColors = 0;
+    stats->mTexMtxs = desc->m0E4;
+    for (int i = 0; i < desc->mTexGenCount; i++) {
+        switch (desc->mTexMtxs[i]->mType) {
+        case 0:
+            stats->mCoords0++;
+            break;
+        case 1:
+        case 2:
+        case 3:
+            stats->mCoords13++;
+            break;
+        case 4:
+            stats->mCoords4++;
+            break;
+        }
+    }
+    stats->mTevStages = desc->mTevStageCount;
+    stats->mIndStages = desc->mIndStageCount;
+    stats->mSwapTables = 1;
+    stats->mKColors = 7;
+    const atn::ShaderTevStage_unk* stage = desc->mTevStages;
+    for (int i = 0; i < desc->mTevStageCount; stage++, i++) {
+        stats->mSwapTables |= 1 << stage->mRasSwap;
+        stats->mSwapTables |= 1 << stage->mTexSwap;
+        if (stage->mColorIn[0] == 14 || stage->mColorIn[1] == 14 || stage->mColorIn[2] == 14 ||
+            stage->mColorIn[3] == 14) {
+            switch (stage->mKColorSel) {
+            case 12:
+            case 16:
+            case 20:
+            case 24:
+            case 28:
+                stats->mKColors |= 1;
+                break;
+            case 13:
+            case 17:
+            case 21:
+            case 25:
+            case 29:
+                stats->mKColors |= 2;
+                break;
+            case 14:
+            case 18:
+            case 22:
+            case 26:
+            case 30:
+                stats->mKColors |= 4;
+                break;
+            case 15:
+            case 19:
+            case 23:
+            case 27:
+            case 31:
+                stats->mKColors |= 8;
+                break;
+            }
+        }
+        if (stage->mAlphaIn[0] == 6 || stage->mAlphaIn[1] == 6 || stage->mAlphaIn[2] == 6 ||
+            stage->mAlphaIn[3] == 6) {
+            switch (stage->mKAlphaSel) {
+            case 16:
+            case 20:
+            case 24:
+            case 28:
+                stats->mKColors |= 1;
+                break;
+            case 17:
+            case 21:
+            case 25:
+            case 29:
+                stats->mKColors |= 2;
+                break;
+            case 18:
+            case 22:
+            case 26:
+            case 30:
+                stats->mKColors |= 4;
+                break;
+            case 19:
+            case 23:
+            case 27:
+            case 31:
+                stats->mKColors |= 8;
+                break;
+            }
+        }
+    }
+}
+
+// inferred: nonzero while a texture is loading. The symbol is named after its first known user
+// (game/GimmickCommon.h); it is an atn::Texture_unk member.
+struct GimmickUvOwner_unk {
+    int fn_800D59B8();
+};
+
+extern "C" double sin(double x);
+extern "C" double cos(double x);
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void fn_800D5C84(float m[3][4], float sx, float sy, float c, float s, float tx, float ty);
+extern "C" void fn_800D5E18(float m[3][4], float t, float b, float l, float r, float scaleS, float scaleT,
+                            float transS, float transT);
+
+inline atn::Matrix3x4 MtxMul_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    atn::Matrix3x4 r;
+    PSMTXConcat(a.m, b.m, r.m);
+    return r;
+}
+
+// inferred: GXLoadTexObj unless the object is already loaded in the map (same as fn_800763FC)
+inline void LoadTexObj_unk(GraphicsDevice_unk* device, const void* obj, int map) {
+    if (device->mTexObjs[map] == obj) {
+        return;
+    }
+    device->mTexObjs[map] = obj;
+    if (obj != 0) {
+        GXLoadTexObj(obj, map);
+    }
+}
+
+inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+
+// inferred: the texture is loaded (same test as GimmickCommon::fn_803EDB0C)
+inline bool IsTextureReady_unk(atn::Texture_unk* tex) {
+    return tex->mImage != 0 || (((GimmickUvOwner_unk*)tex)->fn_800D59B8() == 0 && tex->m20.fn_80473EFC() == 3);
+}
+
+// inferred: projects a texture on the model from above (orthographic when mDir is zero) and
+// modulates the color with it (TEV stage after the material, texture coordinate of type 4)
+// NONMATCHING: 95.53% - register allocation (projector in r27, angle in f29) and load order of the arguments of fn_800D5E18
+extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_unk* proj) {
+    if (proj != 0 && 0.0f == proj->mSize.x && 0.0f == proj->mSize.y) {
+        return;
+    }
+    int stage = stats->mTevStages++;
+    int map = stats->mTexMtxs++;
+    int coord;
+    if (stats->mDual) {
+        coord = stats->mCoords4++ + 6;
+    } else {
+        coord = stats->mCoords0 + (stats->mCoords13 + stats->mCoords4++);
+    }
+    int postMtx = map * 3 + 0x40;
+    RenderSystemView_unk* view = lbl_8087EFB4;
+    GXSetTexCoordGen2(coord, 0, 0, 0, 0, postMtx);
+    atn::Vector2_unk size(1.0f, 1.0f);
+    atn::Vector2_unk pos(0.0f, 0.0f);
+    atn::Vector3 dir(0.0f, 0.0f, 0.0f);
+    atn::Vector3 offset(0.0f, 0.0f, 0.0f);
+    float angle = 0.0f;
+    atn::Texture_unk* tex = &lbl_8087EEB0->m40;
+    if (proj != 0 && IsTextureReady_unk(&proj->mTextures[proj->mTexture])) {
+        pos = proj->mPos;
+        size = proj->mSize;
+        dir = proj->mDir;
+        tex = &proj->mTextures[proj->mTexture];
+        angle = 0.017453292f * proj->mAngle;
+        offset = proj->mOffset;
+    }
+    fn_800763C0(lbl_8087EEE0, map, tex);
+    atn::Matrix3x4 texMtx;
+    atn::Matrix3x4 rot;
+    fn_800D5C84(rot.m, 1.0f, 1.0f, sin(angle), cos(angle), 0.0f, 0.0f);
+    if (fn_805F9920(&dir) < 0.001f) {
+        atn::Matrix3x4 trans;
+        trans.SetIdentity();
+        trans.m[0][3] = -pos.x - offset.x;
+        trans.m[2][3] = -pos.y - offset.z;
+        atn::Matrix3x4 scale;
+        memset(&scale, 0, sizeof(scale));
+        scale.m[0][0] = 2.0f / size.x;
+        scale.m[1][2] = 2.0f / size.y;
+        atn::Matrix3x4 bias;
+        memset(&bias, 0, sizeof(bias));
+        bias.m[0][0] = 0.5f;
+        bias.m[0][3] = 0.5f;
+        bias.m[1][1] = 0.5f;
+        bias.m[1][3] = 0.5f;
+        bias.m[2][2] = 0.0f;
+        bias.m[2][3] = 1.0f;
+        texMtx = MtxMul_unk(rot, MtxMul_unk(bias, MtxMul_unk(scale, MtxMul_unk(trans, view->mCamera.mInvView))));
+    } else {
+        Camera_unk camera(0, 0);
+        camera.mProjType = 1;
+        PSVECNormalize(&dir, &dir);
+        atn::Vector3 target = atn::Vector3(pos.x, 0.0f, pos.y) + offset;
+        atn::Vector3 eye = target - dir * 100.0f;
+        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+        if (atn::Abs_unk(Dot_unk(dir, atn::Vector3(0.0f, 1.0f, 0.0f))) > 0.99f) {
+            up = atn::Vector3(0.0f, 0.0f, 1.0f);
+            if (atn::Abs_unk(Dot_unk(dir, atn::Vector3(0.0f, 0.0f, 1.0f))) > 0.99f) {
+                up = atn::Vector3(1.0f, 0.0f, 0.0f);
+            }
+        }
+        camera.mUp = up;
+        camera.mPos = eye;
+        camera.mTarget = target;
+        camera.mTop = pos.y + 0.5f * size.y;
+        camera.mBottom = pos.y - 0.5f * size.y;
+        camera.mLeft = pos.x - 0.5f * size.x;
+        camera.mRight = pos.x + 0.5f * size.x;
+        camera.fn_8004B378();
+        atn::Matrix3x4 proj2;
+        proj2.SetIdentity();
+        fn_800D5E18(proj2.m, camera.mTop, camera.mBottom, camera.mLeft, camera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+        texMtx = MtxMul_unk(proj2, MtxMul_unk(rot, MtxMul_unk(camera.mView, view->mCamera.mInvView)));
+    }
+    GXLoadTexMtxImm(texMtx.m, postMtx, 0);
+    GXSetTevSwapMode(stage, 0, 0);
+    GXSetTevOrder(stage, coord, map, 0xFF);
+    switch (proj->mBlend) {
+    case 0:
+        GXSetTevColorIn(stage, 15, 0, 8, 15);
+        GXSetTevColorOp(stage, 0, 0, 0, 1, 0);
+        break;
+    case 1:
+        GXSetTevColorIn(stage, 15, 0, 8, 15);
+        GXSetTevColorOp(stage, 0, 0, 1, 1, 0);
+        break;
+    case 2:
+        GXSetTevColorIn(stage, 15, 0, 8, 15);
+        GXSetTevColorOp(stage, 0, 0, 2, 1, 0);
+        break;
+    case 3:
+        GXSetTevColorIn(stage, 8, 15, 15, 0);
+        GXSetTevColorOp(stage, 0, 0, 0, 1, 0);
+        break;
+    case 4:
+        GXSetTevColorIn(stage, 8, 15, 15, 0);
+        GXSetTevColorOp(stage, 0, 2, 0, 1, 0);
+        break;
+    case 5:
+        GXSetTevColorIn(stage, 8, 15, 15, 0);
+        GXSetTevColorOp(stage, 1, 0, 0, 1, 0);
+        break;
+    case 6:
+        GXSetTevColorIn(stage, 8, 15, 15, 0);
+        GXSetTevColorOp(stage, 1, 1, 0, 1, 0);
+        break;
+    }
+    if (lbl_8087EFA8->m14C != 0) {
+        GXSetTevColorIn(stage, 15, 15, 15, 8);
+        GXSetTevColorOp(stage, 0, 0, 0, 1, 0);
+    }
+    GXSetTevDirect(stage);
+    GXSetTevAlphaIn(stage, 7, 7, 7, 0);
+    GXSetTevAlphaOp(stage, 0, 0, 0, 1, 0);
+}
+
+
+// inferred: first free entry of a 4 bit mask (swap tables, konstant colors); 0 when all are used
+inline int AllocBit4_unk(int* mask) {
+    for (int i = 0; i < 4; i++) {
+        if (!(*mask & (1 << i))) {
+            *mask |= 1 << i;
+            return i;
+        }
+    }
+    return 0;
+}
+
+// inferred: texture coordinate of type 4 for an effect (after the material ones)
+inline int AllocCoord4_unk(TevStats_unk* stats) {
+    if (stats->mDual) {
+        return stats->mCoords4++ + 6;
+    }
+    return stats->mCoords0 + (stats->mCoords13 + stats->mCoords4++);
+}
+
+inline GXColor ToGXColor_unk(const RsColor_unk& c) {
+    GXColor color;
+    color.r = 255.0f * c.r;
+    color.g = 255.0f * c.g;
+    color.b = 255.0f * c.b;
+    color.a = 255.0f * c.a;
+    return color;
+}
+
+// inferred: rim light: two environment textures of the render system indexed by the normal, modulated
+// by the shadow color (a third and fourth stage blend it with the material)
+// NONMATCHING: 99.88% - argument registers of GXSetTevSwapModeTable and of the inlined texture loads
+extern "C" void fn_80073A6C(TevStats_unk* stats, int flags) {
+    int swap0 = AllocBit4_unk(&stats->mSwapTables);
+    int swap1 = AllocBit4_unk(&stats->mSwapTables);
+    int konst = AllocBit4_unk(&stats->mKColors);
+    int stage0 = stats->mTevStages++;
+    int stage1 = stats->mTevStages++;
+    int stage2 = stats->mTevStages++;
+    int kcsel = konst + 12;
+    int stage3 = -1;
+    if (lbl_8087EFA8->m12C == 0) {
+        stage3 = stats->mTevStages++;
+    }
+    int map0 = stats->mTexMtxs++;
+    int map1 = stats->mTexMtxs++;
+    int coord0;
+    if (stats->mDual) {
+        coord0 = stats->mCoords4++ + 6;
+    } else {
+        coord0 = stats->mCoords0 + (stats->mCoords13 + stats->mCoords4++);
+    }
+    int coord1;
+    if (stats->mDual) {
+        coord1 = stats->mCoords4++ + 6;
+    } else {
+        coord1 = stats->mCoords0 + (stats->mCoords13 + stats->mCoords4++);
+    }
+    int postMtx0 = map0 * 3 + 0x40;
+    int postMtx1 = postMtx0 + 3;
+    GXSetTevSwapModeTable(swap0, 0, 3, 2, 3);
+    GXSetTevSwapModeTable(swap1, 3, 1, 2, 3);
+    RenderSetting_unk* rs = lbl_8087EFA8;
+    RsColor_unk shadowColor = rs->m104.mColor;
+    GXColor color = ToGXColor_unk(shadowColor);
+    int mode = rs->m104.mMode;
+    if (lbl_8087EFB4->mScene->m234 != 0) {
+        mode = lbl_8087EFB4->mScene->m23C;
+        color = ToGXColor_unk(lbl_8087EFB4->mScene->m244);
+    }
+    if (rs->m12C != 0) {
+        GXColor red = {0xFF, 0x00, 0x00, 0xFF};
+        color = red;
+    }
+    GXSetTevKColor(konst, color);
+    GXSetTexCoordGen2(coord0, 0, 0, 0, 0, postMtx0);
+    GXSetTexCoordGen2(coord1, 0, 0, 0, 0, postMtx1);
+    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m50C, map0);
+    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m00C->m480, map1);
+    RenderTextures_unk* textures = lbl_8087EFB4->m00C;
+    GXLoadTexMtxImm(textures->m4A0.m, postMtx0, 0);
+    GXLoadTexMtxImm(textures->m4D0.m, postMtx1, 0);
+    GXSetTevOrder(stage0, coord0, map0, 0xFF);
+    GXSetTevColorIn(stage0, 15, 15, 15, 8);
+    GXSetTevColorOp(stage0, 0, 0, 0, 1, 1);
+    GXSetTevSwapMode(stage0, 0, swap0);
+    GXSetTevDirect(stage0);
+    GXSetTevAlphaIn(stage0, 7, 7, 7, 0);
+    GXSetTevAlphaOp(stage0, 0, 0, 0, 1, 0);
+    GXSetTevOrder(stage1, coord1, map1, 0xFF);
+    GXSetTevColorIn(stage1, 2, 8, 12, 15);
+    GXSetTevColorOp(stage1, 10, 0, 0, 0, 2);
+    GXSetTevSwapMode(stage1, 0, swap1);
+    GXSetTevDirect(stage1);
+    GXSetTevAlphaIn(stage1, 7, 7, 7, 0);
+    GXSetTevAlphaOp(stage1, 0, 0, 0, 1, 0);
+    if (lbl_8087EFA8->m12C != 0) {
+        GXSetTevKColorSel(stage2, kcsel);
+        GXSetTevOrder(stage2, 0xFF, 0xFF, 0xFF);
+        GXSetTevColorIn(stage2, 0, 14, 4, 15);
+        GXSetTevColorOp(stage2, 0, 0, 0, 1, 0);
+        GXSetTevSwapMode(stage2, 0, 0);
+        GXSetTevDirect(stage2);
+        GXSetTevAlphaIn(stage2, 7, 7, 7, 0);
+        GXSetTevAlphaOp(stage2, 0, 0, 0, 1, 0);
+    } else if (mode == 1) {
+        GXSetTevKColorSel(stage2, kcsel);
+        GXSetTevOrder(stage2, 0xFF, 0xFF, 0xFF);
+        GXSetTevColorIn(stage2, 15, 14, 0, 0);
+        GXSetTevColorOp(stage2, 0, 0, 0, 1, 1);
+        GXSetTevSwapMode(stage2, 0, 0);
+        GXSetTevDirect(stage2);
+        GXSetTevAlphaIn(stage2, 7, 7, 7, 0);
+        GXSetTevAlphaOp(stage2, 0, 0, 0, 1, 0);
+        GXSetTevOrder(stage3, 0xFF, 0xFF, 0xFF);
+        GXSetTevColorIn(stage3, 0, 2, 4, 15);
+        GXSetTevColorOp(stage3, 0, 0, 0, 1, 0);
+        GXSetTevSwapMode(stage3, 0, 0);
+        GXSetTevDirect(stage3);
+        GXSetTevAlphaIn(stage3, 7, 7, 7, 0);
+        GXSetTevAlphaOp(stage3, 0, 0, 0, 1, 0);
+    } else {
+        GXSetTevKColorSel(stage2, kcsel);
+        GXSetTevOrder(stage2, 0xFF, 0xFF, 0xFF);
+        GXSetTevColorIn(stage2, 15, 14, 0, 15);
+        GXSetTevColorOp(stage2, 0, 0, 0, 1, 1);
+        GXSetTevSwapMode(stage2, 0, 0);
+        GXSetTevDirect(stage2);
+        GXSetTevAlphaIn(stage2, 7, 7, 7, 0);
+        GXSetTevAlphaOp(stage2, 0, 0, 0, 1, 0);
+        GXSetTevOrder(stage3, 0xFF, 0xFF, 0xFF);
+        GXSetTevColorIn(stage3, 0, 2, 4, 15);
+        GXSetTevColorOp(stage3, 0, 0, 0, 1, 0);
+        GXSetTevSwapMode(stage3, 0, 0);
+        GXSetTevDirect(stage3);
+        GXSetTevAlphaIn(stage3, 7, 7, 7, 0);
+        GXSetTevAlphaOp(stage3, 0, 0, 0, 1, 0);
+    }
+}
+
+
+extern "C" void fn_805F8DA0(const Mtx src, Mtx dst); // inferred: PSMTXInvXpose
+
+// inferred: 3x4 matrix cleared by its constructor
+struct ZeroMatrix3x4_unk : public atn::Matrix3x4 {
+    ZeroMatrix3x4_unk() {
+        memset(m, 0, sizeof(m));
+    }
+};
+
+// inferred: light map of the shadow camera (texture coordinate of type 4) lit by the normal in
+// light space (texture coordinate of types 1-3); the third stage applies it to the material
+// NONMATCHING: 99.33% - registers of the texture coordinate of types 1-3, reload of lbl_8087EFA8 and load order of the arguments of fn_800D5E18
+extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
+    int stage0 = stats->mTevStages++;
+    int stage1 = stats->mTevStages++;
+    int stage2 = stats->mTevStages++;
+    int map0 = stats->mTexMtxs++;
+    int map1 = stats->mTexMtxs++;
+    int coord0;
+    if (stats->mDual) {
+        coord0 = stats->mCoords4++ + 6;
+    } else {
+        coord0 = stats->mCoords0 + (stats->mCoords13 + stats->mCoords4++);
+    }
+    int coord1;
+    if (stats->mDual) {
+        coord1 = stats->mCoords13++ + 4;
+    } else {
+        coord1 = stats->mCoords4 + (stats->mCoords0 + stats->mCoords13++);
+    }
+    int postMtx0 = map0 * 3 + 0x40;
+    int postMtx1 = postMtx0 + 3;
+    RenderSetting_unk* rs = lbl_8087EFA8;
+    RsColor_unk shadowColor = rs->m104.mColor;
+    GXColor color = ToGXColor_unk(shadowColor);
+    int mode = rs->m104.mMode;
+    if (lbl_8087EFB4->mScene->m234 != 0) {
+        mode = lbl_8087EFB4->mScene->m23C;
+        color = ToGXColor_unk(lbl_8087EFB4->mScene->m244);
+    }
+    if (lbl_8087EFA8->m12C != 0) {
+        GXColor red = {0xFF, 0x00, 0x00, 0xFF};
+        color = red;
+    }
+    GXSetTexCoordGen2(coord0, 0, 0, 0, 0, postMtx0);
+    GXSetTexCoordGen2(coord1, 0, 1, 3, 0, postMtx1);
+    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m00C->m460, map0);
+    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m530, map1);
+    RenderSystemView_unk* view = lbl_8087EFB4;
+    atn::Matrix3x4 proj;
+    proj.SetIdentity();
+    fn_800D5E18(proj.m, view->mShadowCamera.mTop, view->mShadowCamera.mBottom, view->mShadowCamera.mLeft,
+                view->mShadowCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    static ZeroMatrix3x4_unk sNrmScale;
+    sNrmScale.m[0][2] = 1.0f;
+    sNrmScale.m[0][3] = 1.0f;
+    atn::Matrix3x4 rot = view->mCamera.mInvView;
+    rot.m[0][3] = 0.0f;
+    rot.m[1][3] = 0.0f;
+    rot.m[2][3] = 0.0f;
+    atn::Matrix3x4 inv;
+    fn_805F8DA0(view->mShadowCamera.mView.m, inv.m);
+    inv.m[0][3] = 0.0f;
+    inv.m[1][3] = 0.0f;
+    inv.m[2][3] = 0.0f;
+    atn::Matrix3x4 nrmMtx = MtxMul_unk(sNrmScale, MtxMul_unk(inv, rot));
+    atn::Matrix3x4 posMtx = MtxMul_unk(proj, MtxMul_unk(view->mShadowCamera.mView, view->mCamera.mInvView));
+    GXLoadTexMtxImm(posMtx.m, postMtx0, 0);
+    GXLoadTexMtxImm(nrmMtx.m, postMtx1, 0);
+    GXSetTevOrder(stage0, coord0, map0, 0xFF);
+    GXSetTevColorIn(stage0, 15, 15, 15, 8);
+    GXSetTevColorOp(stage0, 0, 0, 0, 1, 1);
+    GXSetTevSwapMode(stage0, 0, 0);
+    GXSetTevDirect(stage0);
+    GXSetTevAlphaIn(stage0, 7, 7, 7, 0);
+    GXSetTevAlphaOp(stage0, 0, 0, 0, 1, 0);
+    GXSetTevOrder(stage1, coord1, map1, 0xFF);
+    GXSetTevColorIn(stage1, 15, 8, 2, 15);
+    GXSetTevColorOp(stage1, 0, 0, 0, 1, 1);
+    GXSetTevSwapMode(stage1, 0, 0);
+    GXSetTevDirect(stage1);
+    GXSetTevAlphaIn(stage1, 7, 7, 7, 0);
+    GXSetTevAlphaOp(stage1, 0, 0, 0, 1, 0);
+    GXSetTevOrder(stage2, 0xFF, 0xFF, 0xFF);
+    if (mode == 1) {
+        GXSetTevColorIn(stage2, 0, 15, 15, 2);
+    } else {
+        GXSetTevColorIn(stage2, 0, 15, 2, 15);
+    }
+    GXSetTevColorOp(stage2, 0, 0, 0, 1, 0);
+    GXSetTevSwapMode(stage2, 0, 0);
+    GXSetTevDirect(stage2);
+    GXSetTevAlphaIn(stage2, 7, 7, 7, 0);
+    GXSetTevAlphaOp(stage2, 0, 0, 0, 1, 0);
+}
+
+
+// inferred: light map projected from the shadow camera on the model (simple light map, RenderSetting_unk
+// m18C set); the material color is multiplied (or added, mode 1) with it
+// NONMATCHING: 99.57% - argument registers of GXSetTexCoordGen2 and of the inlined texture load; load order of the arguments of fn_800D5E18
+extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
+    int stage = stats->mTevStages++;
+    int map = stats->mTexMtxs++;
+    int coord;
+    if (stats->mDual) {
+        coord = stats->mCoords4++ + 6;
+    } else {
+        coord = stats->mCoords0 + (stats->mCoords13 + stats->mCoords4++);
+    }
+    int postMtx = map * 3 + 0x40;
+    GXSetTexCoordGen2(coord, 0, 0, 0, 0, postMtx);
+    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m00C->m460, map);
+    atn::Matrix3x4 proj;
+    proj.SetIdentity();
+    RenderSystemView_unk* view = lbl_8087EFB4;
+    fn_800D5E18(proj.m, view->mShadowCamera.mTop, view->mShadowCamera.mBottom, view->mShadowCamera.mLeft,
+                view->mShadowCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(view->mShadowCamera.mView, view->mCamera.mInvView));
+    GXLoadTexMtxImm(texMtx.m, postMtx, 0);
+    int mode = lbl_8087EFA8->m104.mMode;
+    if (lbl_8087EFB4->mScene->m234 != 0) {
+        mode = lbl_8087EFB4->mScene->m23C;
+    }
+    GXSetTevOrder(stage, coord, map, 0xFF);
+    if (mode == 1) {
+        GXSetTevColorIn(stage, 0, 15, 15, 8);
+    } else {
+        GXSetTevColorIn(stage, 0, 15, 8, 15);
+    }
+    GXSetTevColorOp(stage, 0, 0, 0, 1, 0);
+    GXSetTevSwapMode(stage, 0, 0);
+    GXSetTevDirect(stage);
+    GXSetTevAlphaIn(stage, 7, 7, 7, 0);
+    GXSetTevAlphaOp(stage, 0, 0, 0, 1, 0);
+}
+
+extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
+
+// inferred: shadow projected from the camera of the shadow map (two TEV stages)
+// NONMATCHING: 99.53% - argument registers of GXSetTexCoordGen2 and load order of the arguments of fn_800D5E18
+extern "C" void fn_80074B24(TevStats_unk* stats, atn::ShadowMap_unk* shadow, int flags) {
+    int stage0 = stats->mTevStages++;
+    int stage1 = stats->mTevStages++;
+    int map = stats->mTexMtxs++;
+    int coord;
+    if (stats->mDual) {
+        coord = stats->mCoords4++ + 6;
+    } else {
+        coord = stats->mCoords0 + (stats->mCoords13 + stats->mCoords4++);
+    }
+    int postMtx = map * 3 + 0x40;
+    GXSetTexCoordGen2(coord, 0, 0, 0, 0, postMtx);
+    atn::Texture_unk* tex = shadow->mTex;
+    if (tex == 0) {
+        static atn::Texture_unk sDefault;
+        if (!IsTextureReady_unk(&sDefault)) {
+            fn_800D594C(&sDefault, "sys_petrify.texture");
+            sDefault.m2D = 1;
+            sDefault.m2E = 0;
+        }
+        tex = &sDefault;
+    }
+    fn_800763C0(lbl_8087EEE0, map, tex);
+    atn::Matrix3x4 proj;
+    proj.SetIdentity();
+    RenderSystemView_unk* view = lbl_8087EFB4;
+    fn_800D5E18(proj.m, shadow->mCamera.mTop, shadow->mCamera.mBottom, shadow->mCamera.mLeft,
+                shadow->mCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(shadow->mCamera.mView, view->mCamera.mInvView));
+    GXLoadTexMtxImm(texMtx.m, postMtx, 0);
+    GXSetTevOrder(stage0, coord, map, 4);
+    GXSetTevColorIn(stage0, 15, 10, 8, 15);
+    GXSetTevColorOp(stage0, 0, 0, 0, 1, 3);
+    GXSetTevSwapMode(stage0, 0, 0);
+    GXSetTevDirect(stage0);
+    GXSetTevAlphaIn(stage0, 7, 7, 7, 4);
+    GXSetTevAlphaOp(stage0, 0, 0, 0, 1, 3);
+    GXSetTevOrder(stage1, 0xFF, 0xFF, 0xFF);
+    GXSetTevColorIn(stage1, 0, 6, 7, 15);
+    GXSetTevColorOp(stage1, 0, 0, 0, 1, 0);
+    GXSetTevSwapMode(stage1, 0, 0);
+    GXSetTevDirect(stage1);
+    if (shadow->mFlags & 1) {
+        GXSetTevColorIn(stage1, 15, 15, 15, 0);
+        GXSetTevAlphaIn(stage1, 7, 0, 3, 7);
+    } else {
+        GXSetTevAlphaIn(stage1, 7, 7, 7, 0);
+    }
+    GXSetTevAlphaOp(stage1, 0, 0, 0, 1, 0);
+}
+
+atn::TexProjector_unk* lbl_8087EEE8; // inferred: projector of the effect of flag bit 2 (fn_80073194)
+atn::TexProjector_unk* lbl_8087EEEC; // inferred: projector of the effect of flag bit 3
+
+
+// inferred: sets up the TEV for a material and the effects of the flags (bit 0: texture coordinates
+// split by type; bits 1-5: effects added after the material). The last setup is cached in the device.
+// NONMATCHING: 98.55% - the original recomputes the row of sTevCosts (mulli) for the coordinate sum of mode 1/2; order of the cache stores
+extern "C" void fn_80074EC8(GraphicsDevice_unk* device, const atn::ShaderDesc_unk* desc, int flags,
+                            atn::TexProjector_unk* light, atn::TexProjector_unk* light2, atn::ShadowMap_unk* shadow) {
+    if (lbl_8087EFA8->m204 != 0 && device->mShaderDesc != 0 && device->mShaderDesc == desc && device->mShaderFlags == flags &&
+        (!(flags & 8) || lbl_8087EEEC == light2) && (!(flags & 4) || lbl_8087EEE8 == light) &&
+        (shadow == 0 || !(flags & 0x20) || device->mShadow == shadow)) {
+        return;
+    }
+    device->mShaderDesc = desc;
+    device->mShaderFlags = flags;
+    lbl_8087EEE8 = light;
+    lbl_8087EEEC = light2;
+    device->mShadow = shadow;
+    if (desc == 0) {
+        lbl_8087EEE8 = 0;
+        lbl_8087EEEC = 0;
+        return;
+    }
+    int dual = flags & 1;
+    GXSetTevKColor(3, desc->mKColor3);
+    unsigned char used[8];
+    int coords[8];
+    for (int i = 0; i < 8; i++) {
+        used[i] = 0;
+        coords[i] = 0xFF;
+    }
+    if (dual) {
+        int next0 = 0;
+        int next13 = 4;
+        int next4 = 6;
+        for (int i = 0; i < desc->mTexGenCount; i++) {
+            switch (desc->mTexMtxs[i]->mType) {
+            case 0:
+                used[next0] = 1;
+                coords[i] = next0++;
+                break;
+            case 1:
+            case 2:
+            case 3:
+                used[next13] = 1;
+                coords[i] = next13++;
+                break;
+            case 4:
+                used[next4] = 1;
+                coords[i] = next4++;
+                break;
+            }
+        }
+        for (int i = 7; i >= 0; i--) {
+            if (used[i]) {
+                break;
+            }
+        }
+    } else {
+        for (int i = 0; i < desc->mTexGenCount; i++) {
+            coords[i] = i;
+        }
+    }
+    int postMtx = 0x40;
+    for (int i = 0; i < desc->mTexGenCount; i++) {
+        atn::ShaderTexMtx_unk texMtx = *desc->mTexMtxs[i];
+        atn::ShaderTexGen_unk texGen = *desc->mTexGens[i];
+        switch (texMtx.mType) {
+        case 0:
+            if (!dual) {
+                GXSetTexCoordGen2(coords[i], texGen.mFunc, texGen.mSrc, texGen.mMtx, 0, 0x7D);
+            } else {
+                GXSetTexCoordGen2(coords[i], texGen.mFunc, texGen.mSrc, 0x3C, 0, postMtx);
+                postMtx += 3;
+            }
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            GXSetTexCoordGen2(coords[i], texGen.mFunc, texGen.mSrc, texGen.mMtx, texMtx.mType != 4, postMtx);
+            postMtx += 3;
+            break;
+        }
+    }
+    GXSetNumChans(desc->mNumChans / 2);
+    GXSetNumIndStages(desc->mIndStageCount);
+    if (desc->mIndStageCount > 0) {
+        for (int i = 0; i < desc->mIndStageCount; i++) {
+            atn::ShaderIndStage_unk ind = desc->mIndStages[i];
+            GXSetIndTexOrder(i, coords[ind.mTexCoord], ind.mTexMap);
+            GXSetIndTexCoordScale(i, ind.mScaleS, ind.mScaleT);
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        GXSetTevSwapModeTable(i, desc->mSwapTables[i][0], desc->mSwapTables[i][1], desc->mSwapTables[i][2],
+                              desc->mSwapTables[i][3]);
+    }
+    for (int i = 0; i < desc->mTevStageCount; i++) {
+        atn::ShaderTevStage_unk st = desc->mTevStages[i];
+        int chan = 0xFF;
+        switch (st.mChannel) {
+        case 0:
+            chan = 0xFF;
+            break;
+        case 1:
+            chan = 4;
+            break;
+        case 2:
+            chan = 5;
+            break;
+        case 3:
+            chan = 6;
+            break;
+        }
+        if (st.mTexMap == 0xFF || st.mTexCoord == 0xFF) {
+            GXSetTevOrder(i, 0xFF, 0xFF, chan);
+        } else {
+            GXSetTevOrder(i, coords[st.mTexCoord], st.mTexMap, chan);
+        }
+        GXSetTevSwapMode(i, st.mRasSwap, st.mTexSwap);
+        GXSetTevColorIn(i, st.mColorIn[0], st.mColorIn[1], st.mColorIn[2], st.mColorIn[3]);
+        GXSetTevKColorSel(i, st.mKColorSel);
+        GXSetTevColorOp(i, st.mColorOp, st.mColorBias, st.mColorScale, st.mColorClamp, st.mColorReg);
+        GXSetTevAlphaIn(i, st.mAlphaIn[0], st.mAlphaIn[1], st.mAlphaIn[2], st.mAlphaIn[3]);
+        GXSetTevKAlphaSel(i, st.mKAlphaSel);
+        GXSetTevAlphaOp(i, st.mAlphaOp, st.mAlphaBias, st.mAlphaScale, st.mAlphaClamp, st.mAlphaReg);
+        GXSetTevIndirect(i, st.mIndStage, st.mIndFormat, st.mIndBias, st.mIndMtx, st.mIndWrapS, st.mIndWrapT,
+                         st.mIndAddPrev, st.mIndUtcLod, st.mIndAlphaSel);
+    }
+    TevStats_unk stats;
+    fn_80072F64(&stats, desc, dual);
+    if (flags & ~1) {
+        if (shadow != 0 && (flags & 0x20)) {
+            if (FitsTev_unk(&stats, 4)) {
+                fn_80074B24(&stats, shadow, device->mShaderFlags);
+            } else {
+                device->mShaderFlags &= ~0x20;
+            }
+        }
+        if (flags & 2) {
+            if (FitsTev_unk(&stats, 0)) {
+                fn_80073A6C(&stats, device->mShaderFlags);
+            } else {
+                device->mShaderFlags &= ~2;
+            }
+        } else if (flags & 0x10) {
+            int mode;
+            if (lbl_8087EFA8->m18C != 0) {
+                mode = 2;
+            } else {
+                mode = 1;
+            }
+            if (FitsTev_unk(&stats, mode)) {
+                if (mode == 2) {
+                    fn_800748D8(&stats, device->mShaderFlags);
+                } else {
+                    fn_800742C8(&stats, device->mShaderFlags);
+                }
+            } else {
+                device->mShaderFlags &= ~0x10;
+            }
+        }
+        if (flags & 4) {
+            if (lbl_8087EEE8 != 0 && FitsTev_unk(&stats, 3)) {
+                fn_80073194(&stats, device->mShaderFlags, lbl_8087EEE8);
+            } else {
+                device->mShaderFlags &= ~4;
+            }
+        }
+        if (flags & 8) {
+            if (lbl_8087EEEC != 0 && FitsTev_unk(&stats, 3)) {
+                fn_80073194(&stats, device->mShaderFlags, lbl_8087EEEC);
+            } else {
+                device->mShaderFlags &= ~8;
+            }
+        }
+    }
+    int numTexGens;
+    if (stats.mDual) {
+        if (stats.mCoords4 > 0) {
+            numTexGens = stats.mCoords4 + 6;
+        } else if (stats.mCoords13 > 0) {
+            numTexGens = stats.mCoords13 + 4;
+        } else {
+            numTexGens = stats.mCoords0;
+        }
+    } else {
+        numTexGens = stats.mCoords0 + (stats.mCoords13 + stats.mCoords4);
+    }
+    GXSetNumTexGens(numTexGens);
+    GXSetNumTevStages(stats.mTevStages);
+}
 extern "C" void fn_800760BC(GraphicsDevice_unk* device, unsigned int left, unsigned int top, unsigned int width, unsigned int height);
 extern "C" void fn_800760D0(GraphicsDevice_unk* device);
 extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled);
 
 static const int sCompare[8] = {0, 1, 3, 2, 4, 6, 5, 7}; // GX_NEVER .. GX_ALWAYS
 static const int sBlendFactor[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+// inferred: tables of the same block whose users are not known (no reference left in the code)
+extern const int lbl_807317A0[2] = {2, 3};
 static const int sCull[2] = {0, 2}; // GX_CULL_NONE, GX_CULL_BACK
+extern const int lbl_807317B0[2] = {1, 0};
 extern "C" void fn_800761A8(GraphicsDevice_unk* device);
-extern "C" void fn_800763C0(GraphicsDevice_unk* device, unsigned int map, const void* texObj);
+extern "C" void fn_800763C0(GraphicsDevice_unk* device, unsigned int map, atn::Texture_unk* tex);
 extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsigned int map);
 extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index);
 extern "C" int fn_800760E8(int numVerts, int prim);
-extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled);
-extern "C" void fn_800761A8(GraphicsDevice_unk* device);
-extern "C" void fn_800763C0(GraphicsDevice_unk* device, unsigned int map, const void* texObj);
-extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsigned int map);
 extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* format);
-extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index);
-extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id);
 extern "C" float fn_80076FF8(GraphicsDevice_unk* device);
 
 // inferred: full-screen viewport (atn/Layer2DBlur, atn/LayerOcclusionCPU)
+// NONMATCHING: 98.79% - float registers of the scissor
 extern "C" void fn_80075DEC(GraphicsDevice_unk* device) {
     int h = device->mHeight;
     int w = device->mWidth;
@@ -796,6 +1687,7 @@ extern "C" void fn_80075DEC(GraphicsDevice_unk* device) {
 }
 
 // inferred: sets the viewport and the scissor to a rectangle of the EFB (offset by mOffsetX/Y)
+// NONMATCHING: 99.10% - float registers of the scissor
 extern "C" void fn_80075F58(GraphicsDevice_unk* device, int x, int y, int w, int h) {
     device->mViewX = x;
     device->mViewY = y;
@@ -846,6 +1738,7 @@ extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled) {
 }
 
 // inferred: sends the dirty groups of mState to GX
+// NONMATCHING: 99.70% - the tables are addressed from the start of .rodata (section symbol) in our object
 extern "C" void fn_800761A8(GraphicsDevice_unk* device) {
     for (int i = 0; i < 12; i++) {
         if (!(device->mDirty.mMask & (1 << i))) {
@@ -901,15 +1794,13 @@ extern "C" void fn_800761A8(GraphicsDevice_unk* device) {
     device->mDirty.mMask = 0;
 }
 
-// NONMATCHING: 72.00% - MWCC keeps the nullable texture in r5 instead of normalizing it through r6.
-extern "C" void fn_800763C0(GraphicsDevice_unk* device, unsigned int map, const void* texObj) {
-    const void** slot = device->mTexObjs + map;
-    if (*slot != texObj) {
-        *slot = texObj;
-        if (texObj != 0) {
-            GXLoadTexObj(texObj, map);
-        }
+// inferred: loads the GX texture of a Texture_unk (null: none) in a map
+extern "C" void fn_800763C0(GraphicsDevice_unk* device, unsigned int map, atn::Texture_unk* tex) {
+    const GXTexObj* obj = 0;
+    if (tex != 0) {
+        obj = &tex->mObj;
     }
+    fn_800763FC(device, obj, map);
 }
 
 extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsigned int map) {
@@ -923,6 +1814,7 @@ extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsi
 }
 
 // inferred: loads a light; GX light 0 is the key light, as a far point light plus a specular light
+// NONMATCHING: 205 vs 203 instructions (objdiff gives 0%) - register allocation of the vectors of the directional light
 extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* light) {
     if (device->mLights[index] == light) {
         return;
@@ -973,10 +1865,6 @@ extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* li
     GXInitLightAttn(&specular, 0.0f, 0.0f, 1.0f, 8.0f, 0.0f, -7.0f);
     GXLoadLightObjImm(&specular, 2);
 }
-extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* format);
-extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index);
-extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id);
-extern "C" float fn_80076FF8(GraphicsDevice_unk* device);
 
 // inferred: sets one field of mState (field index = its dirty bit) and marks it when it changed
 extern "C" void fn_80076760(GraphicsDevice_unk* device, unsigned int field, unsigned int value) {
@@ -1126,6 +2014,7 @@ extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id) {
 }
 
 // inferred: aspect ratio of the displayed image
+// NONMATCHING: 91.67% - prologue order
 extern "C" float fn_80076FF8(GraphicsDevice_unk* device) {
     float aspect;
     if (device->mWide) {

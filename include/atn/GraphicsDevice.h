@@ -1,6 +1,9 @@
 #ifndef ATN_GRAPHICSDEVICE_H
 #define ATN_GRAPHICSDEVICE_H
 
+#include "math/Vec.h"
+#include "atn/Camera_unk.h"
+
 // SDK structures used by the graphics device (the SDK headers are not on the game include path;
 // same layout and tags as revolution/gx and revolution/vi).
 struct GXRenderModeObj {
@@ -36,6 +39,7 @@ namespace atn {
 
 class Texture_unk;
 class ITextureCacheManager;
+struct ShaderDesc_unk;
 
 // inferred: vertex format of a model (attribute formats, then descriptors; 26 entries + GX_VA_NULL),
 // built by LoadModel (atn/LH_Model) and compared before loading it (fn_80071088)
@@ -97,6 +101,31 @@ struct GXDirtyBits_unk {
     unsigned int mLow : 20;
 };
 
+// inferred: texture projected on the models by the effect of flag bits 2 and 3 of fn_80074EC8
+// (fn_80073194). Names invented.
+struct TexProjector_unk {
+    int mBlend;            // 0x00: TEV color operation (0-6)
+    Vector2_unk mPos;      // 0x04: center (x, z)
+    Vector2_unk mSize;     // 0x0C: size projected (0: no projection)
+    float m14;
+    float m18;
+    float mAngle;          // 0x1C: rotation of the texture (degrees)
+    float m20;
+    Vector3 mDir;          // 0x24: projection direction (zero: from above, orthographic)
+    Vector3 mOffset;       // 0x30
+    float m3C;
+    Texture_unk* mTextures; // 0x40
+    int mTexture;          // 0x44
+};
+
+// inferred: shadow map passed to fn_80074EC8 for the effect of flag bit 5 (fn_80074B24): light
+// camera and its depth texture. Names invented.
+struct ShadowMap_unk {
+    int mFlags;           // 0x00: bit 0: also the alpha
+    Texture_unk* mTex;    // 0x04: null: sys_petrify.texture
+    Camera_unk mCamera;   // 0x08
+};
+
 // inferred: graphics device / GX render state (lbl_8087EEE0, 0x8E8 bytes; atn_graphics_device.cpp).
 // Name and fields from the functions of atn/GraphicsDevice.cpp (0x80070E14-0x8007708C) and its users
 // (game/main.cpp, game/HomeButton_unk.cpp, atn/Layer3D.cpp). One type for every file: do not add
@@ -131,9 +160,9 @@ struct GraphicsDevice_unk {
     void* mNextXfb;                       // 0x7C
     const void* mTexObjs[8];              // 0x80: GXTexObj loaded in each map (fn_800763C0)
     Light_unk* mLights[8];                // 0xA0: light loaded in each GX light (fn_8007642C)
-    int mC0;
-    int mC4;
-    int mC8;
+    const ShaderDesc_unk* mShaderDesc;   // 0xC0: material of the last fn_80074EC8
+    int mShaderFlags;                     // 0xC4: its flags (effects that did not fit are cleared)
+    ShadowMap_unk* mShadow;               // 0xC8: its shadow
     int mCC;                              // 0xCC (fn_80071D60)
     GXStateBits_unk mState;               // 0xD0: requested state
     GXStateBits_unk mAppliedState;        // 0xD4: state last sent to GX (fn_800761A8)
@@ -159,7 +188,7 @@ extern "C" void fn_800760BC(atn::GraphicsDevice_unk* device, unsigned int left, 
                             unsigned int width, unsigned int height);
 extern "C" void fn_800760D0(atn::GraphicsDevice_unk* device);
 extern "C" void fn_80076174(atn::GraphicsDevice_unk* device, int enabled);
-extern "C" void fn_800763C0(atn::GraphicsDevice_unk* device, unsigned int map, const void* texObj);
+extern "C" void fn_800763C0(atn::GraphicsDevice_unk* device, unsigned int map, atn::Texture_unk* tex);
 extern "C" void fn_800763FC(atn::GraphicsDevice_unk* device, const void* texObj, unsigned int map);
 extern "C" void fn_8007642C(atn::GraphicsDevice_unk* device, int index, Light_unk* light);
 extern "C" int fn_80076C44(atn::GraphicsDevice_unk* device, const atn::VtxFormat_unk* format);
