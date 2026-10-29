@@ -632,6 +632,7 @@ public:
 class AI_fr_warppointescape : public CharaAi {
 public:
     AI_fr_warppointescape();
+    static int fn_80030494(); // 0x80030494
     virtual int vf08(); // 0x800300CC
     virtual int vf0C(); // 0x8003002C
     virtual int vf14(); // 0x80030220
@@ -6572,6 +6573,23 @@ int AI::Script::AI_fr_type005::vf40() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_fr_warppointescape::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        if (fn_80030494() == 3) {
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_fr_warppointescape::vf08() {
     lbl_807C6A40.m18 = lbl_807C68C0.m7C;
@@ -6586,6 +6604,17 @@ int AI::Script::AI_fr_warppointescape::vf08() {
     lbl_807C6A40.m3C = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_fr_warppointescape::vf40() {
+    lbl_807C6A40.m50 = Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20);
+    lbl_807C6A40.m00 = 1;
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        return 1;
+    }
+    return -1;
 }
 
 int AI::Script::AI_fr_warppointescape::vf14() {
@@ -6608,6 +6637,84 @@ int AI::Script::AI_fr_warppointescape::vf20() {
             lbl_807C6A40.m00 = 1;
             return 1;
         }
+    }
+    return -1;
+}
+
+int AI::Script::AI_fr_warppointescape::vf24() {
+    if (CanUseItem2_unk()) {
+        Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        fn_8001C068(lbl_807C68C0.m00, (const char*)(lbl_807307A0 + 0x419));
+        return 4;
+    }
+    return -1;
+}
+
+// NONMATCHING: 99.62% - pending the string pool (the literal is loaded before in.m00).
+int AI::Script::AI_fr_warppointescape::vf18() {
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(0, WaitDelay_unk(), 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        fn_8001C068(lbl_807C68C0.m00, (const char*)(lbl_807307A0 + 0x428));
+        return 1;
+    }
+    return -1;
+}
+
+// inferred: picks the next warp point slot (m18..m38) after the current index m40
+__declspec(noinline) int AI::Script::AI_fr_warppointescape::fn_80030494() {
+    if (lbl_807C68C0.m08 != 0) {
+        int n = lbl_807C6A40.m40;
+        if (n < 1 && lbl_807C6A40.m18 != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m18;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (n < 2 && lbl_807C6A40.m1C != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m1C;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (n < 3 && lbl_807C6A40.m20 != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m20;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (n < 4 && lbl_807C6A40.m24 != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m24;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (n < 5 && lbl_807C6A40.m28 != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m28;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (n < 6 && lbl_807C6A40.m2C != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m2C;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (n < 7 && lbl_807C6A40.m30 != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m30;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (n < 8 && lbl_807C6A40.m34 != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m34;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        if (n < 9 && lbl_807C6A40.m38 != 0) {
+            lbl_807C6A40.m3C = lbl_807C6A40.m38;
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        lbl_807C6A40.m3C = lbl_807C6A40.m18;
+        lbl_807C6A40.m40 = 0;
+        lbl_807C6A40.m00 = 1;
+        return 3;
     }
     return -1;
 }
