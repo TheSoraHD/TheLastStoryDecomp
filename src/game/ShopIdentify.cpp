@@ -97,7 +97,6 @@ extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
 extern "C" int fn_8044D560(Inventory* party);           // inferred: number of items to identify
 extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
 extern "C" void fn_8044D56C(Inventory* party, int index);
-extern "C" void fn_8044D678(Inventory* party, int money);
 extern "C" void fn_8044D6AC(Inventory* party, int money);
 // inferred: message table (lbl_8087F1E4)
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -395,7 +394,7 @@ int ShopIdentify::fn_805892CC(int* cursor, int remove) {
     if (remove) {
         fn_8044441C(Inventory::instance_, entry->mItem, 1);
     }
-    fn_8044D678(Inventory::instance_, money);
+    Inventory::instance_->AddMoney(money);
     ShopIdentifyEntry_unk* pos = &mItems[*cursor];
     memmove(pos, pos + 1, (mItems.end() - pos - 1) * sizeof(ShopIdentifyEntry_unk));
     if (--mItems.mSize != 0) {

@@ -49,6 +49,9 @@ public:
     // RSO: AddItem__9InventoryFiiiiPiii (0x804439FC); inferred: (id, count, ...) adds items
     void AddItem(int id, int num, int a2, int a3, int* out, int a5, int a6);
 
+    // RSO: AddMoney__9InventoryFi (0x8044D678); inferred: money += n, clamped to 0..999999
+    void AddMoney(int n);
+
     // RSO: GetPlayerStatusInfo__9InventoryFi (weak copy 0x805282A8); inferred: the block is a
     // CharaStatus (game/NewCampPartsStatus.cpp passes it as one)
     CharaStatus* GetPlayerStatusInfo(int i) { return (CharaStatus*)&mPlayers[i]; }
