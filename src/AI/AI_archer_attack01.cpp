@@ -942,6 +942,16 @@ static inline int CheckCount_unk() {
     return 1;
 }
 
+// inferred: attacks the target (in.m20) after a random delay around in.m50 (in.m54 wide)
+static inline int AttackRandom_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(4, (int)lbl_807C68C0.m20, RandRange_unk(lbl_807C68C0.m50, lbl_807C68C0.m54), 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -1490,6 +1500,19 @@ extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
 extern "C" void fn_8003E688();
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
 extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_archer_attack01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
 
 int AI::Script::AI_archer_attack01::vf2C() {
     int result = WaitRandom_unk();
@@ -1528,6 +1551,17 @@ int AI::Script::AI_archer_guard01::vf40() {
     if (result == 1) {
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_archer_guard01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
     }
     return -1;
 }
@@ -1806,6 +1840,15 @@ int AI::Script::AI_em_archer_attack02::vf40() {
     return -1;
 }
 
+int AI::Script::AI_em_archer_attack02::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
+
 int AI::Script::AI_em_archer_attack02::vf2C() {
     int result = WaitRandom_unk();
     if (result == 7) {
@@ -1865,6 +1908,15 @@ int AI::Script::AI_em_monster_attack01::vf08() {
     lbl_807C6A40.m1C = 0xF;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_em_monster_attack01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
 }
 
 int AI::Script::AI_em_monster_attack01::vf40() {
@@ -1944,8 +1996,15 @@ int AI::Script::AI_em_sword_attack01::vf24() {
     }
     return -1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_sword_attack01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_sword_attack01::vf40() {
     int result = CheckCount_unk();
@@ -1966,6 +2025,15 @@ int AI::Script::AI_em_sword_attack02::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_em_sword_attack02::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
 }
 
 int AI::Script::AI_em_sword_attack02::vf40() {
@@ -2013,6 +2081,15 @@ int AI::Script::AI_em_type003::vf08() {
     return 1;
 }
 
+int AI::Script::AI_em_type003::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
+
 // NONMATCHING: 76.72% - MWCC's parameter stack slots and scratch-store order differ.
 int AI::Script::AI_em_type010::vf08() {
     int a = lbl_807C68C0.m7C;
@@ -2027,6 +2104,15 @@ int AI::Script::AI_em_type010::vf08() {
     int d = 0;
     fn_8001AEDC(8, &a, &b, &c, &d);
     return 1;
+}
+
+int AI::Script::AI_em_type010::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
 }
 
 int AI::Script::AI_em_type102::vf08() {
@@ -2112,6 +2198,15 @@ int AI::Script::AI_em_type103::vf40() {
     return -1;
 }
 
+int AI::Script::AI_em_type103::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
+
 int AI::Script::AI_em_type103::vf08() {
     lbl_807C6A40.m1C = 0x1E;
     lbl_807C6A40.m20 = 0x5A;
@@ -2148,6 +2243,15 @@ int AI::Script::AI_em_type104::vf40() {
     if (result == 1) {
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_type104::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
     }
     return -1;
 }
@@ -2275,6 +2379,15 @@ int AI::Script::AI_fr_archer_pick01::vf40() {
     if (result == 1) {
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_fr_archer_pick01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
     }
     return -1;
 }
@@ -2450,6 +2563,15 @@ int AI::Script::AI_fr_sword_attack01::vf08() {
     return result;
 }
 
+int AI::Script::AI_fr_sword_attack01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
+
 int AI::Script::AI_fr_sword_attack01::vf40() {
     int result = CheckCount_unk();
     if (result == 1) {
@@ -2468,6 +2590,15 @@ int AI::Script::AI_fr_sword_pick01::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_fr_sword_pick01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
 }
 
 int AI::Script::AI_fr_sword_pick01::vf40() {
@@ -2491,6 +2622,15 @@ int AI::Script::AI_fr_sword_pointguard::vf08() {
     lbl_807C6A40.m00 = 1;
     fn_8001AEDC(8, &d, &c, &b, &a);
     return 1;
+}
+
+int AI::Script::AI_fr_sword_pointguard::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
 }
 
 int AI::Script::AI_fr_sword_pointguard01::vf08() {
@@ -2592,6 +2732,15 @@ int AI::Script::AI_jackal01::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_jackal01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
 }
 
 int AI::Script::AI_jackal01::vf2C() {
@@ -3102,6 +3251,15 @@ int AI::Script::AI_quark01::vf08() {
     return result;
 }
 
+int AI::Script::AI_quark01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
+
 int AI::Script::AI_quark01::vf40() {
     int result = CheckCount_unk();
     if (result == 1) {
@@ -3174,6 +3332,15 @@ int AI::Script::AI_sword_guard01::vf08() {
         result = 7;
     }
     return result;
+}
+
+int AI::Script::AI_sword_guard01::vf28() {
+    int result = AttackRandom_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
 }
 
 int AI::Script::AI_sword_guard01::vf40() {
