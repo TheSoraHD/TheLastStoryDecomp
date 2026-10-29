@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `enemies-third` (2026-10-29, sobre `main` 5125aea): **7825 / 18215 funciones al 100%** (código 27,9%, fuzzy 47,5%, datos 17,7%), 370 ficheros enlazados, `main.dol: OK`. Segundas pasadas de enemies-finish y enemigos sin fuente anteriores a Em208Queen; cerrado antes de tiempo, pendientes y decisiones en `docs/enemies-third.md`.
+- `main` (2026-10-29, tras mergear `enemies-third` sobre 5125aea): **7825 / 18215 funciones al 100%** (código 27,9%, fuzzy 47,5%, datos 17,7%), 370 ficheros enlazados, `main.dol: OK`. Segundas pasadas de enemies-finish y enemigos sin fuente anteriores a Em208Queen; cerrado antes de tiempo, pendientes y decisiones en `docs/enemies-third.md`.
 - `codex/d2atexture-decomp` (2026-10-25): `atn/D2A_Texture`, 14/30 al 100%; las 30 funciones superan 50% (`vf18` 95,72%; cargas 56,67% y 55,69%). Layout y slots revisados. Build limpio `main.dol: OK`; regress/fuzzdrop comparados con el informe limpio disponible: 0 pérdidas/bajadas; poolcheck: 0 hallazgos. Detalles y decisiones: `docs/D2A-Texture-q1.md`.
 - `codex/rendersystem-decomp` (2026-10-25, avance local): RenderSystem, 13/37 funciones al 100%; 24 implementaciones parciales. Build limpio `main.dol: OK`; regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Layout e inferencias pendientes en `docs/RenderSystem-q1.md`. Sin push.
 - `codex/graphicsdevice-decomp` (2026-10-24): `atn/GraphicsDevice.cpp`, 9 funciones al 100%; `fn_80071088` al 65,57% y `fn_800763C0` al 72,00%, ambas `NONMATCHING`; resto pendiente. Build limpio `main.dol: OK`, regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Decisiones: `docs/GraphicsDevice-q1.md`. Sin push.

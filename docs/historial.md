@@ -4,7 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
-| 2026-10-29 | `enemies-third` (propuesta H) | — | 7564 → 7825 | 26,21 → 27,92% / 43,46 → 47,48% fuzzy | 370 | `docs/enemies-third.md` (8 unidades con fuente nueva, 13 segundas pasadas; cierre anticipado; 1 bajada y 1 aviso de poolcheck aceptados en Em310Gargoyle) |
+| 2026-10-29 | `enemies-third` (propuesta H) | merge en `main` 2026-10-29 | 7564 → 7825 | 26,21 → 27,92% / 43,46 → 47,48% fuzzy | 370 | `docs/enemies-third.md` (8 unidades con fuente nueva, 13 segundas pasadas; cierre anticipado; 1 bajada y 1 aviso de poolcheck aceptados en Em310Gargoyle) |
 | 2026-10-25 | `codex/d2atexture-decomp` | — | 7550 → 7564 | 26,18 → 26,21% / 43,17 → 43,29% fuzzy | 370 | `docs/D2A-Texture-q1.md` (14/30 al 100%; las 30 funciones >=50%; `vf18` al 95,72%; build limpio y checks sin pérdidas, bajadas ni hallazgos) |
 | 2026-10-25 | `codex/rendersystem-decomp` (avance local) | — | 7537 → 7550 | 26,17 → 26,18% / 42,94 → 43,17% fuzzy | 370 | `docs/RenderSystem-q1.md` (13/37 al 100%, 24 parciales; build limpio `main.dol: OK`, regress/fuzzdrop/poolcheck sin hallazgos; sin push) |
 | 2026-10-24 | `codex/graphicsdevice-decomp` (avance local) | — | 7528 → 7537 | 26,16 → 26,17% / 42,94 → 42,94% | 370 | `docs/GraphicsDevice-q1.md` (9 funciones al 100%; dos NONMATCHING; build limpio y checks sin pérdidas, bajadas ni hallazgos; sin push) |
