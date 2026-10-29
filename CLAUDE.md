@@ -45,6 +45,13 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 7. No inventar: tipos y nombres deducidos con `// inferred: motivo`. Comentarios de código en ASCII (sjiswrap).
 8. Tras 10–15 intentos distintos sin 100%, dejar `NONMATCHING` y pasar a la siguiente.
 9. No reescribir código ya matched sin necesidad; no cambiar compilador ni flags globales para forzar un match; no cambiar firmas/layouts compartidos sin comprobar que nada baja.
+10. **El fuente tiene que poder enlazar**, no solo dar porcentaje (ejemplos y motivos en `docs/fuente-enlazable.md`):
+    - Orden del `.dol`: `ordercheck.py <unidad>` con 0 fuera de orden en cada commit (`reorder.py` lo arregla).
+    - Prohibido declarar o definir con `extern "C"` un nombre mangled (`__ct__…`, `__dt__…`, `__vt__…`, `Func__FR…`) y escribir el puntero de vtable a mano (`*(void**)this = __vt__…`): declarar la clase (`_unk` con relleno si hace falta) o incluir su cabecera; vtable y RTTI las emite el compilador.
+    - Métodos y virtuales como miembros de su clase (`vfXX`, `fn_<addr>`), no como `extern "C"` con un `self` (`extern "C"` solo para funciones sin clase); un mismo objeto, un solo tipo en una cabecera, no una vista parcial por fichero.
+    - Datos del propio split (`.data/.rodata/.bss/.sdata/.sdata2`) definidos en el fuente; `extern lbl_` solo para datos de otras unidades.
+    - Un commit que solo sube el fuzzy no es avance; no bajar a `NONMATCHING` funciones para "cubrir" la unidad.
+11. Codex y cualquier otro agente siguen estas mismas reglas (`AGENTS.md` remite aquí): nada de commits directos en `main`; rama, checklist y merge.
 
 ## Entorno
 
@@ -72,6 +79,8 @@ python3 tools/decomp/pairnames.py <unidad> [--apply]           # renombra fn_/lb
 python3 tools/decomp/regress.py <now/report.json> <ref/report.json>   # funciones perdidas (lost: 0)
 python3 tools/decomp/fuzzdrop.py <now/report.json> <ref/report.json>  # bajadas de fuzzy
 python3 tools/decomp/poolcheck.py [unidad...]                  # floats de .sdata2 y cadenas frente al .o original
+python3 tools/decomp/ordercheck.py <unidad> [-v]               # orden del fuente frente al .dol (fuera de orden / faltan)
+python3 tools/decomp/reorder.py <unidad> [--dry]               # reescribe el .cpp en orden del .dol (luego cmp.py)
 python3 tools/decomp/autoscan.py --min 0x100 [--unit X] [--data]      # tramos auto_ (borrar antes build/SLSP01/asm)
 tools/decomp/try.sh test.cpp                                   # compila un fichero suelto con flags del juego
 ```
@@ -80,7 +89,7 @@ tools/decomp/try.sh test.cpp                                   # compila un fich
 
 1. `targets.py` → objetivo. **Antes de escribir, comprobar que el split cubre el fichero real** (pool `@stringBase0`, `.sdata2`, `.sbss`, funciones vecinas): si no, casi nada llega al 100%.
 2. `fasm.py` para el asm; `grep` en `symbols.txt` y `docs/classes.md` por la clase o la dirección; cabeceras de `include/` y funciones vecinas ya hechas.
-3. Escribir el C++ en el orden del `.dol`; compilar la unidad; `cmp.py`/`odiff2.py`; iterar.
+3. Escribir el C++ en el orden del `.dol` (comprobar con `ordercheck.py`) con las clases reales (regla 10); compilar la unidad; `cmp.py`/`odiff2.py`; iterar.
 4. Si se atasca: `grep -i <palabra> docs/trucos-mwcc.md docs/mwcc-blockers.md`.
 5. Al 100%: `pairnames.py --apply` (revisar), `matching: true` si toda la unidad lo está, `configure` + `ninja`, `main.dol: OK`, `regress.py` lost: 0. Commit.
 
@@ -92,7 +101,8 @@ tools/decomp/try.sh test.cpp                                   # compila un fich
 ## Antes de dar una tarea por terminada
 
 - [ ] Función al 100% en objdiff; proyecto compila sin warnings nuevos; `main.dol: OK`.
-- [ ] `regress.py` lost: 0 y `fuzzdrop.py` sin bajadas; `poolcheck.py` sin avisos nuevos en lo tocado.
+- [ ] `regress.py` lost: 0 y `fuzzdrop.py` sin bajadas contra el `report.json` guardado **antes** de empezar (nunca contra uno regenerado tras el cambio); `poolcheck.py` sin avisos nuevos en lo tocado.
+- [ ] `ordercheck.py` sin funciones fuera de orden; sin `extern "C"` con nombres mangled ni vtables escritas a mano (regla 10).
 - [ ] Sin asm ni pragmas fuera de las excepciones; comentarios `// inferred:` puestos.
 - [ ] Commit en la rama; sección "Estado" y `docs/historial.md` al día si cambió el estado.
 
