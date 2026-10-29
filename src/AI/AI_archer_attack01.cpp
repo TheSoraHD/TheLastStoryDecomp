@@ -214,6 +214,8 @@ float fn_8001BD14(CharaTask* chara); // inferred: attack range of the character
 float fn_8001AD80(CharaTask* a, CharaTask* b);
 int fn_8001BEB0(CharaTask* chara);
 void fn_8001C068(CharaTask* chara, const char* name); // inferred: sets the debug state text
+int fn_8001C01C(CharaTask* chara);
+int fn_8001C038(CharaTask* chara);
 int fn_8001BF4C(CharaTask* chara);
 void fn_8001BADC(CharaTask* chara, int arg);
 int fn_8001B5DC(CharaTask* chara); // inferred: item to use (as fn_8001B634)
@@ -644,6 +646,7 @@ public:
 class AI_jackal01 : public CharaAi {
 public:
     AI_jackal01();
+    static int fn_800314B0(); // 0x800314B0
     virtual int vf08(); // 0x8003068C
     virtual int vf0C(); // 0x80031004
     virtual int vf18(); // 0x80030AFC
@@ -6752,6 +6755,69 @@ int AI::Script::AI_jackal01::vf18() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_jackal01::vf40() {
+    if (fn_800314B0() == 0) {
+        lbl_807C6A40.m00 = 1;
+        return 0;
+    }
+    int result = CheckCount_unk();
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_jackal01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (lbl_807C68C0.m08 != 0) {
+        if (fn_8001BE00(lbl_807C68C0.m20)) {
+            int state = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
+            if (state == 1) {
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            if (state == 10) {
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            if (lbl_807C6A40.m18 == 0) {
+                int next = fn_8003D3F8();
+                if (next == 6) {
+                    lbl_807C6A40.m00 = 1;
+                    return 6;
+                }
+                if (next == 9) {
+                    lbl_807C6A40.m00 = 1;
+                    return 9;
+                }
+                if (next == 4) {
+                    lbl_807C6A40.m00 = 1;
+                    return 4;
+                }
+                return -1;
+            }
+            int next = fn_8003DBA4();
+            if (next == 6) {
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            if (next == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_jackal01::vf1C() {
     int check = fn_8003D298(lbl_807C6A40.m24, lbl_807C6A40.m28);
@@ -6797,6 +6863,35 @@ int AI::Script::AI_jackal01::vf2C() {
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
+    }
+    return -1;
+}
+
+// inferred: never inlined into vf40, its only caller (noinline as in MP/CryptMP)
+__declspec(noinline) int AI::Script::AI_jackal01::fn_800314B0() {
+    if (lbl_807C6A40.m18 == 0) {
+        if (fn_8001C01C(lbl_807C68C0.m00) == 0 && fn_8001C038(lbl_807C68C0.m00) == 0) {
+            if (lbl_807C68C0.m1C < lbl_807C6A40.m1C) {
+                lbl_807C6A40.m18 = 1;
+                lbl_807C6A40.m00 = 1;
+                Command_unk(0, 0, 0, 0, 0);
+                return 0;
+            }
+            return -1;
+        }
+        return -1;
+    }
+    if (fn_8001C01C(lbl_807C68C0.m00) != 0 || fn_8001C038(lbl_807C68C0.m00) != 0) {
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        Command_unk(0, 0, 0, 0, 0);
+        return 0;
+    }
+    if (lbl_807C68C0.m1C >= lbl_807C6A40.m1C) {
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        Command_unk(0, 0, 0, 0, 0);
+        return 0;
     }
     return -1;
 }
