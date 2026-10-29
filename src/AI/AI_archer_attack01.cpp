@@ -10083,7 +10083,8 @@ int AI::Script::AI_return_guard01::vf0C() {
 
 int AI::Script::AI_return_guard01::vf3C() { return -1; }
 
-extern "C" int fn_8003CDB0() {
+// inferred: shared by many scripts and never inlined into them (noinline as in MP/CryptMP)
+extern "C" __declspec(noinline) int fn_8003CDB0() {
     if (lbl_807C68C0.m1C < fn_8001BD14(lbl_807C68C0.m00)) {
         if (fn_8001BEB0(lbl_807C68C0.m00)) {
             Command_unk(6, 1, 0, 0, 0);
@@ -10116,7 +10117,8 @@ extern "C" int fn_8003CDB0() {
     return 6;
 }
 
-extern "C" int fn_8003D084(CharaTask* target) {
+// inferred: shared by many scripts and never inlined into them (noinline as in MP/CryptMP)
+extern "C" __declspec(noinline) int fn_8003D084(CharaTask* target) {
     if (fn_8001BF44(lbl_807C68C0.m00, lbl_807C68C0.m00)) {
         if (CanUseItem2_unk()) {
             lbl_807C6A40.m00 = 1;
@@ -10148,7 +10150,8 @@ extern "C" int fn_8003D084(CharaTask* target) {
     return -1;
 }
 
-extern "C" int fn_8003D298(int a, int b) {
+// inferred: shared by many scripts and never inlined into them (noinline as in MP/CryptMP)
+extern "C" __declspec(noinline) int fn_8003D298(int a, int b) {
     int result = Stamina_unk();
     if (result == 10) {
         if (lbl_807C68C0.m58 < a) {
@@ -10169,7 +10172,8 @@ extern "C" int fn_8003D298(int a, int b) {
     return -1;
 }
 
-extern "C" int fn_8003D3F8() {
+// inferred: shared by many scripts and never inlined into them (noinline as in MP/CryptMP)
+extern "C" __declspec(noinline) int fn_8003D3F8() {
     if (lbl_807C68C0.m1C < lbl_807C68C0.m44) {
         if (fn_8001BEB0(lbl_807C68C0.m00)) {
             Command_unk(7, 0, 0, 0, 0);
@@ -10202,7 +10206,8 @@ extern "C" int fn_8003D3F8() {
     return 6;
 }
 
-extern "C" int fn_8003D6E8() {
+// inferred: shared by many scripts and never inlined into them (noinline as in MP/CryptMP)
+extern "C" __declspec(noinline) int fn_8003D6E8() {
     if (lbl_807C68C0.m1C < lbl_807C68C0.m44) {
         if (lbl_807C68C0.m1C >= lbl_807C68C0.m30 * 2) {
             if (fn_8001BEB0(lbl_807C68C0.m00)) {
@@ -10247,7 +10252,8 @@ extern "C" int fn_8003D6E8() {
     return -1;
 }
 
-extern "C" int fn_8003DBA4() {
+// inferred: shared by many scripts and never inlined into them (noinline as in MP/CryptMP)
+extern "C" __declspec(noinline) int fn_8003DBA4() {
     if (lbl_807C68C0.m1C < lbl_807C68C0.m34 || fn_8001BEB0(lbl_807C68C0.m00)) {
         if (lbl_807C68C0.m20 != 0) {
             Command_unk(3, (int)lbl_807C68C0.m20, 30, 0, 0);
