@@ -31,9 +31,9 @@ struct EnvSe_unk {
     unsigned int mSe;
 };
 
-// inferred: atn::Vector_unk::reserve without the capacity check, that also empties the list (as
+// inferred: atn::SimpleVector::reserve without the capacity check, that also empties the list (as
 // InitItems_unk of db/ItemRare_unk.cpp; its own "" literals in .sdata). Name invented.
-inline void InitList_unk(atn::Vector_unk<EnvSe_unk>& list, unsigned int n) {
+inline void InitList_unk(atn::SimpleVector<EnvSe_unk>& list, unsigned int n) {
     EnvSe_unk* data = new (0, "", "", 0) EnvSe_unk[n];
     if (list.mData != 0) {
         unsigned int count = (n > list.mSize) ? list.mSize : n;
@@ -56,7 +56,7 @@ struct MapEnvSe_unk {
     int m00;
     int m04;
     int m08;
-    atn::Vector_unk<EnvSe_unk> mList;
+    atn::SimpleVector<EnvSe_unk> mList;
 };
 
 // inferred: one row of /boot/loading_envse_table.csv (0x14 bytes); inline constructor and empty
@@ -90,7 +90,7 @@ extern "C" void fn_802144A8() {
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
     int count = 0;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() == '\0') {
             count++;
@@ -98,7 +98,7 @@ extern "C" void fn_802144A8() {
     }
     sEntries = new (1, "", "", 0) MapEnvSe_unk[count];
     sCount = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     count = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != '\0') {
@@ -124,7 +124,7 @@ extern "C" void fn_802144A8() {
 
     void* loadingData = fn_8046DC5C(lbl_8087F518, sLoadingFileName, &size, 0x20);
     int loadingCount = 0;
-    csv.vf08((const char*)loadingData, size);
+    csv.SetData((const char*)loadingData, size);
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != '\0') {
             continue;
@@ -136,7 +136,7 @@ extern "C" void fn_802144A8() {
     }
     sLoading = new (1, "", "", 0) LoadingEnvSe_unk[loadingCount];
     sLoadingCount = loadingCount;
-    csv.vf08((const char*)loadingData, size);
+    csv.SetData((const char*)loadingData, size);
     loadingCount = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != '\0') {

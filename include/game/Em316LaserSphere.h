@@ -74,7 +74,7 @@ public:
     int m153C;
     atn::Vector3 m1540; // inferred: velocity of the fall
     float m154C;        // inferred: gravity
-    atn::EfpHandle_unk m1550; // inferred: "ef_uc066.efp"
+    atn::EfpFile m1550; // inferred: "ef_uc066.efp"
     atn::Vector3 m155C;
     atn::Vector3 m1568;
     int m1574;          // inferred: frames before the next attack
@@ -82,7 +82,7 @@ public:
     HitInfo_unk* m157C; // inferred: "LaserID"
     HitInfo_unk* m1580; // inferred: "TackleID"
     ResLoader_unk m1584;      // inferred: "ef_sk043c_01.eff"
-    atn::EfpHandle_unk m1590; // inferred: "ef_sk043a.efp"
+    atn::EfpFile m1590; // inferred: "ef_sk043a.efp"
     ResLoader_unk m159C;      // inferred: "ef_sk043g_01.eff"
     ResLoader_unk m15A8;      // inferred: "ef_sk043g_02.eff"
     CharaTask* m15B4;         // inferred: character caught by the tackle

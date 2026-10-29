@@ -32,7 +32,7 @@ public:
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
-    atn::EfpHandle_unk mEfp[5]; // 0xF4: [1..4] "EFP" in order; [1]/[2] states 1/2, [3] state 3, [4] summon
+    atn::EfpFile mEfp[5]; // 0xF4: [1..4] "EFP" in order; [1]/[2] states 1/2, [3] state 3, [4] summon
     GimmickDesc_unk* mDesc;     // 0x130
     NpcTask* mNpc;              // 0x134: inferred: summoned npc
     int mEnabled;               // 0x138: inferred: copy of mDesc->m7C

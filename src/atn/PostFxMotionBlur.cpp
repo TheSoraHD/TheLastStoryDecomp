@@ -1,17 +1,15 @@
 // atn/PostFxMotionBlur.cpp: motion blur post effect (the last frames kept in a ring of four textures and
 // blended with decreasing weights).
 #include "atn/PostFx.h"
+#include "atn/MemoryManager.h"
 
 extern "C" double pow(double x, double y);
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                            unsigned char mipmap, unsigned char maxLod);
 
 // inferred: engine memory manager (class of atn/SmallAllocator_8.cpp; opaque here)
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
+extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
                              const char* file, const char* func, int line, int arg);
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
 
 // inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
 struct MotionBlurParams_unk {
@@ -92,10 +90,10 @@ void PostFxMotionBlur::fn_800AFEBC(int div) {
         int h = lbl_8087EEE0->mHeight / div;
         for (int i = 0; i < 4; i++) {
             if (mImages[i] != 0) {
-                fn_80083AD4(fn_800827E0(), mImages[i]);
+                atn::MemoryManager::Instance()->Free(mImages[i]);
             }
             unsigned int size = GXGetTexBufferSize(w, h, 4, 0, 0);
-            mImages[i] = fn_800839EC(fn_800827E0(), size, 0x20, 6, "", "", 0, 0);
+            mImages[i] = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "", "", 0, 0);
             GXInitTexObj(&mTex[i], mImages[i], w, h, 4, 0, 0, 0);
             GXInitTexObjLOD(&mTex[i], 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
         }

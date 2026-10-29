@@ -42,7 +42,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -107,13 +107,13 @@ struct BigMulueChara_unk : public CharaTask {
     BigMulueState_unk m1470;
 };
 
-// inferred: node position (weak copies of Model_unk::GetNodeMtx_unk and Matrix3x4::GetTrans_unk)
+// inferred: node position (weak copies of atn::Model::GetNodeMtx_unk and Matrix3x4::GetTrans_unk)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
 // inferred: plays an effect on the model (as in game/Em302Kraken.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -751,7 +751,7 @@ void Em204BigMulue::vf108() {
     case 7:
         if (m14C0 % 15 >= 10) {
             if (fn_802B12D8(0, 0.4f, 10.0f, 3.0f)) {
-                mMotion.fn_80139F3C(0, 2.0f * m1524);
+                mMotion.SetMotionSpeed(0, 2.0f * m1524);
             } else {
                 mFlag31 = 1;
             }
@@ -788,33 +788,33 @@ void Em204BigMulue::vf108() {
         }
         break;
     case 11:
-        if (mMotion.fn_80139550(0) <= 16.0f) {
+        if (mMotion.GetMotionFrame(0) <= 16.0f) {
             fn_802B12D8(0, 0.4f, 0.0f, 3.0f);
         }
-        if (mMotion.fn_80139550(0) >= mMotion.fn_80097D7C(0)) {
+        if (mMotion.GetMotionFrame(0) >= mMotion.fn_80097D7C(0)) {
             mFlag31 = 1;
         }
-        if (mMotion.fn_80139550(0) >= 22.0f && mMotion.fn_80139550(0) <= 23.5f) {
+        if (mMotion.GetMotionFrame(0) >= 22.0f && mMotion.GetMotionFrame(0) <= 23.5f) {
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
             fn_800FAB80(fn_8013A194(), this, m152C, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
-        if (mMotion.fn_80139550(0) >= 23.0f && mMotion.fn_80139550(0) <= 27.0f) {
-            mMotion.fn_80139F3C(0, 0.2f * m1524);
+        if (mMotion.GetMotionFrame(0) >= 23.0f && mMotion.GetMotionFrame(0) <= 27.0f) {
+            mMotion.SetMotionSpeed(0, 0.2f * m1524);
         } else {
-            mMotion.fn_80139F3C(0, m1524);
+            mMotion.SetMotionSpeed(0, m1524);
         }
         break;
     case 12:
-        if (mMotion.fn_80139550(0) >= mMotion.fn_80097D7C(0)) {
+        if (mMotion.GetMotionFrame(0) >= mMotion.fn_80097D7C(0)) {
             mFlag31 = 1;
         }
-        if (mMotion.fn_80139550(0) >= 28.0f && mMotion.fn_80139550(0) <= 34.0f) {
-            mMotion.fn_80139F3C(0, 6.0f / (6.0f + (float)m1514));
+        if (mMotion.GetMotionFrame(0) >= 28.0f && mMotion.GetMotionFrame(0) <= 34.0f) {
+            mMotion.SetMotionSpeed(0, 6.0f / (6.0f + (float)m1514));
         }
-        if (mMotion.fn_80139550(0) >= 34.0f) {
-            mMotion.fn_80139F3C(0, m1524);
+        if (mMotion.GetMotionFrame(0) >= 34.0f) {
+            mMotion.SetMotionSpeed(0, m1524);
         }
-        if (mMotion.fn_80139550(0) >= 17.0f && mMotion.fn_80139550(0) <= 19.0f) {
+        if (mMotion.GetMotionFrame(0) >= 17.0f && mMotion.GetMotionFrame(0) <= 19.0f) {
             m1A44 = 0;
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
             fn_800FAB80(fn_8013A194(), this, m1530, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
@@ -823,24 +823,24 @@ void Em204BigMulue::vf108() {
             pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("joint1"))->GetTrans_unk();
             fn_800FAB80(fn_8013A194(), this, m1530, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
-        if (mMotion.fn_80139550(0) >= 20.0f && mMotion.fn_80139550(0) <= 22.0f) {
+        if (mMotion.GetMotionFrame(0) >= 20.0f && mMotion.GetMotionFrame(0) <= 22.0f) {
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
             fn_800FAB80(fn_8013A194(), this, m1534, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
-        if (mMotion.fn_80139550(0) >= 24.0f) {
+        if (mMotion.GetMotionFrame(0) >= 24.0f) {
             m1A44 = 1;
         }
-        if (mMotion.fn_80139550(0) <= 22.0f) {
+        if (mMotion.GetMotionFrame(0) <= 22.0f) {
             fn_802B17AC(-45.0f, 22.0f, 0.0f);
         }
-        if (mMotion.fn_80139550(0) >= 42.0f && mMotion.fn_80139550(0) <= 60.0f) {
+        if (mMotion.GetMotionFrame(0) >= 42.0f && mMotion.GetMotionFrame(0) <= 60.0f) {
             fn_802B17AC(45.0f, 18.0f, 0.0f);
         }
         break;
     case 13:
         switch (m14BC) {
         case 0:
-            if (mMotion.fn_80139550(0) >= mMotion.fn_80097D7C(0)) {
+            if (mMotion.GetMotionFrame(0) >= mMotion.fn_80097D7C(0)) {
                 m14C0 = 0;
                 m14BC = 1;
                 fn_802B1744(0x140, 1, 3.0f * m1524, 1.0f);
@@ -867,7 +867,7 @@ void Em204BigMulue::vf108() {
             }
             break;
         case 2:
-            if (mMotion.fn_80139550(0) >= mMotion.fn_80097D7C(0)) {
+            if (mMotion.GetMotionFrame(0) >= mMotion.fn_80097D7C(0)) {
                 mFlag31 = 1;
             }
             break;
@@ -876,7 +876,7 @@ void Em204BigMulue::vf108() {
     case 14:
         switch (m14BC) {
         case 0:
-            if (mMotion.fn_80139550(0) > 30.0f) {
+            if (mMotion.GetMotionFrame(0) > 30.0f) {
                 m14BC = 2;
                 m14C0 = 0;
                 fn_802B1744(0x37, 1, m1524, 0.0f);
@@ -888,15 +888,15 @@ void Em204BigMulue::vf108() {
             }
             break;
         case 3:
-            if (mMotion.fn_80139550(0) >= mMotion.fn_80097D7C(0)) {
+            if (mMotion.GetMotionFrame(0) >= mMotion.fn_80097D7C(0)) {
                 m14BC = 4;
                 m14C0 = 0;
                 fn_802B1744(0x3B, 1, m1524, 0.0f);
                 fn_805A4A1C((SpecialFlag_unk*)&m1A8C, 1);
             }
-            if (mMotion.fn_80139550(0) < 20.0f) {
+            if (mMotion.GetMotionFrame(0) < 20.0f) {
                 fn_802B17AC(40.0f, 20.0f, 0.0f);
-            } else if (mMotion.fn_80139550(0) <= mMotion.fn_80097D7C(0)) {
+            } else if (mMotion.GetMotionFrame(0) <= mMotion.fn_80097D7C(0)) {
                 fn_802B17AC(-20.0f, mMotion.fn_80097D7C(0) - 20.0f, 0.0f);
             }
             break;
@@ -907,26 +907,26 @@ void Em204BigMulue::vf108() {
             }
             break;
         case 6:
-            if (mMotion.fn_80139550(0) >= mMotion.fn_80097D7C(0)) {
+            if (mMotion.GetMotionFrame(0) >= mMotion.fn_80097D7C(0)) {
                 m14BC = 7;
                 fn_802B1744(0x3E, 0, 4.0f * m1524, 0.0f);
             }
             break;
         case 7:
-            if (mMotion.fn_80139550(0) > 25.0f) {
+            if (mMotion.GetMotionFrame(0) > 25.0f) {
                 m1554 = 0;
                 vf100(13);
-            } else if (mMotion.fn_80139550(0) > 15.0f && mMotion.fn_80139550(0) < 25.0f) {
+            } else if (mMotion.GetMotionFrame(0) > 15.0f && mMotion.GetMotionFrame(0) < 25.0f) {
                 fn_802B17AC(-20.0f, 10.0f, 0.0f);
             }
             break;
         }
         break;
     case 2:
-        if (mMotion.fn_80139550(0) >= mMotion.fn_80097D7C(0)) {
+        if (mMotion.GetMotionFrame(0) >= mMotion.fn_80097D7C(0)) {
             fn_802B19EC(2);
         }
-        if (mMotion.fn_80139F2C(0) == 0x2E && mMotion.fn_80139550(0) < 70.0f) {
+        if (mMotion.fn_80139F2C(0) == 0x2E && mMotion.GetMotionFrame(0) < 70.0f) {
             fn_802B17AC(-100.0f, 70.0f, 0.0f);
         }
         break;
@@ -1238,11 +1238,11 @@ void Em204BigMulue::fn_802B1B50(int fire) {
     fn_800C344C("SE_EM204_014", &mPos, 0, -1, 1.0f);
     for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
         if (c->CanAct_unk()) {
-            Model_unk* cm = &c->mMotion;
+            atn::Model* cm = &c->mMotion;
             atn::Vector3 to = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
             Bullet* bullet = fn_801010A0(lbl_8087F048);
             if (bullet != 0) {
-                Model_unk* model = &mMotion;
+                atn::Model* model = &mMotion;
                 atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
                 atn::Vector3 dir = (to - hips).GetNormalize();
                 BigMulueShot_unk shot;

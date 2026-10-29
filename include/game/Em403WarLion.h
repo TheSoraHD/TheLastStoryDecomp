@@ -214,7 +214,7 @@ public:
     int m15F0;
     int m15F4;
     int m15F8; // inferred: bullet id
-    atn::EfpHandle_unk m15FC; // inferred: "/effect/ef_bs001a.efp"
+    atn::EfpFile m15FC; // inferred: "/effect/ef_bs001a.efp"
     WarLionRes_unk m1608;     // inferred: debug menu group
     int m160C;
 };

@@ -19,7 +19,7 @@ public:
             mSe[0] = 0;
         }
         ResLoader_unk mRes;      // 0x00: "EFF"
-        atn::EfpHandle_unk mEfp; // 0x0C: "EFP"
+        atn::EfpFile mEfp; // 0x0C: "EFP"
         char mSe[0x20];          // 0x18: "SE"
     };
 
@@ -45,7 +45,7 @@ public:
     atn::SoundRef mSound;    // 0x168
     unsigned int mFlags;     // 0x16C: bit 0 "EFF_REFLECT"
     int mInitState;          // 0x170: 3 with "INIT ON", 1 otherwise
-    Model_unk* mModel;       // 0x174
+    atn::Model* mModel;       // 0x174
 };
 
 } // namespace gmk

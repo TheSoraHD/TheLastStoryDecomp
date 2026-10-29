@@ -121,7 +121,7 @@ struct ColorF_unk {
     ColorF_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -290,7 +290,7 @@ int Em003LesserDaemon::vf0C() {
 }
 
 // inferred: plays an effect on the model (locals in the order of vf88; name invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -308,7 +308,7 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 }
 
 // inferred: same with the locals in the order of game/Em305Vampire.cpp (name invented)
-inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -326,7 +326,7 @@ inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 }
 
 // inferred: same as PlayEffect_unk with the manager read first (name invented)
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -344,7 +344,7 @@ inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
 }
 
 // inferred: same as PlayEffectA_unk with the manager read first (name invented)
-inline void PlayEffectAM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectAM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -362,7 +362,7 @@ inline void PlayEffectAM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_
 }
 
 // inferred: plays an effect at a position (name invented)
-inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
+inline void PlayEffectAt_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;

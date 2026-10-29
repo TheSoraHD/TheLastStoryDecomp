@@ -40,7 +40,7 @@ public:
     atn::Vector3 mPos;      // 0x80
     atn::Vector3 mRot;      // 0x8C
     atn::Vector3 mScale;    // 0x98
-    Model_unk mShadow;      // 0xA4: inferred: "/map/cosedit/hk_shadow1.model"
+    atn::Model mShadow;      // 0xA4: inferred: "/map/cosedit/hk_shadow1.model"
     CostumeEditFace_unk* mFaceIcon; // 0x474
     int mVisible;           // 0x478
     atn::Vector3 mTarget;   // 0x47C

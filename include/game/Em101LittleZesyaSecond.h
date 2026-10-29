@@ -52,9 +52,9 @@ public:
     atn::Vector3 m14FC; // inferred: "WarpCenterPoint"
     atn::Vector3 m1508;
     atn::Vector3 m1514; // inferred: position of the death
-    atn::EfpHandle_unk m1520;
-    atn::EfpHandle_unk m152C;
-    atn::EfpHandle_unk m1538;
+    atn::EfpFile m1520;
+    atn::EfpFile m152C;
+    atn::EfpFile m1538;
     float m1544; // inferred: last frame
     int m1548;
     int m154C;

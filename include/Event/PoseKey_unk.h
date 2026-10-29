@@ -23,7 +23,7 @@ struct PoseKey_unk {
     atn::Vector3 m14;
     atn::Vector3 m20;
 };
-// inferred: also the element of the node edits of CharaFaceControl (Vector_unk<PoseKey_unk>, read
+// inferred: also the element of the node edits of CharaFaceControl (SimpleVector<PoseKey_unk>, read
 // with fn_80089EE4 from "NODE_EDIT" lines); moved here from Event/MotionData.h
 
 } // namespace Event

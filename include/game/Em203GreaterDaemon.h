@@ -189,24 +189,24 @@ public:
     int m1550; // inferred: bullet ids
     int m1554;
     float m1558;
-    atn::EfpHandle_unk m155C; // inferred: "/effect/hateline/ef_bs014a.efp"
+    atn::EfpFile m155C; // inferred: "/effect/hateline/ef_bs014a.efp"
     ResLoader_unk m1568;      // inferred: "/effect/hateline/ef_bs012b_01.eff"
-    atn::EfpHandle_unk m1574; // inferred: "ef_ev093.efp"
+    atn::EfpFile m1574; // inferred: "ef_ev093.efp"
     atn::Matrix3x4 m1580;
     PlayerTask* m15B0; // inferred: next character of the grand attack
     float m15B4;
-    atn::EfpHandle_unk m15B8; // inferred: "/effect/hateline/ef_bs012a.efp"
-    atn::EfpHandle_unk m15C4;
+    atn::EfpFile m15B8; // inferred: "/effect/hateline/ef_bs012a.efp"
+    atn::EfpFile m15C4;
     HitInfo_unk* m15D0;
     int m15D4;
-    atn::EfpHandle_unk m15D8; // inferred: "/effect/ef_mb005c.efp"
+    atn::EfpFile m15D8; // inferred: "/effect/ef_mb005c.efp"
     float m15E4;
     int m15E8;
     IntVector_unk m15EC[5]; // inferred: "1stStepSkill".."5thStepSkill"
     int m1628;
     int m162C;
     PlayerTask* m1630;        // inferred: "Arganan"
-    atn::EfpHandle_unk m1634; // inferred: "/effect/ef_bs034c.efp"
+    atn::EfpFile m1634; // inferred: "/effect/ef_bs034c.efp"
     int m1640;
     atn::Texture_unk m1644;
     DaemonLine_unk m1674[6];

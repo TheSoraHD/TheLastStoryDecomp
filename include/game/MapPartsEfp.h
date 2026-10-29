@@ -16,7 +16,7 @@ public:
     // inferred: factory used by the map parts loader
     static MapPartsEfp* fn_804965EC(atn::Task* parent, void* arg, atn::CsvTab* csv);
 
-    atn::EfpHandle_unk mEfp; // 0x50
+    atn::EfpFile mEfp; // 0x50
     int m5C;
     int mMode;  // 0x60: 0 = ONCE, 1 = RANDOM, 2 = LOOP
     int mRate;  // 0x64: RANDOM: 1/mRate chance per frame

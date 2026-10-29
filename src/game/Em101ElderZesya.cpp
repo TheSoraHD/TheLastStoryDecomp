@@ -205,12 +205,12 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
 // inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -396,7 +396,7 @@ int Em101ElderZesya::vf0C() {
 }
 
 // NONMATCHING: 99.85% - r24/r25 of the route table and the barrier pointer (8 variants: declaration orders,
-// field local, table copy, pointer/offset forms); the push_back of the points is the inlined Vector_unk one
+// field local, table copy, pointer/offset forms); the push_back of the points is the inlined SimpleVector one
 void Em101ElderZesya::fn_80256384() {
     RouteTable_unk* table = lbl_8087F430->m10D8;
     int barrier = 0;
@@ -846,7 +846,7 @@ inline void Em101ElderZesya::GetWarp_unk(atn::Vector3* pos, float* rot) {
 }
 
 // inferred: same as PlayEffect_unk with the locals in the order of game/Em003LesserDaemon.cpp
-inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectB_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -1243,13 +1243,13 @@ void Em101ElderZesya::fn_802598DC() {
 }
 
 // inferred: plays a barrier effect with the color of its kind (name invented)
-inline void Em101ElderZesya::PlayBarrier_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot,
+inline void Em101ElderZesya::PlayBarrier_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot,
                                              int kind) {
     fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, rot, *(const Color4f_unk*)&(&m16C0)[kind], -1, -1, 1, 1.5f);
 }
 
 // inferred: same with the manager read first (name invented)
-inline void Em101ElderZesya::PlayBarrierM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, const atn::Vector3& pos,
+inline void Em101ElderZesya::PlayBarrierM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                                               const atn::Vector3& rot, int kind) {
     fn_8023A8B4(mgr, efp, 0, 0, pos, rot, *(const Color4f_unk*)&(&m16C0)[kind], -1, -1, 1, 1.5f);
 }

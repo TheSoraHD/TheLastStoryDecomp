@@ -51,7 +51,7 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
@@ -74,9 +74,9 @@ public:
     // inferred: collision of a state (name invented)
     atn::ColliBase* GetColli_unk(int state) { return mStates[state].mColli; }
 
-    Model_unk mModel;                         // 0xF4
+    atn::Model mModel;                         // 0xF4
     boost::scoped_ptr<atn::ColliObject> mColli; // 0x4C4: "COLLI_OBJECT"
-    atn::EfpHandle_unk mEfp[7];               // 0x4C8: "EFP"
+    atn::EfpFile mEfp[7];               // 0x4C8: "EFP"
     WaitState_unk mStates[7];                 // 0x51C
     unsigned int mNumTriggers;                // 0x634
     WaitTrigger_unk mTriggers[16];            // 0x638

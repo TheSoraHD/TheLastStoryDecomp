@@ -48,7 +48,7 @@ public:
             int size = mLoader.fn_8047059C();
             const char* text = (const char*)mLoader.fn_80470580();
             atn::Csv csv(text, size);
-            csv.vf08(text, size);
+            csv.SetData(text, size);
             while (csv.fn_8005BBF8() != 0) {
                 if (*csv.fn_8005B9CC() != '\0') {
                     continue;

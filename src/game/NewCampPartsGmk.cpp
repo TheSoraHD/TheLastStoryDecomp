@@ -26,13 +26,13 @@ struct EffectMgr_unk {
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, void* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: plays an effect with the default color and scale (name invented; the color is a
 // temporary of an inlined function, below the others on the stack of 0x80512C90)
-inline void PlayEfp_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
+inline void PlayEfp_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
     fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, rot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
 }
 extern "C" void PSMTX44MultVec(const float m[4][4], const atn::Vector3* src, atn::Vector3* dst);
@@ -432,7 +432,7 @@ public:
     void fn_80513020(int color, int i);
 
     ArrayPtr_unk<NewCampGmkInfo_unk> mInfo; // 0xD4
-    atn::EfpHandle_unk mEfp[8];             // 0xD8
+    atn::EfpFile mEfp[8];             // 0xD8
 };
 
 NewCampPartsGmk* NewCampPartsGmk::fn_805128C0(atn::Task* parent) {

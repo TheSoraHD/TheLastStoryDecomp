@@ -34,7 +34,7 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
 
@@ -43,9 +43,9 @@ public:
     void StartEffect_unk();
     void StopEffect_unk();
 
-    Model_unk mModel;         // 0xF4: "MODEL"
+    atn::Model mModel;         // 0xF4: "MODEL"
     atn::ColliObject mColli;  // 0x4C4: "COLLI_OBJECT"
-    atn::EfpHandle_unk mEfp;  // 0x54C: "EFP"
+    atn::EfpFile mEfp;  // 0x54C: "EFP"
     HitInfo_unk* mSkill;      // 0x558: "SKILL": inferred: skill data (fn_80219E6C)
     SkillEffect* mEffect;     // 0x55C
     int mWait;                // 0x560

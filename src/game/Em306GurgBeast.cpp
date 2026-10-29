@@ -254,7 +254,7 @@ inline bool BeastCanAct_unk(CharaTask* c) {
     return r;
 }
 
-inline void Em306GurgBeast::CopyTrack_unk(Model_unk* dst, int i) {
+inline void Em306GurgBeast::CopyTrack_unk(atn::Model* dst, int i) {
     dst->mTracks[i].m20 = mMotion.mTracks[i].m20;
     dst->mTracks[i].m0C = mMotion.mTracks[i].m0C;
     dst->mTracks[i].m08 = mMotion.mTracks[i].m08;
@@ -722,7 +722,7 @@ void Em306GurgBeast::vf108() {
         }
         m14D8 = d;
         m14D8.y = 0.0f;
-        float frame = mMotion.fn_80139550(0);
+        float frame = mMotion.GetMotionFrame(0);
         if (frame >= mMotion.fn_80097D7C(0)) {
             mFlag31 = 1;
         }
@@ -735,7 +735,7 @@ void Em306GurgBeast::vf108() {
     case 11:
         if (m14BC == 0) {
             float len = mMotion.fn_80097D7C(0);
-            if (mMotion.fn_80139550(0) >= len) {
+            if (mMotion.GetMotionFrame(0) >= len) {
                 m14BC++;
                 mMotion.fn_80097C08(0, 0x140, 1, 0, 1, 0.0f, 0.1f);
             }
@@ -786,7 +786,7 @@ void Em306GurgBeast::vf108() {
         }
         break;
     case 12: {
-        float frame = mMotion.fn_80139550(0);
+        float frame = mMotion.GetMotionFrame(0);
         if (frame >= mMotion.fn_80097D7C(0)) {
             mFlag31 = 1;
         }
@@ -811,7 +811,7 @@ void Em306GurgBeast::vf108() {
         break;
     }
     case 13: {
-        float frame = mMotion.fn_80139550(0);
+        float frame = mMotion.GetMotionFrame(0);
         if (frame >= mMotion.fn_80097D7C(0)) {
             mFlag31 = 1;
         }

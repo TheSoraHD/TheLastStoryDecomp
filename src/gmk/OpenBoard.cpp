@@ -10,10 +10,10 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 // inferred: float variables in .sdata used only here (values 0)
 extern "C" float lbl_8087DFB8;
 extern "C" float lbl_8087DFBC;
@@ -40,12 +40,12 @@ struct Color4f_unk {
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 // inferred: plays an effect on a model (names invented)
 // inferred: plays an effect on a model (the vectors and the color are locals; names invented)
-inline void PlayEfp3_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp3_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos(0.0f, 0.0f, 0.0f);
     atn::Vector3 rot(0.0f, 0.0f, 0.0f);
     Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -128,7 +128,7 @@ void OpenBoard::vf10() {
     if (m54 == 2) {
         return;
     }
-    Model_unk::Res_unk* res = mModel.m16C;
+    atn::Model::Res_unk* res = mModel.m16C;
     BoardBox_unk box(res->mMin, res->mMax);
     float half = BoardAbs_unk(box.mMax.x - box.mMin.x) * 0.5f;
     atn::Matrix3x4 inv(*(atn::Matrix3x4*)mModel.mMtx);
@@ -246,7 +246,7 @@ int OpenBoard::vf60() {
 
 void OpenBoard::vf6C(void* menu) {}
 
-Model_unk* OpenBoard::vf38() {
+atn::Model* OpenBoard::vf38() {
     return &mModel;
 }
 

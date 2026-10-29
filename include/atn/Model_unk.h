@@ -20,7 +20,7 @@ struct ModelCamera_unk;
 // inferred: camera lens (defined in game/CharaTask.cpp)
 struct Lens_unk;
 
-// inferred: material of a model node (returned by Model_unk::fn_80092954)
+// inferred: material of a model node (returned by atn::Model::fn_80092954)
 struct Material_unk {
     unsigned char m00[0x18];
     GXColor mColor; // 0x18
@@ -31,11 +31,25 @@ extern "C" void fn_8007FAF0(Material_unk* material, int mode); // inferred: sets
 
 // inferred: model instance embedded at MapPartsModel+0x50 (probably the same class as
 // chr::Motion_unk, which characters embed at +0xB0). Names invented.
-struct Model_unk {
+namespace atn {
+
+// callback run on the node matrices by CalcMatrixStack (type from the RSO names)
+typedef boost::function<void(Matrix3x4*, const NodeChunk&, const ModelNodeCallbackContext&)> ModelNodeCallback_unk;
+
+// atn::ModelBase (vtable __vt__Q23atn9ModelBase); only CalcMatrixStack is declared here
+struct ModelBase {
+    virtual ~ModelBase();
+    void CalcMatrixStack(const MotionBuffer* motion, ModelNodeCallback_unk callback); // 0x800902C0
+};
+
+// atn::Model (vtable __vt__Q23atn5Model; the file keeps its old name)
+struct Model : public ModelBase {
     // inferred: default arguments: arrays of models construct them with (8, 32) through a helper
     // (0x80412E94 in gmk::MotionObject)
-    Model_unk(int flags = 8, int arg = 32); // 0x80096E94
-    virtual ~Model_unk();          // 0x800971D4 (the real class is atn::Model, __vt__Q23atn5Model)
+    Model(int flags = 8, int arg = 32); // 0x80096E94
+    virtual ~Model(); // 0x800971D4
+    using ModelBase::CalcMatrixStack;
+    void CalcMatrixStack(ModelNodeCallback_unk callback); // 0x8000D430
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
@@ -172,14 +186,15 @@ struct Model_unk {
     Node_unk* fn_80147A00();
     typedef atn::Sphere Sphere_unk;
     Sphere_unk fn_80094F98(); // inferred: bounding sphere (passed to MapManager::fn_804918A4)
-    float fn_80139550(int track);
+    float GetMotionFrame(int track) const; // 0x80139550
     void fn_80139F24(int value);
     int fn_80139F2C(int track);
-    void fn_80139F3C(int track, float speed);
+    void SetMotionSpeed(int track, float speed); // 0x80139F3C
+    void SetMotionFrame(int track, float frame); // 0x80357F38 (defined in game/EnemyTasha.cpp)
     int fn_8013C3DC();
     float fn_8013C3E4(int track);
     void fn_8013C554(int track, float weight);
-    float GetSpeed_unk(int track) { return mTracks[track].m0C; } // inferred: name invented
+    float GetMotionSpeed(int track) const { return mTracks[track].m0C; } // weak copy 0x80224628
 
     Node_unk* m220;
     unsigned int mMotionCount; // 0x224: inferred: number of motion slots (NpcManager::fn_80547B54)
@@ -196,8 +211,6 @@ struct Model_unk {
     unsigned char m384[0x3D0 - 0x384];
 };
 
-// inferred: take an empty boost::function by value (signature unknown, void() assumed)
-extern "C" void fn_800902C0(Model_unk* model, int arg, boost::function<void()> callback);
-extern "C" void fn_8000D430(Model_unk* model, boost::function<void()> callback);
+} // namespace atn
 
 #endif

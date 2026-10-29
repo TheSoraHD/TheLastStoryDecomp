@@ -13,7 +13,7 @@
 extern "C" int rand();
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_80097CCC(Model_unk* model, int track, float weight);
+extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 

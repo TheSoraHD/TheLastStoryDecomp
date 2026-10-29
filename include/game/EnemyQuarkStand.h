@@ -215,19 +215,19 @@ public:
     int m15D8;                     // inferred: index into the long range table
     QuarkDir_unk m15DC;
     atn::Vector3 m160C;            // inferred: centre of the arena
-    atn::EfpHandle_unk m1618;      // inferred: "ef_bd008b.efp"
-    atn::EfpHandle_unk m1624;      // inferred: "ef_bs072f.efp"
-    atn::EfpHandle_unk m1630;      // inferred: "ef_bs070d.efp"
-    atn::EfpHandle_unk m163C;      // inferred: "ef_bs070a.efp"
+    atn::EfpFile m1618;      // inferred: "ef_bd008b.efp"
+    atn::EfpFile m1624;      // inferred: "ef_bs072f.efp"
+    atn::EfpFile m1630;      // inferred: "ef_bs070d.efp"
+    atn::EfpFile m163C;      // inferred: "ef_bs070a.efp"
     ResLoader_unk m1648;           // inferred: "ef_bs070e_01.eff"
     atn::Vector3 m1654;
     Mtx34_unk m1660;
-    atn::EfpHandle_unk m1690;      // inferred: "ef_bd009a.efp"
-    atn::EfpHandle_unk m169C;      // inferred: "ef_bd009b.efp"
-    atn::EfpHandle_unk m16A8;      // inferred: "ef_bs078c.efp"
-    atn::EfpHandle_unk m16B4;      // inferred: "ef_bs080a.efp"
-    atn::EfpHandle_unk m16C0;      // inferred: "ef_bs058a.efp"
-    atn::EfpHandle_unk m16CC;      // inferred: "ef_bs058c.efp"
+    atn::EfpFile m1690;      // inferred: "ef_bd009a.efp"
+    atn::EfpFile m169C;      // inferred: "ef_bd009b.efp"
+    atn::EfpFile m16A8;      // inferred: "ef_bs078c.efp"
+    atn::EfpFile m16B4;      // inferred: "ef_bs080a.efp"
+    atn::EfpFile m16C0;      // inferred: "ef_bs058a.efp"
+    atn::EfpFile m16CC;      // inferred: "ef_bs058c.efp"
     unsigned char m16D8;
     float m16DC;
     atn::Vector3 m16E0;
@@ -262,7 +262,7 @@ public:
     int m1A20;                     // inferred: bullet id of the explosions
     int m1A24;                     // inferred: explosions fired
     FixedArray_unk<QuarkWave_unk, 32> m1A28; // inferred: delayed waves
-    atn::EfpHandle_unk m1CAC;      // inferred: "ef_bs049e.efp"
+    atn::EfpFile m1CAC;      // inferred: "ef_bs049e.efp"
     int m1CB8;
     int m1CBC;
     ResHandle m1CC0;               // inferred: debug menu group "Quark"

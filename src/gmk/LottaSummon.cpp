@@ -29,7 +29,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -75,14 +75,14 @@ extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 
 // inferred: plays an effect at the gimmick (name invented)
-inline void PlayEfp_unk(GimmickCommon* owner, atn::EfpHandle_unk* efp, int arg) {
+inline void PlayEfp_unk(GimmickCommon* owner, atn::EfpFile* efp, int arg) {
     fn_80232B7C(owner, arg);
     lbl_8087F3C0->mB8 = 1;
     fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, owner->m6C, owner->m78, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
                 1.0f);
     lbl_8087F3C0->mB8 = 0;
 }
-inline void PlayEfp2_unk(GimmickCommon* owner, atn::EfpHandle_unk* efp, int arg) {
+inline void PlayEfp2_unk(GimmickCommon* owner, atn::EfpFile* efp, int arg) {
     fn_80232B7C(owner, arg);
     lbl_8087F3C0->mB8 = 1;
     EffectMgr_unk* mgr = lbl_8087F3C0;
@@ -270,7 +270,7 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
         if (lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         }
-        atn::EfpHandle_unk* efp = &mEfp[msg->mType];
+        atn::EfpFile* efp = &mEfp[msg->mType];
         if (lbl_8087F3C0 != 0) {
             PlayEfp_unk(this, efp, 0);
         }
@@ -286,7 +286,7 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
         if (lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         }
-        atn::EfpHandle_unk* efp = &mEfp[msg->mType];
+        atn::EfpFile* efp = &mEfp[msg->mType];
         EffectMgr_unk* mgr = lbl_8087F3C0;
         if (mgr != 0) {
             PlayEfp2_unk(this, efp, 1);
@@ -313,7 +313,7 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
         if (lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         }
-        atn::EfpHandle_unk* efp = &mEfp[msg->mType];
+        atn::EfpFile* efp = &mEfp[msg->mType];
         EffectMgr_unk* mgr = lbl_8087F3C0;
         if (mgr != 0) {
             PlayEfp2_unk(this, efp, 1);

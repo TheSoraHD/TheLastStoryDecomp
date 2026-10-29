@@ -1,4 +1,5 @@
 #include "game/Em309Ghoul.h"
+#include "atn/Keyboard.h"
 #include "atn/Camera_unk.h"
 #include "atn/Csv.h"
 #include "game/CharaManager.h"
@@ -18,7 +19,7 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg11);
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, see MP/D2AMpMenuSetRule.cpp)
@@ -61,7 +62,7 @@ struct Color4f_unk {
     }
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -118,24 +119,6 @@ extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
-// inferred: keyboard of the debug build (lbl_8087EEF0, as in game/EnemyQuarkSecond.cpp)
-struct GhoulKeyboard_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" GhoulKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(GhoulKeyboard_unk* kb, void* state, int key); // inferred: key pressed
-extern "C" inline GhoulKeyboard_unk* fn_802A49BC() {
-    return lbl_8087EEF0;
-}
-extern "C" inline int fn_802A4968(GhoulKeyboard_unk* kb, int pad, int key) {
-    int result = 0;
-    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
-        result = 1;
-    }
-    return result;
-}
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" void fn_80376254(Field_unk* field, int a, int b); // inferred: counts a field event
@@ -404,19 +387,19 @@ void Em309Ghoul::vf10() {
         return;
     }
     fn_80063D3C(lbl_8087EEB0, &mPos, m1694, 0xFFFFFF00, 0.0f);
-    if (fn_802A4968(fn_802A49BC(), 0, 0x50)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x50)) {
         fn_803010BC();
     }
-    if (fn_802A4968(fn_802A49BC(), 0, 0x4D)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D)) {
         fn_8030073C();
     }
-    if (fn_802A4968(fn_802A49BC(), 0, 0x4C)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C)) {
         StartAttack_unk();
     }
-    if (fn_802A4968(fn_802A49BC(), 0, 0x4A)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4A)) {
         fn_803009F4();
     }
-    if (fn_802A4968(fn_802A49BC(), 0, 0x48)) {
+    if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x48)) {
         mPos = m150C[0]->mPos;
         mRot.y = m150C[0]->m14;
         mRot.z = 0.0f;
@@ -1082,7 +1065,7 @@ void Em309Ghoul::fn_80301200() {
 }
 
 // inferred: plays effect `efp` on `model` with default placement (name invented)
-inline void GhoulEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void GhoulEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -1143,7 +1126,7 @@ struct Xsca_unk {
 };
 
 // inferred: same with the manager passed in (name invented)
-inline void GhoulEffect2_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void GhoulEffect2_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -1161,7 +1144,7 @@ inline void GhoulEffect2_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_
 }
 
 // inferred: same at a world position (name invented)
-inline void GhoulEffectAt_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, const atn::Vector3& pos,
+inline void GhoulEffectAt_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                               const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;
@@ -1866,18 +1849,18 @@ void Em309Ghoul::fn_803041C8() {
     if (m14F0 == 0) {
         mRot.y = m1600->m14;
         float t;
-        if (mMotion.fn_80139550(0) >= 7.99999f) {
+        if (mMotion.GetMotionFrame(0) >= 7.99999f) {
             float len = mMotion.fn_80097D7C(0) - 8.0f;
-            t = (mMotion.fn_80139550(0) - 8.0f) / len;
+            t = (mMotion.GetMotionFrame(0) - 8.0f) / len;
         } else {
             t = 0.0f;
         }
         mPos.y += 16.0f * t;
         float end = mMotion.fn_80097D7C(0);
-        if (mMotion.fn_80139550(0) >= end) {
+        if (mMotion.GetMotionFrame(0) >= end) {
             mMotion.fn_80139F24(1);
             mMotion.fn_8013C554(0, 1.0f);
-            mMotion.fn_80139F3C(0, 1.0f);
+            mMotion.SetMotionSpeed(0, 1.0f);
             mMotion.fn_80097C08(0, 0x14B, 1, 0, 1, 0.0f, 0.1f);
             atn::Vector3 r1 = (target - mPos).GetNormalize().ToRotation_unk();
             atn::Vector3 r2 = (m1608 - mPos).GetNormalize().ToRotation_unk();

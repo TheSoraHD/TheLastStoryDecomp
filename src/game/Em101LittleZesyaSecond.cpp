@@ -132,7 +132,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -252,7 +252,7 @@ inline void Em101LittleZesyaSecond::ReleaseCamera_unk() {
 }
 
 // inferred: plays an effect at a position (locals in the order of game/Em305Vampire.cpp; name invented)
-inline void PlayEffectAt_unk(atn::EfpHandle_unk* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
+inline void PlayEffectAt_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -500,7 +500,7 @@ void Em101LittleZesyaSecond::vf40(HitInfo_unk* hit) {
 
 // inferred: plays an effect on the model (locals in the order of Em003LesserDaemon's PlayEffectM_unk; name
 // invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -659,7 +659,7 @@ void Em101LittleZesyaSecond::fn_80261A50() {
             atn::Vector3 hips = GetTrans_unk(mMotion.GetNodeMtx_unk("hips"));
             for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
                 if (p->CanAct_unk()) {
-                    Model_unk* model = &p->mMotion;
+                    atn::Model* model = &p->mMotion;
                     atn::Vector3 target = GetTrans_unk(model->GetNodeMtx_unk("hips"));
                     atn::Vector3 dir = (target - hips).GetNormalize();
                     atn::Vector3 pos = hips + dir * 15.0f;

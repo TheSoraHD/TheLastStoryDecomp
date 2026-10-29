@@ -317,8 +317,8 @@ void PBoneBasic::vf14() {
 int PBoneBasic::vf1C(PBoneModel_unk* model, CsvBase<char, 9, 13, 34>* csv) {
     m64 = model;
     mName = csv->fn_8005B9CC();
-    m38 = ((Model_unk*)m64)->fn_80092814(mName.data(), 0);
-    m3C = ((Model_unk*)m64)->fn_80092814(csv->fn_8005B9CC(), 0);
+    m38 = ((atn::Model*)m64)->fn_80092814(mName.data(), 0);
+    m3C = ((atn::Model*)m64)->fn_80092814(csv->fn_8005B9CC(), 0);
     m40 = fn_800DC12C(csv->fn_8005B9CC());
     m48 = 0.017453292f * fn_800DC288(csv->fn_8005B9CC());
     m54 = 0.017453292f * fn_800DC288(csv->fn_8005B9CC());

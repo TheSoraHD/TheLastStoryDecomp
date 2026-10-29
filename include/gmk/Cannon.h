@@ -23,15 +23,15 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
-    Model_unk mModel;                     // 0xF4: "MODEL"
-    Model_unk mModelCrush;                // 0x4C4: "MODEL_CRUSH"
-    atn::EfpHandle_unk mEfpShoot;         // 0x894
-    atn::EfpHandle_unk mEfpCrush;         // 0x8A0
+    atn::Model mModel;                     // 0xF4: "MODEL"
+    atn::Model mModelCrush;                // 0x4C4: "MODEL_CRUSH"
+    atn::EfpFile mEfpShoot;         // 0x894
+    atn::EfpFile mEfpCrush;         // 0x8A0
     int mShootWait;                       // 0x8AC: "PARAM" 1
     int mShootWaitRand;                   // 0x8B0: "PARAM" 2
     int mTimer;                           // 0x8B4

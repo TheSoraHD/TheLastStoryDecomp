@@ -40,7 +40,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -143,13 +143,13 @@ static const char* const sEffect1 = "/effect/ef_sp007d.efp";
 static const char* const sEffect2 = "/effect/ef_sp007e.efp";
 
 // inferred: names invented
-inline void PlayMotion_unk(Model_unk* model, int motion, int arg3, int arg4) {
+inline void PlayMotion_unk(atn::Model* model, int motion, int arg3, int arg4) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
     model->fn_80097C08(0, motion, arg3, arg4, 1, 0.0f, 0.1f);
 }
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -180,7 +180,7 @@ public:
 
 ControlShingan::ControlShingan(CharaTask* chara, int time) : chr::ControlBase(chara), m0C(time) {
     chara->m560 = 0x2E;
-    Model_unk* model = &mChara->mMotion;
+    atn::Model* model = &mChara->mMotion;
     mChara->fn_8015495C(0, 1, 1, 1);
     PlayMotion_unk(model, 0x173, 0, 0);
     m08 = model->fn_80097D7C(0);

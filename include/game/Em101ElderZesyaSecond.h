@@ -54,16 +54,16 @@ public:
     int m1504;
     atn::Vector3 m1508; // inferred: warp destination
     float m1514;        // inferred: warp rotation
-    atn::EfpHandle_unk m1518;
-    atn::EfpHandle_unk m1524;
-    atn::EfpHandle_unk m1530;
-    atn::EfpHandle_unk m153C;
-    atn::EfpHandle_unk m1548;
+    atn::EfpFile m1518;
+    atn::EfpFile m1524;
+    atn::EfpFile m1530;
+    atn::EfpFile m153C;
+    atn::EfpFile m1548;
     int m1554; // inferred: nonzero while hits are filtered by vf4C
     int m1558;
-    atn::EfpHandle_unk m155C;
-    atn::EfpHandle_unk m1568;
-    atn::EfpHandle_unk m1574;
+    atn::EfpFile m155C;
+    atn::EfpFile m1568;
+    atn::EfpFile m1574;
     atn::ColliSphere m1580; // inferred: barrier sphere (owner m158C, radius m15C8)
     int m15CC;
     int m15D0;

@@ -46,7 +46,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int rand();
@@ -110,7 +110,7 @@ struct ControlMagic_unk {
 static const char* const sSounds_unk[] = {"SE_SP007_001", "SE_SP007_003"};
 
 // inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -157,7 +157,7 @@ Em101ElderZesyaSecond::Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* i
     m155C.fn_8023780C("ef_bs067a.efp");
     m1568.fn_8023780C("ef_bs067b.efp");
     m1574.fn_8023780C("ef_ui002b.efp");
-    m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
+    m121C.reset(new (1, "", "", 0) atn::EfpFile());
     m121C->fn_8023780C("ef_bu013.efp");
     m14FC[0] = 0x5E6;
     mFlagB5 = 1;
@@ -213,7 +213,7 @@ int Em101ElderZesyaSecond::vf0C() {
 }
 
 // inferred: same as PlayEffect_unk with the manager as a parameter (name invented)
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -231,7 +231,7 @@ inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
 }
 
 // inferred: plays a colored effect on the model (name invented)
-inline void PlayColorEffect_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, const Color4f_unk& color) {
+inline void PlayColorEffect_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const Color4f_unk& color) {
     fn_8023A8B4(mgr, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
 }
 

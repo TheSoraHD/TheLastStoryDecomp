@@ -29,7 +29,7 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_801079C0(Effect_unk* effect, Model_unk* model, chr::Motion_unk* motion);
+extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 // inferred: settings (lbl_8087F0A8) and debug drawing (lbl_8087EEB0), as in game/CopyRobotTask.cpp
 struct Settings_unk {
     unsigned char m00[0x30];
@@ -77,7 +77,7 @@ struct Camera_unk {
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
 // inferred: length of a motion, 30 frames when it is missing (as in game/CharaTask.cpp); name invented
-inline float GetMotionLength_unk(Model_unk* model, int id) {
+inline float GetMotionLength_unk(atn::Model* model, int id) {
     atn::LoadHandle* motion = model->fn_80097D40(id);
     float length = motion != 0 ? fn_800A08D4(motion) : 30.0f;
     if (length == 0.0f) {
@@ -110,7 +110,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -124,7 +124,7 @@ extern "C" int fn_8004ED34(void* world, CollResult_unk* result, const atn::Vecto
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 
 // inferred: plays an effect on the model (name invented, as in game/Em002Skelton.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -170,9 +170,9 @@ Em403WarLion::~Em403WarLion() {}
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
                         std::allocator<boost::function_base> >
     NodeCallback_unk;
-extern "C" void fn_800F29D0(Model_unk* model, NodeCallback_unk callback);
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 // inferred: sets the node pose callback (game/Em401_01_WhiteLeoPard.cpp, not decompiled)
-extern "C" void fn_8031F2A4(Model_unk* model, boost::function<void(atn::MotionBuffer*, int)> callback);
+extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback);
 
 int Em403WarLion::vf0C() {
     int result = 1;
@@ -215,7 +215,7 @@ extern "C" void fn_800EC1F4(BattleCharaTask* chara, int value);
 // inferred: next character of a manager list (weak copy 0x802A4094)
 extern "C" CharaTask* fn_802A4094(CharaTask* chara);
 // inferred: model matrix (weak copy 0x80266154)
-extern "C" atn::Matrix3x4* fn_80266154(Model_unk* model);
+extern "C" atn::Matrix3x4* fn_80266154(atn::Model* model);
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 Effect_unk* fn_8013A194();
 // inferred: AI data of an ally (class unknown): weights by enemy at 0x128

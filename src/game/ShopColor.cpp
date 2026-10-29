@@ -240,7 +240,7 @@ void ShopColor::vf14() {
 void ShopColor::vf38(const char* data, int size) {
     mColors.clear();
     atn::Csv csv;
-    csv.vf08(data, size);
+    csv.SetData(data, size);
     do {
         const char* token = csv.fn_8005B9CC();
         if (strncmp(token, ";", 1) == 0) {

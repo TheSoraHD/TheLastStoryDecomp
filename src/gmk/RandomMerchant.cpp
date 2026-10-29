@@ -14,7 +14,7 @@ extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: creates the gimmick of an item (kind 10) as a child of parent
@@ -193,7 +193,7 @@ inline void RandomMerchant::PlayMotion2_unk(RandomMerchantChara* chara, int inde
     chara->mMotion.mTracks[0].m0C = 1.0f;
 }
 
-inline void RandomMerchant::PlayMotion3_unk(Model_unk* motion, int index) {
+inline void RandomMerchant::PlayMotion3_unk(atn::Model* motion, int index) {
     motion->m34C = 1;
     motion->fn_80097C08(0, mEntries[mCur].mMotionBase + index, 1, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
@@ -332,7 +332,7 @@ void RandomMerchant::vf10() {
     } else if (mState == 2) {
         RandomMerchantChara* chara = mEntries[mCur].mChara;
         PlayMotion2_unk(chara, 0);
-        Model_unk* motion = &chara->mMotion;
+        atn::Model* motion = &chara->mMotion;
         if (mLimit >= 0) {
             mLimit--;
             if (mTimeLimit - mLimit > mTimeLimit * 2 / 3 && mSound.mPtr != 0) {

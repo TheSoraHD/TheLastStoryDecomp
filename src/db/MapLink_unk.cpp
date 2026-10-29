@@ -73,9 +73,9 @@ static const char* const sJumpFileName = sJumpFileNameStr;
 static const char* const sDispFileName = sDispFileNameStr;
 static const char* const sNameFileName = sNameFileNameStr;
 
-static atn::Vector_unk<int> sColumns; // inferred: ids of the columns (header of maplink_jump.csv)
-static atn::Vector_unk<MapLinkJump_unk> sJumps;
-static atn::Vector_unk<MapLinkDisp_unk> sDisps;
+static atn::SimpleVector<int> sColumns; // inferred: ids of the columns (header of maplink_jump.csv)
+static atn::SimpleVector<MapLinkJump_unk> sJumps;
+static atn::SimpleVector<MapLinkDisp_unk> sDisps;
 
 static MapLinkJumpRow_unk* sJumpRows;
 static int sJumpRowCount;
@@ -86,7 +86,7 @@ static int sNameCount;
 
 // inferred: index of a value in a vector, -1 if none
 template <class T>
-static inline int IndexOf_unk(const atn::Vector_unk<T>& vector, const T& value) {
+static inline int IndexOf_unk(const atn::SimpleVector<T>& vector, const T& value) {
     int index = -1;
     for (unsigned int i = 0; i < vector.mSize; i++) {
         if (vector.mData[i] == value) {
@@ -105,7 +105,7 @@ extern "C" void fn_802150F0() {
     unsigned long size;
     if (sJumpRows == 0) {
         void* data = fn_8046DC5C(lbl_8087F518, sJumpFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         for (int i = 0; i < 3; i++) {
             csv.fn_8005BBF8();
         }
@@ -124,7 +124,7 @@ extern "C" void fn_802150F0() {
             sJumpRowCount++;
         }
         sJumpRows = new (1, "", "", 0) MapLinkJumpRow_unk[sJumpRowCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();
@@ -172,7 +172,7 @@ extern "C" void fn_802150F0() {
     }
     if (sDispRows == 0) {
         void* data = fn_8046DC5C(lbl_8087F518, sDispFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         for (int i = 0; i < 3; i++) {
             csv.fn_8005BBF8();
         }
@@ -185,7 +185,7 @@ extern "C" void fn_802150F0() {
             sDispRowCount++;
         }
         sDispRows = new (1, "", "", 0) MapLinkDispRow_unk[sDispRowCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();
@@ -222,7 +222,7 @@ extern "C" void fn_802150F0() {
     if (sNames == 0) {
         atn::CsvU csvu;
         void* data = fn_8046DC5C(lbl_8087F518, sNameFileName, &size, 0x20);
-        csvu.vf08((const wchar_t*)data, (int)size / 2);
+        csvu.SetData((const wchar_t*)data, (int)size / 2);
         while (csvu.fn_8005BBF8() != 0) {
             const wchar_t* field = csvu.fn_8005B9CC();
             if (*field == L';' || *field == L'#' || *field == 0) {
@@ -231,7 +231,7 @@ extern "C" void fn_802150F0() {
             sNameCount++;
         }
         sNames = new (1, "", "", 0) MapLinkName_unk[sNameCount];
-        csvu.vf08((const wchar_t*)data, (int)size / 2);
+        csvu.SetData((const wchar_t*)data, (int)size / 2);
         int i = 0;
         while (csvu.fn_8005BBF8() != 0) {
             const wchar_t* field = csvu.fn_8005B9CC();

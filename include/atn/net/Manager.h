@@ -6,15 +6,13 @@
 // invented; offsets checked against 0x80508B74 (constructor) and the methods of atn/NetManager.cpp.
 
 #include "std/string.h"
+#include "atn/MemoryManager.h"
 #include "std/new.h"
 #include "atn/FixedArray.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
 extern "C" unsigned char fn_806B0E30(); // inferred: own aid (DWC)
 extern "C" int fn_806A8E40();           // inferred: own aid (local play)
 extern "C" int fn_806B1250();           // inferred: aid of the server (DWC)
@@ -166,7 +164,7 @@ public:
     NetThread_unk() : mRunning(1), m330(0) { memset(&mThread, 0, sizeof(mThread)); }
     ~NetThread_unk() {
         if (mStack != 0) {
-            fn_80083AD4(fn_800827E0(), mStack);
+            atn::MemoryManager::Instance()->Free(mStack);
             mStack = 0;
         }
     }

@@ -23,7 +23,7 @@ struct Chicken_unk {
     void fn_8040CD2C(CharaTask* player); // inferred: reacts to the player (runs away when near)
 
     ChickenManager* mOwner; // 0x00
-    Model_unk mModel;      // 0x04
+    atn::Model mModel;      // 0x04
     atn::Vector3 mPos;     // 0x3D4
     atn::Vector3 m3E0;
     atn::Vector3 m3EC;

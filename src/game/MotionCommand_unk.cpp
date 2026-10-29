@@ -34,7 +34,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, const void* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, const void* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -90,7 +90,7 @@ extern "C" int fn_8011FF78(const char* name, const char* const* table, int count
 // NONMATCHING: 99.86% - registers: the size parameter and the line count take r24/r27 instead of
 // r25/r24 (tried locals for the text/size, signed/unsigned count, loop forms). Like the original it
 // is over the inlining budget and calls the inlines out of line (weak copies 0x8012044C-0x80120F4C)
-extern "C" void fn_8011FFF8(MotionCmdData_unk* data, void* buffer, int size) {
+extern "C" void fn_8011FFF8(atn::MotionCommandData* data, void* buffer, int size) {
     const char* text = (const char*)buffer;
     atn::Csv csv(text, size);
     int count = 0;
@@ -107,7 +107,7 @@ extern "C" void fn_8011FFF8(MotionCmdData_unk* data, void* buffer, int size) {
     std::vector<std::string> effects;
     std::vector<std::string> efps;
     std::vector<std::string> names;
-    csv.vf08(text, size);
+    csv.SetData(text, size);
     unsigned int index = 0;
     while (csv.fn_8005BBF8() != 0) {
         const char* field = csv.fn_8005B9CC();
@@ -119,7 +119,7 @@ extern "C" void fn_8011FFF8(MotionCmdData_unk* data, void* buffer, int size) {
         if (*motion == '\0') {
             continue;
         }
-        MotionCmdEntry_unk& entry = data->mEntries[index++];
+        atn::MotionCommandData::Command& entry = data->mEntries[index++];
         entry.mByName = byName;
         entry.m04 = fn_800DC6B4(motion);
         entry.mFrame = atoi(csv.fn_8005B9CC());
@@ -189,7 +189,7 @@ void MotionCommand_unk::fn_801210B4(const char* path) {
 
 int MotionCommand_unk::fn_801210C4() {
     if (mLoader.fn_80473F50() == 0) {
-        m20 = (MotionCmdData_unk*)mLoader.fn_80476CE4();
+        m20 = (atn::MotionCommandData*)mLoader.fn_80476CE4();
         return 0;
     }
     return 1;
@@ -200,16 +200,16 @@ void MotionCommand_unk::fn_80121114(CharaTask* chara) {
 }
 
 // inferred: accessors of the motion tracks (weak copies called out of line from CharaTask)
-inline float Model_unk::fn_80139550(int track) {
+inline float atn::Model::GetMotionFrame(int track) const {
     return mTracks[track].m08;
 }
-inline int Model_unk::fn_80139F2C(int track) {
+inline int atn::Model::fn_80139F2C(int track) {
     return mTracks[track].m00;
 }
-inline int Model_unk::fn_8013C3DC() {
+inline int atn::Model::fn_8013C3DC() {
     return m34C;
 }
-inline float Model_unk::fn_8013C3E4(int track) {
+inline float atn::Model::fn_8013C3E4(int track) {
     return mTracks[track].m20;
 }
 
@@ -232,7 +232,7 @@ void MotionCommand_unk::fn_8012111C() {
     if (m10 == 0) {
         return;
     }
-    Model_unk* model = mChara->GetModel_unk();
+    atn::Model* model = mChara->GetModel_unk();
     int count = model->fn_8013C3DC();
     m08 = 0;
     if (count > 1) {
@@ -267,7 +267,7 @@ void MotionCommand_unk::fn_8012111C() {
             int found = 0;
             int ran = fn_8012133C(m20, &found);
             if (db::MotionCommandCommon::sInstance != 0 && ran == 0) {
-                fn_8012133C((MotionCmdData_unk*)db::MotionCommandCommon::sInstance->mData, &found);
+                fn_8012133C((atn::MotionCommandData*)db::MotionCommandCommon::sInstance->mData, &found);
             }
             m30 = res;
             m12 = (found != 0);
@@ -293,19 +293,19 @@ void MotionCommand_unk::fn_8012111C() {
 // SE_ATTR literals use other offsets; also the order of the stack slots of the vector temporaries,
 // the scheduling of the arguments of fn_8023A680/fn_8023A8B4, fabs into a temporary and a few
 // register choices
-int MotionCommand_unk::fn_8012133C(MotionCmdData_unk* data, int* found) {
+int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
     if (data == 0 || data->mEntries.mSize == 0) {
         return 0;
     }
-    Model_unk* model = mChara->GetModel_unk();
+    atn::Model* model = mChara->GetModel_unk();
     if (model->mTracks[m08].m04 == 0) {
         return 0;
     }
     unsigned int res = ((atn::LH_Motion*)model->mTracks[m08].m04)->fn_804768B4();
     unsigned int hash = fn_800DC6B4(fn_80218218(m04));
-    float frame = model->fn_80139550(m08);
+    float frame = model->GetMotionFrame(m08);
     float length = model->fn_80097D7C(m08);
-    float step = model->GetSpeed_unk(m08) * lbl_8087EFA8->GetTime_unk();
+    float step = model->GetMotionSpeed(m08) * lbl_8087EFA8->GetTime_unk();
     unsigned char loop = model->mTracks[m08].m18;
     if (m04 == 0x58) {
         if (step < 0.0f) {
@@ -338,7 +338,7 @@ int MotionCommand_unk::fn_8012133C(MotionCmdData_unk* data, int* found) {
     }
     int ran = 0;
     for (unsigned int i = 0; i < data->mEntries.mSize; i++) {
-        MotionCmdEntry_unk& entry = data->mEntries[i];
+        atn::MotionCommandData::Command& entry = data->mEntries[i];
         if (entry.mByName == 0) {
             if (res != entry.m04) {
                 continue;

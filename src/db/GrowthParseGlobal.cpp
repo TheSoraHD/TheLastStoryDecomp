@@ -52,7 +52,7 @@ extern "C" void fn_8020F84C() {
         }
         sEntries = new (3, "", "", 0) db::GrowthEntry_unk[count];
         sCount = count;
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {

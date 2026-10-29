@@ -92,7 +92,7 @@ void Text::fn_80505FC4(const wchar_t* data, unsigned long size) {
         return;
     }
     atn::CsvU csv;
-    csv.vf08(data, size / 2);
+    csv.SetData(data, size / 2);
     unsigned long total = 0;
     while (csv.fn_8005BBF8()) {
         const wchar_t* f = csv.fn_8005B9CC();
@@ -104,7 +104,7 @@ void Text::fn_80505FC4(const wchar_t* data, unsigned long size) {
     lbl_8087F868 = new (1, "", "", 0) wchar_t[total];
     unsigned long pos = 0;
     int i = 0;
-    csv.vf08(data, size / 2);
+    csv.SetData(data, size / 2);
     while (csv.fn_8005BBF8()) {
         const wchar_t* f = csv.fn_8005B9CC();
         if (f[0] == 0 || f[0] == L';' || f[0] == L'#') {

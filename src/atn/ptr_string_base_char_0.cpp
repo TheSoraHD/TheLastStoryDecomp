@@ -171,8 +171,8 @@ extern "C" void fn_8021F47C() {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
         Map_unk<unsigned int, const char*> names;
-        atn::Vector_unk<unsigned int> seen;
-        csv.vf08((const char*)data, size);
+        atn::SimpleVector<unsigned int> seen;
+        csv.SetData((const char*)data, size);
         int total = 0;
         while (csv.fn_8005BBF8() != 0) {
             const char* field = csv.fn_8005B9CC();
@@ -202,7 +202,7 @@ extern "C" void fn_8021F47C() {
         }
         lbl_8087F350 = new (1, "", "", 0) VoiceEntry_unk[lbl_8087F354];
         lbl_8087F358 = new (1, "", "", 0) char[total];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int pos = 0;
         int index = 0;
         while (csv.fn_8005BBF8() != 0) {

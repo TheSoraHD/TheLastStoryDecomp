@@ -7,7 +7,7 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_80097CCC(Model_unk* model, int track, float weight); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float weight); // inferred: stops a track
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 
 #define LS_MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -51,7 +51,7 @@ Chara1154_unk::Chara1154_unk()
 }
 
 // NONMATCHING: 99.70% - FPR allocation of the clamp (current value and m2C swapped f2/f3)
-void Chara1154_unk::fn_8007A7BC(Model_unk* model) {
+void Chara1154_unk::fn_8007A7BC(atn::Model* model) {
     if (m00 == 0 || (m00 != 0 ? m04 >= m00->mCount : true)) {
         fn_80097CCC(model, 5, 0.0f);
         return;
@@ -60,7 +60,7 @@ void Chara1154_unk::fn_8007A7BC(Model_unk* model) {
     if (0 <= i && i < (int)m00->mCount) {
         LipSyncKey_unk* key = &m00->mKeys[i];
         model->fn_80097C08(5, ((int (*)(int))m30)(key->mVowel), 1, 0, 1, 0.0f, 0.1f);
-        Model_unk::Track_unk& track = model->mTracks[5];
+        atn::Model::Track_unk& track = model->mTracks[5];
         float cur = track.m1C;
         float delta = key->mTime * m0C - cur;
         float v = cur + LS_MAX(-m2C, LS_MIN(m2C, delta));

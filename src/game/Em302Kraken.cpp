@@ -74,7 +74,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(Model_unk* model, int track, float value); // inferred: stops a track
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
@@ -112,8 +112,8 @@ struct KrakenDamage_unk {
 };
 extern "C" void fn_80108C10(Effect_unk* effect, KrakenDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
-extern "C" void fn_80107850(Effect_unk* effect, Model_unk* model);
-extern "C" void fn_801077A8(Effect_unk* effect, Model_unk* model, Model_unk* model2); // inferred: same model twice
+extern "C" void fn_80107850(Effect_unk* effect, atn::Model* model);
+extern "C" void fn_801077A8(Effect_unk* effect, atn::Model* model, atn::Model* model2); // inferred: same model twice
 extern "C" int rand();
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
@@ -129,7 +129,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -144,7 +144,7 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
 }
 
 // inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -258,7 +258,7 @@ struct Count4_unk;
 extern "C" int fn_800E0AA8(const Count4_unk* c);
 extern "C" bool fn_800E0AB0(const Count4_unk* c);
 // inferred: clears flags of the model (weak copy 0x802D8540); name invented
-inline void ClearModelFlag_unk(Model_unk* model, unsigned int flag) {
+inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
     model->mFlags &= ~flag;
 }
 
@@ -280,7 +280,7 @@ inline void Em302Kraken::Reset_unk() {
 }
 
 // inferred: plays a motion on track 0 (names invented, as in game/EnemyTrista.cpp)
-inline void PlayMotion_unk(Model_unk* model, int motion, int loop) {
+inline void PlayMotion_unk(atn::Model* model, int motion, int loop) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
@@ -288,7 +288,7 @@ inline void PlayMotion_unk(Model_unk* model, int motion, int loop) {
 }
 
 // inferred: plays an effect at a world position (same code in game/Em302KrakenMp.cpp); name invented
-inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const atn::Vector3& pos, float scale) {
+inline void PlayEffectAt_unk(void* owner, int id, atn::EfpFile* efp, const atn::Vector3& pos, float scale) {
     fn_80232B7C(owner, id);
     Color4f_unk color;
     color.r = 1.0f;
@@ -300,7 +300,7 @@ inline void PlayEffectAt_unk(void* owner, int id, atn::EfpHandle_unk* efp, const
 
 // inferred: same as PlayEffect_unk with the locals in the other order (color, rot, pos; as in
 // fn_802DB7C8); name invented
-inline void PlayEffectC_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectC_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -332,7 +332,7 @@ inline int CountFreeFeet_unk(Em302Kraken* k) {
 
 // inferred: same as PlayEffect_unk with the manager read first (as in game/Em302KrakenMp.cpp); name
 // invented
-inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -524,7 +524,7 @@ int Em302Kraken::vf0C() {
             }
             fn_802DDBB0();
             m14B0 = 1;
-            ClearModelFlag_unk((Model_unk*)&mMotion, 4);
+            ClearModelFlag_unk((atn::Model*)&mMotion, 4);
         }
     } else if (m14B0 == 1) {
         if (m15B0.fn_80237874() == 0) {
@@ -971,7 +971,7 @@ void Em302Kraken::fn_802DA174() {
                 mMotion.mTracks[0].m0C = 1.0f;
                 mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
                 fn_80232B7C(this, 100);
-                PlayEffectC_unk(&m160C, (Model_unk*)&mMotion);
+                PlayEffectC_unk(&m160C, (atn::Model*)&mMotion);
                 fn_800C31F4("SE_SP016_001", 0, -1, 1.0f);
             } else {
                 fn_80370AE4(lbl_8087F430, 0xCC, 1);
@@ -1051,7 +1051,7 @@ void Em302Kraken::fn_802DAA38() {
             t->m10 = GetNodePos_unk(m1554[i].mChara->mMotion.GetNodeMtx_unk("hips"));
             m1554[i].m04 = m1554[i].m10;
             fn_8023A680(lbl_8087F3C0, &m1524, -1, 6, &m1554[i].m04, 0, 0, 0, 1.0f, 0, -1, 1);
-            PlayEffect_unk(&m1530, (Model_unk*)&m1554[i].mChara->mMotion);
+            PlayEffect_unk(&m1530, (atn::Model*)&m1554[i].mChara->mMotion);
         }
         wchar_t text[256];
         memset(text, 0, sizeof(text));
@@ -1074,7 +1074,7 @@ void Em302Kraken::fn_802DAA38() {
     if (m14C4 > 100) {
         fn_80239DAC(lbl_8087F3C0, this, 102, 0);
         fn_80232B7C(0, 0);
-        PlayEffect_unk(&m1548, (Model_unk*)&mMotion);
+        PlayEffect_unk(&m1548, (atn::Model*)&mMotion);
         KrakenDamage_unk damage;
         int total = 0;
         for (unsigned int i = 0; i < m1554.size(); i++) {
@@ -1115,12 +1115,12 @@ void Em302Kraken::fn_802DB2D0() {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m14E0, (Model_unk*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 3.0f);
+        fn_8023A8B4(lbl_8087F3C0, &m14E0, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 3.0f);
     }
     if (m14C4 == 50) {
         for (CharaTask* c = (CharaTask*)lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
             fn_80232B7C(c, 1000);
-            PlayEffect_unk(&m14EC, (Model_unk*)&c->mMotion);
+            PlayEffect_unk(&m14EC, (atn::Model*)&c->mMotion);
         }
     }
     if (m14C4 > 60) {
@@ -1233,7 +1233,7 @@ void Em302Kraken::fn_802DB7C8() {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m160C, (Model_unk*)&mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        fn_8023A8B4(lbl_8087F3C0, &m160C, (atn::Model*)&mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         fn_800C31F4("SE_SP016_001", 0, -1, 1.0f);
     } else if (m14C4 >= 90) {
         m14C8 = 0;
@@ -1253,7 +1253,7 @@ void Em302Kraken::fn_802DB7C8() {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m1618, (Model_unk*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
+        fn_8023A8B4(lbl_8087F3C0, &m1618, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
         fn_800C31F4("SE_SP016_002", 0, -1, 1.0f);
     }
 }
@@ -1370,9 +1370,9 @@ void Em302Kraken::fn_802DC1C0() {
     mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
     m1588 = fn_800C344C("SE_EM302_011", &m614, 0, -1, 1.0f);
     fn_80232B7C(this, 100);
-    PlayEffect2_unk(&m158C, (Model_unk*)&mMotion);
+    PlayEffect2_unk(&m158C, (atn::Model*)&mMotion);
     fn_80232B7C(this, 101);
-    PlayEffect2_unk(&m15B0, (Model_unk*)&mMotion);
+    PlayEffect2_unk(&m15B0, (atn::Model*)&mMotion);
     m15C8 = lbl_807C7030;
     wchar_t text[256];
     memset(text, 0, sizeof(text));
@@ -1395,7 +1395,7 @@ void Em302Kraken::fn_802DC3D0() {
     fn_800CB5C8(&m1588, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80232B7C(0, 0);
-    PlayEffect_unk(&m1598, (Model_unk*)&mMotion);
+    PlayEffect_unk(&m1598, (atn::Model*)&mMotion);
     GimmickCommon* g;
     unsigned int index = m1638;
     if (m1648.empty()) {
@@ -1452,7 +1452,7 @@ void Em302Kraken::fn_802DC618() {
         foot->fn_802E55B0(3);
     }
     fn_80232B7C(0, 0);
-    PlayEffect_unk(&m15E8, (Model_unk*)&mMotion);
+    PlayEffect_unk(&m15E8, (atn::Model*)&mMotion);
     fn_800CB5C8(&m1588, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
@@ -1614,7 +1614,7 @@ void Em302Kraken::fn_802DD1B4(int level) {
         fn_80107850(lbl_8087F048, &e->mMotion);
         fn_801077A8(lbl_8087F048, &e->mMotion, &e->mMotion);
         fn_80232B7C(e, 1000);
-        PlayEffect_unk(&m14EC, (Model_unk*)&e->mMotion);
+        PlayEffect_unk(&m14EC, (atn::Model*)&e->mMotion);
         e->mFlag15 = 0;
         e->mFlags &= ~4;
         e->fn_800D246C(0);

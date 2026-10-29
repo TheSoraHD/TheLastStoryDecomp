@@ -5,7 +5,7 @@
 
 extern "C" void* lbl_8087F048; // inferred: effect/bullet manager of the characters
 extern "C" int fn_800F8548(void* mgr); // inferred: new bullet id
-extern "C" void fn_80105BD8(void* mgr, Model_unk* model);
+extern "C" void fn_80105BD8(void* mgr, atn::Model* model);
 extern "C" void fn_801092C8(void* mgr, int arg, CharaTask* chara, int a, int b);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
@@ -20,12 +20,12 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
 // inferred: plays an effect on the model (name invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

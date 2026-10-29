@@ -5,7 +5,9 @@
 #include "atn/LH_Binary.h"
 #include "Event/PoseKey_unk.h"
 
-struct Model_unk;
+namespace atn {
+struct Model;
+}
 namespace atn {
 struct MotionBuffer;
 }
@@ -53,9 +55,9 @@ public:
     };
 
     CharaFaceControl(); // 0x8011D24C
-    void fn_8011D424(Model_unk* model); // inferred: installs the node callback of the model
+    void fn_8011D424(atn::Model* model); // inferred: installs the node callback of the model
     void fn_8011D844(atn::MotionBuffer* nodes, int arg); // inferred: node callback
-    void fn_8011E200(MotionSet* entry, atn::Vector_unk<Event::PoseKey_unk>* edits, float weight);
+    void fn_8011E200(MotionSet* entry, atn::SimpleVector<Event::PoseKey_unk>* edits, float weight);
     // inferred: plays the face motion `motion` (CharaObj, CharaTask)
     void fn_8011E81C(int motion, unsigned char eyes, unsigned char head, unsigned char hair, float speed,
                      float weight);
@@ -65,9 +67,9 @@ public:
     void fn_8011EDE0(int fade); // inferred: stops the face motion (fading it out when `fade` is set)
     void fn_8011EE58(float weight, float m74, float total, float fadeOut, float fadeIn); // inferred: blink timer
 
-    Model_unk* m00;
+    atn::Model* m00;
     MotionSet m04[2];
-    atn::Vector_unk<Event::PoseKey_unk> m44[2];
+    atn::SimpleVector<Event::PoseKey_unk> m44[2];
     int m5C;   // inferred: current entry (0 or 1)
     float m60; // inferred: timer
     float m64;
@@ -86,7 +88,7 @@ struct FaceData_unk : public atn::LH_Binary {
     int fn_8011EF14();                  // inferred: parses the file, nonzero while loading
 
     atn::Buffer_unk<CharaFaceControl::MotionPart> mKeys; // 0x08
-    atn::Vector_unk<Event::PoseKey_unk> mEdits;          // 0x10
+    atn::SimpleVector<Event::PoseKey_unk> mEdits;          // 0x10
 };
 
 #endif

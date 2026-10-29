@@ -159,12 +159,12 @@ public:
     std::vector<DaemonBolt_unk> m15A8;
     HitInfo_unk* m15B4; // inferred: magic in use
     int m15B8;          // inferred: chant counter
-    atn::EfpHandle_unk m15BC;
-    atn::EfpHandle_unk m15C8;
+    atn::EfpFile m15BC;
+    atn::EfpFile m15C8;
     std::vector<DaemonThunder_unk> m15D4;
     int m15E0;
-    atn::EfpHandle_unk m15E4; // inferred: "/effect/ef_bs049e.efp"
-    atn::EfpHandle_unk m15F0;
+    atn::EfpFile m15E4; // inferred: "/effect/ef_bs049e.efp"
+    atn::EfpFile m15F0;
     int m15FC;
     int m1600;
     int m1604;
@@ -173,7 +173,7 @@ public:
     DaemonFloatList_unk m1610; // inferred: "StunHPRate"
     DaemonFloatList_unk m161C; // inferred: "RecoverHPRate"
     int m1628;
-    atn::EfpHandle_unk m162C; // inferred: "/effect/ef_mb005c.efp"
+    atn::EfpFile m162C; // inferred: "/effect/ef_mb005c.efp"
     CharaTask* m1638;
     atn::Vector3 m163C;
     atn::Vector3 m1648;

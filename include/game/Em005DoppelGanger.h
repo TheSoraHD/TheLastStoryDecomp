@@ -40,10 +40,10 @@ public:
     int m14BC; // inferred: phase (0 while hidden, 2 copying a character)
     int m14C0; // inferred: wait counter (240)
     int m14C4;
-    atn::EfpHandle_unk m14C8;
-    atn::EfpHandle_unk m14D4;
-    atn::EfpHandle_unk m14E0;
-    atn::EfpHandle_unk m14EC;
+    atn::EfpFile m14C8;
+    atn::EfpFile m14D4;
+    atn::EfpFile m14E0;
+    atn::EfpFile m14EC;
     int m14F8;        // inferred: "DstCopyRobotId"
     CopyRobotTask* m14FC; // inferred: the copy robot (its model plays the effect m14E0)
     int m1500;        // inferred: "SrcCopyCharaId" (negative: the first player)

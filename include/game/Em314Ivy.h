@@ -49,7 +49,7 @@ public:
     float m1508;      // inferred: "CatchDistance"
     int m150C;
     // inferred: damage spheres kept while hidden; vf104 moves them back into m624 when the ivy appears
-    atn::Vector_unk<CharaTask::Item14_unk> m1510;
+    atn::SimpleVector<CharaTask::Item14_unk> m1510;
     unsigned int m151C; // inferred: number of points drawn by vf14
     struct Point_unk {
         unsigned char m00[0x04];

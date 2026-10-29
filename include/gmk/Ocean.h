@@ -30,14 +30,14 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
     void fn_804186D8(); // inferred: moves the joints
 
-    Model_unk mModel;       // 0xF4
+    atn::Model mModel;       // 0xF4
     Wave_unk mWaves[2][2];  // 0x4C4: [state][joint]
     unsigned char m4F4[0x4FC - 0x4F4];
     float mTime;            // 0x4FC

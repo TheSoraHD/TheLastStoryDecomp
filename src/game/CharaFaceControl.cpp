@@ -15,7 +15,7 @@ extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 // inferred: reads a node edit from a "NODE_EDIT" line (as in game/EquipItemData.cpp)
 extern "C" void fn_80089EE4(Event::PoseKey_unk* edit, atn::CsvTab* csv);
 // inferred: node pose helpers of the engine (names unknown)
-extern "C" void fn_80099010(void* pose, Model_unk::NodeRes_unk* node);   // inferred: resets a pose
+extern "C" void fn_80099010(void* pose, atn::Model::NodeRes_unk* node);   // inferred: resets a pose
 extern "C" void fn_80098948(void* dst, int arg, void* a, void* b, float t); // inferred: blends two poses
 // inferred: pose of the node `hash` of a motion at `frame`; zero on success
 extern "C" int fn_800A0548(atn::LoadHandle* motion, void* pose, unsigned int hash, void* work, float frame);
@@ -31,7 +31,7 @@ unsigned char lbl_807C7AF8[0x18];
 }
 
 namespace atn {
-// inferred: node pose (as Model_unk::Node_unk)
+// inferred: node pose (as atn::Model::Node_unk)
 struct MotionBuffer {
     unsigned int m00;
     Vector3 m04;
@@ -50,12 +50,12 @@ struct MotionPose_unk {
 CharaFaceControl::CharaFaceControl() : m00(0), m5C(0), m60(-1.0f), m78(0), m7C(1.0f) {}
 
 // inferred: the original copies the callback and swaps it into the model (the frame and the swap
-// temporaries only match this way: perhaps an inline setter of Model_unk taking the function by
+// temporaries only match this way: perhaps an inline setter of atn::Model taking the function by
 // reference)
-void CharaFaceControl::fn_8011D424(Model_unk* model) {
+void CharaFaceControl::fn_8011D424(atn::Model* model) {
     m00 = model;
     boost::function<void(atn::MotionBuffer*, int)> callback(boost::bind(&CharaFaceControl::fn_8011D844, this, _1, _2));
-    Model_unk* target = m00;
+    atn::Model* target = m00;
     boost::function<void(atn::MotionBuffer*, int)> copy(callback);
     copy.swap(target->m370);
 }
@@ -104,7 +104,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
         m60 -= lbl_8087EFA8->mTimeScale;
     }
     if (m44[!m5C].mSize != 0 || m44[m5C].mSize != 0) {
-        Model_unk::Res_unk* res = m00->m16C;
+        atn::Model::Res_unk* res = m00->m16C;
         FixedArray_unk<Event::PoseKey_unk, 32> edits;
         edits.mCount = 0;
         for (unsigned int i = 0; i < m44[!m5C].mSize; i++) {
@@ -139,7 +139,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
             }
         }
         for (int i = 0; i < res->m44; i++) {
-            Model_unk::NodeRes_unk* node = res->m48[i];
+            atn::Model::NodeRes_unk* node = res->m48[i];
             int index = node->m18;
             for (unsigned int j = 0; j < edits.mCount; j++) {
                 if (node->m14 == edits.mData[j].m00) {
@@ -166,7 +166,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
 
 // NONMATCHING: 97.36% - register allocation (the original keeps the motion, the node and the entry
 // in r28-r31 and only five name hashes in registers); same instructions otherwise
-void CharaFaceControl::fn_8011E200(MotionSet* entry, atn::Vector_unk<Event::PoseKey_unk>* edits,
+void CharaFaceControl::fn_8011E200(MotionSet* entry, atn::SimpleVector<Event::PoseKey_unk>* edits,
                                    float weight) {
     if (!entry->IsActive_unk()) {
         return;
@@ -175,9 +175,9 @@ void CharaFaceControl::fn_8011E200(MotionSet* entry, atn::Vector_unk<Event::Pose
     if (!fixed) {
         entry->m08 = FACE_MAX(0.0f, FACE_MIN(entry->m10, entry->m08 + entry->m0C));
     }
-    Model_unk::Node_unk* poses = m00->m220;
+    atn::Model::Node_unk* poses = m00->m220;
     MotionPose_unk pose;
-    Model_unk::Res_unk* res = m00->m16C;
+    atn::Model::Res_unk* res = m00->m16C;
     unsigned int head = fn_800DC6B4("head");
     unsigned int neck = fn_800DC6B4("neck");
     unsigned int eyeL = fn_800DC6B4("eye_L");
@@ -213,7 +213,7 @@ void CharaFaceControl::fn_8011E200(MotionSet* entry, atn::Vector_unk<Event::Pose
             full = true;
         }
         for (int j = 0; j < res->m44; j++) {
-            Model_unk::NodeRes_unk* node = res->m48[j];
+            atn::Model::NodeRes_unk* node = res->m48[j];
             int index = node->m18;
             if (weight > 0.0f && !(node->m14 == eyelibL || node->m14 == eyelibR || node->m14 == lowerEyelibL ||
                                    node->m14 == lowerEyelibR)) {

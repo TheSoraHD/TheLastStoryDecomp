@@ -30,7 +30,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -59,11 +59,11 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
-extern "C" void fn_80088FAC(void* group, const char* name, Model_unk::Float4_unk* value, int arg3, int arg4,
+extern "C" void fn_80088FAC(void* group, const char* name, atn::Model::Float4_unk* value, int arg3, int arg4,
                             float min, float max, float step);
 
 // inferred: plays an effect on the model (same as in Em305VampireMp.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -366,7 +366,7 @@ void Em305Vampire::vf14() {
         mMotion.m40 = m15C4;
         mMotion.fn_8009373C("op_02_cloud", 0);
     } else {
-        Model_unk::Float4_unk white;
+        atn::Model::Float4_unk white;
         white.m00 = 1.0f;
         white.m04 = 1.0f;
         white.m08 = 1.0f;

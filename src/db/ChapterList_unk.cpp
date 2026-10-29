@@ -197,7 +197,7 @@ extern "C" void fn_80208144() {
         sprintf(first->mName, "debug");
         first->m54 = 0x14;
         first->m58 = 0x10;
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         for (int i = 0; i < 7; i++) {
             csv.fn_8005BBF8();
         }

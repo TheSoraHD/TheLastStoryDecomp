@@ -18,7 +18,7 @@ extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_80599C90(Bullet_unk* bullet, CharaTask* chara); // inferred: the effect can reach `chara`
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_80093C8C(Model_unk* model, const char* name); // inferred: nonzero while the named motion part plays
+extern "C" int fn_80093C8C(atn::Model* model, const char* name); // inferred: nonzero while the named motion part plays
 extern "C" int rand();
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;

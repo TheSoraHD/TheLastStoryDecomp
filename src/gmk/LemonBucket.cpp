@@ -9,9 +9,9 @@ extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
@@ -416,7 +416,7 @@ void LemonBucket::vf6C(void* menu) {
     fn_8008771C(group, "speedBase", &mSpeedBase, 0, 0, 0.0f, 100.0f, 0.5f);
 }
 
-Model_unk* LemonBucket::vf38() {
+atn::Model* LemonBucket::vf38() {
     if (m54 == 1) {
         return &mModel;
     }

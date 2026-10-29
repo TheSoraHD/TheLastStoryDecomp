@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/FileList.h"
 #include "atn/Memory.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -21,7 +22,6 @@ extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size);
 
 // inferred: loads a whole file / releases it
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
-extern "C" void fn_8006BB6C(void* data, int arg);
 
 typedef std::basic_string<wchar_t> WString_unk;
 
@@ -158,7 +158,7 @@ extern "C" void fn_80208BE8(const char* path) {
     }
     sEntries = new (3, "", "", 0) CharaIdEntry_unk[count];
     sCount = count;
-    csv.vf08((const wchar_t*)data, size / 2);
+    csv.SetData((const wchar_t*)data, size / 2);
     sWideTexts = new (3, "", "", 0) wchar_t[wideSize];
     sTexts = new (3, "", "", 0) char[textSize];
     int widePos = 0;
@@ -191,7 +191,7 @@ extern "C" void fn_80208BE8(const char* path) {
         entry->m2C = fn_800DC1DC(csv.fn_8005B9CC());
         i++;
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
 }
 
 // inferred: number of a character id ("em_123_45" -> 12345)

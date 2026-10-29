@@ -1,4 +1,5 @@
 #include "game/Em310Gargoyle.h"
+#include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "game/EnemyManager.h"
 #include "math/Vec.h"
@@ -30,7 +31,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -262,7 +263,7 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet
 // inferred: model matrix (weak copy 0x80266154, as in gmk/Cannonball.cpp)
-extern "C" inline atn::Matrix3x4* fn_80266154(Model_unk* model) {
+extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
     return (atn::Matrix3x4*)model->mMtx;
 }
 // inferred: enemy list accessors (weak copies of other files, as in gmk/Cannonball.cpp)
@@ -310,24 +311,6 @@ extern "C" inline atn::Matrix3x4 fn_8030CA38(const atn::Vector3& rot) {
         __MtxCopy(m.m, t);
     }
     return m;
-}
-// inferred: keyboard of the debug build (lbl_8087EEF0, as in game/EnemyQuarkSecond.cpp)
-struct GargoyleKeyboard_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" GargoyleKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(GargoyleKeyboard_unk* kb, void* state, int key); // inferred: key pressed
-extern "C" inline GargoyleKeyboard_unk* fn_802A49BC() {
-    return lbl_8087EEF0;
-}
-extern "C" inline int fn_802A4968(GargoyleKeyboard_unk* kb, int pad, int key) {
-    int result = 0;
-    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
-        result = 1;
-    }
-    return result;
 }
 
 // inferred: a rider sits on the seat node `name` and plays the riding motion
@@ -420,13 +403,13 @@ void Em310Gargoyle::vf10() {
         }
     }
     if (m1604 != 0) {
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4B)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4B)) {
             fn_8030CF84(1);
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4C)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C)) {
             fn_8030D0D8();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4D)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D)) {
             fn_80370AE4(lbl_8087F430, 0x66, 4);
         }
     }

@@ -21,7 +21,7 @@ struct FlyObj {
     FlyObjManager* mOwner;   // 0x00
     atn::ColliSphere mColli; // 0x04
     float mRadius;           // 0x50: "COLLI_RADIUS"
-    Model_unk mModel;        // 0x54
+    atn::Model mModel;        // 0x54
     atn::Vector3 mPos;       // 0x424
     atn::Vector3 mRot;       // 0x430
     atn::Vector3 mVel;       // 0x43C

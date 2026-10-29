@@ -24,7 +24,7 @@ extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int ar
 extern "C" void fn_8023A680(atn::EffectManager* mgr, ResLoader_unk* res, int arg2, int arg3, const void* mtx,
                             const atn::Vector3* pos, const atn::Vector3* rot, const EffectColor_unk* color,
                             int arg8, int arg9, int arg10, float scale); // inferred: plays an effect
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const EffectColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
@@ -35,7 +35,7 @@ extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
                             int arg9, float arg10, float arg11);
-extern "C" void fn_80105BD8(BulletMgr_unk* mgr, Model_unk* model);
+extern "C" void fn_80105BD8(BulletMgr_unk* mgr, atn::Model* model);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;

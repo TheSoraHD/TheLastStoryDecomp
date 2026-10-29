@@ -2,7 +2,7 @@
 #include "macros.h"
 
 extern "C" int rand();
-extern "C" void fn_80097CCC(Model_unk* model, int track, float weight);
+extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 // inferred: result of the ray test fn_8004ED34 (as in game/ChaserNpc.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}

@@ -73,7 +73,7 @@ struct MotionColli_unk {
 // inferred: "EFP" of a state with its flags (1 EFF_CLEAR_IMMEDIATE, 2 EFF_REFLECT; names invented)
 struct MotionEfp_unk {
     MotionEfp_unk() : mFlags(0) {}
-    atn::EfpHandle_unk mEfp;
+    atn::EfpFile mEfp;
     unsigned int mFlags;
 };
 
@@ -100,7 +100,7 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
@@ -115,7 +115,7 @@ public:
 
     int mPrevState;                   // 0xF4
     int mFrame;                       // 0xF8
-    Model_unk mModels[8];             // 0xFC
+    atn::Model mModels[8];             // 0xFC
     int mHasModel[8];                 // 0x1F7C
     MotionPlay_unk mPlay[8];          // 0x1F9C
     MotionColli_unk mColli[8];        // 0x203C

@@ -1,4 +1,5 @@
 #include "game/EnemyQuarkSecond.h"
+#include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -50,7 +51,7 @@ extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" inline PlayerManager* fn_8000D9E8() {
     return lbl_8087F8A0;
 }
-// inferred: Model_unk member of another unit (sets a value of the model, weak copy 0x80288E30 of
+// inferred: atn::Model member of another unit (sets a value of the model, weak copy 0x80288E30 of
 // game/Em203GreaterDaemon.cpp)
 extern "C" void fn_80288E30(CharaTask* chara, float value);
 
@@ -257,16 +258,16 @@ extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: plays `efp` on `model` (weak copy 0x8026607C of game/Em201ZanGurgFinal.cpp; declared without
 // a body: its constants are in the pool of that unit, not in this one)
-extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg);
-extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int id, int arg);
-extern "C" void fn_8023A254(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int arg, float rate);
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, const atn::Vector3& pos,
+extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
+extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg);
+extern "C" void fn_8023A254(EffectMgr_unk* mgr, atn::EfpFile* efp, int arg, float rate);
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
                             const atn::Vector3& rot, int a, int b, int c, float scale);
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -311,24 +312,6 @@ extern "C" inline void fn_8028CFB8(PlayerInput_unk* input, int frames, float a, 
     input->m908 = a;
     input->m900 = input->m900 % 2;
     input->m90C = b;
-}
-// inferred: keyboard of the debug build (lbl_8087EEF0, as in game/EnemyJill.cpp)
-struct QuarkKeyboard_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" QuarkKeyboard_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(QuarkKeyboard_unk* kb, void* state, int key); // inferred: key pressed
-extern "C" inline QuarkKeyboard_unk* fn_802A49BC() {
-    return lbl_8087EEF0;
-}
-extern "C" inline int fn_802A4968(QuarkKeyboard_unk* kb, int pad, int key) {
-    int result = 0;
-    if (kb->mD90 != 0 && fn_8007708C(kb, &kb->m034[pad * 0x1A], key) != 0) {
-        result = 1;
-    }
-    return result;
 }
 // inferred: hit points ratio (weak copy 0x8029F3AC of game/Em203GreaterDaemonRedMp.cpp; declared without
 // a body: its constants are in the pool of that unit)
@@ -397,7 +380,7 @@ extern "C" inline void fn_80339F34(CharaTask* chara, int on) {
         chara->m54C &= ~0x2000;
     }
 }
-extern "C" inline void fn_80339F5C(Model_unk* model, int track, float weight) {
+extern "C" inline void fn_80339F5C(atn::Model* model, int track, float weight) {
     model->mTracks[track].m10 = weight;
 }
 extern "C" inline HitInfo_unk* fn_80339F6C(CharaTask* chara) {
@@ -431,7 +414,7 @@ inline void EnemyQuarkSecond::fn_8034472C(int index, int value) {
 // case as LoadSeTableTask::vf0C, docs/inlining.md); not added (no invented functions).
 void EnemyQuarkSecond::vf10() {
     if (m16B4 != 0) {
-        if (mMotion.fn_80139550(0) < 6.0f) {
+        if (mMotion.GetMotionFrame(0) < 6.0f) {
             fn_8016E4C4(0);
             m14B4 = 0;
         } else {
@@ -441,16 +424,16 @@ void EnemyQuarkSecond::vf10() {
                 fn_8023A108(fn_800F7FA0(), &m1680, 0, 6);
                 fn_8023A254(fn_800F7FA0(), &m1680, 0, 0.5f);
             }
-            mMotion.fn_80139F3C(0, 0.5f);
+            mMotion.SetMotionSpeed(0, 0.5f);
             fn_8016E4C4(1);
-            if (mMotion.fn_80139550(0) >= 54.0f && m14B4 == 0) {
+            if (mMotion.GetMotionFrame(0) >= 54.0f && m14B4 == 0) {
                 fn_8028CFB8(fn_80122550(fn_80121F00()), 0x14, 0.0f, 10.0f);
                 fn_80339F14(*fn_80339F24(&m6A4, 0), 1);
                 m14B4++;
             }
         }
         float end = mMotion.fn_80097D7C(0);
-        if (mMotion.fn_80139550(0) >= end) {
+        if (mMotion.GetMotionFrame(0) >= end) {
             m16B4 = 0;
             fn_80339F34(this, 0);
             fn_80341EE4();
@@ -611,13 +594,13 @@ void EnemyQuarkSecond::vf10() {
     fn_8033AB88();
     fn_80344454(100, busy, 25.0f, 6.2831855f);
     if (m1760 != 0) {
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4C) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C) != 0) {
             fn_80342004();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x44) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x44) != 0) {
             fn_8034228C();
         }
-        if (fn_802A4968(fn_802A49BC(), 0, 0x4D) != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D) != 0) {
             fn_803435B8();
         }
     }
@@ -1336,7 +1319,7 @@ void EnemyQuarkSecond::fn_8034100C() {
 
 // inferred: plays `efp` on the model with the default color (inlined: its locals are laid out in
 // declaration order, as PlayEffectB_unk of game/Em301LShade.cpp); name invented
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model, float scale) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -1453,7 +1436,7 @@ void EnemyQuarkSecond::fn_8033D750() {
 
 // inferred: same as PlayEffect_unk with the locals declared pos, rot, color (as PlayEffect_unk of
 // game/Em301LShade.cpp); name invented
-inline void PlayEffectA_unk(atn::EfpHandle_unk* efp, Model_unk* model, float scale) {
+inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

@@ -1,14 +1,12 @@
 // inferred: render target / loaded texture wrapper (atn::Texture_unk, 0x30 bytes). File name invented.
 #include "atn/Texture_unk.h"
+#include "atn/MemoryManager.h"
 #include "atn/PostFx.h"
 #include <string.h>
 
 // inferred: engine memory manager (class of atn/SmallAllocator_8.cpp; opaque here)
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
+extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
                              const char* file, const char* func, int line, int arg);
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                            unsigned char mipmap, unsigned char maxLod);
 
@@ -41,7 +39,7 @@ extern "C" void fn_800D58A4(atn::Texture_unk* tex) {
     void* image = tex->mImage;
     tex->m2C = 0;
     if (image != 0) {
-        fn_80083AD4(fn_800827E0(), image);
+        atn::MemoryManager::Instance()->Free(image);
         tex->mImage = 0;
     }
 }
@@ -91,7 +89,7 @@ int Texture_unk::fn_800D5B58(int width, int height, int format, int lods, const 
     }
     m2F = lods;
     unsigned int size = GXGetTexBufferSize(width, height, format, 1 < lods, lods);
-    mImage = fn_800839EC(fn_800827E0(), size, 0x20, 6, "", "", 0, 0);
+    mImage = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "", "", 0, 0);
     GXInitTexObj(&mObj, mImage, width, height, format, 0, 0, 0);
     GXInitTexObjLOD(&mObj, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     m2C = 1;

@@ -131,17 +131,17 @@ public:
     int m1564; // inferred: index in the long range table
     QuarkJump_unk m1568; // inferred: current jump
     atn::Vector3 m1598; // inferred: centre of the arena
-    atn::EfpHandle_unk m15A4; // inferred: "ef_bs072f.efp"
-    atn::EfpHandle_unk m15B0; // inferred: "ef_bs054d.efp"
-    atn::EfpHandle_unk m15BC; // inferred: "ef_bs054a.efp"
+    atn::EfpFile m15A4; // inferred: "ef_bs072f.efp"
+    atn::EfpFile m15B0; // inferred: "ef_bs054d.efp"
+    atn::EfpFile m15BC; // inferred: "ef_bs054a.efp"
     ResLoader_unk m15C8;      // inferred: "ef_bs054e_01.eff"
     atn::Vector3 m15D4;
     MtxBlock_unk m15E0;
-    atn::EfpHandle_unk m1610; // inferred: "ef_bu040a.efp"
-    atn::EfpHandle_unk m161C; // inferred: "ef_bu040h.efp"
+    atn::EfpFile m1610; // inferred: "ef_bu040a.efp"
+    atn::EfpFile m161C; // inferred: "ef_bu040h.efp"
     unsigned char m1628;
-    atn::EfpHandle_unk m162C; // inferred: "ef_bs058a.efp"
-    atn::EfpHandle_unk m1638; // inferred: "ef_bs058c.efp"
+    atn::EfpFile m162C; // inferred: "ef_bs058a.efp"
+    atn::EfpFile m1638; // inferred: "ef_bs058c.efp"
     unsigned char m1644; // inferred: the rain of bullets is running (fn_803441AC)
     float m1648;         // inferred: radius of the rain
     atn::Vector3 m164C;  // inferred: centre of the rain
@@ -150,10 +150,10 @@ public:
     int m1660;
     int m1664;
     ResLoader_unk m1668;      // inferred: "ef_bs051b.eff"
-    atn::EfpHandle_unk m1674; // inferred: "ef_bd008d.efp"
-    atn::EfpHandle_unk m1680; // inferred: "ef_bu047b.efp"
-    atn::EfpHandle_unk m168C; // inferred: "ef_bu047c.efp"
-    atn::EfpHandle_unk m1698; // inferred: "ef_bs079b.efp"
+    atn::EfpFile m1674; // inferred: "ef_bd008d.efp"
+    atn::EfpFile m1680; // inferred: "ef_bu047b.efp"
+    atn::EfpFile m168C; // inferred: "ef_bu047c.efp"
+    atn::EfpFile m1698; // inferred: "ef_bs079b.efp"
     int m16A4; // inferred: "DownCount"
     int m16A8; // inferred: "StundUpDamageCount"
     int m16AC; // inferred: hits counted in state 13

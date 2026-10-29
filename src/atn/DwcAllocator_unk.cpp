@@ -1,17 +1,11 @@
 // inferred: heap of the DWC (Nintendo Wi-Fi Connection) library: a 1 MB atn::DLAllocator taken from
 // the engine memory manager, with the alloc/free callbacks given to the SDK. Name invented.
 #include "atn/DLAllocator.h"
+#include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 
-// inferred: engine memory manager (class of atn/SmallAllocator_8.cpp; only the member used here)
-struct MemoryManager_unk {
-    unsigned char m00[0x1B0];
-    int mUseMutex; // 0x1B0
-};
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, unsigned long align, int heap,
+extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
                              const char* file, const char* func, int line, int arg);
-extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);
 
 // inferred: DLAllocator::fn_80084EE8 also receives the heap name (as in atn/SmallAllocator_8.cpp)
 extern "C" void fn_80084EE8__Q23atn11DLAllocatorFPvUl(atn::DLAllocator* heap, void* base, unsigned long size,
@@ -38,18 +32,18 @@ extern "C" void fn_80509A90(void* mutex);
 NamedAllocator_unk* lbl_8087F878;
 
 extern "C" void fn_8050D3E8() {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     mgr->mUseMutex = 1;
     lbl_8087F878 = (NamedAllocator_unk*)new (5, "", "", 0) atn::DLAllocator;
-    void* base = fn_800839EC(fn_800827E0(), 0x100000, 0x20, 5, "", "", 0, 0);
+    void* base = fn_800839EC(atn::MemoryManager::Instance(), 0x100000, 0x20, 5, "", "", 0, 0);
     fn_80084EE8__Q23atn11DLAllocatorFPvUl((atn::DLAllocator*)lbl_8087F878, base, 0x100000, "DwcAllocator");
 }
 
 extern "C" void fn_8050D484() {
-    MemoryManager_unk* mgr = fn_800827E0();
+    atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     mgr->mUseMutex = 0;
     void* base = lbl_8087F878->vf18();
-    fn_80083AD4(fn_800827E0(), base);
+    atn::MemoryManager::Instance()->Free(base);
     delete lbl_8087F878;
     lbl_8087F878 = 0;
 }
@@ -60,7 +54,7 @@ extern "C" void* fn_8050D500(int name, unsigned long size, int align) {
     void* p = lbl_8087F878->vf0C(size, align, 5, "DWCAlloc");
     fn_80509A90(lbl_8087F628);
     if (p == 0) {
-        p = fn_800839EC(fn_800827E0(), size, align, 5, "", "", 0, 0);
+        p = fn_800839EC(atn::MemoryManager::Instance(), size, align, 5, "", "", 0, 0);
     }
     return p;
 }
@@ -73,7 +67,7 @@ extern "C" void fn_8050D5B8(int name, void* p, unsigned long size) {
             lbl_8087F878->vf10(p);
             fn_80509A90(lbl_8087F628);
         } else {
-            fn_80083AD4(fn_800827E0(), p);
+            atn::MemoryManager::Instance()->Free(p);
         }
     }
 }
@@ -84,7 +78,7 @@ extern "C" void* fn_8050D67C(int arg, unsigned long size) {
     void* p = lbl_8087F878->vf0C(size, 0x20, 5, "DWCAlloc");
     fn_80509A90(lbl_8087F628);
     if (p == 0) {
-        p = fn_800839EC(fn_800827E0(), size, 0x20, 5, "", "", 0, 0);
+        p = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 5, "", "", 0, 0);
     }
     return p;
 }
@@ -97,7 +91,7 @@ extern "C" void fn_8050D728(int arg, void* p) {
             lbl_8087F878->vf10(p);
             fn_80509A90(lbl_8087F628);
         } else {
-            fn_80083AD4(fn_800827E0(), p);
+            atn::MemoryManager::Instance()->Free(p);
         }
     }
 }

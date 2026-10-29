@@ -57,14 +57,14 @@ extern "C" void fn_8020FDEC() {
     if (sEntries == 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             if (strlen(csv.fn_8005B9CC()) != 0) {
                 sCount++;
             }
         }
         sEntries = new (3, "", "", 0) HateParamEntry_unk[sCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
             if (strlen(csv.fn_8005B9CC()) == 0) {

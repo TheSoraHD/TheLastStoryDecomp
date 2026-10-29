@@ -2,6 +2,7 @@
 #define GAME_GIMMICKCOMMON_H
 
 #include "atn/Csv.h"
+#include "atn/static_string_fwd.h"
 #include "atn/FixedArray.h"
 #include "atn/SoundRef.h"
 #include "atn/GXDecl.h"
@@ -33,9 +34,8 @@ struct GimmickMotionCmd_unk {
 };
 
 struct ResLoader_unk;
-struct MotionCmdElemD_unk;
 namespace atn {
-class EfpHandle_unk;
+class EfpFile;
 class SoundRef;
 }
 
@@ -52,9 +52,9 @@ struct GimmickCommonB0_unk {
 
     atn::Buffer_unk<GimmickMotionCmd_unk> mCmds;  // 0x00
     atn::Buffer_unk<ResLoader_unk> mEff;          // 0x08: "EFF_PLAY"
-    atn::Buffer_unk<atn::EfpHandle_unk> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
+    atn::Buffer_unk<atn::EfpFile> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
     atn::Buffer_unk<atn::SoundRef> mSounds;       // 0x18: "SE_LOOP"
-    atn::Buffer_unk<MotionCmdElemD_unk> mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"
+    atn::Buffer_unk<atn::static_string<32> > mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"
     int mMotion;   // 0x28: inferred: motion of the last update
     int mEnabled;  // 0x2C
     int mSoundOn;  // 0x30
@@ -181,7 +181,7 @@ public:
     }
     // Trivial inline virtuals: the weak copies of several of them were kept in the first object
     // that used them (only gimmick vtables point to them), so they live far from this file.
-    virtual Model_unk* vf38() { return 0; } // 0x80012A14: inferred: main model
+    virtual atn::Model* vf38() { return 0; } // 0x80012A14: inferred: main model
     virtual void vf3C(void* lens) {} // inferred: one argument (gmk::Chain stores it as the model lens)
     virtual int vf40(GimmickMsg_unk* msg) { return 0; } // 0x80012714: inferred: receives a message
     virtual int vf44(GimmickHitMsg_unk* msg) { return 0; } // 0x800FA4F4
@@ -200,17 +200,17 @@ public:
     virtual void vf70(int state);   // 0x803EDAF0
 
     void fn_803EC758(char* name);                       // inferred: "gmXXX_XXX_XXXX"
-    void fn_803EC7A0(Model_unk* model, atn::CsvTab* csv); // inferred: render flags
+    void fn_803EC7A0(atn::Model* model, atn::CsvTab* csv); // inferred: render flags
     int fn_803EC91C();                                  // inferred: loading, nonzero while busy
-    void fn_803ECBD4(Model_unk* model, int callback);   // inferred: places the model
-    void fn_803ED0D4(Model_unk* model, int callback);
-    void fn_803ED5D0(Model_unk* model);
-    void fn_803ED610(Model_unk* model);                 // inferred: debug draw
-    void fn_803ED774(Model_unk* model);                 // inferred: debug draw
+    void fn_803ECBD4(atn::Model* model, int callback);   // inferred: places the model
+    void fn_803ED0D4(atn::Model* model, int callback);
+    void fn_803ED5D0(atn::Model* model);
+    void fn_803ED610(atn::Model* model);                 // inferred: debug draw
+    void fn_803ED774(atn::Model* model);                 // inferred: debug draw
     void fn_803ED8D8(GimmickCommon* gimmick);           // inferred: appends to the m5C list
     void fn_803ED8F4(GimmickCommon* gimmick);           // inferred: removes from the m5C list
     void fn_803EDB0C(GimmickUvOwner_unk* owner, GimmickUvTable_unk* table);
-    void fn_803EDB18(Model_unk* model);                 // inferred: UV scroll
+    void fn_803EDB18(atn::Model* model);                 // inferred: UV scroll
     void fn_803EDCF4();                                 // inferred: debug draw
 
     int mId;           // 0x48: inferred: ids below 1000 are scaled by 1000
@@ -242,9 +242,9 @@ struct GimmickMaterialFade_unk {
     // inferred: weak copy 0x803F3334 (gmk::FragileObject); also emitted by gmk::SparkCube
     GimmickMaterialFade_unk()
         : mMaterial(0), mStart(0), mLength(0), mFrom(1.0f), mTo(1.0f), mMode(-1), mReverse(0) {}
-    void fn_803EBC44(atn::CsvTab* csv, Model_unk* model);
-    void fn_803EBD6C(Model_unk* model, const char* name, int start, int length, float to);
-    void fn_803EBE74(Model_unk* model);
+    void fn_803EBC44(atn::CsvTab* csv, atn::Model* model);
+    void fn_803EBD6C(atn::Model* model, const char* name, int start, int length, float to);
+    void fn_803EBE74(atn::Model* model);
 
     Material_unk* mMaterial;
     int mStart;
@@ -260,8 +260,8 @@ struct GimmickMotionSwitch_unk {
     // inferred: weak copy 0x803F3360 (gmk::FragileObject)
     GimmickMotionSwitch_unk() : mHash(0), mFrame(-1) {}
     // inferred: the callers pass the model too (r5), unused
-    void fn_803EC0A4(atn::CsvTab* csv, Model_unk* model);
-    void fn_803EC0F8(Model_unk* model);
+    void fn_803EC0A4(atn::CsvTab* csv, atn::Model* model);
+    void fn_803EC0F8(atn::Model* model);
 
     int mHash;
     int mFrame;

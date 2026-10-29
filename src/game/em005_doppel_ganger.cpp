@@ -47,7 +47,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
@@ -56,7 +56,7 @@ extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3)
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -74,7 +74,7 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 }
 
 // inferred: same as PlayEffect_unk with the locals in the order of game/Em003LesserDaemon.cpp
-inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectB_unk(atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -91,7 +91,7 @@ inline void PlayEffectB_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -153,7 +153,7 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" void fn_8059C8E8(SkillEffectManager* mgr, CharaTask* chara); // inferred: traps the character
 extern "C" void fn_8059C98C(SkillEffectManager* mgr, CharaTask* chara); // inferred: frees the character
-extern "C" atn::EfpHandle_unk* fn_800EFC64(int id); // inferred: effect of a skill (game/BattleEfp_unk.cpp)
+extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill (game/BattleEfp_unk.cpp)
 extern "C" void fn_805991E0(Bullet_unk* bullet); // inferred: stops an effect of a skill
 extern "C" void fn_800E9ED8(CharaTask* chara); // inferred: BattleCharaTask update while copying
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
@@ -469,7 +469,7 @@ void Em005DoppelGanger::vf10() {
             Bullet_unk* b = lbl_8087F9E8->GetBullet_unk(i);
             if (b->IsActive_unk() && (b->m08 == 0 || b->m08->mType != 2) && b->m04 != 0 && b->m04->m01 == 4) {
                 if (b->m10.z > sOffsetB_unk.z) {
-                    atn::EfpHandle_unk* efp = fn_800EFC64(b->m04->mB0);
+                    atn::EfpFile* efp = fn_800EFC64(b->m04->mB0);
                     if (efp != 0) {
                         fn_80239DAC(lbl_8087F3C0, &m1530, 0, 1);
                         m1540 = 180;

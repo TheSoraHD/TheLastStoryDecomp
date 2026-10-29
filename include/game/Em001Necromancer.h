@@ -73,10 +73,10 @@ public:
     float m156C;                // inferred: timer of state 12
     int m1570;                  // inferred: set once hit
     int m1574;
-    atn::EfpHandle_unk m1578;   // inferred: "/effect/cm002/cm002_00.efp"
-    atn::EfpHandle_unk m1584;   // inferred: "/effect/ef_sk026a.efp"
-    atn::EfpHandle_unk m1590;   // inferred: "/effect/ef_bs007a.efp"
-    atn::EfpHandle_unk m159C;   // inferred: "appear_effect" (default "/effect/ef_sk036e.efp")
+    atn::EfpFile m1578;   // inferred: "/effect/cm002/cm002_00.efp"
+    atn::EfpFile m1584;   // inferred: "/effect/ef_sk026a.efp"
+    atn::EfpFile m1590;   // inferred: "/effect/ef_bs007a.efp"
+    atn::EfpFile m159C;   // inferred: "appear_effect" (default "/effect/ef_sk036e.efp")
     int m15A8;                  // inferred: loading state
     int m15AC;                  // inferred: dead
     atn::Vector3 m15B0;         // inferred: rotation of the knock down

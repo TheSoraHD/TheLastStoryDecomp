@@ -34,7 +34,7 @@ extern "C" void fn_8021F100() {
         path = fn_8006B53C(path);
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, path.c_str(), &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             char c = *csv.fn_8005B9CC();
             if (c == ';' || c == '#') {
@@ -43,7 +43,7 @@ extern "C" void fn_8021F100() {
             sCount++;
         }
         sEntries = new (12, "", "", 0) VoiceLengthEntry_unk[sCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
             char c = *csv.fn_8005B9CC();

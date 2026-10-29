@@ -14,7 +14,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int id, int arg3, const atn::Vector3& pos,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -58,7 +58,7 @@ void RainDrops::vf10() {
         if (mEfp[m54].mResource != 0) {
             lbl_8087F3C0->mB8 = 1;
             fn_80232B7C(this, m54);
-            atn::EfpHandle_unk* efp = &mEfp[m54];
+            atn::EfpFile* efp = &mEfp[m54];
             float scale = m90.x;
             fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, m6C, m78, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
             lbl_8087F3C0->mB8 = 0;

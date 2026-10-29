@@ -87,7 +87,7 @@ extern "C" void fn_80204958() {
     }
     sEntries = new (3, "", "", 0) AiTableEntry_unk[count];
     sCount = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (strcmp(csv.fn_8005B9CC(), "") != 0) {

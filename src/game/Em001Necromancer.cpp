@@ -32,7 +32,7 @@ extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_80105BD8(Effect_unk* mgr, Model_unk* model);
+extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model);
 extern "C" float fn_8010CB2C(Effect_unk* mgr, CharaTask* chara, float rate); // inferred: chant speed
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
@@ -62,7 +62,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -120,9 +120,6 @@ struct NecroD2A_unk : public atn::Task {
 extern "C" inline int fn_80244CA0(atn::Task* task) {
     return (task->mFlags >> 1) & 1;
 }
-extern "C" inline void fn_80244CAC(atn::Task* task) {
-    task->mFlags |= 4;
-}
 extern "C" inline void fn_80244CBC(NecroD2A_unk* task, int repeat) {
     task->mRepeat = repeat;
 }
@@ -145,7 +142,7 @@ struct NandEmpty_unk {
 } // namespace atn
 
 // inferred: plays an effect on the model (as in game/Em302KrakenMp.cpp; names invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -163,7 +160,7 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
 }
 
 // inferred: same with the manager read last (name invented)
-inline void PlayEffect2_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -186,7 +183,7 @@ inline unsigned int IsFlag25_unk(const CharaTask* chara) {
     return chara->mFlag25;
 }
 // inferred: names invented
-inline void PlayMotion_unk(Model_unk* model, int motion, int loop, float speed) {
+inline void PlayMotion_unk(atn::Model* model, int motion, int loop, float speed) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
@@ -251,7 +248,7 @@ Em001Necromancer::Em001Necromancer(atn::Task* parent, EnemyInfo_unk* info)
     m1578.fn_8023780C("/effect/cm002/cm002_00.efp");
     m1584.fn_8023780C("/effect/ef_sk026a.efp");
     m1590.fn_8023780C("/effect/ef_bs007a.efp");
-    m121C.reset(new (1, "", "", 0) atn::EfpHandle_unk());
+    m121C.reset(new (1, "", "", 0) atn::EfpFile());
     m121C->fn_8023780C("/effect/ef_bu013.efp");
     (m15BC = fn_801F3FF8(this, "ui_point_slash.d2a", 0))->fn_800D246C(1);
     m1520[0] = fn_80219E6C(0x65);
@@ -334,11 +331,11 @@ int Em001Necromancer::vf0C() {
         if (fn_8013655C() == 0 && (m1438 == 0 || fn_80244CA0(m1438) != 0) && m1578.fn_80237874() == 0 &&
             m1590.fn_80237874() == 0 && m159C.fn_80237874() == 0 && fn_80244CA0(m15BC) != 0) {
             m15BC->fn_800D246C(0);
-            fn_80244CAC(m15BC);
+            m15BC->FreezeTask();
             fn_80244CBC((NecroD2A_unk*)m15BC, 0);
             if (m1438 != 0) {
                 m1438->fn_800D246C(0);
-                fn_80244CAC(m1438);
+                m1438->FreezeTask();
             }
             return 1;
         }

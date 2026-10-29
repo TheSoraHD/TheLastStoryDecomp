@@ -26,7 +26,7 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual int vf50();
@@ -38,7 +38,7 @@ public:
     virtual void vf70(int state);
 
     // inferred: model shown in the current state (body of vf38, also inlined in vf10); name invented
-    Model_unk* GetModel_unk() {
+    atn::Model* GetModel_unk() {
         if (mHasSpark != 0) {
             if (m54 < 3) {
                 return &mModel;
@@ -53,13 +53,13 @@ public:
         return mMin[state] + mRange[state] * (rand() % 1001 / 1000.0f);
     }
 
-    Model_unk mModel;         // 0xF4: "MODEL"
-    Model_unk mSpark;         // 0x4C4: "MODEL_SPARK"
+    atn::Model mModel;         // 0xF4: "MODEL"
+    atn::Model mSpark;         // 0x4C4: "MODEL_SPARK"
     int mHasSpark;            // 0x894
     atn::ColliObject mColli;  // 0x898: "COLLI_OBJECT"
     float mTimer;             // 0x920
     float mWait;              // 0x924: inferred: frames until the next state
-    atn::EfpHandle_unk mEfp[5]; // 0x928: "EFP" <file> <state>
+    atn::EfpFile mEfp[5]; // 0x928: "EFP" <file> <state>
     float mMin[5];            // 0x964: "STATE_CHANGE_FRAME" <state> <min> <range>
     float mRange[5];          // 0x978
     int mSkill;               // 0x98C: "SKILL"

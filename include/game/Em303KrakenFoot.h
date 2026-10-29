@@ -63,7 +63,7 @@ public:
     int m14EC;
     int m14F0;                // inferred: "CatchNotifyFlag" (SpecialFlag_unk: global flag, index)
     int m14F4;
-    atn::EfpHandle_unk m14F8; // inferred: "/effect/ef_bd006.efp"
+    atn::EfpFile m14F8; // inferred: "/effect/ef_bd006.efp"
     int m1504;                // inferred: the kraken (CharaTask*, set by fn_802E2468)
     ResHandle m1508;          // inferred: debug menu group
     int m150C;                // inferred: "DebugDisp"

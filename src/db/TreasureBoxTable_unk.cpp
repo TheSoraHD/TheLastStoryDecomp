@@ -64,7 +64,7 @@ extern "C" void fn_8021E0B0() {
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
         sBoxCount = 0;
         sItemCount = 0;
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();
         do {
@@ -93,7 +93,7 @@ extern "C" void fn_8021E0B0() {
         } while (csv.fn_8005BBF8() != 0);
         sBoxes = new (3, "", "", 0) TreasureBox_unk[sBoxCount];
         sItems = new (3, "", "", 0) TreasureItem_unk[sItemCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();
         int i = 0;

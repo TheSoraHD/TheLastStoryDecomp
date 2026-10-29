@@ -2,6 +2,7 @@
 // and then the frame loop, which times each part of the frame into HeapInfo_unk and calls the
 // per-frame callbacks registered in lbl_8087EE94 (bound members of ResetShutdown/ErrorManager).
 #include "atn/Array_unk.h"
+#include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "atn/SoundManager.h"
 #include "atn/Task.h"
@@ -132,7 +133,6 @@ extern "C" void* lbl_8087EF70;
 extern "C" void* lbl_8087EE98;
 extern "C" void* lbl_8087EE90;
 extern "C" void* lbl_8087EEB0;
-extern "C" void* fn_800827E0();
 extern "C" void fn_8006BA54(unsigned char lang);
 extern "C" void fn_80071220();
 extern "C" void fn_800713D4(void* obj, int w, int h);
@@ -184,7 +184,7 @@ extern "C" void fn_800BD9C0(RenderSystem_unk* render, int size, const std::strin
 extern "C" void fn_800BDBC8(RenderSystem_unk* render);
 extern "C" void fn_800BFAC4(RenderSystem_unk* render);
 
-typedef atn::Vector_unk<boost::function<void()> > FrameCallbacks_unk;
+typedef atn::SimpleVector<boost::function<void()> > FrameCallbacks_unk;
 extern "C" FrameCallbacks_unk* lbl_8087EE94;
 
 // inferred: creates the list of per-frame callbacks (name invented)
@@ -258,14 +258,14 @@ int main() {
 
 // inferred: start-up
 // NONMATCHING: 39.7% - the original inlines the boost::bind/boost::function constructors, the
-// strings and LightDesc_unk while calling Vector_unk::push_back out of line (here the three push_back
+// strings and LightDesc_unk while calling SimpleVector::push_back out of line (here the three push_back
 // calls make every candidate go out of line; push_back probably takes the function by value in the
 // original). Over the budget OSInitFastCast (approved SDK header asm) is also called out of line here,
 // while the original inlines its four mtspr GQR2-5 after OSInit.
 void fn_8047A4C8() {
     OSInit();
     OSInitFastCast();
-    OSInitMutex((char*)fn_800827E0() + 0x1B4);
+    OSInitMutex((char*)atn::MemoryManager::Instance() + 0x1B4);
     DVDInit();
     VIInit();
     NWC24SuspendScheduler();

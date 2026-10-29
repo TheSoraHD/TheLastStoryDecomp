@@ -30,10 +30,10 @@ public:
     virtual void vf70(int state);
 
     GimmickDesc_unk* mDesc;       // 0xF4
-    atn::EfpHandle_unk mEfpOn;    // 0xF8: "EFP ON"
+    atn::EfpFile mEfpOn;    // 0xF8: "EFP ON"
     atn::SoundRef mSound;         // 0x104
-    atn::EfpHandle_unk mEfpAttract; // 0x108: "EFP ATTRACT"
-    atn::EfpHandle_unk mEfpWait;  // 0x114: "EFP WAIT"
+    atn::EfpFile mEfpAttract; // 0x108: "EFP ATTRACT"
+    atn::EfpFile mEfpWait;  // 0x114: "EFP WAIT"
     float mRadius;                // 0x120: "check_radius"
     int mInRange;                 // 0x124: inferred: the player is in range this frame
 };

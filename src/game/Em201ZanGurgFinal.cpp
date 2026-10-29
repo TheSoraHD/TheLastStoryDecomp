@@ -74,7 +74,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* efp, Model_unk* model, int arg3, const atn::Vector3& pos,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* efp, atn::Model* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -174,7 +174,7 @@ extern "C" inline void fn_80265804(CharaStatus* status, float value) {
     status->m2FC = value;
 }
 // inferred: plays an effect on the model (name invented)
-extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, void* efp, Model_unk* model, int arg) {
+extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, void* efp, atn::Model* model, int arg) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -217,11 +217,11 @@ extern "C" inline void fn_8026610C(PlayerInput_unk* input, const atn::Vector3& p
     input->m934 = f;
     input->m914 = keep != 0 ? input->m918 : 0;
 }
-extern "C" inline atn::Matrix3x4* fn_80266154(Model_unk* model) {
+extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
     return (atn::Matrix3x4*)model->mMtx;
 }
-extern "C" inline Model_unk* fn_8026615C(chr::CharaPart_unk* part) {
-    return (Model_unk*)part->m010;
+extern "C" inline atn::Model* fn_8026615C(chr::CharaPart_unk* part) {
+    return (atn::Model*)part->m010;
 }
 extern "C" inline atn::Vector3* fn_80266164(PlayerInput_unk* input) {
     return (atn::Vector3*)&input->m910;
@@ -262,7 +262,7 @@ static const char* const sDamageNodes_unk[] = {"op_05_shield_dam_b1", "op_05_shi
                                                "op_05_shield_dam_b4", "op_05_shield_dam_b5"};
 
 // inferred: names invented
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -278,13 +278,13 @@ inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
-inline void PlayMotion_unk(Model_unk* model, int motion, int loop, float speed) {
+inline void PlayMotion_unk(atn::Model* model, int motion, int loop, float speed) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
     model->fn_80097C08(0, motion, loop, 0, 1, 0.0f, speed);
 }
-inline void PlayMotionB_unk(Model_unk* model, int motion, float blend) {
+inline void PlayMotionB_unk(atn::Model* model, int motion, float blend) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->mTracks[0].m0C = 1.0f;
@@ -337,7 +337,7 @@ inline RoutePlace_unk* FindRoutePlace4_unk(int id) {
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
-inline bool IsMotionEnd_unk(Model_unk* model) {
+inline bool IsMotionEnd_unk(atn::Model* model) {
     float frame = model->mTracks[0].m08;
     return frame >= model->fn_80097D7C(0);
 }
@@ -1109,7 +1109,7 @@ void Em201ZanGurgFinal::vf98() {
     if (show) {
         fn_80232B7C(m121C.get(), 0);
         lbl_8087F3C0->mB8 = 2;
-        PlayEffect_unk((atn::EfpHandle_unk*)m121C.get(), &mMotion);
+        PlayEffect_unk((atn::EfpFile*)m121C.get(), &mMotion);
         lbl_8087F3C0->mB8 = 0;
         fn_80232B7C(&m15A0, 0);
         lbl_8087F3C0->mB8 = 2;
@@ -1499,7 +1499,7 @@ void Em201ZanGurgFinal::fn_802696F8() {
 }
 
 // inferred: plays `motion` from frame `frame` (name invented)
-inline void PlayMotionAt_unk(Model_unk* model, int motion, float frame) {
+inline void PlayMotionAt_unk(atn::Model* model, int motion, float frame) {
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
     model->fn_80097C08(0, motion, 0, 0, 1, 1.0f, 0.1f);
@@ -2084,12 +2084,12 @@ inline float ZanMaxScale_unk(const atn::Matrix3x4& mtx) {
 }
 // inferred: puts the shield model on a node matrix (name invented)
 inline void SetShieldMtx_unk(chr::CharaPart_unk* part, const atn::Matrix3x4& m) {
-    Model_unk* model = (Model_unk*)part->m010;
+    atn::Model* model = (atn::Model*)part->m010;
     __MtxCopy(model->mMtx, m.m);
     model->m54 = ZanMaxScale_unk(m);
 }
 inline atn::Matrix3x4& ShieldMtx_unk(chr::CharaPart_unk* part) {
-    return *(atn::Matrix3x4*)((Model_unk*)part->m010)->mMtx;
+    return *(atn::Matrix3x4*)((atn::Model*)part->m010)->mMtx;
 }
 
 // NONMATCHING: stack layout of the temporaries and the scale helper (f0/f8 of the column loads); logic follows
@@ -2366,7 +2366,7 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
         break;
     }
     }
-    fn_800902C0((Model_unk*)m1624->m010, 0, boost::function<void()>());
+    ((atn::Model*)m1624->m010)->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
 }
 
 // NONMATCHING: r3/r4 of the target and of the temporary in every case (6 variants)

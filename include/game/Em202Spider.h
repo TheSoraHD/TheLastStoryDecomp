@@ -100,12 +100,12 @@ public:
     int m1544;
     int m1548;
     int m154C;
-    atn::EfpHandle_unk m1550; // inferred: "/effect/ef_uc019.efp"
+    atn::EfpFile m1550; // inferred: "/effect/ef_uc019.efp"
     ResLoader_unk m155C;      // inferred: "/effect/ef_sk002b.eff"
-    atn::EfpHandle_unk m1568; // inferred: "/effect/ef_uc001.efp"
-    atn::EfpHandle_unk m1574; // inferred: "/effect/ef_sk002d.efp"
-    atn::EfpHandle_unk m1580; // inferred: "/effect/ef_uc007.efp"
-    atn::EfpHandle_unk m158C; // inferred: "/effect/ef_sc003_01b.efp"
+    atn::EfpFile m1568; // inferred: "/effect/ef_uc001.efp"
+    atn::EfpFile m1574; // inferred: "/effect/ef_sk002d.efp"
+    atn::EfpFile m1580; // inferred: "/effect/ef_uc007.efp"
+    atn::EfpFile m158C; // inferred: "/effect/ef_sc003_01b.efp"
     SpiderColor_unk m1598;    // inferred: color of the materials "em202_body"/"em202_tail" (vf14)
     atn::SoundRef m15A8;
 };

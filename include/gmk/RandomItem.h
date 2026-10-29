@@ -35,7 +35,7 @@ struct RandomItemDrop_unk {
 
     int mId;                                              // 0x00
     int m04;                                              // 0x04
-    atn::Vector_unk<RandomItemLoc_unk> mLocs;             // 0x08
+    atn::SimpleVector<RandomItemLoc_unk> mLocs;             // 0x08
     atn::FixedArray_unk<RoutePoint_unk*, 0x200> mPoints;  // 0x14
     float m818;
     int m81C;
@@ -65,16 +65,16 @@ public:
     void fn_804348C4();
     void fn_80435684(int state);
 
-    atn::EfpHandle_unk mEfp;     // 0xF4: "EFP"
-    atn::EfpHandle_unk mEfpItem; // 0x100: "EFP_ITEM"
-    atn::EfpHandle_unk mEfpGet;  // 0x10C: "EFP_GET"
+    atn::EfpFile mEfp;     // 0xF4: "EFP"
+    atn::EfpFile mEfpItem; // 0x100: "EFP_ITEM"
+    atn::EfpFile mEfpGet;  // 0x10C: "EFP_GET"
     int m118;
     int m11C;                    // inferred: state
     float m120;                  // inferred: "DROP" 1
     int m124;                    // inferred: "DROP" 2
     int m128;                    // inferred: debug draw
-    atn::Vector_unk<atn::Vector3> m12C; // inferred: element type unknown (constructor, no destructor)
-    atn::Vector_unk<RandomItemDrop_unk> mDrops; // 0x138
+    atn::SimpleVector<atn::Vector3> m12C; // inferred: element type unknown (constructor, no destructor)
+    atn::SimpleVector<RandomItemDrop_unk> mDrops; // 0x138
     RandomItemDrop_unk* m144;    // inferred: current entry
     int m148;
     int m14C;

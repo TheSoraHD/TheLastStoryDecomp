@@ -5,13 +5,14 @@
 
 namespace atn {
 
-// inferred: effect resource holder (0xC bytes); the real class name is unknown.
-class EfpHandle_unk {
+// atn::EfpFile: effect resource holder (0xC bytes); class name and Destroy from the RSO (the
+// file keeps its old name). fn_8023780C/fn_80237874 are probably LoadRequest/IsLoading (RSO).
+class EfpFile {
 public:
-    EfpHandle_unk();                      // 0x802377B8
-    ~EfpHandle_unk() { fn_8023781C(); }
+    EfpFile();                            // 0x802377B8
+    ~EfpFile() { Destroy(); }
     void fn_8023780C(const char* path);   // inferred: starts loading
-    void fn_8023781C();                   // inferred: releases the resource
+    void Destroy();                       // 0x8023781C: releases the resource
     int fn_80237874();                    // inferred: nonzero while loading
 
     void* mResource;  // 0x00

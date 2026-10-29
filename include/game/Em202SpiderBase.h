@@ -84,7 +84,7 @@ public:
     int m14B4;
     char m14B8[0x20];         // inferred: sound name "MoveSE"
     atn::SoundRef m14D8;
-    atn::EfpHandle_unk m14DC; // inferred: "/effect/ef_uc007.efp"
+    atn::EfpFile m14DC; // inferred: "/effect/ef_uc007.efp"
     int m14E8;                // inferred: 60 ("NeedleChargeTime")
     int m14EC;                // inferred: 15 ("NeedleChargeTime2")
     float m14F0;              // inferred: 70.0f ("NeedleDist")
@@ -92,7 +92,7 @@ public:
     float m14F8;              // inferred: 180.0f ("NeedleTheta", radians)
     char m14FC[0x20];         // inferred: sound name "NeedleChargeSE"
     atn::SoundRef m151C;
-    atn::EfpHandle_unk m1520; // inferred: "/effect/ef_sk002d.efp"
+    atn::EfpFile m1520; // inferred: "/effect/ef_sk002d.efp"
     float m152C;              // inferred: 30.0f ("AttackDist")
     HitInfo_unk* m1530;       // inferred: skill 0x3F8 ("TackleID")
     float m1534;              // inferred: pi ("GuardTheta", radians)
@@ -117,8 +117,8 @@ public:
     int m1598;
     int m159C;                // inferred: frames of the jump (vf80)
     float m15A0;              // inferred: 1.0f
-    atn::EfpHandle_unk m15A4; // inferred: "/effect/ef_uc001.efp"
-    atn::EfpHandle_unk m15B0; // inferred: "/effect/ef_sc003_01b.efp"
+    atn::EfpFile m15A4; // inferred: "/effect/ef_uc001.efp"
+    atn::EfpFile m15B0; // inferred: "/effect/ef_sc003_01b.efp"
     atn::LH_Binary m15BC;     // inferred: data file
     SpiderBaseColor_unk m15C4; // inferred: color of the materials (vf14)
     ResHandle m15D4;          // inferred: debug menu group

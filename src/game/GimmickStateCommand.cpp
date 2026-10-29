@@ -8,7 +8,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/Memory.h"
 #include "atn/ResLoader_unk.h"
-#include "game/MotionCmdElemD_unk.h"
+#include "atn/static_string.h"
 #include "macros.h"
 #include "std/string_members.h"
 #include "std/vector_string.h"
@@ -66,11 +66,11 @@ extern "C" void fn_80232B7C(void* owner, int id); // inferred: sets the owner of
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, void* node,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops the effects
-extern "C" int fn_800928B0(Model_unk* model, int hash, int arg); // inferred: node index by hash
+extern "C" int fn_800928B0(atn::Model* model, int hash, int arg); // inferred: node index by hash
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -279,7 +279,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
         fn_803F10AC(1);
         return;
     }
-    Model_unk* model = gimmick->vf38();
+    atn::Model* model = gimmick->vf38();
     int motion = model->mTracks[0].m00;
     float frame = model->mTracks[0].m08;
     float length = model->fn_80097D7C(0);

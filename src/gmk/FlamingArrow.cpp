@@ -11,8 +11,8 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 
 // inferred: frame time (class unknown)
@@ -41,8 +41,8 @@ struct ArrowEffectMgr_unk;
 extern "C" ArrowEffectMgr_unk* fn_800F7FA0();
 extern "C" void fn_80239DAC(ArrowEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800F7FA8(ArrowEffectMgr_unk* mgr, void* owner, int id);
-extern "C" void fn_8026607C(ArrowEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, void* owner, int arg);
-extern "C" void fn_80276AE4(ArrowEffectMgr_unk* mgr, atn::EfpHandle_unk* efp, int arg2, const atn::Vector3* pos,
+extern "C" void fn_8026607C(ArrowEffectMgr_unk* mgr, atn::EfpFile* efp, void* owner, int arg);
+extern "C" void fn_80276AE4(ArrowEffectMgr_unk* mgr, atn::EfpFile* efp, int arg2, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg5, int arg6, int arg7, float scale);
 // inferred: sounds
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -60,8 +60,8 @@ struct ArrowMtx_unk {
 };
 extern "C" void fn_800F80A8(ArrowMtx_unk* mtx, const atn::Vector3* pos);
 extern "C" void fn_800F80B8(ArrowMtx_unk* mtx, const atn::Vector3* rot);
-extern "C" void fn_80316E38(Model_unk* model, ArrowMtx_unk* mtx);
-// inferred: callback object passed to fn_8000D430 (0x14 bytes, constructor and destructor out of line)
+extern "C" void fn_80316E38(atn::Model* model, ArrowMtx_unk* mtx);
+// inferred: callback object passed to atn::Model::CalcMatrixStack (0x14 bytes, constructor and destructor out of line)
 struct ArrowCallback_unk {
     unsigned char m00[0x14];
 };
@@ -80,11 +80,11 @@ struct Color4f_unk {
 };
 } // namespace atn
 
-// inferred: Model_unk accessors of the color at 0x40 (weak copies; names keep the addresses)
-inline ArrowColor_unk* fn_80417F14(Model_unk* model) {
+// inferred: atn::Model accessors of the color at 0x40 (weak copies; names keep the addresses)
+inline ArrowColor_unk* fn_80417F14(atn::Model* model) {
     return (ArrowColor_unk*)&model->m40;
 }
-inline void fn_80417F1C(Model_unk* model, const ArrowColor_unk* color) {
+inline void fn_80417F1C(atn::Model* model, const ArrowColor_unk* color) {
     *(ArrowColor_unk*)&model->m40 = *color;
 }
 // inferred: next character of the player/enemy lists (0x14AC)
@@ -284,7 +284,7 @@ void FlamingArrow::vf10() {
                 mArrows[i].mPos = result.m04;
                 mArrows[i].mState = 2;
                 mArrows[i].mModel.fn_80097C08(0, 0, 0, 1, 1, 1.0f, 0.1f);
-                mArrows[i].mModel.fn_80139F3C(0, 1.0f);
+                mArrows[i].mModel.SetMotionSpeed(0, 1.0f);
                 atn::Vector3 pos(result.m04);
                 atn::Vector3 normal = result.m28.ToRotation_unk();
                 atn::Vector3 rot(0.0f, normal.y, 0.0f);
@@ -314,12 +314,12 @@ void FlamingArrow::vf10() {
             fn_800F80A8(&mtx, &mArrows[i].mPos);
             fn_800F80B8(&mtx, &dir);
             fn_80316E38(&mArrows[i].mModel, &mtx);
-            fn_8000D430(&mArrows[i].mModel, boost::function<void()>(0));
+            mArrows[i].mModel.CalcMatrixStack(atn::ModelNodeCallback_unk(0));
         } else if (mArrows[i].mState == 2) {
             mArrows[i].mModel.fn_80097E80(1);
-            fn_8000D430(&mArrows[i].mModel, boost::function<void()>(0));
+            mArrows[i].mModel.CalcMatrixStack(atn::ModelNodeCallback_unk(0));
             float length = mArrows[i].mModel.fn_80097D7C(0);
-            if (mArrows[i].mModel.fn_80139550(0) >= length) {
+            if (mArrows[i].mModel.GetMotionFrame(0) >= length) {
                 fn_80239DAC(fn_800F7FA0(), &mArrows[i].mModel, 1, 1);
                 mArrows[i].mState = 3;
             }
@@ -387,14 +387,14 @@ void FlamingArrow::vf10() {
     arrow->mPos = mDesc->mPos;
     arrow->mVel = dir * speed;
     arrow->mModel.fn_80097C08(0, 0, 0, 1, 1, 1.0f, 0.1f);
-    arrow->mModel.fn_80139F3C(0, 0.0f);
+    arrow->mModel.SetMotionSpeed(0, 0.0f);
     arrow->mModel.fn_80097E80(1);
     atn::Vector3 angle = arrow->mVel.ToRotation_unk();
     ArrowMtx_unk mtx;
     fn_800F80A8(&mtx, &arrow->mPos);
     fn_800F80B8(&mtx, &angle);
     fn_80316E38(&arrow->mModel, &mtx);
-    fn_8000D430(&arrow->mModel, boost::function<void()>(0));
+    arrow->mModel.CalcMatrixStack(atn::ModelNodeCallback_unk(0));
     fn_80417F1C(&arrow->mModel, (const ArrowColor_unk*)&atn::Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f));
     fn_800F7FA8(fn_800F7FA0(), arrow, 0);
     fn_8026607C(fn_800F7FA0(), &mEfpArrow, arrow, 1);

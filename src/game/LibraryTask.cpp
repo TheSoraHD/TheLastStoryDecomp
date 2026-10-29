@@ -1,4 +1,5 @@
 #include "game/LibraryTask.h"
+#include "atn/Keyboard.h"
 #include "atn/LoadHandle.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -50,14 +51,6 @@ extern "C" int fn_80370174(LibraryField_unk* field, int id);
 extern "C" void fn_80370320(LibraryField_unk* field, int id, int value, int arg3);
 extern "C" void fn_8036EA3C(LibraryField_unk* field); // inferred: leaves the library
 
-// inferred: debug file watcher (names invented)
-struct LibraryWatch_unk {
-    unsigned char m000[0x34];
-    unsigned char m034[0xD90 - 0x34];
-    int mD90;
-};
-extern "C" LibraryWatch_unk* lbl_8087EEF0;
-extern "C" int fn_8007708C(LibraryWatch_unk* watch, void* name, int size); // inferred: file changed
 
 // inferred: parameters of the text (debug menu "Library")
 extern "C" float lbl_8087E030; // FontW
@@ -157,13 +150,9 @@ int LibraryTask::vf0C() {
 }
 
 void LibraryTask::vf10() {
-    LibraryWatch_unk* watch = lbl_8087EEF0;
-    if (watch != 0) {
-        int changed = 0;
-        if (watch->mD90 != 0 && fn_8007708C(watch, watch->m034, 0x34) != 0) {
-            changed = 1;
-        }
-        if (changed) {
+    atn::Keyboard* keyboard = atn::Keyboard::Order();
+    if (keyboard != 0) {
+        if (keyboard->Press(atn::Keyboard::PORT0_unk, 0x34)) {
             fn_80469D60(mFile.fn_80470580(), mFile.fn_8047059C(), 1);
         }
     }
@@ -630,7 +619,7 @@ void BookTask::fn_8046B798(const void* data, unsigned int size) {
         }
     } while (csv.fn_8005BBF8());
     mPages.Resize_unk(count, 0);
-    csv.atn::CsvU::vf08((const wchar_t*)data, size / 2);
+    csv.atn::CsvU::SetData((const wchar_t*)data, size / 2);
     int i = 0;
     do {
         const wchar_t* field = csv.fn_8005B9CC();

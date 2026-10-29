@@ -19,8 +19,8 @@ extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // infer
 extern "C" std::string fn_8006B174(const std::string& path);          // inferred: file name of a path
 extern "C" int fn_8006AA20(const char* path);                          // inferred: the file exists
 // inferred: reads the poses of a binary file
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node); // inferred: loads a model
-extern "C" void fn_8008A00C(atn::Vector_unk<Event::PoseKey_unk>* poses, void* data, int size);
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
+extern "C" void fn_8008A00C(atn::SimpleVector<Event::PoseKey_unk>* poses, void* data, int size);
 // inferred: debug text
 extern "C" void* lbl_8087EEB0;
 extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, float f6, const char* text,
@@ -87,7 +87,7 @@ int AnimationData::vf10() const {
 }
 
 void ModelData::vf08() {
-    m24 = new (4, "", "", 0) Model_unk(0x100, 0x28);
+    m24 = new (4, "", "", 0) atn::Model(0x100, 0x28);
     fn_8008AD4C(m24, m08.c_str(), 0);
 }
 
@@ -107,8 +107,8 @@ void EffectData::vf08() {
     char* efp = strstr(name, ".efp");
     char* eff = strstr(name, ".eff");
     if (efp > eff) {
-        m18 = new (4, "", "", 0) atn::EfpHandle_unk;
-        ((atn::EfpHandle_unk*)m18)->fn_8023780C(name);
+        m18 = new (4, "", "", 0) atn::EfpFile;
+        ((atn::EfpFile*)m18)->fn_8023780C(name);
         m1C = 1;
     } else if (efp < eff) {
         m18 = new (4, "", "", 0) ResLoader_unk;
@@ -120,8 +120,8 @@ void EffectData::vf08() {
 void EffectData::vf0C() {
     if (m18 != 0) {
         if (m1C == 1) {
-            ((atn::EfpHandle_unk*)m18)->fn_8023781C();
-            delete (atn::EfpHandle_unk*)m18;
+            ((atn::EfpFile*)m18)->Destroy();
+            delete (atn::EfpFile*)m18;
         } else if (m1C == 2) {
             ((ResLoader_unk*)m18)->fn_8023772C();
             delete (ResLoader_unk*)m18;
@@ -131,7 +131,7 @@ void EffectData::vf0C() {
 }
 
 int EffectData::vf10() const {
-    if (m1C == 1 && ((atn::EfpHandle_unk*)m18)->fn_80237874() != 0) {
+    if (m1C == 1 && ((atn::EfpFile*)m18)->fn_80237874() != 0) {
         return 0;
     }
     if (m1C == 2 && ((ResLoader_unk*)m18)->fn_802376D0() != 0) {
@@ -179,15 +179,15 @@ int PoseData::vf10() const {
     return m18->fn_80473F50() == 0;
 }
 
-// inferred: the temporary list is of a class derived from atn::Vector_unk (its inlined destructor
+// inferred: the temporary list is of a class derived from atn::SimpleVector (its inlined destructor
 // tests the address of the object, as for derived classes elsewhere)
-struct PoseList_unk : public atn::Vector_unk<PoseKey_unk> {};
+struct PoseList_unk : public atn::SimpleVector<PoseKey_unk> {};
 
 // (copy loop: Assign_unk writes mData[i] = o[i]; the "" literals are the shared @STRING@ of
 // Resize_unk<PoseKey_unk>, renamed in symbols.txt)
 void PoseData::fn_80204230() {
     if (m1C == 0) {
-        m1C = new (4, "", "", 0) atn::Vector_unk<PoseKey_unk>;
+        m1C = new (4, "", "", 0) atn::SimpleVector<PoseKey_unk>;
         PoseList_unk poses;
         fn_8008A00C(&poses, m18->fn_80470580(), m18->fn_8047059C());
         m1C->Assign_unk(poses);

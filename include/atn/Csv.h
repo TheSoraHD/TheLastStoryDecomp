@@ -17,9 +17,9 @@ public:
     CsvBase(const T* text, int length) : m04(0), m08(0), m0C(0), m630(0) {
         memset(mField, 0, sizeof(mField));
         memset(m610, 0, sizeof(m610));
-        vf08(text, length);
+        SetData(text, length);
     }
-    // inferred: without text (inlined at 0x8021F47C, the text is set later with vf08)
+    // inferred: without text (inlined at 0x8021F47C, the text is set later with SetData)
     CsvBase() : m04(0), m08(0), m0C(0), m630(0) {
         memset(mField, 0, sizeof(mField));
         memset(m610, 0, sizeof(m610));
@@ -28,8 +28,9 @@ public:
     // built with the BOM-skipping constructor keeps its address in a saved register while the
     // inline constructor runs, as in 0x8011B8D4/0x803B9324; the char readers do not change)
     ~CsvBase() {}
-    // inferred: sets the text to read (weak copies: tab 0x8004476C, comma 0x800420F4)
-    virtual void vf08(const T* text, int length) {
+    // sets the text to read (name and signature from the RSO; weak copies: tab 0x8004476C, comma
+    // 0x800420F4)
+    virtual void SetData(const T* text, unsigned int length) {
         m04 = text;
         m08 = length;
         m0C = 0;
@@ -42,7 +43,7 @@ public:
     void Reset_unk() {
         memset(mField, 0, sizeof(mField));
         memset(m610, 0, sizeof(m610));
-        vf08(m04, m08);
+        SetData(m04, m08);
     }
     const T* fn_8005B9CC();
     // inferred: current field (weak copy 0x800422CC in game/AreaEffConfig.cpp; name invented)
@@ -94,7 +95,7 @@ public:
 extern "C" wchar_t lbl_8077A0A8[3]; // inferred: L" \t"
 extern "C" wchar_t lbl_807830B8[3]; // inferred: L" \t"
 // inferred: the text starts with a byte order mark, which is skipped (constructor inlined at
-// 0x8011B8D4, vf08 weak copy at 0x8011BB90)
+// 0x8011B8D4, SetData weak copy at 0x8011BB90)
 class CsvU : public CsvBase<wchar_t, ',', '\r', '"'> {
 public:
     CsvU(const wchar_t* text, int length)
@@ -104,7 +105,7 @@ public:
     // inferred: without text (inlined at 0x8021AAB8, db/SkillGrowth_unk; another copy of L" \t":
     // lbl_807830B8, also used by MP/Text, MapLink_unk, SpText_unk)
     CsvU() { fn_8005BCE8(lbl_807830B8); }
-    virtual void vf08(const wchar_t* text, int length) {
+    virtual void SetData(const wchar_t* text, unsigned int length) {
         m04 = length != 0 ? text + 1 : text;
         if (length != 0) {
             length--;
@@ -114,14 +115,14 @@ public:
     }
 };
 extern "C" wchar_t lbl_8087DD98[2]; // inferred: L"\t"
-// inferred: as CsvU (constructor inlined at 0x803B9324, vf08 weak copy at 0x803B97D8)
+// inferred: as CsvU (constructor inlined at 0x803B9324, SetData weak copy at 0x803B97D8)
 class CsvTabU : public CsvBase<wchar_t, '\t', '\r', '"'> {
 public:
     CsvTabU(const wchar_t* text, int length)
         : CsvBase<wchar_t, '\t', '\r', '"'>(length != 0 ? text + 1 : text, length != 0 ? length - 1 : length) {
         fn_8005BCE8(lbl_8087DD98);
     }
-    virtual void vf08(const wchar_t* text, int length) {
+    virtual void SetData(const wchar_t* text, unsigned int length) {
         if (length != 0) {
             text++;
         }

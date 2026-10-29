@@ -22,11 +22,11 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
 
-    Model_unk mModel;         // 0xF4
+    atn::Model mModel;         // 0xF4
     atn::ColliObject mColli0; // 0x4C4: "COLLI_OBJECT" 0
     atn::ColliObject mColli1; // 0x54C: "COLLI_OBJECT" 1
     int m5D4; // inferred: unused (the object is 0x5D8 bytes)

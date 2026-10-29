@@ -93,11 +93,11 @@ public:
     atn::Vector3 m1550;                           // inferred: end of the door crossing
     VampireDoor_unk* m155C;                       // inferred: door being crossed (state 8)
     int m1560;                                    // inferred: index into m14E8
-    atn::EfpHandle_unk m1564;
-    atn::EfpHandle_unk m1570;
-    atn::EfpHandle_unk m157C;
-    atn::EfpHandle_unk m1588;
-    atn::EfpHandle_unk m1594;
+    atn::EfpFile m1564;
+    atn::EfpFile m1570;
+    atn::EfpFile m157C;
+    atn::EfpFile m1588;
+    atn::EfpFile m1594;
     atn::SoundRef m15A0;
     atn::SoundRef m15A4;
     int m15A8;                                    // inferred: "normal_wait_time"
@@ -107,7 +107,7 @@ public:
     int m15B8;                                    // inferred: "stun_time"
     ResHandle m15BC;                              // inferred: released in the destructor
     int m15C0;
-    Model_unk::Float4_unk m15C4;                  // inferred: model color while m1528 is set
+    atn::Model::Float4_unk m15C4;                  // inferred: model color while m1528 is set
     float m15D4;
     float m15D8[3];                               // inferred: "weaken_speed"
     int m15E4[3];                                 // inferred: "weaken_time"

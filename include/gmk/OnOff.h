@@ -27,7 +27,7 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual void vf3C(void* lens); // 0x803F940C
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
@@ -36,7 +36,7 @@ public:
     void fn_803F8C98(atn::CsvTab* csv); // inferred: reads the "FLAG" names
     void fn_803F8F30(int on);           // inferred: switches on or off
 
-    Model_unk mModel;          // 0xF4: "MODEL"
+    atn::Model mModel;          // 0xF4: "MODEL"
     int mHasModel;             // 0x4C4
     atn::ColliObject mColli;   // 0x4C8: "COLLI_OBJECT"
     int mHasColli;             // 0x550
@@ -45,7 +45,7 @@ public:
     atn::ColliSphere mSphere;  // 0x8D0: "COLLI_SPHERE"
     int mHasSphere;            // 0x91C
     ResLoader_unk mEff;        // 0x920: "EFF"
-    atn::EfpHandle_unk mEfp;   // 0x92C: "EFP"
+    atn::EfpFile mEfp;   // 0x92C: "EFP"
     atn::Matrix3x4 mMtx;       // 0x938: inferred: world matrix while on
     OnOffMap_unk* mMap;        // 0x968: "MAP"
     int mOn;                   // 0x96C

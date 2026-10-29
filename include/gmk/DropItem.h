@@ -63,8 +63,8 @@ public:
 
     void fn_8040B200(); // inferred: the player takes the item
 
-    atn::EfpHandle_unk mEfp[7];  // 0xF4: "EFP"
-    atn::EfpHandle_unk mEfpGet;  // 0x148: "EFP_GET"
+    atn::EfpFile mEfp[7];  // 0xF4: "EFP"
+    atn::EfpFile mEfpGet;  // 0x148: "EFP_GET"
     int m154; // inferred: drop table (set by vf68)
     int mItem;  // 0x158
     int mCount; // 0x15C

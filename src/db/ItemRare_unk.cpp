@@ -51,9 +51,9 @@ struct RareItem_unk {
     int mNum2;
 };
 
-// inferred: atn::Vector_unk::reserve without the capacity check, that also empties the list (another
+// inferred: atn::SimpleVector::reserve without the capacity check, that also empties the list (another
 // instance of the "" literals in .sdata: a separate function). Name invented.
-inline void InitItems_unk(atn::Vector_unk<RareItem_unk>& list, unsigned int n) {
+inline void InitItems_unk(atn::SimpleVector<RareItem_unk>& list, unsigned int n) {
     RareItem_unk* data = new (0, "", "", 0) RareItem_unk[n];
     if (list.mData != 0) {
         unsigned int count = (n > list.mSize) ? list.mSize : n;
@@ -74,7 +74,7 @@ struct RareEntry_unk {
     int m00;
     int m04;
     int m08;
-    atn::Vector_unk<RareItem_unk> mItems;
+    atn::SimpleVector<RareItem_unk> mItems;
 };
 
 static const char sFileNameStr[] = "/boot/item_rare.csv";
@@ -110,7 +110,7 @@ extern "C" void fn_802130BC() {
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
     int count = 0;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() == '\0') {
             count++;
@@ -118,7 +118,7 @@ extern "C" void fn_802130BC() {
     }
     sEntries = new (1, "", "", 0) RareEntry_unk[count];
     sCount = count;
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != '\0') {

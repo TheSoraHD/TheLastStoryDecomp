@@ -115,22 +115,22 @@ public:
     int m1544;
     unsigned char m1548[0x1558 - 0x1548];
     atn::Vector3 m1558;        // inferred: rotation of the knock down
-    atn::EfpHandle_unk m1564;  // inferred: "/effect/ef_bs007a.efp"
-    atn::EfpHandle_unk m1570;  // inferred: "/effect/ef_bs065a.efp"
-    atn::EfpHandle_unk m157C;  // inferred: "/effect/ef_bs065c.efp"
-    atn::EfpHandle_unk m1588;  // inferred: "/effect/ef_bu031a.efp"
-    atn::EfpHandle_unk m1594;  // inferred: "/effect/ef_bs064a.efp"
-    atn::EfpHandle_unk m15A0;  // inferred: "/effect/ef_bu032a.efp"
-    atn::EfpHandle_unk m15AC;  // inferred: "/effect/ef_bu033a.efp"
-    atn::EfpHandle_unk m15B8;  // inferred: "/effect/ef_bs063a.efp"
-    atn::EfpHandle_unk m15C4;  // inferred: "/effect/ef_bu040a.efp"
-    atn::EfpHandle_unk m15D0;  // inferred: "/effect/ef_bu040d.efp"
-    atn::EfpHandle_unk m15DC;  // inferred: "/effect/ef_bu040e.efp"
-    atn::EfpHandle_unk m15E8;  // inferred: "/effect/ef_bu040f.efp"
-    atn::EfpHandle_unk m15F4;  // inferred: "/effect/ef_bu040h.efp"
+    atn::EfpFile m1564;  // inferred: "/effect/ef_bs007a.efp"
+    atn::EfpFile m1570;  // inferred: "/effect/ef_bs065a.efp"
+    atn::EfpFile m157C;  // inferred: "/effect/ef_bs065c.efp"
+    atn::EfpFile m1588;  // inferred: "/effect/ef_bu031a.efp"
+    atn::EfpFile m1594;  // inferred: "/effect/ef_bs064a.efp"
+    atn::EfpFile m15A0;  // inferred: "/effect/ef_bu032a.efp"
+    atn::EfpFile m15AC;  // inferred: "/effect/ef_bu033a.efp"
+    atn::EfpFile m15B8;  // inferred: "/effect/ef_bs063a.efp"
+    atn::EfpFile m15C4;  // inferred: "/effect/ef_bu040a.efp"
+    atn::EfpFile m15D0;  // inferred: "/effect/ef_bu040d.efp"
+    atn::EfpFile m15DC;  // inferred: "/effect/ef_bu040e.efp"
+    atn::EfpFile m15E8;  // inferred: "/effect/ef_bu040f.efp"
+    atn::EfpFile m15F4;  // inferred: "/effect/ef_bu040h.efp"
     ResLoader_unk m1600;       // inferred: "/effect/ef_bu040g_01.eff"
-    atn::EfpHandle_unk m160C;  // inferred: "ef_we006.efp"
-    atn::EfpHandle_unk m1618;  // inferred: "ef_bs073f.efp"
+    atn::EfpFile m160C;  // inferred: "ef_we006.efp"
+    atn::EfpFile m1618;  // inferred: "ef_bs073f.efp"
     chr::CharaPart_unk* m1624; // inferred: the shield (created by fn_800457A4)
     chr::CharaPart_unk* m1628; // inferred: the shield of the enemy (m1624 changes when the leader takes it)
     int m162C;

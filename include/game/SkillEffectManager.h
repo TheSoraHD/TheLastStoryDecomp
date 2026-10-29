@@ -80,24 +80,24 @@ public:
 
     Bullet_unk mBullets[32];   // 0x48
     int mLoaded;               // 0x2848
-    atn::EfpHandle_unk m284C;
-    atn::EfpHandle_unk m2858;
-    atn::EfpHandle_unk m2864;
-    atn::EfpHandle_unk m2870;
-    atn::EfpHandle_unk m287C;
-    atn::EfpHandle_unk m2888;
-    atn::EfpHandle_unk m2894;
+    atn::EfpFile m284C;
+    atn::EfpFile m2858;
+    atn::EfpFile m2864;
+    atn::EfpFile m2870;
+    atn::EfpFile m287C;
+    atn::EfpFile m2888;
+    atn::EfpFile m2894;
     ResLoader_unk m28A0;
-    atn::EfpHandle_unk m28AC;
-    atn::EfpHandle_unk m28B8;
+    atn::EfpFile m28AC;
+    atn::EfpFile m28B8;
     ResLoader_unk m28C4;
     ResLoader_unk m28D0;
     ResLoader_unk m28DC;
     ResLoader_unk m28E8;
-    atn::EfpHandle_unk m28F4;
-    atn::EfpHandle_unk m2900;
-    atn::EfpHandle_unk m290C;
-    atn::EfpHandle_unk m2918;
+    atn::EfpFile m28F4;
+    atn::EfpFile m2900;
+    atn::EfpFile m290C;
+    atn::EfpFile m2918;
     int m2924;
     int m2928; // inferred: passed to every effect by vf10
     int m292C;

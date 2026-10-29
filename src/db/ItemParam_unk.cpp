@@ -1,4 +1,6 @@
 #include "atn/Csv.h"
+#include "atn/FileList.h"
+#include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "db/EquipParam_unk.h"
 #include "db/ParseUtil_unk.h"
@@ -15,10 +17,7 @@ extern "C" float fn_800DC288(const char* s);                       // inferred: 
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
-extern "C" void fn_8006BB6C(void* data, int flag);                            // inferred: frees it
-struct MemoryManager_unk;
-extern "C" MemoryManager_unk* fn_800827E0();
-extern "C" void* fn_800839EC(MemoryManager_unk* mgr, unsigned long size, int align, int heap, const char* name,
+extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line, int arg); // inferred: allocation
 
 // inferred: field (lbl_8087F430) and its flags
@@ -126,10 +125,10 @@ extern "C" void fn_80210ACC() {
         }
     }
     sCount += 0x100;
-    sEntries = (ItemParamEntry_unk*)fn_800839EC(fn_800827E0(), sCount * sizeof(ItemParamEntry_unk), 0x20, 1, "", "",
+    sEntries = (ItemParamEntry_unk*)fn_800839EC(atn::MemoryManager::Instance(), sCount * sizeof(ItemParamEntry_unk), 0x20, 1, "", "",
                                                  0, 0);
     sBuf = new (1, "", "", 0) char[a];
-    csv.vf08((const char*)data, size);
+    csv.SetData((const char*)data, size);
     int i = 0;
     csv.fn_8005BBF8();
     a = 0;
@@ -197,7 +196,7 @@ extern "C" void fn_80210ACC() {
         entry->mCC.mStr[0] = 0;
         entry->mDC.mStr[0] = 0;
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
     fn_80211244();
 }
 
@@ -222,7 +221,7 @@ extern "C" void fn_80211244() {
             }
         }
         sTexts = new (1, "", "", 0) wchar_t[b];
-        csv.vf08((const wchar_t*)data, size / 2);
+        csv.SetData((const wchar_t*)data, size / 2);
         csv.fn_8005BBF8();
         a = 0;
         int i = 0;
@@ -235,7 +234,7 @@ extern "C" void fn_80211244() {
             fn_8021A5F8(&sEntries[i], &csv, 0, sBuf, sTexts, &a, &b);
             i++;
         }
-        fn_8006BB6C(data, 0);
+        atn::FileFreeBuffer((char*)data, false);
     }
 }
 

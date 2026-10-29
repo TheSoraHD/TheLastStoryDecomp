@@ -47,13 +47,13 @@ public:
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();
-    virtual Model_unk* vf38();
+    virtual atn::Model* vf38();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
-    Model_unk mModel;         // 0xF4
+    atn::Model mModel;         // 0xF4
     atn::ColliBox mColli;     // 0x4C4
     atn::Vector3 mBasePos;    // 0x83C
     float mAmp;               // 0x848

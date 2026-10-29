@@ -190,7 +190,7 @@ int RotaryRoom::vf0C() {
                 __SetTrans_unk(e.mMtx, e.mMtx.GetTrans_unk() + m6C);
                 switch (e.mType) {
                 case 0: {
-                    Model_unk* model = (Model_unk*)e.mObject;
+                    atn::Model* model = (atn::Model*)e.mObject;
                     *(atn::Matrix3x4*)model->mMtx = e.mMtx;
                     atn::Vector3 az(e.mMtx.m[0][2], e.mMtx.m[1][2], e.mMtx.m[2][2]);
                     float sz = PSVECMag(&az);

@@ -13,8 +13,8 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::Matrix3x4 lbl_807C7060;
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* node); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, const char* node, float distance); // inferred: LOD    // inferred: identity matrix
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, const char* node, float distance); // inferred: LOD    // inferred: identity matrix
 
 extern "C" ArmsData_unk* fn_80206B14(void* arg, int item);     // inferred: equipment data
 extern "C" ArmsEffect_unk* fn_802072AC(void* arg, int item);   // inferred: effect data of the equipment
@@ -31,7 +31,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -44,7 +44,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed
-extern "C" void fn_80570A74(void* obj, atn::EfpHandle_unk* efp);
+extern "C" void fn_80570A74(void* obj, atn::EfpFile* efp);
 
 struct ArmsEffectMgr_unk;
 extern "C" ArmsEffectMgr_unk* lbl_8087F048; // inferred: effect manager of the characters
@@ -135,12 +135,12 @@ void Arms::fn_8004439C() {
             m264.y = fn_800DC288(csv.fn_8005B9CC());
             m264.z = fn_800DC288(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            m29C.reset(new (1, "", "", 0) atn::EfpHandle_unk);
+            m29C.reset(new (1, "", "", 0) atn::EfpFile);
             m29C->fn_8023780C(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
     if (!m29C && m2A4 != 0) {
-        m29C.reset(new (1, "", "", 0) atn::EfpHandle_unk);
+        m29C.reset(new (1, "", "", 0) atn::EfpFile);
         char buf[0x100];
         sprintf(buf, "%s.efp", m2A4->m10);
         m29C->fn_8023780C(buf);
@@ -210,7 +210,7 @@ void Arms::vf10() {
                    atn::Vector3(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]).Length_unk());
     GetModel_unk()->m54 = Max3_unk(s);
     if (GetModel_unk()->m16C != 0) {
-        fn_800902C0(GetModel_unk(), 0, boost::function<void()>());
+        GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
     }
 }
 
@@ -250,7 +250,7 @@ int Arms::fn_80044C50(CharaTask* chara) {
 }
 
 // inferred: plays the effect of the weapon on its model (name invented)
-inline void PlayEffect_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

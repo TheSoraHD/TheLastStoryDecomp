@@ -9,10 +9,10 @@ extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(Model_unk* model, const char* path, int arg, float lod); // inferred: adds a LOD model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(Model_unk* model, int id, const char* path); // inferred: loads a motion
+extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -31,7 +31,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -57,7 +57,7 @@ extern "C" void fn_800FAB80(BulletMgr_unk* mgr, int arg1, void* bullet, int arg3
                             float arg11);
 extern "C" void* lbl_8087F610; // inferred: arena mode
 
-// inferred: resource data of the spark model (Model_unk::m16C): material names (names invented)
+// inferred: resource data of the spark model (atn::Model::m16C): material names (names invented)
 struct SparkRes_unk {
     unsigned char m00[0x30];
     int mCount;           // 0x30
@@ -99,7 +99,7 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
         }
     }
 }
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -117,7 +117,7 @@ inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* 
 }
 
 // inferred: matrix of the named node, else the model matrix (name invented)
-inline MtxPtr GetMtx_unk(Model_unk* model, const char* name) {
+inline MtxPtr GetMtx_unk(atn::Model* model, const char* name) {
     MtxPtr mtx = model->GetNodeMtx_unk(name);
     if (mtx != 0) {
         return mtx;
@@ -192,7 +192,7 @@ void SparkCube::vf10() {
         }
         break;
     case 4: {
-        Model_unk* model = GetModel_unk();
+        atn::Model* model = GetModel_unk();
         float frame = model->mTracks[0].m08;
         if (frame >= model->fn_80097D7C(0)) {
             state = 1;
@@ -334,7 +334,7 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
             fn_80232B7C(0, 0);
             PlayEfp_unk(lbl_8087F3C0, &mEfp[m54], &mModel);
         }
-        Model_unk* model = vf38();
+        atn::Model* model = vf38();
         if (model != 0 && model->fn_80097D40(1) != 0) {
             model->fn_80097C08(0, 1, 0, 1, 1, 1.0f, 0.1f);
             m9C = 1;
@@ -366,7 +366,7 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
             fn_80232B7C(this, 0);
             PlayEfp_unk(lbl_8087F3C0, &mEfp[m54], &mModel);
         }
-        Model_unk* model = vf38();
+        atn::Model* model = vf38();
         if (model != 0 && model->fn_80097D40(0) != 0) {
             model->fn_80097C08(0, 0, 0, 1, 1, 1.0f, 0.1f);
             model->mTracks[0].m08 = 1.0f;
@@ -423,7 +423,7 @@ void SparkCube::vf70(int state) {
     vf40(&msg);
 }
 
-Model_unk* SparkCube::vf38() {
+atn::Model* SparkCube::vf38() {
     return GetModel_unk();
 }
 

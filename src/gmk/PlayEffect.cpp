@@ -6,7 +6,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
@@ -21,10 +21,10 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, int arg3,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Model_unk* model,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
@@ -116,7 +116,7 @@ void PlayEffect::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL") == 0) {
-            mModel = new (12, "", "", 0) Model_unk(8, 32);
+            mModel = new (12, "", "", 0) atn::Model(8, 32);
             fn_8008AD4C(mModel, csv.fn_8005B9CC(), 0);
             fn_803EC7A0(mModel, &csv);
         } else if (strcmp(field, "EFF") == 0) {
@@ -176,7 +176,7 @@ void PlayEffect::fn_803F7198(int index) {
             fn_8023A680(lbl_8087F3C0, &effect->mRes, -1, 0, 0, &m6C, &m78, 0, 0, -1, 1, 1.0f);
         }
     }
-    Model_unk* model = mModel;
+    atn::Model* model = mModel;
     if (model != 0) {
         Color4f_unk color;
         atn::Vector3 rot;

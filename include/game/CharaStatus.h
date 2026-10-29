@@ -11,7 +11,9 @@ struct HitInfo_unk;
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
-struct Model_unk;
+namespace atn {
+struct Model;
+}
 class CharaTask;
 
 // inferred: point of the route tables (0x30 bytes)
@@ -167,7 +169,7 @@ public:
     void fn_801298EC(CharaTask* chara); // inferred: finds the "neck" node
     void fn_80129930(const atn::Vector3& pos, float speed); // inferred: looks at a position (type 2)
     void fn_80129954(const atn::Vector3& pos, float speed); // inferred: type 3
-    void fn_80129978(Model_unk* model, const char* node, const atn::Vector3& offset, float speed); // type 1
+    void fn_80129978(atn::Model* model, const char* node, const atn::Vector3& offset, float speed); // type 1
     void fn_80129A48(float speed);           // inferred: stops looking (type 0)
     void fn_80129A6C();                      // inferred: update
     int fn_8012A288(atn::Matrix3x4* mtx, ModelNodeDesc_unk* node); // inferred: node matrix hook

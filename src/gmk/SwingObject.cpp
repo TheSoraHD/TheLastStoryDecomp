@@ -13,10 +13,10 @@ extern "C" double cos(double x);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC6B4(const char* s);   // inferred: hash of a name
-extern "C" void fn_8008AD4C(Model_unk* model, const char* path, const char* texture); // inferred: loads a model
+extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_800928B0(Model_unk* model, int hash, int arg); // inferred: node index by hash
-extern "C" void fn_800920B8(Model_unk* model, int hash); // inferred: enables the node callback of a node
+extern "C" int fn_800928B0(atn::Model* model, int hash, int arg); // inferred: node index by hash
+extern "C" void fn_800920B8(atn::Model* model, int hash); // inferred: enables the node callback of a node
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -29,7 +29,7 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
                         std::allocator<boost::function_base> >
     NodeCallback_unk;
-extern "C" void fn_800F29D0(Model_unk* model, NodeCallback_unk callback);
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -41,7 +41,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model, void* owner,
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, void* owner,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
@@ -79,7 +79,7 @@ void SwingPath_unk(char* buf, int id) {
 // parts; name invented)
 // NONMATCHING: 90.09% - register allocation and the AXIS letter parsing (X/Y/Z) compiles to a branchless form
 static void LoadSwing_unk(const char* data, int size, gmk::SwingParam_unk* params, int* nodes,
-                          atn::EfpHandle_unk* efp) {
+                          atn::EfpFile* efp) {
     atn::CsvTab csv(data, size);
     csv.fn_8005BCE8(lbl_8087D710);
     gmk::SwingParam_unk* param = params;
@@ -246,7 +246,7 @@ inline float CameraDistSq_unk(const atn::Vector3& pos) {
     return fn_805F9920(&d);
 }
 
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_unk* model) {
+inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -322,7 +322,7 @@ int SwingObject::vf0C() {
 void SwingObject::vf10() {
     if (mId != 10042) {
         if (CameraDistSq_unk(m6C) > 90000.0f) {
-            Model_unk* model = mModel.GetModel_unk();
+            atn::Model* model = mModel.GetModel_unk();
             int lod = model->m20C_23_16 - 1;
             model->m20C_15_8 = model->m50;
             model->m50 = lod < 0 ? 0 : lod;
@@ -343,7 +343,7 @@ void SwingObject::vf10() {
     }
     fn_803ECBD4(mModel.GetModel_unk(), 0);
     if (mModel.GetModel_unk()->mFlag6_unk) {
-        fn_800902C0(mModel.GetModel_unk(), 0, boost::function<void()>());
+        mModel.GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
         mHidden = true;
     }
 }

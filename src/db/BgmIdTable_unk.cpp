@@ -34,7 +34,7 @@ extern "C" void fn_80207CC0() {
     if (sEntries == 0) {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {
             field = csv.fn_8005B9CC();
             if (*field == ';' || *field == '#') {
@@ -48,7 +48,7 @@ extern "C" void fn_80207CC0() {
             }
         }
         sEntries = new (12, "", "", 0) BgmIdEntry_unk[sCount];
-        csv.vf08((const char*)data, size);
+        csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
             field = csv.fn_8005B9CC();

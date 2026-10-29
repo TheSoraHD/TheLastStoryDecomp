@@ -167,7 +167,7 @@ void HomingBullet::vf10() {
             CharaTask* target = mA0.mTarget;
             atn::Vector3 pos = (target->mColli.m3C + target->mColli.m48) * 0.5f;
             if (mA0.mNode != 0) {
-                Model_unk* model = target->GetModel_unk();
+                atn::Model* model = target->GetModel_unk();
                 MtxPtr m = model->GetNodeMtx_unk(model->fn_800928B0(mA0.mNode, 0));
                 if (m != 0) {
                     pos = GetTrans_unk(m);

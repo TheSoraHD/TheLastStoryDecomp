@@ -43,6 +43,8 @@ public:
     // inferred: flag test through an accessor: GimmickCommon::vf30 (0x803EDF40) loads the word
     // twice (here and for the |=), which a direct read would not do. Name invented.
     bool IsFlag_unk(unsigned int flag) const { return (mFlags & flag) == flag; }
+    // name from the RSO (weak copy 0x80244CAC, first emitted by game/Em001Necromancer.cpp)
+    void FreezeTask() { mFlags |= 4; }
 
     void fn_800D1D94(Task* parent); // inferred: links the task into the tree of `parent` (ctor body)
     void fn_800D4558(); // inferred: sets flag 4 (hidden/stopped) in all the descendants
