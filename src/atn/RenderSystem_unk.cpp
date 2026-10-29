@@ -40,28 +40,7 @@ extern "C" int lbl_8087D900;
 extern "C" int lbl_8087D904;
 extern "C" float lbl_8087D908;
 extern "C" float lbl_8087D90C;
-extern "C" float lbl_80881088;
-extern "C" float lbl_8088108C;
-extern "C" float lbl_80881090;
-extern "C" float lbl_80881094;
-extern "C" float lbl_80881098;
-extern "C" float lbl_8088109C;
-extern "C" float lbl_808810A0;
-extern "C" float lbl_808810A4;
-extern "C" float lbl_808810A8;
-extern "C" float lbl_808810AC;
-extern "C" float lbl_808810B0;
-extern "C" float lbl_808810B4;
-extern "C" float lbl_808810B8;
-extern "C" float lbl_808810BC;
-extern "C" float lbl_808810C0;
-extern "C" float lbl_808810C4;
-extern "C" float lbl_808810C8;
-extern "C" unsigned char lbl_807336B0[];
 extern "C" unsigned char lbl_8087D81C[];
-extern "C" unsigned char lbl_80779298[];
-extern "C" unsigned char lbl_807792A8[];
-extern "C" unsigned char lbl_807792B4[];
 extern "C" int lbl_8087EFB8;
 extern "C" void* lbl_8087EFA8;
 extern "C" void* lbl_8087EFB4;
@@ -92,17 +71,46 @@ extern "C" void LCDisable();
 extern "C" void fn_800B95C4();
 extern "C" int SCGetProgressiveMode();
 extern "C" unsigned int fn_806052C0();
-extern "C" void* __nw__FUliPCcPCci(unsigned long size, int heap, const char* name, const char* file, int arg4);
-extern "C" void* __nwa__FUliPCcPCci(unsigned long size, int heap, const char* name, const char* file, int arg4);
-extern "C" void __dla__FPv(void* ptr);
 extern "C" void* memset(void* dest, int value, unsigned long size);
+void operator delete[](void* ptr);
 extern "C" unsigned char lbl_8087D910[];
 extern "C" unsigned char lbl_8087D914[];
-extern "C" void __ct__17NewCampScene2_unkFv(void* scene);
-extern "C" void __ct__10Camera_unkFii(void* camera, int type, int projectionType);
-extern "C" void __ct__Q23atn11Texture_unkFv(void* texture);
-extern "C" void __ct__Q23atn11LayerShadowFv(void* layer);
-extern "C" void __ct__Q23atn17LayerOcclusionCPUFv(void* layer);
+// inferred: scene of the camp and the map (0x2B4 bytes). The full class is in atn/CharaLightData_unk.cpp;
+// only the constructor and the fields set up here are declared (pending: one header for it).
+struct NewCampScene2_unk {
+    NewCampScene2_unk(); // 0x800C1D98
+    unsigned char m000[0x00C];
+    float mAmbient[4];               // 0x00C: inferred: R, G, B (debug menu "Ambient")
+    float mLS[4];                    // 0x01C: inferred: "LS R/G/B"
+    unsigned char m02C[0x03C - 0x02C];
+    int mFogMode;                    // 0x03C
+    float mFogStart;                 // 0x040
+    float mFogEnd;                   // 0x044
+    float mFogColor[3];              // 0x048
+    unsigned char m054[0x058 - 0x054];
+    std::vector<Light_unk> mLights;  // 0x058
+    unsigned char m064[0x2B4 - 0x064];
+};
+
+namespace atn {
+// inferred: declared here only for their constructors; the classes are in atn/LayerShadow.cpp and
+// atn/LayerOcclusionCPU.cpp, which use local copies of IRenderLayer (vf10 takes an argument there).
+// Pending: one header for the layer classes.
+class LayerShadow : public Layer3D {
+public:
+    LayerShadow(); // 0x800B6604 ("Shadow")
+    unsigned char m5C[0x500 - 0x5C];
+};
+class LayerOcclusionCPU : public IRenderLayer {
+public:
+    LayerOcclusionCPU();
+    virtual void vf10();
+    virtual void vf14(void* arg);
+    virtual void vf1C();
+    virtual void vf20();
+    unsigned char m14[0x30 - 0x14];
+};
+} // namespace atn
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
                               int arg7);
@@ -110,15 +118,7 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float max, float step);
 extern "C" void fn_800C2E30(void* scene, void* menu);
 extern "C" Light_unk* fn_800C2448(void* scene, int index);
-extern "C" void* __vt__Q23atn14LayerPrerender[];
-extern "C" void* __vt__Q23atn13LayerZPrePass[];
-extern "C" void* __vt__Q23atn9Layer2D3D[];
-extern "C" void* __vt__Q23atn7Layer3D[];
 
-static inline void* fn_800BC874_allocLayer(unsigned int size) {
-    const char* file = (const char*)lbl_807336B0;
-    return __nw__FUliPCcPCci(size, 6, file, file, 0);
-}
 extern "C" void* fn_800BC874(void* renderSystem);
 void fn_800C5644();
 extern "C" void fn_8007A100();
@@ -254,8 +254,8 @@ extern "C" void fn_800BC468(void* render, GXTexObj* tex) {
     unsigned int size = GXGetTexBufferSize(256, 1, 1, 0, 0);
     unsigned char* image;
     if (*(void**)((unsigned char*)render + 0x550) == 0) {
-        image = (unsigned char*)fn_800839EC(fn_800827E0(), size, 0x20, 6, (const char*)lbl_807336B0,
-                                             (const char*)lbl_807336B0, 0, 0);
+        image = (unsigned char*)fn_800839EC(fn_800827E0(), size, 0x20, 6, "",
+                                             "", 0, 0);
     } else {
         image = (unsigned char*)*(void**)((unsigned char*)render + 0x550);
     }
@@ -275,7 +275,7 @@ extern "C" void fn_800BC468(void* render, GXTexObj* tex) {
     }
 
     GXInitTexObj(tex, image, 256, 1, 1, 0, 1, 0);
-    GXInitTexObjLOD(tex, 1, 1, lbl_80881088, lbl_80881088, lbl_80881088, 0, 0, 0);
+    GXInitTexObjLOD(tex, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     DCFlushRange(image, size);
 }
 
@@ -287,8 +287,8 @@ extern "C" void fn_800BC618(void* render, GXTexObj* texture, int offset) {
     remap = (unsigned short*)*(void**)((unsigned char*)render + 0x52C);
     if (remap == 0) {
         remap = (unsigned short*)fn_800839EC(fn_800827E0(), size, 0x20, 6,
-                                               (const char*)lbl_807336B0,
-                                               (const char*)lbl_807336B0, 0, 0);
+                                               "",
+                                               "", 0, 0);
     }
     // inferred: 256x256 halfword remap table, with each source value clamped to 16 bits.
     for (unsigned int i = 0; i < 0x10000; ++i) {
@@ -306,7 +306,7 @@ extern "C" void fn_800BC618(void* render, GXTexObj* texture, int offset) {
         remap[index] = (unsigned short)i;
     }
     GXInitTexObj(texture, remap, 256, 256, 3, 0, 1, 0);
-    GXInitTexObjLOD(texture, 0, 0, lbl_80881088, lbl_80881088, lbl_80881088, 0, 0, 0);
+    GXInitTexObjLOD(texture, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     DCFlushRange(remap, size);
     *(void**)((unsigned char*)render + 0x52C) = remap;
 }
@@ -328,8 +328,8 @@ extern "C" void fn_800BC798() {
     }
 
     if (lbl_8087EFB4 == 0) {
-        void* renderSystem = __nw__FUliPCcPCci(0x54968, 6, (const char*)lbl_807336B0,
-                                                (const char*)lbl_807336B0, 0);
+        void* renderSystem = ::operator new(0x54968, 6, "",
+                                                "", 0);
         if (renderSystem != 0) {
             renderSystem = fn_800BC874(renderSystem);
         }
@@ -339,29 +339,30 @@ extern "C" void fn_800BC798() {
 
 extern "C" void* fn_800BC874(void* renderSystem) {
     // inferred: initialize render cameras, callbacks, the default scene, and its render layers.
-    // NONMATCHING: 69.30% - render-state validation and additional menu fields remain incomplete.
+    // NONMATCHING: 77.52% - render-state validation and additional menu fields remain incomplete;
+    // "3D Outline" and "3D Object" store the Layer3D vtable once more in the original (class unknown).
     unsigned char* self = (unsigned char*)renderSystem;
     *(int*)(self + 0xF0) = 0;
     *(int*)(self + 0xF4) = 0;
     *(int*)(self + 0xF8) = 0;
-    *(float*)(self + 0xFC) = lbl_80881088;
-    *(float*)(self + 0x100) = lbl_80881088;
-    __ct__10Camera_unkFii(self + 0x104, 0, 0);
+    *(float*)(self + 0xFC) = 0.0f;
+    *(float*)(self + 0x100) = 0.0f;
+    new (self + 0x104) Camera_unk(0, 0);
     *(int*)(self + 0x2F8) = -1;
     *(int*)(self + 0x300) = 0;
     *(int*)(self + 0x314) = 0;
-    __ct__10Camera_unkFii(self + 0x318, 0, 0);
+    new (self + 0x318) Camera_unk(0, 0);
     *(int*)(self + 0x52C) = 0;
     *(int*)(self + 0x550) = 0;
     *(int*)(self + 0x554) = 0;
-    __ct__10Camera_unkFii(self + 0x558, 0, 0);
-    __ct__Q23atn11Texture_unkFv(self + 0x74C);
-    *(float*)(self + 0x898) = lbl_8088108C;
-    *(float*)(self + 0x89C) = lbl_80881090;
-    *(float*)(self + 0x8A0) = lbl_80881094;
-    *(float*)(self + 0x8A4) = lbl_80881094;
-    *(float*)(self + 0x8A8) = lbl_80881094;
-    *(float*)(self + 0x8AC) = lbl_80881098;
+    new (self + 0x558) Camera_unk(0, 0);
+    new (self + 0x74C) atn::Texture_unk();
+    *(float*)(self + 0x898) = 150.0f;
+    *(float*)(self + 0x89C) = 500.0f;
+    *(float*)(self + 0x8A0) = 0.5f;
+    *(float*)(self + 0x8A4) = 0.5f;
+    *(float*)(self + 0x8A8) = 0.5f;
+    *(float*)(self + 0x8AC) = 1.0f;
     *(int*)(self + 0x890) = 0;
     *(int*)(self + 0x894) = 0;
     new (self + 0x8B0) RenderCallback_unk(boost::function<void(void*)>(), 0);
@@ -407,10 +408,10 @@ extern "C" void* fn_800BC874(void* renderSystem) {
         records->field_18 = 0;
         records->field_1C = 0;
         records->field_20 = 0;
-        records->field_24 = lbl_80881098;
-        records->field_28 = lbl_80881098;
-        records->field_2C = lbl_80881098;
-        records->field_30 = lbl_80881098;
+        records->field_24 = 1.0f;
+        records->field_28 = 1.0f;
+        records->field_2C = 1.0f;
+        records->field_30 = 1.0f;
         records->field_34 = 0;
         records->name = (const char*)lbl_8087D81C;
         records->field_3C = 0;
@@ -422,186 +423,82 @@ extern "C" void* fn_800BC874(void* renderSystem) {
     memset(self + 0x50, 0, 0x50);
     memset(self + 0xA0, 0, 0x50);
     memset(self, 0, 0x50);
-    void* scene = __nw__FUliPCcPCci(0x2B4, 6, (const char*)lbl_807336B0, (const char*)lbl_807336B0, 0);
-    if (scene != 0) {
-        __ct__17NewCampScene2_unkFv(scene);
-    }
+    NewCampScene2_unk* scene = new (6, "", "", 0) NewCampScene2_unk();
     lbl_8087EFB8 = (int)scene;
     *(void**)(self + 0x2FC) = scene;
     Light_unk light;
-    atn::Vector3 direction(lbl_8088109C, lbl_808810A0, lbl_808810A4);
+    atn::Vector3 direction((-2.0f), (-3.0f), 4.0f);
     atn::Vector3 normalizedDirection;
     PSVECNormalize(&direction, &normalizedDirection);
-    LightColor_unk color(lbl_80881098, lbl_80881098, lbl_80881098, lbl_80881098);
+    LightColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
     light.fn_800790D0(normalizedDirection, color);
-    ((std::vector<Light_unk>*)((unsigned char*)scene + 0x58))->push_back(light);
+    scene->mLights.push_back(light);
 
     void* sceneMenu = *(void**)((unsigned char*)lbl_8087EFA8 + 0x4C);
-    void* menuGroup = fn_8008937C(sceneMenu, (const char*)lbl_807336B0 + 0x15);
+    void* menuGroup = fn_8008937C(sceneMenu, "Reflection");
     fn_800C2E30(scene, menuGroup);
 
-    menuGroup = fn_8008937C(sceneMenu, (const char*)lbl_807336B0 + 0x20);
-    fn_800874C8(menuGroup, (const char*)lbl_807336B0 + 0x24, (int*)((unsigned char*)scene + 0x3C), 0, 6, 1,
+    menuGroup = fn_8008937C(sceneMenu, "Fog");
+    fn_800874C8(menuGroup, "Fog Mode", &scene->mFogMode, 0, 6, 1,
                 0, 0);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x2D, (float*)((unsigned char*)scene + 0x40), 0, 0,
-                lbl_80881088, lbl_808810A8, lbl_80881098);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x37, (float*)((unsigned char*)scene + 0x44), 0, 0,
-                lbl_80881088, lbl_808810A8, lbl_80881098);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x3F, (float*)((unsigned char*)scene + 0x48), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x45, (float*)((unsigned char*)scene + 0x4C), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x4B, (float*)((unsigned char*)scene + 0x50), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
+    fn_8008771C(menuGroup, "Fog Start", &scene->mFogStart, 0, 0,
+                0.0f, 10000.0f, 1.0f);
+    fn_8008771C(menuGroup, "Fog End", &scene->mFogEnd, 0, 0,
+                0.0f, 10000.0f, 1.0f);
+    fn_8008771C(menuGroup, "Fog R", &scene->mFogColor[0], 0, 0,
+                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "Fog G", &scene->mFogColor[1], 0, 0,
+                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "Fog B", &scene->mFogColor[2], 0, 0,
+                0.0f, 1.0f, 0.01f);
 
-    menuGroup = fn_8008937C(sceneMenu, (const char*)lbl_807336B0 + 0x51);
+    menuGroup = fn_8008937C(sceneMenu, "KeyLight");
     fn_800C2448(scene, 0)->fn_80079BC8(menuGroup);
-    menuGroup = fn_8008937C(sceneMenu, (const char*)lbl_807336B0 + 0x5A);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x62, (float*)((unsigned char*)scene + 0x0C), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x6C, (float*)((unsigned char*)scene + 0x10), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x76, (float*)((unsigned char*)scene + 0x14), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x80, (float*)((unsigned char*)scene + 0x1C), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x85, (float*)((unsigned char*)scene + 0x20), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
-    fn_8008771C(menuGroup, (const char*)lbl_807336B0 + 0x8A, (float*)((unsigned char*)scene + 0x24), 0, 0,
-                lbl_80881088, lbl_80881098, lbl_808810AC);
+    menuGroup = fn_8008937C(sceneMenu, "Ambient");
+    fn_8008771C(menuGroup, "Ambient R", &scene->mAmbient[0], 0, 0,
+                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "Ambient G", &scene->mAmbient[1], 0, 0,
+                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "Ambient B", &scene->mAmbient[2], 0, 0,
+                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "LS R", &scene->mLS[0], 0, 0,
+                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "LS G", &scene->mLS[1], 0, 0,
+                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "LS B", &scene->mLS[2], 0, 0,
+                0.0f, 1.0f, 0.01f);
 
     // The layer pointer table occupies the first 20 words of RenderSystem.
-    void* layerMemory = fn_800BC874_allocLayer(0x30);
-    if (layerMemory != 0) {
-        __ct__Q23atn17LayerOcclusionCPUFv(layerMemory);
+    atn::IRenderLayer** layers = (atn::IRenderLayer**)self;
+    layers[0] = new (6, "", "", 0) atn::LayerOcclusionCPU();
+    layers[1] = new (6, "", "", 0) atn::Layer2D("Composite");
+    layers[2] = new (6, "", "", 0) atn::LayerPrerender();
+    layers[3] = new (6, "", "", 0) atn::LayerShadow();
+    layers[4] = new (6, "", "", 0) atn::LayerReflect();
+    layers[5] = 0;
+    layers[10] = new (6, "", "", 0) atn::Layer3D("3D Outline");
+    layers[6] = new (6, "", "", 0) atn::Layer3D("3D Object", 9, -1);
+    layers[7] = new (6, "", "", 0) atn::LayerZPrePass();
+    layers[8] = new (6, "", "", 0) atn::Layer3D("3D Alpha");
+    layers[9] = new (6, "", "", 0) atn::LayerPost3D();
+    layers[11] = new (6, "", "", 0) atn::Layer3D("Effect");
+    layers[12] = new (6, "", "", 0) atn::Layer2D("2D Effect");
+    layers[13] = new (6, "", "", 0) atn::Layer3D("3D Debug");
+    layers[14] = new (6, "", "", 0) atn::LayerPostFx();
+    layers[15] = new (6, "", "", 0) atn::Layer2DBlur();
+    layers[18] = new (6, "", "", 0) atn::Layer2D("2D Object");
+    atn::Layer2D3D* layer2D3D = new (6, "", "", 0) atn::Layer2D3D();
+    if (layer2D3D != 0) {
+        layer2D3D->m14 = 0;
     }
-    *(void**)(self + 0x00) = layerMemory;
+    layers[16] = layer2D3D;
+    layers[17] = new (6, "", "", 0) atn::LayerPostFx();
+    layers[19] = new (6, "", "", 0) atn::Layer2D("Debug");
 
-    layerMemory = fn_800BC874_allocLayer(0x14);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::Layer2D((const char*)lbl_807336B0 + 0x8F);
-    }
-    *(void**)(self + 0x04) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x14);
-    if (layerMemory != 0) {
-        *(int*)((unsigned char*)layerMemory + 0x04) = 1;
-        *(const char**)((unsigned char*)layerMemory + 0x08) = (const char*)lbl_807792B4;
-        *(int*)((unsigned char*)layerMemory + 0x0C) = -1;
-        *(int*)((unsigned char*)layerMemory + 0x10) = -1;
-        *(void**)layerMemory = __vt__Q23atn14LayerPrerender;
-    }
-    *(void**)(self + 0x08) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x500);
-    if (layerMemory != 0) {
-        __ct__Q23atn11LayerShadowFv(layerMemory);
-    }
-    *(void**)(self + 0x0C) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x8C);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::LayerReflect();
-    }
-    *(void**)(self + 0x10) = layerMemory;
-    *(void**)(self + 0x14) = 0;
-
-    layerMemory = fn_800BC874_allocLayer(0x5C);
-    if (layerMemory != 0) {
-        atn::Layer3D* layer = new (layerMemory) atn::Layer3D((const char*)lbl_807336B0 + 0x99);
-        *(void**)layer = __vt__Q23atn7Layer3D;
-    }
-    *(void**)(self + 0x28) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x5C);
-    if (layerMemory != 0) {
-        atn::Layer3D* layer = new (layerMemory) atn::Layer3D((const char*)lbl_807336B0 + 0xA4, 9, -1);
-        *(void**)layer = __vt__Q23atn7Layer3D;
-    }
-    *(void**)(self + 0x18) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x5C);
-    if (layerMemory != 0) {
-        atn::Layer3D* layer = new (layerMemory) atn::Layer3D((const char*)lbl_807792A8);
-        *(void**)layer = __vt__Q23atn13LayerZPrePass;
-    }
-    *(void**)(self + 0x1C) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x5C);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::Layer3D((const char*)lbl_807336B0 + 0xAE);
-    }
-    *(void**)(self + 0x20) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x5C);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::LayerPost3D();
-    }
-    *(void**)(self + 0x24) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x5C);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::Layer3D((const char*)lbl_807336B0 + 0xB7);
-    }
-    *(void**)(self + 0x2C) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x14);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::Layer2D((const char*)lbl_807336B0 + 0xBE);
-    }
-    *(void**)(self + 0x30) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x5C);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::Layer3D((const char*)lbl_807336B0 + 0xC8);
-    }
-    *(void**)(self + 0x34) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x1C);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::LayerPostFx();
-    }
-    *(void**)(self + 0x38) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x14);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::Layer2DBlur();
-    }
-    *(void**)(self + 0x3C) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x14);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::Layer2D((const char*)lbl_807336B0 + 0xD1);
-    }
-    *(void**)(self + 0x48) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x5C);
-    if (layerMemory != 0) {
-        atn::Layer3D* layer = new (layerMemory) atn::Layer3D((const char*)lbl_80779298);
-        layer->m14 = 0;
-        *(void**)layer = __vt__Q23atn9Layer2D3D;
-    }
-    *(void**)(self + 0x40) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x1C);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::LayerPostFx();
-    }
-    *(void**)(self + 0x44) = layerMemory;
-
-    layerMemory = fn_800BC874_allocLayer(0x14);
-    if (layerMemory != 0) {
-        new (layerMemory) atn::Layer2D((const char*)lbl_807336B0 + 0xDB);
-    }
-    *(void**)(self + 0x4C) = layerMemory;
-
-    void* layerMenu = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C),
-                                  (const char*)lbl_807336B0 + 0xE1);
+    void* layerMenu = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Layers");
     for (int i = 0; i < 20; ++i) {
-        void* layer = *(void**)(self + i * 4);
-        if (layer != 0) {
-            void** vtable = *(void***)layer;
-            ((void (*)(void*, void*))vtable[3])(layer, layerMenu);
+        if (layers[i] != 0) {
+            layers[i]->vf0C(layerMenu);
         }
     }
     return renderSystem;
@@ -611,12 +508,12 @@ RenderCallback_unk::RenderCallback_unk(boost::function<void(void*)> func, int ar
 
 extern "C" void fn_800BD9C0(void* render, int queueCapacity) {
     // NONMATCHING: 93.59% - temporary texture setup still differs in register allocation.
-    const char* file = (const char*)lbl_807336B0;
+    const char* file = "";
     {
         MemoryMode_unk mode(0, 0x20);
         *(int*)((unsigned char*)render + 0xF4) = queueCapacity;
         *(void**)((unsigned char*)render + 0xF0) =
-            __nwa__FUliPCcPCci(queueCapacity, 6, (const char*)&lbl_8087D72C,
+            ::operator new[](queueCapacity, 6, (const char*)&lbl_8087D72C,
                                (const char*)&lbl_8087D728, 0);
     }
     fn_800C5644();
@@ -625,21 +522,21 @@ extern "C" void fn_800BD9C0(void* render, int queueCapacity) {
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
     unsigned int size = GXGetTexBufferSize((unsigned short)width, (unsigned short)height, 0x13, 0, 0);
-    void* depth = fn_800839EC(fn_800827E0(), size, 0x20, 6, (const char*)lbl_807336B0,
-                              (const char*)lbl_807336B0, 0, 0);
+    void* depth = fn_800839EC(fn_800827E0(), size, 0x20, 6, "",
+                              "", 0, 0);
     *(void**)((unsigned char*)render + 0x79C) = depth;
     ((atn::Texture_unk*)((unsigned char*)render + 0x74C))
-        ->fn_800D5B58(width, height, 6, 1, (const char*)lbl_807336B0 + 0xE8);
-    GXInitTexObjLOD((GXTexObj*)((unsigned char*)render + 0x74C), 1, 1, lbl_80881088, lbl_80881088,
-                    lbl_80881088, 0, 0, 0);
+        ->fn_800D5B58(width, height, 6, 1, "FrameBuffer");
+    GXInitTexObjLOD((GXTexObj*)((unsigned char*)render + 0x74C), 1, 1, 0.0f, 0.0f,
+                    0.0f, 0, 0, 0);
     fn_800BC468(render, (GXTexObj*)((unsigned char*)render + 0x530));
     fn_800BC618(render, (GXTexObj*)((unsigned char*)render + 0x50C),
                 *(int*)((unsigned char*)lbl_8087EFA8 + 0x154));
     GXInitTexObj((GXTexObj*)((unsigned char*)render + 0x77C),
                  *(void**)((unsigned char*)render + 0x79C), (unsigned short)width,
                  (unsigned short)height, 3, 0, 0, 0);
-    GXInitTexObjLOD((GXTexObj*)((unsigned char*)render + 0x77C), 0, 0, lbl_80881088, lbl_80881088,
-                    lbl_80881088, 0, 0, 0);
+    GXInitTexObjLOD((GXTexObj*)((unsigned char*)render + 0x77C), 0, 0, 0.0f, 0.0f,
+                    0.0f, 0, 0, 0);
 }
 
 extern "C" void fn_800BDB40(void* render, int value) {
@@ -682,7 +579,9 @@ extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int p
 
 extern "C" void fn_800BDBC8(void* renderSystem) {
     // inferred: collect, sort, and relink the queued render entries for each of 20 passes.
-    // NONMATCHING: 72.59% - remaining render-state details and drawing callbacks still differ.
+    // poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
+    // time, so its operands were not literals there (source form unknown).
+    // NONMATCHING: 72.91% - remaining render-state details and drawing callbacks still differ.
     unsigned char* system = (unsigned char*)renderSystem;
     Mtx matrixWork[8];
     void** entries = 0;
@@ -693,13 +592,13 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
         unsigned int requested = *(unsigned int*)(passSystem + 0xA0);
         if (requested >= capacity) {
             unsigned int newCapacity = requested;
-            void** replacement = (void**)__nwa__FUliPCcPCci(
+            void** replacement = (void**)::operator new[](
                 newCapacity * 4, 0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
             for (unsigned int i = 0; i < capacity; ++i) {
                 replacement[i] = entries[i];
             }
             if (entries != 0) {
-                __dla__FPv(entries);
+                ::operator delete[](entries);
             }
             entries = replacement;
             capacity = newCapacity;
@@ -710,13 +609,13 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
         while (node != 0) {
             if (count == capacity) {
                 unsigned int newCapacity = capacity == 0 ? 8 : capacity * 2;
-                void** replacement = (void**)__nwa__FUliPCcPCci(
+                void** replacement = (void**)::operator new[](
                     newCapacity * 4, 0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
                 for (unsigned int i = 0; i < count; ++i) {
                     replacement[i] = entries[i];
                 }
                 if (entries != 0) {
-                    __dla__FPv(entries);
+                    ::operator delete[](entries);
                 }
                 entries = replacement;
                 capacity = newCapacity;
@@ -740,45 +639,45 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
     }
 
     if (entries != 0) {
-        __dla__FPv(entries);
+        ::operator delete[](entries);
     }
 
     void* debugDrawer = lbl_8087EEB0;
     void* renderState = lbl_8087EEE0;
     if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x1C) != 0 &&
         *(int*)((unsigned char*)renderState + 0x44) != 0) {
-        float half = lbl_80881094;
-        float extent = lbl_808810B0 - lbl_808810B8;
-        float left = lbl_808810B0 - half * extent;
+        float half = 0.5f;
+        float extent = 640.0f - 514.2857f;
+        float left = 640.0f - half * extent;
         float right = half * extent;
         *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x13;
-        fn_8006144C(debugDrawer, left, lbl_80881088, left, lbl_808810B4, 0xFFFF0000,
-                    lbl_80881088);
-        fn_8006144C(debugDrawer, right, lbl_808810B4, right, lbl_80881088, 0xFFFF0000,
-                    lbl_80881088);
+        fn_8006144C(debugDrawer, left, 0.0f, left, 448.0f, 0xFFFF0000,
+                    0.0f);
+        fn_8006144C(debugDrawer, right, 448.0f, right, 0.0f, 0xFFFF0000,
+                    0.0f);
         *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x12;
     }
 
     if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x18) != 0) {
-        float left = lbl_808810B0 * lbl_808810BC;
-        float top = lbl_808810B4 * lbl_808810C0;
-        float right = lbl_808810B0 * (lbl_80881098 - lbl_808810BC);
-        float bottom = lbl_808810B4 * (lbl_80881098 - lbl_808810C0);
+        float left = 640.0f * 0.07800001f;
+        float top = 448.0f * 0.095999986f;
+        float right = 640.0f * (1.0f - 0.07800001f);
+        float bottom = 448.0f * (1.0f - 0.095999986f);
         *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x13;
-        fn_8006144C(debugDrawer, left, top, right, top, 0xFFFFFF00, lbl_80881088);
-        fn_8006144C(debugDrawer, right, top, right, bottom, 0xFFFFFF00, lbl_80881088);
-        fn_8006144C(debugDrawer, right, bottom, left, bottom, 0xFFFFFF00, lbl_80881088);
-        fn_8006144C(debugDrawer, left, bottom, left, top, 0xFFFFFF00, lbl_80881088);
+        fn_8006144C(debugDrawer, left, top, right, top, 0xFFFFFF00, 0.0f);
+        fn_8006144C(debugDrawer, right, top, right, bottom, 0xFFFFFF00, 0.0f);
+        fn_8006144C(debugDrawer, right, bottom, left, bottom, 0xFFFFFF00, 0.0f);
+        fn_8006144C(debugDrawer, left, bottom, left, top, 0xFFFFFF00, 0.0f);
 
-        left = lbl_808810B0 * lbl_808810C4;
-        top = lbl_808810B4 * lbl_808810C4;
-        right = lbl_808810B0 * (lbl_80881098 - lbl_808810C4);
-        bottom = lbl_808810B4 * (lbl_80881098 - lbl_808810C4);
+        left = 640.0f * 0.065f;
+        top = 448.0f * 0.065f;
+        right = 640.0f * (1.0f - 0.065f);
+        bottom = 448.0f * (1.0f - 0.065f);
         *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x12;
-        fn_8006144C(debugDrawer, left, top, right, top, 0xFFFFFFFF, lbl_80881088);
-        fn_8006144C(debugDrawer, right, top, right, bottom, 0xFFFFFFFF, lbl_80881088);
-        fn_8006144C(debugDrawer, right, bottom, left, bottom, 0xFFFFFFFF, lbl_80881088);
-        fn_8006144C(debugDrawer, left, bottom, left, top, 0xFFFFFFFF, lbl_80881088);
+        fn_8006144C(debugDrawer, left, top, right, top, 0xFFFFFFFF, 0.0f);
+        fn_8006144C(debugDrawer, right, top, right, bottom, 0xFFFFFFFF, 0.0f);
+        fn_8006144C(debugDrawer, right, bottom, left, bottom, 0xFFFFFFFF, 0.0f);
+        fn_8006144C(debugDrawer, left, bottom, left, top, 0xFFFFFFFF, 0.0f);
     }
 
     *(int*)((unsigned char*)lbl_8087EF8C + 0x54) = 0;
@@ -786,31 +685,31 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
     unsigned char* managerState = (unsigned char*)lbl_8087EEE0;
     float colorValue = *(float*)(manager + 0x3C);
     unsigned int red = 0;
-    if (colorValue >= lbl_80881098) {
+    if (colorValue >= 1.0f) {
         red = 0xFF;
-    } else if (!(colorValue <= lbl_80881088)) {
-        red = (unsigned int)(lbl_808810C8 * colorValue + lbl_80881094);
+    } else if (!(colorValue <= 0.0f)) {
+        red = (unsigned int)(255.0f * colorValue + 0.5f);
     }
     colorValue = *(float*)(manager + 0x40);
     unsigned int green = 0;
-    if (colorValue >= lbl_80881098) {
+    if (colorValue >= 1.0f) {
         green = 0xFF;
-    } else if (!(colorValue <= lbl_80881088)) {
-        green = (unsigned int)(lbl_808810C8 * colorValue + lbl_80881094);
+    } else if (!(colorValue <= 0.0f)) {
+        green = (unsigned int)(255.0f * colorValue + 0.5f);
     }
     colorValue = *(float*)(manager + 0x44);
     unsigned int blue = 0;
-    if (colorValue >= lbl_80881098) {
+    if (colorValue >= 1.0f) {
         blue = 0xFF;
-    } else if (!(colorValue <= lbl_80881088)) {
-        blue = (unsigned int)(lbl_808810C8 * colorValue + lbl_80881094);
+    } else if (!(colorValue <= 0.0f)) {
+        blue = (unsigned int)(255.0f * colorValue + 0.5f);
     }
     colorValue = *(float*)(manager + 0x48);
     unsigned int alpha = 0;
-    if (colorValue >= lbl_80881098) {
+    if (colorValue >= 1.0f) {
         alpha = 0xFF;
-    } else if (!(colorValue <= lbl_80881088)) {
-        alpha = (unsigned int)(lbl_808810C8 * colorValue + lbl_80881094);
+    } else if (!(colorValue <= 0.0f)) {
+        alpha = (unsigned int)(255.0f * colorValue + 0.5f);
     }
     *(unsigned int*)(managerState + 0x48) =
         (alpha << 24) | (red << 16) | (green << 8) | blue;
@@ -822,8 +721,8 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
     if (*(void**)beforeLayers != 0) {
         beforeLayers->mFunc((void*)beforeLayers->mArg);
     }
-    *(float*)(system + 0xFC) = lbl_80881088;
-    *(float*)(system + 0x100) = lbl_80881088;
+    *(float*)(system + 0xFC) = 0.0f;
+    *(float*)(system + 0x100) = 0.0f;
     fn_80075DEC(lbl_8087EEE0);
     if (*(int*)((unsigned char*)lbl_8087EFA8 + 4) != 0) {
         fn_8007A4CC__13LightList_unkFv(lbl_8087EEF8);
@@ -850,13 +749,13 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
     __MtxCopy(*(Mtx*)(system + 0x800), matrixWork[2]);
     if (*(int*)(system + 0x554) != 0) {
         __MtxCopy(matrixWork[0], *(Mtx*)(system + 0x1D4));
-        matrixWork[0][0][3] = lbl_80881088;
-        matrixWork[0][1][3] = lbl_80881088;
-        matrixWork[0][2][3] = lbl_80881088;
+        matrixWork[0][0][3] = 0.0f;
+        matrixWork[0][1][3] = 0.0f;
+        matrixWork[0][2][3] = 0.0f;
         __MtxCopy(matrixWork[1], *(Mtx*)(system + 0x5B0));
-        matrixWork[1][0][3] = lbl_80881088;
-        matrixWork[1][1][3] = lbl_80881088;
-        matrixWork[1][2][3] = lbl_80881088;
+        matrixWork[1][0][3] = 0.0f;
+        matrixWork[1][1][3] = 0.0f;
+        matrixWork[1][2][3] = 0.0f;
         PSMTXConcat(matrixWork[1], matrixWork[0], matrixWork[4]);
         PSMTXConcat(*(Mtx*)(system + 0x800), matrixWork[4], matrixWork[3]);
         __MtxCopy(*(Mtx*)(system + 0x800), matrixWork[3]);
@@ -867,18 +766,18 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
     __MtxCopy(*(Mtx*)(system + 0x7D0), matrixWork[6]);
     fn_800D5F68(matrixWork[7], 4, -1, -1, 0);
     __MtxCopy(*(Mtx*)(system + 0x830), matrixWork[7]);
-    *(float*)(system + 0x860) = lbl_80881098;
-    *(float*)(system + 0x864) = lbl_80881088;
-    *(float*)(system + 0x868) = lbl_80881088;
-    *(float*)(system + 0x86C) = lbl_80881088;
-    *(float*)(system + 0x870) = lbl_80881088;
-    *(float*)(system + 0x874) = lbl_80881098;
-    *(float*)(system + 0x878) = lbl_80881088;
-    *(float*)(system + 0x87C) = lbl_80881088;
-    *(float*)(system + 0x880) = lbl_80881088;
-    *(float*)(system + 0x884) = lbl_80881088;
-    *(float*)(system + 0x888) = lbl_80881098;
-    *(float*)(system + 0x88C) = lbl_80881088;
+    *(float*)(system + 0x860) = 1.0f;
+    *(float*)(system + 0x864) = 0.0f;
+    *(float*)(system + 0x868) = 0.0f;
+    *(float*)(system + 0x86C) = 0.0f;
+    *(float*)(system + 0x870) = 0.0f;
+    *(float*)(system + 0x874) = 1.0f;
+    *(float*)(system + 0x878) = 0.0f;
+    *(float*)(system + 0x87C) = 0.0f;
+    *(float*)(system + 0x880) = 0.0f;
+    *(float*)(system + 0x884) = 0.0f;
+    *(float*)(system + 0x888) = 1.0f;
+    *(float*)(system + 0x88C) = 0.0f;
 
     LCEnable();
     unsigned char* layerSlot = system;
@@ -907,7 +806,7 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
             unsigned int batchCount = *(unsigned int*)(system + 0x895C);
             for (unsigned int i = 0; i < batchCount; ++i) {
                 unsigned int index = *(unsigned int*)(system + 0x960 + i * 8);
-                fn_8009DE60(system + 0x8960 + index * 0x4C, lbl_80881088);
+                fn_8009DE60(system + 0x8960 + index * 0x4C, 0.0f);
             }
             ((LayerQueueCall)(*(void***)layer)[6])(layer, queue);
             ((LayerCall)(*(void***)layer)[8])(layer);
@@ -956,13 +855,13 @@ extern "C" void fn_800BECF0(void* first, unsigned int count) {
 }
 
 static unsigned char fn_800BFCB4_colorByte(float value) {
-    if (value >= lbl_80881098) {
+    if (value >= 1.0f) {
         return 0xFF;
     }
-    if (value <= lbl_80881088) {
+    if (value <= 0.0f) {
         return 0;
     }
-    return (unsigned char)__cvt_fp2unsigned(lbl_808810C8 * value + lbl_80881094);
+    return (unsigned char)__cvt_fp2unsigned(255.0f * value + 0.5f);
 }
 
 extern "C" void fn_800BEDA8(unsigned int shift, const unsigned int* inputPairs,
@@ -1299,14 +1198,14 @@ extern "C" void fn_800BF9C4(void** first, void** second, void** third) {
 extern "C" void fn_800BFAC4() {}
 
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos) {
-    // NONMATCHING: 95.24% - MWCC schedules the projection-type constant earlier.
-    float projection[7] = {lbl_80881088,
-                           *(float*)((unsigned char*)camera + 0x18C),
-                           *(float*)((unsigned char*)camera + 0x194),
-                           *(float*)((unsigned char*)camera + 0x1A0),
-                           *(float*)((unsigned char*)camera + 0x1A4),
-                           *(float*)((unsigned char*)camera + 0x1B4),
-                           *(float*)((unsigned char*)camera + 0x1B8)};
+    float projection[7];
+    projection[0] = 0.0f; // inferred: GX_PERSPECTIVE
+    projection[1] = *(float*)((unsigned char*)camera + 0x18C);
+    projection[2] = *(float*)((unsigned char*)camera + 0x194);
+    projection[3] = *(float*)((unsigned char*)camera + 0x1A0);
+    projection[4] = *(float*)((unsigned char*)camera + 0x1A4);
+    projection[5] = *(float*)((unsigned char*)camera + 0x1B4);
+    projection[6] = *(float*)((unsigned char*)camera + 0x1B8);
     float viewport[6];
     GXGetViewportv(viewport);
     GXProject(pos->x, pos->y, pos->z, (const float (*)[4])((unsigned char*)camera + 0x15C), projection, viewport,
@@ -1315,19 +1214,20 @@ extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3*
 
 extern "C" void fn_800BFB70(void* render) {
     // inferred: invoke the common projection helper with six all-ones work vectors and zero scalar bounds.
-    // NONMATCHING: 73.71% - local vector placement and initialization order differ.
+    // NONMATCHING: 81.90% - local vector placement and initialization order differ.
+    float one = 1.0f;
     float vectors[6][4] = {
-        {lbl_80881098, lbl_80881098, lbl_80881098, lbl_80881098},
-        {lbl_80881098, lbl_80881098, lbl_80881098, lbl_80881098},
-        {lbl_80881098, lbl_80881098, lbl_80881098, lbl_80881098},
-        {lbl_80881098, lbl_80881098, lbl_80881098, lbl_80881098},
-        {lbl_80881098, lbl_80881098, lbl_80881098, lbl_80881098},
-        {lbl_80881098, lbl_80881098, lbl_80881098, lbl_80881098},
+        {one, one, one, one},
+        {one, one, one, one},
+        {one, one, one, one},
+        {one, one, one, one},
+        {one, one, one, one},
+        {one, one, one, one},
     };
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
     fn_800BFCB4(render, vectors[4], vectors[3], vectors[2], vectors[1], width, height,
-                lbl_80881088, lbl_80881088);
+                0.0f, 0.0f);
 }
 
 extern "C" void fn_800BFC18(void* render, RenderColor_unk color, float a, float b) {
@@ -1390,29 +1290,29 @@ extern "C" void fn_800BFCB4(void* render, float* c0, float* c1, float* c2, float
     *(volatile float*)fifo = b;
     *(volatile float*)fifo = lbl_8087D90C;
     fifo[0] = colorBytes[0]; fifo[0] = colorBytes[1]; fifo[0] = colorBytes[2]; fifo[0] = colorBytes[3];
-    *(volatile float*)fifo = lbl_80881088;
-    *(volatile float*)fifo = lbl_80881088;
+    *(volatile float*)fifo = 0.0f;
+    *(volatile float*)fifo = 0.0f;
 
     *(volatile float*)fifo = (float)width + a;
     *(volatile float*)fifo = b;
     *(volatile float*)fifo = lbl_8087D90C;
     fifo[0] = colorBytes[4]; fifo[0] = colorBytes[5]; fifo[0] = colorBytes[6]; fifo[0] = colorBytes[7];
-    *(volatile float*)fifo = lbl_80881098;
-    *(volatile float*)fifo = lbl_80881088;
+    *(volatile float*)fifo = 1.0f;
+    *(volatile float*)fifo = 0.0f;
 
     *(volatile float*)fifo = (float)width;
     *(volatile float*)fifo = (float)height + b;
     *(volatile float*)fifo = lbl_8087D90C;
     fifo[0] = colorBytes[8]; fifo[0] = colorBytes[9]; fifo[0] = colorBytes[10]; fifo[0] = colorBytes[11];
-    *(volatile float*)fifo = lbl_80881098;
-    *(volatile float*)fifo = lbl_80881098;
+    *(volatile float*)fifo = 1.0f;
+    *(volatile float*)fifo = 1.0f;
 
-    *(volatile float*)fifo = lbl_80881088;
+    *(volatile float*)fifo = 0.0f;
     *(volatile float*)fifo = (float)height;
     *(volatile float*)fifo = lbl_8087D90C;
     fifo[0] = colorBytes[12]; fifo[0] = colorBytes[13]; fifo[0] = colorBytes[14]; fifo[0] = colorBytes[15];
-    *(volatile float*)fifo = lbl_80881088;
-    *(volatile float*)fifo = lbl_80881098;
+    *(volatile float*)fifo = 0.0f;
+    *(volatile float*)fifo = 1.0f;
     fn_80076A28(global, &previous);
 }
 
@@ -1438,11 +1338,11 @@ extern "C" void fn_800C0590(void* render, int clear, int format) {
     if (format != 0x16) {
         GXInitTexObj(tex, *(void**)((unsigned char*)render + 0x79C), (unsigned short)width,
                      (unsigned short)height, 3, 0, 0, 0);
-        GXInitTexObjLOD(tex, 0, 0, lbl_80881088, lbl_80881088, lbl_80881088, 0, 0, 0);
+        GXInitTexObjLOD(tex, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     } else {
         GXInitTexObj(tex, *(void**)((unsigned char*)render + 0x79C), (unsigned short)width,
                      (unsigned short)height, 0x16, 0, 0, 0);
-        GXInitTexObjLOD(tex, 0, 0, lbl_80881088, lbl_80881088, lbl_80881088, 0, 0, 0);
+        GXInitTexObjLOD(tex, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     }
 }
 
@@ -1454,7 +1354,7 @@ extern "C" void fn_800C06B0(void* render, const void* fog) {
             unsigned int color = 0;
             float farZ = *(float*)((unsigned char*)render + 0x1D0);
             float nearZ = *(float*)((unsigned char*)render + 0x1CC);
-            GXSetFog(0, &color, lbl_80881088, lbl_80881088, nearZ, farZ);
+            GXSetFog(0, &color, 0.0f, 0.0f, nearZ, farZ);
         }
         return;
     }
@@ -1489,7 +1389,7 @@ extern "C" void fn_800C06B0(void* render, const void* fog) {
     }
     unsigned char colorBytes[4] = {0, 0, 0, 0};
     unsigned int* color = (unsigned int*)(colorBytes + 8);
-    const float scale = lbl_808810C8;
+    const float scale = 255.0f;
     float red = *(float*)(bytes + 0x8A0);
     float green = *(float*)(bytes + 0x8A4);
     float blue = *(float*)(bytes + 0x8A8);
@@ -1510,7 +1410,7 @@ extern "C" void fn_800C08B0(void* render) {
         unsigned int color = 0;
         float farZ = *(float*)((unsigned char*)render + 0x1D0);
         float nearZ = *(float*)((unsigned char*)render + 0x1CC);
-        GXSetFog(0, &color, lbl_80881088, lbl_80881088, nearZ, farZ);
+        GXSetFog(0, &color, 0.0f, 0.0f, nearZ, farZ);
     }
 }
 
@@ -1783,7 +1683,7 @@ extern "C" atn::Scene* fn_800C1424(RenderSceneCallbackOwner_unk* render) {
     const atn::Vector3& position = render->m54964 != 0 ? render->m10C : render->m118;
     atn::Sphere sourceSphere;
     sourceSphere.mCenter.Assign_unk(position);
-    sourceSphere.mRadius = lbl_80881098;
+    sourceSphere.mRadius = 1.0f;
     atn::Sphere sphere(sourceSphere);
     if (render->m300) {
         atn::Scene* scene = render->m300(sphere, render->m314);
@@ -1817,7 +1717,7 @@ extern "C" float fn_800C169C(void* renderSystem, const void* bounds) {
     if (pass != 0) {
         return fn_800B6218(pass, bounds);
     }
-    return lbl_80881088;
+    return 0.0f;
 }
 
 extern "C" int fn_800C16B4() {
