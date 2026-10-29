@@ -2,6 +2,10 @@
 
 Cola: filas `std`/MSL de la tabla "Pendientes" de `docs/rso-names.md`. Referencia: `/home/claude/ref/report2.json` (8180 / 18215).
 
+## Resultado
+
+8182 / 18215 al 100% (+2: `__dt__ basic_ostream<char>` y `__dt__ basic_stringbuf<char>`), `main.dol: OK`, lost 0, `poolcheck` sin avisos, fuzzdrop 1 aceptada (`0x800e14a4` 57,35 → 35,05 en `report.json`). Commits: `25164b0` (do_replace, operator+), `3586b8f` (get_deleter), `855212a` (streams).
+
 ## Resultado por nombre
 
 | Dirección | Nombre del RSO | Estado |
