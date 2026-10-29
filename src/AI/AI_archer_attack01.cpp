@@ -5892,6 +5892,24 @@ int AI::Script::AI_fr_magic_pick02::vf40() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_fr_runaway::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        if (Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20) < 200) {
+            lbl_807C6A40.m00 = 1;
+            return 3;
+        }
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
 
 int AI::Script::AI_fr_runaway::vf08() {
     lbl_807C6A40.m18 = lbl_807C68C0.m7C;
@@ -5901,6 +5919,46 @@ int AI::Script::AI_fr_runaway::vf08() {
     lbl_807C6A40.m28 = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+
+int AI::Script::AI_fr_runaway::vf40() {
+    lbl_807C6A40.m38 = Distance_unk(lbl_807C68C0.m00, lbl_807C68C0.m20);
+    lbl_807C6A40.m00 = 1;
+    int result = CheckCount_unk();
+    if (result == 1) {
+        Command_unk(0, 0, 0, 0, 0);
+        return 1;
+    }
+    return -1;
+}
+
+// NONMATCHING: 99.64% - pending the string pool (the literal is loaded before in.m00).
+int AI::Script::AI_fr_runaway::vf24() {
+    if (CanUseItem_unk()) {
+        Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 4;
+    }
+    fn_8001C068(lbl_807C68C0.m00, (const char*)(lbl_807307A0 + 0x3E0)); // "hiding point not found"
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
+
+int AI::Script::AI_fr_runaway::vf14() {
+    int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+    Command_unk(1, PickPoint_unk(base), 0, 0, 0);
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m28 = 1;
+    return 4;
+}
+
+int AI::Script::AI_fr_runaway::vf18() {
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(0, WaitDelay_unk(), 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
 }
 
 int AI::Script::AI_fr_sword_attack01::vf08() {
