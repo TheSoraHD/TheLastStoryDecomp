@@ -17,8 +17,6 @@ extern "C" float fn_800DC288(const char* s);                       // inferred: 
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg); // inferred: allocation
 
 // inferred: field (lbl_8087F430) and its flags
 struct ItemField_unk;
@@ -125,7 +123,7 @@ extern "C" void fn_80210ACC() {
         }
     }
     sCount += 0x100;
-    sEntries = (ItemParamEntry_unk*)fn_800839EC(atn::MemoryManager::Instance(), sCount * sizeof(ItemParamEntry_unk), 0x20, 1, "", "",
+    sEntries = (ItemParamEntry_unk*)atn::MemoryManager::Instance()->AllocFromMem2(sCount * sizeof(ItemParamEntry_unk), 0x20, (MemoryTag)1, "", "",
                                                  0, 0);
     sBuf = new (1, "", "", 0) char[a];
     csv.SetData((const char*)data, size);

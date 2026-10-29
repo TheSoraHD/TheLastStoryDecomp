@@ -105,8 +105,6 @@ void* memset(void* dst, int value, unsigned long size);
 
 extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line); // inferred: allocation of a fixed block
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg7);
 
 // SDK render modes
 extern "C" GXRenderModeObj lbl_807B093C; // GXNtsc480IntDf
@@ -382,8 +380,8 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     device->mHeight = device->mRMode.efbHeight;
     unsigned long xfbSize = (unsigned short)((unsigned short)(rm->fbWidth + 15) & ~15) * rm->xfbHeight * 2;
     device->mFifoBuffer = fn_800838B8(atn::MemoryManager::Instance(), 0x80000, 0x20, 1, "", "", 0);
-    device->mXfb0 = fn_800839EC(atn::MemoryManager::Instance(), xfbSize, 0x20, 6, "", "", 0, 0);
-    device->mXfb1 = fn_800839EC(atn::MemoryManager::Instance(), xfbSize, 0x20, 6, "", "", 0, 0);
+    device->mXfb0 = atn::MemoryManager::Instance()->AllocFromMem2(xfbSize, 0x20, (MemoryTag)6, "", "", 0, 0);
+    device->mXfb1 = atn::MemoryManager::Instance()->AllocFromMem2(xfbSize, 0x20, (MemoryTag)6, "", "", 0, 0);
     memset(device->mFifoBuffer, 0, 0x80000);
     memset(device->mXfb0, 0, xfbSize);
     memset(device->mXfb1, 0, xfbSize);

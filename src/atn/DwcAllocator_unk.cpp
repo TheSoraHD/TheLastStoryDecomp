@@ -4,8 +4,6 @@
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* file, const char* func, int line, int arg);
 
 // inferred: DLAllocator::fn_80084EE8 also receives the heap name (as in atn/SmallAllocator_8.cpp)
 extern "C" void fn_80084EE8__Q23atn11DLAllocatorFPvUl(atn::DLAllocator* heap, void* base, unsigned long size,
@@ -35,7 +33,7 @@ extern "C" void fn_8050D3E8() {
     atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     mgr->mUseMutex = 1;
     lbl_8087F878 = (NamedAllocator_unk*)new (5, "", "", 0) atn::DLAllocator;
-    void* base = fn_800839EC(atn::MemoryManager::Instance(), 0x100000, 0x20, 5, "", "", 0, 0);
+    void* base = atn::MemoryManager::Instance()->AllocFromMem2(0x100000, 0x20, (MemoryTag)5, "", "", 0, 0);
     fn_80084EE8__Q23atn11DLAllocatorFPvUl((atn::DLAllocator*)lbl_8087F878, base, 0x100000, "DwcAllocator");
 }
 
@@ -54,7 +52,7 @@ extern "C" void* fn_8050D500(int name, unsigned long size, int align) {
     void* p = lbl_8087F878->vf0C(size, align, 5, "DWCAlloc");
     fn_80509A90(lbl_8087F628);
     if (p == 0) {
-        p = fn_800839EC(atn::MemoryManager::Instance(), size, align, 5, "", "", 0, 0);
+        p = atn::MemoryManager::Instance()->AllocFromMem2(size, align, (MemoryTag)5, "", "", 0, 0);
     }
     return p;
 }
@@ -78,7 +76,7 @@ extern "C" void* fn_8050D67C(int arg, unsigned long size) {
     void* p = lbl_8087F878->vf0C(size, 0x20, 5, "DWCAlloc");
     fn_80509A90(lbl_8087F628);
     if (p == 0) {
-        p = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 5, "", "", 0, 0);
+        p = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)5, "", "", 0, 0);
     }
     return p;
 }

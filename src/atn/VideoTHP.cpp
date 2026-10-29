@@ -25,8 +25,6 @@ extern "C" int fn_805B6474(void* rmode, int x, int y, int w, int h); // THPPlaye
 extern "C" void fn_806140C0();
 
 extern "C" void OSPanic(const char* file, int line, const char* msg, ...);
-extern "C" void* fn_800839EC(void* heap, unsigned int size, int align, int arg3, const char* file,
-                             const char* name, int arg6, int arg7);
 extern "C" void fn_80087BB4(void* group, const char* name, float* value, int arg3, int arg4, float min,
                             float max, float step); // inferred: debug slider for a 2D vector
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
@@ -190,7 +188,7 @@ void VideoTHP::vf20() {
     fn_805B68A0(m20);
     fn_805B68E8(m2C);
     unsigned int size = fn_805B5A4C();
-    m3C = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "", "", 0, 0);
+    m3C = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0, 0);
     if (m3C == 0) {
         OSPanic("atn_video_thp.cpp", 0x35, "Can't allocate the memory\n");
     }

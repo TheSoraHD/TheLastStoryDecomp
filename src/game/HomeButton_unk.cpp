@@ -16,8 +16,6 @@ extern "C" unsigned long VIGetTvFormat();
 extern "C" void GXSetColorUpdate(unsigned char enable);
 extern "C" void C_MTXOrtho(float m[4][4], float t, float b, float l, float r, float n, float f);
 
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg); // inferred: allocation
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg); // inferred: loads a file
 
 // inferred: HBM library (unnamed in symbols.txt)
@@ -85,7 +83,7 @@ extern "C" void fn_80440B2C(HBMDataInfo* info) {
     }
     unsigned long size = 0;
     void* data = fn_8006BA8C(path, &size, 0);
-    info->layoutBuf = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 1, "", "", 0, 0);
+    info->layoutBuf = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)1, "", "", 0, 0);
     memcpy(info->layoutBuf, data, size);
     atn::FileFreeBuffer((char*)data, false);
     strcpy(path, sHbmDir_unk);
@@ -172,10 +170,10 @@ void HBMRsoCreate(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
     strcpy(path, sHbmDir_unk);
     strcat(path, "/HomeButtonSe.arc");
     void* data = fn_8006BA8C(path, &size, 0);
-    soundData = (unsigned char*)fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 1, "", "", 0, 0);
+    soundData = (unsigned char*)atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)1, "", "", 0, 0);
     memcpy(soundData, data, size);
     atn::FileFreeBuffer((char*)data, false);
-    soundBuf = (unsigned char*)fn_800839EC(atn::MemoryManager::Instance(), 0x18700, 0x20, 1, "", "", 0, 0);
+    soundBuf = (unsigned char*)atn::MemoryManager::Instance()->AllocFromMem2(0x18700, 0x20, (MemoryTag)1, "", "", 0, 0);
     HBMCreateSound(soundData, soundBuf, 0x18700);
 }
 

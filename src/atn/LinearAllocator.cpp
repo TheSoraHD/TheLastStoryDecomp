@@ -26,8 +26,6 @@ struct PostFxParams_unk {
 extern "C" PostFxParams_unk* lbl_8087EFA8;
 extern "C" Camera_unk* lbl_8087EFB4;
 // inferred: allocates from a memory manager
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg);
 extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float alpha, int arg); // inferred: queues a render
 extern "C" unsigned long GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                             unsigned char mipmap, unsigned char maxLod);
@@ -224,7 +222,7 @@ void PostFxManager::vf14() {
 
 // note: not inline, its literals are in @stringBase0 (the out-of-line copy is removed by the linker)
 PostFxManager::PostFxManager(Task* parent)
-    : Task(parent), mAlloc(fn_800839EC(atn::MemoryManager::Instance(), 0x8CA00, 0x20, 6, "", "", 0, 0), 0x8CA00), m778(0xE) {}
+    : Task(parent), mAlloc(atn::MemoryManager::Instance()->AllocFromMem2(0x8CA00, 0x20, (MemoryTag)6, "", "", 0, 0), 0x8CA00), m778(0xE) {}
 
 PostFxManager::~PostFxManager() {}
 

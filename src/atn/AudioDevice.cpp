@@ -19,8 +19,6 @@ extern "C" void OSSleepTicks(long long ticks);
 void* operator new(unsigned long size, int heap, const char* file, const char* name, int line);
 void* operator new[](unsigned long size, int heap, const char* file, const char* name, int line);
 
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int flags);
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name
 extern "C" int fn_800DC12C(const char* s);          // inferred: atoi
@@ -654,7 +652,7 @@ extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path);
 
 // inferred: allocation of the device buffers (aligned to 32, heap 10)
 static inline void* AudioAlloc_unk(unsigned long size) {
-    return fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 10, "", "", 0, 0);
+    return atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)10, "", "", 0, 0);
 }
 
 AudioDevice::AudioDevice()

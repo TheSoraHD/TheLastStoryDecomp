@@ -2,7 +2,7 @@
 #define ATN_MEMORYMANAGER_H
 
 // atn::MemoryManager: engine memory manager (atn::SmallAllocator<N> pools and five atn::DLAllocator
-// heaps; code in atn/SmallAllocator_8.cpp). Names from the RSO: Instance, Free; the rest invented.
+// heaps; code in atn/SmallAllocator_8.cpp). Names from the RSO: Instance, Free, AllocFromMem2; the rest invented.
 #include "atn/DLAllocator.h"
 #include "atn/SmallAllocator.h"
 
@@ -23,6 +23,10 @@ struct MEMAllocator_unk {
     unsigned long mParam2;
 };
 
+// RSO: global enum MemoryTag (heap of an allocation: operator new(unsigned long, MemoryTag, ...)
+// and MemoryManager::AllocFromMem2); enumerator names unknown, values seen: 0, 1, 6
+enum MemoryTag {};
+
 namespace atn {
 
 class MemoryManager {
@@ -30,6 +34,9 @@ public:
     MemoryManager();
     static MemoryManager* Instance(); // 0x800827E0
     void Free(void* p);               // 0x80083AD4
+    // RSO: AllocFromMem2__Q23atn13MemoryManagerFUlUl9MemoryTagPCcPCcii (0x800839EC)
+    void* AllocFromMem2(unsigned long size, unsigned long align, MemoryTag tag, const char* name, const char* file,
+                        int line, int mayFail);
 
     int mMode;                              // 0x000: inferred: 1 = small blocks only from SMA2
     unsigned long mAlign;                   // 0x004

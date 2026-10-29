@@ -14,8 +14,6 @@ extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned
 extern "C" void DCFlushRange(void* addr, unsigned int size);
 
 // inferred: engine memory manager (class of atn/SmallAllocator_8.cpp; opaque here)
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* file, const char* func, int line, int arg);
 
 // inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
 struct DofParams_unk {
@@ -75,7 +73,7 @@ public:
 
 PostFxDof::PostFxDof() : m6C(-1), m70(-1), m74(-1), m78(-1) {
     unsigned int size = GXGetTexBufferSize(0x100, 0x100, 1, 0, 0);
-    mTable = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "", "", 0, 0);
+    mTable = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0, 0);
     GXInitTexObj(&m48, mTable, 0x100, 0x100, 1, 0, 0, 0);
     GXInitTexObjLOD(&m48, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
 }

@@ -60,8 +60,6 @@ int fn_8061E270(const char* path, unsigned char perm, unsigned char attr); // in
 
 extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line);
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg);
 
 // inferred: file name of a path in the temporary folder, and its final path
 extern "C" std::basic_string<char> fn_8006B174(const std::basic_string<char>& path);
@@ -1047,7 +1045,7 @@ extern "C" int fn_800A5218(const char* path, int offset, const void* data, int s
     }
     NANDSeek(&info, offset, 0);
     int alignedSize = (size + 0x1F) / 0x20 * 0x20;
-    void* buf = fn_800839EC(atn::MemoryManager::Instance(), alignedSize, 0x20, 0, "", "", 0, 0);
+    void* buf = atn::MemoryManager::Instance()->AllocFromMem2(alignedSize, 0x20, (MemoryTag)0, "", "", 0, 0);
     memset(buf, 0, alignedSize);
     memcpy(buf, data, size);
     NANDWrite(&info, buf, alignedSize);

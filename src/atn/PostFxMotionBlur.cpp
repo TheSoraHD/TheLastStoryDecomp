@@ -8,8 +8,6 @@ extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short 
                                            unsigned char mipmap, unsigned char maxLod);
 
 // inferred: engine memory manager (class of atn/SmallAllocator_8.cpp; opaque here)
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* file, const char* func, int line, int arg);
 
 // inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
 struct MotionBlurParams_unk {
@@ -93,7 +91,7 @@ void PostFxMotionBlur::fn_800AFEBC(int div) {
                 atn::MemoryManager::Instance()->Free(mImages[i]);
             }
             unsigned int size = GXGetTexBufferSize(w, h, 4, 0, 0);
-            mImages[i] = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "", "", 0, 0);
+            mImages[i] = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0, 0);
             GXInitTexObj(&mTex[i], mImages[i], w, h, 4, 0, 0, 0);
             GXInitTexObjLOD(&mTex[i], 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
         }

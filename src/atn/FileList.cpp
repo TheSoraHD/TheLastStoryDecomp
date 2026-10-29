@@ -22,8 +22,6 @@ public:
 typedef atn::Loader Unk_8087F518;
 extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg);
 extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
 extern "C" char* strcpy(char* dst, const char* src);
 
@@ -280,7 +278,7 @@ extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int own) {
     void* data = 0;
     if (fn_805FA270(path, &info)) {
         *size = info.mLength;
-        data = fn_800839EC(atn::MemoryManager::Instance(), (*size + 0x1F) & ~0x1F, 0x20, 1, "", "", 0, 0);
+        data = atn::MemoryManager::Instance()->AllocFromMem2((*size + 0x1F) & ~0x1F, 0x20, (MemoryTag)1, "", "", 0, 0);
         DVDReadPrio(&info, data, (*size + 0x1F) & ~0x1F, 0, 2);
         DVDClose(&info);
     }

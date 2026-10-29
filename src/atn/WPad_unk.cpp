@@ -24,8 +24,6 @@ extern "C" int fn_80661010(int chan, void* info);                             //
 extern "C" void WPADControlMotor(int chan, unsigned int command);
 
 // inferred: engine heap
-extern "C" void* fn_800839EC(void* heap, unsigned int size, int align, int arg3, const char* file, const char* func,
-                             int line, int arg7);
 
 // inferred: render manager (include/atn/PostFx.h); m3C/m40 are the screen size
 struct ScreenSize_unk {
@@ -61,7 +59,7 @@ void fn_800DDA70() {
 
 // inferred: allocator of the WPAD library
 void* fn_800DDAC4(unsigned int size) {
-    return fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 1, "", "", 0, 0);
+    return atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)1, "", "", 0, 0);
 }
 
 int fn_800DDB14(void* ptr) {

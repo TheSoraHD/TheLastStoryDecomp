@@ -65,8 +65,6 @@ atn::MemoryManager::MemoryManager()
 
 extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
                              const char* name);
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* name, const char* file, int line, int mayFail);
 
 // inferred: MEMAllocator callbacks (MEM1, free, MEM2)
 extern "C" void* fn_80081E54(void* allocator, unsigned long size) {
@@ -78,7 +76,7 @@ extern "C" void fn_800820BC(void* allocator, void* p) {
 }
 
 extern "C" void* fn_80082260(void* allocator, unsigned long size) {
-    return fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 0, "", "", 0, 0);
+    return atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)0, "", "", 0, 0);
 }
 
 // inferred: allocation hooks of the C library
@@ -249,14 +247,14 @@ extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, unsign
 }
 
 // inferred: allocation from MEM2, then Overflow
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* name, const char* file, int line, int mayFail) {
+void* atn::MemoryManager::AllocFromMem2(unsigned long size, unsigned long align, MemoryTag heap, const char* name,
+                                        const char* file, int line, int mayFail) {
     void* p;
     {
-        MemoryLock_unk lock(mgr);
-        p = ((NamedAllocator_unk*)&mgr->mMem2)->vf0C(size, align, heap, name);
+        MemoryLock_unk lock(this);
+        p = ((NamedAllocator_unk*)&mMem2)->vf0C(size, align, heap, name);
         if (p == 0) {
-            p = ((NamedAllocator_unk*)&mgr->mOverflow)->vf0C(size, align, heap, name);
+            p = ((NamedAllocator_unk*)&mOverflow)->vf0C(size, align, heap, name);
         }
     }
     if (mayFail != 0 && p == 0) {

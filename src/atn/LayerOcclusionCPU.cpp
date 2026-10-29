@@ -11,8 +11,6 @@ extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short 
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
 // inferred: aligned array allocation (size, align, heap, name, file, line)
 extern "C" void* fn_800848B4(unsigned long size, int align, int heap, const char* name, const char* file, int line);
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
-                             const char* file, int line, int arg7);
 
 // inferred: render state (viewport) and debug drawing
 struct RenderState_unk;
@@ -281,7 +279,7 @@ void LayerOcclusionCPU::vf20() {
     if (lbl_8087EFA8->m1DC != 0) {
         if (!sTexReady) {
             unsigned int size = GXGetTexBufferSize(32, 32, 1, 0, 0);
-            sTexData = (unsigned char*)fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "", "", 0, 0);
+            sTexData = (unsigned char*)atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0, 0);
             GXInitTexObj(&sTexObj, sTexData, 32, 32, 1, 0, 0, 0);
             GXInitTexObjLOD(&sTexObj, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
             sTexReady = true;

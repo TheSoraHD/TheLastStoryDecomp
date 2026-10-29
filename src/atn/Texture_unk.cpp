@@ -5,8 +5,6 @@
 #include <string.h>
 
 // inferred: engine memory manager (class of atn/SmallAllocator_8.cpp; opaque here)
-extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, unsigned long align, int heap,
-                             const char* file, const char* func, int line, int arg);
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                            unsigned char mipmap, unsigned char maxLod);
 
@@ -89,7 +87,7 @@ int Texture_unk::fn_800D5B58(int width, int height, int format, int lods, const 
     }
     m2F = lods;
     unsigned int size = GXGetTexBufferSize(width, height, format, 1 < lods, lods);
-    mImage = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 6, "", "", 0, 0);
+    mImage = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0, 0);
     GXInitTexObj(&mObj, mImage, width, height, format, 0, 0, 0);
     GXInitTexObjLOD(&mObj, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     m2C = 1;
