@@ -4,6 +4,7 @@
 // GimmickStateCommand.
 
 #include "game/GimmickCommon.h"
+#include "atn/SoundManager.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/Memory.h"
 #include "atn/ResLoader_unk.h"
@@ -70,12 +71,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpHandle_unk* efp, Model_u
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops the effects
 extern "C" int fn_800928B0(Model_unk* model, int hash, int arg); // inferred: node index by hash
-// inferred: sounds
-struct SoundCfg_unk {
-    unsigned char m0000[0x34D0];
-    int m34D0; // inferred: sound category of the next sounds
-};
-extern "C" SoundCfg_unk* lbl_8087EFE8;
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);

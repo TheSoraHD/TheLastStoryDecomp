@@ -32,28 +32,6 @@ extern "C" void GXCopyTex(void* dest, unsigned char clear);
 
 namespace atn {
 
-// inferred from the vtable __vt__Q23atn14LayerPrerender (0x80779010)
-class LayerPrerender : public IRenderLayer {
-public:
-    virtual void vf10() {}
-    virtual void vf14(void* arg);
-    virtual void vf1C();
-    virtual void vf20();
-};
-
-// inferred from the vtable __vt__Q23atn13LayerZPrePass (0x80778FD0)
-class LayerZPrePass : public Layer3D {
-public:
-    virtual void vf1C();
-    virtual void vf20();
-};
-
-// inferred from the vtable __vt__Q23atn9Layer2D3D (0x80778F90)
-class Layer2D3D : public Layer3D {
-public:
-    virtual void vf1C();
-};
-
 void Layer3D::vf14(void* arg) {
     void* camera = lbl_8087EFB4;
     for (RenderNode_unk* node = (RenderNode_unk*)arg; node != 0; node = node->mNext) {

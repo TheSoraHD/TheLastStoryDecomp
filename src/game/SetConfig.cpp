@@ -1,5 +1,6 @@
 #include "game/SetConfig.h"
 #include "atn/Memory.h"
+#include "atn/SoundManager.h"
 #include "string.h"
 
 extern "C" unsigned char SCGetSoundMode();
@@ -9,13 +10,6 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
 
-// inferred: sound manager
-struct SoundManager_unk {
-    unsigned char m0000[0x2A10];
-    int mOutputMode; // 0x2A10
-};
-extern "C" SoundManager_unk* lbl_8087EFE8;
-extern "C" void fn_800D0240(SoundManager_unk* mgr, int group, float volume, int arg3); // inferred: sets a volume
 struct Unk_8087EFA8 {
     unsigned char m00[0x34];
     int m34;
@@ -71,9 +65,9 @@ inline void SetConfig::Init_unk() {
         mSoundType = 1;
     }
     if (lbl_8087EFE8 != 0) {
-        fn_800D0240(lbl_8087EFE8, 0, mBgmVolume, 0);
-        fn_800D0240(lbl_8087EFE8, 1, mSeVolume, 0);
-        fn_800D0240(lbl_8087EFE8, 2, mVoiceVolume, 0);
+        lbl_8087EFE8->fn_800D0240(0, mBgmVolume, 0);
+        lbl_8087EFE8->fn_800D0240(1, mSeVolume, 0);
+        lbl_8087EFE8->fn_800D0240(2, mVoiceVolume, 0);
         switch (mSoundType) {
         case 0:
             lbl_8087EFE8->mOutputMode = 2;
@@ -181,9 +175,9 @@ void SetConfig::fn_8057EF40() {
     }
     float bgmVolume = mBgmVolume;
     if (lbl_8087EFE8 != 0) {
-        fn_800D0240(lbl_8087EFE8, 0, bgmVolume, 0);
-        fn_800D0240(lbl_8087EFE8, 1, mSeVolume, 0);
-        fn_800D0240(lbl_8087EFE8, 2, mVoiceVolume, 0);
+        lbl_8087EFE8->fn_800D0240(0, bgmVolume, 0);
+        lbl_8087EFE8->fn_800D0240(1, mSeVolume, 0);
+        lbl_8087EFE8->fn_800D0240(2, mVoiceVolume, 0);
         switch (mSoundType) {
         case 0:
             lbl_8087EFE8->mOutputMode = 2;
@@ -238,9 +232,9 @@ void SetConfig::fn_8057F1B4(const SoundSettings_unk* settings) {
     mSeVolume = settings->mSeVolume;
     mVoiceVolume = settings->mVoiceVolume;
     if (lbl_8087EFE8 != 0) {
-        fn_800D0240(lbl_8087EFE8, 0, mBgmVolume, 0);
-        fn_800D0240(lbl_8087EFE8, 1, mSeVolume, 0);
-        fn_800D0240(lbl_8087EFE8, 2, mVoiceVolume, 0);
+        lbl_8087EFE8->fn_800D0240(0, mBgmVolume, 0);
+        lbl_8087EFE8->fn_800D0240(1, mSeVolume, 0);
+        lbl_8087EFE8->fn_800D0240(2, mVoiceVolume, 0);
         switch (mSoundType) {
         case 0:
             lbl_8087EFE8->mOutputMode = 2;

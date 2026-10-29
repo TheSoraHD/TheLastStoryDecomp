@@ -9,6 +9,8 @@ Helper scripts used while decompiling. All of them work on the repo that contain
 | `fasm.py <unit> <addr\|name>...` | Compact target asm of functions. |
 | `cmp.py <unit> [filter] [-v] [--nobuild]` | Compile the unit and compare every function (names/pools normalised). Does not compare branch targets: final check is objdiff/report.json. |
 | `fnstat.py <unit> [filter]` | Per-function status of a unit. |
+| `ordercheck.py <unit> [-v] [--nobuild]` | Functions of our object out of `.dol` order (with `-ipa file` the source order is the emission order), missing and extra; weak copies ignored. Exit 1 if anything is out of order. |
+| `reorder.py <unit> [--dry]` | Rewrite `src/<unit>.cpp` with its functions in `.dol` order; keeps declarations/data before their uses and adds prototypes for moved free functions. Check with `cmp.py` afterwards. |
 | `odiff2.py <unit> <symbol>` | Differing instructions of one function (objdiff-cli). |
 | `variants.py <unit> <filter> <file>` | Try alternative snippets (blocks separated by `====`), keep the first that matches. |
 | `try.sh <file.cpp>` | Standalone compile with the game flags, prints disassembly. |
@@ -24,3 +26,4 @@ Helper scripts used while decompiling. All of them work on the repo that contain
 
 `maps/map_<unit>.txt`: optional address -> mangled-name map used by `cmp.py` for calls whose target
 symbol is still `fn_<ADDR>` but our code uses a real name.
+- `pct.sh <unidad> [símbolo...]`: porcentaje de objdiff por función (todas si no se dan símbolos); más fiable que el recuento de líneas de `cmp.py` cuando cambian nombres de datos.

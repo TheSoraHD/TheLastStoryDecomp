@@ -1,4 +1,5 @@
 #include "gmk/ShakeCamera.h"
+#include "atn/SoundManager.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/ResHandle.h"
@@ -24,11 +25,6 @@ struct ShakeField_unk {
     int m54E4;
 };
 extern "C" ShakeField_unk* lbl_8087F430;
-struct SoundCfg_unk {
-    unsigned char m00[0x34CC];
-    float m34CC; // inferred: pitch variation
-};
-extern "C" SoundCfg_unk* lbl_8087EFE8;
 
 // inferred: random float in [0, 1] (name invented)
 inline float Rand01_unk() {
@@ -90,8 +86,8 @@ void ShakeCamera::vf10() {
                                    ? (float)sqrt(rate) * (float)sqrt(x * x + y * y)
                                    : 1.5f;
                 atn::SoundRef sound = fn_800C31F4("SE_DGCOM_008", 0, -1, volume);
-                SoundCfg_unk* cfg = lbl_8087EFE8;
-                fn_800CB688(&sound, 0, 1.0f + (cfg->m34CC * Rand01_unk() - 0.5f * cfg->m34CC));
+                atn::SoundManager* cfg = lbl_8087EFE8;
+                fn_800CB688(&sound, 0, 1.0f + (cfg->mRandomPitch * Rand01_unk() - 0.5f * cfg->mRandomPitch));
             }
         }
         break;

@@ -8,8 +8,11 @@
 #include "std/ios_init.h"
 
 namespace std {
+
 namespace tr1 {
+
 namespace detail {
+
 struct shared_ptr_deleter_common {
     void release();
 };
@@ -45,14 +48,6 @@ static inline void AppendChar_unk(char* buf, char c) {
 
 extern "C" void fn_800E1374(TextParser_unk* parser);
 
-TextParser_unk::TextParser_unk(void* data, void* size)
-    : mData((const char*)data), mSize((unsigned int)size), mPos(0) {
-    mBuf[0] = 0;
-    mType = 0;
-    mClosed = 0;
-    fn_800E1374(this);
-}
-
 extern "C" {
 
 struct StreamSentry_unk {
@@ -67,11 +62,7 @@ extern void fn_8068B39C(const char*);
 void* fn_800E14A4(StreamSentry_unk*, void*);
 void* fn_800E1630(StreamSentry_unk*, int);
 void* fn_800E1A48(void*);
-
-static int SyncStream_unk(void* stream) {
-    void** vtable = *(void***)stream;
-    return ((int (*)(void*))vtable[7])(stream);
-}
+static int SyncStream_unk(void* stream);
 
 // inferred: deleting destructor for the char ostream subobject at offset 8.
 // NONMATCHING: 99.97% - MWCC passes delete flag -1 instead of 0 to ios_base::~ios_base.
@@ -157,101 +148,25 @@ void* dtor_800E0C8C(void* self, int doDelete) {
     }
     return self;
 }
-
-// inferred: vtable thunk adjusting the virtual base before deleting the ostream.
-// NONMATCHING: 0% - MWCC inlines the deleting destructor instead of emitting a tail thunk.
-void* fn_800E2A10(void* self, int doDelete) {
-    int offset = *(int*)((char*)self + 0x3C);
-    return fn_800E0B18((char*)self + offset - 8, doDelete);
 }
 
-// inferred: basic_ostream<char>::sentry constructor; stream state is at +0x32.
-// NONMATCHING: 57.25% - guessed sentry state flow; the original uses nested stream wrappers.
-void* fn_800E14A4(StreamSentry_unk* self, void* stream) {
-    self->mReady = 0;
-    self->mNested = 0;
-    self->mStream = stream;
-    if (*(unsigned char*)((char*)*(void**)stream + 0x32) == 0) {
-        void* tied = *(void**)((char*)*(void**)stream + 0x34);
-        if (tied != 0) {
-            StreamSentry_unk nested;
-            fn_800E14A4(&nested, tied);
-            nested.mNested = 1;
-            void* tiedIos = *(void**)tied;
-            void* buffer = *(void**)((char*)tiedIos + 0x24);
-            if (buffer != 0 && SyncStream_unk(buffer) == -1) {
-                fn_800E0A64(tied, 1);
-            }
-            unsigned char state = *(unsigned char*)((char*)tiedIos + 0x32);
-            if ((state & 5) == 0 &&
-                (*(unsigned short*)((char*)tiedIos + 0x30) & 0x2000) != 0 && nested.mNested == 0) {
-                fn_800E1A48(tied);
-            }
-        }
-        if (*(unsigned char*)((char*)*(void**)stream + 0x32) == 0) {
-            self->mReady = 1;
-            return self;
-        }
-    }
-    {
-        unsigned char* state = (unsigned char*)((char*)*(void**)stream + 0x32);
-        *state |= 4;
-        if (*(void**)((char*)*(void**)stream + 0x24) == 0) {
-            *state |= 1;
-        }
-        if ((*state & *(unsigned char*)((char*)*(void**)stream + 0x33)) != 0) {
-            extern const char lbl_80779AB8[];
-            fn_8068B39C(lbl_80779AB8);
-        }
-    }
-    return self;
+TextParser_unk::TextParser_unk(void* data, void* size)
+    : mData((const char*)data), mSize((unsigned int)size), mPos(0) {
+    mBuf[0] = 0;
+    mType = 0;
+    mClosed = 0;
+    fn_800E1374(this);
 }
 
-// inferred: sentry cleanup checks tied streams and propagates synchronization failure.
-// NONMATCHING: 29.76% - cleanup state flow is only partially reconstructed.
-void* fn_800E1630(StreamSentry_unk* self, int doDelete) {
-    if (self != 0) {
-        void* stream = self->mStream;
-        void* ios = *(void**)stream;
-        unsigned char state = *(unsigned char*)((char*)ios + 0x32);
-        if ((state & 5) == 0 &&
-            (*(unsigned short*)((char*)ios + 0x30) & 0x2000) != 0 && self->mNested == 0) {
-            void* tied = *(void**)((char*)ios + 0x34);
-            if (tied != 0) {
-                StreamSentry_unk nested;
-                fn_800E14A4(&nested, tied);
-                nested.mNested = 1;
-                void* tiedIos = *(void**)tied;
-                void* buffer = *(void**)((char*)tiedIos + 0x24);
-                if (buffer != 0 && SyncStream_unk(buffer) == -1) {
-                    fn_800E0A64(tied, 1);
-                }
-                if ((*(unsigned char*)((char*)tiedIos + 0x32) & 5) == 0 &&
-                    (*(unsigned short*)((char*)tiedIos + 0x30) & 0x2000) != 0 && nested.mNested == 0) {
-                    fn_800E1A48(tied);
-                }
-            }
-        }
-        if (doDelete > 0) {
-            ::operator delete(self);
-        }
-    }
-    return self;
-}
+extern "C" {
 
-// inferred: basic_ostream<char>::flush; returns the stream reference.
-// NONMATCHING: 16.52% - flush/sentry exception handling is only partially reconstructed.
-void* fn_800E1A48(void* stream) {
-    void* ios = *(void**)stream;
-    StreamSentry_unk sentry;
-    fn_800E14A4(&sentry, stream);
-    void* buffer = *(void**)((char*)ios + 0x24);
-    if (sentry.mReady != 0 && buffer != 0 && SyncStream_unk(buffer) == -1) {
-        fn_800E0A64(stream, 1);
-    }
-    fn_800E1630(&sentry, -1);
-    return stream;
+static int SyncStream_unk(void* stream) {
+    void** vtable = *(void***)stream;
+    return ((int (*)(void*))vtable[7])(stream);
 }
+void* fn_800E14A4(StreamSentry_unk* self, void* stream);
+void* fn_800E1630(StreamSentry_unk* self, int doDelete);
+void* fn_800E1A48(void* stream);
 
 // inferred: true while there is text left
 bool fn_800E0D54(TextParser_unk* parser) {
@@ -434,15 +349,102 @@ void fn_800E1374(TextParser_unk* parser) {
     }
 }
 
-// inferred: simple MSL iostream vtable slots; the observed return-register values determine the
-// C++ return values. Keep the automatic symbols until their class declarations are recovered.
-void fn_800E24CC(void*) {}
-void fn_800E24D0(void*) {}
+// inferred: basic_ostream<char>::sentry constructor; stream state is at +0x32.
+// NONMATCHING: 57.25% - guessed sentry state flow; the original uses nested stream wrappers.
+void* fn_800E14A4(StreamSentry_unk* self, void* stream) {
+    self->mReady = 0;
+    self->mNested = 0;
+    self->mStream = stream;
+    if (*(unsigned char*)((char*)*(void**)stream + 0x32) == 0) {
+        void* tied = *(void**)((char*)*(void**)stream + 0x34);
+        if (tied != 0) {
+            StreamSentry_unk nested;
+            fn_800E14A4(&nested, tied);
+            nested.mNested = 1;
+            void* tiedIos = *(void**)tied;
+            void* buffer = *(void**)((char*)tiedIos + 0x24);
+            if (buffer != 0 && SyncStream_unk(buffer) == -1) {
+                fn_800E0A64(tied, 1);
+            }
+            unsigned char state = *(unsigned char*)((char*)tiedIos + 0x32);
+            if ((state & 5) == 0 &&
+                (*(unsigned short*)((char*)tiedIos + 0x30) & 0x2000) != 0 && nested.mNested == 0) {
+                fn_800E1A48(tied);
+            }
+        }
+        if (*(unsigned char*)((char*)*(void**)stream + 0x32) == 0) {
+            self->mReady = 1;
+            return self;
+        }
+    }
+    {
+        unsigned char* state = (unsigned char*)((char*)*(void**)stream + 0x32);
+        *state |= 4;
+        if (*(void**)((char*)*(void**)stream + 0x24) == 0) {
+            *state |= 1;
+        }
+        if ((*state & *(unsigned char*)((char*)*(void**)stream + 0x33)) != 0) {
+            extern const char lbl_80779AB8[];
+            fn_8068B39C(lbl_80779AB8);
+        }
+    }
+    return self;
+}
+
+// inferred: sentry cleanup checks tied streams and propagates synchronization failure.
+// NONMATCHING: 29.76% - cleanup state flow is only partially reconstructed.
+void* fn_800E1630(StreamSentry_unk* self, int doDelete) {
+    if (self != 0) {
+        void* stream = self->mStream;
+        void* ios = *(void**)stream;
+        unsigned char state = *(unsigned char*)((char*)ios + 0x32);
+        if ((state & 5) == 0 &&
+            (*(unsigned short*)((char*)ios + 0x30) & 0x2000) != 0 && self->mNested == 0) {
+            void* tied = *(void**)((char*)ios + 0x34);
+            if (tied != 0) {
+                StreamSentry_unk nested;
+                fn_800E14A4(&nested, tied);
+                nested.mNested = 1;
+                void* tiedIos = *(void**)tied;
+                void* buffer = *(void**)((char*)tiedIos + 0x24);
+                if (buffer != 0 && SyncStream_unk(buffer) == -1) {
+                    fn_800E0A64(tied, 1);
+                }
+                if ((*(unsigned char*)((char*)tiedIos + 0x32) & 5) == 0 &&
+                    (*(unsigned short*)((char*)tiedIos + 0x30) & 0x2000) != 0 && nested.mNested == 0) {
+                    fn_800E1A48(tied);
+                }
+            }
+        }
+        if (doDelete > 0) {
+            ::operator delete(self);
+        }
+    }
+    return self;
+}
+
+// inferred: basic_ostream<char>::flush; returns the stream reference.
+// NONMATCHING: 16.52% - flush/sentry exception handling is only partially reconstructed.
+void* fn_800E1A48(void* stream) {
+    void* ios = *(void**)stream;
+    StreamSentry_unk sentry;
+    fn_800E14A4(&sentry, stream);
+    void* buffer = *(void**)((char*)ios + 0x24);
+    if (sentry.mReady != 0 && buffer != 0 && SyncStream_unk(buffer) == -1) {
+        fn_800E0A64(stream, 1);
+    }
+    fn_800E1630(&sentry, -1);
+    return stream;
+}
+void fn_800E24CC(void*);
+void fn_800E24D0(void*);
+
 int fn_800E1D4C(void*) { return 0; }
+
 int fn_800E1D54(void*) { return -1; }
-int fn_800E2504(void*) { return 0; }
-int fn_800E2608(void*) { return -1; }
-int fn_800E2668(void*) { return -1; }
+int fn_800E2504(void*);
+int fn_800E2608(void*);
+int fn_800E2668(void*);
 
 // inferred: failed stream positioning returns streamoff(-1) with a zero conversion state.
 struct StreamPos_unk {
@@ -450,16 +452,8 @@ struct StreamPos_unk {
     int mOffsetLow;
     int mState;
 };
-void fn_800E24D4(StreamPos_unk* pos, void*) {
-    pos->mOffsetLow = -1;
-    pos->mOffsetHigh = -1;
-    pos->mState = 0;
-}
-void fn_800E24EC(StreamPos_unk* pos, void*) {
-    pos->mOffsetLow = -1;
-    pos->mOffsetHigh = -1;
-    pos->mState = 0;
-}
+void fn_800E24D4(StreamPos_unk* pos, void*);
+void fn_800E24EC(StreamPos_unk* pos, void*);
 
 // inferred: get area and high-water pointers in the MSL string buffer.
 struct StringBuf_unk;
@@ -495,87 +489,67 @@ struct StringBuf_unk {
     char* mBufferEnd;
     std::string mString;
 };
+int fn_800E250C(StringBuf_unk* stream, char* dst, int n);
+int fn_800E2610(StringBuf_unk* stream);
+int fn_800E2670(StringBuf_unk* stream, const char* src, int n);
+void fn_800E2064(StreamPos_unk* result, StringBuf_unk* stream, int offsetHigh, unsigned int offsetLow, int way, unsigned int which);
+void fn_800E22E8(StreamPos_unk* result, StringBuf_unk* stream, const StreamPos_unk* pos, unsigned int which);
 
-// inferred: read a sequence, using uflow when the get area is exhausted.
-int fn_800E250C(StringBuf_unk* stream, char* dst, int n) {
-    int available;
-    int remaining = n;
-    int* selected = &remaining;
-    available = (int)(stream->mEgptr - stream->mGptr);
-    if (available < remaining) {
-        selected = &available;
+// inferred: the pair at +0x20 owns a reference-counted deleter/control block.
+struct SharedPair_unk {
+    unsigned int mObject;
+    unsigned int mControl;
+};
+struct SharedOwner_unk {
+    char mPad[0x20];
+    SharedPair_unk* mPair;
+};
+struct SharedControl_unk {
+    unsigned int mUnknown;
+    unsigned int mReferences;
+};
+
+void fn_800E1D5C(SharedPair_unk* out, SharedOwner_unk* owner) {
+    SharedPair_unk* source = owner->mPair;
+    out->mObject = source->mObject;
+    out->mControl = source->mControl;
+    if (out->mControl != 0) {
+        ((SharedControl_unk*)out->mControl)->mReferences++;
     }
-    int count = *selected;
-    if (count > 0) {
-        memcpy(dst, stream->mGptr, count);
-        stream->mGptr += count;
-        dst += count;
-        remaining -= count;
-    }
-    int read = count;
-    while (remaining > 0) {
-        int c;
-        if (stream->mGptr < stream->mEgptr) {
-            char* current = stream->mGptr;
-            stream->mGptr = current + 1;
-            c = (unsigned char)*current;
-        } else {
-            c = stream->vf24();
-        }
-        if (c == -1) {
-            break;
-        }
-        *dst = (char)c;
-        read++;
-        dst++;
-        remaining--;
-    }
-    return read;
 }
 
-// inferred: consume one character after asking underflow to make the get area valid.
-int fn_800E2610(StringBuf_unk* stream) {
-    if (stream->vf20() == -1) {
+int StringBuf_unk::underflow() {
+    if (mGptr == 0) {
         return -1;
     }
-    char* current = stream->mGptr;
-    stream->mGptr = current + 1;
-    return (unsigned char)*current;
+    if (mBufferEnd < mPptr) {
+        mBufferEnd = mPptr;
+    }
+    char* end = mBufferEnd;
+    if (mEgptr < end) {
+        mEgptr = end;
+    }
+    if (mGptr < mEgptr) {
+        return (unsigned char)*mGptr;
+    }
+    return -1;
 }
 
-// inferred: write a sequence, using overflow when the put area is exhausted.
-int fn_800E2670(StringBuf_unk* stream, const char* src, int n) {
-    int available;
-    int remaining = n;
-    available = (int)(stream->mEpptr - stream->mPptr);
-    int& selected = available < remaining ? available : remaining;
-    int count = selected;
-    if (count > 0) {
-        memcpy(stream->mPptr, src, count);
-        stream->mPptr += count;
-        src += count;
-        remaining -= count;
+// inferred: putback one character, accepting a different character only in putback mode.
+int StringBuf_unk::pbackfail(int c) {
+    if (mEback >= mGptr) {
+        return -1;
     }
-    int written = count;
-    while (remaining > 0) {
-        int c;
-        char ch = *src++;
-        char* end = stream->mEpptr;
-        char* current = stream->mPptr;
-        if (current < end) {
-            *current = ch;
-            stream->mPptr = current + 1;
-            c = (unsigned char)*current;
-        } else {
-            c = stream->vf30((unsigned char)ch);
-        }
-        if (c == -1) {
-            break;
-        }
-        written++;
-        remaining--;
+    if (c == -1) {
+        mGptr--;
+        return 0;
     }
-    return written;
+    if ((mMode & 0x10) == 0 && (signed char)mGptr[-1] != (signed char)c) {
+        return -1;
+    }
+    mGptr--;
+    *mGptr = (char)c;
+    return c;
 }
 
 int StringBuf_unk::overflow(int c) {
@@ -621,40 +595,6 @@ int StringBuf_unk::overflow(int c) {
     mPptr = data + newPutOffset;
     mEpptr = data + size;
     mBufferEnd = data + size;
-    return c;
-}
-
-int StringBuf_unk::underflow() {
-    if (mGptr == 0) {
-        return -1;
-    }
-    if (mBufferEnd < mPptr) {
-        mBufferEnd = mPptr;
-    }
-    char* end = mBufferEnd;
-    if (mEgptr < end) {
-        mEgptr = end;
-    }
-    if (mGptr < mEgptr) {
-        return (unsigned char)*mGptr;
-    }
-    return -1;
-}
-
-// inferred: putback one character, accepting a different character only in putback mode.
-int StringBuf_unk::pbackfail(int c) {
-    if (mEback >= mGptr) {
-        return -1;
-    }
-    if (c == -1) {
-        mGptr--;
-        return 0;
-    }
-    if ((mMode & 0x10) == 0 && (signed char)mGptr[-1] != (signed char)c) {
-        return -1;
-    }
-    mGptr--;
-    *mGptr = (char)c;
     return c;
 }
 
@@ -798,29 +738,116 @@ void fn_800E22E8(StreamPos_unk* result, StringBuf_unk* stream, const StreamPos_u
     result->mState = pos->mState;
 }
 
-// inferred: the pair at +0x20 owns a reference-counted deleter/control block.
-struct SharedPair_unk {
-    unsigned int mObject;
-    unsigned int mControl;
-};
-struct SharedOwner_unk {
-    char mPad[0x20];
-    SharedPair_unk* mPair;
-};
-struct SharedControl_unk {
-    unsigned int mUnknown;
-    unsigned int mReferences;
-};
-void fn_800E1D5C(SharedPair_unk* out, SharedOwner_unk* owner) {
-    SharedPair_unk* source = owner->mPair;
-    out->mObject = source->mObject;
-    out->mControl = source->mControl;
-    if (out->mControl != 0) {
-        ((SharedControl_unk*)out->mControl)->mReferences++;
-    }
+// inferred: simple MSL iostream vtable slots; the observed return-register values determine the
+// C++ return values. Keep the automatic symbols until their class declarations are recovered.
+void fn_800E24CC(void*) {}
+
+void fn_800E24D0(void*) {}
+
+void fn_800E24D4(StreamPos_unk* pos, void*) {
+    pos->mOffsetLow = -1;
+    pos->mOffsetHigh = -1;
+    pos->mState = 0;
 }
 
-} // extern "C"
+void fn_800E24EC(StreamPos_unk* pos, void*) {
+    pos->mOffsetLow = -1;
+    pos->mOffsetHigh = -1;
+    pos->mState = 0;
+}
+
+int fn_800E2504(void*) { return 0; }
+
+// inferred: read a sequence, using uflow when the get area is exhausted.
+int fn_800E250C(StringBuf_unk* stream, char* dst, int n) {
+    int available;
+    int remaining = n;
+    int* selected = &remaining;
+    available = (int)(stream->mEgptr - stream->mGptr);
+    if (available < remaining) {
+        selected = &available;
+    }
+    int count = *selected;
+    if (count > 0) {
+        memcpy(dst, stream->mGptr, count);
+        stream->mGptr += count;
+        dst += count;
+        remaining -= count;
+    }
+    int read = count;
+    while (remaining > 0) {
+        int c;
+        if (stream->mGptr < stream->mEgptr) {
+            char* current = stream->mGptr;
+            stream->mGptr = current + 1;
+            c = (unsigned char)*current;
+        } else {
+            c = stream->vf24();
+        }
+        if (c == -1) {
+            break;
+        }
+        *dst = (char)c;
+        read++;
+        dst++;
+        remaining--;
+    }
+    return read;
+}
+
+int fn_800E2608(void*) { return -1; }
+
+// inferred: consume one character after asking underflow to make the get area valid.
+int fn_800E2610(StringBuf_unk* stream) {
+    if (stream->vf20() == -1) {
+        return -1;
+    }
+    char* current = stream->mGptr;
+    stream->mGptr = current + 1;
+    return (unsigned char)*current;
+}
+
+int fn_800E2668(void*) { return -1; }
+
+// inferred: write a sequence, using overflow when the put area is exhausted.
+int fn_800E2670(StringBuf_unk* stream, const char* src, int n) {
+    int available;
+    int remaining = n;
+    available = (int)(stream->mEpptr - stream->mPptr);
+    int& selected = available < remaining ? available : remaining;
+    int count = selected;
+    if (count > 0) {
+        memcpy(stream->mPptr, src, count);
+        stream->mPptr += count;
+        src += count;
+        remaining -= count;
+    }
+    int written = count;
+    while (remaining > 0) {
+        int c;
+        char ch = *src++;
+        char* end = stream->mEpptr;
+        char* current = stream->mPptr;
+        if (current < end) {
+            *current = ch;
+            stream->mPptr = current + 1;
+            c = (unsigned char)*current;
+        } else {
+            c = stream->vf30((unsigned char)ch);
+        }
+        if (c == -1) {
+            break;
+        }
+        written++;
+        remaining--;
+    }
+    return written;
+}
+
+// 0x800E2A10 (after __sinit) is the virtual-base thunk of the ostream deleting destructor: the
+// compiler emits it at the end of the object once the real basic_ostream class (virtual base
+// basic_ios) is used here, so it is not written by hand.
+}
 
 template <>
 std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(

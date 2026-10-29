@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "atn/SoundManager.h"
 #include "gmk/AttractHatePoint.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -60,11 +61,6 @@ struct HateBattle_unk {
     int m7D8;
 };
 extern "C" HateBattle_unk* lbl_8087F490;
-struct SoundCfg_unk {
-    unsigned char m00[0x34C8];
-    int m34C8;
-};
-extern "C" SoundCfg_unk* lbl_8087EFE8;
 
 namespace gmk {
 

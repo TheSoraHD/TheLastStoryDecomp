@@ -2,6 +2,7 @@
 #include "game/GameBgm.h"
 #include "atn/Memory.h"
 #include "atn/FixedArray.h"
+#include "atn/SoundManager.h"
 #include "game/GameSaveBackground.h"
 
 // inferred: stream of the field (two at Field_unk::m5620/m5624); names invented
@@ -61,8 +62,6 @@ struct BattleState_unk {
 };
 extern "C" BattleState_unk* lbl_8087F048;
 extern "C" void* lbl_8087EE90;
-extern "C" void* lbl_8087EFE8; // inferred: sound configuration
-extern "C" void fn_800D03AC(void* cfg, int group, int arg, float volume);
 extern "C" void* lbl_8087F418;
 extern "C" void* lbl_8087F540;
 struct Unk8087F540_unk {
@@ -183,7 +182,7 @@ void GameSoundControl::vf10() {
                 case 7:
                     break;
                 default:
-                    fn_800D03AC(lbl_8087EFE8, i, 5, 0.0f);
+                    lbl_8087EFE8->fn_800D03AC(i, 0.0f, 5);
                     break;
                 }
             }
@@ -197,7 +196,7 @@ void GameSoundControl::vf10() {
                 case 7:
                     break;
                 default:
-                    fn_800D03AC(lbl_8087EFE8, i, 5, 1.0f);
+                    lbl_8087EFE8->fn_800D03AC(i, 1.0f, 5);
                     break;
                 }
             }

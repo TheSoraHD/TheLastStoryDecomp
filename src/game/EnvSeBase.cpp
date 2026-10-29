@@ -1,4 +1,5 @@
 #include "game/EnvSeBase.h"
+#include "atn/SoundManager.h"
 #include "atn/Memory.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -42,12 +43,6 @@ struct EnvSeConfig_unk {
     int m7C; // inferred: debug menus enabled
 };
 extern "C" EnvSeConfig_unk* lbl_8087F0A8;
-// inferred: sound system; m29F4 is the position of the listener
-struct EnvSeListener_unk {
-    unsigned char m0000[0x29F4];
-    atn::Vector3 mPos;
-};
-extern "C" EnvSeListener_unk* lbl_8087EFE8;
 
 // inferred: debug drawing and camera
 extern "C" void* lbl_8087EEB0;
@@ -186,7 +181,7 @@ int EnvSeBase::vf20() {
         if (mData->m40 == 1 && lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
             return 0;
         }
-        atn::Vector3 d = lbl_8087EFE8->mPos - mData->mPos;
+        atn::Vector3 d = lbl_8087EFE8->mListener.mPos - mData->mPos;
         if (fn_805F9920(&d) <= mData->mDistance * mData->mDistance) {
             return 1;
         }
@@ -281,7 +276,7 @@ void EnvSeLine::vf10() {
     if (lbl_8087EFE8 == 0) {
         return;
     }
-    atn::Vector3 listener = lbl_8087EFE8->mPos;
+    atn::Vector3 listener = lbl_8087EFE8->mListener.mPos;
     float best = 1e16f;
     atn::Vector3 bestPos(0.0f, 0.0f, 0.0f);
     EnvSeManager_unk* mgr = lbl_8087F418;
@@ -359,7 +354,7 @@ void EnvSeSphere::vf10() {
     if (lbl_8087EFE8 == 0) {
         return;
     }
-    atn::Vector3 listener = lbl_8087EFE8->mPos;
+    atn::Vector3 listener = lbl_8087EFE8->mListener.mPos;
     atn::Vector3 d = listener - mCenter;
     if (fn_805F9920(&d) > mRadius * mRadius) {
         if (!(atn::Abs_unk(fn_805F9920(&d)) < 1.1920929e-07f)) {
@@ -415,7 +410,7 @@ void EnvSeBox::vf10() {
     if (lbl_8087EFE8 == 0) {
         return;
     }
-    atn::Vector3 listener = lbl_8087EFE8->mPos;
+    atn::Vector3 listener = lbl_8087EFE8->mListener.mPos;
     atn::Vector3 center = mMtx.GetTrans_unk();
     atn::Vector3 d = listener - center;
     if (fn_805F9920(&d) < (mData->mDistance + mRadius) * (mData->mDistance + mRadius)) {

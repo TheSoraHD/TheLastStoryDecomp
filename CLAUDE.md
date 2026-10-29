@@ -9,12 +9,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 ## Estado
 
 - `main` (2026-10-29, tras mergear `enemies-third` sobre 5125aea): **7825 / 18215 funciones al 100%** (código 27,9%, fuzzy 47,5%, datos 17,7%), 370 ficheros enlazados, `main.dol: OK`. Segundas pasadas de enemies-finish y enemigos sin fuente anteriores a Em208Queen; cerrado antes de tiempo, pendientes y decisiones en `docs/enemies-third.md`.
-- `codex/d2atexture-decomp` (2026-10-25): `atn/D2A_Texture`, 14/30 al 100%; las 30 funciones superan 50% (`vf18` 95,72%; cargas 56,67% y 55,69%). Layout y slots revisados. Build limpio `main.dol: OK`; regress/fuzzdrop comparados con el informe limpio disponible: 0 pérdidas/bajadas; poolcheck: 0 hallazgos. Detalles y decisiones: `docs/D2A-Texture-q1.md`.
-- `codex/rendersystem-decomp` (2026-10-25, avance local): RenderSystem, 13/37 funciones al 100%; 24 implementaciones parciales. Build limpio `main.dol: OK`; regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Layout e inferencias pendientes en `docs/RenderSystem-q1.md`. Sin push.
-- `codex/graphicsdevice-decomp` (2026-10-24): `atn/GraphicsDevice.cpp`, 9 funciones al 100%; `fn_80071088` al 65,57% y `fn_800763C0` al 72,00%, ambas `NONMATCHING`; resto pendiente. Build limpio `main.dol: OK`, regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Decisiones: `docs/GraphicsDevice-q1.md`. Sin push.
-- `codex/rodata-unassigned-2026-10-24` (2026-10-24): cuatro tramos contiguos y tres unidades de datos `.rodata`; 7501/18215 funciones al 100%, 370 ficheros enlazados, sin excepción nueva de regla 2. Build limpio (`main.dol: OK`), regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Detalle y decisión sobre el pool familiar nw4r: `docs/rodata-sin-asignar-q1.md`. Sin push.
-- Estado de `AI/AI_archer_attack01`: 186/517; `matching: false`; `fn_8003AD38` al 70,00% y dos stubs al 99,32%, todos `NONMATCHING`. Decisiones: `docs/AI-archer-attack01.md`.
-- Revisión `game/main` (2026-10-23): 11/14 al 100%; `main` 98,61%, arranque 39,58%. Detalle: `docs/game-main.md`.
+- `fix-svenchu-linkage` (2026-10-29): revisión de los commits de Svenchu/Codex del 23–25 oct. (clases reales, orden del `.dol`, sin `extern "C"` mangled) y después las funciones que faltaban. **8180 / 18215** (código 29,8%, fuzzy 49,7%), `main.dol: OK`, lost 0, fuzzdrop 0. Decisiones (split AiCommon/AI, renombrados, `noinline`) y pendientes: `docs/revision-2026-10-29.md`.
+- Unidades de esos commits (todas `matching: false`): AI_archer_attack01 479/510 (falta el `std::map` de scripts, ver `docs/mwcc-blockers.md`), SoundManager 64/76, GraphicsDevice 25/41, allocator_char 18/35, RenderSystem_unk 14/37, D2A_Texture 14/30, game/main 11/14; notas en `docs/<unidad>*.md`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)
@@ -23,6 +19,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 - `docs/entorno-nube.md`: montaje del entorno en la nube y receta de lotes en paralelo con agentes.
 - `docs/historial.md`: lotes hechos, cifras y dónde están sus decisiones.
 - `docs/mwcc-blockers.md`: bloqueos recurrentes investigados (qué **no** repetir).
+- `docs/fuente-enlazable.md`: por qué un fuente con muchos 100% puede no enlazar nunca y cómo evitarlo (regla 10).
 - `docs/inlining.md` (reglas R1–R5, `tools/inline_bench.py`), `docs/msl_cpp.md` (`basic_string`/`vector`/`list`), `libs/boost/README.md`, `docs/game_units.md`, `docs/classes.md`, `docs/splits-plan.md`, `tools/decomp/README.md`.
 - `docs/archivo/CLAUDE_completo_2026-10-22.md`: el CLAUDE.md largo anterior (estado por unidad, hallazgos con ejemplos, notas de red/DWC). Solo para `grep`.
 - **Ficheros grandes: nunca enteros, solo `grep` o rangos.** `config/SLSP01/symbols.txt` (3 MB), `splits.txt` (160 KB), `game_units.json` (60 KB), `docs/classes.md` (85 KB), `docs/game_units.md` (36 KB), las notas de lotes `docs/*-q*.md` (20–120 KB cada una), `build/SLSP01/report.json` y los `.s` de `build/SLSP01/asm` (usar `fasm.py`). Filtrar también las salidas largas de `ninja`, `regress.py` o `targets.py` (`| tail`, `grep`).
@@ -37,7 +34,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
    - `OSInitFastCast` (`include/sdk/OSFastCast.h`, usada en `game/main`);
    - paired-single cuantizado GQR6 solo en `atn/ModelDraw_unk fn_8009BF3C` (`SetGQR6_unk`, `SetMatColor_unk`); el de `LH_Binary` **no** está aprobado;
    - `#pragma ppc_iro_level 0` en `nw4r::snd::detail::AxManager::Init`; `-opt nostrength` solo en `dwc/src/base/dwc_base64.c`.
-   - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
+   - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`), `__declspec(noinline)` sin `inline` en funciones fuertes que el original llama con `bl` y MWCC inlinearía (AI_archer_attack01, 2026-10-29) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
 3. Avisar y explicar antes de tocar `splits.txt`, `symbols.txt` (salvo renombrados), `configure.py`, `config.yml` o flags.
 4. No tocar ni subir ficheros originales (`orig/`, `.dol`, ISO, assets).
 5. Trabajar en rama, nunca en `main`; un commit por función o grupo pequeño. Mensaje: `Match Clase::metodo (0x<dirección>)` + líneas de atribución del sistema. `git push` solo con permiso explícito en la sesión.
@@ -45,6 +42,13 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 7. No inventar: tipos y nombres deducidos con `// inferred: motivo`. Comentarios de código en ASCII (sjiswrap).
 8. Tras 10–15 intentos distintos sin 100%, dejar `NONMATCHING` y pasar a la siguiente.
 9. No reescribir código ya matched sin necesidad; no cambiar compilador ni flags globales para forzar un match; no cambiar firmas/layouts compartidos sin comprobar que nada baja.
+10. **El fuente tiene que poder enlazar**, no solo dar porcentaje (ejemplos y motivos en `docs/fuente-enlazable.md`):
+    - Orden del `.dol`: `ordercheck.py <unidad>` con 0 fuera de orden en cada commit (`reorder.py` lo arregla).
+    - Prohibido declarar o definir con `extern "C"` un nombre mangled (`__ct__…`, `__dt__…`, `__vt__…`, `Func__FR…`) y escribir el puntero de vtable a mano (`*(void**)this = __vt__…`): declarar la clase (`_unk` con relleno si hace falta) o incluir su cabecera; vtable y RTTI las emite el compilador.
+    - Métodos y virtuales como miembros de su clase (`vfXX`, `fn_<addr>`), no como `extern "C"` con un `self` (`extern "C"` solo para funciones sin clase); un mismo objeto, un solo tipo en una cabecera, no una vista parcial por fichero.
+    - Datos del propio split (`.data/.rodata/.bss/.sdata/.sdata2`) definidos en el fuente; `extern lbl_` solo para datos de otras unidades.
+    - Un commit que solo sube el fuzzy no es avance; no bajar a `NONMATCHING` funciones para "cubrir" la unidad.
+11. Codex y cualquier otro agente siguen estas mismas reglas (`AGENTS.md` remite aquí): nada de commits directos en `main`; rama, checklist y merge.
 
 ## Entorno
 
@@ -72,6 +76,8 @@ python3 tools/decomp/pairnames.py <unidad> [--apply]           # renombra fn_/lb
 python3 tools/decomp/regress.py <now/report.json> <ref/report.json>   # funciones perdidas (lost: 0)
 python3 tools/decomp/fuzzdrop.py <now/report.json> <ref/report.json>  # bajadas de fuzzy
 python3 tools/decomp/poolcheck.py [unidad...]                  # floats de .sdata2 y cadenas frente al .o original
+python3 tools/decomp/ordercheck.py <unidad> [-v]               # orden del fuente frente al .dol (fuera de orden / faltan)
+python3 tools/decomp/reorder.py <unidad> [--dry]               # reescribe el .cpp en orden del .dol (luego cmp.py)
 python3 tools/decomp/autoscan.py --min 0x100 [--unit X] [--data]      # tramos auto_ (borrar antes build/SLSP01/asm)
 tools/decomp/try.sh test.cpp                                   # compila un fichero suelto con flags del juego
 ```
@@ -80,7 +86,7 @@ tools/decomp/try.sh test.cpp                                   # compila un fich
 
 1. `targets.py` → objetivo. **Antes de escribir, comprobar que el split cubre el fichero real** (pool `@stringBase0`, `.sdata2`, `.sbss`, funciones vecinas): si no, casi nada llega al 100%.
 2. `fasm.py` para el asm; `grep` en `symbols.txt` y `docs/classes.md` por la clase o la dirección; cabeceras de `include/` y funciones vecinas ya hechas.
-3. Escribir el C++ en el orden del `.dol`; compilar la unidad; `cmp.py`/`odiff2.py`; iterar.
+3. Escribir el C++ en el orden del `.dol` (comprobar con `ordercheck.py`) con las clases reales (regla 10); compilar la unidad; `cmp.py`/`odiff2.py`; iterar.
 4. Si se atasca: `grep -i <palabra> docs/trucos-mwcc.md docs/mwcc-blockers.md`.
 5. Al 100%: `pairnames.py --apply` (revisar), `matching: true` si toda la unidad lo está, `configure` + `ninja`, `main.dol: OK`, `regress.py` lost: 0. Commit.
 
@@ -92,7 +98,8 @@ tools/decomp/try.sh test.cpp                                   # compila un fich
 ## Antes de dar una tarea por terminada
 
 - [ ] Función al 100% en objdiff; proyecto compila sin warnings nuevos; `main.dol: OK`.
-- [ ] `regress.py` lost: 0 y `fuzzdrop.py` sin bajadas; `poolcheck.py` sin avisos nuevos en lo tocado.
+- [ ] `regress.py` lost: 0 y `fuzzdrop.py` sin bajadas contra el `report.json` guardado **antes** de empezar (nunca contra uno regenerado tras el cambio); `poolcheck.py` sin avisos nuevos en lo tocado.
+- [ ] `ordercheck.py` sin funciones fuera de orden; sin `extern "C"` con nombres mangled ni vtables escritas a mano (regla 10).
 - [ ] Sin asm ni pragmas fuera de las excepciones; comentarios `// inferred:` puestos.
 - [ ] Commit en la rama; sección "Estado" y `docs/historial.md` al día si cambió el estado.
 

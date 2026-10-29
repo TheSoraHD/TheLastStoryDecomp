@@ -1,5 +1,7 @@
 #include "atn/Memory.h"
 #include "atn/Texture_unk.h"
+#include "atn/SoundManager.h"
+#include "game/HBMRso.h"
 
 namespace atn {
 
@@ -16,17 +18,6 @@ public:
 
 } // namespace atn
 
-// inferred: Home button menu data blocks (HBM library wrappers in game/HomeButton_unk.cpp)
-struct HomeButtonData_unk {
-    unsigned char m00[0x40];
-};
-
-extern "C" void HBMRsoCreate__FR11HBMDataInfoRPUcRPUc(HomeButtonData_unk* data, void* arg1, void* arg2); // inferred: init
-extern "C" void HBMRsoDelete__FR11HBMDataInfoRPUcRPUc(HomeButtonData_unk* data, void* arg1, void* arg2); // inferred: release
-extern "C" void HBMRsoInit__FR17HBMControllerData(HomeButtonData_unk* data); // inferred: open the menu
-extern "C" int HBMRsoCalc__FR17HBMControllerData(HomeButtonData_unk* data); // inferred: update; < 0 while open, then the result
-extern "C" void HBMRsoDraw__Fv(); // inferred: draws the menu
-
 // inferred: HOME button menu (0xD4 bytes), singleton (sInstance 0x8087F4E8)
 class HomeButtonMenu : public atn::IRender {
 public:
@@ -40,15 +31,15 @@ public:
 
     static HomeButtonMenu* sInstance;
 
-    HomeButtonData_unk m04;
-    HomeButtonData_unk m44;
+    HBMDataInfo m04;
+    HBMControllerData m44;
     int m84; // inferred: state (0 closed, 1 open, 2 leaving the game)
     int m88; // inferred: menu allowed
     int m8C; // inferred: drawing the "disabled" icon
     int m90; // inferred: show the icon when the menu is not allowed
     void* m94;
-    int m98;
-    int m9C;
+    unsigned char* m98; // inferred: HomeButtonSe.arc data (HBMRsoCreate)
+    unsigned char* m9C; // inferred: HBM sound buffer (HBMRsoCreate)
     atn::Texture_unk mA0;
     int mD0; // inferred: frame counter of the icon (46 frames)
 };
@@ -62,8 +53,6 @@ extern "C" HbmSaveLoad_unk* lbl_8087EF68;
 extern "C" int fn_800A4228(HbmSaveLoad_unk* mgr, int* out); // inferred: busy
 extern "C" void* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* lbl_8087EFE8;                               // inferred: sound manager
-extern "C" void fn_800CF7DC(void* obj, int a, int b, int c); // inferred: pauses/resumes the sounds
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* obj, int a, int b, int c);
 struct Unk_8087F018 {
@@ -107,12 +96,12 @@ void HomeButtonMenu::fn_804405F8(void* arg) {
 }
 
 HomeButtonMenu::HomeButtonMenu(void* arg) : m84(0), m88(1), m8C(0), m90(1), m94(arg), mD0(0) {
-    HBMRsoCreate__FR11HBMDataInfoRPUcRPUc(&m04, &m98, &m9C);
+    HBMRsoCreate(m04, m98, m9C);
     fn_800D594C(&mA0, "/hbm/ban_home_button.texture");
 }
 
 HomeButtonMenu::~HomeButtonMenu() {
-    HBMRsoDelete__FR11HBMDataInfoRPUcRPUc(&m04, &m98, &m9C);
+    HBMRsoDelete(m04, m98, m9C);
 }
 
 void HomeButtonMenu::fn_8044073C() {
@@ -128,9 +117,9 @@ void HomeButtonMenu::fn_8044073C() {
                 }
                 if (busy == 0) {
                     m84 = 1;
-                    fn_800CF7DC(lbl_8087EFE8, 1, 1, 9);
+                    lbl_8087EFE8->fn_800CF7DC(1, 1, 9);
                     fn_8004A2CC(lbl_8087EE90, 1, 1, 8);
-                    HBMRsoInit__FR17HBMControllerData(&m44);
+                    HBMRsoInit(m44);
                     fn_800DF0F0(lbl_8087F018, 1);
                     lbl_8087F018->m40E0 = 0;
                     for (int i = 0; i < 4; i++) {
@@ -150,7 +139,7 @@ void HomeButtonMenu::fn_8044073C() {
             fn_80440994();
         }
     } else if (m84 == 1) {
-        int ret = HBMRsoCalc__FR17HBMControllerData(&m44);
+        int ret = HBMRsoCalc(m44);
         if (ret >= 0) {
             switch (ret) {
             case 1:
@@ -162,7 +151,7 @@ void HomeButtonMenu::fn_8044073C() {
                 m84 = 2;
                 break;
             default:
-                fn_800CF7DC(lbl_8087EFE8, 0, 1, 9);
+                lbl_8087EFE8->fn_800CF7DC(0, 1, 9);
                 fn_8004A2CC(lbl_8087EE90, 0, 1, 0);
                 fn_800DF0F0(lbl_8087F018, 0);
                 lbl_8087F018->m40E0 = 1;
@@ -176,7 +165,7 @@ void HomeButtonMenu::fn_8044073C() {
 }
 
 void HomeButtonMenu::vf10(void* camera) {
-    HBMRsoDraw__Fv();
+    HBMRsoDraw();
 }
 
 inline float Ratio_unk(int a, int b) {

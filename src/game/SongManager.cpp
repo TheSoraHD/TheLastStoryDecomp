@@ -1,5 +1,6 @@
 #include "atn/Task.h"
 #include "atn/SoundCore.h"
+#include "atn/SoundManager.h"
 #include "atn/Bgm.h"
 #include "atn/Memory.h"
 #include "game/GameBgm.h"
@@ -36,14 +37,6 @@ struct SongEnv_unk {
 };
 extern "C" SongEnv_unk* lbl_8087F418;
 
-// inferred: sound configuration (lbl_8087EFE8, as in game/GameBgm.cpp)
-struct SongSoundCfg_unk {
-    unsigned char m0000[0x34D0];
-    int m34D0;
-};
-extern "C" SongSoundCfg_unk* lbl_8087EFE8;
-extern "C" int fn_800D089C(SongSoundCfg_unk* cfg, int type, int arg); // inferred: number of sounds of a kind
-extern "C" void fn_800D0974(SongSoundCfg_unk* cfg, int type, int arg);
 
 // inferred: party manager (lbl_8087F8A0) and its leader, only the members used here
 struct SongChara_unk {
@@ -445,9 +438,9 @@ extern "C" int fn_805A38F0(const char* name, int type, int arg) {
     int counts[9];
     for (int i = 0; i < 9; i++) {
         if (i == 1) {
-            counts[i] = fn_800D089C(lbl_8087EFE8, i, 1);
+            counts[i] = lbl_8087EFE8->fn_800D089C(i, 1);
         } else {
-            counts[i] = fn_800D089C(lbl_8087EFE8, i, 0);
+            counts[i] = lbl_8087EFE8->fn_800D089C(i, 0);
         }
     }
     if (fn_803CE160(0, 0, 0) == 0) {
@@ -487,9 +480,9 @@ extern "C" int fn_805A38F0(const char* name, int type, int arg) {
         case 7:
             if (counts[3] + counts[4] + counts[7] > 0) {
                 if (type == 4) {
-                    fn_800D0974(lbl_8087EFE8, 3, 0);
-                    fn_800D0974(lbl_8087EFE8, 4, 0);
-                    fn_800D0974(lbl_8087EFE8, 7, 0);
+                    lbl_8087EFE8->fn_800D0974(3, 0);
+                    lbl_8087EFE8->fn_800D0974(4, 0);
+                    lbl_8087EFE8->fn_800D0974(7, 0);
                 } else {
                     return 0;
                 }

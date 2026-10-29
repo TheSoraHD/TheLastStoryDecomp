@@ -2,6 +2,7 @@
 // engine lbl_8087EE90 and atn::SoundManager lbl_8087EFE8. File name invented.
 #include "atn/SoundRef.h"
 #include "atn/SoundCore.h"
+#include "atn/SoundManager.h"
 extern "C" unsigned long strlen(const char* s);
 
 // inferred: sound engine of the game (lbl_8087EE90; see atn/Sound3dListener.cpp); only the members used here
@@ -10,25 +11,7 @@ struct SoundEngineSe_unk {
     void* m04; // inferred: nonzero once the sound archive is open
 };
 
-// inferred: atn::SoundManager (lbl_8087EFE8); only the members used here
-struct SoundManagerSe_unk {
-    unsigned char m00[0x34A0];
-    int m34A0;  // 0x34A0: inferred: 3D sounds enabled
-    unsigned char m34A4[0x34B4 - 0x34A4];
-    int m34B4;  // 0x34B4: inferred: SE enabled (volume 1 or 0)
-    int m34B8;  // 0x34B8: inferred: groups may be loaded
-};
-
-// inferred: sound object created by the manager (atn::SoundObject plus the fields used here)
-struct SoundObjectSe_unk {
-    void* m00;
-    void* mSound; // 0x04
-    unsigned char m08[0xA8 - 0x08];
-    int mA8; // 0xA8
-};
-
 extern "C" SoundEngineSe_unk* lbl_8087EE90;
-extern "C" SoundManagerSe_unk* lbl_8087EFE8;
 
 extern "C" int fn_80049D74(SoundEngineSe_unk* engine, const char* group);  // inferred: group id
 extern "C" int fn_800489F4(SoundEngineSe_unk* engine, const char* group);  // inferred: loads a group
@@ -41,12 +24,7 @@ extern "C" void fn_800498A4(SoundEngineSe_unk* engine);
 extern "C" void fn_800498D4(SoundEngineSe_unk* engine);
 extern "C" unsigned int fn_80049B74(SoundEngineSe_unk* engine, const char* name); // inferred: sound id of a name
 extern "C" int fn_80049C3C(SoundEngineSe_unk* engine, const char* name);
-extern "C" float fn_80049E44(SoundEngineSe_unk* engine, SoundObjectSe_unk* obj);
-extern "C" SoundObjectSe_unk* fn_800D0AB0(SoundManagerSe_unk* mgr, unsigned int id);
-extern "C" int fn_800CFDA0(SoundManagerSe_unk* mgr, int arg);
-extern "C" int fn_800D0C1C(SoundManagerSe_unk* mgr, SoundObjectSe_unk* obj);
-extern "C" void fn_800D19FC(SoundManagerSe_unk* mgr, SoundObjectSe_unk* obj, float arg);
-extern "C" void fn_80709AD0(void* sound, int frames); // inferred: nw4r::snd::detail::BasicSound::Stop
+extern "C" float fn_80049E44(SoundEngineSe_unk* engine, atn::SoundCore* sound);
 
 extern "C" atn::SoundRef fn_800C32E0(unsigned int id, int arg2, int arg3, float volume);
 
@@ -128,26 +106,24 @@ extern "C" atn::SoundRef fn_800C32E0(unsigned int id, int arg2, int arg3, float 
         return ref;
     }
 
-    SoundObjectSe_unk* obj = fn_800D0AB0(lbl_8087EFE8, id);
+    atn::SoundCore* obj = lbl_8087EFE8->fn_800D0AB0(id);
     if (obj == 0) {
         return ref;
     }
-    obj->mA8 = fn_800CFDA0(lbl_8087EFE8, arg3 < 0 ? 1 : arg3);
-    ((atn::SoundCore*)obj)->fn_800CA7D4(arg2);
-    ((atn::SoundCore*)obj)->fn_800C9010(id);
-    ((atn::SoundCore*)obj)->fn_800CA0AC(volume, 0);
-    if (lbl_8087EFE8->m34B4 != 0) {
-        ((atn::SoundCore*)obj)->fn_800CA2FC(1.0f, 1.0f, 1.0f);
+    obj->mA8 = lbl_8087EFE8->fn_800CFDA0(arg3 < 0 ? 1 : arg3);
+    obj->fn_800CA7D4(arg2);
+    obj->fn_800C9010(id);
+    obj->fn_800CA0AC(volume, 0);
+    if (lbl_8087EFE8->mFx2dEnabled != 0) {
+        obj->fn_800CA2FC(1.0f, 1.0f, 1.0f);
     } else {
-        ((atn::SoundCore*)obj)->fn_800CA2FC(0.0f, 0.0f, 0.0f);
+        obj->fn_800CA2FC(0.0f, 0.0f, 0.0f);
     }
     float f = fn_80049E44(lbl_8087EE90, obj);
-    if (fn_800D0C1C(lbl_8087EFE8, obj) == 0) {
-        if (obj->mSound != 0) {
-            fn_80709AD0(obj->mSound, 0);
-        }
+    if (lbl_8087EFE8->fn_800D0C1C(obj, f) == 0) {
+        obj->mHandle.Stop(0);
     } else {
-        fn_800D19FC(lbl_8087EFE8, obj, f);
+        lbl_8087EFE8->fn_800D19FC(obj, f);
         ref = (atn::SoundObject*)obj;
     }
     return ref;
@@ -160,29 +136,27 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
         return ref;
     }
 
-    SoundObjectSe_unk* obj = fn_800D0AB0(lbl_8087EFE8, fn_80049B74(lbl_8087EE90, name));
+    atn::SoundCore* obj = lbl_8087EFE8->fn_800D0AB0(fn_80049B74(lbl_8087EE90, name));
     if (obj == 0) {
         return ref;
     }
-    obj->mA8 = fn_800CFDA0(lbl_8087EFE8, arg3 < 0 ? 1 : arg3);
-    ((atn::SoundCore*)obj)->fn_800CA7D4(arg2);
-    if (lbl_8087EFE8->m34A0 != 0) {
-        ((atn::SoundCore*)obj)->fn_800C8BA4(name, (const atn::Vector3*)pos);
+    obj->mA8 = lbl_8087EFE8->fn_800CFDA0(arg3 < 0 ? 1 : arg3);
+    obj->fn_800CA7D4(arg2);
+    if (lbl_8087EFE8->m3dEnabled != 0) {
+        obj->fn_800C8BA4(name, (const atn::Vector3*)pos);
     } else {
-        ((atn::SoundCore*)obj)->fn_800C8780(name);
+        obj->fn_800C8780(name);
     }
-    ((atn::SoundCore*)obj)->fn_800CA0AC(volume, 0);
-    ((atn::SoundCore*)obj)->fn_800CA2FC(1.0f, 1.0f, 1.0f);
+    obj->fn_800CA0AC(volume, 0);
+    obj->fn_800CA2FC(1.0f, 1.0f, 1.0f);
     if (fn_80049C3C(lbl_8087EE90, name) != 0) {
-        ((atn::SoundCore*)obj)->fn_800CA2FC(0.0f, 0.0f, 0.0f);
+        obj->fn_800CA2FC(0.0f, 0.0f, 0.0f);
     }
     float f = fn_80049E44(lbl_8087EE90, obj);
-    if (fn_800D0C1C(lbl_8087EFE8, obj) == 0) {
-        if (obj->mSound != 0) {
-            fn_80709AD0(obj->mSound, 0);
-        }
+    if (lbl_8087EFE8->fn_800D0C1C(obj, f) == 0) {
+        obj->mHandle.Stop(0);
     } else {
-        fn_800D19FC(lbl_8087EFE8, obj, f);
+        lbl_8087EFE8->fn_800D19FC(obj, f);
         ref = (atn::SoundObject*)obj;
     }
     return ref;

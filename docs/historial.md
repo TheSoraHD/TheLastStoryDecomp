@@ -4,6 +4,8 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-10-29 | `fix-svenchu-linkage` (funciones que faltan: GraphicsDevice, SoundManager, AI, allocator_char) | — | 7830 → 8180 | 27,92 → 29,75% / 47,50 → 49,67% fuzzy | 370 | `docs/revision-2026-10-29.md` (sección "Continuación"; AI 479/510, SoundManager 64/76, GraphicsDevice 25/41; split AiCommon/AI a 0x8001C088; bloqueos en `docs/mwcc-blockers.md`) |
+| 2026-10-29 | `fix-svenchu-linkage` (revisión de los commits de Svenchu/Codex) | — | 7825 → 7830 | 27,92% / 47,48 → 47,50% fuzzy | 370 | `docs/revision-2026-10-29.md` (orden del `.dol` en 6 unidades, clases reales en AI/RenderSystem/GraphicsDevice/SoundManager/HBMRso, regla 10, `AGENTS.md`, `ordercheck.py`/`reorder.py`) |
 | 2026-10-29 | `enemies-third` (propuesta H) | merge en `main` 2026-10-29 | 7564 → 7825 | 26,21 → 27,92% / 43,46 → 47,48% fuzzy | 370 | `docs/enemies-third.md` (8 unidades con fuente nueva, 13 segundas pasadas; cierre anticipado; 1 bajada y 1 aviso de poolcheck aceptados en Em310Gargoyle) |
 | 2026-10-25 | `codex/d2atexture-decomp` | — | 7550 → 7564 | 26,18 → 26,21% / 43,17 → 43,29% fuzzy | 370 | `docs/D2A-Texture-q1.md` (14/30 al 100%; las 30 funciones >=50%; `vf18` al 95,72%; build limpio y checks sin pérdidas, bajadas ni hallazgos) |
 | 2026-10-25 | `codex/rendersystem-decomp` (avance local) | — | 7537 → 7550 | 26,17 → 26,18% / 42,94 → 43,17% fuzzy | 370 | `docs/RenderSystem-q1.md` (13/37 al 100%, 24 parciales; build limpio `main.dol: OK`, regress/fuzzdrop/poolcheck sin hallazgos; sin push) |

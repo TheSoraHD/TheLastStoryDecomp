@@ -3,6 +3,8 @@
 
 namespace atn {
 
+struct SoundCategory_unk;
+
 // inferred: object holding a sound (its 0x04 field is passed to fn_80709AD0, which looks like
 // a nw4r::snd BasicSound stop call) with an intrusive reference count at 0xA4.
 struct SoundObject {
@@ -15,7 +17,7 @@ struct SoundObject {
     unsigned int m9C; // inferred: sound state flags, tested by fn_800CB4A4
     int mA0;       // inferred: nonzero while playing, tested by fn_800CB4C4
     int mRefCount; // 0xA4
-    int mA8;       // inferred: set from fn_800CFDA0 (atn::Bgm)
+    SoundCategory_unk* mA8; // 0xA8: player parameters (SoundManager::fn_800CFDA0)
 };
 
 // inferred name: intrusive reference-counted pointer to a SoundObject. Out-of-line functions

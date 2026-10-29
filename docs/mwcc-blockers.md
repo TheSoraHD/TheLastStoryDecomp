@@ -93,3 +93,12 @@ la condicion 8 para sus bajadas de centesimas. Las especializaciones locales de 
 `main.dol: OK`, lost: 0, **5486 -> 5487** (`Em002_01BlackSkelton::fn_80248A4C` al 100%), 139 subidas
 y 10 bajadas de 0,01-0,04 puntos (NewCampPartsHint x3, ChaserNpc ctor, D2AMpMenuFriend x2,
 ArrowSet, Np131LivingArmor, D2AMpMenuFriendRoom, ShopColor), todas por el reparto size/cap en bucles.
+
+## AI_archer_attack01 (2026-10-29, `fix-svenchu-linkage`)
+
+- **Pool de cadenas de `em_scout`**: el original tiene `"隠れるポイント未発見"` (+0x3E0, usada en `vf24`) antes que `"まだ隠れられていない"` (+0x3F5, usada en `vf2C`, que va antes en el `.dol`). Con literales en el fuente MWCC las pone al revés. Probado sin éxito: helper `static inline`, `static` no inline, helper con las dos cadenas y argumento constante, definir el helper antes de `vf2C`. Ningún llamador anterior de `vf24` en el asm. Por eso las cadenas de +0x3E0 en adelante siguen como `lbl_807307A0 + off` (las anteriores ya son literales y el pool coincide hasta +0x3E0).
+- **`fn_8001C088`**: MWCC desenrolla los dos bucles de 5 bloques de 0x14 bytes; el original los deja con `mtctr`/`bdnz` sobre las bases de entrada/salida. Probado: índice, punteros con post-incremento, cuenta atrás, `do/while`, helper inline, `operator=` propio en el bloque. Sigue NONMATCHING.
+- **`Command_unk(20, "lit", 0, 0, 0)`** (`np_type002::vf20`, `np_wait_reaction_minus` vf0C/vf34, `em_scout`/`em_type106` vf28): los ceros salen en r8 y la cadena en r0 (el original al revés). Probado: literal real, locales explícitos en ambos órdenes, envoltorios de uno y dos niveles. 99,06–99,72%.
+- **`np_type002::vf14` / `np_type003::vf14`** (99,32/99,25%): coloreo de la base de salida y del temporal de `m08` en `m18++`; probado estilo `result`, helper `MovePick_unk`, `Vector3` local, orden de stores.
+- **Árbol del mapa de scripts** (`fn_8001E730`, `fn_8001EA18`, `fn_8001ECD0`, `fn_8003DD50`, `fn_8003DEE0`, `fn_8003E6B8`): código de `std::map` de MSL con varios niveles de inline (destrucción recursiva inlineada dos niveles, comprobaciones `this` encadenadas); sin la cabecera `tree` de MSL no se reproduce. `fn_8003E120` (rebalanceo) sí sale al 100% a mano.
+

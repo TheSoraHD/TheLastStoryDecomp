@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): shared menu helpers (texts of the message manager, system sounds,
 // item category table, colors). The real name is unknown.
 #include "std/string.h"
+#include "atn/SoundManager.h"
 #include "atn/SoundRef.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -26,12 +27,6 @@ struct MenuMsgTable_unk {
 extern "C" MenuMsgTable_unk* lbl_8087F1E4;
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-// inferred: sound manager (lbl_8087EFE8)
-struct MenuSound_unk {
-    unsigned char m0000[0x34D0];
-    int m34D0; // inferred: sound category of the next sounds
-};
-extern "C" MenuSound_unk* lbl_8087EFE8;
 
 // inferred: item data read by fn_8011728C/fn_801173A8 (class unknown)
 struct MenuItem_unk {

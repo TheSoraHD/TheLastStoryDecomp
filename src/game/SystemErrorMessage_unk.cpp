@@ -8,6 +8,7 @@
 #include "atn/Memory.h"
 #include "atn/SequenceControl.h"
 #include "atn/SoundRef.h"
+#include "atn/SoundManager.h"
 #include <boost/scoped_ptr.hpp>
 
 extern "C" unsigned long strlen(const char* s);
@@ -55,8 +56,6 @@ struct SysArenaState_unk {
 };
 extern "C" SysArenaState_unk* lbl_8087F628;
 // inferred: sound, bgm, movie and field pauses
-extern "C" void* lbl_8087EFE8;
-extern "C" void fn_800CF7DC(void* sound, int pause, int frames, int arg);
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* bgm, int pause, int frames, int arg);
 struct SysMovie_unk {
@@ -585,7 +584,7 @@ void ErrorManager::fn_80363DBC() {
                 atn::SequenceControl::sInstance->fn_800D246C(0);
             }
             if (lbl_8087EFE8 != 0 && (mPaused & 2) == 2) {
-                fn_800CF7DC(lbl_8087EFE8, 0, 8, 9);
+                lbl_8087EFE8->fn_800CF7DC(0, 8, 9);
             }
             if (lbl_8087EE90 != 0 && (mPaused & 4) == 4) {
                 fn_8004A2CC(lbl_8087EE90, 0, 8, 0);
@@ -620,7 +619,7 @@ void ErrorManager::fn_80363DBC() {
                 mPaused |= 1;
             }
             if (lbl_8087EFE8 != 0) {
-                fn_800CF7DC(lbl_8087EFE8, 1, 8, 0);
+                lbl_8087EFE8->fn_800CF7DC(1, 8, 0);
                 mPaused |= 2;
             }
             if (lbl_8087EE90 != 0) {

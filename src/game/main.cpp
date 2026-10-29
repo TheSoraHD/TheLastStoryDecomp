@@ -3,6 +3,7 @@
 // per-frame callbacks registered in lbl_8087EE94 (bound members of ResetShutdown/ErrorManager).
 #include "atn/Array_unk.h"
 #include "atn/Memory.h"
+#include "atn/SoundManager.h"
 #include "atn/Task.h"
 #include "atn/SequenceBoot_unk.h"
 #include "game/HeapInfo_unk.h"
@@ -126,22 +127,10 @@ public:
 };
 } // namespace atn
 
-// inferred: light settings passed to fn_800CFDF0 / fn_800CFFB8 (names invented)
-struct LightDesc_unk {
-    LightDesc_unk(int id) : mId(id), m04(0), m08(1.0f), m0C(1.0f), m10(0.0f), m14(1.0f) {}
-    int mId;
-    int m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14;
-};
-
 extern "C" void* lbl_8087EEE0;
 extern "C" void* lbl_8087EF70;
 extern "C" void* lbl_8087EE98;
 extern "C" void* lbl_8087EE90;
-extern "C" void* lbl_8087EFE8;
 extern "C" void* lbl_8087EEB0;
 extern "C" void* fn_800827E0();
 extern "C" void fn_8006BA54(unsigned char lang);
@@ -160,10 +149,6 @@ extern "C" void fn_80239794(int a, int b, int c, int d);
 extern "C" void fn_8004C9B4();
 extern "C" void fn_800A5508();
 extern "C" void fn_800463A8();
-extern "C" void fn_800CCBA4();
-extern "C" void fn_800D0684(void* obj, int a, float f);
-extern "C" void fn_800CFDF0(void* obj, const LightDesc_unk& desc);
-extern "C" void fn_800CFFB8(void* obj, const LightDesc_unk& desc);
 extern "C" void fn_801F0D80(atn::Task* root);
 extern "C" void fn_800A2C48(atn::Task* root);
 extern "C" void fn_80207F80();
@@ -174,8 +159,6 @@ extern "C" void fn_800D2D7C(atn::Task* root);
 extern "C" void fn_800D2AD8(atn::Task* root);
 extern "C" void fn_8004D258(void* obj, int a, int b, int c, int d, int e);
 extern "C" void fn_80047DCC(void* obj);
-extern "C" void fn_800CE6E0(void* obj);
-extern "C" void fn_800CECF0(void* obj);
 extern "C" void fn_80071D60(void* obj, int arg);
 
 // inferred: callback of the render system with its argument (constructor 0x800BD94C)
@@ -256,8 +239,8 @@ int main() {
         fn_800BFAC4(lbl_8087EFB4);
         lbl_8087F534->mTimer3.Start_unk();
         fn_80047DCC(lbl_8087EE90);
-        fn_800CE6E0(lbl_8087EFE8);
-        fn_800CECF0(lbl_8087EFE8);
+        lbl_8087EFE8->fn_800CE6E0();
+        lbl_8087EFE8->fn_800CECF0();
         lbl_8087F534->mTimer3.Stop_unk();
         lbl_8087F534->mTimer0.Stop_unk();
         lbl_8087F534->fn_805A6BD8();
@@ -347,17 +330,17 @@ void fn_8047A4C8() {
     }
     fn_800463A8();
     fn_800CCBA4();
-    fn_800D0684(lbl_8087EFE8, 2, 0.6f);
-    fn_800CFDF0(lbl_8087EFE8, LightDesc_unk(1));
-    fn_800CFDF0(lbl_8087EFE8, LightDesc_unk(2));
-    fn_800CFDF0(lbl_8087EFE8, LightDesc_unk(3));
-    fn_800CFDF0(lbl_8087EFE8, LightDesc_unk(4));
-    fn_800CFDF0(lbl_8087EFE8, LightDesc_unk(5));
-    fn_800CFDF0(lbl_8087EFE8, LightDesc_unk(6));
-    fn_800CFDF0(lbl_8087EFE8, LightDesc_unk(7));
-    fn_800CFDF0(lbl_8087EFE8, LightDesc_unk(8));
-    fn_800CFFB8(lbl_8087EFE8, LightDesc_unk(1));
-    fn_800CFFB8(lbl_8087EFE8, LightDesc_unk(2));
+    lbl_8087EFE8->fn_800D0684(2, 0.6f);
+    lbl_8087EFE8->fn_800CFDF0(atn::SoundCategory_unk(1));
+    lbl_8087EFE8->fn_800CFDF0(atn::SoundCategory_unk(2));
+    lbl_8087EFE8->fn_800CFDF0(atn::SoundCategory_unk(3));
+    lbl_8087EFE8->fn_800CFDF0(atn::SoundCategory_unk(4));
+    lbl_8087EFE8->fn_800CFDF0(atn::SoundCategory_unk(5));
+    lbl_8087EFE8->fn_800CFDF0(atn::SoundCategory_unk(6));
+    lbl_8087EFE8->fn_800CFDF0(atn::SoundCategory_unk(7));
+    lbl_8087EFE8->fn_800CFDF0(atn::SoundCategory_unk(8));
+    lbl_8087EFE8->fn_800CFFB8(atn::SoundCategory_unk(1));
+    lbl_8087EFE8->fn_800CFFB8(atn::SoundCategory_unk(2));
     fn_801F0D80(lbl_8087F530);
     fn_800A2C48(lbl_8087F530);
     HomeButtonMenu::fn_804405F8(lbl_8087F530);

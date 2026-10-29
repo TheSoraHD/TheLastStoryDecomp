@@ -1,4 +1,5 @@
 #include "game/CharaTask.h"
+#include "atn/SoundManager.h"
 #include "game/MotionCmdData_unk.h"
 #include "game/ColliAttrManager.h"
 #include "db/MotionCommandCommon.h"
@@ -50,11 +51,6 @@ struct Timer_unk {
     float m3A4; // inferred: frame time
 };
 extern "C" Timer_unk* lbl_8087EFA8;
-struct SoundCfg_unk {
-    unsigned char m00[0x34C8];
-    int m34C8;
-};
-extern "C" SoundCfg_unk* lbl_8087EFE8;
 struct MapInfo_unk {
     unsigned char m00[0x48];
     int m48; // inferred: kind of map (1 town, 2-4 dungeon)
