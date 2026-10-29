@@ -1247,23 +1247,6 @@ static inline int AttackIfNear_unk() {
     return -1;
 }
 
-// inferred: AttackNear_unk with the random wait one inline level deeper (used by em_type103/104)
-static inline int WaitRandom3_unk() {
-    if (lbl_807C68C0.m08 != 0) {
-        Wait_unk(WaitDelay_unk());
-        lbl_807C6A40.m00 = 1;
-        return 7;
-    }
-    return -1;
-}
-static inline int AttackNear3_unk() {
-    if (lbl_807C68C0.m1C < lbl_807C68C0.m30) {
-        Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
-        lbl_807C6A40.m00 = 1;
-        return 5;
-    }
-    return WaitRandom3_unk();
-}
 
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
@@ -1299,6 +1282,24 @@ static inline int AttackNear_unk() {
         return 5;
     }
     return WaitRandom2_unk();
+}
+
+// inferred: AttackNear_unk with the random wait one inline level deeper (used by em_type103/104)
+static inline int WaitRandom3_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        Wait_unk(WaitDelay_unk());
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+static inline int AttackNear3_unk() {
+    if (lbl_807C68C0.m1C < lbl_807C68C0.m30) {
+        Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return WaitRandom3_unk();
 }
 
 extern "C" unsigned char* fn_8001C088();
