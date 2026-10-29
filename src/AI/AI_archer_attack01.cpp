@@ -207,6 +207,8 @@ void fn_8001A464(CharaTask** list);
 void fn_8001A65C(CharaTask** list);
 void fn_8001A788(CharaTask** list);
 int fn_8001BE00(CharaTask* chara);
+int fn_8001B634(CharaTask* chara); // inferred: item to use (0: none)
+int fn_8003CDB0();
 float fn_8001AD80(CharaTask* a, CharaTask* b);
 int fn_8001BEB0(CharaTask* chara);
 int fn_8001B4A4();
@@ -972,6 +974,37 @@ static inline int AttackValid_unk() {
     return 1;
 }
 
+// inferred: command 6 on a valid target (returns 9), otherwise stops
+static inline int Special_unk() {
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(6, 1, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    Command_unk(0, 0, 0, 0, 0);
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
+
+// inferred: in.m1C (distance to the target) below range
+static inline bool InRange_unk(float range) {
+    return lbl_807C68C0.m1C < range;
+}
+// inferred: picks an item to use (stored in in.m64) when the target is in range
+static inline bool CanUseItem_unk() {
+    if (InRange_unk(9999.0f)) {
+        int item = fn_8001B634(lbl_807C68C0.m00);
+        if (item > 0) {
+            lbl_807C68C0.m64 = item;
+            return true;
+        }
+    }
+    return false;
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -1535,6 +1568,67 @@ extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
 extern "C" void fn_8003E688();
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
 extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_archer_attack01::vf20() {
+    if (lbl_807C6A40.m18 == 0) {
+        int result = Special_unk();
+        if (result == 6) {
+            int next = fn_8003CDB0();
+            if (next == 9) {
+                lbl_807C6A40.m00 = 1;
+                return 9;
+            }
+            if (next == 4) {
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            return -1;
+        }
+        if (result == 1) {
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        if (result == 9) {
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    int result = AttackValid_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    if (result == 6) {
+        if (lbl_807C68C0.m0C < lbl_807C6A40.m20) {
+            return -1;
+        }
+        if (CanUseItem_unk()) {
+            Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    if (lbl_807C68C0.m1C < lbl_807C68C0.m30) {
+        Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
 
 int AI::Script::AI_archer_attack01::vf18() {
     if (lbl_807C6A40.m18 == 0) {
@@ -1606,8 +1700,6 @@ int AI::Script::AI_archer_guard01::vf08() {
     }
     return result;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_archer_guard01::vf18() {
     if (lbl_807C6A40.m18 == 0) {
@@ -2169,8 +2261,6 @@ int AI::Script::AI_em_sword_pointguard01::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_em_sword_pointguard01::vf20() {
     int result = AttackValid_unk();
@@ -2797,8 +2887,6 @@ int AI::Script::AI_fr_sword_pointguard01::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
-extern "C" void fn_8003E688();
 
 int AI::Script::AI_fr_sword_pointguard01::vf20() {
     int result = AttackValid_unk();
