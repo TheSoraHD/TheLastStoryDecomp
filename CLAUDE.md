@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `main` (2026-10-29, tras mergear `rso-names-3`): **8180 / 18215 funciones al 100%** (código 29,8%), 370 ficheros enlazados, `main.dol: OK`.
+- `close-near-units` (2026-10-29, propuesta K, sin mergear): **8180 / 18215 funciones al 100%** (código 29,8%), **372** ficheros enlazados (`gmk/SparkCube`, `gmk/Banana`), `main.dol: OK`. `MP/Popup::vf10` al 99,8%. Bloqueos de `db/EventIdTable_unk`, `std/bad_cast` y enemigos en `docs/close-near-units.md`.
 - `rso-names` + `-2` + `-3` (2026-10-29): nombres reales del `LastWorld_tools.rso` USA (772/784 aplicados, `MemoryTag` en `operator new`: clases `atn::Model`/`Keyboard`/`MemoryManager`/`EfpFile`/`SimpleVector`, `Inventory`, iostream de MSL...), herramientas `tools/decomp/rso/`. Detalle y candidatos: `docs/rso-names*.md`. Revisión de Svenchu/Codex: `docs/revision-2026-10-29.md`.
 - Unidades de los commits de Svenchu/Codex (todas `matching: false`): AI_archer_attack01 479/510 (falta el `std::map` de scripts, ver `docs/mwcc-blockers.md`), SoundManager 64/76, GraphicsDevice 25/41, allocator_char (ahora `atn/WordWrap_unk`, 25/44), RenderSystem_unk 14/37, D2A_Texture 14/30, game/main 11/14; notas en `docs/<unidad>*.md`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.

@@ -4,6 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-10-29 | `close-near-units` (propuesta K) | — | 8180 → 8180 | 29,75% / 49,68% fuzzy | 370 → 372 | `docs/close-near-units.md` (SparkCube y Banana enlazadas; `MP/Popup::vf10` 97,6 → 99,8%; bloqueos de `db/EventIdTable_unk`, `std/bad_cast` y enemigos) |
 | 2026-10-29 | `rso-names-3` (`MemoryTag` en `operator new`, SparkCube 48xxx) | — | 8180 → 8180 | 29,75% | 370 | `docs/rso-names.md` (sección "Cuarta tanda") |
 | 2026-10-29 | `rso-names-2` (nombres reales del RSO en el fuente, 3 colas + tercera tanda secuencial) | — | 8180 → 8180 | 29,75% / — | 370 | `docs/rso-names.md` (sección "Segunda tanda"), `docs/rso-names-q{A,B,C}.md`; fusión `atn/WordWrap_unk`+`char_traits_char`+`allocator_char`; thunks de iostream a `GameEventScript_cont2` (lost 2 aceptado); tercera tanda: `balance_insert`, `Inventory`, `SimpleArray`, `CharaFaceControl`, `AllocFromMem2`, `EffFile`, `GimmickManager`, vistas parciales |
 | 2026-10-29 | `rso-names` (nombres del `LastWorld_tools.rso` USA) | — | 8180 → 8180 | 29,75% / 49,67% fuzzy | 370 | `docs/rso-names.md` (299 renombrados en `symbols.txt`, `GetNormalize`/`GetStrings`, `tools/decomp/rso/`; tabla de nombres reales pendientes por unidad) |

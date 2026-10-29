@@ -186,3 +186,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Incluir la definición completa de una plantilla con inlines (`static_string`) puede cambiar la asignación de registros de una función no relacionada (`GimmickCommon::fn_803EDB18`); una declaración adelantada lo evita.
 - Con `main.dol: FAILED` no se regenera `report.json`: `regress.py`/`fuzzdrop.py` comparan el viejo y dan 0. Mirar la línea de `main.dol` antes de fiarse.
 - Renombrar una clase que es argumento de plantilla obliga a recalcular el prefijo de longitud de la plantilla en `symbols.txt` (`33scoped_ptr<Q23atn13EfpHandle_unk>` → `26scoped_ptr<Q23atn7EfpFile>`).
+- Bucle `int i` que indexa un miembro array (`m48[i]`) y MWCC funde `this + i*4` en una sola inducción: `m48.mData[(unsigned int)i]` mantiene `this` y el desplazamiento por separado (`MP/Popup::vf10`).
+- Floats locales: los FPR salen en orden de declaración (f30, f29...) y el pool en orden de inicialización; para cambiar uno sin el otro, declarar sin inicializar (`float a, b, c;`) y asignar después (`MP/Popup::vf10`).
+- Los locales de un inline van por debajo de los del llamador en la pila: si un vector del original está más abajo de lo esperado, el bloque que lo usa era un inline (`MP/Popup::vf10`, `SetSlot_unk`).
+- Un destructor `virtual ~X() {}` inline en la cabecera sale al final del `.o`; si en el `.dol` va tras la factoría, definirlo en el `.cpp` en su sitio (`gmk/Banana`).
+- Una unidad al 100% con la estática local de un inline ajeno (`sListeners` de `fn_8014F8F4`) puede enlazar: probar `matching: true` antes de descartarla (`gmk/SparkCube`).
