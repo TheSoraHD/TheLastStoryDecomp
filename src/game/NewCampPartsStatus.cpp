@@ -4,6 +4,7 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "game/CharaStatus.h"
+#include "game/CharaTask.h"
 #include "game/Inventory.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -138,10 +139,6 @@ extern "C" void fn_803766E4(NewCampStatusField_unk* field);
 extern "C" void fn_80376324(NewCampStatusField_unk* field, int id);
 
 // inferred: characters (fn_8000D9E8 returns the manager lbl_8087F8A0)
-class CharaTask {
-public:
-    CharaStatus* GetStatus_unk(); // weak copy 0x800F52F0, called out of line here
-};
 extern "C" void* fn_8000D9E8();
 extern "C" CharaTask* fn_8054A33C(void* manager, int id); // inferred: character of a member
 extern "C" void fn_801D80A0(Inventory* party, int chara);
