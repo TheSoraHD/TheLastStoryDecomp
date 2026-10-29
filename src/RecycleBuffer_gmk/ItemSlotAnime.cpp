@@ -27,8 +27,14 @@ extern "C" void fn_80450B44() {
     }
 }
 
-// NONMATCHING: 47.78% - MWCC forms a boolean from the final equality instead of using the target branch.
-extern "C" int fn_80450B60(unsigned int value) {
+extern "C" int fn_80450B60(int value) {
     unsigned int index = value - 0x2711;
-    return index <= 7 ? 1 : (value == 0x271A ? 1 : 0);
+    if (index > 7) {
+        if (value != 0x271A) {
+            goto rejected;
+        }
+    }
+    return 1;
+rejected:
+    return 0;
 }
