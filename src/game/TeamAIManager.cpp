@@ -291,7 +291,7 @@ TeamAIManager::TeamAIManager(atn::Task* parent) : atn::Task(parent), m60(0), mDe
 
 TeamAIManager* TeamAIManager::Create_unk(atn::Task* parent) {
     if (lbl_8087FA00 == 0) {
-        lbl_8087FA00 = new (3, "", "", 0) TeamAIManager(parent);
+        lbl_8087FA00 = new ((MemoryTag)3, "", "", 0) TeamAIManager(parent);
     }
     return lbl_8087FA00;
 }

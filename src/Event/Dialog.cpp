@@ -451,7 +451,7 @@ Dialog::Dialog(atn::Task* parent)
     m120.m2E = 0;
     delete[] m190.mData;
     m190.mCount = 8;
-    m190.mData = new (4, lbl_8087D764, lbl_8087D760, 0) DialogParam_unk[8];
+    m190.mData = new ((MemoryTag)4, lbl_8087D764, lbl_8087D760, 0) DialogParam_unk[8];
     for (unsigned int i = 0; i < m190.mCount; i++) {
         m190.mData[i].m00 = 5;
         m190.mData[i].m04 = 1.0f;
@@ -460,7 +460,7 @@ Dialog::Dialog(atn::Task* parent)
     delete[] m184.mData;
     m184.mCount = n;
     if (n != 0) {
-        m184.mData = new (0, lbl_8087D764, lbl_8087D760, 0) DialogParam_unk[n];
+        m184.mData = new ((MemoryTag)0, lbl_8087D764, lbl_8087D760, 0) DialogParam_unk[n];
     } else {
         m184.mData = 0;
     }
@@ -470,7 +470,7 @@ Dialog::Dialog(atn::Task* parent)
 }
 
 Dialog* Dialog::fn_802288D0(atn::Task* parent) {
-    return new (1, "", "", 0) Dialog(parent);
+    return new ((MemoryTag)1, "", "", 0) Dialog(parent);
 }
 
 // NONMATCHING: 99.57% - registers inside the inlined basic_string(const char*) constructors

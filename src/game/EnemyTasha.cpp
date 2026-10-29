@@ -1379,7 +1379,7 @@ void EnemyTasha::vf6C(int kind, CharaTask* other) {
     dir.y = 0.0f;
     PSVECNormalize(&dir, &dir);
     if (kind >= 9 && kind <= 12) {
-        fn_80178208((chr::ControlBase*)new (3, "", "", 0) EnemyReaction_unk(this, &dir, kind));
+        fn_80178208((chr::ControlBase*)new ((MemoryTag)3, "", "", 0) EnemyReaction_unk(this, &dir, kind));
         m58C = 6;
     }
 }

@@ -20,7 +20,7 @@ inline atn::static_string<N, C, Tr>::~static_string() {}
 
 AreaEffConfig* AreaEffConfig::fn_80041A80(atn::Task* parent, const char* path) {
     if (parent != 0) {
-        return new (12, "", "", 0) AreaEffConfig(parent, path);
+        return new ((MemoryTag)12, "", "", 0) AreaEffConfig(parent, path);
     }
     return 0;
 }

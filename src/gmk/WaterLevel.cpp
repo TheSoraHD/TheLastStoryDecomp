@@ -77,7 +77,7 @@ inline void UpdateBox_unk(WaterLevel* self) {
 
 GimmickCommon* WaterLevel::fn_8042E36C(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) WaterLevel(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) WaterLevel(parent, id, arg);
     }
     return 0;
 }

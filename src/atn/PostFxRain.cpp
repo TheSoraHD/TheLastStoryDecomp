@@ -107,7 +107,7 @@ struct PostFxRainDrops_unk {
         }
         mCount = n;
         if (mCount != 0) {
-            mData = new (0, "", "", 0) PostFxRainDrop_unk[mCount];
+            mData = new ((MemoryTag)0, "", "", 0) PostFxRainDrop_unk[mCount];
         } else {
             mData = 0;
         }

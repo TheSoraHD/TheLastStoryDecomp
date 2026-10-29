@@ -274,7 +274,7 @@ void EnemyQuarkFirst::vf40(HitInfo_unk* hit) {
         m5A0 = 1.0f;
         m14E4 = mC58.mC4;
         m598 = 0;
-        void* p = ::operator new(0x38, 3, "", "", 0);
+        void* p = ::operator new(0x38, (MemoryTag)3, "", "", 0);
         if (p != 0) {
             atn::Vector3 dir(-msg->m28.x, -msg->m28.y, -msg->m28.z);
             p = fn_8018E438(p, this, &dir, m14E4, 10, m1514);
@@ -414,7 +414,7 @@ void EnemyQuarkFirst::vf100(int state) {
         if (!m14E4->mFlag5 && m14E4->vfC4()) {
             atn::Vector3 dir(m14E4->mPos.x - mPos.x, 0.0f, m14E4->mPos.z - mPos.z);
             dir.Normalize_unk();
-            void* p = ::operator new(0x38, 3, "", "", 0);
+            void* p = ::operator new(0x38, (MemoryTag)3, "", "", 0);
             if (p != 0) {
                 p = fn_8018E438(p, this, &dir, m14E4, 9, m1514);
             }

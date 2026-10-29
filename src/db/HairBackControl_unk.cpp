@@ -642,13 +642,13 @@ static unsigned int sHairCount;
 
 // inferred: hashes the motion names and loads /boot/hair_back_control.csv
 extern "C" void fn_80217E18() {
-    sHashes = new (11, "", "", 0) unsigned int[570];
-    sEnabled = new (11, "", "", 0) bool[570];
+    sHashes = new ((MemoryTag)11, "", "", 0) unsigned int[570];
+    sEnabled = new ((MemoryTag)11, "", "", 0) bool[570];
     for (int i = 0; i < 570; i++) {
         sHashes[i] = fn_800DC6B4(sNames[i]);
         sEnabled[i] = true;
     }
-    sHashes2 = new (11, "", "", 0) unsigned int[40];
+    sHashes2 = new ((MemoryTag)11, "", "", 0) unsigned int[40];
     for (int i = 0; i < 40; i++) {
         sHashes2[i] = fn_800DC6B4(sNames2[i]);
     }
@@ -660,7 +660,7 @@ extern "C" void fn_80217E18() {
             sHairCount++;
         }
     } while (csv.fn_8005BBF8() != 0);
-    sHairHashes = new (11, "", "", 0) unsigned int[sHairCount];
+    sHairHashes = new ((MemoryTag)11, "", "", 0) unsigned int[sHairCount];
     csv.Reset_unk();
     do {
         if (*csv.fn_8005B9CC() != '\0') {

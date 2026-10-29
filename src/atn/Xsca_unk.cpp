@@ -3,11 +3,10 @@
 // and its keys, read on demand by fn_805BDCBC. Names invented.
 
 #include "std/string.h"
+#include "atn/Memory.h"
 #include "std/string_members.h"
 #include "std/vector.h"
 
-void* operator new(unsigned long size, int heap, const char* file, const char* name, int line);
-void* operator new[](unsigned long size, int heap, const char* file, const char* name, int line);
 void operator delete[](void* p);
 
 // inferred: chunk header (see atn/XsfParser_unk.cpp)
@@ -174,7 +173,7 @@ static inline void __ReadNameSwapped_unk(std::string& name, XsfChunk_unk* chunk)
     it.fn_805BEC68(chunk);
     unsigned int len = __Swap32_unk(*__Data_unk(it));
     const char* src = (const char*)__Data_unk(it) + 4;
-    char* buf = new (6, "", "", 0) char[len + 1];
+    char* buf = new ((MemoryTag)6, "", "", 0) char[len + 1];
     buf[len] = 0;
     for (int j = 0; j < len; j++) {
         buf[j] = *src++;
@@ -189,7 +188,7 @@ static inline void __ReadName_unk(std::string& name, XsfChunk_unk* chunk) {
     it.fn_805BEC68(chunk);
     unsigned int len = *__Data_unk(it);
     const char* src = (const char*)__Data_unk(it) + 4;
-    char* buf = new (6, "", "", 0) char[len + 1];
+    char* buf = new ((MemoryTag)6, "", "", 0) char[len + 1];
     buf[len] = 0;
     for (unsigned int j = 0; j < len; j++) {
         buf[j] = *src++;
@@ -222,7 +221,7 @@ int Xsca_unk::fn_805BD4B8() {
         mEntries.push_back(XscaEntry_unk(it.mChunk, 0));
         it.mChunk = it.fn_805BECA0();
     }
-    mNames.reset(new (6, "", "", 0) std::string[mCount]);
+    mNames.reset(new ((MemoryTag)6, "", "", 0) std::string[mCount]);
     for (unsigned int i = 0; i < mCount; i++) {
         if (mSwapped) {
             __ReadNameSwapped_unk(mNames[i], mEntries[i].mChunk);
@@ -269,7 +268,7 @@ XsfCurveSet_unk* Xsca_unk::fn_805BDE48(XscaEntry_unk* entry, const std::string& 
     char* str = (char*)__Data_unk(it) + 4;
     str += (len + 3) & ~3;
     float* header = (float*)str;
-    XsfCurveSet_unk* curves = new (6, "", "", 0) XsfCurveSet_unk(name.data());
+    XsfCurveSet_unk* curves = new ((MemoryTag)6, "", "", 0) XsfCurveSet_unk(name.data());
     entry->mCurves = curves;
     float z;
     float y;
@@ -336,7 +335,7 @@ XsfCurveSet_unk* Xsca_unk::fn_805BE37C(XscaEntry_unk* entry, const std::string& 
     char* str = (char*)__Data_unk(it) + 4;
     str += (len + 3) & ~3;
     float* header = (float*)str;
-    XsfCurveSet_unk* curves = new (6, "", "", 0) XsfCurveSet_unk(name.data());
+    XsfCurveSet_unk* curves = new ((MemoryTag)6, "", "", 0) XsfCurveSet_unk(name.data());
     entry->mCurves = curves;
     float z;
     float y;

@@ -54,7 +54,7 @@ ID2A_TaskInstance::Cache_unk* ID2A_TaskInstance::sCache_unk;
 template <int N, int M>
 ID2A_TaskInstance::Cache_unk* D2A_TaskInstanceBase<N, M>::GetCache_unk() {
     if (sCache_unk == 0) {
-        sCache_unk = new (1, "", "", 0) Cache_unk;
+        sCache_unk = new ((MemoryTag)1, "", "", 0) Cache_unk;
     }
     return sCache_unk;
 }
@@ -81,7 +81,7 @@ D2A_Task* D2A_TaskInstanceBase<N, M>::Acquire_unk(Task* parent, const char* path
 template <int N, int M>
 D2A_TaskInstanceBase<N, M>* D2A_TaskInstanceBase<N, M>::Create(Task* parent, const char* path) {
     if (parent != 0) {
-        return new (8, "", "", 0) D2A_TaskInstanceBase(parent, path);
+        return new ((MemoryTag)8, "", "", 0) D2A_TaskInstanceBase(parent, path);
     }
     return 0;
 }
@@ -415,7 +415,7 @@ typedef atn::D2A_TaskInstanceBase<32, 8> D2A_TaskInstance32_unk;
 
 D2A_TaskInstance32_unk* fn_801F64D0(atn::Task* parent, const char* path) {
     if (parent != 0) {
-        return new (8, "", "", 0) D2A_TaskInstance32_unk(parent, path);
+        return new ((MemoryTag)8, "", "", 0) D2A_TaskInstance32_unk(parent, path);
     }
     return 0;
 }

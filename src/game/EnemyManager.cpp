@@ -3,7 +3,7 @@
 
 EnemyManager* EnemyManager::fn_80334B38(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (3, "", "", 0) EnemyManager(parent);
+        sInstance = new ((MemoryTag)3, "", "", 0) EnemyManager(parent);
     }
     return sInstance;
 }

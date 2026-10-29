@@ -297,15 +297,15 @@ void CompositeIntensityTintMulti::vf14() {
     target->fn_800D5B58(fn_800D8828(&mBase), fn_800D884C(&mBase), 0xE, fn_800D8870(&mBase), "CompositeTexture");
     mIntensity.fn_800D5B58(fn_800D8828(&mBase), fn_800D884C(&mBase), 1, fn_800D8870(&mBase), "BaseTextureIntensity");
     mIntensityComp.Request_unk(&mIntensity, 1);
-    mIntensityComp.fn_800D8894(new (6, "", "", 0)
+    mIntensityComp.fn_800D8894(new ((MemoryTag)6, "", "", 0)
                                            TextureCompositeCopy(&mBase, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
     mAlpha.fn_800D5B58(fn_800D8828(&mBase), fn_800D884C(&mBase), 0, fn_800D8870(&mBase), "BaseTextureIntensity");
     mAlphaComp.Request_unk(&mAlpha, 0x20);
-    mAlphaComp.fn_800D8894(new (6, "", "", 0)
+    mAlphaComp.fn_800D8894(new ((MemoryTag)6, "", "", 0)
                                        TextureCompositeCopyAlpha(&mBase, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
     mComposite.Request_unk(target, -1);
     mComposite.fn_800D8C0C(&mAlpha);
-    mComposite.fn_800D8894(new (6, "", "", 0)
+    mComposite.fn_800D8894(new ((MemoryTag)6, "", "", 0)
                                        TextureCompositeCopy(&mBase, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
     Color4f_unk channels[3] = {
         Color4f_unk(1.0f, 0.0f, 0.0f, 0.0f),
@@ -315,7 +315,7 @@ void CompositeIntensityTintMulti::vf14() {
     for (int i = 0; i < mCount; i++) {
         for (int j = 0; j < 3; j++) {
             if (mUse[i][j] != 0) {
-                mComposite.fn_800D8894(new (6, "", "", 0) TextureCompositeMaskIntensitySingle(
+                mComposite.fn_800D8894(new ((MemoryTag)6, "", "", 0) TextureCompositeMaskIntensitySingle(
                     &mBase, &mIntensity, &mLayers[i], mColors[i][j], channels[j]));
             }
         }

@@ -85,7 +85,7 @@ extern "C" void fn_80204958() {
             count++;
         }
     }
-    sEntries = new (3, "", "", 0) AiTableEntry_unk[count];
+    sEntries = new ((MemoryTag)3, "", "", 0) AiTableEntry_unk[count];
     sCount = count;
     csv.SetData((const char*)data, size);
     int i = 0;

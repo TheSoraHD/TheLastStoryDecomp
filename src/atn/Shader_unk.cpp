@@ -240,7 +240,7 @@ ShaderTex_unk::ShaderTex_unk(void* model, atn::ShaderDesc_unk* desc) : mDesc(des
         ShaderTexEntryData_unk entry = {id, i, 0};
         void* texture = fn_80081C34(id);
         if (texture != 0) {
-            TexStage_unk* bind = (TexStage_unk*)operator new(sizeof(TexStage_unk), 6, "", "", 0);
+            TexStage_unk* bind = (TexStage_unk*)operator new(sizeof(TexStage_unk), (MemoryTag)6, "", "", 0);
             if (bind != 0) {
                 bind = fn_8007AA30(bind, -1);
             }
@@ -262,7 +262,7 @@ ShaderTex_unk::~ShaderTex_unk() {}
 
 // inferred: creates the GPU material of a shader
 ShaderMaterial_unk* fn_800C4A90(ShaderTex_unk* shader) {
-    ShaderMaterial_unk* mat = (ShaderMaterial_unk*)operator new(sizeof(ShaderMaterial_unk), 6, "", "", 0);
+    ShaderMaterial_unk* mat = (ShaderMaterial_unk*)operator new(sizeof(ShaderMaterial_unk), (MemoryTag)6, "", "", 0);
     if (mat != 0) {
         mat = fn_8007C144(mat, shader);
     }
@@ -279,7 +279,7 @@ ShaderMaterial_unk* fn_800C4A90(ShaderTex_unk* shader) {
     mat->m4C = -1;
     mat->m4A = shader->mDesc->m0E4;
     int n = shader->mDesc->m0E4;
-    mat->m0C = (TexStage_unk*)__construct_new_array(operator new[](n * sizeof(TexStage_unk) + 0x10, 6, "", "", 0),
+    mat->m0C = (TexStage_unk*)__construct_new_array(operator new[](n * sizeof(TexStage_unk) + 0x10, (MemoryTag)6, "", "", 0),
                                                    fn_8007E9EC, fn_8007AA64, sizeof(TexStage_unk), n);
     for (int i = 0; i < mat->m4A; i++) {
         fn_8007AB38(&mat->m0C[i], shader->mDesc, i);

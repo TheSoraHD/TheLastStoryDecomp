@@ -428,9 +428,9 @@ void Em101ElderZesya::fn_80256384() {
                 b->m00 = (Gimmick_unk*)table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
                 b->m04.mDesc = (Gimmick_unk*)table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
                 for (int i = 0; i < 3; i++) {
-                    b->m04.mObjects[0][i] = new (12, "", "", 0) atn::ColliObject();
+                    b->m04.mObjects[0][i] = new ((MemoryTag)12, "", "", 0) atn::ColliObject();
                     b->m04.mObjects[0][i]->fn_80058078("ef_col02n.hcb");
-                    b->m04.mObjects[1][i] = new (12, "", "", 0) atn::ColliObject();
+                    b->m04.mObjects[1][i] = new ((MemoryTag)12, "", "", 0) atn::ColliObject();
                     b->m04.mObjects[1][i]->fn_80058078("ef_col02n.hcb");
                     for (int j = 0; j < 3; j++) {
                         if (b->m04.mObjects[j][i] != 0) {
@@ -1024,7 +1024,7 @@ void Em101ElderZesya::fn_80258A50() {
             } else {
                 float frame = mMotion.mTracks[0].m08;
                 if (frame >= mMotion.fn_80097D7C(0)) {
-                    void* p = ::operator new(0x34, 1, "", "", 0);
+                    void* p = ::operator new(0x34, (MemoryTag)1, "", "", 0);
                     chr::ControlBase* c = (chr::ControlBase*)p;
                     if (p != 0) {
                         c = fn_801C02F4(p, this);
@@ -1049,7 +1049,7 @@ void Em101ElderZesya::fn_80258F1C() {
         mFB8 = 0.0f;
         m58C = 6;
         m14C8 = 0;
-        void* p = ::operator new(0x34, 0, "", "", 0);
+        void* p = ::operator new(0x34, (MemoryTag)0, "", "", 0);
         chr::ControlBase* c = (chr::ControlBase*)p;
         if (p != 0) {
             c = fn_801C02F4(p, this);

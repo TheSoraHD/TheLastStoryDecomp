@@ -38,7 +38,7 @@ namespace Event {
 void MotionData::vf08() {
     // inferred: the loader is created as an atn::LH_Motion (the constructor result is used
     // directly) but destroyed non-virtually in vf0C
-    atn::LH_Motion* loader = new (4, "", "", 0) atn::LH_Motion;
+    atn::LH_Motion* loader = new ((MemoryTag)4, "", "", 0) atn::LH_Motion;
     m18 = (MotionHandle_unk*)loader;
     loader->fn_800A03E4(m08.c_str());
 }
@@ -87,7 +87,7 @@ int AnimationData::vf10() const {
 }
 
 void ModelData::vf08() {
-    m24 = new (4, "", "", 0) atn::Model(0x100, 0x28);
+    m24 = new ((MemoryTag)4, "", "", 0) atn::Model(0x100, 0x28);
     fn_8008AD4C(m24, m08.c_str(), 0);
 }
 
@@ -107,11 +107,11 @@ void EffectData::vf08() {
     char* efp = strstr(name, ".efp");
     char* eff = strstr(name, ".eff");
     if (efp > eff) {
-        m18 = new (4, "", "", 0) atn::EfpFile;
+        m18 = new ((MemoryTag)4, "", "", 0) atn::EfpFile;
         ((atn::EfpFile*)m18)->LoadRequest(name);
         m1C = 1;
     } else if (efp < eff) {
-        m18 = new (4, "", "", 0) atn::EffFile;
+        m18 = new ((MemoryTag)4, "", "", 0) atn::EffFile;
         ((atn::EffFile*)m18)->LoadRequest(name);
         m1C = 2;
     }
@@ -141,7 +141,7 @@ int EffectData::vf10() const {
 }
 
 void CameraData::vf08() {
-    m18 = new (4, "", "", 0) atn::LH_Xsca;
+    m18 = new ((MemoryTag)4, "", "", 0) atn::LH_Xsca;
     m18->vf0C(m08.c_str());
 }
 
@@ -158,7 +158,7 @@ int CameraData::vf10() const {
 }
 
 void PoseData::vf08() {
-    m18 = new (4, "", "", 0) atn::LH_Binary;
+    m18 = new ((MemoryTag)4, "", "", 0) atn::LH_Binary;
     m18->vf0C(m08.c_str());
 }
 
@@ -187,7 +187,7 @@ struct PoseList_unk : public atn::SimpleVector<PoseKey_unk> {};
 // Resize_unk<PoseKey_unk>, renamed in symbols.txt)
 void PoseData::fn_80204230() {
     if (m1C == 0) {
-        m1C = new (4, "", "", 0) atn::SimpleVector<PoseKey_unk>;
+        m1C = new ((MemoryTag)4, "", "", 0) atn::SimpleVector<PoseKey_unk>;
         PoseList_unk poses;
         fn_8008A00C(&poses, m18->fn_80470580(), m18->fn_8047059C());
         m1C->Assign_unk(poses);
@@ -211,7 +211,7 @@ MovieTask::MovieTask(atn::Task* parent, const std::string& name) : atn::Task(par
     m50[0] = 0;
     CopyString_unk(m50, fn_8006B174(name).c_str());
     if (fn_8006AA20(name.c_str()) != 0) {
-        m4C = new (6, "", "", 0) atn::VideoTHP(name.c_str());
+        m4C = new ((MemoryTag)6, "", "", 0) atn::VideoTHP(name.c_str());
         if (name.find("RTMV") != std::string::npos) {
             m4C->m04 = MovieKind_unk(name);
         } else {
@@ -254,7 +254,7 @@ void MovieData::vf08() {
     atn::Task* parent = m04;
     MovieTask* task;
     if (parent != 0) {
-        task = new (1, "", "", 0) MovieTask(parent, m08);
+        task = new ((MemoryTag)1, "", "", 0) MovieTask(parent, m08);
     } else {
         task = 0;
     }

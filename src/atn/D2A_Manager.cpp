@@ -275,7 +275,7 @@ atn::D2A_Manager* lbl_8087F138;
 
 extern "C" atn::D2A_Manager* fn_801F0D80(atn::Task* parent) {
     if (parent != 0 && lbl_8087F138 == 0) {
-        lbl_8087F138 = new (1, "", "", 0) atn::D2A_Manager(parent);
+        lbl_8087F138 = new ((MemoryTag)1, "", "", 0) atn::D2A_Manager(parent);
     }
     return lbl_8087F138;
 }

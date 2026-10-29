@@ -45,7 +45,7 @@ namespace gmk {
 
 GimmickCommon* CharaPathMove::fn_8043D594(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) CharaPathMove(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) CharaPathMove(parent, id, arg);
     }
     return 0;
 }
@@ -171,7 +171,7 @@ void CharaPathMove::vf20() {
         if (strcmp(field, "CHARA") == 0) {
             strcpy(path, csv.fn_8005B9CC());
             if (fn_8006AA20(path) != 0) {
-                PathChara_unk* pc = new (12, "", "", 0) PathChara_unk(this);
+                PathChara_unk* pc = new ((MemoryTag)12, "", "", 0) PathChara_unk(this);
                 pc->mChara = CreateChara_unk(this, std::string(path));
                 pc->mChara->fn_800D246C(1);
                 mCharas.push_back(pc);
@@ -219,7 +219,7 @@ PathChara_unk::PathChara_unk(CharaPathMove* owner)
 
 // inferred: creates the character of the file `path` (name invented)
 static GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path) {
-    return parent != 0 ? new (1, lbl_8087DFC4, lbl_8087DFC0, 0) GmkChara(parent, path) : 0;
+    return parent != 0 ? new ((MemoryTag)1, lbl_8087DFC4, lbl_8087DFC0, 0) GmkChara(parent, path) : 0;
 }
 
 int CharaPathMove::vf40(GimmickMsg_unk* msg) {

@@ -173,7 +173,7 @@ void FlyObj::fn_80427870() {
 
 GimmickCommon* FlyObjManager::fn_80427EB4(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) FlyObjManager(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) FlyObjManager(parent, desc);
     }
     return 0;
 }

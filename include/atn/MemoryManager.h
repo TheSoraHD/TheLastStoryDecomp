@@ -3,6 +3,7 @@
 
 // atn::MemoryManager: engine memory manager (atn::SmallAllocator<N> pools and five atn::DLAllocator
 // heaps; code in atn/SmallAllocator_8.cpp). Names from the RSO: Instance, Free, AllocFromMem2; the rest invented.
+#include "atn/Memory.h"
 #include "atn/DLAllocator.h"
 #include "atn/SmallAllocator.h"
 
@@ -22,10 +23,6 @@ struct MEMAllocator_unk {
     unsigned long mParam1;
     unsigned long mParam2;
 };
-
-// RSO: global enum MemoryTag (heap of an allocation: operator new(unsigned long, MemoryTag, ...)
-// and MemoryManager::AllocFromMem2); enumerator names unknown, values seen: 0, 1, 6
-enum MemoryTag {};
 
 namespace atn {
 

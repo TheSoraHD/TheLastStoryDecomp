@@ -226,7 +226,7 @@ ModelInstance::ModelInstance(InstData_unk* data) : mData(data) {
     m7C = 0;
     m80 = 0;
     if (lbl_8087EF40 == 0) {
-        lbl_8087EF40 = new (6, "", "", 0) Matrix3x4[0x100];
+        lbl_8087EF40 = new ((MemoryTag)6, "", "", 0) Matrix3x4[0x100];
     }
     m84 = 0;
     mData->mModel.mInstances++;

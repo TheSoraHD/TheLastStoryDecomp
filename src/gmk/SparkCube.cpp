@@ -129,7 +129,7 @@ namespace gmk {
 
 GimmickCommon* SparkCube::fn_80426108(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) SparkCube(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) SparkCube(parent, id, arg);
     }
     return 0;
 }

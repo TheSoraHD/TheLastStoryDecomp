@@ -50,7 +50,7 @@ inline float GetFrame_unk(MpD2A_unk* task) { return task->mFrame; }
 D2ACommonDialog* D2ACommonDialog::sInstance;
 
 D2ACommonDialog* D2ACommonDialog::fn_804AC430(atn::Task* parent) {
-    return sInstance = new (1, "", "", 0) D2ACommonDialog(parent);
+    return sInstance = new ((MemoryTag)1, "", "", 0) D2ACommonDialog(parent);
 }
 
 D2ACommonDialog::D2ACommonDialog(atn::Task* parent) : atn::Task(parent), m48(0), m4C(0) {

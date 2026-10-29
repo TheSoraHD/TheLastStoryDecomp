@@ -370,7 +370,7 @@ void Pigeon_unk::fn_804058A4() {
 
 GimmickCommon* PigeonManager::fn_80405DD4(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) PigeonManager(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) PigeonManager(parent, desc);
     }
     return 0;
 }

@@ -11,7 +11,7 @@ extern "C" void fn_80370320(void* obj, int id, int value, int arg3); // inferred
 
 GameTimer* GameTimer::fn_803CE4B0(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (1, "", "", 0) GameTimer(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) GameTimer(parent);
     }
     return sInstance;
 }

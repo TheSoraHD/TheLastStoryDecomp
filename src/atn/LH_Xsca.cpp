@@ -28,7 +28,7 @@ LoadXsca::~LoadXsca() {
 
 void LoadXsca::vf0C() {
     if (mState == 2) {
-        m5C = new (6, "", "", 0) Xsca_unk(m54);
+        m5C = new ((MemoryTag)6, "", "", 0) Xsca_unk(m54);
         fn_80473104(3);
     }
 }

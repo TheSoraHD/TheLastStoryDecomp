@@ -123,7 +123,7 @@ extern "C" void fn_802150F0() {
             }
             sJumpRowCount++;
         }
-        sJumpRows = new (1, "", "", 0) MapLinkJumpRow_unk[sJumpRowCount];
+        sJumpRows = new ((MemoryTag)1, "", "", 0) MapLinkJumpRow_unk[sJumpRowCount];
         csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();
@@ -184,7 +184,7 @@ extern "C" void fn_802150F0() {
             }
             sDispRowCount++;
         }
-        sDispRows = new (1, "", "", 0) MapLinkDispRow_unk[sDispRowCount];
+        sDispRows = new ((MemoryTag)1, "", "", 0) MapLinkDispRow_unk[sDispRowCount];
         csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();
@@ -230,7 +230,7 @@ extern "C" void fn_802150F0() {
             }
             sNameCount++;
         }
-        sNames = new (1, "", "", 0) MapLinkName_unk[sNameCount];
+        sNames = new ((MemoryTag)1, "", "", 0) MapLinkName_unk[sNameCount];
         csvu.SetData((const wchar_t*)data, (int)size / 2);
         int i = 0;
         while (csvu.fn_8005BBF8() != 0) {

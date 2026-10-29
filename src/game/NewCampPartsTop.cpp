@@ -237,7 +237,7 @@ inline void StartFade_unk(int wait) {
 
 NewCampPartsTop* NewCampPartsTop::fn_80529118(atn::Task* parent) {
     if (parent != 0) {
-        return new (1, "", "", 0) NewCampPartsTop(parent);
+        return new ((MemoryTag)1, "", "", 0) NewCampPartsTop(parent);
     }
     return 0;
 }
@@ -251,7 +251,7 @@ NewCampPartsTop::NewCampPartsTop(atn::Task* parent)
     m4C = 1;
     mCursor = 1;
     if (m4C > 0) {
-        m50.Reset_unk(new (1, "", "", 0) NewCampPartsEntry_unk[m4C]);
+        m50.Reset_unk(new ((MemoryTag)1, "", "", 0) NewCampPartsEntry_unk[m4C]);
         fn_8050FB38(this, m4C, m50.mData, &sFile, 0, 0);
         fn_8050FC88(this, m4C, m50.mData, 0);
     }

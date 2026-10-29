@@ -84,7 +84,7 @@ inline unsigned int FadeCommon::GetColor_unk() const {
 }
 
 FadeColor* FadeColor::Create(Task* parent, int duration, unsigned int color0, unsigned int color1) {
-    return new (12, "", "", 0) FadeColor(parent, duration, color0, color1);
+    return new ((MemoryTag)12, "", "", 0) FadeColor(parent, duration, color0, color1);
 }
 
 FadeColor::~FadeColor() {}
@@ -115,7 +115,7 @@ FadeCapture::FadeCapture(Task* parent, int duration, unsigned int color0, unsign
 
 FadeCapture* FadeCapture::Create(Task* parent, int duration, unsigned int color0, unsigned int color1,
                                  int ownBuffer) {
-    return new (12, "", "", 0) FadeCapture(parent, duration, color0, color1, ownBuffer);
+    return new ((MemoryTag)12, "", "", 0) FadeCapture(parent, duration, color0, color1, ownBuffer);
 }
 
 FadeCapture::~FadeCapture() {}

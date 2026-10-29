@@ -202,7 +202,7 @@ extern "C" unsigned long lbl_8087EF88;       // inferred: largest use of the tem
 namespace atn {
 
 PostFxManager* PostFxManager::fn_800A8FF0(Task* parent) {
-    lbl_8087EF8C = new (6, "", "", 0) PostFxManager(parent);
+    lbl_8087EF8C = new ((MemoryTag)6, "", "", 0) PostFxManager(parent);
     return lbl_8087EF8C;
 }
 

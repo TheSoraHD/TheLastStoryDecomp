@@ -458,7 +458,7 @@ void GimmickCommonB0_unk::fn_803F11F8(void* menu) {
 // NONMATCHING: 99.78% - only the offset of "" in the string pool (see fn_803EF780)
 extern "C" GimmickStateCommand* fn_803F1310(GimmickCommon* gimmick) {
     if (gimmick != 0) {
-        return new (0xC, "", "", 0) GimmickStateCommand(gimmick);
+        return new ((MemoryTag)0xC, "", "", 0) GimmickStateCommand(gimmick);
     }
     return 0;
 }

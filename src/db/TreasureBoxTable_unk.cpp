@@ -91,8 +91,8 @@ extern "C" void fn_8021E0B0() {
                 }
             }
         } while (csv.fn_8005BBF8() != 0);
-        sBoxes = new (3, "", "", 0) TreasureBox_unk[sBoxCount];
-        sItems = new (3, "", "", 0) TreasureItem_unk[sItemCount];
+        sBoxes = new ((MemoryTag)3, "", "", 0) TreasureBox_unk[sBoxCount];
+        sItems = new ((MemoryTag)3, "", "", 0) TreasureItem_unk[sItemCount];
         csv.SetData((const char*)data, size);
         csv.fn_8005BBF8();
         csv.fn_8005BBF8();

@@ -114,7 +114,7 @@ struct BuildingFile_unk {
 // inferred: creator (declared extern "C" by game/MapPartsFactory.cpp)
 extern "C" MapPartsBase* fn_8049A018(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsLocatorSet(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsLocatorSet(parent, arg, csv);
     }
     return 0;
 }
@@ -139,7 +139,7 @@ MapPartsLocatorSet::MapPartsLocatorSet(atn::Task* parent, void* arg, atn::CsvTab
         sprintf(name, "merge_%s_loc.model", fn_8006B2D8(fn_8006B174(std::string(path))).c_str());
         if (fn_8006AA20(name)) {
             mHasMerged = 1;
-            mMerged.reset(new (12, "", "", 0) EffectModel_unk(9));
+            mMerged.reset(new ((MemoryTag)12, "", "", 0) EffectModel_unk(9));
             fn_8008AD4C(mMerged->GetModel_unk(), name, 0);
         }
     }
@@ -322,9 +322,9 @@ void MapPartsLocatorSet::fn_8049B1F0() {
         sprintf(path, "data/building/%s.building", loc->mLod->mName);
         if (file->mKind == 'locs') {
             MapLocatorShear_unk* shear = (MapLocatorShear_unk*)(file->mLocators + i * 0x3C);
-            mInstances[i] = new (12, "", "", 0) MapInstance_unk(path, shear);
+            mInstances[i] = new ((MemoryTag)12, "", "", 0) MapInstance_unk(path, shear);
         } else {
-            mInstances[i] = new (12, "", "", 0) MapInstance_unk(path, loc);
+            mInstances[i] = new ((MemoryTag)12, "", "", 0) MapInstance_unk(path, loc);
         }
         mInstances[i]->mInst.m6C = mFlags;
     }

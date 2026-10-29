@@ -6,7 +6,7 @@ extern "C" int strcmp(const char*, const char*);
 
 MapPartsColliTree* MapPartsColliTree::fn_80496420(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsColliTree(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsColliTree(parent, arg, csv);
     }
     return 0;
 }

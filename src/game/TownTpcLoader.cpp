@@ -62,7 +62,7 @@ struct Chara_unk : public atn::Task {
 
 TownTpcLoader* TownTpcLoader::fn_805B9B08(atn::Task* parent, int cellX, int cellZ, atn::Task* wait) {
     if (parent != 0) {
-        return new (1, "", "", 0) TownTpcLoader(parent, cellX, cellZ, wait);
+        return new ((MemoryTag)1, "", "", 0) TownTpcLoader(parent, cellX, cellZ, wait);
     }
     return 0;
 }

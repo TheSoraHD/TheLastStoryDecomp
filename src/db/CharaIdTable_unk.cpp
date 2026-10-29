@@ -156,11 +156,11 @@ extern "C" void fn_80208BE8(const char* path) {
         fn_802088A4(text, csv.fn_8005B9CC(), 0x100);
         textSize += strlen(text) + 2;
     }
-    sEntries = new (3, "", "", 0) CharaIdEntry_unk[count];
+    sEntries = new ((MemoryTag)3, "", "", 0) CharaIdEntry_unk[count];
     sCount = count;
     csv.SetData((const wchar_t*)data, size / 2);
-    sWideTexts = new (3, "", "", 0) wchar_t[wideSize];
-    sTexts = new (3, "", "", 0) char[textSize];
+    sWideTexts = new ((MemoryTag)3, "", "", 0) wchar_t[wideSize];
+    sTexts = new ((MemoryTag)3, "", "", 0) char[textSize];
     int widePos = 0;
     int textPos = 0;
     int i = 0;

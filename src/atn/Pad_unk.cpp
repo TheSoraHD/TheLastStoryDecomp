@@ -51,7 +51,7 @@ Pad_unk* lbl_8087EF70; // inferred: the game pad instance
 void fn_800A5508() {
     fn_800DDA70();
     if (lbl_8087EF70 == 0) {
-        lbl_8087EF70 = new (1, "", "", 0) Pad_unk;
+        lbl_8087EF70 = new ((MemoryTag)1, "", "", 0) Pad_unk;
     }
 }
 

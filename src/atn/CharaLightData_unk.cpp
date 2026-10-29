@@ -27,7 +27,7 @@ inline void ResizeTextures_unk(TextureArray_unk& a, int n, int heap) {
     }
     a.mCount = n;
     if (a.mCount != 0) {
-        a.mData = new (heap, "", "", 0) Texture_unk[a.mCount];
+        a.mData = new ((MemoryTag)heap, "", "", 0) Texture_unk[a.mCount];
     } else {
         a.mData = 0;
     }

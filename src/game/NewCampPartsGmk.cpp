@@ -437,7 +437,7 @@ public:
 
 NewCampPartsGmk* NewCampPartsGmk::fn_805128C0(atn::Task* parent) {
     if (parent != 0) {
-        return new (1, "", "", 0) NewCampPartsGmk(parent);
+        return new ((MemoryTag)1, "", "", 0) NewCampPartsGmk(parent);
     }
     return 0;
 }
@@ -448,7 +448,7 @@ NewCampPartsGmk::NewCampPartsGmk(atn::Task* parent) : NewCampPartsBase(parent) {
     m98 = "menu_back";
     m4C = 13;
     if (m4C > 0) {
-        mInfo.Reset_unk(new (1, "", "", 0) NewCampGmkInfo_unk[m4C]);
+        mInfo.Reset_unk(new ((MemoryTag)1, "", "", 0) NewCampGmkInfo_unk[m4C]);
     }
     mEfp[0].LoadRequest("/effect/be010_007.efp");
 }

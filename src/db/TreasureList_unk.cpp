@@ -36,7 +36,7 @@ extern "C" void fn_8021EB04() {
                 sCount++;
             }
         }
-        sEntries = new (12, "", "", 0) TreasureListEntry_unk[sCount];
+        sEntries = new ((MemoryTag)12, "", "", 0) TreasureListEntry_unk[sCount];
         ofs = 0;
         csv.SetData((const char*)data, size);
         while (csv.fn_8005BBF8() != 0) {

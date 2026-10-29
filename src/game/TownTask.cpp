@@ -72,7 +72,7 @@ struct TownNodeHolder_unk {
 // inferred: creator of the task; not referenced (the task is created by another file), so the linker strips it,
 // but its "" literal stays at the start of the string pool. Name invented.
 TownTask* TownTask::Create_unk(atn::Task* parent) {
-    return new (1, "", "", 0) TownTask(parent);
+    return new ((MemoryTag)1, "", "", 0) TownTask(parent);
 }
 
 TownTask::TownTask(atn::Task* parent)

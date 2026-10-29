@@ -90,7 +90,7 @@ int ParseTree::fn_800A5E00(const char* expr) {
     if (fn_800A5F18(expr, &nodes, &m14)) {
         if (m14 > 0) {
             int size = m14 * sizeof(ValueNode) + m14 * sizeof(OperatorNode);
-            m08 = new (8, "", "", 0) unsigned char[size];
+            m08 = new ((MemoryTag)8, "", "", 0) unsigned char[size];
             memset(m08, 0, size);
         }
         sNodeOffset = 0;
@@ -540,7 +540,7 @@ int ParseCode_unk::fn_800A6FF0(ParseTree* tree) {
     if (size % 2 == 1) {
         size++;
     }
-    unsigned char* code = m00 = new (8, "", "", 0) unsigned char[size];
+    unsigned char* code = m00 = new ((MemoryTag)8, "", "", 0) unsigned char[size];
     int pos = 0;
     fn_800A693C(code, tree->m04, &pos);
     code[pos++] = 0xFF;

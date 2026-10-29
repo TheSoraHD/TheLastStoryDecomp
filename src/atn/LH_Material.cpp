@@ -46,7 +46,7 @@ void LoadMaterial::vf0C() {
         int size = (int)m50;
         const char* p = start;
         while (p != 0 && p - start < (int)m50) {
-            Material_unk* material = new (6, "", "", 0) Material_unk(0);
+            Material_unk* material = new ((MemoryTag)6, "", "", 0) Material_unk(0);
             p = material->fn_8007C46C(mPath, p, size);
             mMaterials.push_back(material);
             size = (int)m50 - (p - start);

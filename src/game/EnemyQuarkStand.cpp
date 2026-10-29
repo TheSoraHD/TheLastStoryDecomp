@@ -1979,7 +1979,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
                 }
                 if (fn_801231D0(lbl_8087F0A8->mPad, 0) != 0) {
                     leader->SetHit_unk(m1550);
-                    leader->fn_80178208(new (3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
+                    leader->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
                     fn_80370AE4(lbl_8087F430, 0x6F, 1);
                     fn_80351AB8(leader, 2);
                     if (lbl_8087F490 != 0) {
@@ -2538,7 +2538,7 @@ boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
         }
         fn_800C31F4("SE_DG040_107", 0, -1, 1.0f);
         mC58.mC0 = 0;
-        chr::ControlThrustForQuarkStand* next = new (0, "", "", 0) chr::ControlThrustForQuarkStand(chara, this, 2);
+        chr::ControlThrustForQuarkStand* next = new ((MemoryTag)0, "", "", 0) chr::ControlThrustForQuarkStand(chara, this, 2);
         return boost::bind(&CharaTask::fn_80178208, chara, next);
     }
     return boost::function<void()>();

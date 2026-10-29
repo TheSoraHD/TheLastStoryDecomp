@@ -128,7 +128,7 @@ const int D2AMpMenuSetRule::sTimes[4] = {1, 3, 5, 10};
 
 D2AMpMenuSetRule* D2AMpMenuSetRule::fn_804CD97C(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) D2AMpMenuSetRule(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) D2AMpMenuSetRule(parent);
     }
     return sInstance;
 }

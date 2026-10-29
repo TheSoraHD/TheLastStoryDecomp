@@ -48,7 +48,7 @@ namespace gmk {
 
 GimmickCommon* PlayEffect::fn_803F69E4(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) PlayEffect(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) PlayEffect(parent, id, arg);
     }
     return 0;
 }
@@ -116,7 +116,7 @@ void PlayEffect::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL") == 0) {
-            mModel = new (12, "", "", 0) atn::Model(8, 32);
+            mModel = new ((MemoryTag)12, "", "", 0) atn::Model(8, 32);
             fn_8008AD4C(mModel, csv.fn_8005B9CC(), 0);
             fn_803EC7A0(mModel, &csv);
         } else if (strcmp(field, "EFF") == 0) {

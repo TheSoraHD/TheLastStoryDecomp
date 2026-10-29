@@ -157,12 +157,12 @@ extern "C" void fn_80234A8C(int strips, int models, int buf, int verts) {
     if (verts < 0) {
         sMaxVerts = strips * 8;
     }
-    sBuckets = new (7, "", "", 0) void*[0x400];
-    sStrips = new (7, "", "", 0) EffectStrip_unk[sMaxStrips];
-    sModels = new (7, "", "", 0) EffectModelItem_unk[sMaxModels];
+    sBuckets = new ((MemoryTag)7, "", "", 0) void*[0x400];
+    sStrips = new ((MemoryTag)7, "", "", 0) EffectStrip_unk[sMaxStrips];
+    sModels = new ((MemoryTag)7, "", "", 0) EffectModelItem_unk[sMaxModels];
     // inferred: raw storage (EffectVertex_unk has a Vector3, whose empty constructor is not called)
-    sVerts = (EffectVertex_unk*)new (7, "", "", 0) unsigned char[sMaxVerts * sizeof(EffectVertex_unk)];
-    sBuf = new (7, "", "", 0) void*[sMaxBuf];
+    sVerts = (EffectVertex_unk*)new ((MemoryTag)7, "", "", 0) unsigned char[sMaxVerts * sizeof(EffectVertex_unk)];
+    sBuf = new ((MemoryTag)7, "", "", 0) void*[sMaxBuf];
     sStripCount = 0;
     sModelCount = 0;
     sVertPos = 0;

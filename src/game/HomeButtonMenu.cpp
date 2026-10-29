@@ -91,7 +91,7 @@ HomeButtonMenu* HomeButtonMenu::sInstance;
 
 void HomeButtonMenu::fn_804405F8(void* arg) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) HomeButtonMenu(arg);
+        sInstance = new ((MemoryTag)1, "", "", 0) HomeButtonMenu(arg);
     }
 }
 

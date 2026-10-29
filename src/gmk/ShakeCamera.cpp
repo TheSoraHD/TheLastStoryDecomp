@@ -39,7 +39,7 @@ namespace gmk {
 
 GimmickCommon* ShakeCamera::fn_80421454(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) ShakeCamera(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) ShakeCamera(parent, desc);
     }
     return 0;
 }

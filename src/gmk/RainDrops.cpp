@@ -24,7 +24,7 @@ namespace gmk {
 
 GimmickCommon* RainDrops::fn_8042AFE4(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) RainDrops(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) RainDrops(parent, id, arg);
     }
     return 0;
 }

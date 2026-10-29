@@ -119,14 +119,14 @@ inline void WaitObject::PlayEfp_unk() {
 
 GimmickCommon* WaitObject::fn_80418EAC(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) WaitObject(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) WaitObject(parent, id, arg);
     }
     return 0;
 }
 
 GimmickCommon* WaitObject::fn_80418F30(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        WaitObject* obj = new (12, "", "", 0) WaitObject(parent, desc->mId, desc->mArg);
+        WaitObject* obj = new ((MemoryTag)12, "", "", 0) WaitObject(parent, desc->mId, desc->mArg);
         if (obj != 0) {
             obj->m6C = desc->mPos;
             obj->m78 = atn::Vector3(0.0f, desc->mRotY, 0.0f);
@@ -257,7 +257,7 @@ void WaitObject::vf20() {
             strcpy(path, csv.fn_8005B9CC());
             fn_80097A88(&mModel, fn_802180A8(csv.fn_8005B9CC()), path);
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
-            mColli.reset(new (12, "", "", 0) atn::ColliObject());
+            mColli.reset(new ((MemoryTag)12, "", "", 0) atn::ColliObject());
             mColli->fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
             strcpy(path, csv.fn_8005B9CC());
@@ -288,7 +288,7 @@ void WaitObject::vf20() {
                     sphere.mCenter = pos;
                     sphere.mRadius = fn_800DC288(csv.fn_8005B9CC());
                     if (sphere.mRadius > 0.0f) {
-                        atn::ColliSphere* colli = new (12, "", "", 0) atn::ColliSphere();
+                        atn::ColliSphere* colli = new ((MemoryTag)12, "", "", 0) atn::ColliSphere();
                         state.mColli = colli;
                         colli->mSphere = sphere;
                         state.mFlags |= 1;

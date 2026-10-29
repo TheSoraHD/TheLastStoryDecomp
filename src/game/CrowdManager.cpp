@@ -53,7 +53,7 @@ CrowdManager* CrowdManager::sInstance;
 
 CrowdManager* CrowdManager::fn_801EA4B0(atn::Task* parent, CrowdDesc_unk* desc, int arg) {
     if (parent != 0) {
-        sInstance = new (3, "", "", 0) CrowdManager(parent, desc, arg);
+        sInstance = new ((MemoryTag)3, "", "", 0) CrowdManager(parent, desc, arg);
     }
     return sInstance;
 }

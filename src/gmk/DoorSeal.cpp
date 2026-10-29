@@ -35,7 +35,7 @@ namespace gmk {
 
 GimmickCommon* DoorSeal::fn_8042335C(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) DoorSeal(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) DoorSeal(parent, id, arg);
     }
     return 0;
 }

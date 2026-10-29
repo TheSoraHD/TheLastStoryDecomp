@@ -187,7 +187,7 @@ extern "C" void fn_80208144() {
             }
         } while (csv.fn_8005BBF8() != 0);
         sCount++;
-        sEntries = new (1, "", "", 0) ChapterEntry_unk[sCount];
+        sEntries = new ((MemoryTag)1, "", "", 0) ChapterEntry_unk[sCount];
         ChapterEntry_unk* first = sEntries;
         first->m00 = 0;
         first->m04 = 0;

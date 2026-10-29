@@ -55,7 +55,7 @@ public:
 
 GameSaveTask* GameSaveTask::fn_803B7944(atn::Task* parent, GameSaveBackground* background) {
     if (parent != 0) {
-        return new (1, "", "", 0) GameSaveTask(parent, background);
+        return new ((MemoryTag)1, "", "", 0) GameSaveTask(parent, background);
     }
     return 0;
 }

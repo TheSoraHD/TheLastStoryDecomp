@@ -45,7 +45,7 @@ extern "C" void fn_800D2338(atn::Task* task);
 
 PlayerManager* PlayerManager::fn_80549D8C(atn::Task* parent) {
     if (parent != 0 && lbl_8087F8A0 == 0) {
-        lbl_8087F8A0 = new (3, "", "", 0) PlayerManager(parent);
+        lbl_8087F8A0 = new ((MemoryTag)3, "", "", 0) PlayerManager(parent);
     }
     return lbl_8087F8A0;
 }

@@ -85,14 +85,14 @@ namespace gmk {
 
 GimmickCommon* Lemon::fn_8041524C(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) Lemon(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) Lemon(parent, id, arg);
     }
     return 0;
 }
 
 GimmickCommon* Lemon::fn_8041537C(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) Lemon(parent, desc->mId, desc->mArg);
+        return new ((MemoryTag)12, "", "", 0) Lemon(parent, desc->mId, desc->mArg);
     }
     return 0;
 }

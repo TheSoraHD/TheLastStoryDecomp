@@ -112,14 +112,14 @@ namespace gmk {
 
 GimmickCommon* LottaSummon::fn_8043A770(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) LottaSummon(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) LottaSummon(parent, id, arg);
     }
     return 0;
 }
 
 GimmickCommon* LottaSummon::fn_8043A850(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        LottaSummon* gimmick = new (12, "", "", 0) LottaSummon(parent, desc->mId, desc->mArg);
+        LottaSummon* gimmick = new ((MemoryTag)12, "", "", 0) LottaSummon(parent, desc->mId, desc->mArg);
         if (gimmick != 0) {
             gimmick->m6C = desc->mPos;
             gimmick->m78 = atn::Vector3(0.0f, desc->mRotY, 0.0f);

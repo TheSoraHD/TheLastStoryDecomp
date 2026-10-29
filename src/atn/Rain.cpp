@@ -112,7 +112,7 @@ struct RainDrops_unk {
     void Resize_unk(unsigned int count) {
         RainDrop_unk* drops;
         if (count != 0) {
-            drops = new (6, "", "", 0) RainDrop_unk[count];
+            drops = new ((MemoryTag)6, "", "", 0) RainDrop_unk[count];
         } else {
             drops = 0;
         }

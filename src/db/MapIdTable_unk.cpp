@@ -169,8 +169,8 @@ extern "C" void fn_80216CD0() {
         textSize += strlen(id) + 2;
         sCount++;
     }
-    sEntries = new (1, "", "", 0) MapId_unk[sCount];
-    sTexts = new (3, "", "", 0) char[textSize];
+    sEntries = new ((MemoryTag)1, "", "", 0) MapId_unk[sCount];
+    sTexts = new ((MemoryTag)3, "", "", 0) char[textSize];
     int i = 0;
     int pos = 0;
     wcsv.SetData((const wchar_t*)data, (int)size / 2);
@@ -268,7 +268,7 @@ extern "C" void fn_802174F4() {
         }
         total++;
     }
-    sMembers = new (1, "", "", 0) int[total];
+    sMembers = new ((MemoryTag)1, "", "", 0) int[total];
     csv.SetData((const char*)data, size);
     int pos = 0;
     while (csv.fn_8005BBF8() != 0) {

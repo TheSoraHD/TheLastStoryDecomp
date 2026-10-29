@@ -419,7 +419,7 @@ extern "C" int fn_80363C28(wchar_t* dst, const char* src, unsigned int size) {
 // inferred: creates the instance
 extern "C" void fn_80363CE4() {
     if (lbl_8087F420 == 0) {
-        lbl_8087F420 = new (1, "", "", 0) ErrorManager();
+        lbl_8087F420 = new ((MemoryTag)1, "", "", 0) ErrorManager();
     }
 }
 
@@ -713,9 +713,9 @@ void ErrorManager::fn_803646C4() {
 
 void ErrorManager::fn_80364BE8() {
     if ((unsigned short)OSGetFontEncode() == 1) {
-        mFont.reset(new (1, "", "", 0) unsigned char[0x120F00]);
+        mFont.reset(new ((MemoryTag)1, "", "", 0) unsigned char[0x120F00]);
     } else {
-        mFont.reset(new (1, "", "", 0) unsigned char[0x20120]);
+        mFont.reset(new ((MemoryTag)1, "", "", 0) unsigned char[0x20120]);
     }
     OSInitFont(mFont.get());
     SysGraphics_unk* gfx = lbl_8087EEE0;

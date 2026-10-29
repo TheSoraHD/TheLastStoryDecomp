@@ -268,7 +268,7 @@ namespace gmk {
 // NONMATCHING: 99.88% - .sdata2 constant order (inlined SwingCore_unk ctor)
 GimmickCommon* SwingObject::fn_803FE390(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) SwingObject(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) SwingObject(parent, id, arg);
     }
     return 0;
 }
@@ -276,7 +276,7 @@ GimmickCommon* SwingObject::fn_803FE390(atn::Task* parent, int id, int arg) {
 // NONMATCHING: 94.04% - .sdata2 constant order and float load scheduling
 GimmickCommon* SwingObject::fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        SwingObject* obj = new (12, "", "", 0) SwingObject(parent, desc->mId, desc->mArg);
+        SwingObject* obj = new ((MemoryTag)12, "", "", 0) SwingObject(parent, desc->mId, desc->mArg);
         if (obj != 0) {
             obj->m6C = desc->mPos;
             obj->m78 = atn::Vector3(0.0f, desc->mRotY, 0.0f);

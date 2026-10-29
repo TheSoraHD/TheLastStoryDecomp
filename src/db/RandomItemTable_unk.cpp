@@ -111,8 +111,8 @@ extern "C" void fn_8021CF8C() {
                 sWindCount++;
             }
         }
-        sRandom = new (12, "", "", 0) RandomTable_unk[sRandomCount];
-        sWind = new (12, "", "", 0) WindTable_unk[sWindCount];
+        sRandom = new ((MemoryTag)12, "", "", 0) RandomTable_unk[sRandomCount];
+        sWind = new ((MemoryTag)12, "", "", 0) WindTable_unk[sWindCount];
         csv.SetData((const char*)data, size);
         int r = 0;
         int w = 0;
@@ -278,7 +278,7 @@ extern "C" void fn_8021DBEC() {
                 sMerchantCount++;
             }
         }
-        sMerchant = new (12, "", "", 0) MerchantTable_unk[sMerchantCount];
+        sMerchant = new ((MemoryTag)12, "", "", 0) MerchantTable_unk[sMerchantCount];
         csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {

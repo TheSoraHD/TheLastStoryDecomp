@@ -63,8 +63,8 @@ extern "C" void fn_802188B4(atn::Csv* csv, PlayerPriority_unk* entry) {
 // inferred: loads /boot/player_weapon_priority.csv and /boot/player_protector_priority.csv
 extern "C" void fn_802189EC() {
     atn::Csv csv;
-    sProtectors = new (1, "", "", 0) PlayerPriority_unk[7];
-    sWeapons = new (1, "", "", 0) PlayerPriority_unk[7];
+    sProtectors = new ((MemoryTag)1, "", "", 0) PlayerPriority_unk[7];
+    sWeapons = new ((MemoryTag)1, "", "", 0) PlayerPriority_unk[7];
     memset(sWeapons, 0, sizeof(PlayerPriority_unk) * 7);
     memset(sProtectors, 0, sizeof(PlayerPriority_unk) * 7);
 

@@ -171,7 +171,7 @@ inline void EfpData_unk::fn_80243FAC(int count, int heap, const char* name) {
     }
     mCount = count;
     if (count != 0) {
-        mElems = new (heap, "", "", 0) EfpElem_unk[count];
+        mElems = new ((MemoryTag)heap, "", "", 0) EfpElem_unk[count];
     } else {
         mElems = 0;
     }

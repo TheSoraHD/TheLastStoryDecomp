@@ -199,8 +199,8 @@ extern "C" void fn_8021F47C() {
             }
             lbl_8087F354++;
         }
-        lbl_8087F350 = new (1, "", "", 0) VoiceEntry_unk[lbl_8087F354];
-        lbl_8087F358 = new (1, "", "", 0) char[total];
+        lbl_8087F350 = new ((MemoryTag)1, "", "", 0) VoiceEntry_unk[lbl_8087F354];
+        lbl_8087F358 = new ((MemoryTag)1, "", "", 0) char[total];
         csv.SetData((const char*)data, size);
         int pos = 0;
         int index = 0;

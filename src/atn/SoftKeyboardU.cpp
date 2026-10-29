@@ -162,7 +162,7 @@ namespace MP {
 
 SoftKeyboard* SoftKeyboard::fn_80502974(atn::Task* parent) {
     if (lbl_8087F860 == 0) {
-        lbl_8087F860 = new (1, "", "", 0) SoftKeyboard(parent);
+        lbl_8087F860 = new ((MemoryTag)1, "", "", 0) SoftKeyboard(parent);
     }
     return lbl_8087F860;
 }

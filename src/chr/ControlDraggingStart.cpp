@@ -43,7 +43,7 @@ int ControlDraggedStart::vf0C() {
 // in r29 instead of r30; everything else matches. Tried: ControlBase*/cast, inline new in the
 // bind call, CharaTask*/Chara_unk* locals, explicit boost::function, ControlDragged ctor via chara/mChara.
 boost::function<void()> ControlDraggedStart::vf10() {
-    ControlDragged* next = new (1, "", "", 0) ControlDragged(mChara);
+    ControlDragged* next = new ((MemoryTag)1, "", "", 0) ControlDragged(mChara);
     // inferred: Chara_unk is CharaTask (the bound type name in the DOL is boost::_bi::value<CharaTask *>)
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }

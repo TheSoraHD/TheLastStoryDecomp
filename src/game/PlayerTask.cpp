@@ -10,9 +10,9 @@ PlayerTask* PlayerTask::fn_8054A3DC(atn::Task* parent, int type, void* data) {
     if (parent != 0) {
         CharaInfo_unk* info = fn_8020924C((int)data);
         if (info != 0 && info->m24 == 0x42) {
-            return new (3, "", "", 0) FriendArganan(parent, type, data);
+            return new ((MemoryTag)3, "", "", 0) FriendArganan(parent, type, data);
         }
-        return new (3, "", "", 0) PlayerTask(parent, type, data);
+        return new ((MemoryTag)3, "", "", 0) PlayerTask(parent, type, data);
     }
     return 0;
 }

@@ -156,7 +156,7 @@ ShopBuySell* ShopBuySell::sInstance;
 
 ShopBuySell* ShopBuySell::fn_80584FE4(atn::Task* parent, int kind, int a, int b) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) ShopBuySell(parent, kind, a, b);
+        sInstance = new ((MemoryTag)1, "", "", 0) ShopBuySell(parent, kind, a, b);
     }
     return sInstance;
 }

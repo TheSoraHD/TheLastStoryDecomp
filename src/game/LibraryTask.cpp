@@ -86,7 +86,7 @@ LibraryTask* LibraryTask::sInstance;
 
 LibraryTask* LibraryTask::fn_80468F54(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) LibraryTask(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) LibraryTask(parent);
     }
     return sInstance;
 }
@@ -238,7 +238,7 @@ void LibraryTask::vf1C(int state) {
                 fn_800D2338(mBook);
                 mBook = 0;
             }
-            mBook = new (1, "", "", 0) BookTask(this, book->mName, book->mTitle);
+            mBook = new ((MemoryTag)1, "", "", 0) BookTask(this, book->mName, book->mTitle);
             if (fn_80370174(lbl_8087F430, book->mId) == 1) {
                 fn_80370320(lbl_8087F430, book->mId, 2, 0);
             }

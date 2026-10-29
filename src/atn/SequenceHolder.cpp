@@ -39,7 +39,7 @@ SequenceHolder::SequenceHolder() : mCount(0) {
 // NONMATCHING: 97.25% - the inlined push_back loads the capacity before the size (known std/vector.h
 // problem, see vector::push_back) and the file pool has "" before "vector length error"
 int SequenceHolder::fn_800C3990(const SequenceUnit& unit) {
-    SequenceUnit* copy = new (1, "", "", 0) SequenceUnit(unit);
+    SequenceUnit* copy = new ((MemoryTag)1, "", "", 0) SequenceUnit(unit);
     copy->mId = ++mCount;
     mUnits.push_back(copy);
     return copy->mId;

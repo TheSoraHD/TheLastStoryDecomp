@@ -113,7 +113,7 @@ extern "C" PopupTask* lbl_8087F8A8;
 
 extern "C" PopupTask* fn_8054A6E8(atn::Task* parent) {
     if (lbl_8087F8A8 == 0) {
-        lbl_8087F8A8 = new (3, "", "", 0) PopupTask(parent);
+        lbl_8087F8A8 = new ((MemoryTag)3, "", "", 0) PopupTask(parent);
     }
     return lbl_8087F8A8;
 }

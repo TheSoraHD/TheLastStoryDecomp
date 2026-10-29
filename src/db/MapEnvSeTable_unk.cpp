@@ -34,7 +34,7 @@ struct EnvSe_unk {
 // inferred: atn::SimpleVector::reserve without the capacity check, that also empties the list (as
 // InitItems_unk of db/ItemRare_unk.cpp; its own "" literals in .sdata). Name invented.
 inline void InitList_unk(atn::SimpleVector<EnvSe_unk>& list, unsigned int n) {
-    EnvSe_unk* data = new (0, "", "", 0) EnvSe_unk[n];
+    EnvSe_unk* data = new ((MemoryTag)0, "", "", 0) EnvSe_unk[n];
     if (list.mData != 0) {
         unsigned int count = (n > list.mSize) ? list.mSize : n;
         for (unsigned int i = 0; i < count; i++) {
@@ -96,7 +96,7 @@ extern "C" void fn_802144A8() {
             count++;
         }
     }
-    sEntries = new (1, "", "", 0) MapEnvSe_unk[count];
+    sEntries = new ((MemoryTag)1, "", "", 0) MapEnvSe_unk[count];
     sCount = count;
     csv.SetData((const char*)data, size);
     count = 0;
@@ -134,7 +134,7 @@ extern "C" void fn_802144A8() {
             loadingCount++;
         }
     }
-    sLoading = new (1, "", "", 0) LoadingEnvSe_unk[loadingCount];
+    sLoading = new ((MemoryTag)1, "", "", 0) LoadingEnvSe_unk[loadingCount];
     sLoadingCount = loadingCount;
     csv.SetData((const char*)loadingData, size);
     loadingCount = 0;

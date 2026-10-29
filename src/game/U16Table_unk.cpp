@@ -91,7 +91,7 @@ extern "C" void fn_803CCF68(U16Table_unk* table, const unsigned short* values, u
     }
     runs.push_back(U16RunPair_unk(run, value));
     table->mRuns = runs.size();
-    table->mData = new (3, "", "", 0) U16Run_unk[table->mRuns];
+    table->mData = new ((MemoryTag)3, "", "", 0) U16Run_unk[table->mRuns];
     for (unsigned short i = 0; i < table->mRuns; i++) {
         table->mData[i].mCount = runs[i].mCount;
         table->mData[i].mValue = runs[i].mValue;
@@ -116,7 +116,7 @@ extern "C" void fn_803CD598(U16Table_unk* table, atn::Csv* csv, unsigned int cou
         runs.push_back(U16RunPair_unk(run, value));
     }
     table->mRuns = runs.size();
-    table->mData = new (3, "", "", 0) U16Run_unk[table->mRuns];
+    table->mData = new ((MemoryTag)3, "", "", 0) U16Run_unk[table->mRuns];
     for (unsigned short i = 0; i < table->mRuns; i++) {
         table->mData[i].mCount = runs[i].mCount;
         table->mData[i].mValue = runs[i].mValue;

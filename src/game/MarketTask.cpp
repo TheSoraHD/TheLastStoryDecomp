@@ -47,7 +47,7 @@ MarketTask* MarketTask::sInstance;
 
 MarketTask* MarketTask::fn_804A1DDC(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (3, "", "", 0) MarketTask(parent);
+        sInstance = new ((MemoryTag)3, "", "", 0) MarketTask(parent);
     }
     return sInstance;
 }

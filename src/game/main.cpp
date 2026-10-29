@@ -190,7 +190,7 @@ extern "C" FrameCallbacks_unk* lbl_8087EE94;
 // inferred: creates the list of per-frame callbacks (name invented)
 inline void CreateFrameCallbacks_unk() {
     if (lbl_8087EE94 == 0) {
-        lbl_8087EE94 = new (1, "", "", 0) FrameCallbacks_unk;
+        lbl_8087EE94 = new ((MemoryTag)1, "", "", 0) FrameCallbacks_unk;
     }
 }
 
@@ -281,7 +281,7 @@ void fn_8047A4C8() {
     fn_80071220();
     fn_800713D4(lbl_8087EEE0, 640, 448);
     OSReport("0\n");
-    lbl_8087F530 = new (1, "", "", 0) atn::Task(0);
+    lbl_8087F530 = new ((MemoryTag)1, "", "", 0) atn::Task(0);
     fn_80089620();
     fn_800B95C4();
     fn_80363CE4();
@@ -299,7 +299,7 @@ void fn_8047A4C8() {
     OSReport("0.2\n");
     SetConfig::sInstance->fn_8057EAF0();
     SequenceBoot_unk::Create_unk(lbl_8087F530);
-    lbl_8087F534 = new (1, "", "", 0) HeapInfo_unk;
+    lbl_8087F534 = new ((MemoryTag)1, "", "", 0) HeapInfo_unk;
     fn_800696C8();
     fn_8046D7D8(lbl_8087F530);
     OSReport("1\n");

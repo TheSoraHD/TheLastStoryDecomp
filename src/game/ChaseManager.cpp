@@ -78,7 +78,7 @@ inline void* GetMiniMap_unk() {
 
 ChaseManager* ChaseManager::fn_801823A8(atn::Task* parent) {
     if (parent != 0 && lbl_8087F098 == 0) {
-        lbl_8087F098 = new (3, "", "", 0) ChaseManager(parent);
+        lbl_8087F098 = new ((MemoryTag)3, "", "", 0) ChaseManager(parent);
     }
     return lbl_8087F098;
 }

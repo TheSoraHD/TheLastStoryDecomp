@@ -46,7 +46,7 @@ const char* const lbl_80885C78 = "savedata.dat"; // inferred: name of the save f
 const char* const lbl_80885C7C = "banner.bin";   // inferred: name of the banner file
 
 inline void GameSaveLoadBackgroundCommon::AllocBuffer_unk() {
-    m150 = new (1, sEmpty_unk, sEmpty_unk, 0) unsigned char[sizeof(GameSaveFile_unk)];
+    m150 = new ((MemoryTag)1, sEmpty_unk, sEmpty_unk, 0) unsigned char[sizeof(GameSaveFile_unk)];
     memset(m150, 0, sizeof(GameSaveFile_unk));
 }
 

@@ -53,7 +53,7 @@ extern "C" void fn_8006C6A0(char* buf, int font, int style, int size, int town) 
 // inferred: creates the font manager
 extern "C" void fn_8006C7FC() {
     if (lbl_8087EEC8 == 0) {
-        lbl_8087EEC8 = new (6, "", "", 0) Font_unk;
+        lbl_8087EEC8 = new ((MemoryTag)6, "", "", 0) Font_unk;
     }
 }
 
@@ -195,7 +195,7 @@ extern "C" int fn_8006D54C(Font_unk* self, int font, int style, int size, const 
     info.m04 = f04;
     info.m08 = f08;
     info.m0C = f0C;
-    info.m14 = f14;    info.mGlyphs = new (6, "", "", 0) FontGlyph_unk[info.mCount];
+    info.m14 = f14;    info.mGlyphs = new ((MemoryTag)6, "", "", 0) FontGlyph_unk[info.mCount];
     memcpy(info.mGlyphs, h + 1, info.mCount * sizeof(FontGlyph_unk));
     info.mFirst = info.mGlyphs[0].mCode;
     info.mLast = info.mGlyphs[info.mCount - 1].mCode;

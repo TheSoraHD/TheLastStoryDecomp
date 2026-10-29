@@ -49,7 +49,7 @@ extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: creates the render settings
 extern "C" void fn_800B95C4() {
     if (lbl_8087EFA8 == 0) {
-        lbl_8087EFA8 = new (6, "", "", 0) RenderSetting_unk;
+        lbl_8087EFA8 = new ((MemoryTag)6, "", "", 0) RenderSetting_unk;
     }
 }
 

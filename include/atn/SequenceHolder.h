@@ -86,7 +86,7 @@ public:
 // not inline and out of the class: its "" literals go to the file pool (@stringBase0)
 template <class T>
 int SequenceHolder::Regist_unk(const T& unit) {
-    T* copy = new (1, "", "", 0) T(unit);
+    T* copy = new ((MemoryTag)1, "", "", 0) T(unit);
     copy->mId = ++mCount;
     mUnits.push_back(copy);
     return copy->mId;

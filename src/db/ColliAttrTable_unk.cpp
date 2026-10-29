@@ -31,7 +31,7 @@ extern "C" void fn_8020AFF4() {
     atn::Csv csv;
     void* data;
     if (sEntries == 0) {
-        sEntries = new (1, "", "", 0) ColliAttrEntry_unk[0x21];
+        sEntries = new ((MemoryTag)1, "", "", 0) ColliAttrEntry_unk[0x21];
         for (int i = 0; i < 0x21; i++) {
             ColliAttrEntry_unk* entry = &sEntries[i];
             for (int j = 0; j < 3; j++) {

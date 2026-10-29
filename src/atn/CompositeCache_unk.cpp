@@ -175,7 +175,7 @@ CompositeCacheEntry_unk* CompositeCache_unk::fn_800D8624(const char* base, const
 // copies, see include/atn/LoadManager.h)
 CompositeCacheEntry_unk* CompositeCache_unk::fn_800D8698(const char* base, const CompositeLayerDesc_unk* layers,
                                                          int count) {
-    CompositeCacheEntry_unk* entry = new (6, "", "", 0) CompositeCacheEntry_unk(base, layers, count);
+    CompositeCacheEntry_unk* entry = new ((MemoryTag)6, "", "", 0) CompositeCacheEntry_unk(base, layers, count);
     mList.push_back(entry);
     return entry;
 }

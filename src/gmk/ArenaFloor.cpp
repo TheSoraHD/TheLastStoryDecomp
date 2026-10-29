@@ -50,7 +50,7 @@ namespace gmk {
 
 GimmickCommon* ArenaFloor::fn_8041DDE4(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) ArenaFloor(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) ArenaFloor(parent, id, arg);
     }
     return 0;
 }

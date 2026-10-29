@@ -165,7 +165,7 @@ const int D2AMpMenuCockpit::sMessages[8] = {0x124, 0x125, 0x126, 0x127, 0x128, 0
 
 D2AMpMenuCockpit* D2AMpMenuCockpit::fn_804B4C50(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) D2AMpMenuCockpit(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) D2AMpMenuCockpit(parent);
     }
     return sInstance;
 }

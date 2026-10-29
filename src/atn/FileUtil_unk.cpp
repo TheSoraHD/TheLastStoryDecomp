@@ -281,7 +281,7 @@ DebugMessages_unk* lbl_8087EEB8;
 
 extern "C" void fn_800696C8() {
     if (lbl_8087EEB8 == 0) {
-        lbl_8087EEB8 = new (1, "", "", 0) DebugMessages_unk;
+        lbl_8087EEB8 = new ((MemoryTag)1, "", "", 0) DebugMessages_unk;
     }
 }
 

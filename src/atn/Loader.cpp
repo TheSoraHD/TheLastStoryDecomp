@@ -238,7 +238,7 @@ namespace atn {
 
 extern "C" Loader* fn_8046D7D8(Task* parent) {
     if (lbl_8087F518 == 0 && parent != 0) {
-        lbl_8087F518 = new (1, "", "", 0) Loader(parent);
+        lbl_8087F518 = new ((MemoryTag)1, "", "", 0) Loader(parent);
     }
     return lbl_8087F518;
 }
@@ -667,7 +667,7 @@ extern "C" PfsArchive_unk* fn_8046EF08(Loader* loader, const char* name, const c
     if (preload == 0) {
         flags |= 2;
     }
-    archive = new (2, "", "", 0) PfsArchive_unk(name, index, flags);
+    archive = new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name, index, flags);
     loader->mArchives.push_back(archive);
     return archive;
 }
@@ -677,15 +677,15 @@ extern "C" PfsArchive_unk* fn_8046EF08(Loader* loader, const char* name, const c
 extern "C" void fn_8046F014(Loader* loader) {
     const char* index = "pack/filesystem.pkh";
     const char* name = "pack/filesystem.pk";
-    loader->mMounted.push_back(new (2, "", "", 0) PfsArchive_unk(name, index, 0));
+    loader->mMounted.push_back(new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name, index, 0));
     const char* name2;
     const char* index2 = "pack/eventpacks.pkh";
     name2 = "pack/eventpacks.pk";
-    loader->mMounted.push_back(new (2, "", "", 0) PfsArchive_unk(name2, index2, 0));
+    loader->mMounted.push_back(new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name2, index2, 0));
     const char* name3;
     const char* index3 = "pack/levels.pkh";
     name3 = "pack/levels.pk";
-    loader->mMounted.push_back(new (2, "", "", 0) PfsArchive_unk(name3, index3, 0));
+    loader->mMounted.push_back(new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name3, index3, 0));
 }
 
 extern "C" void fn_8046F2C4(Loader* loader) {

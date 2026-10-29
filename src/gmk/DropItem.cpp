@@ -211,7 +211,7 @@ inline bool IsBlocked_unk(DropAttack_unk attack) {
 
 extern "C" GimmickCommon* fn_804093B4(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) gmk::DropItem(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) gmk::DropItem(parent, id, arg);
     }
     return 0;
 }

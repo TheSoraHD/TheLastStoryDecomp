@@ -32,7 +32,7 @@ NamedAllocator_unk* lbl_8087F878;
 extern "C" void fn_8050D3E8() {
     atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     mgr->mUseMutex = 1;
-    lbl_8087F878 = (NamedAllocator_unk*)new (5, "", "", 0) atn::DLAllocator;
+    lbl_8087F878 = (NamedAllocator_unk*)new ((MemoryTag)5, "", "", 0) atn::DLAllocator;
     void* base = atn::MemoryManager::Instance()->AllocFromMem2(0x100000, 0x20, (MemoryTag)5, "", "", 0, 0);
     fn_80084EE8__Q23atn11DLAllocatorFPvUl((atn::DLAllocator*)lbl_8087F878, base, 0x100000, "DwcAllocator");
 }

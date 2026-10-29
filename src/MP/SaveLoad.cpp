@@ -25,12 +25,12 @@ inline SaveWork_unk::SaveWork_unk() {
 }
 
 SaveLoad* SaveLoad::fn_805020FC(atn::Task* parent) {
-    return new (1, "", "", 0) SaveLoad(parent);
+    return new ((MemoryTag)1, "", "", 0) SaveLoad(parent);
 }
 
 SaveLoad::SaveLoad(atn::Task* parent)
     : atn::Task(parent), m48(0), m4C(-1), m50(-1), mLoad(0), mSave(0), mState(0), mError(0) {
-    mWork.reset(new (1, "", "", 0) SaveWork_unk);
+    mWork.reset(new ((MemoryTag)1, "", "", 0) SaveWork_unk);
     mLoad = GameLoadBackground::fn_803B33F8(this);
     mSave = GameSaveBackground::fn_803B8C6C(this);
 }
@@ -52,14 +52,14 @@ void SaveLoad::vf10() {
                 char name[0x100];
                 int size;
                 GameSaveLoadBackgroundCommon::fn_803B8454(name, &size);
-                mBuffer.reset(new (1, "", "", 0) unsigned char[(req->mSize + 31) & ~31]);
+                mBuffer.reset(new ((MemoryTag)1, "", "", 0) unsigned char[(req->mSize + 31) & ~31]);
                 mLoad->fn_803B3530(name, (int)mBuffer.mPtr, (req->mSize + 31) & ~31, size);
                 mState = 1;
             } else if (req->mType[0] == 1) {
                 char name[0x100];
                 int size;
                 GameSaveLoadBackgroundCommon::fn_803B8454(name, &size);
-                mBuffer.reset(new (1, "", "", 0) unsigned char[(req->mSize + 31) & ~31]);
+                mBuffer.reset(new ((MemoryTag)1, "", "", 0) unsigned char[(req->mSize + 31) & ~31]);
                 memcpy(mBuffer.mPtr, req->mData, req->mSize);
                 mSave->fn_803B8F50(name, mBuffer.mPtr, req->mSize, size, 1);
                 mState = 2;

@@ -151,7 +151,7 @@ D2AMpMenuFriendRoom* D2AMpMenuFriendRoom::sInstance;
 
 D2AMpMenuFriendRoom* D2AMpMenuFriendRoom::fn_804B9D44(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) D2AMpMenuFriendRoom(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) D2AMpMenuFriendRoom(parent);
     }
     return sInstance;
 }

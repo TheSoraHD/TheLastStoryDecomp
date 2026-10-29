@@ -71,7 +71,7 @@ extern "C" void fn_8021ED08() {
                 sCount++;
             }
         }
-        sEntries = new (12, "", "", 0) TutorialEntry_unk[sCount];
+        sEntries = new ((MemoryTag)12, "", "", 0) TutorialEntry_unk[sCount];
         std::string text;
         csv.Reset_unk();
         int i = 0;

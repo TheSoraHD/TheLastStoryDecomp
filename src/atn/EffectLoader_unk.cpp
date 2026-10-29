@@ -186,7 +186,7 @@ extern "C" void fn_80238808(EffectResData_unk* res) {
 // inferred: the channels of the emitters left at their default values (old versions compute them)
 extern "C" void fn_80238CA0(EffectFileHeader_unk* header, EffectResData_unk* res) {
     if (header->mVersion <= 0x23) {
-        res->m30 = new (7, "", "", 0) unsigned int[res->mCount];
+        res->m30 = new ((MemoryTag)7, "", "", 0) unsigned int[res->mCount];
         for (unsigned int i = 0; i < res->mCount; i++) {
             EffectEmitterData_unk* em = &res->mEmitters[i];
             res->m30[i] = 0;
@@ -276,14 +276,14 @@ extern "C" int fn_80239030(EffectFileHeader_unk* header, EffectResData_unk* res)
     }
     if (res->mVersion <= 0x23) {
         unsigned int* src = (unsigned int*)header->mEmitterCurves;
-        res->mEmitterCurves = new (7, "", "", 0) EffectCurveData_unk[res->mCount][22];
+        res->mEmitterCurves = new ((MemoryTag)7, "", "", 0) EffectCurveData_unk[res->mCount][22];
         for (unsigned int i = 0; i < res->mCount; i++) {
             for (int c = 0; c < 22; c++) {
                 unsigned int n = *src;
                 EffectCurveData_unk* curve = &res->mEmitterCurves[i][c];
                 curve->mCount = SWAP32_UNK(n);
                 src++;
-                curve->mKeys = new (7, "", "", 0) EffectKeyData_unk[SWAP32_UNK(n)];
+                curve->mKeys = new ((MemoryTag)7, "", "", 0) EffectKeyData_unk[SWAP32_UNK(n)];
                 memcpy(curve->mKeys, src, curve->mCount * sizeof(EffectKeyData_unk));
                 for (unsigned int k = 0; k < curve->mCount; k++) {
                     fn_802371BC((unsigned char*)&curve->mKeys[k], sKeyDesc);
@@ -312,14 +312,14 @@ extern "C" int fn_80239030(EffectFileHeader_unk* header, EffectResData_unk* res)
     }
     if (res->mVersion <= 0x23) {
         unsigned int* src = (unsigned int*)header->mDefCurves;
-        res->mDefCurves = new (7, "", "", 0) EffectCurveData_unk[res->mDefCount][13];
+        res->mDefCurves = new ((MemoryTag)7, "", "", 0) EffectCurveData_unk[res->mDefCount][13];
         for (unsigned int i = 0; i < res->mDefCount; i++) {
             for (int c = 0; c < 13; c++) {
                 unsigned int n = *src;
                 EffectCurveData_unk* curve = &res->mDefCurves[i][c];
                 curve->mCount = SWAP32_UNK(n);
                 src++;
-                curve->mKeys = new (7, "", "", 0) EffectKeyData_unk[SWAP32_UNK(n)];
+                curve->mKeys = new ((MemoryTag)7, "", "", 0) EffectKeyData_unk[SWAP32_UNK(n)];
                 memcpy(curve->mKeys, src, curve->mCount * sizeof(EffectKeyData_unk));
                 for (unsigned int k = 0; k < curve->mCount; k++) {
                     fn_802371BC((unsigned char*)&curve->mKeys[k], sKeyDesc);
@@ -351,7 +351,7 @@ extern "C" int fn_80239030(EffectFileHeader_unk* header, EffectResData_unk* res)
         res->mDefEnabled[i] = ((int*)header->mDefEnabled)[i] != 0;
     }
     if (res->mVersion <= 0x23) {
-        res->m34 = new (7, "", "", 0) unsigned int[res->mTextureCount];
+        res->m34 = new ((MemoryTag)7, "", "", 0) unsigned int[res->mTextureCount];
     } else {
         res->m34 = (unsigned int*)header->m44;
     }

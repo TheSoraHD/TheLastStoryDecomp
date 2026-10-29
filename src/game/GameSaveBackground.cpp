@@ -21,7 +21,7 @@ extern "C" int lbl_8087F434;
 
 GameSaveBackground* GameSaveBackground::fn_803B8C6C(atn::Task* parent) {
     if (parent != 0) {
-        return new (1, "", "", 0) GameSaveBackground(parent);
+        return new ((MemoryTag)1, "", "", 0) GameSaveBackground(parent);
     }
     return 0;
 }

@@ -142,7 +142,7 @@ static void MoveDone_unk(int result, NandBlock_unk* block) {
 
 extern "C" NandManager* fn_800A2C48(Task* parent) {
     if (lbl_8087EF68 == 0) {
-        lbl_8087EF68 = new (1, "", "", 0) NandManager(parent);
+        lbl_8087EF68 = new ((MemoryTag)1, "", "", 0) NandManager(parent);
     }
     return lbl_8087EF68;
 }

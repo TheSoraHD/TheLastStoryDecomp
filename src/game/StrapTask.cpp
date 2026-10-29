@@ -47,7 +47,7 @@ extern "C" void fn_8057155C(void* obj, int arg);
 
 StrapTask* StrapTask::fn_805A6208(atn::Task* parent) {
     if (parent != 0) {
-        return new (1, "", "", 0) StrapTask(parent);
+        return new ((MemoryTag)1, "", "", 0) StrapTask(parent);
     }
     return 0;
 }

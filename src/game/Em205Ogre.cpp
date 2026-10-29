@@ -139,7 +139,7 @@ Em205Ogre::Em205Ogre(atn::Task* parent, EnemyInfo_unk* info)
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
         MapInfo_unk* map = fn_80373148(lbl_8087F430);
         if (map->m48 == 2 && map->m4C == 10 && map->m50 == 2) {
-            m1514.reset(new (3, "", "", 0) atn::EffFile());
+            m1514.reset(new ((MemoryTag)3, "", "", 0) atn::EffFile());
             m1514->LoadRequest("/data/eff/gm001_000a02.eff");
         }
     }
@@ -672,6 +672,6 @@ boost::function<void()> Em205Ogre::vfB4(CharaTask* chara) {
     atn::Vector3 target;
     vfB0(&target);
     atn::Vector3 land = ((chr::ControlMoveCursor*)chara->mControl.get())->m14;
-    chr::ControlWallSlash* next = new (0, "", "", 0) chr::ControlWallSlash(chara, target, &land);
+    chr::ControlWallSlash* next = new ((MemoryTag)0, "", "", 0) chr::ControlWallSlash(chara, target, &land);
     return boost::bind(&CharaTask::fn_80178208, chara, next);
 }

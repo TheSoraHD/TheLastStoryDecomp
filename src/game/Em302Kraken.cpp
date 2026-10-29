@@ -739,7 +739,7 @@ boost::function<void()> Em302Kraken::vfB4(CharaTask* chara) {
     fn_8016E970(3);
     m1600 = 0;
     chr::ControlThrustForKraken* next =
-        new (0, "", "", 0) chr::ControlThrustForKraken(chara, (int)this, chara->mPos);
+        new ((MemoryTag)0, "", "", 0) chr::ControlThrustForKraken(chara, (int)this, chara->mPos);
     return boost::bind(&CharaTask::fn_80178208, chara, next);
 }
 

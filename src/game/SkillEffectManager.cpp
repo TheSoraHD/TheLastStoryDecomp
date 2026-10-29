@@ -115,7 +115,7 @@ static const char* const sEfpName12 = sEfp12;
 
 SkillEffectManager* SkillEffectManager::fn_8059AB98(atn::Task* parent) {
     if (parent != 0 && lbl_8087F9E8 == 0) {
-        lbl_8087F9E8 = new (1, "", "", 0) SkillEffectManager(parent);
+        lbl_8087F9E8 = new ((MemoryTag)1, "", "", 0) SkillEffectManager(parent);
     }
     return lbl_8087F9E8;
 }

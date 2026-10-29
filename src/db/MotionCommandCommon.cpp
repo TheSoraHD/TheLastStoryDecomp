@@ -14,7 +14,7 @@ inline MotionCommandCommon::MotionCommandCommon(atn::Task* parent) : atn::Task(p
 
 MotionCommandCommon* MotionCommandCommon::fn_80218720(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) MotionCommandCommon(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) MotionCommandCommon(parent);
     }
     return sInstance;
 }

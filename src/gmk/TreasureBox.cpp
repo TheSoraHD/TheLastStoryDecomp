@@ -75,7 +75,7 @@ namespace gmk {
 
 GimmickCommon* TreasureBox::fn_8040DC30(atn::Task* parent, int id, int arg) {
     if (parent != 0) {
-        return new (12, "", "", 0) TreasureBox(parent, id, arg);
+        return new ((MemoryTag)12, "", "", 0) TreasureBox(parent, id, arg);
     }
     return 0;
 }

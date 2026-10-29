@@ -245,7 +245,7 @@ inline void Show_unk(MpD2A_unk* task) {
 }
 D2AMpMenuResult* D2AMpMenuResult::fn_804C566C(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) D2AMpMenuResult(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) D2AMpMenuResult(parent);
     }
     return sInstance;
 }

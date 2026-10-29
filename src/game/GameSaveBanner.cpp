@@ -39,7 +39,7 @@ inline GameSaveBanner::GameSaveBanner(atn::Task* parent, GameSaveBackground* bac
 
 GameSaveBanner* GameSaveBanner::fn_803B9044(atn::Task* parent, GameSaveBackground* background) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) GameSaveBanner(parent, background);
+        sInstance = new ((MemoryTag)1, "", "", 0) GameSaveBanner(parent, background);
     }
     return sInstance;
 }

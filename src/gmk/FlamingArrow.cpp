@@ -171,7 +171,7 @@ namespace gmk {
 
 GimmickCommon* FlamingArrow::fn_80416F74(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) FlamingArrow(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) FlamingArrow(parent, desc);
     }
     return 0;
 }

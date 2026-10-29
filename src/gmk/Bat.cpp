@@ -123,7 +123,7 @@ inline Bat::Bat(atn::Task* parent, GimmickDesc_unk* desc)
 
 GimmickCommon* Bat::fn_80402978(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
-        return new (12, "", "", 0) Bat(parent, desc);
+        return new ((MemoryTag)12, "", "", 0) Bat(parent, desc);
     }
     return 0;
 }

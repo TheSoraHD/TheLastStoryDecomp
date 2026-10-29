@@ -226,10 +226,10 @@ boost::function<void()> ControlWallUp::vf10() {
         if (m50 != 0) {
             return m50->vfB4(mChara);
         }
-        ControlWallSlash* next = new (0, "", "", 0) ControlWallSlash(mChara, m08, 0);
+        ControlWallSlash* next = new ((MemoryTag)0, "", "", 0) ControlWallSlash(mChara, m08, 0);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
     }
-    ControlWallDown* next = new (0, "", "", 0) ControlWallDown(mChara, m14);
+    ControlWallDown* next = new ((MemoryTag)0, "", "", 0) ControlWallDown(mChara, m14);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
 

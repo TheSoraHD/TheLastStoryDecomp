@@ -107,7 +107,7 @@ extern "C" void fn_802196D0() {
             }
             sCount++;
         }
-        sEntries = new (12, "", "", 0) ReverbPreset_unk[sCount];
+        sEntries = new ((MemoryTag)12, "", "", 0) ReverbPreset_unk[sCount];
         fn_8004A03C(lbl_8087EE90);
         csv.SetData((const char*)data, size);
         int i = 0;

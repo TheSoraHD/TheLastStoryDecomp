@@ -125,7 +125,7 @@ extern "C" void fn_80210ACC() {
     sCount += 0x100;
     sEntries = (ItemParamEntry_unk*)atn::MemoryManager::Instance()->AllocFromMem2(sCount * sizeof(ItemParamEntry_unk), 0x20, (MemoryTag)1, "", "",
                                                  0, 0);
-    sBuf = new (1, "", "", 0) char[a];
+    sBuf = new ((MemoryTag)1, "", "", 0) char[a];
     csv.SetData((const char*)data, size);
     int i = 0;
     csv.fn_8005BBF8();
@@ -218,7 +218,7 @@ extern "C" void fn_80211244() {
                 fn_80219F1C(&csv, &a, &b);
             }
         }
-        sTexts = new (1, "", "", 0) wchar_t[b];
+        sTexts = new ((MemoryTag)1, "", "", 0) wchar_t[b];
         csv.SetData((const wchar_t*)data, size / 2);
         csv.fn_8005BBF8();
         a = 0;
@@ -322,7 +322,7 @@ extern "C" const wchar_t* fn_80211770(int id, int slot) {
         slot = 0x100;
     }
     if (sNames == 0) {
-        sNames = new (1, "", "", 0) ItemName_unk[0x101];
+        sNames = new ((MemoryTag)1, "", "", 0) ItemName_unk[0x101];
     }
     wchar_t* name = sNames[slot];
     wcscpy(name, entry->mName);

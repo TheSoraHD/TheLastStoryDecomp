@@ -51,7 +51,7 @@ extern "C" void fn_802078C4() {
             count++;
         }
     }
-    lbl_8087F180 = new (1, "", "", 0) BattleEffSeEntry_unk[count];
+    lbl_8087F180 = new ((MemoryTag)1, "", "", 0) BattleEffSeEntry_unk[count];
     lbl_8087F184 = count;
     csv.SetData((const char*)data, size);
     offset = 0;

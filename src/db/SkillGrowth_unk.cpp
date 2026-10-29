@@ -70,7 +70,7 @@ extern "C" void fn_8021AAB8() {
                 sCount++;
             }
         }
-        sEntries = new (12, "", "", 0) SkillGrowth_unk[sCount];
+        sEntries = new ((MemoryTag)12, "", "", 0) SkillGrowth_unk[sCount];
         csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {
@@ -100,7 +100,7 @@ extern "C" void fn_8021AAB8() {
             total += wcslen(wcsv.fn_8005B9CC()) + 1;
             total += wcslen(wcsv.fn_8005B9CC()) + 1;
         }
-        sTexts = new (12, "", "", 0) wchar_t[total];
+        sTexts = new ((MemoryTag)12, "", "", 0) wchar_t[total];
         int pos;
         int ofs = 0; // inferred: byte offset of the row (not an index: its 0 is set before vf08)
         pos = 0;

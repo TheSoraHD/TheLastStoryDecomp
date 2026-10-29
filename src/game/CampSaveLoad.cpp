@@ -131,7 +131,7 @@ MenuLoadTask* MenuLoadTask::sInstance;
 
 MenuSaveTask* MenuSaveTask::fn_8011770C(atn::Task* parent) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) MenuSaveTask(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) MenuSaveTask(parent);
     }
     return sInstance;
 }
@@ -156,7 +156,7 @@ void MenuSaveTask::vf20() {
 
 MenuLoadTask* MenuLoadTask::fn_80117914(atn::Task* parent, CampSaveData_unk* data) {
     if (sInstance == 0) {
-        sInstance = new (1, "", "", 0) MenuLoadTask(parent, data);
+        sInstance = new ((MemoryTag)1, "", "", 0) MenuLoadTask(parent, data);
     }
     return sInstance;
 }

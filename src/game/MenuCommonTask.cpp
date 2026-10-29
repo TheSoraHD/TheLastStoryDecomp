@@ -65,7 +65,7 @@ MenuCommonTask* MenuCommonTask::sInstance;
 
 MenuCommonTask* MenuCommonTask::fn_804A29C4(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new (1, "", "", 0) MenuCommonTask(parent);
+        sInstance = new ((MemoryTag)1, "", "", 0) MenuCommonTask(parent);
     }
     return sInstance;
 }

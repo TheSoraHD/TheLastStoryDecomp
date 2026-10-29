@@ -47,7 +47,7 @@ inline void __Vec3Set_unk(atn::Vector3& v, float x, float y, float z) {
 
 MapPartsModel* MapPartsModel::fn_8049B9B8(atn::Task* parent, void* arg, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new (12, "", "", 0) MapPartsModel(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsModel(parent, arg, csv);
     }
     return 0;
 }

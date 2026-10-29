@@ -89,7 +89,7 @@ TextAnimation::TextAnimation(Task* parent) : Task(parent), mA0(-1), mA4(-1), mA8
 // inferred: returns the instance, created on first use
 extern "C" TextAnimation* fn_800D94F8(Task* parent) {
     if (lbl_8087F008 == 0) {
-        lbl_8087F008 = new (1, "", "", 0) TextAnimation(parent);
+        lbl_8087F008 = new ((MemoryTag)1, "", "", 0) TextAnimation(parent);
     }
     return lbl_8087F008;
 }

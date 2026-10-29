@@ -44,7 +44,7 @@ extern "C" void fn_80207310() {
             }
             sCount++;
         }
-        sEntries = new (3, "", "", 0) ArrowSetEntry_unk[sCount];
+        sEntries = new ((MemoryTag)3, "", "", 0) ArrowSetEntry_unk[sCount];
         csv.SetData((const char*)data, size);
         int i = 0;
         while (csv.fn_8005BBF8() != 0) {

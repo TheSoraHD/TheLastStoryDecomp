@@ -49,7 +49,7 @@ extern "C" void fn_8020DF88() {
         }
     }
     count += 0x80;
-    sEntries = new (3, "", "", 0) EquipParamEntry_unk[count];
+    sEntries = new ((MemoryTag)3, "", "", 0) EquipParamEntry_unk[count];
     sCount = count;
     csv.SetData((const char*)data, size);
     int i = 0;
@@ -184,7 +184,7 @@ extern "C" void fn_8020EB0C() {
         csv.fn_8005B9CC();
         length += wcslen(csv.fn_8005B9CC()) + 1;
     }
-    sTexts = new (3, "", "", 0) wchar_t[length];
+    sTexts = new ((MemoryTag)3, "", "", 0) wchar_t[length];
     int pos = 0;
     csv.Reset_unk();
     int i = 0;
