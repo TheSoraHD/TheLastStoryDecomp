@@ -2,6 +2,7 @@
 #include "math/Vec.h"
 
 namespace atn {
+
 class SoundCore {
 public:
     int fn_800CA028();
@@ -19,7 +20,7 @@ public:
     void fn_800CA6C4(int);
     void fn_800CA3D4();
 };
-}
+} // namespace atn
 extern "C" void fn_80709F20(void*);
 extern "C" int fn_8070ABE0(void*);
 extern "C" void fn_80709AD0(void*, int);
@@ -62,7 +63,6 @@ void SoundRef::Reset() {
         mPtr = 0;
     }
 }
-
 } // namespace atn
 
 extern "C" int fn_800CB4A4(atn::SoundRef* self) {
@@ -150,11 +150,10 @@ extern "C" int fn_800CB6F8(atn::SoundRef* self) {
 extern "C" void fn_800CB714(void* self, int a1, unsigned long a2, int a3) {
     reinterpret_cast<atn::SoundCore*>(self)->fn_800CA1D4(a1, a2, a3);
 }
-
-extern "C" void fn_800CB7F0(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA144(value); }
-extern "C" void fn_800CB7F4(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA514(value); }
-extern "C" void fn_800CB7F8(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA6C4(value); }
-extern "C" void fn_800CB7FC(void* self) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA3D4(); }
+extern "C" void fn_800CB7F0(void* self, int value);
+extern "C" void fn_800CB7F4(void* self, int value);
+extern "C" void fn_800CB7F8(void* self, int value);
+extern "C" void fn_800CB7FC(void* self);
 
 // NONMATCHING: 94.29% - MWCC genera otra secuencia para convertir frames == 0 a int.
 extern "C" void fn_800CB718(atn::SoundObject* self, int frames, int onlyWhenUnused) {
@@ -171,6 +170,14 @@ extern "C" void fn_800CB788(atn::SoundObject* self, int frames) {
     }
 }
 
+extern "C" void fn_800CB7F0(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA144(value); }
+
+extern "C" void fn_800CB7F4(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA514(value); }
+
+extern "C" void fn_800CB7F8(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA6C4(value); }
+
+extern "C" void fn_800CB7FC(void* self) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA3D4(); }
+
 void operator delete(void*);
 
 extern "C" void fn_800CDD40(char* state) {
@@ -182,6 +189,19 @@ extern "C" void* fn_800CDD4C(void* ptr, int shouldDelete) {
         ::operator delete(ptr);
     }
     return ptr;
+}
+extern "C" int fn_800D089C(void* manager, int category, int onlyIdle);
+
+extern "C" void fn_800D0180(void* closure, void* arg) {
+    typedef void (*Callback)(void*, void*);
+    Callback callback = reinterpret_cast<Callback>(*(void**)closure);
+    callback(arg, *(void**)((char*)closure + 4));
+}
+
+extern "C" void fn_800D07E8(void* closure, void* arg) {
+    typedef void (*Callback)(void*);
+    Callback callback = reinterpret_cast<Callback>(*(void**)closure);
+    callback(arg);
 }
 
 // inferred: each pool entry contains two SoundCore records, each 0x14C bytes.
@@ -215,16 +235,4 @@ categoryReady:
         }
     }
     return count;
-}
-
-extern "C" void fn_800D0180(void* closure, void* arg) {
-    typedef void (*Callback)(void*, void*);
-    Callback callback = reinterpret_cast<Callback>(*(void**)closure);
-    callback(arg, *(void**)((char*)closure + 4));
-}
-
-extern "C" void fn_800D07E8(void* closure, void* arg) {
-    typedef void (*Callback)(void*);
-    Callback callback = reinterpret_cast<Callback>(*(void**)closure);
-    callback(arg);
 }

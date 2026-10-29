@@ -157,6 +157,7 @@ inline unsigned int fn_ToU8(const float& f) {
         D2A_XFORM_DUAL_AT(FN, rect.x + outline.x, rect.y + outline.y); D2A_XFORM_DUAL_AT(FN, rect.x + outline.x, rect.y - outline.y); \
         D2A_XFORM_DUAL_AT(FN, rect.x - outline.x, rect.y - outline.y); D2A_XFORM_DUAL_AT(FN, rect.x - outline.x, rect.y + outline.y); \
     }
+
 namespace atn {
 
 // NONMATCHING: 99.83% - two saved-register moves are emitted in the opposite order.
@@ -218,20 +219,7 @@ void D2A_Texture::vf0C() {
     }
 }
 
-void D2A_Texture::vf10() {}
 void D2A_Texture::vf14() {}
-int D2A_Texture::vf1C() {
-    if (((GimmickUvOwner_unk*)&mTexture0)->fn_800D59B8() != 0) {
-        return 1;
-    }
-    if ((m10 & 8) == 8) {
-        if (((GimmickUvOwner_unk*)&mTexture1)->fn_800D59B8() != 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
-void D2A_Texture::vf20() { fn_801EDCB8(this); }
 
 struct Color4f_unk {
     Color4f_unk() {}
@@ -394,7 +382,19 @@ void D2A_Texture::vf18() {
     }
 }
 
+void D2A_Texture::vf10() {}
 
+int D2A_Texture::vf1C() {
+    if (((GimmickUvOwner_unk*)&mTexture0)->fn_800D59B8() != 0) {
+        return 1;
+    }
+    if ((m10 & 8) == 8) {
+        if (((GimmickUvOwner_unk*)&mTexture1)->fn_800D59B8() != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 // inferred: packed pointer-array view used by the D2A_Layout_unk helpers.
 struct D2A_PointerArray_unk {
@@ -402,282 +402,78 @@ struct D2A_PointerArray_unk {
     unsigned int mCapacity;
     void** mData;
 };
+extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, const void* value);
+extern "C" void fn_801FE91C(atn::D2A_Layout_unk* layout, const void* value);
+extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, const void* value);
+extern "C" void fn_801FEA1C(atn::D2A_Layout_unk* layout, const void* value);
+extern "C" void fn_801FEA9C(atn::D2A_Layout_unk* layout, const void* value);
+extern "C" void fn_801FEB1C(atn::D2A_Layout_unk* layout, const void* value);
+extern "C" void* fn_801FEB9C(atn::D2A_Layout_unk* layout, const char* name);
+extern "C" void* fn_801FEC08(atn::D2A_Layout_unk* layout, const char* name);
+extern "C" void* fn_801FEC74(atn::D2A_Layout_unk* layout, const char* name);
+static void SetLayoutFloat_unk(D2A_PointerArray_unk* array, unsigned int hash, int index, float value);
+extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
+extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
+extern "C" void fn_801FED70(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
+extern "C" void fn_801FEDBC(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
+extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int value);
+extern "C" void fn_801FEE08(atn::D2A_Layout_unk* layout, unsigned int hash, const wchar_t* value);
+extern "C" void fn_801FEF40(atn::D2A_Layout_unk* layout, int frame);
+extern "C" void fn_801FE090(D2A_Layout_unk* layout, const unsigned int* counts);
 
-extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x00);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) {
-                return;
-            }
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
+// NONMATCHING: the path normalization and string temporaries still differ from MWCC.
+extern "C" int fn_801FD5A0(atn::D2A_Texture* texture, const char* path, int arg) {
+    char fullPath[0x100];
+    strcpy(fullPath, path);
+    std::string name = fn_8006B174(std::string(fullPath));
+    std::string base = fn_8006B2D8(name);
+    if (base.size() >= 3 && base.substr(base.size() - 3) == "_jp") {
+        base.replace(base.size() - 3, 3, "_xx");
     }
-}
-extern "C" void fn_801FE91C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x0C);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
+    base += ".texture";
+    strcpy(fullPath, base.c_str());
+    if (arg == 0) {
+        return 1;
     }
-}
-extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x18);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
+    fn_800D58A4(&texture->mTexture0);
+    if (fullPath[0] == 0) {
+        fn_800D5908(&texture->mTexture0, lbl_8073E57C + 0x26);
+    } else {
+        fn_800D5908(&texture->mTexture0, fullPath);
     }
-}
-extern "C" void fn_801FEA1C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x24);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
-}
-extern "C" void fn_801FEA9C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x30);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
-}
-extern "C" void fn_801FEB1C(atn::D2A_Layout_unk* layout, const void* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x3C);
-    void** data = array->mData;
-    void** end = data + array->mSize;
-    void** it = data;
-    while (it != end) {
-        if (*it == value) {
-            if (it == end) return;
-            unsigned int index = it - data;
-            unsigned int offset = index * 4;
-            while (index < array->mSize - 1) {
-                data = (void**)array->mData;
-                void** entry = (void**)((char*)data + offset);
-                index++;
-                offset += 4;
-                entry[0] = entry[1];
-            }
-            array->mSize = array->mSize - 1;
-            return;
-        }
-        it++;
-    }
+    texture->mTexture0.m2D = 1;
+    texture->mTexture0.m2E = 1;
+    return 1;
 }
 
-// NONMATCHING: 97.96% - hash lookup differs only in pointer-register assignment.
-extern "C" void* fn_801FEB9C(atn::D2A_Layout_unk* layout, const char* name) {
-    unsigned int hash = fn_800DC6B4(name);
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x00);
-    void** end = array->mData + array->mSize;
-    void** it = array->mData;
-    while (it != end) {
-        void* value = *it;
-        if (*(unsigned int*)value == hash) {
-            return value;
-        }
-        it++;
+// NONMATCHING: mirrors fn_801FD5A0; this overload rejects an empty source path.
+extern "C" int fn_801FDA20(atn::D2A_Texture* texture, const char* path, int arg) {
+    if (*path == 0) {
+        return 0;
     }
-    return 0;
-}
-// NONMATCHING: 97.96% - hash lookup differs only in pointer-register assignment.
-extern "C" void* fn_801FEC08(atn::D2A_Layout_unk* layout, const char* name) {
-    unsigned int hash = fn_800DC6B4(name);
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x0C);
-    void** end = array->mData + array->mSize;
-    void** it = array->mData;
-    while (it != end) {
-        void* value = *it;
-        if (*(unsigned int*)value == hash) {
-            return value;
-        }
-        it++;
+    char fullPath[0x100];
+    strcpy(fullPath, path);
+    std::string name = fn_8006B174(std::string(fullPath));
+    std::string base = fn_8006B2D8(name);
+    if (base.size() >= 3 && base.substr(base.size() - 3) == "_jp") {
+        base.replace(base.size() - 3, 3, "_xx");
     }
-    return 0;
-}
-// NONMATCHING: 97.96% - hash lookup differs only in pointer-register assignment.
-extern "C" void* fn_801FEC74(atn::D2A_Layout_unk* layout, const char* name) {
-    unsigned int hash = fn_800DC6B4(name);
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x30);
-    void** end = array->mData + array->mSize;
-    void** it = array->mData;
-    while (it != end) {
-        void* value = *it;
-        if (*(unsigned int*)value == hash) {
-            return value;
-        }
-        it++;
+    base += ".texture";
+    strcpy(fullPath, base.c_str());
+    if (arg == 0) {
+        return 1;
     }
-    return 0;
+    fn_800D58A4(&texture->mTexture1);
+    fn_800D5908(&texture->mTexture1, fullPath);
+    texture->mTexture1.m2D = 1;
+    texture->mTexture1.m2E = 1;
+    return 1;
 }
 
-static void SetLayoutFloat_unk(D2A_PointerArray_unk* array, unsigned int hash, int index, float value) {
-    void** it = array->mData;
-    void** end = it + array->mSize;
-    while (it != end) {
-        atn::D2A_Anim_unk<1>* anim = (atn::D2A_Anim_unk<1>*)*it;
-        if (anim->mName == hash) {
-            anim->mTables[index].fn_801F04FC(0, 1, value);
-            return;
-        }
-        it++;
-    }
-}
-
-// NONMATCHING: 97.94% - table lookup uses a different pointer-register assignment.
-extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value) {
-    SetLayoutFloat_unk((D2A_PointerArray_unk*)((char*)layout + 0x00), hash, 0, value);
-}
-extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value) {
-    SetLayoutFloat_unk((D2A_PointerArray_unk*)((char*)layout + 0x0C), hash, index, value);
-}
-// NONMATCHING: 98.16% - table lookup uses a different pointer-register assignment.
-extern "C" void fn_801FED70(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value) {
-    SetLayoutFloat_unk((D2A_PointerArray_unk*)((char*)layout + 0x18), hash, index, value);
-}
-// NONMATCHING: 98.16% - table lookup uses a different pointer-register assignment.
-extern "C" void fn_801FEDBC(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value) {
-    SetLayoutFloat_unk((D2A_PointerArray_unk*)((char*)layout + 0x24), hash, index, value);
-}
-// NONMATCHING: 96.76% - integer table lookup has different pointer-register assignments.
-extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x3C);
-    atn::D2A_IntAnim_unk** end = (atn::D2A_IntAnim_unk**)array->mData + array->mSize;
-    atn::D2A_IntAnim_unk** it = (atn::D2A_IntAnim_unk**)array->mData;
-    while (it != end) {
-        atn::D2A_IntAnim_unk* anim = *it;
-        if (anim->mName == hash) {
-            fn_801F0364(&anim->mTables[0], 0, value, 1);
-            return;
-        }
-        it++;
-    }
-}
-
-// NONMATCHING: 95.57% - wide-string update loop has different pointer-register assignments.
-extern "C" void fn_801FEE08(atn::D2A_Layout_unk* layout, unsigned int hash, const wchar_t* value) {
-    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x30);
-    atn::D2A_TextParam_unk** end = (atn::D2A_TextParam_unk**)array->mData + array->mSize;
-    atn::D2A_TextParam_unk** it = (atn::D2A_TextParam_unk**)array->mData;
-    while (it != end) {
-        atn::D2A_TextParam_unk* text = *it;
-        if (text->mId == hash) {
-            std::basic_string<wchar_t> copy(value);
-            text->fn_801F25E0(0, copy, 0, 1);
-            return;
-        }
-        it++;
-    }
-}
-
-// NONMATCHING: 95.37% - animated-value loops have different register assignments.
-extern "C" void fn_801FEF40(atn::D2A_Layout_unk* layout, int frame) {
-    for (unsigned int i = 0; i < layout->mAnims1.mSize; i++) {
-        atn::D2A_Anim_unk<1>* anim = layout->mAnims1.mData[i];
-        anim->mValues[0] = fn_801F0544(&anim->mTables[0], frame);
-    }
-    for (unsigned int i = 0; i < layout->mAnims5.mSize; i++) {
-        atn::D2A_Anim_unk<5>* anim = layout->mAnims5.mData[i];
-        for (int j = 0; j < 5; j++) anim->mValues[j] = fn_801F0544(&anim->mTables[j], frame);
-    }
-    for (unsigned int i = 0; i < layout->mTextureAnims.mSize; i++) {
-        atn::D2A_Anim_unk<4>* anim = layout->mTextureAnims.mData[i];
-        for (int j = 0; j < 4; j++) anim->mValues[j] = fn_801F0544(&anim->mTables[j], frame);
-    }
-    for (unsigned int i = 0; i < layout->mAnims4.mSize; i++) {
-        atn::D2A_Anim_unk<4>* anim = layout->mAnims4.mData[i];
-        for (int j = 0; j < 4; j++) anim->mValues[j] = fn_801F0544(&anim->mTables[j], frame);
-    }
-    for (unsigned int i = 0; i < layout->mTexts.mSize; i++) {
-        atn::D2A_TextParam_unk* text = layout->mTexts.mData[i];
-        text->mValue[0] = fn_801F0758(&text->mTables[0], frame);
-    }
-    for (unsigned int i = 0; i < layout->mIntAnims.mSize; i++) {
-        atn::D2A_IntAnim_unk* anim = layout->mIntAnims.mData[i];
-        anim->mValues[0] = fn_801F03AC(&anim->mTables[0], frame);
-    }
-}
+void D2A_Texture::vf20() { fn_801EDCB8(this); }
 
 D2A_Layout_unk::D2A_Layout_unk() {}
+
 D2A_Layout_unk::~D2A_Layout_unk() {
         D2A_Anim_unk<1>** data0 = mAnims1.mData;
         mAnims1.mSize = 0;
@@ -733,53 +529,288 @@ extern "C" void fn_801FE090(D2A_Layout_unk* layout, const unsigned int* counts) 
     layout->mIntAnims.Reserve(counts[5], 8);
 }
 
-// NONMATCHING: the path normalization and string temporaries still differ from MWCC.
-extern "C" int fn_801FD5A0(atn::D2A_Texture* texture, const char* path, int arg) {
-    char fullPath[0x100];
-    strcpy(fullPath, path);
-    std::string name = fn_8006B174(std::string(fullPath));
-    std::string base = fn_8006B2D8(name);
-    if (base.size() >= 3 && base.substr(base.size() - 3) == "_jp") {
-        base.replace(base.size() - 3, 3, "_xx");
+extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, const void* value) {
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x00);
+    void** data = array->mData;
+    void** end = data + array->mSize;
+    void** it = data;
+    while (it != end) {
+        if (*it == value) {
+            if (it == end) {
+                return;
+            }
+            unsigned int index = it - data;
+            unsigned int offset = index * 4;
+            while (index < array->mSize - 1) {
+                data = (void**)array->mData;
+                void** entry = (void**)((char*)data + offset);
+                index++;
+                offset += 4;
+                entry[0] = entry[1];
+            }
+            array->mSize = array->mSize - 1;
+            return;
+        }
+        it++;
     }
-    base += ".texture";
-    strcpy(fullPath, base.c_str());
-    if (arg == 0) {
-        return 1;
-    }
-    fn_800D58A4(&texture->mTexture0);
-    if (fullPath[0] == 0) {
-        fn_800D5908(&texture->mTexture0, lbl_8073E57C + 0x26);
-    } else {
-        fn_800D5908(&texture->mTexture0, fullPath);
-    }
-    texture->mTexture0.m2D = 1;
-    texture->mTexture0.m2E = 1;
-    return 1;
 }
 
-// NONMATCHING: mirrors fn_801FD5A0; this overload rejects an empty source path.
-extern "C" int fn_801FDA20(atn::D2A_Texture* texture, const char* path, int arg) {
-    if (*path == 0) {
-        return 0;
+extern "C" void fn_801FE91C(atn::D2A_Layout_unk* layout, const void* value) {
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x0C);
+    void** data = array->mData;
+    void** end = data + array->mSize;
+    void** it = data;
+    while (it != end) {
+        if (*it == value) {
+            if (it == end) return;
+            unsigned int index = it - data;
+            unsigned int offset = index * 4;
+            while (index < array->mSize - 1) {
+                data = (void**)array->mData;
+                void** entry = (void**)((char*)data + offset);
+                index++;
+                offset += 4;
+                entry[0] = entry[1];
+            }
+            array->mSize = array->mSize - 1;
+            return;
+        }
+        it++;
     }
-    char fullPath[0x100];
-    strcpy(fullPath, path);
-    std::string name = fn_8006B174(std::string(fullPath));
-    std::string base = fn_8006B2D8(name);
-    if (base.size() >= 3 && base.substr(base.size() - 3) == "_jp") {
-        base.replace(base.size() - 3, 3, "_xx");
-    }
-    base += ".texture";
-    strcpy(fullPath, base.c_str());
-    if (arg == 0) {
-        return 1;
-    }
-    fn_800D58A4(&texture->mTexture1);
-    fn_800D5908(&texture->mTexture1, fullPath);
-    texture->mTexture1.m2D = 1;
-    texture->mTexture1.m2E = 1;
-    return 1;
 }
 
+extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, const void* value) {
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x18);
+    void** data = array->mData;
+    void** end = data + array->mSize;
+    void** it = data;
+    while (it != end) {
+        if (*it == value) {
+            if (it == end) return;
+            unsigned int index = it - data;
+            unsigned int offset = index * 4;
+            while (index < array->mSize - 1) {
+                data = (void**)array->mData;
+                void** entry = (void**)((char*)data + offset);
+                index++;
+                offset += 4;
+                entry[0] = entry[1];
+            }
+            array->mSize = array->mSize - 1;
+            return;
+        }
+        it++;
+    }
+}
+
+extern "C" void fn_801FEA1C(atn::D2A_Layout_unk* layout, const void* value) {
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x24);
+    void** data = array->mData;
+    void** end = data + array->mSize;
+    void** it = data;
+    while (it != end) {
+        if (*it == value) {
+            if (it == end) return;
+            unsigned int index = it - data;
+            unsigned int offset = index * 4;
+            while (index < array->mSize - 1) {
+                data = (void**)array->mData;
+                void** entry = (void**)((char*)data + offset);
+                index++;
+                offset += 4;
+                entry[0] = entry[1];
+            }
+            array->mSize = array->mSize - 1;
+            return;
+        }
+        it++;
+    }
+}
+
+extern "C" void fn_801FEA9C(atn::D2A_Layout_unk* layout, const void* value) {
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x30);
+    void** data = array->mData;
+    void** end = data + array->mSize;
+    void** it = data;
+    while (it != end) {
+        if (*it == value) {
+            if (it == end) return;
+            unsigned int index = it - data;
+            unsigned int offset = index * 4;
+            while (index < array->mSize - 1) {
+                data = (void**)array->mData;
+                void** entry = (void**)((char*)data + offset);
+                index++;
+                offset += 4;
+                entry[0] = entry[1];
+            }
+            array->mSize = array->mSize - 1;
+            return;
+        }
+        it++;
+    }
+}
+
+extern "C" void fn_801FEB1C(atn::D2A_Layout_unk* layout, const void* value) {
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x3C);
+    void** data = array->mData;
+    void** end = data + array->mSize;
+    void** it = data;
+    while (it != end) {
+        if (*it == value) {
+            if (it == end) return;
+            unsigned int index = it - data;
+            unsigned int offset = index * 4;
+            while (index < array->mSize - 1) {
+                data = (void**)array->mData;
+                void** entry = (void**)((char*)data + offset);
+                index++;
+                offset += 4;
+                entry[0] = entry[1];
+            }
+            array->mSize = array->mSize - 1;
+            return;
+        }
+        it++;
+    }
+}
+
+// NONMATCHING: 97.96% - hash lookup differs only in pointer-register assignment.
+extern "C" void* fn_801FEB9C(atn::D2A_Layout_unk* layout, const char* name) {
+    unsigned int hash = fn_800DC6B4(name);
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x00);
+    void** end = array->mData + array->mSize;
+    void** it = array->mData;
+    while (it != end) {
+        void* value = *it;
+        if (*(unsigned int*)value == hash) {
+            return value;
+        }
+        it++;
+    }
+    return 0;
+}
+
+// NONMATCHING: 97.96% - hash lookup differs only in pointer-register assignment.
+extern "C" void* fn_801FEC08(atn::D2A_Layout_unk* layout, const char* name) {
+    unsigned int hash = fn_800DC6B4(name);
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x0C);
+    void** end = array->mData + array->mSize;
+    void** it = array->mData;
+    while (it != end) {
+        void* value = *it;
+        if (*(unsigned int*)value == hash) {
+            return value;
+        }
+        it++;
+    }
+    return 0;
+}
+
+// NONMATCHING: 97.96% - hash lookup differs only in pointer-register assignment.
+extern "C" void* fn_801FEC74(atn::D2A_Layout_unk* layout, const char* name) {
+    unsigned int hash = fn_800DC6B4(name);
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x30);
+    void** end = array->mData + array->mSize;
+    void** it = array->mData;
+    while (it != end) {
+        void* value = *it;
+        if (*(unsigned int*)value == hash) {
+            return value;
+        }
+        it++;
+    }
+    return 0;
+}
+
+static void SetLayoutFloat_unk(D2A_PointerArray_unk* array, unsigned int hash, int index, float value) {
+    void** it = array->mData;
+    void** end = it + array->mSize;
+    while (it != end) {
+        atn::D2A_Anim_unk<1>* anim = (atn::D2A_Anim_unk<1>*)*it;
+        if (anim->mName == hash) {
+            anim->mTables[index].fn_801F04FC(0, 1, value);
+            return;
+        }
+        it++;
+    }
+}
+
+// NONMATCHING: 97.94% - table lookup uses a different pointer-register assignment.
+extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value) {
+    SetLayoutFloat_unk((D2A_PointerArray_unk*)((char*)layout + 0x00), hash, 0, value);
+}
+
+extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value) {
+    SetLayoutFloat_unk((D2A_PointerArray_unk*)((char*)layout + 0x0C), hash, index, value);
+}
+
+// NONMATCHING: 98.16% - table lookup uses a different pointer-register assignment.
+extern "C" void fn_801FED70(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value) {
+    SetLayoutFloat_unk((D2A_PointerArray_unk*)((char*)layout + 0x18), hash, index, value);
+}
+
+// NONMATCHING: 98.16% - table lookup uses a different pointer-register assignment.
+extern "C" void fn_801FEDBC(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value) {
+    SetLayoutFloat_unk((D2A_PointerArray_unk*)((char*)layout + 0x24), hash, index, value);
+}
+
+// NONMATCHING: 95.57% - wide-string update loop has different pointer-register assignments.
+extern "C" void fn_801FEE08(atn::D2A_Layout_unk* layout, unsigned int hash, const wchar_t* value) {
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x30);
+    atn::D2A_TextParam_unk** end = (atn::D2A_TextParam_unk**)array->mData + array->mSize;
+    atn::D2A_TextParam_unk** it = (atn::D2A_TextParam_unk**)array->mData;
+    while (it != end) {
+        atn::D2A_TextParam_unk* text = *it;
+        if (text->mId == hash) {
+            std::basic_string<wchar_t> copy(value);
+            text->fn_801F25E0(0, copy, 0, 1);
+            return;
+        }
+        it++;
+    }
+}
+
+// NONMATCHING: 96.76% - integer table lookup has different pointer-register assignments.
+extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int value) {
+    D2A_PointerArray_unk* array = (D2A_PointerArray_unk*)((char*)layout + 0x3C);
+    atn::D2A_IntAnim_unk** end = (atn::D2A_IntAnim_unk**)array->mData + array->mSize;
+    atn::D2A_IntAnim_unk** it = (atn::D2A_IntAnim_unk**)array->mData;
+    while (it != end) {
+        atn::D2A_IntAnim_unk* anim = *it;
+        if (anim->mName == hash) {
+            fn_801F0364(&anim->mTables[0], 0, value, 1);
+            return;
+        }
+        it++;
+    }
+}
+
+// NONMATCHING: 95.37% - animated-value loops have different register assignments.
+extern "C" void fn_801FEF40(atn::D2A_Layout_unk* layout, int frame) {
+    for (unsigned int i = 0; i < layout->mAnims1.mSize; i++) {
+        atn::D2A_Anim_unk<1>* anim = layout->mAnims1.mData[i];
+        anim->mValues[0] = fn_801F0544(&anim->mTables[0], frame);
+    }
+    for (unsigned int i = 0; i < layout->mAnims5.mSize; i++) {
+        atn::D2A_Anim_unk<5>* anim = layout->mAnims5.mData[i];
+        for (int j = 0; j < 5; j++) anim->mValues[j] = fn_801F0544(&anim->mTables[j], frame);
+    }
+    for (unsigned int i = 0; i < layout->mTextureAnims.mSize; i++) {
+        atn::D2A_Anim_unk<4>* anim = layout->mTextureAnims.mData[i];
+        for (int j = 0; j < 4; j++) anim->mValues[j] = fn_801F0544(&anim->mTables[j], frame);
+    }
+    for (unsigned int i = 0; i < layout->mAnims4.mSize; i++) {
+        atn::D2A_Anim_unk<4>* anim = layout->mAnims4.mData[i];
+        for (int j = 0; j < 4; j++) anim->mValues[j] = fn_801F0544(&anim->mTables[j], frame);
+    }
+    for (unsigned int i = 0; i < layout->mTexts.mSize; i++) {
+        atn::D2A_TextParam_unk* text = layout->mTexts.mData[i];
+        text->mValue[0] = fn_801F0758(&text->mTables[0], frame);
+    }
+    for (unsigned int i = 0; i < layout->mIntAnims.mSize; i++) {
+        atn::D2A_IntAnim_unk* anim = layout->mIntAnims.mData[i];
+        anim->mValues[0] = fn_801F03AC(&anim->mTables[0], frame);
+    }
+}
 } // namespace atn

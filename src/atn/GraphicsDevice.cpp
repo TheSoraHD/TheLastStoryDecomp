@@ -3,6 +3,7 @@
 namespace atn {
 
 extern "C" {
+
 void GXSetProjection(const float projection[4][4], int type);
 void GXSetScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height);
 void GXSetCopyFilter(unsigned char antialias, const unsigned char samples[12][2], unsigned char vertical,
@@ -21,23 +22,10 @@ struct GraphicsDeviceField_unk {
     unsigned char m00[0xCC];
     int mCC;
 };
-
-extern "C" void fn_80071D60(GraphicsDeviceField_unk* self, int value) {
-    self->mCC = value;
-}
-
-extern "C" void fn_80071D68(void* self, const float projection[4][4]) {
-    GXSetProjection(projection, 0);
-}
-
-extern "C" void fn_80071D74(void* self, const float projection[4][4]) {
-    GXSetProjection(projection, 1);
-}
-
-extern "C" void fn_800760BC(void* self, unsigned int left, unsigned int top, unsigned int width,
-                            unsigned int height) {
-    GXSetScissor(left, top, width, height);
-}
+extern "C" void fn_80071D60(GraphicsDeviceField_unk* self, int value);
+extern "C" void fn_80071D68(void* self, const float projection[4][4]);
+extern "C" void fn_80071D74(void* self, const float projection[4][4]);
+extern "C" void fn_800760BC(void* self, unsigned int left, unsigned int top, unsigned int width, unsigned int height);
 
 // inferred: arguments consumed by GXSetScissor at offsets 0x60-0x6C.
 struct GraphicsDeviceScissor_unk {
@@ -47,10 +35,7 @@ struct GraphicsDeviceScissor_unk {
     unsigned int m68;
     unsigned int m6C;
 };
-
-extern "C" void fn_800760D0(GraphicsDeviceScissor_unk* self) {
-    GXSetScissor(self->m60, self->m64, self->m68, self->m6C);
-}
+extern "C" void fn_800760D0(GraphicsDeviceScissor_unk* self);
 
 // inferred: copy-filter settings stored in GraphicsDevice.
 struct GraphicsDeviceCopyFilter_unk {
@@ -59,14 +44,7 @@ struct GraphicsDeviceCopyFilter_unk {
     unsigned char m1A[24];
     unsigned char m32[7];
 };
-
-extern "C" void fn_80076174(GraphicsDeviceCopyFilter_unk* self, int enabled) {
-    if (enabled) {
-        GXSetCopyFilter(self->m19, reinterpret_cast<const unsigned char (*)[2]>(self->m1A), 1, self->m32);
-    } else {
-        GXSetCopyFilter(0, 0, 0, 0);
-    }
-}
+extern "C" void fn_80076174(GraphicsDeviceCopyFilter_unk* self, int enabled);
 
 // inferred: copies a texture object into a GX texture using this object's dimensions.
 struct GraphicsDeviceTextureCopy_unk {
@@ -76,56 +54,21 @@ struct GraphicsDeviceTextureCopy_unk {
     unsigned int m3C;
     unsigned int m40;
 };
-
-extern "C" void fn_80071D80(GraphicsDeviceTextureCopy_unk* self, const GraphicsDeviceTextureCopy_unk* texture) {
-    GXSetTexCopySrc(0, 0, (unsigned short)self->m3C, (unsigned short)self->m40);
-    int format = GXGetTexObjFmt(texture);
-    GXSetTexCopyDst((unsigned short)self->m3C, (unsigned short)self->m40, format, 0);
-    GXCopyTex(texture->m28, 0);
-    GXPixModeSync();
-}
+extern "C" void fn_80071D80(GraphicsDeviceTextureCopy_unk* self, const GraphicsDeviceTextureCopy_unk* texture);
 
 // inferred: texture binding cache, with entries beginning at offset 0x80.
 struct GraphicsDeviceTextureCache_unk {
     unsigned char m00[0x80];
     const void* m80[1];
 };
-
-// NONMATCHING: 72.00% - MWCC keeps the nullable texture in r5 instead of normalizing it through r6.
-extern "C" void fn_800763C0(GraphicsDeviceTextureCache_unk* self, unsigned int index, const void* texture) {
-    const void** slot = self->m80 + index;
-    if (*slot != texture) {
-        *slot = texture;
-        if (texture != 0) {
-            GXLoadTexObj(texture, index);
-        }
-    }
-}
-
-extern "C" void fn_800763FC(GraphicsDeviceTextureCache_unk* self, const void* texture, unsigned int index) {
-    const void** slot = self->m80 + index;
-    if (*slot != texture) {
-        *slot = texture;
-        if (texture != 0) {
-            GXLoadTexObj(texture, index);
-        }
-    }
-}
+extern "C" void fn_800763C0(GraphicsDeviceTextureCache_unk* self, unsigned int index, const void* texture);
+extern "C" void fn_800763FC(GraphicsDeviceTextureCache_unk* self, const void* texture, unsigned int index);
 
 // inferred: decrements a reference-counted display-list allocation.
 struct GraphicsDeviceDisplayList_unk {
     unsigned char m00[0xE0];
 };
-
-extern "C" void fn_80076F88(GraphicsDeviceDisplayList_unk* self, unsigned int index) {
-    char* item = reinterpret_cast<char*>(self) + index * 8;
-    int* refs = reinterpret_cast<int*>(item + 0xE4);
-    void** ptr = reinterpret_cast<void**>(item + 0xE0);
-    if (--*refs <= 0) {
-        __dl__FPv(*ptr);
-        *ptr = 0;
-    }
-}
+extern "C" void fn_80076F88(GraphicsDeviceDisplayList_unk* self, unsigned int index);
 
 // NONMATCHING: 65.57% - loop/control-flow and register allocation differ from the original.
 // inferred: compares two cached GX state records (0x30 bytes each) followed by
@@ -161,4 +104,71 @@ extern "C" int fn_80071088(const GraphicsDeviceState_unk* a, const GraphicsDevic
     return 1;
 }
 
+extern "C" void fn_80071D60(GraphicsDeviceField_unk* self, int value) {
+    self->mCC = value;
+}
+
+extern "C" void fn_80071D68(void* self, const float projection[4][4]) {
+    GXSetProjection(projection, 0);
+}
+
+extern "C" void fn_80071D74(void* self, const float projection[4][4]) {
+    GXSetProjection(projection, 1);
+}
+
+extern "C" void fn_80071D80(GraphicsDeviceTextureCopy_unk* self, const GraphicsDeviceTextureCopy_unk* texture) {
+    GXSetTexCopySrc(0, 0, (unsigned short)self->m3C, (unsigned short)self->m40);
+    int format = GXGetTexObjFmt(texture);
+    GXSetTexCopyDst((unsigned short)self->m3C, (unsigned short)self->m40, format, 0);
+    GXCopyTex(texture->m28, 0);
+    GXPixModeSync();
+}
+
+extern "C" void fn_800760BC(void* self, unsigned int left, unsigned int top, unsigned int width,
+                            unsigned int height) {
+    GXSetScissor(left, top, width, height);
+}
+
+extern "C" void fn_800760D0(GraphicsDeviceScissor_unk* self) {
+    GXSetScissor(self->m60, self->m64, self->m68, self->m6C);
+}
+
+extern "C" void fn_80076174(GraphicsDeviceCopyFilter_unk* self, int enabled) {
+    if (enabled) {
+        GXSetCopyFilter(self->m19, reinterpret_cast<const unsigned char (*)[2]>(self->m1A), 1, self->m32);
+    } else {
+        GXSetCopyFilter(0, 0, 0, 0);
+    }
+}
+
+// NONMATCHING: 72.00% - MWCC keeps the nullable texture in r5 instead of normalizing it through r6.
+extern "C" void fn_800763C0(GraphicsDeviceTextureCache_unk* self, unsigned int index, const void* texture) {
+    const void** slot = self->m80 + index;
+    if (*slot != texture) {
+        *slot = texture;
+        if (texture != 0) {
+            GXLoadTexObj(texture, index);
+        }
+    }
+}
+
+extern "C" void fn_800763FC(GraphicsDeviceTextureCache_unk* self, const void* texture, unsigned int index) {
+    const void** slot = self->m80 + index;
+    if (*slot != texture) {
+        *slot = texture;
+        if (texture != 0) {
+            GXLoadTexObj(texture, index);
+        }
+    }
+}
+
+extern "C" void fn_80076F88(GraphicsDeviceDisplayList_unk* self, unsigned int index) {
+    char* item = reinterpret_cast<char*>(self) + index * 8;
+    int* refs = reinterpret_cast<int*>(item + 0xE4);
+    void** ptr = reinterpret_cast<void**>(item + 0xE0);
+    if (--*refs <= 0) {
+        __dl__FPv(*ptr);
+        *ptr = 0;
+    }
+}
 } // namespace atn
