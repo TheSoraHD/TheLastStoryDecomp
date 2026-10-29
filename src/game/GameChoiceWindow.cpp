@@ -29,6 +29,41 @@ extern "C" void fn_803B57B0(void* self, int enabled) {
     }
 }
 
+extern "C" void fn_803B57EC(void* self) {
+    unsigned char* bytes = static_cast<unsigned char*>(self);
+    unsigned char* task = *reinterpret_cast<unsigned char**>(bytes + 0x54);
+    *reinterpret_cast<int*>(task + 0x78) = 4;
+    *reinterpret_cast<int*>(task + 0x74) = 0;
+    int mode = *reinterpret_cast<int*>(bytes + 0x50);
+    int shouldSet = 1;
+    if (mode != 2 && mode != 4) {
+        shouldSet = 0;
+    }
+    if (shouldSet == 0) {
+        return;
+    }
+    *reinterpret_cast<int*>(bytes + 0x50) = 2;
+}
+
+extern "C" void fn_803B5974(void* self, int arg1, int arg2);
+
+extern "C" void fn_803B5830(void* self, int arg1, int arg2) {
+    unsigned char* bytes = static_cast<unsigned char*>(self);
+    *reinterpret_cast<int*>(bytes + 0x4C) = arg1;
+    *reinterpret_cast<int*>(bytes + 0x58) = arg2;
+    fn_803B5974(self, arg1, arg2);
+}
+
+extern "C" void* lbl_8087EF70;
+extern "C" int fn_800A555C(void* object, int arg1, int arg2);
+
+extern "C" int fn_803B5950(void* self) {
+    if (*reinterpret_cast<int*>(static_cast<unsigned char*>(self) + 0x50) == 2) {
+        return fn_800A555C(lbl_8087EF70, 0, 4);
+    }
+    return 0;
+}
+
 // inferred: a 64-entry FIFO stores values from the head offset at +0x1B8.
 extern "C" void fn_803B78B4(void* self, int value) {
     unsigned char* bytes = static_cast<unsigned char*>(self);
