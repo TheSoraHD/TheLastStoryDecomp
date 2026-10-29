@@ -9,6 +9,9 @@ namespace Event {
 // inferred: default value of an attribute (int or string); it has a constructor because the
 // __sinit of every table stores it, even when it is 0
 struct ParamValue_unk {
+    // inferred: attributes without a default leave the value alone (no store in the __sinit of
+    // Event/EventCommandDef_unk)
+    ParamValue_unk() {}
     ParamValue_unk(int value) : mValue(value) {}
     ParamValue_unk(const char* str) : mValue((int)str) {}
     // inferred: float defaults keep their bits (game/PathData_unk)
