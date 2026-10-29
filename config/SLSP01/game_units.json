@@ -2202,7 +2202,7 @@
   "classes": [
    "gmk::Banana"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/FlamingArrow.cpp",

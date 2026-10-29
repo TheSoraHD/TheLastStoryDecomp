@@ -41,6 +41,8 @@ GimmickCommon* Banana::fn_804166B0(atn::Task* parent, GimmickDesc_unk* desc) {
     return 0;
 }
 
+Banana::~Banana() {}
+
 int Banana::vf1C() {
     return mModel.fn_8008B140() != 0;
 }
@@ -122,18 +124,6 @@ void Banana::vf14() {
     mModel.fn_8008CD60();
 }
 
-int Banana::vf60() {
-    int ret = 0;
-    if (m54 == 2 && mDesc->m7C != 0) {
-        ret = 1;
-    }
-    return ret;
-}
-
-atn::Model* Banana::vf38() {
-    return &mModel;
-}
-
 // inferred: message 3 throws the model with a random velocity and spin
 int Banana::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
@@ -160,4 +150,15 @@ int Banana::vf40(GimmickMsg_unk* msg) {
     return m54;
 }
 
+int Banana::vf60() {
+    int ret = 0;
+    if (m54 == 2 && mDesc->m7C != 0) {
+        ret = 1;
+    }
+    return ret;
+}
+
+atn::Model* Banana::vf38() {
+    return &mModel;
+}
 } // namespace gmk
