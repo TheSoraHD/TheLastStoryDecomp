@@ -155,7 +155,7 @@ void GimmickManager::vf14() {}
 void GimmickManager::fn_803EE374(void* arg) {
     for (GimmickCommon* g = mHead; g != 0; g = g->m5C) {
         if ((g->mFlags & 2) == 2 && (arg == 0 || g->m20 == arg)) {
-            g->vf28();
+            g->Start();
         }
     }
 }

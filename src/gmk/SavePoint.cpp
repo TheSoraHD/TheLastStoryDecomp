@@ -128,7 +128,7 @@ int SavePoint::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-void SavePoint::vf28() {
+void SavePoint::Start() {
     if (lbl_8087F0A8->m198 == 0) {
         vf2C();
         fn_803ECBD4(mModel.GetModel_unk(), 1);

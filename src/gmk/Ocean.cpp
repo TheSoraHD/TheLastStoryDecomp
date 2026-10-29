@@ -116,7 +116,7 @@ void Ocean::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void Ocean::vf28() {
+void Ocean::Start() {
     GimmickMsg_unk msg(1);
     vf40(&msg);
 }

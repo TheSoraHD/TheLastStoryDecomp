@@ -79,7 +79,7 @@ int Banana::vf0C() {
     return 0;
 }
 
-void Banana::vf28() {
+void Banana::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     m78.x = 0.0f;
@@ -108,7 +108,7 @@ void Banana::vf10() {
         if (++mTimer > mDesc->m20) {
             m54 = 2;
             mTimer = 0;
-            Banana::vf28();
+            Banana::Start();
         }
         break;
     }

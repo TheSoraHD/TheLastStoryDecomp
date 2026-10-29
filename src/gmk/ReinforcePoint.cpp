@@ -98,7 +98,7 @@ int ReinforcePoint::vf0C() {
     return 0;
 }
 
-void ReinforcePoint::vf28() {
+void ReinforcePoint::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     switch (mDesc->m20) {

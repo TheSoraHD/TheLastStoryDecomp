@@ -120,7 +120,7 @@ int ArenaFloor::vf0C() {
     return 0;
 }
 
-void ArenaFloor::vf28() {
+void ArenaFloor::Start() {
     GimmickMsg_unk msg(1);
     if (m58 == 1) {
         msg.mType = 4;
@@ -132,7 +132,7 @@ void ArenaFloor::vf28() {
 // this file; with both defined the inlining budget (docs/inlining.md, R3) would keep both calls.
 void ArenaFloor::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (m54 == 2) {
         GimmickMsg_unk msg(3);

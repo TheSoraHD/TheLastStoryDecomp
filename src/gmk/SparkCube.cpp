@@ -165,7 +165,7 @@ int SparkCube::vf0C() {
     return 0;
 }
 
-void SparkCube::vf28() {
+void SparkCube::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -179,7 +179,7 @@ void SparkCube::vf28() {
 // The int index compared as unsigned increments the counter before the element offset
 void SparkCube::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     int state = -1;
     float step = lbl_8087EFA8->mTimeScale;

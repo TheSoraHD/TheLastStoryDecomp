@@ -81,7 +81,7 @@ int CharaLight::vf0C() {
     return 1;
 }
 
-void CharaLight::vf28() {
+void CharaLight::Start() {
     fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&mLight);
     LightTarget_unk* target = fn_800C16B4(lbl_8087EFB4);
     target->mC8 = -1;

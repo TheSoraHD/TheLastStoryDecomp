@@ -48,7 +48,7 @@ int ShakeCamera::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-void ShakeCamera::vf28() {
+void ShakeCamera::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     mShakeX = mDesc->m40;

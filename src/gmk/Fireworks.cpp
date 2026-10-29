@@ -105,7 +105,7 @@ int Fireworks::vf0C() {
     return 1;
 }
 
-void Fireworks::vf28() {
+void Fireworks::Start() {
     fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&mLight);
     fn_800C16B4(lbl_8087EFB4)->SetLayer_unk(-1);
     MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
@@ -118,7 +118,7 @@ void Fireworks::vf28() {
 // original. Tried: reference/pointer to the element, delay local, mixed forms.
 void Fireworks::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
     float size = 0.0f;

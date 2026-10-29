@@ -176,7 +176,7 @@ void BulletPoint::vf10() {
     fn_8010EFF0(bullet, &shot, &mDesc->mPos, &dir, mDesc->m2C, -1, 0, speed);
 }
 
-void BulletPoint::vf28() {}
+void BulletPoint::Start() {}
 
 void BulletPoint::vf14() {}
 

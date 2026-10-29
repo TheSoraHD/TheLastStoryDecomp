@@ -76,7 +76,7 @@ int InteractionSpot::vf0C() {
 
 // NONMATCHING: register allocation only (the target keeps the table in r7 and returns the spot in
 // the register of the id). Tried: table/field/id locals, reference and reversed comparisons.
-void InteractionSpot::vf28() {
+void InteractionSpot::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     SpotTable_unk* table = lbl_8087F430->m10D8;

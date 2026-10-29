@@ -77,7 +77,7 @@ int SkeltonsMirror::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-void SkeltonsMirror::vf28() {
+void SkeltonsMirror::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     m78.x = 0.0f;
@@ -92,7 +92,7 @@ void SkeltonsMirror::vf28() {
 
 void SkeltonsMirror::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if ((unsigned int)m54 > 2 && vf38() != 0) {
         fn_803ED0D4(vf38(), 1);

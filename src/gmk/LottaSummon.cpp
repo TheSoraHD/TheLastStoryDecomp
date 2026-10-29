@@ -141,7 +141,7 @@ int LottaSummon::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-void LottaSummon::vf28() {
+void LottaSummon::Start() {
     vf2C();
     GimmickMsg_unk msg(2);
     if (m58 == 1) {

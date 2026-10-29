@@ -168,7 +168,7 @@ public:
     virtual int vf1C();   // 0x803ECB7C
     virtual void vf20();  // 0x803ECBCC
     virtual void vf24();  // 0x803ECBD0
-    virtual void vf28() { vf2C(); }
+    virtual void Start() { vf2C(); }
     virtual void vf2C();  // 0x803ECB84
     virtual void vf30() {
         mA0 = IsFlag_unk(4);

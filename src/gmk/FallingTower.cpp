@@ -80,7 +80,7 @@ int FallingTower::vf0C() {
 
 void FallingTower::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     } else if (m54 == 2) {
         GimmickMsg_unk msg(3);
         vf40(&msg);
@@ -167,7 +167,7 @@ void FallingTower::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void FallingTower::vf28() {
+void FallingTower::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);

@@ -269,7 +269,7 @@ int RotaryRoom::vf0C() {
     return 0;
 }
 
-void RotaryRoom::vf28() {
+void RotaryRoom::Start() {
     GimmickMsg_unk msg(m58 + 1);
     vf40(&msg);
 }

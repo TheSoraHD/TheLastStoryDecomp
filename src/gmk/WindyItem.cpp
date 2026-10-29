@@ -62,7 +62,7 @@ int WindyItem::vf0C() {
 
 // NONMATCHING: 98.94% - registers of the hoisted constants 0.0f/1.0f/0.5f (rotated by one). The
 // half size through Set_unk and the matrix through a reference fixed the rest.
-void WindyItem::vf28() {
+void WindyItem::Start() {
     m54 = 1;
     ResetWait_unk();
     int half = mWaitBase / 2;

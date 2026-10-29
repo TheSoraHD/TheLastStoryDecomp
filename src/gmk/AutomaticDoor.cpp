@@ -184,7 +184,7 @@ int AutomaticDoor::vf0C() {
     return 0;
 }
 
-void AutomaticDoor::vf28() {
+void AutomaticDoor::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -214,7 +214,7 @@ void AutomaticDoor::vf28() {
 
 void AutomaticDoor::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     } else if (m54 == 2) {
         if (mParams[0].mMotions[1] >= 0) {
             GimmickMsg_unk msg(3);

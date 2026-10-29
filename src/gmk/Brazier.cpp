@@ -202,7 +202,7 @@ void Brazier::vf10() {
                 mColli.mFlags &= ~1;
                 fn_80239DAC(lbl_8087F3C0, this, 1, 0);
             } else {
-                vf28();
+                Start();
             }
             mEnabled = mDesc->m7C;
         }
@@ -211,7 +211,7 @@ void Brazier::vf10() {
         }
     }
     if (m54 == 0) {
-        vf28();
+        Start();
     } else if (m54 == 2) {
         GimmickHitMsg_unk msg;
         memset(&msg, 0, sizeof(msg));
@@ -250,7 +250,7 @@ void Brazier::vf10() {
             fn_803ED5D0(vf38());
         }
         if (fn_80407E8C() != 0) {
-            vf28();
+            Start();
         }
         break;
     }
@@ -328,7 +328,7 @@ void Brazier::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void Brazier::vf28() {
+void Brazier::Start() {
     vf2C();
     GimmickMsg_unk msg(1);
     if (mDesc != 0 && mDesc->m20 != 0) {

@@ -81,7 +81,7 @@ public:
     virtual void vf14(); // not decompiled (debug drawing)
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
     // inferred: defined after vf70 (0x804392C0-0x8043A530; fn_80439574 not decompiled)

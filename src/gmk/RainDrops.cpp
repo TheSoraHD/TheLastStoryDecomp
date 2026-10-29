@@ -44,7 +44,7 @@ int RainDrops::vf0C() {
     return 0;
 }
 
-void RainDrops::vf28() {
+void RainDrops::Start() {
     int type = m58;
     if (type > 0) {
         GimmickMsg_unk msg(type);

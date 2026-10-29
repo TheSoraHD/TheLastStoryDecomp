@@ -39,7 +39,7 @@ int Courtyard::vf0C() {
     return 0;
 }
 
-void Courtyard::vf28() {
+void Courtyard::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -55,7 +55,7 @@ void Courtyard::vf28() {
 
 void Courtyard::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (m54 == 2) {
         GimmickMsg_unk msg(3);

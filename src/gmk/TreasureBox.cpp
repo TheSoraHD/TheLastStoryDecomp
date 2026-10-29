@@ -92,7 +92,7 @@ int TreasureBox::vf0C() {
 
 void TreasureBox::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     } else if (m54 == 2) {
         GimmickMsg_unk msg(3);
         if (m58 != 0) {
@@ -199,7 +199,7 @@ void TreasureBox::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void TreasureBox::vf28() {
+void TreasureBox::Start() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
@@ -222,7 +222,7 @@ int TreasureBox::vf40(GimmickMsg_unk* msg) {
     }
     switch (msg->mType) {
     case 0:
-        vf28();
+        Start();
         break;
     case 1: {
         fn_80239DAC(lbl_8087F3C0, this, 0, 1);

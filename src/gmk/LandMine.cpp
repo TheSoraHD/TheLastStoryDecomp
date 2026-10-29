@@ -106,7 +106,7 @@ int LandMine::vf0C() {
 // (as if it went through a double). Tried: radius local, sphere local, Vector3 temporary, inline
 // setter, (float)(double) casts of z, a center copy, component helper, direct member stores, the
 // order/chaining of the m78 stores.
-void LandMine::vf28() {
+void LandMine::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     m78.x = 0.0f;

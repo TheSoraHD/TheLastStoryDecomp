@@ -74,7 +74,7 @@ int MeetingSpot::vf0C() {
     return 0;
 }
 
-void MeetingSpot::vf28() {
+void MeetingSpot::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     if (mDesc->m2C == 1 || mDesc->m2C == 4) {

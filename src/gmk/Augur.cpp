@@ -84,7 +84,7 @@ int Augur::vf0C() {
     return 0;
 }
 
-void Augur::vf28() {
+void Augur::Start() {
     GimmickDesc_unk* desc = mDesc;
     m6C = desc->mPos;
     m78.y = desc->mRotY;
