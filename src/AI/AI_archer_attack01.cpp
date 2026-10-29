@@ -216,6 +216,7 @@ int fn_8001BEB0(CharaTask* chara);
 void fn_8001C068(CharaTask* chara, const char* name); // inferred: sets the debug state text
 int fn_8001C01C(CharaTask* chara);
 int fn_8001A444(int index);
+int fn_8001B984(CharaTask* chara); // inferred: item to use (as fn_8001B634)
 int fn_8001BF44(CharaTask* a, CharaTask* b);
 int fn_8001BF58(CharaTask* chara);
 int fn_8001BF64(CharaTask* chara);
@@ -2180,6 +2181,16 @@ static inline int Stamina_unk() {
 }
 static inline void Return_unk() {
     Command_unk(17, lbl_807C6A40.m1C, 0, 0, 0);
+}
+static inline bool CanUseItem4_unk() {
+    if (InRange_unk(9999.0f)) {
+        int item = fn_8001B984(lbl_807C68C0.m00);
+        if (item > 0) {
+            lbl_807C68C0.m64 = item;
+            return true;
+        }
+    }
+    return false;
 }
 static inline int Combo_unk() {
     if (IsBusy_unk(lbl_807C68C0.m00, lbl_807C6A40.m18 + 1)) {
@@ -10371,6 +10382,53 @@ extern "C" int fn_8003D3F8() {
     }
     lbl_807C6A40.m00 = 1;
     return 6;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+extern "C" int fn_8003D6E8() {
+    if (lbl_807C68C0.m1C < lbl_807C68C0.m44) {
+        if (lbl_807C68C0.m1C >= lbl_807C68C0.m30 * 2) {
+            if (fn_8001BEB0(lbl_807C68C0.m00)) {
+                return -1;
+            }
+            if (CanUseItem2_unk()) {
+                Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            return -1;
+        }
+        if (lbl_807C68C0.m1C >= lbl_807C68C0.m30) {
+            if (CanUseItem4_unk()) {
+                Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            if (CanUseItem3_unk()) {
+                Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                return 4;
+            }
+            Command_unk(4, (int)lbl_807C68C0.m20, AttackDelay_unk() / 2, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 5;
+        }
+        Command_unk(4, (int)lbl_807C68C0.m20, AttackDelay_unk() / 2, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (CanUseItem_unk()) {
+        Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 4;
+    }
+    if (CanUseItem3_unk()) {
+        Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 4;
+    }
+    return -1;
 }
 
 // NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
