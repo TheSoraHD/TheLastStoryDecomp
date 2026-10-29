@@ -286,12 +286,15 @@ struct CharaEquip_unk {
     void fn_80566408(); // inferred: undoes fn_805663F8 (CharaTask::fn_80145334)
     int m000; // inferred: kind (4 is handled apart by CharaTask::fn_80149A30)
     int m004; // inferred: item id ((id % 1000) / 10 == 46: coat with "leftcoat"/"rightcoat" nodes)
-    unsigned char m008[0x024 - 0x008];
+    int m008; // inferred: color (game/CosEditBase.cpp)
+    unsigned char m00C[0x024 - 0x00C];
     unsigned char m024[0x028 - 0x024]; // inferred: model-like object (passed to fn_80094E2C)
     unsigned int m028; // inferred: flags of that model
     unsigned char m02C[0x414 - 0x02C];
     CharaParam_unk* m414;
-    unsigned char m418[0x43C - 0x418];
+    unsigned char m418[0x430 - 0x418];
+    int m430;
+    unsigned char m434[0x43C - 0x434];
 };
 
 // inferred: character data pointed to by CharaTask::m5C; starts with the base parameters copied

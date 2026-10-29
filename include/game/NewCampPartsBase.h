@@ -74,7 +74,7 @@ public:
     virtual void vf28() {}               // 0x801CFC3C
     virtual void vf2C();                 // 0x80512020
     virtual void vf30() {}               // 0x801CFC38
-    virtual void vf34();                 // 0x80512018
+    virtual void vf34(int state);        // 0x80512018: inferred: m7C = state
     virtual unsigned char vf38() { return m94; } // 0x801CFC30
     virtual void vf3C(int arg);          // 0x80511208
     virtual void vf40(void* group);      // 0x805112F8: inferred: adds the debug menu items

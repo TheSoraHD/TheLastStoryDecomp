@@ -270,20 +270,20 @@ void CostumeEditChara::fn_801E9164() {}
 
 // NONMATCHING: ~60% - the original stores z before x/y (psq_l, lfs, stfs z, psq_st); Vec.h has no
 // copy helper with that order (__VecCopy stores x/y first, Assign_unk loads z first).
-void CostumeEditChara::fn_801E9168(const atn::Vector3& pos) {
+void CostumeEditChara::fn_801E9168(atn::Vector3 pos) {
     mTarget = pos;
 }
 
 // NONMATCHING: ~60% - the original stores z before x/y (psq_l, lfs, stfs z, psq_st); Vec.h has no
 // copy helper with that order (__VecCopy stores x/y first, Assign_unk loads z first).
-void CostumeEditChara::fn_801E917C(const atn::Vector3& pos) {
+void CostumeEditChara::fn_801E917C(atn::Vector3 pos) {
     mCur = pos;
     mTarget = pos;
 }
 
 // NONMATCHING: ~60% - the original stores z before x/y (psq_l, lfs, stfs z, psq_st); Vec.h has no
 // copy helper with that order (__VecCopy stores x/y first, Assign_unk loads z first).
-void CostumeEditChara::fn_801E91A0(const atn::Vector3& rot) {
+void CostumeEditChara::fn_801E91A0(atn::Vector3 rot) {
     mRot = rot;
 }
 
