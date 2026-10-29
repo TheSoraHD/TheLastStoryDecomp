@@ -4,6 +4,7 @@
 #include "game/SkillEffectManager.h"
 #include "std/string.h"
 #include "std/new.h"
+#include "std/tree.h"
 #include "atn/Memory.h"
 
 struct AIStringWithAllocator_unk;
@@ -10279,86 +10280,54 @@ extern "C" __declspec(noinline) int fn_8003DBA4() {
 
 // NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
 // inferred: finds the insertion position for a string key and returns the last visited node.
-static inline void RotateLeft_unk(AIScriptMapNode_unk* x, AIScriptMapNode_unk*& root) {
-    AIScriptMapNode_unk* y = x->mRight;
-    if (root == x) {
-        root = y;
-    }
-    x->mRight = y->mLeft;
-    if (y->mLeft != 0) {
-        y->mLeft->SetParent(x);
-    }
-    y->SetParent(x->Parent());
-    if (x == x->Parent()->mLeft) {
-        x->Parent()->mLeft = y;
-    } else {
-        x->Parent()->mRight = y;
-    }
-    y->mLeft = x;
-    x->SetParent(y);
-}
+namespace std {
 
-static inline void RotateRight_unk(AIScriptMapNode_unk* x, AIScriptMapNode_unk*& root) {
-    AIScriptMapNode_unk* y = x->mLeft;
-    if (root == x) {
-        root = y;
-    }
-    x->mLeft = y->mRight;
-    if (y->mRight != 0) {
-        y->mRight->SetParent(x);
-    }
-    y->SetParent(x->Parent());
-    if (x == x->Parent()->mLeft) {
-        x->Parent()->mLeft = y;
-    } else {
-        x->Parent()->mRight = y;
-    }
-    y->mRight = x;
-    x->SetParent(y);
-}
-extern "C" void fn_8003E120(AIScriptMapNode_unk* x, AIScriptMapNode_unk* root);
-
-// inferred: red-black tree rebalance after an insert (script name map)
-extern "C" void fn_8003E120(AIScriptMapNode_unk* x, AIScriptMapNode_unk* root) {
-    x->SetRed();
-    while (x != root && x->Parent()->IsRed()) {
-        AIScriptMapNode_unk* xp = x->Parent();
-        if (xp == xp->Parent()->mLeft) {
-            AIScriptMapNode_unk* y = xp->Parent()->mRight;
-            if (y != 0 && y->IsRed()) {
-                xp->SetBlack();
-                y->SetBlack();
-                x = x->Parent()->Parent();
-                x->SetRed();
+// red-black tree rebalance after an insert (weak copy; first user in the DOL is the script name map)
+template <class NodePtr>
+void __red_black_tree<NodePtr>::balance_insert(NodePtr x, NodePtr root) {
+    x->set_red();
+    while (x != root && x->parent()->is_red()) {
+        NodePtr xp = x->parent();
+        if (xp == xp->parent()->left_) {
+            NodePtr y = xp->parent()->right_;
+            if (y != 0 && y->is_red()) {
+                xp->set_black();
+                y->set_black();
+                x = x->parent()->parent();
+                x->set_red();
             } else {
-                if (x == xp->mRight) {
+                if (x == xp->right_) {
                     x = xp;
-                    RotateLeft_unk(x, root);
+                    rotate_left(x, root);
                 }
-                x->Parent()->SetBlack();
-                x->Parent()->Parent()->SetRed();
-                RotateRight_unk(x->Parent()->Parent(), root);
+                x->parent()->set_black();
+                x->parent()->parent()->set_red();
+                rotate_right(x->parent()->parent(), root);
             }
         } else {
-            AIScriptMapNode_unk* y = xp->Parent()->mLeft;
-            if (y != 0 && y->IsRed()) {
-                xp->SetBlack();
-                y->SetBlack();
-                x = x->Parent()->Parent();
-                x->SetRed();
+            NodePtr y = xp->parent()->left_;
+            if (y != 0 && y->is_red()) {
+                xp->set_black();
+                y->set_black();
+                x = x->parent()->parent();
+                x->set_red();
             } else {
-                if (x == xp->mLeft) {
+                if (x == xp->left_) {
                     x = xp;
-                    RotateRight_unk(x, root);
+                    rotate_right(x, root);
                 }
-                x->Parent()->SetBlack();
-                x->Parent()->Parent()->SetRed();
-                RotateLeft_unk(x->Parent()->Parent(), root);
+                x->parent()->set_black();
+                x->parent()->parent()->set_red();
+                rotate_left(x->parent()->parent(), root);
             }
         }
     }
-    root->SetBlack();
+    root->set_black();
 }
+
+template void __red_black_tree<__tree_node_base_void*>::balance_insert(__tree_node_base_void*, __tree_node_base_void*);
+
+} // namespace std
 
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
                                             AIScriptMapNode_unk** parent,

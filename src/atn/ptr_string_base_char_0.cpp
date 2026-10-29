@@ -4,6 +4,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "std/new.h"
+#include "std/tree.h"
 
 // The real file reads /boot/voice_table.csv: per character id, 43 voice names and 8 parameters.
 
@@ -55,8 +56,6 @@ extern "C" VoiceEntry_unk* lbl_8087F350; // inferred: entries
 extern "C" int lbl_8087F354;             // inferred: number of entries
 extern "C" char* lbl_8087F358;           // inferred: buffer with all the names
 
-// inferred: balances the red-black tree after an insertion (MSL)
-extern "C" void fn_8003E120(void* node, void* root);
 
 // inferred: std::map of MSL C++ (layout {size, root, leftmost}; nodes {left, right, parent, key, value});
 // only what this file uses, names invented
@@ -368,7 +367,7 @@ typename Map_unk<K, V>::Node* Map_unk<K, V>::InsertNode(Node* parent, bool left,
         parent->mRight = node;
     }
     mSize++;
-    fn_8003E120(node, mRoot);
+    std::__red_black_tree_void::balance_insert((std::__tree_node_base_void*)node, (std::__tree_node_base_void*)mRoot);
     if (leftmost) {
         mLeftmost = node;
     }

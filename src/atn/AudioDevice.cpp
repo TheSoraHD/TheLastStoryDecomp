@@ -3,6 +3,7 @@
 // effects of the AUX bus, the list of loaded banks (groups of the archive) and the sound id table
 // read from "rsid.csv". Only the members used here are declared; the NW4R classes are not
 // reconstructed (their functions keep the fn_ names).
+#include "std/tree.h"
 #include "atn/Array_unk.h"
 #include "atn/MemoryManager.h"
 #include "atn/Csv.h"
@@ -28,8 +29,6 @@ extern "C" int fn_800DC12C(const char* s);          // inferred: atoi
 typedef atn::SimpleVector<boost::function<void()> > FrameCallbacks_unk;
 extern "C" FrameCallbacks_unk* lbl_8087EE94;
 
-// inferred: balances the red-black tree after an insertion (MSL)
-extern "C" void fn_8003E120(void* node, void* root);
 
 // inferred: std::map of MSL C++ (nodes {left, right, parent, value}); only what this file uses,
 // names invented. Extra is the size of the word between the root and the leftmost node (the maps
@@ -177,7 +176,7 @@ typename AudioMap_unk<K, V, Extra>::Node* AudioMap_unk<K, V, Extra>::InsertNode(
         parent->mRight = node;
     }
     mSize++;
-    fn_8003E120(node, mRoot);
+    std::__red_black_tree_void::balance_insert((std::__tree_node_base_void*)node, (std::__tree_node_base_void*)mRoot);
     if (leftmost) {
         mLeftmost = node;
     }
