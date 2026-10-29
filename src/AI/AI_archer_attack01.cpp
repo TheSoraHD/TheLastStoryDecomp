@@ -1237,6 +1237,34 @@ static inline bool CanUseItem3_unk() {
     return false;
 }
 
+// inferred: attacks the target when it is closer than in.m30
+static inline int AttackIfNear_unk() {
+    if (lbl_807C68C0.m1C < lbl_807C68C0.m30) {
+        Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return -1;
+}
+
+// inferred: AttackNear_unk with the random wait one inline level deeper (used by em_type103/104)
+static inline int WaitRandom3_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        Wait_unk(WaitDelay_unk());
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+static inline int AttackNear3_unk() {
+    if (lbl_807C68C0.m1C < lbl_807C68C0.m30) {
+        Command_unk(4, (int)lbl_807C68C0.m20, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    return WaitRandom3_unk();
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -4242,6 +4270,29 @@ int AI::Script::AI_em_type103::vf0C() {
     }
     return -1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_type103::vf18() {
+    if (lbl_807C6A40.m18 == 0) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(0, 180, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    int result = AttackNear3_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_type103::vf40() {
     if (fn_800281A0() == 0) {
@@ -4260,6 +4311,38 @@ int AI::Script::AI_em_type103::vf40() {
         return 1;
     }
     return -1;
+}
+
+int AI::Script::AI_em_type103::vf20() {
+    if (lbl_807C6A40.m18 == 0) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(0, 150, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    int result = AttackValid_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (result == 6) {
+        if (lbl_807C68C0.m0C < lbl_807C6A40.m20) {
+            return -1;
+        }
+        if (CanUseItem_unk()) {
+            vf18();
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return AttackIfNear_unk();
 }
 
 int AI::Script::AI_em_type103::vf1C() {
@@ -4378,6 +4461,27 @@ int AI::Script::AI_em_type104::vf0C() {
     return -1;
 }
 
+int AI::Script::AI_em_type104::vf18() {
+    if (lbl_807C6A40.m18 == 0) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(0, 90, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    int result = AttackNear3_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (result == 7) {
+        lbl_807C6A40.m00 = 1;
+        return 7;
+    }
+    return -1;
+}
+
 int AI::Script::AI_em_type104::vf40() {
     if (fn_80028D00() == 0) {
         lbl_807C6A40.m00 = 1;
@@ -4395,6 +4499,38 @@ int AI::Script::AI_em_type104::vf40() {
         return 1;
     }
     return -1;
+}
+
+int AI::Script::AI_em_type104::vf20() {
+    if (lbl_807C6A40.m18 == 0) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(0, 90, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    int result = AttackValid_unk();
+    if (result == 5) {
+        lbl_807C6A40.m00 = 1;
+        return 5;
+    }
+    if (result == 6) {
+        if (lbl_807C68C0.m0C < lbl_807C6A40.m20) {
+            return -1;
+        }
+        if (CanUseItem_unk()) {
+            vf18();
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        return -1;
+    }
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return AttackIfNear_unk();
 }
 
 int AI::Script::AI_em_type104::vf1C() {
