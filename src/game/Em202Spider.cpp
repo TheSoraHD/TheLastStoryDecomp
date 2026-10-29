@@ -719,7 +719,7 @@ void Em202Spider::fn_8027EB14() {
         atn::Vector3 dir(mRoute.m58);
         speed = dir.Length_unk();
         if (speed > 0.0001f) {
-            rot = dir.GetNormalized_unk().ToRotation_unk();
+            rot = dir.GetNormalize().ToRotation_unk();
         }
         dir = m14EC->mPos - mPos;
         dir.y = 0.0f;
@@ -733,7 +733,7 @@ void Em202Spider::fn_8027EB14() {
         }
         if (m58C - 6U > 2 && dist < m14DC) {
             if (dist < 0.8f * m14DC) {
-                rot = Negate_unk(dir.GetNormalized_unk().ToRotation_unk());
+                rot = Negate_unk(dir.GetNormalize().ToRotation_unk());
                 rate = 1.0f;
             } else {
                 rate = 0.0f;
@@ -1040,7 +1040,7 @@ void Em202Spider::fn_80281054(CharaTask* target) {
     fn_8016E970(6);
     m560 = 4;
     atn::Vector3 pos(target->mPos);
-    mRot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+    mRot = (pos - mPos).GetNormalize().ToRotation_unk();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -1057,7 +1057,7 @@ void Em202Spider::fn_80281344(CharaTask* target) {
     fn_8016E970(6);
     m560 = 4;
     atn::Vector3 pos(target->mPos);
-    mRot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+    mRot = (pos - mPos).GetNormalize().ToRotation_unk();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -1072,7 +1072,7 @@ void Em202Spider::fn_80281634(CharaTask* target, int next) {
     m1528 = next;
     m1520 = -1;
     atn::Vector3 pos(target->mPos);
-    mRot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+    mRot = (pos - mPos).GetNormalize().ToRotation_unk();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -1109,7 +1109,7 @@ void Em202Spider::fn_80281924(CharaTask* target) {
             float inv = 1.0f / count;
             center *= inv;
         }
-        mRot = (center - mPos).GetNormalized_unk().ToRotation_unk();
+        mRot = (center - mPos).GetNormalize().ToRotation_unk();
     }
     m1520 = 0;
     m1530 = 0;

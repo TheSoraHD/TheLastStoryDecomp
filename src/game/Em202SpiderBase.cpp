@@ -532,7 +532,7 @@ void Em202SpiderBase::fn_802847CC() {
         atn::Vector3 dir(mRoute.m58);
         speed = dir.Length_unk();
         if (speed > 0.0001f) {
-            rot = dir.GetNormalized_unk().ToRotation_unk();
+            rot = dir.GetNormalize().ToRotation_unk();
         }
         CharaTask* t = m1580;
         dir = t->mPos - mPos;
@@ -835,7 +835,7 @@ void Em202SpiderBase::fn_80285FA0() {
     }
     if (m158C == 0) {
         dist = reach * (1.0f - dist / reach);
-        rot = dist <= 0.0f ? mRot : d.GetNormalized_unk().ToRotation_unk();
+        rot = dist <= 0.0f ? mRot : d.GetNormalize().ToRotation_unk();
         rot.y -= 3.1415927f;
     } else if (m158C == 1) {
         dist = 0.0f;
@@ -920,7 +920,7 @@ void Em202SpiderBase::fn_80286CB0(CharaTask* target) {
         m560 = 4;
         m590 = fn_800F8548(lbl_8087F048);
         atn::Vector3 pos(target->mPos);
-        atn::Vector3 rot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+        atn::Vector3 rot = (pos - mPos).GetNormalize().ToRotation_unk();
         mRot = rot;
         mRot.x = 0.0f;
         mRot.z = 0.0f;
@@ -945,7 +945,7 @@ void Em202SpiderBase::fn_8028702C(CharaTask* target) {
         fn_8016E970(3);
         ResetAttack_unk();
         atn::Vector3 pos(target->mPos);
-        atn::Vector3 rot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+        atn::Vector3 rot = (pos - mPos).GetNormalize().ToRotation_unk();
         mRot.x = 0.0f;
         mRot.y = rot.y;
         mRot.z = 0.0f;
@@ -1028,7 +1028,7 @@ void Em202SpiderBase::fn_802878EC(CharaTask* target) {
     for (unsigned int i = 0; i < m1570.size(); i++) {
         atn::Vector3 d = m1570[i]->mPos - mPos;
         float dist = sqrt(d.x * d.x + d.z * d.z);
-        atn::Vector3 dir = (m1570[i]->mPos - mPos).GetNormalized_unk();
+        atn::Vector3 dir = (m1570[i]->mPos - mPos).GetNormalize();
         atn::Vector3 rot = dir.ToRotation_unk();
         float diff = atn::WrapAngle_unk(rot.y - mRot.y);
         if (diff > 1.5707964f || diff < -1.5707964f) {

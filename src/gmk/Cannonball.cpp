@@ -460,13 +460,13 @@ void Cannonball::vf10() {
                 return;
             }
             mIgnore = 0;
-            m78 = mVel.GetNormalized_unk().ToRotation_unk();
+            m78 = mVel.GetNormalize().ToRotation_unk();
             m78.x += 1.5707964f;
         } else if (m54 == 6) {
             atn::Vector3 prev(m6C);
             m6C += mVel;
             mVel.y += 1.5f * fn_802F0998(fn_800F52F8());
-            m78 = mVel.GetNormalized_unk().ToRotation_unk();
+            m78 = mVel.GetNormalize().ToRotation_unk();
             m78.x += 1.5707964f;
         } else if (m54 == 7) {
             if (fn_800F7F90() == 0 || IsArenaBattle_unk() != 0) {
@@ -724,7 +724,7 @@ void Cannonball::fn_803FBC34(const atn::Vector3* pos) {
         GimmickMsg_unk msg;
         msg.m10 = (int)mHolder;
         msg.mType = 7;
-        msg.mVec = *pos - mVel.GetNormalized_unk() * 1.5f;
+        msg.mVec = *pos - mVel.GetNormalize() * 1.5f;
         vf40(&msg);
     }
     fn_800CB5C8(&mSound, 10, 0);

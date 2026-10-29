@@ -104,7 +104,7 @@ std::string fn_8046CC90(const std::string& in) {
         list.fn_8006C3F0(ResMgr_unk()->fn_8046D194(), ext.c_str(), 0x10001);
         int index = list.fn_8006C300(name.c_str(), 0);
         if (index >= 0) {
-            return std::string(list.GetName_unk(index));
+            return std::string(list.GetStrings(index));
         }
     }
     if (ResMgr_unk() != 0 && !ResMgr_unk()->fn_8046D1C4().empty()) {
@@ -181,7 +181,7 @@ extern "C" void fn_8046D1EC(char* out, const char* in) {
         list.fn_8006C3F0(lbl_8087F518->m3F08, ext + 1, 0x10001);
         int index = list.fn_8006C300(name.c_str(), 0);
         if (index >= 0) {
-            strcpy(out, list.GetName_unk(index));
+            strcpy(out, list.GetStrings(index));
             return;
         }
     }

@@ -237,7 +237,7 @@ inline void Em204MulueMp::StartSpin_unk(int state) {
 // inferred: turn toward `target` (frames and direction; as Em204Mulue::SetTurn_unk)
 inline void Em204MulueMp::SetTurn_unk(atn::Vector3 target) {
     atn::Vector3 d = target - mPos;
-    atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+    atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
     float a = fn_802A7910(fn_802A7964(rot.y - mRot.y));
     if (a < 0.0f) {
         m1600 = 0;
@@ -657,7 +657,7 @@ void Em204MulueMp::vf104() {
                     break;
                 }
             } else {
-                atn::Vector3 n = d.GetNormalized_unk();
+                atn::Vector3 n = d.GetNormalize();
                 n.y = 0.0f;
                 mPos += n * 10.0f;
                 atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
@@ -707,7 +707,7 @@ void Em204MulueMp::fn_802B43C8() {
         if (dist < 0.0001f) {
             rot = mRot;
         } else {
-            rot = d.GetNormalized_unk().ToRotation_unk();
+            rot = d.GetNormalize().ToRotation_unk();
         }
         scale = 0.5f;
     } else if (m55C == 6) {
@@ -736,7 +736,7 @@ void Em204MulueMp::fn_802B475C() {
     atn::Vector3 target(m14D4->mPos);
     atn::Vector3 d = target - mPos;
     d.Length_unk();
-    atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+    atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
     fn_802A7910(fn_802A7964(rot.y - mRot.y));
     if (m15F8 < m1520) {
         switch (m14E8 % 5) {
@@ -915,7 +915,7 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
             MulueMpPlayer_unk* player = lbl_8087F610->GetPlayer_unk(i);
             if (player != 0 && player->mD0_hi == 1 && player->m00 != 0) {
                 atn::Vector3 pos = GetNodePos_unk(player->m00->mMotion.GetNodeMtx_unk("hips"));
-                atn::Vector3 to = (pos - hips).GetNormalized_unk();
+                atn::Vector3 to = (pos - hips).GetNormalize();
                 Bullet* bullet = fn_801010A0(lbl_8087F048);
                 if (bullet == 0) {
                     return;
@@ -971,7 +971,7 @@ void Em204MulueMp::fn_802B596C() {
             }
         }
     } else {
-        atn::Vector3 n = d.GetNormalized_unk();
+        atn::Vector3 n = d.GetNormalize();
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
         Effect_unk* mgr = lbl_8087F048;
@@ -1028,7 +1028,7 @@ void Em204MulueMp::fn_802B5DA4() {
             PlayMotion_unk(0x141, 0, 1.0f);
         }
     } else {
-        atn::Vector3 n = d.GetNormalized_unk();
+        atn::Vector3 n = d.GetNormalize();
         n.y = 0.0f;
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
@@ -1124,7 +1124,7 @@ void Em204MulueMp::fn_802B6104() {
             }
         }
     } else {
-        atn::Vector3 n = d.GetNormalized_unk();
+        atn::Vector3 n = d.GetNormalize();
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
         fn_800FAB80(lbl_8087F048, this, m1684, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
@@ -1223,7 +1223,7 @@ void Em204MulueMp::fn_802B6F80() {
     atn::Vector3 target(*m14D4->fn_8013C38C());
     atn::Vector3 d = target - mPos;
     float dist = d.Length_unk();
-    float angle = fn_802A7910(fn_802A7964(d.GetNormalized_unk().ToRotation_unk().y - GetRot_unk()->y));
+    float angle = fn_802A7910(fn_802A7964(d.GetNormalize().ToRotation_unk().y - GetRot_unk()->y));
     int front = 0;
     if (angle <= 22.5f && angle >= -22.5f) {
         front = 1;

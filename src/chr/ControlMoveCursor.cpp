@@ -39,7 +39,7 @@ extern "C" inline void fn_801C0738(CharaTask* chara, const atn::Vector3& rot) {
 // inferred: a camera position and the point it looks at (two of them in CursorField_unk)
 struct CursorView_unk {
     // inferred: viewing direction (inline)
-    atn::Vector3 GetDir_unk() const { return (mTarget - mPos).GetNormalized_unk(); }
+    atn::Vector3 GetDir_unk() const { return (mTarget - mPos).GetNormalize(); }
     atn::Vector3 mPos;
     atn::Vector3 mTarget;
 };

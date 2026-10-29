@@ -74,7 +74,7 @@ int ControlUseSkill::vf0C() {
     atn::Vector3 dir(mTarget->mPos.x - mChara->mPos.x, mTarget->mPos.y - mChara->mPos.y,
                      mTarget->mPos.z - mChara->mPos.z);
     if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
-        rot = dir.GetNormalized_unk().ToRotation_unk();
+        rot = dir.GetNormalize().ToRotation_unk();
     } else {
         rot = mChara->mRot;
     }

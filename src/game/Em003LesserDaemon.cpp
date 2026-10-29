@@ -864,7 +864,7 @@ void Em003LesserDaemon::vf24() {
     atn::Matrix3x4 m;
     m.fn_8013A13C(mRot.y);
     PSMTXMultVec(m.m, &fwd, &fwd);
-    atn::Vector3 dir = m574.GetNormalized_unk();
+    atn::Vector3 dir = m574.GetNormalize();
     float dot = PSVECDotProduct(&fwd, &dir);
     if (dot > (float)cos(0.7853982f)) {
         mMotion.fn_80097C08(0, 0x1C6, 1, 0, 1, 0.0f, 0.1f);

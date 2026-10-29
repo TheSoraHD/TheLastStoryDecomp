@@ -540,7 +540,7 @@ void Em403WarLion::fn_803241E8() {
             atn::Vector3 dir(mRoute.m58);
             a = dir.Length_unk();
             if (a > 0.0001f) {
-                rot = dir.GetNormalized_unk().ToRotation_unk();
+                rot = dir.GetNormalize().ToRotation_unk();
             } else {
                 rot = mRot;
             }
@@ -682,7 +682,7 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
     float lean = 0.0f;
     atn::Vector3 vel(move + (pos - oldPos));
     if (fn_805F9920(&vel) > 0.001f && speed > 0.001f) {
-        lean = atn::WrapAngle_unk(vel.GetNormalized_unk().ToRotation_unk().y - mRot.y);
+        lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
     }
     lean *= 2.0f;
     m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
@@ -971,9 +971,9 @@ void Em403WarLion::fn_803267E8() {
                     CollResult_unk result;
                     atn::Vector3 from(mPos);
                     from.y += 10.0f;
-                    atn::Vector3 to = from + d.GetNormalized_unk() * 500.0f;
+                    atn::Vector3 to = from + d.GetNormalize() * 500.0f;
                     if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
-                        result.m10 -= d.GetNormalized_unk() * m620;
+                        result.m10 -= d.GetNormalize() * m620;
                         if ((result.m10 - from).Length_unk() > 80.0f) {
                             m1500 = result.m10;
                             m1500.y = mPos.y;
@@ -991,9 +991,9 @@ void Em403WarLion::fn_803267E8() {
                     CollResult_unk result;
                     atn::Vector3 from(mPos);
                     from.y += 10.0f;
-                    atn::Vector3 to = from + d.GetNormalized_unk() * 500.0f;
+                    atn::Vector3 to = from + d.GetNormalize() * 500.0f;
                     if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
-                        result.m10 -= d.GetNormalized_unk() * m620;
+                        result.m10 -= d.GetNormalize() * m620;
                         if ((result.m10 - from).Length_unk() > 60.0f) {
                             m1500 = result.m10;
                             m1500.y = mPos.y;
@@ -1037,7 +1037,7 @@ void Em403WarLion::fn_803267E8() {
             fn_803278B4();
         } else if (m14CC == 3) {
             float y = GetRot_unk()->y;
-            float diff = fn_802A7910(fn_802A7964(d.GetNormalized_unk().ToRotation_unk().y - y));
+            float diff = fn_802A7910(fn_802A7964(d.GetNormalize().ToRotation_unk().y - y));
             (void)WarLionStripped1_unk;
             if (fn_80011220(diff) <= 60.0f && dist < 200.0f) {
                 atn::Vector3 from(mPos);
@@ -1145,8 +1145,8 @@ void Em403WarLion::fn_80327A64() {
     m1580 = m14BC->mPos;
     atn::Vector3 d = m1580 - mPos;
     d.y = 0.0f;
-    m1580 -= d.GetNormalized_unk() * 10.0f;
-    mRot = d.GetNormalized_unk().ToRotation_unk();
+    m1580 -= d.GetNormalize() * 10.0f;
+    mRot = d.GetNormalize().ToRotation_unk();
     fn_80370AE4(lbl_8087F430, 0x5D, 2);
     m1598 = m14BC;
     if (m1598 != 0) {
@@ -1194,7 +1194,7 @@ void Em403WarLion::fn_80327EF0() {
     if (mMotion.mTracks[0].m08 < 20.0f) {
         CharaTask* target = m14BC;
         atn::Vector3 d = target->mPos - mPos;
-        atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+        atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         float a = fmod(57.295776f * (rot.y - mRot.y), 360.0);
         if (a > 180.0f) {
             a -= 360.0f;
@@ -1415,7 +1415,7 @@ void Em403WarLion::fn_8032943C() {
             mMotion.mTracks[0].m0C = 1.5f;
             mMotion.fn_80097C08(0, 0x20, 1, 1, 1, 0.0f, 0.1f);
             mRot = m1518;
-            m150C = (m1500 - mPos).GetNormalized_unk() * 100.0f;
+            m150C = (m1500 - mPos).GetNormalize() * 100.0f;
             m150C *= 1.0f / mMotion.fn_80097D7C(0);
             m14C4 = 1;
         } else {
@@ -1619,7 +1619,7 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
             if (c->m638 == 0 || c->m638->m01 != 1) {
                 continue;
             }
-            atn::Vector3 dir = c->fn_80158E1C().GetNormalized_unk();
+            atn::Vector3 dir = c->fn_80158E1C().GetNormalize();
             atn::Vector3 from(c->mPos);
             from.y += 20.0f;
             atn::Vector3 to = from + dir * 1000.0f;

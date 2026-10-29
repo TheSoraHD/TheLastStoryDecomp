@@ -565,7 +565,7 @@ void Em309GhoulSimple::vf108() {
         atn::Vector3 dir(mC58.m0C.m58);
         dist = fn_805F9920(&dir);
         if (dist > 0.0001f) {
-            rot = dir.GetNormalized_unk().ToRotation_unk();
+            rot = dir.GetNormalize().ToRotation_unk();
         } else {
             rot = mRot;
         }

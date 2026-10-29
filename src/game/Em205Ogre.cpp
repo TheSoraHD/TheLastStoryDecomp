@@ -457,7 +457,7 @@ void Em205Ogre::vf108() {
             atn::Vector3 dir(mC58.m0C.m58);
             speed = fn_805F9920(&dir);
             if (speed > 0.0001f) {
-                rot = dir.GetNormalized_unk().ToRotation_unk();
+                rot = dir.GetNormalize().ToRotation_unk();
             } else {
                 rot = mRot;
             }

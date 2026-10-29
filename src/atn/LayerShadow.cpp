@@ -327,7 +327,7 @@ Camera_unk LayerShadow::fn_800B7090(const AABB_unk& box, const Vector3& dir) {
     cam.mBottom = b.mMin.y;
     cam.mLeft = b.mMin.x;
     cam.mRight = b.mMax.x;
-    Vector3 d = (cam.mTarget - cam.mPos).GetNormalized_unk();
+    Vector3 d = (cam.mTarget - cam.mPos).GetNormalize();
     cam.mPos = eye + d * -b.mMax.z;
     cam.mNear = 0.0f;
     cam.mFar = 0.0f + (b.mMax.z - b.mMin.z);
@@ -349,7 +349,7 @@ void LayerShadow::vf10(void* arg) {
         dir = Vector3(-light->m254, -light->m258, -light->m25C);
     }
     if (dir.IsZero_unk()) {
-        dir = Vector3(1.0f, -1.0f, 1.0f).GetNormalized_unk();
+        dir = Vector3(1.0f, -1.0f, 1.0f).GetNormalize();
     }
     dir.Normalize_unk();
     AABB_unk total(Vector3(1e16f, 1e16f, 1e16f), Vector3(-1e16f, -1e16f, -1e16f));

@@ -34,7 +34,7 @@ struct RsVector4_unk {
 struct ShadowParam_unk {
     ShadowParam_unk()
         : mEnabled(1), mMode(0), mCullDist(250.0f), mColor(0.5f, 0.5f, 0.5f, 1.0f),
-          mDir(atn::Vector3(1.0f, -1.0f, 1.0f).GetNormalized_unk()) {}
+          mDir(atn::Vector3(1.0f, -1.0f, 1.0f).GetNormalize()) {}
     void fn_800BBD90(RsCsv_unk* csv); // inferred: loads "ON", distance, color, direction, "ADD"
     void fn_800BBEFC(void* menu);       // inferred: adds the debug menu entries
 

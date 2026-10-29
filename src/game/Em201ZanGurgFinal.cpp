@@ -931,12 +931,12 @@ void Em201ZanGurgFinal::fn_80267134() {
             dir = mRoute.m58;
             speed = PSVECMag(&dir);
             if (speed > 0.0001f) {
-                rot = dir.GetNormalized_unk().ToRotation_unk();
+                rot = dir.GetNormalize().ToRotation_unk();
             } else {
                 rot = mRot;
             }
         } else {
-            atn::Vector3 to = (m14B8->mPos - mPos).GetNormalized_unk();
+            atn::Vector3 to = (m14B8->mPos - mPos).GetNormalize();
             if ((m14B8->mPos - mPos).Length_unk() < 25.0f) {
                 speed = 0.0f;
             } else {
@@ -1245,7 +1245,7 @@ void Em201ZanGurgFinal::fn_8026860C() {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftwepoint"));
         if (m14B8 != 0) {
             atn::Vector3 hips = GetNodePos_unk(m14B8->mMotion.GetNodeMtx_unk("hips"));
-            m1510 = (hips - pos).GetNormalized_unk();
+            m1510 = (hips - pos).GetNormalize();
             mRot.y = m1510.ToRotationZ_unk().y;
         }
     } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 50.0f) < 1.1920929e-7f) {

@@ -501,7 +501,7 @@ void Em303KrakenFoot::fn_802E37DC() {
         atn::Vector3 v = mRoute.m58;
         speed = v.Length_unk();
         if (speed > 0.0001f) {
-            rot = v.GetNormalized_unk().ToRotation_unk();
+            rot = v.GetNormalize().ToRotation_unk();
         }
         if (m58C == 11) {
             CharaTask* kraken = (CharaTask*)m1504;

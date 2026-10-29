@@ -435,7 +435,7 @@ int Em203GreaterDaemon::vf0C() {
         } else {
             m1978.Set_unk(0.0f, 200.0f, 0.0f);
         }
-        mRot.y = (m1978 - mPos).GetNormalized_unk().ToRotation_unk().y;
+        mRot.y = (m1978 - mPos).GetNormalize().ToRotation_unk().y;
         return 1;
     }
     return 0;
@@ -478,7 +478,7 @@ inline void Em203GreaterDaemon::PlayMotion_unk(int motion, int loop, int arg, fl
 
 // inferred: turns to the centre of the arena (name invented)
 inline void Em203GreaterDaemon::FaceCenter_unk() {
-    mRot.y = (m1978 - mPos).GetNormalized_unk().ToRotation_unk().y;
+    mRot.y = (m1978 - mPos).GetNormalize().ToRotation_unk().y;
 }
 
 // inferred: starts state 17 (takes off to the nearest route point; name invented)
@@ -1139,7 +1139,7 @@ void Em203GreaterDaemon::fn_8028C834() {
             fn_80109828(lbl_8087F048, text);
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
             atn::Vector3 dir = m14B0->mPos - pos;
-            dir.GetNormalized_unk(); // inferred: the result is not used (the original fires along dir)
+            dir.GetNormalize(); // inferred: the result is not used (the original fires along dir)
             fn_800F8574(lbl_8087F048, this, m15D0, &pos, &dir, 0, 0x100, 0, 0.0f, 1.0f);
             m14B4 = 2;
         }
@@ -1632,7 +1632,7 @@ void Em203GreaterDaemon::fn_8028F560() {
     m1504 = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
     m1508 = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
     m151C = m152C->mPos - mPos;
-    mRot.y = (m1978 - mPos).GetNormalized_unk().ToRotation_unk().y;
+    mRot.y = (m1978 - mPos).GetNormalize().ToRotation_unk().y;
     m1528 = -1.5707964f;
 }
 

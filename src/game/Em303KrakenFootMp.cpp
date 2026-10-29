@@ -323,7 +323,7 @@ void Em303KrakenFootMp::vf104() {
                     atn::Vector3 v = mRoute.m58;
                     speed = v.Length_unk();
                     if (speed > 0.0001f) {
-                        rot = v.GetNormalized_unk().ToRotation_unk();
+                        rot = v.GetNormalize().ToRotation_unk();
                     }
                 } else if (m55C == 6) {
                     fn_8013A258();
@@ -370,7 +370,7 @@ void Em303KrakenFootMp::vf104() {
                     atn::Vector3 v = mRoute.m58;
                     speed = v.Length_unk();
                     if (speed > 0.0001f) {
-                        rot = v.GetNormalized_unk().ToRotation_unk();
+                        rot = v.GetNormalize().ToRotation_unk();
                     }
                 } else if (m55C == 6) {
                     fn_8013A258();

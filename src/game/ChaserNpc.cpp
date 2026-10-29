@@ -363,7 +363,7 @@ void ChaserNpc::fn_80181A64() {
     int found = -1;
     int playerPoint = fn_803C1560(table, &player->mPos, player->fn_80179D44(), 0, 0, 1, -1.0f);
     int point = fn_803C1560(table, &mPos, fn_80179D44(), 0, 0, 1, -1.0f);
-    atn::Vector3 away = (player->mPos - mPos).GetNormalized_unk();
+    atn::Vector3 away = (player->mPos - mPos).GetNormalize();
     int count = 0;
     int best = -1;
     unsigned int i = rand() % m14B4.size();
@@ -374,7 +374,7 @@ void ChaserNpc::fn_80181A64() {
         bool ok = true;
         count++;
         int next = fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (point - 1) * 8), dest - 1);
-        atn::Vector3 dir = (table->mPoints[next - 1].mPos - mPos).GetNormalized_unk();
+        atn::Vector3 dir = (table->mPoints[next - 1].mPos - mPos).GetNormalize();
         float angle = acos(PSVECDotProduct(&dir, &away));
         while (next != 0 && next != dest) {
             if (next == playerPoint) {
@@ -447,12 +447,12 @@ bool ChaserNpc::fn_80182134() {
         bool seen = false;
         atn::Vector3 eye = mPos + up;
         atn::Vector3 target = player->mPos + up;
-        atn::Vector3 dir = (target - eye).GetNormalized_unk();
+        atn::Vector3 dir = (target - eye).GetNormalize();
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         Mtx m;
         PSMTXRotRad(m, 'y', mRot.y + mLook.mRot.y);
         PSMTXMultVec(m, &front, &front);
-        float angle = acos(PSVECDotProduct(&front.GetNormalized_unk(), &dir));
+        float angle = acos(PSVECDotProduct(&front.GetNormalize(), &dir));
         if (angle < 0.5f * angleMax) {
             CollResult_unk result;
             seen = fn_8004ED34(lbl_8087EE98, &result, &eye, &target, 0x80000000, 0, 0) == 0;

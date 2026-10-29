@@ -1244,7 +1244,7 @@ void Em204BigMulue::fn_802B1B50(int fire) {
             if (bullet != 0) {
                 Model_unk* model = &mMotion;
                 atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
-                atn::Vector3 dir = (to - hips).GetNormalized_unk();
+                atn::Vector3 dir = (to - hips).GetNormalize();
                 BigMulueShot_unk shot;
                 shot.m00 = 2.0f;
                 shot.m04 = (int)&m1A6C;

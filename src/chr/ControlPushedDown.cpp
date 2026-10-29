@@ -436,9 +436,9 @@ ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir
     PSMTXMultVec(mtx, &front, &front);
     PSVECCrossProduct(&front, &up, &side);
     if (PSVECDotProduct(&side, &dir) > 0.0f) {
-        m08 = (dir + side).GetNormalized_unk();
+        m08 = (dir + side).GetNormalize();
     } else {
-        m08 = (dir - side).GetNormalized_unk();
+        m08 = (dir - side).GetNormalize();
     }
     m14 = mChara->mPos;
     m20 = mChara->mRot;

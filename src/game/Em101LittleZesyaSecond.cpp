@@ -661,7 +661,7 @@ void Em101LittleZesyaSecond::fn_80261A50() {
                 if (p->CanAct_unk()) {
                     Model_unk* model = &p->mMotion;
                     atn::Vector3 target = GetTrans_unk(model->GetNodeMtx_unk("hips"));
-                    atn::Vector3 dir = (target - hips).GetNormalized_unk();
+                    atn::Vector3 dir = (target - hips).GetNormalize();
                     atn::Vector3 pos = hips + dir * 15.0f;
                     HomingParam_unk param;
                     param.mAccel = 0.0f;

@@ -250,7 +250,7 @@ struct NewCampScene2_unk {
 
 // inferred: name invented
 inline Vector3 Normalized_unk(const Vector3& v) {
-    return v.GetNormalized_unk();
+    return v.GetNormalize();
 }
 
 // inferred: identity 4x4 matrix as rows (name invented)
@@ -274,7 +274,7 @@ NewCampScene2_unk::NewCampScene2_unk()
       m230(1.0f), m234(0), m238(1), m23C(0), m240(250.0f), m244(0.5f), m248(0.5f), m24C(0.5f), m250(1.0f),
       m260(0), m264(0),
       m2A8(0), m2AC(0), m2B0(1.0f) {
-    m254 = Vector3(1.0f, -1.0f, 1.0f).GetNormalized_unk();
+    m254 = Vector3(1.0f, -1.0f, 1.0f).GetNormalize();
     SetIdentityRows_unk(m268);
     mAmbient = SceneColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
     m2C = SceneColor_unk(1.0f, 1.0f, 1.0f, 1.0f);

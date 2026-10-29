@@ -677,7 +677,7 @@ void Em316LaserSphere::fn_8031A484() {
         zero = 1;
     }
     if (!zero) {
-        m1540 = m6B8.GetNormalized_unk() * 2.0f;
+        m1540 = m6B8.GetNormalize() * 2.0f;
         m1540.y *= 0.5f;
         if (m1540.y > 0.0f) {
             m1540.y = 0.0f;

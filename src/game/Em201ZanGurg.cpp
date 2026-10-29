@@ -168,7 +168,7 @@ inline void Em201ZanGurg::SelectAttack_unk() {
         atn::Vector3 pos = m14B8->mPos;
         atn::Vector3 d = pos - mPos;
         float dist = d.Length_unk();
-        atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+        atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         AngleDiffDeg_unk(rot.y, mRot.y);
         if (m14C4 == 0 && m16E8 != 0) {
             if (dist < 30.0f) {
@@ -334,7 +334,7 @@ void Em201ZanGurg::fn_80263CF0() {
         atn::Vector3 v = mRoute.m58;
         speed = v.Length_unk();
         if (speed > 0.0001f) {
-            rot = v.GetNormalized_unk().ToRotation_unk();
+            rot = v.GetNormalize().ToRotation_unk();
         }
     } else if (m55C == 6) {
         if (m560 == 4) {
@@ -381,7 +381,7 @@ void Em201ZanGurg::fn_802640FC() {
         atn::Vector3 pos = m14B8->mPos;
     atn::Vector3 d = pos - mPos;
         float dist = d.Length_unk();
-        atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+        atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         float d2 = fmod(57.295776f * (rot.y - mRot.y), 360.0);
         if (d2 > 180.0f) {
             d2 -= 360.0f;

@@ -322,7 +322,7 @@ inline void Em101LittleZesya::WarpNear_unk(CharaTask* target, atn::Vector3* dest
     atn::Vector3 e = *dest - target->mPos;
     e.y = 0.0f;
     if (PSVECMag(&e) > 40.0f) {
-        *dest = target->mPos + e.GetNormalized_unk() * 40.0f;
+        *dest = target->mPos + e.GetNormalize() * 40.0f;
         CollResult_unk result;
         atn::Vector3 to = atn::Vector3(0.0f, -500.0f, 0.0f) + *dest;
         if (fn_8004ED34(lbl_8087EE98, &result, dest, &to, 0x80000000, &mColli, 0) != 0) {
@@ -413,7 +413,7 @@ void Em101LittleZesya::fn_8025D7B0() {
 
 // NONMATCHING: 99.04% - stack slots: the original keeps the rows of the 4x4 matrix of ToRotation_unk in
 // descending order and the effect locals higher (8 variants: helper inlines, locals hoisted,
-// GetNormalized_unk form); r3/r4/r5 of the first block
+// GetNormalize form); r3/r4/r5 of the first block
 void Em101LittleZesya::fn_8025D90C() {
     atn::Vector3 target = m14B8->mPos;
     atn::Vector3 d = target - mPos;
@@ -554,7 +554,7 @@ void Em101LittleZesya::fn_8025E100() {
             atn::Vector3 e = *dest - target->mPos;
             e.y = 0.0f;
             if (PSVECMag(&e) > 40.0f) {
-                *dest = target->mPos + e.GetNormalized_unk() * 40.0f;
+                *dest = target->mPos + e.GetNormalize() * 40.0f;
                 CollResult_unk result;
                 atn::Vector3 to = atn::Vector3(0.0f, -500.0f, 0.0f) + *dest;
                 if (fn_8004ED34(lbl_8087EE98, &result, dest, &to, 0x80000000, &mColli, 0) != 0) {

@@ -269,7 +269,7 @@ void Em209SmallGolem::vf10() {
             }
             if ((float)__fabs(mMotion.mTracks[0].m08 - 28.0f) < 1.1920929e-7f) {
                 atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
-                m14CC = (m14D8 - pos).GetNormalized_unk();
+                m14CC = (m14D8 - pos).GetNormalize();
                 Effect_unk* mgr = lbl_8087F048;
                 fn_800F8574(mgr, this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
             }
@@ -289,7 +289,7 @@ void Em209SmallGolem::vf10() {
                 }
                 if ((float)__fabs(mMotion.mTracks[0].m08 - 28.0f) < 1.1920929e-7f) {
                     atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
-                    m14CC = (m14D8 - pos).GetNormalized_unk();
+                    m14CC = (m14D8 - pos).GetNormalize();
                     Effect_unk* mgr = lbl_8087F048;
                     fn_800F8574(mgr, this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
                 }
@@ -569,7 +569,7 @@ void Em209SmallGolem::fn_802CF054() {
     atn::Vector3 rot = mRot;
     if (m55C == 7) {
         atn::Vector3 d = m14B8->mPos - mPos;
-        atn::Vector3 dir = d.GetNormalized_unk();
+        atn::Vector3 dir = d.GetNormalize();
         d.y = 0.0f;
         if (d.Length_unk() < 0.8f * m1518) {
             speed = 0.0f;

@@ -2722,7 +2722,7 @@ fn_800F7FA0 = .text:0x800F7FA0; // type:function size:0x8
 fn_800F7FA8 = .text:0x800F7FA8; // type:function size:0xC
 GetM146C_unk__10Player_unkFv = .text:0x800F7FB4; // type:function size:0x8
 fn_800F7FBC = .text:0x800F7FBC; // type:function size:0x1C
-GetNormalized_unk__Q23atn7Vector3CFv = .text:0x800F7FD8; // type:function size:0x18
+GetNormalize__Q23atn7Vector3CFv = .text:0x800F7FD8; // type:function size:0x18
 Normalize_unk__Q23atn7Vector3Fv = .text:0x800F7FF0; // type:function size:0x8
 fn_800F7FF8 = .text:0x800F7FF8; // type:function size:0x1C
 fn_800F8014 = .text:0x800F8014; // type:function size:0x84
@@ -9789,7 +9789,7 @@ fn_8046CC90__3atnFRCQ23std59basic_string<c,Q23std14char_traits<c>,Q23std12alloca
 fn_8046D184__Q23atn6LoaderFv = .text:0x8046D184; // type:function size:0x8
 fn_8046D18C__Q23atn6LoaderFv = .text:0x8046D18C; // type:function size:0x8
 fn_8046D194__Q23atn6LoaderFv = .text:0x8046D194; // type:function size:0x8
-GetName_unk__Q23atn8FileListFi = .text:0x8046D19C; // type:function size:0x28
+GetStrings__Q23atn8FileListCFi = .text:0x8046D19C; // type:function size:0x28
 fn_8046D1C4__Q23atn6LoaderFv = .text:0x8046D1C4; // type:function size:0x8
 __vc__Q23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>CFUl = .text:0x8046D1CC; // type:function size:0x20
 fn_8046D1EC = .text:0x8046D1EC; // type:function size:0x5EC

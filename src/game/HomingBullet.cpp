@@ -161,7 +161,7 @@ void HomingBullet::vf10() {
     }
     if (IsHoming_unk()) {
         if (mA0.mDelay > 0.0f) {
-            m20 = m20.GetNormalized_unk() * m80;
+            m20 = m20.GetNormalize() * m80;
             mA0.mDelay -= dt;
         } else {
             CharaTask* target = mA0.mTarget;

@@ -638,7 +638,7 @@ void Em308InvertCrab::fn_802F33A0() {
         atn::Vector3 v = mRoute.m58;
         speed = v.Length_unk();
         if (speed > 0.0001f) {
-            rot = v.GetNormalized_unk().ToRotation_unk();
+            rot = v.GetNormalize().ToRotation_unk();
         }
         CharaTask* target = (CharaTask*)m1580;
         v = target->mPos - mPos;
@@ -960,7 +960,7 @@ void Em308InvertCrab::fn_802F4A98() {
         }
         if (m1590 == 0) {
             dist = reach * (1.0f - dist / reach);
-            const atn::Vector3& src = dist <= 0.0f ? mRot : d.GetNormalized_unk().ToRotation_unk();
+            const atn::Vector3& src = dist <= 0.0f ? mRot : d.GetNormalize().ToRotation_unk();
             rot = src;
             rot.y -= 3.1415927f;
         } else if (m1590 == 1) {
@@ -1245,7 +1245,7 @@ void Em308InvertCrab::fn_802F693C(CharaTask* target) {
         for (unsigned int i = 0; i < m1570.size(); i++) {
             float dist = CrabLengthXZ_unk(m1570[i]->mPos - mPos);
             atn::Vector3 dir = m1570[i]->mPos - mPos;
-            float a = atn::WrapAngle_unk(dir.GetNormalized_unk().ToRotation_unk().y - mRot.y);
+            float a = atn::WrapAngle_unk(dir.GetNormalize().ToRotation_unk().y - mRot.y);
             if (a > 1.5707964f || a < -1.5707964f) {
                 dist *= 2.0f;
             }

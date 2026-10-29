@@ -241,7 +241,7 @@ inline void Em305Vampire::Tackle_unk() {
     }
     if (m14F4 != 0) {
         atn::Vector3 d = m14F4->mPos - mPos;
-        atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+        atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         mRot.y = rot.y;
     }
 }
@@ -598,7 +598,7 @@ void Em305Vampire::fn_802EA490() {
         if (speed < 0.0001f) {
             rot = mRot;
         } else {
-            rot = v.GetNormalized_unk().ToRotation_unk();
+            rot = v.GetNormalize().ToRotation_unk();
         }
         if (m1528 == 1) {
             rate *= m1538 * (m15D8[0] + m152C);
@@ -676,7 +676,7 @@ void Em305Vampire::fn_802EAC70() {
     }
     if (m14F4 != 0) {
         atn::Vector3 d = m14F4->mPos - mPos;
-        atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+        atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         mRot.y = rot.y;
     }
 }
@@ -743,7 +743,7 @@ void Em305Vampire::fn_802EB1F4() {
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
         } else {
-            atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+            atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
             mRot.y += 0.2f * (rot.y - mRot.y);
         }
     } else if (m14F8 == 1) {
@@ -752,7 +752,7 @@ void Em305Vampire::fn_802EB1F4() {
             fn_802EBABC();
         }
         float step = d.Length_unk() / mMotion.fn_80097D7C(0);
-        mPos += d.GetNormalized_unk() * step;
+        mPos += d.GetNormalize() * step;
     }
 }
 

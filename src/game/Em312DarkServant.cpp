@@ -551,7 +551,7 @@ void Em312DarkServant::vf108() {
             atn::Vector3 dir(*mC58.m0C.fn_80139F58());
             speed = dir.Length_unk();
             if (speed > 0.0001f) {
-                rot = dir.GetNormalized_unk().ToRotation_unk();
+                rot = dir.GetNormalize().ToRotation_unk();
             }
             if (mC58.m0C.fn_8013C3F4()) {
                 mFlag31 = 1;

@@ -1165,7 +1165,7 @@ void EnemyJill::fn_80331DAC() {
         } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 20.0f) < 1.1920929e-7f) {
             CharaTask* target = mC58.mC4;
             atn::Vector3 d = target->mPos - mPos;
-            atn::Vector3 rot = d.GetNormalized_unk().ToRotation_unk();
+            atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
             float a = fmod(57.295776f * (rot.y - mRot.y), 360.0);
             if (a > 180.0f) {
                 a -= 360.0f;

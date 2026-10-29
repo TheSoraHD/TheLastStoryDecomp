@@ -1289,7 +1289,7 @@ void CharaTask::fn_80139560() {
             atn::Vector3 dir(*mRoute.fn_80139F58());
             a = dir.Length_unk();
             if (a > 0.0001f) {
-                rot = dir.GetNormalized_unk().ToRotation_unk();
+                rot = dir.GetNormalize().ToRotation_unk();
             } else {
                 rot = mRot;
             }
@@ -1506,7 +1506,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
     if (mC58.mC4 != 0 && mC58.mE0_11 && mC58.mC4->vf78()) {
         atn::Vector3 dir = *mC58.mC4->fn_8013C38C() - mPos;
         dir.y = 0.0f;
-        dir = atn::Vector3::fn_8013C394(dir.GetNormalized_unk(),
+        dir = atn::Vector3::fn_8013C394(dir.GetNormalize(),
                                         atn::Vector3(0.0f, mC58.mE0_10 ? 1.0f : -1.0f, 0.0f));
         fn_80155790(dir);
         mC58.mE0_10 = !mC58.mE0_10;
@@ -1554,7 +1554,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
         atn::Vector3 dir(*route->fn_80139F58());
         *a = dir.Length_unk();
         if (*a > 0.0001f) {
-            atn::Vector3 n = dir.GetNormalized_unk();
+            atn::Vector3 n = dir.GetNormalize();
             *rot = n.ToRotation_unk();
             m1394->fn_80135338(*route->fn_8013C3FC(), n);
         } else {
@@ -1630,7 +1630,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
                     *a = 0.0f;
                 } else if (*a > 10.0f) {
                     if (*a > 40.0f && rand() % 50 < 1) {
-                        fn_80155790(dir2.GetNormalized_unk());
+                        fn_80155790(dir2.GetNormalize());
                     } else if (atn::Vector3::fn_8013C394(dir, dir2).y >= 0.0f) {
                         *rot = atn::Vector3::fn_8013C394(atn::Vector3(0.0f, 1.0f, 0.0f), dir).ToRotation_unk();
                     } else {
@@ -1658,7 +1658,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
                     atn::Vector3 dir(*route->fn_80139F58());
                     *a = dir.Length_unk();
                     if (*a > 0.0001f) {
-                        *rot = dir.GetNormalized_unk().ToRotation_unk();
+                        *rot = dir.GetNormalize().ToRotation_unk();
                     } else {
                         *rot = mRot;
                     }
@@ -1954,7 +1954,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
             *a = dir.Length_unk();
             if (*a < mC58.mRadius) {
                 if (*a > 0.01f) {
-                    *rot = dir.GetNormalized_unk().ToRotation_unk();
+                    *rot = dir.GetNormalize().ToRotation_unk();
                 }
                 *a = 0.0f;
             } else {
@@ -2905,7 +2905,7 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
         float lean = 0.0f;
         atn::Vector3 vel(move + (pos - oldPos));
         if (LengthSq_unk(vel) > 0.001f && speed > 0.001f) {
-            lean = atn::WrapAngle_unk(vel.GetNormalized_unk().ToRotation_unk().y - mRot.y);
+            lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
         }
         lean *= 2.0f;
         m610 = 0;
@@ -3388,7 +3388,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
     } else {
         a = 0.0f;
         if (!(atn::Abs_unk(fn_805F9920(&m574)) < 1.1920929e-7f)) {
-            rot.y = m574.GetNormalized_unk().ToRotation_unk().y;
+            rot.y = m574.GetNormalize().ToRotation_unk().y;
         }
     }
     m580 += 0.25f * (0.7f * turn) - 0.4f * m580;
@@ -3613,7 +3613,7 @@ void CharaTask::vf24() {
             return;
         }
         atn::Vector3 fwd = fn_8014052C();
-        atn::Vector3 dir = m574.GetNormalized_unk();
+        atn::Vector3 dir = m574.GetNormalize();
         float dot = Dot_unk(fwd, dir);
         if (dot > (float)cos(0.7853982f)) {
             mMotion.fn_80097C08(0, m484[27], 1, 0, 1, 0.0f, 0.1f);
@@ -4164,7 +4164,7 @@ void CharaTask::fn_80145334() {
         }
         dir.y = 0.0f;
         if (fn_805F9920(&dir) > 0.01f) {
-            atn::Vector3 n = dir.GetNormalized_unk();
+            atn::Vector3 n = dir.GetNormalize();
             atn::Vector3 front = fn_8014052C();
             if (PSVECDotProduct(&n, &front) > 0.5f) {
                 CollResult_unk result;
@@ -4183,8 +4183,8 @@ void CharaTask::fn_80145334() {
                     atn::Vector3 end = sphere.mCenter + dir;
                     atn::Vector3 back(result.m10.x - end.x, 0.0f, result.m10.z - end.z);
                     if (fn_805F9920(&back) > 0.01f) {
-                        atn::Vector3 n1 = dir.GetNormalized_unk();
-                        atn::Vector3 n2 = back.GetNormalized_unk();
+                        atn::Vector3 n1 = dir.GetNormalize();
+                        atn::Vector3 n2 = back.GetNormalize();
                         if (PSVECDotProduct(&n1, &n2) < -0.5f && ((unsigned int)result.m3C & 4) != 4) {
                             m588 = MIN(maxDist, back.Length_unk());
                             keep = false;
@@ -10372,7 +10372,7 @@ int CharaTask::fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out
         }
         // inferred: the original reads m574.y as the z component
         atn::Vector3 move(other->m574.x, 0.0f, other->m574.y);
-        if (PSVECMag(&move) > 0.5f * len && Dot_unk(dir, move.GetNormalized_unk()) > 0.7f) {
+        if (PSVECMag(&move) > 0.5f * len && Dot_unk(dir, move.GetNormalize()) > 0.7f) {
             return 0;
         }
         if (atn::Abs_unk(other->mPos.y - mPos.y) > 6.0f) {
@@ -10685,7 +10685,7 @@ int CharaTask::fn_801749EC(atn::Vector3* pos, atn::Vector3* vel) {
     from.y += 3.0f;
     to.y -= 5.0f;
     if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0) == 0) {
-        fn_80178208(new (0, "", "", 0) chr::ControlJump(this, *pos, vel->GetNormalized_unk()));
+        fn_80178208(new (0, "", "", 0) chr::ControlJump(this, *pos, vel->GetNormalize()));
         return 1;
     }
     return 0;
