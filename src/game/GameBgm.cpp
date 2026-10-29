@@ -1,4 +1,5 @@
 #include "game/GameBgm.h"
+#include "atn/SoundManager.h"
 #include "atn/SoundCore.h"
 #include "game/GameSoundControl.h"
 #include "atn/Memory.h"
@@ -43,14 +44,6 @@ extern "C" void fn_80370320(GameBgmField_unk* field, int id, int value, int arg)
 // inferred: sound engine (lbl_8087EE90) and sound configuration (lbl_8087EFE8)
 extern "C" void* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
-struct GameBgmSoundCfg_unk {
-    unsigned char m0000[0x34C8];
-    int m34C8;
-    unsigned char m34CC[0x34D0 - 0x34CC];
-    int m34D0;
-    int m34D4;
-};
-extern "C" GameBgmSoundCfg_unk* lbl_8087EFE8;
 // inferred: environment sound manager (lbl_8087F418)
 struct GameBgmEnv_unk {
     unsigned char m000[0x80];

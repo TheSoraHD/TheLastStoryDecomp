@@ -1,6 +1,7 @@
 #include "game/NewCampPartsTop.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
+#include "atn/SoundManager.h"
 #include "atn/D3AnimeInstance.h"
 #include "atn/FadeCommon.h"
 #include "MP/SaveLoad.h"
@@ -198,8 +199,6 @@ struct NewCampTopMsg_unk {
 extern "C" NewCampTopMsg_unk* lbl_8087F1E4;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* lbl_8087EFE8;
-extern "C" void fn_800CFBA0(void* p, int a, int b, int c, int d);
 extern "C" void fn_8052CA6C(atn::Task* camp);
 extern "C" void fn_8052C9C4(atn::Task* camp);
 extern "C" void fn_8052DEEC(atn::Task* camp, int id);
@@ -601,15 +600,15 @@ void NewCampPartsTop::vf2C() {
             case 0:
                 fn_8052DEEC(m48, 5);
                 if (lbl_8087EFE8 != 0) {
-                    fn_800CFBA0(lbl_8087EFE8, 1, 1, 0x20, 30);
-                    fn_800CFBA0(lbl_8087EFE8, 2, 1, 0x20, 15);
+                    lbl_8087EFE8->fn_800CFBA0(1, 1, 0x20, 30);
+                    lbl_8087EFE8->fn_800CFBA0(2, 1, 0x20, 15);
                 }
                 break;
             case 1:
                 fn_8052DEEC(m48, 7);
                 if (lbl_8087EFE8 != 0) {
-                    fn_800CFBA0(lbl_8087EFE8, 1, 1, 0x20, 30);
-                    fn_800CFBA0(lbl_8087EFE8, 2, 1, 0x20, 15);
+                    lbl_8087EFE8->fn_800CFBA0(1, 1, 0x20, 30);
+                    lbl_8087EFE8->fn_800CFBA0(2, 1, 0x20, 15);
                 }
                 break;
             case 2:

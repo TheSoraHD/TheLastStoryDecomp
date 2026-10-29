@@ -1,4 +1,5 @@
 #include "game/ColliAttrManager.h"
+#include "atn/SoundManager.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/CharaTask.h"
@@ -94,11 +95,6 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int a, int b
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
-struct SoundCfg_unk {
-    unsigned char m00[0x34CC];
-    float m34CC; // inferred: pitch variation
-};
-extern "C" SoundCfg_unk* lbl_8087EFE8;
 
 // inferred: converts a [0,1] float channel to 0..255 (as in game/ChaserNpc.cpp)
 inline unsigned int ToU8_unk(float f) {
@@ -294,10 +290,10 @@ void ColliAttrManager::fn_80184548(int kind, CharaTask* chara, int useNode, int 
         name = buf;
     }
     atn::SoundRef sound = fn_800C344C(name, &pos, 0, -1, volume);
-    SoundCfg_unk* cfg = lbl_8087EFE8;
+    atn::SoundManager* cfg = lbl_8087EFE8;
     if (cfg != 0) {
         // inferred: written out (the inline Rand01_unk schedules the 0.5f load earlier)
-        fn_800CB688(&sound, 0, 1.0f + (cfg->m34CC * ((float)(rand() % 1001) / 1000.0f) - 0.5f * cfg->m34CC));
+        fn_800CB688(&sound, 0, 1.0f + (cfg->mRandomPitch * ((float)(rand() % 1001) / 1000.0f) - 0.5f * cfg->mRandomPitch));
     }
 }
 

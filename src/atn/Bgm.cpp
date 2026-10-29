@@ -1,5 +1,6 @@
 #include "atn/Bgm.h"
 #include "atn/SoundCore.h"
+#include "atn/SoundManager.h"
 
 extern "C" void fn_80709AD0(void* sound, int frames);
 extern "C" unsigned long strlen(const char* s);
@@ -11,15 +12,6 @@ struct BgmEngine_unk {
 };
 extern "C" BgmEngine_unk* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(BgmEngine_unk* engine, const char* name); // inferred: sound id of a name
-// inferred: sound configuration (lbl_8087EFE8)
-struct BgmSoundCfg_unk {
-    unsigned char m0000[0x34A0];
-    int m34A0; // inferred: selects fn_800C97F8 over fn_800C93D4
-};
-extern "C" BgmSoundCfg_unk* lbl_8087EFE8;
-extern "C" atn::SoundObject* fn_800D0AB0(BgmSoundCfg_unk* cfg, unsigned int id); // inferred: creates the sound
-extern "C" int fn_800CFDA0(BgmSoundCfg_unk* cfg, int arg);
-extern "C" void fn_800D19FC(BgmSoundCfg_unk* cfg, atn::SoundObject* sound, float volume);
 extern "C" int fn_800CB4EC(atn::SoundRef* sound);
 extern "C" void fn_800CB504(atn::SoundRef* sound);
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume);
@@ -59,11 +51,11 @@ int Bgm::fn_8004AE84(const char* name, int start) {
     if (lbl_8087EE90->m04 == 0 || lbl_8087EFE8 == 0 || !__IsName_unk(name)) {
         return 0;
     }
-    SoundObject* sound = fn_800D0AB0(lbl_8087EFE8, fn_80049B74(lbl_8087EE90, name));
+    SoundObject* sound = (SoundObject*)lbl_8087EFE8->fn_800D0AB0(fn_80049B74(lbl_8087EE90, name));
     if (sound == 0) {
         return 0;
     }
-    sound->mA8 = fn_800CFDA0(lbl_8087EFE8, m0C);
+    sound->mA8 = lbl_8087EFE8->fn_800CFDA0(m0C);
     ((SoundCore*)sound)->fn_800CA7D4(start);
     ((SoundCore*)sound)->fn_800C93D4(name);
     m04 = 0;
@@ -79,13 +71,13 @@ int Bgm::fn_8004AFAC(const char* name, int arg, int start) {
     if (lbl_8087EE90->m04 == 0 || lbl_8087EFE8 == 0 || !__IsName_unk(name)) {
         return 0;
     }
-    SoundObject* sound = fn_800D0AB0(lbl_8087EFE8, fn_80049B74(lbl_8087EE90, name));
+    SoundObject* sound = (SoundObject*)lbl_8087EFE8->fn_800D0AB0(fn_80049B74(lbl_8087EE90, name));
     if (sound == 0) {
         return 0;
     }
-    sound->mA8 = fn_800CFDA0(lbl_8087EFE8, m0C);
+    sound->mA8 = lbl_8087EFE8->fn_800CFDA0(m0C);
     ((SoundCore*)sound)->fn_800CA7D4(start);
-    if (lbl_8087EFE8->m34A0 != 0) {
+    if (lbl_8087EFE8->m3dEnabled != 0) {
         ((SoundCore*)sound)->fn_800C97F8(name, (const Vector3*)arg);
     } else {
         ((SoundCore*)sound)->fn_800C93D4(name);
@@ -117,7 +109,7 @@ int Bgm::fn_8004B158(float volume, int fade) {
     fn_800CB5B4(&mSound, 0, volume);
     fn_800CB654(&mSound, 0.0f, 0.0f, 0.0f);
     fn_800CB518(&mSound, fade);
-    fn_800D19FC(lbl_8087EFE8, mSound.mPtr, 1.0f);
+    lbl_8087EFE8->fn_800D19FC((SoundCore*)mSound.mPtr, 1.0f);
     return 1;
 }
 

@@ -1,5 +1,6 @@
 #include "game/EnemyFieldMagician.h"
 #include "atn/Csv.h"
+#include "atn/SoundManager.h"
 #include "std/string.h"
 #include "std/string_members.h"
 
@@ -39,13 +40,6 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, in
                             int arg9, int arg10, float scale); // inferred: plays an effect
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: sound manager (lbl_8087EFE8, as in gmk/AttractHatePoint.cpp)
-struct SoundCfg_unk {
-    unsigned char m00[0x34D8];
-    EnemyFieldMagician* m34D8; // inferred: character playing the next sound
-};
-extern "C" SoundCfg_unk* lbl_8087EFE8;
-extern "C" void fn_800CFD18(SoundCfg_unk* sound, CharaTask* chara, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: result of a segment test (hit position at +4)
 struct CollSegResult_unk {
@@ -239,7 +233,7 @@ void EnemyFieldMagician::vf10() {
         if (m1608 != 0) {
             fn_80239DAC(lbl_8087F3C0, &m15C0[0], 0, 0);
             if (lbl_8087EFE8 != 0) {
-                fn_800CFD18(lbl_8087EFE8, this, 15);
+                lbl_8087EFE8->fn_800CFD18(this, 15);
             }
             m14B0[0].mFlags &= ~1;
             m14B0[1].mFlags &= ~1;
@@ -326,7 +320,7 @@ void EnemyFieldMagician::fn_8032CF10() {
         PlayFieldEffect_unk(3);
         fn_800C344C(sFieldSounds[0], &mPos, 0, -1, 1.0f);
         if (lbl_8087EFE8 != 0) {
-            fn_800CFD18(lbl_8087EFE8, this, 15);
+            lbl_8087EFE8->fn_800CFD18(this, 15);
         }
     }
     for (int i = 0; i < 2; i++) {
@@ -351,7 +345,7 @@ void EnemyFieldMagician::fn_8032D1F4() {
         PlayFieldEffect_unk(0);
         fn_800C344C(sFieldSounds[0], &mPos, 0, -1, 1.0f);
         if (lbl_8087EFE8 != 0) {
-            fn_800CFD18(lbl_8087EFE8, this, 15);
+            lbl_8087EFE8->fn_800CFD18(this, 15);
         }
         m1608 = 1;
         m160C = 0;
@@ -488,7 +482,7 @@ void EnemyFieldMagician::vf40(HitInfo_unk* hit) {
             PlayFieldEffect_unk(2);
             fn_800C344C(sFieldSounds[2], &mPos, 0, -1, 1.0f);
             if (lbl_8087EFE8 != 0) {
-                fn_800CFD18(lbl_8087EFE8, this, 15);
+                lbl_8087EFE8->fn_800CFD18(this, 15);
             }
             int flag = m165C;
             m14B0[0].mFlags &= ~1;

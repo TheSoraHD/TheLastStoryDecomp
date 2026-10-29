@@ -1,5 +1,6 @@
 #include "atn/Memory.h"
 #include "atn/Texture_unk.h"
+#include "atn/SoundManager.h"
 #include "game/HBMRso.h"
 
 namespace atn {
@@ -52,8 +53,6 @@ extern "C" HbmSaveLoad_unk* lbl_8087EF68;
 extern "C" int fn_800A4228(HbmSaveLoad_unk* mgr, int* out); // inferred: busy
 extern "C" void* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* lbl_8087EFE8;                               // inferred: sound manager
-extern "C" void fn_800CF7DC(void* obj, int a, int b, int c); // inferred: pauses/resumes the sounds
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* obj, int a, int b, int c);
 struct Unk_8087F018 {
@@ -118,7 +117,7 @@ void HomeButtonMenu::fn_8044073C() {
                 }
                 if (busy == 0) {
                     m84 = 1;
-                    fn_800CF7DC(lbl_8087EFE8, 1, 1, 9);
+                    lbl_8087EFE8->fn_800CF7DC(1, 1, 9);
                     fn_8004A2CC(lbl_8087EE90, 1, 1, 8);
                     HBMRsoInit(m44);
                     fn_800DF0F0(lbl_8087F018, 1);
@@ -152,7 +151,7 @@ void HomeButtonMenu::fn_8044073C() {
                 m84 = 2;
                 break;
             default:
-                fn_800CF7DC(lbl_8087EFE8, 0, 1, 9);
+                lbl_8087EFE8->fn_800CF7DC(0, 1, 9);
                 fn_8004A2CC(lbl_8087EE90, 0, 1, 0);
                 fn_800DF0F0(lbl_8087F018, 0);
                 lbl_8087F018->m40E0 = 1;

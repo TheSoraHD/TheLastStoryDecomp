@@ -235,9 +235,20 @@ struct Snd3DManager_unk {
 
 // inferred: sound engine of the game (lbl_8087EE90); only the members used here
 struct SoundEngine_unk {
-    unsigned char m00[0x1D8];
+    unsigned char m00[0x04];
+    int m04;                               // 0x004: the sound archive is open
+    unsigned char m08[0x1D8 - 0x08];
     unsigned char mPlayer[0x364 - 0x1D8];  // 0x1D8: nw4r::snd::SoundArchivePlayer
     Snd3DManager_unk m364;                 // 0x364: nw4r::snd::Sound3DManager
+    unsigned char m37C[0x394 - 0x37C];
+    unsigned int mBankCount;               // 0x394: banks loaded (AudioBank_unk, 0x54 bytes)
+    unsigned char m398[0x39C - 0x398];
+    unsigned char* mBanks;                 // 0x39C
+    unsigned char m3A0[0x408 - 0x3A0];
+    int m408;                              // 0x408: SoundFx enabled
+    unsigned char m40C[0x8BC - 0x40C];
+    int m8BC;                              // 0x8BC: reverb (current, target)
+    int m8C0;
 };
 
 } // namespace atn
@@ -336,7 +347,10 @@ struct SoundFade_unk {
 
 // inferred: sound category (volume group) applied to every SoundCore; names invented
 struct SoundCategory_unk {
-    int m00;
+    SoundCategory_unk() : m00(-1), mMute(0), mVolume(1.0f), mPitch(1.0f), mPan(0.0f), mFxSend(1.0f) {}
+    SoundCategory_unk(int id) : m00(id), mMute(0), mVolume(1.0f), mPitch(1.0f), mPan(0.0f), mFxSend(1.0f) {}
+
+    int m00;       // inferred: index (player, category or scope)
     int mMute;     // 0x04
     float mVolume; // 0x08
     float mPitch;  // 0x0C
@@ -505,7 +519,7 @@ public:
     SoundCategory_unk* mA8;
     SoundCategory_unk* mAC;
     SoundCategory_unk* mB0;
-    int mB4;
+    const void* mB4; // 0xB4: owner (SoundManager::m34D8, compared in fn_800CFD18)
     float mB8;
     float mBC;
     float mC0;
