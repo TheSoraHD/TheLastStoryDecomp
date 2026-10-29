@@ -164,7 +164,6 @@ static int SyncStream_unk(void* stream) {
     void** vtable = *(void***)stream;
     return ((int (*)(void*))vtable[7])(stream);
 }
-void* fn_800E2A10(void* self, int doDelete);
 void* fn_800E14A4(StreamSentry_unk* self, void* stream);
 void* fn_800E1630(StreamSentry_unk* self, int doDelete);
 void* fn_800E1A48(void* stream);
@@ -845,12 +844,9 @@ int fn_800E2670(StringBuf_unk* stream, const char* src, int n) {
     return written;
 }
 
-// inferred: vtable thunk adjusting the virtual base before deleting the ostream.
-// NONMATCHING: 0% - MWCC inlines the deleting destructor instead of emitting a tail thunk.
-void* fn_800E2A10(void* self, int doDelete) {
-    int offset = *(int*)((char*)self + 0x3C);
-    return fn_800E0B18((char*)self + offset - 8, doDelete);
-}
+// 0x800E2A10 (after __sinit) is the virtual-base thunk of the ostream deleting destructor: the
+// compiler emits it at the end of the object once the real basic_ostream class (virtual base
+// basic_ios) is used here, so it is not written by hand.
 }
 
 template <>
