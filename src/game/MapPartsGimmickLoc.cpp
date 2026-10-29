@@ -1,0 +1,76 @@
+#include "game/MapPartsGimmickLoc_unk.h"
+
+void* MapPartsGimmickLoc::fn_80498E7C(int index) {
+    unsigned char* bytes = reinterpret_cast<unsigned char*>(this);
+    if (*reinterpret_cast<unsigned int*>(bytes) == 0x6C6F6373) {
+        unsigned char* entries = *reinterpret_cast<unsigned char**>(bytes + 0x18);
+        return entries + index * 0x3C;
+    }
+    unsigned char* entries = *reinterpret_cast<unsigned char**>(bytes + 0x18);
+    return entries + index * 0x30;
+}
+
+void MapPartsGimmickLoc::fn_80498EAC(const atn::Vector3& value) {
+    m6C = value;
+}
+
+void MapPartsGimmickLoc::fn_80498EC0(const atn::Vector3& value) {
+    m78 = value;
+}
+
+void MapPartsGimmickLoc::fn_80498ED4(const atn::Vector3& value) {
+    m90 = value;
+}
+
+void MapPartsGimmickLoc::fn_80498EE8(int value) {
+    m58 = value;
+}
+
+void MapPartsGimmickLoc::fn_80498EF0(int value) {
+    mA4 = value;
+}
+
+extern "C" void PSMTXScale(void* matrix, float x, float y, float z);
+
+void MapPartsGimmickLoc::fn_80498EF8(const atn::Vector3& scale) {
+    PSMTXScale(this, scale.x, scale.y, scale.z);
+}
+
+void MapPartsGimmickLoc::fn_80498F08() {}
+
+void MapPartsGimmickLoc::fn_80498F0C(int value) {
+    *reinterpret_cast<int*>(reinterpret_cast<unsigned char*>(this) + 0x7C) = value;
+}
+
+// inferred: normalizes the two horizontal limits around the supplied value.
+const float lbl_808870E8 = 1.0f;
+const float lbl_808870F0 = -1.0f;
+
+// NONMATCHING: 0% - generated body is 52 bytes; target is 56 bytes.
+void MapPartsGimmickLoc::fn_80498F14(float value, const atn::Vector3& range) {
+    m6C.y = value;
+    m6C.z = lbl_808870F0 * range.x / value;
+    m78.x = lbl_808870E8 - (range.y + value) / value;
+}
+
+void MapPartsGimmickLoc::fn_80498F4C() {}
+
+void MapPartsGimmickLoc::fn_80499388(int value) {
+    *reinterpret_cast<int*>(reinterpret_cast<unsigned char*>(this) + 0x630) = value;
+}
+
+bool MapPartsGimmickLocArray8_unk::fn_80499684() const {
+    return mSize == 0;
+}
+
+unsigned int MapPartsGimmickLocArray8_unk::fn_80499694() const {
+    return mSize;
+}
+
+void* MapPartsGimmickLocArray8_unk::fn_80499724(int index) const {
+    return static_cast<unsigned char*>(mData) + index * 8;
+}
+
+void* MapPartsGimmickLocArray4_unk::fn_8049981C(int index) const {
+    return static_cast<unsigned char*>(mData) + index * 4;
+}
