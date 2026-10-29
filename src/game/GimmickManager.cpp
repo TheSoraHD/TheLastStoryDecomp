@@ -108,6 +108,8 @@ public:
     int mDone;                     // 0x64
 };
 
+GimmickManager* GimmickManager::instance_; // 0x8087F4A0
+
 GimmickManager* GimmickManager::SetTask(atn::Task* parent) {
     if (GimmickManager::instance_ == 0) {
         GimmickManager::instance_ = new (12, "", "", 0) GimmickManager(parent);
