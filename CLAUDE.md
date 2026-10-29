@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `main` (2026-10-29, tras mergear `enemies-third` sobre 5125aea): **7825 / 18215 funciones al 100%** (código 27,9%, fuzzy 47,5%, datos 17,7%), 370 ficheros enlazados, `main.dol: OK`. Segundas pasadas de enemies-finish y enemigos sin fuente anteriores a Em208Queen; cerrado antes de tiempo, pendientes y decisiones en `docs/enemies-third.md`.
-- `fix-svenchu-linkage` (2026-10-29): revisión de los commits de Svenchu/Codex del 23–25 oct. (clases reales, orden del `.dol`, sin `extern "C"` mangled) y después las funciones que faltaban. **8180 / 18215** (código 29,8%, fuzzy 49,7%), `main.dol: OK`, lost 0, fuzzdrop 0. Decisiones (split AiCommon/AI, renombrados, `noinline`) y pendientes: `docs/revision-2026-10-29.md`.
+- `main` (2026-10-29, tras mergear `fix-svenchu-linkage` sobre `enemies-third`): **8180 / 18215 funciones al 100%** (código 29,8%, fuzzy 49,7%, datos 17,8%), 370 ficheros enlazados, `main.dol: OK`, lost 0, fuzzdrop 0.
+- `fix-svenchu-linkage` (mergeada): revisión de los commits de Svenchu/Codex del 23–25 oct. (clases reales, orden del `.dol`, sin `extern "C"` mangled) y las funciones que faltaban. Decisiones (split AiCommon/AI, renombrados y datos en `symbols.txt`, `noinline`) y pendientes: `docs/revision-2026-10-29.md`.
 - Unidades de esos commits (todas `matching: false`): AI_archer_attack01 479/510 (falta el `std::map` de scripts, ver `docs/mwcc-blockers.md`), SoundManager 64/76, GraphicsDevice 25/41, allocator_char 18/35, RenderSystem_unk 14/37, D2A_Texture 14/30, game/main 11/14; notas en `docs/<unidad>*.md`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
