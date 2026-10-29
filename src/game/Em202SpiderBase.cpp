@@ -1,4 +1,5 @@
 #include "game/Em202SpiderBase.h"
+#include "atn/Material_unk.h"
 #include "game/HitInfo_unk.h"
 #include "game/CharaStatus.h"
 #include "math/Vec.h"

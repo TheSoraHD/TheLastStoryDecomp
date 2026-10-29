@@ -164,7 +164,7 @@ struct ShaderLOD_unk {
     ShaderLOD_unk();
     ~ShaderLOD_unk();
     void fn_800C4ECC(ShaderTex_unk* shader, float distance);
-    void fn_800C4F38(struct ShaderMaterial_unk** out) const;
+    void fn_800C4F38(struct Material_unk** out) const;
     void fn_800C4F70(void* parent);
 
     int m00; // inferred: reference count (debug menu "RefCount")
@@ -178,7 +178,7 @@ struct ShaderManager_unk {
     void CreateLODs_unk();
     ShaderLOD_unk* fn_800C5F5C(const char* name); // inferred: LOD list of a shader by name
     ShaderLOD_unk* fn_800C5FF0(unsigned int hash) const;
-    struct ShaderMaterial_unk* fn_800C607C(int code);
+    struct Material_unk* fn_800C607C(int code);
     // inferred: shader by name (name invented)
     ShaderTex_unk* FindShader_unk(const char* name) {
         unsigned int hash = fn_800DC6B4(name);

@@ -5,6 +5,8 @@
 #include "atn/Shader_unk.h"
 #include "atn/Memory.h"
 #include "atn/GXDecl.h"
+#include "atn/Material_unk.h"
+#include "std/new.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -16,61 +18,9 @@ struct DebugMessages_unk {
 extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 
-// inferred: texture stage of a material (0x18 bytes; engine code of atn/MaterialParser_unk:
-// constructors 0x8007E9EC and 0x8007AA30, destructor 0x8007AA64)
-struct TexStage_unk {
-    unsigned char m00[0x18];
-};
-extern "C" TexStage_unk* fn_8007E9EC(TexStage_unk* stage);
-extern "C" TexStage_unk* fn_8007AA30(TexStage_unk* stage, int id);
-extern "C" TexStage_unk* fn_8007AA64(TexStage_unk* stage, int del);
-extern "C" void fn_8007AB38(TexStage_unk* stage, atn::ShaderDesc_unk* desc, int index); // inferred: setup
-extern "C" void fn_8007C018(TexStage_unk* stage, void* texture, int arg);
-extern "C" void fn_8007B100(TexStage_unk* stage);
-extern "C" int fn_8007B078(const char* name); // inferred: texture id by name, -1 if unknown
-extern "C" void* fn_80081C34(int id);         // inferred: texture by id
-extern "C" void* __construct_new_array(void* block, void* ctor, void* dtor, unsigned long size, unsigned long n);
-
-// inferred: GPU material created from a shader (0x54 bytes, ctor 0x8007C144); probably the
-// ShaderMaterial_unk of include/atn/Model_unk.h
-struct ShaderMaterial_unk {
-    unsigned int m00; // inferred: name hash
-    unsigned int m04;
-    unsigned char m08[4];
-    TexStage_unk* m0C;
-    unsigned char m10[4];
-    unsigned int m14_0 : 1;
-    unsigned int m14_1 : 3;
-    unsigned int m14_4 : 8;
-    unsigned int m14_12 : 1;
-    unsigned int m14_13 : 6;
-    unsigned int m14_19 : 1;
-    unsigned int m14_20 : 1;
-    unsigned int m14_21 : 1;
-    unsigned int m14_22 : 3;
-    unsigned int m14_25 : 1;
-    unsigned int m14_26 : 6;
-    GXColor m18;
-    GXColor m1C;
-    GXColor m20;
-    unsigned char m24[12];
-    unsigned char m30[8];
-    unsigned char m38[4];
-    int m3C;
-    unsigned char m40[0x4A - 0x40];
-    unsigned char m4A; // inferred: number of texture stages
-    unsigned char m4B;
-    signed char m4C;
-    unsigned char m4D;
-    unsigned char m4E;
-    unsigned char m4F;
-    unsigned char m50;
-    unsigned char m51;
-    unsigned char m52[2];
-};
-extern "C" ShaderMaterial_unk* fn_8007C144(ShaderMaterial_unk* mat, struct ShaderTex_unk* shader);
+extern "C" int fn_8007B078(const char* name);         // inferred: texture id by name, -1 if unknown
+extern "C" const char* fn_80081C34(int id);         // inferred: path of the default texture of an id
 extern "C" int fn_800D1C60(int mode); // inferred: converts a blend mode
-extern "C" void fn_80081D00(ShaderMaterial_unk* mat);
 
 // inferred: debug parameter menu (gmk/SwingObject.cpp)
 extern "C" void* fn_8008937C(void* parent, const char* name);
@@ -222,14 +172,14 @@ void Sort_unk(T* first, T* last, Compare& comp) {
     }
 }
 
-// NONMATCHING: 98.0% - the original loads desc->mA48 before the member stores and allocates the
-// loop registers in another order (index r24, name/stage r27); tried locals declared before the loop.
+// NONMATCHING: 98.3% - the original loads desc->mA48 before the member stores and allocates the
+// loop registers in another order; tried locals declared before the loop (with the stage built by a
+// new-expression, `name` declared before the loop gives 96.4%).
 ShaderTex_unk::ShaderTex_unk(void* model, atn::ShaderDesc_unk* desc) : mDesc(desc) {
     mTextures.Resize_unk(desc->mA48, 6);
     mOrder.Resize_unk(mDesc->mA48, 6);
-    const char* name;
     for (unsigned int i = 0; i < mTextures.mSize; i++) {
-        name = mDesc->mA4C[i];
+        const char* name = mDesc->mA4C[i];
         int id = fn_8007B078(name);
         if (id == -1) {
             char buf[0x100];
@@ -238,16 +188,13 @@ ShaderTex_unk::ShaderTex_unk(void* model, atn::ShaderDesc_unk* desc) : mDesc(des
             lbl_8087EEB8->fn_800697D8(buf);
         }
         ShaderTexEntryData_unk entry = {id, i, 0};
-        void* texture = fn_80081C34(id);
+        const char* texture = fn_80081C34(id);
         if (texture != 0) {
-            TexStage_unk* bind = (TexStage_unk*)operator new(sizeof(TexStage_unk), (MemoryTag)6, "", "", 0);
-            if (bind != 0) {
-                bind = fn_8007AA30(bind, -1);
-            }
+            TexStage_unk* bind = new ((MemoryTag)6, "", "", 0) TexStage_unk(-1);
             entry.mBind = bind;
-            fn_8007AB38(bind, mDesc, i);
-            fn_8007C018(bind, texture, 1);
-            fn_8007B100(bind);
+            bind->fn_8007AB38(mDesc, i);
+            bind->fn_8007C018(texture, 1);
+            bind->fn_8007B100();
         }
         static_cast<ShaderTexEntryData_unk&>(mTextures.mData[i]) = entry;
     }
@@ -261,37 +208,42 @@ ShaderTex_unk::ShaderTex_unk(void* model, atn::ShaderDesc_unk* desc) : mDesc(des
 ShaderTex_unk::~ShaderTex_unk() {}
 
 // inferred: creates the GPU material of a shader
-ShaderMaterial_unk* fn_800C4A90(ShaderTex_unk* shader) {
-    ShaderMaterial_unk* mat = (ShaderMaterial_unk*)operator new(sizeof(ShaderMaterial_unk), (MemoryTag)6, "", "", 0);
-    if (mat != 0) {
-        mat = fn_8007C144(mat, shader);
-    }
+Material_unk* fn_800C4A90(ShaderTex_unk* shader) {
+    Material_unk* mat = new ((MemoryTag)6, "", "", 0) Material_unk(shader);
     mat->m00 = fn_800DC6B4(shader->mDesc->m010);
     mat->m04 = fn_800DC6B4(shader->mDesc->m010);
-    mat->m18 = shader->mDesc->m014;
+    mat->mColor = shader->mDesc->m014;
     mat->m20 = shader->mDesc->m01C;
     mat->m1C = shader->mDesc->m018;
-    for (int i = 0; i < 12; i++) {
-        mat->m24[i] = shader->mDesc->m024[i];
-    }
+    mat->m24.r = shader->mDesc->m024[0];
+    mat->m24.g = shader->mDesc->m024[1];
+    mat->m24.b = shader->mDesc->m024[2];
+    mat->m24.a = shader->mDesc->m024[3];
+    mat->m28.r = shader->mDesc->m024[4];
+    mat->m28.g = shader->mDesc->m024[5];
+    mat->m28.b = shader->mDesc->m024[6];
+    mat->m28.a = shader->mDesc->m024[7];
+    mat->m2C.r = shader->mDesc->m024[8];
+    mat->m2C.g = shader->mDesc->m024[9];
+    mat->m2C.b = shader->mDesc->m024[10];
+    mat->m2C.a = shader->mDesc->m024[11];
     mat->m14_20 = shader->mDesc->m07C != -1;
     mat->m14_19 = shader->mDesc->m064 == 2;
     mat->m4C = -1;
     mat->m4A = shader->mDesc->m0E4;
     int n = shader->mDesc->m0E4;
-    mat->m0C = (TexStage_unk*)__construct_new_array(operator new[](n * sizeof(TexStage_unk) + 0x10, (MemoryTag)6, "", "", 0),
-                                                   fn_8007E9EC, fn_8007AA64, sizeof(TexStage_unk), n);
+    mat->m0C = new ((MemoryTag)6, "", "", 0) TexStage_unk[n];
     for (int i = 0; i < mat->m4A; i++) {
-        fn_8007AB38(&mat->m0C[i], shader->mDesc, i);
+        mat->m0C[i].fn_8007AB38(shader->mDesc, i);
     }
     mat->m4E = shader->mDesc->m090;
     mat->m4F = shader->mDesc->m0A8;
     mat->m50 = shader->mDesc->m08C;
     mat->m51 = shader->mDesc->m0A4;
-    mat->m38[0] = shader->mDesc->m18C[0];
-    mat->m38[1] = shader->mDesc->m18C[1];
-    mat->m38[2] = shader->mDesc->m18C[2];
-    mat->m38[3] = shader->mDesc->m18C[3];
+    mat->m38.r = shader->mDesc->m18C[0];
+    mat->m38.g = shader->mDesc->m18C[1];
+    mat->m38.b = shader->mDesc->m18C[2];
+    mat->m38.a = shader->mDesc->m18C[3];
     mat->m3C = shader->mDesc->m054 / 255.0f;
     mat->m14_12 = shader->mDesc->mA38 == 1;
     mat->m14_0 = fn_800D1C60(shader->mDesc->mA14) != 7;
@@ -300,7 +252,7 @@ ShaderMaterial_unk* fn_800C4A90(ShaderTex_unk* shader) {
     mat->m14_21 = shader->mDesc->mA28;
     mat->m14_22 = fn_800D1C60(shader->mDesc->mA2C);
     mat->m14_25 = shader->mDesc->mA30;
-    fn_80081D00(mat);
+    mat->fn_80081D00();
     return mat;
 }
 
@@ -321,7 +273,7 @@ void ShaderLOD_unk::fn_800C4ECC(ShaderTex_unk* shader, float distance) {
     mLODs.insert(it, entry);
 }
 
-void ShaderLOD_unk::fn_800C4F38(ShaderMaterial_unk** out) const {
+void ShaderLOD_unk::fn_800C4F38(Material_unk** out) const {
     *out = fn_800C4A90(mLODs.mData[0].mShader);
 }
 

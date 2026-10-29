@@ -1,16 +1,7 @@
 #include "atn/LH_Material.h"
 #include "atn/LoadManager.h"
+#include "atn/Material_unk.h"
 #include "std/vector.h"
-
-// inferred: material read from the loaded file (0x54 bytes; constructor 0x8007C144, destructor
-// 0x8007C3F8); name invented
-struct Material_unk {
-    Material_unk(int arg);
-    ~Material_unk();
-    // inferred: reads one material from `data` and returns the end of what it read
-    const char* fn_8007C46C(const char* path, const char* data, int size);
-    unsigned char m00[0x54];
-};
 
 namespace atn {
 

@@ -1,5 +1,6 @@
 #include "gmk/PassBoard.h"
 #include "atn/Csv.h"
+#include "atn/Material_unk.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 
@@ -193,7 +194,7 @@ void PassBoard::vf10() {
             PassColor_unk color(material->mColor);
             color.a = rate;
             material->mColor = color.ToGX_unk();
-            fn_8007FAF0(material, 3);
+            material->fn_8007FAF0(3);
         }
     }
     mModel.mFlags |= 0x10;

@@ -4,6 +4,7 @@
 // later) or draws it at once with fn_8009DE60. All names are invented.
 #include "atn/GXDecl.h"
 #include "atn/LH_Model.h"
+#include "atn/Material_unk.h"
 #include "atn/Shader_unk.h"
 #include "atn/Sphere.h"
 #include "atn/Texture_unk.h"
@@ -50,31 +51,6 @@ extern "C" void fn_805F8DA0(const Mtx src, Mtx dst);
 // inferred: texture matrix from scale, rotation (sin, cos) and translation
 extern "C" void fn_800D5C84(Mtx m, float sx, float sy, float s, float c, float tx, float ty);
 
-// inferred: default UV transform of a texture stage (const object of atn/MaterialParser_unk)
-extern "C" const float lbl_80880B88; // scale u
-extern "C" const float lbl_80880B8C; // scale v
-extern "C" const float lbl_80880B90; // rotation
-extern "C" const float lbl_80880B94; // translation u
-extern "C" const float lbl_80880B98; // translation v
-
-// inferred: UV transform of a texture stage {scale, rotation, translation}
-struct DrawUv_unk {
-    float mScaleU;
-    float mScaleV;
-    float mRot;
-    float mTransU;
-    float mTransV;
-};
-
-// inferred: texture stage of a material (0x18 bytes, see atn/Shader_unk.cpp)
-struct TexStage_unk {
-    unsigned char m00[4];
-    atn::Texture_unk* m04; // inferred: texture
-    DrawUv_unk* m08;       // inferred: UV transform
-    DrawUv_unk* m0C;       // inferred: indirect UV transform
-    signed char m10;       // inferred: texture id
-    unsigned char m11[0x18 - 0x11];
-};
 
 // inferred: texture of a shader (12 bytes, ShaderTexEntry_unk of atn/Shader_unk.h)
 struct DrawTexEntry_unk {
@@ -157,62 +133,19 @@ struct DrawShader_unk {
     DrawDesc_unk* mDesc;
 };
 
-// inferred: GPU material (0x54 bytes, ShaderMaterial_unk of atn/Shader_unk.cpp)
-struct ShaderMaterial_unk {
-    unsigned int m00;
-    unsigned int m04;
-    DrawShader_unk* m08;
-    TexStage_unk* m0C;
-    unsigned char m10[4];
-    unsigned int m14_0 : 1;
-    unsigned int m14_1 : 3;
-    unsigned int m14_4 : 8;
-    unsigned int m14_12 : 1;
-    unsigned int m14_13 : 6;
-    unsigned int m14_19 : 1;
-    unsigned int m14_20 : 1;
-    unsigned int m14_21 : 1;
-    unsigned int m14_22 : 3;
-    unsigned int m14_25 : 1;
-    unsigned int m14_26 : 6;
-    GXColor m18;
-    GXColor m1C;
-    GXColor m20;
-    GXColor m24;
-    GXColor m28;
-    GXColor m2C;
-    unsigned char m30[4];
-    int m34; // inferred: TEV scale of the last stage
-    GXColor m38; // inferred: swap table
-    int m3C;
-    int m40;
-    int m44; // inferred: sort mode (> 0: drawn later)
-    unsigned char m48; // inferred: flags
-    unsigned char m49; // inferred: pass mask
-    unsigned char m4A; // inferred: number of texture stages
-    unsigned char m4B;
-    signed char m4C;
-    unsigned char m4D;
-    signed char m4E;
-    signed char m4F;
-    signed char m50;
-    signed char m51;
-    unsigned char m52[2];
+static inline DrawShader_unk* GetShader_unk(Material_unk* mat) { return (DrawShader_unk*)mat->m08; }
 
-    // inferred: texture stage of id `id`, searched from `i` (name invented)
-    TexStage_unk* FindStage_unk(DrawTexEntry_unk* entry) {
-        int i;
-        int id = entry->mId;
-        for (i = 0; i < m4A && m0C[i].m10 < id; i++) {
-        }
-        if (i < m4A && id == m0C[i].m10) {
-            return &m0C[i];
-        }
-        return entry->mBind;
+// inferred: texture stage of id `id`, searched from `i` (name invented)
+static inline TexStage_unk* FindStage_unk(Material_unk* mat, DrawTexEntry_unk* entry) {
+    int i;
+    int id = entry->mId;
+    for (i = 0; i < mat->m4A && mat->m0C[i].mId < id; i++) {
     }
-};
-
-extern "C" TexStage_unk* fn_80080528(ShaderMaterial_unk* mat, int id); // inferred: stage by id
+    if (i < mat->m4A && id == mat->m0C[i].mId) {
+        return &mat->m0C[i];
+    }
+    return entry->mBind;
+}
 
 // inferred: lens of the camera (Lens_unk of include/atn/Model_unk.h)
 struct DrawLens_unk {
@@ -298,7 +231,7 @@ struct DrawRemap_unk {
 };
 struct DrawMaterials_unk {
     int mCount;
-    ShaderMaterial_unk** mData;
+    Material_unk** mData;
 };
 
 // inferred: callbacks around the drawing of a mesh (InstCallback_unk of atn/ModelInstance.cpp)
@@ -315,14 +248,14 @@ struct DrawColor_unk {
 
 // inferred: draw command of a mesh (0x4C bytes)
 struct DrawCmd_unk {
-    DrawCmd_unk(unsigned int flags, ShaderMaterial_unk* mat, DrawMesh_unk* mesh, DrawLens_unk* lens, Mtx* mtx,
+    DrawCmd_unk(unsigned int flags, Material_unk* mat, DrawMesh_unk* mesh, DrawLens_unk* lens, Mtx* mtx,
                 void* vtx, DrawArray_unk* arrays, DrawColor_unk color, void* m34, void* m38, DrawCallback_unk cb)
         : m04(flags), m08(mat), m0C(mesh), m10(lens), m14(mtx), m18(vtx), m1C(arrays), m20(0), m24(color),
           m34(m34), m38(m38), m3C(cb) {}
 
     int m00; // inferred: sort key
     unsigned int m04;
-    ShaderMaterial_unk* m08;
+    Material_unk* m08;
     DrawMesh_unk* m0C;
     DrawLens_unk* m10;
     Mtx* m14;
@@ -493,16 +426,16 @@ struct DrawEntry_unk {
 
 extern "C" {
 void fn_8009B93C(DrawEntry_unk* entry);
-void fn_8009B9E8(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mtx* mtx, int* cache);
-void fn_8009BB9C(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, Mtx* mtx);
-void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens, DrawColor_unk* color);
-void fn_8009C508(ShaderMaterial_unk* mat);
-void fn_8009C688(ShaderMaterial_unk* mat);
-void fn_8009C84C(ShaderMaterial_unk* mat);
-void fn_8009CC28(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawShader_unk* shader, int flag, float dist);
-void fn_8009D1A4(ShaderMaterial_unk* mat);
+void fn_8009B9E8(Material_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mtx* mtx, int* cache);
+void fn_8009BB9C(Material_unk* mat, DrawMesh_unk* mesh, Mtx* mtx);
+void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, DrawLens_unk* lens, DrawColor_unk* color);
+void fn_8009C508(Material_unk* mat);
+void fn_8009C688(Material_unk* mat);
+void fn_8009C84C(Material_unk* mat);
+void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, int flag, float dist);
+void fn_8009D1A4(Material_unk* mat);
 void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, int visible);
-void fn_8009DCE0(ShaderMaterial_unk* mat);
+void fn_8009DCE0(Material_unk* mat);
 void fn_8009DE60(DrawCmd_unk* cmd, float dist);
 void fn_8009E448(DrawEntry_unk* entry, DrawNode_unk* root);
 }
@@ -511,7 +444,7 @@ static float sFogStart_unk = 0.8f; // inferred: start of the fog (ratio of its d
 // inferred: explicitly zero-initialised (they come before the guards of fn_8009D1A4 in .sbss)
 static unsigned char sShadowRecv_unk = 0; // inferred: shadow receiver
 static unsigned char sSecondPass_unk = 0; // inferred: second pass of the transparent parts
-static ShaderMaterial_unk* sLastMat_unk = 0; // inferred: last material
+static Material_unk* sLastMat_unk = 0; // inferred: last material
 static int sMipLoaded_unk = 0; // inferred: the mip test textures are loaded
 
 // inferred: is the texture loaded (inline of the texture class)
@@ -521,12 +454,12 @@ static inline int TexReady_unk(atn::Texture_unk* t) {
 }
 
 // inferred: texture matrix of a UV transform
-static inline void UvMtx_unk(Mtx m, DrawUv_unk* uv) {
-    float sx = uv != 0 ? uv->mScaleU : lbl_80880B88;
-    float sy = uv != 0 ? uv->mScaleV : lbl_80880B8C;
-    float tx = uv != 0 ? uv->mTransU : lbl_80880B94;
-    float ty = uv != 0 ? uv->mTransV : lbl_80880B98;
-    float rot = uv != 0 ? uv->mRot : lbl_80880B90;
+static inline void UvMtx_unk(Mtx m, TexUv_unk* uv) {
+    float sx = uv != 0 ? uv->mScaleU : TexUv_unk::sScaleU;
+    float sy = uv != 0 ? uv->mScaleV : TexUv_unk::sScaleV;
+    float tx = uv != 0 ? uv->mTransU : TexUv_unk::sTransU;
+    float ty = uv != 0 ? uv->mTransV : TexUv_unk::sTransV;
+    float rot = uv != 0 ? uv->mRot : TexUv_unk::sRot;
     if (rot != 0.0f) {
         fn_800D5C84(m, sx, sy, (float)sin(rot), (float)cos(rot), tx, ty);
     } else {
@@ -562,7 +495,7 @@ void fn_8009B93C(DrawEntry_unk* entry) {
 }
 
 // NONMATCHING: 98.30% - saved registers of the two loops shifted by one
-void fn_8009B9E8(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mtx* mtx, int* cache) {
+void fn_8009B9E8(Material_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mtx* mtx, int* cache) {
     MtxPtr m;
     if (mesh->m14 != -1) {
         mtx += mesh->m14;
@@ -609,15 +542,15 @@ void fn_8009B9E8(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* s
 }
 
 // NONMATCHING: 82.64% - register allocation reversed (loop locals get the highest registers in the original), f30/f31 swapped
-void fn_8009BB9C(ShaderMaterial_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
-    DrawDesc_unk* desc = mat->m08->mDesc;
+void fn_8009BB9C(Material_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
+    DrawDesc_unk* desc = ((DrawShader_unk*)mat->m08)->mDesc;
     int texMtx = 0x40;
     for (int i = 0; i < desc->m0EC; i++) {
         DrawTexGen_unk* gen = desc->m0F0[i];
         DrawTexMtxSrc_unk* src = desc->m0F8[i];
-        TexStage_unk* stage = mat->FindStage_unk(&mat->m08->mTex[mat->m08->mOrder[i]]);
+        TexStage_unk* stage = FindStage_unk(mat, &((DrawShader_unk*)mat->m08)->mTex[((DrawShader_unk*)mat->m08)->mOrder[i]]);
         Mtx uvm;
-        UvMtx_unk(uvm, stage->m08);
+        UvMtx_unk(uvm, stage->mUv);
         int mode = src->m10;
         int skinned = mesh->m14 == -1;
         if (mode >= 1 && mode <= 4) {
@@ -675,8 +608,8 @@ static inline GXColor ToGXColor_unk(const float* c) {
 // ac = lens->m0C * (mat->m1C / 255) * 255. Its locals are laid out in ascending order (an inline in
 // the original). The register pointers are declared first so that the compiler sets them up before
 // the conversions (in a separate helper with parameters they are set up after them).
-static inline void SetMatColor_unk(ShaderMaterial_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
-    GXColor mc = mat->m18;
+static inline void SetMatColor_unk(Material_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
+    GXColor mc = mat->mColor;
     GXColor ac;
     GXColor src = mat->m1C;
     float amb[4];
@@ -735,15 +668,15 @@ static inline void SetMatColor_unk(ShaderMaterial_unk* mat, DrawLens_unk* lens, 
 
 // inferred: fixed colours of a material (an inline in the original: its locals are laid out like those
 // of SetMatColor_unk; mat->m20, m3C and m40 are read before the stores, as in the original)
-static inline void SetMatTev_unk(ShaderMaterial_unk* mat) {
-    DrawDesc_unk* desc = mat->m08->mDesc;
+static inline void SetMatTev_unk(Material_unk* mat) {
+    DrawDesc_unk* desc = ((DrawShader_unk*)mat->m08)->mDesc;
     GXColor matColor = mat->m20;
     sLastMat_unk = mat;
     GXSetChanMatColor(5, matColor);
     GXSetChanAmbColor(5, desc->m020);
     int r = mat->m3C;
     int g = mat->m40;
-    GXColor k = mat->m08->mDesc->m054;
+    GXColor k = ((DrawShader_unk*)mat->m08)->mDesc->m054;
     k.r = r;
     k.g = g;
     GXSetTevKColor(0, k);
@@ -752,7 +685,7 @@ static inline void SetMatTev_unk(ShaderMaterial_unk* mat) {
     GXSetTevColor(3, mat->m2C);
 }
 
-void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
+void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
     if (mat == 0) {
         sLastMat_unk = 0;
         return;
@@ -782,8 +715,8 @@ void fn_8009BF3C(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawLens_unk* lens
 }
 
 // NONMATCHING: 90.72% - the original keeps the address of the light set in a saved register (one more saved register)
-void fn_8009C508(ShaderMaterial_unk* mat) {
-    DrawDesc_unk* desc = mat->m08->mDesc;
+void fn_8009C508(Material_unk* mat) {
+    DrawDesc_unk* desc = ((DrawShader_unk*)mat->m08)->mDesc;
     DrawChan_unk* ch = desc->m084;
     for (int i = 0; i < desc->m080; i++, ch++) {
         int attn = 1;
@@ -823,8 +756,8 @@ void fn_8009C508(ShaderMaterial_unk* mat) {
 }
 
 // NONMATCHING: 92.89% - register allocation of the loop
-void fn_8009C688(ShaderMaterial_unk* mat) {
-    DrawShader_unk* shader = mat->m08;
+void fn_8009C688(Material_unk* mat) {
+    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
     int hint = 0;
     unsigned int n = shader->mTexCount;
     for (unsigned int i = 0; i < n; i++) {
@@ -843,20 +776,20 @@ void fn_8009C688(ShaderMaterial_unk* mat) {
             break;
         default: {
             TexStage_unk* stage;
-            for (; hint < mat->m4A && mat->m0C[hint].m10 < id; hint++) {
+            for (; hint < mat->m4A && mat->m0C[hint].mId < id; hint++) {
             }
-            if (hint < mat->m4A && id == mat->m0C[hint].m10) {
+            if (hint < mat->m4A && id == mat->m0C[hint].mId) {
                 stage = &mat->m0C[hint];
                 hint++;
             } else {
                 stage = entry->mBind;
             }
             if (stage != 0) {
-                atn::Texture_unk* t = stage->m04;
+                atn::Texture_unk* t = stage->mTexture;
                 if (t != 0 && TexReady_unk(t)) {
-                    tex = stage->m04;
+                    tex = stage->mTexture;
                 } else if (shader->mTex[i].mBind != 0) {
-                    tex = shader->mTex[i].mBind->m04;
+                    tex = shader->mTex[i].mBind->mTexture;
                 }
             }
             break;
@@ -875,15 +808,15 @@ void fn_8009C688(ShaderMaterial_unk* mat) {
 static inline const float& MaxRef_unk(const float& a, const float& b) { return a < b ? b : a; }
 
 // NONMATCHING: 95.12% - register allocation and scheduling of the scale loop
-void fn_8009C84C(ShaderMaterial_unk* mat) {
-    DrawShader_unk* shader = mat->m08;
+void fn_8009C84C(Material_unk* mat) {
+    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
     DrawDesc_unk* desc = shader->mDesc;
     DrawIndMtx_unk* ind = desc->m140;
     for (int i = 0; i < desc->m0FC; i++, ind++) {
         DrawIndMtx_unk im = *ind;
-        TexStage_unk* stage = mat->FindStage_unk(&mat->m08->mTex[shader->mOrder[im.m00]]);
+        TexStage_unk* stage = FindStage_unk(mat, &((DrawShader_unk*)mat->m08)->mTex[shader->mOrder[im.m00]]);
         Mtx uvm;
-        UvMtx_unk(uvm, stage->m0C);
+        UvMtx_unk(uvm, stage->mIndUv);
         float m[2][3];
         m[0][0] = uvm[0][0];
         m[0][1] = uvm[0][1];
@@ -921,7 +854,7 @@ void fn_8009C84C(ShaderMaterial_unk* mat) {
 }
 
 // NONMATCHING: 99.12% - r3/r4 of the two globals swapped, f26-f31 shifted, colour temporary at 0x1c instead of 0x8
-void fn_8009CC28(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawShader_unk* shader, int flag, float dist) {
+void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, int flag, float dist) {
     fn_800C08B0(lbl_8087EFB4);
     DrawLens_unk* lens = lbl_8087EFB4->m2FC;
     DrawParams_unk* p = lbl_8087EFA8;
@@ -970,13 +903,13 @@ void fn_8009CC28(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawShader_unk* sh
         fn_80076760(rs, 1, 4);
         fn_80076760(rs, 2, 0x40);
         fn_800761A8(rs);
-        TexStage_unk* stage = fn_80080528(mat, 3);
+        TexStage_unk* stage = mat->fn_80080528(3);
         if (stage == 0) {
-            stage = fn_80080528(mat, 0);
+            stage = mat->fn_80080528(0);
         }
-        fn_800763C0(rs, 0, stage->m04);
+        fn_800763C0(rs, 0, stage->mTexture);
         Mtx uvm;
-        UvMtx_unk(uvm, stage->m08);
+        UvMtx_unk(uvm, stage->mUv);
         int skinned = mesh->m14 == -1;
         GXSetNumTevStages(1);
         GXSetNumTexGens(1);
@@ -1007,7 +940,7 @@ void fn_8009CC28(DrawMesh_unk* mesh, ShaderMaterial_unk* mat, DrawShader_unk* sh
 }
 
 // NONMATCHING: 99.84% - stage and texture registers swapped in the width loop
-void fn_8009D1A4(ShaderMaterial_unk* mat) {
+void fn_8009D1A4(Material_unk* mat) {
     GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
     GXSetChanMatColor(4, white);
     GXSetChanMatColor(5, white);
@@ -1034,11 +967,11 @@ void fn_8009D1A4(ShaderMaterial_unk* mat) {
     }
     TexStage_unk* stage;
     int width = 0;
-    for (int i = 0; i < mat->m08->mDesc->m0E4; i++) {
+    for (int i = 0; i < ((DrawShader_unk*)mat->m08)->mDesc->m0E4; i++) {
         stage = &mat->m0C[i];
-        if (stage->m10 == 0) {
-            if (TexReady_unk(stage->m04)) {
-                width = GXGetTexObjWidth(&stage->m04->mObj);
+        if (stage->mId == 0) {
+            if (TexReady_unk(stage->mTexture)) {
+                width = GXGetTexObjWidth(&stage->mTexture->mObj);
             }
             break;
         }
@@ -1084,14 +1017,14 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
         index = part->m00;
     }
     DrawMesh_unk* mesh = entry->m0C->m40[part->m04];
-    ShaderMaterial_unk* mat;
+    Material_unk* mat;
     if (index >= 0) {
         if (entry->m4C != 0 && entry->m4C[index] == 0) {
             return;
         }
         mat = entry->m20->mData[index];
     } else {
-        mat = (ShaderMaterial_unk*)lbl_8087EFE0->fn_800C607C(index);
+        mat = (Material_unk*)lbl_8087EFE0->fn_800C607C(index);
     }
     if (mat == 0) {
         return;
@@ -1203,8 +1136,8 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
 }
 
 // NONMATCHING: 95.19% - register allocation (loop locals get the highest registers in the original)
-void fn_8009DCE0(ShaderMaterial_unk* mat) {
-    DrawShader_unk* shader = mat->m08;
+void fn_8009DCE0(Material_unk* mat) {
+    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
     int hint = 0;
     for (unsigned int i = 0; i < shader->mTexCount; i++) {
         DrawTexEntry_unk* entry = &shader->mTex[i];
@@ -1212,9 +1145,9 @@ void fn_8009DCE0(ShaderMaterial_unk* mat) {
         int index = entry->mIndex;
         if (id == 0xB) {
             TexStage_unk* stage;
-            for (; hint < mat->m4A && mat->m0C[hint].m10 < id; hint++) {
+            for (; hint < mat->m4A && mat->m0C[hint].mId < id; hint++) {
             }
-            if (hint < mat->m4A && id == mat->m0C[hint].m10) {
+            if (hint < mat->m4A && id == mat->m0C[hint].mId) {
                 stage = &mat->m0C[hint];
                 hint++;
             } else {
@@ -1222,11 +1155,11 @@ void fn_8009DCE0(ShaderMaterial_unk* mat) {
             }
             void* tex = 0;
             if (stage != 0) {
-                atn::Texture_unk* t = stage->m04;
+                atn::Texture_unk* t = stage->mTexture;
                 if (t != 0 && TexReady_unk(t)) {
-                    tex = stage->m04;
+                    tex = stage->mTexture;
                 } else if (shader->mTex[i].mBind != 0) {
-                    tex = shader->mTex[i].mBind->m04;
+                    tex = shader->mTex[i].mBind->mTexture;
                 }
             }
             if (id == 0xB && lbl_8087EFA8->m028 != 0) {
@@ -1242,14 +1175,14 @@ void fn_8009DCE0(ShaderMaterial_unk* mat) {
 
 // NONMATCHING: 97.48% - register allocation
 void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
-    ShaderMaterial_unk* mat = cmd->m08;
+    Material_unk* mat = cmd->m08;
     DrawLens_unk* lens = cmd->m10;
     unsigned int flags = cmd->m04;
     DrawMesh_unk* mesh = cmd->m0C;
     void* vtx = cmd->m18;
     DrawArray_unk* arrays = cmd->m1C;
     Mtx* mtx = cmd->m14;
-    DrawShader_unk* shader = mat->m08;
+    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
     fn_800BDB40(lbl_8087EFB4, lens);
     if (cmd->m3C.mFunc1 != 0) {
         cmd->m3C.mFunc1(cmd->m3C.mArg1, cmd->m3C.mArg2);

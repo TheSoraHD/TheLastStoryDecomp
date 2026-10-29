@@ -2,6 +2,7 @@
 // gimmick factory jump tables (0x8078C6C8); the file also holds the factories at 0x803EC16C/0x803EC374.
 
 #include "game/GimmickCommon.h"
+#include "atn/Material_unk.h"
 #include "gmk/OpenBoard.h"
 #include "gmk/PlayEffect.h"
 #include "gmk/LandMine.h"
@@ -204,10 +205,10 @@ void GimmickMaterialFade_unk::fn_803EBE74(atn::Model* model) {
         color.a = a;
         mMaterial->mColor = color.ToGX();
         if (t > 0.0f) {
-            fn_8007FAF0(mMaterial, 3);
+            mMaterial->fn_8007FAF0(3);
             model->mFlags |= 0x10;
         } else {
-            fn_8007FAF0(mMaterial, mMode);
+            mMaterial->fn_8007FAF0(mMode);
             model->mFlags &= ~0x10;
         }
     }
