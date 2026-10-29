@@ -468,9 +468,9 @@ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text)
 }
 
 // inferred: shows a warning in the info window (camp_info.d2a)
-extern "C" void fn_804A4294(MenuCommonTask* menu, const wchar_t* text) {
-    SetPaneText_unk(menu->m50->m58, "warning_msg", text);
-    menu->m4C = 1;
+void MenuCommonTask::fn_804A4294(const wchar_t* text) {
+    SetPaneText_unk(m50->m58, "warning_msg", text);
+    m4C = 1;
 }
 
 // inferred: shows a warning in the info window (camp_info6.d2a)

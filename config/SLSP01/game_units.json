@@ -3731,5 +3731,12 @@
    "DialogConfig_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "game/CosEditPalette_unk.cpp",
+  "classes": [
+   "CosEditProtector"
+  ],
+  "matching": false
  }
 ]

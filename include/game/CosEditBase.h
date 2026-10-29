@@ -13,6 +13,7 @@ namespace chr {
 struct CharaEquip_unk;
 }
 class CharaTask;
+struct OptionParts_unk;
 class CostumeEditChara;
 
 // inferred: party member shown by the costume menu (entry of the parent's list); names invented
@@ -72,9 +73,9 @@ public:
     int fn_801CE4CC();  // inferred: the main character is loading its equipment
     void fn_801CE518(); // inferred: removes the characters
     void fn_801CE5B0(int b, int c);
-    void* fn_801CE648(int slot);
-    int fn_801CE7E8(int slot);
-    void* fn_801CE87C(int slot);
+    chr::CharaEquip_unk* fn_801CE648(int slot); // inferred: equipment of a slot of the selected member
+    OptionParts_unk* fn_801CE7E8(int slot);      // inferred: its option parts
+    unsigned int* fn_801CE87C(int slot);         // inferred: its option bits (inventory data)
     void fn_801CEA50(int member, CharaTask* chara, int slot, int a, int b, int c);
     void fn_801CEA98(int member, CharaTask* chara, int slot, int item, int a, int b, int c, int d);
     CostumeEditChara* fn_801CF334(); // inferred: character of the selected member
@@ -109,7 +110,8 @@ public:
     int m1FC;
     int m200;
     int m204;
-    unsigned char m208[0x210 - 0x208];
+    int m208;
+    int m20C;                     // inferred: like m210 (-1: none)
     int m210;
     int m214;
     int m218;

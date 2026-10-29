@@ -5,6 +5,8 @@
 #include "game/ResHandle.h"
 #include "string.h"
 
+extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: system text
+
 // inferred: fixed text buffer cleared by its constructor (name invented)
 struct MenuText_unk {
     MenuText_unk() { memset(mText, 0, sizeof(mText)); }
@@ -79,6 +81,11 @@ public:
     void ResetInfo_unk(); // inferred: inline body of fn_804A313C (name invented)
     void fn_804A660C(void* anime, int a, int b, int c); // inferred: event of a d2anime
     void fn_804A71F0(void* layout, int a, int b, int c); // inferred: event of a layout anime
+
+    void fn_804A4294(const wchar_t* text); // inferred: shows a warning in the info window (camp_info.d2a)
+    // inferred: shows a system text as a warning (inlined in game/CosEditPalette_unk.cpp, which reads
+    // sInstance before the text)
+    void ShowWarning_unk(int id) { fn_804A4294(fn_80116FC0(1, id)); }
 
     static MenuCommonTask* sInstance;
 

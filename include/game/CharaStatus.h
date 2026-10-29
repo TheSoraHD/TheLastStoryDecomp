@@ -252,6 +252,9 @@ struct CharaParam_unk {
     int m94;
     int m98;
     int m9C;
+    // inferred: equipment letter at 0xA8 (fn_8020DB18, game/CosEditPalette_unk.cpp); kept inside the
+    // byte array: an int member changes the copies of this block in CharaStatus::fn_8012B3E8
+    int GetLetter_unk() const { return *(const int*)&mA0[0xA8 - 0xA0]; }
     unsigned char mA0[0xC0 - 0xA0];
 };
 
@@ -264,6 +267,8 @@ struct CharaStatusPair_unk {
     }
     int m[2]; // inferred: an array, since copies of the pair move it as one block
 };
+
+struct OptionParts_unk;
 
 namespace chr {
 // inferred: data of an equipped part (CharaPart_unk::m274): starts with the parameters it adds
@@ -284,16 +289,18 @@ struct CharaEquip_unk {
     void fn_80566010(); // inferred: attaches the model
     void fn_805663F8();
     void fn_80566408(); // inferred: undoes fn_805663F8 (CharaTask::fn_80145334)
+    void fn_805657CC(int color, unsigned int* bits); // inferred: applies the option bits
     int m000; // inferred: kind (4 is handled apart by CharaTask::fn_80149A30)
     int m004; // inferred: item id ((id % 1000) / 10 == 46: coat with "leftcoat"/"rightcoat" nodes)
     int m008; // inferred: color (game/CosEditBase.cpp)
-    unsigned char m00C[0x024 - 0x00C];
+    int m00C; // inferred: nonzero: no option parts (game/CosEditPalette_unk.cpp)
+    unsigned char m010[0x024 - 0x010];
     unsigned char m024[0x028 - 0x024]; // inferred: model-like object (passed to fn_80094E2C)
     unsigned int m028; // inferred: flags of that model
     unsigned char m02C[0x414 - 0x02C];
     CharaParam_unk* m414;
     unsigned char m418[0x430 - 0x418];
-    int m430;
+    OptionParts_unk* m430; // inferred: option parts (db/OptionParts_unk.cpp)
     unsigned char m434[0x43C - 0x434];
 };
 
@@ -362,7 +369,8 @@ public:
     float m228; // inferred: gauge raised by fn_8012F034
     unsigned char m22C[0x230 - 0x22C];
     unsigned char m230; // inferred: four flags (fn_80134774, fn_801347C8)
-    unsigned char m231[0x240 - 0x231];
+    unsigned char m231; // inferred: colour mark of the costume menu (1-based, 0: none)
+    unsigned char m232[0x240 - 0x232];
 };
 
 // inferred: 20-byte entry of the first table in CharaStatus (id at 0, value at 4, sub id at 8)

@@ -1,5 +1,6 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "db/OptionParts_unk.h"
 #include "gmk/SeTable.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -21,16 +22,6 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
 // inferred: index of an equipment letter (db/EquipParam_unk.cpp)
 extern "C" int fn_8020F064(const char* letter);
-
-// inferred: colour of the costume editor palette (db/PaletteTable_unk.cpp)
-struct Color4f_unk {
-    float r, g, b, a;
-};
-struct OptionPalette_unk {
-    int m00;
-    Color4f_unk mColor;
-};
-extern "C" OptionPalette_unk* fn_8020BCEC(int index);
 
 namespace atn {
 // inferred: model (only the name is read here, see include/atn/Model_unk.h)
@@ -60,49 +51,6 @@ extern "C" void fn_80095750(atn::Model* model, const char* name, atn::CompositeI
 std::string fn_8006B0C8(const std::string& path);
 extern "C" std::string fn_8006B2D8(const std::string& path);
 extern "C" std::string fn_8006AFF8(const std::string& dir, const std::string& name);
-
-// inferred: "option" row of database/cosedit/option/*.csv (0x44 bytes)
-struct OptionPart_unk {
-    atn::FixedString_unk<0x20> mName;
-    atn::FixedString_unk<0x20> mKey;
-    int mLevel;
-};
-
-// inferred: "color" row (0x54 bytes)
-struct OptionColor_unk {
-    atn::FixedString_unk<0x20> mGroup; // inferred: texture group
-    atn::FixedString_unk<0x20> mLayer;
-    Color4f_unk mColor;
-    signed char mChannel; // inferred: 'R' 0, 'G' 1, other 2
-    signed char mSlot;    // inferred: index in sColorSlots, -1 if none
-    signed char m52;
-    bool mEnable;
-};
-
-// inferred: "hide"/"base_hide" row: list of option parts (0x64 bytes)
-struct OptionHide_unk {
-    atn::FixedString_unk<0x20> mName;
-    int mParts[0x10];
-    int mCount;
-};
-
-// inferred: option parts of a costume (0x10E0 bytes, member of the equipment at 0x80564340)
-struct OptionParts_unk {
-    OptionPart_unk mParts[16];     // 0x000
-    OptionColor_unk mColors[24];   // 0x440
-    OptionHide_unk mHides[8];      // 0xC20
-    OptionHide_unk mBaseHides[4];  // 0xF40
-    int mPartCount;                // 0x10D0
-    int mColorCount;               // 0x10D4
-    int mHideCount;                // 0x10D8
-    int mBaseHideCount;            // 0x10DC
-
-    void SetLevels_unk(const bool* levels) {
-        for (int i = 0; i < mPartCount; i++) {
-            mParts[i].mLevel = levels[i];
-        }
-    }
-};
 
 // inferred: colour chosen for a "color" row (0x14 bytes)
 struct OptionColorOut_unk {
@@ -371,42 +319,6 @@ extern "C" int fn_8020D608(OptionParts_unk* parts, unsigned int hash) {
     }
     return -1;
 }
-
-// inferred: wide string of a fixed size
-template <int N>
-struct WFixedString_unk {
-    WFixedString_unk() { mStr[0] = 0; }
-    WFixedString_unk& operator=(const wchar_t* str) {
-        if (str != mStr) {
-            wmemcpy(mStr, str, wcslen(str) + 1);
-        }
-        return *this;
-    }
-    wchar_t mStr[N];
-};
-
-// inferred: option of a level list (0x54 bytes)
-struct OptionLevel_unk {
-    OptionLevel_unk() {}
-    ~OptionLevel_unk() {}
-
-    int m00;
-    unsigned int mHashes[3];
-    WFixedString_unk<0x20> mName;
-    int mFree; // inferred: "FREE"
-};
-
-// inferred: options of one letter and slot (0x544 bytes)
-struct OptionLevelList_unk {
-    OptionLevelList_unk() {
-        memset(mLevels, 0, sizeof(mLevels));
-        mCount = 0;
-    }
-    ~OptionLevelList_unk() {}
-
-    OptionLevel_unk mLevels[16];
-    int mCount;
-};
 
 // inferred: lists of the 11 letters and 4 slots (0xE7B0 bytes)
 struct OptionLevelTable_unk {

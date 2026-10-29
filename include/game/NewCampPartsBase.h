@@ -95,7 +95,7 @@ public:
     atn::LH_Xsca m5C;                    // 0x5C: inferred: camera
     float m64[6];
     int m7C;                             // inferred: state of the derived parts
-    unsigned int m80;                    // inferred: cursor
+    int m80;                             // inferred: cursor
     int m84;                             // inferred: number of cursor positions
     int m88;
     int m8C;

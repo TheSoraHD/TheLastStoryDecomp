@@ -620,23 +620,23 @@ void CosEditBase::vf74(int a, int b) {
     m1E8 = b;
 }
 
-void* CosEditBase::fn_801CE648(int slot) {
+chr::CharaEquip_unk* CosEditBase::fn_801CE648(int slot) {
     if (!fn_801CF334() || !fn_801CF334()->mChara) {
         return 0;
     }
     return fn_801CF334()->mChara->m680[slot];
 }
 
-int CosEditBase::fn_801CE7E8(int slot) {
+OptionParts_unk* CosEditBase::fn_801CE7E8(int slot) {
     return fn_801CF334()->mChara->m680[slot]->m430;
 }
 
-void* CosEditBase::fn_801CE87C(int slot) {
+unsigned int* CosEditBase::fn_801CE87C(int slot) {
     if (!fn_801CF334() || !fn_801CF334()->mChara) {
         return 0;
     }
     int member = fn_80219558(fn_801CF334()->mChara->m50);
-    return fn_8044D034(Inventory::instance_, slot + member * 4);
+    return (unsigned int*)fn_8044D034(Inventory::instance_, slot + member * 4);
 }
 
 void CosEditBase::fn_801CEA50(int member, CharaTask* chara, int slot, int a, int b, int c) {
