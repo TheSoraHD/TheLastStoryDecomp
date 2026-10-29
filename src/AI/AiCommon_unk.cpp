@@ -2,6 +2,10 @@
 // work on the current character (lbl_8087EE60) and on lists of 16 characters.
 #include "game/CharaTask.h"
 #include "game/NpcManager.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
+#include "game/SkillEffectManager.h"
+#include "std/string.h"
 
 extern "C" int rand();
 extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
@@ -583,4 +587,62 @@ extern "C" int fn_8001BEE0(CharaTask* chara) {
         rate = 100.0f * (chara->mStatus.m04 / chara->mStatus.mParamB.m84);
     }
     return rate;
+}
+
+extern "C" int fn_80018078(void* routes, CharaTask* chara);
+extern "C" int fn_80018BAC(void* routes, CharaTask* chara);
+extern "C" int fn_8021A984(HitInfo_unk* hit);
+extern "C" int fn_80599C90(Bullet_unk* bullet, CharaTask* chara);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
+
+extern "C" int fn_8001BF44() {
+    return 0;
+}
+
+extern "C" int fn_8001BF4C(CharaTask* chara) {
+    return fn_80018078(lbl_8087EE68, chara);
+}
+
+extern "C" int fn_8001BF58(CharaTask* chara) {
+    return fn_80018BAC(lbl_8087EE68, chara);
+}
+
+extern "C" SkillEffectManager* lbl_8087F9E8;
+
+extern "C" int fn_8001BF64(CharaTask* chara) {
+    int count = 0;
+    Bullet_unk* bullet = 0;
+    for (unsigned int i = 0; i < 32; i++) {
+        bullet = lbl_8087F9E8->GetBullet_unk(i);
+        if (bullet != 0 && bullet->IsActive_unk() && fn_8021A984(bullet->m04) &&
+            fn_80599C90(bullet, chara)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+extern "C" int fn_8001C01C(CharaTask* chara) {
+    int ret = 0;
+    if (chara != 0) {
+        ret = chara->mC58.mE0_12;
+    }
+    return ret;
+}
+
+extern "C" int fn_8001C038(CharaTask*) {
+    int ret = 0;
+    CharaManager<PlayerTask>* manager = lbl_8087F8A0;
+    // Select the head explicitly so both null paths share the same check.
+    manager = manager != 0 ? (CharaManager<PlayerTask>*)manager->mHead : 0;
+    if (manager != 0) {
+        ret = ((PlayerTask*)manager)->mFlag28;
+    }
+    return ret;
+}
+
+extern "C" void fn_8001C068(CharaTask* chara, const char* name) {
+    if (chara != 0 && name != 0) {
+        strncpy((char*)chara->mC58.m1B0, name, 0x100);
+    }
 }

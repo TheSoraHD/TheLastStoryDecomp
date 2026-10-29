@@ -213,6 +213,11 @@ int fn_8003D298(int a, int b);
 float fn_8001BD14(CharaTask* chara); // inferred: attack range of the character
 float fn_8001AD80(CharaTask* a, CharaTask* b);
 int fn_8001BEB0(CharaTask* chara);
+int fn_8001BF4C(CharaTask* chara);
+void fn_8001BADC(CharaTask* chara, int arg);
+int fn_8001B5DC(CharaTask* chara); // inferred: item to use (as fn_8001B634)
+int fn_8001BC80(CharaTask* chara, int index);
+int fn_8001BCB4(CharaTask* chara, int slot); // inferred: slot holds a usable skill
 int fn_8001B4A4();
 int fn_8001AEBC(int size);
 int rand();
@@ -1048,6 +1053,28 @@ static inline int FarOrSpecial_unk() {
     return -1;
 }
 
+// inferred: stops (command 0) when in.m08 is set
+static inline int Stop_unk() {
+    if (lbl_807C68C0.m08 != 0) {
+        Command_unk(0, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    return -1;
+}
+
+// inferred: as CanUseItem_unk with the other item selection (fn_8001B5DC)
+static inline bool CanUseItem2_unk() {
+    if (InRange_unk(9999.0f)) {
+        int item = fn_8001B5DC(lbl_807C68C0.m00);
+        if (item > 0) {
+            lbl_807C68C0.m64 = item;
+            return true;
+        }
+    }
+    return false;
+}
+
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
 static inline int WaitRandom_unk() {
     if (lbl_807C68C0.m08 != 0) {
@@ -1084,40 +1111,6 @@ static inline int AttackNear_unk() {
     return WaitRandom2_unk();
 }
 
-extern "C" int fn_8001BF44() {
-    return 0;
-}
-
-extern "C" int fn_8001BF4C(CharaTask* chara) {
-    return fn_80018078(lbl_8087EE68, chara);
-}
-
-extern "C" int fn_8001BF58(CharaTask* chara) {
-    return fn_80018BAC(lbl_8087EE68, chara);
-}
-
-extern "C" SkillEffectManager* lbl_8087F9E8;
-
-extern "C" int fn_8001BF64(CharaTask* chara) {
-    int count = 0;
-    Bullet_unk* bullet = 0;
-    for (unsigned int i = 0; i < 32; i++) {
-        bullet = lbl_8087F9E8->GetBullet_unk(i);
-        if (bullet != 0 && bullet->IsActive_unk() && fn_8021A984(bullet->m04) &&
-            fn_80599C90(bullet, chara)) {
-            count++;
-        }
-    }
-    return count;
-}
-
-extern "C" int fn_8001C01C(CharaTask* chara) {
-    int ret = 0;
-    if (chara != 0) {
-        ret = chara->mC58.mE0_12;
-    }
-    return ret;
-}
 extern "C" unsigned char* fn_8001C088();
 extern "C" unsigned char* fn_8001C1C0(unsigned char* script);
 
@@ -1160,23 +1153,6 @@ extern "C" AIScriptMapNode_unk* fn_8003DD50(void* tree,
                                              const AIStringWithAllocator_unk* key);
 extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value);
 extern "C" void fn_8001C068(CharaTask* chara, const char* name);
-
-extern "C" int fn_8001C038(CharaTask*) {
-    int ret = 0;
-    CharaManager<PlayerTask>* manager = lbl_8087F8A0;
-    // Select the head explicitly so both null paths share the same check.
-    manager = manager != 0 ? (CharaManager<PlayerTask>*)manager->mHead : 0;
-    if (manager != 0) {
-        ret = ((PlayerTask*)manager)->mFlag28;
-    }
-    return ret;
-}
-
-extern "C" void fn_8001C068(CharaTask* chara, const char* name) {
-    if (chara != 0 && name != 0) {
-        strncpy((char*)chara->mC58.m1B0, name, 0x100);
-    }
-}
 
 // NONMATCHING: 0.00% - the inferred copy loops compile to a different routine shape.
 // inferred: copies the script's fixed parameter blocks into the global AI state.
@@ -2144,12 +2120,86 @@ int AI::Script::AI_arganan01::vf08() {
     }
     return result;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+static inline int IsBusy_unk(CharaTask* chara, int next) {
+    if (next == 0) {
+        return fn_8001BC80(chara, 0);
+    }
+    return fn_8001BC80(chara, next - 1);
+}
+static inline void Combo7_unk(int step) {
+    Command_unk(7, step, (int)lbl_807C68C0.m00, 0, 0);
+}
+static inline int Combo_unk() {
+    if (IsBusy_unk(lbl_807C68C0.m00, lbl_807C6A40.m18 + 1)) {
+        return -1;
+    }
+    Combo7_unk(lbl_807C6A40.m18);
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m18 += 1;
+    if (fn_8001BCB4(lbl_807C68C0.m00, lbl_807C6A40.m18)) {
+        return 9;
+    }
+    lbl_807C6A40.m18 = 0;
+    return 9;
+}
+int AI::Script::AI_arganan01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C68C0.m08 != 0) {
+            if (fn_8001BF4C(lbl_807C68C0.m00)) {
+                Command_unk(16, 0, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                fn_8001BADC(lbl_807C68C0.m00, 1);
+                return 6;
+            }
+            if (lbl_807C68C0.m58 > lbl_807C6A40.m24) {
+                if (fn_8001BEB0(lbl_807C68C0.m00)) {
+                    Command_unk(0, 30, 0, 0, 0);
+                    lbl_807C6A40.m00 = 1;
+                    return 1;
+                }
+                if (CanUseItem2_unk()) {
+                    Command_unk(2, lbl_807C68C0.m64, 0, 0, 0);
+                    lbl_807C6A40.m00 = 1;
+                    return 4;
+                }
+                Command_unk(0, 30, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            return Combo_unk();
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_arganan01::vf18() {
     int result = WaitRandom_unk();
     if (result == 7) {
         lbl_807C6A40.m00 = 1;
         return 7;
+    }
+    return -1;
+}
+
+int AI::Script::AI_arganan01::vf24() {
+    if (fn_8001BF4C(lbl_807C68C0.m00)) {
+        Command_unk(16, 0, 0, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        fn_8001BADC(lbl_807C68C0.m00, 1);
+        return 6;
+    }
+    int result = Stop_unk();
+    if (result == 1) {
+        lbl_807C6A40.m00 = 1;
+        return 1;
     }
     return -1;
 }

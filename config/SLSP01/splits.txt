@@ -49,13 +49,13 @@ game/AiTarget_rodata.cpp:
 	.rodata     start:0x8072FD8C end:0x8072FF50 align:4
 
 AI/AiCommon_unk.cpp:
-	.text       start:0x8001A444 end:0x8001BF44
+	.text       start:0x8001A444 end:0x8001C088
 	.rodata     start:0x8072FF50 end:0x8072FF60
 	.data       start:0x80775BE8 end:0x80775C48
 	.sdata2     start:0x80880760 end:0x80880798
 
 AI/AI_archer_attack01.cpp:
-	.text       start:0x8001BF44 end:0x8003E918
+	.text       start:0x8001C088 end:0x8003E918
 	.ctors      start:0x8072D2A8 end:0x8072D2AC
 	.rodata     start:0x8072FF60 end:0x80730C68
 	.data       start:0x80775C48 end:0x807772B0
