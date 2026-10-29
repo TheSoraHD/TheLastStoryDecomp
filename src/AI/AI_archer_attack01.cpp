@@ -2137,6 +2137,9 @@ static inline void Follow_unk(CharaTask* target, int range) {
         }
     }
 }
+static inline void MoveTo_unk(int point) {
+    Command_unk(1, point, 0, 0, 0);
+}
 static inline int Combo_unk() {
     if (IsBusy_unk(lbl_807C68C0.m00, lbl_807C6A40.m18 + 1)) {
         return -1;
@@ -8370,6 +8373,32 @@ int AI::Script::AI_np_tagger_random::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_np_tagger_random::vf0C() {
+    int r = rand() % 3 + 1;
+    lbl_807C6A40.m00 = 1;
+    lbl_807C6A40.m18 = r;
+    if (lbl_807C6A40.m18 == 1) {
+        lbl_807C6A40.m1C = lbl_807C68C0.m7C;
+        Command_unk(12, lbl_807C6A40.m1C, 10, 0, 0);
+        return 3;
+    }
+    if (lbl_807C6A40.m18 == 2) {
+        lbl_807C6A40.m1C = lbl_807C68C0.m80;
+        Command_unk(12, lbl_807C6A40.m1C, 10, 0, 0);
+        return 3;
+    }
+    if (lbl_807C6A40.m18 == 3) {
+        lbl_807C6A40.m1C = lbl_807C68C0.m84;
+        Command_unk(12, lbl_807C6A40.m1C, 10, 0, 0);
+        return 3;
+    }
+    lbl_807C6A40.m1C = lbl_807C68C0.m88;
+    Command_unk(12, lbl_807C6A40.m1C, 10, 0, 0);
+    return 3;
+}
 
 int AI::Script::AI_np_tagger_random::vf14() {
     if (lbl_807C68C0.m08 != 0) {
@@ -8408,6 +8437,16 @@ int AI::Script::AI_np_type001::vf14() {
         fn_8001AEDC(0, &a, &b, &c, &d);
         lbl_807C6A40.m00 = 1;
         return 1;
+    }
+    return -1;
+}
+
+int AI::Script::AI_np_type001::vf0C() {
+    if (lbl_807C68C0.m08 != 0) {
+        int base = fn_8001B5B4(lbl_807C68C0.m10, 0);
+        MoveTo_unk(PickPoint_unk(base));
+        lbl_807C6A40.m00 = 1;
+        return 3;
     }
     return -1;
 }
