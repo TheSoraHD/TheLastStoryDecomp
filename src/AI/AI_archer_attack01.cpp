@@ -5507,6 +5507,57 @@ int AI::Script::AI_sword_leaderguard01::vf08() {
     lbl_807C6A40.m00 = 1;
     return 1;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_sword_leaderguard01::vf1C() {
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C6A40.m18 == 4) {
+            int result = FarOrSpecial_unk();
+            if (result == 6) {
+                int range = 0.8f * lbl_807C68C0.m30;
+                ApproachRange_unk(range);
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            if (result == 8) {
+                lbl_807C6A40.m00 = 1;
+                return 8;
+            }
+            return -1;
+        }
+        if (fn_8001BE00(lbl_807C6A40.mE0)) {
+            if (Distance_unk(lbl_807C68C0.m00, lbl_807C6A40.mE0) >= lbl_807C6A40.m24 && lbl_807C68C0.m0C > 30) {
+                lbl_807C6A40.m18 = 0;
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            if (Distance_unk(lbl_807C68C0.m20, lbl_807C68C0.m00) < 0.5f * lbl_807C68C0.m30) {
+                Command_unk(5, 1, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                lbl_807C6A40.m3C = lbl_807C6A40.m28;
+                return 8;
+            }
+            if (lbl_807C6A40.m3C <= 0) {
+                Command_unk(5, 1, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                lbl_807C6A40.m3C = lbl_807C6A40.m28;
+                return 8;
+            }
+            lbl_807C6A40.m3C -= 1;
+            lbl_807C6A40.m00 = 1;
+            return -1;
+        }
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    lbl_807C6A40.m18 = 0;
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
 
 int AI::Script::AI_sword_leaderguard01::vf20() {
     int result = AttackValid_unk();
@@ -5542,6 +5593,53 @@ int AI::Script::AI_sword_leaderguard02::vf08() {
     lbl_807C6A40.m24 = lbl_807C68C0.m84;
     lbl_807C6A40.m28 = lbl_807C68C0.m88;
     lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
+
+int AI::Script::AI_sword_leaderguard02::vf1C() {
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C6A40.m18 == 4) {
+            int result = FarOrSpecial_unk();
+            if (result == 6) {
+                int range = 0.8f * lbl_807C68C0.m30;
+                ApproachRange_unk(range);
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            if (result == 8) {
+                lbl_807C6A40.m00 = 1;
+                return 8;
+            }
+            return -1;
+        }
+        if (fn_8001BE00(lbl_807C6A40.mE0)) {
+            if (Distance_unk(lbl_807C68C0.m00, lbl_807C6A40.mE0) >= lbl_807C6A40.m24) {
+                lbl_807C6A40.m18 = 0;
+                lbl_807C6A40.m00 = 1;
+                return 1;
+            }
+            if (Distance_unk(lbl_807C68C0.m20, lbl_807C68C0.m00) < 0.5f * lbl_807C68C0.m30) {
+                Command_unk(5, 1, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                lbl_807C6A40.m3C = lbl_807C6A40.m28;
+                return 8;
+            }
+            if (lbl_807C6A40.m3C <= 0) {
+                Command_unk(5, 1, 0, 0, 0);
+                lbl_807C6A40.m00 = 1;
+                lbl_807C6A40.m3C = lbl_807C6A40.m28;
+                return 8;
+            }
+            lbl_807C6A40.m3C -= 1;
+            lbl_807C6A40.m00 = 1;
+            return -1;
+        }
+        lbl_807C6A40.m18 = 0;
+        lbl_807C6A40.m00 = 1;
+        return 1;
+    }
+    lbl_807C6A40.m18 = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
 }
@@ -5777,6 +5875,49 @@ int AI::Script::AI_sword_pointguard01::vf08() {
     lbl_807C6A40.m28 = lbl_807C68C0.m88;
     lbl_807C6A40.m2C = lbl_807C68C0.m8C;
     lbl_807C6A40.m3C = 0;
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
+
+int AI::Script::AI_sword_pointguard01::vf1C() {
+    if (fn_8001BE00(lbl_807C68C0.m20)) {
+        if (lbl_807C6A40.m18 == 4) {
+            int result = FarOrSpecial_unk();
+            if (result == 6) {
+                int range = 0.8f * lbl_807C68C0.m30;
+                ApproachRange_unk(range);
+                lbl_807C6A40.m00 = 1;
+                return 6;
+            }
+            if (result == 8) {
+                lbl_807C6A40.m00 = 1;
+                return 8;
+            }
+            return -1;
+        }
+        int dist = SkillDist_unk(lbl_807C6A40.m2C, lbl_807C68C0.m00);
+        if (dist >= lbl_807C6A40.m24) {
+            lbl_807C6A40.m18 = 0;
+            lbl_807C6A40.m00 = 1;
+            return 1;
+        }
+        if (Distance_unk(lbl_807C68C0.m20, lbl_807C68C0.m00) < 0.5f * lbl_807C68C0.m30) {
+            Command_unk(5, 1, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            lbl_807C6A40.m3C = lbl_807C6A40.m28;
+            return 8;
+        }
+        if (lbl_807C6A40.m3C <= 0) {
+            Command_unk(5, 1, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            lbl_807C6A40.m3C = lbl_807C6A40.m28;
+            return 8;
+        }
+        lbl_807C6A40.m3C -= 1;
+        lbl_807C6A40.m00 = 1;
+        return -1;
+    }
+    lbl_807C6A40.m18 = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
 }
