@@ -24,6 +24,18 @@ public:
     int fn_800CA910();                                       // inferred: length in ms (-1: unknown)
     int fn_800CAA88();                                       // inferred: play position in ms (-1: unknown)
     void fn_800CAC48(int track, float volume, int frames);   // inferred: stream track volume
+    // called from atn/SoundManager.cpp (through SoundRef and the pool helpers)
+    void fn_800C82A0(int immediate);
+    int fn_800CA028();
+    void fn_800CA098();
+    void fn_800CA144(int value);
+    void fn_800CA1D4(int a1, unsigned long a2, int a3);
+    void fn_800CA3D4();
+    void fn_800CA42C(float value, int frames);
+    void fn_800CA514(int value);
+    void fn_800CA5E8(float value, int frames);
+    void fn_800CA6C4(int value);
+    void fn_800CA7E8(const Vector3* pos);
 };
 
 } // namespace atn

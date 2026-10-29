@@ -1,26 +1,7 @@
 #include "atn/SoundRef.h"
+#include "atn/SoundCore.h"
 #include "math/Vec.h"
 
-namespace atn {
-
-class SoundCore {
-public:
-    int fn_800CA028();
-    void fn_800CA098();
-    void fn_800CA0AC(float, int);
-    void fn_800CA1D4(int, unsigned long, int);
-    void fn_800CA2FC(float, float, float);
-    void fn_800CA42C(float, int);
-    void fn_800CA5E8(float, int);
-    void fn_800CA798(int, float);
-    void fn_800CA7E8(const Vector3*);
-    void fn_800C82A0(int);
-    void fn_800CA144(int);
-    void fn_800CA514(int);
-    void fn_800CA6C4(int);
-    void fn_800CA3D4();
-};
-} // namespace atn
 extern "C" void fn_80709F20(void*);
 extern "C" int fn_8070ABE0(void*);
 extern "C" void fn_80709AD0(void*, int);
@@ -147,13 +128,9 @@ extern "C" int fn_800CB6F8(atn::SoundRef* self) {
     return self->mPtr != 0 ? self->mPtr->m98 : 0;
 }
 
-extern "C" void fn_800CB714(void* self, int a1, unsigned long a2, int a3) {
-    reinterpret_cast<atn::SoundCore*>(self)->fn_800CA1D4(a1, a2, a3);
+extern "C" void fn_800CB714(atn::SoundCore* sound, int a1, unsigned long a2, int a3) {
+    sound->fn_800CA1D4(a1, a2, a3);
 }
-extern "C" void fn_800CB7F0(void* self, int value);
-extern "C" void fn_800CB7F4(void* self, int value);
-extern "C" void fn_800CB7F8(void* self, int value);
-extern "C" void fn_800CB7FC(void* self);
 
 // NONMATCHING: 94.29% - MWCC genera otra secuencia para convertir frames == 0 a int.
 extern "C" void fn_800CB718(atn::SoundObject* self, int frames, int onlyWhenUnused) {
@@ -170,13 +147,13 @@ extern "C" void fn_800CB788(atn::SoundObject* self, int frames) {
     }
 }
 
-extern "C" void fn_800CB7F0(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA144(value); }
+extern "C" void fn_800CB7F0(atn::SoundCore* sound, int value) { sound->fn_800CA144(value); }
 
-extern "C" void fn_800CB7F4(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA514(value); }
+extern "C" void fn_800CB7F4(atn::SoundCore* sound, int value) { sound->fn_800CA514(value); }
 
-extern "C" void fn_800CB7F8(void* self, int value) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA6C4(value); }
+extern "C" void fn_800CB7F8(atn::SoundCore* sound, int value) { sound->fn_800CA6C4(value); }
 
-extern "C" void fn_800CB7FC(void* self) { reinterpret_cast<atn::SoundCore*>(self)->fn_800CA3D4(); }
+extern "C" void fn_800CB7FC(atn::SoundCore* sound) { sound->fn_800CA3D4(); }
 
 void operator delete(void*);
 
