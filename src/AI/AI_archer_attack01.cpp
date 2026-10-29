@@ -219,6 +219,7 @@ void fn_8001BADC(CharaTask* chara, int arg);
 int fn_8001B5DC(CharaTask* chara); // inferred: item to use (as fn_8001B634)
 int fn_8001BC80(CharaTask* chara, int index);
 int fn_8001BC38(CharaTask* chara, int slot);
+int fn_8001B714(CharaTask* chara); // inferred: item to use (as fn_8001B634)
 int fn_8001BAA4(CharaTask* chara, int arg);
 float fn_8001ADE8(int id, CharaTask* chara); // inferred: distance for skill id
 int fn_8001BCB4(CharaTask* chara, int slot); // inferred: slot holds a usable skill
@@ -1222,6 +1223,18 @@ static inline int ShootN_unk(int n) {
         return -1;
     }
     return -1;
+}
+
+// inferred: as CanUseItem_unk with the third item selection (fn_8001B714)
+static inline bool CanUseItem3_unk() {
+    if (InRange_unk(9999.0f)) {
+        int item = fn_8001B714(lbl_807C68C0.m00);
+        if (item > 0) {
+            lbl_807C68C0.m64 = item;
+            return true;
+        }
+    }
+    return false;
 }
 
 // inferred: waits a random time around in.m48 (in.m4C wide) when in.m08 is set
@@ -4194,6 +4207,41 @@ int AI::Script::AI_em_type102::vf24() {
 int AI::Script::AI_em_type103::vf2C() {
     return ShootN_unk(3);
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_em_type103::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        if (lbl_807C6A40.m18 == 0) {
+            if (CanUseItem3_unk()) {
+                vf18();
+                lbl_807C6A40.m00 = 1;
+                return 9;
+            }
+            if (CanUseItem2_unk()) {
+                vf18();
+                lbl_807C6A40.m00 = 1;
+                return 9;
+            }
+            return -1;
+        }
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    return -1;
+}
 
 int AI::Script::AI_em_type103::vf40() {
     if (fn_800281A0() == 0) {
@@ -4244,6 +4292,31 @@ int AI::Script::AI_em_type103::vf28() {
     return -1;
 }
 
+int AI::Script::AI_em_type103::vf24() {
+    if (lbl_807C6A40.m18 == 0) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(0, 180, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    int result = Ready_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    return -1;
+}
+
 int AI::Script::AI_em_type103::vf08() {
     lbl_807C6A40.m1C = 0x1E;
     lbl_807C6A40.m20 = 0x5A;
@@ -4275,6 +4348,34 @@ __declspec(noinline) int AI::Script::AI_em_type103::fn_800281A0() {
 
 int AI::Script::AI_em_type104::vf2C() {
     return ShootN_unk(3);
+}
+
+int AI::Script::AI_em_type104::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        return -1;
+    }
+    if (InRange_unk(9999.0f)) {
+        if (lbl_807C6A40.m18 == 0) {
+            if (CanUseItem2_unk()) {
+                vf18();
+                lbl_807C6A40.m00 = 1;
+                return 9;
+            }
+            return -1;
+        }
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
+    }
+    return -1;
 }
 
 int AI::Script::AI_em_type104::vf40() {
@@ -4322,6 +4423,31 @@ int AI::Script::AI_em_type104::vf28() {
     if (result == 5) {
         lbl_807C6A40.m00 = 1;
         return 5;
+    }
+    return -1;
+}
+
+int AI::Script::AI_em_type104::vf24() {
+    if (lbl_807C6A40.m18 == 0) {
+        if (lbl_807C68C0.m08 != 0) {
+            Command_unk(0, 90, 0, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            return 9;
+        }
+        return -1;
+    }
+    int result = Ready_unk();
+    if (result == 6) {
+        int next = fn_8003DBA4();
+        if (next == 4) {
+            lbl_807C6A40.m00 = 1;
+            return 4;
+        }
+        if (next == 6) {
+            lbl_807C6A40.m00 = 1;
+            return 6;
+        }
+        return -1;
     }
     return -1;
 }
