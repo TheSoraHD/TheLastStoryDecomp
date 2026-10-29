@@ -19,6 +19,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
+#include "game/Input_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -185,7 +186,6 @@ extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80192FB4(chr::ControlBase* control); // inferred: chr::ControlStickByQuark, stuck pose
 extern "C" GameUI* lbl_8087F490; // inferred: game UI
 extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
-extern "C" int fn_801231D0(void* pad, int button); // inferred: button pressed
 extern "C" void fn_803EAF60(void* mgr, int arg); // inferred: voice
 // inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
 struct QuarkWeights_unk {
@@ -1976,7 +1976,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
                     prompt.m18 = 1;
                     ui->m764 = prompt;
                 }
-                if (fn_801231D0(lbl_8087F0A8->mPad, 0) != 0) {
+                if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0) != 0) {
                     leader->SetHit_unk(m1550);
                     leader->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
                     fn_80370AE4(lbl_8087F430, 0x6F, 1);

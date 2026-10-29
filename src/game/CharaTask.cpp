@@ -54,6 +54,7 @@
 #include <boost/function.hpp>
 #include <boost/tokenizer.hpp>
 #include "macros.h"
+#include "game/Input_unk.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -64,7 +65,7 @@ struct Block454_unk {
 
 // inferred: game settings (lbl_8087F0A8, as in CharaStatus.cpp); names invented
 struct Settings_unk {
-    void* fn_80116BAC(); // inferred: pad (this + 0x48C)
+    Input_unk* fn_80116BAC(); // inferred: pad (this + 0x48C)
     int fn_8013C41C();
     struct Block454_unk* fn_8013C434();
     float fn_8013C50C();
@@ -1179,7 +1180,6 @@ Effect_unk* fn_8013A194();
 extern "C" Field_unk* fn_80121F00();
 extern "C" Settings_unk* fn_800F52F8();
 extern "C" void* fn_800F7F90();
-extern "C" int fn_801231D0(void* pad, int arg); // inferred: button pressed
 extern "C" void fn_80017064(void* routes, CharaTask* chara);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -1219,9 +1219,9 @@ void CharaTask::fn_80139560() {
             }
             if (fn_80139E9C()) {
                 b = 1.0f;
-                if (fn_801231D0(fn_800F52F8()->fn_80116BAC(), 0x1F)) {
+                if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x1F)) {
                     fn_801750FC();
-                } else if (fn_801231D0(fn_800F52F8()->fn_80116BAC(), 0x20)) {
+                } else if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x20)) {
                     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCannonTarget(this));
                     return;
                 }
@@ -5932,10 +5932,6 @@ extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: 
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpFile)
 extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
                             float scale, int e, int f, int g);
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
-    float fn_801248DC(atn::Vector3* dir); // inferred: stick tilt, direction in `dir` (may be 0)
-};
 
 // inferred: lens of a camera (atn::Model::m1DC, or the one of the global camera); names invented
 struct Lens_unk {

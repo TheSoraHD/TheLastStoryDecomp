@@ -11,6 +11,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/Input_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -102,7 +103,6 @@ struct ZanSystem_unk {
     unsigned char mPad[1];
 };
 extern "C" ZanSystem_unk* lbl_8087F0A8;
-extern "C" int fn_801231D0(void* pad, int button); // inferred: button pressed
 // inferred: collision world and its ray test (see game/Em101ElderZesyaSecond.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -2329,7 +2329,7 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
             if (lbl_8087F490 != 0) {
                 lbl_8087F490->m764 = ZanUIHint_unk(6, 14, -1);
             }
-            if (fn_801231D0(lbl_8087F0A8->mPad, 2)) {
+            if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(2)) {
                 if (fn_80370A78(lbl_8087F430, 0xF1) == 0) {
                     fn_80370AE4(lbl_8087F430, 0xF1, 1);
                 }

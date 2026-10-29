@@ -2,6 +2,7 @@
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
+#include "game/Input_unk.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -33,8 +34,6 @@ struct WallInput_unk {
     unsigned char mInput[1];
 };
 extern "C" WallInput_unk* lbl_8087F0A8;
-extern "C" int fn_801231D0(void* pad, int button); // inferred: button pressed
-extern "C" int fn_801240B4(void* pad, int button); // inferred: button held
 
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
 struct WallCollResult_unk {
@@ -159,11 +158,11 @@ int ControlWallUp::vf0C() {
         mChara->mRot = m34.ToRotation_unk();
         float frame2 = motion->mTracks[0].m08;
         if (frame2 >= motion->fn_80097D7C(0) - 5.0f) {
-            if (fn_801240B4(lbl_8087F0A8->mInput, 0)) {
+            if (((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(0)) {
                 m4C = true;
                 ret = 1;
             }
-            if (fn_801231D0(lbl_8087F0A8->mInput, 1)) {
+            if (((Input_unk*)lbl_8087F0A8->mInput)->fn_801231D0(1)) {
                 ret = 1;
             }
         }
@@ -186,7 +185,7 @@ int ControlWallUp::vf0C() {
             m4C = true;
             ret = 1;
         }
-        if (m4D && fn_801240B4(lbl_8087F0A8->mInput, 9)) {
+        if (m4D && ((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(9)) {
             m4D = false;
         }
     }

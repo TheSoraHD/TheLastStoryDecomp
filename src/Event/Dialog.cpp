@@ -201,8 +201,11 @@ struct DialogSettings_unk {
     unsigned char mPad[1];
 };
 extern "C" DialogSettings_unk* lbl_8087F0A8;
-extern "C" DialogUv_unk fn_80124C6C(void* pad, int arg);
-extern "C" void fn_80122330(void* pad, int arg);
+// inferred: pad input of the settings (game/Input_unk.h; declared here with the uv type of this file)
+struct Input_unk {
+    DialogUv_unk fn_80124C6C(int action);
+    void fn_80122330(int reset);
+};
 
 extern "C" void* lbl_8087EEB0; // inferred: 2D drawer
 extern "C" void fn_8005E7F4(void* draw, unsigned int color, int a, atn::Texture_unk* texture, float x, float y,
@@ -756,7 +759,7 @@ void Dialog::fn_802297AC() {
         m10C->mFlags |= 4;
     }
     if (lbl_8087F0A8 != 0) {
-        DialogUv_unk uv = fn_80124C6C(lbl_8087F0A8->mPad, 0);
+        DialogUv_unk uv = ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124C6C(0);
         DialogUv_unk uv0 = uv;
         m10C->SetParam2_unk("btnUv", &uv0.u0);
         DialogUv_unk uv1 = uv;
@@ -765,7 +768,7 @@ void Dialog::fn_802297AC() {
     fn_80229414();
     fn_800D9560(lbl_8087F008);
     if (lbl_8087F0A8 != 0) {
-        fn_80122330(lbl_8087F0A8->mPad, 0);
+        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80122330(0);
     }
     if (m150 >= 0 && ++m150 <= 30) {
         float t = DIALOG_MIN_UNK(1.0f, m150 / 30.0f);

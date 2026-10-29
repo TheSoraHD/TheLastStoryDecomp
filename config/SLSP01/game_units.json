@@ -3716,5 +3716,12 @@
    "chr::ControlMountle"
   ],
   "matching": false
+ },
+ {
+  "name": "game/PlayerInput_unk.cpp",
+  "classes": [
+   "Input_unk"
+  ],
+  "matching": false
  }
 ]

@@ -1,4 +1,5 @@
 #include "chr/ControlBreakOpen.h"
+#include "game/Input_unk.h"
 
 // inferred: camera settings block copied into the camera manager (class names unknown)
 struct CameraParam_unk {
@@ -36,7 +37,6 @@ struct Flags_unk {
 extern "C" CameraMgr_unk* lbl_8087F430;
 extern "C" Flags_unk* lbl_8087F490;
 extern "C" void* lbl_8087F0A8;
-extern "C" int fn_801231D0(void* pad, int arg); // inferred: button pressed
 
 namespace chr {
 
@@ -72,7 +72,7 @@ int ControlBreakOpen::vf0C() {
     }
     case 1:
         lbl_8087F490->m738 = 1;
-        if (fn_801231D0((char*)lbl_8087F0A8 + 0x48C, 0)) {
+        if (((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_801231D0(0)) {
             if (--mWait <= 0) {
                 motion->fn_80097C08(0, 0x239, 0, 0, 1, 0.0f, 0.1f);
                 BreakMsg_unk msg;

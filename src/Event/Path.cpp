@@ -7,6 +7,7 @@
 #include "atn/Model_unk.h"
 #include "game/SetConfig.h"
 #include "atn/SoundCore.h"
+#include "game/Input_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -120,7 +121,6 @@ extern "C" inline float fn_80011220(float x) {
 }
 
 // inferred: settings (lbl_8087F0A8) and their pad input
-struct Input_unk;
 struct Settings_unk {
     // inferred: weak copy 0x80116BAC
     Input_unk* fn_80116BAC() { return (Input_unk*)m48C; }
@@ -128,7 +128,6 @@ struct Settings_unk {
     unsigned char m48C[1];
 };
 extern "C" Settings_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8 (weak copy of another file)
-extern "C" int fn_801240B4(Input_unk* input, int button); // inferred: button held
 
 // inferred: lerp of two floats
 extern "C" float fn_800F8524(const float* a, const float* b, float t);
@@ -911,7 +910,7 @@ void EventCamera_unk::fn_801162A4(int arg) {
         sy *= sign;
     }
     float zoom = 0.0f;
-    if (fn_801240B4(fn_800F52F8()->fn_80116BAC(), 7)) {
+    if (fn_800F52F8()->fn_80116BAC()->fn_801240B4(7)) {
         zoom = 1.0f;
     }
     m644 = 0.075f * (sx - m644) + m644;

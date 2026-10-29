@@ -1,5 +1,6 @@
 #include "chr/ControlDive.h"
 #include "game/CharaTask.h"
+#include "game/Input_unk.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -39,7 +40,6 @@ struct DiveInput_unk {
     unsigned char mInput[1];
 };
 extern "C" DiveInput_unk* lbl_8087F0A8;
-extern "C" int fn_801240B4(void* pad, int button); // inferred: button held
 
 // inferred: moves the back step destination out of the walls (chr/ControlCharge.cpp)
 extern "C" void fn_801A4E08(CharaTask* chara, atn::Vector3* pos, atn::Vector3* dest);
@@ -230,7 +230,7 @@ int ControlSwapPos::vf0C() {
             pos.y += 0.47368422f;
             vel.y = 0.0f;
         } else if (m14 == 0) {
-            if (chara->mType != 0 || fn_801240B4(lbl_8087F0A8->mInput, 7)) {
+            if (chara->mType != 0 || ((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(7)) {
                 m14 = 1;
             } else {
                 m14 = 2;

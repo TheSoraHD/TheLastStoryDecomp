@@ -2,6 +2,7 @@
 #include "MP/D2ACommonDialog.h"
 #include "game/MenuCommonTask.h"
 #include "std/vector.h"
+#include "game/Input_unk.h"
 
 // inferred: multiplayer session manager (lbl_8087F610); only the members used here
 struct MpSession_unk {
@@ -52,7 +53,6 @@ struct MpSettings_unk {
     unsigned char mPad[1]; // 0x48C
 };
 extern "C" MpSettings_unk* lbl_8087F0A8;
-extern "C" int fn_801231D0(void* pad, int button); // inferred: button pressed
 
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
@@ -483,7 +483,7 @@ void D2AMpMenuFriend::fn_804B79F4() {
     } else if (decide == 2) {
         fn_804B6F08(5);
     }
-    if (fn_801231D0(lbl_8087F0A8->mPad, 0x34) != 0 && m2E0 != 0 && lbl_8087F628->mC8 < 8) {
+    if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0x34) != 0 && m2E0 != 0 && lbl_8087F628->mC8 < 8) {
         fn_80117228(1);
         fn_804B6F08(3);
     }

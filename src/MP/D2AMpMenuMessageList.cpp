@@ -1,5 +1,6 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "game/SetConfig.h"
+#include "game/Input_unk.h"
 
 // inferred: one message of the multiplayer message table (0x1C bytes)
 struct MpMessage_unk {
@@ -65,8 +66,6 @@ struct MpSettings_unk {
     unsigned char mPad[1]; // 0x48C
 };
 extern "C" MpSettings_unk* lbl_8087F0A8;
-extern "C" void fn_80124BFC(void* pad, int button, int arg);
-extern "C" int fn_801231D0(void* pad, int button); // inferred: button pressed
 extern "C" void* lbl_8087F430;
 
 // inferred: debug text drawing
@@ -297,22 +296,22 @@ int D2AMpMenuMessageList::fn_804C4150(int count) {
         if (--mAC < 0) {
             mAC += 10;
         }
-        fn_80124BFC(lbl_8087F0A8->mPad, 0, 1);
+        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(0, 1);
     } else if (IsRepeated_unk(1) || (lbl_8087F430 == 0 && IsRepeated_unk(0x19))) {
         if (++mAC >= 10) {
             mAC -= 10;
         }
-        fn_80124BFC(lbl_8087F0A8->mPad, 1, 1);
+        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(1, 1);
     } else if (IsRepeated_unk(2) || (lbl_8087F430 == 0 && IsRepeated_unk(0x17))) {
         if (--sPage < 0) {
             sPage += 4;
         }
-        fn_80124BFC(lbl_8087F0A8->mPad, 2, 1);
+        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(2, 1);
     } else if (IsRepeated_unk(3) || (lbl_8087F430 == 0 && IsRepeated_unk(0x18))) {
         if (++sPage >= 4) {
             sPage -= 4;
         }
-        fn_80124BFC(lbl_8087F0A8->mPad, 3, 1);
+        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(3, 1);
     }
     if (cursor != mAC || page != sPage) {
         fn_80117228(3);
@@ -320,11 +319,11 @@ int D2AMpMenuMessageList::fn_804C4150(int count) {
     }
     if (IsTriggered_unk(4) != 0) {
         fn_80117228(1);
-        fn_80124BFC(lbl_8087F0A8->mPad, 4, 1);
+        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(4, 1);
         result = 1;
     } else if (IsTriggered_unk(5) != 0) {
         fn_80117228(2);
-        fn_80124BFC(lbl_8087F0A8->mPad, 5, 1);
+        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(5, 1);
         result = 2;
     }
     return result;
@@ -358,7 +357,7 @@ void D2AMpMenuMessageList::fn_804C4530() {
             fn_804C35F0(3);
         }
     }
-    if (fn_801231D0(lbl_8087F0A8->mPad, 0x34) != 0) {
+    if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0x34) != 0) {
         fn_80117228(2);
         fn_804C35F0(3);
     }

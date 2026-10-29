@@ -9,11 +9,9 @@
 #include "gmk/Lemon.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
+#include "game/Input_unk.h"
 
 // inferred: game settings (lbl_8087F0A8, as in chr/ControlCharge.cpp); names invented
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
-};
 struct Settings_unk {
     unsigned char m000[0x40];
     int m40;   // inferred: the casters rise while chanting
@@ -25,7 +23,6 @@ struct Settings_unk {
     Input_unk mInput; // 0x48C
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-extern "C" int fn_801240B4(Input_unk* input, int button); // inferred: button held
 // inferred: arena mode object (lbl_8087F610, as in chr/ControlCharge.cpp)
 extern "C" void* lbl_8087F610;
 // inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
@@ -325,7 +322,7 @@ int ControlChant::vf0C() {
             m28 = 1.0f;
             m34 = 0;
         }
-        if (fn_801240B4(&lbl_8087F0A8->mInput, 5)) {
+        if (lbl_8087F0A8->mInput.fn_801240B4(5)) {
             m2C += rate * lbl_8087EFA8->m3A4 * mChara->mMotion.m350;
             fn_801C3458(0, bullet->m58, 1000.0f, 6.2831855f);
             if (m34) {

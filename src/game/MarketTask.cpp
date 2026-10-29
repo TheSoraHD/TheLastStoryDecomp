@@ -1,5 +1,6 @@
 #include "game/MarketTask.h"
 #include "atn/Memory.h"
+#include "game/Input_unk.h"
 
 extern "C" int rand();
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -40,7 +41,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                   // inferred: event flag
 extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 extern "C" void* lbl_8087F0A8;
-extern "C" int fn_80124B60(void* obj);
 extern "C" int lbl_8087FA20;
 
 MarketTask* MarketTask::sInstance;
@@ -127,7 +127,7 @@ void MarketTask::fn_804A233C() {
         if (field->m10D8 == 0 || !field->m10D8->IsFlag_unk(2)) {
             return;
         }
-        if (field->m54E4 != 0 || fn_80124B60((char*)lbl_8087F0A8 + 0x48C) != 0) {
+        if (field->m54E4 != 0 || ((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_80124B60() != 0) {
             return;
         }
         if (lbl_8087FA20 != 0) {

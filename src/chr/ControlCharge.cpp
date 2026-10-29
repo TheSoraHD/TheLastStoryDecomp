@@ -10,11 +10,9 @@
 #include "game/SetConfig.h"
 #include "macros.h"
 #include <boost/bind.hpp>
+#include "game/Input_unk.h"
 
 // inferred: game settings (as in chr/ControlCdnStone.cpp)
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
-};
 struct Settings_unk {
     unsigned char m000[0x314];
     int m314; // inferred: nonzero when the target is chosen with the cursor
@@ -48,7 +46,6 @@ extern "C" void fn_8010653C(Effect_unk* mgr, CharaTask* chara, atn::Model* model
 extern "C" void fn_801065E4(Effect_unk* mgr, CharaTask* chara);                    // inferred: stops it
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
-extern "C" int fn_801240B4(Input_unk* input, int button);    // inferred: button held
 // inferred: cursor shown by the tactical view (lbl_8087F9F8 + 0x15D8); names invented
 struct TacCursor_unk {
     TacCursor_unk() : m04(0.0f, 0.0f, 0.0f), m10(-1.0f), m15(false), m18(2), m1C(0), m20(0) {}
@@ -285,13 +282,13 @@ int ControlCharge::vf0C() {
         } else {
             switch (SetConfig::sInstance->mWindKey) {
             case 0:
-                released = fn_801240B4(&lbl_8087F0A8->mInput, 9) == 0;
+                released = lbl_8087F0A8->mInput.fn_801240B4(9) == 0;
                 break;
             case 1:
-                released = fn_801240B4(&lbl_8087F0A8->mInput, 9) == 0;
+                released = lbl_8087F0A8->mInput.fn_801240B4(9) == 0;
                 break;
             case 2:
-                released = fn_801240B4(&lbl_8087F0A8->mInput, 0);
+                released = lbl_8087F0A8->mInput.fn_801240B4(0);
                 break;
             }
         }
@@ -869,7 +866,7 @@ int ControlZanTackle::vf0C() {
         if (mChara->mType == 0) {
             float turn = mChara->m50 == 700023 ? 0.05f : 0.03f;
             rot.y += turn * (3.1415927f * -fn_800A56A8(lbl_8087EF70, 0, 0, 0));
-            if (!fn_801240B4(&lbl_8087F0A8->mInput, 9)) {
+            if (!lbl_8087F0A8->mInput.fn_801240B4(9)) {
                 motion->fn_80097C08(0, 0x14C, 0, 0, 1, 0.0f, 0.1f);
             }
         }
