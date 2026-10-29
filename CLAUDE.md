@@ -49,6 +49,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
     - Datos del propio split (`.data/.rodata/.bss/.sdata/.sdata2`) definidos en el fuente; `extern lbl_` solo para datos de otras unidades.
     - Un commit que solo sube el fuzzy no es avance; no bajar a `NONMATCHING` funciones para "cubrir" la unidad.
 11. Codex y cualquier otro agente siguen estas mismas reglas (`AGENTS.md` remite aquí): nada de commits directos en `main`; rama, checklist y merge.
+12. **Trabajo secuencial por defecto: no lanzar agentes/subagentes sin preguntar antes al usuario** (aunque `docs/entorno-nube.md` tenga la receta de lotes en paralelo).
 
 ## Entorno
 

@@ -50,6 +50,21 @@ Los ~60 nombres reales de símbolos usados en el fuente, en tres colas: `docs/rs
 - Bajada aceptada: `basic_ostream::sentry::sentry` (0x800E14A4, NONMATCHING) 57,35 → 35,05.
 - Tras la tanda, `classify.py`: 771 de 784 nombres coinciden. Queda `std::__red_black_tree::balance_insert` (0x8003E120, AI_archer_attack01: necesita la cabecera `tree` de MSL y el `std::map` de scripts) y los emparejamientos que no se deben usar (arriba).
 
+## Tercera tanda (`rso-names-2`, secuencial, 2026-10-29)
+
+Pendientes de la segunda tanda, hechos uno a uno sin agentes:
+
+- `std::__red_black_tree<__tree_node_base<allocator<void*>>*>::balance_insert` (0x8003E120): cabecera nueva `include/std/tree.h`; la copia débil sale de una instanciación explícita en AI_archer_attack01; TownTask, AudioDevice y ptr_string_base_char_0 la llaman por la clase. Hallazgo: en `ptr_string_base_char_0` el `#include "std/tree.h"` tiene que ir después de los demás (si va primero, cambia la asignación de registros de `fn_8021FD7C`).
+- `Inventory`: `instance_` (0x8087F4F0), `Order()` (0x801D80B4), `AddItem` (0x804439FC), `AddMoney` (0x8044D678: suma con tope 0..999999; 0x8044D6AC es la resta, sin nombre en el RSO). Las 12 vistas locales del objeto pasan a la clase de `include/game/Inventory.h` (dinero 0x6000, experiencia de la batalla 0x601C, orden 0x64A0, jugadores 0x64EC, equipo 0x8290). `game/ItemManager_unk.cpp` es `Inventory.cpp` (orden alfabético).
+- `atn::Buffer_unk` = `atn::SimpleArray` (50 nombres; `SetMotionParts` del RSO recibe un `SimpleArray<MotionPart>`). Sin aplicar: el `operator[]` del RSO es `CFUi` y el nuestro `Fi`; `allocate(Ui, MemoryTag[, const char*])` del RSO frente a nuestros `Resize_unk`.
+- `CharaFaceControl`: `Initialize`, `SetMotion(int, bool, bool, bool, float, float)`, `SetMotionParts(const SimpleArray<MotionPart>&, bool, bool, float, float)`, `ClearMotion(bool)`, `StartBlink`.
+- `atn::MemoryManager::AllocFromMem2` (0x800839EC) y `enum MemoryTag` (sin nombres de enumeradores: los 18 llamadores hacen `(MemoryTag)n`). Pendiente: `operator new(unsigned long, MemoryTag, ...)` del RSO (`__nw__FUl9MemoryTagPCcPCci`; el nuestro usa `int`, cientos de llamadas).
+- `ResLoader_unk` = `atn::EffFile` (`MotionCommandData` tiene `SimpleVector<EffFile>` y `<EfpFile>`): `LoadRequest`, `IsLoading`, `Destroy`; y `EfpFile::LoadRequest`/`IsLoading`.
+- `GimmickManager::instance_` (0x8087F4A0) y `GimmickManager::SetTask` (0x803EDFBC). Vistas parciales de `GimmickCommon` sustituidas por la clase real en EnemyQuarkSecond, Em302Kraken y SpecialEnemyBase (`GimmickMsg_unk`, `GimmickHitMsg_unk` con el remitente en 0x28). `GimmickCommon::vf50` devuelve `atn::ColliBase*`. Pendiente (toca `splits.txt`): 0x8087F4A0 no está en ningún split; debería abrir el `.sbss` de `game/GimmickManager` (hoy empieza en 0x8087F4A4).
+- Vistas de `CharaTask`/`CharaStatus` sustituidas en NewCampPartsStatus y BattleResult (`CharaInfo_unk::m08` = nombre de la pantalla de resultados).
+- `atn::ModelBase::GetNodeNoByName(const char*, int) const` (0x80092814); `GetNodeMtx_unk` const (copias débiles `CFi`/`CFPCc`): fuera los `const_cast` de `GetTacViewPosition`.
+- Cifras: 8180 / 18215, `main.dol: OK`, lost 0, fuzzdrop 0 en toda la tanda.
+
 ## Diccionario
 
 Las 948 importaciones y las ~4700 exportaciones de función del RSO (las ~760 importaciones sin dirección EU solo se usan desde código de herramientas) siguen valiendo como diccionario de nombres reales y firmas mangled: 198 clases que no teníamos con nombre (`Inventory`, `GameCamera`, `CharaSightControl`, `GameSaveData`, `atn::Pad`, `atn::Scene`, `atn::XmlElement`...). Lista completa: `docs/lastworld_tools_symbols.txt` del repo USA, o `strings` del RSO.
