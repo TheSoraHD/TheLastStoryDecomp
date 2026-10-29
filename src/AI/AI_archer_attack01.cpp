@@ -1416,7 +1416,7 @@ static inline int ApproachOrCast_unk() {
 }
 
 extern "C" void fn_8001C088();
-extern "C" unsigned char* fn_8001C1C0(unsigned char* script);
+extern "C" void fn_8001C1C0(unsigned char* script);
 
 // inferred: this global sentinel is registered with the destructor for its three linked buckets.
 extern "C" void fn_8003E6B8(void* object, int freeObject);
@@ -1513,27 +1513,25 @@ extern "C" void fn_8001C1B8() {
 
 extern "C" void fn_8001C1BC() {}
 
-// NONMATCHING: 80.53% - MWCC lowers the global state pointers through different code than the target.
 // inferred: applies the selected script's two indexed parameter values to global state.
-extern "C" unsigned char* fn_8001C1C0(unsigned char* script) {
+extern "C" void fn_8001C1C0(unsigned char* script) {
     fn_8001C088();
     unsigned char* result = (unsigned char*)fn_8001EA18(script);
     if (result != 0) {
-        AiInput_unk* src = &lbl_807C68C0;
-        AiOutput_unk* dst = &lbl_807C6A40;
-        if (src->m04 != 0) {
+        AiInput_unk* in = fn_8001C260();
+        AiOutput_unk* out = fn_8001C26C();
+        if (in->m04 != 0) {
             int value = fn_8001ECD0(result, 0xE);
             if (value >= 0) {
-                src->m04 = value;
-                dst->m04 = value;
+                in->m04 = value;
+                out->m04 = value;
             }
         }
-        int value = fn_8001ECD0(result, src->m04);
+        int value = fn_8001ECD0(result, in->m04);
         if (value >= 0) {
-            dst->m04 = value;
+            out->m04 = value;
         }
     }
-    return result;
 }
 extern "C" void fn_8001C284();
 
