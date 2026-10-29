@@ -34,7 +34,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
    - `OSInitFastCast` (`include/sdk/OSFastCast.h`, usada en `game/main`);
    - paired-single cuantizado GQR6 solo en `atn/ModelDraw_unk fn_8009BF3C` (`SetGQR6_unk`, `SetMatColor_unk`); el de `LH_Binary` **no** está aprobado;
    - `#pragma ppc_iro_level 0` en `nw4r::snd::detail::AxManager::Init`; `-opt nostrength` solo en `dwc/src/base/dwc_base64.c`.
-   - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
+   - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`), `__declspec(noinline)` sin `inline` en funciones fuertes que el original llama con `bl` y MWCC inlinearía (AI_archer_attack01, 2026-10-29) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
 3. Avisar y explicar antes de tocar `splits.txt`, `symbols.txt` (salvo renombrados), `configure.py`, `config.yml` o flags.
 4. No tocar ni subir ficheros originales (`orig/`, `.dol`, ISO, assets).
 5. Trabajar en rama, nunca en `main`; un commit por función o grupo pequeño. Mensaje: `Match Clase::metodo (0x<dirección>)` + líneas de atribución del sistema. `git push` solo con permiso explícito en la sesión.
