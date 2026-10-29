@@ -73,6 +73,7 @@ struct ShadeDamage_unk {
 extern "C" void fn_80108C10(Effect_unk* effect, ShadeDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
 extern "C" void fn_80107850(Effect_unk* effect, Model_unk* model);
+extern "C" void fn_801077A8(Effect_unk* effect, Model_unk* model, Model_unk* model2); // inferred: same model twice
 struct EffectMgr_unk;
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
@@ -303,6 +304,25 @@ inline bool Em301LShade::IsMotionEnd_unk() {
     return frame >= mMotion.fn_80097D7C(0);
 }
 
+// inferred: same as PlayEffect_unk with the manager read first (name invented)
+inline void PlayEffectD_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
+    EffectMgr_unk* mgr = lbl_8087F3C0;
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: same as PlayEffect_unk with the locals in the order color, rot, pos and the manager read last
 // (name invented)
 inline void PlayEffectC_unk(atn::EfpHandle_unk* efp, Model_unk* model) {
@@ -353,7 +373,7 @@ inline void Em301LShade::StartAbsorb_unk(int kind) {
     vf9C(1);
     fn_80239DAC(lbl_8087F3C0, m15F0, 0, 1);
     fn_80232B7C(m15F0, 0);
-    PlayEffectB_unk(&m15F0[m15E4], (Model_unk*)&mMotion);
+    PlayEffectD_unk(&m15F0[m15E4], (Model_unk*)&mMotion);
     m15EC = 300;
     if (m1680.mGlobal >= 0 && fn_805A49E4((SpecialFlag_unk*)&m1680) == 0) {
         fn_805A4A1C((SpecialFlag_unk*)&m1680, 1);
@@ -792,7 +812,6 @@ void Em301LShade::vf14() {
     fn_80149A30();
 }
 
-// NONMATCHING: draft
 void Em301LShade::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mData->m04 == 10000) {
@@ -1113,6 +1132,11 @@ void Em301LShade::fn_802D3370() {
 }
 
 // inferred: party members alive and the ones inside the absorb range (38 * scale around the body)
+// inferred: squared length of a temporary vector (name invented)
+inline float DistSq_unk(const atn::Vector3& v) {
+    return fn_805F9920(&v);
+}
+
 inline void CountNear_unk(Em301LShade* e, int* outNear, int* outCount) {
     atn::Vector3 center = e->mPos;
     int near = 0;
@@ -1121,9 +1145,8 @@ inline void CountNear_unk(Em301LShade* e, int* outNear, int* outCount) {
     center.y += 13.0f * e->m540.x;
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
         if ((c->mStatus.m0C & 0x20) != 0x20) {
-            atn::Vector3 d = c->mPos - center;
             count++;
-            if (fn_805F9920(&d) < radius * radius) {
+            if (DistSq_unk(c->mPos - center) < radius * radius) {
                 near++;
             }
         }
@@ -1135,8 +1158,6 @@ inline void CountNear_unk(Em301LShade* e, int* outNear, int* outCount) {
 // inferred: choice of the next attack (wait state): returns 0 when the shade leaves (hit too often or
 // absorbed); after two attacks it waits, with 40% of the party near it absorbs (state 10), otherwise it
 // swings (state 8)
-// NONMATCHING: 99.9% - scheduling of the count increment in the party loop, and the int-to-float
-// constant lbl_80747090, which is in the .rodata split of game/Em209SmallGolem (other queue, pending)
 int Em301LShade::fn_802D3C74() {
     if (m14E4 == 0) {
         m14EC = 0;
@@ -1406,12 +1427,12 @@ void Em301LShade::fn_802D5020() {
 
 // inferred: the event camera looks at the head from "dead_camera"; when the death motion ends the
 // enemy is removed and the camera and the time scale go back to normal
-// NONMATCHING: 99.1% - registers r5/r6 of the copy of "dead_camera" (the __VecCopy family) and the
-// string pool offsets
+// NONMATCHING: 99.9% - only the pool offset of "head", which depends on vf0C (0%)
 void Em301LShade::vfEC() {
     ShadeCamera_unk c;
     atn::Vector3 dir;
-    c.mPos = *(atn::Vector3*)&m15BC;
+    const atn::Vector3* cam = (const atn::Vector3*)&m15BC;
+    c.mPos = *cam;
     atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     c.mTarget = head;
     c.mFov = 0.7853982f;
@@ -1614,6 +1635,68 @@ int Em301LShade::fn_802D6004() {
         }
     }
     return m15AC.size();
+}
+
+// inferred: bit 25 of the flag word at 0x12A4 through an accessor (reloaded before it is cleared, as in
+// gmk/ReinforcePoint.cpp; name invented)
+inline unsigned int IsFlag25_unk(const CharaTask* chara) {
+    return chara->mFlag25;
+}
+
+// inferred: calls the reinforcements: two members of "reinforce_chara" (four the first time) appear at
+// the "reinforce_point" places (names invented)
+// NONMATCHING: draft - the two push_back of the local vectors are inlined (known open family, see
+// docs/mwcc-blockers.md)
+void Em301LShade::fn_802D67F8(int index) {
+    if (index >= 0 && index < 3) {
+        unsigned int n = 2;
+        if (m1624 != 0) {
+            m1624 = 0;
+            n = 4;
+        }
+        ShadeEnemyList_unk enemies;
+        for (unsigned int i = 0; i < n; i++) {
+            if (m1644.size() <= i) {
+                break;
+            }
+            enemies.push_back(m1644[i]);
+        }
+        ShadePlaceList_unk places;
+        for (unsigned int i = 0; i < n; i++) {
+            if (m1638.size() <= i) {
+                break;
+            }
+            places.push_back(m1638[i]);
+        }
+        for (unsigned int i = 0; i < enemies.size(); i++) {
+            if (places.size() <= i) {
+                break;
+            }
+            EnemyTask* e = enemies[i];
+            RoutePlace_unk* place = places[i];
+            fn_80107850(lbl_8087F048, (Model_unk*)&e->mMotion);
+            fn_801077A8(lbl_8087F048, (Model_unk*)&e->mMotion, (Model_unk*)&e->mMotion);
+            fn_80232B7C(e, 1000);
+            PlayEffect_unk(&m1520, (Model_unk*)&e->mMotion);
+            e->mFlag15 = 0;
+            e->fn_80176ACC();
+            e->fn_800D246C(0);
+            if (IsFlag25_unk(e)) {
+                e->mFlag25 = 0;
+            }
+            e->mStatus.fn_8012D8B8();
+            e->m58C = 0;
+            e->mC58.mC0 = 1;
+            e->fn_8015495C(0, 1, 1, 1);
+            e->mPos = place->mPos;
+            e->mRot = atn::Vector3(0.0f, place->m14, 0.0f);
+            e->fn_80145334();
+        }
+        wchar_t text[256];
+        memset(text, 0, sizeof(text));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x127), *(const wchar_t**)((char*)m60 + 4));
+        fn_80109828(lbl_8087F048, text);
+    }
 }
 
 int Em301LShade::fn_802D7058() {

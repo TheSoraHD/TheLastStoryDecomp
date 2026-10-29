@@ -50,6 +50,7 @@ public:
     void fn_802F5F20(CharaTask* target);
     int fn_802F62A0(CharaTask* target, int next); // inferred: starts a turn towards target
     void fn_802F66CC(); // inferred: death
+    void fn_802F693C(CharaTask* target); // inferred: starts the escape (state 12)
 
     int m14B0;
     char m14B4[0x14D4 - 0x14B4]; // inferred: "MoveSE" (sound name)

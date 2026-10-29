@@ -72,6 +72,12 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Un local agregado desplazado 4 bytes: probar un tamaño que no sea múltiplo de 8 (`LoadColliObject::vf0C`).
 - Registros float de varias sumas: el orden de declaración de los locales fija `f31`, `f30`...
 - Bucle de partes de `ClearFlags_unk` con `ctr` donde el original no lo usa: sin resolver (lista de lo probado en el archivo).
+- f30/f31 cruzados entre distancia y yaw: escribir el ángulo en una sola expresión `fn(d.GetNormalized_unk().ToRotation_unk().y - GetRot_unk()->y)` (Em204Mulue fn_802AC0E0).
+- Un inline que toma `atn::Vector3` por valor (`f(a - b)`) o `const T&` a un temporal deja el temporal en el hueco de pila del original; un local con nombre lo desplaza (huidas de Em308, Em401_01).
+- Vector frontal `(0,0,1)` rotado por `mRot.y` como inline que devuelve el vector, o helper con `float` por valor: la carga de `rot.y` va tras los stores, como el original (Em306 fn_802F1320, Em203 vfD8).
+- Releer `mRot.y` en un local justo antes de cada `PSMTXRotRad` adelanta la carga como el original (Em302Kraken vfCC, Em204).
+- Bucle `for (j = i + 1 ...)` reutilizado cambia el registro del índice; con un segundo índice `k` sale el del original (Em403WarLion fn_8032A9F4).
+- Global cargado antes de los argumentos: `EffectMgr_unk* mgr = lbl_8087F3C0;` antes de la llamada (Em204, Em101ElderZesya).
 
 ## Datos y secciones
 
@@ -98,6 +104,11 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Meter una clase nueva en una cabecera usada por una unidad enlazada puede cambiar el orden de sus copias débiles y romper el `.dol`: cabecera aparte.
 - Un ctor inline de struct con miembros `Vector3` generó un bucle que rompió `gmk/WaterLevel`: struct plano de floats.
 - Constantes de más en el pool que el original no tiene en esa unidad: una inline o ctor inline que el original no expande en ese fichero (`poolcheck.py` las lista).
+- objdiff no compara literales: un literal erróneo sale al 100% pero desordena `.sdata2`; corregirlo subió 7 funciones de Em309Ghoul. Comparar el orden del pool original con el primer uso de cada constante antes de iterar.
+- Instanciaciones explícitas de plantillas (`push_back`) justo detrás de la función que las usa colocan sus literales ("vector length error") en su sitio del pool (Em204BigMulue, Em203).
+- Un array local constante sin uso (`float c[4] = {...}`) deja su inicializador en `.rodata`: buscarlo si `.rodata` sale más grande que el original (Em302Kraken).
+- Doubles de `.rodata` sin nombre: objdiff solo los empareja si el símbolo objetivo se renombra al `@NNNN` local de nuestro .o (Em202_01_BSpider).
+- Con `-ipa file` una virtual inline definida fuera de la clase no mueve sus constantes de `.sdata2`; para ordenar el pool, stubs que el enlazador quita (Em203GreaterDaemonRed).
 
 ## Enlazado y símbolos
 
@@ -146,6 +157,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Lanzadores de control: `new (0, "", "", 0) chr::ControlX(this, ...)` + `fn_80178208(control)`; la clase sale de la vtable que guarda el constructor.
 - Enemigos especiales: factoría de `game/SpecialEnemyBase.cpp` (`fn_805A5374`) con `new (3, "", "", 0) EmXXX(parent, info)`. Bloqueo común sin resolver: copia de parámetros de cámara en registros float.
 - Psq: ningún compilador genera `psq_l`/`psq_st` para `a = b`; el asm de `Vec.h` usa `fp1`/`fp2` fijos para que los temporales queden en `f7`+.
+- Orden de los `case` en el fuente = orden de direcciones de los destinos de la tabla de saltos (Em204).
+- `new (p) std::vector<T>()` en una función suelta añade `cmpwi r3,0; beqlr`: escribir los tres campos a mano (Em403WarLion).
+- `if (!(fabs(x) < eps))` da el `blt` del original donde `>=` da `cror` (Em204).
 
 ## Librerías de red y DWC
 

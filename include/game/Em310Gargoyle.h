@@ -12,10 +12,19 @@ public:
     Em310Gargoyle(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em310Gargoyle();
     virtual int vf0C();
+    virtual void vf10();
+    virtual void vf14();
     virtual void vf20();
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
+    virtual void vf50();
     virtual void vf54();
+    void fn_8030B74C(const atn::Vector3* points, float t); // inferred: moves along the spline of four points
+    void fn_8030B92C();  // inferred: flies along the route (state 7)
+    void fn_8030C1A4(EnemyTask* rider, const atn::Vector3* dir); // inferred: drops a rider
+    void fn_8030C490();  // inferred: state 7 (flying)
+    void fn_8030CBC0();  // inferred: state 8 (landing)
+    int SeatMtx_unk(const char* name); // inferred: seat node matrix as stored in mF1C; name invented
     void fn_8030D0D8(); // inferred: starts the landing (state 8) towards the seat pair m14E8
     void fn_8030CF84(int warp); // inferred: back to the flying state (7); warp to the start of the route
 

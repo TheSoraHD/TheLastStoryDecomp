@@ -14,12 +14,19 @@ public:
     virtual void vf10();                 // 0x8031F654
     virtual void vf14();                 // 0x8031F810
     virtual void vf20();                 // 0x80321BCC
+    virtual void vf24();                 // 0x8032130C
+    virtual void vf34(void* target, int arg, float a, float b); // 0x803209D0
     virtual void vf3C(HitInfo_unk* hit); // 0x8031FBFC
+    virtual void vf50();                 // 0x80321E20
     virtual void vf54();                 // 0x8032268C
 
     void fn_8031FAA4(); // inferred: picks the target (the leader or a held player)
     void fn_8031FD34(HitMsg_unk* msg); // inferred: reaction to a hit
-    void fn_8031FE4C();
+    void fn_8031FE4C(); // inferred: state machine (m58C)
+    inline void LookAt_unk(CharaTask* target);
+    void fn_803202E0(); // inferred: moves towards the target or along the route (states 0, 1, 3, 4)
+    void fn_803209E0(const atn::Vector3& rot, int arg, float speed, float rate); // inferred: as Em403WarLion::fn_80324A38
+    void fn_DebugMenu_unk(); // inferred: removed by the linker (only its strings are left)
     void fn_803227A0(); // inferred: starts the jump (state 7)
     void fn_80322AD4(); // inferred: state 7: jump
     void fn_80321724(atn::MotionBuffer* nodes, int count); // inferred: node pose callback
@@ -47,7 +54,7 @@ public:
     int m155C; // inferred: frame counter (0-119) of the glow
     int m1560;
     int m1564;
-    int m1568;
+    int m1568; // inferred: route place to run to (9999 = none)
     int m156C; // inferred: the leader had mFlag28 (field flag 0x3C)
     int m1570;          // inferred: frames left of the jump
     CharaTask* m1574;   // inferred: target of the jump

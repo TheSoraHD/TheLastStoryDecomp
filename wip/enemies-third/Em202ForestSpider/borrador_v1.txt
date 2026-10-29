@@ -1,0 +1,36 @@
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0xC218;
+        mStatus.m18 |= 0x3800000;
+        m500 *= 4.0f;
+        m504 *= 4.0f;
+        m508 *= 4.0f;
+        m14C8 = 2;
+====
+        CharaStatus* status = &mStatus;
+        status->m18 |= 0x1C0;
+        status->m18 |= 0x10000;
+        status->m18 |= 0xC218;
+        status->m18 |= 0x3800000;
+        m500 *= 4.0f;
+        m504 *= 4.0f;
+        m508 *= 4.0f;
+        m14C8 = 2;
+====
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0xC218;
+        mStatus.m18 |= 0x3800000;
+        *(atn::Vector3*)&m500 *= 4.0f;
+        m14C8 = 2;
+====
+        unsigned int f = mStatus.m18;
+        f |= 0x1C0;
+        f |= 0x10000;
+        f |= 0xC218;
+        f |= 0x3800000;
+        mStatus.m18 = f;
+        m500 *= 4.0f;
+        m504 *= 4.0f;
+        m508 *= 4.0f;
+        m14C8 = 2;

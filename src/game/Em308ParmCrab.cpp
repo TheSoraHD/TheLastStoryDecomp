@@ -115,7 +115,6 @@ extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStat
                             unsigned int flags, const HitParam_unk* param); // inferred: applies the skill
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: attack hit
-extern "C" void fn_802FC2E0(Em308ParmCrab* crab, CharaTask* target);
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
@@ -615,7 +614,7 @@ void Em308ParmCrab::fn_802F93F0() {
     m15D4--;
     if (m15AC.size() != 0 && mStatus.m04 / (float)mStatus.mParamB.m84 < m1594 && m15BC != 0 &&
         !m15BC->mFlag28) {
-        fn_802FC2E0(this, m15BC);
+        fn_802FC2E0(m15BC);
     }
     if ((unsigned int)m15BC != (unsigned int)mC58.mC8) {
         fn_8016E970(3);
@@ -830,7 +829,7 @@ void Em308ParmCrab::fn_802F9F3C() {
             }
             break;
         case 12:
-            fn_802FC2E0(this, m15BC);
+            fn_802FC2E0(m15BC);
             break;
         }
     } else {
@@ -859,7 +858,7 @@ void Em308ParmCrab::fn_802FA2F4() {
     }
     if (m15AC.size() != 0 && mStatus.m04 / (float)mStatus.mParamB.m84 < m1594 && m15BC != 0 &&
         !m15BC->mFlag28) {
-        fn_802FC2E0(this, m15BC);
+        fn_802FC2E0(m15BC);
     }
     if (dist < reach) {
         fn_8016E970(3);
@@ -899,7 +898,7 @@ void Em308ParmCrab::fn_802FA764() {
     atn::Vector3 rot = d.ToRotation_unk();
     if (m15AC.size() != 0 && mStatus.m04 / (float)mStatus.mParamB.m84 < m1594 && m15BC != 0 &&
         !m15BC->mFlag28) {
-        fn_802FC2E0(this, m15BC);
+        fn_802FC2E0(m15BC);
     }
     if (dist > m152C) {
         fn_8016E970(3);
@@ -1113,6 +1112,51 @@ void Em308ParmCrab::fn_802FC188() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
     fn_800EB7A0(this);
+}
+
+// inferred: horizontal length; the vector is taken by value (copy on the stack, as in the original); name
+// invented
+inline float CrabLengthXZ_unk(atn::Vector3 d) {
+    return sqrt(d.x * d.x + d.z * d.z);
+}
+
+// inferred: starts the escape (state 12, motion 0x14): picks the base point m15AC farthest from the crab (the
+// distance counts double behind it) and runs there; without base points goes back to state 6 (as
+// Em308InvertCrab::fn_802F693C)
+void Em308ParmCrab::fn_802FC2E0(CharaTask* target) {
+    if (fn_802FBE00(target, 12) == 0) {
+        ResetAttack_unk();
+        m58C = 12;
+        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
+        float best = 0.0f;
+        m159C = 0;
+        int id = -1;
+        for (unsigned int i = 0; i < m15AC.size(); i++) {
+            float dist = CrabLengthXZ_unk(m15AC[i]->mPos - mPos);
+            atn::Vector3 dir = m15AC[i]->mPos - mPos;
+            float a = atn::WrapAngle_unk(dir.GetNormalized_unk().ToRotation_unk().y - mRot.y);
+            if (a > 1.5707964f || a < -1.5707964f) {
+                dist *= 2.0f;
+            }
+            if (dist > best) {
+                best = dist;
+                id = m15AC[i]->mId;
+                m15A0 = m15AC[i]->mPos;
+                m159C = m15AC[i];
+            }
+        }
+        if (m159C != 0) {
+            fn_8017039C(id, 8);
+        } else {
+            ResetAttack_unk();
+            m58C = 6;
+            fn_8016E970(3);
+        }
+    }
 }
 
 float Em308ParmCrab::vf90() {

@@ -247,6 +247,14 @@ inline atn::Matrix3x4 TransMtx_unk(float x, float y, float z) {
     return m;
 }
 
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+// inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool (after
+// "waist"), as Em201ZanGurg::fn_DebugMenu_unk. The member is a guess.
+void Em403WarLion::fn_DebugMenu_unk() {
+    void* group = m1608.Load("em403_war_lion");
+    fn_80087994(group, "DebugDisp", &m160C, 0, 0);
+}
+
 // inferred: over the inline budget: the helpers are called out of line (weak copies emitted after it)
 void Em403WarLion::vf10() {
     m14C8++;
@@ -1175,7 +1183,8 @@ inline float AngleDiffDeg_unk(float a, float b) {
 }
 
 // inferred: roar (state 8): turns towards the target, then attacks with bullet 0x672
-// NONMATCHING: 99.96% - operandos de un fmuls (0.034906585f * (a / abs))
+// NONMATCHING: 99.96% - operandos de un fmuls del giro maximo (probados constante local, a /= abs, orden de
+// los factores y temporales con nombre: ninguno da f0*f3)
 void Em403WarLion::fn_80327EF0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1195,7 +1204,7 @@ void Em403WarLion::fn_80327EF0() {
         }
         float abs = atn::Abs_unk(a);
         if (abs > 0.034906585f) {
-            a = 0.034906585f * (a / abs);
+            a = (a / abs) * 0.034906585f;
         }
         mRot.y += a;
     }
@@ -1743,22 +1752,195 @@ atn::Vector3 Em403WarLion::fn_8032A894(int id, int* next) {
     return result;
 }
 
-// inferred: helpers of the path (vector of points and spline; weak copies at the end of this unit, also
-// called by gmk/CharaPathMove.cpp, Event/Manager.cpp and game/LastCocoonQuadruped.cpp; C names)
+// inferred: helpers of the path (vector of points and natural cubic spline). They are weak copies of
+// inline code (C names because gmk/CharaPathMove.cpp, game/PathData_unk.cpp, Event/Manager.cpp,
+// Event/ActionActorPosition.cpp, gmk/WindyItem.cpp and game/LastCocoonQuadruped.cpp call them); defined
+// at the end of this file in the order of the DOL.
+// inferred: the points are a std::vector<atn::Vector3>, handled only through the weak copies below
 struct WarLionPoints_unk {
+    std::vector<atn::Vector3>& Vec_unk() { return *(std::vector<atn::Vector3>*)this; }
     atn::Vector3* mData;
     unsigned int mSize;
     unsigned int mCap;
 };
 extern "C" void fn_8032AB90(WarLionPoints_unk* v);                          // inferred: constructor
-extern "C" void fn_8032ABA4(WarLionPoints_unk* v, int flag);                // inferred: destructor
+extern "C" WarLionPoints_unk* fn_8032ABA4(WarLionPoints_unk* v, int flag);  // inferred: destructor
 extern "C" void fn_8032AC1C(WarLionPoints_unk* v, const atn::Vector3* p);   // inferred: push_back
+// NONMATCHING: 97.80% - r30/r31 of the points and the count swapped, and the order of the two loads of the
+// points (the PathData_unk.cpp version of this builder has the same residue)
 extern "C" void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* pts); // inferred: builds the path
+// NONMATCHING: 99.96% - only the message of __allocate (lbl_80779F68, a pool of another file)
+extern "C" void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n); // inferred: resize
+// inferred: raw storage of a std::vector<float> (the builder constructs and destroys it through the weak
+// copies, as PathVec_unk in game/PathData_unk.cpp)
+struct WarLionFloats_unk {
+    float* Data_unk() { return mData; }
+    std::vector<float>& Vec_unk() { return *(std::vector<float>*)this; }
+    float* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+};
+// NONMATCHING: 99.84% - only the message of __allocate (lbl_80775A88, a pool of another file)
+extern "C" WarLionFloats_unk* fn_8032B6F8(WarLionFloats_unk* v, unsigned int n); // inferred: vector(n)
+extern "C" void fn_8000D844(WarLionFloats_unk* v, int flag);                 // inferred: ~vector<float>
+// NONMATCHING: 87.22% - register allocation of the unrolled back substitution and of the three vectors
+extern "C" void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLionCubic_unk* out); // inferred: solve
+// NONMATCHING: 99.86% - the capacity of the dead __recommend_cap_unk in r28 instead of r31, and the message
+// of __allocate (lbl_80775A88)
+extern "C" void fn_8032BE88(std::vector<float>* v, unsigned int n);         // inferred: resize
+// NONMATCHING: 99.83% - r27/r28 of the two points swapped
+extern "C" float fn_8032C1EC(WarLionPath_unk* path, int i);                 // inferred: segment length
 
-// NONMATCHING: 7.68% - borrador: el original llama fuera de linea a los ctores de Vector3 y a
-// fn_8013C504/FindPlace_unk (supera el presupuesto de inline); los helpers de vector/spline
-// fn_8032AB90..fn_8032C1EC (copias debiles de std::vector<Vector3> y del spline de game/PathData_unk.cpp)
-// no estan escritos
+// inferred: asserts of the debug build, empty in release (they only count for the inline budget)
+#define WARLION_ASSERT_UNK(x) ((void)0)
+
+// inferred: weak copies of std::vector<atn::Vector3> members (C names, see above)
+extern "C" inline void fn_8032AB90(WarLionPoints_unk* v) {
+    v->mData = 0;
+    v->mSize = 0;
+    v->mCap = 0;
+}
+
+extern "C" inline WarLionPoints_unk* fn_8032ABA4(WarLionPoints_unk* v, int flag) {
+    if (v != 0) {
+        // inferred: deleting destructor of std::vector (its base is destroyed in place)
+        ((std::__vec_imp_unk<atn::Vector3>*)v)->~__vec_imp_unk();
+        if (flag > 0) {
+            ::operator delete(v);
+        }
+    }
+    return v;
+}
+
+// NONMATCHING: 94.58% - inlined std::vector<atn::Vector3>::push_back of std/vector.h: the original keeps the
+// capacity in r31 (known push_back family, docs/mwcc-blockers-q1.md) and the stack slots of the growth
+// temporaries differ. The empty asserts (release build) keep it out of line in fn_8032A9F4: the original
+// is over the inline budget there and calls every helper (docs/inlining.md, R3).
+extern "C" inline void fn_8032AC1C(WarLionPoints_unk* v, const atn::Vector3* p) {
+    WARLION_ASSERT_UNK(v != 0); WARLION_ASSERT_UNK(p != 0); WARLION_ASSERT_UNK(v->mSize <= v->mCap);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1); WARLION_ASSERT_UNK(1);
+    WARLION_ASSERT_UNK(1);
+    v->Vec_unk().push_back(*p);
+}
+
+// inferred: builds the spline through the points (one cubic per segment and axis, then the lengths)
+// inferred: same code as PathSpline_unk::Build_unk of game/PathData_unk.cpp
+inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int n) {
+    path->m00 = n;
+    fn_8032B314(&path->m20, n - 1);
+    fn_8032B314(&path->m2C, n - 1);
+    fn_8032B314(&path->m38, n - 1);
+    WarLionFloats_unk xs;
+    WarLionFloats_unk ys;
+    WarLionFloats_unk zs;
+    fn_8032B6F8(&xs, n);
+    fn_8032B6F8(&ys, n);
+    fn_8032B6F8(&zs, n);
+    for (int i = 0; i < n; i++) {
+        xs.mData[i] = pts[i].x;
+        ys.mData[i] = pts[i].y;
+        zs.mData[i] = pts[i].z;
+    }
+    fn_8032B7F0(path, xs.Data_unk(), path->m20.begin());
+    fn_8032B7F0(path, ys.Data_unk(), path->m2C.begin());
+    fn_8032B7F0(path, zs.Data_unk(), path->m38.begin());
+    path->m08 = pts[0];
+    path->m14 = pts[n - 1];
+    path->m04 = 0.0f;
+    fn_8032BE88(&path->m44, n - 1);
+    for (int i = 0; i < n - 1; i++) {
+        path->m44[i] = fn_8032C1EC(path, i);
+        path->m04 += path->m44[i];
+    }
+    fn_8000D844(&zs, -1);
+    fn_8000D844(&ys, -1);
+    fn_8000D844(&xs, -1);
+}
+
+extern "C" inline void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* list) {
+    int n = list->mSize;
+    const atn::Vector3* p = list->mData;
+    WarLionBuild_unk(path, p, n);
+}
+
+extern "C" inline void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n) {
+    v->resize(n);
+}
+
+// inferred: std::vector<float>(n) (weak copy; written out because placement new adds a null check)
+extern "C" inline WarLionFloats_unk* fn_8032B6F8(WarLionFloats_unk* v, unsigned int n) {
+    v->mData = 0;
+    v->mSize = 0;
+    v->mCap = 0;
+    v->Vec_unk().__init_n_unk(n);
+    return v;
+}
+
+// inferred: natural cubic spline with unit spacing: tridiagonal system for the first derivatives `c`, then
+// the coefficients of each segment (a + b u + c u^2 + d u^3)
+extern "C" inline void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLionCubic_unk* out) {
+    std::vector<float> mu(path->m00);
+    std::vector<float> z(path->m00);
+    std::vector<float> c(path->m00);
+    mu[0] = 0.5f;
+    for (int i = 1; i < path->m00 - 1; i++) {
+        mu[i] = 1.0f / (4.0f - mu[i - 1]);
+    }
+    mu[path->m00 - 1] = 1.0f / (2.0f - mu[path->m00 - 2]);
+    z[0] = 3.0f * (y[1] - y[0]) * mu[0];
+    for (int i = 1; i < path->m00 - 1; i++) {
+        z[i] = (3.0f * (y[i + 1] - y[i - 1]) - z[i - 1]) * mu[i];
+    }
+    z[path->m00 - 1] = (3.0f * (y[path->m00 - 1] - y[path->m00 - 2]) - z[path->m00 - 2]) * mu[path->m00 - 1];
+    c[path->m00 - 1] = z[path->m00 - 1];
+    for (int i = path->m00 - 2; i >= 0; i--) {
+        c[i] = z[i] - mu[i] * c[i + 1];
+    }
+    for (int i = 0; i < path->m00 - 1; i++) {
+        out->m00 = y[0];
+        out->m04 = c[i];
+        out->m08 = 3.0f * (y[1] - y[0]) - 2.0f * c[i] - c[i + 1];
+        out->m0C = 2.0f * (y[0] - y[1]) + c[i] + c[i + 1];
+        y++;
+        out++;
+    }
+}
+
+extern "C" inline void fn_8032BE88(std::vector<float>* v, unsigned int n) {
+    v->resize(n);
+}
+
+// inferred: length of segment `i` as the sum of 64 chords
+extern "C" inline float fn_8032C1EC(WarLionPath_unk* path, int i) {
+    float len = 0.0f;
+    atn::Vector3 prev = path->Eval_unk(i, 0.0f);
+    for (int k = 0; k < 64; k++) {
+        float u = (float)(k + 1) / 64.0f;
+        atn::Vector3 cur = path->Eval_unk(i, u);
+        len += (cur - prev).Length_unk();
+        prev = cur;
+    }
+    return len;
+}
+
 // inferred: builds the path m1524 through the place `id` and the two next places of the circuit
 int Em403WarLion::fn_8032A9F4(WarLionPath_unk* path, int id, int* next) {
     int second = 0;
@@ -1773,11 +1955,11 @@ int Em403WarLion::fn_8032A9F4(WarLionPath_unk* path, int id, int* next) {
                 j = 0;
             }
             first = lbl_80749B00[j].mPlace;
-            j++;
-            if (j == 10) {
-                j = 0;
+            int k = j + 1;
+            if (k == 10) {
+                k = 0;
             }
-            second = lbl_80749B00[j].mPlace;
+            second = lbl_80749B00[k].mPlace;
             break;
         }
     }

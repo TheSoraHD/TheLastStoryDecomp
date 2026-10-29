@@ -1,0 +1,12 @@
+            CharaTask* target = m14B0;
+            if (m55C != 6 && target != 0) {
+                float dist = (atn::Vector3(target->mPos) - mPos).Length_unk();
+====
+            CharaTask* target;
+            if (m55C != 6 && (target = m14B0) != 0) {
+                float dist = (atn::Vector3(target->mPos) - mPos).Length_unk();
+====
+            CharaTask* target = m14B0;
+            if (m55C != 6 && target != 0) {
+                atn::Vector3 pos(target->mPos);
+                float dist = (pos - mPos).Length_unk();

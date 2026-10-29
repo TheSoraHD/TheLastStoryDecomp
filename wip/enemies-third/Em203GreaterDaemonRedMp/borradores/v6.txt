@@ -1,0 +1,15 @@
+    atn::Vector3 target = m14B0->mPos;
+    target.y = 0.0f;
+    m1530 = target - mPos;
+    atn::Vector3 dir(m1530.x, 0.0f, m1530.z);
+====
+    atn::Vector3 target = m14B0->mPos;
+    target.y = 0.0f;
+    m1530 = target - mPos;
+    atn::Vector3 dir(m1530);
+    dir.y = 0.0f;
+====
+    atn::Vector3 target(m14B0->mPos);
+    target.y = 0.0f;
+    m1530 = target - mPos;
+    atn::Vector3 dir(m1530.x, 0.0f, m1530.z);

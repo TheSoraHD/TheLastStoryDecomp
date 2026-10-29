@@ -1,0 +1,23 @@
+    atn::Vector3 center = (GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")) +
+                           GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"))) * 0.5f;
+    atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+====
+    atn::Vector3 right = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+    atn::Vector3 center;
+    center = (GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")) + right) * 0.5f;
+    atn::Vector3 head;
+    head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+====
+    atn::Vector3 right = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+    atn::Vector3 center((GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")) + right) * 0.5f);
+    atn::Vector3 head(GetNodePos_unk(mMotion.GetNodeMtx_unk("head")));
+====
+    atn::Vector3 center;
+    atn::Vector3 head;
+    atn::Vector3 right = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+    center = (GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")) + right) * 0.5f;
+    head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+====
+    atn::Vector3 right = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+    atn::Vector3 center = atn::Vector3((GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")) + right) * 0.5f);
+    atn::Vector3 head = atn::Vector3(GetNodePos_unk(mMotion.GetNodeMtx_unk("head")));

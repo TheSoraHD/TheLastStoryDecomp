@@ -1,0 +1,47 @@
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m5B0;
+    atn::Vector3 right = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+    atn::Vector3 left = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
+    atn::Vector3 center((left + right) * 0.5f);
+    atn::Vector3 head(GetNodePos_unk(mMotion.GetNodeMtx_unk("head")));
+====
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m5B0;
+    atn::Vector3 right(GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot")));
+    atn::Vector3 left(GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")));
+    atn::Vector3 center((left + right) * 0.5f);
+    atn::Vector3 head(GetNodePos_unk(mMotion.GetNodeMtx_unk("head")));
+====
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m5B0;
+    const atn::Vector3& right = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+    const atn::Vector3& left = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
+    atn::Vector3 center((left + right) * 0.5f);
+    atn::Vector3 head(GetNodePos_unk(mMotion.GetNodeMtx_unk("head")));
+====
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m5B0;
+    atn::Vector3 right = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightfoot"))->GetTrans_unk();
+    atn::Vector3 left = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftfoot"))->GetTrans_unk();
+    atn::Vector3 center((left + right) * 0.5f);
+    atn::Vector3 head(((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk());
+====
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m5B0;
+    atn::Vector3 right = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightfoot"))->GetTrans_unk();
+    atn::Vector3 left = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftfoot"))->GetTrans_unk();
+    atn::Vector3 center = (left + right) * 0.5f;
+    atn::Vector3 head = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+====
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m5B0;
+    atn::Vector3 right = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightfoot"))->GetTrans_unk();
+    atn::Vector3 left = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftfoot"))->GetTrans_unk();
+    atn::Vector3 center(atn::Vector3(left + right) * 0.5f);
+    atn::Vector3 head(((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk());

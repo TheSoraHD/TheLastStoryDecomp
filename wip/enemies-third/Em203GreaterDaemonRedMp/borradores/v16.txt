@@ -1,0 +1,13 @@
+        pos += Front_unk(mRot.y) * 20.0f;
+        pos.y = 0.0f;
+====
+        pos += FrontV_unk(mRot.y) * 20.0f;
+        pos.y = 0.0f;
+====
+        float angle = mRot.y;
+        pos += Front_unk(angle) * 20.0f;
+        pos.y = 0.0f;
+====
+        const float& angle = mRot.y;
+        pos += Front_unk(angle) * 20.0f;
+        pos.y = 0.0f;

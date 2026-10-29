@@ -1,0 +1,5 @@
+                atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+====
+                atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
+====
+                atn::Vector3 pos(GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")));

@@ -1,0 +1,18 @@
+    atn::Vector3 d(mPos.x - other->mPos.x, 0.0f, mPos.z - other->mPos.z);
+    PSVECNormalize(&d, &d);
+====
+    atn::Vector3 d = mPos - other->mPos;
+    d.y = 0.0f;
+    PSVECNormalize(&d, &d);
+====
+    atn::Vector3 d;
+    d.x = mPos.x - other->mPos.x;
+    d.y = 0.0f;
+    d.z = mPos.z - other->mPos.z;
+    PSVECNormalize(&d, &d);
+====
+    atn::Vector3 d;
+    d.z = mPos.z - other->mPos.z;
+    d.x = mPos.x - other->mPos.x;
+    d.y = 0.0f;
+    PSVECNormalize(&d, &d);

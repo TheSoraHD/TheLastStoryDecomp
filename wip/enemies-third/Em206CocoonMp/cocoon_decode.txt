@@ -1,0 +1,22 @@
+Em206CocoonMp (0x802BA92C-0x802C0C38), decodificacion del asm (sin fuente escrita todavia).
+Layout (0x1938, base SpecialEnemyBase hasta 0x14D4):
+ 14D4 LH_Binary; 14DC step; 14E0 frame ctr; 14E4; 14E8 flag (fn_802BC4EC); 14EC color ctr; 14F0 ice mode; 14F4 timer;
+ 14F8 Vector3 (dir state13); 1504 int ctr; 1508/1514 Vector3 (salto state16: desde/hasta, punto ruta 500);
+ 1520,1524 (flag evento 10); 1528=5 (contador acciones); 152C Vector3 dir; 1538 ColliCapsule[11];
+ 1900; 1904=900; 1908; 190C=1.0f; 1910=0x4650; 1914 (muerto); 1918; 191C EfpHandle "/effect/ef_uc015.efp";
+ 1928 ResHandle (ctor fuera de linea = __ct__9ResHandleFv 0x802BABC0); 192C "DebugDisp"; 1930=40.0f. mFlag22=1.
+Vtable: dtor 802C0B68, vf0C BABCC, vf10 BADB0, vf20 BCE84, vf24 BCD3C, vf38 BDF68, vf3C BAFAC, vf40 BB104,
+ vf50 BBCDC, vf54 BC240, vf64 BB368, vf90 C0B60 (5.0f), vfE4 C0B20, vfEC BDFF8, vfFC BB3B8, vf100 BB410,
+ vf104 BB92C, vf108 BBCD8 (vacia), vf110 C07BC, vf114 C07F8.
+No virtuales: BC4EC mover(target rot, speed, rate) (como Em403WarLion fn_80324A38), BD118 hacia objetivo,
+ BD480 elige accion, BDA04 colores material (em206_body_l/tail_l/rarm_l/larm_l), BDFA0 estado default,
+ estados (jumptable 80786510, orden case por direccion): 6 BE0FC, 8 BE180, 9 BE2A0, 10 BE7EC, 11 BE9C8, 12 BEAEC,
+ 13 BEE44, 14 BF5C0, 15 C0058, 16 C0458, 17 C06B4, 18 C0738, 2 vfEC, default BDFA0+BD480.
+Tablas .rodata: lbl_80746964 = 3 x {node,node2,material,int,int,radius,int} ("reference","head","spine1"; "" en .sdata2);
+ lbl_80746A70 = 11 x {from,to,radius} capsulas (neck/ef_eye 5.6 ... tail1/tail3 10.5).
+Helpers inline: SetState(s){m14DC=0;m14E0=0;m590=fn_800F8548;m58C=s;fn_8016E970(3)}; PlayMotion blend 0.025;
+ Die_unk (vf40/vf100 caso 2/vf114: estado 2, motion 0x2E, efecto m191C, flag evento 0x65, bala 0x5C3, m1914=1).
+vf104: lista local vector<EnemyTask*> cuyo dtor es __dt__18NecroPlaceList_unkFv (0x80244674, nombre de n1:
+ probablemente mal tipado, comparte con Em203GreaterDaemonRedMp fn_802A3D80 y GameTask); ctor fn_802A4170,
+ operator[] fn_802A4184, size/empty fn_800E0AA8/AB0 fuera de linea (vf104 fuera de presupuesto).
+Orden .sdata2 coherente con el orden de funciones de arriba. asm completo en cocoon.s / egg.s.
