@@ -1,5 +1,7 @@
 # Lote `batch-auto-20kb-game-b` (propuesta E, segunda mitad)
 
+> **Estado: avance parcial; el objetivo sigue abierto.** Solo se han empezado algunas de las 17 unidades; las filas y notas siguientes distinguen lo emparejado, lo `NONMATCHING` y lo pendiente. Este lote no debe considerarse terminado al integrarlo en `main`.
+
 Rama creada desde `origin/batch-auto-20kb-game` y actualizada a su cierre `9e3a4c66` el 2026-10-29. Informe de referencia guardado en `build/SLSP01/report-batch-auto-20kb-game-b-baseline.json`; build inicial de la rama: `main.dol: OK`.
 
 ## Alcance
