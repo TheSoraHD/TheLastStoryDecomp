@@ -218,6 +218,7 @@ void fn_8001BADC(CharaTask* chara, int arg);
 int fn_8001B5DC(CharaTask* chara); // inferred: item to use (as fn_8001B634)
 int fn_8001BC80(CharaTask* chara, int index);
 int fn_8001BC38(CharaTask* chara, int slot);
+float fn_8001ADE8(int id, CharaTask* chara); // inferred: distance for skill id
 int fn_8001BCB4(CharaTask* chara, int slot); // inferred: slot holds a usable skill
 int fn_8001B4A4();
 int fn_8001AEBC(int size);
@@ -2646,6 +2647,82 @@ int AI::Script::AI_buffer_pointguard01::vf08() {
     lbl_807C6A40.m50 = 0;
     lbl_807C6A40.m00 = 1;
     return 1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+static inline int SkillDist_unk(int id, CharaTask* chara) {
+    if (id <= 0 || chara == 0) {
+        return 0;
+    }
+    return fn_8001ADE8(id, chara);
+}
+int AI::Script::AI_buffer_pointguard01::vf0C() {
+    int result = CheckCount_unk();
+    if (result == 1) {
+        if (lbl_807C6A40.m50 == 0) {
+            return -1;
+        }
+        lbl_807C6A40.m50 = 0;
+        lbl_807C6A40.m00 = 1;
+        Command_unk(0, 0, 0, 0, 0);
+        return 1;
+    }
+    if (fn_8001BC38(lbl_807C68C0.m00, 0)) {
+        if (fn_8001BC80(lbl_807C68C0.m00, 0)) {
+            int dist = SkillDist_unk(lbl_807C6A40.m18, lbl_807C68C0.m20);
+            if (dist < lbl_807C6A40.m1C) {
+                lbl_807C6A40.m0C = 1;
+                lbl_807C6A40.m00 = 1;
+                lbl_807C6A40.m50 = 0;
+                Command_unk(4, (int)lbl_807C68C0.m20, AttackDelay_unk(), 0, 0);
+                return 5;
+            }
+            if (lbl_807C6A40.m50 == 0) {
+                lbl_807C6A40.m50 = 1;
+                lbl_807C6A40.m00 = 1;
+                Command_unk(8, lbl_807C6A40.m18, lbl_807C6A40.m1C, 0, 0);
+                return 1;
+            }
+            return -1;
+        }
+        if (lbl_807C6A40.m3C <= 0) {
+            Command_unk(7, 0, (int)lbl_807C68C0.m00, 0, 0);
+            lbl_807C6A40.m00 = 1;
+            lbl_807C6A40.m3C = lbl_807C6A40.m20;
+            return 9;
+        }
+        int dist = SkillDist_unk(lbl_807C6A40.m18, lbl_807C68C0.m20);
+        if (dist < lbl_807C6A40.m1C) {
+            lbl_807C6A40.m0C = 1;
+            lbl_807C6A40.m00 = 1;
+            lbl_807C6A40.m50 = 0;
+            Command_unk(4, (int)lbl_807C68C0.m20, AttackDelay_unk(), 0, 0);
+            return 5;
+        }
+        if (lbl_807C6A40.m50 == 0) {
+            lbl_807C6A40.m50 = 1;
+            lbl_807C6A40.m00 = 1;
+            Command_unk(8, lbl_807C6A40.m18, lbl_807C6A40.m1C, 0, 0);
+            return 1;
+        }
+        return -1;
+    }
+    int dist = SkillDist_unk(lbl_807C6A40.m18, lbl_807C68C0.m20);
+    if (dist < lbl_807C6A40.m1C) {
+        lbl_807C6A40.m0C = 1;
+        lbl_807C6A40.m00 = 1;
+        lbl_807C6A40.m50 = 0;
+        Command_unk(4, (int)lbl_807C68C0.m20, AttackDelay_unk(), 0, 0);
+        return 5;
+    }
+    if (lbl_807C6A40.m50 == 0) {
+        lbl_807C6A40.m50 = 1;
+        lbl_807C6A40.m00 = 1;
+        Command_unk(8, lbl_807C6A40.m18, lbl_807C6A40.m1C, 0, 0);
+        return 1;
+    }
+    return -1;
 }
 
 int AI::Script::AI_buffer_pointguard01::vf2C() {
