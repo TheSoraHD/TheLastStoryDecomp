@@ -213,6 +213,11 @@
   "matching": false
  },
  {
+  "name": "atn/GraphicsDevice.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "atn/LensFlare.cpp",
   "classes": [
    "atn::LensFlare"
@@ -370,6 +375,13 @@
   "matching": false
  },
  {
+  "name": "atn/RenderSystem_unk.cpp",
+  "classes": [
+   "RenderSystem_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/SequenceControl.cpp",
   "classes": [
    "atn::SequenceControl"
@@ -425,6 +437,14 @@
    "atn::Sound3dEngine"
   ],
   "matching": true
+ },
+ {
+  "name": "atn/SoundManager.cpp",
+  "classes": [
+   "atn::SoundRef",
+   "atn::SoundManager"
+  ],
+  "matching": false
  },
  {
   "name": "atn/Task.cpp",
@@ -1917,11 +1937,38 @@
   "matching": false
  },
  {
-  "name": "std/bad_cast.cpp",
+  "name": "game/GameEventScript.cpp",
   "classes": [
    "GameEventScript",
-   "boost::bad_lexical_cast",
+   "boost::bad_lexical_cast"
+  ],
+  "matching": false
+ },
+ {
+  "name": "std/bad_cast.cpp",
+  "classes": [
    "std::bad_cast"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameEventScript_cont.cpp",
+  "classes": [
+   "GameEventScript"
+  ],
+  "matching": false
+ },
+ {
+  "name": "std/bad_cast_what.cpp",
+  "classes": [
+   "std::bad_cast"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameEventScript_cont2.cpp",
+  "classes": [
+   "GameEventScript"
   ],
   "matching": false
  },

@@ -8,8 +8,12 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `main` en c7606b1 (2026-10-22): **7299 / 18215 funciones al 100%** (código 26,0%, fuzzy 42,6%, datos 17,5%), 370 ficheros enlazados, `main.dol: OK`.
-- Último lote: `enemies-finish` (`docs/enemies-finish.md`). Siguiente: propuestas de `SIGUIENTE_sesion.md` (documento del proyecto).
+- `codex/d2atexture-decomp` (2026-10-25): `atn/D2A_Texture`, 14/30 al 100%; las 30 funciones superan 50% (`vf18` 95,72%; cargas 56,67% y 55,69%). Layout y slots revisados. Build limpio `main.dol: OK`; regress/fuzzdrop comparados con el informe limpio disponible: 0 pérdidas/bajadas; poolcheck: 0 hallazgos. Detalles y decisiones: `docs/D2A-Texture-q1.md`.
+- `codex/rendersystem-decomp` (2026-10-25, avance local): RenderSystem, 13/37 funciones al 100%; 24 implementaciones parciales. Build limpio `main.dol: OK`; regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Layout e inferencias pendientes en `docs/RenderSystem-q1.md`. Sin push.
+- `codex/graphicsdevice-decomp` (2026-10-24): `atn/GraphicsDevice.cpp`, 9 funciones al 100%; `fn_80071088` al 65,57% y `fn_800763C0` al 72,00%, ambas `NONMATCHING`; resto pendiente. Build limpio `main.dol: OK`, regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Decisiones: `docs/GraphicsDevice-q1.md`. Sin push.
+- `codex/rodata-unassigned-2026-10-24` (2026-10-24): cuatro tramos contiguos y tres unidades de datos `.rodata`; 7501/18215 funciones al 100%, 370 ficheros enlazados, sin excepción nueva de regla 2. Build limpio (`main.dol: OK`), regress lost: 0, fuzzdrop: 0 bajadas, poolcheck: 0 hallazgos. Detalle y decisión sobre el pool familiar nw4r: `docs/rodata-sin-asignar-q1.md`. Sin push.
+- Estado de `AI/AI_archer_attack01`: 186/517; `matching: false`; `fn_8003AD38` al 70,00% y dos stubs al 99,32%, todos `NONMATCHING`. Decisiones: `docs/AI-archer-attack01.md`.
+- Revisión `game/main` (2026-10-23): 11/14 al 100%; `main` 98,61%, arranque 39,58%. Detalle: `docs/game-main.md`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)

@@ -81,8 +81,8 @@
 ### Decisiones sin el usuario (grupo 2)
 - Nombres inventados: `game/SystemErrorMessage_unk.cpp`, `game/FinishCamera_unk.cpp`, `game/GameCamera_unk.cpp`.
 - `game/FriendManager_cont.cpp` (resto de FriendManager, enlazado).
-- `std/bad_cast.cpp` es en realidad el fichero de GameEventScript (nombre heredado, no lo cambio; deberia
-  renombrarse a algo como `game/GameEventScript.cpp`). `auto_03_803B27AC_text.cpp` es GameLoadTask
+- En ese momento `std/bad_cast.cpp` era en realidad el fichero de GameEventScript; el split se corrigió después
+  en `codex/std-bad-cast` (`docs/std-bad-cast.md`). `auto_03_803B27AC_text.cpp` es GameLoadTask
   (`game/GameLoadTask.cpp`); no se renombra porque esta en configure.py.
 - No renombre el pool de `auto_03_803B27AC_text` a `@stringBase0`: su fuente lo referencia como `lbl_8074FBA4`.
 - Las unidades nuevas dan "Missing configuration" en configure (no estan en game_units.json, que no toco).

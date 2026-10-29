@@ -163,6 +163,69 @@ basic_string<T, Tr, A>& basic_string<T, Tr, A>::__replace_unk(size_type pos, siz
     return *this;
 }
 
+// Inferred from the fill-replace weak copy used by basic_stringbuf::overflow (0x800E2778).
+template <class T, class Tr, class A>
+basic_string<T, Tr, A>& basic_string<T, Tr, A>::replace(size_type pos, size_type n1, size_type n2, T c) {
+    bool was_long = mFlags.mIsLong;
+    T* p;
+    size_type cap;
+    size_type sz;
+    if (!was_long) {
+        p = mShort.mData;
+        cap = __min_cap;
+        sz = mShortFlags.mSize;
+    } else {
+        p = mLong.mData;
+        cap = mFlags.mCap;
+        sz = mLong.mSize;
+    }
+    if (pos > sz) {
+        __msl_error("basic_string: out_of_range");
+    }
+    size_type rlen = __min(n1, sz - pos);
+    if (n2 > max_size() || sz - rlen > max_size() - n2) {
+        __msl_error("basic_string: length_error");
+    }
+    size_type new_sz = n2 + (sz - rlen);
+    size_type tail = sz - (pos + rlen);
+    if (new_sz >= cap) {
+        cap = (cap + 15) & ~15;
+        while (cap < new_sz + 1) {
+            cap = (cap * 2 + 15) & ~15;
+        }
+        T* new_data = __allocate(cap);
+        if (pos != 0) {
+            memcpy(new_data, p, pos * sizeof(T));
+        }
+        T* d = new_data + pos;
+        memset(d, (unsigned char)c, n2 * sizeof(T));
+        if (tail != 0) {
+            memcpy(d + n2, p + pos + rlen, tail * sizeof(T));
+        }
+        __assign(new_data[new_sz], T());
+        if (was_long) {
+            ::operator delete(p);
+        } else {
+            mFlags.mIsLong = 1;
+        }
+        mLong.mData = new_data;
+        mLong.mSize = new_sz;
+        mFlags.mCap = cap;
+    } else {
+        if (tail != 0) {
+            memmove(p + pos + n2, p + pos + rlen, tail * sizeof(T));
+        }
+        memset(p + pos, (unsigned char)c, n2 * sizeof(T));
+        __assign(p[new_sz], T());
+        if (!was_long) {
+            mShortFlags.mSize = new_sz;
+        } else {
+            mLong.mSize = new_sz;
+        }
+    }
+    return *this;
+}
+
 // 0x8006A004 (char)
 template <class T, class Tr, class A>
 typename basic_string<T, Tr, A>::size_type basic_string<T, Tr, A>::find(const T* s, size_type pos,

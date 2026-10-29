@@ -23,7 +23,7 @@ extern "C" void OSReturnToMenu();
 extern "C" void OSShutdownSystem();
 extern "C" void fn_805F38A0(int arg);   // inferred: OSRestart
 extern "C" void fn_805F3C50();          // inferred: restart to the disc channel
-extern "C" void fn_805C3F10();          // inferred: HBM library (stops the HOME button menu sound)
+extern "C" void HBMStartBlackOut();     // inferred: HBM library (stops the HOME button menu sound)
 extern "C" void* VISetPreRetraceCallback(void* callback);
 extern "C" void* VISetPostRetraceCallback(void* callback);
 extern "C" void* GXSetBreakPtCallback(void* callback);
@@ -304,7 +304,7 @@ extern "C" void fn_80570CF8(GameSystem_unk* sys) {
                     fn_805F38A0(0);
                 }
             } else {
-                fn_805C3F10();
+                HBMStartBlackOut();
                 sys->mShutdown = 1;
                 OSSetPowerCallback(0);
                 fn_805F69E0(0);

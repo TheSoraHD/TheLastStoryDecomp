@@ -21,11 +21,11 @@ struct HomeButtonData_unk {
     unsigned char m00[0x40];
 };
 
-extern "C" void fn_80440F64(HomeButtonData_unk* data, void* arg1, void* arg2); // inferred: init
-extern "C" void fn_804410C0(HomeButtonData_unk* data, void* arg1, void* arg2); // inferred: release
-extern "C" void fn_80441170(HomeButtonData_unk* data);                          // inferred: open the menu
-extern "C" int fn_804411DC(HomeButtonData_unk* data); // inferred: update; < 0 while open, then the result
-extern "C" void fn_804413D4();                        // inferred: draws the menu
+extern "C" void HBMRsoCreate__FR11HBMDataInfoRPUcRPUc(HomeButtonData_unk* data, void* arg1, void* arg2); // inferred: init
+extern "C" void HBMRsoDelete__FR11HBMDataInfoRPUcRPUc(HomeButtonData_unk* data, void* arg1, void* arg2); // inferred: release
+extern "C" void HBMRsoInit__FR17HBMControllerData(HomeButtonData_unk* data); // inferred: open the menu
+extern "C" int HBMRsoCalc__FR17HBMControllerData(HomeButtonData_unk* data); // inferred: update; < 0 while open, then the result
+extern "C" void HBMRsoDraw__Fv(); // inferred: draws the menu
 
 // inferred: HOME button menu (0xD4 bytes), singleton (sInstance 0x8087F4E8)
 class HomeButtonMenu : public atn::IRender {
@@ -107,12 +107,12 @@ void HomeButtonMenu::fn_804405F8(void* arg) {
 }
 
 HomeButtonMenu::HomeButtonMenu(void* arg) : m84(0), m88(1), m8C(0), m90(1), m94(arg), mD0(0) {
-    fn_80440F64(&m04, &m98, &m9C);
+    HBMRsoCreate__FR11HBMDataInfoRPUcRPUc(&m04, &m98, &m9C);
     fn_800D594C(&mA0, "/hbm/ban_home_button.texture");
 }
 
 HomeButtonMenu::~HomeButtonMenu() {
-    fn_804410C0(&m04, &m98, &m9C);
+    HBMRsoDelete__FR11HBMDataInfoRPUcRPUc(&m04, &m98, &m9C);
 }
 
 void HomeButtonMenu::fn_8044073C() {
@@ -130,7 +130,7 @@ void HomeButtonMenu::fn_8044073C() {
                     m84 = 1;
                     fn_800CF7DC(lbl_8087EFE8, 1, 1, 9);
                     fn_8004A2CC(lbl_8087EE90, 1, 1, 8);
-                    fn_80441170(&m44);
+                    HBMRsoInit__FR17HBMControllerData(&m44);
                     fn_800DF0F0(lbl_8087F018, 1);
                     lbl_8087F018->m40E0 = 0;
                     for (int i = 0; i < 4; i++) {
@@ -150,7 +150,7 @@ void HomeButtonMenu::fn_8044073C() {
             fn_80440994();
         }
     } else if (m84 == 1) {
-        int ret = fn_804411DC(&m44);
+        int ret = HBMRsoCalc__FR17HBMControllerData(&m44);
         if (ret >= 0) {
             switch (ret) {
             case 1:
@@ -176,7 +176,7 @@ void HomeButtonMenu::fn_8044073C() {
 }
 
 void HomeButtonMenu::vf10(void* camera) {
-    fn_804413D4();
+    HBMRsoDraw__Fv();
 }
 
 inline float Ratio_unk(int a, int b) {

@@ -45,6 +45,9 @@ std/runtime_error.cpp:
 	.rodata     start:0x8072FCAC end:0x8072FD8C
 	.data       start:0x80775B30 end:0x80775BE8
 
+game/AiTarget_rodata.cpp:
+	.rodata     start:0x8072FD8C end:0x8072FF50 align:4
+
 AI/AiCommon_unk.cpp:
 	.text       start:0x8001A444 end:0x8001BF44
 	.rodata     start:0x8072FF50 end:0x8072FF60
@@ -151,6 +154,9 @@ atn/SinusCurve.cpp:
 	.rodata     start:0x807310C8 end:0x80731140
 	.data       start:0x807776C8 end:0x807777C0
 	.sdata2     start:0x80880998 end:0x808809A0
+
+atn/ComDrawTexture_rodata.cpp:
+	.rodata     start:0x80731140 end:0x80731160
 
 atn/DrawHelper.cpp:
 	.text       start:0x8005DD60 end:0x8005DED8
@@ -693,7 +699,7 @@ game/MenuCommon_unk.cpp:
 
 game/CampSaveLoad.cpp:
 	.text       start:0x8011770C end:0x8011BD14
-	.rodata     start:0x80736AB0 end:0x80736EF0
+	.rodata     start:0x80736AA8 end:0x80736EF0
 	.data       start:0x80779FA0 end:0x8077A150
 	.sdata      start:0x8087D990 end:0x8087D9A0
 	.sbss       start:0x8087F068 end:0x8087F070
@@ -901,14 +907,14 @@ chr/ControlDropDown.cpp:
 
 chr/ControlGmkCoffinOpening.cpp:
 	.text       start:0x801B409C end:0x801B529C
-	.rodata     start:0x8073AE54 end:0x8073AEE0
+	.rodata     start:0x8073AD70 end:0x8073AEE0
 	.data       start:0x80780910 end:0x80780B80
 	.sdata      start:0x8087DA08 end:0x8087DA10
 	.sdata2     start:0x80882480 end:0x808824C0
 
 chr/ControlJumpAt.cpp:
 	.text       start:0x801B529C end:0x801B73F0
-	.rodata     start:0x8073B110 end:0x8073B190
+	.rodata     start:0x8073AEE0 end:0x8073B190
 	.data       start:0x80780B80 end:0x80780ED0
 	.sdata2     start:0x808824C0 end:0x808824F0
 
@@ -972,7 +978,7 @@ chr/ControlPushedDown.cpp:
 
 chr/ControlRide.cpp:
 	.text       start:0x801C6F90 end:0x801C7918
-	.rodata     start:0x8073B8BC end:0x8073B8E8
+	.rodata     start:0x8073B810 end:0x8073B8E8
 	.data       start:0x80781ED0 end:0x80782000
 	.bss        start:0x807C7C80 end:0x807C7C88
 	.sdata2     start:0x80882838 end:0x80882848
@@ -2030,14 +2036,26 @@ game/GameCamera_unk.cpp:
 	.sdata      start:0x8087DCF0 end:0x8087DD38
 	.sdata2     start:0x808858E8 end:0x80885AD0
 
-std/bad_cast.cpp:
-	.text       start:0x803935AC end:0x803B27AC
-	.ctors      start:0x8072D358 end:0x8072D35C
+game/GameEventScript.cpp:
+	.text       start:0x803935AC end:0x80394068
 	.rodata     start:0x8074E440 end:0x8074FB78
 	.data       start:0x8078A780 end:0x8078B3A0
 	.sdata      start:0x8087DD38 end:0x8087DD60
 	.sbss       start:0x8087F450 end:0x8087F458
 	.sdata2     start:0x80885AD0 end:0x80885C00
+
+std/bad_cast.cpp:
+	.text       start:0x80394068 end:0x803940A8
+
+game/GameEventScript_cont.cpp:
+	.text       start:0x803940A8 end:0x803AD13C
+
+std/bad_cast_what.cpp:
+	.text       start:0x803AD13C end:0x803AD148
+
+game/GameEventScript_cont2.cpp:
+	.text       start:0x803AD148 end:0x803B27AC
+	.ctors      start:0x8072D358 end:0x8072D35C
 
 auto_03_803B27AC_text.cpp:
 	.text       start:0x803B27AC end:0x803B33F8
@@ -3388,9 +3406,11 @@ nw4r/DvdSoundArchive.cpp:
 	.rodata     start:0x807622E0 end:0x80762328
 	.data       start:0x80796B60 end:0x80796C70
 
+nw4r/SoundArchiveFamily_rodata.cpp:
+	.rodata     start:0x80762328 end:0x807626F8
+
 nw4r/SoundArchive.cpp:
 	.text       start:0x8059E21C end:0x8059E7EC
-	.rodata     start:0x80762360 end:0x80762378
 	.data       start:0x80796C70 end:0x80796D38
 
 nw4r/SeqNoteOnCallback.cpp:

@@ -363,8 +363,8 @@ struct DrawPass_unk {
 
 // inferred: global camera (lbl_8087EFB4)
 struct DrawScene_unk {
-    DrawPass_unk* mPass[11]; // inferred: view of each pass (3: the shadow)
-    unsigned char m2C[0x15C - 0x2C];
+    DrawPass_unk* mPass[0x14]; // inferred: pass pointers; queue supports pass IDs 0..0x13
+    unsigned char m50[0x15C - 0x50];
     atn::Matrix3x4 m15C;
     unsigned char m18C[0x2F8 - 0x18C];
     int m2F8; // inferred: current pass

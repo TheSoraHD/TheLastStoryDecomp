@@ -71,6 +71,7 @@ public:
     // clear() 0x801F18BC, size() 0x801F1970, operator[] 0x801F1990, data() 0x801F19B4), while the
     // members below inline them (tmp in 0x80013F78). Checked with standalone compiles.
     size_type size() const { return !is_long() ? (mShort.mSize & 0x7F) : mLong.mSize; }
+    size_type capacity() const { return !is_long() ? __min_cap : mFlags.mCap; }
     const T* data() const { return !is_long() ? (const T*)this + 1 : mLong.mData; }
     T& operator[](size_type i) { return (!is_long() ? (T*)this + 1 : mLong.mData)[i]; }
     // inferred: weak copy 0x8046D1CC (char, atn/Loader.cpp)
@@ -127,7 +128,6 @@ public:
     // word, a long one through reserve and the range replace
     basic_string(const basic_string& str) {
         if (!str.is_long()) {
-            // inferred: copied as a block (0x800EC7F0 stores word 1 before word 0)
             mRaw = str.mRaw;
         } else {
             __zero();
@@ -163,6 +163,8 @@ public:
     basic_string& replace(size_type pos, size_type n1, const T* j1, const T* j2) {
         return __replace_unk(pos, n1, j1, j2, random_access_iterator_tag());
     }
+    // inferred: fill replacement used by basic_stringbuf when growing its output string.
+    basic_string& replace(size_type pos, size_type n1, size_type n2, T c);
     basic_string substr(size_type pos = 0, size_type n = npos) const { return basic_string(*this, pos, n); }
     const T* c_str() const { return data(); }
     size_type length() const { return size(); }
