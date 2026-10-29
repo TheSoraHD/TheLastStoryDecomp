@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/FileList.h"
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "db/EquipParam_unk.h"
@@ -16,7 +17,6 @@ extern "C" float fn_800DC288(const char* s);                       // inferred: 
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
-extern "C" void fn_8006BB6C(void* data, int flag);                            // inferred: frees it
 extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line, int arg); // inferred: allocation
 
@@ -196,7 +196,7 @@ extern "C" void fn_80210ACC() {
         entry->mCC.mStr[0] = 0;
         entry->mDC.mStr[0] = 0;
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
     fn_80211244();
 }
 
@@ -234,7 +234,7 @@ extern "C" void fn_80211244() {
             fn_8021A5F8(&sEntries[i], &csv, 0, sBuf, sTexts, &a, &b);
             i++;
         }
-        fn_8006BB6C(data, 0);
+        atn::FileFreeBuffer((char*)data, false);
     }
 }
 

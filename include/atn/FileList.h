@@ -27,6 +27,9 @@ public:
     std::vector<Entry> mEntries; // 0x08
 };
 
+// releases a buffer loaded from a file (through the loader unless `own` is set); 0x8006BB6C
+void FileFreeBuffer(char* buf, bool own);
+
 } // namespace atn
 
 #endif

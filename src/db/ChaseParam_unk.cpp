@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/FileList.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
@@ -8,7 +9,6 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 struct Unk_8087F518;
 extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
-extern "C" void fn_8006BB6C(void* data, int arg); // inferred: releases a loaded file
 
 // inferred: chase parameters of the global object lbl_8087F0A8 (only the members set here;
 // names from the CSV keys)
@@ -144,5 +144,5 @@ extern "C" void fn_8020A90C() {
             Config_unk()->mChPlayerHit = fn_800DC12C(csv.fn_8005B9CC());
         }
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
 }

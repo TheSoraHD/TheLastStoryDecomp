@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/FileList.h"
 #include "atn/Memory.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -12,7 +13,6 @@ extern "C" int fn_802180A8(const char* s);          // inferred: id of a name (a
 
 // inferred: loads a whole file / releases it
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
-extern "C" void fn_8006BB6C(void* data, int arg);
 
 // inferred: rows of the "@move" section of /boot/chara_motion_param.csv (8 bytes)
 struct CharaMoveParam_unk {
@@ -125,7 +125,7 @@ extern "C" void fn_80209300() {
             move++;
         }
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
 }
 
 extern "C" CharaMoveParam_unk* fn_802096A8(const char* name) {

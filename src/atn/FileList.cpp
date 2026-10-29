@@ -305,8 +305,8 @@ extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int own) {
     return data;
 }
 
-// inferred: releases a loaded file (through the loader unless `own` is set)
-extern "C" void fn_8006BB6C(void* data, int own) {
+// releases a loaded file (through the loader unless `own` is set); name from the RSO
+void atn::FileFreeBuffer(char* data, bool own) {
     if (lbl_8087F518 != 0 && own == 0) {
         fn_8046DD20(lbl_8087F518, data);
     } else if (data != 0) {

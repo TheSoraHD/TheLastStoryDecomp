@@ -3,6 +3,7 @@
 // HBMRso* are C++ functions (mangled names in symbols.txt), declared in game/HBMRso.h.
 
 #include "math/Vec.h"
+#include "atn/FileList.h"
 #include "atn/MemoryManager.h"
 #include "game/HBMRso.h"
 #include "atn/GraphicsDevice.h"
@@ -18,7 +19,6 @@ extern "C" void C_MTXOrtho(float m[4][4], float t, float b, float l, float r, fl
 extern "C" void* fn_800839EC(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
                              const char* file, int line, int arg); // inferred: allocation
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg); // inferred: loads a file
-extern "C" void fn_8006BB6C(void* data, int arg);                             // inferred: frees loaded data
 
 // inferred: HBM library (unnamed in symbols.txt)
 extern "C" void HBMCreate(HBMDataInfo* info);
@@ -87,7 +87,7 @@ extern "C" void fn_80440B2C(HBMDataInfo* info) {
     void* data = fn_8006BA8C(path, &size, 0);
     info->layoutBuf = fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 1, "", "", 0, 0);
     memcpy(info->layoutBuf, data, size);
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
     strcpy(path, sHbmDir_unk);
     strcat(path, "/SpeakerSe.arc");
     info->spkSeBuf = fn_8006BA8C(path, &size, 0);
@@ -174,7 +174,7 @@ void HBMRsoCreate(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
     void* data = fn_8006BA8C(path, &size, 0);
     soundData = (unsigned char*)fn_800839EC(atn::MemoryManager::Instance(), size, 0x20, 1, "", "", 0, 0);
     memcpy(soundData, data, size);
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
     soundBuf = (unsigned char*)fn_800839EC(atn::MemoryManager::Instance(), 0x18700, 0x20, 1, "", "", 0, 0);
     HBMCreateSound(soundData, soundBuf, 0x18700);
 }
@@ -189,8 +189,8 @@ void HBMRsoDelete(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
     }
     atn::MemoryManager::Instance()->Free(info.layoutBuf);
     atn::MemoryManager::Instance()->Free(info.spkSeBuf);
-    fn_8006BB6C(info.msgBuf, 0);
-    fn_8006BB6C(info.configBuf, 0);
+    atn::FileFreeBuffer((char*)info.msgBuf, false);
+    atn::FileFreeBuffer((char*)info.configBuf, false);
     atn::MemoryManager::Instance()->Free(soundData);
     atn::MemoryManager::Instance()->Free(soundBuf);
 }

@@ -1,4 +1,5 @@
 #include "atn/SequenceBoot_unk.h"
+#include "atn/FileList.h"
 struct ElemA { char data[0x2D4]; ~ElemA(); };
 struct ElemB { char data[0x240]; ~ElemB(); };
 struct InnerA { char pad_0x00[0x11C4]; ElemA arr[0x1C]; ~InnerA() {} };
@@ -91,7 +92,6 @@ int fn_800A555C(void* a, int b, int c);
 int fn_803BEAB4(UnkElem* elem);
 void fn_803B83A4(char* buf, int* out, int idx);
 void* fn_8006BA8C(char* buf, int* out, int flag);
-void fn_8006BB6C(void* p, int flag);
 void fn_803BE850(Heap* h);
 void fn_803B3530(void* a, char* b, char* c, int d, int e);
 void fn_800D2338(void* self);
@@ -270,7 +270,7 @@ void fn_803B2A68(Unk* self) {
                     void* r30 = fn_8006BA8C(buf_0x118, &local_0xC, 0);
                     fn_803B83A4(buf_0x118, &local_0x10, self->field_0x48);
                     memcpy(lbl_8087F460, (char*)r30 + local_0x10 + 0xB8, 0x134A8);
-                    fn_8006BB6C(r30, 0);
+                    atn::FileFreeBuffer((char*)r30, false);
                     fn_803BE850(lbl_8087F460);
                     self->field_0xD68 = 4;
                 }

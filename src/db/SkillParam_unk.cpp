@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/FileList.h"
 #include "atn/Memory.h"
 #include "db/ParseUtil_unk.h"
 
@@ -8,7 +9,6 @@ extern "C" int atoi(const char* s);
 extern "C" unsigned long wcslen(const wchar_t* s);
 
 extern "C" void* fn_8006BA8C(const char* path, unsigned int* size, int flag); // inferred: loads a file
-extern "C" void fn_8006BB6C(void* data, int flag);                           // inferred: frees it
 
 // inferred: one row of /boot/skill_param.csv (0xD0 bytes); the constructor (0x80219EC4) is not
 // inline
@@ -77,7 +77,7 @@ extern "C" void fn_8021996C() {
         csv.fn_8005B9CC(); // inferred: a column that is not used
         i++;
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
     fn_80219C30();
 }
 
@@ -118,7 +118,7 @@ extern "C" void fn_80219C30() {
             fn_8021A5F8(&sEntries[i], &csv, 0, sBuf, sTexts, &a, &b);
             i++;
         }
-        fn_8006BB6C(data, 0);
+        atn::FileFreeBuffer((char*)data, false);
     }
 }
 

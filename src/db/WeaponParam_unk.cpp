@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/FileList.h"
 #include "atn/Memory.h"
 #include "db/WeaponParam_unk.h"
 #include "gmk/SeTable.h"
@@ -20,7 +21,6 @@ extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long*
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 // inferred: loads a whole file / releases it
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
-extern "C" void fn_8006BB6C(void* data, int arg);
 
 // inferred: party data (lbl_8087F4F0); only the weapon ids of the members are read here
 struct WeaponParty_unk {
@@ -256,7 +256,7 @@ extern "C" void fn_8020689C() {
         pos += wcslen(sTexts + pos) + 1;
         i++;
     }
-    fn_8006BB6C(data, 0);
+    atn::FileFreeBuffer((char*)data, false);
 }
 
 // inferred: entry of a kind and id
