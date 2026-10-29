@@ -3723,5 +3723,13 @@
    "Input_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "game/GameConfig_unk.cpp",
+  "classes": [
+   "GameConfig_unk",
+   "DialogConfig_unk"
+  ],
+  "matching": false
  }
 ]
