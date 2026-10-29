@@ -319,12 +319,12 @@ MotionPose_unk::MotionPose_unk() {
 // NONMATCHING: 99.02% - order of the two loop increments (as atn/LightUtil_unk)
 int atn::MotionCommandData::fn_800A091C() {
     for (unsigned int i = 0; i < mEffects.mSize; i++) {
-        if (mEffects.mData[i].fn_802376D0()) {
+        if (mEffects.mData[i].IsLoading()) {
             return 1;
         }
     }
     for (unsigned int i = 0; i < mEfps.mSize; i++) {
-        if (mEfps.mData[i].fn_80237874()) {
+        if (mEfps.mData[i].IsLoading()) {
             return 1;
         }
     }

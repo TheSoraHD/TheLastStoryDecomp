@@ -159,11 +159,11 @@ Em316LaserSphere::Em316LaserSphere(atn::Task* parent, EnemyInfo_unk* info)
     }
     std::string path = fn_8006AFF8(dir, name);
     m14B0.vf0C(path.c_str());
-    m1550.fn_8023780C("ef_uc066.efp");
-    m1584.fn_80237654("ef_sk043c_01.eff");
-    m1590.fn_8023780C("ef_sk043a.efp");
-    m159C.fn_80237654("ef_sk043g_01.eff");
-    m15A8.fn_80237654("ef_sk043g_02.eff");
+    m1550.LoadRequest("ef_uc066.efp");
+    m1584.LoadRequest("ef_sk043c_01.eff");
+    m1590.LoadRequest("ef_sk043a.efp");
+    m159C.LoadRequest("ef_sk043g_01.eff");
+    m15A8.LoadRequest("ef_sk043g_02.eff");
     for (int i = 0; i < 3; i++) {
         fn_8008AD4C((atn::Model*)&m1648[i], "em316_00_bs00.model", 0);
     }
@@ -179,9 +179,9 @@ int Em316LaserSphere::vf0C() {
             return 0;
         }
     }
-    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m1550.fn_80237874() == 0 &&
-        m1584.fn_802376D0() == 0 && m1590.fn_80237874() == 0 && m159C.fn_802376D0() == 0 &&
-        m15A8.fn_802376D0() == 0) {
+    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m1550.IsLoading() == 0 &&
+        m1584.IsLoading() == 0 && m1590.IsLoading() == 0 && m159C.IsLoading() == 0 &&
+        m15A8.IsLoading() == 0) {
         void* group = m1C8C.Load("Bit");
         fn_80087994(group, "DebugDisp", &m1C90, 0, 0);
         fn_800874C8(group, "LaserWait", &m1C84, 1, 10000, 1, 0, 0);

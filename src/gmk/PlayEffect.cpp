@@ -24,7 +24,7 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
@@ -97,7 +97,7 @@ void PlayEffect::vf14() {
 
 int PlayEffect::vf1C() {
     for (int i = 0; i < 2; i++) {
-        if (mEffects[i].mRes.fn_802376D0() != 0 || mEffects[i].mEfp.fn_80237874() != 0) {
+        if (mEffects[i].mRes.IsLoading() != 0 || mEffects[i].mEfp.IsLoading() != 0) {
             return 1;
         }
     }
@@ -122,13 +122,13 @@ void PlayEffect::vf20() {
         } else if (strcmp(field, "EFF") == 0) {
             for (int i = 0; i < 2; i++) {
                 if (strlen(csv.fn_8005B9CC()) != 0) {
-                    mEffects[i].mRes.fn_80237654(csv.mField);
+                    mEffects[i].mRes.LoadRequest(csv.mField);
                 }
             }
         } else if (strcmp(field, "EFP") == 0) {
             for (int i = 0; i < 2; i++) {
                 if (strlen(csv.fn_8005B9CC()) != 0) {
-                    mEffects[i].mEfp.fn_8023780C(csv.mField);
+                    mEffects[i].mEfp.LoadRequest(csv.mField);
                 }
             }
         } else if (strcmp(field, "SE") == 0) {

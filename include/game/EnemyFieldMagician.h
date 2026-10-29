@@ -29,7 +29,7 @@ public:
     atn::ColliObject m14B0[2];       // inferred: "ef_col00n.hcb", "ef_col01n.hcb" (field)
     atn::EfpFile m15C0[4];     // inferred: "ef_sk051a.efp" - "ef_sk051d.efp"
     atn::EfpFile m15F0;        // inferred: "ef_bs007a.efp" (warp)
-    ResLoader_unk m15FC;             // inferred: "ef_bu040g_01.eff"
+    atn::EffFile m15FC;             // inferred: "ef_bu040g_01.eff"
     int m1608;                       // inferred: the field is up
     int m160C;                       // inferred: frames before the weakened field comes back
     int m1610;                       // inferred: frames in state 7

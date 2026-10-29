@@ -101,7 +101,7 @@ public:
     int m1548;
     int m154C;
     atn::EfpFile m1550; // inferred: "/effect/ef_uc019.efp"
-    ResLoader_unk m155C;      // inferred: "/effect/ef_sk002b.eff"
+    atn::EffFile m155C;      // inferred: "/effect/ef_sk002b.eff"
     atn::EfpFile m1568; // inferred: "/effect/ef_uc001.efp"
     atn::EfpFile m1574; // inferred: "/effect/ef_sk002d.efp"
     atn::EfpFile m1580; // inferred: "/effect/ef_uc007.efp"

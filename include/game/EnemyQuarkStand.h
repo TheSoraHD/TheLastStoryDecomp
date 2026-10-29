@@ -219,7 +219,7 @@ public:
     atn::EfpFile m1624;      // inferred: "ef_bs072f.efp"
     atn::EfpFile m1630;      // inferred: "ef_bs070d.efp"
     atn::EfpFile m163C;      // inferred: "ef_bs070a.efp"
-    ResLoader_unk m1648;           // inferred: "ef_bs070e_01.eff"
+    atn::EffFile m1648;           // inferred: "ef_bs070e_01.eff"
     atn::Vector3 m1654;
     Mtx34_unk m1660;
     atn::EfpFile m1690;      // inferred: "ef_bd009a.efp"
@@ -240,7 +240,7 @@ public:
     unsigned char m1714;
     unsigned char m1715[0x1718 - 0x1715];
     QuarkSlot_unk m1718[8];
-    ResLoader_unk m17D8;           // inferred: "ef_bs051b.eff"
+    atn::EffFile m17D8;           // inferred: "ef_bs051b.eff"
     CharaTask* m17E4;              // inferred: character stuck by the sword
     int m17E8;                     // inferred: hits received in state 12
     unsigned char m17EC;

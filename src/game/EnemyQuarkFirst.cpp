@@ -71,8 +71,8 @@ EnemyQuarkFirst::EnemyQuarkFirst(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_enemy_quark_first.csv");
     }
     m14B4.vf0C(path);
-    m1528.fn_8023780C("ef_bs007a.efp");
-    m1534.fn_8023780C("ef_bu047a.efp");
+    m1528.LoadRequest("ef_bs007a.efp");
+    m1534.LoadRequest("ef_bu047a.efp");
     mFlagB11 = 1;
     mFlag24 = 0;
 }
@@ -87,7 +87,7 @@ int EnemyQuarkFirst::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1528.fn_80237874() != 0 || m1534.fn_80237874() != 0) {
+    if (m1528.IsLoading() != 0 || m1534.IsLoading() != 0) {
         return 0;
     }
     fn_80334FDC((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());

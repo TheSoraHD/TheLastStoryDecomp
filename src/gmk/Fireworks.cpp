@@ -196,7 +196,7 @@ void Fireworks::vf14() {
 
 int Fireworks::vf1C() {
     for (int i = 0; i < 6; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -214,7 +214,7 @@ void Fireworks::vf20() {
         }
         if (strcmp(field, "EFP") == 0) {
             strcpy(name, csv.fn_8005B9CC());
-            mEfp[atoi(csv.fn_8005B9CC())].fn_8023780C(name);
+            mEfp[atoi(csv.fn_8005B9CC())].LoadRequest(name);
         } else if (strcmp(field, "EFPLIGHT") == 0) {
             int index = atoi(csv.fn_8005B9CC());
             int delay = atoi(csv.fn_8005B9CC());

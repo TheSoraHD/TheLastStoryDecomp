@@ -90,8 +90,8 @@ inline void* GetCharaId_unk(const EnemyInfo_unk* info) {
 CopyRobotTask::CopyRobotTask(atn::Task* parent, const EnemyInfo_unk* info)
     : EnemyTask(parent, GetCharaId_unk(info)), m14B0(0), m14B4(0), m14B8(0) {
     m54C |= 0x2000;
-    m14BC.fn_8023780C("/effect/ef_bu016.efp");
-    m14C8.fn_8023780C("/effect/ef_bu017.efp");
+    m14BC.LoadRequest("/effect/ef_bu016.efp");
+    m14C8.LoadRequest("/effect/ef_bu017.efp");
     CharaInfo_unk* chara = fn_8020924C((int)info->m20);
     std::string path("/database/chara/motion/");
     path += chara->m18;
@@ -103,7 +103,7 @@ CopyRobotTask::~CopyRobotTask() {}
 
 int CopyRobotTask::vf0C() {
     int ready = 1;
-    if (fn_8013655C() != 0 || m14D4.fn_80473F50() != 0 || m14BC.fn_80237874() != 0 || m14C8.fn_80237874() != 0) {
+    if (fn_8013655C() != 0 || m14D4.fn_80473F50() != 0 || m14BC.IsLoading() != 0 || m14C8.IsLoading() != 0) {
         ready = 0;
     }
     if (ready != 0) {

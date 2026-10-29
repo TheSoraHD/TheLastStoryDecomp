@@ -284,7 +284,7 @@ int Brazier::vf1C() {
     if (mColli.fn_800580BC() != 0) {
         ret = 1;
     }
-    if (mEfp.fn_80237874() != 0 || mEfpRoll.fn_80237874() != 0 || mEfpCrush.fn_80237874() != 0) {
+    if (mEfp.IsLoading() != 0 || mEfpRoll.IsLoading() != 0 || mEfpCrush.IsLoading() != 0) {
         ret = 1;
     }
     return ret;
@@ -314,11 +314,11 @@ void Brazier::vf20() {
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_ROLL") == 0) {
-            mEfpRoll.fn_8023780C(csv.fn_8005B9CC());
+            mEfpRoll.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_CRUSH") == 0) {
-            mEfpCrush.fn_8023780C(csv.fn_8005B9CC());
+            mEfpCrush.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "PARAM") == 0) {
             mSpeed = fn_800DC288(csv.fn_8005B9CC());
             mRadius = fn_800DC288(csv.fn_8005B9CC());

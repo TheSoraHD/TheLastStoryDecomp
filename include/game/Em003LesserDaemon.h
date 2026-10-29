@@ -69,8 +69,8 @@ public:
     atn::EfpFile m1504;
     atn::EfpFile m1510;
     atn::EfpFile m151C;
-    ResLoader_unk m1528;
-    ResLoader_unk m1534;
+    atn::EffFile m1528;
+    atn::EffFile m1534;
     atn::EfpFile m1540;
     atn::EfpFile m154C;
     atn::EfpFile m1558;

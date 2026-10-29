@@ -94,10 +94,10 @@ EnemyTasha::EnemyTasha(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_enemy_tasha.csv\0");
     }
     m14B4.vf0C(path);
-    m1634.fn_8023780C("/effect/ef_bs007a.efp");
-    m1640.fn_8023780C("/effect/ef_sp007d.efp");
-    m164C.fn_8023780C("/effect/ef_cm006.efp");
-    m1658.fn_8023780C("/effect/ef_ev027.efp");
+    m1634.LoadRequest("/effect/ef_bs007a.efp");
+    m1640.LoadRequest("/effect/ef_sp007d.efp");
+    m164C.LoadRequest("/effect/ef_cm006.efp");
+    m1658.LoadRequest("/effect/ef_ev027.efp");
 }
 
 int EnemyTasha::vf0C() {
@@ -110,7 +110,7 @@ int EnemyTasha::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1640.fn_80237874() || m1634.fn_80237874() || m164C.fn_80237874() || m1658.fn_80237874()) {
+    if (m1640.IsLoading() || m1634.IsLoading() || m164C.IsLoading() || m1658.IsLoading()) {
         return 0;
     }
     mStatus.m18 |= 0x100;

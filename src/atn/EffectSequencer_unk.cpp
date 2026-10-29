@@ -11,7 +11,7 @@ extern "C" int sprintf(char* buf, const char* format, ...);
 extern "C" int fn_800DC12C(const char* s);          // inferred: string to int (atn/Util_unk.cpp)
 extern "C" float fn_800DC288(const char* s);        // inferred: string to float (atn/Util_unk.cpp)
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: CRC-32 of a string (atn/Util_unk.cpp)
-extern "C" int fn_80237784(ResLoader_unk* loader, int frames); // inferred: (atn/EfpHandle_unk.cpp)
+extern "C" int fn_80237784(atn::EffFile* loader, int frames); // inferred: (atn/EfpHandle_unk.cpp)
 
 // inferred: reader of the tagged text files (functions 0x800E0CF0-0x800E1A48 in
 // std/allocator_char); token type 1 opens a block "<Name args...>", 2 closes it. Names invented.
@@ -70,7 +70,7 @@ int EfpData_unk::fn_80243814(void* data, void* size) {
         mState = 2;
     case 2:
         for (unsigned int i = 0; i < mCount; i++) {
-            if (mElems[i].mLoader.fn_802376D0()) {
+            if (mElems[i].mLoader.IsLoading()) {
                 return 1;
             }
         }
@@ -104,7 +104,7 @@ void EfpData_unk::fn_802438D4(void* data, void* size) {
                 } else if (name == "Effect") {
                     char path[0x100];
                     sprintf(path, "%s", fn_800E114C(&parser, 0)->c_str());
-                    fn_802438C4(index)->mLoader.fn_80237654(path);
+                    fn_802438C4(index)->mLoader.LoadRequest(path);
                     fn_802438C4(index)->m00 = fn_800DC12C(fn_800E114C(&parser, 1)->c_str());
                     state = 1;
                 }

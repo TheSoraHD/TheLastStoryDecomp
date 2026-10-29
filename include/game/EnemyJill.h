@@ -165,7 +165,7 @@ public:
     JillColMat_unk m1660[4]; // inferred: "ColMat"
     JillColMat_unk* m17A0;
     atn::EfpFile m17A4; // inferred: "ef_ev114.efp"
-    ResLoader_unk m17B0;      // inferred: "/effect/ef_ev107a_01.eff"
+    atn::EffFile m17B0;      // inferred: "/effect/ef_ev107a_01.eff"
     int m17BC;
     int m17C0;
     int m17C4;

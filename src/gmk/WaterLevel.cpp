@@ -146,7 +146,7 @@ int WaterLevel::vf1C() {
     if (mModel.fn_8008B140() != 0) {
         return 1;
     }
-    return mEfp.fn_80237874() != 0;
+    return mEfp.IsLoading() != 0;
 }
 
 void WaterLevel::vf20() {
@@ -165,7 +165,7 @@ void WaterLevel::vf20() {
             strcpy(path, csv.fn_8005B9CC());
             fn_80092F1C(&mModel, path, 0, fn_800DC288(csv.fn_8005B9CC()));
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "MOTION") == 0) {
             strcpy(path, csv.fn_8005B9CC());
             fn_80097A88(&mModel, fn_802180A8(csv.fn_8005B9CC()), path);

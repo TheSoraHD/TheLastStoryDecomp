@@ -134,7 +134,7 @@ public:
     atn::EfpFile m15A4; // inferred: "ef_bs072f.efp"
     atn::EfpFile m15B0; // inferred: "ef_bs054d.efp"
     atn::EfpFile m15BC; // inferred: "ef_bs054a.efp"
-    ResLoader_unk m15C8;      // inferred: "ef_bs054e_01.eff"
+    atn::EffFile m15C8;      // inferred: "ef_bs054e_01.eff"
     atn::Vector3 m15D4;
     MtxBlock_unk m15E0;
     atn::EfpFile m1610; // inferred: "ef_bu040a.efp"
@@ -149,7 +149,7 @@ public:
     int m165C;
     int m1660;
     int m1664;
-    ResLoader_unk m1668;      // inferred: "ef_bs051b.eff"
+    atn::EffFile m1668;      // inferred: "ef_bs051b.eff"
     atn::EfpFile m1674; // inferred: "ef_bd008d.efp"
     atn::EfpFile m1680; // inferred: "ef_bu047b.efp"
     atn::EfpFile m168C; // inferred: "ef_bu047c.efp"

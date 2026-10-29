@@ -99,12 +99,12 @@ Em202Spider::Em202Spider(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14B0.vf0C(path.c_str());
-    m1550.fn_8023780C("/effect/ef_uc019.efp");
-    m155C.fn_80237654("/effect/ef_sk002b.eff");
-    m1568.fn_8023780C("/effect/ef_uc001.efp");
-    m1574.fn_8023780C("/effect/ef_sk002d.efp");
-    m1580.fn_8023780C("/effect/ef_uc007.efp");
-    m158C.fn_8023780C("/effect/ef_sc003_01b.efp");
+    m1550.LoadRequest("/effect/ef_uc019.efp");
+    m155C.LoadRequest("/effect/ef_sk002b.eff");
+    m1568.LoadRequest("/effect/ef_uc001.efp");
+    m1574.LoadRequest("/effect/ef_sk002d.efp");
+    m1580.LoadRequest("/effect/ef_uc007.efp");
+    m158C.LoadRequest("/effect/ef_sc003_01b.efp");
 }
 
 Em202Spider::~Em202Spider() {}
@@ -134,9 +134,9 @@ inline RoutePlace_unk* FindRoutePlace3_unk(int id) {
 // NONMATCHING: 99.90% - size/capacity registers of the inlined push_back (known open case) and the name of
 // the pool of __allocate (lbl_80775A88, another unit)
 int Em202Spider::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1550.fn_80237874() == 0 &&
-        m155C.fn_802376D0() == 0 && m1568.fn_80237874() == 0 && m1574.fn_80237874() == 0 &&
-        m1580.fn_80237874() == 0 && m158C.fn_80237874() == 0 && m14B0.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1550.IsLoading() == 0 &&
+        m155C.IsLoading() == 0 && m1568.IsLoading() == 0 && m1574.IsLoading() == 0 &&
+        m1580.IsLoading() == 0 && m158C.IsLoading() == 0 && m14B0.fn_80473F50() == 0) {
         if (m14B0.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
             do {

@@ -117,7 +117,7 @@ public:
     int mWaitRand;             // 0xF04: "PARAM" 4
     int mF08;
     atn::EfpFile mEfp;   // 0xF0C: "EFP"
-    ResLoader_unk mEff;        // 0xF18: "EFF"
+    atn::EffFile mEff;        // 0xF18: "EFF"
     int mF24;                  // inferred: unused (the object is 0xF28 bytes)
 };
 

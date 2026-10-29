@@ -122,7 +122,7 @@ public:
 
     CharaRes_unk m14D4;       // inferred: own copy of the character resource (m64 points to it)
     atn::EfpFile m1564; // inferred: "/effect/ef_bs023a.efp"
-    ResLoader_unk m1570;      // inferred: "/effect/ef_bs023b.eff"
+    atn::EffFile m1570;      // inferred: "/effect/ef_bs023b.eff"
     atn::EfpFile m157C; // inferred: "/effect/ef_bs023d.efp"
     atn::Matrix3x4 m1588;     // inferred: placement of the ray effect (m1570)
     int m15B8;                // inferred: "Frame" of the ray attack

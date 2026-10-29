@@ -31,7 +31,7 @@ MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, void* arg, atn::CsvTab*
 
 MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv)
     : MapPartsBase(parent, arg), m5C(0), mMode(0), mRate(0), mDone(0) {
-    mEfp.fn_8023780C(csv->fn_8005B9CC());
+    mEfp.LoadRequest(csv->fn_8005B9CC());
     const char* mode = csv->fn_8005B9CC();
     if (strcmp(mode, "ONCE") == 0) {
         mMode = 0;
@@ -44,7 +44,7 @@ MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv)
 }
 
 int MapPartsEfp::vf0C() {
-    return mEfp.fn_80237874() == 0;
+    return mEfp.IsLoading() == 0;
 }
 
 // NONMATCHING: 98.6% - stores and stack layout match, but the 0.0f/1.0f constants land in

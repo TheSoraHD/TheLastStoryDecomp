@@ -179,7 +179,7 @@ void RandomItem::vf14() {
 }
 
 int RandomItem::vf1C() {
-    if (mEfp.fn_80237874() != 0 || mEfpItem.fn_80237874() != 0 || mEfpGet.fn_80237874() != 0) {
+    if (mEfp.IsLoading() != 0 || mEfpItem.IsLoading() != 0 || mEfpGet.IsLoading() != 0) {
         return 1;
     }
     return mAnime.fn_8044E1BC() != 0;
@@ -197,11 +197,11 @@ void RandomItem::vf20() {
             continue;
         }
         if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_ITEM") == 0) {
-            mEfpItem.fn_8023780C(csv.fn_8005B9CC());
+            mEfpItem.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_GET") == 0) {
-            mEfpGet.fn_8023780C(csv.fn_8005B9CC());
+            mEfpGet.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "DROP") == 0) {
             m120 = fn_800DC288(csv.fn_8005B9CC());
             m124 = atoi(csv.fn_8005B9CC());

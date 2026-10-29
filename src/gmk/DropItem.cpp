@@ -599,11 +599,11 @@ void DropItem::vf14() {
 
 int DropItem::vf1C() {
     for (int i = 0; i < 7; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
-    return mEfpGet.fn_80237874() != 0;
+    return mEfpGet.IsLoading() != 0;
 }
 
 void DropItem::vf20() {
@@ -616,10 +616,10 @@ void DropItem::vf20() {
             continue;
         }
         if (strcmp(field, "EFP") == 0) {
-            efp->fn_8023780C(csv.fn_8005B9CC());
+            efp->LoadRequest(csv.fn_8005B9CC());
             efp++;
         } else if (strcmp(field, "EFP_GET") == 0) {
-            mEfpGet.fn_8023780C(csv.fn_8005B9CC());
+            mEfpGet.LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }

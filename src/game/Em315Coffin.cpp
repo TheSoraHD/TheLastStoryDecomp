@@ -51,7 +51,7 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, Mtx* mtx, int arg5,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, Mtx* mtx, int arg5,
                             int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -105,10 +105,10 @@ Em315Coffin::Em315Coffin(atn::Task* parent, EnemyInfo_unk* info)
     m14B4.vf0C(path);
     mStatus.mParamB.m9C |= 0x10;
     m14D4 = *fn_80204E04(mType, 1);
-    m1564.fn_8023780C("/effect/ef_bs023a.efp");
-    m1570.fn_80237654("/effect/ef_bs023b.eff");
-    m157C.fn_8023780C("/effect/ef_bs023d.efp");
-    m1620.fn_8023780C("/effect/ef_cm007.efp");
+    m1564.LoadRequest("/effect/ef_bs023a.efp");
+    m1570.LoadRequest("/effect/ef_bs023b.eff");
+    m157C.LoadRequest("/effect/ef_bs023d.efp");
+    m1620.LoadRequest("/effect/ef_cm007.efp");
     m15C8.mId = 0x546;
     m15C8.mInterval = 180;
     m15D8.mId = 0x547;
@@ -130,10 +130,10 @@ int Em315Coffin::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1564.fn_80237874() || m1570.fn_802376D0() || m157C.fn_80237874()) {
+    if (m1564.IsLoading() || m1570.IsLoading() || m157C.IsLoading()) {
         return 0;
     }
-    if (m1620.fn_80237874() != 0) {
+    if (m1620.IsLoading() != 0) {
         return 0;
     }
     m14D4.m30 = 5.0f * m5B0;

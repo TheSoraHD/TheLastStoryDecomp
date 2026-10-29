@@ -76,7 +76,7 @@ void WindyItem::Start() {
 // drawing).
 
 int WindyItem::vf1C() {
-    if (mEfp.fn_80237874() != 0 || mEff.fn_802376D0() != 0) {
+    if (mEfp.IsLoading() != 0 || mEff.IsLoading() != 0) {
         return 1;
     }
     WindySlot_unk* slot = mSlots;
@@ -118,9 +118,9 @@ void WindyItem::vf20() {
             mGustLength = atoi(csv.fn_8005B9CC());
             mEE8 = atoi(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFF") == 0) {
-            mEff.fn_80237654(csv.fn_8005B9CC());
+            mEff.LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }
@@ -160,7 +160,7 @@ extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Mod
 extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" int fn_80239D58(WindyEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch

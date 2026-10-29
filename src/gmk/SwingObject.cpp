@@ -121,7 +121,7 @@ static void LoadSwing_unk(const char* data, int size, gmk::SwingParam_unk* param
                 nodes[10 + i] = value;
             }
         } else if (strcmp(field, "EFP") == 0) {
-            efp->fn_8023780C(csv.fn_8005B9CC());
+            efp->LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
     for (; count < 2; count++) {
@@ -290,7 +290,7 @@ SwingObject::~SwingObject() {}
 
 // NONMATCHING: 99.98% - .sdata2 constant order
 int SwingObject::vf0C() {
-    if (fn_803EC91C() == 0 && mModel.GetModel_unk()->fn_8008B140() == 0 && mEfp.fn_80237874() == 0) {
+    if (fn_803EC91C() == 0 && mModel.GetModel_unk()->fn_8008B140() == 0 && mEfp.IsLoading() == 0) {
         mNodeMtx[0] =
             mModel.GetModel_unk()->GetNodeMtx_unk(fn_800928B0(mModel.GetModel_unk(), mCore.mNodes[0], 0));
         mNodeMtx[1] =

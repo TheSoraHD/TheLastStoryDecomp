@@ -149,10 +149,10 @@ Em308ParmCrab::Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info)
     m1530 = fn_80219E6C(0x3F8);
     m14F4 = fn_80219E6C(0x3F7);
     m1578 = fn_80219E6C(0x400);
-    m15F4.fn_8023780C("/effect/ef_uc001.efp");
-    m1520.fn_8023780C("/effect/ef_sk002d.efp");
-    m14DC.fn_8023780C("/effect/ef_uc007.efp");
-    m1600.fn_8023780C("/effect/ef_sc003_01b.efp");
+    m15F4.LoadRequest("/effect/ef_uc001.efp");
+    m1520.LoadRequest("/effect/ef_sk002d.efp");
+    m14DC.LoadRequest("/effect/ef_uc007.efp");
+    m1600.LoadRequest("/effect/ef_sc003_01b.efp");
 }
 
 Em308ParmCrab::~Em308ParmCrab() {}
@@ -161,8 +161,8 @@ Em308ParmCrab::~Em308ParmCrab() {}
 // NONMATCHING: 99.95% - r3/r4 of the inlined std::vector::push_back (known blocker) and the message of
 // vector::__allocate (lbl_80775A88, a pool of another file)
 int Em308ParmCrab::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15F4.fn_80237874() == 0 &&
-        m1520.fn_80237874() == 0 && m14DC.fn_80237874() == 0 && m1600.fn_80237874() == 0 &&
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15F4.IsLoading() == 0 &&
+        m1520.IsLoading() == 0 && m14DC.IsLoading() == 0 && m1600.IsLoading() == 0 &&
         m160C.fn_80473F50() == 0) {
         if (m160C.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m160C.fn_80470580(), m160C.fn_8047059C());

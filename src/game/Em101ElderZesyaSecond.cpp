@@ -150,15 +150,15 @@ Em101ElderZesyaSecond::Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* i
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14B0.vf0C(path.c_str());
-    m1518.fn_8023780C("cm002_00.efp");
-    m1524.fn_8023780C("ef_sk026a.efp");
-    m1530.fn_8023780C("ef_bs007a.efp");
-    m153C.fn_8023780C("ef_bs066e.efp");
-    m155C.fn_8023780C("ef_bs067a.efp");
-    m1568.fn_8023780C("ef_bs067b.efp");
-    m1574.fn_8023780C("ef_ui002b.efp");
+    m1518.LoadRequest("cm002_00.efp");
+    m1524.LoadRequest("ef_sk026a.efp");
+    m1530.LoadRequest("ef_bs007a.efp");
+    m153C.LoadRequest("ef_bs066e.efp");
+    m155C.LoadRequest("ef_bs067a.efp");
+    m1568.LoadRequest("ef_bs067b.efp");
+    m1574.LoadRequest("ef_ui002b.efp");
     m121C.reset(new (1, "", "", 0) atn::EfpFile());
-    m121C->fn_8023780C("ef_bu013.efp");
+    m121C->LoadRequest("ef_bu013.efp");
     m14FC[0] = 0x5E6;
     mFlagB5 = 1;
     m14FC[1] = 0x5EA;
@@ -171,8 +171,8 @@ Em101ElderZesyaSecond::~Em101ElderZesyaSecond() {}
 // of the growth path and an extra saved register)
 int Em101ElderZesyaSecond::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14B0.fn_80473F50() == 0 &&
-        m1518.fn_80237874() == 0 && m153C.fn_80237874() == 0 && m155C.fn_80237874() == 0 &&
-        m1568.fn_80237874() == 0 && m1574.fn_80237874() == 0 && m1530.fn_80237874() == 0) {
+        m1518.IsLoading() == 0 && m153C.IsLoading() == 0 && m155C.IsLoading() == 0 &&
+        m1568.IsLoading() == 0 && m1574.IsLoading() == 0 && m1530.IsLoading() == 0) {
         if (m14B0.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
             do {

@@ -104,12 +104,12 @@ ChaseManager::ChaseManager(atn::Task* parent)
     : atn::Task(parent), mState(0), m4C(0), m50(0), m54(0), mFrames(0), mGoalId(0), mGoal(0.0f, 0.0f, 0.0f),
       mCatcher(0), mCaught(0), m1A4(1.0f), m1A8(1.0f), m1AC(1.0f), m1B0(1.0f), m1B4(-1.0f), mShowGoal(0),
       mEffect(0), mMarker(-1) {
-    mFC[0].fn_80237654("ef_ui009a.eff");
-    m114[0].fn_80237654("ef_ui010b.eff");
-    m12C[0].fn_80237654("ef_ui010c.eff");
-    mFC[1].fn_80237654("ef_ui009a.eff");
-    m114[1].fn_80237654("ef_ui009b.eff");
-    m12C[1].fn_80237654("ef_ui010c.eff");
+    mFC[0].LoadRequest("ef_ui009a.eff");
+    m114[0].LoadRequest("ef_ui010b.eff");
+    m12C[0].LoadRequest("ef_ui010c.eff");
+    mFC[1].LoadRequest("ef_ui009a.eff");
+    m114[1].LoadRequest("ef_ui009b.eff");
+    m12C[1].LoadRequest("ef_ui010c.eff");
     SetEffect_unk(0);
 }
 
@@ -183,8 +183,8 @@ void ChaseManager::fn_80182890() {
 
 int ChaseManager::vf0C() {
     int ret = 0;
-    if (mFC[0].fn_802376D0() == 0 && m114[0].fn_802376D0() == 0 && mFC[1].fn_802376D0() == 0 &&
-        m114[1].fn_802376D0() == 0 && m12C[0].fn_802376D0() == 0 && m12C[1].fn_802376D0() == 0) {
+    if (mFC[0].IsLoading() == 0 && m114[0].IsLoading() == 0 && mFC[1].IsLoading() == 0 &&
+        m114[1].IsLoading() == 0 && m12C[0].IsLoading() == 0 && m12C[1].IsLoading() == 0) {
         ret = 1;
     }
     return ret;
@@ -193,7 +193,7 @@ int ChaseManager::vf0C() {
 extern "C" int fn_80239D58(ChaseEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_8023A098(ChaseEffectMgr_unk* mgr, void* owner, int arg2, int arg3);
-extern "C" void fn_8023A680(ChaseEffectMgr_unk* mgr, ResLoader_unk* res, int a, int b, Mtx* mtx, int c, int d,
+extern "C" void fn_8023A680(ChaseEffectMgr_unk* mgr, atn::EffFile* res, int a, int b, Mtx* mtx, int c, int d,
                             const float* color, float scale, int e, int f, int g); // inferred: starts an effect
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);

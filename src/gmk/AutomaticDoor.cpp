@@ -422,7 +422,7 @@ int AutomaticDoor::vf1C() {
     }
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            if (mParams[i].mEfp[j].fn_80237874() != 0) {
+            if (mParams[i].mEfp[j].IsLoading() != 0) {
                 return 1;
             }
         }
@@ -462,7 +462,7 @@ void AutomaticDoor::vf20() {
             } else if (strcmp(field, "_EFF") == 0) {
                 for (int i = 0; i < 3; i++) {
                     if (strlen(csv.fn_8005B9CC()) != 0) {
-                        mParams[0].mEfp[i].fn_8023780C(csv.mField);
+                        mParams[0].mEfp[i].LoadRequest(csv.mField);
                     }
                 }
             }
@@ -475,7 +475,7 @@ void AutomaticDoor::vf20() {
             } else if (strcmp(field, "_EFF") == 0) {
                 for (int i = 0; i < 3; i++) {
                     if (strlen(csv.fn_8005B9CC()) != 0) {
-                        mParams[2].mEfp[i].fn_8023780C(csv.mField);
+                        mParams[2].mEfp[i].LoadRequest(csv.mField);
                     }
                 }
             }
@@ -488,7 +488,7 @@ void AutomaticDoor::vf20() {
             } else if (strcmp(field, "_EFF") == 0) {
                 for (int i = 0; i < 3; i++) {
                     if (strlen(csv.fn_8005B9CC()) != 0) {
-                        mParams[1].mEfp[i].fn_8023780C(csv.mField);
+                        mParams[1].mEfp[i].LoadRequest(csv.mField);
                     }
                 }
             }

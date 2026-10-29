@@ -68,12 +68,12 @@ public:
     atn::EfpFile m1528;
     atn::EfpFile m1534;
     atn::EfpFile m1540;
-    ResLoader_unk m154C;
+    atn::EffFile m154C;
     atn::EfpFile m1558;
     atn::EfpFile m1564;
     atn::EfpFile m1570;
     atn::EfpFile m157C;
-    ResLoader_unk m1588;
+    atn::EffFile m1588;
     atn::EfpFile m1594;
     atn::EfpFile m15A0;
     atn::SoundRef m15AC;

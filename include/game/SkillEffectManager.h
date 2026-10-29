@@ -87,13 +87,13 @@ public:
     atn::EfpFile m287C;
     atn::EfpFile m2888;
     atn::EfpFile m2894;
-    ResLoader_unk m28A0;
+    atn::EffFile m28A0;
     atn::EfpFile m28AC;
     atn::EfpFile m28B8;
-    ResLoader_unk m28C4;
-    ResLoader_unk m28D0;
-    ResLoader_unk m28DC;
-    ResLoader_unk m28E8;
+    atn::EffFile m28C4;
+    atn::EffFile m28D0;
+    atn::EffFile m28DC;
+    atn::EffFile m28E8;
     atn::EfpFile m28F4;
     atn::EfpFile m2900;
     atn::EfpFile m290C;

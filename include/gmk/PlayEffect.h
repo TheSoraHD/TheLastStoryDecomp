@@ -18,7 +18,7 @@ public:
         Effect_unk() {
             mSe[0] = 0;
         }
-        ResLoader_unk mRes;      // 0x00: "EFF"
+        atn::EffFile mRes;      // 0x00: "EFF"
         atn::EfpFile mEfp; // 0x0C: "EFP"
         char mSe[0x20];          // 0x18: "SE"
     };

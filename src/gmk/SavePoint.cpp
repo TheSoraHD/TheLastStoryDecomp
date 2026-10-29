@@ -240,7 +240,7 @@ int SavePoint::vf1C() {
         return 1;
     }
     for (int i = 0; i < 3; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -260,7 +260,7 @@ void SavePoint::vf20() {
             fn_8008AD4C(mModel.GetModel_unk(), csv.fn_8005B9CC(), 0);
             fn_803EC7A0(mModel.GetModel_unk(), &csv);
         } else if (strcmp(field, "EFP") == 0 && count < 3) {
-            mEfp[count++].fn_8023780C(csv.fn_8005B9CC());
+            mEfp[count++].LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }

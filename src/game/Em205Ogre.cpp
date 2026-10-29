@@ -36,7 +36,7 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: plays an effect resource (as in game/ColliAttrManager.cpp; the color is passed as null here)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const void* color, float scale, int e, int f, int g);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance
@@ -139,8 +139,8 @@ Em205Ogre::Em205Ogre(atn::Task* parent, EnemyInfo_unk* info)
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
         MapInfo_unk* map = fn_80373148(lbl_8087F430);
         if (map->m48 == 2 && map->m4C == 10 && map->m50 == 2) {
-            m1514.reset(new (3, "", "", 0) ResLoader_unk());
-            m1514->fn_80237654("/data/eff/gm001_000a02.eff");
+            m1514.reset(new (3, "", "", 0) atn::EffFile());
+            m1514->LoadRequest("/data/eff/gm001_000a02.eff");
         }
     }
     mFlagB4 = 1;
@@ -159,7 +159,7 @@ int Em205Ogre::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1514 && m1514->fn_802376D0()) {
+    if (m1514 && m1514->IsLoading()) {
         return 0;
     }
     fn_802B7AF8((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());

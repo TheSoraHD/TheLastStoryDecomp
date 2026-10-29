@@ -55,8 +55,8 @@ Em312DarkServant::Em312DarkServant(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_em312_00_00.csv\0");
     }
     m14B4.vf0C(path);
-    m1580.fn_8023780C("/effect/ef_bs007a.efp");
-    m158C.fn_8023780C("/effect/ef_bs027a.efp");
+    m1580.LoadRequest("/effect/ef_bs007a.efp");
+    m158C.LoadRequest("/effect/ef_bs027a.efp");
     m14EC[0].mSkillId = 0x4E2;
     m14EC[0].mCoolTime = 240;
     m14EC[1].mSkillId = 0x4E3;
@@ -106,7 +106,7 @@ int Em312DarkServant::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1580.fn_80237874() || m158C.fn_80237874()) {
+    if (m1580.IsLoading() || m158C.IsLoading()) {
         return 0;
     }
     fn_8030DEB0((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());

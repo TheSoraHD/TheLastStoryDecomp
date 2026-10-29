@@ -141,17 +141,17 @@ Em309Ghoul::Em309Ghoul(atn::Task* parent, EnemyInfo_unk* info)
       m16AC(300.0f), m16B0(3), m16B4(30.0f), m16B8(40.0f), m16BC(10.0f), m16C0(20.0f), m16C4(7.0f), m16C8(18.0f),
       m16CC(0), m16D0(1800), m16D4(3), m16D8(50), m16DC(10), m16E0(18.0f), m16E4(30), m16E8(10), m16EC(25.0f),
       m16F0(15.0f), m16F4(12.0f), m16F8(15) {
-    m1528.fn_8023780C("/effect/ef_uc027a.efp");
-    m1534.fn_8023780C("/effect/ef_uc027c.efp");
-    m1588.fn_80237654("/effect/ef_mb001c.eff");
-    m1540.fn_8023780C("/effect/ef_sk030a.efp");
-    m154C.fn_80237654("/effect/ef_sk030b.eff");
-    m1558.fn_8023780C("/effect/ef_sk030b.efp");
-    m1564.fn_8023780C("/effect/ef_bu002.efp");
-    m1570.fn_8023780C("/effect/ef_bu004.efp");
-    m157C.fn_8023780C("/effect/ef_bu003.efp");
-    m1594.fn_8023780C("/effect/ef_bd001.efp");
-    m15A0.fn_8023780C("ef_bs068.efp");
+    m1528.LoadRequest("/effect/ef_uc027a.efp");
+    m1534.LoadRequest("/effect/ef_uc027c.efp");
+    m1588.LoadRequest("/effect/ef_mb001c.eff");
+    m1540.LoadRequest("/effect/ef_sk030a.efp");
+    m154C.LoadRequest("/effect/ef_sk030b.eff");
+    m1558.LoadRequest("/effect/ef_sk030b.efp");
+    m1564.LoadRequest("/effect/ef_bu002.efp");
+    m1570.LoadRequest("/effect/ef_bu004.efp");
+    m157C.LoadRequest("/effect/ef_bu003.efp");
+    m1594.LoadRequest("/effect/ef_bd001.efp");
+    m15A0.LoadRequest("ef_bs068.efp");
     m1674[0].vf0C("camera/battle/cm000_em309_00.xsca");
     m1674[1].vf0C("camera/battle/cm000_em309_01.xsca");
     if ((int)info->m20 == 0x497C9) {
@@ -233,9 +233,9 @@ int Em309Ghoul::vf0C() {
     if (fn_8013655C() != 0) {
         ret = 0;
     }
-    if (m1528.fn_80237874() || m1534.fn_80237874() || m1588.fn_802376D0() || m1540.fn_80237874() ||
-        m1564.fn_80237874() || m157C.fn_80237874() || m1570.fn_80237874() || m1558.fn_80237874() ||
-        m1594.fn_80237874() || m15A0.fn_80237874()) {
+    if (m1528.IsLoading() || m1534.IsLoading() || m1588.IsLoading() || m1540.IsLoading() ||
+        m1564.IsLoading() || m157C.IsLoading() || m1570.IsLoading() || m1558.IsLoading() ||
+        m1594.IsLoading() || m15A0.IsLoading()) {
         ret = 0;
     }
     if (m1674[0].fn_80473F50() || m1674[1].fn_80473F50()) {

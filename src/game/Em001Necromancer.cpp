@@ -245,11 +245,11 @@ Em001Necromancer::Em001Necromancer(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14B0.vf0C(path.c_str());
-    m1578.fn_8023780C("/effect/cm002/cm002_00.efp");
-    m1584.fn_8023780C("/effect/ef_sk026a.efp");
-    m1590.fn_8023780C("/effect/ef_bs007a.efp");
+    m1578.LoadRequest("/effect/cm002/cm002_00.efp");
+    m1584.LoadRequest("/effect/ef_sk026a.efp");
+    m1590.LoadRequest("/effect/ef_bs007a.efp");
     m121C.reset(new (1, "", "", 0) atn::EfpFile());
-    m121C->fn_8023780C("/effect/ef_bu013.efp");
+    m121C->LoadRequest("/effect/ef_bu013.efp");
     (m15BC = fn_801F3FF8(this, "ui_point_slash.d2a", 0))->fn_800D246C(1);
     m1520[0] = fn_80219E6C(0x65);
     m1520[1] = fn_80219E6C(0x65);
@@ -325,11 +325,11 @@ int Em001Necromancer::vf0C() {
                 } while (csv.fn_8005BBF8());
             }
             m15A8 = 1;
-            m159C.fn_8023780C(effect.c_str());
+            m159C.LoadRequest(effect.c_str());
         }
     } else if (m15A8 == 1) {
-        if (fn_8013655C() == 0 && (m1438 == 0 || fn_80244CA0(m1438) != 0) && m1578.fn_80237874() == 0 &&
-            m1590.fn_80237874() == 0 && m159C.fn_80237874() == 0 && fn_80244CA0(m15BC) != 0) {
+        if (fn_8013655C() == 0 && (m1438 == 0 || fn_80244CA0(m1438) != 0) && m1578.IsLoading() == 0 &&
+            m1590.IsLoading() == 0 && m159C.IsLoading() == 0 && fn_80244CA0(m15BC) != 0) {
             m15BC->fn_800D246C(0);
             m15BC->FreezeTask();
             fn_80244CBC((NecroD2A_unk*)m15BC, 0);

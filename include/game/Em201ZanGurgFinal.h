@@ -128,7 +128,7 @@ public:
     atn::EfpFile m15DC;  // inferred: "/effect/ef_bu040e.efp"
     atn::EfpFile m15E8;  // inferred: "/effect/ef_bu040f.efp"
     atn::EfpFile m15F4;  // inferred: "/effect/ef_bu040h.efp"
-    ResLoader_unk m1600;       // inferred: "/effect/ef_bu040g_01.eff"
+    atn::EffFile m1600;       // inferred: "/effect/ef_bu040g_01.eff"
     atn::EfpFile m160C;  // inferred: "ef_we006.efp"
     atn::EfpFile m1618;  // inferred: "ef_bs073f.efp"
     chr::CharaPart_unk* m1624; // inferred: the shield (created by fn_800457A4)

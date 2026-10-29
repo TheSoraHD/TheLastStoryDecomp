@@ -310,13 +310,13 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m1630.vf0C(path.c_str());
-    m1510.fn_8023780C("/effect/ef_bs030c.efp");
-    m1520.fn_8023780C("/effect/ef_bu022.efp");
-    m152C.fn_8023780C("/effect/ef_bu023.efp");
-    m1564.fn_8023780C("/effect/ef_bs028.efp");
-    m1570.fn_8023780C("/effect/ef_bs029a.efp");
-    m157C.fn_8023780C("/effect/ef_bs029c.efp");
-    m15CC.fn_8023780C("/effect/ef_bd005.efp");
+    m1510.LoadRequest("/effect/ef_bs030c.efp");
+    m1520.LoadRequest("/effect/ef_bu022.efp");
+    m152C.LoadRequest("/effect/ef_bu023.efp");
+    m1564.LoadRequest("/effect/ef_bs028.efp");
+    m1570.LoadRequest("/effect/ef_bs029a.efp");
+    m157C.LoadRequest("/effect/ef_bs029c.efp");
+    m15CC.LoadRequest("/effect/ef_bd005.efp");
     m15E8.clear();
     m15F4.clear();
     m1624.clear();
@@ -329,9 +329,9 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
 // NONMATCHING: draft (same reader as Em302Kraken::vf0C)
 int Em302KrakenMp::vf0C() {
     if (m14D4 == 0) {
-        if (fn_8013655C() == 0 && m1510.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
-            m152C.fn_80237874() == 0 && m1564.fn_80237874() == 0 && m1570.fn_80237874() == 0 &&
-            m157C.fn_80237874() == 0 && m15CC.fn_80237874() == 0 && m1630.fn_80473F50() == 0) {
+        if (fn_8013655C() == 0 && m1510.IsLoading() == 0 && m1520.IsLoading() == 0 &&
+            m152C.IsLoading() == 0 && m1564.IsLoading() == 0 && m1570.IsLoading() == 0 &&
+            m157C.IsLoading() == 0 && m15CC.IsLoading() == 0 && m1630.fn_80473F50() == 0) {
             if (m1630.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
                 atn::Csv csv((const char*)m1630.fn_80470580(), m1630.fn_8047059C());
                 int zero = 0;
@@ -417,7 +417,7 @@ int Em302KrakenMp::vf0C() {
                         m15B8 = fn_800DC288(csv.fn_8005B9CC());
                         m15BC = fn_800DC288(csv.fn_8005B9CC());
                     } else if (strcmp(key, "anger_efp") == 0) {
-                        m1588.fn_8023780C(csv.fn_8005B9CC());
+                        m1588.LoadRequest(csv.fn_8005B9CC());
                     }
                 } while (csv.fn_8005BBF8());
             }
@@ -433,7 +433,7 @@ int Em302KrakenMp::vf0C() {
             ClearModelFlag_unk((atn::Model*)&mMotion, 4);
         }
     } else if (m14D4 == 1) {
-        if (m1588.fn_80237874() == 0) {
+        if (m1588.IsLoading() == 0) {
             m14D4 = 2;
             return 1;
         }

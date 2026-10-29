@@ -33,7 +33,7 @@ extern "C" OnOffEffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8023A8B4(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(OnOffEffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(OnOffEffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_8023A02C(OnOffEffectMgr_unk* mgr, void* owner, int arg2, int arg3);
@@ -366,10 +366,10 @@ int OnOff::vf1C() {
     if (mColli.fn_800580BC() != 0) {
         return 1;
     }
-    if (mEff.fn_802376D0() != 0) {
+    if (mEff.IsLoading() != 0) {
         return 1;
     }
-    if (mEfp.fn_80237874() != 0) {
+    if (mEfp.IsLoading() != 0) {
         return 1;
     }
     if (mMap != 0 && (mMap->mFlags & 2) != 2) {
@@ -420,9 +420,9 @@ void OnOff::vf20() {
             mSphereRadius = fn_800DC288(csv.fn_8005B9CC());
             mHasSphere = 1;
         } else if (strcmp(field, "EFF") == 0) {
-            mEff.fn_80237654(csv.fn_8005B9CC());
+            mEff.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "MAP") == 0) {
             mMap = fn_8049D68C(this, csv.fn_8005B9CC());
             if (mMap != 0) {

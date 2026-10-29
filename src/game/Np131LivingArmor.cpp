@@ -21,7 +21,7 @@ public:
 } // namespace atn
 extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_8023A680(atn::EffectManager* mgr, ResLoader_unk* res, int arg2, int arg3, const void* mtx,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, const void* mtx,
                             const atn::Vector3* pos, const atn::Vector3* rot, const EffectColor_unk* color,
                             int arg8, int arg9, int arg10, float scale); // inferred: plays an effect
 extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
@@ -77,16 +77,16 @@ static int sChecked;
 Np131LivingArmor::Np131LivingArmor(atn::Task* parent, const EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14E0(0), m14E4(0), m14E8(0), m14F8(0), m14FC(0) {
     m54C |= 0x02000000;
-    m14B8.fn_80237654("ef_uc069.eff");
-    m14C4.fn_80237654("gm005_009a_01.eff");
-    m14D0.fn_8023780C("ef_uc068.efp");
+    m14B8.LoadRequest("ef_uc069.eff");
+    m14C4.LoadRequest("gm005_009a_01.eff");
+    m14D0.LoadRequest("ef_uc068.efp");
     mFlagB13 = 1;
 }
 
 Np131LivingArmor::~Np131LivingArmor() {}
 
 int Np131LivingArmor::vf0C() {
-    if (m14B8.fn_802376D0() != 0 || m14C4.fn_802376D0() != 0 || m14D0.fn_80237874() != 0) {
+    if (m14B8.IsLoading() != 0 || m14C4.IsLoading() != 0 || m14D0.IsLoading() != 0) {
         return 0;
     }
     if (BattleCharaTask::vf0C() != 0) {

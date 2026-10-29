@@ -79,7 +79,7 @@ AttractHatePoint::~AttractHatePoint() {
 }
 
 int AttractHatePoint::vf1C() {
-    if (mEfpOn.fn_80237874() != 0 || mEfpAttract.fn_80237874() != 0 || mEfpWait.fn_80237874() != 0) {
+    if (mEfpOn.IsLoading() != 0 || mEfpAttract.IsLoading() != 0 || mEfpWait.IsLoading() != 0) {
         return 1;
     }
     return 0;
@@ -96,11 +96,11 @@ void AttractHatePoint::vf20() {
         if (strcmp(field, "EFP") == 0) {
             const char* kind = csv.fn_8005B9CC();
             if (strcmp(kind, "ON") == 0) {
-                mEfpOn.fn_8023780C(csv.fn_8005B9CC());
+                mEfpOn.LoadRequest(csv.fn_8005B9CC());
             } else if (strcmp(kind, "ATTRACT") == 0) {
-                mEfpAttract.fn_8023780C(csv.fn_8005B9CC());
+                mEfpAttract.LoadRequest(csv.fn_8005B9CC());
             } else if (strcmp(kind, "WAIT") == 0) {
-                mEfpWait.fn_8023780C(csv.fn_8005B9CC());
+                mEfpWait.LoadRequest(csv.fn_8005B9CC());
             }
         }
     } while (csv.fn_8005BBF8() != 0);

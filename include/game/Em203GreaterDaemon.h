@@ -24,14 +24,14 @@ struct DaemonPlaceList_unk : public std::vector<RoutePlace_unk*> {};
 
 // inferred: two effect resources loaded together (0x18 bytes, implicit destructor)
 struct DaemonResPair_unk {
-    ResLoader_unk m00;
-    ResLoader_unk m0C;
+    atn::EffFile m00;
+    atn::EffFile m0C;
 };
 
 // inferred: nonzero while either resource of the pair is loading (weak copy 0x80288DD8)
 extern "C" inline int fn_80288DD8(DaemonResPair_unk* pair) {
     int result = 0;
-    if (pair->m00.fn_802376D0() != 0 || pair->m0C.fn_802376D0() != 0) {
+    if (pair->m00.IsLoading() != 0 || pair->m0C.IsLoading() != 0) {
         result = 1;
     }
     return result;
@@ -190,7 +190,7 @@ public:
     int m1554;
     float m1558;
     atn::EfpFile m155C; // inferred: "/effect/hateline/ef_bs014a.efp"
-    ResLoader_unk m1568;      // inferred: "/effect/hateline/ef_bs012b_01.eff"
+    atn::EffFile m1568;      // inferred: "/effect/hateline/ef_bs012b_01.eff"
     atn::EfpFile m1574; // inferred: "ef_ev093.efp"
     atn::Matrix3x4 m1580;
     PlayerTask* m15B0; // inferred: next character of the grand attack

@@ -92,7 +92,7 @@ public:
     int m15A4;                // inferred: charge counter of the needle (fn_802F3BE8)
     int m15A8;
     atn::EfpFile m15AC;
-    ResLoader_unk m15B8;
+    atn::EffFile m15B8;
     atn::LH_Binary m15C4;     // inferred: data file
     ResHandle m15CC;          // inferred: debug menu group
     int m15D0;

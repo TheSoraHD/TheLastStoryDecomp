@@ -162,7 +162,7 @@ extern "C" void fn_8010EE78(Bullet* bullet, BulletShot_unk* shot, const atn::Vec
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, void* mtx, int arg5,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, void* mtx, int arg5,
                             int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
@@ -315,19 +315,19 @@ EnemyQuarkStand::EnemyQuarkStand(atn::Task* parent, EnemyInfo_unk* info)
     }
     std::string path = fn_8006AFF8(dir, name);
     m180C.vf0C(path.c_str());
-    m1624.fn_8023780C("ef_bs072f.efp");
-    m1630.fn_8023780C("ef_bs070d.efp");
-    m163C.fn_8023780C("ef_bs070a.efp");
-    m1648.fn_80237654("ef_bs070e_01.eff");
-    m16C0.fn_8023780C("ef_bs058a.efp");
-    m16CC.fn_8023780C("ef_bs058c.efp");
-    m17D8.fn_80237654("ef_bs051b.eff");
-    m1618.fn_8023780C("ef_bd008b.efp");
-    m1690.fn_8023780C("ef_bd009a.efp");
-    m169C.fn_8023780C("ef_bd009b.efp");
-    m16A8.fn_8023780C("ef_bs078c.efp");
-    m16B4.fn_8023780C("ef_bs080a.efp");
-    m1CAC.fn_8023780C("ef_bs049e.efp");
+    m1624.LoadRequest("ef_bs072f.efp");
+    m1630.LoadRequest("ef_bs070d.efp");
+    m163C.LoadRequest("ef_bs070a.efp");
+    m1648.LoadRequest("ef_bs070e_01.eff");
+    m16C0.LoadRequest("ef_bs058a.efp");
+    m16CC.LoadRequest("ef_bs058c.efp");
+    m17D8.LoadRequest("ef_bs051b.eff");
+    m1618.LoadRequest("ef_bd008b.efp");
+    m1690.LoadRequest("ef_bd009a.efp");
+    m169C.LoadRequest("ef_bd009b.efp");
+    m16A8.LoadRequest("ef_bs078c.efp");
+    m16B4.LoadRequest("ef_bs080a.efp");
+    m1CAC.LoadRequest("ef_bs049e.efp");
     m1704.vf0C("/camera/battle/cm000_em211_00.xsca");
     m170C.vf0C("/camera/battle/cm000_em211_01.xsca");
     m17F4 = fn_801F3FF8(this, "/data/d2anime/ui_direction_l.d2a", 0);
@@ -359,12 +359,12 @@ extern "C" void fn_803458EC(IntVector_unk* list, atn::Csv* csv) {
 }
 
 int EnemyQuarkStand::vf0C() {
-    if (fn_8013655C() == 0 && m1624.fn_80237874() == 0 && m1630.fn_80237874() == 0 &&
-        m163C.fn_80237874() == 0 && m1648.fn_802376D0() == 0 && m16CC.fn_80237874() == 0 &&
-        m16C0.fn_80237874() == 0 && m17D8.fn_802376D0() == 0 && m1704.fn_80473F50() == 0 &&
-        m170C.fn_80473F50() == 0 && m180C.fn_80473F50() == 0 && m1618.fn_80237874() == 0 &&
-        m1690.fn_80237874() == 0 && m169C.fn_80237874() == 0 && m16A8.fn_80237874() == 0 &&
-        m16B4.fn_80237874() == 0 && m1CAC.fn_80237874() == 0 && fn_800D3FA4() != 0) {
+    if (fn_8013655C() == 0 && m1624.IsLoading() == 0 && m1630.IsLoading() == 0 &&
+        m163C.IsLoading() == 0 && m1648.IsLoading() == 0 && m16CC.IsLoading() == 0 &&
+        m16C0.IsLoading() == 0 && m17D8.IsLoading() == 0 && m1704.fn_80473F50() == 0 &&
+        m170C.fn_80473F50() == 0 && m180C.fn_80473F50() == 0 && m1618.IsLoading() == 0 &&
+        m1690.IsLoading() == 0 && m169C.IsLoading() == 0 && m16A8.IsLoading() == 0 &&
+        m16B4.IsLoading() == 0 && m1CAC.IsLoading() == 0 && fn_800D3FA4() != 0) {
         fn_80353370();
         SetFlag(0x200);
         fn_80288E30(this, 0.03f);

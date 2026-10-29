@@ -299,27 +299,27 @@ Em203GreaterDaemon::Em203GreaterDaemon(atn::Task* parent, EnemyInfo_unk* info)
     m151C.x = 0.0f;
     m151C.y = 0.0f;
     m151C.z = 0.0f;
-    m1944.m00.fn_80237654("/effect/hateline/hate_line_06a.eff");
-    m1944.m0C.fn_80237654("/effect/hateline/ef_ui003_01.eff");
-    m192C.m00.fn_80237654("/effect/hateline/hate_line_06a.eff");
-    m192C.m0C.fn_80237654("/effect/hateline/hate_line_06b.eff");
-    m195C.m00.fn_80237654("/effect/hateline/hate_line_03a.eff");
-    m195C.m0C.fn_80237654("/effect/hateline/hate_line_03b.eff");
-    m15B8.fn_8023780C("/effect/hateline/ef_bs014a.efp");
-    m155C.fn_8023780C("/effect/hateline/ef_bs012a.efp");
-    m1568.fn_80237654("/effect/hateline/ef_bs012b_01.eff");
-    m1574.fn_8023780C("ef_ev093.efp");
-    m15D8.fn_8023780C("/effect/ef_mb005c.efp");
-    m1634.fn_8023780C("/effect/ef_bs034c.efp");
+    m1944.m00.LoadRequest("/effect/hateline/hate_line_06a.eff");
+    m1944.m0C.LoadRequest("/effect/hateline/ef_ui003_01.eff");
+    m192C.m00.LoadRequest("/effect/hateline/hate_line_06a.eff");
+    m192C.m0C.LoadRequest("/effect/hateline/hate_line_06b.eff");
+    m195C.m00.LoadRequest("/effect/hateline/hate_line_03a.eff");
+    m195C.m0C.LoadRequest("/effect/hateline/hate_line_03b.eff");
+    m15B8.LoadRequest("/effect/hateline/ef_bs014a.efp");
+    m155C.LoadRequest("/effect/hateline/ef_bs012a.efp");
+    m1568.LoadRequest("/effect/hateline/ef_bs012b_01.eff");
+    m1574.LoadRequest("ef_ev093.efp");
+    m15D8.LoadRequest("/effect/ef_mb005c.efp");
+    m1634.LoadRequest("/effect/ef_bs034c.efp");
 }
 
 Em203GreaterDaemon::~Em203GreaterDaemon() {}
 
 int Em203GreaterDaemon::vf0C() {
-    if (fn_8013655C() == 0 && m1984.fn_80473F50() == 0 && m15B8.fn_80237874() == 0 && m155C.fn_80237874() == 0 &&
-        m1568.fn_802376D0() == 0 && m1574.fn_80237874() == 0 && fn_80288DD8(&m1944) == 0 &&
-        fn_80288DD8(&m192C) == 0 && fn_80288DD8(&m195C) == 0 && m15D8.fn_80237874() == 0 &&
-        m1634.fn_80237874() == 0) {
+    if (fn_8013655C() == 0 && m1984.fn_80473F50() == 0 && m15B8.IsLoading() == 0 && m155C.IsLoading() == 0 &&
+        m1568.IsLoading() == 0 && m1574.IsLoading() == 0 && fn_80288DD8(&m1944) == 0 &&
+        fn_80288DD8(&m192C) == 0 && fn_80288DD8(&m195C) == 0 && m15D8.IsLoading() == 0 &&
+        m1634.IsLoading() == 0) {
         fn_800EC24C(&mRoute, 2);
         fn_80288E30(this, 1.0f);
         mStatus.m18 |= 0x1C0;

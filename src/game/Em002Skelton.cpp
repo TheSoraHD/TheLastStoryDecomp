@@ -38,8 +38,8 @@ extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTa
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred: computes the damage
 
 Em002Skelton::Em002Skelton(atn::Task* parent, void* data) : EnemyTask(parent, data), m14B0(0), m14B4(0), m14D0(0) {
-    m14B8.fn_8023780C("/effect/ef_uc001.efp");
-    m14C4.fn_8023780C("/effect/ef_cm009.efp");
+    m14B8.LoadRequest("/effect/ef_uc001.efp");
+    m14C4.LoadRequest("/effect/ef_cm009.efp");
 }
 
 Em002Skelton::~Em002Skelton() {}

@@ -78,8 +78,8 @@ Em310Gargoyle::Em310Gargoyle(atn::Task* parent, EnemyInfo_unk* info)
         }
     }
     m150C = 0;
-    m15D4.fn_8023780C("ef_uc037.efp");
-    m15F4.fn_8023780C("ef_cm008.efp");
+    m15D4.LoadRequest("ef_uc037.efp");
+    m15F4.LoadRequest("ef_cm008.efp");
 }
 
 Em310Gargoyle::~Em310Gargoyle() {}
@@ -87,7 +87,7 @@ Em310Gargoyle::~Em310Gargoyle() {}
 // NONMATCHING: 99.91% - r4/r5 of the flag word m14A8 (the original loads it straight into r5); the flags
 // are read into a local before the other stores (~35 variants in total)
 int Em310Gargoyle::vf0C() {
-    if (fn_8013655C() == 0 && !m15D4.fn_80237874() && !m15F4.fn_80237874()) {
+    if (fn_8013655C() == 0 && !m15D4.IsLoading() && !m15F4.IsLoading()) {
         for (int i = 0; i < 3; i++) {
             m1500[i] = EnemyManager::sInstance->Find_unk(m14F4[i]);
         }

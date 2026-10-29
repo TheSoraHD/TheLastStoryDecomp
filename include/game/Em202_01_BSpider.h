@@ -48,7 +48,7 @@ public:
     CharaTask* m14E8;         // inferred: target of the turn
     int m14EC;
     SpiderBaseColor_unk m14F0; // inferred: color of the materials (vf14)
-    ResLoader_unk m1500;      // inferred: "/effect/ef_sk002b.eff"
+    atn::EffFile m1500;      // inferred: "/effect/ef_sk002b.eff"
     atn::EfpFile m150C; // inferred: "/effect/ef_uc001.efp"
     atn::EfpFile m1518; // inferred: "/effect/ef_sk002d.efp"
     atn::EfpFile m1524; // inferred: "/effect/ef_uc007.efp"

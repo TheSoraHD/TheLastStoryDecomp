@@ -335,13 +335,13 @@ Em101ElderZesya::Em101ElderZesya(atn::Task* parent, EnemyInfo_unk* info)
     fn_80088FAC(group, "IceBarrier", &m16D0, 0, 0, 0.0f, 1.0f, 0.01f);
     fn_80088FAC(group, "ForestBarrier", &m16F0, 0, 0, 0.0f, 1.0f, 0.01f);
     fn_80088FAC(group, "HolyBarrier", &m1700, 0, 0, 0.0f, 1.0f, 0.01f);
-    m15F8.fn_8023780C("ef_bs007a.efp");
-    m1604.fn_8023780C("ef_bs066e.efp");
-    m1610.fn_8023780C("ef_bs066c.efp");
-    m161C.fn_8023780C("ef_sk053a.efp");
-    m1628.fn_8023780C("ef_sk053b.efp");
-    m1634.fn_8023780C("ef_sk053c.efp");
-    m1640.fn_8023780C("ef_sk054d.efp");
+    m15F8.LoadRequest("ef_bs007a.efp");
+    m1604.LoadRequest("ef_bs066e.efp");
+    m1610.LoadRequest("ef_bs066c.efp");
+    m161C.LoadRequest("ef_sk053a.efp");
+    m1628.LoadRequest("ef_sk053b.efp");
+    m1634.LoadRequest("ef_sk053c.efp");
+    m1640.LoadRequest("ef_sk054d.efp");
     mFlagB5 = 1;
 }
 
@@ -363,8 +363,8 @@ Em101ElderZesya::~Em101ElderZesya() {}
 int Em101ElderZesya::vf0C() {
     if (m14B0 == 0) {
         if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14B4.fn_80473F50() == 0 &&
-            m15F8.fn_80237874() == 0 && m1604.fn_80237874() == 0 && m1610.fn_80237874() == 0 &&
-            m161C.fn_80237874() == 0 && m1628.fn_80237874() == 0 && m1634.fn_80237874() == 0) {
+            m15F8.IsLoading() == 0 && m1604.IsLoading() == 0 && m1610.IsLoading() == 0 &&
+            m161C.IsLoading() == 0 && m1628.IsLoading() == 0 && m1634.IsLoading() == 0) {
         mStatus.m18 |= 0x1C0;
         m58C = 0;
         mStatus.m18 |= 0x10000;

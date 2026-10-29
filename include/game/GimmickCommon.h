@@ -33,7 +33,9 @@ struct GimmickMotionCmd_unk {
     int mDone;            // 0x24
 };
 
-struct ResLoader_unk;
+namespace atn {
+struct EffFile;
+}
 namespace atn {
 class EfpFile;
 class SoundRef;
@@ -51,7 +53,7 @@ struct GimmickCommonB0_unk {
     void fn_803F11F8(void* menu);           // inferred: debug menu
 
     atn::SimpleArray<GimmickMotionCmd_unk> mCmds;  // 0x00
-    atn::SimpleArray<ResLoader_unk> mEff;          // 0x08: "EFF_PLAY"
+    atn::SimpleArray<atn::EffFile> mEff;          // 0x08: "EFF_PLAY"
     atn::SimpleArray<atn::EfpFile> mEfp;     // 0x10: "EFP_PLAY", "EFP_LOOP"
     atn::SimpleArray<atn::SoundRef> mSounds;       // 0x18: "SE_LOOP"
     atn::SimpleArray<atn::static_string<32> > mNames;   // 0x20: "SE_PLAY", "SE_LOOP", "EXPLODE"

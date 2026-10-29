@@ -374,23 +374,23 @@ Em302Kraken::Em302Kraken(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m1684.vf0C(path.c_str());
-    m14E0.fn_8023780C("/effect/ef_bs033a.efp");
-    m14EC.fn_8023780C("/effect/ef_bs033c.efp");
-    m1508.fn_8023780C("/effect/ef_bs030c.efp");
-    m15F4.fn_8023780C("/effect/ef_bd004.efp");
-    m1524.fn_80237654("/effect/ef_bs034b_01.eff");
-    m1530.fn_8023780C("/effect/ef_bs034c.efp");
-    m153C.fn_8023780C("/effect/ef_bs034a.efp");
-    m1548.fn_8023780C("/effect/ef_bs034e.efp");
-    m1564.fn_8023780C("/effect/ef_bu022.efp");
-    m1570.fn_8023780C("/effect/ef_bu023.efp");
-    m158C.fn_8023780C("/effect/ef_bs028.efp");
-    m1598.fn_8023780C("/effect/ef_bs029a.efp");
-    m15A4.fn_8023780C("/effect/ef_bs029c.efp");
-    m15E8.fn_8023780C("/effect/ef_bd005.efp");
-    m160C.fn_8023780C("/effect/ef_bs081a.efp");
-    m1618.fn_8023780C("/effect/ef_bs081b.efp");
-    m1624.fn_8023780C("/effect/ef_bs049c.efp");
+    m14E0.LoadRequest("/effect/ef_bs033a.efp");
+    m14EC.LoadRequest("/effect/ef_bs033c.efp");
+    m1508.LoadRequest("/effect/ef_bs030c.efp");
+    m15F4.LoadRequest("/effect/ef_bd004.efp");
+    m1524.LoadRequest("/effect/ef_bs034b_01.eff");
+    m1530.LoadRequest("/effect/ef_bs034c.efp");
+    m153C.LoadRequest("/effect/ef_bs034a.efp");
+    m1548.LoadRequest("/effect/ef_bs034e.efp");
+    m1564.LoadRequest("/effect/ef_bu022.efp");
+    m1570.LoadRequest("/effect/ef_bu023.efp");
+    m158C.LoadRequest("/effect/ef_bs028.efp");
+    m1598.LoadRequest("/effect/ef_bs029a.efp");
+    m15A4.LoadRequest("/effect/ef_bs029c.efp");
+    m15E8.LoadRequest("/effect/ef_bd005.efp");
+    m160C.LoadRequest("/effect/ef_bs081a.efp");
+    m1618.LoadRequest("/effect/ef_bs081b.efp");
+    m1624.LoadRequest("/effect/ef_bs049c.efp");
     m1554.clear();
     m163C.clear();
     m1648.clear();
@@ -408,12 +408,12 @@ Em302Kraken::~Em302Kraken() {}
 // original, r30/r28/r29 here; 8 variants of the declarations and of the pillar_id loop)
 int Em302Kraken::vf0C() {
     if (m14B0 == 0) {
-        if (fn_8013655C() == 0 && m14E0.fn_80237874() == 0 && m14EC.fn_80237874() == 0 &&
-            m1508.fn_80237874() == 0 && m15F4.fn_80237874() == 0 && m1524.fn_802376D0() == 0 &&
-            m1530.fn_80237874() == 0 && m153C.fn_80237874() == 0 && m1548.fn_80237874() == 0 &&
-            m1564.fn_80237874() == 0 && m1570.fn_80237874() == 0 && m15E8.fn_80237874() == 0 &&
-            m158C.fn_80237874() == 0 && m1598.fn_80237874() == 0 && m15A4.fn_80237874() == 0 &&
-            m160C.fn_80237874() == 0 && m1618.fn_80237874() == 0 && m1624.fn_80237874() == 0 &&
+        if (fn_8013655C() == 0 && m14E0.IsLoading() == 0 && m14EC.IsLoading() == 0 &&
+            m1508.IsLoading() == 0 && m15F4.IsLoading() == 0 && m1524.IsLoading() == 0 &&
+            m1530.IsLoading() == 0 && m153C.IsLoading() == 0 && m1548.IsLoading() == 0 &&
+            m1564.IsLoading() == 0 && m1570.IsLoading() == 0 && m15E8.IsLoading() == 0 &&
+            m158C.IsLoading() == 0 && m1598.IsLoading() == 0 && m15A4.IsLoading() == 0 &&
+            m160C.IsLoading() == 0 && m1618.IsLoading() == 0 && m1624.IsLoading() == 0 &&
             m1684.fn_80473F50() == 0) {
             if (m1684.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
                 atn::Csv csv((const char*)m1684.fn_80470580(), m1684.fn_8047059C());
@@ -511,7 +511,7 @@ int Em302Kraken::vf0C() {
                             m16B0 = data;
                         }
                     } else if (strcmp(key, "anger_efp") == 0) {
-                        m15B0.fn_8023780C(csv.fn_8005B9CC());
+                        m15B0.LoadRequest(csv.fn_8005B9CC());
                     }
                 } while (csv.fn_8005BBF8());
             }
@@ -527,7 +527,7 @@ int Em302Kraken::vf0C() {
             ClearModelFlag_unk((atn::Model*)&mMotion, 4);
         }
     } else if (m14B0 == 1) {
-        if (m15B0.fn_80237874() == 0) {
+        if (m15B0.IsLoading() == 0) {
             m14B0 = 2;
             return 1;
         }

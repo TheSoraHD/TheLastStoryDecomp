@@ -77,7 +77,7 @@ void RainDrops::vf14() {}
 
 int RainDrops::vf1C() {
     for (int i = 0; i < 9; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -97,7 +97,7 @@ void RainDrops::vf20() {
             if (++n >= 9) {
                 n = 8;
             }
-            mEfp[n].fn_8023780C(csv.fn_8005B9CC());
+            mEfp[n].LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "RAINDROPS") == 0) {
             mRain[n] = MapPartsRain::fn_8049CDBC(this, (void*)8, &csv);
             mRain[n]->fn_800D246C(1);

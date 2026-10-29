@@ -160,7 +160,7 @@ Em403WarLion::Em403WarLion(atn::Task* parent, void* data)
     m160C = 0;
     mStatus.mParamB.m9C |= 0x10;
     m1524.Reset_unk();
-    m15FC.fn_8023780C("/effect/ef_bs001a.efp");
+    m15FC.LoadRequest("/effect/ef_bs001a.efp");
     m14A8 |= 0x80000000;
 }
 
@@ -182,7 +182,7 @@ int Em403WarLion::vf0C() {
     if (m1438 != 0 && (m1438->mFlags & 2) != 2) {
         result = 0;
     }
-    if (m15FC.fn_80237874() != 0) {
+    if (m15FC.IsLoading() != 0) {
         result = 0;
     }
     if (result != 0) {

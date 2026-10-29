@@ -721,7 +721,7 @@ int CharaTask::fn_8013655C() {
         if (equipLoading) {
             loading = 1;
         }
-        if (m121C && m121C->fn_80237874()) {
+        if (m121C && m121C->IsLoading()) {
             loading = 1;
         }
         if (m1220.fn_801210C4()) {
@@ -914,7 +914,7 @@ void CharaTask::fn_801371AC() {
             }
         } else if (strcmp(key, "EFP") == 0) {
             m121C.reset(new (1, "", "", 0) atn::EfpFile());
-            m121C->fn_8023780C(csv.fn_8005B9CC());
+            m121C->LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(key, "EQUIP") == 0) {
             m6A4.PushBack_unk(new (1, "", "", 0) EquipItemData(&csv));
         } else if (strcmp(key, "PROTECTOR") == 0) {
@@ -1092,7 +1092,7 @@ void CharaTask::fn_80138528() {
                 m12C0 = atoi(csv.fn_8005B9CC());
             } else if (strcmp(key, "EFP") == 0) {
                 m121C.reset(new (1, "", "", 0) atn::EfpFile());
-                m121C->fn_8023780C(csv.fn_8005B9CC());
+                m121C->LoadRequest(csv.fn_8005B9CC());
             }
         } while (csv.fn_8005BBF8());
     }

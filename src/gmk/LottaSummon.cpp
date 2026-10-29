@@ -234,7 +234,7 @@ void LottaSummon::vf14() {}
 
 int LottaSummon::vf1C() {
     for (int i = 0; i < 5; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -251,7 +251,7 @@ void LottaSummon::vf20() {
             continue;
         }
         if (strcmp(field, "EFP") == 0 && count < 5) {
-            mEfp[count++].fn_8023780C(csv.fn_8005B9CC());
+            mEfp[count++].LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }

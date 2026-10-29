@@ -285,7 +285,7 @@ Cannonball::Cannonball(atn::Task* parent, GimmickDesc_unk* desc)
 }
 
 int Cannonball::vf0C() {
-    if (fn_803EC91C() == 0 && mEfp.fn_80237874() == 0 && mEfpFuse.fn_80237874() == 0 && fn_800D3FA4() != 0) {
+    if (fn_803EC91C() == 0 && mEfp.IsLoading() == 0 && mEfpFuse.IsLoading() == 0 && fn_800D3FA4() != 0) {
         m54 = 1;
         if (mDrop != 0) {
             mDrop->fn_800D246C(0);
@@ -317,11 +317,11 @@ void Cannonball::vf20() {
         } else if (strcmp(field, "EFP") == 0) {
             const char* path = csv.fn_8005B9CC();
             if (path[0] != 0) {
-                mEfp.fn_8023780C(path);
+                mEfp.LoadRequest(path);
             }
             path = csv.fn_8005B9CC();
             if (path[0] != 0) {
-                mEfpFuse.fn_8023780C(path);
+                mEfpFuse.LoadRequest(path);
             }
         }
     } while (csv.fn_8005BBF8() != 0);

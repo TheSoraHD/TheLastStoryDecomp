@@ -128,10 +128,10 @@ Em305VampireMp::Em305VampireMp(atn::Task* parent, EnemyInfo_unk* info) : Em305Va
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14D4.vf0C(path.c_str());
-    m1564.fn_8023780C("/effect/ef_uc031.efp");
-    m1570.fn_8023780C("/effect/ef_uc007.efp");
-    m157C.fn_8023780C("/effect/ef_sk021a.efp");
-    m1588.fn_8023780C("/effect/ef_sk025.efp");
+    m1564.LoadRequest("/effect/ef_uc031.efp");
+    m1570.LoadRequest("/effect/ef_uc007.efp");
+    m157C.LoadRequest("/effect/ef_sk021a.efp");
+    m1588.LoadRequest("/effect/ef_sk025.efp");
 }
 
 Em305VampireMp::~Em305VampireMp() {}
@@ -139,8 +139,8 @@ Em305VampireMp::~Em305VampireMp() {}
 // NONMATCHING: 94.0% - the inlined std::vector push_back of the two routes (known open case: the
 // original fast path of the 16-byte elements has no placement-new null check) and registers
 int Em305VampireMp::vf0C() {
-    if (m1564.fn_80237874() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.fn_80237874() == 0 &&
-        m157C.fn_80237874() == 0 && m1588.fn_80237874() == 0 && m14D4.fn_80473F50() == 0 &&
+    if (m1564.IsLoading() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.IsLoading() == 0 &&
+        m157C.IsLoading() == 0 && m1588.IsLoading() == 0 && m14D4.fn_80473F50() == 0 &&
         fn_8013655C() == 0) {
         fn_802EC38C();
         if (m14D4.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {

@@ -63,7 +63,7 @@ struct Color4f_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int id); // inferred: sets the owner of the next effects
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, void* node,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, void* node,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
@@ -238,10 +238,10 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
     int se = 0;
     for (VecIter_unk<GimmickMotionCmd_unk> it(cmds.begin()); it != cmds.end(); it++) {
         if (it->mType == 0) {
-            mEff[eff].fn_80237654(names[it->mIndex].c_str());
+            mEff[eff].LoadRequest(names[it->mIndex].c_str());
             it->mIndex = eff++;
         } else if (it->mType == 1 || it->mType == 2) {
-            mEfp[efp].fn_8023780C(names[it->mIndex].c_str());
+            mEfp[efp].LoadRequest(names[it->mIndex].c_str());
             it->mIndex = efp++;
         } else if (it->mType == 3 || it->mType == 4 || it->mType == 6) {
             mNames[se] = names[it->mIndex].c_str();
@@ -253,12 +253,12 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
 
 int GimmickCommonB0_unk::fn_803F06B0() {
     for (int i = 0; i < (unsigned int)mEff.mSize; i++) {
-        if (mEff[i].fn_802376D0() != 0) {
+        if (mEff[i].IsLoading() != 0) {
             return 1;
         }
     }
     for (int i = 0; i < (unsigned int)mEfp.mSize; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }

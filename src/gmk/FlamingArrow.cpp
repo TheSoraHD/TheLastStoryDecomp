@@ -213,16 +213,16 @@ void FlamingArrow::vf20() {
                 fn_80097A88(&mArrows[i].mModel, 0, path);
             }
         } else if (strcmp(field, "EFP_SHOOT") == 0) {
-            mEfpShoot.fn_8023780C(csv.fn_8005B9CC());
+            mEfpShoot.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_ARROW") == 0) {
-            mEfpArrow.fn_8023780C(csv.fn_8005B9CC());
+            mEfpArrow.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_BURNOUT") == 0) {
             for (unsigned int i = 0; i < 3; i++) {
-                mEfpBurnout[i].fn_8023780C(csv.fn_8005B9CC());
+                mEfpBurnout[i].LoadRequest(csv.fn_8005B9CC());
             }
         } else if (strcmp(field, "EFF_HIT") == 0) {
             for (unsigned int i = 0; i < 3; i++) {
-                mEfpHit[i].fn_8023780C(csv.fn_8005B9CC());
+                mEfpHit[i].LoadRequest(csv.fn_8005B9CC());
             }
         } else if (strcmp(field, "PARAM") == 0) {
         }
@@ -239,17 +239,17 @@ int FlamingArrow::vf1C() {
             ret = 1;
         }
     }
-    if (mEfpShoot.fn_80237874() != 0) {
+    if (mEfpShoot.IsLoading() != 0) {
         ret = 1;
     }
-    if (mEfpArrow.fn_80237874() != 0) {
+    if (mEfpArrow.IsLoading() != 0) {
         ret = 1;
     }
     for (unsigned int i = 0; i < 3; i++) {
-        if (mEfpBurnout[i].fn_80237874() != 0) {
+        if (mEfpBurnout[i].IsLoading() != 0) {
             ret = 1;
         }
-        if (mEfpHit[i].fn_80237874() != 0) {
+        if (mEfpHit[i].IsLoading() != 0) {
             ret = 1;
         }
     }

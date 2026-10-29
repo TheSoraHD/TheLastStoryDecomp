@@ -319,12 +319,12 @@ Em204Mulue::Em204Mulue(atn::Task* parent, EnemyInfo_unk* info)
     mFlag22 = 1;
     mStatus.mParamB.m9C |= 0x10;
     m1614.SetIdentity();
-    m14FC.fn_8023780C("ef_sk015a.efp");
-    m1508.fn_80237654("ef_sk002b.eff");
-    m1514.fn_8023780C("ef_sk008d.efp");
-    m1520.fn_8023780C("ef_uc011.efp");
-    m152C.fn_8023780C("ef_cm009.efp");
-    m1654.fn_8023780C("ef_sc012.efp");
+    m14FC.LoadRequest("ef_sk015a.efp");
+    m1508.LoadRequest("ef_sk002b.eff");
+    m1514.LoadRequest("ef_sk008d.efp");
+    m1520.LoadRequest("ef_uc011.efp");
+    m152C.LoadRequest("ef_cm009.efp");
+    m1654.LoadRequest("ef_sc012.efp");
     std::string dir("database/chara/special/");
     std::string name("db_em204_00_00.csv");
     atn::Csv csv(info->m2C, strlen(info->m2C));
@@ -344,9 +344,9 @@ Em204Mulue::Em204Mulue(atn::Task* parent, EnemyInfo_unk* info)
 Em204Mulue::~Em204Mulue() {}
 
 int Em204Mulue::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14FC.fn_80237874() == 0 &&
-        m1508.fn_802376D0() == 0 && m1514.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
-        m152C.fn_80237874() == 0 && m1654.fn_80237874() == 0 && m1844.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14FC.IsLoading() == 0 &&
+        m1508.IsLoading() == 0 && m1514.IsLoading() == 0 && m1520.IsLoading() == 0 &&
+        m152C.IsLoading() == 0 && m1654.IsLoading() == 0 && m1844.fn_80473F50() == 0) {
         mColli.mFlags &= ~0x80000000;
         m168C.mFlags |= 3;
         m168C.m0C = (int)this;

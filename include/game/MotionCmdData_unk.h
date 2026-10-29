@@ -31,7 +31,7 @@ struct MotionCommandData {
 
     int fn_800A091C(); // inferred: nonzero while a resource is loading
     atn::SimpleVector<Command> mEntries;             // 0x00
-    atn::SimpleVector<ResLoader_unk> mEffects;       // 0x0C: "EFF"
+    atn::SimpleVector<atn::EffFile> mEffects;       // 0x0C: "EFF"
     atn::SimpleVector<atn::EfpFile> mEfps;           // 0x18: "EFP", "EFP_LOOP"
     atn::SimpleVector<atn::static_string<32> > mNames; // 0x24: "EFF_ATR", "SE_ATR", "SE", "SE_LOOP"
 };

@@ -95,20 +95,20 @@ Em202_01_BSpider::Em202_01_BSpider(atn::Task* parent, void* data)
     for (int i = 0; i < 6; i++) {
         sSpotUsed_unk[i] = 0;
     }
-    m1500.fn_80237654("/effect/ef_sk002b.eff");
-    m150C.fn_8023780C("/effect/ef_uc001.efp");
-    m1518.fn_8023780C("/effect/ef_sk002d.efp");
-    m1524.fn_8023780C("/effect/ef_uc007.efp");
-    m1530.fn_8023780C("/effect/ef_sc003_01b.efp");
+    m1500.LoadRequest("/effect/ef_sk002b.eff");
+    m150C.LoadRequest("/effect/ef_uc001.efp");
+    m1518.LoadRequest("/effect/ef_sk002d.efp");
+    m1524.LoadRequest("/effect/ef_uc007.efp");
+    m1530.LoadRequest("/effect/ef_sc003_01b.efp");
 }
 
 Em202_01_BSpider::~Em202_01_BSpider() {}
 
 // NONMATCHING: 89.34% - the original interleaves the flag ors with the loads of m500-m508 (10 variants)
 int Em202_01_BSpider::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1500.fn_802376D0() == 0 &&
-        m150C.fn_80237874() == 0 && m1518.fn_80237874() == 0 && m1524.fn_80237874() == 0 &&
-        m1530.fn_80237874() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1500.IsLoading() == 0 &&
+        m150C.IsLoading() == 0 && m1518.IsLoading() == 0 && m1524.IsLoading() == 0 &&
+        m1530.IsLoading() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC218;

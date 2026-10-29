@@ -108,11 +108,11 @@ void EffectData::vf08() {
     char* eff = strstr(name, ".eff");
     if (efp > eff) {
         m18 = new (4, "", "", 0) atn::EfpFile;
-        ((atn::EfpFile*)m18)->fn_8023780C(name);
+        ((atn::EfpFile*)m18)->LoadRequest(name);
         m1C = 1;
     } else if (efp < eff) {
-        m18 = new (4, "", "", 0) ResLoader_unk;
-        ((ResLoader_unk*)m18)->fn_80237654(name);
+        m18 = new (4, "", "", 0) atn::EffFile;
+        ((atn::EffFile*)m18)->LoadRequest(name);
         m1C = 2;
     }
 }
@@ -123,18 +123,18 @@ void EffectData::vf0C() {
             ((atn::EfpFile*)m18)->Destroy();
             delete (atn::EfpFile*)m18;
         } else if (m1C == 2) {
-            ((ResLoader_unk*)m18)->fn_8023772C();
-            delete (ResLoader_unk*)m18;
+            ((atn::EffFile*)m18)->Destroy();
+            delete (atn::EffFile*)m18;
         }
         m18 = 0;
     }
 }
 
 int EffectData::vf10() const {
-    if (m1C == 1 && ((atn::EfpFile*)m18)->fn_80237874() != 0) {
+    if (m1C == 1 && ((atn::EfpFile*)m18)->IsLoading() != 0) {
         return 0;
     }
-    if (m1C == 2 && ((ResLoader_unk*)m18)->fn_802376D0() != 0) {
+    if (m1C == 2 && ((atn::EffFile*)m18)->IsLoading() != 0) {
         return 0;
     }
     return 1;

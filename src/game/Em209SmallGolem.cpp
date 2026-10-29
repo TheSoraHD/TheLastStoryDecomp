@@ -156,15 +156,15 @@ Em209SmallGolem::Em209SmallGolem(atn::Task* parent, EnemyInfo_unk* info)
         }
     }
     m14B0.vf0C(fn_8006AFF8(dir, name).c_str());
-    m1528.fn_8023780C("/effect/ef_uc058.efp");
-    m1534.fn_8023780C("/effect/ef_uc051a.efp");
+    m1528.LoadRequest("/effect/ef_uc058.efp");
+    m1534.LoadRequest("/effect/ef_uc051a.efp");
 }
 
 Em209SmallGolem::~Em209SmallGolem() {}
 
 int Em209SmallGolem::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14B0.fn_80473F50() == 0 &&
-        m1528.fn_80237874() == 0 && m1534.fn_80237874() == 0) {
+        m1528.IsLoading() == 0 && m1534.IsLoading() == 0) {
         void* group = m1550.Load("Em209SmallGolem");
         fn_80087994(group, "DebugDisp", &m1554, 0, 0);
         fn_80088FAC(group, "StoneColor", m14FC, 0, 0, 0.0f, 1.0f, 0.01f);

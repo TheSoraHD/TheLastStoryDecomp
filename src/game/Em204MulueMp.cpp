@@ -255,9 +255,9 @@ Em204MulueMp::Em204MulueMp(atn::Task* parent, EnemyInfo_unk* info)
       m15F8(0), m15FC(0.0f), m1600(1), m1604(0x4650), m1608(0), m1684(0), m185C(0) {
     mFlag22 = 1;
     mStatus.mParamB.m9C |= 0x10;
-    m1524.fn_80237654("ef_sk002b.eff");
-    m1530.fn_8023780C("ef_sk008d.efp");
-    m153C.fn_8023780C("ef_uc011.efp");
+    m1524.LoadRequest("ef_sk002b.eff");
+    m1530.LoadRequest("ef_sk008d.efp");
+    m153C.LoadRequest("ef_uc011.efp");
     for (int i = 0; i < 6; i++) {
         m160C[i] = lbl_807860A0[i].mColor[0];
     }
@@ -287,8 +287,8 @@ Em204MulueMp::Em204MulueMp(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 int Em204MulueMp::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1524.fn_802376D0() == 0 &&
-        m1530.fn_80237874() == 0 && m153C.fn_80237874() == 0 && m1850.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1524.IsLoading() == 0 &&
+        m1530.IsLoading() == 0 && m153C.IsLoading() == 0 && m1850.fn_80473F50() == 0) {
         mColli.mFlags &= ~0x80000000;
         m1698.mFlags |= 3;
         m1698.m0C = (int)this;

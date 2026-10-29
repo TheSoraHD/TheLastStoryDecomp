@@ -89,7 +89,7 @@ int Arms::vf0C() {
         if (GetModel_unk()->fn_8008B140()) {
             return 1;
         }
-        if (m29C && m29C->fn_80237874()) {
+        if (m29C && m29C->IsLoading()) {
             return 1;
         }
         m278 = GetModel_unk()->fn_80092814("shot", 0);
@@ -136,14 +136,14 @@ void Arms::fn_8004439C() {
             m264.z = fn_800DC288(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
             m29C.reset(new (1, "", "", 0) atn::EfpFile);
-            m29C->fn_8023780C(csv.fn_8005B9CC());
+            m29C->LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
     if (!m29C && m2A4 != 0) {
         m29C.reset(new (1, "", "", 0) atn::EfpFile);
         char buf[0x100];
         sprintf(buf, "%s.efp", m2A4->m10);
-        m29C->fn_8023780C(buf);
+        m29C->LoadRequest(buf);
     }
 }
 

@@ -119,8 +119,8 @@ Coffin::~Coffin() {}
 
 int Coffin::vf1C() {
     if (mModel.fn_8008B140() != 0 || mColli.fn_800580BC() != 0 || mColliAfter[0].fn_800580BC() != 0 ||
-        mColliAfter[1].fn_800580BC() != 0 || mOpenEfp[0].fn_80237874() != 0 || mOpenEfp[1].fn_80237874() != 0 ||
-        mEfp.fn_80237874() != 0) {
+        mColliAfter[1].fn_800580BC() != 0 || mOpenEfp[0].IsLoading() != 0 || mOpenEfp[1].IsLoading() != 0 ||
+        mEfp.IsLoading() != 0) {
         return 1;
     }
     return 0;
@@ -151,11 +151,11 @@ void Coffin::vf20() {
         } else if (strcmp(field, "COLLI_AFTER_RIGHT") == 0) {
             mColliAfter[1].fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "OPEN_EFP_LEFT") == 0) {
-            mOpenEfp[0].fn_8023780C(csv.fn_8005B9CC());
+            mOpenEfp[0].LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "OPEN_EFP_RIGHT") == 0) {
-            mOpenEfp[1].fn_8023780C(csv.fn_8005B9CC());
+            mOpenEfp[1].LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }

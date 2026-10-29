@@ -108,7 +108,7 @@ Em309GhoulSimple::Em309GhoulSimple(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_em309_01_00.csv\0");
     }
     m14B4.vf0C(path);
-    m152C.fn_8023780C("/effect/ef_sk030b.efp");
+    m152C.LoadRequest("/effect/ef_sk030b.efp");
     m15BC = "/effect/ef_sk036e.efp";
     m14E8 = 0x64A;
     m14F0 = 90;
@@ -131,7 +131,7 @@ int Em309GhoulSimple::vf0C() {
         }
         fn_80306078((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
         if (m15B8 > 0.0f && m1574.mCount != 0) {
-            m163C.fn_8023780C(m15BC.mStr);
+            m163C.LoadRequest(m15BC.mStr);
         }
         m164C++;
     } else {
@@ -141,10 +141,10 @@ int Em309GhoulSimple::vf0C() {
         if (m1438 != 0 && (m1438->mFlags & 2) != 2) {
             return 0;
         }
-        if (m152C.fn_80237874() != 0) {
+        if (m152C.IsLoading() != 0) {
             return 0;
         }
-        if (m163C.fn_80237874() != 0) {
+        if (m163C.IsLoading() != 0) {
             return 0;
         }
         if (m1438 != 0) {

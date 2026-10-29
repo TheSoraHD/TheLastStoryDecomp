@@ -318,7 +318,7 @@ int MotionObject::vf1C() {
         if (mColli[i].mObject != 0 && mColli[i].mObject->fn_800580BC() != 0) {
             return 1;
         }
-        if (mEfp[i].mEfp.fn_80237874() != 0) {
+        if (mEfp[i].mEfp.IsLoading() != 0) {
             return 1;
         }
     }
@@ -384,7 +384,7 @@ void MotionObject::vf20() {
             target->mSphere.m0C = (int)this;
         } else if (strcmp(field, "EFP") == 0) {
             MotionEfp_unk* efp = &mEfp[model];
-            efp->mEfp.fn_8023780C(csv.fn_8005B9CC());
+            efp->mEfp.LoadRequest(csv.fn_8005B9CC());
             const char* opt = csv.fn_8005B9CC();
             while (*opt != '\0') {
                 if (strcmp(opt, "EFF_CLEAR_IMMEDIATE") == 0) {

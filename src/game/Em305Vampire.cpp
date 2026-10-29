@@ -139,11 +139,11 @@ Em305Vampire::Em305Vampire(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m14D4.vf0C(path.c_str());
-    m1564.fn_8023780C("/effect/ef_uc031.efp");
-    m1570.fn_8023780C("/effect/ef_uc007.efp");
-    m157C.fn_8023780C("/effect/ef_sk021a.efp");
-    m1588.fn_8023780C("/effect/ef_sk025.efp");
-    m1594.fn_8023780C("/effect/ef_sc003_01c.efp");
+    m1564.LoadRequest("/effect/ef_uc031.efp");
+    m1570.LoadRequest("/effect/ef_uc007.efp");
+    m157C.LoadRequest("/effect/ef_sk021a.efp");
+    m1588.LoadRequest("/effect/ef_sk025.efp");
+    m1594.LoadRequest("/effect/ef_sc003_01c.efp");
     SpecialEnemyBase::mFlag30 = 1;
 }
 
@@ -155,9 +155,9 @@ Em305Vampire::~Em305Vampire() {
 // NONMATCHING: 93.89% - same as Em305VampireMp::vf0C: the inlined std::vector push_back of the two routes
 // (known open case) and registers
 int Em305Vampire::vf0C() {
-    if (m1564.fn_80237874() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.fn_80237874() == 0 &&
-        m157C.fn_80237874() == 0 && m1588.fn_80237874() == 0 &&
-        m1594.fn_80237874() == 0 && m14D4.fn_80473F50() == 0 &&
+    if (m1564.IsLoading() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.IsLoading() == 0 &&
+        m157C.IsLoading() == 0 && m1588.IsLoading() == 0 &&
+        m1594.IsLoading() == 0 && m14D4.fn_80473F50() == 0 &&
         fn_8013655C() == 0) {
         fn_802EC38C();
         if (m14D4.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {

@@ -26,7 +26,7 @@ struct EffectMgr_unk {
     int mC8;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, const void* model,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, const void* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 // inferred: color of the effect (four floats)
@@ -161,13 +161,13 @@ extern "C" void fn_8011FFF8(atn::MotionCommandData* data, void* buffer, int size
     if (!effects.empty()) {
         data->mEffects.Resize_unk(effects.size(), 0, 0);
         for (unsigned int i = 0; i < effects.size(); i++) {
-            data->mEffects[i].fn_80237654(effects[i].c_str());
+            data->mEffects[i].LoadRequest(effects[i].c_str());
         }
     }
     if (!efps.empty()) {
         data->mEfps.Resize_unk(efps.size(), 0, 0);
         for (unsigned int i = 0; i < efps.size(); i++) {
-            data->mEfps[i].fn_8023780C(efps[i].c_str());
+            data->mEfps[i].LoadRequest(efps[i].c_str());
         }
     }
     if (!names.empty()) {

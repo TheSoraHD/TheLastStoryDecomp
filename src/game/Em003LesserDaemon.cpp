@@ -163,30 +163,30 @@ Em003LesserDaemon::Em003LesserDaemon(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m1588.vf0C(path.c_str());
-    m14EC.fn_8023780C("/effect/ef_cm007.efp");
-    m14F8.fn_8023780C("/data/effect/ef_sk047a.efp");
-    m1504.fn_8023780C("/data/effect/ef_sk047b.efp");
-    m1510.fn_8023780C("/data/effect/ef_sk047d.efp");
-    m151C.fn_8023780C("/data/effect/ef_sk047e.efp");
-    m1540.fn_8023780C("/data/effect/ef_sk047f.efp");
-    m154C.fn_8023780C("/data/effect/ef_sk045a.efp");
-    m1558.fn_8023780C("/data/effect/ef_sk046a.efp");
-    m1564.fn_8023780C("/data/effect/ef_sk040.efp");
-    m1570.fn_8023780C("/data/effect/ef_sk021a.efp");
-    m1534.fn_80237654("/effect/ef_bu040g_01.eff");
-    m1528.fn_80237654("/effect/ef_bu040h_01.eff");
-    m157C.fn_8023780C("/effect/ef_bs007a.efp");
+    m14EC.LoadRequest("/effect/ef_cm007.efp");
+    m14F8.LoadRequest("/data/effect/ef_sk047a.efp");
+    m1504.LoadRequest("/data/effect/ef_sk047b.efp");
+    m1510.LoadRequest("/data/effect/ef_sk047d.efp");
+    m151C.LoadRequest("/data/effect/ef_sk047e.efp");
+    m1540.LoadRequest("/data/effect/ef_sk047f.efp");
+    m154C.LoadRequest("/data/effect/ef_sk045a.efp");
+    m1558.LoadRequest("/data/effect/ef_sk046a.efp");
+    m1564.LoadRequest("/data/effect/ef_sk040.efp");
+    m1570.LoadRequest("/data/effect/ef_sk021a.efp");
+    m1534.LoadRequest("/effect/ef_bu040g_01.eff");
+    m1528.LoadRequest("/effect/ef_bu040h_01.eff");
+    m157C.LoadRequest("/effect/ef_bs007a.efp");
 }
 
 Em003LesserDaemon::~Em003LesserDaemon() {}
 
 int Em003LesserDaemon::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1588.fn_80473F50() == 0 &&
-        m14EC.fn_80237874() == 0 && m14F8.fn_80237874() == 0 && m1504.fn_80237874() == 0 &&
-        m1510.fn_80237874() == 0 && m151C.fn_80237874() == 0 && m1540.fn_80237874() == 0 &&
-        m154C.fn_80237874() == 0 && m1558.fn_80237874() == 0 && m1564.fn_80237874() == 0 &&
-        m1570.fn_80237874() == 0 && m1534.fn_802376D0() == 0 && m1528.fn_802376D0() == 0 &&
-        m157C.fn_80237874() == 0) {
+        m14EC.IsLoading() == 0 && m14F8.IsLoading() == 0 && m1504.IsLoading() == 0 &&
+        m1510.IsLoading() == 0 && m151C.IsLoading() == 0 && m1540.IsLoading() == 0 &&
+        m154C.IsLoading() == 0 && m1558.IsLoading() == 0 && m1564.IsLoading() == 0 &&
+        m1570.IsLoading() == 0 && m1534.IsLoading() == 0 && m1528.IsLoading() == 0 &&
+        m157C.IsLoading() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0x820D;

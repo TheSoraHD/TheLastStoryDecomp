@@ -214,10 +214,10 @@ Em005DoppelGanger::Em005DoppelGanger(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m1508.vf0C(path.c_str());
-    m14E0.fn_8023780C("/effect/ef_bs024a.efp");
-    m14C8.fn_8023780C("/effect/ef_cm007.efp");
-    m14EC.fn_8023780C("/effect/ef_bs038a.efp");
-    m14D4.fn_8023780C("/effect/ef_cm007.efp");
+    m14E0.LoadRequest("/effect/ef_bs024a.efp");
+    m14C8.LoadRequest("/effect/ef_cm007.efp");
+    m14EC.LoadRequest("/effect/ef_bs038a.efp");
+    m14D4.LoadRequest("/effect/ef_cm007.efp");
 }
 
 Em005DoppelGanger::~Em005DoppelGanger() {
@@ -226,8 +226,8 @@ Em005DoppelGanger::~Em005DoppelGanger() {
 
 int Em005DoppelGanger::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1508.fn_80473F50() == 0 &&
-        m14C8.fn_80237874() == 0 && m14E0.fn_80237874() == 0 && m14EC.fn_80237874() == 0 &&
-        m14D4.fn_80237874() == 0) {
+        m14C8.IsLoading() == 0 && m14E0.IsLoading() == 0 && m14EC.IsLoading() == 0 &&
+        m14D4.IsLoading() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0x4011;

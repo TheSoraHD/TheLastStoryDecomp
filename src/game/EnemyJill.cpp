@@ -52,8 +52,8 @@ EnemyJill::EnemyJill(atn::Task* parent, const EnemyInfo_unk* info)
     m15B4.mCount = 0;
     m15E4.mCount = 0;
     m1614.mCount = 0;
-    m17A4.fn_8023780C("ef_ev114.efp");
-    m17B0.fn_80237654("/effect/ef_ev107a_01.eff");
+    m17A4.LoadRequest("ef_ev114.efp");
+    m17B0.LoadRequest("/effect/ef_ev107a_01.eff");
 }
 
 // inferred: resets the step and remembers the state (inlined everywhere; names invented)
@@ -82,8 +82,8 @@ inline void EnemyJill::SetState_unk(int state) {
 // NONMATCHING: 98.26% - r4/r5 of the destination and of lbl_8087EFA8 in the copy of the color matrix (8 variants:
 // pointer/reference locals, member-wise operator=, helper)
 int EnemyJill::vf0C() {
-    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m17A4.fn_80237874() == 0 &&
-        m17B0.fn_802376D0() == 0) {
+    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m17A4.IsLoading() == 0 &&
+        m17B0.IsLoading() == 0) {
     m58C = 6;
     JillColMat_unk* mat = &m1660[0];
     *mat = lbl_8087EFA8->m324;

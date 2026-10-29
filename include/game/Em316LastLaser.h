@@ -91,8 +91,8 @@ public:
     int m1530;
     HitInfo_unk* m1534; // inferred: "LaserID"
     LaserTrace m1538;
-    ResLoader_unk m1574; // inferred: "ef_sk043f_01.eff"
-    ResLoader_unk m1580; // inferred: "ef_sk043c_01.eff"
+    atn::EffFile m1574; // inferred: "ef_sk043f_01.eff"
+    atn::EffFile m1580; // inferred: "ef_sk043c_01.eff"
     atn::EfpFile m158C;
     atn::EfpFile m1598;
     atn::EfpFile m15A4;

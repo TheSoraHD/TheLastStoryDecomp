@@ -33,7 +33,7 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, const void* mtx,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, const void* mtx,
                             const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk* color, int arg8,
                             int arg9, int arg10, float scale); // inferred: plays an effect
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
@@ -134,18 +134,18 @@ EnemyFieldMagician::EnemyFieldMagician(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m1608(0), m160C(0), m1610(0), m1614(0), m1618(0), m1624(info), m1628(90),
       m1650(0), m1654(-1), m1658(-1), m165C(-1), m1660(-1) {
     m54C |= 0x02000000;
-    m15C0[0].fn_8023780C("ef_sk051a.efp");
-    m15C0[1].fn_8023780C("ef_sk051b.efp");
-    m15C0[2].fn_8023780C("ef_sk051c.efp");
-    m15C0[3].fn_8023780C("ef_sk051d.efp");
-    m15F0.fn_8023780C("ef_bs007a.efp");
+    m15C0[0].LoadRequest("ef_sk051a.efp");
+    m15C0[1].LoadRequest("ef_sk051b.efp");
+    m15C0[2].LoadRequest("ef_sk051c.efp");
+    m15C0[3].LoadRequest("ef_sk051d.efp");
+    m15F0.LoadRequest("ef_bs007a.efp");
     m14B0[0].fn_80058078("ef_col00n.hcb");
     m14B0[0].mFlags &= ~1;
     m14B0[1].fn_80058078("ef_col01n.hcb");
     m14B0[1].mFlags &= ~1;
     fn_80097A88(&mMotion, 0x13F, "na000_skn00a_04.motion");
     fn_80097A88(&mMotion, 0x140, "na000_skn00b_04.motion");
-    m15FC.fn_80237654("ef_bu040g_01.eff");
+    m15FC.LoadRequest("ef_bu040g_01.eff");
     std::string path;
     const char* name = strstr(info->m2C, "db_name=");
     if (name != 0) {
@@ -159,7 +159,7 @@ EnemyFieldMagician::EnemyFieldMagician(atn::Task* parent, EnemyInfo_unk* info)
 
 int EnemyFieldMagician::vf0C() {
     for (int i = 0; i < 4; i++) {
-        if (m15C0[i].fn_80237874() != 0) {
+        if (m15C0[i].IsLoading() != 0) {
             return 0;
         }
     }
@@ -171,7 +171,7 @@ int EnemyFieldMagician::vf0C() {
     if (m161C.fn_80473F50() != 0) {
         return 0;
     }
-    if (m15F0.fn_80237874() != 0 || m15FC.fn_802376D0() != 0) {
+    if (m15F0.IsLoading() != 0 || m15FC.IsLoading() != 0) {
         return 0;
     }
     if (BattleCharaTask::vf0C() != 0) {

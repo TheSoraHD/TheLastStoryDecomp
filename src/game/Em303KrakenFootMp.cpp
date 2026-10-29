@@ -58,7 +58,7 @@ Em303KrakenFootMp::Em303KrakenFootMp(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_em303_00_00.csv\0");
     }
     m14D4.vf0C(path);
-    m1510.fn_8023780C("/effect/ef_bd006.efp");
+    m1510.LoadRequest("/effect/ef_bd006.efp");
 }
 
 void Em303KrakenFootMp::fn_802E5B30(int value) {
@@ -114,7 +114,7 @@ int Em303KrakenFootMp::vf0C() {
     if (m14D4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1510.fn_80237874() != 0) {
+    if (m1510.IsLoading() != 0) {
         return 0;
     }
     fn_80087994(m151C.Load("Em303KrakenFootMp"), "DebugDisp", &m1520, 0, 0);

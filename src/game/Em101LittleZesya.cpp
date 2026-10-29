@@ -152,17 +152,17 @@ Em101LittleZesya::Em101LittleZesya(atn::Task* parent, EnemyInfo_unk* info)
     fn_80087994(group, "DebugDisp", &m15CC, 0, 0);
     fn_800874C8(group, "WaitFrame", &m15C0, 0, 1000000, 1, 0, 0);
     fn_8008771C(group, "AttackChanceFrame", &m15C4, 0, 0, 0.0f, 100000.0f, 1.0f);
-    m156C.fn_8023780C("/effect/ef_bs007a.efp");
-    m1578.fn_8023780C("cm002_00.efp");
-    m1584.fn_8023780C("/effect/ef_sc019a.efp");
+    m156C.LoadRequest("/effect/ef_bs007a.efp");
+    m1578.LoadRequest("cm002_00.efp");
+    m1584.LoadRequest("/effect/ef_sc019a.efp");
     mFlagB5 = 1;
 }
 
 Em101LittleZesya::~Em101LittleZesya() {}
 
 int Em101LittleZesya::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m156C.fn_80237874() == 0 &&
-        m1578.fn_80237874() == 0 && m1584.fn_80237874() == 0 && m14B0.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m156C.IsLoading() == 0 &&
+        m1578.IsLoading() == 0 && m1584.IsLoading() == 0 && m14B0.fn_80473F50() == 0) {
         mStatus.m18 |= 0x1C0;
         m58C = 0;
         mStatus.m18 |= 0x10000;

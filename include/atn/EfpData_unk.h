@@ -29,7 +29,7 @@ struct EfpElem_unk {
     unsigned int mNode; // 0x3C: inferred: hash of the node name
     int m40;
     int m44;
-    ResLoader_unk mLoader; // 0x48: the effect resource
+    atn::EffFile mLoader; // 0x48: the effect resource
 };
 
 // inferred: effect data built from the loaded file (0x14 bytes, functions at 0x8024373C-0x802441CC).

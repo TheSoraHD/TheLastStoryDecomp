@@ -66,7 +66,7 @@ int LandMine::vf1C() {
     if (mModel.fn_8008B140() != 0) {
         return 1;
     }
-    if (mEfp.fn_80237874() != 0 || mEfpWait.fn_80237874() != 0) {
+    if (mEfp.IsLoading() != 0 || mEfpWait.IsLoading() != 0) {
         return 1;
     }
     return 0;
@@ -81,9 +81,9 @@ void LandMine::vf20() {
             continue;
         }
         if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_WAIT") == 0) {
-            mEfpWait.fn_8023780C(csv.fn_8005B9CC());
+            mEfpWait.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "MODEL") == 0) {
             fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModel, &csv);

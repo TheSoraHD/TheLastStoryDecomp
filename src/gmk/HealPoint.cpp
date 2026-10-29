@@ -123,7 +123,7 @@ int HealPoint::vf1C() {
     if (mColli.fn_800580BC() != 0) {
         return 1;
     }
-    return mEfp.fn_80237874() != 0;
+    return mEfp.IsLoading() != 0;
 }
 
 void HealPoint::vf20() {
@@ -144,7 +144,7 @@ void HealPoint::vf20() {
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "SKILL") == 0) {
             mSkill = fn_80219E6C(atoi(csv.fn_8005B9CC()));
         }

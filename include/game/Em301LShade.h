@@ -113,7 +113,7 @@ public:
     float m1568;                // inferred: "absorb_subtract_rate"
     float m156C;                // inferred: "absorb_min_rate"
     atn::Vector3 m1570;         // inferred: centre of the absorption (head node, fn_802D4628)
-    ResLoader_unk m157C;        // inferred: "/effect/ef_mb001b.eff"
+    atn::EffFile m157C;        // inferred: "/effect/ef_mb001b.eff"
     atn::EfpFile m1588; // inferred: "/effect/ef_sk013a.efp"
     atn::EfpFile m1594; // inferred: "/effect/ef_sk013d.efp"
     atn::EfpFile m15A0; // inferred: "/effect/ef_sk013c.efp"

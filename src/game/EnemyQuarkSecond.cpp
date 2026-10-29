@@ -83,19 +83,19 @@ EnemyQuarkSecond::EnemyQuarkSecond(atn::Task* parent, EnemyInfo_unk* info)
     }
     std::string path = fn_8006AFF8(dir, name);
     m16B8.vf0C(path.c_str());
-    m15A4.fn_8023780C("ef_bs072f.efp");
-    m15B0.fn_8023780C("ef_bs054d.efp");
-    m15BC.fn_8023780C("ef_bs054a.efp");
-    m15C8.fn_80237654("ef_bs054e_01.eff");
-    m162C.fn_8023780C("ef_bs058a.efp");
-    m1638.fn_8023780C("ef_bs058c.efp");
-    m1668.fn_80237654("ef_bs051b.eff");
-    m1610.fn_8023780C("ef_bu040a.efp");
-    m161C.fn_8023780C("ef_bu040h.efp");
-    m1674.fn_8023780C("ef_bd008d.efp");
-    m1680.fn_8023780C("ef_bu047b.efp");
-    m168C.fn_8023780C("ef_bu047c.efp");
-    m1698.fn_8023780C("ef_bs079b.efp");
+    m15A4.LoadRequest("ef_bs072f.efp");
+    m15B0.LoadRequest("ef_bs054d.efp");
+    m15BC.LoadRequest("ef_bs054a.efp");
+    m15C8.LoadRequest("ef_bs054e_01.eff");
+    m162C.LoadRequest("ef_bs058a.efp");
+    m1638.LoadRequest("ef_bs058c.efp");
+    m1668.LoadRequest("ef_bs051b.eff");
+    m1610.LoadRequest("ef_bu040a.efp");
+    m161C.LoadRequest("ef_bu040h.efp");
+    m1674.LoadRequest("ef_bd008d.efp");
+    m1680.LoadRequest("ef_bu047b.efp");
+    m168C.LoadRequest("ef_bu047c.efp");
+    m1698.LoadRequest("ef_bs079b.efp");
     fn_80370320(fn_80121F00(), 0x65, 1, 0);
     fn_80370320(fn_80121F00(), 0x68, 1, 0);
     fn_80338CDC(&mColli, 0);
@@ -126,11 +126,11 @@ extern "C" inline void fn_803396FC(CharaStatus* status, int index, const CharaSt
 
 
 int EnemyQuarkSecond::vf0C() {
-    if (fn_8013655C() == 0 && m15A4.fn_80237874() == 0 && m15B0.fn_80237874() == 0 &&
-        m15BC.fn_80237874() == 0 && m15C8.fn_802376D0() == 0 && m1638.fn_80237874() == 0 &&
-        m162C.fn_80237874() == 0 && m1668.fn_802376D0() == 0 && m16B8.fn_80473F50() == 0 &&
-        m1610.fn_80237874() == 0 && m161C.fn_80237874() == 0 && m1674.fn_80237874() == 0 &&
-        m1680.fn_80237874() == 0 && m168C.fn_80237874() == 0 && m1698.fn_80237874() == 0 &&
+    if (fn_8013655C() == 0 && m15A4.IsLoading() == 0 && m15B0.IsLoading() == 0 &&
+        m15BC.IsLoading() == 0 && m15C8.IsLoading() == 0 && m1638.IsLoading() == 0 &&
+        m162C.IsLoading() == 0 && m1668.IsLoading() == 0 && m16B8.fn_80473F50() == 0 &&
+        m1610.IsLoading() == 0 && m161C.IsLoading() == 0 && m1674.IsLoading() == 0 &&
+        m1680.IsLoading() == 0 && m168C.IsLoading() == 0 && m1698.IsLoading() == 0 &&
         fn_800D3FA4() != 0) {
         fn_80344780();
         SetFlag(0x200);

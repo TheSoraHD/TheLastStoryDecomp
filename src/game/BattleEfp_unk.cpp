@@ -32,16 +32,16 @@ struct BattleEfpEntry_unk {
 
     // inferred: nonzero while one of the resources is loading
     bool IsLoading_unk() {
-        if (m04.fn_80237874()) {
+        if (m04.IsLoading()) {
             return true;
         }
-        if (m10.fn_80237874()) {
+        if (m10.IsLoading()) {
             return true;
         }
-        if (m1C.fn_802376D0()) {
+        if (m1C.IsLoading()) {
             return true;
         }
-        if (m28.fn_80237874()) {
+        if (m28.IsLoading()) {
             return true;
         }
         if (m34.fn_80473F50()) {
@@ -54,7 +54,7 @@ struct BattleEfpEntry_unk {
             mLoaded = 0;
             m04.Destroy();
             m10.Destroy();
-            m1C.fn_8023772C();
+            m1C.Destroy();
             m28.Destroy();
             m34.fn_80473F88();
             m3C.fn_80473F88();
@@ -64,7 +64,7 @@ struct BattleEfpEntry_unk {
     BattleEfpData_unk* mData;
     atn::EfpFile m04;
     atn::EfpFile m10;
-    ResLoader_unk m1C;
+    atn::EffFile m1C;
     atn::EfpFile m28;
     atn::LH_Xsca m34;
     atn::LH_Xsca m3C;
@@ -85,25 +85,25 @@ extern "C" void fn_800EF3EC(BattleEfpEntry_unk* entry) {
     {
         const char* name = entry->mData->mEfp1;
         if (strcmp(name, "") != 0) {
-            entry->m04.fn_8023780C(name);
+            entry->m04.LoadRequest(name);
         }
     }
     {
         const char* name = entry->mData->mEfp2;
         if (strcmp(name, "") != 0) {
-            entry->m10.fn_8023780C(name);
+            entry->m10.LoadRequest(name);
         }
     }
     {
         const char* name = entry->mData->mRes;
         if (strcmp(name, "") != 0) {
-            entry->m1C.fn_80237654(name);
+            entry->m1C.LoadRequest(name);
         }
     }
     {
         const char* name = entry->mData->mEfp3;
         if (strcmp(name, "") != 0) {
-            entry->m28.fn_8023780C(name);
+            entry->m28.LoadRequest(name);
         }
     }
     {
@@ -202,7 +202,7 @@ extern "C" BattleEfpEntry_unk* fn_800EFB78(int id) {
 
 extern "C" atn::EfpFile* fn_800EFBC4(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
-    if (entry != 0 && !entry->m04.fn_80237874() && entry->m04.mLoader.fn_80473F18() != 0) {
+    if (entry != 0 && !entry->m04.IsLoading() && entry->m04.mLoader.fn_80473F18() != 0) {
         return &entry->m04;
     }
     return 0;
@@ -210,15 +210,15 @@ extern "C" atn::EfpFile* fn_800EFBC4(int id) {
 
 extern "C" atn::EfpFile* fn_800EFC64(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
-    if (entry != 0 && !entry->m10.fn_80237874() && entry->m10.mLoader.fn_80473F18() != 0) {
+    if (entry != 0 && !entry->m10.IsLoading() && entry->m10.mLoader.fn_80473F18() != 0) {
         return &entry->m10;
     }
     return 0;
 }
 
-extern "C" ResLoader_unk* fn_800EFD04(int id) {
+extern "C" atn::EffFile* fn_800EFD04(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
-    if (entry != 0 && !entry->m1C.fn_802376D0() && entry->m1C.mResource != 0) {
+    if (entry != 0 && !entry->m1C.IsLoading() && entry->m1C.mResource != 0) {
         return &entry->m1C;
     }
     return 0;
@@ -226,7 +226,7 @@ extern "C" ResLoader_unk* fn_800EFD04(int id) {
 
 extern "C" atn::EfpFile* fn_800EFDA0(int id) {
     BattleEfpEntry_unk* entry = fn_800EFB78(id);
-    if (entry != 0 && !entry->m28.fn_80237874() && entry->m28.mResource != 0) {
+    if (entry != 0 && !entry->m28.IsLoading() && entry->m28.mResource != 0) {
         return &entry->m28;
     }
     return 0;

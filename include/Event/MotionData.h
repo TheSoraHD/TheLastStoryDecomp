@@ -15,7 +15,9 @@
 namespace atn {
 struct Model;
 }
-struct ResLoader_unk;
+namespace atn {
+struct EffFile;
+}
 
 namespace atn {
 class LH_Xsca;
@@ -88,7 +90,7 @@ public:
     DataOwner_unk* m04;
     std::string m08;
     int m14;
-    void* m18; // inferred: atn::EfpFile (m1C == 1) or ResLoader_unk (m1C == 2)
+    void* m18; // inferred: atn::EfpFile (m1C == 1) or atn::EffFile (m1C == 2)
     int m1C;
 };
 

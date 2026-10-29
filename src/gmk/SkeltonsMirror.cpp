@@ -37,7 +37,7 @@ GimmickCommon* SkeltonsMirror::fn_80414AC4(atn::Task* parent, GimmickDesc_unk* d
 SkeltonsMirror::~SkeltonsMirror() {}
 
 int SkeltonsMirror::vf1C() {
-    if (mModel.fn_8008B140() != 0 || mColli.fn_800580BC() != 0 || mEfp.fn_80237874() != 0) {
+    if (mModel.fn_8008B140() != 0 || mColli.fn_800580BC() != 0 || mEfp.IsLoading() != 0) {
         return 1;
     }
     return 0;
@@ -60,7 +60,7 @@ void SkeltonsMirror::vf20() {
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }

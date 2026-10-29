@@ -115,13 +115,13 @@ Em201ZanGurg::Em201ZanGurg(atn::Task* parent, EnemyInfo_unk* info)
     mStatus.mParamB.m9C |= 0x10;
     m16DC = 0;
     m16E4 = 10;
-    m16F8.fn_8023780C("/effect/ef_sk026a.efp");
+    m16F8.LoadRequest("/effect/ef_sk026a.efp");
 }
 
 Em201ZanGurg::~Em201ZanGurg() {}
 
 int Em201ZanGurg::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m16F8.fn_80237874() == 0 &&
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m16F8.IsLoading() == 0 &&
         m14B0.fn_80473F50() == 0) {
         fn_80262E6C((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
         mStatus.m18 |= 0x1C0;

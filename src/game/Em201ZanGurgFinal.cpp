@@ -365,22 +365,22 @@ Em201ZanGurgFinal::Em201ZanGurgFinal(atn::Task* parent, EnemyInfo_unk* info)
     m14B0.vf0C(path.c_str());
     void* group = m168C.Load("Em201ZanGurgFinal");
     fn_80087994(group, "DebugDisp", &m1690, 0, 0);
-    m1564.fn_8023780C("/effect/ef_bs007a.efp");
-    m1570.fn_8023780C("/effect/ef_bs065a.efp");
-    m157C.fn_8023780C("/effect/ef_bs065c.efp");
-    m1588.fn_8023780C("/effect/ef_bu031a.efp");
-    m1594.fn_8023780C("/effect/ef_bs064a.efp");
-    m15A0.fn_8023780C("/effect/ef_bu032a.efp");
-    m15AC.fn_8023780C("/effect/ef_bu033a.efp");
-    m15B8.fn_8023780C("/effect/ef_bs063a.efp");
-    m15C4.fn_8023780C("/effect/ef_bu040a.efp");
-    m15D0.fn_8023780C("/effect/ef_bu040d.efp");
-    m15DC.fn_8023780C("/effect/ef_bu040e.efp");
-    m15E8.fn_8023780C("/effect/ef_bu040f.efp");
-    m15F4.fn_8023780C("/effect/ef_bu040h.efp");
-    m1600.fn_80237654("/effect/ef_bu040g_01.eff");
-    m160C.fn_8023780C("ef_we006.efp");
-    m1618.fn_8023780C("ef_bs073f.efp");
+    m1564.LoadRequest("/effect/ef_bs007a.efp");
+    m1570.LoadRequest("/effect/ef_bs065a.efp");
+    m157C.LoadRequest("/effect/ef_bs065c.efp");
+    m1588.LoadRequest("/effect/ef_bu031a.efp");
+    m1594.LoadRequest("/effect/ef_bs064a.efp");
+    m15A0.LoadRequest("/effect/ef_bu032a.efp");
+    m15AC.LoadRequest("/effect/ef_bu033a.efp");
+    m15B8.LoadRequest("/effect/ef_bs063a.efp");
+    m15C4.LoadRequest("/effect/ef_bu040a.efp");
+    m15D0.LoadRequest("/effect/ef_bu040d.efp");
+    m15DC.LoadRequest("/effect/ef_bu040e.efp");
+    m15E8.LoadRequest("/effect/ef_bu040f.efp");
+    m15F4.LoadRequest("/effect/ef_bu040h.efp");
+    m1600.LoadRequest("/effect/ef_bu040g_01.eff");
+    m160C.LoadRequest("ef_we006.efp");
+    m1618.LoadRequest("ef_bs073f.efp");
     mFlagB11 = 1;
     ZanWeapon_unk* shield = fn_80206C50(0x18875);
     m1628 = m1624 = fn_800457A4(shield->m78, shield->m80, 0, this, 0);
@@ -392,12 +392,12 @@ Em201ZanGurgFinal::~Em201ZanGurgFinal() {
 
 int Em201ZanGurgFinal::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1624->vf0C() == 0 &&
-        m1564.fn_80237874() == 0 && m1570.fn_80237874() == 0 && m157C.fn_80237874() == 0 &&
-        m1588.fn_80237874() == 0 && m1594.fn_80237874() == 0 && m15A0.fn_80237874() == 0 &&
-        m15AC.fn_80237874() == 0 && m15B8.fn_80237874() == 0 && m15C4.fn_80237874() == 0 &&
-        m15D0.fn_80237874() == 0 && m15DC.fn_80237874() == 0 && m15E8.fn_80237874() == 0 &&
-        m15F4.fn_80237874() == 0 && m1600.fn_802376D0() == 0 && m160C.fn_80237874() == 0 &&
-        m1618.fn_80237874() == 0 && m14B0.fn_80473F50() == 0) {
+        m1564.IsLoading() == 0 && m1570.IsLoading() == 0 && m157C.IsLoading() == 0 &&
+        m1588.IsLoading() == 0 && m1594.IsLoading() == 0 && m15A0.IsLoading() == 0 &&
+        m15AC.IsLoading() == 0 && m15B8.IsLoading() == 0 && m15C4.IsLoading() == 0 &&
+        m15D0.IsLoading() == 0 && m15DC.IsLoading() == 0 && m15E8.IsLoading() == 0 &&
+        m15F4.IsLoading() == 0 && m1600.IsLoading() == 0 && m160C.IsLoading() == 0 &&
+        m1618.IsLoading() == 0 && m14B0.fn_80473F50() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC21D;

@@ -186,18 +186,18 @@ Em202SpiderBase::Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info)
     m568 = 0.5f;
     m1530 = fn_80219E6C(0x3F8);
     m14F4 = fn_80219E6C(0x3F7);
-    m15A4.fn_8023780C("/effect/ef_uc001.efp");
-    m1520.fn_8023780C("/effect/ef_sk002d.efp");
-    m14DC.fn_8023780C("/effect/ef_uc007.efp");
-    m15B0.fn_8023780C("/effect/ef_sc003_01b.efp");
+    m15A4.LoadRequest("/effect/ef_uc001.efp");
+    m1520.LoadRequest("/effect/ef_sk002d.efp");
+    m14DC.LoadRequest("/effect/ef_uc007.efp");
+    m15B0.LoadRequest("/effect/ef_sc003_01b.efp");
 }
 
 Em202SpiderBase::~Em202SpiderBase() {}
 
 // NONMATCHING: 99.92% - push_back registers (known open case) and the pool of __allocate (lbl_80775A88)
 int Em202SpiderBase::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15A4.fn_80237874() == 0 &&
-        m1520.fn_80237874() == 0 && m14DC.fn_80237874() == 0 && m15BC.fn_80473F50() == 0) {
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15A4.IsLoading() == 0 &&
+        m1520.IsLoading() == 0 && m14DC.IsLoading() == 0 && m15BC.fn_80473F50() == 0) {
         if (m15BC.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m15BC.fn_80470580(), m15BC.fn_8047059C());
             do {

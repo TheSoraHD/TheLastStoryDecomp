@@ -217,9 +217,9 @@ EnemyTrista::EnemyTrista(atn::Task* parent, EnemyInfo_unk* info)
     fn_800874C8(group, "DamageSubtractWait", &m15A8, 0, 1000000, 1, 0, 0);
     fn_8008771C(group, "AttackChanceFrame", &m15AC, 0, 0, 0.0f, 100000.0f, 1.0f);
     fn_800874C8(group, "ChaseCancelFrame", &m15B0, 0, 1000000, 1, 0, 0);
-    m14F8.fn_8023780C(sEffect0);
-    m1504.fn_8023780C(sEffect1);
-    m1510.fn_8023780C(sEffect2);
+    m14F8.LoadRequest(sEffect0);
+    m1504.LoadRequest(sEffect1);
+    m1510.LoadRequest(sEffect2);
     m151C.PushBack_unk(fn_80219E6C(200));
 }
 
@@ -231,13 +231,13 @@ int EnemyTrista::vf0C() {
     if (m14B0.fn_80473F50() != 0) {
         result = 0;
     }
-    if (m14F8.fn_80237874() != 0) {
+    if (m14F8.IsLoading() != 0) {
         result = 0;
     }
-    if (m1504.fn_80237874() != 0) {
+    if (m1504.IsLoading() != 0) {
         result = 0;
     }
-    if (m1510.fn_80237874() != 0) {
+    if (m1510.IsLoading() != 0) {
         result = 0;
     }
     if (result) {

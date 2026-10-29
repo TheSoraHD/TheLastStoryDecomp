@@ -214,8 +214,8 @@ Em203GreaterDaemonRed::Em203GreaterDaemonRed(atn::Task* parent, EnemyInfo_unk* i
     m1530.x = 0.0f;
     m1530.y = 0.0f;
     m1530.z = 0.0f;
-    m162C.fn_8023780C("/effect/ef_mb005c.efp");
-    m15E4.fn_8023780C("/effect/ef_bs049e.efp");
+    m162C.LoadRequest("/effect/ef_mb005c.efp");
+    m15E4.LoadRequest("/effect/ef_bs049e.efp");
     for (int i = 0; i < 2; i++) {
         m14D4[i] = 0;
         m14DC[i] = 0;
@@ -230,8 +230,8 @@ Em203GreaterDaemonRed::Em203GreaterDaemonRed(atn::Task* parent, EnemyInfo_unk* i
 Em203GreaterDaemonRed::~Em203GreaterDaemonRed() {}
 
 int Em203GreaterDaemonRed::vf0C() {
-    if (fn_8013655C() == 0 && m1660.fn_80473F50() == 0 && m15BC.fn_80237874() == 0 && m15C8.fn_80237874() == 0 &&
-        m162C.fn_80237874() == 0 && m15E4.fn_80237874() == 0) {
+    if (fn_8013655C() == 0 && m1660.fn_80473F50() == 0 && m15BC.IsLoading() == 0 && m15C8.IsLoading() == 0 &&
+        m162C.IsLoading() == 0 && m15E4.IsLoading() == 0) {
         fn_80288E30(this, 1.0f);
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;

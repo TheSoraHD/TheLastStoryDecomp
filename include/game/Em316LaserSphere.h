@@ -81,10 +81,10 @@ public:
     int m1578;
     HitInfo_unk* m157C; // inferred: "LaserID"
     HitInfo_unk* m1580; // inferred: "TackleID"
-    ResLoader_unk m1584;      // inferred: "ef_sk043c_01.eff"
+    atn::EffFile m1584;      // inferred: "ef_sk043c_01.eff"
     atn::EfpFile m1590; // inferred: "ef_sk043a.efp"
-    ResLoader_unk m159C;      // inferred: "ef_sk043g_01.eff"
-    ResLoader_unk m15A8;      // inferred: "ef_sk043g_02.eff"
+    atn::EffFile m159C;      // inferred: "ef_sk043g_01.eff"
+    atn::EffFile m15A8;      // inferred: "ef_sk043g_02.eff"
     CharaTask* m15B4;         // inferred: character caught by the tackle
     atn::Matrix3x4 m15B8; // inferred: the empty constructor 0x803165E0 is the weak copy of Matrix3x4()
     atn::Matrix3x4 m15E8;

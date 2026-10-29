@@ -151,7 +151,7 @@ int Cannon::vf1C() {
     if (mModel.fn_8008B140() != 0 || mModelCrush.fn_8008B140() != 0) {
         busy = 1;
     }
-    if (mEfpShoot.fn_80237874() != 0 || mEfpCrush.fn_80237874() != 0) {
+    if (mEfpShoot.IsLoading() != 0 || mEfpCrush.IsLoading() != 0) {
         busy = 1;
     }
     return busy;
@@ -180,9 +180,9 @@ void Cannon::vf20() {
             if (m58 != 0) {
                 csv.fn_8005B9CC();
             }
-            mEfpShoot.fn_8023780C(csv.fn_8005B9CC());
+            mEfpShoot.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP_CRUSH") == 0) {
-            mEfpCrush.fn_8023780C(csv.fn_8005B9CC());
+            mEfpCrush.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "PARAM") == 0) {
             mShootWait = atoi(csv.fn_8005B9CC());
             mShootWaitRand = atoi(csv.fn_8005B9CC());

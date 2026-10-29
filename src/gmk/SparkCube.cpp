@@ -246,7 +246,7 @@ int SparkCube::vf1C() {
         return 1;
     }
     for (int i = 0; i < 5; i++) {
-        if (mEfp[i].fn_80237874() != 0) {
+        if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
     }
@@ -284,7 +284,7 @@ void SparkCube::vf20() {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            mEfp[atoi(csv.fn_8005B9CC())].fn_8023780C(path);
+            mEfp[atoi(csv.fn_8005B9CC())].LoadRequest(path);
         } else if (strcmp(field, "STATE_CHANGE_FRAME") == 0) {
             int state = atoi(csv.fn_8005B9CC());
             mMin[state] = fn_800DC288(csv.fn_8005B9CC());

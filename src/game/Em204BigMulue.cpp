@@ -178,9 +178,9 @@ Em204BigMulue::Em204BigMulue(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_em204_01_00.csv\0");
     }
     m14B4.vf0C(path);
-    m1A6C.fn_80237654("/effect/ef_sk002b.eff");
-    m1A60.fn_8023780C("/effect/ef_sk008d.efp");
-    m1A78.fn_8023780C("/effect/ef_uc011.efp");
+    m1A6C.LoadRequest("/effect/ef_sk002b.eff");
+    m1A60.LoadRequest("/effect/ef_sk008d.efp");
+    m1A78.LoadRequest("/effect/ef_uc011.efp");
 }
 
 // NONMATCHING: 99.37% - registers of the name loops (r27/r28) and of the status flags
@@ -194,7 +194,7 @@ int Em204BigMulue::vf0C() {
     if (m14B4.fn_80473F50() != 0) {
         return 0;
     }
-    if (m1A6C.fn_802376D0() != 0 || m1A60.fn_80237874() != 0 || m1A78.fn_80237874() != 0) {
+    if (m1A6C.IsLoading() != 0 || m1A60.IsLoading() != 0 || m1A78.IsLoading() != 0) {
         return 0;
     }
     fn_802AC8E8((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());

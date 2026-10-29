@@ -170,7 +170,7 @@ void TreasureBox::vf14() {
 
 int TreasureBox::vf1C() {
     int ret = 0;
-    if (mModel.fn_8008B140() != 0 || mColli.fn_800580BC() != 0 || mEfp.fn_80237874() != 0) {
+    if (mModel.fn_8008B140() != 0 || mColli.fn_800580BC() != 0 || mEfp.IsLoading() != 0) {
         ret = 1;
     }
     return ret;
@@ -194,7 +194,7 @@ void TreasureBox::vf20() {
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
-            mEfp.fn_8023780C(csv.fn_8005B9CC());
+            mEfp.LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
 }

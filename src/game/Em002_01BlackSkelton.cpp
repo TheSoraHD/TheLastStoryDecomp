@@ -67,7 +67,7 @@ inline void CharaList_unk::Erase_unk(CharaTask** it) {
 Em002_01BlackSkelton::Em002_01BlackSkelton(atn::Task* parent, void* data)
     : EnemyTask(parent, data), m14B8(0), m14CC(0) {
     m14BC.__shrink_unk(0);
-    m14D0.fn_8023780C("/effect/ef_uc023.efp");
+    m14D0.LoadRequest("/effect/ef_uc023.efp");
 }
 
 Em002_01BlackSkelton::~Em002_01BlackSkelton() {}
@@ -75,7 +75,7 @@ Em002_01BlackSkelton::~Em002_01BlackSkelton() {}
 // NONMATCHING: 94.4% - same instructions; the flag word 0x12A4 and the size of m14BC get other
 // registers (the original ors the loaded word into a new register)
 int Em002_01BlackSkelton::vf0C() {
-    if (fn_8013655C() == 0 && m14D0.fn_80237874() == 0) {
+    if (fn_8013655C() == 0 && m14D0.IsLoading() == 0) {
         m14B0 = 0;
         m14B4 = 0;
         m590 = fn_800F8548(lbl_8087F048);

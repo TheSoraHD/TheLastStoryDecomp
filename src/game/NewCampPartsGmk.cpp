@@ -450,13 +450,13 @@ NewCampPartsGmk::NewCampPartsGmk(atn::Task* parent) : NewCampPartsBase(parent) {
     if (m4C > 0) {
         mInfo.Reset_unk(new (1, "", "", 0) NewCampGmkInfo_unk[m4C]);
     }
-    mEfp[0].fn_8023780C("/effect/be010_007.efp");
+    mEfp[0].LoadRequest("/effect/be010_007.efp");
 }
 
 NewCampPartsGmk::~NewCampPartsGmk() {}
 
 int NewCampPartsGmk::vf4C() {
-    return mEfp[0].fn_80237874() != 0;
+    return mEfp[0].IsLoading() != 0;
 }
 
 // inferred: inline helper; it gives the register order of the original (name invented)

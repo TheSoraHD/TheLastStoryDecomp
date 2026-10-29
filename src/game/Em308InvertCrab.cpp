@@ -44,7 +44,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, ResLoader_unk* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale); // inferred: plays an effect (as in gmk/PlayEffect.cpp)
 // inferred: player manager (lbl_8087F8A0, as in game/CharaTask.cpp)
@@ -167,10 +167,10 @@ Em308InvertCrab::Em308InvertCrab(atn::Task* parent, EnemyInfo_unk* info)
     m14EC = fn_80219E6C(0x3F7);
     m1550 = fn_80219E6C(0x400);
     m15A8 = 10;
-    m15AC.fn_8023780C("/effect/ef_uc001.efp");
-    m1518.fn_8023780C("/effect/ef_sk002d.efp");
-    m14D8.fn_8023780C("/effect/ef_uc007.efp");
-    m15B8.fn_80237654("/effect/ef_sp008_01.eff");
+    m15AC.LoadRequest("/effect/ef_uc001.efp");
+    m1518.LoadRequest("/effect/ef_sk002d.efp");
+    m14D8.LoadRequest("/effect/ef_uc007.efp");
+    m15B8.LoadRequest("/effect/ef_sp008_01.eff");
 }
 
 Em308InvertCrab::~Em308InvertCrab() {}
@@ -180,8 +180,8 @@ Em308InvertCrab::~Em308InvertCrab() {}
 // NONMATCHING: 99.94% - r3/r4 of the inlined std::vector::push_back (known blocker) and the message of
 // vector::__allocate (lbl_80775A88, a pool of another file, as in ChaserNpc)
 int Em308InvertCrab::vf0C() {
-    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15AC.fn_80237874() == 0 &&
-        m1518.fn_80237874() == 0 && m14D8.fn_80237874() == 0 && m15B8.fn_802376D0() == 0 &&
+    if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15AC.IsLoading() == 0 &&
+        m1518.IsLoading() == 0 && m14D8.IsLoading() == 0 && m15B8.IsLoading() == 0 &&
         m15C4.fn_80473F50() == 0) {
         if (m15C4.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m15C4.fn_80470580(), m15C4.fn_8047059C());

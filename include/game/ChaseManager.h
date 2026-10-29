@@ -42,9 +42,9 @@ public:
     ChaserGuard* mCatcher; // 0x70
     atn::FixedArray_unk<ChaserGuard*, 32> mGuards; // 0x74
     CharaTask* mCaught;    // 0xF8
-    ResLoader_unk mFC[2];
-    ResLoader_unk m114[2];
-    ResLoader_unk m12C[2];
+    atn::EffFile mFC[2];
+    atn::EffFile m114[2];
+    atn::EffFile m12C[2];
     Mtx m144; // inferred: matrix of the first marker effect
     Mtx m174; // inferred: matrix of the second marker effect
     float m1A4;

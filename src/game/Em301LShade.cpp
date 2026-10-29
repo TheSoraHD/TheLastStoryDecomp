@@ -403,20 +403,20 @@ Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
     } while (csv.fn_8005BBF8());
     std::string path = fn_8006AFF8(dir, name);
     m1650.vf0C(path.c_str());
-    m1514.fn_8023780C("/effect/ef_sk006a.efp");
-    m1520.fn_8023780C("/effect/ef_sk006c.efp");
-    m1548.fn_8023780C("/effect/ef_sk012a.efp");
-    m1554.fn_8023780C("/effect/ef_sk012c.efp");
-    m157C.fn_80237654("/effect/ef_mb001b.eff");
-    m1588.fn_8023780C("/effect/ef_sk013a.efp");
-    m1594.fn_8023780C("/effect/ef_sk013d.efp");
-    m15A0.fn_8023780C("/effect/ef_sk013c.efp");
-    m15CC.fn_8023780C("/effect/ef_uc020d.efp");
-    m15D8.fn_8023780C("/effect/ef_uc020a.efp");
-    m1608.fn_8023780C("/effect/ef_uc015.efp");
-    m1614.fn_8023780C("ef_bd013.efp");
-    m15F0[0].fn_8023780C("ef_uc063.efp");
-    m15F0[1].fn_8023780C("ef_uc064.efp");
+    m1514.LoadRequest("/effect/ef_sk006a.efp");
+    m1520.LoadRequest("/effect/ef_sk006c.efp");
+    m1548.LoadRequest("/effect/ef_sk012a.efp");
+    m1554.LoadRequest("/effect/ef_sk012c.efp");
+    m157C.LoadRequest("/effect/ef_mb001b.eff");
+    m1588.LoadRequest("/effect/ef_sk013a.efp");
+    m1594.LoadRequest("/effect/ef_sk013d.efp");
+    m15A0.LoadRequest("/effect/ef_sk013c.efp");
+    m15CC.LoadRequest("/effect/ef_uc020d.efp");
+    m15D8.LoadRequest("/effect/ef_uc020a.efp");
+    m1608.LoadRequest("/effect/ef_uc015.efp");
+    m1614.LoadRequest("ef_bd013.efp");
+    m15F0[0].LoadRequest("ef_uc063.efp");
+    m15F0[1].LoadRequest("ef_uc064.efp");
     m15AC.clear();
     m162C.clear();
     m1638.clear();
@@ -429,11 +429,11 @@ Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
 // copies, fn_80244CCC/fn_80244FC0, differ), so the original has more inline code somewhere (open case,
 // as LoadSeTableTask::vf0C in docs/inlining.md). Tried: the reading in an inline helper.
 int Em301LShade::vf0C() {
-    if (fn_8013655C() == 0 && m1514.fn_80237874() == 0 && m1520.fn_80237874() == 0 &&
-        m1548.fn_80237874() == 0 && m1554.fn_80237874() == 0 && m157C.fn_802376D0() == 0 &&
-        m1588.fn_80237874() == 0 && m1594.fn_80237874() == 0 && m15A0.fn_80237874() == 0 &&
-        m15CC.fn_80237874() == 0 && m15D8.fn_80237874() == 0 && m1608.fn_80237874() == 0 &&
-        m1614.fn_80237874() == 0 && m15F0[0].fn_80237874() == 0 && m15F0[1].fn_80237874() == 0 &&
+    if (fn_8013655C() == 0 && m1514.IsLoading() == 0 && m1520.IsLoading() == 0 &&
+        m1548.IsLoading() == 0 && m1554.IsLoading() == 0 && m157C.IsLoading() == 0 &&
+        m1588.IsLoading() == 0 && m1594.IsLoading() == 0 && m15A0.IsLoading() == 0 &&
+        m15CC.IsLoading() == 0 && m15D8.IsLoading() == 0 && m1608.IsLoading() == 0 &&
+        m1614.IsLoading() == 0 && m15F0[0].IsLoading() == 0 && m15F0[1].IsLoading() == 0 &&
         m1650.fn_80473F50() == 0) {
     if (m1650.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
         atn::Csv csv((const char*)m1650.fn_80470580(), m1650.fn_8047059C());
