@@ -7,6 +7,7 @@
 // offset accessors in game/MapPartsGimmickLoc.cpp).
 class MapPartsGimmickLoc : public MapPartsBase {
 public:
+    void* fn_80498E7C(int index);
     void fn_80498EAC(const atn::Vector3& value);
     void fn_80498EC0(const atn::Vector3& value);
     void fn_80498ED4(const atn::Vector3& value);

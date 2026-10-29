@@ -1,5 +1,15 @@
 #include "game/MapPartsGimmickLoc_unk.h"
 
+void* MapPartsGimmickLoc::fn_80498E7C(int index) {
+    unsigned char* bytes = reinterpret_cast<unsigned char*>(this);
+    if (*reinterpret_cast<unsigned int*>(bytes) == 0x6C6F6373) {
+        unsigned char* entries = *reinterpret_cast<unsigned char**>(bytes + 0x18);
+        return entries + index * 0x3C;
+    }
+    unsigned char* entries = *reinterpret_cast<unsigned char**>(bytes + 0x18);
+    return entries + index * 0x30;
+}
+
 void MapPartsGimmickLoc::fn_80498EAC(const atn::Vector3& value) {
     m6C = value;
 }
