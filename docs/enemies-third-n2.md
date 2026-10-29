@@ -7,6 +7,15 @@ Rama `agent-n2`. Referencia: `/home/claude/ref/n2_start.json` (7425 funciones).
 | Unidad | Antes | Despues | Total |
 |---|---|---|---|
 | `game/Em202_01_BSpider` (fuente nueva) | 0 | 14 | 19 |
+| `game/Em202ForestSpider` | 0 | 0 | 64 |
+| `game/Em202MothersSpider` | 0 | 0 | 18 |
+
+Lote cerrado por el coordinador antes de escribir ForestSpider/MothersSpider. Queda en scratch una cabecera
+`Em202ForestSpider.h` (layout completo deducido del ctor/dtor/vf0C: hilos `SpiderThread_unk` de 0xEC en 0x1538,
+listas 0x14B0/0x14C0/0x1908, campos CSV 0x1504-0x152C) en `/home/claude/scratch/n2/Em202ForestSpider.h`, sin
+commitear. Pendiente para ForestSpider: `fn_80279280` llama fuera de linea a todo (sobre presupuesto) y deja las copias
+debiles 0x80279788-0x802797D4; `fn_80276AE4` es un `extern "C" inline` de efecto que comparten EnemyQuark*/Em315Coffin;
+`fn_8027688C`, `fn_80277B84`, `fn_80278218`, `fn_8027851C`, `fn_80279054` los llama MothersSpider (no virtuales).
 
 ### Em202_01_BSpider: NONMATCHING
 - Constructor (99.29%): registros r7-r11 de la busqueda del punto de ruta en linea (12 formas).
