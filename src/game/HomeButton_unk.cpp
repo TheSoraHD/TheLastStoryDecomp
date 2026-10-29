@@ -1,8 +1,9 @@
 // inferred file name (splits-auto): HOME button menu glue on top of the HBM library, written after
 // the SDK sample (HBMDataInfo setup by language, digital cursor, controller update, drawing).
-// The functions keep their C names (game/HomeButtonMenu.cpp declares them so).
+// HBMRso* are C++ functions (mangled names in symbols.txt), declared in game/HBMRso.h.
 
 #include "math/Vec.h"
+#include "game/HBMRso.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char* strcat(char* dst, const char* src);
@@ -24,60 +25,15 @@ extern "C" void fn_80083AD4(MemoryManager_unk* mgr, void* p);     // inferred: f
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg); // inferred: loads a file
 extern "C" void fn_8006BB6C(void* data, int arg);                             // inferred: frees loaded data
 
-// inferred: HBMDataInfo of the SDK
-struct HBMDataInfo_unk {
-    void* layoutBuf;                     // 0x00
-    void* spkSeBuf;                      // 0x04
-    void* msgBuf;                        // 0x08
-    void* configBuf;                     // 0x0C
-    void* mem;                           // 0x10
-    int (*sound_callback)(int, int);     // 0x14
-    int backFlag;                        // 0x18
-    int region;                          // 0x1C
-    int cursor;                          // 0x20
-    int messageFlag;                     // 0x24
-    unsigned long configBufSize;         // 0x28
-    unsigned long memSize;               // 0x2C
-    float frameDelta;                    // 0x30
-    float adjustX;                       // 0x34
-    float adjustY;                       // 0x38
-    void* pAllocator;                    // 0x3C
-};
-
-// inferred: KPADStatus of the SDK, only the fields read here
-struct KPADStatus_unk {
-    unsigned char m00[0x20];
-    float posX; // 0x20
-    float posY; // 0x24
-    unsigned char m28[0x5E - 0x28];
-    signed char dpd_valid_fg; // 0x5E
-    unsigned char m5F[0x60 - 0x5F];
-    unsigned long clHold; // 0x60: classic controller buttons
-    unsigned char m64[0x6C - 0x64];
-    float clStickX; // 0x6C
-    float clStickY; // 0x70
-};
-
-// inferred: HBMKPadData / HBMControllerData of the SDK
-struct HBMKPadData_unk {
-    KPADStatus_unk* kpad;     // 0x00
-    float posX;               // 0x04
-    float posY;               // 0x08
-    unsigned long use_devtype; // 0x0C
-};
-struct HBMControllerData_unk {
-    HBMKPadData_unk wiiCon[4];
-};
-
 // inferred: HBM library (unnamed in symbols.txt)
-extern "C" void fn_805C3C70(HBMDataInfo_unk* info);                          // HBMCreate
+extern "C" void fn_805C3C70(HBMDataInfo* info);                          // HBMCreate
 extern "C" void fn_805C3F40(void* soundData, void* memBuf, unsigned long size); // HBMCreateSound
 extern "C" void fn_805C3D90();                                                // HBMDelete
 extern "C" void fn_805C3FA0();                                                // HBMDeleteSound
 extern "C" void fn_805C3E00();                                                // HBMInit
 extern "C" void fn_805C3ED0(int flag);                                        // HBMSetAdjustFlag
 extern "C" void fn_805C3FB0();                                                // HBMUpdateSound
-extern "C" int fn_805C3E30(HBMControllerData_unk* con);                       // HBMCalc
+extern "C" int fn_805C3E30(HBMControllerData* con);                       // HBMCalc
 extern "C" int fn_805C3EA0();                                                 // inferred: selected button
 extern "C" void fn_805C3E70();                                                // HBMDraw
 extern "C" int fn_80660CF0(int chan, unsigned long* type);                    // WPADProbe
@@ -103,7 +59,7 @@ extern "C" int fn_80440B24(int event, int arg) {
 }
 
 // inferred: InitHomeButtonInfo of the SDK sample
-extern "C" void fn_80440B2C(HBMDataInfo_unk* info) {
+extern "C" void fn_80440B2C(HBMDataInfo* info) {
     char path[0x100];
     strcpy(path, sHbmDir_unk);
     info->region = SCGetLanguage();
@@ -207,59 +163,59 @@ extern "C" int fn_80440DC0(unsigned long hold, float* pos) {
 }
 
 // inferred: creates the menu (HBMCreate, HBMCreateSound)
-extern "C" void HBMRsoCreate__FR11HBMDataInfoRPUcRPUc(HBMDataInfo_unk* info, void** soundData, void** soundBuf) {
+void HBMRsoCreate(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& soundBuf) {
     int pal60 = VIGetTvFormat() == 1;
     int wide = lbl_8087EEE0->mWide;
-    fn_80440B2C(info);
+    fn_80440B2C(&info);
     if (wide == 0) {
-        info->adjustX = 1.0f;
-        info->adjustY = 1.0f;
+        info.adjustX = 1.0f;
+        info.adjustY = 1.0f;
     } else {
-        info->adjustX = 1.3684211f;
-        info->adjustY = 1.0f;
+        info.adjustX = 1.3684211f;
+        info.adjustY = 1.0f;
     }
     if (pal60 != 0) {
-        info->frameDelta = 2.4f;
+        info.frameDelta = 2.4f;
     } else {
-        info->frameDelta = 2.0f;
+        info.frameDelta = 2.0f;
     }
-    fn_805C3C70(info);
+    fn_805C3C70(&info);
     unsigned long size = 0;
     char path[0x40];
     strcpy(path, sHbmDir_unk);
     strcat(path, "/HomeButtonSe.arc");
     void* data = fn_8006BA8C(path, &size, 0);
-    *soundData = fn_800839EC(fn_800827E0(), size, 0x20, 1, "", "", 0, 0);
-    memcpy(*soundData, data, size);
+    soundData = (unsigned char*)fn_800839EC(fn_800827E0(), size, 0x20, 1, "", "", 0, 0);
+    memcpy(soundData, data, size);
     fn_8006BB6C(data, 0);
-    *soundBuf = fn_800839EC(fn_800827E0(), 0x18700, 0x20, 1, "", "", 0, 0);
-    fn_805C3F40(*soundData, *soundBuf, 0x18700);
+    soundBuf = (unsigned char*)fn_800839EC(fn_800827E0(), 0x18700, 0x20, 1, "", "", 0, 0);
+    fn_805C3F40(soundData, soundBuf, 0x18700);
 }
 
 // inferred: destroys the menu and frees its buffers
-extern "C" void HBMRsoDelete__FR11HBMDataInfoRPUcRPUc(HBMDataInfo_unk* info, void** soundData, void** soundBuf) {
+void HBMRsoDelete(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& soundBuf) {
     fn_805C3D90();
     fn_805C3FA0();
-    void* mem = info->mem;
+    void* mem = info.mem;
     if (mem != 0) {
         fn_80083AD4(fn_800827E0(), mem);
     }
-    fn_80083AD4(fn_800827E0(), info->layoutBuf);
-    fn_80083AD4(fn_800827E0(), info->spkSeBuf);
-    fn_8006BB6C(info->msgBuf, 0);
-    fn_8006BB6C(info->configBuf, 0);
-    fn_80083AD4(fn_800827E0(), *soundData);
-    fn_80083AD4(fn_800827E0(), *soundBuf);
+    fn_80083AD4(fn_800827E0(), info.layoutBuf);
+    fn_80083AD4(fn_800827E0(), info.spkSeBuf);
+    fn_8006BB6C(info.msgBuf, 0);
+    fn_8006BB6C(info.configBuf, 0);
+    fn_80083AD4(fn_800827E0(), soundData);
+    fn_80083AD4(fn_800827E0(), soundBuf);
 }
 
 // inferred: opens the menu
-extern "C" void HBMRsoInit__FR17HBMControllerData(HBMControllerData_unk* con) {
+void HBMRsoInit(HBMControllerData& con) {
     fn_805C3E00();
     fn_805C3ED0(1);
     for (int i = 0; i < 4; i++) {
-        con->wiiCon[i].posX = 0.0f;
-        con->wiiCon[i].posY = 0.0f;
-        con->wiiCon[i].use_devtype = 0;
+        con.wiiCon[i].posX = 0.0f;
+        con.wiiCon[i].posY = 0.0f;
+        con.wiiCon[i].use_devtype = 0;
     }
 }
 
@@ -271,9 +227,9 @@ inline float Clamp1_unk(float x) {
 // inferred: updates the menu; returns the selected button or -1
 // NONMATCHING: 99.8% - the original loads the stick x/y into f0/f1 (here f1/f0) and swaps the loop
 // counter/offset registers (r28/r29); tried declaration orders and a single expression.
-extern "C" int HBMRsoCalc__FR17HBMControllerData(HBMControllerData_unk* con) {
+int HBMRsoCalc(HBMControllerData& con) {
     fn_805C3FB0();
-    HBMKPadData_unk* pad = con->wiiCon;
+    HBMKPadData* pad = con.wiiCon;
     int offset = 0;
     for (int i = 0; i < 4; i++, pad++, offset += 0xF00) {
         unsigned long type;
@@ -304,7 +260,7 @@ extern "C" int HBMRsoCalc__FR17HBMControllerData(HBMControllerData_unk* con) {
         }
     }
     int result;
-    if (fn_805C3E30(con) >= 0) {
+    if (fn_805C3E30(&con) >= 0) {
         result = fn_805C3EA0();
     } else {
         result = -1;
@@ -316,7 +272,7 @@ extern "C" int HBMRsoCalc__FR17HBMControllerData(HBMControllerData_unk* con) {
 // NONMATCHING: 84.5% - the original stores the high words (0x4330) of the two int->float conversions
 // at the start of the function; here they are stored next to the conversion (tried named locals,
 // function-scope matrix, an inline returning the matrix).
-extern "C" void HBMRsoDraw__Fv() {
+void HBMRsoDraw() {
     HbmRender_unk* rs = lbl_8087EEE0;
     atn::Matrix44_unk proj;
     GXSetColorUpdate(1);
