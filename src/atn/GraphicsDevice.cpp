@@ -5,6 +5,9 @@
 #include "atn/Texture_unk.h"
 #include "atn/Memory.h"
 #include "atn/RenderSetting_unk.h"
+#include "atn/TextureCacheManager.h"
+#include "atn/Light_unk.h"
+#include "atn/Camera_unk.h"
 
 extern "C" {
 
@@ -49,6 +52,16 @@ void GXSetScissorBoxOffset(int x, int y);
 void GXSetChanAmbColor(int chan, GXColor color);
 void GXSetChanMatColor(int chan, GXColor color);
 void* GXSetTexRegionCallback(void* callback);
+void GXSetVtxDescv(const GXVtxDescList* list);
+void GXInitLightColor(GXLightObj* obj, GXColor color);
+void GXInitLightPos(GXLightObj* obj, float x, float y, float z);
+void GXInitLightAttn(GXLightObj* obj, float a0, float a1, float a2, float k0, float k1, float k2);
+void GXInitLightDistAttn(GXLightObj* obj, float refDist, float refBright, int func);
+void GXInitSpecularDir(GXLightObj* obj, float nx, float ny, float nz);
+void GXLoadLightObjImm(GXLightObj* obj, int light);
+void PSMTXInverse(const float src[3][4], float inv[3][4]);
+void PSMTXTranspose(const float src[3][4], float xpose[3][4]);
+void GXSetVtxAttrFmtv(int fmt, const GXVtxAttrFmtList* list);
 void GXSetAlphaCompare(int comp0, unsigned char ref0, int op, int comp1, unsigned char ref1);
 void GXSetZTexture(int op, int fmt, unsigned int bias);
 void GXSetTevKAlphaSel(int stage, int sel);
@@ -181,6 +194,13 @@ static unsigned int CountFrames_unk(FrameQueue_unk* queue) {
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
+// inferred: render system (atn/RenderSystem_unk.cpp, lbl_8087EFB4); only its camera is used here
+struct RenderSystemView_unk {
+    unsigned char m000[0x104];
+    Camera_unk mCamera; // 0x104
+};
+extern "C" RenderSystemView_unk* lbl_8087EFB4;
+
 int lbl_8087D73C = 10; // inferred: gamma set on the VI (fn_8007192C)
 
 OSThreadQueue lbl_807C6F60;  // inferred: threads waiting for a free frame
@@ -195,15 +215,13 @@ extern "C" void fn_80072BDC();
 extern "C" void fn_80074EC8(atn::GraphicsDevice_unk* device, void* desc, unsigned int flags, void* light, void* shadow,
                             void* arg5);
 extern "C" void fn_800761A8(atn::GraphicsDevice_unk* device);
-extern "C" void* fn_80076FD4(void* texObj, int map); // inferred: texture region callback of the caches
+extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id);
 extern "C" void fn_8009BF3C(void* mesh, void* material, void* lens, const float* color);
 
-// inferred: texture caches (0x1AC bytes) selected by RenderSetting_unk::m3A8 (CacheMode)
-struct TexCache_unk {
-    unsigned char m000[0x1AC];
-};
-TexCache_unk lbl_807C6C08;
-TexCache_unk lbl_807C6DB4;
+// inferred: texture caches selected by RenderSetting_unk::m3A8 (CacheMode); built by the static
+// initializer of the file (0x80077058)
+atn::TextureCacheManager8x32 lbl_807C6C08;
+atn::TextureCacheManager4x128 lbl_807C6DB4;
 extern "C" void fn_80072D74(unsigned int retraceCount);
 extern "C" void fn_80072E08(unsigned int retraceCount);
 
@@ -214,28 +232,20 @@ using atn::VtxFormat_unk;
 
 namespace atn {
 
-VtxFormat_unk::VtxFormat_unk(const GXVtxDescList* desc, const GXVtxAttrFmtList* fmt) {
-    for (int i = 0; i < 27; i++) {
-        mAttrFmt[i] = fmt[i];
-    }
-    for (int i = 0; i < 27; i++) {
-        mDesc[i] = desc[i];
-    }
-}
+VtxFormat_unk::VtxFormat_unk(const VtxDescArray_unk& desc, const VtxAttrFmtArray_unk& fmt) : mAttrFmt(fmt), mDesc(desc) {}
 } // namespace atn
 
 // inferred: same vertex format (attribute formats, then descriptors)
-// NONMATCHING: 65.57% - loop/control-flow and register allocation differ from the original.
 extern "C" int fn_80071088(const VtxFormat_unk* a, const VtxFormat_unk* b) {
     for (int i = 0; i < 27; i++) {
-        const GXVtxAttrFmtList* x = &a->mAttrFmt[i];
-        const GXVtxAttrFmtList* y = &b->mAttrFmt[i];
+        const GXVtxAttrFmtList* y = &b->mAttrFmt.mList[i];
+        const GXVtxAttrFmtList* x = &a->mAttrFmt.mList[i];
         if (x->attr != y->attr || x->cnt != y->cnt || x->type != y->type || x->frac != y->frac) {
             return 0;
         }
     }
     for (int i = 0; i < 27; i++) {
-        if (a->mDesc[i].attr != b->mDesc[i].attr || a->mDesc[i].type != b->mDesc[i].type) {
+        if (a->mDesc.mList[i].attr != b->mDesc.mList[i].attr || a->mDesc.mList[i].type != b->mDesc.mList[i].type) {
             return 0;
         }
     }
@@ -256,7 +266,7 @@ namespace atn {
 GraphicsDevice_unk::GraphicsDevice_unk()
     : mWidth(0), mHeight(0), mWide(0), mClearColor(0xFF000000), mClearZ(0x00FFFFFF), mFifo(0), mFifoBuffer(0),
       mOffsetX(0.0f), mOffsetY(0.0f), mViewX(0), mViewY(0), mViewW(0), mViewH(0), mXfb0(0), mXfb1(0),
-      mCurrentXfb(0), mNextXfb(0), mC0(0), mC4(0), mC8(0), mDirty(0), mDC(0), m8E0(0), m8E4(0) {}
+      mCurrentXfb(0), mNextXfb(0), mC0(0), mC4(0), mC8(0), mVtxFormat(0), mTexCache(0), mPrevRegionCallback(0) {}
 } // namespace atn
 
 // inferred: stores the viewport/scissor rectangle
@@ -267,17 +277,7 @@ inline void SetViewRect_unk(GraphicsDevice_unk* device, int x, int y, int w, int
     device->mViewH = h;
 }
 
-// inferred: sets the viewport and the scissor to a rectangle of the EFB (offset by mOffsetX/Y)
-static void SetViewport_unk(GraphicsDevice_unk* device, int x, int y, int w, int h) {
-    device->mViewX = x;
-    device->mViewY = y;
-    device->mViewW = w;
-    device->mViewH = h;
-    GXSetViewport(device->mOffsetX + x, device->mOffsetY + y, w + device->mOffsetX, h + device->mOffsetY, 0.0f,
-                  1.0f);
-    GXSetScissor(device->mOffsetX + device->mViewX, device->mOffsetY + device->mViewY,
-                 device->mViewW + device->mOffsetX, device->mViewH + device->mOffsetY);
-}
+extern "C" void fn_80075F58(GraphicsDevice_unk* device, int x, int y, int w, int h);
 
 // inferred: video and GX initialization
 extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
@@ -359,7 +359,7 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     int w = device->mWidth;
     int y = 0;
     int x = 0;
-    SetViewport_unk(device, x, y, w, h);
+    fn_80075F58(device, x, y, w, h);
     unsigned short lines = GXSetDispCopyYScale(GXGetYScaleFactor(device->mRMode.efbHeight, device->mRMode.xfbHeight));
     GXSetDispCopySrc(0, 0, device->mRMode.fbWidth, device->mRMode.efbHeight);
     GXSetDispCopyDst(device->mRMode.fbWidth, lines);
@@ -411,7 +411,7 @@ extern "C" void fn_8007192C(GraphicsDevice_unk* device) {
     int w = device->mWidth;
     int y = 0;
     int x = 0;
-    SetViewport_unk(device, x, y, w, h);
+    fn_80075F58(device, x, y, w, h);
     GXInvalidateVtxCache();
     GXInvalidateTexAll();
 }
@@ -459,28 +459,28 @@ extern "C" void fn_80071AFC(GraphicsDevice_unk* device) {
 }
 
 // inferred: selects the texture cache (installs its region callback, or restores the previous one)
-inline void SetTexCache_unk(GraphicsDevice_unk* device, TexCache_unk* cache) {
+inline void SetTexCache_unk(GraphicsDevice_unk* device, atn::ITextureCacheManager* cache) {
     if (cache != 0) {
         void* prev = GXSetTexRegionCallback(fn_80076FD4);
-        if (device->m8E0 == 0) {
-            device->m8E4 = (int)prev;
+        if (device->mTexCache == 0) {
+            device->mPrevRegionCallback = prev;
         }
-    } else if (device->m8E4 != 0) {
-        GXSetTexRegionCallback((void*)device->m8E4);
-        device->m8E4 = 0;
+    } else if (device->mPrevRegionCallback != 0) {
+        GXSetTexRegionCallback(device->mPrevRegionCallback);
+        device->mPrevRegionCallback = 0;
     }
-    device->m8E0 = (int)cache;
+    device->mTexCache = cache;
 }
 extern "C" void fn_80071E04(GraphicsDevice_unk* device);
 
 // inferred: blend factors (indices of fn_800761A8); marks them dirty when they change
 inline void SetBlendSrc_unk(GraphicsDevice_unk* device, int src) {
     device->mState.mBlendSrc = src;
-    device->mDirty |= (device->mAppliedState.mBlendSrc != device->mState.mBlendSrc) << 4;
+    device->mDirty.mMask |= (device->mAppliedState.mBlendSrc != device->mState.mBlendSrc) << 4;
 }
 inline void SetBlendDst_unk(GraphicsDevice_unk* device, int dst) {
     device->mState.mBlendDst = dst;
-    device->mDirty |= (device->mAppliedState.mBlendDst != device->mState.mBlendDst) << 5;
+    device->mDirty.mMask |= (device->mAppliedState.mBlendDst != device->mState.mBlendDst) << 5;
 }
 inline void SetBlendFactors_unk(GraphicsDevice_unk* device, int src, int dst) {
     SetBlendSrc_unk(device, src);
@@ -516,12 +516,12 @@ extern "C" void fn_80071D80(GraphicsDevice_unk* device, atn::Texture_unk* textur
 // inferred: resets the GX state to the defaults of the game
 extern "C" void fn_80071E04(GraphicsDevice_unk* device) {
     fn_80074EC8(device, 0, 0, 0, 0, 0);
+    device->mVtxFormat = 0;
     int h = device->mHeight;
     int w = device->mWidth;
     int y = 0;
     int x = 0;
-    device->mDC = 0;
-    SetViewport_unk(device, x, y, w, h);
+    fn_80075F58(device, x, y, w, h);
     float white[4];
     white[0] = 1.0f;
     white[1] = 1.0f;
@@ -536,14 +536,14 @@ extern "C" void fn_80071E04(GraphicsDevice_unk* device) {
     device->mTexObjs[5] = 0;
     device->mTexObjs[6] = 0;
     device->mTexObjs[7] = 0;
-    device->mTexObjs[8] = 0;
-    device->mTexObjs[9] = 0;
-    device->mTexObjs[10] = 0;
-    device->mTexObjs[11] = 0;
-    device->mTexObjs[12] = 0;
-    device->mTexObjs[13] = 0;
-    device->mTexObjs[14] = 0;
-    device->mTexObjs[15] = 0;
+    device->mLights[0] = 0;
+    device->mLights[1] = 0;
+    device->mLights[2] = 0;
+    device->mLights[3] = 0;
+    device->mLights[4] = 0;
+    device->mLights[5] = 0;
+    device->mLights[6] = 0;
+    device->mLights[7] = 0;
     GXSetTexCoordGen2(0, 1, 4, 60, 0, 125);
     GXSetTexCoordGen2(1, 1, 5, 60, 0, 125);
     GXSetTexCoordGen2(2, 1, 6, 60, 0, 125);
@@ -599,7 +599,7 @@ extern "C" void fn_80071E04(GraphicsDevice_unk* device) {
     GXSetCurrentMtx(0);
     GXLoadTexMtxImm(identity, 60, 0);
     GXLoadTexMtxImm(identity, 125, 0);
-    SetViewport_unk(device, x, y, device->mWidth, device->mHeight);
+    fn_80075F58(device, x, y, device->mWidth, device->mHeight);
     GXSetCoPlanar(0);
     GXSetCullMode(2);
     GXSetClipMode(0);
@@ -674,7 +674,7 @@ extern "C" void fn_80071E04(GraphicsDevice_unk* device) {
     GXSetZCompLoc(1);
     GXSetDither(0);
     GXSetDstAlpha(0, 0);
-    device->mDirty = 0xFFF;
+    device->mDirty.mMask = 0xFFF;
     device->mState.mAlphaTest = 0;
     device->mState.mAlphaFunc = 7;
     device->mState.mAlphaRef = 0;
@@ -686,8 +686,7 @@ extern "C" void fn_80071E04(GraphicsDevice_unk* device) {
     device->mState.mZTest = 1;
     device->mState.mZFunc = 2;
     device->mState.mZWrite = 1;
-    device->mState.mColorWrite = 1;
-    device->mState.mAlphaWrite = 1;
+    device->mState.mUpdateMask = 3;
     fn_800761A8(device);
 }
 
@@ -766,6 +765,47 @@ extern "C" void fn_80072E08(unsigned int retraceCount) {
         NextFrame_unk();
     }
 }
+extern "C" void fn_800760BC(GraphicsDevice_unk* device, unsigned int left, unsigned int top, unsigned int width, unsigned int height);
+extern "C" void fn_800760D0(GraphicsDevice_unk* device);
+extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled);
+
+static const int sCompare[8] = {0, 1, 3, 2, 4, 6, 5, 7}; // GX_NEVER .. GX_ALWAYS
+static const int sBlendFactor[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+static const int sCull[2] = {0, 2}; // GX_CULL_NONE, GX_CULL_BACK
+extern "C" void fn_800761A8(GraphicsDevice_unk* device);
+extern "C" void fn_800763C0(GraphicsDevice_unk* device, unsigned int map, const void* texObj);
+extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsigned int map);
+extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index);
+extern "C" int fn_800760E8(int numVerts, int prim);
+extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled);
+extern "C" void fn_800761A8(GraphicsDevice_unk* device);
+extern "C" void fn_800763C0(GraphicsDevice_unk* device, unsigned int map, const void* texObj);
+extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsigned int map);
+extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* format);
+extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index);
+extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id);
+extern "C" float fn_80076FF8(GraphicsDevice_unk* device);
+
+// inferred: full-screen viewport (atn/Layer2DBlur, atn/LayerOcclusionCPU)
+extern "C" void fn_80075DEC(GraphicsDevice_unk* device) {
+    int h = device->mHeight;
+    int w = device->mWidth;
+    int y = 0;
+    int x = 0;
+    fn_80075F58(device, x, y, w, h);
+}
+
+// inferred: sets the viewport and the scissor to a rectangle of the EFB (offset by mOffsetX/Y)
+extern "C" void fn_80075F58(GraphicsDevice_unk* device, int x, int y, int w, int h) {
+    device->mViewX = x;
+    device->mViewY = y;
+    device->mViewW = w;
+    device->mViewH = h;
+    GXSetViewport(device->mOffsetX + x, device->mOffsetY + y, w + device->mOffsetX, h + device->mOffsetY, 0.0f,
+                  1.0f);
+    GXSetScissor(device->mOffsetX + device->mViewX, device->mOffsetY + device->mViewY,
+                 device->mViewW + device->mOffsetX, device->mViewH + device->mOffsetY);
+}
 
 extern "C" void fn_800760BC(GraphicsDevice_unk* device, unsigned int left, unsigned int top, unsigned int width,
                             unsigned int height) {
@@ -774,6 +814,27 @@ extern "C" void fn_800760BC(GraphicsDevice_unk* device, unsigned int left, unsig
 
 extern "C" void fn_800760D0(GraphicsDevice_unk* device) {
     GXSetScissor(device->mViewX, device->mViewY, device->mViewW, device->mViewH);
+}
+extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* light);
+
+// inferred: number of primitives drawn by numVerts vertices (GXPrimitive)
+extern "C" int fn_800760E8(int numVerts, int prim) {
+    switch (prim) {
+    case 0xB8: // GX_POINTS
+        return numVerts;
+    case 0xA8: // GX_LINES
+        return numVerts / 2;
+    case 0xB0: // GX_LINESTRIP
+        return numVerts - 1;
+    case 0x90: // GX_TRIANGLES
+        return numVerts / 3;
+    case 0x98: // GX_TRIANGLESTRIP
+    case 0xA0: // GX_TRIANGLEFAN
+        return numVerts - 2;
+    case 0x80: // GX_QUADS
+        return numVerts / 4;
+    }
+    return 0;
 }
 
 extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled) {
@@ -784,14 +845,10 @@ extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled) {
     }
 }
 
-static const int sCompare[8] = {0, 1, 3, 2, 4, 6, 5, 7}; // GX_NEVER .. GX_ALWAYS
-static const int sBlendFactor[8] = {0, 1, 2, 3, 4, 5, 6, 7};
-static const int sCull[2] = {0, 2}; // GX_CULL_NONE, GX_CULL_BACK
-
 // inferred: sends the dirty groups of mState to GX
 extern "C" void fn_800761A8(GraphicsDevice_unk* device) {
     for (int i = 0; i < 12; i++) {
-        if (!(device->mDirty & (1 << i))) {
+        if (!(device->mDirty.mMask & (1 << i))) {
             continue;
         }
         switch (i) {
@@ -805,9 +862,9 @@ extern "C" void fn_800761A8(GraphicsDevice_unk* device) {
                 GXSetAlphaCompare(7, 0, 0, 7, 0);
                 GXSetZCompLoc(1);
             }
-            device->mDirty &= ~(1 << 0);
-            device->mDirty &= ~(1 << 1);
-            device->mDirty &= ~(1 << 2);
+            device->mDirty.mMask &= ~(1 << 0);
+            device->mDirty.mMask &= ~(1 << 1);
+            device->mDirty.mMask &= ~(1 << 2);
             break;
         case 3:
         case 4:
@@ -817,9 +874,9 @@ extern "C" void fn_800761A8(GraphicsDevice_unk* device) {
             } else {
                 GXSetBlendMode(0, 4, 5, 15);
             }
-            device->mDirty &= ~(1 << 3);
-            device->mDirty &= ~(1 << 4);
-            device->mDirty &= ~(1 << 5);
+            device->mDirty.mMask &= ~(1 << 3);
+            device->mDirty.mMask &= ~(1 << 4);
+            device->mDirty.mMask &= ~(1 << 5);
             break;
         case 6:
             GXSetCullMode(sCull[device->mState.mCull]);
@@ -830,18 +887,18 @@ extern "C" void fn_800761A8(GraphicsDevice_unk* device) {
         case 9:
         case 10:
             GXSetZMode(device->mState.mZTest, sCompare[device->mState.mZFunc], device->mState.mZWrite);
-            device->mDirty &= ~(1 << 8);
-            device->mDirty &= ~(1 << 9);
-            device->mDirty &= ~(1 << 10);
+            device->mDirty.mMask &= ~(1 << 8);
+            device->mDirty.mMask &= ~(1 << 9);
+            device->mDirty.mMask &= ~(1 << 10);
             break;
         case 11:
-            GXSetAlphaUpdate(device->mState.mAlphaWrite);
-            GXSetColorUpdate(device->mState.mColorWrite);
+            GXSetAlphaUpdate(device->mState.mUpdateMask & 1);
+            GXSetColorUpdate((device->mState.mUpdateMask >> 1) & 1);
             break;
         }
     }
     device->mAppliedState = device->mState;
-    device->mDirty = 0;
+    device->mDirty.mMask = 0;
 }
 
 // NONMATCHING: 72.00% - MWCC keeps the nullable texture in r5 instead of normalizing it through r6.
@@ -865,11 +922,216 @@ extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsi
     }
 }
 
-// inferred: releases one reference to a display-list allocation
-extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index) {
-    GraphicsDevice_unk::DisplayListRef_unk* ref = &device->mDisplayLists[index];
-    if (--ref->mRefs <= 0) {
-        ::operator delete(ref->mData);
-        ref->mData = 0;
+// inferred: loads a light; GX light 0 is the key light, as a far point light plus a specular light
+extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* light) {
+    if (device->mLights[index] == light) {
+        return;
     }
+    device->mLights[index] = light;
+    if (light == 0) {
+        return;
+    }
+    atn::Matrix3x4& view = lbl_8087EFB4->mCamera.mView;
+    if (index != 0) {
+        GXLightObj obj;
+        light->fn_80079994(&obj, view.m);
+        GXLoadLightObjImm(&obj, 1 << index);
+        return;
+    }
+    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+    atn::Vector3 half(4.0f, 4.0f, 4.0f);
+    PSVECNormalize(&half, &half);
+    atn::Vector3 dir = light->mDir;
+    atn::Vector3 far = atn::Vector3(-dir.x, -dir.y, -dir.z) * 1000000.0f;
+    PSMTXMultVec(view.m, &far, &far);
+    pos = far;
+    half = atn::Vector3(-dir.x, -dir.y, -dir.z);
+    PSVECNormalize(&half, &half);
+    GXLightObj diffuse;
+    GXColor color;
+    color.r = (int)(255.0f * light->mColor.r);
+    color.g = (int)(255.0f * light->mColor.g);
+    color.b = (int)(255.0f * light->mColor.b);
+    color.a = (int)(255.0f * light->mColor.a);
+    GXInitLightColor(&diffuse, color);
+    GXInitLightPos(&diffuse, pos.x, pos.y, pos.z);
+    GXInitLightAttn(&diffuse, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    GXInitLightDistAttn(&diffuse, 1.0f, 0.07f, 0);
+    GXLoadLightObjImm(&diffuse, 1);
+    atn::Matrix3x4 normalMtx = view;
+    normalMtx.m[0][3] = 0.0f;
+    normalMtx.m[1][3] = 0.0f;
+    normalMtx.m[2][3] = 0.0f;
+    PSMTXInverse(normalMtx.m, normalMtx.m);
+    PSMTXTranspose(normalMtx.m, normalMtx.m);
+    PSMTXMultVec(normalMtx.m, &half, &half);
+    PSVECNormalize(&half, &half);
+    GXLightObj specular;
+    GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
+    GXInitLightColor(&specular, white);
+    GXInitSpecularDir(&specular, -half.x, -half.y, -half.z);
+    GXInitLightAttn(&specular, 0.0f, 0.0f, 1.0f, 8.0f, 0.0f, -7.0f);
+    GXLoadLightObjImm(&specular, 2);
+}
+extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* format);
+extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index);
+extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id);
+extern "C" float fn_80076FF8(GraphicsDevice_unk* device);
+
+// inferred: sets one field of mState (field index = its dirty bit) and marks it when it changed
+extern "C" void fn_80076760(GraphicsDevice_unk* device, unsigned int field, unsigned int value) {
+    switch (field) {
+    case 0:
+        device->mState.mAlphaTest = value;
+        break;
+    case 1:
+        device->mState.mAlphaFunc = value;
+        break;
+    case 2:
+        device->mState.mAlphaRef = value;
+        break;
+    case 3:
+        device->mState.mBlend = value;
+        break;
+    case 4:
+        device->mState.mBlendSrc = value;
+        break;
+    case 5:
+        device->mState.mBlendDst = value;
+        break;
+    case 6:
+        device->mState.mCull = value;
+        break;
+    case 7:
+        device->mState.m20 = value;
+        break;
+    case 8:
+        device->mState.mZTest = value;
+        break;
+    case 9:
+        device->mState.mZFunc = value;
+        break;
+    case 10:
+        device->mState.mZWrite = value;
+        break;
+    case 11:
+        device->mState.mUpdateMask = value;
+        break;
+    }
+    unsigned int dirty;
+    switch (field) {
+    case 0:
+        dirty = (device->mAppliedState.mAlphaTest != device->mState.mAlphaTest) << 0;
+        break;
+    case 1:
+        dirty = (device->mAppliedState.mAlphaFunc != device->mState.mAlphaFunc) << 1;
+        break;
+    case 2:
+        dirty = (device->mAppliedState.mAlphaRef != device->mState.mAlphaRef) << 2;
+        break;
+    case 3:
+        dirty = (device->mAppliedState.mBlend != device->mState.mBlend) << 3;
+        break;
+    case 4:
+        dirty = (device->mAppliedState.mBlendSrc != device->mState.mBlendSrc) << 4;
+        break;
+    case 5:
+        dirty = (device->mAppliedState.mBlendDst != device->mState.mBlendDst) << 5;
+        break;
+    case 6:
+        dirty = (device->mAppliedState.mCull != device->mState.mCull) << 6;
+        break;
+    case 7:
+        dirty = (device->mAppliedState.m20 != device->mState.m20) << 7;
+        break;
+    case 8:
+        dirty = (device->mAppliedState.mZTest != device->mState.mZTest) << 8;
+        break;
+    case 9:
+        dirty = (device->mAppliedState.mZFunc != device->mState.mZFunc) << 9;
+        break;
+    case 10:
+        dirty = (device->mAppliedState.mZWrite != device->mState.mZWrite) << 10;
+        break;
+    case 11:
+        dirty = (device->mAppliedState.mUpdateMask != device->mState.mUpdateMask) << 11;
+        break;
+    default:
+        dirty = 0;
+        break;
+    }
+    device->mDirty.mMask |= dirty;
+}
+
+// inferred: sets the whole state; the dirty mask becomes the fields that differ from the applied state
+extern "C" void fn_80076A28(GraphicsDevice_unk* device, const atn::GXStateBits_unk* state) {
+    device->mState = *state;
+    atn::GXDirtyBits_unk dirty;
+    dirty.mMask |= (device->mAppliedState.mAlphaTest != device->mState.mAlphaTest) << 0;
+    dirty.mMask |= (device->mAppliedState.mAlphaFunc != device->mState.mAlphaFunc) << 1;
+    dirty.mMask |= (device->mAppliedState.mAlphaRef != device->mState.mAlphaRef) << 2;
+    dirty.mMask |= (device->mAppliedState.mBlend != device->mState.mBlend) << 3;
+    dirty.mMask |= (device->mAppliedState.mBlendSrc != device->mState.mBlendSrc) << 4;
+    dirty.mMask |= (device->mAppliedState.mBlendDst != device->mState.mBlendDst) << 5;
+    dirty.mMask |= (device->mAppliedState.mCull != device->mState.mCull) << 6;
+    dirty.mMask |= (device->mAppliedState.m20 != device->mState.m20) << 7;
+    dirty.mMask |= (device->mAppliedState.mZTest != device->mState.mZTest) << 8;
+    dirty.mMask |= (device->mAppliedState.mZFunc != device->mState.mZFunc) << 9;
+    dirty.mMask |= (device->mAppliedState.mZWrite != device->mState.mZWrite) << 10;
+    dirty.mMask |= (device->mAppliedState.mUpdateMask != device->mState.mUpdateMask) << 11;
+    device->mDirty = dirty;
+}
+
+// inferred: sets the vertex format when it changes (0: forget the current one)
+extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* format) {
+    if (format == 0) {
+        device->mVtxFormat = format;
+    } else if (device->mVtxFormat != format) {
+        device->mVtxFormat = format;
+        GXClearVtxDesc();
+        GXSetVtxDescv(format->mDesc.mList);
+        GXSetVtxAttrFmtv(0, format->mAttrFmt.mList);
+    }
+}
+
+// inferred: finds or adds a vertex format in the cache; returns its index
+extern "C" int fn_80076C44(GraphicsDevice_unk* device, const VtxFormat_unk* format) {
+    int freeSlot = 256;
+    for (int i = 0; i < 256; i++) {
+        if (freeSlot == 256 && device->mVtxFormats[i].mFormat == 0) {
+            freeSlot = i;
+        }
+        if (device->mVtxFormats[i].mFormat != 0 && fn_80071088(format, device->mVtxFormats[i].mFormat)) {
+            device->mVtxFormats[i].mRefs++;
+            return i;
+        }
+    }
+    device->mVtxFormats[freeSlot].mFormat = new (6, "", "", 0) VtxFormat_unk(*format);
+    device->mVtxFormats[freeSlot].mRefs = 1;
+    return freeSlot;
+}
+
+// inferred: releases one reference to a cached vertex format
+extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index) {
+    GraphicsDevice_unk::VtxFormatRef_unk* ref = &device->mVtxFormats[index];
+    if (--ref->mRefs <= 0) {
+        ::operator delete(ref->mFormat);
+        ref->mFormat = 0;
+    }
+}
+
+// inferred: texture region callback: asks the current cache
+extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id) {
+    return lbl_8087EEE0->mTexCache->vf0C(obj, id);
+}
+
+// inferred: aspect ratio of the displayed image
+extern "C" float fn_80076FF8(GraphicsDevice_unk* device) {
+    float aspect;
+    if (device->mWide) {
+        aspect = 1.7777778f;
+    } else {
+        aspect = 1.3333334f;
+    }
+    return aspect * ((float)device->mRMode.efbHeight / (float)device->mRMode.xfbHeight);
 }

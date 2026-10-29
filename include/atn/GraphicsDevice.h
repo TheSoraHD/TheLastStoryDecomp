@@ -30,17 +30,46 @@ struct GXVtxAttrFmtList {
 };
 struct GXFifoObj;
 
+struct Light_unk;
+
 namespace atn {
 
 class Texture_unk;
+class ITextureCacheManager;
 
 // inferred: vertex format of a model (attribute formats, then descriptors; 26 entries + GX_VA_NULL),
 // built by LoadModel (atn/LH_Model) and compared before loading it (fn_80071088)
+struct VtxAttrFmtArray_unk {
+    VtxAttrFmtArray_unk() {}
+    VtxAttrFmtArray_unk(const VtxAttrFmtArray_unk& other) {
+        for (int i = 0; i < 27; i++) {
+            mList[i] = other.mList[i];
+        }
+    }
+    GXVtxAttrFmtList mList[27];
+};
+struct VtxDescArray_unk {
+    VtxDescArray_unk() {}
+    VtxDescArray_unk(const VtxDescArray_unk& other) {
+        for (int i = 0; i < 27; i++) {
+            mList[i] = other.mList[i];
+        }
+    }
+    GXVtxDescList mList[27];
+};
 struct VtxFormat_unk {
-    VtxFormat_unk(const GXVtxDescList* desc, const GXVtxAttrFmtList* fmt); // 0x80070E14
+    VtxFormat_unk(const VtxDescArray_unk& desc, const VtxAttrFmtArray_unk& fmt); // 0x80070E14
+    VtxFormat_unk(const VtxFormat_unk& other) {
+        for (int i = 0; i < 27; i++) {
+            mAttrFmt.mList[i] = other.mAttrFmt.mList[i];
+        }
+        for (int i = 0; i < 27; i++) {
+            mDesc.mList[i] = other.mDesc.mList[i];
+        }
+    }
 
-    GXVtxAttrFmtList mAttrFmt[27]; // 0x000
-    GXVtxDescList mDesc[27];       // 0x1B0
+    VtxAttrFmtArray_unk mAttrFmt; // 0x000
+    VtxDescArray_unk mDesc;       // 0x1B0
 };
 
 // inferred: GX pixel state cached by the device and sent by fn_800761A8 (bits from the most
@@ -57,9 +86,15 @@ struct GXStateBits_unk {
     unsigned int mZTest : 1;      // dirty bits 8-10: GXSetZMode
     unsigned int mZFunc : 3;
     unsigned int mZWrite : 1;
-    unsigned int mColorWrite : 1; // dirty bit 11: GXSetColorUpdate / GXSetAlphaUpdate
-    unsigned int mAlphaWrite : 1;
+    unsigned int mUpdateMask : 2; // dirty bit 11: bit 1 GXSetColorUpdate, bit 0 GXSetAlphaUpdate
     unsigned int m28 : 4;
+};
+
+// inferred: one dirty bit per field of GXStateBits_unk (bits 0-11, in field order)
+struct GXDirtyBits_unk {
+    GXDirtyBits_unk() : mMask(0) {}
+    unsigned int mMask : 12;
+    unsigned int mLow : 20;
 };
 
 // inferred: graphics device / GX render state (lbl_8087EEE0, 0x8E8 bytes; atn_graphics_device.cpp).
@@ -67,11 +102,11 @@ struct GXStateBits_unk {
 // (game/main.cpp, game/HomeButton_unk.cpp, atn/Layer3D.cpp). One type for every file: do not add
 // another partial view of this object.
 struct GraphicsDevice_unk {
-    // inferred: one display-list allocation shared by several users (fn_80076F88)
-    struct DisplayListRef_unk {
-        DisplayListRef_unk() : mData(0), mRefs(0) {}
-        void* mData; // 0x00
-        int mRefs;   // 0x04
+    // inferred: vertex format shared by the models that use it (fn_80076C44, fn_80076F88)
+    struct VtxFormatRef_unk {
+        VtxFormatRef_unk() : mFormat(0), mRefs(0) {}
+        VtxFormat_unk* mFormat; // 0x00
+        int mRefs;              // 0x04
     };
 
     GraphicsDevice_unk(); // 0x80071274
@@ -94,19 +129,19 @@ struct GraphicsDevice_unk {
     void* mXfb1;                          // 0x74
     void* mCurrentXfb;                    // 0x78
     void* mNextXfb;                       // 0x7C
-    const void* mTexObjs[16];             // 0x80: GXTexObj loaded in each map (fn_800763C0)
+    const void* mTexObjs[8];              // 0x80: GXTexObj loaded in each map (fn_800763C0)
+    Light_unk* mLights[8];                // 0xA0: light loaded in each GX light (fn_8007642C)
     int mC0;
     int mC4;
     int mC8;
     int mCC;                              // 0xCC (fn_80071D60)
     GXStateBits_unk mState;               // 0xD0: requested state
     GXStateBits_unk mAppliedState;        // 0xD4: state last sent to GX (fn_800761A8)
-    unsigned int mDirty : 12;             // 0xD8: one bit per state group of mState (fn_800761A8)
-    unsigned int mD8_low : 20;
-    int mDC;
-    DisplayListRef_unk mDisplayLists[256]; // 0xE0: indexed by fn_80076F88
-    int m8E0;
-    int m8E4;
+    GXDirtyBits_unk mDirty;               // 0xD8: fields of mState that differ from mAppliedState
+    const VtxFormat_unk* mVtxFormat;      // 0xDC: current vertex format (fn_80076BE4)
+    VtxFormatRef_unk mVtxFormats[256];    // 0xE0: cache of vertex formats (fn_80076C44)
+    ITextureCacheManager* mTexCache;      // 0x8E0: texture cache of the region callback (fn_80076FD4)
+    void* mPrevRegionCallback;            // 0x8E4
 };
 
 } // namespace atn
@@ -126,6 +161,8 @@ extern "C" void fn_800760D0(atn::GraphicsDevice_unk* device);
 extern "C" void fn_80076174(atn::GraphicsDevice_unk* device, int enabled);
 extern "C" void fn_800763C0(atn::GraphicsDevice_unk* device, unsigned int map, const void* texObj);
 extern "C" void fn_800763FC(atn::GraphicsDevice_unk* device, const void* texObj, unsigned int map);
+extern "C" void fn_8007642C(atn::GraphicsDevice_unk* device, int index, Light_unk* light);
+extern "C" int fn_80076C44(atn::GraphicsDevice_unk* device, const atn::VtxFormat_unk* format);
 extern "C" void fn_80076F88(atn::GraphicsDevice_unk* device, unsigned int index);
 
 #endif
