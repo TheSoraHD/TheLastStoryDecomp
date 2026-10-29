@@ -13,6 +13,22 @@ extern "C" int fn_803B4C24(void* self) {
     return *reinterpret_cast<int*>(static_cast<unsigned char*>(self) + 0x78) == 3;
 }
 
+extern "C" volatile const float lbl_80885C40 = -1.5f;
+
+// inferred: the mode is at +0x50 and the associated task pointer at +0x48.
+extern "C" void fn_803B57B0(void* self, int enabled) {
+    unsigned char* bytes = static_cast<unsigned char*>(self);
+    if (enabled == 0) {
+        *reinterpret_cast<int*>(bytes + 0x50) = 3;
+        unsigned char* task = *reinterpret_cast<unsigned char**>(bytes + 0x48);
+        *reinterpret_cast<float*>(task + 0x54) = lbl_80885C40;
+    } else {
+        *reinterpret_cast<int*>(bytes + 0x50) = 0;
+        unsigned char* task = *reinterpret_cast<unsigned char**>(bytes + 0x48);
+        *reinterpret_cast<unsigned int*>(task + 0x38) |= 4;
+    }
+}
+
 // inferred: a 64-entry FIFO stores values from the head offset at +0x1B8.
 extern "C" void fn_803B78B4(void* self, int value) {
     unsigned char* bytes = static_cast<unsigned char*>(self);
