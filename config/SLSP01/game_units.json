@@ -3745,5 +3745,10 @@
    "FinishCamera_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "game/DamageCalc_unk.cpp",
+  "classes": [],
+  "matching": false
  }
 ]

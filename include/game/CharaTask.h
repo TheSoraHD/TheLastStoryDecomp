@@ -126,11 +126,13 @@ struct CharaListener_unk {
     int mId; // inferred: -1 for every event
     void (*mFunc)(int id, CharaTask* chara, void* arg);
 };
+// inferred: the vector is wrapped in a class (the destructor 0x8003EFB0 has one more inlined level)
+struct CharaListenerList_unk : public std::vector<CharaListener_unk> {};
 struct CharaListeners_unk {
     CharaListeners_unk() : mEnabled(1) {}
     void fn_8014F860(int id, CharaTask* chara, void* arg); // inferred: notifies the listeners of `id` (arg: event data)
 
-    std::vector<CharaListener_unk> mList;
+    CharaListenerList_unk mList;
     int mEnabled;
 };
 CharaListeners_unk* fn_8014F8F4();

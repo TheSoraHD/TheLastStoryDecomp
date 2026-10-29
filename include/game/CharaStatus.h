@@ -388,6 +388,9 @@ struct CharaStatusEntry_unk {
 // inferred: 20-byte entry of the second table; points to an entry of the first kind
 struct CharaStatusRef_unk {
     CharaStatusRef_unk() : mEntry(0), m04(0), m08(0), m0C(-1), m10(0) {}
+    // inferred: game/DamageCalc_unk.cpp (fn_8003EA3C) builds the references in temporaries
+    CharaStatusRef_unk(CharaStatusEntry_unk* entry, unsigned int key, CharaTask* chara, int time, int arg)
+        : mEntry(entry), m04(key), m08(chara), m0C(time), m10(arg) {}
     CharaStatusEntry_unk* mEntry;
     unsigned int m04;
     CharaTask* m08; // inferred: compared with CharaStatus::mChara (fn_8013407C)
