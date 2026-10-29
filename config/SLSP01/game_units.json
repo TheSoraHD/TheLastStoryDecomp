@@ -419,7 +419,10 @@
  },
  {
   "name": "atn/WordWrap_unk.cpp",
-  "classes": [],
+  "classes": [
+   "std::basic_ios<char, std::char_traits<char>>",
+   "std::basic_stringbuf<char, std::char_traits<char>, std::allocator<char>>"
+  ],
   "matching": false
  },
  {
@@ -504,20 +507,6 @@
  {
   "name": "atn/NumberFormat_unk.cpp",
   "classes": [],
-  "matching": false
- },
- {
-  "name": "std/char_traits_char.cpp",
-  "classes": [
-   "std::basic_ios<char, std::char_traits<char>>"
-  ],
-  "matching": false
- },
- {
-  "name": "std/allocator_char.cpp",
-  "classes": [
-   "std::basic_stringbuf<char, std::char_traits<char>, std::allocator<char>>"
-  ],
   "matching": false
  },
  {

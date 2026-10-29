@@ -597,24 +597,14 @@ atn/WPad_unk.cpp:
 	.sdata2     start:0x80881298 end:0x808812C8
 
 atn/WordWrap_unk.cpp:
-	.text       start:0x800DF22C end:0x800E0AC0
-	.rodata     start:0x80734DD8 end:0x807350A4
-	.data       start:0x807799A0 end:0x807799E0
-	.sdata2     start:0x808812C8 end:0x808812D0
-
-std/char_traits_char.cpp:
-	.text       start:0x800E0AC0 end:0x800E0B18
-	.rodata     start:0x807350A4 end:0x807350E4
-	.data       start:0x807799E0 end:0x80779A08
-
-std/allocator_char.cpp:
-	.text       start:0x800E0B18 end:0x800E2A24
+	.text       start:0x800DF22C end:0x800E2A24
 	.ctors      start:0x8072D2C8 end:0x8072D2CC
-	.rodata     start:0x807350E4 end:0x807351F8
-	.data       start:0x80779A08 end:0x80779AD8
+	.rodata     start:0x80734DD8 end:0x807351F8
+	.data       start:0x807799A0 end:0x80779AD8
 	.bss        start:0x807C7810 end:0x807C7828
 	.sdata      start:0x8087D960 end:0x8087D968
 	.sbss       start:0x8087F020 end:0x8087F028
+	.sdata2     start:0x808812C8 end:0x808812D0
 
 game/BattleCalc_unk.cpp:
 	.text       start:0x800E2A24 end:0x800E2AF8
