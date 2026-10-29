@@ -4,6 +4,8 @@
 #include "game/BootTask.h"
 #include "game/CharaTask.h"
 #include "game/SetConfig.h"
+#include "game/SkillEffectManager.h"
+#include "atn/SoundRef.h"
 #include "atn/LoadManager.h"
 #include "atn/Memory.h"
 #include "atn/SequenceControl.h"
@@ -51,8 +53,10 @@ int BootTask::vf0C() {
             SetConfig::sInstance->fn_8057F0F8();
         }
         fn_802144A8();
-        atn::SoundEngine_unk* engine = lbl_8087EE90;
-        fn_80047B54(engine, fn_803CE148());
+        {
+            atn::SoundEngine_unk* engine = lbl_8087EE90;
+            fn_80047B54(engine, fn_803CE148());
+        }
         mState = 1;
     case 1:
         if (lbl_8087F518->fn_8046ECC8() == 0) {
@@ -114,6 +118,31 @@ extern "C" void fn_800FB1BC(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* d
 extern "C" int fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* data, int id, const atn::Vector3* pos,
                            const atn::Vector3* rot, int a, int b, float c, float d, int e, int f); // inferred: hit effect
 extern "C" void fn_80373164(HomingField_unk* field, CharaTask* owner, const atn::Vector3* pos, int id); // inferred
+extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, HitInfo_unk* data, float radius); // inferred: sphere sweep
+
+extern "C" SkillEffectManager* lbl_8087F9E8;
+extern "C" Bullet_unk* fn_8059C5DC(SkillEffectManager* mgr, int a, int b, unsigned int mask); // inferred: shield effect
+extern "C" int fn_8021A8D0(HitInfo_unk* data); // inferred: the bullet goes through shields
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" int fn_8005361C(CollResult_unk* result, const atn::ColliCapsuleShape_unk* seg,
+                           const atn::ColliSphereShape_unk* sphere); // inferred: segment against sphere
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" float PSVECMag(const atn::Vector3* v);
+extern "C" int rand();
+
+// inferred: collision object of a character (CollResult_unk::m38 when m3C has the flag 2)
+struct CollOwner_unk {
+    unsigned char m00[0x0C];
+    CharaTask* m0C;
+};
+
+// inferred: sound effects of the bullets
+static const char* const sSeNames_unk[] = {
+    "SE_BTCOM_006", "SE_BTCOM_007", "SE_BTCOM_016", "SE_SP015_001", "SE_BTCOM_102", 0,
+};
 extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
 
 extern "C" void fn_800F80B8(atn::Matrix3x4* mtx, const atn::Vector3* rot); // inferred: rotates by the angles
@@ -170,6 +199,8 @@ void Bullet::fn_8010EFF0(BulletShot_unk* shot, const atn::Vector3* pos, const at
     fn_8010F018(shot, pos, dir, count, flags, 1, speed);
 }
 
+// NONMATCHING: 62.7% - the original reads shot->m04 before the stores of the effect group and the call
+// arguments are scheduled differently
 void Bullet::fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, int count,
                          unsigned int flags, int record, float speed) {
     m04 = flags | 0x10000;
@@ -221,6 +252,7 @@ void Bullet::fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const at
     }
 }
 
+// NONMATCHING: 63.9% - scheduling of the shot->m04 loads around the prologue (see fn_8010F018)
 void Bullet::fn_8010F26C(BulletShot_unk* shot) {
     int id = shot->m04;
     lbl_8087F3C0->mB8 = 3;
@@ -253,6 +285,9 @@ void Bullet::fn_8010F41C() {
     lbl_8087F3C0->mB8 = 0;
 }
 
+// NONMATCHING: 0% here - the original calls every helper out of line (GetModel_unk, GetNodeMtx_unk,
+// GetTrans_unk, the Matrix3x4 and Vector3 constructors, Transform_unk, ToRotation_unk, SetIdentity,
+// Translate_unk); this source gets them all inlined (inlining budget of docs/inlining.md R3)
 void Bullet::fn_8010F4BC() {
     if (m94 >= 0.0f && HasFlag_unk(0x20) && m9C != 0) {
         MtxPtr node = m9C->GetModel_unk()->GetNodeMtx_unk("spine");
@@ -303,6 +338,7 @@ inline atn::Vector3 atn::Vector3::Transform_unk(const Matrix3x4& mtx) const {
     return r;
 }
 
+// NONMATCHING: 91% - stack slots and FPR numbering of the inlined ToRotation_unk of the effect angle
 // inferred: update: removes the bullet when its time is over (with the hit effect of the data),
 // hits at the end of its range, moves it and tests the collision
 void Bullet::vf10() {
@@ -399,8 +435,92 @@ void Bullet::vf14(const Mtx m) {
     fn_8010F4BC();
 }
 
-// NONMATCHING: placeholder
-void Bullet::fn_801100A0() {}
+// NONMATCHING: 95.3% - stack layout (frame 0x10 larger) and the temporaries of the reflection
+// inferred: hit test against the characters: a bullet that reaches a shield (skill effect with the
+// flag 0x400000) of another side is reflected (or bounced back with vf20), otherwise it tests the
+// collision and hits with fn_80110858
+void Bullet::fn_801100A0() {
+    if (lbl_8087F9E8 != 0 && fn_8021A8D0(m68) == 0) {
+        Bullet_unk* shield = fn_8059C5DC(lbl_8087F9E8, 0, 0, 0x400000);
+        if (shield != 0 && shield->m08 != 0 && m88 != 0 && shield->m08->fn_8016F3D0(m88, 1) == 0) {
+            atn::ColliCapsuleShape_unk seg;
+            seg.mStart = m14;
+            seg.mEnd = m08;
+            atn::ColliSphereShape_unk sphere;
+            sphere.mCenter = shield->m10;
+            sphere.mRadius = 1.1f * (shield->m5C * shield->m28);
+            CollResult_unk res;
+            atn::Vector3 move = seg.mStart - seg.mEnd;
+            if (fn_805F9920(&move) > 2.0f && fn_8005361C(&res, &seg, &sphere) != 0) {
+                fn_800C344C(sSeNames_unk[4], &m88->mPos, 0, -1, 0.75f);
+                atn::Vector3 normal = res.m10 - sphere.mCenter;
+                if (!(atn::Abs_unk(fn_805F9920(&normal)) < 1.1920929e-7f)) {
+                    PSVECNormalize(&normal, &normal);
+                }
+                PSVECMag(&m20);
+                float dot = PSVECDotProduct(&normal, &m20);
+                atn::Vector3 dir = m20 - normal * 2.0f * dot + m20 * 0.75f;
+                float t = 0.4f * ((float)(rand() % 1001) / 1000.0f) - 0.2f;
+                atn::Vector3 up(0.0f, 1.0f, 0.0f);
+                atn::Vector3 side;
+                PSVECCrossProduct(&m20, &up, &side);
+                dir += side * t;
+                PSVECNormalize(&dir, &dir);
+                dir *= PSVECMag(&m20);
+                if (HasFlag_unk(0x400)) {
+                    atn::Vector3 back = dir;
+                    vf20(shield->m08, &res.m10, &back);
+                    vf0C(1, 0);
+                } else {
+                    m20 = dir;
+                    m08 = res.m10 + m20;
+                    fn_8010F4BC();
+                }
+                return;
+            }
+            atn::Vector3 d = m08 - sphere.mCenter;
+            if (fn_805F9920(&d) < sphere.mRadius * sphere.mRadius) {
+                fn_800C344C(sSeNames_unk[4], &m88->mPos, 0, -1, 0.75f);
+                vf0C(1, 0);
+                return;
+            }
+        }
+    }
+    unsigned int mask = 6;
+    if (HasFlag_unk(2)) {
+        mask |= 0x40000000;
+    }
+    if (HasFlag_unk(0x200)) {
+        mask |= 0x80000000;
+    }
+    if (m88 != 0 && m88->mType == 3 && m78 <= 4.0f * m80) {
+        mask |= 0x40000000;
+    }
+    CollResult_unk res;
+    void* ignore = &m88->mColli;
+    if ((m68->mAC & 0x8000) == 0x8000 && m78 > m80) {
+        ignore = 0;
+    }
+    int hit;
+    if (HasFlag_unk(0x10)) {
+        atn::Vector3 move = m08 - m14;
+        hit = fn_8004D388(lbl_8087EE98, &res, &m14, &move, mask, ignore, 0, m68, m68->m58);
+    } else {
+        hit = fn_8004ED34(lbl_8087EE98, &res, &m14, &m08, mask, ignore, 0);
+    }
+    if (hit != 0 && HasFlag_unk(0x800) && (res.m3C & 1) != 1 && (res.m3C & 2) != 2) {
+        hit = 0;
+    }
+    if (hit != 0 && HasFlag_unk(0x2000) && (res.m3C & 2) == 2) {
+        CharaTask* target = ((CollOwner_unk*)res.m38)->m0C;
+        if (target != vf24()) {
+            hit = 0;
+        }
+    }
+    if (hit != 0) {
+        fn_80110858(&res);
+    }
+}
 
 CharaTask* Bullet::vf24() {
     return 0;
@@ -414,8 +534,7 @@ void Bullet::vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3* dir) 
     fn_800F8574(lbl_8087F048, chara, m68, pos, dir, 0, 0, 0, 0.0f, 1.0f);
 }
 
-// NONMATCHING: placeholder
-void Bullet::fn_80110858(CollResult_unk* res) {}
+// fn_80110858 (0x1858 bytes, the bullet hits a character or the background) is not decompiled yet.
 
 // inferred: removes the bullet when it hits the background (hit effect on the collision)
 void Bullet::fn_801120B0() {
