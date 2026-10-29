@@ -90,7 +90,7 @@ int OpenBoard::vf0C() {
     return 0;
 }
 
-void OpenBoard::vf28() {
+void OpenBoard::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -123,7 +123,7 @@ void OpenBoard::vf28() {
 // with temporaries/locals/helpers, Start_unk by value/by reference, Interp_unk forms.
 void OpenBoard::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (m54 == 2) {
         return;

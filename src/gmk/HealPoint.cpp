@@ -76,7 +76,7 @@ int HealPoint::vf0C() {
     return 0;
 }
 
-void HealPoint::vf28() {
+void HealPoint::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -93,7 +93,7 @@ void HealPoint::vf28() {
 
 void HealPoint::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (mWait > 0) {
         mWait--;

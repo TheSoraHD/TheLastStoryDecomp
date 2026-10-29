@@ -61,8 +61,9 @@ public:
     // inferred: inline (weak copies at the end of the file, in reverse order)
     // inferred: position of the "neck" node (0x8029CA84; the literal is in the .data pool of the
     // inline member)
-    virtual atn::Vector3 vfC8() {
-        MtxPtr m = mMotion.GetNodeMtx_unk("neck");
+    virtual atn::Vector3 GetTacViewPosition() const {
+        // inferred: const_cast because the atn::Model node getter is not const yet
+        MtxPtr m = const_cast<Em203GreaterDaemonRed*>(this)->mMotion.GetNodeMtx_unk("neck");
         float z = m[2][3];
         float y = m[1][3];
         float x = m[0][3];

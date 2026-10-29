@@ -119,9 +119,6 @@ static void fn_80338D14(QuarkTable_unk* table, atn::Csv* csv) {
 // inferred: inline accessors (weak copies 0x803396EC, 0x803396FC, 0x80339718, called out of line by
 // vf0C, which is over the inline budget; game/EnemyQuarkStand.cpp calls the same copies). Names keep
 // the addresses: 0x80339718 is the CharaStatusPair_unk(int) constructor of CharaStatus.h (no null test).
-extern "C" inline void fn_803396EC(CharaTask* chara, unsigned int flags) {
-    chara->m54C |= flags;
-}
 extern "C" inline void fn_803396FC(CharaStatus* status, int index, const CharaStatusPair_unk& pair) {
     status->m2D0[index] = pair;
 }
@@ -135,7 +132,7 @@ int EnemyQuarkSecond::vf0C() {
         m1680.fn_80237874() == 0 && m168C.fn_80237874() == 0 && m1698.fn_80237874() == 0 &&
         fn_800D3FA4() != 0) {
         fn_80344780();
-        fn_803396EC(this, 0x200);
+        SetFlag(0x200);
         fn_80288E30(this, 0.03f);
         mMotion.fn_80099E9C("hips", "em211", 4.3f);
         mStatus.m18 |= 0x1C0;

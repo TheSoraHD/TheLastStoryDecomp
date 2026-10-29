@@ -68,7 +68,7 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
     virtual void vf6C(void* menu);

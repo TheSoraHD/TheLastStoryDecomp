@@ -182,7 +182,7 @@ int RandomMerchant::vf0C() {
     return 0;
 }
 
-void RandomMerchant::vf28() {
+void RandomMerchant::Start() {
     m54 = 1;
     mTimer = mFirstTime;
 }

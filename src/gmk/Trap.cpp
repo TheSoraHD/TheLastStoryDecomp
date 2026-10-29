@@ -74,7 +74,7 @@ void Trap::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void Trap::vf28() {
+void Trap::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     m78.x = 0.0f;
@@ -88,7 +88,7 @@ void Trap::vf28() {
 
 void Trap::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (m54 == 0 || m54 == 1 || m54 == 6) {
         return;

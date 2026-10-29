@@ -118,7 +118,7 @@ int Lemon::vf0C() {
 
 void Lemon::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     m6C.y += 0.5f;
     atn::Matrix3x4 mtx = lbl_807C7060;
@@ -172,7 +172,7 @@ void Lemon::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void Lemon::vf28() {
+void Lemon::Start() {
     m54 = 2;
     atn::Matrix3x4 mtx = lbl_807C7060;
     atn::Matrix3x4 rot;
@@ -194,7 +194,7 @@ int Lemon::vf40(GimmickMsg_unk* msg) {
     }
     switch (msg->mType) {
     case 0:
-        vf28();
+        Start();
         break;
     case 1:
     case 2:

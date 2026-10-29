@@ -357,7 +357,7 @@ void WaitObject::vf20() {
 // NONMATCHING: 99.9% - stack slots of the two safe-bool temporaries swapped, and the names of the
 // safe-bool member pointers of boost::scoped_ptr
 // (lbl_8078DC40/lbl_8078DC4C in the original, local objects here; see vf1C)
-void WaitObject::vf28() {
+void WaitObject::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);

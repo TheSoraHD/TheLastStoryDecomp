@@ -425,7 +425,7 @@ void Em403WarLion::vf3C(HitInfo_unk* hit) {
         return;
     }
     msg->m10 *= 0.0f;
-    if (m58C == 11 && ((unsigned int)msg->mData->m90 & 0x4000) == 0x4000) {
+    if (m58C == 11 && ((unsigned int)msg->mData->m90.mFlags & 0x4000) == 0x4000) {
         msg->m68 = 0;
         msg->m90 = 1;
         return;
@@ -465,13 +465,13 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
     if (m55C == 6 && m560 == 23) {
         fn_8015E4B0(m6B8, -1);
     }
-    if (((unsigned int)msg->mData->m90 & 0x1000000) == 0x1000000) {
+    if (((unsigned int)msg->mData->m90.mFlags & 0x1000000) == 0x1000000) {
         mStatus.fn_80133130(0x4000, 10, 0);
         mStatus.fn_8013322C(0x1000000);
     }
     if ((mStatus.m0C & 0x4000) == 0x4000) {
-        if (((unsigned int)msg->mData->m90 & 0x4000) == 0x4000 ||
-            ((unsigned int)msg->mData->m90 & 0x1000000) == 0x1000000 ||
+        if (((unsigned int)msg->mData->m90.mFlags & 0x4000) == 0x4000 ||
+            ((unsigned int)msg->mData->m90.mFlags & 0x1000000) == 0x1000000 ||
             (msg->mAttacker != 0 && msg->mAttacker->mStatus.fn_80133EE8(0x18) != 0)) {
             SetState_unk(20);
             mStatus.fn_8013322C(0x4000);

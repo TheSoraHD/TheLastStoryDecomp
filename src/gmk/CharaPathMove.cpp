@@ -109,7 +109,7 @@ void CharaPathMove::UpdateAll_unk(int skip) {
     }
 }
 
-void CharaPathMove::vf28() {
+void CharaPathMove::Start() {
     vf2C();
     GimmickMsg_unk msg(1);
     vf40(&msg);
@@ -125,7 +125,7 @@ void CharaPathMove::vf28() {
 
 void CharaPathMove::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     Step_unk();
     UpdateAll_unk(0);
@@ -273,7 +273,7 @@ void PathChara_unk::fn_8043E6B0(const char* motion, float speed, std::vector<std
 // NONMATCHING: 89.59% - 16 bytes smaller frame and one saved register less; owner reloaded for
 // rand() % mUpperInterval; same .sdata2 order issue as vf6C.
 void PathChara_unk::fn_8043E770() {
-    ((void)0); // inferred: assertions compiled out (keep the function out of line in vf28/vf10)
+    ((void)0); // inferred: assertions compiled out (keep the function out of line in Start/vf10)
     ((void)0);
     if (mOwner != 0 && mChara != 0) {
         if (mOwner->mPoints.size() >= 2) {

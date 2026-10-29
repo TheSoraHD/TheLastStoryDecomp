@@ -73,7 +73,7 @@ int TodomeCountUp::vf0C() {
     return 0;
 }
 
-void TodomeCountUp::vf28() {
+void TodomeCountUp::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     switch (mDesc->m20) {
@@ -97,12 +97,12 @@ void TodomeCountUp::vf28() {
     vf40(&msg);
 }
 
-// NONMATCHING: the target keeps a stack frame (saves this in r31) and calls vf28 with bctrl
+// NONMATCHING: the target keeps a stack frame (saves this in r31) and calls Start with bctrl
 // instead of a tail call, as if dead code followed. Tried: switch, local copies, empty inline and
 // out-of-line calls, dead loads, dead conditions, GimmickCommon::vf38 checks.
 void TodomeCountUp::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
 }
 

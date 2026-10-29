@@ -439,7 +439,7 @@ public:
     virtual void vfBC();
     virtual void vfC0(void* draw); // inferred: Np131LivingArmor passes `draw` to fn_803E2A30
     virtual bool vfC4();
-    virtual atn::Vector3 vfC8(); // inferred: returns a position (0x800EF2F0 copies mPos; Em302Kraken)
+    virtual atn::Vector3 GetTacViewPosition() const; // RSO name (0x800EF2F0 copies mPos; Em302Kraken)
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // inferred: four points (the target symbol says Fv)
     virtual atn::Vector3 vfD0(float angle); // inferred: position at mid height
     virtual float vfD4(); // inferred: returns f1 (0x800EF2B4: scaled vf90)
@@ -546,6 +546,8 @@ public:
         }
     }
     void SetPartsVisible_unk(int show);
+    // RSO: SetFlag__9CharaTaskFi (weak copy 0x803396EC)
+    void SetFlag(int flag) { m54C |= flag; }
     void fn_8016E71C(int show, int arg); // inferred: shows/hides the parts and the equipment
     void fn_8016E800(int arg); // inferred: calls fn_80566398 on every equipment
     float fn_8016E864(); // inferred: speed rate of the character

@@ -50,7 +50,7 @@ int CharaObj::vf0C() {
     return 0;
 }
 
-void CharaObj::vf28() {
+void CharaObj::Start() {
     vf2C();
     GimmickMsg_unk msg(1);
     vf40(&msg);
@@ -68,10 +68,10 @@ void CharaObj::vf28() {
 }
 
 // NONMATCHING: 52.5% - same as gmk::TodomeCountUp::vf10: the target keeps a stack frame and calls
-// vf28 with bctrl instead of a tail call. Tried: return, for/break, switch, else branches, locals.
+// Start with bctrl instead of a tail call. Tried: return, for/break, switch, else branches, locals.
 void CharaObj::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
 }
 

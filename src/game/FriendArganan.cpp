@@ -11,6 +11,6 @@ void FriendArganan::vf3C(HitInfo_unk* hit) {
     hit->m10.x *= 0.0f;
     hit->m10.y *= 0.0f;
     hit->m10.z *= 0.0f;
-    hit->m90 = 0;
+    hit->m90.mFlags = 0;
     hit->m68 = 0;
 }

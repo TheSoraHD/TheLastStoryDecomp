@@ -24,7 +24,7 @@ public:
 
     static GimmickManager* fn_803EDFBC(atn::Task* parent); // inferred: creates the singleton
 
-    void fn_803EE374(void* arg);              // inferred: calls vf28 of the gimmicks
+    void fn_803EE374(void* arg);              // inferred: calls Start of the gimmicks
     void fn_803EE3F0(GimmickCommon* gimmick); // inferred: registers a gimmick
     void fn_803EE41C(GimmickCommon* gimmick); // inferred: unregisters it
     int fn_803EE45C(CharaTask* chara); // inferred: the query is a character (fn_8017CB2C)

@@ -114,7 +114,7 @@ int AttractHatePoint::vf0C() {
     return 0;
 }
 
-void AttractHatePoint::vf28() {
+void AttractHatePoint::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     mRadius = mDesc->m40;
@@ -128,7 +128,7 @@ void AttractHatePoint::vf10() {
     }
     mInRange = 0;
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (m54 == 1) {
         return;

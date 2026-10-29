@@ -137,7 +137,7 @@ int PassBoard::vf0C() {
     return 0;
 }
 
-void PassBoard::vf28() {
+void PassBoard::Start() {
     vf2C();
     GimmickMsg_unk msg(1);
     vf40(&msg);
@@ -150,7 +150,7 @@ void PassBoard::vf28() {
 // in __MakeRotation_unk, a Front_unk helper (worse), pair pointer vs indexed pairs.
 void PassBoard::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     float dist = -60.0f;
     for (int i = 0; i < 5; i++) {

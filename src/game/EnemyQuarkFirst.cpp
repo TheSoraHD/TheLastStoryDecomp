@@ -222,7 +222,7 @@ int EnemyQuarkFirst::vf10C(HitMsg_unk* msg) {
     }
     int done = 0;
     if (m14D8 == 1) {
-        if ((msg->mData->m90 & 0x80000) == 0x80000) {
+        if ((msg->mData->m90.mFlags & 0x80000) == 0x80000) {
             m14D8 = 2;
             m14E0 = 300.0f;
             fn_8059C2A8(lbl_8087F9E8, this, m1524);

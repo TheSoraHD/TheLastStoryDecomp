@@ -138,7 +138,7 @@ int MotionObject::vf0C() {
     return 0;
 }
 
-void MotionObject::vf28() {
+void MotionObject::Start() {
     GimmickMsg_unk msg;
     if (m58 > 0) {
         msg.mType = m58;

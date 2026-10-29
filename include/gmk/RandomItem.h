@@ -29,7 +29,7 @@ struct RandomItemLoc_unk {
 };
 
 // inferred: item entry ("ITEM": id and parameters, then its places); 0x830 bytes. The route
-// points inside its boxes are collected by RandomItem::vf28.
+// points inside its boxes are collected by RandomItem::Start.
 struct RandomItemDrop_unk {
     RandomItemDrop_unk() {}
 
@@ -57,7 +57,7 @@ public:
     virtual void vf14();
     virtual int vf1C();
     virtual void vf20();
-    virtual void vf28();
+    virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
     // inferred: defined after vf70 (0x8043465C-0x80435CE4, outside the split of this unit)

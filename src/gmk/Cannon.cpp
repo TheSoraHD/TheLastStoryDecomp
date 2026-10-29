@@ -92,7 +92,7 @@ void Cannon::vf10() {
     fn_803ED0D4(&mModelCrush, 1);
     if (m54 == 0) {
         fn_80239DAC(lbl_8087F3C0, this, 1, 1);
-        vf28();
+        Start();
     } else if (m54 == 2) {
         fn_80239DAC(lbl_8087F3C0, this, 1, 1);
         GimmickMsg_unk msg(3);
@@ -194,7 +194,7 @@ void Cannon::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void Cannon::vf28() {
+void Cannon::Start() {
     vf2C();
     fn_803ED0D4(&mModel, 1);
     fn_803ED0D4(&mModelCrush, 1);

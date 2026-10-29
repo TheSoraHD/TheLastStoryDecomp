@@ -347,7 +347,7 @@ void Cannonball::vf24() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void Cannonball::vf28() {
+void Cannonball::Start() {
     GimmickMsg_unk msg(1);
     vf40(&msg);
 }
@@ -376,7 +376,7 @@ void Cannonball::vf10() {
         }
         if (mTimer <= 0) {
             m9C = 1;
-            vf28();
+            Start();
         } else {
             return;
         }

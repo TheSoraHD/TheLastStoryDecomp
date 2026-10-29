@@ -83,7 +83,7 @@ int FloatingBox::vf0C() {
     return 0;
 }
 
-void FloatingBox::vf28() {
+void FloatingBox::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -100,7 +100,7 @@ void FloatingBox::vf28() {
 // NONMATCHING: same bounds copies as vf0C, which also changes the register of this/chara.
 void FloatingBox::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (lbl_8087F8A0 == 0) {
         return;

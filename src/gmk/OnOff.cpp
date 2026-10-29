@@ -253,7 +253,7 @@ int OnOff::vf0C() {
     return 0;
 }
 
-void OnOff::vf28() {
+void OnOff::Start() {
     vf2C();
     if (mHasModel != 0) {
         fn_803ED0D4(&mModel, 1);

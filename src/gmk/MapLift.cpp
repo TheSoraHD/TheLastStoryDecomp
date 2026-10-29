@@ -200,7 +200,7 @@ int MapLift::vf0C() {
     return 0;
 }
 
-void MapLift::vf28() {
+void MapLift::Start() {
     GimmickMsg_unk msg;
     if (m58 > 0) {
         msg.mType = m58;

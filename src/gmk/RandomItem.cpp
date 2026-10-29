@@ -107,7 +107,7 @@ int RandomItem::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-void RandomItem::vf28() {
+void RandomItem::Start() {
     m54 = 1;
     RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table == 0) {

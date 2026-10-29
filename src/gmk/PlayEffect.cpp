@@ -69,7 +69,7 @@ void PlayEffect::vf10() {
         fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         fn_800CB5C8(&mSound, 10, 0);
         mOn = 0;
-        vf28();
+        Start();
     }
     if (mModel != 0) {
         fn_803ED0D4(mModel, 1);
@@ -147,7 +147,7 @@ void PlayEffect::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void PlayEffect::vf28() {
+void PlayEffect::Start() {
     vf2C();
     GimmickMsg_unk msg;
     msg.mType = m58 == 0 ? mInitState : 3;

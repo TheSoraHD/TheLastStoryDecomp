@@ -131,7 +131,7 @@ int LemonBucket::vf0C() {
     return 0;
 }
 
-void LemonBucket::vf28() {
+void LemonBucket::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -152,12 +152,12 @@ void LemonBucket::vf10() {
     }
     if (CameraDistSq_unk(m6C) > mRange * mRange) {
         if (m54 == 4) {
-            vf28();
+            Start();
         }
         return;
     }
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (m54 == 2) {
         GimmickMsg_unk msg(3);

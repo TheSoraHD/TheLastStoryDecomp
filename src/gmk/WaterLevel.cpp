@@ -94,7 +94,7 @@ int WaterLevel::vf0C() {
     return 0;
 }
 
-void WaterLevel::vf28() {
+void WaterLevel::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -106,7 +106,7 @@ void WaterLevel::vf28() {
 
 void WaterLevel::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     }
     if (vf38() != 0) {
         fn_803ED5D0(vf38());

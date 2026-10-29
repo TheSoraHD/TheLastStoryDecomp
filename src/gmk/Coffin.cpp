@@ -176,7 +176,7 @@ int Coffin::vf0C() {
     return 0;
 }
 
-void Coffin::vf28() {
+void Coffin::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     m78.x = 0.0f;
@@ -190,7 +190,7 @@ void Coffin::vf28() {
 
 void Coffin::vf10() {
     if (m54 == 0) {
-        vf28();
+        Start();
     } else if (m54 == 2) {
         GimmickMsg_unk msg(3);
         vf40(&msg);
