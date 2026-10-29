@@ -79,7 +79,7 @@ public:
 
     int m14B0;                          // inferred: loading state (0, 1 collision objects, 2 ready)
     atn::LH_Binary m14B4;               // inferred: data file
-    atn::Vector_unk<atn::Vector3> m14BC; // inferred: "HighJumpAttackPointID" positions
+    atn::SimpleVector<atn::Vector3> m14BC; // inferred: "HighJumpAttackPointID" positions
     int m14C8;
     int m14CC;                          // inferred: "bossActPhase_" (3-5): next action (0-5)
     int m14D0;

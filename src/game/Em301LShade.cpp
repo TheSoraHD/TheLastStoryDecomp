@@ -380,7 +380,7 @@ inline void Em301LShade::StartAbsorb_unk(int kind) {
     }
 }
 
-// NONMATCHING: draft - std::string constructors and the inlined Vector_unk/vector code
+// NONMATCHING: draft - std::string constructors and the inlined SimpleVector/vector code
 Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14D8(0), m14DC(0), m14E0(1), m14E4(0), m14E8(0), m14EC(0),
       m14F0(10), m14F4(0), m14F8(900), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m152C(1), m1530(0x451),

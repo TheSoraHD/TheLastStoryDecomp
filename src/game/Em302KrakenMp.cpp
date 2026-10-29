@@ -731,7 +731,7 @@ void Em302KrakenMp::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.9% - the "" of Vector_unk::reserve (lbl_8087D9E4/lbl_8087D9E0 in the original, as in
+// NONMATCHING: 99.9% - the "" of SimpleVector::reserve (lbl_8087D9E4/lbl_8087D9E0 in the original, as in
 // CharaTask::vf50)
 void Em302KrakenMp::vf50() {
     float d = 5.0f;

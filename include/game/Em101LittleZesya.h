@@ -51,7 +51,7 @@ public:
     CharaTask* m14B8;       // inferred: target
     RoutePlace_unk* m14BC;  // inferred: "WaitPointID"
     RoutePlace_unk* m14C0;  // inferred: "ShootPointID"
-    atn::Vector_unk<atn::Vector3> m14C4; // inferred: points (as Em101ElderZesya::m14BC)
+    atn::SimpleVector<atn::Vector3> m14C4; // inferred: points (as Em101ElderZesya::m14BC)
     int m14D0;              // inferred: frame counter
     unsigned char m14D4[0x14EC - 0x14D4];
     int m14EC;

@@ -115,7 +115,7 @@ public:
     std::string m08;
     int m14;
     atn::LH_Binary* m18;
-    atn::Vector_unk<PoseKey_unk>* m1C;
+    atn::SimpleVector<PoseKey_unk>* m1C;
 };
 
 // inferred: task playing a movie (0x70 bytes)

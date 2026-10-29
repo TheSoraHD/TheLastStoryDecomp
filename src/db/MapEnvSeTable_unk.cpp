@@ -31,9 +31,9 @@ struct EnvSe_unk {
     unsigned int mSe;
 };
 
-// inferred: atn::Vector_unk::reserve without the capacity check, that also empties the list (as
+// inferred: atn::SimpleVector::reserve without the capacity check, that also empties the list (as
 // InitItems_unk of db/ItemRare_unk.cpp; its own "" literals in .sdata). Name invented.
-inline void InitList_unk(atn::Vector_unk<EnvSe_unk>& list, unsigned int n) {
+inline void InitList_unk(atn::SimpleVector<EnvSe_unk>& list, unsigned int n) {
     EnvSe_unk* data = new (0, "", "", 0) EnvSe_unk[n];
     if (list.mData != 0) {
         unsigned int count = (n > list.mSize) ? list.mSize : n;
@@ -56,7 +56,7 @@ struct MapEnvSe_unk {
     int m00;
     int m04;
     int m08;
-    atn::Vector_unk<EnvSe_unk> mList;
+    atn::SimpleVector<EnvSe_unk> mList;
 };
 
 // inferred: one row of /boot/loading_envse_table.csv (0x14 bytes); inline constructor and empty

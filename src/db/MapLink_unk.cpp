@@ -73,9 +73,9 @@ static const char* const sJumpFileName = sJumpFileNameStr;
 static const char* const sDispFileName = sDispFileNameStr;
 static const char* const sNameFileName = sNameFileNameStr;
 
-static atn::Vector_unk<int> sColumns; // inferred: ids of the columns (header of maplink_jump.csv)
-static atn::Vector_unk<MapLinkJump_unk> sJumps;
-static atn::Vector_unk<MapLinkDisp_unk> sDisps;
+static atn::SimpleVector<int> sColumns; // inferred: ids of the columns (header of maplink_jump.csv)
+static atn::SimpleVector<MapLinkJump_unk> sJumps;
+static atn::SimpleVector<MapLinkDisp_unk> sDisps;
 
 static MapLinkJumpRow_unk* sJumpRows;
 static int sJumpRowCount;
@@ -86,7 +86,7 @@ static int sNameCount;
 
 // inferred: index of a value in a vector, -1 if none
 template <class T>
-static inline int IndexOf_unk(const atn::Vector_unk<T>& vector, const T& value) {
+static inline int IndexOf_unk(const atn::SimpleVector<T>& vector, const T& value) {
     int index = -1;
     for (unsigned int i = 0; i < vector.mSize; i++) {
         if (vector.mData[i] == value) {

@@ -24,10 +24,10 @@ struct MotionCmdElemD_unk {
 struct MotionCmdData_unk {
     int fn_800A091C(); // inferred: 0 when the data is ready
 
-    atn::Vector_unk<MotionCmdElemA_unk> m00;
-    atn::Vector_unk<ResLoader_unk> m0C;
-    atn::Vector_unk<atn::EfpFile> m18; // destructor 0x800EF73C
-    atn::Vector_unk<MotionCmdElemD_unk> m24;
+    atn::SimpleVector<MotionCmdElemA_unk> m00;
+    atn::SimpleVector<ResLoader_unk> m0C;
+    atn::SimpleVector<atn::EfpFile> m18; // destructor 0x800EF73C
+    atn::SimpleVector<MotionCmdElemD_unk> m24;
 };
 
 typedef void (*MotionCmdParser_unk)(MotionCmdData_unk* data, void* buffer, void* size);

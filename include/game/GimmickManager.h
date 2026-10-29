@@ -42,7 +42,7 @@ public:
     int m50;              // inferred: map of the loaded sound table (m50, m54, m58)
     int m54;
     int m58;
-    atn::Vector_unk<gmk::SeTable> mSeTables; // 0x5C
+    atn::SimpleVector<gmk::SeTable> mSeTables; // 0x5C
     LoadSeTableTask* mLoadTask;              // 0x68
     int mLoading;                            // 0x6C
     ResHandle mRes;                          // 0x70

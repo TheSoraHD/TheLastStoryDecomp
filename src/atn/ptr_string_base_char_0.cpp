@@ -171,7 +171,7 @@ extern "C" void fn_8021F47C() {
         unsigned long size;
         void* data = fn_8046DC5C(lbl_8087F518, sFileName, &size, 0x20);
         Map_unk<unsigned int, const char*> names;
-        atn::Vector_unk<unsigned int> seen;
+        atn::SimpleVector<unsigned int> seen;
         csv.vf08((const char*)data, size);
         int total = 0;
         while (csv.fn_8005BBF8() != 0) {

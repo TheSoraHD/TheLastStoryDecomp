@@ -290,7 +290,7 @@ public:
 
     EffectSystem_unk mSystem;                // 0x4C
     unsigned int mMax;                       // 0xD4
-    Vector_unk<EffectEntry_unk> mEntries;    // 0xD8
+    SimpleVector<EffectEntry_unk> mEntries;    // 0xD8
     unsigned int mSerial;                    // 0xE4
     int mPaused;                             // 0xE8
     unsigned int mFlags;                     // 0xEC

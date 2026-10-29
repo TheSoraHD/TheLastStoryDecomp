@@ -396,7 +396,7 @@ int Em101ElderZesya::vf0C() {
 }
 
 // NONMATCHING: 99.85% - r24/r25 of the route table and the barrier pointer (8 variants: declaration orders,
-// field local, table copy, pointer/offset forms); the push_back of the points is the inlined Vector_unk one
+// field local, table copy, pointer/offset forms); the push_back of the points is the inlined SimpleVector one
 void Em101ElderZesya::fn_80256384() {
     RouteTable_unk* table = lbl_8087F430->m10D8;
     int barrier = 0;

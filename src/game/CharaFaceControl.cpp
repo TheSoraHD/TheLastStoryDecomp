@@ -166,7 +166,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
 
 // NONMATCHING: 97.36% - register allocation (the original keeps the motion, the node and the entry
 // in r28-r31 and only five name hashes in registers); same instructions otherwise
-void CharaFaceControl::fn_8011E200(Chara1188Entry_unk* entry, atn::Vector_unk<Event::PoseKey_unk>* edits,
+void CharaFaceControl::fn_8011E200(Chara1188Entry_unk* entry, atn::SimpleVector<Event::PoseKey_unk>* edits,
                                    float weight) {
     if (!entry->IsActive_unk()) {
         return;

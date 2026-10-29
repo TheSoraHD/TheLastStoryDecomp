@@ -25,7 +25,7 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name
 extern "C" int fn_800DC12C(const char* s);          // inferred: atoi
 
 // inferred: per-frame callbacks (also run by atn::LoadHandle and main)
-typedef atn::Vector_unk<boost::function<void()> > FrameCallbacks_unk;
+typedef atn::SimpleVector<boost::function<void()> > FrameCallbacks_unk;
 extern "C" FrameCallbacks_unk* lbl_8087EE94;
 
 // inferred: balances the red-black tree after an insertion (MSL)
@@ -572,8 +572,8 @@ public:
     unsigned long m360;
     Sound3DManager_unk m364;
     void* m390;
-    Vector_unk<AudioBank_unk> mBanks;      // 0x394
-    Vector_unk<AudioBank_unk> mBankQueue;  // 0x3A0
+    SimpleVector<AudioBank_unk> mBanks;      // 0x394
+    SimpleVector<AudioBank_unk> mBankQueue;  // 0x3A0
     AudioBank_unk mExtraBank;              // 0x3AC
     int m400; // inferred: banks of the queue are being loaded
     int m404; // inferred: the extra bank is being loaded

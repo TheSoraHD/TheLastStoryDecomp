@@ -184,7 +184,7 @@ extern "C" void fn_800BD9C0(RenderSystem_unk* render, int size, const std::strin
 extern "C" void fn_800BDBC8(RenderSystem_unk* render);
 extern "C" void fn_800BFAC4(RenderSystem_unk* render);
 
-typedef atn::Vector_unk<boost::function<void()> > FrameCallbacks_unk;
+typedef atn::SimpleVector<boost::function<void()> > FrameCallbacks_unk;
 extern "C" FrameCallbacks_unk* lbl_8087EE94;
 
 // inferred: creates the list of per-frame callbacks (name invented)
@@ -258,7 +258,7 @@ int main() {
 
 // inferred: start-up
 // NONMATCHING: 39.7% - the original inlines the boost::bind/boost::function constructors, the
-// strings and LightDesc_unk while calling Vector_unk::push_back out of line (here the three push_back
+// strings and LightDesc_unk while calling SimpleVector::push_back out of line (here the three push_back
 // calls make every candidate go out of line; push_back probably takes the function by value in the
 // original). Over the budget OSInitFastCast (approved SDK header asm) is also called out of line here,
 // while the original inlines its four mtspr GQR2-5 after OSInit.

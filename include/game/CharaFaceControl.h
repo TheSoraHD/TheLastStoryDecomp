@@ -54,7 +54,7 @@ public:
     CharaFaceControl(); // 0x8011D24C
     void fn_8011D424(atn::Model* model); // inferred: installs the node callback of the model
     void fn_8011D844(atn::MotionBuffer* nodes, int arg); // inferred: node callback
-    void fn_8011E200(Chara1188Entry_unk* entry, atn::Vector_unk<Event::PoseKey_unk>* edits, float weight);
+    void fn_8011E200(Chara1188Entry_unk* entry, atn::SimpleVector<Event::PoseKey_unk>* edits, float weight);
     // inferred: plays the face motion `motion` (CharaObj, CharaTask)
     void fn_8011E81C(int motion, unsigned char eyes, unsigned char head, unsigned char hair, float speed,
                      float weight);
@@ -66,7 +66,7 @@ public:
 
     atn::Model* m00;
     Chara1188Entry_unk m04[2];
-    atn::Vector_unk<Event::PoseKey_unk> m44[2];
+    atn::SimpleVector<Event::PoseKey_unk> m44[2];
     int m5C;   // inferred: current entry (0 or 1)
     float m60; // inferred: timer
     float m64;
@@ -85,7 +85,7 @@ struct FaceData_unk : public atn::LH_Binary {
     int fn_8011EF14();                  // inferred: parses the file, nonzero while loading
 
     atn::Buffer_unk<FaceKey_unk> mKeys;                 // 0x08
-    atn::Vector_unk<Event::PoseKey_unk> mEdits;         // 0x10
+    atn::SimpleVector<Event::PoseKey_unk> mEdits;         // 0x10
 };
 
 #endif

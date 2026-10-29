@@ -460,7 +460,7 @@ public:
     int fn_80138E1C(int arg); // inferred: plays a random motion
     void fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& node, const atn::ModelNodeCallbackContext& context); // inferred: node matrix hook
     void fn_8014FF9C(int a, int b, int c);
-    void fn_8017B1C4(atn::Vector_unk<int>* list);
+    void fn_8017B1C4(atn::SimpleVector<int>* list);
     void fn_80178208(chr::ControlBase* control); // inferred: changes the current control
     void fn_8016EB48(int a, int b, int c); // inferred: bound with three bools (0x801C7390)
     // inferred: 0x8015BAF0-0x8015E7A0 each create a control and switch to it (fn_80178208 inlined)
@@ -861,7 +861,7 @@ public:
     int fn_8017A450();
     void fn_8017A504();
     void fn_8017A5D8(int on);
-    void fn_8017AD44(atn::Vector_unk<int>* list, void* arg);
+    void fn_8017AD44(atn::SimpleVector<int>* list, void* arg);
     // inferred: name invented (m54C bit 2)
     bool IsHidden_unk() {
         if ((m54C & 4) == 4) {
@@ -1062,7 +1062,7 @@ public:
     int m610;
     atn::Vector3 m614;
     float m620;
-    atn::Vector_unk<Item14_unk> m624;
+    atn::SimpleVector<Item14_unk> m624;
     int m630;
     int m634;
     HitInfo_unk* m638; // inferred: current magic/attack (CharaTask::fn_8015F568)
@@ -1243,7 +1243,7 @@ public:
     int m13F4;
     int m13F8;
     CharaTask* m13FC; // inferred: character that "pointmove" (fn_8017039C) is forwarded to; set by fn_8017AC3C
-    atn::Vector_unk<int> m1400; // inferred: element type unknown (plain data)
+    atn::SimpleVector<int> m1400; // inferred: element type unknown (plain data)
     int m140C;
     float m1410; // inferred: volume of the sound m1414 (fn_80178BFC)
     atn::SoundRef m1414;

@@ -185,7 +185,7 @@ int RandomItem::vf1C() {
     return mAnime.fn_8044E1BC() != 0;
 }
 
-// NONMATCHING: 98.7% - register allocation of the inlined Vector_unk reserve/Assign_unk copies
+// NONMATCHING: 98.7% - register allocation of the inlined SimpleVector reserve/Assign_unk copies
 // (source and destination addresses of the copy loops are swapped, r17-r23 permuted); tried explicit
 // and implicit assignments of the elements and other orders of the "LOC" lookup
 void RandomItem::vf20() {

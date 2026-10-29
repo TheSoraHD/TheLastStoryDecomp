@@ -39,3 +39,8 @@ Agente B, rama `agent-B`. Referencia: `/home/claude/ref/report2.json` (8180 func
 
 - `atn::EfpHandle_unk` = `atn::EfpFile`: renombrada en `include/atn/EfpHandle_unk.h` (el fichero conserva el nombre) y en 172 ficheros; `fn_8023781C` -> `Destroy()` (0x8023781C). `symbols.txt`: 11 nombres, incluidos los de plantillas (`scoped_ptr<...>`, `Vector_unk<...>`) con el prefijo de longitud recalculado (herramienta propia `mrename.py` en el scratchpad del agente: sustituye un token mangled y corrige los prefijos de las plantillas que lo contienen). `game_units.json`: clase de `atn/EfpHandle_unk.cpp`.
 - Candidatos sin aplicar (no estaban en la cola): `fn_8023780C(const char*)` = `LoadRequest`, `fn_80237874()` = `IsLoading` (RSO), por el comportamiento ya anotado.
+
+## atn::SimpleVector (hecho: clase y `operator[]`)
+
+- `atn::Vector_unk<T>` = `atn::SimpleVector<T>` (`include/atn/Array_unk.h`, 26 ficheros, 58 nombres de `symbols.txt` con prefijos recalculados). `operator[](unsigned int)` -> `operator[](int)` (firma del RSO `__vc__...Fi`); los 4 `__vc__` de MotionCommand_unk (0x801207BC, 0x80120D24, 0x80120E38, 0x80120F4C) siguen al 100% con el nombre nuevo.
+- Sin aplicar (no en la cola, firmas distintas): en el RSO `reserve`/`resize` son `(unsigned int, MemoryTag, const char*)` (nuestros `reserve(Ui, int)` y `Resize_unk(Ui, int, int)`: el tercer argumento "que nunca se lee" es el `const char*`); `__vc__` de `SimpleVector<AudioDevice::LoadBankQueue>` es `const` (`CFi`); `SimpleVector<atn::EffFile>` existe en el RSO (posible nombre real de `ResLoader_unk`, sin comprobar).

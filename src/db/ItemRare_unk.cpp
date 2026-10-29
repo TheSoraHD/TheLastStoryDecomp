@@ -51,9 +51,9 @@ struct RareItem_unk {
     int mNum2;
 };
 
-// inferred: atn::Vector_unk::reserve without the capacity check, that also empties the list (another
+// inferred: atn::SimpleVector::reserve without the capacity check, that also empties the list (another
 // instance of the "" literals in .sdata: a separate function). Name invented.
-inline void InitItems_unk(atn::Vector_unk<RareItem_unk>& list, unsigned int n) {
+inline void InitItems_unk(atn::SimpleVector<RareItem_unk>& list, unsigned int n) {
     RareItem_unk* data = new (0, "", "", 0) RareItem_unk[n];
     if (list.mData != 0) {
         unsigned int count = (n > list.mSize) ? list.mSize : n;
@@ -74,7 +74,7 @@ struct RareEntry_unk {
     int m00;
     int m04;
     int m08;
-    atn::Vector_unk<RareItem_unk> mItems;
+    atn::SimpleVector<RareItem_unk> mItems;
 };
 
 static const char sFileNameStr[] = "/boot/item_rare.csv";

@@ -1111,7 +1111,7 @@ void CharaTask::fn_80138528() {
 }
 
 // NONMATCHING: the original is over the inlining budget and calls every inline candidate out of line
-// (std::string, char_separator, tokenizer and iterator members, atn::Csv, atn::Vector_unk<int>:
+// (std::string, char_separator, tokenizer and iterator members, atn::Csv, atn::SimpleVector<int>:
 // weak copies 0x801360C4, 0x801360D8, 0x80138A50); this compile inlines all of them (same open case
 // as LoadSeTableTask::vf0C, docs/inlining.md).
 void CharaTask::vf2C(const char* params, int arg) {
@@ -1122,7 +1122,7 @@ void CharaTask::vf2C(const char* params, int arg) {
         if (strncmp((*it).c_str(), "path=", 5) == 0) {
             std::string value((*it).c_str());
             atn::Csv csv(value.c_str() + 5, value.size() - 5);
-            atn::Vector_unk<int> points;
+            atn::SimpleVector<int> points;
             int id;
             while ((id = atoi(csv.fn_8005B9CC())) > 0) {
                 points.push_back(id);
@@ -4842,7 +4842,7 @@ void CharaTask::vf20() {
 }
 
 // NONMATCHING: 94% (objdiff 99.9%) - only symbol names differ: the Item14_unk constructor is
-// fn_80148990 in the target, and the "" of Vector_unk::reserve are lbl_8087D9E4/lbl_8087D9E0.
+// fn_80148990 in the target, and the "" of SimpleVector::reserve are lbl_8087D9E4/lbl_8087D9E0.
 void CharaTask::vf50() {
     m624.clear();
     m624.reserve(1, 3);
@@ -12274,12 +12274,12 @@ struct NameEntry_unk {
 extern "C" NameEntry_unk* fn_803B3B38(void* table, int id);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
-extern "C" void fn_80096218(atn::Model* model, atn::Vector_unk<int>* list, void* arg); // inferred: collects resources
-extern "C" void fn_80563A60(chr::CharaEquip_unk* equip, atn::Vector_unk<int>* list, void* arg);
+extern "C" void fn_80096218(atn::Model* model, atn::SimpleVector<int>* list, void* arg); // inferred: collects resources
+extern "C" void fn_80563A60(chr::CharaEquip_unk* equip, atn::SimpleVector<int>* list, void* arg);
 extern "C" int fn_80473F34(atn::LH_MotionSet* set);
 
 // inferred: collects the resources of the character (models, parts, equipment, motion set)
-void CharaTask::fn_8017AD44(atn::Vector_unk<int>* list, void* arg) {
+void CharaTask::fn_8017AD44(atn::SimpleVector<int>* list, void* arg) {
     fn_80096218(&mMotion, list, arg);
     for (unsigned int i = 0; i < mParts.mCount; i++) {
         fn_80096218((atn::Model*)mParts.mData[i]->m010, list, arg);
@@ -12318,7 +12318,7 @@ bool CharaTask::fn_8017B16C() {
 }
 
 // inferred: copies the list into m1400 and resets m140C
-void CharaTask::fn_8017B1C4(atn::Vector_unk<int>* list) {
+void CharaTask::fn_8017B1C4(atn::SimpleVector<int>* list) {
     m140C = -1;
     m1400.Assign_unk(*list);
 }
