@@ -9,6 +9,25 @@ extern "C" void fn_803B3AA0(void* self) {
     *reinterpret_cast<int*>(bytes + 0x34) = 0;
 }
 
+extern "C" void* lbl_8087EFE8;
+extern "C" void fn_800C31F4(void* object, const char* text, int arg2, int arg3);
+extern "C" const char* lbl_8074FCE8[];
+
+extern "C" void fn_803B42E8(void* self, const char* text) {
+    if (lbl_8087EFE8 != 0) {
+        *reinterpret_cast<int*>(static_cast<unsigned char*>(lbl_8087EFE8) + 0x34D0) = 5;
+    }
+    fn_800C31F4(self, text, 0, -1);
+    if (lbl_8087EFE8 != 0) {
+        *reinterpret_cast<int*>(static_cast<unsigned char*>(lbl_8087EFE8) + 0x34D0) = 0;
+    }
+}
+
+// NONMATCHING: 0% - MWCC inlines fn_803B42E8 instead of emitting the target tail branch.
+extern "C" void fn_803B4338(void* self, int index) {
+    fn_803B42E8(self, lbl_8074FCE8[index]);
+}
+
 extern "C" int fn_803B4C24(void* self) {
     return *reinterpret_cast<int*>(static_cast<unsigned char*>(self) + 0x78) == 3;
 }
