@@ -30,11 +30,12 @@ python3 tools/decomp/rso/apply.py [cat] [--dry]   # renombra en symbols.txt (por
 - 290 renombrados en `symbols.txt` (HBM/`nw4hbm`/`homebutton`, WPAD, `std` iostream/`num_put`/`numpunct`, `Metrowerks::bufferedbuf`, inlines de `atn::Camera`/`Model`/`Task`/`RenderConfig`, `CharaTask::GetProtector`/`SetFlag`...). Sin cambios de código.
 - C: `HBMCreate`/`Delete`/`Init`/`Calc`/`CreateSound`/`DeleteSound`, `WPADProbe`, `WPADDisconnect`, `GXSetTexCoordCylWrap` (`symbols.txt` y sus llamadores `extern "C"` en `HomeButton_unk`, `WPad_unk`, `GraphicsDevice`).
 - C++: `atn::Vector3::GetNormalized_unk` → `GetNormalize` (58 ficheros), `atn::FileList::GetName_unk` → `GetStrings` const (y `std::vector::operator[] const` en `include/std/vector.h`).
-- Resultado: 8180 / 18215 igual que `main`, `main.dol: OK`, lost 0, fuzzdrop 0.
+- C++: `CharaTask::IsPlayer_unk` → `IsPlayer() const`.
+- Resultado: 8180 / 18215 igual que `main`, `main.dol: OK`, lost 0; fuzzdrop 1 aceptado (abajo).
 
 ## Decisiones tomadas sin el usuario
 
-- `CharaTask::IsPlayer_unk` → `IsPlayer() const` **revertido**: el `const` baja el fuzzy de `Em303KrakenFoot::fn_802E3EE8` (99,16 → 98,97). El nombre real queda en la tabla de pendientes.
+- `CharaTask::IsPlayer_unk` → `IsPlayer() const` (nombre real, decisión del usuario): baja el fuzzy de `Em303KrakenFoot::fn_802E3EE8` (NONMATCHING) de 99,16 a 98,97; aceptado, se arreglará al volver a esa función.
 - `std::ios_base::throw_failure` (0x8068B39C) no se renombra: `allocator_char.cpp` lo declara como función libre C++ con otro nombre mangled; hay que declararlo en su clase al trabajar la unidad.
 - Los nombres que sustituyen clases `_unk` (p. ej. `GhoulKeyboard_unk` = `atn::Keyboard`, `StringBuf_unk` = `std::basic_stringbuf`, `Vector_unk` = `atn::SimpleVector`, `EfpHandle_unk` = `atn::EfpFile`, `FaceKey_unk` = `CharaFaceControl::MotionPart`, `NewCampStatusParty_unk::GetStatus_unk` = `Inventory::GetPlayerStatusInfo`) o virtuales `vfXX` (`CharaTask::vfC8` = `GetTacViewPosition() const`, `GimmickCommon::vf28` = `Start`, `CsvBase::vf08` = `SetData(const char*, unsigned int)`) se dejan para cuando se trabaje cada unidad (regla 10: clase real en su cabecera, comprobar que nada baja).
 - No usar (código plegado de funciones distintas): `DWCi_IsError` ≠ `Tools_CharaSelectIsOpened`, `gpiProfilesTableCompare` ≠ `std::operator-`, `nw4r::ut::LinkListImpl` ≠ `nw4hbm::ut::LinkListImpl`, `EqualsResName` ≠ `EqualsPaneName`, `__dt__CharWriter::ColorMapping` ≠ `__dt__CharWriter`, `LoadHandle::operator=` ≠ `Copy`.
@@ -64,7 +65,6 @@ Para usar al trabajar cada unidad (declarar el método en su clase real y renomb
 | `game/Arms.cpp` | `0x8004476c` | `vf08__Q23atn18CsvBase<c,9,13,34>FPCci` | `SetData__Q23atn18CsvBase<c,9,13,34>FPCcUi` |
 | `game/BattleCharaTask.cpp` | `0x800ef2f0` | `vfC8__9CharaTaskFv` | `GetTacViewPosition__9CharaTaskCFv` |
 | `game/BattleEfp_unk.cpp` | `0x800ef73c` | `__dt__Q23atn13EfpHandle_unkFv` | `__dt__Q23atn7EfpFileFv` |
-| `game/BattleTask.cpp` | `0x800f7f80` | `IsPlayer_unk__9CharaTaskFv` | `IsPlayer__9CharaTaskCFv` |
 | `game/CharaFaceControl.cpp` | `0x8011d320` | `__dt__11FaceKey_unkFv` | `__dt__Q216CharaFaceControl10MotionPartFv` |
 | `game/CharaTask.cpp` | `0x80139550` | `fn_80139550__9Model_unkFi` | `GetMotionFrame__Q23atn5ModelCFi` |
 | `game/CharaTask.cpp` | `0x80139f3c` | `fn_80139F3C__9Model_unkFif` | `SetMotionSpeed__Q23atn5ModelFif` |

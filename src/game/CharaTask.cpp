@@ -1293,7 +1293,7 @@ void CharaTask::fn_80139560() {
             } else {
                 rot = mRot;
             }
-            if (IsPlayer_unk() && fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 1) {
+            if (IsPlayer() && fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 1) {
                 b = 0.4f;
             }
             if (mC58.m11C.fn_8013A144()) {
@@ -2746,7 +2746,7 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
         }
         if (hitResult != 0 && (result.m3C & 2) == 2) {
             other = result.m38->m0C;
-            if (IsPlayer_unk() && m648 != 0 && mC58.mC0 == 0 && lbl_8087F430 != 0 && other->mType == 3 &&
+            if (IsPlayer() && m648 != 0 && mC58.mC0 == 0 && lbl_8087F430 != 0 && other->mType == 3 &&
                 fn_80370174(lbl_8087F430, 1000) >= 0x30) {
                 lbl_8087F430->fn_803750E4(0x132);
             }
@@ -2801,7 +2801,7 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
                         push = 0;
                     }
                 }
-                if (push && IsPlayer_unk()) {
+                if (push && IsPlayer()) {
                     if (IsPushingChara_unk(other) && !(m55C == 7 && ((unsigned int)mRoute.m48 & 0x80) == 0x80) &&
                         (lbl_8087F430 == 0 || lbl_8087F430->fn_803761DC() < 2)) {
                         if (lbl_8087F430 != 0 && lbl_8087F430->fn_803761DC() == 1) {
@@ -2844,8 +2844,8 @@ void CharaTask::fn_8013CB68(void* target, int arg, float speed, float rate) {
                     atn::Vector3 dir;
                             dir = other->mPos - oldPos;
                     dir.Normalize_unk();
-                    other->fn_8016B8D4(dir, 0, flag, IsPlayer_unk());
-                    if (IsPlayer_unk() && fn_8018059C() != 0 && fn_8018059C()->m14B0 != 0) {
+                    other->fn_8016B8D4(dir, 0, flag, IsPlayer());
+                    if (IsPlayer() && fn_8018059C() != 0 && fn_8018059C()->m14B0 != 0) {
                         if (lbl_8087F0A8->m580 != 0) {
                             fn_8016B8D4(-dir, 1, flag, 0);
                         }
@@ -7097,7 +7097,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
     if (fn_8017B16C() && m55C == 6 && (m560 == 29 || m560 == 31) && m674 >= 0) {
         fn_8014DEE4(0, 0, 0);
     }
-    if (fn_80370174(fn_80121F00(), 0x67) && IsPlayer_unk() && !mStatus.fn_80139F4C()) {
+    if (fn_80370174(fn_80121F00(), 0x67) && IsPlayer() && !mStatus.fn_80139F4C()) {
         CollResult_unk result;
         atn::Vector3 from = mPos + atn::Vector3(0.0f, 5.0f, 0.0f);
         atn::Vector3 to = (mPos + atn::Vector3(0.0f, 5.0f, 0.0f)) + dir * 8.0f;
@@ -7233,7 +7233,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
                     break;
                 }
             }
-            if (mFlag31 && IsPlayer_unk() && lenSq < 9.0f) {
+            if (mFlag31 && IsPlayer() && lenSq < 9.0f) {
                 knock = 0;
             }
             if (knock) {

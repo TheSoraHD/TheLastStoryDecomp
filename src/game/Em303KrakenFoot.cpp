@@ -716,7 +716,7 @@ void Em303KrakenFoot::fn_802E3EE8() {
                     m14D0->fn_801595BC((int)m14D4, 30, 0x1D8, -1);
                 }
                 if (lbl_8087F430 != 0 && m14D0->mType != 2) {
-                    SetFlag_unk((FootFlag_unk*)&m14F0, m14D0->IsPlayer_unk() ? -1 : m14D0->m58);
+                    SetFlag_unk((FootFlag_unk*)&m14F0, m14D0->IsPlayer() ? -1 : m14D0->m58);
                 }
                 if (lbl_8087F498 != 0) {
                     fn_803EA77C(lbl_8087F498, m14D0, 0x2A, 0, 1.0f, 10.0f);
