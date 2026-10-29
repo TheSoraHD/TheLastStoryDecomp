@@ -1,5 +1,7 @@
 #include "game/Em316LastLaser.h"
 #include "game/CharaStatus.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "atn/Csv.h"
 #include "game/HitInfo_unk.h"
 #include "math/Vec.h"
@@ -28,6 +30,26 @@ extern "C" BulletMgr_unk* lbl_8087F048;
 extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
 
 extern "C" int strcmp(const char* a, const char* b);
+extern "C" int rand();
+extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;   // inferred: player manager
+// inferred: collision result and ray test (as in game/Em403WarLion.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10; // inferred: position of the hit
+    unsigned char m1C[0x28 - 0x1C];
+    atn::Vector3 m28; // inferred: normal of the hit
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ED34(void* world, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" int atoi(const char* s);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -174,6 +196,192 @@ int Em316LastLaser::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// inferred: node position (as in game/Em205Ogre.cpp; name invented)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: m = m * rotation(r) z, y, x (as in game/Em403WarLion.cpp; name invented)
+inline atn::Matrix3x4& MakeRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.z != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.y != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+
+// inferred: stops the sound of the trail when it is off and removes the points whose time is over
+inline void LaserTrace::Update_unk() {
+    if (m04 == 0) {
+        if (fn_80239D58(lbl_8087F3C0, this, 0) != 0) {
+            fn_80239DAC(lbl_8087F3C0, this, 0, 0);
+        }
+        fn_800CB5C8(&m38, 10, 0);
+    }
+    LaserPoint_unk** it = m28.begin();
+    while (it != m28.end()) {
+        (*it)->m4C--;
+        if ((*it)->m4C <= 0) {
+            fn_80239DAC(lbl_8087F3C0, *it, 0, 0);
+            delete *it;
+            m28.Erase_unk(it);
+        } else {
+            it++;
+        }
+    }
+}
+
+// inferred: squared length (as in game/CrowdSimulation.cpp; name invented)
+inline float LengthSq_unk(const atn::Vector3& v) {
+    return fn_805F9920(&v);
+}
+
+// inferred: the player can be aimed at (name invented)
+inline bool CanTarget_unk(CharaTask* chara) {
+    return chara->IsFree_unk() && !chara->IsGrappled_unk();
+}
+
+// inferred: distance to the "spine1" node of the target (computed and not used; name invented)
+inline float Em316LastLaser::TargetDist_unk(CharaTask* target) {
+    MtxPtr mtx = target->mMotion.GetNodeMtx_unk("spine1");
+    atn::Vector3 p(0.0f, 0.0f, 0.0f);
+    if (mtx != 0) {
+        p = GetNodePos_unk(mtx);
+    } else {
+        p = target->mPos;
+        p.y += 10.0f;
+    }
+    return (mPos - p).Length_unk();
+}
+
+// inferred: position of a character by value (name invented)
+inline atn::Vector3 CharaPos_unk(CharaTask* chara) {
+    return chara->mPos;
+}
+
+// inferred: collision capsule standing on the position (own version of CharaTask::vf20; name invented)
+inline void Em316LastLaser::UpdateColli_unk() {
+    m614 = mPos + m5A4;
+    m614.y += m5B0;
+    m620 = m5B0;
+    atn::Vector3 a(mPos);
+    atn::Vector3 b(mPos);
+    b.y += 0.1f;
+    mColli.m3C = a;
+    mColli.m48 = b;
+    mColli.m54 = m5B0;
+}
+
+// NONMATCHING: 95.3% - stack slot of the copy of the target position (the original creates it before the
+// temporaries of GetNormalized/ToRotation), r28-r31 assignment and the string of "spine1" (@STRING@ of the
+// inline helper instead of @stringBase0)
+// inferred: update: picks the nearest free player, runs the state and casts the laser forward
+void Em316LastLaser::vf10() {
+    mC58.mC8 = (int)mC58.mC4;
+    if (m58C - 7U > 2) {
+        CharaTask* best = 0;
+        float bestDist = 1e16f;
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            if (CanTarget_unk(p)) {
+                float d = LengthSq_unk(p->mPos - mPos);
+                if (d < bestDist) {
+                    best = p;
+                    bestDist = d;
+                }
+            }
+        }
+        m14B8 = best;
+        m14A8 |= 0x04000000;
+    } else {
+        m14A8 &= ~0x04000000;
+    }
+    m1454 = 0;
+    mC58.mC4 = m14B8;
+    m14C0++;
+    if (mC58.mC0 == 0 || m14B8 == 0) {
+        fn_8016E970(3);
+        if (m1538.m04 != 0) {
+            m1538.Reset_unk();
+        }
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+        fn_80239DAC(lbl_8087F3C0, this, 0x65, 0);
+        fn_80239DAC(lbl_8087F3C0, this, 0x66, 0);
+    } else if (m14B8 != 0) {
+        m1530--;
+        switch (m58C) {
+        case 2:
+            vfEC();
+            break;
+        case 6:
+            if (m14C0 >= 60) {
+                fn_8031D2BC();
+                m1530 = rand() % 90 + 15;
+            }
+            break;
+        case 7:
+            if (m14C0 >= 60) {
+                fn_80239DAC(lbl_8087F3C0, this, 0x65, 0);
+                fn_8031D350();
+            }
+            break;
+        case 8:
+            fn_8031CA30();
+            break;
+        case 9:
+            if (m14C0 > 50) {
+                fn_8031D2BC();
+                fn_80239DAC(lbl_8087F3C0, this, 0x66, 0);
+            }
+            break;
+        default:
+            if (m14B8 != 0) {
+                mRot = (CharaPos_unk(m14B8) - mPos).GetNormalized_unk().ToRotation_unk();
+            }
+            if (CharaTask* target = m14B8) {
+                TargetDist_unk(target);
+                if (m1530 < 0) {
+                    fn_8031D350();
+                }
+            }
+            break;
+        }
+    }
+    fn_8014C540();
+    fn_80145334();
+    UpdateColli_unk();
+    if (m1538.m04 != 0) {
+        atn::Vector3 dir(0.0f, 0.0f, 10000.0f);
+        atn::Matrix3x4 m;
+        MakeRotationZYX_unk(m, mRot);
+        PSMTXMultVec(m.m, &dir, &dir);
+        atn::Vector3 to = mPos + dir;
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &mPos, &to, 0x80000004, &mColli, 0) != 0) {
+            to = result.m10;
+            m1538.fn_8031E8BC(to, result.m28);
+        }
+    }
+    m1538.Update_unk();
 }
 
 void Em316LastLaser::vf14() {
