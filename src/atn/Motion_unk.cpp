@@ -1,6 +1,6 @@
 // atn/Motion_unk.cpp (file name invented): cache of the map models loaded from a csv list
 // ("FOLDER", "MODEL", "MODEL_LOD"), the out-of-line members of atn::LH_Motion and the motion
-// helpers of the models (pose of a node, MotionPose_unk, MotionCmdData_unk), then the motion banks
+// helpers of the models (pose of a node, MotionPose_unk, atn::MotionCommandData), then the motion banks
 // kept in static maps (0x800A0A68-0x800A2664, not written yet) and the random generator of
 // MP::CryptMP (0x800A2664, not written yet). The __sinit is the one of <iostream>.
 #include "atn/Csv.h"
@@ -317,7 +317,7 @@ MotionPose_unk::MotionPose_unk() {
 
 // inferred: nonzero while one of the effects or efp files is loading
 // NONMATCHING: 99.02% - order of the two loop increments (as atn/LightUtil_unk)
-int MotionCmdData_unk::fn_800A091C() {
+int atn::MotionCommandData::fn_800A091C() {
     for (unsigned int i = 0; i < mEffects.mSize; i++) {
         if (mEffects.mData[i].fn_802376D0()) {
             return 1;

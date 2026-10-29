@@ -246,7 +246,7 @@ struct MotionCommand_unk {
     void fn_80121114(CharaTask* chara);
     void fn_8012111C(); // inferred: per-frame update (CharaTask::fn_80145334)
     // inferred: runs the commands of `data` for the current frame; nonzero when one ran
-    int fn_8012133C(MotionCmdData_unk* data, int* found);
+    int fn_8012133C(atn::MotionCommandData* data, int* found);
 
     CharaTask* mChara;      // 0x00
     int m04;                // 0x04: inferred: motion id of the selected track
@@ -256,7 +256,7 @@ struct MotionCommand_unk {
     unsigned char m11;      // inferred: sounds enabled
     unsigned char m12;      // inferred: a command was found on the last update (run again)
     atn::LH_MotionCommandData mLoader; // 0x14
-    MotionCmdData_unk* m20; // inferred: loaded data
+    atn::MotionCommandData* m20; // inferred: loaded data
     atn::EfpFile* m24; // inferred: looping effect ("EFP_LOOP")
     atn::SoundRef m28;      // inferred: looping sound ("SE_LOOP")
     MtxPtr m2C;             // inferred: node the looping sound follows
