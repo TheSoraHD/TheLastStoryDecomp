@@ -453,7 +453,7 @@ public:
     // inferred: a free position next to the character, away from `target` (8 directions tried)
     virtual atn::Vector3 vfD8(CharaTask* target);
     virtual float vfDC(); // inferred: returns f1 (0x800EF270: scaled vf90)
-    virtual float vfE0(); // inferred: returns f1 (0x800EF080 returns the yaw of a vector passed in r4, the parameter is not declared; EnemyQuarkStand 0x80354378)
+    virtual float vfE0(const atn::Vector3& dir); // inferred: yaw of `dir` (0x800EF080; chr::ControlQuarkSeirenAttack passes it in r4)
 
     int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading
     int fn_801370B8(int index);
@@ -624,7 +624,7 @@ public:
     void fn_80170F20(const atn::Vector3* pos, int arg, float a, float radius);
     void fn_80171420(CharaTask* target, int arg, float radius);
     void fn_80171DB0(); // inferred: stops the route (fn_80127EF4) and releases the character
-    void fn_8016D74C(HitInfo_unk* data, int a, int b);
+    void fn_8016D74C(HitInfo_unk* data, int a, const atn::Vector3* target); // inferred: target position (null: in front)
     // inferred: weak copy 0x800F52F0 (name invented)
     CharaStatus* GetStatus_unk() { return &mStatus; }
     void fn_801698E4(const atn::Vector3& rot);

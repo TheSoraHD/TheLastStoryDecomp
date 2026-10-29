@@ -430,7 +430,7 @@ void EnemyQuarkFirst::vf100(int state) {
         if (m14E4 != 0) {
             TurnTo_unk(1.0f);
         }
-        fn_8016D74C(m151C, 0, (int)&m14E4->mPos);
+        fn_8016D74C(m151C, 0, &m14E4->mPos);
         break;
     case 9: {
         int mode = m14DC;

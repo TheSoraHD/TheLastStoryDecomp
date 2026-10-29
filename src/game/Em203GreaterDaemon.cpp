@@ -2179,6 +2179,6 @@ atn::Vector3 Em203GreaterDaemon::vfD8(CharaTask* target) {
     return pos;
 }
 
-float Em203GreaterDaemon::vfE0() {
+float Em203GreaterDaemon::vfE0(const atn::Vector3& dir) {
     return 0.94247788f + mRot.y;
 }

@@ -52,6 +52,7 @@ struct HitInfo_unk {
     unsigned char mB4[0xC0 - 0xB4];
     int mC0; // inferred: chant time (CharaTask::fn_8015F568)
     int mC4; // inferred: copied to the hit message (CharaTask::fn_80151448)
+    int mC8; // inferred: id of the bullet the player charges instead (chr::ControlCharge)
 
     // inferred: the percentages m98-mA4 as an array (CharaTask::fn_80179730 loops over them); name
     // invented

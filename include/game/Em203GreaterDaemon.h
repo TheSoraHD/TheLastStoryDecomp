@@ -98,7 +98,7 @@ public:
     }
     virtual float vfD4() { return -6.0f; } // 0x802936AC
     virtual float vfDC() { return 0.4f; }  // 0x802936A4
-    virtual float vfE0();                  // 0x80293694
+    virtual float vfE0(const atn::Vector3& dir);                // 0x80293694
     virtual atn::Vector3 vfD8(CharaTask* target);        // 0x8029358C
     virtual atn::Vector3 vfD0(float angle);              // 0x8029350C
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // 0x80293368

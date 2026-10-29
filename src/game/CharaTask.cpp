@@ -9755,7 +9755,7 @@ void CharaTask::fn_8016D454(float angle) {
 }
 
 // inferred: charges the attack `hit`
-void CharaTask::fn_8016D74C(HitInfo_unk* hit, int a, int b) {
+void CharaTask::fn_8016D74C(HitInfo_unk* hit, int a, const atn::Vector3* b) {
     if (hit != 0) {
         SetHit_unk(hit);
         fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCharge(this, a, b, 0));

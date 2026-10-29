@@ -933,7 +933,7 @@ void Em101ElderZesya::fn_80258574() {
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x9F), *(const wchar_t**)((char*)m60 + 4));
         fn_80109828(lbl_8087F048, text);
         fn_802598DC();
-        fn_8016D74C(m1510, 0, (int)&m1694);
+        fn_8016D74C(m1510, 0, &m1694);
         ElderOrder_unk order;
         order.m00 = 1;
         order.m08 = m1694;

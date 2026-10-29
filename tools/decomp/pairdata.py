@@ -61,10 +61,17 @@ for f in target_funcs():
     for t, o in relocs(f):
         pairs.setdefault(t, set()).add(o)
 ren = {}
+# a name that appears in an ambiguous pairing is not trusted for any label
+bad = set()
+for t, os_ in pairs.items():
+    if len(os_) > 1:
+        bad |= os_
 for t, os_ in sorted(pairs.items()):
     if len(os_) == 1:
         o = next(iter(os_))
-        if o != t and not o.startswith("lbl_"):
+        if o in bad:
+            print("  %s -> %s: name also in an ambiguous pairing, skipped" % (t, o))
+        elif o != t and not o.startswith("lbl_") and not o.startswith("..."):
             ren[t] = o
             print("  %s -> %s" % (t, o))
     else:

@@ -2706,7 +2706,7 @@ atn::Vector3 EnemyQuarkStand::vfD8(CharaTask* target) {
     return pos;
 }
 
-float EnemyQuarkStand::vfE0() {
+float EnemyQuarkStand::vfE0(const atn::Vector3& dir) {
     return 1.5707964f + mRot.y;
 }
 

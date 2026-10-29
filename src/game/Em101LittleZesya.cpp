@@ -790,7 +790,7 @@ void Em101LittleZesya::fn_8025F45C() {
         m1590 = m14C4.mData[Nearest_unk(PartyCenter_unk())];
     }
     // inferred: the third argument is the address of the destination (CharaTask declares it int)
-    fn_8016D74C(m1520, 0, (int)&m1590);
+    fn_8016D74C(m1520, 0, &m1590);
 }
 
 void Em101LittleZesya::fn_8025F754() {
