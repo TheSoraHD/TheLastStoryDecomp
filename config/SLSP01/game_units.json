@@ -1978,6 +1978,13 @@
   "matching": false
  },
  {
+  "name": "game/GameVoice.cpp",
+  "classes": [
+   "GameVoice"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/GameSaveBackground.cpp",
   "classes": [
    "GameSaveBackground"

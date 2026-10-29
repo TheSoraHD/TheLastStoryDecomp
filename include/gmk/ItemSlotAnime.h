@@ -22,6 +22,7 @@ public:
     // inferred: starts the animation of an item at `pos`
     void fn_8044E418(const atn::Vector3* pos, int arg2, int arg3, void* item, int count, int arg6, int arg7);
     int fn_8044E610();
+    int fn_80450A5C();
     void fn_8044E644();
     void fn_8044F2D4();
     void fn_8044F434(); // inferred: per-frame update
@@ -34,7 +35,12 @@ public:
     bool IsState56_unk() const { return mState == 5 || mState == 6; } // inferred (gmk::DropItem::vf14)
 
     int mState; // 0x04
-    unsigned char m08[0xEC - 0x08];
+    unsigned char m08[0x18 - 0x08];
+    int m18;
+    int m1C;
+    void* m20; // inferred: current item selected by the animation task
+    int m24; // inferred: item count checked by fn_8044E610
+    unsigned char m28[0xEC - 0x28];
     // inferred: flags set by gmk::DropItem (names invented)
     unsigned int mFlag31 : 1;  // inferred: rare item (fn_80450B84/fn_80450B60)
     unsigned int mFlag30 : 1;
