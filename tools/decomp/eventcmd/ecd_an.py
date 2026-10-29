@@ -1,7 +1,10 @@
 """Analyse the data of Event/EventCommandDef_unk using the simulated __sinit stores."""
 import re, struct, json, sys
-sys.path.insert(0, '/home/claude/scratch')
-ROOT = '/home/claude/thesorahd/thelaststorydecomp'
+
+import os
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
+TMP = os.path.join(ROOT, 'build', 'eventcmd')
+os.makedirs(TMP, exist_ok=True)
 b = open(ROOT + '/orig/SLSP01/sys/main.dol', 'rb').read()
 offs = struct.unpack('>18I', b[0:72]); addrs = struct.unpack('>18I', b[72:144]); sizes = struct.unpack('>18I', b[144:216])
 
@@ -35,7 +38,7 @@ for l in open(ROOT + '/config/SLSP01/symbols.txt'):
 for k in objs:
     objs[k].sort()
 
-st = json.load(open('/home/claude/scratch/ecd_stores.json'))
+st = json.load(open(os.path.join(TMP, 'ecd_stores.json')))
 stores = {int(k, 16): v for k, v in st['stores'].items()}
 
 

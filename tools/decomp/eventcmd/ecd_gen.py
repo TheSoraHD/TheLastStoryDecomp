@@ -1,6 +1,7 @@
 """Generate src/Event/EventCommandDef_unk.cpp from the DOL data and the simulated __sinit."""
 import re, struct, json, sys
-exec(open('/home/claude/scratch/ecd_an.py').read())
+import os
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ecd_an.py')).read())
 
 CMD = 0x80775208
 NCMD = 0x7A8 // 0x28

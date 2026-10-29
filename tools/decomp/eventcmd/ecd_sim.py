@@ -1,7 +1,11 @@
 """Simulate the __sinit of Event/EventCommandDef_unk (fn_800082AC) and dump the runtime stores."""
+# usage: tools/decomp/fasm.py Event/EventCommandDef_unk 0x800082AC > build/eventcmd/ecd.s; then run ecd_sim.py and ecd_gen.py
 import re, struct, json, sys
 
-ROOT = '/home/claude/thesorahd/thelaststorydecomp'
+import os
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
+TMP = os.path.join(ROOT, 'build', 'eventcmd')
+os.makedirs(TMP, exist_ok=True)
 b = open(ROOT + '/orig/SLSP01/sys/main.dol', 'rb').read()
 offs = struct.unpack('>18I', b[0:72]); addrs = struct.unpack('>18I', b[72:144]); sizes = struct.unpack('>18I', b[144:216])
 
@@ -38,7 +42,7 @@ stack = {}
 stores = {}  # addr -> ('hash', str, arg) | ('int', v) | ('float', v, label)
 order = []
 pending_hash_r3 = None
-for line in open('/home/claude/scratch/ecd.s'):
+for line in open(os.path.join(TMP, 'ecd.s')):
     m = re.match(r'([0-9A-F]{4})\s+(\w+)\s*(.*)', line.strip())
     if not m:
         continue
@@ -114,7 +118,7 @@ for line in open('/home/claude/scratch/ecd.s'):
         raise Exception(line)
 
 json.dump({'stores': {hex(k): v for k, v in stores.items()}, 'order': [hex(a) for a in order]},
-          open('/home/claude/scratch/ecd_stores.json', 'w'), indent=0)
+          open(os.path.join(TMP, 'ecd_stores.json'), 'w'), indent=0)
 print(len(stores), 'stores;', 'monotonic' if order == sorted(order) else 'NOT monotonic')
 kinds = {}
 for v in stores.values():
