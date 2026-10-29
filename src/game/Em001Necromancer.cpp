@@ -120,9 +120,6 @@ struct NecroD2A_unk : public atn::Task {
 extern "C" inline int fn_80244CA0(atn::Task* task) {
     return (task->mFlags >> 1) & 1;
 }
-extern "C" inline void fn_80244CAC(atn::Task* task) {
-    task->mFlags |= 4;
-}
 extern "C" inline void fn_80244CBC(NecroD2A_unk* task, int repeat) {
     task->mRepeat = repeat;
 }
@@ -334,11 +331,11 @@ int Em001Necromancer::vf0C() {
         if (fn_8013655C() == 0 && (m1438 == 0 || fn_80244CA0(m1438) != 0) && m1578.fn_80237874() == 0 &&
             m1590.fn_80237874() == 0 && m159C.fn_80237874() == 0 && fn_80244CA0(m15BC) != 0) {
             m15BC->fn_800D246C(0);
-            fn_80244CAC(m15BC);
+            m15BC->FreezeTask();
             fn_80244CBC((NecroD2A_unk*)m15BC, 0);
             if (m1438 != 0) {
                 m1438->fn_800D246C(0);
-                fn_80244CAC(m1438);
+                m1438->FreezeTask();
             }
             return 1;
         }

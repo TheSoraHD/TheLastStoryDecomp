@@ -250,7 +250,6 @@ extern "C" QuarkSettings_unk* lbl_8087F0A8;
 // the inline budget (names kept)
 extern "C" void fn_803396EC(CharaTask* chara, unsigned int flags);   // inferred: m54C |= flags
 extern "C" void fn_80288E30(CharaTask* chara, float value);          // inferred: m56C = value
-extern "C" void fn_80244CAC(atn::Task* task);                        // inferred: mFlags |= 4
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager                  // inferred: player manager
 // inferred: more weak copies of small inline helpers called out of line by vf10 (names kept)
@@ -373,9 +372,9 @@ int EnemyQuarkStand::vf0C() {
         fn_80288E30(this, 0.03f);
         mMotion.fn_80099E9C("hips", "em211", 4.3f);
         m17F4->fn_800D246C(0);
-        fn_80244CAC(m17F4);
+        m17F4->FreezeTask();
         m17F8->fn_800D246C(0);
-        fn_80244CAC(m17F8);
+        m17F8->FreezeTask();
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0x15;
