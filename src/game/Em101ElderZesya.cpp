@@ -1,4 +1,5 @@
 #include "game/Em101ElderZesya.h"
+#include "chr/ControlChant.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "atn/Csv.h"
@@ -231,8 +232,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
-// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
-extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
 
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
@@ -1024,12 +1023,7 @@ void Em101ElderZesya::fn_80258A50() {
             } else {
                 float frame = mMotion.mTracks[0].m08;
                 if (frame >= mMotion.fn_80097D7C(0)) {
-                    void* p = ::operator new(0x34, (MemoryTag)1, "", "", 0);
-                    chr::ControlBase* c = (chr::ControlBase*)p;
-                    if (p != 0) {
-                        c = fn_801C02F4(p, this);
-                    }
-                    fn_80178208(c);
+                    fn_80178208(new ((MemoryTag)1, "", "", 0) chr::ControlMagicEnd(this));
                 }
             }
         }
@@ -1049,12 +1043,7 @@ void Em101ElderZesya::fn_80258F1C() {
         mFB8 = 0.0f;
         m58C = 6;
         m14C8 = 0;
-        void* p = ::operator new(0x34, (MemoryTag)0, "", "", 0);
-        chr::ControlBase* c = (chr::ControlBase*)p;
-        if (p != 0) {
-            c = fn_801C02F4(p, this);
-        }
-        fn_80178208(c);
+        fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMagicEnd(this));
         return;
     }
     if ((float)__fabs(mMotion.mTracks[0].m08 - 12.0f) < 1.1920929e-7f) {

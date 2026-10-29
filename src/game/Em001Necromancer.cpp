@@ -1,4 +1,5 @@
 #include "game/Em001Necromancer.h"
+#include "chr/ControlChant.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "chr/ControlBase.h"
@@ -40,8 +41,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
-// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
-extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
 struct Bullet_unk;
 extern "C" void* lbl_8087F9E8;
@@ -428,12 +427,7 @@ void Em001Necromancer::vf10() {
             } else if (frame >= mMotion.fn_80097D7C(0)) {
                 mFB8 = 0.0f;
                 SetState_unk(0);
-                void* p = ::operator new(0x34, (MemoryTag)0, "", "", 0);
-                chr::ControlBase* c = (chr::ControlBase*)p;
-                if (p != 0) {
-                    c = fn_801C02F4(p, this);
-                }
-                fn_80178208(c);
+                fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMagicEnd(this));
             }
             break;
         }
@@ -696,7 +690,7 @@ void Em001Necromancer::fn_80246594() {
         m638 = m1520[m152C];
         mF7C = m1510;
         mF6C = m1510->mPos;
-        fn_801603CC(1.0f, false);
+        fn_801603CC(false, 1.0f);
         if (m152C == 1) {
             m1550 = 900;
         }

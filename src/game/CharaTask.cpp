@@ -8912,7 +8912,7 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
     }
     if (mFBC <= 0.0f) {
         m63C = m638;
-        fn_801603CC(1.0f, false);
+        fn_801603CC(false, 1.0f);
     } else {
         chr::ControlChant* control = new ((MemoryTag)0, "", "", 0) chr::ControlChant(this, mF7C, mF6C, (int)mFBC, mF78);
         fn_80178208(control);
@@ -8973,7 +8973,7 @@ void CharaTask::fn_8016034C() {
     vf8C(chr::lbl_807C7030);
 }
 
-void CharaTask::fn_801603CC(float f, bool b) {
+void CharaTask::fn_801603CC(int b, float f) {
     chr::ControlMagic* control = new ((MemoryTag)0, "", "", 0) chr::ControlMagic(this, mF7C, f, mF6C, b);
     fn_80178208(control);
 }

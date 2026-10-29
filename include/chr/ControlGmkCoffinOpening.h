@@ -62,7 +62,7 @@ struct GmkTarget_unk {
     virtual void vf44();
     virtual void vf48();
     virtual void vf4C();
-    virtual void vf50();
+    virtual int vf50();
     virtual int vf54();
     virtual void vf58();
     virtual void vf5C();

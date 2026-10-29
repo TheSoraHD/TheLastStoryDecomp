@@ -1,4 +1,5 @@
 #include "game/Em003LesserDaemon.h"
+#include "chr/ControlChant.h"
 #include "math/Vec.h"
 #include "game/CharaManager.h"
 #include "game/EnemyManager.h"
@@ -45,8 +46,6 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" int rand();
-// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
-extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
 // inferred: fields of the running magic control (class unknown; names invented)
 struct ControlMagic_unk {
     unsigned char m00[0x14];
@@ -1269,12 +1268,7 @@ void Em003LesserDaemon::fn_8024ED68() {
             } else {
                 float frame = mMotion.mTracks[0].m08;
                 if (frame >= mMotion.fn_80097D7C(0)) {
-                    void* p = ::operator new(0x34, (MemoryTag)1, "", "", 0);
-                    chr::ControlBase* c = (chr::ControlBase*)p;
-                    if (p != 0) {
-                        c = fn_801C02F4(p, this);
-                    }
-                    fn_80178208(c);
+                    fn_80178208(new ((MemoryTag)1, "", "", 0) chr::ControlMagicEnd(this));
                 }
             }
             done = 0;

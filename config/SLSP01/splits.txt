@@ -939,7 +939,7 @@ chr/ControlLookAround.cpp:
 
 chr/ControlChant.cpp:
 	.text       start:0x801BC5B8 end:0x801C041C
-	.rodata     start:0x8073B590 end:0x8073B5D0
+	.rodata     start:0x8073B3B4 end:0x8073B5D8
 	.data       start:0x80781708 end:0x807818F0
 	.sbss       start:0x8087F100 end:0x8087F108
 	.sdata2     start:0x808825E0 end:0x80882698

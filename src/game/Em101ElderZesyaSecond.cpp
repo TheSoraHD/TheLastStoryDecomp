@@ -1,4 +1,5 @@
 #include "game/Em101ElderZesyaSecond.h"
+#include "chr/ControlChant.h"
 #include "game/HitInfo_unk.h"
 #include "game/CharaStatus.h"
 #include "game/CharaManager.h"
@@ -74,8 +75,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
-// inferred: constructor of chr::ControlMagicEnd (chr/ControlChant.cpp, 0x34 bytes; still in asm)
-extern "C" chr::ControlBase* fn_801C02F4(void* self, CharaTask* chara);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
@@ -598,9 +597,9 @@ void Em101ElderZesyaSecond::fn_8025BD1C() {
             fn_8016E970(3);
             if (m14CC != 0) {
                 mF6C = m14CC->mPos;
-                fn_801603CC(1.0f, true);
+                fn_801603CC(true, 1.0f);
             } else {
-                fn_801603CC(1.0f, false);
+                fn_801603CC(false, 1.0f);
             }
         }
         fn_80239DAC(lbl_8087F3C0, this, 0, 1);
@@ -619,12 +618,7 @@ void Em101ElderZesyaSecond::fn_8025BF58() {
         fn_80239DAC(lbl_8087F3C0, this, 1000, 1);
         m58C = 0;
         fn_8016E970(3);
-        void* p = ::operator new(0x34, (MemoryTag)0, "", "", 0);
-        chr::ControlBase* c = (chr::ControlBase*)p;
-        if (p != 0) {
-            c = fn_801C02F4(p, this);
-        }
-        fn_80178208(c);
+        fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMagicEnd(this));
         return;
     }
     if ((float)__fabs(mMotion.mTracks[0].m08 - 12.0f) < 1.1920929e-7f) {

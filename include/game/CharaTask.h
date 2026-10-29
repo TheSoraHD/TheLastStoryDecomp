@@ -602,7 +602,7 @@ public:
     bool fn_80160324();
     void fn_80160170(HitInfo_unk* hit, CharaTask* target); // inferred: changes the magic being chanted
     void fn_8016034C(); // inferred: ends the magic
-    void fn_801603CC(float f, bool b); // inferred: casts the prepared magic (chr::ControlMagic)
+    void fn_801603CC(int b, float f); // inferred: casts the prepared magic (chr::ControlMagic; types from the RTTI of its bind in chr/ControlChant.cpp)
     // inferred: uses the skill whose id is skill->mId (chr::ControlUseSkill)
     void fn_8016125C(const SkillRef_unk* skill, CharaTask* target, int motion, const char* name, float f);
     void fn_80139560(); // inferred: per-frame movement update
