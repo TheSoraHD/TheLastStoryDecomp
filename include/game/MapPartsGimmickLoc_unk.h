@@ -3,6 +3,26 @@
 
 #include "game/MapPartsBase.h"
 
+// inferred: three-word vector view of 8-byte records in MapPartsGimmickLoc's temporary CSV data.
+struct MapPartsGimmickLocArray8_unk {
+    bool fn_80499684() const;
+    unsigned int fn_80499694() const;
+    void* fn_80499724(int index) const;
+
+    void* mData;
+    unsigned int mSize;
+    unsigned int mCapacity;
+};
+
+// inferred: three-word vector view of pointer entries in the same CSV parser.
+struct MapPartsGimmickLocArray4_unk {
+    void* fn_8049981C(int index) const;
+
+    void* mData;
+    unsigned int mSize;
+    unsigned int mCapacity;
+};
+
 // inferred: map-part location controller (RTTI at 0x80790560; fields are established by local
 // offset accessors in game/MapPartsGimmickLoc.cpp).
 class MapPartsGimmickLoc : public MapPartsBase {

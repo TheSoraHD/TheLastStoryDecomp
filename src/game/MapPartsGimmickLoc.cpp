@@ -47,3 +47,19 @@ void MapPartsGimmickLoc::fn_80498F4C() {}
 void MapPartsGimmickLoc::fn_80499388(int value) {
     *reinterpret_cast<int*>(reinterpret_cast<unsigned char*>(this) + 0x630) = value;
 }
+
+bool MapPartsGimmickLocArray8_unk::fn_80499684() const {
+    return mSize == 0;
+}
+
+unsigned int MapPartsGimmickLocArray8_unk::fn_80499694() const {
+    return mSize;
+}
+
+void* MapPartsGimmickLocArray8_unk::fn_80499724(int index) const {
+    return static_cast<unsigned char*>(mData) + index * 8;
+}
+
+void* MapPartsGimmickLocArray4_unk::fn_8049981C(int index) const {
+    return static_cast<unsigned char*>(mData) + index * 4;
+}
