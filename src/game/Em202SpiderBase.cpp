@@ -55,7 +55,7 @@ struct System_unk {
 };
 extern "C" System_unk* lbl_8087F0A8;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
@@ -432,7 +432,7 @@ void Em202SpiderBase::vf3C(HitInfo_unk* hit) {
     if (m58C == 15) {
         msg->m10 *= 0.0f;
     }
-    float len = fn_805F9920(&msg->m10);
+    float len = PSVECSquareMag(&msg->m10);
     if (!((float)__fabs(len) < 1.1920929e-7f) && len >= 25.0f) {
         PSVECNormalize(&msg->m10, &msg->m10);
         msg->m10 *= 4.9f;

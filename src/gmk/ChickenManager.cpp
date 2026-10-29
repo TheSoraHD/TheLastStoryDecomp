@@ -25,7 +25,7 @@ extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" double sin(double x);
 extern "C" double cos(double x);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
 // inferred: camera (only the position)
@@ -140,7 +140,7 @@ void Chicken_unk::fn_8040B668() {
     mModel.fn_80092A4C();
     int update = 1;
     atn::Vector3 d = lbl_8087EFB4->mPos - mPos;
-    float distSq = fn_805F9920(&d);
+    float distSq = PSVECSquareMag(&d);
     if (distSq > lbl_8087EFA8->m21C * lbl_8087EFA8->m21C) {
         if (distSq > lbl_8087EFA8->m218 * lbl_8087EFA8->m218) {
             update = 0;
@@ -225,7 +225,7 @@ void Chicken_unk::fn_8040BE88() {
 // NONMATCHING: 99.61% - only .sdata2/.rodata order.
 void Chicken_unk::fn_8040CD2C(CharaTask* player) {
     atn::Vector3 d = mPos - player->mPos;
-    if (m42C > 150 || fn_805F9920(&d) < 25.0f) {
+    if (m42C > 150 || PSVECSquareMag(&d) < 25.0f) {
         if (mState != 4) {
             m41C = 33;
         }
@@ -240,11 +240,11 @@ void Chicken_unk::fn_8040CD2C(CharaTask* player) {
         }
         m3EC.x = (float)sin(m3E0.y);
         m3EC.z = (float)cos(-m3E0.y);
-    } else if (fn_805F9920(&d) < 225.0f && mState != 4) {
+    } else if (PSVECSquareMag(&d) < 225.0f && mState != 4) {
         m414 = 0.5f;
         mState = 3;
         m42C++;
-    } else if (fn_805F9920(&d) < 400.0f && mState != 4) {
+    } else if (PSVECSquareMag(&d) < 400.0f && mState != 4) {
         m414 = 0.3f;
         mState = 3;
         d.y = 0.0f;

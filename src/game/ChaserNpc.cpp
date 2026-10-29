@@ -12,7 +12,7 @@ extern "C" int rand();
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: game settings (parameters of the chased character at 0x53C)
@@ -428,7 +428,7 @@ void ChaserNpc::fn_80181D94() {
     atn::Vector3 rot = mRot;
     float speed = m14C4;
     if (mC58.m0C.m2C == 0) {
-        if (fn_805F9920(&dir) > 0.01f) {
+        if (PSVECSquareMag(&dir) > 0.01f) {
             PSVECNormalize(&dir, &dir);
             rot = dir.ToRotation_unk();
         }

@@ -103,7 +103,7 @@ extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* poin
 extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
                            float arg6);
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 struct ColliWorld_unk;
 extern "C" ColliWorld_unk* lbl_8087EE98;
 extern "C" int fn_8004ECC0(ColliWorld_unk* world, int arg1, const atn::Vector3* from, const atn::Vector3* to,
@@ -111,7 +111,7 @@ extern "C" int fn_8004ECC0(ColliWorld_unk* world, int arg1, const atn::Vector3* 
 
 // inferred: name invented
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // NONMATCHING: the target materializes (m48 & 1) != 1 as a value (subfic/or/srwi.) before testing

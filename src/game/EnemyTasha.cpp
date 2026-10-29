@@ -12,7 +12,7 @@ extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: debug menu entries (as in game/EnemyTrista.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -504,7 +504,7 @@ inline float LerpAngle_unk(float to, float from, float t) {
 int EnemyTasha::fn_8035738C(float rate, float limit) {
     if (mC58.mC4 != 0) {
         atn::Vector3 dir = mC58.mC4->mPos - mPos;
-        if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
             PSVECNormalize(&dir, &dir);
         }
         atn::Vector3 rot = dir.ToRotation_unk();
@@ -541,7 +541,7 @@ void EnemyTasha::fn_803576F8(float radius) {
         }
         float sign = rand() % 2 == 0 ? 1.0f : -1.0f;
         float angle = sign * atn::DegToRad_unk(m152C + (m1530 - m152C) * ((float)(rand() % 1001) / 1000.0f));
-        if (!(atn::Abs_unk(fn_805F9920(&diff)) < 1.1920929e-7f)) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&diff)) < 1.1920929e-7f)) {
             front = diff.GetNormalize();
         }
         Mtx m;
@@ -663,7 +663,7 @@ void EnemyTasha::vf104() {
             vf100(8);
         } else if (!mControl) {
             if (mFlag31) {
-                if (fn_805F9920(&diff) < m14FC * m14FC) {
+                if (PSVECSquareMag(&diff) < m14FC * m14FC) {
                     int n = 2;
                     int attack = m16C4;
                     if (m14D4 >= 1) {
@@ -687,8 +687,8 @@ void EnemyTasha::vf104() {
                     vf100(8);
                 }
             } else if (rand() % 10 == 0 || m16C4 == 2) {
-                if (fn_805F9920(&diff) < m1524 * m1524 &&
-                    fn_805F9920(&diff) > (m1524 - 10.0f) * (m1524 - 10.0f)) {
+                if (PSVECSquareMag(&diff) < m1524 * m1524 &&
+                    PSVECSquareMag(&diff) > (m1524 - 10.0f) * (m1524 - 10.0f)) {
                     if (TashaHitWall_unk(this) == 0) {
                         mC58.m0C.fn_80127D8C(0, 0, 0);
                         vf100(11);
@@ -740,7 +740,7 @@ void EnemyTasha::vf104() {
         break;
     case 16:
         if (mFlag31) {
-            if (fn_805F9920(&diff) < m1524 * m1524 && TashaHitWall_unk(this) == 0) {
+            if (PSVECSquareMag(&diff) < m1524 * m1524 && TashaHitWall_unk(this) == 0) {
                 vf100(11);
             } else {
                 vf100(6);
@@ -934,7 +934,7 @@ void EnemyTasha::vf108() {
             mFlag31 = 1;
         }
         atn::Vector3 move = mC58.m0C.m58;
-        zero = fn_805F9920(&move);
+        zero = PSVECSquareMag(&move);
         if (zero > 0.0001f) {
             atn::Vector3 dir = move;
             PSVECNormalize(&dir, &dir);

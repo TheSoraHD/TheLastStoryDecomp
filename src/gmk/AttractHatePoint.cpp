@@ -10,7 +10,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
@@ -136,7 +136,7 @@ void AttractHatePoint::vf10() {
     PlayerTask* player = lbl_8087F8A0->mHead;
     if (m54 == 2) {
         atn::Vector3 d = player->mPos - m6C;
-        if (fn_805F9920(&d) < mRadius * mRadius) {
+        if (PSVECSquareMag(&d) < mRadius * mRadius) {
             if (!player->mFlag6) {
                 if (!player->HasC48_unk() && !player->mFlag31) {
                     HateBattle_unk* battle = lbl_8087F490;

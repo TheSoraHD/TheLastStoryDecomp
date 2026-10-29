@@ -14,7 +14,7 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
@@ -116,7 +116,7 @@ extern "C" void fn_80095F10(atn::Model* model, DoorProject_unk* project);
 
 // inferred: normalizes unless the vector is (almost) zero (as in gmk::WaterLevel); name invented
 inline void SafeNormalize_unk(atn::Vector3* v) {
-    if ((float)__fabs(fn_805F9920(v)) < 1.1920929e-7f) {
+    if ((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f) {
         return;
     }
     PSVECNormalize(v, v);

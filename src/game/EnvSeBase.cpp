@@ -9,7 +9,7 @@
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" atn::Matrix3x4 lbl_807C7030; // inferred: identity matrix (another copy)
@@ -174,7 +174,7 @@ void EnvSeBase::fn_8036102C(int value) {
 }
 
 // NONMATCHING: 86% - the original reloads lbl_8087EFE8 before the distance and keeps `this` (not
-// mData) in r31 across fn_805F9920; tried locals, inline helpers for the mute and range tests and an
+// mData) in r31 across PSVECSquareMag; tried locals, inline helpers for the mute and range tests and an
 // accessor for the distance.
 int EnvSeBase::vf20() {
     if (lbl_8087EFE8 != 0) {
@@ -182,7 +182,7 @@ int EnvSeBase::vf20() {
             return 0;
         }
         atn::Vector3 d = lbl_8087EFE8->mListener.mPos - mData->mPos;
-        if (fn_805F9920(&d) <= mData->mDistance * mData->mDistance) {
+        if (PSVECSquareMag(&d) <= mData->mDistance * mData->mDistance) {
             return 1;
         }
     }
@@ -288,7 +288,7 @@ void EnvSeLine::vf10() {
             atn::Vector3 pa = a->mData->mPos;
             atn::Vector3 pb = b->mData->mPos;
             atn::Vector3 d = pb - pa;
-            float len = fn_805F9920(&d);
+            float len = PSVECSquareMag(&d);
             atn::Vector3 p;
             if (atn::Abs_unk(len) < 1.1920929e-07f) {
                 p = pa;
@@ -298,7 +298,7 @@ void EnvSeLine::vf10() {
                 p = pa + d * t;
             }
             atn::Vector3 q = p - listener;
-            float dist = fn_805F9920(&q);
+            float dist = PSVECSquareMag(&q);
             if (best > dist) {
                 best = dist;
                 bestPos = p;
@@ -356,8 +356,8 @@ void EnvSeSphere::vf10() {
     }
     atn::Vector3 listener = lbl_8087EFE8->mListener.mPos;
     atn::Vector3 d = listener - mCenter;
-    if (fn_805F9920(&d) > mRadius * mRadius) {
-        if (!(atn::Abs_unk(fn_805F9920(&d)) < 1.1920929e-07f)) {
+    if (PSVECSquareMag(&d) > mRadius * mRadius) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&d)) < 1.1920929e-07f)) {
             PSVECNormalize(&d, &d);
         }
         d *= mRadius;
@@ -413,14 +413,14 @@ void EnvSeBox::vf10() {
     atn::Vector3 listener = lbl_8087EFE8->mListener.mPos;
     atn::Vector3 center = mMtx.GetTrans_unk();
     atn::Vector3 d = listener - center;
-    if (fn_805F9920(&d) < (mData->mDistance + mRadius) * (mData->mDistance + mRadius)) {
+    if (PSVECSquareMag(&d) < (mData->mDistance + mRadius) * (mData->mDistance + mRadius)) {
         EnvSeSphere_unk sphere;
         sphere.mCenter = listener;
         sphere.mRadius = 0.0f;
         if (fn_80051CD8(&sphere, &mSize)) {
             mData->mPos = listener;
         } else {
-            if (!(atn::Abs_unk(fn_805F9920(&d)) < 1.1920929e-07f)) {
+            if (!(atn::Abs_unk(PSVECSquareMag(&d)) < 1.1920929e-07f)) {
                 PSVECNormalize(&d, &d);
             }
             d *= mRadius;

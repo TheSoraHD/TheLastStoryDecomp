@@ -124,7 +124,7 @@ extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vecto
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" Bullet_unk* fn_8059C5DC(SkillEffectManager* mgr, int a, int b, unsigned int mask); // inferred: shield effect
 extern "C" int fn_8021A8D0(HitInfo_unk* data); // inferred: the bullet goes through shields
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_8005361C(CollResult_unk* result, const atn::ColliCapsuleShape_unk* seg,
                            const atn::ColliSphereShape_unk* sphere); // inferred: segment against sphere
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -451,10 +451,10 @@ void Bullet::fn_801100A0() {
             sphere.mRadius = 1.1f * (shield->m5C * shield->m28);
             CollResult_unk res;
             atn::Vector3 move = seg.mStart - seg.mEnd;
-            if (fn_805F9920(&move) > 2.0f && fn_8005361C(&res, &seg, &sphere) != 0) {
+            if (PSVECSquareMag(&move) > 2.0f && fn_8005361C(&res, &seg, &sphere) != 0) {
                 fn_800C344C(sSeNames_unk[4], &m88->mPos, 0, -1, 0.75f);
                 atn::Vector3 normal = res.m10 - sphere.mCenter;
-                if (!(atn::Abs_unk(fn_805F9920(&normal)) < 1.1920929e-7f)) {
+                if (!(atn::Abs_unk(PSVECSquareMag(&normal)) < 1.1920929e-7f)) {
                     PSVECNormalize(&normal, &normal);
                 }
                 PSVECMag(&m20);
@@ -479,7 +479,7 @@ void Bullet::fn_801100A0() {
                 return;
             }
             atn::Vector3 d = m08 - sphere.mCenter;
-            if (fn_805F9920(&d) < sphere.mRadius * sphere.mRadius) {
+            if (PSVECSquareMag(&d) < sphere.mRadius * sphere.mRadius) {
                 fn_800C344C(sSeNames_unk[4], &m88->mPos, 0, -1, 0.75f);
                 vf0C(1, 0);
                 return;

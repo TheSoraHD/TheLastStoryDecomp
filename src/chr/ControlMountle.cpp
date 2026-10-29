@@ -8,7 +8,7 @@
 
 extern "C" int rand();
 extern "C" double cos(double x);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 
 // inferred: game state (lbl_8087EFA8, as in chr/ControlChant.cpp); names invented
@@ -353,7 +353,7 @@ ControlWallMountle::ControlWallMountle(Chara_unk* chara, const atn::Vector3& nor
         dir = res.m28;
     }
     dir.y = 0.0f;
-    if (fn_805F9920(&dir) > 0.001f) {
+    if (PSVECSquareMag(&dir) > 0.001f) {
         PSVECNormalize(&dir, &dir);
     } else {
         dir = -Front_unk(mChara->mRot);

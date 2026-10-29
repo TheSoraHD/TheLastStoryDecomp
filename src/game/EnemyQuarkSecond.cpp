@@ -1183,13 +1183,13 @@ void EnemyQuarkSecond::fn_80344DF4() {
     mMotion.mTracks[0].m0C = 0.05f;
 }
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 atn::Vector3 EnemyQuarkSecond::vfD8(CharaTask* target) {
     atn::Vector3 dir = target->mPos - mPos;
     atn::Vector3 from = target->mPos;
     atn::Vector3 result;
-    if (fn_805F9920(&dir) > 0.001f) {
+    if (PSVECSquareMag(&dir) > 0.001f) {
         PSVECNormalize(&dir, &dir);
     } else {
         dir.Set_unk(0.0f, 0.0f, 1.0f);

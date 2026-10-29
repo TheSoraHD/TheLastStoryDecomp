@@ -57,7 +57,7 @@ extern "C" std::string fn_8006B174(const std::string& path); // inferred: file n
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
 extern "C" double cos(double x);
 extern "C" int rand();
 // inferred: lens of a camera (as in game/CharaTask.cpp); names invented
@@ -132,7 +132,7 @@ ControlDamage::ControlDamage(Chara_unk* chara, const atn::Vector3& dir, int moti
     if (front) {
         motion = 0x37;
     } else if (motion == -1) {
-        if (fn_805F9920(&dir) > 25.0f) {
+        if (PSVECSquareMag(&dir) > 25.0f) {
             motion = 0x36;
         } else {
             int r = rand() % 2;
@@ -141,7 +141,7 @@ ControlDamage::ControlDamage(Chara_unk* chara, const atn::Vector3& dir, int moti
                 motion = 0x33;
             }
         }
-    } else if (fn_805F9920(&dir) > 25.0f) {
+    } else if (PSVECSquareMag(&dir) > 25.0f) {
         if (motion == 0x33) {
             motion = 0x36;
         } else if (motion == 0x34) {
@@ -183,7 +183,7 @@ ControlGuard::ControlGuard(Chara_unk* chara, float f, const atn::Vector3& dir, i
     c->m6B8 = push;
     Motion_unk* model = &c->mMotion;
     mChara->fn_801446F0();
-    if (fn_805F9920(&dir) > 0.0001f) {
+    if (PSVECSquareMag(&dir) > 0.0001f) {
         m08 = (-dir).GetNormalize().ToRotation_unk();
     } else {
         m08 = mChara->mRot;
@@ -212,7 +212,7 @@ ControlAvoid::ControlAvoid(Chara_unk* chara, const atn::Vector3& dir) : ControlB
     chara->m560 = 0x40;
     Motion_unk* model = &mChara->mMotion;
     mChara->fn_801446F0();
-    if (fn_805F9920(&dir) > 0.0001f) {
+    if (PSVECSquareMag(&dir) > 0.0001f) {
         m08 = (-dir).GetNormalize().ToRotation_unk();
     } else {
         m08 = FrontDir_unk(mChara->mRot);

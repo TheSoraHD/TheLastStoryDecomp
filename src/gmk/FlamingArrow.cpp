@@ -53,7 +53,7 @@ struct SoundCfg_unk {
     unsigned char m00[0x34CC];
     float m34CC; // inferred: pitch variation
 };
-extern "C" SoundCfg_unk* fn_80116E64();
+SoundCfg_unk* GetSoundMgr_unk(); // inferred: sound manager (Event/Path.cpp)
 // inferred: model matrix helpers (class unknown, 0x30 bytes)
 struct ArrowMtx_unk {
     float m[3][4];
@@ -303,8 +303,8 @@ void FlamingArrow::vf10() {
                 fn_800F7FA8(fn_800F7FA0(), &mArrows[i].mModel, 2);
                 fn_80276AE4(fn_800F7FA0(), &mEfpHit[kind], 0, &pos, &rot, -1, -1, 1, 1.0f);
                 atn::SoundRef sound = fn_800C344C(sHitSounds[rand() % 3], &mArrows[i].mPos, 0, -1, 1.0f);
-                if (fn_80116E64() != 0) {
-                    fn_800CB688(&sound, 0, fn_80116E64()->fn_80417E88());
+                if (GetSoundMgr_unk() != 0) {
+                    fn_800CB688(&sound, 0, GetSoundMgr_unk()->fn_80417E88());
                 }
             } else {
                 mArrows[i].mPos = to;

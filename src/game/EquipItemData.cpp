@@ -13,7 +13,6 @@ extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* tex
 extern "C" int fn_802180A8(const char* name);        // inferred: motion id
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: adds a motion
 extern "C" void fn_80097D9C(atn::Model* model, atn::Model* source);  // inferred: shares the motions
-extern "C" int fn_800928B0(atn::Model* model, int hash, int arg);   // inferred: node index by hash
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECMag(const atn::Vector3* v);
@@ -129,7 +128,7 @@ void EquipItemData::fn_803637D4() {
 
 void EquipItemData::fn_80363960(atn::Model* target) {
     mTarget = target;
-    mNode = fn_800928B0(target, mNode, 0);
+    mNode = target->fn_800928B0(mNode, 0);
 }
 
 void EquipItemData::vf08() {

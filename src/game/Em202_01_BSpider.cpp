@@ -39,7 +39,7 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
 extern "C" double cos(double x);
 extern "C" int rand();
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: color as four floats (as in game/CharaTask.cpp)
@@ -313,7 +313,7 @@ void Em202_01_BSpider::vf3C(HitInfo_unk* hit) {
     if (m58C == 14) {
         msg->m10 *= 0.0f;
     }
-    float len = fn_805F9920(&msg->m10);
+    float len = PSVECSquareMag(&msg->m10);
     if (!((float)__fabs(len) < 1.1920929e-7f) && len >= 25.0f) {
         PSVECNormalize(&msg->m10, &msg->m10);
         msg->m10 *= 4.9f;
@@ -649,8 +649,8 @@ void Em202_01_BSpider::fn_802721A0() {
     int far = 0;
     for (int i = 0; i < 6; i++) {
         atn::Vector3 d = sSpotPos_unk[i] - mPos;
-        if (best < fn_805F9920(&d)) {
-            best = fn_805F9920(&d);
+        if (best < PSVECSquareMag(&d)) {
+            best = PSVECSquareMag(&d);
             far = i;
         }
     }

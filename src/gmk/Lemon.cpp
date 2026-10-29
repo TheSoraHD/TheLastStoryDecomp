@@ -8,7 +8,7 @@ extern "C" int rand();
 extern "C" int sprintf(char* buf, const char* format, ...);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
@@ -229,7 +229,7 @@ void Lemon::fn_80415F6C() {
     if (fn_80416268(&res, &sphere.mPos, &mVel, mRadius) != 0) {
         atn::Vector3 newPos = res.m10 - atn::Vector3(0.0f, mRadius, 0.0f);
         atn::Vector3 d = newPos - (m6C + mVel);
-        if (fn_805F9920(&d) > 0.0f) {
+        if (PSVECSquareMag(&d) > 0.0f) {
             PSVECNormalize(&d, &d);
         }
         float dot = PSVECDotProduct(&d, &mVel);
@@ -254,7 +254,7 @@ int Lemon::fn_80416268(CollResult_unk* out, const atn::Vector3* pos, const atn::
     LemonSphere_unk sphere;
     sphere.mPos = *pos;
     sphere.mRadius = radius;
-    if (fn_805F9920(&v) > 0.25f * (radius * radius)) {
+    if (PSVECSquareMag(&v) > 0.25f * (radius * radius)) {
         CollResult_unk res;
         atn::Vector3 to = *pos + v;
         if (fn_8004ED34(lbl_8087EE98, &res, pos, &to, 0xE, 0, 0) != 0) {
@@ -273,7 +273,7 @@ int Lemon::fn_80416268(CollResult_unk* out, const atn::Vector3* pos, const atn::
         CollResult_unk* r = results;
         for (int i = 0; i < n; i++) {
             atn::Vector3 d = prev - r->m04;
-            float dist = fn_805F9920(&d);
+            float dist = PSVECSquareMag(&d);
             if (minDist > dist) {
                 minDist = dist;
                 best = i;

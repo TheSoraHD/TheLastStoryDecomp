@@ -6,7 +6,7 @@
 #include "game/NpcTask.h"
 #include "game/PlayerTask.h"
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" int rand();
@@ -34,7 +34,7 @@ extern "C" AugurCamera_unk* lbl_8087EFB4;
 
 // inferred: names invented
 inline float LenSq_unk(atn::Vector3 v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 inline void SetPos_unk(CharaTask* chara, const atn::Vector3& pos) { chara->mPos = pos; }
 inline void SetRot_unk(CharaTask* chara, const atn::Vector3& rot) { chara->mRot = rot; }

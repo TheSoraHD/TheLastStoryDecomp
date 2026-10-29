@@ -34,7 +34,7 @@ extern "C" void fn_80107FD8(Effect_unk* mgr, atn::Model* model, atn::Model* mode
 extern "C" void fn_80108080(Effect_unk* mgr, atn::Model* model);                    // inferred: stops it
 extern "C" void fn_801079C0(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: dizzy effect
 extern "C" void fn_80107A68(Effect_unk* mgr, atn::Model* model);                    // inferred: stops it
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
 // inferred: message table (lbl_8087F1E4); mDC is the betrayal message
 struct CdnMessages_unk {
@@ -395,7 +395,7 @@ ControlCdnPiyo::ControlCdnPiyo(Chara_unk* chara, const atn::Vector3& dir, int ti
     motion->fn_80097C08(0, flag != 0 ? 0x1E1 : 0x35, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     m14 = dir;
-    if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+    if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
         m20 = (-dir).ToRotation_unk();
         m14.Normalize_unk();
     } else {

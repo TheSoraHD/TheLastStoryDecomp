@@ -312,7 +312,7 @@ extern "C" void fn_800EB270(CharaTask* chara, int arg); // inferred: BattleChara
 extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" double cos(double x);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp); names invented
 struct GameState_unk {
     unsigned char m000[0x3A4];
@@ -635,7 +635,7 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
     mFlag3 = landed;
     float lean = 0.0f;
     atn::Vector3 vel(move + (pos - oldPos));
-    if (fn_805F9920(&vel) > 0.001f && speed > 0.001f) {
+    if (PSVECSquareMag(&vel) > 0.001f && speed > 0.001f) {
         lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
     }
     lean *= 2.0f;
@@ -709,7 +709,7 @@ void Em401_01_WhiteLeoPard::vf24() {
         walkSpeed = 0.0f;
         dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
     }
-    if (fn_805F9920(&(lbl_8087EFB4->mEye - mPos)) > 62500.0f) {
+    if (PSVECSquareMag(&(lbl_8087EFB4->mEye - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {

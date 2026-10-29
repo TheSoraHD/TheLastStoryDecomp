@@ -21,7 +21,7 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" int rand();
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
@@ -293,7 +293,7 @@ void Em309GhoulSimple::vfFC() {
 
 // inferred: names invented (as in game/Em205Ogre.cpp)
 inline void SafeNormalize_unk(atn::Vector3* v) {
-    if ((float)__fabs(fn_805F9920(v)) < 1.1920929e-7f) {
+    if ((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f) {
         return;
     }
     PSVECNormalize(v, v);
@@ -315,7 +315,7 @@ void Em309GhoulSimple::vf40(HitInfo_unk* hit) {
     if (msg->mData != 0 && msg->mData->m04 == 0xCB) {
         atn::Vector3 dir = msg->m10;
         dir.y = 0.0f;
-        if (!((float)__fabs(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+        if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
             PSVECNormalize(&dir, &dir);
             mRot = dir.ToRotation_unk();
             mRot.y += 3.1415927f;
@@ -469,7 +469,7 @@ void Em309GhoulSimple::vf104() {
                 vf100(11);
             } else if (mFlag31) {
                 atn::Vector3 d = m14D4->mPos - mPos;
-                if (fn_805F9920(&d) < m14E4 * m14E4) {
+                if (PSVECSquareMag(&d) < m14E4 * m14E4) {
                     if (m14F4 <= 0) {
                         vf100(9);
                     }
@@ -563,7 +563,7 @@ void Em309GhoulSimple::vf108() {
             mFlag31 = 1;
         }
         atn::Vector3 dir(mC58.m0C.m58);
-        dist = fn_805F9920(&dir);
+        dist = PSVECSquareMag(&dir);
         if (dist > 0.0001f) {
             rot = dir.GetNormalize().ToRotation_unk();
         } else {

@@ -17,7 +17,7 @@ extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -734,7 +734,7 @@ void Cannonball::fn_803FBC34(const atn::Vector3* pos) {
 int Cannonball::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
     if (vf60() != 0 && flag == 0 && (m54 == 1 || m54 == 7 || m54 == 4)) {
         atn::Vector3 d = m6C - *pos;
-        if (fn_805F9920(&d) > 625.0f) {
+        if (PSVECSquareMag(&d) > 625.0f) {
             return 0;
         }
         atn::Vector3 n(d);

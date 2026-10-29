@@ -58,7 +58,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;     // inferred: player manag
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int flags, void* colli, int arg);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 // inferred: oriented box (half size, then the matrix)
@@ -175,7 +175,7 @@ void PickTask::vf10() {
                     continue;
                 }
                 atn::Vector3 d = b->mPos - a->mPos;
-                float distSq = fn_805F9920(&d);
+                float distSq = PSVECSquareMag(&d);
                 if (distSq > 0.0f) {
                     PSVECNormalize(&d, &d);
                 }
@@ -261,7 +261,7 @@ void PickTask::vf10() {
         }
         if (!safe && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0xD8) == 1 && numSeers == 1) {
             atn::Vector3 d = player->mPos - c->mPos;
-            if (fn_805F9920(&d) < 4900.0f) {
+            if (PSVECSquareMag(&d) < 4900.0f) {
                 safe = true;
             }
         }
@@ -298,7 +298,7 @@ void PickTask::vf10() {
             fn_800C31F4(sSounds[2], 0, -1, 1.0f);
         }
         atn::Vector3 d = player->mPos - c->mPos;
-        float distSq = fn_805F9920(&d);
+        float distSq = PSVECSquareMag(&d);
         if (distSq > 0.0f) {
             PSVECNormalize(&d, &d);
         }

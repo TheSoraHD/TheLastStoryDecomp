@@ -40,6 +40,15 @@ struct Camera_unk {
     void fn_8004B378(); // inferred: updates the view, projection and frustum
     // inferred: free debug camera moved with the pad; true when it moved
     bool fn_8004BF64(float speed, float rotSpeed);
+    // inferred: accessors (weak copies 0x80113CCC, 0x80112958, 0x80112960, 0x80114AA0, 0x80116E6C and
+    // 0x80116BA4 in Event/Path.cpp; the one at 0x80114AA0 is SetPosition__Q23atn6Camera in the RSO,
+    // so this class is atn::Camera)
+    const atn::Vector3* GetPosition_unk() const { return &mPos; }
+    const atn::Vector3* GetTarget_unk() const { return &mTarget; }
+    void SetTarget_unk(const atn::Vector3& v) { mTarget = v; }
+    void SetPosition(const atn::Vector3& v) { mPos = v; }
+    const atn::Vector3* GetRot_unk() const { return &mRot; }
+    float GetFovy_unk() const { return mFovy; }
 
     int mType;              // 0x00: 0 = look at, 1 = position and angles, 2 = look at with roll
     int mProjType;          // 0x04: 0 = perspective, 1 = orthographic

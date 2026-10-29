@@ -8,7 +8,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: bullets (as in gmk/LandMine.cpp)
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048;
@@ -45,7 +45,7 @@ inline float GetFrameTime_unk() {
 
 // inferred: name invented (as in CharaTask.cpp)
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 EnemyLizerdBlade::EnemyLizerdBlade(atn::Task* parent, EnemyInfo_unk* info)

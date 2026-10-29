@@ -56,7 +56,7 @@ struct ChaseColor_unk {
 };
 extern "C" int fn_804AABA8(void* minimap, const atn::Vector3* pos, const ChaseColor_unk* color, float scale);
 extern "C" void fn_804AAD54(void* minimap, int marker);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 ChaseManager* lbl_8087F098;
 
@@ -410,7 +410,7 @@ extern "C" CharaTask* fn_80183860(ChaseManager* mgr, const atn::Vector3* pos) {
     for (unsigned int i = 0; i < mgr->mCharas.mSize; i++) {
         CharaTask* chara = mgr->mCharas.mData[i];
         atn::Vector3 d(pos->x - chara->mPos.x, pos->y - chara->mPos.y, pos->z - chara->mPos.z);
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         if (dist < best) {
             ret = chara;
             best = dist;

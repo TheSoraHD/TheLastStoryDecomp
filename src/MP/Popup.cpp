@@ -90,7 +90,7 @@ extern "C" PopupPlayer_unk* fn_804EB870(PopupSession_unk* s); // inferred: local
 extern "C" atn::Task* lbl_8087F430;                          // inferred: field task
 extern "C" void* lbl_8087EFB4;                               // inferred: camera
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
-extern "C" float fn_805F9920(const atn::Vector3* v);       // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v);       // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int fn_80450A5C(void* slot);                     // inferred: item code of an ItemSlotAnime
 extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: system text
@@ -171,7 +171,7 @@ void Popup::vf10() {
             continue;
         }
         atn::Vector3 dir = g->m6C - chara->mPos;
-        float dist = fn_805F9920(&dir);
+        float dist = PSVECSquareMag(&dir);
         if (!(atn::Abs_unk(dist) < 1.1920929e-7f)) {
             PSVECNormalize(&dir, &dir);
         }

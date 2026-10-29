@@ -12,7 +12,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -67,7 +67,7 @@ static const char* const sSe[] = {"SE_EVCOM_013", "SE_DGCOM_010"};
 // inferred: squared distance of the camera (name invented)
 inline float CameraDistSq_unk(const atn::Vector3& pos) {
     atn::Vector3 d = lbl_8087EFB4->mPos - pos;
-    return fn_805F9920(&d);
+    return PSVECSquareMag(&d);
 }
 inline float Rand_unk() {
     return rand() % 1001 / 1000.0f;
@@ -364,7 +364,7 @@ int LemonBucket::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag
         if (atn::Abs_unk(d.y) < 30.0f) {
             d.y = 0.0f;
         }
-        float len = fn_805F9920(&d);
+        float len = PSVECSquareMag(&d);
         if (len > 0.0f) {
             PSVECNormalize(&d, &d);
         }

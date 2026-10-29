@@ -50,7 +50,7 @@ struct Field_unk {
 struct Effect_unk;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
@@ -1134,7 +1134,7 @@ void Em301LShade::fn_802D3370() {
 // inferred: party members alive and the ones inside the absorb range (38 * scale around the body)
 // inferred: squared length of a temporary vector (name invented)
 inline float DistSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 inline void CountNear_unk(Em301LShade* e, int* outNear, int* outCount) {

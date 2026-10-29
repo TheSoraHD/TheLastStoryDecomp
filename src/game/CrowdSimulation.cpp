@@ -4,11 +4,11 @@
 #include <boost/function.hpp>
 
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: same helper as in game/CharaTask.cpp
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
 extern "C" atn::Vector3 fn_803C11A4(RouteTable_unk* table, int point);  // inferred: position of a point

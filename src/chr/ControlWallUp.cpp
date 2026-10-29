@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" HitInfo_unk* fn_80219E6C(int id);           // inferred: bullet/skill data by id
 
 // inferred: field object (lbl_8087F430): flags and current map data (class unknown)
@@ -98,7 +98,7 @@ ControlWallUp::ControlWallUp(Chara_unk* chara, const atn::Vector3& pos, const at
     m34 = dir;
     m34.y = 0.0f;
     Motion_unk* m = &mChara->mMotion;
-    if (fn_805F9920(&m34) < 0.00001f) {
+    if (PSVECSquareMag(&m34) < 0.00001f) {
         Chara_unk* c = mChara;
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         Mtx mtx;

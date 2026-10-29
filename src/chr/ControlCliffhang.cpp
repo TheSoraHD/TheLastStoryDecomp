@@ -6,7 +6,7 @@
 extern "C" int rand();
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: point of the route tables (0x30 bytes); names invented
 struct CliffPoint_unk {
@@ -294,13 +294,13 @@ int ControlCliffhang::fn_801AB9E4(int route) {
         atn::Vector3 side;
         atn::Vector3 axis(0.0f, 1.0f, 0.0f);
         PSVECCrossProduct(&dir, &axis, &side);
-        if ((float)__fabs(fn_805F9920(&side)) < 1.1920929e-7f) {
+        if ((float)__fabs(PSVECSquareMag(&side)) < 1.1920929e-7f) {
             atn::Vector3 back(0.0f, 0.0f, -1.0f);
             atn::Vector3 cross;
             PSVECCrossProduct(&dir, &back, &cross);
             side = cross;
         }
-        if (!((float)__fabs(fn_805F9920(&side)) < 1.1920929e-7f)) {
+        if (!((float)__fabs(PSVECSquareMag(&side)) < 1.1920929e-7f)) {
             PSVECNormalize(&side, &side);
         }
         atn::Vector3 to = a->mPos + side * 5.0f;

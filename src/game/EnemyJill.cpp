@@ -464,7 +464,7 @@ int EnemyJill::fn_8032F0EC() {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 int EnemyJill::fn_8032F204() {
@@ -499,7 +499,7 @@ int EnemyJill::fn_8032F314() {
     float base = 6.2831855f * (rand() % 1001 / 1000.0f) + -3.1415927f;
     CharaTask* target = mC58.mC4;
     atn::Vector3 to = target->mPos - mPos;
-    if (fn_805F9920(&to) < 0.0001f) {
+    if (PSVECSquareMag(&to) < 0.0001f) {
         to.Set_unk(0.0f, 0.0f, 1.0f);
     } else {
         PSVECNormalize(&to, &to);
@@ -781,7 +781,7 @@ inline float LerpAngle_unk(float to, float from, float t) {
 inline void EnemyJill::TurnTo_unk(float t) {
     if (mC58.mC4 != 0) {
         atn::Vector3 dir = mC58.mC4->mPos - mPos;
-        if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+        if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
             PSVECNormalize(&dir, &dir);
         }
         atn::Vector3 rot = dir.ToRotation_unk();

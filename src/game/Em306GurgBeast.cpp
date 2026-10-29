@@ -87,11 +87,11 @@ extern "C" int fn_800A555C(void* pad, int port, int button);           // inferr
 extern "C" int fn_800A55D4(void* pad, int port, int button);           // inferred: button held
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg);  // inferred: stick axis
 extern "C" void fn_8037EF30(void* obj, int a, int b, float f);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030;                // inferred: zero vector
 // inferred: name invented (as in game/CharaTask.cpp)
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 // inferred: camera (lbl_8087EFB4); m134 is its rotation around y
 struct BeastCamera_unk {

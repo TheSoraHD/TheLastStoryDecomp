@@ -21,7 +21,7 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -782,7 +782,7 @@ void Em208Queen::fn_802CA8C0() {
                     held = true;
                 } else {
                     atn::Vector3 d = p->mPos - center;
-                    float dist = fn_805F9920(&d);
+                    float dist = PSVECSquareMag(&d);
                     if (dist < 1225.0f && dist * 1.25f < best) {
                         m14D0 = p;
                         best = dist * 1.25f;
@@ -793,7 +793,7 @@ void Em208Queen::fn_802CA8C0() {
         for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
             if (e->CanAct_unk()) {
                 atn::Vector3 d = e->mPos - center;
-                float dist = fn_805F9920(&d);
+                float dist = PSVECSquareMag(&d);
                 if (dist < 1225.0f && dist < best) {
                     m14D0 = e;
                     best = dist;
@@ -984,7 +984,7 @@ void Em208Queen::fn_802CB8A0() {
     }
     fn_802CC834(mPos, 35.0f, 6.2831855f, 100);
     atn::Vector3 left = mPos - m151C;
-    if (fn_805F9920(&left) < 1225.0f) {
+    if (PSVECSquareMag(&left) < 1225.0f) {
         if (--m150C <= 0) {
             if (m14CC <= 0.0f) {
                 m14C0 = 1;
@@ -1101,7 +1101,7 @@ inline int Em208Queen::CollectPoints_unk(int* ids) {
         RoutePlace_unk* place = FindRoutePlace2_unk(lbl_8087F430->m10D8, sRoutePoints_unk[i]);
         if (place != 0) {
             atn::Vector3 d = place->mPos - mPos;
-            if (fn_805F9920(&d) > 28900.0f) {
+            if (PSVECSquareMag(&d) > 28900.0f) {
                 ids[count++] = place->mId;
             }
         }

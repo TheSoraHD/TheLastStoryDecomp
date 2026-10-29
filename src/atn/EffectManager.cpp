@@ -1,4 +1,5 @@
 #include "atn/Task.h"
+#include "atn/Model_unk.h"
 #include "atn/Memory.h"
 #include "atn/Array_unk.h"
 #include "math/Vec.h"
@@ -15,7 +16,6 @@ struct Model;
 }
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float alpha, int layer); // inferred: queues a render
-extern "C" int fn_800928B0(void* nodes, int hash, int arg);                          // inferred: node index by hash
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" const char* fn_80473F18(void* name); // inferred: resource name
 // inferred: render parameters (fields named by offset)
@@ -684,7 +684,7 @@ void EffectManager::fn_8023AE34(unsigned int owner, int group, int arg) {
                                 target = (unsigned char*)target + 0x30;
                                 mode = 5;
                             } else if (mode == 4) {
-                                int index = fn_800928B0(*(unsigned char**)((unsigned char*)target + 4) + 0x10, em->m3C, 0);
+                                int index = ((atn::Model*)(*(unsigned char**)((unsigned char*)target + 4) + 0x10))->fn_800928B0(em->m3C, 0);
                                 void* nodes;
                                 if (index >= 0 && (nodes = *(void**)((unsigned char*)it->mTarget + 0x80)) != 0) {
                                     target = (unsigned char*)nodes + index * 0x30;
@@ -694,7 +694,7 @@ void EffectManager::fn_8023AE34(unsigned int owner, int group, int arg) {
                                 }
                             }
                         } else if (mode == 4) {
-                            int index = fn_800928B0(target, em->m3C, 0);
+                            int index = ((atn::Model*)target)->fn_800928B0(em->m3C, 0);
                             void* node = (index >= 0) ? *(unsigned char**)((unsigned char*)target + 0x3C) + index * 0x30 : 0;
                             if (node != 0) {
                                 target = node;

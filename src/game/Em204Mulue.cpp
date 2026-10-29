@@ -74,7 +74,7 @@ extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (dea
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -991,7 +991,7 @@ void Em204Mulue::fn_802A8BBC() {
                 atn::Vector3 d = c->mPos - mPos;
                 atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
                 float angle = fn_802A7910(fn_802A7964(rot.y - mRot.y));
-                float dist = fn_805F9920(&d);
+                float dist = PSVECSquareMag(&d);
                 if (-50.0f < angle && angle < 50.0f && dist < 2500.0f) {
                     if (c == m14B0) {
                         found = m14B0;
@@ -1226,7 +1226,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
 void Em204Mulue::fn_802AA1B8() {
     atn::Vector3 d = m15D4 - mPos;
     d.Length_unk();
-    if (fn_805F9920(&d) < 25.0f) {
+    if (PSVECSquareMag(&d) < 25.0f) {
         int done = 0;
         if (m14B8 == 0) {
             if (m14C0 > 60) {
@@ -1285,7 +1285,7 @@ void Em204Mulue::fn_802AA1B8() {
 void Em204Mulue::fn_802AA534() {
     atn::Vector3 d = m15C4 - mPos;
     d.Length_unk();
-    if (fn_805F9920(&d) < 100.0f) {
+    if (PSVECSquareMag(&d) < 100.0f) {
         if ((float)m14C0 > 35.0f) {
             fn_80239DAC(lbl_8087F3C0, this, 0x66, 0);
             if (m1648 != 1 || (float)m14C0 > 70.0f) {

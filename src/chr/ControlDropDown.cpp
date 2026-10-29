@@ -4,7 +4,7 @@
 extern "C" int rand();
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;    // inferred: player manager
 extern "C" void* lbl_8087F498;
 extern "C" void fn_803EA77C(void* mgr, CharaTask* chara, int id, int arg, float a, float b); // inferred: voice
@@ -52,7 +52,7 @@ inline float Rand01_unk() {
 }
 // inferred: normalizes unless the vector is (almost) zero; name invented
 inline void SafeNormalize_unk(atn::Vector3* v) {
-    if ((float)__fabs(fn_805F9920(v)) < 1.1920929e-7f) {
+    if ((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f) {
         return;
     }
     PSVECNormalize(v, v);

@@ -62,7 +62,7 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: float color converted to GXColor (as in game/GimmickCommon.cpp)
 struct ColorF_unk {
@@ -511,7 +511,7 @@ void Em305VampireMp::vf11C() {
         } else {
             RoutePlace_unk* place = m14E8[m1560];
             atn::Vector3 d(mPos.x - place->mPos.x, 0.0f, mPos.z - place->mPos.z);
-            if (fn_805F9920(&d) < 100.0f) {
+            if (PSVECSquareMag(&d) < 100.0f) {
                 m1560++;
                 if (m1560 >= (int)m14E8.size()) {
                     m1560 = 0;

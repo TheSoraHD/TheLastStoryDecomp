@@ -13,7 +13,7 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
 extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
@@ -291,7 +291,7 @@ void DropItem::vf10() {
             nearDist *= 0.5f;
         }
         atn::Vector3 d(m6C.x - lbl_8087EFB4->mPos.x, m6C.y - lbl_8087EFB4->mPos.y, m6C.z - lbl_8087EFB4->mPos.z);
-        float camDist = fn_805F9920(&d);
+        float camDist = PSVECSquareMag(&d);
         bool event = false;
         if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
             event = true;
@@ -301,7 +301,7 @@ void DropItem::vf10() {
             if (m6C.y - 15.0f < pos.y && pos.y < 15.0f + m6C.y) {
                 pos.y = m6C.y;
                 atn::Vector3 dd(m6C.x - pos.x, m6C.y - pos.y, m6C.z - pos.z);
-                float dist = fn_805F9920(&dd);
+                float dist = PSVECSquareMag(&dd);
                 if (dist < nearDist * nearDist) {
                     near = 1;
                 }
@@ -338,7 +338,7 @@ void DropItem::vf10() {
                     bullet->mOwner->m48 == 0) {
                     DropAttack_unk attack = bullet->mAttack;
                     if ((attack.mOwner == 0 || !IsBlocked_unk(attack)) && (flags & 0x200000) != 0x200000 &&
-                        !((float)__fabs(fn_805F9920(&bullet->mDir)) < 1.1920929e-7f)) {
+                        !((float)__fabs(PSVECSquareMag(&bullet->mDir)) < 1.1920929e-7f)) {
                         DropSegment_unk seg(bullet->mPos - bullet->mDir, bullet->mPos + bullet->mDir);
                         DropCapsule_unk capsule(m6C + atn::Vector3(0.0f, 3.5f, 0.0f),
                                                 m6C + atn::Vector3(0.0f, 11.0f, 0.0f), 3.5f);

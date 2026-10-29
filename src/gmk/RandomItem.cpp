@@ -41,7 +41,7 @@ extern "C" int fn_80435908(gmk::RandomItem* item); // inferred: places the item 
 struct RandomTable_unk;
 extern "C" RandomTable_unk* fn_8021D720(int level, int id); // inferred: random table of a level and id
 extern "C" bool fn_8021D770(RandomTable_unk* table, int* item, char* name, int index); // inferred: random item
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
@@ -384,7 +384,7 @@ extern "C" int fn_80435908(gmk::RandomItem* item) {
     for (unsigned int i = 0; i < item->m144->mPoints.mSize; i++) {
         RoutePoint_unk* point = item->m144->mPoints[i];
         atn::Vector3 d = point->mPos - player->mPos;
-        float distSq = fn_805F9920(&d);
+        float distSq = PSVECSquareMag(&d);
         float range = item->m144->m818;
         if (!((0.5f * range) * (0.5f * range) < distSq) || !(distSq < range * range)) {
             continue;

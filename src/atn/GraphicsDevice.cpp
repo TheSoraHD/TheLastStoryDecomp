@@ -975,7 +975,7 @@ struct GimmickUvOwner_unk {
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_800D5C84(float m[3][4], float sx, float sy, float c, float s, float tx, float ty);
 extern "C" void fn_800D5E18(float m[3][4], float t, float b, float l, float r, float scaleS, float scaleT,
@@ -1043,7 +1043,7 @@ extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_un
     atn::Matrix3x4 texMtx;
     atn::Matrix3x4 rot;
     fn_800D5C84(rot.m, 1.0f, 1.0f, sin(angle), cos(angle), 0.0f, 0.0f);
-    if (fn_805F9920(&dir) < 0.001f) {
+    if (PSVECSquareMag(&dir) < 0.001f) {
         atn::Matrix3x4 trans;
         trans.SetIdentity();
         trans.m[0][3] = -pos.x - offset.x;

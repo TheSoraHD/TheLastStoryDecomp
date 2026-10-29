@@ -51,7 +51,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -247,7 +247,7 @@ inline int Em101ElderZesyaSecond::CountNear_unk(float dist) {
     for (; p != 0; p = p->mNext) {
         if (!p->mStatus.IsState_unk(0x20)) {
             atn::Vector3 d = p->mPos - pos;
-            if (fn_805F9920(&d) < dist * dist) {
+            if (PSVECSquareMag(&d) < dist * dist) {
                 count++;
             }
         }
@@ -704,10 +704,10 @@ int Em101ElderZesyaSecond::fn_8025C7A8(atn::Vector3* pos, float* rot) {
     for (unsigned int i = 0; i < m14C0.size() - 1; i++) {
         for (unsigned int j = m14C0.size() - 1; j > i; j--) {
             atn::Vector3 a = m14C0[j]->mPos - mPos;
-            float da = fn_805F9920(&a);
+            float da = PSVECSquareMag(&a);
             unsigned int k = j - 1;
             atn::Vector3 b = m14C0[k]->mPos - mPos;
-            if (da > fn_805F9920(&b)) {
+            if (da > PSVECSquareMag(&b)) {
                 Swap_unk(m14C0[j], m14C0[k]);
             }
         }

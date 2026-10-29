@@ -31,7 +31,7 @@ extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;   // inferred: player manager
 // inferred: collision result and ray test (as in game/Em403WarLion.cpp)
 struct CollResult_unk {
@@ -253,7 +253,7 @@ inline void LaserTrace::Update_unk() {
 
 // inferred: squared length (as in game/CrowdSimulation.cpp; name invented)
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: the player can be aimed at (name invented)

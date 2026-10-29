@@ -11,7 +11,7 @@ extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" double acos(double x);
 extern "C" double fabs(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: field (class unknown); m10D8 holds the route tables
 struct Field_unk {
     unsigned char m00[0x10D8];
@@ -223,7 +223,7 @@ inline bool ChaserGuard::IsPlayerNear_unk() {
         return false;
     }
     atn::Vector3 d = player->mPos - mPos;
-    float dist = fn_805F9920(&d);
+    float dist = PSVECSquareMag(&d);
     bool slow = player->m570 <= 0.6f;
     float range = lbl_8087F0A8->mChase.m4F0;
     if (slow) {
@@ -355,7 +355,7 @@ void ChaserGuard::fn_8017E650() {
             }
             range *= range;
             atn::Vector3 d = player->mPos - mPos;
-            if (fn_805F9920(&d) < range) {
+            if (PSVECSquareMag(&d) < range) {
                 fn_80182788(lbl_8087F098, this, player);
                 fn_8017F4A0(3);
                 m14B4 = player;
@@ -372,7 +372,7 @@ void ChaserGuard::fn_8017E650() {
             if (enemy != this && enemy->CanAct_unk() && enemy->m60->m24 == 0x35 &&
                 ((ChaserGuard*)enemy)->m1504 != 0) {
                 atn::Vector3 d = enemy->mPos - mPos;
-                if (fn_805F9920(&d) < 1600.0f) {
+                if (PSVECSquareMag(&d) < 1600.0f) {
                     m14D4 = 0;
                     m14B8 = ((ChaserGuard*)enemy)->m14B8;
                     break;
@@ -396,7 +396,7 @@ void ChaserGuard::fn_8017E9D8() {
             if (m150C != 0) {
                 if (mMotion.mTracks[0].m00 != 0x8C) {
                     atn::Vector3 d = m1510 - mPos;
-                    if (fn_805F9920(&d) <= 9.0f) {
+                    if (PSVECSquareMag(&d) <= 9.0f) {
                         mMotion.m34C = 1;
                         mMotion.mTracks[0].m20 = 1.0f;
                         mMotion.fn_80097C08(0, 0x8C, 1, 0, 1, 0.0f, 0.1f);
@@ -433,7 +433,7 @@ void ChaserGuard::fn_8017E9D8() {
                 mMotion.mTracks[0].m0C = 0.7f;
             } else if (fn_80183860(lbl_8087F098, &mPos) != 0) {
                 atn::Vector3 d = mPos - fn_80183860(lbl_8087F098, &mPos)->mPos;
-                if (fn_805F9920(&d) > 0.01f) {
+                if (PSVECSquareMag(&d) > 0.01f) {
                     PSVECNormalize(&d, &d);
                     d *= 3.0f;
                 } else {
@@ -645,7 +645,7 @@ bool ChaserGuard::fn_8017FBEC() {
     if (player == 0) {
         return false;
     }
-    float dist = fn_805F9920(&(player->mPos - mPos));
+    float dist = PSVECSquareMag(&(player->mPos - mPos));
     float range = lbl_8087F0A8->mChase.m4E4;
     if (m14B0 == 1) {
         range = lbl_8087F0A8->mChase.m4E0;
@@ -690,7 +690,7 @@ void ChaserGuard::fn_8017FED0() {
     float look = 1.0f;
     atn::Vector3 rot = mRot;
     if (mC58.m0C.m2C == 0) {
-        if (fn_805F9920(&dir) > 0.01f) {
+        if (PSVECSquareMag(&dir) > 0.01f) {
             PSVECNormalize(&dir, &dir);
             rot = dir.ToRotation_unk();
         }

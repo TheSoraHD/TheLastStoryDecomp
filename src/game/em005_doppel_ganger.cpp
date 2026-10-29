@@ -22,7 +22,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -774,7 +774,7 @@ void Em005DoppelGanger::vf3C(HitInfo_unk* hit) {
             return;
         }
         if (m58C == 11 || m58C == 10 || m58C == 6) {
-            if (fn_805F9920(&msg->m10) > 0.0001f) {
+            if (PSVECSquareMag(&msg->m10) > 0.0001f) {
                 PSVECNormalize(&msg->m10, &msg->m10);
             }
             msg->m10 *= 8.0f;

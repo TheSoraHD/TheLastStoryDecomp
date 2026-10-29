@@ -8,7 +8,7 @@
 #include "std/string.h"
 
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_802180A8(const char* name);        // inferred: motion id from its name
 extern "C" atn::Vector3 lbl_807C7030;                // inferred: zero vector
 
@@ -422,7 +422,7 @@ extern "C" int fn_8001B634(CharaTask* chara) {
     int count = 0;
     atn::Vector3 target = GetTargetPos_unk(chara);
     atn::Vector3 dir = target - chara->mPos;
-    if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+    if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
         PSVECNormalize(&dir, &dir);
     }
     return fn_800197A4(lbl_8087EE68, &out, &count, chara, &dir, 0, 30.0f);
@@ -433,7 +433,7 @@ extern "C" int fn_8001B714(CharaTask* chara) {
     int count = 0;
     atn::Vector3 target = GetTargetPos_unk(chara);
     atn::Vector3 dir = target - chara->mPos;
-    if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+    if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
         PSVECNormalize(&dir, &dir);
     }
     atn::Vector3 side;
@@ -455,7 +455,7 @@ extern "C" int fn_8001B984(CharaTask* chara) {
     int count = 0;
     atn::Vector3 target = GetTargetPos_unk(chara);
     atn::Vector3 dir = target - chara->mPos;
-    if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+    if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
         PSVECNormalize(&dir, &dir);
     }
     atn::Vector3 back(-dir.x, -dir.y, -dir.z);

@@ -66,7 +66,7 @@ struct GameState_unk {
 extern "C" GameState_unk* lbl_8087EFA8;
 extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double sin(double x);
 extern "C" double cos(double x);
 // inferred: camera (lbl_8087EFB4, see game/CharaTask.cpp); names invented
@@ -681,7 +681,7 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
     mFlag3 = landed;
     float lean = 0.0f;
     atn::Vector3 vel(move + (pos - oldPos));
-    if (fn_805F9920(&vel) > 0.001f && speed > 0.001f) {
+    if (PSVECSquareMag(&vel) > 0.001f && speed > 0.001f) {
         lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
     }
     lean *= 2.0f;
@@ -735,7 +735,7 @@ void Em403WarLion::vf24() {
         walkSpeed = 0.0f;
         dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
     }
-    if (fn_805F9920(&(lbl_8087EFB4->mEye - mPos)) > 62500.0f) {
+    if (PSVECSquareMag(&(lbl_8087EFB4->mEye - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {
@@ -1679,7 +1679,7 @@ void Em403WarLion::fn_8032A3D4(atn::Vector3* pos, float* angle, const atn::Vecto
         fn_8004D388(lbl_8087EE98, &result, (CharaTask::Sphere_unk*)&from, &move, 0x80000000, &mColli, 0, m620);
         move = result.m10;
         atn::Vector3 d = move - from;
-        float len = fn_805F9920(&d);
+        float len = PSVECSquareMag(&d);
         if (len > best) {
             a = atn::WrapAngle_unk(3.1415927f + r);
             best = len;
@@ -1714,7 +1714,7 @@ atn::Vector3 Em403WarLion::fn_8032A650(int* id, int a, int b) {
             RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(e->mPlace);
             if (place != 0) {
                 atn::Vector3 d = place->mPos - mean;
-                float len = fn_805F9920(&d);
+                float len = PSVECSquareMag(&d);
                 if (len > best) {
                     best = len;
                     result = place->mPos;

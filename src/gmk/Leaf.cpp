@@ -20,7 +20,7 @@ extern "C" double cos(double x);
 extern "C" double sqrt(double x);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -266,7 +266,7 @@ void Leaf::fn_8040161C() {
         float speed = 10.0f * (mWindCur / 30.0f) * (0.8f * Rand01_unk()) + m120;
         mLeaves[(unsigned int)i].mPos += mWindDir * speed;
         atn::Vector3 d = m6C - (m6C + mLeaves[(unsigned int)i].mPos);
-        if (fn_805F9920(&d) > mFlowLength * mFlowLength) {
+        if (PSVECSquareMag(&d) > mFlowLength * mFlowLength) {
             float angle = 0.017453292f * (float)(rand() % 361);
             mLeaves[(unsigned int)i].mPos.x = Cos_unk(angle) * (mSize * Rand01_unk());
             mLeaves[(unsigned int)i].mPos.y = mSize * Rand01_unk();

@@ -12,7 +12,7 @@ inline atn::Scene* ToScene_unk(MapModel_unk* model) {
 extern "C" MapModel_unk* fn_804962B0(MapGroup_unk* group, const atn::Sphere* sphere); // inferred: model hit by the sphere
 
 extern "C" int fn_800709F4(void* bound, const atn::Sphere* sphere); // inferred: intersection test
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int lbl_8087F610; // inferred: debug flag
 // inferred: field data (lbl_8087F430) and its current map part
 struct Field_unk;
@@ -39,7 +39,7 @@ static atn::Scene* fn_804914BC(atn::Sphere sphere, void* manager);
 // inferred: squared length of a - b (name invented)
 inline float DistSq_unk(const atn::Vector3& a, const atn::Vector3& b) {
     atn::Vector3 d = a - b;
-    return fn_805F9920(&d);
+    return PSVECSquareMag(&d);
 }
 
 // inferred: removes element i of a fixed array (name invented)

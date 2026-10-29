@@ -1,11 +1,11 @@
 #include "Event/Behavior.h"
 #include "game/CharaTask.h"
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
 
 // inferred: same helper as in game/CharaTask.cpp
 inline float LengthSq_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 namespace Event {

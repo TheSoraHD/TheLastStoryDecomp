@@ -5,7 +5,7 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" void* lbl_8087F430; // inferred: field manager (as in game/CharaTask.cpp)
 extern "C" int fn_80375184(void* field);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_800F8548(Effect_unk* mgr);
 // inferred: fire the skill (bullet, area or simple effect); argument names unknown
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
@@ -73,7 +73,7 @@ int ControlUseSkill::vf0C() {
     atn::Vector3 rot;
     atn::Vector3 dir(mTarget->mPos.x - mChara->mPos.x, mTarget->mPos.y - mChara->mPos.y,
                      mTarget->mPos.z - mChara->mPos.z);
-    if (!(atn::Abs_unk(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+    if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
         rot = dir.GetNormalize().ToRotation_unk();
     } else {
         rot = mChara->mRot;
@@ -91,7 +91,7 @@ int ControlUseSkill::vf0C() {
                 pos = ((atn::Matrix3x4*)mNode)->GetTrans_unk();
             }
             atn::Vector3 d = dir;
-            if (!(atn::Abs_unk(fn_805F9920(&d)) < 1.1920929e-7f)) {
+            if (!(atn::Abs_unk(PSVECSquareMag(&d)) < 1.1920929e-7f)) {
                 PSVECNormalize(&d, &d);
             }
             fn_800F8574(lbl_8087F048, mChara, data, &pos, &d, 0, 0, 0, 0.0f, 1.0f);

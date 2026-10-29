@@ -2,7 +2,7 @@
 #include "game/CharaTask.h"
 
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: closest point to `pos` on the segment a-b (written to `out`)
 extern "C" void fn_80050A1C(const atn::Vector3* pos, atn::Vector3 a, atn::Vector3* out, atn::Vector3 b);
@@ -185,7 +185,7 @@ ControlDiveIntoWater::ControlDiveIntoWater(Chara_unk* chara, const atn::Vector3&
     : ControlInteractionBase(chara, 2, 0x5F) {
     m24 = b - a;
     m24.y = 0.0f;
-    if (!((float)__fabs(fn_805F9920(&m24)) < 1.1920929e-7f)) {
+    if (!((float)__fabs(PSVECSquareMag(&m24)) < 1.1920929e-7f)) {
         PSVECNormalize(&m24, &m24);
     }
     atn::Vector3 rot = m24.ToRotation_unk();

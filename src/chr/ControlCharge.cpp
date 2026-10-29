@@ -87,7 +87,7 @@ extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vecto
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double sqrt(double x);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
@@ -454,7 +454,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
         if (fn_8004ED34(lbl_8087EE98, &res, a, b, mask, 0, 0) != 0) {
             if (fn_803CC1A4(lbl_8087F430->m10D8, &res.m04, 6.0f, 0.25881904f, &dir) != 0) {
                 a = res.m04 + dir * 0.1f;
-                loop = fn_805F9920(&(a - b)) > 1.0f;
+                loop = PSVECSquareMag(&(a - b)) > 1.0f;
             } else if (PSVECDotProduct(&res.m28, &atn::Vector3(0.0f, 1.0f, 0.0f)) > 0.70710677f) {
                 a.y += 3.0f;
                 b.y += 3.0f;
@@ -545,7 +545,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
         }
     }
     atn::Vector3 flat(target.x - from.x, 0.0f, target.z - from.z);
-    if (fn_805F9920(&flat) < 0.00001f) {
+    if (PSVECSquareMag(&flat) < 0.00001f) {
         target += FrontDir_unk(chara->mRot) * 0.01f;
     } else {
         atn::Vector3 n(flat);
@@ -654,7 +654,7 @@ ControlHighJumpAttack::ControlHighJumpAttack(Chara_unk* chara, const atn::Vector
         }
     }
     atn::Vector3 d = m08 - m14;
-    if (fn_805F9920(&d) > 0.00001f) {
+    if (PSVECSquareMag(&d) > 0.00001f) {
         mChara->mRot = atn::Vector3(0.0f, d.ToRotation_unk().y, 0.0f);
     }
     if (lbl_8087F048 != 0) {
@@ -764,7 +764,7 @@ ControlQuarkSeirenAttack::ControlQuarkSeirenAttack(Chara_unk* chara, const atn::
         }
     }
     atn::Vector3 d = m08 - m14;
-    if (fn_805F9920(&d) < 0.00001f) {
+    if (PSVECSquareMag(&d) < 0.00001f) {
         d = FrontDir_unk(mChara->mRot);
     }
     atn::Vector3 rot(0.0f, d.ToRotation_unk().y, 0.0f);
@@ -830,7 +830,7 @@ void ControlQuarkSeirenAttack::vf1C() {}
 boost::function<void()> ControlQuarkSeirenAttack::vf10() {
     if (m28 != 0) {
         atn::Vector3 d = mChara->mPos - m08;
-        if (fn_805F9920(&d) < 900.0f) {
+        if (PSVECSquareMag(&d) < 900.0f) {
             ControlBackStep* next = new ((MemoryTag)0, "", "", 0) ControlBackStep(mChara, m14, 0);
             return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
         }

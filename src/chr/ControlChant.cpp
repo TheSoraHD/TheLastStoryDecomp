@@ -145,7 +145,7 @@ extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
 
 // inferred: facing direction of the rotation `rot` (name invented, as in chr/ControlCdnStone.cpp)
 inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
@@ -414,10 +414,10 @@ int ControlChant::vf0C() {
         m2C += rate * lbl_8087EFA8->m3A4;
     }
     atn::Vector3 d = m08 - mChara->mPos;
-    if (atn::Abs_unk(fn_805F9920(&d)) < 1.1920929e-7f && mChara->mC58.mC4) {
+    if (atn::Abs_unk(PSVECSquareMag(&d)) < 1.1920929e-7f && mChara->mC58.mC4) {
         d = mChara->mC58.mC4->mPos - mChara->mPos;
     }
-    if (mChara->mType != 0 && !(atn::Abs_unk(fn_805F9920(&d)) < 1.1920929e-7f)) {
+    if (mChara->mType != 0 && !(atn::Abs_unk(PSVECSquareMag(&d)) < 1.1920929e-7f)) {
         PSVECNormalize(&d, &d);
         atn::Vector3 rot(mChara->mRot);
         rot.y = d.ToRotation_unk().y;
@@ -574,7 +574,7 @@ int ControlMagic::vf0C() {
         atn::Vector3 p = m14->vf64(2);
         m08 = p;
         atn::Vector3 d(p.x - mChara->mPos.x, 0.0f, p.z - mChara->mPos.z);
-        if (fn_805F9920(&d) > 0.00001f) {
+        if (PSVECSquareMag(&d) > 0.00001f) {
             d.fn_80139F60();
             mChara->mRot = d;
         }
@@ -607,7 +607,7 @@ int ControlMagic::vf0C() {
         case 9:
             if ((unsigned int)(hit->m04 - 0x179B) <= 3) {
                 atn::Vector3 flat(dir.x, 0.0f, dir.z);
-                if (!(atn::Abs_unk(fn_805F9920(&flat)) < 1.1920929e-7f)) {
+                if (!(atn::Abs_unk(PSVECSquareMag(&flat)) < 1.1920929e-7f)) {
                     PSVECNormalize(&flat, &flat);
                 }
                 float yaw = atn::WrapAngle_unk(3.1415927f + flat.ToRotation_unk().y);

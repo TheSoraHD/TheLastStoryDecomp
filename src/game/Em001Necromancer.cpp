@@ -28,7 +28,7 @@ struct Field_unk {
 extern "C" Field_unk* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -359,7 +359,7 @@ inline int Em001Necromancer::CountNear_unk(float dist) {
     for (; p != 0; p = p->mNext) {
         if (!p->mStatus.IsState_unk(0x20)) {
             atn::Vector3 d = p->mPos - pos;
-            if (fn_805F9920(&d) < dist * dist) {
+            if (PSVECSquareMag(&d) < dist * dist) {
                 count++;
             }
         }
@@ -809,10 +809,10 @@ int Em001Necromancer::fn_802470CC(int* index, atn::Vector3* pos, float* rot) {
     for (unsigned int i = 0; i < m14C4.size() - 1; i++) {
         for (unsigned int j = m14C4.size() - 1; j > i; j--) {
             atn::Vector3 a = m14C4[j]->mPos - mPos;
-            float da = fn_805F9920(&a);
+            float da = PSVECSquareMag(&a);
             unsigned int k = j - 1;
             atn::Vector3 b = m14C4[k]->mPos - mPos;
-            if (da > fn_805F9920(&b)) {
+            if (da > PSVECSquareMag(&b)) {
                 Swap_unk(m14C4[j], m14C4[k]);
             }
         }

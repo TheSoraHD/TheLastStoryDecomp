@@ -13,7 +13,7 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" int fn_80375184(Field_unk* field);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 struct EffectMgr_unk;
 struct Color4f_unk {
     Color4f_unk() {}
@@ -274,7 +274,7 @@ void Em002_01BlackSkelton::fn_80247DA4() {
         float bestDist = 1e16f;
         for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
             if (g->vf60() && g->m50 == 29) {
-                float dist = fn_805F9920(&(g->m6C - target->mPos));
+                float dist = PSVECSquareMag(&(g->m6C - target->mPos));
                 if (dist < bestDist) {
                     best = g;
                     bestDist = dist;

@@ -4,7 +4,7 @@
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
@@ -163,7 +163,7 @@ int Item::vf60() {
 int Item::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
     if (vf60() != 0 && flag == 0 && lbl_8087F8A0->mHead->m50 != 700023) {
         atn::Vector3 d = mDrop->m6C - *pos;
-        float len = fn_805F9920(&d);
+        float len = PSVECSquareMag(&d);
         if (len > 0.0001f && len < 225.0f) {
             PSVECNormalize(&d, &d);
             int ret = 1;

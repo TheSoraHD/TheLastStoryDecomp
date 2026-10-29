@@ -17,7 +17,7 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
@@ -297,7 +297,7 @@ void Em314Ivy::fn_80312EF8() {
                 }
             }
             atn::Vector3 d = p->mPos - mPos;
-            float dist = fn_805F9920(&d);
+            float dist = PSVECSquareMag(&d);
             if (dist < m14E0) {
                 mC58.mC4 = p;
                 m14E0 = dist;

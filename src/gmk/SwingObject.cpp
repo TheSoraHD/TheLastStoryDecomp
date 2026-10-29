@@ -14,8 +14,7 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC6B4(const char* s);   // inferred: hash of a name
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_800928B0(atn::Model* model, int hash, int arg); // inferred: node index by hash
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_800920B8(atn::Model* model, int hash); // inferred: enables the node callback of a node
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -243,7 +242,7 @@ inline void RotateAxis2_unk(atn::Matrix3x4* mtx, int axis, float angle) {
 }
 inline float CameraDistSq_unk(const atn::Vector3& pos) {
     atn::Vector3 d = lbl_8087EFB4->mPos - pos;
-    return fn_805F9920(&d);
+    return PSVECSquareMag(&d);
 }
 
 inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
@@ -292,11 +291,11 @@ SwingObject::~SwingObject() {}
 int SwingObject::vf0C() {
     if (fn_803EC91C() == 0 && mModel.GetModel_unk()->fn_8008B140() == 0 && mEfp.IsLoading() == 0) {
         mNodeMtx[0] =
-            mModel.GetModel_unk()->GetNodeMtx_unk(fn_800928B0(mModel.GetModel_unk(), mCore.mNodes[0], 0));
+            mModel.GetModel_unk()->GetNodeMtx_unk(mModel.GetModel_unk()->fn_800928B0(mCore.mNodes[0], 0));
         mNodeMtx[1] =
-            mModel.GetModel_unk()->GetNodeMtx_unk(fn_800928B0(mModel.GetModel_unk(), mCore.mNodes[1], 0));
+            mModel.GetModel_unk()->GetNodeMtx_unk(mModel.GetModel_unk()->fn_800928B0(mCore.mNodes[1], 0));
         mNodeMtx[2] =
-            mModel.GetModel_unk()->GetNodeMtx_unk(fn_800928B0(mModel.GetModel_unk(), mCore.mNodes[2], 0));
+            mModel.GetModel_unk()->GetNodeMtx_unk(mModel.GetModel_unk()->fn_800928B0(mCore.mNodes[2], 0));
         if (mNodeMtx[0] != 0 && mNodeMtx[1] != 0 && mNodeMtx[2] != 0) {
             fn_800F29D0(mModel.GetModel_unk(), boost::bind(&SwingObject::fn_803FEF78, this, _1, _2));
             fn_800920B8(mModel.GetModel_unk(), mCore.mNodes[0]);

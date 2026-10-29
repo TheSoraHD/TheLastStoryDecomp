@@ -31,9 +31,14 @@ namespace Event {
 // inferred: owner of the event data (a task; flag 0x04000000 at 0x98)
 struct DataOwner_unk : public atn::Task {
     unsigned char m48[0x98 - 0x48];
+    // inferred: weak copy 0x80116B98 (Event/Path.cpp)
+    int IsPadCamera_unk() { return mPadCamera_unk; }
+
     unsigned int m98_0 : 5;
     unsigned int mNoKill_unk : 1; // inferred: keeps the d2anime tasks alive when set
-    unsigned int m98_6 : 26;
+    unsigned int m98_6 : 7;
+    unsigned int mPadCamera_unk : 1; // inferred: the event camera is moved with the pad
+    unsigned int m98_14 : 18;
 };
 
 // inferred: wrapper of the motion loader (the loader is destroyed as a member, non-virtually)
@@ -47,9 +52,6 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    DataOwner_unk* m04;
-    std::string m08; // inferred: file name
-    int m14;
     MotionHandle_unk* m18;
 };
 
@@ -59,9 +61,6 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    DataOwner_unk* m04;
-    std::string m08;
-    int m14;
     atn::Task* m18; // inferred: d2anime task
     int m1C;
 };
@@ -72,9 +71,6 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    DataOwner_unk* m04;
-    std::string m08;
-    int m14;
     int m18;
     int m1C;
     int m20;
@@ -87,9 +83,6 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    DataOwner_unk* m04;
-    std::string m08;
-    int m14;
     void* m18; // inferred: atn::EfpFile (m1C == 1) or atn::EffFile (m1C == 2)
     int m1C;
 };
@@ -100,9 +93,6 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    DataOwner_unk* m04;
-    std::string m08;
-    int m14;
     atn::LH_Xsca* m18;
 };
 
@@ -113,9 +103,6 @@ public:
     virtual int vf10() const;
     void fn_80204230(); // inferred: reads the poses once the file is loaded
 
-    DataOwner_unk* m04;
-    std::string m08;
-    int m14;
     atn::LH_Binary* m18;
     atn::SimpleVector<PoseKey_unk>* m1C;
 };
@@ -140,9 +127,6 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    DataOwner_unk* m04;
-    std::string m08;
-    int m14;
     MovieTask* m18;
 };
 

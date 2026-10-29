@@ -9,7 +9,7 @@
 
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030;                // inferred: zero vector
 extern "C" int fn_800DC12C(const char* s);           // inferred: string to int
 extern "C" float fn_800DC288(const char* s);         // inferred: string to float
@@ -289,7 +289,7 @@ void PBoneBasic::vf34() {
     PSVECNormalize(&v, &v);
     Vector3 c;
     PSVECCrossProduct(&v, &Vector3(0.0f, -1.0f, 0.0f), &c);
-    if (fn_805F9920(&c) > 0.0001f) {
+    if (PSVECSquareMag(&c) > 0.0001f) {
         Vector3 t;
         PSVECCrossProduct(&c, &v, &t);
         Vector3 n;

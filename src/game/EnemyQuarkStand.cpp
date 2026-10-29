@@ -141,7 +141,7 @@ public:
     void fn_8023A254(unsigned int owner, int group, float rate); // inferred: speed of the effects
 };
 } // namespace atn
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: effect/bullet manager (lbl_8087F048)
@@ -2247,7 +2247,7 @@ void EnemyQuarkStand::fn_80351480(int near) {
     CharaTask* target = (CharaTask*)m14B0;
     atn::Vector3 dir = m160C - target->mPos;
     dir.y = 0.0f;
-    if (fn_805F9920(&dir) < 0.0001f) {
+    if (PSVECSquareMag(&dir) < 0.0001f) {
         dir = QuarkFrontOf_unk((CharaTask*)m14B0);
     } else {
         PSVECNormalize(&dir, &dir);

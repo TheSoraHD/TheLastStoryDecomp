@@ -9,7 +9,7 @@
 #include "math/Vec.h"
 #include "std/new.h"
 
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 
@@ -396,7 +396,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
     int hit = 0;
     void* hitAttr = 0;
     Vector3 up(0.0f, 1.0f, 0.0f);
-    float moveSq = fn_805F9920(&mv);
+    float moveSq = PSVECSquareMag(&mv);
     unsigned int flags = 0;
     Vector3 dir = moveSq > 0.0001f ? mv.GetNormalize() : up;
     ColliBase* hitObj = 0;
@@ -512,7 +512,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
                     continue;
                 }
                 Vector3 d = prev - r->m04;
-                float dist = fn_805F9920(&d);
+                float dist = PSVECSquareMag(&d);
                 for (int j = 0; j < n; j++) {
                     if (local[j].m40 == r->m40) {
                         dist += 4.0f * (radius * radius);
@@ -538,7 +538,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
                     continue;
                 }
                 Vector3 d = prev - r->m04;
-                float dist = fn_805F9920(&d);
+                float dist = PSVECSquareMag(&d);
                 if (best2 > dist && Dot_unk(r->m28, up) < 0.25881904f) {
                     float cs = Dot_unk(h->m28, r->m28);
                     if (cs > -0.9659258f && cs < 0.9659258f) {
@@ -588,12 +588,12 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
             if (b2 >= 0 && results[bi].m00 == 1 && hitUp < 0.25881904f) {
                 float half = (float)cos(0.5f * (float)acos(cosv));
                 Vector3 bis = results[bi].m28 + results[b2].m28;
-                if (fn_805F9920(&bis) > 0.00001f) {
+                if (PSVECSquareMag(&bis) > 0.00001f) {
                     bis.Normalize_unk();
                     Vector3 hdir(dir.x, 0.0f, dir.z);
                     bool ok = true;
                     if (corner == 0) {
-                        if (!(fn_805F9920(&hdir) > 0.00001f)) {
+                        if (!(PSVECSquareMag(&hdir) > 0.00001f)) {
                             ok = false;
                         } else {
                             Vector3 hd = hdir.GetNormalize();
@@ -618,12 +618,12 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
                             Vector3 e1 = l1.mPoint - mid;
                             Vector3 e2 = l2.mPoint - mid;
                             Vector3 sum = e1 + e2;
-                            if (fn_805F9920(&sum) > 0.00001f && Dot_unk(sum, bis) > 0.0f) {
+                            if (PSVECSquareMag(&sum) > 0.00001f && Dot_unk(sum, bis) > 0.0f) {
                                 float t = (sphere.mRadius + 0.01f) / half;
                                 Vector3 np = bis * t + mid;
                                 np.y = sphere.mCenter.y;
                                 Vector3 dd = sphere.mCenter - np;
-                                if (fn_805F9920(&dd) < sphere.mRadius * sphere.mRadius) {
+                                if (PSVECSquareMag(&dd) < sphere.mRadius * sphere.mRadius) {
                                     slide = 0;
                                     sphere.mCenter = np;
                                     mv.x = mv.y = mv.z = 0.0f;
@@ -707,7 +707,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
     }
     int probed = 0;
     Vector3 total = sphere.mCenter - *pos;
-    if (fn_805F9920(&total) > 0.25f * (radius * radius)) {
+    if (PSVECSquareMag(&total) > 0.25f * (radius * radius)) {
         total.Normalize_unk();
         ColliResult_unk ray;
         Vector3 to = sphere.mCenter + total * radius;
@@ -775,7 +775,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
         result->m3C = flags;
         result->m38 = hitObj;
         result->m44 = special;
-        float lim = 10000.0f + (radius * radius + fn_805F9920(move));
+        float lim = 10000.0f + (radius * radius + PSVECSquareMag(move));
         if (!((result->m10.x - pos->x) * (result->m10.x - pos->x) < lim &&
               (result->m10.y - pos->y) * (result->m10.y - pos->y) < lim &&
               (result->m10.z - pos->z) * (result->m10.z - pos->z) < lim)) {
@@ -790,7 +790,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
     if (result != 0 && hit != 0 && (probed != 0 || (flags & 2) == 2) && (mask & 0x02000000) == 0x02000000 &&
         (mask & 0x01000000) != 0x01000000) {
         mv = sphere.mCenter - *pos;
-        if (fn_805F9920(&mv) > 0.04f * (radius * radius)) {
+        if (PSVECSquareMag(&mv) > 0.04f * (radius * radius)) {
             fn_8004D388(mgr, result, pos, &mv, mask | 0x81000000, ignore, attr, radius);
             result->m34 = hitAttr;
             result->m3C = flags;
@@ -822,7 +822,7 @@ extern "C" int fn_8004ED34(ColliManager_unk* mgr, ColliResult_unk* result, const
     ColliSegment_unk seg(*from, *to);
     Vector3 dir = *to - *from;
     ColliResult_unk* results = mgr->mResults;
-    float len2 = fn_805F9920(&dir);
+    float len2 = PSVECSquareMag(&dir);
     if (len2 < 1e-7f) {
         return 0;
     }

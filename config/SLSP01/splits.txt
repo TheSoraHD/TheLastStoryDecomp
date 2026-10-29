@@ -675,7 +675,7 @@ game/Bullet.cpp:
 Event/Path.cpp:
 	.text       start:0x80112220 end:0x80116EB8
 	.rodata     start:0x807366B0 end:0x80736748
-	.data       start:0x80779F40 end:0x80779F68
+	.data       start:0x80779F40 end:0x80779FA0
 	.sdata      start:0x8087D980 end:0x8087D988
 	.sdata2     start:0x808816A8 end:0x80881718
 

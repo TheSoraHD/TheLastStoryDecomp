@@ -26,7 +26,7 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: debug menu entries (as in game/CharaTask.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -393,7 +393,7 @@ void Em316LaserSphere::vf14() {
     fn_80149A30();
     for (int i = 0; i < 3; i++) {
         atn::Vector3 d = GetTrans_unk(mMotion.mMtx) - GetTrans_unk(m1648[i].GetModel_unk()->mMtx);
-        if (fn_805F9920(&d) > 25.0f) {
+        if (PSVECSquareMag(&d) > 25.0f) {
             m1648[i].GetModel_unk()->fn_8008CD60();
         }
     }

@@ -37,7 +37,7 @@ extern "C" int fn_80370174(void* field, int id);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" double fmod(double x, double y);
 extern "C" double sqrt(double x);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: facing direction of the rotation `rot` (name invented, as in chr/ControlCdnStone.cpp)
 inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
@@ -216,7 +216,7 @@ int ControlChaseAssist::vf0C() {
     if (!m08) {
         atn::Vector3 target = leader->mPos + Cross_unk(FrontDir_unk(leader->mRot), atn::Vector3(0.0f, 1.0f, 0.0f)) * 8.0f;
         atn::Vector3 d = target - mChara->mPos;
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         m0C++;
         Motion_unk* motion = &mChara->mMotion;
         if (dist <= 25.0f || m0C > 30) {
@@ -266,7 +266,7 @@ int ControlChaseFollow::vf0C() {
     off = atn::Vector3(0.0f, 0.0f, 1.0f);
     PSMTXMultVec(mtx, &off, &off);
     atn::Vector3 d = target - mChara->mPos;
-    float dist = fn_805F9920(&d);
+    float dist = PSVECSquareMag(&d);
     float stop = 121.0f;
     float walk = 196.0f;
     float run = 450.0f;

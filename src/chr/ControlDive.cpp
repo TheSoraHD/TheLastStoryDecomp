@@ -2,7 +2,7 @@
 #include "game/CharaTask.h"
 
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double fmod(double x, double y);
 
 // inferred: field object (lbl_8087F430): route tables at 0x10D8 (class unknown)
@@ -269,7 +269,7 @@ ControlBackStep::ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int 
     }
     atn::Vector3 dir2 = NegDive_unk(m08 - m14);
     dir2.y = 0.0f;
-    if (fn_805F9920(&dir2) > 0.00001f) {
+    if (PSVECSquareMag(&dir2) > 0.00001f) {
         mChara->mRot = dir2.ToRotation_unk();
     }
     if (lbl_8087F498 != 0) {

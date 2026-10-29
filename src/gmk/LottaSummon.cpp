@@ -8,7 +8,7 @@
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
@@ -105,7 +105,7 @@ inline atn::Vector3 Back_unk(CharaTask* chara) {
 
 // inferred: name invented
 inline float LenSq_unk(atn::Vector3 v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 namespace gmk {
@@ -214,7 +214,7 @@ void LottaSummon::vf10() {
             for (CharaTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = ((CharaListNode_unk*)chara)->mNext) {
                 if (chara->CanAct_unk()) {
                     atn::Vector3 d = chara->mPos - m6C;
-                    float len = fn_805F9920(&d);
+                    float len = PSVECSquareMag(&d);
                     if (!(len >= 256.0f)) {
                         if (!((float)__fabs(len) < 1.1920929e-7f) && len > 4.0f) {
                             PSVECNormalize(&d, &d);

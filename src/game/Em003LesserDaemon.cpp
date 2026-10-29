@@ -61,7 +61,7 @@ extern "C" int fn_8004D388(void* world, CollResult_unk* result, const atn::Vecto
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -388,7 +388,7 @@ inline int Em003LesserDaemon::FarthestFromSelf_unk() {
     int best = -1;
     for (unsigned int i = 0; i < mPoints.mSize; i++) {
         atn::Vector3 d = mPos - GetPoint_unk(i);
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         if (dist > bestDist) {
             best = i;
             bestDist = dist;
@@ -404,7 +404,7 @@ inline int Em003LesserDaemon::FarthestFromSelfB_unk() {
     int best = -1;
     for (i = 0; i < mPoints.mSize; i++) {
         atn::Vector3 d = mPos - GetPoint_unk(i);
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         if (dist > bestDist) {
             best = i;
             bestDist = dist;
@@ -802,7 +802,7 @@ void Em003LesserDaemon::vf3C(HitInfo_unk* hit) {
     if (m58C != 0 || m55C == 7) {
         msg->m10 *= 0.0f;
     }
-    float sq = fn_805F9920(&msg->m10);
+    float sq = PSVECSquareMag(&msg->m10);
     if (!(atn::Abs_unk(sq) < 1.1920929e-7f) && sq >= 25.0f) {
         PSVECNormalize(&msg->m10, &msg->m10);
         msg->m10 *= 4.9f;
@@ -1357,7 +1357,7 @@ void Em003LesserDaemon::fn_8024F1DC() {
                     int best = -1;
                     for (unsigned int i = 0; i < mPoints.mSize; point++, i++) {
                         atn::Vector3 d = mPos - *point;
-                        float dist = fn_805F9920(&d);
+                        float dist = PSVECSquareMag(&d);
                         if (dist > bestDist) {
                             best = i;
                             bestDist = dist;
@@ -1517,7 +1517,7 @@ inline int Em003LesserDaemon::NearestPoint_unk(const atn::Vector3& pos) {
     int best = -1;
     for (unsigned int i = 0; i < mPoints.mSize; i++) {
         atn::Vector3 d = pos - GetPoint_unk(i);
-        float dist = fn_805F9920(&d);
+        float dist = PSVECSquareMag(&d);
         if (dist < bestDist) {
             best = i;
             bestDist = dist;
@@ -1632,7 +1632,7 @@ int Em003LesserDaemon::fn_80250884(float radius) {
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         if (!p->mStatus.IsState_unk(0x20)) {
             atn::Vector3 d = p->mPos - pos;
-            if (fn_805F9920(&d) < radius * radius) {
+            if (PSVECSquareMag(&d) < radius * radius) {
                 count++;
             }
         }
@@ -1640,7 +1640,7 @@ int Em003LesserDaemon::fn_80250884(float radius) {
     for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
         if (!e->mStatus.IsState_unk(0x20) && !e->fn_8016F3D0(this, 1)) {
             atn::Vector3 d = e->mPos - pos;
-            if (fn_805F9920(&d) < radius * radius) {
+            if (PSVECSquareMag(&d) < radius * radius) {
                 count++;
             }
         }

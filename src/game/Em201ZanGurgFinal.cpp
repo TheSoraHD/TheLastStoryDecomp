@@ -83,7 +83,7 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: arena UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em003LesserDaemon.cpp)
 extern "C" GameUI* lbl_8087F490;
 extern "C" void fn_803E6850(GameUI* ui, CharaTask* chara, int count, int max, int arg);
@@ -633,7 +633,7 @@ void Em201ZanGurgFinal::vf14() {
     }
     if (m1634 == 0) {
         atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
-        if (fn_805F9920(&d) < 1600.0f) {
+        if (PSVECSquareMag(&d) < 1600.0f) {
             fn_803E6850(lbl_8087F490, this, m1658, m165C, 0);
         }
     }
@@ -1450,7 +1450,7 @@ void Em201ZanGurgFinal::fn_802696F8() {
                 atn::Vector3 fwd = FrontR_unk(mRot);
                 float dot = PSVECDotProduct(&d, &fwd);
                 if (dot >= (float)cos(0.7853982f)) {
-                    float dist = fn_805F9920(&d);
+                    float dist = PSVECSquareMag(&d);
                     if (dist < 1600.0f) {
                         if (p == m14B8) {
                             m150C = p;

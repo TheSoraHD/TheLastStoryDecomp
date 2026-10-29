@@ -16,7 +16,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: creates the gimmick of an item (kind 10) as a child of parent
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int item, int index);
@@ -260,7 +260,7 @@ void RandomMerchant::vf10() {
             MerchantPos_unk* pos = mPositions;
             for (int i = 0; i < mPosCount; i++) {
                 atn::Vector3 d = pos->mPos - ppos;
-                float dist = fn_805F9920(&d);
+                float dist = PSVECSquareMag(&d);
                 if (mLength1 * mLength1 < dist && dist < mLength2 * mLength2) {
                     list.push_back(i);
                 }
@@ -353,7 +353,7 @@ void RandomMerchant::vf10() {
     if ((mState == 2 && mLimit < 0) || mState >= 3) {
         atn::Vector3 ppos = player->mPos;
         atn::Vector3 d = m6C - ppos;
-        if (fn_805F9920(&d) >= mLength2 * mLength2) {
+        if (PSVECSquareMag(&d) >= mLength2 * mLength2) {
             mState = 1;
         }
     }
@@ -467,7 +467,7 @@ int RandomMerchant::vf60() {
 int RandomMerchant::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
     if (vf60() != 0 && flag == 0) {
         atn::Vector3 d = m6C - *pos;
-        float len = fn_805F9920(&d);
+        float len = PSVECSquareMag(&d);
         if (len > 0.0f) {
             PSVECNormalize(&d, &d);
         }

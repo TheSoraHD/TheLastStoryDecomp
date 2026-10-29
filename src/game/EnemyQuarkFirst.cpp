@@ -296,7 +296,7 @@ void EnemyQuarkFirst::vfFC() {
 // NONMATCHING: vf108 (state machine, 5976 bytes) not written yet
 
 extern "C" int rand();
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: game state (lbl_8087EFA8): time scale at 0x3A4 (as in game/Em301LShade.cpp)
 struct QuarkGame_unk {
     unsigned char m000[0x3A4];
@@ -342,7 +342,7 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 // inferred: turns towards m14E4 by `rate` of the difference (inlined in the states); name invented
 inline void EnemyQuarkFirst::TurnTo_unk(float rate) {
     atn::Vector3 dir = m14E4->mPos - mPos;
-    if (!((float)__fabs(fn_805F9920(&dir)) < 1.1920929e-7f)) {
+    if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
         PSVECNormalize(&dir, &dir);
     }
     atn::Vector3 rot = dir.ToRotation_unk();
@@ -578,7 +578,7 @@ void EnemyQuarkFirst::vf104() {
             vf100(7);
         } else if (mControl.get() == 0) {
             if (mFlag31) {
-                if (fn_805F9920(&dir) < m14E8 * m14E8) {
+                if (PSVECSquareMag(&dir) < m14E8 * m14E8) {
                     vf100(1);
                 } else {
                     vf100(7);

@@ -40,7 +40,6 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" int fn_800928B0(atn::Model* model, int hash, int arg);   // inferred: node index by hash
 
 // inferred: lens of a camera (as in game/CharaTask.cpp)
 struct Lens_unk {
@@ -322,7 +321,7 @@ int ColliAttrManager::fn_80184864(CollResult_unk* result, CharaTask* chara, int 
     atn::Vector3 to;
     if (useNode) {
         atn::Model* model = &chara->mMotion;
-        from = NodePos_unk(model->GetNodeMtx_unk(fn_800928B0(model, node, 0))) + atn::Vector3(0.0f, 5.0f, 0.0f);
+        from = NodePos_unk(model->GetNodeMtx_unk(model->fn_800928B0(node, 0))) + atn::Vector3(0.0f, 5.0f, 0.0f);
     } else {
         from = chara->mPos + atn::Vector3(0.0f, 5.0f, 0.0f);
     }

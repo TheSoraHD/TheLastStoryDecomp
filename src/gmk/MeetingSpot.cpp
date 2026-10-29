@@ -17,7 +17,7 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
                            float arg6);
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: link between two points
-extern "C" float fn_805F9920(const atn::Vector3* v); // inferred: squared length
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: camera (only the position)
 struct CameraPos_unk {
     unsigned char m00[0x10C];
@@ -32,7 +32,7 @@ static inline int GetLink_unk(int a, int b) {
 }
 
 static inline float SqLength_unk(const atn::Vector3& v) {
-    return fn_805F9920(&v);
+    return PSVECSquareMag(&v);
 }
 
 // inferred: frame of motion track 0 (name invented)
