@@ -108,6 +108,39 @@ int EffectSystem_unk::fn_80232BEC(unsigned int owner, int group, int count) {
     return 1;
 }
 
+// inferred: stops the effects of the owner/group (fade: their particles fade out); returns the
+// number of instances and particles stopped
+int EffectSystem_unk::fn_80232D04(unsigned int owner, int group, int fade) {
+    int count = 0;
+    for (EffectInst_unk* inst = mInsts; inst != 0;) {
+        EffectInst_unk* next = inst->mNext;
+        if (inst->mOwner == owner && (inst->mGroup == group || group == -2)) {
+            if (fade == 0) {
+                Kill_unk(inst);
+            } else {
+                inst->m1A &= 0x80;
+            }
+            count++;
+        }
+        inst = next;
+    }
+    for (int i = 0; i < mParticleCount; i++) {
+        EffectParticle_unk* p = &mParticles[i];
+        if (p->m28 == owner && (group == p->m2C || group == -2)) {
+            if (fade == 0) {
+                p->fn_80238560();
+            } else {
+                p->mFading = 1;
+                p->mFadeMode = 0;
+                p->mFadeSpeed = 0.1f;
+                p->mFade = 0.0f;
+            }
+            count++;
+        }
+    }
+    return count;
+}
+
 // inferred: stops all the effects
 void EffectSystem_unk::fn_80232E48() {
     for (EffectInst_unk* inst = mInsts; inst != 0;) {
