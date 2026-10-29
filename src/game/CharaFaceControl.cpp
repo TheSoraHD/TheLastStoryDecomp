@@ -166,7 +166,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
 
 // NONMATCHING: 97.36% - register allocation (the original keeps the motion, the node and the entry
 // in r28-r31 and only five name hashes in registers); same instructions otherwise
-void CharaFaceControl::fn_8011E200(Chara1188Entry_unk* entry, atn::Vector_unk<Event::PoseKey_unk>* edits,
+void CharaFaceControl::fn_8011E200(MotionSet* entry, atn::Vector_unk<Event::PoseKey_unk>* edits,
                                    float weight) {
     if (!entry->IsActive_unk()) {
         return;
@@ -197,7 +197,7 @@ void CharaFaceControl::fn_8011E200(Chara1188Entry_unk* entry, atn::Vector_unk<Ev
     unsigned int hairR = fn_800DC6B4("hair_r");
     unsigned int hairREnd = fn_800DC6B4("hair_r_end");
     for (unsigned int i = 0; i < entry->mKeys.mSize; i++) {
-        FaceKey_unk* key = &entry->mKeys.mData[i];
+        MotionPart* key = &entry->mKeys.mData[i];
         atn::LoadHandle* motion = m00->fn_80097D40(key->m00 + fixed);
         if (motion == 0) {
             continue;
@@ -283,7 +283,7 @@ void CharaFaceControl::fn_8011E81C(int motion, unsigned char eyes, unsigned char
         m04[m5C].m0C = 0.0f;
         m5C = !m5C;
     }
-    FaceKey_unk key(motion);
+    MotionPart key(motion);
     m04[m5C].mKeys.Resize_unk(1, 1);
     m04[m5C].mKeys.mData[0] = key;
     m04[m5C].m00 = 0.0f;
@@ -300,7 +300,7 @@ void CharaFaceControl::fn_8011E81C(int motion, unsigned char eyes, unsigned char
 
 // NONMATCHING: 99.21% - registers of the inlined Buffer_unk copy (the new size and the element
 // pointer swap r21/r23)
-void CharaFaceControl::fn_8011EB18(atn::Buffer_unk<FaceKey_unk>* keys, unsigned char eyes, unsigned char head,
+void CharaFaceControl::fn_8011EB18(atn::Buffer_unk<MotionPart>* keys, unsigned char eyes, unsigned char head,
                                    float speed, float weight) {
     if (m04[m5C].IsActive_unk()) {
         if (keys->mData[0].m00 == m04[m5C].mKeys.mData[0].m00) {
@@ -387,7 +387,7 @@ int FaceData_unk::fn_8011EF14() {
                 continue;
             }
             if (strcmp(field, "MOTION") == 0) {
-                FaceKey_unk* k = &mKeys.mData[key++];
+                CharaFaceControl::MotionPart* k = &mKeys.mData[key++];
                 k->m00 = fn_802180A8(csv.fn_8005B9CC());
                 if (k->m00 < 0) {
                     continue;
