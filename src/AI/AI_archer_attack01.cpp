@@ -8614,6 +8614,26 @@ int AI::Script::AI_np_type004::vf20() {
     lbl_807C6A40.m00 = 1;
     return 3;
 }
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_np_type005::vf14() {
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m1C) {
+        Command_unk(13, (int)lbl_807C6B30.m00, lbl_807C6A40.m18, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 6;
+    }
+    return -1;
+}
+
+int AI::Script::AI_np_type005::vf20() {
+    if (SkillDist_unk(2, lbl_807C68C0.m00) > lbl_807C6A40.m20) {
+        Command_unk(12, 2, 10, 0, 0);
+        lbl_807C6A40.m00 = 1;
+        return 3;
+    }
+    return -1;
+}
 
 int AI::Script::AI_np_type005::vf08() {
     lbl_807C6A40.m18 = 0x1E;
@@ -8629,6 +8649,49 @@ int AI::Script::AI_np_wait_reaction::vf08() {
     lbl_807C6A40.m20 = 0x64;
     lbl_807C6A40.m24 = 0;
     lbl_807C6A40.m28 = 1;
+    lbl_807C6A40.m00 = 1;
+    return 1;
+}
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" void fn_8003E688();
+
+int AI::Script::AI_np_wait_reaction::vf0C() {
+    int result = -1;
+    if (lbl_807C6A40.m18 < lbl_807C6A40.m1C) {
+        lbl_807C6A40.m18++;
+        lbl_807C6A40.m00 = 1;
+    } else if (fn_8001A444(2) >= lbl_807C6A40.m28) {
+        if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20) {
+            lbl_807C6A40.m18 = 0;
+            Command_unk(0, 2, 0, 0, 0);
+            if (lbl_807C6A40.m24 == 0) {
+                fn_8001B508((const char*)(lbl_807307A0 + 0x444), lbl_807C6B30.m00);
+                lbl_807C6A40.m24 = 1;
+            } else {
+                fn_8001B508((const char*)(lbl_807307A0 + 0x44C), lbl_807C6B30.m00);
+                lbl_807C6A40.m24 = 0;
+            }
+            lbl_807C6A40.m00 = 1;
+            result = 11;
+        }
+    }
+    return result;
+}
+
+int AI::Script::AI_np_wait_reaction::vf34() {
+    if (Distance_unk(lbl_807C68C0.m00, lbl_807C6B30.m00) < lbl_807C6A40.m20 && fn_8001A444(2) >= lbl_807C6A40.m28) {
+        Command_unk(0, 2, 0, 0, 0);
+        if (lbl_807C6A40.m24 == 0) {
+            fn_8001B508((const char*)(lbl_807307A0 + 0x444), lbl_807C6B30.m00);
+            lbl_807C6A40.m24 = 1;
+        } else {
+            fn_8001B508((const char*)(lbl_807307A0 + 0x44C), lbl_807C6B30.m00);
+            lbl_807C6A40.m24 = 0;
+        }
+        lbl_807C6A40.m00 = 1;
+        return 11;
+    }
+    Command_unk(0, 2, 0, 0, 0);
     lbl_807C6A40.m00 = 1;
     return 1;
 }
