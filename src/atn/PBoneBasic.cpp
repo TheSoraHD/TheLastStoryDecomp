@@ -209,7 +209,7 @@ void PBoneBasic::vf0C() {
     Vector3 tip;
     tip = m64->GetNodeMtx_unk(m3C)->GetTrans_unk();
     m5C = (tip - root).Length_unk();
-    m14 = (tip - root).GetNormalized_unk();
+    m14 = (tip - root).GetNormalize();
     vf14();
 }
 
@@ -310,7 +310,7 @@ void PBoneBasic::vf14() {
     Vector3 tip;
     tip = m64->GetNodeMtx_unk(m3C)->GetTrans_unk();
     m08 = root;
-    m14 = (tip - root).GetNormalized_unk();
+    m14 = (tip - root).GetNormalize();
     m20 = lbl_807C7030;
 }
 

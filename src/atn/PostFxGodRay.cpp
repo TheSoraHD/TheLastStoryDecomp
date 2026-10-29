@@ -307,7 +307,7 @@ void PostFxGodRay::fn_800AEF68() {
             if (IsZero2_unk(dir)) {
                 dir = Vector3(0.0f, 1.0f, 0.0f);
             }
-            pos = ((GodRayFrameBuffer_unk*)lbl_8087EFB4)->mEye + dir.GetNormalized_unk() * 800.0f;
+            pos = ((GodRayFrameBuffer_unk*)lbl_8087EFB4)->mEye + dir.GetNormalize() * 800.0f;
         }
         Sphere sph;
         sph.mCenter = pos;
@@ -316,10 +316,10 @@ void PostFxGodRay::fn_800AEF68() {
         fn_800BFAC8(&scr, lbl_8087EFB4, &pos);
         mScreen = Vector2_unk(scr.x / fw, scr.y / fh);
         fb = (GodRayFrameBuffer_unk*)lbl_8087EFB4;
-        Vector3 a = (pos - fb->mEye).GetNormalized_unk();
+        Vector3 a = (pos - fb->mEye).GetNormalize();
         fb = (GodRayFrameBuffer_unk*)lbl_8087EFB4;
-        Vector3 b = (fb->mTarget - fb->mEye).GetNormalized_unk();
-        Vector3 c = b.GetNormalized_unk();
+        Vector3 b = (fb->mTarget - fb->mEye).GetNormalize();
+        Vector3 c = b.GetNormalize();
         float d = PSVECDotProduct(&a, &c);
         if (d < 0.01) {
             mIntensity = 0.0f;

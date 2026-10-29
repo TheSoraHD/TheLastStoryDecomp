@@ -343,7 +343,7 @@ void ChaserGuard::fn_8017E650() {
         CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
         if (player == 0 || (player->m55C == 6 && player->m560 == 0x66)) {
             fn_8017F4A0(3);
-            const atn::Vector3& dir = (player != 0) ? (mPos - player->mPos).GetNormalized_unk()
+            const atn::Vector3& dir = (player != 0) ? (mPos - player->mPos).GetNormalize()
                                                     : atn::Vector3(0.0f, 0.0f, 1.0f);
             fn_8015E7A0(dir * 3.0f, 0x38, 0);
             mMotion.mTracks[0].m0C = 0.5f;
@@ -409,7 +409,7 @@ void ChaserGuard::fn_8017E9D8() {
                             mRot = dir;
                         }
                     } else {
-                        atn::Vector3 n = d.GetNormalized_unk();
+                        atn::Vector3 n = d.GetNormalize();
                         mPos += n * 3.0f;
                         mRot.y = d.ToRotation_unk().y;
                     }
@@ -655,12 +655,12 @@ bool ChaserGuard::fn_8017FBEC() {
         bool seen = false;
         atn::Vector3 eye = mPos + up;
         atn::Vector3 target = player->mPos + up;
-        atn::Vector3 dir = (target - eye).GetNormalized_unk();
+        atn::Vector3 dir = (target - eye).GetNormalize();
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         Mtx m;
         PSMTXRotRad(m, 'y', mRot.y + mLook.mRot.y);
         PSMTXMultVec(m, &front, &front);
-        float angle = acos(PSVECDotProduct(&front.GetNormalized_unk(), &dir));
+        float angle = acos(PSVECDotProduct(&front.GetNormalize(), &dir));
         if (angle < 0.5f * lbl_8087F0A8->mChase.m4E8) {
             CollResult_unk result;
             seen = fn_8004ED34(lbl_8087EE98, &result, &eye, &target, 0x80000000, 0, 0) == 0;

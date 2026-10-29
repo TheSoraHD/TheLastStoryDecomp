@@ -4,6 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-10-29 | `rso-names` (nombres del `LastWorld_tools.rso` USA) | — | 8180 → 8180 | 29,75% / 49,67% fuzzy | 370 | `docs/rso-names.md` (299 renombrados en `symbols.txt`, `GetNormalize`/`GetStrings`, `tools/decomp/rso/`; tabla de nombres reales pendientes por unidad) |
 | 2026-10-29 | `fix-svenchu-linkage` (funciones que faltan: GraphicsDevice, SoundManager, AI, allocator_char) | merge en `main` 2026-10-29 | 7830 → 8180 | 27,92 → 29,75% / 47,50 → 49,67% fuzzy | 370 | `docs/revision-2026-10-29.md` (sección "Continuación"; AI 479/510, SoundManager 64/76, GraphicsDevice 25/41; split AiCommon/AI a 0x8001C088; bloqueos en `docs/mwcc-blockers.md`) |
 | 2026-10-29 | `fix-svenchu-linkage` (revisión de los commits de Svenchu/Codex) | — | 7825 → 7830 | 27,92% / 47,48 → 47,50% fuzzy | 370 | `docs/revision-2026-10-29.md` (orden del `.dol` en 6 unidades, clases reales en AI/RenderSystem/GraphicsDevice/SoundManager/HBMRso, regla 10, `AGENTS.md`, `ordercheck.py`/`reorder.py`) |
 | 2026-10-29 | `enemies-third` (propuesta H) | merge en `main` 2026-10-29 | 7564 → 7825 | 26,21 → 27,92% / 43,46 → 47,48% fuzzy | 370 | `docs/enemies-third.md` (8 unidades con fuente nueva, 13 segundas pasadas; cierre anticipado; 1 bajada y 1 aviso de poolcheck aceptados en Em310Gargoyle) |

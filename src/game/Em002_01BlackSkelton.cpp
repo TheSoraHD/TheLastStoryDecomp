@@ -313,7 +313,7 @@ void Em002_01BlackSkelton::fn_80247FB0() {
         atn::Vector3 dir = mRoute.m58;
         float len = dir.Length_unk();
         if (len > 1.0f) {
-            rot = dir.GetNormalized_unk().ToRotation_unk();
+            rot = dir.GetNormalize().ToRotation_unk();
             vf34(&rot, 0, len, 1.0f);
         } else {
             m14B0 = 0;
@@ -342,7 +342,7 @@ void Em002_01BlackSkelton::fn_8024845C() {
             d *= 0.4f;
         }
         mPos += d;
-        mRot = d.GetNormalized_unk().ToRotation_unk();
+        mRot = d.GetNormalize().ToRotation_unk();
         mRot.y += 3.1415927f;
     } else {
         CharaTask* chara = (CharaTask*)mF54;

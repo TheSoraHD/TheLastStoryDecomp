@@ -587,7 +587,7 @@ void Em308ParmCrab::fn_802F8EBC() {
         atn::Vector3 v = mRoute.m58;
         speed = v.Length_unk();
         if (speed > 0.0001f) {
-            rot = v.GetNormalized_unk().ToRotation_unk();
+            rot = v.GetNormalize().ToRotation_unk();
         }
         CharaTask* target = m15BC;
         v = target->mPos - mPos;
@@ -935,7 +935,7 @@ void Em308ParmCrab::fn_802FA764() {
         }
         if (m15CC == 0) {
             dist = reach * (1.0f - dist / reach);
-            const atn::Vector3& src = dist <= 0.0f ? mRot : d.GetNormalized_unk().ToRotation_unk();
+            const atn::Vector3& src = dist <= 0.0f ? mRot : d.GetNormalize().ToRotation_unk();
             rot = src;
             rot.y -= 3.1415927f;
         } else if (m15CC == 1) {
@@ -1138,7 +1138,7 @@ void Em308ParmCrab::fn_802FC2E0(CharaTask* target) {
         for (unsigned int i = 0; i < m15AC.size(); i++) {
             float dist = CrabLengthXZ_unk(m15AC[i]->mPos - mPos);
             atn::Vector3 dir = m15AC[i]->mPos - mPos;
-            float a = atn::WrapAngle_unk(dir.GetNormalized_unk().ToRotation_unk().y - mRot.y);
+            float a = atn::WrapAngle_unk(dir.GetNormalize().ToRotation_unk().y - mRot.y);
             if (a > 1.5707964f || a < -1.5707964f) {
                 dist *= 2.0f;
             }

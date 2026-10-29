@@ -276,12 +276,12 @@ int ControlCliffhang::fn_801AB9E4(int route) {
     m40 = 1;
     atn::Vector3 up(0.0f, 1.0f, 0.0f);
     if (b->mPos.y > a->mPos.y) {
-        atn::Vector3 d = (b->mPos - a->mPos).GetNormalized_unk();
+        atn::Vector3 d = (b->mPos - a->mPos).GetNormalize();
         if (PSVECDotProduct(&up, &d) > 0.70710677f) {
             m40 = 0;
         }
     } else {
-        atn::Vector3 d = (a->mPos - b->mPos).GetNormalized_unk();
+        atn::Vector3 d = (a->mPos - b->mPos).GetNormalize();
         if (PSVECDotProduct(&up, &d) > 0.70710677f) {
             m40 = 0;
         }

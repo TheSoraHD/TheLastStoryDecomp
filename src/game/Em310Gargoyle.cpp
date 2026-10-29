@@ -476,7 +476,7 @@ void Em310Gargoyle::vf14() {
         RouteTable_unk* table = fn_80121F00()->fn_8013C504();
         atn::Color4f_unk c(0.0f, 0.0f, 0.0f, 0.0f);
         c.Set_unk(0.25f * i, 0.25f * i, 0.25f * i, 1.0f);
-        atn::Vector3 rot = mData.mOfs[i].ToRotation_unk().GetNormalized_unk();
+        atn::Vector3 rot = mData.mOfs[i].ToRotation_unk().GetNormalize();
         rot.x = 0.0f;
         rot.z = 0.0f;
         atn::Matrix3x4 m = fn_800109E0(rot);
@@ -485,7 +485,7 @@ void Em310Gargoyle::vf14() {
         fn_80063764(fn_800F7250(), &table->FindPlace_unk(mData.mSeats[i].m00)->mPos,
                     &(table->FindPlace_unk(mData.mSeats[i].m00)->mPos + v), c.ToU32(), 1000.0f);
         char buf[0x20];
-        sprintf(buf, "rot[%d]%f", i, fn_802A7964((mData.mOfs[i].ToRotation_unk() - mRot).GetNormalized_unk().y));
+        sprintf(buf, "rot[%d]%f", i, fn_802A7964((mData.mOfs[i].ToRotation_unk() - mRot).GetNormalize().y));
         fn_800616C0(fn_800F7250(), 300.0f, i * 10 + 100, 1000.0f, 20.0f, 10.0f, 0.0f, buf, c.ToU32(), 1, 1, 0);
     }
 }
@@ -668,7 +668,7 @@ void Em310Gargoyle::fn_8030C1A4(EnemyTask* rider, const atn::Vector3* dir) {
     rider->mStatus.fn_8012D8B8();
     rider->m58C = 0;
     rider->fn_8015495C(0, 1, 1, 1);
-    rider->mRot = atn::Vector3(0.0f, dir->GetNormalized_unk().ToRotation_unk().y, 0.0f);
+    rider->mRot = atn::Vector3(0.0f, dir->GetNormalize().ToRotation_unk().y, 0.0f);
     rider->fn_80145334();
     rider->mC58.mC0 = 1;
     rider->mFlag3 = 0;

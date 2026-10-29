@@ -695,10 +695,10 @@ void Em309Ghoul::fn_802FF800() {
             }
             if (dist < near) {
                 speed = 0.0f;
-                rot = d.GetNormalized_unk().ToRotation_unk();
+                rot = d.GetNormalize().ToRotation_unk();
                 mRoute.fn_80127D8C(0, 0, 0);
             } else {
-                rot = step.GetNormalized_unk().ToRotation_unk();
+                rot = step.GetNormalize().ToRotation_unk();
                 if (atn::Abs_unk(rot.y - mRot.y) > 0.31415927f && speed < 0.0001f) {
                     speed = 1.0f;
                     keep = 1;
@@ -709,7 +709,7 @@ void Em309Ghoul::fn_802FF800() {
         }
     } else if (m55C == 3) {
         if (m58C == 0) {
-            rot = d.GetNormalized_unk().ToRotation_unk();
+            rot = d.GetNormalize().ToRotation_unk();
             if (atn::Abs_unk(rot.y - mRot.y) > 0.31415927f && speed < 0.0001f) {
                 speed = 1.0f;
                 keep = 1;
@@ -1861,8 +1861,8 @@ void Em309Ghoul::fn_803041C8() {
     if (m1604 != 0) {
         target = m1604->mPos;
     }
-    atn::Vector3 toTarget = (target - m1608).GetNormalized_unk().ToRotation_unk();
-    atn::Vector3 toCenter = (m1608 - target).GetNormalized_unk().ToRotation_unk();
+    atn::Vector3 toTarget = (target - m1608).GetNormalize().ToRotation_unk();
+    atn::Vector3 toCenter = (m1608 - target).GetNormalize().ToRotation_unk();
     if (m14F0 == 0) {
         mRot.y = m1600->m14;
         float t;
@@ -1879,8 +1879,8 @@ void Em309Ghoul::fn_803041C8() {
             mMotion.fn_8013C554(0, 1.0f);
             mMotion.fn_80139F3C(0, 1.0f);
             mMotion.fn_80097C08(0, 0x14B, 1, 0, 1, 0.0f, 0.1f);
-            atn::Vector3 r1 = (target - mPos).GetNormalized_unk().ToRotation_unk();
-            atn::Vector3 r2 = (m1608 - mPos).GetNormalized_unk().ToRotation_unk();
+            atn::Vector3 r1 = (target - mPos).GetNormalize().ToRotation_unk();
+            atn::Vector3 r2 = (m1608 - mPos).GetNormalize().ToRotation_unk();
             m1624 = 2;
             mRot.y = r1.y;
             atn::Vector3 rot(mRot);
@@ -1932,7 +1932,7 @@ void Em309Ghoul::fn_803041C8() {
         }
         if (m15E4 > 2) {
             atn::Vector3 d = m1518->mPos - mPos;
-            mRot.y = d.GetNormalized_unk().ToRotation_unk().y;
+            mRot.y = d.GetNormalize().ToRotation_unk().y;
             turned = 1;
             m1624 = 0;
             m15E4 = 0;

@@ -31,7 +31,7 @@ inline void SetPlane_unk(Plane_unk& p, const Vector3& a, const Vector3& b, const
     Vector3 e1 = b - a;
     Vector3 e2 = c - a;
     Vector3 n = Cross_unk(e1, e2);
-    p.mNormal = n.GetNormalized_unk();
+    p.mNormal = n.GetNormalize();
     p.mDist = -PSVECDotProduct(&p.mNormal, &a);
 }
 

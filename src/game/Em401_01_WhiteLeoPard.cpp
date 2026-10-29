@@ -460,7 +460,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
             atn::Vector3 dir(mRoute.m58);
             speed = dir.Length_unk();
             if (speed > 0.0001f) {
-                rot = dir.GetNormalized_unk().ToRotation_unk();
+                rot = dir.GetNormalize().ToRotation_unk();
             } else {
                 rot = mRot;
             }
@@ -636,7 +636,7 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
     float lean = 0.0f;
     atn::Vector3 vel(move + (pos - oldPos));
     if (fn_805F9920(&vel) > 0.001f && speed > 0.001f) {
-        lean = atn::WrapAngle_unk(vel.GetNormalized_unk().ToRotation_unk().y - mRot.y);
+        lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
     }
     lean *= 2.0f;
     m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;

@@ -549,7 +549,7 @@ void Em101ElderZesyaSecond::fn_8025B9EC() {
         atn::Vector3 move = mRoute.m58;
         dist = PSVECMag(&move);
         if (dist > 0.0001f) {
-            rot = move.GetNormalized_unk().ToRotation_unk();
+            rot = move.GetNormalize().ToRotation_unk();
         }
     } else if (m55C == 6) {
         fn_8013A258();

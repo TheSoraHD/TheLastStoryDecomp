@@ -355,7 +355,7 @@ void Em316LastLaser::vf10() {
             break;
         default:
             if (m14B8 != 0) {
-                mRot = (CharaPos_unk(m14B8) - mPos).GetNormalized_unk().ToRotation_unk();
+                mRot = (CharaPos_unk(m14B8) - mPos).GetNormalize().ToRotation_unk();
             }
             if (CharaTask* target = m14B8) {
                 TargetDist_unk(target);

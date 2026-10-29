@@ -18,7 +18,7 @@ extern "C" void fn_806540A0(int chan);
 extern "C" int fn_806572D0(int chan, KPADStatus_unk* samples, int count);     // inferred: KPADRead
 extern "C" void fn_80660C50(unsigned char sensitivity);                       // inferred: WPADSetDpdSensitivity
 extern "C" void fn_80660C90(int chan);
-extern "C" void fn_80660B90(int chan);
+extern "C" void WPADDisconnect(int chan);
 extern "C" int fn_80661010(int chan, void* info);                             // inferred: WPADGetInfo
 extern "C" void WPADControlMotor(int chan, unsigned int command);
 
@@ -307,7 +307,7 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
     }
     for (int i = 0; i < 4; i++) {
         if (wpad->m40D0[i] == 0 && wpad->mConnected[i] != 0) {
-            fn_80660B90(i);
+            WPADDisconnect(i);
         }
     }
 }

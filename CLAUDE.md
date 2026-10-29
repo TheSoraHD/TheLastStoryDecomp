@@ -9,8 +9,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 ## Estado
 
 - `main` (2026-10-29, tras mergear `fix-svenchu-linkage` sobre `enemies-third`): **8180 / 18215 funciones al 100%** (código 29,8%, fuzzy 49,7%, datos 17,8%), 370 ficheros enlazados, `main.dol: OK`, lost 0, fuzzdrop 0.
-- `fix-svenchu-linkage` (mergeada): revisión de los commits de Svenchu/Codex del 23–25 oct. (clases reales, orden del `.dol`, sin `extern "C"` mangled) y las funciones que faltaban. Decisiones (split AiCommon/AI, renombrados y datos en `symbols.txt`, `noinline`) y pendientes: `docs/revision-2026-10-29.md`.
-- Unidades de esos commits (todas `matching: false`): AI_archer_attack01 479/510 (falta el `std::map` de scripts, ver `docs/mwcc-blockers.md`), SoundManager 64/76, GraphicsDevice 25/41, allocator_char 18/35, RenderSystem_unk 14/37, D2A_Texture 14/30, game/main 11/14; notas en `docs/<unidad>*.md`.
+- `rso-names` (2026-10-29): nombres reales del `LastWorld_tools.rso` USA en `symbols.txt` (299) y herramientas `tools/decomp/rso/`. **Antes de inventar un `_unk`, mirar la tabla de pendientes de `docs/rso-names.md`.** Revisión de Svenchu/Codex: `docs/revision-2026-10-29.md`.
+- Unidades de los commits de Svenchu/Codex (todas `matching: false`): AI_archer_attack01 479/510 (falta el `std::map` de scripts, ver `docs/mwcc-blockers.md`), SoundManager 64/76, GraphicsDevice 25/41, allocator_char 18/35, RenderSystem_unk 14/37, D2A_Texture 14/30, game/main 11/14; notas en `docs/<unidad>*.md`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)

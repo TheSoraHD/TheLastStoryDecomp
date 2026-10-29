@@ -61,7 +61,7 @@ int BehaviorMoveTo::vf08(ActionArg_unk* arg) {
             speed = 1.0f;
         }
         if (speed > 0.1f) {
-            rot = move.GetNormalized_unk().ToRotation_unk();
+            rot = move.GetNormalize().ToRotation_unk();
         }
     }
     speed *= arg->GetParam_unk(6)->m04.i == 0 ? 0.5f : 1.0f;

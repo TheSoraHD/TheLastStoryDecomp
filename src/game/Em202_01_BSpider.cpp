@@ -375,7 +375,7 @@ void Em202_01_BSpider::fn_80270B8C() {
         atn::Vector3 dir(mRoute.m58);
         speed = dir.Length_unk();
         if (speed > 0.0001f) {
-            rot = dir.GetNormalized_unk().ToRotation_unk();
+            rot = dir.GetNormalize().ToRotation_unk();
         }
         CharaTask* t = m14B0;
         dir = t->mPos - mPos;
@@ -568,7 +568,7 @@ void Em202_01_BSpider::fn_8027179C(CharaTask* target) {
     m560 = 4;
     m14C8++;
     atn::Vector3 pos(target->mPos);
-    atn::Vector3 rot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+    atn::Vector3 rot = (pos - mPos).GetNormalize().ToRotation_unk();
     mRot = rot;
     mRot.x = 0.0f;
     mRot.z = 0.0f;
@@ -590,7 +590,7 @@ void Em202_01_BSpider::fn_80271AA4(CharaTask* target) {
     m560 = 4;
     m590 = fn_800F8548(lbl_8087F048);
     atn::Vector3 pos(target->mPos);
-    atn::Vector3 rot = (pos - mPos).GetNormalized_unk().ToRotation_unk();
+    atn::Vector3 rot = (pos - mPos).GetNormalize().ToRotation_unk();
     mRot = rot;
     mRot.x = 0.0f;
     mRot.z = 0.0f;
@@ -630,7 +630,7 @@ void Em202_01_BSpider::fn_80271DAC(CharaTask* target) {
         float inv = 1.0f / count;
         center *= inv;
     }
-    atn::Vector3 rot = (center - mPos).GetNormalized_unk().ToRotation_unk();
+    atn::Vector3 rot = (center - mPos).GetNormalize().ToRotation_unk();
     mRot = rot;
     mRot.x = 0.0f;
     mRot.z = 0.0f;

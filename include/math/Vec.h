@@ -254,7 +254,7 @@ public:
     // inferred: names invented (weak copies 0x8000D3A4, 0x800F7FD8, 0x801162A0)
     float Length_unk() const;
     float LengthSq_unk() const;
-    Vector3 GetNormalized_unk() const;
+    Vector3 GetNormalize() const;
     Vector3 ToRotation_unk() const; // inferred: x = pitch, y = yaw of the direction
     void fn_80139F60(); // inferred: in-place ToRotation_unk (weak copy 0x80139F60)
     // inferred: other form of fn_80139F60/ToRotation_unk where z is read into a local once (rounded
@@ -366,7 +366,7 @@ inline float Vector3::LengthSq_unk() const {
     return PSVECSquareMag(this);
 }
 
-inline Vector3 Vector3::GetNormalized_unk() const {
+inline Vector3 Vector3::GetNormalize() const {
     Vector3 r(*this);
     r.Normalize_unk();
     return r;

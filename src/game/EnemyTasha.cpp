@@ -371,7 +371,7 @@ int EnemyTasha::vf10C(HitMsg_unk* msg) {
     }
     CharaTask* attacker = msg->mAttacker;
     atn::Vector3 rot = attacker->mPos - mPos;
-    rot = rot.GetNormalized_unk().ToRotation_unk();
+    rot = rot.GetNormalize().ToRotation_unk();
     atn::WrapAngle_unk(mRot.y - rot.y);
     if (mC58.mC4 == 0) {
         mC58.mC4 = msg->mAttacker;
@@ -546,7 +546,7 @@ void EnemyTasha::fn_803576F8(float radius) {
         float sign = rand() % 2 == 0 ? 1.0f : -1.0f;
         float angle = sign * atn::DegToRad_unk(m152C + (m1530 - m152C) * ((float)(rand() % 1001) / 1000.0f));
         if (!(atn::Abs_unk(fn_805F9920(&diff)) < 1.1920929e-7f)) {
-            front = diff.GetNormalized_unk();
+            front = diff.GetNormalize();
         }
         Mtx m;
         PSMTXRotRad(m, 'y', angle);

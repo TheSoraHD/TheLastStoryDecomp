@@ -606,7 +606,7 @@ void Em208Queen::fn_802C9880() {
             }
         }
         if (speed > 0.0001f) {
-            rot = dir.GetNormalized_unk().ToRotation_unk();
+            rot = dir.GetNormalize().ToRotation_unk();
         } else {
             rot = mRot;
         }
@@ -638,7 +638,7 @@ void Em208Queen::fn_802C9BF8() {
     if (m14B0 == 0) {
         return;
     }
-    float ry = d.GetNormalized_unk().ToRotation_unk().y;
+    float ry = d.GetNormalize().ToRotation_unk().y;
     AngleDiffDeg_unk(ry, mRot.y);
     if (m14C0 == 0) {
         bool jump = true;
@@ -972,7 +972,7 @@ void Em208Queen::fn_802CB8A0() {
     float speed = d.Length_unk();
     float scale = 3.5f;
     if (speed > 0.0001f) {
-        rot = d.GetNormalized_unk().ToRotation_unk();
+        rot = d.GetNormalize().ToRotation_unk();
     } else {
         rot = mRot;
     }

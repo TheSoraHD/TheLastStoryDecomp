@@ -281,7 +281,7 @@ void SpecialEnemyBase::fn_805A4254() {
         atn::Vector3 v = mRoute.m58;
         speed = v.Length_unk();
         if (speed > 0.0001f) {
-            rot = v.GetNormalized_unk().ToRotation_unk();
+            rot = v.GetNormalize().ToRotation_unk();
         } else {
             rot = mRot;
         }

@@ -112,7 +112,7 @@ void CrowdSimulation::vf10() {
                             walker->mNext = fn_803C11A4(
                                 table, fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (walker->mPoint - 1) * 8),
                                                    walker->mDest - 1));
-                            walker->mDir = (walker->mNext - walker->mPos).GetNormalized_unk();
+                            walker->mDir = (walker->mNext - walker->mPos).GetNormalize();
                         }
                     } else {
                         RoutePoint_unk* next = &table->mPoints[dest - 1];
@@ -121,7 +121,7 @@ void CrowdSimulation::vf10() {
                             walker->mPoint = fn_803CD958(
                                 (RoutePath_unk*)((char*)table->mPaths + (walker->mPoint - 1) * 8), walker->mDest - 1);
                             walker->mNext = fn_803C11A4(table, walker->mPoint);
-                            walker->mDir = (walker->mNext - walker->mPos).GetNormalized_unk();
+                            walker->mDir = (walker->mNext - walker->mPos).GetNormalize();
                         } else {
                             walker->mPos += walker->mDir * mDesc->mGroups[walker->mGroup].mSpeed;
                         }

@@ -130,7 +130,7 @@ inline Vector3 MultVec_unk(const Mtx m, const Vector3& v) {
 
 // inferred: name invented
 inline Vector3 Direction_unk(const Vector3& from, const Vector3& to) {
-    return (to - from).GetNormalized_unk();
+    return (to - from).GetNormalize();
 }
 
 // inferred: name invented

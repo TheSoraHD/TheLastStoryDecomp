@@ -398,7 +398,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
     Vector3 up(0.0f, 1.0f, 0.0f);
     float moveSq = fn_805F9920(&mv);
     unsigned int flags = 0;
-    Vector3 dir = moveSq > 0.0001f ? mv.GetNormalized_unk() : up;
+    Vector3 dir = moveSq > 0.0001f ? mv.GetNormalize() : up;
     ColliBase* hitObj = 0;
     ColliResult_unk local[8];
     Vector3 special(0.0f, 0.0f, 0.0f);
@@ -409,7 +409,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
             mv = ray.m04 - *pos;
             float len = mv.Length_unk();
             if (len > 0.01f) {
-                Vector3 n = mv.GetNormalized_unk();
+                Vector3 n = mv.GetNormalize();
                 Vector3 back(n.x * COLLI_MIN_UNK(0.5f * radius, 0.95f * len), n.y * COLLI_MIN_UNK(0.5f * radius, 0.95f * len),
                              n.z * COLLI_MIN_UNK(0.5f * radius, 0.95f * len));
                 mv -= back;
@@ -596,7 +596,7 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
                         if (!(fn_805F9920(&hdir) > 0.00001f)) {
                             ok = false;
                         } else {
-                            Vector3 hd = hdir.GetNormalized_unk();
+                            Vector3 hd = hdir.GetNormalize();
                             Vector3 nb(-bis.x, -bis.y, -bis.z);
                             if (!(Dot_unk(hd, nb) >= half)) {
                                 ok = false;

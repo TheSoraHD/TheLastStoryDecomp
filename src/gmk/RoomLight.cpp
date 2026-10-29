@@ -171,7 +171,7 @@ void RoomLight::vf20() {
             float z = fn_800DC288(csv.fn_8005B9CC());
             atn::Vector3 dir(x, y, z);
             if (fn_805F9920(&dir) > 0.0001f) {
-                mLight.mDir = atn::Vector3(x, y, z).GetNormalized_unk();
+                mLight.mDir = atn::Vector3(x, y, z).GetNormalize();
             } else {
                 mLight.mDir = lbl_807C7030;
             }

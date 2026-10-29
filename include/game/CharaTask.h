@@ -627,7 +627,7 @@ public:
     int fn_8017380C(atn::Vector3* pos, atn::Vector3* move);
     void fn_8016BBCC(const atn::Vector3* dir, int a, int b);
     // inferred: weak copy 0x800F7F80 (name invented)
-    bool IsPlayer_unk() { return mType == 0; }
+    bool IsPlayer() const { return mType == 0; }
     void fn_80141674(void* target, float a, float b);
     void fn_80140588(void* target, float a, float b);
     void fn_801426A4(void* target, float a, float b);
