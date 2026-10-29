@@ -92,7 +92,7 @@ int Arms::vf0C() {
         if (m29C && m29C->IsLoading()) {
             return 1;
         }
-        m278 = GetModel_unk()->fn_80092814("shot", 0);
+        m278 = GetModel_unk()->GetNodeNoByName("shot", 0);
         m284 = 3;
     }
     return 0;

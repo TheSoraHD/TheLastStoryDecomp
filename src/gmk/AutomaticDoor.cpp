@@ -177,7 +177,7 @@ int AutomaticDoor::vf0C() {
             CreateCamera_unk(&mModel);
         }
         if (strlen(mBoundNode.mStr) != 0 && mModel.mB0 < 0) {
-            mModel.fn_80095D44(mModel.fn_80092814(mBoundNode.mStr, 0), -1);
+            mModel.fn_80095D44(mModel.GetNodeNoByName(mBoundNode.mStr, 0), -1);
         }
         return 1;
     }
@@ -517,7 +517,7 @@ void AutomaticDoor::vf24() {
             mPlane.mNormal.y = fn_800DC288(csv.fn_8005B9CC());
             mPlane.mNormal.z = fn_800DC288(csv.fn_8005B9CC());
             mPlane.mDist = fn_800DC288(csv.fn_8005B9CC());
-            mReflectNode = mModel.fn_80092814(csv.fn_8005B9CC(), 0);
+            mReflectNode = mModel.GetNodeNoByName(csv.fn_8005B9CC(), 0);
         } else if (strcmp(field, "KNOB_OFFSET") == 0) {
             mKnob = atoi(csv.fn_8005B9CC());
         }

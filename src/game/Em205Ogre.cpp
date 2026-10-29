@@ -592,7 +592,7 @@ void Em205Ogre::fn_802B98B0() {
         }
     }
     atn::Vector3 head;
-    int neck = mMotion.fn_80092814("neck", 0);
+    int neck = mMotion.GetNodeNoByName("neck", 0);
     if (neck > -1) {
         head = GetNodePos_unk(mMotion.mNodeMtx[neck]);
         head.y -= 1.0f;

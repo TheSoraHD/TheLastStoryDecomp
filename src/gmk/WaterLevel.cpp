@@ -197,7 +197,7 @@ void WaterLevel::vf24() {
             mPlane.mNormal.y = fn_800DC288(csv.fn_8005B9CC());
             mPlane.mNormal.z = fn_800DC288(csv.fn_8005B9CC());
             mPlane.mDist = fn_800DC288(csv.fn_8005B9CC());
-            mNode = mModel.fn_80092814(csv.fn_8005B9CC(), 0);
+            mNode = mModel.GetNodeNoByName(csv.fn_8005B9CC(), 0);
         }
     } while (csv.fn_8005BBF8() != 0);
 }

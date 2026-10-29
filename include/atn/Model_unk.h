@@ -36,10 +36,12 @@ namespace atn {
 // callback run on the node matrices by CalcMatrixStack (type from the RSO names)
 typedef boost::function<void(Matrix3x4*, const NodeChunk&, const ModelNodeCallbackContext&)> ModelNodeCallback_unk;
 
-// atn::ModelBase (vtable __vt__Q23atn9ModelBase); only CalcMatrixStack is declared here
+// atn::ModelBase (vtable __vt__Q23atn9ModelBase); only the RSO methods used so far are declared
 struct ModelBase {
     virtual ~ModelBase();
     void CalcMatrixStack(const MotionBuffer* motion, ModelNodeCallback_unk callback); // 0x800902C0
+    // RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci (0x80092814): node index by name, < 0 if missing
+    int GetNodeNoByName(const char* name, int arg) const;
 };
 
 // atn::Model (vtable __vt__Q23atn5Model; the file keeps its old name)
@@ -58,16 +60,15 @@ struct Model : public ModelBase {
     int fn_80097E80(int arg); // inferred: returns nonzero when the motion was updated (CharaTask::fn_80145334)
     void fn_8009385C(int motion, bool play, int arg2, int arg3);  // inferred
     int fn_8008B140();                                // inferred: nonzero while loading
-    int fn_80092814(const char* name, int arg);       // inferred: node index by name, < 0 if missing
     int fn_800928B0(unsigned int hash, int arg);      // inferred: node index by name hash, < 0 if missing
 
     // inferred: matrix of node `index`, null for a missing node (inlined at 0x8049CCD4)
-    MtxPtr GetNodeMtx_unk(int index) {
+    MtxPtr GetNodeMtx_unk(int index) const {
         return (index < 0) ? 0 : mNodeMtx[index];
     }
     // inferred: matrix of the node called `name` (weak copy 0x800132EC); name invented
-    MtxPtr GetNodeMtx_unk(const char* name) {
-        return GetNodeMtx_unk(fn_80092814(name, 0));
+    MtxPtr GetNodeMtx_unk(const char* name) const {
+        return GetNodeMtx_unk(GetNodeNoByName(name, 0));
     }
 
     unsigned int mFlags; // 0x04

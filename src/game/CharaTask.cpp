@@ -764,10 +764,10 @@ int CharaTask::fn_8013655C() {
         if (m50 == 1 || m50 / 1000 == 100) {
             mFlagB25 = 1;
         }
-        m524 = mMotion.fn_80092814("reference", 0);
-        m520 = mMotion.fn_80092814("neck", 0);
+        m524 = mMotion.GetNodeNoByName("reference", 0);
+        m520 = mMotion.GetNodeNoByName("neck", 0);
         if (mMotion.mB0 < 0) {
-            mMotion.fn_80095D44(mMotion.fn_80092814("hips", 0), -1);
+            mMotion.fn_80095D44(mMotion.GetNodeNoByName("hips", 0), -1);
         }
         if (strstr(mMotion.fn_8008B130(), "k00.") != 0 || strstr(mMotion.fn_8008B130(), "k01.") != 0) {
             mMotion.fn_80099E9C("hips", "nk000", 0.5325372f);
@@ -997,7 +997,7 @@ static int GetNodeIndex_unk(atn::Model* model, const char* name) {
     if (strcmp(name, "") == 0) {
         return -1;
     }
-    return model->fn_80092814(name, 0);
+    return model->GetNodeNoByName(name, 0);
 }
 
 void CharaTask::fn_80137FC0() {
@@ -5053,8 +5053,8 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
         }
     } else if (strcmp(name, "hair_b") == 0) {
         if (mFlagB27 && !mFlagB26) {
-            int neck = mMotion.fn_80092814("neck", 0);
-            int head = mMotion.fn_80092814("head", 0);
+            int neck = mMotion.GetNodeNoByName("neck", 0);
+            int head = mMotion.GetNodeNoByName("head", 0);
             if (neck >= 0 && head >= 0) {
                 atn::Vector3 pos = mtx->GetTrans_unk();
                 mtx->fn_8010F668();

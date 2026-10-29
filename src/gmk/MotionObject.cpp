@@ -129,7 +129,7 @@ int MotionObject::vf0C() {
             if (mHasModel[i] != 0) {
                 fn_803EDB18(&mModels[i]);
                 if (strlen(mBoundNode.mStr) != 0 && mModels[i].mB0 < 0) {
-                    mModels[i].fn_80095D44(mModels[i].fn_80092814(mBoundNode.mStr, 0), -1);
+                    mModels[i].fn_80095D44(mModels[i].GetNodeNoByName(mBoundNode.mStr, 0), -1);
                 }
             }
         }

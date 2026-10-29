@@ -58,8 +58,7 @@ public:
     virtual atn::Vector3 vf94() { return atn::Vector3(0.0f, 50.0f, 0.0f); } // inferred: weak copy 0x802DDCDC
     // inferred: inline (weak copy 0x802DDC3C): position of the "head" node
     virtual atn::Vector3 GetTacViewPosition() const {
-        // inferred: const_cast because the atn::Model node getter is not const yet
-        MtxPtr m = const_cast<Em302Kraken*>(this)->mMotion.GetNodeMtx_unk("head");
+        MtxPtr m = mMotion.GetNodeMtx_unk("head");
         // inferred: the original loads the translation from the last row up (z, y, x)
         float z = m[2][3];
         float y = m[1][3];

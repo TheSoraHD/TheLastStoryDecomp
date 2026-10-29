@@ -287,7 +287,7 @@ void Em306GurgBeast::vf10() {
     m614.y += m620;
     atn::Vector3 top;
     atn::Vector3 base(mPos.x, mPos.y + m620, mPos.z);
-    int index = mMotion.fn_80092814("tail", 0);
+    int index = mMotion.GetNodeNoByName("tail", 0);
     if (index > -1) {
         MtxPtr tail = mMotion.mNodeMtx[index];
         top = atn::Vector3(tail[0][3], tail[1][3], tail[2][3]);

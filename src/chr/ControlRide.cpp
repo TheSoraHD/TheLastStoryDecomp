@@ -48,7 +48,7 @@ ControlRideBeast::ControlRideBeast(Chara_unk* chara, Chara_unk* rider)
     mStartPos = mBeast->mPos;
     // inferred: the motion object at +0xB0 is also the model (MapPartsModel.h)
     atn::Model* model = (atn::Model*)&mRider->mMotion;
-    MtxPtr mtx = model->GetNodeMtx_unk(model->fn_80092814("seatpoint", 0));
+    MtxPtr mtx = model->GetNodeMtx_unk(model->GetNodeNoByName("seatpoint", 0));
     mSeatPos = __GetTrans_unk(mtx);
     mStartRot = mBeast->mRot;
     mRiderRot = mRider->mRot;

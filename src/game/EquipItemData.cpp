@@ -158,7 +158,7 @@ void EquipItemData::vf08() {
     if (mFlags.mCopyMotion) {
         fn_80097D9C(&mModel, mTarget);
         atn::Model::Node_unk* nodes = mModel.m220;
-        nodes[mModel.fn_80092814("head", 0)].m00 = 0;
+        nodes[mModel.GetNodeNoByName("head", 0)].m00 = 0;
     }
     mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
 }

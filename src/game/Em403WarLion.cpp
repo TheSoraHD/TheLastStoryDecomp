@@ -889,7 +889,7 @@ void Em403WarLion::vf20() {
     m614.y += m620;
     atn::Vector3 a(mPos.x, mPos.y + m620, mPos.z);
     atn::Vector3 b;
-    int tail = mMotion.fn_80092814("tale", 0);
+    int tail = mMotion.GetNodeNoByName("tale", 0);
     if (tail > -1) {
         b = GetNodePos_unk(mMotion.mNodeMtx[tail]);
         b.y -= 1.0f;

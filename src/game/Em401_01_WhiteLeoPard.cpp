@@ -99,7 +99,7 @@ int Em401_01_WhiteLeoPard::vf0C() {
             m1438->mFlags |= 4;
         }
         // inferred: positions of the root node and the left hand, computed and not used
-        int hand = mMotion.fn_80092814("lefthand", 0);
+        int hand = mMotion.GetNodeNoByName("lefthand", 0);
         if (hand >= 0) {
             atn::Vector3 a = GetNodePos_unk(mMotion.GetNodeMtx_unk(m524));
             atn::Vector3 b = GetNodePos_unk(mMotion.GetNodeMtx_unk(hand));
@@ -854,7 +854,7 @@ void Em401_01_WhiteLeoPard::vf20() {
     m614.y += r;
     atn::Vector3 a(mPos.x, mPos.y + r, mPos.z);
     atn::Vector3 b;
-    int tail = mMotion.fn_80092814("tale", 0);
+    int tail = mMotion.GetNodeNoByName("tale", 0);
     if (tail > -1) {
         b = GetNodePos_unk(mMotion.mNodeMtx[tail]);
         b.y -= 1.0f;

@@ -110,7 +110,7 @@ void Chain::vf10() {
             mTarget = 0;
             return;
         }
-        mNode = mTarget->mMotion.fn_80092814(sNodes[mDesc->m28], 0);
+        mNode = mTarget->mMotion.GetNodeNoByName(sNodes[mDesc->m28], 0);
         fn_8043B9E0();
     } else if (mTarget->IsFlag_unk(4)) {
         mTarget = 0;

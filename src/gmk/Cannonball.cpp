@@ -239,7 +239,7 @@ inline atn::SoundRef& SetSound_unk(atn::SoundRef& dst, const atn::SoundRef& src)
 // inferred: matrix of a node of the model (weak copy 0x803FAE38); name invented
 inline MtxPtr GetNode_unk(atn::Model* model, const char* name) {
     MtxPtr mtx;
-    int index = model->fn_80092814(name, 0);
+    int index = model->GetNodeNoByName(name, 0);
     if (index < 0) {
         mtx = 0;
     } else {

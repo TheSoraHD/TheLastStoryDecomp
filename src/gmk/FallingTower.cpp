@@ -181,8 +181,8 @@ void FallingTower::Start() {
 // second loop).
 void FallingTower::fn_8041044C() {
     int nodes[2];
-    nodes[0] = mModel.fn_80092814("joint1", 0);
-    nodes[1] = mModel.fn_80092814("joint2", 0);
+    nodes[0] = mModel.GetNodeNoByName("joint1", 0);
+    nodes[1] = mModel.GetNodeNoByName("joint2", 0);
     float heights[2];
     for (int i = 0; i < 2; i++) {
         float a = mCur->Height_unk(mWaveTime);

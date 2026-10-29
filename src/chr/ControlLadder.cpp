@@ -31,7 +31,7 @@ void ControlLadder::vf40() {
     if (m2C == 1) {
         atn::Model* model = &mChara->mMotion;
         Motion_unk::Entry_unk* nodes = model->m220;
-        Motion_unk::Entry_unk* e = &nodes[model->fn_80092814("hips", 0)];
+        Motion_unk::Entry_unk* e = &nodes[model->GetNodeNoByName("hips", 0)];
         e->m04.x += mChara->mType == 0 ? m4C : -m4C;
     }
 }

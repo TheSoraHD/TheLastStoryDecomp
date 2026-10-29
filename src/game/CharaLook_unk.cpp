@@ -33,7 +33,7 @@ CharaLook_unk::~CharaLook_unk() {}
 
 void CharaLook_unk::fn_801298EC(chr::Chara_unk* chara) {
     mChara = chara;
-    mNeck = ((atn::Model*)&chara->mMotion)->fn_80092814("neck", 0);
+    mNeck = ((atn::Model*)&chara->mMotion)->GetNodeNoByName("neck", 0);
 }
 
 void CharaLook_unk::fn_80129930(const atn::Vector3& pos, float speed) {
@@ -52,7 +52,7 @@ void CharaLook_unk::fn_80129978(atn::Model* model, const char* node, const atn::
     if (node != 0) {
         // inferred: written without atn::Model::GetNodeMtx_unk, whose weak copy is emitted after
         // fn_80129A6C (the first function that refers to it)
-        int index = model->fn_80092814(node, 0);
+        int index = model->GetNodeNoByName(node, 0);
         mTarget = (index < 0) ? 0 : (float*)model->mNodeMtx[index];
         mOffset = offset;
         mType = 1;
@@ -161,8 +161,8 @@ void CharaLook_unk::fn_80129A6C() {
             target += ((atn::Matrix3x4*)mEyeTarget)->GetTrans_unk();
         }
         int nodes[2];
-        nodes[0] = mChara->GetModel_unk()->fn_80092814("eye_L", 0);
-        nodes[1] = mChara->GetModel_unk()->fn_80092814("eye_R", 0);
+        nodes[0] = mChara->GetModel_unk()->GetNodeNoByName("eye_L", 0);
+        nodes[1] = mChara->GetModel_unk()->GetNodeNoByName("eye_R", 0);
         int node;
         for (int i = 0; i < 2; i++) {
             atn::Vector3 dir;

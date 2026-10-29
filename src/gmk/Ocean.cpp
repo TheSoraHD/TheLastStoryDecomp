@@ -123,8 +123,8 @@ void Ocean::Start() {
 
 void Ocean::fn_804186D8() {
     int nodes[2];
-    nodes[0] = mModel.fn_80092814("joint1", 0);
-    nodes[1] = mModel.fn_80092814("joint2", 0);
+    nodes[0] = mModel.GetNodeNoByName("joint1", 0);
+    nodes[1] = mModel.GetNodeNoByName("joint2", 0);
     float heights[2];
     for (int i = 0; i < 2; i++) {
         Wave_unk& wave = mWaves[m54][i];
@@ -176,8 +176,8 @@ extern "C" atn::Vector3 fn_804188A0(gmk::Ocean* ocean, const atn::Vector3* pos) 
     t = 0.0f >= t ? 0.0f : t;
     float y[2];
     int nodes[2];
-    nodes[0] = ocean->mModel.fn_80092814("joint1", 0);
-    nodes[1] = ocean->mModel.fn_80092814("joint2", 0);
+    nodes[0] = ocean->mModel.GetNodeNoByName("joint1", 0);
+    nodes[1] = ocean->mModel.GetNodeNoByName("joint2", 0);
     for (int i = 0; i < 2; i++) {
         if (nodes[i] > -1) {
             y[i] = ((atn::Matrix3x4*)ocean->mModel.mNodeMtx[nodes[i]])->GetTrans_unk().y;
