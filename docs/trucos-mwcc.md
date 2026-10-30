@@ -36,6 +36,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 
 ## Registros y pila
 
+- Marco de pila con `this` en r31 sin usar y llamada final con `bctrl` en vez de cola: había un `if (...) return;` tras la llamada con el resto vacío (`TodomeCountUp::vf10`); si la condición no usa `this`, marco sin r31 (`CharaObj::vf10`).
+- Una carga de un global que el original adelanta por encima de stores: el global es `const` (aunque se inicialice en el `__sinit`; `atn::TaskBase` `sTaskTag`).
+- Miembros leídos antes de los stores a otro objeto: los stores van en una inline que recibe los valores como argumentos (`ShakeCamera` `Shake_unk(frame, x, y)`).
 - Registros salvados por orden de creación: lo creado después recibe el más bajo; mover la declaración de un local cambia r31/f31.
 - Pila: locales con nombre en orden inverso a su declaración, luego temporales (cuerpo antes que helpers inline); los grandes (> 0xC) antes que los pequeños. Los locales de una función **inlinada** van en orden ascendente (al revés).
 - Bloques de un método con el orden de pila invertido = helper inline del original.
@@ -94,7 +97,7 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `.sdata2` sigue el orden en que el compilador ve los literales (ctores inline de las fábricas, funciones autoinlineadas definidas antes). Un `float` de 8 bytes en `symbols.txt` (float + relleno) hace que objdiff lo trate como `double`: tamaño 4.
 - En unidades a medias, escribir las funciones grandes que faltan (aunque queden NONMATCHING) y poner el fuente en el orden del `.dol` cuadra `.sdata2`/`@stringBase0` y sube muchas funciones del 99,9% al 100%. Tablas estáticas al principio del fichero.
 - dtk descarta un hueco de ceros menor que la alineación de la unidad siguiente aunque tenga símbolo: `align:4` en esa sección.
-- Vtables en orden inverso a la declaración de clases (incluye `#include`); RTTI débil, la emite el primer fichero.
+- Vtables en orden inverso a la declaración de clases (incluye `#include`); RTTI débil, la emite el primer fichero. Para que la vtable débil de un miembro vaya antes que la propia, declaración adelantada en la cabecera e `#include` en el `.cpp` (`gmk/CharaObj` + `GmkChara`).
 - Pool de cadenas `@stringBase0` al final de `.rodata`; literales de funciones inline en pools `@STRING@<func>`; cadenas anchas `L"..."` en `@wstringBase0` de `.data` (un `L""` de ≤ 4 bytes, en `.sdata`). Un pool que empieza por `""` = creador `new(1, "", "", 0)` antes del ctor.
 - La constante `double` de conversión int→float (`0x4330000080000000`) va en `.rodata` del propio fichero, antes de los nombres RTTI.
 - Formatos de `sprintf` con NUL extra en el pool: escribir `"...\0"`. Literal `00 00` sin fusionar con `""` = `"\0"`. Dos `""` sin fusionar tras otro `""` = `strcmp(x, "\0")`.
