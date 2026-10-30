@@ -87,6 +87,8 @@ static const char* sTexNames[] = {
 static const char* const sLineDelims = " \n\r";
 static const char* const sTokenDelims = " ,=\n\r";
 
+char String_unk::sEmpty_unk; // lbl_8087EF00 (.sbss)
+
 const float TexUv_unk::sScaleU = 1.0f;
 const float TexUv_unk::sScaleV = 1.0f;
 const float TexUv_unk::sRot = 0.0f;
