@@ -86,6 +86,8 @@ static inline void GXTexCoord2f32(float s, float t) {
 
 extern "C" void GXSetAlphaCompare(int comp0, unsigned char ref0, int op, int comp1, unsigned char ref1);
 extern "C" void GXBegin(int type, int fmt, unsigned short count);
+extern "C" void GXSetTevAlphaIn(int stage, int a, int b, int c, int d);
+extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned char clamp, int outReg);
 extern "C" void fn_800761A8(void* device); // inferred: flushes the render state
 extern "C" void fn_800763FC(void* device, GXTexObj* tex, int map); // inferred: loads a texture
 
@@ -1855,6 +1857,88 @@ void DrawHelper::ComDrawTextureAdd::vf10(RenderView_unk* view) {
         GXTexCoord2f32(mVertex[i].mUV.x, mVertex[i].mUV.y);
     }
     GXSetBlendMode(m10 != 0, 4, 5, 0);
+}
+
+void DrawHelper::ComDrawTextureMask::vf10(RenderView_unk* view) {
+    fn_800761A8(lbl_8087EEE0);
+    GXSetNumChans(1);
+    GXSetNumTexGens(2);
+    GXSetNumTevStages(2);
+    GXSetTevSwapModeTable(1, 0, 0, 0, 0);
+    GXSetTevSwapMode(1, 0, 1);
+    GXSetTevOrder(0, 0, 0, 4);
+    GXSetTevOrder(1, 1, 1, 0xFF);
+    GXSetTevColorIn(0, 0xF, 8, 0xA, 0xF);
+    GXSetTevAlphaIn(0, 7, 4, 5, 7);
+    GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+    GXSetTevColorIn(1, 0xF, 0, 0xC, 0xF);
+    GXSetTevAlphaIn(1, 7, 0, 4, 7);
+    GXSetTevColorOp(1, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(1, 0, 0, 0, 1, 0);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    GXSetTexCoordGen2(1, 1, 5, 0x3C, 0, 0x7D);
+    if (m04 == 1) {
+        Matrix3x4 m;
+        m.SetIdentity();
+        GXLoadPosMtxImm(m.m, 0);
+        GXSetCurrentMtx(0);
+    } else {
+        fn_80076760(lbl_8087EEE0, 6, 0);
+        DrawSetZMode_unk(lbl_8087EEE0, m14);
+        GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+        GXSetCurrentMtx(0);
+    }
+    fn_800763FC(lbl_8087EEE0, mTex0 != 0 ? &mTex0->mObj : &lbl_8087EEB0->m10.mObj, 0);
+    fn_800763FC(lbl_8087EEE0, mTex1 != 0 ? &mTex1->mObj : &lbl_8087EEB0->m10.mObj, 1);
+    switch (m18) {
+    case 0:
+        GXSetBlendMode(1, 4, 5, 0);
+        break;
+    case 1:
+        GXSetBlendMode(1, 4, 1, 0);
+        break;
+    case 2:
+        GXSetBlendMode(1, 3, 1, 0);
+        break;
+    case 3:
+        GXSetBlendMode(1, 0, 5, 0);
+        break;
+    case 4:
+        GXSetBlendMode(1, 0, 3, 0);
+        break;
+    }
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    GXSetVtxDesc(0xE, 1);
+    if (m04 == 1) {
+        GXSetVtxAttrFmt(0, 9, 0, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xE, 1, 4, 0);
+    } else {
+        GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xE, 1, 4, 0);
+    }
+    fn_800761A8(lbl_8087EEE0);
+    GXBegin(0x80, 0, 4);
+    for (int i = 0; i < 4; i++) {
+        if (m04 == 1) {
+            GXPosition2f32(mVertex[i].mPos.x, mVertex[i].mPos.y);
+        } else {
+            GXPosition3f32(mVertex[i].mPos.x, mVertex[i].mPos.y, mVertex[i].mPos.z);
+        }
+        GXColor1u32(DrawRGBA_unk(mVertex[i].mColor));
+        GXTexCoord2f32(mVertex[i].mUV.u0, mVertex[i].mUV.v0);
+        GXTexCoord2f32(mVertex[i].mUV.u1, mVertex[i].mUV.v1);
+    }
+    GXSetTevSwapMode(1, 0, 0);
+    GXSetBlendMode(1, 4, 5, 0);
 }
 
 // Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
