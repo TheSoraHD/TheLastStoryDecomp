@@ -46,12 +46,6 @@ struct Render_unk {
 extern "C" Render_unk* lbl_8087EFA8;
 
 
-// inferred: resource part of a model, null when there is no model (0x80512D24; the test is written the
-// other way round than GetModelData_unk); name invented
-inline void* GetModelRes_unk(NewCampPartsModel_unk* model) {
-    return model == 0 ? 0 : model->m04 + 0x10;
-}
-
 // inferred: one gimmick of the camp (0x40 bytes)
 struct NewCampGmkInfo_unk {
     NewCampGmkInfo_unk() {

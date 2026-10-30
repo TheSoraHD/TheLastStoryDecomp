@@ -52,6 +52,12 @@ inline atn::ModelBase* GetModelData_unk(NewCampPartsModel_unk* model) {
     return model != 0 ? (atn::ModelBase*)(model->m04 + 0x10) : 0;
 }
 
+// inferred: the same with the test written the other way round (0x80512D24 in NewCampPartsGmk, and
+// NewCampPartsBase); name invented
+inline atn::ModelBase* GetModelRes_unk(NewCampPartsModel_unk* model) {
+    return model == 0 ? 0 : (atn::ModelBase*)(model->m04 + 0x10);
+}
+
 // inferred: node of the camp scene list (type 4 nodes hold models; names invented)
 struct NewCampNode_unk {
     unsigned char m00[0x48];
@@ -95,6 +101,12 @@ struct NewCampPartsEntry_unk {
         m3C = 0;
         mMtx.SetIdentity();
         m04 = 0;
+    }
+
+    // inferred: the instance of the model, null-checked the other way round than GetModel_unk (used
+    // by NewCampPartsBase itself); name invented
+    atn::ModelInstance* GetInstance_unk() const {
+        return mModel == 0 ? 0 : static_cast<atn::ModelInstance*>(mModel);
     }
 
     atn::D3Anime* mAnime;          // 0x00
@@ -170,7 +182,7 @@ public:
     virtual void vf58(NewCampPartsEntry_unk* entry, const char* node); // 0x80510720
     virtual void vf5C(NewCampPartsEntry_unk* entry);                   // 0x80510564
     // inferred: plays `motion` on the entry model (flags: 1 translation, 2 rotation, 4 scale) (0x805109CC)
-    virtual void vf60(NewCampPartsEntry_unk* entry, NewCampPartsMotion_unk* motion, int flags, float step);
+    virtual void vf60(NewCampPartsEntry_unk* entry, NewCampPartsMotion_unk* motion, unsigned int flags, float step);
 
     // inferred: creates the d2anime of each entry (kind 1: instances) (0x8050FB38)
     void fn_8050FB38(int count, NewCampPartsEntry_unk* entries, const NewCampPartsFile_unk* file, int load,

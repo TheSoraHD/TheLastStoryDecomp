@@ -53,16 +53,39 @@ extern "C" NewCampD2AManager_unk* lbl_8087F138;
 #define __MIN_unk(a, b) ((a) < (b) ? (a) : (b))
 
 // inferred: componentwise product (name invented)
+inline atn::Vector3 MulSub_unk(const atn::Vector3& a, const atn::Vector3& c, const atn::Vector3& b) {
+    return atn::Vector3((a.x - c.x) * b.x, (a.y - c.y) * b.y, (a.z - c.z) * b.z);
+}
 inline atn::Vector3 Mul_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return atn::Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
 }
 
 // inferred: scale of the columns of a matrix (names invented)
+inline atn::Vector3 GetCol_unk(const atn::Matrix3x4& m, int i) {
+    float z = m.m[2][i];
+    float y = m.m[1][i];
+    float x = m.m[0][i];
+    return atn::Vector3(x, y, z);
+}
 inline atn::Vector3 GetScale_unk(const atn::Matrix3x4& m) {
-    atn::Vector3 x(m.m[0][0], m.m[1][0], m.m[2][0]);
-    atn::Vector3 y(m.m[0][1], m.m[1][1], m.m[2][1]);
-    atn::Vector3 z(m.m[0][2], m.m[1][2], m.m[2][2]);
-    return atn::Vector3(PSVECMag(&x), PSVECMag(&y), PSVECMag(&z));
+    return atn::Vector3(GetCol_unk(m, 0).Length_unk(), GetCol_unk(m, 1).Length_unk(), GetCol_unk(m, 2).Length_unk());
+}
+
+// inferred: world matrix of the node `node` of the entry model (names invented)
+inline atn::Matrix3x4 NodeWorld_unk(NewCampPartsEntry_unk* entry, const char* node) {
+    atn::Matrix3x4 mtx(((atn::Model*)GetModelRes_unk(entry->mModel))->GetNodeMtx_unk(node));
+    PSMTXConcat(entry->mModel->mMtx.m, mtx.m, mtx.m);
+    return mtx;
+}
+inline atn::Matrix3x4 ScaleMtx_unk(const atn::Vector3& v) {
+    atn::Matrix3x4 m;
+    PSMTXScale(m.m, v.x, v.y, v.z);
+    return m;
+}
+inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    atn::Matrix3x4 m;
+    PSMTXConcat(a.m, b.m, m.m);
+    return m;
 }
 
 // inferred: world matrix of the node `node` of the entry model, identity without it (names invented)
@@ -71,7 +94,7 @@ inline atn::Matrix3x4 GetNodeWorld_unk(NewCampPartsEntry_unk* entry, const char*
     mtx.SetIdentity();
     atn::Model* model = (atn::Model*)GetModelData_unk(entry->mModel);
     if (model->GetNodeMtx_unk(node) != 0) {
-        PSMTXConcat(GetModel_unk(entry->mModel)->mMtx.m, model->GetNodeMtx_unk(node), mtx.m);
+        PSMTXConcat(entry->GetInstance_unk()->mMtx.m, model->GetNodeMtx_unk(node), mtx.m);
     }
     return mtx;
 }
@@ -86,6 +109,8 @@ NewCampPartsBase::NewCampPartsBase(atn::Task* parent)
 
 NewCampPartsBase::~NewCampPartsBase() {}
 
+// NONMATCHING: 67.6% - the string pool (the original has three empty strings before "reference";
+// this "" is the second one) and the saved registers of the loop (entries/file/counter)
 void NewCampPartsBase::fn_8050FB38(int count, NewCampPartsEntry_unk* entries, const NewCampPartsFile_unk* file,
                                    int load, int kind) {
     for (int i = 0; i < count; i++) {
@@ -106,6 +131,7 @@ void NewCampPartsBase::fn_8050FB38(int count, NewCampPartsEntry_unk* entries, co
     }
 }
 
+// NONMATCHING: 68.6% - string pool (see fn_8050FB38) and loop registers
 void NewCampPartsBase::fn_8050FC04(int count, NewCampPartsMotion_unk* motions,
                                    const NewCampPartsMotionFile_unk* file) {
     for (int i = 0; i < count; i++) {
@@ -119,6 +145,8 @@ void NewCampPartsBase::fn_8050FC04(int count, NewCampPartsMotion_unk* motions,
     }
 }
 
+// NONMATCHING: 85.3% - the original passes `load` in r4 to D3AnimeInstance::Load() too, and the
+// loop registers differ
 void NewCampPartsBase::fn_8050FC88(int count, NewCampPartsEntry_unk* entries, int load) {
     for (int i = 0; i < count; i++) {
         if (entries->m04 == 1) {
@@ -140,6 +168,7 @@ int NewCampPartsBase::fn_8050FD20() {
     return ((NewCampCamp_unk*)m48)->mCurrent == this;
 }
 
+// NONMATCHING: 91.4% - registers of the two loops
 void NewCampPartsBase::fn_8050FD38(NewCampScene_unk* scene, NewCampPartsEntry_unk* entries,
                                    const NewCampPartsFile_unk* file, int count, const char* name) {
     if (count > 0) {
@@ -171,32 +200,31 @@ void NewCampPartsBase::fn_8050FD38(NewCampScene_unk* scene, NewCampPartsEntry_un
     }
 }
 
+// NONMATCHING: 97.1% - only the string pool ("reference" at +3 in the original)
 void NewCampPartsBase::fn_8050FE44(NewCampNode_unk* node, NewCampPartsEntry_unk* entry,
                                    const NewCampPartsFile_unk* file) {
     for (int i = 0; i < node->mModelNum; i++) {
         NewCampPartsModel_unk* model = node->mModels[i];
-        if (model->mHash == fn_800DC6B4(file->mModel)) {
+        unsigned int hash = model->mHash;
+        if (hash == fn_800DC6B4(file->mModel)) {
             entry->mModel = model;
-            if (GetModelData_unk(model) != 0) {
-                atn::Model* data = (atn::Model*)GetModelData_unk(model);
-                if (data->GetNodeMtx_unk("reference") != 0) {
-                    atn::Matrix3x4 mtx = GetNodeWorld_unk(entry, "reference");
-                    if (entry->m04 == 1) {
-                        atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
-                        if (anime != 0) {
-                            anime->mPos = mtx.GetTrans_unk();
-                        }
-                    } else {
-                        atn::D3Anime* anime = entry->mAnime;
-                        if (anime != 0) {
-                            anime->mPos = mtx.GetTrans_unk();
-                        }
+            if (GetModelData_unk(entry->mModel) != 0 &&
+                ((atn::Model*)GetModelData_unk(entry->mModel))->GetNodeMtx_unk("reference") != 0) {
+                atn::Matrix3x4 mtx(((atn::Model*)GetModelData_unk(entry->mModel))->GetNodeMtx_unk("reference"));
+                PSMTXConcat(entry->mModel->mMtx.m, mtx.m, mtx.m);
+                if (entry->m04 == 1) {
+                    atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
+                    if (anime != 0) {
+                        anime->mPos = mtx.GetTrans_unk();
+                    }
+                } else {
+                    atn::D3Anime* anime = entry->mAnime;
+                    if (anime != 0) {
+                        anime->mPos = mtx.GetTrans_unk();
                     }
                 }
             }
-            if (GetModel_unk(entry->mModel) != 0) {
-                entry->mMtx = GetModel_unk(entry->mModel)->mMtx;
-            }
+            entry->mMtx = GetModel_unk(entry->mModel)->mMtx;
         }
     }
 }
@@ -221,12 +249,13 @@ void NewCampPartsBase::vf54(NewCampPartsEntry_unk* entry, const char* node) {
     vf50(entry, GetModelData_unk(entry->mModel), node);
 }
 
+// NONMATCHING: 86.8% - the offset/scale computation uses six more saved FPRs and a bigger frame
 void NewCampPartsBase::vf50(NewCampPartsEntry_unk* entry, atn::ModelBase* model, const char* node) {
     if (entry != 0) {
-        if (GetModel_unk(entry->mModel) != 0) {
-            atn::Matrix3x4 mtx(GetModel_unk(entry->mModel)->mMtx);
+        if (entry->GetInstance_unk() != 0) {
+            atn::Matrix3x4 mtx(entry->GetInstance_unk()->mMtx);
             atn::Vector3 pos = mtx.GetTrans_unk() + mA4;
-            pos = Mul_unk(pos - mC8, mBC) + mC8;
+            pos = MulSub_unk(pos, mC8, mBC) + mC8;
             mtx.m[0][3] = 0.0f;
             mtx.m[1][3] = 0.0f;
             mtx.m[2][3] = 0.0f;
@@ -239,20 +268,20 @@ void NewCampPartsBase::vf50(NewCampPartsEntry_unk* entry, atn::ModelBase* model,
             mtx.m[0][3] = pos.x;
             mtx.m[1][3] = pos.y;
             mtx.m[2][3] = pos.z;
-            GetModel_unk(entry->mModel)->fn_8009EE30(mtx);
+            entry->GetInstance_unk()->fn_8009EE30(mtx);
         }
-        if (GetModel_unk(entry->mModel) != 0 && model != 0) {
+        if (entry->mModel != 0 && entry->GetInstance_unk() != 0 && model != 0) {
             atn::Matrix3x4* view = &lbl_8087EFB4->mView;
             atn::Vector3 pos = GetModel_unk(entry->mModel)->mMtx.GetTrans_unk();
-            PSMTXMultVec(GetModel_unk(entry->mModel)->mMtx.m, &pos, &pos);
+            PSMTXMultVec(entry->mModel->mMtx.m, &pos, &pos);
             PSMTXMultVec(view->m, &pos, &pos);
             ((atn::Model*)model)->m98 = -pos.z;
             if (entry->mAnime != 0) {
                 atn::Matrix3x4 mtx;
                 mtx.SetIdentity();
                 if (((atn::Model*)model)->GetNodeMtx_unk(node) != 0) {
-                    PSMTXConcat(GetModel_unk(entry->mModel)->mMtx.m, ((atn::Model*)model)->GetNodeMtx_unk(node),
-                                mtx.m);
+                    mtx = atn::Matrix3x4(((atn::Model*)model)->GetNodeMtx_unk(node));
+                    PSMTXConcat(entry->mModel->mMtx.m, mtx.m, mtx.m);
                 }
                 if (entry->m04 == 1) {
                     ((atn::D3AnimeInstance*)entry->mAnime)->mPos = mtx.GetTrans_unk();
@@ -265,84 +294,96 @@ void NewCampPartsBase::vf50(NewCampPartsEntry_unk* entry, atn::ModelBase* model,
 }
 
 void NewCampPartsBase::vf5C(NewCampPartsEntry_unk* entry) {
-    if (entry->mAnime != 0 && GetModel_unk(entry->mModel) != 0) {
+    if (entry->mAnime != 0 && entry->GetInstance_unk() != 0) {
         if (entry->m04 == 1) {
-            ((atn::D3AnimeInstance*)entry->mAnime)->mScale = GetScale_unk(GetModel_unk(entry->mModel)->mMtx);
+            ((atn::D3AnimeInstance*)entry->mAnime)->mScale = GetScale_unk(entry->GetInstance_unk()->mMtx);
         } else {
-            entry->mAnime->mScale = GetScale_unk(GetModel_unk(entry->mModel)->mMtx);
+            entry->mAnime->mScale = GetScale_unk(entry->GetInstance_unk()->mMtx);
         }
     }
 }
 
+// NONMATCHING: 94.8% - frame layout of the temporaries
 void NewCampPartsBase::vf58(NewCampPartsEntry_unk* entry, const char* node) {
-    if (entry->mModel != 0 && entry->mAnime != 0 && GetModelData_unk(entry->mModel) != 0) {
-        atn::Model* model = (atn::Model*)GetModelData_unk(entry->mModel);
-        if (model->GetNodeMtx_unk(node) != 0) {
-            atn::Matrix3x4 mtx = GetNodeWorld_unk(entry, node);
-            mtx.m[0][3] = 0.0f;
-            mtx.m[1][3] = 0.0f;
-            mtx.m[2][3] = 0.0f;
-            atn::Vector3 scale = GetScale_unk(mtx);
-            Mtx s;
-            PSMTXScale(s, 1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z);
-            atn::Matrix3x4 rot;
-            PSMTXConcat(mtx.m, s, rot.m);
-            if (entry->m04 == 1) {
-                ((atn::D3AnimeInstance*)entry->mAnime)->mRot = rot;
-            } else {
-                entry->mAnime->mRot = rot;
-            }
-        }
-    }
-}
-
-void NewCampPartsBase::vf60(NewCampPartsEntry_unk* entry, NewCampPartsMotion_unk* motion, int flags, float step) {
-    if (entry != 0 && GetModel_unk(entry->mModel) != 0) {
-        int play = 1;
-        if (motion == 0 || motion->mHash == 0) {
-            play = 0;
-        }
-        if (play != 0) {
-            if (motion->mHash != 0) {
-                motion->mFrame += step;
-                if (motion->mFrame >= fn_800A08D4(&motion->mMotion)) {
-                    motion->mFrame = fn_800A08D4(&motion->mMotion);
-                }
-                if (motion->mFrame <= 0.0f) {
-                    motion->mFrame = 0.0f;
-                }
-                fn_800A0548(&motion->mMotion, &motion->mPose, motion->mHash, motion->mWork, motion->mFrame);
-                atn::Matrix3x4 mtx;
-                mtx.SetIdentity();
-                if ((flags & 2) == 2 && motion->mPose.m10.w != 0.0f) {
-                    PSMTXQuat(mtx.m, &motion->mPose.m10);
-                }
-                if ((flags & 4) == 4) {
-                    Mtx s;
-                    PSMTXScale(s, motion->mPose.mScale.x, motion->mPose.mScale.y, motion->mPose.mScale.z);
-                    PSMTXConcat(mtx.m, s, mtx.m);
-                }
-                if ((flags & 1) == 1) {
-                    mtx.m[0][3] = motion->mPose.mPos.x;
-                    mtx.m[1][3] = motion->mPose.mPos.y;
-                    mtx.m[2][3] = motion->mPose.mPos.z;
-                }
-                PSMTXConcat(entry->mMtx.m, mtx.m, mtx.m);
-                GetModel_unk(entry->mModel)->fn_8009EE30(mtx);
-                if (entry->mAnime != 0) {
-                    if (entry->m04 == 1) {
-                        ((atn::D3AnimeInstance*)entry->mAnime)->mScale = motion->mPose.mScale;
-                    } else {
-                        entry->mAnime->mScale = motion->mPose.mScale;
-                    }
-                }
-            }
+    if (entry->mModel != 0 && entry->mAnime != 0 && GetModelRes_unk(entry->mModel) != 0 &&
+        ((atn::Model*)GetModelRes_unk(entry->mModel))->GetNodeMtx_unk(node) != 0) {
+        atn::Matrix3x4 mtx = NodeWorld_unk(entry, node);
+        mtx.m[0][3] = 0.0f;
+        mtx.m[1][3] = 0.0f;
+        mtx.m[2][3] = 0.0f;
+        atn::Vector3 s = GetScale_unk(mtx);
+        mtx = MulMtx_unk(mtx, ScaleMtx_unk(atn::Vector3(1.0f / s.x, 1.0f / s.y, 1.0f / s.z)));
+        if (entry->m04 == 1) {
+            ((atn::D3AnimeInstance*)entry->mAnime)->mRot = mtx;
         } else {
-            GetModel_unk(entry->mModel)->fn_8009EE30(entry->mMtx);
+            entry->mAnime->mRot = mtx;
         }
     }
 }
 
+// NONMATCHING: 97.2% - the first null test keeps the pointer, and the copy after the scale swaps
+// r3/r4. Tried: matrix helpers returning by value, declaration order of the temporaries
+void NewCampPartsBase::vf60(NewCampPartsEntry_unk* entry, NewCampPartsMotion_unk* motion, unsigned int flags,
+                            float step) {
+    if (entry == 0) {
+        return;
+    }
+    if (entry->GetInstance_unk() == 0) {
+        return;
+    }
+    int play = 1;
+    if (motion == 0 || motion->mMotion.m08 == 0) {
+        play = 0;
+    }
+    if (play != 0) {
+        atn::Vector3 scale(1.0f, 1.0f, 1.0f);
+        if (motion->mMotion.m08 == 0) {
+            return;
+        }
+        motion->mFrame += step;
+        if (motion->mFrame >= fn_800A08D4(&motion->mMotion)) {
+            motion->mFrame = fn_800A08D4(&motion->mMotion);
+        }
+        if (motion->mFrame <= 0.0f) {
+            motion->mFrame = 0.0f;
+        }
+        fn_800A0548(&motion->mMotion, &motion->mPose, motion->mHash, motion->mWork, motion->mFrame);
+        atn::Matrix3x4 mtx;
+        mtx.SetIdentity();
+        atn::Matrix3x4 q;
+        atn::Matrix3x4 world;
+        if ((flags & 2) == 2 && motion->mPose.m10.w != 0.0f) {
+            PSMTXQuat(q.m, &motion->mPose.m10);
+            mtx = q;
+        }
+        if ((flags & 4) == 4) {
+            Mtx s;
+            PSMTXScale(s, motion->mPose.mScale.x, motion->mPose.mScale.y, motion->mPose.mScale.z);
+            atn::Matrix3x4 tmp;
+            PSMTXConcat(mtx.m, s, tmp.m);
+            mtx = tmp;
+        }
+        if ((flags & 1) == 1) {
+            mtx.m[0][3] = motion->mPose.mPos.x;
+            mtx.m[1][3] = motion->mPose.mPos.y;
+            mtx.m[2][3] = motion->mPose.mPos.z;
+        }
+        PSMTXConcat(entry->mMtx.m, mtx.m, world.m);
+        mtx = world;
+        entry->GetInstance_unk()->fn_8009EE30(mtx);
+        if (entry->mAnime != 0) {
+            if (entry->m04 == 1) {
+                ((atn::D3AnimeInstance*)entry->mAnime)->mScale = motion->mPose.mScale;
+            } else {
+                entry->mAnime->mScale = motion->mPose.mScale;
+            }
+        }
+    } else {
+        GetModel_unk(entry->mModel)->fn_8009EE30(entry->mMtx);
+    }
+}
+
+// NONMATCHING: 99.5% - only the string pool (see fn_8050FB38)
 void NewCampPartsBase::vf14() {
     if (m4C > 0) {
         for (int i = 0; i < m4C; i++) {
@@ -465,16 +506,20 @@ void NewCampPartsBase::vf3C(int arg) {
     }
 }
 
+// NONMATCHING: 69.4% - the original copies z of each vector right after loading it (neither
+// __VecCopy nor __VecCopyZFirst)
 void NewCampPartsBase::fn_80511258(NewCampPartsEntry_unk* entry, atn::D3Anime* anime, const atn::Vector3& pos,
                                    const atn::Vector3& scale, const char* node) {
     fn_80512474(entry, anime, atn::Vector3(pos), atn::Vector3(scale), node);
 }
 
+// NONMATCHING: 69.4% - see fn_80511258
 void NewCampPartsBase::fn_805112A8(NewCampPartsEntry_unk* entry, atn::D3AnimeInstance* anime,
                                    const atn::Vector3& pos, const atn::Vector3& scale, const char* node) {
     fn_80512028(entry, anime, atn::Vector3(pos), atn::Vector3(scale), node);
 }
 
+// NONMATCHING: 99.4% - only the string pool (see fn_8050FB38)
 void NewCampPartsBase::vf40(void* menu) {
     void* group = fn_8008937C(menu, m98.c_str());
     fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
@@ -487,6 +532,7 @@ void fn_80511668(int a, int b, int c);
 void fn_80511704();
 void fn_8051170C();
 
+// NONMATCHING: 78.8% - the bit fields of the D2A task and the casts of GetTask()
 extern "C" void fn_805113E8(atn::D3Anime* anime, int visible, int loop, float frame, float speed) {
     if (anime != 0) {
         anime->fn_800D246C(0);
@@ -503,6 +549,7 @@ extern "C" void fn_805113E8(atn::D3Anime* anime, int visible, int loop, float fr
     }
 }
 
+// NONMATCHING: 72.9% - see fn_805113E8
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int visible, int loop, float frame, float speed) {
     typedef atn::D2A_TaskInstanceBase<32, 8> Inst;
     if (anime != 0) {
@@ -561,6 +608,7 @@ void NewCampPartsBase::vf44() {
     }
 }
 
+// NONMATCHING: 80.7% - string pool and the access to the layout of the d2anime task
 void NewCampPartsBase::vf48() {
     for (int i = 0; i < m4C; i++) {
         NewCampPartsEntry_unk* entry = &m50[i];
@@ -580,18 +628,23 @@ void NewCampPartsBase::vf48() {
     }
 }
 
+// NONMATCHING: 65.9% - string pool and the scheduling around it
 void NewCampPartsBase::fn_805118B4(atn::Task* task, const char* name, NewCampPartsEntry_unk* entry,
                                    const NewCampPartsPoint_unk& pos, int b) {
-    atn::Matrix3x4 mtx = GetNodeWorld_unk(entry, "reference");
+    atn::Matrix3x4 mtx(((atn::Model*)GetModelRes_unk(entry->mModel))->GetNodeMtx_unk("reference"));
+    PSMTXConcat(GetModel_unk(entry->mModel)->mMtx.m, mtx.m, mtx.m);
     MenuCommonTask::sInstance->fn_804A4EEC(task, name, mtx, b, pos.x, pos.y, pos.m08, pos.m0C, pos.m10);
 }
 
+// NONMATCHING: 65.9% - see fn_805118B4
 void NewCampPartsBase::fn_805119C8(atn::Task* task, const char* name, NewCampPartsEntry_unk* entry,
                                    const NewCampPartsPoint_unk& pos, int b) {
-    atn::Matrix3x4 mtx = GetNodeWorld_unk(entry, "reference");
+    atn::Matrix3x4 mtx(((atn::Model*)GetModelRes_unk(entry->mModel))->GetNodeMtx_unk("reference"));
+    PSMTXConcat(GetModel_unk(entry->mModel)->mMtx.m, mtx.m, mtx.m);
     MenuCommonTask::sInstance->fn_804A5160(task, name, mtx, b, pos.x, pos.y, pos.m08, pos.m0C, pos.m10);
 }
 
+// NONMATCHING: 88.3% - string pool and the order of the clamps
 extern "C" void fn_80511ADC(atn::D2A_Task* task, CharaStatus* status, int chara, int full) {
     if (task != 0) {
         CharaParam_unk p = fn_80134800(status, chara, 0, 0, 0, 0, 0, 0);
@@ -613,6 +666,7 @@ extern "C" void fn_80511ADC(atn::D2A_Task* task, CharaStatus* status, int chara,
     }
 }
 
+// NONMATCHING: 95.7% - string pool
 extern "C" void fn_80511D9C(atn::D2A_TaskInstanceBase<32, 8>* task, CharaStatus* status, int chara, int full) {
     if (task != 0) {
         CharaParam_unk p = fn_80134800(status, chara, 0, 0, 0, 0, 0, 0);
@@ -642,54 +696,67 @@ void NewCampPartsBase::vf2C() {}
 
 void NewCampPartsBase::vf20() {}
 
+// NONMATCHING: 92.6% - frame 0x40 bigger (one more matrix temporary) and the `entry->mModel` test
+// branches the other way
 void NewCampPartsBase::fn_80512028(NewCampPartsEntry_unk* entry, atn::D3AnimeInstance* anime,
                                    const atn::Vector3& pos, const atn::Vector3& scale, const char* node) {
-    if (anime != 0 && GetModel_unk(entry->mModel) != 0 && GetModelData_unk(entry->mModel) != 0) {
-        atn::Model* model = (atn::Model*)GetModelData_unk(entry->mModel);
-        if (model->GetNodeMtx_unk(node) != 0) {
-            if (entry->mModel == 0) {
-                return;
+    if (anime != 0) {
+        if (entry->GetInstance_unk() != 0) {
+            if (GetModelRes_unk(entry->mModel) != 0) {
+                if (((atn::Model*)GetModelRes_unk(entry->mModel))->GetNodeMtx_unk(node) != 0) {
+                    if (entry->mModel == 0) {
+                        return;
+                    }
+                    anime->fn_800D246C(0);
+                    anime->mFlags &= ~4;
+                    {
+                        atn::Matrix3x4 mtx = NodeWorld_unk(entry, node);
+                        mtx.m[0][3] = 0.0f;
+                        mtx.m[1][3] = 0.0f;
+                        mtx.m[2][3] = 0.0f;
+                        atn::Vector3 s = GetScale_unk(mtx);
+                        mtx = MulMtx_unk(mtx, ScaleMtx_unk(atn::Vector3(1.0f / s.x, 1.0f / s.y, 1.0f / s.z)));
+                        anime->mRot = mtx;
+                    }
+                    {
+                        atn::Matrix3x4 mtx = NodeWorld_unk(entry, node);
+                        anime->mPos = mtx.GetTrans_unk() + pos;
+                    }
+                    anime->mScale = Mul_unk(GetScale_unk(entry->GetInstance_unk()->mMtx), scale);
+                }
             }
-            anime->fn_800D246C(0);
-            anime->mFlags &= ~4;
-            atn::Matrix3x4 mtx = GetNodeWorld_unk(entry, node);
-            mtx.m[0][3] = 0.0f;
-            mtx.m[1][3] = 0.0f;
-            mtx.m[2][3] = 0.0f;
-            atn::Vector3 s = GetScale_unk(mtx);
-            Mtx inv;
-            PSMTXScale(inv, 1.0f / s.x, 1.0f / s.y, 1.0f / s.z);
-            PSMTXConcat(mtx.m, inv, anime->mRot.m);
-            atn::Matrix3x4 world = GetNodeWorld_unk(entry, node);
-            anime->mPos = world.GetTrans_unk() + pos;
-            atn::Vector3 ms = GetScale_unk(GetModel_unk(entry->mModel)->mMtx);
-            anime->mScale = atn::Vector3(ms.x * scale.x, ms.y * scale.y, ms.z * scale.z);
         }
     }
 }
 
+// NONMATCHING: 92.6% - see fn_80512028
 void NewCampPartsBase::fn_80512474(NewCampPartsEntry_unk* entry, atn::D3Anime* anime, const atn::Vector3& pos,
                                    const atn::Vector3& scale, const char* node) {
-    if (anime != 0 && GetModel_unk(entry->mModel) != 0 && GetModelData_unk(entry->mModel) != 0) {
-        atn::Model* model = (atn::Model*)GetModelData_unk(entry->mModel);
-        if (model->GetNodeMtx_unk(node) != 0) {
-            if (entry->mModel == 0) {
-                return;
+    if (anime != 0) {
+        if (entry->GetInstance_unk() != 0) {
+            if (GetModelRes_unk(entry->mModel) != 0) {
+                if (((atn::Model*)GetModelRes_unk(entry->mModel))->GetNodeMtx_unk(node) != 0) {
+                    if (entry->mModel == 0) {
+                        return;
+                    }
+                    anime->fn_800D246C(0);
+                    anime->mFlags &= ~4;
+                    {
+                        atn::Matrix3x4 mtx = NodeWorld_unk(entry, node);
+                        mtx.m[0][3] = 0.0f;
+                        mtx.m[1][3] = 0.0f;
+                        mtx.m[2][3] = 0.0f;
+                        atn::Vector3 s = GetScale_unk(mtx);
+                        mtx = MulMtx_unk(mtx, ScaleMtx_unk(atn::Vector3(1.0f / s.x, 1.0f / s.y, 1.0f / s.z)));
+                        anime->mRot = mtx;
+                    }
+                    {
+                        atn::Matrix3x4 mtx = NodeWorld_unk(entry, node);
+                        anime->mPos = mtx.GetTrans_unk() + pos;
+                    }
+                    anime->mScale = Mul_unk(GetScale_unk(entry->GetInstance_unk()->mMtx), scale);
+                }
             }
-            anime->fn_800D246C(0);
-            anime->mFlags &= ~4;
-            atn::Matrix3x4 mtx = GetNodeWorld_unk(entry, node);
-            mtx.m[0][3] = 0.0f;
-            mtx.m[1][3] = 0.0f;
-            mtx.m[2][3] = 0.0f;
-            atn::Vector3 s = GetScale_unk(mtx);
-            Mtx inv;
-            PSMTXScale(inv, 1.0f / s.x, 1.0f / s.y, 1.0f / s.z);
-            PSMTXConcat(mtx.m, inv, anime->mRot.m);
-            atn::Matrix3x4 world = GetNodeWorld_unk(entry, node);
-            anime->mPos = world.GetTrans_unk() + pos;
-            atn::Vector3 ms = GetScale_unk(GetModel_unk(entry->mModel)->mMtx);
-            anime->mScale = atn::Vector3(ms.x * scale.x, ms.y * scale.y, ms.z * scale.z);
         }
     }
 }
