@@ -1,6 +1,6 @@
 # CLAUDE.md — Decompilación de The Last Story (Wii, PAL `SLSP01`)
 
-Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja). El `main.dol` original está en el repo privado `TheSoraHD/tls-build` (`orig/SLSP01/sys/main.dol`, SHA-1 `d4275869483fbc681f2ce6eddfbd9742e40c6b64`). Comunicación con el usuario en español.
+Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja). El `main.dol` original (`orig/SLSP01/sys/main.dol`, SHA-1 `d4275869483fbc681f2ce6eddfbd9742e40c6b64`), los compiladores (`build/compilers/`) y `sjiswrap.exe` están en el repo privado `TheSoraHD/tls-build`: el entorno en la nube no necesita el PC. Comunicación con el usuario en español.
 
 **Objetivo:** C++ que, compilado con el compilador original, da un `.dol` idéntico byte a byte. Una función solo cuenta si objdiff la da al **100%**.
 
