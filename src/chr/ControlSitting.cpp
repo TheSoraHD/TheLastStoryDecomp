@@ -1,20 +1,11 @@
 #include "chr/ControlSitting.h"
 
-extern "C" double fmod(double x, double y);
+// inferred: linear interpolation with the product first (name invented)
+inline atn::Vector3 LerpSit_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
 
 namespace chr {
-
-// inferred: wraps an angle into [-pi, pi] (name invented)
-inline float __WrapAngle_unk(float angle) {
-    float a = fmod(angle, 6.2831855f);
-    if (a > 3.1415927f) {
-        a -= 6.2831855f;
-    }
-    if (a < -3.1415927f) {
-        a += 6.2831855f;
-    }
-    return a;
-}
 
 ControlSitting::ControlSitting(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& seat, const atn::Vector3& rot)
     : ControlBase(chara) {
@@ -39,17 +30,18 @@ ControlSitting::ControlSitting(Chara_unk* chara, const atn::Vector3& start, cons
     c->m584 = 0.0f;
 }
 
-// NONMATCHING: 95.6% - the original keeps this in r31 (motion in r30) and places the operator
-// temporaries in other stack slots (as in ControlTurnQuadruped::vf0C). Tried: motion taken after the
-// lerp, named locals for the difference/position/rotation, inline argument, swapped addition.
+// NONMATCHING: 97.9% - with the lerp helper the arithmetic matches; the original keeps this in r31
+// (motion in r30) and puts `dir` below the lerp result on the stack. Tried: motion taken after the
+// lerp or split/as a reference, named locals, dir/chara declared elsewhere, pre-decrement, engine
+// Lerp_unk/Abs_unk, by-value or static helper.
 int ControlSitting::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (mCount > 0) {
         mCount--;
         float t = mCount / 8.0f;
-        mChara->mPos = (mStart - mSeat) * t + mSeat;
+        mChara->mPos = LerpSit_unk(mSeat, mStart, t);
         atn::Vector3 rot = mChara->mRot;
-        rot.y += __WrapAngle_unk(mRot.y - mStartRot.y) / 8.0f;
+        rot.y += atn::WrapAngle_unk(mRot.y - mStartRot.y) / 8.0f;
         mChara->mRot = rot;
     }
     if (motion->mTracks[0].m00 == 0x78) {
@@ -62,7 +54,7 @@ int ControlSitting::vf0C() {
         if (mChara->mType == 0 && mChara->fn_80178078() > 0.4f) {
             Chara_unk* chara = mChara;
             atn::Vector3 dir = chara->fn_80178018();
-            float angle = __WrapAngle_unk(dir.y - chara->mRot.y);
+            float angle = atn::WrapAngle_unk(dir.y - chara->mRot.y);
             if ((float)__fabs(angle) < 1.5707964f) {
                 motion->fn_80097C08(0, 0x7A, 0, 0, 1, 0.0f, 0.1f);
             }

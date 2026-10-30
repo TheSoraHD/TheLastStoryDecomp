@@ -1,6 +1,7 @@
 #include "game/TownTpcLoader.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
+#include "game/CharaTask.h"
 
 // inferred: classes of the globals are unknown
 struct CharaList_unk {
@@ -52,7 +53,6 @@ extern "C" void fn_803CC774(CharaList_unk* list, atn::Task* chara);
 extern "C" void fn_803CC718(CharaList_unk* list, atn::Task* chara, int arg);
 extern "C" void fn_803957F0(void* obj, void* arg);
 extern "C" void fn_803EAC3C(void* obj, atn::Task* chara);
-extern "C" void fn_8016E970(atn::Task* chara, int arg);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 struct Chara_unk : public atn::Task {
@@ -68,6 +68,7 @@ TownTpcLoader* TownTpcLoader::fn_805B9B08(atn::Task* parent, int cellX, int cell
 }
 
 // NONMATCHING: 99.6% - the pointer and the counter of the last loop are in swapped registers (r29/r30).
+// Tried: shared/outer `i`, while loop, bool ready, early return, mData[i], IsFlag_unk, x/z declaration order.
 int TownTpcLoader::vf0C() {
     if (mState < 2) {
         if (mState >= 1) {
@@ -100,7 +101,7 @@ int TownTpcLoader::vf0C() {
     }
     if (ready) {
         for (int i = 0; i < mCharas.size(); i++) {
-            fn_8016E970(mCharas[i], 2);
+            ((CharaTask*)mCharas[i])->fn_8016E970(2);
             mCharas[i]->fn_800D246C(0);
         }
     }

@@ -24,7 +24,7 @@ template <class T>
 struct EventVec_unk {
     int Size_unk() const { return mSize; }
     bool IsValid_unk(int i) const { return i >= 0 && i < Size_unk(); }
-    T* Get_unk(int i) {
+    T* Get_unk(unsigned int i) {
         if (IsValid_unk(i)) {
             return mData[i].mPtr;
         }
@@ -158,13 +158,15 @@ extern "C" int fn_Stripped_unk(const char* path) {
 }
 
 // inferred: flags the cuts that contain actions of kinds 0x10, 0x2F, 0x11 and 0x12
-// NONMATCHING: 95.2% - register allocation: the original keeps the four counters in r31..r28 and the
-// pointers in volatile registers; here the cut pointer takes r31 (tried int/unsigned counter,
-// accessor for the cut, switch; close-units qD: 10 more forms of the counters, cut access and
-// tests, none better).
+// NONMATCHING: 99.0% - Get_unk with an unsigned index gives the counter-first increments and `cut`
+// declared before the loop leaves the counters in r31..r28 as in the original; only the volatile
+// pointers differ (original: cut r9, group r10, track r11, cut offset r12; here r12/r9/r10/r11).
+// Tried: pointers declared at the top in both orders, `i` declared first (back to cut in r31),
+// operator[], a reference to the cut vector, int/unsigned outer counter.
 extern "C" void fn_80576258(EventSequence_unk* seq) {
+    EventCut_unk* cut;
     for (unsigned int i = 0; i < seq->mCuts.mSize; i++) {
-        EventCut_unk* cut = seq->mCuts.mData[i].mPtr;
+        cut = seq->mCuts.mData[i].mPtr;
         for (int j = 0; j < cut->mGroups.Size_unk(); j++) {
             EventGroup_unk* group = cut->mGroups.Get_unk(j);
             if (group->m14 != 0) {

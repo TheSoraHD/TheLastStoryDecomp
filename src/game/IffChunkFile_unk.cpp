@@ -30,9 +30,10 @@ struct ChunkFileHeader_unk {
     unsigned int m1C;
 };
 
-// NONMATCHING: 99.0% - register allocation of the swapped branch only (m18 and the in-place swaps take
-// r3/r6 and r4/r5 the other way round). The swaps are written as `*p = swap(*p)` (the stwbrx intrinsic
-// gave lwzu); tried named offsets, a reference helper, direct m18.
+// NONMATCHING: 99.3% - register allocation of the in-place swaps of the swapped branch only (value and
+// address take r4/r5 or r0/r5 the other way round in the offset-0 swaps, m14, m18 and the chunk loop).
+// The swaps are written as `*p = swap(*p)` (the stwbrx intrinsic gave lwzu). Tried: named offsets, a
+// reference/void*/template helper, int fields, the plain-C mask form of the swap (same code, 99.0%).
 ChunkFile_unk::ChunkFile_unk(void* data, unsigned int magic)
     : mValid(0), mSwapped(0), mMagic(magic), mData(data), m10(0), m14(0), m18(0), m1C(0) {
     int order;
@@ -73,7 +74,8 @@ ChunkFile_unk::ChunkFile_unk(void* data, unsigned int magic)
         unsigned int* e = t + 2;
         unsigned int* p = (unsigned int*)((char*)t + Swap32_unk(*(unsigned int*)(x + 8)) + 4);
         m18 = p;
-        m1C = (char*)p + Swap32_unk(*p);
+        unsigned int pv = *p;
+        m1C = (char*)p + Swap32_unk(pv);
         unsigned int n = Swap32_unk(t[0]);
         for (unsigned int i = 0; i < n; i++, e++) {
             unsigned int v = *e;

@@ -73,7 +73,10 @@ int GimmickUvOwner_unk::fn_800D59B8() {
 
 // inferred: allocates a screen sized RGBA8 texture
 // NONMATCHING: 98% - width/height loaded in the opposite order (r29/r30) and the buffer size in r28
-// instead of r31; tried locals, a manager local, an array and the non-inline body (~8 variants)
+// instead of r31; tried locals, a manager local, an array and the non-inline body (~8 variants).
+// Writing the release body directly in fn_800D5B58 (one inline level less than fn_800D58A4) fixes
+// the r31 of the size (99.83%), but not the load order (tried w/h locals in both orders, a
+// name string, a separate return value, the size inside the call).
 extern "C" int fn_800D5A3C(atn::Texture_unk* tex) {
     return tex->fn_800D5B58(lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight, 4, 0, 0);
 }
