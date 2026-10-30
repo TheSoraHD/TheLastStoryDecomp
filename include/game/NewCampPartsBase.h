@@ -158,6 +158,7 @@ struct NewCampPartsMotionFile_unk {
 // (0x801CFC28-0x801CFC44).
 class NewCampPartsBase : public atn::Task {
 public:
+    static NewCampPartsBase* Create_unk(atn::Task* parent); // inferred: removed by the linker
     NewCampPartsBase(atn::Task* parent); // 0x8050F93C
     virtual ~NewCampPartsBase();         // 0x8050FA7C
     virtual int vf0C();                  // 0x8051007C

@@ -1,4 +1,5 @@
 #include "game/NewCampPartsBase.h"
+#include "atn/Memory.h"
 #include "atn/D2A_Task.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/D3Anime.h"
@@ -99,6 +100,15 @@ inline atn::Matrix3x4 GetNodeWorld_unk(NewCampPartsEntry_unk* entry, const char*
     return mtx;
 }
 
+// inferred: creator of the base parts, removed by the linker; only its "" is left at the start of the
+// string pool (the "" of fn_8050FB38/fn_8050FC04 is a separate "\0" right after it)
+NewCampPartsBase* NewCampPartsBase::Create_unk(atn::Task* parent) {
+    if (parent != 0) {
+        return new ((MemoryTag)1, "", "", 0) NewCampPartsBase(parent);
+    }
+    return 0;
+}
+
 NewCampPartsBase::NewCampPartsBase(atn::Task* parent)
     : atn::Task(parent), m48(parent), m4C(0), m58(-1.0f), m64(0.0f, 0.0f, 0.0f), m70(0.0f, 0.0f, 0.0f), m7C(0),
       m80(0), m84(0), m88(0), m8C(0), m90(0), m94(1), m95(0), m96(0), mA4(0.0f, 0.0f, 0.0f), mB0(1.0f, 1.0f, 1.0f),
@@ -109,12 +119,12 @@ NewCampPartsBase::NewCampPartsBase(atn::Task* parent)
 
 NewCampPartsBase::~NewCampPartsBase() {}
 
-// NONMATCHING: 67.6% - the string pool (the original has three empty strings before "reference";
-// this "" is the second one) and the saved registers of the loop (entries/file/counter)
+// NONMATCHING: 97.75% - saved registers of the loop (entries/file/counter); the empty name is the "\0"
+// literal right after the "" of Create_unk
 void NewCampPartsBase::fn_8050FB38(int count, NewCampPartsEntry_unk* entries, const NewCampPartsFile_unk* file,
                                    int load, int kind) {
     for (int i = 0; i < count; i++) {
-        if (strcmp(file->mAnime, "") == 0) {
+        if (strcmp(file->mAnime, "\0") == 0) {
             entries->mAnime = 0;
         } else {
             entries->m04 = kind;
@@ -131,12 +141,12 @@ void NewCampPartsBase::fn_8050FB38(int count, NewCampPartsEntry_unk* entries, co
     }
 }
 
-// NONMATCHING: 68.6% - string pool (see fn_8050FB38) and loop registers
+// NONMATCHING: 97.42% - loop registers (see fn_8050FB38)
 void NewCampPartsBase::fn_8050FC04(int count, NewCampPartsMotion_unk* motions,
                                    const NewCampPartsMotionFile_unk* file) {
     for (int i = 0; i < count; i++) {
         const char* path = file->mPath;
-        if (strcmp(path, "") != 0) {
+        if (strcmp(path, "\0") != 0) {
             motions->mMotion.fn_800A03E4(path);
             motions->mHash = fn_800DC6B4(file->mNode);
         }
