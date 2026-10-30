@@ -33,16 +33,7 @@ public:
 };
 } // namespace atn
 extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
-// inferred: 2D point of a d2anime pane (0x14 bytes)
-struct NewCampTopPoint_unk {
-    NewCampTopPoint_unk() {}
-    float x;
-    float y;
-    float m08;
-    float m0C;
-    float m10;
-};
-extern "C" NewCampTopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
+extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 // inferred: text parameter of a d2anime message (fn_801FEC74)
 namespace atn {
 struct D2A_TextParam_unk;
@@ -52,28 +43,8 @@ extern "C" std::basic_string<wchar_t> fn_800A4450(atn::D2A_TextParam_unk* text, 
 extern "C" void* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
 
-// inferred: model of an entry (atn::ModelInstance, src/atn/ModelInstance.cpp); only the member used here
-namespace atn {
-class ModelInstance {
-public:
-    void fn_8009EE30(const Matrix3x4& mtx); // inferred: sets the matrix
-};
-} // namespace atn
-struct NewCampPartsModel_unk : public atn::ModelInstance {};
-// inferred: the null-checked cast of the model (name invented)
-inline atn::ModelInstance* GetModel_unk(NewCampPartsModel_unk* model) {
-    return model != 0 ? static_cast<atn::ModelInstance*>(model) : 0;
-}
 
 // inferred: functions of NewCampPartsBase (0x8050F93C-0x80512024) still called by their automatic names
-extern "C" void fn_8050FB38(NewCampPartsBase* self, int count, NewCampPartsEntry_unk* entries,
-                            const NewCampPartsFile_unk* file, int a, int b);
-extern "C" void fn_8050FC88(NewCampPartsBase* self, int count, NewCampPartsEntry_unk* entries, int a);
-extern "C" void fn_8050FD38(NewCampPartsBase* self, NewCampScene_unk* scene, NewCampPartsEntry_unk* entries,
-                            const NewCampPartsFile_unk* file, int count, const char* name);
-extern "C" void fn_80510D64(NewCampPartsBase* self, int a, int b);
-extern "C" void fn_805112A8(NewCampPartsBase* self, NewCampPartsEntry_unk* entries, atn::D3AnimeInstance* anime,
-                            const atn::Vector3& pos, const atn::Vector3& scale, const char* name);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int a, int b, float c, float d);
 extern "C" void fn_805115D0(atn::Task* anime, int a, int b, float c, float d);
@@ -211,7 +182,7 @@ static const NewCampTopInfo_unk sInfo[8] = {
 static const int sActions[3] = {0, 1, 2};
 static const int sActionsB[3] = {3, 1, 2};
 
-inline NewCampTopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
+inline NewCampPartsPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
     return fn_801F4E8C(layout, fn_800DC6B4(name));
 }
 // inferred: set a text/value of the pane `name` (names invented)
@@ -253,8 +224,8 @@ NewCampPartsTop::NewCampPartsTop(atn::Task* parent)
     mCursor = 1;
     if (m4C > 0) {
         m50.Reset_unk(new ((MemoryTag)1, "", "", 0) NewCampPartsEntry_unk[m4C]);
-        fn_8050FB38(this, m4C, m50.mData, &sFile, 0, 0);
-        fn_8050FC88(this, m4C, m50.mData, 0);
+        fn_8050FB38(m4C, m50.mData, &sFile, 0, 0);
+        fn_8050FC88(m4C, m50.mData, 0);
     }
     for (int i = 0; i < 8; i++) {
         NewCampTopEntry_unk* entry = &mEntries[i];
@@ -270,7 +241,7 @@ NewCampPartsTop::NewCampPartsTop(atn::Task* parent)
 NewCampPartsTop::~NewCampPartsTop() {}
 
 void NewCampPartsTop::vf1C(NewCampScene_unk* scene) {
-    fn_8050FD38(this, scene, m50.mData, &sFile, m4C, sBoard);
+    fn_8050FD38(scene, m50.mData, &sFile, m4C, sBoard);
     vf3C(0);
     m80 = 0;
     m84 = 8;
@@ -312,17 +283,15 @@ void NewCampPartsTop::vf14() {
     }
     for (unsigned int i = 0; i < mList.size(); i++) {
         NewCampTopEntry_unk* entry = mList.mData[i];
-        fn_805112A8(this, m50.mData, entry->mList, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
-                    "reference");
-        fn_805112A8(this, m50.mData, entry->mShine, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
-                    "reference");
+        fn_805112A8(m50.mData, entry->mList, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+        fn_805112A8(m50.mData, entry->mShine, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         char name[0x40];
         if (entry->mId == 7) {
             sprintf(name, "ListPoint07");
         } else {
             sprintf(name, "ListPoint%02d", i);
         }
-        NewCampTopPoint_unk pos = GetPanePos_unk(m50[0].mAnime->GetTask(), name);
+        NewCampPartsPoint_unk pos = GetPanePos_unk(m50[0].mAnime->GetTask(), name);
         fn_801F6E78(entry->mList->GetTask(), "basePoint", &pos);
         fn_801F6C80(entry->mList->GetTask(), "index", entry->mInfo.mIndex);
         fn_801F837C(entry->mList->GetTask(), "title", fn_80116FC0(0, entry->mInfo.mTitle));
@@ -579,7 +548,7 @@ void NewCampPartsTop::vf2C() {
             fn_80117228(1);
         }
     } else if (m7C == 0) {
-        fn_80510D64(this, 1, 3);
+        fn_80510D64(1, 3);
         atn::D2A_Task* task = (atn::D2A_Task*)m50[0].mAnime->GetTask();
         float width;
         {

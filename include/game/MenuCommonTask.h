@@ -2,6 +2,7 @@
 #define GAME_MENUCOMMONTASK_H
 
 #include "atn/Task.h"
+#include "math/Vec.h"
 #include "game/ResHandle.h"
 #include "string.h"
 
@@ -81,6 +82,11 @@ public:
     void ResetInfo_unk(); // inferred: inline body of fn_804A313C (name invented)
     void fn_804A660C(void* anime, int a, int b, int c); // inferred: event of a d2anime
     void fn_804A71F0(void* layout, int a, int b, int c); // inferred: event of a layout anime
+    // inferred: places the next 3D cursor at `mtx` and adds an entry with `id` (in m00; fn_804A5160: in m04)
+    void fn_804A4EEC(atn::Task* id, const char* name, const atn::Matrix3x4& mtx, int end, float x, float y, float w,
+                     float h, float z);
+    void fn_804A5160(atn::Task* id, const char* name, const atn::Matrix3x4& mtx, int end, float x, float y, float w,
+                     float h, float z);
 
     void fn_804A4294(const wchar_t* text); // inferred: shows a warning in the info window (camp_info.d2a)
     // inferred: shows a system text as a warning (inlined in game/CosEditPalette_unk.cpp, which reads

@@ -45,45 +45,12 @@ struct Render_unk {
 };
 extern "C" Render_unk* lbl_8087EFA8;
 
-// inferred: resource of a model (only the base at 0x10 is used)
-struct NewCampModelRes_unk {
-    unsigned char m00[0x10];
-    unsigned char m10[4];
-};
-// inferred: model of the scene; the matrix is read through a base at offset 0 (null-checked cast)
-struct NewCampModelBase_unk {
-    unsigned char m00[4];
-    NewCampModelRes_unk* mRes; // 0x04
-    unsigned char m08[0x30 - 0x08];
-    atn::Matrix3x4 mMtx; // 0x30
-};
-struct NewCampModel_unk : public NewCampModelBase_unk {
-    unsigned char m60[0x88 - 0x60];
-    unsigned int mFlags;    // 0x88: inferred: bit 31 hides the model
-    unsigned int mHash; // 0x8C: inferred: compared with fn_800DC6B4 of a name
-};
-// inferred: resource part of a model, null when there is no model (0x80512D24); name invented
-inline void* GetModelRes_unk(NewCampModel_unk* model) {
-    return model == 0 ? 0 : model->mRes->m10;
+
+// inferred: resource part of a model, null when there is no model (0x80512D24; the test is written the
+// other way round than GetModelData_unk); name invented
+inline void* GetModelRes_unk(NewCampPartsModel_unk* model) {
+    return model == 0 ? 0 : model->m04 + 0x10;
 }
-// inferred: the null-checked cast of 0x80512BE0 (name invented)
-inline NewCampModelBase_unk* GetBase_unk(NewCampModel_unk* model) {
-    return model != 0 ? static_cast<NewCampModelBase_unk*>(model) : 0;
-}
-// inferred: node of the scene list (type 4 nodes hold models)
-struct NewCampNode_unk {
-    unsigned char m00[0x48];
-    int mType;               // 0x48
-    NewCampNode_unk* mNext;  // 0x4C
-    unsigned char m50[0x5C - 0x50];
-    char mName[0x344 - 0x5C]; // 0x5C
-    int mModelNum;           // 0x344
-    NewCampModel_unk** mModels; // 0x348
-};
-struct NewCampScene_unk {
-    unsigned char m00[0x70];
-    NewCampNode_unk* mNodes; // 0x70
-};
 
 // inferred: one gimmick of the camp (0x40 bytes)
 struct NewCampGmkInfo_unk {
@@ -97,7 +64,7 @@ struct NewCampGmkInfo_unk {
 
     int m00;
     short m04;
-    NewCampModel_unk* mModel; // 0x08
+    NewCampPartsModel_unk* mModel; // 0x08
     atn::Matrix3x4 mMtx;      // 0x0C
     unsigned char m3C;
 };
@@ -428,7 +395,7 @@ public:
     virtual void vf24();
     virtual void vf28();
     virtual int vf4C();
-    void SetModel_unk(NewCampModel_unk* model, int i);
+    void SetModel_unk(NewCampPartsModel_unk* model, int i);
     void fn_80512C90(int i);
     void fn_80513020(int color, int i);
 
@@ -461,11 +428,11 @@ int NewCampPartsGmk::vf4C() {
 }
 
 // inferred: inline helper; it gives the register order of the original (name invented)
-inline void NewCampPartsGmk::SetModel_unk(NewCampModel_unk* model, int i) {
+inline void NewCampPartsGmk::SetModel_unk(NewCampPartsModel_unk* model, int i) {
     unsigned int hash = model->mHash;
     if (hash == fn_800DC6B4(sGmkNames[i].mName)) {
         mInfo[i].mModel = model;
-        mInfo[i].mMtx = GetBase_unk(mInfo[i].mModel)->mMtx;
+        mInfo[i].mMtx = GetModel_unk(mInfo[i].mModel)->mMtx;
     }
 }
 
@@ -518,7 +485,7 @@ void NewCampPartsGmk::fn_80512C90(int i) {
 void NewCampPartsGmk::fn_80513020(int color, int i) {
     if (color == 0) {
         NewCampGmkInfo_unk* info = mInfo.mData;
-        NewCampModel_unk* model = info[11].mModel;
+        NewCampPartsModel_unk* model = info[11].mModel;
         if (model != 0) {
             model->mFlags &= ~0x80000000;
         }
@@ -530,7 +497,7 @@ void NewCampPartsGmk::fn_80513020(int color, int i) {
         lbl_8087EFA8->mColor = state.mColor;
     } else {
         NewCampGmkInfo_unk* info = mInfo.mData;
-        NewCampModel_unk* model = info[11].mModel;
+        NewCampPartsModel_unk* model = info[11].mModel;
         if (model != 0) {
             model->mFlags |= 0x80000000;
         }

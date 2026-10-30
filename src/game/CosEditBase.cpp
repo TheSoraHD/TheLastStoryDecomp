@@ -33,11 +33,6 @@ extern "C" void* lbl_8087F048;
 extern "C" void fn_8010C00C(void* mgr, CharaTask* chara);
 extern "C" void fn_805659B4(chr::CharaEquip_unk* equip);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
-extern "C" int fn_8050FD20(NewCampPartsBase* self); // inferred: these parts are the current ones
-extern "C" void fn_80511258(NewCampPartsBase* self, NewCampPartsEntry_unk* entry, atn::D3Anime* anime,
-                            const atn::Vector3& pos, const atn::Vector3& scale, const char* name);
-extern "C" void fn_805112A8(NewCampPartsBase* self, NewCampPartsEntry_unk* entry, atn::D3AnimeInstance* anime,
-                            const atn::Vector3& pos, const atn::Vector3& scale, const char* name);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
 extern "C" int fn_80219558(int id); // inferred: party member of a character id (negative for others)
@@ -331,7 +326,7 @@ void CosEditBase::fn_801CD648() {
         }
     } else {
         if (mChara[0]) {
-            if (fn_8050FD20(this) && ((CosEditParent_unk*)m48)->m458 >= 25.0f) {
+            if (fn_8050FD20() && ((CosEditParent_unk*)m48)->m458 >= 25.0f) {
                 mChara[0]->mVisible = 1;
             } else {
                 mChara[0]->mVisible = 0;
@@ -393,12 +388,10 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
             pos.m10 = 0.0f;
             atn::D3AnimeInstance* scroll = list->mScrollBar;
             base->mVisible = 1;
-            fn_80511258(this, entry, base, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
-                        "reference");
+            fn_80511258(entry, base, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
             if (scroll) {
                 scroll->mVisible = 1;
-                fn_805112A8(this, entry, scroll, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
-                            "reference");
+                fn_805112A8(entry, scroll, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
                 if (scroll->GetTask()) {
                     char name[0x40];
                     sprintf(name, "scroll_point");
@@ -412,8 +405,7 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
                 }
                 atn::D3AnimeInstance* item = list->mItems[i];
                 item->mVisible = 1;
-                fn_805112A8(this, entry, item, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
-                            "reference");
+                fn_805112A8(entry, item, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
                 if (item->GetTask()) {
                     char name[0x40];
                     sprintf(name, "camp_list%d", i + 1);

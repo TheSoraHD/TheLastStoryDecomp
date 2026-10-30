@@ -717,58 +717,58 @@ inline atn::D3AnimeInstance* GetCursor_unk(MenuCursor_unk* cursor) {
 }
 
 // inferred: places the next 3D cursor and adds an entry (id in m00)
-extern "C" void fn_804A4EEC(MenuCommonTask* menu, int id, const char* name, const atn::Matrix3x4& mtx, int end,
-                            float x, float y, float w, float h, float z) {
-    int i = ++menu->m74;
-    if (0 <= i && i < 4 && menu->m78[i] != 0) {
-        GetCursor_unk(menu->m78[i])->SetMatrix(mtx);
-        GetCursor_unk(menu->m78[i])->UpdateMtx();
-        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 0, x);
-        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 1, y);
-        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 4, z);
-        fn_801F6C80(GetCursor_unk(menu->m78[i])->GetTask(), "wRate", w);
-        fn_801F6C80(GetCursor_unk(menu->m78[i])->GetTask(), "hRate", h);
+void MenuCommonTask::fn_804A4EEC(atn::Task* id, const char* name, const atn::Matrix3x4& mtx, int end, float x, float y,
+                                 float w, float h, float z) {
+    int i = ++m74;
+    if (0 <= i && i < 4 && m78[i] != 0) {
+        GetCursor_unk(m78[i])->SetMatrix(mtx);
+        GetCursor_unk(m78[i])->UpdateMtx();
+        fn_801F6D7C(GetCursor_unk(m78[i])->GetTask(), "cursor_pos", 0, x);
+        fn_801F6D7C(GetCursor_unk(m78[i])->GetTask(), "cursor_pos", 1, y);
+        fn_801F6D7C(GetCursor_unk(m78[i])->GetTask(), "cursor_pos", 4, z);
+        fn_801F6C80(GetCursor_unk(m78[i])->GetTask(), "wRate", w);
+        fn_801F6C80(GetCursor_unk(m78[i])->GetTask(), "hRate", h);
         if (end) {
-            float frame = fn_801F6C2C(GetCursor_unk(menu->m78[i])->GetTask()) - 2.0f;
-            ((MenuLayout_unk*)GetCursor_unk(menu->m78[i])->GetTask())->mFrame = frame;
+            float frame = fn_801F6C2C(GetCursor_unk(m78[i])->GetTask()) - 2.0f;
+            ((MenuLayout_unk*)GetCursor_unk(m78[i])->GetTask())->mFrame = frame;
         }
     }
-    if (id != 0 && (unsigned int)menu->m9C < 4) {
+    if (id != 0 && (unsigned int)m9C < 4) {
         MenuCommonEntry_unk entry;
-        entry.m00 = id;
+        entry.m00 = (int)id;
         if (name != 0) {
             strcpy(entry.m08.mText, name);
         }
-        new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
-        menu->m9C++;
+        new (&mA0[m9C]) MenuCommonEntry_unk(entry);
+        m9C++;
     }
 }
 
 // inferred: same as fn_804A4EEC with the id in m04
-extern "C" void fn_804A5160(MenuCommonTask* menu, int id, const char* name, const atn::Matrix3x4& mtx, int end,
-                            float x, float y, float w, float h, float z) {
-    int i = ++menu->m74;
-    if (0 <= i && i < 4 && menu->m78[i] != 0) {
-        GetCursor_unk(menu->m78[i])->SetMatrix(mtx);
-        GetCursor_unk(menu->m78[i])->UpdateMtx();
-        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 0, x);
-        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 1, y);
-        fn_801F6D7C(GetCursor_unk(menu->m78[i])->GetTask(), "cursor_pos", 4, z);
-        fn_801F6C80(GetCursor_unk(menu->m78[i])->GetTask(), "wRate", w);
-        fn_801F6C80(GetCursor_unk(menu->m78[i])->GetTask(), "hRate", h);
+void MenuCommonTask::fn_804A5160(atn::Task* id, const char* name, const atn::Matrix3x4& mtx, int end, float x, float y,
+                                 float w, float h, float z) {
+    int i = ++m74;
+    if (0 <= i && i < 4 && m78[i] != 0) {
+        GetCursor_unk(m78[i])->SetMatrix(mtx);
+        GetCursor_unk(m78[i])->UpdateMtx();
+        fn_801F6D7C(GetCursor_unk(m78[i])->GetTask(), "cursor_pos", 0, x);
+        fn_801F6D7C(GetCursor_unk(m78[i])->GetTask(), "cursor_pos", 1, y);
+        fn_801F6D7C(GetCursor_unk(m78[i])->GetTask(), "cursor_pos", 4, z);
+        fn_801F6C80(GetCursor_unk(m78[i])->GetTask(), "wRate", w);
+        fn_801F6C80(GetCursor_unk(m78[i])->GetTask(), "hRate", h);
         if (end) {
-            float frame = fn_801F6C2C(GetCursor_unk(menu->m78[i])->GetTask()) - 2.0f;
-            ((MenuLayout_unk*)GetCursor_unk(menu->m78[i])->GetTask())->mFrame = frame;
+            float frame = fn_801F6C2C(GetCursor_unk(m78[i])->GetTask()) - 2.0f;
+            ((MenuLayout_unk*)GetCursor_unk(m78[i])->GetTask())->mFrame = frame;
         }
     }
-    if (id != 0 && (unsigned int)menu->m9C < 4) {
+    if (id != 0 && (unsigned int)m9C < 4) {
         MenuCommonEntry_unk entry;
-        entry.m04 = id;
+        entry.m04 = (int)id;
         if (name != 0) {
             strcpy(entry.m08.mText, name);
         }
-        new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
-        menu->m9C++;
+        new (&mA0[m9C]) MenuCommonEntry_unk(entry);
+        m9C++;
     }
 }
 
@@ -789,7 +789,7 @@ extern "C" void fn_804A53D4(MenuCommonTask* menu, int id, const char* name, cons
     }
     if (id != 0 && (unsigned int)menu->m9C < 4) {
         MenuCommonEntry_unk entry;
-        entry.m00 = id;
+        entry.m00 = (int)id;
         if (name != 0) {
             strcpy(entry.m08.mText, name);
         }
@@ -815,7 +815,7 @@ extern "C" void fn_804A55FC(MenuCommonTask* menu, int id, const char* name, cons
     }
     if (id != 0 && (unsigned int)menu->m9C < 4) {
         MenuCommonEntry_unk entry;
-        entry.m04 = id;
+        entry.m04 = (int)id;
         if (name != 0) {
             strcpy(entry.m08.mText, name);
         }
@@ -874,7 +874,7 @@ extern "C" void fn_804A5824(MenuCommonTask* self, atn::D2A_Task* anime, const ch
     }
     if (id != 0 && (unsigned int)menu->m9C < 4) {
         MenuCommonEntry_unk entry;
-        entry.m00 = id;
+        entry.m00 = (int)id;
         if (name != 0) {
             strcpy(entry.m08.mText, name);
         }
