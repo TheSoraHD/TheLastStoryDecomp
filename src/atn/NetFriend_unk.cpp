@@ -5,6 +5,7 @@
 // functions that use the pool are NONMATCHING only by their offsets.
 
 #include "std/string.h"
+#include "std/string_members.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
