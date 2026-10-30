@@ -125,22 +125,24 @@ void GameSaveBanner::fn_803B9324() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 88.2% - the icon loop of the original uses offsets added to this (i * 8, i * 4,
-// i * 0x1200) instead of pointers; the argument order of NANDInitBanner is scheduled differently
+// NONMATCHING: 99.18% - the arguments of NANDInitBanner are computed last to first, and in the icon loop
+// the 3 << (i * 2) mask and the shift swap r26/r27 and the texture offset is incremented last. The unsigned
+// array indexes keep this + offset (as in the original). Tried: a banner pointer, NANDSetIconSpeed form,
+// u16/void* declarations, source pointer local, swapped or/statement order, unsigned counter.
 void GameSaveBanner::fn_803B9638() {
     if (m4C >= 3) {
         memset(&m160, 0, sizeof(NANDBanner_unk));
         NANDInitBanner(&m160, 0, mC4, m104);
         memcpy(m160.mBannerTexture, m58.fn_80470580(), sizeof(m160.mBannerTexture));
         for (int i = 0; i < mC0; i++) {
-            memcpy(m160.mIconTexture[i], m60[i].fn_80470580(), sizeof(m160.mIconTexture[i]));
-            m160.mIconSpeed = (m160.mIconSpeed & ~(3 << (i * 2))) | (mA0[i] << (i * 2));
+            memcpy(m160.mIconTexture[(unsigned int)i], m60[(unsigned int)i].fn_80470580(), sizeof(m160.mIconTexture[i]));
+            m160.mIconSpeed = (m160.mIconSpeed & ~(3 << (i * 2))) | (mA0[(unsigned int)i] << (i * 2));
         }
         if (mC0 < 8) {
             m160.mIconSpeed = m160.mIconSpeed & ~(3 << (mC0 * 2));
         }
-        int size = mC0 * 0x1200 + 0x60A0;
         m160.mFlags = m160.mFlags | m144 | 1;
+        int size = mC0 * 0x1200 + 0x60A0;
         int changed = 1;
         if (m148 != 0 && memcmp(&mF200, &m160, size) == 0) {
             changed = 0;
