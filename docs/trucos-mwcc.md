@@ -217,6 +217,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Un setter `v.Set_unk(pos, color, Temp(...))` evalúa los argumentos de derecha a izquierda: crea el temporal antes de copiar la posición (F-b3, `fn_80061E2C`).
 - El pool `@stringBase0` sigue el orden de generación: una función `static` solo se genera al inlinearse en su llamador (sus literales van allí); sin `static` se emite en su sitio, sus literales van antes, y el enlazador quita la copia (F-b2, menú de `TexStage_unk`).
 - Si el pool original acaba con `basic_string::reserve length_error`/`out_of_range`/`length_error`, la unidad incluye `std/string_members.h`.
+- Miembros de plantilla definidos fuera de la clase (`basic_string(str, pos, n)`, `find`, `vector::push_back`): MWCC los instancia al final del fichero; el original, justo detrás de su primer uso. Una instanciación explícita en ese sitio pone copia y literal donde el original (`out_of_range` tras las cadenas de esa función; FileUtil_unk, SpecialEnemyBase, MotionCommand_unk; I2).
+- `poolorder.py` compara el orden de `@stringBase0`; un `""` que falta justo detrás de un formato es casi siempre un `sprintf` con NUL extra (`"%s\0"`, `"Param%d\0"`; 6 unidades en I2).
 - Huecos de pila de un `compare` inline en orden inverso al original: escribir `!(s == "")` en lugar de `s.compare("") != 0` (más anidación de inlines invierte el orden) (F-b2).
 - Parámetro en un registro más alto de lo esperado (s en r30 con delims r27): el original recorre una copia local (`const char* start = s;`) (F-b2, tokenizador).
 - Campos de bits en una sola escritura en el original: leer antes en locales los campos de otro objeto que se asignan (sin eso MWCC supone alias y escribe tres veces) (F-b2, `fn_8007FE5C`).
