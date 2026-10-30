@@ -1,4 +1,5 @@
 #include "game/NewCampPartsHint.h"
+#include "game/TutorialTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "atn/D3Anime.h"
@@ -54,13 +55,6 @@ struct NewCampHintCamp_unk {
     unsigned char m6C[0x11F8 - 0x6C];
     int m11F8;
 };
-// inferred: tutorial task made by fn_805B9F50; only the member used here
-struct NewCampHintTutorial_unk : public atn::Task {
-    unsigned char m48[0x88 - 0x48];
-    int m88; // inferred: state
-};
-extern "C" NewCampHintTutorial_unk* fn_805B9F50(atn::Task* parent, int id, int arg); // inferred: starts a tutorial
-extern "C" void fn_805BA354(NewCampHintTutorial_unk* task, void* arg);
 
 // inferred: field (lbl_8087F430)
 struct NewCampHintField_unk;
@@ -428,9 +422,9 @@ void NewCampPartsHint::vf2C() {
             if (--mWait <= 0) {
                 fn_80515F28(1);
             }
-        } else if (mTutorial->IsFlag_unk(2) && mTutorial->m88 == 0) {
-            fn_805BA354(mTutorial, ((NewCampHintCamp_unk*)m48)->m6C);
-        } else if (mTutorial->m88 == 4) {
+        } else if (mTutorial->IsFlag_unk(2) && mTutorial->mState == 0) {
+            mTutorial->fn_805BA354((const Camera_unk*)((NewCampHintCamp_unk*)m48)->m6C);
+        } else if (mTutorial->mState == 4) {
             fn_800D2338(mTutorial);
             mTutorial = 0;
             mWait = 15;
@@ -460,7 +454,7 @@ void NewCampPartsHint::fn_80515F28(int mode) {
                 }
                 fn_80515F28(1);
             } else {
-                mTutorial = fn_805B9F50(this, tutorial->mFlag, 0);
+                mTutorial = TutorialTask::fn_805B9F50(this, tutorial->mFlag, 0);
             }
         }
         break;
