@@ -306,12 +306,14 @@ inline int IsPending_unk(Loader* loader, LoadCore* core) {
     return 0;
 }
 
-// NONMATCHING: 96.1% - registers (this r28, iterator r27, resource r26 in the original) and the
-// original tests begin != end before the first loop (loop guard); tried while/for loops, the
-// pending search as goto, as inline helper.
+// NONMATCHING: 97.6% - registers (this r28, iterator r27, resource r26 in the original). The named
+// end of the first loop gives the loop guard (begin != end) of the original; tried while/for loops,
+// the pending search as goto, as inline helper and over const_iterator, the end of the second loop
+// named, the resource assigned apart.
 void Loader::vf10() {
     fn_8046C1C8();
-    for (std::list<LoadCore*>::iterator it = mList.begin(); it != mList.end();) {
+    std::list<LoadCore*>::iterator end = mList.end();
+    for (std::list<LoadCore*>::iterator it = mList.begin(); it != end;) {
         LoadCore* core = *it;
         if (core->GetState_unk() == 2) {
             core->vf0C();

@@ -155,6 +155,11 @@ predicate), and `end()` is recomputed after it.
   matches `Loader::fn_8046F4D4`/`fn_8046F544`; `clear()` erases through the const `begin()/end()` and
   `erase(first, last)` takes `const_iterator` (`Loader::~Loader`). Not enough for `fn_8046F460` (98.3%) nor
   `PacketPack::fn_8050DEA8` (99.7%, the inline `__Deactivate_unk` lookup modifies the element).
+- A list position returned by value goes through a hidden pointer written at each assignment: it is a
+  `const_iterator` (non-trivial copy, named return value), and the caller erases it with
+  `erase(const_iterator)` (0x8046BEE4/0x8046BF88, branch `list-const-iter`). The loops of
+  `fn_8046C3FC`, `fn_8046F460`, `vf14`, `PacketPack` and `CompositeCache` do not move with any loop form
+  (docs/list-const-iter.md).
 - The holder is released before the link (`linked = h->mNode; h->mNode = 0; link`); the store of 0 is
   scheduled after the link, and the volatile registers of the link match (`li r4,0; lwz r5`).
 

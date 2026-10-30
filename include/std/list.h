@@ -128,6 +128,17 @@ public:
         mSize--;
         return iterator(next);
     }
+    // inferred: the position as a const_iterator (atn fn_8046BF88, 0x8046BF88: the position returned
+    // by value through a hidden pointer is erased in place)
+    iterator erase(const_iterator pos) {
+        __list_node_base_unk* node = pos.mNode;
+        __list_node_base_unk* next = node->mNext;
+        node->mPrev->mNext = next;
+        node->mNext->mPrev = node->mPrev;
+        ::operator delete(node);
+        mSize--;
+        return iterator(next);
+    }
     iterator erase(const_iterator first, const_iterator last) {
         if (first != last) {
             __list_node_base_unk* lastPrev = last.mNode->mPrev;
