@@ -1793,6 +1793,70 @@ void DrawHelper::ComDrawTexture::vf10(RenderView_unk* view) {
     }
 }
 
+void DrawHelper::ComDrawTextureAdd::vf10(RenderView_unk* view) {
+    fn_800761A8(lbl_8087EEE0);
+    GXSetNumChans(1);
+    GXSetNumTexGens(1);
+    GXSetNumTevStages(1);
+    GXSetTevOrder(0, 0, 0, 4);
+    GXSetTevOp(0, 0);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    if (m04 == 1) {
+        Matrix3x4 m;
+        m.SetIdentity();
+        GXLoadPosMtxImm(m.m, 0);
+        GXSetCurrentMtx(0);
+    } else {
+        fn_80076760(lbl_8087EEE0, 6, 0);
+        DrawSetZMode_unk(lbl_8087EEE0, m11);
+        GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+        GXSetCurrentMtx(0);
+    }
+    fn_800763FC(lbl_8087EEE0, (GXTexObj*)mTex, 0);
+    switch (m14) {
+    case 0:
+        GXSetBlendMode(m10 != 0, 4, 5, 0);
+        break;
+    case 1:
+        GXSetBlendMode(m10 != 0, 4, 1, 0);
+        break;
+    case 2:
+        GXSetBlendMode(m10 != 0, 3, 1, 0);
+        break;
+    case 3:
+        GXSetBlendMode(m10 != 0, 0, 5, 0);
+        break;
+    case 4:
+        GXSetBlendMode(m10 != 0, 0, 3, 0);
+        break;
+    }
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    if (m04 == 1) {
+        GXSetVtxAttrFmt(0, 9, 0, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    } else {
+        GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    }
+    GXBegin(0x80, 0, 4);
+    for (int i = 0; i < 4; i++) {
+        if (m04 == 1) {
+            GXPosition2f32(mVertex[i].mPos.x, mVertex[i].mPos.y);
+        } else {
+            GXPosition3f32(mVertex[i].mPos.x, mVertex[i].mPos.y, mVertex[i].mPos.z);
+        }
+        GXColor1u32(DrawRGBA_unk(mVertex[i].mColor));
+        GXTexCoord2f32(mVertex[i].mUV.x, mVertex[i].mUV.y);
+    }
+    GXSetBlendMode(m10 != 0, 4, 5, 0);
+}
+
 // Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
 // destructors.
 
