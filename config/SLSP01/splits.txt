@@ -3417,11 +3417,17 @@ game/SongManager.cpp:
 	.sdata2     start:0x80888220 end:0x80888248
 
 game/SpecialEnemyBase.cpp:
-	.text       start:0x805A3C54 end:0x805A6208
-	.rodata     start:0x80763290 end:0x807637E0
-	.data       start:0x80797368 end:0x807975B0
+	.text       start:0x805A3C54 end:0x805A52F4
+	.rodata     start:0x80763290 end:0x80763330
+	.data       start:0x80797368 end:0x80797488
 	.bss        start:0x807C95A0 end:0x807C95B0
-	.sdata2     start:0x80888248 end:0x808882A0
+	.sdata2     start:0x80888248 end:0x80888298
+
+game/SpecialEnemyFactory_unk.cpp:
+	.text       start:0x805A52F4 end:0x805A6208
+	.rodata     start:0x80763330 end:0x807637E0
+	.data       start:0x80797488 end:0x807975B0
+	.sdata2     start:0x80888298 end:0x808882A0
 
 game/StrapTask.cpp:
 	.text       start:0x805A6208 end:0x805A6A80
