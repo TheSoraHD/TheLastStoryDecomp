@@ -20,6 +20,27 @@ struct __list_node_unk : public __list_node_base_unk {
     T mData;
 };
 
+// inferred: node allocation. Lists of pointers share one allocation function in the original (its
+// "Memory allocation failure" literal is a single weak @STRING@ object, 0x80779810, referenced by 17
+// files); other lists use list<T>::__allocate (one literal per type), as std::vector (std/vector.h)
+struct __list_ptr_alloc_unk {
+    static void* __allocate() {
+        void* p = ::operator new(sizeof(__list_node_unk<void*>));
+        if (p == 0) {
+            __msl_error("Memory allocation failure");
+        }
+        return p;
+    }
+};
+template <class T>
+struct __list_alloc_sel_unk {
+    enum { kWord = 0 };
+};
+template <class T>
+struct __list_alloc_sel_unk<T*> {
+    enum { kWord = 1 };
+};
+
 // inferred: holds a new node until it is linked (frees it otherwise). Built on the stack by insert:
 // {owner, node}, cleared after the link (0x80472F10).
 template <class T>
@@ -60,7 +81,9 @@ public:
     T& back() { return ((__list_node_unk<T>*)mTail.mPrev)->mData; }
 
     iterator insert(iterator pos, const T& x) {
-        __list_node_unk<T>* node = __allocate();
+        __list_node_unk<T>* node = __list_alloc_sel_unk<T>::kWord
+                                       ? (__list_node_unk<T>*)__list_ptr_alloc_unk::__allocate()
+                                       : __allocate();
         __list_node_holder_unk<T> holder(&mTail, node);
         // inferred: through a pointer the holder stays in memory and its destructor is folded but
         // left as dead code after the link, as in the original (0x80472F10)
@@ -120,6 +143,7 @@ public:
     size_type mSize;
     __list_node_base_unk mTail;
 };
+
 
 // inferred: list with the constructor and destructor of the MSL list (list above has neither so
 // that its other users are not changed; same shape as CacheListImp_unk of

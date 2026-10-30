@@ -224,3 +224,11 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Campos de bits en una sola escritura en el original: leer antes en locales los campos de otro objeto que se asignan (sin eso MWCC supone alias y escribe tres veces) (F-b2, `fn_8007FE5C`).
 - `x * (float)sin(...)` sumado sin `fmadds` en el original: el producto viene de una inline que lo devuelve (`Wave_unk`).
 - `boost::function` probado con `cmpwi` del vtable: `f != 0`; `!f.empty()` materializa un booleano (`cntlzw`).
+- `atn::Task` está alineada a 8 (ids `unsigned long long`): toda clase de tarea redondea su `sizeof` a 8, y MWCC coloca los miembros de la derivada tras el tamaño sin relleno de la base (rellenos `[0xNNN - sizeof(Base)]` dan 4 bytes de menos: usar el literal) (K2).
+- Registros de índice/offset cruzados en un bucle de búsqueda inline: probar `m[(unsigned int)i]` o `for (unsigned int i ...)` (K2: `FindActor_unk`, `LightSet_unk`, `fn_800C607C`).
+- Argumentos `float` de una llamada cargados de izquierda a derecha donde el original lo hace de derecha a izquierda: pasarlos por getters inline (`c->GetTop_unk()`) (K2, `fn_800D5F68`).
+- Función fuerte del mismo fichero que MWCC inlinea y el original llama con `bl`: `__declspec(noinline)` en la definición (aceptado; K2 `fn_800D5D00`/`fn_800D5E18`).
+- Cadenas de `basic_string` al final del pool sin `std::string` en el código: función eliminada por el enlazador que construye un `std::string` (`Stripped_unk`, `db/EventIdTable_unk`) (K2).
+- Matriz construida en el orden "ceros encadenados y luego valores" (`m01 = m02 = ... = 0.0f;`): el original usa asignación encadenada, no el constructor de 12 floats (K2).
+- `__builtin_is_pod(T)` existe en MWCC (el `is_POD` de la MSL); `std::vector` despacha con él (POD = camino de los punteros) (`vector-push-back`).
+- Literal de una inline miembro compartido por varios ficheros (un solo objeto `@STRING@` débil): el enlazador los fusiona por nombre; si los tipos difieren, el original usaba una función común (reserva de `vector` de punteros/int/float) (`vector-push-back`).

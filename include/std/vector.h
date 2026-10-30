@@ -72,13 +72,47 @@ inline void __vec_storage_unk<float>::__shrink_unk(unsigned int newSize) {
     size -= n;
 }
 
+// inferred: storage allocation. Pointer, int and float elements share one allocation function in the
+// original (its "Memory allocation failure" literal is a single weak @STRING@ object, 0x80775A88,
+// referenced by 48 files); other elements use vector<T>::__allocate (one literal per type)
+template <class T>
+struct __vec_alloc_sel_unk;
+struct __vec_word_alloc_unk {
+    static void* __allocate(unsigned int n) {
+        void* p = ::operator new(n * sizeof(void*));
+        if (p == 0) {
+            __msl_error("Memory allocation failure");
+        }
+        return p;
+    }
+};
+template <class T>
+struct __vec_alloc_sel_unk<T*> {
+    static T** alloc(unsigned int n) { return (T**)__vec_word_alloc_unk::__allocate(n); }
+};
+template <>
+struct __vec_alloc_sel_unk<int> {
+    static int* alloc(unsigned int n) { return (int*)__vec_word_alloc_unk::__allocate(n); }
+};
+template <>
+struct __vec_alloc_sel_unk<float> {
+    static float* alloc(unsigned int n) { return (float*)__vec_word_alloc_unk::__allocate(n); }
+};
+
 template <class T>
 struct __vec_imp_unk : public __vec_storage_unk<T> {
     ~__vec_imp_unk() {}
-    // inferred: generic elements are copy-constructed in place (0x80476ED4)
+    // inferred: MSL dispatches on is_POD (__builtin_is_pod): POD elements are assigned after the size is
+    // incremented, as pointers (vector<KrakenCommand_unk>::push_back 0x802D8854); the others are
+    // copy-constructed in place (0x80476ED4)
     void __push_fast_unk(unsigned int n, const T& x) {
-        new (this->mData + n) T(x);
-        this->mSize++;
+        if (__builtin_is_pod(T)) {
+            this->mSize = n + 1;
+            this->mData[this->mSize - 1] = x;
+        } else {
+            new (this->mData + n) T(x);
+            this->mSize++;
+        }
     }
     // inferred: appends n value-initialised elements in place (resize, weak copy 0x8032B314)
     void __append_n_unk(unsigned int n) {
@@ -139,7 +173,11 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<T>(alloc), mStart(0) {}
     T* begin() { return this->mData + mStart; }
     void push_back(const T& x) {
-        new (begin() + this->mSize) T(x);
+        if (__builtin_is_pod(T)) {
+            begin()[this->mSize] = x;
+        } else {
+            new (begin() + this->mSize) T(x);
+        }
         this->mSize++;
     }
     // inferred: appends n copies of x (resize, weak copy 0x8032B314)
@@ -152,6 +190,10 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
     }
     // inferred: moves [first, last) in front of the stored elements, last one first
     void __push_front_unk(T* first, T* last) {
+        if (__builtin_is_pod(T)) {
+            __push_front_resize_unk(first, last);
+            return;
+        }
         T* p = begin();
         while (last > first) {
             new (--p) T(*--last);
@@ -352,7 +394,7 @@ public:
         if (n > this->mCap) {
             __vec_raw_buf_unk<T> buf;
             __check_length_unk(n);
-            buf.mData = __allocate(n);
+            buf.mData = __vec_alloc_sel_unk<T>::alloc(n);
             buf.mCap = n;
             buf.__append_raw_unk(this->mData, this->mData + this->mSize);
             this->mSize = 0;
@@ -366,7 +408,7 @@ public:
     void __reserve_unk(size_type n, U**) {
         if (this->mCap < n) {
             __vec_raw_buf_unk<T> buf;
-            buf.mData = __allocate(n);
+            buf.mData = __vec_alloc_sel_unk<T>::alloc(n);
             buf.mCap = n;
             buf.__append_raw_unk(this->mData, this->mData + this->mSize);
             this->mSize = 0;
@@ -379,7 +421,7 @@ public:
     void __reserve_unk(size_type n, U*) {
         if (this->mCap < n) {
             __vec_storage_unk<T> buf;
-            buf.mData = __allocate(n);
+            buf.mData = __vec_alloc_sel_unk<T>::alloc(n);
             buf.mCap = n;
             buf.__append_raw_unk(this->mData, this->mData + this->mSize);
             __vec_swap_unk(this->mCap, buf.mCap);
@@ -412,7 +454,7 @@ private:
         }
         __vec_split_unk<T> buf(&this->mCap);
         size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
-        buf.mData = __allocate(cap);
+        buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
         buf.mCap = cap;
         buf.mStart = this->mSize;
         buf.__append_n_unk(n, T());
@@ -423,7 +465,7 @@ private:
     void __append_realloc_unk(size_type n) {
         __vec_split_unk<T> buf(&this->mCap);
         size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
-        buf.mData = __allocate(cap);
+        buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
         buf.mCap = cap;
         buf.mStart = this->mSize;
         buf.__append_n_unk(n, T());
@@ -463,7 +505,7 @@ private:
     // inferred: allocation of the temporary buffer (split off so that push_back stays within the
     // auto-inline limit)
     void __vec_set_buf_unk(__vec_split_unk<T>& buf, size_type cap) {
-        buf.mData = __allocate(cap);
+        buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
         buf.mCap = cap;
         buf.mStart = this->mSize;
     }
@@ -490,6 +532,11 @@ public:
         }
         return p;
     }
+};
+
+template <class T>
+struct __vec_alloc_sel_unk {
+    static T* alloc(unsigned int n) { return vector<T>::__allocate(n); }
 };
 
 template <class T>
@@ -532,7 +579,7 @@ T* vector<T>::__insert_one_unk(T* pos, const T& x, const bool& flag) {
     T* old = this->mData;
     size_type idx = pos - old;
     size_type cap = __grow_cap_unk(1);
-    T* p = __allocate(cap);
+    T* p = __vec_alloc_sel_unk<T>::alloc(cap);
     this->mData = p;
     this->mCap = cap;
     p[idx] = x;
@@ -588,7 +635,7 @@ void vector<T>::__init_n_unk(size_type n) {
         if (n > max_size()) {
             __msl_error("vector length error");
         }
-        this->mData = __allocate(n);
+        this->mData = __vec_alloc_sel_unk<T>::alloc(n);
         this->mCap = n;
         this->__append_n_unk(n);
     }
@@ -602,7 +649,7 @@ void vector<T>::__init_unk(const T* first, const T* last) {
         if (n > max_size()) {
             __msl_error("vector length error");
         }
-        this->mData = __allocate(n);
+        this->mData = __vec_alloc_sel_unk<T>::alloc(n);
         this->mCap = n;
         T* p = this->mData + this->mSize;
         for (; first != last; ++first, ++p) {

@@ -10641,7 +10641,7 @@ void CharaTask::fn_80174E04(GimmickCommon* cannon) {
 // inferred: CharaTask::m1208 is a gimmick (GimmickCommon: m54 state, m9C shown, vf40 message); the
 // byte at 0x520 belongs to the derived class
 struct CharaGimmick_unk : public GimmickCommon {
-    unsigned char mF4[0x520 - sizeof(GimmickCommon)];
+    unsigned char mF4[0x520 - 0xF4]; // inferred: the GimmickCommon members end at 0xF4 (its sizeof is padded to 8)
     unsigned char m520;
 };
 
@@ -10710,7 +10710,7 @@ struct GimmickLookEntry_unk {
     unsigned char m04[0x28 - 0x04];
 };
 struct GimmickLook_unk : public GimmickCommon {
-    unsigned char mF4[0x52C - sizeof(GimmickCommon)];
+    unsigned char mF4[0x52C - 0xF4]; // inferred: the GimmickCommon members end at 0xF4 (its sizeof is padded to 8)
     GimmickLookEntry_unk mEntries[7]; // 0x52C
 };
 

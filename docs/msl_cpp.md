@@ -101,6 +101,29 @@ failure"` is in an `@STRING@` pool). 62 of 189 lines still differ (standalone co
 load order of size/capacity in the fast path, stack slots of the two growth temporaries, a separate
 register for the new capacity, and `(data + size) - data` not folded before the `memcpy`.
 
+### Element kinds (2026-10-30, branch `vector-push-back`)
+
+- MSL dispatches on is_POD: MWCC has `__builtin_is_pod(T)` (no `__is_pod`). POD elements take the
+  pointer path in `push_back` (size incremented first, then the element assigned, no placement-new null
+  test) and are moved with separate decrements; non-POD elements keep placement new. The per-type copies
+  of that path in `ShopColor.h`/`LibraryTask.h` are gone; `U16Table_unk` and `Xsca_unk` still need theirs.
+- Pointer, int and float elements share ONE allocation function: its "Memory allocation failure"
+  literal is a single weak `@STRING@` object (0x80775A88) referenced by 48 files. Weak `@STRING@`
+  objects of inline members are merged by name by the linker, so a literal shared across files means a
+  shared function (`__vec_word_alloc_unk::__allocate`, symbol renamed). Other element types keep one
+  literal per `vector<T>::__allocate` (e.g. `vector<Vector3>`, 6 files). `n * sizeof(void*)` (not `n * 4`)
+  so that `vector<float>(n)` reuses the product for its memset (0x8032B6F8).
+- Same pattern in `std::list`: lists of pointers share 0x80779810 (17 files), now through
+  `__list_ptr_alloc_unk::__allocate` (symbol renamed). 14 ups and 2 accepted drops (user decision
+  2026-10-30): `Loader::fn_8046EF08` 98.36 -> 98.13 and `Get_unk<LoadCore>` 98.62 -> 98.49, both the
+  list-end/node register residue of `Loader::Get_unk` (`Get_unk<LoadColliTree>` 96.75 -> 96.96).
+- Open: in loops the original gives size r4 / cap r3 (`addi r4,r4,1; ...; add; stw x,-4`). Probe
+  `pb/t1.cpp` (`while (id != -1) { v.push_back(id); id = next(); }`) reproduces it in isolation: addressing
+  the element with the new size (`mData[mSize - 1]`, as the original) always gives size r3; addressing it
+  with the old `n` (`mData[n]`, `&mData[n]`, `n++` + `[n - 1]`) gives size r4 but `addi r0; stw; stwx`.
+  Accessors, cap locals, `cap > n`, if/else, the slow path in another inline, without `__recommend`:
+  no change. ~35 more forms on 2026-10-30.
+
 ## std::list (partial, `include/std/list.h`)
 
 Seen in the loader manager template `atn::LoadManager_unk::Get_unk` (`include/atn/LoadManager.h`,

@@ -19,37 +19,6 @@ struct LibraryBook_unk {
     int m94;
 };
 
-namespace std {
-// inferred: the books are stored by assignment, the size being incremented first, as for pointer
-// elements (0x80469D60); moving them into a new buffer still copy-constructs them
-template <>
-struct __vec_imp_unk<LibraryBook_unk> : public __vec_storage_unk<LibraryBook_unk> {
-    ~__vec_imp_unk() {}
-    void __push_fast_unk(unsigned int n, const LibraryBook_unk& x) {
-        this->mSize = n + 1;
-        this->mData[this->mSize - 1] = x;
-    }
-};
-template <>
-struct __vec_split_unk<LibraryBook_unk> : public __vec_split_base_unk<LibraryBook_unk> {
-    __vec_split_unk(void* alloc) : __vec_split_base_unk<LibraryBook_unk>(alloc), mStart(0) {}
-    LibraryBook_unk* begin() { return this->mData + mStart; }
-    void push_back(const LibraryBook_unk& x) {
-        begin()[this->mSize] = x;
-        this->mSize++;
-    }
-    void __push_front_unk(LibraryBook_unk* first, LibraryBook_unk* last) {
-        LibraryBook_unk* p = begin();
-        while (last > first) {
-            new (--p) LibraryBook_unk(*--last);
-            mStart--;
-            this->mSize++;
-        }
-    }
-    unsigned int mStart;
-};
-} // namespace std
-
 // inferred: page of a book (0x54 bytes, read from <book>_xx.u16); names invented
 struct LibraryPage_unk {
     LibraryPage_unk();  // 0x8046BB60

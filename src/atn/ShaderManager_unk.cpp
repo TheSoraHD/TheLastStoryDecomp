@@ -171,12 +171,12 @@ ShaderLOD_unk* ShaderManager_unk::fn_800C5FF0(unsigned int hash) const {
     return 0;
 }
 
-// NONMATCHING: 98.7% - the loop registers of the inlined FindShader_unk (index and iterator) are swapped.
+// The unsigned index into sErrorShaders gives the loop registers of the inlined FindShader_unk
 // inferred: material of an error shader (code -1 to -4), created on first use
 Material_unk* ShaderManager_unk::fn_800C607C(int code) {
     int i = -1 - code;
     if (sErrorMaterials[i] == 0) {
-        sErrorMaterials[i] = fn_800C4A90(FindShader_unk(sErrorShaders[i]));
+        sErrorMaterials[i] = fn_800C4A90(FindShader_unk(sErrorShaders[(unsigned int)i]));
     }
     return sErrorMaterials[i];
 }

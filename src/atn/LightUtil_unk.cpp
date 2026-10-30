@@ -55,7 +55,7 @@ void LightList_unk::fn_8007A154(int index) {
     mCount--;
 }
 
-// NONMATCHING: 99.50% - order of the two loop increments (i before the offset in the original)
+// The unsigned index makes MWCC increment i before the offset, as in the original
 void LightSet_unk::fn_8007A36C(LightList_unk* list, const atn::Vector3& pos, float radius, int arg) {
     Clear_unk();
     int n = 4;
@@ -63,14 +63,14 @@ void LightSet_unk::fn_8007A36C(LightList_unk* list, const atn::Vector3& pos, flo
         n = list->mCount;
     }
     for (int i = 0; i < n; i++) {
-        Light_unk* light = &list->mData[i];
+        Light_unk* light = &list->mData[(unsigned int)i];
         if (light->mType != 0) {
             fn_80079EFC(light, 0.0f);
         }
     }
 }
 
-// NONMATCHING: 99.50% - as fn_8007A36C
+// unsigned index as in fn_8007A36C
 void LightSet_unk::fn_8007A41C(LightList_unk* list) {
     Clear_unk();
     int n = 4;
@@ -78,7 +78,7 @@ void LightSet_unk::fn_8007A41C(LightList_unk* list) {
         n = list->mCount;
     }
     for (int i = 0; i < n; i++) {
-        Light_unk* light = &list->mData[i];
+        Light_unk* light = &list->mData[(unsigned int)i];
         if (light->mType != 0) {
             fn_80079EFC(light, 0.0f);
         }

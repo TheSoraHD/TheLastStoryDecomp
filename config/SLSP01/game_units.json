@@ -536,7 +536,7 @@
   "classes": [
    "Event::BehaviorFollow"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Bullet.cpp",
@@ -1210,7 +1210,7 @@
  {
   "name": "db/EventIdTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/ChaseParam_unk.cpp",
@@ -3196,7 +3196,7 @@
  {
   "name": "game/SpecialEnemyFactory_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/SpecialEnemyBase.cpp",
@@ -3397,7 +3397,7 @@
   "classes": [
    "Event::BehaviorMoveTo"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MenuCommon_unk.cpp",
