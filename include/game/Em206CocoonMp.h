@@ -45,6 +45,7 @@ public:
     void fn_802BE180(); // inferred: state 8
     void fn_802BE7EC(); // inferred: state 10
     void fn_802BE9C8(); // inferred: state 11
+    void fn_802C0458(); // inferred: state 16
     void fn_802C06B4(); // inferred: state 17
     void fn_802C0738(); // inferred: state 18
 

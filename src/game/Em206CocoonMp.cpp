@@ -46,11 +46,29 @@ extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
+extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
+extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: multiplayer session (lbl_8087F610, as in game/Em204MulueMp.cpp)
 struct MpSession_unk;
 extern "C" MpSession_unk* lbl_8087F610;
 extern "C" void fn_804DA48C(MpSession_unk* session, int arg);
+
+// inferred: damage spheres of the body (table lbl_80746964; names invented)
+struct CocoonSphereDef_unk {
+    const char* mNode;     // inferred: center (or start of the segment)
+    const char* mNode2;    // inferred: end of the segment ("" = only mNode)
+    const char* mMaterial;
+    int m0C;
+    int m10;
+    float mRadius;
+    int m18;
+};
+static const CocoonSphereDef_unk sSpheres_unk[3] = {
+    {"reference", "", "", -1, -1, 17.5f, 0},
+    {"head", "", "em206_body_l", 100, 200, 8.4f, 1000},
+    {"spine1", "", "", -1, -1, 21.0f, 1000},
+};
 
 // inferred: state of the multiplayer copy (SpecialState_unk seen with the layout of this class; name invented)
 struct CocoonState_unk {
@@ -108,6 +126,11 @@ static inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::M
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: linear interpolation with the offset added last (name invented)
+inline atn::Vector3 LerpR_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
 }
 
 // inferred: node position (as in game/Em403WarLion.cpp; name invented)
@@ -356,6 +379,33 @@ void Em206CocoonMp::vf100(int state) {
 
 void Em206CocoonMp::vf108() {}
 
+// NONMATCHING: 99.9% - stack slots of the front vector and of the center
+void Em206CocoonMp::vf54() {
+    if (m624.mSize != 0) {
+        for (int i = 0; i < 3; i++) {
+            if (i == 0) {
+                atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+                Mtx m;
+                PSMTXRotRad(m, 'y', mRot.y);
+                PSMTXMultVec(m, &fwd, &fwd);
+                atn::Vector3 off = fwd * 3.0f;
+                m624.mData[i].m04.mCenter = mPos - off;
+                m624.mData[i].m04.mCenter.y += 0.5f * sSpheres_unk[i].mRadius;
+            } else {
+                MtxPtr a = mMotion.GetNodeMtx_unk(sSpheres_unk[i].mNode);
+                MtxPtr b = mMotion.GetNodeMtx_unk(sSpheres_unk[i].mNode2);
+                if (a != 0) {
+                    if (b != 0) {
+                        m624.mData[i].m04.mCenter = LerpR_unk(GetNodePos_unk(a), GetNodePos_unk(b), 0.6f);
+                    } else {
+                        m624.mData[i].m04.mCenter = GetNodePos_unk(a);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Em206CocoonMp::vf24() {
     if (m55C == 6 && mControl && mControl->vf3C() == 0) {
         return;
@@ -459,6 +509,39 @@ void Em206CocoonMp::fn_802BE9C8() {
         Effect_unk* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, fn_80219E6C(0x57C), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         m1904 = 900;
+    }
+}
+
+// inferred: state 16 (jumps from m1508 to m1514, then lands)
+void Em206CocoonMp::fn_802C0458() {
+    if (mMotion.mTracks[0].m00 == 0x168) {
+        float t = MIN(1.0f, mMotion.mTracks[0].m08 / 22.0f);
+        atn::Vector3 pos = LerpR_unk(m1508, m1514, t);
+        mPos = pos;
+        mPos.y += -160.0f * ((t - 0.5f) * (t - 0.5f)) + 40.0f;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.fn_80097C08(0, 0x169, 0, 0, 1, 0.0f, 0.1f);
+        }
+        if (m14DC == 0 && mMotion.mTracks[0].m08 >= 21.0f) {
+            Effect_unk* mgr = lbl_8087F048;
+            fn_800FAB80(mgr, this, fn_80219E6C(0x5C1), fn_800F8548(mgr), &m1514, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            m14DC++;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            SetState_unk(17);
+            m14F0 = 0;
+            m14F4 = 0;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, 0x165, 0, 0, 1, 0.0f, 0.025f);
+            mMotion.mTracks[0].m0C = 1.0f;
+            if (lbl_8087F610 != 0) {
+                fn_804DA48C(lbl_8087F610, 2);
+            }
+        }
     }
 }
 
