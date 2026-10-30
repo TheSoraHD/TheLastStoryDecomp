@@ -17,7 +17,8 @@ Only the units that are not `same` are printed unless --all is given.
 
 --funcs: for the units in `order`/`content`, list the functions < 100% (build/SLSP01/report.json)
 whose only differing instructions in objdiff are references to @stringBase0 (offsets that move with
-the order of the pool), i.e. functions that would match once the pool is fixed.
+the order of the pool), i.e. functions that would match once the pool is fixed (`only`), and
+how many have pool offsets among other differences (`mixed`, listed with --mixed).
 """
 import glob, json, os, subprocess, sys
 from collections import Counter
@@ -68,7 +69,8 @@ def report_funcs():
 
 
 def pool_only_diff(unit, sym):
-    """True if every differing instruction of sym is a reference to @stringBase0 on both sides."""
+    """'only' if every differing instruction of sym is a reference to @stringBase0 on both sides,
+    'mixed' if some are and others are not, None otherwise."""
     p = subprocess.run([os.path.join(ROOT, 'build/tools/objdiff-cli'), 'diff', '-p', ROOT, '-u', 'main/' + unit,
                         sym, '-o', '-', '--format', 'json'], capture_output=True, text=True)
     try:
@@ -83,7 +85,7 @@ def pool_only_diff(unit, sym):
                 rows[side] = s.get('instructions', [])
     L, R = rows.get('left'), rows.get('right')
     if not L or not R or len(L) != len(R):
-        return False
+        return None
 
     # objdiff marks `addi rX, rBase, N` on a register holding @stringBase0 with a synthetic
     # R_PPC_NONE relocation (addend N) whose target_symbol is the pool's index on that side
@@ -95,23 +97,26 @@ def pool_only_diff(unit, sym):
                 pidx[side] = ins['relocation'].get('target_symbol')
                 break
     if len(pidx) != 2:
-        return False
+        return None
 
     def strip(ins):
         return [q for q in ins.get('parts', []) if not ('arg' in q and ('signed' in q['arg'] or 'unsigned' in q['arg']))]
 
-    ndiff = 0
+    npool = nother = 0
     for a, b in zip(L, R):
         if not (a.get('diff_kind') or b.get('diff_kind')):
             continue
-        ndiff += 1
         ia, ib = a.get('instruction') or {}, b.get('instruction') or {}
         ra, rb = ia.get('relocation') or {}, ib.get('relocation') or {}
-        if ra.get('target_symbol') != pidx['left'] or rb.get('target_symbol') != pidx['right']:
-            return False
-        if strip(ia) != strip(ib):
-            return False
-    return ndiff > 0
+        if ra.get('target_symbol') == pidx['left'] and rb.get('target_symbol') == pidx['right'] and \
+                strip(ia) == strip(ib):
+            npool += 1
+        else:
+            nother += 1
+    if not npool:
+        return None
+    return 'mixed' if nother else 'only'
+
 
 
 def main():
@@ -147,10 +152,15 @@ def main():
                 msg += '  missing=%d extra=%d' % (sum((ca - cb).values()), sum((cb - ca).values()))
         if funcs and kind in ('order', 'content'):
             cand = [f for f, pct in rep.get(rel, rep.get(unit + '.cpp', rep.get(unit, []))) if 0.0 < pct < 100.0]
-            good = [f for f in cand if pool_only_diff(unit, f)]
-            msg += '  funcs<100=%d pool-only=%d' % (len(cand), len(good))
+            res = [(f, pool_only_diff(unit, f)) for f in cand]
+            good = [f for f, k in res if k == 'only']
+            mixed = [f for f, k in res if k == 'mixed']
+            msg += '  funcs<100=%d pool-only=%d mixed=%d' % (len(cand), len(good), len(mixed))
             for f in good:
-                msg += '\n    ' + f
+                msg += '\n    only  ' + f
+            if '--mixed' in args:
+                for f in mixed:
+                    msg += '\n    mixed ' + f
         print(msg, flush=True)
     print('summary:', ' '.join('%s=%d' % kv for kv in sorted(counts.items())))
 
