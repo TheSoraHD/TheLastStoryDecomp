@@ -27,8 +27,10 @@ from elftools.elf.elffile import ELFFile
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 
 
-def pool(path):
-    """Return the list of strings of @stringBase0 (None if the object has none)."""
+def pool(path, exact=False):
+    """Return the list of strings of @stringBase0 (None if the object has none). With exact (our
+    objects, whose symbol size is exact) only the terminator of the last string is dropped; the
+    split objects of the original include the alignment padding, see trim()."""
     with open(path, 'rb') as f:
         e = ELFFile(f)
         st = e.get_section_by_name('.symtab')
@@ -41,9 +43,13 @@ def pool(path):
                     return None
                 d = sec.data()[s['st_value']:s['st_value'] + s['st_size']]
                 parts = d.split(b'\0')
-                # the pool ends with the terminator of its last string plus alignment padding
-                while parts and parts[-1] == b'':
-                    parts.pop()
+                if exact:
+                    if parts and parts[-1] == b'':
+                        parts.pop()
+                else:
+                    # the pool ends with the terminator of its last string plus alignment padding
+                    while parts and parts[-1] == b'':
+                        parts.pop()
                 return parts
     return None
 
@@ -134,7 +140,14 @@ def main():
         ours = os.path.join('build/SLSP01/src', rel)
         if not os.path.exists(ours):
             continue
-        a, b = pool(orig), pool(ours)
+        a, b = pool(orig), pool(ours, exact=True)
+        if a is not None and b is not None:
+            # "" literals at the end of our pool: the original keeps as many as fit in its padding
+            k = 0
+            while k < len(b) and b[len(b) - 1 - k] == b'':
+                k += 1
+            if k and len(a) == len(b) - k:
+                a = a + [b''] * k
         kind, i = compare(a, b)
         counts[kind] += 1
         if kind == 'same' and not show_all:
