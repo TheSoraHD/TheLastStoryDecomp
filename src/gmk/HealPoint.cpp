@@ -58,7 +58,9 @@ GimmickCommon* HealPoint::fn_8040EC30(atn::Task* parent, int id, int arg) {
 
 // NONMATCHING: 93.8% - scheduling of the inline constructor (the original loads desc->mRotY and the
 // position between the stores of mWait and m54). Tried: rotation temporary/local first, member
-// helpers, mWait/m54 stores before/after the copies, m78 before m6C.
+// helpers, mWait/m54 stores before/after the copies, m78 before m6C; also m78.Set_unk, an inline
+// SetPosRot_unk(pos, rot) or (pos, rotY), rotation or position locals, mWait in the body. Ours also loads
+// pos.z before pos.xy (the original loads xy first).
 GimmickCommon* HealPoint::fn_8040ED00(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
         return new ((MemoryTag)12, "", "", 0) HealPoint(parent, desc);
