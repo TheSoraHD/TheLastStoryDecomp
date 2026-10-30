@@ -79,10 +79,15 @@ static inline void GXPosition3f32(float x, float y, float z) {
 static inline void GXColor1u32(unsigned int c) {
     GXWGFifo.u = c;
 }
+static inline void GXTexCoord2f32(float s, float t) {
+    GXWGFifo.f = s;
+    GXWGFifo.f = t;
+}
 
 extern "C" void GXSetAlphaCompare(int comp0, unsigned char ref0, int op, int comp1, unsigned char ref1);
 extern "C" void GXBegin(int type, int fmt, unsigned short count);
 extern "C" void fn_800761A8(void* device); // inferred: flushes the render state
+extern "C" void fn_800763FC(void* device, GXTexObj* tex, int map); // inferred: loads a texture
 
 atn::DrawHelper* lbl_8087EEB0;
 
@@ -1738,6 +1743,53 @@ void DrawHelper::ComDrawLine::vf10(RenderView_unk* view) {
             GXPosition3f32(mVertex[i].mPos.x, mVertex[i].mPos.y, mVertex[i].mPos.z);
             GXColor1u32(DrawRGBA_unk(mVertex[i].mColor));
         }
+    }
+}
+
+void DrawHelper::ComDrawTexture::vf10(RenderView_unk* view) {
+    GXSetNumChans(1);
+    GXSetNumTexGens(1);
+    GXSetNumTevStages(1);
+    GXSetTevOrder(0, 0, 0, 4);
+    GXSetTevOp(0, 0);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    if (m04 == 1) {
+        Matrix3x4 m;
+        m.SetIdentity();
+        GXLoadPosMtxImm(m.m, 0);
+        GXSetCurrentMtx(0);
+    } else {
+        fn_80076760(lbl_8087EEE0, 6, 0);
+        DrawSetZMode_unk(lbl_8087EEE0, m11);
+        GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+        GXSetCurrentMtx(0);
+    }
+    fn_800763FC(lbl_8087EEE0, mTex, 0);
+    GXSetBlendMode(m10 != 0, 4, 5, 0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    if (m04 == 1) {
+        GXSetVtxAttrFmt(0, 9, 0, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    } else {
+        GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    }
+    fn_800761A8(lbl_8087EEE0);
+    GXBegin(0x80, 0, 4);
+    for (int i = 0; i < 4; i++) {
+        if (m04 == 1) {
+            GXPosition2f32(mVertex[i].mPos.x, mVertex[i].mPos.y);
+        } else {
+            GXPosition3f32(mVertex[i].mPos.x, mVertex[i].mPos.y, mVertex[i].mPos.z);
+        }
+        GXColor1u32(DrawRGBA_unk(mVertex[i].mColor));
+        GXTexCoord2f32(mVertex[i].mUV.x, mVertex[i].mUV.y);
     }
 }
 
