@@ -74,38 +74,39 @@ int TutorialTask::vf0C() {
             fn_805BB654();
             mFile.fn_80473F88();
         }
-        return 0;
-    }
-    int loading = 0;
-    for (unsigned int i = 0; i < 4; i++) {
-        if (mPages[i].mEnabled != 0 && mPages[i].mMotion.mLoader.fn_800A0448() != 0) {
-            loading = 1;
-        }
-    }
-    if (loading == 0 && fn_800D3FA4() != 0) {
-        for (unsigned int i = 0; i < 4; i++) {
-            TutorialPage_unk* page = &mPages[i];
-            if (page->mEnabled != 0) {
-                page->mLayout->mFlags |= 4;
-                page->mLayout->fn_800D246C(0);
-                page->mLayout->SetText_unk("comment", (int)mData->mText);
-                if (page->mVideo != 0) {
-                    atn::D2A_Task* layout = page->mLayout;
-                    const wchar_t* text = fn_80116FC0(0, page->mMsg0);
-                    fn_801FEE08(&layout->mData.m10, fn_800DC6B4("string0009(1)(1)"), text);
-                    layout = page->mLayout;
-                    text = fn_80116FC0(0, page->mMsg1);
-                    fn_801FEE08(&layout->mData.m10, fn_800DC6B4("string0009(1)"), text);
-                }
-                if (page->mVideoLayout != 0) {
-                    page->mVideoLayout->mFlags |= 4;
-                    page->mVideoLayout->fn_800D246C(0);
-                    page->mVideoLayout->mSpeed = 0.0f;
-                    page->mVideoLayout->mRepeat = 0;
-                }
+    } else {
+        int loading = 0;
+        TutorialPage_unk* page = &mPages[0];
+        for (unsigned int i = 0; i < 4; i++, page++) {
+            if (page->mEnabled != 0 && page->mMotion.mLoader.fn_800A0448() != 0) {
+                loading = 1;
             }
         }
-        return 1;
+        if (loading == 0 && fn_800D3FA4() != 0) {
+            page = &mPages[0];
+            for (unsigned int i = 0; i < 4; i++, page++) {
+                if (page->mEnabled != 0) {
+                    page->mLayout->mFlags |= 4;
+                    page->mLayout->fn_800D246C(0);
+                    page->mLayout->SetText_unk("comment", (int)mData->mText);
+                    if (page->mVideo != 0) {
+                        atn::D2A_Task* layout = page->mLayout;
+                        const wchar_t* text = fn_80116FC0(0, page->mMsg0);
+                        fn_801FEE08(&layout->mData.m10, fn_800DC6B4("string0009(1)(1)"), text);
+                        layout = page->mLayout;
+                        text = fn_80116FC0(0, page->mMsg1);
+                        fn_801FEE08(&layout->mData.m10, fn_800DC6B4("string0009(1)"), text);
+                    }
+                    if (page->mVideoLayout != 0) {
+                        page->mVideoLayout->mFlags |= 4;
+                        page->mVideoLayout->fn_800D246C(0);
+                        page->mVideoLayout->mSpeed = 0.0f;
+                        page->mVideoLayout->mRepeat = 0;
+                    }
+                }
+            }
+            return 1;
+        }
     }
     return 0;
 }
