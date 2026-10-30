@@ -48,6 +48,8 @@ extern "C" void GXSetVtxDesc(int attr, int type);
 extern "C" void GXSetVtxAttrFmt(int fmt, int attr, int cnt, int type, unsigned char frac);
 extern "C" void GXSetChanAmbColor(int chan, GXColor color);
 extern "C" void GXSetChanMatColor(int chan, GXColor color);
+extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
+extern "C" int fn_800760E8(int n, int arg); // inferred: vertex format of the 3D texture commands
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, unsigned long len); // inferred: SJIS to wide
 
 atn::DrawHelper* lbl_8087EEB0;
@@ -226,6 +228,22 @@ public:
     int m18;
 };
 
+class DrawHelper::ComDrawD3TextureMask : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawD3TextureMask() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;
+    DrawTexVertex_unk* mVertex; // 0x08
+    int m0C;
+    int m10;
+    int mCount; // 0x14
+    int m18;
+    int m1C;
+    int m20;
+    int m24;
+};
+
 class DrawHelper::ComDrawTextureMono : public DrawHelper::ComDrawTexture {
 public:
     virtual ~ComDrawTextureMono() {}
@@ -380,7 +398,7 @@ void DrawHelper::fn_8005E7F4(unsigned int color, void* texture0, void* texture1,
     fn_8005E838(color, texture0, texture1, 0, x, y, z, w, h, u0, v0, u1, v1, 0.0f, 0.0f, 1.0f, 1.0f);
 }
 
-// NONMATCHING: register allocation of the texture checks (r23/r24 swapped from the vertex array on)
+// NONMATCHING: 98.9% - register allocation of the texture checks (r23/r24 swapped from the vertex array on)
 void DrawHelper::fn_8005E838(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z,
                              float w, float h, float u0, float v0, float u1, float v1, float s0, float s1, float s2,
                              float s3) {
@@ -449,6 +467,7 @@ void DrawHelper::fn_8005EEA0(unsigned int color, void* texture, int blend, unsig
     fn_8005EEE0(color, texture, blend, flags, x, y, z, w, h, scaleX, scaleY, rotation, u0, v0, u1, v1);
 }
 
+// NONMATCHING: 99.8% - r3/r4 swapped for the vertex and position addresses in the loop
 void DrawHelper::fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1) {
     ComDrawTextureAdd* cmd = m04.New_unk<ComDrawTextureAdd>();
     if (cmd == 0) {
@@ -496,6 +515,7 @@ void DrawHelper::fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, 
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 
+// NONMATCHING: 99.1% - register allocation of the texture checks
 void DrawHelper::fn_8005F36C(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1, float s0, float s1,
                              float s2, float s3) {
     ComDrawTextureMask* cmd = m04.New_unk<ComDrawTextureMask>();
@@ -545,6 +565,7 @@ void DrawHelper::fn_8005F36C(unsigned int color, void* texture0, void* texture1,
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 
+// NONMATCHING: 99.1% - register allocation of the texture check
 void DrawHelper::fn_8005F90C(unsigned int color, void* texture, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1) {
     ComDrawTextureMono* cmd = m04.New_unk<ComDrawTextureMono>();
     if (cmd == 0) {
@@ -586,6 +607,7 @@ void DrawHelper::fn_8005F90C(unsigned int color, void* texture, float x, float y
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 
+// NONMATCHING: 98.9% - register allocation of the texture checks
 void DrawHelper::fn_8005FD80(unsigned int color, void* texture0, void* texture1, int blend_, float x, float y, float z, float w, float h, float u0, float v0,
                              float u1, float v1, float s0, float s1, float s2, float s3) {
     ComDrawTextureMaskMono* cmd = m04.New_unk<ComDrawTextureMaskMono>();
@@ -629,6 +651,7 @@ void DrawHelper::fn_8005FD80(unsigned int color, void* texture0, void* texture1,
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 
+// NONMATCHING: 99.7% - r3/r4 swapped for the vertex and position addresses in the loop
 void DrawHelper::fn_800602E8(unsigned int color, void* texture, int blend_, unsigned int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1) {
     ComDrawTextureMono* cmd = m04.New_unk<ComDrawTextureMono>();
     if (cmd == 0) {
@@ -674,6 +697,7 @@ void DrawHelper::fn_800602E8(unsigned int color, void* texture, int blend_, unsi
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 
+// NONMATCHING: 98.8% - register allocation of the texture checks
 void DrawHelper::fn_800607C0(unsigned int color, void* texture0, void* texture1, int blend_, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1, float s0, float s1,
                              float s2, float s3) {
     ComDrawTextureMaskMono* cmd = m04.New_unk<ComDrawTextureMaskMono>();
@@ -907,7 +931,6 @@ void DrawHelper::fn_80061AE4(const wchar_t* text, unsigned int color, int a, int
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 
-// [builders]
 void DrawHelper::fn_80062908(ColliObject* colli, int a, int b, int c, int d, float z) {
     ComDrawColliObject* cmd = m04.New_unk<ComDrawColliObject>();
     if (cmd == 0) {
@@ -1144,6 +1167,30 @@ void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsign
 }
 
 
-// [draw]
+void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int a, int b, float z) {
+    ComDrawD3TextureMask* cmd = m04.New_unk<ComDrawD3TextureMask>();
+    if (cmd == 0) {
+        return;
+    }
+    int size = n * sizeof(DrawTexVertex_unk);
+    DrawTexVertex_unk* v = m04.NewArray_unk<DrawTexVertex_unk>(n);
+    if (v == 0) {
+        return;
+    }
+    memcpy(v, src, size);
+    cmd->m04 = 0;
+    cmd->m0C = prim;
+    cmd->m10 = fn_800760E8(n, prim);
+    cmd->mCount = n;
+    cmd->m18 = a;
+    cmd->m1C = b;
+    cmd->mVertex = v;
+    cmd->m20 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+}
+
+// Pending (in the order of the .dol): fn_800638B0, fn_80063D3C, fn_800641CC, fn_8006471C, fn_80064AC4 before
+// fn_80064F00; fn_80061E2C (window) before fn_80062908; then the vf10 of every command
+// (0x80065060-0x800685E4) and the weak destructors.
 
 } // namespace atn

@@ -18,6 +18,7 @@ namespace atn {
 
 class ColliObject;
 class ColliTree;
+struct DrawTexVertex_unk;
 
 // inferred: array released with delete[] {data, size, ?} (names invented; the destructor is
 // inlined into DrawHelper::~DrawHelper)
@@ -97,6 +98,7 @@ public:
     void fn_8005EE38(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z, float w, float h, float rot, float u0, float v0, float u1, float v1, float s0, float s1, float s2, float s3);
     void fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1);
     void fn_80062F7C(unsigned int segments, unsigned int color, float x, float y, float z, float a, float radius, float b, float rot);
+    void fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int a, int b, float z);
     void fn_8005E40C(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1);
 
     // Drawing commands (atn/ComDrawTexture). Names and parameter names unknown (fn_<addr>);
