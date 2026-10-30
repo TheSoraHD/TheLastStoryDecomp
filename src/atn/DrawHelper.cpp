@@ -1941,6 +1941,126 @@ void DrawHelper::ComDrawTextureMask::vf10(RenderView_unk* view) {
     GXSetBlendMode(1, 4, 5, 0);
 }
 
+// inferred: float color with a plain (member-wise) copy, as in atn/PostFxColorMatrix (name invented)
+struct DrawColorF_unk {
+    DrawColorF_unk() {}
+    DrawColorF_unk(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
+    float x, y, z, w;
+};
+static inline GXColor DrawToGXColor_unk(const DrawColorF_unk& v) {
+    GXColor c = {(unsigned char)(255.0f * v.x), (unsigned char)(255.0f * v.y), (unsigned char)(255.0f * v.z),
+                 (unsigned char)(255.0f * v.w)};
+    return c;
+}
+
+// inferred: grey scale version of ComDrawTexture (color matrix with the luminance weights in the TEV)
+// NONMATCHING: 98.1% - same instructions; order of the stores of the matrix (by columns in the original) and
+// stack slot of lum
+void DrawHelper::ComDrawTextureMono::vf10(RenderView_unk* view) {
+    float s = 1.0f;
+    float lum[4] = {0.298912f, 0.586611f, 0.114478f, 0.0f};
+    DrawColorF_unk mat[4] = {
+        DrawColorF_unk(lum[0] * s, lum[0] * s, lum[0] * s, 0.0f),
+        DrawColorF_unk(lum[1] * s, lum[1] * s, lum[1] * s, 0.0f),
+        DrawColorF_unk(lum[2] * s, lum[2] * s, lum[2] * s, 0.0f),
+        DrawColorF_unk(0.0f, 0.0f, 0.0f, 1.0f),
+    };
+    DrawColorF_unk k[4];
+    for (int i = 0; i < 3; i++) {
+        DrawColorF_unk c = mat[i];
+        GXColor b = DrawToGXColor_unk(c);
+        k[i] = DrawColorF_unk(b.r / 255.0f, b.g / 255.0f, b.b / 255.0f, b.a / 255.0f);
+    }
+    GXSetNumChans(1);
+    GXSetNumTexGens(1);
+    GXSetNumTevStages(4);
+    fn_800763FC(lbl_8087EEE0, mTex, 0);
+    GXSetBlendMode(1, 4, 5, 0);
+    GXSetTevKColor(0, DrawToGXColor_unk(k[0]));
+    GXSetTevKColor(1, DrawToGXColor_unk(k[1]));
+    GXSetTevKColor(2, DrawToGXColor_unk(k[2]));
+    GXSetTevSwapModeTable(0, 0, 0, 0, 0);
+    GXSetTevSwapModeTable(1, 1, 1, 1, 1);
+    GXSetTevSwapModeTable(2, 2, 2, 2, 2);
+    GXSetTevSwapModeTable(3, 0, 1, 2, 3);
+    GXSetTevSwapMode(0, 0, 0);
+    GXSetTevKColorSel(0, 0xC);
+    GXSetTevColorIn(0, 0xF, 0xE, 8, 0xF);
+    GXSetTevAlphaIn(0, 7, 7, 7, 7);
+    GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+    GXSetTevOrder(0, 0, 0, 0xFF);
+    GXSetTevDirect(0);
+    GXSetTevSwapMode(1, 1, 1);
+    GXSetTevKColorSel(1, 0xD);
+    GXSetTevColorIn(1, 0xF, 0xE, 8, 0);
+    GXSetTevAlphaIn(1, 7, 7, 7, 7);
+    GXSetTevColorOp(1, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(1, 0, 0, 0, 1, 0);
+    GXSetTevOrder(1, 0, 0, 0xFF);
+    GXSetTevDirect(1);
+    GXSetTevSwapMode(2, 2, 2);
+    GXSetTevKColorSel(2, 0xE);
+    GXSetTevColorIn(2, 0xF, 0xE, 8, 0);
+    GXSetTevAlphaIn(2, 7, 7, 7, 7);
+    GXSetTevColorOp(2, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(2, 0, 0, 0, 1, 0);
+    GXSetTevOrder(2, 0, 0, 0xFF);
+    GXSetTevDirect(2);
+    GXSetTevSwapMode(3, 3, 3);
+    GXSetTevColorIn(3, 0xF, 0, 0xA, 0xF);
+    GXSetTevAlphaIn(3, 7, 4, 5, 7);
+    GXSetTevColorOp(3, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(3, 0, 0, 0, 1, 0);
+    GXSetTevOrder(3, 0, 0, 4);
+    GXSetTevDirect(3);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    if (m04 == 1) {
+        Matrix3x4 m;
+        m.SetIdentity();
+        GXLoadPosMtxImm(m.m, 0);
+        GXSetCurrentMtx(0);
+    } else {
+        fn_80076760(lbl_8087EEE0, 6, 0);
+        DrawSetZMode_unk(lbl_8087EEE0, m11);
+        GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+        GXSetCurrentMtx(0);
+    }
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    if (m04 == 1) {
+        GXSetVtxAttrFmt(0, 9, 0, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    } else {
+        GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    }
+    fn_800761A8(lbl_8087EEE0);
+    GXBegin(0x80, 0, 4);
+    for (int i = 0; i < 4; i++) {
+        if (m04 == 1) {
+            GXPosition2f32(mVertex[i].mPos.x, mVertex[i].mPos.y);
+        } else {
+            GXPosition3f32(mVertex[i].mPos.x, mVertex[i].mPos.y, mVertex[i].mPos.z);
+        }
+        GXColor1u32(DrawRGBA_unk(mVertex[i].mColor));
+        GXTexCoord2f32(mVertex[i].mUV.x, mVertex[i].mUV.y);
+    }
+    GXSetTevSwapModeTable(0, 0, 1, 2, 3);
+    GXSetTevSwapModeTable(1, 0, 1, 2, 3);
+    GXSetTevSwapModeTable(2, 0, 1, 2, 3);
+    GXSetTevSwapModeTable(3, 0, 1, 2, 3);
+    GXSetTevSwapMode(0, 0, 0);
+    GXSetTevSwapMode(1, 0, 0);
+    GXSetTevSwapMode(2, 0, 0);
+    GXSetTevSwapMode(3, 0, 0);
+}
+
 // Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
 // destructors.
 
