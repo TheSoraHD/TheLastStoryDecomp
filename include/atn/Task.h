@@ -19,14 +19,14 @@ public:
 
     bool IsValid() const; // 0x800D56C4: tag and id set (also false for a null this)
 
-    // 64-bit values kept as two words: a long long member would align the class to 8 and move members
-    // of the classes that embed a Task (CharaTask). Access them with TASK_U64.
-    unsigned long m04;     // padding before the 64-bit values
-    unsigned long mTag[2]; // 0x08: "XTASKTAG" (inferred: checked by IsValid)
-    unsigned long mId[2];  // 0x10: unique id (0 once destroyed)
+    // The 64-bit members align every task class to 8: the enemy factory (fn_805A5374) allocates
+    // sizes rounded up to 8 (0x1568 for Em306GurgBeast, whose last member ends at 0x1564).
+    unsigned long m04;          // padding before the 64-bit values
+    unsigned long long mTag;    // 0x08: "XTASKTAG" (inferred: checked by IsValid)
+    unsigned long long mId;     // 0x10: unique id (0 once destroyed)
 };
 
-#define TASK_U64(x) (*(unsigned long long*)(x))
+#define TASK_U64(x) (x)
 
 class Task : public TaskBase {
 public:
@@ -85,7 +85,7 @@ public:
     Task* m24; // root of the tree
     Task* m28; // inferred: task notified through vf18 when this one is destroyed (set by fn_800D3F28)
     unsigned long m2C; // padding before m30
-    unsigned long m30[2]; // id of m28 when it was set (TASK_U64)
+    unsigned long long m30; // id of m28 when it was set
     unsigned int mFlags; // 0x38: 1 children only, 2 ready (vf0C done), 4 stopped, 0x10, 0x20 vf10 done,
                          // 0x40 destroyed, 0xDEAD0000 killed
     int m3C; // inferred: number of tasks in the tree (kept in the root)

@@ -10,7 +10,7 @@
 
 // inferred: the cannon gimmick held in CharaTask::m1208 (class unknown, derived from GimmickCommon)
 struct Cannon_unk : public GimmickCommon {
-    unsigned char mF4[0x520 - sizeof(GimmickCommon)];
+    unsigned char mF4[0x520 - 0xF4]; // inferred: the GimmickCommon members end at 0xF4 (its sizeof is padded to 8)
     unsigned char m520; // inferred: slot id (0xFF: none)
     int m524;           // inferred: arena slot request (-1 none, -2 local)
 };
