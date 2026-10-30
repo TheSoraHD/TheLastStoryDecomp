@@ -20,14 +20,8 @@ struct ModelCamera_unk;
 // inferred: camera lens (defined in game/CharaTask.cpp)
 struct Lens_unk;
 
-// inferred: material of a model node (returned by atn::Model::fn_80092954)
-struct Material_unk {
-    unsigned char m00[0x18];
-    GXColor mColor; // 0x18
-    unsigned char m1C[0x4D - 0x1C];
-    signed char m4D;
-};
-extern "C" void fn_8007FAF0(Material_unk* material, int mode); // inferred: sets the draw mode
+// material of a model node (returned by atn::Model::fn_80092954; include/atn/Material_unk.h)
+struct Material_unk;
 
 // inferred: model instance embedded at MapPartsModel+0x50 (probably the same class as
 // chr::Motion_unk, which characters embed at +0xB0). Names invented.

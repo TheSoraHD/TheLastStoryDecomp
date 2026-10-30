@@ -1,5 +1,6 @@
 #include "game/Em301LShade.h"
 #include "atn/Csv.h"
+#include "atn/Material_unk.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
 #include "game/CharaStatus.h"
@@ -256,9 +257,9 @@ inline void ToColorF_unk(ShadeColor_unk* c, GXColor gx) {
     c->b = gx.b / 255.0f;
     c->a = gx.a / 255.0f;
 }
-// inferred: second color of the material (0x1C), read with a cast to keep include/atn/Model_unk.h unchanged
+// inferred: second color of the material (0x1C)
 inline GXColor& MaterialColor2_unk(Material_unk* m) {
-    return *(GXColor*)&m->m1C[0];
+    return m->m1C;
 }
 inline GXColor ToGX_unk(const ShadeColor_unk& c) {
     GXColor gx;

@@ -22,8 +22,8 @@ struct ShaderFile_unk {
     atn::ShaderDesc_unk** m34;
 };
 
-struct ShaderMaterial_unk;
-ShaderMaterial_unk* fn_800C4A90(ShaderTex_unk* shader);
+struct Material_unk;
+Material_unk* fn_800C4A90(ShaderTex_unk* shader);
 
 static const char* sShaderFiles[] = {
     "color.shader",
@@ -113,7 +113,7 @@ static const char* sErrorShaders[] = {
 
 extern "C" ShaderManager_unk* lbl_8087EFE0;
 
-static ShaderMaterial_unk* sErrorMaterials[4]; // inferred: materials of the error shaders
+static Material_unk* sErrorMaterials[4]; // inferred: materials of the error shaders
 
 // inferred: loads the shader files and builds their shaders (name invented; removed by the linker
 // once inlined)
@@ -173,7 +173,7 @@ ShaderLOD_unk* ShaderManager_unk::fn_800C5FF0(unsigned int hash) const {
 
 // NONMATCHING: 98.7% - the loop registers of the inlined FindShader_unk (index and iterator) are swapped.
 // inferred: material of an error shader (code -1 to -4), created on first use
-ShaderMaterial_unk* ShaderManager_unk::fn_800C607C(int code) {
+Material_unk* ShaderManager_unk::fn_800C607C(int code) {
     int i = -1 - code;
     if (sErrorMaterials[i] == 0) {
         sErrorMaterials[i] = fn_800C4A90(FindShader_unk(sErrorShaders[i]));

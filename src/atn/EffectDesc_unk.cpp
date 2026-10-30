@@ -3,6 +3,7 @@
 #include "atn/Light_unk.h"
 #include "atn/Model_unk.h"
 #include "math/Vec.h"
+#include "atn/EffectSystem_unk.h"
 
 // Sorted drawing of the effect primitives: polygon strips (items A, 0x70 bytes) and models (items B,
 // 0x5C bytes) are queued by the effect system while it updates, bucket-sorted by view depth and
@@ -522,17 +523,9 @@ extern "C" void fn_80234CD8() {
 extern "C" void fn_80235BF8();
 
 // inferred: functions of the effect system (atn/EffectSystem_unk.cpp, automatic names)
-class EffectSystem_unk;
 extern "C" void fn_8022D078(EffectSystem_unk* system);
 extern "C" void fn_8022D478(EffectSystem_unk* system, void* arg);
 extern "C" void fn_802380D4(EffectSystem_unk* system, float dt);
-
-// inferred: the effect system (defined in atn/EffectManager.cpp)
-class EffectSystem_unk {
-public:
-    void fn_8023686C(float rate);
-    void fn_802368B0(void* arg);
-};
 
 // inferred: update
 void EffectSystem_unk::fn_8023686C(float rate) {

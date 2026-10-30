@@ -1,5 +1,6 @@
 #include "game/Em316LaserSphere.h"
 #include "atn/Csv.h"
+#include "atn/Material_unk.h"
 #include "game/CharaManager.h"
 #include "game/HitInfo_unk.h"
 #include "game/PlayerTask.h"

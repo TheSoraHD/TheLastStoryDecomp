@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `batch-auto-20kb-game` (2026-10-29, propuesta E, primera mitad, mergeada en `main` con `close-near-units`): **8571 / 18215 funciones al 100%** (código 30,8%, fuzzy 52,7%), **372** ficheros enlazados, `main.dol: OK`. 17 unidades de 10–20 KB con fuente nueva (más `chr/ControlBase`) (`chr/Control*`, `Event/Path`, `DialogHead`, `EnvSeManager`, `DamageCalc_unk`...); detalle y decisiones en `docs/batch-auto-20kb-game.md`. La segunda mitad va en `batch-auto-20kb-game-b`.
-- Anteriores: `close-near-units` (K: SparkCube y Banana enlazadas, `docs/close-near-units.md`), `rso-names*` (nombres reales del RSO USA, `docs/rso-names*.md`); unidades de Svenchu/Codex y su revisión en `docs/revision-2026-10-29.md`.
-- objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%.
+- `fb-materialparser` (2026-10-30, propuesta F-b, primera parte, sin mergear; sale de `batch-auto-50kb-atn`): **8696 / 18215 funciones al 100%** (código 31,03%), `main.dol: OK`. `atn/MaterialParser_unk` escrita como métodos (opción A), 18/35 al 100%; cabecera común `include/atn/Material_unk.h` (sustituye cuatro vistas del material). Detalle y decisiones en `docs/fb-materialparser.md`. `atn/ComDrawTexture` sigue pendiente.
+- Anteriores: `batch-auto-50kb-atn` (F, `docs/batch-auto-50kb-atn.md`), `batch-auto-20kb-game` (E, primera mitad, `docs/batch-auto-20kb-game.md`; la segunda mitad va en `batch-auto-20kb-game-b`), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
+- objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%. Tras editar una unidad ya emparejada: `resetlocal.py`, `pairdata.py --apply`, `configure`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
 ## Dónde está cada cosa (leer solo lo que haga falta)

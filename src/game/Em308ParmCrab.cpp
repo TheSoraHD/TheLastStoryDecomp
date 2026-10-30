@@ -1,4 +1,5 @@
 #include "game/Em308ParmCrab.h"
+#include "atn/Material_unk.h"
 #include "game/HitInfo_unk.h"
 #include "atn/Csv.h"
 #include "std/string.h"

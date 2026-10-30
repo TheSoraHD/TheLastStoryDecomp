@@ -27,7 +27,22 @@ struct ShaderTexGen_unk {
 struct ShaderTexMtx_unk {
     int m00[4];
     int mType; // 0x10
-    int m14[7];
+    int m14[2];
+    float mScaleU; // 0x1C: UV transform of the texture stage (atn/MaterialParser_unk)
+    float mScaleV;
+    float mRot;
+    float mTransU;
+    float mTransV;
+};
+
+// inferred: sampler of a texture of a material (wrap and filter modes of the texture stage)
+struct ShaderTexInfo_unk {
+    int m00[7];
+    int mWrapS;     // 0x1C
+    int mWrapT;     // 0x20
+    int m24;
+    int mMinFilter; // 0x28
+    int mMagFilter; // 0x2C
 };
 
 // inferred: indirect stage (GXSetIndTexOrder / GXSetIndTexCoordScale)
@@ -83,7 +98,9 @@ struct ShaderDesc_unk {
     unsigned char m055[0x60 - 0x55];
     GXColor mKColor3; // 0x060: GXSetTevKColor(GX_KCOLOR3)
     int m064;
-    unsigned char m068[0x7C - 0x68];
+    unsigned char m068[0x74 - 0x68];
+    int m074;
+    unsigned char m078[4];
     int m07C;
     int mNumChans; // 0x080: GXSetNumChans(mNumChans / 2)
     unsigned char m084[0x8C - 0x84];
@@ -94,12 +111,13 @@ struct ShaderDesc_unk {
     int m0A8;
     unsigned char m0AC[0xE4 - 0xAC];
     int m0E4; // inferred: number of texture stages
-    unsigned char m0E8[0xEC - 0xE8];
+    ShaderTexInfo_unk** mTexInfos;   // 0x0E8
     int mTexGenCount;                // 0x0EC
     ShaderTexGen_unk** mTexGens;     // 0x0F0
     unsigned char m0F4[0xF8 - 0xF4];
     ShaderTexMtx_unk** mTexMtxs;     // 0x0F8
-    unsigned char m0FC[0x13C - 0xFC];
+    unsigned char m0FC[4];
+    float mIndUv[3][5];              // 0x100: UV transform of the indirect stages
     int mIndStageCount;              // 0x13C
     ShaderIndStage_unk mIndStages[4]; // 0x140
     unsigned char mSwapTables[3][4]; // 0x180: GXSetTevSwapModeTable 0-2
@@ -114,7 +132,9 @@ struct ShaderDesc_unk {
     int mA30;
     unsigned char mA34[4];
     int mA38;
-    unsigned char mA3C[0xA48 - 0xA3C];
+    int mA3C;
+    int mA40;
+    unsigned char mA44[4];
     unsigned int mA48;    // inferred: number of textures
     const char** mA4C;    // inferred: texture names
 };
@@ -164,7 +184,7 @@ struct ShaderLOD_unk {
     ShaderLOD_unk();
     ~ShaderLOD_unk();
     void fn_800C4ECC(ShaderTex_unk* shader, float distance);
-    void fn_800C4F38(struct ShaderMaterial_unk** out) const;
+    void fn_800C4F38(struct Material_unk** out) const;
     void fn_800C4F70(void* parent);
 
     int m00; // inferred: reference count (debug menu "RefCount")
@@ -178,7 +198,7 @@ struct ShaderManager_unk {
     void CreateLODs_unk();
     ShaderLOD_unk* fn_800C5F5C(const char* name); // inferred: LOD list of a shader by name
     ShaderLOD_unk* fn_800C5FF0(unsigned int hash) const;
-    struct ShaderMaterial_unk* fn_800C607C(int code);
+    struct Material_unk* fn_800C607C(int code);
     // inferred: shader by name (name invented)
     ShaderTex_unk* FindShader_unk(const char* name) {
         unsigned int hash = fn_800DC6B4(name);

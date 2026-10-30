@@ -238,6 +238,7 @@ atn/MaterialParser_unk.cpp:
 	.rodata     start:0x80731910 end:0x80732048
 	.data       start:0x80777D40 end:0x80778550
 	.sdata      start:0x8087D768 end:0x8087D798
+	.sbss       start:0x8087EF00 end:0x8087EF08
 	.sdata2     start:0x80880B70 end:0x80880BC8
 
 atn/Math_unk.cpp:

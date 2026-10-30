@@ -3757,5 +3757,27 @@
   "name": "game/DamageCalc_unk.cpp",
   "classes": [],
   "matching": false
+ },
+ {
+  "name": "atn/ColliTest_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
+  "name": "atn/EffectSystem_unk.cpp",
+  "classes": [
+   "EffectSystem_unk"
+  ],
+  "matching": false
+ },
+ {
+  "name": "atn/MaterialParser_unk.cpp",
+  "classes": [
+   "Material_unk",
+   "TexStage_unk",
+   "TexAnim_unk",
+   "TexUv_unk"
+  ],
+  "matching": false
  }
 ]

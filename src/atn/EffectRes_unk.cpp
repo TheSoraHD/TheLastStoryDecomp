@@ -1,4 +1,5 @@
 #include "math/Vec.h"
+#include "atn/EffectSystem_unk.h"
 
 // Effect resources and their particles: intrusive lists of nodes, key-frame curves of the
 // particle definitions and the update of the particles. Name of the file invented.
@@ -130,26 +131,12 @@ extern "C" EffectNode_unk* fn_80237C88(EffectNode_unk** from, EffectNode_unk** t
     return fn_80237B20(to, node, 0);
 }
 
-// inferred: key of a curve
-struct EffectKey_unk {
-    float mTime;
-    float mValue;
-};
-// inferred: curve of a particle channel
-struct EffectCurve_unk {
-    unsigned int mCount;
-    EffectKey_unk* mKeys;
-};
 // inferred: curves of a particle definition (0x68 bytes): position x/y/z, alpha, ?, color r/g/b/a...
 struct EffectCurves_unk {
     EffectCurve_unk mChannels[13];
 };
 
 // inferred: color of a particle
-struct EffectColor_unk {
-    float r, g, b, a;
-};
-
 // inferred: particle definition of a resource (0x110 bytes, fields named by use)
 struct EffectDef_unk {
     unsigned char m00[0x24];
@@ -267,42 +254,6 @@ extern "C" int fn_80237DA8(EffectRes_unk* res, EffectDef_unk* def, atn::Vector3*
     }
     return 1;
 }
-
-// inferred: particle of the effect system (0x94 bytes, names invented)
-struct EffectParticle_unk {
-    EffectParticle_unk();
-    ~EffectParticle_unk();
-    void fn_80238218(float dt);
-    int fn_802383D8(void* owner, struct EffectInstDef_unk* def, int index);
-    void fn_80238560();
-    bool IsActive_unk() const { return m00 != 0; }
-    void fn_80238588(atn::Vector3* pos, float* alpha, EffectColor_unk* color);
-
-    int m00;                // 0x00: inferred: active
-    EffectRes_unk* mRes;    // 0x04
-    int m08;
-    int mDef;               // 0x0C
-    float mTime;            // 0x10
-    unsigned char mFading;  // 0x14
-    int mFadeMode;          // 0x18: 0 alpha, 1 color
-    float mFadeSpeed;       // 0x1C
-    float mFade;            // 0x20
-    int m24;
-    int m28;
-    int m2C;
-    int m30;
-    unsigned int mFlags;    // 0x34: 2 paused, 4 frozen
-    int m38;
-    int m3C;
-    int m40;
-    int m44;                // 0x44: inferred: frame where m38 is dropped
-    atn::Matrix3x4 mMtx;    // 0x48
-    atn::Vector3 m78;
-    float m84;              // 0x84: alpha scale
-    void* mOwner;           // 0x88
-    unsigned char m8C;
-    int m90;
-};
 
 // inferred: emitter instance that starts a particle (fields named by use)
 struct EffectInstDef_unk {

@@ -123,6 +123,12 @@ public:
         reserve(n);
         do_replace(0, 0, s, s + n, random_access_iterator_tag());
     }
+    // inferred: inlined in atn/MaterialParser_unk (0x8007DA64): zeroed words, reserve, range replace
+    basic_string(const T* s, size_type n) {
+        __zero();
+        reserve(n);
+        do_replace(0, 0, s, s + n, random_access_iterator_tag());
+    }
     basic_string(const basic_string& str, size_type pos, size_type n = npos); // 0x80069BF4 (char)
     // inferred: inlined in boost::tokenizer::begin (0x800EC654): a short string is copied word by
     // word, a long one through reserve and the range replace
@@ -251,6 +257,19 @@ public:
         return r;
     }
     int compare(const T* s) const { return compare(0, size(), s, strlen(s)); }
+    // inferred: inlined in operator== (atn/MaterialParser_unk 0x8007DAA4)
+    int compare(const basic_string& str) const {
+        const T* p;
+        size_type n;
+        if (!str.is_long()) {
+            p = (const T*)&str + 1;
+            n = str.mShort.mSize & 0x7F;
+        } else {
+            p = str.mLong.mData;
+            n = str.mLong.mSize;
+        }
+        return compare(0, size(), p, n);
+    }
 
     // inferred: inlined in boost::char_separator (0x800EC7F0)
     size_type find(T c, size_type pos = 0) const {
@@ -357,6 +376,12 @@ private:
         ShortFlags mShortFlags;
     };
 };
+
+// inferred: inlined in atn/MaterialParser_unk (0x8007DAA4): sizes first, then compare
+template <class T, class Tr, class A>
+bool operator==(const basic_string<T, Tr, A>& lhs, const basic_string<T, Tr, A>& rhs) {
+    return lhs.size() == rhs.size() && lhs.compare(rhs) == 0;
+}
 
 // inferred: called out of line (weak copy 0x8000EB8C, char)
 template <class T, class Tr, class A>
