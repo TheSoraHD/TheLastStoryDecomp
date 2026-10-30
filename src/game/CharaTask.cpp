@@ -5761,7 +5761,7 @@ void CharaTask::vf30(void* menu) {
     }
     char name[32];
     sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
-    sprintf(name, "%s [%d]", lbl_807C7B28, m58);
+    sprintf(name, "%s [%d]\0", lbl_807C7B28, m58);
     void* group;
     if (m54.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
         group = m54.mRes = fn_8008937C(menu, name);
