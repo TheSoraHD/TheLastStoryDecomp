@@ -48,9 +48,10 @@ struct Actor_unk {
 // inferred: event manager returned by ActionArg_unk::fn_805381C8
 struct EventManager_unk {
     // inferred: lookup of an actor by id (inlined)
+    // The unsigned index gives the registers of the original in BehaviorFollow/BehaviorMoveTo::vf0C
     Actor_unk* FindActor_unk(int id) {
         for (int i = 0; i < m168; i++) {
-            Actor_unk* actor = &m164[i];
+            Actor_unk* actor = &m164[(unsigned int)i];
             if (id == actor->m14) {
                 return actor;
             }

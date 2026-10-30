@@ -536,7 +536,7 @@
   "classes": [
    "Event::BehaviorFollow"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Bullet.cpp",
@@ -3397,7 +3397,7 @@
   "classes": [
    "Event::BehaviorMoveTo"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MenuCommon_unk.cpp",

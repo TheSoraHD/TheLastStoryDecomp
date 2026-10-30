@@ -3,9 +3,6 @@
 
 namespace Event {
 
-// NONMATCHING: 97.8% - in case 6 the offset and the pointer of the inlined actor search swap registers
-// (r4/r5), same as BehaviorFollow::vf0C (tried: shared locals, no actor local, param pointer local,
-// direct chained call, actor declared outside the loop of FindActor_unk)
 // inferred: walks the actor to the position of parameter 1 (radius in parameter 5)
 int BehaviorMoveTo::vf0C(ActionArg_unk* arg, int phase) {
     switch (phase) {
