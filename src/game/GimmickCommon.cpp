@@ -3,6 +3,7 @@
 
 #include "game/GimmickCommon.h"
 #include "atn/Material_unk.h"
+#include "gmk/FragileObject.h"
 #include "gmk/OpenBoard.h"
 #include "gmk/PlayEffect.h"
 #include "gmk/LandMine.h"
@@ -224,9 +225,6 @@ void GimmickMotionSwitch_unk::fn_803EC0F8(atn::Model* model) {
     }
 }
 
-// inferred: gimmick constructors called by the factories below (one per gimmick class)
-extern "C" GimmickCommon* fn_803F1BB4(atn::Task* parent, int id, int arg);
-
 // inferred: creates the gimmick of type id / 1000 (ids below 1000 are types)
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
     GimmickCommon* gimmick = 0;
@@ -236,7 +234,7 @@ extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int id, int arg) {
         id *= 1000;
     }
     switch (type) {
-    case 1: gimmick = fn_803F1BB4(parent, id, arg); break;
+    case 1: gimmick = gmk::FragileObject::fn_803F1BB4(parent, id, arg); break;
     case 2: gimmick = gmk::AutomaticDoor::fn_803F471C(parent, id, arg); break;
     case 4: gimmick = gmk::PlayEffect::fn_803F69E4(parent, id, arg); break;
     case 5: gimmick = gmk::OnOff::fn_803F744C(parent, id, arg); break;
