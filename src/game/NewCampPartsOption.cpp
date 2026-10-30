@@ -43,11 +43,15 @@ struct NewCampOptionD2A_unk : public atn::Task {
 };
 // inferred: d2anime instance task of the D3AnimeInstance objects; only the members used here
 struct NewCampOptionInst_unk : public atn::Task {
+    bool IsEnd_unk(); // inferred: the frame reached the last one (name invented)
     unsigned char m48[0x50 - 0x48];
     float mFrame; // 0x50
     float mSpeed; // 0x54
 };
 extern "C" NewCampOptionD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
+inline bool NewCampOptionInst_unk::IsEnd_unk() {
+    return mFrame >= fn_801F6C2C(this);
+}
 inline NewCampOptionD2A_unk* GetD2A_unk(atn::D3Anime* anime) {
     return (NewCampOptionD2A_unk*)anime->GetTask();
 }
@@ -183,6 +187,7 @@ NewCampPartsOption* NewCampPartsOption::fn_80521E1C(atn::Task* parent) {
     return 0;
 }
 
+// NONMATCHING: 99.81% - the original sets r4 = 1 before D3AnimeInstance::Load() (Fv) in the load loop
 NewCampPartsOption::NewCampPartsOption(atn::Task* parent)
     : NewCampPartsBase(parent), mD4(0.0f), mD8(0), mDC(0), mE0(0), mE8(0), m180(0.0f), mMove(292.0f, 0.0f, 0.0f) {
     m98 = "option_board";
@@ -287,6 +292,7 @@ void NewCampOptionItem_unk::SetDef_unk(const NewCampOptionDef_unk* def) {
     fn_801F837C(GetInst_unk(mAnime), "name", fn_80116EB8(&def->mName));
 }
 
+// NONMATCHING: 96.10% - the original keeps the font and &name in registers across the loop (r22/r25)
 void NewCampPartsOption::fn_80522938() {
     mInfo.clear();
     atn::CsvU csv;
@@ -294,9 +300,10 @@ void NewCampPartsOption::fn_80522938() {
     csv.SetData((const wchar_t*)m184.fn_80470580(), (unsigned int)m184.fn_8047059C() / 2);
     do {
         if (fn_80686B24(csv.fn_8005B9CC(), L"", 1) != 0) {
+            void* font = lbl_8087EEC8;
             std::string name;
-            fn_8006F5E8(lbl_8087EEC8, &name, csv.fn_8005B9CC());
-            info.SetName_unk(name.c_str());
+            fn_8006F5E8(font, &name, csv.fn_8005B9CC());
+            info.mName = name.c_str();
             info.mText[0] = csv.fn_8005B9CC();
             info.mText[1] = csv.fn_8005B9CC();
             info.mText[2] = csv.fn_8005B9CC();
@@ -307,14 +314,8 @@ void NewCampPartsOption::fn_80522938() {
     fn_80522DD8();
 }
 
-// inferred: swaps two wide texts (name invented)
-inline void SwapText_unk(atn::static_string<32, wchar_t>& a, atn::static_string<32, wchar_t>& b,
-                         atn::static_string<32, wchar_t>& tmp) {
-    tmp = a.mStr;
-    a = b.mStr;
-    b = tmp.mStr;
-}
 
+// NONMATCHING: 88.18% - the original recomputes the destination address of each copy (no CSE with the previous copy)
 void NewCampPartsOption::fn_80522DD8() {
     for (int i = 0; i < 2; i++) {
         if (GetD2A_unk(mController[i]) != 0) {
@@ -322,12 +323,19 @@ void NewCampPartsOption::fn_80522DD8() {
         }
     }
     atn::static_string<32, wchar_t> tmp;
-    tmp.mStr[0] = 0;
     if (mSwap[0] == 1) {
-        SwapText_unk(mInfo[6].mText[0], mInfo[7].mText[0], tmp);
-        SwapText_unk(mInfo[6].mText[1], mInfo[7].mText[1], tmp);
-        SwapText_unk(mInfo[12].mText[0], mInfo[13].mText[0], tmp);
-        SwapText_unk(mInfo[12].mText[1], mInfo[13].mText[1], tmp);
+        tmp = mInfo[6].mText[0];
+        mInfo[6].mText[0] = mInfo[7].mText[0];
+        mInfo[7].mText[0] = tmp;
+        tmp = mInfo[6].mText[1];
+        mInfo[6].mText[1] = mInfo[7].mText[1];
+        mInfo[7].mText[1] = tmp;
+        tmp = mInfo[12].mText[0];
+        mInfo[12].mText[0] = mInfo[13].mText[0];
+        mInfo[13].mText[0] = tmp;
+        tmp = mInfo[12].mText[1];
+        mInfo[12].mText[1] = mInfo[13].mText[1];
+        mInfo[13].mText[1] = tmp;
         for (int i = 0; i < 2; i++) {
             if (GetD2A_unk(mController[i]) != 0) {
                 SetPaneFloat_unk(GetD2A_unk(mController[i])->mLayout, "changeCZ", 1.0f);
@@ -335,8 +343,12 @@ void NewCampPartsOption::fn_80522DD8() {
         }
     }
     if (mSwap[1] == 1) {
-        SwapText_unk(mInfo[8].mText[2], mInfo[9].mText[2], tmp);
-        SwapText_unk(mInfo[8].mText[3], mInfo[9].mText[3], tmp);
+        tmp = mInfo[8].mText[2];
+        mInfo[8].mText[2] = mInfo[9].mText[2];
+        mInfo[9].mText[2] = tmp;
+        tmp = mInfo[8].mText[3];
+        mInfo[8].mText[3] = mInfo[9].mText[3];
+        mInfo[9].mText[3] = tmp;
     }
 }
 
@@ -344,51 +356,59 @@ void NewCampPartsOption::fn_80522DD8() {
 // (its string is in the pool before "reference")
 void NewCampPartsOption::SetInfo_unk(atn::D3Anime* anime, int index) {
     for (unsigned int k = 0; k < mInfo.size(); k++) {
-        SetPaneText_unk(GetD2A_unk(anime)->mLayout, mInfo[k].mName, mInfo[k].mText[index].mStr);
+        SetPaneText_unk(GetD2A_unk(anime)->mLayout, mInfo[k].mName.mStr, mInfo[k].mText[index].mStr);
     }
     SetPaneFloat_unk(GetD2A_unk(anime)->mLayout, "commandOn", 1.0f);
 }
 
 // inferred: the d2anime of an option is moving between two choices (name invented)
 inline bool IsMoving_unk(NewCampOptionItem_unk* item) {
-    return item->mAnime != 0 && item->mAnime->GetTask() != 0 && !item->IsBar_unk() &&
-           !(atn::Abs_unk(GetInst_unk(item->mAnime)->mSpeed) < 1.1920929e-7f);
+    if (item->mAnime != 0 && item->mAnime->GetTask() != 0 && !item->IsBar_unk() &&
+        !(atn::Abs_unk(GetInst_unk(item->mAnime)->mSpeed) < 1.1920929e-7f)) {
+        return true;
+    }
+    return false;
 }
 
+// inferred: stops the choice animation at its end (name invented)
+inline void NewCampOptionItem_unk::Update_unk() {
+    atn::D3AnimeInstance* anime = mAnime;
+    if (IsMoving_unk(this) && anime->GetTask() != 0) {
+        NewCampOptionInst_unk* inst = GetInst_unk(anime);
+        if (inst->mSpeed < 0.0f) {
+            if (inst->mFrame <= 0.0f) {
+                inst->mSpeed = 0.0f;
+            }
+        } else if (inst->IsEnd_unk()) {
+            inst->mFrame = 0.0f;
+            inst->mSpeed = 0.0f;
+        }
+    }
+}
+
+// NONMATCHING: 97.62% - register allocation of the page/item loop (r29-r31); tried page/item pointers and an item inline
 void NewCampPartsOption::vf10() {
     vf20();
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < mPages[i].mCount; j++) {
-            NewCampOptionItem_unk* item = &mPages[i].mItems[j];
-            atn::D3AnimeInstance* anime = item->mAnime;
-            if (IsMoving_unk(item) && anime->GetTask() != 0) {
-                NewCampOptionInst_unk* inst = GetInst_unk(anime);
-                if (inst->mSpeed < 0.0f) {
-                    if (inst->mFrame <= 0.0f) {
-                        inst->mSpeed = 0.0f;
-                    }
-                } else if (inst->mFrame >= fn_801F6C2C(inst)) {
-                    inst->mFrame = 0.0f;
-                    inst->mSpeed = 0.0f;
-                }
-            }
+            mPages[i].mItems[j].Update_unk();
         }
     }
     if (mD4 > 0.0f) {
         float v = mD4 - 0.2f;
-        mD4 = v < 0.0f ? 0.0f : v;
+        mD4 = 0.0f > v ? 0.0f : v;
     } else if (mD4 < 0.0f) {
         float v = 0.2f + mD4;
-        mD4 = v > 0.0f ? 0.0f : v;
+        mD4 = 0.0f < v ? 0.0f : v;
     }
     float arrow = m180;
     if (arrow > 0.0f) {
         float v = arrow - 0.2f;
-        m180 = v < 0.0f ? 0.0f : v;
+        m180 = 0.0f > v ? 0.0f : v;
     }
     if (arrow < 0.0f) {
         float v = 0.2f + arrow;
-        m180 = v > 0.0f ? 0.0f : v;
+        m180 = 0.0f < v ? 0.0f : v;
     }
 }
 
@@ -402,7 +422,7 @@ inline int GetBoard_unk(int page) {
     return board;
 }
 
-// NONMATCHING: written from m2c, not tuned
+// NONMATCHING: 87.15% - written from m2c, only the pool order was tuned
 void NewCampPartsOption::vf14() {
     int show = 0;
     if (fn_8050FD20() && ((NewCampOptionCamp_unk*)m48)->m11F8 != 1) {
@@ -691,6 +711,7 @@ inline int IsLoading_unk(atn::D3Anime* anime) {
     return anime != 0 && anime->mState == 1;
 }
 
+// NONMATCHING: 91.81% - not tuned
 void NewCampPartsOption::vf20() {
     if (m96 != 0) {
         int ready = 1;
@@ -776,6 +797,7 @@ void NewCampPartsOption::vf20() {
     }
 }
 
+// NONMATCHING: 97.53% - register allocation of the first loop (same as NewCampPartsStatus/Hint::vf3C)
 void NewCampPartsOption::vf3C(int show) {
     for (int i = 0; i < m4C; i++) {
         NewCampPartsEntry_unk* entry = &m50[i];
@@ -860,6 +882,7 @@ void NewCampPartsOption::vf30() {
     fn_80525498();
 }
 
+// NONMATCHING: 99.98% - stack slots of the SoundRef temporaries of mode 8 swapped (0xC/0x10)
 void NewCampPartsOption::vf2C() {
     m58 = 1.0f;
     m95 = 0;
@@ -987,33 +1010,35 @@ void NewCampPartsOption::fn_805251CC() {
     config->mSound.mVoiceVolume = 0.1f * mPages[5].mItems[2].mValue;
 }
 
+// NONMATCHING: 98.35% - order in which the float constants are loaded into f1-f4
 void NewCampPartsOption::fn_80525498() {
-    mPages[1].mItems[1].mValue = SetConfig::sInstance->mAttackType;
-    mPages[1].mItems[0].mValue = SetConfig::sInstance->mDiveType;
-    mSwap[0] = SetConfig::sInstance->mGatheringType;
-    mSwap[1] = SetConfig::sInstance->mInTacviewType;
-    mPages[2].mItems[0].mValue = 6.26f * SetConfig::sInstance->mRollbackSpeed;
-    mPages[2].mItems[3].mValue = (SetConfig::sInstance->m50 >> 4) & 1;
-    mPages[2].mItems[4].mValue = SetConfig::sInstance->m50 & 1;
-    mPages[2].mItems[5].mValue = (SetConfig::sInstance->m50 >> 1) & 1;
-    mPages[2].mItems[2].mValue = 10.0f * ((SetConfig::sInstance->mAttackTurnSpeed - 0.25f) / 1.5f);
-    mPages[2].mItems[1].mValue = 10.0f * ((SetConfig::sInstance->mTurnSpeed - 0.25f) / 1.5f);
-    mPages[3].mItems[0].mValue = 5.0f * SetConfig::sInstance->mCameraRotSpeed;
-    mPages[3].mItems[1].mValue = (SetConfig::sInstance->m50 >> 2) & 1;
-    mPages[3].mItems[2].mValue = (SetConfig::sInstance->m50 >> 3) & 1;
-    mPages[4].mItems[0].mValue = SetConfig::sInstance->mBattleDrawHateLine;
-    mPages[4].mItems[1].mValue = SetConfig::sInstance->mDrawEnemyHP != 0;
-    mPages[4].mItems[2].mValue = SetConfig::sInstance->mDrawEnemyPopup != 0;
-    mPages[4].mItems[3].mValue = SetConfig::sInstance->mDrawFriendPopup != 0;
-    mPages[4].mItems[4].mValue = SetConfig::sInstance->mShowDialog != 0;
-    mPages[4].mItems[5].mValue = SetConfig::sInstance->mShowTutorial != 0;
-    mPages[4].mItems[6].mValue = SetConfig::sInstance->mEventSkipType;
-    mPages[4].mItems[7].mValue = SetConfig::sInstance->mEventCameraControl != 0;
-    m170 = SetConfig::sInstance->mA4;
-    mPages[5].mItems[3].mValue = SetConfig::sInstance->mSound.mSoundType;
-    mPages[5].mItems[0].mValue = 10.0f * SetConfig::sInstance->mSound.mBgmVolume;
-    mPages[5].mItems[1].mValue = 10.0f * SetConfig::sInstance->mSound.mSeVolume;
-    mPages[5].mItems[2].mValue = 10.0f * SetConfig::sInstance->mSound.mVoiceVolume;
+    SetConfig* config = SetConfig::sInstance;
+    mPages[1].mItems[1].mValue = config->mAttackType;
+    mPages[1].mItems[0].mValue = config->mDiveType;
+    mSwap[0] = config->mGatheringType;
+    mSwap[1] = config->mInTacviewType;
+    mPages[2].mItems[0].mValue = 6.26f * config->mRollbackSpeed;
+    mPages[2].mItems[3].mValue = (config->m50 >> 4) & 1;
+    mPages[2].mItems[4].mValue = config->m50 & 1;
+    mPages[2].mItems[5].mValue = (config->m50 >> 1) & 1;
+    mPages[2].mItems[2].mValue = 10.0f * ((config->mAttackTurnSpeed - 0.25f) / 1.5f);
+    mPages[2].mItems[1].mValue = 10.0f * ((config->mTurnSpeed - 0.25f) / 1.5f);
+    mPages[3].mItems[0].mValue = 5.0f * config->mCameraRotSpeed;
+    mPages[3].mItems[1].mValue = (config->m50 >> 2) & 1;
+    mPages[3].mItems[2].mValue = (config->m50 >> 3) & 1;
+    mPages[4].mItems[0].mValue = config->mBattleDrawHateLine;
+    mPages[4].mItems[1].mValue = config->mDrawEnemyHP != 0;
+    mPages[4].mItems[2].mValue = config->mDrawEnemyPopup != 0;
+    mPages[4].mItems[3].mValue = config->mDrawFriendPopup != 0;
+    mPages[4].mItems[4].mValue = config->mShowDialog != 0;
+    mPages[4].mItems[5].mValue = config->mShowTutorial != 0;
+    mPages[4].mItems[6].mValue = config->mEventSkipType;
+    mPages[4].mItems[7].mValue = config->mEventCameraControl != 0;
+    m170 = config->mA4;
+    mPages[5].mItems[3].mValue = config->mSound.mSoundType;
+    mPages[5].mItems[0].mValue = 10.0f * config->mSound.mBgmVolume;
+    mPages[5].mItems[1].mValue = 10.0f * config->mSound.mSeVolume;
+    mPages[5].mItems[2].mValue = 10.0f * config->mSound.mVoiceVolume;
 }
 
 void NewCampPartsOption::fn_805256C4(int mode, int last) {
@@ -1133,6 +1158,7 @@ inline void ShowHelp_unk(const NewCampOptionDef_unk* def) {
     }
 }
 
+// NONMATCHING: 99.19% - r30/r31 of the pad and the option swapped; the original evaluates MenuCommonTask::sInstance first (a member call?)
 void NewCampPartsOption::fn_80525A08(int count, int ofs) {
     void* pad = lbl_8087EF70;
     m84 = count;
@@ -1212,6 +1238,7 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
     }
 }
 
+// NONMATCHING: 99.93% - the original evaluates MenuCommonTask::sInstance before the text (member call?), r30 vs r29
 void NewCampPartsOption::fn_80525F08() {
     int classic = fn_800A58D0(lbl_8087EF70, 0);
     int cursor = mE4;
@@ -1267,22 +1294,24 @@ void NewCampPartsOption::vf40(void* group) {
 }
 
 void NewCampPartsOption::vf48() {
+    float off = 0.0f;
     for (int i = 0; i < m4C; i++) {
         if (m50[i].mAnime != 0 && GetD2A_unk(m50[i].mAnime) != 0) {
-            SetPaneFloat_unk(GetD2A_unk(m50[i].mAnime)->mLayout, "frameOn", 0.0f);
+            SetPaneFloat_unk(GetD2A_unk(m50[i].mAnime)->mLayout, "frameOn", off);
         }
     }
     for (int i = 0; i < 6; i++) {
         if (mPages[i].mAnime != 0 && GetD2A_unk(mPages[i].mAnime) != 0) {
-            SetPaneFloat_unk(GetD2A_unk(mPages[i].mAnime)->mLayout, "frameOn", 0.0f);
+            SetPaneFloat_unk(GetD2A_unk(mPages[i].mAnime)->mLayout, "frameOn", off);
         }
     }
 }
 
+// NONMATCHING: 97.18% - register allocation and the test of page->GetTask() (`bne`+`b` in the original)
 void NewCampOptionItem_unk::fn_80526358(int cursor, atn::D3Anime* page) {
     NewCampOptionInst_unk* inst = GetInst_unk(mAnime);
-    if (inst != 0 && page != 0) {
-        char name[0x40];
+    if (inst != 0 && page != 0 && page->GetTask() != 0) {
+        char name[0x20];
         sprintf(name, "list_point%02d", mIndex);
         NewCampPartsPoint_unk pos = GetPanePos_unk(GetD2A_unk(page), name);
         fn_801F6E78(inst, "base_pos", &pos);

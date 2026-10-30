@@ -15,6 +15,12 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 
 namespace atn {
+// inferred: the constructor of the wide string is inline (`mStr[0] = 0` in NewCampPartsOption::fn_80522DD8;
+// weak copy 0x8044D878 for __construct_array)
+template <>
+inline static_string<32, wchar_t, std::char_traits<wchar_t> >::static_string() {
+    mStr[0] = 0;
+}
 // inferred: wide version of the assignment (wcslen + wmemcpy, inlined in NewCampPartsOption::fn_80522938)
 template <>
 inline static_string<32, wchar_t, std::char_traits<wchar_t> >&
@@ -47,6 +53,7 @@ struct NewCampOptionItem_unk {
     bool IsBar_unk() const { return (unsigned int)(mKind - 10) <= 1; }
     void fn_80526358(int cursor, atn::D3Anime* page); // inferred: places and updates the d2anime
     void SetDef_unk(const NewCampOptionDef_unk* def); // inferred: removed by the linker
+    void Update_unk();
 
     int mKind;   // 0x00: inferred: d2anime of NewCampOptionPage_unk::fn_805266BC
     int mIndex;  // 0x04
@@ -60,7 +67,8 @@ struct NewCampOptionItem_unk {
 
 // inferred: page of options (0xC bytes, constructor 0x8052665C, destructor 0x805226A4); names invented
 struct NewCampOptionPage_unk {
-    NewCampOptionPage_unk() : mAnime(0), mCount(0) {}
+    // inferred: the constructor also releases the (empty) array: the original keeps the dead __dla call
+    NewCampOptionPage_unk() : mAnime(0), mCount(0) { mItems.Reset_unk(0); }
     // inferred: creates the d2anime of option `index` (weak copy 0x805266BC)
     void fn_805266BC(int index, int kind, atn::Task* parent);
     // inferred: inline helpers of the constructor and vf1C (names invented)
@@ -74,16 +82,24 @@ struct NewCampOptionPage_unk {
 
 // inferred: texts of the controller panes (0x110 bytes, "database/camp/controller_info_xx.u16");
 // names invented
-struct NewCampOptionInfo_unk {
-    NewCampOptionInfo_unk() { mName[0] = 0; }
-    void SetName_unk(const char* name) {
-        if (name != mName) {
-            memcpy(mName, name, strlen(name) + 1);
+// inferred: pane name of NewCampOptionInfo_unk (constructed before the texts); name invented
+struct NewCampOptionName_unk {
+    NewCampOptionName_unk() { mStr[0] = 0; }
+    NewCampOptionName_unk& operator=(const char* name) {
+        if (name != mStr) {
+            memcpy(mStr, name, strlen(name) + 1);
         }
+        return *this;
     }
-    char mName[0x10];
+    char mStr[0x10];
+};
+struct NewCampOptionInfo_unk {
+    NewCampOptionName_unk mName;
     atn::static_string<32, wchar_t> mText[4];
 };
+// inferred: the list is a class derived from the fixed array (its destructor tests `this` twice); name
+// invented
+struct NewCampOptionInfoList_unk : public atn::FixedArray_unk<NewCampOptionInfo_unk, 18> {};
 
 // inferred from __vt__18NewCampPartsOption (0x80793610): options of the camp
 class NewCampPartsOption : public NewCampPartsBase {
@@ -135,7 +151,7 @@ public:
     atn::Task* m17C;                 // inferred: "status_select.d2a"
     float m180;                      // inferred: arrows of status_select
     atn::LH_Binary m184;             // inferred: "database/camp/controller_info_xx.u16"
-    atn::FixedArray_unk<NewCampOptionInfo_unk, 18> mInfo; // 0x18C
+    NewCampOptionInfoList_unk mInfo; // 0x18C
     atn::Vector3 mMove;              // 0x14B0: inferred: "MoveOffset"
 };
 
