@@ -15,6 +15,7 @@
 #include "atn/Memory.h"
 #include "atn/Model_unk.h"
 #include "std/string.h"
+#include "std/string_members.h"
 #include "string.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -116,8 +117,15 @@ static atn::Vector3 sPrevPos = sCenter + atn::Vector3(-700.0f, 0.0f, 100.0f);
 static atn::Vector3 sMainPos = sCenter;
 static atn::Vector3 sNextPos = sCenter + atn::Vector3(700.0f, 0.0f, 100.0f);
 
+// inferred: allocation of a piece of equipment for fn_801CEA98 (name invented). Not static: MWCC emits
+// it here, so the "" of new opens the string pool as in the original, and inlines it into its caller
+// (the linker drops the copy).
+chr::CharaEquip_unk* NewCharaEquip_unk(int slot, int item, int index, CharaTask* chara, void* data, int c) {
+    return new ((MemoryTag)6, "", "", 0) chr::CharaEquip_unk(slot, item, index, chara, (int)data, 0, c, 1, 0);
+}
+
 // NONMATCHING: 96.1% - the original zeroes mAA0 in the body (its handle class has a destructor but no
-// zeroing constructor, unlike ResHandle) and the pool lacks the leading "" (see fn_801CEA98)
+// zeroing constructor, unlike ResHandle)
 CosEditBase::CosEditBase(atn::Task* parent)
     : NewCampPartsBase(parent), mChara(), mE0(0.0f), mE4(0.0f), mE8(0), mEC(0), mF0(0), mF4(0), mF8(0.0f), mFC(0), m100(0),
       m104(0), m1E0(0), m1E4(0), m1E8(0), m1EC(0), m1F0(0), m1F4(0), m220(0, 0) {
@@ -670,8 +678,7 @@ void CosEditBase::fn_801CEA98(int member, CharaTask* chara, int slot, int item, 
     if (chara) {
         chara->mStatus.fn_80134774(slot, c);
         void* data = fn_8044D034(Inventory::instance_, index);
-        chr::CharaEquip_unk* equip =
-            new ((MemoryTag)6, "", "", 0) chr::CharaEquip_unk(slot, item, index, chara, (int)data, 0, c, 1, 0);
+        chr::CharaEquip_unk* equip = NewCharaEquip_unk(slot, item, index, chara, data, c);
         CosEditLoad_unk load;
         load.mType = 0;
         load.mEquip = equip;
@@ -710,8 +717,7 @@ void CosEditBase::fn_801CEA98(int member, CharaTask* chara, int slot, int item, 
         }
         if (p->IsFlag_unk(2) && p != chara && strstr(p->GetModel_unk()->fn_8008B130(), prefix.c_str())) {
             void* data = fn_8044D034(Inventory::instance_, index);
-            chr::CharaEquip_unk* equip =
-                new ((MemoryTag)6, "", "", 0) chr::CharaEquip_unk(slot, item, index, p, (int)data, 0, c, 1, 0);
+            chr::CharaEquip_unk* equip = NewCharaEquip_unk(slot, item, index, p, data, c);
             CosEditLoad_unk load;
             load.mType = 0;
             load.mEquip = equip;
@@ -725,8 +731,7 @@ void CosEditBase::fn_801CEA98(int member, CharaTask* chara, int slot, int item, 
         }
         if (p->IsFlag_unk(2) && p != chara && strstr(p->GetModel_unk()->fn_8008B130(), prefix.c_str())) {
             void* data = fn_8044D034(Inventory::instance_, index);
-            chr::CharaEquip_unk* equip =
-                new ((MemoryTag)6, "", "", 0) chr::CharaEquip_unk(slot, item, index, p, (int)data, 0, c, 1, 0);
+            chr::CharaEquip_unk* equip = NewCharaEquip_unk(slot, item, index, p, data, c);
             CosEditLoad_unk load;
             load.mType = 0;
             load.mEquip = equip;
@@ -737,8 +742,7 @@ void CosEditBase::fn_801CEA98(int member, CharaTask* chara, int slot, int item, 
     for (EnemyTask* p = EnemyManager::sInstance->mHead; p; p = p->mNext) {
         if (p->IsFlag_unk(2) && p != chara && strstr(p->GetModel_unk()->fn_8008B130(), prefix.c_str())) {
             void* data = fn_8044D034(Inventory::instance_, index);
-            chr::CharaEquip_unk* equip =
-                new ((MemoryTag)6, "", "", 0) chr::CharaEquip_unk(slot, item, index, p, (int)data, 0, c, 1, 0);
+            chr::CharaEquip_unk* equip = NewCharaEquip_unk(slot, item, index, p, data, c);
             CosEditLoad_unk load;
             load.mType = 0;
             load.mEquip = equip;
