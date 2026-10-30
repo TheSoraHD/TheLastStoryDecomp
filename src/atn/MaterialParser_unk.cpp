@@ -138,13 +138,13 @@ static inline int FindName_unk(const char* const* table, const char* s, int len)
 
 // inferred: skips the delimiters and returns the next token of `s` and its length (0 at the end).
 // The original calls it with bl everywhere (noinline: CLAUDE.md rule 2)
-// NONMATCHING: 98.1% - registers of s/delims/len (s in r27 instead of r30)
 __declspec(noinline) const char* fn_8007A994(const char* s, const char* delims, int* len) {
     int n = 0;
-    while (*s != 0 && strchr(delims, *s) != 0) {
-        s++;
+    const char* start = s;
+    while (*start != 0 && strchr(delims, *start) != 0) {
+        start++;
     }
-    const char* p = s;
+    const char* p = start;
     while (*p != 0 && strchr(delims, *p) == 0) {
         p++;
         n++;
@@ -153,7 +153,7 @@ __declspec(noinline) const char* fn_8007A994(const char* s, const char* delims, 
     if (n == 0) {
         return 0;
     }
-    return s;
+    return start;
 }
 
 TexStage_unk::TexStage_unk(int id)
