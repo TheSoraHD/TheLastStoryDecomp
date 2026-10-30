@@ -4,6 +4,7 @@
 #include "game/CharaTask.h"
 #include "game/HitInfo_unk.h"
 #include "std/string.h"
+#include "std/string_members.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -142,7 +143,7 @@ void Arms::fn_8004439C() {
     if (!m29C && m2A4 != 0) {
         m29C.reset(new ((MemoryTag)1, "", "", 0) atn::EfpFile);
         char buf[0x100];
-        sprintf(buf, "%s.efp", m2A4->m10);
+        sprintf(buf, "%s.efp\0", m2A4->m10);
         m29C->LoadRequest(buf);
     }
 }
