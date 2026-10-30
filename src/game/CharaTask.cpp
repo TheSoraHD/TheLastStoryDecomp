@@ -4773,9 +4773,9 @@ void CharaTask::vf20() {
         }
         case 3: {
             atn::Vector3 offset(mFlag29 ? 2.0f : -3.0f, 0.0f, -1.0f);
-            Mtx m;
-            PSMTXRotRad(m, 'y', mRot.y);
-            PSMTXMultVec(m, &offset, &offset);
+            atn::Matrix3x4 m;
+            m.fn_8013A13C(mRot.y);
+            PSMTXMultVec(m.m, &offset, &offset);
             a += offset;
             break;
         }

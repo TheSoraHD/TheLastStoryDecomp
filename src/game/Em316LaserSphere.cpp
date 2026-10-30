@@ -647,9 +647,9 @@ void Em316LaserSphere::fn_803199A4() {
     }
     m1534 = rate * (m1538 - m1534) + m1534;
     atn::Vector3 v(m1528);
-    Mtx rot;
-    PSMTXRotRad(rot, 'y', m1534);
-    PSMTXMultVec(rot, &v, &v);
+    atn::Matrix3x4 rot;
+    rot.fn_8013A13C(m1534);
+    PSMTXMultVec(rot.m, &v, &v);
     mPos = fn_80318648(m14B8) + v * 25.0f;
 }
 

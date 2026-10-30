@@ -764,11 +764,11 @@ void Em208Queen::fn_802CA8C0() {
         m14D0 = 0;
         m14D4 = 0;
         m14D8 = 0;
-        Mtx m;
-        PSMTXRotRad(m, 'y', mRot.y);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mRot.y);
         atn::Vector3 front;
         front = atn::Vector3(0.0f, 15.0f, 40.0f);
-        PSMTXMultVec(m, &front, &front);
+        PSMTXMultVec(m.m, &front, &front);
         atn::Vector3 center = mPos + front;
         bool held = false;
         float best = 1e16f;

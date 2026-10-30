@@ -125,9 +125,9 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
 // inferred: facing direction of the rotation `rot` (name invented, as in chr/ControlCdnStone.cpp)
 inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
-    Mtx mtx;
-    PSMTXRotRad(mtx, 'y', rot.y);
-    PSMTXMultVec(mtx, &v, &v);
+    atn::Matrix3x4 mtx;
+    mtx.fn_8013A13C(rot.y);
+    PSMTXMultVec(mtx.m, &v, &v);
     return v;
 }
 

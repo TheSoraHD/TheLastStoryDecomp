@@ -85,9 +85,9 @@ inline atn::Vector3 atn::Vector3::operator-() const {
 // inferred: facing direction of the rotation `rot` (name invented, as in chr/ControlCdnStone.cpp)
 inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
-    Mtx mtx;
-    PSMTXRotRad(mtx, 'y', rot.y);
-    PSMTXMultVec(mtx, &v, &v);
+    atn::Matrix3x4 mtx;
+    mtx.fn_8013A13C(rot.y);
+    PSMTXMultVec(mtx.m, &v, &v);
     return v;
 }
 
@@ -716,7 +716,6 @@ int ControlGuarded::vf0C() {
     return done;
 }
 
-// NONMATCHING: 99.3% - the original stores m08 after loading m14.y for the rotation.
 ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3* dir, int kind)
     : ControlBase(chara), m20(kind) {
     chara->m560 = 0x8E;
@@ -753,9 +752,9 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
     case 11: {
         model->fn_80097C08(0, 0x172, 0, 1, 1, 0.0f, 0.1f);
         m08.Set_unk(-10.0f, 0.0f, -25.0f);
-        Mtx mtx;
-        PSMTXRotRad(mtx, 'y', m14.y);
-        PSMTXMultVec(mtx, &m08, &m08);
+        atn::Matrix3x4 mtx;
+        mtx.fn_8013A13C(m14.y);
+        PSMTXMultVec(mtx.m, &m08, &m08);
         float scale = 0.04f;
         m08 *= scale;
         break;

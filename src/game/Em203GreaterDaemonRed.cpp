@@ -1027,9 +1027,9 @@ static inline atn::Vector3 FrontV_unk(float angle) {
 }
 static inline atn::Vector3 Front_unk(const float& angle) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', angle);
-    PSMTXMultVec(m, &front, &front);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(angle);
+    PSMTXMultVec(m.m, &front, &front);
     return front;
 }
 
@@ -1249,7 +1249,6 @@ void Em203GreaterDaemonRed::fn_80298580() {
 }
 
 // inferred: state 14 (turns to the target and strikes with the claws)
-// NONMATCHING: 98.86% - load of mRot.y scheduled before the node position store
 void Em203GreaterDaemonRed::fn_80298850() {
     float end = mMotion.mTracks[0].m08;
     if (end >= mMotion.fn_80097D7C(0)) {
@@ -1290,7 +1289,6 @@ void Em203GreaterDaemonRed::fn_80298B10() {
 }
 
 // inferred: state 16 (breath on the ground: starts the bolts of fn_8029B704)
-// NONMATCHING: 98.80% - load of mRot.y scheduled before the node position store
 void Em203GreaterDaemonRed::fn_80298E98() {
     atn::Vector3 target = m14B0->mPos;
     atn::Vector3 dir = target - mPos;

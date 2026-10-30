@@ -179,11 +179,11 @@ inline void FragileObject::UpdateColli_unk() {
     atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModelBefore.mMtx);
     mColliBefore.SetMtx_unk(mtx);
     mColliAfter.SetMtx_unk(mtx);
-    Mtx rot;
+    atn::Matrix3x4 rot;
     atn::Vector3 base = mtx.GetTrans_unk();
-    PSMTXRotRad(rot, 'y', m78.y);
+    rot.fn_8013A13C(m78.y);
     atn::Vector3 offset(mTarget.mOffset);
-    PSMTXMultVec(rot, &offset, &offset);
+    PSMTXMultVec(rot.m, &offset, &offset);
     mSphere.mSphere = atn::ColliSphere::Sphere_unk(base + offset, mTarget.mSize);
 }
 

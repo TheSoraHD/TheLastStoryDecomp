@@ -299,9 +299,9 @@ inline atn::Vector3 Front_unk(float roty) {
 // inferred: same, reading the rotation after the vector is set (name invented)
 inline atn::Vector3 FrontR_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', rot.y);
-    PSMTXMultVec(m, &v, &v);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &v, &v);
     return v;
 }
 // inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)

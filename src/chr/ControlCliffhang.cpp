@@ -180,9 +180,9 @@ int ControlCliffhang::vf0C() {
                 float speed = scale * time / motion->fn_80097D7C(0);
                 atn::Vector3 pos = mChara->mPos;
                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-                Mtx mtx;
-                PSMTXRotRad(mtx, 'y', mChara->mRot.y);
-                PSMTXMultVec(mtx, &dir, &dir);
+                atn::Matrix3x4 mtx;
+                mtx.fn_8013A13C(mChara->mRot.y);
+                PSMTXMultVec(mtx.m, &dir, &dir);
                 pos += dir * 4.0f * speed;
                 mChara->mPos = pos;
             }

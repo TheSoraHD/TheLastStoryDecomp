@@ -1414,9 +1414,9 @@ void Em203GreaterDaemon::fn_8028E1A0() {
         (mMotion.mTracks[0].m08 > 56.0f && mMotion.mTracks[0].m08 < 60.0f)) {
         atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        Mtx m;
-        PSMTXRotRad(m, 'y', mRot.y);
-        PSMTXMultVec(m, &front, &front);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mRot.y);
+        PSMTXMultVec(m.m, &front, &front);
         atn::Vector3 pos = spine + front * 20.0f;
         fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
         (void)pos;

@@ -260,11 +260,11 @@ int ControlChaseFollow::vf0C() {
     CharaTask* leader = lbl_8087F8A0->mHead;
     atn::Vector3 pos(leader->mPos);
     atn::Vector3 target(leader->mPos);
-    Mtx mtx;
-    PSMTXRotRad(mtx, 'y', -2.3561945f + leader->mRot.y);
+    atn::Matrix3x4 mtx;
+    mtx.fn_8013A13C(-2.3561945f + leader->mRot.y);
     atn::Vector3 off;
     off = atn::Vector3(0.0f, 0.0f, 1.0f);
-    PSMTXMultVec(mtx, &off, &off);
+    PSMTXMultVec(mtx.m, &off, &off);
     atn::Vector3 d = target - mChara->mPos;
     float dist = PSVECSquareMag(&d);
     float stop = 121.0f;

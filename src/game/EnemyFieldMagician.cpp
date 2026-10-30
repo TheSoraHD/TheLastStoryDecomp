@@ -85,9 +85,9 @@ inline atn::Vector3 Neg_unk(const atn::Vector3& v) {
 // inferred: forward direction of a character (name invented)
 inline atn::Vector3 GetFront_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', rot.y);
-    PSMTXMultVec(m, &v, &v);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &v, &v);
     return v;
 }
 
@@ -330,7 +330,6 @@ void EnemyFieldMagician::fn_8032CF10() {
     }
 }
 
-// NONMATCHING: 98.8% - mRot.y is read through r3 before `this` moves to r31 in the original
 void EnemyFieldMagician::fn_8032D1F4() {
     m1610 = 0;
     float frame = mMotion.mTracks[0].m08;

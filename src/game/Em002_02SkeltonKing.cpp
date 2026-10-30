@@ -129,9 +129,9 @@ void Em002_02SkeltonKing::fn_80249394() {
 
 inline atn::Vector3 Em002_02SkeltonKing::GetFront_unk(float dist) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', mRot.y);
-    PSMTXMultVec(m, &front, &front);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(mRot.y);
+    PSMTXMultVec(m.m, &front, &front);
     return mPos + front * dist;
 }
 

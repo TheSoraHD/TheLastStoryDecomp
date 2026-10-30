@@ -867,9 +867,9 @@ inline atn::Vector3 QuarkFront_unk(float rotY) {
 // inferred: front direction of the character (reads the rotation inside; name invented)
 inline atn::Vector3 QuarkFrontOf_unk(CharaTask* c) {
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', c->mRot.y);
-    PSMTXMultVec(m, &dir, &dir);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(c->mRot.y);
+    PSMTXMultVec(m.m, &dir, &dir);
     return dir;
 }
 
