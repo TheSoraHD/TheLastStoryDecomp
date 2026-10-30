@@ -12,38 +12,6 @@ struct ShopColorEntry_unk {
     int mShow;     // 0x20
 };
 
-// inferred: the colour entries take the path of the scalar elements in push_back (stored after the size
-// is incremented, as std::vector<int> in std/vector.h)
-namespace std {
-template <>
-struct __vec_imp_unk<ShopColorEntry_unk> : public __vec_storage_unk<ShopColorEntry_unk> {
-    ~__vec_imp_unk() {}
-    void __push_fast_unk(unsigned int n, const ShopColorEntry_unk& x) {
-        this->mSize = n + 1;
-        this->mData[this->mSize - 1] = x;
-    }
-};
-template <>
-struct __vec_split_unk<ShopColorEntry_unk> : public __vec_split_base_unk<ShopColorEntry_unk> {
-    __vec_split_unk(void* alloc) : __vec_split_base_unk<ShopColorEntry_unk>(alloc), mStart(0) {}
-    ShopColorEntry_unk* begin() { return this->mData + mStart; }
-    void push_back(const ShopColorEntry_unk& x) {
-        begin()[this->mSize] = x;
-        this->mSize++;
-    }
-    void __push_front_unk(ShopColorEntry_unk* first, ShopColorEntry_unk* last) {
-        ShopColorEntry_unk* p = begin();
-        while (last > first) {
-            --p;
-            --last;
-            new (p) ShopColorEntry_unk(*last);
-            mStart--;
-            this->mSize++;
-        }
-    }
-    unsigned int mStart;
-};
-} // namespace std
 
 // inferred from __vt__9ShopColor (0x807968E8): colour shop (singleton, 0x8087F9D0)
 class ShopColor : public ShopBase {

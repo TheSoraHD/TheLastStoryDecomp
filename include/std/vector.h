@@ -75,10 +75,17 @@ inline void __vec_storage_unk<float>::__shrink_unk(unsigned int newSize) {
 template <class T>
 struct __vec_imp_unk : public __vec_storage_unk<T> {
     ~__vec_imp_unk() {}
-    // inferred: generic elements are copy-constructed in place (0x80476ED4)
+    // inferred: MSL dispatches on is_POD (__builtin_is_pod): POD elements are assigned after the size is
+    // incremented, as pointers (vector<KrakenCommand_unk>::push_back 0x802D8854); the others are
+    // copy-constructed in place (0x80476ED4)
     void __push_fast_unk(unsigned int n, const T& x) {
-        new (this->mData + n) T(x);
-        this->mSize++;
+        if (__builtin_is_pod(T)) {
+            this->mSize = n + 1;
+            this->mData[this->mSize - 1] = x;
+        } else {
+            new (this->mData + n) T(x);
+            this->mSize++;
+        }
     }
     // inferred: appends n value-initialised elements in place (resize, weak copy 0x8032B314)
     void __append_n_unk(unsigned int n) {
@@ -139,7 +146,11 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<T>(alloc), mStart(0) {}
     T* begin() { return this->mData + mStart; }
     void push_back(const T& x) {
-        new (begin() + this->mSize) T(x);
+        if (__builtin_is_pod(T)) {
+            begin()[this->mSize] = x;
+        } else {
+            new (begin() + this->mSize) T(x);
+        }
         this->mSize++;
     }
     // inferred: appends n copies of x (resize, weak copy 0x8032B314)
@@ -152,6 +163,10 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
     }
     // inferred: moves [first, last) in front of the stored elements, last one first
     void __push_front_unk(T* first, T* last) {
+        if (__builtin_is_pod(T)) {
+            __push_front_resize_unk(first, last);
+            return;
+        }
         T* p = begin();
         while (last > first) {
             new (--p) T(*--last);
