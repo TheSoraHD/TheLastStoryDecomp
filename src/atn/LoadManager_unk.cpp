@@ -265,26 +265,28 @@ extern "C" void fn_8046BBF0(Reader_unk* reader, ReadSlot_unk* slot) {
 }
 
 // inferred: next request: the first urgent one, else the one nearest the start of the disc
-// NONMATCHING: 93.78% - registers only (the original keeps the loop iterator in r4, the register of
-// `reader`). The original returns the iterator through a hidden pointer (r3) that it writes each
-// time; returned by value here the iterator goes back in r3, so the out pointer is explicit.
-extern "C" void fn_8046BEE4(std::list<ReadRequest_unk*>::iterator* best, Reader_unk* reader) {
+// NONMATCHING: 93.78% - volatile registers only (the original keeps the list end in r0 and the loop
+// iterator in r4, the register of `reader`). The original returns the position through a hidden
+// pointer (r3) written at each new best: a const_iterator returned by value (non-trivial copy, named
+// return value). Tried the end named first/after the best/in the test, const_iterator loop.
+extern "C" std::list<ReadRequest_unk*>::const_iterator fn_8046BEE4(Reader_unk* reader) {
     std::list<ReadRequest_unk*>::iterator end = reader->mList.end();
-    *best = reader->mList.begin();
-    unsigned long long bestPos = (**best)->mPos + (**best)->mOffset;
+    std::list<ReadRequest_unk*>::const_iterator best = reader->mList.begin();
+    unsigned long long bestPos = (*best)->mPos + (*best)->mOffset;
     std::list<ReadRequest_unk*>::iterator it = reader->mList.begin();
     for (++it; it != end; ++it) {
         ReadRequest_unk* req = *it;
         unsigned long long pos = req->mPos + req->mOffset;
         if (req->mUrgent != 0) {
-            *best = it;
-            return;
+            best = it;
+            return best;
         }
         if (pos < bestPos && req->mCore != 0 && req->mCore->mRefCount > 0) {
-            *best = it;
+            best = it;
             bestPos = pos;
         }
     }
+    return best;
 }
 
 inline ReadSlot_unk* Reader_unk::GetFree_unk() {
@@ -297,25 +299,14 @@ inline ReadSlot_unk* Reader_unk::GetFree_unk() {
     return 0;
 }
 
-// inferred: list erase
-template <class T>
-inline void Erase_unk(std::list<T>& list, typename std::list<T>::iterator pos) {
-    std::__list_node_base_unk* prev = pos.mNode->mPrev;
-    std::__list_node_base_unk* next = pos.mNode->mNext;
-    prev->mNext = next;
-    next->mPrev = pos.mNode->mPrev;
-    delete pos.mNode;
-    list.mSize--;
-}
-
-// NONMATCHING: 98.05% - registers only: the original loads the iterator twice from the stack for the
-// erase, and swaps r6/r7 (bytes done/length) in the inlined Start_unk
+// NONMATCHING: 98.81% - the original loads the position twice from the stack (erase and *it; tried
+// the copy explicit, a const reference, the request assigned apart), and swaps r6/r7 (bytes
+// done/length) in the inlined Start_unk. The erase is list::erase(const_iterator).
 extern "C" void fn_8046BF88(Reader_unk* reader) {
     while (reader->mList.size() != 0) {
-        std::list<ReadRequest_unk*>::iterator it;
-        fn_8046BEE4(&it, reader);
+        std::list<ReadRequest_unk*>::const_iterator it = fn_8046BEE4(reader);
         ReadRequest_unk* req = *it;
-        Erase_unk(reader->mList, it);
+        reader->mList.erase(it);
         LoadCore* core = req->mCore;
         if (core->mRefCount == 0 && strstr(core->mPath, ".pk") == 0) {
             core->m05 = 1;
