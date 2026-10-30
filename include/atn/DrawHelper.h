@@ -96,6 +96,7 @@ public:
     void fn_8005EDF0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float rot, float u0, float v0, float u1, float v1);
     void fn_8005EE38(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z, float w, float h, float rot, float u0, float v0, float u1, float v1, float s0, float s1, float s2, float s3);
     void fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1);
+    void fn_80062F7C(unsigned int segments, unsigned int color, float x, float y, float z, float a, float radius, float b, float rot);
     void fn_8005E40C(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1);
 
     // Drawing commands (atn/ComDrawTexture). Names and parameter names unknown (fn_<addr>);
@@ -127,7 +128,7 @@ public:
     void fn_8006297C(ColliTree* colli, int a, int b, int c, int d, float arg);
     void fn_800629F0(const Vector3& center, const Vector3& size, float arg, unsigned int color, const Matrix3x4* mtx);
     void fn_80062C8C(unsigned int segments, unsigned int color, float x, float y, float z, float a, float radius, float b);
-    void fn_80063200(int arg, unsigned int color, float x, float y, float z, float a, float b);
+    void fn_80063200(unsigned int segments, unsigned int color, float x, float y, float z, float a, float radius);
     void fn_80063484(int segments, unsigned int color, float x, float y, float z, float rot, float a, float range, float angle);
     void fn_80063764(const Vector3& a, const Vector3& b, float width, unsigned int color);
     void fn_800638B0(float a, float b, const Vector3& from, const Vector3& to, unsigned int color);

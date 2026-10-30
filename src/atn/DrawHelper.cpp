@@ -1017,6 +1017,74 @@ void DrawHelper::fn_80062C8C(unsigned int segments, unsigned int color, float x,
     fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
 }
 
+void DrawHelper::fn_80062F7C(unsigned int segments, unsigned int color, float x, float y, float z, float a,
+                             float radius, float b, float rot) {
+    fn_80062C8C(segments, color, x, y, z, a, radius, b);
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Vector3 c(x, 0.5f * b + y, z);
+    float hr = 0.5f * radius;
+    v[0].mPos.Set_unk(0.0f, 0.0f, radius);
+    v[0].mColor = color;
+    v[1].mPos.Set_unk(-hr, 0.0f, 0.7f * -radius);
+    v[1].mColor = color;
+    v[2].mPos.Set_unk(0.0f, 0.0f, 0.0f);
+    v[2].mColor = color;
+    v[3].mPos.Set_unk(hr, 0.0f, 0.7f * -radius);
+    v[3].mColor = color;
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot);
+    DrawVertex_unk* p = v;
+    for (unsigned int i = 0; i < 4; i++) {
+        PSMTXMultVec(m, &p->mPos, &p->mPos);
+        p->mPos += c;
+        p++;
+    }
+    cmd->m04 = 0;
+    cmd->mPrim = 0xA0;
+    cmd->m10 = 2;
+    cmd->mCount = 4;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+}
+
+void DrawHelper::fn_80063200(unsigned int segments, unsigned int color, float x, float y, float z, float a,
+                             float radius) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(segments + 1);
+    if (v == 0) {
+        return;
+    }
+    for (unsigned int i = 0; i < segments + 1; i++) {
+        Vector3 p(radius, 0.0f, 0.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', i * (6.2831855f / segments));
+        PSMTXMultVec(m, &p, &p);
+        p.x += x;
+        p.y += y;
+        p.z += z;
+        v[i].mPos = p;
+        v[i].mColor = color;
+    }
+    cmd->m04 = 0;
+    cmd->mPrim = 0xB0;
+    cmd->m10 = segments;
+    cmd->mCount = segments + 1;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+}
+
 void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsigned int color) {
     ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
     if (cmd == 0) {

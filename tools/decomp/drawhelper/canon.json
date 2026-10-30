@@ -311,13 +311,13 @@
   "float b"
  ],
  "fn_80063200": [
-  "int arg",
+  "unsigned int segments",
   "unsigned int color",
   "float x",
   "float y",
   "float z",
   "float a",
-  "float b"
+  "float radius"
  ],
  "fn_80063484": [
   "int segments",
