@@ -1,4 +1,6 @@
 #include "gmk/CharaObj.h"
+// inferred: GmkChara is declared after CharaObj (its vtable comes first in .data)
+#include "gmk/GmkChara.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "std/string_members.h"
@@ -67,11 +69,14 @@ void CharaObj::Start() {
     }
 }
 
-// NONMATCHING: 52.5% - same as gmk::TodomeCountUp::vf10: the target keeps a stack frame and calls
-// Start with bctrl instead of a tail call. Tried: return, for/break, switch, else branches, locals.
+// inferred: same shape as FloatingBox::vf10 (start, global check, per-frame body) with an empty
+// body; the check is what keeps the frame and the non-tail call. The tested global is a guess.
 void CharaObj::vf10() {
     if (m54 == 0) {
         Start();
+    }
+    if (lbl_8087F0A8 == 0) {
+        return;
     }
 }
 

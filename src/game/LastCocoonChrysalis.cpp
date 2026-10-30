@@ -19,7 +19,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
-extern "C" void fn_801CCD00(LastCocoonPart_unk* chara, int arg);
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
 extern "C" void* lbl_8087EEC8;
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
@@ -39,35 +38,29 @@ struct MsgTable_unk {
 };
 extern "C" MsgTable_unk* lbl_8087F1E4;
 
-// inferred: std::string concatenation (weak copy 0x8006AFF8; not in include/std/string.h yet)
-static std::string Concat_unk(const std::string& a, const std::string& b) {
-    std::string result;
-    std::string::size_type n1 = a.size();
-    std::string::size_type n2 = b.size();
-    result.reserve(n1 + n2);
-    result.replace(0, 0, a.data(), a.data() + n1);
-    result.replace(n1, 0, b.data(), b.data() + n2);
-    return result;
-}
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
 
-// NONMATCHING: the original is over the inlining budget and calls the std::string, tokenizer and
-// iterator members, the LH_Binary and ResHandle constructors out of line (same open case as
-// CharaTask::vf2C, docs/inlining.md)
+// NONMATCHING: 0% - the original is over the inlining budget (R3 of docs/inlining.md): it calls every
+// candidate out of line (std::string, tokenizer and iterator members, LH_Binary and ResHandle ctors), while
+// ours inlines all of them. An extra inline candidate of 36+ statements (33 is not enough) tips it over and
+// leaves only register differences (89%), so the original has about that much more candidate cost (or less
+// code of its own). No change: copy-init strings, a named path, flag order, while loop. The weak copies
+// emitted in that state have the sizes of the original ones (token_iterator ctor and ++ differ by 8-16 bytes).
 LastCocoonChrysalis::LastCocoonChrysalis(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14E4(0) {
     mStatus.m18 |= 0x01000040;
-    m14A8 |= 0x00400000;
+    mFlag22 = 1;
     std::string dir("database/chara/special/");
     std::string name("db_last_cocoon.csv");
     std::string params(info->m2C);
     typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
     Tokenizer tok(params, boost::char_separator<char>(";"));
     for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
-        if (strncmp((*it).c_str(), "db_name=", 8) == 0) {
-            name.assign((*it).c_str() + 8);
+        if (strncmp(it->c_str(), "db_name=", 8) == 0) {
+            name = it->c_str() + 8;
         }
     }
-    m14B0.vf0C(Concat_unk(dir, name).c_str());
+    m14B0.vf0C(fn_8006AFF8(dir, name).c_str());
 }
 
 LastCocoonChrysalis::~LastCocoonChrysalis() {}
@@ -85,8 +78,8 @@ int LastCocoonChrysalis::vf0C() {
         m14D8 = 5;
         m14C8 = 6;
         m14D4 = lbl_8087F8A0->Find_unk(m14D0);
-        m14DC = (LastCocoonPart_unk*)EnemyManager::sInstance->Find_unk(m14D8);
-        m14CC = (LastCocoonPart_unk*)EnemyManager::sInstance->Find_unk(m14C8);
+        m14DC = (EnemyTask*)EnemyManager::sInstance->Find_unk(m14D8);
+        m14CC = (CopyRobotTask*)EnemyManager::sInstance->Find_unk(m14C8);
         m14A8 &= ~0x04000000;
         return 1;
     }
@@ -122,7 +115,7 @@ void LastCocoonChrysalis::vf10() {
     if (fn_80370A78(lbl_8087F430, 231) == 1) {
         m14CC->fn_8016E4C4(1);
         m14CC->m14B8 = m14DC;
-        fn_801CCD00(m14CC, 2);
+        m14CC->fn_801CCD00(2);
         m14DC->m54C |= 8;
         fn_80370AE4(lbl_8087F430, 231, 2);
     } else if (fn_80370A78(lbl_8087F430, 231) == 2) {

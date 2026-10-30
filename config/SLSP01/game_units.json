@@ -455,7 +455,7 @@
   "classes": [
    "atn::TaskBase"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureCacheManager8x32.cpp",
@@ -2365,7 +2365,7 @@
    "gmk::GmkChara",
    "gmk::CharaObj"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/PassBoard.cpp",
@@ -2386,7 +2386,7 @@
   "classes": [
    "gmk::TodomeCountUp"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/LemonBucket.cpp",

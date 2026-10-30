@@ -23,6 +23,13 @@ struct ShakeField_unk {
     float m978; // inferred: y amplitude
     unsigned char m97C[0x54E4 - 0x97C];
     int m54E4;
+    // inferred: starts a camera shake (name invented)
+    void Shake_unk(int frame, float x, float y) {
+        m96C = m96C % 2;
+        m970 = frame;
+        m974 = x;
+        m978 = y;
+    }
 };
 extern "C" ShakeField_unk* lbl_8087F430;
 
@@ -62,10 +69,12 @@ void ShakeCamera::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: the target keeps a compare for case 1 (as if it had code removed late, see
-// gmk::TodomeCountUp::vf10), puts the random rate in the register of mRateMax and schedules the
-// field stores differently. Tried: return/default/empty calls in case 1, several forms of the
-// random range helper, explicit locals.
+// NONMATCHING: 96.74% - the target keeps a compare for case 1 (as if it had code removed late, see
+// gmk::TodomeCountUp::vf10; `return` in case 1 gives both compares but other branches) and swaps the
+// registers of the rate and the sound length (f31/f30) and of the field pointer. The field writes go
+// through an inline taking (frame, x, y), so the members are read before the stores. Tried: return/
+// default/empty calls/self-assignments in case 1, forms of the random range helper, explicit locals,
+// operand orders of the volume and the pitch.
 void ShakeCamera::vf10() {
     switch (m54) {
     case 1:
@@ -74,13 +83,9 @@ void ShakeCamera::vf10() {
         if (--mWait < 0) {
             mWait = mWaitFrameMin + rand() % mWaitFrame;
             float rate = RandRange_unk(mRateMax, mRateMin);
-            ShakeField_unk* field = lbl_8087F430;
-            field->m96C = field->m96C % 2;
-            field->m970 = mShakeFrame;
             float x = mShakeX * rate;
             float y = mShakeY * rate;
-            field->m974 = x;
-            field->m978 = y;
+            lbl_8087F430->Shake_unk(mShakeFrame, x, y);
             if (lbl_8087F430->m54E4 == 0) {
                 float volume = (float)sqrt(rate) * (float)sqrt(x * x + y * y) < 1.5f
                                    ? (float)sqrt(rate) * (float)sqrt(x * x + y * y)
