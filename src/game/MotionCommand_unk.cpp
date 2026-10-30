@@ -178,6 +178,10 @@ extern "C" void fn_8011FFF8(atn::MotionCommandData* data, void* buffer, int size
     }
 }
 
+// inferred: the original emits this weak copy among the out-of-line inlines of fn_8011FFF8 (0x801207D4);
+// its "vector length error" opens the string pool
+template void std::vector<std::string>::push_back(const std::string& x);
+
 MotionCommand_unk::MotionCommand_unk()
     : mChara(0), m0C(0), m10(1), m11(1), m12(1), m20(0), m24(0), m2C(0), m30(0) {}
 
@@ -288,9 +292,7 @@ void MotionCommand_unk::fn_8012111C() {
     }
 }
 
-// NONMATCHING: 93.92% - the string pool starts with "vector length error" in the original (the
-// generic push_back of include/std/vector.h is instantiated at the end of the file here), so the
-// SE_ATTR literals use other offsets; also the order of the stack slots of the vector temporaries,
+// NONMATCHING: 94.7% - the order of the stack slots of the vector temporaries,
 // the scheduling of the arguments of fn_8023A680/fn_8023A8B4, fabs into a temporary and a few
 // register choices
 int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
