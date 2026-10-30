@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `fb-materialparser` (2026-10-30, propuesta F-b, primera parte, sin mergear; sale de `batch-auto-50kb-atn`): **8696 / 18215 funciones al 100%** (código 31,03%), `main.dol: OK`. `atn/MaterialParser_unk` escrita como métodos (opción A), 18/35 al 100%; cabecera común `include/atn/Material_unk.h` (sustituye cuatro vistas del material). Detalle y decisiones en `docs/fb-materialparser.md`. `atn/ComDrawTexture` sigue pendiente.
+- `fb-materialparser` (2026-10-30, propuesta F-b, primera parte; mergeada en `main` con `batch-auto-50kb-atn`): **8696 / 18215 funciones al 100%** (código 31,03%), `main.dol: OK`. `atn/MaterialParser_unk` escrita como métodos (opción A), 18/35 al 100%; cabecera común `include/atn/Material_unk.h` (sustituye cuatro vistas del material). Detalle y decisiones en `docs/fb-materialparser.md`. `atn/ComDrawTexture` sigue pendiente.
 - Anteriores: `batch-auto-50kb-atn` (F, `docs/batch-auto-50kb-atn.md`), `batch-auto-20kb-game` (E, primera mitad, `docs/batch-auto-20kb-game.md`; la segunda mitad va en `batch-auto-20kb-game-b`), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
 - objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%. Tras editar una unidad ya emparejada: `resetlocal.py`, `pairdata.py --apply`, `configure`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
