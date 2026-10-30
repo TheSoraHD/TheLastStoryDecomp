@@ -162,12 +162,16 @@ int SpecialEnemyBase::fn_805A3D68(char* name, const char* params) {
             str = std::string(str, 0, pos + 4);
         }
         if (name != 0) {
-            sprintf(name, "%s", str.c_str());
+            sprintf(name, "%s\0", str.c_str());
         }
         return 1;
     }
     return 0;
 }
+
+// inferred: instantiated right after its first use, as in atn/FileUtil_unk (0x80069BF4): its
+// "basic_string: out_of_range" follows the strings of fn_805A3D68 in the pool (the linker drops the copy)
+template std::string::basic_string(const std::string& str, std::string::size_type pos, std::string::size_type n);
 
 int SpecialEnemyBase::vfF8() {
     int result = 0;
