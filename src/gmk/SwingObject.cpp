@@ -400,7 +400,7 @@ void SwingObject::vf6C(void* menu) {
     SwingParam_unk* param = mCore.mParams;
     for (int i = 0; i < 2; i++) {
         char text[0x100];
-        sprintf(text, "Param%d", i + 1);
+        sprintf(text, "Param%d\0", i + 1);
         void* sub = fn_8008937C(group, text);
         fn_8008771C(sub, "wind_power", &param->mWindPower, 0, 0, 0.0f, 100.0f, 1.0f);
         fn_8008771C(sub, "wind_vec", &param->mWindVec, 0, 0, -1.0f, 1.0f, 1.0f);
