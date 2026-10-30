@@ -2556,7 +2556,6 @@ void DrawHelper::ComDrawWindow::vf10(RenderView_unk* view) {
     GXSetBlendMode(1, 4, 5, 0);
 }
 
-// Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
-// destructors.
+// Pending: the NONMATCHING functions above (registers and stack slots).
 
 } // namespace atn
