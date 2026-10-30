@@ -80,6 +80,11 @@ DrawHelper::~DrawHelper() {
 // inferred: vertex of the line commands (0x10)
 struct DrawVertex_unk {
     DrawVertex_unk() {}
+    // inferred: name invented
+    void Set_unk(const Vector3& pos, unsigned int color) {
+        mPos = pos;
+        mColor = color;
+    }
     Vector3 mPos;
     unsigned int mColor;
 };
@@ -1389,6 +1394,59 @@ void DrawHelper::fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned in
     cmd->mVertex = v;
     cmd->m18 = 1;
     fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+}
+
+// inferred: exact comparison of two points (local inline, name invented)
+inline bool DrawSamePos_unk(const Vector3& a, const Vector3& b) {
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+
+// inferred: wire capsule between 'a' and 'b' (two spheres and 8 lines)
+// NONMATCHING: 99.9% - r19/r20 swapped for the addresses of 'side' and 'p' in the loop (copy of a
+// Vector3, docs/mwcc-blockers-q3.md)
+void DrawHelper::fn_8006471C(const Vector3& a, const Vector3& b, unsigned int color, float radius, float z) {
+    fn_80063D3C(a, radius, z, color);
+    if (DrawSamePos_unk(a, b)) {
+        return;
+    }
+    fn_80063D3C(b, radius, z, color);
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    int count = 16;
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(count);
+    if (v == 0) {
+        return;
+    }
+    Vector3 dir = b - a;
+    if (dir.LengthSq_unk() < 0.00001f) {
+        return;
+    }
+    dir.Normalize_unk();
+    Vector3 side;
+    if (Abs_unk(dir.y) > 0.99f) {
+        side.Set_unk(0.0f, 0.0f, radius);
+    } else {
+        side = DrawCross_unk(dir, Vector3(0.0f, 1.0f, 0.0f));
+        side.Normalize_unk();
+        side *= radius;
+    }
+    for (unsigned int i = 0; i < 8; i++) {
+        Vector3 p = side;
+        Mtx m;
+        PSMTXRotAxisRad(m, &dir, 0.7853982f * i);
+        PSMTXMultVec(m, &p, &p);
+        v[i * 2].Set_unk(p + a, color);
+        v[i * 2 + 1].Set_unk(p + b, color);
+    }
+    cmd->m04 = 0;
+    cmd->mPrim = 0xA8;
+    cmd->m10 = 8;
+    cmd->mCount = count;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
 }
 
 void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int a, int b, float z) {
