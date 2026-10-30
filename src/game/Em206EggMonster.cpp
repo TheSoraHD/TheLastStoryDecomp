@@ -90,7 +90,9 @@ struct Field_unk {
     CharaTask* m8A0;      // inferred: character the camera follows
     unsigned char m8A4[0x97C - 0x8A4];
     EggLook_unk m97C;
-    unsigned char m9A4[0x54F4 - 0x9A4];
+    unsigned char m9A4[0x10D8 - 0x9A4];
+    RouteTable_unk* m10D8;
+    unsigned char m10DC[0x54F4 - 0x10DC];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
     unsigned char m54F8[0x5694 - 0x54F8];
     int m5694;            // inferred: nonzero in the multiplayer mode
@@ -100,7 +102,9 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 // inferred: game settings (lbl_8087F0A8); class unknown
 struct GameSetting_unk {
-    unsigned char m000[0x194];
+    unsigned char m000[0x30];
+    int mFrameRate; // 0x30 (as in game/Em208Queen.cpp)
+    unsigned char m034[0x194 - 0x34];
     int m194;
 };
 extern "C" GameSetting_unk* lbl_8087F0A8;
@@ -141,6 +145,37 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" double acos(double x);
 extern "C" double fmod(double x, double y);
+extern "C" int rand();
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* a, int b, CharaTask* ignore); // inferred: ray test
+// inferred: result of a collision query (0x50 bytes, as in game/Em208Queen.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x10];
+    atn::Vector3 m10; // inferred: hit position
+    unsigned char m1C[0x28 - 0x1C];
+    atn::Vector3 m28;
+    int m34;
+    atn::ColliBase* m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+extern "C" int fn_803C17FC(RouteTable_unk* table, int point); // inferred: route point -> index (1-based)
+// inferred: angle wrap to [-180, 180] (name invented)
+inline float WrapDeg_unk(float deg) {
+    float d = fmod(deg, 360.0);
+    if (d > 180.0f) {
+        d -= 360.0f;
+    }
+    if (d < -180.0f) {
+        d += 360.0f;
+    }
+    return d;
+}
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" float PSVECMag(const atn::Vector3* v);
@@ -433,6 +468,79 @@ atn::Vector3 Em206EggMonster::vf64(int center) {
     return result;
 }
 
+// NONMATCHING: 98.8% - stack slots of the locals (rotation, ray ends) and the frsp before atan2
+int Em206EggMonster::fn_802C38E4() {
+    int next = -1;
+    if (m15B8 != 0 && m15BC < 0 && m1594 != 2 && m15C0 < 2) {
+        next = 5;
+    } else {
+        CharaTask* target = m1584;
+        if (target != 0) {
+            atn::Vector3 from;
+            atn::Vector3 to;
+            atn::Vector3 tp = target->mPos;
+            atn::Vector3 d = tp - mPos;
+            float dist = PSVECMag(&d);
+            atn::Vector3 n = d;
+            PSVECNormalize(&n, &n);
+            atn::Vector3 rot = n.ToRotationZ_unk();
+            WrapDeg_unk(57.295776f * (rot.y - mRot.y));
+            from = mPos;
+            to = m1584->mPos;
+            from.y += 20.0f;
+            to.y += 20.0f;
+            int clear = fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0, m1584) == 0;
+            switch (m1594) {
+            case 0:
+                if (dist < 60.0f && m15B4 != 0) {
+                    if (m1700 != 0) {
+                        next = 4;
+                        if (rand() % 2 == 0) {
+                            next = 2;
+                        }
+                    } else {
+                        next = 2;
+                    }
+                } else if (m1700 != 0 && dist < 60.0f && m15B4 != 0) {
+                    next = 4;
+                } else if (m15B4 != 0) {
+                    if (clear) {
+                        next = 3;
+                    } else {
+                        next = 2;
+                    }
+                } else {
+                    next = 1;
+                }
+                break;
+            case 1:
+                if (dist < 60.0f && m15B4 != 0) {
+                    next = 4;
+                } else if (dist < 120.0f && clear && m15B4 != 0) {
+                    next = 3;
+                } else {
+                    next = 10;
+                }
+                break;
+            case 2:
+                next = 10;
+                break;
+            }
+        }
+    }
+    if (next == 4) {
+        RouteTable_unk* routes = lbl_8087F430->m10D8;
+        int index = fn_803C17FC(routes, 0x13);
+        if (index != 0) {
+            atn::Vector3 d = routes->mPoints[index - 1].mPos - mPos;
+            if (PSVECMag(&d) < 150.0f) {
+                next = 3;
+            }
+        }
+    }
+    return next;
+}
+
 // NONMATCHING: 99.2% - stack slots of the rotation temporaries and an frsp before atan2 (same
 // rotation inline as the vfFC of the spiders)
 void Em206EggMonster::fn_802C3EDC() {
@@ -503,6 +611,39 @@ void Em206EggMonster::fn_802C42D4() {
         PlayEffect_unk(&m16B0, &mMotion);
     } else {
         mMotion.mTracks[0].m0C = 1.0f;
+    }
+}
+
+// NONMATCHING: 99.3% - float registers of the jump vector and r3/r4 of a Vector3 copy
+// inferred: state 4 (jumps forward and lands on the ground)
+void Em206EggMonster::fn_802C4480() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        EndAction_unk();
+    } else if (mMotion.mTracks[0].m08 >= 28.0f && mMotion.mTracks[0].m08 <= 60.0f) {
+        int fps = lbl_8087F0A8->mFrameRate;
+        atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), 1.5f);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mRot.y);
+        PSMTXMultVec(m.m, &move, &move);
+        CollResult_unk result;
+        CharaTask::Sphere_unk sphere = fn_80176548(mPos);
+        fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, &mColli, 0, sphere.mRadius);
+        atn::Vector3 pos = result.m10;
+        pos -= m5A4;
+        pos.y -= sphere.mRadius;
+        mPos = pos;
+    }
+    float f = mMotion.mTracks[0].m08;
+    if (f >= 36.0f && f <= 60.0f) {
+        HitInfo_unk* data;
+        if (m1700 != 0) {
+            data = fn_80219E6C(0x584);
+        } else {
+            data = fn_80219E6C(0x57A);
+        }
+        fn_80144710();
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
     }
 }
 

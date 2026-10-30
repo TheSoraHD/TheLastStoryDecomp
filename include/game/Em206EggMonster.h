@@ -31,6 +31,7 @@ public:
     int fn_802C38E4();  // inferred: chooses the next action
     void fn_802C3EDC(); // inferred: state 1 (follows the target)
     void fn_802C42D4(); // inferred: state 2
+    void fn_802C4480(); // inferred: state 4
     void fn_802C4858(); // inferred: starts state 3 (attack)
     void fn_802C4B70(); // inferred: death
     void fn_802C4E80(int id, float radius, float angle);
