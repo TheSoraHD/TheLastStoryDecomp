@@ -145,7 +145,7 @@ void HealPoint::vf20() {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
             mEfp.LoadRequest(csv.fn_8005B9CC());
-        } else if (strcmp(field, "SKILL") == 0) {
+        } else if (strcmp(field, "PARAM") == 0) {
             mSkill = fn_80219E6C(atoi(csv.fn_8005B9CC()));
         }
     } while (csv.fn_8005BBF8() != 0);
