@@ -1235,6 +1235,69 @@ void DrawHelper::fn_800638B0(float a, float head, const Vector3& from, const Vec
     fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
 }
 
+// inferred: wire sphere (4 meridians around y, the arc down to the bottom, 4 meridians around x)
+void DrawHelper::fn_80063D3C(const Vector3& pos, float radius, float a, unsigned int color) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    unsigned int n = 8;
+    unsigned int count = n * 8 + 3;
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(count);
+    if (v == 0) {
+        return;
+    }
+    Mtx outerY;
+    Mtx outerX;
+    v[0].mPos = Vector3(pos.x, pos.y + radius, pos.z);
+    v[0].mColor = color;
+    for (unsigned int j = 0; j < 4; j++) {
+        PSMTXRotRad(outerY, 'y', 0.7853982f * j);
+        for (unsigned int i = 0; i < n; i++) {
+            Vector3 p(0.0f, radius, 0.0f);
+            Mtx mz;
+            PSMTXRotRad(mz, 'z', (i + 1) * (6.2831855f / n));
+            PSMTXMultVec(mz, &p, &p);
+            PSMTXMultVec(outerY, &p, &p);
+            p += pos;
+            DrawVertex_unk& d = v[i + j * n + 1];
+            d.mPos = p;
+            d.mColor = color;
+        }
+    }
+    for (unsigned int i = 0; i < n / 4; i++) {
+        Vector3 p(0.0f, radius, 0.0f);
+        Mtx mz;
+        PSMTXRotRad(mz, 'z', (i + 1) * (6.2831855f / n));
+        PSMTXMultVec(mz, &p, &p);
+        p += pos;
+        DrawVertex_unk& d = v[i + 4 * n + 1];
+        d.mPos = p;
+        d.mColor = color;
+    }
+    for (unsigned int j = 0; j < 4; j++) {
+        PSMTXRotRad(outerX, 'x', 0.7853982f * j);
+        for (unsigned int i = 0; i < n; i++) {
+            Vector3 p(-radius, 0.0f, 0.0f);
+            Mtx my;
+            PSMTXRotRad(my, 'y', (i + 1) * (6.2831855f / n));
+            PSMTXMultVec(my, &p, &p);
+            PSMTXMultVec(outerX, &p, &p);
+            p += pos;
+            DrawVertex_unk& d = v[i + n / 4 + (j + 4) * n + 1];
+            d.mPos = p;
+            d.mColor = color;
+        }
+    }
+    cmd->m04 = 0;
+    cmd->mPrim = 0xB0;
+    cmd->m10 = count - 1;
+    cmd->mCount = count;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+}
+
 void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int a, int b, float z) {
     ComDrawD3TextureMask* cmd = m04.New_unk<ComDrawD3TextureMask>();
     if (cmd == 0) {
