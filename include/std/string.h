@@ -383,7 +383,8 @@ bool operator==(const basic_string<T, Tr, A>& lhs, const basic_string<T, Tr, A>&
     return lhs.size() == rhs.size() && lhs.compare(rhs) == 0;
 }
 
-// inferred: called out of line (weak copy 0x8000EB8C, char)
+// inferred: called out of line (weak copy 0x8000EB8C, char); inlined as `!(s == "")` in
+// atn/MaterialParser_unk (0x8007B260, 0x80080C20), where its compare keeps the original stack slots
 template <class T, class Tr, class A>
 bool operator==(const basic_string<T, Tr, A>& lhs, const T* rhs) {
     return lhs.compare(rhs) == 0;

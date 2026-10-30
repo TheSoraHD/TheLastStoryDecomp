@@ -215,3 +215,10 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `GXColor` construido byte a byte en la pila y copiado = inline que lo devuelve (`DrawGXColor_unk(r, g, b, a)`); un agregado `{0, 0xFF, 0, 0xFF}` sale de una tabla.
 - Varias llamadas con el mismo global cargado una vez en un registro = inline que recibe el global (`DrawSetZMode_unk(lbl_8087EEE0, m18)`); si el original carga un campo antes de esas llamadas, es un argumento de la inline.
 - Un setter `v.Set_unk(pos, color, Temp(...))` evalúa los argumentos de derecha a izquierda: crea el temporal antes de copiar la posición (F-b3, `fn_80061E2C`).
+- El pool `@stringBase0` sigue el orden de generación: una función `static` solo se genera al inlinearse en su llamador (sus literales van allí); sin `static` se emite en su sitio, sus literales van antes, y el enlazador quita la copia (F-b2, menú de `TexStage_unk`).
+- Si el pool original acaba con `basic_string::reserve length_error`/`out_of_range`/`length_error`, la unidad incluye `std/string_members.h`.
+- Huecos de pila de un `compare` inline en orden inverso al original: escribir `!(s == "")` en lugar de `s.compare("") != 0` (más anidación de inlines invierte el orden) (F-b2).
+- Parámetro en un registro más alto de lo esperado (s en r30 con delims r27): el original recorre una copia local (`const char* start = s;`) (F-b2, tokenizador).
+- Campos de bits en una sola escritura en el original: leer antes en locales los campos de otro objeto que se asignan (sin eso MWCC supone alias y escribe tres veces) (F-b2, `fn_8007FE5C`).
+- `x * (float)sin(...)` sumado sin `fmadds` en el original: el producto viene de una inline que lo devuelve (`Wave_unk`).
+- `boost::function` probado con `cmpwi` del vtable: `f != 0`; `!f.empty()` materializa un booleano (`cntlzw`).

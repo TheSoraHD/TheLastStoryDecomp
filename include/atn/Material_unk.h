@@ -164,6 +164,16 @@ struct TexAnim_unk {
 typedef boost::function<atn::Texture_unk*(const std::string&)> TexGetter_unk;
 
 // inferred: material (0x54 bytes; constructor 0x8007C144, destructor 0x8007C3F8)
+// inferred: TEV swap table (channel of R, G, B and A); the material constructor sets it in its
+// member initialisation (identity order 0, 1, 2, 3)
+struct SwapTable_unk {
+    SwapTable_unk() : r(0), g(1), b(2), a(3) {}
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+};
+
 struct Material_unk {
     Material_unk(ShaderTex_unk* shader);
     ~Material_unk();
@@ -210,7 +220,7 @@ struct Material_unk {
     GXColor mTevColor[3]; // 0x24: inferred: TEV colours 1-3 (RegColor1-3)
     float m30;
     int m34;     // inferred: TEV scale of the last stage
-    GXColor m38; // inferred: swap table
+    SwapTable_unk m38; // inferred: swap table
     int m3C;
     int m40;
     int m44;           // inferred: sort mode (> 0: drawn later)

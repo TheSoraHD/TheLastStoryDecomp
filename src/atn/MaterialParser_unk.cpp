@@ -8,6 +8,7 @@
 #include "atn/Shader_unk.h"
 #include "game/GimmickCommon.h"
 #include "std/string.h"
+#include "std/string_members.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
@@ -137,13 +138,13 @@ static inline int FindName_unk(const char* const* table, const char* s, int len)
 
 // inferred: skips the delimiters and returns the next token of `s` and its length (0 at the end).
 // The original calls it with bl everywhere (noinline: CLAUDE.md rule 2)
-// NONMATCHING: 98.1% - registers of s/delims/len (s in r27 instead of r30)
 __declspec(noinline) const char* fn_8007A994(const char* s, const char* delims, int* len) {
     int n = 0;
-    while (*s != 0 && strchr(delims, *s) != 0) {
-        s++;
+    const char* start = s;
+    while (*start != 0 && strchr(delims, *start) != 0) {
+        start++;
     }
-    const char* p = s;
+    const char* p = start;
     while (*p != 0 && strchr(delims, *p) == 0) {
         p++;
         n++;
@@ -152,7 +153,7 @@ __declspec(noinline) const char* fn_8007A994(const char* s, const char* delims, 
     if (n == 0) {
         return 0;
     }
-    return s;
+    return start;
 }
 
 TexStage_unk::TexStage_unk(int id)
@@ -224,7 +225,7 @@ static inline bool TexReady_unk(atn::Texture_unk* tex) {
     return tex->mImage != 0 || (((GimmickUvOwner_unk*)tex)->fn_800D59B8() == 0 && tex->m20.fn_80473EFC() == 3);
 }
 
-// NONMATCHING: 95.2% - obj and minFilter swap r30/r31 (tried declaration orders, a local texture pointer)
+// NONMATCHING: 99.4% - obj and minFilter swap r30/r31 (tried declaration orders, a local texture pointer)
 void TexStage_unk::fn_8007B100() {
     if (mTexture != 0 && TexReady_unk(mTexture)) {
         GXTexObj* obj = &mTexture->mObj;
@@ -243,14 +244,15 @@ void TexStage_unk::fn_8007B100() {
             }
         }
         int aniso = 0;
-        unsigned char edge = 0;
+        int edge = 0;
         if (lods > 0) {
             aniso = lbl_8087EFA8->m224;
             if (aniso != 0) {
                 edge = lbl_8087EFA8->m228;
             }
         }
-        GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, lods, lbl_8087EFA8->m22C, 0, edge, aniso);
+        float bias = lbl_8087EFA8->m22C;
+        GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, lods, bias, 0, edge, aniso);
     }
 }
 
@@ -273,16 +275,8 @@ static inline int SwapChannel_unk(char c) {
     return 0;
 }
 
-// inferred: copies of the swap table go byte by byte (names invented)
-static inline GXColor CopySwap_unk(GXColor c) {
-    GXColor s;
-    s.r = c.r;
-    s.g = c.g;
-    s.b = c.b;
-    s.a = c.a;
-    return s;
-}
-static inline void SetSwap_unk(GXColor& dst, GXColor c) {
+template <class D, class S>
+static inline void SetSwap_unk(D& dst, S c) {
     dst.r = c.r;
     dst.g = c.g;
     dst.b = c.b;
@@ -290,7 +284,7 @@ static inline void SetSwap_unk(GXColor& dst, GXColor c) {
 }
 
 // inferred: reads the texture stage block of a material ("\t\tkey value" lines)
-// NONMATCHING: 99.5% - register allocation
+// NONMATCHING: 99.8% - register allocation (r22-r28 rotated: key table, "" and the two string buffers)
 const char* TexStage_unk::fn_8007B260(const char* path, Material_unk* mat, const char* p) {
     int n;
     int len = 0;
@@ -312,7 +306,7 @@ const char* TexStage_unk::fn_8007B260(const char* path, Material_unk* mat, const
                     p = fn_8007A994(p + n, sTokenDelims, &len);
                     mName.assign(p, len);
                     std::string ext = fn_8006AC08(std::string(mName.c_str()));
-                    if (ext.compare("") != 0) {
+                    if (!(ext == "")) {
                         mName.assign(p, len - (ext.size() + 1));
                     }
                 }
@@ -360,7 +354,8 @@ const char* TexStage_unk::fn_8007B260(const char* path, Material_unk* mat, const
                 break;
             case 14: {
                 p = fn_8007A994(p + len, sTokenDelims, &len);
-                GXColor swap = CopySwap_unk(mat->m38);
+                GXColor swap;
+                SetSwap_unk(swap, mat->m38);
                 if (len == 1) {
                     int c = SwapChannel_unk(p[0]);
                     if (mId == 3) {
@@ -419,8 +414,9 @@ void TexStage_unk::fn_8007C018(const char* path, int keep) {
     }
 }
 
-// inferred: debug menu of a texture stage (static: inlined in fn_800816B4, its literals come first)
-static void TexStageMenu_unk(void* parent, TexStage_unk* stage) {
+// inferred: debug menu of a texture stage. Not static: MWCC emits it here (its literals go first in
+// the pool, as in the original) and also inlines it in fn_800816B4; the linker strips the copy
+void TexStageMenu_unk(void* parent, TexStage_unk* stage) {
     char buf[0x100];
     sprintf(buf, "%s", sTexNames[stage->mId]);
     void* g = fn_8008937C(parent, buf);
@@ -462,16 +458,13 @@ struct ColorF_unk {
     float r, g, b, a;
 };
 
-// NONMATCHING: 87.5% - store order: the original sets the swap table m38 in the member initialisation (a type with a constructor gives 90.6% here but lowers fn_8007B260)
+// NONMATCHING: 90.6% - instruction scheduling of the three white ToGX conversions (the original keeps
+// 255 * 1.0 in f0 and converts into f1, and saves r30 as well)
 Material_unk::Material_unk(ShaderTex_unk* shader)
     : m00(0), m04(0), m08(shader), m0C(0), m10(0), mColor(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()),
       m1C(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()), m20(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()), m30(0.0f),
       m34(0), m3C(0), m40(0), m44(0), m48(0), m49(0), m4A(0), m4B(0), m4C(-1), m4D(0), m4E(0), m4F(0), m50(0),
       m51(0) {
-    m38.r = 0;
-    m38.g = 1;
-    m38.b = 2;
-    m38.a = 3;
     mTevColor[0].r = mColor.r;
     mTevColor[0].g = mColor.g;
     mTevColor[0].b = mColor.b;
@@ -891,7 +884,7 @@ const char* Material_unk::fn_8007C46C(const char* path, const char* data, int si
         m0C[i] = stages[i];
     }
     m4B = anims.mSize;
-    m10 = m4B != 0 ? new ((MemoryTag)6, "", "", 0) TexAnim_unk[m4B] : 0;
+    m10 = m4B == 0 ? 0 : new ((MemoryTag)6, "", "", 0) TexAnim_unk[m4B];
     for (int i = 0; i < m4B; i++) {
         m10[i] = anims[i];
         m10[i].mStage = FindStage_unk(m10[i].mStageId);
@@ -1026,12 +1019,15 @@ void Material_unk::fn_8007FAF0(int mode) {
 }
 
 // inferred: blend modes from a shader description
-// NONMATCHING: 91.8% - the original writes the three bit fields with one store (no alias assumed with desc) and keeps desc/this in r29/r31
+// NONMATCHING: 96.4% - the desc fields are read into locals so the bit fields go in one store, but the
+// original loads mA30 after inserting mA28 (r0 reused; a local copy of the flags word would do it)
 void Material_unk::fn_8007FE5C(atn::ShaderDesc_unk* desc) {
     int blend = fn_800D1C60(desc->mA2C);
-    m14_21 = desc->mA28;
+    int a28 = desc->mA28;
+    int a30 = desc->mA30;
+    m14_21 = a28;
     m14_22 = blend;
-    m14_25 = desc->mA30;
+    m14_25 = a30;
     int src = fn_800D1CD4(desc->mA3C);
     int dst = fn_800D1CD4(desc->mA40);
     if (desc->m074 != 0 || desc->mA38 == 1) {
@@ -1068,26 +1064,33 @@ void Material_unk::fn_8007FE5C(atn::ShaderDesc_unk* desc) {
         op = 7;
         break;
     }
+    int a18 = desc->mA18;
     m14_0 = 1;
-    m14_4 = desc->mA18;
+    m14_4 = a18;
     m14_1 = op;
     fn_80081D00();
 }
 
 // inferred: scrolls the UV transforms of the animated stages
-// NONMATCHING: 90.0% - allocation of the float constants hoisted out of the loop
+// NONMATCHING: 99.4% - f1/f2 swapped between the frame speed and the UV offset of each fmadds
+// inferred: sine wave {amplitude, frequency, phase} at time t
+static inline float Wave_unk(const atn::Vector3& w, float t) { return w.x * (float)sin(w.y * t + w.z); }
+
 void Material_unk::fn_80080048(float time) {
+    TexStage_unk* stage;
     for (int i = 0; i < m4B; i++) {
         TexAnim_unk* anim = &m10[i];
-        TexStage_unk* stage = anim->mStage;
+        stage = anim->mStage;
         if (stage == 0) {
             continue;
         }
-        float u = anim->mScrollU * lbl_8087EFA8->m3A4 + stage->GetTransU();
+        float dt = lbl_8087EFA8->m3A4;
+        float u = anim->mScrollU * dt + stage->GetTransU();
         float scale = stage->GetScaleU();
         if (anim->mWave) {
-            anim->mWaveTimeU = fmod(anim->mWaveTimeU + time, 6.2831855f / anim->mWaveU.y);
-            u += anim->mWaveU.x * (float)sin(anim->mWaveU.y * anim->mWaveTimeU + anim->mWaveU.z);
+            float period = 6.2831855f / anim->mWaveU.y;
+            anim->mWaveTimeU = fmod(anim->mWaveTimeU + time, period);
+            u += Wave_unk(anim->mWaveU, anim->mWaveTimeU);
         }
         if (u < 0.0f) {
             u += scale;
@@ -1096,11 +1099,13 @@ void Material_unk::fn_80080048(float time) {
             u -= scale;
         }
         stage->SetTransU(u);
-        float v = anim->mScrollV * lbl_8087EFA8->m3A4 + stage->GetTransV();
+        dt = lbl_8087EFA8->m3A4;
+        float v = anim->mScrollV * dt + stage->GetTransV();
         scale = stage->GetScaleV();
         if (anim->mWave) {
-            anim->mWaveTimeV = fmod(anim->mWaveTimeV + time, 6.2831855f / anim->mWaveV.y);
-            v += anim->mWaveV.x * (float)sin(anim->mWaveV.y * anim->mWaveTimeV + anim->mWaveV.z);
+            float period = 6.2831855f / anim->mWaveV.y;
+            anim->mWaveTimeV = fmod(anim->mWaveTimeV + time, period);
+            v += Wave_unk(anim->mWaveV, anim->mWaveTimeV);
         }
         if (v < 0.0f) {
             v += scale;
@@ -1110,7 +1115,8 @@ void Material_unk::fn_80080048(float time) {
         }
         stage->SetTransV(v);
         if (anim->mInd) {
-            float iu = anim->mIndScrollU * lbl_8087EFA8->m3A4 + stage->GetIndTransU();
+            dt = lbl_8087EFA8->m3A4;
+            float iu = anim->mIndScrollU * dt + stage->GetIndTransU();
             if (iu < 0.0f) {
                 iu += stage->GetIndScaleU();
             }
@@ -1118,7 +1124,8 @@ void Material_unk::fn_80080048(float time) {
                 iu -= stage->GetIndScaleU();
             }
             stage->SetIndTransU(iu);
-            float iv = anim->mIndScrollV * lbl_8087EFA8->m3A4 + stage->GetIndTransV();
+            dt = lbl_8087EFA8->m3A4;
+            float iv = anim->mIndScrollV * dt + stage->GetIndTransV();
             if (iv < 0.0f) {
                 iv += stage->GetIndScaleV();
             }
@@ -1158,7 +1165,7 @@ TexStage_unk* Material_unk::fn_80080528(int id) {
 }
 
 // inferred: copy of another material (the stages get their own UV transforms)
-// NONMATCHING: 94.8% - order of the byte copies and register allocation
+// NONMATCHING: 95.9% - scheduling of the field copies (m34/m00 loads) and register allocation
 void Material_unk::fn_80080584(const Material_unk& o) {
     mTevColor[0].r = o.mTevColor[0].r;
     mTevColor[0].b = o.mTevColor[0].b;
@@ -1214,7 +1221,7 @@ void Material_unk::fn_80080584(const Material_unk& o) {
         dst.mMagFilter = src.mMagFilter;
     }
     m4B = o.m4B;
-    m10 = m4B != 0 ? new ((MemoryTag)6, "", "", 0) TexAnim_unk[m4B] : 0;
+    m10 = m4B == 0 ? 0 : new ((MemoryTag)6, "", "", 0) TexAnim_unk[m4B];
     for (int i = 0; i < m4B; i++) {
         m10[i] = o.m10[i];
         m10[i].mStage = FindStage_unk(m10[i].mStageId);
@@ -1242,11 +1249,14 @@ void Material_unk::fn_80080B34(atn::ShaderDesc_unk* desc) {
 }
 
 // inferred: textures of the stages: from `getter`, or loaded from `dir`
-// NONMATCHING: 96.6% - register allocation
+// NONMATCHING: 99.8% - r15/r24 swapped between the name pointer and its length in the string constructor
 void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
     for (int i = 0; i < m4A; i++) {
         std::string name(m0C[i].mName.c_str());
-        atn::Texture_unk* tex = getter.empty() ? 0 : getter(name);
+        atn::Texture_unk* tex = 0;
+        if (getter != 0) {
+            tex = getter(name);
+        }
         if (tex != 0) {
             TexStage_unk& stage = m0C[i];
             if (stage.mOwnsTexture && stage.mTexture != 0) {
@@ -1255,9 +1265,9 @@ void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
                 stage.mTexture = 0;
             }
             stage.mTexture = tex;
-        } else if (name.compare("") != 0) {
+        } else if (!(name == "")) {
             char path[0x100];
-            if (name.compare("bake_tex") == 0) {
+            if (name == "bake_tex") {
                 sprintf(path, "data/texture/sys_gray.texture");
             } else {
                 sprintf(path, "%s/textures/%s.texture", dir.c_str(), name.c_str());
@@ -1268,7 +1278,6 @@ void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
 }
 
 // inferred: name of the shader from the stages of the material (suffix per texture)
-// NONMATCHING: 99.8% - register allocation
 void Material_unk::fn_80081080(char* shader) {
     if (FindStage_unk(5) != 0) {
         strcat(shader, "_Spec");
@@ -1328,9 +1337,8 @@ int Material_unk::fn_800816A8() {
 void fn_80081BCC(void* arg);
 
 // inferred: debug menu of the material
-// NONMATCHING: 99.0% - register allocation
 void Material_unk::fn_800816B4(void* parent, const char* name) {
-    char title[0x20];
+    char title[0x100];
     if (name != 0) {
         sprintf(title, "%s", name);
     } else {

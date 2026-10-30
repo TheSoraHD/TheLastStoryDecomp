@@ -4,6 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-10-30 | `fb2-materialparser` (propuesta F-b2) | rama, sin mergear | 8747 → 8750 | 31,33 → 31,36% | 371 | `docs/fb2-materialparser.md` (`atn/MaterialParser_unk` 21/35; pool de cadenas idéntico al original: ayudante del menú no `static` y `std/string_members.h`; `SwapTable_unk` para `m38`; 9 funciones suben 1–9 puntos) |
 | 2026-10-30 | `fb3-drawhelper-paso3` (propuesta F-b3, paso 3) | rama, sin mergear | 8724 → 8747 | 31,17 → 31,33% | 371 | `docs/fb3-comdrawtexture.md` (paso 3: formas 3D, ventana, 12 `vf10` GX y destructores; `atn/DrawHelper` 53/68, faltan 15 casi-100%) |
 | 2026-10-30 | `fb3-comdrawtexture` (propuesta F-b3, pasos 1 y 2) | merge en `main` 2026-10-30 | 8696 → 8724 | 31,03 → 31,17% / 53,78% fuzzy | 371 | `docs/fb3-comdrawtexture.md` (opción A: 31 funciones de dibujo como métodos de `atn::DrawHelper`, 302 llamadas en 67 ficheros; `atn/ComDrawTexture` fusionada en `atn/DrawHelper`, 30/68 al 100%, deja de enlazarse hasta completarla) |
 | 2026-10-30 | `fb-materialparser` (propuesta F-b, primera parte, sobre `batch-auto-50kb-atn`) | 387e48a2 | 8678 → 8696 | 31,03% | 372 | `docs/fb-materialparser.md` (opción A: `atn/MaterialParser_unk` como métodos de `Material_unk`/`TexStage_unk`, 18/35 al 100%; cabecera común `include/atn/Material_unk.h` que sustituye cuatro vistas; `SafeDelete_unk` y macro `FIND_NAME` por el presupuesto de inline) |
