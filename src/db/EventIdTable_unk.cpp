@@ -2,6 +2,7 @@
 #include "atn/FileList.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "std/string_members.h" // inferred: the pool ends with the basic_string error messages
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -108,4 +109,11 @@ int EventIdTable_unk::fn_8020F75C(const char* name) {
         }
     }
     return -1;
+}
+
+// inferred: function with no caller left in the game (stripped by the linker); only the
+// basic_string error messages of its weak copies remain at the end of the pool. Body and name
+// invented.
+std::string EventIdTable_unk::Stripped_unk(int id) {
+    return fn_8020F71C(id)->mName.c_str();
 }

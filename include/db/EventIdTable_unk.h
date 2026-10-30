@@ -3,6 +3,7 @@
 
 #include "atn/Array_unk.h"
 #include "gmk/SeTable.h"
+#include "std/string.h"
 
 // inferred: one row of /boot/event_id_table.csv (0x60 bytes)
 struct EventIdEntry_unk {
@@ -26,6 +27,7 @@ struct EventIdTable_unk {
     void fn_8020F248();
     EventIdEntry_unk* fn_8020F71C(int id);
     int fn_8020F75C(const char* name);
+    std::string Stripped_unk(int id); // inferred: stripped by the linker
 
     atn::SimpleArray<EventIdEntry_unk> mEntries;
 };

@@ -1210,7 +1210,7 @@
  {
   "name": "db/EventIdTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/ChaseParam_unk.cpp",
