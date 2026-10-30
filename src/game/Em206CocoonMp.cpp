@@ -22,6 +22,9 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg11); // inferred: shoots a bullet
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f);
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -42,6 +45,7 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: multiplayer session (lbl_8087F610, as in game/Em204MulueMp.cpp)
 struct MpSession_unk;
@@ -104,6 +108,11 @@ static inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::M
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: node position (as in game/Em403WarLion.cpp; name invented)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
 // inferred: starts state `state` (names invented)
@@ -268,6 +277,83 @@ void Em206CocoonMp::vfFC() {
     fn_8016E970(3);
 }
 
+// NONMATCHING: 99% - register allocation of the inlined death (Die_unk) and of the copies of the direction
+// inferred: starts the action chosen by fn_802BD480 (the argument is not used)
+void Em206CocoonMp::vf100(int state) {
+    CharaTask* target = mC58.mC4;
+    if (target == 0) {
+        return;
+    }
+    atn::Vector3 pos = target->mPos;
+    atn::Vector3 d = pos - mPos;
+    PSVECNormalize(&d, &d);
+    switch (m58C) {
+    case 6:
+        SetState_unk(6);
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x33, 0, 1, 1, 1.0f, 0.025f);
+        break;
+    case 7:
+        SetState_unk(7);
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x33, 0, 1, 1, 0.0f, 0.025f);
+        break;
+    case 8: {
+        atn::Vector3 dir = d;
+        SetState_unk(8);
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x156, 0, 1, 1, 0.0f, 0.025f);
+        m152C = dir;
+        break;
+    }
+    case 9: {
+        atn::Vector3 dir = d;
+        SetState_unk(9);
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x14D, 0, 1, 1, 0.0f, 0.025f);
+        m152C = dir;
+        break;
+    }
+    case 10:
+        SetState_unk(10);
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x13F, 0, 1, 1, 0.0f, 0.025f);
+        break;
+    case 11:
+        SetState_unk(11);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.025f);
+        break;
+    case 2:
+        Die_unk();
+        break;
+    default:
+        SetState_unk(0);
+        fn_8016E970(3);
+        if (m55C != 6) {
+            fn_802BD480();
+        }
+        break;
+    }
+}
+
 void Em206CocoonMp::vf108() {}
 
 void Em206CocoonMp::vf24() {
@@ -331,6 +417,30 @@ void Em206CocoonMp::fn_802BE180() {
         fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
         if (m192C != 0) {
             lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + data->m40, 0.0f, 0xFFFF0000);
+        }
+    }
+}
+
+// NONMATCHING: 99% - stack slots of the direction (and pool offsets until the rest of the unit is written)
+// inferred: state 10 (throws a bullet from the right hand to the hips of the target)
+void Em206CocoonMp::fn_802BE7EC() {
+    if (m14DC == 0) {
+        if (mMotion.mTracks[0].m08 >= 104.0f) {
+            m14DC = 1;
+            m12CC = 0.4f;
+            atn::Vector3 from = GetNodePos_unk(mMotion.GetNodeMtx_unk("righthand"));
+            atn::Model* model = &mC58.mC4->mMotion;
+            atn::Vector3 to = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
+            atn::Vector3 d = to - from;
+            atn::Vector3 dir = d.GetNormalize();
+            Effect_unk* mgr = lbl_8087F048;
+            fn_800F8574(mgr, this, fn_80219E6C(0x5C5), &from, &dir, 0, 0, 0, 0.0f, 1.0f);
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            SetState_unk(0);
+            fn_8016E970(3);
         }
     }
 }
