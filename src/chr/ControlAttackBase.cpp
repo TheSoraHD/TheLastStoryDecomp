@@ -38,6 +38,9 @@ extern "C" void* lbl_8087F498;
 extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 
 extern "C" const char* fn_800EFF04(int id); // inferred: sound name of an effect id
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: swing sounds of the attacks
@@ -88,9 +91,9 @@ static inline bool UseAuto_unk(bool on, CharaTask* chara) {
 // inferred: front direction for a rotation around y (name invented)
 static inline atn::Vector3 GetFront_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', rot.y);
-    PSMTXMultVec(m, &v, &v);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &v, &v);
     return v;
 }
 
@@ -254,9 +257,9 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
     if (self->mFlag31) {
         id = self->m484[24];
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        Mtx m;
-        PSMTXRotRad(m, 'y', self->mRot.y);
-        PSMTXMultVec(m, &front, &front);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(self->mRot.y);
+        PSMTXMultVec(m.m, &front, &front);
         mDir = front;
     } else {
         atn::Vector3 rot = self->mRot;
@@ -354,10 +357,11 @@ int ControlAttack::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->vf34(&rot, 0, speed, 1.0f);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, 1.0f);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     return 0;
 }
 
@@ -477,10 +481,11 @@ int ControlAttackNext::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->vf34(&rot, 0, speed, 1.0f);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, 1.0f);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     return 0;
 }
 
@@ -545,10 +550,11 @@ int ControlDashAttack::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->vf34(&rot, 0, speed, rate);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, rate);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     return 0;
 }
 
@@ -574,8 +580,8 @@ int ControlJumpAttack::vf0C() {
     Chara_unk* chara = mChara;
     if (chara->mMotion.mTracks[0].m08 <= 9.0f) {
         atn::Vector3 pos = chara->mPos;
-        pos.x += mOffset.x / 9.0f;
         pos.y += 1.0f;
+        pos.x += mOffset.x / 9.0f;
         pos.z += mOffset.z / 9.0f;
         chara->mPos = pos;
         return 0;
@@ -587,10 +593,11 @@ int ControlJumpAttack::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->vf34(&rot, 0, speed, rate);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, rate);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     return 0;
 }
 
@@ -628,8 +635,8 @@ int ControlJumpAttack2::vf0C() {
     Chara_unk* chara = mChara;
     if (chara->mMotion.mTracks[0].m08 <= 9.0f) {
         atn::Vector3 pos = chara->mPos;
-        pos.x += mOffset.x / 5.0f;
         pos.y += 1.0f;
+        pos.x += mOffset.x / 5.0f;
         pos.z += mOffset.z / 5.0f;
         chara->mPos = pos;
         return 0;
@@ -648,10 +655,11 @@ int ControlJumpAttack2::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->vf34(&rot, 0, speed, rate);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, rate);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     return 0;
 }
 
@@ -694,10 +702,11 @@ int ControlMultiAttack::vf0C() {
             lbl_8087EFA8->m3A4 = 1.0f;
         }
     }
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->vf34(&rot, 0, 0.0f, 1.0f);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&mDir.ToRotation_unk(), 0, 0.0f, 1.0f);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     return 0;
 }
 
@@ -726,10 +735,11 @@ ControlSideWallAttack::ControlSideWallAttack(Chara_unk* chara, const atn::Vector
 int ControlSideWallAttack::vf0C() {
     Chara_unk* chara = mChara;
     float speed = (4.0f <= chara->mMotion.mTracks[0].m08 && chara->mMotion.mTracks[0].m08 < 13.0f) ? 1.0f : 0.0f;
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->vf34(&rot, 0, speed, 0.6f);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, 0.6f);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     return 0;
 }
 
@@ -746,9 +756,9 @@ ControlGuardCounter::ControlGuardCounter(Chara_unk* chara, const atn::Vector3& d
         mDir = atn::Vector3(-dir.x, -dir.y, -dir.z).GetNormalize();
     } else {
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        Mtx m;
-        PSMTXRotRad(m, 'y', mChara->mRot.y);
-        PSMTXMultVec(m, &front, &front);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mChara->mRot.y);
+        PSMTXMultVec(m.m, &front, &front);
         mDir = front;
     }
     LoadTable_unk();
@@ -759,13 +769,14 @@ ControlGuardCounter::ControlGuardCounter(Chara_unk* chara, const atn::Vector3& d
 }
 
 int ControlGuardCounter::vf0C() {
-    int result = 0;
     Chara_unk* chara = mChara;
+    int result = 0;
     float rate = (chara->mMotion.mTracks[0].m08 >= 15.0f && chara->mMotion.mTracks[0].m08 <= 30.0f) ? 0.2f : 0.0f;
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->vf34(&rot, 0, 1.0f, rate);
-    mChara->m580 = 0.0f;
-    mChara->m584 = 0.0f;
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&mDir.ToRotation_unk(), 0, 1.0f, rate);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
     if (chara->mMotion.mTracks[0].m08 >= 12.0f) {
         if (mCounter == 0) {
             result = 1;
@@ -817,9 +828,9 @@ int ControlHitBackBullet::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (vf24() != 0) {
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        Mtx m;
-        PSMTXRotRad(m, 'y', mChara->mRot.y);
-        PSMTXMultVec(m, &front, &front);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mChara->mRot.y);
+        PSMTXMultVec(m.m, &front, &front);
         for (unsigned int i = 0; i < mBullets.mCount; i++) {
             HomingBullet* bullet = mBullets.mData[i];
             CharaTask* target = bullet->m88;
@@ -850,6 +861,189 @@ int ControlHitBackBullet::vf0C() {
 void ControlHitBackBullet::vf1C() {
     for (unsigned int i = 0; i < mBullets.mCount; i++) {
         mBullets.mData[i]->vf0C(1, 0);
+    }
+}
+
+ControlSwapAttack::ControlSwapAttack(Chara_unk* chara, Chara_unk* target)
+    : ControlAttackBase(chara, GetFront_unk(chara->mRot)), mTarget(target) {
+    chara->m560 = 8;
+    Motion_unk* motion = &mChara->mMotion;
+    motion->fn_80097C08(0, 0x1D2, 0, 0, 1, 0.0f, 0.1f);
+    LoadTable_unk();
+    motion->m34C = 1;
+    motion->mTracks[0].m20 = 1.0f;
+    motion->fn_80097C08(0, 0x62, 0, 0, 1, 0.0f, 0.1f);
+    motion->mTracks[0].m0C = 1.0f;
+    mChara->fn_801446F0();
+    mDir = mTarget->mPos - mChara->mPos;
+    mDir.y = 0.0f;
+    PSVECNormalize(&mDir, &mDir);
+    mTime = 0.0f;
+    mStartPos = mChara->mPos;
+    mStartRot = mChara->mRot;
+    mChara->m574 = mDir * 2.0f;
+    if (lbl_8087F498 != 0 && rand() % 2 == 0) {
+        fn_803EA77C(lbl_8087F498, mChara, 0, 0, 1.0f, 10.0f);
+    }
+}
+
+// NONMATCHING: approximate (stack layout of the saved state)
+int ControlSwapAttack::vf0C() {
+    mTime = mTime + lbl_8087EFA8->m3A4;
+    Motion_unk* motion = &mChara->mMotion;
+    float speed = mTime < 20.0f ? 1.0f : 0.0f;
+    atn::Vector3 rot = mDir.ToRotation_unk();
+    if (mTime >= 23.0f && motion->mTracks[0].m00 != 0x1D2) {
+        motion->fn_80097C08(0, 0x1D2, 0, 1, 1, 0.0f, 0.05f);
+        motion->mTracks[0].m08 = 14.0f;
+    }
+    float frame = motion->mTracks[0].m08;
+    if (frame >= motion->fn_80097D7C(0) - 1.0f) {
+        return 1;
+    }
+    Chara_unk* chara = mChara;
+    atn::Vector3 pos = chara->mPos;
+    atn::Vector3 crot = chara->mRot;
+    atn::Vector3 vel = chara->m574;
+    atn::Vector3 rot2 = crot;
+    if (mTime <= 19.0f) {
+        vel.y = 0.0f;
+        pos.y += 0.47368422f;
+    } else {
+        crot = rot;
+    }
+    atn::Vector3 d(mTarget->mPos.x - mStartPos.x, 0.0f, mTarget->mPos.z - mStartPos.z);
+    if (mTime < 15.0f) {
+        atn::Vector3 step = d * 0.06666667f;
+        mChara->mPos = pos + step;
+    } else {
+        mChara->mPos = pos;
+        mChara->mRot = crot;
+        mChara->m574 = vel;
+        mChara->fn_8013CB68(rot, 1, 1.0f, speed * mChara->m568);
+    }
+    if (mTime > 15.0f) {
+        crot = mStartRot;
+        atn::Vector3 back(-mDir.x, -mDir.y, -mDir.z);
+        atn::Vector3 r = back.ToRotation_unk();
+        float angle = atn::WrapAngle_unk(r.y - mStartRot.y);
+        crot.y += angle * MIN(1.0f, (mTime - 15.0f) / 15.0f);
+        mChara->mRot = crot;
+    } else {
+        mStartRot = mChara->mRot;
+    }
+    return 0;
+}
+
+void ControlSwapAttack::vf1C() {}
+
+ControlAttackLastOne::ControlAttackLastOne(Chara_unk* chara, const atn::Vector3& dir, Chara_unk* target, int type,
+                                           HitInfo_unk* skill)
+    : ControlAttackBase(chara, dir), mSlow(false), mSlowEnd(false), mHitCount(0), mType(type), mSkill(skill),
+      mTarget(target) {
+    chara->m560 = 0x8D;
+    Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
+    motion->mTracks[0].m20 = 1.0f;
+    motion->mTracks[0].m0C = 1.0f;
+    switch (mType) {
+    case 9:
+        motion->fn_80097C08(0, 0x16E, 0, 1, 1, 0.0f, 0.1f);
+        break;
+    case 10:
+    case 12:
+        motion->fn_80097C08(0, 0x16F, 0, 1, 1, 0.0f, 0.1f);
+        break;
+    case 11:
+        motion->fn_80097C08(0, 0x170, 0, 1, 1, 0.0f, 0.1f);
+        break;
+    }
+    fn_80106878(lbl_8087F048, mChara);
+    LoadTable_unk();
+    mBulletId = fn_800F8548(lbl_8087F048);
+    mWindow = 0;
+    HitInfo_unk* hit = fn_80219E6C(0xE3);
+    Chara_unk* c = mChara;
+    c->m63C = c->m638;
+    c->m638 = hit;
+}
+
+int ControlAttackLastOne::vf0C() {
+    float speed = 0.0f;
+    float rate = 1.0f;
+    int result = 0;
+    Motion_unk* motion = &mChara->mMotion;
+    float frame = mChara->mMotion.mTracks[0].m08;
+    if (frame >= motion->fn_80097D7C(0)) {
+        result = 1;
+    }
+    if (frame >= 28.0f) {
+        if (mChara->mType == 0 && lbl_8087F610 == 0) {
+            lbl_8087EFA8->m3A4 = MIN(1.0f, 0.2f + lbl_8087EFA8->m3A4);
+        }
+        if (mSlow && !mSlowEnd) {
+            mSlowEnd = true;
+            if (mChara->mType == 0 && GameBgm::sInstance != 0) {
+                GameBgm::sInstance->fn_8037D49C(GameBgm::sInstance->mE0, 30);
+            }
+        }
+    } else if (frame >= 23.0f) {
+        if (mChara->mType == 0 && lbl_8087F610 == 0) {
+            lbl_8087EFA8->m3A4 = MAX(0.2f, lbl_8087EFA8->m3A4 - 0.2f);
+        }
+        if (!mSlow) {
+            mSlow = true;
+            if (mChara->mType == 0 && GameBgm::sInstance != 0) {
+                GameBgm::sInstance->fn_8037D49C(0.4f, 10);
+            }
+        }
+    } else if (frame >= 9.0f) {
+        speed = 0.7f;
+    }
+    if (vf24() != 0) {
+        if (mWindow < vf30()) {
+            mBulletId = fn_800F8548(lbl_8087F048);
+            mWindow = vf30();
+        }
+        if (mHit == 0) {
+            mHit = 1;
+            if (mHitCount == 0) {
+                fn_800C31F4(sSwingSe[5], 0, -1, 1.0f);
+            } else {
+                fn_800C31F4(sSwingSe[6], 0, -1, 1.0f);
+            }
+            mHitCount++;
+        }
+    } else if (mHit != 0) {
+        Chara_unk* c = mChara;
+        c->m63C = c->m638;
+        c->m638 = mSkill;
+        mHit = 0;
+        if (mHitCount == 1 && lbl_8087F498 != 0) {
+            fn_803EA77C(lbl_8087F498, mChara, 2, 0, 1.0f, 10.0f);
+        }
+    }
+    if (mType == 11 && motion->mTracks[0].m08 < 100.0f) {
+        speed = 0.7f;
+        rate = 0.15f;
+    }
+    atn::Vector3 dir = mDir;
+    if (mTarget != 0) {
+        dir = mTarget->mPos - mChara->mPos;
+        PSVECNormalize(&dir, &dir);
+    }
+    // inferred: address of the temporary (as in the original)
+    mChara->vf34(&dir.ToRotation_unk(), 0, speed, rate);
+    Chara_unk* c = mChara;
+    c->m580 = 0.0f;
+    c->m584 = 0.0f;
+    return result;
+}
+
+void ControlAttackLastOne::vf1C() {
+    lbl_8087EFA8->m3A4 = 1.0f;
+    if (mSlow && !mSlowEnd && GameBgm::sInstance != 0) {
+        GameBgm::sInstance->fn_8037D49C(GameBgm::sInstance->mE0, 30);
     }
 }
 

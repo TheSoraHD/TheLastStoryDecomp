@@ -133,7 +133,11 @@ public:
     ControlSwapAttack(Chara_unk* chara, Chara_unk* target); // 0x8018DAE4
     virtual int vf0C();
     virtual void vf1C();
-    unsigned char m1C[0x3C - 0x1C];
+
+    Chara_unk* mTarget;      // 0x1C
+    atn::Vector3 mStartPos;  // 0x20
+    atn::Vector3 mStartRot;  // 0x2C
+    float mTime;             // 0x38
 };
 
 class ControlAttackLastOne : public ControlAttackBase {
@@ -142,7 +146,15 @@ public:
                          HitInfo_unk* skill); // 0x8018E438
     virtual int vf0C();
     virtual void vf1C();
-    unsigned char m1C[0x38 - 0x1C];
+
+    int mBulletId;         // 0x1C: inferred: id from fn_800F8548 (new hit)
+    int mWindow;           // 0x20: inferred: last hit window
+    bool mSlow;            // 0x24: inferred: slow motion started (frame 23)
+    bool mSlowEnd;         // 0x25: inferred: slow motion ended (frame 28)
+    int mHitCount;         // 0x28
+    int mType;             // 0x2C: inferred: 9-12, selects the motion
+    HitInfo_unk* mSkill;   // 0x30: inferred: set as the current attack when a window ends
+    Chara_unk* mTarget;    // 0x34
 };
 
 } // namespace chr
