@@ -4,6 +4,7 @@
 #include "atn/SoundRef.h"
 #include "math/Vec.h"
 #include "std/string.h"
+#include "std/string_members.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
