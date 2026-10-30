@@ -142,6 +142,7 @@ QuadrupedTask::QuadrupedTask(atn::Task* parent, void* data)
 
 QuadrupedTask::~QuadrupedTask() {}
 
+// NONMATCHING: 99.33% - only the .sdata2/@stringBase0 labels and the guard of the boost stored_vtable differ
 int QuadrupedTask::vf0C() {
     int result = 1;
     if (fn_8013655C() != 0) {
@@ -180,6 +181,7 @@ int QuadrupedTask::vf0C() {
     return 0;
 }
 
+// NONMATCHING: 94.86% - register allocation of the node lookups (ported from Em401_01_WhiteLeoPard)
 void QuadrupedTask::vf10() {
     if (m55C == 2) {
         m55C = 4;
@@ -212,6 +214,14 @@ void QuadrupedTask::vf10() {
 }
 
 
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+// inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool
+// ("Quadruped", "DebugDisp" between "waist" and "spine"), as Em401_01_WhiteLeoPard::fn_DebugMenu_unk.
+void QuadrupedTask::fn_DebugMenu_unk() {
+    void* group = m1560.Load("Quadruped");
+    fn_80087994(group, "DebugDisp", &m1564, 0, 0);
+}
+
 void QuadrupedTask::vf14() {
     fn_80149A30();
     if (lbl_8087F0A8->mDrawDebug != 0) {
@@ -238,6 +248,7 @@ inline int QuadrupedTask_IsStuck_unk(CharaTask* self, const atn::Vector3& prev) 
 }
 
 // inferred: state machine (m58C)
+// NONMATCHING: 86.11% - scheduling of the hit reactions and order of the Vector3 temporaries
 void QuadrupedTask::fn_80566FB4() {
     switch (m58C) {
     case 0:
@@ -340,6 +351,7 @@ extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int a
                            float arg6);
 
 // inferred: chooses the move of the AI state (mC58) from the distance to its target
+// NONMATCHING: 88.00% - order of the distance checks and of the stack temporaries
 void QuadrupedTask::fn_80567424(CharaTask* target) {
     RouteTable_unk* table = lbl_8087F430->m10D8;
     if (table == 0) {
@@ -387,6 +399,7 @@ void QuadrupedTask::fn_80567424(CharaTask* target) {
 }
 
 // inferred: moves the character with the AI state (mC58) or along the route
+// NONMATCHING: 0% - the original rejects every inline candidate (R3 of docs/inlining.md: Vector3 copies, WrapAngle_unk, DegToRad_unk x8, Abs, Length_unk, GetNormalize, ToRotation_unk and the AI states are all called with bl), ours inlines the AI states 0-2 and the helpers; this also shifts the .sdata2 pool (1.309 = 75 degrees) of every later function
 void QuadrupedTask::fn_805675FC() {
     atn::Vector3 rot(mRot);
     float speed = 0.0f;
@@ -469,7 +482,7 @@ void QuadrupedTask::vf34(void* target, int arg, float a, float b) {
     fn_80567968(*(atn::Vector3*)target, 0, a, m568 * b);
 }
 
-// NONMATCHING: 98.32% - same as Em403WarLion::fn_80324A38 (FPR of the turn and of the clamp of m584, stores
+// NONMATCHING: 94.65% - same as Em403WarLion::fn_80324A38 (FPR of the turn and of the clamp of m584, stores
 // of move.x/z around sin, order of m574 at the end); ~6 variants
 // inferred: moves the leopard towards the rotation `target` (as Em403WarLion::fn_80324A38, plus the push
 // forward of the first 24 frames of the attack)
@@ -615,7 +628,7 @@ inline float Clamp01_unk(float x) {
     return x;
 }
 
-// NONMATCHING: 99.94% - dt in f29 instead of f28 (only the register); ~10 variants
+// NONMATCHING: 99.87% - dt in f29 instead of f28 (only the register); ~10 variants
 // inferred: chooses the movement motions (same code as Em403WarLion::vf24; m500/m508 read before the rate
 // give the comparison registers of the original)
 void QuadrupedTask::vf24() {
@@ -691,7 +704,7 @@ inline atn::Quaternion_unk QuatAxis_unk(const atn::Vector3& axis, float rad) {
 }
 
 // inferred: turns the neck and the spine with the lean (node pose callback; as in Em403WarLion)
-// NONMATCHING: 97.83% - same as Em403WarLion::fn_803256F8 (one more saved GPR and order of the quaternions)
+// NONMATCHING: 97.62% - same as Em403WarLion::fn_803256F8 (one more saved GPR and order of the quaternions)
 void QuadrupedTask::fn_805686F0(atn::MotionBuffer* nodes, int count) {
     for (int i = 0; i < count; i++) {
         const char* name = ((ModelNodeDesc_unk*)mMotion.m16C->m48[i])->mName;
@@ -741,7 +754,7 @@ inline atn::Matrix3x4& MakeRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3
 }
 
 // inferred: turns the neck with the lean and the waist with m14B0.y (node matrix callback; as in Em403WarLion)
-// NONMATCHING: 98.79% - same as Em403WarLion::fn_803258D4 (r30/r31 of the node, stack of the matrices)
+// NONMATCHING: 98.65% - same as Em403WarLion::fn_803258D4 (r30/r31 of the node, stack of the matrices)
 void QuadrupedTask::fn_805688CC(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk) {
     ModelNodeDesc_unk* node = (ModelNodeDesc_unk*)&chunk;
     if (mLook.fn_8012A288(mtx, node) != 0) {
@@ -778,7 +791,7 @@ void QuadrupedTask::fn_805688CC(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk
     }
 }
 
-// NONMATCHING: 91.4% - the original reloads the flag word 0x12A4 for mFlag31, schedules the sums of m614
+// NONMATCHING: 91.11% - the original reloads the flag word 0x12A4 for mFlag31, schedules the sums of m614
 // differently and swaps r3/r4 in the Vector3 copies; ~14 variants
 // inferred: places the collision capsule along the body (own version of CharaTask::vf20; as Em403WarLion)
 void QuadrupedTask::vf20() {
@@ -814,10 +827,12 @@ void QuadrupedTask::vf20() {
 }
 
 
+// NONMATCHING: 99.19% - only the .sdata2 label (pool order, see fn_805675FC)
 void QuadrupedTask::vf74(atn::Vector3* dir) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMountleQuadruped(this, *dir, 2.5f));
 }
 
+// NONMATCHING: 99.33% - only the .sdata2 label (pool order, see fn_805675FC)
 void QuadrupedTask::vf8C(atn::Vector3* vel) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDropDownQuadruped(this, *vel));
 }
@@ -828,6 +843,151 @@ void QuadrupedTask::fn_80568EE0(float* speed, atn::Vector3* rot) {
         mC58.mBC--;
     }
     if (mC58.mBC <= 0) {
+        mC58.mDone_unk = 1;
+    }
+}
+
+// inferred: AI state 1: turns towards the target of mC4 when the angle is above 45 degrees
+// NONMATCHING: 99.80% - only the .sdata2 labels (pool order, see fn_805675FC)
+void QuadrupedTask::fn_80568F10(float* speed, atn::Vector3* rot) {
+    *speed = 0.5f;
+    atn::Vector3 d = mC58.fn_8011BF3C(0) - mPos;
+    *rot = d.ToRotationZ_unk();
+    if (atn::Abs_unk(atn::WrapAngle_unk(rot->y - mRot.y)) > atn::DegToRad_unk(45.0f)) {
+        *rot = d.ToRotation_unk();
+    } else {
+        *rot = mRot;
+    }
+    if (mC58.mC4 != 0) {
+        if (mC58.mBC > 0) {
+            mC58.mBC--;
+        }
+        if (mC58.mBC <= 0) {
+            mC58.mDone_unk = 1;
+        }
+    }
+}
+
+// inferred: AI state 2: follows the route of mRoute
+// NONMATCHING: 99.85% - only the .sdata2 labels (pool order, see fn_805675FC)
+void QuadrupedTask::fn_805693CC(float* speed, atn::Vector3* rot) {
+    RouteWalker_unk& route = mC58.m0C;
+    route.fn_80126214();
+    if (route.m2C != 0) {
+        mC58.mDone_unk = 1;
+    }
+    atn::Vector3 v(route.m58);
+    *speed = v.Length_unk();
+    if (*speed > 0.0001f) {
+        atn::Vector3 n = v.GetNormalize();
+        *rot = n.ToRotation_unk();
+    } else {
+        *rot = mRot;
+    }
+}
+
+// inferred: AI state 3: keeps a distance of m1500 from mC4, circling around it
+// NONMATCHING: 99.80% - only the .sdata2 labels (pool order, see fn_805675FC)
+void QuadrupedTask::fn_80569660(float* speed, atn::Vector3* rot) {
+    if (mC58.mC4 != 0) {
+        if (mC58.mBC > 0) {
+            mC58.mBC--;
+        }
+        if (mC58.mBC <= 0) {
+            bool linked = mC58.mC4->fn_8016F4D8(this) ? true : mC58.mC4->fn_8016F530(0) != 0;
+            if (linked) {
+                mC58.mDone_unk = 1;
+                mC58.mC4->fn_8016F530(this);
+            }
+        }
+        atn::Vector3 d = mC58.mC4->mPos - mPos;
+        *speed = d.Length_unk();
+        if (*speed < 0.00001f) {
+            *speed = 0.0f;
+            *rot = mRot;
+            mC58.mDone_unk = 1;
+            return;
+        }
+        d.Normalize_unk();
+        if (*speed < 0.8f * m1500) {
+            *speed = 1.0f < (m1500 - *speed > 0.41f ? m1500 - *speed : 0.41f)
+                         ? 1.0f
+                         : (m1500 - *speed > 0.41f ? m1500 - *speed : 0.41f);
+            *rot = atn::Vector3(-d.x, -d.y, -d.z).ToRotation_unk();
+            rot->y -= atn::DegToRad_unk(45.0f);
+        } else if (*speed > 1.2f * m1500) {
+            *speed = 0.5f;
+            atn::Vector3 t = mC58.fn_8011BF3C(0) - mPos;
+            *rot = t.ToRotationZ_unk();
+            if (atn::Abs_unk(atn::WrapAngle_unk(rot->y - mRot.y)) > atn::DegToRad_unk(45.0f)) {
+                *rot = t.ToRotation_unk();
+            } else {
+                *rot = mRot;
+            }
+        } else {
+            *speed = 0.5f;
+            *rot = d.ToRotation_unk();
+            rot->y += atn::DegToRad_unk(90.0f);
+        }
+    } else {
+        mC58.mDone_unk = 1;
+    }
+}
+
+// inferred: AI state 4: walks the route up to mC4, waits next to it, then turns in place for 30 frames
+// NONMATCHING: 99.78% - FPR of the radius of mC4 (f3/f0 swapped, accessor 0x8013C42C inlined?) and .sdata2 labels; ~6 variants
+void QuadrupedTask::fn_8056A03C(float* speed, atn::Vector3* rot) {
+    CharaTask* target = mC58.mC4;
+    RouteWalker_unk& route = mC58.m0C;
+    if (target != 0) {
+        if (mC58.mStep == 0) {
+            route.fn_80126214();
+            if (route.mPointA == route.mPointB) {
+                route.fn_80127D8C(0, 0, 0);
+            } else {
+                atn::Vector3 v(route.m58);
+                *speed = v.Length_unk();
+                if (*speed > 0.0001f) {
+                    *rot = v.GetNormalize().ToRotation_unk();
+                } else {
+                    *rot = mRot;
+                }
+            }
+            if (route.m2C != 0) {
+                mC58.mStep = 1;
+            }
+        } else if (mC58.mStep == 1) {
+            mC58.mE8++;
+            atn::Vector3 d = mC58.fn_8011BF3C(0) - mPos;
+            d.y = 0.0f;
+            *speed = d.Length_unk();
+            *speed = *speed - mC58.mC4->m5B0;
+            if (*speed > mStatus.mParamB.m28) {
+                *rot = d.ToRotation_unk();
+            } else {
+                *speed = 0.0f;
+                *rot = mRot;
+                mC58.mStep = 2;
+            }
+        } else if (mC58.mStep == 2) {
+            mC58.mE8 = 0;
+            mC58.mStep = 3;
+            target->fn_8016F5EC(this);
+        } else if (mC58.mStep == 3) {
+            *speed = 2.0f;
+            *rot = mRot;
+            atn::Vector3 d = mC58.fn_8011BF3C(0) - mPos;
+            if (atn::WrapAngle_unk(rot->y - d.ToRotationZ_unk().y) > 0.0f) {
+                rot->y += atn::DegToRad_unk(2.0f);
+            } else {
+                rot->y -= atn::DegToRad_unk(2.0f);
+            }
+            if (++mC58.mE8 > 30) {
+                mC58.mE8 = 0;
+                mC58.mDone_unk = 1;
+            }
+        }
+    } else {
         mC58.mDone_unk = 1;
     }
 }

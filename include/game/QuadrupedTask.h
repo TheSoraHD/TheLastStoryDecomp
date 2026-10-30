@@ -34,6 +34,7 @@ public:
     void fn_805686F0(atn::MotionBuffer* nodes, int count); // inferred: node pose callback
     void fn_805688CC(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk); // inferred: node matrix callback
     // inferred: moves of the AI modes 0-4 (speed and rotation to move with)
+    void fn_DebugMenu_unk(); // inferred: stripped by the linker
     void fn_80568EE0(float* speed, atn::Vector3* rot);
     void fn_80568F10(float* speed, atn::Vector3* rot);
     void fn_805693CC(float* speed, atn::Vector3* rot);
