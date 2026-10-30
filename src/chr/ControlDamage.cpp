@@ -651,7 +651,7 @@ int ControlFallDead::vf0C() {
         if (frame >= model->fn_80097D7C(0)) {
             return 1;
         }
-        mChara->vf34(&mChara->mRot, 1, 0.0f, 1.0f);
+        mChara->vf34(mChara->mRot, 1, 0.0f, 1.0f);
     }
     if (m08 != 2) {
         atn::Vector3 from = m1C;

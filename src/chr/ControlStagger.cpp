@@ -156,7 +156,7 @@ int ControlStagger::vf0C() {
     } else if (mTime <= 0) {
         return 1;
     }
-    mChara->vf34(&rot, 0, speed, rate);
+    mChara->vf34(rot, 0, speed, rate);
     return 0;
 }
 
@@ -207,7 +207,7 @@ ControlSlip::ControlSlip(Chara_unk* chara, int stop) : ControlBase(chara), mStop
     }
 }
 
-// NONMATCHING: 99.9% - mChara is loaded into r3 instead of r5 (the rotation is passed as the address of the temporary).
+// NONMATCHING: 99.9% - mChara is loaded into r3 instead of r5 (the rotation is passed as a temporary).
 int ControlSlip::vf0C() {
     float speed = 0.0f;
     float rate = speed;
@@ -230,7 +230,7 @@ int ControlSlip::vf0C() {
         }
     }
     if (mStop == 0 || !mChara->IsPartyMember_unk()) {
-        mChara->vf34(&mDir.ToRotation_unk(), 0, speed, rate);
+        mChara->vf34(mDir.ToRotation_unk(), 0, speed, rate);
     }
     return 0;
 }

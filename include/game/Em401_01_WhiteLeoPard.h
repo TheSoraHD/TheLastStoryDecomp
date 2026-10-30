@@ -15,7 +15,7 @@ public:
     virtual void vf14();                 // 0x8031F810
     virtual void vf20();                 // 0x80321BCC
     virtual void vf24();                 // 0x8032130C
-    virtual void vf34(void* target, int arg, float a, float b); // 0x803209D0
+    virtual void vf34(const atn::Vector3& rot, int arg, float a, float b); // 0x803209D0
     virtual void vf3C(HitInfo_unk* hit); // 0x8031FBFC
     virtual void vf50();                 // 0x80321E20
     virtual void vf54();                 // 0x8032268C

@@ -234,7 +234,7 @@ int ControlPushedDown::vf0C() {
                 m38 = 3;
             }
         } else {
-            mChara->vf34(&rot, 0, zero, one);
+            mChara->vf34(rot, 0, zero, one);
             Chara_unk* c = mChara;
             c->m580 = 0.0f;
             c->m584 = 0.0f;
@@ -284,7 +284,7 @@ int ControlPushedDown::vf0C() {
                 m38 = 3;
             }
         }
-        mChara->vf34(&rot, 0, zero, one);
+        mChara->vf34(rot, 0, zero, one);
         Chara_unk* c = mChara;
         c->m580 = 0.0f;
         c->m584 = 0.0f;
@@ -401,7 +401,7 @@ int ControlOttotto::vf0C() {
     if (frame >= motion->fn_80097D7C(0)) {
         return 1;
     }
-    mChara->vf34(&m08.ToRotation_unk(), 0, 0.0f, 1.0f);
+    mChara->vf34(m08.ToRotation_unk(), 0, 0.0f, 1.0f);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;

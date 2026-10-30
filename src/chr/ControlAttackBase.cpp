@@ -364,8 +364,7 @@ int ControlAttack::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, 1.0f);
+    mChara->vf34(mDir.ToRotation_unk(), 0, speed, 1.0f);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;
@@ -490,8 +489,7 @@ int ControlAttackNext::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, 1.0f);
+    mChara->vf34(mDir.ToRotation_unk(), 0, speed, 1.0f);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;
@@ -560,8 +558,7 @@ int ControlDashAttack::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, rate);
+    mChara->vf34(mDir.ToRotation_unk(), 0, speed, rate);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;
@@ -603,8 +600,7 @@ int ControlJumpAttack::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, rate);
+    mChara->vf34(mDir.ToRotation_unk(), 0, speed, rate);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;
@@ -665,8 +661,7 @@ int ControlJumpAttack2::vf0C() {
     if (vf24() != 0 && mHit == 0) {
         mHit = 1;
     }
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, rate);
+    mChara->vf34(mDir.ToRotation_unk(), 0, speed, rate);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;
@@ -713,8 +708,7 @@ int ControlMultiAttack::vf0C() {
             lbl_8087EFA8->m3A4 = 1.0f;
         }
     }
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&mDir.ToRotation_unk(), 0, 0.0f, 1.0f);
+    mChara->vf34(mDir.ToRotation_unk(), 0, 0.0f, 1.0f);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;
@@ -747,8 +741,7 @@ ControlSideWallAttack::ControlSideWallAttack(Chara_unk* chara, const atn::Vector
 int ControlSideWallAttack::vf0C() {
     Chara_unk* chara = mChara;
     float speed = (4.0f <= chara->mMotion.mTracks[0].m08 && chara->mMotion.mTracks[0].m08 < 13.0f) ? 1.0f : 0.0f;
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&mDir.ToRotation_unk(), 0, speed, 0.6f);
+    mChara->vf34(mDir.ToRotation_unk(), 0, speed, 0.6f);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;
@@ -780,8 +773,7 @@ int ControlGuardCounter::vf0C() {
     Chara_unk* chara = mChara;
     int result = 0;
     float rate = (chara->mMotion.mTracks[0].m08 >= 15.0f && chara->mMotion.mTracks[0].m08 <= 30.0f) ? 0.2f : 0.0f;
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&mDir.ToRotation_unk(), 0, 1.0f, rate);
+    mChara->vf34(mDir.ToRotation_unk(), 0, 1.0f, rate);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;
@@ -1045,8 +1037,7 @@ int ControlAttackLastOne::vf0C() {
         dir = mTarget->mPos - mChara->mPos;
         PSVECNormalize(&dir, &dir);
     }
-    // inferred: address of the temporary (as in the original)
-    mChara->vf34(&dir.ToRotation_unk(), 0, speed, rate);
+    mChara->vf34(dir.ToRotation_unk(), 0, speed, rate);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;

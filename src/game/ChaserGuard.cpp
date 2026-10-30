@@ -716,5 +716,5 @@ void ChaserGuard::fn_8017FED0() {
             speed *= hard ? 0.8f : 0.9f;
         }
     }
-    vf34(&rot, 0, look, speed);
+    vf34(rot, 0, look, speed);
 }

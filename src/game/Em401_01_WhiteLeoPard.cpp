@@ -515,11 +515,11 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
         fn_8013A258();
         return;
     }
-    vf34(&rot, 0, speed, rate);
+    vf34(rot, 0, speed, rate);
 }
 
-void Em401_01_WhiteLeoPard::vf34(void* target, int arg, float a, float b) {
-    fn_803209E0(*(atn::Vector3*)target, 0, a, m568 * b);
+void Em401_01_WhiteLeoPard::vf34(const atn::Vector3& rot, int arg, float a, float b) {
+    fn_803209E0(rot, 0, a, m568 * b);
 }
 
 // NONMATCHING: 98.32% - same as Em403WarLion::fn_80324A38 (FPR of the turn and of the clamp of m584, stores

@@ -401,7 +401,7 @@ public:
     virtual void vf28();
     virtual void vf2C(const char* params, int arg); // inferred: params "path=..." (BattleCharaTask passes two arguments)
     virtual void vf30(void* menu); // inferred: debug menu (the symbol is still named vf30__9CharaTaskFv)
-    virtual void vf34(void* target, int arg, float a, float b); // inferred: look at target
+    virtual void vf34(const atn::Vector3& rot, int arg, float a, float b); // inferred: turns to rot and moves
     virtual void vf38(int arg); // inferred: fn_801765D8 passes 0 (the target symbol says Fv)
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);

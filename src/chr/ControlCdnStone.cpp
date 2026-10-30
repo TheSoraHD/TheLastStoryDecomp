@@ -453,7 +453,7 @@ int ControlCdnPiyo::vf0C() {
         }
         break;
     }
-    mChara->vf34(&m20, 0, 0.0f, 1.0f);
+    mChara->vf34(m20, 0, 0.0f, 1.0f);
     return done;
 }
 

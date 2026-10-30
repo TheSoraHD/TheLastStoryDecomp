@@ -172,7 +172,7 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
 int ControlShoot::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if ((unsigned int)(motion->mTracks[0].m00 - 0x17D) <= 1) {
-        mChara->vf34(&mChara->mRot, 0, 0.0f, 1.0f);
+        mChara->vf34(mChara->mRot, 0, 0.0f, 1.0f);
     }
     float frame = motion->mTracks[0].m08;
     bool done = frame >= motion->fn_80097D7C(0);

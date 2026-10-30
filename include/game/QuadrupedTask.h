@@ -22,7 +22,7 @@ public:
     virtual void vf14();
     virtual void vf20();
     virtual void vf24();
-    virtual void vf34(void* target, int arg, float a, float b);
+    virtual void vf34(const atn::Vector3& rot, int arg, float a, float b);
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf74(atn::Vector3* pos);
     virtual void vf8C(atn::Vector3* pos);

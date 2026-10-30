@@ -879,7 +879,7 @@ int ControlZanTackle::vf0C() {
             done = 1;
         }
     }
-    mChara->vf34(&rot, 0, speed, 2.5f);
+    mChara->vf34(rot, 0, speed, 2.5f);
     mChara->m54C &= ~0x80;
     mChara->m54C &= ~0x100;
     return done;

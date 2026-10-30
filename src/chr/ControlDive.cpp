@@ -249,7 +249,7 @@ int ControlSwapPos::vf0C() {
         }
         return 0;
     }
-    mChara->vf34(&rot, 0, scale, scale);
+    mChara->vf34(rot, 0, scale, scale);
     return 1;
 }
 

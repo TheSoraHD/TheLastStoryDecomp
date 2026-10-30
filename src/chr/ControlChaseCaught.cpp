@@ -234,7 +234,7 @@ int ControlChaseAssist::vf0C() {
             motion->mTracks[0].m20 = 1.0f;
             motion->fn_80097C08(0, mChara->m484[3], 1, 0, 1, 0.0f, 0.1f);
             motion->mTracks[0].m0C = 1.0f;
-            mChara->vf34(&rot, 1, 1.0f, 1.5f);
+            mChara->vf34(rot, 1, 1.0f, 1.5f);
         }
     }
     return 0;
@@ -273,24 +273,24 @@ int ControlChaseFollow::vf0C() {
     if (dist <= stop) {
         mChara->m6B8 = -d.GetNormalize() * 0.2f;
         atn::Vector3 rot = d.ToRotation_unk();
-        mChara->vf34(&rot, 0, 0.0f, 0.0f);
+        mChara->vf34(rot, 0, 0.0f, 0.0f);
     } else if (dist <= walk) {
         mChara->m570 = leader->m570;
         atn::Vector3 rot = d.ToRotation_unk();
-        mChara->vf34(&rot, 0, 0.0f, 0.0f);
+        mChara->vf34(rot, 0, 0.0f, 0.0f);
     } else if (dist >= run) {
         float len = sqrt(dist);
         float speed = 1.0f + (len - 14.0f) / 50.0f;
         speed = speed < 2.0f ? speed : 2.0f;
         atn::Vector3 rot = d.ToRotation_unk();
-        mChara->vf34(&rot, 0, 1.0f, speed);
+        mChara->vf34(rot, 0, 1.0f, speed);
     } else {
         float near = sqrt(run);
         float len = sqrt(dist);
         float rate = len / near;
         mChara->m570 = rate > leader->m570 ? rate : leader->m570;
         atn::Vector3 rot = d.ToRotation_unk();
-        mChara->vf34(&rot, 0, 0.0f, 1.0f);
+        mChara->vf34(rot, 0, 0.0f, 1.0f);
     }
     return 0;
 }

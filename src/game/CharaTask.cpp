@@ -1324,7 +1324,7 @@ void CharaTask::fn_80139560() {
         }
     }
     if (!mFlag2) {
-        vf34(&rot, 0, a, b);
+        vf34(rot, 0, a, b);
     } else {
         fn_8013CB68(rot, 0, a, b);
     }
@@ -2335,7 +2335,7 @@ inline bool CharaTask::HasRideParts_unk() {
 // NONMATCHING: 95.6% - the flag word of the mFlag31 test stays in r3 (the original reloads it for
 // fn_80139EB0), and from/to of the ray test get r30/r31 the other way round; tried accessors, local
 // orders, an inline ray-test helper.
-void CharaTask::vf34(void* target, int arg, float a, float b) {
+void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
     atn::Vector3 oldPos(mPos);
     atn::Vector3 oldRot(mRot);
     if (lbl_8087F048 != 0 && !mFlag31) {
@@ -2386,31 +2386,31 @@ void CharaTask::vf34(void* target, int arg, float a, float b) {
                 }
             }
         } else if (m55C == 6) {
-            fn_8013CB68(*(const atn::Vector3*)target, 0, a, b);
+            fn_8013CB68(rot, 0, a, b);
         } else {
-            fn_80141674(target, a, b);
+            fn_80141674((void*)&rot, a, b);
         }
     } else if (fn_80139EB0() || fn_80139E9C()) {
         m13AC = 0;
         float rate = m568 * MIN(0.52f, b);
-        fn_8013CB68(*(const atn::Vector3*)target, 0, a, MAX(0.52f, rate));
+        fn_8013CB68(rot, 0, a, MAX(0.52f, rate));
     } else if (fn_80139EBC()) {
         float rate = 0.6f;
-        fn_8013CB68(*(const atn::Vector3*)target, 0, a, MAX(rate, m568 * rate));
+        fn_8013CB68(rot, 0, a, MAX(rate, m568 * rate));
     } else if (fn_80139ED0() || fn_80139EDC()) {
         m13AC = 0;
         if (m55C == 6) {
-            fn_8013CB68(*(const atn::Vector3*)target, arg, a, b);
+            fn_8013CB68(rot, arg, a, b);
         } else {
             b *= 0.675f;
             if (mFC0 != 0) {
-                fn_80140588(target, a, b);
+                fn_80140588((void*)&rot, a, b);
             } else {
-                fn_801426A4(target, a, b);
+                fn_801426A4((void*)&rot, a, b);
             }
         }
     } else {
-        fn_8013CB68(*(const atn::Vector3*)target, arg, a, b);
+        fn_8013CB68(rot, arg, a, b);
     }
     if (m55C != 6) {
         fn_80171F3C(&mPos, &m574);

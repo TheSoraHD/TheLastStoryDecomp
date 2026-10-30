@@ -475,11 +475,11 @@ void QuadrupedTask::fn_805675FC() {
             return;
         }
     }
-    vf34(&rot, 0, speed, 1.0f * mStatus.fn_8012DB04());
+    vf34(rot, 0, speed, 1.0f * mStatus.fn_8012DB04());
 }
 
-void QuadrupedTask::vf34(void* target, int arg, float a, float b) {
-    fn_80567968(*(atn::Vector3*)target, 0, a, m568 * b);
+void QuadrupedTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
+    fn_80567968(rot, 0, a, m568 * b);
 }
 
 // NONMATCHING: 94.65% - same as Em403WarLion::fn_80324A38 (FPR of the turn and of the clamp of m584, stores

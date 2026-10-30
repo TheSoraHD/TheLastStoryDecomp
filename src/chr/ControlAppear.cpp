@@ -47,7 +47,7 @@ int ControlAppear::vf0C() {
         fn_8010A308(lbl_8087F048, &from, &to, mChara->m5B0);
     }
     m08 = to;
-    mChara->vf34(&rot, 0, a, b);
+    mChara->vf34(rot, 0, a, b);
     return 0;
 }
 
@@ -102,7 +102,7 @@ int ControlAppearEnd::vf0C() {
     if (frame >= motion->fn_80097D7C(0)) {
         return 1;
     }
-    mChara->vf34(&rot, 0, a, b);
+    mChara->vf34(rot, 0, a, b);
     return 0;
 }
 
