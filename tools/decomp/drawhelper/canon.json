@@ -40,8 +40,8 @@
  ],
  "fn_8005E7F4": [
   "unsigned int color",
-  "int arg",
-  "atn::Texture_unk* tex",
+  "void* texture0",
+  "void* texture1",
   "float x",
   "float y",
   "float z",

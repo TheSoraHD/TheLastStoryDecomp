@@ -1,34 +1,765 @@
-#include "atn/Memory.h"
-#include "atn/Texture_unk.h"
-#include "math/Vec.h"
-
 #include "atn/DrawHelper.h"
+#include "atn/IRender.h"
+#include "atn/LoadHandle.h"
+#include "atn/Memory.h"
+#include "math/Vec.h"
+#include "std/string.h"
 
+// atn/DrawHelper: debug and 2D drawing helper (singleton lbl_8087EEB0). Every command is placed in the command buffer of the helper (DrawHelper::m04), with its vertices behind it, and
+// queued in the render system (lbl_8087EFB4) with the current blend mode (DrawHelper::mA0).
+
+struct MemoryMode_unk {
+    MemoryMode_unk(int mode, unsigned long align);
+    ~MemoryMode_unk();
+};
+
+// inferred: the same function is named as a member of GimmickUvOwner_unk elsewhere (texture class)
+struct GimmickUvOwner_unk {
+    int fn_800D59B8(); // inferred: nonzero while loading
+};
+
+// inferred: render manager (lbl_8087EEE0): screen size
+struct RenderState_unk {
+    unsigned char m00[0x3C];
+    int mWidth;  // 0x3C
+    int mHeight; // 0x40
+};
+
+extern "C" int lbl_8087D72C;
+extern "C" int lbl_8087D728;
+extern "C" RenderState_unk* lbl_8087EEE0;
+extern "C" void* lbl_8087EFB4;
+extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int pass); // inferred: queues a render
+extern "C" void fn_8006C7FC();
+extern "C" int fn_8006CABC(void* font, const std::string& dir);
+extern "C" void* lbl_8087EEC8;
+extern "C" void fn_800D594C(atn::Texture_unk* texture, const char* path); // inferred: loads a texture and waits
 extern "C" void fn_8006C858(atn::DrawHelper* self); // inferred: releases the queued commands
-// The string "" and the constants 0.0f and 1.0f used below are outside the split of this unit
-// (string pool 0x80731340 and .sdata2 0x808809A0 of the code that follows), so they are
-// referenced by address.
-extern "C" const char lbl_80731340[];
-extern "C" const float lbl_808809A0; // 0.0f
-extern "C" const float lbl_808809A4; // 1.0f
+
+atn::DrawHelper* lbl_8087EEB0;
 
 namespace atn {
 
 inline DrawHelper::DrawHelper() : mA0(0x12) {
-    // inferred: Matrix3x4::SetIdentity with the constants of the original file
-    mA4.m[0][1] = mA4.m[0][2] = mA4.m[0][3] = mA4.m[1][0] = mA4.m[1][2] = mA4.m[1][3] = mA4.m[2][0] =
-        mA4.m[2][1] = mA4.m[2][3] = lbl_808809A0;
-    mA4.m[0][0] = mA4.m[1][1] = mA4.m[2][2] = lbl_808809A4;
+    mA4.SetIdentity();
 }
 
 void DrawHelper::fn_8005DD60() {
     if (lbl_8087EEB0 == 0) {
-        lbl_8087EEB0 = new ((MemoryTag)6, lbl_80731340, lbl_80731340, 0) DrawHelper;
+        lbl_8087EEB0 = new ((MemoryTag)6, "", "", 0) DrawHelper;
     }
 }
 
 DrawHelper::~DrawHelper() {
     fn_8006C858(this);
+}
+
+
+// inferred: vertex of the line commands (0x10)
+struct DrawVertex_unk {
+    DrawVertex_unk() {}
+    Vector3 mPos;
+    unsigned int mColor;
+};
+
+// inferred: vertex of the texture commands (0x18)
+struct DrawTexVertex_unk {
+    DrawTexVertex_unk() {}
+    Vector3 mPos;
+    unsigned int mColor;
+    Vector2_unk mUV;
+};
+
+// inferred: texture coordinates of the two textures of a masked command (copied with paired singles)
+struct DrawUV2_unk {
+    DrawUV2_unk() {}
+    DrawUV2_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
+    DrawUV2_unk& operator=(const DrawUV2_unk& o) {
+        __Vec4Copy(&u0, &o.u0);
+        return *this;
+    }
+    float u0;
+    float v0;
+    float u1;
+    float v1;
+};
+
+// inferred: vertex of the masked texture commands (0x20)
+struct DrawMaskVertex_unk {
+    DrawMaskVertex_unk() {}
+    Vector3 mPos;
+    unsigned int mColor;
+    DrawUV2_unk mUV;
+};
+
+class DrawHelper::DrawCommand : public IRender {
+public:
+    virtual ~DrawCommand() {}
+};
+
+class DrawHelper::ComDrawLine : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawLine() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;                 // inferred: 0 for the blend modes 6, 8 and 0xD
+    DrawVertex_unk* mVertex; // 0x08
+    int mPrim;               // 0x0C: GX primitive
+    int m10;
+    int mCount; // 0x14
+    unsigned char m18;
+    int m1C;
+};
+
+class DrawHelper::ComDrawTexture : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawTexture() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;
+    DrawTexVertex_unk* mVertex; // 0x08
+    GXTexObj* mTex;             // 0x0C
+    unsigned char m10;
+    unsigned char m11;
+    int m14;
+};
+
+class DrawHelper::ComDrawTextureAdd : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawTextureAdd() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;
+    DrawTexVertex_unk* mVertex; // 0x08
+    void* mTex;                 // 0x0C
+    unsigned char m10;
+    unsigned char m11;
+    int m14;
+    int m18;
+};
+
+class DrawHelper::ComDrawTextureMask : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawTextureMask() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;
+    DrawMaskVertex_unk* mVertex; // 0x08
+    Texture_unk* mTex0;          // 0x0C
+    Texture_unk* mTex1;          // 0x10
+    unsigned char m14;
+    int m18;
+    int m1C;
+};
+
+class DrawHelper::ComDrawTextureMono : public DrawHelper::ComDrawTexture {
+public:
+    virtual ~ComDrawTextureMono() {}
+    virtual void vf10(RenderView_unk* view);
+};
+
+class DrawHelper::ComDrawTextureMaskMono : public DrawHelper::ComDrawTextureMask {
+public:
+    virtual ~ComDrawTextureMaskMono() {}
+    virtual void vf10(RenderView_unk* view);
+};
+
+// inferred: m * v by value (the copy of the result is kept on the stack)
+inline Vector3 DrawTransform_unk(const Matrix3x4& m, const Vector3& v) {
+    Vector3 r = v;
+    PSMTXMultVec(m.m, &r, &r);
+    return r;
+}
+
+// inferred: texture ready to be used (same test as gmk/AutomaticDoor and game/GimmickCommon)
+inline bool DrawTexReady_unk(Texture_unk* tex) {
+    bool ready = false;
+    if (tex->mImage != 0 ||
+        (((GimmickUvOwner_unk*)tex)->fn_800D59B8() == 0 && ((LoadHandle*)&tex->m20)->fn_80473EFC() == 3)) {
+        ready = true;
+    }
+    return ready;
+}
+
+inline bool DrawTexValid_unk(Texture_unk* tex) {
+    bool valid = false;
+    if (tex != 0 && DrawTexReady_unk(tex)) {
+        valid = true;
+    }
+    return valid;
+}
+
+void DrawHelper::fn_8005DED8(int bufSize, const std::basic_string<char, std::char_traits<char>, std::allocator<char> >& fontName) {
+    {
+        MemoryMode_unk mode(0, 0x20);
+        m04.mSize = bufSize;
+        m04.mData = new ((MemoryTag)6, (const char*)&lbl_8087D72C, (const char*)&lbl_8087D728, 0) unsigned char[bufSize];
+    }
+    fn_8006C7FC();
+    fn_8006CABC(lbl_8087EEC8, fontName);
+    fn_800D594C(&m10, "/common/sys_white.texture");
+    fn_800D594C(&m40, "/common/sys_gray.texture");
+    fn_800D594C(&m70, "/common/sys_fade.texture");
+}
+
+void DrawHelper::fn_8005DF90(unsigned int color, GXTexObj* obj, int arg, float x, float y, float z, float w, float h) {
+    fn_8005E000(color, obj, 1, arg, x, y, z, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
+}
+
+void DrawHelper::fn_8005DFC8(unsigned int color, Texture_unk* tex, int arg, float x, float y, float z, float w, float h) {
+    fn_8005E000(color, &tex->mObj, 1, arg, x, y, z, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
+}
+
+void DrawHelper::fn_8005E000(unsigned int color, GXTexObj* tex, int mode, int arg, float x, float y, float z,
+                             float w, float h, float u0, float v0, float u1, float v1) {
+    ComDrawTexture* cmd = m04.New_unk<ComDrawTexture>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawTexVertex_unk* v = m04.NewArray_unk<DrawTexVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Vector3 p3, p2, p1, p0;
+    p0 = DrawTransform_unk(mA4, Vector3(x, y, 0.0f));
+    p1 = DrawTransform_unk(mA4, Vector3(x + w, y, 0.0f));
+    p2 = DrawTransform_unk(mA4, Vector3(x + w, y + h, 0.0f));
+    p3 = DrawTransform_unk(mA4, Vector3(x, y + h, 0.0f));
+    v[0].mPos = p0;
+    v[0].mColor = color;
+    v[0].mUV = Vector2_unk(u0, v0);
+    v[1].mPos = p1;
+    v[1].mColor = color;
+    v[1].mUV = Vector2_unk(u1, v0);
+    v[2].mPos = p2;
+    v[2].mColor = color;
+    v[2].mUV = Vector2_unk(u1, v1);
+    v[3].mPos = p3;
+    v[3].mColor = color;
+    v[3].mUV = Vector2_unk(u0, v1);
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        mode = 0;
+    }
+    cmd->m04 = mode;
+    cmd->mTex = tex;
+    cmd->mVertex = v;
+    cmd->m10 = arg;
+    if (mode == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m11 = 0;
+    } else {
+        cmd->m11 = 1;
+    }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_8005E3E4(unsigned int color, void* tex, float x, float y, float z, float w, float h, float u0,
+                             float v0, float u1, float v1, int arg, int flags) {
+    fn_8005E40C(color, tex, arg, flags, x, y, z, w, h, u0, v0, u1, v1);
+}
+
+void DrawHelper::fn_8005E40C(unsigned int color, void* tex, int arg, int flags, float x, float y, float z,
+                             float w, float h, float u0, float v0, float u1, float v1) {
+    ComDrawTextureAdd* cmd = m04.New_unk<ComDrawTextureAdd>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawTexVertex_unk* v = m04.NewArray_unk<DrawTexVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Vector3 p3, p2, p1, p0;
+    p0 = DrawTransform_unk(mA4, Vector3(x, y, 0.0f));
+    p1 = DrawTransform_unk(mA4, Vector3(x + w, y, 0.0f));
+    p2 = DrawTransform_unk(mA4, Vector3(x + w, y + h, 0.0f));
+    p3 = DrawTransform_unk(mA4, Vector3(x, y + h, 0.0f));
+    v[0].mPos = p0;
+    v[0].mColor = color;
+    v[0].mUV = Vector2_unk(u0, v0);
+    v[1].mPos = p1;
+    v[1].mColor = color;
+    v[1].mUV = Vector2_unk(u1, v0);
+    v[2].mPos = p2;
+    v[2].mColor = color;
+    v[2].mUV = Vector2_unk(u1, v1);
+    v[3].mPos = p3;
+    v[3].mColor = color;
+    v[3].mUV = Vector2_unk(u0, v1);
+    int mode = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        mode = 0;
+    }
+    cmd->m04 = mode;
+    cmd->mTex = tex;
+    cmd->mVertex = v;
+    cmd->m10 = flags;
+    if (mode == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m11 = 0;
+    } else {
+        cmd->m11 = 1;
+    }
+    cmd->m14 = arg;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_8005E7F4(unsigned int color, void* texture0, void* texture1, float x, float y, float z, float w,
+                             float h, float u0, float v0, float u1, float v1) {
+    fn_8005E838(color, texture0, texture1, 0, x, y, z, w, h, u0, v0, u1, v1, 0.0f, 0.0f, 1.0f, 1.0f);
+}
+
+// NONMATCHING: register allocation of the texture checks (r23/r24 swapped from the vertex array on)
+void DrawHelper::fn_8005E838(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z,
+                             float w, float h, float u0, float v0, float u1, float v1, float s0, float s1, float s2,
+                             float s3) {
+    ComDrawTextureMask* cmd = m04.New_unk<ComDrawTextureMask>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawMaskVertex_unk* v = m04.NewArray_unk<DrawMaskVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Vector3 p3, p2, p1, p0;
+    p0 = DrawTransform_unk(mA4, Vector3(x, y, 0.0f));
+    p1 = DrawTransform_unk(mA4, Vector3(x + w, y, 0.0f));
+    p2 = DrawTransform_unk(mA4, Vector3(x + w, y + h, 0.0f));
+    p3 = DrawTransform_unk(mA4, Vector3(x, y + h, 0.0f));
+    v[0].mPos = p0;
+    v[0].mColor = color;
+    v[0].mUV = DrawUV2_unk(u0, v0, s0, s1);
+    v[1].mPos = p1;
+    v[1].mColor = color;
+    v[1].mUV = DrawUV2_unk(u1, v0, s2, s1);
+    v[2].mPos = p2;
+    v[2].mColor = color;
+    v[2].mUV = DrawUV2_unk(u1, v1, s2, s3);
+    v[3].mPos = p3;
+    v[3].mColor = color;
+    v[3].mUV = DrawUV2_unk(u0, v1, s0, s3);
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mTex0 = DrawTexValid_unk((Texture_unk*)texture0) ? (Texture_unk*)texture0 : 0;
+    cmd->mTex1 = DrawTexValid_unk((Texture_unk*)texture1) ? (Texture_unk*)texture1 : 0;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m14 = 0;
+    } else {
+        cmd->m14 = 1;
+    }
+    cmd->m18 = mode;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_8005ED6C(unsigned int color, Texture_unk* tex, float z) {
+    float h = lbl_8087EEE0->mHeight;
+    float w = lbl_8087EEE0->mWidth;
+    fn_8005E000(color, &tex->mObj, 1, 1, 0.0f, 0.0f, z, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
+}
+
+void DrawHelper::fn_8005EDF0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h,
+                             float rot, float u0, float v0, float u1, float v1) {
+    fn_8005EEE0(color, tex, arg, flags, x, y, z, w, h, 0.0f, 0.0f, rot, u0, v0, u1, v1);
+}
+
+void DrawHelper::fn_8005EE38(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z, float w,
+                             float h, float rot, float u0, float v0, float u1, float v1, float s0, float s1, float s2,
+                             float s3) {
+    fn_8005F36C(color, texture0, texture1, mode, x, y, z, w, h, 0.0f, 0.0f, rot, u0, v0, u1, v1, s0, s1, s2, s3);
+}
+
+void DrawHelper::fn_8005EEA0(unsigned int color, void* texture, int blend, unsigned int flags, float x, float y, float z,
+                             float w, float h, float scaleX, float scaleY, float rotation, float u0, float v0, float u1,
+                             float v1) {
+    fn_8005EEE0(color, texture, blend, flags, x, y, z, w, h, scaleX, scaleY, rotation, u0, v0, u1, v1);
+}
+
+void DrawHelper::fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1) {
+    ComDrawTextureAdd* cmd = m04.New_unk<ComDrawTextureAdd>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawTexVertex_unk* v = m04.NewArray_unk<DrawTexVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Mtx rotMtx;
+    PSMTXRotRad(rotMtx, 'z', rot);
+    Vector3 center(x + cx, y + cy, 0.0f);
+    w *= 0.5f;
+    h *= 0.5f;
+    Vector3 pos[4];
+    for (int i = 0; i < 4; i++) {
+        pos[i].x = (i == 0 || i == 3) ? -w : w;
+        pos[i].y = (i / 2) ? -h : h;
+        pos[i].z = 0.0f;
+        pos[i] += Vector3(x, y, 0.0f);
+        pos[i] = pos[i] - center;
+        Vector3* p = &pos[i];
+        PSMTXMultVec(rotMtx, p, p);
+        pos[i] += center;
+        pos[i] = DrawTransform_unk(mA4, pos[i]);
+        Vector2_unk uv((i == 0 || i == 3) ? u0 : u1, (i / 2) ? v0 : v1);
+        v[i].mPos = pos[i];
+        v[i].mColor = color;
+        v[i].mUV = uv;
+    }
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mTex = tex;
+    cmd->mVertex = v;
+    cmd->m10 = flags;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m11 = 0;
+    } else {
+        cmd->m11 = 1;
+    }
+    cmd->m14 = arg;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_8005F36C(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1, float s0, float s1,
+                             float s2, float s3) {
+    ComDrawTextureMask* cmd = m04.New_unk<ComDrawTextureMask>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawMaskVertex_unk* v = m04.NewArray_unk<DrawMaskVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Mtx rotMtx;
+    PSMTXRotRad(rotMtx, 'z', rot);
+    Vector3 center(x + cx, y + cy, 0.0f);
+    w *= 0.5f;
+    h *= 0.5f;
+    Vector3 pos[4];
+    for (int i = 0; i < 4; i++) {
+        pos[i].x = (i == 0 || i == 3) ? -w : w;
+        pos[i].y = (i / 2) ? -h : h;
+        pos[i].z = 0.0f;
+        pos[i] += Vector3(x, y, 0.0f);
+        pos[i] = pos[i] - center;
+        Vector3* p = &pos[i];
+        PSMTXMultVec(rotMtx, p, p);
+        *p += center;
+        PSMTXMultVec(mA4.m, p, p);
+        DrawUV2_unk uv((i == 0 || i == 3) ? u0 : u1, (i / 2) ? v0 : v1, (i == 0 || i == 3) ? s0 : s2,
+                       (i / 2) ? s1 : s3);
+        v[i].mPos = *p;
+        v[i].mColor = color;
+        v[i].mUV = uv;
+    }
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mTex0 = DrawTexValid_unk((Texture_unk*)texture0) ? (Texture_unk*)texture0 : 0;
+    cmd->mTex1 = DrawTexValid_unk((Texture_unk*)texture1) ? (Texture_unk*)texture1 : 0;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m14 = 0;
+    } else {
+        cmd->m14 = 1;
+    }
+    cmd->m18 = mode;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_8005F90C(unsigned int color, void* texture, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1) {
+    ComDrawTextureMono* cmd = m04.New_unk<ComDrawTextureMono>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawTexVertex_unk* v = m04.NewArray_unk<DrawTexVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Vector3 p3, p2, p1, p0;
+    p0 = DrawTransform_unk(mA4, Vector3(x, y, 0.0f));
+    p1 = DrawTransform_unk(mA4, Vector3(x + w, y, 0.0f));
+    p2 = DrawTransform_unk(mA4, Vector3(x + w, y + h, 0.0f));
+    p3 = DrawTransform_unk(mA4, Vector3(x, y + h, 0.0f));
+    v[0].mPos = p0;
+    v[0].mColor = color;
+    v[0].mUV = Vector2_unk(u0, v0);
+    v[1].mPos = p1;
+    v[1].mColor = color;
+    v[1].mUV = Vector2_unk(u1, v0);
+    v[2].mPos = p2;
+    v[2].mColor = color;
+    v[2].mUV = Vector2_unk(u1, v1);
+    v[3].mPos = p3;
+    v[3].mColor = color;
+    v[3].mUV = Vector2_unk(u0, v1);
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mTex = DrawTexValid_unk((Texture_unk*)texture) ? &((Texture_unk*)texture)->mObj : 0;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m11 = 0;
+    } else {
+        cmd->m11 = 1;
+    }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_8005FD80(unsigned int color, void* texture0, void* texture1, int blend_, float x, float y, float z, float w, float h, float u0, float v0,
+                             float u1, float v1, float s0, float s1, float s2, float s3) {
+    ComDrawTextureMaskMono* cmd = m04.New_unk<ComDrawTextureMaskMono>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawMaskVertex_unk* v = m04.NewArray_unk<DrawMaskVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Vector3 p3, p2, p1, p0;
+    p0 = DrawTransform_unk(mA4, Vector3(x, y, 0.0f));
+    p1 = DrawTransform_unk(mA4, Vector3(x + w, y, 0.0f));
+    p2 = DrawTransform_unk(mA4, Vector3(x + w, y + h, 0.0f));
+    p3 = DrawTransform_unk(mA4, Vector3(x, y + h, 0.0f));
+    v[0].mPos = p0;
+    v[0].mColor = color;
+    v[0].mUV = DrawUV2_unk(u0, v0, s0, s1);
+    v[1].mPos = p1;
+    v[1].mColor = color;
+    v[1].mUV = DrawUV2_unk(u1, v0, s2, s1);
+    v[2].mPos = p2;
+    v[2].mColor = color;
+    v[2].mUV = DrawUV2_unk(u1, v1, s2, s3);
+    v[3].mPos = p3;
+    v[3].mColor = color;
+    v[3].mUV = DrawUV2_unk(u0, v1, s0, s3);
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mTex0 = DrawTexValid_unk((Texture_unk*)texture0) ? (Texture_unk*)texture0 : 0;
+    cmd->mTex1 = DrawTexValid_unk((Texture_unk*)texture1) ? (Texture_unk*)texture1 : 0;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m14 = 0;
+    } else {
+        cmd->m14 = 1;
+    }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_800602E8(unsigned int color, void* texture, int blend_, unsigned int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1) {
+    ComDrawTextureMono* cmd = m04.New_unk<ComDrawTextureMono>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawTexVertex_unk* v = m04.NewArray_unk<DrawTexVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Mtx rotMtx;
+    PSMTXRotRad(rotMtx, 'z', rot);
+    Vector3 center(x + cx, y + cy, 0.0f);
+    w *= 0.5f;
+    h *= 0.5f;
+    Vector3 pos[4];
+    for (int i = 0; i < 4; i++) {
+        pos[i].x = (i == 0 || i == 3) ? -w : w;
+        pos[i].y = (i / 2) ? -h : h;
+        pos[i].z = 0.0f;
+        pos[i] += Vector3(x, y, 0.0f);
+        pos[i] = pos[i] - center;
+        Vector3* p = &pos[i];
+        PSMTXMultVec(rotMtx, p, p);
+        pos[i] += center;
+        pos[i] = DrawTransform_unk(mA4, pos[i]);
+        Vector2_unk uv((i == 0 || i == 3) ? u0 : u1, (i / 2) ? v0 : v1);
+        v[i].mPos = pos[i];
+        v[i].mColor = color;
+        v[i].mUV = uv;
+    }
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mTex = DrawTexValid_unk((Texture_unk*)texture) ? &((Texture_unk*)texture)->mObj : 0;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m11 = 0;
+    } else {
+        cmd->m11 = 1;
+    }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_800607C0(unsigned int color, void* texture0, void* texture1, int blend_, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1, float s0, float s1,
+                             float s2, float s3) {
+    ComDrawTextureMaskMono* cmd = m04.New_unk<ComDrawTextureMaskMono>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawMaskVertex_unk* v = m04.NewArray_unk<DrawMaskVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Mtx rotMtx;
+    PSMTXRotRad(rotMtx, 'z', rot);
+    Vector3 center(x + cx, y + cy, 0.0f);
+    w *= 0.5f;
+    h *= 0.5f;
+    Vector3 pos[4];
+    for (int i = 0; i < 4; i++) {
+        pos[i].x = (i == 0 || i == 3) ? -w : w;
+        pos[i].y = (i / 2) ? -h : h;
+        pos[i].z = 0.0f;
+        pos[i] += Vector3(x, y, 0.0f);
+        pos[i] = pos[i] - center;
+        Vector3* p = &pos[i];
+        PSMTXMultVec(rotMtx, p, p);
+        *p += center;
+        PSMTXMultVec(mA4.m, p, p);
+        DrawUV2_unk uv((i == 0 || i == 3) ? u0 : u1, (i / 2) ? v0 : v1, (i == 0 || i == 3) ? s0 : s2,
+                       (i / 2) ? s1 : s3);
+        v[i].mPos = *p;
+        v[i].mColor = color;
+        v[i].mUV = uv;
+    }
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mTex0 = DrawTexValid_unk((Texture_unk*)texture0) ? (Texture_unk*)texture0 : 0;
+    cmd->mTex1 = DrawTexValid_unk((Texture_unk*)texture1) ? (Texture_unk*)texture1 : 0;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m14 = 0;
+    } else {
+        cmd->m14 = 1;
+    }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_80060D58(float x, float y, float z, float w, float h, unsigned int color) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Vector3 p3, p2, p1, p0;
+    p0 = DrawTransform_unk(mA4, Vector3(x, y, 0.0f));
+    p1 = DrawTransform_unk(mA4, Vector3(x + w, y, 0.0f));
+    p2 = DrawTransform_unk(mA4, Vector3(x + w, y + h, 0.0f));
+    p3 = DrawTransform_unk(mA4, Vector3(x, y + h, 0.0f));
+    v[0].mPos = p0;
+    v[0].mColor = color;
+    v[1].mPos = p1;
+    v[1].mColor = color;
+    v[2].mPos = p2;
+    v[2].mColor = color;
+    v[3].mPos = p3;
+    v[3].mColor = color;
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mPrim = 0x80;
+    cmd->m10 = 2;
+    cmd->mCount = 4;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m18 = 0;
+    } else {
+        cmd->m18 = 1;
+    }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_800610A4(unsigned int color, float x, float y, float z, float w, float h) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(5);
+    if (v == 0) {
+        return;
+    }
+    Vector3 p4, p3, p2, p1, p0;
+    p0 = DrawTransform_unk(mA4, Vector3(x, y, 0.0f));
+    p1 = DrawTransform_unk(mA4, Vector3(x + w, y, 0.0f));
+    p2 = DrawTransform_unk(mA4, Vector3(x + w, y + h, 0.0f));
+    p3 = DrawTransform_unk(mA4, Vector3(x, y + h, 0.0f));
+    p4 = DrawTransform_unk(mA4, Vector3(x, y, 0.0f));
+    v[0].mPos = p0;
+    v[0].mColor = color;
+    v[1].mPos = p1;
+    v[1].mColor = color;
+    v[2].mPos = p2;
+    v[2].mColor = color;
+    v[3].mPos = p3;
+    v[3].mColor = color;
+    v[4].mPos = p4;
+    v[4].mColor = color;
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mPrim = 0xB0;
+    cmd->m10 = 4;
+    cmd->mCount = 5;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m18 = 0;
+    } else {
+        cmd->m18 = 1;
+    }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_8006144C(float x0, float y0, float x1, float y1, unsigned int color, float z) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(2);
+    if (v == 0) {
+        return;
+    }
+    Vector3 p1, p0;
+    p0 = DrawTransform_unk(mA4, Vector3(x0, y0, 0.0f));
+    p1 = DrawTransform_unk(mA4, Vector3(x1, y1, 0.0f));
+    v[0].mPos = p0;
+    v[0].mColor = color;
+    v[1].mPos = p1;
+    v[1].mColor = color;
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mPrim = 0xB0;
+    cmd->m10 = 1;
+    cmd->mCount = 2;
+    cmd->mVertex = v;
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {
+        cmd->m18 = 0;
+    } else {
+        cmd->m18 = 1;
+    }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 
 } // namespace atn

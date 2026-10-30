@@ -184,15 +184,9 @@
  {
   "name": "atn/DrawHelper.cpp",
   "classes": [
-   "atn::DrawHelper"
-  ],
-  "matching": true
- },
- {
-  "name": "atn/ComDrawTexture.cpp",
-  "classes": [
-   "atn::DrawHelper::ComDrawTextureAdd",
-   "atn::DrawHelper::ComDrawTexture"
+   "atn::DrawHelper",
+   "atn::DrawHelper::ComDrawTexture",
+   "atn::DrawHelper::ComDrawTextureAdd"
   ],
   "matching": false
  },

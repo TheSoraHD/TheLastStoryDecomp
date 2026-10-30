@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
+#include "std/new.h"
 
 struct GXTexObj;
 
@@ -32,9 +33,38 @@ public:
         }
     }
 
+    // inferred: a draw command placed in the buffer (inlined in every command of atn/ComDrawTexture);
+    // names invented
+    template <class U>
+    U* New_unk() {
+        U* p;
+        if (m08 + (int)sizeof(U) > mSize) {
+            p = 0;
+        } else {
+            p = new (mData + m08) U;
+            m08 += sizeof(U);
+        }
+        return p;
+    }
+    // inferred: array of vertices placed in the buffer: 0x10 bytes of array header, then rounded up
+    // with 4 - size % 4 (adds 4 even when aligned)
+    template <class U>
+    U* NewArray_unk(int n) {
+        int size = n * (int)sizeof(U) + 0x10;
+        size += 4 - size % 4;
+        U* p;
+        if (m08 + size > mSize) {
+            p = 0;
+        } else {
+            p = new (mData + m08) U[n];
+            m08 += size;
+        }
+        return p;
+    }
+
     T* mData;
-    int mSize;
-    int m08;
+    int mSize; // inferred: capacity
+    int m08;   // inferred: bytes used
 };
 
 // inferred: debug drawing helper (0x504 bytes, singleton lbl_8087EEB0)
@@ -45,6 +75,28 @@ public:
 
     static void fn_8005DD60(); // inferred: creates the singleton
 
+    // Commands of atn/ComDrawTexture (vtables and RTTI there).
+    class DrawCommand;
+    class ComDrawLine;
+    class ComDrawTexture;
+    class ComDrawTextureAdd;
+    class ComDrawTextureMask;
+    class ComDrawTextureMono;
+    class ComDrawTextureMaskMono;
+    class ComDrawFont;
+    class ComDrawFontSideFade;
+    class ComDrawColliObject;
+    class ComDrawColliTree;
+    class ComDrawD3TextureMask;
+    class ComDrawWindow;
+
+    // Used only inside atn/ComDrawTexture.
+    void fn_8005E000(unsigned int color, GXTexObj* tex, int mode, int arg, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1);
+    void fn_8005EDF0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float rot, float u0, float v0, float u1, float v1);
+    void fn_8005EE38(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z, float w, float h, float rot, float u0, float v0, float u1, float v1, float s0, float s1, float s2, float s3);
+    void fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1);
+    void fn_8005E40C(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1);
+
     // Drawing commands (atn/ComDrawTexture). Names and parameter names unknown (fn_<addr>);
     // inferred: parameter types and order fixed from the asm (r4.. / f1.. usage) and the
     // calls in the game; int and float arguments use separate registers, so only the order
@@ -54,7 +106,7 @@ public:
     void fn_8005DF90(unsigned int color, GXTexObj* obj, int arg, float x, float y, float z, float w, float h);
     void fn_8005DFC8(unsigned int color, Texture_unk* tex, int arg, float x, float y, float z, float w, float h);
     void fn_8005E3E4(unsigned int color, void* tex, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1, int arg, int flags);
-    void fn_8005E7F4(unsigned int color, int arg, Texture_unk* tex, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1);
+    void fn_8005E7F4(unsigned int color, void* texture0, void* texture1, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1);
     void fn_8005E838(unsigned int color, void* texture0, void* texture1, int mode, float x, float y, float z, float w, float h, float u0, float v0, float u1, float v1, float s0, float s1, float s2, float s3);
     void fn_8005ED6C(unsigned int color, Texture_unk* tex, float z);
     void fn_8005EEA0(unsigned int color, void* texture, int blend, unsigned int flags, float x, float y, float z, float w, float h, float scaleX, float scaleY, float rotation, float u0, float v0, float u1, float v1);
