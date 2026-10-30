@@ -137,6 +137,7 @@ static inline int FindName_unk(const char* const* table, const char* s, int len)
 
 // inferred: skips the delimiters and returns the next token of `s` and its length (0 at the end).
 // The original calls it with bl everywhere (noinline: CLAUDE.md rule 2)
+// NONMATCHING: 98.1% - registers of s/delims/len (s in r27 instead of r30)
 __declspec(noinline) const char* fn_8007A994(const char* s, const char* delims, int* len) {
     int n = 0;
     while (*s != 0 && strchr(delims, *s) != 0) {
@@ -189,6 +190,7 @@ TexStage_unk& TexStage_unk::operator=(const TexStage_unk& o) {
     return *this;
 }
 
+// NONMATCHING: 91.7% - float registers and load order of the UV setters (the original keeps the next value in f27 before the store; tried direct Uv()-> stores, const& setters)
 void TexStage_unk::fn_8007AB38(atn::ShaderDesc_unk* desc, int index) {
     const char* name = desc->mA4C[index];
     mId = FindName_unk(sTexNames, name, strlen(name));
@@ -222,6 +224,7 @@ static inline bool TexReady_unk(atn::Texture_unk* tex) {
     return tex->mImage != 0 || (((GimmickUvOwner_unk*)tex)->fn_800D59B8() == 0 && tex->m20.fn_80473EFC() == 3);
 }
 
+// NONMATCHING: 95.2% - obj and minFilter swap r30/r31 (tried declaration orders, a local texture pointer)
 void TexStage_unk::fn_8007B100() {
     if (mTexture != 0 && TexReady_unk(mTexture)) {
         GXTexObj* obj = &mTexture->mObj;
@@ -287,6 +290,7 @@ static inline void SetSwap_unk(GXColor& dst, GXColor c) {
 }
 
 // inferred: reads the texture stage block of a material ("\t\tkey value" lines)
+// NONMATCHING: 99.5% - register allocation
 const char* TexStage_unk::fn_8007B260(const char* path, Material_unk* mat, const char* p) {
     int n;
     int len = 0;
@@ -458,6 +462,7 @@ struct ColorF_unk {
     float r, g, b, a;
 };
 
+// NONMATCHING: 87.5% - store order: the original sets the swap table m38 in the member initialisation (a type with a constructor gives 90.6% here but lowers fn_8007B260)
 Material_unk::Material_unk(ShaderTex_unk* shader)
     : m00(0), m04(0), m08(shader), m0C(0), m10(0), mColor(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()),
       m1C(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()), m20(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()), m30(0.0f),
@@ -515,6 +520,7 @@ struct TexStageLess_unk {
     bool operator()(const TexStage_unk& a, const TexStage_unk& b) const { return a.mId < b.mId; }
 };
 
+// NONMATCHING: 99.4% - register allocation (0x8007ED30)
 template <class T>
 void Swap_unk(T& a, T& b) {
     T tmp = a;
@@ -544,6 +550,7 @@ void Median3_unk(T* a, T* b, T* c, Compare& comp) {
     }
 }
 
+// NONMATCHING: 98.2% - register allocation (0x8007F464)
 template <class T, class Compare>
 void SelectionSort_unk(T* first, T* last, Compare& comp) {
     if (first != last) {
@@ -563,6 +570,7 @@ void SelectionSort_unk(T* first, T* last, Compare& comp) {
 
 static int sSortOffset = -4; // inferred: pivot offset of the quicksort, -4 to 4
 
+// NONMATCHING: 95.9% - register allocation of the partition loops (0x8007EA24)
 template <class T, class Compare>
 void Sort_unk(T* first, T* last, Compare& comp) {
     while (true) {
@@ -647,6 +655,7 @@ void Sort_unk(T* first, T* last, Compare& comp) {
 }
 
 // inferred: reads one material block of a material file and returns the end of what it read
+// NONMATCHING: 97.0% - FIND_NAME leaves a cmpwi/bne after each loop (the original has the shape of a lookup with return, but the inline function puts the parser over the inlining budget) and register allocation
 const char* Material_unk::fn_8007C46C(const char* path, const char* data, int size) {
     int len = 0;
     atn::SimpleVector<TexStage_unk> stages;
@@ -1017,6 +1026,7 @@ void Material_unk::fn_8007FAF0(int mode) {
 }
 
 // inferred: blend modes from a shader description
+// NONMATCHING: 91.8% - the original writes the three bit fields with one store (no alias assumed with desc) and keeps desc/this in r29/r31
 void Material_unk::fn_8007FE5C(atn::ShaderDesc_unk* desc) {
     int blend = fn_800D1C60(desc->mA2C);
     m14_21 = desc->mA28;
@@ -1065,6 +1075,7 @@ void Material_unk::fn_8007FE5C(atn::ShaderDesc_unk* desc) {
 }
 
 // inferred: scrolls the UV transforms of the animated stages
+// NONMATCHING: 90.0% - allocation of the float constants hoisted out of the loop
 void Material_unk::fn_80080048(float time) {
     for (int i = 0; i < m4B; i++) {
         TexAnim_unk* anim = &m10[i];
@@ -1132,6 +1143,7 @@ int Material_unk::fn_800804D0(int id) {
     return -1;
 }
 
+// NONMATCHING: 98.5% - r6/r7 swapped (stage base and offset)
 TexStage_unk* Material_unk::fn_80080528(int id) {
     for (int i = 0; i < m4A; i++) {
         int stageId = m0C[i].mId;
@@ -1146,6 +1158,7 @@ TexStage_unk* Material_unk::fn_80080528(int id) {
 }
 
 // inferred: copy of another material (the stages get their own UV transforms)
+// NONMATCHING: 94.8% - order of the byte copies and register allocation
 void Material_unk::fn_80080584(const Material_unk& o) {
     mTevColor[0].r = o.mTevColor[0].r;
     mTevColor[0].b = o.mTevColor[0].b;
@@ -1221,6 +1234,7 @@ void Material_unk::fn_80080584(const Material_unk& o) {
 }
 
 // inferred: names of the stages from a shader description
+// NONMATCHING: 98.3% - registers of the inlined String_unk assignment
 void Material_unk::fn_80080B34(atn::ShaderDesc_unk* desc) {
     for (int i = 0; i < m4A; i++) {
         m0C[i].mName = desc->mA4C[i];
@@ -1228,6 +1242,7 @@ void Material_unk::fn_80080B34(atn::ShaderDesc_unk* desc) {
 }
 
 // inferred: textures of the stages: from `getter`, or loaded from `dir`
+// NONMATCHING: 96.6% - register allocation
 void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
     for (int i = 0; i < m4A; i++) {
         std::string name(m0C[i].mName.c_str());
@@ -1253,6 +1268,7 @@ void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
 }
 
 // inferred: name of the shader from the stages of the material (suffix per texture)
+// NONMATCHING: 99.8% - register allocation
 void Material_unk::fn_80081080(char* shader) {
     if (FindStage_unk(5) != 0) {
         strcat(shader, "_Spec");
@@ -1312,6 +1328,7 @@ int Material_unk::fn_800816A8() {
 void fn_80081BCC(void* arg);
 
 // inferred: debug menu of the material
+// NONMATCHING: 99.0% - register allocation
 void Material_unk::fn_800816B4(void* parent, const char* name) {
     char title[0x20];
     if (name != 0) {
