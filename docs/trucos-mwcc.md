@@ -230,3 +230,5 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Función fuerte del mismo fichero que MWCC inlinea y el original llama con `bl`: `__declspec(noinline)` en la definición (aceptado; K2 `fn_800D5D00`/`fn_800D5E18`).
 - Cadenas de `basic_string` al final del pool sin `std::string` en el código: función eliminada por el enlazador que construye un `std::string` (`Stripped_unk`, `db/EventIdTable_unk`) (K2).
 - Matriz construida en el orden "ceros encadenados y luego valores" (`m01 = m02 = ... = 0.0f;`): el original usa asignación encadenada, no el constructor de 12 floats (K2).
+- `__builtin_is_pod(T)` existe en MWCC (el `is_POD` de la MSL); `std::vector` despacha con él (POD = camino de los punteros) (`vector-push-back`).
+- Literal de una inline miembro compartido por varios ficheros (un solo objeto `@STRING@` débil): el enlazador los fusiona por nombre; si los tipos difieren, el original usaba una función común (reserva de `vector` de punteros/int/float) (`vector-push-back`).
