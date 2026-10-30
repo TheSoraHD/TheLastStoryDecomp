@@ -1,6 +1,6 @@
 # K2: cerrar unidades cerca de enlazar (2026-10-30)
 
-Rama `k2-close-units` desde `main` (5878b26). Trabajo secuencial, commit por unidad. Referencia de `regress.py`/`fuzzdrop.py`: el `report.json` de `main` antes de empezar.
+Rama `k2-close-units` desde `main` (5878b26), mergeada en `main` el 2026-10-30 junto con `vector-push-back`. Trabajo secuencial, commit por unidad. Referencia de `regress.py`/`fuzzdrop.py`: el `report.json` de `main` antes de empezar.
 
 **Resultado:** 8752 → 8759 funciones al 100%, **4 unidades enlazadas más** (`db/EventIdTable_unk`, `game/SpecialEnemyFactory_unk`, `Event/BehaviorMoveTo`, `Event/BehaviorFollow`), `lost: 0`, sin bajadas de fuzzy, `main.dol: OK`.
 
