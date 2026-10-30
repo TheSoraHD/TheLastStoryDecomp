@@ -7,6 +7,7 @@
 #include "math/Vec.h"
 #include "macros.h"
 #include "atn/DrawHelper.h"
+#include "std/string_members.h"
 
 extern "C" MenuD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: creates a D2A anime
 namespace atn {
