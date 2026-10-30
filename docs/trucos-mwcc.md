@@ -205,3 +205,6 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `stfs` temprano y `lfs` desde la pila de un campo: miembro de un local asignado antes de la copia/llamada (`local.mRadius = s->mRadius;` antes de `inv = box->mMtx;`).
 - `a || b || c` en una inline que devuelve `bool` da `cntlzw`/`srwi.` con banderas; en un `if` directo, `cmplwi`/`beq` (`IsInfNan_unk`).
 - `if (p) p->x = 1;` dentro de un bucle que ya sabe `p != 0`: inline que recibe el puntero (`Kill_unk`).
+- Auto-inline (`-inline auto`) mide sentencias del fuente: un destructor/`operator=` con varios `if (p) { delete p; p = 0; }` no se inlinea; escrito con un ayudante `SafeDelete(p)` de una línea, sí, con el mismo código y con los `""` del `new` aún en `@stringBase0` (MaterialParser_unk, 2026-10-30).
+- Si una función grande deja de inlinear todo (R3), cambiar una búsqueda inline repetida por una macro (código propio) puede devolverla al presupuesto: el parser de MaterialParser_unk pasa de llamarlo todo a la estructura del original.
+- Un miembro con destructor inline hace emitir una copia débil sin referencias de ese destructor al definir un constructor de la clase; el enlazador la quita, no es señal de diferencia con el original.
