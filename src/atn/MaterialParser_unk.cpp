@@ -224,7 +224,7 @@ static inline bool TexReady_unk(atn::Texture_unk* tex) {
     return tex->mImage != 0 || (((GimmickUvOwner_unk*)tex)->fn_800D59B8() == 0 && tex->m20.fn_80473EFC() == 3);
 }
 
-// NONMATCHING: 95.2% - obj and minFilter swap r30/r31 (tried declaration orders, a local texture pointer)
+// NONMATCHING: 99.4% - obj and minFilter swap r30/r31 (tried declaration orders, a local texture pointer)
 void TexStage_unk::fn_8007B100() {
     if (mTexture != 0 && TexReady_unk(mTexture)) {
         GXTexObj* obj = &mTexture->mObj;
@@ -243,14 +243,15 @@ void TexStage_unk::fn_8007B100() {
             }
         }
         int aniso = 0;
-        unsigned char edge = 0;
+        int edge = 0;
         if (lods > 0) {
             aniso = lbl_8087EFA8->m224;
             if (aniso != 0) {
                 edge = lbl_8087EFA8->m228;
             }
         }
-        GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, lods, lbl_8087EFA8->m22C, 0, edge, aniso);
+        float bias = lbl_8087EFA8->m22C;
+        GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, lods, bias, 0, edge, aniso);
     }
 }
 
