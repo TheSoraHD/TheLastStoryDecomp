@@ -4,6 +4,7 @@
 #include "std/string.h"
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
+#include "std/string_members.h"
 
 // inferred: physics bones (a bone that swings between two nodes of a model, read from a CSV).
 // Member names are invented.
