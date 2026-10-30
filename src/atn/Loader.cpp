@@ -659,9 +659,9 @@ extern "C" void fn_8046EED8(Loader* loader) {
     loader->m3EF0 = 0;
 }
 
-// NONMATCHING: 98.2% - registers of the inlined std::list insert (known problem of std/list.h,
-// see Loader::Get_unk in atn/LoadManager.h) and flags/archive registers swapped.
-extern "C" PfsArchive_unk* fn_8046EF08(Loader* loader, const char* name, const char* index, int preload) {
+// The original calls it with bl from fn_8046F2C4; MWCC would inline some of those calls.
+// push_back: the list end gets a lower register than the new node (see std/list.h)
+extern "C" __declspec(noinline) PfsArchive_unk* fn_8046EF08(Loader* loader, const char* name, const char* index, int preload) {
     PfsArchive_unk* archive;
     int flags = 1;
     if (preload == 0) {
@@ -672,20 +672,20 @@ extern "C" PfsArchive_unk* fn_8046EF08(Loader* loader, const char* name, const c
     return archive;
 }
 
-// NONMATCHING: 98.8% - registers of the inlined std::list insert (see fn_8046EF08).
-// The index name of each archive comes first in the string pool
+// The index name of each archive comes first in the string pool. insert(end(), x) instead of
+// push_back: here the list end gets a higher register than the new node (see std/list.h)
 extern "C" void fn_8046F014(Loader* loader) {
     const char* index = "pack/filesystem.pkh";
     const char* name = "pack/filesystem.pk";
-    loader->mMounted.push_back(new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name, index, 0));
+    loader->mMounted.insert(loader->mMounted.end(), new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name, index, 0));
     const char* name2;
     const char* index2 = "pack/eventpacks.pkh";
     name2 = "pack/eventpacks.pk";
-    loader->mMounted.push_back(new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name2, index2, 0));
+    loader->mMounted.insert(loader->mMounted.end(), new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name2, index2, 0));
     const char* name3;
     const char* index3 = "pack/levels.pkh";
     name3 = "pack/levels.pk";
-    loader->mMounted.push_back(new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name3, index3, 0));
+    loader->mMounted.insert(loader->mMounted.end(), new ((MemoryTag)2, "", "", 0) PfsArchive_unk(name3, index3, 0));
 }
 
 extern "C" void fn_8046F2C4(Loader* loader) {

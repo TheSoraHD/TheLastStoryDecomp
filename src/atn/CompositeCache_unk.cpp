@@ -171,8 +171,6 @@ CompositeCacheEntry_unk* CompositeCache_unk::fn_800D8624(const char* base, const
     return 0;
 }
 
-// NONMATCHING: 97.99% - registers of the inlined push_back (the same known problem as the Loader::Get_unk
-// copies, see include/atn/LoadManager.h)
 CompositeCacheEntry_unk* CompositeCache_unk::fn_800D8698(const char* base, const CompositeLayerDesc_unk* layers,
                                                          int count) {
     CompositeCacheEntry_unk* entry = new ((MemoryTag)6, "", "", 0) CompositeCacheEntry_unk(base, layers, count);
