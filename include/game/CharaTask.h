@@ -482,7 +482,7 @@ public:
     void fn_8015D2A0(const atn::Vector3& a, const atn::Vector3& b);
     void fn_8015D5B0(const atn::Vector3& a, const atn::Vector3& b);
     void fn_8015D8C0(float f, const atn::Vector3& dir, int a);
-    void fn_8015DEC0(int a);
+    void fn_8015DEC0(const atn::Vector3& dir);
     void fn_8015E1B8(const atn::Vector3& dir);
     // inferred: 0x80161570-0x801647BC also create a control and switch to it
     void fn_80161570(int motion, int a, int b, float c, float d);

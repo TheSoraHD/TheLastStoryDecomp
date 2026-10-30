@@ -37,7 +37,7 @@ public:
     virtual float vf20() { return 0.0f; }
     virtual int vf24() { return 0; }
     virtual int vf28() { return 0; }
-    virtual void vf2C();
+    virtual int vf2C(); // inferred: returns an int (number of hit windows in chr::ControlAttackBase)
     virtual int vf30(); // inferred: returns an int (0 in ControlBase, 0x800E60FC; compared with 5 by callers of CharaTask::fn_8017A450, tested by vf5C)
     // inferred: inline (weak copies 0x8017A220 and 0x8017A2F8 in game/CharaTask.cpp, read through
     // CharaTask::fn_8017A160 and fn_8017A228)

@@ -7097,7 +7097,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
         } else if ((flags & 8) == 8) {
             if (!mFlag31 && !GetStatus_unk()->mParamB.fn_801404E0(0x10) && !(m55C == 6 && m560 == 23)) {
                 if ((flags & 0x2000) == 0x2000) {
-                    fn_8015DEC0((int)&dir); // inferred: the parameter is declared int (it receives &dir)
+                    fn_8015DEC0(dir);
                 } else {
                     float power = 0.1f;
                     if (msg != 0 && (msg->mData->mAC & 0x20000000) == 0x20000000) {
@@ -8657,8 +8657,8 @@ void CharaTask::vf7C(int arg) {
     fn_80178208(control);
 }
 
-void CharaTask::fn_8015DEC0(int a) {
-    chr::ControlGuardCounter* control = new ((MemoryTag)0, "", "", 0) chr::ControlGuardCounter(this, a);
+void CharaTask::fn_8015DEC0(const atn::Vector3& dir) {
+    chr::ControlGuardCounter* control = new ((MemoryTag)0, "", "", 0) chr::ControlGuardCounter(this, dir);
     fn_80178208(control);
 }
 

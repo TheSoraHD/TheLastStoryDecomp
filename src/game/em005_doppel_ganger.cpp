@@ -790,7 +790,7 @@ void Em005DoppelGanger::vf3C(HitInfo_unk* hit) {
                     m14B8 = 0;
                     m590 = fn_800F8548(lbl_8087F048);
                     m58C = 1;
-                    fn_8015DEC0((int)&msg->m10);
+                    fn_8015DEC0(msg->m10);
                     ((Control1C_unk*)mControl.get())->m1C = 1;
                     msg->mAttacker->vf7C(1);
                     msg->m90 = 0;
