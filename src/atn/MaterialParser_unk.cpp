@@ -273,15 +273,6 @@ static inline int SwapChannel_unk(char c) {
     return 0;
 }
 
-// inferred: copies of the swap table go byte by byte (names invented)
-static inline GXColor CopySwap_unk(GXColor c) {
-    GXColor s;
-    s.r = c.r;
-    s.g = c.g;
-    s.b = c.b;
-    s.a = c.a;
-    return s;
-}
 static inline void SetSwap_unk(GXColor& dst, GXColor c) {
     dst.r = c.r;
     dst.g = c.g;
@@ -290,7 +281,7 @@ static inline void SetSwap_unk(GXColor& dst, GXColor c) {
 }
 
 // inferred: reads the texture stage block of a material ("\t\tkey value" lines)
-// NONMATCHING: 99.5% - register allocation
+// NONMATCHING: 99.8% - register allocation (r22-r28) and the order of the four size_t slots of the inlined compare("")
 const char* TexStage_unk::fn_8007B260(const char* path, Material_unk* mat, const char* p) {
     int n;
     int len = 0;
@@ -360,7 +351,8 @@ const char* TexStage_unk::fn_8007B260(const char* path, Material_unk* mat, const
                 break;
             case 14: {
                 p = fn_8007A994(p + len, sTokenDelims, &len);
-                GXColor swap = CopySwap_unk(mat->m38);
+                GXColor swap;
+                SetSwap_unk(swap, mat->m38);
                 if (len == 1) {
                     int c = SwapChannel_unk(p[0]);
                     if (mId == 3) {
@@ -419,8 +411,9 @@ void TexStage_unk::fn_8007C018(const char* path, int keep) {
     }
 }
 
-// inferred: debug menu of a texture stage (static: inlined in fn_800816B4, its literals come first)
-static void TexStageMenu_unk(void* parent, TexStage_unk* stage) {
+// inferred: debug menu of a texture stage. Not static: MWCC emits it here (its literals go first in
+// the pool, as in the original) and also inlines it in fn_800816B4; the linker strips the copy
+void TexStageMenu_unk(void* parent, TexStage_unk* stage) {
     char buf[0x100];
     sprintf(buf, "%s", sTexNames[stage->mId]);
     void* g = fn_8008937C(parent, buf);
@@ -1268,7 +1261,6 @@ void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
 }
 
 // inferred: name of the shader from the stages of the material (suffix per texture)
-// NONMATCHING: 99.8% - register allocation
 void Material_unk::fn_80081080(char* shader) {
     if (FindStage_unk(5) != 0) {
         strcat(shader, "_Spec");
@@ -1328,9 +1320,8 @@ int Material_unk::fn_800816A8() {
 void fn_80081BCC(void* arg);
 
 // inferred: debug menu of the material
-// NONMATCHING: 99.0% - register allocation
 void Material_unk::fn_800816B4(void* parent, const char* name) {
-    char title[0x20];
+    char title[0x100];
     if (name != 0) {
         sprintf(title, "%s", name);
     } else {
