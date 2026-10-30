@@ -1311,7 +1311,7 @@ fn_800629F0__Q23atn10DrawHelperFRCQ23atn7Vector3RCQ23atn7Vector3fUiPCQ23atn9Matr
 fn_80062C8C__Q23atn10DrawHelperFUiUiffffff = .text:0x80062C8C; // type:function size:0x2F0
 fn_80062F7C__Q23atn10DrawHelperFUiUifffffff = .text:0x80062F7C; // type:function size:0x284
 fn_80063200__Q23atn10DrawHelperFUiUifffff = .text:0x80063200; // type:function size:0x284
-fn_80063484__Q23atn10DrawHelperFiUifffffff = .text:0x80063484; // type:function size:0x2E0
+fn_80063484__Q23atn10DrawHelperFUiUifffffff = .text:0x80063484; // type:function size:0x2E0
 fn_80063764__Q23atn10DrawHelperFRCQ23atn7Vector3RCQ23atn7Vector3fUi = .text:0x80063764; // type:function size:0x14C
 fn_800638B0__Q23atn10DrawHelperFffRCQ23atn7Vector3RCQ23atn7Vector3Ui = .text:0x800638B0; // type:function size:0x48C
 fn_80063D3C__Q23atn10DrawHelperFRCQ23atn7Vector3ffUi = .text:0x80063D3C; // type:function size:0x490

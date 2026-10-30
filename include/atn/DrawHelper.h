@@ -129,7 +129,7 @@ public:
     void fn_800629F0(const Vector3& center, const Vector3& size, float arg, unsigned int color, const Matrix3x4* mtx);
     void fn_80062C8C(unsigned int segments, unsigned int color, float x, float y, float z, float a, float radius, float b);
     void fn_80063200(unsigned int segments, unsigned int color, float x, float y, float z, float a, float radius);
-    void fn_80063484(int segments, unsigned int color, float x, float y, float z, float rot, float a, float range, float angle);
+    void fn_80063484(unsigned int segments, unsigned int color, float x, float y, float z, float rot, float a, float radius, float angle);
     void fn_80063764(const Vector3& a, const Vector3& b, float width, unsigned int color);
     void fn_800638B0(float a, float b, const Vector3& from, const Vector3& to, unsigned int color);
     void fn_80063D3C(const Vector3& pos, float radius, float arg, unsigned int color);

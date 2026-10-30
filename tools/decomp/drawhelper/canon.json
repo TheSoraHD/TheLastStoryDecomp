@@ -320,14 +320,14 @@
   "float radius"
  ],
  "fn_80063484": [
-  "int segments",
+  "unsigned int segments",
   "unsigned int color",
   "float x",
   "float y",
   "float z",
   "float rot",
   "float a",
-  "float range",
+  "float radius",
   "float angle"
  ],
  "fn_80063764": [

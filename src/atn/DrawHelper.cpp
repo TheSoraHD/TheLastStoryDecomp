@@ -1085,6 +1085,42 @@ void DrawHelper::fn_80063200(unsigned int segments, unsigned int color, float x,
     fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
 }
 
+// NONMATCHING: 99.9% - operand order of the fnmsubs of the start angle (angle * 0.5f)
+void DrawHelper::fn_80063484(unsigned int segments, unsigned int color, float x, float y, float z, float rot, float a,
+                             float radius, float angle) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(segments + 2);
+    if (v == 0) {
+        return;
+    }
+    Vector3 c(x, y, z);
+    v[0].mPos = c;
+    v[0].mColor = color;
+    Vector3 d(0.0f, 0.0f, radius);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot - angle * 0.5f);
+    PSMTXMultVec(m, &d, &d);
+    for (unsigned int i = 1; i < segments + 1; i++) {
+        v[i].mPos = d + c;
+        v[i].mColor = color;
+        Mtx step;
+        PSMTXRotRad(step, 'y', angle / (segments - 1));
+        PSMTXMultVec(step, &d, &d);
+    }
+    v[segments + 1].mPos = c;
+    v[segments + 1].mColor = color;
+    cmd->m04 = 0;
+    cmd->mPrim = 0xB0;
+    cmd->m10 = segments + 1;
+    cmd->mCount = segments + 2;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+}
+
 void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsigned int color) {
     ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
     if (cmd == 0) {
