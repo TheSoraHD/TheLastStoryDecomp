@@ -52,23 +52,23 @@ inline void SetConfig::Init_unk() {
     mEventSkipType = 1;
     mEventCameraControl = 0;
     memset(m88, 0, sizeof(m88));
-    mSoundType = 1;
-    mBgmVolume = 1.0f;
-    mSeVolume = 1.0f;
-    mVoiceVolume = 1.0f;
+    mSound.mSoundType = 1;
+    mSound.mBgmVolume = 1.0f;
+    mSound.mSeVolume = 1.0f;
+    mSound.mVoiceVolume = 1.0f;
     unsigned char mode = SCGetSoundMode();
     if (mode == 0) {
-        mSoundType = 2;
+        mSound.mSoundType = 2;
     } else if (mode == 2) {
-        mSoundType = 0;
+        mSound.mSoundType = 0;
     } else {
-        mSoundType = 1;
+        mSound.mSoundType = 1;
     }
     if (lbl_8087EFE8 != 0) {
-        lbl_8087EFE8->fn_800D0240(0, mBgmVolume, 0);
-        lbl_8087EFE8->fn_800D0240(1, mSeVolume, 0);
-        lbl_8087EFE8->fn_800D0240(2, mVoiceVolume, 0);
-        switch (mSoundType) {
+        lbl_8087EFE8->fn_800D0240(0, mSound.mBgmVolume, 0);
+        lbl_8087EFE8->fn_800D0240(1, mSound.mSeVolume, 0);
+        lbl_8087EFE8->fn_800D0240(2, mSound.mVoiceVolume, 0);
+        switch (mSound.mSoundType) {
         case 0:
             lbl_8087EFE8->mOutputMode = 2;
             break;
@@ -123,10 +123,10 @@ void SetConfig::fn_8057EAF0() {
     fn_800874C8(group, "EventSkipType", &mEventSkipType, 0, 3, 1, 0, 0);
     fn_80087994(group, "EventCameraControl", &mEventCameraControl, 0, 0);
     group = fn_8008937C(root, "Sound");
-    fn_800874C8(group, "SoundType", &mSoundType, 0, 3, 1, 0, 0);
-    fn_8008771C(group, "BGM Volume", &mBgmVolume, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_8008771C(group, "SE Volume", &mSeVolume, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_8008771C(group, "Voice Volume", &mVoiceVolume, 0, 0, 0.0f, 1.0f, 0.1f);
+    fn_800874C8(group, "SoundType", &mSound.mSoundType, 0, 3, 1, 0, 0);
+    fn_8008771C(group, "BGM Volume", &mSound.mBgmVolume, 0, 0, 0.0f, 1.0f, 0.1f);
+    fn_8008771C(group, "SE Volume", &mSound.mSeVolume, 0, 0, 0.0f, 1.0f, 0.1f);
+    fn_8008771C(group, "Voice Volume", &mSound.mVoiceVolume, 0, 0, 0.0f, 1.0f, 0.1f);
     fn_800874C8(root, "WindKey", &mWindKey, 0, 2, 1, 0, 0);
     fn_80087994(root, "PlayerHpBarShow", &mPlayerHpBarShow, 0, 0);
     fn_80087994(root, "DrawHateLine", &mDrawHateLine, 0, 0);
@@ -161,24 +161,24 @@ void SetConfig::fn_8057EF40() {
     mEventSkipType = 1;
     mEventCameraControl = 0;
     memset(m88, 0, sizeof(m88));
-    mSoundType = 1;
-    mBgmVolume = 1.0f;
-    mSeVolume = 1.0f;
-    mVoiceVolume = 1.0f;
+    mSound.mSoundType = 1;
+    mSound.mBgmVolume = 1.0f;
+    mSound.mSeVolume = 1.0f;
+    mSound.mVoiceVolume = 1.0f;
     unsigned char mode = SCGetSoundMode();
     if (mode == 0) {
-        mSoundType = 2;
+        mSound.mSoundType = 2;
     } else if (mode == 2) {
-        mSoundType = 0;
+        mSound.mSoundType = 0;
     } else {
-        mSoundType = 1;
+        mSound.mSoundType = 1;
     }
-    float bgmVolume = mBgmVolume;
+    float bgmVolume = mSound.mBgmVolume;
     if (lbl_8087EFE8 != 0) {
         lbl_8087EFE8->fn_800D0240(0, bgmVolume, 0);
-        lbl_8087EFE8->fn_800D0240(1, mSeVolume, 0);
-        lbl_8087EFE8->fn_800D0240(2, mVoiceVolume, 0);
-        switch (mSoundType) {
+        lbl_8087EFE8->fn_800D0240(1, mSound.mSeVolume, 0);
+        lbl_8087EFE8->fn_800D0240(2, mSound.mVoiceVolume, 0);
+        switch (mSound.mSoundType) {
         case 0:
             lbl_8087EFE8->mOutputMode = 2;
             break;
@@ -200,16 +200,16 @@ void SetConfig::fn_8057EF40() {
 void SetConfig::fn_8057F0F8() {
     unsigned char mode = SCGetSoundMode();
     if (mode == 0) {
-        mSoundType = 2;
+        mSound.mSoundType = 2;
     } else if (mode == 2) {
-        mSoundType = 0;
+        mSound.mSoundType = 0;
     } else {
-        mSoundType = 1;
+        mSound.mSoundType = 1;
     }
 }
 
 void SetConfig::fn_8057F154(int soundType) {
-    mSoundType = soundType;
+    mSound.mSoundType = soundType;
     if (soundType == 2) {
         lbl_8087EFE8->mOutputMode = 3;
     } else if (soundType == 0) {
@@ -227,15 +227,15 @@ void SetConfig::fn_8057F198(int value) {
 }
 
 void SetConfig::fn_8057F1B4(const SoundSettings_unk* settings) {
-    mSoundType = settings->mSoundType;
-    mBgmVolume = settings->mBgmVolume;
-    mSeVolume = settings->mSeVolume;
-    mVoiceVolume = settings->mVoiceVolume;
+    mSound.mSoundType = settings->mSoundType;
+    mSound.mBgmVolume = settings->mBgmVolume;
+    mSound.mSeVolume = settings->mSeVolume;
+    mSound.mVoiceVolume = settings->mVoiceVolume;
     if (lbl_8087EFE8 != 0) {
-        lbl_8087EFE8->fn_800D0240(0, mBgmVolume, 0);
-        lbl_8087EFE8->fn_800D0240(1, mSeVolume, 0);
-        lbl_8087EFE8->fn_800D0240(2, mVoiceVolume, 0);
-        switch (mSoundType) {
+        lbl_8087EFE8->fn_800D0240(0, mSound.mBgmVolume, 0);
+        lbl_8087EFE8->fn_800D0240(1, mSound.mSeVolume, 0);
+        lbl_8087EFE8->fn_800D0240(2, mSound.mVoiceVolume, 0);
+        switch (mSound.mSoundType) {
         case 0:
             lbl_8087EFE8->mOutputMode = 2;
             break;

@@ -57,10 +57,7 @@ public:
     int mEventSkipType;     // 0x80
     int mEventCameraControl; // 0x84
     unsigned char m88[0xC];
-    int mSoundType;         // 0x94
-    float mBgmVolume;       // 0x98
-    float mSeVolume;        // 0x9C
-    float mVoiceVolume;     // 0xA0
+    SoundSettings_unk mSound; // 0x94: inferred: copied as a whole by NewCampPartsOption::vf2C
     int mA4;
 
     virtual ~SetConfig(); // 0x8057E83C
