@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `batch-auto-50kb-atn` (2026-10-29, propuesta F, rama sin mergear): **8614 / 18215 funciones al 100%** (código 30,96%, fuzzy 52,99%), **372** ficheros enlazados, `main.dol: OK`. Fuente nueva de `atn/ColliTest_unk` (16/28) y `atn/EffectSystem_unk` (27/58); `atn/ComDrawTexture` y `atn/MaterialParser_unk` aplazadas (sus métodos se llaman como `extern "C"` con `self` desde otros ficheros: renombrar es decisión del usuario). Detalle en `docs/batch-auto-50kb-atn.md`.
-- Anteriores: `batch-auto-20kb-game` (E, primera mitad, `docs/batch-auto-20kb-game.md`; la segunda mitad va en `batch-auto-20kb-game-b`), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
+- `fb-materialparser` (2026-10-30, propuesta F-b, primera parte, sin mergear; sale de `batch-auto-50kb-atn`): **8696 / 18215 funciones al 100%** (código 31,03%), `main.dol: OK`. `atn/MaterialParser_unk` escrita como métodos (opción A), 18/35 al 100%; cabecera común `include/atn/Material_unk.h` (sustituye cuatro vistas del material). Detalle y decisiones en `docs/fb-materialparser.md`. `atn/ComDrawTexture` sigue pendiente.
+- Anteriores: `batch-auto-50kb-atn` (F, `docs/batch-auto-50kb-atn.md`), `batch-auto-20kb-game` (E, primera mitad, `docs/batch-auto-20kb-game.md`; la segunda mitad va en `batch-auto-20kb-game-b`), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
 - objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%. Tras editar una unidad ya emparejada: `resetlocal.py`, `pairdata.py --apply`, `configure`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
