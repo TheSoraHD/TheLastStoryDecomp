@@ -7,18 +7,12 @@
 #include "game/NpcManager.h"
 #include "game/ResHandle.h"
 #include "math/Vec.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 // inferred: debug drawing (as in game/GameSaveTask.cpp)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80060D58(void* draw, float x, float y, float z, float w, float h,
-                            unsigned int color); // inferred: rectangle
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, const char* text,
-                            unsigned int color, float f6, int a, int b, int c); // inferred: text
 // inferred: line from `from` to `to`
-extern "C" void fn_800638B0(void* draw, float a, float b, const atn::Vector3* from, const atn::Vector3* to,
-                            unsigned int color);
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
@@ -533,7 +527,7 @@ void TeamAIManager::vf14() {
         }
     }
     if (mDebug != 0) {
-        void* draw = lbl_8087EEB0;
+        atn::DrawHelper* draw = lbl_8087EEB0;
         if (draw != 0) {
             char buf[0x100];
             float z = -100.0f;
@@ -543,7 +537,7 @@ void TeamAIManager::vf14() {
             float h = 200.0f;
             float line = 15.0f;
             float size = 12.0f;
-            fn_80060D58(draw, x, y, z, w, h, 0x30000000);
+            draw->fn_80060D58(x, y, z, w, h, 0x30000000);
             float label1 = 5.0f + x;
             float mid = 0.5f * w + x;
             float label2 = 5.0f + mid;
@@ -551,67 +545,67 @@ void TeamAIManager::vf14() {
             float value2 = 82.0f + mid;
             TeamAI_unk* team = &mTeams.mData[mSelected];
             y = line;
-            fn_800616C0(draw, label1, y, z, size, size, "[Team]", 0xFFFFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "[Team]", 0xFFFFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "Index", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "Index", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", mSelected);
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "Type", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "Type", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             int type = team->mType;
             if (type == 1) {
-                fn_800616C0(draw, value1, y, z, size, size, "NPC", 0xD0FFFFFF, 0.0f, 1, 1, 0);
+                draw->fn_800616C0(value1, y, z, size, size, "NPC", 0xD0FFFFFF, 0.0f, 1, 1, 0);
             } else if (type == 2) {
-                fn_800616C0(draw, value1, y, z, size, size, "Enemy", 0xD0FFFFFF, 0.0f, 1, 1, 0);
+                draw->fn_800616C0(value1, y, z, size, size, "Enemy", 0xD0FFFFFF, 0.0f, 1, 1, 0);
             } else if (type == 3) {
-                fn_800616C0(draw, value1, y, z, size, size, "Friend", 0xD0FFFFFF, 0.0f, 1, 1, 0);
+                draw->fn_800616C0(value1, y, z, size, size, "Friend", 0xD0FFFFFF, 0.0f, 1, 1, 0);
             }
-            fn_800616C0(draw, label2, y, z, size, size, "ID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label2, y, z, size, size, "ID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", team->GetId_unk());
-            fn_800616C0(draw, value2, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value2, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "State", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "State", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%s", sStateNames[team->mState]);
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "AIType", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "AIType", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", team->mAIType);
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "MemberNum", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "MemberNum", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", team->mNumMembers);
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "BattleMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "BattleMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", team->mBattleMode);
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
-            fn_800616C0(draw, label2, y, z, size, size, "AreaID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label2, y, z, size, size, "AreaID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", team->mAreaID);
-            fn_800616C0(draw, value2, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value2, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "TgtCtrlMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "TgtCtrlMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", *team->mTgtCtrlMode.Last_unk());
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "TargetMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "TargetMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", team->mTargetMode);
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
-            fn_800616C0(draw, label2, y, z, size, size, "TargetType", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label2, y, z, size, size, "TargetType", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%d", team->mTargetType);
-            fn_800616C0(draw, value2, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value2, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
             y += 5.0f;
-            fn_800616C0(draw, label1, y, z, size, size, "HPRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "HPRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%.2f", fn_805AE454(team));
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "LdrHPRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "LdrHPRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%.2f", fn_805AE74C(team));
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
-            fn_800616C0(draw, label1, y, z, size, size, "MbrRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(label1, y, z, size, size, "MbrRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
             sprintf(buf, "%.2f", fn_805AE5E8(team));
-            fn_800616C0(draw, value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
 
             float height = 17.0f;
             int i;
@@ -621,9 +615,9 @@ void TeamAIManager::vf14() {
                 atn::Vector3 pos = chara->mPos;
                 pos.y += height;
                 if (chara == team->GetLeader_unk()) {
-                    fn_800638B0(draw, 0.0f, 7.0f, &(pos + atn::Vector3(0.0f, 15.0f, 0.0f)), &pos, 0xFFFFFF00);
+                    draw->fn_800638B0(0.0f, 7.0f, (pos + atn::Vector3(0.0f, 15.0f, 0.0f)), pos, 0xFFFFFF00);
                 } else {
-                    fn_800638B0(draw, 0.0f, 7.0f, &(pos + atn::Vector3(0.0f, 15.0f, 0.0f)), &pos, 0xFF00FFFF);
+                    draw->fn_800638B0(0.0f, 7.0f, (pos + atn::Vector3(0.0f, 15.0f, 0.0f)), pos, 0xFF00FFFF);
                 }
             }
             if (fn_805AE7B4(team) > 0) {
@@ -635,8 +629,7 @@ void TeamAIManager::vf14() {
                         for (int j = 0; j < other->mNumMembers; j++) {
                             atn::Vector3 pos = members[j]->mPos;
                             pos.y += height;
-                            fn_800638B0(draw, 0.0f, 7.0f, &(pos + atn::Vector3(0.0f, 15.0f, 0.0f)), &pos,
-                                        0xFFFF00FF);
+                            draw->fn_800638B0(0.0f, 7.0f, (pos + atn::Vector3(0.0f, 15.0f, 0.0f)), pos, 0xFFFF00FF);
                         }
                     }
                 }

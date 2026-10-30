@@ -1,5 +1,6 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "game/Inventory.h"
+#include "atn/DrawHelper.h"
 
 // inferred: character task of a multiplayer player; only the flags used here
 struct MpCharaTask_unk : public atn::Task {
@@ -149,10 +150,6 @@ extern "C" MpCampMsgTable_unk* lbl_8087F1E4;
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80061824(void* draw, const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2, float x, float y, float z, float w, float h, float f6, float f7,
-                            float f8);
 
 // inferred: unused locals (only their partially removed initialisation is left in the original)
 struct MpPoint_unk {
@@ -612,11 +609,9 @@ void D2AMpMenuResult::vf14() {
         float y = 42.0f;
         float x = 319.0f;
         float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 5);
-        fn_80061824(lbl_8087EEB0, text, 0xFF000000, 1, 5, 0, 0, 0xFF000000, x + 1.0f - 0.5f * w, y, -10.0f, 24.0f,
-                    24.0f, 0.0f, 0.0f, 0.0f);
+        lbl_8087EEB0->fn_80061824(x + 1.0f - 0.5f * w, y, -10.0f, 24.0f, 24.0f, 0.0f, 0.0f, 0.0f, text, 0xFF000000, 1, 5, 0, 0, 0xFF000000);
         w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 4);
-        fn_80061824(lbl_8087EEB0, text, 0xFFFFFFFF, 1, 4, 0, 0, 0xFF000000, x - 0.5f * w, y, -10.0f, 24.0f, 24.0f,
-                    0.0f, 0.0f, 0.0f);
+        lbl_8087EEB0->fn_80061824(x - 0.5f * w, y, -10.0f, 24.0f, 24.0f, 0.0f, 0.0f, 0.0f, text, 0xFFFFFFFF, 1, 4, 0, 0, 0xFF000000);
         break;
     }
     case 6:

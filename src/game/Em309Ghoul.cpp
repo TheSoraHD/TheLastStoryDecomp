@@ -8,6 +8,7 @@
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include <string.h>
+#include "atn/DrawHelper.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -29,10 +30,6 @@ struct GhoulMsgTable_unk {
 };
 extern "C" GhoulMsgTable_unk* lbl_8087F1E4;
 // inferred: debug drawing (lbl_8087EEB0, see game/CharaTask.cpp)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_800638B0(void* draw, float a, float b, const atn::Vector3* from, const atn::Vector3* to,
-                            unsigned int color);
-extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, float radius, int color, float arg);
 
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -127,10 +124,6 @@ extern "C" double fmod(double x, double y);
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int arg, float angle); // inferred: fires a bullet (as in game/Em205Ogre.cpp)
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, float f6, const char* text,
-                            unsigned int color, int a, int b, int c); // inferred: text (as in game/ChaserNpc.cpp)
-extern "C" void fn_80063200(void* draw, int arg, unsigned int color, float x, float y, float z, float a,
-                            float b); // inferred: debug cross (as in gmk/CharaPathMove.cpp)
 
 // NONMATCHING: 96.97% - registers of the inlined FindPlace_unk loops (the original keeps the table in r11 for
 // all of them) and scheduling of the stores of the ids 0x44D-0x452; ~4 variants
@@ -324,7 +317,7 @@ void Em309Ghoul::vf10() {
                 fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
             }
             if (m1690 != 0) {
-                fn_80063D3C(lbl_8087EEB0, &mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64A)->m40, 0xFFFF0000, 0.0f);
+                lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64A)->m40, 0.0f, 0xFFFF0000);
             }
             break;
         }
@@ -341,7 +334,7 @@ void Em309Ghoul::vf10() {
                 fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
             }
             if (m1690 != 0) {
-                fn_80063D3C(lbl_8087EEB0, &mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64B)->m40, 0xFFFF0000, 0.0f);
+                lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64B)->m40, 0.0f, 0xFFFF0000);
             }
             break;
         }
@@ -386,7 +379,7 @@ void Em309Ghoul::vf10() {
     if (m1690 == 0) {
         return;
     }
-    fn_80063D3C(lbl_8087EEB0, &mPos, m1694, 0xFFFFFF00, 0.0f);
+    lbl_8087EEB0->fn_80063D3C(mPos, m1694, 0.0f, 0xFFFFFF00);
     if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x50)) {
         fn_803010BC();
     }
@@ -407,20 +400,20 @@ void Em309Ghoul::vf10() {
         ResetState_unk();
     }
     if (m166A == 0) {
-        fn_80063200(lbl_8087EEB0, 1, 0xFF0000FF, m1608.x, m1608.y, m1608.z, 1000.0f, 10.0f);
+        lbl_8087EEB0->fn_80063200(1, 0xFF0000FF, m1608.x, m1608.y, m1608.z, 1000.0f, 10.0f);
     }
     char buf[0x68];
     sprintf(buf, "%3f %3f %3f", mRot.x, mRot.y, mRot.z);
-    fn_800616C0(lbl_8087EEB0, 100.0f, 100.0f, 1000.0f, 15.0f, 15.0f, 0.0f, buf, 0xFF0000FF, 1, 1, 0);
+    lbl_8087EEB0->fn_800616C0(100.0f, 100.0f, 1000.0f, 15.0f, 15.0f, buf, 0xFF0000FF, 0.0f, 1, 1, 0);
     if (fn_80304B40()) {
         char text[0x78];
         sprintf(text, "!");
-        fn_800616C0(lbl_8087EEB0, 300.0f, 100.0f, 1000.0f, 10.0f, 10.0f, 0.0f, text, 0xFFFF0000, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(300.0f, 100.0f, 1000.0f, 10.0f, 10.0f, text, 0xFFFF0000, 0.0f, 1, 1, 0);
     }
-    fn_80063D3C(lbl_8087EEB0, &m1618, 10.0f, -1, 1000.0f);
-    fn_800638B0(lbl_8087EEB0, 1000.0f, -1.0f, &m1618, &(m1618 + m15F4), -1);
+    lbl_8087EEB0->fn_80063D3C(m1618, 10.0f, 1000.0f, -1);
+    lbl_8087EEB0->fn_800638B0(1000.0f, -1.0f, m1618, m1618 + m15F4, -1);
     if (m1668 != 0) {
-        fn_80063D3C(lbl_8087EEB0, &m1518->mPos, m1694, 0xFF000000, 10000.0f);
+        lbl_8087EEB0->fn_80063D3C(m1518->mPos, m1694, 10000.0f, 0xFF000000);
     }
 }
 
@@ -609,7 +602,7 @@ void Em309Ghoul::vf54() {
         m624.mData[2].m04.mCenter.y += 0.5f * m16F0;
     }
     if (m1690 != 0) {
-        fn_80063D3C(lbl_8087EEB0, &m624.mData[1].m04.mCenter, 20.0f, 0xFFFF00FF, 1000.0f);
+        lbl_8087EEB0->fn_80063D3C(m624.mData[1].m04.mCenter, 20.0f, 1000.0f, 0xFFFF00FF);
     }
 }
 
@@ -1272,8 +1265,6 @@ void Em309Ghoul::vfEC() {
 }
 
 
-extern "C" void fn_80063764(void* draw, const atn::Vector3* a, const atn::Vector3* b, unsigned int color,
-                            float width); // inferred: line
 
 // inferred: rotates `m` around `axis` when the angle is not zero (as in fn_80302B84; name invented)
 inline void GhoulRotate_unk(atn::Matrix3x4& m, char axis, float rad) {
@@ -1384,8 +1375,8 @@ void Em309Ghoul::fn_80301DDC() {
             PSMTXMultVec(mb.m, &b, &b);
             PSMTXRotRad(rb, 'y', 0.017453292f * (m16A4 * 0.5f));
             PSMTXMultVec(rb, &b, &b);
-            fn_80063764(lbl_8087EEB0, &mPos, &(a + mPos), Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32(), 100.0f);
-            fn_80063764(lbl_8087EEB0, &mPos, &(b + mPos), Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32(), 100.0f);
+            lbl_8087EEB0->fn_80063764(mPos, a + mPos, 100.0f, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32());
+            lbl_8087EEB0->fn_80063764(mPos, b + mPos, 100.0f, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32());
         }
     }
 }
@@ -1516,7 +1507,7 @@ void Em309Ghoul::fn_80302B84() {
         }
         mRot.y += 0.11219973f;
         if (m1690 != 0) {
-            fn_80063D3C(lbl_8087EEB0, &hand, 10.0f, 0xFFFF0000, 10000.0f);
+            lbl_8087EEB0->fn_80063D3C(hand, 10.0f, 10000.0f, 0xFFFF0000);
         }
     }
 }
@@ -2030,10 +2021,8 @@ int Em309Ghoul::fn_80304B40() {
                 atn::Vector3* l = lines[j];
                 l[0].Set_unk(m1638[j][0].x, 30.0f, m1638[j][0].y);
                 l[1].Set_unk(m1638[j][1].x, 30.0f, m1638[j][1].y);
-                fn_80063764(lbl_8087EEB0, &l[0], &l[1], Color4f_unk(255.0f, 0.0f, 0.0f, 255.0f).ToU32(),
-                            5000.0f);
-                fn_80063764(lbl_8087EEB0, &leader->mPos, &mPos, Color4f_unk(0.0f, 0.0f, 255.0f, 255.0f).ToU32(),
-                            1000.0f);
+                lbl_8087EEB0->fn_80063764(l[0], l[1], 5000.0f, Color4f_unk(255.0f, 0.0f, 0.0f, 255.0f).ToU32());
+                lbl_8087EEB0->fn_80063764(leader->mPos, mPos, 1000.0f, Color4f_unk(0.0f, 0.0f, 255.0f, 255.0f).ToU32());
             }
         }
     }
@@ -2194,7 +2183,7 @@ void Em309Ghoul::fn_803057A8() {
 void Em309Ghoul::vf14() {
     BattleCharaTask::vf14();
     if (m1690 != 0) {
-        fn_800638B0(lbl_8087EEB0, 1000.0f, -1.0f, &mPos, &(m15D8 * 100.0f + mPos), 0xFF0000FF);
-        fn_80063D3C(lbl_8087EEB0, &m1608, m16E0, -1, 1000.0f);
+        lbl_8087EEB0->fn_800638B0(1000.0f, -1.0f, mPos, m15D8 * 100.0f + mPos, 0xFF0000FF);
+        lbl_8087EEB0->fn_80063D3C(m1608, m16E0, 1000.0f, -1);
     }
 }

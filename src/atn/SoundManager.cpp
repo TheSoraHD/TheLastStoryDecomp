@@ -33,11 +33,6 @@ extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, i
 extern "C" void fn_8008771C(void* menu, const char* name, float* value, int callback, int arg, float min, float max,
                             float step);
 // inferred: debug drawing (atn::DrawHelper)
-extern "C" void fn_80060D58(atn::DrawHelper* draw, unsigned int color, float x, float y, float z, float w, float h);
-extern "C" void fn_800616C0(atn::DrawHelper* draw, float x, float y, float z, float w, float h, float angle,
-                            const char* text, unsigned int color, int arg6, int arg7, int arg8);
-extern "C" void fn_80063D3C(atn::DrawHelper* draw, const atn::Vector3* pos, unsigned int color, float radius,
-                            float arg);
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void* lbl_8087EFB4;
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -370,21 +365,21 @@ extern "C" void fn_800CE9A4(atn::SoundCore* sound, float x, float y, float z, fl
             break;
         }
     }
-    fn_80060D58(lbl_8087EEB0, 0x66888888, x, y, z, w, h);
+    lbl_8087EEB0->fn_80060D58(x, y, z, w, h, 0x66888888);
     atn::DrawHelper* draw = lbl_8087EEB0;
-    fn_80060D58(draw, color, x, y, z, w * sound->fn_800CACEC(), h);
+    draw->fn_80060D58(x, y, z, w * sound->fn_800CACEC(), h, color);
     char buf[0x100];
     sprintf(buf, "%.2f%%", 100.0f * sound->fn_800CACEC());
-    fn_800616C0(lbl_8087EEB0, 1.0f + (2.0f + x), 1.0f + y, z, h, h, 0.0f, buf, 0xCC000000, 1, 0, 0);
-    fn_800616C0(lbl_8087EEB0, 2.0f + x, y, z, h, h, 0.0f, buf, 0xCCFFFFFF, 1, 0, 0);
+    lbl_8087EEB0->fn_800616C0(1.0f + (2.0f + x), 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 0, 0);
+    lbl_8087EEB0->fn_800616C0(2.0f + x, y, z, h, h, buf, 0xCCFFFFFF, 0.0f, 1, 0, 0);
     if (sound->fn_800CA028()) {
-        fn_800616C0(lbl_8087EEB0, 1.0f + (5.0f + (x + w)), 1.0f + y, z, h, h, 0.0f, "Loading...", 0xCC000000, 1, 0, 0);
-        fn_800616C0(lbl_8087EEB0, 5.0f + (x + w), y, z, h, h, 0.0f, "Loading...", 0xCCFFFFFF, 1, 0, 0);
+        lbl_8087EEB0->fn_800616C0(1.0f + (5.0f + (x + w)), 1.0f + y, z, h, h, "Loading...", 0xCC000000, 0.0f, 1, 0, 0);
+        lbl_8087EEB0->fn_800616C0(5.0f + (x + w), y, z, h, h, "Loading...", 0xCCFFFFFF, 0.0f, 1, 0, 0);
     } else {
         int length = sound->fn_800CA910();
         sprintf(buf, "%6d / %6d\0", sound->fn_800CAA88(), length);
-        fn_800616C0(lbl_8087EEB0, 1.0f + (5.0f + (x + w)), 1.0f + y, z, h, h, 0.0f, buf, 0xCC000000, 1, 0, 0);
-        fn_800616C0(lbl_8087EEB0, 5.0f + (x + w), y, z, h, h, 0.0f, buf, 0xCCFFFFFF, 1, 0, 0);
+        lbl_8087EEB0->fn_800616C0(1.0f + (5.0f + (x + w)), 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 0, 0);
+        lbl_8087EEB0->fn_800616C0(5.0f + (x + w), y, z, h, h, buf, 0xCCFFFFFF, 0.0f, 1, 0, 0);
     }
 }
 
@@ -402,7 +397,7 @@ void SoundManager::fn_800CECF0() {
     if (mDebugLevel == 1) {
         float y = 20.0f;
         for (SoundLogEntry_unk* it = mLog.begin(); it != mLog.end(); it++) {
-            fn_800616C0(lbl_8087EEB0, x, y, z, h, h, 0.0f, it->mText.mText, -1, 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(x, y, z, h, h, it->mText.mText, -1, 0.0f, 1, 1, 0);
             y += h;
         }
     }
@@ -422,7 +417,7 @@ void SoundManager::fn_800CECF0() {
                     float volume = sound.fn_800CA844();
                     sprintf(buf, "[%s] Vol:%.2f", sound.fn_800CA834(), volume);
                 }
-                fn_800616C0(lbl_8087EEB0, x, y, z, h, h, 0.0f, buf, -1, 1, 1, 0);
+                lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, -1, 0.0f, 1, 1, 0);
                 y += h;
             }
         }
@@ -441,9 +436,8 @@ void SoundManager::fn_800CECF0() {
                     if (sound.mHandle.mSound == 0 && sound.mA4 > 0) {
                         color = 0xFFFF0000;
                     }
-                    fn_80063D3C(lbl_8087EEB0, &sound.m08.mActor.mPosition, color, 2.0f, 0.0f);
-                    fn_800616C0(lbl_8087EEB0, screen.x, screen.y, 0.0f, 12.0f, 12.0f, 0.0f, sound.fn_800CA834(), -1, 1,
-                                1, 0);
+                    lbl_8087EEB0->fn_80063D3C(sound.m08.mActor.mPosition, 2.0f, 0.0f, color);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, sound.fn_800CA834(), -1, 0.0f, 1, 1, 0);
                 }
             }
         }
@@ -465,8 +459,8 @@ void SoundManager::fn_800CECF0() {
                         category, scope);
                 color = 0xCCFFFFFF;
             }
-            fn_800616C0(lbl_8087EEB0, 1.0f + x, 1.0f + y, z, h, h, 0.0f, buf, 0xCC000000, 1, 1, 0);
-            fn_800616C0(lbl_8087EEB0, x, y, z, h, h, 0.0f, buf, color, 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(1.0f + x, 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, color, 0.0f, 1, 1, 0);
             if (mDebugLevel == 8) {
                 fn_800CE9A4(&sound, x + 330.0f, y, z, 60.0f, h);
             }
@@ -482,12 +476,12 @@ void SoundManager::fn_800CECF0() {
             color = -1;
             for (unsigned int i = 0; i < engine->mBankCount; i++) {
                 sprintf(line, "%02d: %s\0", i, engine->mBanks + i * 0x54);
-                fn_800616C0(lbl_8087EEB0, x, y, z, h, h, 0.0f, line, -1, 1, 1, 0);
+                lbl_8087EEB0->fn_800616C0(x, y, z, h, h, line, -1, 0.0f, 1, 1, 0);
                 y += h;
             }
         }
         sprintf(line, "Reverb:%d <- %d\0", lbl_8087EE90->m8BC, lbl_8087EE90->m8C0);
-        fn_800616C0(lbl_8087EEB0, x, y, z, h, h, 0.0f, line, color, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(x, y, z, h, h, line, color, 0.0f, 1, 1, 0);
     }
     if (mDebugLevel == 6 || mDebugLevel == 7) {
         float y = 20.0f;
@@ -500,8 +494,8 @@ void SoundManager::fn_800CECF0() {
                 } else {
                     sprintf(buf, "[%d] Vol:%.2f", sound.m98, sound.fn_800CA844());
                 }
-                fn_800616C0(lbl_8087EEB0, 1.0f + x, 1.0f + y, z, h, h, 0.0f, buf, 0xCC000000, 1, 1, 0);
-            fn_800616C0(lbl_8087EEB0, x, y, z, h, h, 0.0f, buf, 0xCCFFFFFF, 1, 1, 0);
+                lbl_8087EEB0->fn_800616C0(1.0f + x, 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, 0xCCFFFFFF, 0.0f, 1, 1, 0);
                 fn_800CE9A4(&sound, x + 180.0f, y, z, 60.0f, h);
                 y += h;
             }

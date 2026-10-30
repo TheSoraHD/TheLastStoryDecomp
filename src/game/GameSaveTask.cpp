@@ -1,5 +1,6 @@
 #include "game/GameSaveBackground.h"
 #include "atn/Memory.h"
+#include "atn/DrawHelper.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -9,12 +10,6 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" void* lbl_8087F518;
 extern "C" void fn_8046ECDC(void* obj, int arg);
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_80060D58(void* draw, float x, float y, float z, float w, float h,
-                            unsigned int color); // inferred: rectangle
-// inferred: text (the float after the color is evaluated after it: see vf14)
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, const char* text,
-                            unsigned int color, float f6, int a, int b, int c);
 
 // inferred from __vt__12GameSaveTask (0x8078B508): debug save menu (slot list, overwrite prompt)
 class GameSaveTask : public GameSaveLoadCommon {
@@ -139,16 +134,14 @@ void GameSaveTask::vf14() {
     fn_803B8B08(mSlots);
     switch (mD6C) {
     case 2:
-        fn_80060D58(lbl_8087EEB0, 180.0f, 180.0f, 0.0f, 200.0f, 200.0f, 0xFF000000);
-        fn_800616C0(lbl_8087EEB0, 200.0f, 200.0f, 0.0f, 16.0f, 16.0f, "上書きしますか？", 0xFFFFFFFF, 0.0f, 1, 1, 0);
-        fn_800616C0(lbl_8087EEB0, 250.0f, 240.0f, 0.0f, 16.0f, 16.0f, "はい",
-                    mD68 != 0 ? 0xFFFFFF00 : 0xFFFFFFFF, 0.0f, 1, 1, 0);
-        fn_800616C0(lbl_8087EEB0, 250.0f, 260.0f, 0.0f, 16.0f, 16.0f, "いいえ",
-                    mD68 == 0 ? 0xFFFFFF00 : 0xFFFFFFFF, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_80060D58(180.0f, 180.0f, 0.0f, 200.0f, 200.0f, 0xFF000000);
+        lbl_8087EEB0->fn_800616C0(200.0f, 200.0f, 0.0f, 16.0f, 16.0f, "上書きしますか？", 0xFFFFFFFF, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(250.0f, 240.0f, 0.0f, 16.0f, 16.0f, "はい", mD68 != 0 ? 0xFFFFFF00 : 0xFFFFFFFF, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(250.0f, 260.0f, 0.0f, 16.0f, 16.0f, "いいえ", mD68 == 0 ? 0xFFFFFF00 : 0xFFFFFFFF, 0.0f, 1, 1, 0);
         break;
     case 4:
-        fn_80060D58(lbl_8087EEB0, 180.0f, 180.0f, 0.0f, 200.0f, 200.0f, 0xFF000000);
-        fn_800616C0(lbl_8087EEB0, 200.0f, 200.0f, 0.0f, 16.0f, 16.0f, "セーブ中です", 0xFFFFFFFF, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_80060D58(180.0f, 180.0f, 0.0f, 200.0f, 200.0f, 0xFF000000);
+        lbl_8087EEB0->fn_800616C0(200.0f, 200.0f, 0.0f, 16.0f, 16.0f, "セーブ中です", 0xFFFFFFFF, 0.0f, 1, 1, 0);
         break;
     }
 }

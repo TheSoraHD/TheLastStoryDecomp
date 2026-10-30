@@ -42,6 +42,7 @@ extern "C" StrapRender_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was pressed
 #include "atn/SequenceBoot_unk.h"
+#include "atn/DrawHelper.h"
 extern "C" void* lbl_8087F9A0;
 extern "C" void fn_8057155C(void* obj, int arg);
 
@@ -139,16 +140,10 @@ struct StrapMsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" StrapMsgTable_unk* lbl_8087F1E4;
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
 extern "C" void* lbl_8087EEC8; // inferred: font
 extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, int arg2, int font,
                             void* callback, float maxWidth, float size, float spacing); // inferred: splits the lines
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
-extern "C" void fn_8005DFC8(void* renderer, unsigned int color, atn::Texture_unk* tex, int arg, float x, float y,
-                            float z, float w, float h); // inferred: draw texture
 
 // inferred: draws a texture of texW x texH over the screen (4:3 or 16:9); name invented
 inline float Ratio_unk(int a, int b) {
@@ -178,7 +173,7 @@ inline void DrawScreen_unk(atn::Texture_unk* tex, unsigned int color, float texW
     float s = (sy * fx) / ky;
     w /= s;
     float x = 0.5f * (scrW * s - texW) + x0;
-    fn_8005DFC8(lbl_8087EEB0, color, tex, 1, x, 0.0f, 0.0f, w, h);
+    lbl_8087EEB0->fn_8005DFC8(color, tex, 1, x, 0.0f, 0.0f, w, h);
 }
 
 // NONMATCHING: 85.9% - FPR allocation (alpha in f31 vs f29, constants of the line loop) and the
@@ -205,8 +200,7 @@ void StrapTask::vf14() {
             float x = 0.5f * (640.0f - w);
             float y = 30.0f * i + 50.0f;
             unsigned int color = ((unsigned int)(255.0f * alpha) << 24) | 0xFFFFFF;
-            fn_80061824(lbl_8087EEB0, x, y, 0.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f,
-                        lines[i].c_str(), color, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, 0.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, lines[i].c_str(), color, 1, 1, 0, 0, 0xFF000000);
         }
         return;
     }

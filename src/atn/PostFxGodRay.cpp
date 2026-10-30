@@ -5,6 +5,7 @@
 #include "atn/LoadHandle.h"
 #include "atn/Sphere.h"
 #include "math/Vec.h"
+#include "atn/DrawHelper.h"
 
 extern "C" void GXSetIndTexOrder(int stage, int coord, int map);
 extern "C" void GXSetIndTexCoordScale(int stage, int scaleS, int scaleT);
@@ -73,10 +74,6 @@ struct GodRayFrameBuffer_unk {
     GXTexObj m77C; // 0x77C: inferred: color texture
 };
 
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_8005DF90(void* dbg, int color, GXTexObj* obj, int arg, float x, float y, float z, float w,
-                            float h);
-extern "C" void fn_800610A4(void* dbg, unsigned int color, float x, float y, float z, float w, float h); // inferred: rect
 extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 extern "C" GodRayOverride_unk* fn_800C1424(PostFxFrameBuffer_unk* fb);
 extern "C" void fn_800BFAC8(atn::Vector3* out, PostFxFrameBuffer_unk* fb, const atn::Vector3* pos); // inferred: to screen
@@ -334,7 +331,7 @@ void PostFxGodRay::fn_800AEF68() {
                 x1 = x1 < gGodRayRectMaxX_unk ? gGodRayRectMaxX_unk : (x1 > fw ? fw : x1);
                 float y1 = scr.y + sph.mRadius;
                 y1 = y1 < gGodRayRectMaxY_unk ? gGodRayRectMaxY_unk : (y1 > fh ? fh : y1);
-                fn_800610A4(lbl_8087EEB0, 0xFFFF0000, x0, y0, 0.0f, x1 - x0, y1 - y0);
+                lbl_8087EEB0->fn_800610A4(0xFFFF0000, x0, y0, 0.0f, x1 - x0, y1 - y0);
             }
         }
         break;
@@ -513,10 +510,8 @@ void PostFxGodRay::vf10(void* camera) {
     fn_80075F58(lbl_8087EEE0, 0, 0, fullW, fullH);
     fn_800BFB70(lbl_8087EFB4);
     if (lbl_8087EFA8->mGodRay.mDebug != 0) {
-        fn_8005DF90(lbl_8087EEB0, -1, &((GodRayFrameBuffer_unk*)lbl_8087EFB4)->m77C, 0, 16.0f, 16.0f, 0.0f,
-                    (float)fullW / 3.0f, (float)fullH / 3.0f);
-        fn_8005DF90(lbl_8087EEB0, -1, &m08, 0, 16.0f, 32.0f + (float)fullH / 3.0f, 0.0f, (float)fullW / 3.0f,
-                    (float)fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &((GodRayFrameBuffer_unk*)lbl_8087EFB4)->m77C, 0, 16.0f, 16.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &m08, 0, 16.0f, 32.0f + (float)fullH / 3.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);
     }
 }
 

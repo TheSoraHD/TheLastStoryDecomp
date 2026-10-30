@@ -1,6 +1,7 @@
 #include "atn/D2A_Message.h"
 #include "std/string_members.h"
 #include "std/vector.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -31,11 +32,6 @@ extern "C" D2A_Icons_unk* lbl_8087F138;
 extern "C" void fn_801F10E0(D2A_Icons_unk* icons, int icon, D2A_IconRect_unk* rect, float alpha);
 extern "C" float fn_801F1E7C(int icon, float size); // inferred: width of an icon
 
-struct Renderer2D_unk;
-extern "C" Renderer2D_unk* lbl_8087EEB0;
-extern "C" void fn_80061824(Renderer2D_unk* renderer, const wchar_t* text, unsigned int color, int arg3, int font,
-                            int outline, int outlineMode, unsigned int outlineColor, float x, float y, float z,
-                            float size, float h, float f6, float outlineX, float outlineY);
 struct TextMgr_unk;
 extern "C" TextMgr_unk* lbl_8087EEC8;
 extern "C" float fn_8006EF48(TextMgr_unk* mgr, const wchar_t* text, int arg2, int font, float size, float spacing);
@@ -165,8 +161,7 @@ void D2A_Message::vf18() {
                 int outlined = mOutline;
                 unsigned int c = (MsgToU8_unk(color.a) << 24) | (MsgToU8_unk(color.r) << 16) |
                                  (MsgToU8_unk(color.g) << 8) | MsgToU8_unk(color.b);
-                fn_80061824(lbl_8087EEB0, text, c, 1, mFont, outlined, m0E, oc, x, rect.y, rect.z, rect.w, rect.h,
-                            0.0f, outline.x, outline.y);
+                lbl_8087EEB0->fn_80061824(x, rect.y, rect.z, rect.w, rect.h, 0.0f, outline.x, outline.y, text, c, 1, mFont, outlined, m0E, oc);
                 x += fn_8006EF48(lbl_8087EEC8, text, 1, mFont, rect.w, 0.0f);
             } else {
                 D2A_IconRect_unk iconRect;

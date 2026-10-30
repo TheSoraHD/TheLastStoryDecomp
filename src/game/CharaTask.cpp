@@ -55,6 +55,7 @@
 #include <boost/tokenizer.hpp>
 #include "macros.h"
 #include "game/Input_unk.h"
+#include "atn/DrawHelper.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -397,12 +398,7 @@ inline bool IsArenaMode_unk(int mode) {
 }
 
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
-extern "C" void* lbl_8087EEB0;
 extern "C" void* lbl_8087EEC8;
-extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, float radius, int color, float arg); // inferred: sphere
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
@@ -5183,7 +5179,7 @@ inline const wchar_t* SelectText_unk(int kind, const wchar_t* normal, const wcha
 
 // inferred: names invented
 inline void DrawSphere_unk(const CharaTask::Sphere_unk sphere) {
-    fn_80063D3C(lbl_8087EEB0, &sphere.mCenter, sphere.mRadius, -1, 0.0f);
+    lbl_8087EEB0->fn_80063D3C(sphere.mCenter, sphere.mRadius, 0.0f, -1);
 }
 
 // inferred: fields where the shadow follows the height of the player (name invented)
@@ -5524,31 +5520,27 @@ void CharaTask::fn_80149A30() {
         fn_800BFAC8(&screen, lbl_8087EFB4, &mPos);
         float y = screen.y - 40.0f;
         if (lbl_8087F0A8->m34 != 0 && dist < 62500.0f) {
-            fn_80063D3C(lbl_8087EEB0, &m614, m620, 0xFFFFFF00, 0.0f);
+            lbl_8087EEB0->fn_80063D3C(m614, m620, 0.0f, 0xFFFFFF00);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 wchar_t text[256];
                 sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
                 fn_8006F2F0(lbl_8087EEC8, text, lbl_807C7B28, 256);
                 float w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
-                fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
-                            0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"ControlMode %d, %d", m55C, m560);
                 w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
-                fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
-                            0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"Motion(blend, speed) wt(%.2f, %.2f) wk(%.2f, %.2f) rn(%.2f, %.2f)",
                          mMotion.fn_8013C3E4(0), mMotion.GetMotionSpeed(0), mMotion.fn_8013C3E4(1),
                          mMotion.GetMotionSpeed(1), mMotion.fn_8013C3E4(2), mMotion.GetMotionSpeed(2));
                 w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
-                fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
-                            0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"inertia %.2f", m570);
                 w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
-                fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
-                            0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
             }
         }
@@ -5563,8 +5555,7 @@ void CharaTask::fn_80149A30() {
                 sprintf(buf, "Area: ---\0", area->mName);
             }
             fn_8006F2F0(lbl_8087EEC8, text, buf, 256);
-            fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
-                        0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
             y += 12.0f;
         }
         if (lbl_8087F0A8->m54 != 0 && mType != 5 && dist < 62500.0f && screen.z > 0.0f && screen.z < 1.0f) {
@@ -5574,8 +5565,7 @@ void CharaTask::fn_80149A30() {
             sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
             sprintf(buf, "%d: %s (%s)\0", m58, m60->m0C, lbl_807C7B28);
             fn_8006F2F0(lbl_8087EEC8, text, buf, 256);
-            fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
-                        0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
             y += 12.0f;
             if (mType == 0) {
                 swprintf(text, 256, L"Lv %d   Life %d   Ten %.3f   Explosion %.3f", mStatus.mParamB.m78,
@@ -5585,28 +5575,23 @@ void CharaTask::fn_80149A30() {
             } else {
                 swprintf(text, 256, L"Lv %d   Ten %.3f", mStatus.mParamB.m78, mStatus.m228);
             }
-            fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
-                        0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
             y += 12.0f;
             swprintf(text, 256, L"HP %.2f   MP %.2f   %c", mStatus.m04, mStatus.m08,
                      mStatus.IsState_unk(0x20) ? 'D' : ' ');
-            fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
-                        0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
             y += 12.0f;
             swprintf(text, 256, L"Atk %.2f   MAtk %.2f", mStatus.mParamB.m00, mStatus.mParamB.m04);
-            fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
-                        0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
             y += 12.0f;
             swprintf(text, 256, L"Def %.2f   MDef %.2f", mStatus.mParamB.m08, mStatus.mParamB.m0C);
-            fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
-                        0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
             y += 12.0f;
             for (unsigned int i = 0; i < m12D0.mCount; i++) {
                 CharaHit_unk* hit = &m12D0.mData[i];
                 if (hit->mHit != 0 && hit->m04 == 0) {
                     fn_800DD3FC(text, L"CIRCLE [%d:%s] count=%d\0", hit->mHit->m04, hit->mHit->m08, hit->m08);
-                    fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1,
-                                1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
                     y += 12.0f;
                 }
             }
@@ -5614,8 +5599,7 @@ void CharaTask::fn_80149A30() {
                 CharaStatusRef_unk* ref = &mStatus.mRefs.mData[i];
                 if (fn_8021BE98(name, ref->mEntry) != 0) {
                     fn_800DD3FC(text, L"SP [%s] count=%d\0", name, ref->m0C);
-                    fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1,
-                                1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
                     y += 12.0f;
                 }
             }
@@ -5623,8 +5607,7 @@ void CharaTask::fn_80149A30() {
                 if (mStatus.IsState_unk(1 << i)) {
                     sprintf(buf, "COND [%s] count=%d\0", sStatusNames_unk[i], mStatus.fn_801333A4(1 << i));
                     fn_8006F2F0(lbl_8087EEC8, text, buf, 256);
-                    fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1,
-                                1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
                     y += 12.0f;
                 }
             }
@@ -5664,8 +5647,7 @@ void CharaTask::fn_80149A30() {
                 atn::Vector3 screen;
                 fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
-                    fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text,
-                                0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
                 }
             } else if (mStatus.IsState_unk(1)) {
                 atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
@@ -5675,8 +5657,7 @@ void CharaTask::fn_80149A30() {
                 atn::Vector3 screen;
                 fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
-                    fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text,
-                                0xD0AA88AA, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xD0AA88AA, 1, 1, 0, 0, 0xFF000000);
                 }
             } else if (mStatus.IsState_unk(0x400000)) {
                 atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
@@ -5686,8 +5667,7 @@ void CharaTask::fn_80149A30() {
                 atn::Vector3 screen;
                 fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
-                    fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text,
-                                0xC0AA88FF, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xC0AA88FF, 1, 1, 0, 0, 0xFF000000);
                 }
             }
         }
@@ -5731,8 +5711,7 @@ void CharaTask::fn_80149A30() {
             if (lbl_8087F430 != 0 && lbl_8087F430->m868 != 6) {
                 screen.y = MIN(MAX(screen.y, 0.1f * lbl_8087EEE0->mHeight), 0.9f * lbl_8087EEE0->mHeight - size);
             }
-            fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f,
-                        0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
         } else if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0) {
             if (mC58.m11C.m01 == 0) {
                 return;
@@ -5746,8 +5725,7 @@ void CharaTask::fn_80149A30() {
             atn::Vector3 screen;
             fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
-                fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f,
-                            0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
             }
         } else if (m55C == 6 && m560 == 96 && !mStatus.fn_80134290()) {
             atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
@@ -5757,8 +5735,7 @@ void CharaTask::fn_80149A30() {
             atn::Vector3 screen;
             fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
-                fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f,
-                            0.0f, text, 0xA0FFC040, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA0FFC040, 1, 1, 0, 0, 0xFF000000);
             }
         }
     }

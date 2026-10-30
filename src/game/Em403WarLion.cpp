@@ -11,6 +11,7 @@
 #include "macros.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "atn/DrawHelper.h"
 
 // inferred: circuit of the war lion around the arena: place id and two flags (names invented)
 struct WarLionPlace_unk {
@@ -37,9 +38,6 @@ struct Settings_unk {
     int mDrawDebug; // 0x34
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063484(void* draw, int segments, unsigned int color, float x, float y, float z, float rot,
-                            float a, float range, float angle); // inferred: fan
 // inferred: field (lbl_8087F430): camera shake at 0x96C (as in game/GimmickStateCommand.cpp) and route
 // tables at 0x10D8
 struct Field_unk {
@@ -405,7 +403,7 @@ void Em403WarLion::vf10() {
 void Em403WarLion::vf14() {
     fn_80149A30();
     if (lbl_8087F0A8->mDrawDebug != 0) {
-        fn_80063484(lbl_8087EEB0, 20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
+        lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
 

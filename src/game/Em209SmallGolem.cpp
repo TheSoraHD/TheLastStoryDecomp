@@ -7,6 +7,7 @@
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
 #include "game/Input_unk.h"
+#include "atn/DrawHelper.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -61,8 +62,6 @@ extern "C" GameUI* lbl_8087F490;
 extern "C" void fn_803E3384(GameUI* ui);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, int color, float radius, float arg); // inferred: sphere
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f);
 struct HomingParam_unk;
@@ -310,7 +309,7 @@ void Em209SmallGolem::vf10() {
             }
             if (m1554 != 0) {
                 HitInfo_unk* skill = fn_80219E6C(m1510);
-                fn_80063D3C(lbl_8087EEB0, &mPos, 0xFFFF0000, mStatus.mParamB.m28 + skill->m40, 0.0f);
+                lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + skill->m40, 0.0f, 0xFFFF0000);
             }
             break;
         }

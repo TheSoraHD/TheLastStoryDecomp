@@ -20,6 +20,7 @@
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
 #include "game/Input_unk.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -177,8 +178,6 @@ struct QuarkGame_unk {
     float m3A4;
 };
 extern "C" QuarkGame_unk* lbl_8087EFA8;
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
@@ -2369,7 +2368,7 @@ void EnemyQuarkStand::fn_8035223C() {
         fn_800FAB80(lbl_8087F048, this, m153C, m16EC, &(m16E0 + off), &atn::Vector3(0.0f, rot, 0.0f), 0, 30, -1,
                     -1, 3.0f, 1.0f);
         if (m1CC4 != 0) {
-            fn_80063D3C(lbl_8087EEB0, &(m16E0 + off), 0xFF000000, m153C->m58, 1000.0f);
+            lbl_8087EEB0->fn_80063D3C(m16E0 + off, m153C->m58, 1000.0f, 0xFF000000);
         }
     }
     if (m16DC >= m1CCC) {

@@ -1,5 +1,6 @@
 #include "atn/D3AnimeInstance.h"
 #include "atn/Memory.h"
+#include "atn/DrawHelper.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -17,12 +18,6 @@ struct Frustum_unk;
 }
 
 // inferred: globals of unknown classes
-struct Renderer2D_unk {
-    unsigned char m00[0xA0];
-    int mA0;               // 0xA0: inferred: mode
-    atn::Matrix3x4 mA4;    // 0xA4: inferred: model matrix
-    atn::Matrix3x4 mD4;    // 0xD4: inferred: view matrix
-};
 struct RenderState_unk {
     unsigned char m00[0x3C];
     int mWidth;  // 0x3C
@@ -35,7 +30,6 @@ struct Camera_unk {
     atn::Frustum_unk* GetFrustum_unk() { return (atn::Frustum_unk*)m204; }
     unsigned char m204[1]; // inferred: frustum
 };
-extern "C" Renderer2D_unk* lbl_8087EEB0;
 extern "C" RenderState_unk* lbl_8087EEE0;
 extern "C" Camera_unk* lbl_8087EFB4;
 

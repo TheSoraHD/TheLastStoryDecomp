@@ -16,6 +16,7 @@
 #include "std/string_members.h"
 #include "game/EquipItemData.h"
 #include <boost/tokenizer.hpp>
+#include "atn/DrawHelper.h"
 
 extern "C" double sqrt(double x);
 extern "C" int strcmp(const char* a, const char* b);
@@ -991,8 +992,6 @@ void EnemyQuarkSecond::fn_80344060() {
     }
 }
 
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_80063D3C(void* draw, const atn::Vector3& center, float radius, int color, float arg); // inferred: sphere
 
 void EnemyQuarkSecond::fn_803441AC() {
     atn::Vector3 dir(0.0f, 0.0f, m1648);
@@ -1006,7 +1005,7 @@ void EnemyQuarkSecond::fn_803441AC() {
         fn_800FAB80(lbl_8087F048, this, m14D8, m1658, m164C + dir, atn::Vector3(0.0f, angle, 0.0f), 0, 30, -1, -1,
                     3.0f, 1.0f);
         if (m1760 != 0) {
-            fn_80063D3C(lbl_8087EEB0, m164C + dir, m14D8->m58, 0xFF000000, 1000.0f);
+            lbl_8087EEB0->fn_80063D3C(m164C + dir, m14D8->m58, 1000.0f, 0xFF000000);
         }
     }
     if (m1648 >= m1768) {

@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "macros.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int rand();
 extern "C" ArenaAnim_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: d2anime task
@@ -11,11 +12,7 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
-extern "C" void* lbl_8087EEB0;
 extern "C" void* lbl_8087EEC8;
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
 
 // inferred: field (lbl_8087F430)
@@ -160,8 +157,7 @@ void ArenaTask::vf14() {
         wchar_t text[256];
         swprintf(text, 256, L"%d - %d", mScore0, mScore1);
         float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
-        fn_80061824(lbl_8087EEB0, 320.0f - w / 2.0f, 50.0f, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, -86, 1, 1, 0,
-                    0, 0xFF000000);
+        lbl_8087EEB0->fn_80061824(320.0f - w / 2.0f, 50.0f, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, -86, 1, 1, 0, 0, 0xFF000000);
     }
     for (int i = 0; i < 4; i++) {
         if (mAnims[i] != 0) {

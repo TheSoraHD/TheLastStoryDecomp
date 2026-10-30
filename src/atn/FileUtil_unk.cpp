@@ -2,12 +2,10 @@
 // y lista de mensajes de depuracion en pantalla ("LoadError: ..."). Nombre de fichero inventado.
 #include "atn/Memory.h"
 #include "std/string_members.h"
+#include "atn/DrawHelper.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, float f6, const char* text,
-                            unsigned int color, int a, int b, int c); // inferred: text
 
 // ---------------------------------------------------------------------------------------------
 // CMPR (S3TC/DXT1) encoder. Pixels are RGBA8, 4x4 per block; a block is two RGB565 colors and
@@ -313,8 +311,7 @@ void DebugMessages_unk::fn_80069D48(const char* text) {
 void DebugMessages_unk::fn_80069E50(int draw) {
     if (draw != 0) {
         for (unsigned int i = 0; i < mCount; i++) {
-            fn_800616C0(lbl_8087EEB0, 10.0f, 12.0f * i + 20.0f, -1000.0f, 12.0f, 12.0f, 0.0f, mMessages[i].mText.mStr,
-                        mMessages[i].mColor, 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(10.0f, 12.0f * i + 20.0f, -1000.0f, 12.0f, 12.0f, mMessages[i].mText.mStr, mMessages[i].mColor, 0.0f, 1, 1, 0);
         }
     }
     DebugMessage_unk* msg = mMessages;

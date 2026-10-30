@@ -2,6 +2,7 @@
 // blended with decreasing weights).
 #include "atn/PostFx.h"
 #include "atn/MemoryManager.h"
+#include "atn/DrawHelper.h"
 
 extern "C" double pow(double x, double y);
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
@@ -46,9 +47,6 @@ struct MotionBlurColor_unk {
     float r, g, b, a;
 };
 
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_8005DF90(void* dbg, int color, GXTexObj* obj, int arg, float x, float y, float z, float w,
-                            float h);
 extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 extern "C" void fn_800BFC18(PostFxFrameBuffer_unk* fb, MotionBlurColor_unk color, float a, float b);
 
@@ -210,10 +208,10 @@ void PostFxMotionBlur::vf10(void* camera) {
         float size = (fullW - 32.0f - 64.0f) / 4.0f;
 
         for (int i = 0; i < mCount; i++) {
-            fn_8005DF90(lbl_8087EEB0, -1, &mTex[(mIndex - i + 4) % 4], 0, x, y, 0.0f, size, 0.7f * size);
+            lbl_8087EEB0->fn_8005DF90(-1, &mTex[(mIndex - i + 4) % 4], 0, x, y, 0.0f, size, 0.7f * size);
             x += 16.0f + size;
         }
-        fn_8005DF90(lbl_8087EEB0, -1, &mTex[index], 0, x, y, 0.0f, size, 0.7f * size);
+        lbl_8087EEB0->fn_8005DF90(-1, &mTex[index], 0, x, y, 0.0f, size, 0.7f * size);
     }
     if (lbl_8087EFA8->m248 == 0) {
         mIndex = (mIndex + 1) % 4;

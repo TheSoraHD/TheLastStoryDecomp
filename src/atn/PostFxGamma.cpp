@@ -3,6 +3,7 @@
 #include "atn/PostFx.h"
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
+#include "atn/DrawHelper.h"
 
 extern "C" double pow(double x, double y);
 extern "C" unsigned int GXGetTexObjFmt(const GXTexObj* obj);
@@ -37,9 +38,6 @@ struct GammaFrameBuffer_unk {
     GXTexObj m74C; // 0x74C: inferred: depth texture
 };
 
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_8005DF90(void* dbg, int color, GXTexObj* obj, int arg, float x, float y, float z, float w,
-                            float h);
 extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
 
@@ -383,13 +381,13 @@ void PostFxGamma::vf10(void* camera) {
     if (lbl_8087EFA8->mGamma.mDebug != 0) {
         float x = 8.0f;
         for (int i = 0; i < count; i++) {
-            fn_8005DF90(lbl_8087EEB0, -1, tex, 0, x, 16.0f, 0.0f, 64.0f, 64.0f);
+            lbl_8087EEB0->fn_8005DF90(-1, tex, 0, x, 16.0f, 0.0f, 64.0f, 64.0f);
             x += 72.0f;
             tex++;
         }
-        fn_8005DF90(lbl_8087EEB0, -1, &mAverage.mObj, 0, 8.0f, (float)fullH - 96.0f, 0.0f, 64.0f, 64.0f);
-        fn_8005DF90(lbl_8087EEB0, -1, &mRamp.mObj, 0, 80.0f, (float)fullH - 96.0f, 0.0f, 64.0f, 64.0f);
-        fn_8005DF90(lbl_8087EEB0, -1, &mLut.mObj, 0, 152.0f, (float)fullH - 96.0f, 0.0f, 64.0f, 8.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &mAverage.mObj, 0, 8.0f, (float)fullH - 96.0f, 0.0f, 64.0f, 64.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &mRamp.mObj, 0, 80.0f, (float)fullH - 96.0f, 0.0f, 64.0f, 64.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &mLut.mObj, 0, 152.0f, (float)fullH - 96.0f, 0.0f, 64.0f, 8.0f);
     }
 }
 

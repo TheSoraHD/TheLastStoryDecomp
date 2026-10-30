@@ -10,6 +10,7 @@
 #include "atn/Model_unk.h"
 #include "atn/VideoTHP.h"
 #include "std/string_members.h"
+#include "atn/DrawHelper.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -22,9 +23,6 @@ extern "C" int fn_8006AA20(const char* path);                          // inferr
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
 extern "C" void fn_8008A00C(atn::SimpleVector<Event::PoseKey_unk>* poses, void* data, int size);
 // inferred: debug text
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, float f6, const char* text,
-                            unsigned int color, int a, int b, int c);
 
 // inferred: copies a string unless it is the destination itself (as in game/CampSaveLoad.cpp)
 inline void CopyString_unk(char* dst, const char* src) {
@@ -238,7 +236,7 @@ void MovieTask::vf14() {
     } else {
         char text[0x100];
         sprintf(text, "Movie : %s", m50);
-        fn_800616C0(lbl_8087EEB0, 100.0f, 200.0f, 0.0f, 20.0f, 20.0f, 0.0f, text, 0xFFFFFFFF, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(100.0f, 200.0f, 0.0f, 20.0f, 20.0f, text, 0xFFFFFFFF, 0.0f, 1, 1, 0);
     }
 }
 

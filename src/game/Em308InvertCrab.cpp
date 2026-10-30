@@ -4,6 +4,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/function.hpp>
+#include "atn/DrawHelper.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -135,8 +136,6 @@ struct CrabWeights_unk {
 extern "C" CrabWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 extern "C" int fn_80108378(CrabWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
@@ -994,7 +993,7 @@ void Em308InvertCrab::fn_802F5370() {
         }
         fn_802F33A0();
         if (m15D0 != 0) {
-            fn_80063D3C(lbl_8087EEB0, &m1564, 0xFFFF0000, 20.0f, 100000.0f);
+            lbl_8087EEB0->fn_80063D3C(m1564, 20.0f, 100000.0f, 0xFFFF0000);
         }
     }
 }

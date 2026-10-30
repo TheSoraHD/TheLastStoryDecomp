@@ -3,6 +3,7 @@
 // game/GameEventScript (its vtables are in that unit's .data); they are emitted by the compiler there.
 #include "atn/SequenceBoot_unk.h"
 #include "atn/FileList.h"
+#include "atn/DrawHelper.h"
 struct ElemA { char data[0x2D4]; ~ElemA(); };
 struct ElemB { char data[0x240]; ~ElemB(); };
 struct InnerA { char pad_0x00[0x11C4]; ElemA arr[0x1C]; ~InnerA() {} };
@@ -60,7 +61,6 @@ extern char lbl_8078B3A0[];
 extern char lbl_807C8508[];
 extern char lbl_807C85C0[];
 extern void* lbl_8087EF70;
-extern void* lbl_8087EEB0;
 extern Heap* lbl_8087F460;
 extern int lbl_8087DD60;
 extern int lbl_8087DD64;
@@ -97,9 +97,6 @@ void fn_803B3530(void* a, char* b, char* c, int d, int e);
 void fn_800D2338(void* self);
 Heap* fn_803BDB60(Heap* self);
 void fn_803B8B08(void* self, UnkElem* elem);
-void fn_800616C0(void* a, const char* s, unsigned int color,
-                 float f1, float f2, float f3, float f4, float f5, float f6,
-                 int a6, int a7, int a8);
 void fn_803B8160(void* p);
 
 Unk* fn_803B2870(Unk* self, void* arg1, const UnkArg* arg2);
@@ -323,17 +320,10 @@ void fn_803B30D8(Unk* self) {
                 sprintf(lbl_807C85C0, lbl_8074FBA4 + 0x2F);
                 name = lbl_807C85C0;
             }
-            fn_800616C0(lbl_8087EEB0, name,
-                        self->field_0x48 == -1 ? 0xFFFFFF00 : 0xFFFFFFFF,
-                        lbl_80885C00, lbl_80885C04, lbl_80885C08,
-                        lbl_80885C0C, lbl_80885C0C, lbl_80885C08,
-                        1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(lbl_80885C00, lbl_80885C04, lbl_80885C08, lbl_80885C0C, lbl_80885C0C, name, self->field_0x48 == -1 ? 0xFFFFFF00 : 0xFFFFFFFF, lbl_80885C08, 1, 1, 0);
         }
         if (self->field_0xDB0 != 0) {
-            fn_800616C0(lbl_8087EEB0, lbl_8074FBA4 + 0x59, 0xFF00FFFF,
-                        lbl_80885C10, lbl_80885C14, lbl_80885C08,
-                        lbl_80885C0C, lbl_80885C0C, lbl_80885C08,
-                        1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(lbl_80885C10, lbl_80885C14, lbl_80885C08, lbl_80885C0C, lbl_80885C0C, lbl_8074FBA4 + 0x59, 0xFF00FFFF, lbl_80885C08, 1, 1, 0);
         }
     }
 }

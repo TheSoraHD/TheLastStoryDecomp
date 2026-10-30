@@ -1,13 +1,7 @@
 #include "atn/D2A_Frame.h"
+#include "atn/DrawHelper.h"
 
 // inferred: 2D renderer instance (class unknown) and its textured quad drawing method
-struct Renderer2D_unk {
-    unsigned char m00[0x10];
-    unsigned char m10[1]; // inferred: white texture
-};
-extern "C" Renderer2D_unk* lbl_8087EEB0;
-extern "C" void fn_8005E3E4(Renderer2D_unk* renderer, unsigned int color, void* tex, float x, float y, float z,
-                            float w, float h, float u0, float v0, float u1, float v1, int arg, int arg13);
 
 namespace atn {
 
@@ -62,38 +56,24 @@ void D2A_Frame::vf18() {
     b = fn_ToU8(oc.b);
     a = fn_ToU8(oc.a);
     unsigned int o = (a << 24) | (r << 16) | (g << 8) | b;
-    void* tex = lbl_8087EEB0->m10;
-    fn_8005E3E4(lbl_8087EEB0, c, tex, rect.x, rect.y, rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f,
-                1.0f, extra.m04, 1);
+    void* tex = &lbl_8087EEB0->m10;
+    lbl_8087EEB0->fn_8005E3E4(c, tex, rect.x, rect.y, rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
     if (m0E == 1) {
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z,
-                    rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
     } else if (m0E == 2) {
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w,
-                    rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w,
-                    rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w,
-                    rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w,
-                    rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
     } else if (m0E == 3) {
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w,
-                    rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w,
-                    rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w,
-                    rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w,
-                    rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z,
-                    rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x + outline.x, rect.y - outline.y, 0.001f + rect.z,
-                    rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x - outline.x, rect.y - outline.y, 0.001f + rect.z,
-                    rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
-        fn_8005E3E4(lbl_8087EEB0, o, tex, rect.x - outline.x, rect.y + outline.y, 0.001f + rect.z,
-                    rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x + outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x - outline.x, rect.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x + outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x + outline.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x - outline.x, rect.y - outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
+        lbl_8087EEB0->fn_8005E3E4(o, tex, rect.x - outline.x, rect.y + outline.y, 0.001f + rect.z, rect.w, rect.h, 0.0f, 0.0f, 1.0f, 1.0f, extra.m04, 1);
     }
 }
 

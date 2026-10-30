@@ -4,6 +4,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaStatus.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -56,10 +57,6 @@ struct RandomItemBox_unk {
 };
 extern "C" int fn_80051CD8(const RandomItemSphere_unk* sphere, const RandomItemBox_unk* box); // inferred: sphere in box
 // inferred: debug drawing (lbl_8087EEB0)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
-extern "C" void fn_800629F0(void* dbg, const atn::Vector3* pos, const atn::Vector3* size, unsigned int color,
-                            const atn::Matrix3x4* mtx, float arg);
 
 inline void CopyMtx_unk(const Mtx src, Mtx dst) {
     __MtxCopy(dst, src);
@@ -155,7 +152,7 @@ void RandomItem::vf14() {
         return;
     }
     if ((unsigned int)(m11C - 2) <= 1) {
-        fn_80063D3C(lbl_8087EEB0, &m154, 0xFFFFFF00, 3.0f, 0.0f);
+        lbl_8087EEB0->fn_80063D3C(m154, 3.0f, 0.0f, 0xFFFFFF00);
     }
     for (unsigned int i = 0; i < mDrops.mSize; i++) {
         RandomItemDrop_unk* drop = &mDrops[i];
@@ -173,7 +170,7 @@ void RandomItem::vf14() {
             PSMTXConcat(mtx.m, r, t);
             CopyMtx_unk(t, mtx.m);
             SetLocTrans_unk(mtx, loc);
-            fn_800629F0(lbl_8087EEB0, &lbl_807C7030, &loc.mSize, color, &mtx, 0.0f);
+            lbl_8087EEB0->fn_800629F0(lbl_807C7030, loc.mSize, 0.0f, color, &mtx);
         }
     }
 }

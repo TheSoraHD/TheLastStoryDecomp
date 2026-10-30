@@ -1,23 +1,16 @@
 #include "atn/FadeCommon.h"
 #include "atn/Memory.h"
+#include "atn/DrawHelper.h"
 
 // inferred: globals of unknown classes (automatic names)
-struct Renderer2D_unk {
-    unsigned char m00[0xA0];
-    int mA0; // inferred: blend mode
-};
 struct RenderState_unk {
     unsigned char m00[0x3C];
     int mWidth;  // 0x3C
     int mHeight; // 0x40
 };
-extern "C" Renderer2D_unk* lbl_8087EEB0;
 extern "C" RenderState_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EFB4;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
-extern "C" void fn_80060D58(Renderer2D_unk* renderer, unsigned int color, float x, float y, float z, float w,
-                            float h);
-extern "C" void fn_8005ED6C(Renderer2D_unk* renderer, unsigned int color, atn::Texture_unk* tex, float z);
 extern "C" void fn_800C1660(void* camera, atn::Texture_unk* tex, int format); // inferred: copies the frame buffer
 extern "C" void fn_800D5A3C(atn::Texture_unk* tex);
 
@@ -97,7 +90,7 @@ void FadeColor::vf14() {
     if (m78 != 0) {
         lbl_8087EEB0->mA0 = 0x13;
     }
-    fn_80060D58(lbl_8087EEB0, color, 0.0f, 0.0f, mZ, lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight);
+    lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, mZ, lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight, color);
     if (m78 != 0) {
         lbl_8087EEB0->mA0 = 0x12;
     }
@@ -128,7 +121,7 @@ void FadeCapture::vf14() {
     if (mActive == 0) {
         return;
     }
-    fn_8005ED6C(lbl_8087EEB0, GetColor_unk(), &mTex, mZ);
+    lbl_8087EEB0->fn_8005ED6C(GetColor_unk(), &mTex, mZ);
 }
 
 void FadeCapture::Capture() {

@@ -5,6 +5,7 @@
 #include "atn/ColliData_unk.h"
 #include "atn/Camera_unk.h"
 #include "math/Vec.h"
+#include "atn/DrawHelper.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -17,15 +18,7 @@ extern "C" int fn_8004CB70(ColliManager_unk* mgr, atn::ColliBase* colli);  // in
 extern "C" void fn_8004CBB0(ColliManager_unk* mgr, atn::ColliBase* colli); // inferred: removes a shape
 
 // inferred: debug drawing (atn::DrawHelper, lbl_8087EEB0)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* draw, const atn::Vector3* pos, unsigned int color, float radius, float arg);
-extern "C" void fn_8006471C(void* draw, const atn::Vector3* a, const atn::Vector3* b, unsigned int color, float radius,
-                            float arg);
-extern "C" void fn_800629F0(void* draw, const atn::Vector3* center, const void* box, unsigned int color,
-                            const atn::Matrix3x4* mtx, float arg); // inferred: draws a box
 // inferred: queue the drawing of a collision object/tree (DrawHelper::ComDrawColliObject/Tree)
-extern "C" void fn_80062908(void* draw, atn::ColliObject* colli, int a, int b, int c, int d, float arg);
-extern "C" void fn_8006297C(void* draw, atn::ColliTree* colli, int a, int b, int c, int d, float arg);
 
 // inferred: shape tests (atn/ColliTest_unk.cpp); nonzero on a hit, filling the result
 extern "C" int fn_800523A0(atn::ColliResult_unk* r, const atn::ColliSphereShape_unk* s,
@@ -148,7 +141,7 @@ int ColliSphere::vf14(ColliResult_unk* results, int max, const void* box, unsign
 }
 
 void ColliSphere::vf18(int a, int b, int c, int d) {
-    fn_80063D3C(lbl_8087EEB0, &mSphere.mCenter, 0xFF00FF00, mSphere.mRadius, 0.0f);
+    lbl_8087EEB0->fn_80063D3C(mSphere.mCenter, mSphere.mRadius, 0.0f, 0xFF00FF00);
 }
 
 void ColliSphere::vf1C(const ColliGrid_unk* grid) {
@@ -206,7 +199,7 @@ int ColliCapsule::vf14(ColliResult_unk* results, int max, const void* box, unsig
 }
 
 void ColliCapsule::vf18(int a, int b, int c, int d) {
-    fn_8006471C(lbl_8087EEB0, &m3C, &m48, 0xFF00FF00, m54, 0.0f);
+    lbl_8087EEB0->fn_8006471C(m3C, m48, 0xFF00FF00, m54, 0.0f);
 }
 
 // NONMATCHING: 84.74% - orden de carga del 0.5f y de los stores muertos de a/b (planificacion)
@@ -358,7 +351,7 @@ int ColliBox::vf14(ColliResult_unk* results, int max, const void* box, unsigned 
 
 void ColliBox::vf18(int a, int b, int c, int d) {
     Vector3 zero(0.0f, 0.0f, 0.0f);
-    fn_800629F0(lbl_8087EEB0, &zero, &m3C, 0xFF00FF00, &m3C.mMtx, 0.0f);
+    lbl_8087EEB0->fn_800629F0(zero, m3C.mSize, 0.0f, 0xFF00FF00, &m3C.mMtx);
 }
 
 // NONMATCHING: 99.08% - f9/f10 (tamano/inverso) cruzados y f0/f3 al cargar la traslacion
@@ -423,7 +416,7 @@ int ColliObject::vf14(ColliResult_unk* results, int max, const void* box, unsign
 
 void ColliObject::vf18(int a, int b, int c, int d) {
     if (mObject != 0) {
-        fn_80062908(lbl_8087EEB0, this, a, b, c, d, 0.0f);
+        lbl_8087EEB0->fn_80062908(this, a, b, c, d, 0.0f);
     }
 }
 
@@ -562,7 +555,7 @@ void ColliTree::fn_80058EE4(ColliTreeBounds_unk* bounds) {
 
 void ColliTree::vf18(int a, int b, int c, int d) {
     if (mTree != 0 && ((ColliTreeData_unk*)mTree)->mRoot != 0) {
-        fn_8006297C(lbl_8087EEB0, this, a, b, c, d, 1500.0f);
+        lbl_8087EEB0->fn_8006297C(this, a, b, c, d, 1500.0f);
     }
 }
 

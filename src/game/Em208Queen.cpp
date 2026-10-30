@@ -7,6 +7,7 @@
 #include "math/Vec.h"
 #include "atn/ColliBase.h"
 #include "macros.h"
+#include "atn/DrawHelper.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -82,8 +83,6 @@ struct System_unk {
 };
 extern "C" System_unk* lbl_8087F0A8;
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
@@ -723,7 +722,7 @@ void Em208Queen::fn_802CA490() {
         fn_802CC834(pos, 50.0f, 6.2831855f, 100);
     }
     if (m154C != 0) {
-        fn_80063D3C(lbl_8087EEB0, &mPos, 0xFFFF0000, fn_80219E6C(0x67C)->m58, 0.0f);
+        lbl_8087EEB0->fn_80063D3C(mPos, fn_80219E6C(0x67C)->m58, 0.0f, 0xFFFF0000);
     }
 }
 
@@ -841,7 +840,7 @@ void Em208Queen::fn_802CA8C0() {
     }
     if (m154C != 0) {
         atn::Vector3 center = GetFrontPoint_unk();
-        fn_80063D3C(lbl_8087EEB0, &center, 0xFFFF0000, 35.0f, 0.0f);
+        lbl_8087EEB0->fn_80063D3C(center, 35.0f, 0.0f, 0xFFFF0000);
     }
 }
 

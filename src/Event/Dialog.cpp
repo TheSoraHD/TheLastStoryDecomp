@@ -9,6 +9,7 @@
 #include "atn/LipSync_unk.h"
 #include "game/GimmickCommon.h"
 #include "std/string.h"
+#include "atn/DrawHelper.h"
 
 // Everything below is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 
@@ -199,9 +200,6 @@ struct Input_unk {
     void fn_80122330(int reset);
 };
 
-extern "C" void* lbl_8087EEB0; // inferred: 2D drawer
-extern "C" void fn_8005E7F4(void* draw, unsigned int color, int a, atn::Texture_unk* texture, float x, float y,
-                            float z, float w, float h, float u0, float v0, float u1, float v1);
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 
 // inferred: weak @STRING@ pool of LipSyncData_unk::Resize_unk (atn/LipSync_unk; symbols.txt names them
@@ -793,8 +791,7 @@ void Dialog::vf14() {
         g = ToByte_unk(c.g);
         b = ToByte_unk(c.b);
         unsigned int a = ToByte_unk(c.a);
-        fn_8005E7F4(lbl_8087EEB0, (a << 24) | (r << 16) | (g << 8) | b, 0, &m120, 0.0f, h - 256.0f, 100.0f, w,
-                    256.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        lbl_8087EEB0->fn_8005E7F4((a << 24) | (r << 16) | (g << 8) | b, 0, &m120, 0.0f, h - 256.0f, 100.0f, w, 256.0f, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 }
 

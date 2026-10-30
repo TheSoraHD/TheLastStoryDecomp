@@ -1,12 +1,9 @@
 #include "atn/D2A_Window.h"
+#include "atn/DrawHelper.h"
 
 // inferred: texture lookup and 2D renderer (classes unknown, automatic names)
 extern "C" void* lbl_8087F138;
-extern "C" void* lbl_8087EEB0;
 extern "C" void* fn_801F1098(void* textures, int id, int index);
-extern "C" void fn_80061E2C(void* renderer, float x, float y, float z, float w, float h, unsigned int color,
-                            void* tex0, void* tex1, int arg, float offsetX, float offsetY, float scaleX,
-                            float scaleY);
 
 namespace atn {
 
@@ -130,9 +127,9 @@ void D2A_Window::fn_801FF8F0(int id, unsigned int color, float x, float y, float
                                     int arg) {
     void* tex0 = fn_801F1098(lbl_8087F138, id, 0);
     void* tex1 = fn_801F1098(lbl_8087F138, id, 1);
-    void* renderer = lbl_8087EEB0;
+    atn::DrawHelper* renderer = lbl_8087EEB0;
     if (tex0 != 0 && tex1 != 0) {
-        fn_80061E2C(renderer, x, y, z, w, h, color, tex0, tex1, arg, m138.x, m138.y, m130.x, m130.y);
+        renderer->fn_80061E2C(x, y, z, w, h, color, tex0, tex1, arg, m138.x, m138.y, m130.x, m130.y);
     }
 }
 

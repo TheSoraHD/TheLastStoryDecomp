@@ -11,6 +11,7 @@
 #include "game/GimmickCommon.h"
 #include "math/Vec.h"
 #include "std/new.h"
+#include "atn/DrawHelper.h"
 
 // inferred: up to four lights sorted by distance (atn/LightUtil_unk.cpp). The two selectors are
 // called here on uninitialized temporaries: they return the set by value (declared here as
@@ -376,12 +377,6 @@ extern "C" void fn_80074EC8(DrawRender_unk* rs, DrawDesc_unk* desc, unsigned int
                             void* arg);
 
 // inferred: default textures (lbl_8087EEB0)
-struct DrawTextures_unk {
-    unsigned char m00[0x10];
-    atn::Texture_unk m10; // inferred: white
-    atn::Texture_unk m40;
-};
-extern "C" DrawTextures_unk* lbl_8087EEB0;
 
 extern "C" unsigned char lbl_8087EFB0; // inferred: shadow pass
 extern "C" ShaderManager_unk* lbl_8087EFE0;

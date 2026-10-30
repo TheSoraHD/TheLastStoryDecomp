@@ -4,6 +4,7 @@
 #include "game/PlayerTask.h"
 #include "atn/Csv.h"
 #include "atn/SoundRef.h"
+#include "atn/DrawHelper.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -102,18 +103,8 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0), font (lbl_8087EEC8) and camera (lbl_8087EFB4)
-extern "C" void* lbl_8087EEB0;
 extern "C" void* lbl_8087EEC8;
 extern "C" void* lbl_8087EFB4;
-extern "C" void fn_80063764(void* draw, const atn::Vector3* a, const atn::Vector3* b, unsigned int color,
-                            float width); // inferred: line
-extern "C" void fn_80062C8C(void* draw, int segments, unsigned int color, float x, float y, float z, float a,
-                            float radius, float b); // inferred: circle
-extern "C" void fn_80063484(void* draw, int segments, unsigned int color, float x, float y, float z, float rot,
-                            float a, float range, float angle); // inferred: fan
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
@@ -158,10 +149,10 @@ inline unsigned int ToArgb_unk(const Color4f_unk& c) {
     return (a << 24) | (r << 16) | (g << 8) | b;
 }
 inline void DrawLine_unk(const atn::Vector3& a, const atn::Vector3& b, Color4f_unk color) {
-    fn_80063764(lbl_8087EEB0, &a, &b, ToArgb_unk(color), 0.0f);
+    lbl_8087EEB0->fn_80063764(a, b, 0.0f, ToArgb_unk(color));
 }
 inline void DrawCircle_unk(const atn::Vector3& pos, float radius, Color4f_unk color) {
-    fn_80062C8C(lbl_8087EEB0, 12, ToArgb_unk(color), pos.x, pos.y, pos.z, 0.0f, radius, 10.0f);
+    lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(color), pos.x, pos.y, pos.z, 0.0f, radius, 10.0f);
 }
 
 // NONMATCHING: 92% - the inlined vector::push_back of the target also evaluates a dead growth
@@ -283,52 +274,36 @@ void ChaserGuard::fn_8017D13C() {
         case 2:
             color = Color4f_unk(1.0f, 1.0f, 0.0f, 1.0f);
             range = settings->mChase.m4E0;
-            fn_80063764(lbl_8087EEB0, &(mPos + atn::Vector3(0.0f, 5.0f, 0.0f)),
-                        &(m14B8 + atn::Vector3(0.0f, 5.0f, 0.0f)), ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)),
-                        0.0f);
-            fn_80062C8C(lbl_8087EEB0, 12, ToArgb_unk(color), mPos.x, mPos.y, mPos.z, 0.0f,
-                        lbl_8087F0A8->mChase.m4F4, 10.0f);
+            lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (m14B8 + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(color), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4F4, 10.0f);
             break;
         case 3:
             color = Color4f_unk(1.0f, 0.0f, 0.0f, 1.0f);
-            fn_80062C8C(lbl_8087EEB0, 12, ToArgb_unk(color), mPos.x, mPos.y, mPos.z, 0.0f, settings->mChase.m4F4,
-                        10.0f);
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(color), mPos.x, mPos.y, mPos.z, 0.0f, settings->mChase.m4F4, 10.0f);
             break;
         case 4:
             color = Color4f_unk(0.0f, 0.0f, 1.0f, 1.0f);
-            fn_80063764(lbl_8087EEB0, &(mPos + atn::Vector3(0.0f, 5.0f, 0.0f)),
-                        &(m14B8 + atn::Vector3(0.0f, 5.0f, 0.0f)), ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)),
-                        0.0f);
-            fn_80063764(lbl_8087EEB0, &(mPos + atn::Vector3(0.0f, 5.0f, 0.0f)),
-                        &(lbl_8087F430->m10D8->mPoints[mC58.m0C.mPointB - 1].mPos + atn::Vector3(0.0f, 5.0f, 0.0f)),
-                        ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 0.0f);
-            fn_80062C8C(lbl_8087EEB0, 12, ToArgb_unk(Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z,
-                        0.0f, lbl_8087F0A8->mChase.m4EC, 10.0f);
-            fn_80062C8C(lbl_8087EEB0, 12, ToArgb_unk(Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z,
-                        0.0f, lbl_8087F0A8->mChase.m4F0, 10.0f);
+            lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (m14B8 + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
+            lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (lbl_8087F430->m10D8->mPoints[mC58.m0C.mPointB - 1].mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4EC, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4F0, 10.0f);
             break;
         case 5:
             color = Color4f_unk(0.0f, 1.0f, 0.0f, 1.0f);
-            fn_80062C8C(lbl_8087EEB0, 12,
-                        ToArgb_unk(IsPlayerNear_unk() ? Color4f_unk(1.0f, 0.5f, 0.0f, 1.0f)
-                                                      : Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)),
-                        mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4EC, 10.0f);
-            fn_80062C8C(lbl_8087EEB0, 12,
-                        ToArgb_unk(IsPlayerNear_unk() ? Color4f_unk(1.0f, 0.5f, 0.0f, 1.0f)
-                                                      : Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)),
-                        mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4F0, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(IsPlayerNear_unk() ? Color4f_unk(1.0f, 0.5f, 0.0f, 1.0f)
+                                                      : Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4EC, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(IsPlayerNear_unk() ? Color4f_unk(1.0f, 0.5f, 0.0f, 1.0f)
+                                                      : Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4F0, 10.0f);
             break;
         }
         float rot = mRot.y + mLook.mRot.y;
-        fn_80063484(lbl_8087EEB0, 12, ToArgb_unk(color), mPos.x, 15.0f + mPos.y, mPos.z, rot, 0.0f, range,
-                    lbl_8087F0A8->mChase.m4E8);
+        lbl_8087EEB0->fn_80063484(12, ToArgb_unk(color), mPos.x, 15.0f + mPos.y, mPos.z, rot, 0.0f, range, lbl_8087F0A8->mChase.m4E8);
         atn::Vector3 screen;
         fn_800BFAC8(&screen, lbl_8087EFB4, &(mPos + atn::Vector3(0.0f, 25.0f, 0.0f)));
         if (screen.z > 0.0f && screen.z < 1.0f) {
             wchar_t text[0x100];
             fn_8006F2F0(lbl_8087EEC8, text, sStateNames_unk[m14B0], 0x100);
-            fn_80061824(lbl_8087EEB0, screen.x, screen.y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text,
-                        ToArgb_unk(color), 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, screen.y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, ToArgb_unk(color), 1, 1, 0, 0, 0xFF000000);
         }
     }
 }
@@ -666,10 +641,10 @@ bool ChaserGuard::fn_8017FBEC() {
             seen = fn_8004ED34(lbl_8087EE98, &result, &eye, &target, 0x80000000, 0, 0) == 0;
             if (lbl_8087F0A8->mChase.m4DC != 0) {
                 if (!seen) {
-                    fn_80063764(lbl_8087EEB0, &eye, &result.m04, 0xFFFFFF00, 0.0f);
-                    fn_80063764(lbl_8087EEB0, &result.m04, &target, 0xFF4D4D00, 0.0f);
+                    lbl_8087EEB0->fn_80063764(eye, result.m04, 0.0f, 0xFFFFFF00);
+                    lbl_8087EEB0->fn_80063764(result.m04, target, 0.0f, 0xFF4D4D00);
                 } else {
-                    fn_80063764(lbl_8087EEB0, &eye, &target, 0xFF4D4D00, 0.0f);
+                    lbl_8087EEB0->fn_80063764(eye, target, 0.0f, 0xFF4D4D00);
                 }
             }
         }

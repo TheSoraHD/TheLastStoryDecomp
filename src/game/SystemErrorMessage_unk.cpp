@@ -10,6 +10,7 @@
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"
 #include <boost/scoped_ptr.hpp>
+#include "atn/DrawHelper.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int sprintf(char* buf, const char* format, ...);
@@ -73,10 +74,6 @@ struct SysSave_unk {
     int m174;
 };
 // inferred: debug drawing and graphics device
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 struct SysGraphics_unk {
     unsigned char m00[0x3C];
     int mWidth;  // 0x3C
@@ -654,8 +651,7 @@ void ErrorManager::fn_803646C4() {
         for (unsigned int i = 0; i < 4; i++) {
             wchar_t text[0x100];
             fn_80363C28(text, sMessages[fn_8006BA30()][mError][i], 0x100);
-            fn_80061824(lbl_8087EEB0, 80.0f, step * i + 80.0f, -100000.0f, size, size, 0.0f, 0.0f, 0.0f, text, -1, 1,
-                        1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(80.0f, step * i + 80.0f, -100000.0f, size, size, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
         }
     } else {
         if (mError == 0) {

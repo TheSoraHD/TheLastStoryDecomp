@@ -3,14 +3,12 @@
 #include "math/Vec.h"
 #include "atn/Sphere.h"
 #include "atn/AABB_unk.h"
+#include "atn/DrawHelper.h"
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_805F9640(const float a[4][4], const float b[4][4], float ab[4][4]); // inferred: PSMTX44Concat
 extern "C" void fn_805F97D0(const float m[4][4], const atn::Vector3* src, atn::Vector3* dst,
                             unsigned long n); // inferred: PSMTX44MultVecArray
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_800629F0(void* draw, const atn::Vector3* center, const atn::Vector3* half, unsigned int color,
-                            int arg, float f); // inferred: draws a box
 
 // inferred: plane (normal, distance); names invented
 struct Plane_unk {
@@ -75,7 +73,7 @@ extern "C" float fn_8006FDD8(const atn::AABB_unk* box) {
 extern "C" void fn_8006FE08(const atn::AABB_unk* box, unsigned int color) {
     atn::Vector3 center = (box->mMax + box->mMin) * 0.5f;
     atn::Vector3 half = (box->mMax - box->mMin) * 0.5f;
-    fn_800629F0(lbl_8087EEB0, &center, &half, color, 0, 0.0f);
+    lbl_8087EEB0->fn_800629F0(center, half, 0.0f, color, 0);
 }
 
 // inferred: camera (view matrix at 0x15C, projection at 0x18C); names invented

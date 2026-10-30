@@ -4,6 +4,7 @@
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
 #include "atn/Memory.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int rand();
 extern "C" void PSMTXScale(float m[3][4], float x, float y, float z);
@@ -78,9 +79,6 @@ struct RainColor_unk {
     float r, g, b, a;
 };
 
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_8005DF90(void* dbg, int color, GXTexObj* obj, int arg, float x, float y, float z, float w,
-                            float h);
 extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 extern "C" void fn_800BFC18(PostFxFrameBuffer_unk* fb, RainColor_unk color, float a, float b);
 extern "C" void fn_800BFCB4(PostFxFrameBuffer_unk* fb, RainColor_unk c0, RainColor_unk c1, RainColor_unk c2,
@@ -388,7 +386,7 @@ void PostFxRain::vf10(void* camera) {
     fn_800BFB70(lbl_8087EFB4);
     GXSetBlendMode(0, 1, 0, 3);
     if (lbl_8087EFA8->m2AC.mDebug != 0 || lbl_8087EFA8->m2BC.mDebug != 0) {
-        fn_8005DF90(lbl_8087EEB0, -1, &m60, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &m60, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
     }
 }
 

@@ -6,6 +6,7 @@
 #include "game/GimmickManager.h"
 #include "game/PlayerTask.h"
 #include "gmk/Lemon.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -40,8 +41,6 @@ extern "C" void fn_8023A02C(OnOffEffectMgr_unk* mgr, void* owner, int arg2, int 
 extern "C" void fn_80239DAC(OnOffEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: debug drawing (lbl_8087EEB0)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 // inferred: game settings
 struct OnOffSettings_unk {
     unsigned char m00[0x08];
@@ -355,7 +354,7 @@ void OnOff::vf14() {
         }
     }
     if (lbl_8087F0A8->m08 != 0 && mHasBox == 0 && mHasSphere == 0 && mHasColli == 0) {
-        fn_80063D3C(lbl_8087EEB0, &m6C, 0xFFFFFF00, 3.0f, 0.0f);
+        lbl_8087EEB0->fn_80063D3C(m6C, 3.0f, 0.0f, 0xFFFFFF00);
     }
 }
 

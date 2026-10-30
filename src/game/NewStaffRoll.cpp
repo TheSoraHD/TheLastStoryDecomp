@@ -2,6 +2,7 @@
 #include "atn/FadeCommon.h"
 #include "game/GimmickCommon.h"
 #include "macros.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" unsigned long wcslen(const wchar_t* s);
@@ -42,20 +43,8 @@ extern "C" void fn_8048169C(StaffRollGame_unk* game, int arg);
 extern "C" void fn_8047E528(StaffRollGame_unk* game);
 extern "C" void fn_8047F8B0(StaffRollGame_unk* game);
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
-struct StaffRollDraw_unk {
-    unsigned char m00[0xA0];
-    int mA0; // inferred: blend mode
-};
-extern "C" StaffRollDraw_unk* lbl_8087EEB0;
 extern "C" void* lbl_8087EEC8;
-extern "C" void fn_80061824(StaffRollDraw_unk* draw, float x, float y, float z, float w, float h, float f6, float f7,
-                            float f8, const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
-extern "C" void fn_8005E7F4(StaffRollDraw_unk* draw, float x, float y, float z, float w, float h, float u0, float v0,
-                            float u1, float v1, unsigned int color, int arg, atn::Texture_unk* tex); // inferred: sprite
-extern "C" void fn_80060D58(StaffRollDraw_unk* draw, float x, float y, float z, float w, float h,
-                            unsigned int color); // inferred: rectangle
 
 // inferred: type of a line (name invented)
 static inline int __GetType_unk(const wchar_t* s) {
@@ -272,16 +261,14 @@ void NewStaffRoll::vf14() {
                 float h = 0.95f * (int)GXGetTexObjHeight(&mLogo.mObj);
                 float x = __GetLogoX_unk(line.mAlign, width, w);
                 lbl_8087EEB0->mA0 = 19;
-                fn_8005E7F4(lbl_8087EEB0, x, y, -1.05f, w, h, 0.0f, 0.0f, 1.0f, 1.0f, -1, 0, &mLogo);
+                lbl_8087EEB0->fn_8005E7F4(-1, 0, &mLogo, x, y, -1.05f, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
                 lbl_8087EEB0->mA0 = 18;
             } else {
                 float w = fn_8006EF48(lbl_8087EEC8, line.mText, line.mSize, 0.0f, 1, 1);
                 float x = __GetX_unk(line.mAlign, width, w);
                 lbl_8087EEB0->mA0 = 19;
-                fn_80061824(lbl_8087EEB0, 1.0f + x, 1.0f + y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f,
-                            line.mText, 0xFF000000, 1, 1, 0, 0, 0xFF000000);
-                fn_80061824(lbl_8087EEB0, x, y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f, line.mText, -1, 1,
-                            1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(1.0f + x, 1.0f + y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f, line.mText, 0xFF000000, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(x, y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f, line.mText, -1, 1, 1, 0, 0, 0xFF000000);
                 lbl_8087EEB0->mA0 = 18;
             }
         }
@@ -290,7 +277,7 @@ void NewStaffRoll::vf14() {
         float t = MIN(MAX((mEndTime - 300.0f) / 90.0f, 0.0f), 1.0f);
         unsigned int color = (unsigned int)(255.0f * t) << 24;
         lbl_8087EEB0->mA0 = 19;
-        fn_80060D58(lbl_8087EEB0, 0.0f, 0.0f, -3.0f, lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight, color);
+        lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, -3.0f, lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight, color);
         lbl_8087EEB0->mA0 = 18;
     }
 }

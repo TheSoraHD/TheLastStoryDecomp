@@ -6,6 +6,7 @@
 #include "atn/SoundRef.h"
 #include "math/Vec.h"
 #include "macros.h"
+#include "atn/DrawHelper.h"
 
 extern "C" MenuD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: creates a D2A anime
 namespace atn {
@@ -1186,10 +1187,6 @@ void MenuCommonTask::fn_804A71F0(void* layout, int a, int b, int c) {
 }
 
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 
 // inferred: draws the name of an item at the top right
 extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id) {
@@ -1199,8 +1196,7 @@ extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id) {
         float y = 120.0f;
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x36F), item->mName);
         float w = fn_8006EF48(lbl_8087EEC8, text, 14.0f, 0.0f, 1, 1);
-        fn_80061824(lbl_8087EEB0, 590.0f - w, y, 0.0f, 14.0f, 14.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0,
-                    0xFF000000);
+        lbl_8087EEB0->fn_80061824(590.0f - w, y, 0.0f, 14.0f, 14.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
     }
 }
 
