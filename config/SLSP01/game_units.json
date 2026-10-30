@@ -2365,7 +2365,7 @@
    "gmk::GmkChara",
    "gmk::CharaObj"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/PassBoard.cpp",

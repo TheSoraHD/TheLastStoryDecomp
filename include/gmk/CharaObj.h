@@ -2,9 +2,10 @@
 #define GMK_CHARAOBJ_H
 
 #include "game/GimmickCommon.h"
-#include "gmk/GmkChara.h"
 
 namespace gmk {
+
+class GmkChara;
 
 // inferred: gimmick that places a character ("CHARA" file, "MOTION" and "FACE_MOTION"). The name
 // is in the DOL (__vt__Q23gmk8CharaObj, 0x100 bytes).
