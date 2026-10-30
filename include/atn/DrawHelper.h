@@ -126,7 +126,7 @@ public:
     void fn_80062908(ColliObject* colli, int a, int b, int c, int d, float arg);
     void fn_8006297C(ColliTree* colli, int a, int b, int c, int d, float arg);
     void fn_800629F0(const Vector3& center, const Vector3& size, float arg, unsigned int color, const Matrix3x4* mtx);
-    void fn_80062C8C(int segments, unsigned int color, float x, float y, float z, float a, float radius, float b);
+    void fn_80062C8C(unsigned int segments, unsigned int color, float x, float y, float z, float a, float radius, float b);
     void fn_80063200(int arg, unsigned int color, float x, float y, float z, float a, float b);
     void fn_80063484(int segments, unsigned int color, float x, float y, float z, float rot, float a, float range, float angle);
     void fn_80063764(const Vector3& a, const Vector3& b, float width, unsigned int color);

@@ -1,4 +1,5 @@
 #include "atn/DrawHelper.h"
+#include "atn/ColliBase.h"
 #include "atn/IRender.h"
 #include "atn/LoadHandle.h"
 #include "atn/Memory.h"
@@ -39,6 +40,14 @@ extern "C" void fn_8006C858(atn::DrawHelper* self); // inferred: releases the qu
 extern "C" unsigned long strlen(const char* s);
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+extern "C" void fn_80076760(void* device, int arg1, int arg2); // inferred: sets the render state
+extern "C" void GXLoadPosMtxImm(const Mtx m, unsigned int id);
+extern "C" void GXSetCurrentMtx(unsigned int id);
+extern "C" void GXClearVtxDesc();
+extern "C" void GXSetVtxDesc(int attr, int type);
+extern "C" void GXSetVtxAttrFmt(int fmt, int attr, int cnt, int type, unsigned char frac);
+extern "C" void GXSetChanAmbColor(int chan, GXColor color);
+extern "C" void GXSetChanMatColor(int chan, GXColor color);
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, unsigned long len); // inferred: SJIS to wide
 
 atn::DrawHelper* lbl_8087EEB0;
@@ -189,6 +198,32 @@ public:
     float m74;
     float m78;
     int m7C;
+};
+
+class DrawHelper::ComDrawColliObject : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawColliObject() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    ColliObject* mColli; // 0x14
+    int m18;
+};
+
+class DrawHelper::ComDrawColliTree : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawColliTree() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    ColliTree* mColli; // 0x14
+    int m18;
 };
 
 class DrawHelper::ComDrawTextureMono : public DrawHelper::ComDrawTexture {
@@ -871,5 +906,140 @@ void DrawHelper::fn_80061AE4(const wchar_t* text, unsigned int color, int a, int
     cmd->m78 = clipScale;
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
+
+// [builders]
+void DrawHelper::fn_80062908(ColliObject* colli, int a, int b, int c, int d, float z) {
+    ComDrawColliObject* cmd = m04.New_unk<ComDrawColliObject>();
+    if (cmd == 0) {
+        return;
+    }
+    cmd->m04 = 0;
+    cmd->mColli = colli;
+    cmd->m08 = a;
+    cmd->m0C = b;
+    cmd->m10 = c;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+}
+
+void DrawHelper::fn_8006297C(ColliTree* colli, int a, int b, int c, int d, float z) {
+    ComDrawColliTree* cmd = m04.New_unk<ComDrawColliTree>();
+    if (cmd == 0) {
+        return;
+    }
+    cmd->m04 = 0;
+    cmd->mColli = colli;
+    cmd->m08 = a;
+    cmd->m0C = b;
+    cmd->m10 = c;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+}
+
+void DrawHelper::fn_800629F0(const Vector3& center, const Vector3& size, float z, unsigned int color,
+                             const Matrix3x4* mtx) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(20);
+    if (v == 0) {
+        return;
+    }
+    v[0].mPos.Set_unk(-size.x, -size.y, size.z);
+    v[1].mPos.Set_unk(-size.x, size.y, size.z);
+    v[2].mPos.Set_unk(size.x, size.y, size.z);
+    v[3].mPos.Set_unk(-size.x, -size.y, size.z);
+    v[4].mPos.Set_unk(size.x, -size.y, size.z);
+    v[5].mPos.Set_unk(size.x, size.y, size.z);
+    v[6].mPos.Set_unk(size.x, size.y, -size.z);
+    v[7].mPos.Set_unk(size.x, -size.y, size.z);
+    v[8].mPos.Set_unk(size.x, -size.y, -size.z);
+    v[9].mPos.Set_unk(size.x, size.y, -size.z);
+    v[10].mPos.Set_unk(-size.x, size.y, -size.z);
+    v[11].mPos.Set_unk(size.x, -size.y, -size.z);
+    v[12].mPos.Set_unk(-size.x, -size.y, -size.z);
+    v[13].mPos.Set_unk(-size.x, size.y, -size.z);
+    v[14].mPos.Set_unk(-size.x, size.y, size.z);
+    v[15].mPos.Set_unk(-size.x, -size.y, -size.z);
+    v[16].mPos.Set_unk(-size.x, -size.y, size.z);
+    v[17].mPos.Set_unk(size.x, -size.y, -size.z);
+    v[18].mPos.Set_unk(size.x, size.y, -size.z);
+    v[19].mPos.Set_unk(-size.x, size.y, size.z);
+    DrawVertex_unk* p = v;
+    for (unsigned int i = 0; i < 20; i++) {
+        if (mtx != 0) {
+            PSMTXMultVec(mtx->m, &p->mPos, &p->mPos);
+        }
+        p->mPos += center;
+        p->mColor = color;
+        p++;
+    }
+    cmd->m04 = 0;
+    cmd->mPrim = 0xB0;
+    cmd->m10 = 0x13;
+    cmd->mCount = 0x14;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+}
+
+void DrawHelper::fn_80062C8C(unsigned int segments, unsigned int color, float x, float y, float z, float a,
+                             float radius, float b) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>((segments + 1) * 2);
+    if (v == 0) {
+        return;
+    }
+    float hh = 0.5f * b;
+    for (unsigned int i = 0; i < segments + 1; i++) {
+        Vector3 p(radius, hh, 0.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', i * (6.2831855f / segments));
+        PSMTXMultVec(m, &p, &p);
+        p.x += x;
+        p.y += y;
+        p.z += z;
+        v[i * 2].mPos = p;
+        v[i * 2].mColor = color;
+        p.y -= b;
+        DrawVertex_unk& v1 = v[i * 2 + 1];
+        v1.mPos = p;
+        v1.mColor = color;
+    }
+    cmd->m04 = 0;
+    cmd->mPrim = 0x98;
+    cmd->m10 = segments * 2;
+    cmd->mCount = (segments + 1) * 2;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+}
+
+void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsigned int color) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(2);
+    if (v == 0) {
+        return;
+    }
+    v[0].mPos = a;
+    v[0].mColor = color;
+    v[1].mPos = b;
+    v[1].mColor = color;
+    cmd->m04 = 0;
+    cmd->mPrim = 0xB0;
+    cmd->m10 = 1;
+    cmd->mCount = 2;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+}
+
+
+// [draw]
 
 } // namespace atn

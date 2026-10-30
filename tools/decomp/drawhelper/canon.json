@@ -301,7 +301,7 @@
   "const atn::Matrix3x4* mtx"
  ],
  "fn_80062C8C": [
-  "int segments",
+  "unsigned int segments",
   "unsigned int color",
   "float x",
   "float y",
