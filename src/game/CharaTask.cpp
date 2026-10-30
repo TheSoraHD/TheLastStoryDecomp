@@ -489,7 +489,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
             if (lbl_8087EEB8 != 0) {
                 char message[0x100];
                 sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
-                sprintf(message, "character not found! %s", lbl_807C7B28);
+                sprintf(message, "charactor not found! %s", lbl_807C7B28); // sic, as in the original pool
                 ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
             }
             m60 = fn_8020924C(0);
