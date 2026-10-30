@@ -91,6 +91,8 @@ extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned
 extern "C" void fn_800761A8(void* device); // inferred: flushes the render state
 extern "C" void fn_800763FC(void* device, GXTexObj* tex, int map); // inferred: loads a texture
 extern "C" void fn_80072914(void* device, int add); // inferred: additive color state of the render device
+// inferred: advance of a character (atn/Font_unk.cpp)
+extern "C" float fn_8006F17C(atn::Font_unk* font, wchar_t c, int bold, float size, int style);
 // inferred: draws a text with the font manager (atn/Font_unk.cpp, not matched there yet: the second
 // argument is the view in this call)
 extern "C" void fn_8006D7B0(atn::Font_unk* font, atn::RenderView_unk* view, float x, float y, float w, float h,
@@ -2236,6 +2238,114 @@ void DrawHelper::ComDrawFont::vf10(RenderView_unk* view) {
         m0C |= 0x10;
     }
     fn_8006D7B0(lbl_8087EEC8, view, m14, m18, m1C, m20, mText, mColor, m0C, m08, m28, m6C, m64.x, m64.y);
+    ((Matrix3x4*)lbl_8087EEC8->m33268)->SetIdentity();
+    GXSetTevSwapMode(0, 0, 0);
+    if (m2D != 0) {
+        fn_80072914(device, 0);
+        GXSetBlendMode(1, 4, 5, 0);
+    }
+}
+
+// inferred: character of a text faded at the sides, kept in the buffer of the font manager
+// (Font_unk::m332A0); the character and a terminator form a one-character string
+struct DrawFadeChar_unk {
+    wchar_t mStr[2];
+    float mX;
+    unsigned int mAlpha;
+};
+struct DrawFadeText_unk {
+    int mLength;
+    DrawFadeChar_unk mChars[1];
+};
+
+// inferred: text that fades out at the left and right ends of a window of width m74 (fade of m74 * m78),
+// drawn one character at a time
+// NONMATCHING: 92.3% - the original keeps the buffer base and an offset for the visible characters (ours
+// walks a pointer), so the registers differ
+void DrawHelper::ComDrawFontSideFade::vf10(RenderView_unk* view) {
+    int len = wcslen(mText);
+    float fade = m74 * m78;
+    Font_unk* font = lbl_8087EEC8;
+    int count = 0;
+    DrawFadeText_unk* buf = (DrawFadeText_unk*)&font->m332A0;
+    buf->mLength = len;
+    float x = m14 - m70;
+    float right = (m74 - fade) - m1C;
+    for (int i = 0; i < len; i++) {
+        wchar_t c = mText[i];
+        if (0.0f <= x && x <= m74 - m1C) {
+            DrawFadeChar_unk* e = &buf->mChars[count];
+            if (x < fade) {
+                e->mAlpha = (unsigned int)(255.0f * (x / fade)) << 24;
+            } else if (right < x) {
+                e->mAlpha = (unsigned int)(255.0f * (1.0f - (x - right) / fade)) << 24;
+            } else {
+                e->mAlpha = 0xFF000000;
+            }
+            count++;
+            e->mX = x + m70;
+            e->mStr[0] = c;
+            e->mStr[1] = 0;
+        }
+        x += fn_8006F17C(lbl_8087EEC8, c, m0C & 1, m1C, m08);
+    }
+    RenderState_unk* device = lbl_8087EEE0;
+    GXSetNumChans(1);
+    GXSetNumTexGens(1);
+    GXSetNumTevStages(1);
+    GXSetTevSwapModeTable(1, 0, 0, 0, 0);
+    GXSetTevSwapMode(0, 0, 1);
+    GXSetTevOrder(0, 0, 0, 4);
+    GXSetTevColorIn(0, 0xF, 0xC, 0xA, 0xF);
+    GXSetTevAlphaIn(0, 7, 4, 5, 7);
+    GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    if (m04 == 1) {
+        Matrix3x4 m;
+        m.SetIdentity();
+        GXLoadPosMtxImm(m.m, 0);
+        GXSetCurrentMtx(0);
+    } else {
+        fn_80076760(lbl_8087EEE0, 6, 0);
+        DrawSetZMode_unk(lbl_8087EEE0, m2C);
+        GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+        GXSetCurrentMtx(0);
+    }
+    if (m2D != 0) {
+        fn_80072914(device, 1);
+        GXSetBlendMode(1, 4, 1, 0);
+    } else {
+        fn_80072914(device, 0);
+        GXSetBlendMode(1, 4, 5, 0);
+    }
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    if (m04 == 1) {
+        GXSetVtxAttrFmt(0, 9, 0, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    } else {
+        GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+        *(Matrix3x4*)lbl_8087EEC8->m33268 = mMtx;
+    }
+    if (m60 == 1) {
+        m0C |= 2;
+    } else if (m60 == 2) {
+        m0C |= 8;
+    } else if (m60 == 3) {
+        m0C |= 0x10;
+    }
+    for (int i = 0; i < count; i++) {
+        DrawFadeChar_unk* e = &buf->mChars[i];
+        fn_8006D7B0(lbl_8087EEC8, view, e->mX, m18, m1C, m20, e->mStr, (mColor & 0xFFFFFF) | e->mAlpha, m0C, m08,
+                    m28, (m6C & 0xFFFFFF) | e->mAlpha, m64.x, m64.y);
+    }
     ((Matrix3x4*)lbl_8087EEC8->m33268)->SetIdentity();
     GXSetTevSwapMode(0, 0, 0);
     if (m2D != 0) {
