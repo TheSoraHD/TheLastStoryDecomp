@@ -3,6 +3,7 @@
 #include "atn/Texture_unk.h"
 #include "atn/Model_unk.h"
 #include "std/string.h"
+#include "std/string_members.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int fn_80239030(void* data, void* effect);       // inferred: parses the effect data

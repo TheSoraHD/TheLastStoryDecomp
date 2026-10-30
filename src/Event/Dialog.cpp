@@ -10,6 +10,7 @@
 #include "game/GimmickCommon.h"
 #include "std/string.h"
 #include "atn/DrawHelper.h"
+#include "std/string_members.h"
 
 // Everything below is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 

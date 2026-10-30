@@ -3,6 +3,7 @@
 #include "atn/SoundRef.h"
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
+#include "std/string_members.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_801F6E78(atn::Task* task, const char* name, const void* pos);

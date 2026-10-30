@@ -8,6 +8,7 @@
 #include "game/SetConfig.h"
 #include "atn/SoundCore.h"
 #include "game/Input_unk.h"
+#include "std/string_members.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 

@@ -4,6 +4,7 @@
 #include "atn/Csv.h"
 #include "atn/LH_Binary.h"
 #include "game/TownTpcLoader.h"
+#include "std/string_members.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);

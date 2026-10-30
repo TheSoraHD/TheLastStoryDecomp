@@ -6,6 +6,7 @@
 #include "game/CharaStatus.h"
 #include "game/CharaTask.h"
 #include "game/Inventory.h"
+#include "std/string_members.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);

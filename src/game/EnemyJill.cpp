@@ -4,6 +4,7 @@
 #include "math/Vec.h"
 #include "gmk/Lemon.h"
 #include "chr/ControlBase.h"
+#include "std/string_members.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);

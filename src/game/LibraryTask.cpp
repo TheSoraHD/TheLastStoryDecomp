@@ -605,9 +605,14 @@ void BookTask::fn_8046AE7C() {
     m60[1]->fn_801F4DDC("textObj", lbl_8087E040);
 }
 
-// NONMATCHING: 99.1% - offset of ".texture" in the pool (the original emits the basic_string
-// strings in another order) and the register of the page counter; the CsvU address is now in a
-// saved register as in the original (empty ~CsvBase())
+// inferred: instantiated right after its first use, as in atn/FileUtil_unk: its "basic_string:
+// out_of_range" follows the strings of fn_8046AE7C in the pool (the linker drops the copy)
+template std::basic_string<wchar_t>::basic_string(const std::basic_string<wchar_t>& str,
+                                                  std::basic_string<wchar_t>::size_type pos,
+                                                  std::basic_string<wchar_t>::size_type n);
+
+// NONMATCHING: 99.1% - the register of the page counter; the CsvU address is now in a saved register
+// as in the original (empty ~CsvBase())
 void BookTask::fn_8046B798(const void* data, unsigned int size) {
     mPages.Free_unk();
     atn::CsvU csv((const wchar_t*)data, size / 2);

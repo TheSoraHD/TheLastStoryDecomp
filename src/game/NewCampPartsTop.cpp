@@ -171,6 +171,7 @@ public:
     static GameBgm* sInstance;
 };
 #include "atn/SequenceBoot_unk.h"
+#include "std/string_members.h"
 class MenuCommonTask {
 public:
     static MenuCommonTask* sInstance;

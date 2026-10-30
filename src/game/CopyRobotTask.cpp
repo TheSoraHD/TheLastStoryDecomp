@@ -3,6 +3,7 @@
 #include "std/string.h"
 #include "macros.h"
 #include "atn/DrawHelper.h"
+#include "std/string_members.h"
 
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension

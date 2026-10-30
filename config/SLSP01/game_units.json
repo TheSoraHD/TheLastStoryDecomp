@@ -3194,6 +3194,11 @@
   "matching": false
  },
  {
+  "name": "game/SpecialEnemyFactory_unk.cpp",
+  "classes": [],
+  "matching": false
+ },
+ {
   "name": "game/SpecialEnemyBase.cpp",
   "classes": [
    "SpecialEnemyBase"

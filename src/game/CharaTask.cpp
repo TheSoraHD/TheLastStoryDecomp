@@ -489,7 +489,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
             if (lbl_8087EEB8 != 0) {
                 char message[0x100];
                 sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
-                sprintf(message, "character not found! %s", lbl_807C7B28);
+                sprintf(message, "charactor not found! %s", lbl_807C7B28); // sic, as in the original pool
                 ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
             }
             m60 = fn_8020924C(0);
@@ -5761,7 +5761,7 @@ void CharaTask::vf30(void* menu) {
     }
     char name[32];
     sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
-    sprintf(name, "%s [%d]", lbl_807C7B28, m58);
+    sprintf(name, "%s [%d]\0", lbl_807C7B28, m58);
     void* group;
     if (m54.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
         group = m54.mRes = fn_8008937C(menu, name);

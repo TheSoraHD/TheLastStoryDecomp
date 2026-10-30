@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `fb2-materialparser` (2026-10-30, propuesta F-b2; mergeada en `main`): **8750 / 18215 funciones al 100%** (código 31,36%), `main.dol: OK`. `atn/MaterialParser_unk` 21/35 al 100% (tokenizador, `fn_80081080`, `fn_800816B4`); pool de cadenas idéntico; faltan 14 entre 90,6 y 99,84% (registros/planificación). Detalle en `docs/fb2-materialparser.md`.
-- Anteriores: `fb3-drawhelper-paso3` (F-b3 paso 3, mergeada; `atn/DrawHelper` 53/68, `docs/fb3-comdrawtexture.md`), `fb3-comdrawtexture`, `fb-materialparser` (`docs/fb-materialparser.md`), `batch-auto-50kb-atn` (F), `batch-auto-20kb-game` (E), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
+- `i2-poolorder` (2026-10-30, propuesta I2; rama sin mergear): **8752 / 18215 funciones al 100%** (código 31,37%), `main.dol: OK`. `tools/decomp/poolorder.py` compara el orden de `@stringBase0` con el original: 317 unidades con pool idéntico (antes 279); las 34 restantes son presupuesto de inline (`push_back`) o unidades a medias. Split nuevo `game/SpecialEnemyFactory_unk` (fábrica 99,97%) y 12 pools `lbl_` renombrados `@stringBase0`. Detalle en `docs/i2-poolorder.md`.
+- Anteriores: `fb2-materialparser` (F-b2, mergeada; `atn/MaterialParser_unk` 21/35, `docs/fb2-materialparser.md`), `fb3-drawhelper-paso3` (`atn/DrawHelper` 53/68, `docs/fb3-comdrawtexture.md`), `fb3-comdrawtexture`, `fb-materialparser`, `batch-auto-50kb-atn` (F), `batch-auto-20kb-game` (E), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
 - objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%. Tras editar una unidad ya emparejada: `resetlocal.py`, `pairdata.py --apply`, `configure`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
@@ -78,6 +78,7 @@ python3 tools/decomp/pairnames.py <unidad> [--apply]           # renombra fn_/lb
 python3 tools/decomp/regress.py <now/report.json> <ref/report.json>   # funciones perdidas (lost: 0)
 python3 tools/decomp/fuzzdrop.py <now/report.json> <ref/report.json>  # bajadas de fuzzy
 python3 tools/decomp/poolcheck.py [unidad...]                  # floats de .sdata2 y cadenas frente al .o original
+python3 tools/decomp/poolorder.py [--funcs] [unidad...]        # orden de @stringBase0 frente al original
 python3 tools/decomp/ordercheck.py <unidad> [-v]               # orden del fuente frente al .dol (fuera de orden / faltan)
 python3 tools/decomp/reorder.py <unidad> [--dry]               # reescribe el .cpp en orden del .dol (luego cmp.py)
 python3 tools/decomp/autoscan.py --min 0x100 [--unit X] [--data]      # tramos auto_ (borrar antes build/SLSP01/asm)

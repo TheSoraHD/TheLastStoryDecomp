@@ -4,6 +4,7 @@
 #include "macros.h"
 #include "atn/SoundRef.h"
 #include "atn/DrawHelper.h"
+#include "std/string_members.h"
 
 // inferred: debug settings (only the members used here)
 struct LogSettings_unk {

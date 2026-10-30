@@ -303,6 +303,10 @@ void DebugMessages_unk::fn_800698DC(const char* path) {
     Add_unk(msg.c_str(), 0xFFFF0000);
 }
 
+// inferred: the original emits this weak copy right after fn_800698DC (0x80069BF4); its
+// "basic_string: out_of_range" follows the strings of that function in the pool
+template std::string::basic_string(const std::string& str, std::string::size_type pos, std::string::size_type n);
+
 void DebugMessages_unk::fn_80069D48(const char* text) {
     Add_unk(text, 0xFF00FFFF);
 }
@@ -328,3 +332,6 @@ void DebugMessages_unk::fn_80069E50(int draw) {
         }
     }
 }
+
+// inferred: the original emits this weak copy right after fn_80069E50 (0x8006A004)
+template std::string::size_type std::string::find(const char* s, std::string::size_type pos, std::string::size_type n) const;

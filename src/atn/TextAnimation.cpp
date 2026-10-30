@@ -4,6 +4,7 @@
 #include "std/vector.h"
 #include "std/new.h"
 #include "atn/Memory.h"
+#include "std/string_members.h"
 
 // atn::TextAnimation (RTTI name): texts that appear character by character (Event/Dialog uses the
 // instance lbl_8087F008). Names of the functions are not known; the ones called from other files are

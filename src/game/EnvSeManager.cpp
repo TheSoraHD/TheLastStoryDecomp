@@ -5,6 +5,7 @@
 #include "atn/SoundManager.h"
 #include "std/string.h"
 #include "atn/DrawHelper.h"
+#include "std/string_members.h"
 
 // Everything below is inferred from EnvSeManager (0x8035DF48..0x80360C5C); names are invented.
 
@@ -549,7 +550,7 @@ void EnvSeManager::fn_8035FF94(int id, int fade, int wait) {
     EnvSeArea_unk* area = FindArea_unk(id);
     mNextReq = EnvSeBgmReq_unk();
     if (area != 0) {
-        sprintf(mNextReq.mName, "%s", area->mData.mName);
+        sprintf(mNextReq.mName, "%s\0", area->mData.mName);
         mNextReq.mSoundId = area->m04;
         if (m7C != 0 || (m80 != 0 && lbl_8087EE90 != 0 && fn_80049B2C(lbl_8087EE90, area->m04) != 0)) {
             mNextReq.mSoundId = 0;

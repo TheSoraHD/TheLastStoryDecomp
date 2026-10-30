@@ -224,7 +224,7 @@ extern "C" void fn_8021F47C() {
                 unsigned int hash = fn_800DC6B4(name);
                 Map_unk<unsigned int, const char*>::Node* it = names.find(hash);
                 if (it == names.end()) {
-                    sprintf(lbl_8087F358 + pos, "%s", name);
+                    sprintf(lbl_8087F358 + pos, "%s\0", name);
                     entry->mNames[i].mPtr = lbl_8087F358 + pos;
                     Map_unk<unsigned int, const char*>::Value value;
                     value.first = hash;
