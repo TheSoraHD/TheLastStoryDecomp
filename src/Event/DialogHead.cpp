@@ -7,6 +7,7 @@
 #include "std/string.h"
 #include "macros.h"
 #include <boost/function.hpp>
+#include "std/string_members.h"
 
 // Everything below is inferred from Event::DialogHead (0x802251F8..0x802280B4); names are invented.
 
@@ -363,6 +364,10 @@ int DialogHead::fn_80227A94(char* path, int kind, int arg, int right) {
     sprintf(path, "/database/chara/face/ce_%s_%s%02d_%s.face", name.c_str(), k, arg, s);
     return fn_8006AA20(path);
 }
+
+// inferred: instantiated right after its first use, as in atn/FileUtil_unk: its "basic_string:
+// out_of_range" follows the strings of fn_80227A94 in the pool (the linker drops the copy)
+template std::string::basic_string(const std::string& str, std::string::size_type pos, std::string::size_type n);
 
 void DialogHead::fn_80227D2C(int kind, int arg) {
     if (!m1840[kind][arg][0] && !m1840[kind][arg][1]) {
