@@ -1,4 +1,5 @@
 #include "atn/DrawHelper.h"
+#include "atn/Font_unk.h"
 #include "atn/Camera_unk.h"
 #include "atn/ColliBase.h"
 #include "atn/GXDecl.h"
@@ -42,7 +43,6 @@ extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int pass); // inferred: queues a render
 extern "C" void fn_8006C7FC();
 extern "C" int fn_8006CABC(void* font, const std::string& dir);
-extern "C" void* lbl_8087EEC8;
 extern "C" void fn_800D594C(atn::Texture_unk* texture, const char* path); // inferred: loads a texture and waits
 extern "C" void fn_8006C858(atn::DrawHelper* self); // inferred: releases the queued commands
 extern "C" unsigned long strlen(const char* s);
@@ -90,6 +90,12 @@ extern "C" void GXSetTevAlphaIn(int stage, int a, int b, int c, int d);
 extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned char clamp, int outReg);
 extern "C" void fn_800761A8(void* device); // inferred: flushes the render state
 extern "C" void fn_800763FC(void* device, GXTexObj* tex, int map); // inferred: loads a texture
+extern "C" void fn_80072914(void* device, int add); // inferred: additive color state of the render device
+// inferred: draws a text with the font manager (atn/Font_unk.cpp, not matched there yet: the second
+// argument is the view in this call)
+extern "C" void fn_8006D7B0(atn::Font_unk* font, atn::RenderView_unk* view, float x, float y, float w, float h,
+                            const wchar_t* text, unsigned int color, unsigned int flags, int style, float spacing,
+                            unsigned int color2, float ox, float oy);
 
 atn::DrawHelper* lbl_8087EEB0;
 
@@ -2174,6 +2180,68 @@ void DrawHelper::ComDrawTextureMaskMono::vf10(RenderView_unk* view) {
     GXSetTevSwapMode(1, 0, 0);
     GXSetTevSwapMode(2, 0, 0);
     GXSetTevSwapMode(3, 0, 0);
+}
+
+void DrawHelper::ComDrawFont::vf10(RenderView_unk* view) {
+    RenderState_unk* device = lbl_8087EEE0;
+    GXSetNumChans(1);
+    GXSetNumTexGens(1);
+    GXSetNumTevStages(1);
+    GXSetTevSwapModeTable(1, 0, 0, 0, 0);
+    GXSetTevSwapMode(0, 0, 1);
+    GXSetTevOrder(0, 0, 0, 4);
+    GXSetTevColorIn(0, 0xF, 0xC, 0xA, 0xF);
+    GXSetTevAlphaIn(0, 7, 4, 5, 7);
+    GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    if (m04 == 1) {
+        Matrix3x4 m;
+        m.SetIdentity();
+        GXLoadPosMtxImm(m.m, 0);
+        GXSetCurrentMtx(0);
+    } else {
+        fn_80076760(lbl_8087EEE0, 6, 0);
+        DrawSetZMode_unk(lbl_8087EEE0, m2C);
+        GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+        GXSetCurrentMtx(0);
+    }
+    if (m2D != 0) {
+        fn_80072914(device, 1);
+        GXSetBlendMode(1, 4, 1, 0);
+    } else {
+        fn_80072914(device, 0);
+        GXSetBlendMode(1, 4, 5, 0);
+    }
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    if (m04 == 1) {
+        GXSetVtxAttrFmt(0, 9, 0, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    } else {
+        GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+        *(Matrix3x4*)lbl_8087EEC8->m33268 = mMtx;
+    }
+    if (m60 == 1) {
+        m0C |= 2;
+    } else if (m60 == 2) {
+        m0C |= 8;
+    } else if (m60 == 3) {
+        m0C |= 0x10;
+    }
+    fn_8006D7B0(lbl_8087EEC8, view, m14, m18, m1C, m20, mText, mColor, m0C, m08, m28, m6C, m64.x, m64.y);
+    ((Matrix3x4*)lbl_8087EEC8->m33268)->SetIdentity();
+    GXSetTevSwapMode(0, 0, 0);
+    if (m2D != 0) {
+        fn_80072914(device, 0);
+        GXSetBlendMode(1, 4, 5, 0);
+    }
 }
 
 // Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
