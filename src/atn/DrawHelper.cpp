@@ -1,6 +1,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/Camera_unk.h"
 #include "atn/ColliBase.h"
+#include "atn/GXDecl.h"
 #include "atn/IRender.h"
 #include "atn/LoadHandle.h"
 #include "atn/Memory.h"
@@ -115,6 +116,12 @@ struct DrawUV2_unk {
 // inferred: vertex of the masked texture commands (0x20)
 struct DrawMaskVertex_unk {
     DrawMaskVertex_unk() {}
+    // inferred: name invented
+    void Set_unk(const Vector3& pos, unsigned int color, const DrawUV2_unk& uv) {
+        mPos = pos;
+        mColor = color;
+        mUV = uv;
+    }
     Vector3 mPos;
     unsigned int mColor;
     DrawUV2_unk mUV;
@@ -238,6 +245,21 @@ public:
     int m10;
     ColliTree* mColli; // 0x14
     int m18;
+};
+
+class DrawHelper::ComDrawWindow : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawWindow() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;                         // inferred: 0 for the blend modes 6, 8 and 0xD
+    DrawMaskVertex_unk* mCorner[4];  // 0x08: the 4 corners (4 vertices each)
+    DrawMaskVertex_unk* mEdge[4];    // 0x18: the 4 edges between them
+    Texture_unk* mTex0;              // 0x28
+    Texture_unk* mTex1;              // 0x2C
+    unsigned char m30;
+    int m34;
+    int m38;
 };
 
 class DrawHelper::ComDrawD3TextureMask : public DrawHelper::DrawCommand {
@@ -943,6 +965,122 @@ void DrawHelper::fn_80061AE4(const wchar_t* text, unsigned int color, int a, int
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 
+// inferred: window frame of 9 parts drawn with a corner texture (tex0) masked by tex1: the 4 corners
+// keep the size of the texture (scaled, at most half the window) and the 4 edges are stretched between them
+// NONMATCHING: 94.8% - same instructions; float/int register allocation differs from the start (z, the
+// scales and the sizes) and the ready flag of the texture checks is li instead of mr
+void DrawHelper::fn_80061E2C(float x, float y, float z, float w, float h, unsigned int color, void* tex0, void* tex1,
+                             int arg, float offsetX, float offsetY, float scaleX, float scaleY) {
+    ComDrawWindow* cmd = m04.New_unk<ComDrawWindow>();
+    if (cmd == 0) {
+        return;
+    }
+    float left = x + offsetX;
+    float top = y + offsetY;
+    float width = w - 2.0f * offsetX;
+    float height = h - 2.0f * offsetY;
+    float texW = (int)GXGetTexObjWidth(&((Texture_unk*)tex0)->mObj);
+    float texH = (int)GXGetTexObjHeight(&((Texture_unk*)tex0)->mObj);
+    float cw = Abs_unk(0.5f * width);
+    float limW = texW * scaleX;
+    cw = (cw < limW) ? cw : limW;
+    cw = cw * (width / Abs_unk(width));
+    float ch = Abs_unk(0.5f * height);
+    float limH = texH * scaleY;
+    ch = (ch < limH) ? ch : limH;
+    ch = ch * (height / Abs_unk(height));
+    float innerW = width - 2.0f * cw;
+    float innerH = height - 2.0f * ch;
+    DrawUV2_unk uvs[4];
+    uvs[0] = DrawUV2_unk(0.0f, 0.0f, 1.0f, 1.0f);
+    uvs[1] = DrawUV2_unk(1.0f, 0.0f, 0.0f, 1.0f);
+    uvs[2] = DrawUV2_unk(1.0f, 1.0f, 0.0f, 0.0f);
+    uvs[3] = DrawUV2_unk(0.0f, 1.0f, 1.0f, 0.0f);
+    Vector2_unk corners[4] = {Vector2_unk(left, top), Vector2_unk(left + (width - cw), top),
+                              Vector2_unk(left + (width - cw), top + (height - ch)),
+                              Vector2_unk(left, top + (height - ch))};
+    Vector3 p;
+    for (int i = 0; i < 4; i++) {
+        DrawMaskVertex_unk* v = m04.NewArray_unk<DrawMaskVertex_unk>(4);
+        if (v == 0) {
+            return;
+        }
+        p = DrawTransform_unk(mA4, Vector3(corners[i].x, corners[i].y, 0.0f));
+        v[0].mPos = p;
+        v[0].mColor = color;
+        v[0].mUV = DrawUV2_unk(0.0f, 0.0f, uvs[i].u0, uvs[i].v0);
+        p = DrawTransform_unk(mA4, Vector3(cw + corners[i].x, corners[i].y, 0.0f));
+        v[1].mPos = p;
+        v[1].mColor = color;
+        v[1].mUV = DrawUV2_unk(1.0f, 0.0f, uvs[i].u1, uvs[i].v0);
+        p = DrawTransform_unk(mA4, Vector3(cw + corners[i].x, ch + corners[i].y, 0.0f));
+        v[2].mPos = p;
+        v[2].mColor = color;
+        v[2].mUV = DrawUV2_unk(1.0f, 1.0f, uvs[i].u1, uvs[i].v1);
+        p = DrawTransform_unk(mA4, Vector3(corners[i].x, ch + corners[i].y, 0.0f));
+        v[3].mPos = p;
+        v[3].mColor = color;
+        v[3].mUV = DrawUV2_unk(0.0f, 1.0f, uvs[i].u0, uvs[i].v1);
+        cmd->mCorner[i] = v;
+    }
+    Vector3 centers[4];
+    Vector3 sizes[4];
+    sizes[0].x = innerW + 2.0f * (0.001f * cw);
+    sizes[0].y = ch;
+    sizes[1].x = innerH + 2.0f * (0.001f * ch);
+    sizes[1].y = cw;
+    sizes[2].x = innerW + 2.0f * (0.001f * cw);
+    sizes[2].y = ch;
+    sizes[3].x = innerH + 2.0f * (0.001f * ch);
+    sizes[3].y = cw;
+    centers[0].x = 0.5f * innerW + (left + cw);
+    centers[0].y = 0.5f * ch + top;
+    centers[1].x = 0.5f * cw + (left + (width - cw));
+    centers[1].y = 0.5f * innerH + (top + ch);
+    centers[2].x = 0.5f * innerW + (left + cw);
+    centers[2].y = 0.5f * ch + (top + (height - ch));
+    centers[3].x = 0.5f * cw + left;
+    centers[3].y = 0.5f * innerH + (top + ch);
+    for (int j = 0; j < 4; j++) {
+        DrawMaskVertex_unk* v = m04.NewArray_unk<DrawMaskVertex_unk>(4);
+        if (v == 0) {
+            return;
+        }
+        sizes[j].x *= 0.5f;
+        sizes[j].y *= 0.5f;
+        Mtx rot;
+        PSMTXRotRad(rot, 'z', 1.5707964f * j);
+        Vector3 c(centers[j].x, centers[j].y, 0.0f);
+        Vector3 pts[4];
+        for (int k = 0; k < 4; k++) {
+            pts[k].Set_unk((k == 0 || k == 3) ? -sizes[j].x : sizes[j].x, (k / 2) ? -sizes[j].y : sizes[j].y,
+                           0.0f);
+            pts[k] += Vector3(centers[j].x, centers[j].y, 0.0f);
+            pts[k] = pts[k] - c;
+            Vector3& p2 = pts[k];
+            PSMTXMultVec(rot, &p2, &p2);
+            p2 += c;
+            pts[k] = DrawTransform_unk(mA4, pts[k]);
+            v[k].Set_unk(pts[k], color, DrawUV2_unk((k == 0 || k == 3) ? 0.0f : 1.0f, (k / 2) ? 0.0f : 1.0f,
+                                                (k == 0 || k == 3) ? 0.0f : 1.0f, (k / 2) ? 0.0f : 1.0f));
+        }
+        cmd->mEdge[j] = v;
+    }
+    int blend = 1;
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
+        blend = 0;
+    }
+    cmd->m04 = blend;
+    cmd->mTex0 = DrawTexValid_unk((Texture_unk*)tex0) ? (Texture_unk*)tex0 : 0;
+    cmd->mTex1 = DrawTexValid_unk((Texture_unk*)tex1) ? (Texture_unk*)tex1 : 0;
+    cmd->m30 = 1;
+    if (mA0 == 8 || mA0 == 0xD) {
+        cmd->m30 = 0;
+    }
+    cmd->m34 = arg;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
 void DrawHelper::fn_80062908(ColliObject* colli, int a, int b, int c, int d, float z) {
     ComDrawColliObject* cmd = m04.New_unk<ComDrawColliObject>();
     if (cmd == 0) {
@@ -1526,8 +1664,7 @@ void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int 
     fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
 }
 
-// Pending (in the order of the .dol): fn_800638B0, fn_80063D3C, fn_800641CC, fn_8006471C, fn_80064AC4 before
-// fn_80064F00; fn_80061E2C (window) before fn_80062908; then the vf10 of every command
-// (0x80065060-0x800685E4) and the weak destructors.
+// Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
+// destructors.
 
 } // namespace atn
