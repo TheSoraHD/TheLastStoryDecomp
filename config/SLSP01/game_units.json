@@ -2669,7 +2669,7 @@
   "classes": [
    "MapPartsEfp"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsFlare.cpp",

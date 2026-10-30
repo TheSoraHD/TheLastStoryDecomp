@@ -8,7 +8,7 @@
 class MapPartsEfp : public MapPartsBase {
 public:
     MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv); // 0x80496670
-    virtual ~MapPartsEfp() {}
+    virtual ~MapPartsEfp();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();

@@ -18,7 +18,8 @@ struct Color4f_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9);
+                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
+                            float scale);
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg);
 
@@ -43,15 +44,12 @@ MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv)
     }
 }
 
+MapPartsEfp::~MapPartsEfp() {}
+
 int MapPartsEfp::vf0C() {
     return mEfp.IsLoading() == 0;
 }
 
-// NONMATCHING: 98.6% - stores and stack layout match, but the 0.0f/1.0f constants land in
-// swapped FPRs (target: 1.0f in f1). Tried: argument temporaries, default arguments, named locals
-// in every order, one parameter struct, chained and per-field assignments, colour first. An inline
-// helper with the three temporaries in the call gets the FPRs right but stores the colour after rot/pos
-// (same score); named locals or a colour parameter in the helper go back to the swapped FPRs.
 void MapPartsEfp::vf10() {
     switch (mMode) {
     case 0:
@@ -72,7 +70,7 @@ void MapPartsEfp::vf10() {
             color.g = 1.0f;
             color.b = 1.0f;
             color.a = 1.0f;
-            fn_8023A8B4(lbl_8087F3C0, &mEfp, id, 0, pos, rot, color, -1, -1, 1);
+            fn_8023A8B4(lbl_8087F3C0, &mEfp, id, 0, pos, rot, color, -1, -1, 1, 1.0f);
             lbl_8087F3C0->mB8 = 0;
             mDone = 1;
         }
@@ -94,7 +92,7 @@ void MapPartsEfp::vf10() {
             color.g = 1.0f;
             color.b = 1.0f;
             color.a = 1.0f;
-            fn_8023A8B4(lbl_8087F3C0, &mEfp, id, 0, pos, rot, color, -1, -1, 1);
+            fn_8023A8B4(lbl_8087F3C0, &mEfp, id, 0, pos, rot, color, -1, -1, 1, 1.0f);
         }
         break;
     case 2:
@@ -114,7 +112,7 @@ void MapPartsEfp::vf10() {
             color.g = 1.0f;
             color.b = 1.0f;
             color.a = 1.0f;
-            fn_8023A8B4(lbl_8087F3C0, &mEfp, id, 0, pos, rot, color, -1, -1, 1);
+            fn_8023A8B4(lbl_8087F3C0, &mEfp, id, 0, pos, rot, color, -1, -1, 1, 1.0f);
         }
         break;
     }
