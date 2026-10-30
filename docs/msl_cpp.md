@@ -113,10 +113,10 @@ register for the new capacity, and `(data + size) - data` not folded before the 
   shared function (`__vec_word_alloc_unk::__allocate`, symbol renamed). Other element types keep one
   literal per `vector<T>::__allocate` (e.g. `vector<Vector3>`, 6 files). `n * sizeof(void*)` (not `n * 4`)
   so that `vector<float>(n)` reuses the product for its memset (0x8032B6F8).
-- Same pattern in `std::list`: lists of pointers share 0x80779810 (17 files). A shared
-  `__list_ptr_alloc_unk` gives 14 ups but 2 drops (`Loader::fn_8046EF08` 98.21 -> 98.13, `Get_unk<LoadCore>`
-  98.53 -> 98.49; `Get_unk<LoadColliTree>` 96.75 -> 96.96): not applied (same list-end/node register
-  residue as `Loader::Get_unk`).
+- Same pattern in `std::list`: lists of pointers share 0x80779810 (17 files), now through
+  `__list_ptr_alloc_unk::__allocate` (symbol renamed). 14 ups and 2 accepted drops (user decision
+  2026-10-30): `Loader::fn_8046EF08` 98.36 -> 98.13 and `Get_unk<LoadCore>` 98.62 -> 98.49, both the
+  list-end/node register residue of `Loader::Get_unk` (`Get_unk<LoadColliTree>` 96.75 -> 96.96).
 - Open: in loops the original gives size r4 / cap r3 (`addi r4,r4,1; ...; add; stw x,-4`). Probe
   `pb/t1.cpp` (`while (id != -1) { v.push_back(id); id = next(); }`) reproduces it in isolation: addressing
   the element with the new size (`mData[mSize - 1]`, as the original) always gives size r3; addressing it
