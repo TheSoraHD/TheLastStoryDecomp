@@ -4,17 +4,93 @@
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
 
+// inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em101ElderZesya.cpp); names invented
+struct EggLook_unk {
+    void Set_unk(const atn::Vector3& pos, bool flag) {
+        m01 = m00;
+        m00 = 1;
+        mPos = pos;
+        m24 = 0.0f;
+        if (flag) {
+            m04 = 1;
+        } else {
+            m04 = 0;
+        }
+    }
+    unsigned char m00;
+    unsigned char m01;
+    unsigned char m02[2];
+    int m04;
+    unsigned char m08[4];
+    atn::Vector3 mPos;
+    unsigned char m18[0x24 - 0x18];
+    float m24;
+};
+// inferred: camera parameters of the field (lbl_8087F430 + 0x588; as ElderCamParam_unk in game/Em101ElderZesya.cpp)
+struct EggCamParam_unk {
+    EggCamParam_unk(const EggCamParam_unk& o)
+        : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
+          m20(o.m20), m24(o.m24), m28(o.m28), m2C(o.m2C), m30(o.m30), m34(o.m34), m38(o.m38) {}
+    EggCamParam_unk& operator=(const EggCamParam_unk& o) {
+        m00 = o.m00;
+        m04 = o.m04;
+        m08 = o.m08;
+        m0C = o.m0C;
+        m10 = o.m10;
+        m14 = o.m14;
+        m18 = o.m18;
+        m1C = o.m1C;
+        m20 = o.m20;
+        m24 = o.m24;
+        m28 = o.m28;
+        m2C = o.m2C;
+        m30 = o.m30;
+        m34 = o.m34;
+        m38 = o.m38;
+        return *this;
+    }
+    float m00;
+    float m04;
+    float m08;
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
+    float m24;
+    float m28;
+    float m2C;
+    float m30;
+    float m34;
+    int m38;
+};
+// inferred: camera mode of the field (lbl_8087F430 + 0x4D8); names invented
+struct EggCamera_unk {
+    void Set_unk(int mode, const EggCamParam_unk& param) {
+        if (mMode != mode) {
+            mMode = mode;
+            mParam = param;
+            m08 = 0.05f;
+            m04 = 1.0f;
+        }
+    }
+    int mMode;
+    float m04;
+    float m08;
+    EggCamParam_unk mParam;
+};
 // inferred: field (lbl_8087F430); only the members used here (names invented)
 struct Field_unk {
     unsigned char m0000[0x4D8];
-    int m4D8;
-    unsigned char m4DC[0x8A0 - 0x4DC];
+    EggCamera_unk m4D8;
+    unsigned char m520[0x588 - 0x520];
+    EggCamParam_unk m588;
+    unsigned char m5C4[0x8A0 - 0x5C4];
     CharaTask* m8A0;      // inferred: character the camera follows
     unsigned char m8A4[0x97C - 0x8A4];
-    unsigned char m97C;
-    unsigned char m97D[0x988 - 0x97D];
-    atn::Vector3 m988;    // inferred: point the camera looks at
-    unsigned char m994[0x54F4 - 0x994];
+    EggLook_unk m97C;
+    unsigned char m9A4[0x54F4 - 0x9A4];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
     unsigned char m54F8[0x5694 - 0x54F8];
     int m5694;            // inferred: nonzero in the multiplayer mode
@@ -64,6 +140,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" double acos(double x);
+extern "C" double fmod(double x, double y);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" float PSVECMag(const atn::Vector3* v);
@@ -90,6 +167,24 @@ static inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: same with the manager passed in (name invented)
+static inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
 // inferred: front direction of the character (name invented)
@@ -202,6 +297,75 @@ int Em206EggMonster::vf0C() {
     return 0;
 }
 
+void Em206EggMonster::vf3C(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (msg->mAttacker == this) {
+        msg->m90 = 0;
+        msg->m84 = 2;
+        msg->m68 = 0;
+        msg->m8C = 1;
+        return;
+    }
+    msg->m10 *= 0.0f;
+    if (msg->mData->m01 == 1 && *(int*)&msg->m3C[4] == 1 && msg->mData->m04 != 0x4E88) {
+        fn_8017A300(m1708);
+        if (fn_80370A78(lbl_8087F430, 0xFC) == 0 && m15F4 == 0) {
+            msg->m0C |= 0x200000;
+            m15F8++;
+            float hp = mStatus.m04;
+            if ((hp / mStatus.mParamB.m84 < 0.85f || m15F8 >= 3) && lbl_8087F430->m5694 == 0) {
+                m1590 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 7;
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 0.5f;
+                mMotion.fn_80097C08(0, 0x37, 0, 0, 1, 0.0f, 0.025f);
+                m15B0 = 1;
+                m15B4 = 1;
+                m15F4 = 1;
+                if (m15B0 != 0) {
+                    fn_80370AE4(lbl_8087F430, 0xFC, 1);
+                } else {
+                    fn_80370AE4(lbl_8087F430, 0xFC, 3);
+                }
+                m1594 = 1;
+                m16BC = 1;
+                fn_80232B7C(this, 200);
+                EffectMgr_unk* mgr = lbl_8087F3C0;
+                fn_8023A680(mgr, &m16F4, -1, 5, &m16C4, 0, 0, 0, 0, -1, 1, 1.0f);
+            } else {
+                m1590 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 6;
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x35, 0, 0, 1, 0.0f, 0.025f);
+                m15B4 = 1;
+            }
+            if (m15F8 <= 3) {
+                m15B8 = 1;
+            } else {
+                m15B8 = 0;
+            }
+            m1700 = 0;
+            m15C4 = 0;
+        }
+    }
+    if (*(int*)&msg->m3C[4] == 1) {
+        msg->m0C = 0x80000000;
+        msg->m94 = 0x80000000;
+    }
+    int part = *(int*)&msg->m3C[4];
+    msg->m1C = m624.mData[part].m04.mCenter;
+    msg->m1C += msg->m28 * m624.mData[part].m04.mRadius;
+    msg->m1C.y += m624.mData[part].m04.mRadius;
+    fn_80151448(msg);
+    vf40(hit);
+    fn_8017A300(m1704);
+}
+
 void Em206EggMonster::vf40(HitInfo_unk* hit) {
     if (mStatus.IsState_unk(0x20)) {
         fn_802C4B70();
@@ -269,6 +433,56 @@ atn::Vector3 Em206EggMonster::vf64(int center) {
     return result;
 }
 
+// NONMATCHING: 99.2% - stack slots of the rotation temporaries and an frsp before atan2 (same
+// rotation inline as the vfFC of the spiders)
+void Em206EggMonster::fn_802C3EDC() {
+    if (m55C == 7) {
+        if (m1594 != 2 && mC58.mC4 != (CharaTask*)mC58.mC8) {
+            fn_8016E970(3);
+            fn_80170A20(m1584, 0, -1.0f);
+        }
+    } else if (m1594 == 2) {
+        fn_8016E970(3);
+        mRoute.mA0 = 0;
+        fn_8016F824(0xAC, 0);
+    } else {
+        fn_8016E970(3);
+        fn_80170A20(m1584, 0, -1.0f);
+    }
+    if (m1594 == 1) {
+        m568 = 0.85f;
+        mMotion.mTracks[0].m0C = 3.0f;
+    } else {
+        m568 = 0.15f;
+        mMotion.mTracks[0].m0C = 1.0f;
+    }
+    fn_802C2BCC();
+    if (m1594 != 2) {
+        atn::Vector3 d = m1584->mPos - mPos;
+        atn::Vector3 n = d;
+        PSVECNormalize(&n, &n);
+        atn::Vector3 rot = n.ToRotationZ_unk();
+        atn::WrapAngle_unk(rot.y - mRot.y);
+        atn::Vector3 m = d;
+        PSVECNormalize(&m, &m);
+        PSVECMag(&m);
+        int limit;
+        if (m1594 == 1) {
+            limit = 300;
+        } else {
+            limit = 15;
+            int t = 150 - m15C4 * 10;
+            if (t >= 15) {
+                limit = t;
+            }
+        }
+        if (m1590 > limit && m58C != fn_802C38E4()) {
+            m58C = 0;
+            fn_8016E970(3);
+        }
+    }
+}
+
 void Em206EggMonster::fn_802C42D4() {
     if (fn_80158BB4() != 0) {
         EndAction_unk();
@@ -314,8 +528,8 @@ void Em206EggMonster::vfEC() {
             fn_801765D8();
             fn_80370AE4(lbl_8087F430, 0xF9, 1);
             field->m8A0 = 0;
-            field->m4D8 = 0;
-            field->m97C = 0;
+            field->m4D8.mMode = 0;
+            field->m97C.m00 = 0;
         }
     } else {
         atn::Vector3 p = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
@@ -323,8 +537,60 @@ void Em206EggMonster::vfEC() {
             p.y = 5.0f + mPos.y;
         }
         field->m8A0 = this;
-        field->m988 = p;
+        field->m97C.mPos = p;
     }
+}
+
+void Em206EggMonster::fn_802C4858() {
+    m1590 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 3;
+    fn_8016E970(6);
+    m560 = 4;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x13F, 0, 0, 1, 0.0f, 0.025f);
+    fn_80232B7C(this, 1000);
+    PlayEffectM_unk(lbl_8087F3C0, &m1578, &mMotion);
+    m1528 = m1584;
+    atn::Vector3 d = m1528->mPos - mPos;
+    atn::Vector3 r = d.ToRotationZ_unk();
+    mRot.y = r.y;
+    m15B4 = 0;
+}
+
+// NONMATCHING: 97% - the original addresses the camera mode (0x4D8) and the look point (0x97C) through base
+// registers (same open case as Em101ElderZesya::fn_8025922C)
+// inferred: death (the camera follows the egg with the parameters of mode 4)
+void Em206EggMonster::fn_802C4B70() {
+    m1590 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = 9;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.025f);
+    m15B4 = 1;
+    m16BC = 0;
+    fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+    fn_80232B7C(0, 0);
+    PlayEffectM_unk(lbl_8087F3C0, &m16A4, &mMotion);
+    Field_unk* field = lbl_8087F430;
+    atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    EggCamera_unk* cam = &field->m4D8;
+    EggCamParam_unk param = field->m588;
+    param.m08 = 0.0f;
+    param.m04 = 0.61086524f;
+    param.m00 = 15.0f;
+    param.m10 = 12.0f;
+    field->m8A0 = this;
+    cam->Set_unk(4, param);
+    field->m97C.Set_unk(pos, false);
 }
 
 // inferred: sends `id` to the egg gimmicks (0x40F, 0x410, 0x412) in a cone in front (as fn_805A5078)
@@ -351,6 +617,22 @@ void Em206EggMonster::fn_802C4E80(int id, float radius, float angle) {
                 }
             }
         }
+    }
+}
+
+// NONMATCHING: 96% - registers of the Vector3 copies (docs/mwcc-blockers.md, 3); pool offsets wait for vf50
+void Em206EggMonster::vf54() {
+    if (m624.mSize != 0) {
+        m624.mData[0].m04.mCenter = mPos + m5A4;
+        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
+        m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
+        m624.mData[1].m04.mCenter.y -= 3.0f;
+        atn::Vector3 ofs(0.0f, 0.0f, 7.0f);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mRot.y);
+        PSMTXMultVec(m.m, &ofs, &ofs);
+        m624.mData[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")) + m5A4;
+        m624.mData[2].m04.mCenter += ofs;
     }
 }
 

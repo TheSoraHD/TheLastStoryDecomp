@@ -27,7 +27,11 @@ public:
     virtual void vfEC();                            // 0x802C46BC
     virtual int vfF4();                             // 0x802C64DC
 
+    void fn_802C2BCC(); // inferred: movement
+    int fn_802C38E4();  // inferred: chooses the next action
+    void fn_802C3EDC(); // inferred: state 1 (follows the target)
     void fn_802C42D4(); // inferred: state 2
+    void fn_802C4858(); // inferred: starts state 3 (attack)
     void fn_802C4B70(); // inferred: death
     void fn_802C4E80(int id, float radius, float angle);
     void fn_802C6878(CharaTask* chara, const atn::Vector3& pos);
@@ -43,7 +47,8 @@ public:
     int m14D8;
     unsigned char m14DC[0x1524 - 0x14DC];
     int m1524;
-    unsigned char m1528[0x156C - 0x1528];
+    CharaTask* m1528;     // inferred: target of the attack
+    unsigned char m152C[0x156C - 0x152C];
     atn::EffFile m156C;   // inferred: "/effect/ef_bs046b_01.eff"
     atn::EfpFile m1578;   // inferred: "/effect/ef_sk023a.efp"
     CharaTask* m1584;     // inferred: target
