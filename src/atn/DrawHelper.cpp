@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "std/string.h"
+#include <boost/scoped_array.hpp>
 
 // atn/DrawHelper: debug and 2D drawing helper (singleton lbl_8087EEB0). Every command is placed in the command buffer of the helper (DrawHelper::m04), with its vertices behind it, and
 // queued in the render system (lbl_8087EFB4) with the current blend mode (DrawHelper::mA0).
@@ -35,6 +36,10 @@ extern "C" int fn_8006CABC(void* font, const std::string& dir);
 extern "C" void* lbl_8087EEC8;
 extern "C" void fn_800D594C(atn::Texture_unk* texture, const char* path); // inferred: loads a texture and waits
 extern "C" void fn_8006C858(atn::DrawHelper* self); // inferred: releases the queued commands
+extern "C" unsigned long strlen(const char* s);
+extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, unsigned long len); // inferred: SJIS to wide
 
 atn::DrawHelper* lbl_8087EEB0;
 
@@ -150,6 +155,40 @@ public:
     unsigned char m14;
     int m18;
     int m1C;
+};
+
+class DrawHelper::ComDrawFont : public DrawHelper::DrawCommand {
+public:
+    virtual ~ComDrawFont() {}
+    virtual void vf10(RenderView_unk* view);
+
+    int m04;
+    int m08;
+    unsigned int m0C; // inferred: flags (1, 4)
+    wchar_t* mText;   // 0x10
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
+    unsigned int mColor; // 0x24
+    float m28;
+    unsigned char m2C;
+    unsigned char m2D;
+    Matrix3x4 mMtx; // 0x30
+    int m60;
+    Vector2_unk m64;
+    unsigned int m6C;
+    float m70;
+};
+
+class DrawHelper::ComDrawFontSideFade : public DrawHelper::ComDrawFont {
+public:
+    virtual ~ComDrawFontSideFade() {}
+    virtual void vf10(RenderView_unk* view);
+
+    float m74;
+    float m78;
+    int m7C;
 };
 
 class DrawHelper::ComDrawTextureMono : public DrawHelper::ComDrawTexture {
@@ -759,6 +798,77 @@ void DrawHelper::fn_8006144C(float x0, float y0, float x1, float y1, unsigned in
     } else {
         cmd->m18 = 1;
     }
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_800616C0(float x, float y, float z, float w, float h, const char* text, unsigned int color, float f6,
+                             int a, int b, int c) {
+    wchar_t* buf = m104;
+    unsigned long len = strlen(text) + 1;
+    boost::scoped_array<wchar_t> heap;
+    if (len >= 0x200) {
+        heap.reset(new ((MemoryTag)6, "", "", 0) wchar_t[len]);
+        buf = heap.get();
+    }
+    fn_8006F2F0(lbl_8087EEC8, buf, text, len);
+    fn_80061824(x, y, z, w, h, f6, 0.0f, 0.0f, buf, color, a, b, c, 0, 0xFF000000);
+}
+
+#define DRAW_FONT_BODY(TYPE)                                                                                   \
+    TYPE* cmd = m04.New_unk<TYPE>();                                                                           \
+    if (cmd == 0) {                                                                                            \
+        return;                                                                                                \
+    }                                                                                                          \
+    wchar_t* str = m04.NewArray_unk<wchar_t>(wcslen(text) + 1);                                                \
+    if (str == 0) {                                                                                            \
+        return;                                                                                                \
+    }                                                                                                          \
+    wcscpy(str, text);                                                                                         \
+    int blend = 1;                                                                                             \
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {                                                                  \
+        blend = 0;                                                                                             \
+    }                                                                                                          \
+    cmd->m04 = blend;                                                                                          \
+    cmd->mText = str;                                                                                          \
+    cmd->m08 = b;                                                                                              \
+    cmd->m0C = 0;                                                                                              \
+    if (a != 0) {                                                                                              \
+        cmd->m0C |= 1;                                                                                         \
+    }                                                                                                          \
+    if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {                                                                  \
+        cmd->m0C |= 4;                                                                                         \
+    }                                                                                                          \
+    cmd->m14 = x;                                                                                              \
+    cmd->m18 = y;                                                                                              \
+    cmd->m1C = w;                                                                                              \
+    cmd->m20 = h;                                                                                              \
+    cmd->mColor = color;                                                                                       \
+    cmd->m28 = f6;                                                                                             \
+    if (blend == 1 || mA0 == 8 || mA0 == 0xD) {                                                                \
+        cmd->m2C = 0;                                                                                          \
+    } else {                                                                                                   \
+        cmd->m2C = 1;                                                                                          \
+    }                                                                                                          \
+    cmd->m2D = c;                                                                                              \
+    cmd->mMtx = mA4;                                                                                           \
+    cmd->m60 = d;                                                                                              \
+    cmd->m64 = Vector2_unk(f7, f8);                                                                            \
+    cmd->m6C = color2;
+
+void DrawHelper::fn_80061824(float x, float y, float z, float w, float h, float f6, float f7, float f8,
+                             const wchar_t* text, unsigned int color, int a, int b, int c, int d,
+                             unsigned int color2) {
+    DRAW_FONT_BODY(ComDrawFont)
+    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+}
+
+void DrawHelper::fn_80061AE4(const wchar_t* text, unsigned int color, int a, int b, int c, int d, unsigned int color2,
+                             float x, float y, float z, float w, float h, float f6, float f7, float f8, float clipX,
+                             float clipW, float clipScale) {
+    DRAW_FONT_BODY(ComDrawFontSideFade)
+    cmd->m70 = clipX;
+    cmd->m74 = clipW;
+    cmd->m78 = clipScale;
     fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
 }
 

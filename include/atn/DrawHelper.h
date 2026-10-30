@@ -50,7 +50,8 @@ public:
     // with 4 - size % 4 (adds 4 even when aligned)
     template <class U>
     U* NewArray_unk(int n) {
-        int size = n * (int)sizeof(U) + 0x10;
+        int size = n * sizeof(U);
+        size += 0x10;
         size += 4 - size % 4;
         U* p;
         if (m08 + size > mSize) {
@@ -120,7 +121,7 @@ public:
     void fn_8006144C(float x0, float y0, float x1, float y1, unsigned int color, float z);
     void fn_800616C0(float x, float y, float z, float w, float h, const char* text, unsigned int color, float f6, int a, int b, int c);
     void fn_80061824(float x, float y, float z, float w, float h, float f6, float f7, float f8, const wchar_t* text, unsigned int color, int a, int b, int c, int d, unsigned int color2);
-    void fn_80061AE4(const wchar_t* text, int a, int b, int c, int d, int e, unsigned int color, float x, float y, float z, float w, float h, float f6, float f7, float f8, float clipX, float clipW, float clipScale);
+    void fn_80061AE4(const wchar_t* text, unsigned int color, int a, int b, int c, int d, unsigned int color2, float x, float y, float z, float w, float h, float f6, float f7, float f8, float clipX, float clipW, float clipScale);
     void fn_80061E2C(float x, float y, float z, float w, float h, unsigned int color, void* tex0, void* tex1, int arg, float offsetX, float offsetY, float scaleX, float scaleY);
     void fn_80062908(ColliObject* colli, int a, int b, int c, int d, float arg);
     void fn_8006297C(ColliTree* colli, int a, int b, int c, int d, float arg);
@@ -141,7 +142,7 @@ public:
     int mA0;         // inferred: blend mode (0x12 normal, 0x13 while fading, 0xD in atn/D3Anime)
     Matrix3x4 mA4;   // inferred: model matrix
     Matrix3x4 mD4;   // inferred: view matrix
-    unsigned char m104[0x504 - 0x104];
+    wchar_t m104[0x200]; // inferred: text converted by fn_800616C0 (longer texts go to the heap)
 };
 
 } // namespace atn
