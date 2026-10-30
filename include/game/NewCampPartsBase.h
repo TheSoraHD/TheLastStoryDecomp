@@ -174,7 +174,7 @@ public:
 
     // inferred: creates the d2anime of each entry (kind 1: instances) (0x8050FB38)
     void fn_8050FB38(int count, NewCampPartsEntry_unk* entries, const NewCampPartsFile_unk* file, int load,
-                     short kind);
+                     int kind);
     // inferred: starts loading the motions (0x8050FC04)
     void fn_8050FC04(int count, NewCampPartsMotion_unk* motions, const NewCampPartsMotionFile_unk* file);
     void fn_8050FC88(int count, NewCampPartsEntry_unk* entries, int load); // inferred: loads the d2anime
@@ -205,7 +205,8 @@ public:
     ArrayPtr_unk<NewCampPartsMotion_unk> m54; // inferred: motions
     float m58;
     atn::LH_Xsca m5C;                    // 0x5C: inferred: camera
-    float m64[6];
+    atn::Vector3 m64; // inferred: cleared by the constructor, unused here
+    atn::Vector3 m70;
     int m7C;                             // inferred: state of the derived parts
     int m80;                             // inferred: cursor
     int m84;                             // inferred: number of cursor positions

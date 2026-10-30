@@ -76,26 +76,10 @@ inline atn::Matrix3x4 GetNodeWorld_unk(NewCampPartsEntry_unk* entry, const char*
     return mtx;
 }
 
-NewCampPartsBase::NewCampPartsBase(atn::Task* parent) : atn::Task(parent), m48(parent), m4C(0), m58(-1.0f) {
-    m64[0] = 0.0f;
-    m64[1] = 0.0f;
-    m64[2] = 0.0f;
-    m64[3] = 0.0f;
-    m64[4] = 0.0f;
-    m64[5] = 0.0f;
-    m7C = 0;
-    m80 = 0;
-    m84 = 0;
-    m88 = 0;
-    m8C = 0;
-    m90 = 0;
-    m94 = 1;
-    m95 = 0;
-    m96 = 0;
-    mA4 = atn::Vector3(0.0f, 0.0f, 0.0f);
-    mB0 = atn::Vector3(1.0f, 1.0f, 1.0f);
-    mBC = atn::Vector3(1.0f, 1.0f, 1.0f);
-    mC8 = atn::Vector3(0.0f, 0.0f, 0.0f);
+NewCampPartsBase::NewCampPartsBase(atn::Task* parent)
+    : atn::Task(parent), m48(parent), m4C(0), m58(-1.0f), m64(0.0f, 0.0f, 0.0f), m70(0.0f, 0.0f, 0.0f), m7C(0),
+      m80(0), m84(0), m88(0), m8C(0), m90(0), m94(1), m95(0), m96(0), mA4(0.0f, 0.0f, 0.0f), mB0(1.0f, 1.0f, 1.0f),
+      mBC(1.0f, 1.0f, 1.0f), mC8(0.0f, 0.0f, 0.0f) {
     m50.Reset_unk(0);
     m54.Reset_unk(0);
 }
@@ -103,13 +87,13 @@ NewCampPartsBase::NewCampPartsBase(atn::Task* parent) : atn::Task(parent), m48(p
 NewCampPartsBase::~NewCampPartsBase() {}
 
 void NewCampPartsBase::fn_8050FB38(int count, NewCampPartsEntry_unk* entries, const NewCampPartsFile_unk* file,
-                                   int load, short kind) {
+                                   int load, int kind) {
     for (int i = 0; i < count; i++) {
         if (strcmp(file->mAnime, "") == 0) {
             entries->mAnime = 0;
         } else {
             entries->m04 = kind;
-            if (kind == 1) {
+            if (entries->m04 == 1) {
                 entries->mAnime = (atn::D3Anime*)atn::D3AnimeInstance::Create(this, file->mAnime, load);
                 entries->mAnime->fn_800D246C(1);
             } else {
@@ -360,9 +344,11 @@ void NewCampPartsBase::vf60(NewCampPartsEntry_unk* entry, NewCampPartsMotion_unk
 }
 
 void NewCampPartsBase::vf14() {
-    for (int i = 0; i < m4C; i++) {
+    if (m4C > 0) {
+        for (int i = 0; i < m4C; i++) {
         vf58(&m50[i], "reference");
         vf54(&m50[i], "reference");
+        }
     }
 }
 
@@ -379,7 +365,8 @@ void NewCampPartsBase::fn_80510D64(int wrap, int se) {
                 }
             }
         } else if (fn_800A55AC(pad, 0, 0x19) != 0 || fn_800A55AC(pad, 0, 1) != 0) {
-            if (++m80 >= m84) {
+            m80++;
+            if (m80 >= m84) {
                 if (wrap != 0) {
                     m80 = 0;
                 } else {
@@ -405,7 +392,8 @@ void NewCampPartsBase::fn_80510E94(int wrap, int se) {
             }
         }
     } else if (fn_800A55AC(pad, 0, 0x18) != 0 || fn_800A55AC(pad, 0, 3) != 0) {
-        if (++m80 >= m84) {
+        m80++;
+        if (m80 >= m84) {
             if (wrap != 0) {
                 m80 = 0;
             } else {
@@ -430,7 +418,8 @@ void NewCampPartsBase::fn_80510FB8(int wrap, int se) {
             }
         }
     } else if (fn_800A55AC(pad, 0, 1) != 0 || fn_800A55AC(pad, 0, 0x19) != 0) {
-        if (++m80 >= m84) {
+        m80++;
+        if (m80 >= m84) {
             if (wrap != 0) {
                 m80 = 0;
             } else {
@@ -470,25 +459,20 @@ void NewCampPartsBase::fn_80510FB8(int wrap, int se) {
 
 void NewCampPartsBase::vf3C(int arg) {
     for (int i = 0; i < m4C; i++) {
-        atn::D3Anime* anime = m50[i].mAnime;
-        if (anime != 0 && m50[i].m3C != 0) {
-            anime->mVisible = arg;
+        if (m50[i].mAnime != 0 && m50[i].m3C != 0) {
+            m50[i].mAnime->mVisible = arg;
         }
     }
 }
 
 void NewCampPartsBase::fn_80511258(NewCampPartsEntry_unk* entry, atn::D3Anime* anime, const atn::Vector3& pos,
                                    const atn::Vector3& scale, const char* node) {
-    atn::Vector3 p(pos);
-    atn::Vector3 s(scale);
-    fn_80512474(entry, anime, p, s, node);
+    fn_80512474(entry, anime, atn::Vector3(pos), atn::Vector3(scale), node);
 }
 
 void NewCampPartsBase::fn_805112A8(NewCampPartsEntry_unk* entry, atn::D3AnimeInstance* anime,
                                    const atn::Vector3& pos, const atn::Vector3& scale, const char* node) {
-    atn::Vector3 p(pos);
-    atn::Vector3 s(scale);
-    fn_80512028(entry, anime, p, s, node);
+    fn_80512028(entry, anime, atn::Vector3(pos), atn::Vector3(scale), node);
 }
 
 void NewCampPartsBase::vf40(void* menu) {
