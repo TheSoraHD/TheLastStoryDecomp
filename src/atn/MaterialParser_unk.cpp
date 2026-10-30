@@ -273,7 +273,8 @@ static inline int SwapChannel_unk(char c) {
     return 0;
 }
 
-static inline void SetSwap_unk(GXColor& dst, GXColor c) {
+template <class D, class S>
+static inline void SetSwap_unk(D& dst, S c) {
     dst.r = c.r;
     dst.g = c.g;
     dst.b = c.b;
@@ -455,16 +456,13 @@ struct ColorF_unk {
     float r, g, b, a;
 };
 
-// NONMATCHING: 87.5% - store order: the original sets the swap table m38 in the member initialisation (a type with a constructor gives 90.6% here but lowers fn_8007B260)
+// NONMATCHING: 90.6% - instruction scheduling of the three white ToGX conversions (the original keeps
+// 255 * 1.0 in f0 and converts into f1, and saves r30 as well)
 Material_unk::Material_unk(ShaderTex_unk* shader)
     : m00(0), m04(0), m08(shader), m0C(0), m10(0), mColor(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()),
       m1C(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()), m20(ColorF_unk(1.0f, 1.0f, 1.0f, 1.0f).ToGX()), m30(0.0f),
       m34(0), m3C(0), m40(0), m44(0), m48(0), m49(0), m4A(0), m4B(0), m4C(-1), m4D(0), m4E(0), m4F(0), m50(0),
       m51(0) {
-    m38.r = 0;
-    m38.g = 1;
-    m38.b = 2;
-    m38.a = 3;
     mTevColor[0].r = mColor.r;
     mTevColor[0].g = mColor.g;
     mTevColor[0].b = mColor.b;

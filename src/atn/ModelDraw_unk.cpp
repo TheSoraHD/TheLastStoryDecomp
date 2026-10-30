@@ -473,10 +473,10 @@ static inline void UvMtx_unk(Mtx m, TexUv_unk* uv) {
     }
 }
 
-static inline unsigned char SwapR_unk(GXColor c) { return c.r; }
-static inline unsigned char SwapG_unk(GXColor c) { return c.g; }
-static inline unsigned char SwapB_unk(GXColor c) { return c.b; }
-static inline unsigned char SwapA_unk(GXColor c) { return c.a; }
+static inline unsigned char SwapR_unk(SwapTable_unk c) { return c.r; }
+static inline unsigned char SwapG_unk(SwapTable_unk c) { return c.g; }
+static inline unsigned char SwapB_unk(SwapTable_unk c) { return c.b; }
+static inline unsigned char SwapA_unk(SwapTable_unk c) { return c.a; }
 
 // NONMATCHING: 98.37% - r4/r5 swapped in the dead copy of the camera matrix (__MtxCopy, as the __VecCopy family)
 void fn_8009B93C(DrawEntry_unk* entry) {
