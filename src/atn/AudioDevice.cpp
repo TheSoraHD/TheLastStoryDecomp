@@ -12,6 +12,7 @@
 #include "std/msl_common.h"
 #include "std/new.h"
 #include <boost/function.hpp>
+#include "std/string_members.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned long strlen(const char* s);
