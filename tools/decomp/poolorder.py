@@ -13,7 +13,7 @@ or only those whose path contains one of the substrings, it prints one of:
   order  @i       same strings (as a multiset) in another order; i = first differing index
   content @i      different strings; i = first differing index, then missing/extra counts
   no-pool         the original has no @stringBase0 (or ours has none)
-Only the units that are not `same` are printed unless --all is given.
+Only the `order`/`content` units are printed unless --all is given.
 
 --funcs: for the units in `order`/`content`, list the functions < 100% (build/SLSP01/report.json)
 whose only differing instructions in objdiff are references to @stringBase0 (offsets that move with
@@ -150,7 +150,7 @@ def main():
                 a = a + [b''] * k
         kind, i = compare(a, b)
         counts[kind] += 1
-        if kind == 'same' and not show_all:
+        if kind in ('same', 'no-pool') and not show_all:
             continue
         unit = os.path.splitext(rel)[0]
         msg = '%-8s %s' % (kind, unit)
