@@ -60,6 +60,30 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" int fn_800760E8(int n, int arg); // inferred: vertex format of the 3D texture commands
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, unsigned long len); // inferred: SJIS to wide
 
+// inferred: write gather pipe of the GX FIFO (as in atn/atn_colli.cpp)
+union DrawWGPipe_unk {
+    float f;
+    unsigned int u;
+};
+#define GXWGFifo (*(volatile DrawWGPipe_unk*)0xCC008000)
+
+static inline void GXPosition2f32(float x, float y) {
+    GXWGFifo.f = x;
+    GXWGFifo.f = y;
+}
+static inline void GXPosition3f32(float x, float y, float z) {
+    GXWGFifo.f = x;
+    GXWGFifo.f = y;
+    GXWGFifo.f = z;
+}
+static inline void GXColor1u32(unsigned int c) {
+    GXWGFifo.u = c;
+}
+
+extern "C" void GXSetAlphaCompare(int comp0, unsigned char ref0, int op, int comp1, unsigned char ref1);
+extern "C" void GXBegin(int type, int fmt, unsigned short count);
+extern "C" void fn_800761A8(void* device); // inferred: flushes the render state
+
 atn::DrawHelper* lbl_8087EEB0;
 
 namespace atn {
@@ -1662,6 +1686,59 @@ void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int 
     cmd->mVertex = v;
     cmd->m20 = 1;
     fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+}
+
+// inferred: color 0xAARRGGBB to the GX order (RGBA)
+inline unsigned int DrawRGBA_unk(unsigned int c) {
+    return (c << 8) | (c >> 24);
+}
+
+// inferred: depth test on (render states 8 and 9) and depth write (state 0xA); name invented
+inline void DrawSetZMode_unk(RenderState_unk* device, int write) {
+    fn_80076760(device, 8, 1);
+    fn_80076760(device, 9, 2);
+    fn_80076760(device, 0xA, write);
+}
+
+void DrawHelper::ComDrawLine::vf10(RenderView_unk* view) {
+    GXSetNumChans(1);
+    GXSetNumTexGens(0);
+    GXSetNumTevStages(1);
+    GXSetTevOrder(0, 0xFF, 0xFF, 4);
+    GXSetTevOp(0, 4);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetBlendMode(1, 4, 5, 0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    if (m04 == 1) {
+        Matrix3x4 m;
+        m.SetIdentity();
+        GXLoadPosMtxImm(m.m, 0);
+        GXSetCurrentMtx(0);
+        GXSetVtxAttrFmt(0, 9, 0, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        fn_800761A8(lbl_8087EEE0);
+        GXBegin(mPrim, 0, mCount);
+        for (int i = 0; i < mCount; i++) {
+            GXPosition2f32(mVertex[i].mPos.x, mVertex[i].mPos.y);
+            GXColor1u32(DrawRGBA_unk(mVertex[i].mColor));
+        }
+    } else {
+        fn_80076760(lbl_8087EEE0, 6, 0);
+        DrawSetZMode_unk(lbl_8087EEE0, m18);
+        GXSetAlphaCompare(7, 0, 0, 7, 0);
+        GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+        GXSetCurrentMtx(0);
+        GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        fn_800761A8(lbl_8087EEE0);
+        GXBegin(mPrim, 0, mCount);
+        for (int i = 0; i < mCount; i++) {
+            GXPosition3f32(mVertex[i].mPos.x, mVertex[i].mPos.y, mVertex[i].mPos.z);
+            GXColor1u32(DrawRGBA_unk(mVertex[i].mColor));
+        }
+    }
 }
 
 // Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
