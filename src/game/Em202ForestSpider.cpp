@@ -609,25 +609,26 @@ void Em202ForestSpider::vf100() {
             if (m14FC == 0) {
                 if (m14BC != 0) {
                     vf15C();
+                } else {
+                    vf158();
                 }
-                vf158();
+                return;
             }
-        }
-        if (fn_8027819C() != 0) {
+        } else if (fn_8027819C() != 0) {
             m14FC = m152C;
         }
         if (m14DC >= m1524) {
             CharaTask* t = m14D4;
-            atn::Vector3 d(t->mPos.x - mPos.x, t->mPos.y - mPos.y, t->mPos.z - mPos.z);
+            atn::Vector3 d = t->mPos - mPos;
             float dist = sqrt(d.x * d.x + d.z * d.z);
             if (m14E0 <= 0 && !mStatus.IsState_unk(4)) {
                 vf160();
-            }
-            if (dist <= m1504) {
+            } else if (dist <= m1504) {
                 if (m14E4 % 5 == 0) {
                     vf13C();
+                } else {
+                    vf140();
                 }
-                vf140();
             }
         }
     }
@@ -1247,8 +1248,11 @@ void Em202ForestSpider::fn_80277DC4() {
     }
 }
 
-int Em202ForestSpider::fn_8027819C() {
-    int alive = 0;
+__declspec(noinline) int Em202ForestSpider::fn_8027819C() {
+    unsigned int alive = 0;
+    if (m14B0.size() == 0) {
+        return 0;
+    }
     for (unsigned int i = 0; i < m14B0.size(); i++) {
         EnemyTask* e = m14B0[i];
         if (e != 0 && !e->mStatus.IsState_unk(0x20) && e->mC58.mC0 != 0) {
