@@ -1070,19 +1070,25 @@ void Material_unk::fn_8007FE5C(atn::ShaderDesc_unk* desc) {
 }
 
 // inferred: scrolls the UV transforms of the animated stages
-// NONMATCHING: 90.0% - allocation of the float constants hoisted out of the loop
+// NONMATCHING: 99.4% - f1/f2 swapped between the frame speed and the UV offset of each fmadds
+// inferred: sine wave {amplitude, frequency, phase} at time t
+static inline float Wave_unk(const atn::Vector3& w, float t) { return w.x * (float)sin(w.y * t + w.z); }
+
 void Material_unk::fn_80080048(float time) {
+    TexStage_unk* stage;
     for (int i = 0; i < m4B; i++) {
         TexAnim_unk* anim = &m10[i];
-        TexStage_unk* stage = anim->mStage;
+        stage = anim->mStage;
         if (stage == 0) {
             continue;
         }
-        float u = anim->mScrollU * lbl_8087EFA8->m3A4 + stage->GetTransU();
+        float dt = lbl_8087EFA8->m3A4;
+        float u = anim->mScrollU * dt + stage->GetTransU();
         float scale = stage->GetScaleU();
         if (anim->mWave) {
-            anim->mWaveTimeU = fmod(anim->mWaveTimeU + time, 6.2831855f / anim->mWaveU.y);
-            u += anim->mWaveU.x * (float)sin(anim->mWaveU.y * anim->mWaveTimeU + anim->mWaveU.z);
+            float period = 6.2831855f / anim->mWaveU.y;
+            anim->mWaveTimeU = fmod(anim->mWaveTimeU + time, period);
+            u += Wave_unk(anim->mWaveU, anim->mWaveTimeU);
         }
         if (u < 0.0f) {
             u += scale;
@@ -1091,11 +1097,13 @@ void Material_unk::fn_80080048(float time) {
             u -= scale;
         }
         stage->SetTransU(u);
-        float v = anim->mScrollV * lbl_8087EFA8->m3A4 + stage->GetTransV();
+        dt = lbl_8087EFA8->m3A4;
+        float v = anim->mScrollV * dt + stage->GetTransV();
         scale = stage->GetScaleV();
         if (anim->mWave) {
-            anim->mWaveTimeV = fmod(anim->mWaveTimeV + time, 6.2831855f / anim->mWaveV.y);
-            v += anim->mWaveV.x * (float)sin(anim->mWaveV.y * anim->mWaveTimeV + anim->mWaveV.z);
+            float period = 6.2831855f / anim->mWaveV.y;
+            anim->mWaveTimeV = fmod(anim->mWaveTimeV + time, period);
+            v += Wave_unk(anim->mWaveV, anim->mWaveTimeV);
         }
         if (v < 0.0f) {
             v += scale;
@@ -1105,7 +1113,8 @@ void Material_unk::fn_80080048(float time) {
         }
         stage->SetTransV(v);
         if (anim->mInd) {
-            float iu = anim->mIndScrollU * lbl_8087EFA8->m3A4 + stage->GetIndTransU();
+            dt = lbl_8087EFA8->m3A4;
+            float iu = anim->mIndScrollU * dt + stage->GetIndTransU();
             if (iu < 0.0f) {
                 iu += stage->GetIndScaleU();
             }
@@ -1113,7 +1122,8 @@ void Material_unk::fn_80080048(float time) {
                 iu -= stage->GetIndScaleU();
             }
             stage->SetIndTransU(iu);
-            float iv = anim->mIndScrollV * lbl_8087EFA8->m3A4 + stage->GetIndTransV();
+            dt = lbl_8087EFA8->m3A4;
+            float iv = anim->mIndScrollV * dt + stage->GetIndTransV();
             if (iv < 0.0f) {
                 iv += stage->GetIndScaleV();
             }
