@@ -8,6 +8,7 @@
 #include "atn/Shader_unk.h"
 #include "game/GimmickCommon.h"
 #include "std/string.h"
+#include "std/string_members.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
@@ -1248,11 +1249,14 @@ void Material_unk::fn_80080B34(atn::ShaderDesc_unk* desc) {
 }
 
 // inferred: textures of the stages: from `getter`, or loaded from `dir`
-// NONMATCHING: 96.6% - register allocation
+// NONMATCHING: 99.8% - order of the four size_t stack slots of the inlined compare() and registers
 void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
     for (int i = 0; i < m4A; i++) {
         std::string name(m0C[i].mName.c_str());
-        atn::Texture_unk* tex = getter.empty() ? 0 : getter(name);
+        atn::Texture_unk* tex = 0;
+        if (getter != 0) {
+            tex = getter(name);
+        }
         if (tex != 0) {
             TexStage_unk& stage = m0C[i];
             if (stage.mOwnsTexture && stage.mTexture != 0) {
