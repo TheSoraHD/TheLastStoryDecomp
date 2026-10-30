@@ -1,4 +1,5 @@
 #include "atn/DrawHelper.h"
+#include "atn/Camera_unk.h"
 #include "atn/ColliBase.h"
 #include "atn/IRender.h"
 #include "atn/LoadHandle.h"
@@ -31,6 +32,10 @@ extern "C" int lbl_8087D72C;
 extern "C" int lbl_8087D728;
 extern "C" RenderState_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EFB4;
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" double sin(double x);
+extern "C" double cos(double x);
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int pass); // inferred: queues a render
 extern "C" void fn_8006C7FC();
@@ -1292,6 +1297,94 @@ void DrawHelper::fn_80063D3C(const Vector3& pos, float radius, float a, unsigned
     cmd->m04 = 0;
     cmd->mPrim = 0xB0;
     cmd->m10 = count - 1;
+    cmd->mCount = count;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+}
+
+// inferred: cross product returned by value (local inline, name invented)
+inline Vector3 DrawCross_unk(const Vector3& a, const Vector3& b) {
+    Vector3 r;
+    PSVECCrossProduct(&a, &b, &r);
+    return r;
+}
+
+// inferred: point transformed by a matrix, by value (local inline, name invented)
+inline Vector3 DrawMultVec_unk(const Mtx m, const Vector3& v) {
+    Vector3 r = v;
+    PSMTXMultVec(m, &r, &r);
+    return r;
+}
+
+// inferred: point of the unit circle in the xy plane (clockwise) at height z (local inline, name invented)
+inline Vector3 DrawCircle_unk(float t, float z) {
+    return Vector3((float)cos(t), -(float)sin(t), z);
+}
+
+// inferred: wire cone from 'pos' along 'dir' ('angle' in degrees, half aperture)
+// NONMATCHING: 99.9% - r3/r4 swapped in the copy of the fallback up vector (Vector3 copy from a
+// temporary, docs/mwcc-blockers-q3.md)
+void DrawHelper::fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned int color, float length, float angle,
+                             float a) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    int n = 12;
+    int count = n * 4;
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(count);
+    if (v == 0) {
+        return;
+    }
+    Vector3 up(0.0f, 1.0f, 0.0f);
+    if (Abs_unk(PSVECDotProduct(&dir, &up)) > 0.99f) {
+        up = Vector3(0.0f, 0.0f, -1.0f);
+    }
+    Vector3 right = DrawCross_unk(dir, up).GetNormalize();
+    up = DrawCross_unk(right, dir).GetNormalize();
+    Camera_unk camera(0, 0);
+    camera.SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+    camera.SetTarget_unk(Vector3(-dir.x, -dir.y, -dir.z));
+    camera.mUp = up;
+    camera.fn_8004B378();
+    Matrix3x4 view = camera.mView;
+    Mtx trans;
+    PSMTXTrans(trans, pos.x, pos.y, pos.z);
+    Mtx m;
+    PSMTXConcat(trans, view.m, m);
+    float r = length * (float)sin(DegToRad_unk(angle));
+    float t = 0.0f;
+    float step = 6.2831855f / n;
+    for (int i = 0; i < n; i++) {
+        Vector3 s(r, r, 1.0f);
+        Vector3 p0 = DrawCircle_unk(t, length);
+        Vector3 p1 = DrawCircle_unk(t + step, length);
+        p0.x *= s.x;
+        p0.y *= s.y;
+        p0.z *= s.z;
+        p1.x *= s.x;
+        p1.y *= s.y;
+        p1.z *= s.z;
+        Vector3 q0 = DrawMultVec_unk(m, p0);
+        Vector3 q1 = DrawMultVec_unk(m, p1);
+        DrawVertex_unk& v0 = v[i * 4];
+        v0.mPos = q0;
+        v0.mColor = color;
+        DrawVertex_unk& v1 = v[i * 4 + 1];
+        v1.mPos = q1;
+        v1.mColor = color;
+        DrawVertex_unk& v2 = v[i * 4 + 2];
+        v2.mPos = pos;
+        v2.mColor = color;
+        DrawVertex_unk& v3 = v[i * 4 + 3];
+        v3.mPos = q0;
+        v3.mColor = color;
+        t += step;
+    }
+    cmd->m04 = 0;
+    cmd->mPrim = 0xA8;
+    cmd->m10 = count / 2;
     cmd->mCount = count;
     cmd->mVertex = v;
     cmd->m18 = 1;
