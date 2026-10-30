@@ -15,6 +15,7 @@
 #include "algorithm"
 #include <boost/function.hpp>
 #include <new>
+#include "atn/DrawHelper.h"
 
 struct RenderCallback_unk {
     RenderCallback_unk(boost::function<void(void*)> func, int arg);
@@ -41,7 +42,6 @@ extern "C" unsigned char lbl_8087D81C[];
 extern "C" int lbl_8087EFB8;
 extern "C" void* lbl_8087EFA8;
 extern "C" void* lbl_8087EFB4;
-extern "C" void* lbl_8087EEB0;
 extern "C" void* lbl_8087EF8C;
 
 extern "C" void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigned short width,
@@ -61,8 +61,6 @@ extern "C" void fn_80071AFC(void* state);
 extern "C" void fn_8007A4CC__13LightList_unkFv(void* lights);
 extern "C" void fn_80075DEC(void* state);
 extern "C" void fn_8007192C(void* state);
-extern "C" void fn_8006144C(void* renderer, float x0, float y0, float x1, float y1,
-                               unsigned int color, float z);
 extern "C" void LCEnable();
 extern "C" void LCDisable();
 extern "C" void fn_800B95C4();
@@ -639,7 +637,7 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
         ::operator delete[](entries);
     }
 
-    void* debugDrawer = lbl_8087EEB0;
+    atn::DrawHelper* debugDrawer = lbl_8087EEB0;
     void* renderState = lbl_8087EEE0;
     if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x1C) != 0 &&
         *(int*)((unsigned char*)renderState + 0x44) != 0) {
@@ -648,10 +646,8 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
         float left = 640.0f - half * extent;
         float right = half * extent;
         *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x13;
-        fn_8006144C(debugDrawer, left, 0.0f, left, 448.0f, 0xFFFF0000,
-                    0.0f);
-        fn_8006144C(debugDrawer, right, 448.0f, right, 0.0f, 0xFFFF0000,
-                    0.0f);
+        debugDrawer->fn_8006144C(left, 0.0f, left, 448.0f, 0xFFFF0000, 0.0f);
+        debugDrawer->fn_8006144C(right, 448.0f, right, 0.0f, 0xFFFF0000, 0.0f);
         *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x12;
     }
 
@@ -661,20 +657,20 @@ extern "C" void fn_800BDBC8(void* renderSystem) {
         float right = 640.0f * (1.0f - 0.07800001f);
         float bottom = 448.0f * (1.0f - 0.095999986f);
         *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x13;
-        fn_8006144C(debugDrawer, left, top, right, top, 0xFFFFFF00, 0.0f);
-        fn_8006144C(debugDrawer, right, top, right, bottom, 0xFFFFFF00, 0.0f);
-        fn_8006144C(debugDrawer, right, bottom, left, bottom, 0xFFFFFF00, 0.0f);
-        fn_8006144C(debugDrawer, left, bottom, left, top, 0xFFFFFF00, 0.0f);
+        debugDrawer->fn_8006144C(left, top, right, top, 0xFFFFFF00, 0.0f);
+        debugDrawer->fn_8006144C(right, top, right, bottom, 0xFFFFFF00, 0.0f);
+        debugDrawer->fn_8006144C(right, bottom, left, bottom, 0xFFFFFF00, 0.0f);
+        debugDrawer->fn_8006144C(left, bottom, left, top, 0xFFFFFF00, 0.0f);
 
         left = 640.0f * 0.065f;
         top = 448.0f * 0.065f;
         right = 640.0f * (1.0f - 0.065f);
         bottom = 448.0f * (1.0f - 0.065f);
         *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x12;
-        fn_8006144C(debugDrawer, left, top, right, top, 0xFFFFFFFF, 0.0f);
-        fn_8006144C(debugDrawer, right, top, right, bottom, 0xFFFFFFFF, 0.0f);
-        fn_8006144C(debugDrawer, right, bottom, left, bottom, 0xFFFFFFFF, 0.0f);
-        fn_8006144C(debugDrawer, left, bottom, left, top, 0xFFFFFFFF, 0.0f);
+        debugDrawer->fn_8006144C(left, top, right, top, 0xFFFFFFFF, 0.0f);
+        debugDrawer->fn_8006144C(right, top, right, bottom, 0xFFFFFFFF, 0.0f);
+        debugDrawer->fn_8006144C(right, bottom, left, bottom, 0xFFFFFFFF, 0.0f);
+        debugDrawer->fn_8006144C(left, bottom, left, top, 0xFFFFFFFF, 0.0f);
     }
 
     *(int*)((unsigned char*)lbl_8087EF8C + 0x54) = 0;

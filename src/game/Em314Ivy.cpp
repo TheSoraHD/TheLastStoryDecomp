@@ -7,11 +7,9 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_80062C8C(void* draw, int segments, unsigned int color, float x, float y, float z, float a,
-                            float radius, float b); // inferred: circle
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" int strcmp(const char* a, const char* b);
@@ -136,7 +134,7 @@ void Em314Ivy::vf14() {
             if (i == 0) {
                 color = 0xFFFFAA00;
             }
-            fn_80062C8C(lbl_8087EEB0, 16, color, p->m04.x, p->m04.y, p->m04.z, 0.0f, p->m14, 5.0f);
+            lbl_8087EEB0->fn_80062C8C(16, color, p->m04.x, p->m04.y, p->m04.z, 0.0f, p->m14, 5.0f);
         }
     }
 }

@@ -2,6 +2,7 @@
 #include "atn/Texture_unk.h"
 #include "atn/SoundManager.h"
 #include "game/HBMRso.h"
+#include "atn/DrawHelper.h"
 
 namespace atn {
 
@@ -78,13 +79,6 @@ struct HbmRender_unk {
     int mWide;   // 0x44: inferred: 16:9
 };
 extern "C" HbmRender_unk* lbl_8087EEE0;
-struct HbmDraw_unk {
-    unsigned char m00[0xA0];
-    int mA0; // inferred: blend mode
-};
-extern "C" HbmDraw_unk* lbl_8087EEB0;
-extern "C" void fn_8005DFC8(HbmDraw_unk* renderer, unsigned int color, atn::Texture_unk* tex, int arg, float x,
-                            float y, float z, float w, float h); // inferred: draw texture
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 
 HomeButtonMenu* HomeButtonMenu::sInstance;
@@ -189,7 +183,7 @@ void HomeButtonMenu::fn_80440994() {
     lbl_8087EEB0->mA0 = 0x13;
     w /= sy * (k * sx);
     h *= sy;
-    fn_8005DFC8(lbl_8087EEB0, color, &mA0, 1, 60.0f, 60.0f, -10000.0f, w, h);
+    lbl_8087EEB0->fn_8005DFC8(color, &mA0, 1, 60.0f, 60.0f, -10000.0f, w, h);
     lbl_8087EEB0->mA0 = 0x12;
     if (++mD0 > 46) {
         m8C = 0;

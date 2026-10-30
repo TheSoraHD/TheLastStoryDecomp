@@ -4,6 +4,7 @@
 #include "game/EnemyManager.h"
 #include "math/Vec.h"
 #include <string.h>
+#include "atn/DrawHelper.h"
 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -158,14 +159,9 @@ extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: debug drawing (lbl_8087EEB0, as in game/ChaserNpc.cpp) and its accessor (weak copy 0x800F7250)
-extern "C" void* lbl_8087EEB0;
-extern "C" inline void* fn_800F7250() {
+extern "C" inline atn::DrawHelper* fn_800F7250() {
     return lbl_8087EEB0;
 }
-extern "C" void fn_80063764(void* draw, const atn::Vector3* a, const atn::Vector3* b, unsigned int color,
-                            float width); // inferred: line
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, float f6, const char* text,
-                            unsigned int color, int a, int b, int c); // inferred: text
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 namespace atn {
 // inferred: [0,1] float channel to 0..255 (as in atn/D2A_Window.cpp; name invented)
@@ -438,8 +434,7 @@ void Em310Gargoyle::vf14() {
     for (int i = 0; i < 3; i++) {
         char buf[0x8];
         sprintf(buf, "flag::%d", fn_80370A78(fn_80121F00(), i + 0xC9));
-        fn_800616C0(fn_800F7250(), 200.0f, 100.0f + i * 10, 10000.0f, 10.0f, 10.0f, 0.0f, buf,
-                    atn::Color4f_unk(0.0f, 0.5f, 0.0f, 1.0f).ToU32(), 1, 1, 0);
+        fn_800F7250()->fn_800616C0(200.0f, 100.0f + i * 10, 10000.0f, 10.0f, 10.0f, buf, atn::Color4f_unk(0.0f, 0.5f, 0.0f, 1.0f).ToU32(), 0.0f, 1, 1, 0);
     }
     atn::Matrix3x4 m1 = fn_800109E0(mRot);
     atn::Matrix3x4 m2 = fn_800109E0(mRot);
@@ -448,13 +443,13 @@ void Em310Gargoyle::vf14() {
     atn::Vector3 v2(0.0f, 0.0f, 5000000.0f);
     atn::Vector3 v3(0.0f, 0.0f, 5000000.0f);
     v1.fn_80011410(m1);
-    fn_80063764(fn_800F7250(), &mPos, &(mPos + v1), atn::Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32(), 100.0f);
+    fn_800F7250()->fn_80063764(mPos, mPos + v1, 100.0f, atn::Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32());
     m2.fn_80149624(80.0f);
     v2.fn_80011410(m2);
     m3.fn_80149624(-80.0f);
     v3.fn_80011410(m3);
-    fn_80063764(fn_800F7250(), &mPos, &(mPos + v2), atn::Color4f_unk(1.0f, 0.0f, 0.0f, 1.0f).ToU32(), 100.0f);
-    fn_80063764(fn_800F7250(), &mPos, &(mPos + v3), atn::Color4f_unk(1.0f, 0.0f, 0.0f, 1.0f).ToU32(), 100.0f);
+    fn_800F7250()->fn_80063764(mPos, mPos + v2, 100.0f, atn::Color4f_unk(1.0f, 0.0f, 0.0f, 1.0f).ToU32());
+    fn_800F7250()->fn_80063764(mPos, mPos + v3, 100.0f, atn::Color4f_unk(1.0f, 0.0f, 0.0f, 1.0f).ToU32());
     for (int i = 0; i < 4; i++) {
         RouteTable_unk* table = fn_80121F00()->fn_8013C504();
         atn::Color4f_unk c(0.0f, 0.0f, 0.0f, 0.0f);
@@ -465,11 +460,10 @@ void Em310Gargoyle::vf14() {
         atn::Matrix3x4 m = fn_800109E0(rot);
         atn::Vector3 v(0.0f, 0.0f, 1000.0f);
         v.fn_80011410(m);
-        fn_80063764(fn_800F7250(), &table->FindPlace_unk(mData.mSeats[i].m00)->mPos,
-                    &(table->FindPlace_unk(mData.mSeats[i].m00)->mPos + v), c.ToU32(), 1000.0f);
+        fn_800F7250()->fn_80063764(table->FindPlace_unk(mData.mSeats[i].m00)->mPos, (table->FindPlace_unk(mData.mSeats[i].m00)->mPos + v), 1000.0f, c.ToU32());
         char buf[0x20];
         sprintf(buf, "rot[%d]%f", i, fn_802A7964((mData.mOfs[i].ToRotation_unk() - mRot).GetNormalize().y));
-        fn_800616C0(fn_800F7250(), 300.0f, i * 10 + 100, 1000.0f, 20.0f, 10.0f, 0.0f, buf, c.ToU32(), 1, 1, 0);
+        fn_800F7250()->fn_800616C0(300.0f, i * 10 + 100, 1000.0f, 20.0f, 10.0f, buf, c.ToU32(), 0.0f, 1, 1, 0);
     }
 }
 

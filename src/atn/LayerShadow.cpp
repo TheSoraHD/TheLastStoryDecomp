@@ -2,6 +2,7 @@
 #include "atn/Camera_unk.h"
 #include "math/Vec.h"
 #include "atn/RenderSetting_unk.h"
+#include "atn/DrawHelper.h"
 
 namespace atn {
 
@@ -79,13 +80,6 @@ extern "C" void fn_80075DEC(ShadowRenderMgr_unk* rs);
 extern "C" unsigned char lbl_8087EFB0; // inferred: z pre-pass active
 
 // inferred: debug drawing
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_8005DF90(void* dbg, int color, GXTexObj* obj, int arg, float x, float y, float z, float w,
-                            float h); // inferred: draws a texture on screen
-extern "C" void fn_80063764(void* draw, const atn::Vector3* a, const atn::Vector3* b, unsigned int color,
-                            float width); // inferred: line
-extern "C" void fn_800638B0(void* draw, float a, float b, const atn::Vector3* from, const atn::Vector3* to,
-                            unsigned int color); // inferred: arrow
 
 // inferred: box helpers of atn/Geometry_unk.cpp
 extern "C" int fn_8006FAB0(const atn::AABB_unk* box, float* t, const atn::Vector3* origin, const atn::Vector3* dir);
@@ -392,9 +386,9 @@ void LayerShadow::vf10(void* arg) {
     lbl_8087EFB4->mShadowCamera = mLightCamera;
     if (lbl_8087EFA8->m12C != 0) {
         fn_8006FE08(&mBox, 0xFFFFFF00);
-        fn_80063764(lbl_8087EEB0, &mLightCamera.mPos, &mLightCamera.mTarget, 0xFFFF0000, 0.0f);
+        lbl_8087EEB0->fn_80063764(mLightCamera.mPos, mLightCamera.mTarget, 0.0f, 0xFFFF0000);
         Vector3 to = mLightCamera.mPos + (mLightCamera.mTarget - mLightCamera.mPos) * 0.25f;
-        fn_800638B0(lbl_8087EEB0, 0.0f, 2.0f, &mLightCamera.mPos, &to, 0xFFFF0000);
+        lbl_8087EEB0->fn_800638B0(0.0f, 2.0f, mLightCamera.mPos, to, 0xFFFF0000);
         float scale = 1.0f;
         float n = -mLightCamera.mNear;
         float f = -mLightCamera.mFar;
@@ -415,18 +409,18 @@ void LayerShadow::vf10(void* arg) {
         for (int i = 0; i < 8; i++) {
             PSMTXMultVec(mLightCamera.mInvView.m, &corners[i], &corners[i]);
         }
-        fn_80063764(lbl_8087EEB0, &corners[0], &corners[1], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[1], &corners[2], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[2], &corners[3], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[3], &corners[0], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[4], &corners[5], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[5], &corners[6], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[6], &corners[7], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[7], &corners[4], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[0], &corners[4], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[1], &corners[5], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[2], &corners[6], 0xFF00FF00, 0.0f);
-        fn_80063764(lbl_8087EEB0, &corners[3], &corners[7], 0xFF00FF00, 0.0f);
+        lbl_8087EEB0->fn_80063764(corners[0], corners[1], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[1], corners[2], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[2], corners[3], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[3], corners[0], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[4], corners[5], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[5], corners[6], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[6], corners[7], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[7], corners[4], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[0], corners[4], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[1], corners[5], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[2], corners[6], 0.0f, 0xFF00FF00);
+        lbl_8087EEB0->fn_80063764(corners[3], corners[7], 0.0f, 0xFF00FF00);
     }
 }
 
@@ -484,10 +478,8 @@ void LayerShadow::vf20() {
         ShadowRenderMgr_unk* rs = lbl_8087EEE0;
         int height = rs->mHeight;
         int width = rs->mWidth;
-        fn_8005DF90(lbl_8087EEB0, -1, &mDepthTex, 0, (float)(width - width / 4) - 16.0f,
-                    (float)(height - height / 4) - 32.0f, 0.0f, (float)width * 0.25f, (float)height * 0.25f);
-        fn_8005DF90(lbl_8087EEB0, -1, &mTex, 0, 16.0f, (float)(height - height / 4) - 32.0f, 0.0f,
-                    (float)width * 0.25f, (float)height * 0.25f);
+        lbl_8087EEB0->fn_8005DF90(-1, &mDepthTex, 0, (float)(width - width / 4) - 16.0f, (float)(height - height / 4) - 32.0f, 0.0f, (float)width * 0.25f, (float)height * 0.25f);
+        lbl_8087EEB0->fn_8005DF90(-1, &mTex, 0, 16.0f, (float)(height - height / 4) - 32.0f, 0.0f, (float)width * 0.25f, (float)height * 0.25f);
     }
     Matrix3x4 tex;
     tex.SetIdentity();

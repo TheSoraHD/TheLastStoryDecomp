@@ -9,6 +9,7 @@
 #include "game/GimmickManager.h"
 #include "math/Vec.h"
 #include "std/string_members.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -64,10 +65,6 @@ struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 // inferred: debug drawing (lbl_8087EEB0)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, unsigned int color, float radius, float arg);
-extern "C" void fn_800638B0(void* draw, float a, float b, const atn::Vector3* from, const atn::Vector3* to,
-                            unsigned int color);
 // inferred: ray tests (as in game/Em208Queen.cpp and gmk/Brazier.cpp)
 struct BigMulueColl_unk {
     BigMulueColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -1059,8 +1056,8 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         }
         hits[i] = hit;
         if (m1AA0 != 0) {
-            fn_80063D3C(lbl_8087EEB0, &hits[i], 0xFF00FFFF, 20.0f, 0.0f);
-            fn_800638B0(lbl_8087EEB0, 10.0f, 7.0f, &from, &(from + dir), 0xFF00FFFF);
+            lbl_8087EEB0->fn_80063D3C(hits[i], 20.0f, 0.0f, 0xFF00FFFF);
+            lbl_8087EEB0->fn_800638B0(10.0f, 7.0f, from, from + dir, 0xFF00FFFF);
         }
     }
     if (i == 4) {
@@ -1072,10 +1069,10 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         out->y = 0.0f;
         m1AC4 = *out;
         if (m1AA0 != 0) {
-            fn_80063D3C(lbl_8087EEB0, &a, 0xFFFFFF00, 10.0f, 0.0f);
-            fn_80063D3C(lbl_8087EEB0, &b, 0xFFFFAA00, 10.0f, 0.0f);
-            fn_800638B0(lbl_8087EEB0, 10.0f, 7.0f, &a, &m1AC4, 0xFF00FFFF);
-            fn_800638B0(lbl_8087EEB0, 10.0f, 7.0f, &b, &m1AC4, 0xFF00AAFF);
+            lbl_8087EEB0->fn_80063D3C(a, 10.0f, 0.0f, 0xFFFFFF00);
+            lbl_8087EEB0->fn_80063D3C(b, 10.0f, 0.0f, 0xFFFFAA00);
+            lbl_8087EEB0->fn_800638B0(10.0f, 7.0f, a, m1AC4, 0xFF00FFFF);
+            lbl_8087EEB0->fn_800638B0(10.0f, 7.0f, b, m1AC4, 0xFF00AAFF);
         }
         result = 1;
     }
@@ -1086,9 +1083,9 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         c.y = 0.0f;
         atn::Vector3 d = p - c;
         if (PSVECSquareMag(&d) < 2500.0f) {
-            fn_80063D3C(lbl_8087EEB0, &m1AC4, 0xFF0044AA, 20.0f, 0.0f);
+            lbl_8087EEB0->fn_80063D3C(m1AC4, 20.0f, 0.0f, 0xFF0044AA);
         } else {
-            fn_80063D3C(lbl_8087EEB0, &m1AC4, 0xFFAA0000, 20.0f, 0.0f);
+            lbl_8087EEB0->fn_80063D3C(m1AC4, 20.0f, 0.0f, 0xFFAA0000);
         }
     }
     return result;

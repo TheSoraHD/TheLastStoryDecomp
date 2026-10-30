@@ -6,6 +6,7 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "MP/D2ACommonDialog.h"
 #include <boost/bind.hpp>
+#include "atn/DrawHelper.h"
 
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
@@ -40,12 +41,6 @@ struct SoftKeyboardMsg_unk {
 extern "C" SoftKeyboardMsg_unk* lbl_8087F1E4;
 
 // inferred: debug drawing (lbl_8087EEB0, see game/CharaTask.cpp)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80060D58(void* draw, float x, float y, float z, float w, float h, unsigned int color);
-extern "C" void fn_800610A4(void* draw, unsigned int color, float x, float y, float z, float w, float h);
-extern "C" void fn_80061824(void* draw, const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2, float x, float y, float z, float w, float h, float f6, float f7,
-                            float f8);
 
 namespace atn {
 // inferred: pointer to a string owned elsewhere (see MP/Text.cpp)
@@ -511,11 +506,10 @@ void SoftKeyboard::fn_80505C1C(int row, int col, Key* key, int cursor) {
     }
     c[0] = key->m04;
     c[1] = 0;
-    fn_80060D58(lbl_8087EEB0, x, y, z, w, h, color);
-    fn_800610A4(lbl_8087EEB0, 0xFF000000, x, y, z, w, h);
+    lbl_8087EEB0->fn_80060D58(x, y, z, w, h, color);
+    lbl_8087EEB0->fn_800610A4(0xFF000000, x, y, z, w, h);
     float s = 40.0f * scale;
-    fn_80061824(lbl_8087EEB0, c, 0xFF000000, 1, 1, 0, 0, 0xFF000000, x + s / 4.0f, y + s / 4.0f, z,
-                s / 2.0f, s / 2.0f, 0.0f, 0.0f, 0.0f);
+    lbl_8087EEB0->fn_80061824(x + s / 4.0f, y + s / 4.0f, z, s / 2.0f, s / 2.0f, 0.0f, 0.0f, 0.0f, c, 0xFF000000, 1, 1, 0, 0, 0xFF000000);
 }
 
 } // namespace MP

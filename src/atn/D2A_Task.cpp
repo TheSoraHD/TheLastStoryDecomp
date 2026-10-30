@@ -2,6 +2,7 @@
 #include "atn/Memory.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/DrawHelper.h"
 
 // inferred: string hash and file helpers (automatic names)
 extern "C" unsigned int fn_800DC6B4(const char* s);
@@ -34,11 +35,6 @@ inline void GetText_unk(std::basic_string<wchar_t>& out, int id) {
     fn_8006F548(lbl_8087EEC8, out, id);
 }
 
-struct Renderer2D_unk {
-    unsigned char m00[0xA0];
-    int mA0; // inferred: blend mode
-};
-extern "C" Renderer2D_unk* lbl_8087EEB0;
 
 
 atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop) {

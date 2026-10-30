@@ -155,19 +155,12 @@ atn/SinusCurve.cpp:
 	.data       start:0x807776C8 end:0x807777C0
 	.sdata2     start:0x80880998 end:0x808809A0
 
-atn/ComDrawTexture_rodata.cpp:
-	.rodata     start:0x80731140 end:0x80731160
-
 atn/DrawHelper.cpp:
-	.text       start:0x8005DD60 end:0x8005DED8
-	.rodata     start:0x80731160 end:0x80731170
-	.data       start:0x807777C0 end:0x807777D8
-
-atn/ComDrawTexture.cpp:
-	.text       start:0x8005DED8 end:0x80068DB0
-	.rodata     start:0x80731170 end:0x80731390
-	.data       start:0x807777D8 end:0x80777B08
-	.sdata2     start:0x808809A8 end:0x808809E8
+	.text       start:0x8005DD60 end:0x80068DB0
+	.rodata     start:0x80731140 end:0x80731390
+	.data       start:0x807777C0 end:0x80777B08
+	.sbss       start:0x8087EEB0 end:0x8087EEB8
+	.sdata2     start:0x808809A0 end:0x808809E8
 
 atn/FileUtil_unk.cpp:
 	.text       start:0x80068DB0 end:0x8006A09C

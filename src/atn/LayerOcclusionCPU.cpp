@@ -2,6 +2,7 @@
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int memcmp(const void* a, const void* b, unsigned long n);
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
@@ -17,9 +18,6 @@ struct RenderState_unk;
 extern "C" RenderState_unk* lbl_8087EEE0;
 extern "C" void fn_80075F58(RenderState_unk* rs, int x, int y, int w, int h); // inferred: set viewport
 extern "C" void fn_80075DEC(RenderState_unk* rs);
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_8005DF90(void* debug, int arg1, GXTexObj* tex, float x, float y, float z, float w, float h,
-                            int arg8); // inferred: draws a texture on screen
 extern "C" void fn_800C0D4C(void* data, int arg1, int w, int h); // inferred: flushes a texture
 
 // inferred: global render settings; m1DC enables the occlusion buffer view
@@ -297,7 +295,7 @@ void LayerOcclusionCPU::vf20() {
             }
         }
         fn_800C0D4C(sTexData, 1, 32, 32);
-        fn_8005DF90(lbl_8087EEB0, -1, &sTexObj, 16.0f, 32.0f, 0.0f, 128.0f, 128.0f, 0);
+        lbl_8087EEB0->fn_8005DF90(-1, &sTexObj, 0, 16.0f, 32.0f, 0.0f, 128.0f, 128.0f);
     }
 }
 

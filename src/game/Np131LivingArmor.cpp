@@ -2,6 +2,7 @@
 #include "game/GameUI.h"
 #include "game/GimmickCommon.h"
 #include "std/vector.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int rand();
 extern "C" double cos(double x);
@@ -47,9 +48,6 @@ struct Settings_unk {
     int mDrawDebug; // 0x34
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063484(void* draw, int segments, unsigned int color, float x, float y, float z, float rot,
-                            float a, float range, float angle); // inferred: fan
 struct Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
@@ -225,7 +223,7 @@ void Np131LivingArmor::vf14() {
     sChecked = 0;
     fn_80149A30();
     if (lbl_8087F0A8->mDrawDebug != 0) {
-        fn_80063484(lbl_8087EEB0, 20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
+        lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
 

@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundManager.h"
 #include "std/string.h"
+#include "atn/DrawHelper.h"
 
 // Everything below is inferred from EnvSeManager (0x8035DF48..0x80360C5C); names are invented.
 
@@ -78,13 +79,8 @@ inline int IsDebugMenu_unk(GameConfig_unk* config) {
 }
 
 // inferred: debug drawing and camera
-extern "C" void* lbl_8087EEB0;
 extern "C" void* lbl_8087EFB4;
-extern "C" atn::Matrix3x4 lbl_807C7030; // inferred: identity matrix
-extern "C" void fn_800629F0(void* draw, const atn::Matrix3x4* base, const atn::Vector3* size, float arg,
-                            unsigned int color, const atn::Matrix3x4* mtx); // inferred: box
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, const char* text,
-                            unsigned int color, float f6, int a, int b, int c); // inferred: text
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector (.bss, 0x10 bytes)
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 
 // inferred: debug menu entries
@@ -157,16 +153,14 @@ void EnvSeManager::vf14() {
         for (unsigned int i = 0; i < (unsigned int)mAreas.mSize; i++) {
             bool current = mAreas[i].mId == m84;
             EnvSeArea_unk* area = &mAreas[i];
-            fn_800629F0(lbl_8087EEB0, &lbl_807C7030, &area->mSize, 0.0f, current ? 0xFFFF80FF : 0xFF7F407F,
-                        &area->mMtx);
+            lbl_8087EEB0->fn_800629F0(lbl_807C7030, area->mSize, 0.0f, current ? 0xFFFF80FF : 0xFF7F407F, &area->mMtx);
             atn::Vector3 screen;
             atn::Vector3 pos = area->mMtx.GetTrans_unk();
             fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
             if (0.0f < screen.z && screen.z < 1.0f) {
                 char text[0x100];
                 sprintf(text, "Area[%d] %s\0", area->mId, area->mData.mName);
-                fn_800616C0(lbl_8087EEB0, screen.x, screen.y, 0.0f, 12.0f, 12.0f, text,
-                            current ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
+                lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, current ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
             }
         }
     }

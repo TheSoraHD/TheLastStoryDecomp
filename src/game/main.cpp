@@ -13,6 +13,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "sdk/OSFastCast.h" // OSInitFastCast (SDK header asm, approved 2026-10-21)
+#include "atn/DrawHelper.h"
 
 extern "C" void OSInit();
 extern "C" void OSReport(const char* fmt, ...);
@@ -122,17 +123,12 @@ class PostFxManager {
 public:
     static void fn_800A8FF0(Task* parent);
 };
-class DrawHelper {
-public:
-    static void fn_8005DD60();
-};
 } // namespace atn
 
 extern "C" void* lbl_8087EEE0;
 extern "C" void* lbl_8087EF70;
 extern "C" void* lbl_8087EE98;
 extern "C" void* lbl_8087EE90;
-extern "C" void* lbl_8087EEB0;
 extern "C" void fn_8006BA54(unsigned char lang);
 extern "C" void fn_80071220();
 extern "C" void fn_800713D4(void* obj, int w, int h);
@@ -144,7 +140,6 @@ extern "C" void fn_80186520(MainConfig_unk* config);
 extern "C" void fn_800696C8();
 extern "C" void fn_8046D7D8(atn::Task* root);
 extern "C" void fn_800BC798();
-extern "C" void fn_8005DED8(void* obj, int size, const std::string& name);
 extern "C" void fn_80239794(int a, int b, int c, int d);
 extern "C" void fn_8004C9B4();
 extern "C" void fn_800A5508();
@@ -319,7 +314,7 @@ void fn_8047A4C8() {
     OSReport("7\n");
     fn_800BD9C0(lbl_8087EFB4, 0x40000, std::string(""));
     atn::DrawHelper::fn_8005DD60();
-    fn_8005DED8(lbl_8087EEB0, 0x40000, std::string("font"));
+    lbl_8087EEB0->fn_8005DED8(0x40000, std::string("font"));
     fn_80239794(0x480, 0x200, 0x100, -1);
     fn_8004C9B4();
     fn_800A5508();

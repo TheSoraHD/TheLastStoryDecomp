@@ -1,4 +1,5 @@
 #include "atn/LayerReflect.h"
+#include "atn/DrawHelper.h"
 
 // inferred: render manager (class unknown), global instance at 0x8087EEE0
 struct RenderMgr_unk {
@@ -14,11 +15,8 @@ struct DebugFlags_unk {
 };
 extern "C" RenderMgr_unk* lbl_8087EEE0;
 extern "C" DebugFlags_unk* lbl_8087EFA8;
-extern "C" void* lbl_8087EEB0;
 extern "C" void fn_80075F58(RenderMgr_unk* mgr, int x, int y, int w, int h); // inferred: set viewport
 extern "C" void fn_80075DEC(RenderMgr_unk* mgr);
-extern "C" void fn_8005DFC8(void* renderer, int color, atn::Texture_unk* tex, int arg, float x, float y, float z,
-                            float w, float h); // inferred: draw texture
 
 namespace atn {
 
@@ -62,8 +60,7 @@ void LayerReflect::vf20() {
     if (lbl_8087EFA8->m308 != 0) {
         RenderMgr_unk* m = lbl_8087EEE0;
         int height = m->mHeight;
-        fn_8005DFC8(lbl_8087EEB0, -1, &mTexture, 0, 32.0f, (float)(height - height / 4) - 16.0f, 0.0f,
-                    (float)m->mWidth / 4.0f, (float)height / 4.0f);
+        lbl_8087EEB0->fn_8005DFC8(-1, &mTexture, 0, 32.0f, (float)(height - height / 4) - 16.0f, 0.0f, (float)m->mWidth / 4.0f, (float)height / 4.0f);
     }
 }
 

@@ -60,6 +60,7 @@
 #include "gmk/SwingObject.h"
 #include "gmk/Bat.h"
 #include "gmk/RandomMerchant.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -91,9 +92,6 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" int lbl_8087FA20;
-extern "C" void* lbl_8087EEB0; // inferred: debug font
-extern "C" void fn_800616C0(void* font, float x, float y, float z, float w, float h, float f6, const char* text,
-                            int color, int arg6, int arg7, int arg8); // inferred: debug text
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -539,8 +537,7 @@ void GimmickCommon::fn_803ED610(atn::Model* model) {
                     char text[0x20];
                     fn_803EC758(name);
                     sprintf(text, "%s state:%d\0", name, m54);
-                    fn_800616C0(lbl_8087EEB0, screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, 0.0f, text, -1, 1, 1,
-                                0);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, text, -1, 0.0f, 1, 1, 0);
                 }
             }
         }
@@ -560,8 +557,7 @@ void GimmickCommon::fn_803ED774(atn::Model* model) {
                     char name[0x20];
                     fn_803EC758(name);
                     sprintf(text, "%s state:%d\0", name, m54);
-                    fn_800616C0(lbl_8087EEB0, screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, 0.0f, text, -1, 1, 1,
-                                0);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, text, -1, 0.0f, 1, 1, 0);
                 }
             }
         }
@@ -657,7 +653,7 @@ void GimmickCommon::fn_803EDCF4() {
             char name[0x20];
             fn_803EC758(name);
             sprintf(text, "%s state:%d\0", name, m54);
-            fn_800616C0(lbl_8087EEB0, screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, 0.0f, text, -1, 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(screen.x, screen.y - 12.0f, 0.0f, 12.0f, 12.0f, text, -1, 0.0f, 1, 1, 0);
         }
     }
 }

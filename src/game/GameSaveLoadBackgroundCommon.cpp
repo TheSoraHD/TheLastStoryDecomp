@@ -1,5 +1,6 @@
 #include "game/GameSaveLoadBackgroundCommon.h"
 #include "atn/Memory.h"
+#include "atn/DrawHelper.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -35,10 +36,7 @@ extern "C" void fn_800A4E08(SaveLoadMgr_unk* mgr, void* work); // inferred: clos
 extern "C" void* lbl_8087F518;
 extern "C" void fn_8046ECDC(void* obj, int arg);
 extern "C" void fn_8049D52C(char* out, int map, int arg1, int arg2); // inferred: map name
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
 // inferred: text (the float after the color is evaluated after it, see game/GameSaveTask.cpp)
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, const char* text,
-                            unsigned int color, float f6, int a, int b, int c);
 
 // inferred: 8-byte zero object at the start of .rodata, passed as name and file to new[]
 static const char sEmpty_unk[8] = "";
@@ -312,7 +310,6 @@ void GameSaveLoadCommon::fn_803B8B08(GameSaveSlot_unk* slots) {
             sprintf(text, "%02d  %d/%d/%d %d:%d:%d  Map %s", i, slots[i].m1C, slots[i].m18 + 1, slots[i].m14,
                     slots[i].m10, slots[i].m0C, slots[i].m08, map);
         }
-        fn_800616C0(lbl_8087EEB0, 100.0f, 18.0f * i + 80.0f, 0.0f, 16.0f, 16.0f, text,
-                    i == m48 ? 0xFFFFFF00 : 0xFFFFFFFF, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(100.0f, 18.0f * i + 80.0f, 0.0f, 16.0f, 16.0f, text, i == m48 ? 0xFFFFFF00 : 0xFFFFFFFF, 0.0f, 1, 1, 0);
     }
 }

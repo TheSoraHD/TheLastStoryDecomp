@@ -3,6 +3,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include <boost/function.hpp>
+#include "atn/DrawHelper.h"
 
 // inferred: physics bones (a bone that swings between two nodes of a model, read from a CSV).
 // Member names are invented.
@@ -21,10 +22,6 @@ extern "C" void fn_80087858(void* group, const char* name, float* value, int arg
                             float step); // inferred: angle
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* debug, const atn::Vector3& pos, int color, float size, float arg);
-extern "C" void fn_800638B0(void* debug, const atn::Vector3& from, const atn::Vector3& to, unsigned int color,
-                            float arg4, float arg5);
 
 // inferred: model data of the loaded file (same as the local copy in atn/LH_Model.cpp)
 struct ModelJoint_unk {
@@ -341,17 +338,17 @@ void PBoneBasic::vf18() {
     rot.m[0][3] = 0.0f;
     rot.m[1][3] = 0.0f;
     rot.m[2][3] = 0.0f;
-    fn_80063D3C(lbl_8087EEB0, root->GetTrans_unk(), -1, 0.1f, 0.0f);
-    fn_80063D3C(lbl_8087EEB0, tip->GetTrans_unk(), -1, 0.1f, 0.0f);
+    lbl_8087EEB0->fn_80063D3C(root->GetTrans_unk(), 0.1f, 0.0f, -1);
+    lbl_8087EEB0->fn_80063D3C(tip->GetTrans_unk(), 0.1f, 0.0f, -1);
     Vector3 axis(1.0f, 0.0f, 0.0f);
     PSMTXMultVec(rot.m, &axis, &axis);
-    fn_800638B0(lbl_8087EEB0, root->GetTrans_unk(), root->GetTrans_unk() + axis * 3.0f, 0xFFFF0000, 0.0f, 1.0f);
+    lbl_8087EEB0->fn_800638B0(0.0f, 1.0f, root->GetTrans_unk(), root->GetTrans_unk() + axis * 3.0f, 0xFFFF0000);
     axis.Set_unk(0.0f, 1.0f, 0.0f);
     PSMTXMultVec(rot.m, &axis, &axis);
-    fn_800638B0(lbl_8087EEB0, root->GetTrans_unk(), root->GetTrans_unk() + axis * 3.0f, 0xFF00FF00, 0.0f, 1.0f);
+    lbl_8087EEB0->fn_800638B0(0.0f, 1.0f, root->GetTrans_unk(), root->GetTrans_unk() + axis * 3.0f, 0xFF00FF00);
     axis.Set_unk(0.0f, 0.0f, 1.0f);
     PSMTXMultVec(rot.m, &axis, &axis);
-    fn_800638B0(lbl_8087EEB0, root->GetTrans_unk(), root->GetTrans_unk() + axis * 3.0f, 0xFF0000FF, 0.0f, 1.0f);
+    lbl_8087EEB0->fn_800638B0(0.0f, 1.0f, root->GetTrans_unk(), root->GetTrans_unk() + axis * 3.0f, 0xFF0000FF);
 }
 
 void PBoneBasic::vf2C(void* menu) {

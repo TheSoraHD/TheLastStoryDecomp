@@ -1,8 +1,7 @@
 #include "atn/D2A_Line.h"
+#include "atn/DrawHelper.h"
 
 // inferred: 2D renderer instance and its line drawing method (class unknown)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_8006144C(void* renderer, float x0, float y0, float x1, float y1, unsigned int color, float z);
 
 namespace atn {
 
@@ -34,7 +33,7 @@ void D2A_Line::vf18() {
     unsigned int g = fn_ToU8(color.g);
     unsigned int b = fn_ToU8(color.b);
     unsigned int a = fn_ToU8(color.a);
-    fn_8006144C(lbl_8087EEB0, x, y, right, bottom, (a << 24) | (r << 16) | (g << 8) | b, rect.z);
+    lbl_8087EEB0->fn_8006144C(x, y, right, bottom, (a << 24) | (r << 16) | (g << 8) | b, rect.z);
 }
 
 } // namespace atn

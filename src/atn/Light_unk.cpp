@@ -2,12 +2,9 @@
 // conversion a GXLightObj y dibujo/menu de depuracion (nombre de fichero inventado).
 #include "atn/Light_unk.h"
 #include "atn/GXDecl.h"
+#include "atn/DrawHelper.h"
 
 extern "C" double sqrt(double x);
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
-extern "C" void fn_800641CC(void* dbg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int color,
-                            float length, float angle, float arg);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
@@ -134,10 +131,10 @@ static inline unsigned int ToARGB_unk(const LightColor_unk& c) {
 void Light_unk::fn_800795DC() {
     switch (mType) {
     case 3:
-        fn_80063D3C(lbl_8087EEB0, &mPos, ToARGB_unk(mColor), mRadius, 0.0f);
+        lbl_8087EEB0->fn_80063D3C(mPos, mRadius, 0.0f, ToARGB_unk(mColor));
         break;
     case 2:
-        fn_800641CC(lbl_8087EEB0, &mPos, &mDir, ToARGB_unk(mColor), 2.0f * mRadius, mAngle, 0.0f);
+        lbl_8087EEB0->fn_800641CC(mPos, mDir, ToARGB_unk(mColor), 2.0f * mRadius, mAngle, 0.0f);
         break;
     }
 }

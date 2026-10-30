@@ -1,6 +1,7 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "game/SetConfig.h"
 #include "game/Input_unk.h"
+#include "atn/DrawHelper.h"
 
 // inferred: one message of the multiplayer message table (0x1C bytes)
 struct MpMessage_unk {
@@ -69,10 +70,6 @@ extern "C" MpSettings_unk* lbl_8087F0A8;
 extern "C" void* lbl_8087F430;
 
 // inferred: debug text drawing
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80061AE4(void* draw, const wchar_t* text, int a, int b, int c, int d, int e, unsigned int color,
-                            float x, float y, float z, float w, float h, float f6, float f7, float f8, float clipX,
-                            float clipW, float clipScale);
 
 inline bool IsRepeated_unk(int button) {
     return lbl_8087EF70 != 0 ? fn_800A55AC(lbl_8087EF70, 0, button) : 0;
@@ -413,9 +410,7 @@ void D2AMpMenuMessageList::fn_804C50C0() {
             const wchar_t* text = msg->mText != 0 ? msg->mText : lbl_808813D0;
             if (text != 0) {
                 float off = i == mAC ? scroll : 0.0f;
-                fn_80061AE4(lbl_8087EEB0, msg->mText != 0 ? msg->mText : lbl_808813D0, -1, 1, 1, 0, 1, 0xFF000000,
-                            pos.x - off, pos.y, -100.0f, 17.0f, 17.0f, 0.0f, 0.0f, 0.0f, pos.x - width * scale, width,
-                            scale);
+                lbl_8087EEB0->fn_80061AE4(msg->mText != 0 ? msg->mText : lbl_808813D0, -1, 1, 1, 0, 1, 0xFF000000, pos.x - off, pos.y, -100.0f, 17.0f, 17.0f, 0.0f, 0.0f, 0.0f, pos.x - width * scale, width, scale);
                 if (i == mAC) {
                     float w = fn_8006EF48(lbl_8087EEC8, msg->mText != 0 ? msg->mText : lbl_808813D0, 17.0f, 0.0f, 1, 1);
                     if (scroll > w) {

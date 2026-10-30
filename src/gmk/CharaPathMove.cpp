@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "std/string_members.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -21,8 +22,6 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
                             int arg7);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 // inferred: debug drawing
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063200(void* draw, int arg, unsigned int color, float x, float y, float z, float a, float b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: empty names passed to operator new (in .sdata of another file)
 extern "C" char lbl_8087DFC0[4];
@@ -138,8 +137,7 @@ void CharaPathMove::vf14() {
         }
         if (mShowPath != 0) {
             for (unsigned int i = 0; i < mPoints.size(); i++) {
-                fn_80063200(lbl_8087EEB0, 12, 0xFF0000FF, mPoints[i].x, 0.2f + mPoints[i].y, mPoints[i].z, 0.0f,
-                            10.0f);
+                lbl_8087EEB0->fn_80063200(12, 0xFF0000FF, mPoints[i].x, 0.2f + mPoints[i].y, mPoints[i].z, 0.0f, 10.0f);
             }
         }
     }

@@ -3,6 +3,7 @@
 #include "atn/PostFx.h"
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
+#include "atn/DrawHelper.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
@@ -34,11 +35,6 @@ struct DamageParams_unk {
 };
 extern "C" DamageParams_unk* lbl_8087EFA8;
 
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_8005DF90(void* dbg, int color, GXTexObj* obj, int arg, float x, float y, float z, float w,
-                            float h);
-extern "C" void fn_8005DFC8(void* dbg, int color, atn::Texture_unk* tex, int arg, float x, float y, float z,
-                            float w, float h);
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture and waits
 // inferred: 2D texture matrix (atn/TextureDraw_unk.cpp)
 extern "C" void fn_800D5C84(float m[3][4], float sx, float sy, float c, float s, float tx, float ty);
@@ -261,8 +257,8 @@ void PostFxDamage::vf10(void* camera) {
     fn_800BFB70(lbl_8087EFB4);
     GXSetBlendMode(0, 4, 1, 3);
     if (lbl_8087EFA8->m378 != 0) {
-        fn_8005DF90(lbl_8087EEB0, -1, &sBlur, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
-        fn_8005DFC8(lbl_8087EEB0, -1, &sEdge, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &sBlur, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DFC8(-1, &sEdge, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
     }
 }
 

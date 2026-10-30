@@ -6,6 +6,7 @@
 #include "math/Vec.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "atn/DrawHelper.h"
 
 // inferred: event flags counted by fn_8031FE4C (lbl_80749898) and route places of the retreat
 // (lbl_807498A4)
@@ -182,9 +183,6 @@ struct LeoSettings_unk {
     int mDrawDebug; // 0x34
 };
 extern "C" LeoSettings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063484(void* draw, int segments, unsigned int color, float x, float y, float z, float rot,
-                            float a, float range, float angle); // inferred: fan
 
 // inferred: pulses the alpha of the "em405_efc" material every 120 frames; draws the view fan in debug
 void Em401_01_WhiteLeoPard::vf14() {
@@ -197,8 +195,7 @@ void Em401_01_WhiteLeoPard::vf14() {
     diffuse.a = 0.5f * (1.0f + s);
     mMotion.fn_80094958("em405_efc", &diffuse, &LeoColor_unk(material->m20), &LeoColor_unk(material->m1C));
     if (lbl_8087F0A8->mDrawDebug != 0) {
-        fn_80063484(lbl_8087EEB0, 20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f,
-                    1.5707964f);
+        lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
 

@@ -2,6 +2,7 @@
 #include "atn/Keyboard.h"
 #include "atn/Memory.h"
 #include <stdio.h>
+#include "atn/DrawHelper.h"
 
 // atn/MindowsCommon.cpp: debug menu items (atn::MindowsCommon and subclasses) and the menu itself.
 
@@ -9,10 +10,6 @@ using namespace atn;
 
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void* lbl_8087EEB0;               // inferred: debug drawing
-extern "C" void fn_80060D58(void* draw, float x, float y, float z, float w, unsigned int color); // inferred: rectangle
-extern "C" void fn_800616C0(void* draw, const char* text, unsigned int color, int a, int b, int c, float x, float y,
-                            float z, float sx, float sy, float f6); // inferred: text
 
 atn::Mindows_unk* lbl_8087EF10;
 
@@ -97,15 +94,12 @@ namespace atn {
         if (ctx->mTop <= *line) {                                                                             \
             float y = 16.0f * (float)(*line - ctx->mTop) + ctx->mY;                                           \
             if (ctx->mCursor == *line) {                                                                      \
-                fn_80060D58(lbl_8087EEB0, ctx->mX, y, -1000000.0f, ctx->mW,                                     \
-                            color);                                                                                                                                            \
+                lbl_8087EEB0->fn_80060D58(ctx->mX, y, -1000000.0f, ctx->mW, 16.0f, color);                                                                                                                                            \
             }                                                                                                 \
-            fn_800616C0(lbl_8087EEB0, mName, -1, 0, 0, 0, 16.0f * (float)depth + ctx->mX, y, -1000000.0f,     \
-                        16.0f, 16.0f, 0.0f);
+            lbl_8087EEB0->fn_800616C0(16.0f * (float)depth + ctx->mX, y, -1000000.0f, 16.0f, 16.0f, mName, -1, 0.0f, 0, 0, 0);
 
 #define MINDOWS_DRAW_VALUE(text)                                                                              \
-    fn_800616C0(lbl_8087EEB0, text, -1, 0, 0, 0, (ctx->mX + ctx->mW) - 8.0f * (float)strlen(text), y,        \
-                -1000000.0f, 16.0f, 16.0f, 0.0f)
+    lbl_8087EEB0->fn_800616C0((ctx->mX + ctx->mW) - 8.0f * (float)strlen(text), y, -1000000.0f, 16.0f, 16.0f, text, -1, 0.0f, 0, 0, 0)
 
 #define MINDOWS_DRAW_END(line)                                                                                \
         }                                                                                                     \
@@ -314,12 +308,11 @@ void MindowsFolder::vf18(const MindowsDrawCtx_unk* ctx, int depth, int* line) {
         if (ctx->mTop <= *line) {
             float y = 16.0f * (float)(*line - ctx->mTop) + ctx->mY;
             if (ctx->mCursor == *line) {
-                fn_80060D58(lbl_8087EEB0, ctx->mX, y, -1000000.0f, ctx->mW, 0xFF8080FF);
+                lbl_8087EEB0->fn_80060D58(ctx->mX, y, -1000000.0f, ctx->mW, 16.0f, 0xFF8080FF);
             }
             char buf[32];
             sprintf(buf, "%c%s", mOpen ? '-' : '+', mName);
-            fn_800616C0(lbl_8087EEB0, buf, -1, 0, 0, 0, 16.0f * (float)depth + ctx->mX, y, -1000000.0f, 16.0f,
-                        16.0f, 0.0f);
+            lbl_8087EEB0->fn_800616C0(16.0f * (float)depth + ctx->mX, y, -1000000.0f, 16.0f, 16.0f, buf, -1, 0.0f, 0, 0, 0);
         }
         (*line)++;
         if (mOpen != 0) {

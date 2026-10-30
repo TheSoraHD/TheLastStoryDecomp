@@ -1,6 +1,7 @@
 // atn/PostFxBloom.cpp: efecto de post-proceso de resplandor (bloom).
 #include "atn/PostFx.h"
 #include "math/Vec.h"
+#include "atn/DrawHelper.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
@@ -26,10 +27,7 @@ struct BloomParams_unk {
     int mC8[3];   // 0xC8: inferred: TEV scale of each pass
 };
 extern "C" BloomParams_unk* lbl_8087EFA8;
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
 extern "C" void fn_800BFC18(PostFxFrameBuffer_unk* fb, BloomColor_unk color, float a, float b);
-extern "C" void fn_8005DF90(void* dbg, int color, GXTexObj* obj, int arg, float x, float y, float z, float w,
-                            float h);
 
 // inferred: translation matrix by value (names invented)
 static inline atn::Matrix3x4 MakeTrans_unk(const atn::Vector3& v) {
@@ -244,8 +242,8 @@ void PostFxBloom::vf10(void* camera) {
     }
     GXSetBlendMode(0, 1, 0, 3);
     if (lbl_8087EFA8->m58 != 0) {
-        fn_8005DF90(lbl_8087EEB0, -1, &m24, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
-        fn_8005DF90(lbl_8087EEB0, -1, &m04, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &m24, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &m04, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
     }
 }
 

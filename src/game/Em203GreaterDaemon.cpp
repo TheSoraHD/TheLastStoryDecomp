@@ -6,6 +6,7 @@
 #include "game/HomingBullet.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/DrawHelper.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -124,8 +125,6 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
     return sqrt(v.x * v.x + v.z * v.z);
 }
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 // inferred: accessors of IntVector_unk (weak copies 0x800E0AA8/0x800E0AB0 of atn/WordWrap_unk.cpp)
 extern "C" inline unsigned int fn_800E0AA8(const IntVector_unk* v) {
     return v->mSize;
@@ -949,7 +948,7 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
     }
     if (m1990 != 0) {
         int point = fn_803C1560(lbl_8087F430->m10D8, &m14B0->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
-        fn_80063D3C(lbl_8087EEB0, &lbl_8087F430->m10D8->mPoints[point - 1].mPos, 0xFF0000FF, 10.0f, 10000.0f);
+        lbl_8087EEB0->fn_80063D3C(lbl_8087F430->m10D8->mPoints[point - 1].mPos, 10.0f, 10000.0f, 0xFF0000FF);
     }
 }
 

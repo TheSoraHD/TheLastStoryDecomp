@@ -4,6 +4,7 @@
 #include "atn/Csv.h"
 #include "atn/SoundRef.h"
 #include "macros.h"
+#include "atn/DrawHelper.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -61,12 +62,7 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0) and camera (lbl_8087EFB4)
-extern "C" void* lbl_8087EEB0;
 extern "C" void* lbl_8087EFB4;
-extern "C" void fn_80063764(void* draw, const atn::Vector3* a, const atn::Vector3* b, unsigned int color,
-                            float width); // inferred: line
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, float f6, const char* text,
-                            unsigned int color, int a, int b, int c); // inferred: text
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 
@@ -189,18 +185,15 @@ void ChaserNpc::fn_80180AE0() {
             char text[0x100];
             float y = screen.y - 12.0f;
             sprintf(text, "%s", sStateNames_unk[m14B0]);
-            fn_800616C0(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, text,
-                        ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(screen.x, y, 0.0f, 12.0f, 12.0f, text, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 0.0f, 1, 1, 0);
             sprintf(text, "W %d, V %f", m14C0 >= 0 ? m14B4[m14C0] : -1, m14C4 / 1.32f);
             y += 12.0f;
-            fn_800616C0(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, text,
-                        ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(screen.x, y, 0.0f, 12.0f, 12.0f, text, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 0.0f, 1, 1, 0);
             y += 12.0f;
             CharaTask* player = lbl_8087F8A0->mHead;
             atn::Vector3 d = player->mPos - mPos;
             sprintf(text, "S %d, R %d, D %f", m14C8, m14D0, PSVECMag(&d));
-            fn_800616C0(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, text,
-                        ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(screen.x, y, 0.0f, 12.0f, 12.0f, text, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 0.0f, 1, 1, 0);
         }
     }
 }
@@ -458,10 +451,10 @@ bool ChaserNpc::fn_80182134() {
             seen = fn_8004ED34(lbl_8087EE98, &result, &eye, &target, 0x80000000, 0, 0) == 0;
             if (lbl_8087F0A8->m53C != 0) {
                 if (!seen) {
-                    fn_80063764(lbl_8087EEB0, &eye, &result.m04, 0xFFFFFF00, 0.0f);
-                    fn_80063764(lbl_8087EEB0, &result.m04, &target, 0xFF4D4D00, 0.0f);
+                    lbl_8087EEB0->fn_80063764(eye, result.m04, 0.0f, 0xFFFFFF00);
+                    lbl_8087EEB0->fn_80063764(result.m04, target, 0.0f, 0xFF4D4D00);
                 } else {
-                    fn_80063764(lbl_8087EEB0, &eye, &target, 0xFF4D4D00, 0.0f);
+                    lbl_8087EEB0->fn_80063764(eye, target, 0.0f, 0xFF4D4D00);
                 }
             }
         }

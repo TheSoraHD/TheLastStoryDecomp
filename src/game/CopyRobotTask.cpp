@@ -2,6 +2,7 @@
 #include "game/Inventory.h"
 #include "std/string.h"
 #include "macros.h"
+#include "atn/DrawHelper.h"
 
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
@@ -14,9 +15,6 @@ struct Settings_unk {
     int mDrawDebug; // 0x34
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063484(void* draw, int segments, unsigned int color, float x, float y, float z, float rot,
-                            float a, float range, float angle); // inferred: fan
 
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -246,7 +244,7 @@ void CopyRobotTask::vf10() {
 void CopyRobotTask::vf14() {
     fn_80149A30();
     if (lbl_8087F0A8->mDrawDebug != 0) {
-        fn_80063484(lbl_8087EEB0, 20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
+        lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
 

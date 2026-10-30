@@ -4,6 +4,7 @@
 #include "game/NpcTask.h"
 #include "game/ChaseManager.h"
 #include "std/vector.h"
+#include "atn/DrawHelper.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -138,17 +139,9 @@ void CrowdManager::vf10() {
     }
 }
 
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
 extern "C" void* lbl_8087EEC8; // inferred: font
-extern "C" void fn_80062C8C(void* draw, int segments, unsigned int color, float x, float y, float z, float f4,
-                            float radius, float f6); // inferred: circle
-extern "C" void fn_80063764(void* draw, const atn::Vector3* a, const atn::Vector3* b, unsigned int color,
-                            float width); // inferred: line
 extern "C" void fn_800BFAC8(atn::Vector3* out, CrowdCamera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 extern "C" int sprintf(char* dst, const char* format, ...);
 
 // inferred: float colour (names invented)
@@ -170,9 +163,9 @@ void CrowdManager::vf14() {
     if (mDebug == 0) {
         return;
     }
-    fn_80062C8C(lbl_8087EEB0, 16, 0x6600FF00, mCenter.x, mCenter.y, mCenter.z, 0.0f, mInner, 100.0f);
-    fn_80062C8C(lbl_8087EEB0, 16, 0x66FFFF00, mCenter.x, mCenter.y, mCenter.z, 0.0f, mOuter, 100.0f);
-    fn_80062C8C(lbl_8087EEB0, 16, 0x66FF0000, mCenter.x, mCenter.y, mCenter.z, 0.0f, mKill, 100.0f);
+    lbl_8087EEB0->fn_80062C8C(16, 0x6600FF00, mCenter.x, mCenter.y, mCenter.z, 0.0f, mInner, 100.0f);
+    lbl_8087EEB0->fn_80062C8C(16, 0x66FFFF00, mCenter.x, mCenter.y, mCenter.z, 0.0f, mOuter, 100.0f);
+    lbl_8087EEB0->fn_80062C8C(16, 0x66FF0000, mCenter.x, mCenter.y, mCenter.z, 0.0f, mKill, 100.0f);
     for (int i = 0; i < (int)CrowdSimulation::sInstance->mWalkers.mSize; i++) {
         wchar_t wtext[0x100];
         char text[0x100];
@@ -183,15 +176,13 @@ void CrowdManager::vf14() {
             if (walker->mPoint == walker->mDest) {
                 color = 0x66FFFF00;
             }
-            fn_80062C8C(lbl_8087EEB0, 16, color,
-                        walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f, 5.0f, 10.0f);
-            fn_80063764(lbl_8087EEB0, &walker->mPos, &walker->mNext, -1, 0.0f);
+            lbl_8087EEB0->fn_80062C8C(16, color, walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f, 5.0f, 10.0f);
+            lbl_8087EEB0->fn_80063764(walker->mPos, walker->mNext, 0.0f, -1);
             atn::Vector3 tip = walker->mPos + walker->mDir * 10.0f;
-            fn_80063764(lbl_8087EEB0, &walker->mPos, &tip, 0xFF0000FF, 0.0f);
+            lbl_8087EEB0->fn_80063764(walker->mPos, tip, 0.0f, 0xFF0000FF);
         } else {
             CrowdColor_unk color(1.0f, 0.0f, 0.0f, 1.0f);
-            fn_80062C8C(lbl_8087EEB0, 16, CrowdRGBA_unk(color), walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f,
-                        5.0f, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(16, CrowdRGBA_unk(color), walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f, 5.0f, 10.0f);
         }
         if (LengthSq_unk(lbl_8087EFB4->mEye - walker->mPos) < 1600.0f) {
             fn_800BFAC8(&screen, lbl_8087EFB4, &walker->mPos);
@@ -199,18 +190,15 @@ void CrowdManager::vf14() {
                 float y = screen.y;
                 sprintf(text, "Point: %3d to %3d", walker->mPoint, walker->mDest);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
-                            0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
                 sprintf(text, "Unit %d, Chara %d", walker->mGroup, mDesc->mGroups[walker->mGroup].mChara);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
-                            0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
                 sprintf(text, "DPos: %3.3f, %3.3f, %3.3f", walker->mNext.x, walker->mNext.y, walker->mNext.z);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                fn_80061824(lbl_8087EEB0, screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
-                            0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
             }
         }
     }

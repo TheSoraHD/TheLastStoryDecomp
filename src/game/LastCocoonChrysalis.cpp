@@ -5,6 +5,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
+#include "atn/DrawHelper.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -20,11 +21,7 @@ extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" void fn_801CCD00(LastCocoonPart_unk* chara, int arg);
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
-extern "C" void* lbl_8087EEB0;
 extern "C" void* lbl_8087EEC8;
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
 struct Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
@@ -137,8 +134,7 @@ void LastCocoonChrysalis::vf10() {
         atn::Vector3 screen;
         fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
         if (screen.z > 0.0f && screen.z < 1.0f) {
-            fn_80061824(lbl_8087EEB0, screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text,
-                        0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
         }
         CharaTask* leader = (CharaTask*)lbl_8087F8A0->mHead;
         if (leader->m55C == 6 && leader->m560 == 10) {

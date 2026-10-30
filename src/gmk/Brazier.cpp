@@ -7,6 +7,7 @@
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
 #include "gmk/Lemon.h"
+#include "atn/DrawHelper.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
@@ -45,8 +46,6 @@ extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const 
 extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg); // inferred: sweep test
 // inferred: debug drawing (lbl_8087EEB0)
-extern "C" void* lbl_8087EEB0;
-extern "C" void fn_80063D3C(void* dbg, const atn::Vector3* pos, unsigned int color, float radius, float arg);
 // inferred: game settings
 struct BrazierSettings_unk {
     unsigned char m00[0x08];
@@ -271,8 +270,8 @@ void Brazier::vf14() {
         atn::Vector3 dir;
         __VecCopy(&dir.x, &mDir.x);
         dir.y = 0.0f;
-        fn_80063D3C(lbl_8087EEB0, &pos, 0xFFFFFF00, mRadius, 0.0f);
-        fn_80063D3C(lbl_8087EEB0, &(pos + dir * mRadius), 0xFFFFFF00, 0.5f * mRadius, 0.0f);
+        lbl_8087EEB0->fn_80063D3C(pos, mRadius, 0.0f, 0xFFFFFF00);
+        lbl_8087EEB0->fn_80063D3C(pos + dir * mRadius, 0.5f * mRadius, 0.0f, 0xFFFFFF00);
     }
 }
 

@@ -3,6 +3,7 @@
 #include "std/string.h"
 #include "macros.h"
 #include "atn/SoundRef.h"
+#include "atn/DrawHelper.h"
 
 // inferred: debug settings (only the members used here)
 struct LogSettings_unk {
@@ -86,10 +87,6 @@ struct LogField_unk {
     int m54E4;
 };
 extern "C" LogField_unk* lbl_8087F430;
-extern "C" void* lbl_8087EEB0; // inferred: debug drawing
-extern "C" void fn_80061824(void* draw, float x, float y, float z, float w, float h, float f6, float f7, float f8,
-                            const wchar_t* text, unsigned int color, int a, int b, int c, int d,
-                            unsigned int color2); // inferred: text
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" double sin(double x);
 
@@ -156,16 +153,13 @@ void LogMessageTask::vf14() {
                 }
             }
             color.a = mAlpha * (float)sin(0.5f * (3.1415927f * ((float)(lines - i) / (float)lines)));
-            fn_80061824(lbl_8087EEB0, 1.0f + x, 1.0f + y, 200.0f, 12.0f, 14.0f, 0.0f, 0.0f, 0.0f, entry.mText.mText,
-                        ToRGBA_unk(color) & 0xFF000000, 1, 1, 0, 0, 0xFF000000);
-            fn_80061824(lbl_8087EEB0, x, y, 200.0f, 12.0f, 14.0f, 0.0f, 0.0f, 0.0f, entry.mText.mText,
-                        ToRGBA_unk(color), 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(1.0f + x, 1.0f + y, 200.0f, 12.0f, 14.0f, 0.0f, 0.0f, 0.0f, entry.mText.mText, ToRGBA_unk(color) & 0xFF000000, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, 200.0f, 12.0f, 14.0f, 0.0f, 0.0f, 0.0f, entry.mText.mText, ToRGBA_unk(color), 1, 1, 0, 0, 0xFF000000);
         }
     } else if (mode == 2) {
         for (unsigned int i = 0; i < mEntries.mSize; i++) {
             LogEntry_unk& entry = mEntries.mData[i];
-            fn_80061824(lbl_8087EEB0, 400.0f, 14.0f * i + 85.0f, 200.0f, 12.0f, 14.0f, 0.0f, 0.0f, 0.0f,
-                        entry.mText.mText, (entry.mKind & 0xFF000000) | 0xCCCCCC, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(400.0f, 14.0f * i + 85.0f, 200.0f, 12.0f, 14.0f, 0.0f, 0.0f, 0.0f, entry.mText.mText, (entry.mKind & 0xFF000000) | 0xCCCCCC, 1, 1, 0, 0, 0xFF000000);
         }
     }
 }

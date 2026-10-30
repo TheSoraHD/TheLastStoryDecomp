@@ -5,6 +5,7 @@
 #include "std/string_members.h"
 #include "std/vector.h"
 #include <boost/tokenizer.hpp>
+#include "atn/DrawHelper.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int atoi(const char* s);
@@ -12,7 +13,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
-extern "C" atn::Matrix3x4 lbl_807C7030; // inferred: identity matrix (another copy)
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector (.bss, 0x10 bytes)
 
 
 // inferred: event flags of the field
@@ -35,15 +36,7 @@ struct EnvSeConfig_unk {
 extern "C" EnvSeConfig_unk* lbl_8087F0A8;
 
 // inferred: debug drawing and camera
-extern "C" void* lbl_8087EEB0;
 extern "C" void* lbl_8087EFB4;
-extern "C" void fn_80063D3C(void* draw, const atn::Vector3* center, float radius, float arg, unsigned int color);
-extern "C" void fn_80063764(void* draw, const atn::Vector3* a, const atn::Vector3* b, float width,
-                            unsigned int color); // inferred: line
-extern "C" void fn_800629F0(void* draw, const atn::Matrix3x4* base, const atn::Vector3* size, float arg,
-                            unsigned int color, const atn::Matrix3x4* mtx); // inferred: box
-extern "C" void fn_800616C0(void* draw, float x, float y, float z, float w, float h, const char* text,
-                            unsigned int color, float f6, int a, int b, int c); // inferred: text
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 
 // inferred: debug menu entries
@@ -193,8 +186,7 @@ void EnvSeBase::DrawName_unk(const atn::Vector3& pos) {
     if (0.0f < screen.z && screen.z < 1.0f) {
         char text[0x100];
         sprintf(text, "%s[%d] %s\0", sTypeNames[mData->mType], m4C, mData->mName);
-        fn_800616C0(lbl_8087EEB0, screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, m58 != 0 ? 0xFFFFFFFF : 0xFF7F7F7F,
-                    0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, m58 != 0 ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
     }
 }
 
@@ -222,7 +214,7 @@ void EnvSePoint::vf10() {
 
 void EnvSePoint::vf14() {
     if (m64 == 0 && lbl_8087F418->m1A4 >= 1) {
-        fn_80063D3C(lbl_8087EEB0, &mData->mPos, 3.0f, 0.0f, m58 != 0 ? 0xFFFF8080 : 0xFF7F4040);
+        lbl_8087EEB0->fn_80063D3C(mData->mPos, 3.0f, 0.0f, m58 != 0 ? 0xFFFF8080 : 0xFF7F4040);
         DrawName_unk(mData->mPos);
     }
 }
@@ -317,7 +309,7 @@ void EnvSeLine::vf14() {
             atn::Vector3 pa;
             pa = a->mData->mPos;
             pb = b->mData->mPos;
-            fn_80063764(lbl_8087EEB0, &pa, &pb, 0.0f, m58 != 0 ? 0xFFFFFF80 : 0xFF7F7F40);
+            lbl_8087EEB0->fn_80063764(pa, pb, 0.0f, m58 != 0 ? 0xFFFFFF80 : 0xFF7F7F40);
             DrawName_unk((pa + pb) * 0.5f);
         }
     }
@@ -363,7 +355,7 @@ void EnvSeSphere::vf10() {
 
 void EnvSeSphere::vf14() {
     if (lbl_8087F418->m1A4 >= 1) {
-        fn_80063D3C(lbl_8087EEB0, &mCenter, mRadius, 0.0f, m58 != 0 ? 0xFF80FF80 : 0xFF407F40);
+        lbl_8087EEB0->fn_80063D3C(mCenter, mRadius, 0.0f, m58 != 0 ? 0xFF80FF80 : 0xFF407F40);
         DrawName_unk(mCenter);
     }
 }
@@ -435,7 +427,7 @@ void EnvSeBox::vf10() {
 
 void EnvSeBox::vf14() {
     if (lbl_8087F418->m1A4 >= 1) {
-        fn_800629F0(lbl_8087EEB0, &lbl_807C7030, &mSize, 0.0f, m58 != 0 ? 0xFF80FFFF : 0xFF407F7F, &mMtx);
+        lbl_8087EEB0->fn_800629F0(lbl_807C7030, mSize, 0.0f, m58 != 0 ? 0xFF80FFFF : 0xFF407F7F, &mMtx);
         atn::Vector3 pos = mMtx.GetTrans_unk();
         DrawName_unk(pos);
     }
@@ -463,7 +455,7 @@ void EnvSeGlobal::vf10() {
 
 void EnvSeGlobal::vf14() {
     if (lbl_8087F418->m1A4 >= 1) {
-        fn_80063D3C(lbl_8087EEB0, &mData->mPos, 3.0f, 0.0f, m58 != 0 ? 0xFF8080FF : 0xFF40407F);
+        lbl_8087EEB0->fn_80063D3C(mData->mPos, 3.0f, 0.0f, m58 != 0 ? 0xFF8080FF : 0xFF40407F);
         DrawName_unk(mData->mPos);
     }
 }
