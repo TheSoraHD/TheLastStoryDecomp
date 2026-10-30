@@ -2354,6 +2354,54 @@ void DrawHelper::ComDrawFontSideFade::vf10(RenderView_unk* view) {
     }
 }
 
+// inferred: GXColor from its components (local inline, name invented)
+inline GXColor DrawGXColor_unk(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+    GXColor c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
+    c.a = a;
+    return c;
+}
+
+void DrawHelper::ComDrawColliObject::vf10(RenderView_unk* view) {
+    fn_80076760(lbl_8087EEE0, 6, 2);
+    GXSetNumChans(1);
+    GXSetNumTexGens(0);
+    GXSetNumTevStages(1);
+    GXSetTevOrder(0, 0xFF, 0xFF, 4);
+    GXSetTevOp(0, 4);
+    GXSetChanAmbColor(0, DrawGXColor_unk(0, 0, 0, 0));
+    GXSetChanMatColor(0, DrawGXColor_unk(0, 0xFF, 0, 0xFF));
+    GXSetChanCtrl(0, 0, 0, 0, 0, 0, 2);
+    GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+    GXSetCurrentMtx(0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+    mColli->fn_800584B4(m0C, m10, -1);
+}
+
+void DrawHelper::ComDrawColliTree::vf10(RenderView_unk* view) {
+    fn_80076760(lbl_8087EEE0, 6, 2);
+    GXSetNumChans(1);
+    GXSetNumTexGens(0);
+    GXSetNumTevStages(1);
+    GXSetTevOrder(0, 0xFF, 0xFF, 4);
+    GXSetTevOp(0, 4);
+    GXSetChanAmbColor(0, DrawGXColor_unk(0, 0, 0, 0));
+    GXSetChanMatColor(0, DrawGXColor_unk(0, 0xFF, 0, 0xFF));
+    GXSetChanCtrl(0, 0, 0, 1, 0, 0, 2);
+    GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+    GXSetCurrentMtx(0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+    GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+    mColli->fn_80059240(m0C, m10, -1);
+}
+
 // Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
 // destructors.
 
