@@ -109,6 +109,7 @@ inline void ControlAttackBase::LoadTable_unk() {
     mTable = fn_802097C4(motion->fn_80097D40(motion->mTracks[0].m00)->fn_80473F18());
 }
 
+// NONMATCHING: 97.4% - chara gets r3 instead of r5 (the original keeps it out of the return register).
 int ControlAttackBase::vf24() {
     Chara_unk* chara = mChara;
     if (mTable != 0) {
@@ -158,6 +159,7 @@ float ControlAttackBase::vf20() {
     return 18.0f;
 }
 
+// NONMATCHING: 97.3% - same register choice as vf24.
 int ControlAttackBase::vf28() {
     Chara_unk* chara = mChara;
     if (mTable != 0) {
@@ -186,6 +188,7 @@ int ControlAttackBase::vf28() {
     return 0;
 }
 
+// NONMATCHING: 98.0% - table and chara in r5/r4 instead of r4/r5.
 int ControlAttackBase::vf30() {
     Chara_unk* chara = mChara;
     if (mTable != 0) {
@@ -226,6 +229,7 @@ int ControlAttackBase::vf38(int arg) {
     return -1;
 }
 
+// NONMATCHING: 85.5% - the status pointer and the table address are scheduled differently.
 float ControlAttackBase::vf60() {
     Chara_unk* chara = mChara;
     CharaStatus* status = &chara->mStatus;
@@ -246,6 +250,7 @@ float ControlAttackBase::vf60() {
     return rate;
 }
 
+// NONMATCHING: 98.9% - stack slot of the front vector of the mFlag31 branch, registers of the start frame.
 ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
     chara->m560 = 4;
     Motion_unk* motion = &mChara->mMotion;
@@ -299,7 +304,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
     }
     motion->fn_80097C08(0, id, 0, 1, 1, 0.0f, 0.2f);
     Chara_unk* c = mChara;
-    float frame = sAttackLevel[MIN(MAX(c->mStatus.mParamB.m94 / 100, 0), 5)].mFrame;
+    float frame = sAttackLevel[MIN(5, MAX(0, c->mStatus.mParamB.m94 / 100))].mFrame;
     float speed = c->mMotion.mTracks[0].m0C;
     motion->mTracks[0].m08 = frame * MIN(1.0f, speed);
     if (mChara->mType == 0) {
@@ -323,6 +328,8 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
     }
 }
 
+// NONMATCHING: 94.6% - the original keeps &chara->mPos (not chara) across rand(), loads 6.0f first and
+// compares 0x156/0x157 one by one (we get a range test).
 int ControlAttack::vf0C() {
     Chara_unk* chara = mChara;
     if (chara->m674 < 0) {
@@ -365,6 +372,7 @@ int ControlAttack::vf0C() {
     return 0;
 }
 
+// NONMATCHING: 98.3% - as ControlAttack::ControlAttack.
 ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
     chara->m560 = 5;
     Motion_unk* motion = &mChara->mMotion;
@@ -423,7 +431,7 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
     }
     motion->fn_80097C08(0, id, 0, 1, 1, 0.0f, 0.2f);
     Chara_unk* c = mChara;
-    float frame = sAttackLevel[MIN(MAX(c->mStatus.mParamB.m94 / 100, 0), 5)].mFrame;
+    float frame = sAttackLevel[MIN(5, MAX(0, c->mStatus.mParamB.m94 / 100))].mFrame;
     float speed = c->mMotion.mTracks[0].m0C;
     motion->mTracks[0].m08 = frame * MIN(1.0f, speed);
     if (mChara->mType == 0) {
@@ -447,6 +455,7 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
     }
 }
 
+// NONMATCHING: 94.6% - as ControlAttack::vf0C.
 int ControlAttackNext::vf0C() {
     Chara_unk* chara = mChara;
     if (chara->m674 < 0) {
@@ -511,6 +520,7 @@ ControlAttackSetup::ControlAttackSetup(Chara_unk* chara, int wait) : ControlBase
     motion->fn_80097C08(0, 0x173, 0, 0, 1, 0.0f, 0.1f);
 }
 
+// NONMATCHING: 99.4% - FPRs of mWait and the time scale swapped.
 int ControlAttackSetup::vf0C() {
     mWait = mWait - lbl_8087EFA8->m3A4;
     Chara_unk* chara = mChara;
@@ -675,6 +685,7 @@ atn::Vector3 ControlJumpAttack2::vf14() {
     return r;
 }
 
+// NONMATCHING: 99.6% - FPRs of the start frame and MIN(1, speed).
 ControlMultiAttack::ControlMultiAttack(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
     chara->m560 = 9;
     Motion_unk* motion = &mChara->mMotion;
@@ -714,6 +725,7 @@ void ControlMultiAttack::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
 
+// NONMATCHING: 99.5% - as ControlMultiAttack.
 ControlSideWallAttack::ControlSideWallAttack(Chara_unk* chara, const atn::Vector3& dir)
     : ControlAttackBase(chara, dir) {
     chara->m560 = 9;
@@ -755,11 +767,7 @@ ControlGuardCounter::ControlGuardCounter(Chara_unk* chara, const atn::Vector3& d
     if (PSVECSquareMag(&dir) > 0.0001f) {
         mDir = atn::Vector3(-dir.x, -dir.y, -dir.z).GetNormalize();
     } else {
-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        atn::Matrix3x4 m;
-        m.fn_8013A13C(mChara->mRot.y);
-        PSMTXMultVec(m.m, &front, &front);
-        mDir = front;
+        mDir = GetFront_unk(mChara->mRot);
     }
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
@@ -798,6 +806,7 @@ void ControlGuardCounter::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
 
+// NONMATCHING: 96.2% - temporaries of the rotation.
 ControlHitBackBullet::ControlHitBackBullet(Chara_unk* chara, const atn::Vector3& dir, HomingBullet* bullet)
     : ControlAttackBase(chara, dir) {
     chara->m560 = 0x80;
@@ -823,6 +832,7 @@ static inline const char* GetShotSe_unk(BulletShot_unk shot) {
     return fn_800EFF04(shot.m0C->mB0);
 }
 
+// NONMATCHING: 83.6% - copies of the shot (BulletShot_unk) and stack layout.
 int ControlHitBackBullet::vf0C() {
     int result = 0;
     Motion_unk* motion = &mChara->mMotion;
@@ -875,7 +885,9 @@ ControlSwapAttack::ControlSwapAttack(Chara_unk* chara, Chara_unk* target)
     motion->fn_80097C08(0, 0x62, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     mChara->fn_801446F0();
-    mDir = mTarget->mPos - mChara->mPos;
+    Chara_unk* self = mChara;
+    Chara_unk* t = mTarget;
+    mDir = t->mPos - self->mPos;
     mDir.y = 0.0f;
     PSVECNormalize(&mDir, &mDir);
     mTime = 0.0f;
@@ -887,7 +899,7 @@ ControlSwapAttack::ControlSwapAttack(Chara_unk* chara, Chara_unk* target)
     }
 }
 
-// NONMATCHING: approximate (stack layout of the saved state)
+// NONMATCHING: 95.6% - stack layout of the saved state (position, rotation, velocity).
 int ControlSwapAttack::vf0C() {
     mTime = mTime + lbl_8087EFA8->m3A4;
     Motion_unk* motion = &mChara->mMotion;
@@ -968,6 +980,7 @@ ControlAttackLastOne::ControlAttackLastOne(Chara_unk* chara, const atn::Vector3&
     c->m638 = hit;
 }
 
+// NONMATCHING: 98.0% - stack slots of the direction temporaries.
 int ControlAttackLastOne::vf0C() {
     float speed = 0.0f;
     float rate = 1.0f;

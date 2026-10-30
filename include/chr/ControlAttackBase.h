@@ -28,6 +28,7 @@ public:
     ControlAttackBase(Chara_unk* chara, const atn::Vector3& dir)
         : ControlBase(chara), mTable(0), mHit(0), mDir(dir) {}
     virtual ~ControlAttackBase() {}
+    // NONMATCHING: 60% - the original stores x/y (psq_st) before z (as ControlChargeAttackBase::vf18).
     virtual atn::Vector3 vf18() { return mDir; }
     virtual float vf20();
     virtual int vf24();
