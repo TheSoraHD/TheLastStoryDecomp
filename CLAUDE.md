@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `close-one-func-2` (2026-10-30, rama sin mergear): **8770 / 18215 funciones al 100%** (código 31,49%), 380 unidades enlazadas (+`game/MapPartsEfp`, `game/Gun`), `main.dol: OK`. El resto de la lista (12 unidades ≥ 95%) sigue sin enlazar por residuos de registros; detalle en `docs/close-one-func-2.md`.
+- `close-one-func-2` (2026-10-30, mergeada en `main`): **8770 / 18215 funciones al 100%** (código 31,49%), 380 unidades enlazadas (+`game/MapPartsEfp`, `game/Gun`), `main.dol: OK`. El resto de la lista (12 unidades ≥ 95%) sigue sin enlazar por residuos de registros; detalle en `docs/close-one-func-2.md`.
 - `close-one-func` (2026-10-30, mergeada): 8768 funciones, +`gmk/TodomeCountUp`, `gmk/CharaObj`, `atn/TaskBase` (`docs/close-one-func.md`).
 - `list-const-iter` (2026-10-30, mergeada): 8765 funciones, sin matches nuevos; `const_iterator` por valor, `erase(const_iterator)` (`docs/list-const-iter.md`, `docs/list-get-unk.md`, `docs/msl_cpp.md`).
 - Anteriores: `k2-close-units` + `vector-push-back` (K2, `push_back`; `docs/k2-close-units.md`), `i2-poolorder` (I2, mergeada; `poolorder.py`, `docs/i2-poolorder.md`), `fb2-materialparser` (F-b2), `fb3-drawhelper-paso3` (`atn/DrawHelper` 53/68), `fb3-comdrawtexture`, `fb-materialparser`, `batch-auto-50kb-atn` (F), `batch-auto-20kb-game` (E), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
