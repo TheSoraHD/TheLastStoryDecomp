@@ -295,12 +295,11 @@ public:
     virtual void vf10(RenderView_unk* view);
 
     int m04;                         // inferred: 0 for the blend modes 6, 8 and 0xD
-    DrawMaskVertex_unk* mCorner[4];  // 0x08: the 4 corners (4 vertices each)
-    DrawMaskVertex_unk* mEdge[4];    // 0x18: the 4 edges between them
-    Texture_unk* mTex0;              // 0x28
-    Texture_unk* mTex1;              // 0x2C
-    unsigned char m30;
-    int m34;
+    DrawMaskVertex_unk* mParts[8];   // 0x08: the 4 corners, then the 4 edges (4 vertices each)
+    Texture_unk* mTex0;              // 0x28: texture of the corners
+    Texture_unk* mTex1;              // 0x2C: texture of the edges
+    unsigned char m30;               // inferred: depth write
+    int m34;                         // inferred: blend type
     int m38;
 };
 
@@ -1063,7 +1062,7 @@ void DrawHelper::fn_80061E2C(float x, float y, float z, float w, float h, unsign
         v[3].mPos = p;
         v[3].mColor = color;
         v[3].mUV = DrawUV2_unk(0.0f, 1.0f, uvs[i].u0, uvs[i].v1);
-        cmd->mCorner[i] = v;
+        cmd->mParts[i] = v;
     }
     Vector3 centers[4];
     Vector3 sizes[4];
@@ -1106,7 +1105,7 @@ void DrawHelper::fn_80061E2C(float x, float y, float z, float w, float h, unsign
             v[k].Set_unk(pts[k], color, DrawUV2_unk((k == 0 || k == 3) ? 0.0f : 1.0f, (k / 2) ? 0.0f : 1.0f,
                                                 (k == 0 || k == 3) ? 0.0f : 1.0f, (k / 2) ? 0.0f : 1.0f));
         }
-        cmd->mEdge[j] = v;
+        cmd->mParts[j + 4] = v;
     }
     int blend = 1;
     if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
@@ -2467,6 +2466,94 @@ void DrawHelper::ComDrawD3TextureMask::vf10(RenderView_unk* view) {
     }
     GXSetTevSwapMode(0, 0, 0);
     GXSetTevSwapMode(1, 0, 0);
+}
+
+void DrawHelper::ComDrawWindow::vf10(RenderView_unk* view) {
+    fn_800761A8(lbl_8087EEE0);
+    GXSetNumChans(1);
+    GXSetNumTexGens(2);
+    GXSetNumTevStages(2);
+    GXSetTevSwapModeTable(1, 0, 0, 0, 0);
+    GXSetTevSwapMode(1, 0, 1);
+    GXSetTevOrder(0, 0, 0, 4);
+    GXSetTevOrder(1, 1, 1, 0xFF);
+    GXSetTevColorIn(0, 0xF, 8, 0xA, 0xF);
+    GXSetTevAlphaIn(0, 7, 4, 5, 7);
+    GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+    GXSetTevColorIn(1, 0xF, 0, 0xC, 0xF);
+    GXSetTevAlphaIn(1, 7, 0, 4, 7);
+    GXSetTevColorOp(1, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(1, 0, 0, 0, 1, 0);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    GXSetTexCoordGen2(1, 1, 5, 0x3C, 0, 0x7D);
+    if (m04 == 1) {
+        Matrix3x4 m;
+        m.SetIdentity();
+        GXLoadPosMtxImm(m.m, 0);
+        GXSetCurrentMtx(0);
+    } else {
+        fn_80076760(lbl_8087EEE0, 6, 0);
+        DrawSetZMode_unk(lbl_8087EEE0, m30);
+        GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+        GXSetCurrentMtx(0);
+    }
+    switch (m34) {
+    case 0:
+        GXSetBlendMode(1, 4, 5, 0);
+        break;
+    case 1:
+        GXSetBlendMode(1, 4, 1, 0);
+        break;
+    case 2:
+        GXSetBlendMode(1, 3, 1, 0);
+        break;
+    case 3:
+        GXSetBlendMode(1, 0, 5, 0);
+        break;
+    case 4:
+        GXSetBlendMode(1, 0, 3, 0);
+        break;
+    }
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    GXSetVtxDesc(0xE, 1);
+    if (m04 == 1) {
+        GXSetVtxAttrFmt(0, 9, 0, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xE, 1, 4, 0);
+    } else {
+        GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+        GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+        GXSetVtxAttrFmt(0, 0xE, 1, 4, 0);
+    }
+    for (unsigned int i = 0; i < 8; i++) {
+        fn_800763FC(lbl_8087EEE0, &lbl_8087EEB0->m10.mObj, 0);
+        if (i < 4) {
+            fn_800763FC(lbl_8087EEE0, mTex0 != 0 ? &mTex0->mObj : &lbl_8087EEB0->m10.mObj, 1);
+        } else {
+            fn_800763FC(lbl_8087EEE0, mTex1 != 0 ? &mTex1->mObj : &lbl_8087EEB0->m10.mObj, 1);
+        }
+        fn_800761A8(lbl_8087EEE0);
+        GXBegin(0x80, 0, 4);
+        for (int k = 0; k < 4; k++) {
+            if (m04 == 1) {
+                GXPosition2f32(mParts[i][k].mPos.x, mParts[i][k].mPos.y);
+            } else {
+                GXPosition3f32(mParts[i][k].mPos.x, mParts[i][k].mPos.y, mParts[i][k].mPos.z);
+            }
+            GXColor1u32(DrawRGBA_unk(mParts[i][k].mColor));
+            GXTexCoord2f32(mParts[i][k].mUV.u0, mParts[i][k].mUV.v0);
+            GXTexCoord2f32(mParts[i][k].mUV.u1, mParts[i][k].mUV.v1);
+        }
+    }
+    GXSetTevSwapMode(1, 0, 0);
+    GXSetBlendMode(1, 4, 5, 0);
 }
 
 // Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
