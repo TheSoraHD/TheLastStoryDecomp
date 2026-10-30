@@ -455,7 +455,7 @@
   "classes": [
    "atn::TaskBase"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureCacheManager8x32.cpp",

@@ -7,7 +7,7 @@
 
 namespace atn {
 
-static unsigned long long sTaskTag = *(const unsigned long long*)"XTASKTAG";
+static const unsigned long long sTaskTag = *(const unsigned long long*)"XTASKTAG";
 
 } // namespace atn
 
@@ -19,8 +19,7 @@ atn::TaskStats_unk lbl_807C75D8;
 
 namespace atn {
 
-// NONMATCHING: 58.86% - orden de las cargas del contador de ids y de la etiqueta (planificador); probado:
-// orden inverso, locales y post-incremento.
+// inferred: the tag is const (it is only written by the __sinit), so its load is scheduled freely
 TaskBase::TaskBase(int arg) {
     TASK_U64(mId) = ++lbl_807C75D8.mNextId;
     TASK_U64(mTag) = sTaskTag;
