@@ -205,9 +205,13 @@ void FragileObject::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 98.1% - the target sphere stack slots (see Start), counter/offset registers of the
-// loops swapped (r30/r29) and the flag tests of the collisions reuse the loaded word. Tried: int and
-// unsigned indices, size(), loops in inline helpers
+// NONMATCHING: 99.1% - the target sphere stack slots (see Start) and the counter/offset registers of
+// the loops swapped (r30/r29 in the original). Tried: int/unsigned indices, size(), mData[i], loops in
+// inline helpers. The flag accessor and the position from GetTrans_unk fixed the rest
+inline bool IsColliOn_unk(const atn::ColliBase& c) {
+    return (c.mFlags & 1) == 1;
+}
+
 void FragileObject::vf10() {
     if (m54 == 7) {
         return;
@@ -276,10 +280,11 @@ void FragileObject::vf10() {
         }
     } else if (m54 >= 4 && 6 > m54) {
         float frame = mModelAfter.mTracks[0].m08;
-        if ((mColliBefore.mFlags & 1) == 1 && mColliBeforeFrame < frame) {
-            m54 = 5;
+        if (IsColliOn_unk(mColliBefore) && mColliBeforeFrame < frame) {
             mColliBefore.mFlags &= ~1;
-            atn::Vector3 pos(mModelBefore.mMtx[0][3], mModelBefore.mMtx[1][3] + 15.0f, mModelBefore.mMtx[2][3]);
+            m54 = 5;
+            atn::Vector3 pos = ((atn::Matrix3x4*)mModelBefore.mMtx)->GetTrans_unk();
+            pos.y += 15.0f;
             if (lbl_8087F048 != 0 && mExplode > 0) {
                 int chara = 0;
                 if (mExplodeElza == 1) {
@@ -292,7 +297,7 @@ void FragileObject::vf10() {
                 lbl_8087F048->m3E39C = 0;
             }
         }
-        if ((mColliAfter.mFlags & 1) != 1 && mColliAfterFrame < frame) {
+        if (!IsColliOn_unk(mColliAfter) && mColliAfterFrame < frame) {
             if (mHasColliAfter != 0) {
                 mColliAfter.mFlags |= 1;
             } else {
