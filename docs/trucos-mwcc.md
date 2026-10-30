@@ -88,6 +88,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Puntero empaquetado con bit de color (`(unsigned)p | (m & 1)`): el orden de operandos decide `or rX, rP, rM` y `rlwimi` frente a `clrrwi`: escribir el puntero primero (`fn_8003E120`, árbol rojo-negro).
 - Mismos stores con la constante en r0 y el valor en r8 (o al revés) en `Command_unk(20, "lit", 0, 0, 0)`: no lo arreglan locales en otro orden ni envoltorios; documentado en `mwcc-blockers.md` (AI np_type002/np_wait_reaction_minus).
 
+- FPR de constantes intercambiados alrededor de una llamada (1.0f en f1 en el original): la firma real tiene un `float` final (`fn_8023A8B4(..., 1.0f)`, MapPartsEfp).
+- Índice `unsigned` en un accesor con comprobación de rango (`Get_unk(unsigned)`) ordena los incrementos contador-luego-puntero; declarar el puntero exterior antes del `for` deja los contadores en salvados (EventLoader_unk).
 ## Datos y secciones
 
 - Estáticas: inicializadas primero, no inicializadas por orden de primer uso; `= NULL` explícito cambia el orden en `.bss`.
@@ -124,6 +126,7 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Orden del pool de cadenas: un literal se crea cuando se procesa la función que lo usa, en orden de fuente, salvo que la función se llame antes de su definición (entonces se procesa en esa llamada y sus literales van antes; comprobado con un fichero de prueba). Literales de ramas plegadas por constante no se crean; los de una inline con enlace externo (miembro inline, `inline` no `static`) van a `.data`, no al pool de `.rodata`.
 - `strlen` de `<string.h>` es intrínseca: incluir `boost/function` (que la arrastra) cambió el código de `Bgm`; en `SoundManager.h` basta una declaración adelantada de `boost::function`.
 
+- Floats en locales con nombre: el orden de asignación decide el de `.sdata2` y el de declaración los registros; `float x, y, z; z = 3.7f; y = 0.5f; x = 0.0f;` da pool z-primero con x en el registro bajo (Gun::vf14).
 ## Enlazado y símbolos
 
 - objdiff da < 100% si una llamada apunta a un símbolo con otro nombre: dar nombre real al ctor/dtor de la base antes de pelear con las subclases.
