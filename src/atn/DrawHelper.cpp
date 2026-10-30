@@ -91,6 +91,9 @@ extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned
 extern "C" void fn_800761A8(void* device); // inferred: flushes the render state
 extern "C" void fn_800763FC(void* device, GXTexObj* tex, int map); // inferred: loads a texture
 extern "C" void fn_80072914(void* device, int add); // inferred: additive color state of the render device
+// inferred: material and vertex format of the render device (atn/GraphicsDevice.cpp)
+extern "C" void fn_80074EC8(void* device, const void* desc, int flags, void* light, void* light2, void* shadow);
+extern "C" void fn_80076BE4(void* device, const void* format);
 // inferred: advance of a character (atn/Font_unk.cpp)
 extern "C" float fn_8006F17C(atn::Font_unk* font, wchar_t c, int bold, float size, int style);
 // inferred: draws a text with the font manager (atn/Font_unk.cpp, not matched there yet: the second
@@ -2400,6 +2403,70 @@ void DrawHelper::ComDrawColliTree::vf10(RenderView_unk* view) {
     GXSetVtxAttrFmt(0, 9, 1, 4, 0);
     GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
     mColli->fn_80059240(m0C, m10, -1);
+}
+
+void DrawHelper::ComDrawD3TextureMask::vf10(RenderView_unk* view) {
+    RenderState_unk* device = lbl_8087EEE0;
+    fn_80072914(device, 0);
+    fn_80076760(device, 6, 0);
+    fn_80076760(device, 8, m20);
+    fn_80076760(device, 9, 2);
+    fn_80076760(device, 0xA, 0);
+    GXLoadPosMtxImm(view->mCamera.mView.m, 0);
+    GXSetCurrentMtx(0);
+    GXSetNumChans(1);
+    GXSetNumTexGens(1);
+    GXSetTevSwapModeTable(1, 0, 0, 0, 0);
+    if (m1C == 0) {
+        m1C = (int)&lbl_8087EEB0->m10;
+    }
+    if (m18 != 0) {
+        GXSetNumTevStages(2);
+        GXSetTevSwapMode(1, 0, 1);
+        GXSetTevOrder(0, 0, 0, 4);
+        GXSetTevOrder(1, 0, 1, 0xFF);
+        GXSetTevColorIn(0, 0xF, 8, 0xA, 0xF);
+        GXSetTevAlphaIn(0, 7, 4, 5, 7);
+        GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+        GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+        GXSetTevColorIn(1, 0xF, 0, 0xC, 0xF);
+        GXSetTevAlphaIn(1, 7, 0, 4, 7);
+        GXSetTevColorOp(1, 0, 0, 0, 1, 0);
+        GXSetTevAlphaOp(1, 0, 0, 0, 1, 0);
+        GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+        GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+        fn_800763FC(lbl_8087EEE0, (GXTexObj*)m18, 0);
+        fn_800763FC(lbl_8087EEE0, (GXTexObj*)m1C, 1);
+    } else {
+        GXSetNumTevStages(1);
+        GXSetTevSwapMode(0, 0, 1);
+        GXSetTevOrder(0, 0, 0, 4);
+        GXSetTevColorIn(0, 0xF, 0xC, 0xA, 0xF);
+        GXSetTevAlphaIn(0, 7, 4, 5, 7);
+        GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+        GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+        GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+        GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+        fn_800763FC(lbl_8087EEE0, (GXTexObj*)m1C, 0);
+    }
+    fn_80074EC8(lbl_8087EEE0, 0, 0, 0, 0, 0);
+    fn_80076BE4(lbl_8087EEE0, 0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+    GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+    GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    fn_800761A8(lbl_8087EEE0);
+    GXBegin(m0C, 0, mCount);
+    for (int i = 0; i < mCount; i++) {
+        GXPosition3f32(mVertex[i].mPos.x, mVertex[i].mPos.y, mVertex[i].mPos.z);
+        GXColor1u32(DrawRGBA_unk(mVertex[i].mColor));
+        GXTexCoord2f32(mVertex[i].mUV.x, mVertex[i].mUV.y);
+    }
+    GXSetTevSwapMode(0, 0, 0);
+    GXSetTevSwapMode(1, 0, 0);
 }
 
 // Pending (in the order of the .dol): the vf10 of every command (0x80065060-0x800685E4) and the weak
