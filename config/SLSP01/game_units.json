@@ -2386,7 +2386,7 @@
   "classes": [
    "gmk::TodomeCountUp"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/LemonBucket.cpp",

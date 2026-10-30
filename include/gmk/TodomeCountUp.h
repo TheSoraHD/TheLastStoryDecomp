@@ -17,7 +17,7 @@ public:
 
     TodomeCountUp(atn::Task* parent, GimmickDesc_unk* desc); // 0x8042F128
     static GimmickCommon* fn_8042F0B4(atn::Task* parent, GimmickDesc_unk* desc); // inferred: factory
-    virtual ~TodomeCountUp() {}
+    virtual ~TodomeCountUp(); // 0x8042F240
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();

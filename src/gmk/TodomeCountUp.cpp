@@ -46,6 +46,8 @@ TodomeCountUp::TodomeCountUp(atn::Task* parent, GimmickDesc_unk* desc)
     }
 }
 
+TodomeCountUp::~TodomeCountUp() {}
+
 int TodomeCountUp::vf1C() {
     return mLoader.fn_80473F50() != 0;
 }
@@ -97,12 +99,14 @@ void TodomeCountUp::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: the target keeps a stack frame (saves this in r31) and calls Start with bctrl
-// instead of a tail call, as if dead code followed. Tried: switch, local copies, empty inline and
-// out-of-line calls, dead loads, dead conditions, GimmickCommon::vf38 checks.
+// inferred: same shape as FloatingBox/OpenBoard/Trap::vf10 (start, state check, per-frame body) with an
+// empty body; the check is what keeps the frame and the non-tail call. The state value is a guess.
 void TodomeCountUp::vf10() {
     if (m54 == 0) {
         Start();
+    }
+    if (m54 == 0) {
+        return;
     }
 }
 
