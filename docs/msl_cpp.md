@@ -151,6 +151,10 @@ predicate), and `end()` is recomputed after it.
   node: that is the original of `fn_8046F014` (0x8046F014). Both forms exist in the game.
 - The plain `iterator` stays trivially copyable: a copy constructor there fixes the push_back but moves
   every loop (`fn_800D8624` 100 -> 91, five other drops).
+- The same register effect in loops: iterating with `const_iterator` (`const std::list<T>& l = m; for (it = l.begin(); ...)`)
+  matches `Loader::fn_8046F4D4`/`fn_8046F544`; `clear()` erases through the const `begin()/end()` and
+  `erase(first, last)` takes `const_iterator` (`Loader::~Loader`). Not enough for `fn_8046F460` (98.3%) nor
+  `PacketPack::fn_8050DEA8` (99.7%, the inline `__Deactivate_unk` lookup modifies the element).
 - The holder is released before the link (`linked = h->mNode; h->mNode = 0; link`); the store of 0 is
   scheduled after the link, and the volatile registers of the link match (`li r4,0; lwz r5`).
 

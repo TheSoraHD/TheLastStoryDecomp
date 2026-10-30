@@ -253,8 +253,7 @@ Loader::Loader(Task* parent)
     fn_8046CBB0();
 }
 
-// NONMATCHING: 98.05% - registers of the four inlined list destructors (the original gives the
-// list r29 and the node/end r27/r28; here the list gets r27).
+// The four inlined list destructors clear through const begin()/end() (see std/list.h)
 Loader::~Loader() {
     fn_8046CBBC();
     lbl_8087F518 = 0;

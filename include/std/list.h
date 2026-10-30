@@ -80,14 +80,24 @@ public:
     // new node (0x8046EF08). The plain iterator stays trivial: loops keep their registers (0x800D8624).
     class const_iterator {
     public:
+        const_iterator() {}
         const_iterator(__list_node_base_unk* node) : mNode(node) {}
         const_iterator(const iterator& other) : mNode(other.mNode) {}
         const_iterator(const const_iterator& other) : mNode(other.mNode) {}
+        const T& operator*() const { return ((__list_node_unk<T>*)mNode)->mData; }
+        const_iterator& operator++() {
+            mNode = mNode->mNext;
+            return *this;
+        }
+        bool operator==(const const_iterator& other) const { return mNode == other.mNode; }
+        bool operator!=(const const_iterator& other) const { return mNode != other.mNode; }
         __list_node_base_unk* mNode;
     };
 
     iterator begin() { return iterator(mTail.mNext); }
     iterator end() { return iterator(&mTail); }
+    const_iterator begin() const { return const_iterator(mTail.mNext); }
+    const_iterator end() const { return const_iterator((__list_node_base_unk*)&mTail); }
     size_type size() const { return mSize; }
     T& back() { return ((__list_node_unk<T>*)mTail.mPrev)->mData; }
 
@@ -118,7 +128,7 @@ public:
         mSize--;
         return iterator(next);
     }
-    iterator erase(iterator first, iterator last) {
+    iterator erase(const_iterator first, const_iterator last) {
         if (first != last) {
             __list_node_base_unk* lastPrev = last.mNode->mPrev;
             first.mNode->mPrev->mNext = lastPrev->mNext;
@@ -130,11 +140,13 @@ public:
                 mSize--;
             }
         }
-        return last;
+        return iterator(last.mNode);
     }
     void clear() {
-        iterator b = begin();
-        erase(b, end());
+        // inferred: through the const begin()/end(): both positions are const_iterator temporaries,
+        // which gives the registers of the inlined destructors (atn::Loader::~Loader, 0x8046D9B0)
+        const list& self = *this;
+        erase(self.begin(), self.end());
     }
 
 private:
