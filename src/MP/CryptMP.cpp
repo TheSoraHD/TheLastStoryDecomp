@@ -1,5 +1,6 @@
 #include "MP/CryptMP.h"
 #include "atn/MemoryManager.h"
+#include "std/ios_init.h" // inferred: the __sinit (0x804AE7C4) constructs the MSL iostream statics
 
 // inferred: inline in the class (weak copy 0x804AE3C4); defined here so that atn/PPDATAU.cpp, which
 // calls it, does not emit a copy
