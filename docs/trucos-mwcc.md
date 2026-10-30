@@ -209,3 +209,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Si una función grande deja de inlinear todo (R3), cambiar una búsqueda inline repetida por una macro (código propio) puede devolverla al presupuesto: el parser de MaterialParser_unk pasa de llamarlo todo a la estructura del original.
 - Un miembro con destructor inline hace emitir una copia débil sin referencias de ese destructor al definir un constructor de la clase; el enlazador la quita, no es señal de diferencia con el original.
 - El orden de evaluación de los argumentos sigue al del fuente aunque vayan en registros de clases distintas (int/float): si un llamador emparejado baja al reordenar, ese orden es el real de la firma (F-b3, `DrawHelper::fn_800616C0`).
+- Locales en la pila: por tamaño (mayores arriba) y, dentro del mismo tamaño, el primero declarado más arriba; los locales de una inline van después de los de la función (F-b3, `DrawHelper::fn_80061E2C`).
+- Operandos de `fmuls`/`fadds`: MWCC los ordena él, cambiar `a * b` por `b * a` en el fuente no cambia nada.
+- `x * 1.0f` con literal se pliega; si el original multiplica por 1.0, el factor es un local (`float s = 1.0f;`) (F-b3, `ComDrawTextureMono::vf10`).
+- `GXColor` construido byte a byte en la pila y copiado = inline que lo devuelve (`DrawGXColor_unk(r, g, b, a)`); un agregado `{0, 0xFF, 0, 0xFF}` sale de una tabla.
+- Varias llamadas con el mismo global cargado una vez en un registro = inline que recibe el global (`DrawSetZMode_unk(lbl_8087EEE0, m18)`); si el original carga un campo antes de esas llamadas, es un argumento de la inline.
+- Un setter `v.Set_unk(pos, color, Temp(...))` evalúa los argumentos de derecha a izquierda: crea el temporal antes de copiar la posición (F-b3, `fn_80061E2C`).

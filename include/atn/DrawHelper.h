@@ -137,6 +137,8 @@ public:
     void fn_80063D3C(const Vector3& pos, float radius, float arg, unsigned int color);
     void fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned int color, float length, float angle, float arg);
     void fn_8006471C(const Vector3& a, const Vector3& b, unsigned int color, float radius, float arg);
+    void fn_80064AC4(const Vector3& pos, const Vector3& rot, const Vector3& scale, const Vector2_unk& uv0,
+                     const Vector2_unk& uv1, unsigned int color, int a, int b, int c, float z);
 
     DrawArray_unk<unsigned char> m04; // inferred: element type unknown
     Texture_unk m10; // inferred: white texture (atn/D2A_Texture, atn/ModelDraw_unk)

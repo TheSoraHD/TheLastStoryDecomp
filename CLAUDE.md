@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `fb3-comdrawtexture` (2026-10-30, propuesta F-b3, pasos 1 y 2; mergeada en `main`): **8724 / 18215 funciones al 100%** (código 31,17%), `main.dol: OK`. Opción A: las funciones de dibujo son métodos de `atn::DrawHelper` (302 llamadas reescritas); `atn/ComDrawTexture` fusionada en `atn/DrawHelper`, 30/68 al 100% (deja de enlazarse hasta completarla). Detalle, decisiones y pendientes en `docs/fb3-comdrawtexture.md`.
-- Anteriores: `fb-materialparser` (F-b primera parte, `docs/fb-materialparser.md`; `atn/MaterialParser_unk` 18/35), `batch-auto-50kb-atn` (F, `docs/batch-auto-50kb-atn.md`), `batch-auto-20kb-game` (E, primera mitad, `docs/batch-auto-20kb-game.md`; la segunda mitad va en `batch-auto-20kb-game-b`), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
+- `fb3-drawhelper-paso3` (2026-10-30, propuesta F-b3, paso 3; rama sin mergear): **8747 / 18215 funciones al 100%** (código 31,33%), `main.dol: OK`. `atn/DrawHelper` 53/68 al 100% (9 de los 12 `vf10` GX, los 12 destructores débiles, flecha y esfera); faltan 15 entre 92 y 99,95% (registros/pila). Detalle y pendientes en `docs/fb3-comdrawtexture.md`.
+- Anteriores: `fb3-comdrawtexture` (F-b3 pasos 1 y 2, mergeada), `fb-materialparser` (F-b primera parte, `docs/fb-materialparser.md`; `atn/MaterialParser_unk` 18/35), `batch-auto-50kb-atn` (F, `docs/batch-auto-50kb-atn.md`), `batch-auto-20kb-game` (E, primera mitad, `docs/batch-auto-20kb-game.md`; la segunda mitad va en `batch-auto-20kb-game-b`), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
 - objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%. Tras editar una unidad ya emparejada: `resetlocal.py`, `pairdata.py --apply`, `configure`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.
 
