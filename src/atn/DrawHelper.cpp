@@ -31,6 +31,7 @@ extern "C" int lbl_8087D72C;
 extern "C" int lbl_8087D728;
 extern "C" RenderState_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EFB4;
+extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int pass); // inferred: queues a render
 extern "C" void fn_8006C7FC();
 extern "C" int fn_8006CABC(void* font, const std::string& dir);
@@ -1166,6 +1167,73 @@ void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsign
     fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
 }
 
+// inferred: linear interpolation in the form of atn/Rain (local inline, name invented)
+inline Vector3 DrawLerp_unk(const Vector3& a, const Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: arrow from 'from' to 'to' (a line, then a cone of 4 sides at 'to'); 'head' is the length
+// of the head (0.3 of the arrow when not positive)
+void DrawHelper::fn_800638B0(float a, float head, const Vector3& from, const Vector3& to, unsigned int color) {
+    ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawVertex_unk* v = m04.NewArray_unk<DrawVertex_unk>(2);
+    if (v == 0) {
+        return;
+    }
+    v[0].mPos = from;
+    v[0].mColor = color;
+    v[1].mPos = to;
+    v[1].mColor = color;
+    cmd->m04 = 0;
+    cmd->mPrim = 0xB0;
+    cmd->m10 = 1;
+    cmd->mCount = 2;
+    cmd->mVertex = v;
+    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+
+    cmd = m04.New_unk<ComDrawLine>();
+    if (cmd == 0) {
+        return;
+    }
+    v = m04.NewArray_unk<DrawVertex_unk>(6);
+    if (v == 0) {
+        return;
+    }
+    Vector3 dir = to - from;
+    float len = dir.Length_unk();
+    dir.Normalize_unk();
+    Vector3 up(0.0f, 1.0f, 0.0f);
+    if (Abs_unk(dir.y) > 0.9f) {
+        up.Set_unk(1.0f, 0.0f, 0.0f);
+    }
+    Vector3 side;
+    PSVECCrossProduct(&dir, &up, &side);
+    if (head <= 0.0f) {
+        head = 0.3f * len;
+    }
+    float radius = 0.3f * head;
+    Vector3 base = DrawLerp_unk(to, from, head / len);
+    v[0].mPos = to;
+    v[0].mColor = color;
+    for (int i = 0; i < 5; i++) {
+        v[i + 1].mPos = side * radius;
+        Mtx m;
+        PSMTXRotAxisRad(m, &dir, 1.5707964f * i);
+        PSMTXMultVec(m, &v[i + 1].mPos, &v[i + 1].mPos);
+        v[i + 1].mColor = color;
+        v[i + 1].mPos += base;
+    }
+    cmd->m04 = 0;
+    cmd->mPrim = 0xA0;
+    cmd->m10 = 4;
+    cmd->mCount = 6;
+    cmd->mVertex = v;
+    cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+}
 
 void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int a, int b, float z) {
     ComDrawD3TextureMask* cmd = m04.New_unk<ComDrawD3TextureMask>();
