@@ -456,18 +456,6 @@ void Em206EggMonster::vf24() {
     }
 }
 
-atn::Vector3 Em206EggMonster::vf64(int center) {
-    atn::Vector3 result = mPos;
-    if (center == 0) {
-        result = mPos;
-    } else if (fn_80370A78(lbl_8087F430, 0xF5) == 0) {
-        result = mPos;
-    } else {
-        result = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-    }
-    return result;
-}
-
 // NONMATCHING: 98.8% - stack slots of the locals (rotation, ray ends) and the frsp before atan2
 int Em206EggMonster::fn_802C38E4() {
     int next = -1;
@@ -539,6 +527,18 @@ int Em206EggMonster::fn_802C38E4() {
         }
     }
     return next;
+}
+
+atn::Vector3 Em206EggMonster::vf64(int center) {
+    atn::Vector3 result = mPos;
+    if (center == 0) {
+        result = mPos;
+    } else if (fn_80370A78(lbl_8087F430, 0xF5) == 0) {
+        result = mPos;
+    } else {
+        result = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    }
+    return result;
 }
 
 // NONMATCHING: 99.2% - stack slots of the rotation temporaries and an frsp before atan2 (same
