@@ -142,6 +142,22 @@ The search before the insertion is a `find_if(begin(), end(), pred)`-like loop: 
 separate variable the loop has the original's shape (increment first, `it != last` test, then the
 predicate), and `end()` is recomputed after it.
 
+### Position of insert and the list end register (2026-10-30, branch `list-get-unk`)
+
+- `insert` takes its position as a `const_iterator` with a user-written copy constructor; `push_back`
+  builds it in place (`insert(const_iterator(&mTail), x)`). The position then lives in a temporary and
+  the list end gets a lower saved register than the new node (0x8046EF08, the `Get_unk` copies).
+- `insert(end(), x)` converts a plain `iterator` and keeps the list end in a higher register than the
+  node: that is the original of `fn_8046F014` (0x8046F014). Both forms exist in the game.
+- The plain `iterator` stays trivially copyable: a copy constructor there fixes the push_back but moves
+  every loop (`fn_800D8624` 100 -> 91, five other drops).
+- The same register effect in loops: iterating with `const_iterator` (`const std::list<T>& l = m; for (it = l.begin(); ...)`)
+  matches `Loader::fn_8046F4D4`/`fn_8046F544`; `clear()` erases through the const `begin()/end()` and
+  `erase(first, last)` takes `const_iterator` (`Loader::~Loader`). Not enough for `fn_8046F460` (98.3%) nor
+  `PacketPack::fn_8050DEA8` (99.7%, the inline `__Deactivate_unk` lookup modifies the element).
+- The holder is released before the link (`linked = h->mNode; h->mNode = 0; link`); the store of 0 is
+  scheduled after the link, and the volatile registers of the link match (`li r4,0; lwz r5`).
+
 ## Error reporting
 
 `__msl_error(msg)` is an inline function (`fprintf(stderr, msg); abort();`), not a macro: the

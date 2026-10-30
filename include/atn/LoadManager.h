@@ -192,17 +192,16 @@ public:
 };
 
 // Defined out of the class: its literals are in the file string pool (0x80755C90).
-// NONMATCHING: 96.6% (LoadColliTree, 0x80472DCC) - same structure in all twelve copies; only the
-// saved registers differ. In every original the list end used by push_back gets the lowest one
-// (r28, shared with `cached`) and the resource gets r30 (r29 in LoadMotion, whose constructor is
-// not inlined); here the resource takes r28. Also, the original writes the found resource straight
-// into that register, while the return value of Find_unk goes through r3 here.
-// Writing the lookup directly in Get_unk (goto/break) makes everything identical except that
-// register and the bne+b of the lookup, which only an inline return gives.
-// Tried, without change: loop and condition forms, find_if with the end by value/reference or as
-// an expression, declaration order, T* or a second variable for the new object, the order of the
-// two branches, other insert/push_back nestings in std::list, an out parameter, Wii/1.0-1.3 and
-// -inline deferred instead of -ipa file (all compile to the same code).
+// NONMATCHING: 99.7% (LoadColliTree, 0x80472DCC) - same structure in all twelve copies. The saved
+// registers match since std::list::push_back takes its position as a const_iterator and `core` is a
+// T* (with LoadCore* it takes the lowest register). Left: in the lookup loop the original keeps the
+// list end in r0 and reuses r6 for the predicate (here end r7, predicate r6/r0), and it writes the
+// found resource straight into r30 while the return value of Find_unk goes through r3 here.
+// The bne+b of the lookup only comes with an inline return; written directly in Get_unk (goto or an
+// out parameter) the resource goes to r30 but the branch becomes a single beq.
+// Tried for the loop (2026-10-30): end() in the condition (right registers, rotated loop), a named
+// end before/after begin, end bound to a reference, find_if with last by reference or as a
+// non-trivial iterator, by-value predicate, for/while/break forms (&& with end() gives a bool).
 template <class T>
 T* Loader::Get_unk(const char* path, int cached) {
     char fullPath[0x100];
@@ -210,9 +209,9 @@ T* Loader::Get_unk(const char* path, int cached) {
     fn_8006A950(fullPath);
     fn_8006B404(fullPath);
     unsigned int hash = fn_800DC6B4(fullPath);
-    LoadCore* core = 0;
+    T* core = 0;
     if (cached) {
-        core = Find_unk(hash);
+        core = (T*)Find_unk(hash);
     }
     if (core == 0) {
         core = new ((MemoryTag)2, "", "", 0) T(fullPath);
@@ -225,7 +224,7 @@ T* Loader::Get_unk(const char* path, int cached) {
     } else {
         core->fn_804730D4();
     }
-    return (T*)core;
+    return core;
 }
 
 } // namespace atn

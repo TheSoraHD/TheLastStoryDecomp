@@ -70,9 +70,10 @@ PfsArchive_unk* Loader::fn_8046F460(const char* path) {
     return 0;
 }
 
-// NONMATCHING: 91.8% - list end/iterator swap r30/r31 (tried local end, iterator first, find_if)
+// inferred: the loop runs over const_iterators (registers of the list end and the iterator)
 int Loader::fn_8046F4D4(const char* path) {
-    for (std::list<PfsArchive_unk*>::iterator it = mMounted.begin(); it != mMounted.end(); ++it) {
+    const std::list<PfsArchive_unk*>& mounted = mMounted;
+    for (std::list<PfsArchive_unk*>::const_iterator it = mounted.begin(); it != mounted.end(); ++it) {
         if ((*it)->fn_8046FBB0(path) != -1) {
             return 1;
         }
@@ -80,11 +81,12 @@ int Loader::fn_8046F4D4(const char* path) {
     return 0;
 }
 
-// NONMATCHING: 98.8% - list end/iterator swap r30/r31
+// inferred: the loop runs over const_iterators (registers of the list end and the iterator)
 int Loader::fn_8046F544(void* out, const char* dir, const char* ext, int flags) {
     int count = 0;
-    std::list<PfsArchive_unk*>::iterator it = mMounted.begin();
-    std::list<PfsArchive_unk*>::iterator end = mMounted.end();
+    const std::list<PfsArchive_unk*>& mounted = mMounted;
+    std::list<PfsArchive_unk*>::const_iterator it = mounted.begin();
+    std::list<PfsArchive_unk*>::const_iterator end = mounted.end();
     for (; it != end; ++it) {
         count += (*it)->fn_8046FD7C(out, dir, ext, flags);
     }

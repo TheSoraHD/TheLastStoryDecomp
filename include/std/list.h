@@ -75,12 +75,33 @@ public:
         __list_node_base_unk* mNode;
     };
 
+    // inferred: insert takes its position as a const_iterator with a user-written copy (MSL style);
+    // the position then lives in a temporary and the list end gets a lower saved register than the
+    // new node (0x8046EF08). The plain iterator stays trivial: loops keep their registers (0x800D8624).
+    class const_iterator {
+    public:
+        const_iterator() {}
+        const_iterator(__list_node_base_unk* node) : mNode(node) {}
+        const_iterator(const iterator& other) : mNode(other.mNode) {}
+        const_iterator(const const_iterator& other) : mNode(other.mNode) {}
+        const T& operator*() const { return ((__list_node_unk<T>*)mNode)->mData; }
+        const_iterator& operator++() {
+            mNode = mNode->mNext;
+            return *this;
+        }
+        bool operator==(const const_iterator& other) const { return mNode == other.mNode; }
+        bool operator!=(const const_iterator& other) const { return mNode != other.mNode; }
+        __list_node_base_unk* mNode;
+    };
+
     iterator begin() { return iterator(mTail.mNext); }
     iterator end() { return iterator(&mTail); }
+    const_iterator begin() const { return const_iterator(mTail.mNext); }
+    const_iterator end() const { return const_iterator((__list_node_base_unk*)&mTail); }
     size_type size() const { return mSize; }
     T& back() { return ((__list_node_unk<T>*)mTail.mPrev)->mData; }
 
-    iterator insert(iterator pos, const T& x) {
+    iterator insert(const_iterator pos, const T& x) {
         __list_node_unk<T>* node = __list_alloc_sel_unk<T>::kWord
                                        ? (__list_node_unk<T>*)__list_ptr_alloc_unk::__allocate()
                                        : __allocate();
@@ -89,12 +110,14 @@ public:
         // left as dead code after the link, as in the original (0x80472F10)
         __list_node_holder_unk<T>* h = &holder;
         new (&node->mData) T(x);
-        __link_before(pos.mNode, h->mNode);
+        // inferred: released before the link; the store of 0 is scheduled after it (0x8046EFE8)
+        __list_node_unk<T>* linked = h->mNode;
         h->mNode = 0;
+        __link_before(pos.mNode, linked);
         mSize++;
         return iterator(node);
     }
-    void push_back(const T& x) { insert(end(), x); }
+    void push_back(const T& x) { insert(const_iterator(&mTail), x); }
     // inferred from atn/CompositeCache_unk.cpp (0x800D8458, 0x800D8568)
     iterator erase(iterator pos) {
         __list_node_base_unk* node = pos.mNode;
@@ -105,7 +128,7 @@ public:
         mSize--;
         return iterator(next);
     }
-    iterator erase(iterator first, iterator last) {
+    iterator erase(const_iterator first, const_iterator last) {
         if (first != last) {
             __list_node_base_unk* lastPrev = last.mNode->mPrev;
             first.mNode->mPrev->mNext = lastPrev->mNext;
@@ -117,11 +140,13 @@ public:
                 mSize--;
             }
         }
-        return last;
+        return iterator(last.mNode);
     }
     void clear() {
-        iterator b = begin();
-        erase(b, end());
+        // inferred: through the const begin()/end(): both positions are const_iterator temporaries,
+        // which gives the registers of the inlined destructors (atn::Loader::~Loader, 0x8046D9B0)
+        const list& self = *this;
+        erase(self.begin(), self.end());
     }
 
 private:
