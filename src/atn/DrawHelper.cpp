@@ -34,6 +34,7 @@ extern "C" RenderState_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EFB4;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
@@ -1446,6 +1447,60 @@ void DrawHelper::fn_8006471C(const Vector3& a, const Vector3& b, unsigned int co
     cmd->mCount = count;
     cmd->mVertex = v;
     cmd->m18 = 1;
+    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+}
+
+// inferred: textured quad of 1x1 centered in the origin, scaled, rotated (z, y, x) and moved to 'pos'
+// (a 3D sprite of game/GameUI); uv0 for the left/top corners, uv1 for the others
+// NONMATCHING: 92.6% - stack slots of the matrices (the original has the locals of the three
+// __MtxRotate before the identity and the products) and the stfsux of the corner
+void DrawHelper::fn_80064AC4(const Vector3& pos, const Vector3& rot, const Vector3& scale, const Vector2_unk& uv0,
+                             const Vector2_unk& uv1, unsigned int color, int a, int b, int c, float z) {
+    ComDrawD3TextureMask* cmd = m04.New_unk<ComDrawD3TextureMask>();
+    if (cmd == 0) {
+        return;
+    }
+    DrawTexVertex_unk* v = m04.NewArray_unk<DrawTexVertex_unk>(4);
+    if (v == 0) {
+        return;
+    }
+    Mtx mtx;
+    Vector3 pts[4];
+    PSMTXTrans(mtx, pos.x, pos.y, pos.z);
+    Matrix3x4 r;
+    r.SetIdentity();
+    __MtxRotate(r.m, 'z', rot.z);
+    __MtxRotate(r.m, 'y', rot.y);
+    __MtxRotate(r.m, 'x', rot.x);
+    Mtx t;
+    PSMTXConcat(mtx, r.m, t);
+    __MtxCopy(mtx, t);
+    Mtx sc;
+    PSMTXScale(sc, scale.x, scale.y, scale.z);
+    Mtx t2;
+    PSMTXConcat(mtx, sc, t2);
+    __MtxCopy(mtx, t2);
+    for (int i = 0; i < 4; i++) {
+        int col = i % 2;
+        Vector3& p = pts[i];
+        p.x = col ? -0.5f : 0.5f;
+        int row = i / 2;
+        p.y = row ? 0.5f : -0.5f;
+        p.z = 0.0f;
+        PSMTXMultVec(mtx, &p, &p);
+        Vector2_unk uv(col ? uv0.x : uv1.x, row ? uv0.y : uv1.y);
+        v[i].mPos = p;
+        v[i].mColor = color;
+        v[i].mUV = uv;
+    }
+    cmd->m04 = 0;
+    cmd->m0C = 0x98;
+    cmd->m10 = 2;
+    cmd->mCount = 4;
+    cmd->m18 = a;
+    cmd->m1C = b;
+    cmd->mVertex = v;
+    cmd->m20 = c;
     fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
 }
 
