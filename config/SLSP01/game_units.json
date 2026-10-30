@@ -2669,7 +2669,7 @@
   "classes": [
    "MapPartsEfp"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsFlare.cpp",
@@ -2690,7 +2690,7 @@
   "classes": [
    "Gun"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/HColliData_unk.cpp",

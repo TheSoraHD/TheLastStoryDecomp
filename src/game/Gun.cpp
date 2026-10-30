@@ -78,9 +78,6 @@ void Gun::vf18(const atn::Vector3& a, const atn::Vector3& b, int c, int d) {
     fn_80219E6C(d);
 }
 
-// NONMATCHING: 99.91% - the original loads the translation constants z first (pool order 3.7, 0.5,
-// 0.0) but stores the vector x first; tried a named vector, z/y/x assignments, Set_unk, inline
-// helpers by value/reference/components.
 void Gun::vf14() {
     if (m284 != 3) {
         return;
@@ -115,7 +112,11 @@ void Gun::vf14() {
         atn::Matrix3x4 mtx(GetModel_unk()->mMtx);
         atn::Matrix3x4 r;
         atn::Matrix3x4 t;
-        Trans_unk(t, atn::Vector3(0.0f, 0.5f, 3.7f));
+        float x, y, z;
+        z = 3.7f;
+        y = 0.5f;
+        x = 0.0f;
+        Trans_unk(t, atn::Vector3(x, y, z));
         PSMTXConcat(mtx.m, t.m, r.m);
         mtx = r;
         SetMtx_unk(m2A8->GetModel_unk(), mtx);

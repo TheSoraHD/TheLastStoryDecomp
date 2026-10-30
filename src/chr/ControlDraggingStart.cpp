@@ -41,7 +41,8 @@ int ControlDraggedStart::vf0C() {
 
 // NONMATCHING: 99.7% - the heap copy of the bind object made by the boost::function manager is kept
 // in r29 instead of r30; everything else matches. Tried: ControlBase*/cast, inline new in the
-// bind call, CharaTask*/Chara_unk* locals, explicit boost::function, ControlDragged ctor via chara/mChara.
+// bind call, CharaTask*/Chara_unk* locals, explicit boost::function, ControlDragged ctor via chara/mChara,
+// motion through a reference, direct mChara->mMotion, m560 last. Same residue as ControlCdnSleep::vf10.
 boost::function<void()> ControlDraggedStart::vf10() {
     ControlDragged* next = new ((MemoryTag)1, "", "", 0) ControlDragged(mChara);
     // inferred: Chara_unk is CharaTask (the bound type name in the DOL is boost::_bi::value<CharaTask *>)

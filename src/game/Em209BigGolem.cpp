@@ -59,7 +59,8 @@ void Em209BigGolem::vf40(HitInfo_unk* hit) {
 }
 
 // NONMATCHING: 99.7% - the address registers of the copy of the node position into b are swapped
-// (r3/r4); the chained assignment of a fixes the same swap for a.
+// (r3/r4); the chained assignment of a fixes the same swap for a. Same family as Em208Queen::vf20.
+// Tried for b: chained, MtxPtr local, named/field-wise return, temporary, reference, late declaration.
 void Em209BigGolem::vf20() {
     atn::Vector3 a;
     atn::Vector3 b;

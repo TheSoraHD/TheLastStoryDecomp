@@ -40,7 +40,9 @@ extern "C" void fn_8007A100() {
     lbl_8087EEF8 = new ((MemoryTag)6, "", "", 0) LightList_unk;
 }
 
-// NONMATCHING: 98.73% - the original reads mCount again after the bounds check (here the value is reused)
+// NONMATCHING: 98.73% - the original reads mCount again after the bounds check (here the value is reused).
+// A size accessor in the check gives the reload but the src/dst/count registers move (95.6%); also
+// tried an end accessor, a reference, a copy helper and an inline erase.
 void LightList_unk::fn_8007A154(int index) {
     if (index < 0 || (int)mCount <= index) {
         return;

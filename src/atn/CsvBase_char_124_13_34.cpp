@@ -34,7 +34,8 @@ int lbl_8087F184;
 
 // inferred: loads the table (called from db/ChapterList_unk)
 // NONMATCHING: 99.48% - only the row pointer and the level string/loop counter swap r24/r26 (the
-// declarations at the top fix the other registers; ~10 orders and scopes tried)
+// declarations at the top fix the other registers; ~10 orders and scopes tried, plus entry/levels/i
+// declared in or out of the loop, a block scope, a pointer to mLevels, unsigned/sizeof loop)
 extern "C" void fn_802078C4() {
     int offset;
     BattleEffSeEntry_unk* entry;

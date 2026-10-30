@@ -99,7 +99,8 @@ extern "C" void fn_802179FC() {
 // inferred: row of a level (the last row whose level is not above it)
 // NONMATCHING: 98.39% - registers only: count - 1 and its offset (count - 1) * 0x14 are swapped
 // between r4 and r5; tried locals for the count, the table and the first level, a row pointer
-// and other comparison orders.
+// and other comparison orders; also a named last index, unsigned count, pointer/while loops,
+// sEntries + (count - 1).
 extern "C" MemberList_unk* fn_80217D9C(int level) {
     int count = sCount;
     int last = sEntries[count - 1].mLevel;

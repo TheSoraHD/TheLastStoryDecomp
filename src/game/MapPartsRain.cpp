@@ -22,7 +22,10 @@ MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, atn::CsvTa
 
 // NONMATCHING: 99.8% - with -ipa file the stack addresses of `a`, `b` and `box.mMax` hoisted out
 // of the loop land in different registers (r24-r26), and box.mMax is read back through its own
-// register instead of box + 0xC. It matched with -inline deferred.
+// register instead of box + 0xC. It matched with -inline deferred. Tried: ctor body/Set/by-value
+// arguments, struct assignment (reads box + 0xC but writes mMax through box too), field-wise
+// `box.mMin = a; box.mMax = b; mBox = box;` (same shape, 99.77%: the four addresses swap in pairs),
+// declaration order of a/b/box.
 MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, atn::CsvTab* csv)
     : MapPartsBase(parent, arg), mOn(0) {
     const char* field = csv->mField;
