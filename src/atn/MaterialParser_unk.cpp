@@ -284,7 +284,7 @@ static inline void SetSwap_unk(D& dst, S c) {
 }
 
 // inferred: reads the texture stage block of a material ("\t\tkey value" lines)
-// NONMATCHING: 99.8% - register allocation (r22-r28) and the order of the four size_t slots of the inlined compare("")
+// NONMATCHING: 99.8% - register allocation (r22-r28 rotated: key table, "" and the two string buffers)
 const char* TexStage_unk::fn_8007B260(const char* path, Material_unk* mat, const char* p) {
     int n;
     int len = 0;
@@ -306,7 +306,7 @@ const char* TexStage_unk::fn_8007B260(const char* path, Material_unk* mat, const
                     p = fn_8007A994(p + n, sTokenDelims, &len);
                     mName.assign(p, len);
                     std::string ext = fn_8006AC08(std::string(mName.c_str()));
-                    if (ext.compare("") != 0) {
+                    if (!(ext == "")) {
                         mName.assign(p, len - (ext.size() + 1));
                     }
                 }
@@ -1249,7 +1249,7 @@ void Material_unk::fn_80080B34(atn::ShaderDesc_unk* desc) {
 }
 
 // inferred: textures of the stages: from `getter`, or loaded from `dir`
-// NONMATCHING: 99.8% - order of the four size_t stack slots of the inlined compare() and registers
+// NONMATCHING: 99.8% - r15/r24 swapped between the name pointer and its length in the string constructor
 void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
     for (int i = 0; i < m4A; i++) {
         std::string name(m0C[i].mName.c_str());
@@ -1265,9 +1265,9 @@ void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
                 stage.mTexture = 0;
             }
             stage.mTexture = tex;
-        } else if (name.compare("") != 0) {
+        } else if (!(name == "")) {
             char path[0x100];
-            if (name.compare("bake_tex") == 0) {
+            if (name == "bake_tex") {
                 sprintf(path, "data/texture/sys_gray.texture");
             } else {
                 sprintf(path, "%s/textures/%s.texture", dir.c_str(), name.c_str());
