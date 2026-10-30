@@ -5,6 +5,7 @@
 #include "atn/Texture_unk.h"
 #include "atn/Array_unk.h"
 #include "std/vector.h"
+#include "std/string_members.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
