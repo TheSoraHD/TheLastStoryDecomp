@@ -882,7 +882,7 @@ const char* Material_unk::fn_8007C46C(const char* path, const char* data, int si
         m0C[i] = stages[i];
     }
     m4B = anims.mSize;
-    m10 = m4B != 0 ? new ((MemoryTag)6, "", "", 0) TexAnim_unk[m4B] : 0;
+    m10 = m4B == 0 ? 0 : new ((MemoryTag)6, "", "", 0) TexAnim_unk[m4B];
     for (int i = 0; i < m4B; i++) {
         m10[i] = anims[i];
         m10[i].mStage = FindStage_unk(m10[i].mStageId);
@@ -1163,7 +1163,7 @@ TexStage_unk* Material_unk::fn_80080528(int id) {
 }
 
 // inferred: copy of another material (the stages get their own UV transforms)
-// NONMATCHING: 94.8% - order of the byte copies and register allocation
+// NONMATCHING: 95.9% - scheduling of the field copies (m34/m00 loads) and register allocation
 void Material_unk::fn_80080584(const Material_unk& o) {
     mTevColor[0].r = o.mTevColor[0].r;
     mTevColor[0].b = o.mTevColor[0].b;
@@ -1219,7 +1219,7 @@ void Material_unk::fn_80080584(const Material_unk& o) {
         dst.mMagFilter = src.mMagFilter;
     }
     m4B = o.m4B;
-    m10 = m4B != 0 ? new ((MemoryTag)6, "", "", 0) TexAnim_unk[m4B] : 0;
+    m10 = m4B == 0 ? 0 : new ((MemoryTag)6, "", "", 0) TexAnim_unk[m4B];
     for (int i = 0; i < m4B; i++) {
         m10[i] = o.m10[i];
         m10[i].mStage = FindStage_unk(m10[i].mStageId);
