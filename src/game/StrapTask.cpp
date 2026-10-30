@@ -15,14 +15,18 @@ struct GimmickUvOwner_unk {
     int fn_800D59B8();
 };
 
-// inferred: globals of unknown classes
-struct Unk_8087F4E8 {
+// inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here (as in
+// game/GameSystem_unk.cpp)
+class HomeButtonMenu {
+public:
     unsigned char m00[0x88];
-    int m88;
-    unsigned char m8C[0x90 - 0x8C];
-    int m90;
+    int m88; // inferred: menu allowed
+    int m8C;
+    int m90; // inferred: show the icon when the menu is not allowed
+
+    static HomeButtonMenu* sInstance;
 };
-extern "C" Unk_8087F4E8* lbl_8087F4E8;
+// inferred: globals of unknown classes
 struct Unk_8087F018 {
     unsigned char m0000[0x40E0];
     int m40E0;
@@ -64,8 +68,8 @@ StrapTask::StrapTask(atn::Task* parent) : atn::Task(parent), m48(1), m4C(0), m50
         }
         fn_800D5908(&m54[i], path);
     }
-    lbl_8087F4E8->m88 = 0;
-    lbl_8087F4E8->m90 = 0;
+    HomeButtonMenu::sInstance->m88 = 0;
+    HomeButtonMenu::sInstance->m90 = 0;
     if (lbl_8087F018 != 0) {
         lbl_8087F018->m40E0 = 0;
     }
@@ -118,8 +122,8 @@ void StrapTask::vf10() {
     case 2:
         if (++m4C >= 15) {
             fn_800D2338(this);
-            lbl_8087F4E8->m88 = 1;
-            lbl_8087F4E8->m90 = 1;
+            HomeButtonMenu::sInstance->m88 = 1;
+            HomeButtonMenu::sInstance->m90 = 1;
             sSequenceBoot_unk->SetNext_unk("Title");
         }
         break;
