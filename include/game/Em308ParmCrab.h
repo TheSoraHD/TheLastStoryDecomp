@@ -30,6 +30,7 @@ public:
     virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset);
     virtual void vfEC();
     virtual float vf90();
+    virtual float vf60() { return 8.0f; } // inferred: inline (weak copy 0x802FC848)
 
     void fn_802FC188(); // inferred: death
     void fn_802FC2E0(CharaTask* target); // inferred: starts the escape (state 12)
