@@ -5305,3 +5305,9 @@ nw4r/src/ut/ut_DvdFileStream.cpp:
 	.ctors      start:0x8072D428 end:0x8072D42C
 	.data       start:0x807C65B8 end:0x807C6620
 	.sbss       start:0x80880550 end:0x80880558
+
+nw4r/src/ut/ut_CharWriter.cpp:
+	.text       start:0x807267D0 end:0x80727E4C
+	.bss        start:0x8087D690 end:0x8087D6A0
+	.sbss       start:0x80880570 end:0x80880578
+	.sdata2     start:0x80889358 end:0x80889378

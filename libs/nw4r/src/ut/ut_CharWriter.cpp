@@ -89,8 +89,9 @@ void CharWriter::SetFontSize(f32 width, f32 height) {
     SetScale(width / mFont->GetWidth(), height / mFont->GetHeight());
 }
 
-//unused
 void CharWriter::SetFontSize(f32 height) {
+    f32 scale = height / mFont->GetHeight();
+    SetScale(scale, scale);
 }
 
 f32 CharWriter::GetFontWidth() const {
