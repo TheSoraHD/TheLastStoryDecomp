@@ -70,6 +70,21 @@ static const CocoonSphereDef_unk sSpheres_unk[3] = {
     {"spine1", "", "", -1, -1, 21.0f, 1000},
 };
 
+// inferred: collision capsules of the body (table lbl_80746A70; names invented)
+struct CocoonCapsuleDef_unk {
+    const char* mNode;  // inferred: start of the segment
+    const char* mNode2; // inferred: end of the segment
+    float mRadius;
+};
+static const CocoonCapsuleDef_unk sCapsules_unk[11] = {
+    {"neck", "ef_eye", 5.6f},          {"spine", "neck", 14.0f},
+    {"rightleg", "rightfoot", 7.0f},   {"rightupleg", "rightleg", 7.0f},
+    {"leftleg", "leftfoot", 7.0f},     {"leftupleg", "leftleg", 7.0f},
+    {"righthand", "rightmiddle3", 7.0f}, {"rightarm", "righthand", 7.0f},
+    {"lefthand", "leftmiddle1", 7.0f}, {"leftarm", "lefthand", 7.0f},
+    {"tail1", "tail3", 10.5f},
+};
+
 // inferred: state of the multiplayer copy (SpecialState_unk seen with the layout of this class; name invented)
 struct CocoonState_unk {
     int m00;          // inferred: state (m58C)
@@ -415,6 +430,36 @@ void Em206CocoonMp::vf24() {
     } else {
         PlayMotion_unk(2, 1, 1.5f);
     }
+}
+
+// NONMATCHING: 99.36% - registers of the hoisted vector addresses swapped in pairs; copy crossing into m148C
+// inferred: updates the collision of the body and of the capsules (masks 0xE0 in ice mode, 4 in state 10)
+void Em206CocoonMp::vf20() {
+    m620 = m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Vector3 a = m614;
+    atn::Vector3 top = a;
+    top.y += 15.0f;
+    mColli.m3C = a;
+    mColli.m48 = top;
+    mColli.m54 = m620;
+    int mask = m14F0 != 0 ? 0xE0 : 0;
+    if (m58C == 10) {
+        mask |= 4;
+    }
+    mColli.m20 = mask;
+    for (int i = 0; i < 11; i++) {
+        float radius = sCapsules_unk[i].mRadius;
+        a = GetNodePos_unk(mMotion.GetNodeMtx_unk(sCapsules_unk[i].mNode));
+        top = GetNodePos_unk(mMotion.GetNodeMtx_unk(sCapsules_unk[i].mNode2));
+        m1538[i].m3C = a;
+        m1538[i].m48 = top;
+        m1538[i].m54 = radius;
+        m1538[i].m20 = mask;
+    }
+    m148C = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    m1498 = 13.0f;
 }
 
 void Em206CocoonMp::vf38(int arg) {
