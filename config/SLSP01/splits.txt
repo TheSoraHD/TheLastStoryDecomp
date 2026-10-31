@@ -3640,6 +3640,13 @@ RVL_SDK/src/revolution/os/OSError.c:
 	.bss        start:0x807CB2B0 end:0x807CB2F8
 	.sdata      start:0x8087E770 end:0x8087E778
 
+smg2/src/RVL_SDK/os/OSExec.c:
+	.text       start:0x805EE820 end:0x805EFF70
+	.data       start:0x8079C958 end:0x8079CCA8
+	.bss        start:0x807CB300 end:0x807CB320
+	.sdata      start:0x8087E778 end:0x8087E788
+	.sbss       start:0x8087FBF8 end:0x8087FC10
+
 RVL_SDK/src/revolution/os/OSFatal.c:
 	.text       start:0x805EFF70 end:0x805F0B98
 	.bss        start:0x807CB320 end:0x807CB600

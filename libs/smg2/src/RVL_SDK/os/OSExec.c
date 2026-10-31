@@ -171,6 +171,8 @@ static asm void Run(register void* entryPoint) {
 }
 // clang-format on
 
+void __OSRestoreCodeExecOnMEM1(u32 arg);
+
 static void Callback(s32 result, DVDCommandBlock* block) {
     Prepared = TRUE;
 }
@@ -194,6 +196,26 @@ extern IOSError IPCCltReInit(void);
 
 static void callback(u32 intType) {
     DVDLowIntType = intType;
+}
+
+// inferred: the 2010 SDK reports the kind of disc error instead of "Failed to exec"
+static inline void CheckDVDLowResult(void) {
+    switch (DVDLowIntType) {
+    case 1:
+        break;
+    case 2:
+        OSReport("\nDisc error occurred!\n");
+        __OSReturnToMenuForError();
+        break;
+    case 0x10:
+        OSReport("\nTimeout error occurred!\n");
+        __OSReturnToMenuForError();
+        break;
+    default:
+        OSReport("\nUnexpected error occurred!\n");
+        __OSReturnToMenuForError();
+        break;
+    }
 }
 
 void __OSLaunchNextFirmware(void) {
@@ -254,10 +276,7 @@ void __OSLaunchNextFirmware(void) {
         while (!DVDLowIntType) {
         }
 
-        if (DVDLowIntType != 1) {
-            OSReport("\nOSExec(): Failed to exec %d in %d\n", DVDLowIntType, 0x395);
-            __OSReturnToMenuForError();
-        }
+        CheckDVDLowResult();
 
         DVDLowIntType = 0;
         DVDLowUnencryptedRead(gameToc, OSRoundUp32B(sizeof(DVDGameTOC)), 0x40000 >> 2, callback);
@@ -265,10 +284,7 @@ void __OSLaunchNextFirmware(void) {
         while (!DVDLowIntType) {
         }
 
-        if (DVDLowIntType != 1) {
-            OSReport("\nOSExec(): Failed to exec %d in %d\n", DVDLowIntType, 0x39F);
-            __OSReturnToMenuForError();
-        }
+        CheckDVDLowResult();
 
         DVDLowIntType = 0;
         DVDLowUnencryptedRead(partInfo, OSRoundUp32B(sizeof(DVDPartitionInfo) * 256), (u32)gameToc->partitionInfos, callback);
@@ -276,10 +292,7 @@ void __OSLaunchNextFirmware(void) {
         while (!DVDLowIntType) {
         }
 
-        if (DVDLowIntType != 1) {
-            OSReport("\nOSExec(): Failed to exec %d in %d\n", DVDLowIntType, 0x3AB);
-            __OSReturnToMenuForError();
-        }
+        CheckDVDLowResult();
 
         bootGameInfo = NULL;
         partInfoPtr = partInfo;
@@ -304,7 +317,7 @@ void __OSLaunchNextFirmware(void) {
         }
 
         if (!bootGameInfo) {
-            OSReport("\nOSExec(): The specified game doesn't exist in the disc\n");
+            OSReport("\nThe specified game doesn't exist in the disc\n");
             __OSReturnToMenuForError();
         }
 
@@ -321,10 +334,7 @@ void __OSLaunchNextFirmware(void) {
         while (!DVDLowIntType) {
         }
 
-        if (DVDLowIntType != 1) {
-            OSReport("\nOSExec(): Failed to exec %d in %d\n", DVDLowIntType, 0x3E8);
-            __OSReturnToMenuForError();
-        }
+        CheckDVDLowResult();
 
         DVDLowIntType = 0;
         DVDLowClosePartition(callback);
@@ -332,30 +342,27 @@ void __OSLaunchNextFirmware(void) {
         while (!DVDLowIntType) {
         }
 
-        if (DVDLowIntType != 1) {
-            OSReport("\nOSExec(): Failed to exec %d in %d\n", DVDLowIntType, 0x3F2);
-            __OSReturnToMenuForError();
-        }
+        CheckDVDLowResult();
     }
 
     version = tmd->head.sysVersion;
 
     rc = ESP_InitLib();
     if (rc != 0) {
-        OSReport("\nOSExec(): Failed to exec %d in %d\n", rc, 0x3FD);
+        OSReport("\nOSExec(): Failed to exec %d in %d\n", rc, 0x40D);
         __OSHotResetForError();
     }
 
     rc = ESP_GetTicketViews(version, NULL, &ticketCnt);
     if (ticketCnt != 1 || rc != 0) {
-        OSReport("\nOSExec(): Failed to exec %d in %d\n", rc, 0x406);
+        OSReport("\nOSExec(): Failed to exec %d in %d\n", rc, 0x416);
         __OSHotResetForError();
     }
 
     t = (ESTicketView*)OSAllocFromMEM1ArenaLo(OSRoundUp32B(sizeof(ESTicketView) * ticketCnt), 32);
     rc = ESP_GetTicketViews(version, t, &ticketCnt);
     if (rc != 0) {
-        OSReport("\nOSExec(): Failed to exec %d in %d\n", rc, 0x40F);
+        OSReport("\nOSExec(): Failed to exec %d in %d\n", rc, 0x41F);
         __OSHotResetForError();
     }
 
@@ -367,7 +374,7 @@ void __OSLaunchNextFirmware(void) {
 
     rc = ESP_LaunchTitle(version, t);
     if (rc != 0) {
-        OSReport("\nOSExec(): Failed to exec %d in %d\n", rc, 0x41F);
+        OSReport("\nOSExec(): Failed to exec %d in %d\n", rc, 0x42F);
         __OSHotResetForError();
     }
 
@@ -398,10 +405,7 @@ void __OSLaunchNextFirmware(void) {
     while (!DVDLowIntType) {
     }
 
-    if (DVDLowIntType != 1) {
-        OSReport("\nOSExec(): Failed to exec %d in %d\n", DVDLowIntType, 0x44B);
-        __OSReturnToMenuForError();
-    }
+    CheckDVDLowResult();
 
     DVDLowIntType = 0;
     if (__OSLockedFlag == 0x80) {
@@ -413,13 +417,30 @@ void __OSLaunchNextFirmware(void) {
     while (!DVDLowIntType) {
     }
 
-    if (DVDLowIntType != 1) {
-        OSReport("\nOSExec(): Failed to exec %d in %d\n", DVDLowIntType, 0x462);
-        __OSReturnToMenuForError();
-    }
+    CheckDVDLowResult();
 }
 
 #define TITLE_ID ((((u64)1) << 32) | (2))
+
+// inferred: OSLaunchDisk, OSExec and OSLaunchPartition below are in the 2010 SDK. The game does not
+// call them (the linker drops their code) but their strings stay in .data, in this order. Only the
+// messages are known: the conditions are guesses from their text.
+void OSLaunchDisk(const DVDDiskID* diskId) {
+    if (__OSLaunchPartitionType != 0) {
+        OSReport("OSLaunchDisk(): You can't call this API from DVD application.  \n");
+        return;
+    }
+
+    if (!Prepared) {
+        OSPanic(__FILE__, 0, "OSLaunchDisk(): You must call DVDPrepareDisk before launching disc.\n");
+    }
+
+    if (memcmp(diskId, &id, sizeof(DVDDiskID)) != 0) {
+        OSPanic(__FILE__, 0, "OSLaunchDisk(): Specified id is different from one specified to DVDPrepareDisk.\n");
+    }
+
+    OSReport("0000000000000000");
+}
 
 void __OSLaunchMenu(void) {
     u8 i;
@@ -579,6 +600,7 @@ void __OSBootDolSimple(u32 doloffset, u32 restartCode, void* regionStart, void* 
         __OSNextPartitionType = __OSLaunchPartitionType;
     }
 
+    __OSRestoreCodeExecOnMEM1(0xBA2CF); // inferred: added in the 2010 SDK
     params = OSAllocFromMEM1ArenaLo(sizeof(OSExecParams), 1);
 
     params->valid = TRUE;
@@ -689,4 +711,37 @@ void __OSBootDol(u32 doloffset, u32 restartCode, char* const argv[]) {
     }
 
     __OSBootDolSimple(0xffffffff, restartCode, saveStart, saveEnd, FALSE, argvlen, argvToPass);
+}
+
+void OSExec(const char* dolfile) {
+    if (DVDConvertPathToEntrynum(dolfile) < 0) {
+        OSReport("Warning: OSExec(): The specified file doesn't exist. \n");
+    }
+}
+
+void OSLaunchPartition(u32 titleIdHi, u32 titleIdLo) {
+    char path[64];
+    u32 inodes;
+
+    if (__OSLaunchPartitionType == 0) {
+        OSReport("OSLaunchPartition(): You can't call this API from NAND application.  \n");
+        return;
+    }
+
+    if (titleIdHi != 1) {
+        OSReport("OSLaunchPartition(): Specified title ID is not DISC application.  \n");
+        return;
+    }
+
+    sprintf(path, "/title/%08x/%08x", titleIdHi, titleIdLo);
+
+    if (NANDCheck(0, 0, &inodes) != 0) {
+        OSReport("\nOSLaunchPartition(): Failed to get free i-nodes number\n");
+    }
+    else if (inodes != 0) {
+        OSReport("\nOSLaunchPartition(): There are not enough i-nodes to launch next partition\n");
+    }
+    else {
+        OSReport("\nOSLaunchPartition(): Failed to get nand status\n");
+    }
 }
