@@ -1268,16 +1268,16 @@ void Em203GreaterDaemonRed::fn_80298850() {
 }
 
 // inferred: state 15 (walks to the target)
-// NONMATCHING: 96.91% - register allocation of the walk vectors
 void Em203GreaterDaemonRed::fn_80298B10() {
-    atn::Vector3 dir = m14B0->mPos - mPos;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
     dir.y = 0.0f;
     float dist = dir.Length_unk();
     dir.Normalize_unk();
     float frame = mMotion.mTracks[0].m08;
     if (frame > 21.0f && frame <= 38.0f) {
         mRot.y += atn::WrapAngle_unk(m1548 - m1544) / 17.0f;
-        if (dist < 70.0f || dist > 90.0f) {
+        if (dist < 70.0f || 90.0f < dist) {
             mPos += dir * 80.0f * 0.2f;
         }
     } else {

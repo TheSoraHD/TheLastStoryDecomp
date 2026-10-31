@@ -1438,13 +1438,13 @@ void Em203GreaterDaemon::fn_8028E1A0() {
 }
 
 // inferred: state 16 (walks to the target, then strikes)
-// NONMATCHING: 96.92% - stack slots
 void Em203GreaterDaemon::fn_8028E488() {
     ASSERT_UNK(m14B0 != 0);
     ASSERT_UNK(m14B0 != 0);
     ASSERT_UNK(m14B0 != 0);
     ASSERT_UNK(m14B0 != 0);
-    atn::Vector3 dir = m14B0->mPos - mPos;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
     dir.y = 0.0f;
     float dist = dir.Length_unk();
     dir.Normalize_unk();
