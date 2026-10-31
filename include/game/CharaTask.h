@@ -395,14 +395,14 @@ public:
     virtual int vf0C();                                 // 0x8017CB74
     // inferred: node matrix hook of the subclass (fn_80148CC4 passes its matrix and node); nonzero skips
     // the other hooks. The arguments are only read by Em209SmallGolem::vf1C (0x802CFE78).
-    virtual int vf1C(atn::Matrix3x4* mtx, struct ModelNodeDesc_unk* node);
+    virtual int vf1C(atn::Matrix3x4* mtx, struct ModelNodeDesc_unk* node) { return 0; } // weak copy 0x800EF3E0
     virtual void vf20();
     virtual void vf24();
-    virtual void vf28();
+    virtual void vf28() {} // weak copy 0x800EF3DC
     virtual void vf2C(const char* params, int arg); // inferred: params "path=..." (BattleCharaTask passes two arguments)
     virtual void vf30(void* menu); // inferred: debug menu (the symbol is still named vf30__9CharaTaskFv)
     virtual void vf34(const atn::Vector3& rot, int arg, float a, float b); // inferred: turns to rot and moves
-    virtual void vf38(int arg); // inferred: fn_801765D8 passes 0 (the target symbol says Fv)
+    virtual void vf38(int arg) {} // inferred: fn_801765D8 passes 0 (weak copy 0x800EF3D8)
     virtual void vf3C(HitInfo_unk* hit);
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
@@ -411,9 +411,13 @@ public:
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir);
     virtual void vf50();
     virtual void vf54();
-    virtual atn::Vector3 vf58(); // inferred: returns a position (0x800EF394 stores three floats to r3)
+    // inferred: returns a position above the character (weak copy 0x800EF394)
+    virtual atn::Vector3 vf58() {
+        atn::Vector3 off(0.0f, 20.0f, 0.0f);
+        return mPos + off;
+    }
     virtual void vf5C(CharaTask* other); // inferred: other may be 0
-    virtual void vf60();
+    virtual float vf60() { return 1.0f; } // weak copy 0x800EF38C
     virtual atn::Vector3 vf64(int center); // inferred: position, or the center of the collision capsule
     // inferred: finishing move offered to `attacker` (EnemyTask 0x8035B8B0 returns a control kind 9-11)
     virtual int vf68(CharaTask* attacker);
@@ -429,32 +433,36 @@ public:
     virtual void vf84(int motion, float blend); // inferred: bound by chr::ControlAppear::vf10
     virtual void vf88();
     virtual void vf8C(const atn::Vector3& v); // inferred: bound by chr::ControlAppear::vf10
-    virtual float vf90(); // inferred: returns f1 (0x800EF2AC), passed to fn_80107CEC
-    virtual atn::Vector3 vf94(); // inferred: returns a vector (0x800EF370 returns lbl_807C7030)
+    virtual float vf90() { return 1.0f; } // inferred: passed to fn_80107CEC (weak copy 0x800EF2AC)
+    virtual atn::Vector3 vf94(); // inferred: returns a vector (0x800EF370 returns lbl_807C7030; defined below)
     virtual void vf98();
     virtual void vf9C(int arg); // inferred: fn_80145334 passes 0 (the target symbol says Fv)
-    virtual float vfA0(); // inferred: returns a size (fn_80176E30)
+    virtual float vfA0() { return 2.4434609f; } // inferred: an angle (fn_80176E30; weak copy 0x800EF368)
     virtual int vfA4(atn::Vector3* pos, atn::Vector3* rot); // inferred: point of a magic cast (chr::ControlMagic::vf0C)
     virtual int vfA8(int kind); // inferred: returns -1 (0x80041A20); EnemyTrista::vfA8 returns 0, 2 or 3
-    virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
+    // inferred: returns a position (CharaStatus::fn_8012E540; weak copy 0x800EF324)
+    virtual atn::Vector3 vfAC() {
+        atn::Vector3 off(0.0f, 15.0f, 0.0f);
+        return mPos + off;
+    }
     // inferred: point to aim at, nonzero if there is one (0x800EF31C returns 0; GameUI passes a
     // vector at 0x803D3C80; Em302Kraken/Em302KrakenMp fill it; the target symbol said Fv;
     // Em205Ogre 0x802BA64C writes the center of its second sphere)
-    virtual int vfB0(atn::Vector3* out);
+    virtual int vfB0(atn::Vector3* out) { return 0; } // weak copy 0x800EF31C
     // inferred: action to run for `chara` (empty in CharaTask: weak copy 0x800EF310; called by
     // chr::ControlWallUp::vf10)
-    virtual boost::function<void()> vfB4(CharaTask* chara);
+    virtual boost::function<void()> vfB4(CharaTask* chara) { return boost::function<void()>(); } // weak copy 0x800EF310
     virtual int vfB8(wchar_t* name); // inferred: copies the character name
-    virtual void vfBC();
-    virtual void vfC0(void* draw); // inferred: Np131LivingArmor passes `draw` to fn_803E2A30
+    virtual int vfBC() { return 1; } // weak copy 0x800EF308
+    virtual void vfC0(void* draw) {} // inferred: Np131LivingArmor passes `draw` to fn_803E2A30 (weak copy 0x800EF304)
     virtual bool vfC4();
-    virtual atn::Vector3 GetTacViewPosition() const; // RSO name (0x800EF2F0 copies mPos; Em302Kraken)
+    virtual atn::Vector3 GetTacViewPosition() const { return mPos; } // RSO name (weak copy 0x800EF2F0)
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // inferred: four points (the target symbol says Fv)
     virtual atn::Vector3 vfD0(float angle); // inferred: position at mid height
-    virtual float vfD4(); // inferred: returns f1 (0x800EF2B4: scaled vf90)
+    virtual float vfD4() { return 0.7f * (vf90() - 1.0f); } // weak copy 0x800EF2B4
     // inferred: a free position next to the character, away from `target` (8 directions tried)
     virtual atn::Vector3 vfD8(CharaTask* target);
-    virtual float vfDC(); // inferred: returns f1 (0x800EF270: scaled vf90)
+    virtual float vfDC() { return 0.5f * (vf90() - 1.0f); } // weak copy 0x800EF270
     virtual float vfE0(const atn::Vector3& dir); // inferred: yaw of `dir` (0x800EF080; chr::ControlQuarkSeirenAttack passes it in r4)
 
     int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading
@@ -1277,5 +1285,9 @@ public:
     float m141C;
     float m1420;
 };
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+inline atn::Vector3 CharaTask::vf94() {
+    return lbl_807C7030;
+}
 
 #endif
