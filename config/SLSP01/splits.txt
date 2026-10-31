@@ -3733,7 +3733,7 @@ smg2/src/RVL_SDK/os/OSPlayTime.c:
 	.data       start:0x807A9BBC end:0x807A9C00
 	.bss        start:0x807CC340 end:0x807CC370
 	.sdata      start:0x8087E7B0 end:0x8087E7B8
-	.sbss       start:0x8087FCB8 end:0x8087FCD8
+	.sbss       start:0x8087FCB8 end:0x8087FCD0
 	.sdata2     start:0x80888540 end:0x80888550
 
 RVL_SDK/src/revolution/os/OSCrc.c:

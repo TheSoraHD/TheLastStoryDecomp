@@ -4,7 +4,7 @@
 #include "revolution/nand.h"
 #include "private/OSLoMem.h"
 
-OSThread* __OSExpireThread;
+// 2010: __OSExpireThread is gone (the expire callback replaces it)
 OSAlarm __OSExpireAlarm;
 OSTime __OSExpireTime;
 OSPlayTimeCallbackFunc __OSExpireCallback;
