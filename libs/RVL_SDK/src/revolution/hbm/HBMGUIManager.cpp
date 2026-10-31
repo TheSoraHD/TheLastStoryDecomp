@@ -117,6 +117,26 @@ void Manager::addComponent(Component* pComponent) {
     }
 }
 
+void Manager::delComponent(Component* pComponent) {
+    IDToComponent* pIt = static_cast<IDToComponent*>(
+        nw4hbm::ut::List_GetNext(&mIDToComponent, NULL));
+
+    for (; pIt != NULL; pIt = static_cast<IDToComponent*>(
+                            nw4hbm::ut::List_GetNext(&mIDToComponent, pIt))) {
+        if (pIt->mpComponent == pComponent) {
+            break;
+        }
+    }
+
+    nw4hbm::ut::List_Remove(&mIDToComponent, pIt);
+
+    if (mpAllocator != NULL) {
+        MEMFreeToAllocator(mpAllocator, pIt);
+    } else {
+        delete pIt;
+    }
+}
+
 Component* Manager::getComponent(u32 id) {
     const IDToComponent* p = static_cast<const IDToComponent*>(
         nw4hbm::ut::List_GetNthConst(&mIDToComponent, id));
@@ -212,6 +232,10 @@ void PaneManager::createLayoutScene(const nw4hbm::lyt::Layout& rLayout) {
     walkInChildren(rLayout.GetRootPane()->GetChildList());
 }
 
+void PaneManager::addLayoutScene(const nw4hbm::lyt::Layout& rLayout) {
+    walkInChildren(rLayout.GetRootPane()->GetChildList());
+}
+
 void PaneManager::walkInChildren(nw4hbm::lyt::PaneList& rPaneList) {
     NW4R_UT_LINKLIST_FOREACH(it, rPaneList, {
         PaneComponent* pComponent = NULL;
@@ -243,6 +267,39 @@ void PaneManager::walkInChildren(nw4hbm::lyt::PaneList& rPaneList) {
 
         addComponent(pComponent);
         walkInChildren(it->GetChildList());
+    });
+}
+
+void PaneManager::delLayoutScene(const nw4hbm::lyt::Layout& rLayout) {
+    walkInChildrenDel(rLayout.GetRootPane()->GetChildList());
+}
+
+void PaneManager::walkInChildrenDel(nw4hbm::lyt::PaneList& rPaneList) {
+    NW4R_UT_LINKLIST_FOREACH(it, rPaneList, {
+        PaneToComponent* pIt = static_cast<PaneToComponent*>(
+            nw4hbm::ut::List_GetNext(&mPaneToComponent, NULL));
+        nw4hbm::lyt::Pane* pPane = &*it;
+
+        for (; pIt != NULL; pIt = static_cast<PaneToComponent*>(
+                                nw4hbm::ut::List_GetNext(&mPaneToComponent, pIt))) {
+            if (pIt->mpPane == pPane) {
+                break;
+            }
+        }
+
+        delComponent(pIt->mpComponent);
+        nw4hbm::ut::List_Remove(&mPaneToComponent, pIt);
+        suIDCounter--;
+
+        if (mpAllocator != NULL) {
+            MEMFreeToAllocator(mpAllocator, pIt->mpComponent);
+            MEMFreeToAllocator(mpAllocator, pIt);
+        } else {
+            delete pIt->mpComponent;
+            delete pIt;
+        }
+
+        walkInChildrenDel(pPane->GetChildList());
     });
 }
 
