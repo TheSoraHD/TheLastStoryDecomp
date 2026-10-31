@@ -3670,7 +3670,7 @@ RVL_SDK/src/revolution/os/OSMemory.c:
 	.sbss       start:0x8087FC38 end:0x8087FC3C
 
 RVL_SDK/src/revolution/os/OSMutex.c:
-	.text       start:0x805F30F0 end:0x805F340C
+	.text       start:0x805F30F0 end:0x805F3424
 
 RVL_SDK/src/revolution/os/OSReboot.c:
 	.text       start:0x805F3430 end:0x805F34B4
@@ -3828,6 +3828,10 @@ smg2/src/RVL_SDK/vi/vi3in1.c:
 	.sdata      start:0x8087E830 end:0x8087E840
 	.sbss       start:0x8087FE98 end:0x8087FEB0
 
+smg2/src/RVL_SDK/pad/Pad.c:
+	.text       start:0x80607740 end:0x8060779C
+	.sbss       start:0x8087FEB0 end:0x8087FEB8
+
 RVL_SDK/src/revolution/ai/ai.c:
 	.text       start:0x806077A0 end:0x80607D6C
 	.data       start:0x807AC578 end:0x807AC5BD
@@ -3974,7 +3978,7 @@ RVL_SDK/src/revolution/mem/mem_heapCommon.c:
 	.sbss       start:0x808800B8 end:0x808800C0
 
 smg2/src/RVL_SDK/mem/mem_expHeap.c:
-	.text       start:0x806193D0 end:0x80619C58
+	.text       start:0x806193D0 end:0x80619CB0
 
 RVL_SDK/src/revolution/mem/mem_frameHeap.c:
 	.text       start:0x80619CB0 end:0x8061A0C4

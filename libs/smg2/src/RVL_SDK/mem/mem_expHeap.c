@@ -390,3 +390,14 @@ u32 MEMGetAllocatableSizeForExpHeapEx(MEMHeapHandle heap, int alignment) {
         return maxSize;
     }
 }
+
+// inferred: in the 2010 SDK (0x80619C60), not in the 2007 source
+u16 MEMSetGroupIDForExpHeap(MEMHeapHandle heap, u16 groupID) {
+    u16 oldGroupID;
+    BOOL enabled = OSDisableInterrupts();
+
+    oldGroupID = GetExpHeapHeadPtrFromHandle_(heap)->groupID;
+    GetExpHeapHeadPtrFromHandle_(heap)->groupID = groupID;
+    OSRestoreInterrupts(enabled);
+    return oldGroupID;
+}
