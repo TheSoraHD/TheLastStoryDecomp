@@ -154,7 +154,7 @@ static void defaultOptionalCommandChecker(DVDCommandBlock* block,
 
 
 const char* __DVDVersion =
-    "<< RVL_SDK - DVD \trelease build: Feb 27 2009 10:01:59 (0x4302_145) >>";
+    "<< RVL_SDK - DVD \trelease build: Aug 23 2010 17:30:05 (0x4302_145) >>";
 
 static volatile u32 CommandInfoCounter = 0;
 static volatile BOOL PauseFlag = FALSE;
@@ -359,7 +359,7 @@ static void stateReadingFST(void) {
     LastState = (DVDCommandState)stateReadingFST;
 
     // clang-format off
-#line 1090
+#line 1093
     OS_ASSERT(bootInfo->fstSize >= BB2.fstSize, "DVDChangeDisk(): FST in the new disc is too big.   ");
     // clang-format on
 
@@ -1000,11 +1000,6 @@ static void cbForStateCheckID3(u32 intType) {
     } else {
         stateGettingError();
     }
-}
-
-//unused
-//static
-void AlarmHandler(){
 }
 
 static void stateCoverClosed(void) {
@@ -2288,8 +2283,63 @@ void __DVDResetWithNoSpinup(void) {
     }
 }
 
-//unused
-BOOL DVDCheckDiskAsync(DVDCommandBlock* block, DVDCommandCallback callback) {
+BOOL DVDCheckDisk(void) {
+    BOOL enabled;
+    BOOL result;
+    s32 state;
+
+    enabled = OSDisableInterrupts();
+
+    if (FatalErrorFlag) {
+        state = DVD_STATE_FATAL;
+    } else if (PausingFlag) {
+        state = DVD_STATE_PAUSED;
+    } else if ((WaitingForCoverOpen, WaitingForCoverClose)) {
+        state = 5;
+    } else if (executing == NULL) {
+        switch (ResumeFromHere) {
+        case 3:
+            state = 4;
+            break;
+        case 4:
+            state = 5;
+            break;
+        case 1:
+            state = 6;
+            break;
+        case 2:
+            state = 11;
+            break;
+        case 7:
+            state = 7;
+            break;
+        default:
+            state = 0;
+            break;
+        }
+    } else if (executing == &DummyCommandBlock) {
+        state = 0;
+    } else {
+        state = executing->state;
+    }
+
+    switch (state) {
+    case 0:
+    case 1:
+    case 2:
+    case 8:
+    case 9:
+    case 10:
+    case 12:
+        result = TRUE;
+        break;
+    default:
+        result = FALSE;
+        break;
+    }
+
+    OSRestoreInterrupts(enabled);
+    return result;
 }
 
 //unused

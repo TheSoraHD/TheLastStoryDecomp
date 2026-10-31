@@ -3656,6 +3656,13 @@ RVL_SDK/src/revolution/mtx/mtx44.c:
 	.text       start:0x805F94B0 end:0x805F9638
 	.sdata2     start:0x80888560 end:0x80888578
 
+RVL_SDK/src/revolution/dvd/dvd.c:
+	.text       start:0x805FA800 end:0x805FF4E4
+	.data       start:0x807A9D68 end:0x807AA174
+	.bss        start:0x807CC380 end:0x807D1030
+	.sdata      start:0x8087E7D0 end:0x8087E7E8
+	.sbss       start:0x8087FD00 end:0x8087FD98
+
 RVL_SDK/src/revolution/dvd/dvdqueue.c:
 	.text       start:0x805FF4F0 end:0x805FF770
 	.bss        start:0x807D1030 end:0x807D1050
