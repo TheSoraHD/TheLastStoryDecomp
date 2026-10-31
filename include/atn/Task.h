@@ -33,8 +33,10 @@ public:
     Task(Task* parent); // 0x800D1D3C
     virtual ~Task();
     virtual int vf0C();
-    virtual void vf10();
-    virtual void vf14();
+    // inferred: inline and empty (the only copies are weak, first emitted in game/AreaEffConfig.cpp at
+    // 0x8004312C and 0x80043128)
+    virtual void vf10() {}
+    virtual void vf14() {}
     virtual void vf18(Task* child); // inferred: notification that `child` was removed (see SequenceControl)
 
     void fn_800D3F28(Task* child); // inferred: attaches `child` (null detaches)
