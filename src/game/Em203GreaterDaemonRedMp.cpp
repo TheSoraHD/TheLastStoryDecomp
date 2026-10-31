@@ -256,6 +256,87 @@ int Em203GreaterDaemonRedMp::vf10C(HitMsg_unk* msg) {
     return 1;
 }
 
+
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+void Em203GreaterDaemonRedMp::vf11C() {
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m5B0;
+    atn::Vector3 right = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightfoot"))->GetTrans_unk();
+    atn::Vector3 left = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftfoot"))->GetTrans_unk();
+    atn::Vector3 center(atn::Vector3(left + right) * 0.5f);
+    atn::Vector3 head(((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk());
+    mColli.m3C = center;
+    mColli.m48 = head;
+    mColli.m54 = m620;
+}
+
+void Em203GreaterDaemonRedMp::vf50() {
+    Item14_unk item;
+    item.m04.mRadius = 5.0f;
+    item.m04.mCenter = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("tail"))->GetTrans_unk();
+    m624.push_back(item);
+    item.m04.mRadius = 10.0f;
+    item.m04.mCenter = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    m624.push_back(item);
+    item.m04.mRadius = 5.0f;
+    item.m04.mCenter = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightmiddle1"))->GetTrans_unk();
+    m624.push_back(item);
+    item.m04.mRadius = 5.0f;
+    item.m04.mCenter = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftmiddle1"))->GetTrans_unk();
+    m624.push_back(item);
+    item.m04.mRadius = 20.0f;
+    item.m04.mCenter = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
+    m624.push_back(item);
+    item.m04.mRadius = 10.0f;
+    item.m04.mCenter = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftfoot"))->GetTrans_unk();
+    m624.push_back(item);
+    item.m04.mRadius = 10.0f;
+    item.m04.mCenter = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightfoot"))->GetTrans_unk();
+    m624.push_back(item);
+    mFlagB29 = 1;
+}
+
+void Em203GreaterDaemonRedMp::vf54() {
+    if (m624.mSize != 0) {
+        unsigned int i = 0;
+        m624[i].m04.mRadius = 25.0f;
+        m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tail"));
+        i++;
+        m624[i].m04.mRadius = 12.0f;
+        m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+        i++;
+        m624[i].m04.mRadius = 8.0f;
+        m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
+        i++;
+        m624[i].m04.mRadius = 8.0f;
+        m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
+        i++;
+        m624[i].m04.mRadius = 20.0f;
+        m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+        i++;
+        m624[i].m04.mRadius = 10.0f;
+        m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
+        i++;
+        m624[i].m04.mRadius = 10.0f;
+        m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+    }
+}
+
+atn::Vector3 Em203GreaterDaemonRedMp::vf64(int center) {
+    atn::Vector3 result = mPos;
+    if (center == 0) {
+        result = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    } else {
+        result = GetNodePos_unk(mMotion.GetNodeMtx_unk("tail"));
+    }
+    return result;
+}
+
 int Em203GreaterDaemonRedMp::fn_8029F3F4() {
     return 1;
 }
