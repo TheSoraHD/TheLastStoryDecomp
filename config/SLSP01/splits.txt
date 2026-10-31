@@ -3969,6 +3969,9 @@ smg2/src/RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80629650 end:0x80629720
 	.sbss       start:0x80880170 end:0x80880178
 
+smg2/src/RVL_SDK/bte/bte_init.c:
+	.text       start:0x80629720 end:0x8062974C
+
 smg2/src/RVL_SDK/bte/bte_logmsg.c:
 	.text       start:0x80629750 end:0x806298E8
 	.bss        start:0x8081E2E0 end:0x8081EAC0
@@ -3991,6 +3994,9 @@ smg2/src/RVL_SDK/bte/bta_sys_main.c:
 
 smg2/src/RVL_SDK/bte/ptim.c:
 	.text       start:0x8062A410 end:0x8062A5F0
+
+smg2/src/RVL_SDK/bte/utl.c:
+	.text       start:0x8062A5F0 end:0x8062A634
 
 smg2/src/RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x8062C970 end:0x8062CDDC
