@@ -643,18 +643,6 @@ WindowFrameSize Window::GetFrameSize(u8 frameNum, const Frame* pFrames) {
     return frameSize;
 }
 
-u8 Window::GetMaterialNum() const {
-    return mFrameNum + 1;
-}
-
-Material* Window::GetMaterial(u32 index) const {
-    if(index == 0) {
-        return GetContentMaterial();
-    }
-
-    return GetFrameMaterial(index - 1);
-}
-
 Material* Window::GetContentMaterial() const {
     return GetMaterial();
 }

@@ -3536,6 +3536,12 @@ RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_arcResourceAccessor.cpp:
 	.text       start:0x805CD490 end:0x805CD830
 	.data       start:0x80798E70 end:0x80798EF0
 
+RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_bounding.cpp:
+	.text       start:0x805CD830 end:0x805CD9A4
+	.ctors      start:0x8072D3E8 end:0x8072D3EC
+	.data       start:0x80798EF0 end:0x80798FD8
+	.bss        start:0x807CA1C8 end:0x807CA1D0
+
 RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_drawInfo.cpp:
 	.text       start:0x805CE830 end:0x805CE8F0
 	.rodata     start:0x80764548 end:0x80764550

@@ -385,10 +385,8 @@ void Pane::SetAnimationEnable(AnimTransform* pAnimTrans, bool enable,
         pAnimLink->SetEnable(enable);
     }
 
-    u8 materialNum = GetMaterialNum();
-
-    for (u8 i = 0; i < materialNum; i++) {
-        GetMaterial(i)->SetAnimationEnable(pAnimTrans, enable);
+    if (mpMaterial != NULL) {
+        mpMaterial->SetAnimationEnable(pAnimTrans, enable);
     }
     
     if (recursive) {
@@ -454,18 +452,10 @@ math::VEC2 Pane::GetVtxPos() const {
     return base;
 }
 
-u8 Pane::GetMaterialNum() const {
-    return mpMaterial != NULL ? 1 : 0;
-}
-
 Material* Pane::GetMaterial() const {
     return mpMaterial;
 }
 
-Material* Pane::GetMaterial(u32 index) const {
-    if(index == 0) return GetMaterial();
-    return NULL;
-}
 
 } // namespace lyt
 } // namespace nw4hbm

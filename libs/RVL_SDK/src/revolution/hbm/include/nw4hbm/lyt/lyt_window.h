@@ -134,9 +134,7 @@ public:
     virtual void SetAnimationEnable(AnimTransform* pAnimTrans, bool enable,
                                     bool recursive); // at 0x5C
     
-    virtual u8 GetMaterialNum() const; // at 0x64
     virtual Material* GetMaterial() const; // at 0x68
-	virtual Material* GetMaterial(u32 index) const; // at 0x6C
 
     virtual Material* GetContentMaterial() const;      // at 0x74
     virtual Material* GetFrameMaterial(u32 idx) const; // at 0x78
