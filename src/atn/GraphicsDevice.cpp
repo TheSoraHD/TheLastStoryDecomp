@@ -28,7 +28,7 @@ void GXPixModeSync();
 void GXSetCopyClear(GXColor color, unsigned int z);
 void GXInvalidateVtxCache();
 void GXInvalidateTexAll();
-void fn_80607120(int gamma); // inferred: VISetGamma
+void VISetGamma(int gamma);
 void GXFlush();
 void GXGetCPUFifo(GXFifoObj* fifo);
 void GXGetFifoPtrs(GXFifoObj* fifo, void** readPtr, void** writePtr);
@@ -435,7 +435,7 @@ inline GXColor ToGXColor_unk(unsigned int argb) {
 extern "C" void fn_8007192C(GraphicsDevice_unk* device) {
     if (lbl_8087D73C != lbl_8087EFA8->m034) {
         lbl_8087D73C = lbl_8087EFA8->m034;
-        fn_80607120(lbl_8087D73C);
+        VISetGamma(lbl_8087D73C);
     }
     GXSetDispCopyGamma(lbl_8087EFA8->m030);
     GXSetCopyClear(ToGXColor_unk(device->mClearColor), device->mClearZ);
