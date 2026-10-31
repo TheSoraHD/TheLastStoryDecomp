@@ -3988,6 +3988,44 @@ smg2/src/RVL_SDK/ipc/memory.c:
 	.text       start:0x8061D7F0 end:0x8061DD18
 	.bss        start:0x807E7780 end:0x807E7800
 
+smg2/src/RVL_SDK/nand/nand.c:
+	.text       start:0x8061E130 end:0x8061F7B4
+	.rodata     start:0x80764800 end:0x80764848
+	.sdata      start:0x8087E8D8 end:0x8087E8E0
+
+smg2/src/RVL_SDK/nand/NANDOpenClose.c:
+	.text       start:0x8061F7C0 end:0x80620EF0
+	.data       start:0x807B0F68 end:0x807B0FC0
+	.sdata      start:0x8087E8E0 end:0x8087E8F8
+	.sbss       start:0x80880118 end:0x80880120
+
+smg2/src/RVL_SDK/nand/NANDCore.c:
+	.text       start:0x80620EF0 end:0x8062225C
+	.rodata     start:0x80764848 end:0x80764990
+	.data       start:0x807B0FC0 end:0x807B1110
+	.bss        start:0x807EB280 end:0x807EB2C0
+	.sdata      start:0x8087E8F8 end:0x8087E920
+	.sbss       start:0x80880120 end:0x80880124
+
+smg2/src/RVL_SDK/nand/NANDCheck.c:
+	.text       start:0x80622260 end:0x80622544
+	.data       start:0x807B1110 end:0x807B11F8
+	.sdata      start:0x8087E920 end:0x8087E930
+
+smg2/src/RVL_SDK/nand/NANDLogging.c:
+	.text       start:0x80622550 end:0x80622B94
+	.data       start:0x807B11F8 end:0x807B1240
+	.bss        start:0x807EB2C0 end:0x807EB5C0
+	.sdata      start:0x8087E930 end:0x8087E938
+	.sbss       start:0x80880128 end:0x80880130
+
+smg2/src/RVL_SDK/nand/NANDErrorMessage.c:
+	.text       start:0x80622BA0 end:0x80622E98
+	.rodata     start:0x80764990 end:0x80764BA8
+	.data       start:0x807B1240 end:0x807B2E70
+	.sbss       start:0x80880130 end:0x80880134
+	.sdata2     start:0x80888808 end:0x80888838
+
 RVL_SDK/src/revolution/sc/scsystem.c:
 	.text       start:0x80622EA0 end:0x80624828
 	.rodata     start:0x80764BA8 end:0x80764C00

@@ -8,7 +8,7 @@ static IOSFd s_fd = -255;
 static int s_stage;
 static char s_message[256] __attribute__ ((aligned (64)));
 static NANDLoggingCallback s_callback = 0;
-static s32 s_err = 0; // inferred: added in the 2010 SDK
+static s32 s_err = ISFS_ERROR_UNKNOWN; // inferred: added in the 2010 SDK
 
 static void asyncRoutine(ISFSError, void *);
 static void prepareLine(char line[256], int, const char *);

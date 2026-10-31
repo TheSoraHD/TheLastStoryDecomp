@@ -7,12 +7,19 @@ static BOOL nandInspectPermission(u8);
 static void nandSplitPerm(u8, u32 *, u32 *, u32 *);
 static void nandGetTypeCallback(ISFSError, void *);
 static void nandGetStatusCallback(ISFSError, void *);
+static BOOL nandIsValidPath_unk(const char *path);
+BOOL nandIsRelativePath(const char *path); // NANDCore.c
 
 ISFSError nandCreate(const char *path, const u8 perm, const u8 attr,
                      NANDCommandBlock *block, BOOL async_flag,
                      BOOL privilege_flag) {
   char absPath[64] = "";
   u32 owner = 0, group = 0, others = 0;
+
+  if (!nandIsValidPath_unk(path)) {
+    return ISFS_ERROR_INVALID;
+  }
+
   nandGenerateAbsPath(absPath, path);
 
   if (!privilege_flag && nandIsPrivatePath(absPath)) {
@@ -45,6 +52,16 @@ s32 NANDPrivateCreate(const char *path, u8 perm, u8 attr) {
   }
 
   return nandConvertErrorCode(nandCreate(path, perm, attr, NULL, FALSE, TRUE));
+}
+
+s32 NANDCreateAsync(const char *path, u8 perm, u8 attr, NANDCallback cb,
+                    NANDCommandBlock *block) {
+  if (!nandIsInitialized()) {
+    return NAND_RESULT_FATAL_ERROR;
+  }
+
+  block->callback = cb;
+  return nandConvertErrorCode(nandCreate(path, perm, attr, block, TRUE, FALSE));
 }
 
 s32 NANDPrivateCreateAsync(const char *path, u8 perm, u8 attr, NANDCallback cb,
@@ -87,6 +104,16 @@ s32 NANDPrivateDelete(const char *path) {
   }
 
   return nandConvertErrorCode(nandDelete(path, NULL, FALSE, TRUE));
+}
+
+s32 NANDDeleteAsync(const char *path, NANDCallback cb,
+                    NANDCommandBlock *block) {
+  if (!nandIsInitialized()) {
+    return NAND_RESULT_FATAL_ERROR;
+  }
+
+  block->callback = cb;
+  return nandConvertErrorCode(nandDelete(path, block, TRUE, FALSE));
 }
 
 s32 NANDPrivateDeleteAsync(const char *path, NANDCallback cb,
@@ -189,6 +216,10 @@ ISFSError nandCreateDir(const char *path, const u8 perm, const u8 attr,
                         const BOOL privilege_flag) {
   char absPath[64] = "";
 
+  if (!nandIsValidPath_unk(path)) {
+    return ISFS_ERROR_INVALID;
+  }
+
   nandGenerateAbsPath(absPath, path);
   if (!privilege_flag && nandIsPrivatePath(absPath)) {
     return ISFS_ERROR_ACCESS;
@@ -209,6 +240,15 @@ ISFSError nandCreateDir(const char *path, const u8 perm, const u8 attr,
   }
 }
 
+s32 NANDCreateDir(const char *path, u8 perm, u8 attr) {
+  if (!nandIsInitialized()) {
+    return NAND_RESULT_FATAL_ERROR;
+  }
+
+  return nandConvertErrorCode(
+      nandCreateDir(path, perm, attr, NULL, FALSE, FALSE));
+}
+
 s32 NANDPrivateCreateDir(const char *path, u8 perm, u8 attr) {
   if (!nandIsInitialized()) {
     return NAND_RESULT_FATAL_ERROR;
@@ -216,6 +256,17 @@ s32 NANDPrivateCreateDir(const char *path, u8 perm, u8 attr) {
 
   return nandConvertErrorCode(
       nandCreateDir(path, perm, attr, NULL, FALSE, TRUE));
+}
+
+s32 NANDCreateDirAsync(const char *path, u8 perm, u8 attr,
+                       NANDCallback cb, NANDCommandBlock *block) {
+  if (!nandIsInitialized()) {
+    return NAND_RESULT_FATAL_ERROR;
+  }
+
+  block->callback = cb;
+  return nandConvertErrorCode(
+      nandCreateDir(path, perm, attr, block, TRUE, FALSE));
 }
 
 s32 NANDPrivateCreateDirAsync(const char *path, u8 perm, u8 attr,
@@ -265,6 +316,16 @@ s32 NANDMove(const char *path, const char *destDir) {
   }
 
   return nandConvertErrorCode(nandMove(path, destDir, NULL, FALSE, FALSE));
+}
+
+s32 NANDMoveAsync(const char *path, const char *destDir, NANDCallback cb,
+                  NANDCommandBlock *block) {
+  if (!nandIsInitialized()) {
+    return NAND_RESULT_FATAL_ERROR;
+  }
+
+  block->callback = cb;
+  return nandConvertErrorCode(nandMove(path, destDir, block, TRUE, FALSE));
 }
 
 static ISFSError nandGetFileStatus(IOSFd fd, u32 *length, u32 *pos) {
@@ -467,4 +528,58 @@ static BOOL nandInspectPermission(const u8 perm) {
   } else {
     return FALSE;
   }
+}
+
+// inferred: new in the 2010 SDK (fn_8061F480); NANDCreate/NANDCreateDir reject names with
+// characters outside this set
+static BOOL nandIsValidChar_unk(int c) {
+  const char validChars[66] =
+      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_./";
+  u32 i;
+
+  for (i = 0; i < sizeof(validChars); i++) {
+    if ((char)c == validChars[i]) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+static BOOL nandIsValidPath_unk(const char *path) {
+  u32 len = strlen(path);
+  u32 i;
+
+  if (len == 0) {
+    return FALSE;
+  }
+
+  if (nandIsRelativePath(path)) {
+    for (i = 0; i < len; i++) {
+      if (!nandIsValidChar_unk((u8)path[i])) {
+        return FALSE;
+      }
+    }
+  } else {
+    char absPath[64];
+    char name[16];
+    const u8 *p;
+    u32 j;
+
+    strcpy(absPath, path);
+    if (absPath[len - 1] == '/' && len - 1 != 0) {
+      absPath[len - 1] = '\0';
+    }
+
+    nandGetRelativeName(name, absPath);
+    len = strlen(name);
+    p = (const u8 *)name;
+    for (j = 0; j < len; p++, j++) {
+      if (!nandIsValidChar_unk((char)*p)) {
+        return FALSE;
+      }
+    }
+  }
+
+  return TRUE;
 }

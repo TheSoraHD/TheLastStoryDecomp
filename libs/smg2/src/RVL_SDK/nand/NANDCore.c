@@ -6,7 +6,7 @@
 #include <cstring>
 #include <wstring.h>
 
-const char* __NANDVersion = "<< RVL_SDK - NAND \trelease build: Dec 11 2007 01:35:48 (0x4199_60831) >>";
+const char* __NANDVersion = "<< RVL_SDK - NAND \trelease build: Aug 23 2010 17:33:46 (0x4302_145) >>";
 enum LibState {
     STATE_NOT_INITIALIZED, 
     STATE_WORKING, 
@@ -130,7 +130,7 @@ void nandConvertPath(char* abspath, const char* wd, const char* relpath) {
     }
 }
 
-inline BOOL nandIsRelativePath(const char* path) {
+BOOL nandIsRelativePath(const char* path) {
     if (path[0] == '/') {
         return FALSE;
     }
@@ -391,6 +391,74 @@ static void nandShutdownCallback(ISFSError result, void* ctxt) {
     *(BOOL*)ctxt = TRUE;
 }
 
+// inferred: NANDChangeDir and NANDGetCurrentDir are in the 2010 SDK (not in the 2007 source)
+static void nandChangeDirCallback(ISFSError result, void* ctxt);
+
+static ISFSError nandChangeDir(const char* path, NANDCommandBlock* block, const BOOL async_flag, const BOOL privilege_flag) {
+    if (async_flag) {
+        nandGenerateAbsPath(block->absPath, path);
+        if (!privilege_flag && nandIsPrivatePath(block->absPath)) {
+            return ISFS_ERROR_ACCESS;
+        }
+        else {
+            return ISFS_ReadDirAsync((u8*)(block->absPath), NULL, &(block->num), nandChangeDirCallback, block);
+        }
+    }
+    else {
+        u32 dmy = 0;
+        char absPath[64] = "";
+        nandGenerateAbsPath(absPath, path);
+
+        if (!privilege_flag && nandIsPrivatePath(absPath)) {
+            return ISFS_ERROR_ACCESS;
+        }
+        else {
+            ISFSError err = ISFS_ReadDir((u8*)absPath, NULL, &dmy);
+
+            if (err == ISFS_ERROR_OK) {
+                BOOL enabled = OSDisableInterrupts();
+                strcpy(s_currentDir, absPath);
+                OSRestoreInterrupts(enabled);
+            }
+
+            return err;
+        }
+    }
+}
+
+s32 NANDChangeDir(const char* path) {
+    if (!nandIsInitialized()) {
+        return NAND_RESULT_FATAL_ERROR;
+    }
+
+    return nandConvertErrorCode(nandChangeDir(path, NULL, FALSE, FALSE));
+}
+
+static void nandChangeDirCallback(ISFSError result, void* ctxt) {
+    NANDCommandBlock* b = (NANDCommandBlock*)ctxt;
+
+    if (result == ISFS_ERROR_OK) {
+        BOOL enabled = OSDisableInterrupts();
+        strcpy(s_currentDir, b->absPath);
+        OSRestoreInterrupts(enabled);
+    }
+
+    ((NANDCallback)(b->callback))(nandConvertErrorCode(result), b);
+}
+
+s32 NANDGetCurrentDir(char* path) {
+    BOOL enabled;
+
+    if (!nandIsInitialized()) {
+        return NAND_RESULT_FATAL_ERROR;
+    }
+
+    enabled = OSDisableInterrupts();
+    strcpy(path, s_currentDir);
+    OSRestoreInterrupts(enabled);
+    return NAND_RESULT_OK;
+}
+
 s32 NANDGetHomeDir(char* path) {
     if (!nandIsInitialized()) {
         return -128;
@@ -445,6 +513,14 @@ static ISFSError nandGetType(const char* path, u8* type, NANDCommandBlock* block
             return err;
         }
     }
+}
+
+s32 NANDGetType(const char* path, u8* type) {
+    if (!nandIsInitialized()) {
+        return NAND_RESULT_FATAL_ERROR;
+    }
+
+    return nandConvertErrorCode(nandGetType(path, type, NULL, FALSE, FALSE));
 }
 
 s32 NANDPrivateGetTypeAsync(const char* path, u8* type, NANDCallback cb, NANDCommandBlock* block) {
