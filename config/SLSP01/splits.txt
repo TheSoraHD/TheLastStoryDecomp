@@ -4483,6 +4483,11 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common/alloc.c:
 	.bss        start:0x80832468 end:0x808324A0
 	.sbss       start:0x80880340 end:0x80880348
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/ansi_files.c:
+	.text       start:0x8067B46C end:0x8067B600
+	.data       start:0x807BAF28 end:0x807BB068
+	.bss        start:0x808324A0 end:0x808327A0
+
 PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/ansi_fp.c:
 	.text       start:0x8067B600 end:0x8067CE80
 	.rodata     start:0x80765258 end:0x80765338
