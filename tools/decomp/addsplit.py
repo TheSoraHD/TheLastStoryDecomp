@@ -17,7 +17,7 @@ for b in blocks:
     if not done and m and int(m.group(1),16)>tstart and not b.startswith('Sections:'):
         out.append(block.rstrip('\n')); done=True
     out.append(b)
-assert done
+if not done: out.append(block.rstrip("\n"))
 open(p,'w').write('\n\n'.join(out))
 p=ROOT+'/config/SLSP01/libs_ref.json'; d=json.load(open(p))
 ref=[u for u in d if u['name'].endswith('/'+like) or u['name']==like][0]
