@@ -2,7 +2,7 @@
 #include <revolution/OS.h>
 
 const char* __DSPVersion =
-    "<< RVL_SDK - DSP \trelease build: Feb 27 2009 10:01:57 (0x4302_145) >>";
+    "<< RVL_SDK - DSP \trelease build: Aug 23 2010 17:30:03 (0x4302_145) >>";
 
 static BOOL __DSP_init_flag = FALSE;
 
@@ -44,8 +44,8 @@ void DSPAssertInt(void) {
 void DSPInit(void) {
     BOOL enabled;
 
-    __DSP_debug_printf("DSPInit(): Build Date: %s %s\n", "Feb 27 2009",
-                       "10:01:57");
+    __DSP_debug_printf("DSPInit(): Build Date: %s %s\n", "Aug 23 2010",
+                       "17:30:03");
 
     if (__DSP_init_flag == TRUE) {
         return;
