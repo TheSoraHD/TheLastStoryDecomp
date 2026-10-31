@@ -5248,6 +5248,13 @@ nw4r/src/snd/snd_AxVoiceManager.cpp:
 	.bss        start:0x80862F30 end:0x80862F68
 	.sbss       start:0x808804A0 end:0x808804A8
 
+ss_nw4r/src/snd/snd_BasicSound.cpp:
+	.text       start:0x80709870 end:0x8070B06C
+	.ctors      start:0x8072D408 end:0x8072D40C
+	.data       start:0x807C5E50 end:0x807C5E88
+	.sbss       start:0x808804B0 end:0x808804B8
+	.sdata2     start:0x80889078 end:0x80889088
+
 nw4r/src/snd/snd_DisposeCallbackManager.cpp:
 	.text       start:0x8070C650 end:0x8070C9DC
 	.bss        start:0x80862F98 end:0x80862FB0

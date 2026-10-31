@@ -39,6 +39,7 @@ public:
 } // namespace ut
 
 namespace snd {
+enum AuxBus { AUX_A, AUX_B, AUX_C };
 namespace detail {
 // inferred: only the virtual used here (IsPrepared at 0x14) and the parameter block at 0x30
 struct SoundParam_unk {
@@ -53,7 +54,16 @@ public:
     virtual void vf0C();
     virtual void vf10();
     virtual bool IsPrepared() const; // 0x14
+    void StartPrepared();
     void Stop(int fadeFrames);
+    void Pause(bool flag, int fadeFrames);
+    bool IsPause() const;
+    void SetVolume(float volume, int frames);
+    void SetPitch(float pitch);
+    void SetLpfFreq(float lpfFreq);
+    void SetBiquadFilter(int type, float value);
+    void ResetOutputLineFlag();
+    void SetFxSend(AuxBus bus, float send);
 
     unsigned char m04[0x30 - 0x04];
     SoundParam_unk m30;
@@ -69,13 +79,13 @@ public:
     bool IsPause() const;
     void Stop(int frames);
     void Pause(bool flag, int frames);
-    void fn_80709AB0_unk();
+    void StartPrepared();
     void SetVolume(float volume, int frames);
-    void fn_8070AD40_unk(float value);
-    void fn_8070AD50_unk(float value);
-    void fn_8070AD60_unk(int type, float value);
-    void fn_8070AD80_unk();
-    void fn_8070AD90_unk(int bus, float value);
+    void SetPitch(float pitch);
+    void SetLpfFreq(float lpfFreq);
+    void SetBiquadFilter(int type, float value);
+    void ResetOutputLineFlag(); // inferred: see BasicSound
+    void SetFxSend(AuxBus bus, float send);
     detail::SoundParam_unk* GetParam_unk() const { return IsAttachedSound() ? &mSound->m30 : 0; }
     void DetachSound();
 
@@ -88,15 +98,6 @@ public:
 extern "C" void fn_80715B20(void* self);                    // inferred: nw4r::snd::Sound3DListener::Sound3DListener
 extern "C" void fn_80715BA0(void* self, const Mtx m);       // inferred: nw4r::snd::Sound3DListener::SetMatrix
 extern "C" void fn_80714930(void* self, void* player, void* manager); // inferred: nw4r::snd::Sound3DActor ctor
-extern "C" void fn_80709AB0(void* sound);
-extern "C" bool fn_8070A030(void* sound);                   // inferred: nw4r::snd::detail::BasicSound::IsPause
-extern "C" void fn_80709CC0(void* sound, bool flag, int frames); // inferred: nw4r::snd::detail::BasicSound::Pause
-extern "C" void fn_8070ACB0(void* sound, float volume, int frames); // inferred: nw4r::snd::detail::BasicSound::SetVolume
-extern "C" void fn_8070AD40(void* sound, float value);
-extern "C" void fn_8070AD50(void* sound, float value);
-extern "C" void fn_8070AD60(void* sound, float value, int type);
-extern "C" void fn_8070AD80(void* sound);
-extern "C" void fn_8070AD90(void* sound, int bus, float value);
 extern "C" void fn_80714C50(void* actor, const atn::Vector3* pos); // inferred: nw4r::snd::Sound3DActor::SetPosition
 extern "C" int fn_80718470(void* actor, void* handle, unsigned int id, void* info); // inferred: nw4r::snd::SoundActor start
 extern "C" int fn_807184D0(void* actor, void* handle, unsigned int id, void* info); // inferred: nw4r::snd::SoundActor prepare
@@ -159,56 +160,56 @@ inline bool nw4r::snd::SoundHandle::IsPrepared() const {
 }
 
 inline bool nw4r::snd::SoundHandle::IsPause() const {
-    return IsAttachedSound() && fn_8070A030(mSound);
+    return IsAttachedSound() && mSound->IsPause();
 }
 
 inline void nw4r::snd::SoundHandle::Pause(bool flag, int frames) {
     if (IsAttachedSound()) {
-        fn_80709CC0(mSound, flag, frames);
+        mSound->Pause(flag, frames);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_80709AB0_unk() {
+inline void nw4r::snd::SoundHandle::StartPrepared() {
     if (IsAttachedSound()) {
-        fn_80709AB0(mSound);
+        mSound->StartPrepared();
     }
 }
 
 inline void nw4r::snd::SoundHandle::SetVolume(float volume, int frames) {
     if (IsAttachedSound()) {
-        fn_8070ACB0(mSound, volume, frames);
+        mSound->SetVolume(volume, frames);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD40_unk(float value) {
+inline void nw4r::snd::SoundHandle::SetPitch(float pitch) {
     if (IsAttachedSound()) {
-        fn_8070AD40(mSound, value);
+        mSound->SetPitch(pitch);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD50_unk(float value) {
+inline void nw4r::snd::SoundHandle::SetLpfFreq(float lpfFreq) {
     if (IsAttachedSound()) {
-        fn_8070AD50(mSound, value);
+        mSound->SetLpfFreq(lpfFreq);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD60_unk(int type, float value) {
+inline void nw4r::snd::SoundHandle::SetBiquadFilter(int type, float value) {
     (void)((type >= 0 && type <= 127) ||
            (nw4r::db::Panic("SoundHandle.h", 0x80, "type is out of bounds(%d)\n%d <= type <= %d not satisfied.", type, 0, 127), 0));
     if (IsAttachedSound()) {
-        fn_8070AD60(mSound, value, type);
+        mSound->SetBiquadFilter(type, value);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD80_unk() {
+inline void nw4r::snd::SoundHandle::ResetOutputLineFlag() {
     if (IsAttachedSound()) {
-        fn_8070AD80(mSound);
+        mSound->ResetOutputLineFlag();
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD90_unk(int bus, float value) {
+inline void nw4r::snd::SoundHandle::SetFxSend(AuxBus bus, float send) {
     if (IsAttachedSound()) {
-        fn_8070AD90(mSound, bus, value);
+        mSound->SetFxSend(bus, send);
     }
 }
 

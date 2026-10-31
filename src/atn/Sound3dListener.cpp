@@ -107,9 +107,9 @@ void SoundCore::fn_800C82FC() {
     mEC.Update();
     m10C.Update();
     m12C.Update();
-    mHandle.fn_8070AD40_unk(mEC.m18);
-    mHandle.fn_8070AD50_unk(m10C.m18);
-    mHandle.fn_8070AD60_unk(mC8, m12C.m18);
+    mHandle.SetPitch(mEC.m18);
+    mHandle.SetLpfFreq(m10C.m18);
+    mHandle.SetBiquadFilter(mC8, m12C.m18);
     if (mD4 != 0) {
         mD8 = m08.mActor.mPosition;
     }
@@ -130,7 +130,7 @@ inline void SoundCore::StartSetup_unk(unsigned int id) {
     mC8 = 0;
     mCC = 0.0f;
     m12C.Start(mCC, 0.0f);
-    mHandle.fn_8070AD80_unk();
+    mHandle.ResetOutputLineFlag();
     fn_800CA798(0, 0.0f);
     mD0 = 0;
     m98 = id;
@@ -235,7 +235,7 @@ bool SoundCore::fn_800CA028() {
 }
 
 void SoundCore::fn_800CA098() {
-    mHandle.fn_80709AB0_unk();
+    mHandle.StartPrepared();
 }
 
 void SoundCore::fn_800CA0AC(float volume, int frames) {
@@ -263,8 +263,8 @@ void SoundCore::fn_800CA1D4(int pause, unsigned long mask, int frames) {
 void SoundCore::fn_800CA2FC(float a, float b, float c) {
     mC4 = a;
     fn_800CA3D4();
-    mHandle.fn_8070AD90_unk(1, b);
-    mHandle.fn_8070AD90_unk(2, c);
+    mHandle.SetFxSend(nw4r::snd::AUX_B, b);
+    mHandle.SetFxSend(nw4r::snd::AUX_C, c);
 }
 
 void SoundCore::fn_800CA3D4() {
@@ -278,7 +278,7 @@ void SoundCore::fn_800CA3D4() {
     if (mB0 != 0) {
         v *= mB0->mFxSend;
     }
-    mHandle.fn_8070AD90_unk(0, v);
+    mHandle.SetFxSend(nw4r::snd::AUX_A, v);
 }
 
 void SoundCore::fn_800CA42C(float pitch, int frames) {

@@ -275,7 +275,9 @@ namespace nw4r { namespace snd { namespace detail
 		void SetPanCurve(PanCurve curve);
 		void SetAmbientInfo(AmbientInfo const &ambientArgInfo);
 		void SetId(u32 id);
+		void SetBiquadFilter(int type, f32 value); // inferred: see the source
 		void SetOutputLineFlag(int flag);
+		void ResetOutputLineFlag(); // inferred: see the source
 
 		void AttachPlayerHeap(PlayerHeap *heap);
 		void AttachSoundPlayer(SoundPlayer *player);
