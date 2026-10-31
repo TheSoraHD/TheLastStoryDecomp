@@ -831,6 +831,20 @@ void Em203GreaterDaemonRedMp::fn_802A0818() {
     }
 }
 
+// inferred: state 16 (rises; starts the battle BGM once above 30 frames)
+void Em203GreaterDaemonRedMp::fn_802A16A4() {
+    if (m1650 == 0 && mMotion.mTracks[0].m08 > 30.0f) {
+        m1650 = 1;
+        if (GameBgm::sInstance != 0) {
+            GameBgm::sInstance->fn_8037D4C0(0x8B8, 15, 1, 0, 1.0f);
+        }
+    }
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
+        StartState13_unk();
+    }
+}
+
 // inferred: starts the hovering to the route point m1570 (kind 0: state 7, 1: state 8)
 void Em203GreaterDaemonRedMp::fn_802A239C(int kind) {
     if (kind == 0) {
@@ -866,6 +880,29 @@ void Em203GreaterDaemonRedMp::fn_802A254C() {
     m560 = 4;
     m590 = fn_800F8548(lbl_8087F048);
     PlayMotion_unk(0x13F, 0, 0, 1.0f);
+}
+
+// inferred: starts state 18
+void Em203GreaterDaemonRedMp::fn_802A3520() {
+    m58C = 18;
+    ResetState_unk();
+    PlayMotion_unk(0x14D, 0, 0, 1.0f);
+}
+
+// inferred: starts state 14 (turns towards the route point m1570)
+// NONMATCHING: 99.69% - r4/r5 crossing of the Vector3 copy into m1560 (known blocker)
+void Em203GreaterDaemonRedMp::fn_802A35B0(int kind) {
+    ResetState_unk();
+    m58C = 14;
+    PlayMotion_unk(10, 0, 0, 1.0f);
+    fn_8016E970(6);
+    m560 = 4;
+    fn_802A42CC();
+    atn::Vector3 d = m1570->mPos - mPos;
+    m1560 = d;
+    m1610 = 0;
+    m1630 = 0;
+    m1634 = 0;
 }
 
 int Em203GreaterDaemonRedMp::fn_802A3D6C(HitInfo_unk* skill) {
