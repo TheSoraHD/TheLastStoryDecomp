@@ -753,6 +753,48 @@ void Em203GreaterDaemonRedMp::fn_8029F3FC() {
     }
 }
 
+// inferred: counts the chant frames of the skill in use (m15F8); nonzero when the chant is over
+inline int Em203GreaterDaemonRedMp::Chant_unk() {
+    if (m15F8 == 0) {
+        return 1;
+    }
+    if (m15FC > m15F8->mC0) {
+        return 1;
+    }
+    m15FC++;
+    mFB8 = (float)m15FC;
+    mFBC = (float)m15F8->mC0;
+    return 0;
+}
+
+// inferred: state 10 (thunderbolt: m14D8 0 chant, 1 casts, 2 back to hovering)
+void Em203GreaterDaemonRedMp::fn_8029FAC0() {
+    if (m14D8 == 0) {
+        fn_8016E970(6);
+        m560 = 29;
+        if (Chant_unk() && mMotion.mTracks[0].m08 >= 28.0f) {
+            fn_8016E970(3);
+            PlayMotion_unk(0x13F, 0, 0, 1.0f);
+            m14D8 = 1;
+        }
+    } else if (m14D8 == 1) {
+        float end = mMotion.mTracks[0].m08;
+        if (end > mMotion.fn_80097D7C(0)) {
+            m14D8 = 2;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.5f;
+            mMotion.fn_80097C08(0, 2, 1, 0, 1, 1.0f, 0.1f);
+            m14DC = 0;
+        } else if (mMotion.mTracks[0].m08 >= 47.0f && mMotion.mTracks[0].m08 < 48.0f) {
+            fn_802A3D80(0);
+            m1660++;
+        }
+    } else if (m14D8 == 2) {
+        ToIdle_unk();
+    }
+}
+
 // inferred: unit vector rotated around y (name invented)
 static inline atn::Vector3 Front_unk(const float& angle) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
