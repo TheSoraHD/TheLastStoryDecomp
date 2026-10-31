@@ -16,7 +16,8 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 struct Field_unk {
     void fn_803750E4(int id); // inferred: sets an event (as in game/CharaTask.cpp)
     int fn_803761BC();
-    unsigned char m0000[0x10D0];
+    unsigned char m0000[0x6C];
+    unsigned char m006C[0x10D0 - 0x6C]; // inferred: object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
     int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -48,6 +49,16 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
+extern "C" void fn_8037EF30(void* obj, int a, int b, float f);
+extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
+// inferred: target found by fn_800E7214 with its position (only the character is filled here)
+struct BattleTarget_unk {
+    BattleTarget_unk() : mChara(0), m04(0), m08(0), mPos(0.0f, 0.0f, 0.0f) {}
+    CharaTask* mChara;
+    int m04;
+    int m08;
+    atn::Vector3 mPos;
+};
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -248,6 +259,46 @@ int BattleCharaTask::fn_800E7214(CharaTask** out, int keep) {
         }
     }
     return 0;
+}
+
+int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
+    GameConfig_unk* config = lbl_8087F0A8;
+    void* obj = field->m006C;
+    int ret = 1;
+    if (config->mInput.fn_801231D0(0x11)) {
+        fn_8037EF30(obj, 0, 1, -1.0f);
+        mFC0 = 0;
+    }
+    if (lbl_8087F0A8->mInput.fn_801240B4(0x12) && !mFlagB9) {
+        if (!mFlag31) {
+            fn_80155DAC(1);
+        }
+    } else if ((lbl_8087F0A8->mInput.fn_801240B4(7) || mFlagB16) && (!mFlag31 || !mFlag30) && !mFlagB9) {
+        fn_800C344C(sDeathSe_unk[0], &mPos, 0, -1, 1.0f);
+        if (fn_80370174(lbl_8087F430, 0xEF) == 0 && fn_80370174(lbl_8087F430, 0xEE) == 1) {
+            fn_80370320(lbl_8087F430, 0xEF, 1, 0);
+        }
+        if (mFC0 == 0) {
+            if (mFC4 != 0) {
+                mFC0 = mFC4;
+            } else {
+                Effect_unk* mgr = lbl_8087F048;
+                atn::Vector3 dir = fn_80178018();
+                mFC0 = fn_800FFE68(mgr, this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
+            }
+        }
+        mFlag5 = 1;
+    } else if (fn_800E70EC(0, b, c)) {
+        ret = 0;
+    } else {
+        mFC0 = 0;
+        mFlag5 = 0;
+        BattleTarget_unk target;
+        if (fn_800E7214(&target.mChara, 0)) {
+            fn_800E8688(200, 0, target.mChara, &target.mPos, 0, fn_80041A28(0, this, target.mChara));
+        }
+    }
+    return ret;
 }
 
 void BattleCharaTask::vf40(HitInfo_unk* hit) {
