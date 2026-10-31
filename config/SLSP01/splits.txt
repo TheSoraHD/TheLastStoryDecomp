@@ -3662,6 +3662,13 @@ RVL_SDK/src/revolution/os/OSStateTM.c:
 	.bss        start:0x807CC060 end:0x807CC120
 	.sbss       start:0x8087FC70 end:0x8087FC90
 
+RVL_SDK/src/revolution/os/OSPlayRecord.c:
+	.text       start:0x805F7040 end:0x805F775C
+	.data       start:0x807A99C8 end:0x807A9A10
+	.bss        start:0x807CC120 end:0x807CC320
+	.sdata      start:0x8087E7A8 end:0x8087E7B0
+	.sbss       start:0x8087FC98 end:0x8087FCB8
+
 RVL_SDK/src/revolution/os/OSStateFlags.c:
 	.text       start:0x805F7760 end:0x805F7978
 	.data       start:0x807A9A10 end:0x807A9A38
