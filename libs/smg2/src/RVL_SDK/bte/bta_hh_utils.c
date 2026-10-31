@@ -151,7 +151,6 @@ BOOLEAN bta_hh_tod_spt(tBTA_HH_DEV_CB* p_cb, UINT8 sub_class) {
     return FALSE;
 }
 
-#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void bta_hh_parse_keybd_rpt(tBTA_HH_BOOT_RPT* p_kb_data, UINT8* p_report, UINT16 report_len) {
     tBTA_HH_KB_CB* p_kb = &bta_hh_cb.kb_cb;
     tBTA_HH_KEYBD_RPT* p_data = &p_kb_data->data_rpt.keybd_rpt;
@@ -266,9 +265,7 @@ void bta_hh_parse_keybd_rpt(tBTA_HH_BOOT_RPT* p_kb_data, UINT8* p_report, UINT16
     memset(p_kb->last_report, 0, BTA_HH_MAX_RPT_CHARS);
     memcpy(p_kb->last_report, p_report, report_len);
 }
-#endif
 
-#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void bta_hh_parse_mice_rpt(tBTA_HH_BOOT_RPT* p_mice_data, UINT8* p_report, UINT16 report_len) {
     tBTA_HH_MICE_RPT* p_data = &p_mice_data->data_rpt.mice_rpt;
     UINT8 xx;
@@ -294,7 +291,6 @@ void bta_hh_parse_mice_rpt(tBTA_HH_BOOT_RPT* p_mice_data, UINT8* p_report, UINT1
     APPL_TRACE(DEBUG, "mice button: 0x%2x", p_data->mouse_button);
     APPL_TRACE(DEBUG, "mice move: x = %d y = %d", p_data->delta_x, p_data->delta_y);
 }
-#endif
 
 void bta_hh_trace_dev_db(void) {
     UINT8 xx;
