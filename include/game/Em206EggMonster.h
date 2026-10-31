@@ -35,6 +35,7 @@ public:
     void fn_802C4858(); // inferred: starts state 3 (attack)
     void fn_802C4B70(); // inferred: death
     void fn_802C4E80(int id, float radius, float angle);
+    void fn_802C653C(); // inferred: next wave of eggs (0x802C653C)
     void fn_802C6878(CharaTask* chara, const atn::Vector3& pos);
     int fn_802C69BC(); // inferred: inside the limits of the arena (0x802C69BC)
     // inferred: ends the current action (name invented; inlined in every state)

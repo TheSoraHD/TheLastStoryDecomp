@@ -1,6 +1,8 @@
 #include "atn/Color4f_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/Em206EggMonster.h"
+#include "game/EnemyManager.h"
+#include "game/TeamAIManager.h"
 #include "game/CharaStatus.h"
 #include "math/Vec.h"
 #include "game/GimmickCommon.h"
@@ -780,6 +782,50 @@ int Em206EggMonster::vfF4() {
         return 1;
     }
     return 0;
+}
+
+// inferred: waves of eggs: team id and the three route points/characters (table lbl_80746C38; names invented)
+struct EggWave_unk {
+    int mTeam;
+    int mIds[3];
+};
+static const EggWave_unk sWaves_unk[3] = {
+    {101, {101, 102, 103}},
+    {102, {104, 105, 106}},
+    {103, {107, 108, 109}},
+};
+
+// NONMATCHING: 97.9% - registers of the inlined RouteTable_unk::FindPlace_unk
+// inferred: sends the next wave: the three characters of the table go to their route points (80 units up)
+// and the team AI is told to attack
+void Em206EggMonster::fn_802C653C() {
+    if (m15C8 < 3) {
+        atn::Vector3 pos;
+        atn::Vector3 up(0.0f, 80.0f, 0.0f);
+        RoutePlace_unk* p = lbl_8087F430->m10D8->FindPlace_unk(sWaves_unk[m15C8].mIds[0]);
+        if (p != 0) {
+            pos = p->mPos + up;
+            fn_802C6878(EnemyManager::sInstance->Find_unk(sWaves_unk[m15C8].mIds[0]), pos);
+        }
+        p = lbl_8087F430->m10D8->FindPlace_unk(sWaves_unk[m15C8].mIds[1]);
+        if (p != 0) {
+            pos = p->mPos + up;
+            fn_802C6878(EnemyManager::sInstance->Find_unk(sWaves_unk[m15C8].mIds[1]), pos);
+        }
+        p = lbl_8087F430->m10D8->FindPlace_unk(sWaves_unk[m15C8].mIds[2]);
+        if (p != 0) {
+            pos = p->mPos + up;
+            fn_802C6878(EnemyManager::sInstance->Find_unk(sWaves_unk[m15C8].mIds[2]), pos);
+        }
+        TeamMsgIn_unk msg;
+        msg.mType = 2;
+        msg.mId = sWaves_unk[m15C8].mTeam;
+        msg.m10 = 4;
+        msg.m18 = 1;
+        msg.m14 = 0;
+        lbl_8087FA00->OnMsg24_unk(&msg);
+        m15C8++;
+    }
 }
 
 // NONMATCHING: 95% - the original reloads the flag word before clearing mFlag25, and the stack slots of the zero vectors
