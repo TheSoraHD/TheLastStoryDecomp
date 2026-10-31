@@ -280,6 +280,7 @@ public:
     void fn_803E58CC();
     void fn_803E58E4();
     bool fn_803E5940();
+    void fn_803E5E64(int item, int count, int rare); // inferred: shows the item obtained
     void fn_803E627C(int town); // inferred: loads the shop animations of a town
     void fn_803E598C(int index, int value, int skill); // inferred: shows a notice
     void fn_803E5C60(CharaTask* chara);
@@ -395,8 +396,8 @@ public:
     int mDAC;
     int mDB0;
     GameUIGauge_unk* mDB4; // inferred: same kind of object as m2654 (fn_803E4950)
-    int mDB8;
-    int mDBC;
+    atn::D2A_Task* mDB8; // inferred: item notice (fn_803E5E64)
+    atn::D2A_Task* mDBC; // inferred: rare item notice
     GameUIGauge_unk* mDC0; // inferred: fn_803E58CC
     GameUIGauge_unk* mDC4; // inferred: fn_803E58E4, fn_803E5940
     int mDC8;

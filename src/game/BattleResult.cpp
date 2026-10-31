@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "game/BattleResult.h"
 #include "game/Inventory.h"
 #include "game/CharaStatus.h"
@@ -32,8 +33,6 @@ struct ResultField_unk {
 };
 extern "C" ResultField_unk* lbl_8087F430;
 extern "C" int fn_80370174(ResultField_unk* field, int id); // inferred: event flag
-extern "C" void* lbl_8087F490;                               // inferred: GameUI
-extern "C" void fn_803E5E64(void* ui, int a, int b, int c);  // inferred: shows an item
 // inferred: LogMessageTask (game/LogMessageTask.h); only the entry count
 struct ResultLog_unk {
     unsigned char m00[0x48];
@@ -174,7 +173,7 @@ void BattleResult::vf10() {
         if (mHasItems) {
             Play_unk(mItemOp, mItemLoop, 1.0f);
             if (mItemA >= 0 && mTimer < 270) {
-                fn_803E5E64(lbl_8087F490, mItemA, mItemB, mItemC);
+                lbl_8087F490->fn_803E5E64(mItemA, mItemB, mItemC);
                 mItemA = -1;
                 mItemB = 0;
                 mItemC = 1;
@@ -343,7 +342,7 @@ void BattleResult::fn_800F0D14(int mode) {
                     mItemB = b;
                     mItemC = c;
                 } else {
-                    fn_803E5E64(lbl_8087F490, a, b, c);
+                    lbl_8087F490->fn_803E5E64(a, b, c);
                 }
                 mHasItems = 1;
                 shown++;

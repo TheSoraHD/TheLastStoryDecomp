@@ -44,6 +44,24 @@ struct GameUIMsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" GameUIMsgTable_unk* lbl_8087F1E4;
+// inferred: item data returned by fn_80211480 (only the members used here; names invented)
+struct GameUIItem_unk {
+    unsigned char m00[0x64];
+    int m64;          // inferred: 2 selects the plural messages
+    unsigned char m68[0xB4 - 0x68];
+    int mB4;          // inferred: kind of the message (0: the item name)
+    float mB8;        // inferred: value (tenths) of kind 11
+    short mBC;
+    unsigned char mBE[0xC2 - 0xBE];
+    signed char mC2;  // inferred: rarity
+};
+extern "C" GameUIItem_unk* fn_80211480(int id);
+// inferred: item data of an id, null for 0 (name invented)
+inline GameUIItem_unk* GetItem_unk(int id) {
+    return id > 0 ? fn_80211480(id) : 0;
+}
+extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);       // inferred: wide sprintf
 extern "C" void* lbl_8087F610;           // inferred: multiplayer session
 extern "C" void fn_804DA478(void* session); // inferred: notifies the session
 extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
@@ -824,6 +842,81 @@ void GameUI::fn_803E5C60(CharaTask* chara) {
         SetLayoutValue_unk(&task->mData.m10, "basePoint", 1, screen.y);
         task->mFrame = 0.0f;
         fn_800C31F4(lbl_80750618[9], 0, -1, 0.5f);
+    }
+}
+
+// NONMATCHING: 99.7% - r5/r6 of the message kind and of the value of kind 11 swapped (locals for both, int
+// and bool flag, declaration orders: 10 variants)
+void GameUI::fn_803E5E64(int itemId, int count, int rare) {
+    GameUIItem_unk* item = itemId > 0 ? fn_80211480(itemId) : 0;
+    if (item != 0 && count != 0) {
+        wchar_t text[0x100];
+        int plural = item->m64 == 2;
+        if (item->mB4 != 0) {
+            int value = item->mB8;
+            switch (item->mB4) {
+            case 1:
+                if (plural) {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F5));
+                } else {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1E9));
+                }
+                break;
+            case 2:
+                if (plural) {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F7));
+                } else {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1EB));
+                }
+                break;
+            case 3:
+                if (plural) {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F9));
+                } else {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1ED));
+                }
+                break;
+            case 4:
+                if (plural) {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1FB));
+                } else {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1EF));
+                }
+                break;
+            case 5:
+                if (plural) {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1FD));
+                } else {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F1));
+                }
+                break;
+            case 6:
+                if (plural) {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F3));
+                } else {
+                    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1E7));
+                }
+                break;
+            case 8:
+                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1FF));
+                break;
+            case 9:
+                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x201));
+                break;
+            case 11:
+                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x203), value / 10.0f);
+                break;
+            }
+        } else {
+            fn_80444CF8(text, itemId, count, rare);
+        }
+        mDB8->mFrame = 0.0f;
+        SetLayoutText_unk(&mDB8->mData.m10, "arrowName02", text);
+        SetLayoutText_unk(&mDB8->mData.m10, "string0006(1)", text);
+        SetLayoutText_unk(&mDB8->mData.m10, "string0003(1)", text);
+        if (item->mC2 > 0 && (unsigned short)(item->mBC - 2) <= 1) {
+            mDBC->mFrame = 0.0f;
+        }
     }
 }
 
