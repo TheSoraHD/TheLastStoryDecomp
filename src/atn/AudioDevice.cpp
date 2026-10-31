@@ -423,20 +423,34 @@ AUDIO_FX_UNK(AudioFxA_unk, 0x230, fn_8070E760, lbl_807C5F28)
 AUDIO_FX_UNK(AudioFxB_unk, 0x184, fn_8070DC20, lbl_807C5ED8)
 AUDIO_FX_UNK(AudioFxC_unk, 0xE8, fn_8070E190, lbl_807C5F00)
 
-// inferred: nw4r::snd::Sound3DManager (constructor fn_80715D90; implicit destructor: only its list
-// at 0x0C)
-extern "C" void fn_80715D90(void* manager);
 struct LinkList_unk : public nw4r::ut::detail::LinkListImpl {
     ~LinkList_unk() {}
 };
-struct Sound3DManager_unk {
-    Sound3DManager_unk() { fn_80715D90(this); }
+} // namespace atn
+
+namespace nw4r {
+namespace snd {
+class SoundArchive;
+class Sound3DEngine;
+// inferred: only what atn::AudioDevice uses (implicit destructor: only its list at 0x0C)
+class Sound3DManager {
+public:
+    Sound3DManager();
+    unsigned long GetRequiredMemSize(const SoundArchive* archive);
+    bool Setup(const SoundArchive* archive, void* buffer, unsigned long size);
+    void SetEngine(Sound3DEngine* engine);
+
     unsigned char m00[0x0C];
-    LinkList_unk mList;
+    atn::LinkList_unk mList;
     unsigned char m18[0x1C - 0x18];
     int mMaxPriorityReduction; // 0x1C
     unsigned char m20[0x2C - 0x20];
 };
+} // namespace snd
+} // namespace nw4r
+
+namespace atn {
+typedef nw4r::snd::Sound3DManager Sound3DManager_unk;
 
 // inferred: one bank (group of the sound archive) loaded or being loaded (0x54 bytes, names invented)
 struct AudioBank_unk {
@@ -691,10 +705,6 @@ extern "C" unsigned long fn_8059EF90(nw4r::snd::SoundArchivePlayer* player, nw4r
 extern "C" unsigned long fn_8059F0FC(nw4r::snd::SoundArchivePlayer* player, nw4r::snd::DvdSoundArchive* archive);
 extern "C" int fn_8059EBD4(nw4r::snd::SoundArchivePlayer* player, nw4r::snd::DvdSoundArchive* archive, void* buf,
                            unsigned long size, void* strmBuf, unsigned long strmSize);
-extern "C" unsigned long fn_80715DF0(Sound3DManager_unk* manager, nw4r::snd::DvdSoundArchive* archive);
-extern "C" int fn_80715E50(Sound3DManager_unk* manager, nw4r::snd::DvdSoundArchive* archive, void* buf,
-                           unsigned long size);
-extern "C" void fn_80715E90(Sound3DManager_unk* manager, atn::Sound3dEngine* engine);
 extern "C" unsigned char SCGetSoundMode();
 extern "C" void* GetInstance__Q44nw4r3snd6detail9AxManagerFv();
 extern "C" int GetOutputMode__Q44nw4r3snd6detail9AxManagerFv(void* mgr);
@@ -745,11 +755,11 @@ extern "C" int fn_80046EE0(AudioDevice* audio, const char* path) {
     memset(audio->m2C4, 0, playerSize);
     memset(audio->m2C8, 0, strmSize);
     fn_8059EBD4(&audio->mPlayer, &audio->mArchive, audio->m2C4, playerSize, audio->m2C8, strmSize);
-    unsigned long size3d = fn_80715DF0(&audio->m364, &audio->mArchive);
+    unsigned long size3d = audio->m364.GetRequiredMemSize(reinterpret_cast<const nw4r::snd::SoundArchive*>(&audio->mArchive));
     audio->m390 = AudioAlloc_unk(size3d);
-    fn_80715E50(&audio->m364, &audio->mArchive, audio->m390, size3d);
+    audio->m364.Setup(reinterpret_cast<const nw4r::snd::SoundArchive*>(&audio->mArchive), audio->m390, size3d);
     audio->m364.mMaxPriorityReduction = 0x20;
-    fn_80715E90(&audio->m364, &audio->m900);
+    audio->m364.SetEngine(reinterpret_cast<nw4r::snd::Sound3DEngine*>(&audio->m900));
     fn_80047B54(audio, 0x2D5000);
     unsigned char mode = SCGetSoundMode();
     if (mode == 0) {

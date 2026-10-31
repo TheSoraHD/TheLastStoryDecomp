@@ -11,6 +11,13 @@
 // headers). LinkListImpl::Insert/Erase return an iterator in NW4R; the result is unused here and
 // the mangled names do not include it.
 namespace nw4r {
+namespace math {
+struct VEC3;
+struct MTX34;
+} // namespace math
+} // namespace nw4r
+
+namespace nw4r {
 namespace db {
 void Panic(const char* file, int line, const char* fmt, ...);
 } // namespace db
@@ -95,10 +102,6 @@ public:
 } // namespace nw4r
 
 // NW4R functions without a symbol name yet
-extern "C" void fn_80715B20(void* self);                    // inferred: nw4r::snd::Sound3DListener::Sound3DListener
-extern "C" void fn_80715BA0(void* self, const Mtx m);       // inferred: nw4r::snd::Sound3DListener::SetMatrix
-extern "C" void fn_80714930(void* self, void* player, void* manager); // inferred: nw4r::snd::Sound3DActor ctor
-extern "C" void fn_80714C50(void* actor, const atn::Vector3* pos); // inferred: nw4r::snd::Sound3DActor::SetPosition
 extern "C" int fn_80718470(void* actor, void* handle, unsigned int id, void* info); // inferred: nw4r::snd::SoundActor start
 extern "C" int fn_807184D0(void* actor, void* handle, unsigned int id, void* info); // inferred: nw4r::snd::SoundActor prepare
 extern "C" void fn_8071D0E0(void* strmHandle, void* handle);   // inferred: nw4r::snd::StrmSoundHandle::StrmSoundHandle
@@ -123,20 +126,27 @@ extern "C" float lbl_8087D938;
 namespace nw4r {
 namespace snd {
 
-// inferred: 0x6C bytes, list node at 0x64. The constructor has no symbol name yet, so it calls
-// fn_80715B20 directly.
+class SoundArchivePlayer;
+class Sound3DManager;
+
+// inferred: 0x6C bytes, list node at 0x64
 class Sound3DListener {
 public:
-    Sound3DListener() { fn_80715B20(this); }
+    Sound3DListener();
+    void SetMatrix(const math::MTX34& mtx);
+    void SetInteriorSize(float size);
+    void SetMaxVolumeDistance(float distance);
+    void SetUnitDistance(float distance);
 
     unsigned char m00[0x64];
     ut::LinkListNode mLinkNode; // 0x64
 };
 
-// inferred: 0x84 bytes. The constructor has no symbol name yet (fn_80714930).
+// inferred: 0x84 bytes
 class Sound3DActor {
 public:
-    Sound3DActor(void* player, void* manager) { fn_80714930(this, player, manager); }
+    Sound3DActor(SoundArchivePlayer& player, Sound3DManager& manager);
+    void SetPosition(const math::VEC3& position);
     ~Sound3DActor();
 
     unsigned char m00[0x60];

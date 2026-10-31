@@ -12,7 +12,9 @@ extern "C" int fn_80049B08(atn::SoundEngine_unk* engine, nw4r::snd::SoundHandle*
 extern "C" const char* fn_80049CDC(atn::SoundEngine_unk* engine, unsigned int id); // label of a sound id
 extern "C" int fn_80049B2C(atn::SoundEngine_unk* engine, unsigned int id);
 
-inline atn::Sound3dActor::Sound3dActor() : mActor(lbl_8087EE90->mPlayer, &lbl_8087EE90->m364) {}
+inline atn::Sound3dActor::Sound3dActor()
+    : mActor(*reinterpret_cast<nw4r::snd::SoundArchivePlayer*>(lbl_8087EE90->mPlayer),
+             *reinterpret_cast<nw4r::snd::Sound3DManager*>(&lbl_8087EE90->m364)) {}
 
 // inferred: debug message output (lbl_8087EEB8)
 struct DebugMessages_unk {
@@ -70,7 +72,7 @@ void Sound3dListener::fn_800C7F08(const Vector3& pos, const Vector3& rot) {
     target.Set_unk(mPos.x + dir.x, mPos.y + dir.y, mPos.z + dir.z);
     C_MTXLookAt(view.m, &mPos, &up, &target);
     m = view;
-    fn_80715BA0(&mListener, m.m);
+    mListener.SetMatrix(*reinterpret_cast<const nw4r::math::MTX34*>(m.m));
 }
 
 Sound3dActor::~Sound3dActor() {}
@@ -341,7 +343,7 @@ void SoundCore::fn_800CA7D4(int offset) {
 }
 
 void SoundCore::fn_800CA7E8(const Vector3* pos) {
-    fn_80714C50(&m08.mActor, pos);
+    m08.mActor.SetPosition(*reinterpret_cast<const nw4r::math::VEC3*>(pos));
     if (mD4 != 0) {
         mD8 = m08.mActor.mPosition;
     }
