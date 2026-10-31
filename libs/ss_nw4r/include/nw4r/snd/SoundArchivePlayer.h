@@ -179,10 +179,14 @@ namespace nw4r { namespace snd
 		}
 
 		bool IsLoadedGroup(u32 groupId) const;
+		bool LoadGroup_unk(u32 id, const void *address, const void *waveDataAddress); // inferred: see the source
 
 		SoundArchive const &GetSoundArchive() const;
 		u32 GetSoundPlayerCount() const { return mSoundPlayerCount; }
 		SoundPlayer &GetSoundPlayer(u32 playerId);
+		SoundPlayer &GetSoundPlayer(char const *label);
+		void SetFileAddress(u32 fileId, const void *address);
+		void SetFileWaveDataAddress(u32 fileId, const void *address);
 
 		bool IsAvailable() const;
 		u32 GetRequiredMemSize(SoundArchive const *arc);

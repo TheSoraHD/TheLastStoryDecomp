@@ -1,15 +1,23 @@
 #ifndef ATN_SOUNDREF_H
 #define ATN_SOUNDREF_H
 
+namespace nw4r {
+namespace snd {
+namespace detail {
+class BasicSound;
+} // namespace detail
+} // namespace snd
+} // namespace nw4r
+
 namespace atn {
 
 struct SoundCategory_unk;
 
-// inferred: object holding a sound (its 0x04 field is passed to fn_80709AD0, which looks like
-// a nw4r::snd BasicSound stop call) with an intrusive reference count at 0xA4.
+// inferred: object holding a sound (its 0x04 field is stopped with
+// nw4r::snd::detail::BasicSound::Stop) with an intrusive reference count at 0xA4.
 struct SoundObject {
     void* m00;
-    void* mSound; // 0x04
+    nw4r::snd::detail::BasicSound* mSound; // 0x04
     char pad[0x90 - 0x08];
     int m90;       // inferred: zero when the sound must still be prepared (atn::Bgm::fn_8004AE84)
     int m94;

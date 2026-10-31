@@ -185,7 +185,7 @@ namespace nw4r { namespace snd
 		u32 GetSoundUserParam(u32 id) const;
 
 		bool ReadSoundInfo(u32 soundId, SoundInfo *info) const;
-		bool ReadSeqSoundInfo(u32 soundId, SeqSoundInfo *info) const;
+		bool detail_ReadSeqSoundInfo(u32 soundId, SeqSoundInfo *info) const;
 		bool detail_ReadStrmSoundInfo(u32 soundId, StrmSoundInfo *info) const;
 		bool detail_ReadWaveSoundInfo(u32 soundId, WaveSoundInfo *info) const;
 
@@ -193,7 +193,7 @@ namespace nw4r { namespace snd
 		bool ReadSoundArchivePlayerInfo(SoundArchivePlayerInfo *info) const;
 		bool detail_ReadSound3DParam(u32 soundId, nw4r::snd::SoundArchive::Sound3DParam*) const;
 
-		bool ReadBankInfo(u32 bankId, BankInfo *info) const;
+		bool detail_ReadBankInfo(u32 bankId, BankInfo *info) const;
 
 		bool detail_ReadGroupInfo(u32 groupId, GroupInfo *info) const;
 		bool detail_ReadGroupItemInfo(u32 groupId, u32 index,

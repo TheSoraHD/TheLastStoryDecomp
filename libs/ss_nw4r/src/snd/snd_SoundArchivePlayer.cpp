@@ -517,12 +517,13 @@ SoundPlayer &SoundArchivePlayer::GetSoundPlayer(u32 playerId)
 	return mSoundPlayers[playerId];
 }
 
-#if 0
-/* SoundArchivePlayer::GetSoundPlayer(char const *)
- * ([R89JEL]:/bin/RVL/Debug/mainD.MAP:14216)
- */
-DECOMP_FORCE(NW4RAssertPointerNonnull_String(mSoundArchive));
-#endif
+SoundPlayer &SoundArchivePlayer::GetSoundPlayer(char const *label)
+{
+	NW4RAssertPointerNonnull_Line(707, mSoundArchive);
+
+	u32 playerId = mSoundArchive->ConvertLabelStringToPlayerId(label);
+	return GetSoundPlayer(playerId);
+}
 
 void const *SoundArchivePlayer::detail_GetFileAddress(u32 fileId) const
 {
@@ -623,18 +624,20 @@ void const *SoundArchivePlayer::GetGroupAddress(u32 groupId) const
 	return mGroupTable->item[groupId].address;
 }
 
-#if 0
-// SoundArchivePlayer::SetGroupAddress ([R89JEL]:/bin/RVL/Debug/mainD.MAP:14220)
-DECOMP_FORCE("Failed to SoundArchivePlayer::SetGroupAddress because group "
-             "table is not allocated.\n");
-#endif
-
-void SoundArchivePlayer::SetGroupAddress(u32 id, const void* pAddr)
+void SoundArchivePlayer::SetGroupAddress(u32 groupId, const void* address)
 {
-	if (mGroupTable == NULL)
-		return;
+	if (!mGroupTable)
+	{
+		NW4RCheckMessage_Line(866, mGroupTable,
+		                      "Failed to SoundArchivePlayer::SetGroupAddress "
+		                      "because group table is not allocated.\n");
 
-	mGroupTable->item[id].address = pAddr;
+		return;
+	}
+
+	NW4RAssertHeaderClampedLValue_Line(870, groupId, 0, mGroupTable->count);
+
+	mGroupTable->item[groupId].address = address;
 }
 
 void const *SoundArchivePlayer::GetGroupWaveDataAddress(u32 groupId) const
@@ -655,33 +658,53 @@ void const *SoundArchivePlayer::GetGroupWaveDataAddress(u32 groupId) const
 	return mGroupTable->item[groupId].waveDataAddress;
 }
 
-void SoundArchivePlayer::SetGroupWaveDataAddress(u32 id, const void* pAddr)
+void SoundArchivePlayer::SetGroupWaveDataAddress(u32 groupId, const void* address)
 {
-	if (mGroupTable == NULL)
-		return;
+	if (!mGroupTable)
+	{
+		NW4RCheckMessage_Line(917, mGroupTable,
+		                      "Failed to SoundArchivePlayer::SetGroupWaveDataAddress "
+		                      "because group table is not allocated.\n");
 
-	mGroupTable->item[id].waveDataAddress = pAddr;
+		return;
+	}
+
+	NW4RAssertHeaderClampedLValue_Line(921, groupId, 0, mGroupTable->count);
+
+	mGroupTable->item[groupId].waveDataAddress = address;
 }
 
-#if 0
-/* SoundArchivePlayer::SetGroupWaveDataAddress
- * ([R89JEL]:/bin/RVL/Debug/mainD.MAP:14222)
- */
-DECOMP_FORCE(NW4RAssertHeaderClampedLValue_String(groupId));
-DECOMP_FORCE("Failed to SoundArchivePlayer::SetGroupWaveDataAddress because "
-             "group table is not allocated.\n");
+void SoundArchivePlayer::SetFileAddress(u32 fileId, const void* address)
+{
+	if (!mFileTable)
+	{
+		NW4RCheckMessage_Line(944, mFileTable,
+		                      "Failed to SoundArchivePlayer::SetFileAddress "
+		                      "because file table is not allocated.\n");
 
-// SoundArchivePlayer::SetFileAddress ([R89JEL]:/bin/RVL/Debug/mainD.MAP:14224)
-DECOMP_FORCE("Failed to SoundArchivePlayer::SetFileAddress because file table "
-             "is not allocated.\n");
+		return;
+	}
 
-/* SoundArchivePlayer::SetFileWaveDataAddress
- * ([R89JEL]:/bin/RVL/Debug/mainD.MAP:14226)
- */
-DECOMP_FORCE(NW4RAssertHeaderClampedLValue_String(fileId));
-DECOMP_FORCE("Failed to SoundArchivePlayer::SetFileWaveDataAddress because "
-             "file table is not allocated.\n");
-#endif
+	NW4RAssertHeaderClampedLValue_Line(948, fileId, 0, mFileTable->count);
+
+	mFileTable->item[fileId].address = address;
+}
+
+void SoundArchivePlayer::SetFileWaveDataAddress(u32 fileId, const void* address)
+{
+	if (!mFileTable)
+	{
+		NW4RCheckMessage_Line(970, mFileTable,
+		                      "Failed to SoundArchivePlayer::SetFileWaveDataAddress "
+		                      "because file table is not allocated.\n");
+
+		return;
+	}
+
+	NW4RAssertHeaderClampedLValue_Line(974, fileId, 0, mFileTable->count);
+
+	mFileTable->item[fileId].waveDataAddress = address;
+}
 
 void const *SoundArchivePlayer::GetFileAddress(u32 fileId) const
 {
@@ -930,7 +953,7 @@ SoundStartable::StartResult SoundArchivePlayer::detail_SetupSoundImpl(
 		player.detail_AllocPlayerHeap(seqSound);
 
 		SoundArchive::SeqSoundInfo info;
-		if (!mSoundArchive->ReadSeqSoundInfo(soundId, &info))
+		if (!mSoundArchive->detail_ReadSeqSoundInfo(soundId, &info))
 		{
 			seqSound->Shutdown();
 			return START_ERR_INVALID_SOUNDID;
@@ -1345,15 +1368,10 @@ void SoundArchivePlayer::UpdateCommonSoundParam(
 	sound->SetPanCurve(commonInfo->panCurve);
 }
 
-#if 0
-/* SoundArchivePlayer::LoadGroup(u32, SoundMemoryAllocatable *, u32)
- * ([R89JEL]:/bin/RVL/Debug/mainD.MAP:14234)
- */
-DECOMP_FORCE(NW4RAssertAligned_String(loadBlockSize, 32));
-#endif
-
 bool SoundArchivePlayer::LoadGroup(u32 id, SoundMemoryAllocatable* pAllocatable,
-                                   u32 blockSize) {
+                                   u32 loadBlockSize) {
+    NW4RAssertAligned_Line(1858, loadBlockSize, 32);
+
     if (!IsAvailable()) {
         return false;
     }
@@ -1374,7 +1392,7 @@ bool SoundArchivePlayer::LoadGroup(u32 id, SoundMemoryAllocatable* pAllocatable,
 
     void* pWaveBuffer;
     const void* pGroup =
-        loader.LoadGroup(id, pAllocatable, &pWaveBuffer, blockSize);
+        loader.LoadGroup(id, pAllocatable, &pWaveBuffer, loadBlockSize);
 
     if (pGroup == NULL) {
         return NULL;
@@ -1401,6 +1419,27 @@ bool SoundArchivePlayer::IsLoadedGroup(u32 groupId) const
 {
 	void const *groupAddress = GetGroupAddress(groupId);
 	return groupAddress != NULL;
+}
+
+// inferred: The Last Story addition (called by atn::AudioDevice with the group and wave data
+// buffers it loaded itself): registers the addresses of a group unless it is already loaded
+bool SoundArchivePlayer::LoadGroup_unk(u32 id, const void* address, const void* waveDataAddress)
+{
+	NW4RAssertPointerNonnull_Line(1909, mSoundArchive);
+
+	if (!IsAvailable())
+		return false;
+
+	if (id >= mSoundArchive->GetGroupCount())
+		return false;
+
+	if (GetGroupAddress(id) != NULL)
+		return true;
+
+	SetGroupAddress(id, address);
+	SetGroupWaveDataAddress(id, waveDataAddress);
+
+	return true;
 }
 
 void SoundArchivePlayer::InvalidateData(void const *start, void const *end)
@@ -1464,11 +1503,11 @@ detail::Channel *SoundArchivePlayer::SeqNoteOnCallback::NoteOn(
 	u32 soundId = seqPlayer->GetId();
 
 	SoundArchive::SeqSoundInfo seqInfo;
-	if (!sndArc.ReadSeqSoundInfo(soundId, &seqInfo))
+	if (!sndArc.detail_ReadSeqSoundInfo(soundId, &seqInfo))
 		return nullptr;
 
 	SoundArchive::BankInfo bankInfo;
-	if (!sndArc.ReadBankInfo(seqInfo.bankId, &bankInfo))
+	if (!sndArc.detail_ReadBankInfo(seqInfo.bankId, &bankInfo))
 		return nullptr;
 
 	void const *bankData =

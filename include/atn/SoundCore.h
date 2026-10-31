@@ -53,6 +53,7 @@ public:
     virtual void vf0C();
     virtual void vf10();
     virtual bool IsPrepared() const; // 0x14
+    void Stop(int fadeFrames);
 
     unsigned char m04[0x30 - 0x04];
     SoundParam_unk m30;
@@ -87,7 +88,6 @@ public:
 extern "C" void fn_80715B20(void* self);                    // inferred: nw4r::snd::Sound3DListener::Sound3DListener
 extern "C" void fn_80715BA0(void* self, const Mtx m);       // inferred: nw4r::snd::Sound3DListener::SetMatrix
 extern "C" void fn_80714930(void* self, void* player, void* manager); // inferred: nw4r::snd::Sound3DActor ctor
-extern "C" void fn_80709AD0(void* sound, int frames);       // inferred: nw4r::snd::detail::BasicSound::Stop
 extern "C" void fn_80709AB0(void* sound);
 extern "C" bool fn_8070A030(void* sound);                   // inferred: nw4r::snd::detail::BasicSound::IsPause
 extern "C" void fn_80709CC0(void* sound, bool flag, int frames); // inferred: nw4r::snd::detail::BasicSound::Pause
@@ -150,7 +150,7 @@ public:
 
 inline void nw4r::snd::SoundHandle::Stop(int frames) {
     if (mSound != 0) {
-        fn_80709AD0(mSound, frames);
+        mSound->Stop(frames);
     }
 }
 

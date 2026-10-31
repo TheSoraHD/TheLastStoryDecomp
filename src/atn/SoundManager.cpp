@@ -7,7 +7,6 @@
 
 extern "C" void fn_80709F20(void*);
 extern "C" int fn_8070ABE0(void*);
-extern "C" void fn_80709AD0(void*, int);
 extern "C" void fn_8070AD70(void*, float);
 extern "C" char lbl_807C7030[];
 
@@ -121,7 +120,7 @@ extern "C" void fn_800CB5B4(atn::SoundRef* self, float a1, int a2) {
 
 extern "C" void fn_800CB5C8(atn::SoundRef* self, int frames, int detach) {
     if (self->mPtr != 0 && self->mPtr->mSound != 0) {
-        fn_80709AD0(self->mPtr->mSound, frames);
+        self->mPtr->mSound->Stop(frames);
     }
     if (detach == 0) self->Reset();
 }
