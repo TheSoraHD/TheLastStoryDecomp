@@ -27,6 +27,7 @@ public:
     virtual void vfEC();                            // 0x802C46BC
     virtual int vfF4();                             // 0x802C64DC
 
+    void fn_802C1FEC(); // inferred: colour pulse of the body
     void fn_802C2BCC(); // inferred: movement
     void fn_802C3154(); // inferred: chooses the next action (fn_802C38E4) and starts it
     int fn_802C38E4();  // inferred: chooses the next action

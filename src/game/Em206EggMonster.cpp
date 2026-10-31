@@ -5,6 +5,7 @@
 #include "game/TeamAIManager.h"
 #include "game/CharaStatus.h"
 #include "math/Vec.h"
+#include "macros.h"
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
 
@@ -150,6 +151,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" double acos(double x);
 extern "C" double fmod(double x, double y);
 extern "C" double sqrt(double x);
+extern "C" double sin(double x);
 extern "C" int rand();
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -335,6 +337,91 @@ int Em206EggMonster::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// NONMATCHING: 99.92% - f2/f3 of the sine and the MIN result in the m1700 branch (the other two match)
+// inferred: pulses the colour of the body (head chant, hit or idle) and fades it with the motion
+// of the attacks (states 2 and 4)
+void Em206EggMonster::fn_802C1FEC() {
+    float body;
+    float rarm;
+    float larm;
+    if (m1700 != 0) {
+        body = 0.2f * MIN(1.0f, 0.2f * (float)sin(0.017453292f * (4.0f * m15FC)) + 0.8f) + 0.8f;
+        rarm = body;
+        larm = body;
+    } else {
+        if (m15F4 != 0) {
+            body = 0.6f * MIN(1.0f, 0.5f * (float)sin(0.017453292f * (16.0f * m15FC)) + 0.5f) + 0.2f;
+            rarm = body;
+            larm = body;
+        } else {
+            body = 0.6f * MIN(1.0f, 0.5f * (float)sin(0.017453292f * (4.0f * m15FC)) + 0.5f) + 0.2f;
+            rarm = body;
+            larm = body;
+        }
+        switch (m58C) {
+        case 2: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame < 20.0f) {
+                float k = 1.0f - frame / 20.0f;
+                body *= k;
+                rarm *= k;
+                larm *= k;
+            } else if (frame < 76.0f) {
+                if (frame < 71.0f) {
+                    rarm = MIN(1.0f, MAX(0.0f, (mMotion.mTracks[0].m08 - 30.0f) / 20.0f));
+                } else {
+                    rarm = MIN(1.0f, MAX(0.0f, 1.0f - (mMotion.mTracks[0].m08 - 71.0f) / 5.0f));
+                }
+                body = rarm;
+                larm = 0.0f;
+                m15FC = m15F4 != 0 ? 16 : 67;
+            } else {
+                float k = MIN(1.0f, (frame - 76.0f) / 10.0f);
+                body *= k;
+                rarm *= k;
+                larm *= k;
+                m15FC = m15F4 != 0 ? 16 : 67;
+            }
+            break;
+        }
+        case 4: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame < 20.0f) {
+                float k = 1.0f - frame / 20.0f;
+                body *= k;
+                rarm *= k;
+                larm *= k;
+            } else if (frame < 76.0f) {
+                if (frame < 70.0f) {
+                    rarm = MIN(1.0f, MAX(0.0f, (mMotion.mTracks[0].m08 - 20.0f) / 20.0f));
+                } else {
+                    rarm = MIN(1.0f, MAX(0.0f, 1.0f - (mMotion.mTracks[0].m08 - 70.0f) / 5.0f));
+                }
+                body = rarm;
+                larm = rarm;
+                m15FC = m15F4 != 0 ? 16 : 67;
+            } else {
+                float k = MIN(1.0f, (frame - 76.0f) / 10.0f);
+                body *= k;
+                rarm *= k;
+                larm *= k;
+                m15FC = m15F4 != 0 ? 16 : 67;
+            }
+            break;
+        }
+        }
+    }
+    atn::Color4f_unk c0(body, body, body, 1.0f);
+    atn::Color4f_unk c1(rarm, rarm, rarm, 1.0f);
+    atn::Color4f_unk c2(larm, larm, larm, 1.0f);
+    atn::Color4f_unk one(1.0f, 1.0f, 1.0f, 1.0f);
+    mMotion.fn_80094958("em206_body_l", &c0, &one, &one);
+    mMotion.fn_80094958("em206_tail_l", &c0, &one, &one);
+    mMotion.fn_80094958("em206_rarm_l", &c1, &one, &one);
+    mMotion.fn_80094958("em206_larm_l", &c2, &one, &one);
+    m15FC++;
 }
 
 void Em206EggMonster::vf3C(HitInfo_unk* hit) {
