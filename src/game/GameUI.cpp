@@ -491,13 +491,6 @@ void GameUI::fn_803E0D84() {
     m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
 }
 
-void GameUI::fn_803E32EC() {
-    memcpy(&m748, &m764, sizeof(GameUIElem1C_unk));
-    m764 = GameUIElem1C_unk();
-    memcpy(&m7F8, &m7C0, sizeof(GameUIElem1C_unk));
-    m7C0 = GameUIElem1C_unk();
-}
-
 // NONMATCHING: 92.3% - the original addresses the members of the temporary mark with separate registers
 // (addi rN, r1, off for each vector) instead of one base; tried init list, body assignments, by-value
 // constructor, placement new without the temporary (5 variants)
@@ -514,6 +507,13 @@ void GameUI::fn_803E3050(atn::Vector3 pos, atn::Vector3 screen, atn::Vector2_unk
     if (!m8D0.full()) {
         m8D0.PushBack_unk(GameUIMark24_unk(pos, screen, size, dist));
     }
+}
+
+void GameUI::fn_803E32EC() {
+    memcpy(&m748, &m764, sizeof(GameUIElem1C_unk));
+    m764 = GameUIElem1C_unk();
+    memcpy(&m7F8, &m7C0, sizeof(GameUIElem1C_unk));
+    m7C0 = GameUIElem1C_unk();
 }
 
 // inferred: closes the button prompt (called by the enemies that grab the player)
