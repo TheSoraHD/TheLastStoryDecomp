@@ -4118,6 +4118,12 @@ smg2/src/RVL_SDK/bte/hcisu_h2.c:
 	.bss        start:0x8081C240 end:0x8081C280
 	.sdata2     start:0x80888840 end:0x80888850
 
+smg2/src/RVL_SDK/bte/uusb_ppc.c:
+	.text       start:0x806289D0 end:0x80629644
+	.bss        start:0x8081C280 end:0x8081E2E0
+	.sdata      start:0x8087EA78 end:0x8087EA88
+	.sbss       start:0x80880158 end:0x80880170
+
 smg2/src/RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80629650 end:0x80629720
 	.sbss       start:0x80880170 end:0x80880178
