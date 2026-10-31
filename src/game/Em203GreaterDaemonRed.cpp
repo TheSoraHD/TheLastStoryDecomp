@@ -1595,8 +1595,16 @@ void Em203GreaterDaemonRed::fn_8029A788() {
     m1530 -= dir * 85.0f;
 }
 
+// inferred: yaw from `self` to `other` in the xz plane (name invented)
+inline float YawTo_unk(CharaTask* self, CharaTask* other) {
+    atn::Vector3 target = other->mPos;
+    atn::Vector3 dir = target - self->mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    return dir.ToRotation_unk().y;
+}
+
 // inferred: starts state 14 (claws)
-// NONMATCHING: 98.70% - stack slots of the ToRotation temporaries
 void Em203GreaterDaemonRed::fn_8029A928() {
     m58C = 14;
     ResetState_unk();
@@ -1604,60 +1612,47 @@ void Em203GreaterDaemonRed::fn_8029A928() {
     m560 = 4;
     PlayMotion_unk(0x15F, 0, 0, 1.0f);
     m1544 = mRot.y;
-    atn::Vector3 target = m14B0->mPos;
-    atn::Vector3 dir = target - mPos;
-    dir.y = 0.0f;
-    dir.Normalize_unk();
-    m1548 = dir.ToRotation_unk().y;
+    m1548 = YawTo_unk(this, m14B0);
 }
 
 // inferred: starts state 15 (turns and walks to the target)
-// NONMATCHING: 86.69% - stack slots of the ToRotation temporaries and WrapAngle form
 void Em203GreaterDaemonRed::fn_8029AC1C() {
     m58C = 15;
     ResetState_unk();
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
     m1544 = mRot.y;
-    atn::Vector3 target = m14B0->mPos;
-    atn::Vector3 dir = target - mPos;
-    dir.y = 0.0f;
-    dir.Normalize_unk();
-    m1548 = dir.ToRotation_unk().y;
+    m1548 = YawTo_unk(this, m14B0);
     if (atn::WrapAngle_unk(m1548 - m1544) < 0.0f) {
-        PlayMotion_unk(0x158, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x158, 0, 1, 1, 0.0f, 0.1f);
     } else {
-        PlayMotion_unk(0x159, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x159, 0, 1, 1, 0.0f, 0.1f);
     }
 }
 
 // inferred: starts state 16 (breath on the ground)
-// NONMATCHING: 98.67% - stack slots of the ToRotation temporaries
 void Em203GreaterDaemonRed::fn_8029AF6C() {
     m58C = 16;
     ResetState_unk();
     PlayMotion_unk(0x160, 0, 0, 1.0f);
     m1544 = mRot.y;
-    atn::Vector3 target = m14B0->mPos;
-    atn::Vector3 dir = target - mPos;
-    dir.y = 0.0f;
-    dir.Normalize_unk();
-    m1548 = dir.ToRotation_unk().y;
+    m1548 = YawTo_unk(this, m14B0);
 }
 
 // inferred: starts state 21 (walks to the centre of the arena)
-// NONMATCHING: 86.41% - stack slots of the ToRotation temporaries and WrapAngle form
 void Em203GreaterDaemonRed::fn_8029B24C() {
     ResetState_unk();
     m58C = 21;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
     m1544 = mRot.y;
-    atn::Vector3 target = m14B0->mPos;
-    atn::Vector3 dir = target - mPos;
-    dir.y = 0.0f;
-    dir.Normalize_unk();
-    m1548 = dir.ToRotation_unk().y;
+    m1548 = YawTo_unk(this, m14B0);
     if (atn::WrapAngle_unk(m1548 - m1544) < 0.0f) {
-        PlayMotion_unk(0x158, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x158, 0, 1, 1, 0.0f, 0.1f);
     } else {
-        PlayMotion_unk(0x159, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x159, 0, 1, 1, 0.0f, 0.1f);
     }
 }
 
