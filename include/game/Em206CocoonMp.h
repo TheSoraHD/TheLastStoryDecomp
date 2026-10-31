@@ -37,6 +37,7 @@ public:
     inline void SetState_unk(int state);
     inline void PlayMotion_unk(int motion, int loop, float speed);
     inline void Die_unk();
+    inline void StartRoll_unk();
     // inferred: turns towards `rot` and moves forward at `speed` with gravity and collision (0x802BC4EC)
     void fn_802BC4EC(const atn::Vector3& rot, float speed, float max);
     void fn_802BD118(); // inferred: moves toward the target
@@ -49,6 +50,7 @@ public:
     void fn_802BE7EC(); // inferred: state 10
     void fn_802BE9C8(); // inferred: state 11
     void fn_802BEAEC(); // inferred: state 12
+    void fn_802C0058(); // inferred: state 15
     void fn_802C0458(); // inferred: state 16
     void fn_802C06B4(); // inferred: state 17
     void fn_802C0738(); // inferred: state 18

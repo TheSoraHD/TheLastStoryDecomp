@@ -40,8 +40,13 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 // inferred: field (lbl_8087F430); class unknown
-struct Field_unk;
+// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em203GreaterDaemonRedMp.cpp)
+struct Field_unk {
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8;
+};
 extern "C" Field_unk* lbl_8087F430;
+extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion); // inferred: as in game/CharaTask.cpp
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -636,32 +641,59 @@ void Em206CocoonMp::fn_802BE9C8() {
     }
 }
 
-// NONMATCHING: 98.5% - stack slot of the temporary of m14F8
+// inferred: starts state 13 (rolls towards the character it follows; name invented)
+inline void Em206CocoonMp::StartRoll_unk() {
+    SetState_unk(13);
+    m1504 = 0;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.fn_80097C08(0, 0x167, 1, 0, 1, 0.0f, 0.025f);
+    mMotion.mTracks[0].m0C = 1.8f;
+    CharaTask* t = mC58.mC4;
+    m14F8 = t->mPos - mPos;
+    m14F8.y = 0.0f;
+    if (m14F8.LengthSq_unk() > 0.0001f) {
+        m14F8.Normalize_unk();
+    } else {
+        m14F8.x = 0.0f;
+        m14F8.y = 0.0f;
+        m14F8.z = 1.0f;
+    }
+    mRot = m14F8.ToRotation_unk();
+}
+
 // inferred: state 12 (curls up with motion 0x169, then starts state 13: rolls towards the target)
 void Em206CocoonMp::fn_802BEAEC() {
     if (mMotion.mTracks[0].m00 == 0x169) {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
-            SetState_unk(13);
-            m1504 = 0;
-            mMotion.m34C = 1;
-            mMotion.mTracks[0].m20 = 1.0f;
-            mMotion.fn_80097C08(0, 0x167, 1, 0, 1, 0.0f, 0.025f);
-            mMotion.mTracks[0].m0C = 1.8f;
-            m14F8 = mC58.mC4->mPos - mPos;
-            m14F8.y = 0.0f;
-            if (m14F8.LengthSq_unk() > 0.0001f) {
-                m14F8.Normalize_unk();
-            } else {
-                m14F8.x = 0.0f;
-                m14F8.y = 0.0f;
-                m14F8.z = 1.0f;
-            }
-            mRot = m14F8.ToRotation_unk();
+            StartRoll_unk();
         }
     } else if (mMotion.mTracks[0].m08 <= 2.0f) {
         mMotion.fn_80097C08(0, 0x169, 0, 0, 1, 0.0f, 0.1f);
         mMotion.mTracks[0].m0C = 1.0f;
+    }
+}
+
+// NONMATCHING: 99.53% - r3/r4 crossing of the copy of the route point into m1514 (known blocker)
+// inferred: state 15 (lands): after 1200 frames of ice mode jumps to the route point 500 (state 16),
+// otherwise rolls again
+void Em206CocoonMp::fn_802C0058() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        mStatus.fn_8013322C(0x4000);
+        fn_80107A68(lbl_8087F048, &mMotion);
+        if (m14F4 > 1200) {
+            SetState_unk(16);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, 0x168, 0, 0, 1, 0.0f, 0.025f);
+            mMotion.mTracks[0].m0C = 1.0f;
+            m1508 = mPos;
+            m1514 = lbl_8087F430->m10D8->FindPlace_unk(500)->mPos;
+            return;
+        }
+        StartRoll_unk();
     }
 }
 
