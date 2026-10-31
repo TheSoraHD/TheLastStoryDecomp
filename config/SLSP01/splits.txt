@@ -5244,3 +5244,10 @@ nw4r/src/snd/snd_TaskManager.cpp:
 
 nw4r/src/snd/snd_TaskThread.cpp:
 	.text       start:0x8071DA10 end:0x8071DC38
+
+nw4r/src/snd/snd_Util.cpp:
+	.text       start:0x80720C70 end:0x80721144
+	.rodata     start:0x8076D008 end:0x8076F488
+	.data       start:0x807C6468 end:0x807C6478
+	.sdata      start:0x8087EE30 end:0x8087EE38
+	.sdata2     start:0x808892D8 end:0x80889308
