@@ -3591,6 +3591,12 @@ RVL_SDK/src/revolution/os/OSContext.c:
 	.text       start:0x805ED800 end:0x805EE0C8
 	.data       start:0x8079C4C0 end:0x8079C678
 
+RVL_SDK/src/revolution/os/OSError.c:
+	.text       start:0x805EE0D0 end:0x805EE81C
+	.data       start:0x8079C678 end:0x8079C958
+	.bss        start:0x807CB2B0 end:0x807CB2F8
+	.sdata      start:0x8087E770 end:0x8087E778
+
 RVL_SDK/src/revolution/os/OSFatal.c:
 	.text       start:0x805EFF70 end:0x805F0B98
 	.bss        start:0x807CB320 end:0x807CB600
