@@ -845,6 +845,36 @@ void Em203GreaterDaemonRedMp::fn_802A16A4() {
     }
 }
 
+// inferred: state 15 (moves from m157C to m1588 in 54 frames, then hovers)
+// NONMATCHING: 95.7% - stack slots of the two vector temporaries swapped
+void Em203GreaterDaemonRedMp::fn_802A17CC() {
+    float t = mMotion.mTracks[0].m08 / 54.0f;
+    mPos = (m1588 - m157C) * (1.0f < t ? 1.0f : t) + m157C;
+    if (mMotion.mTracks[0].m08 > 70.0f && mMotion.mTracks[0].m08 < 80.0f) {
+        mMotion.mTracks[0].m08 = 190.0f;
+    }
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
+        m165C = 1;
+        ToIdle_unk();
+    }
+}
+
+// NONMATCHING: 99.08% - r5/r6 of the inlined owner checks and the Vector3 copy crossing of fn_802A35B0
+// inferred: state 13 (on the ground): flies up after GrandTime seconds unless the owner daemon is
+// flying, otherwise attacks
+void Em203GreaterDaemonRedMp::fn_802A19B0() {
+    atn::Vector3 target = m14D4->mPos;
+    atn::Vector3 dir = target - mPos;
+    fn_801C3910(dir);
+    if (m1610 > m16A8 * 30 && (m1648 == 0 || !m1648->fn_802A49C8() || !m1648->CanAct_unk())) {
+        m14E4 = 5;
+        fn_802A35B0(5);
+    } else {
+        fn_8029F148(1);
+    }
+}
+
 // inferred: starts the hovering to the route point m1570 (kind 0: state 7, 1: state 8)
 void Em203GreaterDaemonRedMp::fn_802A239C(int kind) {
     if (kind == 0) {
