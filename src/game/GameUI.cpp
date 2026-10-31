@@ -625,6 +625,38 @@ void GameUI::fn_803DE648() {
     }
 }
 
+void GameUI::fn_803DEE24(Bullet_unk* bullet, GameUIColor_unk* add, GameUIColor_unk* mul) {
+    *add = GameUIColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
+    *mul = GameUIColor_unk(100, 100, 100, 255);
+    if (bullet != 0 && bullet->m08 != 0) {
+        HitInfo_unk* hit = bullet->GetHit_unk();
+        if (bullet->m08->mType == 2) {
+            if (fn_8021A984(hit)) {
+                *mul = m26C8;
+                *add = m26B8;
+            }
+        } else if (fn_8021A984(hit)) {
+            *mul = m26D8;
+            *add = GameUIColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
+        } else if (hit->m74.m00 > 0.0f) {
+            *mul = m26E8;
+            *add = GameUIColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
+        } else if (hit->m74.m04 > 0.0f) {
+            *mul = m26F8;
+            *add = GameUIColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
+        } else if (hit->m74.m0C > 0.0f) {
+            *mul = m2708;
+            *add = GameUIColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
+        } else if (hit->m74.m10 > 0.0f) {
+            *mul = m2718;
+            *add = GameUIColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
+        } else {
+            *mul = GameUIColor_unk(250, 150, 90, 255);
+            *add = GameUIColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+    }
+}
+
 // inferred: colour of the marker of a skill effect (by the kind of its hit data)
 GameUIColor_unk GameUI::fn_803DF138(Bullet_unk* bullet) {
     if (bullet != 0 && bullet->m08 != 0 && bullet->m08->mType != 2) {
