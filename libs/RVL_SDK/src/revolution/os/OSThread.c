@@ -109,7 +109,8 @@ static void __OSSwitchThread(OSThread* thread) {
 }
 
 //unused
-BOOL OSIsThreadSuspended(){
+BOOL OSIsThreadSuspended(OSThread* thread) {
+    return thread->suspend > 0 ? TRUE : FALSE;
 }
 
 BOOL OSIsThreadTerminated(OSThread* thread) {
@@ -960,7 +961,9 @@ void OSGetThreadSpecific(){
 static void SleepAlarmHandler(OSAlarm* alarm, OSContext* ctx) {
 #pragma unused(ctx)
 
-    OSResumeThread((OSThread*)OSGetAlarmUserData(alarm));
+    if (__OSIsThreadActive((OSThread*)OSGetAlarmUserData(alarm))) {
+        OSResumeThread((OSThread*)OSGetAlarmUserData(alarm));
+    }
 }
 
 //unused
@@ -978,8 +981,7 @@ void OSSleepTicks(s64 ticks) {
     }
 
     OSCreateAlarm(&alarm);
-    OSSetAlarmTag(&alarm, (u32)thread);
-    OSSetAlarmUserData(&alarm, thread);
+    __OSSetInternalAlarmUserData(&alarm, thread);
     OSSetAlarm(&alarm, ticks, SleepAlarmHandler);
 
     OSSuspendThread(thread);
