@@ -5,7 +5,7 @@
 // wrappers of MSL functions and a printf to std::string. Name of the file invented.
 
 extern "C" int vsprintf(char* buf, const char* format, va_list args);
-extern "C" wchar_t* fn_80686B90(wchar_t* s, const wchar_t* delim, wchar_t** context); // inferred: wcstok
+extern "C" wchar_t* wcstok(wchar_t* s, const wchar_t* delim, wchar_t** context);
 extern "C" char* fn_8068B1A4(char* s);                 // inferred: (string in place)
 extern "C" char* fn_8068B29C(int value, char* buf, int radix); // inferred: itoa
 
@@ -114,7 +114,7 @@ extern "C" float fn_800DC288(const char* s) {
 }
 
 extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** context) {
-    return fn_80686B90(s, delim, context);
+    return wcstok(s, delim, context);
 }
 
 // NONMATCHING: 94.87% - same differences as fn_800DC288
