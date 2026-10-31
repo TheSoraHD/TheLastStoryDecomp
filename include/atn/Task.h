@@ -33,8 +33,10 @@ public:
     Task(Task* parent); // 0x800D1D3C
     virtual ~Task();
     virtual int vf0C();
-    virtual void vf10();
-    virtual void vf14();
+    // inferred: inline and empty (the only copies are weak, first emitted in game/AreaEffConfig.cpp at
+    // 0x8004312C and 0x80043128)
+    virtual void vf10() {}
+    virtual void vf14() {}
     virtual void vf18(Task* child); // inferred: notification that `child` was removed (see SequenceControl)
 
     void fn_800D3F28(Task* child); // inferred: attaches `child` (null detaches)
@@ -45,6 +47,11 @@ public:
     bool IsFlag_unk(unsigned int flag) const { return (mFlags & flag) == flag; }
     // name from the RSO (weak copy 0x80244CAC, first emitted by game/Em001Necromancer.cpp)
     void FreezeTask() { mFlags |= 4; }
+    // name from the RSO (weak copy 0x803D6E2C, emitted by game/GameUI.cpp)
+    void MeltTask() { mFlags &= ~4; }
+    // inferred: weak copies in game/GameUI.cpp (0x803CFC58, 0x803D6E70); names invented
+    bool IsFrozen_unk() const { return (mFlags & 4) != 0; }
+    unsigned int GetFlag1_unk() const { return mFlags & 1; }
 
     void fn_800D1D94(Task* parent); // inferred: links the task into the tree of `parent` (ctor body)
     void fn_800D4558(); // inferred: sets flag 4 (hidden/stopped) in all the descendants

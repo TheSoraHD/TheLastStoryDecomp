@@ -41,8 +41,39 @@ struct GmkTarget_unk;
 // 0x10 holds a vector (knockback?) and 0x68/0x90 values that FriendArganan clears.
 #include "game/HitInfo_unk.h"
 
-// inferred: argument of CharaTask::fn_80164B00 (defined in CharaTask.cpp)
-struct CharaShade_unk;
+// inferred: argument of CharaTask::fn_80164B00, copied to CharaTask::mFC8-mFD8 (names invented)
+struct CharaShade_unk {
+    // inferred: inlined by chr::ControlAttractHateCharge and BattleCharaTask::fn_800E2FE0
+    CharaShade_unk() {
+        m04 = 0.0f;
+        m08 = 0.0f;
+        m0C = 0.0f;
+        m10 = 0;
+        m00 = 1.0f;
+    }
+    float m00; // inferred: also copied to CharaStatus::m20/m24
+    float m04; // inferred: timer counted down by fn_80164D24
+    float m08; // inferred: timer counted down by fn_80164D24
+    float m0C; // inferred: timer counted down by fn_80164D24
+    int m10;   // inferred: overwritten with Field_unk::m5744
+};
+
+// inferred: 0x1C-byte record at 0x1470 in the player characters (BattleCharaTask::fn_800E2FE0 runs it;
+// names invented)
+struct PlayerState_unk {
+    PlayerState_unk(short id, int value)
+        : m00(id), m02(0), m04(0), m0C(0.0f, 0.0f, 0.0f), m18(0) {
+        m08 = value;
+    }
+    // inferred: weak copy 0x80151194
+    PlayerState_unk(short id) : m00(id), m02(0), m04(0), m08(150), m0C(0.0f, 0.0f, 0.0f), m18(0) {}
+    short m00;
+    short m02;
+    int m04;
+    int m08;
+    atn::Vector3 m0C;
+    int m18;
+};
 
 // inferred: object at CharaTask+0xD74 (class unknown)
 struct CharaD74_unk {
@@ -158,6 +189,18 @@ class GimmickCommon;
 
 struct SkillRef_unk;
 
+// inferred: object at CharaTask+0xD2C; its +0x218 points to an object whose +0x8C is a character
+// (GameUI::fn_803DCA84 compares it with the character). Names invented.
+struct CharaLinkTarget_unk {
+    unsigned char m00[0x8C];
+    CharaTask* m8C;
+};
+struct CharaLink_unk {
+    unsigned char m00[0x218];
+    CharaLinkTarget_unk* m218;
+    CharaTask* GetChara_unk() { return m218 != 0 ? m218->m8C : 0; }
+};
+
 struct CharaC58_unk {
     CharaC58_unk();
     atn::Vector3 fn_8011BF3C(int arg); // inferred: a position of mC4 (vf54 of mD0 when it is set)
@@ -174,7 +217,7 @@ struct CharaC58_unk {
     int mC8;
     CharaTask* mCC; // 0xD24: inferred: character followed in mode 9
     GimmickCommon* mD0; // 0xD28: inferred: gimmick (its position, vf54, is used by CharaTask::fn_80154488)
-    int mD4;
+    CharaLink_unk* mD4; // 0xD2C: inferred: the GameUI ring is highlighted when it links back to the character
     unsigned int mD8; // 0xD30: inferred: flags (bit 2 is set by fn_8011BEB8)
     SkillRef_unk* mDC; // 0xD34: inferred: skill in use (its id is passed to fn_80219E6C)
     unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot
@@ -420,10 +463,12 @@ public:
     virtual float vf60() { return 1.0f; } // weak copy 0x800EF38C
     virtual atn::Vector3 vf64(int center); // inferred: position, or the center of the collision capsule
     // inferred: finishing move offered to `attacker` (EnemyTask 0x8035B8B0 returns a control kind 9-11)
-    virtual int vf68(CharaTask* attacker);
+    virtual int vf68(CharaTask* attacker) { return 0; } // weak copy 0x800E8FAC (game/BattleCharaTask)
     // inferred: starts the reaction control `kind` facing away from `other` (EnemyTask 0x8035BBCC)
-    virtual void vf6C(int kind, CharaTask* other);
-    virtual float vf70(); // inferred: returns f1 (0x800E8FA4; Em203GreaterDaemonRed returns 100.0f)
+    virtual void vf6C(int kind, CharaTask* other) {} // weak copy 0x800E8FB4 (game/BattleCharaTask)
+    // inferred: reach of the finishing moves (weak copy 0x800E8FA4 in game/BattleCharaTask;
+    // Em203GreaterDaemonRed returns 100.0f)
+    virtual float vf70() { return 25.0f; }
     virtual void vf74(const atn::Vector3& dir); // inferred: starts chr::ControlMountle (climbs onto a ledge)
     virtual int vf78(); // inferred: nonzero while a held character keeps hold (fn_8013A4E8)
     virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)
@@ -572,6 +617,8 @@ public:
     void fn_8016E800(int arg); // inferred: calls fn_80566398 on every equipment
     float fn_8016E864(); // inferred: speed rate of the character
     void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
+    // inferred: sets m56C (weak copy 0x80288E30 in game/Em203GreaterDaemon)
+    void fn_80288E30(float value) { m56C = value; }
     void fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c); // inferred: chr::ControlPushedDown
     void fn_8016D0A0(int a); // inferred: releases the gimmick and starts chr::ControlSlip
     // inferred: controls started by 0x8016939C-0x8016DC14 (class names from the constructors' vtables)
@@ -640,6 +687,18 @@ public:
     void fn_8016D74C(HitInfo_unk* data, int a, const atn::Vector3* target); // inferred: target position (null: in front)
     // inferred: weak copy 0x800F52F0 (name invented)
     CharaStatus* GetStatus_unk() { return &mStatus; }
+    // inferred: accessors called out of line by GameUI::fn_803D2A6C (weak copies 0x803D6EA0-0x803D71D4 in
+    // game/GameUI.cpp); names invented
+    unsigned int GetFlag54C13_unk() const { return (m54C >> 13) & 1; }
+    unsigned int GetFlag26_unk() const { return mFlag26; }
+    atn::Vector3* GetF60_unk() { return &mF60; }
+    bool HasPart648_unk() const { return m648 != 0; }
+    float GetFBC_unk() const { return mFBC; }
+    float GetFB8_unk() const { return mFB8; }
+    unsigned int GetFlag22_unk() const { return mFlag22; }
+    CharaInfo_unk* GetInfo_unk() const { return m60; }
+    unsigned int GetHitFlag7_unk() const { return (m1374 >> 7) & 1; }
+    chr::CharaPart_unk* GetPart648_unk() const { return m648; }
     void fn_801698E4(const atn::Vector3& rot);
     int fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest); // inferred: nonzero if fn_8036DBC0 accepts the move
     int fn_801720AC(atn::Vector3* pos, atn::Vector3* vel); // inferred: nonzero keeps the rotation (fn_80140588)
@@ -755,6 +814,7 @@ public:
         int m00;
         Sphere_unk m04; // inferred: drawn as a debug sphere (0x80149A30)
     };
+    atn::SimpleVector<Item14_unk>* GetSpheres_unk() { return &m624; } // inferred: weak copy 0x803D6EB8
     Item14_unk* fn_80148B0C(int index);
     int fn_8014969C();
     void fn_8014C0B4(int a, int b);

@@ -7,6 +7,11 @@
 struct ButtonUv_unk {
     ButtonUv_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
     ButtonUv_unk(const ButtonUv_unk& o) { __Vec4Copy(&u0, &o.u0); }
+    // inferred: weak copy 0x803D7000 (game/GameUI.cpp)
+    ButtonUv_unk& operator=(const ButtonUv_unk& o) {
+        __Vec4Copy(&u0, &o.u0);
+        return *this;
+    }
     float u0;
     float v0;
     float u1;

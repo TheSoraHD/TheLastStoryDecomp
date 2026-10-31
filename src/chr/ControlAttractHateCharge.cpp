@@ -70,22 +70,6 @@ struct Record80210220_unk {
     int m4C;
 };
 extern "C" Record80210220_unk* fn_80210220(int id);
-// inferred: argument of CharaTask::fn_80164B00 (defined in game/CharaTask.cpp)
-struct CharaShade_unk {
-    CharaShade_unk() {
-        m04 = 0.0f;
-        m08 = 0.0f;
-        m0C = 0.0f;
-        m10 = 0;
-        m00 = 1.0f;
-    }
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-    int m10;
-};
-
 // inferred: sound effects of chr::ControlAttractHateCharge (start and end)
 static const char* const sSe[] = {"SE_BTCOM_026", "SE_BTCOM_040"};
 

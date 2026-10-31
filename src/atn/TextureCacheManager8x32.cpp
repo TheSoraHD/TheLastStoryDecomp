@@ -2,7 +2,7 @@
 
 extern "C" int GXGetTexObjFmt(const GXTexObj* obj);
 extern "C" unsigned char GXGetTexObjMipMap(const GXTexObj* obj);
-extern "C" unsigned int fn_806163B0(const GXTexObj* obj); // inferred: GXGetTexObjData (image address)
+extern "C" unsigned int GXGetTexObjData(const GXTexObj* obj);
 
 namespace atn {
 
@@ -11,7 +11,7 @@ namespace atn {
 GXTexRegion* ITextureCacheManager::fn_800D6898(GXTexObj* obj, unsigned int id) {
     int format = GXGetTexObjFmt(obj);
     int mipmap = GXGetTexObjMipMap(obj);
-    unsigned int data = fn_806163B0(obj);
+    unsigned int data = GXGetTexObjData(obj);
     int slot = -1;
     for (int i = 0; i < mCount; i++) {
         if (data == mIds[i]) {

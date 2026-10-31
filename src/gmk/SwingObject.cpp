@@ -60,12 +60,14 @@ extern "C" void* lbl_8087F430; // inferred: field
 extern "C" int fn_80376224(void* field); // inferred: nonzero in the second state (night?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: node chunk passed to the node callback (only the hash is read)
+
 namespace atn {
+
 struct NodeChunk {
     unsigned char m00[0x14];
     int mHash; // 0x14
 };
-}
+} // namespace atn
 
 // inferred: path of a gimmick file. @stringBase0 starts with this literal (followed by an extra
 // zero byte) before the literals of LoadSwing_unk, so a function placed before it used it and was
@@ -435,19 +437,6 @@ void SwingObject::fn_803FFC50() {
         mCore.mCur = param;
     }
 }
-
-int SwingObject::vf40(GimmickMsg_unk* msg) {
-    if (msg != 0) {
-        m54 = msg->mType;
-    }
-    return 0;
-}
-
-void SwingObject::vf3C(void* lens) {
-    mModel.GetModel_unk()->m1DC = (Lens_unk*)lens;
-    mModel.GetModel_unk()->mFlags |= 0x10000;
-}
-
 } // namespace gmk
 
 // inferred: swinging map part (a model instance with the swing state; built by fn_803FFD10)
@@ -509,3 +498,18 @@ extern "C" void fn_804006E0(atn::ModelInstance* inst) {
         inst->fn_8009E6EC(0);
     }
 }
+
+namespace gmk {
+
+int SwingObject::vf40(GimmickMsg_unk* msg) {
+    if (msg != 0) {
+        m54 = msg->mType;
+    }
+    return 0;
+}
+
+void SwingObject::vf3C(void* lens) {
+    mModel.GetModel_unk()->m1DC = (Lens_unk*)lens;
+    mModel.GetModel_unk()->mFlags |= 0x10000;
+}
+} // namespace gmk

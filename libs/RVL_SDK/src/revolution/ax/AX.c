@@ -2,7 +2,7 @@
 #include <revolution/OS.h>
 
 const char* __AXVersion =
-    "<< RVL_SDK - AX \trelease build: Feb 27 2009 10:01:36 (0x4302_145) >>";
+    "<< RVL_SDK - AX \trelease build: Aug 23 2010 17:29:51 (0x4302_145) >>";
 
 static BOOL __init = FALSE;
 

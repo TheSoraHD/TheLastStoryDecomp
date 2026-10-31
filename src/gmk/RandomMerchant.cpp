@@ -73,7 +73,6 @@ extern "C" void fn_8044D6AC(void* mgr, int price);
 extern "C" void* lbl_8087F048;
 extern "C" void fn_801092C8(void* mgr, int arg1, int arg2, int item, int num);
 extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E5E64(void* ui, int item, int num, int arg3);
 
 // inferred: rotation matrix z * y * x (same as GimmickCommon.cpp)
 inline void __MakeRotation_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
@@ -442,7 +441,7 @@ int RandomMerchant::vf40(GimmickMsg_unk* msg) {
             if (lbl_8087F048 != 0) {
                 fn_801092C8(lbl_8087F048, 1, 0, mItemId, mItemNum);
             }
-            fn_803E5E64(lbl_8087F490, mItemId, mItemNum, 1);
+            lbl_8087F490->fn_803E5E64(mItemId, mItemNum, 1);
             fn_800C31F4("SE_UICOM_008", 0, -1, 1.0f);
         }
         break;

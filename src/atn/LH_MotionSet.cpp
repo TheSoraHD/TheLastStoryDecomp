@@ -58,6 +58,30 @@ public:
 
 LoadMotionSet::~LoadMotionSet() {}
 
+void LoadMotionSet::vf0C() {
+    if (mState == 2) {
+        if (mParsed != 0) {
+            if (mRefCount == 0) {
+                fn_80473104(5);
+            } else {
+                int done = 1;
+                for (unsigned int i = 0; i < mEntries.mSize; i++) {
+                    if (mEntries.mData[i].mMotion.fn_800A0448() != 0) {
+                        done = 0;
+                    }
+                }
+                if (done) {
+                    m6C.fn_80470528();
+                    fn_80473104(3);
+                }
+            }
+        } else {
+            fn_80476ED4();
+            mParsed = 1;
+        }
+    }
+}
+
 // inferred: reads the CSV of the set ("MOTION <path> <name>" and "PACK <name>" lines).
 // NONMATCHING: 95.6% - in the inlined std::vector::push_back the size is loaded after the capacity
 // and reloaded in the slow path (the original keeps it in r16), and the copy loop that moves the old
@@ -92,37 +116,12 @@ void LoadMotionSet::fn_80476ED4() {
     fn_80473130();
 }
 
-void LoadMotionSet::vf0C() {
-    if (mState == 2) {
-        if (mParsed != 0) {
-            if (mRefCount == 0) {
-                fn_80473104(5);
-            } else {
-                int done = 1;
-                for (unsigned int i = 0; i < mEntries.mSize; i++) {
-                    if (mEntries.mData[i].mMotion.fn_800A0448() != 0) {
-                        done = 0;
-                    }
-                }
-                if (done) {
-                    m6C.fn_80470528();
-                    fn_80473104(3);
-                }
-            }
-        } else {
-            fn_80476ED4();
-            mParsed = 1;
-        }
-    }
-}
-
 void LH_MotionSet::vf0C(const char* path) {
     fn_80473F88();
     LoadMotionSet* core = lbl_8087F518->Get_unk<LoadMotionSet>(path, 1);
     mCore = core;
     core->mCallback = (MotionSetCallback_unk)mCallback;
 }
-
 } // namespace atn
 
 // inferred: sets a motion of `model` (atn::Model; id and LH_Motion of the set entry)

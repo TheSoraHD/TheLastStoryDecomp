@@ -81,7 +81,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em302Kraken.cpp); names invented
 struct MulueLook_unk {
     void Set_unk(const atn::Vector3& pos, bool flag) {
@@ -667,7 +666,7 @@ void Em204Mulue::vf10() {
                 StartThrust_unk();
                 fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
                 if (lbl_8087F490 != 0) {
-                    fn_803E3384(lbl_8087F490);
+                    lbl_8087F490->fn_803E3384();
                 }
             }
         }

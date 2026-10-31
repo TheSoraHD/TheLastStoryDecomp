@@ -84,7 +84,7 @@ extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" double sqrt(double x);
 extern "C" double atan2(double y, double x);
-extern "C" void fn_805F9AB0(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
+extern "C" void C_QUATRotAxisRad(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
 extern "C" void PSQUATMultiply(const atn::Quaternion_unk* a, const atn::Quaternion_unk* b, atn::Quaternion_unk* ab);
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -657,9 +657,9 @@ void EventCamera_unk::fn_801151A4() {
     PSVECCrossProduct(&up, &dir, &side);
     float wobble = sin(3.0f * atn::DegToRad_unk(lbl_8087F540->m1EAC % 360 - 180));
     atn::Quaternion_unk qx;
-    fn_805F9AB0(&qx, &side, 0.01f * wobble + m25C.x);
+    C_QUATRotAxisRad(&qx, &side, 0.01f * wobble + m25C.x);
     atn::Quaternion_unk qy;
-    fn_805F9AB0(&qy, &up, m25C.y);
+    C_QUATRotAxisRad(&qy, &up, m25C.y);
     atn::Quaternion_unk q;
     PSQUATMultiply(&qy, &qx, &q);
     atn::Matrix3x4 m;

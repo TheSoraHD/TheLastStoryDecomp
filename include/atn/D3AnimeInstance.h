@@ -9,8 +9,11 @@ namespace atn {
 
 // inferred: d2anime instance task (fn_801F64D0); only the members used here
 struct D2AInstance_unk : public Task {
-    unsigned char m48[0x4E - 0x48];
+    unsigned char m48[0x4D - 0x48];
+    unsigned char mLoop; // 0x4D: inferred: D2A_TaskInstanceBase::mLoop
     unsigned char m4E;
+    float mFrame;        // 0x50: inferred: D2A_TaskInstanceBase::mFrame
+    float mSpeed;        // 0x54
 };
 
 // inferred: instance of a d2anime layout drawn in 3D (same layout as D3Anime)
@@ -28,6 +31,12 @@ public:
     void Draw();             // 0x80203328
     void SetMatrix(const Matrix3x4& m); // 0x8020303C
     void UpdateMtx();                   // 0x80203260
+
+    // inferred: weak copies in game/GameUI.cpp (0x803D7108-0x803D7158); names invented
+    Matrix3x4* GetRotation_unk() { return &mRot; }
+    void SetPosition_unk(const Vector3& pos) { mPos = pos; }
+    void SetRotation_unk(const Matrix3x4& rot) { mRot = rot; }
+    void SetScale_unk(const Vector3& scale) { mScale = scale; }
 
     int UpdateLoad_unk() {
         int busy;

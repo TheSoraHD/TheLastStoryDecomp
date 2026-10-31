@@ -36,7 +36,7 @@ void GXEnableBreakPt(void* breakPt);
 void GXSetDrawSync(unsigned short token);
 void GXResetOverflowCount();
 void GXDisableBreakPt();
-unsigned short fn_806140B0(); // inferred: GXReadDrawSync
+unsigned short GXReadDrawSync();
 void GXSetColorUpdate(unsigned char enable);
 void GXSetAlphaUpdate(unsigned char enable);
 void GXClearVtxDesc();
@@ -91,7 +91,7 @@ unsigned char SCGetProgressiveMode();
 unsigned char SCGetEuRgb60Mode();
 unsigned char SCGetAspectRatio();
 unsigned int VIGetTvFormat();
-unsigned int fn_806052C0(); // inferred: VIGetDTVStatus
+unsigned int VIGetDTVStatus();
 void VIConfigure(const GXRenderModeObj* rm);
 void VISetNextFrameBuffer(void* fb);
 void VIFlush();
@@ -316,7 +316,7 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     device->mHeight = height;
     SetViewRect_unk(device, 0, 0, 0, 0);
     GXRenderModeObj* rm = 0;
-    if (SCGetProgressiveMode() == 1 && fn_806052C0() == 1) {
+    if (SCGetProgressiveMode() == 1 && VIGetDTVStatus() == 1) {
         switch (VIGetTvFormat()) {
         case 0:
             rm = &lbl_807B0978;
@@ -775,7 +775,7 @@ extern "C" void fn_80072D74(unsigned int retraceCount) {
     if (device->mCC != 0 && (retraceCount & 1)) {
         VIFlush();
     } else {
-        unsigned short token = fn_806140B0();
+        unsigned short token = GXReadDrawSync();
         if (token == (unsigned short)(lbl_8087EEDC + 1)) {
             lbl_8087EEDC = token;
             device->mNextXfb = device->mNextXfb == device->mXfb0 ? device->mXfb1 : device->mXfb0;
@@ -1270,7 +1270,7 @@ extern "C" void fn_80073A6C(TevStats_unk* stats, int flags) {
 }
 
 
-extern "C" void fn_805F8DA0(const Mtx src, Mtx dst); // inferred: PSMTXInvXpose
+extern "C" void PSMTXInvXpose(const Mtx src, Mtx dst); // inferred: PSMTXInvXpose
 
 // inferred: 3x4 matrix cleared by its constructor
 struct ZeroMatrix3x4_unk : public atn::Matrix3x4 {
@@ -1331,7 +1331,7 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     rot.m[1][3] = 0.0f;
     rot.m[2][3] = 0.0f;
     atn::Matrix3x4 inv;
-    fn_805F8DA0(view->mShadowCamera.mView.m, inv.m);
+    PSMTXInvXpose(view->mShadowCamera.mView.m, inv.m);
     inv.m[0][3] = 0.0f;
     inv.m[1][3] = 0.0f;
     inv.m[2][3] = 0.0f;

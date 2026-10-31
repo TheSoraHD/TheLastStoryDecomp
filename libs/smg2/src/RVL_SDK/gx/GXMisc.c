@@ -117,6 +117,10 @@ void GXSetDrawSync(u16 token) {
     gx->bpSentNot = GX_FALSE;
 }
 
+u16 GXReadDrawSync(void) {
+    return GX_PE_REG_READ_U16(7);
+}
+
 void GXSetDrawDone(void) {
     u32 reg;
     BOOL en = OSDisableInterrupts();
@@ -125,6 +129,7 @@ void GXSetDrawDone(void) {
     GXFlush();
     DrawDone = GX_FALSE;
     OSRestoreInterrupts(en);
+    gx->bpSentNot = GX_FALSE;
 }
 
 void GXWaitDrawDone(void) {

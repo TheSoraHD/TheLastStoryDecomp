@@ -21,9 +21,22 @@ public:
     virtual void vfF0();
 
     void fn_800E2FE0(); // inferred: update (the body of vf10)
+    // inferred: copy of a pending state into m1470 (name invented, as Player_unk::SetState_unk in
+    // game/CharaTask.cpp)
+    void SetState_unk(const PlayerState_unk& s) {
+        m1470 = s.m00;
+        m1472 = s.m02;
+        m1474 = s.m04;
+        m1478 = s.m08;
+        m147C = s.m0C;
+        m1488 = s.m18;
+    }
+    void fn_800E589C(); // 0x800E589C: inferred: update with a weapon
+    void fn_800E9ED8(); // 0x800E9ED8: inferred: update with a weapon (types 1-3)
     // inferred: weak copy 0x800EC1F4 (name invented)
     void SetFlagC26_unk(int value) { mFlagC26 = value; }
     void fn_800E610C(); // inferred: moves (or swaps places) in the input direction; the party follows in mode 2
+    void fn_800E62AC(struct Field_unk* field, int a, int b); // inferred: input of the player in the field
     int fn_800E70EC(int a, int b, int c);
     int fn_800E7214(CharaTask** out, int keep);
     int fn_800E73EC(struct Field_unk* field, int b, int c); // inferred: input of the player (lock-on, auto attack) // inferred: target of the player's attack (keep: prefer m1440) // inferred: auto attack of the player (button attack correction)
@@ -48,24 +61,24 @@ public:
     void fn_800EE360(); // inferred: death reward (item of the battle result or message 3 to the gimmick m1438)
     void fn_800EE5AC(class Arms* arms);
     int fn_800EE640(CharaTask* chara); // inferred: chara is a valid target for this character
+    int fn_800EE794(struct Bullet_unk* effect); // inferred: goes to a healing magic
  // inferred: starts the effect of a weapon when its condition holds
     int fn_800EEFDC();  // inferred: nonzero if the character can be targeted here
 
     // inferred: members cleared by the constructor (0x800E2AF8); names keep the offsets
     int m1424;
-    int m1428;
+    CharaTask* m1428; // inferred: character of the combined attack (fn_800E7F04)
     int m142C;
     int m1430;
     int m1434; // inferred: frame counter (Em209BigGolem counts the death sequence down from 30)
     atn::Task* m1438; // inferred: task created by the EnemyTask constructor (fn_803EC16C)
     int m143C;
     int m1440;
-    int m1444;
-    int m1448;
-    int m144C;
+    atn::Vector3 m1444; // inferred: point of the next attack (fn_800E589C)
     int m1450;
     int m1454;
     float m1458;
+    float GetM1458_unk() const { return m1458; } // inferred: weak copy 0x803D717C (game/GameUI.cpp)
     int m145C;
     int m1460;
     RoutePlace_unk* m1464; // inferred: "magicPointId" place (vf2C)
@@ -75,9 +88,7 @@ public:
     short m1472;
     int m1474;
     int m1478;
-    float m147C;
-    float m1480;
-    float m1484;
+    atn::Vector3 m147C;
     int m1488;
     atn::Vector3 m148C; // inferred: copied from mColli.m3C
     float m1498;        // inferred: copied from mColli.m54

@@ -30,3 +30,12 @@ symbol is still `fn_<ADDR>` but our code uses a real name.
 - `pct.sh <unidad> [símbolo...]`: porcentaje de objdiff por función (todas si no se dan símbolos); más fiable que el recuento de líneas de `cmp.py` cuando cambian nombres de datos.
 - `rso/` (`vtmatch.py`, `rsomatch.py`, `classify.py`, `apply.py`): real names from the USA `LastWorld_tools.rso` (`orig/SLSEXJ/LastWorld_tools.rso` or `$RSO_USA`, not committed) mapped onto EU addresses by identical code and relocations; outputs in `build/rso/`. See `docs/rso-names.md`.
 - `resetlocal.py <unidad>`: devuelve el nombre `lbl_<dir>` a los `@NNNN` de los datos de la unidad en `symbols.txt` (antes de repetir `pairdata.py --apply` tras editar el fuente).
+
+## Library sources (SDK, nw4hbm, smg2)
+
+- `sdkcheck.py <src> [<libs_ref unit for the flags>]`: compiles a `libs/` source and compares each
+  function with main.dol (relocations masked). `COMPILERS=/path/to/compilers` if they are not in
+  `build/compilers`.
+- `sdkauto.py <src> [--like <unit>]`: if everything matches, proposes the split ranges.
+- `addsplit.py [--like <unit>] <name> "text A B" "data A B" ...`: inserts the split (sorted by
+  `.text`) and the `libs_ref.json` entry. Then configure + `ninja` (main.dol: OK is the check).

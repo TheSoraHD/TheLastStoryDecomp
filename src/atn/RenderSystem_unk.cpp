@@ -65,7 +65,7 @@ extern "C" void LCEnable();
 extern "C" void LCDisable();
 extern "C" void fn_800B95C4();
 extern "C" int SCGetProgressiveMode();
-extern "C" unsigned int fn_806052C0();
+extern "C" unsigned int VIGetDTVStatus();
 extern "C" void* memset(void* dest, int value, unsigned long size);
 void operator delete[](void* ptr);
 extern "C" unsigned char lbl_8087D910[];
@@ -309,7 +309,7 @@ extern "C" void fn_800BC618(void* render, GXTexObj* texture, int offset) {
 extern "C" void fn_800BC798() {
     fn_800B95C4();
     unsigned char progressiveMode = (unsigned char)SCGetProgressiveMode();
-    if (progressiveMode == 1 && fn_806052C0() == 1) {
+    if (progressiveMode == 1 && VIGetDTVStatus() == 1) {
         *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B0) = 6;
         *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B4) = 8;
         *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B8) = 10;

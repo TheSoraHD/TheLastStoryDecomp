@@ -938,14 +938,32 @@ s32 ISFS_OpenAsync(const char* path, IPCOpenMode mode, FSAsyncCallback callback,
                          block);
 }
 
-//unused
 s32 ISFS_GetFileStats(s32 fd, FSFileStats* statsOut) {
+    s32 result;
+    FSCommandBlock* block = NULL;
+
     if (statsOut == NULL || (u32)statsOut % 32 != 0) {
-        return IPC_RESULT_INVALID;
+        result = IPC_RESULT_INVALID;
+        goto exit;
     }
 
-    return IOS_Ioctl(fd, FS_IOCTL_GET_FILE_STATS, NULL, 0, statsOut,
-                     sizeof(FSFileStats));
+    block = (FSCommandBlock*)iosAllocAligned(hId, sizeof(FSCommandBlock), 32);
+    if (block == NULL) {
+        result = IPC_RESULT_ALLOC_FAILED;
+        goto exit;
+    }
+
+    result = IOS_Ioctl(fd, FS_IOCTL_GET_FILE_STATS, NULL, 0, block,
+                       sizeof(FSFileStats));
+    if (result == IPC_RESULT_OK) {
+        memcpy(statsOut, block, sizeof(FSFileStats));
+    }
+
+exit:
+    if (block != NULL) {
+        FS_DELETE(block);
+    }
+    return result;
 }
 
 static s32 _FSGetFileStatsCb(s32 result, FSCommandBlock* block){

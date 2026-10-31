@@ -296,7 +296,6 @@ extern "C" int fn_8050EBC8(MpFriendList_unk* list, unsigned long long key, int s
     return 1;
 }
 
-
 // inferred: removes friend `id`; with `save`, writes the user data (if changed) and the friend list
 extern "C" int fn_8050EF14(MpFriendList_unk* list, int id, int save) {
     if (!DWC_CanChangeFriendList()) {
@@ -312,16 +311,7 @@ extern "C" int fn_8050EF14(MpFriendList_unk* list, int id, int save) {
     }
     return 1;
 }
-
-// inferred: first free friend slot (-1: none)
-extern "C" int fn_8050F404(MpFriendList_unk* list) {
-    for (int i = 0; i < 32; i++) {
-        if (!DWC_IsValidFriendData(&list->mFriends[i])) {
-            return i;
-        }
-    }
-    return -1;
-}
+extern "C" int fn_8050F404(MpFriendList_unk* list);
 
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
@@ -389,6 +379,16 @@ extern "C" const wchar_t* fn_8050F2F0(MpFriendList_unk* list, DWCFriendData_unk*
         return L"MATCH CLIENT";
     }
     return 0;
+}
+
+// inferred: first free friend slot (-1: none)
+extern "C" int fn_8050F404(MpFriendList_unk* list) {
+    for (int i = 0; i < 32; i++) {
+        if (!DWC_IsValidFriendData(&list->mFriends[i])) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long key);
@@ -492,7 +492,6 @@ extern "C" int fn_8050F7D8(MpFriendList_unk* list, int id) {
         return -1;
     }
 }
-
 
 extern "C" const wchar_t* fn_8050F858(MpFriendList_unk* list, int id, unsigned char* out, int* arg) {
     return fn_8050F2F0(list, &list->mFriends[id], out, arg);

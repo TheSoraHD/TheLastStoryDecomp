@@ -4,7 +4,7 @@
 #include "revolution/sc.h"
 #include "revolution/vi.h"
 
-const char* __VIVersion = "<< RVL_SDK - VI \trelease build: Aug  8 2007 02:07:17 (0x4199_60831) >>";
+const char* __VIVersion = "<< RVL_SDK - VI \trelease build: Aug 23 2010 17:33:19 (0x4302_145) >>";
 
 static BOOL IsInitialized = FALSE;
 static void __VIRetraceHandler(__OSInterrupt, OSContext*);
@@ -163,6 +163,7 @@ GXRenderModeObj GXPal524ProgAa = {
 };
 
 static BOOL OnShutdown(BOOL final, u32 event);
+void fn_806070F0(void); // inferred: vi3in1.c, __VISetGammaImm of the default gamma
 static OSShutdownFunctionInfo ShutdownFunctionInfo = {OnShutdown, 127};
 
 static BOOL OnShutdown(BOOL final, u32 event) {
@@ -194,6 +195,7 @@ static BOOL OnShutdown(BOOL final, u32 event) {
         case 0:
         case 6:
         case 5:
+            fn_806070F0();
             retval = TRUE;
             break;
         }
@@ -1095,7 +1097,7 @@ void VIConfigure(const GXRenderModeObj* rm) {
 
     if (((tvInBootrom != VI_PAL && tvInBootrom != VI_EURGB60) && (tvInGame == VI_PAL || tvInGame == VI_EURGB60)) ||
         ((tvInBootrom == VI_PAL || tvInBootrom == VI_EURGB60) && (tvInGame != VI_PAL && tvInGame != VI_EURGB60))) {
-        OSPanic(__FILE__, 0xA57, "VIConfigure(): Tried to change mode from (%d) to (%d), which is forbidden\n", tvInBootrom, tvInGame);
+        OSPanic(__FILE__, 0xA5B, "VIConfigure(): Tried to change mode from (%d) to (%d), which is forbidden\n", tvInBootrom, tvInGame);
     }
 
     if ((tvInGame == VI_NTSC) || (tvInGame == VI_MPAL)) {

@@ -254,6 +254,8 @@ public:
     // inferred: names invented (weak copies 0x8000D3A4, 0x800F7FD8, 0x801162A0)
     float Length_unk() const;
     float LengthSq_unk() const;
+    // inferred: squared length on the ground plane (weak copy 0x803D6EC0, game/GameUI.cpp); name invented
+    float LengthSqXZ_unk() const { return x * x + z * z; }
     Vector3 GetNormalize() const;
     Vector3 ToRotation_unk() const; // inferred: x = pitch, y = yaw of the direction
     void fn_80139F60(); // inferred: in-place ToRotation_unk (weak copy 0x80139F60)
@@ -313,11 +315,62 @@ public:
     void fn_8010F668(); // inferred: clears the translation (weak copy 0x8010F668, game/Bullet.cpp)
     void Translate_unk(const Vector3& v); // inferred: *this = *this * trans(v) (weak copy 0x8010F67C, game/Bullet.cpp)
     void fn_80144ED4(float rad); // inferred: *this = *this * rot_z(rad)
-    void fn_801479E4(const Vector3& v); // inferred: sets the translation
+    // inferred: sets the translation (weak copy 0x801479E4, game/CharaTask; inlined by Em206EggMonster::vf10)
+    void fn_801479E4(const Vector3& v) {
+        m[0][3] = v.x;
+        m[1][3] = v.y;
+        m[2][3] = v.z;
+    }
     static Matrix3x4 fn_80147A08(const struct Quaternion_unk& q); // inferred: rotation from a quaternion (PSMTXQuat)
     Matrix3x4& fn_801495E8(const Matrix3x4& a); // inferred: *this = a * *this
     void fn_80149624(float rad); // inferred: *this = *this * rot_y(rad)
-    void fn_801496A8(float x, float y, float z); // inferred: *this = *this * rot_z * rot_y * rot_x
+    // inferred: *this = *this * rot(axis, rad) (name invented; inlined by fn_801496A8)
+    static void RotateAxis_unk(Matrix3x4& mtx, char axis, float rad) {
+        Mtx r;
+        Mtx t;
+        PSMTXRotRad(r, axis, rad);
+        PSMTXConcat(mtx.m, r, t);
+        __MtxCopy(mtx.m, t);
+    }
+    // inferred: *this = *this * rot_z * rot_y * rot_x (name invented; inlined by fn_801496A8 and by
+    // Em206EggMonster::vf10, which reads the angles from its own vector)
+    void RotateZYX_unk(const Vector3& rot) {
+        Matrix3x4 t;
+        Matrix3x4 m;
+        Matrix3x4* p = &m;
+        p->SetIdentity();
+        if (0.0f != rot.z) {
+            RotateAxis_unk(*p, 'z', rot.z);
+        }
+        if (0.0f != rot.y) {
+            RotateAxis_unk(*p, 'y', rot.y);
+        }
+        if (0.0f != rot.x) {
+            RotateAxis_unk(*p, 'x', rot.x);
+        }
+        PSMTXConcat(this->m, p->m, t.m);
+        *this = t;
+    }
+    // inferred: same from three angles (weak copy 0x801496A8, game/CharaTask); calling
+    // RotateZYX_unk from here gives 95% (the angles are not kept in a local vector)
+    void fn_801496A8(float x, float y, float z) {
+        Vector3 rot(x, y, z);
+        Matrix3x4 t;
+        Matrix3x4 m;
+        Matrix3x4* p = &m;
+        p->SetIdentity();
+        if (0.0f != rot.z) {
+            RotateAxis_unk(*p, 'z', rot.z);
+        }
+        if (0.0f != rot.y) {
+            RotateAxis_unk(*p, 'y', rot.y);
+        }
+        if (0.0f != rot.x) {
+            RotateAxis_unk(*p, 'x', rot.x);
+        }
+        PSMTXConcat(this->m, p->m, t.m);
+        *this = t;
+    }
     // inferred: translation (weak copy 0x8000D0F8); name invented
     Vector3 GetTrans_unk() const { return Vector3(m[0][3], m[1][3], m[2][3]); }
     // inferred: rotation around y by value (inlined by fn_80139F60); name invented

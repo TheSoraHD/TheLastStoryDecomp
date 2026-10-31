@@ -40,7 +40,7 @@ struct MotionBuffer {
     Vector3 m20;
 };
 } // namespace atn
-extern "C" void fn_805F9AB0(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
+extern "C" void C_QUATRotAxisRad(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
 
 // inferred: node callbacks of the model (as in game/Em403WarLion.cpp)
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
@@ -696,7 +696,7 @@ void QuadrupedTask::vf24() {
 // inferred: rotation around an axis (name invented, as in game/Em403WarLion.cpp)
 inline atn::Quaternion_unk QuatAxis_unk(const atn::Vector3& axis, float rad) {
     atn::Quaternion_unk q;
-    fn_805F9AB0(&q, &axis, rad);
+    C_QUATRotAxisRad(&q, &axis, rad);
     return q;
 }
 

@@ -17,8 +17,8 @@ public:
     static HomeButtonMenu* sInstance;
 };
 
+extern "C" void OSSetResetCallback(void (*callback)());
 extern "C" void OSSetPowerCallback(void (*callback)());
-extern "C" void fn_805F69E0(void (*callback)()); // inferred: OSSetResetCallback
 extern "C" void OSReturnToMenu();
 extern "C" void OSShutdownSystem();
 extern "C" void fn_805F38A0(int arg);   // inferred: OSRestart
@@ -215,8 +215,8 @@ extern "C" void fn_80570C50() {
             sys->mLock = 0;
             sys->mPowerReq = 0;
             sys->mResetReq = 0;
-            OSSetPowerCallback(fn_80570B48);
-            fn_805F69E0(fn_80570BD0);
+            OSSetResetCallback(fn_80570B48);
+            OSSetPowerCallback(fn_80570BD0);
         }
         lbl_8087F9A0 = sys;
     }
@@ -234,8 +234,8 @@ inline void GameSystem_StartFade_unk(GameSystem_unk* sys) {
     } else {
         sys->mNoFade = 1;
     }
+    OSSetResetCallback(0);
     OSSetPowerCallback(0);
-    fn_805F69E0(0);
 }
 
 // inferred: per-frame update
@@ -306,8 +306,8 @@ extern "C" void fn_80570CF8(GameSystem_unk* sys) {
             } else {
                 HBMStartBlackOut();
                 sys->mShutdown = 1;
+                OSSetResetCallback(0);
                 OSSetPowerCallback(0);
-                fn_805F69E0(0);
                 StopGame_unk();
             }
         } else {

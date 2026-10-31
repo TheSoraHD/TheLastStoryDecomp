@@ -85,7 +85,7 @@ public:
     int mLoading;              // 0x5AC
     unsigned int mPage;        // 0x5B0
     int m5B4;
-    void* m5B8;                // inferred: fade object (virtual 0x8, 0xC)
+    struct TutorialFade_unk* m5B8; // inferred: fade object (virtual 0x8, 0xC)
     int m5BC;
     int m5C0;
 };

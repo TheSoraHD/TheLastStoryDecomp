@@ -1,5 +1,6 @@
 #include "MP/FuncMessage.h"
 #include "atn/net/PacketPack.h"
+#include "std/ios_init.h"
 
 namespace MP {
 
@@ -7,8 +8,150 @@ namespace MP {
 // left out)
 class PacketPackMP : public atn::net::PacketPack {
 public:
+    // inferred: vf10 returns 0x41 (0x80501054) and vf0C returns 0 (0x8050105C); they come after the
+    // weak copies of the MP::func_* classes in the original, which is not reproduced yet, so they
+    // are only declared
+    virtual int vf0C();
+    virtual unsigned char vf10();
+    virtual unsigned char vf14(int code);
     virtual atn::net::FuncMessage* vf18(unsigned char id);
 };
+
+// inferred: message id of a packet code (0x804FF9BC)
+unsigned char PacketPackMP::vf14(int code) {
+    switch (code) {
+    case 0x1016:
+        return 0x1;
+    case 0x1014:
+        return 0x2;
+    case 0x1015:
+        return 0x3;
+    case 0x1017:
+        return 0x4;
+    case 0x1024:
+        return 0x5;
+    case 0x1025:
+        return 0x3A;
+    case 0x1027:
+        return 0x6;
+    case 0x102E:
+        return 0x7;
+    case 0x102F:
+        return 0x8;
+    case 0x1049:
+        return 0x40;
+    case 0x1030:
+        return 0x9;
+    case 0x1022:
+        return 0xA;
+    case 0x1021:
+        return 0xB;
+    case 0x1001:
+        return 0xC;
+    case 0x1002:
+        return 0xD;
+    case 0x1003:
+        return 0xE;
+    case 0x1004:
+        return 0xF;
+    case 0x1005:
+        return 0x10;
+    case 0x1006:
+        return 0x11;
+    case 0x1007:
+        return 0x12;
+    case 0x1008:
+        return 0x13;
+    case 0x1009:
+        return 0x14;
+    case 0x100A:
+        return 0x15;
+    case 0x100B:
+        return 0x16;
+    case 0x1010:
+        return 0x17;
+    case 0x1013:
+        return 0x18;
+    case 0x101A:
+        return 0x19;
+    case 0x101B:
+        return 0x1A;
+    case 0x101C:
+        return 0x1B;
+    case 0x101D:
+        return 0x1C;
+    case 0x101E:
+        return 0x1D;
+    case 0x1023:
+        return 0x1E;
+    case 0x1031:
+        return 0x1F;
+    case 0x1032:
+        return 0x20;
+    case 0x6:
+        return 0x21;
+    case 0x8:
+        return 0x22;
+    case 0x9:
+        return 0x23;
+    case 0x10:
+        return 0x24;
+    case 0x13:
+        return 0x25;
+    case 0x14:
+        return 0x26;
+    case 0x1033:
+        return 0x27;
+    case 0x1034:
+        return 0x28;
+    case 0x1035:
+        return 0x29;
+    case 0x1036:
+        return 0x2A;
+    case 0x1037:
+        return 0x2B;
+    case 0x1038:
+        return 0x2C;
+    case 0x1039:
+        return 0x2D;
+    case 0x103A:
+        return 0x2E;
+    case 0x103B:
+        return 0x2F;
+    case 0x103C:
+        return 0x30;
+    case 0x103D:
+        return 0x31;
+    case 0x103E:
+        return 0x32;
+    case 0x103F:
+        return 0x33;
+    case 0x1011:
+        return 0x34;
+    case 0x1012:
+        return 0x35;
+    case 0x1040:
+        return 0x36;
+    case 0x1041:
+        return 0x37;
+    case 0x1042:
+        return 0x38;
+    case 0x1043:
+        return 0x39;
+    case 0x1044:
+        return 0x3B;
+    case 0x1045:
+        return 0x3C;
+    case 0x1046:
+        return 0x3D;
+    case 0x1047:
+        return 0x3E;
+    case 0x1048:
+        return 0x3F;
+    }
+    fn_8050E62C(0, "invalid messageID\n");
+    return 0;
+}
 
 // inferred: returns the message object of an id (0x804FFE04). This file is only a part of the
 // translation unit (the other MP::func_* classes and PacketPackMP are around it), so it is not

@@ -1,4 +1,8 @@
 #include "game/BattleCharaTask.h"
+#include "game/GameUI.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
+#include "game/HomingBullet.h"
 #include "game/GameConfig_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/GimmickManager.h"
@@ -17,13 +21,27 @@
 #include "atn/Csv.h"
 #include <boost/tokenizer.hpp>
 #include "atn/SoundRef.h"
+#include "chr/ControlCharge.h"
+#include "chr/ControlAttackBase.h"
+#include "game/TacView.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
+#include "game/SkillEffectManager.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
 // inferred: camera of the field (lbl_8087F430 + 0x6C, as in game/FinishCamera_unk.cpp)
 struct CameraSub_unk {
     void fn_80389838(int arg);
-    unsigned char m000[0x868 - 0x6C];
+    unsigned char m000[0x08];
+    atn::Vector3 m08; // inferred: eye (field + 0x74)
+    atn::Vector3 m14; // inferred: target point (field + 0x80)
+    unsigned char m020[0x1FC - 0x20];
+    atn::Vector3 m1FC; // inferred: eye of the aim (field + 0x268)
+    atn::Vector3 m208; // inferred: target of the aim (field + 0x274)
+    unsigned char m214[0x868 - 0x280];
 };
 // inferred: battle area of the field (lbl_8087F430->m10D8); names invented
 struct BattleAreaInfo_unk {
@@ -43,10 +61,18 @@ struct Field_unk {
     unsigned char m0000[0x6C];
     CameraSub_unk m006C; // inferred: also the object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
     int m868; // inferred: mode (3 and 4: battle, as in game/CharaTask.cpp)
-    unsigned char m86C[0x10D0 - 0x86C];
+    unsigned char m86C[0x94C - 0x86C];
+    int m94C;
+    unsigned char m950[0x10D0 - 0x950];
     int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
     int m10D4;
     BattleArea_unk* m10D8;
+    unsigned char m10DC[0x54E4 - 0x10DC];
+    int m54E4; // inferred: nonzero stops the combined attack
+    unsigned char m54E8[0x5674 - 0x54E8];
+    int m5674; // inferred: nonzero allows the specials (fn_800E62AC)
+    unsigned char m5678[0x5744 - 0x5678];
+    unsigned int m5744; // inferred: frame counter of the field
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
@@ -62,6 +88,62 @@ extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
+// inferred: colour as four floats (as in game/CharaTask.cpp)
+struct Color4f_unk {
+    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r, g, b, a;
+};
+extern "C" void fn_80107168(Effect_unk* mgr, int id, int a, int b, atn::Model* model, const atn::Vector3* pos,
+                            const atn::Vector3* rot, const Color4f_unk* color, float scale); // inferred: effect of a skill
+extern "C" void fn_80107208(Effect_unk* mgr, int id, const atn::Vector3* pos, float scale);
+extern "C" void fn_8010AB94(Effect_unk* mgr); // inferred: starts the combined attack effect
+extern "C" void* fn_80210220(int id); // inferred: record of the parameters (result unused here)
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+// inferred: state checks of CharaTask written with a result flag (the original materializes each bool);
+// names invented
+static inline bool IsActiveB_unk(CharaTask* c) {
+    bool r = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsFreeB_unk(CharaTask* c) {
+    bool r = false;
+    if (IsActiveB_unk(c) && (c->mStatus.m0C & 0x20) != 0x20) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsGrappledB_unk(CharaTask* c) {
+    bool r = false;
+    if (c->m55C == 6 && c->m560 == 28) {
+        r = true;
+    }
+    return r;
+}
+static inline bool CanActB_unk(CharaTask* c) {
+    bool r = false;
+    if (IsFreeB_unk(c) && !IsGrappledB_unk(c)) {
+        r = true;
+    }
+    return r;
+}
+// inferred: front direction of the character (as in game/Em206EggMonster.cpp; name invented)
+static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &v, &v);
+    return v;
+}
 extern "C" void fn_8010220C(Effect_unk* mgr, int arg);
 // inferred: target in front of the character within radius/theta
 extern "C" CharaTask* fn_800FFE68(Effect_unk* mgr, CharaTask* chara, const atn::Vector3* dir, int a, int b,
@@ -74,6 +156,7 @@ extern "C" int fn_801004FC(Effect_unk* mgr, CharaTask** out, CharaTask* chara, c
 extern "C" int fn_80100BB8(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
                            float theta);
 extern "C" double cos(double x);
+extern "C" double sin(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -88,7 +171,7 @@ struct BattleTarget_unk {
     int m08;
     atn::Vector3 mPos;
 };
-extern "C" int fn_80219344(CharaTask* chara, int arg);
+extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg); // inferred: skill of the slot `arg`
 extern "C" int fn_8036DAA8(Field_unk* field, CharaTask* chara); // inferred: the special skill is allowed here
 extern "C" void* lbl_8087EE68; // inferred: party manager (as in game/CharaTask.cpp)
 // inferred: result of fn_800185B4 (as in game/CharaTask.cpp)
@@ -96,12 +179,7 @@ struct MagicTarget_unk;
 extern "C" MagicTarget_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
 extern "C" int fn_803754F0(Field_unk* field); // inferred: an event scene is running
 extern "C" int fn_80375D0C(Field_unk* field);  // inferred: level cap of the field
-// inferred: player manager (lbl_8087F8A0, as in game/CharaTask.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: experience of a kill (as in gmk/FlyObjManager.cpp)
 extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
 extern "C" void fn_80449448(int* a, int* b, int level, int cap);
@@ -135,7 +213,7 @@ static const char* const sBattleSe_unk[] = {sSe009_unk, sSe009_unk, sSe023_unk, 
 BattleCharaTask::BattleCharaTask(atn::Task* parent, int type, void* data)
     : CharaTask(parent, type, data), m1424(0), m1428(0), m142C(0), m1430(0), m1434(0), m1438(0), m143C(0),
       m1440(0), m1450(0), m1454(1), m1458(1.0f), m145C(0), m1460(0), m1464(0), m146C(0), m1470(0), m1472(0),
-      m1474(0), m1478(150), m147C(0.0f), m1480(0.0f), m1484(0.0f), m1488(0), m149C(0.0f), m14A0(0), m14A4(0) {
+      m1474(0), m1478(150), m147C(0.0f, 0.0f, 0.0f), m1488(0), m149C(0.0f), m14A0(0), m14A4(0) {
     mFlagC31 = 0;
     mFlagC30 = 0;
     mFlagC29 = 0;
@@ -182,10 +260,6 @@ BattleCharaTask::~BattleCharaTask() {
     }
 }
 
-// inferred: the HUD (lbl_8087F490, game/GameUI.h); only passed to fn_803E2110 here
-struct GameUI;
-extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E2110(GameUI* ui, int arg, CharaTask* chara); // inferred: HUD notice (3: low hit points)
 extern "C" int fn_80370A78(Field_unk* field, int id);
 extern "C" void fn_80370AE4(Field_unk* field, int id, int value);
 
@@ -235,7 +309,10 @@ struct RayObj_unk {
 };
 struct RayResult_unk {
     RayResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x34];
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10; // inferred: position of the sweep
+    unsigned char m1C[0x34 - 0x1C];
     int m34;
     RayObj_unk* m38;
     int m3C;
@@ -254,6 +331,211 @@ struct BattleCamera_unk {
     atn::Vector3 mTarget; // 0x118
 };
 extern "C" BattleCamera_unk* lbl_8087EFB4;
+
+// inferred: record of the parameters of fn_80210220 (as Record80210220_unk in chr/ControlAttractHateCharge.cpp)
+struct ParamRecord_unk {
+    unsigned char m00[0x48];
+    int m48;
+    int m4C;
+};
+extern "C" void fn_80105DCC(Effect_unk* mgr, CharaTask* chara, chr::Motion_unk* motion, int arg); // inferred
+// inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp)
+extern "C" void* lbl_8087F9E8;
+extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
+                                    const atn::Vector3* pos, const atn::Vector3* rot,
+                                    boost::function<void(SkillEffect*)> callback, float rate);
+// inferred: voice player (lbl_8087F498, as in game/Em201ZanGurg.cpp)
+extern "C" void* lbl_8087F498;
+extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
+extern "C" void* lbl_8087F540; // inferred: song battle (game/SongManager.cpp)
+extern "C" int fn_80481668(void* song); // inferred: nonzero while the song stops the characters
+
+// NONMATCHING: 99.2% - `mType == 3 || mType == 2` becomes a range compare; stack slots 4 bytes apart
+// inferred: per-frame update of the player characters: runs the pending state m1470 (skills, combined
+// attack, charge...) when the timer m1474 ends, then the weapons, the movement and the falls of the guests
+void BattleCharaTask::fn_800E2FE0() {
+    m14A0--;
+    m14A4 = m14A4 - 1 < 0 ? 0 : m14A4 - 1;
+    if (m1470 != 0 && --m1474 < 0) {
+        if ((mType == 0 && m55C == 1) ||
+            ((mType == 3 || mType == 2) && (m55C == 2 || (m55C == 7 && mC58.m11C.fn_8011D1FC() && m1470 == 12)))) {
+            switch (m1470) {
+            case 1:
+                fn_80155A88(m147C, m1472 == 8);
+                m1470 = 0;
+                if (m1472 > 0) {
+                    PlayerState_unk state(m1472);
+                    state.m0C = m147C;
+                    state.m18 = m1488;
+                    SetState_unk(state);
+                }
+                break;
+            case 2:
+                fn_80161570(0x153, 1, 0x78, -1.0f, -1.0f);
+                m1470 = 0;
+                break;
+            case 4:
+                m1470 = 0;
+                break;
+            case 5:
+                if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 0) {
+                    GameConfig_unk* config = lbl_8087F0A8;
+                    ParamRecord_unk* rec = (ParamRecord_unk*)fn_80210220(config->mParamIndex);
+                    CharaShade_unk shade;
+                    shade.m04 = rec->m48;
+                    shade.m08 = rec->m4C;
+                    shade.m0C = config->mHateAttackedDelayFrame;
+                    fn_80164B00(shade);
+                    m1428 = this;
+                    mFlagC27 = 1;
+                    m1430 = config->mCoolDownFrame;
+                    if (lbl_8087F048 != 0) {
+                        fn_8010AB94(lbl_8087F048);
+                    }
+                    fn_80105DCC(lbl_8087F048, this, &mMotion, 1);
+                    m1470 = 0;
+                }
+                break;
+            case 6: {
+                HitInfo_unk* skill = fn_80219344(this, 1);
+                m63C = m638;
+                m638 = skill;
+                fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChargeAttack(this, m147C, 1));
+                m1470 = 0;
+                break;
+            }
+            case 7: {
+                if (lbl_8087F9E8 != 0) {
+                    HitInfo_unk* skill = fn_80219E6C(m1488);
+                    fn_8059B66C(lbl_8087F9E8, skill, this, this, &lbl_807C7030, &mRot,
+                                boost::function<void(SkillEffect*)>(), 1.0f);
+                }
+                m1470 = 0;
+                break;
+            }
+            case 8: {
+                if (lbl_8087F9E8 != 0) {
+                    HitInfo_unk* skill = fn_80219E6C(m1488);
+                    fn_8059B66C(lbl_8087F9E8, skill, this, this, &lbl_807C7030, &mRot,
+                                boost::bind(&TacView::fn_805AA4C8, lbl_8087F9F8, _1), 1.0f);
+                    if (lbl_8087F498 != 0) {
+                        fn_803EA77C(lbl_8087F498, this, 0x20, 0, 1.0f, 10.0f);
+                    }
+                }
+                mFlagB16 = 1;
+                m138C = lbl_8087F430 != 0 ? lbl_8087F430->m5744 : 0;
+                m1470 = 0;
+                break;
+            }
+            case 9:
+                if (m55C == 2 && !mFlag31) {
+                    fn_80170A20(lbl_8087F8A0->mHead, 0, 30.0f);
+                    m1470 = 0;
+                }
+                break;
+            case 10:
+                if (fn_8036DAA8(lbl_8087F430, this)) {
+                    HitInfo_unk* skill = fn_80219344(this, 5);
+                    m63C = m638;
+                    m638 = skill;
+                    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlQuarkSeirenAttack(this, m147C, 150.0f, 1));
+                    m1470 = 0;
+                }
+                break;
+            case 11:
+                if (fn_8036DAA8(lbl_8087F430, this)) {
+                    HitInfo_unk* skill = fn_80219344(this, 5);
+                    m63C = m638;
+                    m638 = skill;
+                    mF6C = m147C;
+                    mF7C = this;
+                    mPos.y += 18.0f;
+                    atn::Vector3 d = mF6C - mPos;
+                    if (d.x * d.x + d.z * d.z > 0.01f) {
+                        mRot.y = (mF6C - mPos).ToRotationZ_unk().y;
+                    }
+                    fn_801603CC(1, 1.0f);
+                    m1470 = 0;
+                }
+                break;
+            case 12:
+                if (mC58.m11C.fn_8011D1FC()) {
+                    if (!mC58.m11C.fn_8011D21C() || m1488 == 1) {
+                        mC58.m11C.fn_8011CD84(this, m1488);
+                    }
+                }
+                m1470 = 0;
+                break;
+            }
+        } else if ((unsigned int)(m1470 - 3) > 2 && m1470 != 12) {
+            if (--m1478 < 0) {
+                m1470 = 0;
+            }
+        }
+    }
+    fn_8014C540();
+    if (lbl_8087F540 == 0 || fn_80481668(lbl_8087F540) == 0) {
+        fn_800EE5AC((Arms*)m648);
+        if (m64C != 0) {
+            fn_800EE5AC((Arms*)m64C);
+        }
+    }
+    if (lbl_8087F610 != 0 && m58C != 2) {
+        m1450 = 0;
+    }
+    if (mType == 0 && (mStatus.m0C & 0x100) != 0x100) {
+        if ((mStatus.m0C & 0x20) == 0x20 && m58C != 2) {
+            vf44();
+        }
+        if (m648 != 0) {
+            fn_800E589C();
+        } else if (m58C == 2) {
+            vfEC();
+        } else {
+            fn_80139560();
+        }
+        atn::Vector3 from;
+        atn::Vector3 to;
+        fn_800E932C(&from, &to, 0);
+        mFA4 = to;
+    } else {
+        if ((mStatus.m0C & 0x20) == 0x20 && m58C != 2) {
+            vf44();
+        }
+        if (mFlag2) {
+            if (m58C == 2) {
+                vfF0();
+            }
+        } else if (m648 != 0) {
+            fn_800E9ED8();
+        } else if (m58C == 2) {
+            vfF0();
+        } else {
+            fn_80139560();
+        }
+    }
+    if (mType != 2) {
+        if ((mFlags & 1) != 1) {
+            fn_80145334();
+        }
+    } else if ((mFlags & 1) != 1 && !mFlag25) {
+        fn_80145334();
+    } else {
+        atn::Vector3 d = lbl_8087EFB4->mEye - mPos;
+        fn_80148B38(PSVECSquareMag(&d));
+    }
+    if (mType == 2 && CanAct_unk() && (m54C & 0x2000) != 0x2000 && mC58.mC0 != 0) {
+        CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (player != 0) {
+            atn::Vector3 d = mPos - player->mPos;
+            if (atn::Abs_unk(d.y) >= 400.0f) {
+                vf44();
+                atn::Vector3 front = FrontDir_unk(mRot);
+                fn_8015E7A0(atn::Vector3(-front.x, -front.y, -front.z), -1, 0);
+            }
+        }
+    }
+}
 
 // inferred: looks for the character under the camera ray
 // NONMATCHING: 99.84% - stack slots of the two vector temporaries swapped, r3/r4 of the copy
@@ -318,6 +600,204 @@ void BattleCharaTask::fn_800E426C() {
     fn_8010220C(lbl_8087F048, 0);
 }
 
+extern "C" void fn_803748E0(Field_unk* field, int arg); // inferred: ends the grapple camera
+// inferred: one hit of fn_800F8C6C (names invented)
+struct HitResult_unk {
+    CharaTask* mChara;
+    unsigned int mFlags; // inferred: 8 = critical
+};
+extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
+                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
+extern "C" float fn_8010CA34(Effect_unk* effect); // inferred: speed rate of the attacks
+
+// inferred: frame of the attack motions where the hit starts (name invented)
+inline float HitFrame_unk(int motion) {
+    float frame;
+    switch (motion) {
+    case 0x158:
+        frame = 15.0f;
+        break;
+    case 0x159:
+        frame = 14.0f;
+        break;
+    case 0x15A:
+        frame = 16.0f;
+        break;
+    case 0x15B:
+        frame = 16.0f;
+        break;
+    case 0x16A:
+        frame = 32.0f;
+        break;
+    case 0x161:
+        frame = 23.0f;
+        break;
+    default:
+        frame = 14.0f;
+        break;
+    }
+    return frame;
+}
+
+// NONMATCHING: 97% - `m560 >= 4 && m560 < 12` becomes a range compare; this/config in r29/r30 instead of
+// r30/r31
+// inferred: update of the player characters with a weapon (states 0-4 of m58C: idle, attack, ...)
+void BattleCharaTask::fn_800E589C() {
+    GameConfig_unk* config = lbl_8087F0A8;
+    int grappled = 0;
+    if (m55C == 6 && m560 == 28) {
+        grappled = 1;
+    }
+    switch (m58C) {
+    case 0:
+        if (m55C == 1 && mMotion.fn_80097D40(200)) {
+            m1188.SetMotion(200, false, false, false, 1.0f, 0.0f);
+        }
+        fn_80139560();
+        if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->m868 == 6) {
+            fn_803748E0(lbl_8087F430, 1);
+            lbl_8087F430->m94C = 1;
+        }
+        break;
+    case 1: {
+        atn::Vector3 rot = mRot;
+        if (fn_80158BB4()) {
+            if (m55C != 6 || (m560 != 13 && m560 != 29)) {
+                fn_8016DA4C();
+            }
+            m1424 = 0;
+            mFlagC30 = 0;
+            m58C = 0;
+            int attack = 0;
+            if (m55C == 6) {
+                if (m560 >= 4) {
+                    if (m560 < 12) {
+                        attack = 1;
+                    }
+                }
+            }
+            if (attack) {
+                fn_8016E970(1);
+            }
+        } else if ((unsigned int)(m560 - 4) <= 1) {
+            float end = 12.0f;
+            if ((unsigned int)m50 == 0xAAE76 || (unsigned int)m50 == 0xAAE77) {
+                end = mMotion.fn_80097D7C(0) - 5.0f;
+            }
+            if (m1424 > 0 && mMotion.mTracks[0].m08 >= end) {
+                BattleTarget_unk target;
+                m1424--;
+                float frame = HitFrame_unk(mMotion.mTracks[0].m00);
+                if (m560 == 4 && config->mAttackEndWait != 0 && mMotion.mTracks[0].m08 >= frame) {
+                    float speed = 4.0f / m638->m68;
+                    if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
+                        speed *= fn_8010CA34(lbl_8087F048);
+                    }
+                    mMotion.mTracks[0].m0C = speed;
+                }
+                int pressed = fn_800E70EC(1, -1, 0);
+                if (mMotion.mTracks[0].m08 > 13.0f && !mFlag31) {
+                    int count = m1424;
+                    m1424 = 0;
+                    if (SetConfig::sInstance->mAttackType == 0 || pressed != 0) {
+                        if (fn_800E7214(&target.mChara, 1)) {
+                            mFlagC30 = 1;
+                            m1444 = target.mPos;
+                        } else if (pressed) {
+                            mFlagC30 = 1;
+                            Effect_unk* mgr = lbl_8087F048;
+                            atn::Vector3 dir = fn_80178018();
+                            CharaTask* chara = fn_800FFE68(mgr, this, &dir, 0, 0, config->mBtnAtkCorrectRadius,
+                                                           0.5f * config->mBtnAtkCorrectTheta);
+                            if (chara != 0) {
+                                target.mChara = chara;
+                                m1444 = chara->mPos;
+                            } else {
+                                target.mChara = 0;
+                                m1444.x = 0.0f;
+                                m1444.y = 0.0f;
+                                m1444.z = 10.0f;
+                                Mtx m;
+                                PSMTXRotRad(m, 'y', fn_80178018().y);
+                                PSMTXMultVec(m, &m1444, &m1444);
+                                m1444 += mPos;
+                            }
+                        }
+                    }
+                    m1424 = count;
+                }
+                if (mFlagC29 && config->mAttackGuardWait > 0.0f) {
+                    if (mMotion.mTracks[0].m00 == 0x162) {
+                        frame = mMotion.fn_80097D7C(0) - 5.0f;
+                    } else {
+                        frame = mMotion.fn_80097D7C(0) - 2.0f;
+                    }
+                }
+                if (SetConfig::sInstance->mAttackType != 0 && lbl_8087F610 != 0) {
+                    if (mMotion.mTracks[0].m00 == 0x162) {
+                        frame = 18.0f;
+                    } else if (mMotion.mTracks[0].m00 == 0x163) {
+                        frame = 18.0f;
+                    }
+                }
+                if (mFlagC30 && mMotion.mTracks[0].m08 >= frame &&
+                    (pressed || !lbl_8087F0A8->mInput.fn_801240B4(7))) {
+                    fn_800E8688(200, 0, target.mChara, &m1444, 0, 0);
+                }
+            } else {
+                m13B4 = 0.0f;
+            }
+        }
+        float frame = HitFrame_unk(mMotion.mTracks[0].m00);
+        config = lbl_8087F0A8;
+        if (mFlagC29 && config->mAttackGuardWait > 0.0f && mMotion.mTracks[0].m08 >= frame) {
+            float rest = mMotion.fn_80097D7C(0) - frame;
+            float speed = rest / (rest + config->mAttackGuardWait);
+            if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
+                speed *= fn_8010CA34(lbl_8087F048);
+            }
+            mMotion.mTracks[0].m0C = speed;
+        }
+        fn_80139560();
+        if (lbl_8087F048 != 0 && fn_80158CA4() && m560 != 11) {
+            if (mControl && mControl->vf30() > m598) {
+                m598 = mControl->vf30();
+                m594 = 1;
+                m590 = fn_800F8548(lbl_8087F048);
+            }
+            if (m594 != 0) {
+                fn_80144710();
+                HitResult_unk results[8];
+                int n = fn_800F8C6C(lbl_8087F048, results, 8, this, m638, m590, 30, m594,
+                                    mFlag31 ? 3.1415927f : 0.0f);
+                if (n > 0) {
+                    if (m594 > 0) {
+                        m594 -= n;
+                    }
+                    int critical = 0;
+                    for (int i = 0; i < n; i++) {
+                        if ((results[i].mFlags & 8) == 8) {
+                            critical = 1;
+                        }
+                    }
+                    if (critical && (unsigned int)(m560 - 4) <= 1) {
+                        mFlagC29 = 1;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 2:
+        vfEC();
+        break;
+    case 3:
+    case 4:
+        fn_80139560();
+        break;
+    }
+}
+
 // NONMATCHING: 99.96% - stack slots of the second and third rotation matrices swapped (~8 forms)
 void BattleCharaTask::fn_800E610C() {
     atn::Vector3 input(0.0f, 0.0f, 1.0f);
@@ -345,6 +825,257 @@ void BattleCharaTask::fn_800E610C() {
             }
         }
     }
+}
+
+extern "C" int fn_8021921C(CharaTask* chara, int slot); // inferred: magic of the slot (db/PlayerParam_unk.cpp)
+extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
+extern "C" int fn_8021AF98(int id); // inferred: skill id of a skill growth entry (db/SkillGrowth_unk)
+extern "C" int fn_803761AC(Field_unk* field);
+
+// inferred: control with a timer (ids 10 and 12 of m560; class unknown, names invented)
+class ControlTimer_unk : public chr::ControlBase {
+public:
+    bool IsDone_unk() const { return m08 <= 0.0f; }
+    float m08;
+    unsigned char m0C[0x1C - 0x0C];
+    int m1C; // inferred: set to end the control early
+};
+
+// inferred: hit point rate of a character (name invented)
+inline float HpRate_unk(CharaTask* c) {
+    return c->mStatus.mParamB.m88 > 0 ? c->mStatus.m08 / c->mStatus.mParamB.m88 : 0.0f;
+}
+
+// NONMATCHING: 98.7% - the flag word is not reloaded before clearing mFlag5; registers of the magic slot
+// inferred: input of the player in the field: cursor of the field at full life, lock-on, crossbow,
+// attacks (fn_800E73EC) and the skills of the special button
+void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
+    GameConfig_unk* config = lbl_8087F0A8;
+    int attack = 1;
+    if (lbl_8087F610 == 0 && fn_80375184(lbl_8087F430) && atn::Abs_unk(HpRate_unk(this) - 1.0f) < 1.1920929e-7f &&
+        fn_80370174(lbl_8087F430, 0x88) == 0 && lbl_8087F0A8->mInput.fn_801231D0(0x31)) {
+        int cursor = 0;
+        if (m55C == 1) {
+            cursor = 1;
+        } else if (m55C == 6 && (m560 == 4 || m560 == 2 || m560 == 0x61)) {
+            if (mControl) {
+                mControl->vf1C();
+                boost::function<void()> next = mControl->vf10();
+                mControl.reset();
+                if (next) {
+                    next();
+                }
+            }
+            cursor = 1;
+        }
+        if (mFlag3 || m139C != 0 || m1208 != 0) {
+            cursor = 0;
+        }
+        if (cursor) {
+            fn_80373FC4(lbl_8087F430);
+            return;
+        }
+    }
+    if (m55C != 1) {
+        int ending = 0;
+        if (m55C == 6) {
+            if (m560 == 0x14) {
+                ending = 1;
+            } else if (m560 == 10) {
+                float frame = mMotion.mTracks[0].m08;
+                ending = 1;
+                if (frame > 9.0f && frame < 12.0f) {
+                    ((ControlTimer_unk*)mControl.get())->m1C = 1;
+                    if (fn_8016E484()) {
+                        fn_800E8688(fn_8021AF98(2), 0, 0, 0, 0, 0);
+                    } else {
+                        fn_800E8688(0xD0, 0, 0, 0, 0, 0);
+                    }
+                }
+            }
+        }
+        mFlag5 = ending;
+        int release = !lbl_8087F0A8->mInput.fn_801240B4(7);
+        if (m55C == 6 && ((unsigned int)(m560 - 0x14) <= 3 || (unsigned int)(m560 - 0x1C) <= 1 || m560 == 0x3B ||
+                          m560 == 0xF || m560 == 10)) {
+            release = 1;
+        }
+        if (release) {
+            mFC0 = 0;
+        }
+        if (m55C != 6) {
+            return;
+        }
+        if ((unsigned int)(m560 - 4) > 1 && m560 != 9) {
+            return;
+        }
+        attack = mMotion.mTracks[0].m08 >= config->mBtnAtkChargeStart;
+    } else {
+        if (m1424 > 0) {
+            m1424--;
+        }
+        CameraSub_unk* camera = &field->m006C;
+        if (mFlag27) {
+            mFC0 = 0;
+            attack = 0;
+            mFlag5 = 0;
+        } else {
+            int cover = 0;
+            if (mFlag31 && mC48 != 0) {
+                cover = 1;
+            }
+            if (cover) {
+                mFC0 = 0;
+                mFlag5 = 0;
+                if (fn_800E70EC(0, a, b)) {
+                    attack = 0;
+                }
+            } else if (mFlag6) {
+                mFC0 = 0;
+                mFlag5 = 0;
+                if (!lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
+                    fn_80155DAC(0);
+                } else if ((unsigned int)(m50 - 0xAAE76) <= 1) {
+                    if (lbl_8087F0A8->mInput.fn_801237F0(0x17)) {
+                        CrossbowMenuTask::sInstance->fn_801E9ECC(-1, 1);
+                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x18)) {
+                        CrossbowMenuTask::sInstance->fn_801E9ECC(1, 1);
+                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x1A)) {
+                        CrossbowMenuTask::sInstance->fn_801E97DC();
+                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x1B)) {
+                    }
+                    if (lbl_8087F0A8->mInput.fn_801231D0(6) && m640 <= 0 && mFB0 <= 0) {
+                        mFlagB8 = 0;
+                        fn_800E8FB8();
+                    }
+                }
+            } else if (m1208 != 0 || mFlag3 || mF54 != 0 || m139C != 0) {
+                mFC0 = 0;
+                attack = 0;
+                mFlag5 = 0;
+                if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
+                    fn_8037EF30(camera, 0, 1, -1.0f);
+                }
+            } else if (mFlag5) {
+                if (lbl_8087F0A8->mInput.fn_801231D0(0x16)) {
+                    fn_800E610C();
+                }
+                if (mFlag31) {
+                    mFC0 = 0;
+                } else if (lbl_8087F0A8->mInput.fn_801231D0(0x1E)) {
+                    if (mFC4 != 0) {
+                        Effect_unk* mgr = lbl_8087F048;
+                        atn::Vector3 dir = fn_80178018();
+                        fn_8016DC14(fn_800FFE68(mgr, this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta), 0);
+                        mFC0 = mFC4;
+                    } else {
+                        fn_8016DC14(mFC0, 0);
+                    }
+                } else {
+                    fn_80108A54(lbl_8087F048, this);
+                }
+                mFlag5 = 1;
+                if (fn_800E70EC(0, a, b)) {
+                    attack = 0;
+                }
+                if (!lbl_8087F0A8->mInput.fn_801240B4(7) && !mFlagB16) {
+                    mFlag5 = 0;
+                }
+            } else if (lbl_8087F0A8->mInput.fn_801231D0(0x16) &&
+                       ((b == 0 && a == -1) || !lbl_8087F0A8->mInput.fn_801231D0(2))) {
+                fn_800E610C();
+                attack = 0;
+            } else {
+                attack = fn_800E73EC(field, a, b);
+            }
+        }
+    }
+    int special = 0;
+    if (attack && fn_80178078() < 0.3f) {
+        special = 1;
+    }
+    switch (m5C->m11C) {
+    case 0:
+    case 1:
+    case 2:
+        special = special && !mFlag6;
+        break;
+    case 3:
+    case 4:
+        special = special && (mStatus.m0C & 4) != 4;
+        break;
+    }
+    if (special) {
+        int wait = 6;
+        if (mFlag31) {
+            wait = 12;
+        }
+        if (lbl_8087F0A8->mInput.fn_801240B4(9) && fn_803761AC(field) && fn_8016DCD4() && !mStatus.fn_80134134(0x2E) &&
+            field->m5674 != 0) {
+            if (mFB8 >= wait) {
+                switch (fn_80219558(m50)) {
+                case 0:
+                    if (fn_80219344(this, 1) != 0 && fn_80375184(field) && HpRate_unk(this) >= 0.25f &&
+                        (mStatus.m0C & 4) != 4) {
+                        if (lbl_8087F610 == 0) {
+                            fn_8016D74C(fn_80219344(this, 1), 0, 0);
+                        } else {
+                            fn_8016D74C(fn_80219E6C(mStatus.m2D0[m145C].m[0]), 0, 0);
+                        }
+                    }
+                    break;
+                case 2:
+                case 3:
+                    if (lbl_8087F610 != 0 && mStatus.m2D0[m145C].m[0] > 0 && HpRate_unk(this) >= 0.25f &&
+                        (mStatus.m0C & 4) != 4) {
+                        fn_8016D74C(fn_80219E6C(mStatus.m2D0[m145C].m[0]), 0, 0);
+                    }
+                    break;
+                case 6: {
+                    CharaStatusPair_unk& magic = mStatus.m2D0[m145C];
+                    if (magic.m[0] != fn_8021921C(this, 4)) {
+                        fn_800E9110();
+                    }
+                    break;
+                }
+                case 1:
+                case 4:
+                case 5:
+                    fn_800E9110();
+                    break;
+                default: {
+                    CharaStatusPair_unk& magic = mStatus.m2D0[m145C];
+                    if (magic.m[0] > 0) {
+                        if ((unsigned int)m5C->m11C <= 2) {
+                            if ((unsigned int)m50 == 0xAAE72) {
+                                if ((mStatus.m0C & 4) != 4) {
+                                    fn_800E9110();
+                                }
+                            } else if ((unsigned int)(m50 - 0xAAE76) <= 1) {
+                                fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlZanTackle(this));
+                            } else if (HpRate_unk(this) >= 0.25f && (mStatus.m0C & 4) != 4) {
+                                fn_8016D74C(fn_80219E6C(magic.m[0]), 0, 0);
+                            }
+                        } else {
+                            fn_800E9110();
+                        }
+                    }
+                    break;
+                }
+                }
+            }
+            mFB8 += 1.0f;
+        } else {
+            special = 0;
+        }
+    }
+    if (!special && mFB8 > 0.0f) {
+        fn_8016DA4C();
+    }
+    fn_800E7BB0();
 }
 
 int BattleCharaTask::fn_800E70EC(int a, int b, int c) {
@@ -618,6 +1349,102 @@ void BattleCharaTask::fn_800E7BB0() {
     }
 }
 
+// NONMATCHING: 97.4% - stack layout: the original frame is 0x10 bigger (0x14 bytes between the direction and the
+// position of the loop, 8 more above the homing parameters) and keeps the addresses of the loop vectors in
+// r24-r26; the code otherwise matches (state checks with result flags, homing declared outside the loop)
+// inferred: combined attack: the button starts it on this character and, when it is ready (mFlag28 of the
+// partner), fires the bullets of the explosion skill (level from fn_8012F3D8) at up to 7 enemies around
+void BattleCharaTask::fn_800E7F04() {
+    GameConfig_unk* config = lbl_8087F0A8;
+    fn_80210220(config->mParamIndex);
+    if (m1428 != 0 && m1428->mFlag28) {
+        if (lbl_8087F0A8->mInput.fn_801231D0(8) && m1430 <= 0 && config->mButtonReset != 0) {
+            HitInfo_unk* skill = 0;
+            int index = fn_80219558(m50);
+            if (config->mExplosion != 0 && mStatus.fn_801346C8(0x3D) && mStatus.fn_8012F3D8() > 0 &&
+                lbl_8087F048 != 0) {
+                int level = mStatus.fn_8012F3D8();
+                if (level == 1) {
+                    skill = fn_80219E6C(index == 2 ? 0x201 : 0x1F7);
+                } else if (level == 2) {
+                    skill = fn_80219E6C(index == 2 ? 0x202 : 0x1F8);
+                } else {
+                    skill = fn_80219E6C(index == 2 ? 0x203 : 0x1F9);
+                }
+            }
+            if (skill != 0) {
+                Effect_unk* mgr = lbl_8087F048;
+                fn_800FAB80(mgr, this, skill, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+                fn_80107168(lbl_8087F048, skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
+                            &color, 1.0f);
+                fn_80107208(lbl_8087F048, skill->m04, &m1428->mPos, 1.0f);
+                HitInfo_unk* sub = skill->m6C > 0 ? fn_80219E6C(skill->m6C) : 0;
+                if (sub != 0) {
+                    FixedArray_unk<CharaTask*, 32> targets;
+                    HomingParam_unk homing;
+                    for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+                        if (CanActB_unk(e) && (e->m54C & 0x2000) != 0x2000 && !fn_8016F3D0(e, 1) &&
+                            (e->mStatus.m0C & 0x800) == 0x800) {
+                            targets.PushBack_unk(e);
+                        }
+                    }
+                    int count = targets.mCount;
+                    if (targets.mCount < 7) {
+                        count = 7;
+                    }
+                    int id = fn_800F8548(lbl_8087F048);
+                    for (int i = 0; i < count; i++) {
+                        atn::Matrix3x4 rot;
+                        PSMTXRotRad(rot.m, 'y', i * (6.2831855f / count));
+                        atn::Vector3 pos;
+                        pos = FrontDir_unk(mRot);
+                        PSMTXMultVec(rot.m, &pos, &pos);
+                        pos.y += 0.4f;
+                        if (targets.mCount != 0) {
+                            homing.mAccel = 0.0f;
+                            homing.m08 = -1.0f;
+                            homing.mMaxSpeed = 10.0f;
+                            homing.mTime = 300.0f;
+                            homing.mNode = 0;
+                            homing.mTurn = 1.2566371f;
+                            homing.mTarget = targets[i % targets.mCount];
+                            homing.mDelay = 0.0f;
+                            homing.mCount = id;
+                            Effect_unk* mgr = lbl_8087F048;
+                            fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, &homing, 0x2006, 0, 0.0f, 1.0f);
+                        } else {
+                            Effect_unk* mgr = lbl_8087F048;
+                            fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, 0, 2, 0, 0.0f, 1.0f);
+                        }
+                    }
+                }
+            }
+            m1428->fn_80164DCC(skill == 0);
+            m1428 = 0;
+            m14A8 |= 0x8000000;
+        }
+    } else if ((m1428 == 0 || !m1428->mFlag27) && fn_8016DDB0(1) && m1430 <= 0 && mStatus.fn_801346C8(10) &&
+               lbl_8087F610 == 0) {
+        bool pressed = false;
+        if (lbl_8087F0A8->mInput.fn_801231D0(8)) {
+            pressed = true;
+        }
+        if (pressed) {
+            m1428 = this;
+            if (this != 0) {
+                fn_801647BC();
+                m14A8 |= 0x8000000;
+                m1430 = config->mCoolDownFrame;
+            }
+            fn_8010AB94(lbl_8087F048);
+        }
+    }
+    if (m1430 > 0) {
+        m1430--;
+    }
+}
+
 void BattleCharaTask::vf40(HitInfo_unk* hit) {
     if (mType == 0) {
         if (mStatus.IsState_unk(0x20)) {
@@ -642,6 +1469,204 @@ void BattleCharaTask::vf44() {
         fn_80375184(lbl_8087F430);
     }
     m1470 = 0;
+}
+
+// NONMATCHING: 98.1% - cases 1 and 2 of mC48 become a range compare; the original keeps f1 = radius for
+// fn_80157444/fn_80157C34
+// inferred: starts the attack `id` (200: normal attack) at `target`/`pos`; type and mode pass through to
+// CharaTask::fn_801562A0
+void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::Vector3* point, int type, int mode) {
+    if (mFlag6) {
+        return;
+    }
+    m1460 = 0;
+    if (target != 0 && id == 200) {
+        atn::Vector3 d = target->mPos - mPos;
+        float dist = PSVECMag(&d) - target->m5B0;
+        if (dist < target->vf70()) {
+            int kind = target->vf68(this);
+            if (kind != 0) {
+                target->vf6C(kind, this);
+                switch (kind) {
+                case 8: {
+                    atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
+                    PSVECNormalize(&dir, &dir);
+                    m590 = fn_800F8548(lbl_8087F048);
+                    m594 = 1;
+                    m598 = 0;
+                    m59C = 0;
+                    m59D = 0;
+                    m59E = 1;
+                    m59F = 0;
+                    m5A0 = 1.0f;
+                    fn_80178208(new ((MemoryTag)3, "", "", 0)
+                                    chr::ControlAttackLastOne(this, dir, target, 9, fn_80219E6C(0xE2)));
+                    m58C = 1;
+                    mFlag5 = 0;
+                    return;
+                }
+                case 9:
+                case 10:
+                case 11:
+                case 12: {
+                    atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
+                    PSVECNormalize(&dir, &dir);
+                    m590 = fn_800F8548(lbl_8087F048);
+                    m594 = 1;
+                    m598 = 0;
+                    m59C = 0;
+                    m59D = 0;
+                    m59E = 1;
+                    m59F = 0;
+                    m5A0 = 1.0f;
+                    fn_80178208(new ((MemoryTag)3, "", "", 0)
+                                    chr::ControlAttackLastOne(this, dir, target, kind, fn_80219E6C(0xE2)));
+                    m58C = 1;
+                    mFlag5 = 0;
+                    return;
+                }
+                }
+            }
+        }
+    }
+    if (mode == 1) {
+        m59E = 1;
+    } else {
+        m59E = 0;
+    }
+    GameConfig_unk* config = lbl_8087F0A8;
+    float radius = 0.0f;
+    int far = 0;
+    if (id == 0xCB || id == 0xCD) {
+        far = 1;
+    }
+    int found = 0;
+    atn::Vector3 pos;
+    if (point != 0) {
+        found = 1;
+        pos = *point;
+    }
+    if (!found) {
+        CharaTask* lock = mFC4 != 0 ? mFC4 : mFC0;
+        if (lock != 0) {
+            found = 1;
+            pos = lock->m614;
+            pos.y = lock->mPos.y;
+            radius = lock->m620;
+        }
+    }
+    if (!found && mFlag31) {
+        switch (mC48) {
+        case 1:
+        case 2: {
+            mPos += mC48 == 1 ? mC14 * -5.0f : mC14 * 5.0f;
+            atn::Vector3 dir;
+            dir = lbl_8087F430->m006C.m14 - lbl_8087F430->m006C.m08;
+            PSVECNormalize(&dir, &dir);
+            dir *= 80.0f;
+            found = 1;
+            far = 1;
+            pos = mPos + dir;
+            fn_801539E0();
+            break;
+        }
+        case 3: {
+            atn::Vector3 dir;
+            dir = lbl_8087F430->m006C.m14 - lbl_8087F430->m006C.m08;
+            PSVECNormalize(&dir, &dir);
+            dir *= 80.0f;
+            found = 1;
+            type = 2;
+            far = 1;
+            pos = mPos + dir;
+            fn_801539E0();
+            break;
+        }
+        default:
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 1.0f;
+            Mtx m;
+            PSMTXRotRad(m, 'y', mRot.y);
+            PSMTXMultVec(m, &pos, &pos);
+            found = 1;
+            pos += mPos;
+            break;
+        }
+    }
+    atn::Vector3 rot = fn_80178018();
+    if (mFlag5) {
+        rot = mRot;
+    }
+    if (!found) {
+        if (far) {
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 80.0f;
+        } else {
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 1.0f;
+        }
+        Mtx m;
+        PSMTXRotRad(m, 'y', rot.y);
+        PSMTXMultVec(m, &pos, &pos);
+        pos += mPos;
+    }
+    if (mFlag31) {
+        id = 0xC9;
+    }
+    HitInfo_unk* hit = fn_80219E6C(id);
+    if (id == 200 && m648 != 0) {
+        hit = ((Arms*)m648)->fn_80044C30(0);
+    }
+    m58C = 1;
+    if (lbl_8087F048 != 0) {
+        m590 = fn_800F8548(lbl_8087F048);
+    }
+    mFlag5 = 0;
+    if (id == 0xD0 || id == 0xE5) {
+        m594 = -1;
+        m59D = 0;
+        m59C = 0;
+        m59F = 1;
+        if (m648 != 0) {
+            m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
+        }
+        m63C = m638;
+        m638 = hit;
+    } else if (mFlagC30) {
+        m594 = config->m274;
+        fn_80157444(hit, pos);
+    } else {
+        m594 = id == 200 ? config->m270 : -1;
+        if (mode == 2) {
+            fn_8015783C(hit, pos, radius);
+        } else if (mode == 4) {
+            fn_80157C34(hit, pos);
+        } else if (target != 0 && mode == 5) {
+            fn_8015802C(hit, target);
+        } else {
+            fn_801562A0(hit, pos, type, far, b, 0, radius);
+        }
+    }
+    m598 = 0;
+    int manual = 0;
+    if (config->m318 != 0) {
+        if (mType == 0 && SetConfig::sInstance->mAttackType != 0) {
+            manual = 1;
+        }
+        if (manual && id == 200) {
+            m5A0 = config->mManualPower;
+        } else {
+            m5A0 = 1.0f;
+        }
+    } else {
+        m5A0 = 1.0f;
+    }
+    mFlagC30 = 0;
+    mFlagC29 = 0;
+    m1424 = hit != 0 ? hit->m68 : fn_80219E6C(200)->m68;
 }
 
 void BattleCharaTask::fn_800E8FB8() {
@@ -702,6 +1727,371 @@ void BattleCharaTask::fn_800E9110() {
     fn_8015F568(pos, 0, hit);
     mFC0 = 0;
     mFlag4 = 0;
+}
+
+// inferred: direction of the aim camera (name invented)
+inline atn::Vector3 AimDir_unk(Field_unk* field) {
+    atn::Vector3 dir;
+    dir = field->m006C.m208 - field->m006C.m1FC;
+    PSVECNormalize(&dir, &dir);
+    return dir;
+}
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 NodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// NONMATCHING: 99% - stack slots; the string pool offsets wait for fn_800E4278/fn_800E62AC ("hips")
+// inferred: start point and direction of a shot: in front of the character, or along the aim camera (crossbow,
+// mFlag31 with a cover side, or mFlag6) corrected towards the point it hits
+void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int fromShot) {
+    atn::Vector3 shot = mPos;
+    if (m648 != 0 && m648->m04 != 0) {
+        shot = ((Arms*)m648)->fn_80044BD4();
+    }
+    if (mFlag6) {
+        if ((unsigned int)m50 == 0xAAE76) {
+            shot = NodePos_unk(mMotion.GetNodeMtx_unk("ef_locater01"));
+        } else if ((unsigned int)m50 == 0xAAE77) {
+            shot = NodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
+        }
+    }
+    if (mFlag31) {
+        if (mC48 == 0) {
+            int side = fn_80153B44();
+            if (side == 0) {
+                Mtx m;
+                PSMTXRotRad(m, 'y', mRot.y);
+                dir->x = 0.0f;
+                dir->y = 0.0f;
+                dir->z = 1.0f;
+                PSMTXMultVec(m, dir, dir);
+                atn::Vector3 off(-3.0f, 15.0f, 4.0f);
+                PSMTXMultVec(m, &off, &off);
+                *pos = mPos;
+                *pos += off;
+            } else {
+                dir->x = 0.0f;
+                dir->y = 0.0f;
+                dir->z = -1.0f;
+                Mtx m;
+                PSMTXRotRad(m, 'y', mRot.y);
+                PSMTXMultVec(m, dir, dir);
+                float shift = 0.0f;
+                switch (side) {
+                case 1:
+                    shift = 5.0f;
+                    break;
+                case 2:
+                    shift = -5.0f;
+                    break;
+                }
+                *pos = mPos;
+                *pos += *dir * (0.1f + m5B0);
+                pos->y += m5B4;
+                pos->x += shift * (float)cos(mRot.y);
+                pos->z += -shift * (float)sin(mRot.y);
+            }
+        } else {
+            Field_unk* field = lbl_8087F430;
+            *dir = AimDir_unk(field);
+            *pos = fn_8017C9AC(this);
+            if (m648 != 0 && m648->m04 != 0) {
+                RayResult_unk result;
+                atn::Vector3 to = *pos + *dir * 800.0f;
+                if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 4, &mColli, 0)) {
+                    if (fromShot) {
+                        *dir = result.m04 - shot;
+                    } else {
+                        MtxPtr node = mMotion.GetNodeMtx_unk("spine1");
+                        *dir = result.m04 - (node != 0 ? NodePos_unk(node) : ((Arms*)m648)->fn_80044BD4());
+                    }
+                    if (PSVECSquareMag(dir) < 0.0001f) {
+                        *dir = AimDir_unk(field);
+                    } else {
+                        PSVECNormalize(dir, dir);
+                    }
+                    atn::Vector3 aim = AimDir_unk(field);
+                    if (PSVECDotProduct(dir, &aim) < 0.25881904f) {
+                        *dir = AimDir_unk(field);
+                    }
+                }
+            }
+        }
+    } else if (mFlag6) {
+        Field_unk* field = lbl_8087F430;
+        *dir = AimDir_unk(field);
+        *pos = fn_8017C9AC(this);
+        if (m648 != 0) {
+            RayResult_unk result;
+            atn::Vector3 to = *pos + *dir * 800.0f;
+            if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 4, &mColli, 0)) {
+                if (fromShot) {
+                    *dir = result.m04 - shot;
+                } else if (mFlagB19) {
+                    MtxPtr node = mMotion.GetNodeMtx_unk("leftshoulder");
+                    *dir = result.m04 - (node != 0 ? NodePos_unk(node) : ((Arms*)m648)->fn_80044BD4());
+                } else {
+                    MtxPtr node = mMotion.GetNodeMtx_unk("spine1");
+                    *dir = result.m04 - (node != 0 ? NodePos_unk(node) : ((Arms*)m648)->fn_80044BD4());
+                }
+                if (PSVECSquareMag(dir) < 0.0001f) {
+                    *dir = AimDir_unk(field);
+                } else {
+                    PSVECNormalize(dir, dir);
+                }
+                atn::Vector3 aim = AimDir_unk(field);
+                if (PSVECDotProduct(dir, &aim) < 0.25881904f) {
+                    *dir = AimDir_unk(field);
+                }
+            }
+        }
+    } else {
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        dir->x = 0.0f;
+        dir->y = 0.0f;
+        dir->z = 1.0f;
+        PSMTXMultVec(m, dir, dir);
+        atn::Vector3 off(-3.0f, 15.0f, 4.0f);
+        PSMTXMultVec(m, &off, &off);
+        *pos = mPos;
+        *pos += off;
+    }
+    if ((m648 != 0 && m648->m04 != 0) || (unsigned int)(m50 - 0xAAE76) <= 1) {
+        *pos = shot;
+    }
+}
+
+// inferred: first skill of the weapon (name invented)
+inline int WeaponSkill_unk(Arms* arms) {
+    int id = 0;
+    if (arms != 0 && arms->m274 != 0) {
+        id = arms->m274->mAC[0];
+    }
+    return id;
+}
+
+// inferred: controls (m560) that let the character move freely (name invented)
+inline bool IsFreeControl_unk(int id) {
+    switch (id) {
+    case 0x14:
+    case 0x42:
+        return false;
+    case 2:
+    case 3:
+    case 0x11:
+    case 0x12:
+    case 0x13:
+    case 0x15:
+    case 0x16:
+    case 0x17:
+    case 0x27:
+    case 0x34:
+    case 0x35:
+    case 0x41:
+    case 0x43:
+    case 0x47:
+    case 0x63:
+    case 0x6E:
+    case 0x6F:
+    case 0x70:
+    case 0x71:
+    case 0x72:
+    case 0x73:
+    case 0x74:
+    case 0x75:
+    case 0x76:
+    case 0x77:
+    case 0x7B:
+    case 0x7C:
+    case 0x7D:
+    case 0x7E:
+    case 0x7F:
+    case 0x8E:
+        return true;
+    }
+    return false;
+}
+
+// NONMATCHING: 97.8% - the result of IsFreeControl_unk is materialized (the original branches from its switch);
+// registers of the fn_800F8C6C arguments
+// inferred: update of the party members and enemies with a weapon (types 1-3; fn_800E589C for the player)
+void BattleCharaTask::fn_800E9ED8() {
+    switch (m58C) {
+    case 0:
+        if (m55C == 6 && IsFreeControl_unk(m560)) {
+            mC58.m2B0 = 0;
+            fn_80139560();
+        } else if (m55C == 6 && m560 == 10) {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame > 9.0f && frame < 12.0f && mControl) {
+                ControlTimer_unk* control = (ControlTimer_unk*)mControl.get();
+                if (control != 0) {
+                    control->m1C = 1;
+                    if (fn_8016E484()) {
+                        fn_800EB270(fn_8021AF98(2));
+                    } else {
+                        int id = 0xD0;
+                        if (mType == 2) {
+                            id = 0xE5;
+                        }
+                        fn_800EB270(id);
+                    }
+                }
+            }
+        } else if (m55C == 7) {
+            atn::Vector3 pos = mPos;
+            fn_80139560();
+            pos.x -= mPos.x;
+            pos.y -= mPos.y;
+            pos.z -= mPos.z;
+            if (m570 > 0.4f && atn::Abs_unk(pos.x) < 0.2f && atn::Abs_unk(pos.y) < 0.2f && atn::Abs_unk(pos.z) < 0.2f) {
+                if (++mC58.m2B0 > 1) {
+                    if (fn_8016F67C()) {
+                        atn::Vector3 front = FrontDir_unk(mRot);
+                        vf74(front);
+                        mC58.m2B0 = 0;
+                    } else if (fn_801725EC(&mPos, &m574, 0)) {
+                        mC58.m2B0 = 0;
+                    }
+                }
+            } else {
+                mC58.m2B0 = 0;
+            }
+        } else if (mC58.mMode == 5 && mC58.mStep == 2) {
+            if (mType == 2 && mMotion.fn_80097D40(0x173) && lbl_8087F0A8->m080 > 0 &&
+                ((unsigned int)mStatus.mParamB.m9C & 0x1000) != 0x1000) {
+                m58C = 5;
+                fn_80158EF0(lbl_8087F0A8->m080);
+            } else {
+                fn_800EB270(WeaponSkill_unk((Arms*)m648));
+            }
+        } else if (mC58.mMode == 6 && mC58.mStep >= 1) {
+            fn_800EB4AC();
+        } else {
+            atn::Vector3 pos = mPos;
+            if (lbl_8087F610 == 0) {
+                fn_80139560();
+            } else if (mType == 3 && lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead == this) {
+                int grappled = 0;
+                if (m55C == 6 && m560 == 28) {
+                    grappled = 1;
+                }
+                fn_80139560();
+                if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->m868 == 6) {
+                    fn_803748E0(lbl_8087F430, 1);
+                    lbl_8087F430->m94C = 1;
+                }
+            } else {
+                fn_80139560();
+            }
+            pos.x -= mPos.x;
+            pos.y -= mPos.y;
+            pos.z -= mPos.z;
+            if (m570 > 0.4f && atn::Abs_unk(pos.x) < 0.2f && atn::Abs_unk(pos.y) < 0.2f && atn::Abs_unk(pos.z) < 0.2f) {
+                if (++mC58.m2B0 > 1) {
+                    CharaTask* other = 0;
+                    if (fn_8016F67C()) {
+                        atn::Vector3 front = FrontDir_unk(mRot);
+                        vf74(front);
+                        mC58.m2B0 = 0;
+                    } else if (!mFlagC25 && fn_801725EC(&mPos, &m574, &other)) {
+                        if (mC58.mMode == 5 && mC58.mStep == 1 && mC58.mD0 == 0 && mC58.mC4 != 0) {
+                            atn::Vector3 up(0.0f, 1.0f, 0.0f);
+                            atn::Vector3 front = FrontDir_unk(mRot);
+                            atn::Vector3 side;
+                            PSVECCrossProduct(&front, &up, &side);
+                            mC14 = side;
+                            m58C = 1;
+                            if (lbl_8087F048 != 0) {
+                                m590 = fn_800F8548(lbl_8087F048);
+                            }
+                            m594 = -1;
+                            CharaTask* target = mC58.mC4;
+                            float radius = target->m5B0;
+                            fn_801562A0(fn_80219E6C(200), target->mPos, 1, 1, 0, other, radius);
+                        }
+                        mC58.m2B0 = 0;
+                    }
+                }
+            } else {
+                mC58.m2B0 = 0;
+            }
+        }
+        break;
+    case 1: {
+        if (fn_80158BB4()) {
+            m58C = 0;
+            if ((unsigned int)(m560 - 0x15) > 2 && m560 != 0x47 && m560 != 0x8E && m55C != 7) {
+                fn_8016EB48(1, 1, 1);
+            }
+        }
+        GameConfig_unk* config = lbl_8087F0A8;
+        float frame = HitFrame_unk(mMotion.mTracks[0].m00);
+        if (mFlagC29 && config->mAttackGuardWait > 0.0f && mMotion.mTracks[0].m08 >= frame) {
+            float rest = mMotion.fn_80097D7C(0) - frame;
+            float speed = rest / (rest + config->mAttackGuardWait);
+            if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
+                speed *= fn_8010CA34(lbl_8087F048);
+            }
+            mMotion.mTracks[0].m0C = speed;
+        }
+        fn_80139560();
+        if (lbl_8087F048 != 0 && fn_80158CA4()) {
+            if (mControl && mControl->vf30() > m598) {
+                m598 = mControl->vf30();
+                m594 = 1;
+                m590 = fn_800F8548(lbl_8087F048);
+            }
+            if (m594 != 0) {
+                fn_80144710();
+                HitResult_unk results[8];
+                int n = fn_800F8C6C(lbl_8087F048, results, 8, this, m638, m590, 30, m594, 0.0f);
+                if (n > 0) {
+                    if (m594 > 0) {
+                        m594 -= n;
+                    }
+                    int critical = 0;
+                    for (int i = 0; i < n; i++) {
+                        if ((results[i].mFlags & 8) == 8) {
+                            critical = 1;
+                        }
+                    }
+                    if (critical && (unsigned int)(m560 - 4) <= 1) {
+                        mFlagC29 = 1;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 5:
+        if (m55C != 6 || m560 != 12) {
+            m58C = 0;
+            fn_80139560();
+        } else {
+            fn_80139560();
+            if (((ControlTimer_unk*)mControl.get())->IsDone_unk()) {
+                fn_800EB270(WeaponSkill_unk((Arms*)m648));
+            }
+        }
+        break;
+    case 2:
+        if (lbl_8087F610 == 0) {
+            vfF0();
+        } else if (mType == 3 && lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead == this) {
+            vfEC();
+        } else {
+            vfF0();
+        }
+        break;
+    case 3:
+    case 4:
+        fn_80139560();
+        break;
+    }
+    fn_800E7BB0();
 }
 
 // NONMATCHING: 97.3% - the original reloads the flag word for mFlag25 after the mFlag16 test (as CharaTask::vf34)
@@ -786,7 +2176,7 @@ void BattleCharaTask::vfE8(HitMsg_unk* msg) {
         float before = (mStatus.m04 + (float)msg->m68) / (float)mStatus.mParamB.m84;
         float after = mStatus.m04 / (float)mStatus.mParamB.m84;
         if (before > 0.3f && after < 0.3f) {
-            fn_803E2110(lbl_8087F490, 3, this);
+            lbl_8087F490->fn_803E2110(3, this); // 3: low hit points
         }
         if (fn_80370174(lbl_8087F430, 0x38A) == 1 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 &&
             fn_80370A78(lbl_8087F430, 0xFA) == 0) {
@@ -1157,7 +2547,7 @@ inline bool IsSameGroup_unk(CharaTask* chara, CharaTask* self) {
     return true;
 }
 
-int BattleCharaTask::fn_800EE640(CharaTask* chara) {
+__declspec(noinline) int BattleCharaTask::fn_800EE640(CharaTask* chara) {
     if (chara == 0) {
         return 0;
     }
@@ -1189,6 +2579,147 @@ int BattleCharaTask::fn_800EE640(CharaTask* chara) {
         }
     }
     return IsSameGroup_unk(chara, this);
+}
+
+extern "C" int fn_8021A984(HitInfo_unk* skill); // inferred: the skill heals
+extern "C" int fn_8004D388(void* world, RayResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+
+// NONMATCHING: 98.9% - registers and stack slots
+// inferred: sends the character to the healing magic `effect` (or to the nearest one, or to a player who can
+// heal): state 1 of m1470 with a point 0.7 of the way there put on the ground; returns 1 when it has to move
+int BattleCharaTask::fn_800EE794(Bullet_unk* effect) {
+    if (!CanAct_unk()) {
+        return 0;
+    }
+    atn::Vector3 target(0.0f, 0.0f, 0.0f);
+    float radius;
+    if (effect == 0 && lbl_8087F9E8 != 0) {
+        float best = 1e16f;
+        for (int i = 0; i < 32; i++) {
+            Bullet_unk* bullet = ((SkillEffectManager*)lbl_8087F9E8)->GetBullet_unk(i);
+            if (fn_800EE640(bullet->m08)) {
+                HitInfo_unk* hit = bullet->m04;
+                if (hit != 0 && fn_8021A984(hit) && (hit->mAC & 0x1000000) != 0x1000000) {
+                    atn::Vector3 d = bullet->m10 - mPos;
+                    float dist = PSVECSquareMag(&d);
+                    if (dist < best) {
+                        best = dist;
+                        effect = bullet;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < 32; i++) {
+            Bullet_unk* bullet = ((SkillEffectManager*)lbl_8087F9E8)->GetBullet_unk(i);
+            if (fn_800EE640(bullet->m08)) {
+                HitInfo_unk* hit = bullet->m04;
+                if (hit != 0 && fn_8021A984(hit) && (hit->mAC & 0x400000) == 0x400000 &&
+                    (hit->mAC & 0x1000000) != 0x1000000) {
+                    effect = bullet;
+                    break;
+                }
+            }
+        }
+    }
+    if (effect != 0) {
+        radius = effect->m5C * effect->m28;
+        target = effect->m10;
+    } else {
+        CharaTask* healer = 0;
+        if (lbl_8087F8A0 != 0) {
+            float best = 1e16f;
+            for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                if (fn_800EE640(p)) {
+                    HitInfo_unk* hit = p->mStatus.m2D0[0].m[0] > 0 ? fn_80219E6C(p->mStatus.m2D0[0].m[0]) : 0;
+                    if (hit != 0 && fn_8021A984(hit)) {
+                        atn::Vector3 d = mPos - p->mPos;
+                        float dist = PSVECSquareMag(&d);
+                        if (dist < best) {
+                            best = dist;
+                            healer = p;
+                        }
+                    }
+                }
+            }
+            if (healer == 0) {
+                int ids[4] = {5, 1, 4, 6};
+                for (unsigned int i = 0; i < 4; i++) {
+                    PlayerTask* p = lbl_8087F8A0->FindByName_unk(ids[i]);
+                    if (fn_800EE640(p)) {
+                        healer = p;
+                        break;
+                    }
+                }
+            }
+            if (healer == 0) {
+                float best = 1e16f;
+                for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                    if (fn_800EE640(p) && (unsigned char)(p->m5C->m122 - 2) <= 1) {
+                        atn::Vector3 d = mPos - p->mPos;
+                        float dist = PSVECSquareMag(&d);
+                        if (dist < best) {
+                            best = dist;
+                            healer = p;
+                        }
+                    }
+                }
+            }
+            if (healer == 0) {
+                healer = lbl_8087F8A0->mHead;
+            }
+        }
+        if (healer != 0 && healer != this) {
+            target = healer->mPos;
+            radius = 25.0f;
+        } else {
+            return 0;
+        }
+    }
+    atn::Vector3 dir(mPos.x - target.x, 0.0f, mPos.z - target.z);
+    if (PSVECMag(&dir) > radius) {
+        PSVECNormalize(&dir, &dir);
+        PlayerState_unk state(1);
+        state.m04 = rand() % 10;
+        state.m0C = target + dir * radius * 0.7f;
+        atn::Vector3 from = state.m0C;
+        atn::Vector3 to = from + atn::Vector3(0.0f, -400.0f, 0.0f);
+        from.y += 10.0f;
+        void* world = lbl_8087EE98;
+        RayResult_unk result;
+        if (fn_8004ED34(world, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0)) {
+            state.m0C = result.m04;
+        }
+        from = target;
+        to = state.m0C;
+        from.y += 10.0f;
+        to.y += 10.0f;
+        world = lbl_8087EE98;
+        if (fn_8004ED34(world, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0)) {
+            state.m0C = result.m04;
+        }
+        from = state.m0C;
+        to = state.m0C;
+        from.y += 10.0f;
+        to.y -= 10.0f;
+        world = lbl_8087EE98;
+        if (fn_8004ED34(world, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0)) {
+            state.m0C = result.m04;
+        }
+        from = state.m0C;
+        from.y += 5.0f;
+        atn::Vector3 move(0.0f, 0.0f, 0.0f);
+        world = lbl_8087EE98;
+        if (fn_8004D388(world, &result, &from, &move, fn_80179D44() | 0x80000000, 0, 0, 5.0f)) {
+            state.m0C = result.m10;
+            state.m0C.y -= 5.0f;
+        }
+        SetState_unk(state);
+        mC58.m110 = (CharaD68_unk*)effect;
+        mC58.m2B8 = 150;
+        return 1;
+    }
+    return 0;
 }
 
 int BattleCharaTask::fn_800EEFDC() {

@@ -5,6 +5,7 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+#include "Event/PathCubic.h"
 
 namespace atn {
 struct MotionBuffer;
@@ -17,15 +18,8 @@ struct NodeChunk;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: cubic polynomial of one axis of a segment (16 bytes, read by fn_803272A8); names invented
-struct WarLionCubic_unk {
-    // inferred: empty constructor (resize copies an uninitialised default element, 0x8032B314)
-    WarLionCubic_unk() {}
-    float Eval_unk(float u) const { return m00 + u * (m04 + u * (m08 + m0C * u)); }
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-};
+// (the same class as Event::PathCubic_unk: the weak vector code of this file uses its @STRING@ name)
+typedef Event::PathCubic_unk WarLionCubic_unk;
 // inferred: lengths of the segments (std::vector<float>, resized by fn_8032BE88)
 struct WarLionPathList_unk : public std::vector<float> {};
 struct WarLionPath_unk {

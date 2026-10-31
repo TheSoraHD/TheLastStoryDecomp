@@ -33,6 +33,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - La asignación de registros de `rand()%range` (lo/range en r31/r30) también depende de la profundidad de inline: probar `AttackNear_unk` frente a `AttackNear3_unk` (mismo cuerpo, un nivel más) (AI_archer_attack01).
 - `int n = f(); if (n == K) {...; return K;} return n;` emite un salto de más; `return Done_unk(f());` con el `if` dentro de un inline salta directo al epílogo (AI_archer_attack01).
 - Con `-ipa file` MWCC también inlinea funciones definidas **después** del llamador: helpers compartidos que el original llama con `bl` (cola `fn_8003CDB0..fn_8003DBA4`, accesores `fn_8001C260/26C/278`) necesitan `__declspec(noinline)` en la definición (precedente MP/CryptMP). Al añadir un callee, mirar la cuenta de toda la unidad, no solo la función nueva.
+- Una funcion fuera de presupuesto escrita con los mismos accesores inline que el original saca todas sus copias weak al 100% aunque ella no llegue (GameUI `fn_803D2A6C` +86).
+- Copias weak de virtuales inline emitidas por la vtable: en orden inverso a la declaracion dentro de cada clase.
 
 ## Registros y pila
 
@@ -143,6 +145,11 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Nombres de estáticas locales (`IsInitialized`, `Callback`…) se repiten entre ficheros: no copiarlos a `symbols.txt` como globales.
 - Relocalizaciones `@ha`/`@l`: el offset apunta a la mitad de la instrucción (+2); alinear a 4.
 
+- Los objetos RTTI (`__RTTI__`, nombres en `.rodata`) se emiten en orden inverso a la definicion de las clases en la unidad: incluir las cabeceras en el orden del original (`nw4r/DvdSoundArchive`).
+- Dos tipos de la misma forma en unidades distintas dan nombres weak distintos (`vector<T>::__allocate`): unificar el tipo (`Event::PathCubic_unk`).
+- Un nombre de `symbols.txt` repetido entre una copia weak nuestra y otra funcion hace que el enlazador tire la nuestra: renombrar la mal nombrada (`ut::DvdFileStream::CanAsync`).
+- Las estaticas de un `.c` se colocan en `.sbss`/`.bss` al reves de su orden de declaracion (OS.c del SDK).
+
 ## Splits
 
 - dtk exige que los datos de las unidades sigan el orden de `.text` ("Cyclic dependency"); un `_cont` no puede llevar datos previos a los de su unidad enlazada.
@@ -152,6 +159,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - El corte más fiable: una constante o cadena con una copia por fichero + el pool de cadenas al final de `.rodata`. Sin pruebas, mejor una unidad grande que cortes inventados.
 - Las clases `atn::` siguen el orden alfabético de fichero.
 - Más método: `docs/splits-plan.md`.
+
+- Split de un fichero de libreria: `.text` acaba en el final de su ultima funcion (no en el siguiente limite de 16); los datos, en el final del simbolo de `symbols.txt` (incluye el relleno). Objetos sin referencias los quita el enlazador.
+- `.c` del SDK de `libs/` que no enlazan suelen fallar por: cadena de version (Aug 23 2010), fechas de `OSReport`, `#line` de asserts, `DBPrintf` que la build de 2010 no tiene, stubs vacios de la referencia.
 
 ## Patrones del juego
 
@@ -263,3 +273,10 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Para que `cmplw` ponga primero el campo cargado y luego el parametro, leer el campo en un local antes de compararlo (GameUI::fn_803E6C88). (`auto-20261030`)
 - Copia de struct de 0x1C con `bl memcpy` en el original (MWCC la copia en linea): escribir `memcpy(&a, &b, sizeof(T))` (GameUI::fn_803E32EC). (`auto-20261030`)
 - `li rX,1 / test A / test B / li rX,0 / cmpwi rX,0`: el original guarda un `bool` local (`bool down = A || B; if (down)`) (GameUI fn_803E4DD4). (`auto-20261030`)
+- `std::basic_string::operator=(const T*)` en vez de `assign(const T*)` cambia el hueco de pila de la etiqueta del iterador (GameUI::fn_803E4978). (`auto-20261031`)
+- Setter inline (`SetFrame_unk(x)`) en vez de `m100 = x` arregla el reparto f0/f1 de una constante y del valor copiado (GameUI::fn_803E3384, fn_803E65F8). (`auto-20261031`)
+- Resets con temporal (`m = T();`) dejan el temporal en la pila cuando la funcion se inlinea en otra; un `Reset_unk()` que asigna campo a campo da lo mismo suelto y nada en pila inlineado (GameUI::fn_803E454C). (`auto-20261031`)
+- Comprobaciones de estado inline escritas como `bool r = false; if (...) r = true; return r;` reproducen los `li 0`/`li 1` de cada bool encadenado (BattleCharaTask::fn_800E7F04, GameUI::fn_803E4A5C). (`auto-20261031`)
+- `if (i < 0) return; if (i >= 3 || p == 0) return;` da el `bne; b` del original sin la comparacion por rango (GameUI::fn_803E598C); envolver el cuerpo en `if (a && b) {}` evita el `bne; b` de un `return` temprano (fn_803E5E64). (`auto-20261031`)
+- Un miembro array plano que el original recorre con dos bucles anidados (16x5) se declara 2D; el constructor con dos bucles da el mismo codigo que el plano (GameUI::m5BC). (`auto-20261031`)
+- `pairdata.py` puede dar a etiquetas de `.sdata` nombres `@STRING@...` de plantillas que otra unidad ya define: el enlace falla con "multiply-defined" (CharaTask, lbl_8087D7DC). Tras `pairdata`, comprobar que `ninja` enlaza. (`auto-20261031`)

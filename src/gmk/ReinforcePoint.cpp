@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "gmk/ReinforcePoint.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -28,8 +29,6 @@ struct Settings_unk {
     ReinforceLevel_unk mE4[4];
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087F490;
-extern "C" void fn_803E598C(void* obj, int arg1, int arg2, int arg3);
 
 // inferred: inlined here (the local static is shared with the out-of-line copy in CharaTask.cpp)
 inline CharaListeners_unk* fn_8014F8F4() {
@@ -242,7 +241,7 @@ void ReinforcePoint::vf10() {
     mChara->fn_80145334();
     mFrame++;
     if (lbl_8087F490 != 0 && m54 == 3) {
-        fn_803E598C(lbl_8087F490, 1, 30, 0);
+        lbl_8087F490->fn_803E598C(1, 30, 0);
     }
     NotifyListeners_unk(fn_8014F8F4(), 10, this, mChara);
 }

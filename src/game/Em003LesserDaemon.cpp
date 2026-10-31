@@ -645,6 +645,10 @@ update:
     fn_8024BE94();
 }
 
+void Em003LesserDaemon::vf88() {
+    fn_8024FCDC();
+}
+
 // NONMATCHING: 99.89% - f2/f3 of the sine and the frame in the death light (8 variants of the expression)
 void Em003LesserDaemon::fn_8024BE94() {
     static const char* const sMaterials[6] = {"em003_eye",   "em003_skin01", "em003_skin02",
@@ -699,10 +703,6 @@ void Em003LesserDaemon::fn_8024BE94() {
         ColorF_unk color(m16C8, m16C8, m16C8, 1.0f);
         mMotion.fn_80094958(name, &color, &ColorF_unk(mat->m20), &ColorF_unk(mat->m1C));
     }
-}
-
-void Em003LesserDaemon::vf88() {
-    fn_8024FCDC();
 }
 
 void Em003LesserDaemon::vf14() {
@@ -1644,4 +1644,3 @@ int Em003LesserDaemon::fn_80250884(float radius) {
     }
     return count;
 }
-

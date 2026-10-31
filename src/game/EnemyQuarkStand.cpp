@@ -184,7 +184,6 @@ extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, 
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
 extern "C" void fn_80192FB4(chr::ControlBase* control); // inferred: chr::ControlStickByQuark, stuck pose
 extern "C" GameUI* lbl_8087F490; // inferred: game UI
-extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
 extern "C" void fn_803EAF60(void* mgr, int arg); // inferred: voice
 // inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
 struct QuarkWeights_unk {
@@ -245,7 +244,6 @@ struct QuarkSettings_unk {
 extern "C" QuarkSettings_unk* lbl_8087F0A8;
 // inferred: weak copies of small inline helpers of other files, called out of line because vf0C is over
 // the inline budget (names kept)
-extern "C" void fn_80288E30(CharaTask* chara, float value);          // inferred: m56C = value
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager                  // inferred: player manager
 // inferred: more weak copies of small inline helpers called out of line by vf10 (names kept)
@@ -365,7 +363,7 @@ int EnemyQuarkStand::vf0C() {
         m16B4.IsLoading() == 0 && m1CAC.IsLoading() == 0 && fn_800D3FA4() != 0) {
         fn_80353370();
         SetFlag(0x200);
-        fn_80288E30(this, 0.03f);
+        fn_80288E30(0.03f);
         mMotion.fn_80099E9C("hips", "em211", 4.3f);
         m17F4->fn_800D246C(0);
         m17F4->FreezeTask();
@@ -1981,7 +1979,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
                     fn_80370AE4(lbl_8087F430, 0x6F, 1);
                     fn_80351AB8(leader, 2);
                     if (lbl_8087F490 != 0) {
-                        fn_803E3384(lbl_8087F490);
+                        lbl_8087F490->fn_803E3384();
                     }
                     if (lbl_8087EFE8 != 0) {
                         lbl_8087EFE8->fn_800CF45C(0x5A, 0);

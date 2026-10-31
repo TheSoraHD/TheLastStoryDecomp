@@ -86,7 +86,6 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: arena UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em003LesserDaemon.cpp)
 extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
 // inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4 (as in game/CharaStatus.cpp)
 struct ZanGame_unk {
     unsigned char m000[0x3A4];
@@ -2336,7 +2335,7 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
                 leader->fn_80161570(0x1EC, 0, 0, -1.0f, -1.0f);
                 fn_800C344C("SE_BTCOM_102", &leader->mPos, 0, -1, 1.0f);
                 if (lbl_8087F490 != 0) {
-                    fn_803E3384(lbl_8087F490);
+                    lbl_8087F490->fn_803E3384();
                 }
                 if (m163C == 0) {
                     fn_80370320(lbl_8087F430, 0x396, 1, 0);

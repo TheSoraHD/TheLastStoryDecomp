@@ -11,7 +11,9 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 
 // inferred: resource manager (lbl_8087F518, atn::Loader): releases a buffer of fn_8046DC5C
+
 namespace atn {
+
 // inferred: minimal view of atn::Loader (include/atn/LoadManager.h declares these functions with
 // other signatures)
 class Loader {
@@ -39,6 +41,7 @@ extern "C" int DVDClose(DVDFileInfo_unk* info);
 static const char* const sLangSuffix[7] = {"_jp", "_en", "_de", "_fr", "_es", "_it", "_xx"};
 
 extern "C" {
+
 int lbl_8087EEC0; // inferred: language of the files
 int lbl_8087EEC4; // inferred: language of the text
 }
@@ -53,20 +56,12 @@ extern "C" void fn_8006A950(char* path) {
         path++;
     }
 }
-
-// inferred: replaces "_xx" in `path` by the suffix of the file language
-extern "C" char* fn_8006B404(char* path) {
-    char* p = strstr(path, sLangSuffix[6]);
-    if (p != 0) {
-        strncpy(p, sLangSuffix[lbl_8087EEC0], 3);
-        return path;
-    }
-    return path;
-}
+extern "C" char* fn_8006B404(char* path);
 
 namespace atn {
+
 std::string fn_8046CC90(const std::string& in); // inferred: path resolved by the loader (atn/Loader.cpp)
-}
+} // namespace atn
 
 // inferred: converts the backslashes of a path to slashes (std::string version)
 inline void __ToSlashes_unk(std::string& path) {
@@ -197,6 +192,16 @@ extern "C" std::string fn_8006B2D8(const std::string& path) {
     unsigned long pos = path.rfind('.');
     if (pos != std::string::npos) {
         return std::string(path, 0, pos);
+    }
+    return path;
+}
+
+// inferred: replaces "_xx" in `path` by the suffix of the file language
+extern "C" char* fn_8006B404(char* path) {
+    char* p = strstr(path, sLangSuffix[6]);
+    if (p != 0) {
+        strncpy(p, sLangSuffix[lbl_8087EEC0], 3);
+        return path;
     }
     return path;
 }
@@ -338,5 +343,4 @@ int FileList::fn_8006C300(const char* name, int nocase) {
     }
     return found;
 }
-
 } // namespace atn

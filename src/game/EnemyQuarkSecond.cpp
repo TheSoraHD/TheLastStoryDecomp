@@ -58,16 +58,7 @@ extern "C" inline PlayerManager* fn_8000D9E8() {
 }
 // inferred: atn::Model member of another unit (sets a value of the model, weak copy 0x80288E30 of
 // game/Em203GreaterDaemon.cpp)
-extern "C" void fn_80288E30(CharaTask* chara, float value);
-
-// inferred: flag of the collision capsule (weak copy 0x80338CDC; also called by EnemyQuarkStand)
-extern "C" void fn_80338CDC(atn::ColliBase* colli, int upright) {
-    if (upright) {
-        colli->mFlags |= 0x80000000;
-    } else {
-        colli->mFlags &= ~0x80000000;
-    }
-}
+extern "C" void fn_80338CDC(atn::ColliBase* colli, int upright);
 
 EnemyQuarkSecond::EnemyQuarkSecond(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0),
@@ -109,6 +100,15 @@ EnemyQuarkSecond::EnemyQuarkSecond(atn::Task* parent, EnemyInfo_unk* info)
     mFlag24 = 0;
 }
 
+// inferred: flag of the collision capsule (weak copy 0x80338CDC; also called by EnemyQuarkStand)
+extern "C" void fn_80338CDC(atn::ColliBase* colli, int upright) {
+    if (upright) {
+        colli->mFlags |= 0x80000000;
+    } else {
+        colli->mFlags &= ~0x80000000;
+    }
+}
+
 // inferred: reads a list of ids into `table` until a zero id (not a member: it gets no `this`)
 // NONMATCHING: ~99% - known push_back residue: the inlined fast path loads size/capacity in the other
 // registers (docs: push_back in loops)
@@ -129,7 +129,6 @@ extern "C" inline void fn_803396FC(CharaStatus* status, int index, const CharaSt
     status->m2D0[index] = pair;
 }
 
-
 int EnemyQuarkSecond::vf0C() {
     if (fn_8013655C() == 0 && m15A4.IsLoading() == 0 && m15B0.IsLoading() == 0 &&
         m15BC.IsLoading() == 0 && m15C8.IsLoading() == 0 && m1638.IsLoading() == 0 &&
@@ -139,7 +138,7 @@ int EnemyQuarkSecond::vf0C() {
         fn_800D3FA4() != 0) {
         fn_80344780();
         SetFlag(0x200);
-        fn_80288E30(this, 0.03f);
+        fn_80288E30(0.03f);
         mMotion.fn_80099E9C("hips", "em211", 4.3f);
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
@@ -970,6 +969,159 @@ void EnemyQuarkSecond::fn_8033C3D8() {
     fn_8033C000();
 }
 
+extern "C" double acos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+
+// inferred: debug menu entries (as in game/Em315Coffin.cpp)
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
+                            int arg7);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
+                            int arg6, int arg7);
+
+extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
+
+// inferred: game settings (lbl_8087F0A8, as in game/CharaTask.cpp): frames per second at 0x30
+struct QuarkSettings_unk {
+    unsigned char m00[0x30];
+    int m30;
+};
+extern "C" QuarkSettings_unk* lbl_8087F0A8;
+
+// inferred: the motion of track 0 has reached its end (the frame is read before the length); name
+// invented
+inline bool EnemyQuarkSecond::IsMotionEnd_unk() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        return true;
+    }
+    return false;
+}
+
+// inferred: falls to the ground (inlined in the states 12 and 13); name invented
+inline void EnemyQuarkSecond::Fall_unk() {
+    int fps = lbl_8087F0A8->m30;
+    m574.y += -98.1f / (float)(fps * fps);
+    mPos.y += m574.y;
+    if (mPos.y < 0.0f) {
+        mPos.y = 0.0f;
+        m574.y = 0.0f;
+    }
+}
+
+// inferred: plays `efp` on the model with the default color (inlined: its locals are laid out in
+// declaration order, as PlayEffectB_unk of game/Em301LShade.cpp); name invented
+inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+// inferred: starts a jump to `target` (inlined in the jump attacks); name invented
+inline void EnemyQuarkSecond::SetJump_unk(const atn::Vector3& target) {
+    atn::Vector3 t = target;
+    m1568.mTarget = t;
+    m1568.mTarget.y = 0.0f;
+    atn::Vector3 rot = (t - mPos).ToRotation_unk();
+    rot.z = 0.0f;
+    m1568.mRot = rot;
+    atn::Vector3 dir = t - mPos;
+    dir.y = 0.0f;
+    m1568.mDir = dir;
+    PSVECNormalize(&m1568.mDir, &m1568.mDir);
+    m1568.mStart = mPos;
+    m570 = 0.0f;
+}
+
+extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* owner, HitInfo_unk* data, int id, int time,
+                            int c, float f); // inferred: fires the attack data
+
+// NONMATCHING: 99.6% - f30/f31 of the turn target (the matrix of ToRotationZ_unk takes the other one);
+// 10 variants
+void EnemyQuarkSecond::fn_8033D750() {
+    float frame = mMotion.mTracks[0].m08;
+    float target;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_80341EE4();
+        return;
+    }
+    if (mMotion.mTracks[0].m08 < 38.0f) {
+        CharaTask* t = m14B0;
+        target = (t->mPos - mPos).ToRotationZ_unk().y;
+        float d = atn::WrapAngle_unk(target - mRot.y);
+        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
+            mRot.y = target;
+        } else if (d <= 0.0f) {
+            mRot.y -= 0.20943952f;
+        } else {
+            mRot.y += 0.20943952f;
+        }
+    }
+    if (mMotion.mTracks[0].m08 >= 47.0f && mMotion.mTracks[0].m08 < 49.0f) {
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
+    }
+}
+
+void EnemyQuarkSecond::fn_80340E54() {
+    Fall_unk();
+    float frame;
+    if (m14B8 >= 150 || (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
+        fn_80341EE4();
+    }
+}
+
+void EnemyQuarkSecond::fn_8034100C() {
+    Fall_unk();
+    float frame;
+    if (m14B4 == 0) {
+        if ((frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
+            PlayMotion_unk(0x3E, 1, 1.0f);
+            m14B4 = 1;
+            m14B8 = 0;
+            m16AC = 0;
+        }
+    } else if (m14B4 == 1) {
+        if (m14BC != 2 && (m14B8 >= m16A4 || m16AC > m16A8)) {
+            PlayMotion_unk(0x3F, 0, 1.0f);
+            m14B4 = 2;
+        }
+    } else if (m14B4 == 2) {
+        if ((frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
+            fn_80341EE4();
+        }
+    }
+}
+
+// NONMATCHING: 99.9% - only the offset of "SE_EM211_012" in @stringBase0 (the strings of the
+// functions not written yet come before it)
+void EnemyQuarkSecond::fn_80341BEC() {
+    if (m14B4 == 0) {
+        if (mMotion.mTracks[0].m08 >= 35.0f) {
+            m14B4++;
+            m14BC = 1;
+            fn_80232B7C(&m1610, 0);
+            PlayEffect_unk(&m1610, &mMotion, 4.0f);
+            fn_800C344C("SE_EM211_012", &mPos, 0, -1, 1.0f);
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0) - 1.0f) {
+            fn_80341EE4();
+        }
+    }
+}
+
 void EnemyQuarkSecond::fn_80341E14() {
     ResetState_unk();
 }
@@ -979,6 +1131,70 @@ void EnemyQuarkSecond::fn_80341EE4() {
     fn_8016E970(3);
     m58C = 0;
     PlayMotion_unk(2, 1, 1.0f);
+}
+
+// NONMATCHING: ~80% - the original frame is 0x10 bytes bigger (the node positions and the
+// difference live in other slots); 6 variants
+void EnemyQuarkSecond::fn_80342004() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 6;
+    fn_80232B7C(this, 0x3E8);
+    PlayMotion_unk(0x147, 0, 2.0f);
+    atn::Vector3 target;
+    atn::Vector3 dir;
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, &m15B0, &mMotion, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+    target = GetNodePos_unk(m14B0->mMotion.GetNodeMtx_unk("spine"));
+    m15D4 = target - GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    PSVECNormalize(&m15D4, &m15D4);
+    fn_800C31F4("SE_EM211_009_1", 0, -1, 1.0f);
+}
+
+// NONMATCHING: ~80% - draft: the original keeps more temporaries of the jump (the target is copied
+// through two Vector3 and the rotation is computed with the frame of ToRotation_unk in other slots)
+void EnemyQuarkSecond::fn_8034228C() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 7;
+    m1648 = 0.0f;
+    m1644 = 0;
+    PlayMotion_unk(0x13F, 0, 1.0f);
+    SetJump_unk(m1598);
+}
+
+// inferred: same as PlayEffect_unk with the locals declared pos, rot, color (as PlayEffect_unk of
+// game/Em301LShade.cpp); name invented
+inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+void EnemyQuarkSecond::fn_80342FB4() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 14;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x15C, 0, 1.0f);
+    m16C8 = 0;
+    fn_80232B7C(this, 0x3F0);
+    PlayEffectA_unk(&m15A4, &mMotion, 1.0f);
 }
 
 void EnemyQuarkSecond::fn_80344060() {
@@ -991,7 +1207,6 @@ void EnemyQuarkSecond::fn_80344060() {
         fn_803EA77C(lbl_8087F498, this, 2, 0, 1.0f, 10.0f);
     }
 }
-
 
 void EnemyQuarkSecond::fn_803441AC() {
     atn::Vector3 dir(0.0f, 0.0f, m1648);
@@ -1018,9 +1233,6 @@ void EnemyQuarkSecond::fn_803441AC() {
 void EnemyQuarkSecond::fn_8034441C(int motion, int loop, float speed) {
     PlayMotion_unk(motion, loop, speed);
 }
-
-extern "C" double acos(double x);
-extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 void EnemyQuarkSecond::fn_80344454(int msg, int notify, float radius, float angle) {
     for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
@@ -1067,13 +1279,6 @@ int EnemyQuarkSecond::fn_803446BC(const atn::Vector3& pos) {
     atn::Vector3 d = pos - m1598;
     return (float)sqrt(d.x * d.x + d.z * d.z) >= 380.0f;
 }
-
-// inferred: debug menu entries (as in game/Em315Coffin.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
-                            int arg6, int arg7);
 
 // NONMATCHING: 99.8% - only the offsets of the strings in @stringBase0 (the strings of the state
 // functions, not written yet, come before them in the pool)
@@ -1182,8 +1387,6 @@ void EnemyQuarkSecond::fn_80344DF4() {
     mMotion.mTracks[0].m0C = 0.05f;
 }
 
-extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-
 atn::Vector3 EnemyQuarkSecond::vfD8(CharaTask* target) {
     atn::Vector3 dir = target->mPos - mPos;
     atn::Vector3 from = target->mPos;
@@ -1213,209 +1416,4 @@ atn::Vector3 EnemyQuarkSecond::vfD8(CharaTask* target) {
 
 float EnemyQuarkSecond::vfDC() {
     return 0.7f;
-}
-
-// inferred: game settings (lbl_8087F0A8, as in game/CharaTask.cpp): frames per second at 0x30
-struct QuarkSettings_unk {
-    unsigned char m00[0x30];
-    int m30;
-};
-extern "C" QuarkSettings_unk* lbl_8087F0A8;
-
-// inferred: the motion of track 0 has reached its end (the frame is read before the length); name
-// invented
-inline bool EnemyQuarkSecond::IsMotionEnd_unk() {
-    float frame = mMotion.mTracks[0].m08;
-    if (frame >= mMotion.fn_80097D7C(0)) {
-        return true;
-    }
-    return false;
-}
-
-// inferred: falls to the ground (inlined in the states 12 and 13); name invented
-inline void EnemyQuarkSecond::Fall_unk() {
-    int fps = lbl_8087F0A8->m30;
-    m574.y += -98.1f / (float)(fps * fps);
-    mPos.y += m574.y;
-    if (mPos.y < 0.0f) {
-        mPos.y = 0.0f;
-        m574.y = 0.0f;
-    }
-}
-
-void EnemyQuarkSecond::fn_80340E54() {
-    Fall_unk();
-    float frame;
-    if (m14B8 >= 150 || (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
-        fn_80341EE4();
-    }
-}
-
-void EnemyQuarkSecond::fn_8034100C() {
-    Fall_unk();
-    float frame;
-    if (m14B4 == 0) {
-        if ((frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
-            PlayMotion_unk(0x3E, 1, 1.0f);
-            m14B4 = 1;
-            m14B8 = 0;
-            m16AC = 0;
-        }
-    } else if (m14B4 == 1) {
-        if (m14BC != 2 && (m14B8 >= m16A4 || m16AC > m16A8)) {
-            PlayMotion_unk(0x3F, 0, 1.0f);
-            m14B4 = 2;
-        }
-    } else if (m14B4 == 2) {
-        if ((frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
-            fn_80341EE4();
-        }
-    }
-}
-
-// inferred: plays `efp` on the model with the default color (inlined: its locals are laid out in
-// declaration order, as PlayEffectB_unk of game/Em301LShade.cpp); name invented
-inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
-    Color4f_unk color;
-    atn::Vector3 rot;
-    atn::Vector3 pos;
-    rot.x = 0.0f;
-    rot.y = 0.0f;
-    rot.z = 0.0f;
-    pos.x = 0.0f;
-    pos.y = 0.0f;
-    pos.z = 0.0f;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, scale);
-}
-
-// NONMATCHING: 99.9% - only the offset of "SE_EM211_012" in @stringBase0 (the strings of the
-// functions not written yet come before it)
-void EnemyQuarkSecond::fn_80341BEC() {
-    if (m14B4 == 0) {
-        if (mMotion.mTracks[0].m08 >= 35.0f) {
-            m14B4++;
-            m14BC = 1;
-            fn_80232B7C(&m1610, 0);
-            PlayEffect_unk(&m1610, &mMotion, 4.0f);
-            fn_800C344C("SE_EM211_012", &mPos, 0, -1, 1.0f);
-        }
-    } else {
-        float frame = mMotion.mTracks[0].m08;
-        if (frame >= mMotion.fn_80097D7C(0) - 1.0f) {
-            fn_80341EE4();
-        }
-    }
-}
-
-// NONMATCHING: ~80% - the original frame is 0x10 bytes bigger (the node positions and the
-// difference live in other slots); 6 variants
-void EnemyQuarkSecond::fn_80342004() {
-    ResetState_unk();
-    fn_8016E970(3);
-    m58C = 6;
-    fn_80232B7C(this, 0x3E8);
-    PlayMotion_unk(0x147, 0, 2.0f);
-    atn::Vector3 target;
-    atn::Vector3 dir;
-    Color4f_unk color;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &m15B0, &mMotion, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
-    target = GetNodePos_unk(m14B0->mMotion.GetNodeMtx_unk("spine"));
-    m15D4 = target - GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
-    PSVECNormalize(&m15D4, &m15D4);
-    fn_800C31F4("SE_EM211_009_1", 0, -1, 1.0f);
-}
-
-// inferred: starts a jump to `target` (inlined in the jump attacks); name invented
-inline void EnemyQuarkSecond::SetJump_unk(const atn::Vector3& target) {
-    atn::Vector3 t = target;
-    m1568.mTarget = t;
-    m1568.mTarget.y = 0.0f;
-    atn::Vector3 rot = (t - mPos).ToRotation_unk();
-    rot.z = 0.0f;
-    m1568.mRot = rot;
-    atn::Vector3 dir = t - mPos;
-    dir.y = 0.0f;
-    m1568.mDir = dir;
-    PSVECNormalize(&m1568.mDir, &m1568.mDir);
-    m1568.mStart = mPos;
-    m570 = 0.0f;
-}
-
-// NONMATCHING: ~80% - draft: the original keeps more temporaries of the jump (the target is copied
-// through two Vector3 and the rotation is computed with the frame of ToRotation_unk in other slots)
-void EnemyQuarkSecond::fn_8034228C() {
-    ResetState_unk();
-    fn_8016E970(3);
-    m58C = 7;
-    m1648 = 0.0f;
-    m1644 = 0;
-    PlayMotion_unk(0x13F, 0, 1.0f);
-    SetJump_unk(m1598);
-}
-
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* owner, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: fires the attack data
-
-// NONMATCHING: 99.6% - f30/f31 of the turn target (the matrix of ToRotationZ_unk takes the other one);
-// 10 variants
-void EnemyQuarkSecond::fn_8033D750() {
-    float frame = mMotion.mTracks[0].m08;
-    float target;
-    if (frame >= mMotion.fn_80097D7C(0)) {
-        fn_80341EE4();
-        return;
-    }
-    if (mMotion.mTracks[0].m08 < 38.0f) {
-        CharaTask* t = m14B0;
-        target = (t->mPos - mPos).ToRotationZ_unk().y;
-        float d = atn::WrapAngle_unk(target - mRot.y);
-        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
-            mRot.y = target;
-        } else if (d <= 0.0f) {
-            mRot.y -= 0.20943952f;
-        } else {
-            mRot.y += 0.20943952f;
-        }
-    }
-    if (mMotion.mTracks[0].m08 >= 47.0f && mMotion.mTracks[0].m08 < 49.0f) {
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
-    }
-}
-
-// inferred: same as PlayEffect_unk with the locals declared pos, rot, color (as PlayEffect_unk of
-// game/Em301LShade.cpp); name invented
-inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
-    atn::Vector3 pos;
-    atn::Vector3 rot;
-    Color4f_unk color;
-    rot.x = 0.0f;
-    rot.y = 0.0f;
-    rot.z = 0.0f;
-    pos.x = 0.0f;
-    pos.y = 0.0f;
-    pos.z = 0.0f;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, scale);
-}
-
-void EnemyQuarkSecond::fn_80342FB4() {
-    ResetState_unk();
-    fn_8016E970(3);
-    m58C = 14;
-    m590 = fn_800F8548(lbl_8087F048);
-    PlayMotion_unk(0x15C, 0, 1.0f);
-    m16C8 = 0;
-    fn_80232B7C(this, 0x3F0);
-    PlayEffectA_unk(&m15A4, &mMotion, 1.0f);
 }

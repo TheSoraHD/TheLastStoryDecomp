@@ -381,36 +381,6 @@ inline void SetSeg_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::V
     c.m54 = r;
 }
 
-// inferred: capsule along the y axis of the node "center_chara" (from -5 to 5)
-void Em305Vampire::vf20() {
-    m5A4.y = 3.0f;
-    m5B0 = 10.0f;
-    m620 = 0.5f * m5B0;
-    m614 = mPos + m5A4;
-    m614.y += m620;
-    atn::Matrix3x4 m(mMotion.GetNodeMtx_unk("center_chara"));
-    atn::Matrix3x4* p = &m;
-    if (p != 0) {
-        m5B0 = 10.0f;
-        float z = m.m[2][3];
-        float y = m.m[1][3];
-        float x = m.m[0][3];
-        atn::Vector3 a(0.0f, -5.0f, 0.0f);
-        atn::Vector3 to(x, y, z);
-        atn::Vector3 b(0.0f, 5.0f, 0.0f);
-        atn::Vector3 from(x, y, z);
-        m.m[0][3] = 0.0f;
-        m.m[1][3] = 0.0f;
-        m.m[2][3] = 0.0f;
-        PSMTXMultVec(m.m, &a, &a);
-        PSMTXMultVec(m.m, &b, &b);
-        to += a;
-        from += b;
-        SetSeg_unk(mColli, to, from, m5B0);
-    }
-    mColli.m20 = 0x80;
-}
-
 // inferred: reaction to the hit (0x134: silver arrow, 0x1791: stun)
 void Em305Vampire::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
@@ -506,6 +476,36 @@ void Em305Vampire::vf40(HitInfo_unk* hit) {
     if ((mStatus.m0C & 0x20) == 0x20) {
         fn_802EC280();
     }
+}
+
+// inferred: capsule along the y axis of the node "center_chara" (from -5 to 5)
+void Em305Vampire::vf20() {
+    m5A4.y = 3.0f;
+    m5B0 = 10.0f;
+    m620 = 0.5f * m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Matrix3x4 m(mMotion.GetNodeMtx_unk("center_chara"));
+    atn::Matrix3x4* p = &m;
+    if (p != 0) {
+        m5B0 = 10.0f;
+        float z = m.m[2][3];
+        float y = m.m[1][3];
+        float x = m.m[0][3];
+        atn::Vector3 a(0.0f, -5.0f, 0.0f);
+        atn::Vector3 to(x, y, z);
+        atn::Vector3 b(0.0f, 5.0f, 0.0f);
+        atn::Vector3 from(x, y, z);
+        m.m[0][3] = 0.0f;
+        m.m[1][3] = 0.0f;
+        m.m[2][3] = 0.0f;
+        PSMTXMultVec(m.m, &a, &a);
+        PSMTXMultVec(m.m, &b, &b);
+        to += a;
+        from += b;
+        SetSeg_unk(mColli, to, from, m5B0);
+    }
+    mColli.m20 = 0x80;
 }
 
 inline void Em305Vampire::StartTackle_unk() {
@@ -954,6 +954,9 @@ void Em305Vampire::fn_802EC38C() {
 }
 
 void Em305Vampire::vf108() {}
+
 void Em305Vampire::vf104() {}
+
 void Em305Vampire::vf100(int state) {}
+
 void Em305Vampire::vfFC() {}

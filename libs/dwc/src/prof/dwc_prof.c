@@ -12,7 +12,7 @@
 #include <wchar.h>
 
 // inferred: game code string (HTTP_X_GAMECD, gamecd); its 4th character is the region
-const char* fn_805EBFD0(void);
+const char* OSGetAppGamename(void);
 
 // result of the prof request (same layout as in dwc_auth_interface.c)
 struct DWCAuthPrWords {
@@ -210,5 +210,5 @@ int DWC_CheckProfanityProcess(void) {
 BOOL DWC_CheckProfanityAsync(const u16** words, int wordsnum, const char* reserved, int timeout,
                              char* result, int* badwordsnum) {
     return DWCi_CheckProfanityAsync(words, wordsnum, reserved, timeout, result, badwordsnum,
-                                    fn_805EBFD0()[3]);
+                                    OSGetAppGamename()[3]);
 }

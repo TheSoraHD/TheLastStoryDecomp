@@ -9,7 +9,7 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void C_QUATMtx(atn::Quaternion_unk* q, const Mtx m);
-extern "C" void fn_805F9AB0(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
+extern "C" void C_QUATRotAxisRad(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
 extern "C" double acos(double x);
 // inferred: camera (only the position)
 struct CameraPos_unk {
@@ -117,6 +117,12 @@ void Chain::vf10() {
         return;
     }
     fn_8043C508();
+}
+
+void Chain::vf14() {
+    if (mTarget != 0 && lbl_8087F0A8->m18 != 0) {
+        fn_803ED610(mModel.GetModel_unk());
+    }
 }
 
 // NONMATCHING: 90.6% - stack layout of the temporaries (16 bytes smaller frame) and the order of
@@ -244,7 +250,7 @@ void Chain::fn_8043CF58() {
                 atn::Quaternion_unk r;
                 if (PSVECMag(&axis) > 0.0f) {
                     atn::Quaternion_unk t;
-                    fn_805F9AB0(&t, &axis, a);
+                    C_QUATRotAxisRad(&t, &axis, a);
                     r = t;
                 } else {
                     r = atn::Quaternion_unk(0.0f, 0.0f, 0.0f, 1.0f);
@@ -286,12 +292,6 @@ void Chain::fn_8043CF58() {
     }
 }
 
-void Chain::vf14() {
-    if (mTarget != 0 && lbl_8087F0A8->m18 != 0) {
-        fn_803ED610(mModel.GetModel_unk());
-    }
-}
-
 int Chain::vf40(GimmickMsg_unk* msg) {
     if (msg != 0) {
         m54 = msg->mType;
@@ -303,5 +303,4 @@ void Chain::vf3C(void* lens) {
     mModel.GetModel_unk()->m1DC = (Lens_unk*)lens;
     mModel.GetModel_unk()->mFlags |= 0x10000;
 }
-
 } // namespace gmk

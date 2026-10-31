@@ -29,7 +29,7 @@ static void EnableWriteGatherPipe(void);
 static GXTlutRegion* __GXDefaultTlutRegionCallback(u32);
 static GXTexRegion* __GXDefaultTexRegionCallback(const GXTexObj*, GXTexMapID);
 
-const char* __GXVersion = "<< RVL_SDK - GX \trelease build: Dec 11 2007 01:34:15 (0x4199_60831) >>";
+const char* __GXVersion = "<< RVL_SDK - GX \trelease build: Aug 23 2010 17:32:50 (0x4302_145) >>";
 
 static BOOL __GXShutdown(BOOL, u32);
 

@@ -46,7 +46,7 @@ struct SysInput_unk {
     int m40C0; // inferred: the first Wii Remote is connected
 };
 extern "C" SysInput_unk* lbl_8087F018;
-extern "C" int fn_805FF120(); // inferred: the error is cleared
+extern "C" int DVDCheckDisk();
 // inferred: arena (lbl_8087F610)
 struct SysArena_unk;
 extern "C" SysArena_unk* lbl_8087F610;
@@ -503,7 +503,7 @@ void ErrorManager::fn_80363DBC() {
         break;
     }
     if (error == 0) {
-        if ((unsigned int)(mError - 1) <= 3 && fn_805FF120() == 0) {
+        if ((unsigned int)(mError - 1) <= 3 && DVDCheckDisk() == 0) {
             error = mError;
         }
         if ((unsigned int)(mError - 5) <= 1 && HomeButtonMenu::sInstance != 0 &&

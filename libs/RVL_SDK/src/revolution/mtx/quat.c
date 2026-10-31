@@ -176,6 +176,22 @@ loc1:
     )
 }
 
+void C_QUATRotAxisRad(Quaternion* r, const Vec* axis, f32 rad) {
+    f32 sh, ch;
+    Vec nAxis;
+
+    PSVECNormalize(axis, &nAxis);
+
+    rad = 0.5f * rad;
+    sh = sin(rad);
+    ch = cos(rad);
+
+    r->x = sh * nAxis.x;
+    r->y = sh * nAxis.y;
+    r->z = sh * nAxis.z;
+    r->w = ch;
+}
+
 inline f32 mySqrtf(f32 x){
     return sqrt(x);
 }

@@ -59,7 +59,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
 extern "C" bool fn_80051A88(const CharaTask::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
@@ -354,7 +353,7 @@ void Em204BigMulue::vf10() {
                 player->fn_801588A0(m1544, pos);
                 fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
                 if (lbl_8087F490 != 0) {
-                    fn_803E3384(lbl_8087F490);
+                    lbl_8087F490->fn_803E3384();
                 }
             }
         }

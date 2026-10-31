@@ -110,7 +110,6 @@ public:
 
 extern "C" PopupTask* lbl_8087F8A8;
 
-
 extern "C" PopupTask* fn_8054A6E8(atn::Task* parent) {
     if (lbl_8087F8A8 == 0) {
         lbl_8087F8A8 = new ((MemoryTag)3, "", "", 0) PopupTask(parent);
@@ -141,17 +140,6 @@ PopupTask::PopupTask(atn::Task* parent) : atn::Task(parent), m48(0) {
 // (an inlined destructor of the array class, not reproduced)
 PopupTask::~PopupTask() {
     lbl_8087F8A8 = 0;
-}
-
-int PopupTask::vf0C() {
-    int ret = 1;
-    if (fn_800D3FA4() == 0) {
-        ret = 0;
-    }
-    if (ret != 0) {
-        mEntries.mCount = 0;
-    }
-    return ret;
 }
 
 void PopupTask::fn_8054AF08() {
@@ -191,6 +179,17 @@ void PopupTask::fn_8054AF08() {
         fn_800D2338(m17D0.mTask);
         m17D0.mTask = 0;
     }
+}
+
+int PopupTask::vf0C() {
+    int ret = 1;
+    if (fn_800D3FA4() == 0) {
+        ret = 0;
+    }
+    if (ret != 0) {
+        mEntries.mCount = 0;
+    }
+    return ret;
 }
 
 // inferred: clears all the popups

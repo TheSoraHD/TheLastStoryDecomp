@@ -147,7 +147,6 @@ CharaStatusBase::CharaStatusBase() {
     memset(this, 0, sizeof(*this));
 }
 
-
 extern "C" double pow(double x, double y);
 
 int CharaStatus::fn_8012B028() {
@@ -182,6 +181,62 @@ inline bool CharaStatus::IsWeak_unk() {
         result = false;
     }
     return result;
+}
+
+// NONMATCHING: 98.1% - register allocation only: the original keeps zero in r30 and the loop
+// pointers of m2D0 in r29/r28; ours uses r29 for zero and r28/r30 for the pointers.
+CharaStatus::CharaStatus()
+    : m240(0), m248(0), m2CC(0), mChara(0), m2F4(0.0f), m2F8(0.0f), m2FC(1.0f), m300(0),
+      m428(0.0f), m42C(0.0f), m430(0), m434(0.0f), m438(0.0f) {
+    memset(m24C, 0, sizeof(m24C));
+}
+
+CharaStatus::~CharaStatus() {}
+
+// NONMATCHING: 97.6% - only the scheduling of the fn_8012C6D4 arguments differs (the original starts the
+// mChara->m5C->mC8 chain before reading m0C). Tried: argument locals, an inline for the third
+// argument, other sums for the second.
+void CharaStatus::fn_8012B3E8() {
+    if (mChara == 0 || mChara->m5C == 0) {
+        return;
+    }
+    chr::CharaData_unk* data = mChara->m5C;
+    mParamA = data->mParam;
+    mParamA.m9C |= mChara->mC10;
+    FieldInfo_unk* info = lbl_8087F430 != 0 ? lbl_8087F430->m10D4 : 0;
+    int bonus = 0;
+    int extra = 0;
+    if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && fn_8020FCE8(mChara->m5C->mC8)) {
+        if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
+            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m08 + 0.2f);
+            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
+            extra = MAX(0, (bonus - 70) * 20 + 1000);
+        } else {
+            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
+            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+            bonus = MIN(bonus, MAX(info->m58, 60));
+        }
+    }
+    if (lbl_8087F430 != 0 && mChara->mType == 2) {
+        bonus += fn_80375B78(lbl_8087F430, 1);
+    }
+    fn_8012C6D4(&mParamA, (int)m1A8.m08 + (bonus + mParamA.m78), m1C - ((m0C & 0x400) ? 3 : 0),
+                mChara->m5C->mC8);
+    mParamA.m84 += (int)m1A8.m0C;
+    mParamA.m00 += m1A8.m10 + extra;
+    mParamA.m04 += m1A8.m14 + extra;
+    mParamA.m08 += m1A8.m18;
+    mParamA.m0C += m1A8.m1C;
+    mParamA.m94 += m1A8.m20;
+    if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && !fn_8020FCE8(mChara->m5C->mC8)) {
+        mParamA.m84 = (int)((float)mParamA.m84 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m10 + 0.2f);
+        mParamA.m84 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m14;
+        mParamA.m00 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
+        mParamA.m00 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
+        mParamA.m04 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
+        mParamA.m04 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
+    }
+    fn_8012D180();
 }
 
 // NONMATCHING: 98.4% - differs in register choices (the rate block, the arena flag, two float sums) and in
@@ -319,83 +374,6 @@ void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id)
         param->m94 = MAX(1, (int)curves->mCurves[4].Get(total));
     }
 }
-
-// NONMATCHING: 97.6% - only the scheduling of the fn_8012C6D4 arguments differs (the original starts the
-// mChara->m5C->mC8 chain before reading m0C). Tried: argument locals, an inline for the third
-// argument, other sums for the second.
-void CharaStatus::fn_8012B3E8() {
-    if (mChara == 0 || mChara->m5C == 0) {
-        return;
-    }
-    chr::CharaData_unk* data = mChara->m5C;
-    mParamA = data->mParam;
-    mParamA.m9C |= mChara->mC10;
-    FieldInfo_unk* info = lbl_8087F430 != 0 ? lbl_8087F430->m10D4 : 0;
-    int bonus = 0;
-    int extra = 0;
-    if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && fn_8020FCE8(mChara->m5C->mC8)) {
-        if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
-            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m08 + 0.2f);
-            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
-            extra = MAX(0, (bonus - 70) * 20 + 1000);
-        } else {
-            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
-            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
-            bonus = MIN(bonus, MAX(info->m58, 60));
-        }
-    }
-    if (lbl_8087F430 != 0 && mChara->mType == 2) {
-        bonus += fn_80375B78(lbl_8087F430, 1);
-    }
-    fn_8012C6D4(&mParamA, (int)m1A8.m08 + (bonus + mParamA.m78), m1C - ((m0C & 0x400) ? 3 : 0),
-                mChara->m5C->mC8);
-    mParamA.m84 += (int)m1A8.m0C;
-    mParamA.m00 += m1A8.m10 + extra;
-    mParamA.m04 += m1A8.m14 + extra;
-    mParamA.m08 += m1A8.m18;
-    mParamA.m0C += m1A8.m1C;
-    mParamA.m94 += m1A8.m20;
-    if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && !fn_8020FCE8(mChara->m5C->mC8)) {
-        mParamA.m84 = (int)((float)mParamA.m84 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m10 + 0.2f);
-        mParamA.m84 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m14;
-        mParamA.m00 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
-        mParamA.m00 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
-        mParamA.m04 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
-        mParamA.m04 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
-    }
-    fn_8012D180();
-}
-
-// NONMATCHING: 98.1% - register allocation only: the original keeps zero in r30 and the loop
-// pointers of m2D0 in r29/r28; ours uses r29 for zero and r28/r30 for the pointers.
-CharaStatus::CharaStatus()
-    : m240(0), m248(0), m2CC(0), mChara(0), m2F4(0.0f), m2F8(0.0f), m2FC(1.0f), m300(0),
-      m428(0.0f), m42C(0.0f), m430(0), m434(0.0f), m438(0.0f) {
-    memset(m24C, 0, sizeof(m24C));
-}
-
-CharaStatus::~CharaStatus() {}
-
-void CharaStatus::fn_8012D628(CharaParam_unk* dst, const CharaParam_unk* src) {
-    if (src == 0) {
-        return;
-    }
-    dst->m00 += src->m00;
-    dst->m04 += src->m04;
-    dst->m08 += src->m08;
-    dst->m0C += src->m0C;
-    dst->m10 *= src->m10;
-    dst->m14 *= src->m14;
-    dst->m28 += src->m28;
-    dst->m2C += src->m2C;
-    dst->m20 += src->m20;
-    dst->m24 += src->m24;
-    dst->m18 += src->m18;
-    dst->m1C += src->m1C;
-    dst->m30 += src->m30;
-    dst->m34 += src->m34;
-}
-
 
 // inferred: counterpart of fn_80134674 (never emitted on its own); name invented
 inline void CharaStatus::ClearBit_unk(int bit) {
@@ -560,6 +538,26 @@ void CharaStatus::fn_8012D180() {
     }
 }
 
+void CharaStatus::fn_8012D628(CharaParam_unk* dst, const CharaParam_unk* src) {
+    if (src == 0) {
+        return;
+    }
+    dst->m00 += src->m00;
+    dst->m04 += src->m04;
+    dst->m08 += src->m08;
+    dst->m0C += src->m0C;
+    dst->m10 *= src->m10;
+    dst->m14 *= src->m14;
+    dst->m28 += src->m28;
+    dst->m2C += src->m2C;
+    dst->m20 += src->m20;
+    dst->m24 += src->m24;
+    dst->m18 += src->m18;
+    dst->m1C += src->m1C;
+    dst->m30 += src->m30;
+    dst->m34 += src->m34;
+}
+
 void CharaStatus::fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, const CharaParam_unk* b) {
     if (a == 0 || b == 0) {
         return;
@@ -580,7 +578,6 @@ void CharaStatus::fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, cons
     dst->m34 += (a->m34 + b->m34) / 2;
 }
 
-
 // NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
 void CharaStatus::fn_8012D8B8() {
     m04 = (float)mParamB.m84;
@@ -597,32 +594,6 @@ void CharaStatus::fn_8012D8B8() {
     m428 = 0.0f;
     m244 = m04;
     m14 = 0;
-}
-
-// NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
-void CharaStatus::fn_8012DD70() {
-    if ((m0C & 0x20) == 0x20) {
-        return;
-    }
-    m04 = 0.0f;
-    if ((m0C & 0x100) == 0x100) {
-        mChara->fn_80167038();
-    }
-    if ((m0C & 0x10000) == 0x10000) {
-        mChara->fn_80167640();
-    }
-    if ((m0C & 0x40) == 0x40) {
-        mChara->fn_80166544();
-    }
-    ClearFlags_unk(0xFFFFFFFF);
-    fn_8013310C(0x20, 0);
-    if (m300 <= 0 && m224 > 0) {
-        m224--;
-    }
-    m428 = 0.0f;
-    m430 = 0;
-    m434 = 0.0f;
-    m438 = 0.0f;
 }
 
 // NONMATCHING: 94.9% - the original loads m0C before the int-to-float constant and reloads the
@@ -654,6 +625,32 @@ float CharaStatus::fn_8012DB04() {
         rate = 0.05f;
     }
     return rate;
+}
+
+// NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
+void CharaStatus::fn_8012DD70() {
+    if ((m0C & 0x20) == 0x20) {
+        return;
+    }
+    m04 = 0.0f;
+    if ((m0C & 0x100) == 0x100) {
+        mChara->fn_80167038();
+    }
+    if ((m0C & 0x10000) == 0x10000) {
+        mChara->fn_80167640();
+    }
+    if ((m0C & 0x40) == 0x40) {
+        mChara->fn_80166544();
+    }
+    ClearFlags_unk(0xFFFFFFFF);
+    fn_8013310C(0x20, 0);
+    if (m300 <= 0 && m224 > 0) {
+        m224--;
+    }
+    m428 = 0.0f;
+    m430 = 0;
+    m434 = 0.0f;
+    m438 = 0.0f;
 }
 
 void CharaStatus::fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit) {
@@ -718,7 +715,6 @@ inline void CharaStatus::ApplyRates_unk(HitInfo_unk* hit) {
     m14 |= hit->mAC;
 }
 
-
 void CharaStatus::fn_8012E244(HitInfo_unk* hit) {
     if (mChara != 0 && mChara->mFlag2) {
         ApplyRates_unk(hit);
@@ -747,61 +743,6 @@ int CharaStatus::fn_8012E534() {
 }
 
 extern "C" int fn_80219344(chr::Chara_unk* chara, int arg);
-
-void CharaStatus::fn_8012F034(float amount) {
-    if (mChara->fn_8016E484()) {
-        if (!fn_80219344(mChara, 5)) {
-            return;
-        }
-    } else if (m2D0[3].m[0] <= 0) {
-        return;
-    }
-    static const float sFactors[5] = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f};
-    amount *= m2FC;
-    float old = m228;
-    amount *= 1.0f + (float)SumRefs_unk(mRefs, 53) / 100.0f;
-    if (mChara != 0 && mChara->m50 == 1) {
-        amount *= sFactors[m1A8.m54 > 4 ? 4 : m1A8.m54];
-    }
-    m228 += amount;
-    if (old < 1.0f && m228 >= 1.0f) {
-        mChara->fn_8017AC2C();
-    }
-}
-
-
-// NONMATCHING: 95.3% - the original repeats the chara/flag test of the inlined fn_8012F3D8
-// (ours reuses the first test) and passes the new gauge value to the second one from a register
-// (frsp) instead of reloading m42C. Tried: a HasGauge_unk helper, the body in an inline helper.
-void CharaStatus::fn_8012F188(float amount) {
-    if (lbl_8087F430 != 0 && !fn_80375184(lbl_8087F430)) {
-        return;
-    }
-    if (mChara == 0 || !mChara->mFlag28) {
-        return;
-    }
-    if ((m1A8.mBits[1] & 0x20000000) != 0x20000000) {
-        return;
-    }
-    float max = 10.0f;
-    if ((m1A8.mBits[1] & 0x80000000) != 0x80000000) {
-        max = 5.0f;
-        if ((m1A8.mBits[1] & 0x40000000) != 0x40000000) {
-            max = 3.0f;
-        }
-    }
-    int before = fn_8012F3D8();
-    float rate = 1.0f;
-    if (mChara->fn_801789D8(0, 0x2000)) {
-        rate *= 1.5f;
-    }
-    m42C = MIN(MAX(m42C + amount * rate, 0.0f), max - 0.1f);
-    int after = fn_8012F3D8();
-    if (before < after && after > 1 && lbl_8087F048 != 0) {
-        fn_8010652C(lbl_8087F048, mChara);
-        fn_801061BC(lbl_8087F048, mChara, &mChara->mMotion, after - 1);
-    }
-}
 
 // inferred: damage description built for status damage (fn_8012E540); name invented
 struct StatusDamage_unk {
@@ -987,6 +928,60 @@ void CharaStatus::fn_8012E540() {
         }
     }
     m244 += MIN(0.005f * m04, m04 - m244);
+}
+
+void CharaStatus::fn_8012F034(float amount) {
+    if (mChara->fn_8016E484()) {
+        if (!fn_80219344(mChara, 5)) {
+            return;
+        }
+    } else if (m2D0[3].m[0] <= 0) {
+        return;
+    }
+    static const float sFactors[5] = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f};
+    amount *= m2FC;
+    float old = m228;
+    amount *= 1.0f + (float)SumRefs_unk(mRefs, 53) / 100.0f;
+    if (mChara != 0 && mChara->m50 == 1) {
+        amount *= sFactors[m1A8.m54 > 4 ? 4 : m1A8.m54];
+    }
+    m228 += amount;
+    if (old < 1.0f && m228 >= 1.0f) {
+        mChara->fn_8017AC2C();
+    }
+}
+
+// NONMATCHING: 95.3% - the original repeats the chara/flag test of the inlined fn_8012F3D8
+// (ours reuses the first test) and passes the new gauge value to the second one from a register
+// (frsp) instead of reloading m42C. Tried: a HasGauge_unk helper, the body in an inline helper.
+void CharaStatus::fn_8012F188(float amount) {
+    if (lbl_8087F430 != 0 && !fn_80375184(lbl_8087F430)) {
+        return;
+    }
+    if (mChara == 0 || !mChara->mFlag28) {
+        return;
+    }
+    if ((m1A8.mBits[1] & 0x20000000) != 0x20000000) {
+        return;
+    }
+    float max = 10.0f;
+    if ((m1A8.mBits[1] & 0x80000000) != 0x80000000) {
+        max = 5.0f;
+        if ((m1A8.mBits[1] & 0x40000000) != 0x40000000) {
+            max = 3.0f;
+        }
+    }
+    int before = fn_8012F3D8();
+    float rate = 1.0f;
+    if (mChara->fn_801789D8(0, 0x2000)) {
+        rate *= 1.5f;
+    }
+    m42C = MIN(MAX(m42C + amount * rate, 0.0f), max - 0.1f);
+    int after = fn_8012F3D8();
+    if (before < after && after > 1 && lbl_8087F048 != 0) {
+        fn_8010652C(lbl_8087F048, mChara);
+        fn_801061BC(lbl_8087F048, mChara, &mChara->mMotion, after - 1);
+    }
 }
 
 int CharaStatus::fn_8012F3D8() {
@@ -1445,27 +1440,6 @@ int CharaStatus::fn_801334CC(int level) {
     return (int)(50.0f * (float)pow((float)level, 2.0));
 }
 
-void CharaStatus::fn_80133B30(int level) {
-    bool up = m1C < level;
-    m1C = level;
-    fn_8012B3E8();
-    fn_8012B988();
-    if (!up) {
-        m04 = MIN(m04, (float)mParamB.m84);
-    }
-}
-
-void CharaStatus::fn_80133E24(int id, int sub) {
-    CharaStatusEntry_unk* it = mEntries.begin();
-    while (it != mEntries.end()) {
-        if ((sub < 0 || it->mSub == sub) && (id < 0 || it->mId == id)) {
-            mEntries.erase(it);
-        } else {
-            it++;
-        }
-    }
-}
-
 // inferred: fixed levels for some kinds of character (0x80737288); names invented
 struct FixedLevel_unk {
     int mKind;
@@ -1485,43 +1459,6 @@ inline const FixedLevel_unk* FindFixedLevel_unk(int kind) {
         }
     }
     return 0;
-}
-
-// NONMATCHING: 98.6% - only the first load (mParamB.m78) is scheduled later than in the original, which
-// loads it before saving the arguments. Tried: a field local, a param pointer, other conditions.
-int CharaStatus::fn_80133BD8(int force) {
-    int level = mParamB.m78;
-    if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {
-        level = lbl_8087F430->m10D4->m54;
-        level += mParamB.m7C;
-        level += fn_80375B78(lbl_8087F430, 1);
-    }
-    if (fn_8020FCE8(mChara->m5C->mC8)) {
-        if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
-            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
-        } else {
-            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
-        }
-    }
-    level += (int)m1A8.m08;
-    if (lbl_8087F610 == 0 || force != 0) {
-        const FixedLevel_unk* fixed = FindFixedLevel_unk(mChara->m50);
-        if (fixed != 0) {
-            if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
-                level = fixed->mLevelA;
-            } else {
-                level = fixed->mLevelB;
-            }
-        }
-    }
-    if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
-        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
-            level = MIN(69, MAX(1, level));
-        } else {
-            level = MIN(999, MAX(1, level));
-        }
-    }
-    return MAX(1, level);
 }
 
 // inferred: stat differences after levelling up (fn_8013354C); name invented
@@ -1611,6 +1548,64 @@ int CharaStatus::fn_8013354C(int exp, LevelUpResult_unk* result) {
         result->m20 = after.mParam.m94 - before.mParam.m94;
     }
     return count;
+}
+
+void CharaStatus::fn_80133B30(int level) {
+    bool up = m1C < level;
+    m1C = level;
+    fn_8012B3E8();
+    fn_8012B988();
+    if (!up) {
+        m04 = MIN(m04, (float)mParamB.m84);
+    }
+}
+
+// NONMATCHING: 98.6% - only the first load (mParamB.m78) is scheduled later than in the original, which
+// loads it before saving the arguments. Tried: a field local, a param pointer, other conditions.
+int CharaStatus::fn_80133BD8(int force) {
+    int level = mParamB.m78;
+    if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {
+        level = lbl_8087F430->m10D4->m54;
+        level += mParamB.m7C;
+        level += fn_80375B78(lbl_8087F430, 1);
+    }
+    if (fn_8020FCE8(mChara->m5C->mC8)) {
+        if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
+            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
+        } else {
+            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+        }
+    }
+    level += (int)m1A8.m08;
+    if (lbl_8087F610 == 0 || force != 0) {
+        const FixedLevel_unk* fixed = FindFixedLevel_unk(mChara->m50);
+        if (fixed != 0) {
+            if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
+                level = fixed->mLevelA;
+            } else {
+                level = fixed->mLevelB;
+            }
+        }
+    }
+    if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
+        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
+            level = MIN(69, MAX(1, level));
+        } else {
+            level = MIN(999, MAX(1, level));
+        }
+    }
+    return MAX(1, level);
+}
+
+void CharaStatus::fn_80133E24(int id, int sub) {
+    CharaStatusEntry_unk* it = mEntries.begin();
+    while (it != mEntries.end()) {
+        if ((sub < 0 || it->mSub == sub) && (id < 0 || it->mId == id)) {
+            mEntries.erase(it);
+        } else {
+            it++;
+        }
+    }
 }
 
 CharaStatusEntry_unk* CharaStatus::fn_80133EE8(int id) {
@@ -1759,27 +1754,6 @@ struct RandomPick_unk {
     int mValue;
 };
 
-void CharaStatus::fn_8013459C() {
-    static const RandomPick_unk sTable[6] = {{30, 0}, {50, 1}, {70, 2}, {80, 3}, {90, 4}, {100, 5}};
-    if (lbl_8087F0A8->m2CC != 0) {
-        bool active = false;
-        if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
-            active = true;
-        }
-        if (active) {
-            int r = rand() % 100;
-            for (int i = 0; i < 6; i++) {
-                if (r < sTable[i].mThreshold) {
-                    m424 = sTable[i].mValue;
-                    break;
-                }
-            }
-        } else {
-            m424 = 0;
-        }
-    }
-}
-
 // inferred: item that raises a stat (type at 0xB4, amount at 0xB8); name invented
 struct StatusItem_unk {
     unsigned char m00[0xB4];
@@ -1866,6 +1840,27 @@ void CharaStatus::fn_801342D0(StatusItem_unk* item, int stat) {
     fn_8012B3E8();
 }
 
+void CharaStatus::fn_8013459C() {
+    static const RandomPick_unk sTable[6] = {{30, 0}, {50, 1}, {70, 2}, {80, 3}, {90, 4}, {100, 5}};
+    if (lbl_8087F0A8->m2CC != 0) {
+        bool active = false;
+        if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
+            active = true;
+        }
+        if (active) {
+            int r = rand() % 100;
+            for (int i = 0; i < 6; i++) {
+                if (r < sTable[i].mThreshold) {
+                    m424 = sTable[i].mValue;
+                    break;
+                }
+            }
+        } else {
+            m424 = 0;
+        }
+    }
+}
+
 // NONMATCHING: 98.1% - registers only (the original keeps the constant 1 in r4 and the word
 // index in r7). Tried: mask/word locals, test and set written in place, helpers with a mask local.
 void CharaStatus::fn_80134674(int bit) {
@@ -1914,7 +1909,6 @@ bool CharaStatus::fn_801347C8(int index) {
     }
     return false;
 }
-
 
 // inferred: item data returned by fn_80206B14 / fn_8020ED84; names invented
 struct WeaponData_unk {

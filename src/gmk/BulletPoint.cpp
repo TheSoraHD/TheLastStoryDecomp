@@ -99,6 +99,8 @@ int BulletPoint::vf0C() {
     return 0;
 }
 
+void BulletPoint::Start() {}
+
 // inferred: fires a bullet every desc->m28 frames at a place or at a random character
 // NONMATCHING: 98.5% - (1) the original reloads the target count from the stack for the empty test
 // and again into r26 (here one load in r26); (2) the 0.1f/1.0f constants of the shot are in the
@@ -174,8 +176,6 @@ void BulletPoint::vf10() {
     bullet->fn_8010EFF0(&shot, &mDesc->mPos, &dir, mDesc->m2C, -1, 0, speed);
 }
 
-void BulletPoint::Start() {}
-
 void BulletPoint::vf14() {}
 
 int BulletPoint::vf40(GimmickMsg_unk* msg) {
@@ -192,5 +192,4 @@ int BulletPoint::vf60() {
     }
     return ret;
 }
-
 } // namespace gmk
