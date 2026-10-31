@@ -201,19 +201,8 @@ void __OSPlayTimeAlarmExpired(OSAlarm* alarm, OSContext* context) {
 	OSThread *thread;
 	void *stack;
 
-    if (__OSExpireThread != NULL) {
-        for (thread = __OSActiveThreadQueue.head; thread; thread = thread->linkActive.next) {
-            if (thread != __OSExpireThread) {
-                OSSuspendThread(thread);
-            }
-        }
-
-        OSCreateAlarm(&__OSExpireAlarm);
-        OSSetAlarm(&__OSExpireAlarm,  OSSecondsToTicks((OSTime)0xF0), __OSPlayTimeRebootCallback);
-    
-        while (__OSExpireThread->suspend > 0) {
-            OSResumeThread(__OSExpireThread);
-        }
+    if (__OSExpireCallback != NULL) {
+        __OSExpireCallback();
     }
     else {
         for (thread = __OSActiveThreadQueue.head; thread; thread = thread->linkActive.next) {
@@ -351,7 +340,7 @@ void __OSInitPlayTime() {
     __OSPlayTimeType type;
 
     __OSExpireTime = 0;
-    __OSExpireThread = NULL;
+    __OSExpireCallback = NULL;
     __OSExpireSetExpiredFlag = TRUE;
 
     rv = ESP_InitLib();
@@ -376,11 +365,11 @@ void __OSInitPlayTime() {
     }
     else if (type == OSPLAYTIME_LIMITED) {
         if (limit == 0) {
-            OSPanic(__FILE__, 0x307, "Expired");
+            OSPanic(__FILE__, 0x2E1, "Expired");
         }
 
         OSCreateAlarm(&__OSExpireAlarm);
-        OSSetAlarm(&__OSExpireAlarm, OSSecondsToTicks((OSTime)limit + 1), __OSPlayTimeAlarmExpired);
+        OSSetAlarm(&__OSExpireAlarm, OSSecondsToTicks((OSTime)limit + 20), __OSPlayTimeAlarmExpired);
         __OSExpireTime = __OSExpireAlarm.fire;
         OSReport("PlayTime: %d seconds left\n", limit);
     }
