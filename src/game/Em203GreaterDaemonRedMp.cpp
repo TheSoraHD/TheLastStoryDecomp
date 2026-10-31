@@ -753,6 +753,62 @@ void Em203GreaterDaemonRedMp::fn_8029F3FC() {
     }
 }
 
+// inferred: result of fn_8003EA3C (as TashaDamage_unk of game/EnemyTasha.cpp); names invented
+struct RedMpDamage_unk {
+    RedMpDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
+        mFlags31_28 = 0;
+        m18 = -1;
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int mFlags31_28 : 4;
+    unsigned int mFlags27_0 : 28;
+};
+extern "C" void fn_8003EA3C(RedMpDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+                            unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
+extern "C" char lbl_807C6B90[0x18]; // inferred: work area of the damage computation
+
+// NONMATCHING: 98.38% - stack slots of the direction and its temporary; m15F8 kept in r3 by the original
+// inferred: state 9 (flare or damage circle: m14D8 0 chant, 1 casts)
+void Em203GreaterDaemonRedMp::fn_8029F738() {
+    if (m14D8 == 0) {
+        fn_8016E970(6);
+        m560 = 29;
+        if (Chant_unk() && mMotion.mTracks[0].m08 >= 28.0f) {
+            fn_8016E970(3);
+            m14D8 = 1;
+            PlayMotion_unk(0x145, 0, 0, 1.0f);
+        }
+    } else if (m14D8 == 1) {
+        float end = mMotion.mTracks[0].m08;
+        if (end >= mMotion.fn_80097D7C(0)) {
+            ToIdle_unk();
+        }
+        if (mMotion.mTracks[0].m08 >= 31.0f && mMotion.mTracks[0].m08 < 32.0f) {
+            HitInfo_unk* skill = m15F8;
+            if (skill == m14F8) {
+                atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
+                atn::Vector3 target = m14D4->mPos;
+                if (m15F8 == m14FC) {
+                    target = m1638;
+                }
+                atn::Vector3 dir = (target - pos).GetNormalize();
+                mStatus.mParamB.m2C = 7.0f;
+                m12CC = 0.0f;
+                fn_800F8574(lbl_8087F048, this, m15F8, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+            } else if (skill == m14FC) {
+                RedMpDamage_unk result;
+                fn_8003EA3C(&result, m15F8, this, this, 0, lbl_807C6B90, 0, 0);
+            }
+        }
+    }
+}
+
 // inferred: counts the chant frames of the skill in use (m15F8); nonzero when the chant is over
 inline int Em203GreaterDaemonRedMp::Chant_unk() {
     if (m15F8 == 0) {
