@@ -183,7 +183,6 @@ struct TutorialField_unk;
 extern "C" TutorialField_unk* lbl_8087F430;
 extern "C" void fn_802F0990();
 extern "C" void fn_80366DF8(int show);
-extern "C" void fn_80148B38_unk(CharaTask* chara, float dist);
 extern "C" int fn_803D6F44(atn::D2A_Task* gauge);
 extern "C" void fn_803D2134(atn::D2A_Task* gauge, float speed);
 extern "C" void fn_803D6F68(atn::D2A_Task* gauge, float value);
