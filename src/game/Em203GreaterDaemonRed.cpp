@@ -909,11 +909,12 @@ inline void Em203GreaterDaemonRed::StartSkill_unk(int state) {
 }
 
 // inferred: chooses the next ground skill (wait: only after GrandAttackTime/GrandBreathTime)
-// NONMATCHING: 99.72% - stack slots of the direction temporaries
 void Em203GreaterDaemonRed::fn_80296B8C(int wait) {
     atn::Vector3 target(*m14B0->fn_8013C38C());
-    atn::Vector3 dir = target - ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
+    atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
+    atn::Vector3 dir = target - spine;
     dir.y = 0.0f;
+    float limit;
     float dist = dir.Length_unk();
     if (dist < 0.00001f) {
         dir.Set_unk(0.0f, 0.0f, 1.0f);
@@ -930,7 +931,6 @@ void Em203GreaterDaemonRed::fn_80296B8C(int wait) {
         fn_8029B24C();
         next = 1;
     } else {
-        float limit;
         if (m58C == 15) {
             limit = 0.0f;
         } else {
@@ -953,7 +953,7 @@ void Em203GreaterDaemonRed::fn_80296B8C(int wait) {
     }
     if (next) {
         m151C++;
-        if (m151C >= (int)fn_800E0AA8(&m1504[1])) {
+        if (m151C >= (int)fn_800E0AA8(&m1504[0])) {
             m151C = 0;
         }
     }
