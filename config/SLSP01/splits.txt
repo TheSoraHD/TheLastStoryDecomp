@@ -5237,7 +5237,12 @@ nw4r/src/snd/snd_EnvGenerator.cpp:
 	.sdata2     start:0x808890C0 end:0x808890F0
 
 nw4r/src/snd/snd_InstancePool.cpp:
-	.text       start:0x8070F0D0 end:0x8070F178
+	.text       start:0x8070EE90 end:0x8070F178
+
+nw4r/src/snd/snd_Lfo.cpp:
+	.text       start:0x8070F180 end:0x8070F388
+	.rodata     start:0x8076CFA0 end:0x8076CFC8
+	.sdata2     start:0x80889140 end:0x80889170
 
 nw4r/src/snd/snd_SoundHandle.cpp:
 	.text       start:0x807175E0 end:0x80717680
