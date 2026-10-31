@@ -17,7 +17,6 @@ extern "C" double strtod(const char* str);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -821,7 +820,7 @@ void Em305Vampire::vfEC() {
         } else {
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         m1434 = 0;

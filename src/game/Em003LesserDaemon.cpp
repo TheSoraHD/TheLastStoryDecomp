@@ -63,7 +63,6 @@ extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -1141,7 +1140,7 @@ void Em003LesserDaemon::vfEC() {
         } else {
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         m1434 = 30;

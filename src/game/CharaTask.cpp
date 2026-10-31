@@ -3,6 +3,7 @@
 #include "atn/LoadHandle.h"
 #include "game/CrowdManager.h"
 #include "game/CharaTask.h"
+#include "game/BattleCharaTask.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
 #include "chr/ControlAttackBase.h"
@@ -9487,7 +9488,6 @@ namespace chr {
 // the constructors, sizes from the operator new calls
 } // namespace chr
 
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 
 // inferred: hangs from a cliff
 void CharaTask::fn_8016939C(int a, int b, float f) {
@@ -9507,7 +9507,7 @@ void CharaTask::fn_801698E4(const atn::Vector3& rot) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlFallDead(this, rot));
     mFlag16 = 0;
     if (mType == 2 && (m54C & 0x400) != 0x400) {
-        fn_800EE360(this);
+        static_cast<BattleCharaTask*>(this)->fn_800EE360(); // inferred: only enemies get here
     }
 }
 

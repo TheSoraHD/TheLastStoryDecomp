@@ -35,7 +35,6 @@ struct KrakenMsgTable_unk {
 };
 extern "C" KrakenMsgTable_unk* lbl_8087F1E4;
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -1245,7 +1244,7 @@ void Em302Kraken::vfEC() {
     if (mMotion.mTracks[0].m08 <= 0.0f) {
         mFlag25 = 1;
         mColli.mFlags &= ~1;
-        fn_800EE360(this);
+        fn_800EE360();
         mFlag15 = 1;
         fn_801765D8();
     }

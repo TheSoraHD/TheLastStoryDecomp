@@ -6,6 +6,7 @@
 #include "game/DamageCalc_unk.h"
 #include "chr/ControlBase.h"
 #include "game/Arms.h"
+#include "game/BattleResult.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -26,8 +27,10 @@ struct MapInfo_unk {
 };
 extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
-// inferred: multiplayer session (lbl_8087F610); only tested for null here
-extern "C" void* lbl_8087F610;
+// inferred: multiplayer session (lbl_8087F610)
+struct MpSession_unk;
+extern "C" MpSession_unk* lbl_8087F610;
+extern "C" int fn_804EB1AC(MpSession_unk* session);
 extern "C" int fn_8021446C(int index, int arg); // inferred: entry of the level equipment table
 
 BattleCharaTask::BattleCharaTask(atn::Task* parent, int type, void* data)
@@ -253,6 +256,27 @@ int BattleCharaTask::fn_800EBE84() {
         mAC = 3;
     }
     return 0;
+}
+
+// NONMATCHING: 98.7% - the original reloads mItemCount for the slot address of AddItem_unk
+void BattleCharaTask::fn_800EE360() {
+    if (lbl_8087F610 != 0 && fn_804EB1AC(lbl_8087F610) == 0) {
+        return;
+    }
+    if (mFlag22 != 1 && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x399) > 0) {
+        return;
+    }
+    if (((unsigned int)m5C->mParam.m9C & 0x4000) == 0x4000) {
+        if (BattleResult::sInstance != 0) {
+            BattleResult::sInstance->AddItem_unk(m5C->mD0);
+        }
+    } else if (m1438 != 0 && m1438->IsFlag_unk(4)) {
+        m1438->mFlags &= ~4;
+        GimmickMsg_unk msg;
+        msg.mType = 3;
+        msg.m10 = (int)this;
+        ((GimmickCommon*)m1438)->vf40(&msg);
+    }
 }
 
 int BattleCharaTask::vfE4() {

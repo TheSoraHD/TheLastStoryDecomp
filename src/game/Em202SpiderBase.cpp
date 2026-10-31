@@ -59,7 +59,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: color as four floats (as in game/CharaTask.cpp)
 struct Color4f_unk {
     Color4f_unk() {}
@@ -901,7 +900,7 @@ void Em202SpiderBase::vfEC() {
         } else {
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         m1434 = 30;

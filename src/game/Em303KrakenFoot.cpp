@@ -21,7 +21,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double cos(double x);
@@ -921,7 +920,7 @@ void Em303KrakenFoot::vfEC() {
         } else {
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         m1434 = 30;

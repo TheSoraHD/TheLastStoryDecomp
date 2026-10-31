@@ -40,7 +40,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
 struct Bullet_unk;
 extern "C" void* lbl_8087F9E8;
@@ -406,7 +405,7 @@ void Em001Necromancer::vf10() {
                     mFlag15 = 1;
                     fn_801765D8();
                     if (m14B8 != 2) {
-                        fn_800EE360(this);
+                        fn_800EE360();
                     }
                 }
             }
@@ -662,7 +661,7 @@ void Em001Necromancer::vfEC() {
         mFlag15 = 1;
         fn_801765D8();
         if (m14B8 != 2) {
-            fn_800EE360(this);
+            fn_800EE360();
         }
     }
 }

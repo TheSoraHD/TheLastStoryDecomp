@@ -13,7 +13,6 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: parameters of fn_8003EA3C (defined in CharaTask.cpp)
 struct HitParam_unk;
 extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
@@ -139,7 +138,7 @@ void Em002Skelton::vfF0() {
             mFlag15 = 1;
             m14B0 = m5C->mParam.m98;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
         mColli.mFlags &= ~1;
     }

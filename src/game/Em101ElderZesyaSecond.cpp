@@ -87,7 +87,6 @@ struct ElderMsgTable_unk {
 extern "C" ElderMsgTable_unk* lbl_8087F1E4;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800EE360(CharaTask* chara);     // inferred: BattleCharaTask (enemies only)
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); nonzero while the magic is active
 extern "C" void* lbl_8087F9E8;
@@ -282,7 +281,7 @@ void Em101ElderZesyaSecond::vf10() {
                 mColli.mFlags &= ~1;
                 mFlag15 = 1;
                 fn_801765D8();
-                fn_800EE360(this);
+                fn_800EE360();
             }
             break;
         }

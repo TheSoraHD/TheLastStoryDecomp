@@ -89,7 +89,6 @@ inline void SetCamera_unk(Field_unk* field, const ShadeCamera_unk& c) {
     field->m568.mFov = c.mFov;
     field->m568.mFlag = c.mFlag;
 }
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: game state (lbl_8087EFA8): a block of the camera blur at 0x240 and the time scale at 0x3A4
 struct ShadeBlur_unk {
     int m00;
@@ -1447,7 +1446,7 @@ void Em301LShade::vfEC() {
         mFlag25 = 1;
         mColli.mFlags &= ~1;
         fn_80370320(lbl_8087F430, 0xD0, 0, 0);
-        fn_800EE360(this);
+        fn_800EE360();
         mFlag15 = 1;
         fn_801765D8();
         CameraSub_unk* sub = &lbl_8087F430->m06C;

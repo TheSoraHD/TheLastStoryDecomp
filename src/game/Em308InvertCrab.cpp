@@ -55,7 +55,6 @@ struct PlayerManager_unk {
 };
 extern "C" PlayerManager_unk* lbl_8087F8A0;
 extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
 struct CrabSettings_unk {
     unsigned char m00[0x30];
@@ -1069,7 +1068,7 @@ void Em308InvertCrab::vfEC() {
         } else {
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else if (m1594 == 0) {
         mStatus.fn_8013322C(0x20);

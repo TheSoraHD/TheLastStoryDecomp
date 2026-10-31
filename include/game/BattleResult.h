@@ -84,6 +84,17 @@ public:
     ResultLayout_unk* mItemLoop; // 0x180
     int m184;
 
+    // inferred: adds an item to the result (at most two; name invented)
+    void AddItem_unk(int id) {
+        if (mItemCount < 2) {
+            PushItem_unk(id);
+        }
+    }
+    void PushItem_unk(int id) {
+        new (&mItems[mItemCount]) int(id);
+        mItemCount++;
+    }
+
     static BattleResult* sInstance;
 };
 

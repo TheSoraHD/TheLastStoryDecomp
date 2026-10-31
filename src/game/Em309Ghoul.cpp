@@ -1082,7 +1082,6 @@ struct GhoulParams_unk {
 };
 extern "C" GhoulParams_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes, as in gmk/MotionObject.cpp)
 struct GhoulCollResult_unk {
@@ -1174,7 +1173,7 @@ void Em309Ghoul::vfEC() {
             lbl_8087EFA8->mTimeScale = 1.0f;
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         lbl_8087EFA8->mTimeScale = 0.5f;
