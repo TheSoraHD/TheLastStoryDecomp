@@ -5231,6 +5231,11 @@ nw4r/src/snd/snd_AxManager.cpp:
 	.sbss       start:0x80880488 end:0x808804A0
 	.sdata2     start:0x80889008 end:0x80889020
 
+nw4r/src/snd/snd_AxVoiceManager.cpp:
+	.text       start:0x807080C0 end:0x80708AE8
+	.bss        start:0x80862F30 end:0x80862F68
+	.sbss       start:0x808804A0 end:0x808804A8
+
 nw4r/src/snd/snd_DisposeCallbackManager.cpp:
 	.text       start:0x8070C650 end:0x8070C9DC
 	.bss        start:0x80862F98 end:0x80862FB0
