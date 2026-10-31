@@ -3,6 +3,7 @@
 
 static VIVideo Vdac_Flag_Region;
 volatile u32 Vdac_Flag_Changed = 0;
+static u32 __VISimpleModeFlag_unk = 0; // inferred: new in the 2010 SDK, cleared by __VISetRevolutionModeSimple
 static VIACPType __type;
 static u32 __tvType = 0xFF;
 
@@ -511,7 +512,7 @@ VIMacroVisionObj VIZeroACPType = {
 extern s32 __VISendI2CData(u8, u8 *, s32);
 extern void WaitMicroTime(s32);
 
-void __VISetYUVSEL(VIBool outsel) NO_INLINE {
+void __VISetYUVSEL(VIBool outsel) {
     u8 buffer[2];
     u32 tv;
 
@@ -534,7 +535,7 @@ void __VISetYUVSEL(VIBool outsel) NO_INLINE {
     }
     
     buffer[0] = 0x1;
-    buffer[1] = (u8)((outsel << 5) | Vdac_Flag_Region);
+    buffer[1] = (u8)(((u8)outsel << 5) | Vdac_Flag_Region);
     __VISendI2CData((u8)0xE0, buffer, 2);
     WaitMicroTime(2);
 }
@@ -583,6 +584,19 @@ void __VISetCGMSClear(void) {
     __wd1 = 0;
     __wd2 = 0;
     __VISetCGMS();
+}
+
+// inferred: 2010 SDK function the game does not call. The linker drops its code, but its OSHalt
+// strings stay in .data; only the message is known, the condition is guessed from its text.
+void VISetCGMS(u8 wd0, u8 wd1, u8 wd2) {
+    if (VIGetDTVStatus() && (wd2 & 0xC)) {
+        OSHalt("VISetCGMS(): Tried to set APS Trigger bit(WORD2[3:2]) \n"
+               "when the scan is progressive in DTV mode, which is forbidden\n");
+    }
+
+    __wd0 = wd0;
+    __wd1 = wd1;
+    __wd2 = wd2;
 }
 
 static u8 __gp1 = 0xFF;
@@ -738,9 +752,24 @@ void __VISetGammaImm(VIGammaObj *gamma) {
     WaitMicroTime(2);
 }
 
+// inferred: new in the 2010 SDK (called from OnShutdown in vi.c); resets the gamma to 1.0
+void __VISetGamma1_0(void) {
+    __VISetGammaImm(&gammaSet[VI_GM_1_0]);
+}
+
 static VIGamma __gamma;
 void __VISetGamma(void) {
     __VISetGammaImm(&gammaSet[__gamma]);
+}
+
+// inferred: new in the 2010 SDK (fn_80607120), same pattern as VISetRGBOverDrive
+void VISetGamma(VIGamma gamma) {
+    if (__gamma == gamma) {
+        return;
+    }
+
+    __gamma = gamma;
+    Vdac_Flag_Changed |= 0x10;
 }
 
 static VIBool __filter = 0xFF;
@@ -819,7 +848,7 @@ static void __VISetVideoMode(VIVideo vmode, VIBool outsel) {
     u8 buffer[2];
     Vdac_Flag_Region = vmode;
     buffer[0] = 1;
-    buffer[1] = (u8)((outsel << 5) | Vdac_Flag_Region);
+    buffer[1] = (u8)(((u8)outsel << 5) | Vdac_Flag_Region);
     __VISendI2CData(0xE0, buffer, 2);
     WaitMicroTime(2);
 }
@@ -874,4 +903,5 @@ void __VISetRevolutionModeSimple(void) {
     __VISetRGBOverDrive();
     __VISetTrapFilterImm(VI_DISABLE);
     __VISetGammaImm(&gammaSet[VI_GM_1_0]);
+    __VISimpleModeFlag_unk = 0;
 }

@@ -3799,6 +3799,13 @@ smg2/src/RVL_SDK/vi/vi.c:
 	.sdata      start:0x8087E808 end:0x8087E828
 	.sbss       start:0x8087FDE0 end:0x8087FE90
 
+smg2/src/RVL_SDK/vi/vi3in1.c:
+	.text       start:0x80605FF0 end:0x8060773C
+	.data       start:0x807ABF68 end:0x807AC578
+	.bss        start:0x807D1610 end:0x807D1630
+	.sdata      start:0x8087E830 end:0x8087E840
+	.sbss       start:0x8087FE98 end:0x8087FEB0
+
 RVL_SDK/src/revolution/ai/ai.c:
 	.text       start:0x806077A0 end:0x80607D6C
 	.data       start:0x807AC578 end:0x807AC5BD
