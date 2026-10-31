@@ -155,10 +155,11 @@ public:
     typedef void (*AxVoiceCallback)(AxVoice* pDropVoice,
                                     AxVoiceCallbackStatus status, void* pArg);
 
+    // inferred: 2010 uses the SampleFormat values (PCM16 1, PCM8 2, ADPCM 3)
     enum Format {
-        FORMAT_ADPCM = 0,
-        FORMAT_PCM16 = 10,
-        FORMAT_PCM8 = 25,
+        FORMAT_PCM16 = 1,
+        FORMAT_PCM8 = 2,
+        FORMAT_ADPCM = 3,
     };
 
     enum VoiceType {
@@ -253,6 +254,7 @@ public:
     void SetAdpcm(const AdpcmParam* pParam);
     void SetAdpcmLoop(const AdpcmLoopParam* pParam);
     bool SetMix(const MixParam& rParam);
+    bool IsMixChanged_unk(const MixParam& rParam) const; // inferred: 2010 helper (0x807065C0)
     void SetRmtMix(const RemoteMixParam& rParam);
     void SetSrc(f32 ratio, bool initial);
     void SetVe(f32 volume, f32 initVolume);

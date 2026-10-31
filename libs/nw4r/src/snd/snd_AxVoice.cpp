@@ -16,6 +16,27 @@ AxVoice::AxVoice()
 
 AxVoice::~AxVoice() {}
 
+// inferred: 2010 maps the SampleFormat-style Format to the AX format value
+static inline u16 GetAxFormat(AxVoice::Format format) {
+    switch (format) {
+    case AxVoice::FORMAT_ADPCM: {
+        return AX_SAMPLE_FORMAT_DSP_ADPCM;
+    }
+
+    case AxVoice::FORMAT_PCM8: {
+        return AX_SAMPLE_FORMAT_PCM_S8;
+    }
+
+    case AxVoice::FORMAT_PCM16: {
+        return AX_SAMPLE_FORMAT_PCM_S16;
+    }
+
+    default: {
+        return AX_SAMPLE_FORMAT_DSP_ADPCM;
+    }
+    }
+}
+
 void AxVoice::Setup(const void* pWave, Format fmt, int rate) {
     ut::AutoInterruptLock lock;
 
@@ -54,6 +75,10 @@ bool AxVoice::IsPlayFinished() const {
     case FORMAT_PCM16: {
         addr += 0x80;
         break;
+    }
+
+    default: {
+        return false;
     }
     }
 
@@ -351,7 +376,7 @@ void AxVoice::SetAddr(bool loop, const void* pWave, u32 offset, u32 loopStart,
     AXPBADDR addr;
 
     addr.loopFlag = loop;
-    addr.format = mFormat;
+    addr.format = GetAxFormat(mFormat);
 
     addr.loopAddressHi = loopAddr >> 16 & 0xFFFF;
     addr.loopAddressLo = loopAddr & 0xFFFF;
@@ -448,6 +473,58 @@ void AxVoice::SetAdpcmLoop(const AdpcmLoopParam* pParam) {
     mVpb.SetVoiceAdpcmLoop(loop);
 }
 
+bool AxVoice::IsMixChanged_unk(const MixParam& rParam) const {
+    if (mMixPrev.vL != rParam.vL) {
+        return true;
+    }
+
+    if (mMixPrev.vR != rParam.vR) {
+        return true;
+    }
+
+    if (mMixPrev.vS != rParam.vS) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxAL != rParam.vAuxAL) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxAR != rParam.vAuxAR) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxAS != rParam.vAuxAS) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxBL != rParam.vAuxBL) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxBR != rParam.vAuxBR) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxBS != rParam.vAuxBS) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxCL != rParam.vAuxCL) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxCR != rParam.vAuxCR) {
+        return true;
+    }
+
+    if (mMixPrev.vAuxCS != rParam.vAuxCS) {
+        return true;
+    }
+
+    return false;
+}
+
 bool AxVoice::SetMix(const MixParam& rParam) {
     ut::AutoInterruptLock lock;
 
@@ -460,55 +537,7 @@ bool AxVoice::SetMix(const MixParam& rParam) {
         mFirstMixUpdateFlag = false;
     }
 
-    bool needUpdate = false;
-
-    if (mMixPrev.vL != rParam.vL) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vR != rParam.vR) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vS != rParam.vS) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxAL != rParam.vAuxAL) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxAR != rParam.vAuxAR) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxAS != rParam.vAuxAS) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxBL != rParam.vAuxBL) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxBR != rParam.vAuxBR) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxBS != rParam.vAuxBS) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxCL != rParam.vAuxCL) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxCR != rParam.vAuxCR) {
-        needUpdate = true;
-    }
-
-    if (mMixPrev.vAuxCS != rParam.vAuxCS) {
-        needUpdate = true;
-    }
+    bool needUpdate = IsMixChanged_unk(rParam);
 
     AXPBMIX mix;
 
@@ -676,6 +705,7 @@ void AxVoice::SetSrc(f32 ratio, bool initial) {
 
     if (initial) {
         ratio = GetDspRatio(ratio);
+        ratio = ut::Clamp(ratio, 0.0f, 65535.0f);
         u32 ratioBits = 65536 * ratio;
 
         AXPBSRC src;
@@ -704,7 +734,12 @@ void AxVoice::SetVe(f32 volume, f32 initVolume) {
         return;
     }
 
-    mVpb.SetVoiceVe(32767 * volume, 32767 * initVolume);
+    int vol = static_cast<int>(32767 * volume);
+    int initVol = static_cast<int>(32767 * initVolume);
+    vol = ut::Clamp(vol, 0, 0xFFFF);
+    initVol = ut::Clamp(initVol, 0, 0xFFFF);
+    mVpb.SetVoiceVe(vol, initVol);
+
 }
 
 void AxVoice::SetLpf(u16 freq) {
@@ -827,19 +862,19 @@ void AxVoiceParamBlock::Sync() {
         mVpb->pb.ve.currentDelta = deltaOut;
     }
 
-    if (mVpb->pb.ve.currentDelta == 0 && mPrevVeSetting.currentDelta == 0) {
-        mVpb->pb.ve.currentVolume = mVolume;
-    }
-
     int nextVolume = mPrevVeSetting.currentVolume +
                      (mVpb->pb.ve.currentDelta * AX_SAMPLES_PER_FRAME);
 
     if (nextVolume < 0) {
         mVpb->pb.ve.currentDelta =
             -mPrevVeSetting.currentVolume / AX_SAMPLES_PER_FRAME;
-    } else if (nextVolume > 32767) {
+    } else if (nextVolume > 0xFFFF) {
         mVpb->pb.ve.currentDelta =
-            (32767 - mPrevVeSetting.currentVolume) / AX_SAMPLES_PER_FRAME;
+            (0xFFFF - mPrevVeSetting.currentVolume) / AX_SAMPLES_PER_FRAME;
+    }
+
+    if (mVpb->pb.ve.currentDelta == 0 && mPrevVeSetting.currentDelta == 0) {
+        mVpb->pb.ve.currentVolume = mVolume;
     }
 
     mSync &= ~AX_PBSYNC_VE_DELTA;
