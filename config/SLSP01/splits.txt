@@ -4272,6 +4272,11 @@ smg2/src/RVL_SDK/bte/l2c_main.c:
 	.data       start:0x807B7168 end:0x807B7464
 	.bss        start:0x808230E0 end:0x808238C8
 
+smg2/src/RVL_SDK/bte/l2c_utils.c:
+	.text       start:0x806463D8 end:0x8064829C
+	.data       start:0x807B7464 end:0x807B7550
+	.sdata      start:0x8087EAF8 end:0x8087EB08
+
 smg2/src/RVL_SDK/bte/port_api.c:
 	.text       start:0x8064829C end:0x806482EC
 

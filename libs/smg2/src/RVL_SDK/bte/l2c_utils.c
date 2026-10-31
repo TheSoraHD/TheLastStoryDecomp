@@ -1019,6 +1019,7 @@ void l2cu_send_feature_req(tL2C_CCB* p_ccb) {
     l2cu_send_peer_echo_req(p_ccb->p_lcb, buff, p - buff);
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 BOOLEAN l2cu_check_feature_req(tL2C_LCB* p_lcb, UINT8 id, UINT8* p_data, UINT16 data_len) {
     UINT8 buff[100];
     UINT8* p_out = buff;
@@ -1059,7 +1060,9 @@ BOOLEAN l2cu_check_feature_req(tL2C_LCB* p_lcb, UINT8 id, UINT8* p_data, UINT16 
 
     return TRUE;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void l2cu_check_feature_rsp(tL2C_LCB* p_lcb, UINT8 id, UINT8* p_data, UINT16 data_len) {
     UINT8* p_end = p_data + data_len - 2;
 
@@ -1085,6 +1088,7 @@ void l2cu_check_feature_rsp(tL2C_LCB* p_lcb, UINT8 id, UINT8* p_data, UINT16 dat
     if (p_data != p_end)
         L2CAP_TRACE(ERROR, "L2CAP - badly formatted feature rsp");
 }
+#endif
 
 void l2cu_stop_compression(/* void? */) {
 #if 0
