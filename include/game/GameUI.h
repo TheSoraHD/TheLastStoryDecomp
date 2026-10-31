@@ -281,6 +281,7 @@ public:
     void fn_803E58E4();
     bool fn_803E5940();
     void fn_803E627C(int town); // inferred: loads the shop animations of a town
+    void fn_803E598C(int index, int value, int skill); // inferred: shows a notice
     void fn_803E5C60(CharaTask* chara);
     void fn_803E63D0();
     bool fn_803E644C();
@@ -449,7 +450,7 @@ public:
     int m2544;
     int m2548;
     atn::D2A_Task* m254C; // inferred: time over a character (fn_803E5C60)
-    char m2550[0xC];
+    atn::D2A_Task* m2550[3]; // inferred: notices (fn_803E598C)
     int m255C;
     float m2560;
     atn::D2A_Task* m2564; // inferred: restarted with the first icon (fn_803E6890)

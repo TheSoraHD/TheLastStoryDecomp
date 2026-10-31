@@ -36,8 +36,21 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void* lbl_8087EFB4; // inferred: render system (camera)
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
+extern "C" void fn_801FEE08(atn::D2A_Layout_unk* layout, unsigned int hash, const wchar_t* text);
+// inferred: message table (lbl_8087F1E4, as in game/MenuCommonTask.cpp)
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+struct GameUIMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" GameUIMsgTable_unk* lbl_8087F1E4;
+extern "C" void* lbl_8087F610;           // inferred: multiplayer session
+extern "C" void fn_804DA478(void* session); // inferred: notifies the session
 extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
 // inferred: sets one component of a layout parameter by name (name invented)
+inline void SetLayoutText_unk(atn::D2A_Layout_unk* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
 inline void SetLayoutValue_unk(atn::D2A_Layout_unk* layout, const char* name, int index, float value) {
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
@@ -727,6 +740,71 @@ bool GameUI::fn_803E5940() {
         return (mDC4->mFlags & 4) != 4 && !mDC4->IsEnd_unk();
     }
     return false;
+}
+
+// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
+void GameUI::fn_803E598C(int index, int value, int skill) {
+    if (index < 0) {
+        return;
+    }
+    if (index >= 3 || m2550[index] == 0) {
+        return;
+    }
+    m255C = -1;
+    m2560 = 0.0f;
+    for (int i = 0; i < 3; i++) {
+        if (m2550[i] != 0) {
+            m2550[i]->mFrame = m2550[i]->mData.mEndFrame;
+        }
+    }
+    m255C = index;
+    m2560 = value;
+    m2550[index]->mFrame = 0.0f;
+    if (index == 2) {
+        HitInfo_unk* hit = skill > 0 ? fn_80219E6C(skill) : 0;
+        if (hit != 0) {
+            const wchar_t* text;
+            switch (hit->m04) {
+            case 0x1774:
+                text = lbl_8087F1E4->Get_unk(0x2CF);
+                break;
+            case 0x179A:
+                text = lbl_8087F1E4->Get_unk(0x2D1);
+                break;
+            case 0x179B:
+                text = lbl_8087F1E4->Get_unk(0x2D3);
+                break;
+            case 0x177F:
+                text = lbl_8087F1E4->Get_unk(0x2D5);
+                break;
+            case 0x179C:
+                text = lbl_8087F1E4->Get_unk(0x391);
+                break;
+            case 0x179F:
+                text = lbl_8087F1E4->Get_unk(0x393);
+                break;
+            case 0x1791:
+                text = lbl_8087F1E4->Get_unk(0x395);
+                break;
+            case 0x1788:
+                text = lbl_8087F1E4->Get_unk(0x397);
+                break;
+            case 0x6C2:
+                text = lbl_8087F1E4->Get_unk(0x3A1);
+                break;
+            default:
+                text = (const wchar_t*)hit->m08;
+                break;
+            }
+            if (text != 0) {
+                SetLayoutText_unk(&m2550[index]->mData.m10, "string0007", text);
+                SetLayoutText_unk(&m2550[index]->mData.m10, "string0002(1)", text);
+            }
+        }
+    }
+    if (lbl_8087F610 != 0) {
+        fn_804DA478(lbl_8087F610);
+    }
 }
 
 // inferred: shows the time left over a character (TacView)
