@@ -64,10 +64,12 @@ void* FrameHeap::Alloc(u32 size, FreeCallback pCallback, void* pCallbackArg) {
         return NULL;
     }
 
-    Block* pBlock = new (pBuffer) Block(size, pCallback, pCallbackArg);
+    void* pBlockBuffer = ut::AddOffsetToPtr(pBuffer, BLOCK_BUFFER_SIZE);
+    Block* pBlock =
+        new (pBuffer) Block(pBlockBuffer, size, pCallback, pCallbackArg);
     mSectionList.GetBack().AppendBlock(pBlock);
 
-    return pBlock->GetBufferAddr();
+    return pBlockBuffer;
 }
 
 int FrameHeap::SaveState() {

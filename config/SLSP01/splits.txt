@@ -5236,6 +5236,9 @@ nw4r/src/snd/snd_EnvGenerator.cpp:
 	.rodata     start:0x8076CCA0 end:0x8076CFA0
 	.sdata2     start:0x808890C0 end:0x808890F0
 
+nw4r/src/snd/snd_FrameHeap.cpp:
+	.text       start:0x8070D360 end:0x8070DC0C
+
 nw4r/src/snd/snd_InstancePool.cpp:
 	.text       start:0x8070EE90 end:0x8070F178
 
