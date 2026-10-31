@@ -1,4 +1,5 @@
 #include "game/ChaserGuard.h"
+#include "game/GameUI.h"
 #include "game/CharaManager.h"
 #include "game/EnemyManager.h"
 #include "game/PlayerTask.h"
@@ -24,8 +25,7 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_803C17FC(RouteTable_unk* routes, int id); // inferred: route point by id
 extern "C" int fn_80370174(Field_unk* field, int id);         // inferred
 extern "C" void* fn_803CC6B4(RouteTable_unk* routes, int id);  // inferred: sound data by id
-extern "C" void* lbl_8087F490;                                 // inferred: sound player
-extern "C" void fn_803E3BE8(void* player, void* data, int arg, float volume);
+extern "C" GameUI* lbl_8087F490; // inferred: the HUD (fn_803E3BE8 shows a message)
 // inferred: owner of the list the guard registers in (class unknown)
 struct ChaserOwner_unk {
     unsigned char m00[0x258];
@@ -502,9 +502,9 @@ void ChaserGuard::fn_8017F4A0(int state) {
         if (fn_80183860(lbl_8087F098, &mPos) != 0) {
             fn_80183860(lbl_8087F098, &mPos)->mC58.mC0--;
         }
-        void* player = lbl_8087F490;
+        GameUI* player = lbl_8087F490;
         if (player != 0) {
-            fn_803E3BE8(player, fn_803CC6B4(lbl_8087F430->m10D8, 0x2714), 0, 10.0f);
+            player->fn_803E3BE8(fn_803CC6B4(lbl_8087F430->m10D8, 0x2714), 0, 10.0f);
         }
         break;
     }
@@ -515,9 +515,9 @@ void ChaserGuard::fn_8017F4A0(int state) {
             mC58.m0C.fn_80128A30(&m14DC, &mPos, 8, m14E8);
         }
         mC58.m0C.fn_801255C8();
-        void* player = lbl_8087F490;
+        GameUI* player = lbl_8087F490;
         if (player != 0 && lbl_8087F098->m48 != 0 && m14B0 == 4) {
-            fn_803E3BE8(player, fn_803CC6B4(lbl_8087F430->m10D8, 0x2715), 0, 10.0f);
+            player->fn_803E3BE8(fn_803CC6B4(lbl_8087F430->m10D8, 0x2715), 0, 10.0f);
         }
         break;
     }
@@ -530,8 +530,8 @@ void ChaserGuard::fn_8017F4A0(int state) {
             mMotion.mTracks[0].m0C = 1.0f;
             m580 = 0.0f;
             m584 = 0.0f;
-            void* player = lbl_8087F490;
-            fn_803E3BE8(player, fn_803CC6B4(lbl_8087F430->m10D8, 0x2717), 0, 10.0f);
+            GameUI* player = lbl_8087F490;
+            player->fn_803E3BE8(fn_803CC6B4(lbl_8087F430->m10D8, 0x2717), 0, 10.0f);
         } else {
             m150C = lbl_8087F098->m70;
             m1510 = mPos;
@@ -600,12 +600,12 @@ void ChaserGuard::fn_8017F4A0(int state) {
         }
         mC58.m0C.fn_80128A30(&m14B8, &mPos, 8, 0.0f);
         mC58.m0C.fn_801255C8();
-        void* player = lbl_8087F490;
+        GameUI* player = lbl_8087F490;
         if (player != 0) {
             if (m14B0 == 3) {
-                fn_803E3BE8(player, fn_803CC6B4(lbl_8087F430->m10D8, 0x2712), 0, 10.0f);
+                player->fn_803E3BE8(fn_803CC6B4(lbl_8087F430->m10D8, 0x2712), 0, 10.0f);
             } else {
-                fn_803E3BE8(player, fn_803CC6B4(lbl_8087F430->m10D8, 0x2711), 0, 10.0f);
+                player->fn_803E3BE8(fn_803CC6B4(lbl_8087F430->m10D8, 0x2711), 0, 10.0f);
             }
         }
         break;

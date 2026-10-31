@@ -18,6 +18,8 @@ extern "C" int fn_80370C2C(GameUIField_unk* field);
 extern "C" void fn_80370BD0(GameUIField_unk* field, int frames, int arg, float speed);
 extern "C" void fn_80370B78(GameUIField_unk* field, unsigned int color, int frames, int arg, float speed);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
+extern "C" void fn_803B78E8(void* self); // inferred: closes the window (game/GameChoiceWindow.cpp)
+extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float time); // inferred: shows a message
 extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
 extern "C" void fn_803E668C(GameUI* ui);
@@ -302,6 +304,22 @@ float GameUIDuration_unk::fn_803CFC6C() {
 }
 
 void GameUI::vf14() {}
+
+void GameUI::fn_803E32EC() {
+    memcpy(&m748, &m764, sizeof(GameUIElem1C_unk));
+    m764 = GameUIElem1C_unk();
+    memcpy(&m7F8, &m7C0, sizeof(GameUIElem1C_unk));
+    m7C0 = GameUIElem1C_unk();
+}
+
+void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
+    if (msg != 0 && m2640 != 0) {
+        m2640->mB4 = 0;
+        fn_803B78E8(m2640);
+        fn_803B6970(m2640, msg, arg, time);
+        m2658 = 0;
+    }
+}
 
 void GameUI::fn_803E4100() {
     m748 = GameUIElem1C_unk();

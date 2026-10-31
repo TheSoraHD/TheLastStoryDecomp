@@ -1,4 +1,5 @@
 #include "gmk/RandomMerchant.h"
+#include "game/GameUI.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -66,13 +67,12 @@ struct MerchantMsg_unk {
 extern "C" MerchantMsg_unk* fn_803CC6B4(void* table, int id);                 // inferred: message by id
 extern "C" void fn_8068B2A0(int value, wchar_t* buf, int radix);             // inferred: integer to text
 extern "C" void fn_800DD8A8(wchar_t* buf, const wchar_t* format, int count, ...); // inferred: formats a message
-extern "C" void fn_803E3BE8(void* ui, int* message, float time);              // inferred: shows a message window
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: item manager and shop (classes unknown)
 extern "C" void fn_8044D6AC(void* mgr, int price);
 extern "C" void* lbl_8087F048;
 extern "C" void fn_801092C8(void* mgr, int arg1, int arg2, int item, int num);
-extern "C" void* lbl_8087F490; // inferred: GameUI
+extern "C" GameUI* lbl_8087F490;
 extern "C" void fn_803E5E64(void* ui, int item, int num, int arg3);
 
 // inferred: rotation matrix z * y * x (same as GimmickCommon.cpp)
@@ -319,7 +319,7 @@ void RandomMerchant::vf10() {
             m3098 = msg->m30;
             m3068 = msg->m00;
             m3074 = msg->m0C;
-            fn_803E3BE8(lbl_8087F490, &m3068, 7.5f);
+            lbl_8087F490->fn_803E3BE8(&m3068, m309C, 7.5f);
             if (lbl_8087F430 != 0) {
                 lbl_8087F430->fn_803750E4(0xDC);
             }

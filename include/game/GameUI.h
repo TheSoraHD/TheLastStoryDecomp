@@ -216,6 +216,12 @@ struct GameUIColor_unk {
 };
 
 // inferred from __vt__6GameUI (0x8078C584): the game HUD; lbl_8087F490 points to it
+// inferred: message window of GameUI::m2640 (game/GameChoiceWindow.cpp); names invented
+struct GameUIWindow_unk {
+    unsigned char m00[0xB4];
+    int mB4;
+};
+
 class GameUI : public atn::Task {
 public:
     GameUI(atn::Task* parent); // 0x803CE980
@@ -226,6 +232,8 @@ public:
 
     void fn_803CF740();
     void fn_803CF74C();
+    void fn_803E32EC();
+    void fn_803E3BE8(void* msg, int arg, float time);
     void fn_803E4100();
     bool fn_803E43A4();
     void fn_803E43B8(int on);
@@ -423,7 +431,7 @@ public:
         int m0C;
     } m262C;
     int m263C;
-    int m2640;
+    GameUIWindow_unk* m2640; // inferred: message window (fn_803E3BE8)
     int m2644;
     int m2648;
     int m264C;
