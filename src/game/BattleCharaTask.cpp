@@ -22,6 +22,7 @@
 #include <boost/tokenizer.hpp>
 #include "atn/SoundRef.h"
 #include "chr/ControlCharge.h"
+#include "chr/ControlAttackBase.h"
 #include "game/TacView.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -31,7 +32,10 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: camera of the field (lbl_8087F430 + 0x6C, as in game/FinishCamera_unk.cpp)
 struct CameraSub_unk {
     void fn_80389838(int arg);
-    unsigned char m000[0x868 - 0x6C];
+    unsigned char m000[0x08];
+    atn::Vector3 m08; // inferred: eye (field + 0x74)
+    atn::Vector3 m14; // inferred: target point (field + 0x80)
+    unsigned char m020[0x868 - 0x8C];
 };
 // inferred: battle area of the field (lbl_8087F430->m10D8); names invented
 struct BattleAreaInfo_unk {
@@ -1181,6 +1185,204 @@ void BattleCharaTask::fn_800E7F04() {
     if (m1430 > 0) {
         m1430--;
     }
+}
+
+// NONMATCHING: 98.1% - cases 1 and 2 of mC48 become a range compare; the original keeps f1 = radius for
+// fn_80157444/fn_80157C34
+// inferred: starts the attack `id` (200: normal attack) at `target`/`pos`; type and mode pass through to
+// CharaTask::fn_801562A0
+void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::Vector3* point, int type, int mode) {
+    if (mFlag6) {
+        return;
+    }
+    m1460 = 0;
+    if (target != 0 && id == 200) {
+        atn::Vector3 d = target->mPos - mPos;
+        float dist = PSVECMag(&d) - target->m5B0;
+        if (dist < target->vf70()) {
+            int kind = target->vf68(this);
+            if (kind != 0) {
+                target->vf6C(kind, this);
+                switch (kind) {
+                case 8: {
+                    atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
+                    PSVECNormalize(&dir, &dir);
+                    m590 = fn_800F8548(lbl_8087F048);
+                    m594 = 1;
+                    m598 = 0;
+                    m59C = 0;
+                    m59D = 0;
+                    m59E = 1;
+                    m59F = 0;
+                    m5A0 = 1.0f;
+                    fn_80178208(new ((MemoryTag)3, "", "", 0)
+                                    chr::ControlAttackLastOne(this, dir, target, 9, fn_80219E6C(0xE2)));
+                    m58C = 1;
+                    mFlag5 = 0;
+                    return;
+                }
+                case 9:
+                case 10:
+                case 11:
+                case 12: {
+                    atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
+                    PSVECNormalize(&dir, &dir);
+                    m590 = fn_800F8548(lbl_8087F048);
+                    m594 = 1;
+                    m598 = 0;
+                    m59C = 0;
+                    m59D = 0;
+                    m59E = 1;
+                    m59F = 0;
+                    m5A0 = 1.0f;
+                    fn_80178208(new ((MemoryTag)3, "", "", 0)
+                                    chr::ControlAttackLastOne(this, dir, target, kind, fn_80219E6C(0xE2)));
+                    m58C = 1;
+                    mFlag5 = 0;
+                    return;
+                }
+                }
+            }
+        }
+    }
+    if (mode == 1) {
+        m59E = 1;
+    } else {
+        m59E = 0;
+    }
+    GameConfig_unk* config = lbl_8087F0A8;
+    float radius = 0.0f;
+    int far = 0;
+    if (id == 0xCB || id == 0xCD) {
+        far = 1;
+    }
+    int found = 0;
+    atn::Vector3 pos;
+    if (point != 0) {
+        found = 1;
+        pos = *point;
+    }
+    if (!found) {
+        CharaTask* lock = mFC4 != 0 ? mFC4 : mFC0;
+        if (lock != 0) {
+            found = 1;
+            pos = lock->m614;
+            pos.y = lock->mPos.y;
+            radius = lock->m620;
+        }
+    }
+    if (!found && mFlag31) {
+        switch (mC48) {
+        case 1:
+        case 2: {
+            mPos += mC48 == 1 ? mC14 * -5.0f : mC14 * 5.0f;
+            atn::Vector3 dir;
+            dir = lbl_8087F430->m006C.m14 - lbl_8087F430->m006C.m08;
+            PSVECNormalize(&dir, &dir);
+            dir *= 80.0f;
+            found = 1;
+            far = 1;
+            pos = mPos + dir;
+            fn_801539E0();
+            break;
+        }
+        case 3: {
+            atn::Vector3 dir;
+            dir = lbl_8087F430->m006C.m14 - lbl_8087F430->m006C.m08;
+            PSVECNormalize(&dir, &dir);
+            dir *= 80.0f;
+            found = 1;
+            type = 2;
+            far = 1;
+            pos = mPos + dir;
+            fn_801539E0();
+            break;
+        }
+        default:
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 1.0f;
+            Mtx m;
+            PSMTXRotRad(m, 'y', mRot.y);
+            PSMTXMultVec(m, &pos, &pos);
+            found = 1;
+            pos += mPos;
+            break;
+        }
+    }
+    atn::Vector3 rot = fn_80178018();
+    if (mFlag5) {
+        rot = mRot;
+    }
+    if (!found) {
+        if (far) {
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 80.0f;
+        } else {
+            pos.x = 0.0f;
+            pos.y = 0.0f;
+            pos.z = 1.0f;
+        }
+        Mtx m;
+        PSMTXRotRad(m, 'y', rot.y);
+        PSMTXMultVec(m, &pos, &pos);
+        pos += mPos;
+    }
+    if (mFlag31) {
+        id = 0xC9;
+    }
+    HitInfo_unk* hit = fn_80219E6C(id);
+    if (id == 200 && m648 != 0) {
+        hit = ((Arms*)m648)->fn_80044C30(0);
+    }
+    m58C = 1;
+    if (lbl_8087F048 != 0) {
+        m590 = fn_800F8548(lbl_8087F048);
+    }
+    mFlag5 = 0;
+    if (id == 0xD0 || id == 0xE5) {
+        m594 = -1;
+        m59D = 0;
+        m59C = 0;
+        m59F = 1;
+        if (m648 != 0) {
+            m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
+        }
+        m63C = m638;
+        m638 = hit;
+    } else if (mFlagC30) {
+        m594 = config->m274;
+        fn_80157444(hit, pos);
+    } else {
+        m594 = id == 200 ? config->m270 : -1;
+        if (mode == 2) {
+            fn_8015783C(hit, pos, radius);
+        } else if (mode == 4) {
+            fn_80157C34(hit, pos);
+        } else if (target != 0 && mode == 5) {
+            fn_8015802C(hit, target);
+        } else {
+            fn_801562A0(hit, pos, type, far, b, 0, radius);
+        }
+    }
+    m598 = 0;
+    int manual = 0;
+    if (config->m318 != 0) {
+        if (mType == 0 && SetConfig::sInstance->mAttackType != 0) {
+            manual = 1;
+        }
+        if (manual && id == 200) {
+            m5A0 = config->mManualPower;
+        } else {
+            m5A0 = 1.0f;
+        }
+    } else {
+        m5A0 = 1.0f;
+    }
+    mFlagC30 = 0;
+    mFlagC29 = 0;
+    m1424 = hit != 0 ? hit->m68 : fn_80219E6C(200)->m68;
 }
 
 void BattleCharaTask::vf40(HitInfo_unk* hit) {

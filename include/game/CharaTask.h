@@ -451,10 +451,12 @@ public:
     virtual float vf60() { return 1.0f; } // weak copy 0x800EF38C
     virtual atn::Vector3 vf64(int center); // inferred: position, or the center of the collision capsule
     // inferred: finishing move offered to `attacker` (EnemyTask 0x8035B8B0 returns a control kind 9-11)
-    virtual int vf68(CharaTask* attacker);
+    virtual int vf68(CharaTask* attacker) { return 0; } // weak copy 0x800E8FAC (game/BattleCharaTask)
     // inferred: starts the reaction control `kind` facing away from `other` (EnemyTask 0x8035BBCC)
-    virtual void vf6C(int kind, CharaTask* other);
-    virtual float vf70(); // inferred: returns f1 (0x800E8FA4; Em203GreaterDaemonRed returns 100.0f)
+    virtual void vf6C(int kind, CharaTask* other) {} // weak copy 0x800E8FB4 (game/BattleCharaTask)
+    // inferred: reach of the finishing moves (weak copy 0x800E8FA4 in game/BattleCharaTask;
+    // Em203GreaterDaemonRed returns 100.0f)
+    virtual float vf70() { return 25.0f; }
     virtual void vf74(const atn::Vector3& dir); // inferred: starts chr::ControlMountle (climbs onto a ledge)
     virtual int vf78(); // inferred: nonzero while a held character keeps hold (fn_8013A4E8)
     virtual void vf7C(int arg); // inferred: switches to chr::ControlGuarded(arg) (the target symbol says Fv)
