@@ -3768,6 +3768,12 @@ RVL_SDK/src/revolution/mtx/quat.c:
 	.rodata     start:0x80764798 end:0x807647A8
 	.sdata2     start:0x80888580 end:0x80888590
 
+smg2/src/RVL_SDK/dvd/dvdfs.c:
+	.text       start:0x805F9EC0 end:0x805FA7FC
+	.data       start:0x807A9C00 end:0x807A9D68
+	.sdata      start:0x8087E7C0 end:0x8087E7D0
+	.sbss       start:0x8087FCD0 end:0x8087FCF0
+
 RVL_SDK/src/revolution/dvd/dvd.c:
 	.text       start:0x805FA800 end:0x805FF4E4
 	.data       start:0x807A9D68 end:0x807AA174
