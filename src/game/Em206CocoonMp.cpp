@@ -395,6 +395,25 @@ void Em206CocoonMp::vf100(int state) {
 void Em206CocoonMp::vf108() {}
 
 // NONMATCHING: 99.9% - stack slots of the front vector and of the center
+// inferred: creates the damage spheres of the table sSpheres_unk
+void Em206CocoonMp::vf50() {
+    Item14_unk item;
+    for (int i = 0; i < 3; i++) {
+        MtxPtr a = mMotion.GetNodeMtx_unk(sSpheres_unk[i].mNode);
+        MtxPtr b = mMotion.GetNodeMtx_unk(sSpheres_unk[i].mNode2);
+        if (a != 0) {
+            if (b != 0) {
+                item.m04.mCenter = LerpR_unk(GetNodePos_unk(a), GetNodePos_unk(b), 0.6f);
+            } else {
+                item.m04.mCenter = GetNodePos_unk(a);
+            }
+            item.m04.mRadius = sSpheres_unk[i].mRadius;
+            m624.push_back(item);
+        }
+    }
+    mFlagB29 = 0;
+}
+
 void Em206CocoonMp::vf54() {
     if (m624.mSize != 0) {
         for (int i = 0; i < 3; i++) {
