@@ -3552,6 +3552,10 @@ RVL_SDK/src/revolution/exi/EXIUart.c:
 	.text       start:0x805E9390 end:0x805E96CC
 	.sbss       start:0x8087FB70 end:0x8087FB80
 
+RVL_SDK/src/revolution/exi/EXICommon.c:
+	.text       start:0x805E96D0 end:0x805E9858
+	.sdata2     start:0x808884E8 end:0x808884F0
+
 RVL_SDK/src/revolution/base/PPCArch.c:
 	.text       start:0x805EA990 end:0x805EABA0
 	.data       start:0x8079BE60 end:0x8079BE98
