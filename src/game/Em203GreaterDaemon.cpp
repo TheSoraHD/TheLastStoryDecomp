@@ -83,7 +83,6 @@ extern "C" inline Field_unk* fn_80121F00() {
 }
 // inferred: player manager accessor (weak copy 0x8000D9E8 of another file)
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
-extern "C" void fn_800EC24C(RouteWalker_unk* route, int value); // inferred: sets a mode of the route walker
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" double sqrt(double x);
@@ -319,7 +318,7 @@ int Em203GreaterDaemon::vf0C() {
         m1568.IsLoading() == 0 && m1574.IsLoading() == 0 && fn_80288DD8(&m1944) == 0 &&
         fn_80288DD8(&m192C) == 0 && fn_80288DD8(&m195C) == 0 && m15D8.IsLoading() == 0 &&
         m1634.IsLoading() == 0) {
-        fn_800EC24C(&mRoute, 2);
+        mRoute.SetA0_unk(2);
         fn_80288E30(this, 1.0f);
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;

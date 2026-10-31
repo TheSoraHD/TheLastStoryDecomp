@@ -21,6 +21,8 @@ public:
     virtual void vfF0();
 
     void fn_800E2FE0(); // inferred: update (the body of vf10)
+    // inferred: weak copy 0x800EC1F4 (name invented)
+    void SetFlagC26_unk(int value) { mFlagC26 = value; }
     void fn_800E610C(); // inferred: moves (or swaps places) in the input direction; the party follows in mode 2
     int fn_800E70EC(int a, int b, int c);
     int fn_800E7214(CharaTask** out, int keep);

@@ -12,6 +12,10 @@
 #include "game/SetConfig.h"
 #include "game/CrossbowMenuTask.h"
 #include "game/Inventory.h"
+#include "std/string.h"
+#include "std/string_members.h"
+#include "atn/Csv.h"
+#include <boost/tokenizer.hpp>
 #include "atn/SoundRef.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -92,6 +96,9 @@ extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn:
 extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 extern "C" void fn_80108A54(Effect_unk* mgr, CharaTask* chara); // inferred: lock-on cursor
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" int atoi(const char* s);
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -852,6 +859,36 @@ int BattleCharaTask::fn_800EBE84() {
         mAC = 3;
     }
     return 0;
+}
+
+// inferred: parameters of the placement ("pick=", "magicPointId=", "movePointType="); arg is the route table
+void BattleCharaTask::vf2C(const char* params, int arg) {
+    CharaTask::vf2C(params, arg);
+    std::string str(params);
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    Tokenizer tok(str, boost::char_separator<char>(";"));
+    for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
+        if (strncmp(it->c_str(), "pick=", 5) == 0) {
+            std::string s(it->c_str());
+            atn::Csv csv(s.c_str() + 5, s.size());
+            mC58.m11C.m00 = 2;
+            mC58.m11C.m14 = fn_800DC288(csv.fn_8005B9CC());
+            mC58.m11C.m18 = fn_800DC288(csv.fn_8005B9CC());
+            mC58.m11C.m08 = atoi(csv.fn_8005B9CC());
+            mC58.m11C.m0C = atoi(csv.fn_8005B9CC());
+            mC58.m11C.m1C = fn_800DC288(csv.fn_8005B9CC());
+            mC58.m11C.m10 = atoi(csv.fn_8005B9CC());
+            SetFlagC26_unk(0);
+        } else if (strncmp(it->c_str(), "magicPointId=", 13) == 0) {
+            std::string s(it->c_str());
+            atn::Csv csv(s.c_str() + 13, s.size());
+            m1464 = ((RouteTable_unk*)arg)->FindPlace_unk(atoi(csv.fn_8005B9CC()));
+        } else if (strncmp(it->c_str(), "movePointType=", 14) == 0) {
+            std::string s(it->c_str());
+            atn::Csv csv(s.c_str() + 14, s.size());
+            mRoute.SetA0_unk(atoi(csv.fn_8005B9CC()));
+        }
+    }
 }
 
 int BattleCharaTask::fn_800EE180() {

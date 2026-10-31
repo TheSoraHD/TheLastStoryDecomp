@@ -206,8 +206,6 @@ int Em403WarLion::vf0C() {
 
 // inferred: setter of the state (weak copy 0x802657FC of game/Em201ZanGurgFinal.cpp)
 extern "C" void fn_802657FC(CharaTask* chara, int state);
-// inferred: BattleCharaTask flag 0x04000000 of m14A8 (weak copy 0x800EC1F4)
-extern "C" void fn_800EC1F4(BattleCharaTask* chara, int value);
 // inferred: next character of a manager list (weak copy 0x802A4094)
 extern "C" CharaTask* fn_802A4094(CharaTask* chara);
 // inferred: model matrix (weak copy 0x80266154)
@@ -364,7 +362,7 @@ void Em403WarLion::vf10() {
             } else {
                 mLook.fn_80129978(m14BC->GetModel_unk(), "neck", lbl_807C7030, 0.3f);
             }
-            fn_800EC1F4(this, m58C != 20);
+            SetFlagC26_unk(m58C != 20);
         }
     }
     for (CharaTask* c = fn_80323C2C()->fn_8036554C(); c != 0; c = fn_802A4094(c)) {

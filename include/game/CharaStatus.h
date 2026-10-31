@@ -150,6 +150,9 @@ public:
     float m9C;
     int mA0;
     CharaTask* mChara; // 0xA4
+
+    // inferred: "movePointType" (weak copy 0x800EC24C; name invented)
+    void SetA0_unk(int value) { mA0 = value; }
 };
 
 
