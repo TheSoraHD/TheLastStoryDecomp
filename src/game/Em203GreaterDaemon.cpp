@@ -891,7 +891,7 @@ void Em203GreaterDaemon::fn_8028ADF4() {
 
 // inferred: flies along the route (moving: the spline is followed; otherwise only the passing of
 // the point is tested)
-// NONMATCHING: 74.69% - flight state machine; branch layout and register allocation differ
+// NONMATCHING: 85.57% - the original recomputes the offsets of mPaths[cur - 1]; register allocation
 void Em203GreaterDaemon::fn_8028AFD8(int moving) {
     int next = 0;
     float speed;
@@ -905,8 +905,10 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
         speed = 1.0f / m1998;
     }
     if (m58C == 7) {
-        int a = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
-        int b = fn_803C1560(lbl_8087F430->m10D8, &m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+        RouteTable_unk* t1 = lbl_8087F430->m10D8;
+        int a = fn_803C1560(t1, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+        RouteTable_unk* t2 = lbl_8087F430->m10D8;
+        int b = fn_803C1560(t2, &m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
         cur = m1504;
         prev = m1508;
         p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], b - 1);
@@ -919,8 +921,10 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
             p3 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], a - 1);
         }
     } else if (m58C == 8) {
-        int a = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
-        int b = fn_803C1560(lbl_8087F430->m10D8, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        RouteTable_unk* t3 = lbl_8087F430->m10D8;
+        int a = fn_803C1560(t3, &m152C->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        RouteTable_unk* t4 = lbl_8087F430->m10D8;
+        int b = fn_803C1560(t4, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
         cur = m1504;
         prev = m1508;
         p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], b - 1);
@@ -957,7 +961,8 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
         m1510 = 0.0f;
     }
     if (m1990 != 0) {
-        int point = fn_803C1560(lbl_8087F430->m10D8, &m14B0->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        RouteTable_unk* t5 = lbl_8087F430->m10D8;
+        int point = fn_803C1560(t5, &m14B0->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
         lbl_8087EEB0->fn_80063D3C(lbl_8087F430->m10D8->mPoints[point - 1].mPos, 10.0f, 10000.0f, 0xFF0000FF);
     }
 }
