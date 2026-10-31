@@ -24,6 +24,9 @@
 #include "chr/ControlCharge.h"
 #include "chr/ControlAttackBase.h"
 #include "game/TacView.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
+#include "game/SkillEffectManager.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -174,12 +177,7 @@ struct MagicTarget_unk;
 extern "C" MagicTarget_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
 extern "C" int fn_803754F0(Field_unk* field); // inferred: an event scene is running
 extern "C" int fn_80375D0C(Field_unk* field);  // inferred: level cap of the field
-// inferred: player manager (lbl_8087F8A0, as in game/CharaTask.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: experience of a kill (as in gmk/FlyObjManager.cpp)
 extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
 extern "C" void fn_80449448(int* a, int* b, int level, int cap);
@@ -311,7 +309,8 @@ struct RayResult_unk {
     RayResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
     unsigned char m00[0x04];
     atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
+    atn::Vector3 m10; // inferred: position of the sweep
+    unsigned char m1C[0x34 - 0x1C];
     int m34;
     RayObj_unk* m38;
     int m3C;
@@ -2306,7 +2305,7 @@ inline bool IsSameGroup_unk(CharaTask* chara, CharaTask* self) {
     return true;
 }
 
-int BattleCharaTask::fn_800EE640(CharaTask* chara) {
+__declspec(noinline) int BattleCharaTask::fn_800EE640(CharaTask* chara) {
     if (chara == 0) {
         return 0;
     }
@@ -2338,6 +2337,147 @@ int BattleCharaTask::fn_800EE640(CharaTask* chara) {
         }
     }
     return IsSameGroup_unk(chara, this);
+}
+
+extern "C" int fn_8021A984(HitInfo_unk* skill); // inferred: the skill heals
+extern "C" int fn_8004D388(void* world, RayResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+
+// NONMATCHING: 98.9% - registers and stack slots
+// inferred: sends the character to the healing magic `effect` (or to the nearest one, or to a player who can
+// heal): state 1 of m1470 with a point 0.7 of the way there put on the ground; returns 1 when it has to move
+int BattleCharaTask::fn_800EE794(Bullet_unk* effect) {
+    if (!CanAct_unk()) {
+        return 0;
+    }
+    atn::Vector3 target(0.0f, 0.0f, 0.0f);
+    float radius;
+    if (effect == 0 && lbl_8087F9E8 != 0) {
+        float best = 1e16f;
+        for (int i = 0; i < 32; i++) {
+            Bullet_unk* bullet = ((SkillEffectManager*)lbl_8087F9E8)->GetBullet_unk(i);
+            if (fn_800EE640(bullet->m08)) {
+                HitInfo_unk* hit = bullet->m04;
+                if (hit != 0 && fn_8021A984(hit) && (hit->mAC & 0x1000000) != 0x1000000) {
+                    atn::Vector3 d = bullet->m10 - mPos;
+                    float dist = PSVECSquareMag(&d);
+                    if (dist < best) {
+                        best = dist;
+                        effect = bullet;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < 32; i++) {
+            Bullet_unk* bullet = ((SkillEffectManager*)lbl_8087F9E8)->GetBullet_unk(i);
+            if (fn_800EE640(bullet->m08)) {
+                HitInfo_unk* hit = bullet->m04;
+                if (hit != 0 && fn_8021A984(hit) && (hit->mAC & 0x400000) == 0x400000 &&
+                    (hit->mAC & 0x1000000) != 0x1000000) {
+                    effect = bullet;
+                    break;
+                }
+            }
+        }
+    }
+    if (effect != 0) {
+        radius = effect->m5C * effect->m28;
+        target = effect->m10;
+    } else {
+        CharaTask* healer = 0;
+        if (lbl_8087F8A0 != 0) {
+            float best = 1e16f;
+            for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                if (fn_800EE640(p)) {
+                    HitInfo_unk* hit = p->mStatus.m2D0[0].m[0] > 0 ? fn_80219E6C(p->mStatus.m2D0[0].m[0]) : 0;
+                    if (hit != 0 && fn_8021A984(hit)) {
+                        atn::Vector3 d = mPos - p->mPos;
+                        float dist = PSVECSquareMag(&d);
+                        if (dist < best) {
+                            best = dist;
+                            healer = p;
+                        }
+                    }
+                }
+            }
+            if (healer == 0) {
+                int ids[4] = {5, 1, 4, 6};
+                for (unsigned int i = 0; i < 4; i++) {
+                    PlayerTask* p = lbl_8087F8A0->FindByName_unk(ids[i]);
+                    if (fn_800EE640(p)) {
+                        healer = p;
+                        break;
+                    }
+                }
+            }
+            if (healer == 0) {
+                float best = 1e16f;
+                for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                    if (fn_800EE640(p) && (unsigned char)(p->m5C->m122 - 2) <= 1) {
+                        atn::Vector3 d = mPos - p->mPos;
+                        float dist = PSVECSquareMag(&d);
+                        if (dist < best) {
+                            best = dist;
+                            healer = p;
+                        }
+                    }
+                }
+            }
+            if (healer == 0) {
+                healer = lbl_8087F8A0->mHead;
+            }
+        }
+        if (healer != 0 && healer != this) {
+            target = healer->mPos;
+            radius = 25.0f;
+        } else {
+            return 0;
+        }
+    }
+    atn::Vector3 dir(mPos.x - target.x, 0.0f, mPos.z - target.z);
+    if (PSVECMag(&dir) > radius) {
+        PSVECNormalize(&dir, &dir);
+        PlayerState_unk state(1);
+        state.m04 = rand() % 10;
+        state.m0C = target + dir * radius * 0.7f;
+        atn::Vector3 from = state.m0C;
+        atn::Vector3 to = from + atn::Vector3(0.0f, -400.0f, 0.0f);
+        from.y += 10.0f;
+        void* world = lbl_8087EE98;
+        RayResult_unk result;
+        if (fn_8004ED34(world, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0)) {
+            state.m0C = result.m04;
+        }
+        from = target;
+        to = state.m0C;
+        from.y += 10.0f;
+        to.y += 10.0f;
+        world = lbl_8087EE98;
+        if (fn_8004ED34(world, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0)) {
+            state.m0C = result.m04;
+        }
+        from = state.m0C;
+        to = state.m0C;
+        from.y += 10.0f;
+        to.y -= 10.0f;
+        world = lbl_8087EE98;
+        if (fn_8004ED34(world, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0)) {
+            state.m0C = result.m04;
+        }
+        from = state.m0C;
+        from.y += 5.0f;
+        atn::Vector3 move(0.0f, 0.0f, 0.0f);
+        world = lbl_8087EE98;
+        if (fn_8004D388(world, &result, &from, &move, fn_80179D44() | 0x80000000, 0, 0, 5.0f)) {
+            state.m0C = result.m10;
+            state.m0C.y -= 5.0f;
+        }
+        SetState_unk(state);
+        mC58.m110 = (CharaD68_unk*)effect;
+        mC58.m2B8 = 150;
+        return 1;
+    }
+    return 0;
 }
 
 int BattleCharaTask::fn_800EEFDC() {

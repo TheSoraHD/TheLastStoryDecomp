@@ -60,6 +60,7 @@ public:
     void fn_800EE360(); // inferred: death reward (item of the battle result or message 3 to the gimmick m1438)
     void fn_800EE5AC(class Arms* arms);
     int fn_800EE640(CharaTask* chara); // inferred: chara is a valid target for this character
+    int fn_800EE794(struct Bullet_unk* effect); // inferred: goes to a healing magic
  // inferred: starts the effect of a weapon when its condition holds
     int fn_800EEFDC();  // inferred: nonzero if the character can be targeted here
 
