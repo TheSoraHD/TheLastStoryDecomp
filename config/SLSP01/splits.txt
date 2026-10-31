@@ -3869,6 +3869,9 @@ smg2/src/RVL_SDK/gx/GXPixel.c:
 	.data       start:0x807B0E38 end:0x807B0E58
 	.sdata2     start:0x808887B8 end:0x808887F0
 
+RVL_SDK/src/revolution/gx/GXDisplayList.c:
+	.text       start:0x80618030 end:0x806180A4
+
 RVL_SDK/src/revolution/gx/GXTransform.c:
 	.text       start:0x806180B0 end:0x80618728
 	.sdata2     start:0x808887F0 end:0x80888800
