@@ -1792,7 +1792,6 @@ void Em203GreaterDaemon::fn_8028FDB0() {
 }
 
 // inferred: starts state 16 (turns and walks to the target)
-// NONMATCHING: 94.23% - register allocation
 void Em203GreaterDaemon::fn_80290088() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -1811,10 +1810,13 @@ void Em203GreaterDaemon::fn_80290088() {
     dir.y = 0.0f;
     dir.Normalize_unk();
     float angle = atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
     if (angle < 0.0f) {
-        PlayMotion_unk(0x158, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x158, 0, 1, 1, 0.0f, 0.1f);
     } else {
-        PlayMotion_unk(0x159, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x159, 0, 1, 1, 0.0f, 0.1f);
     }
     m1534 = mRot.y;
     m1538 = dir.ToRotation_unk().y;
