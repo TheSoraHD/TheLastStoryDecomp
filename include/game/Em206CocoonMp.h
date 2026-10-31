@@ -38,10 +38,11 @@ public:
     inline void PlayMotion_unk(int motion, int loop, float speed);
     inline void Die_unk();
     inline void StartRoll_unk();
+    inline void StartAttack_unk(int state, int motion, atn::Vector3 dir);
     // inferred: turns towards `rot` and moves forward at `speed` with gravity and collision (0x802BC4EC)
     void fn_802BC4EC(const atn::Vector3& rot, float speed, float max);
     void fn_802BD118(); // inferred: moves toward the target
-    int fn_802BD480();  // inferred: chooses the next action
+    void fn_802BD480(); // inferred: chooses the next action
     void fn_802BDA04(); // inferred: colors of the materials
     void fn_802BDFA0(); // inferred: default state
     void fn_802BE0FC(); // inferred: state 6

@@ -51,6 +51,8 @@ extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 // inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
 struct FrameTime_unk {
@@ -526,6 +528,106 @@ void Em206CocoonMp::vf38(int arg) {
             m1538[i].mFlags |= 1;
         } else {
             m1538[i].mFlags &= ~1;
+        }
+    }
+}
+
+// inferred: slowed by the status (name invented)
+inline bool IsSlowed_unk(const CharaStatus& s) {
+    bool slow = true;
+    if ((s.m0C & 8) != 8 && (s.m0C & 0x200) != 0x200) {
+        slow = false;
+    }
+    return slow;
+}
+
+// inferred: starts the attack `state` towards `dir` (name invented)
+inline void Em206CocoonMp::StartAttack_unk(int state, int motion, atn::Vector3 dir) {
+    SetState_unk(state);
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.025f);
+    m152C = dir;
+    m1528++;
+}
+
+// inferred: chooses the next action of the default state: blizzard (11), last stand (18), ice mode (12),
+// spin (10), claw (8) or charge (9)
+void Em206CocoonMp::fn_802BD480() {
+    CharaTask* target = mC58.mC4;
+    if (target == 0) {
+        return;
+    }
+    if (m1904 == 0) {
+        SetState_unk(11);
+        PlayMotion_unk(0x145, 0, 1.0f);
+        return;
+    }
+    int wait = !IsSlowed_unk(mStatus) ? 60 : 120;
+    if (m14E0 > wait) {
+        if (m1908 == 0) {
+            float ratio;
+            if (mStatus.mParamB.m84 > 0) {
+                ratio = mStatus.m04 / mStatus.mParamB.m84;
+            } else {
+                ratio = 0.0f;
+            }
+            if (ratio < 0.4f || m1910 <= 0) {
+                SetState_unk(18);
+                m1908 = 1;
+                PlayMotion_unk(0x142, 0, 2.0f);
+                CocoonDamage_unk result;
+                fn_8003EA3C(&result, fn_80219E6C(0x5C2), this, this, 0, &lbl_807C6B90, 0, 0);
+                if (lbl_8087F610 != 0) {
+                    fn_804DA48C(lbl_8087F610, 5);
+                }
+                if (GameBgm::sInstance != 0) {
+                    GameBgm::sInstance->fn_8037D4C0(0x8B8, 15, 1, 0, 1.0f);
+                }
+                return;
+            }
+        }
+        if (m14F4 > 1800) {
+            SetState_unk(12);
+            m14F0 = 1;
+            m14F4 = 0;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, 0x165, 0, 0, 1, 0.0f, 0.025f);
+            mMotion.mTracks[0].m0C = -2.0f;
+            mMotion.mTracks[0].m08 = mMotion.fn_80097D7C(0);
+            if (lbl_8087F610 != 0) {
+                fn_804DA48C(lbl_8087F610, 2);
+            }
+            return;
+        }
+        if (m1528 >= 5 || m14E0 > wait * 2) {
+            SetState_unk(10);
+            fn_8016E970(3);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x13F, 0, 1, 1, 0.0f, 0.025f);
+            m1528 = 0;
+            return;
+        }
+        atn::Vector3 pos = target->mPos;
+        atn::Vector3 dir = pos - mPos;
+        float dist = dir.Length_unk();
+        PSVECNormalize(&dir, &dir);
+        atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &fwd, &fwd);
+        float dot = PSVECDotProduct(&fwd, &dir);
+        if (dot >= (float)cos(60.0)) {
+            if (dist < 50.0f) {
+                StartAttack_unk(8, 0x156, dir);
+            } else if (dist < 100.0f) {
+                StartAttack_unk(9, 0x14D, dir);
+            }
         }
     }
 }
