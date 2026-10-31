@@ -1187,6 +1187,32 @@ void BattleCharaTask::fn_800E7F04() {
     }
 }
 
+void BattleCharaTask::vf40(HitInfo_unk* hit) {
+    if (mType == 0) {
+        if (mStatus.IsState_unk(0x20)) {
+            fn_80164DCC(1);
+            HitMsg_unk* msg = (HitMsg_unk*)hit;
+            if (m55C != 6 || (m560 != 0x17 && m560 != 0x3B && m560 != 0x8E)) {
+                fn_8015E7A0(msg->m28 * 5.0f, -1, 0);
+            }
+            vf44();
+        }
+    } else {
+        vfE8((HitMsg_unk*)hit);
+    }
+}
+
+void BattleCharaTask::vf44() {
+    CharaTask::vf44();
+    if (!mFlag16) {
+        m1434 = 30;
+    }
+    if (lbl_8087F430 != 0) {
+        fn_80375184(lbl_8087F430);
+    }
+    m1470 = 0;
+}
+
 // NONMATCHING: 98.1% - cases 1 and 2 of mC48 become a range compare; the original keeps f1 = radius for
 // fn_80157444/fn_80157C34
 // inferred: starts the attack `id` (200: normal attack) at `target`/`pos`; type and mode pass through to
@@ -1383,32 +1409,6 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
     mFlagC30 = 0;
     mFlagC29 = 0;
     m1424 = hit != 0 ? hit->m68 : fn_80219E6C(200)->m68;
-}
-
-void BattleCharaTask::vf40(HitInfo_unk* hit) {
-    if (mType == 0) {
-        if (mStatus.IsState_unk(0x20)) {
-            fn_80164DCC(1);
-            HitMsg_unk* msg = (HitMsg_unk*)hit;
-            if (m55C != 6 || (m560 != 0x17 && m560 != 0x3B && m560 != 0x8E)) {
-                fn_8015E7A0(msg->m28 * 5.0f, -1, 0);
-            }
-            vf44();
-        }
-    } else {
-        vfE8((HitMsg_unk*)hit);
-    }
-}
-
-void BattleCharaTask::vf44() {
-    CharaTask::vf44();
-    if (!mFlag16) {
-        m1434 = 30;
-    }
-    if (lbl_8087F430 != 0) {
-        fn_80375184(lbl_8087F430);
-    }
-    m1470 = 0;
 }
 
 void BattleCharaTask::fn_800E8FB8() {
