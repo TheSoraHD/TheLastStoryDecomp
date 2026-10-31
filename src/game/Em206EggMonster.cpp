@@ -149,6 +149,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" double acos(double x);
 extern "C" double fmod(double x, double y);
+extern "C" double sqrt(double x);
 extern "C" int rand();
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -458,6 +459,54 @@ void Em206EggMonster::vf24() {
             mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.025f);
         }
     }
+}
+
+// inferred: 2D helpers of the arena limits (names invented)
+inline atn::Vector2_unk Sub2_unk(const atn::Vector2_unk& a, const atn::Vector2_unk& b) {
+    return atn::Vector2_unk(a.x - b.x, a.y - b.y);
+}
+inline float Cross2_unk(const atn::Vector2_unk& a, const atn::Vector2_unk& b) {
+    return a.x * b.y - a.y * b.x;
+}
+
+// inferred: movement (walks the route in state 7, turned back towards the target when it is too far
+// from its home point 0x14BC and keeps walking away)
+void Em206EggMonster::fn_802C2BCC() {
+    float speed = 0.0f;
+    atn::Vector3 rot = mRot;
+    if (m55C == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 vel = mRoute.m58;
+        speed = vel.Length_unk();
+        if (speed > 0.0001f) {
+            rot = vel.GetNormalize().ToRotation_unk();
+        }
+        if (m1594 == 0) {
+            atn::Vector2_unk pos(mPos.x, mPos.z);
+            atn::Vector2_unk d = Sub2_unk(pos, *(const atn::Vector2_unk*)&m14BC);
+            atn::Vector2_unk v(vel.x, vel.z);
+            if ((float)sqrt(d.x * d.x + d.y * d.y) > 90.0f && d.x * v.x + d.y * v.y > 0.0f) {
+                speed = 0.0f;
+                fn_80170A20(m1584, 0, -1.0f);
+            }
+            if (speed < 0.0001f && m1584 != 0) {
+                atn::Vector3 dir = m1584->mPos - mPos;
+                dir.y = 0.0f;
+                dir.Normalize_unk();
+                speed = 0.1f;
+                rot = dir.ToRotation_unk();
+            }
+        }
+    } else if (m55C == 6) {
+        if (m560 == 4) {
+            m580 = 0.0f;
+            m584 = 0.0f;
+        } else {
+            fn_8013A258();
+            return;
+        }
+    }
+    fn_8013CB68(rot, 1, speed, m568);
 }
 
 // NONMATCHING: 98.8% - stack slots of the locals (rotation, ray ends) and the frsp before atan2
@@ -851,13 +900,6 @@ void Em206EggMonster::fn_802C6878(CharaTask* chara, const atn::Vector3& pos) {
     }
 }
 
-// inferred: 2D helpers of the arena limits (names invented)
-inline atn::Vector2_unk Sub2_unk(const atn::Vector2_unk& a, const atn::Vector2_unk& b) {
-    return atn::Vector2_unk(a.x - b.x, a.y - b.y);
-}
-inline float Cross2_unk(const atn::Vector2_unk& a, const atn::Vector2_unk& b) {
-    return a.x * b.y - a.y * b.x;
-}
 
 // NONMATCHING: 99.43% - r28/r30 of the channels in the inlined Color4f_unk::ToU32
 // inferred: draws the two limits of the arena (debug) and tells whether the egg is between them: mPos
