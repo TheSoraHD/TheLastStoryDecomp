@@ -974,6 +974,74 @@ void Em203GreaterDaemonRedMp::fn_802A19B0() {
     }
 }
 
+// inferred: state of the multiplayer copy (names invented)
+struct RedMpState_unk {
+    int m00;
+    int m04;
+    short m08;
+    short m0A;
+    int m0C;
+};
+
+// NONMATCHING: 98.2% - load order of the motion speed in the first clamp
+// inferred: state 2 (dies: falls to the ground, then vanishes after 120 frames)
+void Em203GreaterDaemonRedMp::fn_802A2070() {
+    if (m14D8 == 0) {
+        float end = mMotion.mTracks[0].m08;
+        if (end >= mMotion.fn_80097D7C(0)) {
+            if (m58C == 2) {
+                m14D8 = 2;
+                mPos.y = 0.0f;
+                fn_80232B7C(0, 0);
+                Color4f_unk color;
+                color.r = 1.0f;
+                color.g = 1.0f;
+                color.b = 1.0f;
+                color.a = 1.0f;
+                fn_8023A8B4(lbl_8087F3C0, &m1668, 0, 0, mPos, mRot, color, -1, -1, 1, 2.5f);
+            } else {
+                m14D8 = 1;
+                PlayMotion_unk(0x1E2, 1, 0, 1.0f);
+            }
+            m14DC = 0;
+        }
+        if (m58C == 2) {
+            if (mMotion.mTracks[0].m08 >= 25.0f) {
+                float speed = mMotion.mTracks[0].m0C + 0.05f;
+                mMotion.mTracks[0].m0C = 1.0f < speed ? 1.0f : speed;
+            } else if (mMotion.mTracks[0].m08 >= 8.0f) {
+                float speed = mMotion.mTracks[0].m0C - 0.05f;
+                mMotion.mTracks[0].m0C = 0.2f > speed ? 0.2f : speed;
+            }
+        }
+        if (mMotion.mTracks[0].m08 < 36.0f && mMotion.mTracks[0].m08 >= 35.0f) {
+            ShakeCamera_unk(10, 1.0f, 2.0f);
+        }
+        mPos.y += m1560.y / mMotion.fn_80097D7C(0);
+        if (mPos.y < 0.0f) {
+            mPos.y = 0.0f;
+        }
+    } else if (m14D8 == 1) {
+        if (m14DC > m16A4 * 30) {
+            StartState13_unk();
+        }
+    } else if (m14D8 == 2) {
+        if (m14DC >= 120) {
+            mColli.mFlags &= ~1;
+            mFlag25 = 1;
+            mFlag15 = 1;
+            fn_800D246C(1);
+            fn_801765D8();
+            if (m1554 != 0) {
+                Field_unk* field = lbl_8087F430;
+                field->m8A0 = 0;
+                field->m97C.m00 = 0;
+                m1554 = 0;
+            }
+        }
+    }
+}
+
 // inferred: starts the hovering to the route point m1570 (kind 0: state 7, 1: state 8)
 void Em203GreaterDaemonRedMp::fn_802A239C(int kind) {
     if (kind == 0) {
@@ -1010,15 +1078,6 @@ void Em203GreaterDaemonRedMp::fn_802A254C() {
     m590 = fn_800F8548(lbl_8087F048);
     PlayMotion_unk(0x13F, 0, 0, 1.0f);
 }
-
-// inferred: state of the multiplayer copy (names invented)
-struct RedMpState_unk {
-    int m00;
-    int m04;
-    short m08;
-    short m0A;
-    int m0C;
-};
 
 // NONMATCHING: 99.8% - r5/r6 crossing on the psq copy into m1560 (known blocker, as Red fn_8029A788)
 // inferred: starts state 12 (dives on the target, stopping 85 units before it)
