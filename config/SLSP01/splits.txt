@@ -5293,6 +5293,10 @@ nw4r/src/snd/snd_DisposeCallbackManager.cpp:
 	.bss        start:0x80862F98 end:0x80862FB0
 	.sbss       start:0x808804C0 end:0x808804C8
 
+ss_nw4r/src/snd/snd_debug.cpp:
+	.text       start:0x8070C9E0 end:0x8070CADC
+	.sdata      start:0x8087EDF8 end:0x8087EE18
+
 nw4r/src/snd/snd_EnvGenerator.cpp:
 	.text       start:0x8070CAE0 end:0x8070CEB0
 	.rodata     start:0x8076CCA0 end:0x8076CFA0
@@ -5330,6 +5334,11 @@ ss_nw4r/src/snd/snd_MmlSeqTrackAllocator.cpp:
 ss_nw4r/src/snd/snd_PlayerHeap.cpp:
 	.text       start:0x807107E0 end:0x807109FC
 	.data       start:0x807C61A8 end:0x807C61B8
+
+ss_nw4r/src/snd/snd_RemoteSpeakerManager.cpp:
+	.text       start:0x80711390 end:0x80711628
+	.bss        start:0x80862FB0 end:0x80863288
+	.sbss       start:0x808804D0 end:0x808804D8
 
 ss_nw4r/src/snd/snd_SeqFile.cpp:
 	.text       start:0x80711630 end:0x80711768
@@ -5478,6 +5487,9 @@ ss_nw4r/src/snd/snd_WsdPlayer.cpp:
 	.text       start:0x80721DA0 end:0x80722F48
 	.data       start:0x807C64B0 end:0x807C6510
 	.sdata2     start:0x80889310 end:0x80889338
+
+ss_nw4r/src/snd/snd_adpcm.cpp:
+	.text       start:0x80722F50 end:0x80722FDC
 
 nw4r/src/ut/ut_LinkList.cpp:
 	.text       start:0x80725170 end:0x80725300
