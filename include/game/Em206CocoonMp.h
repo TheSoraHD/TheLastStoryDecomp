@@ -37,12 +37,15 @@ public:
     inline void SetState_unk(int state);
     inline void PlayMotion_unk(int motion, int loop, float speed);
     inline void Die_unk();
+    // inferred: turns towards `rot` and moves forward at `speed` with gravity and collision (0x802BC4EC)
+    void fn_802BC4EC(const atn::Vector3& rot, float speed, float max);
     void fn_802BD118(); // inferred: moves toward the target
     int fn_802BD480();  // inferred: chooses the next action
     void fn_802BDA04(); // inferred: colors of the materials
     void fn_802BDFA0(); // inferred: default state
     void fn_802BE0FC(); // inferred: state 6
     void fn_802BE180(); // inferred: state 8
+    void fn_802BE2A0(); // inferred: state 9
     void fn_802BE7EC(); // inferred: state 10
     void fn_802BE9C8(); // inferred: state 11
     void fn_802C0458(); // inferred: state 16

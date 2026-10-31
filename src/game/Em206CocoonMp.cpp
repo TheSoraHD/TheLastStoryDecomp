@@ -47,6 +47,12 @@ extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
+// inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
+struct FrameTime_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: time of a frame
+};
+extern "C" FrameTime_unk* lbl_8087EFA8;
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: multiplayer session (lbl_8087F610, as in game/Em204MulueMp.cpp)
@@ -481,6 +487,34 @@ void Em206CocoonMp::vf20() {
     m1498 = 13.0f;
 }
 
+// inferred: walks towards the character it follows (control 7); twice as fast unless slowed
+void Em206CocoonMp::fn_802BD118() {
+    float speed = 0.0f;
+    float scale = 1.0f;
+    atn::Vector3 rot = mRot;
+    bool slow = true;
+    if ((mStatus.m0C & 8) != 8 && (mStatus.m0C & 0x200) != 0x200) {
+        slow = false;
+    }
+    if (!slow) {
+        scale *= 2.0f;
+    }
+    if (m55C == 7) {
+        CharaTask* t = mC58.mC4;
+        atn::Vector3 dir = (t->mPos - mPos).GetNormalize();
+        if ((mC58.mC4->mPos - mPos).Length_unk() < 50.0f) {
+            speed = 0.0f;
+        } else {
+            speed = dir.Length_unk();
+        }
+        rot = dir.ToRotation_unk();
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_802BC4EC(rot, speed, m568 * scale);
+}
+
 void Em206CocoonMp::vf38(int arg) {
     for (int i = 0; i < 11; i++) {
         if (arg != 0) {
@@ -532,6 +566,32 @@ void Em206CocoonMp::fn_802BE180() {
         if (m192C != 0) {
             lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + data->m40, 0.0f, 0xFFFF0000);
         }
+    }
+}
+
+// inferred: state 9 (charges forward, turning towards m152C, and hits from frame 35 to 46)
+void Em206CocoonMp::fn_802BE2A0() {
+    mMotion.mTracks[0].m0C = mStatus.fn_8012DB04();
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        SetState_unk(0);
+        fn_8016E970(3);
+    }
+    if (mMotion.mTracks[0].m08 >= 28.0f && mMotion.mTracks[0].m08 <= 58.0f) {
+        float k = mMotion.mTracks[0].m0C * lbl_8087EFA8->m3A4;
+        atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &fwd, &fwd);
+        float yaw = m152C.ToRotation_unk().y;
+        float turn = k * (0.15f * (yaw - mRot.y));
+        mRot.y = atn::WrapAngle_unk(mRot.y + turn);
+        if (mMotion.mTracks[0].m08 >= 35.0f && mMotion.mTracks[0].m08 <= 46.0f) {
+            HitInfo_unk* data = fn_80219E6C(0x5BE);
+            fn_80144710();
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        }
+        fn_802BC4EC(fwd.ToRotation_unk(), 1.0f, 1.5f * (3.75f * k));
     }
 }
 
