@@ -155,13 +155,15 @@ static void* AllocUsedBlockFromFreeBlock_(MEMiExpHeapHead* pEHHead, MEMiExpHeapM
 
     pMBHeadFreePrev = RemoveMBlock_(&pEHHead->mbFreeList, pMBHeadFree);
 
-    if (GetOffsetFromPtr(freeRgnT.start, freeRgnT.end) < sizeof(MEMiExpHeapMBlockHead) + 4) {
+    if ((GetOffsetFromPtr(freeRgnT.start, freeRgnT.end) < sizeof(MEMiExpHeapMBlockHead) + 4) ||
+        (direction == 0 && !pEHHead->feature.fields.useMarginOfAlign)) {
         freeRgnT.end = freeRgnT.start;
     } else {
         pMBHeadFreePrev = InsertMBlock_(&pEHHead->mbFreeList, InitFreeMBlock_(&freeRgnT), pMBHeadFreePrev);
     }
 
-    if (GetOffsetFromPtr(freeRgnB.start, freeRgnB.end) < sizeof(MEMiExpHeapMBlockHead) + 4) {
+    if ((GetOffsetFromPtr(freeRgnB.start, freeRgnB.end) < sizeof(MEMiExpHeapMBlockHead) + 4) ||
+        (direction == 1 && !pEHHead->feature.fields.useMarginOfAlign)) {
         freeRgnB.start = freeRgnB.end;
     } else {
         (void)InsertMBlock_(&pEHHead->mbFreeList, InitFreeMBlock_(&freeRgnB), pMBHeadFreePrev);
@@ -350,10 +352,9 @@ void MEMFreeToExpHeap(MEMHeapHandle heap, void* memBlock) {
         return;
     }
 
+    LockHeap(heap);
     pExpHeapHd = GetExpHeapHeadPtrFromHandle_(pHeapHd);
     pMBHead = GetMBlockHeadPtr_(memBlock);
-
-    LockHeap(heap);
     GetRegionOfMBlock_(&region, pMBHead);
     (void)RemoveMBlock_(&pExpHeapHd->mbUsedList, pMBHead);
     (void)RecycleRegion_(pExpHeapHd, &region);
