@@ -91,7 +91,7 @@ unsigned char SCGetProgressiveMode();
 unsigned char SCGetEuRgb60Mode();
 unsigned char SCGetAspectRatio();
 unsigned int VIGetTvFormat();
-unsigned int fn_806052C0(); // inferred: VIGetDTVStatus
+unsigned int VIGetDTVStatus();
 void VIConfigure(const GXRenderModeObj* rm);
 void VISetNextFrameBuffer(void* fb);
 void VIFlush();
@@ -316,7 +316,7 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     device->mHeight = height;
     SetViewRect_unk(device, 0, 0, 0, 0);
     GXRenderModeObj* rm = 0;
-    if (SCGetProgressiveMode() == 1 && fn_806052C0() == 1) {
+    if (SCGetProgressiveMode() == 1 && VIGetDTVStatus() == 1) {
         switch (VIGetTvFormat()) {
         case 0:
             rm = &lbl_807B0978;

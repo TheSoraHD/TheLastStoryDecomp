@@ -24,6 +24,11 @@ syms={}
 for l in open('config/SLSP01/symbols.txt'):
     m=re.match(r'(\S+) = \.text:0x([0-9A-F]+); // type:function size:0x([0-9A-F]+)',l)
     if m: syms.setdefault(m.group(1),(int(m.group(2),16),int(m.group(3),16)))
+for kv in os.environ.get('OVR','').split(','):
+    if '=' in kv:
+        k,v=kv.split('='); a=int(v,16)
+        szs=[int(m.group(1),16) for m in [re.search(r'0x%X; // type:function size:0x([0-9A-F]+)'%a, open('config/SLSP01/symbols.txt').read())] if m]
+        syms[k]=(a,szs[0] if szs else 0)
 dol=open('orig/SLSP01/sys/main.dol','rb').read()
 offs=struct.unpack('>18I',dol[0:72]); addrs=struct.unpack('>18I',dol[72:144]); sizes=struct.unpack('>18I',dol[144:216])
 def rd(a,n):
