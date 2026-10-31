@@ -959,6 +959,29 @@ void Em203GreaterDaemonRedMp::fn_802A2790() {
     m1578 = dir.ToRotation_unk().y;
 }
 
+// inferred: starts state 16 (turns to the target on the ground)
+void Em203GreaterDaemonRedMp::fn_802A2A68() {
+    m58C = 16;
+    ResetState_unk();
+    atn::Vector3 target = m14D4->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    float diff = atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    if (diff < 0.0f) {
+        mMotion.fn_80097C08(0, 0x158, 0, 1, 1, 0.0f, 0.1f);
+    } else {
+        mMotion.fn_80097C08(0, 0x159, 0, 1, 1, 0.0f, 0.1f);
+    }
+    m1574 = mRot.y;
+    m1578 = dir.ToRotation_unk().y;
+    m1594 = 0;
+    m1598 = 0;
+}
+
 // inferred: starts state 17 (breath on the ground)
 void Em203GreaterDaemonRedMp::fn_802A325C() {
     m58C = 17;
