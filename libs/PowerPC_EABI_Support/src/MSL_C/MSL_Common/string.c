@@ -221,36 +221,85 @@ char* strchr(const char* str, int chr)
     return (c ? 0 : (char*)p);
 }
 
-//unused
-void strcoll(){
+char* strrchr(const char* str, int chr)
+{
+    const u8* p = (u8*)str - 1;
+    const u8* q = 0;
+    u32 c = (chr & 0xFF);
+    u32 ch;
+
+    while (ch = *++p)
+        if (ch == c)
+            q = p;
+
+    if (q)
+        return ((char*)q);
+
+    return (c ? 0 : (char*)p);
 }
 
-//unused
-void strxfrm(){
+typedef unsigned char char_map[32];
+
+#define set_char_map(map, ch) map[(u8)(ch) >> 3] |= (1 << ((ch) & 7))
+#define tst_char_map(map, ch) (map[(u8)(ch) >> 3] & (u8)(1 << ((ch) & 7)))
+
+size_t strcspn(const char* str, const char* set)
+{
+    const u8* p;
+    u32 c;
+    char_map map = {0};
+
+    p = (u8*)set - 1;
+    while (c = *++p)
+        set_char_map(map, c);
+
+    p = (u8*)str - 1;
+    while (c = *++p)
+        if (tst_char_map(map, c))
+            break;
+
+    return (p - (u8*)str);
 }
 
-//unused
-void strrchr(){
-}
+char* strtok(char* str, const char* set)
+{
+    u8* p;
+    u8* q;
+    u32 c;
+    static u8* n = (u8*)"";
+    static u8* s = (u8*)"";
+    char_map map = {0};
 
-//unused
-void strpbrk(){
-}
+    if (str)
+        s = (u8*)str;
 
-//unused
-void strspn(){
-}
+    p = (u8*)set - 1;
+    while (c = *++p)
+        set_char_map(map, c);
 
-//unused
-void strcspn(){
-}
+    p = s - 1;
+    while (c = *++p)
+        if (!tst_char_map(map, c))
+            break;
 
-//unused
-void strtok(){
-}
+    if (!c) {
+        s = n;
+        return 0;
+    }
 
-//unused
-void strtok_s(){
+    q = p;
+    while (c = *++p)
+        if (tst_char_map(map, c))
+            break;
+
+    if (!c) {
+        s = n;
+    } else {
+        s = p + 1;
+        *p = 0;
+    }
+
+    return ((char*)q);
 }
 
 char* strstr(const char* str, const char* pat)
@@ -275,34 +324,3 @@ char* strstr(const char* str, const char* pat)
     return NULL;
 }
 
-//unused
-void strnlen_s(){
-}
-
-//unused
-void strcpy_s(){
-}
-
-//unused
-void strncpy_s(){
-}
-
-//unused
-void strcat_s(){
-}
-
-//unused
-void strncat_s(){
-}
-
-//unused
-void strerror(){
-}
-
-//unused
-void strerror_s(){
-}
-
-//unused
-void __strerror(){
-}
