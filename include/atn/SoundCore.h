@@ -102,8 +102,6 @@ public:
 } // namespace nw4r
 
 // NW4R functions without a symbol name yet
-extern "C" int fn_80718470(void* actor, void* handle, unsigned int id, void* info); // inferred: nw4r::snd::SoundActor start
-extern "C" int fn_807184D0(void* actor, void* handle, unsigned int id, void* info); // inferred: nw4r::snd::SoundActor prepare
 extern "C" void fn_8071D0E0(void* strmHandle, void* handle);   // inferred: nw4r::snd::StrmSoundHandle::StrmSoundHandle
 extern "C" void fn_8071D1E0(void* strmHandle);                 // inferred: nw4r::snd::StrmSoundHandle::DetachSound
 extern "C" bool fn_8071A680(void* player, void* info);         // inferred: StrmPlayer: reads the stream data info
@@ -142,8 +140,16 @@ public:
     ut::LinkListNode mLinkNode; // 0x64
 };
 
+// inferred: only the start functions called by atn::SoundCore (no data of its own here)
+class SoundStartable {
+public:
+    struct StartInfo;
+    int detail_StartSound(SoundHandle* handle, unsigned long soundId, const StartInfo* startInfo);
+    int detail_PrepareSound(SoundHandle* handle, unsigned long soundId, const StartInfo* startInfo);
+};
+
 // inferred: 0x84 bytes
-class Sound3DActor {
+class Sound3DActor : public SoundStartable {
 public:
     Sound3DActor(SoundArchivePlayer& player, Sound3DManager& manager);
     void SetPosition(const math::VEC3& position);

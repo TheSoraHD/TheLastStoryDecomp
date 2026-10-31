@@ -155,7 +155,7 @@ void SoundCore::fn_800C8BA4(const char* label, const Vector3* pos) {
         fn_80049E3C(lbl_8087EE90, id);
         SoundStartInfo_unk info;
         SetStartOffset_unk(info, m08.mActor.mStartOffset_unk);
-        if ((m90 = fn_80718470(&m08.mActor, &mHandle, id - 1, &info)) != 0) {
+        if ((m90 = m08.mActor.detail_StartSound(&mHandle, id - 1, reinterpret_cast<const nw4r::snd::SoundStartable::StartInfo*>(&info))) != 0) {
             PrintSoundError_unk(m90, fn_80049CDC(lbl_8087EE90, id));
         }
         StartSetup_unk(id);
@@ -202,7 +202,7 @@ void SoundCore::fn_800C97F8(const char* label, const Vector3* pos) {
         fn_80049E3C(lbl_8087EE90, id);
         SoundStartInfo_unk info;
         SetStartOffset_unk(info, m08.mActor.mStartOffset_unk);
-        if ((m90 = fn_807184D0(&m08.mActor, &mHandle, id - 1, &info)) != 0) {
+        if ((m90 = m08.mActor.detail_PrepareSound(&mHandle, id - 1, reinterpret_cast<const nw4r::snd::SoundStartable::StartInfo*>(&info))) != 0) {
             PrintSoundError_unk(m90, fn_80049CDC(lbl_8087EE90, id));
         }
         StartSetup_unk(id);
