@@ -45,17 +45,17 @@ int fn_80620220(const char* path, atn::NandFileInfo_unk* info, unsigned char mod
                 NandCallback_unk cb, atn::NandBlock_unk* block);
 int fn_80620BD0(atn::NandFileInfo_unk* info, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: NANDSafeCloseAsync
 int fn_80620830(atn::NandFileInfo_unk* info, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: close (read)
-int fn_8061E370(const char* path, unsigned char perm, unsigned char attr, NandCallback_unk cb,
+int NANDCreateAsync(const char* path, unsigned char perm, unsigned char attr, NandCallback_unk cb,
                 atn::NandBlock_unk* block); // inferred: NANDCreateAsync
-int fn_8061EC60(const char* path, unsigned char perm, unsigned char attr, NandCallback_unk cb,
+int NANDCreateDirAsync(const char* path, unsigned char perm, unsigned char attr, NandCallback_unk cb,
                 atn::NandBlock_unk* block); // inferred: NANDCreateDirAsync
-int fn_8061EF10(const char* from, const char* to, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: NANDMoveAsync
+int NANDMoveAsync(const char* from, const char* to, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: NANDMoveAsync
 int fn_8061E5C0(const char* path, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: NANDDeleteAsync
 int fn_80622050(const char* path, unsigned char* type); // inferred: NANDGetType
 int fn_80621C50(char* path);                            // inferred: NANDGetCurrentDir
 int fn_80621B80(const char* path);                      // inferred: NANDChangeDir
-int fn_8061EBE0(const char* path, unsigned char perm, unsigned char attr); // inferred: NANDCreateDir
-int fn_8061E270(const char* path, unsigned char perm, unsigned char attr); // inferred: NANDCreate
+int NANDCreateDir(const char* path, unsigned char perm, unsigned char attr); // inferred: NANDCreateDir
+int NANDCreate(const char* path, unsigned char perm, unsigned char attr); // inferred: NANDCreate
 }
 
 extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, int align, int heap, const char* name,
@@ -220,7 +220,7 @@ void NandManager::OpenTmp_unk() {
     } else {
         mState = 4;
         NANDSetUserData(&mBlock, this);
-        mError = fn_800A4494(fn_8061E370(tmp, 0x34, 0, CreateDone_unk, &mBlock));
+        mError = fn_800A4494(NANDCreateAsync(tmp, 0x34, 0, CreateDone_unk, &mBlock));
     }
 }
 
@@ -253,7 +253,7 @@ void NandManager::vf10() {
                 TmpPath_unk(tmp);
                 mState = 4;
                 NANDSetUserData(&mBlock, this);
-                int err = fn_800A4494(fn_8061E370(tmp, 0x34, 0, CreateDone_unk, &mBlock));
+                int err = fn_800A4494(NANDCreateAsync(tmp, 0x34, 0, CreateDone_unk, &mBlock));
                 mError = err;
                 if (err != 0) {
                     SetError_unk(err);
@@ -264,7 +264,7 @@ void NandManager::vf10() {
             case 1: {
                 mState = 4;
                 NANDSetUserData(&mBlock, this);
-                int err = fn_800A4494(fn_8061EC60(mPath, 0x34, 0, CreateDone_unk, &mBlock));
+                int err = fn_800A4494(NANDCreateDirAsync(mPath, 0x34, 0, CreateDone_unk, &mBlock));
                 mError = err;
                 if (err != 0) {
                     SetError_unk(err);
@@ -542,7 +542,7 @@ void NandManager::vf10() {
                 {
                     std::basic_string<char> dst = fn_8006B0C8(std::basic_string<char>(mPath));
                     NANDSetUserData(&mBlock, this);
-                    err = fn_800A4494(fn_8061EF10(tmp, dst.c_str(), MoveDone_unk, &mBlock));
+                    err = fn_800A4494(NANDMoveAsync(tmp, dst.c_str(), MoveDone_unk, &mBlock));
                 }
                 mError = err;
                 if (err != 0) {
@@ -1012,7 +1012,7 @@ extern "C" int fn_800A5218(const char* path, int offset, const void* data, int s
     }
     switch (fn_80621B80(dir)) {
     case -12:
-        if (fn_8061EBE0(dir, 0x30, 0) != 0) {
+        if (NANDCreateDir(dir, 0x30, 0) != 0) {
             fn_80621B80(cur);
             return 0;
         }
@@ -1035,7 +1035,7 @@ extern "C" int fn_800A5218(const char* path, int offset, const void* data, int s
     int r = NANDOpen(full, &info, 2);
     if (r != 0) {
         if (r == -12) {
-            fn_8061E270(full, 0x30, 0);
+            NANDCreate(full, 0x30, 0);
             if (NANDOpen(full, &info, 2) != 0) {
                 return 0;
             }
