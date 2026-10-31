@@ -14,6 +14,10 @@ DSIOResult __TRK_write_console(__file_handle handle, ui8* buffer, size_t* count,
     return __write_file(1, buffer, count, ref_con);
 }
 
+int __close_console(__file_handle handle){
+    return __close_file(handle);
+}
+
 DSIOResult __read_file(__file_handle handle, ui8* buffer, size_t* count, __ref_con ref_con){
     return __access_file(handle, buffer, count, ref_con, kDSReadFile);
 }
@@ -22,20 +26,21 @@ DSIOResult __write_file(__file_handle handle, ui8* buffer, size_t* count, __ref_
     return __access_file(handle, buffer, count, ref_con, kDSWriteFile);
 }
 
-//unused
-DSIOResult __open_file(){
-}
+DSIOResult __close_file(__file_handle handle){
+    ui32 r0;
 
-//unused
-DSIOResult __close_file(){
-}
+    if(!GetTRKConnected()) return kDSIOError;
 
-//unused
-int __position_file(){
-}
+    r0 = TRKCloseFile(kDSCloseFile, handle);
 
-//unused
-int convertFileMode(){
+    switch((ui8)r0){
+        case kDSIONoError:
+            return kDSIONoError;
+        case kDSIOEOF:
+            return kDSIOEOF;
+        default:
+            return kDSIOError;
+    }
 }
 
 DSIOResult __access_file(__file_handle handle, ui8* buffer, size_t* count, __ref_con ref_con, MessageCommandID id){
@@ -58,6 +63,3 @@ DSIOResult __access_file(__file_handle handle, ui8* buffer, size_t* count, __ref
     }
 }
 
-//unused
-int __open_temp_file(){
-}

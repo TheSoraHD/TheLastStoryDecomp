@@ -4453,6 +4453,9 @@ PowerPC_EABI_Support/src/MetroTRK/msghndlr.c:
 	.data       start:0x807BAEB0 end:0x807BAF18
 	.sbss       start:0x80880328 end:0x80880330
 
+PowerPC_EABI_Support/src/MetroTRK/mslsupp.c:
+	.text       start:0x80678600 end:0x80678800
+
 PowerPC_EABI_Support/src/MetroTRK/targimpl.c:
 	.text       start:0x80678800 end:0x8067A024
 	.rodata     start:0x807651B8 end:0x80765240

@@ -12,6 +12,7 @@ extern "C"{
 DSIOResult __read_console(__file_handle, ui8*, size_t*, __ref_con);
 DSIOResult __read_file(__file_handle, ui8*, size_t*, __ref_con);
 DSIOResult __write_file(__file_handle, ui8*, size_t*, __ref_con);
+DSIOResult __close_file(__file_handle);
 DSIOResult __access_file(__file_handle, ui8*, size_t*, __ref_con, MessageCommandID);
 
 #ifdef __cplusplus

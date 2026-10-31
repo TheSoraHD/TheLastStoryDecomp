@@ -8,6 +8,9 @@ extern "C"{
 #endif
 
 ui32 TRKAccessFile(ui32, ui32, ui32*, ui8*);
+ui32 TRKOpenFile(ui32, ui32, ui32*, ui8*);
+ui32 TRKCloseFile(ui32, ui32);
+ui32 TRKPositionFile(ui32, ui32, ui32*, ui8);
 
 #ifdef __cplusplus
 }
