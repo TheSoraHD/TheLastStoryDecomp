@@ -303,6 +303,19 @@ float GameUIDuration_unk::fn_803CFC6C() {
 
 void GameUI::vf14() {}
 
+void GameUI::fn_803E4100() {
+    m748 = GameUIElem1C_unk();
+    m764 = GameUIElem1C_unk();
+    m780 = GameUIElem1C_unk();
+    for (int i = 0; i < 3; i++) {
+        m814[i * 2]->m100 = m814[i * 2]->mA0;
+    }
+    for (int i = 0; i < 3; i++) {
+        m814[i * 2 + 1]->m100 = m814[i * 2 + 1]->mA0;
+    }
+    m834 = 0;
+}
+
 bool GameUI::fn_803E43A4() {
     return m1130 != 0;
 }
@@ -493,6 +506,25 @@ void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {
     if (!m25CC.Full_unk()) {
         new (&m25CC.m[m25CC.m00]) GameUIElem10_unk(chara, count, max, arg);
         m25CC.m00++;
+    }
+}
+
+// NONMATCHING: 90.4% - the original reloads the count for the slot and stores the temporary after it
+void GameUI::fn_803E6BF0(unsigned int id, int value) {
+    for (unsigned int i = 0; i < m3F0.mCount; i++) {
+        unsigned int v = m3F0.mData[i].m08;
+        if (v == id) {
+            m3F0.mData[i].mFrames = 0;
+            m3F0.mData[i].m00 = value;
+            return;
+        }
+    }
+    if (m3F0.mCount < 32) {
+        GameUIEntry_unk e;
+        e.m00 = value;
+        e.mFrames = 0;
+        e.m08 = id;
+        m3F0.PushBack_unk(e);
     }
 }
 

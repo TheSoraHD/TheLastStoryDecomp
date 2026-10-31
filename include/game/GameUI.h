@@ -226,6 +226,7 @@ public:
 
     void fn_803CF740();
     void fn_803CF74C();
+    void fn_803E4100();
     bool fn_803E43A4();
     void fn_803E43B8(int on);
     void fn_803E4434(int on); // inferred: names invented for the fields set here
@@ -244,6 +245,7 @@ public:
     void fn_803E656C();
     void fn_803E65F8();
     void fn_803E6850(CharaTask* chara, int count, int max, int arg); // inferred: shows a counter
+    void fn_803E6BF0(unsigned int id, int value);
     bool fn_803E6C88(unsigned int id);
 
     float m48;
@@ -293,7 +295,7 @@ public:
     GameUIElem1C_unk m7C0;
     GameUIElem1C_unk m7DC;
     GameUIElem1C_unk m7F8;
-    int m814[8];
+    GameUIGauge_unk* m814[8]; // inferred: pairs of gauges (fn_803E4100)
     int m834;
     int m838;
     GameUIGauge_unk* m83C;                     // 0x83C
