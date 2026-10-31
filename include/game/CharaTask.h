@@ -189,6 +189,18 @@ class GimmickCommon;
 
 struct SkillRef_unk;
 
+// inferred: object at CharaTask+0xD2C; its +0x218 points to an object whose +0x8C is a character
+// (GameUI::fn_803DCA84 compares it with the character). Names invented.
+struct CharaLinkTarget_unk {
+    unsigned char m00[0x8C];
+    CharaTask* m8C;
+};
+struct CharaLink_unk {
+    unsigned char m00[0x218];
+    CharaLinkTarget_unk* m218;
+    CharaTask* GetChara_unk() { return m218 != 0 ? m218->m8C : 0; }
+};
+
 struct CharaC58_unk {
     CharaC58_unk();
     atn::Vector3 fn_8011BF3C(int arg); // inferred: a position of mC4 (vf54 of mD0 when it is set)
@@ -205,7 +217,7 @@ struct CharaC58_unk {
     int mC8;
     CharaTask* mCC; // 0xD24: inferred: character followed in mode 9
     GimmickCommon* mD0; // 0xD28: inferred: gimmick (its position, vf54, is used by CharaTask::fn_80154488)
-    int mD4;
+    CharaLink_unk* mD4; // 0xD2C: inferred: the GameUI ring is highlighted when it links back to the character
     unsigned int mD8; // 0xD30: inferred: flags (bit 2 is set by fn_8011BEB8)
     SkillRef_unk* mDC; // 0xD34: inferred: skill in use (its id is passed to fn_80219E6C)
     unsigned short mHeld_unk : 1; // 0xD38: inferred: set while held by gmk::InteractionSpot

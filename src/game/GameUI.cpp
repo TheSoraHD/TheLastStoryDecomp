@@ -11,6 +11,8 @@
 #include "game/HitInfo_unk.h"
 #include "atn/SoundRef.h"
 #include "string.h"
+#include "game/TacView.h"
+#include "atn/DrawHelper.h"
 extern "C" int sprintf(char* s, const char* format, ...);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -585,6 +587,58 @@ void GameUI::fn_803D8344() {
         fn_80239DAC(lbl_8087F3C0, m1554, 0, 0);
         lbl_8087F3C0->mB8 = 0;
         m15B8 = 0;
+    }
+}
+
+// inferred: ring drawn under a character (textures mE34 and mE64); it spins while the tactical view points
+// at the character, and `fade` goes up or down by one each frame (0..8) and widens it
+// NONMATCHING: 98.7% - the original loads TacView::m48 once and compares it with 2 and then with 0 (MWCC
+// folds the two compares or reloads the member); register numbers follow
+void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
+    bool selected = false;
+    atn::Vector3 pos = ((atn::Matrix3x4*)chara->mMotion.mMtx)->GetTrans_unk();
+    atn::Vector3 rot(-1.5707964f, 0.0f, 0.0f);
+    float size = 3.5f * (2.0f * chara->m5B0);
+    pos.y += 6.0f;
+    int kind = chara->m5C->m122;
+    TacView* tac = lbl_8087F9F8;
+    if (tac != 0 && tac->mA70 != 0 && tac->m48 != 2 && tac->IsIdle_unk() && tac->m4C == chara &&
+        tac->m15D8 == 0) {
+        selected = true;
+    }
+    if (selected) {
+        rot.y += mDD0;
+        *fade += 1.0f;
+    } else {
+        *fade -= 1.0f;
+    }
+    *fade = (0.0f > (8.0f < *fade ? 8.0f : *fade)) ? 0.0f : (8.0f < *fade ? 8.0f : *fade);
+    unsigned int white = 0xFFFFFF;
+    bool linked = false;
+    size += *fade;
+    if (kind == 2 || kind == 3 || chara->mFlag22 == 1 ||
+        (chara->mC58.mD4 != 0 && chara->mC58.mD4->GetChara_unk() == chara)) {
+        linked = true;
+    }
+    unsigned int rgb = 0x0A0AFF;
+    if (chara->mType == 2) {
+        rgb = 0xFF3C0A;
+    }
+    unsigned int color;
+    if (linked) {
+        color = rgb | 0xFF000000;
+        white |= 0xFF000000;
+        size *= 1.1f;
+    } else {
+        color = rgb | 0x80000000;
+        white |= 0x20000000;
+    }
+    if ((lbl_8087F9F8 == 0 || lbl_8087F9F8->m15D8 == 0) && lbl_8087F610 == 0) {
+        atn::Vector2_unk uv0(0.0f, 0.0f);
+        atn::Vector2_unk uv1(1.0f, 1.0f);
+        atn::Vector3 scale(size, size, size);
+        lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, white, 0, (int)&mE34, 0, -11.0f);
+        lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, color, 0, (int)&mE64, 0, -10.0f);
     }
 }
 

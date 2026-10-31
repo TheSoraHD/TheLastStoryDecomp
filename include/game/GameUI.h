@@ -347,6 +347,7 @@ public:
     void fn_803E6890(CharaTask* chara, HitInfo_unk* hit); // inferred: adds the icon of a skill
     void fn_803E6ADC(const atn::Vector3& a, const atn::Vector3& b);
     void fn_803E6BB4(CharaTask* target); // inferred: new target
+    void fn_803DCA84(CharaTask* chara, float* fade);
     void fn_803E6BF0(unsigned int id, int value);
     bool fn_803E6C88(unsigned int id);
 
