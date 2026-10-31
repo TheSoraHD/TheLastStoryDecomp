@@ -53,7 +53,7 @@ public:
 
     // inferred: members cleared by the constructor (0x800E2AF8); names keep the offsets
     int m1424;
-    int m1428;
+    CharaTask* m1428; // inferred: character of the combined attack (fn_800E7F04)
     int m142C;
     int m1430;
     int m1434; // inferred: frame counter (Em209BigGolem counts the death sequence down from 30)

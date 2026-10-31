@@ -1,5 +1,8 @@
 #include "game/BattleCharaTask.h"
 #include "game/GameUI.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
+#include "game/HomingBullet.h"
 #include "game/GameConfig_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/GimmickManager.h"
@@ -63,6 +66,62 @@ extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
+// inferred: colour as four floats (as in game/CharaTask.cpp)
+struct Color4f_unk {
+    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r, g, b, a;
+};
+extern "C" void fn_80107168(Effect_unk* mgr, int id, int a, int b, atn::Model* model, const atn::Vector3* pos,
+                            const atn::Vector3* rot, const Color4f_unk* color, float scale); // inferred: effect of a skill
+extern "C" void fn_80107208(Effect_unk* mgr, int id, const atn::Vector3* pos, float scale);
+extern "C" void fn_8010AB94(Effect_unk* mgr); // inferred: starts the combined attack effect
+extern "C" void* fn_80210220(int id); // inferred: record of the parameters (result unused here)
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+// inferred: state checks of CharaTask written with a result flag (the original materializes each bool);
+// names invented
+static inline bool IsActiveB_unk(CharaTask* c) {
+    bool r = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsFreeB_unk(CharaTask* c) {
+    bool r = false;
+    if (IsActiveB_unk(c) && (c->mStatus.m0C & 0x20) != 0x20) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsGrappledB_unk(CharaTask* c) {
+    bool r = false;
+    if (c->m55C == 6 && c->m560 == 28) {
+        r = true;
+    }
+    return r;
+}
+static inline bool CanActB_unk(CharaTask* c) {
+    bool r = false;
+    if (IsFreeB_unk(c) && !IsGrappledB_unk(c)) {
+        r = true;
+    }
+    return r;
+}
+// inferred: front direction of the character (as in game/Em206EggMonster.cpp; name invented)
+static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &v, &v);
+    return v;
+}
 extern "C" void fn_8010220C(Effect_unk* mgr, int arg);
 // inferred: target in front of the character within radius/theta
 extern "C" CharaTask* fn_800FFE68(Effect_unk* mgr, CharaTask* chara, const atn::Vector3* dir, int a, int b,
@@ -612,6 +671,102 @@ void BattleCharaTask::fn_800E7BB0() {
         if (index == 0 || index == 2) {
             fn_800E7F04();
         }
+    }
+}
+
+// NONMATCHING: 97.4% - stack layout: the original frame is 0x10 bigger (0x14 bytes between the direction and the
+// position of the loop, 8 more above the homing parameters) and keeps the addresses of the loop vectors in
+// r24-r26; the code otherwise matches (state checks with result flags, homing declared outside the loop)
+// inferred: combined attack: the button starts it on this character and, when it is ready (mFlag28 of the
+// partner), fires the bullets of the explosion skill (level from fn_8012F3D8) at up to 7 enemies around
+void BattleCharaTask::fn_800E7F04() {
+    GameConfig_unk* config = lbl_8087F0A8;
+    fn_80210220(config->mParamIndex);
+    if (m1428 != 0 && m1428->mFlag28) {
+        if (lbl_8087F0A8->mInput.fn_801231D0(8) && m1430 <= 0 && config->mButtonReset != 0) {
+            HitInfo_unk* skill = 0;
+            int index = fn_80219558(m50);
+            if (config->mExplosion != 0 && mStatus.fn_801346C8(0x3D) && mStatus.fn_8012F3D8() > 0 &&
+                lbl_8087F048 != 0) {
+                int level = mStatus.fn_8012F3D8();
+                if (level == 1) {
+                    skill = fn_80219E6C(index == 2 ? 0x201 : 0x1F7);
+                } else if (level == 2) {
+                    skill = fn_80219E6C(index == 2 ? 0x202 : 0x1F8);
+                } else {
+                    skill = fn_80219E6C(index == 2 ? 0x203 : 0x1F9);
+                }
+            }
+            if (skill != 0) {
+                Effect_unk* mgr = lbl_8087F048;
+                fn_800FAB80(mgr, this, skill, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+                fn_80107168(lbl_8087F048, skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
+                            &color, 1.0f);
+                fn_80107208(lbl_8087F048, skill->m04, &m1428->mPos, 1.0f);
+                HitInfo_unk* sub = skill->m6C > 0 ? fn_80219E6C(skill->m6C) : 0;
+                if (sub != 0) {
+                    FixedArray_unk<CharaTask*, 32> targets;
+                    HomingParam_unk homing;
+                    for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+                        if (CanActB_unk(e) && (e->m54C & 0x2000) != 0x2000 && !fn_8016F3D0(e, 1) &&
+                            (e->mStatus.m0C & 0x800) == 0x800) {
+                            targets.PushBack_unk(e);
+                        }
+                    }
+                    int count = targets.mCount;
+                    if (targets.mCount < 7) {
+                        count = 7;
+                    }
+                    int id = fn_800F8548(lbl_8087F048);
+                    for (int i = 0; i < count; i++) {
+                        atn::Matrix3x4 rot;
+                        PSMTXRotRad(rot.m, 'y', i * (6.2831855f / count));
+                        atn::Vector3 pos;
+                        pos = FrontDir_unk(mRot);
+                        PSMTXMultVec(rot.m, &pos, &pos);
+                        pos.y += 0.4f;
+                        if (targets.mCount != 0) {
+                            homing.mAccel = 0.0f;
+                            homing.m08 = -1.0f;
+                            homing.mMaxSpeed = 10.0f;
+                            homing.mTime = 300.0f;
+                            homing.mNode = 0;
+                            homing.mTurn = 1.2566371f;
+                            homing.mTarget = targets[i % targets.mCount];
+                            homing.mDelay = 0.0f;
+                            homing.mCount = id;
+                            Effect_unk* mgr = lbl_8087F048;
+                            fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, &homing, 0x2006, 0, 0.0f, 1.0f);
+                        } else {
+                            Effect_unk* mgr = lbl_8087F048;
+                            fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, 0, 2, 0, 0.0f, 1.0f);
+                        }
+                    }
+                }
+            }
+            m1428->fn_80164DCC(skill == 0);
+            m1428 = 0;
+            m14A8 |= 0x8000000;
+        }
+    } else if ((m1428 == 0 || !m1428->mFlag27) && fn_8016DDB0(1) && m1430 <= 0 && mStatus.fn_801346C8(10) &&
+               lbl_8087F610 == 0) {
+        bool pressed = false;
+        if (lbl_8087F0A8->mInput.fn_801231D0(8)) {
+            pressed = true;
+        }
+        if (pressed) {
+            m1428 = this;
+            if (this != 0) {
+                fn_801647BC();
+                m14A8 |= 0x8000000;
+                m1430 = config->mCoolDownFrame;
+            }
+            fn_8010AB94(lbl_8087F048);
+        }
+    }
+    if (m1430 > 0) {
+        m1430--;
     }
 }
 
