@@ -56,7 +56,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800EB49C(CharaTask* chara);     // inferred: BattleCharaTask (death?)
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -277,7 +276,7 @@ void Em401_01_WhiteLeoPard::fn_8031FD34(HitMsg_unk* msg) {
         if (!(m55C == 6 && (m560 == 23 || m560 == 0x3B))) {
             fn_8015E7A0(msg->m28 * 5.0f, -1, 0);
         }
-        fn_800EB49C(this);
+        fn_800EB49C();
     }
 }
 

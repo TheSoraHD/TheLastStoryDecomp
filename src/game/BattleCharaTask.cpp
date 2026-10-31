@@ -46,6 +46,7 @@ extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
+extern "C" void fn_8010220C(Effect_unk* mgr, int arg);
 // inferred: target in front of the character within radius/theta
 extern "C" CharaTask* fn_800FFE68(Effect_unk* mgr, CharaTask* chara, const atn::Vector3* dir, int a, int b,
                                   float radius, float theta);
@@ -215,6 +216,10 @@ void BattleCharaTask::vf14() {
     if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
+}
+
+void BattleCharaTask::fn_800E426C() {
+    fn_8010220C(lbl_8087F048, 0);
 }
 
 // NONMATCHING: 99.96% - stack slots of the second and third rotation matrices swapped (~8 forms)
@@ -740,6 +745,10 @@ void BattleCharaTask::fn_800EB270(int id) {
     } else {
         fn_801561E4(fn_80219E6C(id));
     }
+}
+
+void BattleCharaTask::fn_800EB49C() {
+    vf44();
 }
 
 // NONMATCHING: 98.3% - this stays in r3 for the first test, and dir/aim get r30/r29 the other way round
