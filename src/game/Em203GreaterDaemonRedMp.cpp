@@ -674,6 +674,125 @@ atn::Vector3 Em203GreaterDaemonRedMp::vf64(int center) {
     return result;
 }
 
+// inferred: nonzero from `margin` frames before the end of the motion (name invented)
+inline int Em203GreaterDaemonRedMp::IsNearEnd_unk(float margin) {
+    float frame = mMotion.mTracks[0].m08;
+    return frame >= mMotion.fn_80097D7C(0) - margin;
+}
+
+// NONMATCHING: 99.89% - Vector3 copy crossings (r3/r4 into m157C/m1588, r4/r5 into m1560; known blocker)
+// inferred: state 6 decision: the sub daemon first flies to the first high hover point (state 19);
+// otherwise picks the next skill of the current list ("1st..3rdHoverSkill"/"1st..3rdFlySkill" by m14E0
+// and the "StunHPRate" step m1614)
+void Em203GreaterDaemonRedMp::fn_8029E950() {
+    if (m165C == 0 && m1644 != 0) {
+        m58C = 19;
+        ResetState_unk();
+        PlayMotion_unk(0x14A, 0, 0, 1.0f);
+        m157C = mPos;
+        m1588 = m15A8[0]->mPos;
+    } else if (m14D4 != 0) {
+        atn::Vector3 target = m14D4->mPos;
+        atn::Vector3 dir = target - mPos;
+        dir.Length_unk();
+        if (m14E4 == 0) {
+            if (fn_802A42CC()) {
+                fn_802A239C(0);
+            }
+            m14E4 = 2;
+            m14E0 = 0;
+        } else if (m14E4 == 1) {
+            if (fn_802A42CC()) {
+                fn_802A239C(1);
+            }
+            m14E4 = 2;
+            m14E0 = 1;
+        } else if (m14E4 == 2) {
+            int skill = 0;
+            if (m1508[m14E0][m1614].size() != 0) {
+                skill = m1508[m14E0][m1614][m1550];
+                if (m1648 != 0 && m1648->CanAct_unk()) {
+                    if (m1648->fn_802A49C8()) {
+                        skill = 6;
+                    }
+                    if (skill == 6 && !m1648->fn_802A49C8()) {
+                        skill = 0;
+                    }
+                }
+                switch (skill) {
+                case 2:
+                    m15F8 = m14F8;
+                    if (m15F8 != 0) {
+                        m58C = 9;
+                        ResetState_unk();
+                        fn_8016E970(6);
+                        m560 = 4;
+                        m590 = fn_800F8548(lbl_8087F048);
+                        PlayMotion_unk(0x66, 1, 0, 1.5f);
+                    }
+                    break;
+                case 4:
+                    m58C = 10;
+                    ResetState_unk();
+                    fn_8016E970(6);
+                    m560 = 4;
+                    m590 = fn_800F8548(lbl_8087F048);
+                    PlayMotion_unk(0x66, 1, 0, 1.5f);
+                    m14D8 = 0;
+                    m15F8 = m14E8;
+                    break;
+                case 6:
+                    if (!IsNearEnd_unk(2.0f)) {
+                        return;
+                    }
+                    fn_802A2600();
+                    break;
+                case 1:
+                    m15F8 = m14FC;
+                    if (m15F8 != 0) {
+                        m58C = 9;
+                        ResetState_unk();
+                        fn_8016E970(6);
+                        m560 = 4;
+                        m590 = fn_800F8548(lbl_8087F048);
+                        PlayMotion_unk(0x66, 1, 0, 1.5f);
+                    }
+                    break;
+                case 5:
+                    if (!IsNearEnd_unk(2.0f)) {
+                        return;
+                    }
+                    m58C = 11;
+                    ResetState_unk();
+                    fn_8016E970(6);
+                    m560 = 4;
+                    m590 = fn_800F8548(lbl_8087F048);
+                    PlayMotion_unk(0x13F, 0, 0, 1.0f);
+                    break;
+                }
+                m1550++;
+                if (m1550 >= (int)m1508[m14E0][m1614].size() - 1) {
+                    m1550 = 0;
+                }
+                skill = m1508[m14E0][m1614][m1550];
+            }
+            if (m14E0 == 0) {
+                if (skill != 6) {
+                    m14E4 = 0;
+                }
+            } else if (m14E0 == 1) {
+                if (skill != 6) {
+                    m14E4 = 1;
+                }
+            }
+        } else if (m14E4 == 4) {
+            StartState13_unk();
+        } else if (m14E4 == 5) {
+            fn_802A35B0(5);
+        }
+    }
+}
+
 // NONMATCHING: 99.89% - stack slots of the spine and target vectors swapped
 // inferred: picks the next ground attack: claw when close (alternating with fn_802A2F48 every 3 times),
 // tackle when far, or turns when the target is behind; `wait` waits for GrandAttackTime/GrandBreathTime
@@ -1133,7 +1252,7 @@ void Em203GreaterDaemonRedMp::fn_802A2070() {
 }
 
 // inferred: starts the hovering to the route point m1570 (kind 0: state 7, 1: state 8)
-void Em203GreaterDaemonRedMp::fn_802A239C(int kind) {
+__declspec(noinline) void Em203GreaterDaemonRedMp::fn_802A239C(int kind) {
     if (kind == 0) {
         m58C = 7;
         m14E0 = 0;
