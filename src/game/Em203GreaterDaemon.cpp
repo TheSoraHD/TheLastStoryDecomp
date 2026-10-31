@@ -808,6 +808,16 @@ static inline atn::Vector3 Front_unk(const float& angle) {
     return front;
 }
 
+// inferred: same rotation built with atn::Matrix3x4 (as Front_unk of game/Em203GreaterDaemonRed.cpp; name
+// invented)
+static inline atn::Vector3 FrontM_unk(const float& angle) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(angle);
+    PSMTXMultVec(m.m, &front, &front);
+    return front;
+}
+
 // inferred: moves along the spline of the four route points `points` (t: progress 0..1)
 void Em203GreaterDaemon::fn_8028AA38(const atn::Vector3* points, float t) {
     atn::Vector3 pos = fn_8028AC70(points[0], points[1], points[2], points[3], t < 1.0f ? t : 1.0f);
@@ -1376,14 +1386,15 @@ inline void Em203GreaterDaemon::StartTackle_unk() {
 }
 
 // inferred: state 13 (dives to the ground, then tackles)
-// NONMATCHING: 91.91% - stack slots and camera look stores
 void Em203GreaterDaemon::fn_8028DF34() {
-    if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
         StartTackle_unk();
         return;
     }
     if (mMotion.mTracks[0].m08 <= 42.0f) {
-        mPos += m151C * 0.023809524f;
+        float k = 0.023809524f;
+        mPos += m151C * k;
     }
     if (m14DC != 0 && mMotion.mTracks[0].m08 < 41.0f && m14DC != 0 && mMotion.mTracks[0].m08 >= 40.0f) {
         ShakeCamera_unk(10, 1.0f, 2.0f);
@@ -1398,12 +1409,13 @@ void Em203GreaterDaemon::fn_8028DF34() {
 }
 
 // inferred: state 15 (turns to the target and strikes with the claws)
-// NONMATCHING: 84.13% - register allocation
 void Em203GreaterDaemon::fn_8028E1A0() {
-    atn::Vector3 dir = m14B0->mPos - mPos;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
     fn_801C3910(dir);
-    dir.Normalize_unk();
-    if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+    PSVECNormalize(&dir, &dir);
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
         StartTackle_unk();
         return;
     }
@@ -1412,14 +1424,9 @@ void Em203GreaterDaemon::fn_8028E1A0() {
     }
     if ((mMotion.mTracks[0].m08 > 36.0f && mMotion.mTracks[0].m08 < 40.0f) ||
         (mMotion.mTracks[0].m08 > 56.0f && mMotion.mTracks[0].m08 < 60.0f)) {
-        atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        atn::Matrix3x4 m;
-        m.fn_8013A13C(mRot.y);
-        PSMTXMultVec(m.m, &front, &front);
-        atn::Vector3 pos = spine + front * 20.0f;
+        atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
+        spine += FrontM_unk(mRot.y) * 20.0f;
         fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
-        (void)pos;
     } else {
         m590 = fn_800F8548(lbl_8087F048);
     }
