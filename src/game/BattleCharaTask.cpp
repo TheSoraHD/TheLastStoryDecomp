@@ -11,6 +11,7 @@
 #include "game/BattleResult.h"
 #include "game/SetConfig.h"
 #include "game/CrossbowMenuTask.h"
+#include "game/Inventory.h"
 #include "atn/SoundRef.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -72,6 +73,23 @@ extern "C" void* lbl_8087EE68; // inferred: party manager (as in game/CharaTask.
 // inferred: result of fn_800185B4 (as in game/CharaTask.cpp)
 struct MagicTarget_unk;
 extern "C" MagicTarget_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
+extern "C" int fn_803754F0(Field_unk* field); // inferred: an event scene is running
+extern "C" int fn_80375D0C(Field_unk* field);  // inferred: level cap of the field
+// inferred: player manager (lbl_8087F8A0, as in game/CharaTask.cpp)
+struct PlayerManager_unk {
+    unsigned char m00[0x48];
+    CharaTask* mHead;
+};
+extern "C" PlayerManager_unk* lbl_8087F8A0;
+// inferred: experience of a kill (as in gmk/FlyObjManager.cpp)
+extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
+extern "C" void fn_80449448(int* a, int* b, int level, int cap);
+extern "C" void fn_80449A18(void* mgr, int killer, int level, int exp, int arg4, float rate);
+// inferred: popup texts (lbl_8087F8A8, as in gmk/FlyObjManager.cpp)
+extern "C" void* lbl_8087F8A8;
+extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
+                            int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
+extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -614,6 +632,55 @@ void BattleCharaTask::fn_800EB270(int id) {
         }
     } else {
         fn_801561E4(fn_80219E6C(id));
+    }
+}
+
+// inferred: experience of the kill (popup text and the inventory)
+void BattleCharaTask::fn_800EB7A0() {
+    if (lbl_8087F430 != 0 && fn_803754F0(lbl_8087F430) != 0) {
+        return;
+    }
+    if (lbl_8087F0A8->mAddExpImmediately != 0 && lbl_8087F610 == 0 && !mFlag16 && mType == 2 &&
+        (mStatus.m0C & 0x100) != 0x100 && (mStatus.m0C & 0x10000) != 0x10000) {
+        CharaTask* killer = (CharaTask*)m13B0;
+        if (killer != 0 && killer->mType == 2 && (killer->mStatus.m0C & 0x10000) != 0x10000) {
+            return;
+        }
+        int level = mStatus.fn_80133BD8(0);
+        int exp = mStatus.mParamB.m80;
+        CharaTask* player = lbl_8087F8A0->mHead;
+        int a = 0;
+        int b = 0;
+        int cap = 4;
+        fn_804491F4(&a, &b, level, exp, 0, 1.0f);
+        if (lbl_8087F430 != 0) {
+            cap = fn_80375D0C(lbl_8087F430);
+        }
+        if (level > cap && lbl_8087F0A8->mCurrentLevel == 3) {
+            cap = level;
+        }
+        fn_80449448(&a, &b, player->mStatus.mParamA.m78, cap);
+        a += b;
+        int kind = 0;
+        atn::Vector3 pos = mColli.m3C + atn::Vector3(0.0f, 2.0f * m5B0, 0.0f);
+        float rate = 1.0f;
+        if (mC58.m11C.IsFlag_unk(4) || (!mC58.m11C.fn_8011D21C() && mC58.m11C.IsFlag_unk(2))) {
+            kind = 2;
+            rate *= lbl_8087F0A8->mPickSucceedBounus;
+            if (lbl_8087F430 != 0) {
+                lbl_8087F430->fn_803750E4(0xEB);
+            }
+        }
+        if (fn_8017CB2C()) {
+            kind = 2;
+            rate *= lbl_8087F0A8->mSummonExpBounus;
+        }
+        if (lbl_8087F8A8 != 0) {
+            wchar_t text[0x40];
+            swprintf(text, 0x20, L"%d", a);
+            fn_8054D794(lbl_8087F8A8, 2, text, &pos, kind, 0, 1, 0, 0, 0, 1, -1, -1);
+        }
+        fn_80449A18(Inventory::instance_, m13B0, level, exp, 0, rate);
     }
 }
 
