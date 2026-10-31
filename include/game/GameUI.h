@@ -238,6 +238,11 @@ public:
     void fn_803E58CC();
     void fn_803E58E4();
     bool fn_803E5940();
+    void fn_803E63D0();
+    bool fn_803E644C();
+    void fn_803E64F0();
+    void fn_803E656C();
+    void fn_803E65F8();
     void fn_803E6850(CharaTask* chara, int count, int max, int arg); // inferred: shows a counter
     bool fn_803E6C88(unsigned int id);
 
@@ -407,11 +412,12 @@ public:
         GameUIElem10_unk m[4];
     } m25CC;                                   // 0x25CC
     int m2610[7];
+    // inferred: three gauges and their state (fn_803E63D0 to fn_803E65F8)
     struct W262C_unk {
         W262C_unk() : m00(0), m04(0), m08(0), m0C(0) {}
-        int m00;
-        int m04;
-        int m08;
+        GameUIGauge_unk* m00;
+        GameUIGauge_unk* m04;
+        GameUIGauge_unk* m08;
         int m0C;
     } m262C;
     int m263C;

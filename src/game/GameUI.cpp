@@ -14,6 +14,10 @@ struct GameUIField_unk {
     atn::Task* m10D8;
 };
 extern "C" GameUIField_unk* lbl_8087F430;
+extern "C" int fn_80370C2C(GameUIField_unk* field);
+extern "C" void fn_80370BD0(GameUIField_unk* field, int frames, int arg, float speed);
+extern "C" void fn_80370B78(GameUIField_unk* field, unsigned int color, int frames, int arg, float speed);
+extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
 extern "C" void fn_803E668C(GameUI* ui);
@@ -406,6 +410,83 @@ bool GameUI::fn_803E5940() {
         return (mDC4->mFlags & 4) != 4 && !mDC4->IsEnd_unk();
     }
     return false;
+}
+
+void GameUI::fn_803E63D0() {
+    if (m262C.m00 != 0) {
+        fn_800D2338(m262C.m00);
+        m262C.m00 = 0;
+    }
+    if (m262C.m04 != 0) {
+        fn_800D2338(m262C.m04);
+        m262C.m04 = 0;
+    }
+    if (m262C.m08 != 0) {
+        fn_800D2338(m262C.m08);
+        m262C.m08 = 0;
+    }
+    m262C.m0C = 0;
+}
+
+bool GameUI::fn_803E644C() {
+    if (m262C.m00 != 0 && (m262C.m00->mFlags & 2) != 2) {
+        return true;
+    }
+    if (m262C.m04 != 0 && (m262C.m04->mFlags & 2) != 2) {
+        return true;
+    }
+    if (m262C.m08 != 0 && (m262C.m08->mFlags & 2) != 2) {
+        return true;
+    }
+    if (!fn_80370C2C(lbl_8087F430)) {
+        return true;
+    }
+    return false;
+}
+
+void GameUI::fn_803E64F0() {
+    m262C.m00->fn_800D246C(0);
+    m262C.m00->FreezeTask();
+    m262C.m04->fn_800D246C(0);
+    m262C.m04->FreezeTask();
+    m262C.m08->fn_800D246C(0);
+    m262C.m08->FreezeTask();
+}
+
+void GameUI::fn_803E656C() {
+    if (m262C.m00 == 0 || m262C.m04 == 0 || m262C.m08 == 0) {
+        return;
+    }
+    if (m262C.m0C == 1 || m262C.m0C == 2) {
+        return;
+    }
+    m262C.m00->m100 = 0.0f;
+    m262C.m00->m104 = 1.0f;
+    m262C.m04->m100 = 0.0f;
+    m262C.m04->m104 = 1.0f;
+    m262C.m08->m100 = 0.0f;
+    m262C.m0C = 1;
+    if (lbl_8087F430 != 0) {
+        fn_80370BD0(lbl_8087F430, 30, 0, 1e-5f);
+    }
+}
+
+// NONMATCHING: 99.3% - f0/f1 of -1.0f and the second mA0 swapped
+void GameUI::fn_803E65F8() {
+    if (m262C.m00 == 0 || m262C.m04 == 0 || m262C.m08 == 0) {
+        return;
+    }
+    if (m262C.m0C == 3 || m262C.m0C == 0) {
+        return;
+    }
+    m262C.m00->m100 = m262C.m00->mA0;
+    m262C.m00->m104 = -1.0f;
+    m262C.m04->m100 = m262C.m04->mA0;
+    m262C.m04->m104 = -1.0f;
+    m262C.m0C = 3;
+    if (lbl_8087F430 != 0) {
+        fn_80370B78(lbl_8087F430, 0xFF000000, 30, 0, 1e-4f);
+    }
 }
 
 void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {
