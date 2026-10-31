@@ -1270,7 +1270,7 @@ extern "C" void fn_80073A6C(TevStats_unk* stats, int flags) {
 }
 
 
-extern "C" void fn_805F8DA0(const Mtx src, Mtx dst); // inferred: PSMTXInvXpose
+extern "C" void PSMTXInvXpose(const Mtx src, Mtx dst); // inferred: PSMTXInvXpose
 
 // inferred: 3x4 matrix cleared by its constructor
 struct ZeroMatrix3x4_unk : public atn::Matrix3x4 {
@@ -1331,7 +1331,7 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     rot.m[1][3] = 0.0f;
     rot.m[2][3] = 0.0f;
     atn::Matrix3x4 inv;
-    fn_805F8DA0(view->mShadowCamera.mView.m, inv.m);
+    PSMTXInvXpose(view->mShadowCamera.mView.m, inv.m);
     inv.m[0][3] = 0.0f;
     inv.m[1][3] = 0.0f;
     inv.m[2][3] = 0.0f;

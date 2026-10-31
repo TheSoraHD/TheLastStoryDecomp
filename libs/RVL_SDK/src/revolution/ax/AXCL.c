@@ -256,6 +256,10 @@ u32 AXGetMode(void) {
     return __AXClMode;
 }
 
+void AXSetCompressor(u32 comp) {
+    __AXCompressor = comp;
+}
+
 u16 AXGetAuxAReturnVolume(void) {
     return __AXAuxAVolume;
 }

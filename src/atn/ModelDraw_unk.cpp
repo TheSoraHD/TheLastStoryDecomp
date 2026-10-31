@@ -48,7 +48,7 @@ void GXCallDisplayList(const void* list, unsigned int size);
 }
 
 // inferred: PSMTXInverse + transpose (normal matrix of a position matrix)
-extern "C" void fn_805F8DA0(const Mtx src, Mtx dst);
+extern "C" void PSMTXInvXpose(const Mtx src, Mtx dst);
 // inferred: texture matrix from scale, rotation (sin, cos) and translation
 extern "C" void fn_800D5C84(Mtx m, float sx, float sy, float s, float c, float tx, float ty);
 
@@ -496,7 +496,7 @@ void fn_8009B9E8(Material_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mt
         mtx += mesh->m14;
         GXLoadPosMtxImm(*mtx, 0);
         Mtx n;
-        fn_805F8DA0(*mtx, n);
+        PSMTXInvXpose(*mtx, n);
         n[0][3] = 0.0f;
         n[1][3] = 0.0f;
         n[2][3] = 0.0f;
@@ -525,7 +525,7 @@ void fn_8009B9E8(Material_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mt
                 m = mtx[idx];
                 GXLoadPosMtxImm(m, i * 3);
                 Mtx n;
-                fn_805F8DA0(m, n);
+                PSMTXInvXpose(m, n);
                 n[0][3] = 0.0f;
                 n[1][3] = 0.0f;
                 n[2][3] = 0.0f;

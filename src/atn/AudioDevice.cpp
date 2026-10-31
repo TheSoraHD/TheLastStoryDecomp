@@ -1406,14 +1406,14 @@ extern "C" void fn_8004A2CC(AudioDevice* audio, int suspend, unsigned int mask, 
     }
 }
 
-extern "C" void fn_806095E0(int on);
+extern "C" void AXSetCompressor(unsigned long on);
 
 extern "C" void fn_8004A388(AudioDevice* audio, int on) {
     if (on != 0 && audio->m8CC == 0) {
-        fn_806095E0(1);
+        AXSetCompressor(1);
         audio->m8CC = 1;
     } else if (on == 0 && audio->m8CC != 0) {
-        fn_806095E0(0);
+        AXSetCompressor(0);
         audio->m8CC = 0;
     }
 }

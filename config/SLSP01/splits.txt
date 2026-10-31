@@ -3628,6 +3628,12 @@ RVL_SDK/src/revolution/os/OSIpc.c:
 	.sdata      start:0x8087E7A0 end:0x8087E7A4
 	.sbss       start:0x8087FC68 end:0x8087FC6C
 
+RVL_SDK/src/revolution/os/OSStateTM.c:
+	.text       start:0x805F68F0 end:0x805F7034
+	.data       start:0x807A9900 end:0x807A99C8
+	.bss        start:0x807CC060 end:0x807CC120
+	.sbss       start:0x8087FC70 end:0x8087FC90
+
 RVL_SDK/src/revolution/os/OSStateFlags.c:
 	.text       start:0x805F7760 end:0x805F7978
 	.data       start:0x807A9A10 end:0x807A9A38
@@ -3649,12 +3655,22 @@ RVL_SDK/src/revolution/os/__ppc_eabi_init.c:
 	.init       start:0x80004360 end:0x800043C4
 	.text       start:0x805F88C0 end:0x805F8980
 
+RVL_SDK/src/revolution/mtx/mtx.c:
+	.text       start:0x805F8980 end:0x805F93B4
+	.sdata      start:0x8087E7B8 end:0x8087E7C0
+	.sdata2     start:0x80888550 end:0x80888560
+
 RVL_SDK/src/revolution/mtx/mtxvec.c:
 	.text       start:0x805F93C0 end:0x805F9414
 
 RVL_SDK/src/revolution/mtx/mtx44.c:
 	.text       start:0x805F94B0 end:0x805F9638
 	.sdata2     start:0x80888560 end:0x80888578
+
+RVL_SDK/src/revolution/mtx/quat.c:
+	.text       start:0x805F99F0 end:0x805F9EBC
+	.rodata     start:0x80764798 end:0x807647A8
+	.sdata2     start:0x80888580 end:0x80888590
 
 RVL_SDK/src/revolution/dvd/dvd.c:
 	.text       start:0x805FA800 end:0x805FF4E4
@@ -3704,6 +3720,11 @@ RVL_SDK/src/revolution/ax/AXAux.c:
 	.text       start:0x806082D0 end:0x80608B64
 	.bss        start:0x807D1740 end:0x807D48C0
 	.sbss       start:0x8087FF08 end:0x8087FF50
+
+RVL_SDK/src/revolution/ax/AXCL.c:
+	.text       start:0x80608B70 end:0x80609668
+	.bss        start:0x807D48C0 end:0x807D49C0
+	.sbss       start:0x8087FF50 end:0x8087FF78
 
 RVL_SDK/src/revolution/ax/AXOut.c:
 	.text       start:0x80609670 end:0x80609EA8

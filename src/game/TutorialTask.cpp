@@ -255,13 +255,13 @@ extern "C" void fn_8037529C(TutorialField_unk* field, int a, int color, int b, i
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" void C_QUATSlerp(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* r,
                             float t);
-extern "C" void fn_805F9AB0(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
+extern "C" void C_QUATRotAxisRad(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
 
 // inferred: quaternion of a yaw (weak copy 0x805BB50C; name invented)
 inline atn::Quaternion_unk YawQuat_unk(float yaw) {
     atn::Quaternion_unk q;
     atn::Vector3 axis(0.0f, 1.0f, 0.0f);
-    fn_805F9AB0(&q, &axis, yaw);
+    C_QUATRotAxisRad(&q, &axis, yaw);
     return q;
 }
 // inferred: weak copy 0x805BB544 (name invented)
