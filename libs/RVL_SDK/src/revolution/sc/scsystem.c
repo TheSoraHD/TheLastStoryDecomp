@@ -97,7 +97,7 @@ typedef struct SCItem {
 } SCItem;
 
 const char* __SCVersion =
-    "<< RVL_SDK - SC \trelease build: Feb 27 2009 10:05:17 (0x4302_145) >>";
+    "<< RVL_SDK - SC \trelease build: Aug 23 2010 17:33:48 (0x4302_145) >>";
 
 static SCControl Control;
 static u8 ConfBuf[SC_CONF_MAX_SIZE] ALIGN(32);
@@ -138,6 +138,7 @@ static SCNameAndID NameAndIDTbl[SC_ITEM_MAX] = {
     {"BT.SENS", SC_ITEM_BT_SENS},   {"BT.SPKV", SC_ITEM_BT_SPKV},
     {"BT.MOT", SC_ITEM_BT_MOT},     {"BT.BAR", SC_ITEM_BT_BAR},
     {"DVD.CNF", SC_ITEM_DVD_CNF},   {"WWW.RST", SC_ITEM_WWW_RST},
+    {"MPLS.MOVIE", SC_ITEM_MPLS_MOVIE},
     {"IPL.TID", SC_ITEM_IPL_TID}};
 
 static void SetBgJobStatus(SCStatus status);
@@ -505,7 +506,7 @@ static SCStatus ParseConfBuf(u8* conf, u32 size) {
      * Item lookup table
      */
 
-    confLutEnd = confEnd - (SC_ITEM_MAX - 1) * sizeof(u16);
+    confLutEnd = confEnd - SC_ITEM_MAX * sizeof(u16);
 
     if (confBegin + itemOffset > confLutEnd) {
         goto _error;

@@ -58,6 +58,7 @@ typedef enum {
     // Miscellaneous settings
     SC_ITEM_DVD_CNF, // DVD config
     SC_ITEM_WWW_RST, // WWW restriction
+    SC_ITEM_MPLS_MOVIE, // inferred: added in the 2010 SDK (name in the DOL table)
     SC_ITEM_IPL_TID, // IPL title id
 
     SC_ITEM_MAX
