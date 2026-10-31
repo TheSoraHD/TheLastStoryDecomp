@@ -5236,3 +5236,8 @@ nw4r/src/snd/snd_InstancePool.cpp:
 
 nw4r/src/snd/snd_SoundHandle.cpp:
 	.text       start:0x807175E0 end:0x80717680
+
+nw4r/src/snd/snd_TaskManager.cpp:
+	.text       start:0x8071D260 end:0x8071DA10
+	.bss        start:0x8087D5D8 end:0x8087D620
+	.sbss       start:0x80880508 end:0x80880510
