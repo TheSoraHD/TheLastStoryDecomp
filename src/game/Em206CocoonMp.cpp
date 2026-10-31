@@ -522,16 +522,6 @@ void Em206CocoonMp::fn_802BD118() {
     fn_802BC4EC(rot, speed, m568 * scale);
 }
 
-void Em206CocoonMp::vf38(int arg) {
-    for (int i = 0; i < 11; i++) {
-        if (arg != 0) {
-            m1538[i].mFlags |= 1;
-        } else {
-            m1538[i].mFlags &= ~1;
-        }
-    }
-}
-
 // inferred: slowed by the status (name invented)
 inline bool IsSlowed_unk(const CharaStatus& s) {
     bool slow = true;
@@ -628,6 +618,16 @@ void Em206CocoonMp::fn_802BD480() {
             } else if (dist < 100.0f) {
                 StartAttack_unk(9, 0x14D, dir);
             }
+        }
+    }
+}
+
+void Em206CocoonMp::vf38(int arg) {
+    for (int i = 0; i < 11; i++) {
+        if (arg != 0) {
+            m1538[i].mFlags |= 1;
+        } else {
+            m1538[i].mFlags &= ~1;
         }
     }
 }
