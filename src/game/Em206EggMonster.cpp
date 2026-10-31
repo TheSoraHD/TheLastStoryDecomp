@@ -998,6 +998,26 @@ void Em206EggMonster::fn_802C4E80(int id, float radius, float angle) {
     }
 }
 
+// NONMATCHING: 99.97% - only the pool offsets ("righthand" of the unwritten vf10 comes before "head")
+// inferred: three damage spheres: the body and the "head" and "spine1" nodes (as Em309Ghoul::vf50)
+void Em206EggMonster::vf50() {
+    Item14_unk item;
+    item.m04.mCenter = mPos + m5A4;
+    item.m04.mCenter.y += item.m04.mRadius;
+    item.m04.mRadius = m5B0;
+    m624.push_back(item);
+    item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
+    item.m04.mCenter.y += 3.0f;
+    item.m04.mRadius = m5B0;
+    item.m00 = 4; item.m00 |= 8;
+    m624.push_back(item);
+    item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")) + m5A4;
+    item.m04.mRadius = m5B0;
+    item.m00 = 4; item.m00 |= 0xA;
+    m624.push_back(item);
+    mFlagB29 = 0;
+}
+
 // NONMATCHING: 96% - registers of the Vector3 copies (docs/mwcc-blockers.md, 3); pool offsets wait for vf50
 void Em206EggMonster::vf54() {
     if (m624.mSize != 0) {
