@@ -943,6 +943,36 @@ void Em203GreaterDaemonRedMp::fn_802A2600() {
     m1560 -= dir * 85.0f;
 }
 
+// inferred: starts state 15 (claw: turns from m1574 to the direction of the target m1578)
+void Em203GreaterDaemonRedMp::fn_802A2790() {
+    m58C = 15;
+    ResetState_unk();
+    fn_8016E970(6);
+    m560 = 4;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x15F, 0, 0, 1.0f);
+    atn::Vector3 target = m14D4->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    m1574 = mRot.y;
+    m1578 = dir.ToRotation_unk().y;
+}
+
+// inferred: starts state 17 (breath on the ground)
+void Em203GreaterDaemonRedMp::fn_802A325C() {
+    m58C = 17;
+    ResetState_unk();
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x160, 0, 0, 1.0f);
+    atn::Vector3 target = m14D4->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    m1574 = mRot.y;
+    m1578 = dir.ToRotation_unk().y;
+}
+
 // inferred: starts state 18
 void Em203GreaterDaemonRedMp::fn_802A3520() {
     m58C = 18;
@@ -1156,4 +1186,3 @@ void Em203GreaterDaemonRedMp::vf104() {
         }
     }
 }
-
