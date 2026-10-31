@@ -5,6 +5,7 @@
 #include "game/GimmickCommon.h"
 #include "game/DamageCalc_unk.h"
 #include "chr/ControlBase.h"
+#include "chr/ControlAttractHateCharge.h"
 #include "game/Arms.h"
 #include "game/EquipItemData.h"
 #include "game/BattleResult.h"
@@ -65,6 +66,12 @@ struct BattleTarget_unk {
     int m08;
     atn::Vector3 mPos;
 };
+extern "C" int fn_80219344(CharaTask* chara, int arg);
+extern "C" int fn_8036DAA8(Field_unk* field, CharaTask* chara); // inferred: the special skill is allowed here
+extern "C" void* lbl_8087EE68; // inferred: party manager (as in game/CharaTask.cpp)
+// inferred: result of fn_800185B4 (as in game/CharaTask.cpp)
+struct MagicTarget_unk;
+extern "C" MagicTarget_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -305,6 +312,84 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
         }
     }
     return ret;
+}
+
+void BattleCharaTask::fn_800E7BB0() {
+    if (m648 == 0) {
+        return;
+    }
+    int skill = 0;
+    if (mType == 0 || mType == 3) {
+        if (mStatus.fn_80134134(0xD) != 0) {
+            skill = 0x179B;
+        } else if (mStatus.fn_80134134(0x29) != 0) {
+            skill = 0x177B;
+        } else if (mStatus.m228 >= 1.0f && fn_80219344(this, 5) != 0) {
+            skill = mStatus.m2D0[3].m[0];
+        }
+    }
+    int ok = 0;
+    if (fn_8016DDB0(0) && skill > 0) {
+        if ((unsigned int)(skill - 0x1774) <= 1) {
+            if (mType == 0 || (mC58.mC0 > 0 && mC58.mC4 != 0)) {
+                HitInfo_unk* hit = fn_80219E6C(skill);
+                MagicTarget_unk* target = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, this, hit) : 0;
+                if (lbl_8087F0A8->mAutoTensionSkillFriend != 0 || target != 0) {
+                    ok = 1;
+                }
+            }
+        } else {
+            if (mType == 0 || (mC58.mC0 > 0 && mC58.mC4 != 0)) {
+                HitInfo_unk* hit = fn_80219E6C(skill);
+                MagicTarget_unk* target = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, this, hit) : 0;
+                if (lbl_8087F0A8->mAutoTensionSkillFriend != 0 || target != 0) {
+                    ok = 1;
+                }
+            }
+        }
+    }
+    if (ok && skill > 0) {
+        switch (skill) {
+        case 0x1774:
+        case 0x1775:
+            if (lbl_8087F430 != 0 && fn_8036DAA8(lbl_8087F430, this)) {
+                fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlOverdrive(this, skill));
+            }
+            break;
+        case 0x1785:
+        case 0x1786:
+        case 0x1787:
+        case 0x1788:
+        case 0x1791:
+        case 0x1792:
+            if (mType != 0) {
+                fn_8016D74C(fn_80219E6C(skill), 0, 0);
+            }
+            break;
+        case 0x178F:
+        case 0x1790:
+            // inferred: the skill pair m2D0[3] is passed as the skill reference
+            fn_8016125C((const SkillRef_unk*)&mStatus.m2D0[3], this, 0x173, 0, 10.0f);
+            break;
+        default:
+            if ((mStatus.m0C & 4) != 4) {
+                HitInfo_unk* hit = fn_80219E6C(skill);
+                m63C = m638;
+                m638 = hit;
+                mF7C = this;
+                mF6C = mPos;
+                if (mType != 0) {
+                    fn_8015F568(mF6C, this, hit);
+                }
+            }
+            break;
+        }
+    } else if (mType == 0) {
+        int index = fn_80219558(m50);
+        if (index == 0 || index == 2) {
+            fn_800E7F04();
+        }
+    }
 }
 
 void BattleCharaTask::vf40(HitInfo_unk* hit) {
