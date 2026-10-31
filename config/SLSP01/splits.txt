@@ -3876,6 +3876,11 @@ smg2/src/RVL_SDK/gx/GXMisc.c:
 RVL_SDK/src/revolution/gx/GXGeometry.c:
 	.text       start:0x80614510 end:0x80614B14
 
+smg2/src/RVL_SDK/gx/GXFrameBuf.c:
+	.text       start:0x80614C80 end:0x806156F8
+	.data       start:0x807B0900 end:0x807B0B98
+	.sdata2     start:0x80888740 end:0x80888750
+
 RVL_SDK/src/revolution/gx/GXLight.c:
 	.text       start:0x80615700 end:0x80615DF4
 	.sdata2     start:0x80888750 end:0x80888788
