@@ -94,6 +94,7 @@ public:
     void SetReleasePriorityFix(bool flag);
 
     void SetLocalVariable(int idx, s16 value);
+    static void InitSeqPlayer(); // inferred: 2010 (0x80711770), sets the globals to -1
     static void SetGlobalVariable(int idx, s16 value);
 
     void SetTrackVolume(u32 trackFlags, f32 volume);

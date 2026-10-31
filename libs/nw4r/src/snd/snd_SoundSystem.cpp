@@ -6,9 +6,10 @@
 
 namespace {
 
-NW4R_LIB_VERSION(SND, "Jun  8 2007", "11:17:15", "0x4199_60831");
+NW4R_LIB_VERSION(SND, "Jun  9 2009", "03:24:56", "0x4302_145");
 
 static bool sInitialized = false;
+static int sMaxVoices; // inferred: AXGetMaxVoices() cached by InitSoundSystem
 
 } // namespace
 
@@ -19,30 +20,15 @@ detail::TaskThread SoundSystem::sTaskThread;
 
 void SoundSystem::InitSoundSystem(s32 soundThreadPriority,
                                   s32 dvdThreadPriority) {
-    const int defaultWorkSize = DEFAULT_SOUND_THREAD_STACK_SIZE +
-                                DEFAULT_DVD_THREAD_STACK_SIZE +
-                                detail::AxVoiceManager::WORK_SIZE_MAX +
-                                detail::VoiceManager::WORK_SIZE_MAX +
-                                detail::ChannelManager::WORK_SIZE_MAX;
-
-    static u8 defaultSoundSystemWork[defaultWorkSize] ALIGN(32);
-
-    OSRegisterVersion(NW4R_SND_Version_);
+    // inferred: 2010 default work size
+    static u8 defaultSoundSystemWork[0x155E0] ALIGN(32);
 
     SoundSystemParam param;
     param.soundThreadPriority = soundThreadPriority;
     param.dvdThreadPriority = dvdThreadPriority;
 
-    // @bug This function ignores the specified buffer size
     InitSoundSystem(param, defaultSoundSystemWork,
                     sizeof(defaultSoundSystemWork));
-}
-
-u32 SoundSystem::GetRequiredMemSize(const SoundSystemParam& rParam) {
-    return rParam.soundThreadStackSize + rParam.dvdThreadStackSize +
-           detail::AxVoiceManager::GetInstance().GetRequiredMemSize(AXGetMaxVoices()) +
-           detail::VoiceManager::GetInstance().GetRequiredMemSize() +
-           detail::ChannelManager::GetInstance().GetRequiredMemSize();
 }
 
 void SoundSystem::InitSoundSystem(const SoundSystemParam& rParam, void* pWork,
@@ -54,6 +40,8 @@ void SoundSystem::InitSoundSystem(const SoundSystemParam& rParam, void* pWork,
     }
 
     sInitialized = true;
+
+    OSRegisterVersion(NW4R_SND_Version_);
 
     detail::AxManager::GetInstance().Init();
 
@@ -94,25 +82,30 @@ void SoundSystem::InitSoundSystem(const SoundSystemParam& rParam, void* pWork,
     void* pSoundThreadStack = pPtr;
     pPtr += rParam.soundThreadStackSize;
 
+    sMaxVoices = AXGetMaxVoices();
+
     void* pAxVoiceWork = pPtr;
-    pPtr += detail::AxVoiceManager::GetInstance().GetRequiredMemSize(AXGetMaxVoices());
+    pPtr += detail::AxVoiceManager::GetInstance().GetRequiredMemSize(sMaxVoices);
 
     detail::AxVoiceManager::GetInstance().Setup(
         pAxVoiceWork,
-        detail::AxVoiceManager::GetInstance().GetRequiredMemSize(AXGetMaxVoices()));
+        detail::AxVoiceManager::GetInstance().GetRequiredMemSize(sMaxVoices));
 
     void* pVoiceWork = pPtr;
-    pPtr += detail::VoiceManager::GetInstance().GetRequiredMemSize();
+    pPtr += detail::VoiceManager::GetInstance().GetRequiredMemSize(sMaxVoices);
 
     detail::VoiceManager::GetInstance().Setup(
-        pVoiceWork, detail::VoiceManager::GetInstance().GetRequiredMemSize());
+        pVoiceWork,
+        detail::VoiceManager::GetInstance().GetRequiredMemSize(sMaxVoices));
 
     void* pChannelWork = pPtr;
-    pPtr += detail::ChannelManager::GetInstance().GetRequiredMemSize();
+    pPtr += detail::ChannelManager::GetInstance().GetRequiredMemSize(sMaxVoices);
 
     detail::ChannelManager::GetInstance().Setup(
         pChannelWork,
-        detail::ChannelManager::GetInstance().GetRequiredMemSize());
+        detail::ChannelManager::GetInstance().GetRequiredMemSize(sMaxVoices));
+
+    detail::SeqPlayer::InitSeqPlayer();
 
     sTaskThread.Create(rParam.dvdThreadPriority, pDvdThreadStack,
                        rParam.dvdThreadStackSize);
@@ -140,6 +133,11 @@ void SoundSystem::ShutdownSoundSystem() {
     sInitialized = false;
 }
 
+bool SoundSystem::IsInitializedSoundSystem() {
+    return sInitialized;
+}
+
+#if 0 // not in this build
 void SoundSystem::WaitForResetReady() {
     if (!sInitialized) {
         return;
@@ -153,6 +151,8 @@ void SoundSystem::WaitForResetReady() {
         }
     }
 }
+
+#endif
 
 } // namespace snd
 } // namespace nw4r
