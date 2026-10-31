@@ -509,6 +509,107 @@ void Em206EggMonster::fn_802C2BCC() {
     fn_8013CB68(rot, 1, speed, m568);
 }
 
+// inferred: starts state 4 (turns to the target; name invented)
+inline void Em206EggMonster::StartTurn_unk() {
+    m1590 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 4;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.5f;
+    mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.025f);
+    CharaTask* t = m1584;
+    atn::Vector3 d = t->mPos - mPos;
+    atn::Vector3 r = d.ToRotationZ_unk();
+    mRot.y = r.y;
+    m15B4 = 0;
+    m15C4++;
+}
+
+// inferred: starts state 10 (runs to the point m14B0; name invented)
+inline void Em206EggMonster::StartRun_unk() {
+    m1590 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 10;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14A, 1, 0, 1, 0.0f, 0.025f);
+    m158C = -1;
+    atn::Vector3 tp = m14B0;
+    atn::Vector3 d = tp - mPos;
+    m15A4 = PSVECMag(&d);
+    atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
+    m15A8 = rot.y - mRot.y;
+    m15A8 = WrapDeg_unk(57.295776f * m15A8);
+    m15B4 = 1;
+    m1590 = 0;
+}
+
+// inferred: chooses the next action with fn_802C38E4 and starts it
+void Em206EggMonster::fn_802C3154() {
+    if (m1584 == 0) {
+        return;
+    }
+    switch (fn_802C38E4()) {
+    case 1:
+        m1590 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 1;
+        fn_8016E970(3);
+        m158C = -1;
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        if (m1594 == 2) {
+            mMotion.fn_80097C08(0, 0x14A, 1, 0, 1, 0.0f, 0.025f);
+        } else {
+            mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.025f);
+        }
+        m15B4 = 1;
+        break;
+    case 2:
+        m1590 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 2;
+        fn_8016E970(6);
+        m560 = 4;
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x156, 0, 0, 1, 0.0f, 0.025f);
+        m15B4 = 0;
+        m15C4++;
+        break;
+    case 3:
+        fn_802C4858();
+        m15C4++;
+        break;
+    case 4:
+        StartTurn_unk();
+        break;
+    case 10:
+        StartRun_unk();
+        break;
+    case 5:
+        m1590 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 5;
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.025f);
+        m15B4 = 1;
+        m15BC = 30;
+        m15C0++;
+        m15B8 = 0;
+        break;
+    }
+    if (m15C4 >= 10) {
+        m1700 = 1;
+    }
+}
+
 // NONMATCHING: 98.8% - stack slots of the locals (rotation, ray ends) and the frsp before atan2
 int Em206EggMonster::fn_802C38E4() {
     int next = -1;

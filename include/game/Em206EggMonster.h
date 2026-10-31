@@ -28,6 +28,7 @@ public:
     virtual int vfF4();                             // 0x802C64DC
 
     void fn_802C2BCC(); // inferred: movement
+    void fn_802C3154(); // inferred: chooses the next action (fn_802C38E4) and starts it
     int fn_802C38E4();  // inferred: chooses the next action
     void fn_802C3EDC(); // inferred: state 1 (follows the target)
     void fn_802C42D4(); // inferred: state 2
@@ -40,8 +41,10 @@ public:
     int fn_802C69BC(); // inferred: inside the limits of the arena (0x802C69BC)
     // inferred: ends the current action (name invented; inlined in every state)
     inline void EndAction_unk();
+    inline void StartTurn_unk(); // inferred: starts state 4 (name invented)
+    inline void StartRun_unk(); // inferred: starts state 10 (name invented)
 
-    unsigned char m14B0[0x14BC - 0x14B0];
+    atn::Vector3 m14B0;   // inferred: point it runs to (state 10)
     float m14BC;          // inferred: 1772.0f
     float m14C0;          // inferred: 1835.0f
     unsigned char m14C4[0x14D0 - 0x14C4];
@@ -59,7 +62,10 @@ public:
     int m158C;
     int m1590;            // inferred: frames of the state
     int m1594;
-    unsigned char m1598[0x15B0 - 0x1598];
+    unsigned char m1598[0x15A4 - 0x1598];
+    float m15A4;          // inferred: distance to m14B0
+    float m15A8;          // inferred: turn to m14B0 (degrees)
+    unsigned char m15AC[0x15B0 - 0x15AC];
     int m15B0;
     int m15B4;
     int m15B8;
