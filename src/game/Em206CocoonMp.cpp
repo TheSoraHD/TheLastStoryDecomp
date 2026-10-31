@@ -815,7 +815,7 @@ void Em206CocoonMp::fn_802BE2A0() {
     }
 }
 
-// NONMATCHING: 99% - stack slots of the direction (and pool offsets until the rest of the unit is written)
+// NONMATCHING: 99.8% - only the pool offsets (strings and floats of the unwritten functions before it)
 // inferred: state 10 (throws a bullet from the right hand to the hips of the target)
 void Em206CocoonMp::fn_802BE7EC() {
     if (m14DC == 0) {
@@ -825,8 +825,7 @@ void Em206CocoonMp::fn_802BE7EC() {
             atn::Vector3 from = GetNodePos_unk(mMotion.GetNodeMtx_unk("righthand"));
             atn::Model* model = &mC58.mC4->mMotion;
             atn::Vector3 to = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
-            atn::Vector3 d = to - from;
-            atn::Vector3 dir = d.GetNormalize();
+            atn::Vector3 dir = (to - from).GetNormalize();
             Effect_unk* mgr = lbl_8087F048;
             fn_800F8574(mgr, this, fn_80219E6C(0x5C5), &from, &dir, 0, 0, 0, 0.0f, 1.0f);
         }
