@@ -3,6 +3,7 @@
 #include "game/CharaTask.h"
 #include "game/GimmickCommon.h"
 #include "game/SkillEffectManager.h"
+#include "atn/GraphicsDevice.h"
 #include "game/HitInfo_unk.h"
 #include "atn/SoundRef.h"
 #include "string.h"
@@ -28,6 +29,9 @@ extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float tim
 extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the hit heals
+extern "C" int fn_8021A9CC(HitInfo_unk* hit); // inferred: kind test
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void* lbl_8087EFB4; // inferred: render system (camera)
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
@@ -383,6 +387,43 @@ void GameUI::fn_803D8344() {
         fn_80239DAC(lbl_8087F3C0, m1554, 0, 0);
         lbl_8087F3C0->mB8 = 0;
         m15B8 = 0;
+    }
+}
+
+// NONMATCHING: 95.5% - register allocation: the original keeps the zero of the first loop in r31 and
+// reuses it as the offset into m10D4 (this in r30); here this stays in r31 (4 variants)
+void GameUI::fn_803DE648() {
+    if (mDC8 == 0) {
+        return;
+    }
+    float width = lbl_8087EEE0->mWidth;
+    float height = lbl_8087EEE0->mHeight;
+    for (int i = 0; i < 8; i++) {
+        m10D4[i] = 0;
+        m10B4[i]->mFlags |= 4;
+    }
+    if (mDCC >= 1) {
+        for (int i = 0; i < 8; i++) {
+            m1094[i] = 0.0f;
+        }
+        return;
+    }
+    float limit = 15.0f;
+    int count = 0;
+    for (unsigned int i = 0; i < 32; i++) {
+        if (count >= 8) {
+            break;
+        }
+        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+        HitInfo_unk* hit = bullet->GetHit_unk();
+        if (bullet->IsActive_unk() && hit != 0 && fn_8021A9CC(hit) && bullet->m5C * bullet->m28 >= limit &&
+            (signed char)hit->m02 != 4 && (signed char)hit->m02 != 0) {
+            m10D4[count] = bullet;
+            count++;
+        }
+    }
+    for (int i = 0; i < count; i++) {
+        fn_803DE89C(m10D4[i], i);
     }
 }
 

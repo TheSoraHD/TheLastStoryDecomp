@@ -241,6 +241,8 @@ public:
     void fn_803CF74C();
     int fn_803D1574();
     void fn_803D8344();
+    void fn_803DE648(); // inferred: updates the markers of the skill effects
+    void fn_803DE89C(Bullet_unk* bullet, int index);
     GameUIColor_unk fn_803DF138(Bullet_unk* bullet);
     void fn_803DF5B4();
     void fn_803DF648(int arg);
@@ -395,9 +397,9 @@ public:
     int mF14[32];
     int mF94[32];
     int m1014[32];
-    unsigned char m1094[0x10B4 - 0x1094];
-    int m10B4[8];
-    int m10D4[8];
+    float m1094[8];
+    atn::Task* m10B4[8];   // inferred: effect markers (fn_803DE648)
+    Bullet_unk* m10D4[8];  // inferred: skill effects shown by the markers
     int m10F4;
     int m10F8;
     int m10FC;
