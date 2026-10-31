@@ -949,6 +949,59 @@ struct RedMpState_unk {
     int m0C;
 };
 
+// NONMATCHING: 99.29% - loop counter registers swapped (r29/r30, as Red fn_8029C564)
+// inferred: the route point nearest to the daemon among the high hover points (m156C)
+int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
+    if (m15A8.size() == 0) {
+        return 0;
+    }
+    float best = 1.0e16f;
+    int nearest = -1;
+    for (unsigned int i = 0; i < m15A8.size(); i++) {
+        atn::Vector3 d = m15A8[i]->mPos - mPos;
+        float dist = sqrt(d.x * d.x + d.z * d.z);
+        if (dist < best) {
+            best = dist;
+            nearest = i;
+        }
+    }
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    int index = fn_803C1560(table, &m15A8[nearest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+    m156C = &table->mPoints[index];
+    return 1;
+}
+
+// inferred: picks the high hover point farthest from the target as the next route point (m1570);
+// nonzero when it differs from the nearest one (m156C)
+int Em203GreaterDaemonRedMp::fn_802A42CC() {
+    if (m15A8.size() == 0) {
+        return 0;
+    }
+    float best = 0.0f;
+    int farthest = -1;
+    RouteTable_unk* table;
+    for (unsigned int i = 0; i < m15A8.size(); i++) {
+        atn::Vector3 target = m14D4->mPos;
+        atn::Vector3 d = m15A8[i]->mPos - target;
+        float dist = sqrt(d.x * d.x + d.z * d.z);
+        if (dist > best) {
+            best = dist;
+            farthest = i;
+        }
+    }
+    if (farthest < 0 || farthest >= (int)m15A8.size()) {
+        return 0;
+    }
+    fn_802A4194(1);
+    table = lbl_8087F430->m10D8;
+    int index = fn_803C1560(table, &m15A8[farthest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+    m1570 = &table->mPoints[index];
+    if (m156C == 0 || m1570 == 0) {
+        return 0;
+    }
+    return m156C != m1570;
+}
+
 void Em203GreaterDaemonRedMp::vf110(SpecialState_unk* state) {
     RedMpState_unk* s = (RedMpState_unk*)state;
     s->m00 = m58C;
