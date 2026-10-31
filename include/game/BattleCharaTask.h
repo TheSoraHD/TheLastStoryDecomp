@@ -72,9 +72,7 @@ public:
     atn::Task* m1438; // inferred: task created by the EnemyTask constructor (fn_803EC16C)
     int m143C;
     int m1440;
-    int m1444;
-    int m1448;
-    int m144C;
+    atn::Vector3 m1444; // inferred: point of the next attack (fn_800E589C)
     int m1450;
     int m1454;
     float m1458;

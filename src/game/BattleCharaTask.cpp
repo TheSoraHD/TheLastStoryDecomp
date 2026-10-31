@@ -51,7 +51,9 @@ struct Field_unk {
     unsigned char m0000[0x6C];
     CameraSub_unk m006C; // inferred: also the object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
     int m868; // inferred: mode (3 and 4: battle, as in game/CharaTask.cpp)
-    unsigned char m86C[0x10D0 - 0x86C];
+    unsigned char m86C[0x94C - 0x86C];
+    int m94C;
+    unsigned char m950[0x10D0 - 0x950];
     int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
     int m10D4;
     BattleArea_unk* m10D8;
@@ -585,6 +587,204 @@ void BattleCharaTask::vf14() {
 
 void BattleCharaTask::fn_800E426C() {
     fn_8010220C(lbl_8087F048, 0);
+}
+
+extern "C" void fn_803748E0(Field_unk* field, int arg); // inferred: ends the grapple camera
+// inferred: one hit of fn_800F8C6C (names invented)
+struct HitResult_unk {
+    CharaTask* mChara;
+    unsigned int mFlags; // inferred: 8 = critical
+};
+extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
+                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
+extern "C" float fn_8010CA34(Effect_unk* effect); // inferred: speed rate of the attacks
+
+// inferred: frame of the attack motions where the hit starts (name invented)
+inline float HitFrame_unk(int motion) {
+    float frame;
+    switch (motion) {
+    case 0x158:
+        frame = 15.0f;
+        break;
+    case 0x159:
+        frame = 14.0f;
+        break;
+    case 0x15A:
+        frame = 16.0f;
+        break;
+    case 0x15B:
+        frame = 16.0f;
+        break;
+    case 0x16A:
+        frame = 32.0f;
+        break;
+    case 0x161:
+        frame = 23.0f;
+        break;
+    default:
+        frame = 14.0f;
+        break;
+    }
+    return frame;
+}
+
+// NONMATCHING: 97% - `m560 >= 4 && m560 < 12` becomes a range compare; this/config in r29/r30 instead of
+// r30/r31
+// inferred: update of the player characters with a weapon (states 0-4 of m58C: idle, attack, ...)
+void BattleCharaTask::fn_800E589C() {
+    GameConfig_unk* config = lbl_8087F0A8;
+    int grappled = 0;
+    if (m55C == 6 && m560 == 28) {
+        grappled = 1;
+    }
+    switch (m58C) {
+    case 0:
+        if (m55C == 1 && mMotion.fn_80097D40(200)) {
+            m1188.SetMotion(200, false, false, false, 1.0f, 0.0f);
+        }
+        fn_80139560();
+        if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->m868 == 6) {
+            fn_803748E0(lbl_8087F430, 1);
+            lbl_8087F430->m94C = 1;
+        }
+        break;
+    case 1: {
+        atn::Vector3 rot = mRot;
+        if (fn_80158BB4()) {
+            if (m55C != 6 || (m560 != 13 && m560 != 29)) {
+                fn_8016DA4C();
+            }
+            m1424 = 0;
+            mFlagC30 = 0;
+            m58C = 0;
+            int attack = 0;
+            if (m55C == 6) {
+                if (m560 >= 4) {
+                    if (m560 < 12) {
+                        attack = 1;
+                    }
+                }
+            }
+            if (attack) {
+                fn_8016E970(1);
+            }
+        } else if ((unsigned int)(m560 - 4) <= 1) {
+            float end = 12.0f;
+            if ((unsigned int)m50 == 0xAAE76 || (unsigned int)m50 == 0xAAE77) {
+                end = mMotion.fn_80097D7C(0) - 5.0f;
+            }
+            if (m1424 > 0 && mMotion.mTracks[0].m08 >= end) {
+                BattleTarget_unk target;
+                m1424--;
+                float frame = HitFrame_unk(mMotion.mTracks[0].m00);
+                if (m560 == 4 && config->mAttackEndWait != 0 && mMotion.mTracks[0].m08 >= frame) {
+                    float speed = 4.0f / m638->m68;
+                    if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
+                        speed *= fn_8010CA34(lbl_8087F048);
+                    }
+                    mMotion.mTracks[0].m0C = speed;
+                }
+                int pressed = fn_800E70EC(1, -1, 0);
+                if (mMotion.mTracks[0].m08 > 13.0f && !mFlag31) {
+                    int count = m1424;
+                    m1424 = 0;
+                    if (SetConfig::sInstance->mAttackType == 0 || pressed != 0) {
+                        if (fn_800E7214(&target.mChara, 1)) {
+                            mFlagC30 = 1;
+                            m1444 = target.mPos;
+                        } else if (pressed) {
+                            mFlagC30 = 1;
+                            Effect_unk* mgr = lbl_8087F048;
+                            atn::Vector3 dir = fn_80178018();
+                            CharaTask* chara = fn_800FFE68(mgr, this, &dir, 0, 0, config->mBtnAtkCorrectRadius,
+                                                           0.5f * config->mBtnAtkCorrectTheta);
+                            if (chara != 0) {
+                                target.mChara = chara;
+                                m1444 = chara->mPos;
+                            } else {
+                                target.mChara = 0;
+                                m1444.x = 0.0f;
+                                m1444.y = 0.0f;
+                                m1444.z = 10.0f;
+                                Mtx m;
+                                PSMTXRotRad(m, 'y', fn_80178018().y);
+                                PSMTXMultVec(m, &m1444, &m1444);
+                                m1444 += mPos;
+                            }
+                        }
+                    }
+                    m1424 = count;
+                }
+                if (mFlagC29 && config->mAttackGuardWait > 0.0f) {
+                    if (mMotion.mTracks[0].m00 == 0x162) {
+                        frame = mMotion.fn_80097D7C(0) - 5.0f;
+                    } else {
+                        frame = mMotion.fn_80097D7C(0) - 2.0f;
+                    }
+                }
+                if (SetConfig::sInstance->mAttackType != 0 && lbl_8087F610 != 0) {
+                    if (mMotion.mTracks[0].m00 == 0x162) {
+                        frame = 18.0f;
+                    } else if (mMotion.mTracks[0].m00 == 0x163) {
+                        frame = 18.0f;
+                    }
+                }
+                if (mFlagC30 && mMotion.mTracks[0].m08 >= frame &&
+                    (pressed || !lbl_8087F0A8->mInput.fn_801240B4(7))) {
+                    fn_800E8688(200, 0, target.mChara, &m1444, 0, 0);
+                }
+            } else {
+                m13B4 = 0.0f;
+            }
+        }
+        float frame = HitFrame_unk(mMotion.mTracks[0].m00);
+        config = lbl_8087F0A8;
+        if (mFlagC29 && config->mAttackGuardWait > 0.0f && mMotion.mTracks[0].m08 >= frame) {
+            float rest = mMotion.fn_80097D7C(0) - frame;
+            float speed = rest / (rest + config->mAttackGuardWait);
+            if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
+                speed *= fn_8010CA34(lbl_8087F048);
+            }
+            mMotion.mTracks[0].m0C = speed;
+        }
+        fn_80139560();
+        if (lbl_8087F048 != 0 && fn_80158CA4() && m560 != 11) {
+            if (mControl && mControl->vf30() > m598) {
+                m598 = mControl->vf30();
+                m594 = 1;
+                m590 = fn_800F8548(lbl_8087F048);
+            }
+            if (m594 != 0) {
+                fn_80144710();
+                HitResult_unk results[8];
+                int n = fn_800F8C6C(lbl_8087F048, results, 8, this, m638, m590, 30, m594,
+                                    mFlag31 ? 3.1415927f : 0.0f);
+                if (n > 0) {
+                    if (m594 > 0) {
+                        m594 -= n;
+                    }
+                    int critical = 0;
+                    for (int i = 0; i < n; i++) {
+                        if ((results[i].mFlags & 8) == 8) {
+                            critical = 1;
+                        }
+                    }
+                    if (critical && (unsigned int)(m560 - 4) <= 1) {
+                        mFlagC29 = 1;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 2:
+        vfEC();
+        break;
+    case 3:
+    case 4:
+        fn_80139560();
+        break;
+    }
 }
 
 // NONMATCHING: 99.96% - stack slots of the second and third rotation matrices swapped (~8 forms)
