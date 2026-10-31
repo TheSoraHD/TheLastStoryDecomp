@@ -3561,6 +3561,11 @@ RVL_SDK/src/revolution/os/OSAlarm.c:
 	.data       start:0x8079C2A8 end:0x8079C2B8
 	.sbss       start:0x8087FBE0 end:0x8087FBE8
 
+RVL_SDK/src/revolution/os/OSAlloc.c:
+	.text       start:0x805EC950 end:0x805ECB78
+	.sdata      start:0x8087E760 end:0x8087E768
+	.sbss       start:0x8087FBE8 end:0x8087FBF0
+
 RVL_SDK/src/revolution/os/OSArena.c:
 	.text       start:0x805ECB80 end:0x805ECC74
 	.sdata      start:0x8087E768 end:0x8087E770
