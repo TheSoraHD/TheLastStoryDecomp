@@ -3517,6 +3517,15 @@ RVL_SDK/src/revolution/esp/esp.c:
 	.text       start:0x805BFAC0 end:0x805C00E0
 	.sdata      start:0x8087E708 end:0x8087E718
 
+RVL_SDK/src/revolution/hbm/HBMFrameController.cpp:
+	.text       start:0x805C00E0 end:0x805C028C
+	.rodata     start:0x80764138 end:0x8076413C
+	.data       start:0x80797A28 end:0x80797A50
+
+RVL_SDK/src/revolution/hbm/HBMAnmController.cpp:
+	.text       start:0x805C0290 end:0x805C03A0
+	.data       start:0x80797A50 end:0x80797A98
+
 RVL_SDK/src/revolution/hbm/HBMGUIManager.cpp:
 	.text       start:0x805C03A0 end:0x805C1BB8
 	.rodata     start:0x80764140 end:0x80764150
