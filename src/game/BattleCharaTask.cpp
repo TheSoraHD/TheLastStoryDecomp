@@ -35,7 +35,10 @@ struct CameraSub_unk {
     unsigned char m000[0x08];
     atn::Vector3 m08; // inferred: eye (field + 0x74)
     atn::Vector3 m14; // inferred: target point (field + 0x80)
-    unsigned char m020[0x868 - 0x8C];
+    unsigned char m020[0x1FC - 0x20];
+    atn::Vector3 m1FC; // inferred: eye of the aim (field + 0x268)
+    atn::Vector3 m208; // inferred: target of the aim (field + 0x274)
+    unsigned char m214[0x868 - 0x280];
 };
 // inferred: battle area of the field (lbl_8087F430->m10D8); names invented
 struct BattleAreaInfo_unk {
@@ -148,6 +151,7 @@ extern "C" int fn_801004FC(Effect_unk* mgr, CharaTask** out, CharaTask* chara, c
 extern "C" int fn_80100BB8(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
                            float theta);
 extern "C" double cos(double x);
+extern "C" double sin(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -305,7 +309,9 @@ struct RayObj_unk {
 };
 struct RayResult_unk {
     RayResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x34];
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    unsigned char m10[0x34 - 0x10];
     int m34;
     RayObj_unk* m38;
     int m3C;
@@ -1469,6 +1475,140 @@ void BattleCharaTask::fn_800E9110() {
     fn_8015F568(pos, 0, hit);
     mFC0 = 0;
     mFlag4 = 0;
+}
+
+// inferred: direction of the aim camera (name invented)
+inline atn::Vector3 AimDir_unk(Field_unk* field) {
+    atn::Vector3 dir;
+    dir = field->m006C.m208 - field->m006C.m1FC;
+    PSVECNormalize(&dir, &dir);
+    return dir;
+}
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 NodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// NONMATCHING: 99% - stack slots; the string pool offsets wait for fn_800E4278/fn_800E62AC ("hips")
+// inferred: start point and direction of a shot: in front of the character, or along the aim camera (crossbow,
+// mFlag31 with a cover side, or mFlag6) corrected towards the point it hits
+void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int fromShot) {
+    atn::Vector3 shot = mPos;
+    if (m648 != 0 && m648->m04 != 0) {
+        shot = ((Arms*)m648)->fn_80044BD4();
+    }
+    if (mFlag6) {
+        if ((unsigned int)m50 == 0xAAE76) {
+            shot = NodePos_unk(mMotion.GetNodeMtx_unk("ef_locater01"));
+        } else if ((unsigned int)m50 == 0xAAE77) {
+            shot = NodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
+        }
+    }
+    if (mFlag31) {
+        if (mC48 == 0) {
+            int side = fn_80153B44();
+            if (side == 0) {
+                Mtx m;
+                PSMTXRotRad(m, 'y', mRot.y);
+                dir->x = 0.0f;
+                dir->y = 0.0f;
+                dir->z = 1.0f;
+                PSMTXMultVec(m, dir, dir);
+                atn::Vector3 off(-3.0f, 15.0f, 4.0f);
+                PSMTXMultVec(m, &off, &off);
+                *pos = mPos;
+                *pos += off;
+            } else {
+                dir->x = 0.0f;
+                dir->y = 0.0f;
+                dir->z = -1.0f;
+                Mtx m;
+                PSMTXRotRad(m, 'y', mRot.y);
+                PSMTXMultVec(m, dir, dir);
+                float shift = 0.0f;
+                switch (side) {
+                case 1:
+                    shift = 5.0f;
+                    break;
+                case 2:
+                    shift = -5.0f;
+                    break;
+                }
+                *pos = mPos;
+                *pos += *dir * (0.1f + m5B0);
+                pos->y += m5B4;
+                pos->x += shift * (float)cos(mRot.y);
+                pos->z += -shift * (float)sin(mRot.y);
+            }
+        } else {
+            Field_unk* field = lbl_8087F430;
+            *dir = AimDir_unk(field);
+            *pos = fn_8017C9AC(this);
+            if (m648 != 0 && m648->m04 != 0) {
+                RayResult_unk result;
+                atn::Vector3 to = *pos + *dir * 800.0f;
+                if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 4, &mColli, 0)) {
+                    if (fromShot) {
+                        *dir = result.m04 - shot;
+                    } else {
+                        MtxPtr node = mMotion.GetNodeMtx_unk("spine1");
+                        *dir = result.m04 - (node != 0 ? NodePos_unk(node) : ((Arms*)m648)->fn_80044BD4());
+                    }
+                    if (PSVECSquareMag(dir) < 0.0001f) {
+                        *dir = AimDir_unk(field);
+                    } else {
+                        PSVECNormalize(dir, dir);
+                    }
+                    atn::Vector3 aim = AimDir_unk(field);
+                    if (PSVECDotProduct(dir, &aim) < 0.25881904f) {
+                        *dir = AimDir_unk(field);
+                    }
+                }
+            }
+        }
+    } else if (mFlag6) {
+        Field_unk* field = lbl_8087F430;
+        *dir = AimDir_unk(field);
+        *pos = fn_8017C9AC(this);
+        if (m648 != 0) {
+            RayResult_unk result;
+            atn::Vector3 to = *pos + *dir * 800.0f;
+            if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 4, &mColli, 0)) {
+                if (fromShot) {
+                    *dir = result.m04 - shot;
+                } else if (mFlagB19) {
+                    MtxPtr node = mMotion.GetNodeMtx_unk("leftshoulder");
+                    *dir = result.m04 - (node != 0 ? NodePos_unk(node) : ((Arms*)m648)->fn_80044BD4());
+                } else {
+                    MtxPtr node = mMotion.GetNodeMtx_unk("spine1");
+                    *dir = result.m04 - (node != 0 ? NodePos_unk(node) : ((Arms*)m648)->fn_80044BD4());
+                }
+                if (PSVECSquareMag(dir) < 0.0001f) {
+                    *dir = AimDir_unk(field);
+                } else {
+                    PSVECNormalize(dir, dir);
+                }
+                atn::Vector3 aim = AimDir_unk(field);
+                if (PSVECDotProduct(dir, &aim) < 0.25881904f) {
+                    *dir = AimDir_unk(field);
+                }
+            }
+        }
+    } else {
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        dir->x = 0.0f;
+        dir->y = 0.0f;
+        dir->z = 1.0f;
+        PSMTXMultVec(m, dir, dir);
+        atn::Vector3 off(-3.0f, 15.0f, 4.0f);
+        PSMTXMultVec(m, &off, &off);
+        *pos = mPos;
+        *pos += off;
+    }
+    if ((m648 != 0 && m648->m04 != 0) || (unsigned int)(m50 - 0xAAE76) <= 1) {
+        *pos = shot;
+    }
 }
 
 extern "C" int fn_8021AF98(int id); // inferred: skill id of a skill growth entry (db/SkillGrowth_unk)
