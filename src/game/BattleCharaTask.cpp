@@ -10,11 +10,60 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
 struct Field_unk {
     void fn_803750E4(int id); // inferred: sets an event (as in game/CharaTask.cpp)
+    unsigned char m0000[0x10D0];
+    int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
 extern "C" int fn_80375184(Field_unk* field);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
+// inferred: multiplayer session (lbl_8087F610); only tested for null here
+extern "C" void* lbl_8087F610;
+extern "C" int fn_8021446C(int index, int arg); // inferred: entry of the level equipment table
+
+BattleCharaTask::BattleCharaTask(atn::Task* parent, int type, void* data)
+    : CharaTask(parent, type, data), m1424(0), m1428(0), m142C(0), m1430(0), m1434(0), m1438(0), m143C(0),
+      m1440(0), m1450(0), m1454(1), m1458(1.0f), m145C(0), m1460(0), m1464(0), m146C(0), m1470(0), m1472(0),
+      m1474(0), m1478(150), m147C(0.0f), m1480(0.0f), m1484(0.0f), m1488(0), m149C(0.0f), m14A0(0), m14A4(0) {
+    mFlagC31 = 0;
+    mFlagC30 = 0;
+    mFlagC29 = 0;
+    mFlagC27 = 0;
+    mFlagC26 = 1;
+    mFlagC25 = 0;
+    mFlagC24 = 0;
+    if (m5C != 0) {
+        for (int i = 0; i < 4; i++) {
+            fn_8014F2B4(m5C->mD4[i], m5C->mD8[i], i);
+        }
+        // inferred: data is the character id
+        if ((unsigned int)data == 0x18705 && lbl_8087F430 != 0 && lbl_8087F430->m10D0 == 0x62E08) {
+            mFlagB17 = 1;
+            fn_8014F2B4(1, fn_8021446C(4, 1), -1);
+        }
+    }
+    m148C = mColli.m3C;
+    m1498 = mColli.m54;
+    if (lbl_8087F610 != 0) {
+        int free = 1;
+        for (unsigned int i = 0; i < mParts.mCount; i++) {
+            if (mParts.mData[i]->m04 == 1) {
+                free = 0;
+            }
+        }
+        if (free) {
+            if (m50 == 0xAAE77) {
+                fn_8014F2B4(1, 0x76, -1);
+            } else {
+                fn_8014F2B4(1, 0x245, -1);
+            }
+            mFlagB17 = 1;
+        }
+    }
+    if (m50 == 0xAAE71 || m50 == 0xAAE72) {
+        mFlagB5 = 1;
+    }
+}
 
 BattleCharaTask::~BattleCharaTask() {
     if (m1438 != 0 && GimmickManager::instance_ != 0) {
@@ -22,8 +71,6 @@ BattleCharaTask::~BattleCharaTask() {
     }
 }
 
-// inferred: multiplayer session (lbl_8087F610); only tested for null here
-extern "C" void* lbl_8087F610;
 // inferred: the HUD (lbl_8087F490, game/GameUI.h); only passed to fn_803E2110 here
 struct GameUI;
 extern "C" GameUI* lbl_8087F490;

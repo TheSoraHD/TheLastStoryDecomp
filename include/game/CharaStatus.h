@@ -315,7 +315,8 @@ struct CharaData_unk {
     int mC8; // inferred: passed to fn_8020FCE8 and fn_8012C6D4
     int mCC;
     int mD0; // inferred: gimmick created by the EnemyTask constructor when > 0 (passed to its vf68)
-    unsigned char mD4[0xE8 - 0xD4];
+    signed char mD4[4]; // inferred: passed with mD8 to CharaTask::fn_8014F2B4 by the BattleCharaTask constructor
+    int mD8[4];
     ::CharaStatusPair_unk mE8[4]; // inferred: added to CharaStatus::m2D0 on load (fn_8013655C)
     int m108[5];                  // inferred: passed to CharaTask::fn_8014FF9C on load
     int m11C;
