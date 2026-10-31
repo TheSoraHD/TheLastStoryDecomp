@@ -172,6 +172,7 @@ namespace detail
 
 		void SetAdpcmLoopContext(int channelNum, u16 *predScale);
 		void SetTrackVolume(u32 trackBitFlag, f32 volume);
+		f32 GetBufferRatio_unk() const; // inferred: see the source
 		u32 GetPlaySamplePosition() const;
 
 		bool ReadStrmDataInfo(StrmDataInfo*) const;

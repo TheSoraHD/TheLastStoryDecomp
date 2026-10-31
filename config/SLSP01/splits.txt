@@ -5409,6 +5409,23 @@ nw4r/src/snd/snd_StrmChannel.cpp:
 ss_nw4r/src/snd/snd_StrmFile.cpp:
 	.text       start:0x80719110 end:0x80719A94
 
+ss_nw4r/src/snd/snd_StrmPlayer.cpp:
+	.text       start:0x80719AA0 end:0x8071C8D8
+	.data       start:0x807C6380 end:0x807C63F8
+	.bss        start:0x808795C0 end:0x8087D5D8
+	.sbss       start:0x808804F8 end:0x80880500
+	.sdata2     start:0x80889268 end:0x8088928C
+
+ss_nw4r/src/snd/snd_StrmSound.cpp:
+	.text       start:0x8071C8E0 end:0x8071D0DC
+	.ctors      start:0x8072D418 end:0x8072D41C
+	.data       start:0x807C63F8 end:0x807C6430
+	.sbss       start:0x80880500 end:0x80880508
+	.sdata2     start:0x80889290 end:0x808892A0
+
+ss_nw4r/src/snd/snd_StrmSoundHandle.cpp:
+	.text       start:0x8071D0E0 end:0x8071D218
+
 nw4r/src/snd/snd_TaskManager.cpp:
 	.text       start:0x8071D260 end:0x8071DA10
 	.bss        start:0x8087D5D8 end:0x8087D620
@@ -5416,6 +5433,16 @@ nw4r/src/snd/snd_TaskManager.cpp:
 
 nw4r/src/snd/snd_TaskThread.cpp:
 	.text       start:0x8071DA10 end:0x8071DC38
+
+ss_nw4r/src/snd/snd_Voice.cpp:
+	.text       start:0x8071DC40 end:0x807204C4
+	.data       start:0x807C6430 end:0x807C6468
+	.sdata2     start:0x808892A0 end:0x808892D4
+
+ss_nw4r/src/snd/snd_VoiceManager.cpp:
+	.text       start:0x807204D0 end:0x80720C64
+	.bss        start:0x8087D620 end:0x8087D648
+	.sbss       start:0x80880510 end:0x80880518
 
 nw4r/src/snd/snd_Util.cpp:
 	.text       start:0x80720C70 end:0x80721144

@@ -433,7 +433,7 @@ float SoundCore::fn_800CACEC() {
         return 0.0f;
     }
     StrmSoundHandle_unk strm(&mHandle);
-    return strm.fn_8071A800_unk() / 100.0f;
+    return strm.GetBufferRatio_unk() / 100.0f;
 }
 
 } // namespace atn
