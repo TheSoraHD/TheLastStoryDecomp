@@ -4051,7 +4051,8 @@ RVL_SDK/src/revolution/sc/scsystem.c:
 	.sbss       start:0x80880138 end:0x80880150
 
 RVL_SDK/src/revolution/sc/scapi.c:
-	.text       start:0x80624830 end:0x80624D38
+	.text       start:0x80624830 end:0x80624D90
+	.data       start:0x807B3068 end:0x807B3098
 
 smg2/src/RVL_SDK/sc/scapi_prdinfo.c:
 	.text       start:0x80624D90 end:0x806250C4
