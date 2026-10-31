@@ -4585,7 +4585,7 @@ PowerPC_EABI_Support/src/MSL_C/PPC_EABI/uart_console_io_gcn.c:
 	.sbss       start:0x80880350 end:0x80880358
 
 PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit_ppc_eabi.c:
-	.text       start:0x80686EA4 end:0x80686ED8
+	.text       start:0x80686EA4 end:0x80686EDC
 	.sbss       start:0x80880358 end:0x80880360
 
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/secure_error.c:
