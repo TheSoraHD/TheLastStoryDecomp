@@ -36,6 +36,7 @@ public:
     // inferred: weak copy 0x800EC1F4 (name invented)
     void SetFlagC26_unk(int value) { mFlagC26 = value; }
     void fn_800E610C(); // inferred: moves (or swaps places) in the input direction; the party follows in mode 2
+    void fn_800E62AC(struct Field_unk* field, int a, int b); // inferred: input of the player in the field
     int fn_800E70EC(int a, int b, int c);
     int fn_800E7214(CharaTask** out, int keep);
     int fn_800E73EC(struct Field_unk* field, int b, int c); // inferred: input of the player (lock-on, auto attack) // inferred: target of the player's attack (keep: prefer m1440) // inferred: auto attack of the player (button attack correction)

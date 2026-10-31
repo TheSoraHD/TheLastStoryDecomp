@@ -69,7 +69,9 @@ struct Field_unk {
     BattleArea_unk* m10D8;
     unsigned char m10DC[0x54E4 - 0x10DC];
     int m54E4; // inferred: nonzero stops the combined attack
-    unsigned char m54E8[0x5744 - 0x54E8];
+    unsigned char m54E8[0x5674 - 0x54E8];
+    int m5674; // inferred: nonzero allows the specials (fn_800E62AC)
+    unsigned char m5678[0x5744 - 0x5678];
     unsigned int m5744; // inferred: frame counter of the field
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -823,6 +825,257 @@ void BattleCharaTask::fn_800E610C() {
             }
         }
     }
+}
+
+extern "C" int fn_8021921C(CharaTask* chara, int slot); // inferred: magic of the slot (db/PlayerParam_unk.cpp)
+extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
+extern "C" int fn_8021AF98(int id); // inferred: skill id of a skill growth entry (db/SkillGrowth_unk)
+extern "C" int fn_803761AC(Field_unk* field);
+
+// inferred: control with a timer (ids 10 and 12 of m560; class unknown, names invented)
+class ControlTimer_unk : public chr::ControlBase {
+public:
+    bool IsDone_unk() const { return m08 <= 0.0f; }
+    float m08;
+    unsigned char m0C[0x1C - 0x0C];
+    int m1C; // inferred: set to end the control early
+};
+
+// inferred: hit point rate of a character (name invented)
+inline float HpRate_unk(CharaTask* c) {
+    return c->mStatus.mParamB.m88 > 0 ? c->mStatus.m08 / c->mStatus.mParamB.m88 : 0.0f;
+}
+
+// NONMATCHING: 98.7% - the flag word is not reloaded before clearing mFlag5; registers of the magic slot
+// inferred: input of the player in the field: cursor of the field at full life, lock-on, crossbow,
+// attacks (fn_800E73EC) and the skills of the special button
+void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
+    GameConfig_unk* config = lbl_8087F0A8;
+    int attack = 1;
+    if (lbl_8087F610 == 0 && fn_80375184(lbl_8087F430) && atn::Abs_unk(HpRate_unk(this) - 1.0f) < 1.1920929e-7f &&
+        fn_80370174(lbl_8087F430, 0x88) == 0 && lbl_8087F0A8->mInput.fn_801231D0(0x31)) {
+        int cursor = 0;
+        if (m55C == 1) {
+            cursor = 1;
+        } else if (m55C == 6 && (m560 == 4 || m560 == 2 || m560 == 0x61)) {
+            if (mControl) {
+                mControl->vf1C();
+                boost::function<void()> next = mControl->vf10();
+                mControl.reset();
+                if (next) {
+                    next();
+                }
+            }
+            cursor = 1;
+        }
+        if (mFlag3 || m139C != 0 || m1208 != 0) {
+            cursor = 0;
+        }
+        if (cursor) {
+            fn_80373FC4(lbl_8087F430);
+            return;
+        }
+    }
+    if (m55C != 1) {
+        int ending = 0;
+        if (m55C == 6) {
+            if (m560 == 0x14) {
+                ending = 1;
+            } else if (m560 == 10) {
+                float frame = mMotion.mTracks[0].m08;
+                ending = 1;
+                if (frame > 9.0f && frame < 12.0f) {
+                    ((ControlTimer_unk*)mControl.get())->m1C = 1;
+                    if (fn_8016E484()) {
+                        fn_800E8688(fn_8021AF98(2), 0, 0, 0, 0, 0);
+                    } else {
+                        fn_800E8688(0xD0, 0, 0, 0, 0, 0);
+                    }
+                }
+            }
+        }
+        mFlag5 = ending;
+        int release = !lbl_8087F0A8->mInput.fn_801240B4(7);
+        if (m55C == 6 && ((unsigned int)(m560 - 0x14) <= 3 || (unsigned int)(m560 - 0x1C) <= 1 || m560 == 0x3B ||
+                          m560 == 0xF || m560 == 10)) {
+            release = 1;
+        }
+        if (release) {
+            mFC0 = 0;
+        }
+        if (m55C != 6) {
+            return;
+        }
+        if ((unsigned int)(m560 - 4) > 1 && m560 != 9) {
+            return;
+        }
+        attack = mMotion.mTracks[0].m08 >= config->mBtnAtkChargeStart;
+    } else {
+        if (m1424 > 0) {
+            m1424--;
+        }
+        CameraSub_unk* camera = &field->m006C;
+        if (mFlag27) {
+            mFC0 = 0;
+            attack = 0;
+            mFlag5 = 0;
+        } else {
+            int cover = 0;
+            if (mFlag31 && mC48 != 0) {
+                cover = 1;
+            }
+            if (cover) {
+                mFC0 = 0;
+                mFlag5 = 0;
+                if (fn_800E70EC(0, a, b)) {
+                    attack = 0;
+                }
+            } else if (mFlag6) {
+                mFC0 = 0;
+                mFlag5 = 0;
+                if (!lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
+                    fn_80155DAC(0);
+                } else if ((unsigned int)(m50 - 0xAAE76) <= 1) {
+                    if (lbl_8087F0A8->mInput.fn_801237F0(0x17)) {
+                        CrossbowMenuTask::sInstance->fn_801E9ECC(-1, 1);
+                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x18)) {
+                        CrossbowMenuTask::sInstance->fn_801E9ECC(1, 1);
+                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x1A)) {
+                        CrossbowMenuTask::sInstance->fn_801E97DC();
+                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x1B)) {
+                    }
+                    if (lbl_8087F0A8->mInput.fn_801231D0(6) && m640 <= 0 && mFB0 <= 0) {
+                        mFlagB8 = 0;
+                        fn_800E8FB8();
+                    }
+                }
+            } else if (m1208 != 0 || mFlag3 || mF54 != 0 || m139C != 0) {
+                mFC0 = 0;
+                attack = 0;
+                mFlag5 = 0;
+                if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
+                    fn_8037EF30(camera, 0, 1, -1.0f);
+                }
+            } else if (mFlag5) {
+                if (lbl_8087F0A8->mInput.fn_801231D0(0x16)) {
+                    fn_800E610C();
+                }
+                if (mFlag31) {
+                    mFC0 = 0;
+                } else if (lbl_8087F0A8->mInput.fn_801231D0(0x1E)) {
+                    if (mFC4 != 0) {
+                        Effect_unk* mgr = lbl_8087F048;
+                        atn::Vector3 dir = fn_80178018();
+                        fn_8016DC14(fn_800FFE68(mgr, this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta), 0);
+                        mFC0 = mFC4;
+                    } else {
+                        fn_8016DC14(mFC0, 0);
+                    }
+                } else {
+                    fn_80108A54(lbl_8087F048, this);
+                }
+                mFlag5 = 1;
+                if (fn_800E70EC(0, a, b)) {
+                    attack = 0;
+                }
+                if (!lbl_8087F0A8->mInput.fn_801240B4(7) && !mFlagB16) {
+                    mFlag5 = 0;
+                }
+            } else if (lbl_8087F0A8->mInput.fn_801231D0(0x16) &&
+                       ((b == 0 && a == -1) || !lbl_8087F0A8->mInput.fn_801231D0(2))) {
+                fn_800E610C();
+                attack = 0;
+            } else {
+                attack = fn_800E73EC(field, a, b);
+            }
+        }
+    }
+    int special = 0;
+    if (attack && fn_80178078() < 0.3f) {
+        special = 1;
+    }
+    switch (m5C->m11C) {
+    case 0:
+    case 1:
+    case 2:
+        special = special && !mFlag6;
+        break;
+    case 3:
+    case 4:
+        special = special && (mStatus.m0C & 4) != 4;
+        break;
+    }
+    if (special) {
+        int wait = 6;
+        if (mFlag31) {
+            wait = 12;
+        }
+        if (lbl_8087F0A8->mInput.fn_801240B4(9) && fn_803761AC(field) && fn_8016DCD4() && !mStatus.fn_80134134(0x2E) &&
+            field->m5674 != 0) {
+            if (mFB8 >= wait) {
+                switch (fn_80219558(m50)) {
+                case 0:
+                    if (fn_80219344(this, 1) != 0 && fn_80375184(field) && HpRate_unk(this) >= 0.25f &&
+                        (mStatus.m0C & 4) != 4) {
+                        if (lbl_8087F610 == 0) {
+                            fn_8016D74C(fn_80219344(this, 1), 0, 0);
+                        } else {
+                            fn_8016D74C(fn_80219E6C(mStatus.m2D0[m145C].m[0]), 0, 0);
+                        }
+                    }
+                    break;
+                case 2:
+                case 3:
+                    if (lbl_8087F610 != 0 && mStatus.m2D0[m145C].m[0] > 0 && HpRate_unk(this) >= 0.25f &&
+                        (mStatus.m0C & 4) != 4) {
+                        fn_8016D74C(fn_80219E6C(mStatus.m2D0[m145C].m[0]), 0, 0);
+                    }
+                    break;
+                case 6: {
+                    CharaStatusPair_unk& magic = mStatus.m2D0[m145C];
+                    if (magic.m[0] != fn_8021921C(this, 4)) {
+                        fn_800E9110();
+                    }
+                    break;
+                }
+                case 1:
+                case 4:
+                case 5:
+                    fn_800E9110();
+                    break;
+                default: {
+                    CharaStatusPair_unk& magic = mStatus.m2D0[m145C];
+                    if (magic.m[0] > 0) {
+                        if ((unsigned int)m5C->m11C <= 2) {
+                            if ((unsigned int)m50 == 0xAAE72) {
+                                if ((mStatus.m0C & 4) != 4) {
+                                    fn_800E9110();
+                                }
+                            } else if ((unsigned int)(m50 - 0xAAE76) <= 1) {
+                                fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlZanTackle(this));
+                            } else if (HpRate_unk(this) >= 0.25f && (mStatus.m0C & 4) != 4) {
+                                fn_8016D74C(fn_80219E6C(magic.m[0]), 0, 0);
+                            }
+                        } else {
+                            fn_800E9110();
+                        }
+                    }
+                    break;
+                }
+                }
+            }
+            mFB8 += 1.0f;
+        } else {
+            special = 0;
+        }
+    }
+    if (!special && mFB8 > 0.0f) {
+        fn_8016DA4C();
+    }
+    fn_800E7BB0();
 }
 
 int BattleCharaTask::fn_800E70EC(int a, int b, int c) {
@@ -1609,17 +1862,6 @@ void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int from
         *pos = shot;
     }
 }
-
-extern "C" int fn_8021AF98(int id); // inferred: skill id of a skill growth entry (db/SkillGrowth_unk)
-
-// inferred: control with a timer (ids 10 and 12 of m560; class unknown, names invented)
-class ControlTimer_unk : public chr::ControlBase {
-public:
-    bool IsDone_unk() const { return m08 <= 0.0f; }
-    float m08;
-    unsigned char m0C[0x1C - 0x0C];
-    int m1C; // inferred: set to end the control early
-};
 
 // inferred: first skill of the weapon (name invented)
 inline int WeaponSkill_unk(Arms* arms) {
