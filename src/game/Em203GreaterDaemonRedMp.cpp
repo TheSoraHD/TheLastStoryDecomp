@@ -793,7 +793,6 @@ void Em203GreaterDaemonRedMp::fn_8029E950() {
     }
 }
 
-// NONMATCHING: 99.89% - stack slots of the spine and target vectors swapped
 // inferred: picks the next ground attack: claw when close (alternating with fn_802A2F48 every 3 times),
 // tackle when far, or turns when the target is behind; `wait` waits for GrandAttackTime/GrandBreathTime
 void Em203GreaterDaemonRedMp::fn_8029F148(int wait) {
@@ -808,7 +807,7 @@ void Em203GreaterDaemonRedMp::fn_8029F148(int wait) {
     }
     atn::Vector3 target(*m14D4->fn_8013C38C());
     atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
-    atn::Vector3 d = spine - target;
+    atn::Vector3 d = target - spine;
     d.y = 0.0f;
     float limit;
     float len = d.Length_unk();
