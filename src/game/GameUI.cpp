@@ -588,6 +588,61 @@ void GameUI::fn_803D8344() {
     }
 }
 
+// inferred: UV rectangle of a d2anime parameter (names invented)
+struct GameUIUvRect_unk {
+    GameUIUvRect_unk(float u0, float v0, float u1, float v1) {
+        v[0] = u0;
+        v[1] = v0;
+        v[2] = u1;
+        v[3] = v1;
+    }
+    float v[4];
+};
+inline void SetJobUv_unk(atn::D2A_Task* task, const char* name, const GameUIUvRect_unk& r) {
+    task->SetParam2_unk(name, r.v);
+}
+inline void SetJobColor_unk(atn::D2A_Task* task, const char* name, const GameUIColor_unk& c) {
+    GameUIColor_unk tmp = c;
+    task->SetColor255_unk(name, &tmp.r);
+}
+
+// inferred: colours of the HUD (0x807C8628, .bss of this file); they are set by the static initializer
+// (fn_803E78B4, not written yet), so they are only declared here
+extern "C" GameUIColor_unk lbl_807C8628[16];
+
+// inferred: job icon of a character window (UV of the icon and its colours)
+// NONMATCHING: 91.2% - the original keeps the colour table in r29 and the entry in r30 (one more saved
+// register); tried the colour by value, by reference, with a local copy and a reference per branch
+extern "C" void fn_803DD90C(atn::D2A_Task* task, int job) {
+    GameUIColor_unk* colors = lbl_807C8628;
+    if (job == 4) {
+        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
+        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
+        SetJobColor_unk(task, "jobCol01a", colors[4]);
+        SetJobColor_unk(task, "jobGradation", colors[4]);
+    } else if (job == 2) {
+        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.0f, 0.0f, 0.25f, 0.25f));
+        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.0f, 0.0f, 0.25f, 0.25f));
+        SetJobColor_unk(task, "jobCol01a", colors[1]);
+        SetJobColor_unk(task, "jobGradation", colors[1]);
+    } else if (job == 3) {
+        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.25f, 0.0f, 0.5f, 0.25f));
+        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.25f, 0.0f, 0.5f, 0.25f));
+        SetJobColor_unk(task, "jobCol01a", colors[2]);
+        SetJobColor_unk(task, "jobGradation", colors[2]);
+    } else if (job == 1) {
+        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        SetJobColor_unk(task, "jobCol01a", colors[0]);
+        SetJobColor_unk(task, "jobGradation", colors[0]);
+    } else {
+        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        SetJobColor_unk(task, "jobCol01a", colors[5]);
+        SetJobColor_unk(task, "jobGradation", colors[5]);
+    }
+}
+
 // NONMATCHING: 95.5% - register allocation: the original keeps the zero of the first loop in r31 and
 // reuses it as the offset into m10D4 (this in r30); here this stays in r31 (4 variants)
 void GameUI::fn_803DE648() {
