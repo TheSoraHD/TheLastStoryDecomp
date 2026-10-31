@@ -3768,6 +3768,14 @@ RVL_SDK/src/revolution/dvd/dvderror.c:
 RVL_SDK/src/revolution/dvd/dvdidutils.c:
 	.text       start:0x80600190 end:0x80600280
 
+smg2/src/RVL_SDK/dvd/dvdFatal.c:
+	.text       start:0x80600280 end:0x806003E8
+	.rodata     start:0x807647A8 end:0x807647E0
+	.data       start:0x807AA1A4 end:0x807AA970
+	.sdata      start:0x8087E7E8 end:0x8087E7F0
+	.sbss       start:0x8087FDA8 end:0x8087FDAC
+	.sdata2     start:0x80888590 end:0x80888598
+
 RVL_SDK/src/revolution/dvd/dvd_broadway.c:
 	.text       start:0x80600680 end:0x80602D28
 	.data       start:0x807AAB08 end:0x807ABA10
