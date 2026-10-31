@@ -544,13 +544,54 @@ void Em203GreaterDaemonRedMp::fn_8029DB58() {
     }
 }
 
+// inferred: turns towards the target at 3 degrees per frame times `scale`
+void Em203GreaterDaemonRedMp::fn_8029DBE0(float scale) {
+    CharaTask* t = m14D4;
+    float yaw = (t->mPos - mPos).ToRotationZ_unk().y;
+    float diff = atn::WrapAngle_unk(yaw - mRot.y);
+    float step = scale;
+    step *= 0.05235988f;
+    if ((diff < 0.0f ? -diff : diff) <= step) {
+        mRot.y = yaw;
+    } else if (diff <= 0.0f) {
+        mRot.y -= step;
+    } else {
+        mRot.y += step;
+    }
+}
+
 int Em203GreaterDaemonRedMp::vf10C(HitMsg_unk* msg) {
     msg->m10 = lbl_807C7030;
     msg->m50 |= 0x10;
     return 1;
 }
 
-
+// inferred: dies when the hit kills it, otherwise moves to the next "StunHPRate" threshold
+void Em203GreaterDaemonRedMp::vf40(HitInfo_unk* hit) {
+    if (mFlag2 == 0) {
+        if ((mStatus.m0C & 0x20) == 0x20) {
+            if (m1674 == 0) {
+                m1674 = 1;
+                vf48();
+                fn_80178A6C();
+                fn_8015495C(0, 1, 1, 1);
+                fn_8016DA4C();
+                m58C = 2;
+                ResetState_unk();
+                fn_8016E970(6);
+                m560 = 0x17;
+                PlayMotion_unk(0x1E1, 0, 0, 1.0f);
+                m1560 = m1638 - mPos;
+            }
+        } else {
+            int i = m1614;
+            if (mStatus.m04 < mStatus.mParamB.m84 * m1624[i]) {
+                int last = m1624.mSize - 1;
+                m1614 = i + 1 < last ? i + 1 : last;
+            }
+        }
+    }
+}
 
 // NONMATCHING: 85% - stack slots and scheduling of the capsule vectors (as Red vfF8)
 void Em203GreaterDaemonRedMp::vf11C() {
@@ -627,8 +668,184 @@ atn::Vector3 Em203GreaterDaemonRedMp::vf64(int center) {
     return result;
 }
 
+// NONMATCHING: 36% - the original calls every inline candidate out of line (over the R3 budget, cause unknown)
+// inferred: picks the next ground attack: claw when close (alternating with fn_802A2F48 every 3 times),
+// tackle when far, or turns when the target is behind; `wait` waits for GrandAttackTime/GrandBreathTime
+void Em203GreaterDaemonRedMp::fn_8029F148(int wait) {
+    if (m1650 == 0 && m1644 == 0 && fn_8029F3AC(&mStatus) < 0.6f) {
+        fn_802A3520();
+    }
+    if (m1648 != 0 && m1648->CanAct_unk() && m1648->fn_802A49C8() == 0) {
+        m14E4 = 5;
+        fn_802A35B0(5);
+    }
+    atn::Vector3 target(*m14D4->fn_8013C38C());
+    atn::Vector3 d = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk() - target;
+    d.y = 0.0f;
+    float len = d.Length_unk();
+    if (len < 0.00001f) {
+        d.Set_unk(0.0f, 0.0f, 1.0f);
+        len = 0.1f;
+    } else {
+        d.Normalize_unk();
+    }
+    float limit;
+    if (m58C == 16) {
+        limit = 0.0f;
+    } else {
+        limit = 0.5f;
+    }
+    if (fn_801A03E8(d, fn_8014052C()) > limit) {
+        if (len <= 40.0f + m14F0->m40) {
+            if (wait == 0 || m14DC > m16AC) {
+                if (m1630 >= 3) {
+                    fn_802A2F48();
+                    m1630 = 0;
+                } else {
+                    fn_802A2790();
+                    m1630++;
+                }
+                m1634 = 0;
+            }
+        } else if (wait == 0 || m14DC > m16B0) {
+            fn_802A325C();
+            m1630 = 0;
+            m1634 = 0;
+        }
+    } else {
+        if (m1634 >= 1) {
+            fn_802A2F48();
+            m1634 = 0;
+        }
+        fn_802A2A68();
+        m1634++;
+    }
+}
+
 int Em203GreaterDaemonRedMp::fn_8029F3F4() {
     return 1;
+}
+
+// inferred: state 6/7 (hovers to the route point m1570)
+// NONMATCHING: 99.72% - r3/r4 swap on the psq copy into m1560 and two stack slots (as Red fn_80296DB8)
+void Em203GreaterDaemonRedMp::fn_8029F3FC() {
+    if (m14D8 == 0) {
+        atn::Vector3 point = m1570->mPos;
+        fn_801C3910(point - mPos);
+        if (m1558 == m1570->m10) {
+            m1560 = point - mPos;
+            ToIdle_unk();
+        } else {
+            m155C += 1.0f / m168C;
+            float t = 0.5f * (1.0f + (float)sin(3.1415927f * m155C - 1.5707964f));
+            mPos = (m1570->mPos - m159C) * t + m159C;
+            if (m155C >= 1.0f) {
+                m1558 = m1570->m10;
+            }
+        }
+    } else if (m14D8 == 1) {
+        if (m14DC <= (int)m168C) {
+            mPos += m1560 * (1.0f / m168C);
+        } else {
+            ToIdle_unk();
+        }
+    }
+}
+
+// inferred: unit vector rotated around y (name invented)
+static inline atn::Vector3 Front_unk(const float& angle) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(angle);
+    PSMTXMultVec(m.m, &front, &front);
+    return front;
+}
+
+// inferred: camera shake (as in game/Em203GreaterDaemonRed.cpp)
+inline void ShakeCamera_unk(int frames, float a, float b) {
+    Field_unk* field = lbl_8087F430;
+    field->m96C = field->m96C % 2;
+    field->m970 = frames;
+    field->m974 = a;
+    field->m978 = b;
+}
+
+// inferred: starts state 13 (lands on the ground)
+inline void Em203GreaterDaemonRedMp::StartState13_unk() {
+    m58C = 13;
+    ResetState_unk();
+    fn_8016E970(6);
+    m560 = 4;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x153, 1, 0, 1.0f);
+}
+
+// inferred: state 11 (dives on the target)
+void Em203GreaterDaemonRedMp::fn_802A057C() {
+    atn::Vector3 target = m14D4->mPos;
+    atn::Vector3 dir = target - mPos;
+    fn_801C3910(dir);
+
+    if (m14D8 == 0) {
+        float end = mMotion.mTracks[0].m08;
+        if (end >= mMotion.fn_80097D7C(0)) {
+            StartState13_unk();
+            return;
+        }
+        if (m14DC <= 42) {
+            float k = 0.023809524f;
+            mPos += m1560 * k;
+        }
+        // inferred: the original tests m14EC twice (two `beq cr1`)
+        if (m14EC != 0 && mMotion.mTracks[0].m08 < 41.0f && m14EC != 0 && mMotion.mTracks[0].m08 >= 40.0f) {
+            ShakeCamera_unk(10, 1.0f, 2.0f);
+        }
+        if (m14EC != 0 && mMotion.mTracks[0].m08 < 44.0f) {
+            atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+            fn_800FAB80(lbl_8087F048, this, m14EC, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        }
+    }
+}
+
+// inferred: state 14 (turns to the target and strikes with the claws)
+void Em203GreaterDaemonRedMp::fn_802A0818() {
+    atn::Vector3 target = m14D4->mPos;
+    atn::Vector3 dir = target - mPos;
+    fn_801C3910(dir);
+    PSVECNormalize(&dir, &dir);
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
+        StartState13_unk();
+        return;
+    }
+    if (mMotion.mTracks[0].m08 <= 20.0f) {
+        mRot.y += atn::WrapAngle_unk(m1578 - m1574) / 20.0f;
+    }
+    if ((mMotion.mTracks[0].m08 > 36.0f && mMotion.mTracks[0].m08 < 40.0f) ||
+               (mMotion.mTracks[0].m08 > 56.0f && mMotion.mTracks[0].m08 < 60.0f)) {
+        atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
+        spine += Front_unk(mRot.y) * 35.0f;
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14F0, m590, 30, -1, 0.0f);
+    } else {
+        m590 = fn_800F8548(lbl_8087F048);
+    }
+}
+
+// inferred: starts the hovering to the route point m1570 (kind 0: state 7, 1: state 8)
+void Em203GreaterDaemonRedMp::fn_802A239C(int kind) {
+    if (kind == 0) {
+        m58C = 7;
+        m14E0 = 0;
+    } else if (kind == 1) {
+        m58C = 8;
+        m14E0 = 1;
+    }
+    ResetState_unk();
+    fn_8016E970(6);
+    m560 = 4;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(2, 1, 0, 1.5f);
+    m159C = mPos;
 }
 
 // inferred: starts state 9
