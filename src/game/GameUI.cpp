@@ -28,6 +28,8 @@ extern "C" void fn_80370B78(GameUIField_unk* field, unsigned int color, int fram
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" void fn_800D58A4(atn::Texture_unk* tex); // inferred: releases a render texture
 extern "C" void fn_803B78E8(void* self); // inferred: closes the window (game/GameChoiceWindow.cpp)
+extern "C" void fn_803B57B0(int window, int enabled); // inferred: game/GameChoiceWindow.cpp
+extern "C" void fn_803B6C88(GameUIWindow_unk* window, int arg);
 extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float time); // inferred: shows a message
 extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
@@ -629,17 +631,7 @@ void GameUI::fn_803DF5B4() {
 }
 
 void GameUI::fn_803E0D4C() {
-    m50.m30 = 0;
-    m50.m34 = 0;
-    m50.m38 = 0;
-    m50.m3C = 0.0f;
-    m50.m40 = 0;
-    m50.m44 = 0.0f;
-    m50.m48 = 0;
-    m50.m4C = 0;
-    m50.m54 = 0;
-    m50.m58 = 0;
-    m50.m5C = 0;
+    m50.Reset_unk();
 }
 
 // inferred: rewinds the d2anime instances of m318 (the check of the element pointer is in the original)
@@ -676,9 +668,9 @@ void GameUI::fn_803E3050(atn::Vector3 pos, atn::Vector3 screen, atn::Vector2_unk
 
 void GameUI::fn_803E32EC() {
     memcpy(&m748, &m764, sizeof(GameUIElem1C_unk));
-    m764 = GameUIElem1C_unk();
+    m764.Reset_unk();
     memcpy(&m7F8, &m7C0, sizeof(GameUIElem1C_unk));
-    m7C0 = GameUIElem1C_unk();
+    m7C0.Reset_unk();
 }
 
 // inferred: closes the button prompt (called by the enemies that grab the player)
@@ -693,9 +685,9 @@ void GameUI::fn_803E3384() {
         m814[i * 2 + 1]->SetFrame_unk(m814[i * 2 + 1]->mA0);
     }
     m814[5]->SetFrame_unk(0.0f);
-    m748 = GameUIElem1C_unk();
-    m764 = GameUIElem1C_unk();
-    m780 = GameUIElem1C_unk();
+    m748.Reset_unk();
+    m764.Reset_unk();
+    m780.Reset_unk();
 }
 
 void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
@@ -761,9 +753,9 @@ void GameUI::fn_803E3C78(const GameUIMarker_unk& marker) {
 }
 
 void GameUI::fn_803E4100() {
-    m748 = GameUIElem1C_unk();
-    m764 = GameUIElem1C_unk();
-    m780 = GameUIElem1C_unk();
+    m748.Reset_unk();
+    m764.Reset_unk();
+    m780.Reset_unk();
     for (int i = 0; i < 3; i++) {
         m814[i * 2]->m100 = m814[i * 2]->mA0;
     }
@@ -877,6 +869,60 @@ void GameUI::fn_803E4510() {
     if (m2654 != 0) {
         m2654->m104 = -1.0f;
         m2654->m100 = 0.0f;
+    }
+}
+
+// inferred: resets the HUD (called by game/GameTask); inlines fn_803E4100, fn_803E0D4C, fn_803E32EC,
+// fn_803CF74C, fn_803E4510, fn_803E43B8 and fn_803E4434
+// NONMATCHING: 99.2% - r5/r6 of the first gauge and of the pointer of the mB0 loop swapped
+void GameUI::fn_803E454C() {
+    fn_803E41AC(0);
+    fn_803B57B0(m263C, 1);
+    fn_803B6C88(m2640, 1);
+    m114C = 0;
+    m110C = 0;
+    m1170 = 0;
+    m15B4 = 0;
+    m2658 = 0;
+    fn_803E4100();
+    fn_803E0D4C();
+    for (int i = 0; i < 6; i++) {
+        mB0[i].Reset_unk();
+    }
+    mD90.m00 = 0;
+    mDA4 = 0;
+    mDA8 = 0;
+    mDAC = 0;
+    m25CC.m00 = 0;
+    m2568.m00 = 0;
+    fn_803E32EC();
+    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+    m85C = 0;
+    m1150 = 0;
+    if (m1140 != 0) {
+        m1140->mFrame = 0.0f;
+    }
+    if (m1144 != 0) {
+        m1144->mFrame = 0.0f;
+    }
+    for (int i = 0; i < 32; i++) {
+        mF94[i] = 0;
+        m1014[i] = -1;
+    }
+    for (int i = 0; i < 8; i++) {
+        m10D4[i] = 0;
+    }
+    m2620 = 0;
+    m2624 = 0;
+    m3F0.mCount = 0;
+    mC38.mCount = 0;
+    fn_803CF74C();
+    fn_803E4510();
+    if (mD8C == 1) {
+        fn_803E43B8(0);
+    }
+    if (mD8C == 2) {
+        fn_803E4434(0);
     }
 }
 

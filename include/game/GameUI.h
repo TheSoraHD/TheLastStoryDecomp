@@ -123,7 +123,20 @@ struct GameUIElem60_unk {
     int m50;
     int m54;
     int m58;
-    int m5C;
+    int m5C;    // inferred: clears the state of the entry (GameUI::fn_803E0D4C, fn_803E454C); name invented
+    void Reset_unk() {
+        m30 = 0;
+        m34 = 0;
+        m38 = 0;
+        m3C = 0.0f;
+        m40 = 0;
+        m44 = 0.0f;
+        m48 = 0;
+        m4C = 0;
+        m54 = 0;
+        m58 = 0;
+        m5C = 0;
+    }
 };
 
 // inferred: 0x20-byte element of the array at 0x318 (names invented)
@@ -156,6 +169,16 @@ struct GameUIMark24_unk {
 // inferred: 0x1C-byte entry at 0x748 (names invented)
 struct GameUIElem1C_unk {
     GameUIElem1C_unk() : m00(-1), m04(-1), m08(-1), m0C(0), m10(0), m14(0), m18(0) {}
+    // inferred: back to the constructed state (name invented)
+    void Reset_unk() {
+        m00 = -1;
+        m04 = -1;
+        m08 = -1;
+        m0C = 0;
+        m10 = 0;
+        m14 = 0;
+        m18 = 0;
+    }
     int m00;
     int m04;
     int m08;
@@ -275,6 +298,7 @@ public:
     void fn_803E4478();
     void fn_803E44C4(int on, int id, int count);
     void fn_803E4510();
+    void fn_803E454C(); // inferred: resets the HUD
     void fn_803E4950();
     void fn_803E4978(const wchar_t* text); // inferred: shows a message
     void fn_803E4A20(int a, int b);
@@ -447,8 +471,8 @@ public:
     int m112C;
     int m1130;
     unsigned char m1134[0x1140 - 0x1134];
-    atn::Task* m1140;
-    atn::Task* m1144;
+    atn::D2A_Task* m1140;
+    atn::D2A_Task* m1144;
     atn::Task* m1148;
     int m114C;
     int m1150;
