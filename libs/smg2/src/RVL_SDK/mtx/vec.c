@@ -127,6 +127,19 @@ f32 C_VECMag(const Vec* v) {
 
 // clang-format off
 
+asm f32 PSVECSquareMag(const register Vec* v)
+{
+    nofralloc;
+
+    psq_l    fp0, 0(v), 0, 0;
+    lfs      fp1, 8(v);
+    ps_mul   fp0, fp0, fp0;
+    ps_madd  fp1, fp1, fp1, fp0;
+    ps_sum0  fp1, fp1, fp0, fp0;
+
+    blr;
+}
+
 f32 PSVECMag ( const register Vec *v )
 {
     register f32    vxy, vzz, sqmag;

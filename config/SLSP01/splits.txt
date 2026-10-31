@@ -3714,6 +3714,10 @@ RVL_SDK/src/revolution/mtx/mtx44.c:
 	.text       start:0x805F94B0 end:0x805F9638
 	.sdata2     start:0x80888560 end:0x80888578
 
+smg2/src/RVL_SDK/mtx/vec.c:
+	.text       start:0x805F98D0 end:0x805F99EC
+	.sdata2     start:0x80888578 end:0x80888580
+
 RVL_SDK/src/revolution/mtx/quat.c:
 	.text       start:0x805F99F0 end:0x805F9EBC
 	.rodata     start:0x80764798 end:0x807647A8
