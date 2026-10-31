@@ -8,7 +8,14 @@ namespace detail {
 
 class EnvGenerator {
 public:
-    enum Status { STATUS_ATTACK, STATUS_DECAY, STATUS_SUSTAIN, STATUS_RELEASE };
+    // inferred: 2010 NW4R adds a hold phase after the attack
+    enum Status {
+        STATUS_ATTACK,
+        STATUS_HOLD,
+        STATUS_DECAY,
+        STATUS_SUSTAIN,
+        STATUS_RELEASE
+    };
 
 public:
     EnvGenerator();
@@ -26,6 +33,7 @@ public:
     }
 
     void SetAttack(int attack);
+    void SetHold(int hold);
     void SetDecay(int decay);
     void SetSustain(int sustain);
     void SetRelease(int release);
@@ -35,6 +43,7 @@ private:
 
     static const volatile f32 VOLUME_INIT;
     static const int ATTACK_INIT = 127;
+    static const int HOLD_INIT = 0;
     static const int DECAY_INIT = 127;
     static const int SUSTAIN_INIT = 127;
     static const int RELEASE_INIT = 127;
@@ -50,6 +59,8 @@ private:
     f32 mRelease;   // at 0xC
     f32 mAttack;    // at 0x10
     u8 mSustain;    // at 0x14
+    u16 mHold;      // at 0x16
+    u16 mHoldCounter; // at 0x18 (inferred: remaining hold time)
 
     static const s16 DecibelSquareTable[DECIBEL_SQUARE_TABLE_SIZE];
 };

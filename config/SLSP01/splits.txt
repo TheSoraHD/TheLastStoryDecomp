@@ -5231,6 +5231,11 @@ nw4r/src/snd/snd_AxManager.cpp:
 	.sbss       start:0x80880488 end:0x808804A0
 	.sdata2     start:0x80889008 end:0x80889020
 
+nw4r/src/snd/snd_EnvGenerator.cpp:
+	.text       start:0x8070CAE0 end:0x8070CEB0
+	.rodata     start:0x8076CCA0 end:0x8076CFA0
+	.sdata2     start:0x808890C0 end:0x808890F0
+
 nw4r/src/snd/snd_InstancePool.cpp:
 	.text       start:0x8070F0D0 end:0x8070F178
 
