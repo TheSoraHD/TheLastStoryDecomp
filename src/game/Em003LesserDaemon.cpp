@@ -72,7 +72,6 @@ struct Color4f_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -1460,7 +1459,7 @@ void Em003LesserDaemon::fn_8024FCDC() {
     fn_8015495C(0, 1, 1, 1);
     fn_8016DA4C();
     fn_80239DAC(lbl_8087F3C0, &m1504, 0, 0);
-    fn_800EB7A0(this);
+    fn_800EB7A0();
     for (unsigned int i = 0; i < mLinks.mSize; i++) {
         if (mLinks.mData[i]->m58C != 2) {
             mLinks.mData[i]->fn_8024FE18(0);

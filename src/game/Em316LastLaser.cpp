@@ -58,7 +58,6 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: color as four floats (as in game/Em315Coffin.cpp)
 struct Color4f_unk {
@@ -413,7 +412,7 @@ void Em316LastLaser::vf40(HitInfo_unk* hit) {
         int fps = lbl_8087F0A8->mFrameRate;
         float g = -98.1f / (float)(fps * fps);
         m14FC = 1.5f * (g * dt);
-        fn_800EB7A0(this);
+        fn_800EB7A0();
         fn_80239DAC(lbl_8087F3C0, this, 0x65, 0);
         fn_80232B7C(this, 0x66);
         erot.x = 0.0f;

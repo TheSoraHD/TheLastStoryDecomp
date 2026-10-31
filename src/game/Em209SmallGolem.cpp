@@ -35,7 +35,6 @@ struct EffectMgr_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int a, int b); // inferred: stops the effects
 // inferred: color as four floats (as in game/CharaTask.cpp)
 struct Color4f_unk {
@@ -694,7 +693,7 @@ void Em209SmallGolem::vfEC() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         if (m1434 > 0) {
             if (m1434 == 30) {
-                fn_800EB7A0(this);
+                fn_800EB7A0();
             } else if (m1434 == 15) {
                 PlayDeathEffect_unk(&m1528, &mMotion, 1);
                 vf9C(1);

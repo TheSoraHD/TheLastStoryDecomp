@@ -93,7 +93,6 @@ inline float Clamp01_unk(float x) {
 }
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_800EB7A0(CharaTask* chara);  // inferred: BattleCharaTask (death effect?)
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -498,7 +497,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
         if (m1598 != 0) {
             m1598->fn_8016EB48(0, 0, 0);
         }
-        fn_800EB7A0(this);
+        fn_800EB7A0();
     }
 }
 

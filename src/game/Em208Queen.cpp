@@ -85,7 +85,6 @@ extern "C" System_unk* lbl_8087F0A8;
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: camera and projection to the screen (as in MP/D2AMpMenuCockpit.cpp)
 extern "C" void* lbl_8087EFB4;
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos);
@@ -1143,7 +1142,7 @@ void Em208Queen::fn_802CC708() {
         m14D0->fn_8015495C(0, 1, 1, 1);
         m14D0 = 0;
     }
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 
 void Em208Queen::fn_802CC834(atn::Vector3 pos, float radius, float angle, int arg) {

@@ -53,7 +53,6 @@ extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int v
 extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
 struct ShadeDamage_unk {
     ShadeDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
@@ -1520,7 +1519,7 @@ void Em301LShade::fn_802D57B8() {
     if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
-    fn_800EB7A0(this);
+    fn_800EB7A0();
     m15E8 = 0;
     m15EC = 0;
     ShadeCamera_unk c;

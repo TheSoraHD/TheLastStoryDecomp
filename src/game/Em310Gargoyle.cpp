@@ -36,7 +36,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (as in game/Em309Ghoul.cpp)
 
 // inferred: node position (name invented, as in game/Em205Ogre.cpp)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
@@ -868,7 +867,7 @@ void Em310Gargoyle::fn_8030D0D8() {
     m1590 = 0.0f;
     m14B0 = 0;
     m15E4 = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 // inferred: the capsule goes from the "hips" node one unit along the facing direction
 // NONMATCHING: 99.71% - stack order of the three rotation blocks (the original puts the y block lowest and the

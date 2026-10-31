@@ -8,6 +8,7 @@
 #include "game/Arms.h"
 #include "game/BattleResult.h"
 #include "game/SetConfig.h"
+#include "atn/SoundRef.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -33,12 +34,21 @@ extern "C" Effect_unk* lbl_8087F048;
 // inferred: target in front of the character within radius/theta
 extern "C" CharaTask* fn_800FFE68(Effect_unk* mgr, CharaTask* chara, const atn::Vector3* dir, int a, int b,
                                   float radius, float theta);
+extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model); // inferred: death effect of a model
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
 extern "C" MpSession_unk* lbl_8087F610;
 extern "C" int fn_804EB1AC(MpSession_unk* session);
 extern "C" int fn_8021446C(int index, int arg); // inferred: entry of the level equipment table
+
+// inferred: sound effects of the deaths (names invented; index 2 is used by fn_800EAECC)
+static const char sSe009_unk[] = "SE_BTCOM_009";
+static const char sSe023_unk[] = "SE_BTCOM_023";
+static const char sSe078_unk[] = "SE_BTCOM_078";
+static const char sSe101_unk[] = "SE_BTCOM_101";
+static const char* const sDeathSe_unk[] = {sSe009_unk, sSe009_unk, sSe023_unk, sSe078_unk, sSe101_unk, 0};
 
 BattleCharaTask::BattleCharaTask(atn::Task* parent, int type, void* data)
     : CharaTask(parent, type, data), m1424(0), m1428(0), m142C(0), m1430(0), m1434(0), m1438(0), m143C(0),
@@ -227,6 +237,29 @@ void BattleCharaTask::vfF0() {
     } else {
         mFlag25 = 1;
         fn_800EAECC();
+    }
+}
+
+void BattleCharaTask::fn_800EAECC() {
+    if (m1434 > 0) {
+        if (!mFlag2) {
+            if (m1434 == 30) {
+                fn_800EB7A0();
+            } else if (m1434 == 15) {
+                if (m146C != 0x2C) {
+                    fn_80105BD8(lbl_8087F048, &mMotion);
+                    fn_800C344C(sDeathSe_unk[2], &mPos, 0, -1, 1.0f);
+                }
+                vf9C(1);
+            }
+        }
+        m1434--;
+    } else {
+        if (!mFlag15 && !(m55C == 6 && m560 == 0x3B)) {
+            fn_800EE360();
+        }
+        mFlag15 = 1;
+        fn_801765D8();
     }
 }
 

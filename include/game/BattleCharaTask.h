@@ -24,6 +24,7 @@ public:
     int fn_800E70EC(int a, int b, int c); // inferred: auto attack of the player (button attack correction)
     void fn_800E8688(int a, int b, CharaTask* target, const atn::Vector3* pos, int c, int d); // inferred: starts an attack
     void fn_800EAECC(); // inferred: called by vfF0 when mFlag16 is clear
+    void fn_800EB7A0(); // inferred: death effect
     int fn_800EBE84();  // inferred: applies the motion sets once loaded (1 while loading)
     void fn_800EE360(); // inferred: death reward (item of the battle result or message 3 to the gimmick m1438)
     void fn_800EE5AC(class Arms* arms);

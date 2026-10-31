@@ -42,7 +42,6 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" double cos(double x);
 extern "C" double sqrt(double x);
@@ -1004,7 +1003,7 @@ void Em202SpiderBase::fn_80287788() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
     m6B8 = lbl_807C7030;
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 
 // NONMATCHING: 99.78% - stack slots of the two differences inside the loop (d at 0x68 instead of 0x50); 8

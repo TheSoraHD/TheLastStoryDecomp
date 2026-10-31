@@ -31,7 +31,6 @@ struct GhoulMsgTable_unk {
 extern "C" GhoulMsgTable_unk* lbl_8087F1E4;
 // inferred: debug drawing (lbl_8087EEB0, see game/CharaTask.cpp)
 
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -531,12 +530,12 @@ void Em309Ghoul::vf40(HitInfo_unk* hit) {
             vf44();
             Die_unk(0x37, 1);
             fn_80239DAC(lbl_8087F3C0, this, 0x131, 1);
-            fn_800EB7A0(this);
+            fn_800EB7A0();
         } else {
             fn_80239DAC(lbl_8087F3C0, this, 0x190, 1);
             vf44();
             Die_unk(0x2E, 0);
-            fn_800EB7A0(this);
+            fn_800EB7A0();
         }
     }
 }

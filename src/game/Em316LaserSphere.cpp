@@ -57,7 +57,6 @@ struct GameState_unk {
     float m3A4;
 };
 extern "C" GameState_unk* lbl_8087EFA8;
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the sphere (laser, laser end, ?, death); name invented
@@ -692,7 +691,7 @@ void Em316LaserSphere::fn_8031A484() {
         fn_80319998((LaserCatch_unk*)fn_80318F90(caught));
         m15B4 = 0;
     }
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 
 int Em316LaserSphere::vfE4() {

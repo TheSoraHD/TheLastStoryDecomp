@@ -72,7 +72,6 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
 extern "C" int fn_800C3118(const char* group); // inferred: nonzero when the sound group is loaded
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" double sqrt(double x);
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -672,7 +671,7 @@ void Em202ForestSpider::vfEC() {
         mFlag15 = 1;
         fn_801765D8();
         fn_800EE360();
-        fn_800EB7A0(this);
+        fn_800EB7A0();
     }
     m1434 = 5;
 }
