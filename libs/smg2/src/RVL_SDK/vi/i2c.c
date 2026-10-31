@@ -1,3 +1,5 @@
+// inferred: the 2010 build uses the fixed bus clock here (lis/li constants, no __OSBusClock load)
+#define OS_TIMER_CLOCK (243000000u / 4)
 #include "revolution/os.h"
 
 static volatile u32 __i2c_ident_flag  = 1;
