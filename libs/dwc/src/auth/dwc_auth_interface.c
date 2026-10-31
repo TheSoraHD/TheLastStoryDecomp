@@ -31,7 +31,7 @@ void fn_80698A28(u8* macAddress);
 const char* fn_80624F90(void);  // inferred: console serial number prefix
 BOOL fn_80624FD0(u32* serial);  // inferred: console serial number
 s64 fn_806AA690(void);          // inferred: console friend code
-char* fn_806826A0(char* str, const char* delim);  // strtok
+char* strtok(char* str, const char* delim);  // strtok
 
 // inferred: results of the nas request (DWC "auth" results)
 typedef struct DWCAuthResult {
@@ -777,7 +777,7 @@ static void DWCi_Auth_HandleResponse(int error, NHTTPResponseHandle response, vo
     hasReturnCd = FALSE;
     if (NHTTPGetBodyAll(response, &body) > 0) {
         DWC_Printf(DWC_REPORTFLAG_AUTH, " %s\n", body);
-        for (token = fn_806826A0(body, delim); token != (char*)NULL; token = fn_806826A0(NULL, delim))
+        for (token = strtok(body, delim); token != (char*)NULL; token = strtok(NULL, delim))
         {
             if (strncmp(token, "retry=", strlen("retry=")) == 0) {
                 DWC_AUTH_DECODE("retry=");

@@ -22,8 +22,8 @@ devsupport@gamespy.com
 #include <ctype.h>
 
 // MSL strcspn (still unnamed in symbols.txt)
-size_t fn_806825FC(const char* s1, const char* s2);
-#define strcspn fn_806825FC
+size_t strcspn(const char* s1, const char* s2);
+#define strcspn strcspn
 
 // Parse the URL into:
 //   server address (and IP)

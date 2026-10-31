@@ -16,7 +16,7 @@ char* strcat(char* dst, const char* src);
 int sprintf(char* buf, const char* fmt, ...);
 void* memcpy(void* dst, const void* src, unsigned long n);
 void* memset(void* dst, int c, unsigned long n);
-char* fn_806825B4(const char* s, int c); // inferred: strrchr
+char* strrchr(const char* s, int c); // inferred: strrchr
 
 void* NANDGetUserData(const atn::NandBlock_unk* block);
 void NANDSetUserData(atn::NandBlock_unk* block, void* data);
@@ -1002,7 +1002,7 @@ extern "C" int fn_800A5218(const char* path, int offset, const void* data, int s
         return 0;
     }
     strcpy(name, path);
-    char* p = fn_806825B4(name, '/');
+    char* p = strrchr(name, '/');
     if (p != 0) {
         *p = 0;
         strcpy(dir, name);

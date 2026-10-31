@@ -8,7 +8,7 @@ extern "C" unsigned long strlen(const char* s);
 extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 extern "C" char* strncat(char* dst, const char* src, unsigned long n);
 extern "C" int sprintf(char* s, const char* format, ...);
-extern "C" char* fn_806825B4(const char* s, int c); // inferred: strrchr
+extern "C" char* strrchr(const char* s, int c); // inferred: strrchr
 
 // inferred: atn::AudioDevice: one bit per file id for the files read from the stream folder,
 // and that folder (see atn/AudioDevice.cpp)
@@ -136,7 +136,7 @@ ut::FileStream* SoundArchive::detail_OpenFileStream(unsigned long id, void* pBuf
         if (lbl_8087EE88[id >> 5] & (1 << (id & 31))) {
             // inferred: both formats end with an explicit NUL (the pool has two NULs after each)
             char path[FILE_PATH_MAX];
-            const char* name = fn_806825B4(extPath, '/');
+            const char* name = strrchr(extPath, '/');
             if (name != 0) {
                 sprintf(path, "%s%s\0", lbl_8087EE8C, name);
             } else {
