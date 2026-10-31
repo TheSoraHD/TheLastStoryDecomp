@@ -4,7 +4,6 @@
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void fn_800E2FE0(CharaTask* chara);       // inferred: BattleCharaTask update
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp)
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
@@ -83,7 +82,7 @@ void Em002_02SkeltonKing::vf10() {
     }
     if (update) {
         ReleaseTarget_unk(this);
-        fn_800E2FE0(this);
+        fn_800E2FE0();
     }
 }
 

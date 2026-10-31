@@ -142,3 +142,8 @@ int BattleCharaTask::vfE4() {
     }
     return 0;
 }
+
+// inferred: defined last in the file (0x800EF3E8, after the weak copies)
+void BattleCharaTask::vf10() {
+    fn_800E2FE0();
+}

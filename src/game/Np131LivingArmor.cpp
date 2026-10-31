@@ -7,7 +7,6 @@
 extern "C" int rand();
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
 // inferred: color of an effect (as in atn/EffectManager.cpp)
 struct EffectColor_unk {
     EffectColor_unk() {}
@@ -209,7 +208,7 @@ void Np131LivingArmor::vf10() {
         m54C &= ~0x2000;
         break;
     default:
-        fn_800E2FE0(this);
+        fn_800E2FE0();
         m54C &= ~0x2000;
         break;
     }

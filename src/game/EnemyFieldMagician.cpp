@@ -8,7 +8,6 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -301,7 +300,7 @@ void EnemyFieldMagician::vf10() {
             fn_80145334();
             fn_8014C540();
         } else {
-            fn_800E2FE0(this);
+            fn_800E2FE0();
         }
         break;
     }
