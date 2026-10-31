@@ -780,8 +780,7 @@ atn::Vector3 Em206EggMonster::vf64(int center) {
     return result;
 }
 
-// NONMATCHING: 99.2% - stack slots of the rotation temporaries and an frsp before atan2 (same
-// rotation inline as the vfFC of the spiders)
+// NONMATCHING: 99.98% - stack slots of the GetNormalize temporary and of the normalized copy swapped
 void Em206EggMonster::fn_802C3EDC() {
     if (m55C == 7) {
         if (m1594 != 2 && mC58.mC4 != (CharaTask*)mC58.mC8) {
@@ -805,7 +804,8 @@ void Em206EggMonster::fn_802C3EDC() {
     }
     fn_802C2BCC();
     if (m1594 != 2) {
-        atn::Vector3 d = m1584->mPos - mPos;
+        CharaTask* t = m1584;
+        atn::Vector3 d = t->mPos - mPos;
         atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         atn::WrapAngle_unk(rot.y - mRot.y);
         atn::Vector3 m = d;
