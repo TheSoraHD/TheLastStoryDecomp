@@ -5403,6 +5403,9 @@ ss_nw4r/src/snd/snd_SoundActor.cpp:
 	.data       start:0x807C6308 end:0x807C6328
 	.sdata2     start:0x80889258 end:0x80889260
 
+ss_nw4r/src/snd/snd_SoundArchiveFile.cpp:
+	.text       start:0x80716280 end:0x80717590
+
 ss_nw4r/src/snd/snd_SoundHandle.cpp:
 	.text       start:0x80717590 end:0x80717680
 

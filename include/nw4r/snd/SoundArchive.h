@@ -20,11 +20,11 @@ enum SoundType {
     SOUND_TYPE_WAVE
 };
 
+namespace detail {
+
 namespace SoundArchiveFile {
 struct StringTree;
 } // namespace SoundArchiveFile
-
-namespace detail {
 
 class SoundArchiveFileReader;
 
@@ -169,7 +169,7 @@ public:
     unsigned long GetInfoChunkSize() const { return mInfoSize; }
 
 private:
-    unsigned long ConvertLabelStringToId(const SoundArchiveFile::StringTree* pTree,
+    unsigned long ConvertLabelStringToId(const detail::SoundArchiveFile::StringTree* pTree,
                                          const char* pLabel) const;
 
     // inferred: SoundArchiveFile::Header (binary file header, then the chunk offsets and sizes)
@@ -183,10 +183,10 @@ private:
     const void* mInfo;                // at 0x28
     const void* mStringBase;          // at 0x2C
     const void* mStringTable;         // at 0x30
-    const SoundArchiveFile::StringTree* mStringTreeSound;  // at 0x34
-    const SoundArchiveFile::StringTree* mStringTreePlayer; // at 0x38
-    const SoundArchiveFile::StringTree* mStringTreeGroup;  // at 0x3C
-    const SoundArchiveFile::StringTree* mStringTreeBank;   // at 0x40
+    const detail::SoundArchiveFile::StringTree* mStringTreeSound;  // at 0x34
+    const detail::SoundArchiveFile::StringTree* mStringTreePlayer; // at 0x38
+    const detail::SoundArchiveFile::StringTree* mStringTreeGroup;  // at 0x3C
+    const detail::SoundArchiveFile::StringTree* mStringTreeBank;   // at 0x40
 };
 
 } // namespace detail
