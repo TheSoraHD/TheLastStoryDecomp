@@ -3827,6 +3827,11 @@ RVL_SDK/src/revolution/axfx/AXFXReverbHi.c:
 	.text       start:0x8060B0D0 end:0x8060B174
 	.sdata2     start:0x808885C0 end:0x808885C8
 
+smg2/src/RVL_SDK/axfx/AXFXReverbHiExp.c:
+	.text       start:0x8060B180 end:0x8060BFA4
+	.data       start:0x807AF660 end:0x807AF800
+	.sdata2     start:0x808885C8 end:0x80888608
+
 RVL_SDK/src/revolution/axfx/AXFXHooks.c:
 	.text       start:0x806104C0 end:0x80610504
 	.sdata      start:0x8087E858 end:0x8087E860

@@ -2,7 +2,7 @@
 # usage: sdkcheck.py <src.c> [<libs_ref unit suffix for the flags, default OSMutex.c>]
 # Compiles a library source with the flags of that libs_ref unit and compares every function with
 # the same-named symbol of symbols.txt in main.dol (relocated words masked). V=1 prints the first
-# differing words. COMPILERS (default build/compilers) and WIBO (default build/tools/wibo).
+# differing words. MW=<version> and XFLAGS="..." override the compiler and add flags. COMPILERS (default build/compilers) and WIBO (default build/tools/wibo).
 import os, sys, json, re, struct, subprocess
 from elftools.elf.elffile import ELFFile
 from elftools.elf.relocation import RelocationSection
@@ -11,7 +11,7 @@ src=sys.argv[1]
 d=json.load(open('config/SLSP01/libs_ref.json'))
 ref=[u for u in d if u['name'].endswith('OSMutex.c')][0]
 if len(sys.argv)>2: ref=[u for u in d if u['name'].endswith(sys.argv[2])][0]
-fl=ref['cflags']; mw=ref['mw_version']
+fl=ref['cflags']+os.environ.get('XFLAGS','').split(); mw=os.environ.get('MW',ref['mw_version'])
 out=os.environ.get('SDK_OUT','/tmp/sdkcheck_out.o')
 # keep pragma quoting
 cmd=[os.environ.get('WIBO','build/tools/wibo'),os.path.join(os.environ.get('COMPILERS','build/compilers'),mw,'mwcceppc.exe')]
