@@ -29,6 +29,7 @@ public:
     void fn_800EB270(int id); // inferred: starts the skill `id` (200: the normal attack)
     void fn_800EB7A0(); // inferred: death effect
     int fn_800EBE84();  // inferred: applies the motion sets once loaded (1 while loading)
+    int fn_800EE180(); // inferred: the character can start an action against its target
     void fn_800EE360(); // inferred: death reward (item of the battle result or message 3 to the gimmick m1438)
     void fn_800EE5AC(class Arms* arms);
     int fn_800EE640(CharaTask* chara); // inferred: chara is a valid target for this character

@@ -14,6 +14,7 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
 struct Field_unk {
     void fn_803750E4(int id); // inferred: sets an event (as in game/CharaTask.cpp)
+    int fn_803761BC();
     unsigned char m0000[0x10D0];
     int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
 };
@@ -428,6 +429,31 @@ int BattleCharaTask::fn_800EBE84() {
         mAC = 3;
     }
     return 0;
+}
+
+int BattleCharaTask::fn_800EE180() {
+    if (!mFlagC26) {
+        return 0;
+    }
+    if (!CanAct_unk() || (mType != 0 && mC58.mC0 == 0)) {
+        return 0;
+    }
+    if ((m54C & 0x2000) == 0x2000 || mFlag15) {
+        return 0;
+    }
+    if (mC58.mC4 == 0 || !mC58.mC4->CanAct_unk()) {
+        return 0;
+    }
+    if (mC58.m00 == 14) {
+        return 0;
+    }
+    if ((mStatus.m0C & 0x2000) == 0x2000) {
+        return 0;
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_803761BC() == 0) {
+        return 0;
+    }
+    return 1;
 }
 
 // NONMATCHING: 98.7% - the original reloads mItemCount for the slot address of AddItem_unk
