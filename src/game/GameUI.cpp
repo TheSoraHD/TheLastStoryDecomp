@@ -670,6 +670,26 @@ bool GameUI::fn_803E5940() {
     return false;
 }
 
+// inferred: shows the time left over a character (TacView)
+// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
+void GameUI::fn_803E5C60(CharaTask* chara) {
+    if (chara == 0 || m254C == 0) {
+        return;
+    }
+    atn::Vector3 pos = chara->vf58();
+    atn::Vector3 screen;
+    fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+    if (0.0f < screen.z && screen.z < 1.0f) {
+        atn::D2A_Task* task = m254C;
+        task->SetNumber_unk("string0001(1)", fn_803CE854(chara->fn_8016DAB0()), 0);
+        task->SetNumber_unk("string0002(1)", fn_803CE854(chara->fn_8016DAB0()), 0);
+        SetLayoutValue_unk(&task->mData.m10, "basePoint", 0, screen.x);
+        SetLayoutValue_unk(&task->mData.m10, "basePoint", 1, screen.y);
+        task->mFrame = 0.0f;
+        fn_800C31F4(lbl_80750618[9], 0, -1, 0.5f);
+    }
+}
+
 // NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
 void GameUI::fn_803E627C(int town) {
     char path[0x100];
@@ -810,6 +830,84 @@ void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {
     if (!m25CC.Full_unk()) {
         new (&m25CC.m[m25CC.m00]) GameUIElem10_unk(chara, count, max, arg);
         m25CC.m00++;
+    }
+}
+
+// inferred: adds the icon of a skill that hit (SkillEffectManager)
+// NONMATCHING: 98.5% - the original reloads the count for the new slot after the search loop (and so
+// allocates r7/r8/r9 differently); tried Find/Push/Full inlines on the list (6 variants)
+void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
+    if (m2568.m00 >= 8 || hit == 0) {
+        return;
+    }
+    bool first = false;
+    if (m2568.m00 == 0) {
+        first = true;
+    }
+    int icon = -1;
+    if (chara == 0 || chara->mType == 2) {
+        if (hit->m04 == 0x8A) {
+            icon = 10;
+        }
+    } else {
+        switch (hit->m04) {
+        case 0x82:
+        case 0x88:
+            icon = 0;
+            break;
+        case 0x83:
+        case 0x8F:
+            icon = 1;
+            break;
+        case 0x85:
+        case 0x89:
+            icon = 2;
+            break;
+        case 0x86:
+        case 0x90:
+            icon = 3;
+            break;
+        case 0x99:
+        case 0x9D:
+            icon = 4;
+            break;
+        case 0x9A:
+        case 0xA1:
+        case 0x4FD1:
+        case 0x4FD2:
+            icon = 5;
+            break;
+        case 0x96:
+        case 0x9C:
+            icon = 6;
+            break;
+        case 0x97:
+        case 0xA0:
+        case 0x4FCA:
+        case 0x4FCB:
+            icon = 7;
+            break;
+        case 0xC:
+            icon = 8;
+            break;
+        case 0x13:
+            icon = 9;
+            break;
+        }
+    }
+    if (icon < 0) {
+        return;
+    }
+    for (unsigned int i = 0; i < m2568.m00; i++) {
+        if (icon == m2568.m[i].m00) {
+            return;
+        }
+    }
+    new (&m2568.m[m2568.m00]) GameUIElem0C_unk(icon, chara, hit);
+    m2568.m00++;
+    if (first && m2564 != 0) {
+        m2564->mFrame = 0.0f;
+        fn_800C31F4(lbl_80750618[10], 0, -1, 1.0f);
     }
 }
 

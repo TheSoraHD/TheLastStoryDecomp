@@ -7001,6 +7001,10 @@ struct HitEvent_unk {
 };
 
 
+// inferred: inline accessors of the HUD (declared in game/GameUI.h; weak copies 0x80151210, 0x80151204)
+inline GameUI* GameUI::Get_unk() { return lbl_8087F490; }
+inline void GameUI::Remove_unk(CharaTask* chara) { fn_803E2110(1, chara); }
+
 // inferred: reaction to a hit (knock back, down, guard...) and record of the hit in m6D0
 void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3& v2, int arg, unsigned int flags,
                             HitMsg_unk* msg) {

@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "game/SkillEffectManager.h"
 #include "atn/FixedArray.h"
 #include "atn/Memory.h"
@@ -54,14 +55,6 @@ extern "C" void fn_80599FB4(Bullet_unk* bullet, int arg);
 extern "C" void fn_8059A0B4(Bullet_unk* bullet, atn::EffFile* res);
 extern "C" void fn_8059A1FC(Bullet_unk* bullet, int arg);
 
-// inferred: object behind lbl_8087F490; Get_unk is only declared here: the call goes to the weak
-// copy at 0x80151210 (game/CharaTask.cpp)
-struct Unk8087F490_unk;
-extern "C" Unk8087F490_unk* lbl_8087F490;
-struct Unk8087F490_unk {
-    static Unk8087F490_unk* Get_unk();
-};
-extern "C" void fn_803E6890(Unk8087F490_unk* obj, CharaTask* chara, HitInfo_unk* hit);
 
 // inferred: pair of pointers (Pair_unk is not available; names invented)
 template <class A, class B>
@@ -358,7 +351,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
             }
         }
         if (lbl_8087F490 != 0) {
-            fn_803E6890(Unk8087F490_unk::Get_unk(), heals[i].second, heals[i].first);
+            GameUI::Get_unk()->fn_803E6890(heals[i].second, heals[i].first);
         }
     }
     for (int i = 0; i < hits.size(); i++) {
@@ -367,7 +360,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
             fn_800FBA30(mgr, hits[i].second, user, hits[i].first, fn_800F8548(mgr), pos, &user->mRot);
         }
         if (lbl_8087F490 != 0) {
-            fn_803E6890(Unk8087F490_unk::Get_unk(), hits[i].second, hits[i].first);
+            GameUI::Get_unk()->fn_803E6890(hits[i].second, hits[i].first);
         }
     }
     for (int i = 0; i < subs.size(); i++) {
@@ -377,7 +370,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
             fn_800FB1BC(lbl_8087F048, bullet->m08, subs[i].second, &bullet->m10, &bullet->m1C, 0, 0);
         }
         if (lbl_8087F490 != 0) {
-            fn_803E6890(Unk8087F490_unk::Get_unk(), subs[i].first->m08, subs[i].second);
+            GameUI::Get_unk()->fn_803E6890(subs[i].first->m08, subs[i].second);
         }
     }
 }

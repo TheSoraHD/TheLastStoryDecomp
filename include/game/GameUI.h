@@ -162,11 +162,14 @@ struct GameUIElem7C_unk {
 };
 
 // inferred: 0xC-byte element of the array at 0x256C (names invented)
+class CharaTask;
+struct HitInfo_unk;
 struct GameUIElem0C_unk {
     GameUIElem0C_unk() : m00(-1), m04(0), m08(0) {}
-    int m00;
-    int m04;
-    int m08;
+    GameUIElem0C_unk(int icon, CharaTask* chara, HitInfo_unk* hit) : m00(icon), m04(chara), m08(hit) {}
+    int m00;            // inferred: icon (GameUI::fn_803E6890)
+    CharaTask* m04;
+    HitInfo_unk* m08;
 };
 
 // inferred: 0x10-byte element of the array at 0x25D0 (names invented)
@@ -228,8 +231,11 @@ public:
     virtual void vf14();       // 0x803CFC74
 
     static GameUI* fn_803CE910(atn::Task* parent);
-    static GameUI* Get_unk() { return lbl_8087F490; } // inferred: weak copy 0x80151210 (game/CharaTask)
-    void Remove_unk(CharaTask* chara) { fn_803E2110(1, chara); } // inferred: weak copy 0x80151204
+    // inferred: inline accessors; their weak copies are in game/CharaTask (0x80151210, 0x80151204), which
+    // defines them. game/SkillEffectManager calls the weak copy (out of its inline budget), so the
+    // bodies are not in this header.
+    static GameUI* Get_unk();
+    void Remove_unk(CharaTask* chara);
 
     void fn_803CF740();
     void fn_803CF74C();
@@ -260,6 +266,7 @@ public:
     void fn_803E58E4();
     bool fn_803E5940();
     void fn_803E627C(int town); // inferred: loads the shop animations of a town
+    void fn_803E5C60(CharaTask* chara);
     void fn_803E63D0();
     bool fn_803E644C();
     void fn_803E64F0();
@@ -267,6 +274,7 @@ public:
     void fn_803E65F8();
     void fn_803E668C();
     void fn_803E6850(CharaTask* chara, int count, int max, int arg); // inferred: shows a counter
+    void fn_803E6890(CharaTask* chara, HitInfo_unk* hit); // inferred: adds the icon of a skill
     void fn_803E6ADC(const atn::Vector3& a, const atn::Vector3& b);
     void fn_803E6BB4(CharaTask* target); // inferred: new target
     void fn_803E6BF0(unsigned int id, int value);
@@ -426,14 +434,14 @@ public:
     int m2540;
     int m2544;
     int m2548;
-    int m254C;
+    atn::D2A_Task* m254C; // inferred: time over a character (fn_803E5C60)
     char m2550[0xC];
     int m255C;
     float m2560;
-    int m2564;
+    atn::D2A_Task* m2564; // inferred: restarted with the first icon (fn_803E6890)
     struct W2568_unk {
         W2568_unk() : m00(0) {}
-        int m00;
+        unsigned int m00; // inferred: count (compared unsigned)
         GameUIElem0C_unk m[8];
     } m2568;                                   // 0x2568
     struct W25CC_unk {
