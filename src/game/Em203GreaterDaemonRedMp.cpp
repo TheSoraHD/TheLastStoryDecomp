@@ -1,6 +1,7 @@
 #include "game/Em203GreaterDaemonRedMp.h"
 #include "atn/Csv.h"
 #include "atn/SoundRef.h"
+#include "game/CharaManager.h"
 #include "game/PlayerManager.h"
 #include "math/Vec.h"
 #include "game/GameBgm.h"
@@ -26,7 +27,7 @@ extern "C" int rand();
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em203GreaterDaemon.cpp)
 struct RedLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
+    void Set_unk(const atn::Vector3& pos, int flag) {
         m01 = m00;
         m00 = 1;
         mPos = pos;
@@ -223,6 +224,299 @@ inline void Em203GreaterDaemonRedMp::ToIdle_unk() {
     fn_80239DAC(lbl_8087F3C0, this, -2, 1);
 }
 
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: enemy manager (not inlined here)
+extern "C" CharaManager<EnemyTask>* fn_801A03E0();
+
+// NONMATCHING: 99.8% - register swap of the second std::string temporary (known, as in Em203GreaterDaemonRed)
+Em203GreaterDaemonRedMp::Em203GreaterDaemonRedMp(atn::Task* parent, EnemyInfo_unk* info)
+    : SpecialEnemyBase(parent, info), m14D4(0), m14D8(0), m14DC(0), m14E0(0), m14E4(2), m14E8(0), m14EC(0),
+      m14F0(0), m14FC(0), m1500(0), m1504(0), m1550(0), m1554(0), m155C(0.0f), m156C(0), m1570(0), m15C0(0),
+      m15C4(0), m15C8(0), m15FC(0), m160C(0), m1610(0), m1614(0), m1618(0), m161C(0), m1620(0), m1630(0),
+      m1634(0), m1644(0), m1648(0), m164C(0), m1650(0), m1654(90), m1658(0), m165C(0), m1660(0), m1664(0),
+      m1674(0), m1678(0), m1688(0), m1690(3.0f), m16A8(10), m16AC(35), m16B0(35) {
+    mFlag22 = 1;
+    std::string dir("database/chara/special/");
+    std::string name("db_em203_02_00.csv");
+    atn::Csv csv(info->m2C, strlen(info->m2C));
+    do {
+        const char* s = csv.fn_8005B9CC();
+        if (s == 0 || strcmp(s, "") == 0) {
+            break;
+        }
+        if (strncmp(s, "db_name=", 8) == 0) {
+            name = s + 8;
+        }
+    } while (csv.fn_8005BBF8());
+    std::string path = fn_8006AFF8(dir, name);
+    m167C.vf0C(path.c_str());
+    m1668.LoadRequest("/effect/ef_uc015.efp");
+    m1560.x = 0.0f;
+    m1560.y = 0.0f;
+    m1560.z = 0.0f;
+    mColli.mFlags &= ~0x80000000;
+}
+
+int Em203GreaterDaemonRedMp::vf0C() {
+    const char* key;
+    if (fn_8013655C() == 0 && m167C.fn_80473F50() == 0 && m1668.IsLoading() == 0) {
+        fn_80288E30(this, 1.0f);
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0x2C9;
+        mStatus.m18 |= 0x3800000;
+        mStatus.m18 |= 0x8410;
+        mStatus.m18 |= 0x80000;
+        mStatus.m18 |= 0x4;
+        RouteTable_unk* table;
+        if (fn_80121F00() != 0) {
+            table = fn_80121F00()->fn_8013C504();
+        } else {
+            table = 0;
+        }
+        RoutePlace_unk* center = 0;
+        if (m167C.fn_80470580() != 0 && table != 0) {
+            atn::Csv csv((const char*)m167C.fn_80470580(), m167C.fn_8047059C());
+            float zero = 0.0f;
+            int none = 0;
+            do {
+                key = csv.fn_8005B9CC();
+                if (strcmp(key, "HoverSpeed") == 0) {
+                    m168C = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "BulletSpeed") == 0) {
+                    m1690 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "LimitAngle") == 0) {
+                    m1694 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "AtackedMax") == 0) {
+                    m1698 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "GunPerAttac") == 0) {
+                    m169C = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "MagicPerAttack") == 0) {
+                    m16A0 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "StunTime") == 0) {
+                    m16A4 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "GrandTime") == 0) {
+                    m16A8 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "GrandAttackTime") == 0) {
+                    m16AC = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "GrandBreathTime") == 0) {
+                    m16B0 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "ThunderBoltAreaRadius") == 0) {
+                    m16B4 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(key, "ThunderBoltNum") == 0) {
+                    m16BC = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "ThunderBoltMax") == 0) {
+                    m16B8 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "ThunderBrankTime") == 0) {
+                    m16C0 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "ThunderChargeTime") == 0) {
+                    m16C4 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "ThunderTimeLag") == 0) {
+                    m16C8 = fn_800DC12C(csv.fn_8005B9CC());
+                } else if (strcmp(key, "1stHoverSkill") == 0) {
+                    int skill = none;
+                    do {
+                        skill = fn_800DC12C(csv.fn_8005B9CC());
+                        m1508[0][0].push_back(skill);
+                    } while (skill != 0);
+                } else if (strcmp(key, "2ndHoverSkill") == 0) {
+                    int skill = none;
+                    do {
+                        skill = fn_800DC12C(csv.fn_8005B9CC());
+                        m1508[0][1].push_back(skill);
+                    } while (skill != 0);
+                } else if (strcmp(key, "3rdHoverSkill") == 0) {
+                    int skill = none;
+                    do {
+                        skill = fn_800DC12C(csv.fn_8005B9CC());
+                        m1508[0][2].push_back(skill);
+                    } while (skill != 0);
+                } else if (strcmp(key, "1stFlySkill") == 0) {
+                    int skill = none;
+                    do {
+                        skill = fn_800DC12C(csv.fn_8005B9CC());
+                        m1508[1][0].push_back(skill);
+                    } while (skill != 0);
+                } else if (strcmp(key, "2ndFlySkill") == 0) {
+                    int skill = none;
+                    do {
+                        skill = fn_800DC12C(csv.fn_8005B9CC());
+                        m1508[1][1].push_back(skill);
+                    } while (skill != 0);
+                } else if (strcmp(key, "3rdFlySkill") == 0) {
+                    int skill = none;
+                    do {
+                        skill = fn_800DC12C(csv.fn_8005B9CC());
+                        m1508[1][2].push_back(skill);
+                    } while (skill != 0);
+                } else if (strcmp(key, "StunHPRate") == 0) {
+                    float rate = zero;
+                    for (int i = 0; i < 3; i++) {
+                        rate = fn_800DC288(csv.fn_8005B9CC());
+                        m1624.push_back(rate);
+                    }
+                } else if (strcmp(key, "CenterPoint") == 0) {
+                    center = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "HighInsideHoverPoint") == 0) {
+                    int id;
+                    do {
+                        id = fn_800DC12C(csv.fn_8005B9CC());
+                        RoutePlace_unk* place = table->FindPlace_unk(id);
+                        if (place != 0) {
+                            m15A8.push_back(place);
+                        }
+                    } while (id != 0);
+                } else if (strcmp(key, "HoverDirection") == 0) {
+                    int dir = none;
+                    do {
+                        dir = fn_800DC12C(csv.fn_8005B9CC());
+                        m15B4.push_back(dir);
+                    } while (dir != 0);
+                } else if (strcmp(key, "LaserID") == 0) {
+                    HitInfo_unk* hit = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                    if (hit != 0) {
+                        m14E8 = hit;
+                    }
+                } else if (strcmp(key, "TackleID") == 0) {
+                    HitInfo_unk* hit = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                    if (hit != 0) {
+                        m14EC = hit;
+                    }
+                } else if (strcmp(key, "ClawID") == 0) {
+                    HitInfo_unk* hit = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                    if (hit != 0) {
+                        m14F0 = hit;
+                    }
+                } else if (strcmp(key, "BreathID") == 0) {
+                    HitInfo_unk* hit = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                    if (hit != 0) {
+                        m14F4 = hit;
+                    }
+                } else if (strcmp(key, "FlareID") == 0) {
+                    HitInfo_unk* hit = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                    if (hit != 0) {
+                        m14F8 = hit;
+                    }
+                } else if (strcmp(key, "ThunderBoltID") == 0) {
+                    HitInfo_unk* hit = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                    if (hit != 0) {
+                        m1500 = hit;
+                    }
+                } else if (strcmp(key, "ThunderBoltPreID") == 0) {
+                    HitInfo_unk* hit = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                    if (hit != 0) {
+                        m1504 = hit;
+                    }
+                } else if (strcmp(key, "DamageCircleID") == 0) {
+                    HitInfo_unk* hit = fn_80219E6C(atoi(csv.fn_8005B9CC()));
+                    if (hit != 0) {
+                        m14FC = hit;
+                    }
+                } else if (strcmp(key, "OwnerDaemon") == 0) {
+                    m1644 = 1;
+                    m1648 = (Em203GreaterDaemonRedMp*)fn_801A03E0()->Find_unk(atoi(csv.fn_8005B9CC()));
+                } else if (strcmp(key, "SubDaemon") == 0) {
+                    m164C = fn_801A03E0()->Find_unk(atoi(csv.fn_8005B9CC()));
+                }
+            } while (csv.fn_8005BBF8());
+        }
+        if (center != 0) {
+            m1638 = center->mPos;
+        } else {
+            m1638.Set_unk(0.0f, 0.0f, 0.0f);
+        }
+        vf11C();
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: the "vector length error" of push_back is in the string pool right after the keys of vf0C
+template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
+
+// inferred: the owner daemon looks at its neck for 60 frames in state 2; the sub daemon looks at the head of
+// the other daemon while m1654 counts down; then the map BGM follows the height of the target
+// NONMATCHING: 96.19% - this/field registers swapped and the look point flag store folded (as Red fn_802992F8)
+void Em203GreaterDaemonRedMp::vf10() {
+    if (mFlag2 == 0) {
+        vf104();
+    } else {
+        if (m58C == 2) {
+            m14DC++;
+            fn_802A2070();
+        }
+        if (m1664 != m1660) {
+            fn_802A3D80(1);
+            m1664 = m1660;
+        }
+    }
+    if (m1650 != 0) {
+        m1654--;
+        if (fn_80370A78(lbl_8087F430, 100) == 0) {
+            fn_80370AE4(lbl_8087F430, 100, 1);
+        }
+    }
+    if (m58C == 2) {
+        Field_unk* field = lbl_8087F430;
+        m1678++;
+        if (m1678 < 60) {
+            atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+            if (m1554 == 0) {
+                field->m8A0 = this;
+                field->m97C.Set_unk(pos, false);
+                m1554 = 1;
+            } else {
+                field->m8A0 = this;
+                field->m97C.mPos = pos;
+            }
+        } else if (m1554 != 0) {
+            field->m8A0 = 0;
+            field->m97C.m00 = 0;
+            m1554 = 0;
+        }
+    }
+    if (m1644 == 0 && m1650 != 0 && m1658 == 0 && m164C != 0) {
+        Field_unk* field = lbl_8087F430;
+        if (m1654 > 0) {
+            atn::Vector3 pos = GetNodePos_unk(m164C->mMotion.GetNodeMtx_unk("head"));
+            if (m1554 == 0) {
+                field->m8A0 = this;
+                field->m97C.Set_unk(pos, false);
+                m1554 = 1;
+            } else {
+                field->m8A0 = this;
+                field->m97C.mPos = pos;
+            }
+        } else {
+            m1658 = 1;
+            if (m1554 != 0) {
+                field->m8A0 = 0;
+                field->m97C.m00 = 0;
+                m1554 = 0;
+            }
+        }
+    }
+    fn_8014C540();
+    fn_80145334();
+    vf11C();
+    RedMap_unk* map = lbl_8087F430 != 0 ? fn_80373148(lbl_8087F430) : 0;
+    if (map != 0 && m1644 == 0) {
+        int kind;
+        if (atn::Abs_unk(m14D4->mPos.y - mPos.y) < 20.0f) {
+            kind = 1;
+        } else {
+            kind = 2;
+        }
+        if (kind != map->mE0) {
+            fn_804A04AC(map, kind, 15, -1, 0);
+            map->mE8 = kind;
+        }
+    }
+}
+
 void Em203GreaterDaemonRedMp::fn_8029DB54() {}
 
 // inferred: keeps the height of the flight at 60
@@ -257,19 +551,14 @@ int Em203GreaterDaemonRedMp::vf10C(HitMsg_unk* msg) {
 }
 
 
-// inferred: translation of a node matrix (name invented)
-inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
-    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
-}
 
+// NONMATCHING: 85% - stack slots and scheduling of the capsule vectors (as Red vfF8)
 void Em203GreaterDaemonRedMp::vf11C() {
     m614 = mPos + m5A4;
     m620 = m5B0;
     m614.y += m5B0;
-    atn::Vector3 right = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightfoot"))->GetTrans_unk();
-    atn::Vector3 left = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftfoot"))->GetTrans_unk();
-    atn::Vector3 center(atn::Vector3(left + right) * 0.5f);
-    atn::Vector3 head(((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk());
+    atn::Vector3 center = (GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")) + GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"))) * 0.5f;
+    atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     mColli.m3C = center;
     mColli.m48 = head;
     mColli.m54 = m620;
@@ -304,25 +593,26 @@ void Em203GreaterDaemonRedMp::vf50() {
 void Em203GreaterDaemonRedMp::vf54() {
     if (m624.mSize != 0) {
         unsigned int i = 0;
-        m624[i].m04.mRadius = 25.0f;
+        m624[i].m04.mRadius = 28.0f;
         m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tail"));
+        m624[i].m04.mCenter.y -= 2.0f;
         i++;
         m624[i].m04.mRadius = 12.0f;
         m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
         i++;
-        m624[i].m04.mRadius = 8.0f;
+        m624[i].m04.mRadius = 10.0f;
         m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
         i++;
-        m624[i].m04.mRadius = 8.0f;
+        m624[i].m04.mRadius = 10.0f;
         m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
         i++;
-        m624[i].m04.mRadius = 20.0f;
+        m624[i].m04.mRadius = 25.0f;
         m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
         i++;
-        m624[i].m04.mRadius = 10.0f;
+        m624[i].m04.mRadius = 15.0f;
         m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
         i++;
-        m624[i].m04.mRadius = 10.0f;
+        m624[i].m04.mRadius = 15.0f;
         m624[i].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
     }
 }
