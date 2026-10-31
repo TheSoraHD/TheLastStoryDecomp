@@ -22,6 +22,9 @@ public:
 
     void fn_800E2FE0(); // inferred: update (the body of vf10)
     void fn_800EAECC(); // inferred: called by vfF0 when mFlag16 is clear
+    int fn_800EBE84();  // inferred: applies the motion sets once loaded (1 while loading)
+    void fn_800EE5AC(class Arms* arms); // inferred: starts the effect of a weapon when its condition holds
+    int fn_800EEFDC();  // inferred: nonzero if the character can be targeted here
 
     // inferred: members cleared by the constructor (0x800E2AF8); names keep the offsets
     int m1424;

@@ -5,6 +5,7 @@
 #include "game/GimmickCommon.h"
 #include "game/DamageCalc_unk.h"
 #include "chr/ControlBase.h"
+#include "game/Arms.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -16,6 +17,14 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
 extern "C" int fn_80375184(Field_unk* field);
+extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
+// inferred: map information of the field (as in gmk/FragileObject.cpp)
+struct MapInfo_unk {
+    unsigned char m00[0x48];
+    int m48;
+    int m4C;
+};
+extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610); only tested for null here
 extern "C" void* lbl_8087F610;
@@ -229,11 +238,57 @@ void BattleCharaTask::vfE8(HitMsg_unk* msg) {
     }
 }
 
+int BattleCharaTask::fn_800EBE84() {
+    if (mAC == 2) {
+        if (mMotion.fn_8008B140()) {
+            return 1;
+        }
+        if (m8C.fn_80473F50()) {
+            return 1;
+        }
+        fn_804776F4(&m8C, &mMotion);
+        if ((m54C & 0x4000) != 0x4000) {
+            fn_804776F4(&m98, &mMotion);
+        }
+        mAC = 3;
+    }
+    return 0;
+}
+
 int BattleCharaTask::vfE4() {
     if (m55C == 6 && mControl && mControl->vf50()) {
         return 1;
     }
     return 0;
+}
+
+void BattleCharaTask::fn_800EE5AC(Arms* arms) {
+    if (arms == 0 || arms->m274 == 0) {
+        return;
+    }
+    int ok = 0;
+    if (fn_8014FB60()) {
+        ok = arms->fn_80044C50(this);
+    }
+    if (ok) {
+        arms->fn_80044CCC();
+    } else {
+        fn_80044E0C(arms, 1);
+    }
+}
+
+int BattleCharaTask::fn_800EEFDC() {
+    if (m50 == 0x189C1 && lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+        MapInfo_unk* info = fn_80373148(lbl_8087F430);
+        if (info->m48 == 2 && info->m4C == 0xD) {
+            return 0;
+        }
+    }
+    int ok = 0;
+    if (!mFlag28 && !mFlagB16 && lbl_8087F610 == 0) {
+        ok = 1;
+    }
+    return ok;
 }
 
 // inferred: defined last in the file (0x800EF3E8, after the weak copies)
