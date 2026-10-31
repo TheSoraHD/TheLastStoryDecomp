@@ -861,6 +861,7 @@ int BattleCharaTask::fn_800EBE84() {
     return 0;
 }
 
+// NONMATCHING: 99.87% - only the pool offsets (the node names and motion paths of the unwritten functions come first)
 // inferred: parameters of the placement ("pick=", "magicPointId=", "movePointType="); arg is the route table
 void BattleCharaTask::vf2C(const char* params, int arg) {
     CharaTask::vf2C(params, arg);
