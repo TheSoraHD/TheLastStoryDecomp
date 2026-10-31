@@ -4497,6 +4497,9 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/ansi_fp.c:
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/buffer_io.c:
 	.text       start:0x8067CE90 end:0x8067D06C
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/char_io.c:
+	.text       start:0x8067D06C end:0x8067D27C
+
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/direct_io.c:
 	.text       start:0x8067D27C end:0x8067D8CC
 
