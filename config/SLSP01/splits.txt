@@ -3556,6 +3556,20 @@ RVL_SDK/src/revolution/base/PPCArch.c:
 	.text       start:0x805EA990 end:0x805EABA0
 	.data       start:0x8079BE60 end:0x8079BE98
 
+RVL_SDK/src/revolution/os/OSAlarm.c:
+	.text       start:0x805EC080 end:0x805EC948
+	.data       start:0x8079C2A8 end:0x8079C2B8
+	.sbss       start:0x8087FBE0 end:0x8087FBE8
+
+RVL_SDK/src/revolution/os/OSArena.c:
+	.text       start:0x805ECB80 end:0x805ECC74
+	.sdata      start:0x8087E768 end:0x8087E770
+	.sbss       start:0x8087FBF0 end:0x8087FBF8
+
+RVL_SDK/src/revolution/os/OSAudioSystem.c:
+	.text       start:0x805ECC80 end:0x805ED140
+	.data       start:0x8079C2B8 end:0x8079C338
+
 RVL_SDK/src/revolution/os/OSFatal.c:
 	.text       start:0x805EFF70 end:0x805F0B98
 	.bss        start:0x807CB320 end:0x807CB600
@@ -3574,6 +3588,9 @@ RVL_SDK/src/revolution/os/OSInterrupt.c:
 	.data       start:0x8079D7B8 end:0x8079D7E8
 	.sbss       start:0x8087FC20 end:0x8087FC34
 
+RVL_SDK/src/revolution/os/OSLink.c:
+	.text       start:0x805F2650 end:0x805F2668
+
 RVL_SDK/src/revolution/os/OSMessage.c:
 	.text       start:0x805F2670 end:0x805F2950
 
@@ -3589,6 +3606,10 @@ RVL_SDK/src/revolution/os/OSReboot.c:
 	.text       start:0x805F3430 end:0x805F34B4
 	.sbss       start:0x8087FC40 end:0x8087FC48
 
+RVL_SDK/src/revolution/os/OSRtc.c:
+	.text       start:0x805F3DF0 end:0x805F48A0
+	.bss        start:0x807CB600 end:0x807CB654
+
 RVL_SDK/src/revolution/os/OSTime.c:
 	.text       start:0x805F5F90 end:0x805F6660
 	.data       start:0x8079DA60 end:0x8079DAC0
@@ -3596,6 +3617,11 @@ RVL_SDK/src/revolution/os/OSTime.c:
 RVL_SDK/src/revolution/os/OSUtf.c:
 	.text       start:0x805F6660 end:0x805F68B0
 	.data       start:0x8079DAC0 end:0x807A9900
+
+RVL_SDK/src/revolution/os/OSIpc.c:
+	.text       start:0x805F68B0 end:0x805F68E8
+	.sdata      start:0x8087E7A0 end:0x8087E7A4
+	.sbss       start:0x8087FC68 end:0x8087FC6C
 
 RVL_SDK/src/revolution/os/OSStateFlags.c:
 	.text       start:0x805F7760 end:0x805F7978
@@ -3624,6 +3650,10 @@ RVL_SDK/src/revolution/mtx/mtxvec.c:
 RVL_SDK/src/revolution/mtx/mtx44.c:
 	.text       start:0x805F94B0 end:0x805F9638
 	.sdata2     start:0x80888560 end:0x80888578
+
+RVL_SDK/src/revolution/dvd/dvdqueue.c:
+	.text       start:0x805FF4F0 end:0x805FF770
+	.bss        start:0x807D1030 end:0x807D1050
 
 RVL_SDK/src/revolution/dvd/dvderror.c:
 	.text       start:0x805FF770 end:0x80600188
@@ -3680,6 +3710,9 @@ RVL_SDK/src/revolution/axfx/AXFXHooks.c:
 	.text       start:0x806104C0 end:0x80610504
 	.sdata      start:0x8087E858 end:0x8087E860
 
+RVL_SDK/src/revolution/dsp/dsp_debug.c:
+	.text       start:0x80610770 end:0x806107C0
+
 RVL_SDK/src/revolution/dsp/dsp_task.c:
 	.text       start:0x806107C0 end:0x80611058
 	.data       start:0x807B03A0 end:0x807B04E0
@@ -3731,6 +3764,9 @@ RVL_SDK/src/revolution/mem/mem_frameHeap.c:
 RVL_SDK/src/revolution/mem/mem_allocator.c:
 	.text       start:0x8061A0D0 end:0x8061A12C
 	.sdata2     start:0x80888800 end:0x80888808
+
+RVL_SDK/src/revolution/mem/mem_list.c:
+	.text       start:0x8061A130 end:0x8061A250
 
 RVL_SDK/src/revolution/euart/euart.c:
 	.text       start:0x8061A250 end:0x8061A5D0
