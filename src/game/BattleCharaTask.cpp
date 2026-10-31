@@ -7,6 +7,7 @@
 #include "chr/ControlBase.h"
 #include "game/Arms.h"
 #include "game/BattleResult.h"
+#include "game/SetConfig.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -26,6 +27,12 @@ struct MapInfo_unk {
     int m4C;
 };
 extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+// inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048;
+// inferred: target in front of the character within radius/theta
+extern "C" CharaTask* fn_800FFE68(Effect_unk* mgr, CharaTask* chara, const atn::Vector3* dir, int a, int b,
+                                  float radius, float theta);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -133,6 +140,28 @@ void BattleCharaTask::vf14() {
     if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
+}
+
+int BattleCharaTask::fn_800E70EC(int a, int b, int c) {
+    if (m1424 == 0 || a != 0) {
+        GameConfig_unk* config = lbl_8087F0A8;
+        if (SetConfig::sInstance->mAttackType != 0 && !mFlagB16 && c == 0 && config->mInput.fn_801231D0(4) &&
+            !mFlag31) {
+            if (a == 0) {
+                Effect_unk* mgr = lbl_8087F048;
+                atn::Vector3 dir = fn_80178018();
+                CharaTask* target =
+                    fn_800FFE68(mgr, this, &dir, 0, 0, config->mBtnAtkCorrectRadius, config->mBtnAtkCorrectTheta);
+                if (target != 0) {
+                    fn_800E8688(0xC8, 1, target, &target->mPos, 0, 0);
+                } else {
+                    fn_800E8688(0xC8, 1, 0, 0, 0, 0);
+                }
+            }
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void BattleCharaTask::vf40(HitInfo_unk* hit) {
