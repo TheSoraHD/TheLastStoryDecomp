@@ -304,7 +304,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: deals a hit, returns the damage dealt
 
-extern "C" void fn_800EB270(CharaTask* chara, int arg); // inferred: BattleCharaTask
 extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" double cos(double x);
@@ -464,7 +463,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
         if (fn_80370A78(lbl_8087F430, 0x3D) == 0) {
             rate *= 0.7f;
             if (dist < m1524 && m1560 > m15A0) {
-                fn_800EB270(this, 200);
+                fn_800EB270(200);
                 m1560 = 0;
                 m1564++;
                 return;
@@ -486,7 +485,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
             }
         } else if (m1560 > m15A0) {
             if (dist < m1524) {
-                fn_800EB270(this, 200);
+                fn_800EB270(200);
                 m1560 = 0;
                 m1564++;
                 return;

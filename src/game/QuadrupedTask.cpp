@@ -73,7 +73,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: deals a hit, returns the damage dealt
 
-extern "C" void fn_800EB270(CharaTask* chara, int arg); // inferred: BattleCharaTask
 extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" double sin(double x);
@@ -292,7 +291,7 @@ void QuadrupedTask::fn_80566FB4() {
             }
         } else {
             if (mC58.mMode == 4 && mC58.mStep == 2) {
-                fn_800EB270(this, 200);
+                fn_800EB270(200);
                 return;
             }
             atn::Vector3 prev(mPos);

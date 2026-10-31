@@ -43,6 +43,9 @@ extern "C" int fn_80100BB8(Effect_unk* mgr, CharaTask** out, CharaTask* chara, c
                            float theta);
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" int fn_800F8548(Effect_unk* mgr);
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -159,7 +162,7 @@ void BattleCharaTask::vf14() {
     }
 }
 
-// NONMATCHING: 99.87% - stack slots of the second and third rotation matrices swapped (~8 forms)
+// NONMATCHING: 99.96% - stack slots of the second and third rotation matrices swapped (~8 forms)
 void BattleCharaTask::fn_800E610C() {
     atn::Vector3 input(0.0f, 0.0f, 1.0f);
     Mtx m;
@@ -371,6 +374,42 @@ void BattleCharaTask::vfE8(HitMsg_unk* msg) {
                 mC58.m11C.fn_8011CD84(this, 1);
             }
         }
+    }
+}
+
+void BattleCharaTask::fn_800EB270(int id) {
+    GameConfig_unk* config = lbl_8087F0A8;
+    atn::Vector3 pos;
+    m58C = 1;
+    if (lbl_8087F048 != 0) {
+        m590 = fn_800F8548(lbl_8087F048);
+    }
+    m594 = id == 200 ? config->m270 : -1;
+    m598 = 0;
+    mFlagC29 = 0;
+    if (id == 0xD0 || id == 0xE5) {
+        m594 = -1;
+        m59D = 0;
+        m59C = 0;
+        m59F = 1;
+        if (m648 != 0) {
+            m648->vf18(lbl_807C7030, lbl_807C7030, 0, 200);
+        }
+        HitInfo_unk* hit = fn_80219E6C(id);
+        m63C = m638;
+        m638 = hit;
+    } else if (mC58.mD0 != 0) {
+        pos = mC58.mD0->vf54();
+        fn_801562A0(fn_80219E6C(id), pos, 0, 0, 0, 0, 0.0f);
+    } else if (mC58.mC4 != 0) {
+        pos = mC58.mC4->mPos;
+        if (fn_80041A28(0, this, mC58.mC4) == 2 && mMotion.fn_80097D40(0x161)) {
+            fn_8015783C(fn_80219E6C(id), pos, mC58.mC4->m620);
+        } else {
+            fn_801562A0(fn_80219E6C(id), pos, 0, 0, 0, 0, mC58.mC4->m620);
+        }
+    } else {
+        fn_801561E4(fn_80219E6C(id));
     }
 }
 
