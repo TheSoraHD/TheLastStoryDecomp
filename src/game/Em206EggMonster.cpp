@@ -464,17 +464,15 @@ int Em206EggMonster::fn_802C38E4() {
     } else {
         CharaTask* target = m1584;
         if (target != 0) {
-            atn::Vector3 from;
-            atn::Vector3 to;
             atn::Vector3 tp = target->mPos;
             atn::Vector3 d = tp - mPos;
             float dist = PSVECMag(&d);
             atn::Vector3 n = d;
             PSVECNormalize(&n, &n);
-            atn::Vector3 rot = n.ToRotationZ_unk();
+            atn::Vector3 rot = n.ToRotation_unk();
             WrapDeg_unk(57.295776f * (rot.y - mRot.y));
-            from = mPos;
-            to = m1584->mPos;
+            atn::Vector3 from = mPos;
+            atn::Vector3 to = m1584->mPos;
             from.y += 20.0f;
             to.y += 20.0f;
             int clear = fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0, m1584) == 0;
@@ -567,9 +565,7 @@ void Em206EggMonster::fn_802C3EDC() {
     fn_802C2BCC();
     if (m1594 != 2) {
         atn::Vector3 d = m1584->mPos - mPos;
-        atn::Vector3 n = d;
-        PSVECNormalize(&n, &n);
-        atn::Vector3 rot = n.ToRotationZ_unk();
+        atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         atn::WrapAngle_unk(rot.y - mRot.y);
         atn::Vector3 m = d;
         PSVECNormalize(&m, &m);
