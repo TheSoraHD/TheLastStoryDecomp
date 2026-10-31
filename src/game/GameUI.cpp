@@ -299,6 +299,23 @@ float GameUIDuration_unk::fn_803CFC6C() {
 
 void GameUI::vf14() {}
 
+bool GameUI::fn_803E43A4() {
+    return m1130 != 0;
+}
+
+void GameUI::fn_803E43B8(int on) {
+    if (on) {
+        mD8C = 1;
+        mD84 = 0;
+        mD7C = 8;
+        fn_800C31F4(lbl_80750618[3], 0, -1, 0.5f);
+    } else {
+        mD8C = 0;
+        mD88 = 0;
+        mD84 = 0;
+    }
+}
+
 void GameUI::fn_803E4434(int on) {
     if (on) {
         mD8C = 2;
@@ -387,6 +404,23 @@ void GameUI::fn_803E58E4() {
 bool GameUI::fn_803E5940() {
     if (mDC4 != 0) {
         return (mDC4->mFlags & 4) != 4 && !mDC4->IsEnd_unk();
+    }
+    return false;
+}
+
+void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {
+    if (!m25CC.Full_unk()) {
+        new (&m25CC.m[m25CC.m00]) GameUIElem10_unk(chara, count, max, arg);
+        m25CC.m00++;
+    }
+}
+
+bool GameUI::fn_803E6C88(unsigned int id) {
+    for (unsigned int i = 0; i < m3F0.mCount; i++) {
+        unsigned int v = m3F0.mData[i].m08;
+        if (v == id) {
+            return true;
+        }
     }
     return false;
 }

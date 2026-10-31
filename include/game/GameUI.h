@@ -82,7 +82,7 @@ struct GameUIGauge_unk : public atn::Task {
 struct GameUIEntry_unk {
     int m00;
     int mFrames;
-    int m08;
+    unsigned int m08; // inferred: id (compared unsigned by GameUI::fn_803E6C88)
 };
 
 // inferred: counter reset by fn_803CF734 (name invented)
@@ -181,9 +181,11 @@ struct GameUIElem0C_unk {
 };
 
 // inferred: 0x10-byte element of the array at 0x25D0 (names invented)
+class CharaTask;
 struct GameUIElem10_unk {
     GameUIElem10_unk() : m00(0), m04(0), m08(1), m0C(0) {}
-    int m00;
+    GameUIElem10_unk(CharaTask* chara, int count, int max, int arg) : m00(chara), m04(count), m08(max), m0C(arg) {}
+    CharaTask* m00; // inferred: character of the counter (GameUI::fn_803E6850)
     int m04;
     int m08;
     int m0C;
@@ -224,6 +226,8 @@ public:
 
     void fn_803CF740();
     void fn_803CF74C();
+    bool fn_803E43A4();
+    void fn_803E43B8(int on);
     void fn_803E4434(int on); // inferred: names invented for the fields set here
     void fn_803E4478();
     void fn_803E44C4(int on, int id, int count);
@@ -234,6 +238,8 @@ public:
     void fn_803E58CC();
     void fn_803E58E4();
     bool fn_803E5940();
+    void fn_803E6850(CharaTask* chara, int count, int max, int arg); // inferred: shows a counter
+    bool fn_803E6C88(unsigned int id);
 
     float m48;
     float m4C;
@@ -396,7 +402,8 @@ public:
     } m2568;                                   // 0x2568
     struct W25CC_unk {
         W25CC_unk() : m00(0) {}
-        int m00;
+        bool Full_unk() const { return m00 >= 4; } // inferred: name invented
+        unsigned int m00; // inferred: count (compared unsigned in fn_803E6850)
         GameUIElem10_unk m[4];
     } m25CC;                                   // 0x25CC
     int m2610[7];

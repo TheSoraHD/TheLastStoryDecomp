@@ -1,4 +1,5 @@
 #include "game/Em003LesserDaemon.h"
+#include "game/GameUI.h"
 #include "chr/ControlChant.h"
 #include "math/Vec.h"
 #include "game/CharaManager.h"
@@ -93,9 +94,7 @@ struct DaemonAi_unk {
 extern "C" DaemonAi_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
 extern "C" int fn_80108378(DaemonAi_unk* ai, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: arena/UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em305VampireMp.cpp)
-struct MpArena_unk;
-extern "C" MpArena_unk* lbl_8087F490;
-extern "C" void fn_803E6850(MpArena_unk* arena, CharaTask* chara, int count, int max, int arg);
+extern "C" GameUI* lbl_8087F490;
 extern "C" double fmod(double x, double y);
 extern "C" double sin(double x);
 // inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
@@ -495,7 +494,7 @@ inline void ClearHate_unk(CharaTask* self) {
 // inferred: shows the barrier hits left (name invented)
 // (the original reads m1624 again after the test: `*(volatile int*)&`, as in the notes of the q5 queue)
 inline void Em003LesserDaemon::ShowHits_unk() {
-    fn_803E6850(lbl_8087F490, this, *(volatile int*)&m1624, m1628[m14C0], 0);
+    lbl_8087F490->fn_803E6850(this, *(volatile int*)&m1624, m1628[m14C0], 0);
 }
 
 // inferred: turns towards a position (name invented)
