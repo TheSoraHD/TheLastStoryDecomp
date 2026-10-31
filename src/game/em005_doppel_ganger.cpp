@@ -154,7 +154,6 @@ extern "C" void fn_8059C8E8(SkillEffectManager* mgr, CharaTask* chara); // infer
 extern "C" void fn_8059C98C(SkillEffectManager* mgr, CharaTask* chara); // inferred: frees the character
 extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill (game/BattleEfp_unk.cpp)
 extern "C" void fn_805991E0(Bullet_unk* bullet); // inferred: stops an effect of a skill
-extern "C" void fn_800E9ED8(CharaTask* chara); // inferred: BattleCharaTask update while copying
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
@@ -610,7 +609,7 @@ void Em005DoppelGanger::vf10() {
             if (mStatus.IsState_unk(0x20) && m58C != 2) {
                 vf44();
             }
-            fn_800E9ED8(this);
+            fn_800E9ED8();
         }
     } else {
         if (m55C == 2) {

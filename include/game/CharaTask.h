@@ -41,8 +41,39 @@ struct GmkTarget_unk;
 // 0x10 holds a vector (knockback?) and 0x68/0x90 values that FriendArganan clears.
 #include "game/HitInfo_unk.h"
 
-// inferred: argument of CharaTask::fn_80164B00 (defined in CharaTask.cpp)
-struct CharaShade_unk;
+// inferred: argument of CharaTask::fn_80164B00, copied to CharaTask::mFC8-mFD8 (names invented)
+struct CharaShade_unk {
+    // inferred: inlined by chr::ControlAttractHateCharge and BattleCharaTask::fn_800E2FE0
+    CharaShade_unk() {
+        m04 = 0.0f;
+        m08 = 0.0f;
+        m0C = 0.0f;
+        m10 = 0;
+        m00 = 1.0f;
+    }
+    float m00; // inferred: also copied to CharaStatus::m20/m24
+    float m04; // inferred: timer counted down by fn_80164D24
+    float m08; // inferred: timer counted down by fn_80164D24
+    float m0C; // inferred: timer counted down by fn_80164D24
+    int m10;   // inferred: overwritten with Field_unk::m5744
+};
+
+// inferred: 0x1C-byte record at 0x1470 in the player characters (BattleCharaTask::fn_800E2FE0 runs it;
+// names invented)
+struct PlayerState_unk {
+    PlayerState_unk(short id, int value)
+        : m00(id), m02(0), m04(0), m0C(0.0f, 0.0f, 0.0f), m18(0) {
+        m08 = value;
+    }
+    // inferred: weak copy 0x80151194
+    PlayerState_unk(short id) : m00(id), m02(0), m04(0), m08(150), m0C(0.0f, 0.0f, 0.0f), m18(0) {}
+    short m00;
+    short m02;
+    int m04;
+    int m08;
+    atn::Vector3 m0C;
+    int m18;
+};
 
 // inferred: object at CharaTask+0xD74 (class unknown)
 struct CharaD74_unk {

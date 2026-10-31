@@ -21,6 +21,10 @@
 #include "atn/Csv.h"
 #include <boost/tokenizer.hpp>
 #include "atn/SoundRef.h"
+#include "chr/ControlCharge.h"
+#include "game/TacView.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -51,6 +55,10 @@ struct Field_unk {
     int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
     int m10D4;
     BattleArea_unk* m10D8;
+    unsigned char m10DC[0x54E4 - 0x10DC];
+    int m54E4; // inferred: nonzero stops the combined attack
+    unsigned char m54E8[0x5744 - 0x54E8];
+    unsigned int m5744; // inferred: frame counter of the field
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
@@ -148,7 +156,7 @@ struct BattleTarget_unk {
     int m08;
     atn::Vector3 mPos;
 };
-extern "C" int fn_80219344(CharaTask* chara, int arg);
+extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg); // inferred: skill of the slot `arg`
 extern "C" int fn_8036DAA8(Field_unk* field, CharaTask* chara); // inferred: the special skill is allowed here
 extern "C" void* lbl_8087EE68; // inferred: party manager (as in game/CharaTask.cpp)
 // inferred: result of fn_800185B4 (as in game/CharaTask.cpp)
@@ -195,7 +203,7 @@ static const char* const sBattleSe_unk[] = {sSe009_unk, sSe009_unk, sSe023_unk, 
 BattleCharaTask::BattleCharaTask(atn::Task* parent, int type, void* data)
     : CharaTask(parent, type, data), m1424(0), m1428(0), m142C(0), m1430(0), m1434(0), m1438(0), m143C(0),
       m1440(0), m1450(0), m1454(1), m1458(1.0f), m145C(0), m1460(0), m1464(0), m146C(0), m1470(0), m1472(0),
-      m1474(0), m1478(150), m147C(0.0f), m1480(0.0f), m1484(0.0f), m1488(0), m149C(0.0f), m14A0(0), m14A4(0) {
+      m1474(0), m1478(150), m147C(0.0f, 0.0f, 0.0f), m1488(0), m149C(0.0f), m14A0(0), m14A4(0) {
     mFlagC31 = 0;
     mFlagC30 = 0;
     mFlagC29 = 0;
@@ -310,6 +318,211 @@ struct BattleCamera_unk {
     atn::Vector3 mTarget; // 0x118
 };
 extern "C" BattleCamera_unk* lbl_8087EFB4;
+
+// inferred: record of the parameters of fn_80210220 (as Record80210220_unk in chr/ControlAttractHateCharge.cpp)
+struct ParamRecord_unk {
+    unsigned char m00[0x48];
+    int m48;
+    int m4C;
+};
+extern "C" void fn_80105DCC(Effect_unk* mgr, CharaTask* chara, chr::Motion_unk* motion, int arg); // inferred
+// inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp)
+extern "C" void* lbl_8087F9E8;
+extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
+                                    const atn::Vector3* pos, const atn::Vector3* rot,
+                                    boost::function<void(SkillEffect*)> callback, float rate);
+// inferred: voice player (lbl_8087F498, as in game/Em201ZanGurg.cpp)
+extern "C" void* lbl_8087F498;
+extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
+extern "C" void* lbl_8087F540; // inferred: song battle (game/SongManager.cpp)
+extern "C" int fn_80481668(void* song); // inferred: nonzero while the song stops the characters
+
+// NONMATCHING: 99.2% - `mType == 3 || mType == 2` becomes a range compare; stack slots 4 bytes apart
+// inferred: per-frame update of the player characters: runs the pending state m1470 (skills, combined
+// attack, charge...) when the timer m1474 ends, then the weapons, the movement and the falls of the guests
+void BattleCharaTask::fn_800E2FE0() {
+    m14A0--;
+    m14A4 = m14A4 - 1 < 0 ? 0 : m14A4 - 1;
+    if (m1470 != 0 && --m1474 < 0) {
+        if ((mType == 0 && m55C == 1) ||
+            ((mType == 3 || mType == 2) && (m55C == 2 || (m55C == 7 && mC58.m11C.fn_8011D1FC() && m1470 == 12)))) {
+            switch (m1470) {
+            case 1:
+                fn_80155A88(m147C, m1472 == 8);
+                m1470 = 0;
+                if (m1472 > 0) {
+                    PlayerState_unk state(m1472);
+                    state.m0C = m147C;
+                    state.m18 = m1488;
+                    SetState_unk(state);
+                }
+                break;
+            case 2:
+                fn_80161570(0x153, 1, 0x78, -1.0f, -1.0f);
+                m1470 = 0;
+                break;
+            case 4:
+                m1470 = 0;
+                break;
+            case 5:
+                if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 0) {
+                    GameConfig_unk* config = lbl_8087F0A8;
+                    ParamRecord_unk* rec = (ParamRecord_unk*)fn_80210220(config->mParamIndex);
+                    CharaShade_unk shade;
+                    shade.m04 = rec->m48;
+                    shade.m08 = rec->m4C;
+                    shade.m0C = config->mHateAttackedDelayFrame;
+                    fn_80164B00(shade);
+                    m1428 = this;
+                    mFlagC27 = 1;
+                    m1430 = config->mCoolDownFrame;
+                    if (lbl_8087F048 != 0) {
+                        fn_8010AB94(lbl_8087F048);
+                    }
+                    fn_80105DCC(lbl_8087F048, this, &mMotion, 1);
+                    m1470 = 0;
+                }
+                break;
+            case 6: {
+                HitInfo_unk* skill = fn_80219344(this, 1);
+                m63C = m638;
+                m638 = skill;
+                fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlChargeAttack(this, m147C, 1));
+                m1470 = 0;
+                break;
+            }
+            case 7: {
+                if (lbl_8087F9E8 != 0) {
+                    HitInfo_unk* skill = fn_80219E6C(m1488);
+                    fn_8059B66C(lbl_8087F9E8, skill, this, this, &lbl_807C7030, &mRot,
+                                boost::function<void(SkillEffect*)>(), 1.0f);
+                }
+                m1470 = 0;
+                break;
+            }
+            case 8: {
+                if (lbl_8087F9E8 != 0) {
+                    HitInfo_unk* skill = fn_80219E6C(m1488);
+                    fn_8059B66C(lbl_8087F9E8, skill, this, this, &lbl_807C7030, &mRot,
+                                boost::bind(&TacView::fn_805AA4C8, lbl_8087F9F8, _1), 1.0f);
+                    if (lbl_8087F498 != 0) {
+                        fn_803EA77C(lbl_8087F498, this, 0x20, 0, 1.0f, 10.0f);
+                    }
+                }
+                mFlagB16 = 1;
+                m138C = lbl_8087F430 != 0 ? lbl_8087F430->m5744 : 0;
+                m1470 = 0;
+                break;
+            }
+            case 9:
+                if (m55C == 2 && !mFlag31) {
+                    fn_80170A20(lbl_8087F8A0->mHead, 0, 30.0f);
+                    m1470 = 0;
+                }
+                break;
+            case 10:
+                if (fn_8036DAA8(lbl_8087F430, this)) {
+                    HitInfo_unk* skill = fn_80219344(this, 5);
+                    m63C = m638;
+                    m638 = skill;
+                    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlQuarkSeirenAttack(this, m147C, 150.0f, 1));
+                    m1470 = 0;
+                }
+                break;
+            case 11:
+                if (fn_8036DAA8(lbl_8087F430, this)) {
+                    HitInfo_unk* skill = fn_80219344(this, 5);
+                    m63C = m638;
+                    m638 = skill;
+                    mF6C = m147C;
+                    mF7C = this;
+                    mPos.y += 18.0f;
+                    atn::Vector3 d = mF6C - mPos;
+                    if (d.x * d.x + d.z * d.z > 0.01f) {
+                        mRot.y = (mF6C - mPos).ToRotationZ_unk().y;
+                    }
+                    fn_801603CC(1, 1.0f);
+                    m1470 = 0;
+                }
+                break;
+            case 12:
+                if (mC58.m11C.fn_8011D1FC()) {
+                    if (!mC58.m11C.fn_8011D21C() || m1488 == 1) {
+                        mC58.m11C.fn_8011CD84(this, m1488);
+                    }
+                }
+                m1470 = 0;
+                break;
+            }
+        } else if ((unsigned int)(m1470 - 3) > 2 && m1470 != 12) {
+            if (--m1478 < 0) {
+                m1470 = 0;
+            }
+        }
+    }
+    fn_8014C540();
+    if (lbl_8087F540 == 0 || fn_80481668(lbl_8087F540) == 0) {
+        fn_800EE5AC((Arms*)m648);
+        if (m64C != 0) {
+            fn_800EE5AC((Arms*)m64C);
+        }
+    }
+    if (lbl_8087F610 != 0 && m58C != 2) {
+        m1450 = 0;
+    }
+    if (mType == 0 && (mStatus.m0C & 0x100) != 0x100) {
+        if ((mStatus.m0C & 0x20) == 0x20 && m58C != 2) {
+            vf44();
+        }
+        if (m648 != 0) {
+            fn_800E589C();
+        } else if (m58C == 2) {
+            vfEC();
+        } else {
+            fn_80139560();
+        }
+        atn::Vector3 from;
+        atn::Vector3 to;
+        fn_800E932C(&from, &to, 0);
+        mFA4 = to;
+    } else {
+        if ((mStatus.m0C & 0x20) == 0x20 && m58C != 2) {
+            vf44();
+        }
+        if (mFlag2) {
+            if (m58C == 2) {
+                vfF0();
+            }
+        } else if (m648 != 0) {
+            fn_800E9ED8();
+        } else if (m58C == 2) {
+            vfF0();
+        } else {
+            fn_80139560();
+        }
+    }
+    if (mType != 2) {
+        if ((mFlags & 1) != 1) {
+            fn_80145334();
+        }
+    } else if ((mFlags & 1) != 1 && !mFlag25) {
+        fn_80145334();
+    } else {
+        atn::Vector3 d = lbl_8087EFB4->mEye - mPos;
+        fn_80148B38(PSVECSquareMag(&d));
+    }
+    if (mType == 2 && CanAct_unk() && (m54C & 0x2000) != 0x2000 && mC58.mC0 != 0) {
+        CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (player != 0) {
+            atn::Vector3 d = mPos - player->mPos;
+            if (atn::Abs_unk(d.y) >= 400.0f) {
+                vf44();
+                atn::Vector3 front = FrontDir_unk(mRot);
+                fn_8015E7A0(atn::Vector3(-front.x, -front.y, -front.z), -1, 0);
+            }
+        }
+    }
+}
 
 // inferred: looks for the character under the camera ray
 // NONMATCHING: 99.84% - stack slots of the two vector temporaries swapped, r3/r4 of the copy

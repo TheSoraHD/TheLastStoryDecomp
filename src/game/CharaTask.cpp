@@ -6940,22 +6940,6 @@ int CharaTask::fn_8015061C(CharaTask* other) {
     return result;
 }
 
-// inferred: 0x1C-byte record at 0x1470 in the player characters (names invented)
-struct PlayerState_unk {
-    PlayerState_unk(short id, int value)
-        : m00(id), m02(0), m04(0), m0C(0.0f, 0.0f, 0.0f), m18(0) {
-        m08 = value;
-    }
-    // inferred: weak copy 0x80151194
-    PlayerState_unk(short id) : m00(id), m02(0), m04(0), m08(150), m0C(0.0f, 0.0f, 0.0f), m18(0) {}
-    short m00;
-    short m02;
-    int m04;
-    int m08;
-    atn::Vector3 m0C;
-    int m18;
-};
-
 // inferred: player character as seen from here (PlayerTask: BattleCharaTask: CharaTask)
 struct Player_unk : public CharaTask {
     // inferred: weak copies 0x800F7FB4 and 0x801511C4 (names invented)
@@ -9053,15 +9037,6 @@ void CharaTask::fn_801647BC() {
         }
     }
 }
-
-// inferred: argument of fn_80164B00, copied to CharaTask::mFC8-mFD8 (names invented)
-struct CharaShade_unk {
-    float m00; // inferred: also copied to CharaStatus::m20/m24
-    float m04; // inferred: timer counted down by fn_80164D24
-    float m08; // inferred: timer counted down by fn_80164D24
-    float m0C; // inferred: timer counted down by fn_80164D24
-    int m10;   // inferred: overwritten with Field_unk::m5744
-};
 
 extern "C" void fn_80105F4C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 extern "C" void fn_8010337C(Effect_unk* effect, int arg, CharaTask* chara);

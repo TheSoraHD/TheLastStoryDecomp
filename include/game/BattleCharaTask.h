@@ -21,6 +21,18 @@ public:
     virtual void vfF0();
 
     void fn_800E2FE0(); // inferred: update (the body of vf10)
+    // inferred: copy of a pending state into m1470 (name invented, as Player_unk::SetState_unk in
+    // game/CharaTask.cpp)
+    void SetState_unk(const PlayerState_unk& s) {
+        m1470 = s.m00;
+        m1472 = s.m02;
+        m1474 = s.m04;
+        m1478 = s.m08;
+        m147C = s.m0C;
+        m1488 = s.m18;
+    }
+    void fn_800E589C(); // 0x800E589C: inferred: update with a weapon
+    void fn_800E9ED8(); // 0x800E9ED8: inferred: update with a weapon (types 1-3)
     // inferred: weak copy 0x800EC1F4 (name invented)
     void SetFlagC26_unk(int value) { mFlagC26 = value; }
     void fn_800E610C(); // inferred: moves (or swaps places) in the input direction; the party follows in mode 2
@@ -75,9 +87,7 @@ public:
     short m1472;
     int m1474;
     int m1478;
-    float m147C;
-    float m1480;
-    float m1484;
+    atn::Vector3 m147C;
     int m1488;
     atn::Vector3 m148C; // inferred: copied from mColli.m3C
     float m1498;        // inferred: copied from mColli.m54
