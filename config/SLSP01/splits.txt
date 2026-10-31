@@ -5451,6 +5451,30 @@ nw4r/src/snd/snd_Util.cpp:
 	.sdata      start:0x8087EE30 end:0x8087EE38
 	.sdata2     start:0x808892D8 end:0x80889308
 
+ss_nw4r/src/snd/snd_WaveArchive.cpp:
+	.text       start:0x80721150 end:0x80721258
+
+ss_nw4r/src/snd/snd_WaveFile.cpp:
+	.text       start:0x80721260 end:0x807214C4
+
+ss_nw4r/src/snd/snd_WaveSound.cpp:
+	.text       start:0x807214D0 end:0x8072188C
+	.ctors      start:0x8072D41C end:0x8072D420
+	.data       start:0x807C6478 end:0x807C64B0
+	.sbss       start:0x80880518 end:0x80880520
+
+ss_nw4r/src/snd/snd_WaveSoundHandle.cpp:
+	.text       start:0x80721890 end:0x807219C8
+
+ss_nw4r/src/snd/snd_WsdFile.cpp:
+	.text       start:0x807219D0 end:0x80721D94
+	.sdata2     start:0x80889308 end:0x8088930C
+
+ss_nw4r/src/snd/snd_WsdPlayer.cpp:
+	.text       start:0x80721DA0 end:0x80722F48
+	.data       start:0x807C64B0 end:0x807C6510
+	.sdata2     start:0x80889310 end:0x80889338
+
 nw4r/src/ut/ut_LinkList.cpp:
 	.text       start:0x80725170 end:0x80725300
 
