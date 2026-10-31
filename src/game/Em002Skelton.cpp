@@ -1,7 +1,6 @@
 #include "game/Em002Skelton.h"
 
 extern "C" int strcmp(const char* a, const char* b);
-extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask
 extern "C" void fn_800EB49C(CharaTask* chara); // inferred: BattleCharaTask (knocked back)
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -135,7 +134,7 @@ void Em002Skelton::vfF0() {
         mColli.mFlags &= ~1;
         if (m1434 > 0) {
             mFlag25 = 1;
-            fn_800EAECC(this);
+            fn_800EAECC();
         } else {
             mFlag15 = 1;
             m14B0 = m5C->mParam.m98;

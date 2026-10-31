@@ -55,7 +55,18 @@ public:
     float m149C;
     int m14A0;
     int m14A4;
-    unsigned int m14A8; // inferred: flags
+    // inferred: flags; the C bits (names invented) keep them apart from the B bits of CharaTask
+    union {
+        unsigned int m14A8; // inferred: flags
+        struct {
+            unsigned int mFlagC31 : 1;
+            unsigned int mFlagC30_27 : 4;
+            unsigned int mFlagC26 : 1; // inferred: set by the weak setter 0x800EC1F4
+            unsigned int mFlagC25 : 1;
+            unsigned int mFlagC24 : 1; // inferred: set by vf0C for type 2 without m146C
+            unsigned int mFlagC23_0 : 24;
+        };
+    };
 };
 
 #endif

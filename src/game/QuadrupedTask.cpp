@@ -73,7 +73,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: deals a hit, returns the damage dealt
 
-extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask (as in game/Em002Skelton.cpp)
 extern "C" void fn_800EB270(CharaTask* chara, int arg); // inferred: BattleCharaTask
 extern "C" int rand();
 extern "C" double sqrt(double x);
@@ -337,7 +336,7 @@ void QuadrupedTask::fn_80566FB4() {
         } else {
             mColli.mFlags &= ~1;
             mFlag25 = 1;
-            fn_800EAECC(this);
+            fn_800EAECC();
         }
         break;
     case 3:

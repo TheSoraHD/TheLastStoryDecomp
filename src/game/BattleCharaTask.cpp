@@ -2,6 +2,7 @@
 #include "game/GameConfig_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/GimmickManager.h"
+#include "game/GimmickCommon.h"
 #include "game/DamageCalc_unk.h"
 #include "chr/ControlBase.h"
 
@@ -19,6 +20,47 @@ BattleCharaTask::~BattleCharaTask() {
     if (m1438 != 0 && GimmickManager::instance_ != 0) {
         fn_800D2338(m1438);
     }
+}
+
+// inferred: multiplayer session (lbl_8087F610); only tested for null here
+extern "C" void* lbl_8087F610;
+
+int BattleCharaTask::vf0C() {
+    int ok = 1;
+    if (fn_8013655C() != 0) {
+        ok = 0;
+    }
+    if (m1438 != 0 && (m1438->mFlags & 2) != 2) {
+        ok = 0;
+    }
+    if (ok) {
+        int flag = 0;
+        if (mType == 2 && m146C == 0) {
+            flag = 1;
+        }
+        mFlagC24 = flag;
+        if (m1438 != 0) {
+            m1438->fn_800D246C(0);
+            m1438->mFlags |= 4;
+            // inferred: m1438 is a gimmick (GimmickCommon::vf68)
+            if ((m137C & 0x400) == 0x400 && lbl_8087F610 == 0) {
+                ((GimmickCommon*)m1438)->vf68(0x2724, 1);
+            } else if (m50 == 0x30ED4 && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x11B) > 0) {
+                ((GimmickCommon*)m1438)->vf68(0x2747, 1);
+            }
+        }
+        if (m50 == 0x1895D || m50 == 0x189C1 || m50 == 0x31289) {
+            mStatus.m2D0[3] = CharaStatusPair_unk(0x1785);
+            mStatus.m2FC = 2.0f;
+        }
+        if (fn_80179AB4() == 1 && fn_80179A34() / 10000 == 305) {
+            m54C |= 4;
+            for (unsigned int i = 0; i < m624.mSize; i++) {
+                m624[i].m00 |= 8;
+            }
+        }
+    }
+    return ok;
 }
 
 void BattleCharaTask::vf14() {

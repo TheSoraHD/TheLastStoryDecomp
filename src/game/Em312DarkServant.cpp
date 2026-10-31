@@ -27,7 +27,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask
 extern "C" int rand();
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 // inferred: effect manager methods (as in game/CharaTask.cpp)
@@ -467,7 +466,7 @@ void Em312DarkServant::vf104() {
     case 2:
         mColli.mFlags &= ~1;
         CharaTask::mFlag25 = 1;
-        fn_800EAECC(this);
+        fn_800EAECC();
         break;
     default:
         vf100(6);
