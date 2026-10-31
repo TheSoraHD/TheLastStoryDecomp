@@ -78,6 +78,7 @@ void gap_conn_init(void) {
     gap_cb.conn.reg_info.pL2CA_CongestionStatus_Cb = &gap_congestion_ind;
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnOpen(char* p_serv_name, UINT8 service_id, BOOLEAN is_server, BD_ADDR p_rem_bda, UINT16 psm, tL2CAP_CFG_INFO* p_cfg, UINT8 security,
                     tGAP_CONN_CALLBACK* p_cb) {
     tGAP_CCB* p_ccb;
@@ -133,7 +134,9 @@ UINT16 GAP_ConnOpen(char* p_serv_name, UINT8 service_id, BOOLEAN is_server, BD_A
         }
     }
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnClose(UINT16 gap_handle) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
 
@@ -150,7 +153,9 @@ UINT16 GAP_ConnClose(UINT16 gap_handle) {
 
     return GAP_ERR_BAD_HANDLE;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnReadData(UINT16 gap_handle, UINT8* p_data, UINT16 max_len, UINT16* p_len) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
     BT_HDR* p_buf;
@@ -193,7 +198,9 @@ UINT16 GAP_ConnReadData(UINT16 gap_handle, UINT8* p_data, UINT16 max_len, UINT16
 
     return BT_PASS;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnBTRead(UINT16 gap_handle, BT_HDR** pp_buf) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
     BT_HDR* p_buf;
@@ -210,7 +217,9 @@ UINT16 GAP_ConnBTRead(UINT16 gap_handle, BT_HDR** pp_buf) {
         return GAP_NO_DATA_AVAIL;
     }
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnBTWrite(UINT16 gap_handle, BT_HDR* p_buf) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
 
@@ -234,7 +243,9 @@ UINT16 GAP_ConnBTWrite(UINT16 gap_handle, BT_HDR* p_buf) {
     else
         return GAP_ERR_BAD_STATE;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnWriteData(UINT16 gap_handle, UINT8* p_data, UINT16 max_len, UINT16* p_len) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
     BT_HDR* p_buf;
@@ -269,7 +280,9 @@ UINT16 GAP_ConnWriteData(UINT16 gap_handle, UINT8* p_data, UINT16 max_len, UINT1
 
     return BT_PASS;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnReconfig(UINT16 gap_handle, tL2CAP_CFG_INFO* p_cfg) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
 
@@ -283,7 +296,9 @@ UINT16 GAP_ConnReconfig(UINT16 gap_handle, tL2CAP_CFG_INFO* p_cfg) {
 
     return BT_PASS;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnSetIdleTimeout(UINT16 gap_handle, UINT16 timeout) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
 
@@ -295,7 +310,9 @@ UINT16 GAP_ConnSetIdleTimeout(UINT16 gap_handle, UINT16 timeout) {
     else
         return GAP_ERR_BAD_HANDLE;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 BD_ADDR_PTR GAP_ConnGetRemoteAddr(UINT16 gap_handle) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
 
@@ -304,7 +321,9 @@ BD_ADDR_PTR GAP_ConnGetRemoteAddr(UINT16 gap_handle) {
     else
         return NULL;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnGetRemMtuSize(UINT16 gap_handle) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
 
@@ -313,7 +332,9 @@ UINT16 GAP_ConnGetRemMtuSize(UINT16 gap_handle) {
 
     return p_ccb->rem_mtu_size;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT16 GAP_ConnGetL2CAPCid(UINT16 gap_handle) {
     tGAP_CCB* p_ccb = gap_find_ccb_by_handle(gap_handle);
 
@@ -322,6 +343,7 @@ UINT16 GAP_ConnGetL2CAPCid(UINT16 gap_handle) {
 
     return p_ccb->connection_id;
 }
+#endif
 
 static void gap_connect_ind(BD_ADDR bd_addr, UINT16 l2cap_cid, UINT16 psm, UINT8 l2cap_id) {
     UINT16 xx;

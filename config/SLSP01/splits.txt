@@ -4151,6 +4151,13 @@ smg2/src/RVL_SDK/bte/ptim.c:
 smg2/src/RVL_SDK/bte/utl.c:
 	.text       start:0x8062A5F0 end:0x8062A634
 
+smg2/src/RVL_SDK/bte/bta_dm_act.c:
+	.text       start:0x8062A634 end:0x8062C970
+	.rodata     start:0x80764CF8 end:0x80764DA0
+	.data       start:0x807B3358 end:0x807B3498
+	.bss        start:0x8081FC08 end:0x8081FC38
+	.sdata2     start:0x80888858 end:0x80888860
+
 smg2/src/RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x8062C970 end:0x8062CDDC
 	.sdata2     start:0x80888860 end:0x80888870
@@ -4230,6 +4237,11 @@ smg2/src/RVL_SDK/bte/wbt_ext.c:
 smg2/src/RVL_SDK/bte/gap_api.c:
 	.text       start:0x8063B574 end:0x8063B5D4
 
+smg2/src/RVL_SDK/bte/gap_conn.c:
+	.text       start:0x8063B5D4 end:0x8063C110
+	.data       start:0x807B5620 end:0x807B56F0
+	.sdata      start:0x8087EAEC end:0x8087EAF8
+
 smg2/src/RVL_SDK/bte/gap_utils.c:
 	.text       start:0x8063C110 end:0x8063C72C
 	.data       start:0x807B56F0 end:0x807B59E0
@@ -4284,6 +4296,10 @@ smg2/src/RVL_SDK/bte/port_rfc.c:
 	.text       start:0x806482EC end:0x806496E8
 	.data       start:0x807B7550 end:0x807B787C
 
+smg2/src/RVL_SDK/bte/port_utils.c:
+	.text       start:0x806496E8 end:0x80649CC0
+	.data       start:0x807B787C end:0x807B79C8
+
 smg2/src/RVL_SDK/bte/rfc_l2cap_if.c:
 	.text       start:0x80649CC0 end:0x8064A5F4
 	.data       start:0x807B79C8 end:0x807B7B08
@@ -4313,6 +4329,10 @@ smg2/src/RVL_SDK/bte/rfc_utils.c:
 smg2/src/RVL_SDK/bte/sdp_api.c:
 	.text       start:0x8064E72C end:0x8064F594
 	.data       start:0x807B8250 end:0x807B82A0
+
+smg2/src/RVL_SDK/bte/sdp_db.c:
+	.text       start:0x8064F594 end:0x80650260
+	.data       start:0x807B82A0 end:0x807B8338
 
 smg2/src/RVL_SDK/bte/sdp_discovery.c:
 	.text       start:0x80650260 end:0x806514D8
