@@ -4411,6 +4411,13 @@ PowerPC_EABI_Support/src/MetroTRK/dolphin_trk.c:
 	.data       start:0x807BACB0 end:0x807BACF0
 	.sbss       start:0x80880300 end:0x80880308
 
+PowerPC_EABI_Support/src/MetroTRK/dolphin_trk_glue.c:
+	.text       start:0x80675C10 end:0x80675FAC
+	.data       start:0x807BACF0 end:0x807BADD8
+	.bss        start:0x808304C8 end:0x808304F0
+	.sbss       start:0x80880308 end:0x80880310
+	.sdata2     start:0x80888A58 end:0x80888A60
+
 PowerPC_EABI_Support/src/MetroTRK/notify.c:
 	.text       start:0x80675FAC end:0x8067603C
 
