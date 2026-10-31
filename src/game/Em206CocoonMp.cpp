@@ -636,6 +636,35 @@ void Em206CocoonMp::fn_802BE9C8() {
     }
 }
 
+// NONMATCHING: 98.5% - stack slot of the temporary of m14F8
+// inferred: state 12 (curls up with motion 0x169, then starts state 13: rolls towards the target)
+void Em206CocoonMp::fn_802BEAEC() {
+    if (mMotion.mTracks[0].m00 == 0x169) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            SetState_unk(13);
+            m1504 = 0;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, 0x167, 1, 0, 1, 0.0f, 0.025f);
+            mMotion.mTracks[0].m0C = 1.8f;
+            m14F8 = mC58.mC4->mPos - mPos;
+            m14F8.y = 0.0f;
+            if (m14F8.LengthSq_unk() > 0.0001f) {
+                m14F8.Normalize_unk();
+            } else {
+                m14F8.x = 0.0f;
+                m14F8.y = 0.0f;
+                m14F8.z = 1.0f;
+            }
+            mRot = m14F8.ToRotation_unk();
+        }
+    } else if (mMotion.mTracks[0].m08 <= 2.0f) {
+        mMotion.fn_80097C08(0, 0x169, 0, 0, 1, 0.0f, 0.1f);
+        mMotion.mTracks[0].m0C = 1.0f;
+    }
+}
+
 // inferred: state 16 (jumps from m1508 to m1514, then lands)
 void Em206CocoonMp::fn_802C0458() {
     if (mMotion.mTracks[0].m00 == 0x168) {
