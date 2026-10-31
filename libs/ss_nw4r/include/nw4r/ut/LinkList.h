@@ -251,13 +251,13 @@ public:
         }
 
         T *operator->() const {
-            T *p = GetPointerFromNode(mIterator.operator->());
-            NW4RAssertPointerNonnull_Line(403, p);
-            return p;
+            return GetPointerFromNode(mIterator.operator->());
         }
 
         T &operator*() const {
-            return *this->operator->();
+            T *p = this->operator->();
+            NW4RAssertPointerNonnull_Line(403, p);
+            return *p;
         }
 
         friend bool operator==(Iterator lhs, Iterator rhs) {

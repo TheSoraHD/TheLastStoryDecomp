@@ -12,7 +12,7 @@ Changes for The Last Story:
 - Header files renamed without the `snd_`/`ut_`/`math_` prefix (`LinkList.h`,
   `SoundInstanceManager.h`, ...): the assert strings of the game use those
   `__FILE__` names.
-- `ut/LinkList.h`: asserts of the 2010 template (`operator->` line 403,
+- `ut/LinkList.h`: asserts of the 2010 template (`operator*` line 403,
   `GetFront` 497, `GetNodeFromPointer` 563, `GetPointerFromNode` 573).
 - `snd/SoundArchivePlayer.h`: `detail_ConvertLabelStringToSoundId` assert at
   line 201.
