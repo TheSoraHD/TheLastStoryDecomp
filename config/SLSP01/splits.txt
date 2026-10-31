@@ -3842,6 +3842,12 @@ RVL_SDK/src/revolution/gx/GXLight.c:
 	.text       start:0x80615700 end:0x80615DF4
 	.sdata2     start:0x80888750 end:0x80888788
 
+smg2/src/RVL_SDK/gx/GXTexture.c:
+	.text       start:0x80615E00 end:0x80616E80
+	.data       start:0x807B0B98 end:0x807B0DC0
+	.sdata      start:0x8087E880 end:0x8087E8C0
+	.sdata2     start:0x80888788 end:0x808887B0
+
 RVL_SDK/src/revolution/gx/GXBump.c:
 	.text       start:0x80616E80 end:0x80617334
 	.sdata2     start:0x808887B0 end:0x808887B8

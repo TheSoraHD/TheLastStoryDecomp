@@ -354,6 +354,11 @@ void GXGetTexObjAll(const GXTexObj* obj, void** image_ptr, u16* width, u16* heig
 // These SDK entry points are retained in the retail binary for the product.sel export symbol table.
 #pragma push
 #pragma force_active on
+void* GXGetTexObjData(const GXTexObj* to) {
+    GX_SETUP_TEXOBJ(t, to)
+    return (void*)(TX_SETIMAGE3_GET_IMAGE_BASE(t->image3) << 5);
+}
+
 u16 GXGetTexObjWidth(const GXTexObj* to) {
     GX_SETUP_TEXOBJ(t, to)
     return (u16)(TX_SETIMAGE0_GET_IMAGE_WIDTH(t->image0) + 1);
@@ -592,6 +597,17 @@ void GXSetTexCoordScaleManually(GXTexCoordID coord, GXBool enable, u16 ss, u16 t
         SC_SU_TS0_SET_SSIZE(gx->suTs0[coord], (u16)(ss - 1));
         SC_SU_TS1_SET_TSIZE(gx->suTs1[coord], (u16)(ts - 1));
 
+        GX_WRITE_RA_REG(gx->suTs0[coord]);
+        GX_WRITE_RA_REG(gx->suTs1[coord]);
+        BP_SENT();
+    }
+}
+
+void GXSetTexCoordCylWrap(GXTexCoordID coord, GXBool s_enable, GXBool t_enable) {
+    SC_SU_TS0_SET_WS(gx->suTs0[coord], s_enable);
+    SC_SU_TS1_SET_WT(gx->suTs1[coord], t_enable);
+
+    if (gx->tcsManEnab & (1 << coord)) {
         GX_WRITE_RA_REG(gx->suTs0[coord]);
         GX_WRITE_RA_REG(gx->suTs1[coord]);
         BP_SENT();
