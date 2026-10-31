@@ -463,7 +463,8 @@ public:
     // inferred: a free position next to the character, away from `target` (8 directions tried)
     virtual atn::Vector3 vfD8(CharaTask* target);
     virtual float vfDC() { return 0.5f * (vf90() - 1.0f); } // weak copy 0x800EF270
-    virtual float vfE0(const atn::Vector3& dir); // inferred: yaw of `dir` (0x800EF080; chr::ControlQuarkSeirenAttack passes it in r4)
+    // inferred: yaw of `dir` (weak copy 0x800EF080; chr::ControlQuarkSeirenAttack passes it in r4)
+    virtual float vfE0(const atn::Vector3& dir) { return dir.ToRotation_unk().y; }
 
     int fn_8013655C(); // inferred: loading state machine on mAC, nonzero while loading
     int fn_801370B8(int index);
