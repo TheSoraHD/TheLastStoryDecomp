@@ -58,8 +58,6 @@ double strtod(const char* str);
 
 /* MSL extras.h */
 int stricmp(const char*, const char*);
-/* the target symbol of strnicmp (a branch to __msl_strnicmp) has an automatic name */
-#define strnicmp fn_8068B1F8
 int strnicmp(const char*, const char*, size_t);
 #define _stricmp strcasecmp
 #define _strnicmp strnicmp

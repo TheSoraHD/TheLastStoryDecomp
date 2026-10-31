@@ -65,7 +65,7 @@ struct MerchantMsg_unk {
     int m34;
 };
 extern "C" MerchantMsg_unk* fn_803CC6B4(void* table, int id);                 // inferred: message by id
-extern "C" void fn_8068B2A0(int value, wchar_t* buf, int radix);             // inferred: integer to text
+extern "C" void itow(int value, wchar_t* buf, int radix);
 extern "C" void fn_800DD8A8(wchar_t* buf, const wchar_t* format, int count, ...); // inferred: formats a message
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: item manager and shop (classes unknown)
@@ -310,8 +310,8 @@ void RandomMerchant::vf10() {
             MerchantMsg_unk* msg = fn_803CC6B4(lbl_8087F430->m10D8, mEntries[mCur].m290);
             wchar_t numText[0x40] = {0};
             wchar_t priceText[0x40] = {0};
-            fn_8068B2A0(mItemNum, numText, 10);
-            fn_8068B2A0(mPrice, priceText, 10);
+            itow(mItemNum, numText, 10);
+            itow(mPrice, priceText, 10);
             fn_800DD8A8(text, msg->mFormat, 3, name, numText, priceText);
             m3070 = text;
             m309C = msg->m34;

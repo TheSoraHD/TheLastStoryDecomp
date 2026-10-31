@@ -6,8 +6,8 @@
 
 extern "C" int vsprintf(char* buf, const char* format, va_list args);
 extern "C" wchar_t* wcstok(wchar_t* s, const wchar_t* delim, wchar_t** context);
-extern "C" char* fn_8068B1A4(char* s);                 // inferred: (string in place)
-extern "C" char* fn_8068B29C(int value, char* buf, int radix); // inferred: itoa
+extern "C" char* strupr(char* s);
+extern "C" char* itoa(int value, char* buf, int radix);
 
 // inferred: string to int (spaces skipped, optional '-'); 0 if it does not start with a number
 // NONMATCHING: 97.73% - the original starts with a `b` to the next instruction (empty entry block) that no tested form
@@ -230,11 +230,11 @@ extern "C" unsigned int fn_800DC880(const char* s) {
 }
 
 extern "C" char* fn_800DC978(char* s) {
-    return fn_8068B1A4(s);
+    return strupr(s);
 }
 
 extern "C" char* fn_800DC97C(int value, char* buf, int radix) {
-    return fn_8068B29C(value, buf, radix);
+    return itoa(value, buf, radix);
 }
 
 // inferred: printf to a std::string

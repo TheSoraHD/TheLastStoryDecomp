@@ -4716,6 +4716,9 @@ PowerPC_EABI_Support/src/MSL_C/PPC_EABI/math_ppc.c:
 PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c:
 	.text       start:0x8068B100 end:0x8068B104
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/extras.c:
+	.text       start:0x8068B104 end:0x8068B39C
+
 auto_03_8068B60C_text.cpp:
 	.text       start:0x8068B60C end:0x8068B610
 
