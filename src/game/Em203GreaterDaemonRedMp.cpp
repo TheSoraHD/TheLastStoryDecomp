@@ -674,20 +674,24 @@ atn::Vector3 Em203GreaterDaemonRedMp::vf64(int center) {
     return result;
 }
 
-// NONMATCHING: 36% - the original calls every inline candidate out of line (over the R3 budget, cause unknown)
+// NONMATCHING: 99.89% - stack slots of the spine and target vectors swapped
 // inferred: picks the next ground attack: claw when close (alternating with fn_802A2F48 every 3 times),
 // tackle when far, or turns when the target is behind; `wait` waits for GrandAttackTime/GrandBreathTime
 void Em203GreaterDaemonRedMp::fn_8029F148(int wait) {
     if (m1650 == 0 && m1644 == 0 && fn_8029F3AC(&mStatus) < 0.6f) {
         fn_802A3520();
+        return;
     }
     if (m1648 != 0 && m1648->CanAct_unk() && m1648->fn_802A49C8() == 0) {
         m14E4 = 5;
         fn_802A35B0(5);
+        return;
     }
     atn::Vector3 target(*m14D4->fn_8013C38C());
-    atn::Vector3 d = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk() - target;
+    atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
+    atn::Vector3 d = spine - target;
     d.y = 0.0f;
+    float limit;
     float len = d.Length_unk();
     if (len < 0.00001f) {
         d.Set_unk(0.0f, 0.0f, 1.0f);
@@ -695,7 +699,6 @@ void Em203GreaterDaemonRedMp::fn_8029F148(int wait) {
     } else {
         d.Normalize_unk();
     }
-    float limit;
     if (m58C == 16) {
         limit = 0.0f;
     } else {
@@ -722,9 +725,10 @@ void Em203GreaterDaemonRedMp::fn_8029F148(int wait) {
         if (m1634 >= 1) {
             fn_802A2F48();
             m1634 = 0;
+        } else {
+            fn_802A2A68();
+            m1634++;
         }
-        fn_802A2A68();
-        m1634++;
     }
 }
 
