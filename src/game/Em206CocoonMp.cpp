@@ -245,6 +245,9 @@ int Em206CocoonMp::vf0C() {
     return 0;
 }
 
+// inferred: the "vector length error" of push_back (vf104) is in the string pool right after the keys of vf0C
+template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
+
 void Em206CocoonMp::vf10() {
     if (m1520 != m1524) {
         fn_80370AE4(lbl_8087F430, 10, 1);
