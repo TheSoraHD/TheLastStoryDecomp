@@ -5282,6 +5282,9 @@ nw4r/src/snd/snd_Util.cpp:
 	.sdata      start:0x8087EE30 end:0x8087EE38
 	.sdata2     start:0x808892D8 end:0x80889308
 
+nw4r/src/ut/ut_LinkList.cpp:
+	.text       start:0x80725170 end:0x80725300
+
 nw4r/src/ut/ut_IOStream.cpp:
 	.text       start:0x80725C60 end:0x80725C8C
 	.ctors      start:0x8072D420 end:0x8072D424
