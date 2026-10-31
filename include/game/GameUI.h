@@ -142,6 +142,17 @@ struct GameUIElem20_unk {
     int m1C;
 };
 
+// inferred: 0x24-byte entry of the list at 0x8D0, sorted by distance (GameUI::fn_803E3050); names invented
+struct GameUIMark24_unk {
+    GameUIMark24_unk() {}
+    GameUIMark24_unk(const atn::Vector3& pos, const atn::Vector3& screen, const atn::Vector2_unk& size, float dist)
+        : mPos(pos), mScreen(screen), mSize(size), mDist(dist) {}
+    atn::Vector3 mPos;
+    atn::Vector3 mScreen;
+    atn::Vector2_unk mSize;
+    float mDist;
+};
+
 // inferred: 0x1C-byte entry at 0x748 (names invented)
 struct GameUIElem1C_unk {
     GameUIElem1C_unk() : m00(-1), m04(-1), m08(-1), m0C(0), m10(0), m14(0), m18(0) {}
@@ -250,6 +261,8 @@ public:
     void fn_803E0D84();
     void fn_803E2110(int arg, CharaTask* chara); // inferred: HUD notice about a character
     void fn_803E32EC();
+    // inferred: adds a mark, nearest first (the callers copy the vectors: passed by value)
+    void fn_803E3050(atn::Vector3 pos, atn::Vector3 screen, atn::Vector2_unk size, float dist);
     void fn_803E3384();
     void fn_803E3BE8(void* msg, int arg, float time);
     void fn_803E4100();
@@ -343,8 +356,7 @@ public:
     atn::Vector3 m888; // inferred: fn_803E6ADC
     atn::Vector3 m894;
     int m8A0[12];
-    int m8D0;
-    unsigned char m8D4[0xA84 - 0x8D4];
+    FixedArray_unk<GameUIMark24_unk, 12> m8D0; // 0x8D0: inferred: nearest marks
     atn::D2A_Task* mA84; // inferred: frame and "basePos" set by fn_803E6ADC
     atn::D2A_Task* mA88;
     int mA8C;

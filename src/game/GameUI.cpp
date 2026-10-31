@@ -116,7 +116,7 @@ GameUI* GameUI::fn_803CE910(atn::Task* parent) {
 // (W262C_unk, W25CC_unk, W2568_unk, MarkerList_unk) were needed for the scheduling windows and the loop
 // bounds of the arrays; `m30C.mMid.mBase.mCount -= (int)...` reproduces the lwz/subf of the inlined Clear.
 GameUI::GameUI(atn::Task* parent)
-    : atn::Task(parent), m48(0.0f), m4C(-1.0f), m2F0(0), m834(0), m85C(0), m8D0(0), mD84(0), mD88(0),
+    : atn::Task(parent), m48(0.0f), m4C(-1.0f), m2F0(0), m834(0), m85C(0), mD84(0), mD88(0),
       mD8C(0), mDA4(0), mDA8(0), mDAC(0), mDB0(0), mDC8(0), m1118(0), m1130(0), m1140(0), m1144(0), m1148(0), m114C(0), m1150(0), m1154(0), m1170(0), m15B4(0), m15B8(0),
       m253C(0), m2540(0), m254C(0), m255C(-1), m2560(0.0f), m2658(0), mSeState(0), mSeMask(0), m2668(1.0f), m266C(0.07f), m2670(5.0f), m2674(3000.0f),
       m2678(128, 128, 128, 255), m2688(10, 10, 128, 255), m2698(128, 128, 128, 255), m26A8(10, 10, 255, 255), m26B8(0, 0, 0, 255), m26C8(19, 59, 23, 255), m26D8(220, 220, 200, 255), m26E8(250, 150, 90, 255), m26F8(140, 170, 220, 255), m2708(60, 100, 70, 255), m2718(250, 240, 130, 255), m2728(255, 180, 0, 0), m2738(0, 180, 80, 0), m2748(255, 100, 100, 0), m2758(90, 90, 90, 0), m2768(50, 20, 90, 0), m2778(150, 100, 200, 0), m288C(255, 255, 255, 0), m289C(85, 112, 206, 255) {
@@ -176,7 +176,7 @@ GameUI::GameUI(atn::Task* parent)
     }
     mA84 = 0;
     mA88 = 0;
-    m8D0 = 0;
+    m8D0.mCount = 0;
     m73C = 0;
     m740 = 0;
     m744 = 0;
@@ -496,6 +496,24 @@ void GameUI::fn_803E32EC() {
     m764 = GameUIElem1C_unk();
     memcpy(&m7F8, &m7C0, sizeof(GameUIElem1C_unk));
     m7C0 = GameUIElem1C_unk();
+}
+
+// NONMATCHING: 92.3% - the original addresses the members of the temporary mark with separate registers
+// (addi rN, r1, off for each vector) instead of one base; tried init list, body assignments, by-value
+// constructor, placement new without the temporary (5 variants)
+void GameUI::fn_803E3050(atn::Vector3 pos, atn::Vector3 screen, atn::Vector2_unk size, float dist) {
+    for (GameUIMark24_unk* it = m8D0.begin(); it != m8D0.end(); it++) {
+        if (dist < it->mDist) {
+            if (m8D0.full()) {
+                m8D0.mCount--;
+            }
+            m8D0.insert(it, GameUIMark24_unk(pos, screen, size, dist));
+            return;
+        }
+    }
+    if (!m8D0.full()) {
+        m8D0.PushBack_unk(GameUIMark24_unk(pos, screen, size, dist));
+    }
 }
 
 // inferred: closes the button prompt (called by the enemies that grab the player)
