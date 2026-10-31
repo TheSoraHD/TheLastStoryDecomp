@@ -5243,6 +5243,10 @@ nw4r/src/snd/snd_AxManager.cpp:
 	.sbss       start:0x80880488 end:0x808804A0
 	.sdata2     start:0x80889008 end:0x80889020
 
+ss_nw4r/src/snd/snd_AxVoice.cpp:
+	.text       start:0x80705340 end:0x807080B4
+	.sdata2     start:0x80889020 end:0x80889048
+
 nw4r/src/snd/snd_AxVoiceManager.cpp:
 	.text       start:0x807080C0 end:0x80708AE8
 	.bss        start:0x80862F30 end:0x80862F68
