@@ -41,6 +41,8 @@ extern "C" int fn_801004FC(Effect_unk* mgr, CharaTask** out, CharaTask* chara, c
                            float theta);
 extern "C" int fn_80100BB8(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
                            float theta);
+extern "C" double cos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -154,6 +156,35 @@ void BattleCharaTask::vf14() {
     fn_80149A30();
     if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
+    }
+}
+
+// NONMATCHING: 99.87% - stack slots of the second and third rotation matrices swapped (~8 forms)
+void BattleCharaTask::fn_800E610C() {
+    atn::Vector3 input(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', fn_80178018().y);
+    PSMTXMultVec(m, &input, &input);
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m2;
+    PSMTXRotRad(m2, 'y', mRot.y);
+    PSMTXMultVec(m2, &front, &front);
+    if (PSVECDotProduct(&front, &input) < (float)cos(0.5235987901687622) || !fn_8016AFE8(front)) {
+        int mode = lbl_8087F0A8->mSurroundMode;
+        if (!mFlag10 || mode != 1) {
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            Mtx m3;
+            PSMTXRotRad(m3, 'y', fn_80178018().y);
+            PSMTXMultVec(m3, &dir, &dir);
+            fn_80155790(dir);
+            if (mFlag10 && mode == 2) {
+                if (mFlag10) {
+                    for (CharaPair_unk* it = m125C.begin(); it != m125C.end(); it++) {
+                        it->m04->fn_80155790(dir);
+                    }
+                }
+            }
+        }
     }
 }
 
