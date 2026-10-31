@@ -99,6 +99,8 @@ extern "C" void fn_80108A54(Effect_unk* mgr, CharaTask* chara); // inferred: loc
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int atoi(const char* s);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" bool* fn_802185F4(); // inferred: motions in use
+extern "C" void fn_80477694(atn::LH_MotionSet* set, const char* path);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -878,6 +880,38 @@ void BattleCharaTask::fn_800EBA5C() {
     m610 = 0;
     mFlagB18 = 0;
     mF1C = 0;
+}
+
+// NONMATCHING: 99.7% - code matches; string and float pool offsets wait for earlier pool users
+void BattleCharaTask::fn_800EBD00(int mode, int prev) {
+    if (mode != prev) {
+        if (mode == 1) {
+            lbl_8087F8A0->mHead->fn_8014EEC4(0);
+            mMotion.m34C = 1;
+            mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.1f);
+            for (int i = 0; i < 0x23A; i++) {
+                mMotion.fn_80097A20(i);
+            }
+            m8C.vf0C("/database/chara/motion/na000_00_town.mchr");
+        } else {
+            lbl_8087F8A0->mHead->fn_8014DEE4(0, 0, 0);
+            for (int i = 0; i < 0x23A; i++) {
+                mMotion.fn_80097A20(i);
+            }
+            m8C.vf0C("/database/chara/motion/na000_00.mchr");
+        }
+        fn_80137B78();
+        mAC = 2;
+    } else if (mode != 1) {
+        bool* used = fn_802185F4();
+        for (int i = 0; i < 0x23A; i++) {
+            if (!used[i]) {
+                mMotion.fn_80097A20(i);
+            }
+        }
+        fn_80477694(&m8C, "/database/chara/motion/na000_00.mchr");
+        mAC = 2;
+    }
 }
 
 int BattleCharaTask::fn_800EBE84() {

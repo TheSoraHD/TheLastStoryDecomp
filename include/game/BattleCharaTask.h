@@ -39,6 +39,7 @@ public:
     void fn_800EB4AC(); // inferred: aims the weapon (shoots when the step of the mode is 2)
     void fn_800EB7A0(); // inferred: death effect
     void fn_800EBA5C(); // inferred: full reset (revive)
+    void fn_800EBD00(int mode, int prev); // inferred: switches the motion set (1: town)
     int fn_800EBE84();  // inferred: applies the motion sets once loaded (1 while loading)
     int fn_800EE180(); // inferred: the character can start an action against its target
     void fn_800EE360(); // inferred: death reward (item of the battle result or message 3 to the gimmick m1438)
