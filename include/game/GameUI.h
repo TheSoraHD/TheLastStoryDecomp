@@ -264,6 +264,7 @@ public:
     // inferred: adds a mark, nearest first (the callers copy the vectors: passed by value)
     void fn_803E3050(atn::Vector3 pos, atn::Vector3 screen, atn::Vector2_unk size, float dist);
     void fn_803E3384();
+    void fn_803E3C78(const GameUIMarker_unk& marker); // inferred: adds a marker, nearest first
     void fn_803E3BE8(void* msg, int arg, float time);
     void fn_803E4100();
     void fn_803E41AC(CharaTask* chara);
@@ -375,7 +376,21 @@ public:
     // inferred: count and markers (names invented)
     struct MarkerList_unk {
         MarkerList_unk() : mCount(0) {}
-        int mCount;
+        // inferred: same members as FixedArray_unk (game/CharaStatus.h)
+        bool full() const { return mCount >= 8; }
+        void insert(GameUIMarker_unk* it, const GameUIMarker_unk& x) {
+            unsigned int pos = it - m;
+            for (unsigned int i = mCount; i > pos; i--) {
+                m[i] = m[i - 1];
+            }
+            m[pos] = x;
+            mCount++;
+        }
+        void PushBack_unk(const GameUIMarker_unk& x) {
+            new (&m[mCount]) GameUIMarker_unk(x);
+            mCount++;
+        }
+        unsigned int mCount;
         GameUIMarker_unk m[8];
     } mC38;                                    // 0xC38
     int mD3C;                                  // 0xD3C

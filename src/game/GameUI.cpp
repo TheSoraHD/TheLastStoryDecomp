@@ -2,6 +2,8 @@
 #include "atn/D2A_Task.h"
 #include "game/CharaTask.h"
 #include "game/GimmickCommon.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 #include "game/SkillEffectManager.h"
 #include "atn/GraphicsDevice.h"
 #include "game/HitInfo_unk.h"
@@ -44,6 +46,7 @@ struct GameUIMsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" GameUIMsgTable_unk* lbl_8087F1E4;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: item data returned by fn_80211480 (only the members used here; names invented)
 struct GameUIItem_unk {
     unsigned char m00[0x64];
@@ -570,6 +573,59 @@ void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
         fn_803B78E8(m2640);
         fn_803B6970(m2640, msg, arg, time);
         m2658 = 0;
+    }
+}
+
+// NONMATCHING: 99.3% - the original walks the first search with a pointer from 0xC3C and the check of the
+// earlier selected markers with an offset (here both the other way round)
+void GameUI::fn_803E3C78(const GameUIMarker_unk& marker) {
+    if (marker.m00 == 0) {
+        if (marker.m14 != 0) {
+            fn_803CF74C();
+        }
+        return;
+    }
+    PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (player == 0) {
+        return;
+    }
+    int index = -1;
+    float dist = (marker.mPos - player->mPos).LengthSq_unk();
+    for (unsigned int i = 0; i < mC38.mCount; i++) {
+        GameUIMarker_unk* it = &mC38.m[i];
+        if (dist < (it->mPos - player->mPos).LengthSq_unk()) {
+            if (mC38.full()) {
+                mC38.mCount--;
+            }
+            mC38.insert(&mC38.m[i], marker);
+            index = i;
+            break;
+        }
+    }
+    if (index < 0 && !mC38.full()) {
+        mC38.PushBack_unk(marker);
+        index = mC38.mCount - 1;
+    }
+    if (index >= 0 && marker.m14 != 0) {
+        for (int i = 0; i < index; i++) {
+            if (mC38.m[i].m14 != 0) {
+                mC38.m[index].m14 = 0;
+                break;
+            }
+        }
+        for (unsigned int i = index + 1; i < mC38.mCount; i++) {
+            GameUIMarker_unk* m = &mC38.m[i];
+            if (m->m14 != 0) {
+                m->m14 = 0;
+            }
+        }
+    }
+    for (unsigned int i = 0; i < mC38.mCount; i++) {
+        if (mC38.m[i].m14 != 0) {
+            mD40 = mC38.m[i];
+            mD3C = 1;
+            return;
+        }
     }
 }
 
