@@ -31,14 +31,18 @@ public:
     virtual boost::function<void()> vf10();
     virtual atn::Vector3 vf14(); // inferred: a position (CharaTask::fn_80178088)
     virtual atn::Vector3 vf18(); // inferred: a direction (CharaTask::fn_80158E1C)
-    virtual void vf1C();
+    // inferred: inline; its weak copy is emitted after the first function of a file that calls it
+    // through the vtable (0x800E70A8, after BattleCharaTask::fn_800E62AC)
+    virtual void vf1C() {}
     // inferred: vf20, vf24 and vf28 are inline (weak copies emitted in game/CharaTask.cpp at
     // 0x80158C9C, 0x80158D58 and 0x80158E14)
     virtual float vf20() { return 0.0f; }
     virtual int vf24() { return 0; }
     virtual int vf28() { return 0; }
     virtual int vf2C(); // inferred: returns an int (number of hit windows in chr::ControlAttackBase)
-    virtual int vf30(); // inferred: returns an int (0 in ControlBase, 0x800E60FC; compared with 5 by callers of CharaTask::fn_8017A450, tested by vf5C)
+    // inferred: returns an int (compared with 5 by callers of CharaTask::fn_8017A450, tested by vf5C);
+    // inline, weak copy 0x800E60FC after the virtual call in BattleCharaTask::fn_800E589C
+    virtual int vf30() { return 0; }
     // inferred: inline (weak copies 0x8017A220 and 0x8017A2F8 in game/CharaTask.cpp, read through
     // CharaTask::fn_8017A160 and fn_8017A228)
     virtual int vf34() { return 0; }
