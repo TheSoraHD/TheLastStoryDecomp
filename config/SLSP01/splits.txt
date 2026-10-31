@@ -3752,6 +3752,9 @@ RVL_SDK/src/revolution/os/OSCrc.c:
 	.text       start:0x805F8430 end:0x805F86A4
 	.rodata     start:0x80764738 end:0x80764798
 
+smg2/src/RVL_SDK/os/OSLaunch.c:
+	.text       start:0x805F86B0 end:0x805F88B4
+
 RVL_SDK/src/revolution/os/__ppc_eabi_init.c:
 	.init       start:0x80004360 end:0x800043C4
 	.text       start:0x805F88C0 end:0x805F8980
