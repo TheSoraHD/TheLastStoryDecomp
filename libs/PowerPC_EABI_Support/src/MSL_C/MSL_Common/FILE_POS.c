@@ -122,6 +122,9 @@ int fseek(FILE* stream, u32 offset, int whence)
 void fsetpos(){
 }
 
-//unused
-void rewind(){
+void rewind(FILE* stream)
+{
+    stream->state.error = 0;
+    _fseek(stream, 0, 0);
+    stream->state.error = 0;
 }

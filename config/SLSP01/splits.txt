@@ -4498,13 +4498,13 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common/buffer_io.c:
 	.text       start:0x8067CE90 end:0x8067D06C
 
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/direct_io.c:
-	.text       start:0x8067D5C4 end:0x8067D8CC
+	.text       start:0x8067D27C end:0x8067D8CC
 
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/file_io.c:
 	.text       start:0x8067D8CC end:0x8067DABC
 
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/FILE_POS.c:
-	.text       start:0x8067DC64 end:0x8067DED8
+	.text       start:0x8067DC64 end:0x8067DF20
 
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/mbstring.c:
 	.text       start:0x8067DF20 end:0x8067E118
