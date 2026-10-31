@@ -4258,6 +4258,15 @@ smg2/src/RVL_SDK/bte/hcicmds.c:
 smg2/src/RVL_SDK/bte/hidd_api.c:
 	.text       start:0x8063EE48 end:0x8063EEB0
 
+smg2/src/RVL_SDK/bte/hidd_conn.c:
+	.text       start:0x8063EEB0 end:0x8063EF70
+	.data       start:0x807B59E0 end:0x807B5A10
+
+smg2/src/RVL_SDK/bte/hidd_mgmt.c:
+	.text       start:0x8063EF70 end:0x8063F038
+	.data       start:0x807B5A10 end:0x807B5A30
+	.bss        start:0x80822B90 end:0x80822CD8
+
 smg2/src/RVL_SDK/bte/hidd_pm.c:
 	.text       start:0x8063F038 end:0x8063F3B4
 
