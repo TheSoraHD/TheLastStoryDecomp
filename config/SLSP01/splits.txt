@@ -5502,6 +5502,9 @@ ss_nw4r/src/snd/snd_WsdPlayer.cpp:
 ss_nw4r/src/snd/snd_adpcm.cpp:
 	.text       start:0x80722F50 end:0x80722FDC
 
+ss_nw4r/src/ut/ut_list.cpp:
+	.text       start:0x80725050 end:0x80725170
+
 nw4r/src/ut/ut_LinkList.cpp:
 	.text       start:0x80725170 end:0x80725300
 
@@ -5525,6 +5528,13 @@ nw4r/src/ut/ut_DvdFileStream.cpp:
 	.ctors      start:0x8072D428 end:0x8072D42C
 	.data       start:0x807C65B8 end:0x807C6620
 	.sbss       start:0x80880550 end:0x80880558
+
+ss_nw4r/src/ut/ut_DvdLockedFileStream.cpp:
+	.text       start:0x807263E0 end:0x807267CC
+	.ctors      start:0x8072D42C end:0x8072D430
+	.data       start:0x807C6620 end:0x807C6684
+	.bss        start:0x8087D678 end:0x8087D690
+	.sbss       start:0x80880558 end:0x80880570
 
 nw4r/src/ut/ut_CharWriter.cpp:
 	.text       start:0x807267D0 end:0x80727E4C
