@@ -298,3 +298,95 @@ float GameUIDuration_unk::fn_803CFC6C() {
 }
 
 void GameUI::vf14() {}
+
+void GameUI::fn_803E4434(int on) {
+    if (on) {
+        mD8C = 2;
+        mD84 = 0;
+        mD80 = 1;
+        mD7C = 5;
+    } else {
+        mD8C = 0;
+        mD88 = 0;
+        mD80 = 0;
+        mD84 = 0;
+    }
+}
+
+void GameUI::fn_803E4478() {
+    mD78 = 0;
+    mD8C = 0;
+    mD88 = 0;
+    mD84 = 0;
+    mD80 = 0;
+    if (mD70 != 0) {
+        mD70->FreezeTask();
+    }
+    if (mD74 != 0) {
+        mD74->FreezeTask();
+    }
+}
+
+void GameUI::fn_803E44C4(int on, int id, int count) {
+    if (on) {
+        m2644 = 1;
+        m2648 = id;
+        m264C = count;
+        m2650 = 0;
+    } else if (m2644 != 0 && m2648 == id) {
+        m2650 = m264C + 1;
+    }
+}
+
+void GameUI::fn_803E4510() {
+    m2644 = 0;
+    m2648 = 0;
+    m264C = 0x2D;
+    m2650 = 0;
+    if (m2654 != 0) {
+        m2654->m104 = -1.0f;
+        m2654->m100 = 0.0f;
+    }
+}
+
+void GameUI::fn_803E4950() {
+    mD90.m00 = 0;
+    mDB0 = 0;
+    mDB4->m100 = 0.0f;
+    mDB4->m104 = -1.0f;
+}
+
+void GameUI::fn_803E4A20(int a, int b) {
+    if (a) {
+        mD90.m00 = 1;
+        mD90.m04 = 1;
+        mDA4 = a;
+        mDA8 = b;
+        mDB0 = 2;
+    }
+}
+
+// NONMATCHING: 99% - code matches; 10.0f sits later in the float pool (earlier users unwritten)
+float GameUI::fn_803E4A48() {
+    return mDB4->m100 / 10.0f;
+}
+
+void GameUI::fn_803E58CC() {
+    if (mDC0 != 0) {
+        mDC0->m100 = 0.0f;
+    }
+}
+
+void GameUI::fn_803E58E4() {
+    if (mDC4 != 0) {
+        mDC4->m100 = 0.0f;
+        fn_800C31F4(lbl_80750618[12], 0, -1, 1.0f);
+    }
+}
+
+bool GameUI::fn_803E5940() {
+    if (mDC4 != 0) {
+        return (mDC4->mFlags & 4) != 4 && !mDC4->IsEnd_unk();
+    }
+    return false;
+}

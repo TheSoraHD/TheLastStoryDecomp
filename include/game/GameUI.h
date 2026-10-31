@@ -67,8 +67,15 @@ struct GameUIDuration_unk {
 struct GameUIGauge_unk : public atn::Task {
     bool fn_803CFC58(); // inferred: (mFlags & 4) != 0
     float fn_803CFC64(); // inferred: returns m100
-    unsigned char m48[0x100 - 0x48];
-    float m100;
+    unsigned char m48[0xA0 - 0x48];
+    float mA0;  // inferred: end value (GameUI::fn_803E5940)
+    unsigned char mA4[0x100 - 0xA4];
+    float m100; // inferred: current value
+    float m104; // inferred: set to -1 by GameUI::fn_803E4510
+    bool IsEnd_unk() const { // inferred: name invented
+        float end = mA0;
+        return m100 >= end;
+    }
 };
 
 // inferred: timed entry (0xC bytes) of the list at 0x3F0; names invented
@@ -217,6 +224,16 @@ public:
 
     void fn_803CF740();
     void fn_803CF74C();
+    void fn_803E4434(int on); // inferred: names invented for the fields set here
+    void fn_803E4478();
+    void fn_803E44C4(int on, int id, int count);
+    void fn_803E4510();
+    void fn_803E4950();
+    void fn_803E4A20(int a, int b);
+    float fn_803E4A48();
+    void fn_803E58CC();
+    void fn_803E58E4();
+    bool fn_803E5940();
 
     float m48;
     float m4C;
@@ -303,7 +320,8 @@ public:
     GameUIMarker_unk mD40;                     // 0xD40
     unsigned char mD60[0xD6C - 0xD60];
     int mD6C;
-    unsigned char mD70[0xD78 - 0xD70];
+    atn::Task* mD70; // inferred: frozen by fn_803E4478
+    atn::Task* mD74;
     int mD78;
     int mD7C;
     int mD80;
@@ -315,11 +333,11 @@ public:
     int mDA8;
     int mDAC;
     int mDB0;
-    int mDB4;
+    GameUIGauge_unk* mDB4; // inferred: same kind of object as m2654 (fn_803E4950)
     int mDB8;
     int mDBC;
-    int mDC0;
-    int mDC4;
+    GameUIGauge_unk* mDC0; // inferred: fn_803E58CC
+    GameUIGauge_unk* mDC4; // inferred: fn_803E58E4, fn_803E5940
     int mDC8;
     int mDCC;
     float mDD0;
@@ -395,7 +413,7 @@ public:
     int m2648;
     int m264C;
     int m2650;
-    int m2654;
+    GameUIGauge_unk* m2654; // inferred: floats 0x100/0x104 reset by fn_803E4510
     int m2658;
     int mSeState;                              // 0x265C: inferred: state of the gauge sound
     unsigned int mSeMask;                      // 0x2660: inferred: sounds to play (1 << index)
