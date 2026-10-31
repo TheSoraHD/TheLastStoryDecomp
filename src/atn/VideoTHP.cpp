@@ -22,7 +22,7 @@ extern "C" float fn_805B6930();                   // THPPlayerGetFrameRate
 extern "C" int fn_805B6C0C(void* self, float volume, int time); // inferred: receives the video unchanged
 extern "C" int fn_805B6AE0(int volume, int time); // THPPlayerSetVolume
 extern "C" int fn_805B6474(void* rmode, int x, int y, int w, int h); // THPPlayerDrawCurrentFrame
-extern "C" void fn_806140C0();
+extern "C" void GXDrawDone();
 
 extern "C" void OSPanic(const char* file, int line, const char* msg, ...);
 extern "C" void fn_80087BB4(void* group, const char* name, float* value, int arg3, int arg4, float min,
@@ -288,7 +288,7 @@ void VideoTHP::vf10() {
         }
     }
     m80 = fn_805B6474(rs, x, y, dw, dh);
-    fn_806140C0();
+    GXDrawDone();
     lbl_8087EFB4->m48->vf1C();
 }
 

@@ -41,7 +41,7 @@ extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float alpha, int a
 extern "C" void fn_800BFB70(Camera_unk* camera); // inferred: draws a full screen quad
 extern "C" void fn_800C0FBC(void* image, int format, int width, int height); // inferred: untiles an image
 extern "C" void fn_800D6E48(void* src, void* dst, int width, int height);    // inferred: tiles to RGBA8
-extern "C" void fn_806140C0();
+extern "C" void GXDrawDone();
 
 namespace atn {
 
@@ -226,7 +226,7 @@ void TextureComposite::vf10(Camera_unk* camera) {
         GXInvalidateTexAll();
         GXPixModeSync();
         GXFlush();
-        fn_806140C0();
+        GXDrawDone();
         dst += GXGetTexBufferSize(w, h, texFormat, 0, 0);
         w >>= 1;
         h >>= 1;

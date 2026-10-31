@@ -3831,6 +3831,10 @@ RVL_SDK/src/revolution/gx/GXAttr.c:
 	.data       start:0x807B0750 end:0x807B0900
 	.sdata      start:0x8087E870 end:0x8087E880
 
+smg2/src/RVL_SDK/gx/GXMisc.c:
+	.text       start:0x80613BE0 end:0x80614504
+	.sbss       start:0x808800A0 end:0x808800B8
+
 RVL_SDK/src/revolution/gx/GXGeometry.c:
 	.text       start:0x80614510 end:0x80614B14
 

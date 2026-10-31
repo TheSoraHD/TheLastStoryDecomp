@@ -36,7 +36,7 @@ void GXEnableBreakPt(void* breakPt);
 void GXSetDrawSync(unsigned short token);
 void GXResetOverflowCount();
 void GXDisableBreakPt();
-unsigned short fn_806140B0(); // inferred: GXReadDrawSync
+unsigned short GXReadDrawSync();
 void GXSetColorUpdate(unsigned char enable);
 void GXSetAlphaUpdate(unsigned char enable);
 void GXClearVtxDesc();
@@ -775,7 +775,7 @@ extern "C" void fn_80072D74(unsigned int retraceCount) {
     if (device->mCC != 0 && (retraceCount & 1)) {
         VIFlush();
     } else {
-        unsigned short token = fn_806140B0();
+        unsigned short token = GXReadDrawSync();
         if (token == (unsigned short)(lbl_8087EEDC + 1)) {
             lbl_8087EEDC = token;
             device->mNextXfb = device->mNextXfb == device->mXfb0 ? device->mXfb1 : device->mXfb0;
