@@ -81,7 +81,6 @@ inline atn::Vector3 LaserLerp_unk(const atn::Vector3& a, const atn::Vector3& b, 
     return (b - a) * t + a;
 }
 
-
 // inferred: the three components are zero (written with branches, not as a bool inline); name invented
 inline int IsZero3_unk(const atn::Vector3& v) {
     int zero = 0;
@@ -427,20 +426,6 @@ void Em316LaserSphere::vf40(HitInfo_unk* hit) {
     fn_80319C10();
 }
 
-// NONMATCHING: 88.7% - order of the copies to the capsule (the original stores m3C.z through a frsp and the
-// radius m620 last) and the stack slots of top/bottom; ~16 variants
-void Em316LaserSphere::fn_80318594() {
-    m620 = m5B0;
-    m614 = mPos + m5A4;
-    m614.y += m620;
-    atn::Vector3 bottom(mPos);
-    atn::Vector3 top(mPos);
-    top.y += 0.1f;
-    mColli.m3C = bottom;
-    mColli.m48 = top;
-    mColli.m54 = m620;
-}
-
 // NONMATCHING: 99.80% - only the offset of "spine1" in @stringBase0 (strings of vf10 not written yet)
 // NONMATCHING: 99.69% - stack layout: the original keeps the two sums of the inline at the bottom of the
 // frame and the locals of the effect above the rotation; ~12 variants
@@ -473,19 +458,6 @@ void Em316LaserSphere::vf80(const atn::Vector3& pos, const atn::Vector3& offset)
     fn_800C31F4(sSounds_unk[0], 0, -1, 1.0f);
 }
 
-atn::Vector3 Em316LaserSphere::fn_80318648(CharaTask* chara) {
-    atn::Model* model = &chara->mMotion;
-    MtxPtr m = model->GetNodeMtx_unk("spine1");
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    if (m != 0) {
-        pos = ((atn::Matrix3x4*)m)->GetTrans_unk();
-    } else {
-        pos = chara->mPos;
-        pos.y += 10.0f;
-    }
-    return pos;
-}
-
 void Em316LaserSphere::fn_80317EA0() {
     CharaTask* leader = lbl_8087F8A0->mHead;
     if (leader->mFlag28) {
@@ -502,6 +474,32 @@ void Em316LaserSphere::fn_80317EA0() {
     }
 }
 
+// NONMATCHING: 88.7% - order of the copies to the capsule (the original stores m3C.z through a frsp and the
+// radius m620 last) and the stack slots of top/bottom; ~16 variants
+void Em316LaserSphere::fn_80318594() {
+    m620 = m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Vector3 bottom(mPos);
+    atn::Vector3 top(mPos);
+    top.y += 0.1f;
+    mColli.m3C = bottom;
+    mColli.m48 = top;
+    mColli.m54 = m620;
+}
+
+atn::Vector3 Em316LaserSphere::fn_80318648(CharaTask* chara) {
+    atn::Model* model = &chara->mMotion;
+    MtxPtr m = model->GetNodeMtx_unk("spine1");
+    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+    if (m != 0) {
+        pos = ((atn::Matrix3x4*)m)->GetTrans_unk();
+    } else {
+        pos = chara->mPos;
+        pos.y += 10.0f;
+    }
+    return pos;
+}
 
 // NONMATCHING: 96.4% - the original frame is 0x30 bytes larger and stores three 0.0f early (0x98, 0xC, 0x1C:
 // more temporaries of a rotation inline not identified); ~5 variants

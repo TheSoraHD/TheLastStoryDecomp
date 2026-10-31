@@ -60,7 +60,9 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: node pose (as in game/Em403WarLion.cpp)
+
 namespace atn {
+
 struct MotionBuffer {
     unsigned int m00;
     Vector3 m04;
@@ -75,11 +77,7 @@ typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::
                         std::allocator<boost::function_base> >
     NodeCallback_unk;
 extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
-
-// inferred: sets the second node pose callback of a model (also called by game/Em403WarLion.cpp)
-extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback) {
-    model->m35C = callback;
-}
+extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback);
 
 int Em401_01_WhiteLeoPard::vf0C() {
     int result = 1;
@@ -116,6 +114,11 @@ int Em401_01_WhiteLeoPard::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// inferred: sets the second node pose callback of a model (also called by game/Em403WarLion.cpp)
+extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback) {
+    model->m35C = callback;
 }
 
 // inferred: mFlag28 of the leader (accessor; name invented)
@@ -335,7 +338,6 @@ inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
 inline float LengthXZ_unk(const atn::Vector3& v) {
     return sqrt(v.x * v.x + v.z * v.z);
 }
-
 
 // inferred: turns towards `target` (name invented)
 inline void Em401_01_WhiteLeoPard::LookAt_unk(CharaTask* target) {
@@ -952,6 +954,7 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
+
 // inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool (after
 // "tale"), as Em403WarLion::fn_DebugMenu_unk. The calls and the ranges are guesses.
 void Em401_01_WhiteLeoPard::fn_DebugMenu_unk() {

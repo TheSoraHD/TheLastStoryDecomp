@@ -242,6 +242,7 @@ inline atn::Matrix3x4 TransMtx_unk(float x, float y, float z) {
 }
 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+
 // inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool (after
 // "waist"), as Em201ZanGurg::fn_DebugMenu_unk. The member is a guess.
 void Em403WarLion::fn_DebugMenu_unk() {
@@ -507,15 +508,6 @@ atn::Vector3 Em403WarLion::vf94() {
     return v;
 }
 
-void Em403WarLion::vf54() {
-    if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = mColli.m54;
-        m624.mData[0].m04.mCenter = mColli.m3C;
-        m624.mData[1].m04.mRadius = mColli.m54;
-        m624.mData[1].m04.mCenter = mColli.m48;
-    }
-}
-
 // inferred: movement of the current mode (own version of CharaTask::fn_80139560)
 void Em403WarLion::fn_803241E8() {
     atn::Vector3 rot(mRot);
@@ -760,7 +752,9 @@ void Em403WarLion::vf24() {
 }
 
 // inferred: node pose (as in game/CharaFaceControl.cpp)
+
 namespace atn {
+
 struct MotionBuffer {
     unsigned int m00;
     Vector3 m04;
@@ -933,6 +927,15 @@ void Em403WarLion::vf50() {
     item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tale"));
     m624.push_back(item);
     mFlagB29 = 0;
+}
+
+void Em403WarLion::vf54() {
+    if (m624.mSize != 0) {
+        m624.mData[0].m04.mRadius = mColli.m54;
+        m624.mData[0].m04.mCenter = mColli.m3C;
+        m624.mData[1].m04.mRadius = mColli.m54;
+        m624.mData[1].m04.mCenter = mColli.m48;
+    }
 }
 
 // inferred: chooses the next action of the walk mode (m14CC)
@@ -1683,7 +1686,6 @@ void Em403WarLion::fn_8032A3D4(atn::Vector3* pos, float* angle, const atn::Vecto
     *pos = found;
     *angle = a;
 }
-
 
 // inferred: the point of the circuit with flags (a, b) farthest from the mean position of the players
 atn::Vector3 Em403WarLion::fn_8032A650(int* id, int a, int b) {

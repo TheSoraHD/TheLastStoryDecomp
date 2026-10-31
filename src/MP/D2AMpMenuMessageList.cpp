@@ -174,30 +174,6 @@ void D2AMpMenuMessageList::SetTexts_unk() {
     SetPaneText_unk(m48->mLayout, "string0034(1)", lbl_8087F86C->Get_unk(0x138));
 }
 
-// NONMATCHING: the controllerType/$Br/$Bl texts: the original computes task+0x58 before the hash and
-// loads the text after it (no helper/direct call form found); also inlined in vf0C, vf10, fn_804C4530
-void D2AMpMenuMessageList::fn_804C35F0(int state) {
-    if (m94 != state && state >= 0) {
-        int prev = m94;
-        m98 = prev;
-        m94 = state;
-        if (prev == 2) {
-            Play_unk(m48, 0, -1.0f);
-        }
-        switch (m94) {
-        case 1:
-            vf1C();
-            Play_unk(m48, 0, 1.0f);
-            SetTexts_unk();
-            mB0 = 0.0f;
-            break;
-        case 3:
-            vf20();
-            break;
-        }
-    }
-}
-
 int D2AMpMenuMessageList::vf0C() {
     if (fn_800D3FA4() != 0) {
         SetAll_unk(0);
@@ -221,6 +197,30 @@ int D2AMpMenuMessageList::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// NONMATCHING: the controllerType/$Br/$Bl texts: the original computes task+0x58 before the hash and
+// loads the text after it (no helper/direct call form found); also inlined in vf0C, vf10, fn_804C4530
+void D2AMpMenuMessageList::fn_804C35F0(int state) {
+    if (m94 != state && state >= 0) {
+        int prev = m94;
+        m98 = prev;
+        m94 = state;
+        if (prev == 2) {
+            Play_unk(m48, 0, -1.0f);
+        }
+        switch (m94) {
+        case 1:
+            vf1C();
+            Play_unk(m48, 0, 1.0f);
+            SetTexts_unk();
+            mB0 = 0.0f;
+            break;
+        case 3:
+            vf20();
+            break;
+        }
+    }
 }
 
 void D2AMpMenuMessageList::vf1C() {}
@@ -421,7 +421,6 @@ void D2AMpMenuMessageList::fn_804C50C0() {
         }
     }
 }
-
 } // namespace MP
 
 // NONMATCHING: the original inlines its own recursive call once
@@ -453,5 +452,4 @@ namespace MP {
 void D2AMpMenuMessageList::fn_804C5638() {
     fn_800D2338(this);
 }
-
 } // namespace MP

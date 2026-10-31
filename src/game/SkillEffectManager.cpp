@@ -55,7 +55,6 @@ extern "C" void fn_80599FB4(Bullet_unk* bullet, int arg);
 extern "C" void fn_8059A0B4(Bullet_unk* bullet, atn::EffFile* res);
 extern "C" void fn_8059A1FC(Bullet_unk* bullet, int arg);
 
-
 // inferred: pair of pointers (Pair_unk is not available; names invented)
 template <class A, class B>
 struct Pair_unk {
@@ -105,6 +104,10 @@ static const char* const sEfpName9 = sEfp9;
 static const char* const sEfpName10 = sEfp10;
 static const char* const sEfpName11 = sEfp11;
 static const char* const sEfpName12 = sEfp12;
+extern "C" Bullet_unk* fn_8059B66C(SkillEffectManager* self, HitInfo_unk* skill, CharaTask* user, CharaTask* target, const atn::Vector3* pos, const atn::Vector3* rot, boost::function<void(Bullet_unk*)> callback, float rate);
+
+// inferred: empty
+extern "C" void fn_8059AB94() {}
 
 SkillEffectManager* SkillEffectManager::fn_8059AB98(atn::Task* parent) {
     if (parent != 0 && lbl_8087F9E8 == 0) {
@@ -374,6 +377,3 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
         }
     }
 }
-
-// inferred: empty
-extern "C" void fn_8059AB94() {}

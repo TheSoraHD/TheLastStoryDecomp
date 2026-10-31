@@ -73,7 +73,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
-
 // NONMATCHING: draft
 EnemyTasha::EnemyTasha(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14DC(0), m14E0(3), m14E4(1), m14E8(300.0f), m14F0(0.0f),
@@ -501,6 +500,20 @@ inline float LerpAngle_unk(float to, float from, float t) {
     return t * d + from;
 }
 
+// inferred: front direction for a rotation around y (name invented, as in game/EnemyTrista.cpp)
+inline atn::Vector3 FrontDir_unk(float rotY) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rotY);
+    PSMTXMultVec(m, &dir, &dir);
+    return dir;
+}
+
+void EnemyTasha::vfFC() {
+    fn_8016E970(2);
+    vf100(6);
+}
+
 int EnemyTasha::fn_8035738C(float rate, float limit) {
     if (mC58.mC4 != 0) {
         atn::Vector3 dir = mC58.mC4->mPos - mPos;
@@ -517,15 +530,6 @@ int EnemyTasha::fn_8035738C(float rate, float limit) {
         }
     }
     return 0;
-}
-
-// inferred: front direction for a rotation around y (name invented, as in game/EnemyTrista.cpp)
-inline atn::Vector3 FrontDir_unk(float rotY) {
-    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', rotY);
-    PSMTXMultVec(m, &dir, &dir);
-    return dir;
 }
 
 // NONMATCHING: 97.18% - FPR numbering of the loop constants and stack slots of the front/rotation temporaries
@@ -553,11 +557,6 @@ void EnemyTasha::fn_803576F8(float radius) {
             return;
         }
     }
-}
-
-void EnemyTasha::vfFC() {
-    fn_8016E970(2);
-    vf100(6);
 }
 
 // inferred: damage result of fn_8003EA3C (as DamageResult_unk of game/Em002Skelton.cpp; 0x80357F04 is
@@ -603,13 +602,6 @@ struct TashaStep_unk {
 // inferred: sets the frame of motion track `track` (weak copy of a atn::Model inline, also called by
 // game/GameTask and game/TutorialTask; defined after vf100 to keep its position)
 
-void EnemyTasha::fn_8035ACB8(int motion, int arg, float speed) {
-    mMotion.mTracks[0].m0C = speed;
-    mMotion.m34C = 1;
-    mMotion.mTracks[0].m20 = 1.0f;
-    mMotion.fn_80097C08(0, motion, arg, 0, 1, 0.0f, 0.1f);
-}
-
 // inferred: game state (lbl_8087EFA8): m3A4 is the time scale (as in game/EnemyTrista.cpp)
 struct TashaGame_unk {
     unsigned char m000[0x3A4];
@@ -622,6 +614,177 @@ inline int TashaHitWall_unk(EnemyTasha* e) {
     void* colli = lbl_8087EE98;
     const atn::Vector3* to = &e->mC58.mC4->mPos;
     return fn_8004ED34(colli, 0, &e->mPos, to, e->fn_80179D44() | 0x80000000, 0, 0);
+}
+
+// inferred: identity rotated by z, y and x (as ChaserRotZYX_unk of game/ChaserNpc.cpp)
+inline void TashaRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    if (rot.z != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.y != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (rot.x != 0.0f) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+}
+
+// inferred: plays an effect on the model (as PlayEffect_unk of game/EnemyTrista.cpp)
+inline void TashaPlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
+extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                           int c, float f); // inferred: fires an attack (number of hits, as in game/Em201ZanGurg.cpp)
+
+// inferred: state setter (weak copy 0x802657FC of game/Em201ZanGurgFinal.cpp)
+extern "C" void fn_802657FC(CharaTask* chara, int state);
+// inferred: parameters and result of fn_8003EA3C (as in game/Em002Skelton.cpp)
+extern "C" void fn_8003EA3C(TashaDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+                            unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
+
+void EnemyTasha::vf100(int state) {
+    // inferred: m14BC-m14D0 of SpecialEnemyBase reset as one block (weak copy 0x80357ED8)
+    ((TashaStep_unk*)&m14BC)->Reset_unk();
+    m14D8 = state;
+    fn_802657FC(this, state);
+    switch (m58C) {
+    case 6:
+        mFlag30 = 1;
+        break;
+    case 7:
+        fn_8013C460(1);
+        fn_8035ACB8(0x1C7, 1, 0.0f);
+        break;
+    case 8:
+        fn_8013C460(0);
+        fn_80357330();
+        mC58.m0C.fn_80128930(m14EC, &mPos, 0);
+        mC58.m0C.mRadius = 30.0f;
+        mC58.m0C.fn_801255C8();
+        mFlag30 = 1;
+        break;
+    case 9:
+        fn_8013C460(0);
+        fn_8035738C(1.0f, 0.0f);
+        fn_8035ACB8(0x156, 0, 1.0f);
+        break;
+    case 10:
+        fn_8013C460(0);
+        fn_8035738C(1.0f, 0.0f);
+        fn_8035ACB8(0x13F, 0, 1.0f);
+        break;
+    case 11:
+        fn_8013C460(0);
+        fn_8035738C(1.0f, 0.0f);
+        fn_8035ACB8(0x140, 0, 0.8f);
+        break;
+    case 12:
+        fn_8013C460(0);
+        fn_8035738C(1.0f, 0.0f);
+        m598 = 0;
+        fn_8035ACB8(0x157, 0, 1.0f);
+        break;
+    case 14: {
+        m14E0 = m14E4;
+        m14E8 = 600.0f;
+        m14E4 = (m14E4 + 1) % 3;
+        fn_8059C2A8(fn_80356FFC(), this, m1578[0]);
+        fn_8059C2A8(fn_80356FFC(), this, m1578[1]);
+        fn_8059C2A8(fn_80356FFC(), this, m1578[2]);
+        TashaDamage_unk result;
+        fn_8003EA3C(&result, m1578[m14E0], this, this, 0, lbl_807C6B90, 0, 0);
+        if (m14E0 == 0) {
+            if (fn_805A49E4((SpecialFlag_unk*)&m16A4) == 0) {
+                fn_805A4A1C((SpecialFlag_unk*)&m16A4, 1);
+            }
+        } else if (m14E0 == 1) {
+            if (fn_805A49E4((SpecialFlag_unk*)&m166C) == 0) {
+                fn_805A4A1C((SpecialFlag_unk*)&m166C, 1);
+            }
+        } else if (m14E0 == 2) {
+            if (fn_805A49E4((SpecialFlag_unk*)&m1684) == 0) {
+                fn_805A4A1C((SpecialFlag_unk*)&m1684, 1);
+            }
+        }
+        fn_8013C460(0);
+        fn_8035ACB8(0x173, 0, 1.0f);
+        break;
+    }
+    case 15:
+        fn_8016E970(2);
+        fn_8013C460(0);
+        fn_8035738C(1.0f, 0.0f);
+        m590 = fn_800F8548(fn_8013A194());
+        fn_8035ACB8(0x1D2, 0, 1.0f);
+        break;
+    case 13:
+        fn_8013C460(0);
+        fn_8035738C(0.3f, 0.0f);
+        m598 = 0;
+        fn_8035ACB8(0x15C, 0, 1.0f);
+        break;
+    case 16:
+        if (m1550 > 0) {
+            m1558 = 20.0f * m16C0;
+        } else {
+            m1558 = 20.0f;
+        }
+        fn_8035738C(1.0f, 0.0f);
+        fn_8035ACB8(0x1EA, 0, 0.6f);
+        fn_803576F8(30.0f);
+        mRot.y = (m1534 - mPos).ToRotation_unk().y;
+        break;
+    case 17:
+        if (fn_805A49E4((SpecialFlag_unk*)&m168C) == 0) {
+            fn_805A4A1C((SpecialFlag_unk*)&m168C, 1);
+        }
+        fn_80097CCC(&mMotion, 0, 0.0f);
+        fn_8035ACB8(0x1EA, 0, 1.0f);
+        fn_8035ACF0(m58C);
+        fn_803576F8(m1528);
+        break;
+    case 18:
+        fn_8013C460(0);
+        fn_8035738C(1.0f, 0.0f);
+        fn_8035ACB8(0x14A, 0, 1.0f);
+        mMotion.SetMotionFrame(0, 10.0f);
+        break;
+    case 2:
+        vf44();
+        break;
+    }
+}
+
+void atn::Model::SetMotionFrame(int track, float frame) {
+    mTracks[track].m08 = frame;
 }
 
 // NONMATCHING: 99.88% - r29/r30 swapped for the attack count and the turn temporary, r3/r4 of the
@@ -776,132 +939,6 @@ void EnemyTasha::vf104() {
         break;
     }
 }
-
-int EnemyTasha::fn_8035A9F4() {
-    CharaTask* target = mC58.mC4;
-    atn::Vector3 dir(target->mPos.x - mPos.x, target->mPos.y, target->mPos.z - mPos.z);
-    dir.y = 0.0f;
-    float dist = PSVECMag(&dir);
-    if (dist > 12.0f) {
-        PSVECNormalize(&dir, &dir);
-        CollResult_unk result;
-        atn::Vector3 from = mPos;
-        from.y += 5.0f;
-        atn::Vector3 to = from;
-        to += dir * (dist - 12.0f);
-        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) == 0) {
-            m150C = mPos;
-            m1500 = to;
-            m1500.y = mPos.y;
-            return 1;
-        }
-    }
-    return 0;
-}
-
-// NONMATCHING: 90.79% - the original keeps the byte offset of the event as its own induction variable and
-// adds `this` again in every iteration (r29/r30/r31); ~10 forms of the loop
-int EnemyTasha::fn_8035AB78() {
-    if (m162C >= 0) {
-        return 0;
-    }
-    if (mC58.mC4 == 0) {
-        return 0;
-    }
-    if (mC58.mC4->m55C != 6 || !mC58.mC4->vf78()) {
-        return 0;
-    }
-    if (mC58.mC4->m638 == 0) {
-        return 0;
-    }
-    float ratio = mStatus.m04 / (float)mStatus.mParamB.m84;
-    for (int i = m1588.mCount - 1; i >= 0; i--) {
-        if (fn_805A49E4((SpecialFlag_unk*)&m1588[i].m00) == 0) {
-            if (ratio <= m1588[i].m10) {
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-
-// inferred: identity rotated by z, y and x (as ChaserRotZYX_unk of game/ChaserNpc.cpp)
-inline void TashaRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
-    m.SetIdentity();
-    if (rot.z != 0.0f) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'z', rot.z);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (rot.y != 0.0f) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'y', rot.y);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (rot.x != 0.0f) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'x', rot.x);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-}
-
-// inferred: plays an effect on the model (as PlayEffect_unk of game/EnemyTrista.cpp)
-inline void TashaPlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
-    atn::Vector3 pos;
-    atn::Vector3 rot;
-    Color4f_unk color;
-    rot.x = 0.0f;
-    rot.y = 0.0f;
-    rot.z = 0.0f;
-    pos.x = 0.0f;
-    pos.y = 0.0f;
-    pos.z = 0.0f;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
-}
-
-void EnemyTasha::fn_8035ACF0(int state) {
-    switch (state) {
-    case 11: {
-        atn::Vector3 ofs(0.0f, 0.0f, 10.0f);
-        atn::Matrix3x4 m;
-        TashaRotZYX_unk(m, mRot);
-        PSMTXMultVec(m.m, &ofs, &ofs);
-        fn_80232B7C(this, 1000);
-        atn::Vector3 pos = mPos + ofs;
-        Color4f_unk color;
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m164C, 0, 0, pos, mRot, color, -1, -1, 1, 1.5f);
-        break;
-    }
-    case 14:
-        fn_80232B7C(this, 5);
-        lbl_8087F3C0->mB8 = 2;
-        TashaPlayEffect_unk(&m1640, &mMotion);
-        lbl_8087F3C0->mB8 = 0;
-        break;
-    case 17:
-        fn_80232B7C(this, 0);
-        TashaPlayEffect_unk(&m1634, &mMotion);
-        break;
-    }
-}
-
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); // inferred: fires an attack (number of hits, as in game/Em201ZanGurg.cpp)
 
 // NONMATCHING: 99.52% - stack slots of the effect temporaries (state 14) and FPR numbering of the
 // warp lerp (state 18) and of the attack frame tests; ~15 variants. fn_8035738C, fn_8035ACB8 and
@@ -1197,6 +1234,91 @@ void EnemyTasha::vf108() {
     fn_8013CB68(rot, 0, zero, m568 * one);
 }
 
+int EnemyTasha::fn_8035A9F4() {
+    CharaTask* target = mC58.mC4;
+    atn::Vector3 dir(target->mPos.x - mPos.x, target->mPos.y, target->mPos.z - mPos.z);
+    dir.y = 0.0f;
+    float dist = PSVECMag(&dir);
+    if (dist > 12.0f) {
+        PSVECNormalize(&dir, &dir);
+        CollResult_unk result;
+        atn::Vector3 from = mPos;
+        from.y += 5.0f;
+        atn::Vector3 to = from;
+        to += dir * (dist - 12.0f);
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) == 0) {
+            m150C = mPos;
+            m1500 = to;
+            m1500.y = mPos.y;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 90.79% - the original keeps the byte offset of the event as its own induction variable and
+// adds `this` again in every iteration (r29/r30/r31); ~10 forms of the loop
+int EnemyTasha::fn_8035AB78() {
+    if (m162C >= 0) {
+        return 0;
+    }
+    if (mC58.mC4 == 0) {
+        return 0;
+    }
+    if (mC58.mC4->m55C != 6 || !mC58.mC4->vf78()) {
+        return 0;
+    }
+    if (mC58.mC4->m638 == 0) {
+        return 0;
+    }
+    float ratio = mStatus.m04 / (float)mStatus.mParamB.m84;
+    for (int i = m1588.mCount - 1; i >= 0; i--) {
+        if (fn_805A49E4((SpecialFlag_unk*)&m1588[i].m00) == 0) {
+            if (ratio <= m1588[i].m10) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void EnemyTasha::fn_8035ACB8(int motion, int arg, float speed) {
+    mMotion.mTracks[0].m0C = speed;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.fn_80097C08(0, motion, arg, 0, 1, 0.0f, 0.1f);
+}
+
+void EnemyTasha::fn_8035ACF0(int state) {
+    switch (state) {
+    case 11: {
+        atn::Vector3 ofs(0.0f, 0.0f, 10.0f);
+        atn::Matrix3x4 m;
+        TashaRotZYX_unk(m, mRot);
+        PSMTXMultVec(m.m, &ofs, &ofs);
+        fn_80232B7C(this, 1000);
+        atn::Vector3 pos = mPos + ofs;
+        Color4f_unk color;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m164C, 0, 0, pos, mRot, color, -1, -1, 1, 1.5f);
+        break;
+    }
+    case 14:
+        fn_80232B7C(this, 5);
+        lbl_8087F3C0->mB8 = 2;
+        TashaPlayEffect_unk(&m1640, &mMotion);
+        lbl_8087F3C0->mB8 = 0;
+        break;
+    case 17:
+        fn_80232B7C(this, 0);
+        TashaPlayEffect_unk(&m1634, &mMotion);
+        break;
+    }
+}
+
 void EnemyTasha::vf30(void* menu) {
     void* group = m16B4.Load("EnemyTasha");
     fn_805A5220(group);
@@ -1211,129 +1333,6 @@ void EnemyTasha::vf30(void* menu) {
     fn_8008771C(group, "AttackDistance", &m14FC, 0, 0, 0.0f, 500.0f, 1.0f);
     fn_8008771C(group, "BackstepDisRate", &m16C0, 0, 0, 0.0f, 500.0f, 0.1f);
     fn_8008771C(group, "HP", &mStatus.m04, 0, 0, 0.0f, 50000.0f, 1.0f);
-}
-
-// inferred: state setter (weak copy 0x802657FC of game/Em201ZanGurgFinal.cpp)
-extern "C" void fn_802657FC(CharaTask* chara, int state);
-// inferred: parameters and result of fn_8003EA3C (as in game/Em002Skelton.cpp)
-extern "C" void fn_8003EA3C(TashaDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
-                            unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
-
-void EnemyTasha::vf100(int state) {
-    // inferred: m14BC-m14D0 of SpecialEnemyBase reset as one block (weak copy 0x80357ED8)
-    ((TashaStep_unk*)&m14BC)->Reset_unk();
-    m14D8 = state;
-    fn_802657FC(this, state);
-    switch (m58C) {
-    case 6:
-        mFlag30 = 1;
-        break;
-    case 7:
-        fn_8013C460(1);
-        fn_8035ACB8(0x1C7, 1, 0.0f);
-        break;
-    case 8:
-        fn_8013C460(0);
-        fn_80357330();
-        mC58.m0C.fn_80128930(m14EC, &mPos, 0);
-        mC58.m0C.mRadius = 30.0f;
-        mC58.m0C.fn_801255C8();
-        mFlag30 = 1;
-        break;
-    case 9:
-        fn_8013C460(0);
-        fn_8035738C(1.0f, 0.0f);
-        fn_8035ACB8(0x156, 0, 1.0f);
-        break;
-    case 10:
-        fn_8013C460(0);
-        fn_8035738C(1.0f, 0.0f);
-        fn_8035ACB8(0x13F, 0, 1.0f);
-        break;
-    case 11:
-        fn_8013C460(0);
-        fn_8035738C(1.0f, 0.0f);
-        fn_8035ACB8(0x140, 0, 0.8f);
-        break;
-    case 12:
-        fn_8013C460(0);
-        fn_8035738C(1.0f, 0.0f);
-        m598 = 0;
-        fn_8035ACB8(0x157, 0, 1.0f);
-        break;
-    case 14: {
-        m14E0 = m14E4;
-        m14E8 = 600.0f;
-        m14E4 = (m14E4 + 1) % 3;
-        fn_8059C2A8(fn_80356FFC(), this, m1578[0]);
-        fn_8059C2A8(fn_80356FFC(), this, m1578[1]);
-        fn_8059C2A8(fn_80356FFC(), this, m1578[2]);
-        TashaDamage_unk result;
-        fn_8003EA3C(&result, m1578[m14E0], this, this, 0, lbl_807C6B90, 0, 0);
-        if (m14E0 == 0) {
-            if (fn_805A49E4((SpecialFlag_unk*)&m16A4) == 0) {
-                fn_805A4A1C((SpecialFlag_unk*)&m16A4, 1);
-            }
-        } else if (m14E0 == 1) {
-            if (fn_805A49E4((SpecialFlag_unk*)&m166C) == 0) {
-                fn_805A4A1C((SpecialFlag_unk*)&m166C, 1);
-            }
-        } else if (m14E0 == 2) {
-            if (fn_805A49E4((SpecialFlag_unk*)&m1684) == 0) {
-                fn_805A4A1C((SpecialFlag_unk*)&m1684, 1);
-            }
-        }
-        fn_8013C460(0);
-        fn_8035ACB8(0x173, 0, 1.0f);
-        break;
-    }
-    case 15:
-        fn_8016E970(2);
-        fn_8013C460(0);
-        fn_8035738C(1.0f, 0.0f);
-        m590 = fn_800F8548(fn_8013A194());
-        fn_8035ACB8(0x1D2, 0, 1.0f);
-        break;
-    case 13:
-        fn_8013C460(0);
-        fn_8035738C(0.3f, 0.0f);
-        m598 = 0;
-        fn_8035ACB8(0x15C, 0, 1.0f);
-        break;
-    case 16:
-        if (m1550 > 0) {
-            m1558 = 20.0f * m16C0;
-        } else {
-            m1558 = 20.0f;
-        }
-        fn_8035738C(1.0f, 0.0f);
-        fn_8035ACB8(0x1EA, 0, 0.6f);
-        fn_803576F8(30.0f);
-        mRot.y = (m1534 - mPos).ToRotation_unk().y;
-        break;
-    case 17:
-        if (fn_805A49E4((SpecialFlag_unk*)&m168C) == 0) {
-            fn_805A4A1C((SpecialFlag_unk*)&m168C, 1);
-        }
-        fn_80097CCC(&mMotion, 0, 0.0f);
-        fn_8035ACB8(0x1EA, 0, 1.0f);
-        fn_8035ACF0(m58C);
-        fn_803576F8(m1528);
-        break;
-    case 18:
-        fn_8013C460(0);
-        fn_8035738C(1.0f, 0.0f);
-        fn_8035ACB8(0x14A, 0, 1.0f);
-        mMotion.SetMotionFrame(0, 10.0f);
-        break;
-    case 2:
-        vf44();
-        break;
-    }
-}
-
-void atn::Model::SetMotionFrame(int track, float frame) {
-    mTracks[track].m08 = frame;
 }
 
 int EnemyTasha::vf68(CharaTask* attacker) {

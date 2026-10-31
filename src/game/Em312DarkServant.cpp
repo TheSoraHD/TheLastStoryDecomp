@@ -474,6 +474,48 @@ void Em312DarkServant::vf104() {
     }
 }
 
+void Em312DarkServant::fn_8030F380() {
+    int on = 0;
+    PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (player != 0) {
+        on = player->mFlag28;
+    }
+    if (on == 0 && m152C[2].m00 == mMotion.mTracks[0].m00 && mMotion.mTracks[0].m08 >= 36.0f) {
+        on = 1;
+    }
+    if (on != 0 && m14D8 == 0) {
+        m14D8 = 1;
+        if (m58C != 13) {
+            m14A8 |= 0x04000000;
+            m54C &= ~0x2000;
+        }
+        fn_80232B7C(this, 0);
+        Color4f_unk color;
+        atn::Vector3 rot;
+        atn::Vector3 pos;
+        rot.x = 0.0f;
+        rot.y = 0.0f;
+        rot.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        color.r = 1.0f;
+        color.g = 1.0f;
+        color.b = 1.0f;
+        color.a = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &m1580, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        fn_800C344C("SE_DG020_008", &mPos, 0, -1, 1.0f);
+    } else if (on == 0 && m14D8 != 0) {
+        m14D8 = 0;
+        m14A8 &= ~0x04000000;
+        m54C |= 0x2000;
+        if (m58C == 11 && mMotion.mTracks[0].m08 < 36.0f) {
+            vf100(6);
+        }
+        fn_80239DAC(lbl_8087F3C0, this, 1, 1);
+    }
+}
+
 void Em312DarkServant::vf108() {
     float speed = 0.0f;
     float rate = 1.0f;
@@ -676,48 +718,6 @@ void Em312DarkServant::vf108() {
     }
 }
 
-void Em312DarkServant::fn_8030F380() {
-    int on = 0;
-    PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
-    if (player != 0) {
-        on = player->mFlag28;
-    }
-    if (on == 0 && m152C[2].m00 == mMotion.mTracks[0].m00 && mMotion.mTracks[0].m08 >= 36.0f) {
-        on = 1;
-    }
-    if (on != 0 && m14D8 == 0) {
-        m14D8 = 1;
-        if (m58C != 13) {
-            m14A8 |= 0x04000000;
-            m54C &= ~0x2000;
-        }
-        fn_80232B7C(this, 0);
-        Color4f_unk color;
-        atn::Vector3 rot;
-        atn::Vector3 pos;
-        rot.x = 0.0f;
-        rot.y = 0.0f;
-        rot.z = 0.0f;
-        pos.x = 0.0f;
-        pos.y = 0.0f;
-        pos.z = 0.0f;
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m1580, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
-        fn_800C344C("SE_DG020_008", &mPos, 0, -1, 1.0f);
-    } else if (on == 0 && m14D8 != 0) {
-        m14D8 = 0;
-        m14A8 &= ~0x04000000;
-        m54C |= 0x2000;
-        if (m58C == 11 && mMotion.mTracks[0].m08 < 36.0f) {
-            vf100(6);
-        }
-        fn_80239DAC(lbl_8087F3C0, this, 1, 1);
-    }
-}
-
 int Em312DarkServant::fn_8030FEAC(float radius) {
     int count = 0;
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = ((PlayerTask*)c)->mNext) {
@@ -796,4 +796,3 @@ void Em312DarkServant::vf30(void* menu) {
         fn_800874C8(sub, "SkillId", &m14EC[3].mSkillId, 0, 99999, 1, 0, 0);
     }
 }
-

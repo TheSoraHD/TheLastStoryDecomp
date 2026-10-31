@@ -223,10 +223,6 @@ CampSaveLoad::~CampSaveLoad() {
     mEntries.Free_unk();
 }
 
-void CampSaveLoad::vf1C() {}
-
-void CampSaveLoad::vf20() {}
-
 void CampSaveLoad::fn_80119030(int state, int arg) {
     m140 = m13C;
     m13C = state;
@@ -265,6 +261,10 @@ void CampSaveLoad::fn_80119030(int state, int arg) {
         break;
     }
 }
+
+void CampSaveLoad::vf1C() {}
+
+void CampSaveLoad::vf20() {}
 
 void CampSaveLoad::fn_8011968C() {
     if (IsTriggered_unk(4) || IsTriggered_unk(5)) {

@@ -119,6 +119,12 @@ void Chain::vf10() {
     fn_8043C508();
 }
 
+void Chain::vf14() {
+    if (mTarget != 0 && lbl_8087F0A8->m18 != 0) {
+        fn_803ED610(mModel.GetModel_unk());
+    }
+}
+
 // NONMATCHING: 90.6% - stack layout of the temporaries (16 bytes smaller frame) and the order of
 // the node copies of the joints.
 void Chain::fn_8043C508() {
@@ -286,12 +292,6 @@ void Chain::fn_8043CF58() {
     }
 }
 
-void Chain::vf14() {
-    if (mTarget != 0 && lbl_8087F0A8->m18 != 0) {
-        fn_803ED610(mModel.GetModel_unk());
-    }
-}
-
 int Chain::vf40(GimmickMsg_unk* msg) {
     if (msg != 0) {
         m54 = msg->mType;
@@ -303,5 +303,4 @@ void Chain::vf3C(void* lens) {
     mModel.GetModel_unk()->m1DC = (Lens_unk*)lens;
     mModel.GetModel_unk()->mFlags |= 0x10000;
 }
-
 } // namespace gmk

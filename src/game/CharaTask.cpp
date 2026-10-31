@@ -1123,6 +1123,7 @@ void CharaTask::vf2C(const char* params, int arg) {
 inline atn::Vector3 LerpFrom_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
     return (b - a) * t + a;
 }
+
 atn::Vector3 CharaTask::vf64(int center) {
     atn::Vector3 result = mPos;
     if (center == 0) {
@@ -1184,6 +1185,7 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg11);
 
 namespace chr {
+
 // inferred: control of chr/ControlCannonLift.cpp (vtable stored by 0x801A1BE4)
 class ControlCannonTarget : public ControlBase {
 public:
@@ -1423,6 +1425,7 @@ inline atn::Matrix3x4 RotY_unk(float rad) {
     r.fn_8013A13C(rad);
     return r;
 }
+
 // inferred: object at CharaTask+0xD74 (class unknown)
 int CharaD74_unk::fn_8013A144() {
     return m20 & 1;
@@ -2504,6 +2507,7 @@ inline bool IsSameSideOf_unk(CharaTask* a, CharaTask* b) {
     }
     return result;
 }
+
 // inferred: characters whose model pushes the player away (names invented)
 static bool IsPushingChara_unk(CharaTask* chara) {
     std::string name = fn_8006B174(std::string(chara->mMotion.fn_8008B130()));
@@ -3818,14 +3822,6 @@ void CharaTask::vf24() {
     }
 }
 
-void atn::Matrix3x4::fn_80144ED4(float rad) {
-    Mtx t;
-    Mtx r;
-    PSMTXRotRad(r, 'z', rad);
-    PSMTXConcat(m, r, t);
-    __MtxCopy(m, t);
-}
-
 void CharaTask::fn_801446F0() {
     m574.x = 0.0f;
     m574.y = 0.0f;
@@ -3963,6 +3959,14 @@ void CharaTask::fn_80144710() {
     float sx = PSVECMag(&ax);
     atn::Vector3 s(sx, sy, sz);
     mMotion.m54 = MAX(s.x, MAX(s.y, s.z));
+}
+
+void atn::Matrix3x4::fn_80144ED4(float rad) {
+    Mtx t;
+    Mtx r;
+    PSMTXRotRad(r, 'z', rad);
+    PSMTXConcat(m, r, t);
+    __MtxCopy(m, t);
 }
 
 // NONMATCHING: ~25% (155 vs 250 instructions; the code before and after the copy matches) - the copy
@@ -4672,10 +4676,6 @@ void CharaTask::fn_80147A18(int value) {
     }
 }
 
-int CharaTask::fn_80148334() {
-    return mFlag2;
-}
-
 // inferred: fields where a player character gets a larger collision (name invented)
 inline bool IsWideField_unk(Field_unk* field) {
     if (field != 0) {
@@ -4826,6 +4826,10 @@ void CharaTask::vf20() {
     if (mFlag12) {
         mColli.mFlags &= ~1;
     }
+}
+
+int CharaTask::fn_80148334() {
+    return mFlag2;
 }
 
 // NONMATCHING: 94% (objdiff 99.9%) - only symbol names differ: the Item14_unk constructor is
@@ -6026,6 +6030,30 @@ inline bool CharaTask::IsSameSide_unk(CharaTask* other) {
     return other->mType == mType || (other->mType == 0 && mType == 3) || (other->mType == 3 && mType == 0);
 }
 
+void CharaTask::fn_8014C468() {
+    if (m648 == 0) {
+        fn_8014C0B4(0, m510);
+        return;
+    }
+    switch (m648->m04) {
+    case 0:
+        if (m5C->m11C == 2) {
+            fn_8014C0B4(0, 4);
+        } else if (fn_80219558(m50) == 0) {
+            fn_8014C0B4(0, 5);
+        } else {
+            fn_8014C0B4(0, 3);
+        }
+        break;
+    case 1:
+        fn_8014C0B4(0, 0);
+        break;
+    case 2:
+        fn_8014C0B4(0, 1);
+        break;
+    }
+}
+
 // NONMATCHING: ~66% by line (554/1641; 1613 vs 1641 instructions) - first pass of a very long
 // function: same calls, constants and control flow; the frame is 0x50 bytes smaller (stack slots of
 // the locals/temporaries differ), the ptmf .data offsets are noise, fn_8018EEC4 needs a map entry,
@@ -6196,30 +6224,6 @@ void CharaTask::fn_8014C540() {
     }
     if (mFlag28 && 0.0f != lbl_8087F0A8->m414) {
         mStatus.fn_8012F188(lbl_8087F0A8->m414 / 30.0f);
-    }
-}
-
-void CharaTask::fn_8014C468() {
-    if (m648 == 0) {
-        fn_8014C0B4(0, m510);
-        return;
-    }
-    switch (m648->m04) {
-    case 0:
-        if (m5C->m11C == 2) {
-            fn_8014C0B4(0, 4);
-        } else if (fn_80219558(m50) == 0) {
-            fn_8014C0B4(0, 5);
-        } else {
-            fn_8014C0B4(0, 3);
-        }
-        break;
-    case 1:
-        fn_8014C0B4(0, 0);
-        break;
-    case 2:
-        fn_8014C0B4(0, 1);
-        break;
     }
 }
 
@@ -6999,7 +7003,6 @@ struct HitEvent_unk {
     int m1C;
     unsigned int mFlags;
 };
-
 
 // inferred: inline accessors of the HUD (declared in game/GameUI.h; weak copies 0x80151210, 0x80151204)
 inline GameUI* GameUI::Get_unk() { return lbl_8087F490; }
@@ -8152,7 +8155,6 @@ bool CharaTask::fn_80154E38(CharaTask* target) {
     return result;
 }
 
-
 void CharaTask::fn_80154EC4(const atn::Vector3& pos, int link) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlSwatTurn(this, pos, link));
 }
@@ -8176,6 +8178,7 @@ void CharaTask::Stripped1_unk() {
 void CharaTask::fn_80155790(const atn::Vector3& dir) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDive(this, dir));
 }
+
 void CharaTask::fn_80155A88(const atn::Vector3& dir, int a) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlBackStep(this, dir, a));
 }
@@ -9481,10 +9484,10 @@ void CharaTask::vf88() {
 }
 
 namespace chr {
+
 // inferred: controls created by CharaTask 0x8016939C-0x8016AFE8; class names from the vtables stored by
 // the constructors, sizes from the operator new calls
 } // namespace chr
-
 
 // inferred: hangs from a cliff
 void CharaTask::fn_8016939C(int a, int b, float f) {
@@ -9698,6 +9701,7 @@ inline bool IsControl63_unk(CharaTask* chara) {
     }
     return result;
 }
+
 // NONMATCHING: ~48% by line (12/23, same instructions) - the outer and middle bools get r6/r5 instead
 // of r5/r6; tried a plain || expression, int-parameter helpers, nested ifs, an || helper, an outer
 // inline helper, int result, a ternary, an && helper.
@@ -9750,7 +9754,6 @@ int CharaTask::fn_8016DAB0() {
     }
     return result;
 }
-
 
 void CharaTask::fn_8016DC14(CharaTask* target, int quiet) {
     if (mFC4 != target) {
@@ -10329,7 +10332,6 @@ int CharaTask::fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out
     return 0;
 }
 
-
 // inferred: the other side of the pair check of fn_801725EC (name invented)
 inline bool IsSideTypeB_unk(int a, int b) {
     bool result = false;
@@ -10615,6 +10617,7 @@ int CharaTask::fn_801749EC(atn::Vector3* pos, atn::Vector3* vel) {
 }
 
 namespace chr {
+
 // inferred: controls of chr/ControlCannonLift.cpp (names from the vtables stored by the constructors)
 class ControlCannonLift : public ControlBase {
 public:
@@ -11994,10 +11997,6 @@ void CharaTask::fn_8017A33C(CharaTask* rider, int release) {
     m139C = rider;
 }
 
-void CharaTask::fn_8017ABD4(int arg) {
-    m68[1] = fn_80204E04(mType, arg);
-}
-
 // inferred: returns the current control's vf30 value, 0 without a control
 int CharaTask::fn_8017A450() {
     return mControl ? mControl->vf30() : 0;
@@ -12021,6 +12020,31 @@ struct ColorF_unk {
     }
     float r, g, b, a;
 };
+
+// inferred: puts the stored foot heights (m13B8) on the ground below the neck node
+// NONMATCHING: 58% - the segment and the hit point swap their stack slots and the x/z loads swap
+// registers; tried: named or temporary segment, constructors, member-wise stores, declaration
+// orders, the hit returned by value or through a pointer.
+void CharaTask::fn_8017A504() {
+    m54C |= 0x200000;
+    if (fn_80418318()) {
+        MtxPtr node = mMotion.GetNodeMtx_unk(m520);
+        int world = fn_80418318();
+        float x = node[0][3];
+        float y = node[1][3];
+        float z = node[2][3];
+        float dy = y - mPos.y;
+        Segment_unk seg;
+        seg.mStart = mPos;
+        seg.mEnd.x = x;
+        seg.mEnd.y = y;
+        seg.mEnd.z = z;
+        atn::Vector3 hit = fn_804188A0(world, &seg);
+        hit.y -= dy;
+        m13B8[0].y = hit.y;
+        m13B8[1].y = hit.y;
+    }
+}
 
 // inferred: sets or clears the status 0x800 of an enemy (mType 2) with its effects
 void CharaTask::fn_8017A5D8(int on) {
@@ -12064,31 +12088,6 @@ void CharaTask::fn_8017A5D8(int on) {
         if (fn_8017A9A8() && fn_8015487C() == 1) {
             fn_8014DEE4(0, 0, 0);
         }
-    }
-}
-
-// inferred: puts the stored foot heights (m13B8) on the ground below the neck node
-// NONMATCHING: 58% - the segment and the hit point swap their stack slots and the x/z loads swap
-// registers; tried: named or temporary segment, constructors, member-wise stores, declaration
-// orders, the hit returned by value or through a pointer.
-void CharaTask::fn_8017A504() {
-    m54C |= 0x200000;
-    if (fn_80418318()) {
-        MtxPtr node = mMotion.GetNodeMtx_unk(m520);
-        int world = fn_80418318();
-        float x = node[0][3];
-        float y = node[1][3];
-        float z = node[2][3];
-        float dy = y - mPos.y;
-        Segment_unk seg;
-        seg.mStart = mPos;
-        seg.mEnd.x = x;
-        seg.mEnd.y = y;
-        seg.mEnd.z = z;
-        atn::Vector3 hit = fn_804188A0(world, &seg);
-        hit.y -= dy;
-        m13B8[0].y = hit.y;
-        m13B8[1].y = hit.y;
     }
 }
 
@@ -12150,6 +12149,10 @@ int CharaTask::fn_8017A9A8() {
         }
     }
     return 0;
+}
+
+void CharaTask::fn_8017ABD4(int arg) {
+    m68[1] = fn_80204E04(mType, arg);
 }
 
 int CharaTask::fn_8017AC08() {

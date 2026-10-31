@@ -371,6 +371,23 @@ void EnemyJill::vf14() {
     BattleCharaTask::vf14();
 }
 
+int EnemyJill::vfA8(int kind) {
+    int result = 0;
+    switch (kind) {
+    case 0:
+        if (rand() % 1001 / 1000.0f < m1584) {
+            result = 2;
+        }
+        break;
+    case 1:
+        if (rand() % 1001 / 1000.0f < m1588) {
+            result = 3;
+        }
+        break;
+    }
+    return result;
+}
+
 void EnemyJill::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     switch (m58C) {
@@ -392,23 +409,6 @@ void EnemyJill::vf3C(HitInfo_unk* hit) {
         ResetState_unk();
         m58C = 6;
     }
-}
-
-int EnemyJill::vfA8(int kind) {
-    int result = 0;
-    switch (kind) {
-    case 0:
-        if (rand() % 1001 / 1000.0f < m1584) {
-            result = 2;
-        }
-        break;
-    case 1:
-        if (rand() % 1001 / 1000.0f < m1588) {
-            result = 3;
-        }
-        break;
-    }
-    return result;
 }
 
 void EnemyJill::vf44() {

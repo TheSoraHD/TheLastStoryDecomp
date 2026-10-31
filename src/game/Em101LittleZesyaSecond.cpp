@@ -190,8 +190,6 @@ Em101LittleZesyaSecond::Em101LittleZesyaSecond(atn::Task* parent, EnemyInfo_unk*
     mFlagB11 = 1;
 }
 
-Em101LittleZesyaSecond::~Em101LittleZesyaSecond() {}
-
 int Em101LittleZesyaSecond::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1520.IsLoading() == 0 &&
         m152C.IsLoading() == 0 && m1538.IsLoading() == 0 && m14B0.fn_80473F50() == 0) {
@@ -824,3 +822,5 @@ int Em101LittleZesyaSecond::vfA8(int kind) {
     }
     return -1;
 }
+
+Em101LittleZesyaSecond::~Em101LittleZesyaSecond() {}

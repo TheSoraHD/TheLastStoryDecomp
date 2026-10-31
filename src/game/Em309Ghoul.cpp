@@ -433,7 +433,6 @@ inline void Em309Ghoul::Die_unk(int motion, int flag) {
     fn_80370320(lbl_8087F430, 0xD0, 1, 0);
 }
 
-
 // NONMATCHING: 99.87% - stack layout of the direction temporaries and of the rotation matrices (~6 variants)
 // inferred: hits: the head spear (0x134) or a hit while weak (m40 == 1 outside state 10) knock the ghoul back
 // and start the rolling state 10 away from the attacker (bent towards the home place); other hits only do
@@ -540,31 +539,6 @@ void Em309Ghoul::vf40(HitInfo_unk* hit) {
     }
 }
 
-atn::Vector3 Em309Ghoul::vf64(int center) {
-    atn::Vector3 result = mPos;
-    if (center == 0) {
-        result = mPos;
-    } else if (fn_80370A78(lbl_8087F430, 0xA1) == 0) {
-        result = mPos;
-    } else {
-        result = m624.mData[1].m04.mCenter;
-    }
-    return result;
-}
-
-void Em309Ghoul::vf44() {
-    vf48();
-    mStatus.fn_8012DD70();
-    fn_8015495C(0, 1, 1, 1);
-    fn_8016DA4C();
-    mFC0 = 0;
-    m1434 = 80;
-    m15B0 = 30;
-    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
-        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
-    }
-}
-
 // inferred: three damage spheres: the feet and two on the "spine1" node (moved every frame by vf54)
 void Em309Ghoul::vf50() {
     Item14_unk item;
@@ -602,6 +576,31 @@ void Em309Ghoul::vf54() {
     }
     if (m1690 != 0) {
         lbl_8087EEB0->fn_80063D3C(m624.mData[1].m04.mCenter, 20.0f, 1000.0f, 0xFFFF00FF);
+    }
+}
+
+atn::Vector3 Em309Ghoul::vf64(int center) {
+    atn::Vector3 result = mPos;
+    if (center == 0) {
+        result = mPos;
+    } else if (fn_80370A78(lbl_8087F430, 0xA1) == 0) {
+        result = mPos;
+    } else {
+        result = m624.mData[1].m04.mCenter;
+    }
+    return result;
+}
+
+void Em309Ghoul::vf44() {
+    vf48();
+    mStatus.fn_8012DD70();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    mFC0 = 0;
+    m1434 = 80;
+    m15B0 = 30;
+    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
 }
 
@@ -837,8 +836,6 @@ void Em309Ghoul::fn_802FFFF8() {
         fn_8030073C();
     }
 }
-
-
 
 void Em309Ghoul::fn_80300654() {
     m14F0 = 0;
@@ -1262,8 +1259,6 @@ void Em309Ghoul::vfEC() {
     lbl_8087EFB4->m104 = camera;
 }
 
-
-
 // inferred: rotates `m` around `axis` when the angle is not zero (as in fn_80302B84; name invented)
 inline void GhoulRotate_unk(atn::Matrix3x4& m, char axis, float rad) {
     if (0.0f != rad) {
@@ -1509,7 +1504,6 @@ void Em309Ghoul::fn_80302B84() {
         }
     }
 }
-
 
 extern "C" int fn_8004D388(void* world, GhoulCollResult_unk* result, CharaTask::Sphere_unk* sphere,
                            atn::Vector3* move, unsigned int mask, void* ignore, int arg); // inferred: sweep test
@@ -1987,7 +1981,6 @@ void Em309Ghoul::fn_80304718() {
         mPos -= step;
     }
 }
-
 
 // inferred: side of `p` relative to the line o->e (2D cross product; name invented)
 inline float GhoulSide_unk(const atn::Vector2_unk& p, const atn::Vector2_unk& o, const atn::Vector2_unk& e) {

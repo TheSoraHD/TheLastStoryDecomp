@@ -67,6 +67,7 @@ int lbl_8087E468 = 5;
 int lbl_8087E46C = 3;
 
 namespace atn {
+
 namespace net {
 
 // NONMATCHING: 97.7% - register allocation only: the original keeps `id` in r28 and the PPDATA
@@ -295,6 +296,28 @@ int PacketPack::fn_8050E094(int id, int arg, const void* src, int reliable) {
     }
     return 1;
 }
+} // namespace net
+} // namespace atn
+
+// inferred: reads one message of a received packet (called by MP::CryptMP)
+extern "C" int fn_8050E410(atn::net::PacketPack* pack, unsigned char** p, unsigned int mode) {
+    unsigned char id = **p;
+    atn::net::FuncMessage* msg = pack->vf18(id);
+    if (msg == 0) {
+        return pack->vf0C();
+    }
+    if (mode == 1) {
+        __TraceMessage_unk(msg->vf08(), msg->vf0C());
+    }
+    void* buf = __GetWorkBuffer_unk();
+    *p += 4;
+    msg->vf14(buf, 0x1000, (const char**)p, mode);
+    return id;
+}
+
+namespace atn {
+
+namespace net {
 
 int PacketPack::fn_8050E510(Crypt* crypt) {
     if (m10 != 0) {
@@ -334,25 +357,8 @@ int PacketPack::fn_8050E598(unsigned int id, const unsigned char* header) {
     }
     return 0;
 }
-
 } // namespace net
 } // namespace atn
-
-// inferred: reads one message of a received packet (called by MP::CryptMP)
-extern "C" int fn_8050E410(atn::net::PacketPack* pack, unsigned char** p, unsigned int mode) {
-    unsigned char id = **p;
-    atn::net::FuncMessage* msg = pack->vf18(id);
-    if (msg == 0) {
-        return pack->vf0C();
-    }
-    if (mode == 1) {
-        __TraceMessage_unk(msg->vf08(), msg->vf0C());
-    }
-    void* buf = __GetWorkBuffer_unk();
-    *p += 4;
-    msg->vf14(buf, 0x1000, (const char**)p, mode);
-    return id;
-}
 
 // inferred: sets (unless -1) and returns the frame count of the unreliable queues
 extern "C" int fn_8050E618(int count) {
@@ -363,9 +369,9 @@ extern "C" int fn_8050E618(int count) {
 }
 
 namespace atn {
+
 namespace net {
 
 void PacketPack::fn_8050E62C(int ok, const char* fmt, ...) {}
-
 } // namespace net
 } // namespace atn

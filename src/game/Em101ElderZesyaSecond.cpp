@@ -512,28 +512,6 @@ void Em101ElderZesyaSecond::vf40(HitInfo_unk* hit) {
     }
 }
 
-void Em101ElderZesyaSecond::fn_8025C624() {
-    m1554 = 0;
-    fn_80239DAC(lbl_8087F3C0, this, 1001, 0);
-    fn_80239DAC(lbl_8087F3C0, this, 1002, 0);
-    fn_80232B7C(0, 0);
-    PlayEffect_unk(&m1574, &mMotion);
-    fn_800C344C(sSounds_unk[1], &mPos, 0, -1, 1.0f);
-    Field_unk* field = lbl_8087F430;
-    field->m96C %= 2;
-    field->m970 = 5;
-    field->m974 = 1.0f;
-    field->m978 = 2.0f;
-    m15DC++;
-    if (m15DC < 2) {
-        m15D4 = 0;
-    } else if (m15DC < 4) {
-        m15D4 = 1;
-    } else {
-        m15D4 = (m15D4 + 1) % 2;
-    }
-}
-
 void Em101ElderZesyaSecond::fn_8025B9EC() {
     float dist = 0.0f;
     float rate = 1.0f;
@@ -685,6 +663,28 @@ void Em101ElderZesyaSecond::fn_8025C460() {
     mRot.y = m1514;
     fn_80232B7C(this, 101);
     PlayEffect_unk(&m1530, &mMotion);
+}
+
+void Em101ElderZesyaSecond::fn_8025C624() {
+    m1554 = 0;
+    fn_80239DAC(lbl_8087F3C0, this, 1001, 0);
+    fn_80239DAC(lbl_8087F3C0, this, 1002, 0);
+    fn_80232B7C(0, 0);
+    PlayEffect_unk(&m1574, &mMotion);
+    fn_800C344C(sSounds_unk[1], &mPos, 0, -1, 1.0f);
+    Field_unk* field = lbl_8087F430;
+    field->m96C %= 2;
+    field->m970 = 5;
+    field->m974 = 1.0f;
+    field->m978 = 2.0f;
+    m15DC++;
+    if (m15DC < 2) {
+        m15D4 = 0;
+    } else if (m15DC < 4) {
+        m15D4 = 1;
+    } else {
+        m15D4 = (m15D4 + 1) % 2;
+    }
 }
 
 // inferred: std::swap of two pointers (name invented)
