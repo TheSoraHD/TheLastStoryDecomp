@@ -4416,6 +4416,15 @@ PowerPC_EABI_Support/src/MetroTRK/nubevent.c:
 	.data       start:0x807BADD8 end:0x807BADF8
 	.bss        start:0x808304F0 end:0x80830518
 
+PowerPC_EABI_Support/src/MetroTRK/nubinit.c:
+	.text       start:0x806761D8 end:0x80676328
+	.data       start:0x807BADF8 end:0x807BAE18
+	.sbss       start:0x80880310 end:0x80880318
+
+PowerPC_EABI_Support/src/MetroTRK/serpoll.c:
+	.text       start:0x80676328 end:0x80676470
+	.sbss       start:0x80880318 end:0x8088031C
+
 PowerPC_EABI_Support/src/MetroTRK/string_TRK.c:
 	.text       start:0x80676470 end:0x8067648C
 
