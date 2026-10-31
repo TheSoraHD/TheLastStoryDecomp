@@ -26,6 +26,7 @@ extern "C" int fn_80370C2C(GameUIField_unk* field);
 extern "C" void fn_80370BD0(GameUIField_unk* field, int frames, int arg, float speed);
 extern "C" void fn_80370B78(GameUIField_unk* field, unsigned int color, int frames, int arg, float speed);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
+extern "C" void fn_800D58A4(atn::Texture_unk* tex); // inferred: releases a render texture
 extern "C" void fn_803B78E8(void* self); // inferred: closes the window (game/GameChoiceWindow.cpp)
 extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float time); // inferred: shows a message
 extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
@@ -187,8 +188,10 @@ GameUI::GameUI(atn::Task* parent)
         m594[i] = 0;
     }
     m5B8 = 0;
-    for (int i = 0; i < 80; i++) {
-        m5BC[i] = 0;
+    for (int i = 0; i < 16; i++) {
+        for (int j = 0; j < 5; j++) {
+            m5BC[i][j] = 0;
+        }
     }
     m6FC = 0;
     m700 = 0;
@@ -392,6 +395,134 @@ float GameUIDuration_unk::fn_803CFC6C() {
 }
 
 void GameUI::vf14() {}
+
+// inferred: releases the parts of the HUD (called by game/GameTask)
+void GameUI::fn_803D11B4() {
+    if (mDC8 != 0) {
+        mDC8 = 0;
+        fn_800D58A4(&mDD4);
+        fn_800D58A4(&mE04);
+        fn_800D58A4(&mE34);
+        fn_800D58A4(&mE64);
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 5; j++) {
+                fn_800D2338(m5BC[i][j]);
+                m5BC[i][j] = 0;
+            }
+        }
+        for (int i = 0; i < 10; i++) {
+            fn_800D2338(mA90[i]);
+            mA90[i] = 0;
+            fn_800D2338(mAB8[i]);
+            mAB8[i] = 0;
+            fn_800D2338(mAE0[i]);
+            mAE0[i] = 0;
+        }
+        for (int i = 0; i < 32; i++) {
+            fn_800D2338(mF14[i]);
+            mF14[i] = 0;
+            mF94[i] = 0;
+            m1014[i] = i;
+        }
+        for (int i = 0; i < 8; i++) {
+            fn_800D2338(m10B4[i]);
+            m10B4[i] = 0;
+            m10D4[i] = 0;
+        }
+        fn_800D2338(m10F4);
+        m10F4 = 0;
+        fn_800D2338(m10F8);
+        m10F8 = 0;
+        fn_800D2338(m844);
+        m844 = 0;
+        fn_800D2338(m870);
+        m870 = 0;
+        fn_800D2338(m848[0]);
+        m848[0] = 0;
+        for (int i = 0; i < 4; i++) {
+            fn_800D2338(m848[i + 1]);
+            m848[i + 1] = 0;
+        }
+        fn_800D2338(m874[0]);
+        m874[0] = 0;
+        for (int i = 0; i < 4; i++) {
+            fn_800D2338(m874[i + 1]);
+            m874[i + 1] = 0;
+        }
+        fn_800D2338(mB08[0]);
+        mB08[0] = 0;
+        fn_800D2338(mB08[1]);
+        mB08[1] = 0;
+        fn_800D2338(mB08[2]);
+        mB08[2] = 0;
+        fn_800D2338(mB08[3]);
+        mB08[3] = 0;
+        fn_800D2338(mB08[4]);
+        mB08[4] = 0;
+        fn_800D2338(mB08[5]);
+        mB08[5] = 0;
+        fn_800D2338(mB20[0]);
+        mB20[0] = 0;
+        fn_800D2338(mB20[1]);
+        mB20[1] = 0;
+        for (int i = 0; i < 4; i++) {
+            fn_800D2338(mB20[i + 2]);
+            mB20[i + 2] = 0;
+        }
+        fn_800D2338(m1104);
+        m1104 = 0;
+        fn_800D2338(m1108);
+        m1108 = 0;
+        fn_800D2338(m1110);
+        m1110 = 0;
+        fn_800D2338(m1114);
+        m1114 = 0;
+        m111C = 0;
+        m112C = 0;
+        fn_800D2338(m1140);
+        m1140 = 0;
+        fn_800D2338(m1144);
+        m1144 = 0;
+        fn_800D2338(m1148);
+        m1148 = 0;
+        m1158.Destroy();
+        m1164.Destroy();
+        for (int i = 0; i < 4; i++) {
+            m1554[i].Destroy();
+            m1584[i].Destroy();
+        }
+        fn_800D2338(m2544);
+        m2544 = 0;
+        fn_800D2338(m2548);
+        m2548 = 0;
+        fn_800D2338(m254C);
+        m254C = 0;
+        for (int i = 0; i < 3; i++) {
+            if (m2550[i] != 0) {
+                fn_800D2338(m2550[i]);
+                m2550[i] = 0;
+            }
+        }
+        if (m2564 != 0) {
+            fn_800D2338(m2564);
+            m2564 = 0;
+        }
+        for (int i = 0; i < 4; i++) {
+            if (m2610[i] != 0) {
+                fn_800D2338(m2610[i]);
+                m2610[i] = 0;
+            }
+        }
+        if (m2628 != 0) {
+            fn_800D2338(m2628);
+            m2628 = 0;
+        }
+        if (mDC4 != 0) {
+            fn_800D2338(mDC4);
+            mDC4 = 0;
+        }
+    }
+}
 
 // inferred: nonzero while the resources of the HUD are loading (called by game/GameTask)
 int GameUI::fn_803D1574() {

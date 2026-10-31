@@ -250,6 +250,7 @@ public:
 
     void fn_803CF740();
     void fn_803CF74C();
+    void fn_803D11B4(); // inferred: releases the parts of the HUD
     int fn_803D1574();
     void fn_803D8344();
     void fn_803DE648(); // inferred: updates the markers of the skill effects
@@ -317,7 +318,7 @@ public:
     int m594[8];
     int m5B4;
     int m5B8;
-    int m5BC[80];
+    atn::Task* m5BC[16][5];
     int m6FC;
     int m700;
     int m704;
@@ -350,12 +351,12 @@ public:
     int m838;
     GameUIGauge_unk* m83C;                     // 0x83C
     GameUIGauge_unk* m840;                     // 0x840
-    int m844;
-    int m848[5];
+    atn::Task* m844;
+    atn::Task* m848[5];
     int m85C;
     unsigned char m860[0x870 - 0x860];
-    int m870;
-    int m874[5];
+    atn::Task* m870;
+    atn::Task* m874[5];
     atn::Vector3 m888; // inferred: fn_803E6ADC
     atn::Vector3 m894;
     int m8A0[12];
@@ -363,11 +364,11 @@ public:
     atn::D2A_Task* mA84; // inferred: frame and "basePos" set by fn_803E6ADC
     atn::D2A_Task* mA88;
     int mA8C;
-    int mA90[10];
-    int mAB8[10];
-    int mAE0[10];
-    int mB08[6];
-    int mB20[6];
+    atn::Task* mA90[10];
+    atn::Task* mAB8[10];
+    atn::Task* mAE0[10];
+    atn::Task* mB08[6];
+    atn::Task* mB20[6];
     struct {
         int m00;
         int m04;
@@ -423,14 +424,14 @@ public:
     atn::Texture_unk mE34;                     // 0xE34
     atn::Texture_unk mE64;                     // 0xE64
     unsigned char mE94[0xF14 - 0xE94];
-    int mF14[32];
+    atn::Task* mF14[32];
     int mF94[32];
     int m1014[32];
     float m1094[8];
     atn::Task* m10B4[8];   // inferred: effect markers (fn_803DE648)
     Bullet_unk* m10D4[8];  // inferred: skill effects shown by the markers
-    int m10F4;
-    int m10F8;
+    atn::Task* m10F4;
+    atn::Task* m10F8;
     int m10FC;
     float m1100;
     atn::D2A_Task* m1104; // inferred: head marker animations (fn_803E41AC)
@@ -446,9 +447,9 @@ public:
     int m112C;
     int m1130;
     unsigned char m1134[0x1140 - 0x1134];
-    int m1140;
-    int m1144;
-    int m1148;
+    atn::Task* m1140;
+    atn::Task* m1144;
+    atn::Task* m1148;
     int m114C;
     int m1150;
     int m1154;
@@ -463,8 +464,8 @@ public:
     GameUIElem7C_unk m15BC[32];                // 0x15BC
     int m253C;
     int m2540;
-    int m2544;
-    int m2548;
+    atn::Task* m2544;
+    atn::Task* m2548;
     atn::D2A_Task* m254C; // inferred: time over a character (fn_803E5C60)
     atn::D2A_Task* m2550[3]; // inferred: notices (fn_803E598C)
     int m255C;
@@ -481,7 +482,7 @@ public:
         unsigned int m00; // inferred: count (compared unsigned in fn_803E6850)
         GameUIElem10_unk m[4];
     } m25CC;                                   // 0x25CC
-    int m2610[4];
+    atn::Task* m2610[4];
     CharaTask* m2620; // inferred: current target (fn_803E6BB4)
     CharaTask* m2624; // inferred: previous target
     GameUIGauge_unk* m2628; // inferred: m100 reset by fn_803E6BB4
