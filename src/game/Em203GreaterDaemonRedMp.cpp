@@ -982,6 +982,24 @@ void Em203GreaterDaemonRedMp::fn_802A2A68() {
     m1598 = 0;
 }
 
+// inferred: starts the turn of state 16 and a dash 200 units behind the centre point, away from the target
+void Em203GreaterDaemonRedMp::fn_802A2F48() {
+    fn_802A2A68();
+    m157C = mPos;
+    CharaTask* t = m14D4;
+    atn::Vector3 dir = t->mPos - m1638;
+    dir.y = 0.0f;
+    if (dir.LengthSq_unk() > 0.000001f) {
+        dir.Normalize_unk();
+    } else {
+        dir.Set_unk(0.0f, 0.0f, 1.0f);
+    }
+    m1588 = m1638 - dir * 200.0f;
+    m1578 = atn::Vector3(-dir.x, -dir.y, -dir.z).ToRotation_unk().y;
+    m1594 = 1;
+    m1598 = 1;
+}
+
 // inferred: starts state 17 (breath on the ground)
 void Em203GreaterDaemonRedMp::fn_802A325C() {
     m58C = 17;
