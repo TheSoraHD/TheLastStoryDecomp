@@ -1,13 +1,9 @@
 // GameSpy SDK gsMemory.c, without the managed memory pool (see libs/gamespy/license.txt).
 #include "common/gsCommon.h"
 
-// inferred: MSL malloc/realloc/calloc (not yet named in symbols.txt)
-extern void* fn_8067AEC4(size_t size);
-extern void* fn_8067B094(void* ptr, size_t size);
-extern void* fn_8067B3AC(size_t num, size_t size);
-#define malloc fn_8067AEC4
-#define realloc fn_8067B094
-#define calloc fn_8067B3AC
+void* malloc(size_t size);
+void* realloc(void* ptr, size_t size);
+void* calloc(size_t num, size_t size);
 
 typedef struct {
     void* (*malloc)(size_t size);
