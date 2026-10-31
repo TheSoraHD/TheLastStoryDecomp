@@ -11613,5 +11613,42 @@
   ],
   "category": "sdk",
   "matching": true
+ },
+ {
+  "name": "smg2/src/RVL_SDK/dvd/dvdDeviceError.c",
+  "mw_version": "Wii/1.0",
+  "cflags": [
+   "-nodefaults",
+   "-proc gekko",
+   "-align powerpc",
+   "-enum int",
+   "-fp hardware",
+   "-Cpp_exceptions off",
+   "-O4,p",
+   "-inline auto",
+   "-pragma \"cats off\"",
+   "-pragma \"warn_notinlined off\"",
+   "-maxerrors 1",
+   "-nosyspath",
+   "-RTTI off",
+   "-enc SJIS",
+   "-i libs/smg2/libs/MSL_C++/include",
+   "-i libs/smg2/libs/MSL_C/include",
+   "-i libs/smg2/libs/MetroTRK/include",
+   "-i libs/smg2/libs/RVLFaceLib/include",
+   "-i libs/smg2/libs/RVL_SDK/include",
+   "-i libs/smg2/libs/Runtime/include",
+   "-i libs/smg2/src/RVL_SDK/bte",
+   "-DVERSION=0",
+   "-ir libs/smg2/libs/RVL_SDK/revolution/bte",
+   "-DREVOLUTION",
+   "-str reuse",
+   "-lang=c",
+   "-ipa file",
+   "-fp_contract off",
+   "-func_align 16"
+  ],
+  "category": "sdk",
+  "matching": true
  }
 ]

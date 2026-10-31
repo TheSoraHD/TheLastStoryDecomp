@@ -3776,6 +3776,15 @@ smg2/src/RVL_SDK/dvd/dvdFatal.c:
 	.sbss       start:0x8087FDA8 end:0x8087FDAC
 	.sdata2     start:0x80888590 end:0x80888598
 
+smg2/src/RVL_SDK/dvd/dvdDeviceError.c:
+	.text       start:0x806003F0 end:0x8060067C
+	.rodata     start:0x807647E0 end:0x807647FC
+	.data       start:0x807AA970 end:0x807AAB08
+	.bss        start:0x807D12C0 end:0x807D12E0
+	.sdata      start:0x8087E7F0 end:0x8087E7F4
+	.sbss       start:0x8087FDB0 end:0x8087FDB4
+	.sdata2     start:0x80888598 end:0x8088859C
+
 RVL_SDK/src/revolution/dvd/dvd_broadway.c:
 	.text       start:0x80600680 end:0x80602D28
 	.data       start:0x807AAB08 end:0x807ABA10
