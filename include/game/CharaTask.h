@@ -557,6 +557,8 @@ public:
     void SetPartsVisible_unk(int show);
     // RSO: SetFlag__9CharaTaskFi (weak copy 0x803396EC)
     void SetFlag(int flag) { m54C |= flag; }
+    // inferred: flag test of m54C (reloads the word for a following store, BattleCharaTask::fn_800EBA5C); name invented
+    bool IsFlag54C_unk(unsigned int flag) const { return (m54C & flag) == flag; }
     void fn_8016E71C(int show, int arg); // inferred: shows/hides the parts and the equipment
     void fn_8016E800(int arg); // inferred: calls fn_80566398 on every equipment
     float fn_8016E864(); // inferred: speed rate of the character

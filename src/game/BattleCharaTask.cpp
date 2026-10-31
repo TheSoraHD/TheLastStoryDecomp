@@ -6,6 +6,7 @@
 #include "game/DamageCalc_unk.h"
 #include "chr/ControlBase.h"
 #include "game/Arms.h"
+#include "game/EquipItemData.h"
 #include "game/BattleResult.h"
 #include "game/SetConfig.h"
 #include "atn/SoundRef.h"
@@ -412,6 +413,61 @@ void BattleCharaTask::fn_800EB270(int id) {
     } else {
         fn_801561E4(fn_80219E6C(id));
     }
+}
+
+void BattleCharaTask::fn_800EBA5C() {
+    fn_801765D8();
+    fn_801446F0();
+    if (mFlag31) {
+        fn_801539E0();
+    }
+    if (mFlag6) {
+        fn_80155DAC(0);
+    }
+    if (IsFlag54C_unk(0x2000)) {
+        m54C &= ~0x2000;
+    }
+    if (IsFlag3_unk()) {
+        mFlag3 = 0;
+    }
+    fn_80164DCC(0);
+    m54C &= ~0x200000;
+    m58C = 0;
+    m568 = 1.0f;
+    mStatus.fn_80133B30(0);
+    mStatus.fn_8012D8B8();
+    mStatus.m224 = mStatus.mParamB.m98;
+    mStatus.m2F4 = 0.0f;
+    fn_8016F634();
+    mC58.fn_8011BF94();
+    mRoute.fn_8012539C();
+    mMotion.m1DC = 0;
+    mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
+    mMotion.fn_80097510();
+    for (unsigned int i = 0; i < mParts.mCount; i++) {
+        ((atn::Model*)mParts.mData[i]->m010)->m1DC = 0;
+    }
+    chr::CharaEquip_unk** equips = m680;
+    for (unsigned int i = 0; i < 8; i++, equips++) {
+        if (*equips != 0) {
+            (*equips)->GetModel_unk()->m1DC = 0;
+        }
+    }
+    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        m6A4.mData[i]->mModel.m1DC = 0;
+    }
+    m1428 = 0;
+    m142C = 0;
+    mFlagC27 = 0;
+    mFC0 = 0;
+    fn_8016DC14(0, 1);
+    fn_8017A33C(0, 0);
+    mFlagB9 = 0;
+    fn_8017AC44(1);
+    m1208 = 0;
+    m610 = 0;
+    mFlagB18 = 0;
+    mF1C = 0;
 }
 
 int BattleCharaTask::fn_800EBE84() {
