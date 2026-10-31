@@ -166,7 +166,7 @@ void LogMessageTask::vf14() {
 }
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-extern "C" int fn_806846FC(const wchar_t* a, const wchar_t* b, unsigned long n); // inferred: wcsncmp
+extern "C" int wmemcmp(const wchar_t* a, const wchar_t* b, int n);
 extern "C" void fn_803B3D2C(std::basic_string<wchar_t>* s); // inferred: converts the message tags
 
 // inferred: text of a wide buffer, the empty text for null (names invented)
@@ -208,7 +208,7 @@ bool FixedWString_unk<N>::operator==(const wchar_t* s) const {
     const wchar_t* a = mText;
     const wchar_t* b = o.mText;
     unsigned long n = MAX(wcslen(CStr_unk(b)), wcslen(a));
-    return fn_806846FC(CStr_unk(b), a, n) == 0;
+    return wmemcmp(CStr_unk(b), a, n) == 0;
 }
 
 // inferred: not inline (auto-inlined in vf14, which is defined before them)

@@ -51,8 +51,17 @@ wchar_t* wcsncpy(wchar_t *dest, const wchar_t *src, size_t num) {
 void wcsncpy_s(){
 }
 
-//unused
-wchar_t* wcscat(wchar_t*, const wchar_t*){
+wchar_t* wcscat(wchar_t *dest, const wchar_t *src) {
+    const wchar_t* p = (wchar_t*)src - 1;
+    wchar_t* q = (wchar_t*)dest - 1;
+
+    while (*++q);
+
+    q--;
+
+    while (*++q = *++p);
+
+    return dest;
 }
 
 //unused
@@ -81,8 +90,22 @@ int wcscmp(const wchar_t *str1, const wchar_t *str2) {
     return c1 - c2;
 }
 
-//unused
-void wcsncmp(){
+int wcsncmp(const wchar_t *str1, const wchar_t *str2, size_t num) {
+    const wchar_t* p1 = (wchar_t*)str1 - 1;
+    const wchar_t* p2 = (wchar_t*)str2 - 1;
+    wchar_t c1, c2;
+
+    num++;
+
+    while (--num) {
+        if ((c1 = *++p1) != (c2 = *++p2)) {
+            return (c1 - c2);
+        } else if (!c1) {
+            break;
+        }
+    }
+
+    return 0;
 }
 
 wchar_t* wcschr(const wchar_t *str, const wchar_t chr) {
