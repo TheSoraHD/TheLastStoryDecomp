@@ -5351,6 +5351,20 @@ ss_nw4r/src/snd/snd_SeqTrack.cpp:
 	.data       start:0x807C6270 end:0x807C6280
 	.sdata2     start:0x808891A8 end:0x808891D8
 
+ss_nw4r/src/snd/snd_Sound3DCalculator.cpp:
+	.text       start:0x80714D00 end:0x807157CC
+	.sdata2     start:0x808891E0 end:0x80889228
+
+ss_nw4r/src/snd/snd_Sound3DEngine.cpp:
+	.text       start:0x807157D0 end:0x80715B18
+	.data       start:0x807C62B0 end:0x807C62D0
+	.sdata2     start:0x80889228 end:0x8088923C
+
+ss_nw4r/src/snd/snd_SoundActor.cpp:
+	.text       start:0x80716070 end:0x80716274
+	.data       start:0x807C6308 end:0x807C6328
+	.sdata2     start:0x80889258 end:0x80889260
+
 nw4r/src/snd/snd_SoundHandle.cpp:
 	.text       start:0x807175E0 end:0x80717680
 
