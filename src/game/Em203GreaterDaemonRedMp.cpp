@@ -1,6 +1,7 @@
 #include "game/Em203GreaterDaemonRedMp.h"
 #include "atn/Csv.h"
 #include "atn/SoundRef.h"
+#include "atn/Keyboard.h"
 #include "game/CharaManager.h"
 #include "game/PlayerManager.h"
 #include "math/Vec.h"
@@ -912,6 +913,36 @@ void Em203GreaterDaemonRedMp::fn_802A254C() {
     PlayMotion_unk(0x13F, 0, 0, 1.0f);
 }
 
+// inferred: state of the multiplayer copy (names invented)
+struct RedMpState_unk {
+    int m00;
+    int m04;
+    short m08;
+    short m0A;
+    int m0C;
+};
+
+// NONMATCHING: 99.8% - r5/r6 crossing on the psq copy into m1560 (known blocker, as Red fn_8029A788)
+// inferred: starts state 12 (dives on the target, stopping 85 units before it)
+void Em203GreaterDaemonRedMp::fn_802A2600() {
+    m58C = 12;
+    ResetState_unk();
+    m1618 = 0;
+    m1610 = 0;
+    m1630 = 0;
+    m1634 = 0;
+    fn_8016E970(6);
+    m560 = 4;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x15E, 0, 0, 1.0f);
+    atn::Vector3 target = m14D4->mPos;
+    target.y = 0.0f;
+    m1560 = target - mPos;
+    atn::Vector3 dir(m1560.x, 0.0f, m1560.z);
+    dir.Normalize_unk();
+    m1560 -= dir * 85.0f;
+}
+
 // inferred: starts state 18
 void Em203GreaterDaemonRedMp::fn_802A3520() {
     m58C = 18;
@@ -939,15 +970,6 @@ int Em203GreaterDaemonRedMp::fn_802A3D6C(HitInfo_unk* skill) {
     m15F8 = skill;
     return skill != 0;
 }
-
-// inferred: state of the multiplayer copy (names invented)
-struct RedMpState_unk {
-    int m00;
-    int m04;
-    short m08;
-    short m0A;
-    int m0C;
-};
 
 // NONMATCHING: 99.29% - loop counter registers swapped (r29/r30, as Red fn_8029C564)
 // inferred: the route point nearest to the daemon among the high hover points (m156C)
@@ -1039,3 +1061,99 @@ void Em203GreaterDaemonRedMp::vfFC() {
 }
 
 void Em203GreaterDaemonRedMp::vf100(int state) {}
+
+// inferred: player manager accessors (weak copies 0x8000D9E8 and 0x802A36B0, as in gmk/Cannonball.cpp)
+extern "C" inline CharaManager<PlayerTask>* fn_8000D9E8() {
+    return lbl_8087F8A0;
+}
+extern "C" inline CharaTask* fn_802A36B0(CharaManager<PlayerTask>* mgr) {
+    return mgr->mHead;
+}
+
+// inferred: update of the daemon controlled by this machine: picks the target and runs the state
+void Em203GreaterDaemonRedMp::vf104() {
+    CharaTask* player = fn_802A36B0(fn_8000D9E8());
+    if (m15C8 != 0 && fn_802A36B8() != 0) {
+        m15C8 = 0;
+        m15C4 = 0;
+    }
+    m14D4 = mC58.mC4;
+    if (m14D4 == 0) {
+        m14D4 = player;
+    }
+    m14DC++;
+    if (mC58.mC0 == 0 || m14D4 == 0) {
+        fn_8016E970(3);
+    } else if (m14D4 != 0) {
+        switch (m58C) {
+        case 7:
+        case 8:
+            fn_8029DBE0(2.0f);
+            fn_8029F3FC();
+            break;
+        case 10:
+            fn_8029FAC0();
+            break;
+        case 9:
+            fn_8029DBE0(1.0f);
+            fn_8029F738();
+            break;
+        case 11:
+            fn_8029DBE0(1.0f);
+            fn_8029FD34();
+            break;
+        case 12:
+            fn_802A057C();
+            break;
+        case 15:
+            fn_802A0818();
+            m1610++;
+            break;
+        case 16:
+            fn_802A0B00();
+            m1610++;
+            break;
+        case 17:
+            fn_802A118C();
+            m1610++;
+            break;
+        case 18:
+            fn_802A16A4();
+            break;
+        case 19:
+            fn_802A17CC();
+            break;
+        case 13:
+            fn_802A19B0();
+            m1610++;
+            break;
+        case 14:
+            fn_802A1BFC();
+            break;
+        case 2:
+            fn_802A2070();
+            m1610++;
+            break;
+        default:
+            fn_8029DBE0(1.0f);
+            fn_8029DB58();
+            if (fn_8029F3F4() != 0) {
+                fn_8029E950();
+            }
+            break;
+        }
+    }
+    fn_8029DB54();
+    if (m1688 != 0) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x54)) {
+            fn_802A2600();
+        }
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4C)) {
+            fn_802A254C();
+        }
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D) && fn_802A3D6C(m14FC) != 0) {
+            fn_802A2494();
+        }
+    }
+}
+
