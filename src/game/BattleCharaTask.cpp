@@ -740,6 +740,42 @@ void BattleCharaTask::fn_800EB270(int id) {
     }
 }
 
+// NONMATCHING: 98.3% - this stays in r3 for the first test, and dir/aim get r30/r29 the other way round
+void BattleCharaTask::fn_800EB4AC() {
+    if (m55C != 6 && m648 != 0 && m648->m04 == 1) {
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &dir, &dir);
+        atn::Vector3 from;
+        atn::Vector3 to;
+        atn::Vector3 aim = dir;
+        // inferred: the part m648 is the weapon (Arms; fn_800EE5AC receives it as one)
+        from = ((Arms*)m648)->fn_80044BD4();
+        if (mC58.mD0 != 0) {
+            to = mC58.mD0->vf54();
+            dir = (to - from).GetNormalize();
+            aim = dir;
+        } else if (mC58.mC4 != 0) {
+            CharaTask* target = mC58.mC4;
+            to = target->mColli.m48;
+            dir = (to - from).GetNormalize();
+            aim = (target->mColli.m3C - mColli.m3C).GetNormalize();
+        }
+        mFA4 = aim;
+        if (mC58.mStep == 2 && m640 <= 0 && mFB0 <= 0) {
+            HitInfo_unk* hit = ((Arms*)m648)->fn_80044C30(0);
+            int id = hit != 0 ? hit->m04 : 0;
+            CharaStatusRef_unk* ref = mStatus.fn_80134134(0x3D);
+            if (ref != 0 && fn_80219E6C(ref->mEntry->mValue) != 0) {
+                id = ref->mEntry->mValue;
+            }
+            fn_80165C5C(id, from, dir);
+        }
+    }
+    fn_80139560();
+}
+
 // inferred: experience of the kill (popup text and the inventory)
 void BattleCharaTask::fn_800EB7A0() {
     if (lbl_8087F430 != 0 && fn_803754F0(lbl_8087F430) != 0) {

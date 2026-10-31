@@ -36,6 +36,7 @@ public:
     void fn_800E8688(int a, int b, CharaTask* target, const atn::Vector3* pos, int c, int d); // inferred: starts an attack
     void fn_800EAECC(); // inferred: called by vfF0 when mFlag16 is clear
     void fn_800EB270(int id); // inferred: starts the skill `id` (200: the normal attack)
+    void fn_800EB4AC(); // inferred: aims the weapon (shoots when the step of the mode is 2)
     void fn_800EB7A0(); // inferred: death effect
     void fn_800EBA5C(); // inferred: full reset (revive)
     int fn_800EBE84();  // inferred: applies the motion sets once loaded (1 while loading)
