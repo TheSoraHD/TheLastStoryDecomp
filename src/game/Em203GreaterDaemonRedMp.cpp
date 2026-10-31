@@ -930,6 +930,41 @@ void Em203GreaterDaemonRedMp::fn_802A0818() {
     }
 }
 
+// inferred: state of the multiplayer copy (names invented)
+struct RedMpState_unk {
+    int m00;
+    int m04;
+    short m08;
+    short m0A;
+    int m0C;
+};
+
+// inferred: state 17 (breath on the ground: turns to the target, then starts the breath at frame 42)
+void Em203GreaterDaemonRedMp::fn_802A118C() {
+    atn::Vector3 target = m14D4->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
+        StartState13_unk();
+        return;
+    }
+    if (mMotion.mTracks[0].m08 <= 28.0001f) {
+        fn_8029DBE0(1.0f);
+    }
+    if (m15C8 == 0 && mMotion.mTracks[0].m08 > 42.0f) {
+        m15C8 = 1;
+        m15C4 = 33;
+        m15CC = fn_800F8548(lbl_8087F048);
+        atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
+        pos += Front_unk(mRot.y) * 20.0f;
+        pos.y = 0.0f;
+        m15D0 = pos;
+        m15DC = mRot;
+    }
+}
+
 // inferred: state 16 (rises; starts the battle BGM once above 30 frames)
 void Em203GreaterDaemonRedMp::fn_802A16A4() {
     if (m1650 == 0 && mMotion.mTracks[0].m08 > 30.0f) {
@@ -973,15 +1008,6 @@ void Em203GreaterDaemonRedMp::fn_802A19B0() {
         fn_8029F148(1);
     }
 }
-
-// inferred: state of the multiplayer copy (names invented)
-struct RedMpState_unk {
-    int m00;
-    int m04;
-    short m08;
-    short m0A;
-    int m0C;
-};
 
 // inferred: state 14 (turns to the route point m1570 and flies there in 35 frames)
 void Em203GreaterDaemonRedMp::fn_802A1BFC() {
