@@ -77,7 +77,7 @@ void GXSetDstAlpha(unsigned char enable, unsigned char alpha);
 int OSDisableInterrupts();
 int OSRestoreInterrupts(int level);
 GXFifoObj* GXInit(void* base, unsigned int size);
-void fn_80614B20(const GXRenderModeObj* rmin, GXRenderModeObj* rmout, unsigned short hor,
+void GXAdjustForOverscan(const GXRenderModeObj* rmin, GXRenderModeObj* rmout, unsigned short hor,
                  unsigned short ver); // inferred: GXAdjustForOverscan
 float GXGetYScaleFactor(unsigned short efbHeight, unsigned short xfbHeight);
 unsigned int GXSetDispCopyYScale(float yscale);
@@ -357,7 +357,7 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     }
     device->mWide = SCGetAspectRatio();
     unsigned short xfbHeight = rm->xfbHeight;
-    fn_80614B20(rm, &device->mRMode, 0, 16);
+    GXAdjustForOverscan(rm, &device->mRMode, 0, 16);
     device->mRMode.xfbHeight = xfbHeight;
     device->mRMode.viHeight = xfbHeight;
     device->mRMode.viYOrigin = 0;
