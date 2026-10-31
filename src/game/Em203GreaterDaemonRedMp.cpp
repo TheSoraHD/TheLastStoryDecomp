@@ -230,6 +230,11 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
+// inferred: linear interpolation (name invented)
+inline atn::Vector3 LerpV_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
 // inferred: enemy manager (not inlined here)
 extern "C" CharaManager<EnemyTask>* fn_801A03E0();
 
@@ -938,11 +943,6 @@ struct RedMpState_unk {
     short m0A;
     int m0C;
 };
-
-// inferred: linear interpolation (name invented)
-inline atn::Vector3 LerpV_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
-    return (b - a) * t + a;
-}
 
 // inferred: state 16 (turns on the ground; with m1594 also dashes from m157C to m1588)
 void Em203GreaterDaemonRedMp::fn_802A0B00() {
