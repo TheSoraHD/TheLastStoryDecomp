@@ -3393,14 +3393,15 @@ game/SkillEffectManager.cpp:
 nw4r/DvdSoundArchive.cpp:
 	.text       start:0x8059D7D8 end:0x8059E21C
 	.rodata     start:0x807622E0 end:0x80762328
-	.data       start:0x80796B60 end:0x80796C70
+	.data       start:0x80796B60 end:0x80796D18
 
 nw4r/SoundArchiveFamily_rodata.cpp:
-	.rodata     start:0x80762328 end:0x807626F8
+	.rodata     start:0x80762328 end:0x80762660
 
 nw4r/SoundArchive.cpp:
 	.text       start:0x8059E21C end:0x8059E7EC
-	.data       start:0x80796C70 end:0x80796D38
+	.rodata     start:0x80762660 end:0x807626F8
+	.data       start:0x80796D18 end:0x80796D38
 
 nw4r/SeqNoteOnCallback.cpp:
 	.text       start:0x8059E7EC end:0x805A2240
