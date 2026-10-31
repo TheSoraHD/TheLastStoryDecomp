@@ -5272,6 +5272,12 @@ ss_nw4r/src/snd/snd_BasicSound.cpp:
 	.sbss       start:0x808804B0 end:0x808804B8
 	.sdata2     start:0x80889078 end:0x80889088
 
+ss_nw4r/src/snd/snd_BiquadFilterPreset.cpp:
+	.text       start:0x8070B070 end:0x8070B4B0
+	.rodata     start:0x8076B868 end:0x8076CCA0
+	.data       start:0x807C5E88 end:0x807C5ED8
+	.sdata2     start:0x80889088 end:0x80889094
+
 ss_nw4r/src/snd/snd_Channel.cpp:
 	.text       start:0x8070B4B0 end:0x8070C648
 	.bss        start:0x80862F68 end:0x80862F98
@@ -5301,6 +5307,25 @@ nw4r/src/snd/snd_Lfo.cpp:
 	.text       start:0x8070F180 end:0x8070F388
 	.rodata     start:0x8076CFA0 end:0x8076CFC8
 	.sdata2     start:0x80889140 end:0x80889170
+
+ss_nw4r/src/snd/snd_MmlParser.cpp:
+	.text       start:0x8070F440 end:0x8071060C
+	.data       start:0x807C5F50 end:0x807C6180
+	.sdata      start:0x8087EE18 end:0x8087EE28
+	.sbss       start:0x808804C8 end:0x808804D0
+	.sdata2     start:0x80889170 end:0x80889190
+
+ss_nw4r/src/snd/snd_MmlSeqTrack.cpp:
+	.text       start:0x80710610 end:0x807106C8
+	.data       start:0x807C6180 end:0x807C6190
+
+ss_nw4r/src/snd/snd_MmlSeqTrackAllocator.cpp:
+	.text       start:0x807106D0 end:0x807107D8
+	.data       start:0x807C6190 end:0x807C61A8
+
+ss_nw4r/src/snd/snd_PlayerHeap.cpp:
+	.text       start:0x807107E0 end:0x807109FC
+	.data       start:0x807C61A8 end:0x807C61B8
 
 nw4r/src/snd/snd_SoundHandle.cpp:
 	.text       start:0x807175E0 end:0x80717680
