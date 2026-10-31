@@ -1,3 +1,4 @@
+#include "macros.h"
 #include "game/Em206CocoonMp.h"
 #include "game/CharaStatus.h"
 #include "game/CharaManager.h"
@@ -53,6 +54,7 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
+extern "C" double sin(double x);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 // inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
 struct FrameTime_unk {
@@ -620,6 +622,117 @@ void Em206CocoonMp::fn_802BD480() {
             }
         }
     }
+}
+
+// NONMATCHING: 98.56% - float registers of the three colors off by one
+// inferred: pulses the colors of the materials (faster in states 6/7), fades them during the attacks 8/9
+// and makes them red in the last stand
+void Em206CocoonMp::fn_802BDA04() {
+    float pulse = MIN(1.0f, 0.5f * (float)sin(0.017453292f * (4.0f * (float)m14EC)) + 0.5f);
+    float body = 0.6f * pulse + 0.2f;
+    float arm = body;
+    float leg = body;
+    switch (m58C) {
+    case 8: {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame < 20.0f) {
+            float k = 1.0f - frame / 20.0f;
+            body *= k;
+            arm *= k;
+            leg *= k;
+        } else if (frame < 86.0f) {
+            if (frame < 71.0f) {
+                arm = MIN(1.0f, MAX(0.0f, (mMotion.mTracks[0].m08 - 30.0f) / 20.0f));
+            } else {
+                arm = MIN(1.0f, MAX(0.0f, 1.0f - (mMotion.mTracks[0].m08 - 71.0f) / 15.0f));
+            }
+            body = arm;
+            m14EC = 67;
+            leg = 0.0f;
+        } else {
+            float k = MIN(1.0f, (frame - 76.0f) / 30.0f);
+            body *= k;
+            arm *= k;
+            m14EC = 67;
+            leg *= k;
+        }
+        break;
+    }
+    case 9: {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame < 20.0f) {
+            float k = 1.0f - frame / 20.0f;
+            body *= k;
+            arm *= k;
+            leg *= k;
+        } else if (frame < 65.0f) {
+            if (frame < 50.0f) {
+                arm = MIN(1.0f, MAX(0.0f, (mMotion.mTracks[0].m08 - 20.0f) / 20.0f));
+            } else {
+                arm = MIN(1.0f, MAX(0.0f, 1.0f - (mMotion.mTracks[0].m08 - 50.0f) / 15.0f));
+            }
+            body = arm;
+            leg = arm;
+            m14EC = 67;
+        } else {
+            float k = MIN(1.0f, (frame - 65.0f) / 15.0f);
+            body *= k;
+            arm *= k;
+            m14EC = 67;
+            leg *= k;
+        }
+        break;
+    }
+    case 6:
+    case 7: {
+        float fast = MIN(1.0f, 0.5f * (float)sin(0.017453292f * (16.0f * (float)m14EC)) + 0.5f);
+        body = 0.6f * fast + 0.2f;
+        arm = body;
+        leg = body;
+        break;
+    }
+    }
+    Color4f_unk c1;
+    c1.r = body;
+    c1.g = body;
+    c1.b = body;
+    c1.a = 1.0f;
+    Color4f_unk c2;
+    c2.r = arm;
+    c2.g = arm;
+    c2.b = arm;
+    c2.a = 1.0f;
+    Color4f_unk c3;
+    c3.r = leg;
+    c3.g = leg;
+    c3.b = leg;
+    c3.a = 1.0f;
+    if (m1908 != 0) {
+        m190C = MAX(m190C - 0.01f, 0.2f);
+        float d = m190C;
+        c1.r = body;
+        c1.g = body * d;
+        c1.b = body * d;
+        c1.a = 1.0f;
+        c2.r = arm;
+        c2.g = arm * d;
+        c2.b = arm * d;
+        c2.a = 1.0f;
+        c3.r = leg;
+        c3.g = leg * d;
+        c3.b = leg * d;
+        c3.a = 1.0f;
+    }
+    Color4f_unk white;
+    white.r = 1.0f;
+    white.g = 1.0f;
+    white.b = 1.0f;
+    white.a = 1.0f;
+    mMotion.fn_80094958("em206_body_l", &c1, &white, &white);
+    mMotion.fn_80094958("em206_tail_l", &c1, &white, &white);
+    mMotion.fn_80094958("em206_rarm_l", &c2, &white, &white);
+    mMotion.fn_80094958("em206_larm_l", &c3, &white, &white);
+    m14EC++;
 }
 
 void Em206CocoonMp::vf38(int arg) {
