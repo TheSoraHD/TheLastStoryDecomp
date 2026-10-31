@@ -5327,6 +5327,30 @@ ss_nw4r/src/snd/snd_PlayerHeap.cpp:
 	.text       start:0x807107E0 end:0x807109FC
 	.data       start:0x807C61A8 end:0x807C61B8
 
+ss_nw4r/src/snd/snd_SeqFile.cpp:
+	.text       start:0x80711630 end:0x80711768
+
+ss_nw4r/src/snd/snd_SeqPlayer.cpp:
+	.text       start:0x80711770 end:0x80712C88
+	.data       start:0x807C61B8 end:0x807C6220
+	.bss        start:0x80863288 end:0x808632A8
+	.sdata2     start:0x80889190 end:0x808891A4
+
+ss_nw4r/src/snd/snd_SeqSound.cpp:
+	.text       start:0x80712C90 end:0x8071348C
+	.ctors      start:0x8072D40C end:0x8072D410
+	.data       start:0x807C6220 end:0x807C6270
+	.sbss       start:0x808804D8 end:0x808804E0
+
+ss_nw4r/src/snd/snd_SeqSoundHandle.cpp:
+	.text       start:0x80713490 end:0x807134C8
+
+ss_nw4r/src/snd/snd_SeqTrack.cpp:
+	.text       start:0x807134D0 end:0x80714928
+	.rodata     start:0x8076CFC8 end:0x8076CFF0
+	.data       start:0x807C6270 end:0x807C6280
+	.sdata2     start:0x808891A8 end:0x808891D8
+
 nw4r/src/snd/snd_SoundHandle.cpp:
 	.text       start:0x807175E0 end:0x80717680
 
