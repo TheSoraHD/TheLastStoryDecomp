@@ -28,6 +28,7 @@ public:
     void fn_800E8FB8(); // inferred: shoots the selected arrow of the crossbow
     void fn_800E9110(); // inferred: casts the magic m145C of m2D0 in front (or at the aimed point)
     void fn_800E932C(atn::Vector3* from, atn::Vector3* to, int arg); // inferred: aimed shot
+    void fn_800E7650(struct Field_unk* field); // inferred: input of the player in the battle mode (lock-on, crossbow)
     void fn_800E7BB0(); // inferred: starts the overdrive/special skill of the character
     void fn_800E7F04();
     void fn_800E8688(int a, int b, CharaTask* target, const atn::Vector3* pos, int c, int d); // inferred: starts an attack

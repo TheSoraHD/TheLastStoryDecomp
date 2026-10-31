@@ -90,6 +90,8 @@ extern "C" void* lbl_8087F8A8;
 extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
                             int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
 extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
+extern "C" void fn_80108A54(Effect_unk* mgr, CharaTask* chara); // inferred: lock-on cursor
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -97,12 +99,12 @@ extern "C" MpSession_unk* lbl_8087F610;
 extern "C" int fn_804EB1AC(MpSession_unk* session);
 extern "C" int fn_8021446C(int index, int arg); // inferred: entry of the level equipment table
 
-// inferred: sound effects of the deaths (names invented; index 2 is used by fn_800EAECC)
+// inferred: sound effects of the battle (names invented; 0 lock-on, 2 death, 4 crossbow selection)
 static const char sSe009_unk[] = "SE_BTCOM_009";
 static const char sSe023_unk[] = "SE_BTCOM_023";
 static const char sSe078_unk[] = "SE_BTCOM_078";
 static const char sSe101_unk[] = "SE_BTCOM_101";
-static const char* const sDeathSe_unk[] = {sSe009_unk, sSe009_unk, sSe023_unk, sSe078_unk, sSe101_unk, 0};
+static const char* const sBattleSe_unk[] = {sSe009_unk, sSe009_unk, sSe023_unk, sSe078_unk, sSe101_unk, 0};
 
 BattleCharaTask::BattleCharaTask(atn::Task* parent, int type, void* data)
     : CharaTask(parent, type, data), m1424(0), m1428(0), m142C(0), m1430(0), m1434(0), m1438(0), m143C(0),
@@ -305,7 +307,7 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
             fn_80155DAC(1);
         }
     } else if ((lbl_8087F0A8->mInput.fn_801240B4(7) || mFlagB16) && (!mFlag31 || !mFlag30) && !mFlagB9) {
-        fn_800C344C(sDeathSe_unk[0], &mPos, 0, -1, 1.0f);
+        fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
         if (fn_80370174(lbl_8087F430, 0xEF) == 0 && fn_80370174(lbl_8087F430, 0xEE) == 1) {
             fn_80370320(lbl_8087F430, 0xEF, 1, 0);
         }
@@ -330,6 +332,102 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
         }
     }
     return ret;
+}
+
+void BattleCharaTask::fn_800E7650(Field_unk* field) {
+    GameConfig_unk* config = lbl_8087F0A8;
+    void* obj = &field->m006C;
+    mFlag5 = 0;
+    if (m55C != 1) {
+        mFlag4 = 0;
+        mFC0 = 0;
+        return;
+    }
+    if (mFlag27) {
+        mFC0 = 0;
+        mFlag4 = 0;
+    } else if (m1208 != 0 || mFlag3 || mF54 != 0 || m139C != 0) {
+        mFC0 = 0;
+        mFlag5 = 0;
+        mFlag4 = 0;
+        if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
+            fn_8037EF30(obj, 0, 1, -1.0f);
+        }
+    } else if (mFlag31) {
+        mFC0 = 0;
+        mFlag4 = 0;
+    } else if (mFlag6) {
+        mFC0 = 0;
+        mFlag4 = 0;
+        if (!lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
+            fn_80155DAC(0);
+        }
+    } else if (mFlag4) {
+        if (lbl_8087F0A8->mInput.fn_801231D0(0x16)) {
+            int mode = lbl_8087F0A8->mSurroundMode;
+            if (!mFlag10 || mode != 1) {
+                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                atn::Vector3 rot = fn_80178018();
+                Mtx m;
+                PSMTXRotRad(m, 'y', rot.y);
+                PSMTXMultVec(m, &dir, &dir);
+                fn_80155790(dir);
+                if (mFlag10 && mode == 2) {
+                    if (mFlag10) {
+                        for (CharaPair_unk* it = m125C.begin(); it != m125C.end(); it++) {
+                            it->m04->fn_80155790(dir);
+                        }
+                    }
+                }
+            }
+        }
+        if (mFlag31) {
+            mFC0 = 0;
+        } else if (!lbl_8087F0A8->mInput.fn_801231D0(0x1E)) {
+            fn_80108A54(lbl_8087F048, this);
+        }
+        mFlag4 = 1;
+        if (!lbl_8087F0A8->mInput.fn_801240B4(7)) {
+            mFlag4 = 0;
+        }
+    } else {
+        mFC0 = 0;
+        mFlag4 = 0;
+        if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
+            fn_8037EF30(obj, 0, 1, -1.0f);
+            mFC0 = 0;
+        } else if (lbl_8087F0A8->mInput.fn_801240B4(7)) {
+            fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
+            if (fn_80370174(lbl_8087F430, 0xEF) == 0 && fn_80370174(lbl_8087F430, 0xEE) == 1) {
+                fn_80370320(lbl_8087F430, 0xEF, 1, 0);
+            }
+            if (mFC0 == 0) {
+                Effect_unk* mgr = lbl_8087F048;
+                atn::Vector3 dir = fn_80178018();
+                mFC0 = fn_800FFE68(mgr, this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
+            }
+            mFlag4 = 1;
+            fn_8037EF30(obj, 0, 1, -1.0f);
+        } else if (lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
+            fn_80155DAC(1);
+        }
+    }
+    if (lbl_8087F0A8->mInput.fn_801237F0(0x17)) {
+        CrossbowMenuTask::sInstance->fn_801E9ECC(-1, 1);
+        fn_800C31F4(sBattleSe_unk[4], 0, -1, 1.0f);
+    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x18)) {
+        CrossbowMenuTask::sInstance->fn_801E9ECC(1, 1);
+        fn_800C31F4(sBattleSe_unk[4], 0, -1, 1.0f);
+    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x1A)) {
+        CrossbowMenuTask::sInstance->fn_801E97DC();
+        fn_800C31F4(sBattleSe_unk[4], 0, -1, 1.0f);
+    } else if (lbl_8087F0A8->mInput.fn_801237F0(0x1B)) {
+    }
+    if (lbl_8087F0A8->mInput.fn_801231D0(6) && (!mFlag31 || mC48 != 0) && m640 <= 0 && mFB0 <= 0) {
+        mFlagB8 = 0;
+        fn_800E8FB8();
+    }
+    fn_800E7BB0();
 }
 
 void BattleCharaTask::fn_800E7BB0() {
@@ -544,7 +642,7 @@ void BattleCharaTask::fn_800EAECC() {
             } else if (m1434 == 15) {
                 if (m146C != 0x2C) {
                     fn_80105BD8(lbl_8087F048, &mMotion);
-                    fn_800C344C(sDeathSe_unk[2], &mPos, 0, -1, 1.0f);
+                    fn_800C344C(sBattleSe_unk[2], &mPos, 0, -1, 1.0f);
                 }
                 vf9C(1);
             }
