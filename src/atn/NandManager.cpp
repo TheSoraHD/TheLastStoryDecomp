@@ -38,22 +38,22 @@ int NANDReadAsync(atn::NandFileInfo_unk* info, void* buf, unsigned long size, Na
 int NANDWriteAsync(atn::NandFileInfo_unk* info, const void* buf, unsigned long size, NandCallback_unk cb,
                    atn::NandBlock_unk* block);
 // inferred: NANDCheckAsync
-int fn_80622260(unsigned long blocks, unsigned long inodes, unsigned int* answer, NandCallback_unk cb,
+int NANDCheckAsync(unsigned long blocks, unsigned long inodes, unsigned int* answer, NandCallback_unk cb,
                 atn::NandBlock_unk* block);
 // inferred: NANDSafeOpenAsync
-int fn_80620220(const char* path, atn::NandFileInfo_unk* info, unsigned char mode, void* buf, unsigned long size,
+int NANDSimpleSafeOpenAsync(const char* path, atn::NandFileInfo_unk* info, unsigned char mode, void* buf, unsigned long size,
                 NandCallback_unk cb, atn::NandBlock_unk* block);
-int fn_80620BD0(atn::NandFileInfo_unk* info, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: NANDSafeCloseAsync
-int fn_80620830(atn::NandFileInfo_unk* info, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: close (read)
+int NANDSafeCancelAsync_unk(atn::NandFileInfo_unk* info, NandCallback_unk cb, atn::NandBlock_unk* block); // nand/NANDOpenClose.c
+int NANDSimpleSafeCloseAsync(atn::NandFileInfo_unk* info, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: close (read)
 int NANDCreateAsync(const char* path, unsigned char perm, unsigned char attr, NandCallback_unk cb,
                 atn::NandBlock_unk* block); // inferred: NANDCreateAsync
 int NANDCreateDirAsync(const char* path, unsigned char perm, unsigned char attr, NandCallback_unk cb,
                 atn::NandBlock_unk* block); // inferred: NANDCreateDirAsync
 int NANDMoveAsync(const char* from, const char* to, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: NANDMoveAsync
-int fn_8061E5C0(const char* path, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: NANDDeleteAsync
-int fn_80622050(const char* path, unsigned char* type); // inferred: NANDGetType
-int fn_80621C50(char* path);                            // inferred: NANDGetCurrentDir
-int fn_80621B80(const char* path);                      // inferred: NANDChangeDir
+int NANDDeleteAsync(const char* path, NandCallback_unk cb, atn::NandBlock_unk* block); // inferred: NANDDeleteAsync
+int NANDGetType(const char* path, unsigned char* type); // inferred: NANDGetType
+int NANDGetCurrentDir(char* path);                            // inferred: NANDGetCurrentDir
+int NANDChangeDir(const char* path);                      // inferred: NANDChangeDir
 int NANDCreateDir(const char* path, unsigned char perm, unsigned char attr); // inferred: NANDCreateDir
 int NANDCreate(const char* path, unsigned char perm, unsigned char attr); // inferred: NANDCreate
 }
@@ -189,7 +189,7 @@ inline int NandManager::Exists_unk(const char* path) {
     char buf[0x100];
     strcpy(buf, path);
     unsigned char type;
-    int r = fn_80622050(buf, &type);
+    int r = NANDGetType(buf, &type);
     if (r == 0) {
         return type == 1;
     }
@@ -234,7 +234,7 @@ void NandManager::vf10() {
             if (mOp == 2) {
                 mState = 6;
                 NANDSetUserData(&mBlock, this);
-                mError = fn_800A4494(fn_80620220(mPath, &mFile, 2, mBuffer, 0x8000, SafeOpenDone_unk, &mBlock));
+                mError = fn_800A4494(NANDSimpleSafeOpenAsync(mPath, &mFile, 2, mBuffer, 0x8000, SafeOpenDone_unk, &mBlock));
             } else {
                 OpenTmp_unk();
             }
@@ -358,7 +358,7 @@ void NandManager::vf10() {
                     SetError_unk(mError);
                     mState = 0x14;
                     NANDSetUserData(&mBlock, this);
-                    fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+                    fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
                 }
                 break;
             }
@@ -390,7 +390,7 @@ void NandManager::vf10() {
                     SetError_unk(mError);
                     mState = 0x14;
                     NANDSetUserData(&mBlock, this);
-                    fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+                    fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
                 }
                 break;
             }
@@ -399,7 +399,7 @@ void NandManager::vf10() {
                     SetError_unk(mError);
                     mState = 0x14;
                     NANDSetUserData(&mBlock, this);
-                    fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+                    fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
                 } else {
                     mState = 0;
                 }
@@ -410,7 +410,7 @@ void NandManager::vf10() {
             if (mState == 7) {
                 mState = 0x14;
                 NANDSetUserData(&mBlock, this);
-                fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+                fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
             } else {
                 mState = 0x12;
                 NANDSetUserData(&mBlock, this);
@@ -431,7 +431,7 @@ void NandManager::vf10() {
                     SetError_unk(err);
                     mState = 0x14;
                     NANDSetUserData(&mBlock, this);
-                    fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+                    fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
                 }
                 break;
             }
@@ -445,7 +445,7 @@ void NandManager::vf10() {
                     SetError_unk(err);
                     mState = 0x14;
                     NANDSetUserData(&mBlock, this);
-                    fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+                    fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
                 }
                 break;
             }
@@ -454,7 +454,7 @@ void NandManager::vf10() {
             SetError_unk(mError);
             mState = 0x14;
             NANDSetUserData(&mBlock, this);
-            fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+            fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
         }
         break;
     case 13:
@@ -463,7 +463,7 @@ void NandManager::vf10() {
             case 4: {
                 mState = 0x10;
                 NANDSetUserData(&mBlock, this);
-                int err = fn_800A4494(fn_80620830(&mFile, ReadCloseDone_unk, &mBlock));
+                int err = fn_800A4494(NANDSimpleSafeCloseAsync(&mFile, ReadCloseDone_unk, &mBlock));
                 mError = err;
                 if (err != 0) {
                     SetError_unk(err);
@@ -479,7 +479,7 @@ void NandManager::vf10() {
             SetError_unk(mError);
             mState = 0x14;
             NANDSetUserData(&mBlock, this);
-            fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+            fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
         }
         break;
     case 15:
@@ -500,7 +500,7 @@ void NandManager::vf10() {
             case 2: {
                 mState = 0x10;
                 NANDSetUserData(&mBlock, this);
-                int err = fn_800A4494(fn_80620830(&mFile, ReadCloseDone_unk, &mBlock));
+                int err = fn_800A4494(NANDSimpleSafeCloseAsync(&mFile, ReadCloseDone_unk, &mBlock));
                 mError = err;
                 if (err != 0) {
                     SetError_unk(err);
@@ -527,7 +527,7 @@ void NandManager::vf10() {
             }
             mState = 0x14;
             NANDSetUserData(&mBlock, this);
-            fn_800A4494(fn_80620BD0(&mFile, SafeCloseDone_unk, &mBlock));
+            fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
         }
         break;
     case 17:
@@ -710,7 +710,7 @@ extern "C" int fn_800A45D0(NandManager* nand, const char* path, int* err, int fi
         strcpy(buf, path);
     }
     unsigned char type;
-    int r = fn_80622050(buf, &type);
+    int r = NANDGetType(buf, &type);
     if (r == 0) {
         if (file) {
             return type == 1;
@@ -745,7 +745,7 @@ extern "C" int fn_800A4794(NandManager* nand, const char* path, int size, int* e
     nand->mState = 2;
     NANDSetUserData(&nand->mBlock, nand);
     nand->mCheck = 0;
-    int e = nand->fn_800A4494(fn_80622260(size / 0x4000 + 1, 1, &nand->mCheck, CheckDone_unk, &nand->mBlock));
+    int e = nand->fn_800A4494(NANDCheckAsync(size / 0x4000 + 1, 1, &nand->mCheck, CheckDone_unk, &nand->mBlock));
     *err = e;
     if (e != 0) {
         nand->SetError_unk(e);
@@ -785,7 +785,7 @@ extern "C" int fn_800A49C4(NandManager* nand, const char* path, void* data, int 
     nand->mState = 6;
     NANDSetUserData(&nand->mBlock, nand);
     int e = nand->fn_800A4494(
-        fn_80620220(nand->mPath, &nand->mFile, 1, nand->mBuffer, 0x8000, SafeOpenDone_unk, &nand->mBlock));
+        NANDSimpleSafeOpenAsync(nand->mPath, &nand->mFile, 1, nand->mBuffer, 0x8000, SafeOpenDone_unk, &nand->mBlock));
     *err = e;
     if (e != 0) {
         nand->SetError_unk(e);
@@ -806,7 +806,7 @@ extern "C" int fn_800A4AD4(NandManager* nand, int size, int inodes, int* err) {
     nand->mState = 2;
     NANDSetUserData(&nand->mBlock, nand);
     nand->mCheck = 0;
-    int e = nand->fn_800A4494(fn_80622260(size / 0x4000 + 1, inodes, &nand->mCheck, CheckDone_unk, &nand->mBlock));
+    int e = nand->fn_800A4494(NANDCheckAsync(size / 0x4000 + 1, inodes, &nand->mCheck, CheckDone_unk, &nand->mBlock));
     *err = e;
     if (e != 0) {
         nand->SetError_unk(e);
@@ -826,7 +826,7 @@ extern "C" int fn_800A4BE4(NandManager* nand, const char* path, int* err) {
     nand->mError = 0;
     nand->mState = 6;
     NANDSetUserData(&nand->mBlock, nand);
-    int e = nand->fn_800A4494(fn_80620220(path, &nand->mFile, 1, nand->mBuffer, 0x8000, SafeOpenDone_unk, &nand->mBlock));
+    int e = nand->fn_800A4494(NANDSimpleSafeOpenAsync(path, &nand->mFile, 1, nand->mBuffer, 0x8000, SafeOpenDone_unk, &nand->mBlock));
     *err = e;
     if (e != 0) {
         nand->SetError_unk(e);
@@ -866,7 +866,7 @@ extern "C" int fn_800A4E08(NandManager* nand, int* err) {
     nand->mError = 0;
     nand->mState = 0x10;
     NANDSetUserData(&nand->mBlock, nand);
-    int e = nand->fn_800A4494(fn_80620830(&nand->mFile, ReadCloseDone_unk, &nand->mBlock));
+    int e = nand->fn_800A4494(NANDSimpleSafeCloseAsync(&nand->mFile, ReadCloseDone_unk, &nand->mBlock));
     *err = e;
     if (e != 0) {
         nand->SetError_unk(e);
@@ -886,7 +886,7 @@ extern "C" int fn_800A4F0C(NandManager* nand, const char* path, int* err) {
     nand->mError = 0;
     nand->mState = 0x16;
     NANDSetUserData(&nand->mBlock, nand);
-    int e = nand->fn_800A4494(fn_8061E5C0(nand->mPath, DeleteDone_unk, &nand->mBlock));
+    int e = nand->fn_800A4494(NANDDeleteAsync(nand->mPath, DeleteDone_unk, &nand->mBlock));
     *err = e;
     if (e != 0) {
         nand->SetError_unk(e);
@@ -992,13 +992,13 @@ extern "C" int fn_800A5218(const char* path, int offset, const void* data, int s
     char full[0x40];
     char dir[0x40];
     char name[0x40];
-    if (fn_80621C50(cur) != 0) {
+    if (NANDGetCurrentDir(cur) != 0) {
         return 0;
     }
     if (NANDGetHomeDir(home) != 0) {
         return 0;
     }
-    if (fn_80621B80(home) != 0) {
+    if (NANDChangeDir(home) != 0) {
         return 0;
     }
     strcpy(name, path);
@@ -1010,10 +1010,10 @@ extern "C" int fn_800A5218(const char* path, int offset, const void* data, int s
     } else {
         dir[0] = 0;
     }
-    switch (fn_80621B80(dir)) {
+    switch (NANDChangeDir(dir)) {
     case -12:
         if (NANDCreateDir(dir, 0x30, 0) != 0) {
-            fn_80621B80(cur);
+            NANDChangeDir(cur);
             return 0;
         }
         break;
@@ -1021,10 +1021,10 @@ extern "C" int fn_800A5218(const char* path, int offset, const void* data, int s
     case -8:
     case -64:
     case -128:
-        fn_80621B80(cur);
+        NANDChangeDir(cur);
         return 0;
     }
-    fn_80621B80(cur);
+    NANDChangeDir(cur);
     strcpy(full, home);
     if (dir[0] != 0) {
         strcat(full, "/");
