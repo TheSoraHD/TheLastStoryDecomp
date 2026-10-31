@@ -983,6 +983,34 @@ struct RedMpState_unk {
     int m0C;
 };
 
+// inferred: state 14 (turns to the route point m1570 and flies there in 35 frames)
+void Em203GreaterDaemonRedMp::fn_802A1BFC() {
+    if (m14D8 == 0) {
+        float end = mMotion.mTracks[0].m08;
+        if (end > mMotion.fn_80097D7C(0)) {
+            m14D8 = 1;
+            PlayMotion_unk(0x13F, 0, 0, 1.0f);
+            return;
+        }
+        if (m14DC > 25) {
+            float k = 0.028571429f;
+            mPos += m1560 * k;
+            fn_8029DBE0(3.0f);
+        }
+        // inferred: block of the original left without effect (it tests m14EC twice, as in fn_802A057C,
+        // and keeps the frame comparison)
+        if (m14EC != 0 && mMotion.mTracks[0].m08 < 22.0f && m14EC != 0) {
+            float frame = mMotion.mTracks[0].m08;
+        }
+    } else if (m14D8 == 1) {
+        float end = mMotion.mTracks[0].m08;
+        if (end > mMotion.fn_80097D7C(0)) {
+            m14E4 = 1;
+            ToIdle_unk();
+        }
+    }
+}
+
 // NONMATCHING: 98.2% - load order of the motion speed in the first clamp
 // inferred: state 2 (dies: falls to the ground, then vanishes after 120 frames)
 void Em203GreaterDaemonRedMp::fn_802A2070() {
