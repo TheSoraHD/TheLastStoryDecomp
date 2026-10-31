@@ -621,6 +621,15 @@ void BattleCharaTask::fn_800EE360() {
     }
 }
 
+int BattleCharaTask::vfA4(atn::Vector3* pos, atn::Vector3* rot) {
+    if (m1464 != 0) {
+        *pos = m1464->mPos;
+        rot->Set_unk(0.0f, m1464->m14, 0.0f);
+        return 1;
+    }
+    return 0;
+}
+
 int BattleCharaTask::vfE4() {
     if (m55C == 6 && mControl && mControl->vf50()) {
         return 1;

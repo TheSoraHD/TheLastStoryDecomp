@@ -14,7 +14,7 @@ public:
     virtual void vf2C(const char* params, int arg); // inferred: calls CharaTask::vf2C
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
-    virtual int vfA4(); // inferred: returns 1/0 (0x800EE494)
+    virtual int vfA4(atn::Vector3* pos, atn::Vector3* rot); // inferred: point m1464 (0x800EE494)
     virtual int vfE4(); // inferred: returns 1/0 (EnemySeaLizerd 0x80355954 returns 1 or tail-calls it)
     virtual void vfE8(HitMsg_unk* msg); // inferred: a hit was received (Em002Skelton reads the message)
     virtual void vfEC();
@@ -57,7 +57,7 @@ public:
     float m1458;
     int m145C;
     int m1460;
-    int m1464;
+    RoutePlace_unk* m1464; // inferred: "magicPointId" place (vf2C)
     int m1468;
     int m146C;
     short m1470;

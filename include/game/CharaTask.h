@@ -434,7 +434,7 @@ public:
     virtual void vf98();
     virtual void vf9C(int arg); // inferred: fn_80145334 passes 0 (the target symbol says Fv)
     virtual float vfA0(); // inferred: returns a size (fn_80176E30)
-    virtual int vfA4();
+    virtual int vfA4(atn::Vector3* pos, atn::Vector3* rot); // inferred: point of a magic cast (chr::ControlMagic::vf0C)
     virtual int vfA8(int kind); // inferred: returns -1 (0x80041A20); EnemyTrista::vfA8 returns 0, 2 or 3
     virtual atn::Vector3 vfAC(); // inferred: returns a position (CharaStatus::fn_8012E540)
     // inferred: point to aim at, nonzero if there is one (0x800EF31C returns 0; GameUI passes a

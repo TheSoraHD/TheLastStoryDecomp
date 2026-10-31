@@ -12538,7 +12538,7 @@ int CharaTask::fn_8017CB2C() {
     return result;
 }
 
-int CharaTask::vfA4() {
+int CharaTask::vfA4(atn::Vector3* pos, atn::Vector3* rot) {
     return 0;
 }
 
