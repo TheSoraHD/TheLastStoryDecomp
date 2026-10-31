@@ -4194,6 +4194,9 @@ PowerPC_EABI_Support/src/MetroTRK/main_TRK.c:
 	.text       start:0x80675440 end:0x8067547C
 	.sbss       start:0x808802F8 end:0x808802FC
 
+PowerPC_EABI_Support/src/MetroTRK/mainloop.c:
+	.text       start:0x8067547C end:0x80675568
+
 PowerPC_EABI_Support/src/MetroTRK/mem_TRK.c:
 	.text       start:0x80675568 end:0x806757CC
 
@@ -4213,6 +4216,9 @@ PowerPC_EABI_Support/src/MetroTRK/nubevent.c:
 	.text       start:0x8067603C end:0x806761D8
 	.data       start:0x807BADD8 end:0x807BADF8
 	.bss        start:0x808304F0 end:0x80830518
+
+PowerPC_EABI_Support/src/MetroTRK/string_TRK.c:
+	.text       start:0x80676470 end:0x8067648C
 
 PowerPC_EABI_Support/src/MetroTRK/support.c:
 	.text       start:0x8067648C end:0x80676AB0
@@ -4277,6 +4283,9 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common/mem_funcs.c:
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/math_api.c:
 	.text       start:0x8067E558 end:0x8067E5EC
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/misc_io.c:
+	.text       start:0x8067E5EC end:0x8067E5FC
+
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/rand.c:
 	.text       start:0x80680CF8 end:0x80680D20
 	.sdata      start:0x8087EBF0 end:0x8087EBF8
@@ -4315,6 +4324,10 @@ PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit_ppc_eabi.c:
 	.text       start:0x80686EA4 end:0x80686ED8
 	.sbss       start:0x80880358 end:0x80880360
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/secure_error.c:
+	.text       start:0x80686EDC end:0x80686EF4
+	.sbss       start:0x80880360 end:0x80880364
+
 PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/math_sun.c:
 	.text       start:0x80686EF4 end:0x80686F34
 
@@ -4343,6 +4356,11 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_log10
 	.text       start:0x80687D24 end:0x80687E38
 	.sbss       start:0x80880370 end:0x80880378
 	.sdata2     start:0x80888CD8 end:0x80888D08
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_pow.c:
+	.text       start:0x80687E38 end:0x8068864C
+	.rodata     start:0x80765EB8 end:0x80765EE8
+	.sdata2     start:0x80888D08 end:0x80888E18
 
 PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_rem_pio2.c:
 	.text       start:0x8068864C end:0x806889D0
@@ -4406,9 +4424,33 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_tan.c
 	.text       start:0x8068AE24 end:0x8068AE9C
 	.sdata2     start:0x80888FF0 end:0x80888FF8
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_acos.c:
+	.text       start:0x8068AE9C end:0x8068AEA0
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_asin.c:
+	.text       start:0x8068AEA0 end:0x8068AEA4
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_atan2.c:
+	.text       start:0x8068AEA4 end:0x8068AEA8
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_fmod.c:
+	.text       start:0x8068AEA8 end:0x8068AEAC
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_log10.c:
+	.text       start:0x8068AEAC end:0x8068AEB0
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_pow.c:
+	.text       start:0x8068AEB0 end:0x8068AEB4
+
 PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_sqrt.c:
 	.text       start:0x8068AEB4 end:0x8068B0FC
 	.sdata2     start:0x80888FF8 end:0x80889000
+
+PowerPC_EABI_Support/src/MSL_C/PPC_EABI/math_ppc.c:
+	.text       start:0x8068B0FC end:0x8068B100
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c:
+	.text       start:0x8068B100 end:0x8068B104
 
 auto_03_8068B60C_text.cpp:
 	.text       start:0x8068B60C end:0x8068B610
@@ -4460,6 +4502,10 @@ PowerPC_EABI_Support/src/Runtime/NMWException.cp:
 	extabindex  start:0x800080F8 end:0x80008134
 	.text       start:0x806954CC end:0x80695AD0
 	.sdata      start:0x8087ED20 end:0x8087ED28
+
+PowerPC_EABI_Support/src/Runtime/ptmf.c:
+	.text       start:0x80695AD0 end:0x80695B28
+	.rodata     start:0x80766768 end:0x80766778
 
 PowerPC_EABI_Support/src/Runtime/runtime.c:
 	.text       start:0x80695D84 end:0x80696578

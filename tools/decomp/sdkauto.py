@@ -71,7 +71,7 @@ for sec,sz in secsz.items():
             a=int(x[-8:],16); c=[s for s in c if s[2]==a]
         rs+=c
     rs=sorted(set(rs),key=lambda s:s[2])
-    if not rs: print('SKIP nodata',sec,hex(sz)); sys.exit()
+    if not rs: res.append('?'+sec+'(unref)'); continue
     a=rs[0][2]; b=max(s[2]+s[3] for s in rs)
     al = 8 if sec in ('data','rodata','bss') else 4
     span=b-a
